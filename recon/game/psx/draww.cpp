@@ -2,6 +2,15 @@
  *   35 fns: subdivision facets, world matrix/translation setup, night colour calc, DrawW_DrawQuad,
  *   object/chunk facet builders, object transforms, skidmarks, lines/spike-belt, anim timers, depth cue.
  *   GTE-heavy (142 cop2 stubs -> gte_ intrinsics). Full SYM-locals applied.
+ *
+ * PER-TU FLAG RECEIPT (w39-a2, 2026-08-01 -- measured with the now-WIRED compile_cpp
+ * PER_TU_FLAGS keys; whole-TU gate over all 32 oracles, baseline 1989 diffs / 15 PASS):
+ *     no_split_addresses  1989 -> 2654  (+665, 3 PASS->FAIL)
+ *     no_schedule_insns   1989 -> 4231 (+2242, 6 PASS->FAIL)
+ *     no_schedule_insns2  1989 -> 2611  (+622, 9 PASS->FAIL)
+ *     no_strength_reduce  1989 -> 2257  (+268, 2 PASS->FAIL)
+ * All four are decisively NEGATIVE and none produced a single FAIL->PASS -- draww.obj
+ * was built with the project-default flag set.  Do not re-probe.
  */
 #include "../../nfs4_types.h"
 #include "draww_externs.h"
@@ -24,9 +33,38 @@
 #define gte_ldir0v(x) ((void)(x))
 #endif
 
+/* Scratchpad overlay base (methodology SS3.6b): the PSX fast-RAM Draw cache lives at
+   0x1F800000 and every field the renderer's GTE actually reads is an offset into it.
+   DrawW_BuildChunkObjectFacets' oracle reaches matB (+0x14) and offsubdivid (+0x148)
+   through LITERAL addresses (`lui $at,(0x1F800014>>16); sw $zero,...($at)`,
+   `sh $v0,(0x1F800148 & 0xFFFF)($at)`), never a %hi/%lo symbol relocation. */
+#define DW_SCRATCH  ((Draw_tGiveShelbyMoreCache *)0x1F800000)
+#define DW_WORLDMAT (*(MATRIX *)0x1F800014)   /* == DW_SCRATCH->matB; the oracle
+       anchors these three stores on the 0x1F800014 base, not on 0x1F800000 */
+
+/* PsyQ POINTER-form colour-FIFO stores (inline_c gte_strgb / gte_strgb3): a lone
+   `swc2 $22,0(rt)` and the three-pointer RGB0/1/2 trio.  psx_gte.h only carries the
+   FIXED-OFFSET `gte_strgb3_gt4(p)` family (one base + folded displacements); the
+   DrawW_DrawQuad oracle materializes each destination address into its own register
+   (`addiu $a0,$s1,0x4; addiu $v1,$s1,0x10; addiu $v0,$s1,0x1C; swc2 $20,0($a0) ...`),
+   which is exactly the "r"-constraint pointer form (catalog SS.H: the constraint, not
+   the call site, decides address-materialization-vs-displacement). */
+#if defined(__mips__)
+#define gte_strgb(p)  __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
+#define gte_strgb3(a,b,c) __asm__ volatile (                                   \
+    "swc2 $20, 0(%0)\n\tswc2 $21, 0(%1)\n\tswc2 $22, 0(%2)"                    \
+    : : "r"(a), "r"(b), "r"(c) : "memory")
+#else
+#define gte_strgb(p)       ((void)(p))
+#define gte_strgb3(a,b,c)  do { (void)(a); (void)(b); (void)(c); } while (0)
+#endif
+
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
-char         offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
+signed char  offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 -- MATCH+CORRECTNESS:
+                        the oracle reads this table with `lb` (BuildCustomObjectFacets @0x800C7C3C,
+                        %hi(D_8013D828)); `char` is UNSIGNED on this build, so entry 4 (-1) was
+                        being read as +255 -- a real z-offset bug as well as an lbu-vs-lb diff. */
 MATRIX       gIdentTemplate = {4096, 0};   /* @0x8011f570 */
 int          trk0[9][2] = { 410, 530, 800, 850, 800, 850, 800, 850, 800, 850, 800, 850, 815, 885, 815, 885, 815, 885 };   /* @0x8011f590 */
 int          trk4[10][2] = { 300, 440, 300, 440, 300, 440, 300, 440, 300, 440, 705, 910, 705, 910, 705, 910, 705, 910, 705, 910 };   /* @0x8011f5d8 */
@@ -894,7 +932,21 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
   return;
 }
 
-/* ---- DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad  [DRAWW.CPP:930-1297] SLD-VERIFIED ---- */
+/* OPEN RESIDUAL (2026-08-01, w39-a2): after the rule-8 SYM rewrite (643->404) the
+   dominant remaining diff is ONE allocation decision -- `sd` lands in $s1 and `prim`
+   in $s0, the oracle has them the other way round (SYM: sd REGPARM $0x10 = $s0,
+   prim REG $0x11 = $s1); 182 of the 404 diff lines are just that swap, the rest is
+   its caller-saved fallout.  MEASURED with cc1plpsx `-dg`/`-dl` on the preprocessed
+   TU: our allocno order is `... 145(prim) ... 80(sd) ...`, i.e. prim is ranked ~6
+   places ABOVE sd and takes $s0 first; RTL ref counts are sd=97 / prim=28 over
+   spans ~797 / ~192 insns.  Two razor edges are adjacent here (floor_log2 steps at
+   16/32 for prim, 64/128 for sd), and reducing prim's ASM refs 35->31 by fusing the
+   x/y stores into words did NOT flip it -- so the deciding term is live_length, not
+   ref count.  NEXT IDEAS (untried): lengthen prim's live range without adding an
+   instruction (catalog SS.A "live-range-lengthening read"), or find the remaining
+   4-insn excess (596 vs 592) that inflates sd's span.  Do NOT grind the caller-saved
+   permutations before this flips -- they are downstream of it.
+   ---- DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad  [DRAWW.CPP:930-1297] SLD-VERIFIED ---- */
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 
 {
@@ -928,10 +980,8 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   u_int *tp1;
   short tu29;
   short tu30;
-  int bfctResult;
   int tu24;
   int dV;
-  int tu4;
   int ti5;
   u_int uVar3_00;
   short sVar1;
@@ -941,15 +991,11 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int depth_index;
   int primPtr;
   int depth_avg;
-  int tC30;
   short ts31;
   int uVar7_00;
   int ti18;
   Track_tMaterial *currentQuadMat;
-  int trk_mat_p;
-  u_char d;
   int vert_y_pack;
-  u_char c;
   int vert_x_pack;
   int vertProj_idx;
   int vert1_idx;
@@ -969,12 +1015,10 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int zeroTransFlag;
   POLY_GT4 *prim;
   Draw_tPixMap *workPmx;
-  int workPmx_p;
   int save_pre_otz;
   char flag;
   int doSubdivision;
   int face;
-  int facetIdx;
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;
@@ -988,82 +1032,108 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int depthcue;
   long a;
   long b;
-  u_int uStack_28;
+  long c;   /* SYM AUTO -0x28 -- vertex-3 colour for the dpct trio (was a stray u_int) */
   long color;
-  u_char bVar2;
-  u_char tc3;
-  u_char bVar4;
   int tu5;
-  u_char bVar1;
   int tp6;
   u_char *tp20;
   u_char *p;
-  u_char *tp18;
-  u_char *tp19;
   int tu1;
   u_int tu2;
   u_int tu18;
   
-  /* MATCH (2026-07-11 b): oracle reads the header in THIS interleaved order --
-   * quad byte@3 (vt0 idx) FIRST, then sd's vertices/trans.x/trans.y, then
-   * quad byte@2 (vt1 idx), byte@4 (vt3 idx), byte@5 (vt2 idx), then
-   * sd->trans.z LAST -- not the previous grouped sd-then-quad-then-sd order
-   * (which read byte@2 lazily at tp2's site, well after gte_ldv0(vt0)). */
-  vertProj_idx = (int)*(u_char *)((char *)inQuad + 3);
-  geomVerts_p = (int)sd->vertices;
-  ts31 = (sd->trans).x;
-  ts27 = (sd->trans).y;
-  vert1_idx = (int)*(u_char *)((char *)inQuad + 2);
-  vert_x_pack = (int)*(u_char *)((char *)inQuad + 4);
-  vert_y_pack = (int)*(u_char *)((char *)inQuad + 5);
-  sVar1 = (sd->trans).z;
-  vertProj_p = geomVerts_p + (u_int)vertProj_idx * 8;
-  /* MATCH (2026-07-11): read each vertex's xy/zl word ONCE into the SAME
-   * tu18/tu2 temps DrawW_DrawQuad already uses for vt2/vt3 below (not a
-   * fresh local -- oracle's asm shows a SINGLE lw per word, sra-extracted
-   * into both fields), instead of dereferencing `*(u_int*)vertProj_p` twice
-   * inline. The inline double-deref let gcc independently strength-reduce
-   * each occurrence to its own plain lhu (2 lhu vs oracle's 1 lw+sra+2 add),
-   * a structural (not just coloring) mismatch that was cascading a
-   * register-coloring shift through vt1-vt3 and the whole function tail. */
-  tu18 = *(u_int *)vertProj_p;
-  tu2 = *(u_int *)(vertProj_p + 4);
-  vt0.x = (short)tu18 + ts31;
-  vt0.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt0.light = (short)((int)tu2 >> 0x10);
-  vt0.z = (short)tu2 + sVar1;
-gte_ldv0((int *)(&vt0));
-  tp2 = (void *)(geomVerts_p + ((u_int)vert1_idx & 0xffU) * 8);
-  gte_rtps_b();
-  tu18 = *(u_int *)tp2;
-  tu2 = *(u_int *)((int)tp2 + 4);
-  vt1.x = (short)tu18 + ts31;
-  vt1.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt1.light = (short)((int)tu2 >> 0x10);
-  vt1.z = (short)tu2 + sVar1;
-gte_stlvnl(((char *)sd + 0x98));
-gte_swc2(0xe,&dvxy0);
-gte_ldv0((int *)(&vt1));
-  tp1 = (u_int *)(geomVerts_p + (vert_y_pack & 0xffU) * 8);
-  gte_rtps_b();
-  tu18 = *tp1;
-  tu2 = tp1[1];
-  vt2.x = (short)tu18 + ts31;
-  vt2.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt2.light = (short)((int)tu2 >> 0x10);
-  vt2.z = (short)tu2 + sVar1;
-gte_stlvnl(((char *)sd + 0xa8));
-gte_ldv0((int *)(&vt2));
-  tp1 = (u_int *)(geomVerts_p + (vert_x_pack & 0xffU) * 8);
-  gte_rtps_b();
-  tu18 = *tp1;
-  tu2 = tp1[1];
-  vt3.x = (short)tu18 + ts31;
-  vt3.y = (short)((int)tu18 >> 0x10) + ts27;
-  vt3.light = (short)((int)tu2 >> 0x10);
-  vt3.z = (short)tu2 + sVar1;
-gte_stlvnl(((char *)sd + 0xb8));
-gte_ldv0((int *)(&vt3));
+  /* MATCH (2026-08-01, rule-8 SYM rewrite of the whole vertex-setup section):
+   * the SYM 8c block @0x800C64F8 names EVERY local here -- outer block:
+   * `geomVertices` (REG $9, PTR CCOORD16); inner block (line 1..106):
+   * t1/t2/t3 (INT $10/$2/$11), z (PTR INT $2 -- shares $v0 with t2),
+   * tx/ty/tz (SHORT $6/$5/$4) and a/c/d (UCHAR $3/$8/$7 = quad bytes 2/4/5).
+   * The previous iVarN-soup form invented 13 temps for those 11 names and lost
+   * three structural properties the oracle shows:
+   *  (a) tx/ty/tz are SHORT locals whose sum lands in an INT local, so the
+   *      oracle canonically sign-extends each `lhu` (sll;sra) -- the old
+   *      "(short)word + shortlocal -> short field" form is pure truncation and
+   *      gcc drops the extensions;
+   *  (b) the second source word is stored as a FULL WORD into &vt.z (one `sw`
+   *      sets z AND light) and only then the low half is overwritten with
+   *      z+tz -- identity-then-tweak, vs the old separate sra+sh for .light;
+   *  (c) the three sums MUTATE t1/t3/t2 in place before the field stores. */
+  {
+    int t1;
+    int t2;
+    int t3;
+    int * z;
+    short tx;
+    short ty;
+    short tz;
+    u_char a;
+    u_char c;
+    u_char d;
+
+    t2 = *(u_char *)((char *)inQuad + 3);
+    geomVertices = sd->vertices;
+    tx = (sd->trans).x;
+    ty = (sd->trans).y;
+    a = *(u_char *)((char *)inQuad + 2);
+    c = *(u_char *)((char *)inQuad + 4);
+    d = *(u_char *)((char *)inQuad + 5);
+    tz = (sd->trans).z;
+
+    z = (int *)(geomVertices + t2);
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt0.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt0.x = t1;
+    vt0.y = t3;
+    vt0.z = t2;
+    gte_ldv0((int *)(&vt0));
+    z = (int *)(geomVertices + a);
+    gte_rtps_b();
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt1.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt1.x = t1;
+    vt1.y = t3;
+    vt1.z = t2;
+    gte_stlvnl(((char *)sd + 0x98));
+    gte_swc2(0xe,&dvxy0);
+    gte_ldv0((int *)(&vt1));
+    z = (int *)(geomVertices + d);
+    gte_rtps_b();
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt2.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt2.x = t1;
+    vt2.y = t3;
+    vt2.z = t2;
+    gte_stlvnl(((char *)sd + 0xa8));
+    gte_ldv0((int *)(&vt2));
+    z = (int *)(geomVertices + c);
+    gte_rtps_b();
+    t1 = z[0];
+    t2 = z[1];
+    t3 = t1 >> 0x10;
+    *(long *)&vt3.z = t2;
+    t1 = t1 + tx;
+    t3 = t3 + ty;
+    t2 = t2 + tz;
+    vt3.x = t1;
+    vt3.y = t3;
+    vt3.z = t2;
+    gte_stlvnl(((char *)sd + 0xb8));
+    gte_ldv0((int *)(&vt3));
+  }
   gte_rtps();
 gte_stlvnl(((char *)sd + 0xc8));
   if (((((((sd->tVn3).vx <= (sd->tVn3).vz) || ((sd->tVn0).vx <= (sd->tVn0).vz)) ||
@@ -1073,20 +1143,16 @@ gte_stlvnl(((char *)sd + 0xc8));
      (((-1 < (sd->tVn0).vz || (-1 < (sd->tVn1).vz)) ||
       ((-1 < (sd->tVn2).vz || (-1 < (sd->tVn3).vz)))))) {
     gte_avsz4_b();
-    trk_mat_p = (int)(sd->materials + *((short *)inQuad));
-    bVar2 = ((Track_tMaterial *)trk_mat_p)->flag;
+    currentQuadMat = sd->materials + *((short *)inQuad);
+    flag = currentQuadMat->flag;
 gte_swc2(0x7,((char *)sd + 0x94));
-    facetIdx = bVar2 >> 3 & 2;
+    face = flag >> 3 & 2;
 gte_stsxy3(&dvxy1,&dvxy3,&dvxy2);
-    /* MATCH (2026-07-11): oracle re-derives this compare FRESH at each use
-     * site (the intervening __asm__ blocks all clobber "memory", so gcc
-     * rematerializes rather than spills the cheap byte flag) as a DIRECT
-     * `slti;bnez` on `sd->otz < 200`, never the Yoda `199 < sd->otz` form
-     * (which needs a slti+xori negate-dance to get the same truth value).
-     * bVar4 is therefore stored NEGATED here and every use site below is
-     * flipped to compensate. */
-    bVar4 = sd->otz < 200;
-    if (((bVar2 >> 3 & 2) == 0) && !((bool)bVar4)) {
+    /* MATCH (2026-08-01): SYM names this `doSubdivision`, REG $21 = $s5, type INT
+     * -- NOT the u_char it used to be (a u_char forced `andi rN,s5,255` before each
+     * of its three tests; the oracle branches straight off `slti $s5,$v0,0xC8`). */
+    doSubdivision = sd->otz < 200;
+    if ((face == 0) && (doSubdivision == 0)) {
       gte_nclip_b();
 gte_swc2(0x18,&bfct);
       iVar2 = 1;
@@ -1112,45 +1178,46 @@ gte_swc2(0x18,&bfct);
     }
 gte_swc2(0x8,&depthcue);
     primPtr = (int)sd->artInfo->pPmx;
-    workPmx_p = primPtr + *(short *)(trk_mat_p + 2) * 0x10;
-    if ((((bVar2 & 8) != 0) && (sd->fogstate != '\0')) && ((int)sd->startfog <= sd->otz)) {
-      workPmx_p = primPtr + ((int)*(short *)(trk_mat_p + 2) + (u_int)*(u_char *)(trk_mat_p + 1)) * 0x10
-      ;
+    workPmx = (Draw_tPixMap *)(primPtr + currentQuadMat->pmxIndex * 0x10);
+    if ((((flag & 8) != 0) && (sd->fogstate != '\0')) && ((int)sd->startfog <= sd->otz)) {
+      workPmx = (Draw_tPixMap *)(primPtr +
+        ((int)currentQuadMat->pmxIndex + (u_int)*(u_char *)&currentQuadMat->mipmap_offset) * 0x10);
     }
-    /* NOTE (2026-07-11): oracle's `sd->otz = bfctResult` intermediate store
-     * is only conditionally reached on the offset==Draw_gMidGroundOtz path
-     * (dead-but-harmless C-level difference from an unconditional store,
-     * since sd->otz is overwritten right after either way). TRIED matching
-     * the real if/else branch shape (verify-or-revert): compiled clean but
-     * REGRESSED the gate (686->693 diffs) -- reverted, left on the simpler
-     * always-store + always-overwritten form. */
+    /* MATCH (2026-08-01, re-opened -- the w7-era note that the if/else "regressed"
+     * was measured on top of the old iVarN vertex block and is now stale).  SYM names
+     * `save_pre_otz` REG $19 = $s3 and the oracle @0x800C6904 really is two-armed:
+     *   sra v0,a1,1 ; addu s3,v0,zero ; bne a0,v1,ELSE ; [ds] sw s3,0x94(s0)
+     *   sll s3,s3,2 ; sra v0,a1,4 ; j MERGE ; [ds] addu v0,v0,a0
+     *   ELSE: addu v0,s3,a0 ; MERGE: sw v0,0x94(s0)
+     * -- the `sd->otz = save_pre_otz` store rides the bne delay slot (unconditional),
+     * each arm adds sd->offset into $v0 separately, and gcc cross-jump-merges the two
+     * `sd->otz =` stores into the shared tail `sw`. */
     depth_avg = sd->otz;
-    bfctResult = depth_avg >> 1;
-    bVar1 = sd->offset == Draw_gMidGroundOtz;
-    sd->otz = bfctResult;
-    iVar2 = bfctResult;
-    if ((bool)bVar1) {
-      bfctResult = bfctResult << 2;
-      iVar2 = depth_avg >> 4;
+    save_pre_otz = depth_avg >> 1;
+    sd->otz = save_pre_otz;
+    if (sd->offset == Draw_gMidGroundOtz) {
+      save_pre_otz = save_pre_otz << 2;
+      sd->otz = (depth_avg >> 4) + sd->offset;
     }
-    sd->otz = iVar2 + sd->offset;
-    tp19 = Render_gPacketPtr;
-    tp18 = Render_gPalettePtr;
+    else {
+      sd->otz = save_pre_otz + sd->offset;
+    }
     if ((0 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
-      if ((bVar2 & 0x80) != 0) {
+      if ((flag & 0x80) != 0) {
+        aprim = (DR_TWIN *)Render_gPacketPtr;
         r.w = 0;
         r.h = 0;
         r.x = 0;
         r.y = 0;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 |
+        *(u_int *)aprim =
+             *(u_int *)aprim & 0xff000000 |
              *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        tu4 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0xc;
-        *(u_int *)(tp18 + sd->otz * 4) = *(u_int *)(tp18 + sd->otz * 4) & 0xff000000 | tu4;
-        SetTexWindow((DR_TWIN *)tp19,&r);
+        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
+        SetTexWindow(aprim,&r);
       }
-      if (!(bool)bVar4) {
+      if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
          * DrawW_SubdividFacet's sealed instance; fastmovf.c family; $t4/$t5/$t6
@@ -1177,85 +1244,87 @@ gte_swc2(0x8,&depthcue);
       else {
         prim = &sd->GT4Prim;
       }
-      prim->x0 = (u_short)dvxy0;
-      prim->y0 = (*(u_short *)((u_char *)&(dvxy0) + 2));
-      prim->x1 = (u_short)dvxy1;
-      prim->y1 = (*(u_short *)((u_char *)&(dvxy1) + 2));
-      prim->x2 = (u_short)dvxy2;
-      prim->y2 = (*(u_short *)((u_char *)&(dvxy2) + 2));
-      prim->x3 = (u_short)dvxy3;
-      prim->y3 = (*(u_short *)((u_char *)&(dvxy3) + 2));
+      /* MATCH (2026-08-01): the four dvxy AUTOs ARE packed screen-XY words, and the
+       * oracle stores each with ONE `sw` (0x8/0x14/0x20/0x2C off prim) -- the 8
+       * separate `sh` halves cost 4 extra insns AND, decisively, 4 extra references
+       * to `prim`: at 29 body refs the oracle's prim sits just under the
+       * floor_log2 razor edge at 32, so it loses $s0 to `sd`; at 33 ours crossed it
+       * and stole $s0, flipping the entire function's $s0/$s1 assignment. */
+      *(long *)&prim->x0 = dvxy0;
+      *(long *)&prim->x1 = dvxy1;
+      *(long *)&prim->x2 = dvxy2;
+      *(long *)&prim->x3 = dvxy3;
       if (sd->nightFlags == '\0') {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
+        /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read
+         * instruction-by-instruction): BOTH arms were wrong.
+         *  - the depth-cue RESULTS were being dumped into three invented
+         *    sd+0x114/0x120/0x12c slots via raw gte_swc2 numbers instead of into
+         *    the prim's colour words / the SYM's `color` AUTO, so every quad drew
+         *    with an unwritten colour and the dpcs/dpct output was discarded;
+         *  - `uStack_28` was a separate u_int while `gte_ldrgb3(&a,&b,&c)` read the
+         *    SYM's `c` (AUTO LONG @-0x28) which nothing ever wrote -> vertex 3's
+         *    colour came from uninitialised stack;
+         *  - the else arm wrote 16 individual bytes where the oracle re-reads the
+         *    strgb'd `color` once and stores FOUR WORDS (`sw v0,4/0x10/0x1C/0x28(s1)`).
+         * Oracle (light==-1 arm): ldrgb(&a); dpcs; c/a/b loads; strgb(&prim->r3);
+         * ldrgb3(&a,&b,&c); dpct; strgb3(&prim->r0,&prim->r1,&prim->r2). */
         if (sd->light == -1) {
           a = *(long *)(Chunk_lightTable + vt2.light);
-          tC30 = (int)Chunk_lightTable;
 gte_ldrgb(&a);
           gte_dpcs();
-          uStack_28 = *(u_int *)(vt3.light * 4 + tC30);
-          a = *(long *)(vt0.light * 4 + tC30);
-          b = *(long *)(vt1.light * 4 + tC30);
-gte_swc2(0x16,((char *)sd + 0x138));
+          c = *(long *)(Chunk_lightTable + vt3.light);
+          a = *(long *)(Chunk_lightTable + vt0.light);
+          b = *(long *)(Chunk_lightTable + vt1.light);
+gte_strgb(&prim->r3);
 gte_ldrgb3(&a,&b,&c);
           gte_dpct();
-gte_swc2(0x14,((char *)sd + 0x114));
+gte_strgb3(&prim->r0,&prim->r1,&prim->r2);
         }
         else {
           color = *(long *)(Chunk_lightTable + sd->light);
-gte_swc2(0x15,((char *)sd + 0x120));
+gte_ldrgb(&color);
           gte_dpcs();
-gte_swc2(0x16,((char *)sd + 0x12c));
-          prim->r0 = (u_char)color;
-          prim->g0 = ((u_char *)&(color))[1];
-          prim->b0 = ((u_char *)&(color))[2];
-          prim->code = ((u_char *)&(color))[3];
-          prim->r1 = (u_char)color;
-          prim->g1 = ((u_char *)&(color))[1];
-          prim->b1 = ((u_char *)&(color))[2];
-          prim->p1 = ((u_char *)&(color))[3];
-          prim->r2 = (u_char)color;
-          prim->g2 = ((u_char *)&(color))[1];
-          prim->b2 = ((u_char *)&(color))[2];
-          prim->p2 = ((u_char *)&(color))[3];
-          prim->r3 = (u_char)color;
-          prim->g3 = ((u_char *)&(color))[1];
-          prim->b3 = ((u_char *)&(color))[2];
-          prim->p3 = ((u_char *)&(color))[3];
+gte_strgb(&color);
+          *(long *)&prim->r0 = color;
+          *(long *)&prim->r1 = color;
+          *(long *)&prim->r2 = color;
+          *(long *)&prim->r3 = color;
         }
       }
       else {
         DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
       }
       *(u_char *)((int)&prim->tag + 3) = 0xc;
-      prim->code = *(u_char *)(workPmx_p + 0xe) | 0x3c;
+      prim->code = *(u_char *)&workPmx->flag | 0x3c;
       /* MATCH (2026-07-11): u0/v0/clut (and the u1/v1/tpage, u2/v2/pad2,
        * u3/v3/pad3 siblings) are 4 CONTIGUOUS bytes in POLY_GT4 (nfs4_types.h
        * +0xC: u_char u0,v0; u_short clut) -- a plain word copy at the
        * oracle's access width, not 3 manual sub-field byte/half stores per
        * group (field-fusion lever, same family as DrawW_SetUpSubdividFacet
        * _Line's *(u_short*)&v->u fusion). */
-      tu2 = *(u_int *)workPmx_p;
-      tu18 = *(u_int *)(workPmx_p + 4);
-      uVar3 = *(u_int *)(workPmx_p + 8);
-      uVar7_00 = *(int *)(workPmx_p + 0xc);
+      tu2 = *(u_int *)&workPmx->u0;
+      tu18 = *(u_int *)&workPmx->u1;
+      uVar3 = *(u_int *)&workPmx->u2;
+      uVar7_00 = *(int *)&workPmx->u3;
       *(u_int *)&prim->u0 = tu2;
       *(u_int *)&prim->u1 = tu18;
       *(u_int *)&prim->u2 = uVar3;
       *(u_int *)&prim->u3 = uVar7_00;
       if (prim->clut == 0xffff) {
-        ti18 = (bfctResult - sd->startfog) * 0x10 >> ((int)sd->distfog);
+        ti18 = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
         if (ti18 < 0) {
           ti18 = 0;
         }
         else if (0xf < ti18) {
           ti18 = 0xf;
         }
-        prim->clut = gClutDepth[*(u_short *)(workPmx_p + 10)][ti18];
+        prim->clut = gClutDepth[workPmx->pad2][ti18];
       }
-      if ((bool)bVar4) {
-        tc3 = sd->zeroGTETransFlag;
+      if (doSubdivision != 0) {
+        zeroTransFlag = sd->zeroGTETransFlag;
 gte_SetRotMatrix(((char *)sd + 0x74));
-        if (tc3 == 0) {
+        if (zeroTransFlag == 0) {
 gte_SetTransMatrix(((char *)sd + 0x74));
         }
         /* MATCH: oracle `beqz flag -> else` = the SPEEDUP arm is the fall-through, and it
@@ -1264,29 +1333,29 @@ gte_SetTransMatrix(((char *)sd + 0x74));
         if (stackSpeedUpEnbabledFlag != 0) {
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 0;
-          DrawW_SetUpSubdividFacet(facetIdx,sd);
+          DrawW_SetUpSubdividFacet(face,sd);
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 1;
         }
         else {
-          DrawW_SetUpSubdividFacet(facetIdx,sd);
+          DrawW_SetUpSubdividFacet(face,sd);
         }
 gte_SetRotMatrix(((char *)sd + 0x14));
-        if (tc3 == 0) {
+        if (zeroTransFlag == 0) {
 gte_SetTransMatrix(((char *)sd + 0x14));
         }
       }
-      if ((bVar2 & 0x80) != 0) {
+      if ((flag & 0x80) != 0) {
         /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
          * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
          * insns the oracle never pays. */
         p = Render_gPacketPtr;
         tp20 = Render_gPalettePtr;
-        iVar2 = (u_int)*(u_char *)(workPmx_p + 0xc) - (u_int)*(u_char *)workPmx_p;
+        iVar2 = (u_int)workPmx->u3 - (u_int)workPmx->u0;
         if (iVar2 < 0) {
           iVar2 = -iVar2;
         }
-        ti5 = (u_int)*(u_char *)(workPmx_p + 0xd) - (u_int)*(u_char *)(workPmx_p + 1);
+        ti5 = (u_int)workPmx->v3 - (u_int)workPmx->v0;
         if (ti5 < 0) {
           ti5 = -ti5;
         }
@@ -2017,16 +2086,16 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int loc_20;
   int tu6;
   u_char bVar7;
-  u_char tc4;
+  int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
 
   groupBase_p = (int)(group + 1);
   totalCount = 0;
   iVar6 = group->m_num_elements;
-  if (iVar6 == 0) {
-    totalCount = 0;
-  }
-  else {
+  /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
+   * group as the FALL-THROUGH `j <epilogue>; [ds] addu $v0,$zero,$zero` -- the
+   * non-empty case is the branch TARGET, not the else arm. */
+  if (iVar6 != 0) {
     /* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
        fabricated/wrong global (CF_DVLC -- a video-buffer symbol, completely
        unrelated) instead of the just-zeroed sd->matB the oracle loads (`lw
@@ -2089,7 +2158,7 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
             matrix.m[8] = fixedmult(matrix.m[8],blend_z);
             matrix.m[2] = iVar3;
             matrix.m[5] = iVar4;
-            iVar3 = DrawObjectTransform(Vi,sd,&matrix,objDef_00,(coorddef *)(groupBase_p + 8),(int)(char)tc4,
+            iVar3 = DrawObjectTransform(Vi,sd,&matrix,objDef_00,(coorddef *)(groupBase_p + 8),tc4,
                                -1);
             objMat_p = totalCount + iVar3;
             totalCount = objMat_p;
@@ -2098,7 +2167,7 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
         else {
           pOVar5 = Object_GetAnim(simObjs + *(u_char *)(groupBase_p + 0x22));
           (*(*pOVar5->_vf)[2].pfn)
-                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,(int)(char)tc4);
+                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,tc4);
         }
       }
       groupBase_p = groupBase_p + *(short *)groupBase_p;
@@ -2313,17 +2382,15 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      walking pointer as Trk_CollideBoomInst* turns every `pGVar12[N].m_num_elements`
      byte-math expression into a real field access, which is rule-8/SYM-driven local
      structure (SYM names this pointer `objInstance`). */
-  u_char bVar1;
-  void *pvVar3;
-  int heading;
-  ObjectAnim *pOVar6;
+  u_char type;   /* SYM REG $s0 */
+  ObjectAnim *anim;
   int doFrustumClip;
   Trk_SimObject *simObjs;
   short light;
   Trk_CollideBoomInst *objInstance;
-  Trk_ObjectDef *objDef_00;
+  Trk_ObjectDef *objDef;
   int totalCount;
-  int iVar14;
+  int objectOffset;
   matrixtdef matrix;
   int groupNumElements;
   int objectIndex;
@@ -2337,37 +2404,50 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     totalCount = 0;
   }
   else {
-    Render_gWorldMat.t[2] = 0;
-    Render_gWorldMat.t[1] = 0;
-    Render_gWorldMat.t[0] = 0;
-gte_SetTransMatrix((void *)0x1f800014);
+    /* CORRECTNESS (2026-08-01, same class as the DoTrough/kCtrlSkidmark finds):
+     * the GTE translation vector zeroed here must be the SCRATCHPAD matrix at
+     * 0x1F800014 (== sd->matB) that the very next gte_SetTransMatrix loads --
+     * the oracle stores through literal 0x1F800014/0x1F800028 addresses.  Writing
+     * the separate linked `Render_gWorldMat` .bss symbol left the scratchpad
+     * translation STALE, so every chunk object was transformed with whatever the
+     * previous draw had left at 0x1F800028..0x30. */
+    DW_WORLDMAT.t[2] = 0;
+    DW_WORLDMAT.t[1] = 0;
+    DW_WORLDMAT.t[0] = 0;
+gte_SetTransMatrix(&DW_WORLDMAT);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
-      iVar14 = (int)goffsets[objInstance->zoffset];
-      bVar1 = objInstance->type;
+      objectOffset = (int)goffsets[objInstance->zoffset];
+      type = objInstance->type;
       /* MATCH: oracle is a CASCADE of separate ifs, not one fused ||/&& expression --
          type==5 short-circuits straight to emit (skipping the clip test entirely), and
          the final type!=2 check is a FRESH re-read of objInstance->type from memory
-         (`lbu` after the ObjectClipped() call), not a reuse of the cached bVar1. */
-      if ((bVar1 & 0x80) != 0) {
+         (`lbu` after the ObjectClipped() call), not a reuse of the cached type. */
+      if ((type & 0x80) != 0) {
         goto DrawWChunkFacets_groupNext;
       }
-      if (bVar1 != 5) {
+      if (type != 5) {
         if (doFrustumClip != 0) {
-          pvVar3 = ObjectClipped(Vi,(int)objInstance->pad,
-                               (coorddef *)&objInstance->x,
-                               (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr);
-          if ((pvVar3 != (void *)0x0) && (objInstance->type != 2)) {
+          /* rule-8: the SYM names NO local for either the clip result or the
+           * heading -- both were invented temps whose register pressure pushed
+           * `totalCount` (SYM REG $s7) out into a stack slot (frame 136 vs 128). */
+          if ((ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
+                             (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr) != (void *)0x0)
+              && (objInstance->type != 2)) {
             goto DrawWChunkFacets_groupNext;
           }
         }
       }
-      DrawW_gObjScratch_148 = 0x400;
+      /* CORRECTNESS: oracle `sh $v0,(0x1F800148 & 0xFFFF)($at)` -- this is the
+       * scratchpad cache's `offsubdivid` SHORT (the same field OnyxLinePrim sets to
+       * 0x200), not a private .bss int.  The old write-only DrawW_gObjScratch_148
+       * global meant the subdivision offset never reached the renderer. */
+      DW_SCRATCH->offsubdivid = 0x400;
       light = -1;
       if ((objInstance->flags & 1) != 0) {
-        heading = fixedatan(objInstance->x - (Vi->cview).translation.x,
-                           objInstance->z - (Vi->cview).translation.z);
-        fixedxformy(&matrix,heading);
-        if (bVar1 == 9) {
+        fixedxformy(&matrix,
+                    fixedatan(objInstance->x - (Vi->cview).translation.x,
+                              objInstance->z - (Vi->cview).translation.z));
+        if (type == 9) {
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
           int t1, t2, sx, sy;
 
@@ -2387,18 +2467,33 @@ gte_SetTransMatrix((void *)0x1f800014);
           t2 = fixedmult(matrix.m[5],sx);
           matrix.m[8] = fixedmult(matrix.m[8],sx);
           light = objInstance->qw;
-          DrawW_gObjScratch_148 = 0;
+          DW_SCRATCH->offsubdivid = 0;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
         }
-        objDef_00 = Track_gObjDefs[objInstance->pad];
+        objDef = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
-        iVar14 = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef_00,
-                            (coorddef *)&objInstance->x,iVar14,light);
-        totalCount = totalCount + iVar14;
+        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                            (coorddef *)&objInstance->x,objectOffset,light);
+        totalCount = totalCount + objectOffset;
       }
       else {
-        if (bVar1 == 2) {
+        /* MATCH (2026-08-01): the oracle @0x800C8780 dispatches with gcc's
+         * balance_case_nodes BST -- `andi v1,s0,0xFF; li v0,2; beq (case 2);
+         * slti v0,v1,3; beqz -> {li 5/beq, li 9/beq}; li v0,1; beq (case 1)` --
+         * the unmistakable fingerprint of a real `switch` (root compare + bound
+         * test + two subtree compares), NOT the if/else-if cascade this used to
+         * be (which collapsed to one `sltiu` unsigned range test).  gcc emits
+         * case BODIES in SOURCE order and the oracle's physical order is
+         * 1 (0x800C87C4), 2 (0x87F8), 9 (0x8900), 5 (0x8A08) -- exactly the SYM
+         * block line numbers 121/137/186/235. */
+        switch (type) {
+        case 1:
+          objDef = Track_gObjDefs[objInstance->pad];
+          totalCount = totalCount + DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
+                              objDef,(coorddef *)&objInstance->x,objectOffset);
+          break;
+        case 2: {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, sx, sy, sz;
 
@@ -2419,60 +2514,50 @@ DrawWChunkFacets_emitObj:
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
-          objDef_00 = Track_gObjDefs[objInstance->pad];
+          objDef = Track_gObjDefs[objInstance->pad];
           light = *(short *)&objInstance->simIndex;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
           goto DrawWChunkFacets_emitObj;
         }
-        if (bVar1 < 3) {
-          if (bVar1 == 1) {
-            iVar14 = DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
-                                Track_gObjDefs[objInstance->pad],
-                                (coorddef *)&objInstance->x,iVar14);
-            totalCount = totalCount + iVar14;
-          }
-        }
-        else if (bVar1 == 5) {
-          objDef_00 = Track_gObjDefs[objInstance->pad];
-          pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
-          if (pOVar6 == (ObjectAnim *)0x0) {
-            /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
-            int t1, t2, sx, sy, sz;
+        case 9: {
+        /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
+        int t1, t2, sx, sy;
 
-            Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
-            sx = (int)objInstance->sx << 8;
-            sy = (int)objInstance->sy << 8;
-            sz = (int)objInstance->sz << 8;
-            t1 = fixedmult(matrix.m[0],sx);
-            t2 = fixedmult(matrix.m[3],sx);
-            matrix.m[6] = fixedmult(matrix.m[6],sx);
-            matrix.m[0] = t1;
-            matrix.m[3] = t2;
-            t1 = fixedmult(matrix.m[1],sy);
-            t2 = fixedmult(matrix.m[4],sy);
-            matrix.m[7] = fixedmult(matrix.m[7],sy);
-            matrix.m[1] = t1;
-            matrix.m[4] = t2;
-            t1 = fixedmult(matrix.m[2],sz);
-            t2 = fixedmult(matrix.m[5],sz);
-            matrix.m[8] = fixedmult(matrix.m[8],sz);
-            light = -1;
-            matrix.m[2] = t1;
-            matrix.m[5] = t2;
-            goto DrawWChunkFacets_emitObj;
-          }
-          pOVar6 = Object_GetAnim(simObjs + objInstance->simIndex);
-          (*(*pOVar6->_vf)[2].pfn)
-                    ((int)&pOVar6->_vf + (int)(*pOVar6->_vf)[2].delta,Vi,0x1f800000,iVar14);
+        xformy(&matrix,(int)objInstance->qx);
+        sx = (int)objInstance->qz << 8;
+        sy = (int)objInstance->qy << 8;
+        t1 = fixedmult(matrix.m[0],sx);
+        t2 = fixedmult(matrix.m[3],sx);
+        matrix.m[6] = fixedmult(matrix.m[6],sx);
+        matrix.m[0] = t1;
+        matrix.m[3] = t2;
+        t1 = fixedmult(matrix.m[1],sy);
+        t2 = fixedmult(matrix.m[4],sy);
+        matrix.m[7] = fixedmult(matrix.m[7],sy);
+        matrix.m[1] = t1;
+        matrix.m[4] = t2;
+        t1 = fixedmult(matrix.m[2],sx);
+        t2 = fixedmult(matrix.m[5],sx);
+        matrix.m[8] = fixedmult(matrix.m[8],sx);
+        DW_SCRATCH->offsubdivid = 0;
+        objDef = Track_gObjDefs[objInstance->pad];
+        light = objInstance->qw;
+        matrix.m[2] = t1;
+        matrix.m[5] = t2;
+        goto DrawWChunkFacets_emitObj;
         }
-        else if (bVar1 == 9) {
-          /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-          int t1, t2, sx, sy;
+        case 5: {
+        objDef = Track_gObjDefs[objInstance->pad];
+        anim = Object_GetAnim(simObjs + objInstance->simIndex);
+        if (anim == (ObjectAnim *)0x0) {
+          /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
+          int t1, t2, sx, sy, sz;
 
-          xformy(&matrix,(int)objInstance->qx);
-          sx = (int)objInstance->qz << 8;
-          sy = (int)objInstance->qy << 8;
+          Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
+          sx = (int)objInstance->sx << 8;
+          sy = (int)objInstance->sy << 8;
+          sz = (int)objInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           matrix.m[6] = fixedmult(matrix.m[6],sx);
@@ -2483,15 +2568,19 @@ DrawWChunkFacets_emitObj:
           matrix.m[7] = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
-          t1 = fixedmult(matrix.m[2],sx);
-          t2 = fixedmult(matrix.m[5],sx);
-          matrix.m[8] = fixedmult(matrix.m[8],sx);
-          DrawW_gObjScratch_148 = 0;
-          objDef_00 = Track_gObjDefs[objInstance->pad];
-          light = objInstance->qw;
+          t1 = fixedmult(matrix.m[2],sz);
+          t2 = fixedmult(matrix.m[5],sz);
+          matrix.m[8] = fixedmult(matrix.m[8],sz);
+          light = -1;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
-          goto DrawWChunkFacets_emitObj;
+            goto DrawWChunkFacets_emitObj;
+          }
+          anim = Object_GetAnim(simObjs + objInstance->simIndex);
+          (*(*anim->_vf)[2].pfn)
+                    ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,0x1f800000,objectOffset);
+          break;
+        }
         }
       }
 DrawWChunkFacets_groupNext:
@@ -2805,6 +2894,20 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      use via `sd=(Draw_DCache*)&Render_gPalettePtr`. This explains the
      whole-function register/frame divergence from insn 1 -- our recon spent
      an extra reg + a real relocation on a global that was never linked here. */
+  /* NEGATIVE (2026-08-01, w39-a2 -- re-confirms the wave-9 note with two more
+     shapes).  SYM @0x800C909C declares the matrix conversion as THREE sibling
+     blocks of `int r0,r1,r2` ($3/$4/$5 then $2/$3/$4 twice) plus fn-scope
+     pointers `m` (PTR matrixtdef, $s4 == fskid) and `t` (PTR coorddef, $s6 ==
+     fskid+36) and `ccount` ($s5); the oracle prologue is `addu $s4,$a0,$zero;
+     addiu $s6,$s4,36; lw $s5,48($s4)` and each row is `lw r0/r1/r2; sra; sra;
+     sh; sh; sh` (three parallel chains).  MEASURED: writing the three r0/r1/r2
+     blocks 377 -> 383 (count 364 -> 362, so the parallel chains ARE the right
+     shape but re-colour the head); additionally routing every `fskid->t` /
+     `(int*)fskid` use through `t` / `m` 383 -> 405.  Both reverted.  The whole
+     residual is upstream of this: our prologue/frame layout differs from insn 1
+     and the `sm` (Skidmark_Chunk*, SYM REG $s2, size 0x2B0) walker is still
+     modelled as the invented `skidIdx`/`skidIter` byte offsets -- that walker,
+     not the matrix rows, is the next lever. */
   sd = (Draw_DCache *)&Render_gPalettePtr;
   ccount_local = fskid->count;
   l2 = (fskid->m).m[3];

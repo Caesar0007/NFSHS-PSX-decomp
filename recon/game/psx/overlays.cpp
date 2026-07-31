@@ -5,6 +5,14 @@
 #include "../../nfs4_types.h"
 #include "overlays_externs.h"
 
+/* gp-rel owning-TU defs (section 3.12 #6): overlays.obj OWNS these (the SYM's overlays.obj
+   band defines Hud_NextPerp @0x8013d994 and StatsTimer @0x8013d998), and the oracles reach
+   them via %gp_rel -- which only happens for a <=G4 object defined (not just declared) in
+   this TU.  StatsTimer's two words are separate 4-byte symbols for exactly that reason. */
+short Hud_NextPerp[2];
+int StatsTimer;
+int D_8013D99C;
+
 
 /* ---- OptionsBarThing__Fiiii  [OVERLAYS.CPP:39-47] SLD-VERIFIED ---- */
 void OptionsBarThing(int x,int y,int w,int h)
@@ -92,7 +100,7 @@ void RaceSummary(void)
     }
     car = Cars_gRaceCarList[i];
     pos = car->stats.finalPosition;
-    if (pos * 2 + 4 < StatsTimer[0]) {
+    if (pos * 2 + 4 < StatsTimer) {
       color = 4;
       if ((car->carFlags & 4U) != 0) {
         color = 3;
@@ -200,7 +208,7 @@ void RaceStatistics(void)
     if (0 < (int)i) {
       Hud_FBuildF4(0,col1 + -2,0x78 - halfH,1,barH + -8,0,'\0','\0');
     }
-    if (2 < StatsTimer[1]) {
+    if (2 < D_8013D99C) {
       Font_TextColor(3);
       sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
       Font_TextXY(string,colmid,negH + -4);
@@ -208,7 +216,7 @@ void RaceStatistics(void)
     if ((GameSetup_gData.numLaps != 1) && (0 < GameSetup_gData.numLaps)) {
       j = 0;
       do {
-        if ((int)j * 2 + 4 < StatsTimer[1]) {
+        if ((int)j * 2 + 4 < D_8013D99C) {
           t = (Cars_gHumanRaceCarList[i]->stats).finalLapTime[j];
           if ((t == 0) || (color = 3, t != (Cars_gHumanRaceCarList[i]->stats).finalBestLap)) {
             color = 4;
@@ -226,7 +234,7 @@ void RaceStatistics(void)
         j = j + 1;
       } while ((int)j < GameSetup_gData.numLaps);
     }
-    if (GameSetup_gData.numLaps * 2 + 4 < StatsTimer[1]) {
+    if (GameSetup_gData.numLaps * 2 + 4 < D_8013D99C) {
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
       rowY = dataY + GameSetup_gData.numLaps * 0xc;
@@ -256,7 +264,7 @@ void RaceStatistics(void)
       Font_TextXY(string,col2 + 5,rowY + 0xc);
     }
     if (GameSetup_gData.raceType == 1) {
-      if (GameSetup_gData.numLaps * 2 + 6 < StatsTimer[1]) {
+      if (GameSetup_gData.numLaps * 2 + 6 < D_8013D99C) {
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         rowY = HUD_STATS_HOTPURSUIT_Y + 1;
@@ -264,7 +272,7 @@ void RaceStatistics(void)
         sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c0));
         Font_TextXY(string,col2 + 5,rowY);
       }
-      if (GameSetup_gData.numLaps * 2 + 8 < StatsTimer[1]) {
+      if (GameSetup_gData.numLaps * 2 + 8 < D_8013D99C) {
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         rowY = HUD_STATS_HOTPURSUIT_Y + 0xd;
@@ -389,7 +397,7 @@ void Hud_BTCStats(short player,bool postgame)
   i = 0;
   if (0 < nperps) {
     do {
-      if ((int)i * 2 + 4 < StatsTimer[player]) {
+      if ((int)i * 2 + 4 < StatsTimer_arr[player]) {
         Font_TextColor(4);
         sprintf(string,"%d",(int)i + 1);
         y = dataY + (int)i * 0xc;
@@ -409,7 +417,7 @@ void Hud_BTCStats(short player,bool postgame)
       i = i + 1;
     } while ((int)i < nperps);
   }
-  if ((showtimeleft != 0) && ((int)i * 2 + 4 < StatsTimer[player])) {
+  if ((showtimeleft != 0) && ((int)i * 2 + 4 < StatsTimer_arr[player])) {
     Font_TextColor(3);
     Hud_ParseTime(FinalBTC_Countdown,string);
     Font_TextXY(TextSys_Word(0x4d),(int)col[0],dataY + (int)i * 0xc + 2);
@@ -465,10 +473,10 @@ HudStats_check200B:
   }
 HudStats_finalize:
   if (screen == 0) {
-    StatsTimer[1] = 0;
-    StatsTimer[0] = StatsTimer[0] + 1;
-    if (10000 < StatsTimer[0]) {
-      StatsTimer[0] = 10000;
+    D_8013D99C = 0;
+    StatsTimer = StatsTimer + 1;
+    if (10000 < StatsTimer) {
+      StatsTimer = 10000;
     }
     player = 0;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
@@ -477,10 +485,10 @@ HudStats_finalize:
     }
   }
   else {
-    StatsTimer[0] = 0;
-    StatsTimer[1] = StatsTimer[1] + 1;
-    if (10000 < StatsTimer[1]) {
-      StatsTimer[1] = 10000;
+    StatsTimer = 0;
+    D_8013D99C = D_8013D99C + 1;
+    if (10000 < D_8013D99C) {
+      D_8013D99C = 10000;
     }
     if (((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) ||
        (player = 1, GameSetup_gData.commMode != 1)) {

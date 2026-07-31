@@ -905,80 +905,84 @@ void CopSpeak_Flush(void)
 void CopSpeak_Server(void)
 
 {
-  int noise;
-  CopSpeak_tRequest * next;
-  CopSpeak_tRequest * r;
-  int i;
-  int iVar1;
-  int iVar2;
-  CopSpeak_tRequest *pCVar3;
-  int patch;
+  CopSpeak_tRequest *next;
   
   if (CopSpeak_gSpchHandle != -1) {
-    iVar1 = CopSpeak_gCurrent.phrase;
     if (CopSpeak_gCurrent.phrase == -1) {
-      iVar1 = CopSpeak_gCurrent.offset + 0x4000;
+      AudioCmn_GetAsyncSfx((signed char)CopSpeak_gCurrent.bank,
+                           CopSpeak_gCurrent.offset + 0x4000,true);
     }
-    AudioCmn_GetAsyncSfx((int)CopSpeak_gCurrent.bank,iVar1,true);
-    iVar1 = SNDtimeremaining(CopSpeak_gSpchHandle);
-    if (iVar1 < 5) {
-      if ((((CopSpeak_gQueuePlay != CopSpeak_gQueueHead) && (CopSpeak_gQueue[CopSpeak_gQueuePlay].bank == '\x03')) &&
-          (CopSpeak_gQueue[CopSpeak_gQueuePlay].phrase == 0x13)) &&
-         (CopSpeak_gCurrent.car == (Car_tObj *)0x0)) {
-        CopSpeak_gQueue[CopSpeak_gQueuePlay].phrase = 0x14;
+    else {
+      AudioCmn_GetAsyncSfx((signed char)CopSpeak_gCurrent.bank,
+                           CopSpeak_gCurrent.phrase,true);
+    }
+    if (SNDtimeremaining(CopSpeak_gSpchHandle) < 5) {
+      if (CopSpeak_gQueuePlay != CopSpeak_gQueueHead) {
+        CopSpeak_tRequest *r = &CopSpeak_gQueue[CopSpeak_gQueuePlay];
+
+        if (((signed char)r->bank == 3) && (r->phrase == 0x13) &&
+            (CopSpeak_gCurrent.car == (Car_tObj *)0x0)) {
+          r->phrase = 0x14;
+        }
       }
       CopSpeak_gSpchHandle = -1;
       CopSpeak_InitRequest(&CopSpeak_gCurrent);
     }
   }
-  iVar1 = CopSpeak_gQueuePlay;
-  if (CopSpeak_gQueuePlay != CopSpeak_gQueueHead) {
-    do {
-      if (((CopSpeak_gQueue[iVar1].sfx == '\0') &&
-          (iVar2 = (int)CopSpeak_gQueue[iVar1].bank, iVar2 != 3)) && (-1 < iVar2)) {
-        patch = CopSpeak_gQueue[iVar1].phrase;
-        if (patch == -1) {
-          patch = CopSpeak_gQueue[iVar1].offset + 0x4000;
+
+  {
+    int i;
+
+    for (i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
+         i = i < 0x3f ? i + 1 : 0) {
+      if ((CopSpeak_gQueue[i].sfx == 0) &&
+          ((signed char)CopSpeak_gQueue[i].bank != 3) &&
+          ((signed char)CopSpeak_gQueue[i].bank >= 0)) {
+        if (CopSpeak_gQueue[i].phrase == -1) {
+          AudioCmn_GetAsyncSfx((signed char)CopSpeak_gQueue[i].bank,
+                               CopSpeak_gQueue[i].offset + 0x4000,true);
         }
-        AudioCmn_GetAsyncSfx(iVar2,patch,true);
+        else {
+          AudioCmn_GetAsyncSfx((signed char)CopSpeak_gQueue[i].bank,
+                               CopSpeak_gQueue[i].phrase,true);
+        }
       }
-      iVar2 = 0;
-      if (iVar1 < 0x3f) {
-        iVar2 = iVar1 + 1;
-      }
-      iVar1 = iVar2;
-    } while (iVar2 != CopSpeak_gQueueHead);
+    }
   }
+
   if (CopSpeak_gQueueReady != CopSpeak_gQueueLoad) {
     CopSpeak_ReadyNextRequest();
   }
-  pCVar3 = (CopSpeak_tRequest *)0x0;
-  if (CopSpeak_gSpchHandle == -1) {
-    if ((CopSpeak_gQueuePlay != CopSpeak_gQueueReady) && (CopSpeak_gQueuePlay != CopSpeak_gQueueHead)) {
-      pCVar3 = CopSpeak_gQueue;
-      if (CopSpeak_gQueuePlay < 0x3f) {
-        pCVar3 = CopSpeak_gQueue + CopSpeak_gQueuePlay + 1;
-      }
-    }
+
+  next = (CopSpeak_tRequest *)0x0;
+  if (CopSpeak_gSpchHandle != -1) {
+    next = &CopSpeak_gCurrent;
   }
   else {
-    pCVar3 = &CopSpeak_gCurrent;
+    if ((CopSpeak_gQueuePlay != CopSpeak_gQueueReady) && (CopSpeak_gQueuePlay != CopSpeak_gQueueHead)) {
+      next = &CopSpeak_gQueue[CopSpeak_gQueuePlay < 0x3f ?
+                              CopSpeak_gQueuePlay + 1 : 0];
+    }
   }
-  if ((pCVar3 == (CopSpeak_tRequest *)0x0) || (pCVar3->noise == '\0')) {
+
+  if ((next != (CopSpeak_tRequest *)0x0) && (next->noise != 0)) {
+    int noise = 0x30;
+
+    if (next->car != (Car_tObj *)0x0) {
+      int carNoise = *(short *)((char *)next->car + 0x8e) + 0x20;
+
+      noise = 0x7f;
+      if (carNoise < 0x80) {
+        noise = carNoise;
+      }
+    }
+    CopSpeak_RadioStaticActive(noise);
+  }
+  else {
     CopSpeak_RadioStaticSquelch();
   }
-  else {
-    iVar1 = 0x30;
-    if (pCVar3->car != (Car_tObj *)0x0) {
-      iVar2 = *(short *)((int)&(pCVar3->car->N).distToPlayer + 2) + 0x20;
-      iVar1 = 0x7f;
-      if (iVar2 < 0x80) {
-        iVar1 = iVar2;
-      }
-    }
-    CopSpeak_RadioStaticActive(iVar1);
-  }
-  if ((((CopSpeak_gQueueReady == CopSpeak_gQueueHead) || (CopSpeak_gQueue[CopSpeak_gQueueReady].sfx != '\0')) ||
+
+  if ((((CopSpeak_gQueueReady == CopSpeak_gQueueHead) || (CopSpeak_gQueue[CopSpeak_gQueueReady].sfx != 0)) ||
       (CopSpeak_gQueue[CopSpeak_gQueueReady].car != CopSpeak_gQueue[CopSpeak_gQueuePlay].car)) &&
      ((CopSpeak_gQueuePlay != CopSpeak_gQueueReady && (CopSpeak_gQueuePlay != CopSpeak_gQueueHead)))) {
     CopSpeak_PlayNextRequest();

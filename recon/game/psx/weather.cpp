@@ -762,21 +762,27 @@ void Weather_QuickReOrthogonalize
   nroty->z = fixedmult(nrotz->x,nrotx->y) - fixedmult(nrotz->y,nrotx->x);
   return;
 }
-/* ---- Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc  [WEATHER.CPP:704-887] SLD-VERIFIED ---- */
+/* ---- Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc  [WEATHER.CPP:704-887] SLD-VERIFIED ----
+ * SYM (fsize 264, ra+s0-s6): Vi $s3, num $s4, wpt $s5, wd $s6; fn-block n $t2 +
+ * AUTOs matdiff -0xf8, orthoMat -0xd0, velocity_vector_change -0xa8,
+ * total_vector_change -0xa0, Weather_gTransformedRandomVelocityVectors[12] -0x80.
+ * SIBLING BLOCKS each redeclare temp_vector -0x98 / result -0x90 (and the particle
+ * loop's `pt` shares the -0x98 slot) -- one fn-scope decl set costs an extra 8 bytes
+ * of frame.  The particle loop has its OWN `n` (SYM: class REG type LONG, $s0).
+ * 🔴 BUG: the turbulence table reads must be SIGN-extended (oracle sll 24/sra 24);
+ * `char` is UNSIGNED on this build, so the plain char reads silently turned negative
+ * velocity components into +128..+255.
+ */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
+  int n;
   matrixtdef matdiff;
   matrixtdef orthoMat;
   SVECTOR velocity_vector_change;
   SVECTOR total_vector_change;
-  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
   SVECTOR temp_vector;
   VECTOR result;
-  coorddef *cp;
-  char *vel;
-  SVECTOR *tv;
-  SVECTOR pt;
-  int n;
+  SVECTOR Weather_gTransformedRandomVelocityVectors [12];
 
   /* re-orthogonalize the camera matrix, build the frame-to-frame difference matrix, and transform
      every particle by it so the whole field rotates rigidly with the camera */
@@ -787,65 +793,80 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   Weather_SetMatrix(&Vi->cview.mrotationInvRaw);
 
   /* camera translation delta since last frame, rotated into camera space -> total_vector_change */
-  cp = &prevCamPos[Vi->player];
-  temp_vector.vx = (short)((Vi->cview.translation.x - cp->x) / 0x400);
-  temp_vector.vy = (short)((Vi->cview.translation.y - cp->y) / 0x400);
-  temp_vector.vz = (short)((Vi->cview.translation.z - cp->z) / 0x400);
-  gte_ldv0(&temp_vector);
-  gte_mvmva(1,0,0,0,0);
-  cp->x = Vi->cview.translation.x;
-  cp->y = Vi->cview.translation.y;
-  cp->z = Vi->cview.translation.z;
-  gte_stlvnl(&result);
-  total_vector_change.vy = -(short)result.vy;
-  total_vector_change.vx = -(short)result.vx;
-  total_vector_change.vz = -(short)result.vz;
+  {
+    coorddef *cp;
+
+    temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
+    temp_vector.vy = (short)((Vi->cview.translation.y - prevCamPos[Vi->player].y) / 0x400);
+    temp_vector.vz = (short)((Vi->cview.translation.z - prevCamPos[Vi->player].z) / 0x400);
+    gte_ldv0(&temp_vector);
+    gte_mvmva(1,0,0,0,0);
+    cp = &prevCamPos[Vi->player];
+    *cp = Vi->cview.translation;
+    gte_stlvnl(&result);
+    total_vector_change.vy = -(short)result.vy;
+    total_vector_change.vx = -(short)result.vx;
+    total_vector_change.vz = -(short)result.vz;
+  }
 
   /* wind/gravity velocity, rotated into camera space; folded into total_vector_change */
-  temp_vector.vx = Weather_gSys.velocity.vx;
-  temp_vector.vy = Weather_gSys.velocity.vy;
-  temp_vector.vz = Weather_gSys.velocity.vz;
-  gte_ldv0(&temp_vector);
-  gte_mvmva(1,0,0,0,0);
-  gte_stlvnl(&result);
-  total_vector_change.vx = total_vector_change.vx + (short)result.vx;
-  velocity_vector_change.vx = (short)result.vx;
-  velocity_vector_change.vy = (short)result.vy;
-  velocity_vector_change.vz = (short)result.vz;
-  total_vector_change.vz = total_vector_change.vz + (short)result.vz;
-  total_vector_change.vy = total_vector_change.vy + (short)result.vy;
-
-  /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
-  vel = (char *)Weather_gRandomVelocityVectors;
-  for (n = 0; n < 12; n = n + 1) {
-    temp_vector.vx = vel[0];
-    temp_vector.vy = vel[1];
-    temp_vector.vz = vel[2];
+  {
+    temp_vector.vx = Weather_gSys.velocity.vx;
+    temp_vector.vy = Weather_gSys.velocity.vy;
+    temp_vector.vz = Weather_gSys.velocity.vz;
     gte_ldv0(&temp_vector);
     gte_mvmva(1,0,0,0,0);
     gte_stlvnl(&result);
-    Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
-    Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
-    Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
-    vel = vel + 3;
+    total_vector_change.vx = total_vector_change.vx + (short)result.vx;
+    velocity_vector_change.vx = (short)result.vx;
+    velocity_vector_change.vy = (short)result.vy;
+    velocity_vector_change.vz = (short)result.vz;
+    total_vector_change.vz = total_vector_change.vz + (short)result.vz;
+    total_vector_change.vy = total_vector_change.vy + (short)result.vy;
+  }
+
+  /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
+  {
+    signed char *vel;
+
+    vel = (signed char *)Weather_gRandomVelocityVectors;
+    for (n = 0; n < 12; n = n + 1) {
+      temp_vector.vx = vel[0];
+      temp_vector.vy = vel[1];
+      temp_vector.vz = vel[2];
+      gte_ldv0(&temp_vector);
+      gte_mvmva(1,0,0,0,0);
+      gte_stlvnl(&result);
+      Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
+      Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
+      Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
+      vel = vel + 3;
+    }
   }
 
   /* advance every particle by (camera comp + wind) + its turbulence vector; wrap + flag resets */
-  tv = wpt;
-  for (n = 0; n < num; n = n + 1) {
-    pt.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx + (tv->vx + total_vector_change.vx);
-    pt.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy + (tv->vy + total_vector_change.vy);
-    pt.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz + (tv->vz + total_vector_change.vz);
-    if (Weather_CheckAndResetParticles(&pt) != 0) {
-      wd[n] = 0;
+  {
+    SVECTOR *tv;
+    long n;
+
+    tv = wpt;
+    for (n = 0; n < num; n = n + 1) {
+      temp_vector.vx = Weather_gTransformedRandomVelocityVectors[n % 12].vx +
+              (tv->vx + total_vector_change.vx);
+      temp_vector.vy = Weather_gTransformedRandomVelocityVectors[n % 12].vy +
+              (tv->vy + total_vector_change.vy);
+      temp_vector.vz = Weather_gTransformedRandomVelocityVectors[n % 12].vz +
+              (tv->vz + total_vector_change.vz);
+      if (Weather_CheckAndResetParticles(&temp_vector) != 0) {
+        wd[n] = 0;
+      }
+      tv->vx = temp_vector.vx;
+      tv->vy = temp_vector.vy;
+      tv->vz = temp_vector.vz;
+      tv = tv + 1;
     }
-    tv->vx = pt.vx;
-    tv->vy = pt.vy;
-    tv->vz = pt.vz;
-    tv = tv + 1;
   }
 }
-
 /* ---- Weather_CreateSnow__FP7SVECTOR  [WEATHER.CPP:923-961] SLD-VERIFIED ---- */
 void Weather_CreateSnow(SVECTOR *pt)
 {

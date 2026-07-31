@@ -79,23 +79,30 @@ char *Platform_ReserveMemory(int size,char *string)
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */
-/* NEAR-MISS 20 diffs (17/17) -- STRUCTURE NOW EXACT (w38-a6): the round-up-to-4 is gcc's
- * inline SIGNED /4 (`bgez x,L; addu t,x,zero; addiu t,x,3; L: sra q,t,2`), NOT a hand-guarded
- * `>>2`; and SYM says this fn has NO named locals + REGPARM size = $4(a0), i.e. the source
- * REUSES the `size` param as the running scratch (size+3 -> rounded -> +gCurrentMemory ->
- * -gLowMemory), with the failure `return 0` written FIRST (early-return) so its v0=0 lands in
- * the bnez delay slot. With that shape every insn matches 1:1 in kind+order; the residual is a
- * pure 2-register rotation (ours size->$a1/temp->$v1, oracle size->$a0/temp->$v0).
- * Tried and rejected: separate `newmem`/`mem` locals (22), separate quotient local (20),
- * inline one-expression `(size+3)/4*4` (combine folds the guard add to `size+6`),
- * opposite branch polarity (structural mismatch in the tail). Prototype re-checked vs oracle:
- * 2 args (a0=size read at insn 1, a1=string never read), returns char* in $v0. */
+/* NEAR-MISS 7 diffs (18 ours / 17 oracle), was 20 (w39-a4).  SYM: NO named locals,
+ * REGPARM size = $4 ($a0) -- the source reuses the `size` param as the running scratch.
+ * Two levers landed here:
+ *   (1) the `*4` multiply-back is its OWN statement (`size = (size / 4) * 4;`), which is
+ *       what puts the rounded value back into size's own register (oracle `sll $a0,$v0,2`);
+ *   (2) the address arithmetic is ONE expression `(size + gCurrentMemory) - gLowMemory`.
+ *       Split into two statements gcc rotates the whole function one register over
+ *       (size->$a1, gLowMemory->$a0 -- 18 diffs, insn-exact); as one expression the
+ *       prologue/divide/compare/tail are all byte-identical.
+ * Residual 7 = ONE scheduling slot: the oracle issues `lw $a1,%gp_rel(gLowMemory)` right
+ * after the gCurrentMemory load (filling its load-delay) and then does the in-place
+ * `addu $a0,$a2,$a0; subu $a0,$a0,$a1`; ours emits `nop` + `addu $a1,$a0,$a2` into a fresh
+ * reg + a later gLowMemory load.  Tried (all worse or neutral): the two-statement split
+ * (18), `size + gCurrentMemory` order (18), `gCurrentMemory - gLowMemory + size` (18),
+ * `size - gLowMemory + gCurrentMemory` (18), `size + (gCurrentMemory - gLowMemory)` (18),
+ * subtract folded into the compare (20), multiply-back fused with the add (20/22).
+ * Prototype re-checked vs the raw oracle: 2 args ($a0 size read at insn 1, $a1 string never
+ * read), returns char* in $v0. */
 char *Platform_TempReserveMemory(int size,char *string)
 
 {
   size = size + 3;
-  size = gCurrentMemory + (size / 4) * 4;
-  size = size - gLowMemory;
+  size = (size / 4) * 4;
+  size = (size + gCurrentMemory) - gLowMemory;
   if ((int)gTotalMemory < size) {
     return (char *)0x0;
   }

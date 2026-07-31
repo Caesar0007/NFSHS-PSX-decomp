@@ -170,7 +170,22 @@ void read(char **handle,void *buf,int bytes)
   return;
 }
 
-/* ---- TrackSpec_Read__Fi  [TRACKSPEC.CPP:145-200] SLD-VERIFIED ---- */
+/* ---- TrackSpec_Read__Fi  [TRACKSPEC.CPP:145-200] SLD-VERIFIED ----
+ * NEAR-MISS 26 diffs (ours 59 / oracle 63), was 32.
+ * MATCH (w38-a10): ARM ORDER -- the oracle's `slt v0,s2,v1; bnez v0,.L800E186C`
+ * makes the SetDefault arm the FALL-THROUGH and the parse arm the branch target,
+ * i.e. the source tests `spec_num >= header.num_spec` with SetDefault as the
+ * if-BODY (catalog sec.B arm-order/polarity row).
+ * RESIDUAL 4 insns = retail's REDUNDANT COPY `addu $s3,$s0,$zero` of startpos
+ * (+ its frame save/restore) so the cross-jump-merged `jal purgememadr` is
+ * reached with `a0` set from $s0 on the SetDefault path and from $s3 on the
+ * parse path (oracle 800E181C / 800E1868 / 800E18A4). Both hold the SAME value;
+ * our cc1 copy-propagates it away. Tried: duplicating purgememadr into both arms
+ * (gcc re-merges, no change), a second C variable `filebuf = startpos` used by
+ * one arm (copy-propagated, no change). This is the documented per-obj
+ * "old-gcc no-copy-prop" toolchain-identity class (catalog sec.G) -- FLOOR.
+ * Prototype re-checked vs raw oracle: 1 int arg ($a0->$s2), void return
+ * (no $v0 set at the single epilogue). */
 void TrackSpec_Read(int spec_num)
 
 {
@@ -186,14 +201,14 @@ void TrackSpec_Read(int spec_num)
     TrackSpec_gCurrentSpec = spec_num;
     currentpos = startpos;
     read(&currentpos,&header,8);
-    if (spec_num < header.num_spec) {
+    if (spec_num >= header.num_spec) {
+      TrackSpec_SetDefault(&TrackSpec_gSpec);
+    }
+    else {
       TrackSpec_gMaxSpec = header.num_spec + 1;
       currentpos = currentpos + spec_num * 0x108;
       read(&currentpos,&TrackSpec_gSpec,0x108);
       TrackSpec_SetUp();
-    }
-    else {
-      TrackSpec_SetDefault(&TrackSpec_gSpec);
     }
     purgememadr(startpos);
   }
@@ -204,13 +219,9 @@ void TrackSpec_Read(int spec_num)
 void TrackSpec_Load(int weather,int night)
 
 {
-  int spec [4];
+  int spec [2] [2] = { { 0, 1 }, { 2, 3 } };   /* @0x80056ad4 rodata template -> stack copy */
   
-  spec[0] = 0x00000000U /* @0x80056ad4 */;
-  spec[1] = 0x00000001U /* @0x80056ad8 */;
-  spec[2] = 0x00000002U /* @0x80056adc */;
-  spec[3] = 0x00000003U /* @0x80056ae0 */;
-  TrackSpec_Read(spec[weather * 2 + night]);
+  TrackSpec_Read(spec[weather][night]);
   return;
 }
 

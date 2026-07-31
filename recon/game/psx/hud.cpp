@@ -2139,19 +2139,19 @@ HudCdPlay_activateGate:
   /* oracle materializes &strtitle into its OWN pseudo ($s0) inside the beqz delay slot and
    * only THEN copies it into title ($s1) -- i.e. the buffer, not `title`, is the sprintf
    * destination in the original source. */
-  if ((currentSong->info).title == (char *)0x0) {
-    title = (char *)0x0;
-  }
-  else {
+  if ((currentSong->info).title != (char *)0x0) {
     sprintf(strtitle,"%s",(currentSong->info).title);
     title = strtitle;
   }
-  if ((currentSong->info).artist == (char *)0x0) {
-    artist = (char *)0x0;
-  }
   else {
+    title = (char *)0x0;
+  }
+  if ((currentSong->info).artist != (char *)0x0) {
     sprintf(strartist,"%s",(currentSong->info).artist);
     artist = strartist;
+  }
+  else {
+    artist = (char *)0x0;
   }
   uppercase(title);
   if ((type == 0) && (artist != (char *)0x0)) {
@@ -2196,9 +2196,14 @@ HudCdPlay_nullStringFallback:
     }
   }
   if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) {
-    while (Hud_gCdLastTick < ticks) {
-      Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
+    /* oracle .L800D675C is an UN-ROTATED top-test loop with an unconditional `j` back-edge
+     * (a plain `while` gets rotated to a guard + bottom `bnez`), so the source is the
+     * label+goto shape. */
+HudCdPlay_scrollTick:
+    if (ticks > Hud_gCdLastTick) {   /* operand order: oracle loads ticks FIRST */
       Hud_gCdLastTick = Hud_gCdLastTick + 4;
+      Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
+      goto HudCdPlay_scrollTick;
     }
   }
   else if (Hud_gCdLastTick + 0x80 < ticks) {
@@ -2209,13 +2214,17 @@ HudCdPlay_nullStringFallback:
   tx = 0x4c - Hud_gCdScrollTitle;
   if (*title != 0) {
     p = (u_char *)title;
-    do {
+    /* exit-in-the-middle `while(1)`: the do/while form let gcc PEEL the bound test into
+     * the preheader AND re-test it at the bottom; the oracle (.L800D67E4) tests the bound
+     * ONCE at the top and uses the *p!=0 test as the conditional back-edge. */
+    while (1) {
       if ((int)((u_char *)title + 0x3f) <= (int)p) break;
       if (*p == 0x20) {
         w = 3;
       }
       else {
-        if (*p - 0x30 < 10) {
+        /* oracle `sltiu $v0,$v0,0xA` -- the digit test is UNSIGNED */
+        if ((u_int)(*p - 0x30) < 10) {
           w = *p + 0x6e;
         }
         else {
@@ -2224,16 +2233,18 @@ HudCdPlay_nullStringFallback:
         w = HudPmx_gShapes[w].width + 1;
       }
       if (0x4b < tx + w) break;
-      if (tx < 0) {
-        dx = dx + w;
-      }
-      else {
+      /* oracle `bltz $a1,.L800D6874` -- the COPY arm is the fall-through */
+      if (0 <= tx) {
         *s = *p;
         s = s + 1;
       }
+      else {
+        dx = dx + w;
+      }
       p = p + 1;
       tx = tx + w;
-    } while (*p != 0);
+      if (*p == 0) break;
+    }
   }
   *s = 0;
 HudCdPlay_buildOutString:

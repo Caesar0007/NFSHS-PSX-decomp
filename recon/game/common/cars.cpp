@@ -1605,13 +1605,9 @@ LAB_80089c40:
 /* ---- Cars_IniCarObjects__FP8Car_tObji  [@0x80089d88] ---- */
 void Cars_IniCarObjects(Car_tObj *carObj,int index)
 {
-  u_short uVar1;
-  GameSetup_tCarData *pGVar2;
-  int iVar3;
+  int k;
   int carType;
   int carMass;
-  Car_tObj *pCVar4;
-  Car_tSpecs *pCVar5;
   coorddef cStack_28;
   int local_18 [2];
 
@@ -1640,11 +1636,7 @@ MASS_LIGHT:
     carMass = 0x110000;
     goto MASS_DONE;
 MASS_CALC:
-    carMass = carObj->specs->mass;
-    if (carMass < 0) {
-      carMass = carMass + 0x7f;
-    }
-    carMass = carMass >> 7;
+    carMass = carObj->specs->mass / 0x80;
 MASS_DONE:
     Newton_InitBaseNewtonObj((u_int *)&carObj->N,index | 0x100,carMass,carMass,(carObj->N).dimension.x,(carObj->N).dimension.y,
                (carObj->N).dimension.z);
@@ -1656,24 +1648,21 @@ MASS_DONE:
   else {
     (carObj->stats).extractSlice = local_18[0];
   }
-  if (GameSetup_gData.reverseTrack == 0) {
-    iVar3 = 1;
+  if (GameSetup_gData.reverseTrack) {
+    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,local_18[0],&cStack_28,-1);
   }
   else {
-    iVar3 = -1;
+    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,local_18[0],&cStack_28,1);
   }
-  Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,local_18[0],&cStack_28,iVar3);
   carObj->unlap = 1;
   carObj->lap = 0;
-  if (GameSetup_gData.reverseTrack == 0) {
-    uVar1 = (carObj->N).simRoadInfo.slice;
+  if (GameSetup_gData.reverseTrack) {
+    (carObj->N).oldSlice = ((short)gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
   }
   else {
-    uVar1 = ((short)gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
+    (carObj->N).oldSlice = (carObj->N).simRoadInfo.slice;
   }
-  (carObj->N).oldSlice = uVar1;
   Cars_FindTotalSlice(carObj);
-  iVar3 = 0;
   carObj->RSControl = 0;
   carObj->RSSteering = 0;
   carObj->RSGasLevel = '\0';
@@ -1702,23 +1691,20 @@ MASS_DONE:
   (carObj->angularVel_ch).x = 0;
   (carObj->angularVel_ch).y = 0;
   (carObj->angularVel_ch).z = 0;
-  pCVar4 = carObj;
-  do {
-    pCVar4->wheel[0].actualHeight = 0;
-    pCVar4->wheel[0].currentPos.x = 0;
-    pCVar4->wheel[0].currentPos.y = 0;
-    pCVar4->wheel[0].currentPos.z = 0;
-    pCVar4->wheel[0].roadNormal.x = 0;
-    pCVar4->wheel[0].roadNormal.y = 0x10000;
-    pCVar4->wheel[0].roadNormal.z = 0;
-    pCVar4->wheel[0].wheelAcc = 0;
-    pCVar4->wheel[0].wheelInAir = 0;
-    pCVar4->wheel[0].rebound = 0;
-    pCVar4->wheel[0].impactCompression = 0;
-    pCVar4->wheel[0].roadSurfaceType = 1;
-    iVar3 = iVar3 + 1;
-    pCVar4 = (Car_tObj *)&(pCVar4->N).simRoadInfo.quadPts[2].z;
-  } while (iVar3 < 4);
+  for (k = 0; k < 4; k++) {
+    carObj->wheel[k].actualHeight = 0;
+    carObj->wheel[k].currentPos.x = 0;
+    carObj->wheel[k].currentPos.y = 0;
+    carObj->wheel[k].currentPos.z = 0;
+    carObj->wheel[k].roadNormal.x = 0;
+    carObj->wheel[k].roadNormal.y = 0x10000;
+    carObj->wheel[k].roadNormal.z = 0;
+    carObj->wheel[k].wheelAcc = 0;
+    carObj->wheel[k].wheelInAir = 0;
+    carObj->wheel[k].rebound = 0;
+    carObj->wheel[k].impactCompression = 0;
+    carObj->wheel[k].roadSurfaceType = 1;
+  }
   (carObj->control).desiredGear = '\x01';
   (carObj->control).gear = '\x01';
   (carObj->control).lastGear = '\x01';
@@ -1739,11 +1725,11 @@ MASS_DONE:
   (carObj->control).steering = 0;
   (carObj->control).handBrake = '\0';
   (carObj->control).horn = '\0';
-  if (GameSetup_gData.Time == 0) {
-    (carObj->control).lights = '\0';
+  if (GameSetup_gData.Time) {
+    (carObj->control).lights = '\x03';
   }
   else {
-    (carObj->control).lights = '\x03';
+    (carObj->control).lights = '\0';
   }
   (carObj->control).abort = '\0';
   (carObj->control).lookBehind = '\0';
@@ -1756,7 +1742,6 @@ MASS_DONE:
   carObj->frontSkid = 0;
   carObj->rearSkid = 0;
   AIInit_RestartAICar(carObj);
-  pGVar2 = carObj->carInfo;
   carObj->audioCount = 0;
   carObj->audioDamageScrape = 0;
   (carObj->collision).resetTimer = 0;
@@ -1775,12 +1760,11 @@ MASS_DONE:
   (carObj->render).currentPitch = 0;
   (carObj->render).currentRoll = 0;
   (carObj->render).currentHeight = 0;
-  if (pGVar2->carType < 0x1d) {
-    iVar3 = fixeddiv(carObj->specs->bodyPitchFactor,carObj->specs->suspensionStiffness * 3);
-    pCVar5 = carObj->specs;
-    (carObj->render).pitchFactor = iVar3;
-    iVar3 = fixeddiv(pCVar5->bodyRollFactor,pCVar5->suspensionStiffness << 1);
-    (carObj->render).rollFactor = iVar3;
+  if (carObj->carInfo->carType < 0x1d) {
+    (carObj->render).pitchFactor =
+        fixeddiv(carObj->specs->bodyPitchFactor,carObj->specs->suspensionStiffness * 3);
+    (carObj->render).rollFactor =
+        fixeddiv(carObj->specs->bodyRollFactor,carObj->specs->suspensionStiffness << 1);
   }
   else {
     (carObj->render).pitchFactor = 0;

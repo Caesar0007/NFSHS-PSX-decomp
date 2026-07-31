@@ -928,10 +928,8 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   u_int *tp1;
   short tu29;
   short tu30;
-  int bfctResult;
   int tu24;
   int dV;
-  int tu4;
   int ti5;
   u_int uVar3_00;
   short sVar1;
@@ -946,7 +944,6 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int uVar7_00;
   int ti18;
   Track_tMaterial *currentQuadMat;
-  int trk_mat_p;
   u_char d;
   int vert_y_pack;
   u_char c;
@@ -969,12 +966,10 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int zeroTransFlag;
   POLY_GT4 *prim;
   Draw_tPixMap *workPmx;
-  int workPmx_p;
   int save_pre_otz;
   char flag;
   int doSubdivision;
   int face;
-  int facetIdx;
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;
@@ -990,16 +985,11 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   long b;
   u_int uStack_28;
   long color;
-  u_char bVar2;
   u_char tc3;
-  u_char bVar4;
   int tu5;
-  u_char bVar1;
   int tp6;
   u_char *tp20;
   u_char *p;
-  u_char *tp18;
-  u_char *tp19;
   int tu1;
   u_int tu2;
   u_int tu18;
@@ -1105,20 +1095,16 @@ gte_stlvnl(((char *)sd + 0xc8));
      (((-1 < (sd->tVn0).vz || (-1 < (sd->tVn1).vz)) ||
       ((-1 < (sd->tVn2).vz || (-1 < (sd->tVn3).vz)))))) {
     gte_avsz4_b();
-    trk_mat_p = (int)(sd->materials + *((short *)inQuad));
-    bVar2 = ((Track_tMaterial *)trk_mat_p)->flag;
+    currentQuadMat = sd->materials + *((short *)inQuad);
+    flag = currentQuadMat->flag;
 gte_swc2(0x7,((char *)sd + 0x94));
-    facetIdx = bVar2 >> 3 & 2;
+    face = flag >> 3 & 2;
 gte_stsxy3(&dvxy1,&dvxy3,&dvxy2);
-    /* MATCH (2026-07-11): oracle re-derives this compare FRESH at each use
-     * site (the intervening __asm__ blocks all clobber "memory", so gcc
-     * rematerializes rather than spills the cheap byte flag) as a DIRECT
-     * `slti;bnez` on `sd->otz < 200`, never the Yoda `199 < sd->otz` form
-     * (which needs a slti+xori negate-dance to get the same truth value).
-     * bVar4 is therefore stored NEGATED here and every use site below is
-     * flipped to compensate. */
-    bVar4 = sd->otz < 200;
-    if (((bVar2 >> 3 & 2) == 0) && !((bool)bVar4)) {
+    /* MATCH (2026-08-01): SYM names this `doSubdivision`, REG $21 = $s5, type INT
+     * -- NOT the u_char it used to be (a u_char forced `andi rN,s5,255` before each
+     * of its three tests; the oracle branches straight off `slti $s5,$v0,0xC8`). */
+    doSubdivision = sd->otz < 200;
+    if ((face == 0) && (doSubdivision == 0)) {
       gte_nclip_b();
 gte_swc2(0x18,&bfct);
       iVar2 = 1;
@@ -1144,45 +1130,46 @@ gte_swc2(0x18,&bfct);
     }
 gte_swc2(0x8,&depthcue);
     primPtr = (int)sd->artInfo->pPmx;
-    workPmx_p = primPtr + *(short *)(trk_mat_p + 2) * 0x10;
-    if ((((bVar2 & 8) != 0) && (sd->fogstate != '\0')) && ((int)sd->startfog <= sd->otz)) {
-      workPmx_p = primPtr + ((int)*(short *)(trk_mat_p + 2) + (u_int)*(u_char *)(trk_mat_p + 1)) * 0x10
-      ;
+    workPmx = (Draw_tPixMap *)(primPtr + currentQuadMat->pmxIndex * 0x10);
+    if ((((flag & 8) != 0) && (sd->fogstate != '\0')) && ((int)sd->startfog <= sd->otz)) {
+      workPmx = (Draw_tPixMap *)(primPtr +
+        ((int)currentQuadMat->pmxIndex + (u_int)*(u_char *)&currentQuadMat->mipmap_offset) * 0x10);
     }
-    /* NOTE (2026-07-11): oracle's `sd->otz = bfctResult` intermediate store
-     * is only conditionally reached on the offset==Draw_gMidGroundOtz path
-     * (dead-but-harmless C-level difference from an unconditional store,
-     * since sd->otz is overwritten right after either way). TRIED matching
-     * the real if/else branch shape (verify-or-revert): compiled clean but
-     * REGRESSED the gate (686->693 diffs) -- reverted, left on the simpler
-     * always-store + always-overwritten form. */
+    /* MATCH (2026-08-01, re-opened -- the w7-era note that the if/else "regressed"
+     * was measured on top of the old iVarN vertex block and is now stale).  SYM names
+     * `save_pre_otz` REG $19 = $s3 and the oracle @0x800C6904 really is two-armed:
+     *   sra v0,a1,1 ; addu s3,v0,zero ; bne a0,v1,ELSE ; [ds] sw s3,0x94(s0)
+     *   sll s3,s3,2 ; sra v0,a1,4 ; j MERGE ; [ds] addu v0,v0,a0
+     *   ELSE: addu v0,s3,a0 ; MERGE: sw v0,0x94(s0)
+     * -- the `sd->otz = save_pre_otz` store rides the bne delay slot (unconditional),
+     * each arm adds sd->offset into $v0 separately, and gcc cross-jump-merges the two
+     * `sd->otz =` stores into the shared tail `sw`. */
     depth_avg = sd->otz;
-    bfctResult = depth_avg >> 1;
-    bVar1 = sd->offset == Draw_gMidGroundOtz;
-    sd->otz = bfctResult;
-    iVar2 = bfctResult;
-    if ((bool)bVar1) {
-      bfctResult = bfctResult << 2;
-      iVar2 = depth_avg >> 4;
+    save_pre_otz = depth_avg >> 1;
+    sd->otz = save_pre_otz;
+    if (sd->offset == Draw_gMidGroundOtz) {
+      save_pre_otz = save_pre_otz << 2;
+      sd->otz = (depth_avg >> 4) + sd->offset;
     }
-    sd->otz = iVar2 + sd->offset;
-    tp19 = Render_gPacketPtr;
-    tp18 = Render_gPalettePtr;
+    else {
+      sd->otz = save_pre_otz + sd->offset;
+    }
     if ((0 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
-      if ((bVar2 & 0x80) != 0) {
+      if ((flag & 0x80) != 0) {
+        aprim = (DR_TWIN *)Render_gPacketPtr;
         r.w = 0;
         r.h = 0;
         r.x = 0;
         r.y = 0;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 |
+        *(u_int *)aprim =
+             *(u_int *)aprim & 0xff000000 |
              *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        tu4 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0xc;
-        *(u_int *)(tp18 + sd->otz * 4) = *(u_int *)(tp18 + sd->otz * 4) & 0xff000000 | tu4;
-        SetTexWindow((DR_TWIN *)tp19,&r);
+        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
+        SetTexWindow(aprim,&r);
       }
-      if (!(bool)bVar4) {
+      if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
          * DrawW_SubdividFacet's sealed instance; fastmovf.c family; $t4/$t5/$t6
@@ -1259,32 +1246,32 @@ gte_swc2(0x16,((char *)sd + 0x12c));
         DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
       }
       *(u_char *)((int)&prim->tag + 3) = 0xc;
-      prim->code = *(u_char *)(workPmx_p + 0xe) | 0x3c;
+      prim->code = *(u_char *)&workPmx->flag | 0x3c;
       /* MATCH (2026-07-11): u0/v0/clut (and the u1/v1/tpage, u2/v2/pad2,
        * u3/v3/pad3 siblings) are 4 CONTIGUOUS bytes in POLY_GT4 (nfs4_types.h
        * +0xC: u_char u0,v0; u_short clut) -- a plain word copy at the
        * oracle's access width, not 3 manual sub-field byte/half stores per
        * group (field-fusion lever, same family as DrawW_SetUpSubdividFacet
        * _Line's *(u_short*)&v->u fusion). */
-      tu2 = *(u_int *)workPmx_p;
-      tu18 = *(u_int *)(workPmx_p + 4);
-      uVar3 = *(u_int *)(workPmx_p + 8);
-      uVar7_00 = *(int *)(workPmx_p + 0xc);
+      tu2 = *(u_int *)&workPmx->u0;
+      tu18 = *(u_int *)&workPmx->u1;
+      uVar3 = *(u_int *)&workPmx->u2;
+      uVar7_00 = *(int *)&workPmx->u3;
       *(u_int *)&prim->u0 = tu2;
       *(u_int *)&prim->u1 = tu18;
       *(u_int *)&prim->u2 = uVar3;
       *(u_int *)&prim->u3 = uVar7_00;
       if (prim->clut == 0xffff) {
-        ti18 = (bfctResult - sd->startfog) * 0x10 >> ((int)sd->distfog);
+        ti18 = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
         if (ti18 < 0) {
           ti18 = 0;
         }
         else if (0xf < ti18) {
           ti18 = 0xf;
         }
-        prim->clut = gClutDepth[*(u_short *)(workPmx_p + 10)][ti18];
+        prim->clut = gClutDepth[workPmx->pad2][ti18];
       }
-      if ((bool)bVar4) {
+      if (doSubdivision != 0) {
         tc3 = sd->zeroGTETransFlag;
 gte_SetRotMatrix(((char *)sd + 0x74));
         if (tc3 == 0) {
@@ -1296,29 +1283,29 @@ gte_SetTransMatrix(((char *)sd + 0x74));
         if (stackSpeedUpEnbabledFlag != 0) {
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 0;
-          DrawW_SetUpSubdividFacet(facetIdx,sd);
+          DrawW_SetUpSubdividFacet(face,sd);
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 1;
         }
         else {
-          DrawW_SetUpSubdividFacet(facetIdx,sd);
+          DrawW_SetUpSubdividFacet(face,sd);
         }
 gte_SetRotMatrix(((char *)sd + 0x14));
         if (tc3 == 0) {
 gte_SetTransMatrix(((char *)sd + 0x14));
         }
       }
-      if ((bVar2 & 0x80) != 0) {
+      if ((flag & 0x80) != 0) {
         /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
          * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
          * insns the oracle never pays. */
         p = Render_gPacketPtr;
         tp20 = Render_gPalettePtr;
-        iVar2 = (u_int)*(u_char *)(workPmx_p + 0xc) - (u_int)*(u_char *)workPmx_p;
+        iVar2 = (u_int)workPmx->u3 - (u_int)workPmx->u0;
         if (iVar2 < 0) {
           iVar2 = -iVar2;
         }
-        ti5 = (u_int)*(u_char *)(workPmx_p + 0xd) - (u_int)*(u_char *)(workPmx_p + 1);
+        ti5 = (u_int)workPmx->v3 - (u_int)workPmx->v0;
         if (ti5 < 0) {
           ti5 = -ti5;
         }

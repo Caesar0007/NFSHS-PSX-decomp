@@ -2757,46 +2757,7 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   pCVar3 = (Car_tObj *)
            (*(*pa_Var10)[0x1b].pfn)
                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
-  if (perp == pCVar3) {
-    bVar2 = false;
-    if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
-      iVar4 = Dispatch__6Speech();
-      iVar4 = (**(int (**)(...))(*(int *)(iVar4 + 0x4c) + 0xac))
-                        (iVar4 + *(short *)(*(int *)(iVar4 + 0x4c) + 0xa8));
-      bVar2 = iVar4 < 0x160;
-    }
-    if (!bVar2) {
-      return;
-    }
-    pa_Var10 = (pThis->_base_Speaker)._vf;
-    pCVar3 = (Car_tObj *)
-             (*(*pa_Var10)[0x1b].pfn)
-                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
-    SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
-    pa_Var10 = (pThis->_base_Speaker)._vf;
-    iVar4 = (*(*pa_Var10)[0x1e].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1e].delta);
-    pSVar12 = &pThis->fVoice;
-    iVar4 = *(int *)(iVar4 + 4);
-    iVar7 = (pThis->_base_Speaker).fFrom;
-    pSVar14 = &(pThis->_base_Speaker).fReverse;
-    (pThis->_base_Speaker).fTo = iVar4;
-    pSVar11 = pSVar12;
-    SPCHNFS_C_A_INTRO(pSVar12,iVar4,iVar7,pSVar14);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    pa_Var10 = (pThis->_base_Speaker)._vf;
-    pCVar3 = (Car_tObj *)
-             (*(*pa_Var10)[0x1b].pfn)
-                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
-    FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
-    pSVar13 = &(pThis->_base_Speaker).fColour;
-    COLOUR = (SPCHNFSType_COLOUR *)(pThis->_base_Speaker).fCar;
-    SPCHNFS_C_C_PERP_REAQUIRED(pSVar12,pSVar13,(int)COLOUR,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
-               &(pThis->_base_Speaker).fDistance);
-MSEngage_emitSpeech:
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    return;
-  }
+  if (perp == pCVar3) goto MSEngage_samePerp;
   pa_Var10 = (pThis->_base_Speaker)._vf;
   pThis->fPerp = perp;
   pCVar3 = (Car_tObj *)
@@ -2992,6 +2953,45 @@ MSEngage_validateAndProceed:
   (**(int (**)(...))(iVar7 + 0xc))(iVar4 + sVar1,tu11);
   iVar4 = Dispatch__6Speech();
   *(u_int *)(iVar4 + 0x48) = uVar15;
+  return;
+MSEngage_samePerp:
+  bVar2 = false;
+  if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
+    iVar4 = Dispatch__6Speech();
+    iVar4 = (**(int (**)(...))(*(int *)(iVar4 + 0x4c) + 0xac))
+                      (iVar4 + *(short *)(*(int *)(iVar4 + 0x4c) + 0xa8));
+    bVar2 = iVar4 < 0x160;
+  }
+  if (!bVar2) {
+    return;
+  }
+  pa_Var10 = (pThis->_base_Speaker)._vf;
+  pCVar3 = (Car_tObj *)
+           (*(*pa_Var10)[0x1b].pfn)
+                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
+  SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
+  pa_Var10 = (pThis->_base_Speaker)._vf;
+  iVar4 = (*(*pa_Var10)[0x1e].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1e].delta);
+  pSVar12 = &pThis->fVoice;
+  iVar4 = *(int *)(iVar4 + 4);
+  iVar7 = (pThis->_base_Speaker).fFrom;
+  pSVar14 = &(pThis->_base_Speaker).fReverse;
+  (pThis->_base_Speaker).fTo = iVar4;
+  pSVar11 = pSVar12;
+  SPCHNFS_C_A_INTRO(pSVar12,iVar4,iVar7,pSVar14);
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+  pa_Var10 = (pThis->_base_Speaker)._vf;
+  pCVar3 = (Car_tObj *)
+           (*(*pa_Var10)[0x1b].pfn)
+                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
+  FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
+  pSVar13 = &(pThis->_base_Speaker).fColour;
+  COLOUR = (SPCHNFSType_COLOUR *)(pThis->_base_Speaker).fCar;
+  SPCHNFS_C_C_PERP_REAQUIRED(pSVar12,pSVar13,(int)COLOUR,(SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
+             &(pThis->_base_Speaker).fDistance);
+MSEngage_emitSpeech:
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 

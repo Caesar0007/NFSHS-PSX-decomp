@@ -787,44 +787,23 @@ CarIOUpd_loadPmxFallback:
 void CarIO_ReleaseCarCluts(Car_tObj *carObj)
 
 {
-  Draw_tPixMap *pDVar1;
-  int index;
-  u_short clut;
-  int sfx_vx;
-  int y;
-  u_short next;
-  int h;
-  u_short lastMask;
-  u_short lastLastMask;
-  u_short firstMask;
+  /* SYM @0x800bd358: fsize 32, mask $80030000 (ra,s1,s0) -- EXACTLY two REG
+   * locals, i=$10($s0) and carPixMapCount=$11($s1).  The old 26-local Ghidra
+   * soup (incl. a `char letter[5]`) inflated the frame 32->40 and swapped the
+   * two saved regs. */
   int i;
-  int iVar2;
   int carPixMapCount;
-  int iVar3;
-  short *thePlate;
-  int cx;
-  int cy;
-  int vx;
-  int vy;
-  int x;
-  int license_vx;
-  int license_vy;
-  int carType;
-  int recolor_flag;
-  int palShare;
-  char letter [5];
-  
-  iVar2 = 0;
-  iVar3 = (carObj->render).textureStartIndex;
+
+  carPixMapCount = (carObj->render).textureStartIndex;
+  i = 0;
   do {
-    if ((CarIO_carPixMap[iVar3].flag & 0x80) != 0) {
-      pDVar1 = CarIO_carPixMap + iVar3;
-      CarIO_carPixMap[iVar3].flag = 0;
-      Texture_MenuReleaseClutId(pDVar1->clut);
+    if ((CarIO_carPixMap[carPixMapCount].flag & 0x80) != 0) {
+      CarIO_carPixMap[carPixMapCount].flag = 0;
+      Texture_MenuReleaseClutId(CarIO_carPixMap[carPixMapCount].clut);
     }
-    iVar2 = iVar2 + 1;
-    iVar3 = iVar3 + 1;
-  } while (iVar2 < 0x33);
+    i = i + 1;
+    carPixMapCount = carPixMapCount + 1;
+  } while (i < 0x33);
   return;
 }
 

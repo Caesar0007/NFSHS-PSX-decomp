@@ -169,6 +169,21 @@ PER_TU_FLAGS = {
     # licensePlate (264) -- stays full-addressed %hi/%lo.  Under -G4 the
     # 8-byte arrays fall out of .sbss and we emit lui/addiu instead.
     "recon/game/psx/cario.cpp":             {"g_value": "8"},
+    # sfx.obj is a -G8 object too (w39-a9).  Its oracle has NO %gp_rel at all, so the
+    # usual gp-rel discriminator is silent here -- the tell is the ADDRESS-MATERIALIZATION
+    # FORM instead.  Under -G4 an 8-byte extern (`gSMokePixmap[2]`, `gGravelPixmap[2]`) is
+    # above the threshold, so cc1plus lowers `&sym` ITSELF into a schedulable
+    # `lui %hi / addiu %lo` pair -- and then hoists the `lui` into a branch delay slot the
+    # retail code leaves as `nop`.  Under -G8 the same symbol is small-data-eligible, so
+    # cc1plus emits the single ASSEMBLER MACRO `la $3,gSMokePixmap`, which is unschedulable
+    # (catalog: "a scalar extern global is a DELAY-SLOT POISON PILL") and which GNU-as
+    # expands to the IDENTICAL absolute lui/addiu pair -- same bytes, retail's schedule.
+    # The threshold is exact: the 8-byte arrays flip, the 4-byte scalars (gSMokePalette,
+    # gDirtPalette, ...) were already macro-form under both.  No %gp_rel appears in the
+    # object either way (the symbols are undefined here), so this cannot introduce a
+    # wrong gp-relative access.  Receipts: Sfx_BuildSmokeFacet 3 -> PASS,
+    # Sfx_BuildSouffleFacet 422 -> 399, other 5 fns unchanged (4 already PASS).
+    "recon/game/psx/sfx.cpp":               {"g_value": "8"},
     "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint

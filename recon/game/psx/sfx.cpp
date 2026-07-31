@@ -321,6 +321,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       Draw_tPixMap *pmx;
       u_short tpage;
       u_long ccode;
+      u_int p0f,p1f,p2f,p3f;
       int scale;
 
       ccode = 0x2e181010;
@@ -351,10 +352,17 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
           if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
             *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
             pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-            *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
-            *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
-            *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
-            *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
+            /* 4 named temps: oracle loads all four pixmap words into DISTINCT regs
+               (lw v1/a1/a2/a3) then stores all four -- the loads fill each other's
+               load-delay slots.  Per-field copies serialize through one reg (+4 nops). */
+            p0f = *(u_int *)&pmx->u0;
+            p1f = *(u_int *)&pmx->u1;
+            p2f = *(u_int *)&pmx->u2;
+            p3f = *(u_int *)&pmx->u3;
+            *(u_int *)&prim->u0 = p0f;
+            *(u_int *)&prim->u1 = p1f;
+            *(u_int *)&prim->u2 = p2f;
+            *(u_int *)&prim->u3 = p3f;
             tpage = pmx->tpage;
             ChangeTPage(&tpage,1);
             prim->tpage = tpage;
@@ -488,6 +496,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       Draw_tPixMap *pmx;
       u_short tpage;
       u_long ccode;
+      u_int p0f,p1f,p2f,p3f;
       int scale;
 
       ccode = 0x2e301818;
@@ -518,10 +527,17 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
           if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
             *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
             pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-            *(u_int *)&prim->u0 = *(u_int *)&pmx->u0;
-            *(u_int *)&prim->u1 = *(u_int *)&pmx->u1;
-            *(u_int *)&prim->u2 = *(u_int *)&pmx->u2;
-            *(u_int *)&prim->u3 = *(u_int *)&pmx->u3;
+            /* 4 named temps: oracle loads all four pixmap words into DISTINCT regs
+               (lw v1/a1/a2/a3) then stores all four -- the loads fill each other's
+               load-delay slots.  Per-field copies serialize through one reg (+4 nops). */
+            p0f = *(u_int *)&pmx->u0;
+            p1f = *(u_int *)&pmx->u1;
+            p2f = *(u_int *)&pmx->u2;
+            p3f = *(u_int *)&pmx->u3;
+            *(u_int *)&prim->u0 = p0f;
+            *(u_int *)&prim->u1 = p1f;
+            *(u_int *)&prim->u2 = p2f;
+            *(u_int *)&prim->u3 = p3f;
             tpage = pmx->tpage;
             ChangeTPage(&tpage,2);
             prim->tpage = tpage;
@@ -543,6 +559,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       int sina;
       sfxsouffle *ds;
       POLY_FT4 *prim;
+      u_int p0f,p1f,p2f,p3f;
       int link;
 
       cosa = fixedmult(fastintcos(is->angle),6);
@@ -574,10 +591,14 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
         sd->otz = (sd->otz >> 1) + 0xf;
         if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
           *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-          *(u_int *)&prim->u0 = *(u_int *)&gLeafPixmap->u0;
-          *(u_int *)&prim->u1 = *(u_int *)&gLeafPixmap->u1;
-          *(u_int *)&prim->u2 = *(u_int *)&gLeafPixmap->u2;
-          *(u_int *)&prim->u3 = *(u_int *)&gLeafPixmap->u3;
+          p0f = *(u_int *)&gLeafPixmap->u0;
+          p1f = *(u_int *)&gLeafPixmap->u1;
+          p2f = *(u_int *)&gLeafPixmap->u2;
+          p3f = *(u_int *)&gLeafPixmap->u3;
+          *(u_int *)&prim->u0 = p0f;
+          *(u_int *)&prim->u1 = p1f;
+          *(u_int *)&prim->u2 = p2f;
+          *(u_int *)&prim->u3 = p3f;
           prim->tag = prim->tag & 0xff000000 |
                       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
           link = (u_int)Render_gPacketPtr & 0xffffff;

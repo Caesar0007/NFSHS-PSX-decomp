@@ -110,7 +110,6 @@ void Input_Update(void)
   int left;
   int right;
   char iactive[32];
-  u_long *dbflags;
   int modeOffset;
   int pressOffset;
 
@@ -123,13 +122,13 @@ void Input_Update(void)
 
   h = Input_gHandler;
   r = Input_gResults;
-  dbflags = Input_gDBFlags;
   menukeys = 0;
   modeOffset = 0;
   pressOffset = 0;
 
   for (i = 0; i < 2; i++) {
     int mode;
+    u_long *dbflags = &Input_gDBFlags[i];
 
     mode = 0;
     for (j = 0; j < 2; j++) {
@@ -399,12 +398,10 @@ void Input_Update(void)
     r++;
     if (GameSetup_gData.numPlayerRaceCars == 1) {
       h += 76;
-      dbflags++;
       modeOffset += 4;
       pressOffset += 68;
       i++;
     }
-    dbflags++;
     modeOffset += 4;
     pressOffset += 68;
   }

@@ -429,7 +429,17 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
     }
     if (*(char *)shp == 'k') {
       abr = (u_short)shp->width >> 5 & 3;
-      return (abr != 3) ? abr : 2;
+      /* MATCH: clamp-in-place then ONE return -- a ternary/two-return form makes
+       * gcc build the value in $v1 and copy it out at a shared tail. */
+      if (abr == 3) { abr = 2; }
+      return abr;
+      /* FLOOR (4 diffs, 28/30): the oracle keeps TWO separate `jr ra` tails --
+       * .L800DFF08 `jr ra; addu v0,zero,zero` for `return 0` and .L800DFF10
+       * `jr ra; nop` for `return abr`.  gcc-2.8 cross-jump-merges them here and
+       * sinks the 0 into the `beqz shp` delay slot.  Tried: while(shp!=0)+trailing
+       * return 0 (6), for(;;)+break (6), goto-loop (29), continue-form (27),
+       * named ret var (4, identical).  Same class as the catalog's
+       * "dual jr ra tails always cross-jump-merge" negative result. */
     }
     if ((*(u_int *)shp & 0xffffff00) != 0) {
       shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));

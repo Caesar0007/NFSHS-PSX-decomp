@@ -154,21 +154,28 @@ void Texture_InitClut(void)
 
 {
   int clut;
-  int idx;
   int x;
   int y;
 
+  /* MATCH: no `idx` temp -- read/increment the counter global in place
+   * (`gFreePal4[gNbFreePal4] = ...; gNbFreePal4 = gNbFreePal4 + 1;`) so the
+   * value-`or` lands in the counter load's delay slot instead of a `nop`
+   * (55 -> 37 diffs).  RESIDUAL FLOOR (37, ours 68/65): the oracle keeps the
+   * running clut in a caller-saved temp ($v1, rematerialized by `sll v1,y,6`
+   * at the top and in the back-edge delay slot) and the loop-invariant
+   * `(x>>4)&0x3f` in $a2; ours colors them the other way round and pays an
+   * extra `addu a2,a1,zero`.  Tried: pre-loop `clut = y*0x40`, an explicit
+   * hoisted `xpart` local (62, worse), in-place `clut |= xpart`. */
   x = 0;
   gNbFreePal4 = 0;
   do {
     y = 0;
-    clut = 0;
+    clut = y * 0x40;
     do {
       y = y + 1;
-      idx = gNbFreePal4 + 1;
       gFreePal4[gNbFreePal4] = (u_short)clut | (u_short)(x >> 4) & 0x3f;
+      gNbFreePal4 = gNbFreePal4 + 1;
       clut = y * 0x40;
-      gNbFreePal4 = idx;
     } while (y < 0x78);
     x = x + 0x10;
   } while (x < 0x100);
@@ -178,10 +185,9 @@ void Texture_InitClut(void)
     clut = 0x2000;
     do {
       y = y + 1;
-      idx = gNbFreePal4 + 1;
       gFreePal4[gNbFreePal4] = (u_short)clut | (u_short)(x >> 4) & 0x3f;
+      gNbFreePal4 = gNbFreePal4 + 1;
       clut = clut + 0x40;
-      gNbFreePal4 = idx;
     } while (y < 0x20);
     x = x + 0x10;
   } while (x < 0x80);
@@ -192,9 +198,8 @@ void Texture_InitClut(void)
     clut = 0x1e00;
     do {
       y = y + 1;
-      idx = gNbFreePal8 + 1;
       gFreePal8[gNbFreePal8] = (u_short)clut | (u_short)(x >> 4) & 0x3f;
-      gNbFreePal8 = idx;
+      gNbFreePal8 = gNbFreePal8 + 1;
       clut = clut + 0x40;
     } while (y < 8);
     x = x + 0x100;

@@ -2196,11 +2196,10 @@ HudCdPlay_activateGate:
       title = TextSys_Word(0x46);
     }
 HudCdPlay_nullStringFallback:
-    if (title == (char *)0x0) {
-      keepup = 0;
-      Hud_gCdLastTick = ticks;
-      goto HudCdPlay_buildOutString;
-    }
+    /* oracle `.L800D6724: beqz $s1,.L800D6894` -- the keepup/lastTick block is OUT OF LINE,
+     * placed immediately before the buildOutString join (.L800D68A4); the main path reaches
+     * the join with `j` from `sb $zero,0($a2)` (.L800D688C). */
+    if (title == (char *)0x0) goto HudCdPlay_nullTitleTail;
   }
   if (Hud_gCdScrollTitle < Hud_BuildString(title,0,0,0,0,true) + 0x4c) {
     /* oracle .L800D675C is an UN-ROTATED top-test loop with an unconditional `j` back-edge
@@ -2254,6 +2253,10 @@ HudCdPlay_scrollTick:
     }
   }
   *s = 0;
+  goto HudCdPlay_buildOutString;
+HudCdPlay_nullTitleTail:
+  keepup = 0;
+  Hud_gCdLastTick = ticks;
 HudCdPlay_buildOutString:
   if (type == 0) {
     if (title == (char *)0x0) {

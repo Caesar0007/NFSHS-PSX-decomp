@@ -308,10 +308,10 @@ void Hud_BTCStats(short player,bool postgame)
   short col [4];
   short startY;
   char string [40];
-  int chasinghuman;
-  int showname;
+  bool chasinghuman;
+  bool showname;
   short PLAYERWIDTH;
-  int showtimeleft;
+  bool showtimeleft;
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
@@ -320,13 +320,6 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_X;
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
-  int halfH;
-  int textY;
-  int dataY;
-  int y;
-  int nperps;
-  int wnum;
-  int k;
 
   chasinghuman = 0;
   showname = 0;
@@ -339,107 +332,101 @@ void Hud_BTCStats(short player,bool postgame)
     }
   }
   PLAYERWIDTH = 0xe7;
-  if (chasinghuman != 0) {
+  if (chasinghuman) {
     PLAYERWIDTH = 0xa1;
   }
   showtimeleft = 0;
   /* the oracle indexes row `player` and element `Hud_NextPerp[player] - 1`
-     (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row); the old
-     `[player-1][NextPerp+9]` spelling is numerically identical (row stride 160,
-     element stride 16) but costs an extra `addiu` and is a Ghidra artifact. */
+     (`addiu $v1,$v1,-1` @0x800DA810, no -1 on the row). */
   if ((postgame == 0) || (BTCPerpInfo[player][Hud_NextPerp[player] - 1].caught != 0)) {
     showtimeleft = 1;
   }
   HUD_STATS_SIZE_W = PLAYERWIDTH + 6;
-  HUD_STATS_TEXT_START_X = -(PLAYERWIDTH >> 1);
+  /* w40-a4: the oracle builds POS_X directly as `0xa0 - (PLAYERWIDTH>>1)` (`li $s5,0xA0`
+     CSE'd with the TITLE_START_X centring below, then `subu $s1,$s5,$v0` @0x800DA87C) and
+     derives TEXT_START_X from it (`addiu $s2,$s1,0x7`).  The old `-(PW>>1)` + `+0xa0`
+     spelling was numerically equal but cost a `negu` and re-based every column constant. */
+  HUD_STATS_POS_X = 0xa0 - (PLAYERWIDTH >> 1);
   HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x16;
-  if (showtimeleft != 0) {
+  if (showtimeleft) {
     HUD_STATS_SIZE_H = (Hud_NextPerp[player] + 1) * 0xc + 0x22;
   }
-  if (postgame != 0) {
+  if (postgame) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 8;
   }
-  if (showname != 0) {
+  if (showname) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0xc;
   }
-  halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
-  HUD_STATS_POS_Y = (short)(0x78 - halfH);
-  textY = 0x76 - halfH;
-  HUD_STATS_TEXT_START_Y = (short)textY;
-  HUD_STATS_TITLE_START_Y = (short)(textY + 0xf);
-  HUD_STATS_POS_X = HUD_STATS_TEXT_START_X + 0xa0;
-  col[0] = HUD_STATS_TEXT_START_X + 0xa3;
-  if (chasinghuman != 0) {
-    col[1] = HUD_STATS_TEXT_START_X + 0xb3;
-    col[2] = HUD_STATS_TEXT_START_X + 0xa7 + 0xc;
-    col[3] = HUD_STATS_TEXT_START_X + 0xa7 + 0x50;
-  }
-  else {
-    col[1] = HUD_STATS_TEXT_START_X + 0xb6;
-    col[2] = HUD_STATS_TEXT_START_X + 0xa7 + 0x50;
-    col[3] = HUD_STATS_TEXT_START_X + 0xa7 + 0x96;
-  }
-  HUD_STATS_TITLE_START_X = (short)(0xa0 - (textpixels(TextSys_Word((postgame != 0) ? 0x48 : 0x47)) >> 1));
+  HUD_STATS_POS_Y = 0x78 - (HUD_STATS_SIZE_H >> 1);
+  HUD_STATS_TEXT_START_X = HUD_STATS_POS_X + 7;
+  HUD_STATS_TITLE_START_X = 0xa0 - (textpixels(TextSys_Word(postgame ? 0x48 : 0x47)) >> 1);
+  HUD_STATS_TITLE_START_Y = 0x76 - (HUD_STATS_SIZE_H >> 1);
+  HUD_STATS_TEXT_START_Y = HUD_STATS_TITLE_START_Y + 0xf;
+  col[0] = HUD_STATS_POS_X + 3;
+  col[1] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0xc : 0xf);
+  col[2] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0xc : 0x50);
+  col[3] = HUD_STATS_TEXT_START_X + (chasinghuman ? 0x50 : 0x96);
+  startY = HUD_STATS_TEXT_START_Y;
   Font_TextColor(6);
-  Font_TextXY(TextSys_Word((postgame != 0) ? 0x48 : 0x47),(int)HUD_STATS_TITLE_START_X,(int)HUD_STATS_TEXT_START_Y);
-  startY = HUD_STATS_TITLE_START_Y;
-  if (showname != 0) {
+  Font_TextXY(TextSys_Word(postgame ? 0x48 : 0x47),HUD_STATS_TITLE_START_X,HUD_STATS_TITLE_START_Y);
+  if (showname) {
     Font_TextColor(4);
-    Font_TextXY(Cars_gRaceCarList[player]->carInfo->driver,(int)col[2],(int)startY);
-    startY = (short)(textY + 0x1b);
+    Font_TextXY(Cars_gRaceCarList[player]->carInfo->driver,col[2],startY);
+    startY = startY + 0xc;
   }
   Font_TextColor(3);
-  if (chasinghuman == 0) {
-    Font_TextXY(TextSys_Word(0x4a),(int)col[1],(int)startY);
+  if (!chasinghuman) {
+    Font_TextXY(TextSys_Word(0x4a),col[1],startY);
   }
-  Font_TextXY(TextSys_Word(0x4b),(int)col[2],(int)startY);
-  Font_TextXY(TextSys_Word(0x4c),(int)col[3],(int)startY);
-  y = startY + 0xf;
-  Hud_FBuildF4(0,(int)HUD_STATS_POS_X,y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
-  for (k = 0; k < 4; k = k + 1) {
-    Hud_FBuildF4(0,col[k] + -2,y,1,(int)HUD_STATS_SIZE_H + -8,0,'\0','\0');
+  Font_TextXY(TextSys_Word(0x4b),col[2],startY);
+  Font_TextXY(TextSys_Word(0x4c),col[3],startY);
+  Hud_FBuildF4(0,HUD_STATS_POS_X,startY + 0xf,HUD_STATS_SIZE_W,1,0,'\0','\0');
+  /* w40-a4 CORRECTNESS: the vertical rules run i = 1..3 (`li $s5,1` in the jal delay slot
+     @0x800DAA34, loop `slti $v0,$v0,4`), NOT 0..3 -- col[0] gets no rule.  And the height is
+     SIZE_H minus the bar inset, not a flat SIZE_H-8: oracle @0x800DAAAC picks
+     `s2 - (s1 + 8)` under postgame vs `s2 - s1`, then `-0x10` under showtimeleft, with
+     s2 = (int)SIZE_H and s1 = y - POS_Y. */
+  for (i = 1; i < 4; i = i + 1) {
+    Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
+                 HUD_STATS_SIZE_H - ((startY + 0xf - HUD_STATS_POS_Y) + (postgame ? 8 : 0)) -
+                 (showtimeleft ? 0x10 : 0),0,'\0','\0');
   }
-  if (showtimeleft != 0) {
-    Hud_FBuildF4(0,(int)HUD_STATS_POS_X,y + (int)HUD_STATS_SIZE_H + -8,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
+  if (showtimeleft) {
+    Hud_FBuildF4(0,HUD_STATS_POS_X,
+                 startY + 0xf + HUD_STATS_SIZE_H - (startY + 0xf - HUD_STATS_POS_Y) -
+                 (postgame ? 0x18 : 0x10),HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
-  dataY = startY + 0xf;
-  nperps = Hud_NextPerp[player];
-  i = 0;
-  if (0 < nperps) {
-    do {
-      if ((int)i * 2 + 4 < StatsTimer_arr[player]) {
-        Font_TextColor(4);
-        sprintf(string,"%d",(int)i + 1);
-        y = dataY + (int)i * 0xc;
-        Font_TextXY(string,(int)col[0],y);
-        if (chasinghuman == 0) {
-          sprintf(string,"%s",BTCPerpInfo[player][i].name);
-          Font_TextXY(string,(int)col[1],y);
-        }
-        Hud_ParseTime(BTCPerpInfo[player][i].time,string);
-        Font_TextXY(string,(int)col[2],y);
-        wnum = 0x49;
-        if (BTCPerpInfo[player][i].caught != 0) {
-          wnum = 0x3d;
-        }
-        Font_TextXY(TextSys_Word(wnum),(int)col[3],y);
+  /* in-place `startY += 0xf` (`addiu $a0,$s6,0xF; addu $s6,$a0,$zero` @0x800DAB9C) -- there is
+     no separate dataY local (SYM lists only i/col/startY/string/chasinghuman/showname/
+     PLAYERWIDTH/showtimeleft/HUD_STATS_*). */
+  startY = startY + 0xf;
+  for (i = 0; i < Hud_NextPerp[player]; i = i + 1) {
+    if ((int)i * 2 + 4 < StatsTimer_arr[player]) {
+      Font_TextColor(4);
+      sprintf(string,"%d",(int)i + 1);
+      Font_TextXY(string,col[0],startY + (int)i * 0xc);
+      if (!chasinghuman) {
+        sprintf(string,"%s",BTCPerpInfo[player][i].name);
+        Font_TextXY(string,col[1],startY + (int)i * 0xc);
       }
-      i = i + 1;
-    } while ((int)i < nperps);
+      Hud_ParseTime(BTCPerpInfo[player][i].time,string);
+      Font_TextXY(string,col[2],startY + (int)i * 0xc);
+      Font_TextXY(TextSys_Word(BTCPerpInfo[player][i].caught != 0 ? 0x3d : 0x49),col[3],
+                  startY + (int)i * 0xc);
+    }
   }
-  if ((showtimeleft != 0) && ((int)i * 2 + 4 < StatsTimer_arr[player])) {
+  if (showtimeleft && ((int)i * 2 + 4 < StatsTimer_arr[player])) {
     Font_TextColor(3);
     Hud_ParseTime(FinalBTC_Countdown,string);
-    Font_TextXY(TextSys_Word(0x4d),(int)col[0],dataY + (int)i * 0xc + 2);
-    if (chasinghuman != 0) {
-      col[2] = col[3];
-    }
-    Font_TextXY(string,(int)col[2],dataY + (int)i * 0xc + 2);
+    Font_TextXY(TextSys_Word(0x4d),col[0],startY + (int)i * 0xc + 2);
+    /* oracle selects the COLUMN (`lh $a1,0x26(sp)` vs `lh $a1,0x24(sp)` @0x800DADC0), it does
+       not overwrite col[2] with col[3]. */
+    Font_TextXY(string,chasinghuman ? col[3] : col[2],startY + (int)i * 0xc + 2);
   }
-  if (postgame != 0) {
-    OptionsBarThing((int)HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  if (postgame) {
+    OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W,HUD_STATS_SIZE_H);
   }
-  Hud_RenderPauseBox((int)HUD_STATS_POS_X,(int)HUD_STATS_POS_Y,(int)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,HUD_STATS_SIZE_W,HUD_STATS_SIZE_H);
   return;
 }
 

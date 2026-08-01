@@ -544,7 +544,11 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
       if (R3DCar_InMenu == 0) {
         index = vx - 0x280;
       }
-      vx = vx + CarIO_carVRamOffset[index >> 6];
+      /* the `>> 6` is its OWN statement on the named local: the oracle emits the
+       * `sra v1,v1,6` at the two arms' merge point, BEFORE the carVRamOffset base
+       * is materialized (folded into the subscript it lands after the lui/addiu). */
+      index = index >> 6;
+      vx = vx + CarIO_carVRamOffset[index];
     }
     (carObj->render).textureOffsetU = (short)((vx & 0x3f) << 2);
     (carObj->render).textureOffsetV = (u_short)vy & 0xff;

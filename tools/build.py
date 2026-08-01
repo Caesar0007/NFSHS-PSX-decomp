@@ -153,6 +153,11 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # screencontroller.obj addresses its three 4-byte flare-state objects with
+    # full %hi/%lo sequences in retail, proving they were outside small data.
+    # Whole-TU gate: DrawController 886->805, SetActuators 29->19,
+    # SetCurrentController 331->329, Initialize 4->PASS; no regressions.
+    "recon/frontend/common/screencontroller.cpp": {"g_value": "0"},
     # hud.obj has the same exact -G8 threshold signature as cars/genericpmx/cario
     # (w39-a1, cross-checked with a9's night/sfx finding): hud.cpp OWNS the 8-byte
     # arrays Hud_gHudView[2]/Hud_gMapView[2]/Hud_gTacView[2] (@0x8013D950/58/60) and

@@ -482,10 +482,12 @@ void strCallback(void)
   /* MATCH: the slice.x advance is written INSIDE each arm (the oracle joins only after
    * the store); a shared `xstep` temp merged the two adds into one block. */
   if (isFirstSlice != 0) {
+    /* MATCH: the SYM lists NO locals for this fn -- `hstep`/`rw` as named
+     * locals give the quotient and the width their OWN pseudos, so the quotient
+     * cannot reuse the dividend's register and the whole caller-saved pool
+     * rotates by one (decbase a1->a2, PPWTop a2->a3, isFirstSlice a3->t0). */
     bottom = (int)PPWBottom;
-    hstep = ((int)PPWTop << 4) / bottom;
-    rw = (int)dec.rect[dec.rectid].w;
-    rem = rw % hstep;
+    rem = (int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / bottom);
     if (rem != 0) {
       isFirstSlice = 0;
       /* MATCH: the rem*PPWTop multiply belongs INSIDE the guard (the oracle schedules

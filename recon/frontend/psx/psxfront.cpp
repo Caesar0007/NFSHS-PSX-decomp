@@ -755,37 +755,34 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
 void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 {
-  int linkAddr;
-  short y_s;
-  short y_plus_h;
-  short x_plus_w;
-  short x_s;
-  u_char  *prevPrim;
-  u_char  *prim;
-  
-  prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  linkAddr = (uint)prim & 0xffffff;
-  Render_gPacketPtr = prim + 0x24;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(int *)(prim + 4) = c1;
-  *(int *)(prim + 0xc) = c2;
-  *(int *)(prim + 0x14) = c3;
-  *(int *)(prim + 0x1c) = c4;
-  SetPolyG4((POLY_G4 *)prim);
-  x_s = (short)x;
-  x_plus_w = x_s + (short)w;
-  y_s = (short)y;
-  *(short *)(prim + 10) = y_s;
-  *(short *)(prim + 0x12) = y_s;
-  y_plus_h = y_s + (short)h;
-  *(short *)(prim + 8) = x_s;
-  *(short *)(prim + 0x10) = x_plus_w;
-  *(short *)(prim + 0x18) = x_s;
-  *(short *)(prim + 0x1a) = y_plus_h;
-  *(short *)(prim + 0x20) = x_plus_w;
-  *(short *)(prim + 0x22) = y_plus_h;
+  /* SYM 8c: the ONLY local is prim (REG $0x10 = $s0, PTR STRUCT size 36 tag POLY_G4);
+   * x/y/w/h are REGPARM $s3/$s1/$s2/$s4 and c1..c4 REG $a3/$t0/$t1/$t2.  linkAddr,
+   * x_s, y_s, x_plus_w and y_plus_h were Ghidra fabrications: retail MUTATES the w
+   * and y params in place (addu $s2,$s3,$s2 / addu $s1,$s1,$s4) and lets the `sh`
+   * stores do the narrowing -- no (short) casts, no extra pseudos. */
+  uint     otWord;
+  POLY_G4 *prevPrim;
+  POLY_G4 *prim;
+
+  prim = (POLY_G4 *)Render_gPacketPtr;
+  prevPrim = (POLY_G4 *)Render_gPalettePtr;
+  prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
+  otWord = prevPrim->tag;
+  Render_gPacketPtr = (u_char *)prim + 0x24;
+  prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+  *(int *)&prim->r0 = c1;
+  *(int *)&prim->r1 = c2;
+  *(int *)&prim->r2 = c3;
+  *(int *)&prim->r3 = c4;
+  SetPolyG4(prim);
+  prim->x0 = x;
+  prim->y0 = y;
+  prim->x1 = x + w;
+  prim->y1 = y;
+  prim->x2 = x;
+  prim->y2 = y + h;
+  prim->x3 = x + w;
+  prim->y3 = y + h;
   return;
 }
 

@@ -635,9 +635,14 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   coorddef tireCoord [4];
   coorddef carNormal;
   
-  carNormal.x = (newtonObj->orientMat).m[3];
-  carNormal.y = (newtonObj->orientMat).m[4];
-  carNormal.z = (newtonObj->orientMat).m[5];
+  {
+    int r2 = (newtonObj->orientMat).m[3];
+    int r3 = (newtonObj->orientMat).m[4];
+    int r4 = (newtonObj->orientMat).m[5];
+    carNormal.x = r2;
+    carNormal.y = r3;
+    carNormal.z = r4;
+  }
   elevation.x = 0;
   elevation.y = 0;
   elevation.z = 0;
@@ -647,21 +652,36 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
     coorddef carGroundCoord;
     coorddef vecOffset;
     int length = (newtonObj->dimension).z * 0xd >> 0xc;
-    int width = (newtonObj->dimension).x * 7 >> 0xb;
-    int height = -(newtonObj->dimension).y >> 8;
 
-    lengthVector.x = length * ((newtonObj->orientMat).m[6] >> 8);
-    lengthVector.y = length * ((newtonObj->orientMat).m[7] >> 8);
-    lengthVector.z = length * ((newtonObj->orientMat).m[8] >> 8);
-    widthVector.x = width * ((newtonObj->orientMat).m[0] >> 8);
-    widthVector.y = width * ((newtonObj->orientMat).m[1] >> 8);
-    widthVector.z = width * ((newtonObj->orientMat).m[2] >> 8);
+    {
+      int r1 = length * ((newtonObj->orientMat).m[6] >> 8);
+      int r2 = length * ((newtonObj->orientMat).m[7] >> 8);
+      int r3 = length * ((newtonObj->orientMat).m[8] >> 8);
+      lengthVector.x = r1;
+      lengthVector.y = r2;
+      lengthVector.z = r3;
+    }
+    int width = (newtonObj->dimension).x * 7 >> 0xb;
+    {
+      int r1 = width * ((newtonObj->orientMat).m[0] >> 8);
+      int r2 = width * ((newtonObj->orientMat).m[1] >> 8);
+      int r3 = width * ((newtonObj->orientMat).m[2] >> 8);
+      widthVector.x = r1;
+      widthVector.y = r2;
+      widthVector.z = r3;
+    }
+    int height = -(newtonObj->dimension).y >> 8;
     vecOffset.x = height * (carNormal.x >> 8);
     vecOffset.y = height * (carNormal.y >> 8);
     vecOffset.z = height * (carNormal.z >> 8);
-    carGroundCoord.x = (newtonObj->position).x + vecOffset.x;
-    carGroundCoord.y = (newtonObj->position).y + vecOffset.y;
-    carGroundCoord.z = (newtonObj->position).z + vecOffset.z;
+    {
+      int r1 = (newtonObj->position).x + vecOffset.x;
+      int r2 = (newtonObj->position).y + vecOffset.y;
+      int r3 = (newtonObj->position).z + vecOffset.z;
+      carGroundCoord.x = r1;
+      carGroundCoord.y = r2;
+      carGroundCoord.z = r3;
+    }
 
     tireCoord[0].x = carGroundCoord.x + lengthVector.x - widthVector.x;
     tireCoord[0].y = carGroundCoord.y + lengthVector.y - widthVector.y;

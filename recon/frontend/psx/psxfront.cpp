@@ -456,7 +456,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)(prim + 0x1a) =
          ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-         (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+         (shp->shapey & 0x100) >> 4 |
          (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
     addw = 0;
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
@@ -596,7 +596,7 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
   *(ushort *)(prim + 0x1a) =
        ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-       (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+       (shp->shapey & 0x100) >> 4 |
        ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
   if ((flags & 4U) != 0) {
     x = x + fixedmult(scalex,width);

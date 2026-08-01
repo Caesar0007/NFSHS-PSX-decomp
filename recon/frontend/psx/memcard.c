@@ -1120,15 +1120,25 @@ u_char sjis2ascii(short sjis_code)
 
 {
   uint hi;
+  u_char hb;
   int kind;
 
   kind = 0;
   hi = sjis_code >> 8;          /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
+  hb = hi;                      /* the SECOND BYTE itself */
+  /* MATCH: retail keeps TWO live values for the second byte - the sign-extended
+   * word in $v1 that all three RANGE TESTS read, and a byte-typed copy in $a2
+   * (the oracle's `addu $a2,$v1,$zero`, filled into the 0x81 bne's delay slot)
+   * that the k-table index and the final subtraction read.  A second int/uint
+   * local, a plain `hv = hi;` copy, or a textual re-evaluation of sjis_code>>8
+   * are ALL copy-propagated back to one pseudo (measured, 9 spellings); only the
+   * NARROWER u_char type makes the second value a genuinely distinct pseudo that
+   * survives cse - and its uses need no mask because both consumers narrow anyway. */
   if ((sjis_code & 0xffU) == 0x81) {
     /* MATCH: the reverse table is its OWN symbol @0x80052ad0 indexed from 0x40 -
      * the oracle's lbu -0x40(base); modelling it as ascii_k_table+0xc folded the
      * displacement into %lo and aliased a different object (real bug). */
-    return sjis_k_table[(hi & 0xff) - 0x40];
+    return sjis_k_table[(hb & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
     if (9 < hi - 0x4f) {
@@ -1139,9 +1149,7 @@ u_char sjis2ascii(short sjis_code)
         kind = 2;
       }
     }
-    /* MATCH: the second byte is `hi` itself (already sign-extended), not a fresh
-     * (char)(sjis_code>>8) re-extract - the oracle reuses the saved copy. */
-    return sjis_table[kind][1] + (hi - sjis_table[kind][0]);
+    return sjis_table[kind][1] + (hb - sjis_table[kind][0]);
   }
   return '\0';
 }

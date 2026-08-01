@@ -1718,7 +1718,6 @@ DrawWTrough_setStateCallHigh:
         DrawW_kCtrlWorld_High(sd);
       }
     }
-    buildList = buildList + 1;
     buildInd = buildInd + 1;
   } while( true );
 }
@@ -2702,15 +2701,27 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
   buildInd = 0;
   while (1) {
     if (chunkCount <= buildInd) break;
-    if ((*(volatile u_char *)&buildList->enableBits & 2U) != 0) {
+    if (((u_int)buildList[buildInd].enableBits & 2U) != 0) {
       Chunk *chunkDat;
       Trk_SimObject *simObjs;
       int chunkInd;
       int geomRez;
-      chunkInd = buildList->chunkInd;
+      chunkInd = buildList[buildInd].chunkInd;
       chunkDat = Track_chunkList + chunkInd;
       simObjs = (Trk_SimObject *)(chunkDat->simObjBuf + 1);
-      geomRez = (int)*(volatile signed char *)&buildList->geomRez;  /* MATCH: volatile kills the buildList+2 giv; residual = lbu+sll/sra vs oracle lb (volatile blocks the fold) */
+      geomRez = (int)*(signed char *)&buildList[buildInd].geomRez;
+      /* MATCH (w40-a2): TWO cooperating fixes, must land together.
+         (1) `(signed char)` cast -> the oracle's `lb $a1,0x2($s2)` (`char` is UNSIGNED on
+             this build, so the plain field read emitted `lbu`; the previous
+             `*(volatile signed char*)` form kept the giv down but cost `lbu+sll+sra`).
+         (2) INDEX FORM for every buildList access (`buildList[buildInd].f`, pointer no
+             longer walked) -- catalog "giv-anchor Cure B": with the pointer-walk form
+             loop.c built a SECOND address giv anchored at `buildList+2` for this one
+             byte read (`addiu s4,s2,2` in the prologue + a per-iteration bump), which
+             cost 2 insns AND an extra callee-saved allocno that shifted every saved-reg
+             role. Index form reduces onto the single +0 walker the oracle uses.
+         Also dropped the `volatile` on the enableBits test (scaffolding that is a no-op
+         under the index form). 59 -> 45 diffs, insns 225 -> 223 (oracle 222). */
       if (chunkDat->objInstanceBuf != (Group *)0x0) {
         *(short *)((char *)sd + 0xda) = 1;
         gChunkObjInfo.simObjs = simObjs;
@@ -2735,7 +2746,6 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
         DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
       }
     }
-    buildList = buildList + 1;
     buildInd = buildInd + 1;
   }
   }

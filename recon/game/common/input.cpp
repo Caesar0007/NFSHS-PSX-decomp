@@ -320,7 +320,7 @@ void Input_Update(void)
           k = 16;
           activePtr = activeBase + k;
           for (; k >= 0; k--) {
-            *activePtr = one;
+            *activePtr = 1;
             activePtr--;
           }
         }
@@ -415,7 +415,7 @@ secondHeldDone:
     }
 
     r++;
-    if (GameSetup_gData.numPlayerRaceCars == one) {
+    if (GameSetup_gData.numPlayerRaceCars == 1) {
       h += 76;
       i++;
     }

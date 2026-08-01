@@ -141,7 +141,12 @@ void RaceSummary(void)
       }
       Font_TextXY(string,coltime,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       if (GameSetup_gData.numLaps != 1) {
-        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
+        if (*(int *)((int)Cars_gRaceCarList[i] + 0x3e8) != 0) {
+          Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
+        }
+        else {
+          Hud_ParseTime(0,string);
+        }
         Font_TextXY(string,colbestlap,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       }
     }

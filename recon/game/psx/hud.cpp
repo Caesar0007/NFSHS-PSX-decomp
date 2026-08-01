@@ -2732,7 +2732,10 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
  * then `sw $s1;lui/ori $s1(0xFFFFFF)`, retail the reverse.  Falsified levers (all
  * re-gated): swapping the `&`-operand order of the first tag build (4->8), of the first
  * palette store (4->8), of the radar arm's first tag (4->12), of the gTPage1 tag
- * (4, no change).  Emission-order tie, not source-reachable. */
+ * (4, no change).  w40-a1 adds two more NEGATIVES: swapping the OR-operand order at ALL
+ * FIVE tag-build sites at once (so 0xFFFFFF is the loop's first-referenced constant, the
+ * obvious way to flip which mask gcc sets up first) = 4 -> 34; the same sweep over all SIX
+ * palette stores = 4 -> 41 (and drops 3 insns).  Emission-order tie, not source-reachable. */
 void Hud_RenderMapView(void)
 
 {

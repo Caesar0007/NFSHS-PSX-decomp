@@ -369,9 +369,14 @@ int Movie_Play(char movie)
     /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
      * unmasked in a register); per-local u_short narrowing emitted two. */
     joyval = ((uint)PAD_state(0) | (uint)PAD_state(4)) & 0xffff;
-    /* MATCH: SHORT-CIRCUIT BRANCHES, not a materialized `||` value.  The
-     * comma/`||` form made gcc build the disjunction in a register
-     * (addu v1,zero,zero / li v1,1 / beqz v1) instead of branching. */
+    /* MATCH: the guard must be a plain nested `if`, NOT the comma form
+     * `joyval && (Movie_Stop(), A || B)` -- inside a comma expression gcc
+     * MATERIALIZES the disjunction in a register (addu v1,zero,zero / li v1,1
+     * / beqz v1) instead of short-circuit branching.  And the two arms must
+     * share ONE `user_exit = 1;` store: an `if/else if` pair with a store in
+     * each cross-jump-merges to the same code, but flow.c still counts both
+     * refs of the HImode constant 1 (7 vs 5 loop-weighted), which lifts that
+     * allocno above the `&dec` base and swaps s2/s3 through the whole fn. */
     if (joyval != 0) {
       Movie_Stop();
       if ((skip_all != '\0') || (joyval == 8)) {

@@ -23,86 +23,74 @@ extern int A_NewBestLap[] __asm__("NewBestLap");
 void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
 
 {
-  bool bCheckLapRecords;
-  short idx;
-  short nShowTrack;
-  tCarInfo *carInfo;
-  void *result;
+  short bBestLapFlag;
+  short bCheckLapRecords;
+  short i;
   int *nBestLapTimes;
   short *nRankBestLapTimes;
-  tRecordBuffer *TrackRecords;
-  int innerIdx;
-  int numCars;
-  short i;
+  short nBestCarIndexTemp;
+  short nNewRecordHolder;
   tRecordBuffer RecordHolder;
-  short bBestLapFlag;
+  tRecordBuffer *TrackRecords;
+  tCarInfo *carInfo;
   
   bBestLapFlag = 0;
-  idx = Stattool_CheckForHumanCar(dummyCars);
-  if (idx == 1) {
-    numCars = (int)nNumCars;
-    nBestLapTimes = (int *)reservememadr("ranklap",numCars << 2,0x10);
-    nRankBestLapTimes = (short *)reservememadr("rankbst",numCars << 1,0x10);
+  bCheckLapRecords = Stattool_CheckForHumanCar(dummyCars);
+  if (bCheckLapRecords != 1) {
+    return (void *)0x0;
+  }
+    nBestLapTimes = (int *)reservememadr("ranklap",nNumCars * sizeof(int),0x10);
+    nRankBestLapTimes = (short *)reservememadr("rankbst",nNumCars * sizeof(short),0x10);
     TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
-    i = 0;
-    if (0 < numCars) {
-      innerIdx = 0;
-      do {
-        innerIdx = innerIdx >> 0x10;
-        carInfo = GetCarFromSimID(&carManager, (short)dummyCars[innerIdx].carType);
-        if ((dummyCars[innerIdx].carFlags & 0x200U) != 0) {
-          purgememadr(nBestLapTimes);
-          purgememadr(nRankBestLapTimes);
-          purgememadr(TrackRecords);
-          return (void *)0x0;
-        }
-        if ((carInfo->fCarClass == 7) || (carInfo->fCarClass == 8)) {   /* MATCH: unsigned sltiu range fold */
-          nBestLapTimes[innerIdx] = (innerIdx + 1) * 0x23280;
-        }
-        else {
-          nBestLapTimes[innerIdx] = dummyCars[innerIdx].finalBestLap;
-        }
-        i = i + 1;
-        innerIdx = i * 0x10000;
-      } while (i * 0x10000 >> 0x10 < numCars);
+    for (i = 0; i < nNumCars; i++) {
+      carInfo = GetCarFromSimID(&carManager, (short)dummyCars[i].carType);
+      if ((dummyCars[i].carFlags & 0x200U) != 0) {
+        goto InvalidCar;
+      }
+      if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {
+        nBestLapTimes[i] = dummyCars[i].finalBestLap;
+      }
+      else {
+        nBestLapTimes[i] = (i + 1) * 0x23280;
+      }
     }
-    if (nNumCars < 2) {
-      *nRankBestLapTimes = 0;
-    }
-    else {
+    if (nNumCars >= 2) {
       Stattool_nCreateIndex((int)nNumCars,nBestLapTimes,nRankBestLapTimes);
     }
-    i = 0;
-    bCheckLapRecords = true;
-    if (0 < nNumCars) {
-      do {
-        idx = *(short *)(((i << 0x10) >> 0xf) + (int)nRankBestLapTimes);
-        if (((dummyCars[idx].carFlags & 4U) != 0) &&
-           (bCheckLapRecords = true, 0 < dummyCars[nRankBestLapTimes[idx]].finalBestLap)) break;
-        i = i + 1;
-        bCheckLapRecords = false;
-      } while (i * 0x10000 >> 0x10 < (int)nNumCars);
+    else {
+      *nRankBestLapTimes = 0;
     }
-    if (bCheckLapRecords) {
-      idx = *(short *)(((i << 0x10) >> 0xf) + (int)nRankBestLapTimes);
-      nShowTrack = Front_GetTrackRaced();
-      Stattool_GetRecords(nShowTrack,TrackRecords);
-      memcpy_call(&RecordHolder,TrackRecords,0x14);
-      if (((dummyCars[idx].finalBestLap < RecordHolder.nBestLap) || (RecordHolder.nBestLap == 0))
-         && (0 < dummyCars[idx].finalBestLap)) {
-        bBestLapFlag = 1;
-      }
-      *nBestCarIndex = idx;
+    for (nNewRecordHolder = 0; nNewRecordHolder < nNumCars; nNewRecordHolder++) {
+        nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
+        if (((dummyCars[nBestCarIndexTemp].carFlags & 4U) != 0) &&
+           (0 < dummyCars[nRankBestLapTimes[nBestCarIndexTemp]].finalBestLap)) {
+          bCheckLapRecords = 1;
+          break;
+        }
+        bCheckLapRecords = 0;
     }
+    if (bCheckLapRecords) goto CheckRecord;
+    purgememadr(nBestLapTimes);
+    goto PurgeRest;
+InvalidCar:
     purgememadr(nBestLapTimes);
     purgememadr(nRankBestLapTimes);
     purgememadr(TrackRecords);
-    result = (void *)(uint)(ushort)bBestLapFlag;
-  }
-  else {
-    result = (void *)0x0;
-  }
-  return result;
+    return (void *)0x0;
+CheckRecord:
+      nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
+      Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
+      memcpy_call(&RecordHolder,TrackRecords,0x14);
+      if (((dummyCars[nBestCarIndexTemp].finalBestLap < RecordHolder.nBestLap) || (RecordHolder.nBestLap == 0))
+         && (0 < dummyCars[nBestCarIndexTemp].finalBestLap)) {
+        bBestLapFlag = 1;
+      }
+      *nBestCarIndex = nBestCarIndexTemp;
+    purgememadr(nBestLapTimes);
+PurgeRest:
+    purgememadr(nRankBestLapTimes);
+    purgememadr(TrackRecords);
+    return (void *)(uint)(ushort)bBestLapFlag;
 }
 
 /* ---- StatChk_SaveRecordLapTime  (statchk.cpp:227) ---- */

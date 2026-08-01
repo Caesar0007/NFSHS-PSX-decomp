@@ -320,61 +320,50 @@ GetPad_returnJ2:
 void SetPads(void)
 
 {
-  bool bVar1;
-  int starttick;
-  int iVar2;
-  int iVar3;
-  int i;
-  int offs;
-  int pad;
-  int port;
-  int numoffsets;
-  byte gotone;
-  int theanalogoffset;
-  int iVar4;
   int j;
-  int iVar5;
-  int LookingFor;
-  int iVar6;
+  int pad;
   tfrontEnd *ptVar7;
   int *pTicks;
 
-  pTicks = &ticks;
+  pTicks = &ticks[0];
   ptVar7 = &frontEnd;
-  iVar5 = 0;
-  while (true) {
-    iVar4 = *pTicks;
-    iVar6 = 4;
-    if (2 <= iVar5) break;
-    port = iVar5 << 4;
+  j = 0;
+  while (j < 2) {
+    int LookingFor;
+    int starttick;
+    LookingFor = 4;
+    pad = j << 4;
     if (ptVar7->AnalogOn[0] != 0) {
-      iVar6 = 7;
+      LookingFor = 7;
     }
+    starttick = *pTicks;
+    bool waiting;
     do {
-      bVar1 = false;
-      if (*pTicks - iVar4 < 0x80) {
-        iVar2 = PadGetState(port);
-        bVar1 = iVar2 != 6;
+      waiting = false;
+      if (*pTicks - starttick < 0x80) {
+        waiting = PadGetState(pad) != 6;
       }
-    } while (bVar1);
-    iVar2 = PadGetState(port);
-    iVar4 = 0;
-    if (iVar2 == 6) {
-      bVar1 = false;
-      iVar2 = PadInfoMode(port,4,-1);
-      for (offs = 0; offs < iVar2; offs = offs + 1) {
-        iVar3 = PadInfoMode(port,4,offs);
-        if (iVar3 == iVar6) {
-          bVar1 = true;
-          iVar4 = offs;
+    } while (waiting);
+    if (PadGetState(pad) == 6) {
+      int theanalogoffset;
+      bool gotone;
+      int numoffsets;
+      int i;
+      theanalogoffset = 0;
+      gotone = false;
+      numoffsets = PadInfoMode(pad,4,-1);
+      for (i = 0; i < numoffsets; i++) {
+        if (PadInfoMode(pad,4,i) == LookingFor) {
+          gotone = true;
+          theanalogoffset = i;
         }
       }
-      if (bVar1) {
-        PadSetMainMode(port,iVar4,0);
+      if (gotone) {
+        PadSetMainMode(pad,theanalogoffset,0);
       }
     }
     ptVar7 = (tfrontEnd *)&ptVar7->raceType;
-    iVar5 = iVar5 + 1;
+    j++;
   }
   return;
 }
@@ -2108,18 +2097,12 @@ int * Front_BuildStream(int *stream)
 
 {
   void *pvVar1;
-  int *piVar2;
   int colourLoop;
   int j, type;
   int iVar3;
-  uint uVar4;
-  tfrontEnd *ptVar5;
   uint uVar6;
   int numplaylistsongs;
-  int iVar7;
   int *d;
-  uint *puVar8;
-  int *piVar9;
   int trackLang;
   int gameLang;
   int config;
@@ -2134,83 +2117,58 @@ int * Front_BuildStream(int *stream)
   Front_InitCopCars__FR9tFEStream(&streamData);
   Front_InitPerps__FR9tFEStream(&streamData);
   Front_InitTraffic__FR9tFEStream(&streamData);
-  frontEnd.randomSeed = (short)ticks;
-  seedrandom((int)frontEnd.randomSeed);
-  iVar3 = 7;
-  piVar2 = colourChosen + 7;
-  do {
-    *piVar2 = 0;
-    iVar3 = iVar3 + -1;
-    piVar2 = piVar2 + -1;
-  } while (-1 < iVar3);
+  seedrandom(frontEnd.randomSeed = (short)*(volatile int *)ticks);
+  for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {
+    colourChosen[colourLoop] = 0;
+  }
   Controller_SetRamp();
+  d = stream + 0x35;
   resizememadr(stream,0x10000);
   *stream = 0x34;
-  uVar4 = (uint)(byte)frontEnd.controlConfig[0];
+  stream[1] = (uint)(byte)frontEnd.controlConfig[0];
   stream[2] = 0x35;
-  stream[1] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.deadSpot[0];
+  stream[3] = (uint)(byte)frontEnd.deadSpot[0];
   stream[4] = 0x36;
-  stream[3] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.steeringRange[0];
+  stream[5] = (uint)(byte)frontEnd.steeringRange[0];
   stream[6] = 0x37;
-  stream[5] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.IImaxRange[0];
+  stream[7] = (uint)(byte)frontEnd.IImaxRange[0];
   stream[8] = 0x38;
-  stream[7] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.ImaxRange[0];
+  stream[9] = (uint)(byte)frontEnd.ImaxRange[0];
   stream[10] = 0x39;
-  stream[9] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J1MAX[0];
+  stream[0xb] = (uint)(byte)frontEnd.J1MAX[0];
   stream[0xc] = 0x3a;
-  stream[0xb] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J1MIN[0];
+  stream[0xd] = (uint)(byte)frontEnd.J1MIN[0];
   stream[0xe] = 0x3b;
-  stream[0xd] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J2MAX[0];
+  stream[0xf] = (uint)(byte)frontEnd.J2MAX[0];
   stream[0x10] = 0x3c;
-  stream[0xf] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J2MIN[0];
+  stream[0x11] = (uint)(byte)frontEnd.J2MIN[0];
   stream[0x12] = 0x3d;
-  stream[0x11] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.shockMode[0];
+  stream[0x13] = (uint)(byte)frontEnd.shockMode[0];
   stream[0x14] = 0x3e;
-  stream[0x13] = uVar4;
   stream[0x15] = (uint)(byte)frontEnd.shockImpact[0];
   stream[0x16] = 0x3f;
-  uVar4 = (uint)(byte)frontEnd.controlConfig[1];
+  stream[0x17] = (uint)(byte)frontEnd.controlConfig[1];
   stream[0x18] = 0x40;
-  stream[0x17] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.deadSpot[1];
+  stream[0x19] = (uint)(byte)frontEnd.deadSpot[1];
   stream[0x1a] = 0x41;
-  stream[0x19] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.steeringRange[1];
+  stream[0x1b] = (uint)(byte)frontEnd.steeringRange[1];
   stream[0x1c] = 0x42;
-  stream[0x1b] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.IImaxRange[1];
+  stream[0x1d] = (uint)(byte)frontEnd.IImaxRange[1];
   stream[0x1e] = 0x43;
-  stream[0x1d] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.ImaxRange[1];
+  stream[0x1f] = (uint)(byte)frontEnd.ImaxRange[1];
   stream[0x20] = 0x44;
-  stream[0x1f] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J1MAX[1];
+  stream[0x21] = (uint)(byte)frontEnd.J1MAX[1];
   stream[0x22] = 0x45;
-  stream[0x21] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J1MIN[1];
+  stream[0x23] = (uint)(byte)frontEnd.J1MIN[1];
   stream[0x24] = 0x46;
-  stream[0x23] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J2MAX[1];
+  stream[0x25] = (uint)(byte)frontEnd.J2MAX[1];
   stream[0x26] = 0x47;
-  stream[0x25] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.J2MIN[1];
+  stream[0x27] = (uint)(byte)frontEnd.J2MIN[1];
   stream[0x28] = 0x48;
-  stream[0x27] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.shockMode[1];
+  stream[0x29] = (uint)(byte)frontEnd.shockMode[1];
   stream[0x2a] = 0x49;
-  stream[0x29] = uVar4;
-  uVar4 = (uint)(byte)frontEnd.shockImpact[1];
+  stream[0x2b] = (uint)(byte)frontEnd.shockImpact[1];
   stream[0x2c] = 0x21;
-  stream[0x2b] = uVar4;
   stream[0x2d] = -1;
   stream[0x2e] = 3;
   stream[0x2f] = 1;
@@ -2220,368 +2178,285 @@ int * Front_BuildStream(int *stream)
   stream[0x33] = 0;
   stream[0x34] = 0x24;
   stream[0x31] = iVar3;
-  uVar4 = (uint)(byte)frontEnd.language;
-  if ((frontEnd.localSpeech == '\0') ||
-     (pvVar1 = Front_EnableLocalSpeech(), pvVar1 == (void *)0x0)) {
-    stream[0x35] = uVar4;
+  gameLang = (uint)(byte)frontEnd.language;
+  trackLang = (uint)(byte)streamData.trackInfo.fLanguage;
+  if ((frontEnd.localSpeech != '\0') &&
+     (pvVar1 = Front_EnableLocalSpeech(), pvVar1 != (void *)0x0)) {
+    stream[0x35] = trackLang;
+    d = stream + 0x36;
   }
   else {
-    stream[0x35] = (uint)(byte)streamData.trackInfo.fLanguage;
+    *d++ = gameLang;
   }
-  stream[0x36] = 0x27;
-  stream[0x37] = (uint)(byte)frontEnd.language;
-  stream[0x38] = 0x28;
-  stream[0x39] = (uint)(byte)frontEnd.measurement;
-  stream[0x3a] = 0x11;
-  stream[0x3b] = 0;
-  stream[0x3c] = 9;
-  stream[0x3d] = (uint)(byte)frontEnd.skillLevel;
-  stream[0x3e] = 10;
-  stream[0x3f] = (uint)(byte)frontEnd.gameMode;
-  stream[0x40] = 7;
-  stream[0x41] = (uint)(byte)frontEnd.raceType;
-  stream[0x42] = 0x115;
-  stream[0x43] = 0;
-  stream[0x44] = 0;
-  stream[0x45] = 0x117;
-  stream[0x46] = 0;
-  stream[0x47] = 0;
-  stream[0x48] = 0xf;
-  stream[0x49] = (uint)(byte)frontEnd.catchup;
-  piVar2 = Front_AppendTrackData__FPiR9tFEStream(stream + 0x4a,&streamData);
-  *piVar2 = 0x13;
-  piVar2[1] = (uint)(byte)frontEnd.song;
-  piVar2[2] = 0x2a;
-  piVar2[3] = (uint)(byte)frontEnd.audioMode;
-  piVar2[4] = 0x2b;
-  piVar2[5] = (uint)(byte)frontEnd.musicVolume;
-  piVar2[6] = 0x2c;
-  piVar2[7] = (uint)(byte)frontEnd.sfxVolume;
-  piVar2[8] = 0x2d;
-  piVar2[9] = (uint)(byte)frontEnd.engineVolume;
-  piVar2[10] = 0x2e;
-  piVar2[0xb] = (uint)(byte)frontEnd.narrationVolume;
-  piVar2[0xc] = 0x2f;
-  piVar2[0xd] = (uint)(byte)frontEnd.ambientVolume;
-  piVar2[0xe] = 0x16;
-  puVar8 = (uint *)(piVar2 + 0xf);
-  if (streamData.playerCars[0].fCarID == '\x1c') {
-    *puVar8 = 0;
-  }
-  else if (frontEnd.raceType == '\x02') {
-    *puVar8 = 1;
+  *d++ = 0x27;
+  *d++ = (uint)(byte)frontEnd.language;
+  *d++ = 0x28;
+  *d++ = (uint)(byte)frontEnd.measurement;
+  *d++ = 0x11;
+  *d++ = 0;
+  *d++ = 9;
+  *d++ = (uint)(byte)frontEnd.skillLevel;
+  *d++ = 10;
+  *d++ = (uint)(byte)frontEnd.gameMode;
+  *d++ = 7;
+  *d++ = (uint)(byte)frontEnd.raceType;
+  *d++ = 0x115;
+  *d++ = 0;
+  *d++ = 0;
+  *d++ = 0x117;
+  *d++ = 0;
+  *d++ = 0;
+  *d++ = 0xf;
+  *d++ = (uint)(byte)frontEnd.catchup;
+  d = Front_AppendTrackData__FPiR9tFEStream(d,&streamData);
+  *d++ = 0x13;
+  *d++ = (uint)(byte)frontEnd.song;
+  *d++ = 0x2a;
+  *d++ = (uint)(byte)frontEnd.audioMode;
+  *d++ = 0x2b;
+  *d++ = (uint)(byte)frontEnd.musicVolume;
+  *d++ = 0x2c;
+  *d++ = (uint)(byte)frontEnd.sfxVolume;
+  *d++ = 0x2d;
+  *d++ = (uint)(byte)frontEnd.engineVolume;
+  *d++ = 0x2e;
+  *d++ = (uint)(byte)frontEnd.narrationVolume;
+  *d++ = 0x2f;
+  *d++ = (uint)(byte)frontEnd.ambientVolume;
+  *d++ = 0x16;
+  if ((signed char)streamData.playerCars[0].fCarID == 0x1c) {
+    *d++ = 0;
   }
   else {
-    *puVar8 = (uint)(byte)frontEnd.damage;
-  }
-  iVar7 = 0;
-  iVar3 = 0;
-  ptVar5 = &frontEnd;
-  do {
-    if (ptVar5->FEPlayList[0] != 0) {
-      iVar7 = iVar7 + 1;
+    if (frontEnd.raceType != '\x02') {
+      *d++ = (uint)(byte)frontEnd.damage;
     }
-    iVar3 = iVar3 + 1;
-    ptVar5 = (tfrontEnd *)&ptVar5->raceType;
-  } while (iVar3 < 0x28);
-  piVar2[0x10] = 0x30;
-  piVar2[0x11] = iVar7;
-  piVar2[0x12] = 0x4c;
-  piVar2[0x13] = iVar7;
-  piVar2 = piVar2 + 0x14;
-  iVar3 = 0;
-  ptVar5 = &frontEnd;
-  do {
-    if (ptVar5->FEPlayList[0] != 0) {
-      *piVar2 = iVar3;
-      piVar2 = piVar2 + 1;
+    else {
+      *d++ = 1;
     }
-    iVar3 = iVar3 + 1;
-    ptVar5 = (tfrontEnd *)&ptVar5->raceType;
-  } while (iVar3 < 0x28);
-  *piVar2 = 0x29;
-  iVar3 = Stattool_ReturnRecordLapTime((short)streamData.track.fTrackNumber);
-  piVar2[1] = iVar3;
-  piVar2[2] = 8;
-  if ((frontEnd.raceType != '\0') || (iVar3 = 1, frontEnd.carListType != '\0')) {
-    iVar3 = Front_GetLapsForType();
   }
-  piVar2[3] = iVar3;
+  numplaylistsongs = 0;
+  for (j = 0; j < 0x28; j++) {
+    if (frontEnd.FEPlayList[j] != 0) {
+      numplaylistsongs++;
+    }
+  }
+  *d++ = 0x30;
+  *d++ = numplaylistsongs;
+  *d++ = 0x4c;
+  *d++ = numplaylistsongs;
+  for (j = 0; j < 0x28; j++) {
+    if (frontEnd.FEPlayList[j] != 0) {
+      *d++ = j;
+    }
+  }
+  *d++ = 0x29;
+  iVar3 = Stattool_ReturnRecordLapTime((short)(signed char)streamData.track.fTrackNumber);
+  *d++ = iVar3;
+  *d++ = 8;
+  if ((frontEnd.raceType == '\0') && (frontEnd.carListType == '\0')) {
+    *d++ = 1;
+  }
+  else {
+    *d++ = Front_GetLapsForType();
+  }
   if (((streamData.playerCars[0].fCarClass == '\a') || (streamData.playerCars[1].fCarClass == '\a'))
      || ((frontEnd.raceType == '\0' && ((frontEnd.oppNumber == '\0' && (frontEnd.gameMode == '\0')))
          ))) {
-    piVar2[4] = 0x20;
-    piVar2[5] = 0;
-    piVar2[6] = 0x32;
-    piVar2[7] = 0;
-    piVar2[8] = 0x33;
-    piVar2[9] = 0;
+    *d++ = 0x20;
+    *d++ = 0;
+    *d++ = 0x32;
+    *d++ = 0;
+    *d++ = 0x33;
+    *d++ = 0;
   }
   else {
-    piVar2[4] = 0x20;
-    piVar2[5] = (uint)(byte)frontEnd.checkPointType;
-    piVar2[6] = 0x32;
-    if (frontEnd.checkPointDisplay[0] == '\x01') {
-      iVar3 = 2;
-      if (CountryMeasurement[streamData.trackInfo.fSpeedoCountry] != 0) {
-        iVar3 = 1;
-      }
-    }
-    else {
-      iVar3 = 0;
-    }
-    piVar2[7] = iVar3;
-    piVar2[8] = 0x33;
-    if (frontEnd.checkPointDisplay[1] == '\x01') {
-      iVar3 = 2;
-      if (CountryMeasurement[streamData.trackInfo.fSpeedoCountry] != 0) {
-        iVar3 = 1;
-      }
-    }
-    else {
-      iVar3 = 0;
-    }
-    piVar2[9] = iVar3;
+    *d++ = 0x20;
+    *d++ = (uint)(byte)frontEnd.checkPointType;
+    *d++ = 0x32;
+    *d++ = (frontEnd.checkPointDisplay[0] == '\x01')
+               ? ((((short *)CountryMeasurement)[streamData.trackInfo.fSpeedoCountry] != 0) ? 1 : 2)
+               : 0;
+    *d++ = 0x33;
+    *d++ = (frontEnd.checkPointDisplay[1] == '\x01')
+               ? ((((short *)CountryMeasurement)[streamData.trackInfo.fSpeedoCountry] != 0) ? 1 : 2)
+               : 0;
   }
-  piVar2 = Front_AppendPlayerCarData__FPiR9tFEStream(piVar2,&streamData);
-  piVar2 = Front_AppendOpponentData__FPiR9tFEStream(piVar2,&streamData);
-  piVar2 = Front_AppendPerpData__FPiR9tFEStream(piVar2,&streamData);
-  piVar2 = Front_AppendCopData__FPiR9tFEStream(piVar2,&streamData);
-  piVar2 = Front_AppendTrafficData__FPiR9tFEStream(piVar2,&streamData);
-  *piVar2 = 0x1c;
-  piVar2[1] = (int)streamData.numPlayers + (int)streamData.numOpponents + (int)streamData.numCops +
+  d = Front_AppendPlayerCarData__FPiR9tFEStream(d,&streamData);
+  d = Front_AppendOpponentData__FPiR9tFEStream(d,&streamData);
+  d = Front_AppendPerpData__FPiR9tFEStream(d,&streamData);
+  d = Front_AppendCopData__FPiR9tFEStream(d,&streamData);
+  d = Front_AppendTrafficData__FPiR9tFEStream(d,&streamData);
+  *d++ = 0x1c;
+  *d++ = (int)streamData.numPlayers + (int)streamData.numOpponents + (int)streamData.numCops +
               (int)streamData.numSuperCops + (int)streamData.numPerpObjects +
               (int)streamData.numTraffic;
-  piVar2[2] = 0xe5;
-  iVar3 = GetPSXPadValue(1,0);
-  piVar2[3] = iVar3;
-  piVar2[4] = 0xeb;
-  iVar3 = GetPSXPadValue(8,0);
-  piVar2[5] = iVar3;
-  piVar2[6] = 0xe8;
-  iVar3 = GetPSXPadValue(0x80,0);
-  piVar2[7] = iVar3;
-  piVar2[8] = 0xe9;
-  iVar3 = GetPSXPadValue(0x20,0);
-  piVar2[9] = iVar3;
-  piVar2[10] = 0xe6;
-  iVar3 = GetPSXPadValue(0x10,0);
-  piVar2[0xb] = iVar3;
-  piVar2[0xc] = 0xe7;
-  iVar3 = GetPSXPadValue(0x40,0);
-  piVar2[0xd] = iVar3;
-  piVar2[0xe] = 0xea;
-  iVar3 = GetPSXPadValue(0x4000,0);
-  piVar2[0xf] = iVar3;
-  uVar4 = (uint)(byte)frontEnd.controlConfig[0];
-  if (frontEnd.controlType[0] == 0x23) {
-    iVar3 = 0;
-  }
-  else if ((frontEnd.controlType[0] == 0x53) || (iVar3 = 2, frontEnd.controlType[0] == 0x73)) {
-    iVar3 = 1;
-  }
-  piVar2[0x10] = 0x4f;
-  iVar7 = GetPSXPadValue(mappings[uVar4][0][iVar3],0);
-  piVar2[0x11] = iVar7;
-  piVar2[0x12] = 0x50;
-  iVar7 = GetPSXPadValue(mappings[uVar4][1][iVar3],0);
-  piVar2[0x13] = iVar7;
-  piVar2[0x14] = 0x51;
-  iVar7 = GetPSXPadValue(mappings[uVar4][2][iVar3],0);
-  piVar2[0x15] = iVar7;
-  piVar2[0x16] = 0x52;
-  iVar7 = GetPSXPadValue(mappings[uVar4][3][iVar3],0);
-  piVar2[0x17] = iVar7;
-  piVar2[0x18] = 0xfb;
-  iVar7 = GetPSXPadValue(mappings[uVar4][8][iVar3],0);
-  piVar2[0x19] = iVar7;
-  piVar2[0x1a] = 0x53;
-  iVar7 = GetPSXPadValue(mappings[uVar4][4][iVar3],0);
-  piVar2[0x1b] = iVar7;
-  piVar2[0x1c] = 0x66;
-  iVar7 = GetPSXPadValue(mappings[uVar4][5][iVar3],0);
-  piVar2[0x1d] = iVar7;
-  piVar2[0x1e] = 0x67;
-  iVar7 = GetPSXPadValue(mappings[uVar4][6][iVar3],0);
-  piVar2[0x1f] = iVar7;
-  piVar2[0x20] = 0x68;
-  iVar7 = GetPSXPadValue(mappings[uVar4][0xc][iVar3],0);
-  piVar2[0x21] = iVar7;
-  if (streamData.track.fTimeOfDay == '\0') {
-    piVar2[0x22] = 0x73;
-    piVar2[0x23] = 0;
-    piVar2[0x24] = 0x54;
-    uVar6 = mappings[uVar4][9][iVar3];
-    if (iVar3 == 1) {
-      uVar6 = uVar6 | 6;
-    }
-  }
-  else {
-    piVar2[0x22] = 0x73;
-    iVar7 = GetPSXPadValue(mappings[uVar4][9][iVar3],0);
-    piVar2[0x23] = iVar7;
-    piVar2[0x24] = 0x54;
+  *d++ = 0xe5;
+  *d++ = GetPSXPadValue(1,0);
+  *d++ = 0xeb;
+  *d++ = GetPSXPadValue(8,0);
+  *d++ = 0xe8;
+  *d++ = GetPSXPadValue(0x80,0);
+  *d++ = 0xe9;
+  *d++ = GetPSXPadValue(0x20,0);
+  *d++ = 0xe6;
+  *d++ = GetPSXPadValue(0x10,0);
+  *d++ = 0xe7;
+  *d++ = GetPSXPadValue(0x40,0);
+  *d++ = 0xea;
+  *d++ = GetPSXPadValue(0x4000,0);
+  config = (uint)(byte)frontEnd.controlConfig[0];
+  type = (short)frontEnd.controlType[0];
+  type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
+  *d++ = 0x4f;
+  *d++ = GetPSXPadValue(mappings[config][0][type],0);
+  *d++ = 0x50;
+  *d++ = GetPSXPadValue(mappings[config][1][type],0);
+  *d++ = 0x51;
+  *d++ = GetPSXPadValue(mappings[config][2][type],0);
+  *d++ = 0x52;
+  *d++ = GetPSXPadValue(mappings[config][3][type],0);
+  *d++ = 0xfb;
+  *d++ = GetPSXPadValue(mappings[config][8][type],0);
+  *d++ = 0x53;
+  *d++ = GetPSXPadValue(mappings[config][4][type],0);
+  *d++ = 0x66;
+  *d++ = GetPSXPadValue(mappings[config][5][type],0);
+  *d++ = 0x67;
+  *d++ = GetPSXPadValue(mappings[config][6][type],0);
+  *d++ = 0x68;
+  *d++ = GetPSXPadValue(mappings[config][0xc][type],0);
+  if (streamData.track.fTimeOfDay != '\0') {
+    *d++ = 0x73;
+    *d++ = GetPSXPadValue(mappings[config][9][type],0);
+    *d++ = 0x54;
     uVar6 = 0;
-    if (iVar3 == 1) {
+    if (type == 1) {
       uVar6 = 6;
     }
   }
-  iVar7 = GetPSXPadValue(uVar6,0);
-  piVar2[0x25] = iVar7;
-  piVar2[0x26] = 0x4d;
-  iVar7 = GetPSXPadValue(mappings[uVar4][0xb][iVar3],0);
-  piVar2[0x27] = iVar7;
-  piVar2[0x28] = 0x75;
-  iVar7 = GetPSXPadValue(mappings[uVar4][7][iVar3],0);
-  piVar2[0x29] = iVar7;
-  piVar2[0x2a] = 0x65;
-  iVar7 = GetPSXPadValue(mappings[uVar4][7][iVar3],0);
-  piVar2[0x2b] = iVar7;
-  piVar2[0x2c] = 0x85;
-  iVar7 = GetPSXPadValue(0x800,0);
-  piVar2[0x2d] = iVar7;
-  piVar9 = piVar2 + 0x2e;
+  else {
+    *d++ = 0x73;
+    *d++ = 0;
+    *d++ = 0x54;
+    uVar6 = mappings[config][9][type];
+    if (type == 1) {
+      uVar6 = uVar6 | 6;
+    }
+  }
+  *d++ = GetPSXPadValue(uVar6,0);
+  *d++ = 0x4d;
+  *d++ = GetPSXPadValue(mappings[config][0xb][type],0);
+  *d++ = 0x75;
+  *d++ = GetPSXPadValue(mappings[config][7][type],0);
+  *d++ = 0x65;
+  *d++ = GetPSXPadValue(mappings[config][7][type],0);
+  *d++ = 0x85;
+  *d++ = GetPSXPadValue(0x800,0);
   if (streamData.playerCars[0].fCarClass == '\a') {
     if (frontEnd.gameMode != '\x01') {
-      *piVar9 = 0x7a;
-      iVar7 = GetPSXPadValue(0x8000,0);
-      piVar2[0x2f] = iVar7;
-      piVar2[0x30] = 0x7b;
-      iVar7 = GetPSXPadValue(0x2000,0);
-      piVar2[0x31] = iVar7;
-      piVar2[0x32] = 0x7c;
-      iVar7 = GetPSXPadValue(0x1000,0);
-      piVar2[0x33] = iVar7;
-      piVar9 = piVar2 + 0x34;
+      *d++ = 0x7a;
+      *d++ = GetPSXPadValue(0x8000,0);
+      *d++ = 0x7b;
+      *d++ = GetPSXPadValue(0x2000,0);
+      *d++ = 0x7c;
+      *d++ = GetPSXPadValue(0x1000,0);
     }
-    *piVar9 = 0x81;
-    uVar4 = mappings[uVar4][10][iVar3];
-    piVar9 = piVar9 + 1;
-    if (iVar3 == 1) {
-      uVar4 = uVar4 | 6;
+    *d++ = 0x81;
+    uVar6 = mappings[config][10][type];
+    if (type == 1) {
+      uVar6 = uVar6 | 6;
     }
   }
   else {
-    *piVar9 = 0x82;
-    uVar6 = mappings[uVar4][10][iVar3];
-    if (iVar3 == 1) {
+    *d++ = 0x82;
+    uVar6 = mappings[config][10][type];
+    if (type == 1) {
       uVar6 = uVar6 | 6;
     }
-    iVar7 = GetPSXPadValue(uVar6,0);
-    piVar2[0x2f] = iVar7;
-    piVar2[0x30] = 0x7d;
-    iVar7 = GetPSXPadValue(mappings[uVar4][0][iVar3],0);
-    piVar2[0x31] = iVar7;
-    piVar2[0x32] = 0x7e;
-    iVar3 = GetPSXPadValue(mappings[uVar4][1][iVar3],0);
-    piVar2[0x33] = iVar3;
-    piVar2[0x34] = 0x81;
-    piVar9 = piVar2 + 0x35;
-    uVar4 = 0x40;
+    *d++ = GetPSXPadValue(uVar6,0);
+    *d++ = 0x7d;
+    *d++ = GetPSXPadValue(mappings[config][0][type],0);
+    *d++ = 0x7e;
+    *d++ = GetPSXPadValue(mappings[config][1][type],0);
+    *d++ = 0x81;
+    uVar6 = 0x40;
   }
-  iVar3 = GetPSXPadValue(uVar4,0);
-  *piVar9 = iVar3;
-  piVar2 = piVar9 + 1;
+  *d++ = GetPSXPadValue(uVar6,0);
   if (frontEnd.gameMode == '\x01') {
-    uVar4 = (uint)(byte)frontEnd.controlConfig[1];
-    if (frontEnd.controlType[1] == 0x23) {
-      iVar3 = 0;
-    }
-    else if ((frontEnd.controlType[1] == 0x53) || (iVar3 = 2, frontEnd.controlType[1] == 0x73)) {
-      iVar3 = 1;
-    }
-    *piVar2 = 0x9b;
-    iVar7 = GetPSXPadValue(mappings[uVar4][0][iVar3],1);
-    piVar9[2] = iVar7;
-    piVar9[3] = 0x9c;
-    iVar7 = GetPSXPadValue(mappings[uVar4][1][iVar3],1);
-    piVar9[4] = iVar7;
-    piVar9[5] = 0x9d;
-    iVar7 = GetPSXPadValue(mappings[uVar4][2][iVar3],1);
-    piVar9[6] = iVar7;
-    piVar9[7] = 0x9e;
-    iVar7 = GetPSXPadValue(mappings[uVar4][3][iVar3],1);
-    piVar9[8] = iVar7;
-    piVar9[9] = 0xfc;
-    iVar7 = GetPSXPadValue(mappings[uVar4][8][iVar3],1);
-    piVar9[10] = iVar7;
-    piVar9[0xb] = 0x9f;
-    iVar7 = GetPSXPadValue(mappings[uVar4][4][iVar3],1);
-    piVar9[0xc] = iVar7;
-    piVar9[0xd] = 0xb2;
-    iVar7 = GetPSXPadValue(mappings[uVar4][5][iVar3],1);
-    piVar9[0xe] = iVar7;
-    piVar9[0xf] = 0xb3;
-    iVar7 = GetPSXPadValue(mappings[uVar4][6][iVar3],1);
-    piVar9[0x10] = iVar7;
-    piVar9[0x11] = 0xb4;
-    iVar7 = GetPSXPadValue(mappings[uVar4][0xc][iVar3],1);
-    piVar9[0x12] = iVar7;
-    if (streamData.track.fTimeOfDay == '\0') {
-      piVar9[0x13] = 0xbf;
-      piVar9[0x14] = 0;
-      piVar9[0x15] = 0xa0;
-      uVar6 = mappings[uVar4][9][iVar3];
-      if (iVar3 == 1) {
-        uVar6 = uVar6 | 6;
-      }
-    }
-    else {
-      piVar9[0x13] = 0xbf;
-      iVar7 = GetPSXPadValue(mappings[uVar4][9][iVar3],1);
-      piVar9[0x14] = iVar7;
-      piVar9[0x15] = 0xa0;
+    config = (uint)(byte)frontEnd.controlConfig[1];
+    type = (short)frontEnd.controlType[1];
+    type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
+    *d++ = 0x9b;
+    *d++ = GetPSXPadValue(mappings[config][0][type],1);
+    *d++ = 0x9c;
+    *d++ = GetPSXPadValue(mappings[config][1][type],1);
+    *d++ = 0x9d;
+    *d++ = GetPSXPadValue(mappings[config][2][type],1);
+    *d++ = 0x9e;
+    *d++ = GetPSXPadValue(mappings[config][3][type],1);
+    *d++ = 0xfc;
+    *d++ = GetPSXPadValue(mappings[config][8][type],1);
+    *d++ = 0x9f;
+    *d++ = GetPSXPadValue(mappings[config][4][type],1);
+    *d++ = 0xb2;
+    *d++ = GetPSXPadValue(mappings[config][5][type],1);
+    *d++ = 0xb3;
+    *d++ = GetPSXPadValue(mappings[config][6][type],1);
+    *d++ = 0xb4;
+    *d++ = GetPSXPadValue(mappings[config][0xc][type],1);
+    if (streamData.track.fTimeOfDay != '\0') {
+      *d++ = 0xbf;
+      *d++ = GetPSXPadValue(mappings[config][9][type],1);
+      *d++ = 0xa0;
       uVar6 = 0;
-      if (iVar3 == 1) {
+      if (type == 1) {
         uVar6 = 6;
       }
     }
-    iVar7 = GetPSXPadValue(uVar6,1);
-    piVar9[0x16] = iVar7;
-    piVar9[0x17] = 0x99;
-    iVar7 = GetPSXPadValue(mappings[uVar4][0xb][iVar3],1);
-    piVar9[0x18] = iVar7;
-    piVar9[0x19] = 0xc1;
-    iVar7 = GetPSXPadValue(mappings[uVar4][7][iVar3],1);
-    piVar9[0x1a] = iVar7;
-    piVar9[0x1b] = 0xb1;
-    iVar7 = GetPSXPadValue(mappings[uVar4][7][iVar3],1);
-    piVar9[0x1c] = iVar7;
-    piVar9[0x1d] = 0xd1;
-    iVar7 = GetPSXPadValue(0x800,1);
-    piVar9[0x1e] = iVar7;
+    else {
+      *d++ = 0xbf;
+      *d++ = 0;
+      *d++ = 0xa0;
+      uVar6 = mappings[config][9][type];
+      if (type == 1) {
+        uVar6 = uVar6 | 6;
+      }
+    }
+    *d++ = GetPSXPadValue(uVar6,1);
+    *d++ = 0x99;
+    *d++ = GetPSXPadValue(mappings[config][0xb][type],1);
+    *d++ = 0xc1;
+    *d++ = GetPSXPadValue(mappings[config][7][type],1);
+    *d++ = 0xb1;
+    *d++ = GetPSXPadValue(mappings[config][7][type],1);
+    *d++ = 0xd1;
+    *d++ = GetPSXPadValue(0x800,1);
     if (streamData.playerCars[1].fCarClass == '\a') {
-      piVar9[0x1f] = 0xcd;
-      uVar4 = mappings[uVar4][10][iVar3];
-      piVar9 = piVar9 + 0x20;
-      if (iVar3 == 1) {
-        uVar4 = uVar4 | 6;
+      *d++ = 0xcd;
+      uVar6 = mappings[config][10][type];
+      if (type == 1) {
+        uVar6 = uVar6 | 6;
       }
     }
     else {
-      piVar9[0x1f] = 0xce;
-      uVar6 = mappings[uVar4][10][iVar3];
-      if (iVar3 == 1) {
+      *d++ = 0xce;
+      uVar6 = mappings[config][10][type];
+      if (type == 1) {
         uVar6 = uVar6 | 6;
       }
-      iVar7 = GetPSXPadValue(uVar6,1);
-      piVar9[0x20] = iVar7;
-      piVar9[0x21] = 0xc9;
-      iVar7 = GetPSXPadValue(mappings[uVar4][0][iVar3],1);
-      piVar9[0x22] = iVar7;
-      piVar9[0x23] = 0xca;
-      iVar3 = GetPSXPadValue(mappings[uVar4][1][iVar3],1);
-      piVar9[0x24] = iVar3;
-      piVar9[0x25] = 0xcd;
-      piVar9 = piVar9 + 0x26;
-      uVar4 = 0x40;
+      *d++ = GetPSXPadValue(uVar6,1);
+      *d++ = 0xc9;
+      *d++ = GetPSXPadValue(mappings[config][0][type],1);
+      *d++ = 0xca;
+      *d++ = GetPSXPadValue(mappings[config][1][type],1);
+      *d++ = 0xcd;
+      uVar6 = 0x40;
     }
-    iVar3 = GetPSXPadValue(uVar4,1);
-    *piVar9 = iVar3;
-    piVar2 = piVar9 + 1;
+    *d++ = GetPSXPadValue(uVar6,1);
   }
-  *piVar2 = 0;
-  resizememadr(stream,(int)piVar2 + (4 - (int)stream));
+  *d++ = 0;
+  resizememadr(stream,(int)d - (int)stream);
   return stream;
 }
 

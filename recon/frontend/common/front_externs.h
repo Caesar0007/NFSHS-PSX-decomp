@@ -3,7 +3,7 @@
 #define _FE_FRONT_EXTERNS_H_
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
-extern int          ticks;
+extern int          ticks[];
 extern tfrontEnd    frontEnd;
 extern tFEApplication *FEApp[];
 extern tGlobalMenuDefs *menuDefs[];

@@ -889,19 +889,23 @@ int iMCRD_FormatCard(int card)
   long fmtRes;
   int result;
   
+  result = 0;
   pCI = MCRD_getcard(card);
   fmtRes = MemCardFormat(gMemCardInfo.channel);
-  if (fmtRes == 1) {
+  /* MATCH: a real switch - the oracle's beq(1) / slti BOUND / beq(2) ladder is
+   * gcc-2.8 emit_case_nodes for a 2-node case tree, not an if/else-if chain
+   * (which emits two plain beq's and no bound test). The two arms' identical
+   * tails (status store + result=-1) cross-jump-merge into .L800504A0. */
+  switch (fmtRes) {
+  case 1:
+    pCI->status = -1;
     result = -1;
+    break;
+  case 2:
+    pCI->status = -4;
+    result = -1;
+    break;
   }
-  else {
-    result = 0;
-    if ((fmtRes < 2) || (result = 0, fmtRes != 2)) goto iMCRDformat_setReady;
-    result = -4;
-  }
-  pCI->status = result;
-  result = -1;
-iMCRDformat_setReady:
   pCI->status = 0;
   pCI->freeblocks = 0xf;
   return result;

@@ -489,31 +489,29 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 {
   u_int abr;
 
+  /* MATCH (w40-a10, 4 -> PASS): `return 0` must be the loop's POST-EXIT
+   * fall-through (`if (shp == 0) break;` + a trailing `return 0;`), NOT an
+   * inline early-return inside the guard.  Written inline, gcc's post-reload
+   * cross-jump pass merges the two `jr ra` tails (`move v0,0; jr ra` and the
+   * bare `jr ra`), leaving `move v0,0; j <shared tail>`; reorg then EAGER-
+   * STEALS that `move` into the `beqz $a0` delay slot -- 28 insns vs the
+   * oracle's 30, with the oracle's separate `.L800DFF08: jr ra; addu v0,zero,
+   * zero` block gone.  As the post-loop block it stays its own return block
+   * and dbr fills its OWN `jr ra` slot with the `move`.  (This REFUTES the
+   * catalog's "dual `jr ra` tails always cross-jump-merge" negative for this
+   * shape; `goto ret0;`+label and the `else { return 0; }` arm PASS too, the
+   * `return 0` position is what matters, not the spelling.  A named `zero`
+   * local instead regresses to 9.)
+   * NOTE the clamp must stay IN PLACE (`if (abr == 3) abr = 2;` then one
+   * return): jump-opt splits it into the oracle's own `bne v0,a3,.L800DFF10;
+   * jr ra; addiu v0,2` tail.  Explicit two-return spellings measured
+   * 14/16/19. */
   while( true ) {
-    if (shp == (shapetbl *)0x0) {
-      return 0;
-    }
+    if (shp == (shapetbl *)0x0) break;
     if (*(char *)shp == 'k') {
       abr = (u_short)shp->width >> 5 & 3;
-      /* MATCH: clamp-in-place then ONE return -- a ternary/two-return form makes
-       * gcc build the value in $v1 and copy it out at a shared tail. */
       if (abr == 3) { abr = 2; }
       return abr;
-      /* FLOOR (4 diffs, 28/30) -- MECHANISM (w39-a10): gcc's post-reload
-       * cross-jump pass merges the two return blocks (both end `jr ra`), which
-       * leaves `move v0,zero; j <shared jr ra>`; reorg then EAGER-STEALS that
-       * `move` into the `beqz $a0` delay slot and retargets the branch, so we
-       * lose both the separate return-0 block and the oracle's empty slot.
-       * Retail's simple-delay-slot pass consumed the `move` as the return
-       * block's OWN slot first, after which the eager fill had nothing to take.
-       * Same family as the catalog's "dual `jr ra` tails always cross-jump-
-       * merge" negative result.  Original note: the oracle keeps TWO separate `jr ra` tails --
-       * .L800DFF08 `jr ra; addu v0,zero,zero` for `return 0` and .L800DFF10
-       * `jr ra; nop` for `return abr`.  gcc-2.8 cross-jump-merges them here and
-       * sinks the 0 into the `beqz shp` delay slot.  Tried: while(shp!=0)+trailing
-       * return 0 (6), for(;;)+break (6), goto-loop (29), continue-form (27),
-       * named ret var (4, identical).  Same class as the catalog's
-       * "dual jr ra tails always cross-jump-merge" negative result. */
     }
     if ((*(u_int *)shp & 0xffffff00) != 0) {
       shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));
@@ -522,6 +520,7 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
       shp = (shapetbl *)0x0;
     }
   }
+  return 0;
 }
 
 /* ---- Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap  [TEXTURE.CPP:538-667] SLD-FLAG:NONMONO ---- */

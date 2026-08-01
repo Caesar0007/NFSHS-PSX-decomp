@@ -1215,6 +1215,14 @@ void Hud_BuildTach(int player)
   return;
 }
 
+/* D_80111A1C == &HudPmx_gShapes[0xad], D_801119E0 == &HudPmx_gShapes[0xaa] (element size
+ * 0x14, width @+0x10) -- splat gave these two pad-glyph shapes their own data labels and
+ * the oracle materializes each with its OWN lui/addiu AFTER the FBuildSprite call; that is
+ * what keeps the four '*'-arms un-cross-jumped (unsized-array shape, methodology 3.12 #5).
+ * Same standalone-alias precedent as D_801132CC below. */
+extern HudPmx_tShape D_80111A1C[];
+extern HudPmx_tShape D_801119E0[];
+
 /* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
  * RESIDUAL 118 (ours 205 / oracle 215).  SYM (fsize 80) has NO `shp` local -- the oracle
  * re-materializes `&HudPmx_gShapes[K]` AFTER each Hud_FBuildSprite call (`lui $t0; addiu
@@ -1227,7 +1235,6 @@ void Hud_BuildTach(int player)
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
-  HudPmx_tShape *shp;
   int offy;
   char alphShape;
   int ix;
@@ -1248,18 +1255,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
     else if (*str == '*') {
       ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
       if (gPadinfo.buf[0].ID == '#') {
-        shp = &HudPmx_gShapes[0xad];
         if (justwidth == 0) {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
-        ix = ix + 3 + shp->width;         /* per-arm; gcc cross-jump-merges the final addu */
+        ix = ix + 3 + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
       }
       else {
-        shp = &HudPmx_gShapes[0xaa];
         if (justwidth == 0) {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
-        ix = ix + 3 + shp->width;
+        ix = ix + 3 + D_801119E0[0].width;
       }
       if (GameSetup_gData.commMode == 1) {
         if (gPadinfo.buf[4].ID == '#') {
@@ -1267,18 +1272,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
         }
         else if (gPadinfo.buf[0].ID != '#') goto HudBuildStr_next;
         if (gPadinfo.buf[4].ID == '#') {
-          shp = &HudPmx_gShapes[0xad];
-          if (justwidth == 0) {
+            if (justwidth == 0) {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
-          ix = ix + 3 + shp->width;
+          ix = ix + 3 + D_80111A1C[0].width;
         }
         else {
-          shp = &HudPmx_gShapes[0xaa];
-          if (justwidth == 0) {
+            if (justwidth == 0) {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
-          ix = ix + 3 + shp->width;
+          ix = ix + 3 + D_801119E0[0].width;
         }
       }
     }

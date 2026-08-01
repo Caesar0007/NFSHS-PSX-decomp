@@ -796,6 +796,7 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
   /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
    * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
    * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
+  uint     otWord;
   int      i;
   u_char  *prevPrim;
   u_char  *prim;
@@ -807,8 +808,9 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
       prevPrim = Render_gPalettePtr;
       i = i + 1;
       *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+      otWord = *(uint *)prevPrim;
       Render_gPacketPtr = prim + 0x24;
-      *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | (uint)prim & 0xffffff;
+      *(uint *)prevPrim = otWord & 0xff000000 | (uint)prim & 0xffffff;
       prim[7] = 0x39;
       prim[3] = 8;
       *(uint *)(prim + 8) = y << 0x10 | x;

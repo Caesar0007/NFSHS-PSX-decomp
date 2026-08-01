@@ -363,23 +363,28 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
     /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
      * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
     ftop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    fadetop = ftop;
     if (ftop * 0x10000 < 0) {
-      ftop = -ftop;
+      fadetop = -ftop;
     }
-    fadetop = ftop * 2;
+    fadetop = fadetop * 2;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
     fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    fadebottom = fbot;
     if (fbot * 0x10000 < 0) {
-      fbot = -fbot;
+      fadebottom = -fbot;
     }
-    fadebottom = fbot * 2;
+    fadebottom = fadebottom * 2;
     if (0x80 < fadebottom) {
       fadebottom = 0x80;
     }
-    fbot = 0x80 - fadebottom;
-    ftop = 0x80 - fadetop;
+    /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
+     * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
+    ftop = 0x80;
+    fbot = ftop - fadebottom;
+    ftop = ftop - fadetop;
     *color = fbot << 0x10 | fbot << 8 | fbot;
     color[1] = fbot << 0x10 | fbot << 8 | fbot;
     color[2] = ftop << 0x10 | ftop << 8 | ftop;

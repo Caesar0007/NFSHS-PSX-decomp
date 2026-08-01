@@ -1018,10 +1018,7 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   if (time < 0) {
     time = 0;
   }
-  temp2 = time;
-  if (time < 0) {
-    temp2 = -time;
-  }
+  temp2 = __builtin_abs(time);
   temp1 = temp2 / 0x40;
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   min = (temp1 / 0x3c) % 0x3c;

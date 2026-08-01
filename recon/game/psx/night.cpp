@@ -283,14 +283,22 @@ void Night_DoLightningEffect(DRender_tView *Vi)
     Hrz_LightningFlicker(0);
     Night_gLightning = 0;
   }
-  if (((Night_gNextLightning < simGlobal.gameTicks) &&
+  if (((simGlobal.gameTicks > Night_gNextLightning) &&
       (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
      ) {
     r = random();
     Night_gLightningType = r & 1;
     Hrz_LightningFlicker(1);
     tunnel = BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos);
-    Night_gDrawLightning = tunnel == (void *)0x0;
+    /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
+       `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
+       else arm; the boolean-expression form folds to a single sltiu. */
+    if (tunnel != (void *)0x0) {
+      Night_gDrawLightning = 0;
+    }
+    else {
+      Night_gDrawLightning = 1;
+    }
     Night_gLightning = 1;
     r = random();
     Night_gNextFlicker = simGlobal.gameTicks + (r & 3);
@@ -303,7 +311,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
       lightningInit = '\0';
     }
   }
-  if (Night_gEndNextLightning < simGlobal.gameTicks) {
+  if (simGlobal.gameTicks > Night_gEndNextLightning) {
     Night_GenerateNextLightningEvent();
     Hrz_CalculateLightning();
     lightningInit = '\x01';

@@ -9,20 +9,7 @@
 /* PsyQ gte_ldclmv/gte_stclmv (matrix-COLUMN short vector, stride 6) -- the
  * CarShapedHalo/Halo2 column transforms: lhu 0/6/12 -> IR1-3 and IR1-3 -> sh 0/6/12
  * (oracle @0x800CD0B0.., 3 lhu then 3 mtc2 / 3 mfc2 then 3 sh, scratch $12-$14).
- * TU-local (w13-a3): psx_gte.h only carries the 0/2/4 SVECTOR forms. */
-#if defined(__mips__)
-#define gte_ldclmv(p) __asm__ volatile (                                       \
-    "lhu $12, 0(%0)\n\tlhu $13, 6(%0)\n\tlhu $14, 12(%0)\n\t"                   \
-    "mtc2 $12, $9\n\tmtc2 $13, $10\n\tmtc2 $14, $11"                           \
-    : : "r"(p) : "$12", "$13", "$14")
-#define gte_stclmv(p) __asm__ volatile (                                       \
-    "mfc2 $12, $9\n\tmfc2 $13, $10\n\tmfc2 $14, $11\n\t"                        \
-    "sh $12, 0(%0)\n\tsh $13, 6(%0)\n\tsh $14, 12(%0)"                         \
-    : : "r"(p) : "$12", "$13", "$14", "memory")
-#else
-#define gte_ldclmv(p)  ((void)(p))
-#define gte_stclmv(p)  ((void)(p))
-#endif
+ * Promoted to psx_gte.h (w40 consolidation; was TU-local since w13-a3). */
 
 /* ---- Flare.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
@@ -833,14 +820,7 @@ gte_SetRotMatrix(&mtx);
 }
 
 /* PsyQ gte_stszotz (SZ3>>2 depth-sort key) -- oracle Halo2 @0x800CD6E4:
- * mfc2 $12,$19; nop; sra $12,2; sw.  TU-local (w13-a3). */
-#if defined(__mips__)
-#define gte_stszotz(p) __asm__ volatile (                                      \
-    "mfc2 $12, $19\n\tnop\n\tsra $12, $12, 2\n\tsw $12, 0(%0)"                  \
-    : : "r"(p) : "$12", "memory")
-#else
-#define gte_stszotz(p) ((void)(p))
-#endif
+ * mfc2 $12,$19; nop; sra $12,2; sw.  Promoted to psx_gte.h (w40 consolidation). */
 
 /* ---- Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache  [FLARE.CPP:845-1094] SLD-VERIFIED
  * w13-a3 FULL SYM rule-8 rewrite (see CarShapedHalo notes; same recipe).

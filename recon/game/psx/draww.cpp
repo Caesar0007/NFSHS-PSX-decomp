@@ -17,21 +17,9 @@
 
 /* file-local gte_rtps variant with a DEAD "r" input (no code emitted for it -- the value
  * is already in a register): a ref-count nudge for the v4/v8 reload-eviction tie
- * (see DrawW_SubdividFacet MATCH notes). PSX-only; host stub ignores it. */
-#if defined(__mips__)
-#define gte_rtps_u(u) __asm__ volatile ("nop\n\tnop\n\t.word 0x4A180001" : : "r"(u))
-#else
-#define gte_rtps_u(u) ((void)(u))
-#endif
-
-/* IR0 load from a REGISTER VALUE (PsyQ inline_c `gte_ldir0`): the oracle loads the
-   depth-cue word into a CPU reg and does `mtc2 rt,$8`; psx_gte.h's gte_ldIR0() is the
-   ADDRESS form (`lwc2 $8,0(rt)`) and cannot express it. */
-#if defined(__mips__)
-#define gte_ldir0v(x) __asm__ volatile ("mtc2 %0, $8" : : "r"(x))
-#else
-#define gte_ldir0v(x) ((void)(x))
-#endif
+ * (see DrawW_SubdividFacet MATCH notes). Promoted to psx_gte.h (w40 consolidation),
+ * together with the value-form gte_ldir0v (the oracle's `mtc2 rt,$8`; gte_ldIR0() is
+ * the ADDRESS form and cannot express it). */
 
 /* Scratchpad overlay base (methodology SS3.6b): the PSX fast-RAM Draw cache lives at
    0x1F800000 and every field the renderer's GTE actually reads is an offset into it.
@@ -48,16 +36,8 @@
    DrawW_DrawQuad oracle materializes each destination address into its own register
    (`addiu $a0,$s1,0x4; addiu $v1,$s1,0x10; addiu $v0,$s1,0x1C; swc2 $20,0($a0) ...`),
    which is exactly the "r"-constraint pointer form (catalog SS.H: the constraint, not
-   the call site, decides address-materialization-vs-displacement). */
-#if defined(__mips__)
-#define gte_strgb(p)  __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
-#define gte_strgb3(a,b,c) __asm__ volatile (                                   \
-    "swc2 $20, 0(%0)\n\tswc2 $21, 0(%1)\n\tswc2 $22, 0(%2)"                    \
-    : : "r"(a), "r"(b), "r"(c) : "memory")
-#else
-#define gte_strgb(p)       ((void)(p))
-#define gte_strgb3(a,b,c)  do { (void)(a); (void)(b); (void)(c); } while (0)
-#endif
+   the call site, decides address-materialization-vs-displacement).
+   Promoted to psx_gte.h (w40 consolidation). */
 
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */

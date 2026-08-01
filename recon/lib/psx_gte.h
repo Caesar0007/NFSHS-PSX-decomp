@@ -276,4 +276,45 @@
 
 #endif /* __mips__ */
 
+/* ---- w40 consolidation: TU-local forms promoted from draww.cpp / flare.cpp
+   (w40-a10 inventory).  All are PsyQ inline_c shapes psx_gte.h lacked; the
+   pointer-form ("r" + 0(%N)) vs fixed-offset split follows catalog §H — the
+   constraint, not the call site, decides address-materialization. */
+#if defined(__mips__)
+/* rtps with a DEAD "r" input: ref-count nudge, no code for the operand. */
+#define gte_rtps_u(u) __asm__ volatile ("nop\n\tnop\n\t.word 0x4A180001" : : "r"(u))
+/* IR0 load from a register VALUE (PsyQ gte_ldir0); gte_ldIR0() is the ADDRESS
+   form (lwc2) — passing a value to it reads memory at that number. */
+#define gte_ldir0v(x) __asm__ volatile ("mtc2 %0, $8" : : "r"(x))
+/* Pointer-form colour-FIFO stores (PsyQ gte_strgb / gte_strgb3): each dest
+   address materialized into its own register, unlike gte_strgb3_gt4's folded
+   displacements. */
+#define gte_strgb(p)  __asm__ volatile ("swc2 $22, 0(%0)" : : "r"(p) : "memory")
+#define gte_strgb3(a,b,c) __asm__ volatile (                                   \
+    "swc2 $20, 0(%0)\n\tswc2 $21, 0(%1)\n\tswc2 $22, 0(%2)"                    \
+    : : "r"(a), "r"(b), "r"(c) : "memory")
+/* MATRIX COLUMN load/store (PsyQ gte_ldclmv/gte_stclmv): row stride 6, vs the
+   SVECTOR 0/2/4 forms.  Fixed $12-$14 scratch, clobbers declared. */
+#define gte_ldclmv(p) __asm__ volatile (                                       \
+    "lhu $12, 0(%0)\n\tlhu $13, 6(%0)\n\tlhu $14, 12(%0)\n\t"                  \
+    "mtc2 $12, $9\n\tmtc2 $13, $10\n\tmtc2 $14, $11"                           \
+    : : "r"(p) : "$12", "$13", "$14")
+#define gte_stclmv(p) __asm__ volatile (                                       \
+    "mfc2 $12, $9\n\tmfc2 $13, $10\n\tmfc2 $14, $11\n\t"                       \
+    "sh $12, 0(%0)\n\tsh $13, 6(%0)\n\tsh $14, 12(%0)"                         \
+    : : "r"(p) : "$12", "$13", "$14", "memory")
+/* SZ3>>2 depth-sort key store (PsyQ gte_stszotz). */
+#define gte_stszotz(p) __asm__ volatile (                                      \
+    "mfc2 $12, $19\n\tnop\n\tsra $12, $12, 2\n\tsw $12, 0(%0)"                 \
+    : : "r"(p) : "$12", "memory")
+#else
+#define gte_rtps_u(u)      ((void)(u))
+#define gte_ldir0v(x)      ((void)(x))
+#define gte_strgb(p)       ((void)(p))
+#define gte_strgb3(a,b,c)  do { (void)(a); (void)(b); (void)(c); } while (0)
+#define gte_ldclmv(p)      ((void)(p))
+#define gte_stclmv(p)      ((void)(p))
+#define gte_stszotz(p)     ((void)(p))
+#endif /* __mips__ (promoted forms) */
+
 #endif /* PSX_GTE_H */

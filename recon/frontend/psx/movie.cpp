@@ -13,7 +13,9 @@ static int     width_d asm("width") __attribute__((section(".bss")));     /* 0x8
 static int     height_d asm("height") __attribute__((section(".bss")));    /* 0x80052a28 */
 static CdlLOC  loc_d asm("loc") __attribute__((section(".bss")));   /* 0x80052cf8 */
 extern CdlLOC  loc_v[] asm("loc");   /* unsized view: forces base materialization */
-extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");  /* unsized view (see MATCH note below) */
+extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");
+extern short   user_exit_v[] asm("user_exit");
+#define user_exit user_exit_v[0]  /* unsized view (see MATCH note below) */
 #define StCdIntrFlag StCdIntrFlag_v[0]
 static short     PPWTop_d asm("PPWTop") __attribute__((section(".bss")));    /* 0x80052cfc */
 static short     PPWBottom_d asm("PPWBottom") __attribute__((section(".bss"))); /* 0x80052cfe */
@@ -319,17 +321,24 @@ int Movie_Play(char movie)
   bool dispRect;
   void *finished;
   int frame_ret;
-  uint pad_p1;
-  uint pad_p2;
   uint joyval;
   DISPENV disp;
   DRAWENV draw;
+  /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
+   * never-referenced frame slack our expression shape does not allocate. */
+  int deadfrm[4];
   
+  (void)deadfrm;
   SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
   Movie_Init(movie);
   Movie_Load(movie);
-  while ((finished = Movie_Finished(), finished != (void *)0x1 &&
-         (frame_ret = Movie_NextFrame(), frame_ret != -1))) {
+  /* MATCH: two SEPARATE branch tests -- the `&&`-comma form made gcc materialize
+   * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
+  while( true ) {
+    finished = Movie_Finished();
+    if (finished == (void *)0x1) break;
+    frame_ret = Movie_NextFrame();
+    if (frame_ret == -1) break;
     dispRect = dec.rectid == 0;
     SetDefDispEnv
               (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
@@ -340,8 +349,8 @@ int Movie_Play(char movie)
                (int)dec.rect[dispRect].h);
     if (gIsRGB24 != 0) {
       disp.isrgb24 = '\x01';
-      disp.disp.w = (short)((ulonglong)((longlong)((int)disp.disp.w << 1) * 0x55555556) >> 0x20) -
-                    (short)(((int)disp.disp.w << 1) >> 0x1f);
+      /* MATCH: the 0x55555556 mult-high + sign fixup IS gcc's own signed divide by 3. */
+      disp.disp.w = (short)(((int)disp.disp.w << 1) / 3);
     }
     PutDispEnv(&disp);
     PutDrawEnv(&draw);
@@ -352,9 +361,9 @@ int Movie_Play(char movie)
     Movie_DownloadFrame();
     download[0] = 1;
     PAD_update();
-    pad_p1 = PAD_state(0);
-    pad_p2 = PAD_state(4);
-    joyval = (pad_p1 | pad_p2) & 0xffff;
+    /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
+     * unmasked in a register); per-local u_short narrowing emitted two. */
+    joyval = ((uint)PAD_state(0) | (uint)PAD_state(4)) & 0xffff;
     if ((joyval != 0) && ((Movie_Stop(), skip_all != '\0' || (joyval == 8)))) {
       user_exit = 1;
     }

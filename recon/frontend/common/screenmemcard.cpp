@@ -627,161 +627,140 @@ void tScreenMemcard::SetEnablings()
 void tScreenMemcard::DrawBackground()
 
 {
-  short fadeVal0;
-  uint fScreenFade;
-  char *word;
-  int i;
-  short fade;
-  tScreenMemcard *walk;
-  short boxY;
-  uint gridY;
-  int w;
-  int x;
+  short x;
+  short y;
   int gray;
-  RECT rr;
+  short fade;
+  short fadebox;
   short gridpos;
+  short fTextFade;
+  int ColText;
+  RECT rr;
+  short i;
+  short w;
+  short h;
+  int value;
   
   this->fMemCardMessageTextSys = -1;
   if (this->goticon[this->theNFS4icon] == '\0') {
     this->theNFS4icon = -1;
   }
   systemtask(0);
-  fScreenFade = (uint)(ushort)this->fScreenFadeVal;
-  gray = fScreenFade * 2 + -0x80;
-  fade = (short)gray;
-  gray = gray * 0x10000 >> 0x10;
-  if (gray < 0x80) {
-    if (gray < 1) goto DrawBg_fadeZero;
+  fade = (ushort)this->fScreenFadeVal * 2;
+  if ((short)(fade - 0x80) < 0x80) {
+    if ((short)(fade - 0x80) <= 0) goto DrawBgFadeboxZero;
   }
-  if (gray < 0x81) goto DrawBg_fadeJoin;
-  fade = 0x80;
-  goto DrawBg_fadeJoin;
-DrawBg_fadeZero:
-  fade = 0;
-DrawBg_fadeJoin:
-  gridpos = (short)((fScreenFade * 2) >> 1);
-  gray = (int)(fScreenFade << 0x11) >> 0x11;
-  if (gray < 0x80) {
-    if (gray < 1) goto DrawBg_gridposZero;
+  if ((short)(fade - 0x80) < 0x81) goto DrawBgFadeboxNormal;
+  fadebox = 0x80;
+  goto DrawBgFadeboxDone;
+DrawBgFadeboxZero:
+  fadebox = 0;
+  goto DrawBgFadeboxDone;
+DrawBgFadeboxNormal:
+  fadebox = fade - 0x80;
+DrawBgFadeboxDone:
+  if ((fade >> 1) < 0x80) {
+    if ((fade >> 1) <= 0) goto DrawBgGridposZero;
   }
-  if (gray < 0x81) goto DrawBg_gridposJoin;
+  if ((fade >> 1) < 0x81) goto DrawBgGridposNormal;
   gridpos = 0x80;
-  goto DrawBg_gridposJoin;
-DrawBg_gridposZero:
+  goto DrawBgGridposDone;
+DrawBgGridposZero:
   gridpos = 0;
-DrawBg_gridposJoin:
-  gray = (int)(fScreenFade << 0x11) >> 0xf;
-  if (0x80 < gray) {
-    gray = 0x80;
+  goto DrawBgGridposDone;
+DrawBgGridposNormal:
+  gridpos = fade >> 1;
+DrawBgGridposDone:
+  value = fade * 2;
+  if (value > 0x80) {
+    value = 0x80;
   }
-  if (gray < 0) {
-    gray = 0;
+  if (value < 0) {
+    value = 0;
   }
+  fTextFade = value;
   if (this->fInitedMemCard == 0) {
-    fadeVal0 = this->fScreenFadeVal;
     this->fMemCardMessageTextSys = 0x27c;
-    if ((fadeVal0 == 0) && (0x80 < ticks - this->fScreenFadeReadyTick)) {
-      Init_Memcard(true,0);
-      i = 0;
-      walk = this;
-      do {
-        this->goticon[i] = '\0';
-        this->numicon[i] = '\0';
-        this->numblock[i] = '\0';
-        walk->fFadeIcon[0] = 0x80;
-        i = i + 1;
-        walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
-      } while (i < 0xf);
+    if ((this->fScreenFadeVal == 0) &&
+        (ticks - this->fScreenFadeReadyTick > 0x80)) {
+      Init_Memcard(true,false);
+      {
+        int i;
+        for (i = 0; i < 0xf; i++) {
+          this->goticon[i] = '\0';
+          this->numicon[i] = '\0';
+          this->numblock[i] = '\0';
+          this->fFadeIcon[i] = 0x80;
+        }
+      }
       this->fInitedMemCard = 1;
     }
     else if (this->fScreenFadeReadyTick == 0) {
       this->fScreenFadeReadyTick = ticks;
     }
-    if (this->fInitedMemCard == 0) goto DrawBg47470_calcFadeMessage;
   }
-  if (fade != 0x80) {
-    this->DrawMemCardStuff((short)gray);
+  if ((this->fInitedMemCard != 0) && (fadebox != 0x80)) {
+    this->DrawMemCardStuff(fTextFade);
   }
-DrawBg47470_calcFadeMessage:
-  gray = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],gray);
+  ColText = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],fTextFade);
   if (this->message != -1) {
     this->fMemCardMessageTextSys = this->message;
   }
   if (this->fMemCardMessageTextSys != -1) {
-    word = TextSys_Word(this->fMemCardMessageTextSys);
-    sprintf(this->fMemCardMessage,word);
+    sprintf(this->fMemCardMessage,TextSys_Word(this->fMemCardMessageTextSys));
   }
-  fScreenFade = (uint)(ushort)kMemCardMessageX;
+  rr.x = kMemCardMessageX;
+  rr.y = kMemCardMessageY;
   rr.w = 0xbe;
   rr.h = 0;
-  rr.x = (ushort)kMemCardMessageX;
-  rr.y = (short)kMemCardMessageY;
-  FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,gray,2,0,false);
-  word = TextSys_Word(this->player + 0x293);
+  FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,ColText,2,0,false);
   FETextRender_FullTextRGB
-            (word,(short)kMemCardMessage1X,(short)kMemCardMessage1Y,gray,'\0',2);
-  i = 0;
-  x = (int)(((GRIDMEMCARD_STARTX & 0xffffU) - (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X) * 0x10000) >>
-      0x10;
-  boxY = (short)(((short)GRIDMEMCARD_STARTY - (short)GRIDMEMCARDGOURAUDBIT_Y) -
-             ((short)EXTRAYATTOP + 4));
-  w = (int)(((GRIDMEMCARD_WIDTH & 0xffffU) + (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2) *
-           0x10000) >> 0x10;
-  gray = ((uint)(ushort)GRIDMEMCARD_HEIGHT + (uint)(ushort)GRIDMEMCARDGOURAUDBIT_Y * 2 +
-          (EXTRAYATTOP & 0xffffU) + 6) * 0x10000;
-  gray = (gray >> 0x10) - (gray >> 0x1f) >> 1;
-  SubtractiveBox
-            (x,boxY,w,gray,0x505050,0x505050,0,0);
-  SubtractiveBox
-            (x,boxY,w,gray,0,0,0x505050,0x505050);
+            (TextSys_Word(this->player + 0x293),kMemCardMessage1X,
+             kMemCardMessage1Y,ColText,'\0',2);
+
+  gray = 0x505050;
+  x = (ushort)GRIDMEMCARD_STARTX - (ushort)GRIDMEMCARDGOURAUDBIT_X;
+  y = (ushort)GRIDMEMCARD_STARTY - (ushort)GRIDMEMCARDGOURAUDBIT_Y -
+      ((ushort)EXTRAYATTOP + 4);
+  w = (ushort)GRIDMEMCARD_WIDTH + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2;
+  h = (short)((ushort)GRIDMEMCARD_HEIGHT +
+              (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2 +
+              (ushort)EXTRAYATTOP + 6) / 2;
+  SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
+  SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare
             (0,GRIDMEMCARD_STARTX + 2,kMemCardMessage1Y + -2,GRIDMEMCARD_WIDTH + -4,
              kMemCardMessageH1 + -1);
   PSXDrawSquare
             (0,GRIDMEMCARD_STARTX + 2,GRIDMEMCARD_STARTY + MEMCARD_DELTAY * 5 + 1,
              GRIDMEMCARD_WIDTH + -4,kMemCardMessageH + -1);
-  do {
-    gray = (i << 0x10) >> 0x10;
-    this->DrawVerticalLine((short)fScreenFade,
-                     (short)((((GRIDMEMCARD_STARTY & 0xffffU) -
-                              (uint)(ushort)GRIDMEMCARDGOURAUDBIT_Y) - (EXTRAYATTOP & 0xffffU)) *
-                             0x10000 >> 0x10),gridpos,
-                     (short)((uint)((gray + (gray - ((i << 0x10) >> 0x1f) >> 1) * -2) *
-                                   0x10000) >> 0x10));
-    i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 4);
-  gridY = GRIDMEMCARD_STARTY & 0xffff;
-  if (EXTRAYATTOP != 0) {
-    this->DrawHorizontalLine((short)(((GRIDMEMCARD_STARTX & 0xffffU) -
-                                    (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X) * 0x10000 >> 0x10),
-                       (short)((gridY - (EXTRAYATTOP & 0xffffU)) * 0x10000 >> 0x10),(short)fScreenFade,1);
+  x = GRIDMEMCARD_STARTX;
+  for (; i < 4; i++) {
+    this->DrawVerticalLine(x,
+                     GRIDMEMCARD_STARTY - GRIDMEMCARDGOURAUDBIT_Y - EXTRAYATTOP,
+                     gridpos,i % 2);
+    x += MEMCARD_DELTAX;
   }
-  gray = 0;
-  do {
-    i = (gray << 0x10) >> 0x10;
-    this->DrawHorizontalLine((short)(((GRIDMEMCARD_STARTX & 0xffffU) -
-                                    (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X) * 0x10000 >> 0x10),
-                       (short)gridY,(short)fScreenFade,
-                       (short)((uint)((i + (i - ((gray << 0x10) >> 0x1f) >> 1) * -2) *
-                                     0x10000) >> 0x10));
-    gray = gray + 1;
-    i = gray * 0x10000 >> 0x10;
-    fScreenFade = gridY + (MEMCARD_DELTAY & 0xffffU);
-    gridY = fScreenFade;
-  } while (i < 6);
-  this->DrawHorizontalLine((short)(((GRIDMEMCARD_STARTX & 0xffffU) -
-                                  (uint)(ushort)GRIDMEMCARDGOURAUDBIT_X) * 0x10000 >> 0x10),
-                     (short)((fScreenFade + ((kMemCardMessageH & 0xffffU) - (MEMCARD_DELTAY & 0xffffU))) *
-                             0x10000 >> 0x10),(short)fScreenFade,
-                     (short)((uint)((i + (i - (gray * 0x10000 >> 0x1f) >> 1) * -2) *
-                                   0x10000) >> 0x10));
-  gray = 0;
-  do {
-    DrawShapeExtended
-              (0x1e + gray,0,0,0,(int)fade,0,
-               (tDrawShapeExtended *)0x0);
-    gray = gray + 1;
-  } while (gray < 0x10);
+  y = GRIDMEMCARD_STARTY;
+  if (EXTRAYATTOP != 0) {
+    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
+                             y - EXTRAYATTOP,gridpos,1);
+  }
+  for (i = 0; i < 6; i++) {
+    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
+                             y,gridpos,i % 2);
+    y += MEMCARD_DELTAY;
+  }
+  this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
+                           y + kMemCardMessageH - MEMCARD_DELTAY,
+                           gridpos,i % 2);
+  {
+    int k;
+    for (k = 0; k < 0x10; k++) {
+      DrawShapeExtended(0x1e + k,0,0,0,fadebox,0,
+                        (tDrawShapeExtended *)0x0);
+    }
+  }
   if (this->fInitedMemCard != 0) {
     this->SetEnablings();
   }

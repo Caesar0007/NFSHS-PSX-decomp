@@ -171,9 +171,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_char *pal;
       u_int pkt24;
       u_int addr24;
-
       prim = Render_gPacketPtr;
-
       addr24 = (u_int)prim & 0xffffff;
       pal = Render_gPalettePtr;
       slot = (u_int *)(otz * 4 + (int)pal);
@@ -295,9 +293,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_int *slot;
       u_int pkt24;
       u_int addr24_0;
-
       prim = Render_gPacketPtr;
-
       addr24_0 = (u_int)prim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
@@ -321,9 +317,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_int *slot;
       u_int pkt24;
       u_int addr24_1;
-
       prim = Render_gPacketPtr;
-
       addr24_1 = (u_int)prim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
@@ -400,7 +394,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_int rgb;
 
       prim = Render_gPacketPtr;
-
       addr24 = (u_int)prim & 0xffffff;
       pal = Render_gPalettePtr;
       slot = (u_int *)(otz * 4 + (int)pal);
@@ -497,7 +490,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
       u_char *pal;
 
       prim = Render_gPacketPtr;
-
       addr24 = (u_int)prim & 0xffffff;
       pal = Render_gPalettePtr;
       slot = (u_int *)(otz * 4 + (int)pal);
@@ -559,7 +551,6 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
       u_int rgb;
 
       prim = Render_gPacketPtr;
-
       addr24 = (u_int)prim & 0xffffff;
       pal = Render_gPalettePtr;
       slot = (u_int *)(otz * 4 + (int)pal);
@@ -1178,13 +1169,9 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
     {
       DR_MODE *aprim;
       u_int *slot;
-
       u_int pkt24;
-
       u_int addr24_0;
-
       aprim = (DR_MODE *)Render_gPacketPtr;
-
       addr24_0 = (u_int)aprim & 0xffffff;
       slot = (u_int *)Render_gPalettePtr;
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
@@ -1239,16 +1226,14 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
     {
       DR_MODE *aprim;
       u_int *slot;
-
+      u_char *pal;
       u_int pkt24;
-
       u_int addr24_1;
 
       aprim = (DR_MODE *)Render_gPacketPtr;
-
       addr24_1 = (u_int)aprim & 0xffffff;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;

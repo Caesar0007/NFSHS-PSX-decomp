@@ -1161,6 +1161,8 @@ void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;
   DVECTOR *wprevpt;
+  SVECTOR *p;
+  DVECTOR *pp;
   char *wd;
   int player;
   int ab;
@@ -1212,18 +1214,24 @@ void Weather_DoWeather(DRender_tView *Vi)
     if (Camera_gInfo[player].inCar) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServerA[player]);
     }
-    /* emit one snow/rain primitive per particle; wpt + wprevpt advance in lockstep */
+    /* emit one snow/rain primitive per particle; p + pp advance in lockstep.
+     * MATCH: the loop walks its OWN cursors, copied from wpt/wprevpt -- the oracle emits
+     * `addu s0,s6,zero` / `addu s2,s7,zero` right before the loop (2 insns ours lacked when
+     * the loop mutated wpt/wprevpt in place), and the in-loop refs then give the cursors
+     * the low-numbered saved regs while wpt/wprevpt keep the high ones. */
+    p = wpt;
+    pp = wprevpt;
     n = 0;
     if (0 < Weather_gSys.num[player]) {
       do {
         if (Weather_gType == Weather_kRain) {
-          Weather_CreateRain(wpt,wprevpt,wd + n);
+          Weather_CreateRain(p,pp,wd + n);
         }
         else {
-          Weather_CreateSnow(wpt);
+          Weather_CreateSnow(p);
         }
-        wpt = wpt + 1;
-        wprevpt = wprevpt + 1;
+        p = p + 1;
+        pp = pp + 1;
         n = n + 1;
       } while (n < Weather_gSys.num[player]);
     }
@@ -1231,7 +1239,10 @@ void Weather_DoWeather(DRender_tView *Vi)
     prim = (DR_MODE *)RENDER_PACKETPTR_ADDR;
     pal = (u_int *)RENDER_PALETTEPTR_ADDR;
     *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-    RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0xc;
+    /* MATCH: bump the cursor off the ALREADY-LOADED `prim`, not by re-reading the
+     * scratchpad slot -- the oracle has `addiu v1,a0,12; sw v1,0(t3)` (2 insns) where a
+     * re-read spelling emits lw+addiu+sw (3). */
+    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0xc;
     *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }

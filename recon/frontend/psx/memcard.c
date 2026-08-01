@@ -664,108 +664,111 @@ int MCRD_handlecardevents(int card)
     ret = 0x15;
     goto MCRDhandleCard_end;
   }
-  if (0 < sync) goto MCRDhandleCard_sync1;
+  /* MATCH: physical block order - retail lays the sync>0 (cmd/res) half FIRST and
+   * the task switch last; `if (sync <= 0) {...} else {cmd half}` makes the cmd half
+   * the bgtz target and pushes the task switch past it. */
+  if (sync <= 0) {
+    if (sync == -1) goto MCRDhandleCard_task;
+    goto MCRDhandleCard_end;
+  }
+  else {
+    if (sync != 1) goto MCRDhandleCard_end;
+    switch(cmd) {
+    case 1:
+      switch(res) {
+      case 0:
+        gMemCardInfo.bReady = cmd;
+        gMemCardInfo.existencecheckticks[card + -1] = timerhz;
+        ret = 0x16;
+        if (pCI->status == -1) {
+          MemCardAccept(gMemCardInfo.channel);
+        }
+        break;
+      case 1:
+        ret = 2;
+        gMemCardInfo.bReady = cmd;
+        gMemCardInfo.existencecheckticks[card + -1] = timerhz;
+        pCI->status = -1;
+        break;
+      case 2:
+        ret = 3;
+        gMemCardInfo.bReady = cmd;
+        pCI->status = -4;
+        break;
+      case 3:
+        ret = 0x15;
+        MemCardAccept(gMemCardInfo.channel);
+        break;
+      default:
+        ret = 0x17;
+        break;
+      }
+      break;
+    case 2:
+      switch(res) {
+      case 0:
+      case 3:
+        ret = 4;
+        gMemCardInfo.fileinfo.cardnum = card;
+        gMemCardInfo.task = LOAD_CARD;
+        break;
+      case 1:
+        iMCRD_InitCard(card);
+        pCI->status = -1;
+        ret = 2;
+        break;
+      case 2:
+        iMCRD_InitCard(card);
+        ret = 3;
+        break;
+      case 4:
+        pCI->status = -2;
+        ret = 5;
+        break;
+      }
+      break;
+    }
+    goto MCRDhandleCard_end;
+  }
+MCRDhandleCard_task:
   /* MATCH: every dispatch here is a real SWITCH with OUT-OF-LINE case bodies
    * (retail's beq-to-arm ladders); an if/else-if chain inlines each arm and flips
    * the branches to bne.  res is unsigned, so gcc omits the low bound test on
    * case 0.  Case bodies emit in SOURCE order = the oracle's block VA order. */
-  if (sync != -1) {
-    goto MCRDhandleCard_end;
-  }
-  else {
-    switch(gMemCardInfo.task) {
-    case NONE:
-      ret = 0x16;
-      if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
-        gMemCardInfo.bReady = 0;
-        ret = 0x17;
-        if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
-        ret = 0x15;
-      }
-      break;
-    case LOAD_CARD:
-      if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
-      pCI->lasterror = 0;
+  switch(gMemCardInfo.task) {
+  case NONE:
+    ret = 0x16;
+    if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
       gMemCardInfo.bReady = 0;
-      gMemCardInfo.task = NONE;
-      return iMCRD_LoadCard(card);
-    case WRITE_FILE:
-      if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
-      pCI->lasterror = 0;
-      gMemCardInfo.bReady = 0;
-      gMemCardInfo.task = NONE;
-      return iMCRD_DoFileWrite(card);
-    case LOAD_FILE:
-      if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
-      pCI->lasterror = 0;
-      gMemCardInfo.bReady = 0;
-      gMemCardInfo.task = NONE;
-      return iMCRD_DoFileLoad(card);
-    case DELETE_FILE:
-      if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
-      pCI->lasterror = 0;
-      gMemCardInfo.bReady = 0;
-      gMemCardInfo.task = NONE;
-      return iMCRD_DoFileDelete(card);
-    }
-    goto MCRDhandleCard_end;
-  }
-MCRDhandleCard_sync1:
-  if (sync != 1) goto MCRDhandleCard_end;
-  switch(cmd) {
-  case 1:
-    switch(res) {
-    case 0:
-      gMemCardInfo.bReady = cmd;
-      gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-      ret = 0x16;
-      if (pCI->status == -1) {
-        MemCardAccept(gMemCardInfo.channel);
-      }
-      break;
-    case 1:
-      ret = 2;
-      gMemCardInfo.bReady = cmd;
-      gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-      pCI->status = -1;
-      break;
-    case 2:
-      ret = 3;
-      gMemCardInfo.bReady = cmd;
-      pCI->status = -4;
-      break;
-    case 3:
-      ret = 0x15;
-      MemCardAccept(gMemCardInfo.channel);
-      break;
-    default:
       ret = 0x17;
-      break;
+      if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
+      ret = 0x15;
     }
     break;
-  case 2:
-    switch(res) {
-    case 0:
-    case 3:
-      ret = 4;
-      gMemCardInfo.fileinfo.cardnum = card;
-      gMemCardInfo.task = LOAD_CARD;
-      break;
-    case 1:
-      iMCRD_InitCard(card);
-      pCI->status = -1;
-      ret = 2;
-      break;
-    case 2:
-      iMCRD_InitCard(card);
-      ret = 3;
-      break;
-    case 4:
-      pCI->status = -2;
-      ret = 5;
-      break;
-    }
-    break;
+  case LOAD_CARD:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_LoadCard(card);
+  case WRITE_FILE:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_DoFileWrite(card);
+  case LOAD_FILE:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_DoFileLoad(card);
+  case DELETE_FILE:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_DoFileDelete(card);
   }
 MCRDhandleCard_end:
   return ret;

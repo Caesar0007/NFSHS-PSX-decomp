@@ -3804,9 +3804,17 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   vt2 = &sd->vt8;
   u2 = &sd->offsetU2;
   /* SYM: FIVE sibling blocks (one macro line=5): vt0 copy {t1,t2,t3} (no z),
-   * vt1/vt2/vt3 copies {z,t1,t2,t3}, uv block later.  vt3's temps stay LIVE
-   * through the memory-scaling of vt0-2 and scale from the REGS (oracle holds
-   * a1/a2/a0 across, incl. the raw-then-scaled dead-store pair @0x440C/447C) */
+   * vt1/vt2/vt3 copies {z,t1,t2,t3}, uv block later.
+   * MATCH (w40-a3, 265 -> PASS, count exact 335/335): the vt3 SCALING reads the
+   * field BACK FROM MEMORY (`(sd->vt3).x = (sd->vt3).x << 2;`) exactly like the
+   * vt0-vt2 ones -- it does NOT re-use the block's t1/t2/t3 temps.  cc1's cse
+   * FORWARDS the just-stored register instead of re-loading, and the forward is
+   * emitted as a register COPY (`addu $v0,$a1,$zero; sll $v0,$v0,2`), which is
+   * precisely the oracle's "redundant" copy triple @0x800C4478-94.  Writing
+   * `t1 << 2` instead shifts the temp IN PLACE (`sll $a1,$a1,2`) and loses the
+   * copies -- that was the whole 265-diff residual, previously mis-filed as a
+   * "$a0<->$a2 rotation".  Store ORDER of the three scaled stores is x,y,z
+   * (y,x,z leaves 12 diffs: it swaps which temp is copied first). */
   {
     short t1 = (shadowVT->sv).x;
     short t2 = (shadowVT->sv).y;
@@ -3850,9 +3858,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     (sd->vt2).x = (sd->vt2).x << 2;
     (sd->vt2).y = (sd->vt2).y << 2;
     (sd->vt2).z = (sd->vt2).z << 2;
-    (sd->vt3).y = t2 << 2;
-    (sd->vt3).x = t1 << 2;
-    (sd->vt3).z = t3 << 2;
+    (sd->vt3).x = (sd->vt3).x << 2;
+    (sd->vt3).y = (sd->vt3).y << 2;
+    (sd->vt3).z = (sd->vt3).z << 2;
   }
   /* midpoints: operands re-read from MEMORY per field (oracle lh pairs; the
    * cached-short-temp form forced sll16/sra16 re-extension chains) */

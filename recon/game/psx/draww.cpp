@@ -1057,6 +1057,23 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
    *      sets z AND light) and only then the low half is overwritten with
    *      z+tz -- identity-then-tweak, vs the old separate sra+sh for .light;
    *  (c) the three sums MUTATE t1/t3/t2 in place before the field stores. */
+  /* MATCH (w40-a2) -- THE $s0/$s1 FLIP, 404 -> 230 at ZERO instruction cost.
+   * `prim` defaults to the in-cache GT4 slot here and is OVERRIDDEN in the
+   * doSubdivision==0 arm below (the arm that allocates a packet + OT-links it).
+   * WHY IT MATTERS: with the init living only in the `else` arm, cc1's global.c
+   * ranked prim ABOVE sd and gave it $s0, where the oracle (SYM: sd REGPARM
+   * $0x10=$s0, prim REG $0x11=$s1) has them the other way round -- 182 of the 404
+   * diff lines were that one swap plus its caller-saved fallout.
+   * RTL RECEIPT (cc1plpsx -dg/-dl on the preprocessed TU, scratch/rtl):
+   *     prim = pseudo 145: 24 refs / 114 insns -> priority 4*24/114 = 0.842 (rank 9)
+   *     sd   = pseudo  80: 62 refs / 850 insns -> priority 5*62/850 = 0.365 (rank 15)
+   *   allocno_compare = floor_log2(refs)*refs/live_length, so prim only loses $s0
+   *   once its live_length exceeds ~263 insns; defining it at the top of the body
+   *   stretches the range over the whole function and drops it below sd.
+   * The `addiu $s1,$s0,0x110` that the oracle issues in the else-arm's `j` delay
+   * slot therefore moves into our prologue -- one instruction placed differently,
+   * paid for by 174 diff lines. Semantically identical (default-then-override). */
+  prim = &sd->GT4Prim;
   {
     int t1;
     int t2;
@@ -1240,9 +1257,6 @@ gte_swc2(0x8,&depthcue);
 	swl	$t4,2($t5)"
             : : "r"(prim), "r"(sd), "r"(&sd->otz)
             : "$12", "$13", "$14", "memory");
-      }
-      else {
-        prim = &sd->GT4Prim;
       }
       /* MATCH (2026-08-01): the four dvxy AUTOs ARE packed screen-XY words, and the
        * oracle stores each with ONE `sw` (0x8/0x14/0x20/0x2C off prim) -- the 8

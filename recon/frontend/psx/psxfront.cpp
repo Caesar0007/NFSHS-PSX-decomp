@@ -363,7 +363,7 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
     if (ftop * 0x10000 < 0) {
       fadetop = -ftop;
     }
-    fadetop = fadetop * 2;
+    fadetop = fadetop << 1;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
@@ -372,7 +372,7 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
     if (fbot * 0x10000 < 0) {
       fadebottom = -fbot;
     }
-    fadebottom = fadebottom * 2;
+    fadebottom = fadebottom << 1;
     if (0x80 < fadebottom) {
       fadebottom = 0x80;
     }

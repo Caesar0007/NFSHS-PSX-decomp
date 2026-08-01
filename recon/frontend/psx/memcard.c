@@ -284,27 +284,33 @@ void MCRD_getopts(MCRDOPTS_def *pOPT)
 void MCRD_setopts(MCRDOPTS_def *pOPT)
 
 {
-  int loc;
-  
-  if (pOPT->productCode == (char *)0x0) {
-    gMemCardInfo.productCode[0] = '\0';
-    gMemCardInfo.productLocation = N_AMERICA;
-  }
-  else {
+  /* MATCH: the productCode!=NULL body is the IF-ARM (the oracle's beqz pushes the
+   * NULL case out-of-line to .L8004F634), and the region letter comes from a real
+   * 3-case switch + default - gcc's balanced case tree emits the beq(1)/beqz(0)/
+   * beq(2) ladder, and the two 'A' arms (N_AMERICA + default) cross-jump-merge. */
+  if (pOPT->productCode != (char *)0x0) {
     gMemCardInfo.productCode[0] = 'B';
-    loc = pOPT->productLocation;
-    if (loc == 1) {
+    switch (pOPT->productLocation) {
+    case JAPAN:
       gMemCardInfo.productCode[1] = 'I';
-    }
-    else if ((loc == 0) || (loc != 2)) {
-      gMemCardInfo.productCode[1] = 'A';
-    }
-    else {
+      break;
+    case EUROPE:
       gMemCardInfo.productCode[1] = 'E';
+      break;
+    case N_AMERICA:
+      gMemCardInfo.productCode[1] = 'A';
+      break;
+    default:
+      gMemCardInfo.productCode[1] = 'A';
+      break;
     }
     strncpy(gMemCardInfo.productCode + 2,pOPT->productCode,10);
     gMemCardInfo.productCode[0xc] = '\0';
     gMemCardInfo.productLocation = pOPT->productLocation;
+  }
+  else {
+    gMemCardInfo.productCode[0] = '\0';
+    gMemCardInfo.productLocation = N_AMERICA;
   }
   gMemCardInfo.ConfirmFormatProc = pOPT->ConfirmFormatProc;
   gMemCardInfo.ConfirmOverwriteProc = pOPT->ConfirmOverwriteProc;

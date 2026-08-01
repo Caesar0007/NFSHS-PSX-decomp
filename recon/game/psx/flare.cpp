@@ -1752,6 +1752,22 @@ gte_SetRotMatrix(&mtx);
  * no zero-cost source lever changes the qty priority).  The SAME rotation is the whole
  * residual of Flare_2DHalo (68), most of Flare_LensFlare's tail, Flare_CarShapedHalo and
  * Flare_Halo2's tails, and Sky_RenderStars (2, LICM-hoist ORDER variant of the same tie).
+ * w40-a8 QUANTIFICATION of that floor across the halo family (tool: scratch/quant_a8.py --
+ * aligns ours vs oracle, then searches register permutations that make an aligned pair
+ * equal, reporting how many pairs remain OUTSIDE):
+ *     Flare_Sun          50 diffs = 25 pairs, 25/25 explained by {t1->t2,t2->t3,t3->t1}
+ *                        -> 0 OUTSIDE.  100%% floor, count exact.  Do not grind.
+ *     Flare_Halo2        48 diffs = 24 pairs, 24/24 explained -> 0 OUTSIDE (after the
+ *                        w40 batched-load fix below).  100%% floor, count exact.
+ *     Flare_2DHalo       60 diffs = 24 pairs, 21 explained, 3 OUTSIDE (+12 count-only):
+ *                        a v0<->t0 swap between the otz*4 shift and the palette-base load
+ *                        in the SECOND tail block, plus prologue save-order.
+ *     Flare_CarShapedHalo 59 diffs = 27 pairs, only 6 explained by a t0<->t1 2-cycle;
+ *                        21 OUTSIDE = an s6<->s7 swap (type param vs the zero-init
+ *                        angleZ; the SYM says angleZ=$s6, so the ORACLE is right and our
+ *                        build gives angleZ $s7) + a v0/v1 pick on `andi ...,127`.
+ *                        THIS ONE IS NOT THE FLOOR -- it is the biggest remaining lead
+ *                        in flare.cpp: demote `type` / promote `angleZ` in allocno order.
  * w39-a8 probes, ALL byte-neutral or worse: Hrz_SetDitheringPrim's exact spelling (slot
  * first, unmasked `tag = *slot` then `(tag & 0xff000000)|(...)`) = 50; unmasked pkt24 with
  * the original statement order = 50; swapping the first RMW's OR operands = 56.  Also NOT

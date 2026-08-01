@@ -6,7 +6,8 @@
 #include "psxfront_externs.h"
 
 /* ---- PSXFront.obj STAT (file-local) globals ---- */
-static char     *STR_FRMT;                          /* 0x80052a54 */
+static char     *STR_FRMT[2];                       /* 0x80052a54 (sized>G4 -> .bss/absolute, not
+                                                       .sbss/gp-rel -- same device as rendering3DEnvInit__) */
 static u_short   ofs[2];                            /* 0x80052a5c */
 static char      rendering3DEnvInit__[8];           /* 0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
 #define rendering3DEnvironmentInitialized rendering3DEnvInit__[0]
@@ -101,24 +102,19 @@ void InitializeSpinningCars(void)
 void CleanupSpinningCars(void)
 
 {
-  int status;
-  Car_tObj *addr;
+  /* SYM: i, handle, fname[60] -- that is ALL.  `ppCar`/`addr`/`status` were fabricated; retail
+   * indexes gCarObj[i] (loop.c turns the walker into a giv) and RE-READS it for purgememadr, so the
+   * handle then lands in the walker's dead $s0 rather than in i's $s1. w42-a7. */
   int handle;
-  Car_tObj **ppCar;
   int i;
   char fname [60];
   
   if (rendering3DEnvironmentInitialized != '\0') {
     DrawSync(0);
-    i = 0;
-    ppCar = gCarObj;
-    do {
-      i = i + 1;
-      R3DCar_DeInstantiate3DCar(*ppCar);
-      addr = *ppCar;
-      ppCar = ppCar + 1;
-      purgememadr(addr);
-    } while (i < 2);
+    for (i = 0; i < 2; i = i + 1) {
+      R3DCar_DeInstantiate3DCar(gCarObj[i]);
+      purgememadr(gCarObj[i]);
+    }
     inFrontEnd[0] = 1;
     R3DCar_CleanUp();
     CarIO_CleanUp();
@@ -130,8 +126,8 @@ void CleanupSpinningCars(void)
     rendering3DEnvironmentInitialized = '\0';
     Platform_ResetDCTBuffer();
     sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
-    i = asyncloadfileat(fname,CF_DVLC);
-    while (status = getasyncreadstatus(i), status == 0) {
+    handle = asyncloadfileat(fname,CF_DVLC);
+    while (getasyncreadstatus(handle) == 0) {
       systemtask(0);
     }
   }
@@ -178,7 +174,7 @@ void DoTitleScreen(void)
   elapsedticks();
   if (creditShapeFile[0] == (char *)0x0) {
     sprintf(artfilename,"title.psh");
-    sprintf(fileName,STR_FRMT,Paths_Paths[0x20],artfilename);
+    sprintf(fileName,STR_FRMT[0],Paths_Paths[0x20],artfilename);
     creditShapeFile[0] = (char *)loadshapeadr(fileName,(void *)0x0);
     systemtask(0);
     if (creditShapeFile[0] == (char *)0x0) {

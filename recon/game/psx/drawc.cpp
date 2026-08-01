@@ -3366,15 +3366,35 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         prim->clut = clut;
         prim->tpage = tpage;
       }
-      /* base u/v pair: SYM names NO local here -- retail CSEs `ePmx0.u0 + 0x40`
-       * and `ePmx0.v0` into two anonymous temps ($t6/$t7) held across the three
-       * vertices, and interleaves each addu with its own sb. */
-      prim->u0 = *(u_char *)(id0 + 0xD6) + ((sd->ePmx0).u0 + 0x40);
-      prim->v0 = *(u_char *)(id0 + 0xD7) + (sd->ePmx0).v0;
-      prim->u1 = *(u_char *)(id1 + 0xD6) + ((sd->ePmx0).u0 + 0x40);
-      prim->v1 = *(u_char *)(id1 + 0xD7) + (sd->ePmx0).v0;
-      prim->u2 = *(u_char *)(id2 + 0xD6) + ((sd->ePmx0).u0 + 0x40);
-      prim->v2 = *(u_char *)(id2 + 0xD7) + (sd->ePmx0).v0;
+      {
+        /* SYM names NO local for the uv here, but retail DOES hold the base
+         * pair across the three vertices ($t6/$t7) -- cc1 will NOT CSE the
+         * `ePmx0.u0 + 0x40` / `ePmx0.v0` reads out of the three statements
+         * (measured: +9 insns, 6 redundant lbu + 3 addiu), so the base pair
+         * has to be two real temps.  `u` keeps char type so `u + '@'` is a
+         * bare addiu (u_char would inject an andi 0xff). */
+        char u;
+        u_char v;
+        u_char u0, v0;   /* ONE reused pair (retail's $t4/$t5): the v-load fills
+                          * the u-load's delay slot; a single temp costs a nop
+                          * per vertex, six per-vertex temps recolour the fn */
+
+        u = (sd->ePmx0).u0;
+        v = (sd->ePmx0).v0;
+        u = u + '@';   /* +0x40 AFTER both base lbu's (oracle order) */
+        u0 = *(u_char *)(id0 + 0xD6);
+        v0 = *(u_char *)(id0 + 0xD7);
+        prim->u0 = u0 + u;
+        prim->v0 = v0 + v;
+        u0 = *(u_char *)(id1 + 0xD6);
+        v0 = *(u_char *)(id1 + 0xD7);
+        prim->u1 = u0 + u;
+        prim->v1 = v0 + v;
+        u0 = *(u_char *)(id2 + 0xD6);
+        v0 = *(u_char *)(id2 + 0xD7);
+        prim->u2 = u0 + u;
+        prim->v2 = v0 + v;
+      }
     }
     if ((overlayFlag & 3) != 0) {   /* fall-through = the overlay arm (oracle beqz) */
       int index;

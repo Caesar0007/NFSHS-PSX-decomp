@@ -245,165 +245,82 @@ void Physics_CheckGamedata(void)
 int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int vx;
+  int vy;
+  register int vx;
+  int vz;
   int absvelbx;
   coorddef vel_b;
   matrixtdef transposeMat;
-  
-  iVar5 = force;
-  if (force < 0) {
-    iVar5 = force + 0xff;
-  }
-  iVar1 = roadMat->m[0];
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar2 = roadMat->m[3];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  if (force < 0) {
-    force = force + 0xff;
-  }
-  iVar3 = roadMat->m[6];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar8 = (carObj->N).linearVel.x;
-  iVar6 = (carObj->N).position.z;
-  (carObj->N).position.x = (carObj->N).position.x - (iVar5 >> 8) * (iVar1 >> 8);
-  iVar1 = (carObj->N).position.y;
-  (carObj->N).position.z = iVar6 + (force >> 8) * (iVar3 >> 8);
-  (carObj->N).position.y = iVar1 + (iVar5 >> 8) * (iVar2 >> 8);
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar5 = roadMat->m[0];
-  if (iVar5 < 0) {
-    iVar5 = iVar5 + 0xff;
-  }
-  iVar1 = (carObj->N).linearVel.y;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar2 = roadMat->m[1];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar3 = (carObj->N).linearVel.z;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar6 = roadMat->m[2];
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar1 = (iVar8 >> 8) * (iVar5 >> 8) + (iVar1 >> 8) * (iVar2 >> 8) + (iVar3 >> 8) * (iVar6 >> 8);
-  iVar5 = -iVar1;
-  iVar2 = (carObj->N).linearVel.x;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar3 = roadMat->m[6];
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  iVar6 = (carObj->N).linearVel.y;
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xff;
-  }
-  iVar8 = roadMat->m[7];
-  if (iVar8 < 0) {
-    iVar8 = iVar8 + 0xff;
-  }
-  iVar7 = (carObj->N).linearVel.z;
-  if (iVar7 < 0) {
-    iVar7 = iVar7 + 0xff;
-  }
-  iVar4 = roadMat->m[8];
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  if (iVar5 < 0) {
-    iVar5 = iVar1;
-  }
-  iVar5 = iVar5 >> 1;
-  vel_b.z = (iVar2 >> 8) * (iVar3 >> 8) + (iVar6 >> 8) * (iVar8 >> 8) + (iVar7 >> 8) * (iVar4 >> 8);
-  if (vel_b.z < 1) {
-    if (vel_b.z < -0x50000) {
-      iVar1 = iVar5;
-      if (iVar5 < 0) {
-        iVar1 = iVar5 + 0xff;
+
+  vel_b.x = force;
+  vel_b.y = 0;
+  vel_b.z = 0;
+  vx = (vel_b.x / 0x100) * (roadMat->m[0] / 0x100) +
+       (vel_b.y / 0x100) * (roadMat->m[1] / 0x100) +
+       (vel_b.z / 0x100) * (roadMat->m[2] / 0x100);
+  vy = (vel_b.x / 0x100) * (roadMat->m[3] / 0x100) +
+       (vel_b.y / 0x100) * (roadMat->m[4] / 0x100) +
+       (vel_b.z / 0x100) * (roadMat->m[5] / 0x100);
+  vz = (vel_b.x / 0x100) * (roadMat->m[6] / 0x100) +
+       (vel_b.y / 0x100) * (roadMat->m[7] / 0x100) +
+       (vel_b.z / 0x100) * (roadMat->m[8] / 0x100);
+  (carObj->N).position.x -= vx;
+  (carObj->N).position.y += vy;
+  (carObj->N).position.z += vz;
+
+  vel_b.x = -(((carObj->N).linearVel.x / 0x100) * (roadMat->m[0] / 0x100) +
+              ((carObj->N).linearVel.y / 0x100) * (roadMat->m[1] / 0x100) +
+              ((carObj->N).linearVel.z / 0x100) * (roadMat->m[2] / 0x100));
+  vel_b.z = ((carObj->N).linearVel.x / 0x100) * (roadMat->m[6] / 0x100) +
+            ((carObj->N).linearVel.y / 0x100) * (roadMat->m[7] / 0x100) +
+            ((carObj->N).linearVel.z / 0x100) * (roadMat->m[8] / 0x100);
+  absvelbx = ((0 <= vel_b.x) ? vel_b.x : -vel_b.x) >> 1;
+  vel_b.x = 0;
+  if (0 < vel_b.z) {
+    if (0x50000 < vel_b.z) {
+      vel_b.z -= (absvelbx / 0x100) * 0xc0;
+      if (vel_b.z < 0) {
+        vel_b.z = 0;
       }
-      vel_b.z = vel_b.z + (iVar1 >> 8) * 0xc0;
+    }
+  }
+  else {
+    if (vel_b.z < -0x50000) {
+      vel_b.z += (absvelbx / 0x100) * 0xc0;
       if (0 < vel_b.z) {
         vel_b.z = 0;
       }
     }
   }
-  else if (0x50000 < vel_b.z) {
-    iVar1 = iVar5;
-    if (iVar5 < 0) {
-      iVar1 = iVar5 + 0xff;
-    }
-    vel_b.z = vel_b.z + (iVar1 >> 8) * -0xc0;
-    if (vel_b.z < 0) {
-      vel_b.z = 0;
-    }
-  }
   transpose(roadMat,&transposeMat);
-  iVar1 = fixedmult(0,transposeMat.m[0]);
-  iVar2 = fixedmult(0,transposeMat.m[1]);
-  iVar3 = fixedmult(vel_b.z,transposeMat.m[2]);
-  (carObj->N).linearVel.x = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(0,transposeMat.m[6]);
-  iVar2 = fixedmult(0,transposeMat.m[7]);
-  iVar3 = fixedmult(vel_b.z,transposeMat.m[8]);
-  iVar6 = (carObj->N).linearVel.y;
-  (carObj->N).linearVel.z = iVar1 + iVar2 + iVar3;
-  if (0 < iVar6) {
+  (carObj->N).linearVel.x = fixedmult(vel_b.x,transposeMat.m[0]) +
+                            fixedmult(vel_b.y,transposeMat.m[1]) +
+                            fixedmult(vel_b.z,transposeMat.m[2]);
+  (carObj->N).linearVel.z = fixedmult(vel_b.x,transposeMat.m[6]) +
+                            fixedmult(vel_b.y,transposeMat.m[7]) +
+                            fixedmult(vel_b.z,transposeMat.m[8]);
+  if (0 < (carObj->N).linearVel.y) {
     (carObj->N).linearVel.y = 0;
   }
-  iVar1 = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[0]);
-  iVar2 = fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[1]);
-  iVar3 = fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[2]);
-  iVar6 = (carObj->N).linearVel.x;
-  iVar8 = (carObj->N).orientMat.m[3];
-  (carObj->linearVel_ch).x = iVar1 + iVar2 + iVar3;
-  iVar1 = fixedmult(iVar6,iVar8);
-  iVar2 = fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[4]);
-  iVar3 = fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[5]);
-  iVar6 = (carObj->N).linearVel.x;
-  iVar8 = (carObj->N).orientMat.m[6];
-  (carObj->linearVel_ch).y = iVar1 + iVar2 + iVar3;
-  iVar3 = fixedmult(iVar6,iVar8);
-  iVar6 = fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[7]);
-  iVar8 = fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
-  iVar1 = (carObj->N).linearVel.x;
-  iVar2 = (carObj->N).linearVel.z;
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
+  (carObj->linearVel_ch).x = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[0]) +
+                             fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[1]) +
+                             fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[2]);
+  (carObj->linearVel_ch).y = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[3]) +
+                             fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[4]) +
+                             fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[5]);
+  (carObj->linearVel_ch).z = fixedmult((carObj->N).linearVel.x,(carObj->N).orientMat.m[6]) +
+                             fixedmult((carObj->N).linearVel.y,(carObj->N).orientMat.m[7]) +
+                             fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
+
+  {
+    int x = (0 <= (carObj->N).linearVel.x) ?
+            (carObj->N).linearVel.x : -(carObj->N).linearVel.x;
+    int z = (0 <= (carObj->N).linearVel.z) ?
+            (carObj->N).linearVel.z : -(carObj->N).linearVel.z;
+    (carObj->N).speedXZ =
+        (x > z) ? x + (z >> 2) : z + (x >> 2);
   }
-  if (iVar2 < 0) {
-    iVar2 = -iVar2;
-  }
-  (carObj->linearVel_ch).z = iVar3 + iVar6 + iVar8;
-  if (iVar2 < iVar1) {
-    iVar1 = iVar1 + (iVar2 >> 2);
-  }
-  else {
-    iVar1 = iVar2 + (iVar1 >> 2);
-  }
-  (carObj->N).speedXZ = iVar1;
-  return iVar5;
+  return absvelbx;
 }
 
 /* ---- Physics_SetCurrentWallType__Fi  [PHYSICS.CPP:665-666] SLD-VERIFIED ---- */

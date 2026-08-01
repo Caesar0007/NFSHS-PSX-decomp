@@ -166,7 +166,13 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   short mh;
   short mw;
 
-  mh = gMovieHeight;
+  /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
+   * (`_d`), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
+   * schedulable and cc1 sinks the load past the `addiu s0,a0,8`; the scalar
+   * macro form is unschedulable and issues where retail has it.  (Same symbol
+   * uses the view form in strNext/Movie_Init -- both spellings are correct,
+   * pick per site.) */
+  mh = gMovieHeight_d;
   r0->x = x0;
   r0->y = y0;
   r1->x = x1;

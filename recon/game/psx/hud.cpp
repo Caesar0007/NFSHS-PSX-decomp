@@ -3363,17 +3363,22 @@ void Hud_Render(void)
     return;
   }
   if (((HudBustedOverlay == 0) && (BTC_BonusTime != 0)) && (0xfa < ticks - BTC_BonusTimeTick)) {
+    /* MATCH: plain if / else-if / else with BOTH 0x32 arms written out -- gcc
+     * cross-jumps them into the single shared `j; addiu a0,0x32` block the oracle
+     * reaches from the splitscreen==0 branch AND from the car[1] fall-through.
+     * The old `goto` into the else arm emitted an extra un-filled `j; nop`. */
     if (DashHUD_gInfo.splitscreen != 0) {
-      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) != 0) {
+      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) {
         countamount = 0xfa;
-        if ((Cars_gRaceCarList[1]->carFlags & 0x200U) != 0) goto HudRender_setRateFast;
+      }
+      else if ((Cars_gRaceCarList[1]->carFlags & 0x200U) == 0) {
+        countamount = 0xfa;
       }
       else {
-        countamount = 0xfa;
+        countamount = 0x32;
       }
     }
     else {
-HudRender_setRateFast:
       countamount = 0x32;
     }
     count = countamount;
@@ -3381,10 +3386,14 @@ HudRender_setRateFast:
       count = BTC_BonusTime;
     }
     BTC_Countdown = BTC_Countdown + count;
-    BTC_BonusTime = BTC_BonusTime - countamount;
-    if (BTC_BonusTime < 0) {
-      BTC_BonusTime = 0;
+    /* MATCH: single store -- the oracle computes the difference, clamps it in a
+     * register and stores ONCE (`subu; bgez; addu v1,zero,zero; sw`); writing the
+     * subtraction back to the global first emits an extra `sw` (census sw 17v16). */
+    count = BTC_BonusTime - countamount;
+    if (count < 0) {
+      count = 0;
     }
+    BTC_BonusTime = count;
   }
   if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0)) {
     i = 0;

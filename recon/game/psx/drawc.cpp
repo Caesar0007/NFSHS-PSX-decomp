@@ -4194,11 +4194,22 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       hilight[1] = 0x20 - hilight[0];
       hilight_direction[1] = 1;
     }
+    /* MATCH (w42-a3, 105 -> 99): retail's fill loop is a DOWN-WALKING POINTER
+       (`addiu v0,sp,47` = &hilight_state[31], `sb v1,0(v0)`, and `addiu v0,v0,-1`
+       in the bgez delay slot).  Our loop.c declined to strength-reduce the plain
+       `hilight_state[i] = -1` index form (it recomputed `addu v0,base,i` every
+       iteration, +1 insn); modelling the giv explicitly reproduces the oracle's
+       body byte-for-byte.  `for(i=31;i>=0;i--)` measured identical to the index
+       do-while (no SR either). */
+    {
+    signed char *hs = &hilight_state[0x1f];
     i = 0x1f;
     do {
-      hilight_state[i] = -1;
+      *hs = -1;
       i = i + -1;
+      hs = hs + -1;
     } while (-1 < i);
+    }
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
        `addiu spN` base materializations is loop.c strength-reduction seeding the

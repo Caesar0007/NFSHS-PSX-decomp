@@ -184,41 +184,60 @@ void read(char **handle,void *buf,int bytes)
  * makes the SetDefault arm the FALL-THROUGH and the parse arm the branch target,
  * i.e. the source tests `spec_num >= header.num_spec` with SetDefault as the
  * if-BODY (catalog sec.B arm-order/polarity row).
- * RESIDUAL 4 insns = retail's REDUNDANT COPY `addu $s3,$s0,$zero` of startpos
- * (+ its frame save/restore) so the cross-jump-merged `jal purgememadr` is
- * reached with `a0` set from $s0 on the SetDefault path and from $s3 on the
- * parse path (oracle 800E181C / 800E1868 / 800E18A4). Both hold the SAME value;
- * our cc1 copy-propagates it away. Tried: duplicating purgememadr into both arms
- * (gcc re-merges, no change), a second C variable `filebuf = startpos` used by
- * one arm (copy-propagated, no change). This is the documented per-obj
- * "old-gcc no-copy-prop" toolchain-identity class (catalog sec.G) -- FLOOR.
- * Prototype re-checked vs raw oracle: 1 int arg ($a0->$s2), void return
- * (no $v0 set at the single epilogue). */
+ * 26 -> 4 (w40-a5, count now EXACT 63/63).  The w39 "no-copy-prop FLOOR" call was
+ * WRONG in its remedy, not its mechanism.  The SYM is the key: `startpos` is REG
+ * $13 = $s3, NOT $s0 -- so retail holds the loadfileadr result in THREE places
+ * (the return pseudo $v0, an uncoalesced temp $s0 that carries the null test and
+ * the SetDefault arm's purge, and `startpos` $s3 for the parse arm's purge), and
+ * mask $800f0000 (ra+s0..s3) pays for all of them.  THREE cooperating changes:
+ *  (1) model the uncoalesced temp as a real local (`filebuf`) that `startpos` is
+ *      copied FROM -- the copy survives because `startpos` OUTLIVES it (its use is
+ *      in the later arm; catalog "make_regs_eqv is steerable: the copy becomes
+ *      canonical iff it outlives its source").  The earlier probe copied in the
+ *      OPPOSITE direction, which is why it was copy-propagated away.
+ *  (2) purgememadr(...) written INSIDE each arm (filebuf in the SetDefault arm,
+ *      startpos in the parse arm) -- gcc cross-jumps the two `jal`s into one but
+ *      keeps each arm's own `addu a0,<reg>,zero`, which is exactly the oracle's
+ *      800E181C / 800E18A4 pair.  Duplicating the call with ONE variable does not
+ *      work (both arms then use the same register and the merge swallows it).
+ *  (3) `currentpos = filebuf;` hoisted ABOVE the null test so the store lands in
+ *      the `beqz` delay slot like the oracle.
+ * RESIDUAL 4 (2 real insns): the delay-slot store is `sw s0,88(sp)` for us vs
+ * `sw v0,88(sp)` for retail (a THIRD uncoalesced copy we cannot name without a
+ * fourth variable), and the sprintf `lui a1,%hi(fmt)` is scheduled one insn
+ * earlier.  Prototype re-checked vs the raw oracle: 1 int arg ($a0->$s2), void
+ * return (no $v0 set at the single epilogue).  Per-TU flag probes (w40-a5, whole
+ * TU): g_value 8 = NO-OP (this TU owns only 4-byte scalars, all already %gp_rel),
+ * no_strength_reduce / no_split_addresses / no_schedule_insns / no_schedule_insns2
+ * all neutral-or-worse -- see the SetDefault note. */
 void TrackSpec_Read(int spec_num)
 
 {
+  char *filebuf;
   char *startpos;
   char str [64];
   CTrackSpecHeader header;
   char *currentpos;
   
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],GameSetup_gData.track);
-  startpos = (char *)loadfileadr(str,0);
-  if (startpos != (char *)0x0) {
+  filebuf = (char *)loadfileadr(str,0);
+  startpos = filebuf;
+  currentpos = filebuf;
+  if (filebuf != (char *)0x0) {
     TrackSpec_gPrevSpec = spec_num;
     TrackSpec_gCurrentSpec = spec_num;
-    currentpos = startpos;
     read(&currentpos,&header,8);
     if (spec_num >= header.num_spec) {
       TrackSpec_SetDefault(&TrackSpec_gSpec);
+      purgememadr(filebuf);
     }
     else {
       TrackSpec_gMaxSpec = header.num_spec + 1;
       currentpos = currentpos + spec_num * 0x108;
       read(&currentpos,&TrackSpec_gSpec,0x108);
       TrackSpec_SetUp();
+      purgememadr(startpos);
     }
-    purgememadr(startpos);
   }
   return;
 }

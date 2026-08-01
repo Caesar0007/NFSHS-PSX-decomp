@@ -170,14 +170,16 @@ void DrawTV(tTVConfig &tv)
   if ((tv.flags & 8) == 0) {
     DrawTVLines(tv);
   }
-  texture = (POLY_FT4 *)Render_gPacketPtr;
   if ((tv.flags & 0x10) == 0) {
     if (tv.state != tv_StateOn) {
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      u_int *palette;
+
+      texture = (POLY_FT4 *)Render_gPacketPtr;
+      palette = (u_int *)Render_gPalettePtr;
+      *(u_int *)texture =
+           *(u_int *)texture & 0xff000000 | *palette & 0xffffff;
       Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
+      *palette = *palette & 0xff000000 | (u_int)texture & 0xffffff;
       *(u_int *)&texture->r0 =
            (0x40 - (bright >> 1)) * 0x10000 |
            (0x40 - (bright >> 1)) * 0x100 |

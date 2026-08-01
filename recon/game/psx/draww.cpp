@@ -2971,19 +2971,58 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      and the `sm` (Skidmark_Chunk*, SYM REG $s2, size 0x2B0) walker is still
      modelled as the invented `skidIdx`/`skidIter` byte offsets -- that walker,
      not the matrix rows, is the next lever. */
+  /* CORRECTNESS + MATCH (w40-a2): `Skid_gCtrlScratch_94` is a real linked .bss int
+   * (skidmark.cpp), but the OT depth this function computes is written by
+   * `gte_swc2(0x7, 0x1F800094)` straight into SCRATCHPAD -- so every read of the .bss
+   * symbol saw a stale value and the whole skidmark depth clamp / OT index ran on
+   * garbage (same bug class as the Skid_gCtrlScratch_98 compares fixed in wave-9).
+   * 0x1F800094 is `sd->otz`'s address in the same cache header, and the oracle keeps
+   * that literal in its OWN callee-saved reg across the calls (`lui fp,0x1F80;
+   * ori fp,fp,0x94` in the prologue), so model it as a local pointer. */
+  int *otz94;
+
+  otz94 = (int *)0x1f800094;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   ccount_local = fskid->count;
-  l2 = (fskid->m).m[3];
-  skidIdx = ccount_local * 0x2b0;
-  (sd->matB).m[0][0] = (short)((fskid->m).m[0] >> 4);
-  (sd->matB).m[0][1] = (short)((int)l2 >> 4);
-  (sd->matB).m[0][2] = (short)((fskid->m).m[6] >> 4);
-  (sd->matB).m[1][0] = (short)((fskid->m).m[1] >> 4);
-  (sd->matB).m[1][1] = (short)((fskid->m).m[4] >> 4);
-  (sd->matB).m[1][2] = (short)((fskid->m).m[7] >> 4);
-  (sd->matB).m[2][0] = (short)((fskid->m).m[2] >> 4);
-  (sd->matB).m[2][1] = (short)((fskid->m).m[5] >> 4);
-  (sd->matB).m[2][2] = (short)((fskid->m).m[8] >> 4);
+  /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
+   * blocks of `int r0,r1,r2`; the oracle runs each row as three PARALLEL chains
+   * (`lw r0; lw r1; lw r2; sra; sra; sra; sh; sh; sh`) so the loads fill each other's
+   * delay slots -- the flat nine-statement form serialized them through one scratch
+   * and paid a `nop` per row. */
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = (fskid->m).m[0];
+    r1 = (fskid->m).m[3];
+    r2 = (fskid->m).m[6];
+    skidIdx = ccount_local * 0x2b0;
+    (sd->matB).m[0][0] = (short)(r0 >> 4);
+    (sd->matB).m[0][1] = (short)(r1 >> 4);
+    (sd->matB).m[0][2] = (short)(r2 >> 4);
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = (fskid->m).m[1];
+    r1 = (fskid->m).m[4];
+    r2 = (fskid->m).m[7];
+    (sd->matB).m[1][0] = (short)(r0 >> 4);
+    (sd->matB).m[1][1] = (short)(r1 >> 4);
+    (sd->matB).m[1][2] = (short)(r2 >> 4);
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = (fskid->m).m[2];
+    r1 = (fskid->m).m[5];
+    r2 = (fskid->m).m[8];
+    (sd->matB).m[2][0] = (short)(r0 >> 4);
+    (sd->matB).m[2][1] = (short)(r1 >> 4);
+    (sd->matB).m[2][2] = (short)(r2 >> 4);
+  }
   do {
     do {
       ccount_local = ccount_local + -1;
@@ -3019,11 +3058,17 @@ gte_SetTransMatrix(&sd->matB);
        * %hi/%lo(sym)). draww_externs.h still declares it a plain extern
        * (header edits are out of scope here), so the literal cast is applied
        * locally at this one use site only -- no other TU's codegen changes. */
-      if ((Render_gPacketPtr < *(u_char **)0x1f800008) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
+      /* MATCH (w40-a2): the packet cursor and its end-limit ARE fields of the same
+       * scratchpad cache header `sd` already points at (0x1F800004 = head.cprim.PrimPtr,
+       * 0x1F800008 = head.cprim.MPrimPtr) -- reaching them through the `Render_gPacketPtr`
+       * literal-address macro made gcc materialize a SECOND scratchpad base
+       * (`ori s7,s6,4`) in its own callee-saved reg, which is the slot the oracle spends
+       * on `count*0x2B0`. Same base, same bytes, one fewer allocno. */
+      if ((sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
 gte_ldv0((int *)(depth_index));
         gte_rtps();
 gte_stlvnl((void *)0x1f800098);
-        primPtr = Render_gPacketPtr;
+        primPtr = sd->head.cprim.PrimPtr;
         /* CORRECTNESS FIX (2026-07-12, oracle @0x800C92E0): SXY goes to the
          * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
          * scratchpad literal 0x1F800008 (= Render_gPacketEnd's slot). */
@@ -3066,12 +3111,12 @@ gte_stlvnl((void *)0x1f8000c8);
 gte_stsxy3((void *)0x1f800014,(void *)0x1f80002c,(void *)0x1f800020);
           gte_avsz4();
 gte_swc2(0x7,(void *)0x1f800094);
-          vt_y = Skid_gCtrlScratch_94 >> 5;
-          Skid_gCtrlScratch_94 = vt_y + 0x32;
-          if (Skid_gCtrlScratch_94 < 1) {
+          vt_y = *otz94 >> 5;
+          *otz94 = vt_y + 0x32;
+          if (*otz94 < 1) {
             return;
           }
-          if (Draw_gViewOtSize + -3 < Skid_gCtrlScratch_94) {
+          if (Draw_gViewOtSize + -3 < *otz94) {
             return;
           }
           if (color_pack == 0) {
@@ -3143,7 +3188,7 @@ gte_swc2(0x7,(void *)0x1f800094);
                 "sw	$t6,0(%0)\n\t"
                 "swl	$t4,2($t5)"
                 : "=&r"(primOut)
-                : "r"(&Render_gPalettePtr), "r"(Skid_gCtrlScratch_94)
+                : "r"(&Render_gPalettePtr), "r"(*otz94)
                 : "$12", "$13", "$14", "memory");
           }
         }

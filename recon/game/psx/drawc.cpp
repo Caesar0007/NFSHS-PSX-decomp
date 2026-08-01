@@ -4176,11 +4176,9 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       hilight_direction[1] = 1;
     }
     iVar5 = 0x1f;
-    pcVar6 = hilight_state + 0x1f;
     do {
-      *pcVar6 = -1;
+      hilight_state[iVar5] = -1;
       iVar5 = iVar5 + -1;
-      pcVar6 = pcVar6 + -1;
     } while (-1 < iVar5);
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three

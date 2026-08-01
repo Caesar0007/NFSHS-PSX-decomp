@@ -2729,8 +2729,10 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
 
 {
   Car_tObj * car;
-  short sVar1;
   bool bVar2;
+  bool bVar3;
+  bool bVar4;
+  bool bVar5;
   Car_tObj *carObj;
   Car_tObj *pCVar3;
   int iVar4;
@@ -2739,9 +2741,6 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   int iVar7;
   u_int *puVar8;
   int iVar9;
-  int tu10;
-  int tu11;
-  Speaker *SubChain;
   __vtbl_ptr_type (*pa_Var10) [31];
   SPCHNFSType_VOICE *pSVar11;
   SPCHNFSType_VOICE *pSVar12;
@@ -2768,18 +2767,20 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   iVar4 = (*(*pa_Var10)[0x19].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x19].delta);
   if ((*(u_int *)(iVar4 + 0x260) & 0x200) == 0) {
-    pMVar5 = (MobileSpeaker *)Dispatch__6Speech();
+    Speaker *SubChain;
+    Speaker *Sub;
+
+    Sub = (Speaker *)Dispatch__6Speech();
     do {
-      pMVar6 = pMVar5;
-      pMVar5 = (MobileSpeaker *)(pMVar6->_base_Speaker).fSub;
-      if (pMVar5 == (MobileSpeaker *)0x0) goto MSEngage_dispatchCheck;
-    } while (pMVar5 != pThis);
-    (pMVar6->_base_Speaker).fSub = (pThis->_base_Speaker).fSub;
+      SubChain = Sub;
+      Sub = SubChain->fSub;
+      if (Sub == (Speaker *)0x0) goto MSEngage_dispatchCheck;
+    } while (Sub != &pThis->_base_Speaker);
+    SubChain->fSub = (pThis->_base_Speaker).fSub;
     (pThis->_base_Speaker).fSub = (Speaker *)0x0;
   }
 MSEngage_dispatchCheck:
   iVar4 = Dispatch__6Speech();
-  bVar2 = false;
   if (*(MobileSpeaker **)(iVar4 + 0x48) == pThis) {
     pa_Var10 = (pThis->_base_Speaker)._vf;
     iVar4 = (*(*pa_Var10)[0x19].pfn)
@@ -2787,9 +2788,13 @@ MSEngage_dispatchCheck:
     if ((*(u_int *)(iVar4 + 0x260) & 0x200) == 0) {
       return;
     }
-    iVar4 = Dispatch__6Speech();
-    (**(int (**)(...))(*(int *)(iVar4 + 0x4c) + 0xc))(iVar4 + *(short *)(*(int *)(iVar4 + 0x4c) + 8),perp)
-    ;
+    {
+      DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Dispatch__6Speech();
+      pa_Var10 = (dispatchThis->_base_Speaker)._vf;
+      (*(*pa_Var10)[1].pfn)
+                ((int)&(dispatchThis->_base_Speaker).fPosition.flags +
+                 (int)(*pa_Var10)[1].delta,perp);
+    }
     *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
     pa_Var10 = (pThis->_base_Speaker)._vf;
     iVar4 = (*(*pa_Var10)[0x1e].pfn)
@@ -2809,21 +2814,29 @@ MSEngage_dispatchCheck:
     pThis = pMVar5;
     goto MSEngage_emitSpeech;
   }
+  bVar2 = false;
   pa_Var10 = (pThis->_base_Speaker)._vf;
   iVar4 = (*(*pa_Var10)[0x14].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x14].delta);
-  if (((iVar4 != 0) &&
-      (pa_Var10 = (pThis->_base_Speaker)._vf,
-      iVar4 = (*(*pa_Var10)[0x1b].pfn)
-                        ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta),
-      (*(u_int *)(iVar4 + 0x260) & 4) != 0)) && (iVar4 = Dispatch__6Speech(), *(int *)(iVar4 + 0x48) != 0)) {
-    int dispatchVtable;
+  if (iVar4 != 0) {
+    pa_Var10 = (pThis->_base_Speaker)._vf;
+    iVar4 = (*(*pa_Var10)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
+    if ((*(u_int *)(iVar4 + 0x260) & 4) != 0) {
+      iVar4 = Dispatch__6Speech();
+      if (*(int *)(iVar4 + 0x48) != 0) {
+        int dispatchVtable;
 
-    iVar4 = Dispatch__6Speech();
-    dispatchVtable = *(int *)(*(int *)(iVar4 + 0x48) + 0x4c);
-    iVar4 = (**(int (**)(...))(dispatchVtable + 0xcc))
-                (*(int *)(iVar4 + 0x48) + (int)*(short *)(dispatchVtable + 200));
-    bVar2 = (*(u_int *)(iVar4 + 0x260) & 0x40) == 0;
+        iVar4 = Dispatch__6Speech();
+        dispatchVtable = *(int *)(*(int *)(iVar4 + 0x48) + 0x4c);
+        iVar4 = (**(int (**)(...))(dispatchVtable + 0xcc))
+                    (*(int *)(iVar4 + 0x48) + (int)*(short *)(dispatchVtable + 200));
+        {
+          u_int superFlag = *(u_int *)(iVar4 + 0x260) & 0x40;
+          bVar2 = superFlag < 1;
+        }
+      }
+    }
   }
   if (bVar2) {
     iVar4 = Dispatch__6Speech();
@@ -2849,66 +2862,72 @@ MSEngage_dispatchCheck:
     pThis = pMVar5;
     goto MSEngage_emitSpeech;
   }
-  bVar2 = false;
-  iVar4 = Dispatch__6Speech();
-  iVar7 = Dispatch__6Speech();
-  if (*(int *)(iVar7 + 0x48) != 0) {
+    bVar3 = false;
+    iVar4 = Dispatch__6Speech();
     iVar7 = Dispatch__6Speech();
-    iVar9 = *(int *)(*(int *)(iVar7 + 0x48) + 0x4c);
-    iVar7 = (**(int (**)(...))(iVar9 + 0xdc))(*(int *)(iVar7 + 0x48) + (int)*(short *)(iVar9 + 0xd8));
-    if (iVar7 != 0) {
+    if (*(int *)(iVar7 + 0x48) != 0) {
       iVar7 = Dispatch__6Speech();
       iVar9 = *(int *)(*(int *)(iVar7 + 0x48) + 0x4c);
       iVar7 = (**(int (**)(...))(iVar9 + 0xdc))(*(int *)(iVar7 + 0x48) + (int)*(short *)(iVar9 + 0xd8));
-      if ((*(u_int *)(iVar7 + 0x260) & 4) == 0) {
-        pa_Var10 = (pThis->_base_Speaker)._vf;
-        iVar7 = (*(*pa_Var10)[0x1b].pfn)
-                          ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
-        bVar2 = (*(u_int *)(iVar7 + 0x260) & 4) != 0;
+      if (iVar7 != 0) {
+        iVar7 = Dispatch__6Speech();
+        iVar9 = *(int *)(*(int *)(iVar7 + 0x48) + 0x4c);
+        iVar7 = (**(int (**)(...))(iVar9 + 0xdc))(*(int *)(iVar7 + 0x48) + (int)*(short *)(iVar9 + 0xd8));
+        if ((*(u_int *)(iVar7 + 0x260) & 4) == 0) {
+          pa_Var10 = (pThis->_base_Speaker)._vf;
+          iVar7 = (*(*pa_Var10)[0x1b].pfn)
+                            ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
+          {
+            u_int pursuitFlag = *(u_int *)(iVar7 + 0x260) & 4;
+            bVar3 = 0 < pursuitFlag;
+          }
+        }
       }
     }
-  }
-  if (bVar2) {
-    iVar4 = Dispatch__6Speech();
-    (pThis->_base_Speaker).fSub = *(Speaker **)(iVar4 + 0x48);
-    iVar4 = Dispatch__6Speech();
-    *(MobileSpeaker **)(iVar4 + 0x48) = pThis;
-  }
-  else {
-    do {
-      iVar7 = iVar4;
-      iVar4 = *(int *)(iVar7 + 0x48);
-    } while (iVar4 != 0);
-    *(MobileSpeaker **)(iVar7 + 0x48) = pThis;
-  }
+    if (bVar3) {
+      iVar4 = Dispatch__6Speech();
+      (pThis->_base_Speaker).fSub = *(Speaker **)(iVar4 + 0x48);
+      iVar4 = Dispatch__6Speech();
+      *(MobileSpeaker **)(iVar4 + 0x48) = pThis;
+    }
+    else {
+      while (*(int *)(iVar4 + 0x48) != 0) {
+        iVar4 = *(int *)(iVar4 + 0x48);
+      }
+      *(MobileSpeaker **)(iVar4 + 0x48) = pThis;
+    }
   if ((pThis->_base_Speaker).fBlockade.flags != 0) {
     return;
   }
-  bVar2 = false;
-  iVar4 = Dispatch__6Speech();
-  iVar4 = (**(int (**)(...))(*(int *)(iVar4 + 0x4c) + 0x94))
-                    (iVar4 + *(short *)(*(int *)(iVar4 + 0x4c) + 0x90),perp);
+  bVar4 = false;
+  {
+    DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Dispatch__6Speech();
+    pa_Var10 = (dispatchThis->_base_Speaker)._vf;
+    iVar4 = (*(*pa_Var10)[0x12].pfn)
+                    ((int)&(dispatchThis->_base_Speaker).fPosition.flags +
+                     (int)(*pa_Var10)[0x12].delta,perp);
+  }
   if (iVar4 != 0) {
-    iVar4 = Dispatch__6Speech();
-    iVar4 = (**(int (**)(...))(*(int *)(iVar4 + 0x4c) + 0xac))
-                      (iVar4 + *(short *)(*(int *)(iVar4 + 0x4c) + 0xa8));
+    DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Dispatch__6Speech();
+    pa_Var10 = (dispatchThis->_base_Speaker)._vf;
+    iVar4 = (*(*pa_Var10)[0x15].pfn)
+                      ((int)&(dispatchThis->_base_Speaker).fPosition.flags +
+                       (int)(*pa_Var10)[0x15].delta);
     if (0x17f < iVar4) goto MSEngage_validateAndProceed;
   }
-  bVar2 = true;
+  bVar4 = true;
 MSEngage_validateAndProceed:
-  if (!bVar2) {
+  if (!bVar4) {
     return;
   }
   pa_Var10 = (pThis->_base_Speaker)._vf;
   iVar4 = (*(*pa_Var10)[0x1e].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1e].delta);
   pSVar12 = &pThis->fVoice;
-  iVar4 = *(int *)(iVar4 + 4);
-  iVar7 = (pThis->_base_Speaker).fFrom;
-  pSVar14 = &(pThis->_base_Speaker).fReverse;
-  (pThis->_base_Speaker).fTo = iVar4;
+  (pThis->_base_Speaker).fTo = *(int *)(iVar4 + 4);
   pSVar11 = pSVar12;
-  SPCHNFS_C_A_INTRO(pSVar12,iVar4,iVar7,pSVar14);
+  SPCHNFS_C_A_INTRO(pSVar12,(pThis->_base_Speaker).fTo,
+             (pThis->_base_Speaker).fFrom,&(pThis->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pa_Var10 = (pThis->_base_Speaker)._vf;
   pCVar3 = (Car_tObj *)
@@ -2923,10 +2942,11 @@ MSEngage_validateAndProceed:
   iVar4 = Dispatch__6Speech();
   iVar7 = *(int *)(iVar4 + 0x4c);
   pa_Var10 = (pThis->_base_Speaker)._vf;
-  sVar1 = *(short *)(iVar7 + 0x90);
-  tu10 = (*(*pa_Var10)[0x1b].pfn)
-                   ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
-  iVar4 = (**(int (**)(...))(iVar7 + 0x94))(iVar4 + sVar1,tu10);
+  iVar4 = (**(int (**)(...))(iVar7 + 0x94))
+                    (iVar4 + *(short *)(iVar7 + 0x90),
+                    (*(*pa_Var10)[0x1b].pfn)
+                              ((int)&(pThis->_base_Speaker).fPosition.flags +
+                               (int)(*pa_Var10)[0x1b].delta));
   if (iVar4 == 0) {
     pSVar13 = &(pThis->_base_Speaker).fColour;
     iVar4 = (pThis->_base_Speaker).fCar;
@@ -2950,22 +2970,25 @@ MSEngage_validateAndProceed:
   iVar4 = Dispatch__6Speech();
   iVar7 = *(int *)(iVar4 + 0x4c);
   pa_Var10 = (pThis->_base_Speaker)._vf;
-  sVar1 = *(short *)(iVar7 + 8);
-  tu11 = (*(*pa_Var10)[0x1b].pfn)
-                   ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1b].delta);
-  (**(int (**)(...))(iVar7 + 0xc))(iVar4 + sVar1,tu11);
+  (**(int (**)(...))(iVar7 + 0xc))
+            (iVar4 + *(short *)(iVar7 + 8),
+            (*(*pa_Var10)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags +
+                       (int)(*pa_Var10)[0x1b].delta));
   iVar4 = Dispatch__6Speech();
   *(u_int *)(iVar4 + 0x48) = uVar15;
   return;
 MSEngage_samePerp:
-  bVar2 = false;
+  bVar5 = false;
   if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
-    iVar4 = Dispatch__6Speech();
-    iVar4 = (**(int (**)(...))(*(int *)(iVar4 + 0x4c) + 0xac))
-                      (iVar4 + *(short *)(*(int *)(iVar4 + 0x4c) + 0xa8));
-    bVar2 = iVar4 < 0x160;
+    DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Dispatch__6Speech();
+    pa_Var10 = (dispatchThis->_base_Speaker)._vf;
+    iVar4 = (*(*pa_Var10)[0x15].pfn)
+                      ((int)&(dispatchThis->_base_Speaker).fPosition.flags +
+                       (int)(*pa_Var10)[0x15].delta);
+    bVar5 = iVar4 < 0x160;
   }
-  if (!bVar2) {
+  if (!bVar5) {
     return;
   }
   pa_Var10 = (pThis->_base_Speaker)._vf;
@@ -2977,12 +3000,10 @@ MSEngage_samePerp:
   iVar4 = (*(*pa_Var10)[0x1e].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var10)[0x1e].delta);
   pSVar12 = &pThis->fVoice;
-  iVar4 = *(int *)(iVar4 + 4);
-  iVar7 = (pThis->_base_Speaker).fFrom;
-  pSVar14 = &(pThis->_base_Speaker).fReverse;
-  (pThis->_base_Speaker).fTo = iVar4;
+  (pThis->_base_Speaker).fTo = *(int *)(iVar4 + 4);
   pSVar11 = pSVar12;
-  SPCHNFS_C_A_INTRO(pSVar12,iVar4,iVar7,pSVar14);
+  SPCHNFS_C_A_INTRO(pSVar12,(pThis->_base_Speaker).fTo,
+             (pThis->_base_Speaker).fFrom,&(pThis->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   pa_Var10 = (pThis->_base_Speaker)._vf;
   pCVar3 = (Car_tObj *)

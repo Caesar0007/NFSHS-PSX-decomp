@@ -472,7 +472,6 @@ void strCallback(void)
   int rem;
   int rectid;
   uint nextRect;
-  int one;
   /* MATCH: SYM fsize=32 with mask s0+ra -- 8 bytes of never-referenced frame slack. */
   int deadfrm[2];
 
@@ -511,21 +510,18 @@ strCallback_inlinedJoin:
                ((dec.slice.h + -1) / 0x10 + 1) >> 1);
   }
   else {
-    /* MATCH: ONE materialization of the constant 1 feeds isdone, isFirstSlice AND the
-     * srav shift amount of the /2 (cse reuses the register).
-     * RESIDUAL (6 diffs, count-exact 191/191): retail also feeds that register to the
-     * rectid test -- `li a1,1; sltu a0,a3,a1` -- so rectid stays live past the `li`
-     * and is forced to $a3; we emit `sltiu a0,a1,1` (immediate) and rectid dies into
-     * $a1.  Every source spelling of the compare against a VARIABLE (`rectid < one`,
-     * `rectid < dec.isdone`, hoisting `one = 1` above the `if`, re-reading rectid
-     * later) is constant-folded by cse back to the immediate form or regresses
-     * (16/24 diffs); gcc-2.8's `seq_si_zero` pattern hard-codes the literal 1. */
-    one = 1;
+    /* MATCH: the `dec.isdone = 1` store must come BEFORE the rectid store in the
+     * SOURCE.  Then cc1 materializes the constant 1 into a register first and cse
+     * feeds that register to the rectid test -- retail's `li a1,1; sltu a0,a3,a1`
+     * (register form) -- which in turn keeps rectid live past the `li` and pins it
+     * to $a3.  With the rectid store first, gcc emits the immediate `sltiu a0,a1,1`
+     * and rectid dies into $a1, rotating the tail.  (gcc reschedules the two stores
+     * back into retail's emitted order.) */
     nextRect = (uint)(rectid == 0);
+    dec.isdone = 1;
     dec.rectid = nextRect;
-    dec.isdone = one;
     dec.slice.x = dec.rect[nextRect].x;
-    isFirstSlice = one;
+    isFirstSlice = 1;
     dec.slice.y = dec.rect[nextRect].y + (short)((0xf0 - gHeight) / 2);
   }
   return;

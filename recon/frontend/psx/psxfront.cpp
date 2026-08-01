@@ -315,110 +315,79 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
                tDrawShapeExtended *extra)
 
 {
+  /* SYM 8c block lists exactly FIVE locals: fadetop/fadebottom (SHORT), i (SHORT),
+   * fbot/ftop (INT) -- plus the REG copies of the stack params bright/color/extra.
+   * The former recon carried 9 fabricated temps (adjY/cHi/cMid/cLo/cB/cG/fadeC1/fadeC2/shpAddr).
+   * 🔴 `shpAddr` was NEVER ASSIGNED and every shape-field read went through it (wild reads); the
+   * oracle's `addu $t0,$a0,$zero` is the tShp REGPARM copy -- all 0x1N($t0) reads are tShp fields. */
+  /* SYM BLOCK STRUCTURE (90/92 records): fadetop($a3)/fadebottom($a0) at function block start;
+   * `i`($t0) declared in the block at 0x8004E0CC (the 0x80 arm); fbot($v0)/ftop($a1) declared in
+   * the block at 0x8004E178 (the 0x40 arm).  Block-local scope is the allocno-CLASS lever (w41 §A). */
   short fadetop;
-  int fbot;
-  int adjY;
-  short i;
-  int ftop;
-  int cHi;
-  int cLo;
   short fadebottom;
-  int shpAddr;
-  int cMid;
-  int cB;
-  int cG;
-  uint fadeC1;
-  uint fadeC2;
-  
-  fbot = *flags;
-  if ((fbot & 0x400U) == 0) {
-    if (0 < *y) goto AdjShape_applyOffset;
-    *x = *x - (int)*(short *)(shpAddr + 0x14);
-    adjY = -((int)*(short *)(shpAddr + 0x16) + *y);
+
+  if ((*flags & 0x400U) != 0) {
+    *x = *x - tShp->centerx;
+    *y = *y - tShp->centery;
   }
-  else {
-    *x = *x - (int)*(short *)(shpAddr + 0x14);
-    adjY = *y - (int)*(short *)(shpAddr + 0x16);
+  else if (*y <= 0) {
+    *x = *x - tShp->centerx;
+    *y = -(tShp->centery + *y);
   }
-  *y = adjY;
-AdjShape_applyOffset:
   if ((*flags & 0x100U) != 0) {
-    *x = *x - ((int)((uint)*(ushort *)(shpAddr + 0x10) << 0x10) >> 0x11);
-    *y = *y - ((int)((uint)*(ushort *)(shpAddr + 0x12) << 0x10) >> 0x11);
+    *x = *x - ((int)((uint)(ushort)tShp->width << 0x10) >> 0x11);
+    *y = *y - ((int)((uint)(ushort)tShp->height << 0x10) >> 0x11);
   }
   if ((*flags & 0x20U) != 0) {
-    *y = (extra->flip_axis * 2 - (*y + (int)*(short *)(shpAddr + 0x12))) + 1;
+    *y = (extra->flip_axis * 2 - (*y + tShp->height)) + 1;
     *flags = *flags | 2;
   }
-  fadeC2 = *flags;
-  if ((fadeC2 & 0x10) != 0) {
-    cHi = (uint)*(byte *)((int)extra->tint + 2) * bright;
-    if (cHi < 0) {
-      cHi = cHi + 0x7f;
-    }
-    cMid = (extra->tint[0] >> 8 & 0xffU) * bright;
-    if (cMid < 0) {
-      cMid = cMid + 0x7f;
-    }
-    cLo = (uint)(byte)extra->tint[0] * bright;
-    if (cLo < 0) {
-      cLo = cLo + 0x7f;
-    }
-    *color = (cHi >> 7) << 0x10 | (cMid >> 7) << 8 | cLo >> 7;
-    return;
+  if ((*flags & 0x10U) != 0) {
+    /* byte-2 term spelled (w>>16)&0xff so combine narrows IT to `lbu +2` and leaves the >>8 term
+     * on the full word load (`lw; sra 8; andi 0xff`) -- retail's exact 3-load mix (w42-a7). */
+    *color = (((extra->tint[0] >> 0x10) & 0xff) * bright / 128) << 0x10 |
+             ((extra->tint[0] >> 8 & 0xff) * bright / 128) << 8 |
+             (int)*(byte *)((int)extra->tint) * bright / 128;
   }
-  if ((fadeC2 & 0x80) != 0) {
-    i = 0;
-    cMid = 0;
-    do {
-      cMid = cMid >> 0xe;
-      cLo = (uint)*(byte *)((int)extra->tint + cMid + 2) * bright;
-      if (cLo < 0) {
-        cLo = cLo + 0x7f;
-      }
-      cG = (*(int *)((int)extra->tint + cMid) >> 8 & 0xffU) * bright;
-      if (cG < 0) {
-        cG = cG + 0x7f;
-      }
-      cB = (uint)*(byte *)((int)extra->tint + cMid) * bright;
-      if (cB < 0) {
-        cB = cB + 0x7f;
-      }
-      *(int *)(cMid + (int)color) = (cLo >> 7) << 0x10 | (cG >> 7) << 8 | cB >> 7;
-      i = i + 1;
-      cMid = i * 0x10000;
-    } while (i * 0x10000 >> 0x10 < 4);
-    return;
+  else if ((*flags & 0x80U) != 0) {
+    short i;
+    for (i = 0; i < 4; i = i + 1) {
+      color[i] = (((extra->tint[i] >> 0x10) & 0xff) * bright / 128) << 0x10 |
+                 ((extra->tint[i] >> 8 & 0xff) * bright / 128) << 8 |
+                 (int)*(byte *)((int)(extra->tint + i)) * bright / 128;
+    }
   }
-  if ((fadeC2 & 0x40) != 0) {
+  else if ((*flags & 0x40U) != 0) {
+    int fbot;
+    int ftop;
+    /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
+     * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
     ftop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
     if (ftop * 0x10000 < 0) {
       ftop = -ftop;
     }
-    fadetop = (short)(ftop << 1);
-    if (0x80 < (ftop << 0x11) >> 0x10) {
+    fadetop = ftop * 2;
+    if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)*(ushort *)(shpAddr + 0x12)))
-            + 1;
+    fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
     if (fbot * 0x10000 < 0) {
       fbot = -fbot;
     }
-    cMid = fbot << 0x11;
-    if (0x80 < (fbot << 0x11) >> 0x10) {
-      cMid = 0x800000;
+    fadebottom = fbot * 2;
+    if (0x80 < fadebottom) {
+      fadebottom = 0x80;
     }
-    fadeC2 = 0x80 - (cMid >> 0x10);
-    fadeC2 = fadeC2 * 0x10000 | fadeC2 * 0x100 | fadeC2;
-    fadeC1 = 0x80 - (int)fadetop;
-    *color = fadeC2;
-    color[1] = fadeC2;
-    fadeC1 = fadeC1 * 0x10000 | fadeC1 * 0x100 | fadeC1;
-    color[2] = fadeC1;
-    color[3] = fadeC1;
-    return;
+    fbot = 0x80 - fadebottom;
+    ftop = 0x80 - fadetop;
+    *color = fbot << 0x10 | fbot << 8 | fbot;
+    color[1] = fbot << 0x10 | fbot << 8 | fbot;
+    color[2] = ftop << 0x10 | ftop << 8 | ftop;
+    color[3] = ftop << 0x10 | ftop << 8 | ftop;
   }
-  *color = bright << 0x10 | bright << 8 | bright;
+  else {
+    *color = bright << 0x10 | bright << 8 | bright;
+  }
   return;
 }
 

@@ -794,9 +794,26 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * decl order; z-after-index decl order; `z > znear`; `x > -xdist`; both; `zfar > z`;
  * and swapping the two halves of the `index` expression (81, worse).
  * PROTOTYPE RE-CHECKED against the SYM: 2 REGPARM args (v $4, color $5), void return,
- * fsize 0 / mask 0 (true leaf, which we reproduce).  This is an allocno tie-break on a
- * leaf function -- local-alloc territory; the next tool is a -dl/-dg dump comparison,
- * not another source spelling. */
+ * fsize 0 / mask 0 (true leaf, which we reproduce).
+ * w41-a7: 77 -> 71 via the in-place `x = x + xdist;` (see below), and the -dg/-dl dumps
+ * now give the exact mechanism for the rest.  Allocation order (global.c priority
+ * floor_log2(refs)*refs/live_length) is  x(4 refs/10 = 0.80) > xdist(4/11 = 0.73) >
+ * z(4/16 = 0.50) = zfar(2/4 = 0.50) > znear(4/17) > ... > color(7 refs/120 = 0.117,
+ * SECOND-TO-LAST).  Two consequences, and they are the whole 71:
+ *  - `v` (allocno 80) carries "preferences: 3 4" ($v1 + its own $a0 home), and
+ *    find_reg SKIPS any hard reg a CONFLICTING allocno prefers, so every allocno that
+ *    conflicts with `v` (z, zfar, znear, xdist...) is pushed off $v1 and $a0.  x does
+ *    NOT conflict with v, so x -- allocated first -- takes $v1.  Retail has x in $a0 and
+ *    z in $v1, i.e. retail allocated z BEFORE x; ours cannot, because 4/16 < 4/10.
+ *  - with $v1/$a0 skipped, zfar and xdist both land on $a1 -- which is `color`'s
+ *    parameter home -- so color, allocated almost last, is evicted to $t3 and pays the
+ *    ONE extra instruction (`addu $t3,$a1,zero` at insn 1).  color cannot win $a1 by
+ *    priority (it would need >30 refs) and it carries no $a1 preference in our RTL.
+ * FALSIFIED this wave on top of the 11 earlier shapes: in-place `z = z - znear;` (83),
+ * both in-place (75), and hoisting `x` to the outer block (77).
+ * The open route is making `z`'s allocno outrank `x`'s (shorten z's live range below 10
+ * insns or lengthen x's past 16) WITHOUT adding instructions -- everything tried so far
+ * moves refs, which moves priority the wrong way. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {
@@ -821,7 +838,11 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
       short newB;
       long addColor;
 
-      index = (((z - znear) >> Night_gZDistShift) << 6) + ((x + xdist) >> Night_gXDistShift);
+      /* `x` is mutated IN PLACE: the oracle's `addu $a0,$a0,$a2` reuses x's own
+         register for the sum (catalog in-place-mutation lever); the two-operand
+         form inside the index expression picks a fresh destination. (77 -> 71) */
+      x = x + xdist;
+      index = (((z - znear) >> Night_gZDistShift) << 6) + (x >> Night_gXDistShift);
       addColor = *(long *)&Night_gAdditiveHeadlightColor[(u_char)Night_gNightTbl[index]];
       lookup = (int)addColor;
       newR = (short)(color->r + (lookup & 0xff));

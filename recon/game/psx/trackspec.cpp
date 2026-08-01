@@ -240,11 +240,26 @@ void TrackSpec_Read(int spec_num)
   char str [64];
   CTrackSpecHeader header;
   char *currentpos;
-  
-  sprintf(str,"%sTr%02d.bin",Paths_Paths[6],GameSetup_gData.track);
-  filebuf = (char *)loadfileadr(str,0);
+  /* w41-a5: the track fetch is its OWN source statement, not an inline sprintf arg.
+   * SLD PROOF: 800E17E8 (`lui $v0,%hi(GameSetup_gData)`) carries source line 148 while
+   * every other insn of the call setup (800E17DC/17EC/1804) carries line 151 -- the
+   * sprintf line.  Inline, cc1 gives the a1 `lui %hi(fmt)` the earlier luid and sched1
+   * issues it one slot too soon (the last 2 diffs).  Hoisted, the ready-list tie flips
+   * and the lui lands in the oracle's slot.  CAVEAT: the SYM's block list for this fn
+   * names only currentpos/startpos/str -- no `trk` -- so the name is ours; the STATEMENT
+   * is SLD-attested. */
+  int trk = GameSetup_gData.track;
+
+  sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
+  /* w41-a5: `currentpos` (an AUTO -- its address goes to read()) takes the RAW
+   * call result; `filebuf` is then READ BACK from it.  cse forwards the just-stored
+   * register, so the read-back becomes retail's `addu s0,v0,zero` copy while the
+   * delay-slot store keeps the raw `$v0` (`sw v0,0x58(sp)`) -- the third
+   * uncoalesced copy the w40 note could not name.  Assigning currentpos FROM
+   * filebuf instead stores the copy (`sw s0,...`). */
+  currentpos = (char *)loadfileadr(str,0);
+  filebuf = currentpos;
   startpos = filebuf;
-  currentpos = filebuf;
   if (filebuf != (char *)0x0) {
     TrackSpec_gPrevSpec = spec_num;
     TrackSpec_gCurrentSpec = spec_num;

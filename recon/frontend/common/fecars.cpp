@@ -1056,179 +1056,130 @@ short tListIteratorCar::TextValue(tPlayer atIndex)
 void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
 
 {
-  signed char cVar1;
-  signed char cVar2;
-  u_char oldValue;
-  u_char bVar4;
-  u_short uVar5;
-  void *pvVar6;
-  u_char *pbVar7;
-  tOwnedCarInfo *ownedCars;
-  char *pcVar9;
-  u_int uVar10;
-  short count;
   short i;
-  tCarManager *ptVar12;
-  u_int uVar13;
-  tCarInfo *carInfo;
-  int lastCar;
-  int firstCar;
+  char oldValue;
   char oldCountry;
+  tCarInfo *carInfo;
+  int firstCar;
+  int lastCar;
+  tOwnedCarInfo *ownedCars;
 
-  uVar13 = (u_int)(u_short)direction;
   i = 0;
   if (atIndex != kPlayerBoth) {
     i = (short)atIndex;
   }
   carInfo = (tCarInfo *)0x0;
-  pbVar7 = (u_char *)(this->fValue + i);
-  uVar10 = (u_int)*pbVar7;
-  oldValue = *pbVar7;
-  if (uVar10 < this->fCarManager->fNumCars) {
-    carInfo = this->fCarManager->fCars + uVar10;
+  oldValue = this->fValue[i];
+  if ((u_char)oldValue < this->fCarManager->fNumCars) {
+    carInfo = this->fCarManager->fCars + (u_char)oldValue;
     oldCountry = frontEnd.carCountry[i][(signed char)carInfo->fCarID];
   }
   else {
-    oldCountry = '\0';
+    oldCountry = 0;
   }
   firstCar = 0;
-  if ((this->fCarListFilter & 0x89U) == 0) {
-    if ((this->fCarListFilter & 0x42U) == 0) {
-      pcVar9 = &this->fCarManager->fPinkSlipsCars[0][0].fCarID +
-               ((int)((u_int)(u_short)i << 0x10) >> 9);
-      firstCar = this->fCarManager->fNumCars;
-      count = 0;
-      cVar1 = (signed char)*pcVar9;
-      while (-1 < cVar1) {
-        pcVar9 = pcVar9 + 4;
-        count = count + 1;
-        cVar1 = (signed char)*pcVar9;
-      }
-    }
-    else {
-      ptVar12 = this->fCarManager;
-      ownedCars = ptVar12->fCarGarage[i * 0x10];
-      firstCar = ptVar12->fNumCars;
-      if ((i == 1) &&
-         (uVar5 = (ptVar12)->GetNumOwnedCars(1), (int)((u_int)uVar5 << 0x10) < 1)) {
-        ownedCars = this->fCarManager->fCarGarage[0];
-      }
-      count = 0;
-      if (-1 < (signed char)ownedCars->fCarID) {
-        do {
-          ownedCars = ownedCars + 1;
-          count = count + 1;
-        } while (-1 < (signed char)ownedCars->fCarID);
-        lastCar = count + firstCar;
-        goto AdjPos_clampBounds;
-      }
-    }
-    lastCar = count + firstCar;
-  }
-  else {
+  if ((this->fCarListFilter & 0x89U) != 0) {
     lastCar = this->fCarManager->fNumCars;
   }
-AdjPos_clampBounds:
-  pbVar7 = (u_char *)(this->fValue + i);
-  if ((int)lastCar <= (int)(u_int)*pbVar7) {
-    *pbVar7 = (char)lastCar - 1;
+  else if ((this->fCarListFilter & 0x42U) != 0) {
+    ownedCars = this->fCarManager->fCarGarage[i];
+    firstCar = this->fCarManager->fNumCars;
+    if ((i == 1) && (this->fCarManager->GetNumOwnedCars(1) <= 0)) {
+      ownedCars = this->fCarManager->fCarGarage[0];
+    }
+    lastCar = 0;
+    while ((signed char)ownedCars[lastCar].fCarID >= 0) {
+      lastCar++;
+    }
+    lastCar += firstCar;
   }
-  pbVar7 = (u_char *)(this->fValue + i);
-  if ((int)(u_int)*pbVar7 < (int)firstCar) {
-    *pbVar7 = (u_char)firstCar;
+  else {
+    ownedCars = this->fCarManager->fPinkSlipsCars[i];
+    firstCar = this->fCarManager->fNumCars;
+    lastCar = 0;
+    while ((signed char)ownedCars[lastCar].fCarID >= 0) {
+      lastCar++;
+    }
+    lastCar += firstCar;
   }
-  if ((int)firstCar < (int)lastCar) {
+  if ((u_char)this->fValue[i] >= lastCar) {
+    this->fValue[i] = lastCar - 1;
+  }
+  if ((u_char)this->fValue[i] < firstCar) {
+    this->fValue[i] = firstCar;
+  }
+  if (firstCar < lastCar) {
     do {
-      pbVar7 = (u_char *)(this->fValue + i);
-      bVar4 = *pbVar7;
-      if ((u_int)bVar4 < this->fCarManager->fNumCars) {
-        carInfo = this->fCarManager->fCars + bVar4;
-        if (carInfo->fCarClass == '\a') {
-          frontEnd.carCountry[i][(signed char)carInfo->fCarID] =
-               direction + frontEnd.carCountry[i][(signed char)carInfo->fCarID];
-          cVar1 = (signed char)carInfo->fCarID;
-          cVar2 = (signed char)frontEnd.carCountry[i][cVar1];
-          if (cVar2 < '\x05') {
-            if (cVar2 < '\0') {
-              frontEnd.carCountry[i][cVar1] = '\x04';
-              pcVar9 = this->fValue + i;
-              *pcVar9 = *pcVar9 + -1;
-              uVar10 = (u_int)(u_char)this->fValue[i];
-              if ((int)firstCar <= (int)uVar10) {
-                ptVar12 = this->fCarManager;
-                goto AdjPos_setCountryMark;
-              }
+      if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+        carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+        if (carInfo->fCarClass == 7) {
+          frontEnd.carCountry[i][(signed char)carInfo->fCarID] += direction;
+          if ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] >= 5) {
+            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
+            this->fValue[i]++;
+            if ((u_char)this->fValue[i] < lastCar) {
+              carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
             }
           }
-          else {
-            frontEnd.carCountry[i][cVar1] = '\0';
-            pcVar9 = this->fValue + i;
-            *pcVar9 = *pcVar9 + '\x01';
-            uVar10 = (u_int)(u_char)this->fValue[i];
-            if ((int)uVar10 < (int)lastCar) {
-              ptVar12 = this->fCarManager;
-              goto AdjPos_clearCountryMark;
+          else if ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] < 0) {
+            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
+            this->fValue[i]--;
+            if ((u_char)this->fValue[i] >= firstCar) {
+              carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
             }
           }
         }
         else {
-          if (direction > 0) {
-            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = '\0';
+          if ((direction << 16) > 0) {
+            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
           }
           else {
-            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = '\x04';
+            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
           }
-          pcVar9 = this->fValue + i;
-          *pcVar9 = direction + *pcVar9;
-          if (direction > 0) {
-            if ((int)(signed char)*pcVar9 < (int)lastCar) {
-              uVar10 = (u_int)(u_char)*pcVar9;
-              ptVar12 = this->fCarManager;
-AdjPos_clearCountryMark:
-              carInfo = ptVar12->fCars + uVar10;
-              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = '\0';
+          this->fValue[i] += direction;
+          if ((direction << 16) > 0) {
+            if ((signed char)this->fValue[i] < lastCar) {
+              carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
             }
           }
-          else if (direction < 0) {
-            if ((int)firstCar <= (int)(signed char)*pcVar9) {
-              uVar10 = (u_int)(u_char)*pcVar9;
-              ptVar12 = this->fCarManager;
-AdjPos_setCountryMark:
-              carInfo = ptVar12->fCars + uVar10;
-              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = '\x04';
+          else if ((direction << 16) < 0) {
+            if ((signed char)this->fValue[i] >= firstCar) {
+              carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+              frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
             }
           }
         }
       }
       else {
-        *pbVar7 = direction + bVar4;
+        this->fValue[i] += direction;
       }
-      pbVar7 = (u_char *)(this->fValue + i);
-      if ((int)lastCar <= (int)(signed char)*pbVar7) {
-        *pbVar7 = (u_char)firstCar;
-        uVar10 = (u_int)(u_char)this->fValue[i];
-        if (uVar10 < this->fCarManager->fNumCars) {
-          carInfo = this->fCarManager->fCars + uVar10;
-          frontEnd.carCountry[i][(signed char)carInfo->fCarID] = '\0';
+      if ((signed char)this->fValue[i] >= lastCar) {
+        this->fValue[i] = firstCar;
+        if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+          carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+          frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
         }
       }
-      pcVar9 = this->fValue + i;
-      if ((int)(signed char)*pcVar9 < (int)firstCar) {
-        *pcVar9 = (char)lastCar + -1;
-        uVar10 = (u_int)(u_char)this->fValue[i];
-        if (uVar10 < this->fCarManager->fNumCars) {
-          carInfo = this->fCarManager->fCars + uVar10;
-          frontEnd.carCountry[i][(signed char)carInfo->fCarID] = '\x04';
+      if ((signed char)this->fValue[i] < firstCar) {
+        this->fValue[i] = lastCar - 1;
+        if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+          carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+          frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
         }
       }
-      pbVar7 = (u_char *)(this->fValue + i);
-      bVar4 = *pbVar7;
-    } while (((oldValue != bVar4) ||
-             (((int)(signed char)bVar4 < (int)this->fCarManager->fNumCars &&
-              ((int)(signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] != (int)(u_char)oldCountry)))
-             ) && (pvVar6 = this->ValidCar(atIndex,*pbVar7), pvVar6 != (void *)0x1));
+      if ((oldValue != this->fValue[i]) ||
+          (((signed char)this->fValue[i] < (int)this->fCarManager->fNumCars) &&
+           ((signed char)frontEnd.carCountry[i][(signed char)carInfo->fCarID] != oldCountry))) {
+        if ((((int)this->ValidCar(atIndex,this->fValue[i])) ^ 1) != 0) {
+          continue;
+        }
+      }
+      break;
+    } while (true);
   }
-  return;
 }
 
 

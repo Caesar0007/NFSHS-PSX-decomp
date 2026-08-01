@@ -113,17 +113,18 @@ void Input_Update(void)
   char iactive[32];
   char sharedActive[17];
   char *activeBase;
-  int modeOffset;
 
   Device_Update();
 
   {
     char *activePtr;
+    char activeValue;
 
+    activeValue = 1;
     i = 31;
     activePtr = &iactive[31];
     do {
-      *activePtr = 1;
+      *activePtr = activeValue;
       i--;
       activePtr--;
     } while (i >= 0);
@@ -134,7 +135,6 @@ void Input_Update(void)
   activeBase = sharedActive;
   one = 1;
   menukeys = 0;
-  modeOffset = 0;
 
   for (i = 0; i < 2; i++) {
     int mode;
@@ -147,7 +147,7 @@ void Input_Update(void)
       }
       h++;
     }
-    *(int *)((char *)Input_gMode + modeOffset) = mode;
+    Input_gMode[i] = mode;
 
     if (mode == 0) {
       left = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
@@ -175,14 +175,20 @@ void Input_Update(void)
       {
         char *activePtr;
 
-        activePtr = &activeBase[16];
-        for (k = 16; k >= 0; k--) {
+        k = 16;
+        activePtr = activeBase + k;
+        for (; k >= 0; k--) {
           *activePtr = one;
           activePtr--;
         }
       }
 
-      for (j = 0; j < 17; j++) {
+      j = 0;
+firstHeldLoop:
+      if (j >= 17) {
+        goto firstHeldDone;
+      }
+      {
         if (*h != 0) {
           if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
             Input_gPressTime[i][j]++;
@@ -204,7 +210,10 @@ void Input_Update(void)
           }
         }
         h++;
+        j++;
+        goto firstHeldLoop;
       }
+firstHeldDone:
 
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
@@ -251,8 +260,9 @@ void Input_Update(void)
       {
         char *activePtr;
 
-        activePtr = &active[39];
-        for (j = 39; j >= 0; j--) {
+        j = 39;
+        activePtr = active + j;
+        for (; j >= 0; j--) {
           *activePtr = one;
           activePtr--;
         }
@@ -308,14 +318,19 @@ void Input_Update(void)
         {
           char *activePtr;
 
-          activePtr = &activeBase[16];
-          for (k = 16; k >= 0; k--) {
+          k = 16;
+          activePtr = activeBase + k;
+          for (; k >= 0; k--) {
             *activePtr = one;
             activePtr--;
           }
         }
 
-        for (j = 0; j < 17; j++) {
+        j = 0;
+        for (;;) {
+          if (j >= 17) {
+            goto secondHeldDone;
+          }
           if (*h != 0) {
             if ((active[j + 6] != 0) &&
                 ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
@@ -338,7 +353,9 @@ void Input_Update(void)
             }
           }
           h++;
+          j++;
         }
+secondHeldDone:
 
         for (j = 0; j < 17; j++) {
           if (*h != 0) {
@@ -400,10 +417,8 @@ void Input_Update(void)
     r++;
     if (GameSetup_gData.numPlayerRaceCars == one) {
       h += 76;
-      modeOffset += 4;
       i++;
     }
-    modeOffset += 4;
   }
 
   {

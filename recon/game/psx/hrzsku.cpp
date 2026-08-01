@@ -1348,26 +1348,26 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     dy = temp2d[0].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
     shape_overlap = 0;
     shape_visible = (int)hsd;
-    do {
+  up_delta_loop:
       if (0 < *(int *)(shape_visible + 0x124)) {
         *(short *)(shape_visible + 0x14) = *(short *)(shape_visible + 0x58) + dx;
         *(short *)(shape_visible + 0x16) = *(short *)(shape_visible + 0x5a) + dy;
       }
       shape_overlap = shape_overlap + 1;
       shape_visible = shape_visible + 4;
-    } while (shape_overlap < 0x11);
+    if (shape_overlap < 0x11) goto up_delta_loop;
     dx = temp2d[1].vx - *(short *)(((int)hsd + 0x58) + farI * 4);
     dy = temp2d[1].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
     shape_w_idx = 0;
     shape_idx = (int)hsd;
-    do {
+  down_delta_loop:
       if (0 < *(int *)(shape_idx + 0x124)) {
         *(short *)(shape_idx + 0x58) = *(short *)(shape_idx + 0x58) + dx;
         *(short *)(shape_idx + 0x5a) = *(short *)(shape_idx + 0x5a) + dy;
       }
       shape_w_idx = shape_w_idx + 1;
       shape_idx = shape_idx + 4;
-    } while (shape_w_idx < 0x11);
+    if (shape_w_idx < 0x11) goto down_delta_loop;
   }
   Horizon_InterpolateLineSCoords((DVECTOR *)((int)hsd + 0x9c),(DVECTOR *)((int)hsd + 0x58),(DVECTOR *)((int)hsd + 0x14),
              gfxPmxHeightPercentage,0x10,1);

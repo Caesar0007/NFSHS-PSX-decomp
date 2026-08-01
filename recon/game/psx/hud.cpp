@@ -166,14 +166,14 @@ void Hud_BuildMapMarkers(int player);
 void Hud_WingmanFlash(int player,int index);
 void Hud_BuildWingmanInterface(int player);
 void Hud_InitCdPlayer(void);
-int Hud_BuildCdPlayer(int type,int arg1);
+void Hud_BuildCdPlayer(int type,int arg1);
 int Hud_BuildRadar(int player);
 void Hud_BuildReplay(void);
 int Hud_NextPlayer(int player);
 char * Hud_NextPlayerNameOrCarOrTime(int player);
 void Hud_RenderMapView(void);
 void Hud_BlackThinBox(int x, int y, int w, int h);
-int Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5);
+void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5);
 void Hud_Render321Go(void);
 void BigBTCTime(int secs);
 void Hud_RenderHudView(void);
@@ -2107,7 +2107,7 @@ void Hud_InitCdPlayer(void)
  *      `x + (dx + K)` -- which IS the oracle's tree (`addiu $v0,$s3,10`; `addu $v0,$s7,$v0`;
  *      `addiu $a1,$a1,-0x4c`) -- REGRESSES: both sites 77->141, first site only 77->122
  *      (it re-colors x/y), second site only 77->83.  Left flat. */
-int Hud_BuildCdPlayer(int type,int arg1)
+void Hud_BuildCdPlayer(int type,int arg1)
 
 {
   int bVar2;
@@ -2852,63 +2852,53 @@ void Hud_BlackThinBox(int x, int y, int w, int h)
 }
 
 /* ---- Hud_Draw321Num__Fiiiiii  [HUD.CPP:3155-3254] SLD-VERIFIED ---- */
-int Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
+void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
 
 {
-  u_int uVar1;
-  int index;
-  int x_00;
+  /* SYM-exact locals (8c @0x800d7ca8, fsize 72): x REGPARM $fp | y ARG 0x4C(sp) |
+   * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s3 | j $s0 | k $s2 | by $s5 |
+   * index $v1.  y/num live in their ARG HOMES (spilled at entry, re-loaded after each
+   * loop) because the two nested loops need all nine callee-saved regs; the x/j*10 and
+   * y/i*9 walkers are compiler givs, so the source is index-form. */
   int i;
-  int iVar2;
-  int iVar3;
-  int k;
-  u_int uVar4;
   int j;
-  int iVar5;
-  int iVar6;
+  int k;
   int by;
-  
+  int index;
+
   if (flare_intensity != 0) {
-    uVar4 = 0;
-    iVar5 = 0;
-    iVar6 = y;
+    k = 0;
+    i = 0;
     do {
-      iVar2 = 0;
-      iVar3 = x;
+      by = y + i * 9;
+      j = 0;
       do {
-        if ((Hud_Character[num] & 1 << (uVar4)) != 0) {
-          Flare_2DHalo(iVar3 + 4,iVar6 + 4,flare_intensity,flare_intensity,6);
+        if ((Hud_Character[num] & 1 << k) != 0) {
+          Flare_2DHalo(x + j * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
         }
-        iVar3 = iVar3 + 10;
-        iVar2 = iVar2 + 1;
-        uVar4 = uVar4 + 1;
-      } while (iVar2 < 5);
-      iVar5 = iVar5 + 1;
-      iVar6 = iVar6 + 9;
-    } while (iVar5 < 5);
+        j = j + 1;
+        k = k + 1;
+      } while (j < 5);
+      i = i + 1;
+    } while (i < 5);
   }
-  Hud_BlackThinBox(x - 3, y - 2, 0x38, 0x31);
-  uVar4 = 0;
-  iVar5 = 0;
-  iVar6 = y;
+  Hud_BlackThinBox(x - 3,y - 2,0x38,0x31);
+  k = 0;
+  i = 0;
   do {
-    iVar2 = 0;
-    iVar3 = x;
+    by = y + i * 9 + 1;
+    j = 0;
     do {
-      x_00 = iVar3 + 1;
-      iVar3 = iVar3 + 10;
-      iVar2 = iVar2 + 1;
-      uVar1 = uVar4;
-      uVar4 = uVar4 + 1;
-      Hud_FBuildSprite((Hud_Character[num] & 1 << uVar1) != 0 | 0x3c,x_00,iVar6 + 1,0x808080,0);
-    } while (iVar2 < 5);
-    iVar5 = iVar5 + 1;
-    iVar6 = iVar6 + 9;
-  } while (iVar5 < 5);
-  iVar6 = 0x31;
-  Hud_FBuildF4(0, x - 3, y - 2, 0x38, 0x31, 0, '\0','\0');
+      index = ((Hud_Character[num] & 1 << k) != 0) | 0x3c;
+      Hud_FBuildSprite(index,x + j * 10 + 1,by,0x808080,0);
+      j = j + 1;
+      k = k + 1;
+    } while (j < 5);
+    i = i + 1;
+  } while (i < 5);
+  Hud_FBuildF4(0,x - 3,y - 2,0x38,0x31,0,' ',' ');
   Hud_GoTpage(1);
-  return iVar6;
+  return;
 }
 
 /* ---- Hud_Render321Go__Fv  [HUD.CPP:3261-3339] SLD-VERIFIED ---- */

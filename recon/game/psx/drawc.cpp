@@ -453,11 +453,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     sub_otOffset = *(int *)(puVar4 + 0x874);
   }
   else {
-    sub_ot_p = (int)(carObj->render).sub_ot;
-    sd->sub_ot = (u_long *)sub_ot_p;
-    sub_otSize_local = (carObj->render).sub_otSize;
-    sd->sub_otSize = sub_otSize_local;
-    ClearOTagR((u_long *)sub_ot_p,sub_otSize_local);
+    /* MATCH (w40-a3): read the two fields BACK from sd for the call args -- cc1's
+       cse forwards the just-stored values and emits retail's `addu $a0,$v0,$zero`
+       copy; passing the source locals lets gcc load straight into $a0/$a1. */
+    sd->sub_ot = (carObj->render).sub_ot;
+    sd->sub_otSize = (carObj->render).sub_otSize;
+    ClearOTagR(sd->sub_ot,sd->sub_otSize);
     sd->sub_otz = 0;
     sub_otOffset = (carObj->render).sub_otOffset;
   }

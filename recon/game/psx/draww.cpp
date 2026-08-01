@@ -2035,6 +2035,7 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   iVar10 = 0;
   animInst = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   iVar2 = gObjInfo->objInstanceBuf->m_num_elements;
+  sd = (Draw_DCache *)&Render_gPalettePtr;
   if (iVar2 == 0) {
     iVar10 = 0;
   }
@@ -2049,10 +2050,9 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
        world matrix itself is a SEPARATE scratchpad literal (0x1F800014, matches
        sd->matB's own address -- Draw_DCache.matB @+0x14) forced into its own
        register by the gte_SetTransMatrix() call argument. */
-    sd = (Draw_DCache *)&Render_gPalettePtr;
     ((MATRIX *)0x1f800014)->t[2] = 0;
     ((MATRIX *)0x1f800014)->t[1] = 0;
-    ((MATRIX *)0x1f800014)->t[0] = 0;
+    (sd->matB).t[0] = 0;
 gte_SetTransMatrix((void *)0x1f800014);
     for (iVar9 = 0; iVar9 < iVar2; iVar9 = iVar9 + 1) {
       if ((psVar5 == (short *)0x0) || ((((u_short)psVar5[iVar9] >> 0xc ^ 1) & 1) == 0)) {

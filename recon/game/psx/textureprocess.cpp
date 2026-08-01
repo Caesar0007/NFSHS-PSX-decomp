@@ -426,27 +426,36 @@ void Fog_InitFogTriggers(void)
    *      statements, so ours came out last where retail has it first.
    *  (4) `slice_off = 0;` before the zero-trip guard, `k = slice_off;` inside
    *      it, and the counter increment AFTER the call (not before).
-   * RESIDUAL 4 = the $s0<->$s1 allocno tie on (k, slice_off): retail gives the
-   * counter $s0, we give it to the offset.  Six init-order/loop-shape spellings
-   * measured (4/12/12/12/14/16 diffs) -- none flips the pair. */
+   * w40-a10 (4 -> 2): the residual was NOT an allocno tie -- it was the LOOP
+   * FORM.  A natural rotated `for (k = 0; k < num_player; k++)` with the
+   * byte offset written as the INDEX EXPRESSION `k * 0x84` gets loop.c to
+   * strength-reduce the offset into a giv, and THAT ordering hands the
+   * counter $s0 and the giv $s1 (= retail) plus retail's exact schedule
+   * (`addiu $s0,$s0,1` before the jal, `addiu $s1,$s1,0x84` in the bnez
+   * delay slot).  Every explicit-guard + do-while spelling puts the
+   * FIRST-INITIALIZED variable in $s1 (longer live range -> lower allocno
+   * priority), so the retail `addu $s0,$zero,$zero; addu $s1,$s0,$zero`
+   * init pair is unreachable that way (measured 8/12/14/14/28).
+   * RESIDUAL 2 = the zero-trip GUARD OPCODE: ours `blez $s2`, retail
+   * `beqz $s2`.  gcc's rotation guard IS the duplicated loop-exit test, so
+   * its opcode is fixed by the comparison: signed `k < n` folds to `blez`,
+   * `k != n` folds to `beqz` but then the bottom test is a 1-insn `bne`
+   * (13 diffs), and an UNSIGNED bound gives `beqz` + `sltu` (2 diffs, the
+   * same trade).  A source-level `if (num_player != 0)` around the `for`
+   * keeps BOTH guards (59 vs 57 insns).  Mechanism named; a single-opcode
+   * residual. */
   Fog_gCurrentKey = Fog_gHeadKey;
   D_8013DB84 = Fog_gHeadKey;
   if (GameSetup_gData.commMode == 1) {
     num_player = 2;
   }
   fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
-  slice_off = 0;
-  if (num_player != 0) {
-    k = slice_off;
-    do {
-      /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
-       * pointer each iteration and does `addu a1,a1,slice_off`); the Ghidra
-       * `fogslicePos->quadPts + slice_off - 8` form is the same address. */
-      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
-      k = k + 1;
-      slice_off = slice_off + 0x84;
-    } while (k < num_player);
+  /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
+   * pointer each iteration and does `addu a1,a1,slice_off`). */
+  for (k = 0; k < num_player; k = k + 1) {
+    BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + k * 0x84));
   }
+  slice_off = 0;
   return;
 }
 

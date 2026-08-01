@@ -49,15 +49,15 @@ void trap(int code);
 extern u_char CF_DVLC[49096];
 extern int ComingIntoTheFrontEndTheVeryFirstTime[]; /* unsized array: base-reg materialization (not $at macro store) */
 extern int DrawC_gMenuColor[2];
-extern int DrawC_gMenuLights;
-extern int DrawC_gMenuLightsDirection;
+extern int DrawC_gMenuLights[];
+extern int DrawC_gMenuLightsDirection[];
 extern int Draw_gDoVSync[];
 extern int Draw_gPlayer1View[];  /* unsized array shape: forces the separate-%hi-scratch arg load (methodology 3.12 #5) */
 extern int Draw_gRearView[];
 extern char GameSetup_gCarNames[51][5];
 extern GameSetup_tData GameSetup_gData;
 extern char *Paths_Paths[50];
-extern int R3DCar_InMenu;
+extern int R3DCar_InMenu[];
 extern u_long font_tint;
 extern tfrontEnd frontEnd;
 extern DRender_tView gCView;
@@ -66,8 +66,8 @@ extern dflip gEnviro[2];
 extern int gFlip[];
 extern u_short gFontClut;
 extern int gMenuRotate[2];
-extern int inFrontEnd;
-extern int screenbpp;
-extern int screenwidth;
+extern int inFrontEnd[];
+extern int screenbpp[];
+extern int screenwidth[];
 }
 #endif

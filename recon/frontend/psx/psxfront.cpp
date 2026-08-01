@@ -57,13 +57,13 @@ void InitializeSpinningCars(void)
   Car_tObj **obj_walk;
   
   if (rendering3DEnvironmentInitialized == '\0') {
-    R3DCar_InMenu = 1;
+    R3DCar_InMenu[0] = 1;
     Platform_ResetDCTBuffer();
     Texture_InitMenuTexture();
-    inFrontEnd = 1;
+    inFrontEnd[0] = 1;
     CarIO_StartUp();
     R3DCar_StartUp();
-    inFrontEnd = 0;
+    inFrontEnd[0] = 0;
     DrawC_ReadeMapData();
     Fe3D_InitShowroom();
     carData_walk = GameSetup_gData.carInfo;
@@ -88,8 +88,8 @@ void InitializeSpinningCars(void)
     blockclear(&gCView,0x8c);
     DrawC_gMenuColor[1] = -1;
     DrawC_gMenuColor[0] = -1;
-    DrawC_gMenuLights = 0;
-    DrawC_gMenuLightsDirection = 0;
+    DrawC_gMenuLights[0] = 0;
+    DrawC_gMenuLightsDirection[0] = 0;
     rendering3DEnvironmentInitialized = '\x01';
   }
   return;
@@ -119,13 +119,13 @@ void CleanupSpinningCars(void)
       ppCar = ppCar + 1;
       purgememadr(addr);
     } while (i < 2);
-    inFrontEnd = 1;
+    inFrontEnd[0] = 1;
     R3DCar_CleanUp();
     CarIO_CleanUp();
-    inFrontEnd = 0;
+    inFrontEnd[0] = 0;
     Texture_KillMenuTexture();
     PSXFront_FreeDrawMemory();
-    R3DCar_InMenu = 0;
+    R3DCar_InMenu[0] = 0;
     gFlip[0] = -1;
     rendering3DEnvironmentInitialized = '\0';
     Platform_ResetDCTBuffer();
@@ -176,24 +176,24 @@ void DoTitleScreen(void)
   char artfilename [20];
   
   elapsedticks();
-  if (creditShapeFile == (char *)0x0) {
+  if (creditShapeFile[0] == (char *)0x0) {
     sprintf(artfilename,"title.psh");
     sprintf(fileName,STR_FRMT,Paths_Paths[0x20],artfilename);
-    creditShapeFile = (char *)loadshapeadr(fileName,(void *)0x0);
+    creditShapeFile[0] = (char *)loadshapeadr(fileName,(void *)0x0);
     systemtask(0);
-    if (creditShapeFile == (char *)0x0) {
+    if (creditShapeFile[0] == (char *)0x0) {
       return;
     }
   }
-  shape = (tTexture_ShapeInfo *)locateshapez(creditShapeFile,(void *)"back");
+  shape = (tTexture_ShapeInfo *)locateshapez(creditShapeFile[0],(void *)"back");
   Quick_DD(1,0,1);
   settrans(0);
   movfxya(shape,0,0);
   settrans(1);
   Quick_DD(0,1,0);
-  purgememadr(creditShapeFile);
-  titleScreenDisplayed = '\x01';
-  creditShapeFile = (char *)0x0;
+  purgememadr(creditShapeFile[0]);
+  titleScreenDisplayed[0] = '\x01';
+  creditShapeFile[0] = (char *)0x0;
   return;
 }
 
@@ -280,8 +280,8 @@ void Init_PSX_FrontEnd(void)
   InitGeom();
   PSX_AllocShapes();
   Texture_InitMenuClut();
-  screenwidth = 0x200;
-  screenbpp = 0x10;
+  screenwidth[0] = 0x200;
+  screenbpp[0] = 0x10;
   if (ComingIntoTheFrontEndTheVeryFirstTime[0] == 0) {
     Init_RenderingEnvironment();
     TextSys_LoadWords((uint)(byte)frontEnd.language);

@@ -610,7 +610,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
          * g[0x18] is not written between the old fn-head ts13 capture and here,
          * so reading it fresh is value-identical -- and it's the oracle's shape */
         u_short tc = DrawC_gOverlay[0x1c];
-        short t8 = DrawC_gOverlay[0x18];
+        int t8 = DrawC_gOverlay[0x18];   /* INT, not short: a `short` local lets
+                             * combine drop the sign-extend and emit lhu (catalog C) */
         DrawC_gOverlay[0x18] = tc;
         DrawC_gOverlay[0x1c] = t8;
       }
@@ -762,7 +763,7 @@ DrawCPrimStart_camRotMatrix:
       DrawC_gWetRoad = 1;
     }
     DrawC_gReflectOffset =
-         (short)((u_int)(((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
+         (short)((((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
   }
   else {
     shapeData_p = (int)Draw_GetDRAWENV(gCView.id,gFlip);

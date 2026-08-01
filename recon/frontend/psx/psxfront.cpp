@@ -188,8 +188,8 @@ void DoTitleScreen(void)
   settrans(1);
   Quick_DD(0,1,0);
   purgememadr(creditShapeFile[0]);
-  titleScreenDisplayed[0] = '\x01';
   creditShapeFile[0] = (char *)0x0;
+  titleScreenDisplayed[0] = '\x01';
   return;
 }
 

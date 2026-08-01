@@ -162,32 +162,41 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
   int chr;
   int chg;
   int chb;
+  CVECTOR newColor;
+  int b15;
   int newR;
   int newG;
   int newB;
-  int b15;
-  CVECTOR newColor;
   int bestIndex;
-  tCompRGB *p;
 
   b15 = bright * 0x111;
-  p = gTableCache + colorIndex;
-  chr = colorH & 0xff;
-  chg = (u_int)colorH >> 8 & 0xff;
-  chb = (u_int)colorH >> 0x10 & 0xff;
-  sourceR = (u_char)p->r;
+  /* colorH's THREE COMPONENT BYTES are read with lbu out of its ARG HOME on the stack
+     (oracle `sw $a1,0x34($sp)` then `lbu 0x34($sp)` / `addiu $v1,$sp,0x34; lbu 1($v1);
+     lbu 2($v1)`), which is also why the SYM classes colorH as ARG (stack) rather than
+     REGPARM -- taking its address forces the spill.  The shift/mask spelling
+     (`colorH & 0xff`, `>>8 & 0xff`, `>>16 & 0xff`) compiles to srl/andi and has no
+     lbu at all. */
+  chr = ((u_char *)&colorH)[0];
+  chg = ((u_char *)&colorH)[1];
+  chb = ((u_char *)&colorH)[2];
+  sourceR = gTableCache[colorIndex].r;
+  sourceG = gTableCache[colorIndex].g;
+  sourceB = gTableCache[colorIndex].b;
   newR = sourceR + ((int)(chr * b15) >> 0xc);
   if (0xff < newR) newR = 0xff;
-  sourceG = (u_char)p->g;
   newG = sourceG + ((int)(chg * b15) >> 0xc);
   if (0xff < newG) newG = 0xff;
-  sourceB = (u_char)p->b;
   newB = sourceB + ((int)(chb * b15) >> 0xc);
   if (0xff < newB) newB = 0xff;
-  newColor.r = (u_char)newR & 0xf8;
-  newColor.g = (u_char)newG & 0xf8;
-  newColor.b = (u_char)newB & 0xf8;
-  newColor.cd = 0;
+  /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
+     `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
+  newColor.r = (u_char)(newR & ~7);
+  newColor.g = (u_char)(newG & ~7);
+  newColor.b = (u_char)(newB & ~7);
+  /* newColor.cd is deliberately NOT initialised: the oracle builds the by-value CVECTOR
+     argument by re-reading all four bytes back off the stack (`lbu $v0,0x13($sp)` for
+     .cd) with no preceding store, so retail leaves it whatever was in the slot.  Harmless
+     -- Night_FindClosestColor only reads .r/.g/.b -- but writing 0 costs an extra sb. */
   if (((Night_FindClosestColor(newColor,&bestIndex) < 0x201) || (Chunk_numLight + 4 <= colorIndex)) ||
       (0xff < Night_gTotalLights)) {
     *colorval = (u_char)bestIndex;

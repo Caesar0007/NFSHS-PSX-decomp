@@ -990,7 +990,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
     else {
       gMemCardInfo.task = LOAD_CARD;
       gMemCardInfo.bReady = 0;
-      return code;
+      goto iMCRDError_return;
     }
   case 4:
     if (func == 2) {
@@ -998,7 +998,13 @@ int iMCRD_HandleError(int func,int opResult,int card)
         /* MATCH: SYM nested block - numberoftries/result live only here. */
         int numberoftries;
         int result;
+        int failed;   /* MATCH: the -1 sentinel loop.c hoists out of the retry test.
+                       * As a bare literal it becomes a short-lived hoisted allocno
+                       * whose priority (3 refs / 16 insns) beats pCI's and steals
+                       * $s1; naming it lengthens its live range so pCI wins $s1 and
+                       * the sentinel shares opResult's dead $s2, as retail does. */
 
+        failed = -1;
         numberoftries = 0;   /* MATCH: lands in the beqz delay slot, not the jalr's */
         /* MATCH: the retry test is the loop CONDITION, not an in-body early return -
          * retail's `bne result,sentinel` short-circuits straight to the success block
@@ -1011,7 +1017,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
         do {
           result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
           numberoftries = numberoftries + 1;
-        } while ((result == -1) && (numberoftries < 3));
+        } while ((result == failed) && (numberoftries < 3));
         if (result != -1) {
           gMemCardInfo.task = WRITE_FILE;
           return 6;

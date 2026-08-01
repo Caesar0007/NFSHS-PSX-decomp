@@ -46,7 +46,6 @@ void InGame_ResetPSXController(int player,int config)
 {
   int type;
   int *h;
-  u_int v;
 
   type = gPadinfo.buf[player * 4].ID;
   h = Input_gHandler;
@@ -93,17 +92,25 @@ void InGame_ResetPSXController(int player,int config)
     h[0x82 - hoff[player]] = InGame_GetPSXPadValue(m,player);
   }
   if (GameSetup_gData.Time != 0) {
+    int m;
+
     h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
-    v = (type == 1) ? 6 : 0;
+    m = 0;
+    if (type == 1) {
+      m = 6;
+    }
+    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(m,player);
   }
   else {
+    int m;
+
     h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
-    v = mappings[config][9][type];
+    m = mappings[config][9][type];
     if (type == 1) {
-      v = v | 6;
+      m = m | 6;
     }
+    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(m,player);
   }
-  h[0x54 - hoff[player]] = InGame_GetPSXPadValue(v,player);
   h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
   h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
   h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);

@@ -1247,8 +1247,11 @@ void Weather_DoWeather(DRender_tView *Vi)
     /* MATCH: bump the cursor off the ALREADY-LOADED `prim`, not by re-reading the
      * scratchpad slot -- the oracle has `addiu v1,a0,12; sw v1,0(t3)` (2 insns) where a
      * re-read spelling emits lw+addiu+sw (3). */
-    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0xc;
+    /* MATCH: palette write-back BEFORE the cursor bump (same order lever as
+     * Weather_CreateSplat) -- the scheduler then interleaves the bump into the
+     * palette merge like retail. */
     *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
+    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0xc;
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

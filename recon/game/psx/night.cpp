@@ -460,27 +460,31 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
  * four wired per-TU
  * codegen flags (w39-a9 probe: no_split_addresses +4, no_schedule_insns +6,
  * no_schedule_insns2 +14, no_strength_reduce 0). */
-/* NEAR-MISS 4 diffs, COUNT-EXACT 33/33 (w40-a9): prologue EMISSION ORDER only -- retail
- * emits `sw $s2,24($sp); lui $s2` BEFORE `sw $s0,16($sp); lui/addiu $s0`, ours the other
- * way round.  Identical registers, identical instructions, different order = the
- * documented callee-save emission-order tie-break (catalog sec.F). */
+/* SEALED 33/33 PASS (w41-a7).  The w40 note called the residual 4 an untouchable
+ * "callee-save emission-order tie-break" -- it was NOT: the recon carried TWO FABRICATED
+ * locals.  The SYM 8c block (nfs4-f-v3.txt:43c5b0) declares exactly ONE named local for
+ * this function, `i` = REG $0x11 = $s1, inside a NESTED block (Block start line 1 >
+ * Block start line 1 > i > Block end line 6 > Block end line 8) -- there is no
+ * `tbl_walk` walking pointer and no `alloc_buf` call-result temp.  Both were compiler
+ * artifacts transcribed as C: the walker is loop.c's giv for the index form, and the
+ * call result is stored straight through.  Rewriting to the SYM shape (a block-scoped
+ * `i`, plain `for (i = 0; i < 2; i++)` index form over the sized [2] array VIEW, and the
+ * reservememadr() result assigned directly to the element) makes gcc regenerate the
+ * strength-reduced walker AND fixes the prologue order in one edit.  Constant bound 2
+ * => gcc rotates the `for` to the oracle's guard-free bottom-tested do-while. */
 void Night_InitWeatherTables(void)
 
 {
-  void *alloc_buf;
-  u_char *tbl_walk;
-  int i;
-  
-  i = 0;
-  tbl_walk = (u_char *)Night_gWeatherLightingTable_arr;
-  do {
-    if (*(int *)tbl_walk == 0) {
-      alloc_buf = reservememadr("wtnight",0x100,0);
-      *(void **)tbl_walk = alloc_buf;
+  {
+    int i;
+
+    for (i = 0; i < 2; i = i + 1) {
+      if (Night_gWeatherLightingTable_arr[i] == 0) {
+        Night_gWeatherLightingTable_arr[i] =
+            (u_char (*)[256])reservememadr("wtnight",0x100,0);
+      }
     }
-    i = i + 1;
-    tbl_walk = tbl_walk + 4;
-  } while (i < 2);
+  }
   Night_gWeatherColor = 0x574054;
   D_8013DA8C = 0x6c4040;
   return;

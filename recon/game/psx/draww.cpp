@@ -1293,6 +1293,13 @@ gte_swc2(0x8,&depthcue);
         *(long *)&prim->x2 = q2;
         *(long *)&prim->x3 = q3;
       }
+      /* NEGATIVE (w40-a2, retested at TWO baselines, 227 and 139): the oracle's
+       * `beqz $v0` makes the DrawW_NightColorCalc call the FALL-THROUGH, so the arms
+       * look swapped -- but writing `if (nightFlags != 0) {NightColorCalc} else {...}`
+       * REGRESSES hard (227->374, 139->302) and leaves ours 9-12 insns SHORTER than the
+       * oracle: with the depth-cue block as the out-of-line arm gcc cross-jump-merges
+       * part of its two colour tails.  The polarity is downstream of that merge, not a
+       * free arm-order choice -- do not re-try before the merge is killed. */
       if (sd->nightFlags == '\0') {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read
@@ -1771,6 +1778,7 @@ DrawWTrough_setStateCallHigh:
         DrawW_kCtrlWorld_High(sd);
       }
     }
+    buildList = buildList + 1;
     buildInd = buildInd + 1;
   } while( true );
 }

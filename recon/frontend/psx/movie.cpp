@@ -461,7 +461,6 @@ void strCallback(void)
 
 {
   int rw;
-  int bottom;
   int vh;
   int hstep;
   int rem;
@@ -486,13 +485,12 @@ void strCallback(void)
      * locals give the quotient and the width their OWN pseudos, so the quotient
      * cannot reuse the dividend's register and the whole caller-saved pool
      * rotates by one (decbase a1->a2, PPWTop a2->a3, isFirstSlice a3->t0). */
-    bottom = (int)PPWBottom;
-    rem = (int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / bottom);
+    rem = (int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / (int)PPWBottom);
     if (rem != 0) {
       isFirstSlice = 0;
       /* MATCH: the rem*PPWTop multiply belongs INSIDE the guard (the oracle schedules
        * it into the beqz delay slot); as a preceding statement it lands before the test. */
-      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / bottom);
+      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / (int)PPWBottom);
       goto strCallback_inlinedJoin;
     }
   }
@@ -500,8 +498,7 @@ void strCallback(void)
 strCallback_inlinedJoin:
   rectid = dec.rectid;
   if ((int)dec.slice.x < (int)dec.rect[rectid].x + (int)dec.rect[rectid].w) {
-    bottom = (int)PPWBottom;
-    hstep = ((int)PPWTop << 4) / bottom;
+    hstep = ((int)PPWTop << 4) / (int)PPWBottom;
     DecDCTout
               ((u_long *)dec.imgbuf,
                ((((dec.slice.w + -1) / hstep + 1) * hstep) << 4) *

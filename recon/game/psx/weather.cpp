@@ -812,15 +812,23 @@ void Weather_QuickReOrthogonalize
  * 🔴 BUG: the turbulence table reads must be SIGN-extended (oracle sll 24/sra 24);
  * `char` is UNSIGNED on this build, so the plain char reads silently turned negative
  * velocity components into +128..+255.
- * w40-a6 LEAD (not landed): `short reset` is NOT in the SYM's particle-loop block (only
- * tv $s2 and n $s0 LONG + the AUTO `pt`).  Testing the call inline --
- * `if (Weather_CheckAndResetParticles(&pt) != 0) wd[n] = 0;` BEFORE the write-back --
- * makes the count EXACT (252 -> 251) but the LCS reads 74 vs 69, because the oracle then
- * shows the write-back sunk INTO the reset arm and reached by a `j`, driven by TWO
- * separate address givs for the same walker (`sw v1,0(s2)` + `sh v1,0(s1)`, s2/s1 both
- * +8 per iteration) where we keep one.  Landing the write-back placement + the giv split
- * together is the next lever; either half alone regresses (both-arms duplication = 261
- * insns).  Kept the 69-diff form pending that combined pass. */
+ * w41-a6: 69 -> PASS via THREE independent levers (each gate-measured):
+ *  (1) `tv = tv + 1;` moved BEFORE the `if (reset)` arm -- both address givs (s2 = &tv->vx,
+ *      s1 = &tv->vz) then increment ahead of the branch, one landing in the beqz delay slot,
+ *      and the freed slot lets the return-value `sll v0,v0,16` fill the lw load-delay
+ *      (69 -> 60, count 252 -> 251 EXACT).  The w40 note's "sink the write-back into the
+ *      reset arm" reading was wrong: the write-back stays before the arm; only the
+ *      INCREMENT moves.
+ *  (2) turbulence table read in INDEX form `Weather_gRandomVelocityVectors[n][0..2]`
+ *      instead of a `signed char *vel` walker (60 -> 18).  With the explicit walker,
+ *      loop.c/combine_givs re-anchored on the LAST address (vel+2) and kept the biv,
+ *      giving TWO source givs (`lbu 0(t2)` + `lbu -1(t1)` / `lbu 0(t1)`, t1 = t2+2);
+ *      the index form reduces to retail's single walker with 0/1/2 displacements.
+ *      NEGATIVE: a goto-loop here REGRESSES (60 -> 87) -- this loop genuinely needs SR.
+ *  (3) the three `total_vector_change` adds written vx,vy,vz (NOT vx,vz,vy): gcc emits
+ *      the middle two in the OPPOSITE order to the source here, so the source order that
+ *      yields retail's vx,vz,vy emission is vx,vy,vz (18 -> 0; pure a1<->a2 / v0<->v1
+ *      swap on the result.vy/result.vz pair). */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
   int n;
@@ -873,8 +881,8 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     velocity_vector_change.vy = (short)result.vy;
     velocity_vector_change.vz = (short)result.vz;
     total_vector_change.vx = total_vector_change.vx + velocity_vector_change.vx;
-    total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
     total_vector_change.vy = total_vector_change.vy + velocity_vector_change.vy;
+    total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
   }
 
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */

@@ -1351,6 +1351,17 @@ HudBuildStr_next:
 typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
 
 /* ---- Hud_BuildNumbers0__Fi  [HUD.CPP:1551-1712] SLD-VERIFIED ----
+ * 🔴 w40-a1 FINDING (same class as Hud_BuildNumbers, NOT yet landed): the oracle makes TWO
+ * copies of the parameter -- `addu $s1,$a0,$zero` then `addu $v1,$s1,$zero` -- and the SYM
+ * names them `i` ($0x11=$s1) and REGPARM `player` ($3=$v1).  $s1 drives the pSprt select
+ * (`beqz $s1` @800D4650) and the carInfo[]*3 index at BOTH sites (@800D469C, @800D491C);
+ * $v1 drives ONLY the three HudF4/HudG4/splitY `+=` selects (`beqz $v1` x3).  Ours coalesces
+ * the two into one $s1 and tests it four times.  Landing it needs the local re-naming that
+ * frees `i` for the param copy (our `i` is the SYM's `y` accumulator and our `y` is the SYM's
+ * `splitY`; `splitY`/`primAddr` are then spare) -- a mechanical but wide rename, banked.
+ * NEGATIVE receipt: adding `i = player;` + `if (i != 0)` on the pSprt select ALONE = 230 -> 232
+ * (gcc re-coalesces the copy because `i` has no other early refs). */
+/* ---- (original note) ----
  * SYM-structured rewrite (rule 8): fn-scope locals = exactly the SYM set (i, pSprt, HudF4,
  * HudG4, splitY, y) + block-scoped {j,num}/{j} per loop region (SYM shows 4 nested-block `j`
  * redeclarations).  Key oracle-derived shapes: pSprt select = if/ELSE (one gp-rel load per

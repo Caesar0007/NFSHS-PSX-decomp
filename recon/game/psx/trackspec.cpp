@@ -15,6 +15,44 @@ int TrackSpec_gPrevSpec;
 
 
 /* ---- TrackSpec_SetDefault__FP10CTrackSpec  [TRACKSPEC.CPP:44-113] SLD-VERIFIED ----
+ * 228 -> 195 -> 193 (w39/w40) -> 24 (w41-a5), COUNT NOW EXACT 142/142.
+ * THE w40 "STRONG FLOOR" RECEIPT BELOW IS REFUTED.  It diagnosed the ~90-line
+ * base-register divergence (spec in $a0 for us, $a1 for retail) as an unreachable
+ * `regs_someone_prefers` allocator identity.  It was not: the recon carried TWO
+ * fabricated pseudos the SYM does not name, and removing them moved the allocation.
+ * THREE levers, all SYM/oracle-driven:
+ *  (1) ONE REUSED `short sVar2` FOR TWO INDEPENDENT VALUES -> TWO NAMED LOCALS
+ *      (`weather`, `night`).  The SYM lists NO short local at all, so the single
+ *      reused temp was pure Ghidra; reusing it merged two disjoint live ranges into
+ *      one long-lived pseudo, and THAT is what pushed `spec` off $a1.  Splitting it
+ *      took 185 -> 44 and made the count exact -- the entire $a0/$a1 cascade fell
+ *      out with it (catalog "pCVar2 rule": N re-reads = N distinct C locals).
+ *      NB inlining both reads with no local at all is WORSE (204): retail does hold
+ *      each value in a temp, it just holds them in two different ones.
+ *  (2) RING LOOP: ONE store fed by a ternary, not a store per arm --
+ *      `ringPMX[i] = (char)((i < 8) ? i : (0x17 - i));`.  Two stores gave the giv
+ *      TWO uses, so loop.c strength-reduced `spec + i` into a walking pointer (an
+ *      extra allocno) and left no delay slot.  With one store loop.c leaves the
+ *      address as the per-iteration `addu $v1,$a1,$a2`, reorg duplicates the store
+ *      into the `j` delay slot, and the back-edge slot takes the NEXT iteration's
+ *      `slti $v0,$a2,8` -- the 5th slti the w41 census flagged as missing.
+ *      193 -> 185; that loop is now byte-identical.  (i<8-first ternary 185,
+ *      8<=i-first ternary 191, if/else+temp 196, shared element pointer 196.)
+ *  (3) the three `fogspec.color` byte stores belong immediately BEFORE
+ *      `fogspec.start = 200` (44 -> 24): that puts `li $v0,128` ahead of the
+ *      200/8/2/1/-4224 chain so the chain reuses $v1 like retail.  Measured at four
+ *      positions: before start 24, before dist2base 28, intensity 32, mirror 36.
+ * RESIDUAL 24 (count exact), TWO items, both scheduler PLACEMENT of CSE'd constants:
+ *   (a) `li $a3,23` vs `li $v1,1` issue order at the head (2 diffs);
+ *   (b) the tail's shared literals 8 (3 sites) and 16 (4 sites): retail hoists them
+ *       early into $a0/$v1, we materialize them late in $v0 (22 diffs).  Source
+ *       ORDER does NOT reach it -- moving all seven stores as a block to four
+ *       different positions around the sky loop measured 24 every time.  The next
+ *       handle is a -dS/-dR sched trace, not another reshape.
+ * FLOOR-BAR NOTE: prototype re-audited (1 pointer arg, void return, SYM REGPARM $05,
+ * fsize 0 / mask $00000000 leaf, no $v0 at the single `jr $ra`); the w40 per-TU flag
+ * probes still stand (g_value 8 no-op, all four -f keys negative).
+ * ---- OLD (REFUTED) RECEIPT, kept so the mistake stays traceable ----
  * FAR-MISS 193 diffs (was 228), COUNT-EXACT 141/142.  w39-a5 applied the SYM rule-8
  * rewrite (only i/j survive; both loops in index form) and the arm-order flip
  * (`8 <= i` first = the oracle's fall-through arm), 228 -> 195 -> 193.
@@ -65,27 +103,28 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
    * the i*4 term ($a3) are compiler GIVs, so both loops are written in INDEX
    * form and the invented Ghidra temps (bVar1/pCVar5/iVar3/iVar7/local_a0__1)
    * are deleted (catalog: SYM has only i/j => the pointers are givs). */
-  short sVar2;
+  short weather;
+  short night;
   int i;
   int j;
 
   i = 0;
   spec->fogstate = 0;
-  sVar2 = (short)GameSetup_gData.Weather;
+  weather = (short)GameSetup_gData.Weather;
   spec->horizonstate = 1;
   spec->skystate = 1;
-  spec->weatherstate = sVar2;
-  sVar2 = (short)GameSetup_gData.Time;
+  spec->weatherstate = weather;
+  night = (short)GameSetup_gData.Time;
   (spec->fogspec).contrast = 0x10000;
   spec->depthcuestate = 1;
+  (spec->fogspec).color.r = 0x80;
+  (spec->fogspec).color.g = 0x80;
+  (spec->fogspec).color.b = 0x80;
   (spec->fogspec).start = 200;
   (spec->fogspec).dist2base = 8;
   (spec->weatherspec).intensity_limit = 2;
   (spec->horizonspec).mirror = 1;
   (spec->horizonspec).yoffset = -0x1080;
-  (spec->fogspec).color.r = 0x80;
-  (spec->fogspec).color.g = 0x80;
-  (spec->fogspec).color.b = 0x80;
   (spec->weatherspec).type = 0;
   (spec->horizonspec).angle = 0;
   (spec->horizonspec).height = 0x4b00;
@@ -101,14 +140,9 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->horizonspec).backColor[1].r = 0x80;
   (spec->horizonspec).backColor[1].g = 0x80;
   (spec->horizonspec).backColor[1].b = 0x80;
-  spec->nightstate = sVar2;
+  spec->nightstate = night;
   for (; i < 0x10; i = i + 1) {
-    if (8 <= i) {
-      (spec->horizonspec).ringPMX[i] = (char)(0x17 - i);
-    }
-    else {
-      (spec->horizonspec).ringPMX[i] = (char)i;
-    }
+    (spec->horizonspec).ringPMX[i] = (char)((i < 8) ? i : (0x17 - i));
   }
   i = 0;
   (spec->skyspec).type = 0;
@@ -240,11 +274,26 @@ void TrackSpec_Read(int spec_num)
   char str [64];
   CTrackSpecHeader header;
   char *currentpos;
-  
-  sprintf(str,"%sTr%02d.bin",Paths_Paths[6],GameSetup_gData.track);
-  filebuf = (char *)loadfileadr(str,0);
+  /* w41-a5: the track fetch is its OWN source statement, not an inline sprintf arg.
+   * SLD PROOF: 800E17E8 (`lui $v0,%hi(GameSetup_gData)`) carries source line 148 while
+   * every other insn of the call setup (800E17DC/17EC/1804) carries line 151 -- the
+   * sprintf line.  Inline, cc1 gives the a1 `lui %hi(fmt)` the earlier luid and sched1
+   * issues it one slot too soon (the last 2 diffs).  Hoisted, the ready-list tie flips
+   * and the lui lands in the oracle's slot.  CAVEAT: the SYM's block list for this fn
+   * names only currentpos/startpos/str -- no `trk` -- so the name is ours; the STATEMENT
+   * is SLD-attested. */
+  int trk = GameSetup_gData.track;
+
+  sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
+  /* w41-a5: `currentpos` (an AUTO -- its address goes to read()) takes the RAW
+   * call result; `filebuf` is then READ BACK from it.  cse forwards the just-stored
+   * register, so the read-back becomes retail's `addu s0,v0,zero` copy while the
+   * delay-slot store keeps the raw `$v0` (`sw v0,0x58(sp)`) -- the third
+   * uncoalesced copy the w40 note could not name.  Assigning currentpos FROM
+   * filebuf instead stores the copy (`sw s0,...`). */
+  currentpos = (char *)loadfileadr(str,0);
+  filebuf = currentpos;
   startpos = filebuf;
-  currentpos = filebuf;
   if (filebuf != (char *)0x0) {
     TrackSpec_gPrevSpec = spec_num;
     TrackSpec_gCurrentSpec = spec_num;

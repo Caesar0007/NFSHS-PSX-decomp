@@ -804,7 +804,23 @@ void Hrz_LightningFlicker(int on)
  * = 85/61 (much worse).  The remaining residual is the raw-load triple landing on $a3/$a1
  * instead of the SYM's $t1/$t0 -- our r-pseudos share $v0/$v1 (short ranges) where the
  * oracle's span far enough to need six registers ($v0,$v1,$a0-$a3), which is what pushes
- * its raw triple down to $t0-$t2. */
+ * its raw triple down to $t0-$t2.
+ * w41-a8 MECHANISM (why the 4-insn gap exists; SYM refutes the 3-block form kept below):
+ * SYM @40e9d3 has ONE {t1,t2,t3} block spanning ALL THREE rows -- the same three pseudos
+ * are RE-DEFINED per row, so when the r-blocks run only the LAST row's raw values
+ * (temp.m[6]/[8], still in $t1/$t2) can be store-forwarded; temp.m[0]/[2]/[3]/[5] have
+ * been overwritten and MUST be reloaded -- that IS the oracle's four extra `lw NN(sp)`.
+ * Three per-row t-blocks give three independent live pseudos, gcc forwards all nine and
+ * the fn comes out 4 insns SHORT.  Restoring the single block reproduces the reloads and
+ * gates count-EXACT 56/56, but 72 LCS diffs vs this form's 62 (identical alpha-renamed
+ * structural residual 33/56 either way), so the gate ledger keeps the 3-block form.  The
+ * single-block variants are saved verbatim at scratch/hrz_1tblock.cpp (+ _v2, per-element
+ * r-stores, also 72).  RE-OPEN LEAD from the 56/56 base: retail's nine r-values OUT-RANK
+ * the t-triple (they take $v0/$v1/$a0-$a3, pushing the raw loads to $t0-$t2); ours is the
+ * reverse.  allocno_compare is on a razor edge (t: 6 refs/~18 live = 0.67; r: 2 refs/~3
+ * live = 0.67) -- a dial that LENGTHENS the t-triple's live range or SHORTENS the
+ * r-values' flips the whole function.  Tried+FALSIFIED: per-element r-store (72),
+ * mpsx.m[0][2]-before-[0][1] store order (76). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1082,10 +1098,10 @@ void Hrz_BuildSky(void)
                 Draw_tPixMap *pmx;
 
                 u_int *slot;
-                prim = (POLY_GT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
-                slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-                *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
+                prim = (POLY_GT4 *)Render_gPacketPtr;
+                slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
+                prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
                 slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
                 *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
                 Render_gPacketPtr = (u_char *)prim + 0x34;
@@ -1111,8 +1127,8 @@ void Hrz_BuildSky(void)
                 u_int tag;
                 prim = (POLY_FT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
-                slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-                *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
+                slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
+                prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
                 tag = slot[-2];
                 Render_gPacketPtr = (u_char *)prim + 0x28;
                 slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
@@ -1134,8 +1150,8 @@ void Hrz_BuildSky(void)
 
               u_int *slot;
               prim = (POLY_G4 *)Render_gPacketPtr;
-              slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-              *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
+              slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
+              prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
               slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
               *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
               Render_gPacketPtr = (u_char *)prim + 0x24;
@@ -1214,21 +1230,30 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
              (11 diffs, ours 112 vs oracle 111); the single expression makes the shift
              result itself the addu dest + accumulator == oracle `sll a1,s3,2 ;
              lui v0 ; lw v0 ; addu a1,a1,v0`. 11 -> 2 diffs, count exact.
-             RESIDUAL 2 = emission ORDER of the two LICM-hoisted mask constants
-             (ours lui 0xff000000 BEFORE lui 0xffffff, oracle after). Tried flipping the
-             OR operand order of the first RMW statement (8 diffs) and of the second
-             (6 diffs) -- both worse; the hoist order is not steered by operand order
-             here. Same 2-constant hoist-order residual as the Flare_*Flare family. */
+             w41-a8: PASS.  The last 2 diffs were the emission ORDER of the two
+             LICM-hoisted mask constants (ours lui 0xff000000 BEFORE lui 0xffffff, oracle
+             after).  LEVER (new; generalizes to the whole OT-link family): loop.c hoists
+             movables in INSN order = the order the constants are first GENERATED in RTL,
+             and inside `A & 0xff000000 | B & 0xffffff` that is ff000000-then-ffffff.
+             Flipping the OR operands DOES reorder the hoists but also flips which
+             subexpression lands in $v1 vs $v0 (measured 8 diffs; 12 with both statements
+             flipped).  The DECOUPLED fix: give the SECOND RMW's `(u_int)prim & 0xffffff`
+             its own temp evaluated BEFORE the first RMW (`pkt24` -- the Flare_Tri
+             `pkt_addr24` idiom).  The 0xFFFFFF def then precedes the 0xFF000000 def, the
+             movable list hoists in the oracle's order, and the first RMW keeps its
+             prim-mask-first evaluation.  Same tie is carried by Flare_*Flare + BuildSky. */
           u_int *slot;
           u_int tag;
+          u_int pkt24;
           u_char *pal;
           pal = Render_gPalettePtr;
           slot = (u_int *)(otz * 4 + (int)pal);
           prim = (TILE_1 *)Render_gPacketPtr;
+          pkt24 = (u_int)prim & 0xffffff;
           *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
           tag = *slot;
           Render_gPacketPtr = (u_char *)prim + 0xc;
-          *slot = tag & 0xff000000 | (u_int)prim & 0xffffff;
+          *slot = tag & 0xff000000 | pkt24;
           *(u_long *)((u_char *)prim + 4) = (*(u_long *)&starColors[n]);
           *((u_char *)prim + 3) = 2;
           *((u_char *)prim + 7) = 0x68;

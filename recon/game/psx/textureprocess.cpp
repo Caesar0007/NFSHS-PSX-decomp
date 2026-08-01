@@ -453,7 +453,27 @@ void Fog_InitFogTriggers(void)
    * (13 diffs), and an UNSIGNED bound gives `beqz` + `sltu` (2 diffs, the
    * same trade).  A source-level `if (num_player != 0)` around the `for`
    * keeps BOTH guards (59 vs 57 insns).  Mechanism named; a single-opcode
-   * residual. */
+   * residual.
+   * w41-a9 (STRONG floor, quantified): retail's block shape IS the explicit
+   * guard + do-while -- `if (num_player != 0) { k = 0; do {...} while
+   * (k < num_player); }` reproduces the oracle's `beqz $s2` guard AND its
+   * `slt/bnez` bottom test exactly, killing this residual.  It costs a hard
+   * $s0<->$s1 allocno rotation (12 diffs, count still 57/57): the counter and
+   * the address giv have IDENTICAL ref counts (7 each, -dl), so the tie is
+   * decided purely by live_length -- giv 9 insns vs counter 10 =>
+   * floor_log2(7)*7/9 = 1.556 beats 1.400, so the giv takes $s0 and the
+   * counter $s1 (retail has them the other way).  The counter's range can
+   * never be the shorter one: the bottom compare READS the counter, so its
+   * live range always ends last, whatever the init/increment order.  Measured
+   * IDENTICAL 12 diffs across 6 spellings (k-init inside/outside the guard,
+   * `0 != n` Yoda guard, explicit `slice_off` walker initialized from `k`
+   * (which literally reproduces retail's `addu $s1,$s0,$zero` init pair),
+   * walker initialized from 0, walker-increment before/after the counter
+   * increment) and across 3 declaration orders (decl order is a no-op here).
+   * Bumping the counter to 8 refs would cross the floor_log2 razor and flip
+   * it, but every extra reference costs an emitted instruction (57 -> 58).
+   * => the `for` form below (2 diffs, wrong guard opcode) is strictly better
+   * than the structurally-faithful form (12 diffs).  Do not re-fight. */
   Fog_gCurrentKey = Fog_gHeadKey;
   D_8013DB84 = Fog_gHeadKey;
   if (GameSetup_gData.commMode == 1) {

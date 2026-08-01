@@ -63,6 +63,43 @@ void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd);
 void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
 
 
+/* ============================ w41-a8 OT-LINK LEVER PAIR ============================
+ * Two source shapes, applied together, that fix the whole `Flare_*` / Sky OT-link family.
+ * Landed: Sky_RenderStars 2->PASS, OctFlare/Spikes/HexFlare/ReflectHexFlare 20->14 each,
+ * 2DHalo 60->40, Sun 50->28 (a "100%-certified floor" -- REFUTED), Halo2 48->28,
+ * CarShapedHalo 59->45, LensFlare 56->48.  Scripted appliers kept at scratch/
+ * otlink_lever{,2,3}.py + slot_lever{,2}.py (see the REPORT -- worktrees get pruned).
+ *
+ * (1) addr24-EARLY (LICM movable ORDER).  loop.c hoists movables in INSN order = the
+ *     order each constant is first GENERATED in RTL.  Inside
+ *         `A & 0xff000000 | B & 0xffffff`
+ *     that is ff000000-then-ffffff, but the oracle's preheader materializes
+ *     `lui;ori 0xFFFFFF` BEFORE `lui 0xFF000000`.  Flipping the OR operands DOES reorder
+ *     the hoists, but it also flips which subexpression lands in $v1 vs $v0 (measured on
+ *     Sky_RenderStars: 8 diffs one statement flipped, 12 both).  The DECOUPLED fix is to
+ *     give the SECOND RMW's `(u_int)prim & 0xffffff` its own temp evaluated right after
+ *     `prim = Render_gPacketPtr;` (`addr24`, the Flare_Tri `pkt_addr24` idiom):
+ *         prim   = Render_gPacketPtr;
+ *         addr24 = (u_int)prim & 0xffffff;      <-- generates 0xFFFFFF FIRST
+ *         *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
+ *         ...
+ *         *slot = pkt24 | addr24;
+ *     The 0xFFFFFF def now precedes the 0xFF000000 def AND the first RMW keeps its
+ *     prim-mask-first evaluation order.
+ * (2) ONE-EXPRESSION SLOT (accumulate into the INDEX, not the base).  Replace
+ *         slot = (u_int *)Render_gPalettePtr; slot = (u_int *)((int)slot + otz * 4);
+ *     with the Hrz_TextureQuad/Sky_RenderStars form
+ *         pal = Render_gPalettePtr;  slot = (u_int *)(otz * 4 + (int)pal);
+ *     so the shift result itself is the addu DEST (oracle `sll a1,s3,2 ; lui v0 ; lw v0 ;
+ *     addu a1,a1,v0`).  The `pal` temp is REQUIRED -- inlining Render_gPalettePtr into the
+ *     expression costs an insn (HexFlare 29 diffs / 116 insns).
+ * Applying (1)+(2) took Flare_HexFlare's ALPHA-RENAMED structural residual to 0/117 (the
+ * remaining 14 gate diffs are a single $t0<->$t1 allocno swap between `i` and 0xFFFFFF).
+ * NEGATIVE: (1) alone REGRESSES Flare_PreCalcHexLightBeam (16->18, no loop -> no LICM) and
+ * shifts Hrz_BuildSky's preheader one slot too early (390->388 gate but a structurally
+ * WORSE preheader) -- gate every site, do not apply blind.
+ * ================================================================================= */
+
 /* ---- Flare_Tri__FPlN20i  [FLARE.CPP:75-89] SLD-VERIFIED ---- */
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)
 
@@ -168,15 +205,17 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
     {
       u_char *prim;
       u_int *slot;
+      u_char *pal;
       u_int pkt24;
-
+      u_int addr24;
       prim = Render_gPacketPtr;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+      addr24 = (u_int)prim & 0xffffff;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x1c;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24;
       *(u_int *)(prim + 4) = 0x32000000;
       *(long *)(prim + 0xc) = rgb1;
       *(u_int *)(prim + 0x14) = 0;
@@ -290,13 +329,14 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_char *prim;
       u_int *slot;
       u_int pkt24;
-
+      u_int addr24_0;
       prim = Render_gPacketPtr;
+      addr24_0 = (u_int)prim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x24;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24_0;
       *(u_int *)(prim + 4) = 0x3a000000;
       prim[3] = 8;
       *(long *)(prim + 0xc) = rgb2;
@@ -313,13 +353,14 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_char *prim;
       u_int *slot;
       u_int pkt24;
-
+      u_int addr24_1;
       prim = Render_gPacketPtr;
+      addr24_1 = (u_int)prim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x1c;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24_1;
       *(u_int *)(prim + 4) = 0x32000000;
       prim[3] = 6;
       *(long *)(prim + 0xc) = rgb1;
@@ -384,16 +425,19 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
     {
       u_char *prim;
       u_int *slot;
+      u_char *pal;
       u_int pkt24;
+      u_int addr24;
       u_int rgb;
 
       prim = Render_gPacketPtr;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+      addr24 = (u_int)prim & 0xffffff;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x24;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24;
       *(u_int *)(prim + 4) = 0x3a000000;
       rgb = *(u_int *)&gfrgb2;
       *(u_int *)(prim + 0x14) = 0;
@@ -478,15 +522,18 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
       u_char *prim;
       u_int *slot;
       u_int pkt24;
+      u_int addr24;
       u_int rgb;
+      u_char *pal;
 
       prim = Render_gPacketPtr;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+      addr24 = (u_int)prim & 0xffffff;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x1c;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24;
       *(u_int *)(prim + 4) = 0x32000000;
       rgb = *(u_int *)&gfrgb;
       *(u_int *)(prim + 0x14) = 0;
@@ -535,16 +582,19 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
     {
       u_char *prim;
       u_int *slot;
+      u_char *pal;
       u_int pkt24;
+      u_int addr24;
       u_int rgb;
 
       prim = Render_gPacketPtr;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+      addr24 = (u_int)prim & 0xffffff;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x1c;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24;
       *(u_int *)(prim + 4) = 0x32000000;
       rgb = *(u_int *)&gfrgb;
       *(u_int *)(prim + 0x14) = 0;
@@ -799,12 +849,14 @@ gte_SetRotMatrix(&mtx);
         DR_MODE *aprim;         /* a0 */
         u_int *slot;            /* a2 (anonymous -- no SYM record) */
         u_int pkt24;
+        u_int addr24_0;
         aprim = (DR_MODE *)Render_gPacketPtr;
+        addr24_0 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_0;
         {
           /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
              rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
@@ -944,12 +996,14 @@ gte_stszotz(&otz);
       DR_MODE *aprim;           /* a0 */
       u_int *slot;              /* t0 */
       u_int pkt24;
+      u_int addr24_0;
       aprim = (DR_MODE *)Render_gPacketPtr;
+      addr24_0 = (u_int)aprim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = pkt24 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | addr24_0;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     z = diff.vz;
@@ -1068,12 +1122,14 @@ gte_SetRotMatrix(&mtx);
       DR_MODE *aprim;           /* a0 */
       u_int *slot;              /* t0 */
       u_int pkt24;
+      u_int addr24_1;
       aprim = (DR_MODE *)Render_gPacketPtr;
+      addr24_1 = (u_int)aprim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = pkt24 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | addr24_1;
       {
         /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
            stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
@@ -1099,6 +1155,14 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
  * preserved, so only a load/store SPLIT spans it). SYM has no rgb local (compiler-temp stand-in).
  * Residual 2 = position of the `lw v1,0(gp)` across the bump addiu/sw pair -- a list-scheduler
  * ready-tie (ours schedules the bump first); not source-reachable, permuter class. */
+/* ---- Flare_2DSpike__FPlT0i -- w41-a8 FLOOR (2 diffs, count exact 43/43) ----
+ * The ONLY residual is the sched1 ISSUE POSITION of `rgb = *(u_int *)&gfrgb2;`
+ * (`lw v1,0(gp)`): the oracle issues it BEFORE the packet-cursor bump
+ * (`addiu v0,a0,20 ; sw v0,0(t0)`), ours after.  Source position is IRRELEVANT here --
+ * measured 3 spellings: statement moved one earlier (before the OT-slot store) = 4 diffs,
+ * moved one later (after the bump) = 2, and `*(volatile u_int *)&gfrgb2` = 2.  A sched1
+ * ready-list tie, not source-reachable.  (STRONG per the floor bar: prototype is void/void
+ * per SYM, count exact, 3 alternate forms measured, named mechanism.) */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
@@ -1156,15 +1220,15 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
     {
       DR_MODE *aprim;
       u_int *slot;
-
       u_int pkt24;
-
+      u_int addr24_0;
       aprim = (DR_MODE *)Render_gPacketPtr;
+      addr24_0 = (u_int)aprim & 0xffffff;
       slot = (u_int *)Render_gPalettePtr;
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = pkt24 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | addr24_0;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     {
@@ -1213,16 +1277,18 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
     {
       DR_MODE *aprim;
       u_int *slot;
-
+      u_char *pal;
       u_int pkt24;
+      u_int addr24_1;
 
       aprim = (DR_MODE *)Render_gPacketPtr;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+      addr24_1 = (u_int)aprim & 0xffffff;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = pkt24 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | addr24_1;
       SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
     }
   }
@@ -1706,14 +1772,17 @@ gte_SetRotMatrix(&mtx);
         DR_MODE *aprim;
         u_int *slot;
         u_int pkt24;
+        u_int addr24_0;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
+
+        addr24_0 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_0;
         SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
       }
     }
@@ -1802,14 +1871,17 @@ gte_stlvnl(&diff);
         DR_MODE *aprim;
         u_int *slot;
         u_int pkt24;
+        u_int addr24_0;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
+
+        addr24_0 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_0;
         SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
       }
       {
@@ -1832,14 +1904,17 @@ gte_SetRotMatrix(&scalemat);
         DR_MODE *aprim;
         u_int *slot;
         u_int pkt24;
+        u_int addr24_1;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
+
+        addr24_1 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_1;
         SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
       }
     }

@@ -366,7 +366,10 @@ WeatherDensity_numAdd:
  * different `j` delay-slot filler (ours the addiu half of a `la`, oracle a nop).
  * FALSIFIED: writing the guard in the oracle's polarity
  * (`if (velY < tbl[state]) goto velYUpdate; goto call;`) lets gcc merge the two gotos --
- * 58 insns / 6 diffs, i.e. structurally further away. */
+ * 58 insns / 6 diffs, i.e. structurally further away.
+ * w41-a6: re-gated at 4, count EXACT 62/62, -G8 probe no change.  The SECOND, structurally
+ * identical guard (`vy > tbl[state]`) MATCHES byte-for-byte with the same source shape, so
+ * the residual is specific to the first guard's branch-sense choice, not the goto graph. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
@@ -608,16 +611,20 @@ void Weather_DeInit(void)
  * coloring swap (ours=v0, oracle=a1) cascading into the tv.vx/vy/vz field-register triple
  * shifting by one slot; no ABI anchor found (next isn't a call-arg/return at its use point) --
  * same permuter-class coloring-tiebreak family as TrsProj_TransformProjectVertex. */
-/* w39-a6 FLOOR (32 diffs, count EXACT 49/49): a uniform one-step register rotation --
- * ours puts `next` in $v0 and r0/r1/r2 in $v1/$a0/$a1, the oracle puts `next` in $a1 and
- * r0/r1/r2 in $v0/$v1/$a0.  FALSIFIED: dropping the `next` variable (inline `s + 1`),
- * block-scoping its declaration, and reading tv.vx/vy/vz straight into the stores (52
- * insns, worse).  Allocno-priority tie on `next`. */
+/* w41-a6: the w39 "FLOOR (32 diffs, uniform one-step rotation)" is REFUTED -- PASS.
+ * MECHANISM (read off cc1plus `-dg`): gcc runs local_alloc BEFORE global_alloc, so a
+ * BLOCK-LOCAL pseudo gets first pick of the hard regs.  Here EVERY global allocno
+ * conflicts with hard reg 2 ($v0) (`;; 83 conflicts: ... 2 29`), so no function-scope
+ * local can ever land in $v0 -- retail's r0/r1/r2 DO land in $v0/$v1/$a0, therefore they
+ * were block-local in the original.  Our single fn-scope r0/r1/r2 set was assigned in TWO
+ * basic blocks (loop body + tail), which makes reg_basic_block == -1 => GLOBAL allocno =>
+ * barred from $v0, pushing the triple to $v1/$a0/$a1 and leaving $v0 to the block-local
+ * `next`.  FIX = a SEPARATE `int r0,r1,r2;` declaration inside the loop block and inside
+ * the tail block; local_alloc then hands each block $v0/$v1/$a0 and `next` falls to $a1,
+ * exactly like retail.  (Decl-ORDER permutations of the fn-scope set are all no-ops --
+ * the lever is block SCOPE, i.e. local-vs-global allocno class, not ordering.) */
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
-  int r0;
-  int r1;
-  int r2;
   VECTOR tv;
   SVECTOR *next;
 
@@ -629,6 +636,9 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   while (true) {
     n = n + -1;
     if (n == -1) break;
+    int r0;
+    int r1;
+    int r2;
     next = s + 1;
     gte_ldv0(next);
     gte_mvmva(1,0,0,0,0);
@@ -641,12 +651,17 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
     gte_stlvnl(&tv);
     s = next;
   }
-  r0 = tv.vx;
-  r1 = tv.vy;
-  r2 = tv.vz;
-  s->vx = (short)r0;
-  s->vy = (short)r1;
-  s->vz = (short)r2;
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = tv.vx;
+    r1 = tv.vy;
+    r2 = tv.vz;
+    s->vx = (short)r0;
+    s->vy = (short)r1;
+    s->vz = (short)r2;
+  }
 }
 
 /* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ----
@@ -812,15 +827,23 @@ void Weather_QuickReOrthogonalize
  * 🔴 BUG: the turbulence table reads must be SIGN-extended (oracle sll 24/sra 24);
  * `char` is UNSIGNED on this build, so the plain char reads silently turned negative
  * velocity components into +128..+255.
- * w40-a6 LEAD (not landed): `short reset` is NOT in the SYM's particle-loop block (only
- * tv $s2 and n $s0 LONG + the AUTO `pt`).  Testing the call inline --
- * `if (Weather_CheckAndResetParticles(&pt) != 0) wd[n] = 0;` BEFORE the write-back --
- * makes the count EXACT (252 -> 251) but the LCS reads 74 vs 69, because the oracle then
- * shows the write-back sunk INTO the reset arm and reached by a `j`, driven by TWO
- * separate address givs for the same walker (`sw v1,0(s2)` + `sh v1,0(s1)`, s2/s1 both
- * +8 per iteration) where we keep one.  Landing the write-back placement + the giv split
- * together is the next lever; either half alone regresses (both-arms duplication = 261
- * insns).  Kept the 69-diff form pending that combined pass. */
+ * w41-a6: 69 -> PASS via THREE independent levers (each gate-measured):
+ *  (1) `tv = tv + 1;` moved BEFORE the `if (reset)` arm -- both address givs (s2 = &tv->vx,
+ *      s1 = &tv->vz) then increment ahead of the branch, one landing in the beqz delay slot,
+ *      and the freed slot lets the return-value `sll v0,v0,16` fill the lw load-delay
+ *      (69 -> 60, count 252 -> 251 EXACT).  The w40 note's "sink the write-back into the
+ *      reset arm" reading was wrong: the write-back stays before the arm; only the
+ *      INCREMENT moves.
+ *  (2) turbulence table read in INDEX form `Weather_gRandomVelocityVectors[n][0..2]`
+ *      instead of a `signed char *vel` walker (60 -> 18).  With the explicit walker,
+ *      loop.c/combine_givs re-anchored on the LAST address (vel+2) and kept the biv,
+ *      giving TWO source givs (`lbu 0(t2)` + `lbu -1(t1)` / `lbu 0(t1)`, t1 = t2+2);
+ *      the index form reduces to retail's single walker with 0/1/2 displacements.
+ *      NEGATIVE: a goto-loop here REGRESSES (60 -> 87) -- this loop genuinely needs SR.
+ *  (3) the three `total_vector_change` adds written vx,vy,vz (NOT vx,vz,vy): gcc emits
+ *      the middle two in the OPPOSITE order to the source here, so the source order that
+ *      yields retail's vx,vz,vy emission is vx,vy,vz (18 -> 0; pure a1<->a2 / v0<->v1
+ *      swap on the result.vy/result.vz pair). */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
   int n;
@@ -873,28 +896,24 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     velocity_vector_change.vy = (short)result.vy;
     velocity_vector_change.vz = (short)result.vz;
     total_vector_change.vx = total_vector_change.vx + velocity_vector_change.vx;
-    total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
     total_vector_change.vy = total_vector_change.vy + velocity_vector_change.vy;
+    total_vector_change.vz = total_vector_change.vz + velocity_vector_change.vz;
   }
 
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
   {
-    signed char *vel;
-
-    vel = (signed char *)Weather_gRandomVelocityVectors;
     n = 0;
     while (1) {
       if (12 <= n) break;
-      temp_vector.vx = vel[0];
-      temp_vector.vy = vel[1];
-      temp_vector.vz = vel[2];
+      temp_vector.vx = (signed char)Weather_gRandomVelocityVectors[n][0];
+      temp_vector.vy = (signed char)Weather_gRandomVelocityVectors[n][1];
+      temp_vector.vz = (signed char)Weather_gRandomVelocityVectors[n][2];
       gte_ldv0(&temp_vector);
       gte_mvmva(1,0,0,0,0);
       gte_stlvnl(&result);
       Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
       Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
       Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
-      vel = vel + 3;
       n = n + 1;
     }
   }
@@ -921,15 +940,22 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
        * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
       *(long *)&tv->vx = *(long *)&temp_vector.vx;
       tv->vz = temp_vector.vz;
+      tv = tv + 1;
       if (reset != 0) {
         wd[n] = 0;
       }
-      tv = tv + 1;
       n = n + 1;
     }
   }
 }
-/* ---- Weather_CreateSnow__FP7SVECTOR  [WEATHER.CPP:923-961] SLD-VERIFIED ---- */
+/* ---- Weather_CreateSnow__FP7SVECTOR  [WEATHER.CPP:923-961] SLD-VERIFIED ----
+ * w41-a6 (10 diffs, count EXACT 108/108): two sched1 permutations, no register-class or
+ * structural error.  (a) the header merge -- retail stores the merged word BEFORE
+ * computing the packet-cursor bump (so the bump reuses the dying `$v1`), ours computes the
+ * bump first into `$v0`; same family as Weather_CreateRain's per-arm residual.  (b) the
+ * `((int)pt & 4)` mask is emitted BEFORE the `la` of gWeatherPixmap, retail after.
+ * The palette-before-bump order lever (which took CreateSplat 40 -> 6) was already
+ * measured NEGATIVE here in w40. */
 void Weather_CreateSnow(SVECTOR *pt)
 {
   SVECTOR gv [4];
@@ -983,7 +1009,14 @@ void Weather_CreateSnow(SVECTOR *pt)
  * merge in BOTH arms -- ours reloads the palette pointer for the write-back where the
  * oracle keeps it in one register.  The `u_int *pal` CSE local that fixed exactly this in
  * CreateSnow/DoWeather/CreateSplat REGRESSES here (fn-scope 122, block-scope-per-arm 134)
- * even though it takes the count to 115: the two arms' pal pseudos interfere.  Left alone. */
+ * even though it takes the count to 115: the two arms' pal pseudos interfere.  Left alone.
+ * w41-a6 (16, count EXACT 113/113, 8 diffs per arm).  The whole residual is ONE shape:
+ * retail computes the packet-cursor bump AFTER the header store so it reuses the just-dead
+ * `$v1` (`sw v1,0(t2); addiu v1,t2,20`) and interleaves the bump STORE into the middle of
+ * the palette merge; sched1 hoists our `addiu` above the store into `$v0`, which also
+ * flips the palette `or`'s destination (ours dest = the prim term, retail = the pal term).
+ * MEASURED NEGATIVE: palette-write-back-before-bump (16, neutral); the pal-term-first
+ * `or` spelling (52). */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
@@ -1128,7 +1161,16 @@ void Weather_CreateSplat
  * one more saved reg, plus `addu s2,s0,zero` copied in a jal delay slot for the pos.vy
  * store) where combine_givs merges ours down to two -- the documented combine_givs floor
  * (catalog: "combine_givs merges N address givs down to 2 in EVERY index spelling").
- * A `y_pos` temp is folded away and changes nothing (measured identical 36/111). */
+ * A `y_pos` temp is folded away and changes nothing (measured identical 36/111).
+ * w41-a6 FLOOR RE-VERIFIED (36 diffs, ours 111 / oracle 113).  Prototype audit: SYM arity
+ * num/splats + void return confirmed; -G identity probe: -G8 leaves it at 36 (no change)
+ * and no weather %gp_rel symbol is >4 bytes, so the -G axis is closed.  MECHANISM (named):
+ * retail's 3rd address giv is materialised as `addu s2,s0,zero` in the FIRST
+ * `jal random` delay slot and used only for the `pos.vy` halfword store, costing one more
+ * callee-saved reg (s0-s5, frame 48) than our two combine_givs-merged walkers (s0-s4,
+ * frame 40).  Trichotomy: NOT a cse double-evaluation copy (the copy DIES BEFORE its
+ * source, so make_regs_eqv would propagate it away) and not a prototype artefact -- it is
+ * the combine_givs merge, which no index spelling avoids. */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
@@ -1172,7 +1214,29 @@ void Weather_DoSplats
  * in three distinct registers (lui/addiu x3 before the frame stores) and then does
  * addu/lw x3 off one shared `sll player,2`; ours emits them serially through $v0, which
  * rotates Vi/player/wpt/wprevpt/wd across $s2-$s7.  FALSIFIED: hoisting the three array
- * bases into local pointers before reading `player` (gcc folds them straight back). */
+ * bases into local pointers before reading `player` (gcc folds them straight back).
+ * w41-a6 (still 60, count EXACT 197/197).  Residual decomposes into FOUR ties, all
+ * measured, none source-reachable so far:
+ *  (1) HEAD a0<->a1: two LOCAL-alloc quantities -- Q1={&Weather_gPServerA} and
+ *      Q2={player*4 -> +base -> lw s4}.  gcc's local_alloc orders by live length; ours has
+ *      Q1 (born at the hoisted `la`, ~17 insns) longer than Q2 (~8), so Q1 takes $a0 --
+ *      retail has them the other way round.  MEASURED NEGATIVE: reversing the three
+ *      array-read statements, routing the index through a second local, wrapping the three
+ *      reads in a block scope (all exactly 60).
+ *  (2) the two `sll sN,s2,2` sites emit one slot after the `lui/addiu` pair, retail one
+ *      slot before (4 diffs).
+ *  (3) the Camera_GetMode result: retail copies `$v0` into `$a1` in the following load's
+ *      delay slot; ours nops it.  MEASURED NEGATIVE: an explicit copy-through local
+ *      (`n = Camera_GetMode(...); mode = n;`) = 96 diffs / +2 insns.
+ *  (4) the DR_MODE tail: t1<->t2 rotation of the two hoisted 0x00ffffff / 0xff000000 mask
+ *      literals (SAME materialization order, reversed registers -- a local_alloc tie) plus
+ *      the packet-cursor bump scheduled 2 slots late.  MEASURED NEGATIVE: moving the bump
+ *      between the two merges = 66.  The IDENTICAL t1<->t2 rotation appears in
+ *      Font_TextXY's tail, so one lever would fix both.
+ *  -G8 IDENTITY PROBE: -G8 gives 58 (2 better) with zero regressions across the TU, but
+ *  every %gp_rel symbol in the weather oracles is <=4 bytes (the >4-byte server arrays are
+ *  modelled as per-element split storage and their RUNTIME-index sites use an absolute
+ *  base), so there is no positive -G8 discriminator -- NOT adopted. */
 void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;

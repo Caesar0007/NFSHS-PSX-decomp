@@ -91,7 +91,19 @@ void Font_SetABR(int abr)
  * load, t3-vs-t6) above the header merge, where retail interleaves it after the palette
  * store; that in turn rotates v0<->v1 through the merge.  Variants measured: split into
  * 3 statements 72, `dv | clut | u` order 44, `u | dv | clut` 62, whole expr at top 87 (+1
- * insn), palette-before-bump 87 (+1 insn). */
+ * insn), palette-before-bump 87 (+1 insn).
+ * w41-a6 (still 42, count EXACT 55/55) -- ROOT-CAUSED to a SINGLE sched1 decision.  The
+ * five-view matrix (IDA FUN_800cb2ac) confirms the shape is right: same statement order,
+ * same `((u8)(dv+v) << 8) | u` composition, same width/height byte reads before the merge.
+ * The ONLY divergence is that sched1 issues the `lw $t3,40(sp)` stack-arg load for `v`
+ * (plus its addu/andi/sll chain) at insn 12 where retail issues it at ~30: that one hoist
+ * takes `$t3` for `v`, pushing the 0xff000000 mask to `$t6` and the palette base to `$t4`,
+ * which IS the entire 42-diff register rotation.  MEASURED NEGATIVE (all exactly 42 unless
+ * noted): five statement POSITIONS for the `dv = (dv+v & 0xff) << 8;` line (sched1 ignores
+ * the LUID here -- the chain's critical-path priority dominates), `v + dv` operand order,
+ * an explicit `(u_int)` cast, a `vv = v;` copy-through local, inlining the whole expression
+ * at the u0 store (87, +1 insn), dropping the `pal` CSE local (43, +1 insn), and moving the
+ * width/height reads after the merge (62).  -G8 probe: no change. */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
@@ -129,6 +141,15 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
  * `colour == 15` ($s1); both `if (rgb == 0) rgb = 0x400;` tails cross-jump into one
  * block (.L800CB62C) while the i<8 / i<12 / i<4 arms branch straight to the store.
  * Divides are SIGNED (mult + magic + sign fixup), not unsigned.
+ * w41-a6 PASS (was 6 diffs): the SYM's `r $v0, g $v1, b $a0` are the registers the
+ * oracle uses for the THREE blended sums (`addu v0,t8,a2` = fr+br, `addu v1,t4,a1` =
+ * fg+bg, `addu a0,a3,a0` = fb+bb, all emitted BEFORE the shifts) -- i.e. r/g/b are the
+ * blend accumulators, NOT copies of fclr.  Writing them as `r = fr + br; g = fg + bg;
+ * b = fb + bb; rgb = r << 10 | g << 5 | b;` gets the three-up-front emission, but ONLY
+ * once the pre-loop `r = fclr.r; ...` copies are dropped and fr1/fg1/fb1 read
+ * `fclr.r/g/b` directly -- keeping both uses makes r/g/b loop-carried and costs 117
+ * diffs / one insn.  (The inline `(fr+br) << 10 | ...` expression computes sum3 only
+ * after the first `or`, which was the 6-diff residual.)
  */
 void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
 
@@ -162,12 +183,9 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
   shpfontclut.shapey = (short)font_cluty;
   *(long *)&fclr = forecolour;
   *(long *)&bclr = backcolour;
-  r = fclr.r;
-  g = fclr.g;
-  b = fclr.b;
-  fr1 = (r * 31) / 255;
-  fg1 = (g * 31) / 255;
-  fb1 = (b * 31) / 255;
+  fr1 = (fclr.r * 31) / 255;
+  fg1 = (fclr.g * 31) / 255;
+  fb1 = (fclr.b * 31) / 255;
   for (i = 0; i < 16; i++) {
     if ((in_game != 0) && (opaque == 0)) {
       if (i < 8) {
@@ -194,7 +212,10 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
         rgb = 0;
       }
       else {
-        rgb = (fr + br) << 10 | (fg + bg) << 5 | (fb + bb);
+        r = fr + br;
+        g = fg + bg;
+        b = fb + bb;
+        rgb = r << 10 | g << 5 | b;
         if (colour == 0xf) {
           rgb = rgb | 0x8000;
         }
@@ -276,7 +297,12 @@ void Font_ReSetBlitter(void)
 /* w39-a6 FLOOR (2 diffs, count EXACT 27/27): sched2 places the gp-rel `font_abr` load
  * AFTER the three currentfont zero-stores; the oracle places it before.  FALSIFIED:
  * 4 statement positions for `abr_val`, read-at-use, u_long type, volatile stores,
- * reversed store order (6), unsized-array-view extern (3). */
+ * reversed store order (6), unsized-array-view extern (3).
+ * w41-a6: re-gated at 2 (27/27).  Three more MEASURED NEGATIVE: `abr_val = font_abr;`
+ * moved ahead of the `pv1` load (2), the c_val read moved ahead of the three zero stores
+ * (5, +1 insn), and `font_abr + 0` to perturb the expression (2).  Mechanism: a sched2
+ * ready-list tie -- the gp-rel `font_abr` load feeds only the far-away `jal GetTPage`, so
+ * it has the lowest critical-path priority and is issued last; retail issues it first. */
 void Font_SwitchFont(char *f1)
 
 {
@@ -385,7 +411,12 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
  * dropping the fabricated `tpage` local (32), 0xffffff-first palette spelling (24),
  * dr_mode-first packet spelling (26), dropping `cfbase` for direct &currentfont uses
  * (+2 insns / 52 -- the SYM has no cfbase local but gcc will not hoist the address
- * itself here, so the local stays). */
+ * itself here, so the local stays).
+ * w41-a6: re-gated at 22 (86/86), -G8 probe no change.  The dominant half is the SAME
+ * t1<->t2 rotation of the hoisted 0x00ffffff / 0xff000000 mask literals that
+ * Weather_DoWeather's DR_MODE tail shows -- identical materialization ORDER, reversed
+ * registers, i.e. a local_alloc tie on two same-size same-ref-count constants.  A lever
+ * for either one should fix both; worth attacking as a pair rather than per-function. */
 void Font_TextXY(char *string,int x,int y)
 
 {

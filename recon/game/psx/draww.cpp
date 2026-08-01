@@ -944,12 +944,8 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int newIndex;
   DR_TWIN * aprim;
   int p0;
-  u_long l1;
-  u_long l2;
-  u_long l3;
   int dU;
   short vert2_proj_x;
-  u_long l0;
   int vertProj_p;
   short vert0_proj_x;
   short tu27;
@@ -1634,7 +1630,17 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         int cx;
         int cz;
         int dist;
-        sd->nightFlags = 4;
+        /* MATCH (w41-a2): the oracle materializes this 4 into a REGISTER
+         * (`addiu $v0,$zero,0x4; sb $v0,0x106($s0)`) and then REUSES that register
+         * as the shift COUNT for the Camera_gInfo element scale -- `sllv $v0,$a1,$v0`
+         * instead of a plain `sll $v0,$a1,4` (cse substitutes an equivalent register
+         * for a constant it already has in hand; sizeof(Camera_tCamSlot) == 0x110 ==
+         * ((x<<4)+x)<<4).  A bare literal store is folded into the `sb` immediate and
+         * never leaves a register behind, so ours emits the constant shift.  Same
+         * named-constant device as `negOne` above. */
+        int four = 4;
+
+        sd->nightFlags = (char)four;
         cx = (pChunkCp->x - ((Camera_gInfo[Vi->player].target)->position).x) >> 10;
         cz = (pChunkCp->z - ((Camera_gInfo[Vi->player].target)->position).z) >> 10;
         dist = cx * cx + cz * cz;
@@ -2011,6 +2017,21 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int doFrustumClip;
   short *visList;
   
+  /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
+   * (Draw_DCache*, REG $0x1e == $fp) in the FUNCTION-scope block and the oracle
+   * materializes it in the prologue (`lui $fp,0x1F80`) BEFORE the zero-count
+   * `beqz $v0`, reaching the GTE translation vector as `sw $zero,0x28($fp)`
+   * (== sd->matB.t[]) while STILL building a separate `lui/ori 0x1F800014` for the
+   * gte_SetTransMatrix argument.  Reproducing either half makes it WORSE:
+   *   hoist sd to fn scope                : 147 -> 153 (192 -> 194 insns)
+   *   matB zeroing through sd (sd in-arm) : 147 -> 158 (192 -> 195 insns)
+   *   both together                       : 147 -> 153
+   * Root cause is an allocno-priority inversion, not the statement position: with
+   * the longer live range `sd`'s priority falls below `Vi`'s, `Vi` takes $fp (the
+   * oracle's `sd` home) and `sd` gets no callee-saved reg at all -- so it is
+   * rematerialized per use and the whole file rotates.  The lever that would land
+   * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
+   * declaration move; do not re-try the move on its own. */
   iVar10 = 0;
   animInst = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   iVar2 = gObjInfo->objInstanceBuf->m_num_elements;
@@ -2140,7 +2161,21 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
    * group as the FALL-THROUGH `j <epilogue>; [ds] addu $v0,$zero,$zero` -- the
    * non-empty case is the branch TARGET, not the else arm. */
-  if (iVar6 != 0) {
+  /* MATCH (w41-a2, partial): the oracle's guard is an EARLY RETURN --
+   * `lw $a3,0($a3); bnez $a3,.L800C7BF4; [ds] sw $a3,0x54($sp); j <epilogue>;
+   * [ds] addu $v0,$zero,$zero` -- so the empty-group case falls through into a
+   * `return 0` that shares the epilogue.  Writing it as `if (count == 0) return 0;`
+   * aligns that `addu $v0,$zero,$zero` delay slot (121 -> 120) but does NOT flip
+   * the branch itself: the arm census is still beqz 4v3 / bnez 2v3 / j 2v3.
+   * REASON (head diff): the oracle SPILLS all three of Vi/sd/simObjs to their ARG
+   * homes (`sw $a0,0x80($sp); sw $a1,0x84($sp); sw $a2,0x88($sp)`) and RELOADS sd
+   * (`lw $t0,0x84($sp); addiu $v0,$t0,0x14`) for the matB zeroing, while ours keeps
+   * sd live in $s5 -- the same ARG-SPILL-pressure gap as Draw_kCtrlSkidmark.  The
+   * polarity is downstream of that, not an independent arm-order choice. */
+  if (iVar6 == 0) {
+    return 0;
+  }
+  {
     /* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
        fabricated/wrong global (CF_DVLC -- a video-buffer symbol, completely
        unrelated) instead of the just-zeroed sd->matB the oracle loads (`lw
@@ -2560,10 +2595,23 @@ DrawWChunkFacets_emitObj:
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
           objDef = Track_gObjDefs[objInstance->pad];
-          light = *(short *)&objInstance->simIndex;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
-          goto DrawWChunkFacets_emitObj;
+          /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
+           * through the SYM `short light` ($s1) variable.  The oracle proves the split:
+           * the flags&1/type==9 arm loads `lhu $s1,0x1A($s4)` and pays a `sll 16;sra 16`
+           * sign-extend at its own call site, while case 2 and case 9 emit a bare
+           * `lh $v0,0x22/0x1A($s4); j .L800C8B30; sw $v0,0x18($sp)` -- i.e. gcc
+           * cross-jumped the two $v0-carried arms DEEPER (sharing the light store) than
+           * the $s1-carried one (which stores its own and enters one insn later).  That
+           * is the catalog's cross-jump-DEPTH-follows-the-variable rule; assigning
+           * `light` in all three arms collapsed them to one depth AND turned both `lh`
+           * sites into `lhu` (census lh 19v21 / lhu 3v1). */
+          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                              (coorddef *)&objInstance->x,objectOffset,
+                              *(short *)&objInstance->simIndex);
+          totalCount = totalCount + objectOffset;
+          break;
         }
         case 9: {
         /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
@@ -2587,10 +2635,13 @@ DrawWChunkFacets_emitObj:
         matrix.m[8] = fixedmult(matrix.m[8],sx);
         DW_SCRATCH->offsubdivid = 0;
         objDef = Track_gObjDefs[objInstance->pad];
-        light = objInstance->qw;
         matrix.m[2] = t1;
         matrix.m[5] = t2;
-        goto DrawWChunkFacets_emitObj;
+        /* MATCH (w41-a2): inline light, see the case-2 note. */
+        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                            (coorddef *)&objInstance->x,objectOffset,objInstance->qw);
+        totalCount = totalCount + objectOffset;
+        break;
         }
         case 5: {
         objDef = Track_gObjDefs[objInstance->pad];
@@ -2901,17 +2952,10 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
 {
-  u_long l1;
-  u_long l0;
   int skidChunk_p;
   int vert_count;
   int depth_index;
-  int uv_v_pack;
   int vert_idx;
-  u_long l2;
-  int uv_u_pack;
-  u_long l3;
-  int uv_alpha;
   POLY_GT4 *prim;
   void *primPtr;
   Draw_tPixMap *pmx;
@@ -3136,15 +3180,42 @@ gte_swc2(0x7,(void *)0x1f800094);
           }
           *(u_char *)((int)primPtr + 7) = 0x3e;
           *(u_char *)((int)primPtr + 3) = 0xc;
-          uv_v_pack = *(int *)(pmx_dst + 4);
-          uv_u_pack = *(int *)(pmx_dst + 8);
-          uv_alpha = *(int *)(pmx_dst + 0xc);
-          *(u_int *)((int)primPtr + 0xc) = *(u_int *)pmx_dst;
-          *(int *)((int)primPtr + 0x18) = uv_v_pack;
-          *(int *)((int)primPtr + 0x24) = uv_u_pack;
-          *(int *)((int)primPtr + 0x30) = uv_alpha;
-          if (*(short *)((int)primPtr + 0xe) == -1) {
-            vert_idx = (vt_y - (short)Skid_gScratchPos1) * 0x10 >> (Skid_gScratchPos2);
+          /* MATCH (w41-a2): SYM block @0x800C950C line 119 declares FOUR ULONG REG
+           * locals l0..l3 ($2/$3/$4/$5).  The oracle batches all four pixmap word
+           * loads (lw v0,0(a3); lw v1,4(a3); lw a0,8(a3); lw a1,0xC(a3)) and only
+           * then issues the four prim stores, so each load fills the previous one's
+           * delay slot; the three-temp form (first word copied by a direct
+           * load-store expression) serialized the head pair. */
+          {
+            u_long l0, l1, l2, l3;
+
+            l0 = *(u_long *)pmx_dst;
+            l1 = *(u_long *)(pmx_dst + 4);
+            l2 = *(u_long *)(pmx_dst + 8);
+            l3 = *(u_long *)(pmx_dst + 0xc);
+            *(u_long *)((int)primPtr + 0xc) = l0;
+            *(u_long *)((int)primPtr + 0x18) = l1;
+            *(u_long *)((int)primPtr + 0x24) = l2;
+            *(u_long *)((int)primPtr + 0x30) = l3;
+          }
+          /* CORRECTNESS + MATCH (w41-a2, census lh 4v2 / lhu 2v5):
+           * (a) the POLY_GT4 clut at +0xE is a U_SHORT compared against the literal
+           *     0xFFFF -- the oracle is `lhu $v1,0xE($a2); ori $v0,$zero,0xFFFF;
+           *     bne $v1,$v0`.  Reading it as a SIGNED short and comparing to -1 is
+           *     the recurring unsigned-vs--1 class (it happens to be true here for
+           *     the same bit pattern, but it emits `lh` + a different constant).
+           * (b) `Skid_gScratchPos1`/`Skid_gScratchPos2` are linked .bss ints in
+           *     skidmark.cpp, but the oracle reads BOTH as u_shorts straight off the
+           *     scratchpad cache base ($s1): `lhu $v0,0xDC($s1); lhu $v1,0xDE($s1)`
+           *     == Draw_tGiveShelbyMoreCache::startfog / ::distfog.  Same stale-read
+           *     bug class as Skid_gCtrlScratch_94/98 already fixed here -- the depth
+           *     ramp index was computed from .bss values nothing in this frame wrote.
+           *     The `sll 16; sra 16` on the first one is the u_short read narrowed
+           *     back to SIGNED for the subtract; the second stays unsigned (it is a
+           *     shift COUNT feeding `srav`). */
+          if (*(u_short *)((int)primPtr + 0xe) == 0xffff) {
+            vert_idx = (vt_y - (short)*(u_short *)&DW_SCRATCH->startfog) * 0x10 >>
+                       *(u_short *)&DW_SCRATCH->distfog;
             if (vert_idx < 0) {
               vert_idx = 0;
             }

@@ -126,11 +126,24 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
    * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
    * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
    * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
-   * RESIDUAL 22 (15 lines): (a) 5x commutative `or rd,v1,v0` vs the oracle's
-   * `or rd,v0,v1` -- RTL canonicalization, NOT source-order-driven (swapping the
-   * `|` operands at all 5 sites measured 26, i.e. it does not even change the
-   * emitted order); (b) the second mask loop's peel as above; (c) one `addu t4,t5,zero`
-   * scheduling slot. */
+   * 22 -> 0 PASS (w41-a5, 113/113).  рџЏ† THE "COMMUTATIVE-OPERAND RTL CANONICALIZATION
+   * FLOOR" WAS A COMPOSITE-EXPRESSION ARTIFACT, NOT A FLOOR.  All five `or rd,v1,v0`
+   * (ours) vs `or rd,v0,v1` (oracle) diffs came from writing a read-modify-write as ONE
+   * composite expression -- `X = (X << 4) | rollOver;` / `d = (d & mask) | v;`.  In that
+   * form cc1 builds the IOR from two fresh sub-expressions and RTL canonicalization picks
+   * the operand order (which is why the w40 probe that merely SWAPPED the `|` operands in
+   * the composite measured no change at all -- correct observation, wrong conclusion).
+   * Writing the SAME arithmetic as a compound-assignment PAIR -- `X <<= 4; X |= rollOver;`
+   * / `d &= mask; d |= v;` -- makes the destination a genuine input operand, so it lands
+   * FIRST exactly like retail.  Four splits, each worth exactly 2 diffs, strictly
+   * monotone (8->6->4->2->0).  в‡’ before filing any commutative-operand-order diff as an
+   * RTL floor, check whether the C is a composite expression that should be a
+   * read-modify-write pair.
+   * TWO more, found the same pass: (b) the trailing `current <<= 4` loop DOES take the
+   * peel -- but only the `mask=mask-1; while(mask!=-1){body; mask=mask-1;}` spelling
+   * (22->12); the do-while spelling that won for the FIRST mask loop regresses here (37),
+   * which is what the w40 note measured; (c) inside `if (lastLastMask != 0xffff)` the
+   * oracle emits `lastMask = lastLastMask` BEFORE `columns+1` -- statement order (12->10). */
   columns = w >> 2;
   mask = w & 3;
   if (mask != 0) {
@@ -159,11 +172,12 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     firstMask = (firstMask << 4) | 0xf;
     rollOver = (lastMask & 0xf000) >> 0xc;
     lastMask = lastMask << 4;
-    lastLastMask = (lastLastMask << 4) | rollOver;
+    lastLastMask <<= 4;
+    lastLastMask |= rollOver;
   }
   if (lastLastMask != 0xffff) {
-    columns = columns + 1;
     lastMask = lastLastMask;
+    columns = columns + 1;
   }
   while (1) {
     int i;
@@ -182,11 +196,13 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
       mask = mask - 1;
       if (mask == -1) break;
       rollOver = (current & 0xf000) >> 0xc;
+      next <<= 4;
       current = current << 4;
-      next = (next << 4) | rollOver;
+      next |= rollOver;
     }
     i = 1;
-    dest[0] = (short)((dest[0] & firstMask) | current);
+    dest[0] &= firstMask;
+    dest[0] |= current;
     while (i < columns - 1) {
       mask = x & 3;
       dest[i] = (short)next;
@@ -199,21 +215,25 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
         mask = mask - 1;
         if (mask == -1) break;
         rollOver = (current & 0xf000) >> 0xc;
+        next <<= 4;
         current = current << 4;
-        next = (next << 4) | rollOver;
+        next |= rollOver;
       }
-      dest[i] = (short)(dest[i] | current);
+      dest[i] |= current;
       i = i + 1;
     }
     mask = x & 3;
-    dest[i] = (short)((dest[i] & lastMask) | next);
+    dest[i] &= lastMask;
+    dest[i] |= next;
     if (lastLastMask == 0xffff) {
       current = *source;
       source = source + 1;
-      while (mask = mask - 1, mask != -1) {
+      mask = mask - 1;
+      while (mask != -1) {
         current = current << 4;
+        mask = mask - 1;
       }
-      dest[i] = (short)(dest[i] | current);
+      dest[i] |= current;
     }
     dest = dest + 0xc;
   }
@@ -251,7 +271,13 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
    *      third.  All registers match -- pure sched2 placement.
    *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc CROSS-JUMPS
    *      them into one, retail kept both copies.  No source spelling reached it;
-   *      moving the statement out of the arms produces exactly our merged form. */
+   *      moving the statement out of the arms produces exactly our merged form.
+   *      (= the catalog's per-obj "old-gcc never merges identical tails" identity.)
+   * w41-a5 re-probe under the upgraded floor bar: the n0..n3 DECLARATION order is a
+   * separate dial from their assignment order, so all 24 declaration permutations were
+   * swept -- every one measures 6.  Assignment order (24, w39) and `|` operand order
+   * were already swept.  Both remaining items are therefore post-source (sched2
+   * placement + cross-jump depth); STRONG floor at the source level. */
   int h;
 
   h = 0x16;
@@ -312,6 +338,36 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  *      to their base letter at runtime.  The oracle normalizes against +0xC0
  *      (`addiu a0,a0,-192`), confirming unsigned labels.  Case BODY order is retail's
  *      (n, a, e, i, o, u) -- switch case bodies emit in SOURCE order. */
+/* ---- CarIO_CreateLicense__FPcii  [CARIO.CPP:379-483] SLD-VERIFIED ----
+ * 124 -> 104 (w41-a5), count EXACT 229/229.  SYM @0x800bc25c: fsize 72,
+ * mask $80ff0000 (ra + s0..s7, no fp) -- both reproduced.  SYM register map:
+ *   REGPARM text $17($s7)  carType $05($a1)  player $16($s6)
+ *   fn block  i $12($s2), clutPlate1 $14($s4), clutPlate2 $15($s5),
+ *             thePlate $13($s3), shape $07($a3), clutptr $08($t0)
+ *   line-32   length $11($s1), start $10($s0)
+ *   line-44   letter AUTO -0x30, ascii REG $03($v1)
+ * THREE changes this pass:
+ *  (a) the header-copy loop stores Plate1 BEFORE Plate2 (124 -> 106) and the
+ *      0x11800 flag word likewise (106 -> 104).  Ghidra had emitted every
+ *      Plate2/Plate1 pair in reverse; the first two pairs are the load-bearing
+ *      ones (the clut-copy loop 3 and the width pair 5 both regress or tie).
+ *  (b) `void *pShape` deleted -- the SYM's line-44 block names only `letter` and
+ *      `ascii`, so pShape was a Ghidra temp; the locateshapez call is inlined at
+ *      its single use (diff-neutral, SYM hygiene).
+ *  (c) the w40 "$s0<->$s1 find_reg pick" framing is now WRONG: after (a) the
+ *      s0/s1 pair matches and a blanket s0<->s1 rename REGRESSES 104 -> 174.
+ * RESIDUAL 104, three caller-saved coloring clusters, all count-neutral:
+ *   - clutptr: SYM $t0, ours $a2 (and the header-loop giv walker $a2 vs our $a1)
+ *   - ascii:   SYM $v1, ours $a2 -- ~20 diffs across the switch and the letter[]
+ *     build.  SYM puts `ascii` and `letter` in the SAME block (the one at
+ *     800BC478), i.e. inside the non-space guard; three spellings of that
+ *     (re-read text[i] in the guard, with/without initializer, decl order) all
+ *     measure 99 but at 230 insns -- the extra lbu makes them structurally
+ *     WORSE, so the count-exact 104 form is kept.  Wrapping both locals in one
+ *     block around the guard is exactly diff-neutral (104, 229) -- so the SYM
+ *     block shape is reachable but does not move the coloring.
+ *   - the 0x11800/width/CopyToShape tail: t2 vs t4 and a v0/v1/t0 rotation.
+ * Next handle is a -dg allocno dump on this body, not more statement order. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -342,8 +398,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       int hdr;
 
       hdr = ((int *)shape)[i];
-      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
       *(int *)((char *)(CarIO_Plate1[player]) + i * 4) = hdr;
+      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
       i = i + 1;
     } while (i < 4);
     i = 0;
@@ -355,8 +411,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       ((int *)clutPlate1)[i] = tu3;
       i = i + 1;
     } while (i < 0xc);
-    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
     *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
+    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
     CarIO_Plate2[player]->width = 0x18;
     CarIO_Plate1[player]->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
@@ -372,7 +428,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
         ascii = text[i];
         if (ascii != ' ') {
           char letter [5];
-          void *pShape;
 
           switch(ascii) {
           case 0xd1:
@@ -400,8 +455,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
           letter[0] = ascii;
           letter[1] = '\0';
           strcat(letter,"   ");
-          pShape = locateshapez(R3DCar_LicenseShapeFile,letter);
-          CarIO_CopyFromShape((short *)((int)pShape + 0x10),thePlate,7,0xc,start,5);
+          CarIO_CopyFromShape((short *)((int)locateshapez(R3DCar_LicenseShapeFile,letter) + 0x10),thePlate,7,0xc,start,5);
         }
         start = start + 6;
       }
@@ -503,6 +557,25 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  * oracle.  Do NOT do the same in the Plate2 (flag = 2) arms: retail materializes
  * the LicenseCheck `1` argument separately there (`li v0,1`), and the pre-call form
  * costs that (214 vs 186).
+ * w41-a5 QUANTIFIED THE RESIDUAL (scratch/collapse_a5.py -- diff ours vs oracle with
+ * $t0 and $t1 collapsed to one token, so only NON-scratch-pick content survives):
+ *   raw 186  ->  collapsed 22.
+ * So 164 of the 186 are literally "which of two interchangeable reload scratch
+ * registers gcc picked", and the REAL residual is only 11 instruction slots:
+ *   (i)  the `reload & 0x10` head block: the CSE'd `CarIO_carPixMapCount` value lives
+ *        in $v0 for retail (a normally-allocated pseudo) but in a reload scratch for
+ *        us, so retail's pool starts one register earlier for the whole function.
+ *        This is the ONE decision that produces the entire t0/t1 alternation.
+ *   (ii) `lw a0,136(sp)` one slot late; (iii) `addiu s1,s1,16` one slot early;
+ *   (iv) the loop tail's `sw <count>,68(sp)`: retail puts it in the back-edge `j`
+ *        delay slot, ours emits it before the `j`.
+ * A global $t0<->$t1 rename does NOT clean it (186 -> 70) because the pool
+ * ALTERNATES phase between regions -- confirming this is pool ORDER, not a rotation.
+ * ⇒ the next handle is (i) alone: get the head-block value into a real pseudo
+ * ($v0) instead of a spill reload.  Register-use census ours-vs-oracle over the whole
+ * function (scratch/regcensus): v0 222/225, t0 54/48, t1 46/49, every other register
+ * IDENTICAL -- i.e. the census difference IS the output of the pick, not its input,
+ * so "reshape which caller-saved regs the body consumes" has nothing to bite on.
  * RESIDUAL 186 (89 diff lines) -- structurally identical, three classes:
  *  (a) ~75 lines are a pure $t0<->$t1 alternation on RELOAD scratch registers for
  *      the spilled parms/locals (ours starts the spill pool at $t0/$t1 where retail

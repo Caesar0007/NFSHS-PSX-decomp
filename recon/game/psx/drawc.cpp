@@ -586,10 +586,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x81;
         }
       }
-      if (((carObj->render).signalLight[shadow_align_b ^ 1] & 0x80U) != 0) {
+      /* the ^1 is a STATEMENT, not two sub-expressions: retail emits ONE
+       * `xori a0,a0,1` mutating the mirror index in place (census xori 3v2). */
+      shadow_align_b = shadow_align_b ^ 1;
+      if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;
       }
-      if (((carObj->render).signalLight[shadow_align_b ^ 1] & 8U) != 0) {
+      if (((carObj->render).signalLight[shadow_align_b] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 0x100U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x8000;
         }
@@ -610,7 +613,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
          * g[0x18] is not written between the old fn-head ts13 capture and here,
          * so reading it fresh is value-identical -- and it's the oracle's shape */
         u_short tc = DrawC_gOverlay[0x1c];
-        short t8 = DrawC_gOverlay[0x18];
+        int t8 = DrawC_gOverlay[0x18];   /* INT, not short: a `short` local lets
+                             * combine drop the sign-extend and emit lhu (catalog C) */
         DrawC_gOverlay[0x18] = tc;
         DrawC_gOverlay[0x1c] = t8;
       }
@@ -762,7 +766,7 @@ DrawCPrimStart_camRotMatrix:
       DrawC_gWetRoad = 1;
     }
     DrawC_gReflectOffset =
-         (short)((u_int)(((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
+         (short)((((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
   }
   else {
     shapeData_p = (int)Draw_GetDRAWENV(gCView.id,gFlip);
@@ -795,11 +799,18 @@ DrawCPrimStart_camRotMatrix:
       eColor = lightAvg >> 1;
     }
     sd->eColor0 = (eColor << 0x10) + (eColor << 8) + eColor;
-    if ((carObj->render).currentCarType != 1) {
-      eColor = (eColor << 1) + eColor;   /* explicit sll 1 (a bare *3 CSEs the
-                                          * compare's li 1 into a sllv count) */
+    /* if/ELSE with the >>2 DUPLICATED into both arms (w41-a3): retail's shape is
+     * `bne type,1,L; sll v0,a2,1 [stolen into the slot]; j T; sra a2,a2,2 [==1
+     * arm, in the j slot]; L: addu v0,v0,a2; sra a2,v0,2`.  A single shared
+     * `if (type != 1) eColor = eColor*3;` + one trailing `>>2` makes cc1 CSE the
+     * compare's `li v0,1` into a `sllv v0,a2,v0` variable shift and merges the
+     * two shifts -- the == arm has to be a real arm. */
+    if ((carObj->render).currentCarType == 1) {
+      eColor = eColor >> 2;
     }
-    eColor = eColor >> 2;
+    else {
+      eColor = ((eColor << 1) + eColor) >> 2;
+    }
     sd->eColor1 = (eColor << 0x10) + (eColor << 8) + eColor;
   }
   return (carObj->render).world_otz;
@@ -3117,114 +3128,68 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
                int envmap,Draw_CarCache *sd)
 
 {
-  COORD16 * Nvertice;
-  COORD16 * vt;
-  short t1;
-  short t2;
-  short t3;
-  int r0;
-  int r1;
-  int r2;
-  PCOORD16 * tV;
-  POLY_FT3 * prim;
-  int overlayFlag;
-  int id2;
-  int bfct;
-  long xy0;
-  long xy1;
-  long xy2;
-  u_long color;
-  u_char code;
-  int index;
-  int which;
-  Transformer_zOverlay * facetOverlay;
-  Draw_tPixMap * pmx;
-  u_char u0;
-  u_char u1;
-  u_char u2;
-  u_char v0;
-  u_char v1;
-  u_char v2;
-  u_short uv0;
-  u_short uv1;
-  u_int bVar1;   /* SYM id0/id1/id2 (INT): facet vertex idx (lbu, no re-mask), then MUTATED
-                  * in place into the slot base sd+id*8 (oracle addu t2,t2,s1) -- 90s
-                  * ints-holding-addresses; tV fields read at +0xD0..0xD7 off it */
-  u_int bVar2;
-  u_int bVar3;
-  u_char uVar4;
-  char cVar5;
-  u_char uVar6;
-  short sVar7;
-  u_short uVar8;
-  u_int uVar9;
-  u_int *puVar10;
-  short *psVar11;
-  u_short clut;
-  short sVar12;
-  u_short uVar13;
-  int iVar14;
-  u_short tpage;
-  u_short uv2;
-  COORD16 *pCVar15;
-  u_char u;
-  int iVar16;
-  u_char uVar17;
-  u_char v;
-  short *psVar18;
-  short *pOvl;
-  int fOff;    /* facet byte offset, facet-loop scope (oracle t9) */
-  int iVar19;
-  u_int uVar20;
-  char *pcVar21;
-  short *psVar22;
-  Transformer_zOverlay *pTVar23;
-  Transformer_zFacet *facet;
-  Draw_CarVertex *pDVar24;
-  u_short *puVar25;
-  int id1;
-  int id0;
-  u_int uVar26;
-  short facetFlag;
-  u_int *puVar27;
-  u_int *puVar28;
-  u_long *puVar29;
-  char cVar30;
-  u_long *puVar31;
-  u_int uVar32;
+  /* rule-8 rewrite (w41-a3) -- the PrimHalo 322->29 recipe applied whole.
+     SYM DrawC_PrimMenu: fsize 48, mask $807f0000 = s0-s6 + ra, and REGPARM
+     m($s0) t($s2) obj($s3) overlay($s5), REG envmap($s4) sd($s1).  Named
+     locals, by block:
+       fn        i($t8)  Nvertice($v1)
+       loop-1    vt($a3) | {u($v1) v($v0)} | {t1($v0) t2($v1) t3($a0)}
+       matrix    3x {r0 r1 r2}
+       loop-2    vt($a3) tV($t0) | {t1($v1) t2($v0) t3($a0)}
+       facet     prim($a3) facetFlag($t3) overlayFlag($a1) facet($t0)
+                 id0($t2) id1($t1) id2($a2) | {bfct($v1)}
+       env arm   {xy0 xy1 xy2} {color code} {clut tpage}
+       ovl arm   {index($v1) which($a0) facetOverlay($a2)} {xy0-2}
+                 {color($v1) code($a1)} {pmx($v0)} {u0-2 v0-2 u v clut tpage}
+       plain arm {xy0-2} {color($v0) code($a1)} {pmx($v1)} {u0-2 v0-2 u v
+                 clut($a0) tpage($v0)} | {uv0-2 pmx($v1) clut($v0) tpage($v1)}
+     Every Ghidra iVarN/uVarN/puVarN/psVarN temp is purged (~40 of them); the
+     ONE un-named pointer kept is the loop-1 tV byte cursor, which the oracle
+     also carries as an anonymous giv ($a2, addiu 215 / stride 8).
+     Retail reuses the DYING $s2 (the `t` param) for the DrawC_gOverlay base,
+     which is why the frame is 48 with only 7 saved regs. */
   int i;
-  u_int uVar33;
+  COORD16 *Nvertice;
 
-  pCVar15 = obj->Nvertex;
+  Nvertice = obj->Nvertex;
   if ((envmap & 1U) != 0) {
+    COORD16 *vt;
+    char *tVc;   /* anonymous giv in retail too: &sd->tV[n].v, stride 8 */
+
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     i = (u_int)obj->numVertex;   /* SYM: ONE fn-scope `i` (t8) counts ALL 3 loops */
-    pcVar21 = &sd->tV[0].v;
-    psVar18 = &pCVar15->z;
+    vt = Nvertice;
+    tVc = &sd->tV[0].v;
     /* exit-in-the-middle: keeps the top dec+test + unconditional j back (no rotation),
      * and the after-join reg-reg compare beats the nor/~x const-fold */
     while (1) {
       i = i - 1;
       if (i == -1) break;   /* literal: SYM names no sentinel local */
-      sVar12 = psVar18[-1];
-      sVar7 = *psVar18;
-      (sd->vt0).x = pCVar15->x;
-      (sd->vt0).y = sVar12;
-      (sd->vt0).z = sVar7;
+      {
+        int u, v;
+        {
+          short t1, t2, t3;
+          t1 = vt->x;
+          t2 = vt->y;
+          t3 = vt->z;
+          (sd->vt0).x = t1;
+          (sd->vt0).y = t2;
+          (sd->vt0).z = t3;
+        }
 gte_ldv0((char *)sd + 0xac);
-      gte_rt();
+        gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
-      iVar14 = (sd->tv).vz;
-      iVar16 = (sd->tv).vx;   /* named int temp: full lw batched before the abs branch */
-      if (iVar14 < 0) {
-        iVar14 = -iVar14;
+        v = (sd->tv).vz;
+        u = (sd->tv).vx;
+        if (v < 0) {
+          v = -v;
+        }
+        vt = vt + 1;
+        tVc[-1] = (char)u;
+        *tVc = (char)v;
+        tVc = tVc + 8;
       }
-      psVar18 = psVar18 + 3;
-      pCVar15 = pCVar15 + 1;
-      pcVar21[-1] = (char)iVar16;
-      *pcVar21 = (char)iVar14;
-      pcVar21 = pcVar21 + 8;
     }
   }
   TrsProj_SetTransPrecision(8);
@@ -3270,24 +3235,30 @@ gte_stlvnl((char *)sd + 0x9c);
   TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-  pDVar24 = sd->tV;
-  psVar22 = &sd->tV[0].vt.z;
-  pCVar15 = obj->vertex;
-  i = (u_int)obj->numVertex;
-  psVar18 = &pCVar15->z;
-  while (1) {
-    i = i - 1;
-    if (i == -1) break;
-    sVar12 = psVar18[-1];
-    sVar7 = *psVar18;
-    psVar18 = psVar18 + 3;
-    psVar11 = &pCVar15->x;
-    pCVar15 = pCVar15 + 1;
-    (pDVar24->vt).x = *psVar11;
-    psVar22[-1] = sVar12;
-    *psVar22 = sVar7;
-    psVar22 = psVar22 + 4;
-    pDVar24 = pDVar24 + 1;
+  {
+    COORD16 *vt;
+    Draw_CarVertex *tV;
+
+    tV = sd->tV;
+    vt = obj->vertex;
+    i = (u_int)obj->numVertex;
+    while (1) {
+      i = i - 1;
+      if (i == -1) break;
+      {
+        short t1, t2, t3;
+        /* y,z read first (SYM has t2 in $v0 here, t1 in $v1 -- the reverse of
+           loop 1); x read LAST but BEFORE the walk, so no scratch copy of vt */
+        t2 = vt->y;
+        t3 = vt->z;
+        t1 = vt->x;
+        (tV->vt).x = t1;
+        (tV->vt).y = t2;
+        (tV->vt).z = t3;
+      }
+      vt = vt + 1;
+      tV = tV + 1;
+    }
   }
   i = (u_int)obj->numFacet;   /* gOverlay base: NO local (SYM) -- gcc LIM hoists the la */
   /* flat facet loop (oracle .L800C3550/.L800C3554): dec+test at top with a FRESH -1
@@ -3296,60 +3267,75 @@ gte_SetTransMatrix(((char *)sd + 0x14));
    * NO explicit byte offset: SYM names no such local -- `obj->facet + i` and gcc's
    * strength reduction creates the t9 giv (i*12, decremented alongside the counter) */
   for (;;) {
+    POLY_FT3 *prim;
+    short facetFlag;
+    int overlayFlag;
+    Transformer_zFacet *facet;
+    int id0;
+    int id1;
+    int id2;
+
     i = i - 1;
     if (i == -1) {
       return;
     }
-    puVar25 = (u_short *)(obj->facet + i);
-    bVar1 = *(u_char *)((int)puVar25 + 3);
-    bVar2 = (u_char)puVar25[2];
-    bVar3 = *(u_char *)((int)puVar25 + 5);
+    facet = obj->facet + i;
+    id0 = facet->vertexId0;
+    id1 = facet->vertexId1;
+    id2 = facet->vertexId2;
     if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
     /* index -> slot-base IN-PLACE (oracle sll t2,3; addu t2,t2,s1 -- same reg morphs;
      * the bases then feed the lwc2 disps 0xD0/0xD4 AND the envmap uv lbu's 0xD6/0xD7
      * across the OT templates) */
-    bVar1 = bVar1 * 8;   /* TWO in-place stmts per vertex: same pseudo -> sll t2,t2,3;
-                          * addu t2,t2,s1 (a fused a*8+b stages through a fresh temp) */
-    bVar1 = bVar1 + (u_int)sd;
-    bVar2 = bVar2 * 8;
-    bVar2 = bVar2 + (u_int)sd;
-    bVar3 = bVar3 * 8;
-    bVar3 = bVar3 + (u_int)sd;
-    gte_ldVXY0m(*(u_int *)(bVar1 + 0xD0));
-    gte_ldVZ0m(*(u_int *)(bVar1 + 0xD4));
-    gte_ldVXY1m(*(u_int *)(bVar2 + 0xD0));
-    gte_ldVZ1m(*(u_int *)(bVar2 + 0xD4));
-    gte_ldVXY2m(*(u_int *)(bVar3 + 0xD0));
-    gte_ldVZ2m(*(u_int *)(bVar3 + 0xD4));
-    gte_rtpt();
-    gte_nclip();
-    gte_stMAC0m(sd->bfct);
-    iVar19 = sd->bfct;
-    if ((sd->head).mirror != 0) {
-      iVar19 = -iVar19;
+    id0 = id0 * 8;   /* TWO in-place stmts per vertex: same pseudo -> sll t2,t2,3;
+                      * addu t2,t2,s1 (a fused a*8+b stages through a fresh temp) */
+    id0 = id0 + (int)sd;
+    id1 = id1 * 8;
+    id1 = id1 + (int)sd;
+    id2 = id2 * 8;
+    id2 = id2 + (int)sd;
+    gte_ldVXY0m(*(u_int *)(id0 + 0xD0));
+    gte_ldVZ0m(*(u_int *)(id0 + 0xD4));
+    gte_ldVXY1m(*(u_int *)(id1 + 0xD0));
+    gte_ldVZ1m(*(u_int *)(id1 + 0xD4));
+    gte_ldVXY2m(*(u_int *)(id2 + 0xD0));
+    gte_ldVZ2m(*(u_int *)(id2 + 0xD4));
+    {
+      int bfct;   /* SYM block 103-123: ONE $v1 pseudo carries the backface area
+                     AND then the composed otz (the block spans both tests) */
+      gte_rtpt();
+      gte_nclip();
+      gte_stMAC0m(sd->bfct);
+      bfct = sd->bfct;
+      if ((sd->head).mirror != 0) {
+        bfct = -bfct;
+      }
+      if (bfct < 1) continue;
+      gte_stSXY0m(sd->dvx0);
+      gte_stSXY1m(sd->dvx1);
+      gte_stSXY2m(sd->dvx2);
+      gte_avsz3();
+      gte_stOTZm(sd->otz);
+      bfct = sd->otz + sd->sub_otz;
+      sd->otz = bfct;
+      if (bfct < 0) continue;
+      if (sd->sub_otSize < bfct) continue;
     }
-    if (iVar19 < 1) continue;
-    gte_stSXY0m(sd->dvx0);
-    gte_stSXY1m(sd->dvx1);
-    gte_stSXY2m(sd->dvx2);
-    gte_avsz3();
-    gte_stOTZm(sd->otz);
-    iVar19 = sd->otz + sd->sub_otz;
-    sd->otz = iVar19;
-    if (iVar19 < 0) continue;
-    if (sd->sub_otSize < iVar19) continue;
-    overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[(u_char)puVar25[1]] << 0x10) >> 0x10;
-    uVar13 = *puVar25;   /* flag lhu lands in the overlay-lhu load-delay slot */
+    overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
+    facetFlag = facet->flag;   /* flag lhu lands in the tex-lbu load-delay slot */
     /* SYM truth: NO `which` at this scope -- the decode MUTATES overlayFlag in
-     * place (one pseudo, oracle a1 throughout); `which` is an overlay-arm local */
+     * place (one pseudo, oracle a1 throughout); `which` is an overlay-arm local.
+     * Every mask is written against (facetFlag & 0xfff) so cc1 CSEs the andi
+     * ONCE into facetFlag's own register ($t3) and reuses it for the &4/&1
+     * tests in the arms -- exactly retail's `andi t3,a0,4095` in the delay slot. */
     if (overlayFlag != 0) {
       overlayFlag = overlayFlag & 0x3f;
-      if ((int)((u_int)uVar13 << 0x10) < 0) {
-        overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[(u_char)puVar25[1]] << 0x10) >> 0x18;
+      if (facetFlag < 0) {
+        overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
       }
-      if (((uVar13 & 0x3f0) != 0) &&
-          (overlayFlag = overlayFlag & (uVar13 & 0xfff) >> 4, overlayFlag != 0)) {
-        for (; (overlayFlag & 3) == 0; overlayFlag = (int)overlayFlag >> 2) {
+      if ((((facetFlag & 0xfff) & 0x3f0) != 0) &&
+          (overlayFlag = overlayFlag & (facetFlag & 0xfff) >> 4, overlayFlag != 0)) {
+        for (; (overlayFlag & 3) == 0; overlayFlag = overlayFlag >> 2) {
         }
       }
     }
@@ -3357,144 +3343,205 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       /* mode-packet OT-link: variant B template (drawModeOff @ sd+0x54) */
       DRAWC_OTLINK_MODE(sd, "84", "88", "92");
       /* FT3 OT-link: split form (prim lw = compiler code at EVERY retail site) */
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;
-      DRAWC_OTLINK_FT3B(sd, puVar27);
+      prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
+      DRAWC_OTLINK_FT3B(sd, prim);
       /* mode-packet OT-link: variant B template (drawModeOn @ sd+0x48) */
       DRAWC_OTLINK_MODE(sd, "72", "76", "80");
-      xy0 = *(u_int *)&sd->dvx0;
-      xy1 = *(u_int *)&sd->dvx1;
-      xy2 = *(u_int *)&sd->dvx2;
-      puVar27[2] = xy0;
-      puVar27[4] = xy1;
-      puVar27[6] = xy2;
-      if ((uVar13 & 4) != 0) {   /* fall-through = the !=0 arm (oracle beqz polarity) */
-        puVar27[1] = sd->eColor1;
+      {
+        long xy0, xy1, xy2;
+        xy0 = *(u_int *)&sd->dvx0;
+        xy1 = *(u_int *)&sd->dvx1;
+        xy2 = *(u_int *)&sd->dvx2;
+        *(u_long *)&prim->x0 = xy0;
+        *(u_long *)&prim->x1 = xy1;
+        *(u_long *)&prim->x2 = xy2;
       }
-      else {
-        puVar27[1] = sd->eColor0;
+      {
+        u_long color;
+        u_char code;
+        if (((facetFlag & 0xfff) & 4) != 0) {   /* fall-through = the !=0 arm */
+          color = sd->eColor1;
+          *(u_long *)&prim->r0 = color;
+        }
+        else {
+          color = sd->eColor0;
+          *(u_long *)&prim->r0 = color;
+        }
+        code = 0x26;
+        prim->code = code;
       }
-      *(u_char *)((int)puVar27 + 7) = 0x26;
-      uVar8 = (sd->ePmx0).tpage;
-      *(u_short *)((int)puVar27 + 0xe) = (sd->ePmx0).clut;
-      *(u_short *)((int)puVar27 + 0x16) = uVar8;
-      /* base u/v pair first (lbu u0; lbu v0; addiu +0x40), then per-vertex u,v
-       * lbu pairs off the CSE'd tV bases (oracle 0xD6/0xD7 disp reuse) */
-      cVar30 = (sd->ePmx0).u0;
-      uVar4 = (sd->ePmx0).v0;
-      cVar30 = cVar30 + '@';   /* +0x40 AFTER both base lbu's (oracle order) */
-      u0 = *(u_char *)(bVar1 + 0xD6);
-      v0 = *(u_char *)(bVar1 + 0xD7);
-      *(u_char *)((int)puVar27 + 0xc) = u0 + cVar30;
-      *(u_char *)((int)puVar27 + 0xd) = v0 + uVar4;
-      u1 = *(u_char *)(bVar2 + 0xD6);
-      v1 = *(u_char *)(bVar2 + 0xD7);
-      *(u_char *)((int)puVar27 + 0x14) = u1 + cVar30;
-      *(u_char *)((int)puVar27 + 0x15) = v1 + uVar4;
-      u2 = *(u_char *)(bVar3 + 0xD6);
-      v2 = *(u_char *)(bVar3 + 0xD7);
-      *(u_char *)((int)puVar27 + 0x1c) = u2 + cVar30;
-      *(u_char *)((int)puVar27 + 0x1d) = v2 + uVar4;
+      {
+        u_short clut, tpage;
+        tpage = (sd->ePmx0).tpage;
+        clut = (sd->ePmx0).clut;
+        prim->clut = clut;
+        prim->tpage = tpage;
+      }
+      {
+        /* SYM names NO local for the uv here, but retail DOES hold the base
+         * pair across the three vertices ($t6/$t7) -- cc1 will NOT CSE the
+         * `ePmx0.u0 + 0x40` / `ePmx0.v0` reads out of the three statements
+         * (measured: +9 insns, 6 redundant lbu + 3 addiu), so the base pair
+         * has to be two real temps.  `u` keeps char type so `u + '@'` is a
+         * bare addiu (u_char would inject an andi 0xff). */
+        char u;
+        u_char v;
+        u_char u0, v0;   /* ONE reused pair (retail's $t4/$t5): the v-load fills
+                          * the u-load's delay slot; a single temp costs a nop
+                          * per vertex, six per-vertex temps recolour the fn */
+
+        u = (sd->ePmx0).u0;
+        v = (sd->ePmx0).v0;
+        u = u + '@';   /* +0x40 AFTER both base lbu's (oracle order) */
+        u0 = *(u_char *)(id0 + 0xD6);
+        v0 = *(u_char *)(id0 + 0xD7);
+        prim->u0 = u0 + u;
+        prim->v0 = v0 + v;
+        u0 = *(u_char *)(id1 + 0xD6);
+        v0 = *(u_char *)(id1 + 0xD7);
+        prim->u1 = u0 + u;
+        prim->v1 = v0 + v;
+        u0 = *(u_char *)(id2 + 0xD6);
+        v0 = *(u_char *)(id2 + 0xD7);
+        prim->u2 = u0 + u;
+        prim->v2 = v0 + v;
+      }
     }
     if ((overlayFlag & 3) != 0) {   /* fall-through = the overlay arm (oracle beqz) */
+      int index;
+      int which;
+      Transformer_zOverlay *facetOverlay;
+
       which = (overlayFlag & 3) - 1;   /* SYM `which` (a0): the dispatch andi minus 1,
                                         * lands in the beqz delay slot */
-      index = (u_char)puVar25[1];      /* SYM `index` (v1): facet texture byte */
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;   /* prim lw = compiler code here:
+      index = facet->textureIndex;     /* SYM `index` (v1): facet texture byte */
+      prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;   /* prim lw = compiler code here:
                                     * retail schedules it INTO the facetOverlay math */
       /* index sum grouped BEFORE the pointer scale (oracle: index*3 + which, ONE <<2) */
-      pTVar23 = overlay + ((u_int)index * 3 + which);
+      facetOverlay = overlay + (index * 3 + which);
       /* FT3 OT-link: variant A, split form */
-      DRAWC_OTLINK_FT3B(sd, puVar27);
-      xy0 = *(u_int *)&sd->dvx0;
-      xy1 = *(u_int *)&sd->dvx1;
-      xy2 = *(u_int *)&sd->dvx2;
-      puVar27[2] = xy0;
-      puVar27[4] = xy1;
-      puVar27[6] = xy2;
-      puVar27[1] = sd->color;
-      if ((uVar13 & 1) != 0) {
-        uVar17 = 0x26;
+      DRAWC_OTLINK_FT3B(sd, prim);
+      {
+        long xy0, xy1, xy2;
+        xy0 = *(u_int *)&sd->dvx0;
+        xy1 = *(u_int *)&sd->dvx1;
+        xy2 = *(u_int *)&sd->dvx2;
+        *(u_long *)&prim->x0 = xy0;
+        *(u_long *)&prim->x1 = xy1;
+        *(u_long *)&prim->x2 = xy2;
       }
-      else {
-        uVar17 = 0x24;   /* else-arm default -> lands in the beqz delay slot */
+      {
+        u_long color;
+        u_char code;
+        color = sd->color;
+        if (((facetFlag & 0xfff) & 1) != 0) {
+          code = 0x26;
+        }
+        else {
+          code = 0x24;   /* else-arm default -> lands in the beqz delay slot */
+        }
+        *(u_long *)&prim->r0 = color;
+        prim->code = code;
       }
-      *(u_char *)((int)puVar27 + 7) = uVar17;
-      uVar4 = pTVar23->u;
-      uVar6 = pTVar23->v;
-      iVar16 = (u_int)(u_char)puVar25[1] + (int)pTVar23->offset;
-      pmx = &sd->pmxStart[iVar16];   /* SYM pmx (Draw_tPixMap*) block local */
-      uVar13 = pmx->tpage;
-      *(u_short *)((int)puVar27 + 0xe) = pmx->clut;
-      *(u_short *)((int)puVar27 + 0x16) = uVar13;
-      /* full tail duplicated with the SAME temps: colors identically -> gcc
-       * cross-jump-merges into the retail jump-into-middle form (SLD: per-arm
-       * one-line macros at 3866/3869 whose expansions merged) */
-      /* direct u_char reads (oracle 2x lbu per pair, triple-batched) --
-       * wave-9 flagged the lhu+(char) misread of the adjacent u/v byte pair */
-      u0 = *(u_char *)((int)puVar25 + 6) + uVar4;
-      u1 = *(u_char *)((int)puVar25 + 8) + uVar4;
-      u2 = *(u_char *)((int)puVar25 + 10) + uVar4;
-      *(u_char *)(puVar27 + 3) = u0;
-      *(u_char *)(puVar27 + 5) = u1;
-      *(u_char *)(puVar27 + 7) = u2;
-      v0 = *(u_char *)((int)puVar25 + 7) + uVar6;
-      v1 = *(u_char *)((int)puVar25 + 9) + uVar6;
-      v2 = *(u_char *)((int)puVar25 + 11) + uVar6;
-      *(u_char *)((int)puVar27 + 0xd) = v0;
-      *(u_char *)((int)puVar27 + 0x15) = v1;
-      *(u_char *)((int)puVar27 + 0x1d) = v2;
+      {
+        Draw_tPixMap *pmx;
+        u_char u0, u1, u2, v0, v1, v2, u, v;
+        u_short clut, tpage;
+
+        pmx = &sd->pmxStart[facet->textureIndex + facetOverlay->offset];
+        u = facetOverlay->u;
+        v = facetOverlay->v;
+        clut = pmx->clut;
+        tpage = pmx->tpage;
+        prim->clut = clut;
+        prim->tpage = tpage;
+        /* full tail duplicated with the SAME temps: colors identically -> gcc
+         * cross-jump-merges into the retail jump-into-middle form (SLD: per-arm
+         * one-line macros at 3866/3869 whose expansions merged) */
+        u0 = facet->uv0.u + u;
+        u1 = facet->uv1.u + u;
+        u2 = facet->uv2.u + u;
+        prim->u0 = u0;
+        prim->u1 = u1;
+        prim->u2 = u2;
+        v0 = facet->uv0.v + v;
+        v1 = facet->uv1.v + v;
+        v2 = facet->uv2.v + v;
+        prim->v0 = v0;
+        prim->v1 = v1;
+        prim->v2 = v2;
+      }
       continue;
     }
     else {
       /* FT3 OT-link: split form */
-      puVar27 = (u_int *)(sd->head).cprim.PrimPtr;
-      DRAWC_OTLINK_FT3B(sd, puVar27);
-      xy0 = *(u_int *)&sd->dvx0;
-      xy1 = *(u_int *)&sd->dvx1;
-      xy2 = *(u_int *)&sd->dvx2;
-      puVar27[2] = xy0;
-      puVar27[4] = xy1;
-      puVar27[6] = xy2;
-      puVar27[1] = sd->color;
-      if ((uVar13 & 1) != 0) {
-        uVar17 = 0x26;
+      prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
+      DRAWC_OTLINK_FT3B(sd, prim);
+      {
+        long xy0, xy1, xy2;
+        xy0 = *(u_int *)&sd->dvx0;
+        xy1 = *(u_int *)&sd->dvx1;
+        xy2 = *(u_int *)&sd->dvx2;
+        *(u_long *)&prim->x0 = xy0;
+        *(u_long *)&prim->x1 = xy1;
+        *(u_long *)&prim->x2 = xy2;
       }
-      else {
-        uVar17 = 0x24;
+      {
+        u_long color;
+        u_char code;
+        color = sd->color;
+        if (((facetFlag & 0xfff) & 1) != 0) {
+          code = 0x26;
+        }
+        else {
+          code = 0x24;
+        }
+        *(u_long *)&prim->r0 = color;
+        prim->code = code;
       }
-      *(u_char *)((int)puVar27 + 7) = uVar17;
       /* byte path INLINE first (oracle bnez skips it), halfword arm out of
        * line; UV pairs as direct lbu triples (wave-9 lhu->2x lbu fix) */
-      if (((envmap & 2U) != 0) && ((uVar13 & 1) == 0)) {
-        uVar4 = sd->offsetU0;
-        uVar6 = sd->offsetV0;
-        pmx = &sd->pmxStart[(u_char)puVar25[1]];
-        uVar13 = pmx->tpage;
-        *(u_short *)((int)puVar27 + 0xe) = pmx->clut;
-        *(u_short *)((int)puVar27 + 0x16) = uVar13;
-        u0 = *(u_char *)((int)puVar25 + 6) + uVar4;
-        u1 = *(u_char *)((int)puVar25 + 8) + uVar4;
-        u2 = *(u_char *)((int)puVar25 + 10) + uVar4;
-        *(u_char *)(puVar27 + 3) = u0;
-        *(u_char *)(puVar27 + 5) = u1;
-        *(u_char *)(puVar27 + 7) = u2;
-        v0 = *(u_char *)((int)puVar25 + 7) + uVar6;
-        v1 = *(u_char *)((int)puVar25 + 9) + uVar6;
-        v2 = *(u_char *)((int)puVar25 + 11) + uVar6;
-        *(u_char *)((int)puVar27 + 0xd) = v0;
-        *(u_char *)((int)puVar27 + 0x15) = v1;
-        *(u_char *)((int)puVar27 + 0x1d) = v2;
+      if (((envmap & 2U) != 0) && (((facetFlag & 0xfff) & 1) == 0)) {
+        Draw_tPixMap *pmx;
+        u_char u0, u1, u2, v0, v1, v2, u, v;
+        u_short clut, tpage;
+
+        u = sd->offsetU0;
+        v = sd->offsetV0;
+        pmx = &sd->pmxStart[facet->textureIndex];
+        clut = pmx->clut;
+        tpage = pmx->tpage;
+        prim->clut = clut;
+        prim->tpage = tpage;
+        u0 = facet->uv0.u + u;
+        u1 = facet->uv1.u + u;
+        u2 = facet->uv2.u + u;
+        prim->u0 = u0;
+        prim->u1 = u1;
+        prim->u2 = u2;
+        v0 = facet->uv0.v + v;
+        v1 = facet->uv1.v + v;
+        v2 = facet->uv2.v + v;
+        prim->v0 = v0;
+        prim->v1 = v1;
+        prim->v2 = v2;
       }
       else {
-        pmx = &sd->pmxStart[(u_char)puVar25[1]];
-        uVar13 = pmx->tpage;
-        *(u_short *)((int)puVar27 + 0xe) = pmx->clut;
-        *(u_short *)((int)puVar27 + 0x16) = uVar13;
-        uVar13 = puVar25[4];
-        uVar8 = puVar25[5];
-        *(u_short *)(puVar27 + 3) = puVar25[3];
-        *(u_short *)(puVar27 + 5) = uVar13;
-        *(u_short *)(puVar27 + 7) = uVar8;
+        u_short uv0, uv1, uv2;
+        Draw_tPixMap *pmx;
+        u_short clut, tpage;
+
+        pmx = &sd->pmxStart[facet->textureIndex];
+        clut = pmx->clut;
+        tpage = pmx->tpage;
+        prim->clut = clut;
+        prim->tpage = tpage;
+        uv0 = *(u_short *)&facet->uv0;
+        uv1 = *(u_short *)&facet->uv1;
+        uv2 = *(u_short *)&facet->uv2;
+        *(u_short *)&prim->u0 = uv0;
+        *(u_short *)&prim->u1 = uv1;
+        *(u_short *)&prim->u2 = uv2;
       }
     }
   }
@@ -4154,18 +4201,14 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 
   lightPmx = gMenuPixmap[3];
   if (gShowroomLights != 0) {
-    int iVar4;
-    int iVar5;
-    signed char *pcVar6;
-    COORD16 *pCVar7;
-    u_int uVar8;
-    int iVar11;
-    u_long *puVar18;
-    signed char *pcVar15;
-
-    iVar4 = gettick();
-    iVar5 = iVar4 / 256;
-    hilight[0] = (iVar4 - (iVar5 << 8)) >> 3;
+    /* rule-8 (w41-a3): the SYM names ONLY i, j, index, prim, lightPmx, the three
+       AUTO arrays and the per-block {r0,r1,r2} / {t1,t2,t3} / {z,t1,t2,t3} /
+       {index,iPlus} / {ot} / {l0..l3} sets.  The eight Ghidra iVarN/pcVarN/
+       puVarN/pCVarN walkers are gone; the fn-scope i/j do double duty (the
+       gettick split, the hilight fill, and the inner 2-iteration loop). */
+    i = gettick();
+    j = i / 256;
+    hilight[0] = (i - (j << 8)) >> 3;
     hilight_direction[0] = -1;
     if (DrawC_gMenuLightsDirection == 0) {
       hilight[1] = hilight[0] + 0x10U & 0x1f;
@@ -4175,11 +4218,11 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       hilight[1] = 0x20 - hilight[0];
       hilight_direction[1] = 1;
     }
-    iVar5 = 0x1f;
+    i = 0x1f;
     do {
-      hilight_state[iVar5] = -1;
-      iVar5 = iVar5 + -1;
-    } while (-1 < iVar5);
+      hilight_state[i] = -1;
+      i = i + -1;
+    } while (-1 < i);
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
        `addiu spN` base materializations is loop.c strength-reduction seeding the
@@ -4231,14 +4274,13 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
     TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-    pcVar6 = hilight_state;
     sd->otz = 0;
     for (index = 0; index < 0x20; index = index + 1) {
       int iPlus = index * 2 + 2;
       if (iPlus == 0x40) {
         iPlus = 0;
       }
-      iVar11 = 0;
+      i = 0;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) {
         return;
       }
@@ -4250,16 +4292,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt0).y = t2;
         (sd->vt0).z = t3;
       }
-      pCVar7 = Fe3D_lightsVertex + iPlus;
       {
-        short t1 = pCVar7->x;
-        short t2 = pCVar7->y;
-        short t3 = pCVar7->z;
+        COORD16 *z = Fe3D_lightsVertex + iPlus;
+        short t1 = z->x;
+        short t2 = z->y;
+        short t3 = z->z;
         (sd->vt1).x = t1;
         (sd->vt1).y = t2;
         (sd->vt1).z = t3;
       }
-      pcVar15 = pcVar6 + index;
       {
         short t2 = Fe3D_lightsVertex[index * 2 + 1].y;
         short t3 = Fe3D_lightsVertex[index * 2 + 1].z;
@@ -4277,9 +4318,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt3).y = t2;
         (sd->vt3).z = t3;
       }
-      puVar18 = hilight_colors;
-      for (; iVar11 < 2; iVar11 = iVar11 + 1) {
-        if ((iVar11 == 0) || (-1 < (signed char)*pcVar15)) {
+      for (; i < 2; i = i + 1) {
+        if ((i == 0) || (-1 < (signed char)hilight_state[index])) {
 gte_ldv0((char *)sd + 0xac);
           gte_rtps();
           prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
@@ -4293,13 +4333,12 @@ gte_swc2(0xe,(char *)prim + 0x8);
 gte_ldv3((char *)sd + 0xb4,(char *)sd + 0x3d0,(char *)sd + 0xbc);
           gte_rtpt();
 gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
-          if (iVar11 == 0) {
-            uVar8 = 0x300a00;
+          if (i == 0) {
+            *(u_int *)&prim->r0 = 0x300a00;
           }
           else {
-            uVar8 = puVar18[(signed char)*pcVar15];
+            *(u_int *)&prim->r0 = hilight_colors[(signed char)hilight_state[index]];
           }
-          *(u_int *)&prim->r0 = uVar8;
           prim->code = 0x2e;
           *(u_char *)((int)prim + 3) = 9;
           {

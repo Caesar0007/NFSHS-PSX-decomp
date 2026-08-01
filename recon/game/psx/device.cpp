@@ -39,6 +39,22 @@ int Device_Null(u_long param);
 
 
 /* ---- Device_VerifyType__Fi  [DEVICE.CPP:51-66] SLD-VERIFIED ----
+ * PASS 42/42 (w41-a5).  🏆 NEW LEVER -- A COMPARISON USED DIRECTLY AS AN ARRAY
+ * SUBSCRIPT expands via gcc-2.8's STORE-FLAG path (`sltu; negu; andi 2^k`), NOT via
+ * `sll`.  The whole 11-diff residual below was a self-inflicted problem: the recon
+ * had hand-written the oracle's `negu`/`andi` byte-math as source (`uVar1 = -isP2;
+ * uVar2 = uVar1 & 2;`), and cc1 then FOLDED it back to `sll` because the named local
+ * `isP2` provably held 0/1.  Writing the SUBSCRIPT ITSELF as the comparison --
+ * `frontEnd.controlType[port != 0]` / `controllerConfig[port != 0]` -- makes
+ * expand_expr emit the scale as neg+and for each element size (2 and 4) off ONE
+ * CSE'd `negu $a1,$a0`, exactly the oracle, and `$a0` stays the 0/1 call argument.
+ * A named `int`/`bool` local for the same comparison keeps the 11-diff `sll` form
+ * (measured: 11 both), and mutating the parameter in place is worse (27).
+ * ⇒ the w40 note's "gcc always constant-folds this, not permuter-reachable" verdict
+ * was fighting a fold that only existed because the source pre-expanded it.
+ * The three fabricated locals (pfe/uVar1/uVar2) are gone -- the SYM names none of
+ * them (catalog: SYM-empty-locals => DELETE invented temps). */
+/* OLD NOTE (superseded, kept for the receipt trail):
  * NEAR-MISS (was 31 diffs -> now 11, ours 41/oracle 42): the two structural bugs are
  * fixed -- (a) controllerConfig access is now the array-index form GameSetup_gData.
  * controllerData.controllerConfig[isP2] (mined from the sealed sibling MPause_
@@ -62,22 +78,13 @@ int Device_Null(u_long param);
 int Device_VerifyType(int port)
 
 {
-  tfrontEnd *pfe;
-  u_int isP2;
-  u_int uVar1;
-  u_int uVar2;
-
   if (gUseFrontend != 0) {
     if (gPadinfo.buf[port].nopad != '\0') {
       return 0;
     }
-    pfe = &frontEnd;
-    isP2 = (u_int)(port != 0);
-    uVar1 = -isP2;
-    uVar2 = uVar1 & 2;
-    if (gPadinfo.buf[port].ID != ((tfrontEnd *)((char *)pfe + uVar2))->controlType[0]) {
-      InGame_ResetPSXController(isP2, GameSetup_gData.controllerData.controllerConfig[isP2]);
-      ((tfrontEnd *)((char *)pfe + uVar2))->controlType[0] = gPadinfo.buf[port].ID;
+    if (gPadinfo.buf[port].ID != frontEnd.controlType[port != 0]) {
+      InGame_ResetPSXController(port != 0, GameSetup_gData.controllerData.controllerConfig[port != 0]);
+      frontEnd.controlType[port != 0] = gPadinfo.buf[port].ID;
       return 1;
     }
   }

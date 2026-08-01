@@ -39,7 +39,42 @@
  *      GameSetup_gData.Time arms (each with its own block-scoped `m`) lets gcc's
  *      cross-jump pass re-merge the two tails by itself -- the same treatment the two
  *      carFlags arms already get.  (-38)
- * RESIDUAL 216 = a 6-way CALLEE-SAVED ROTATION, count-exact and otherwise
+ * w41-a7: 216 -> 40 diffs, still count-exact 305/305.  The w40 note (kept below) called
+ * the residual a 6-way callee-saved ROTATION and blamed the `player*4` giv's live length.
+ * The -dl/-dg dumps say something sharper: the giv (pseudo 121) was BLOCK-LOCAL --
+ * "used 5 times across 86 insns IN BLOCK 8; crosses 8 calls" -- so LOCAL-alloc, which runs
+ * BEFORE global-alloc and must give a call-crossing quantity a callee-saved reg, grabbed
+ * $s0 for it, and global-alloc then had only $s1..$s6 for the six real allocnos.  Retail's
+ * giv is a GLOBAL allocno that ranks LAST (its priority 2*5/86 = 0.116 sits below every
+ * other saved-reg allocno except `config`), which is why retail parks it in $s5.
+ * TWO edits, both gate-measured in isolation on top of each other:
+ *  (7) move `GameSetup_gData.controllerData.controllerConfig[player] = config;` ABOVE the
+ *      frontEnd.controlType if.  That puts the giv's DEF in the pre-branch block and its
+ *      uses in the merge block => it stops being block-local, goes to global-alloc, and
+ *      lands in $s5 exactly like retail; every other saved reg then falls into retail's
+ *      slot (s0=mappings row, s1=&hoff[player], s2=player, s3=type, s4=h, s6=config).
+ *      (216 -> 113, 304 insns)
+ *  (8) the 3-way type classification as a TERNARY, `type = (type==0x23) ? 0 :
+ *      ((type==0x53||type==0x73) ? 1 : 2);`.  This is retail's type-select FUNNEL: the
+ *      three constants land in one scratch (`li $v0,0/1/2`) which is then copied into
+ *      $s3 (`addu $s3,$v0,zero`), where the nested-if form writes $s3 directly.  An
+ *      explicit `int t; ...; type = t;` funnel local measures IDENTICAL (40), so the
+ *      ternary is preferred -- it needs no local the SYM does not list.  (113 -> 40,
+ *      count back to 305)
+ *      NOTE the w39/w40 notes had BOTH of these on their falsified lists -- they were
+ *      measured on the pre-(7) base, where they are indeed worse (the flat else-if chain
+ *      still is: 117).  This is the catalog's BLOCKING-REGISTER-CASCADE rule: re-test
+ *      shelved leads after any structural fix.
+ * RESIDUAL 40, in three clusters: (a) ~12 lines because our controllerConfig store now
+ * EMITS before the controlType compare while retail emits it after (retail's giv is global
+ * without the source move -- the open question is what else made it cross a block; every
+ * cheaper spelling tried below is worse); (b) 3 x `sll $aN,$s2,2` scheduled one insn
+ * earlier than retail; (c) the funnel copy's scratch ($a1 vs $v0).
+ * FALSIFIED on the 40 base: original store position + ternary (266) -- the store move is
+ * load-bearing, not cosmetic; a `int *cfg = ...controllerConfig + player;` pointer hoisted
+ * above the if with `*cfg = config;` after (133); the store hoisted above `h =
+ * Input_gHandler` (291, 306 insns); flat else-if type chain (117).
+ * OLD w40 note: RESIDUAL 216 = a 6-way CALLEE-SAVED ROTATION, count-exact and otherwise
  * instruction-for-instruction identical.  ours {s0=player*4, s1=&mappings-row,
  * s2=&hoff[player], s3=type, s4=player, s5=h, s6=config} vs retail {s0=&mappings-row,
  * s1=&hoff[player], s2=player, s3=type, s4=h, s5=player*4, s6=config} -- i.e. our
@@ -64,21 +99,11 @@ void InGame_ResetPSXController(int player,int config)
 
   type = gPadinfo.buf[player * 4].ID;
   h = Input_gHandler;
-  if (type != 0x23) {
-    if ((type == 0x53) || (type == 0x73)) {
-      type = 1;
-    }
-    else {
-      type = 2;
-    }
-  }
-  else {
-    type = 0;
-  }
+  type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
   }
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
   h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
   h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
   h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
@@ -317,6 +342,26 @@ int InGame_GetDevice(int control)
  * g_value=8 -- all exactly neutral on this TU).  This is the gcc-2.8 loop.c
  * `threshold*savings*lifetime >= insn_count` cost model choosing to move a third
  * invariant that retail's cc1 left in place; -dL territory.
+ * w41-a7 -dL RECEIPT (the w39/w40 notes called for it; now measured).  With `hp = hoff+i`
+ * as the FIRST loop statement the dump prints, for the SetRamp loop:
+ *     Loop from 38 to 234: 58 real insns.
+ *     Insn 49: regno 96 (life 2), move-insn savings 2  moved      <- &hoff  %hi
+ *     Insn 50: regno 95 (life 1), forces 49 savings 1  moved      <- &hoff  %lo
+ *     Insn 55: regno 98 (life 2), move-insn savings 2  moved      <- &Cars_gHumanRaceCarList %hi
+ *     Insn 56: regno 97 (life 1), forces 55 savings 1  moved      <- ... %lo
+ *     Insn 71: regno 105 (life 50), savings 1          moved      <- the `1` stored to the 3 ramp fields
+ *     Insn 92/134/176: (life 1) savings 1              not desirable
+ * loop.c moves a movable iff `threshold*savings*lifetime >= insn_count`.  From the four
+ * verdicts, insn_count = 58 and threshold is pinned to [15,57]: savings1*life1 is refused
+ * (T < 58) while savings2*life2 is taken (4T >= 58 => T >= 15).  Retail hoisted the
+ * Cars list pair and the constant but NOT the &hoff pair, which under this model needs
+ * 4T < insn_count, i.e. retail's loop counted >= 61 real insns at loop.c time -- 3+ more
+ * than ours.  Both movables are shape-identical (2-insn split-address pairs, life 2), so
+ * no per-movable source lever can separate them; shortening a lui/addiu pair's life below
+ * 2 is impossible.  Re-measured this wave: moving `hp = hoff + i;` AFTER the three ramp
+ * stores makes the &hoff pair the SECOND movable (life 2 vs the Cars pair's life 5) but
+ * BOTH are still moved -> 17 diffs, worse.  => genuine gcc-2.8 loop.c cost-model floor at
+ * 13; re-opening it needs the loop to legitimately carry 3 more pre-optimization insns.
  * w40-a7 re-audit (unchanged at 13).  The residual is EXACTLY three instructions in
  * two places: our preheader carries `lui $v0,%hi(hoff); addiu $s6,$v0,%lo(hoff)` and the
  * body does `addu $s0,$v1,$s6`; the oracle carries nothing in the preheader and does

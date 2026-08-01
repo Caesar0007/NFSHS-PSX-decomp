@@ -166,14 +166,14 @@ void Hud_BuildMapMarkers(int player);
 void Hud_WingmanFlash(int player,int index);
 void Hud_BuildWingmanInterface(int player);
 void Hud_InitCdPlayer(void);
-int Hud_BuildCdPlayer(int type,int arg1);
+void Hud_BuildCdPlayer(int type,int arg1);
 int Hud_BuildRadar(int player);
 void Hud_BuildReplay(void);
 int Hud_NextPlayer(int player);
 char * Hud_NextPlayerNameOrCarOrTime(int player);
 void Hud_RenderMapView(void);
 void Hud_BlackThinBox(int x, int y, int w, int h);
-int Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5);
+void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5);
 void Hud_Render321Go(void);
 void BigBTCTime(int secs);
 void Hud_RenderHudView(void);
@@ -1018,10 +1018,7 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   if (time < 0) {
     time = 0;
   }
-  temp2 = time;
-  if (time < 0) {
-    temp2 = -time;
-  }
+  temp2 = __builtin_abs(time);
   temp1 = temp2 / 0x40;
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   min = (temp1 / 0x3c) % 0x3c;
@@ -1215,6 +1212,14 @@ void Hud_BuildTach(int player)
   return;
 }
 
+/* D_80111A1C == &HudPmx_gShapes[0xad], D_801119E0 == &HudPmx_gShapes[0xaa] (element size
+ * 0x14, width @+0x10) -- splat gave these two pad-glyph shapes their own data labels and
+ * the oracle materializes each with its OWN lui/addiu AFTER the FBuildSprite call; that is
+ * what keeps the four '*'-arms un-cross-jumped (unsized-array shape, methodology 3.12 #5).
+ * Same standalone-alias precedent as D_801132CC below. */
+extern HudPmx_tShape D_80111A1C[];
+extern HudPmx_tShape D_801119E0[];
+
 /* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
  * RESIDUAL 118 (ours 205 / oracle 215).  SYM (fsize 80) has NO `shp` local -- the oracle
  * re-materializes `&HudPmx_gShapes[K]` AFTER each Hud_FBuildSprite call (`lui $t0; addiu
@@ -1227,7 +1232,6 @@ void Hud_BuildTach(int player)
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
-  HudPmx_tShape *shp;
   int offy;
   char alphShape;
   int ix;
@@ -1248,18 +1252,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
     else if (*str == '*') {
       ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
       if (gPadinfo.buf[0].ID == '#') {
-        shp = &HudPmx_gShapes[0xad];
         if (justwidth == 0) {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
-        ix = ix + 3 + shp->width;         /* per-arm; gcc cross-jump-merges the final addu */
+        ix = ix + 3 + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
       }
       else {
-        shp = &HudPmx_gShapes[0xaa];
         if (justwidth == 0) {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
-        ix = ix + 3 + shp->width;
+        ix = ix + 3 + D_801119E0[0].width;
       }
       if (GameSetup_gData.commMode == 1) {
         if (gPadinfo.buf[4].ID == '#') {
@@ -1267,18 +1269,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
         }
         else if (gPadinfo.buf[0].ID != '#') goto HudBuildStr_next;
         if (gPadinfo.buf[4].ID == '#') {
-          shp = &HudPmx_gShapes[0xad];
-          if (justwidth == 0) {
+            if (justwidth == 0) {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
-          ix = ix + 3 + shp->width;
+          ix = ix + 3 + D_80111A1C[0].width;
         }
         else {
-          shp = &HudPmx_gShapes[0xaa];
-          if (justwidth == 0) {
+            if (justwidth == 0) {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
-          ix = ix + 3 + shp->width;
+          ix = ix + 3 + D_801119E0[0].width;
         }
       }
     }
@@ -1380,6 +1380,7 @@ void Hud_BuildNumbers0(int player)
   int y;
   int primAddr;
 
+  i = player;
   if (player != 0) {
     pSprt = gSprite1;
   }
@@ -1387,16 +1388,16 @@ void Hud_BuildNumbers0(int player)
     pSprt = gSprite0;
   }
   HudF4 = gHudF4;
-  if (player != 0) {
+  if (i != 0) {
     HudF4 = HudF4 + 7;
   }
   HudG4 = gHudG4;
-  if (player != 0) {
+  if (i != 0) {
     HudG4 = HudG4 + 4;
   }
-  y = 0;
-  if (player != 0) {
-    y = -0xf;
+  splitY = 0;
+  if (i != 0) {
+    splitY = -0xf;
   }
   if (GameSetup_gData.carInfo[player].HudTime != 0) {
     if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
@@ -1443,27 +1444,27 @@ void Hud_BuildNumbers0(int player)
     }
   }
   if (Hud_BeTheCop == 0) {
-    i = g1Player[5].y;
-    i = i + y;
-    i = i + g1Player[9].y;
-    pSprt[10].y0 = i;
-    HudG4[2].y0 = i;
-    HudG4[2].y1 = i;
-    HudG4[2].y2 = i + 10;
-    HudG4[2].y3 = i + 10;
-    pSprt[11].y0 = i;
-    HudF4[3].y0 = i + 7;
-    HudF4[3].y1 = i + 7;
-    HudF4[3].y2 = i + 10;
-    HudF4[3].y3 = i + 10;
-    i = i + 1;
-    pSprt[30].y0 = i;
-    pSprt[32].y0 = i;
-    pSprt[33].y0 = i;
-    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + i;
-    pSprt[35].y0 = i;
-    pSprt[36].y0 = i;
-    pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + i;
+    y = g1Player[5].y;
+    y = y + splitY;
+    y = y + g1Player[9].y;
+    pSprt[10].y0 = y;
+    HudG4[2].y0 = y;
+    HudG4[2].y1 = y;
+    HudG4[2].y2 = y + 10;
+    HudG4[2].y3 = y + 10;
+    pSprt[11].y0 = y;
+    HudF4[3].y0 = y + 7;
+    HudF4[3].y1 = y + 7;
+    HudF4[3].y2 = y + 10;
+    HudF4[3].y3 = y + 10;
+    y = y + 1;
+    pSprt[30].y0 = y;
+    pSprt[32].y0 = y;
+    pSprt[33].y0 = y;
+    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + y;
+    pSprt[35].y0 = y;
+    pSprt[36].y0 = y;
+    pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + y;
   }
   primAddr = BTC_BonusTime;
   if ((BTC_BonusTime != 0) && (Hud_BeTheCop != 0)) {
@@ -1515,11 +1516,11 @@ void Hud_BuildNumbers0(int player)
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointDisplay < 1) {
         return;
       }
-      i = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
-      if (i < -0x95ff) {
+      y = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
+      if (y < -0x95ff) {
         return;
       }
-      if (0x95ff < i) {
+      if (0x95ff < y) {
         return;
       }
       if (Hud_BeTheCop != 0) {
@@ -1528,7 +1529,7 @@ void Hud_BuildNumbers0(int player)
       if (DashHUD_gInfo.wrongway[player] != 0) {
         return;
       }
-      if (i < 0) {
+      if (y < 0) {
         *(u_int *)&pSprt[10].u0 = *(int *)&(HudPmx_gShapes[0x77].pixmap);
       }
       else {
@@ -1567,8 +1568,8 @@ void Hud_BuildNumbers0(int player)
       }
     }
     else {
-      i = (int)Hud_BuildDistanceString(pSprt + 30,player);
-      if (i == 0) {
+      y = (int)Hud_BuildDistanceString(pSprt + 30,player);
+      if (y == 0) {
         return;
       }
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointUpdate < 0) {
@@ -1623,17 +1624,17 @@ void Hud_BuildNumbers0(int player)
 
 /* ---- Hud_BuildNumbers__Fi  [HUD.CPP:1721-1897] SLD-VERIFIED ----
  * RESIDUAL 705 (ours 759 / oracle 758).  SYM-structured (rule 8): fn-scope locals = the SYM's
- * i/pSprt/HudF4/HudG4/splitY; block-scoped `j` per merge region; the speed group
- * (speed/hun/ten/x/y/w1/w2/w3/w7/color2/prim/SpeedColor) block-scoped inside the 2nd HudTach
+ * y/pSprt/HudF4/HudG4/splitY; block-scoped `j` per merge region; the speed group
+ * (speed/hun/ten/x/splitY/w1/w2/w3/w7/color2/prim/SpeedColor) block-scoped inside the 2nd HudTach
  * `if` per SYM block @0x800D5640 (diff-neutral, kept for fidelity).
  *
  * BANKED TWO-PART LANDING (w40-a1, receipted -- do NOT land either half alone):
- *  PART 1 = the player/i ROLE SWAP.  The oracle's two entry copies are `addu $fp,$a0,$zero`
+ *  PART 1 = the player/y ROLE SWAP.  The oracle's two entry copies are `addu $fp,$a0,$zero`
  *    then `addu $s2,$fp,$zero`; $fp drives the pSprt select, the carInfo[]*3 index at SIX sites
  *    (HudLapnum/HudTime/HudPosition/HudTach-1st/HudSpeed/HudSpeedMult) and wrongway[], while
  *    $s2 drives ONLY the HudF4/HudG4/splitY `+=` selects and the SECOND HudTach test.  The SYM
- *    ($0x1e=$fp is `i`, $0x12=$s2 is REGPARM `player`) therefore says retail wrote the MIRROR of
- *    this body: `i` for the pSprt select + every carInfo[] index + wrongway, and the parameter
+ *    ($0x1e=$fp is `y`, $0x12=$s2 is REGPARM `player`) therefore says retail wrote the MIRROR of
+ *    this body: `y` for the pSprt select + every carInfo[] index + wrongway, and the parameter
  *    `player` only for the three `+=` selects and the 2nd HudTach test.  Applying the swap
  *    reproduces the oracle prologue BYTE-EXACT (`sw fp;addu fp,a0;sw s2;addu s2,fp` in that
  *    order, `beqz fp` for pSprt, `sll v1,fp,1` at all six index sites) and moves the count
@@ -1805,18 +1806,14 @@ void Hud_BuildNumbers(int player)
     POLY_GT4 *prim;
     u_long SpeedColor;
 
-    speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed);
-    if (speed < 0) {
-      speed = speed + 0xffff;
-    }
+    speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
     SpeedColor = 0xc8c8c8;
     color2 = 0x505050;
-    speed = speed >> 0x10;
     w1 = HudPmx_gShapes[0x2c].width + 1;
     w2 = w1 + HudPmx_gShapes[0x2d].width >> 1;
     w7 = w1 + HudPmx_gShapes[0x33].width >> 1;
     w3 = w1 - w2;
-    x = w1 * 2 + ((int)g1Player[1].x + (int)g1Player[0xc].x + 4);
+    x = ((int)g1Player[1].x + (int)g1Player[0xc].x + 4) + w1 * 2;
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = Render_gPacketPtr + 0x34;
@@ -1856,8 +1853,8 @@ void Hud_BuildNumbers(int player)
       prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
       *(u_int *)Render_gPalettePtr =
            *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
-      Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,
-                   (x + -1) - (int)HudPmx_gShapes[hun + 0x2c].width,y,SpeedColor);
+      x = x - 1 - (int)HudPmx_gShapes[hun + 0x2c].width;
+      Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
       *(u_int *)&prim->r2 = color2;
     }
@@ -2108,7 +2105,7 @@ void Hud_InitCdPlayer(void)
  *      `x + (dx + K)` -- which IS the oracle's tree (`addiu $v0,$s3,10`; `addu $v0,$s7,$v0`;
  *      `addiu $a1,$a1,-0x4c`) -- REGRESSES: both sites 77->141, first site only 77->122
  *      (it re-colors x/y), second site only 77->83.  Left flat. */
-int Hud_BuildCdPlayer(int type,int arg1)
+void Hud_BuildCdPlayer(int type,int arg1)
 
 {
   int bVar2;
@@ -2853,63 +2850,54 @@ void Hud_BlackThinBox(int x, int y, int w, int h)
 }
 
 /* ---- Hud_Draw321Num__Fiiiiii  [HUD.CPP:3155-3254] SLD-VERIFIED ---- */
-int Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
+void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
 
 {
-  u_int uVar1;
-  int index;
-  int x_00;
+  /* SYM-exact locals (8c @0x800d7ca8, fsize 72): x REGPARM $fp | y ARG 0x4C(sp) |
+   * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s3 | j $s0 | k $s2 | by $s5 |
+   * index $v1.  y/num live in their ARG HOMES (spilled at entry, re-loaded after each
+   * loop) because the two nested loops need all nine callee-saved regs; the x/j*10 and
+   * y/i*9 walkers are compiler givs, so the source is index-form. */
   int i;
-  int iVar2;
-  int iVar3;
-  int k;
-  u_int uVar4;
   int j;
-  int iVar5;
-  int iVar6;
+  int k;
   int by;
-  
+  int index;
+
   if (flare_intensity != 0) {
-    uVar4 = 0;
-    iVar5 = 0;
-    iVar6 = y;
+    k = 0;
+    i = 0;
     do {
-      iVar2 = 0;
-      iVar3 = x;
+      by = y + i * 9;
+      j = 0;
       do {
-        if ((Hud_Character[num] & 1 << (uVar4)) != 0) {
-          Flare_2DHalo(iVar3 + 4,iVar6 + 4,flare_intensity,flare_intensity,6);
+        if ((Hud_Character[num] & 1 << k) != 0) {
+          Flare_2DHalo(x + j * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
         }
-        iVar3 = iVar3 + 10;
-        iVar2 = iVar2 + 1;
-        uVar4 = uVar4 + 1;
-      } while (iVar2 < 5);
-      iVar5 = iVar5 + 1;
-      iVar6 = iVar6 + 9;
-    } while (iVar5 < 5);
+        j = j + 1;
+        k = k + 1;
+      } while (j < 5);
+      i = i + 1;
+    } while (i < 5);
   }
-  Hud_BlackThinBox(x - 3, y - 2, 0x38, 0x31);
-  uVar4 = 0;
-  iVar5 = 0;
-  iVar6 = y;
+  Hud_BlackThinBox(x - 3,y - 2,0x38,0x31);
+  k = 0;
+  i = 0;
   do {
-    iVar2 = 0;
-    iVar3 = x;
+    by = y + i * 9 + 1;
+    j = 0;
     do {
-      x_00 = iVar3 + 1;
-      iVar3 = iVar3 + 10;
-      iVar2 = iVar2 + 1;
-      uVar1 = uVar4;
-      uVar4 = uVar4 + 1;
-      Hud_FBuildSprite((Hud_Character[num] & 1 << uVar1) != 0 | 0x3c,x_00,iVar6 + 1,0x808080,0);
-    } while (iVar2 < 5);
-    iVar5 = iVar5 + 1;
-    iVar6 = iVar6 + 9;
-  } while (iVar5 < 5);
-  iVar6 = 0x31;
-  Hud_FBuildF4(0, x - 3, y - 2, 0x38, 0x31, 0, '\0','\0');
+      index = (Hud_Character[num] & 1 << k) != 0;
+      index = index | 0x3c;
+      Hud_FBuildSprite(index,x + j * 10 + 1,by,0x808080,0);
+      j = j + 1;
+      k = k + 1;
+    } while (j < 5);
+    i = i + 1;
+  } while (i < 5);
+  Hud_FBuildF4(0,x - 3,y - 2,0x38,0x31,0,'\0','\0');
   Hud_GoTpage(1);
-  return iVar6;
+  return;
 }
 
 /* ---- Hud_Render321Go__Fv  [HUD.CPP:3261-3339] SLD-VERIFIED ---- */
@@ -2969,9 +2957,6 @@ void BigBTCTime(int secs)
 
 {
   POLY_GT4 *prim;
-  u_char   *prev_pkt;
-  u_int     prev_hi;
-  int       pkt_addr24;
   int x;
   int y;
   int xx;
@@ -3017,13 +3002,10 @@ void BigBTCTime(int secs)
     }
     x = x + w1;
     prim = (POLY_GT4 *)Render_gPacketPtr;
-    prev_pkt = Render_gPalettePtr;
-    *(u_int *)prim =
-         *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    prev_hi = *(u_int *)prev_pkt & 0xff000000;
     Render_gPacketPtr = (u_char *)prim + 0x34;
-    pkt_addr24 = (u_int)prim & 0xffffff;
-    *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+    prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+    *(u_int *)Render_gPalettePtr =
+         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
     Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + secs % 10,x + -1,y,Col);
     *(int *)((char *)prim + 0x28) = Col2;
     *(int *)((char *)prim + 0x1c) = Col2;
@@ -3036,13 +3018,10 @@ void BigBTCTime(int secs)
         x = x - w1;
       }
       prim = (POLY_GT4 *)Render_gPacketPtr;
-      prev_pkt = Render_gPalettePtr;
-      *(u_int *)prim =
-           *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      prev_hi = *(u_int *)prev_pkt & 0xff000000;
       Render_gPacketPtr = (u_char *)prim + 0x34;
-      pkt_addr24 = (u_int)prim & 0xffffff;
-      *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      *(u_int *)Render_gPalettePtr =
+           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
       Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + ten,x,y,Col);
       *(int *)((char *)prim + 0x28) = Col2;
       *(int *)((char *)prim + 0x1c) = Col2;

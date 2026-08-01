@@ -948,17 +948,20 @@ int iMCRD_HandleError(int func,int opResult,int card)
   
   ret_state = 0;
   pcard = MCRD_getcard(card);
+  /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with
+   * the three arms out-of-line is gcc's balance_case_nodes tree; the equivalent
+   * if/else-if chain inlines each arm and flips every branch to bne. */
   if (opResult != 0) {
-    if (func == 2) {
+    switch (func) {
+    case 1:
+      ret_state = 10;
+      break;
+    case 2:
       ret_state = 0xd;
-    }
-    else if (func < 3) {
-      if (func == 1) {
-        ret_state = 10;
-      }
-    }
-    else if (func == 3) {
+      break;
+    case 3:
       ret_state = 0x10;
+      break;
     }
   }
   switch(opResult) {
@@ -974,22 +977,26 @@ int iMCRD_HandleError(int func,int opResult,int card)
     break;
   case 3:
     accept = MemCardAccept(gMemCardInfo.channel);
-    if (accept != 0) {
+    /* MATCH: the accept==0 arm is the IF-BODY (fall-through) - retail's bnez sends
+     * the success arm out-of-line. */
+    if (accept == 0) {
+      scratch_i = 0x17;
+      goto iMCRDError_setLastError;
+    }
+    else {
       gMemCardInfo.task = LOAD_CARD;
       gMemCardInfo.bReady = 0;
       return ret_state;
     }
-    scratch_i = 0x17;
-    goto iMCRDError_setLastError;
   case 4:
     if (func == 2) {
       confirm = ((int(*)(void))gMemCardInfo.ConfirmFormatProc)();
-      numberoftries = 0;
       if (confirm != 0) {
+        numberoftries = 0;   /* MATCH: lands in the beqz delay slot, not the jalr's */
         do {
-          confirm = iMCRD_FormatCard(card);
+          result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
           numberoftries = numberoftries + 1;
-          if (confirm != -1) {
+          if (result != -1) {
             gMemCardInfo.task = WRITE_FILE;
             return 6;
           }

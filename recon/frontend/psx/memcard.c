@@ -941,32 +941,31 @@ int iMCRD_FormatCard(int card)
 int iMCRD_HandleError(int func,int opResult,int card)
 
 {
-  CARDINFO_def *pcard;
-  long accept;
-  int confirm;
   int scratch_i;
   int tmp_int;
-  int result;
-  int numberoftries;
   CARDINFO_def *pCI;
   int code;
-  int ret_state;
-  
-  ret_state = 0;
-  pcard = MCRD_getcard(card);
+
+  /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
+   * and a NESTED block (90 @0x800505f4 .. 92 @0x80050644, source lines 76-98) holding
+   * numberoftries REG $16($s0) and result REG $3($v1).  numberoftries takes func's own
+   * $s0 because it is block-local and func is dead by then; declaring it at function
+   * scope makes it a global allocno that can never reuse that register. */
+  code = 0;
+  pCI = MCRD_getcard(card);
   /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with
    * the three arms out-of-line is gcc's balance_case_nodes tree; the equivalent
    * if/else-if chain inlines each arm and flips every branch to bne. */
   if (opResult != 0) {
     switch (func) {
     case 1:
-      ret_state = 10;
+      code = 10;
       break;
     case 2:
-      ret_state = 0xd;
+      code = 0xd;
       break;
     case 3:
-      ret_state = 0x10;
+      code = 0x10;
       break;
     }
   }
@@ -974,72 +973,81 @@ int iMCRD_HandleError(int func,int opResult,int card)
   case 0:
     goto iMCRDError_return;
   case 1:
-    pcard->status = -1;
+    pCI->status = -1;
     tmp_int = 2;
     break;
   case 2:
-    pcard->status = -4;
+    pCI->status = -4;
     tmp_int = 3;
     break;
   case 3:
-    accept = MemCardAccept(gMemCardInfo.channel);
     /* MATCH: the accept==0 arm is the IF-BODY (fall-through) - retail's bnez sends
      * the success arm out-of-line. */
-    if (accept == 0) {
+    if (MemCardAccept(gMemCardInfo.channel) == 0) {
       scratch_i = 0x17;
       goto iMCRDError_setLastError;
     }
     else {
       gMemCardInfo.task = LOAD_CARD;
       gMemCardInfo.bReady = 0;
-      return ret_state;
+      return code;
     }
   case 4:
     if (func == 2) {
-      confirm = ((int(*)(void))gMemCardInfo.ConfirmFormatProc)();
-      if (confirm != 0) {
+      if (((int(*)(void))gMemCardInfo.ConfirmFormatProc)() != 0) {
+        /* MATCH: SYM nested block - numberoftries/result live only here. */
+        int numberoftries;
+        int result;
+
         numberoftries = 0;   /* MATCH: lands in the beqz delay slot, not the jalr's */
+        /* MATCH: the retry test is the loop CONDITION, not an in-body early return -
+         * retail's `bne result,sentinel` short-circuits straight to the success block
+         * (the -1 sentinel is loop-invariant, hoisted into a saved reg), and the
+         * loop-exhausted path is decided by a SECOND `result == -1` compare after the
+         * loop against a freshly materialized -1.  An in-body `if (result != -1)
+         * return 6;` drops that second compare entirely (census beq 3v4).
+         * Success is the FALL-THROUGH of that second compare (retail `beq` sends the
+         * exhausted path out-of-line, physically AFTER the success block). */
         do {
           result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
           numberoftries = numberoftries + 1;
-          if (result != -1) {
-            gMemCardInfo.task = WRITE_FILE;
-            return 6;
-          }
-        } while (numberoftries < 3);
-        pcard->status = -2;
+        } while ((result == -1) && (numberoftries < 3));
+        if (result != -1) {
+          gMemCardInfo.task = WRITE_FILE;
+          return 6;
+        }
+        pCI->status = -2;
         tmp_int = 7;
         break;
       }
     }
-    pcard->status = -2;
+    pCI->status = -2;
     tmp_int = 5;
     break;
   case 5:
     tmp_int = 0x13;
     break;
   case 6:
-    confirm = ((int(*)(void))gMemCardInfo.ConfirmOverwriteProc)();
     scratch_i = 0xe;
-    if (confirm != 0) {
+    if (((int(*)(void))gMemCardInfo.ConfirmOverwriteProc)() != 0) {
       MemCardDeleteFile(gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
       gMemCardInfo.task = WRITE_FILE;
       return 0x15;
     }
 iMCRDError_setLastError:
-    pcard->lasterror = scratch_i;
+    pCI->lasterror = scratch_i;
     gMemCardInfo.bReady = 1;
-    return ret_state;
+    return code;
   case 7:
     tmp_int = 0x14;
     break;
   default:
     tmp_int = 0x17;
   }
-  pcard->lasterror = tmp_int;
+  pCI->lasterror = tmp_int;
   gMemCardInfo.bReady = 1;
 iMCRDError_return:
-  return ret_state;
+  return code;
 }
 
 /* lines 1896-1897: (static data / macros / comments - no emitted code) */

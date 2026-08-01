@@ -364,8 +364,16 @@ int Movie_Play(char movie)
     /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
      * unmasked in a register); per-local u_short narrowing emitted two. */
     joyval = ((uint)PAD_state(0) | (uint)PAD_state(4)) & 0xffff;
-    if ((joyval != 0) && ((Movie_Stop(), skip_all != '\0' || (joyval == 8)))) {
-      user_exit = 1;
+    /* MATCH: SHORT-CIRCUIT BRANCHES, not a materialized `||` value.  The
+     * comma/`||` form made gcc build the disjunction in a register
+     * (addu v1,zero,zero / li v1,1 / beqz v1) instead of branching. */
+    if (joyval != 0) {
+      Movie_Stop();
+      if (skip_all != '\0') {
+        user_exit = 1;
+      } else if (joyval == 8) {
+        user_exit = 1;
+      }
     }
   }
   Movie_DeInit();

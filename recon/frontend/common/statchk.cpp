@@ -291,13 +291,15 @@ StatChkTop_topListJoin:
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
-  bool bTopTenFlag;
-  bool bDoRecordCheck;
+  BOOL bTopTenFlag;
+  BOOL bDoRecordCheck;
   short nLapIndicator;
   short nPlace;
   int nTopTenSort [8];
   short nTopTenIndex [8];
+  Car_tStats *cars = dummyCars;
   int nCheckTotalTime;
+  unsigned int uRecSz = sizeof(tRecordBuffer);
   short k;
   short nCar;
   char *buffer;
@@ -315,15 +317,13 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
     topPlacements[k] = 0;
   }
 
-  RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",0x168,0x10);
-  nCarTotalTimes = (int *)reservememadr("carttime",nNumCars << 2,0x10);
-  nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars << 1,0x10);
-  buffer = (char *)reservememadr("records",0xa0,0x10);
+  RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",uRecSz * 18,0x10);
+  nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
+  nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);
+  buffer = (char *)reservememadr("records",uRecSz * 8,0x10);
 
-  if (0 < nNumCars) {
-    for (k = 0; k < nNumCars; k = k + 1) {
-      nRankCarTotalTimes[dummyCars[k].position - 1] = k;
-    }
+  for (k = 0; k < nNumCars; k = k + 1) {
+    nRankCarTotalTimes[cars[k].position - 1] = k;
   }
 
   Stattool_GetRecords(Front_GetTrackRaced(),RecordHolders);
@@ -333,14 +333,13 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
     nLapIndicator = 1;
   }
 
-  if (0 < nNumCars) {
-    for (k = 0; k < nNumCars; k = k + 1) {
+  for (k = 0; k < nNumCars; k = k + 1) {
       nCar = nRankCarTotalTimes[k];
-      carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nCar].carType);
+      carInfo = GetCarFromSimID(&carManager, (short)cars[nCar].carType);
       if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
         if ((byte)frontEnd.gameMode < 3) {
 StatChkSave_validateCarFinish:
-          if (((dummyCars[nCar].carFlags & 4U) != 0) && (dummyCars[nCar].finalFinishType == 2))
+          if (((cars[nCar].carFlags & 4U) != 0) && (cars[nCar].finalFinishType == 2))
           {
             bDoRecordCheck = true;
           }
@@ -349,13 +348,13 @@ StatChkSave_validateCarFinish:
           goto StatChkSave_validateCarFinish;
         }
         if (bDoRecordCheck) {
-          nCheckTotalTime = dummyCars[nCar].finalTotalTime;
+          nCheckTotalTime = cars[nCar].finalTotalTime;
           bDoRecordCheck = false;
           if ((nCheckTotalTime < RecordHolders[nLapIndicator + 7].nTime) ||
              ((RecordHolders[nLapIndicator + 7].nTime == 0) && (0 < nCheckTotalTime))) {
             DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
             bTopTenFlag = true;
-            DummyRaceResult.nBestLap = dummyCars[nCar].finalBestLap;
+            DummyRaceResult.nBestLap = cars[nCar].finalBestLap;
             *(u_long *)RecordHolders[nLapIndicator + 7].sName = *(u_long *)DummyRaceResult.sName;
             *(u_long *)(RecordHolders[nLapIndicator + 7].sName + 4) = *(u_long *)(DummyRaceResult.sName + 4);
             RecordHolders[nLapIndicator + 7].nCar = DummyRaceResult.nCar;
@@ -387,15 +386,14 @@ StatChkSave_validateCarFinish:
             RecordHolders[nLapIndicator + 7].nCar = DummyRaceResult.nCar;
             RecordHolders[nLapIndicator + 7].nTime = DummyRaceResult.nTime;
             RecordHolders[nLapIndicator + 7].nBestLap = DummyRaceResult.nBestLap;
-            memcpy_call(buffer,&RecordHolders[nLapIndicator],0xa0);
+            memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
             for (nCheckTotalTime = 0; nCheckTotalTime < 8; nCheckTotalTime = nCheckTotalTime + 1) {
               memcpy(&RecordHolders[nLapIndicator + nCheckTotalTime],
-                     buffer + nTopTenIndex[nCheckTotalTime] * 0x14,0x14);
+                     buffer + nTopTenIndex[nCheckTotalTime] * uRecSz,uRecSz);
             }
           }
         }
       }
-    }
   }
   if (bTopTenFlag) {
     blockmove(RecordHolders,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);

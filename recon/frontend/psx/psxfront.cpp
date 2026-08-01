@@ -431,14 +431,16 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   while (i < shp->width) {
     int addw;
     int texX;
+    int wsel;
 
     texX = (uint)(ushort)shp->shapex + (i * bpp) / 16;
     u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
         ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
-    w = 0xff - u;
-    if (shp->width - i < w) {
-      w = shp->width - i;
+    wsel = 0xff - u;
+    if (shp->width - i < wsel) {
+      wsel = shp->width - i;
     }
+    w = wsel;
     prim = Render_gPacketPtr;
     *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
     Render_gPacketPtr = prim + 0x34;

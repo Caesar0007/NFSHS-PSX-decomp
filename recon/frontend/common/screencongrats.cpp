@@ -122,225 +122,183 @@ int tScreenCongrats::GetCar(tCarInfo &carInfo)
 void tScreenCongrats::DrawBackground()
 
 {
-  static u_long carRotate;   /* [SYM] STAT (rotation accumulator, persists across calls) */
-  bool bDrawSpin;
-  tCarInfo *carShape;
-  int j;
-  int wordX;
-  int wordY;
-  int StripeRGB;
-  tTrophyClass trophyClass;
-  int i;
-  __vtbl_ptr_type (*vtbl) [10];
-  int fadeAmt;
-  int bannerframe;
-  tCarInfo *carInfo;
   int fJustFadeOff;
+  static u_long carRotate;
   tDrawShapeExtended drawFlags;
   tDrawShapeExtended drawFlags2;
+  int StripeRGB;
+  int bannerframe;
   tDrawShapeExtended drawFlags3;
-  
+  __vtbl_ptr_type (*vtbl) [10];
+
+  fJustFadeOff = 0;
+  if (this->fTransitionOff != 0) {
+    fJustFadeOff = this->fScreenFadeVal;
+  }
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   drawFlags2.custom_shapes = this->fSwapShapes.fShapes;
   vtbl = this->_vf;
-  StripeRGB = (int)vtbl[1][1].delta;
-  carRotate = carRotate + 3;
-  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + StripeRGB + -0x14);
-  trophyClass = (tTrophyClass)this->trophy;
-  if ((((trophyClass == kTrophyCar) && (this->starttick == -1)) ||
-      ((this->fGotCar == 0 && (trophyClass == kTrophyCar)))) ||
-     ((trophyClass == kTrophyCar && ((-1 < R3DCar_aSyncLoading || (ticks - this->fEnterTick < 0x3c)))))) {
-    this->starttick = ticks;
+  carRotate += 3;
+  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + vtbl[1][1].delta + -0x14);
+  if ((((this->trophy == kTrophyCar) && (this->starttick == -1)) ||
+      ((this->fGotCar == 0) && (this->trophy == kTrophyCar))) ||
+     ((this->trophy == kTrophyCar) &&
+      ((-1 < R3DCar_aSyncLoading) || (ticks[0] - this->fEnterTick < 0x3c)))) {
+    this->starttick = ticks[0];
   }
   else {
+    bool scale;
+
     if (this->starttick == -1) {
-      this->starttick = ticks;
+      this->starttick = ticks[0];
     }
     if (this->CashAwarded != -1) {
-      if ((1000 < ticks - this->starttick) || (this->fStartCountdownNOW != 0)) {
+      int colf;
+      int colb;
+
+      if ((1000 < ticks[0] - this->starttick) || (this->fStartCountdownNOW != 0)) {
         if (this->CashAwarded != 0) {
           AudioCmn_PlayFESFX(0x15);
         }
-        i = this->CashAwarded - this->fCountSpeed;
-        this->CashAwarded = i;
-        if (i < 0) {
+        this->CashAwarded -= this->fCountSpeed;
+        if (this->CashAwarded < 0) {
           this->CashAwarded = 0;
           this->fCountedDown = 1;
         }
       }
-      i = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fadeAmt);
-      j = CalcFadeVal(0x232323,fadeAmt);
-      FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x317,textState_Hilighted,textType_TrackRecords
-                );
-      wordX = TextSys_WordX(0x318);
-      wordY = TextSys_WordY(0x318);
-      DrawMoney
-                (wordX,wordY,6,this->CashAwarded,i,j);
-      FETextRender_MenuTextFade
-                ((int)this->fScreenFadeVal,0x316,textState_Hilighted,textType_TrackRecords
-                );
-      wordX = TextSys_WordX(0x319);
-      wordY = TextSys_WordY(0x319);
-      fadeAmt = 9;
-      DrawMoney
-                (wordX,wordY,9,this->TotalCash - this->CashAwarded,i,j);
+      colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],this->fScreenFadeVal);
+      colb = CalcFadeVal(0x232323,this->fScreenFadeVal);
+      FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x317,textState_Hilighted,
+                                textType_TrackRecords);
+      DrawMoney(TextSys_WordX(0x318),TextSys_WordY(0x318),6,this->CashAwarded,colf,colb);
+      FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x316,textState_Hilighted,
+                                textType_TrackRecords);
+      DrawMoney(TextSys_WordX(0x319),TextSys_WordY(0x319),9,
+                this->TotalCash - this->CashAwarded,colf,colb);
     }
-    if ((this->fSpeechToPlay != 0) && (0x80 < ticks - this->starttick)) {
+    if ((this->fSpeechToPlay != 0) && (0x80 < ticks[0] - this->starttick)) {
       FeAudio_AsyncPlaySpeech(2,this->fSpeechToPlay);
       this->fSpeechToPlay = 0;
     }
-    bDrawSpin = false;
+    scale = false;
     if (this->congratsMessage == kScreenCongrats_Congrats) {
-      drawFlags.tint[0] = CalcFadeVal(0xbebe,fadeAmt);
-      drawFlags2.tint[0] = CalcFadeVal(0x808080,fadeAmt);
-      if (this->InExtraSpin == 0) {
-        j = (ticks - this->starttick) / 2;
-        this->framenum = j;
-        i = ticks;
-        if (0x13 < j) {
-          bDrawSpin = true;
-          wordX = this->starttick;
-          this->framenum = 0x14;
-          j = ticks;
-          if (wordX < 0) {
-            wordX = wordX + 3;
-          }
-          i = i - (wordX >> 2);
-          bannerframe = (int)((unsigned long long)((long long)i * 0x57619f1) >> 0x20);
-          if (i % 0x5dc < 0x2d) {
-            this->InExtraSpin = 1;
-            this->InExtraSpinTick = j;
-          }
-        }
-      }
-      else {
-        j = ticks - this->InExtraSpinTick;
-        i = j >> 0x1f;
-        bannerframe = j / 6 + i;
-        i = (bannerframe - i) + 0x15;
-        this->framenum = i;
-        bDrawSpin = true;
-        if (0x29 < i) {
+      drawFlags.tint[0] = CalcFadeVal(0xbebe,this->fScreenFadeVal);
+      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
+      if (this->InExtraSpin != 0) {
+        this->framenum = (ticks[0] - this->InExtraSpinTick) / 6 + 0x15;
+        scale = true;
+        if (0x29 < this->framenum) {
           this->InExtraSpin = 0;
           this->framenum = 0x14;
         }
       }
+      else {
+        int spinTick;
+
+        this->framenum = (ticks[0] - this->starttick) / 2;
+        if (0x13 < this->framenum) {
+          scale = true;
+          this->framenum = 0x14;
+          spinTick = this->starttick;
+          if (spinTick < 0) {
+            spinTick += 3;
+          }
+          if ((ticks[0] - (spinTick >> 2)) % 0x5dc < 0x2d) {
+            this->InExtraSpin = 1;
+            this->InExtraSpinTick = ticks[0];
+          }
+        }
+      }
     }
     else {
-      drawFlags.tint[0] = CalcFadeVal(0x646464,fadeAmt);
-      drawFlags2.tint[0] = CalcFadeVal(0x808080,fadeAmt);
-      i = ticks - this->starttick;
-      if (i < 0) {
-        i = i + 3;
-      }
-      this->framenum = i >> 2;
-      if (0x14 < i >> 2) {
+      drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);
+      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);
+      this->framenum = (ticks[0] - this->starttick) / 4;
+      if (0x14 < this->framenum) {
         this->framenum = 0x14;
       }
     }
-    if (bDrawSpin) {
-      fadeAmt = 0;
-      ScaleShapeExtended    /* @0x80048584 idx=framenum(132) flags=0x410 x=0 y=(off100==1?0xA:0) */
-                (this->framenum,0x410,0,
-                 (this->congratsMessage == kScreenCongrats_Eliminated) ? 0xA : 0,0,0,&drawFlags);
+    if (scale) {
+      ScaleShapeExtended(this->framenum,0x410,0,
+                         (this->congratsMessage == kScreenCongrats_Eliminated) ? 0xA : 0,
+                         0,0,&drawFlags);
     }
     else {
-      fadeAmt = 0;
-      DrawShapeExtended     /* @0x800485c0 idx=framenum flags=0x410 x=0 y=(off100==1?0xA:0) */
-                (this->framenum,0x410,0,
-                 (this->congratsMessage == kScreenCongrats_Eliminated) ? 0xA : 0,0,0,&drawFlags);
+      DrawShapeExtended(this->framenum,0x410,0,
+                        (this->congratsMessage == kScreenCongrats_Eliminated) ? 0xA : 0,
+                        0,0,&drawFlags);
     }
-    if (1 < this->trophy - kTrophyCar) {
-      bannerframe = ticks / 6 + (ticks >> 0x1f);
-      fadeAmt = 0x46;
-      ScaleShapeExtended    /* @0x80048630 idx=(ticks/6)%32 flags=0x610 x=0x46 y=0xF */
-                ((ticks / 6) % 0x20,0x610,0x46,0xF,0,0,&drawFlags2);
+    if ((uint)(this->trophy - kTrophyCar) >= 2) {
+      ScaleShapeExtended((ticks[0] / 12) % 0x20,0x610,0x46,0xf,0,0,&drawFlags2);
     }
-    if (kTrophyBronze < this->trophy) {
-      if (this->smallSpinningThing == kSpinningGold) {
-        fadeAmt = 0x29;
-        ScaleShapeExtended    /* @0x800486c0 idx=(ticks>>3)%fNumSmallSpinShapes flags=0x610 x=0x29 y=0xBE */
-                  ((ticks >> 3) % this->fNumSmallSpinShapes,0x610,0x29,0xBE,0,0,&drawFlags2);
-      }
-      else if (this->smallSpinningThing == kSpinningMemCard) {
+    if ((uint)this->trophy >= (uint)kTrophyCar) {
+      switch (this->smallSpinningThing) {
+      case kSpinningGold:
+        ScaleShapeExtended((ticks[0] >> 3) % this->fNumSmallSpinShapes,
+                           0x610,0x29,0xbe,0,0,&drawFlags2);
+        break;
+      case kSpinningMemCard:
         drawFlags.tint[0] = 0x551e00;
-        fadeAmt = -0xc1;
-        DrawShapeExtended     /* @0x80048744 idx=(ticks/20)%fNumSmallSpinShapes flags=0x610 x=-0xC1 y=0x56 */
-                  ((ticks / 0x14) % this->fNumSmallSpinShapes,0x610,-0xC1,0x56,0,0,&drawFlags);
+        DrawShapeExtended((ticks[0] / 0x14) % this->fNumSmallSpinShapes,
+                          0x610,-0xc1,0x56,0,0,&drawFlags);
+        break;
       }
     }
   }
+  StripeRGB = 0x30022;
   if (this->congratsMessage == kScreenCongrats_Congrats) {
-    trophyClass = (tTrophyClass)this->trophy;
-    if (trophyClass == kTrophySilver) {
-      i = 0x212121;
-      goto DrawBgCongrats_emitShape;
+    switch (this->trophy) {
+    case kTrophyGold:
+    case kTrophyCar:
+      StripeRGB = 0x3e44;
+      break;
+    case kTrophySilver:
+      StripeRGB = 0x212121;
+      break;
+    case kTrophyBronze:
+      StripeRGB = 0x3044;
+      break;
     }
-    if ((int)trophyClass < 2) {
-      i = 0x30022;
-      if (trophyClass != kTrophyGold) goto DrawBgCongrats_emitShape;
-    }
-    else {
-      if (trophyClass == kTrophyBronze) {
-        i = 0x3044;
-        goto DrawBgCongrats_emitShape;
-      }
-      if (trophyClass != kTrophyCar) goto DrawBgCongrats_setFadeIdx;
-    }
-    i = 0x3e44;
   }
-  else {
-DrawBgCongrats_setFadeIdx:
-    i = 0x30022;
-  }
-DrawBgCongrats_emitShape:
-  /* loop base shape-index $s1 (oracle @0x800487b4-c4: off100==0 -> 0x2A, else 0x15) */
   bannerframe = (this->congratsMessage == kScreenCongrats_Congrats) ? 0x2A : 0x15;
-  drawFlags3.tint[0] = CalcFadeVal(i,fadeAmt);
-  if ((this->congratsMessage == kScreenCongrats_Congrats) && (i = 1, this->trophy != kTrophyCar)
-     ) {
-    j = 0;
-    do {
-      if (i != (j - (i >> 0x1f)) * 3) {
-        DrawShapeExtended    /* @0x80048840 loop1 idx=bannerframe flags=0x410 x=i*2 y=0 */
-                  (bannerframe,0x410,i * 2,0,
-                   (int)this->fScreenFadeVal,1,&drawFlags3);
+  drawFlags3.tint[0] = CalcFadeVal(StripeRGB,this->fScreenFadeVal);
+  if ((this->congratsMessage == kScreenCongrats_Congrats) &&
+      (this->trophy != kTrophyCar)) {
+    {
+      int i;
+
+      for (i = 1; i < 0x1e; i++) {
+        if ((i % 3) != 0) {
+          DrawShapeExtended(bannerframe,0x410,i * 2,0,
+                            this->fScreenFadeVal,1,&drawFlags3);
+        }
       }
-      i = i + 1;
-      j = i / 3 + (i >> 0x1f);
-    } while (i < 0x1e);
-    i = 0x22;
-    carShape = (tCarInfo *)0xb;
-    do {
-      carInfo = carShape;
-      if (i != ((int)carInfo - (i >> 0x1f)) * 3) {
-        DrawShapeExtended    /* loop2/3 idx=bannerframe flags=0x410 x=i*2 y=0 (@0x800488a4/0x80048910) */
-                  (bannerframe,0x410,i * 2,0,
-                   (int)this->fScreenFadeVal,1,&drawFlags3);
+    }
+    {
+      int i;
+
+      for (i = 0x22; i < 0x3f; i++) {
+        if ((i % 3) != 0) {
+          DrawShapeExtended(bannerframe,0x410,i * 2,0,
+                            this->fScreenFadeVal,1,&drawFlags3);
+        }
       }
-      i = i + 1;
-      carShape = (tCarInfo *)(i / 3 + (i >> 0x1f));
-    } while (i < 0x3f);
+    }
   }
   else {
-    i = 7;
-    carShape = (tCarInfo *)0x2;
-    do {
-      carInfo = carShape;
-      if (i != ((int)carInfo - (i >> 0x1f)) * 3) {
-        DrawShapeExtended    /* loop2/3 idx=bannerframe flags=0x410 x=i*2 y=0 (@0x800488a4/0x80048910) */
-                  (bannerframe,0x410,i * 2,0,
-                   (int)this->fScreenFadeVal,1,&drawFlags3);
+    int i;
+
+    for (i = 7; i < 0x28; i++) {
+      if ((i % 3) != 0) {
+        DrawShapeExtended(bannerframe,0x410,i * 2,0,
+                          this->fScreenFadeVal,1,&drawFlags3);
       }
-      i = i + 1;
-      carShape = (tCarInfo *)(i / 3 + (i >> 0x1f));
-    } while (i < 0x28);
+    }
   }
   if ((this->trophy == kTrophyCar) && (this->fGotCar != 0)) {
-    fJustFadeOff = 0;
-    DrawCar
-              (carInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,-0x80,true,
-               carRotate,(tPlayer)this->fCarPlayer);
+    showRoomFlag[0] = 0;
+    DrawCar(&this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,
+            -0x80,true,carRotate,(tPlayer)this->fCarPlayer);
   }
   return;
 }
@@ -384,7 +342,7 @@ void tScreenCongrats::Initialize()
   int tick;
   int cashAwarded;
 
-  tick = ticks;
+  tick = ticks[0];
   this->fSpeechToPlay = 0;
   this->starttick = -1;
   this->framenum = -1;
@@ -432,7 +390,7 @@ void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand 
 
   if (keyval != kInput_KeyType_Circle) {
     bConsumeKey = false;
-    if ((*(u_short *)((char *)&ginfo + 0x10) != 0) || (ticks - this->starttick < 0x96)) {
+    if ((*(u_short *)((char *)&ginfo + 0x10) != 0) || (ticks[0] - this->starttick < 0x96)) {
       bConsumeKey = true;
     }
     if (bConsumeKey) {

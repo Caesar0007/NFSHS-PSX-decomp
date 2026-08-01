@@ -15,6 +15,7 @@ extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 /* (gFE_congratsCarRot is NOT extern: SYM marks it STAT carRotate = DrawBackground-local static) */
 extern int  R3DCar_aSyncLoading;
+extern int  showRoomFlag[];
 
 /* external methods declared free-form (mgr/mgr2 = the implicit this) */
 tCarInfo *GetCarFromID(tCarManager *mgr, short carID);
@@ -28,7 +29,7 @@ short PlayerRanking(tTournamentManager *mgr, short pos);
 void  AudioCmn_PlayFESFX(int SFXnum);
 int   CalcFadeVal(int col1, int col2, int amount);
 int   CalcFadeVal(int col1, int amount);   /* 2-arg overload */
-extern int ticks;
+extern int ticks[];
 void  CarIO_CleanUpLicense(int player);
 void  CarIO_CreateLicense(char *text, int carType, int player);
 void  DrawCar(tCarInfo *carInfo, short x, short y, float camerax, float cameray, char brightness, bool reflection, u_long rotate, tPlayer player);

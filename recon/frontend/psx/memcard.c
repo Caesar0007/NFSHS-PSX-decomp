@@ -399,7 +399,7 @@ int iMCRD_DoFileLoad(int card)
       while (1) {
         ch = sjis2ascii(pMFI->header.title[i]);
         pMFI->title[i] = ch;
-        if (ch == ' ') break;
+        if (ch == '\0') break;
         i = i + 1;
       }
     }

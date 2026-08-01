@@ -126,7 +126,7 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
    * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
    * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
    * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
-   * 22 -> 0 PASS (w41-a5, 113/113).  🏆 THE "COMMUTATIVE-OPERAND RTL CANONICALIZATION
+   * 22 -> 0 PASS (w41-a5, 113/113).  рџЏ† THE "COMMUTATIVE-OPERAND RTL CANONICALIZATION
    * FLOOR" WAS A COMPOSITE-EXPRESSION ARTIFACT, NOT A FLOOR.  All five `or rd,v1,v0`
    * (ours) vs `or rd,v0,v1` (oracle) diffs came from writing a read-modify-write as ONE
    * composite expression -- `X = (X << 4) | rollOver;` / `d = (d & mask) | v;`.  In that
@@ -136,7 +136,7 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
    * Writing the SAME arithmetic as a compound-assignment PAIR -- `X <<= 4; X |= rollOver;`
    * / `d &= mask; d |= v;` -- makes the destination a genuine input operand, so it lands
    * FIRST exactly like retail.  Four splits, each worth exactly 2 diffs, strictly
-   * monotone (8->6->4->2->0).  ⇒ before filing any commutative-operand-order diff as an
+   * monotone (8->6->4->2->0).  в‡’ before filing any commutative-operand-order diff as an
    * RTL floor, check whether the C is a composite expression that should be a
    * read-modify-write pair.
    * TWO more, found the same pass: (b) the trailing `current <<= 4` loop DOES take the
@@ -271,7 +271,13 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
    *      third.  All registers match -- pure sched2 placement.
    *  (b) the two arms' identical `source += 12; j looptop` tails: our gcc CROSS-JUMPS
    *      them into one, retail kept both copies.  No source spelling reached it;
-   *      moving the statement out of the arms produces exactly our merged form. */
+   *      moving the statement out of the arms produces exactly our merged form.
+   *      (= the catalog's per-obj "old-gcc never merges identical tails" identity.)
+   * w41-a5 re-probe under the upgraded floor bar: the n0..n3 DECLARATION order is a
+   * separate dial from their assignment order, so all 24 declaration permutations were
+   * swept -- every one measures 6.  Assignment order (24, w39) and `|` operand order
+   * were already swept.  Both remaining items are therefore post-source (sched2
+   * placement + cross-jump depth); STRONG floor at the source level. */
   int h;
 
   h = 0x16;
@@ -332,6 +338,36 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  *      to their base letter at runtime.  The oracle normalizes against +0xC0
  *      (`addiu a0,a0,-192`), confirming unsigned labels.  Case BODY order is retail's
  *      (n, a, e, i, o, u) -- switch case bodies emit in SOURCE order. */
+/* ---- CarIO_CreateLicense__FPcii  [CARIO.CPP:379-483] SLD-VERIFIED ----
+ * 124 -> 104 (w41-a5), count EXACT 229/229.  SYM @0x800bc25c: fsize 72,
+ * mask $80ff0000 (ra + s0..s7, no fp) -- both reproduced.  SYM register map:
+ *   REGPARM text $17($s7)  carType $05($a1)  player $16($s6)
+ *   fn block  i $12($s2), clutPlate1 $14($s4), clutPlate2 $15($s5),
+ *             thePlate $13($s3), shape $07($a3), clutptr $08($t0)
+ *   line-32   length $11($s1), start $10($s0)
+ *   line-44   letter AUTO -0x30, ascii REG $03($v1)
+ * THREE changes this pass:
+ *  (a) the header-copy loop stores Plate1 BEFORE Plate2 (124 -> 106) and the
+ *      0x11800 flag word likewise (106 -> 104).  Ghidra had emitted every
+ *      Plate2/Plate1 pair in reverse; the first two pairs are the load-bearing
+ *      ones (the clut-copy loop 3 and the width pair 5 both regress or tie).
+ *  (b) `void *pShape` deleted -- the SYM's line-44 block names only `letter` and
+ *      `ascii`, so pShape was a Ghidra temp; the locateshapez call is inlined at
+ *      its single use (diff-neutral, SYM hygiene).
+ *  (c) the w40 "$s0<->$s1 find_reg pick" framing is now WRONG: after (a) the
+ *      s0/s1 pair matches and a blanket s0<->s1 rename REGRESSES 104 -> 174.
+ * RESIDUAL 104, three caller-saved coloring clusters, all count-neutral:
+ *   - clutptr: SYM $t0, ours $a2 (and the header-loop giv walker $a2 vs our $a1)
+ *   - ascii:   SYM $v1, ours $a2 -- ~20 diffs across the switch and the letter[]
+ *     build.  SYM puts `ascii` and `letter` in the SAME block (the one at
+ *     800BC478), i.e. inside the non-space guard; three spellings of that
+ *     (re-read text[i] in the guard, with/without initializer, decl order) all
+ *     measure 99 but at 230 insns -- the extra lbu makes them structurally
+ *     WORSE, so the count-exact 104 form is kept.  Wrapping both locals in one
+ *     block around the guard is exactly diff-neutral (104, 229) -- so the SYM
+ *     block shape is reachable but does not move the coloring.
+ *   - the 0x11800/width/CopyToShape tail: t2 vs t4 and a v0/v1/t0 rotation.
+ * Next handle is a -dg allocno dump on this body, not more statement order. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -362,8 +398,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       int hdr;
 
       hdr = ((int *)shape)[i];
-      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
       *(int *)((char *)(CarIO_Plate1[player]) + i * 4) = hdr;
+      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
       i = i + 1;
     } while (i < 4);
     i = 0;
@@ -375,8 +411,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       ((int *)clutPlate1)[i] = tu3;
       i = i + 1;
     } while (i < 0xc);
-    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
     *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
+    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
     CarIO_Plate2[player]->width = 0x18;
     CarIO_Plate1[player]->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
@@ -392,7 +428,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
         ascii = text[i];
         if (ascii != ' ') {
           char letter [5];
-          void *pShape;
 
           switch(ascii) {
           case 0xd1:
@@ -420,8 +455,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
           letter[0] = ascii;
           letter[1] = '\0';
           strcat(letter,"   ");
-          pShape = locateshapez(R3DCar_LicenseShapeFile,letter);
-          CarIO_CopyFromShape((short *)((int)pShape + 0x10),thePlate,7,0xc,start,5);
+          CarIO_CopyFromShape((short *)((int)locateshapez(R3DCar_LicenseShapeFile,letter) + 0x10),thePlate,7,0xc,start,5);
         }
         start = start + 6;
       }

@@ -17,6 +17,7 @@ int initmdec(int width,int height,int bpp,int memtype)
 
 {
   int area;
+  int stripsize;
   void *buf;
   int stride;
   void *bufsize;
@@ -36,7 +37,12 @@ int initmdec(int width,int height,int bpp,int memtype)
   if (area < 0) {
     area = area + 0xff;
   }
-  bufsize = (void *)(bpp * 0x1e0 + (area >> 8) * 0x300);
+  /* MATCH: the strip-buffer term is its OWN statement (lower luid) so sched1 issues the
+     area chain before the bpp chain, while the sum keeps `bpp*0x1e0` as addu operand 1.
+     A one-expression form gets the two independent chains in the opposite order; folding
+     the term back into `area`/`bufsize` makes the add an in-place RMW (addu s0,s0,s1). */
+  stripsize = (area >> 8) * 0x300;
+  bufsize = (void *)(bpp * 0x1e0 + stripsize);
   buf = reservememadr("MDEC buffers",(int)bufsize,memtype);
   mdec->stripbuf = (u_long *)buf;
   blockclear(buf,(int)bufsize);

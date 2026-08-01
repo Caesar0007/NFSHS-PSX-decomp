@@ -165,15 +165,10 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
 
 {
   int i;
-  short newB;
   coorddef *pos;
-  short newG;
-  short newR;
   MATRIX nightMat;
   VECTOR nightV;
   PCOORD16 zero;
-  coorddef tmp;
-  coorddef tmp2;
   int *light;
 
   /* @0x800BE9A8-AC: light = &carObj->render.light, set unconditionally (before the lights&6 test);
@@ -183,6 +178,8 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
   light = (int *)&(carObj->render).light;
   i = gCView.player;
   if (((Cars_gList[i]->control).lights & 6U) != 0) {
+    coorddef tmp;
+    coorddef tmp2;
     pos = &(carObj->N).position;
     tmp.x = (carObj->N).position.x - (Cars_gHumanRaceCarList[i]->N).position.x;
     tmp.y = pos->y - (Cars_gHumanRaceCarList[i]->N).position.y;
@@ -210,6 +207,9 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        at each of the three byte reads made cc1 rematerialize it. */
     u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
     u_char *lp = (u_char *)&light;
+    short newR;
+    short newG;
+    short newB;
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);
     newB = (short)((int)lp[2] + (int)wc[2]);

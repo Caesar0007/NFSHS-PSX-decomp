@@ -35,6 +35,28 @@ void OptionsBarThing(int x,int y,int w,int h)
 }
 
 /* ---- RaceSummary__Fv  [OVERLAYS.CPP:53-158] SLD-VERIFIED ---- */
+/* w41-a4: 287 -> 65 diffs (348 ours / 349 oracle), frame layout byte-identical to the SYM.
+ * FOUR levers, in the order they landed (each is a separate commit with its receipt):
+ *  1. DECL POSITION IS THE FRAME LAYOUT.  reload assigns spill slots in pseudo-regno order
+ *     and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO
+ *     offsets read off retail's decl SEQUENCE.  fsize 184 = string 0x20 / SIZE_W 0x48 /
+ *     SIZE_H 0x50 / POS_Y 0x58 / <(int)SIZE_H> 0x60 / <0x78-halfH> 0x64 / colpos 0x68 /
+ *     colname 0x70 / colcar 0x78 / coltime 0x80 / colbestlap 0x88: TWO SImode temps sit
+ *     BETWEEN POS_Y and colpos, so the col* block is declared MID-FUNCTION, after the two
+ *     statements that create them.  (287->263, slot set now exact.)
+ *  2. COLOUR SELECT = TWO FULL CALLS, not a ternary.  The ternary lets gcc materialize the
+ *     else-arm constant (li a0,4) BEFORE the guard and reuse that register as the mask
+ *     (and v0,v0,a0), emptying the beqz delay slot; retail has andi v0,v0,4 with li a0,4
+ *     IN the slot, i.e. both arms written out and cross-jump-merged.  (249->176.)
+ *  3. finishType==2 arm INLINE, not the else (bne to the else, ParseTime falls through).
+ *  4. MISSING GUARD ARM: retail wrote the semantically-no-op `bestLap != 0 ? bestLap : 0`
+ *     null guard (raw `lw a0,1000(v0); bnez a0,T; addu a0,zero,zero`) -- again as TWO full
+ *     Hud_ParseTime calls (the ternary spelling scores 153 vs the if/else 83).
+ * Residual 65 = one uniform register rotation (ours s0/s3/s4 vs oracle s1/s5/s4) plus the
+ * oracle RE-COMPUTING `dataY + pos*12` per Font_TextXY where cse caches it for us.
+ * FALSIFIED at the final base (re-probe only with a new idea): purging titleX (82), titleY
+ * (90) or barH (65, neutral); the (u_short) halfH spelling (83).  NOTE the whole ladder is
+ * LCS-NON-MONOTONE -- the halfH spelling flipped sign twice as other levers landed. */
 void RaceSummary(void)
 
 {
@@ -159,6 +181,16 @@ void RaceSummary(void)
 }
 
 /* ---- RaceStatistics__Fv  [OVERLAYS.CPP:165-321] SLD-VERIFIED ---- */
+/* w41-a4: 296 -> 94 diffs (471 ours / 475 oracle), frame 168 -> 176 == SYM fsize.
+ * Levers: (1) the decl-order spill-slot model (see the decl block below); (2) the lap
+ * COLOUR select and (3) the lap-TIME null guard both rewritten as TWO full calls instead
+ * of ternaries (230->208->120 -- the same pair of levers that took RaceSummary to 65);
+ * (4) finishType==2 as the INLINE arm (120->106); (5) dataY inlined at its use sites
+ * (106->94).  Residual 94 = a uniform head register rotation (ours s1/s4/s7/s2 vs oracle
+ * s4/s7/s2/s3), the `mult $v1,$a1` (0x96) the synthesized shift chain replaces, and two
+ * 2-insn lui/addiu hoist positions.  FALSIFIED at the 94 base: `int rows` product
+ * liveness (98), `int pitch = 0x96` for the mult (139), purging halfH (94, neutral),
+ * titleX (160) or titleY (123), and the y-coordinate ternaries as two calls (259/248). */
 void RaceStatistics(void)
 
 {
@@ -482,6 +514,17 @@ void Hud_BTCStats(short player,bool postgame)
 }
 
 /* ---- Hud_RenderStatsView__Fv  [OVERLAYS.CPP:450-507] SLD-VERIFIED ---- */
+/* w41-a4 OPEN, 23 diffs (134 ours / 139 oracle).  The 4-insn deficit IS a10's `bne 4v5`
+ * missing arm and it is LOCATED: the commMode==1 re-test at the head of the .L800DAF88
+ * block (`lui v0; lw v1,%lo(D_801131F8); li v0,1; bne v1,v0`).  Our CFG is 1:1 with the
+ * oracle, but every path into HudStats_secondCar has already established commMode==1
+ * (the goto from HudStats_common and the fall-through from HudStats_check200B's own
+ * commMode test), so cse folds our second test away.  Retail keeps it because
+ * .L800DAF88 is a 2-predecessor JOIN and cse_basic_block restarts there.  A flat
+ * independent-statement chain (catalog SS B, the Device_ReadPad 138->PASS pattern) is the
+ * untried handle.  The other cluster is base-CSE: ours hoists &Cars_gHumanRaceCarList
+ * into v1 and offsets (`addiu a1,v1,0; lw v0,4(a1)`) where retail self-temps each element
+ * (`lui v0,%hi(list+4); lw v0,%lo(list+4)(v0)`).  Sizing the extern [9] measured NEUTRAL. */
 void Hud_RenderStatsView(void)
 
 {

@@ -329,21 +329,27 @@ void MCRD_loadfile(int card,MCRDFILE_def *pFILE,int bNameHasProductCode)
 {
   MCRDFILEINFO_def *pMFI;
   
-  blockclear(&gMemCardInfo.fileinfo,0x23c);
-  gMemCardInfo.fileinfo.cardnum = card;
+  /* MATCH: everything goes through the fileinfo POINTER - the oracle anchors one
+   * saved reg on &gMemCardInfo.fileinfo (small displacements, productCode at -0x25C
+   * and the task/bReady base at -0x260 derived FROM it).  Writing the fields as
+   * gMemCardInfo.fileinfo.X instead anchors on &gMemCardInfo and inflates every
+   * displacement by 0x260. */
+  pMFI = &gMemCardInfo.fileinfo;
+  blockclear(pMFI,0x23c);
+  pMFI->cardnum = card;
   if (bNameHasProductCode == 0) {
-    strcpy(gMemCardInfo.fileinfo.name,gMemCardInfo.productCode);
+    strcpy(pMFI->name,gMemCardInfo.productCode);
   }
-  strcat(gMemCardInfo.fileinfo.name,pFILE->name);
-  gMemCardInfo.fileinfo.title = pFILE->title;
-  gMemCardInfo.fileinfo.size = pFILE->size;
-  gMemCardInfo.fileinfo.offset = pFILE->offset;
-  gMemCardInfo.fileinfo.icon[0] = pFILE->icon[0];
-  gMemCardInfo.fileinfo.icon[1] = pFILE->icon[1];
-  gMemCardInfo.fileinfo.icon[2] = pFILE->icon[2];
-  gMemCardInfo.fileinfo.pData = pFILE->pData;
-  pFILE->numicons = &gMemCardInfo.fileinfo.header.type;
-  pFILE->numblocks = &gMemCardInfo.fileinfo.header.nslots;
+  strcat(pMFI->name,pFILE->name);
+  pMFI->title = pFILE->title;
+  pMFI->size = pFILE->size;
+  pMFI->offset = pFILE->offset;
+  pMFI->icon[0] = pFILE->icon[0];
+  pMFI->icon[1] = pFILE->icon[1];
+  pMFI->icon[2] = pFILE->icon[2];
+  pMFI->pData = pFILE->pData;
+  pFILE->numicons = &pMFI->header.type;
+  pFILE->numblocks = &pMFI->header.nslots;
   gMemCardInfo.task = LOAD_FILE;
   gMemCardInfo.bReady = 0;
   return;

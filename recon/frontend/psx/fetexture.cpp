@@ -15,91 +15,70 @@
 void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yoffset,int xoffset)
 
 {
-  byte hdrflags;
-  short tpage_or_clut;
-  int newptr;
-  char *oldptr;
-  int shapeData;
-  int shapeDataSize;
-  int decompBuf;
-  int uploadResult;
-  int bpp;
-  uint clutmode;
-  uint savedHdr4;
-  int savedHdr0;
-  uint savedHdr1;
-  uint savedHdr2;
-  int savedHdr3;
+  /* SYM 8c: fsize 88, mask $807f0000 (ra,s6..s0).  REGPARM f($a0) index($a1)
+   * dest($s3) yoffset($s5); ARG xoffset @+0x10 copied to REG $s6.  Locals are
+   * EXACTLY: shpptr(shapetbl* $s2) old_shape(shapetbl AUTO -0x40 = sp+0x18)
+   * bpp(int $a0) xclut(AUTO sp+0x30) yclut(AUTO sp+0x34) unpacked(shapetbl* $s1)
+   * + block-scoped is_compressed(char $s4) and oldptr(char*)/newptr(int).
+   * Ghidra's savedHdr0..4 are ONE `shapetbl old_shape` struct copy (the oracle's
+   * 4-word + 1-word movstrsi block, save AND restore); ts1[20]/ts2..ts5/tc6/
+   * loc_48/shapeData/decompBuf/clutmode/hdrflags/uploadResult were fictions. */
   shapetbl *unpacked;
-  shapetbl *shpptr;
-  char is_compressed;
-  int loc_48;
-  shapetbl old_shape;
-  int xclut;
   int yclut;
-  byte ts1 [20];
-  short ts4;
-  short ts5;
-  short ts2;
-  short ts3;
-  byte tc6;
-  
+  int xclut;
+  int bpp;
+  shapetbl old_shape;
+  shapetbl *shpptr;
+
   xclut = 0;
   yclut = 0;
-  shapeData = (int)shapepointer(f,index);
-  if (shapeData != 0) {
-    hdrflags = *(byte *)shapeData;
-    decompBuf = shapeData;
-    if ((hdrflags & 0x80) != 0) {
-      shapeDataSize = unpacksize((void *)(shapeData + 0x10));
-      decompBuf = (int)reservememadr("unpacked",shapeDataSize + 0x10,0);
-      blockmove((void *)shapeData,(void *)decompBuf,0x10);
-      oldptr = (char *)(shapeData + 0x10);
-      newptr = decompBuf + 0x10;
+  shpptr = (shapetbl *)shapepointer(f,index);
+  if (shpptr != 0) {
+    char is_compressed;
+
+    is_compressed = *(char *)shpptr & 0x80;
+    if (is_compressed != 0) {
+      char *oldptr;
+      int newptr;
+
+      oldptr = (char *)shpptr + 0x10;
+      unpacked = (shapetbl *)reservememadr("unpacked",unpacksize(oldptr) + 0x10,0);
+      blockmove(shpptr,unpacked,0x10);
+      newptr = (int)unpacked + 0x10;
       unpack(oldptr,(void *)newptr);
-      *(byte *)decompBuf = *(byte *)decompBuf & 0x7f;
-      *(uint *)decompBuf =
-           (uint)*(byte *)decompBuf | ((shapeData + (*(int *)shapeData >> 8)) - decompBuf) * 0x100;
+      *(char *)unpacked = *(char *)unpacked & 0x7f;
+      *(u_int *)unpacked =
+           (u_int)*(u_char *)unpacked |
+           ((int)shpptr + (*(int *)shpptr >> 8) - (int)unpacked) * 0x100;
     }
-    clutmode = (byte)*(uint *)decompBuf & 3;
-    if (clutmode != 2) {
-      Texture_GetClutId(clutmode,&xclut,&yclut);
-      dest->clutID = yclut << 6 | xclut >> 4 & 0x3fU;
+    else {
+      unpacked = shpptr;
     }
-    savedHdr0 = *(int *)decompBuf;
-    savedHdr1 = *(uint *)(decompBuf + 4);
-    savedHdr2 = *(uint *)(decompBuf + 8);
-    savedHdr3 = *(uint *)(decompBuf + 0xc);
-    savedHdr4 = *(uint *)(decompBuf + 0x10);
-    vramfxya
-              ((void *)decompBuf,
-               (short)((int)(*(uint *)(decompBuf + 0xc) << 0x14) >> 0x14) + (short)xoffset,
-               (short)((int)(*(uint *)(decompBuf + 0xc) << 4) >> 0x14) + (short)yoffset,(short)xclut
-               ,yclut);
-    dest->shpptr = (shapetbl *)shapeData;
-    dest->type = (byte)*(uint *)decompBuf;
-    dest->next = *(uint *)decompBuf >> 8;   /* next:24 bitfield */
-    dest->width = (short)*(uint *)(decompBuf + 4);
-    dest->height = *(short *)(decompBuf + 6);
-    dest->centerx = (short)*(uint *)(decompBuf + 8);
-    dest->centery = *(short *)(decompBuf + 10);
-    dest->shapex = (short)((int)(*(uint *)(decompBuf + 0xc) << 0x14) >> 0x14);
-    dest->shapey = (short)((int)(*(uint *)(decompBuf + 0xc) << 4) >> 0x14);
-    uploadResult = shapedepth((void *)decompBuf);
-    dest->depth = (char)uploadResult;
+    bpp = *(u_char *)unpacked & 3;
+    if (bpp != 2) {
+      Texture_GetClutId(bpp,&xclut,&yclut);
+      dest->clutID = yclut << 6 | xclut >> 4 & 0x3f;
+    }
+    old_shape = *unpacked;
+    vramfxya(unpacked,unpacked->shapex + xoffset,unpacked->shapey + yoffset,xclut,yclut);
+    dest->shpptr = shpptr;
+    dest->type = *(u_char *)unpacked;
+    dest->next = *(u_int *)unpacked >> 8;   /* next:24 bitfield */
+    dest->width = unpacked->width;
+    dest->height = unpacked->height;
+    dest->centerx = unpacked->centerx;
+    dest->centery = unpacked->centery;
+    dest->shapex = unpacked->shapex;
+    dest->shapey = unpacked->shapey;
+    dest->depth = shapedepth(unpacked);
     dest->tpage = ((byte)dest->type & 3) << 7 | (short)(dest->shapey & 0x100U) >> 4 |
                   (ushort)(((ushort)dest->shapex & 0x3ff) >> 6) | (dest->shapey & 0x200U) << 2;
-    tpage_or_clut = GetClut((dest->clutID & 0x3fU) << 4,dest->clutID >> 6);
-    dest->clut = tpage_or_clut;
+    dest->clut = GetClut((dest->clutID & 0x3fU) << 4,dest->clutID >> 6);
     if ((yoffset != 0) || (xoffset != 0)) {
-      *(int *)decompBuf = savedHdr0;
-      *(uint *)(decompBuf + 4) = savedHdr1;
-      *(uint *)(decompBuf + 8) = savedHdr2;
-      *(int *)(decompBuf + 0xc) = savedHdr3;
-      *(uint *)(decompBuf + 0x10) = savedHdr4;
+      *unpacked = old_shape;
     }
-    if ((hdrflags & 0x80) != 0) {
-      purgememadr((void *)decompBuf);
+    if (is_compressed != 0) {
+      purgememadr(unpacked);
     }
   }
   return;

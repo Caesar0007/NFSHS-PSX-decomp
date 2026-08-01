@@ -638,7 +638,7 @@ LAB_DAMAGE_ZONE:
 
 
 /* ---- Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2  [@0x8008e5d4] ---- */
-int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
+int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
 {
   /* RULE-8 rewrite from SYM 8c block @0x8008e5d4 (fsize=184 mask=$c0ff0000 = ra+s2..s7) + m2c
      pregen + raw oracle, blocks in oracle VA order.  Note SYM: o0/normal are class ARG (stack-
@@ -646,10 +646,9 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
        impulse,impulseWST,impulseV,R0CrossN,R1CrossN,Rt0,Rt1,numerator,deltaV,damageVector
      Block layout: @ec40 (o0 damage-zone check) nests {zone,impulse}@ecdc, same-VA-nested (no
      locals of its own) wraps {right,top,front}@ed2c inside the impulse>0xA0000 guard; mirrored
-     @eef4..f15c for o1 (damageVector negated x,z,y order per raw).  zone-dispatch tangle
-     (right/top/front -> 9-way zone incl. edges 1/3/5/7, not just corners like TestWithPlane) is
-     transcribed goto-for-goto off the m2c block_NN labels — a hand-shaped nested-if guess is not
-     safe to assume matches this exact criss-cross; GOTO-DISPATCH per wave-12/13 catalog technique.
+     @eef4..f15c for o1.  The source-order x,y,z negation schedules to retail's x,z,y instruction
+     order.  The right/top/front 9-way damage-zone dispatch uses the structured IDA conditions;
+     keeping the common zone<8 test after the dispatch reproduces the retail branch-delay layout.
      MATCH: R0/R1 moment-of-inertia terms use raw >>1 (NOT /2 — no div-guard, non-negative operands);
      massInv terms use plain /2 (real division, guard regenerates).  moInertiaInv*3/4 angular-scale
      branch is the plain-/256-idiom family at divisor 4 (if(x<0)x+=3;x>>=2 == x/4); write plain
@@ -665,6 +664,8 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
   int numerator;
   coorddef deltaV;
   coorddef damageVector;
+  BO_tNewtonObj *object1 = o1;
+#define o1 object1
 
 
   Rt0.x = p->x - (o0->position).x;
@@ -719,8 +720,12 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
                           (fixedmult((o1->linearVel).x,normal->x) + fixedmult((o1->linearVel).y,normal->y) +
                            fixedmult((o1->linearVel).z,normal->z)),
                           o0->mass + o1->mass);
-  (o0->collision).impulse = __builtin_abs(fixedmult(impulseWST,o0->massInv));
-  (o1->collision).impulse = __builtin_abs(fixedmult(impulseWST,o1->massInv));
+  (o0->collision).impulse =
+    0 < fixedmult(impulseWST,o0->massInv) ?
+      fixedmult(impulseWST,o0->massInv) : -fixedmult(impulseWST,o0->massInv);
+  (o1->collision).impulse =
+    0 < fixedmult(impulseWST,o1->massInv) ?
+      fixedmult(impulseWST,o1->massInv) : -fixedmult(impulseWST,o1->massInv);
   if (0x1ff < o0->objID || 0x1ff < o1->objID) {
     (o0->collision).impulse = (o0->collision).impulse / 3;
     (o1->collision).impulse = (o1->collision).impulse / 3;
@@ -730,9 +735,9 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
   deltaV.z = fixedmult(o0->massInv,impulseV.z);
   (o0->linearVel).x = (o0->linearVel).x + deltaV.x;
   (o0->linearVel).y = (o0->linearVel).y + deltaV.y;
+  (o0->linearVel).z = (o0->linearVel).z + deltaV.z;
   (o0->collision).sfxType = 0x50001;
   (o0->collision).otherObj = o1;
-  (o0->linearVel).z = (o0->linearVel).z + deltaV.z;
   if (o0->objID < 0x200) {
     {
       int zone;
@@ -748,9 +753,6 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
         int right;
         int top;
         int front;
-        int t1;
-        int t2;
-        int t3;
 
         right = fixedmult(damageVector.x,(o0->orientMat).m[0]) + fixedmult(damageVector.y,(o0->orientMat).m[1]) +
                 fixedmult(damageVector.z,(o0->orientMat).m[2]);
@@ -765,36 +767,23 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
         if (__builtin_abs(right) < 0x1999) {
           if (front < -0x1999) { zone = 1; goto o0_zdisp; }
           if (front >= 0x199A) { zone = 5; goto o0_zdisp; }
-          goto o0_b30;
         }
-o0_b30:
         if (__builtin_abs(front) < 0x1999) {
           if (right >= 0x199A) { zone = 7; goto o0_zdisp; }
-          t1 = front < -0x1999;
           if (right < -0x1999) { zone = 3; goto o0_zdisp; }
-          goto o0_b38;
         }
-        t1 = front < -0x1999;
-o0_b38:
-        if (t1) {
+        if (front < -0x1999) {
           if (right >= 0x199A) { zone = 0; goto o0_zdisp; }
-          t2 = front < 0x199A;
           if (right < -0x1999) { zone = 2; goto o0_zdisp; }
-          goto o0_b44;
         }
-        t2 = front < 0x199A;
-o0_b44:
-        t3 = zone < 8;
-        if (!t2) {
+        if (front >= 0x199A) {
           if (right >= 0x199A) { zone = 6; goto o0_zdisp; }
-          t3 = zone < 8;
           if (right < -0x1999) {
             zone = 4;
-o0_zdisp:
-            t3 = zone < 8;
           }
         }
-        if (t3) {
+o0_zdisp:
+        if (zone < 8) {
           Newton_AddDamageZone(o0,impulse,zone,2);
         }
       }
@@ -805,9 +794,9 @@ o0_zdisp:
   deltaV.z = fixedmult(o1->massInv,impulseV.z);
   (o1->linearVel).x = (o1->linearVel).x - deltaV.x;
   (o1->linearVel).y = (o1->linearVel).y - deltaV.y;
+  (o1->linearVel).z = (o1->linearVel).z - deltaV.z;
   (o1->collision).sfxType = 0x50001;
   (o1->collision).otherObj = o0;
-  (o1->linearVel).z = (o1->linearVel).z - deltaV.z;
   if (o1->objID < 0x200) {
     {
       int zone;
@@ -815,16 +804,13 @@ o0_zdisp:
 
       impulse = (o1->collision).impulse;
       damageVector.x = -damageVector.x;
-      damageVector.z = -damageVector.z;
       damageVector.y = -damageVector.y;
+      damageVector.z = -damageVector.z;
       zone = 9;
       if (0xA0000 < impulse) {
         int right;
         int top;
         int front;
-        int t1;
-        int t2;
-        int t3;
 
         right = fixedmult(damageVector.x,(o1->orientMat).m[0]) + fixedmult(damageVector.y,(o1->orientMat).m[1]) +
                 fixedmult(damageVector.z,(o1->orientMat).m[2]);
@@ -839,36 +825,23 @@ o0_zdisp:
         if (__builtin_abs(right) < 0x1999) {
           if (front < -0x1999) { zone = 1; goto o1_zdisp; }
           if (front >= 0x199A) { zone = 5; goto o1_zdisp; }
-          goto o1_b30;
         }
-o1_b30:
         if (__builtin_abs(front) < 0x1999) {
           if (right >= 0x199A) { zone = 7; goto o1_zdisp; }
-          t1 = front < -0x1999;
           if (right < -0x1999) { zone = 3; goto o1_zdisp; }
-          goto o1_b38;
         }
-        t1 = front < -0x1999;
-o1_b38:
-        if (t1) {
+        if (front < -0x1999) {
           if (right >= 0x199A) { zone = 0; goto o1_zdisp; }
-          t2 = front < 0x199A;
           if (right < -0x1999) { zone = 2; goto o1_zdisp; }
-          goto o1_b44;
         }
-        t2 = front < 0x199A;
-o1_b44:
-        t3 = zone < 8;
-        if (!t2) {
+        if (front >= 0x199A) {
           if (right >= 0x199A) { zone = 6; goto o1_zdisp; }
-          t3 = zone < 8;
           if (right < -0x1999) {
             zone = 4;
-o1_zdisp:
-            t3 = zone < 8;
           }
         }
-        if (t3) {
+o1_zdisp:
+        if (zone < 8) {
           Newton_AddDamageZone(o1,impulse,zone,2);
         }
       }
@@ -906,9 +879,10 @@ o1_zdisp:
   (o1->angularVel).z = (o1->angularVel).z - deltaV.z;
   o0->flightTime = o0->flightTime + 1;
   o1->flightTime = o1->flightTime + 1;
-  (o1->collision).collisionPoint.x = (o0->collision).collisionPoint.x = ((o0->position).x + (o1->position).x) / 2;
-  (o1->collision).collisionPoint.y = (o0->collision).collisionPoint.y = ((o0->position).y + (o1->position).y) / 2;
-  (o1->collision).collisionPoint.z = (o0->collision).collisionPoint.z = ((o0->position).z + (o1->position).z) / 2;
+  (o0->collision).collisionPoint.x = (o1->collision).collisionPoint.x = ((o0->position).x + (o1->position).x) / 2;
+  (o0->collision).collisionPoint.y = (o1->collision).collisionPoint.y = ((o0->position).y + (o1->position).y) / 2;
+  (o0->collision).collisionPoint.z = (o1->collision).collisionPoint.z = ((o0->position).z + (o1->position).z) / 2;
+#undef o1
   return 1;
 }
 

@@ -2007,6 +2007,21 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int doFrustumClip;
   short *visList;
   
+  /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
+   * (Draw_DCache*, REG $0x1e == $fp) in the FUNCTION-scope block and the oracle
+   * materializes it in the prologue (`lui $fp,0x1F80`) BEFORE the zero-count
+   * `beqz $v0`, reaching the GTE translation vector as `sw $zero,0x28($fp)`
+   * (== sd->matB.t[]) while STILL building a separate `lui/ori 0x1F800014` for the
+   * gte_SetTransMatrix argument.  Reproducing either half makes it WORSE:
+   *   hoist sd to fn scope                : 147 -> 153 (192 -> 194 insns)
+   *   matB zeroing through sd (sd in-arm) : 147 -> 158 (192 -> 195 insns)
+   *   both together                       : 147 -> 153
+   * Root cause is an allocno-priority inversion, not the statement position: with
+   * the longer live range `sd`'s priority falls below `Vi`'s, `Vi` takes $fp (the
+   * oracle's `sd` home) and `sd` gets no callee-saved reg at all -- so it is
+   * rematerialized per use and the whole file rotates.  The lever that would land
+   * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
+   * declaration move; do not re-try the move on its own. */
   iVar10 = 0;
   animInst = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   iVar2 = gObjInfo->objInstanceBuf->m_num_elements;

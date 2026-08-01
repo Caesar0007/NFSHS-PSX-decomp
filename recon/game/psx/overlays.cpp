@@ -274,8 +274,12 @@ void RaceStatistics(void)
           }
           sprintf(string,TextSys_Word(0x34),(int)j + 1);
           Font_TextXY(string,(int)col1,dataY + (int)j * 0xc + 0xc);
-          Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0 ?
-                        (Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] : 0,string);
+          if ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) {
+            Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j],string);
+          }
+          else {
+            Hud_ParseTime(0,string);
+          }
           Font_TextXY(string,col2 + 5,dataY + (int)j * 0xc + 0xc);
         }
         j = j + 1;

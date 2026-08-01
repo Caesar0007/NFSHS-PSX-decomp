@@ -1219,10 +1219,10 @@ void Weather_DoWeather(DRender_tView *Vi)
      * `addu s0,s6,zero` / `addu s2,s7,zero` right before the loop (2 insns ours lacked when
      * the loop mutated wpt/wprevpt in place), and the in-loop refs then give the cursors
      * the low-numbered saved regs while wpt/wprevpt keep the high ones. */
-    p = wpt;
-    pp = wprevpt;
     n = 0;
     if (0 < Weather_gSys.num[player]) {
+      p = wpt;
+      pp = wprevpt;
       do {
         if (Weather_gType == Weather_kRain) {
           Weather_CreateRain(p,pp,wd + n);

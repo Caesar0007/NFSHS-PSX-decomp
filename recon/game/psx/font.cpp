@@ -377,9 +377,15 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
  */
 /* w39-a6: 34 -> 28, count EXACT 86/86.  `cfbase = &currentfont` must be the LAST of the
  * three prologue initialisers -- placed first it materializes the %hi/%lo + the $s5 save
- * three insns too early.  RESIDUAL 28 = a 3-way rotation of the hoisted literal constants
- * in the DR_MODE tail (ours 0x1F800004/0x00ffffff/0xff000000 = t2/t3/t1, oracle
- * t3/t1/t2); swapping the merge's `|` operand order makes it worse (38). */
+ * three insns too early.  w40-a6 28 -> 22: the palette write-back must be written BEFORE
+ * the packet-cursor bump (the same order lever that took Weather_CreateSplat 40 -> 6 and
+ * Weather_DoWeather's tail 66 -> 60); with the bump 2nd, gcc issues `addiu/sw` ahead of
+ * the merge instead of interleaving it.  RESIDUAL 22 = the t1<->t2 rotation of the hoisted
+ * 0x00ffffff / 0xff000000 literals plus the bump's 2-slot schedule.  Measured NEGATIVE:
+ * dropping the fabricated `tpage` local (32), 0xffffff-first palette spelling (24),
+ * dr_mode-first packet spelling (26), dropping `cfbase` for direct &currentfont uses
+ * (+2 insns / 52 -- the SYM has no cfbase local but gcc will not hoist the address
+ * itself here, so the local stays). */
 void Font_TextXY(char *string,int x,int y)
 
 {
@@ -422,8 +428,10 @@ void Font_TextXY(char *string,int x,int y)
     pal = (u_int *)Render_gPalettePtr;
     tpage = (int)font_currentTPage;
     *(u_int *)dr_mode = *pal & 0xffffff | *(u_int *)dr_mode & 0xff000000;
-    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+    /* MATCH: palette write-back BEFORE the cursor bump (same lever as
+     * Weather_CreateSplat / Weather_DoWeather) -- 28 -> 22. */
     *pal = *pal & 0xff000000 | (u_int)dr_mode & 0xffffff;
+    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
     SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
   }
   return;

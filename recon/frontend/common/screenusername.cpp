@@ -95,11 +95,11 @@ void tScreenUserName::DrawBackground()
   short y;
   int gray;
   short fade;
+  char output[2];
   volatile short fadebox;
   short gridpos;
   short row;
   short col;
-  char output[2];
   int screenFade;
   int temp;
 
@@ -121,14 +121,21 @@ void tScreenUserName::DrawBackground()
   }
   gridpos = temp;
   fade = screenFade;
-  if (fade < 1) {
-    this->fTextFade = 0;
+  if (fade < 0x80) {
+    if (fade < 1) {
+      this->fTextFade = 0;
+    }
+    else {
+      this->fTextFade = fade;
+    }
   }
   else {
-    if (fade > 0x80) {
-      fade = 0x80;
+    if (fade >= 0x81) {
+      this->fTextFade = 0x80;
     }
-    this->fTextFade = fade;
+    else {
+      this->fTextFade = fade;
+    }
   }
   gray = 0x80808;
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
@@ -136,34 +143,7 @@ void tScreenUserName::DrawBackground()
   y = MENUUSERNAME_STARTY;
   row = 0;
   strcpy(output," ");
-  do {
-    if (menu_kUserNameRows <= row) {
-      gray = 0x505050;
-      SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
-      SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
-      x = 0xfc;
-      i = 0;
-      do {
-        DrawVerticalLine(x,0x2e,gridpos - i * 2);
-        i++;
-        x = x + 0x1c;
-      } while (i < 7);
-      k = 0;
-      y = MENUUSERNAME_STARTY - 3;
-      if (0 < menu_kUserNameRows + 1) {
-        do {
-          DrawHorizontalLine(0xf0,y,gridpos - (menu_kUserNameRows - k) * 2);
-          k++;
-          y = y + 0xf;
-        } while (k < menu_kUserNameRows + 1);
-      }
-      i = 0;
-      do {
-        DrawShapeExtended(i,0,0,0,fadebox,0,(tDrawShapeExtended *)0x0);
-        i++;
-      } while (i < 0x20);
-      return;
-    }
+  while (row < menu_kUserNameRows) {
     x = 0x102;
     col = 0;
     while ((output[0] = this->fRowList[0][col + row * 9]) != '\0') {
@@ -171,11 +151,13 @@ void tScreenUserName::DrawBackground()
 
       colText = CalcFadeVal(0xb54200,this->fTextFade);
       switch(output[0]) {
-      case '!':
-        i = 0x205;
-        goto DrawBg4b1ac_emitText;
-      default:
-        FETextRender_FullTextRGB(output,x + 8,y - 1,colText,1,2);
+      case '@':
+        FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x24,y - 1,colText,1,2);
+        k = 1;
+        do {
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
+          k++;
+        } while (k < 3);
         break;
       case '#':
         i = 0x206;
@@ -190,19 +172,12 @@ void tScreenUserName::DrawBackground()
         break;
       case '&':
         i = 0x207;
+        goto DrawBg4b1ac_emitText;
+      case '!':
+        i = 0x205;
 DrawBg4b1ac_emitText:
         FETextRender_FullTextRGB(TextSys_Word(i),x + 0x16,y - 1,colText,1,2);
         PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
-        break;
-      case '-':
-        break;
-      case '@':
-        FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x24,y - 1,colText,1,2);
-        k = 1;
-        do {
-          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-          k++;
-        } while (k < 3);
         break;
       case '^':
         FETextRender_FullTextRGB(TextSys_Word(0x207),x + 0x4e,y - 1,colText,1,2);
@@ -211,13 +186,43 @@ DrawBg4b1ac_emitText:
           PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
           k++;
         } while (k < 6);
+        break;
+      default:
+        FETextRender_FullTextRGB(output,x + 8,y - 1,colText,1,2);
+        break;
+      case '-':
+        break;
       }
       x = x + 0x1c;
       col = col + 1;
     }
     y = y + 0xf;
     row++;
-  } while( true );
+  }
+  gray = 0x505050;
+  SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
+  SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
+  x = 0xfc;
+  i = 0;
+  do {
+    DrawVerticalLine(x,0x2e,gridpos - i * 2);
+    i++;
+    x = x + 0x1c;
+  } while (i < 7);
+  k = 0;
+  y = MENUUSERNAME_STARTY - 3;
+  if (0 < menu_kUserNameRows + 1) {
+    do {
+      DrawHorizontalLine(0xf0,y,gridpos - (menu_kUserNameRows - k) * 2);
+      k++;
+      y = y + 0xf;
+    } while (k < menu_kUserNameRows + 1);
+  }
+  i = 0;
+  do {
+    DrawShapeExtended(i,0,0,0,fadebox,0,(tDrawShapeExtended *)0x0);
+    i++;
+  } while (i < 0x20);
 }
 
 /* ---- tScreenUserName::dtor  (screenusername.cpp:97) ---- */

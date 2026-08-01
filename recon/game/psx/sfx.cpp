@@ -279,6 +279,7 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
   int scale;
   coorddef pt[2];
   SVECTOR dest[4];
+  SVECTOR *dp;
 
   pt[0] = is->motion;
   Math_NormalizeVector(&pt[0]);
@@ -287,7 +288,8 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
   pt[0].x = pt[1].x - (pt[0].x * scale >> 4);
   pt[0].y = pt[1].y - (pt[0].y * scale >> 4);
   pt[0].z = pt[1].z - (pt[0].z * scale >> 4);
-  Sfx_ThickenXZ(dest,&pt[0],&pt[1],&Vi->cview.translation);
+  dp = &dest[0];
+  Sfx_ThickenXZ(dp,&pt[0],&pt[1],&Vi->cview.translation);
   TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
     VECTOR check;
@@ -299,7 +301,7 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
     gte_stlvnl(&check);
     if (check.vz >= 0x20) {
       gte_stsxy(&prim->x1);
-      gte_ldv3(&dest[0],&dest[2],&dest[3]);
+      gte_ldv3(dp,&dest[2],&dest[3]);
       gte_rtpt();
       *(u_long *)&prim->r0 = *(u_long *)&color;
       gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
@@ -328,10 +330,10 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
         }
         prim->tag = prim->tag & 0xff000000 |
                     *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        scale = (u_int)Render_gPacketPtr & 0xffffff;
+        l0 = (u_int)Render_gPacketPtr & 0xffffff;
         Render_gPacketPtr = Render_gPacketPtr + 0x28;
         *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | scale;
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
       }
     }
   }
@@ -342,6 +344,7 @@ static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *
   int scale;
   coorddef pt[2];
   SVECTOR dest[4];
+  SVECTOR *dp;
 
   pt[0] = is->motion;
   Math_NormalizeVector(&pt[0]);
@@ -350,7 +353,8 @@ static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *
   pt[0].x = pt[1].x - (pt[0].x * scale >> 4);
   pt[0].y = pt[1].y - (pt[0].y * scale >> 4);
   pt[0].z = pt[1].z - (pt[0].z * scale >> 4);
-  Sfx_ThickenXZ(dest,&pt[0],&pt[1],&Vi->cview.translation);
+  dp = &dest[0];
+  Sfx_ThickenXZ(dp,&pt[0],&pt[1],&Vi->cview.translation);
   TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
     VECTOR check;
@@ -362,7 +366,7 @@ static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *
     gte_stlvnl(&check);
     if (check.vz >= 0x20) {
       gte_stsxy(&prim->x1);
-      gte_ldv3(&dest[0],&dest[2],&dest[3]);
+      gte_ldv3(dp,&dest[2],&dest[3]);
       gte_rtpt();
       *(u_long *)&prim->r0 = *(u_long *)&color;
       gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
@@ -391,10 +395,10 @@ static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *
         }
         prim->tag = prim->tag & 0xff000000 |
                     *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        scale = (u_int)Render_gPacketPtr & 0xffffff;
+        l0 = (u_int)Render_gPacketPtr & 0xffffff;
         Render_gPacketPtr = Render_gPacketPtr + 0x28;
         *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | scale;
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
       }
     }
   }

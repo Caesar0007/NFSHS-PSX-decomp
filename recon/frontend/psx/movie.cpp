@@ -9,20 +9,41 @@
 /* MATCH: every one of these statics is reached ABSOLUTELY (lui %hi / %lo) in the oracle,
  * never gp-relative -- force them out of .sdata/.sbss with an explicit .bss section
  * attribute (catalog §I-addendum; the -G4 default would put every <=4-byte scalar in sbss). */
-static int     width __attribute__((section(".bss")));     /* 0x80052a24 */
-static int     height __attribute__((section(".bss")));    /* 0x80052a28 */
+static int     width_d asm("width") __attribute__((section(".bss")));     /* 0x80052a24 */
+static int     height_d asm("height") __attribute__((section(".bss")));    /* 0x80052a28 */
 static CdlLOC  loc __attribute__((section(".bss")));       /* 0x80052cf8 */
-static short   PPWTop __attribute__((section(".bss")));    /* 0x80052cfc */
-static short   PPWBottom __attribute__((section(".bss"))); /* 0x80052cfe */
-static short   gMode __attribute__((section(".bss")));     /* 0x80052d00 */
-static int     gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
-static short   gMovieHeight __attribute__((section(".bss")));/* 0x80052d08 */
-static short   gMovieWidth __attribute__((section(".bss")));/* 0x80052d0a */
+static short     PPWTop_d asm("PPWTop") __attribute__((section(".bss")));    /* 0x80052cfc */
+static short     PPWBottom_d asm("PPWBottom") __attribute__((section(".bss"))); /* 0x80052cfe */
+static short     gMode_d asm("gMode") __attribute__((section(".bss")));     /* 0x80052d00 */
+static int     gIsRGB24_d asm("gIsRGB24") __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
+static short     gMovieHeight_d asm("gMovieHeight") __attribute__((section(".bss")));/* 0x80052d08 */
+static short     gMovieWidth_d asm("gMovieWidth") __attribute__((section(".bss")));/* 0x80052d0a */
 static u_long  gMovieFrame __attribute__((section(".bss")));/* 0x80052d0c */
 static u_long  gEndFrame __attribute__((section(".bss")));  /* 0x80052d10 */
+extern int width_v[] asm("width");
+#define gWidth width_v[0]
+extern int height_v[] asm("height");
+#define gHeight height_v[0]
+extern short PPWTop_v[] asm("PPWTop");
+#define PPWTop PPWTop_v[0]
+extern short PPWBottom_v[] asm("PPWBottom");
+#define PPWBottom PPWBottom_v[0]
+extern short gMode_v[] asm("gMode");
+#define gMode gMode_v[0]
+extern int gIsRGB24_v[] asm("gIsRGB24");
+#define gIsRGB24 gIsRGB24_v[0]
+extern short gMovieHeight_v[] asm("gMovieHeight");
+#define gMovieHeight gMovieHeight_v[0]
+extern short gMovieWidth_v[] asm("gMovieWidth");
+#define gMovieWidth gMovieWidth_v[0]
 extern u_long  gMovieFrame_v[] asm("gMovieFrame");
 extern u_long  gEndFrame_v[]   asm("gEndFrame");
-/* MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
+/* MATCH: EVERY file-static above is reached through an UNSIZED-ARRAY view (asm-label
+ * alias onto the same symbol).  The scalar form makes cc1 emit the single `lw/sw $r,sym`
+ * ASSEMBLER MACRO (unschedulable, expands to a self-temp or an $at store); the unsized
+ * form makes gcc lower %hi/%lo itself into a separate, schedulable register -- which is
+ * what retail's aspsx build shows everywhere in this TU.  (catalog E/§3.12 #5.)
+ * MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
  * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
 static int     bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14 */
 static int     bStopMovie_d   asm("bStopMovie") __attribute__((section(".bss")));   /* 0x80052d18 */
@@ -52,7 +73,6 @@ extern u_long  *vlcbuf0_v[]  asm("vlcbuf0");
 extern u_long  *vlcbuf1_v[]  asm("vlcbuf1");
 extern u_short *imgbuf_v[]   asm("imgbuf");
 extern u_long  *sect_buff_v[] asm("sect_buff");
-extern int      gIsRGB24_v[]  asm("gIsRGB24");
 
 /* lines 1-129: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -372,7 +392,7 @@ extern "C" void strInit__FP6CdlLOCiPFe_vT2(CdlLOC *loc,int frame_size,fn_void *c
   DecDCToutCallback((void *)callback);
   StSetRing(sect_buff_v[0],0x20);
   StClearRing();
-  StSetStream(gIsRGB24_v[0],1,frame_size,(void *)0x0,(void *)endcallback);
+  StSetStream(gIsRGB24,1,frame_size,(void *)0x0,(void *)endcallback);
   strKickCD(loc);
   return;
 }
@@ -432,7 +452,7 @@ strCallback_inlinedJoin:
     dec.isdone = 1;
     dec.slice.x = dec.rect[dec.rectid].x;
     isFirstSlice = 1;
-    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - height) / 2);
+    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2);
   }
   return;
 }
@@ -499,20 +519,20 @@ u_long * strNext(DECENV *dec)
       fc = gMovieFrame;
     }
     gMovieFrame = fc;
-    if ((width != (uint)sector->width) || (height != (uint)sector->height)) {
+    if ((gWidth != (uint)sector->width) || (gHeight != (uint)sector->height)) {
       bottom = (int)PPWBottom;
       rect.x = 0;
       rect.y = 0;
       rect.h = 0x1e0;
       rect.w = (short)((PPWTop * 0x280) / bottom);
       ClearImage(&rect,'\0','\0','\0');
-      width = (int)sector->width;
-      height = (int)sector->height;
+      gWidth = (int)sector->width;
+      gHeight = (int)sector->height;
     }
-    wt = width * PPWTop;
+    wt = gWidth * PPWTop;
     bottom = (int)PPWBottom;
-    mh = (short)height;
-    dec->rect[1].h = (short)height;
+    mh = (short)gHeight;
+    dec->rect[1].h = (short)gHeight;
     dec->rect[0].h = mh;
     (dec->slice).h = mh;
     ws = (short)(wt / bottom);
@@ -537,7 +557,7 @@ void strSync(DECENV *dec,int arg1)
   
   cnt = 0x800000;
   if (dec->isdone == 0) {
-    viewOff = 0xf0 - height;
+    viewOff = 0xf0 - gHeight;
     do {
       cnt = cnt - 1;
       if (cnt == 0) {

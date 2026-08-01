@@ -216,30 +216,38 @@ void Movie_Load(char movie)
 int Movie_NextFrame(void)
 
 {
-  int bottom;
-  int vh;
   int ret;
   int xstep;
-  
-  DecDCTin(dec.vlcbuf[dec.vlcid],(int)gMode);
+  /* MATCH: SYM says fsize=32 with mask s0+ra and NO named locals -- the oracle's frame
+   * carries 8 bytes of never-referenced slack that our expression shape does not
+   * allocate; a dead 2-word local restores the exact frame + sp displacements. */
+  int deadfrm[2];
+  /* MATCH: the oracle parks &dec in a callee-saved register (addiu s0,v0,%lo) and
+   * reaches every field by displacement -- a real pointer local reproduces it. */
+  DECENV *d = &dec;
+
+  (void)deadfrm;
+
+  DecDCTin(d->vlcbuf[d->vlcid],(int)gMode);
   DecDCTinSync(1);
-  bottom = (int)PPWBottom;
-  xstep = ((int)PPWTop << 4) / bottom;
-  vh = dec.slice.h + -1;
-  if (vh < 0) {
-    vh = dec.slice.h + 0xe;
-  }
+  xstep = ((int)PPWTop << 4) / (int)PPWBottom;
+  /* MATCH: the `h-1; if(<0) h+14; >>4` sequence Ghidra shows is gcc's own signed /16
+   * guard -- it is a plain `(h - 1) / 16`, not a hand-written clamp, and writing it
+   * that way puts the slice.h load where the oracle has it (after the 2nd divide). */
   DecDCTout
-            ((u_long *)dec.imgbuf,
-             ((dec.slice.w + -1) / xstep + 1) * xstep * 0x10 * ((vh >> 4) + 1) >> 1);
-  ret = strNextVlc(&dec);
-  if (ret < 0) {
-    ret = -1;
-  }
-  else {
-    strSync(&dec,0);
+            ((u_long *)d->imgbuf,
+             ((((d->slice.w + -1) / xstep + 1) * xstep) << 4) *
+             ((d->slice.h + -1) / 0x10 + 1) >> 1);
+  ret = strNextVlc(d);
+  /* MATCH: the error arm is the OUT-OF-LINE branch target in the oracle (bltz skips
+   * to it) and the success arm falls through -- write it in that polarity. */
+  if (ret >= 0) {
+    strSync(d,0);
     VSync(0);
     ret = 0;
+  }
+  else {
+    ret = -1;
   }
   return ret;
 }

@@ -608,16 +608,20 @@ void Weather_DeInit(void)
  * coloring swap (ours=v0, oracle=a1) cascading into the tv.vx/vy/vz field-register triple
  * shifting by one slot; no ABI anchor found (next isn't a call-arg/return at its use point) --
  * same permuter-class coloring-tiebreak family as TrsProj_TransformProjectVertex. */
-/* w39-a6 FLOOR (32 diffs, count EXACT 49/49): a uniform one-step register rotation --
- * ours puts `next` in $v0 and r0/r1/r2 in $v1/$a0/$a1, the oracle puts `next` in $a1 and
- * r0/r1/r2 in $v0/$v1/$a0.  FALSIFIED: dropping the `next` variable (inline `s + 1`),
- * block-scoping its declaration, and reading tv.vx/vy/vz straight into the stores (52
- * insns, worse).  Allocno-priority tie on `next`. */
+/* w41-a6: the w39 "FLOOR (32 diffs, uniform one-step rotation)" is REFUTED -- PASS.
+ * MECHANISM (read off cc1plus `-dg`): gcc runs local_alloc BEFORE global_alloc, so a
+ * BLOCK-LOCAL pseudo gets first pick of the hard regs.  Here EVERY global allocno
+ * conflicts with hard reg 2 ($v0) (`;; 83 conflicts: ... 2 29`), so no function-scope
+ * local can ever land in $v0 -- retail's r0/r1/r2 DO land in $v0/$v1/$a0, therefore they
+ * were block-local in the original.  Our single fn-scope r0/r1/r2 set was assigned in TWO
+ * basic blocks (loop body + tail), which makes reg_basic_block == -1 => GLOBAL allocno =>
+ * barred from $v0, pushing the triple to $v1/$a0/$a1 and leaving $v0 to the block-local
+ * `next`.  FIX = a SEPARATE `int r0,r1,r2;` declaration inside the loop block and inside
+ * the tail block; local_alloc then hands each block $v0/$v1/$a0 and `next` falls to $a1,
+ * exactly like retail.  (Decl-ORDER permutations of the fn-scope set are all no-ops --
+ * the lever is block SCOPE, i.e. local-vs-global allocno class, not ordering.) */
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
-  int r0;
-  int r1;
-  int r2;
   VECTOR tv;
   SVECTOR *next;
 
@@ -629,6 +633,9 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
   while (true) {
     n = n + -1;
     if (n == -1) break;
+    int r0;
+    int r1;
+    int r2;
     next = s + 1;
     gte_ldv0(next);
     gte_mvmva(1,0,0,0,0);
@@ -641,12 +648,17 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
     gte_stlvnl(&tv);
     s = next;
   }
-  r0 = tv.vx;
-  r1 = tv.vy;
-  r2 = tv.vz;
-  s->vx = (short)r0;
-  s->vy = (short)r1;
-  s->vz = (short)r2;
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = tv.vx;
+    r1 = tv.vy;
+    r2 = tv.vz;
+    s->vx = (short)r0;
+    s->vy = (short)r1;
+    s->vz = (short)r2;
+  }
 }
 
 /* ---- Weather_CheckAndResetParticles__FP7SVECTOR  [WEATHER.CPP:623-668] SLD-VERIFIED ----

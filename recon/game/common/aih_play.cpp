@@ -229,8 +229,6 @@ void AIHigh_Player::SetupBlockade()
 
   short sVar1;
 
-  bool bVar2;
-
   int iVar4;
 
   Speaker *pSVar5;
@@ -303,6 +301,7 @@ void AIHigh_Player::SetupBlockade()
     {
       AIHigh_Cop *thisCop;
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+        bool bVar2;
         thisCop = (AIHigh_Cop *)highLevelAIObjs[
             Cars_gCopCarList[copLoop]->carIndex];
         bVar2 = false;

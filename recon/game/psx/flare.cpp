@@ -478,15 +478,19 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x14));
       u_char *prim;
       u_int *slot;
       u_int pkt24;
+      u_int addr24;
       u_int rgb;
+      u_char *pal;
 
       prim = Render_gPacketPtr;
-      slot = (u_int *)Render_gPalettePtr;
-      slot = (u_int *)((int)slot + otz * 4);
+
+      addr24 = (u_int)prim & 0xffffff;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x1c;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24;
       *(u_int *)(prim + 4) = 0x32000000;
       rgb = *(u_int *)&gfrgb;
       *(u_int *)(prim + 0x14) = 0;

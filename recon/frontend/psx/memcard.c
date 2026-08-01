@@ -1081,9 +1081,12 @@ u_char sjis2ascii(short sjis_code)
   int kind;
 
   kind = 0;
-  hi = (int)((uint)(ushort)sjis_code << 0x10) >> 0x18;
+  hi = sjis_code >> 8;          /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
   if ((sjis_code & 0xffU) == 0x81) {
-    return *(uchar *)((int)ascii_k_table + (hi & 0xff) + 0xc);
+    /* MATCH: the reverse table is its OWN symbol @0x80052ad0 indexed from 0x40 -
+     * the oracle's lbu -0x40(base); modelling it as ascii_k_table+0xc folded the
+     * displacement into %lo and aliased a different object (real bug). */
+    return sjis_k_table[(hi & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
     if (9 < hi - 0x4f) {
@@ -1094,7 +1097,9 @@ u_char sjis2ascii(short sjis_code)
         kind = 2;
       }
     }
-    return sjis_table[kind][1] + ((char)((ushort)sjis_code >> 8) - sjis_table[kind][0]);
+    /* MATCH: the second byte is `hi` itself (already sign-extended), not a fresh
+     * (char)(sjis_code>>8) re-extract - the oracle reuses the saved copy. */
+    return sjis_table[kind][1] + (hi - sjis_table[kind][0]);
   }
   return '\0';
 }

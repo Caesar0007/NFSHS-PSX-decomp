@@ -877,7 +877,13 @@ void Hud_Init(void)
         w2 = 0x3d;
       }
     }
-    if (Hud_BeTheCop != 0) {
+    /* MATCH (w40-a1): the volatile read DEFEATS cse's re-use of the Hud_BeTheCop value the
+     * w2 chain just loaded.  Retail RELOADS `lw $v0,%gp_rel(Hud_BeTheCop)($gp)` before each of
+     * the three tests (w2 / x-select / y-select) and lays the w2 block out as `bnez v0,past`;
+     * without this cast our cse constant-folds the x-select on the fall-through path, moving
+     * the cop x-block inline and inverting the w2 branch polarity.  Receipt: 71 -> 55 with the
+     * cast on this ONE site (all three casts = 61, i.e. worse -- only the x-select is threaded). */
+    if (*(volatile int *)&Hud_BeTheCop != 0) {
       x = g1Player[2].x + 0xe;
     }
     else {

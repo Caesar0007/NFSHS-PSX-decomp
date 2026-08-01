@@ -63,11 +63,12 @@ void Fe3D_InitShowroom(void)
     if (0x20 <= i) break;
     angle_sin = fastintsin(angle) >> 3;
     angle_cos = fastintcos(angle) >> 3;
+    iPlus = sVar4;
     angle = angle + 0x20;
     i = i + 1;
     Fe3D_lightsVertex[sVar4].x = (short)((u_int)(angle_sin * 3) >> 5);
     Fe3D_lightsVertex[sVar4].y = 0;
-    Fe3D_lightsVertex[sVar4].z = (short)((u_int)(angle_cos * 3) >> 5);
+    Fe3D_lightsVertex[(short)iPlus].z = (short)((u_int)(angle_cos * 3) >> 5);
     sVar4 = sVar4 + 1;
     Fe3D_lightsVertex[sVar4].x = (short)(angle_sin * 0x15 >> 8);
     Fe3D_lightsVertex[sVar4].y = 0;

@@ -1805,18 +1805,14 @@ void Hud_BuildNumbers(int player)
     POLY_GT4 *prim;
     u_long SpeedColor;
 
-    speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed);
-    if (speed < 0) {
-      speed = speed + 0xffff;
-    }
+    speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
     SpeedColor = 0xc8c8c8;
     color2 = 0x505050;
-    speed = speed >> 0x10;
     w1 = HudPmx_gShapes[0x2c].width + 1;
     w2 = w1 + HudPmx_gShapes[0x2d].width >> 1;
     w7 = w1 + HudPmx_gShapes[0x33].width >> 1;
     w3 = w1 - w2;
-    x = w1 * 2 + ((int)g1Player[1].x + (int)g1Player[0xc].x + 4);
+    x = ((int)g1Player[1].x + (int)g1Player[0xc].x + 4) + w1 * 2;
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = Render_gPacketPtr + 0x34;
@@ -1856,8 +1852,8 @@ void Hud_BuildNumbers(int player)
       prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
       *(u_int *)Render_gPalettePtr =
            *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
-      Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,
-                   (x + -1) - (int)HudPmx_gShapes[hun + 0x2c].width,y,SpeedColor);
+      x = x - 1 - (int)HudPmx_gShapes[hun + 0x2c].width;
+      Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
       *(u_int *)&prim->r2 = color2;
     }

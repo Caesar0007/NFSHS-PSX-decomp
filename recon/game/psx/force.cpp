@@ -162,17 +162,17 @@ void Force_Update(Car_tObj *car)
   int impactmultiplier;
   int v0;
   int v1;
-  int c;
-  int force;
-  int shock;
-  int time;
+
+
+
+
   u_int uVar3;
   int iVar1;
-  int iVar2;
-  int iVar4;
-  int *piVar6;
-  u_char uVar7;
-  u_char uVar9;
+
+
+
+
+
   int frontmultiplier;
   int rearmultiplier;
   
@@ -224,10 +224,8 @@ void Force_Update(Car_tObj *car)
       if (iVar1 < 0) {
         iVar1 = -iVar1;
       }
-      v1 = 0x78000;
-      if (iVar1 >> 2 < 0x78001) {
-        v1 = iVar1 >> 2;
-      }
+      iVar1 = iVar1 >> 2;
+      v1 = 0x78000 < iVar1 ? 0x78000 : iVar1;
       goto ForceUpd_audioRevLoop;
     case 10:
     case 0xb:
@@ -238,10 +236,8 @@ void Force_Update(Car_tObj *car)
       if (iVar1 < 0) {
         iVar1 = -iVar1;
       }
-      v0 = 0x58000;
-      if (iVar1 >> 1 < 0x58001) {
-        v0 = iVar1 >> 1;
-      }
+      iVar1 = iVar1 >> 1;
+      v0 = 0x58000 < iVar1 ? 0x58000 : iVar1;
       break;
     case 0xe:
       v0 = 0;
@@ -249,85 +245,73 @@ void Force_Update(Car_tObj *car)
     v1 = 0;
   }
 ForceUpd_audioRevLoop:
-  c = car->audioCount;
-  if (c != 0) {
-    piVar6 = &(car->N).simRoadInfo.quadPts[c * 2 + -4].z;
-    while (c = c + -1, -1 < c) {
-      iVar2 = piVar6[0x1e7];
-      if (iVar2 == 0x12) {
-        if (v0 < piVar6[0x1ea] << 1) {
-          v0 = piVar6[0x1ea] << 1;
-        }
+  if (car->audioCount != 0) {
+    int c = car->audioCount + -1;
+    while (1) {
+      if (c < 0) {
+        break;
       }
-      else if (iVar2 == 0x14) {
-        if (v1 < piVar6[0x1ea] << 1) {
-          v1 = piVar6[0x1ea] << 1;
-        }
+      if (car->audio[c].channel == 0x12) {
+        v0 = v0 > car->audio[c].force * 2 ? v0 : car->audio[c].force * 2;
       }
-      else if ((((iVar2 < 0) && (impactmultiplier != 0)) && (piVar6[0x1e8] != 10)) &&
-               (piVar6[0x1e8] != 8)) {
-        shock = piVar6[0x1ea];
-        if (shock < 0x28001) {
-          time = 0x20;
-        }
-        else {
-          force = fixeddiv(shock,0x28000) * 0x20;
-          if (force < 0) {
-            force = force + 0xffff;
-          }
-          shock = 0x28000;
-          if (force >> 0x10 < 0x61) {
-            force = fixeddiv(piVar6[0x1ea],0x28000) * 0x20;
-            time = force >> 0x10;
-            if (force < 0) {
-              time = force + 0xffff >> 0x10;
-            }
+      else if (car->audio[c].channel == 0x14) {
+        v1 = v1 > car->audio[c].force * 2 ? v1 : car->audio[c].force * 2;
+      }
+      else if ((((car->audio[c].channel < 0) && (impactmultiplier != 0)) &&
+                (car->audio[c].surface1 != 10)) && (car->audio[c].surface1 != 8)) {
+        int force;
+        int shock;
+        int time;
+
+        if (0x28000 < car->audio[c].force) {
+          force = 0x28000;
+          if ((fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000 < 0x61) {
+            time = (fixeddiv(car->audio[c].force,0x28000) << 5) / 0x10000;
           }
           else {
             time = 0x60;
           }
         }
-        force = fixedmult(shock,impactmultiplier);
-        if (force < 0) {
-          force = force + 0xffff;
+        else {
+          force = car->audio[c].force;
+          time = 0x20;
         }
-        if (((int)(u_int)f->jolt < force >> 0x10) || ((int)(u_int)f->time < time)) {
+        shock = fixedmult(force,impactmultiplier) / 0x10000;
+        if (((int)(u_int)f->jolt < shock) || ((int)(u_int)f->time < time)) {
           f->fade = (u_char)(time >> 1);
           f->time = (u_char)time;
-          f->jolt = (u_char)((u_int)force >> 0x10);
+          f->jolt = (u_char)shock;
         }
       }
-      piVar6 = piVar6 + -6;
+      c = c + -1;
     }
   }
-  if (frontmultiplier == 0) {
-    uVar9 = '\0';
-  }
-  else {
-    if (0xa0000 < v0) {
-      v0 = 0xa0000;
+  if (frontmultiplier != 0) {
+    int clamped;
+
+    clamped = v0;
+    if (0xa0000 < clamped) {
+      clamped = 0xa0000;
     }
-    iVar4 = fixedmult(v0,frontmultiplier);
-    uVar9 = (u_char)((u_int)iVar4 >> 0x10);
-    if (iVar4 < 0) {
-      uVar9 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
-    }
-  }
-  if (rearmultiplier == 0) {
-    uVar7 = '\0';
+    v0 = fixedmult(clamped,frontmultiplier) / 0x10000;
   }
   else {
-    if (0xf0000 < v1) {
-      v1 = 0xf0000;
-    }
-    iVar4 = fixedmult(v1,rearmultiplier);
-    uVar7 = (u_char)((u_int)iVar4 >> 0x10);
-    if (iVar4 < 0) {
-      uVar7 = (u_char)((u_int)(iVar4 + 0xffff) >> 0x10);
-    }
+    v0 = 0;
   }
-  f->high = uVar9;
-  f->low = uVar7;
+  if (rearmultiplier != 0) {
+    int clamped;
+
+    clamped = v1;
+    if (0xf0000 < clamped) {
+      clamped = 0xf0000;
+    }
+    v1 = fixedmult(clamped,rearmultiplier) / 0x10000;
+  }
+  else {
+    v1 = 0;
+  }
+  f->high = (u_char)v0;
+  f->low = (u_char)v1;
   return;
 }
 
@@ -458,15 +442,15 @@ void Force_HitSign(Car_tObj *car)
 void Force_HitWall(int impulse)
 
 {
-  int shock;
+
   int skids;
   int impacts;
-  int time;
+
   int padnum;
-  int force;
+
   int v1;
   int v0;
-  int c;
+
   int impactmultiplier;
   int frontmultiplier;
   int rearmultiplier;

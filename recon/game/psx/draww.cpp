@@ -1264,10 +1264,23 @@ gte_swc2(0x8,&depthcue);
        * to `prim`: at 29 body refs the oracle's prim sits just under the
        * floor_log2 razor edge at 32, so it loses $s0 to `sd`; at 33 ours crossed it
        * and stole $s0, flipping the entire function's $s0/$s1 assignment. */
-      *(long *)&prim->x0 = dvxy0;
-      *(long *)&prim->x1 = dvxy1;
-      *(long *)&prim->x2 = dvxy2;
-      *(long *)&prim->x3 = dvxy3;
+      {
+        /* MATCH (w40-a2): the oracle batches the three screen-XY reloads into THREE
+         * distinct scratch regs (`lw v1,68(sp); lw a0,76(sp); lw a1,72(sp)` then the
+         * three `sw`), so each load fills the previous one's delay slot; the plain
+         * four-statement form serialized them through ONE reg and paid 3 `nop`s
+         * (catalog par.B "load-3/store-3 grouped temps"). 230 -> 227, 596 -> 593. */
+        long q1;
+        long q2;
+        long q3;
+        *(long *)&prim->x0 = dvxy0;
+        q1 = dvxy1;
+        q2 = dvxy2;
+        q3 = dvxy3;
+        *(long *)&prim->x1 = q1;
+        *(long *)&prim->x2 = q2;
+        *(long *)&prim->x3 = q3;
+      }
       if (sd->nightFlags == '\0') {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read

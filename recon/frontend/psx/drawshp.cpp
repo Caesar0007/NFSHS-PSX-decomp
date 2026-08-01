@@ -14,29 +14,54 @@ int kNoColor;   /* 0x800529d0 (EXT data global) */
 void DrawShape_SubtractNFS4RectEdges(RECT &rect)
 
 {
-  /* SYM 8c: fsize 32, mask $80010000 (ra,s0); locals are EXACTLY
+  /* SYM 8c: fsize 32, mask $80010000 (ra,s0); the NAMED locals are EXACTLY
    *   dr_mode(DR_MODE* $s0) prim(POLY_G4* $a0) x1($a3) y1($t3) x2($a2) y2($t2) i($t5)
-   * -- `top`, `linkAddr`, `tpage`, `prevPrim`, `prevDrm` were all Ghidra fictions.
+   * -- `top`, `linkAddr`, `tpage`, `prevDrm` were Ghidra fictions.  `prevPrim` and
+   * `linkWord` below are the OT-link MACRO's own temps (cf. psxfront.cpp's
+   * prevPrim/linkAddr, the same house idiom, and mmeffect.cpp where the SLD proves
+   * the whole OT-link block is ONE source line = a macro): they hold nothing across
+   * a source statement boundary in the original, hence no SYM Def record.
    * All five shorts are plain `short` locals: that is what lets combine narrow the
    * shared rect.w load to `lhu` and pay the sign-extend only on the >>3 use
-   * (lhu + sll 16 + sra 19) exactly like the oracle -- no (u_short) casts. */
-  /* RESIDUAL 49 @ ours 107 / oracle 108 -- STRONG evidence, mechanism named:
-   * cc1's loop.c declines to hoist the lone `lui 0x1F800000` (Render_gPalettePtr's
-   * address) out of the loop.  -dL receipt (tools/rtl_dump.py -dL):
-   *     Insn 84: regno 108 (life 1), move-insn savings 1 not desirable
-   *     Insn 84: possible biv, reg 108, const = 528482304   (= 0x1F800000)
-   * while the four 2-insn constants (0x1F800004 life 21, 0xffffff 11, 0xff000000 7,
-   * 0x808080 15) are all "moved".  Retail hoisted it, so $s0 there holds the palette
-   * base; ours spends $s0 on the 0xff000000 mask -> whole-fn scratch rotation.
-   * The address pseudo genuinely has life 1 in BOTH builds (one use: the pointer
-   * value is loaded once and reused), so there is no zero-cost source lever to
-   * lengthen it -- this is the documented savings-1 lone-lui LICM cost-model class.
-   * FALSIFIED here: loop shape (do-while / for / while-top / exit-in-the-middle all
-   * 49; goto-TEST 126), i-increment position (4 placements, all 49), OT-link
-   * statement/operand orders (4 x 2), and the whole -G / -mno-split-addresses axis
-   * (tools/gprobe.py: g8 / g0 / nosplit / g8+nosplit all == baseline on this TU). */
+   * (lhu + sll 16 + sra 19) exactly like the oracle -- no (u_short) casts.
+   *
+   * MATCH -- two levers, applied together (49 @107/108 -> 54 @108/108, structural
+   * residual 79 -> 26 by tools/posdiff.py; LCS is non-monotone here, judge on
+   * posdiff + count):
+   *  (1) `prevPrim` caches the palette POINTER once per iteration.  Without it the
+   *      literal-address load `*(u_long *)Render_gPalettePtr` makes the 0x1F800000
+   *      ADDRESS pseudo a savings-1/life-1 LICM movable, which cc1's loop.c DECLINES
+   *      (`-dL`: "Insn 84: regno 108 (life 1), move-insn savings 1 not desirable",
+   *      const = 528482304, in a "Loop from 67 to 240: 53 real insns"), while the
+   *      four 2-insn constants (life 21/11/7/15) are all "moved".  Retail hoisted it
+   *      into $s0; ours spent $s0 on the 0xff000000 mask -> whole-fn rotation.  The
+   *      prevPrim cache gives the address pseudo a real live range, so loop.c hoists
+   *      it -- `lui $s0,0x1F80` in the prologue + `lw $a1,0($s0)` per iteration = the
+   *      oracle, and the loop body then matches instruction-for-instruction.
+   *  (2) the palette read-modify-write is SPLIT into a value statement (`linkWord`)
+   *      and a store statement with the packet-cursor bump BETWEEN them, in BOTH the
+   *      loop and the post-loop DR_MODE block.  That is the same lever that took
+   *      mmeffect.cpp's FeDraw_SetABRMode to PASS: it puts the cursor store ahead of
+   *      the OR chain and leaves the palette store last (in the post-loop block, last
+   *      before `jal GetTPage`, so dbr's backward fill_simple_delay_slots scan takes
+   *      IT into the delay slot, as the oracle does).
+   * FALSIFIED on the way: source-hoisting the slot ADDRESS into a `u_char **palSlot`
+   * local (61/109 -- it defeats the pointer CSE, costing a second `lw` + a nop);
+   * the Draw_PrimStruct struct-field view of the palette slot (62-85, +2..+3 insns);
+   * split-loop-only (43) and split-post-only (41) without prevPrim; and the whole
+   * -G / -mno-split-addresses axis (tools/gprobe.py: g8 / g0 / nosplit / g8+nosplit
+   * all == baseline on this TU).
+   *
+   * RESIDUAL 54 @ 108/108 = ONE allocno promotion, quantified: the caller-saved rank
+   * order is ours [rect, y2, y1, 0x808080, 0xFFFFFF] -> $t0..$t4 vs the oracle's
+   * [0xFFFFFF, rect, y2, y1, 0x808080].  0xFFFFFF alone moves from rank 5 to rank 1
+   * and rotates the other four one step; every other register (i=$t5,
+   * 0x1F800004=$t6, 0xFF000000=$t7, prim=$a0, x1=$a3, x2=$a2, dr_mode=$s0) is
+   * already SYM/oracle-exact. */
   DR_MODE *dr_mode;
+  u_char *prevPrim;
   POLY_G4 *prim;
+  u_long linkWord;
   short x1;
   short y1;
   short x2;
@@ -50,10 +75,11 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   x2 = rect.x + (rect.w >> 3);
   do {
     prim = (POLY_G4 *)Render_gPacketPtr;
-    prim->tag = prim->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
-    *(u_long *)Render_gPalettePtr =
-         *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)prim & 0xffffff;
+    prevPrim = Render_gPalettePtr;
+    prim->tag = prim->tag & 0xff000000 | *(u_long *)prevPrim & 0xffffff;
+    linkWord = *(u_long *)prevPrim & 0xff000000 | (u_long)prim & 0xffffff;
     Render_gPacketPtr = (u_char *)prim + 0x24;
+    *(u_long *)prevPrim = linkWord;
     *(u_long *)&prim->r0 = 0x808080;
     prim->code = 0x3a;
     ((u_char *)&prim->tag)[3] = 8;
@@ -74,9 +100,9 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   } while (i < 2);
   dr_mode = (DR_MODE *)Render_gPacketPtr;
   dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
-  *(u_long *)Render_gPalettePtr =
-       *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
+  linkWord = *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
   Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+  *(u_long *)Render_gPalettePtr = linkWord;
   SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0);
   return;
 }

@@ -1090,11 +1090,16 @@ short ascii2sjis(u_char ascii_code)
     else if ((byte)(ascii_code - 0x61) < 0x1a) {
       stmp = 2;
     }
-    else {
+    /* MATCH: the last two arms are a FLAT continuation of the same else-if chain.
+     * Folding them into one `else { kind = 0x3f; if (...) return 0; }` block makes
+     * gcc sink the stmp=2 arm to just before the merge (its `j` then dies, ours 71
+     * vs 72) and inverts the 0x61 guard to bnez; the flat chain keeps the stmp=2
+     * arm out-of-line with its own `j` = the oracle's beqz + j/li v1,2 pair. */
+    else if ((byte)(ascii_code - 0x7b) < 4) {
       kind = 0x3f;
-      if (3 < (byte)(ascii_code - 0x7b)) {
-        return 0;
-      }
+    }
+    else {
+      return 0;
     }
   }
   /* MATCH: kind!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the

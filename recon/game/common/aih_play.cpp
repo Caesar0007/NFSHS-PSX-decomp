@@ -330,6 +330,7 @@ void AIHigh_Player::SetupBlockade()
 
     blockadeCar = (AIHigh_Cop *)0x0;
     {
+      AICop_PerpChaseInfo *chaseInfo = &this->perpChaseInfo_;
       AIHigh_Cop *thisCop;
       blockade_t *copBlockade;
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
@@ -352,7 +353,7 @@ void AIHigh_Player::SetupBlockade()
 
           copBlockade->blockadeSpeechFlags = 0;
           copBlockade->flags = blockadeFlags;
-          copBlockade->chaseLevel = this->perpChaseInfo_.chaseLevelIndex_;
+          copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
@@ -462,7 +463,7 @@ void AIHigh_Player::SetupBlockade()
 
           copBlockade->blockadeSpeechFlags = 0;
           copBlockade->flags = blockadeFlags;
-          copBlockade->chaseLevel = this->perpChaseInfo_.chaseLevelIndex_;
+          copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;

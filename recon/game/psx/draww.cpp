@@ -1221,17 +1221,24 @@ gte_swc2(0x8,&depthcue);
     }
     if ((0 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
       if ((flag & 0x80) != 0) {
+        /* MATCH (w40-a2): same shape the SECOND (flag&0x80) block below already uses --
+         * the oracle loads the scratchpad PALETTE cursor exactly ONCE (`lui t0,0x1F80;
+         * lw t0,0(t0)`) and drives both OT-slot computations off that register, while
+         * re-reading `sd->otz` for each of them (`lw v0,0x94(s0)` ... `lw a2,0x94(s0)`).
+         * Per-use `Render_gPalettePtr` costs a second scratchpad load. */
+        u_char *pal;
         aprim = (DR_TWIN *)Render_gPacketPtr;
+        pal = Render_gPalettePtr;
         r.w = 0;
         r.h = 0;
         r.x = 0;
         r.y = 0;
         *(u_int *)aprim =
              *(u_int *)aprim & 0xff000000 |
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+             *(u_int *)(pal + sd->otz * 4) & 0xffffff;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
+        *(u_int *)(pal + sd->otz * 4) =
+             *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
         SetTexWindow(aprim,&r);
       }
       if (doSubdivision == 0) {

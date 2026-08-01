@@ -877,78 +877,54 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
 
 {
-  byte uv_y_top;
-  uint tpageBit;
-  short w1;
-  int tpage_clut;
-  byte uv_y_bottom;
-  int dv;
-  int c4;
-  int linkAddr;
-  int h;
-  short x_plus_w;
-  int height;
-  int width;
-  char *permFile;
-  short w;
-  short vh;
-  char fullName [48];
-  u_char  *next_pkt;
+  /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
+   * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
+   * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
+   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7 */
   u_char  *prim;
   u_char  *prevPrim;
-  byte char_w;
-  byte char_h;
-  byte uv_offset;
-  short dstX;
-  u_long fontTint;
-  byte char_x;
-  short y_top;
-  byte tc2;
-  
+  int      linkAddr;
+  int      width;
+  int      height;
+  int      dv;
+  int      yoff;
+  int      ytop;
+
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  char_w = ch->width;
-  char_h = ch->height;
-  uv_offset = ch->yoffset;
-  uv_y_bottom = ((char)((*(int *)((int)src + 0xc) << 4) >> 0x14) + (char)v) - 1;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  next_pkt = Render_gPacketPtr + 0x28;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  Render_gPacketPtr = next_pkt;
-  fontTint = font_tint;
+  width = ch->width;
+  height = ch->height;
+  yoff = *(signed char *)&ch->yoffset;
+  ytop = ((y - yoff) + 5) - (height + yoff);
+  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x28;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(u_long *)(prim + 4) = fontTint;
+  *(u_long *)(prim + 4) = font_tint;
   prim[3] = 9;
   prim[7] = 0x2c;
-  y_top = ((short)y + (char)uv_offset * -2 + 5) - (ushort)char_h;
   *(ushort *)(prim + 0xe) = gFontClut;
-  char_x = *(byte *)src;
-  tpage_clut = *(int *)((int)src + 0xc);
-  tc2 = (byte)u;
-  uv_y_top = tc2 + char_w;
-  prim[0xd] = uv_y_bottom;
-  prim[0x15] = uv_y_bottom;
-  dstX = (short)x;
-  x_plus_w = dstX + (ushort)char_w;
-  prim[0xc] = tc2;
-  prim[0x14] = uv_y_top;
-  prim[0x1c] = tc2;
-  prim[0x1d] = uv_y_bottom + char_h;
-  prim[0x24] = uv_y_top;
-  prim[0x25] = uv_y_bottom + char_h;
-  *(short *)(prim + 8) = dstX;
-  tpageBit = (uint)tpage_clut >> 0x14 & 0x10;
+  prim[0xd] = dv;
+  prim[0x15] = dv;
+  prim[0xc] = u;
+  prim[0x14] = u + width;
+  prim[0x1c] = u;
+  prim[0x1d] = dv + height;
+  prim[0x24] = u + width;
+  prim[0x25] = dv + height;
+  *(short *)(prim + 8) = x;
   *(ushort *)(prim + 0x16) =
-       (char_x & 3) << 7 | (ushort)tpageBit | (ushort)((int)(tpage_clut & 0x3ffU) >> 6);
-  *(ushort *)(prim + 10) = y_top + (ushort)char_h;
-  *(short *)(prim + 0x10) = x_plus_w;
-  *(ushort *)(prim + 0x12) = y_top + (ushort)char_h;
-  *(short *)(prim + 0x18) = dstX;
-  *(short *)(prim + 0x1a) = y_top;
-  *(short *)(prim + 0x20) = x_plus_w;
-  *(short *)(prim + 0x22) = y_top;
-  return tpageBit;
+       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
+       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
+  *(short *)(prim + 10) = ytop + height;
+  *(short *)(prim + 0x10) = x + width;
+  *(short *)(prim + 0x12) = ytop + height;
+  *(short *)(prim + 0x18) = x;
+  *(short *)(prim + 0x1a) = ytop;
+  *(short *)(prim + 0x20) = x + width;
+  *(short *)(prim + 0x22) = ytop;
+  return 0;
 }
 
 /* end of psxfront.cpp */

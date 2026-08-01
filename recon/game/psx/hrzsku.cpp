@@ -1237,14 +1237,16 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
              here. Same 2-constant hoist-order residual as the Flare_*Flare family. */
           u_int *slot;
           u_int tag;
+          u_int pkt24;
           u_char *pal;
           pal = Render_gPalettePtr;
           slot = (u_int *)(otz * 4 + (int)pal);
           prim = (TILE_1 *)Render_gPacketPtr;
+          pkt24 = (u_int)prim & 0xffffff;
           *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
           tag = *slot;
           Render_gPacketPtr = (u_char *)prim + 0xc;
-          *slot = tag & 0xff000000 | (u_int)prim & 0xffffff;
+          *slot = tag & 0xff000000 | pkt24;
           *(u_long *)((u_char *)prim + 4) = (*(u_long *)&starColors[n]);
           *((u_char *)prim + 3) = 2;
           *((u_char *)prim + 7) = 0x68;

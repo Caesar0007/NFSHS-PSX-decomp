@@ -162,6 +162,13 @@ void RaceStatistics(void)
   int barH;
 
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
+  /* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
+     `mult $v1,$a1` @0x800DA020; ours synth_mult's 150 as (n*75)<<1 and then CSEs the n*75
+     into POS_X below.  A named `int pitch = 0x96;` local DOES produce the mult (RTL: a
+     non-CONST_INT operand at expand time, cse const-props the 0x96 afterwards) and moves
+     the insn count 457->462 of 475, but costs LCS 296->311 and contradicts the SYM local
+     list -- not adopted.  Falsified as multiplier forms: operand swap, decimal spelling,
+     statement order vs POS_X. */
   HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * 0x96;
   HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
@@ -287,6 +294,20 @@ void RaceStatistics(void)
 }
 
 /* ---- Hud_BTCStats__Fsb  [OVERLAYS.CPP:326-441] SLD-VERIFIED ---- */
+/* w40-a4: 379 -> 49 diffs (472 ours / 473 oracle), frame now 168 == SYM fsize.
+ * 🔑 The +8 frame slot (worth ~30 diffs on its own, via every sp displacement) is decided
+ *    ENTIRELY by the showtimeleft-bar height expression: any spelling gcc can algebraically
+ *    cancel down to `SIZE_H + POS_Y - K` allocates a 7th (dead) 8-byte spill slot and the
+ *    whole frame shifts.  Keeping `startY+0xf` on BOTH sides of the subtraction (the same
+ *    shape as the loop's height term) keeps the frame at 168.  Measured ladder:
+ *    baseline 120/f176 -> `SIZE_H + startY+0xf - ...` 59/f168 -> loop-shape reuse 49/f168.
+ * Residual 49, four clusters, all scheduling/coloring:
+ *   (a) `li s5,1` (the i=1 init) issued one slot early vs the oracle's jal delay slot;
+ *   (b) col-loop preheader s1<->s2 (y-POS_Y vs (int)SIZE_H) + gcc refolding
+ *       `SIZE_H - ((y-POS_Y)+8)` into `(SIZE_H-8) - (y-POS_Y)` (3 spellings falsified:
+ *       ternary-first, showtimeleft-term-first, POS_Y-as-base);
+ *   (c) the showtimeleft bar's remaining 6-insn evaluation order;
+ *   (d) `lui t0` vs `lui v1` scratch pick on the StatsTimer base + one nop/lhu swap. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

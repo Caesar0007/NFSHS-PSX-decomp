@@ -46,7 +46,6 @@ void RaceSummary(void)
   char string [40];
   int halfH;
   int titleY;
-  int dataY;
   int barH;
   int titleX;
 
@@ -91,8 +90,7 @@ void RaceSummary(void)
   if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
   }
-  dataY = (titleY + 0x11) * 0x10000 >> 0x10;
-  Hud_FBuildF4(0,HUD_STATS_POS_X,dataY + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
+  Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
   barH = HUD_STATS_SIZE_H + -8;
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
   Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
@@ -116,10 +114,10 @@ void RaceSummary(void)
         Font_TextColor(4);
       }
       sprintf(string,"%d",pos);
-      Font_TextXY(string,colpos | 1,dataY + pos * 0xc);
+      Font_TextXY(string,colpos | 1,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       Font_TextColor(3);
       sprintf(string,"%s",(char *)(*(int *)((int)Cars_gRaceCarList[i] + 0x288) + 0x5c));
-      Font_TextXY(string,colname,dataY + pos * 0xc);
+      Font_TextXY(string,colname,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       if ((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0) {
         Font_TextColor(3);
       }
@@ -127,7 +125,7 @@ void RaceSummary(void)
         Font_TextColor(4);
       }
       sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
-      Font_TextXY(string,colcar,dataY + pos * 0xc);
+      Font_TextXY(string,colcar,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
@@ -141,10 +139,10 @@ void RaceSummary(void)
       else {
         sprintf(string,TextSys_Word(0x35));
       }
-      Font_TextXY(string,coltime,dataY + pos * 0xc);
+      Font_TextXY(string,coltime,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       if (GameSetup_gData.numLaps != 1) {
         Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
-        Font_TextXY(string,colbestlap,dataY + pos * 0xc);
+        Font_TextXY(string,colbestlap,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
       }
     }
     }

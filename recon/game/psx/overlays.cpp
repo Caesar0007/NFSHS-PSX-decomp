@@ -39,7 +39,6 @@ void RaceSummary(void)
 
 {
   short i;
-  int pos;
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
@@ -56,7 +55,6 @@ void RaceSummary(void)
   int dataY;
   int barH;
   int titleX;
-  int color;
 
   HUD_STATS_POS_X = 8;
   if (GameSetup_gData.numLaps == 1) {
@@ -69,20 +67,22 @@ void RaceSummary(void)
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
   halfH = (int)(HUD_STATS_SIZE_H << 0x10) >> 0x11;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
-  colpos = HUD_STATS_POS_X;
-  colname = HUD_STATS_POS_X + 0x11;
-  colcar = HUD_STATS_POS_X + 0x5f;
-  coltime = HUD_STATS_POS_X + 0xa7;
-  colbestlap = HUD_STATS_POS_X + 0xe1;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
   titleY = 0x76 - halfH;
   Font_TextColor(6);
   Font_TextXY(TextSys_Word(0x38),titleX * 0x10000 >> 0x10,titleY);
   Font_TextColor(3);
+  /* each col* is computed immediately before its own Font_TextXY (oracle interleaves the
+     `addiu $v0,$s6,K; addu $sN,$v0,$zero` pairs with the calls @0x800D9B2C..0x800D9B94). */
+  colname = HUD_STATS_POS_X + 0x11;
   headerY = (titleY + 0xf) * 0x10000 >> 0x10;
   Font_TextXY(TextSys_Word(0x2e),colname,headerY);
+  colcar = HUD_STATS_POS_X + 0x5f;
   Font_TextXY(TextSys_Word(0x3a),colcar,headerY);
+  coltime = HUD_STATS_POS_X + 0xa7;
   Font_TextXY(TextSys_Word(0x3b),coltime,headerY);
+  colpos = HUD_STATS_POS_X;
+  colbestlap = HUD_STATS_POS_X + 0xe1;
   if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,headerY);
   }
@@ -98,23 +98,19 @@ void RaceSummary(void)
   i = 0;
   while (1) {
     if (Cars_gNumRaceCars <= i) break;
+    {
+    /* SYM: `pos` is a BLOCK-scoped REG $s2 inside the per-car loop. */
+    int pos;
+
     pos = Cars_gRaceCarList[i]->stats.finalPosition;
     if (pos * 2 + 4 < StatsTimer) {
-      color = 4;
-      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
-        color = 3;
-      }
-      Font_TextColor(color);
+      Font_TextColor((Cars_gRaceCarList[i]->carFlags & 4U) != 0 ? 3 : 4);
       sprintf(string,"%d",pos);
       Font_TextXY(string,colpos | 1,dataY + pos * 0xc);
       Font_TextColor(3);
       sprintf(string,"%s",(char *)(*(int *)((int)Cars_gRaceCarList[i] + 0x288) + 0x5c));
       Font_TextXY(string,colname,dataY + pos * 0xc);
-      color = 4;
-      if ((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0) {
-        color = 3;
-      }
-      Font_TextColor(color);
+      Font_TextColor((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0 ? 3 : 4);
       sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
       Font_TextXY(string,colcar,dataY + pos * 0xc);
       if (GameSetup_gData.pinkSlipsForfeit == i) {
@@ -135,6 +131,7 @@ void RaceSummary(void)
         Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
         Font_TextXY(string,colbestlap,dataY + pos * 0xc);
       }
+    }
     }
     i = i + 1;
   }

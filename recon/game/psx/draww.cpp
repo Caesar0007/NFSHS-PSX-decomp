@@ -2560,10 +2560,23 @@ DrawWChunkFacets_emitObj:
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
           objDef = Track_gObjDefs[objInstance->pad];
-          light = *(short *)&objInstance->simIndex;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
-          goto DrawWChunkFacets_emitObj;
+          /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
+           * through the SYM `short light` ($s1) variable.  The oracle proves the split:
+           * the flags&1/type==9 arm loads `lhu $s1,0x1A($s4)` and pays a `sll 16;sra 16`
+           * sign-extend at its own call site, while case 2 and case 9 emit a bare
+           * `lh $v0,0x22/0x1A($s4); j .L800C8B30; sw $v0,0x18($sp)` -- i.e. gcc
+           * cross-jumped the two $v0-carried arms DEEPER (sharing the light store) than
+           * the $s1-carried one (which stores its own and enters one insn later).  That
+           * is the catalog's cross-jump-DEPTH-follows-the-variable rule; assigning
+           * `light` in all three arms collapsed them to one depth AND turned both `lh`
+           * sites into `lhu` (census lh 19v21 / lhu 3v1). */
+          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                              (coorddef *)&objInstance->x,objectOffset,
+                              *(short *)&objInstance->simIndex);
+          totalCount = totalCount + objectOffset;
+          break;
         }
         case 9: {
         /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
@@ -2587,10 +2600,13 @@ DrawWChunkFacets_emitObj:
         matrix.m[8] = fixedmult(matrix.m[8],sx);
         DW_SCRATCH->offsubdivid = 0;
         objDef = Track_gObjDefs[objInstance->pad];
-        light = objInstance->qw;
         matrix.m[2] = t1;
         matrix.m[5] = t2;
-        goto DrawWChunkFacets_emitObj;
+        /* MATCH (w41-a2): inline light, see the case-2 note. */
+        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                            (coorddef *)&objInstance->x,objectOffset,objInstance->qw);
+        totalCount = totalCount + objectOffset;
+        break;
         }
         case 5: {
         objDef = Track_gObjDefs[objInstance->pad];

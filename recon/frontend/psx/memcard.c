@@ -287,7 +287,11 @@ void MCRD_setopts(MCRDOPTS_def *pOPT)
   /* MATCH: the productCode!=NULL body is the IF-ARM (the oracle's beqz pushes the
    * NULL case out-of-line to .L8004F634), and the region letter comes from a real
    * 3-case switch + default - gcc's balanced case tree emits the beq(1)/beqz(0)/
-   * beq(2) ladder, and the two 'A' arms (N_AMERICA + default) cross-jump-merge. */
+   * beq(2) ladder.  MATCH: N_AMERICA and default share ONE labelled body (two
+   * separate 'A' bodies leave the case-0 arm storing through the cached &gMemCardInfo
+   * base in $a0 while the default rematerializes its own lui, so their stores never
+   * cross-jump - +1 insn).  One body puts both labels on the same block, which the
+   * dispatch fall-through reaches by `j` = the oracle's shared sb %lo(...)($v1). */
   if (pOPT->productCode != (char *)0x0) {
     gMemCardInfo.productCode[0] = 'B';
     switch (pOPT->productLocation) {
@@ -298,8 +302,6 @@ void MCRD_setopts(MCRDOPTS_def *pOPT)
       gMemCardInfo.productCode[1] = 'E';
       break;
     case N_AMERICA:
-      gMemCardInfo.productCode[1] = 'A';
-      break;
     default:
       gMemCardInfo.productCode[1] = 'A';
       break;

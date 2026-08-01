@@ -34,7 +34,11 @@ void FeDraw_SetABRMode(int abr)
    * slot (the oracle's pick) while the cursor store keeps its position ahead of the
    * OR chain.  The un-split form leaves the cursor store last -> dbr steals THAT.
    * FALSIFIED (all gated): bump-before-pal (40) incl. a `next` cursor temp (40) and
-   * a swapped pal-OR (40); the Draw_PrimStruct struct-field view of the cursor for
+   * a swapped pal-OR (40); psxfront's own `prevPrim` scratchpad-pointer cache -- this
+   * fn is straight-line, so re-reading the slot IS right here and the cache costs
+   * diffs (the full psxfront `prevPrim`+`linkAddr` spelling measured 30, `linkAddr`
+   * alone 30, vs PASS for the value/store split with no pointer cache); the
+   * Draw_PrimStruct struct-field view of the cursor for
    * both orders (17 / 19); volatile on the palette store (8); psxfront's exact
    * `prevPrim`+`linkAddr` spelling (30) and `linkAddr` alone (30); linkWord with the
    * OR operands swapped (26); and the -G / -mno-split-addresses axis (gprobe: all

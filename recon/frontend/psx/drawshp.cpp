@@ -45,6 +45,14 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
    *      the OR chain and leaves the palette store last (in the post-loop block, last
    *      before `jal GetTPage`, so dbr's backward fill_simple_delay_slots scan takes
    *      IT into the delay slot, as the oracle does).
+   * ⚠️ THE psxfront PURGE RULE INVERTS HERE (measured, W43 cross-check): in psxfront
+   * deleting the fabricated `prevPrim`/`linkAddr` OT-link locals wins, because those
+   * fns are STRAIGHT-LINE -- re-reading the scratchpad slot lets cse share the loaded
+   * pointer.  This fn has a LOOP, so the same re-read leaves the 0x1F800000 address as
+   * a life-1 movable that loop.c declines; every purged form measured 107/108 with the
+   * wrong loop shape (41 / 43 / 47 for split-post / split-loop / split-both) while the
+   * cached form is 108/108 with the loop instruction-exact.  Twins are mirrored, not
+   * identical -- re-derive per oracle.
    * FALSIFIED on the way: source-hoisting the slot ADDRESS into a `u_char **palSlot`
    * local (61/109 -- it defeats the pointer CSE, costing a second `lw` + a nop);
    * the Draw_PrimStruct struct-field view of the palette slot (62-85, +2..+3 insns);

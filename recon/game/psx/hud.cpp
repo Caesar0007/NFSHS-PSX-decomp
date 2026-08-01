@@ -2519,22 +2519,23 @@ void Hud_BuildReplay(void)
   }
   *(u_int *)&gSprite0[0x34].u0 =
        *(u_int *)&(HudPmx_gShapes + 0x6e - Replay_ReplayInterface.pause)->pixmap.u0;
-  if (Replay_ReplayInterface.speed != 1) {
-    if (Replay_ReplayInterface.speed < 2) {
-      spr = 0x74;
-      if (Replay_ReplayInterface.speed == 0) {
-        spr = 0x72;
-      }
-    }
-    else {
-      spr = 0x74;
-      if (Replay_ReplayInterface.speed == 2) {
-        spr = 0x75;
-      }
-    }
-  }
-  else {
+  /* MATCH: a real `switch` -- the oracle's dispatch is gcc-2.8 balance_case_nodes
+   * (root `beq 1`, `slti 2` bound test, then `beqz`/`beq 2` leaves) with the default
+   * body duplicated into the two guard delay slots; an if/else-if cascade emits the
+   * arms inline with the opposite polarity. */
+  switch (Replay_ReplayInterface.speed) {
+  case 0:
+    spr = 0x72;
+    break;
+  case 1:
     spr = 0x73;
+    break;
+  case 2:
+    spr = 0x75;
+    break;
+  default:
+    spr = 0x74;
+    break;
   }
   gSprite0[0x38].u0 = HudPmx_gShapes[spr].pixmap.u0;
   gSprite0[0x38].v0 = HudPmx_gShapes[spr].pixmap.v0;

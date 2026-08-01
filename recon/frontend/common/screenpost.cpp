@@ -168,191 +168,132 @@ int tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_i
 void tScreenTournamentStandings::DrawBackground()
 
 {
-  short rank;
-  char *str;
-  int iVar3;
-  int iVar4;
-  tTexture_ShapeInfo *shape;
-  tListIteratorTournament *this_00;
-  long lVar5;
-  int tt;
-  int wwwww;
-  int colb;
-  tMenuTextState statedull;
-  int j;
-  int iVar6;
-  int i;
-  int iVar7;
-  int colf;
-  int lbx;
-  int width;
-  int wobble;
-  tMenuTextState state;
-  tMenuTextState textState_00;
-  int iVar8;
   int fade;
-  int iVar9;
-  char sBuildOutput [80];
-  tTrackInformation trackInfo;
-  tDrawShapeExtended drawflags;
-  short p;
   int fadeline;
+  int i;
+  int j;
   tTourneyInfo *tourneyInfo;
-  int iStack_34;
-  int iStack_30;
-  
-  iVar9 = (int)this->fScreenFadeVal;
-  iVar8 = 0x2fe;
-  tourneyInfo = (tournamentManager.fDefinition)->fTournaments +
-                (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset
-                + tournamentManager.fTournament;
-  iStack_34 = (int)(((int)(short)tournamentManager.fNumRacers +
-                    (uint)(tourneyInfo->fKnockout != '\0')) * 0x10000) >> 0x10;
-  iStack_30 = iStack_34 + -1;
-  fadeline = iVar9;
-  for (iVar7 = 0; iVar7 < iStack_34; iVar7 = iVar7 + 1) {
-    rank = PlayerRanking(&tournamentManager,(short)((uint)((iVar7 + 1) * 0x10000) >> 0x10));
-    iVar6 = (int)rank;
-    textState_00 = textState_Selected;
-    if (iVar6 == 0) {
-      textState_00 = textState_Hilighted;
+  char sBuildOutput[80];
+  tMenuTextState state;
+  tMenuTextState statedull;
+  tTrackInformation trackInfo;
+  int wwwww;
+  tTexture_ShapeInfo *shape;
+  int lbx;
+  int tt;
+  tDrawShapeExtended drawflags;
+  int colf;
+  int colb;
+  short p;
+  int numRacers;
+  int lastRacer;
+  int line;
+
+  fade = this->fScreenFadeVal;
+  fadeline = fade;
+  i = 0;
+  line = 0x2fe;
+  tourneyInfo = &tournamentManager.fDefinition->fTournaments[
+      tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+      tournamentManager.fTournament];
+  numRacers = (short)(tournamentManager.fNumRacers + (tourneyInfo->fKnockout != 0));
+  lastRacer = numRacers - 1;
+  for (;;) {
+    if (i >= numRacers) {
+      break;
+    }
+    j = (short)PlayerRanking(&tournamentManager,(short)(i + 1));
+    state = textState_Selected;
+    if (j == 0) {
+      state = textState_Hilighted;
       statedull = textState_Hilighted;
     }
     else {
       statedull = textState_Unselected;
     }
-    str = TextSys_Word(iVar7 + 599);
-    iVar3 = TextSys_WordX(0x2f7);
-    iVar4 = TextSys_WordY(iVar8);
-    FETextRender_FullTextFade(iVar9,str,(short)iVar3,(short)iVar4,textType_TrackRecords,statedull,0);
-    if (iVar6 == 0) {
-      str = PlayerName(0);
+    FETextRender_FullTextFade(fade,TextSys_Word(i + 599),(short)TextSys_WordX(0x2f7),
+                             (short)TextSys_WordY(line),textType_TrackRecords,statedull,0);
+    if (j == 0) {
+      FETextRender_FullTextFade(fade,PlayerName(0),(short)TextSys_WordX(0x2f8),
+                               (short)TextSys_WordY(line),textType_TrackRecords,state,0);
     }
     else {
-      str = Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[iVar6].fPersonality);
+      FETextRender_FullTextFade(fade,
+                               Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[j].fPersonality),
+                               (short)TextSys_WordX(0x2f8),(short)TextSys_WordY(line),
+                               textType_TrackRecords,state,0);
     }
-    iVar6 = TextSys_WordX(0x2f8);
-    iVar3 = TextSys_WordY(iVar8);
-    FETextRender_FullTextFade(iVar9,str,(short)iVar6,(short)iVar3,textType_TrackRecords,textState_00,0);
-    p = rank;
-    if (tourneyInfo->fKnockout == '\0') {
-      rank = TournPointTotal(&tournamentManager,&p);
-      str = TextSys_Word(0x31d);
-      sprintf(sBuildOutput,"%d %s",(int)rank,str);
+    p = j;
+    if (tourneyInfo->fKnockout != 0) {
+      sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
     }
     else {
-      iVar6 = 0x31b;
-      if (iVar7 == iStack_30) {
-        iVar6 = 0x31c;
-      }
-      str = TextSys_Word(iVar6);
-      sprintf(sBuildOutput,str);
+      sprintf(sBuildOutput,"%d %s",(int)TournPointTotal(&tournamentManager,&p),TextSys_Word(0x31d));
     }
-    iVar6 = TextSys_WordX(0x2fb);
-    iVar3 = TextSys_WordY(iVar8);
-    FETextRender_FullTextFade(iVar9,sBuildOutput,(short)iVar6,(short)iVar3,textType_TrackRecords,textState_00,1);
-    iVar8 = iVar8 + 1;
+    FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
+                             (short)TextSys_WordY(line),textType_TrackRecords,state,1);
+    line++;
+    i++;
   }
-  rank = Front_GetTrackRaced();
-  GetTrack(&trackManager,rank,&trackInfo);
-  rank = Front_GetTrackRaced();
-  str = TextSys_Word(rank + 0xd5);
-  iVar7 = TextSys_WordX(0x2f6);
-  iVar8 = TextSys_WordY(0x2fd);
-  FETextRender_FullTextFade(iVar9,str,(short)iVar7,(short)iVar8,textType_TrackRecords,textState_Hilighted,2);
-  if (frontEnd.tier == '\0') {
-    this_00 = &menuDefs->iteratorTournament;
+  GetTrack(&trackManager,(short)Front_GetTrackRaced(),&trackInfo);
+  FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
+                           (short)TextSys_WordY(0x2fd),textType_TrackRecords,textState_Hilighted,2);
+  i = (short)TextValue(frontEnd.tier != '\0' ? &menuDefs->iteratorSpecialEvent :
+                                               &menuDefs->iteratorTournament,kPlayerBoth) + 0x13;
+  FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
+                                             2,textState_Hilighted,textType_TrackRecords);
+  wwwww = textpixels(TextSys_Word(i));
+  PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
+  shape = &gCurrentShapes[0x27];
+  wwwww = shape->width;
+  lbx = (wwwww >> 1) - 2 - shape->centerx;
+  tt = ticks % (short)wwwww;
+  if ((wwwww >> 1) < tt) {
+    tt = wwwww - tt;
   }
-  else {
-    this_00 = &menuDefs->iteratorSpecialEvent;
-  }
-  iVar7 = TextValue(this_00,kPlayerBoth);
-  iVar6 = (short)iVar7 + 0x13;
-  iVar7 = TextSys_WordX(0x2f6);
-  iVar8 = TextSys_WordY(0x2fc);
-  FETextRender_MenuTextPositionedJustifyFade(iVar9,(short)((uint)(iVar6 * 0x10000) >> 0x10),(short)iVar7,(short)iVar8,2,
-             textState_Hilighted,textType_TrackRecords);
-  str = TextSys_Word(iVar6);
-  iVar7 = textpixels(str);
-  iVar8 = TextSys_WordX(0x2f6);
-  iVar6 = TextSys_WordY(0x2fc);
-  PSXDrawSquare(0,iVar8 - (iVar7 >> 1),iVar6 + -1,iVar7,9);
-  width = gCurrentShapes[0x27].width;
-  lbx = (width >> 1) - 2 - gCurrentShapes[0x27].centerx;
-  wobble = ticks % (short)width;
-  if ((width >> 1) < wobble) {
-    wobble = width - wobble;
-  }
-  DrawShapeExtended(0x28,0,lbx + wobble,TextSys_WordY(0x2fc) + 1,
-             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x28,0,lbx - wobble,TextSys_WordY(0x2fc) + 1,
-             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x282828;
-  DrawShapeExtended(0x27,0x400,0,-1,
-             (int)this->fScreenFadeVal,0,&drawflags);
-  iVar7 = TextSys_WordX(0x2f6);
-  iVar8 = TextSys_WordY(0x2fd);
-  iVar8 = iVar8 + 10;
-  PSXDrawBrightEndLine(0x232323,iVar7 + -0x96,iVar8,300,1,3,fadeline,0x1e);
-  colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],iVar8);
-  iVar8 = CalcFadeVal(0x232323,iVar8);
+  DrawShapeExtended(0x27,0x400,0,-1,fade,0,&drawflags);
+  PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
+                       300,1,3,fadeline,0x1e);
+  colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
+  colb = CalcFadeVal(0x232323,fade);
   if ((1000 < ticks - this->starttick) || (this->fStartCountdownNOW != 0)) {
     if ((0 < this->moneyAwarded) || ((0 < this->moneyDamage || (0 < this->moneyBonus)))) {
       AudioCmn_PlayFESFX(0x15);
     }
-    iVar3 = this->fCountSpeed;
-    iVar6 = this->moneyAwarded - iVar3;
-    this->moneyAwarded = iVar6;
-    if (iVar6 < 1) {
+    int speed = this->fCountSpeed;
+    this->moneyAwarded -= speed;
+    if (this->moneyAwarded < 1) {
       this->moneyAwarded = 0;
-      iVar6 = this->moneyDamage - iVar3;
-      this->moneyDamage = iVar6;
-      if (iVar6 < 1) {
+      this->moneyDamage -= speed;
+      if (this->moneyDamage < 1) {
+        long bonus = this->moneyBonus - speed;
         this->fCountedDown = 1;
-        lVar5 = this->moneyBonus - iVar3;
         this->moneyDamage = 0;
-        if (lVar5 < 0) {
-          lVar5 = 0;
+        if (bonus < 0) {
+          bonus = 0;
         }
-        this->moneyBonus = lVar5;
+        this->moneyBonus = bonus;
       }
     }
   }
   if (this->fDrawMoney != 0) {
-    str = TextSys_Word(0x312);
-    iVar6 = TextSys_WordX(0x2fa);
-    iVar3 = TextSys_WordY(0x312);
-    FETextRender_FullTextFade(iVar9,str,(short)iVar6,(short)iVar3,textType_TrackRecords,
-               (uint)(this->gotmoney != 0),1);
-    iVar6 = TextSys_WordX(0x2fb);
-    iVar3 = TextSys_WordY(0x312);
-    DrawMoney(iVar6,iVar3,6,this->moneyAwarded,colf,iVar8);
-    str = TextSys_Word(0x313);
-    iVar6 = TextSys_WordX(0x2fa);
-    iVar3 = TextSys_WordY(0x313);
-    FETextRender_FullTextFade(iVar9,str,(short)iVar6,(short)iVar3,textType_TrackRecords,
-               (uint)(this->gotbilled != 0),1);
-    iVar6 = TextSys_WordX(0x2fb);
-    iVar3 = TextSys_WordY(0x313);
-    DrawMoney(iVar6,iVar3,6,this->moneyDamage,colf,iVar8);
-    str = TextSys_Word(0x314);
-    iVar6 = TextSys_WordX(0x2fa);
-    iVar3 = TextSys_WordY(0x314);
-    FETextRender_FullTextFade(iVar9,str,(short)iVar6,(short)iVar3,textType_TrackRecords,
-               (uint)(this->gotbonus != 0),1);
-    iVar6 = TextSys_WordX(0x2fb);
-    iVar3 = TextSys_WordY(0x314);
-    DrawMoney(iVar6,iVar3,6,this->moneyBonus,colf,iVar8);
+    FETextRender_FullTextFade(fade,TextSys_Word(0x312),TextSys_WordX(0x2fa),TextSys_WordY(0x312),
+                             textType_TrackRecords,(uint)(this->gotmoney != 0),1);
+    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,this->moneyAwarded,colf,colb);
+    FETextRender_FullTextFade(fade,TextSys_Word(0x313),TextSys_WordX(0x2fa),TextSys_WordY(0x313),
+                             textType_TrackRecords,(uint)(this->gotbilled != 0),1);
+    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,this->moneyDamage,colf,colb);
+    FETextRender_FullTextFade(fade,TextSys_Word(0x314),TextSys_WordX(0x2fa),TextSys_WordY(0x314),
+                             textType_TrackRecords,(uint)(this->gotbonus != 0),1);
+    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,this->moneyBonus,colf,colb);
   }
-  str = TextSys_Word(0x315);
-  iVar6 = TextSys_WordX(0x2fa);
-  iVar3 = TextSys_WordY(0x315);
-  FETextRender_FullTextFade(iVar9,str,(short)iVar6,(short)iVar3,textType_TrackRecords,textState_Hilighted,1);
-  iVar9 = TextSys_WordX(0x2fb);
-  iVar6 = TextSys_WordY(0x315);
-  DrawMoney(iVar9,iVar6,9,
-             ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,
-             iVar8);
+  FETextRender_FullTextFade(fade,TextSys_Word(0x315),TextSys_WordX(0x2fa),TextSys_WordY(0x315),
+                           textType_TrackRecords,textState_Hilighted,1);
+  DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9,
+            ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
   ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
   return;
 }

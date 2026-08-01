@@ -3643,7 +3643,8 @@ struct tCompetitor {   /* 16 bytes */
 
 struct tTournamentManager {   /* 644 bytes */
     char               fNumTiers;   /* +0x0 */
-    int                fTier, fTournament, fCurrentTrack, fNumRacers;   /* +0x4 */
+    int                fTier, fTournament, fCurrentTrack;   /* +0x4 */
+    short              fNumRacers, fPadNumRacers;   /* +0x10 */
     long               fMoney;   /* +0x14 */
     tTournamentDefinition *fDefinition;   /* +0x18 */
     short              fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];   /* +0x1C */

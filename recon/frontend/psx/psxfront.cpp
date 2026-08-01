@@ -563,100 +563,75 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
                int abr)
 
 {
-  char v;
-  byte v_byte;
-  byte u_byte;
-  short clut;
-  int scaledW;
-  int scaledH;
-  int scaledX;
-  int scaledY;
-  int tpage_word;
-  byte v1_byte;
-  char vh;
-  char u;
-  char u1_byte;
-  char uw;
-  uint linkAddr;
-  int vert_dx;
-  short height;
-  short srcH;
-  short width;
-  short srcW;
-  short dstY;
-  short dstX;
-  short bpp;
-  u_char  *prevPrim;
+  /* SYM 8c block: prim(POLY_GT4* $s3) width($s2) height($s1) u/v/uw/vh (CHAR) bpp(AUTO SHORT
+   * @sp+0x10) + the color/abr REG copies -- 9 locals, not the 28 the old recon declared.
+   * x($s6) and y($s5) are the REGPARMs, MUTATED IN PLACE by the flip arms; width/height likewise
+   * (`negu $s2,$s2`).  The bpp divide is SIGNED (div + break 7 + break 6). w42-a7 */
   u_char  *prim;
-  short srcH2;
-  byte depth;
-  
+  u_char  *prevPrim;
+  uint     linkAddr;
+  short    width;
+  short    height;
+  short    bpp;
+  char     u;
+  char     v;
+  char     uw;
+  char     vh;
+
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  dstX = (short)x;
-  dstY = (short)y;
-  srcW = shp->width;
-  srcH = shp->height;
-  depth = shp->depth;
+  width = shp->width;
+  height = shp->height;
+  bpp = (byte)shp->depth;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x34;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(int *)(prim + 4) = *color;
+  *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];
   *(int *)(prim + 0x28) = color[3];
   SetPolyGT4((POLY_GT4 *)prim);
   SetSemiTrans(prim,flags & 1);
-  clut = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-  *(short *)(prim + 0xe) = clut;
+  *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
   *(ushort *)(prim + 0x1a) =
-       ((byte)shp->type & 3) << 7 | (ushort)((abr & 3U) << 5) |
-       (short)(shp->shapey & 0x100U) >> 4 | (ushort)(((ushort)shp->shapex & 0x3c0) >> 6) |
-       (shp->shapey & 0x200U) << 2;
+       ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
+       (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+       ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
   if ((flags & 4U) != 0) {
-    scaledW = fixedmult(scalex,(int)srcW);
-    dstX = dstX + (short)scaledW;
-    srcW = -srcW;
+    x = x + fixedmult(scalex,width);
+    width = -width;
   }
   if ((flags & 2U) != 0) {
-    scaledH = fixedmult(scaley,(int)srcH);
-    dstY = dstY + (short)scaledH;
-    srcH = -srcH;
+    y = y + fixedmult(scaley,height);
+    height = -height;
   }
-  *(short *)(prim + 8) = dstX;
-  *(short *)(prim + 10) = dstY;
-  scaledX = fixedmult(scalex,(int)srcW);
-  *(short *)(prim + 0x14) = dstX + -1 + (short)scaledX;
-  *(short *)(prim + 0x16) = dstY;
-  *(short *)(prim + 0x20) = dstX;
-  scaledY = fixedmult(scaley,(int)srcH);
-  *(short *)(prim + 0x22) = dstY + (short)scaledY;
-  scaledY = fixedmult(scalex,(int)srcW);
-  *(short *)(prim + 0x2c) = dstX + -1 + (short)scaledY;
-  scaledY = fixedmult(scaley,(int)srcH);
-  *(short *)(prim + 0x2e) = dstY + (short)scaledY;
-  vert_dx = (int)depth;
-  tpage_word = (ushort)shp->shapex & 0x3f;
-  u1_byte = (char)((uint)(tpage_word << 4) / (uint)vert_dx);
-  srcH2 = shp->height;
-  v_byte = (byte)shp->shapey;
+  *(short *)(prim + 8) = x;
+  *(short *)(prim + 10) = y;
+  *(short *)(prim + 0x14) = (x + -1) + fixedmult(scalex,width);
+  *(short *)(prim + 0x16) = y;
+  *(short *)(prim + 0x20) = x;
+  *(short *)(prim + 0x22) = y + fixedmult(scaley,height);
+  *(short *)(prim + 0x2c) = (x + -1) + fixedmult(scalex,width);
+  *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
+  u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
+  v = (byte)shp->shapey;
   if ((flags & 4U) != 0) {
-    u1_byte = u1_byte + -1;
+    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
   }
-  v1_byte = u1_byte + (char)shp->width;
+  uw = u + (byte)shp->width;
   if ((flags & 2U) != 0) {
-    v_byte = v_byte - 1;
+    v = (byte)shp->shapey - 1;
   }
-  prim[0xd] = v_byte;
-  prim[0x19] = v_byte;
-  u_byte = v_byte + (char)srcH2;
-  prim[0xc] = u1_byte;
-  prim[0x18] = v1_byte;
-  prim[0x24] = u1_byte;
-  prim[0x25] = u_byte;
-  prim[0x30] = v1_byte;
-  prim[0x31] = u_byte;
+  prim[0xd] = v;
+  prim[0x19] = v;
+  vh = v + (byte)shp->height;
+  prim[0xc] = u;
+  prim[0x18] = uw;
+  prim[0x24] = u;
+  prim[0x25] = vh;
+  prim[0x30] = uw;
+  prim[0x31] = vh;
   return;
 }
 

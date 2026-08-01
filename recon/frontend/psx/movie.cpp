@@ -421,7 +421,7 @@ void strSetDefDecEnv(DECENV *dec)
   mh = gMovieHeight;
   vb1 = vlcbuf1;
   vb0 = vlcbuf0;
-  img = imgbuf_v[0];
+  img = imgbuf_d;
   top = (int)PPWTop;
   bottom = (int)PPWBottom;
   dec->vlcid = 0;

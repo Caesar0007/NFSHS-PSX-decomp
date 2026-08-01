@@ -3678,7 +3678,6 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
                ,u_short *u3,Draw_tPixMap *pmx,Draw_CarCache *sd)
 
 {
-  void *tp8;
   u_int mlo;      /* 0x00FFFFFF addr mask (oracle: $a1) */
   u_int mhi;      /* 0xFF000000 len mask  (oracle: $a2) */
   POLY_FT4 * prim;
@@ -3702,31 +3701,41 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
 gte_ldv0(vt0);
     gte_rtps();
     /* scratchpad SXY staging = EA-expander template block (scratches $t0/$v0/$v1/$a0 --
-     * the reason vt0 is copied out of $a0 up-front). Two asm halves share the packet
-     * cursor via tp8; low-reg clobbers steer the cursor into $t0 like retail.
+     * the reason vt0 is copied out of $a0 up-front).
+     * MATCH (w40-a3, 109 -> 60, insns now EXACT 122/122): the packet cursor is a
+     * HARD-CODED $t0 in both halves (methodology 3.25 axis-2: this block is an EA
+     * .obj-expander template, so fixed scratch registers are the FAITHFUL form --
+     * the same recipe as DRAWC_OTLINK_FT3/MODE at the top of this TU, not a pin).
+     * With a `"=&r"` OUTPUT operand instead, gcc gave the cursor $a1 -- the first
+     * reg free after the $v0/$v1/$a0 clobbers -- which evicted the vt1 PARAM and
+     * cost a SECOND `addu` param copy (the 123-vs-122 insn).  $t0 is clobbered by
+     * both halves so nothing is allocated across them; verified in the objdump.
+     * Residual 60 = a one-step register rotation (ours prim/puVar7/mlo/mhi =
+     * $a0/$a1/$a2/$a3, retail $t0/$a0/$a1/$a2) plus which z-test delay slot reorg
+     * duplicates the mlo `lui` into (retail vt1's, ours vt2's).
      * BUG FIX (w38-a3): the `nop` after `lw %0,4(%0)` was MISSING.  The oracle has it
      * (`lui t0; lw t0,4(t0); nop; addiu v0,t0,8`) and it is a REAL R3000 load-delay
      * slot -- without it `addiu $v0,%0,8` reads the PRE-load %0, so the following
      * `swc2 $14,0($v0)` wrote the transformed SXY to a wild address.  Inside an
      * __asm__ neither maspsx nor gnu-as fills the slot for us. */
     __asm__ volatile(
-        "lui	%0,0x1f80
-	lw	%0,4(%0)
+        "lui	$t0,0x1f80
+	lw	$t0,4($t0)
 	nop
-	addiu	$v0,%0,8
+	addiu	$v0,$t0,8
 	swc2	$14,0($v0)"
-        : "=&r"(tp8) : : "$2", "$3", "$4", "memory");
+        : : : "$2", "$3", "$4", "$8", "memory");
 gte_ldv3(vt1,vt2,vt3);
     gte_rtpt();
     __asm__ volatile(
-        "addiu	$a0,%0,16
-	addiu	$v1,%0,32
-	addiu	$v0,%0,24
+        "addiu	$a0,$t0,16
+	addiu	$v1,$t0,32
+	addiu	$v0,$t0,24
 	"
         "swc2	$12,0($a0)
 	swc2	$13,0($v1)
 	swc2	$14,0($v0)"
-        : : "r"(tp8) : "$2", "$3", "$4", "memory");
+        : : : "$2", "$3", "$4", "$8", "memory");
     if (R3DCar_InMenu != 0) {                /* fall-through arm = InMenu (oracle beqz jumps to avsz4) */
       sd->otz = 0;
     }

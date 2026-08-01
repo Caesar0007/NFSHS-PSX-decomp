@@ -948,6 +948,13 @@ void Hrz_SetDitheringPrim(int dither,int otz)
  * evaluation per block (a repeated full expression re-loads pal/ViewOtSize after the
  * may-alias *prim store = +16 insns); FT4 uses the TextureQuad tag-split bump.
  * STATE wave-13: 615 -> 393 diffs, count 459 vs 458 (was 513/458). The residual is a
+ * w40-a8: the first-RMW OR operands were swapped to `slot[-2] & 0xffffff | *(u_int *)prim
+ * & 0xff000000` in all THREE prim blocks -- that flips the loop.c hoist ORDER of the two
+ * mask constants to the oracle's (0xFFFFFF materialized BEFORE 0xFF000000), the same
+ * two-constant hoist-order tie the flare small-flare family and Sky_RenderStars carry.
+ * Gate unchanged (393, LCS non-monotone) but the preheader now differs from the oracle in
+ * exactly ONE position: ours emits the 0x1F800004 (Render_gPacketPtr address) lui/ori pair
+ * BEFORE the gSkyColor %lo add, the oracle AFTER; everything downstream is the
  * near-uniform ALLOCNO RENAME cascade over ~12 loop pseudos (i t2 vs t4, temp a3 vs t1,
  * pmx a2 vs a3, pSkyZ s3 vs s4, palette-hi t4 vs s0, color bases shifted): body content,
  * frame (72), and every access shape match line-for-line under the renames. Root = the
@@ -1078,7 +1085,7 @@ void Hrz_BuildSky(void)
                 prim = (POLY_GT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
                 slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-                *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+                *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
                 slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
                 *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
                 Render_gPacketPtr = (u_char *)prim + 0x34;
@@ -1105,7 +1112,7 @@ void Hrz_BuildSky(void)
                 prim = (POLY_FT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
                 slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-                *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+                *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
                 tag = slot[-2];
                 Render_gPacketPtr = (u_char *)prim + 0x28;
                 slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
@@ -1128,7 +1135,7 @@ void Hrz_BuildSky(void)
               u_int *slot;
               prim = (POLY_G4 *)Render_gPacketPtr;
               slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-              *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+              *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
               slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
               *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
               Render_gPacketPtr = (u_char *)prim + 0x24;

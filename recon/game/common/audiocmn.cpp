@@ -1366,10 +1366,9 @@ LAB_8007887c:
 }
 
 /* ---- AudioCmn_SoundCar__FP8Car_tObjiiiiiii  [@0x800788bc] ---- */
-void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
+void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
-  int dst = dstArg;
   int CurCarGasLevel;
   int freq;
   int roadSurface;
@@ -1384,7 +1383,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   int wetNoiseAmp;
   int roadNoiseFreq;
   int wetNoiseFreq;
-  int iAmpIn;
+  /* SLD places iAmpIn in the frame rather than a saved register.  Volatile models
+     that single store/reload boundary; ampIn below carries the reloaded value. */
+  volatile int iAmpIn;
   int tuntrig;
   int cam;
   int roadNoisePatch;
@@ -1399,11 +1400,16 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   AudioCmn_CheckState(car);
   if (AudioCmn_kAudioOn) {
   if (Camera_gInfo[car->carIndex].mode == 0xc) {
-    iAmpIn = fixeddiv(0x10000000,dst + 0x10000) / 0x10000;
+    iVar6 = fixeddiv(0x10000000,dst + 0x10000);
   }
   else {
-    iAmpIn = fixeddiv(0x8000000,dst + 0x20000) / 0x10000;
+    iVar6 = fixeddiv(0x8000000,dst + 0x20000);
   }
+  /* Reconstruct the compiler's signed / 0x10000 rounding before the stack spill. */
+  if (iVar6 < 0) {
+    iVar6 = iVar6 + 0xffff;
+  }
+  iAmpIn = iVar6 >> 0x10;
   iVar9 = (car->linearVel_ch).z;
   if (iVar9 < 0) {
     iVar9 = -iVar9;
@@ -1467,7 +1473,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
       SNDfxmasterlevel(0x0,(u_char)fReverbLevel);
     }
   }
-  SPSC = false;
   if (GameSetup_gData.commMode == 1) {
     SPSC = true;
     PlayerPan = 0xc002;
@@ -1476,6 +1481,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
     }
   }
   else {
+    SPSC = false;
     PlayerPan = 0;
   }
   if (car->blowout != 0) {
@@ -1553,9 +1559,13 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
     }
   }
   else if ((int)uVar7 < iVar10) {
-    int delta = ((int)uVar7 - iVar10) / 8;
-    if (delta < 0) {
-      PlayersRampedGasLevel[car->carIndex] = iVar10 + delta;
+    iVar9 = (int)uVar7 - iVar10;
+    if (iVar9 < 0) {
+      iVar9 = iVar9 + 7;
+    }
+    iVar9 = iVar9 >> 3;
+    if (iVar9 < 0) {
+      PlayersRampedGasLevel[car->carIndex] = iVar10 + iVar9;
     }
     else {
       PlayersRampedGasLevel[car->carIndex] = iVar10 - 1;
@@ -1568,16 +1578,20 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
-  amplitude = iAmpIn * (freq + 0x28);
+  {
+  int ampIn = iAmpIn;
+
+  amplitude = ampIn * (freq + 0x28);
   if (amplitude < 0) {
     amplitude = amplitude + 0x7f;
   }
   amplitude = amplitude >> 7;
-  if (amplitude < iAmpIn) {
-    amplitude = iAmpIn;
+  if (amplitude < ampIn) {
+    amplitude = ampIn;
   }
   loadAmp = amplitude * 0x7f >> 7;
   roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
+  }
   if (tuntrig != 0) {
     wetNoiseAmp = 0;
   }
@@ -1634,19 +1648,19 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   if (((((car->control).gearShiftTimer != '\0') &&
        ((u_char)(car->control).gear > (bVar1 = (car->control).lastGear))) && (bVar1 != 1)) &&
      (cobblestoneAmp != 0)) {
-    uVar7 = (u_int)(u_char)(car->control).gearShiftTimer;
     /* @0x8007902C-ish gearShiftDelay division: automatic --expand-div guard on '/'. */
-    loadAmp = (loadAmp + (int)(loadAmp * uVar7) / car->specs->gearShiftDelay) >> 1;
-    if (uVar7 == 5) {
+    loadAmp = (loadAmp + loadAmp * (u_char)(car->control).gearShiftTimer /
+        car->specs->gearShiftDelay) >> 1;
+    if ((u_char)(car->control).gearShiftTimer == 5) {
       cobblestoneAmp = cobblestoneAmp - (cobblestoneAmp >> 2);
     }
-    else if (uVar7 == 4) {
+    else if ((u_char)(car->control).gearShiftTimer == 4) {
       cobblestoneAmp = cobblestoneAmp >> 1;
     }
-    else if (uVar7 == 3) {
+    else if ((u_char)(car->control).gearShiftTimer == 3) {
       cobblestoneAmp = cobblestoneAmp >> 2;
     }
-    else if (uVar7 < 3) {
+    else if ((u_char)(car->control).gearShiftTimer < 3) {
       cobblestoneAmp = 0;
     }
     PlayersRampedGasLevel[car->carIndex] = cobblestoneAmp;

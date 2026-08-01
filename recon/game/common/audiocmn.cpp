@@ -1447,12 +1447,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
   if (tuntrig != 0) {
     if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
-      uVar7 = 100;
-      if ((u_char)fReverbLevel + 10 < 0x65) {
-        uVar7 = (u_char)fReverbLevel + 10;
-      }
-      fReverbLevel = (char)uVar7;
-      SNDfxmasterlevel(0x0,uVar7 & 0xff);
+      fReverbLevel = (char)((100 < (u_char)fReverbLevel + 10) ?
+          100 : (u_char)fReverbLevel + 10);
+      SNDfxmasterlevel(0x0,(u_char)fReverbLevel);
       fReverbOn = '\x01';
     }
     roadNoiseAmp = roadNoiseAmp + 0x14;
@@ -1465,12 +1462,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
       fReverbOn = '\x01';
     }
     else if (0x20 < (u_char)fReverbLevel) {
-      uVar7 = 0x20;
-      if (0x1f < (int)((u_char)fReverbLevel - 5)) {
-        uVar7 = (u_char)fReverbLevel - 5;
-      }
-      fReverbLevel = (char)uVar7;
-      SNDfxmasterlevel(0x0,uVar7 & 0xff);
+      fReverbLevel = (char)((0x20 > (int)((u_char)fReverbLevel - 5)) ?
+          0x20 : (u_char)fReverbLevel - 5);
+      SNDfxmasterlevel(0x0,(u_char)fReverbLevel);
     }
   }
   SPSC = false;
@@ -1596,11 +1590,11 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
     wetNoiseFreq = wetNoiseAmp >> 3;
   }
   wetNoiseFreq = 0x48 - wetNoiseFreq;
-  iVar9 = 0x7f;
+  iVar10 = 0x7f;
   if (roadNoiseAmp < 0x80) {
-    iVar9 = roadNoiseAmp;
+    iVar10 = roadNoiseAmp;
   }
-  roadNoiseAmp = iVar9;
+  roadNoiseAmp = iVar10;
   if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
     /* @0x80078E50: the div-by-zero / INT_MIN-by(-1) guard is the automatic
        --expand-div guard on the '/' below (matches the oracle's single
@@ -1638,7 +1632,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
     }
   }
   if (((((car->control).gearShiftTimer != '\0') &&
-       (bVar1 = (car->control).lastGear, bVar1 < (u_char)(car->control).gear)) && (bVar1 != 1)) &&
+       ((u_char)(car->control).gear > (bVar1 = (car->control).lastGear))) && (bVar1 != 1)) &&
      (cobblestoneAmp != 0)) {
     uVar7 = (u_int)(u_char)(car->control).gearShiftTimer;
     /* @0x8007902C-ish gearShiftDelay division: automatic --expand-div guard on '/'. */
@@ -1660,15 +1654,13 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   {
     int gas;
 
-    iVar10 = car->specs->redline;
-    iVar9 = car->flywheelRpm << 0x10;
     /* @0x80079044 redline division (mflo a2): automatic --expand-div guard, no manual trap(). */
-    iVar9 = iVar9 / iVar10;
+    iVar9 = (car->flywheelRpm << 0x10) / car->specs->redline;
     gas = 0x7f;
     if (car->revLimit == 0) {
       gas = cobblestoneAmp >> 1;
     }
-    AudioEng_Set(car->carIndex,gMasterEngineLevel * loadAmp * 0xe >> 0xe,iVar9,gas,cam,
+    AudioEng_Set(car->carIndex,gMasterEngineLevel * (loadAmp * 0xe) >> 0xe,iVar9,gas,cam,
                doppler,azimuth,cardir);
   }
   }

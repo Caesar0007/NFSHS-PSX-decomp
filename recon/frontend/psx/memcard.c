@@ -914,11 +914,18 @@ int iMCRD_FormatCard(int card)
   result = 0;
   pCI = MCRD_getcard(card);
   fmtRes = MemCardFormat(gMemCardInfo.channel);
-  /* MATCH: a real switch - the oracle's beq(1) / slti BOUND / beq(2) ladder is
-   * gcc-2.8 emit_case_nodes for a 2-node case tree, not an if/else-if chain
-   * (which emits two plain beq's and no bound test). The two arms' identical
-   * tails (status store + result=-1) cross-jump-merge into .L800504A0. */
+  /* MATCH: a real switch WITH the empty success case (0).  THREE case nodes is
+   * what makes gcc-2.8's balance_case_nodes split the list at the middle, so the
+   * root (1) gets BOTH children; emit_case_nodes' "neither subtree bounded" arm
+   * then emits the discriminating compare, and jump.c collapses the empty
+   * case-0 subtree into the default + inverts it -> the oracle's
+   *     beq ==1 / slti $v0,$v1,2 / bnez -> default / beq ==2 / j default.
+   * A plain 2-case switch keeps the list LINEAR (balance_case_nodes only splits
+   * when i > 2), the root has a right child only, and emit_case_nodes takes the
+   * "handle node->right explicitly" else-arm = two bare beq's, NO bound test. */
   switch (fmtRes) {
+  case 0:
+    break;
   case 1:
     pCI->status = -1;
     result = -1;

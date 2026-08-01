@@ -2036,6 +2036,7 @@ void Hud_BuildWingmanInterface(int player)
   int splitY;
   int flashTicks;
   POLY_F4 *poly;
+  u_char *pal;
   int x;
   int y;
 
@@ -2045,7 +2046,7 @@ void Hud_BuildWingmanInterface(int player)
   }
   flashTicks = Hud_gWingmanFlashTicks[player] - ticks;
   x = (int)g1Player[0xe].x;
-  y = g1Player[0xe].y + HudMapOffsetY + splitY + 2;
+  y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);
   Hud_BuildString(TextSys_Word(0x29),x - 0x1b,y + 3,0x808080,0,false);
   Hud_BuildString(TextSys_Word(0x2a),x - 0x1b,y + 0xc,0x808080,player,false);
   Hud_BuildString(TextSys_Word(0x2b),x - 0x1b,y + 0x15,0x808080,player,false);
@@ -2053,10 +2054,10 @@ void Hud_BuildWingmanInterface(int player)
   Hud_BuildString(TextSys_Word(0x2d),x - 0x1b,y + 0x27,0x808080,player,false);
   if (0 < flashTicks) {
     poly = (POLY_F4 *)Render_gPacketPtr;
-    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+    pal = Render_gPalettePtr;
+    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
     Render_gPacketPtr = (u_char *)poly + 0x18;
-    *(u_int *)Render_gPalettePtr =
-         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)poly & 0xffffff;
     Hud_BuildF4(poly,0,x - 0x10,y + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,
                (flashTicks % 0x14) * 10);
   }
@@ -2066,19 +2067,19 @@ void Hud_BuildWingmanInterface(int player)
     i = 0;
     do {
       poly = (POLY_F4 *)Render_gPacketPtr;
-      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      pal = Render_gPalettePtr;
+      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
       Render_gPacketPtr = (u_char *)poly + 0x18;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)poly & 0xffffff;
       Hud_BuildF4(poly,0,x - 0x1c,y + i * 9 + 2,0x4b,7,0);
       i = i + 1;
     } while (i < 5);
   }
   poly = (POLY_F4 *)Render_gPacketPtr;
-  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  pal = Render_gPalettePtr;
+  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
   Render_gPacketPtr = (u_char *)poly + 0x18;
-  *(u_int *)Render_gPalettePtr =
-       *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)poly & 0xffffff;
   Hud_BuildF4(poly,1,x - 0x1c,y,0x4b,0x30,0);
   return;
 }

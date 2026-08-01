@@ -991,9 +991,15 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_ldv0(&gv);
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
-    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
-    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
+    {
+      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
+      RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
+      /* MATCH: `(prim & 0xffffff) | (*pal & 0xff000000)` -- the 0xffffff term FIRST.
+       * The reversed spelling costs the 0xffffff constant its allocno rank and rotates
+       * a0<->a1 (the pal pointer) through both arms (52 -> 16). */
+      *pal = (u_int)prim & 0xffffff | *pal & 0xff000000;
+    }
     *((char *)prim + 3) = 4;                       /* OT tag length (4 words) */
     *(u_int *)&prim->r0 = 0x52000000;              /* rgb0=0, code=0x52 (LINE_G2) */
     *(u_int *)&prim->r1 = 0x402020;                /* r1=0x20,g1=0x20,b1=0x40 */
@@ -1006,9 +1012,15 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_ldv0(&gv);
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
-    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
-    *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
+    {
+      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
+      RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
+      /* MATCH: `(prim & 0xffffff) | (*pal & 0xff000000)` -- the 0xffffff term FIRST.
+       * The reversed spelling costs the 0xffffff constant its allocno rank and rotates
+       * a0<->a1 (the pal pointer) through both arms (52 -> 16). */
+      *pal = (u_int)prim & 0xffffff | *pal & 0xff000000;
+    }
     *((char *)prim + 3) = 4;
     *(u_int *)&prim->r0 = 0x52000000;
     *(u_int *)&prim->r1 = 0x402020;

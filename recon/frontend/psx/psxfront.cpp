@@ -405,8 +405,6 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
    * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
   u_char  *prim;
-  u_char  *prevPrim;
-  int      linkAddr;
   short    width;
   short    height;
   short    u;
@@ -442,11 +440,9 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       w = shp->width - i;
     }
     prim = Render_gPacketPtr;
-    prevPrim = Render_gPalettePtr;
-    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-    linkAddr = (uint)prim & 0xffffff;
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
     Render_gPacketPtr = prim + 0x34;
-    *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+    *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];

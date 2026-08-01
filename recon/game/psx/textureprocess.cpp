@@ -276,8 +276,20 @@ void Fog_Update(int player)
   if (Fog_gNumKeys != 1) {
     BWorldSm_FindClosestQuadRez(&gCView.cview.translation,fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
-    key = Fog_FindKey(currentslice,Fog_gCurrentKeyArr[player]);
-    Fog_gCurrentKeyArr[player] = key;
+    /* MATCH (w40-a10, 4 -> PASS): the slot ADDRESS must be its own named
+     * pointer local.  Written as two separate `Fog_gCurrentKeyArr[player]`
+     * expressions, cse still shares the address but the `lui/addiu %hi/%lo`
+     * pair belongs to the CALL-ARGUMENT statement, so sched1 gives it the
+     * longer path-to-jal priority (lui->addiu->addu->lw->jal = 4) and hoists
+     * it ABOVE the `lh $s1,0($s0)` / `sll $s0,$s2,2` pair (priority 2/3).
+     * Binding the address to `slot` in its own statement moves the
+     * materialization into that statement's luid slot, restoring retail's
+     * lh / sll / lui / addiu / addu / lw order. */
+    {
+      FogKey **slot = &Fog_gCurrentKeyArr[player];
+      key = Fog_FindKey(currentslice,*slot);
+      *slot = key;
+    }
     /* MATCH: NO cached `nextkey` local -- the oracle re-reads key->next (and
      * key->slice / key->distance) at each use; only `nextslice` is a real
      * variable (it is mutated by += numslices).  The interpolating arm is the
@@ -292,10 +304,8 @@ void Fog_Update(int player)
      * `lui $v1` rematerialised in the mflo delay slot while the else arm stores
      * $a0 via the beq-slot `lui $v0`.  (The w38 note claiming the funnel costs
      * 36 diffs was measured on an older body and is WRONG -- re-verified.)
-     * RESIDUAL 4 = one scheduling tie at the head: retail issues
-     * `lh $s1,0($s0)` + `sll $s0,$s2,2` BEFORE materialising &Fog_gCurrentKey,
-     * ours materialises the address first.  Statement splits/reorders of the
-     * Fog_gCurrentKey[player] read (3 forms) are all sched-equivalent. */
+     * (w39's "residual 4 = scheduling tie" note is now CLOSED -- see the
+     * slot-pointer MATCH note below.) */
     nextslice = key->next->slice;
     if (key->distance != key->next->distance) {
       if (nextslice < key->slice) {

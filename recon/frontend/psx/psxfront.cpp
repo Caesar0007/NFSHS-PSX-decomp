@@ -798,29 +798,29 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
    * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
   uint     otWord;
   int      i;
-  u_char  *prevPrim;
-  u_char  *prim;
+  POLY_G4 *prevPrim;
+  POLY_G4 *prim;
 
   i = 0;
   if (0 < opacity) {
     do {
-      prim = Render_gPacketPtr;
-      prevPrim = Render_gPalettePtr;
+      prim = (POLY_G4 *)Render_gPacketPtr;
+      prevPrim = (POLY_G4 *)Render_gPalettePtr;
       i = i + 1;
-      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-      otWord = *(uint *)prevPrim;
-      Render_gPacketPtr = prim + 0x24;
-      *(uint *)prevPrim = otWord & 0xff000000 | (uint)prim & 0xffffff;
-      prim[7] = 0x39;
-      prim[3] = 8;
-      *(uint *)(prim + 8) = y << 0x10 | x;
-      *(uint *)(prim + 0x18) = (y + h) << 0x10 | x;
-      *(int *)(prim + 4) = c1;
-      *(int *)(prim + 0xc) = c2;
-      *(int *)(prim + 0x14) = c3;
-      *(int *)(prim + 0x1c) = c4;
-      *(uint *)(prim + 0x10) = y << 0x10 | (x + w);
-      *(uint *)(prim + 0x20) = (y + h) << 0x10 | (x + w);
+      prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
+      otWord = prevPrim->tag;
+      Render_gPacketPtr = (u_char *)prim + 0x24;
+      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      prim->code = 0x39;
+      ((u_char *)prim)[3] = 8;
+      *(uint *)&prim->x0 = y << 0x10 | x;
+      *(uint *)&prim->x2 = (y + h) << 0x10 | x;
+      *(int *)&prim->r0 = c1;
+      *(int *)&prim->r1 = c2;
+      *(int *)&prim->r2 = c3;
+      *(int *)&prim->r3 = c4;
+      *(uint *)&prim->x1 = y << 0x10 | (x + w);
+      *(uint *)&prim->x3 = (y + h) << 0x10 | (x + w);
     } while (i < opacity);
   }
   return;

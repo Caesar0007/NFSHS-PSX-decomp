@@ -72,47 +72,43 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
 void DrawShape_NFS4RoundRectangle(int textID,RECT &position,short selected)
 
 {
-  tTexture_ShapeInfo *shapes;
-  int abr;
-  int dseIndex;
-  int x;
-  int y;
-  tTexture_ShapeInfo *left;
-  short flags;
-  int dseFlags;
-  int dseX;
-  int dseY;
+  /* SYM 8c: fsize 80, mask $801f0000 (ra,s4..s0); locals are EXACTLY
+   *   drawFlags(AUTO -0x30 = sp+0x20) flags(short $s3) left(tTexture_ShapeInfo* $s2)
+   * REGPARM: textID $a0, position $s1, selected $a2.  `shapes`/`abr`/`x`/`y`/
+   * `dseIndex`/`dseFlags`/`dseX`/`dseY` were Ghidra fictions -- the two
+   * DrawShapeExtended calls were being handed FOUR UNINITIALISED locals each
+   * (real bug), and the PSXDraw*Square coordinates were uninitialised too. */
   tDrawShapeExtended drawFlags;
-  
-  shapes = gHelpShapes;
+  short flags;
+  tTexture_ShapeInfo *left;
+
+  flags = 0;
+  left = gHelpShapes + 0x29;
   if (-1 < textID) {
     FETextRender_MenuTextPositionedJustify
-              ((short)textID,
-               (short)(((uint)(u_short)position.x +
-                       ((int)((uint)(u_short)position.w << 0x10) >> 0x11)) * 0x10000 >> 0x10),
-               position.y + 4,2,textState_Selected,textType_FramedInfo);
+              ((short)textID,(short)(position.x + (position.w >> 1)),
+               (short)(position.y + 4),2,textState_Selected,textType_FramedInfo);
   }
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
   if (selected == 0) {
-    PSXDrawTransSquare
-              (0x841d08,x,y,(int)position.w + shapes[0x29].width * -2 + 1,1,1);
-    abr = (int)position.x + (int)shapes[0x29].width;
-    PSXDrawTransSquare
-              (0,x,y,(int)position.w + shapes[0x29].width * -2 + 1,shapes[0x29].height + -1
-               ,1);
-    FeDraw_SetABRMode(abr);
+    flags = 1;
+  }
+  DrawShapeExtended(0x29,flags | 8,position.x,position.y,0,0,&drawFlags);
+  DrawShapeExtended(0x29,flags | 0xc,(int)position.x + (int)position.w - (int)left->width,
+                    position.y,0,0,&drawFlags);
+  if (selected != 0) {
+    PSXDrawSquare(0x841d08,(int)position.x + (int)left->width,
+                  (int)position.y + (int)left->height + -1,
+                  (int)position.w - left->width * 2 + 1,1);
+    PSXDrawSquare(0,(int)position.x + (int)left->width,position.y,
+                  (int)position.w - left->width * 2 + 1,left->height + -1);
   }
   else {
-    PSXDrawSquare
-              (0x841d08,(int)position.x + (int)shapes[0x29].width,
-               (int)position.y + (int)shapes[0x29].height + -1,
-               (int)position.w + shapes[0x29].width * -2 + 1,1);
-    PSXDrawSquare
-              (0,(int)position.x + (int)shapes[0x29].width,(int)position.y,
-               (int)position.w + shapes[0x29].width * -2 + 1,shapes[0x29].height + -1);
+    PSXDrawTransSquare(0x841d08,(int)position.x + (int)left->width,
+                       (int)position.y + (int)left->height + -1,
+                       (int)position.w - left->width * 2 + 1,1,1);
+    PSXDrawTransSquare(0,(int)position.x + (int)left->width,position.y,
+                       (int)position.w - left->width * 2 + 1,left->height + -1,1);
+    FeDraw_SetABRMode(0);
   }
   return;
 }

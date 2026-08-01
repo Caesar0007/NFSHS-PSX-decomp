@@ -18,7 +18,6 @@ int initmdec(int width,int height,int bpp,int memtype)
 {
   int area;
   void *buf;
-  short hs;
   int stride;
   void *bufsize;
   MDECSTRUCT *mdec;
@@ -47,12 +46,14 @@ int initmdec(int width,int height,int bpp,int memtype)
   if (stride < 0) {
     stride = stride + 0xf;
   }
-  hs = (short)height;
-  mdec->framerect.h = hs;
+  mdec->framerect.h = (short)height;
+  /* MATCH: no `hs` local in the SYM -- retail narrows `height` IN PLACE, so the
+     sign-extended value lands back in height's own register (oracle $s3). */
+  height = (short)height;
   mdec->framerect.w = (short)(stride >> 4);
-  mdec->striprect.h = hs;
+  mdec->striprect.h = (short)height;
   mdec->striprectsize =
-       ((int)mdec->striprect.w * (int)hs) / 2;
+       ((int)mdec->striprect.w * height) / 2;
   gMDECinfo.numhandles = gMDECinfo.numhandles + 1;
   return (int)mdec;
 }

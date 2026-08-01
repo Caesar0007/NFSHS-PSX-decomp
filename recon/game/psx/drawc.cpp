@@ -795,11 +795,18 @@ DrawCPrimStart_camRotMatrix:
       eColor = lightAvg >> 1;
     }
     sd->eColor0 = (eColor << 0x10) + (eColor << 8) + eColor;
-    if ((carObj->render).currentCarType != 1) {
-      eColor = (eColor << 1) + eColor;   /* explicit sll 1 (a bare *3 CSEs the
-                                          * compare's li 1 into a sllv count) */
+    /* if/ELSE with the >>2 DUPLICATED into both arms (w41-a3): retail's shape is
+     * `bne type,1,L; sll v0,a2,1 [stolen into the slot]; j T; sra a2,a2,2 [==1
+     * arm, in the j slot]; L: addu v0,v0,a2; sra a2,v0,2`.  A single shared
+     * `if (type != 1) eColor = eColor*3;` + one trailing `>>2` makes cc1 CSE the
+     * compare's `li v0,1` into a `sllv v0,a2,v0` variable shift and merges the
+     * two shifts -- the == arm has to be a real arm. */
+    if ((carObj->render).currentCarType == 1) {
+      eColor = eColor >> 2;
     }
-    eColor = eColor >> 2;
+    else {
+      eColor = ((eColor << 1) + eColor) >> 2;
+    }
     sd->eColor1 = (eColor << 0x10) + (eColor << 8) + eColor;
   }
   return (carObj->render).world_otz;

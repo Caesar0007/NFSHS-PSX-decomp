@@ -812,7 +812,15 @@ void Weather_QuickReOrthogonalize
  * 🔴 BUG: the turbulence table reads must be SIGN-extended (oracle sll 24/sra 24);
  * `char` is UNSIGNED on this build, so the plain char reads silently turned negative
  * velocity components into +128..+255.
- */
+ * w40-a6 LEAD (not landed): `short reset` is NOT in the SYM's particle-loop block (only
+ * tv $s2 and n $s0 LONG + the AUTO `pt`).  Testing the call inline --
+ * `if (Weather_CheckAndResetParticles(&pt) != 0) wd[n] = 0;` BEFORE the write-back --
+ * makes the count EXACT (252 -> 251) but the LCS reads 74 vs 69, because the oracle then
+ * shows the write-back sunk INTO the reset arm and reached by a `j`, driven by TWO
+ * separate address givs for the same walker (`sw v1,0(s2)` + `sh v1,0(s1)`, s2/s1 both
+ * +8 per iteration) where we keep one.  Landing the write-back placement + the giv split
+ * together is the next lever; either half alone regresses (both-arms duplication = 261
+ * insns).  Kept the 69-diff form pending that combined pass. */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
   int n;

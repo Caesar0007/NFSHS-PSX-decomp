@@ -811,11 +811,13 @@ gte_SetRotMatrix(&mtx);
       {
         DR_MODE *aprim;         /* a0 */
         u_int *slot;            /* a2 (anonymous -- no SYM record) */
+        u_int pkt24;
         aprim = (DR_MODE *)Render_gPacketPtr;
         slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+        pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | (u_int)aprim & 0xffffff;
         {
           /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
              rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
@@ -955,11 +957,13 @@ gte_stszotz(&otz);
     if ((flags & 0x40U) != 0) {
       DR_MODE *aprim;           /* a0 */
       u_int *slot;              /* t0 */
+      u_int pkt24;
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     z = diff.vz;
@@ -1077,11 +1081,13 @@ gte_SetRotMatrix(&mtx);
     {
       DR_MODE *aprim;           /* a0 */
       u_int *slot;              /* t0 */
+      u_int pkt24;
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       {
         /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
            stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
@@ -1165,11 +1171,14 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
       DR_MODE *aprim;
       u_int *slot;
 
+      u_int pkt24;
+
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)Render_gPalettePtr;
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     {
@@ -1219,12 +1228,15 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
       DR_MODE *aprim;
       u_int *slot;
 
+      u_int pkt24;
+
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)Render_gPalettePtr;
       slot = (u_int *)((int)slot + otz * 4);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
     }
   }

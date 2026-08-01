@@ -568,8 +568,6 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
    * x($s6) and y($s5) are the REGPARMs, MUTATED IN PLACE by the flip arms; width/height likewise
    * (`negu $s2,$s2`).  The bpp divide is SIGNED (div + break 7 + break 6). w42-a7 */
   u_char  *prim;
-  u_char  *prevPrim;
-  uint     linkAddr;
   short    width;
   short    height;
   short    bpp;
@@ -579,14 +577,12 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   char     vh;
 
   prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  linkAddr = (uint)prim & 0xffffff;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
   Render_gPacketPtr = prim + 0x34;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+  *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];

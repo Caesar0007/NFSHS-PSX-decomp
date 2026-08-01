@@ -184,10 +184,10 @@ void Input_Update(void)
       }
 
       j = 0;
-firstHeldLoop:
-      if (j >= 17) {
-        goto firstHeldDone;
-      }
+      for (;;) {
+        if (j >= 17) {
+          break;
+        }
       {
         if (*h != 0) {
           if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
@@ -211,9 +211,8 @@ firstHeldLoop:
         }
         h++;
         j++;
-        goto firstHeldLoop;
       }
-firstHeldDone:
+      }
 
       for (j = 0; j < 17; j++) {
         if (*h != 0) {

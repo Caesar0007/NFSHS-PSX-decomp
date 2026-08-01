@@ -552,12 +552,6 @@ void tScreenControllerConfig::DrawController()
   short maxshakey;
   int fadelevel;
   bool bShockActive;
-  uint frame;
-  int player;
-  int axisB;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
   
   shakex = 0;
   shakey = 0;
@@ -620,7 +614,7 @@ void tScreenControllerConfig::DrawController()
     this->fGotTick = 0;
     return;
   }
-  if (((((byte)this->fCurrentController - 5 < 2) && (this->fAnim == 0)) &&
+  if (((((u_int)((byte)this->fCurrentController - 5) < 2) && (this->fAnim == 0)) &&
       (*(int *)this->fFade == 0)) && (this->fAnimFade == 0)) {
     flare_intensity = flare_intensity + 0xfa;
     if (max_fi <= flare_intensity) {
@@ -644,74 +638,68 @@ void tScreenControllerConfig::DrawController()
     }
   }
   if (0 < flare_intensity) {
-    int ii;
-    for (ii = 0; ii < 2; ii++) {
-      fadelevel = flare_intensity;
-      if (flare_intensity < 0) {
-        fadelevel = flare_intensity + 3;
+    int ii = 0;
+    do {
+      int intensity = flare_intensity;
+      int haloFade = intensity;
+      if (intensity < 0) {
+        haloFade += 3;
       }
-      Flare_2DHalo((uint)Offset[(byte)this->fCurrentController][0] + shakex + 0x7e,
-                 (uint)Offset[(byte)this->fCurrentController][1] + ii + 0x3f + (int)shakey,
-                 flare_intensity,fadelevel >> 2,0x15);
-    }
+      Flare_2DHalo((uint)Offset[(byte)this->fCurrentController][0] +
+                   ((int)shakex + 0x7e),
+                 (uint)Offset[(byte)this->fCurrentController][1] +
+                   (ii + 0x3f) + (int)shakey,
+                 intensity,haloFade >> 2,0x15);
+      ii++;
+    } while (ii < 2);
   }
-  if ((this->fFade[0] == 0) || (this->fAnimFade != 0)) {
-    if (this->fFade[1] == 0) {
-DrawCtrl_fadeOpacity:
-      if (this->fFade[0] == 0) {
-        if ((this->fFade[1] == 0) || (this->fAnimFade != 1)) goto DrawCtrl_ticksUpdate;
-        maxshakex = this->fSwap;
-        this->fFade[1] = 0;
-      }
-      else {
-DrawCtrl_swapDoneA:
-        maxshakex = this->fSwap;
-        this->fFade[0] = 0;
-      }
-DrawCtrl_swapCheck:
-      if (maxshakex == 0) goto DrawCtrl_ticksUpdate;
-      this->SwapInController();
-    }
-    else {
-      if (this->fAnimFade == 0) {
-        maxshakex = this->fFadeController[1];
-        this->fFade[1] = 0;
-        this->fAnimFade = 1;
-        this->fAnimFadeController = maxshakex;
-        maxshakex = this->AnimKeyPoints(true,1);
-        this->fAnimFadeStart = maxshakex;
-        maxshakey = this->AnimKeyPoints(true,0);
-        maxshakex = this->fSwap;
-        this->fAnimFadeStop = maxshakey;
-        this->fAnimFadeFrame = this->fAnimFadeStart;
-        goto DrawCtrl_swapCheck;
-      }
-      if (this->fAnimFade != 1) goto DrawCtrl_fadeOpacity;
-      if (this->fFade[0] != 0) goto DrawCtrl_swapDoneA;
-      maxshakex = this->fFadeController[1];
+  if ((this->fFade[0] != 0) && (this->fAnimFade == 0)) {
+    this->fFade[0] = 0;
+    this->fAnimFade = -1;
+    this->fAnimFadeController = this->fFadeController[0];
+    this->fAnimFadeStart = this->AnimKeyPoints(false,1);
+    this->fAnimFadeStop = this->AnimKeyPoints(false,0);
+    this->fAnimFadeFrame = this->fAnimFadeStart;
+    goto DrawCtrl_ticksUpdate;
+  }
+  if (this->fFade[1] != 0) {
+    if (this->fAnimFade == 0) {
       this->fFade[1] = 0;
       this->fAnimFade = 1;
-      this->fAnimFadeController = maxshakex;
-      maxshakex = this->AnimKeyPoints(true,1);
-      this->fAnimFadeStart = maxshakex;
-      maxshakex = this->AnimKeyPoints(true,0);
-      this->fAnimFadeStop = maxshakex;
+      this->fAnimFadeController = this->fFadeController[1];
+      this->fAnimFadeStart = this->AnimKeyPoints(true,1);
+      this->fAnimFadeStop = this->AnimKeyPoints(true,0);
+      this->fAnimFadeFrame = this->fAnimFadeStart;
+      if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
+      goto DrawCtrl_swapController;
+    }
+    if (this->fAnimFade == 1) {
+      if (this->fFade[0] != 0) goto DrawCtrl_clearFade0;
+      this->fFade[1] = 0;
+      this->fAnimFade = 1;
+      this->fAnimFadeController = this->fFadeController[1];
+      this->fAnimFadeStart = this->AnimKeyPoints(true,1);
+      this->fAnimFadeStop = this->AnimKeyPoints(true,0);
       this->fAnimFadeFrame = this->fAnimFadeStart;
       if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
       this->SwapInController();
       this->fGotTick = 0;
+      goto DrawCtrl_clearSwap;
     }
-    this->fSwap = 0;
   }
-  else {
+  if (this->fFade[0] != 0) {
+DrawCtrl_clearFade0:
     this->fFade[0] = 0;
-    this->fAnimFade = -1;
-    this->fAnimFadeController = this->fFadeController[0];
-    maxshakex = this->AnimKeyPoints(false,1);
-    this->fAnimFadeStart = maxshakex;
-    maxshakex = this->AnimKeyPoints(false,0);
-    this->fAnimFadeStop = maxshakex;
-    this->fAnimFadeFrame = this->fAnimFadeStart;
+    if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
+    goto DrawCtrl_swapController;
+  }
+  if ((this->fFade[1] != 0) && (this->fAnimFade == 1)) {
+    this->fFade[1] = 0;
+    if (this->fSwap == 0) goto DrawCtrl_ticksUpdate;
+DrawCtrl_swapController:
+    this->SwapInController();
+DrawCtrl_clearSwap:
+    this->fSwap = 0;
   }
 DrawCtrl_ticksUpdate:
   if (this->fAnimFade != 0) {
@@ -736,9 +724,9 @@ DrawCtrl_ticksUpdate:
         this->fArrowFade = 0x80;
       }
     }
-    fadelevel = ((int)this->fAnimFadeFrame - (int)this->fAnimFadeStart) * 0x80;
-    axisB = (int)this->fAnimFadeStop - (int)this->fAnimFadeStart;
-    fadelevel = fadelevel / axisB;
+    int fadeRange = (int)this->fAnimFadeStop - (int)this->fAnimFadeStart;
+    int fadeFrame = (int)this->fAnimFadeFrame - (int)this->fAnimFadeStart;
+    fadelevel = (fadeFrame * 0x80) / fadeRange;
     if (fadelevel < 0) {
       fadelevel = -fadelevel;
     }
@@ -755,8 +743,8 @@ DrawCtrl_ticksUpdate:
     if (this->fGotTick == 0) {
       this->fAnimFade = 0;
     }
-    frame = this->CalcAnimFrame((int)this->fAnimFadeFrame);
-    this->ActualDrawController(frame,fadelevel,fadelevel,0,0);
+    this->ActualDrawController(this->CalcAnimFrame((int)this->fAnimFadeFrame),
+                               fadelevel,fadelevel,0,0);
     return;
   }
   if (this->fAnim != 0) {
@@ -774,8 +762,8 @@ DrawCtrl_ticksUpdate:
       this->fAnimFrame = this->fAnimStop;
     }
     fadelevel = (int)(((float)(ticks - this->fStartTick) /
-                       (float)(((int)this->fAnimStop - (int)this->fAnimStart) *
-                               ((int)this->fAnimStep * 6))) * 256.0);
+                       (float)(((int)this->fAnimStep * 6) *
+                               ((int)this->fAnimStop - (int)this->fAnimStart))) * 256.0);
     if (0x100 < fadelevel) {
       fadelevel = 0x100;
     }
@@ -789,40 +777,43 @@ DrawCtrl_ticksUpdate:
     if (0x80 < fadelevel) {
       fadelevel = 0x80;
     }
-    frame = this->CalcAnimFrame((int)this->fAnimFrame);
-    this->ActualDrawController(frame,0,fadelevel,0,0);
+    this->ActualDrawController(this->CalcAnimFrame((int)this->fAnimFrame),0,fadelevel,0,0);
     return;
   }
-  if ((byte)this->fCurrentController - 5 < 2) {
-    frame = 0;
+  if ((u_int)((byte)this->fCurrentController - 5) < 2) {
+    char frame = 0;
     if (((menuDefs[0]->itemControllerSteeringRange2).fActive != 0) ||
        ((menuDefs[0]->itemControllerDeadSpot2).fActive != 0)) {
-      fadelevel = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.leftshift;
-      axisB = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.buttonII;
-      if (((fadelevel < 0) ? -fadelevel : fadelevel) <
-          ((axisB < 0) ? -axisB : axisB)) {
-        fadelevel = axisB;
+      int player = this->player;
+      int range2 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.leftshift;
+      int range1 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.buttonII;
+      short ret = (short)range2;
+      if (((range1 < 0) ? -range1 : range1) >
+          ((range2 < 0) ? -range2 : range2)) {
+        ret = (short)range1;
       }
-      if ((short)fadelevel < 0) {
-        frame = -(short)fadelevel / 0xd + 0x24;
+      if (ret >= 0) {
+        frame = ret / 0xd + 0x1a;
       }
       else {
-        frame = (short)fadelevel / 0xd + 0x1a;
+        frame = -ret / 0xd + 0x24;
       }
     }
     if (((menuDefs[0]->itemControllerSteeringRange1).fActive != 0) ||
        ((menuDefs[0]->itemControllerDeadSpot1).fActive != 0)) {
-      fadelevel = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.buttonI;
-      axisB = 0x80 - (uint)gPadinfo.buf[this->player * 4].data.negcon.twist;
-      if (((fadelevel < 0) ? -fadelevel : fadelevel) <
-          ((axisB < 0) ? -axisB : axisB)) {
-        fadelevel = axisB;
+      int player = this->player;
+      int range2 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.buttonI;
+      int range1 = 0x80 - (uint)gPadinfo.buf[player * 4].data.negcon.twist;
+      short ret = (short)range2;
+      if (((range1 < 0) ? -range1 : range1) >
+          ((range2 < 0) ? -range2 : range2)) {
+        ret = (short)range1;
       }
-      if ((short)fadelevel < 0) {
-        frame = -(short)fadelevel / 0xd + 0x38;
+      if (ret >= 0) {
+        frame = ret / 0xd + 0x2e;
       }
       else {
-        frame = (short)fadelevel / 0xd + 0x2e;
+        frame = -ret / 0xd + 0x38;
       }
     }
     if ((frame & 0xff) != 0) {
@@ -834,43 +825,45 @@ DrawCtrl_ticksUpdate:
                  Offset[this->CurrentlyLoadedArt][1],0,0,&drawFlags);
     }
   }
-  frame = (uint)(byte)this->fCurrentController;
-  if ((1 < frame - 1) ||
-     (((menuDefs[0]->itemControllerJoyRange).fActive == 0 &&
-      ((menuDefs[0]->itemControllerCenterPoint).fActive == 0)))) {
-    if (this->fCurrentController != '\0') {
-      this->ActualDrawController(0,0,0,(int)shakex,(int)shakey);
-      return;
+  int frame = (uint)(byte)this->fCurrentController;
+  int axisB;
+  int modeBase;
+  if (((u_int)(frame - 1) < 2) &&
+      (((menuDefs[0]->itemControllerJoyRange).fActive != 0 ||
+       ((menuDefs[0]->itemControllerCenterPoint).fActive != 0)))) {
+    axisB = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
+    if (axisB < 0xb) goto DrawCtrl_smallAxis;
+    modeBase = 0x1a;
+    if (frame == 2) {
+      modeBase = 2;
+DrawCtrl_calcModeTwo:
+      frame = modeBase + (axisB * 0xd) / 0x81;
+      goto DrawCtrl_axisDone;
     }
-    this->fTextController = '\0';
-    this->fArrowFade = 0x80;
-    this->fTextTypeOn = 0;
-    return;
-  }
-  axisB = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
-  if (axisB < 0xb) {
-    fadelevel = 0x23;
+    goto DrawCtrl_calcModeOther;
+DrawCtrl_smallAxis:
+    modeBase = 0x23;
     if (axisB < -10) {
       axisB = -axisB;
       if (frame != 2) goto DrawCtrl_calcModeOther;
-      fadelevel = 0x10;
+      modeBase = 0x10;
       goto DrawCtrl_calcModeTwo;
     }
     frame = (uint)(frame == 2);
-  }
-  else {
-    fadelevel = 0x1a;
-    if (frame == 2) {
-      fadelevel = 2;
-DrawCtrl_calcModeTwo:
-      frame = fadelevel + (axisB * 0xd) / 0x81;
-    }
-    else {
+    goto DrawCtrl_axisDone;
 DrawCtrl_calcModeOther:
-      frame = fadelevel + (axisB << 3) / 0x81;
-    }
+    frame = modeBase + (axisB << 3) / 0x81;
+DrawCtrl_axisDone:
+    this->ActualDrawController(frame,0,0,0,0);
+    return;
   }
-  this->ActualDrawController(frame,0,0,0,0);
+  if (this->fCurrentController != '\0') {
+    this->ActualDrawController(0,0,0,(int)shakex,(int)shakey);
+    return;
+  }
+  this->fTextController = '\0';
+  this->fArrowFade = 0x80;
+  this->fTextTypeOn = 0;
   return;
 }
 

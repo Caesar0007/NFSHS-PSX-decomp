@@ -149,6 +149,7 @@ void tScreenMain::SetState(tScreenMainState state)
   tTexture_ShapeInfo *shape;
   short i;
   int iVar7;
+  tScreenMainState tVar8;
   
   if (state != this->fState) {
     VIDEO_abortplayback(this->hVideo);
@@ -389,6 +390,16 @@ void tScreenMain::DrawVideoLines()
 void tScreenMain::DrawBackground()
 
 {
+  short i;
+  short j;
+  tDrawShapeExtended drawFlags;
+  u_long deltaTicks;
+  short animFade;
+  short x;
+  short y;
+  char buffer [32];
+  int shapeX;
+  int shapeY;
   byte bVar1;
   bool bVar2;
   short sVar3;
@@ -397,59 +408,39 @@ void tScreenMain::DrawBackground()
   int iVar5;
   uint uVar6;
   int iVar7;
-  tScreenMainState tVar8;
   uint uVar9;
-  u_long deltaTicks;
-  byte bAllTVsOn;
-  int drawAnimFade;
-  int TextCol, shapeX, shapeY;
+  int TextCol;
   int iVar10;
-  short x;
-  short i;
-  short y;
-  short animFade, j;
-  short sVar11;
-  tDrawShapeExtended drawFlags;
-  char buffer [32];
   RECT r;
   char moviename [80];
   
-  sVar11 = 0;
-  for (sVar3 = 0; iVar7 = (int)sVar3, iVar7 < 2; sVar3 = sVar3 + 1) {
-    ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + iVar7);
-    bVar2 = true;
-    if (this->fVideoShapes[iVar7].fFile != (char *)0x0) {
-      iVar10 = 0;
-      iVar7 = 0;
-      do {
-        iVar7 = iVar7 >> 0x10;
-        tVar8 = this->tvStates[iVar7];
-        if ((tVar8 == kScreenMain_StaticImage) || (tVar8 == kScreenMain_Credits)) {
-          if ((this->tvTransitions[iVar7].state != tVar8) ||
-             (this->tvConfigs[iVar7].clut != this->tvTransitions[iVar7].clut))
-          goto DrawBg_innerFalse;
+  animFade = 0;
+  for (i = animFade; i < 2; i++) {
+    ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + i);
+    if (this->fVideoShapes[i].fFile != (char *)0x0) {
+      bool bAllTVsOn;
+
+      bAllTVsOn = true;
+      for (j = 0; j < 0x10; j++) {
+        if (((this->tvStates[j] != kScreenMain_StaticImage) &&
+             (this->tvStates[j] != kScreenMain_Credits)) ||
+            (this->tvTransitions[j].state != this->tvStates[j]) ||
+            (this->tvConfigs[j].clut != this->tvTransitions[j].clut)) {
+          bAllTVsOn = false;
         }
-        else {
-DrawBg_innerFalse:
-          bVar2 = false;
-        }
-        iVar10 = iVar10 + 1;
-        iVar7 = iVar10 * 0x10000;
-      } while (iVar10 * 0x10000 >> 0x10 < 0x10);
-      if (bVar2) {
-        ::UploadShapes((tScreen *)this,this->fVideoShapes + sVar3,sVar3 * 0xa6,0,0x10,0);
+      }
+      if (bAllTVsOn) {
+        ::UploadShapes((tScreen *)this,this->fVideoShapes + i,i * 0xa6,0,0x10,0);
       }
     }
   }
-  if ((this->fState == kScreenMain_Credits) &&
-     (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits)) {
-    tVar8 = kScreenMain_StaticImage;
-DrawBg_setStateCall:
-    this->SetState(tVar8);
+  if (this->fState == kScreenMain_Credits) {
+    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {
+      this->SetState(kScreenMain_StaticImage);
+    }
   }
   else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {
-    tVar8 = kScreenMain_Credits;
-    goto DrawBg_setStateCall;
+    this->SetState(kScreenMain_Credits);
   }
   ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
   if (this->fState == kScreenMain_WarningImage) {
@@ -457,31 +448,29 @@ DrawBg_setStateCall:
        ((tMenuItemGoToMenuNFS4Button *)
         FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] !=
         &menuDefs->itemTwoPlayerPinkSlips)) {
-      tVar8 = kScreenMain_StaticImage;
-DrawBg_setStaticImage:
-      this->SetState(tVar8);
+      this->SetState(kScreenMain_StaticImage);
     }
   }
   else if ((frontEnd.raceType == '\x06') ||
           ((tMenuItemGoToMenuNFS4Button *)
            FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] ==
            &menuDefs->itemTwoPlayerPinkSlips)) {
-    tVar8 = kScreenMain_WarningImage;
-    goto DrawBg_setStaticImage;
+    this->SetState(kScreenMain_WarningImage);
   }
-  if (this->fState == kScreenMain_WarningImage) {
-    if (this->fWarningFade < 0x60) {
-      this->fWarningFade = this->fWarningFade + 4;
+  if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade)) {
+    if (this->fState == kScreenMain_WarningImage) {
+      if (this->fWarningFade < 0x60) {
+        this->fWarningFade = this->fWarningFade + 4;
+      }
     }
-DrawBg_tvConfigsLoop:
-    iVar7 = 4;
-    do {
-      sVar3 = (short)iVar7;
-      iVar7 = iVar7 + 1;
-      this->tvConfigs[sVar3].flags = this->tvConfigs[sVar3].flags | 2;
+    else {
+      this->fWarningFade = this->fWarningFade + -4;
+    }
+    for (i = 4; i < 0xc; i++) {
+      this->tvConfigs[i].flags = this->tvConfigs[i].flags | 2;
       uVar9 = 0x80 - (int)this->fWarningFade;
-      this->tvConfigs[sVar3].tint = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
-    } while (iVar7 * 0x10000 >> 0x10 < 0xc);
+      this->tvConfigs[i].tint = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
+    }
     uVar9 = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
     uVar9 = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
     this->tvConfigs[6].tint = uVar9;
@@ -497,31 +486,26 @@ DrawBg_tvConfigsLoop:
     ScaleShapeExtended((gettick() / 0x15) % 6 + 0xfa,1,0,0,0x60 - this->fWarningFade
                ,3,(tDrawShapeExtended *)0x0);
     FETextRender_SetABR(1,true);
-    iVar7 = CalcFadeVal(0xbebe,0x60 - this->fWarningFade);
+    TextCol = CalcFadeVal(0xbebe,0x60 - this->fWarningFade);
     r.x = 0xb5;
     r.y = 0x81;
     r.w = 0x11c;
     r.h = 0x2a;
     str = TextSys_Word(0x272);
-    FETextRender_WordWrapTextRGB(str,r,iVar7);
+    FETextRender_WordWrapTextRGB(str,r,TextCol);
     iVar7 = 0;
     FETextRender_SetABR(0,false);
     FeDraw_SetABRMode(iVar7);
   }
-  else if (0 < this->fWarningFade) {
-    this->fWarningFade = this->fWarningFade + -4;
-    goto DrawBg_tvConfigsLoop;
-  }
-  iVar7 = 0;
+  j = 0;
   if ((this->fFrame & 1U) == 0) {
-    iVar7 = 0x50;
+    j = 0x50;
   }
   iVar5 = VIDEO_state(this->hVideo);
-  iVar10 = ticks;
   if (iVar5 == 3) {
     this->bVideoAborted = 0;
-    this->fMovieTicks = iVar10;
-    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,iVar7);
+    this->fMovieTicks = ticks;
+    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,j);
     if (iVar7 != 0) {
       this->fFrame = this->fFrame + 1;
     }
@@ -540,11 +524,9 @@ DrawBg_tvConfigsLoop:
       ClearImage(&r,'\0','\0','\0');
       DrawSync(0);
       do {
-        iVar7 = rand();
-        sVar3 = (short)(iVar7 % 0x14);
-        this->fCurrentMovie = sVar3;
-      } while ((iVar7 % 0x14) * 0x10000 >> 0x10 == (int)this->fPreviousMovie);
-      this->fPreviousMovie = sVar3;
+        this->fCurrentMovie = rand() % 0x14;
+      } while (this->fCurrentMovie == this->fPreviousMovie);
+      this->fPreviousMovie = this->fCurrentMovie;
       this->SetState(kScreenMain_DynamicImage);
       sprintf(moviename,"%szzzVD%02d.dct",Paths_Paths[0x29],(int)this->fCurrentMovie);
       VIDEO_spoolfile(this->hVideo,moviename);
@@ -565,11 +547,10 @@ DrawBg_tvConfigsLoop:
     this->fAnimationUploaded = 0;
     if (uVar6 == 0) {
       do {
-        iVar7 = rand();
-        str = (char *)((iVar7 % 0x19) * 0x10000 >> 0x10);
-      } while (str == (char *)(int)this->fPreviousAnim);
-      this->fPreviousAnim = (short)(iVar7 % 0x19);
-      sprintf(buffer,"yVda%02d",(int)this->fPreviousAnim);
+        sVar3 = rand() % 0x19;
+      } while (sVar3 == this->fPreviousAnim);
+      this->fPreviousAnim = sVar3;
+      sprintf(buffer,"yVda%02d",(int)sVar3);
       ::AsyncLoadSwapShapeFile((tScreen *)this,buffer);
     }
   }
@@ -582,93 +563,78 @@ DrawBg_tvConfigsLoop:
     this->fAnimLocation = (ushort)this->fAnimTicks & 3;
   }
   if (deltaTicks < 0x80) {
-    uVar6 = deltaTicks * 0x1ffffff + 0x80;
+    animFade = deltaTicks * 0x1ffffff + 0x80;
   }
-  else {
-    uVar6 = deltaTicks - 0x2a0;
-    if (0x7f < uVar6) goto DrawBg_emitShape;
+  else if (deltaTicks - 0x2a0 < 0x80) {
+    animFade = deltaTicks - 0x2a0;
   }
-  sVar11 = (short)uVar6;
-DrawBg_emitShape:
   if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
+    int drawAnimFade;
+
     drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
     drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-    iVar7 = (int)sVar11;
-    if ((CreditManager.fCreditsInitialized != 0) && (iVar7 = iVar7 + 0x40, 0x80 < iVar7)) {
-      iVar7 = 0x80;
+    drawAnimFade = (int)animFade;
+    if (CreditManager.fCreditsInitialized != 0) {
+      drawAnimFade = drawAnimFade + 0x40;
+      if (0x80 < drawAnimFade) {
+        drawAnimFade = 0x80;
+      }
     }
     shapeX = animLocations[this->fAnimLocation].x;
     shapeY = animLocations[this->fAnimLocation].y;
-    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,shapeX,shapeY,iVar7,1,&drawFlags);
+    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
   }
-  sVar3 = 0;
-  for (sVar11 = 0x32; (sVar3 < 0x19 && (sVar11 < 0xd2)); sVar11 = sVar11 + 8) {
+  y = 0x32;
+  i = 0;
+  while ((i < 0x19) && (y < 0xd2)) {
     x = 0x1a2;
-    iVar10 = 4;
-    iVar7 = 0x40000;
-    while (-1 < iVar7 >> 0x10) {
-      iVar10 = iVar10 + -1;
-      DrawShapeExtended((numberValues[(sVar3 + ticks / 0x14) % 0x19] >> (iVar7 >> 0x10)) & 1,1,x,sVar11,0x40,3,
+    for (j = 4; -1 < j; j--) {
+      DrawShapeExtended((numberValues[(i + ticks / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
                  (tDrawShapeExtended *)0x0);
       x = x + 0xd;
-      iVar7 = iVar10 * 0x10000;
     }
-    sVar3 = sVar3 + 1;
+    y = y + 8;
+    i++;
   }
   iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;
-  iVar7 = 0;
+  j = 0;
   if (-1 < iVar10) {
-    iVar5 = 0;
     do {
-      if (0xf < iVar5 >> 0x10) break;
-      bVar1 = tvOrder[iVar5 >> 0x10];
+      if (0xf < j) break;
+      bVar1 = tvOrder[j];
       if (((this->tvStates[bVar1] != this->tvTransitions[bVar1].state) ||
           (this->tvConfigs[bVar1].clut != this->tvTransitions[bVar1].clut)) &&
          (this->tvConfigs[bVar1].state == tv_StateOn)) {
         TurnOffTV(this->tvConfigs + bVar1);
       }
-      iVar7 = iVar7 + 1;
-      iVar5 = iVar7 * 0x10000;
-    } while (iVar7 * 0x10000 >> 0x10 <= iVar10);
+      j++;
+    } while (j <= iVar10);
   }
-  iVar10 = 0;
-  iVar7 = 0;
-  do {
-    iVar7 = iVar7 >> 0x10;
-    if (this->tvConfigs[iVar7].state == tv_StateOff) {
-      this->tvConfigs[iVar7].u = this->tvTransitions[iVar7].u;
-      this->tvConfigs[iVar7].v = this->tvTransitions[iVar7].v;
-      this->tvConfigs[iVar7].uw = this->tvTransitions[iVar7].uw;
-      this->tvConfigs[iVar7].vh = this->tvTransitions[iVar7].vh;
-      this->tvConfigs[iVar7].tpage = this->tvTransitions[iVar7].tpage;
-      this->tvConfigs[iVar7].clut = this->tvTransitions[iVar7].clut;
-      this->tvConfigs[iVar7].flags = this->tvTransitions[iVar7].flags;
-      this->tvConfigs[iVar7].tint = this->tvTransitions[iVar7].tint;
-      this->tvStates[iVar7] = this->tvTransitions[iVar7].state;
-      TurnOnTV(this->tvConfigs + iVar7);
-      this->tvConfigs[iVar7].destBrightness = this->tvTransitions[iVar7].bright;
+  for (i = 0; i < 0x10; i++) {
+    if (this->tvConfigs[i].state == tv_StateOff) {
+      this->tvConfigs[i].u = this->tvTransitions[i].u;
+      this->tvConfigs[i].v = this->tvTransitions[i].v;
+      this->tvConfigs[i].uw = this->tvTransitions[i].uw;
+      this->tvConfigs[i].vh = this->tvTransitions[i].vh;
+      this->tvConfigs[i].tpage = this->tvTransitions[i].tpage;
+      this->tvConfigs[i].clut = this->tvTransitions[i].clut;
+      this->tvConfigs[i].flags = this->tvTransitions[i].flags;
+      this->tvConfigs[i].tint = this->tvTransitions[i].tint;
+      this->tvStates[i] = this->tvTransitions[i].state;
+      TurnOnTV(this->tvConfigs + i);
+      this->tvConfigs[i].destBrightness = this->tvTransitions[i].bright;
       this->fNumTVsInTransition = this->fNumTVsInTransition + -1;
     }
-    iVar10 = iVar10 + 1;
-    iVar7 = iVar10 * 0x10000;
-  } while (iVar10 * 0x10000 >> 0x10 < 0x10);
-  iVar10 = 0;
-  iVar7 = 0;
-  do {
-    DrawTV(this->tvConfigs + (iVar7 >> 0x10));
-    iVar10 = iVar10 + 1;
-    iVar7 = iVar10 * 0x10000;
-  } while (iVar10 * 0x10000 >> 0x10 < 0x10);
-  iVar7 = 0xf3;
-  do {
-    PSXDrawSquare(0x404040,(int)(short)iVar7,0x2a,2,0xa9);
-    iVar7 = iVar7 + 0x50;
-  } while (iVar7 * 0x10000 >> 0x10 < 0x1e3);
-  iVar7 = 0x54;
-  do {
-    PSXDrawSquare(0x303030,0xa3,(int)(short)iVar7,0x141,1);
-    iVar7 = iVar7 + 0x2a;
-  } while (iVar7 * 0x10000 >> 0x10 < 0xd2);
+  }
+  for (i = 0; i < 0x10; i++) {
+    DrawTV(this->tvConfigs + i);
+  }
+  for (i = 0xf3; i < 0x1e3; i = i + 0x50) {
+    PSXDrawSquare(0x404040,i,0x2a,2,0xa9);
+  }
+  for (i = 0x54; i < 0xd2; i = i + 0x2a) {
+    PSXDrawSquare(0x303030,0xa3,i,0x141,1);
+  }
   return;
 }
 

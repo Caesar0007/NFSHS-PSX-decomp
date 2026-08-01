@@ -2965,9 +2965,6 @@ void BigBTCTime(int secs)
 
 {
   POLY_GT4 *prim;
-  u_char   *prev_pkt;
-  u_int     prev_hi;
-  int       pkt_addr24;
   int x;
   int y;
   int xx;
@@ -3013,13 +3010,10 @@ void BigBTCTime(int secs)
     }
     x = x + w1;
     prim = (POLY_GT4 *)Render_gPacketPtr;
-    prev_pkt = Render_gPalettePtr;
-    *(u_int *)prim =
-         *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    prev_hi = *(u_int *)prev_pkt & 0xff000000;
     Render_gPacketPtr = (u_char *)prim + 0x34;
-    pkt_addr24 = (u_int)prim & 0xffffff;
-    *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+    prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+    *(u_int *)Render_gPalettePtr =
+         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
     Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + secs % 10,x + -1,y,Col);
     *(int *)((char *)prim + 0x28) = Col2;
     *(int *)((char *)prim + 0x1c) = Col2;
@@ -3032,13 +3026,10 @@ void BigBTCTime(int secs)
         x = x - w1;
       }
       prim = (POLY_GT4 *)Render_gPacketPtr;
-      prev_pkt = Render_gPalettePtr;
-      *(u_int *)prim =
-           *(u_int *)prim & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      prev_hi = *(u_int *)prev_pkt & 0xff000000;
       Render_gPacketPtr = (u_char *)prim + 0x34;
-      pkt_addr24 = (u_int)prim & 0xffffff;
-      *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      *(u_int *)Render_gPalettePtr =
+           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
       Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + ten,x,y,Col);
       *(int *)((char *)prim + 0x28) = Col2;
       *(int *)((char *)prim + 0x1c) = Col2;

@@ -4182,23 +4182,22 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       iVar5 = iVar5 + -1;
       pcVar6 = pcVar6 + -1;
     } while (-1 < iVar5);
+    /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
+       `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
+       `addiu spN` base materializations is loop.c strength-reduction seeding the
+       givs FROM the array bases, which only happens if the source indexes
+       hilight[j] / hilight_direction[j] (the SYM names only i and j). */
     j = 0;
-    {
-      int *piVar14 = hilight_direction;
-      int *prim2 = hilight;
+    do {
+      i = 0;
       do {
-        i = 0;
-        do {
-          if ((signed char)hilight_state[*prim2 + i * *piVar14 & 0x1f] < i) {
-            hilight_state[*prim2 + i * *piVar14 & 0x1f] = (char)i;
-          }
-          i = i + 1;
-        } while (i < 5);
-        piVar14 = piVar14 + 1;
-        j = j + 1;
-        prim2 = prim2 + 1;
-      } while (j < 2);
-    }
+        if ((signed char)hilight_state[hilight[j] + i * hilight_direction[j] & 0x1f] < i) {
+          hilight_state[hilight[j] + i * hilight_direction[j] & 0x1f] = (char)i;
+        }
+        i = i + 1;
+      } while (i < 5);
+      j = j + 1;
+    } while (j < 2);
     ChangeTPage(&lightPmx->tpage,1);
     TrsProj_SetTransPrecision(8);
     {

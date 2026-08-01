@@ -1366,9 +1366,10 @@ LAB_8007887c:
 }
 
 /* ---- AudioCmn_SoundCar__FP8Car_tObjiiiiiii  [@0x800788bc] ---- */
-void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
+void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
+  int dst = dstArg;
   int CurCarGasLevel;
   int freq;
   int roadSurface;

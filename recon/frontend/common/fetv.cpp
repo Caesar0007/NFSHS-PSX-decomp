@@ -105,7 +105,7 @@ void DrawTV(tTVConfig &tv)
 {
   POLY_FT4 *texture;
   POLY_GT4 *reflection;
-  tTexture_ShapeInfo *noise;
+  tTexture_ShapeInfo *noise = &gHelpShapes[(rand() & 3) + 0x22];
   short videoX;
   short videoY;
   short videoWidth;
@@ -114,313 +114,244 @@ void DrawTV(tTVConfig &tv)
   short fadeBottom;
   u_long tint;
   short bright;
-  bool do_tint;
-  int newTransition;
-  short destBright_us;
-  int destBright_int;
-  int state;
-  u_char bVar4;
-  u_int depth;
-  int adj;
-  u_int tu15;
-  int tu18;
-  u_int tu21;
-  int ti10;
-  short ts20;
-  u_int tu24;
-  u_char *prevPkt;
-  u_int pkt_addr24;
-  short tu17;
-  short tu4;
+  BOOL do_tint = 1;
 
-  noise = &gHelpShapes[(rand() & 3) + 0x22];
   bright = tv.destBrightness;
   tint = tv.tint;
   videoX = tv.x;
   videoY = tv.y;
   videoWidth = tv.w;
   videoHeight = tv.h;
-  do_tint = true;
   if ((tv.flags & 2) == 0) {
     tint = 0x808080;
-    do_tint = false;
+    do_tint = 0;
   }
-  destBright_us = tv.destBrightness;
-  destBright_int = (int)(u_short)destBright_us;
-  if (tv.transition == destBright_int) {
-DrawTV_stateFetch:
-    state = tv.state;
-  }
-  else {
-    if ((tv.transition < destBright_int) &&
-        (newTransition = tv.transition + 4, tv.state - tv_StateOn < 2)) {
-      tv.transition = newTransition;
-      bVar4 = destBright_int < newTransition;
-DrawTV_brightStep:
-      if ((bool)bVar4) {
-        tv.transition = destBright_us;
+  if (tv.transition != tv.destBrightness) {
+    if ((tv.transition < tv.destBrightness) &&
+        ((u_int)(tv.state - tv_StateOn) < 2)) {
+      tv.transition += 4;
+      if (tv.destBrightness < tv.transition) {
+        tv.transition = tv.destBrightness;
       }
-      goto DrawTV_stateFetch;
     }
-    state = tv.state;
-    if ((state == tv_TransitionOff) || (state == tv_StateOn)) {
-      destBright_us = tv.destBrightness;
-      newTransition = tv.transition + -8;
-      tv.transition = newTransition;
-      bVar4 = (int)newTransition < (int)(u_int)(u_short)destBright_us;
-      goto DrawTV_brightStep;
+    else if ((tv.state == tv_TransitionOff) || (tv.state == tv_StateOn)) {
+      tv.transition -= 8;
+      if (tv.transition < tv.destBrightness) {
+        tv.transition = tv.destBrightness;
+      }
     }
   }
-  if (state == tv_StateOn) {
-DrawTV_stateOn:
+  if (tv.state == tv_StateOn) {
     bright = tv.destBrightness;
   }
-  else {
-    if (state < 2) {
-      if (state != tv_StateOff) {
-        fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
-        goto DrawTV_emitTinted;
-      }
-      goto DrawTV_stateOn;
+  else if (tv.state < tv_TransitionOn) {
+    if (tv.state == tv_StateOff) {
+      bright = tv.destBrightness;
     }
-    if (state == tv_TransitionOn) {
-      if ((int)tv.transition == (u_int)tv.destBrightness) {
-        tv.state = tv_StateOn;
-      }
-    }
-    else {
-      if (state != tv_TransitionOff) {
-        fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
-        goto DrawTV_emitTinted;
-      }
-      if ((int)tv.transition == (u_int)tv.destBrightness) {
-        tv.state = tv_StateOff;
-      }
-    }
+  }
+  else if (tv.state == tv_TransitionOn) {
     do_tint = 1;
+    if (tv.transition == tv.destBrightness) {
+      tv.state = tv_StateOn;
+    }
+    bright = tv.transition;
+  }
+  else if (tv.state == tv_TransitionOff) {
+    do_tint = 1;
+    if (tv.transition == tv.destBrightness) {
+      tv.state = tv_StateOff;
+    }
     bright = tv.transition;
   }
   fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
-DrawTV_emitTinted:
-  tu18 = (tint & 0xffU) * bright >> 7;
-  tu24 = ((u_int)(fadeTop * bright) >> 7) << 0x10 |
-         (((u_int)tint >> 8 & 0xff) * bright >> 7) << 8 | tu18;
+  tint = ((u_int)(fadeTop * bright) >> 7) << 0x10 |
+         (((u_int)tint >> 8 & 0xff) * bright >> 7) << 8 |
+         (tint & 0xffU) * bright >> 7;
   if ((tv.flags & 8) == 0) {
     DrawTVLines(tv);
   }
   texture = (POLY_FT4 *)Render_gPacketPtr;
-  prevPkt = Render_gPalettePtr;
   if ((tv.flags & 0x10) == 0) {
     if (tv.state != tv_StateOn) {
       *(u_int *)Render_gPacketPtr =
            *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
       Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | pkt_addr24;
-      tu15 = 0x40 - (bright >> 1);
-      *(u_int *)((u_char *)texture + 4) = tu15 * 0x10000 | tu15 * 0x100 | tu15;
+      *(u_int *)Render_gPalettePtr =
+           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
+      *(u_int *)&texture->r0 =
+           (0x40 - (bright >> 1)) * 0x10000 |
+           (0x40 - (bright >> 1)) * 0x100 |
+           (0x40 - (bright >> 1));
       SetPolyFT4(texture);
       SetSemiTrans(texture,1);
       SetShadeTex(texture,0);
-      *(short *)((u_char *)texture + 8) = videoX;
-      *(u_short *)((u_char *)texture + 10) = videoY;
-      *(u_short *)((u_char *)texture + 0x12) = videoY;
-      *(short *)((u_char *)texture + 0x18) = videoX;
-      *(short *)((u_char *)texture + 0x10) = videoX + videoWidth;
-      *(short *)((u_char *)texture + 0x20) = videoX + videoWidth;
-      *(short *)((u_char *)texture + 0x1a) = (short)(videoY + (u_int)videoHeight);
-      *(short *)((u_char *)texture + 0x22) = (short)(videoY + (u_int)videoHeight);
-      depth = (u_int)(u_char)noise->depth;
-      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-      ((u_char *)texture)[0xc] = (char)(adj / (int)depth);
-      ((u_char *)texture)[0xd] = (char)noise->shapey;
-      depth = (u_int)(u_char)noise->depth;
-      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-      ((u_char *)texture)[0x14] = (char)noise->width + (char)(adj / (int)depth);
-      ((u_char *)texture)[0x15] = (char)noise->shapey;
-      depth = (u_int)(u_char)noise->depth;
-      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-      ((u_char *)texture)[0x1c] = (char)(adj / (int)depth);
-      ((u_char *)texture)[0x1d] = (char)noise->height + (char)noise->shapey;
-      depth = (u_int)(u_char)noise->depth;
-      adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-      ((u_char *)texture)[0x24] = (char)noise->width + (char)(adj / (int)depth);
-      ((u_char *)texture)[0x25] = (char)noise->height + (char)noise->shapey;
-      *(u_short *)((u_char *)texture + 0x16) =
+      texture->x0 = videoX;
+      texture->y0 = videoY;
+      texture->y1 = videoY;
+      texture->x2 = videoX;
+      texture->x1 = videoX + videoWidth;
+      texture->x3 = videoX + videoWidth;
+      texture->y2 = videoY + videoHeight;
+      texture->y3 = videoY + videoHeight;
+      texture->u0 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                    (int)noise->depth;
+      texture->v0 = noise->shapey;
+      texture->u1 = noise->width +
+                    ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                    (int)noise->depth;
+      texture->v1 = noise->shapey;
+      texture->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                    (int)noise->depth;
+      texture->v2 = noise->height + noise->shapey;
+      texture->u3 = noise->width +
+                    ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                    (int)noise->depth;
+      texture->v3 = noise->height + noise->shapey;
+      texture->tpage =
            ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
            (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
            (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
            (noise->shapey & 0x200U) << 2;
-      *(short *)((u_char *)texture + 0xe) =
+      texture->clut =
            GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
-      reflection = (POLY_GT4 *)Render_gPacketPtr;
-      prevPkt = Render_gPalettePtr;
       if ((tv.flags & 4) != 0) {
-        adj = ((u_int)tv.flip_axis - videoY) + 1;
-        if (adj * 0x10000 < 0) {
-          adj = -adj;
-        }
-        fadeTop = (short)(adj << 1);
-        if (0x80 < (adj << 0x11) >> 0x10) {
+        fadeTop = (((short)(tv.flip_axis - videoY + 1) < 0) ?
+                   -(tv.flip_axis - videoY + 1) :
+                   (tv.flip_axis - videoY + 1)) * 2;
+        if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
-        adj = ((u_int)tv.flip_axis - (videoY + (u_int)videoHeight)) + 1;
-        if (adj * 0x10000 < 0) {
-          adj = -adj;
+        fadeBottom = tv.flip_axis - (videoY + videoHeight) + 1;
+        if (fadeBottom < 0) {
+          fadeBottom = -fadeBottom;
         }
-        fadeBottom = (short)(adj << 1);
-        if (0x80 < (adj << 0x11) >> 0x10) {
+        fadeBottom *= 2;
+        if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        adj = (0x80 - bright) * (0x80 - fadeTop);
+        reflection = (POLY_GT4 *)Render_gPacketPtr;
         *(u_int *)Render_gPacketPtr =
              *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        tu15 = (u_int)Render_gPacketPtr & 0xffffff;
         Render_gPacketPtr = Render_gPacketPtr + 0x34;
-        *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | tu15;
-        if (adj < 0) {
-          adj = adj + 0x7f;
-        }
-        tu15 = adj >> 7;
-        adj = (0x80 - bright) * (0x80 - fadeBottom);
-        tu15 = tu15 << 0x10 | tu15 << 8 | tu15;
-        *(u_int *)((u_char *)reflection + 0x10) = tu15;
-        *(u_int *)((u_char *)reflection + 4) = tu15;
-        if (adj < 0) {
-          adj = adj + 0x7f;
-        }
-        tu15 = adj >> 7;
-        tu15 = tu15 << 0x10 | tu15 << 8 | tu15;
-        *(u_int *)((u_char *)reflection + 0x28) = tu15;
-        *(u_int *)((u_char *)reflection + 0x1c) = tu15;
-        ((u_char *)reflection)[7] = 0x3e;
+        *(u_int *)Render_gPalettePtr =
+             *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)reflection & 0xffffff;
+        *(u_int *)&reflection->r1 = *(u_int *)&reflection->r0 =
+             ((0x80 - bright) * (0x80 - fadeTop) / 0x80) * 0x10101;
+        *(u_int *)&reflection->r3 = *(u_int *)&reflection->r2 =
+             ((0x80 - bright) * (0x80 - fadeBottom) / 0x80) * 0x10101;
+        reflection->code = 0x3e;
         ((u_char *)reflection)[3] = 0xc;
-        *(short *)((u_char *)reflection + 8) = videoX;
-        *(short *)((u_char *)reflection + 0x14) = videoX + videoWidth;
-        *(u_short *)((u_char *)reflection + 10) = (u_short)(tv.flip_axis * 2 - videoY);
-        *(short *)((u_char *)reflection + 0x20) = videoX;
-        *(u_short *)((u_char *)reflection + 0x16) = (u_short)(tv.flip_axis * 2 - videoY);
-        *(short *)((u_char *)reflection + 0x2c) = videoX + videoWidth;
-        *(u_short *)((u_char *)reflection + 0x22) =
-             (u_short)((tv.flip_axis * 2 - videoY) - videoHeight);
-        *(u_short *)((u_char *)reflection + 0x2e) =
-             (u_short)((tv.flip_axis * 2 - videoY) - videoHeight);
-        depth = (u_int)(u_char)noise->depth;
-        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-        ((u_char *)reflection)[0xc] = (char)(adj / (int)depth);
-        ((u_char *)reflection)[0xd] = (char)noise->shapey + -1;
-        depth = (u_int)(u_char)noise->depth;
-        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-        ((u_char *)reflection)[0x18] = (char)noise->width + (char)(adj / (int)depth);
-        ((u_char *)reflection)[0x19] = (char)noise->shapey + -1;
-        depth = (u_int)(u_char)noise->depth;
-        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-        ((u_char *)reflection)[0x24] = (char)(adj / (int)depth);
-        ((u_char *)reflection)[0x25] =
-             (char)noise->height + (char)noise->shapey + -1;
-        depth = (u_int)(u_char)noise->depth;
-        adj = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10;
-        ((u_char *)reflection)[0x30] = (char)noise->width + (char)(adj / (int)depth);
-        ((u_char *)reflection)[0x31] =
-             (char)noise->height + (char)noise->shapey + -1;
-        *(u_short *)((u_char *)reflection + 0x1a) =
+        reflection->x0 = videoX;
+        reflection->x1 = videoX + videoWidth;
+        reflection->y0 = tv.flip_axis * 2 - videoY;
+        reflection->x2 = videoX;
+        reflection->y1 = tv.flip_axis * 2 - videoY;
+        reflection->x3 = videoX + videoWidth;
+        reflection->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        reflection->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        reflection->u0 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                         (int)noise->depth;
+        reflection->v0 = noise->shapey - 1;
+        reflection->u1 = noise->width +
+                         ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                         (int)noise->depth;
+        reflection->v1 = noise->shapey - 1;
+        reflection->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                         (int)noise->depth;
+        reflection->v2 = noise->height + noise->shapey - 1;
+        reflection->u3 = noise->width +
+                         ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
+                         (int)noise->depth;
+        reflection->v3 = noise->height + noise->shapey - 1;
+        reflection->tpage =
              ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
              (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
              (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
              (noise->shapey & 0x200U) << 2;
-        *(short *)((u_char *)reflection + 0xe) =
+        reflection->clut =
              GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       }
     }
     texture = (POLY_FT4 *)Render_gPacketPtr;
-    prevPkt = Render_gPalettePtr;
     if (tv.state != tv_StateOff) {
       *(u_int *)Render_gPacketPtr =
            *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      tu15 = (u_int)Render_gPacketPtr & 0xffffff;
       Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | tu15;
-      *(u_int *)((u_char *)texture + 4) = tu24;
+      *(u_int *)Render_gPalettePtr =
+           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
+      *(u_int *)&texture->r0 = tint;
       SetPolyFT4(texture);
       SetSemiTrans(texture,0);
       SetShadeTex(texture,do_tint ^ 1);
-      *(short *)((u_char *)texture + 8) = videoX;
-      *(u_short *)((u_char *)texture + 10) = videoY;
-      ts20 = videoX + videoWidth;
-      *(short *)((u_char *)texture + 0x10) = ts20;
-      *(u_short *)((u_char *)texture + 0x12) = videoY;
-      *(short *)((u_char *)texture + 0x18) = videoX;
-      *(short *)((u_char *)texture + 0x20) = ts20;
-      tu17 = (short)(videoY + (u_int)videoHeight);
-      *(short *)((u_char *)texture + 0x1a) = tu17;
-      *(short *)((u_char *)texture + 0x22) = tu17;
-      ((u_char *)texture)[0xc] = tv.u;
-      ((u_char *)texture)[0xd] = tv.v;
-      ((u_char *)texture)[0x14] = tv.u + tv.uw;
-      ((u_char *)texture)[0x15] = tv.v;
-      ((u_char *)texture)[0x1c] = tv.u;
-      ((u_char *)texture)[0x1d] = tv.v + tv.vh;
-      ((u_char *)texture)[0x24] = tv.u + tv.uw;
-      ((u_char *)texture)[0x25] = tv.v + tv.vh;
-      *(u_short *)((u_char *)texture + 0x16) = tv.tpage;
-      *(u_short *)((u_char *)texture + 0xe) = tv.clut;
-      texture = (POLY_FT4 *)Render_gPacketPtr;
-      prevPkt = Render_gPalettePtr;
+      texture->x0 = videoX;
+      texture->y0 = videoY;
+      texture->x1 = videoX + videoWidth;
+      texture->y1 = videoY;
+      texture->x2 = videoX;
+      texture->x3 = videoX + videoWidth;
+      texture->y2 = videoY + videoHeight;
+      texture->y3 = videoY + videoHeight;
+      texture->u0 = tv.u;
+      texture->v0 = tv.v;
+      texture->u1 = tv.u + tv.uw;
+      texture->v1 = tv.v;
+      texture->u2 = tv.u;
+      texture->v2 = tv.v + tv.vh;
+      texture->u3 = tv.u + tv.uw;
+      texture->v3 = tv.v + tv.vh;
+      texture->tpage = tv.tpage;
+      texture->clut = tv.clut;
       if ((tv.flags & 4) != 0) {
-        adj = ((u_int)tv.flip_axis - videoY) + 1;
-        if (adj * 0x10000 < 0) {
-          adj = -adj;
+        fadeTop = tv.flip_axis - videoY + 1;
+        if (fadeTop < 0) {
+          fadeTop = -fadeTop;
         }
-        fadeTop = (short)(adj << 1);
-        if (0x80 < (adj << 0x11) >> 0x10) {
+        fadeTop *= 2;
+        if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
-        adj = ((u_int)tv.flip_axis - (videoY + (u_int)videoHeight)) + 1;
-        if (adj * 0x10000 < 0) {
-          adj = -adj;
+        fadeBottom = tv.flip_axis - (videoY + videoHeight) + 1;
+        if (fadeBottom < 0) {
+          fadeBottom = -fadeBottom;
         }
-        fadeBottom = (short)(adj << 1);
-        if (0x80 < (adj << 0x11) >> 0x10) {
+        fadeBottom *= 2;
+        if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        tu15 = tu24 >> 0x10 & 0xff;
-        adj = 0x80 - fadeTop;
-        tu21 = tu24 >> 8 & 0xff;
-        ti10 = 0x80 - fadeBottom;
+        texture = (POLY_FT4 *)Render_gPacketPtr;
         *(u_int *)Render_gPacketPtr =
              *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        tu24 = (u_int)Render_gPacketPtr & 0xffffff;
         Render_gPacketPtr = Render_gPacketPtr + 0x34;
-        *(u_int *)prevPkt = *(u_int *)prevPkt & 0xff000000 | tu24;
+        *(u_int *)Render_gPalettePtr =
+             *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
         ((u_char *)texture)[3] = 0xc;
-        tu24 = (tu15 * adj >> 7) << 0x10 | (tu21 * adj >> 7) << 8 | (tu18 & 0xffU) * adj >> 7;
-        *(short *)((u_char *)texture + 8) = videoX;
-        *(u_int *)((u_char *)texture + 0x10) = tu24;
-        *(u_int *)((u_char *)texture + 4) = tu24;
-        tu24 = (tu15 * ti10 >> 7) << 0x10 | (tu21 * ti10 >> 7) << 8 | (tu18 & 0xffU) * ti10 >> 7;
-        *(u_int *)((u_char *)texture + 0x28) = tu24;
-        *(u_int *)((u_char *)texture + 0x1c) = tu24;
-        ((u_char *)texture)[7] = 0x3c;
-        tu4 = tv.flip_axis;
-        *(short *)((u_char *)texture + 0x14) = ts20;
-        *(u_short *)((u_char *)texture + 10) = tu4 * 2 - videoY;
-        tu4 = tv.flip_axis;
-        *(short *)((u_char *)texture + 0x20) = videoX;
-        *(u_short *)((u_char *)texture + 0x16) = tu4 * 2 - videoY;
-        tu4 = tv.flip_axis;
-        *(short *)((u_char *)texture + 0x2c) = ts20;
-        *(u_short *)((u_char *)texture + 0x22) = (tu4 * 2 - videoY) - videoHeight;
-        *(u_short *)((u_char *)texture + 0x2e) = (tv.flip_axis * 2 - videoY) - videoHeight;
-        ((u_char *)texture)[0xc] = tv.u;
-        ((u_char *)texture)[0xd] = tv.v + 0xff;
-        ((u_char *)texture)[0x18] = tv.u + tv.uw;
-        ((u_char *)texture)[0x19] = tv.v + 0xff;
-        ((u_char *)texture)[0x24] = tv.u;
-        ((u_char *)texture)[0x25] = tv.v + tv.vh + 0xff;
-        ((u_char *)texture)[0x30] = tv.u + tv.uw;
-        ((u_char *)texture)[0x31] = tv.v + tv.vh + 0xff;
-        *(u_short *)((u_char *)texture + 0x1a) = tv.tpage;
-        *(u_short *)((u_char *)texture + 0xe) = tv.clut;
+        *(u_int *)&((POLY_GT4 *)texture)->r1 = *(u_int *)&((POLY_GT4 *)texture)->r0 =
+             (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
+             (((tint >> 8 & 0xff) * (0x80 - fadeTop) >> 7) << 8) |
+             ((tint & 0xff) * (0x80 - fadeTop) >> 7);
+        *(u_int *)&((POLY_GT4 *)texture)->r3 = *(u_int *)&((POLY_GT4 *)texture)->r2 =
+             (((tint >> 16 & 0xff) * (0x80 - fadeBottom) >> 7) << 16) |
+             (((tint >> 8 & 0xff) * (0x80 - fadeBottom) >> 7) << 8) |
+             ((tint & 0xff) * (0x80 - fadeBottom) >> 7);
+        ((POLY_GT4 *)texture)->code = 0x3c;
+        ((POLY_GT4 *)texture)->x0 = videoX;
+        ((POLY_GT4 *)texture)->x1 = videoX + videoWidth;
+        ((POLY_GT4 *)texture)->y0 = tv.flip_axis * 2 - videoY;
+        ((POLY_GT4 *)texture)->x2 = videoX;
+        ((POLY_GT4 *)texture)->y1 = tv.flip_axis * 2 - videoY;
+        ((POLY_GT4 *)texture)->x3 = videoX + videoWidth;
+        ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        ((POLY_GT4 *)texture)->u0 = tv.u;
+        ((POLY_GT4 *)texture)->v0 = tv.v - 1;
+        ((POLY_GT4 *)texture)->u1 = tv.u + tv.uw;
+        ((POLY_GT4 *)texture)->v1 = tv.v - 1;
+        ((POLY_GT4 *)texture)->u2 = tv.u;
+        ((POLY_GT4 *)texture)->v2 = tv.v + tv.vh - 1;
+        ((POLY_GT4 *)texture)->u3 = tv.u + tv.uw;
+        ((POLY_GT4 *)texture)->v3 = tv.v + tv.vh - 1;
+        ((POLY_GT4 *)texture)->tpage = tv.tpage;
+        ((POLY_GT4 *)texture)->clut = tv.clut;
       }
     }
   }

@@ -566,7 +566,25 @@ void CV_ColorTracks(int track,int weather,int night)
    * `brightness = 0` ahead of the memset (27 diffs / +3 insns) -- all no-ops or
    * worse.  A 1-insn allocno razor edge with no zero-cost source lever; the
    * C++ permuter is unavailable, so this needs the permuter fix or a retail
-   * RTL-level difference we have not found. */
+   * RTL-level difference we have not found.
+   * w40-a10 RE-CHECK (dumps re-run, numbers CONFIRMED unchanged: 81 = 14 refs
+   * / 114 insns, 85 = 11 refs / 90 insns, alloc order `83 89 81 85 80 82 84`;
+   * track/night already land on retail's $s2/$s3, so ONLY the 81<->85 pair is
+   * wrong).  Two more zero-cost ref dials tried and FALSIFIED, both because
+   * cc1 folds them before life analysis (the catalog's "copies of a computed
+   * value do NOT dial" rule): (a) `brightness = (short)contrast;` instead of
+   * `brightness = 0;` -- copy-propagated back to a literal, refs stay 11
+   * (lreg dump identical); (b) the embedded-assignment LUID lever
+   * `memset(&color, contrast = 0, 4);` -- same, 72 diffs, refs/lengths
+   * unchanged.  The arithmetic bound is exact: contrast needs refs>=12
+   * (3*12/90 = .400) or live_length<=89 (33/89 = .3708) to beat weather's
+   * .36842, and its live range CANNOT start later than the memset (it must
+   * cross that call to earn a callee-saved reg at all -- `memset` first then
+   * `contrast = 0` leaves it in a caller-saved temp).  Reducing weather's 14
+   * refs is possible only by breaking cse's reuse of weather's register as
+   * the constant 1 in the three `bne $s3,$s1` night tests -- which requires
+   * testing `night` BEFORE `weather` and so contradicts the oracle's
+   * track/weather/night compare order at every arm.  FLOOR (STRONG). */
   contrast = 0;
   memset(&color,0,4);
   brightness = 0;

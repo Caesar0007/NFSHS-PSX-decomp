@@ -445,7 +445,6 @@ void strCallback(void)
 
 {
   int rw;
-  int remTop;
   int bottom;
   int vh;
   int hstep;
@@ -471,10 +470,11 @@ void strCallback(void)
     hstep = ((int)PPWTop << 4) / bottom;
     rw = (int)dec.rect[dec.rectid].w;
     rem = rw % hstep;
-    remTop = rem * PPWTop;
     if (rem != 0) {
       isFirstSlice = 0;
-      dec.slice.x = dec.slice.x + (short)(remTop / bottom);
+      /* MATCH: the rem*PPWTop multiply belongs INSIDE the guard (the oracle schedules
+       * it into the beqz delay slot); as a preceding statement it lands before the test. */
+      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / bottom);
       goto strCallback_inlinedJoin;
     }
   }

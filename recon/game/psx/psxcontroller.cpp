@@ -32,15 +32,30 @@
  *      { if (0x53||0x73) 1 else 2 } else 0`), which matches the oracle's `beq` on
  *      the 0x23 test; the flat else-if chain inverts it to `bne` and a ternary
  *      funnel is much worse (302).  (-4)
- * RESIDUAL 254 = a 5-way CALLEE-SAVED ROTATION, count-exact and otherwise
+ * w40-a7: 254 -> 216 diffs, still count-exact 305/305.
+ *  (6) the `u_int v` local was ALSO a fabrication (SYM lists ONLY `h` $s4 and `type`
+ *      $s3 -- see the 8c block at nfs4-f-v3.txt:454880).  Deleting it and DUPLICATING
+ *      the `h[0x54-hoff[player]] = InGame_GetPSXPadValue(m,player)` call site into BOTH
+ *      GameSetup_gData.Time arms (each with its own block-scoped `m`) lets gcc's
+ *      cross-jump pass re-merge the two tails by itself -- the same treatment the two
+ *      carFlags arms already get.  (-38)
+ * RESIDUAL 216 = a 6-way CALLEE-SAVED ROTATION, count-exact and otherwise
  * instruction-for-instruction identical.  ours {s0=player*4, s1=&mappings-row,
  * s2=&hoff[player], s3=type, s4=player, s5=h, s6=config} vs retail {s0=&mappings-row,
  * s1=&hoff[player], s2=player, s3=type, s4=h, s5=player*4, s6=config} -- i.e. our
  * allocno priority puts the `player*4` giv FIRST where retail ranks it LAST, which
- * pushes `player` and `h` one saved register up each.  Plus the type-select funnel
- * (retail computes the 0/1/2 into $v0 then `addu $s3,$v0,$zero`; ours writes $s3
- * directly).  Both are gcc-2.8 allocno-priority items (-dl/-dg territory), not
- * reachable by the statement-shape levers enumerated above. */
+ * rotates every other saved allocno up by one.  Mechanism: gcc-2.8 global.c priority is
+ * floor_log2(n_refs)*n_refs/live_length; both builds give the giv 3 refs, so the
+ * divergence is its LIVE LENGTH -- ours ends at the `Cars_gHumanRaceCarList[player]`
+ * access (gcc reuses the giv's own register as that address's destination,
+ * `addu $s0,$s0,$v0`), retail keeps it live past that point (`addu $v0,$s5,$v0`).
+ * Downstream of the rotation, retail also needs a type-select FUNNEL (`li $v0,0/1/2`
+ * then `addu $s3,$v0,$zero`) where ours writes $s3 directly.
+ * FALSIFIED this wave (all re-measured on the post-(6) base, none reach below 216):
+ * block-scoped/ternary/flat-chain funnels for the type select (266/266/220), a named
+ * `int *hp = hoff + player` walker (251 but 11 insns SHORT -- structurally wrong),
+ * `*(h + 0xae + player)` deref spelling (254), signed-vs-unsigned carFlags mask (254),
+ * and all three declaration orders of {h, type, v} (254 each). */
 void InGame_ResetPSXController(int player,int config)
 
 {
@@ -156,7 +171,28 @@ void InGame_ResetPSXController(int player,int config)
  * `type = 0; if (nopad==0) type = ID;`, the ternary form, the inverted
  * `if (nopad != 0) type = 0; else ...` form, and `c = value; switch (c)`; a
  * `PAD_COMMON *p = &gPadinfo.buf[player*4];` entry pointer is slightly WORSE (331).
- * Also exactly neutral: all four PER_TU flag keys and g_value=8 on this TU. */
+ * Also exactly neutral: all four PER_TU flag keys and g_value=8 on this TU.
+ *
+ * w40-a7 FLOOR RECEIPT (unchanged at 329; ours 230 / oracle 233).  Floor-bar items:
+ *  - PROTOTYPE AUDIT vs SYM (nfs4-f-v3.txt:45493f, fsize 32, mask $80030000 = ra,s1,s0):
+ *    REGPARM `value` $4($a0), REGPARM `player` $0x11($s1); locals `c` $0x10($s0),
+ *    `newControl` $2($v0), `type` $3($v1).  Our build matches the frame, the save mask,
+ *    both parameter homes and the return register exactly -- there is no arity, return
+ *    or width error hiding here.  (`c` is the SYM's name for the `$s0` copy of `value`
+ *    that gcc makes anyway; spelling `c = value; switch (c)` is measurably neutral.)
+ *  - TRICHOTOMY on the nopad select, all re-measured this wave: default+override 329,
+ *    if/else 329, explicit `goto`/label form 329, ternary 329, `type = ID; if (nopad)
+ *    type = 0;` 322 but one insn SHORTER (229) -- i.e. every spelling collapses to the
+ *    same jump-opt canonical layout and none reproduces the oracle's out-of-line
+ *    `j .Lend; nop` else-block.
+ *  - MECHANISM: gcc-2.8 `jump2` cross-jumps only tails that are BYTE-identical, i.e.
+ *    after register allocation.  Retail's allocator happened to colour the per-case OR
+ *    accumulators into $a0/$a1/$a2 so six case tails merged; ours colours them $v0/$v1
+ *    (newControl's own home) so nothing merges and the `sll $aN,$s1,2` / `sll $aN,$s1,30`
+ *    speculative fills never appear.  The dependency runs allocation -> cross-jump, so no
+ *    statement shape can request it.
+ *  - -G/flag identity: recorded neutral above (four -f keys + g_value=8).
+ *  The permuter is the only remaining instrument and is blocked for C++ TUs (w38 s2F). */
 int InGame_GetPSXPadValue(int value,int player)
 
 {
@@ -280,7 +316,21 @@ int InGame_GetDevice(int control)
  * and -G8), and all four PER_TU flag keys (no_schedule_insns{,2}, no_strength_reduce,
  * g_value=8 -- all exactly neutral on this TU).  This is the gcc-2.8 loop.c
  * `threshold*savings*lifetime >= insn_count` cost model choosing to move a third
- * invariant that retail's cc1 left in place; -dL territory. */
+ * invariant that retail's cc1 left in place; -dL territory.
+ * w40-a7 re-audit (unchanged at 13).  The residual is EXACTLY three instructions in
+ * two places: our preheader carries `lui $v0,%hi(hoff); addiu $s6,$v0,%lo(hoff)` and the
+ * body does `addu $s0,$v1,$s6`; the oracle carries nothing in the preheader and does
+ * `lui $v0; addiu $v0,$v0; addu $s0,$v1,$v0` in the body, immediately BEFORE the first
+ * `lw $v1,0($s0)` and AFTER the three `sw $s2,..` ramp stores.  Note both builds emit
+ * gcc's OWN split lowering (not an `la` macro), so this is purely LICM placement, not
+ * the §E address-materialization class.  Newly falsified this wave (add to the list
+ * above): moving `hp = hoff + i;` to AFTER the three ramp stores (17), the same with a
+ * block-scoped `hp` (17), dropping `hp` entirely and writing `hoff[i]` at all three use
+ * sites (17), `hp = &hoff[i]` address-of spelling (13, neutral), and SIZING the extern
+ * `hoff[2]` / `hoff[8]` (13 each, neutral -- and neutral on ResetPSXController too, so
+ * the §E sized-view lever does not apply here).  `hoff` is SYM class STAT
+ * (nfs4-f-v3.txt:454b75, ARY INT dims 1 2) and is referenced by no other TU, so the
+ * declaration is free to change if a future lever needs it. */
 void InGame_SetRamp(void)
 
 {

@@ -813,15 +813,23 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
    * are compiler GIVs, so every access is written in INDEX form (catalog:
    * "SYM has only i => the pointers are givs").  player (REGPARM $10) is only
    * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp).
- * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below).
- * RESIDUAL 27 diffs (ours 301 / oracle 298 = +3), TWO clusters, both scheduling:
- *  (a) the spilled `&carObj->..palCopyNum[i]` giv: retail emits its store ONCE, in
- *      the loop-guard `beqz`'s DELAY SLOT (shared by the preheader fall-through and
- *      the back edge); ours stores it separately in the preheader (+ a load-delay
- *      nop) and again at the loop tail.  Reload/dbr placement, not source-shaped.
- *  (b) `addu a1,v0,s5` vs the oracle's `addu a1,s5,v0` -- commutative operand order
- *      on the ONE pmx materialization (RTL canonicalization; every other addu in the
- *      function already matches).
+ * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below) -> 25 (w42-a5).
+ * (b) IS SOLVED (w42-a5): the `addu a1,v0,s5` / oracle `addu a1,s5,v0` operand order
+ * was NOT an unreachable RTL canonicalization -- writing the pmx address with the
+ * SCALED INDEX TERM FIRST in an explicit int-cast
+ * (`(Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap)`, catalog 5.0c
+ * commutative-addu-operand-order) reproduces it, 27 -> 25, no cascade.
+ * RESIDUAL 25 diffs (ours 301 / oracle 298 = +3), ONE cluster, scheduling:
+ *  (a) the spilled `&carObj->..palCopyNum[i]` giv (60(sp)).  Raw oracle
+ *      @0x800BCF74: the loop TOP is the `slti` and `sw $t0,0x3C($sp)` sits in the
+ *      guard `beqz`'s DELAY SLOT, i.e. the giv's memory copy is written once per
+ *      iteration INSIDE the loop, and the tail only does `j; addiu $t0,$t0,2`
+ *      (no store).  Ours writes 60(sp) twice -- once in the preheader (`lw
+ *      t0,108(sp); nop; sw t0,60(sp)`, +1 nop +1 store) and once at the loop tail
+ *      -- which is also why our `jal locateshapez` slot is a nop (dbr scans back
+ *      from the branch and stops at the `slti` that sets its condition reg, so it
+ *      can never reach our preheader store).  = the whole +3.  Reload/dbr
+ *      placement of a spilled giv; no source spelling reached it this wave.
  * Per-TU flag probes on cario.cpp (w39-a5, all measured over ALL 11 fns):
  *   no_split_addresses 459->402/Update, ReadIn 344->512, LicenseCheck PASS->11  WORSE
  *   no_schedule_insns  Update->265 but ReadIn 344->603                          WORSE

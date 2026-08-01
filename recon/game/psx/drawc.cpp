@@ -1383,12 +1383,24 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              RIGHT shape -- the metric explosion is pure re-anchoring, the same
              verdict as w38-a3.  Still banked; needs the frame/colouring pass. */
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
-          *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;
-          *(u_char *)(prim + 5) = *(u_char *)(id1 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x15) = *(u_char *)(id1 + 0xd7) + v;
-          *(u_char *)(prim + 7) = *(u_char *)(id2 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x1d) = *(u_char *)(id2 + 0xd7) + v;
+          {
+            u_char cu0 = *(u_char *)(id0 + 0xd6);
+            u_char cv0 = *(u_char *)(id0 + 0xd7);
+            *(u_char *)(prim + 3) = cu0 + u;
+            *(u_char *)((int)prim + 0xd) = cv0 + v;
+          }
+          {
+            u_char cu1 = *(u_char *)(id1 + 0xd6);
+            u_char cv1 = *(u_char *)(id1 + 0xd7);
+            *(u_char *)(prim + 5) = cu1 + u;
+            *(u_char *)((int)prim + 0x15) = cv1 + v;
+          }
+          {
+            u_char cu2 = *(u_char *)(id2 + 0xd6);
+            u_char cv2 = *(u_char *)(id2 + 0xd7);
+            *(u_char *)(prim + 7) = cu2 + u;
+            *(u_char *)((int)prim + 0x1d) = cv2 + v;
+          }
         }
       }
       DRAWC_OTLINK_FT3(sd, prim);
@@ -1767,12 +1779,24 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
-          *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;
-          *(u_char *)(prim + 5) = *(u_char *)(id1 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x15) = *(u_char *)(id1 + 0xd7) + v;
-          *(u_char *)(prim + 7) = *(u_char *)(id2 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x1d) = *(u_char *)(id2 + 0xd7) + v;
+          {
+            u_char cu0 = *(u_char *)(id0 + 0xd6);
+            u_char cv0 = *(u_char *)(id0 + 0xd7);
+            *(u_char *)(prim + 3) = cu0 + u;
+            *(u_char *)((int)prim + 0xd) = cv0 + v;
+          }
+          {
+            u_char cu1 = *(u_char *)(id1 + 0xd6);
+            u_char cv1 = *(u_char *)(id1 + 0xd7);
+            *(u_char *)(prim + 5) = cu1 + u;
+            *(u_char *)((int)prim + 0x15) = cv1 + v;
+          }
+          {
+            u_char cu2 = *(u_char *)(id2 + 0xd6);
+            u_char cv2 = *(u_char *)(id2 + 0xd7);
+            *(u_char *)(prim + 7) = cu2 + u;
+            *(u_char *)((int)prim + 0x1d) = cv2 + v;
+          }
         }
       }
       if ((overlayFlag & 3) != 0) {
@@ -2503,12 +2527,24 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
-          *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;
-          *(u_char *)(prim + 5) = *(u_char *)(id1 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x15) = *(u_char *)(id1 + 0xd7) + v;
-          *(u_char *)(prim + 7) = *(u_char *)(id2 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x1d) = *(u_char *)(id2 + 0xd7) + v;
+          {
+            u_char cu0 = *(u_char *)(id0 + 0xd6);
+            u_char cv0 = *(u_char *)(id0 + 0xd7);
+            *(u_char *)(prim + 3) = cu0 + u;
+            *(u_char *)((int)prim + 0xd) = cv0 + v;
+          }
+          {
+            u_char cu1 = *(u_char *)(id1 + 0xd6);
+            u_char cv1 = *(u_char *)(id1 + 0xd7);
+            *(u_char *)(prim + 5) = cu1 + u;
+            *(u_char *)((int)prim + 0x15) = cv1 + v;
+          }
+          {
+            u_char cu2 = *(u_char *)(id2 + 0xd6);
+            u_char cv2 = *(u_char *)(id2 + 0xd7);
+            *(u_char *)(prim + 7) = cu2 + u;
+            *(u_char *)((int)prim + 0x1d) = cv2 + v;
+          }
         }
       }
       DRAWC_OTLINK_FT3(sd, prim);
@@ -2942,12 +2978,24 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          *(u_char *)(prim + 3) = *(u_char *)(id0 + 0xd6) + u;
-          *(u_char *)((int)prim + 0xd) = *(u_char *)(id0 + 0xd7) + v;
-          *(u_char *)(prim + 5) = *(u_char *)(id1 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x15) = *(u_char *)(id1 + 0xd7) + v;
-          *(u_char *)(prim + 7) = *(u_char *)(id2 + 0xd6) + u;
-          *(u_char *)((int)prim + 0x1d) = *(u_char *)(id2 + 0xd7) + v;
+          {
+            u_char cu0 = *(u_char *)(id0 + 0xd6);
+            u_char cv0 = *(u_char *)(id0 + 0xd7);
+            *(u_char *)(prim + 3) = cu0 + u;
+            *(u_char *)((int)prim + 0xd) = cv0 + v;
+          }
+          {
+            u_char cu1 = *(u_char *)(id1 + 0xd6);
+            u_char cv1 = *(u_char *)(id1 + 0xd7);
+            *(u_char *)(prim + 5) = cu1 + u;
+            *(u_char *)((int)prim + 0x15) = cv1 + v;
+          }
+          {
+            u_char cu2 = *(u_char *)(id2 + 0xd6);
+            u_char cv2 = *(u_char *)(id2 + 0xd7);
+            *(u_char *)(prim + 7) = cu2 + u;
+            *(u_char *)((int)prim + 0x1d) = cv2 + v;
+          }
         }
       }
       if ((overlayFlag & 3) != 0) {

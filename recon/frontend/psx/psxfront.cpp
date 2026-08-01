@@ -269,8 +269,10 @@ void Init_RenderingEnvironment(void)
 void Init_PSX_FrontEnd(void)
 
 {
-  int movieRes;
-  
+  /* SYM lists NO locals here (movieRes was fabricated -- retail compares play_movie's $v0 directly).
+   * 🔴 initlinkmode takes THREE args (oracle sets $a2 at every site: `addu a2,a1,zero` / `addu a2,a0,
+   * zero`) -- the recon passed only two, dropping the 3rd (§3.12 #18).  Polarity: the FIRST-TIME
+   * (!= 0) arm is the FALL-THROUGH in retail (`beqz v1` skips to the short arm). w42-a7. */
   gFlip[0] = -1;
   addtimer(PAD_update);
   InitGeom();
@@ -278,23 +280,22 @@ void Init_PSX_FrontEnd(void)
   Texture_InitMenuClut();
   screenwidth[0] = 0x200;
   screenbpp[0] = 0x10;
-  if (ComingIntoTheFrontEndTheVeryFirstTime[0] == 0) {
-    Init_RenderingEnvironment();
-    TextSys_LoadWords((uint)(byte)frontEnd.language);
-  }
-  else {
-    movieRes = play_movie('\x04');
-    if (movieRes != 1) {
+  if (ComingIntoTheFrontEndTheVeryFirstTime[0] != 0) {
+    if (play_movie('\x04') != 1) {
       play_movie('\0');
     }
-    initlinkmode(0,1);
+    initlinkmode(0,1,1);
     Init_RenderingEnvironment();
-    initlinkmode(0,0x14);
+    initlinkmode(0,0x14,0);
     DoLanguageScreen();
     TextSys_LoadWords((uint)(byte)frontEnd.language);
     DoTitleScreen();
-    initlinkmode(0,1);
+    initlinkmode(0,1,1);
     Front_SecondaryMemCardCheck();
+  }
+  else {
+    Init_RenderingEnvironment();
+    TextSys_LoadWords((uint)(byte)frontEnd.language);
   }
   FeTools_init();
   Audio_InitDriver(0xd800,0x18000);

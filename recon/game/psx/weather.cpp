@@ -1031,75 +1031,72 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
   *(u_int *)pt1 = *(u_int *)&prim->x1;             /* save current screen pos as next frame's prev */
 }
 
-/* ---- Weather_CreateSplat__FP18Weather_tSplatInfo  [WEATHER.CPP:1009-1035] SLD-VERIFIED ---- */
+/* ---- Weather_CreateSplat__FP18Weather_tSplatInfo  [WEATHER.CPP:1009-1035] SLD-VERIFIED ----
+ * w40-a6 SYM-driven rewrite (rule 8): the SYM `8c` block lists exactly SIX locals --
+ * splat(REGPARM $9), vx($0a SHORT), vy($0b SHORT), prim($08 POLY_FT4*), size($07 INT),
+ * splatTick($03 INT) -- plus a nested block with l0..l3 (ULONG) for the pixmap word copy.
+ * The previous body carried ~22 invented temps (screen_x/screen_y/size_x/size_y/ts1..ts3/
+ * uv_pack/pkt_addr24/tpage_pack/color_pack/splat_glyph/splat_size) which pinned the whole
+ * caller-saved file.  `splatTick` is MUTATED IN PLACE by the >>3 (oracle `sra $v1,$v1,3`
+ * over its own register), and the quad corners are written as direct field expressions so
+ * gcc CSEs `vy + splatTick` the way retail did.  `tp3` is not a retail local -- it is our
+ * scratchpad-literal modelling of Render_gPalettePtr (a real variable in retail, so gcc
+ * CSE'd its load); keep it. */
 void Weather_CreateSplat
                (Weather_tSplatInfo *splat)
 
 {
-  short screen_x;
-  u_char splat_glyph;
-  u_long l3;
-  int color_pack;
-  u_long l0;
-  short screen_y;
-  int splatTick;
-  u_long l1;
-  short size_y;
-  int uv_pack;
-  int pkt_addr24;
-  u_long l2;
-  short splat_size;
-  int tpage_pack;
-  short size_x;
-  int size;
   short vx;
   short vy;
-  u_char *prim;
+  POLY_FT4 *prim;
+  int size;
+  int splatTick;
   u_char *tp3;
-  int ts2;
-  short ts1;
-  short ts3;
-  
-  prim = RENDER_PACKETPTR_ADDR;
+
+  prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
   tp3 = RENDER_PALETTEPTR_ADDR;
-  ts3 = (splat->pos).vx;
-  ts1 = (splat->pos).vy;
-  *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)tp3 & 0xffffff;
-  uv_pack = (u_int)prim & 0xffffff;
-  RENDER_PACKETPTR_ADDR = prim + 0x28;
-  *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | uv_pack;
-  prim[3] = 9;
-  prim[7] = 0x2e;
-  splat_size = 0x12;
+  vx = (splat->pos).vx;
+  vy = (splat->pos).vy;
+  prim->tag = prim->tag & 0xff000000 | *(u_int *)tp3 & 0xffffff;
+  /* MATCH: the palette write-back BEFORE the cursor bump.  With the bump 2nd (the
+   * Ghidra order) gcc issues `addiu/sw` ahead of the tag store (64 diffs); with it
+   * 3rd the scheduler interleaves it into the palette merge exactly like retail. */
+  *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (u_int)prim & 0xffffff;
+  RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;
+  *((char *)prim + 3) = 9;
+  prim->code = 0x2e;
+  size = 0x12;
   if (((splat->pos).vx & 1U) != 0) {
-    splat_size = 0xc;
+    size = 0xc;
   }
   splatTick = simGlobal.gameTicks - splat->startTick;
-  splat_glyph = (u_char)(-0x80 - splatTick * 4);
-  ts2 = splatTick >> 3;
-  size_x = ts3 - ts2;
-  prim[6] = splat_glyph;
-  prim[5] = splat_glyph;
-  prim[4] = splat_glyph;
-  size_y = (ts1 + ts2) - ts2;
-  screen_y = ts3 + splat_size + ts2;
-  screen_x = ts1 + ts2 + splat_size + ts2 * 2;
-  *(short *)(prim + 0x1a) = screen_x;
-  *(short *)(prim + 0x22) = screen_x;
-  *(short *)(prim + 8) = size_x;
-  *(short *)(prim + 10) = size_y;
-  *(short *)(prim + 0x10) = screen_y;
-  *(short *)(prim + 0x12) = size_y;
-  *(short *)(prim + 0x18) = size_x;
-  *(short *)(prim + 0x20) = screen_y;
-  pkt_addr24 = *(int *)&gWeatherPixmap[2]->u1;
-  tpage_pack = *(int *)&gWeatherPixmap[2]->u2;
-  color_pack = *(int *)&gWeatherPixmap[2]->u3;
-  *(u_int *)(prim + 0xc) = *(u_int *)gWeatherPixmap[2];
-  *(int *)(prim + 0x14) = pkt_addr24;
-  *(int *)(prim + 0x1c) = tpage_pack;
-  *(int *)(prim + 0x24) = color_pack;
-  return;
+  prim->r0 = prim->g0 = prim->b0 = (u_char)(-0x80 - splatTick * 4);
+  splatTick = splatTick >> 3;
+  prim->x0 = vx - splatTick;
+  prim->y0 = vy + splatTick - splatTick;
+  prim->x1 = vx + size + splatTick;
+  prim->y1 = vy + splatTick - splatTick;
+  prim->x2 = vx - splatTick;
+  prim->y2 = vy + splatTick + size + splatTick * 2;
+  prim->x3 = vx + size + splatTick;
+  prim->y3 = vy + splatTick + size + splatTick * 2;
+  {
+    Draw_tPixMap *pmx;
+    u_long l0;
+    u_long l1;
+    u_long l2;
+    u_long l3;
+
+    pmx = gWeatherPixmap[2];
+    l0 = *(u_int *)pmx;
+    l1 = *(u_int *)((char *)pmx + 4);
+    l2 = *(u_int *)((char *)pmx + 8);
+    l3 = *(u_int *)((char *)pmx + 0xc);
+    *(u_int *)&prim->u0 = l0;
+    *(u_int *)&prim->u1 = l1;
+    *(u_int *)&prim->u2 = l2;
+    *(u_int *)&prim->u3 = l3;
+  }
 }
 
 /* ---- Weather_DoSplats__FiP18Weather_tSplatInfo  [WEATHER.CPP:1039-1064] SLD-VERIFIED ---- */

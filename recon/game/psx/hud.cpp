@@ -1383,6 +1383,7 @@ void Hud_BuildNumbers0(int player)
   int y;
   int primAddr;
 
+  i = player;
   if (player != 0) {
     pSprt = gSprite1;
   }
@@ -1390,16 +1391,16 @@ void Hud_BuildNumbers0(int player)
     pSprt = gSprite0;
   }
   HudF4 = gHudF4;
-  if (player != 0) {
+  if (i != 0) {
     HudF4 = HudF4 + 7;
   }
   HudG4 = gHudG4;
-  if (player != 0) {
+  if (i != 0) {
     HudG4 = HudG4 + 4;
   }
-  y = 0;
-  if (player != 0) {
-    y = -0xf;
+  splitY = 0;
+  if (i != 0) {
+    splitY = -0xf;
   }
   if (GameSetup_gData.carInfo[player].HudTime != 0) {
     if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
@@ -1446,27 +1447,27 @@ void Hud_BuildNumbers0(int player)
     }
   }
   if (Hud_BeTheCop == 0) {
-    i = g1Player[5].y;
-    i = i + y;
-    i = i + g1Player[9].y;
-    pSprt[10].y0 = i;
-    HudG4[2].y0 = i;
-    HudG4[2].y1 = i;
-    HudG4[2].y2 = i + 10;
-    HudG4[2].y3 = i + 10;
-    pSprt[11].y0 = i;
-    HudF4[3].y0 = i + 7;
-    HudF4[3].y1 = i + 7;
-    HudF4[3].y2 = i + 10;
-    HudF4[3].y3 = i + 10;
-    i = i + 1;
-    pSprt[30].y0 = i;
-    pSprt[32].y0 = i;
-    pSprt[33].y0 = i;
-    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + i;
-    pSprt[35].y0 = i;
-    pSprt[36].y0 = i;
-    pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + i;
+    y = g1Player[5].y;
+    y = y + splitY;
+    y = y + g1Player[9].y;
+    pSprt[10].y0 = y;
+    HudG4[2].y0 = y;
+    HudG4[2].y1 = y;
+    HudG4[2].y2 = y + 10;
+    HudG4[2].y3 = y + 10;
+    pSprt[11].y0 = y;
+    HudF4[3].y0 = y + 7;
+    HudF4[3].y1 = y + 7;
+    HudF4[3].y2 = y + 10;
+    HudF4[3].y3 = y + 10;
+    y = y + 1;
+    pSprt[30].y0 = y;
+    pSprt[32].y0 = y;
+    pSprt[33].y0 = y;
+    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + y;
+    pSprt[35].y0 = y;
+    pSprt[36].y0 = y;
+    pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + y;
   }
   primAddr = BTC_BonusTime;
   if ((BTC_BonusTime != 0) && (Hud_BeTheCop != 0)) {
@@ -1518,11 +1519,11 @@ void Hud_BuildNumbers0(int player)
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointDisplay < 1) {
         return;
       }
-      i = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
-      if (i < -0x95ff) {
+      y = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
+      if (y < -0x95ff) {
         return;
       }
-      if (0x95ff < i) {
+      if (0x95ff < y) {
         return;
       }
       if (Hud_BeTheCop != 0) {
@@ -1531,7 +1532,7 @@ void Hud_BuildNumbers0(int player)
       if (DashHUD_gInfo.wrongway[player] != 0) {
         return;
       }
-      if (i < 0) {
+      if (y < 0) {
         *(u_int *)&pSprt[10].u0 = *(int *)&(HudPmx_gShapes[0x77].pixmap);
       }
       else {
@@ -1570,8 +1571,8 @@ void Hud_BuildNumbers0(int player)
       }
     }
     else {
-      i = (int)Hud_BuildDistanceString(pSprt + 30,player);
-      if (i == 0) {
+      y = (int)Hud_BuildDistanceString(pSprt + 30,player);
+      if (y == 0) {
         return;
       }
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointUpdate < 0) {
@@ -1626,17 +1627,17 @@ void Hud_BuildNumbers0(int player)
 
 /* ---- Hud_BuildNumbers__Fi  [HUD.CPP:1721-1897] SLD-VERIFIED ----
  * RESIDUAL 705 (ours 759 / oracle 758).  SYM-structured (rule 8): fn-scope locals = the SYM's
- * i/pSprt/HudF4/HudG4/splitY; block-scoped `j` per merge region; the speed group
- * (speed/hun/ten/x/y/w1/w2/w3/w7/color2/prim/SpeedColor) block-scoped inside the 2nd HudTach
+ * y/pSprt/HudF4/HudG4/splitY; block-scoped `j` per merge region; the speed group
+ * (speed/hun/ten/x/splitY/w1/w2/w3/w7/color2/prim/SpeedColor) block-scoped inside the 2nd HudTach
  * `if` per SYM block @0x800D5640 (diff-neutral, kept for fidelity).
  *
  * BANKED TWO-PART LANDING (w40-a1, receipted -- do NOT land either half alone):
- *  PART 1 = the player/i ROLE SWAP.  The oracle's two entry copies are `addu $fp,$a0,$zero`
+ *  PART 1 = the player/y ROLE SWAP.  The oracle's two entry copies are `addu $fp,$a0,$zero`
  *    then `addu $s2,$fp,$zero`; $fp drives the pSprt select, the carInfo[]*3 index at SIX sites
  *    (HudLapnum/HudTime/HudPosition/HudTach-1st/HudSpeed/HudSpeedMult) and wrongway[], while
  *    $s2 drives ONLY the HudF4/HudG4/splitY `+=` selects and the SECOND HudTach test.  The SYM
- *    ($0x1e=$fp is `i`, $0x12=$s2 is REGPARM `player`) therefore says retail wrote the MIRROR of
- *    this body: `i` for the pSprt select + every carInfo[] index + wrongway, and the parameter
+ *    ($0x1e=$fp is `y`, $0x12=$s2 is REGPARM `player`) therefore says retail wrote the MIRROR of
+ *    this body: `y` for the pSprt select + every carInfo[] index + wrongway, and the parameter
  *    `player` only for the three `+=` selects and the 2nd HudTach test.  Applying the swap
  *    reproduces the oracle prologue BYTE-EXACT (`sw fp;addu fp,a0;sw s2;addu s2,fp` in that
  *    order, `beqz fp` for pSprt, `sll v1,fp,1` at all six index sites) and moves the count
@@ -2889,7 +2890,8 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
     by = y + i * 9 + 1;
     j = 0;
     do {
-      index = ((Hud_Character[num] & 1 << k) != 0) | 0x3c;
+      index = (Hud_Character[num] & 1 << k) != 0;
+      index = index | 0x3c;
       Hud_FBuildSprite(index,x + j * 10 + 1,by,0x808080,0);
       j = j + 1;
       k = k + 1;

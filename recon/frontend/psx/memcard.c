@@ -370,6 +370,7 @@ int iMCRD_DoFileLoad(int card)
   uchar ch;
   uchar *src;
   uint attr;
+  uint hdr;
 
   /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
    * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
@@ -420,7 +421,13 @@ int iMCRD_DoFileLoad(int card)
       blockmove(src,&s->data,0x80);
       attr = shapetype(4);
       *(char *)s = (char)attr;
-      *(uint *)s = attr & 0xff | 0x9000;
+      /* MATCH: ONE mask temp shared by both shape headers.  Two separate temps (or
+       * an inline mask in either header) leaves the clut header's word RMW in $v1
+       * where retail keeps it in $v0, mis-schedules its type store / loop test and
+       * costs the back-edge delay slot (37 -> 31 diffs, structural residual 19 -> 14).
+       * Residual: block 1 then pays three attr/hdr copies into $a1/$a3. */
+      hdr = attr & 0xff | 0x9000;
+      *(uint *)s = hdr;
       s->height = 0x10;
       s->width = 0x10;
       s->centery = 0;
@@ -436,13 +443,14 @@ int iMCRD_DoFileLoad(int card)
       s = (shapetbl *)((int)s + s->next);
       blockmove(pMFI->header.iconclut,&s->data,0x20);
       attr = cluttype(0x10);
+      hdr = attr & 0xff;
       *(char *)s = (char)attr;
       i = i + 1;
       s->width = 0x10;
       s->height = 1;
       s->centery = 0;
       s->centerx = 0;
-      *(uint *)s = attr & 0xff;
+      *(uint *)s = hdr;
       s->shapey = 0;
       s->shapex = 0;
     }

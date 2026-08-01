@@ -43,11 +43,6 @@ void RaceSummary(void)
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
   short HUD_STATS_POS_Y;
-  short colpos;
-  short colname;
-  short colcar;
-  short coltime;
-  short colbestlap;
   char string [40];
   int halfH;
   int titleY;
@@ -67,6 +62,18 @@ void RaceSummary(void)
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
   halfH = (int)(HUD_STATS_SIZE_H << 0x10) >> 0x11;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
+  /* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
+     order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO
+     offsets read off retail's decl sequence.  fsize 184 = string 0x20 / SIZE_W 0x48 /
+     SIZE_H 0x50 / POS_Y 0x58 / <(int)SIZE_H> 0x60 / <0x78-halfH> 0x64 / colpos 0x68 /
+     colname 0x70 / colcar 0x78 / coltime 0x80 / colbestlap 0x88 -- the two SImode temps
+     born in the two statements above sit BETWEEN POS_Y and colpos, so the col* block must
+     be declared HERE, not at the top of the function. */
+  short colpos;
+  short colname;
+  short colcar;
+  short coltime;
+  short colbestlap;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
   titleY = 0x76 - halfH;
   Font_TextColor(6);

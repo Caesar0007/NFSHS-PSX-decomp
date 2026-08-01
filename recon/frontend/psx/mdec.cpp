@@ -100,7 +100,10 @@ void mdec(int handle,char *src,int x,int y)
   MDECSTRUCT *mdec = (MDECSTRUCT *)handle;
   
   timeout = ticks + timerhz * 4;
-  while (gMDECinfo.hDecode != 0) {
+  /* MATCH: exit-in-the-middle prevents gcc's loop rotation -- the oracle keeps the
+     hDecode test at the TOP of the loop with an unconditional `j` back-edge. */
+  while (1) {
+    if (gMDECinfo.hDecode == 0) break;
     systemtask(0);
     if (timeout < ticks) {
       mdecreset();

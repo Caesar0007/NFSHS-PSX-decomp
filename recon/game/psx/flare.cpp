@@ -98,7 +98,30 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
  * NEGATIVE: (1) alone REGRESSES Flare_PreCalcHexLightBeam (16->18, no loop -> no LICM) and
  * shifts Hrz_BuildSky's preheader one slot too early (390->388 gate but a structurally
  * WORSE preheader) -- gate every site, do not apply blind.
- * ================================================================================= */
+ * =================================================================================
+*
+ * ===== w42-a6: THE TWO-MASK $t1<->$t2 ROTATION IS THE allocno_compare IDENTITY DELTA =====
+ * Flare_Sun 28, Flare_Halo2 28, Flare_2DHalo 24-of-40, CarShapedHalo ~10-of-19, LensFlare
+ * ~8-of-48 (+ Font_TextXY ~12-of-22 and Weather_DoWeather ~12-of-60 in the sibling TUs) are
+ * ALL one repeated 7-diff unit: `lui 0xFFFFFF` / `lui 0xFF000000` are emitted in the SAME
+ * ORDER as the oracle but land in the OPPOSITE registers.  QUANTIFIED on Flare_Sun (site 1):
+ *   0xFFFFFF     birth insn 85, last use 115  -> live 30
+ *   0xFF000000   birth insn 92, last use 116  -> live 24
+ * Both quantities have identical ref counts, so the pick is purely the live-length tie-break:
+ * OUR cc1 gives the earlier hard reg to the SHORTER-lived quantity (0xFF000000 -> $t1);
+ * retail gives it to the LONGER-lived one (0xFFFFFF -> $t1).  That is exactly the
+ * "allocno_compare live-length weighting" true-identity residue recorded in the catalog
+ * (w32-w33 §G, 7 clean cases) -- not a source shape.  MEASURED NEGATIVE this wave (all on
+ * Flare_2DHalo block 1, gate 40 baseline): drop the addr24 temp (46), addr24 AFTER the first
+ * RMW (40), swap the first RMW's OR operands (40), pkt24 computed first (63, -1 insn).
+ * A source flip would need 0xFFFFFF's live range SHORTER than 0xFF000000's, i.e. its `lui`
+ * born AFTER the other one -- but every spelling that does that also moves the emission
+ * order away from the oracle.  => permuter / toolchain-identity class, do NOT re-grind by
+ * hand.  (The Flare_HexFlare family's 14-diff residual is the SAME tie with `i` as the
+ * rival: mask 5 refs/50 live = .200 vs i 7 refs/54 live = .2593; the flip needs mask refs
+ * >= 7 (a 3rd in-loop use, which does not exist) or i's live > 70.)
+ * =========================================================================================
+ */
 
 /* ---- Flare_Tri__FPlN20i  [FLARE.CPP:75-89] SLD-VERIFIED ---- */
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)

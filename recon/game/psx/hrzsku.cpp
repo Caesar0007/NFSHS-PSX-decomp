@@ -820,7 +820,19 @@ void Hrz_LightningFlicker(int on)
  * reverse.  allocno_compare is on a razor edge (t: 6 refs/~18 live = 0.67; r: 2 refs/~3
  * live = 0.67) -- a dial that LENGTHENS the t-triple's live range or SHORTENS the
  * r-values' flips the whole function.  Tried+FALSIFIED: per-element r-store (72),
- * mpsx.m[0][2]-before-[0][1] store order (76). */
+ * mpsx.m[0][2]-before-[0][1] store order (76).
+ * w42-a6 RE-MEASURED + one more falsification.  The kept 3-t-block form gates 62 at 52/56
+ * insns; the SINGLE {t1,t2,t3} block spanning all three rows gates 72 but is COUNT-EXACT
+ * 56/56 and reproduces the oracle's four `lw NN(sp)` reloads exactly (the SYM-faithful
+ * shape).  NEW falsification from that count-exact base: grouping the r-blocks by SOURCE
+ * ROW ({temp.m[0],m[1],m[2]} -> mpsx.m[0][0],m[1][0],m[2][0]) instead of by mpsx ROW = 76.
+ * The oracle's reload PAIRING ((m[0],m[2]) then (m[3],m[5])) had suggested source-row
+ * grouping; it does not hold.  Residual from the 56/56 base is the r-triple-vs-t-triple
+ * local_alloc quantity order (retail's nine r values take $v0/$v1/$a0-$a3 and push the raw
+ * loads to $t0-$t2; ours is the reverse) -- same live-length tie-break direction as the
+ * flare.cpp two-mask rotation (see flare.cpp's w42-a6 block).  Gate ledger keeps the
+ * 3-block form because 62 < 72, but the 56/56 single-block form is the better STRUCTURAL
+ * base for a future permuter run. */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1296,6 +1308,19 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * oracle passes either a literal scratchpad address (posB/posC bases) or `&right` (SYM local)
  * -- the per-segment call was silently NEVER updating `right`, a genuine logic bug independent
  * of the byte-match residual. */
+/* w42-a6 ROOT CAUSE of the +4-insn excess (census: sw 41v40, lw 54v51).  Ours SPILLS the
+ * hoisted 0xFFFFFF OT-link mask to the frame (`sw t1,84(sp)` + three reloads) because two
+ * callee-saved registers are consumed by CSE-hoisted ADDRESSES that retail rematerializes:
+ *   ours   `li s6,4 ; lui s7,8064 ; or s7,s7,s6`  = 0x1F800004 held whole in $s7
+ *          `addiu s3,s5,88`                       = hsd+0x58 held in $s3
+ *   oracle `lui s7,255 ; ori s7,s7,65535`         = the MASK in $s7
+ *          `addu s3,s6,zero` (s3 == hsd) + `li s5,4`, every scratchpad address formed
+ *          per use as `ori rD,s6,OFF` off the ONE base
+ * i.e. retail anchors every access on hsd itself and keeps only the literal 4 in a saved
+ * reg; we anchor on hsd+0x58 and on the fully-formed 0x1F800004.  FIX DIRECTION for the
+ * next pass: stop letting gcc CSE `(int)hsd + 0x58` and the Render_gPacketPtr literal into
+ * their own long-lived pseudos (all displacements in the prim loop are then hsd-relative,
+ * which is also why the oracle's loads read 292/159/227 where ours read 204/71/139). */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {

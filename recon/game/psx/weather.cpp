@@ -369,7 +369,18 @@ WeatherDensity_numAdd:
  * 58 insns / 6 diffs, i.e. structurally further away.
  * w41-a6: re-gated at 4, count EXACT 62/62, -G8 probe no change.  The SECOND, structurally
  * identical guard (`vy > tbl[state]`) MATCHES byte-for-byte with the same source shape, so
- * the residual is specific to the first guard's branch-sense choice, not the goto graph. */
+ * the residual is specific to the first guard's branch-sense choice, not the goto graph.
+ * w42-a6 MECHANISM NAMED (STRONG): writing guard 1 in the ORACLE polarity
+ * (`if (vy < tbl[state]) goto velYUpdate; goto call;`) makes its 3-insn tail
+ * `slt v0,v0,v1 / bnez v0,.velY / j .call` BYTE-IDENTICAL to guard 2's, and gcc's
+ * cross-jumping pass merges them -- guard 1 becomes `j <guard2's bnez>` with the `slt`
+ * stolen into the delay slot (58 insns / 6 diffs, confirmed by side_by_side).  Retail's
+ * two tails are byte-identical too, yet NOT merged, so retail's cross_jump ran while the
+ * two blocks still held DIFFERENT PSEUDOS (they are on mutually exclusive paths, so cse
+ * cannot unify them) -- ours merges them because our cross_jump sees the post-reload hard
+ * registers.  Pass-ordering identity, not a source shape: keeping our beqz polarity (62
+ * insns, 4 diffs) is strictly the better ledger.  Any future fix has to make the two tails
+ * differ in one instruction, which no equivalent C spelling of these two guards does. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {

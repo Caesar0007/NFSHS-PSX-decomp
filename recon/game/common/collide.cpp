@@ -679,10 +679,10 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj * volatile o0,BO_tNewtonObj *o
   R1CrossN.x = fixedmult(Rt1.y,normal->z) - fixedmult(Rt1.z,normal->y);
   R1CrossN.y = fixedmult(Rt1.z,normal->x) - fixedmult(Rt1.x,normal->z);
   R1CrossN.z = fixedmult(Rt1.x,normal->y) - fixedmult(Rt1.y,normal->x);
-  numerator = (fixedmult((o1->linearVel).x,normal->x) + fixedmult((o1->linearVel).y,normal->y) +
+  numerator = -(fixedmult((o0->linearVel).x,normal->x) + fixedmult((o0->linearVel).y,normal->y) +
+                fixedmult((o0->linearVel).z,normal->z)) +
+              (fixedmult((o1->linearVel).x,normal->x) + fixedmult((o1->linearVel).y,normal->y) +
                fixedmult((o1->linearVel).z,normal->z)) -
-              (fixedmult((o0->linearVel).x,normal->x) + fixedmult((o0->linearVel).y,normal->y) +
-               fixedmult((o0->linearVel).z,normal->z)) -
               (fixedmult((o0->angularVel).x,R0CrossN.x) + fixedmult((o0->angularVel).y,R0CrossN.y) +
                fixedmult((o0->angularVel).z,R0CrossN.z)) +
               (fixedmult((o1->angularVel).x,R1CrossN.x) + fixedmult((o1->angularVel).y,R1CrossN.y) +

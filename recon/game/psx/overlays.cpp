@@ -137,11 +137,11 @@ void RaceSummary(void)
                (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
-      else if (*(int *)((int)Cars_gRaceCarList[i] + 0x3cc) != 2) {
-        sprintf(string,TextSys_Word(0x35));
+      else if (*(int *)((int)Cars_gRaceCarList[i] + 0x3cc) == 2) {
+        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3d4),string);
       }
       else {
-        Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3d4),string);
+        sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,coltime,dataY + pos * 0xc);
       if (GameSetup_gData.numLaps != 1) {

@@ -374,9 +374,7 @@ int Movie_Play(char movie)
      * (addu v1,zero,zero / li v1,1 / beqz v1) instead of branching. */
     if (joyval != 0) {
       Movie_Stop();
-      if (skip_all != '\0') {
-        user_exit = 1;
-      } else if (joyval == 8) {
+      if ((skip_all != '\0') || (joyval == 8)) {
         user_exit = 1;
       }
     }

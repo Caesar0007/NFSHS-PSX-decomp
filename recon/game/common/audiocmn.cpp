@@ -1410,21 +1410,23 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     iVar6 = iVar6 + 0xffff;
   }
   *(volatile int *)&iAmpIn = iVar6 >> 0x10;
-  iVar9 = (car->linearVel_ch).z;
-  if (iVar9 < 0) {
-    iVar9 = -iVar9;
+  iVar6 = -0xd8000;
+  int speed = (car->linearVel_ch).z;
+  if (speed < 0) {
+    speed = -speed;
   }
   /* SYM: roadNoiseAmp is REG $s1, live from here through the camera-mode selector
      block below -- split from iVar10 which is reused (2 more disjoint lives) for the
      PlayersRampedGasLevel ramp scratch and cobblestoneAmp later. */
   roadNoiseAmp = 0;
-  if (-1 < iVar9 + -0xd8000) {
-    roadNoiseAmp = iVar9 + -0xd8000 >> 0xf;
+  iVar6 = speed + iVar6;
+  if (-1 < iVar6) {
+    roadNoiseAmp = iVar6 >> 0xf;
   }
   /* SYM: CurCarGasLevel is REG $s0, live from here through the fixedmult-based
      self-referencing scale below (blowout doubles it in place) -- split from iVar9
      which is reused afterward for unrelated values (switch-case temp, particle count). */
-  CurCarGasLevel = iVar9 >> 0xf;
+  CurCarGasLevel = speed >> 0xf;
   if (0x7f < CurCarGasLevel) {
     CurCarGasLevel = 0x7f;
   }
@@ -1432,7 +1434,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      switch-case modulo below -- split out of the Ghidra iVar4 temp (which is reused later
      for unrelated short-lived values) so its live range doesn't force one register to
      cover the whole function. */
-  cobbleMod = 8 - CurCarGasLevel / 0x10;
+  cobbleMod = CurCarGasLevel / 0x10;
+  cobbleMod = 8 - cobbleMod;
   if (cobbleMod < 3) {
     cobbleMod = 3;
   }
@@ -1496,7 +1499,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     iVar6 = ((0x13240000 - iVar6) / 0x1324) * CurCarGasLevel;
     CurCarGasLevel = iVar6 >> 0x10;
     if (iVar6 < 0) {
-      CurCarGasLevel = iVar6 + 0xffff >> 0x10;
+      iVar6 = iVar6 + 0xffff;
+      CurCarGasLevel = iVar6 >> 0x10;
     }
   }
   else {

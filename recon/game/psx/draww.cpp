@@ -1991,7 +1991,10 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 {
   Group * group;
-  u_char bVar1;
+  int bVar1;   /* MATCH (w40-a2): the anim type is a SIGNED int in the original -- a u_char
+                  local made cc1plus emit `sltiu $v0,$v1,2` for the dispatch chain where
+                  the oracle has the signed `slti $v0,$v1,0x2` (balance_case_nodes uses
+                  signed compares). The `lbu` field read is unchanged. */
   Group *pThis;
   int iVar2;
   void *pvVar3;

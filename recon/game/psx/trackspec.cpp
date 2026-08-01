@@ -26,13 +26,35 @@ int TrackSpec_gPrevSpec;
  *   80  spec 76 refs prio 1.64 -> $a0   (copy-preference for the incoming $a0)
  *   195 sky walker   prio 0.50 -> $a1 (reuse)
  * Retail instead has sky-walker=$a0 and spec=$a1, i.e. something took $a0 BEFORE
- * spec despite spec's lower-numbered copy preference.  Probes measured here:
- *   goto-loop on the ring loop (kills the giv)          218  WORSE
- *   arm order `i < 8` first                             195
- *   arm order `8 <= i` first                            193  <- kept
- *   per-TU no_split_addresses/no_schedule_insns{,2}/
- *     no_strength_reduce                                see the trackspec flag receipts
- * The residual is the documented allocno/copy-preference identity class. */
+ * spec despite spec's lower-numbered copy preference.
+ * MECHANISM (named, w40-a5): gcc-2.8 global.c find_reg SKIPS any hard register that
+ * a CONFLICTING allocno PREFERS (`regs_someone_prefers`).  `spec` is the destination
+ * of the parm copy `pseudo80 = $a0`, so it PREFERS $a0; every allocno that conflicts
+ * with it -- and spec is live across the whole body, so that is all of them -- avoids
+ * $a0 and lands on $a1/$v1/... instead, leaving $a0 for spec itself.  Retail's build
+ * gave $a0 to the sky walker anyway and paid the `addu $a1,$a0,$zero` copy (its extra
+ * 1 insn: ours 141 vs oracle 142).  There is no C-level handle on that avoidance --
+ * the preference exists for ANY spelling of a pointer parameter.  Also note retail's
+ * ring loop has NO walker at all (`addu $v1,$a1,$a2` rematerialized per iteration),
+ * which is what frees the register we spend on pseudo 191.
+ * FLOOR RECEIPT (upgraded w40-a5 to the w38+ bar):
+ *   prototype   -- 1 pointer arg, void return; SYM REGPARM $05 + `retreg 31`,
+ *                  fsize 0 / mask $00000000 (leaf, no frame, no AUTO locals),
+ *                  and the raw oracle sets no $v0 at its single `jr $ra`.
+ *   trichotomy  -- the retail `addu a1,a0,zero` is NOT a loop.c giv anchor (it is
+ *                  the parm copy, outside every loop) and NOT a cse double-eval
+ *                  (there is exactly one evaluation of the parameter); it is class
+ *                  (3) true coalescing identity.
+ *   probes      -- goto-loop on the ring loop 218 WORSE; arm order `i<8` first 195,
+ *                  `8<=i` first 193 (kept); a `CTrackSpec *s = spec;` local used for
+ *                  the whole body 193 (gcc coalesces the copy away); the same with
+ *                  `spec` kept for the first store 193.
+ *   flags       -- whole-TU, w40-a5: g_value 8 = NO-OP (this TU owns only 4-byte
+ *                  scalars and the oracle already reaches all three with %gp_rel;
+ *                  there is no 5..8-byte owned object, so the -G8 discriminator is
+ *                  silent AND the measurement is identical); no_strength_reduce 222,
+ *                  no_split_addresses 222, no_schedule_insns 217 (+ breaks SetUp and
+ *                  Read), no_schedule_insns2 193 (+ breaks Load) -- all NEGATIVE. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {
@@ -184,41 +206,60 @@ void read(char **handle,void *buf,int bytes)
  * makes the SetDefault arm the FALL-THROUGH and the parse arm the branch target,
  * i.e. the source tests `spec_num >= header.num_spec` with SetDefault as the
  * if-BODY (catalog sec.B arm-order/polarity row).
- * RESIDUAL 4 insns = retail's REDUNDANT COPY `addu $s3,$s0,$zero` of startpos
- * (+ its frame save/restore) so the cross-jump-merged `jal purgememadr` is
- * reached with `a0` set from $s0 on the SetDefault path and from $s3 on the
- * parse path (oracle 800E181C / 800E1868 / 800E18A4). Both hold the SAME value;
- * our cc1 copy-propagates it away. Tried: duplicating purgememadr into both arms
- * (gcc re-merges, no change), a second C variable `filebuf = startpos` used by
- * one arm (copy-propagated, no change). This is the documented per-obj
- * "old-gcc no-copy-prop" toolchain-identity class (catalog sec.G) -- FLOOR.
- * Prototype re-checked vs raw oracle: 1 int arg ($a0->$s2), void return
- * (no $v0 set at the single epilogue). */
+ * 26 -> 4 (w40-a5, count now EXACT 63/63).  The w39 "no-copy-prop FLOOR" call was
+ * WRONG in its remedy, not its mechanism.  The SYM is the key: `startpos` is REG
+ * $13 = $s3, NOT $s0 -- so retail holds the loadfileadr result in THREE places
+ * (the return pseudo $v0, an uncoalesced temp $s0 that carries the null test and
+ * the SetDefault arm's purge, and `startpos` $s3 for the parse arm's purge), and
+ * mask $800f0000 (ra+s0..s3) pays for all of them.  THREE cooperating changes:
+ *  (1) model the uncoalesced temp as a real local (`filebuf`) that `startpos` is
+ *      copied FROM -- the copy survives because `startpos` OUTLIVES it (its use is
+ *      in the later arm; catalog "make_regs_eqv is steerable: the copy becomes
+ *      canonical iff it outlives its source").  The earlier probe copied in the
+ *      OPPOSITE direction, which is why it was copy-propagated away.
+ *  (2) purgememadr(...) written INSIDE each arm (filebuf in the SetDefault arm,
+ *      startpos in the parse arm) -- gcc cross-jumps the two `jal`s into one but
+ *      keeps each arm's own `addu a0,<reg>,zero`, which is exactly the oracle's
+ *      800E181C / 800E18A4 pair.  Duplicating the call with ONE variable does not
+ *      work (both arms then use the same register and the merge swallows it).
+ *  (3) `currentpos = filebuf;` hoisted ABOVE the null test so the store lands in
+ *      the `beqz` delay slot like the oracle.
+ * RESIDUAL 4 (2 real insns): the delay-slot store is `sw s0,88(sp)` for us vs
+ * `sw v0,88(sp)` for retail (a THIRD uncoalesced copy we cannot name without a
+ * fourth variable), and the sprintf `lui a1,%hi(fmt)` is scheduled one insn
+ * earlier.  Prototype re-checked vs the raw oracle: 1 int arg ($a0->$s2), void
+ * return (no $v0 set at the single epilogue).  Per-TU flag probes (w40-a5, whole
+ * TU): g_value 8 = NO-OP (this TU owns only 4-byte scalars, all already %gp_rel),
+ * no_strength_reduce / no_split_addresses / no_schedule_insns / no_schedule_insns2
+ * all neutral-or-worse -- see the SetDefault note. */
 void TrackSpec_Read(int spec_num)
 
 {
+  char *filebuf;
   char *startpos;
   char str [64];
   CTrackSpecHeader header;
   char *currentpos;
   
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],GameSetup_gData.track);
-  startpos = (char *)loadfileadr(str,0);
-  if (startpos != (char *)0x0) {
+  filebuf = (char *)loadfileadr(str,0);
+  startpos = filebuf;
+  currentpos = filebuf;
+  if (filebuf != (char *)0x0) {
     TrackSpec_gPrevSpec = spec_num;
     TrackSpec_gCurrentSpec = spec_num;
-    currentpos = startpos;
     read(&currentpos,&header,8);
     if (spec_num >= header.num_spec) {
       TrackSpec_SetDefault(&TrackSpec_gSpec);
+      purgememadr(filebuf);
     }
     else {
       TrackSpec_gMaxSpec = header.num_spec + 1;
       currentpos = currentpos + spec_num * 0x108;
       read(&currentpos,&TrackSpec_gSpec,0x108);
       TrackSpec_SetUp();
+      purgememadr(startpos);
     }
-    purgememadr(startpos);
   }
   return;
 }

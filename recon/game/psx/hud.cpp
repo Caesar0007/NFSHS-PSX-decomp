@@ -1,3 +1,28 @@
+/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
+ * RESIDUAL 117 (ours 204 / oracle 215).  w40-a1: `ix = x` moved AHEAD of `ox = x` (gcc was
+ * rematerializing ix out of ox's stack slot -- one bogus `lw s1,28(sp)`), and the invented
+ * `cVar1` local purged (SYM has no such local; diff-neutral, rule-8 hygiene).
+ * TWO STANDING RESIDUALS, both allocator-level, with w39+w40 receipts:
+ *  (1) str/'#' allocno swap: retail str=$s2 / '#'=$s3, ours str=$s3 / '#'=$s2 (a pure
+ *      allocno_compare tie; '#' has 8 loop refs vs str's 6 so it out-prioritises str here).
+ *      NEGATIVE w40: naming the constant (`int hash='#'` inited at the top = the catalog
+ *      INVERSE priority dial) makes it WORSE (117 -> 134); it does not flip the pair.
+ *  (2) `shp` lives in a callee-saved reg ($s0) across the Hud_FBuildSprite call, retail
+ *      instead rematerialises `&HudPmx_gShapes[K]` into a CALLER-saved $t0/$t1 either side
+ *      of the call (`lui $t0` in the bnez delay slot + a duplicate `lui $t0` after the jal,
+ *      then `addiu $t0,$t0,%lo; lh $v1,0x10($t0)`).  w40 receipts, all NEGATIVE:
+ *        - delete `shp`, use `HudPmx_gShapes[K].width`:   204 (cse hoists the ARRAY BASE
+ *          into a callee-saved reg and re-permutes every param home -- this is the catalog
+ *          "element-pointer local kills an address-CSE-hoist cascade" row, confirmed);
+ *        - move the `shp =` assignment BELOW the `if`:    131 (address+field FOLD into one
+ *          `lui;lh %lo(sym+0x10)` -- loses the oracle's 3-insn split, 210/215);
+ *        - four DISTINCT single-assignment `shp` locals (chasing reg_equiv_constant
+ *          rematerialisation):                            117 (identical codegen).
+ *      => the element-pointer local IS the right source shape; the saved-vs-caller reg is
+ *      an allocator choice we cannot reach from C.  Downstream of it: the merge association
+ *      (`(ix+3)+w` retail vs `ix+(w+3)` ours) and the two-insn `j;li a2,-1` that our build
+ *      cross-jump-MERGES into the 0xE5 arm's identical `offy = -1` tail (branch-polarity
+ *      swap of that if/else tested w40: byte-identical output, no effect). */
 /* game/psx/hud.cpp -- RECONSTRUCTED (NFS4 PSX in-race HUD; C++ TU)
  *   62 fns: sprite/poly builders, tachometer, number rasterizer, mini-map + radar,
  *   CD player, wingman interface, render views (hud/tac/map/stats), 3-2-1-GO, BTC/busted.
@@ -311,7 +336,6 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 void Hud_BuildSpriteFromFont(SPRT *sprt,char ch,int x,int y)
 
 {
-  u_int uVar1;
   int u;
   int v;
   int w;
@@ -761,14 +785,6 @@ void Hud_Init(void)
   int w1;
   int w2;
   u_long textcolour;
-  SPRT *gSprt1;
-  POLY_F4 *HudF4;
-  POLY_G4 *HudG4;
-  long splitY;
-  int timelapshift;
-  SPRT *spriteReplay;
-  int baseX;
-  int baseY;
 
   textcolour = 0xa0a0a0;
   i = 0;
@@ -784,6 +800,13 @@ void Hud_Init(void)
   i = 0;
   while (true) {
     if (DashHUD_gInfo.splitscreen < i) break;
+    {
+    SPRT *gSprt1;
+    POLY_F4 *HudF4;
+    POLY_G4 *HudG4;
+    long splitY;
+    int timelapshift;
+
     if (i != 0) {
       gSprt1 = gSprite1;
     }
@@ -809,11 +832,7 @@ void Hud_Init(void)
     Hud_BuildSprite(gSprt1,0x68,g1Player->x,(g1Player->y + splitY) - timelapshift,0xbebe,0);
     currentSpriteColor = 0x808080;
     Hud_BuildSprite2(gSprt1 + 1,0x80,g1Player[1].x,g1Player[1].y + splitY);
-    j = 0x81;
-    if (i != 0) {
-      j = 0x83;
-    }
-    Hud_BuildSprite2(gSprt1 + 2,j,0,0);
+    Hud_BuildSprite2(gSprt1 + 2,(i != 0) ? 0x83 : 0x81,0,0);
     *(int *)&gSprt1[2].w = 0x1c001c;
     w1 = HudPmx_gShapes[0x6b].width;
     w2 = 0x46;
@@ -834,8 +853,9 @@ void Hud_Init(void)
     y = (g1Player[3].y + splitY) - timelapshift;
     Hud_BuildSprite2(gSprt1 + 6,0x6b,x,y);
     x = x + w1;
-    Hud_BuildG4(HudG4 + 1,1,x,y,0x1d,10,0,0x707070,0,0x707070);
-    x = x + 0x1d;
+    w2 = 0x1d;
+    Hud_BuildG4(HudG4 + 1,1,x,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w2;
     Hud_BuildF4(HudF4 + 1,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 7,0x7d,x,y);
     w1 = HudPmx_gShapes[0x6b].width;
@@ -843,8 +863,9 @@ void Hud_Init(void)
     y = g1Player[4].y + splitY;
     Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
     x = x + w1;
-    Hud_BuildG4(HudG4 + 3,1,x,y,0x3c,10,0,0x707070,0,0x707070);
-    x = x + 0x3c;
+    w2 = 0x3c;
+    Hud_BuildG4(HudG4 + 3,1,x,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w2;
     Hud_BuildF4(HudF4 + 2,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 9,0x7d,x,y);
     w1 = HudPmx_gShapes[0x76].width;
@@ -855,14 +876,20 @@ void Hud_Init(void)
         w2 = 0x3d;
       }
     }
-    if (Hud_BeTheCop != 0) {
+    /* MATCH (w40-a1): the volatile read DEFEATS cse's re-use of the Hud_BeTheCop value the
+     * w2 chain just loaded.  Retail RELOADS `lw $v0,%gp_rel(Hud_BeTheCop)($gp)` before each of
+     * the three tests (w2 / x-select / y-select) and lays the w2 block out as `bnez v0,past`;
+     * without this cast our cse constant-folds the x-select on the fall-through path, moving
+     * the cop x-block inline and inverting the w2 branch polarity.  Receipt: 71 -> 55 with the
+     * cast on this ONE site (all three casts = 61, i.e. worse -- only the x-select is threaded). */
+    if (*(volatile int *)&Hud_BeTheCop != 0) {
       x = g1Player[2].x + 0xe;
     }
     else {
       x = g1Player[5].x;
     }
     if (Hud_BeTheCop != 0) {
-      y = g1Player[2].y + (splitY + 0xe);
+      y = (splitY + 0xe) + g1Player[2].y;
     }
     else {
       y = g1Player[5].y + splitY;
@@ -888,18 +915,18 @@ void Hud_Init(void)
       x = g1Player[5].x + g1Player[9].x;
     }
     if (Hud_BeTheCop != 0) {
-      y = g1Player[2].y + (splitY + 0xc);
+      y = (splitY + 0xc) + g1Player[2].y;
     }
     else {
       y = g1Player[5].y + splitY + 1;
     }
-    spriteReplay = gSprt1 + 0x1e;
-    Hud_BuildTimeSprites(spriteReplay,
+    x = x + HudPmx_gShapes[0x76].width;
+    Hud_BuildTimeSprites(gSprt1 + 0x1e,
                (GameSetup_gData.checkpointHUD[i] == 0) ? "0M00S00" : "0.000",
-               x + HudPmx_gShapes[0x76].width,y);
-    HudSplitTimeDiff1[i] = spriteReplay[1].y0 - spriteReplay[0].y0;
+               x,y);
+    HudSplitTimeDiff1[i] = gSprt1[0x1f].y0 - gSprt1[0x1e].y0;
     currentSpriteColor = textcolour;
-    HudSplitTimeDiff2[i] = spriteReplay[4].y0 - spriteReplay[0].y0;
+    HudSplitTimeDiff2[i] = gSprt1[0x22].y0 - gSprt1[0x1e].y0;
     w1 = HudPmx_gShapes[0x2c].width;
     w2 = HudPmx_gShapes[0x47].width;
     x = g1Player[0xe].x + g1Player[10].x;
@@ -918,26 +945,35 @@ void Hud_Init(void)
     y = g1Player[1].y + g1Player[0xb].y + splitY;
     Hud_BuildSprite2(gSprt1 + 0x31,0x1a,x + -1,y);
     Hud_BuildSprite2(gSprt1 + 0x32,0x1b,x + -2,y + -1);
+    x = x + 2;
+    y = y + 6;
     do {
-      Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x + 2,y + 6);
+      Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x,y);
       j = j + 1;
     } while (j < 8);
     Hud_InitMapFrame(i,0);
+    }
     i = i + 1;
   }
-  gSprt1 = gSprite0;
-  j = 0;
+  {
+  SPRT *spriteReplay;
+  int baseX;
+  int baseY;
+
+  spriteReplay = gSprite0;
+  i = 0;
   currentSpriteColor = 0x808080;
   currentSpriteTransparent = 1;
   baseX = g1Player[0xd].x;
   baseY = g1Player[0xd].y;
-  Hud_BuildSprite2(gSprt1 + 0x37,0x6f,baseX,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x33,0x6c,baseX + 0x12,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x34,0x6e,baseX + 0x25,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x35,0x3f,baseX + 0x3a,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x38,0x72,baseX + 0x4a,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x36,0,baseX + 0x6d,baseY + -7);
-  Hud_BuildSprite2(gSprt1 + 0x39,3,0,baseY + 4);
+  Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x33,0x6c,baseX + 0x12,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x34,0x6e,baseX + 0x25,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x35,0x3f,baseX + 0x3a,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x38,0x72,baseX + 0x4a,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x36,0,baseX + 0x6d,baseY + -7);
+  Hud_BuildSprite2(spriteReplay + 0x39,3,0,baseY + 4);
+  }
   currentSpriteTransparent = 0;
   Hud_InitCdPlayer();
   Hud_Reset();
@@ -947,10 +983,10 @@ void Hud_Init(void)
   BTC_UserHasControl = 0;
   HudBustedOverlay = 0;
   do {
-    PerpOverlayOn[j] = 0;
-    PerpOverlayMessage[j] = 0;
-    j = j + 1;
-  } while (j < 2);
+    PerpOverlayOn[i] = 0;
+    PerpOverlayMessage[i] = 0;
+    i = i + 1;
+  } while (i < 2);
   Hud_kTurnSongOffNext = 0;
   return;
 }
@@ -1061,51 +1097,26 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
 void Hud_BuildTach(int player)
 
 {
+  int fangle;
+  int sin;
+  int cos;
+  int rpm;
+  SPRT *gSprt1;
   u_long clut;
+  u_long x;
+  u_long y;
+  int cos1;
+  int sin1;
+  int carType;
+  u_long color;
+  int tachNeedle_p;
   u_char *prim;
+  u_char *prim2;
+  void *tp9;
+  u_char *tp3;
   short ts3;
   short ts4;
   short ts1;
-  int rpm;
-  int tachNeedle_p;
-  int needle_y;
-  int needle_x;
-  int lookupResult;
-  int fangle_norm;
-  int rpm_norm;
-  int tachShape_p;
-  int color_pack;
-  int needle_idx2;
-  int carType;
-  void *tp9;
-  int needle_idx;
-  u_int uVar1;
-  u_long y;
-  int sin1;
-  int ti2;
-  u_long x;
-  int fangle;
-  int arg1_00;
-  int loc_48;
-  int sin;
-  int cos;
-  SPRT *gSprt1;
-  int cos1;
-  u_long color;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int loc_1c;
-  int loc_18;
-  int loc_14;
-  int loc_10;
-  int loc_c;
-  int loc_8;
-  int loc_4;
-  u_char *prim2;
-  u_char *tp2;
-  u_char *tp3;
-  u_char *tp1;
   
   if (player != 0) {
     gSprt1 = gSprite1;
@@ -1113,26 +1124,25 @@ void Hud_BuildTach(int player)
   else {
     gSprt1 = gSprite0;
   }
-  rpm_norm = GameSetup_gData.carInfo[player].carType;
   carType = 0x1d;
-  if (rpm_norm < 0x1e) {
-    carType = rpm_norm;
+  if (GameSetup_gData.carInfo[player].carType < 0x1e) {
+    carType = GameSetup_gData.carInfo[player].carType;
   }
   if (GameSetup_gData.Time != 0) {
-    tachShape_p = (int)night_needle;
+    color = night_needle[carType];
   }
   else {
-    tachShape_p = (int)day_needle;
+    color = day_needle[carType];
   }
-  color = *(u_long *)(tachShape_p + carType * 4);
-  arg1_00 = (DashHUD_gInfo.rpm * 0x10000) / 0x2a30 + 0x5999;
-  if (arg1_00 < 0x5999) {
-    arg1_00 = 0x5999;
+  rpm = DashHUD_gInfo.rpm;
+  fangle = (rpm * 0x10000) / 0x2a30 + 0x5999;
+  if (fangle < 0x5999) {
+    fangle = 0x5999;
   }
-  if (0x13334 < arg1_00) {
-    arg1_00 = 0x13334;
+  if (0x13334 < fangle) {
+    fangle = 0x13334;
   }
-  fixedsincos(arg1_00,&sin,&cos);
+  fixedsincos(fangle,&sin,&cos);
   /* needle glyph shapes: player0 = &HudPmx_gShapes[0x81] (0x801116AC), player1 =
    * &HudPmx_gShapes[0x83] (0x801116D4) -- were disguised bare VAs -0x7feee954/-0x7feee92c */
   if (player != 0) {
@@ -1143,17 +1153,18 @@ void Hud_BuildTach(int player)
   }
   clut = *(u_long *)tachNeedle_p;
   clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
-  needle_y = fixedmult(cos,0x1d);
-  needle_x = fixedmult(sin,0x1d);
+  x = fixedmult(cos,0x1d);
+  y = fixedmult(sin,0x1d);
+  clut = clut | (y + 0x9d) << 8;
   if (player != 0) {
-    uVar1 = (clut | (needle_x + 0x9d) << 8) | (needle_y + 0x75);
+    clut = clut | (x + 0x75);
   }
   else {
-    uVar1 = (clut | (needle_x + 0x9d) << 8) | (needle_y + 0x1d);
+    clut = clut | (x + 0x1d);
   }
-  *(u_int *)&gSprt1[2].u0 = uVar1;   /* word-fused u0/v0/clut store */
+  *(u_int *)&gSprt1[2].u0 = clut;   /* word-fused u0/v0/clut store */
   cos1 = fixedmult(cos,10) + 0xe;
-  ti2 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
+  sin1 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
   {
     u_char *pal;
 
@@ -1167,10 +1178,10 @@ void Hud_BuildTach(int player)
     Render_gPacketPtr = prim + 0x24;
     *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp9 & 0xffffff;
     ((u_char *)tp9)[3] = 3;
-    *(short *)((u_char *)tp9 + 8) = 0xe - (short)needle_y;
+    *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
-    *(short *)((u_char *)tp9 + 10) = 0xe - (short)needle_x;
-    *(short *)((u_char *)tp9 + 0xe) = (short)ti2;
+    *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
+    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
     prim2 = Render_gPacketPtr;
     pal = Render_gPalettePtr;
@@ -1178,17 +1189,17 @@ void Hud_BuildTach(int player)
     Render_gPacketPtr = prim2 + 0x14;
     *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim2 & 0xffffff;
   }
-  Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,ti2,color);
-  Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,ti2,0);
+  Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
+  Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
   prim[7] = prim[7] & 0xfd;
-  fixedsincos(arg1_00 + -0x200,&sin,&cos);
+  fixedsincos(fangle + -0x200,&sin,&cos);
   ts3 = 0xe - (short)fixedmult(cos,0x20);
   *(short *)(prim + 0xc) = ts3;
   *(short *)(prim2 + 0xc) = ts3;
   ts4 = 0xe - (short)fixedmult(sin,0x20);
   *(short *)(prim + 0xe) = ts4;
   *(short *)(prim2 + 0xe) = ts4;
-  fixedsincos(arg1_00 + 0x200,&sin,&cos);
+  fixedsincos(fangle + 0x200,&sin,&cos);
   ts1 = 0xe - (short)fixedmult(cos,0x20);
   *(short *)(prim + 0x10) = ts1;
   *(short *)(prim2 + 0x10) = ts1;
@@ -1216,7 +1227,6 @@ void Hud_BuildTach(int player)
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
-  char cVar1;
   HudPmx_tShape *shp;
   int offy;
   char alphShape;
@@ -1226,17 +1236,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   int numch;
 
   Hud_GoTpage(1);
+  ix = x;
   ox = x;
   numch = strlen(str);
   i = 0;
-  ix = x;
   while (true) {
     if (numch <= i) break;    /* exit-in-the-middle: top test + `j` back-edge, tail out-of-line */
-    cVar1 = *str;
-    if (cVar1 == ' ') {
+    if (*str == ' ') {
       ix = ix + 3;
     }
-    else if (cVar1 == '*') {
+    else if (*str == '*') {
       ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
       if (gPadinfo.buf[0].ID == '#') {
         shp = &HudPmx_gShapes[0xad];
@@ -1275,39 +1284,39 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
     }
     else {
       offy = 0;
-      if (cVar1 == '^') {
+      if (*str == '^') {
         alphShape = 0xaa;
         if (gPadinfo.buf[player * 4].ID == '#') {
           alphShape = 0xad;
         }
       }
-      else if (cVar1 == '(') {
+      else if (*str == '(') {
         alphShape = 0xa9;
         if (gPadinfo.buf[player * 4].ID == '#') {
           alphShape = 0xab;
         }
       }
-      else if (cVar1 == ')') {
+      else if (*str == ')') {
         alphShape = 0xa8;
         if (gPadinfo.buf[player * 4].ID == '#') {
           alphShape = 0xac;
         }
       }
-      else if (cVar1 == '&') {
+      else if (*str == '&') {
         alphShape = 0xae;
       }
       else {
-        alphShape = cVar1 + 0x6e;
-        if (9 < (u_char)(cVar1 - 0x30U)) {
-          if (cVar1 == '-') {
+        alphShape = *str + 0x6e;
+        if (9 < (u_char)(*str - 0x30U)) {
+          if (*str == '-') {
             alphShape = 0x48;
           }
-          else if (cVar1 == ':') {
+          else if (*str == ':') {
             alphShape = 0x49;
           }
           else {
-            alphShape = cVar1 + 0x8a;
-            if ((u_char)(cVar1 + 0x40U) < 0x1d) {
+            alphShape = *str + 0x8a;
+            if ((u_char)(*str + 0x40U) < 0x1d) {
               offy = -1;
             }
             else {
@@ -1342,6 +1351,17 @@ HudBuildStr_next:
 typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
 
 /* ---- Hud_BuildNumbers0__Fi  [HUD.CPP:1551-1712] SLD-VERIFIED ----
+ * 🔴 w40-a1 FINDING (same class as Hud_BuildNumbers, NOT yet landed): the oracle makes TWO
+ * copies of the parameter -- `addu $s1,$a0,$zero` then `addu $v1,$s1,$zero` -- and the SYM
+ * names them `i` ($0x11=$s1) and REGPARM `player` ($3=$v1).  $s1 drives the pSprt select
+ * (`beqz $s1` @800D4650) and the carInfo[]*3 index at BOTH sites (@800D469C, @800D491C);
+ * $v1 drives ONLY the three HudF4/HudG4/splitY `+=` selects (`beqz $v1` x3).  Ours coalesces
+ * the two into one $s1 and tests it four times.  Landing it needs the local re-naming that
+ * frees `i` for the param copy (our `i` is the SYM's `y` accumulator and our `y` is the SYM's
+ * `splitY`; `splitY`/`primAddr` are then spare) -- a mechanical but wide rename, banked.
+ * NEGATIVE receipt: adding `i = player;` + `if (i != 0)` on the pSprt select ALONE = 230 -> 232
+ * (gcc re-coalesces the copy because `i` has no other early refs). */
+/* ---- (original note) ----
  * SYM-structured rewrite (rule 8): fn-scope locals = exactly the SYM set (i, pSprt, HudF4,
  * HudG4, splitY, y) + block-scoped {j,num}/{j} per loop region (SYM shows 4 nested-block `j`
  * redeclarations).  Key oracle-derived shapes: pSprt select = if/ELSE (one gp-rel load per
@@ -1602,13 +1622,31 @@ void Hud_BuildNumbers0(int player)
 }
 
 /* ---- Hud_BuildNumbers__Fi  [HUD.CPP:1721-1897] SLD-VERIFIED ----
- * SYM-structured rewrite (rule 8), twin of Hud_BuildNumbers0: fn-scope locals per SYM
- * (i/pSprt/HudF4/HudG4/splitY + speed/hun/ten/x/y/w1/w2/w3/w7/color2/prim/SpeedColor, AUTO ones
- * spill), block-scoped j per merge region.  Oracle-derived shapes: pSprt select = if/ELSE, +=
- * selects testing the `i = player` copy (i lives to the 2nd HudTach test -> callee $s2 like the
- * oracle); tag-links = pSprt[j] index loops with a per-region pal cache; GoTpage merges =
- * direct Render_gPalettePtr macro (call-clobber forces the reload); carInfo[j].HudMap after the
- * position loop is the RETAIL code's own out-of-range index (j==0x28) -- kept faithfully. */
+ * RESIDUAL 705 (ours 759 / oracle 758).  SYM-structured (rule 8): fn-scope locals = the SYM's
+ * i/pSprt/HudF4/HudG4/splitY; block-scoped `j` per merge region; the speed group
+ * (speed/hun/ten/x/y/w1/w2/w3/w7/color2/prim/SpeedColor) block-scoped inside the 2nd HudTach
+ * `if` per SYM block @0x800D5640 (diff-neutral, kept for fidelity).
+ *
+ * BANKED TWO-PART LANDING (w40-a1, receipted -- do NOT land either half alone):
+ *  PART 1 = the player/i ROLE SWAP.  The oracle's two entry copies are `addu $fp,$a0,$zero`
+ *    then `addu $s2,$fp,$zero`; $fp drives the pSprt select, the carInfo[]*3 index at SIX sites
+ *    (HudLapnum/HudTime/HudPosition/HudTach-1st/HudSpeed/HudSpeedMult) and wrongway[], while
+ *    $s2 drives ONLY the HudF4/HudG4/splitY `+=` selects and the SECOND HudTach test.  The SYM
+ *    ($0x1e=$fp is `i`, $0x12=$s2 is REGPARM `player`) therefore says retail wrote the MIRROR of
+ *    this body: `i` for the pSprt select + every carInfo[] index + wrongway, and the parameter
+ *    `player` only for the three `+=` selects and the 2nd HudTach test.  Applying the swap
+ *    reproduces the oracle prologue BYTE-EXACT (`sw fp;addu fp,a0;sw s2;addu s2,fp` in that
+ *    order, `beqz fp` for pSprt, `sll v1,fp,1` at all six index sites) and moves the count
+ *    759 -> 757 (oracle 758) -- but the gate goes 705 -> 1075.
+ *  PART 2 = pSprt must land in $s5, not $s4.  With PART 1 alone our allocator gives `x` its own
+ *    $s3 (it CONFLICTS with `player`), pushing pSprt to $s4 and w1 to $s5; retail SHARES $s2
+ *    between `player` and `x` (disjoint ranges), leaving $s3=w1 $s4=w2 $s5=pSprt.  That one
+ *    allocno decision renames every caller-saved temp in the six tag-link loops, which is what
+ *    the LCS metric counts -- catalog rule "LAND WITH the frame/coloring fix in ONE pass; the
+ *    LCS diff metric REGRESSES when insns improve against a wrong-register frame".
+ *  NEGATIVE receipt (w40): purging the block-local `u_char *pal` caches (the SYM blocks declare
+ *    only `j`) costs 705 -> 781 / 763 insns -- the pal CSE local IS load-bearing here (catalog
+ *    "scratchpad pointer-pair CSE local ... SITE-dependent"), keep it. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -1617,18 +1655,6 @@ void Hud_BuildNumbers(int player)
   POLY_F4 *HudF4;
   POLY_G4 *HudG4;
   int splitY;
-  int speed;
-  int hun;
-  int ten;
-  int x;
-  int y;
-  int w1;
-  int w2;
-  int w3;
-  int w7;
-  int color2;
-  POLY_GT4 *prim;
-  u_long SpeedColor;
 
   i = player;
   if (player != 0) {
@@ -1766,6 +1792,19 @@ void Hud_BuildNumbers(int player)
   }
   Hud_GoTpage(1);
   if (GameSetup_gData.carInfo[i].HudTach != 0) {
+    int speed;
+    int hun;
+    int ten;
+    int x;
+    int y;
+    int w1;
+    int w2;
+    int w3;
+    int w7;
+    int color2;
+    POLY_GT4 *prim;
+    u_long SpeedColor;
+
     speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed);
     if (speed < 0) {
       speed = speed + 0xffff;
@@ -2704,7 +2743,10 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
  * then `sw $s1;lui/ori $s1(0xFFFFFF)`, retail the reverse.  Falsified levers (all
  * re-gated): swapping the `&`-operand order of the first tag build (4->8), of the first
  * palette store (4->8), of the radar arm's first tag (4->12), of the gTPage1 tag
- * (4, no change).  Emission-order tie, not source-reachable. */
+ * (4, no change).  w40-a1 adds two more NEGATIVES: swapping the OR-operand order at ALL
+ * FIVE tag-build sites at once (so 0xFFFFFF is the loop's first-referenced constant, the
+ * obvious way to flip which mask gcc sets up first) = 4 -> 34; the same sweep over all SIX
+ * palette stores = 4 -> 41 (and drops 3 insns).  Emission-order tie, not source-reachable. */
 void Hud_RenderMapView(void)
 
 {

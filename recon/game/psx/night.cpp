@@ -152,7 +152,21 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
   return bestDiff;
 }
 
-/* ---- Night_CreateNightTableElement__FiliPUc  [NIGHT.CPP:181-231] SLD-VERIFIED ---- */
+/* ---- Night_CreateNightTableElement__FiliPUc  [NIGHT.CPP:181-231] SLD-VERIFIED ----
+ * NEAR-MISS 56 diffs, COUNT-EXACT 113/113 (w40-a9; was 85 with 110/113).
+ * Residual is a pure allocno swap against the SYM register map (sourceR $4/a0,
+ * sourceG $5/a1, sourceB $3/v1, chr $3, chg $8/t0, chb $9/t1, b15 $7/a3, newR $6/a2,
+ * newG $5/a1, newB $4/a0): ours puts b15 in $a1 and sourceG in $a3 (the SYM has them
+ * the other way round) and swaps newG/newB between $a0 and $a1.  Priority estimate
+ * says it is a razor edge -- b15 has 4 refs (floor_log2=2 -> weight 8) over ~40 insns,
+ * sourceG 2 refs (weight 2) over ~8, so the b15-loses condition is len_b15 > 4*len_g,
+ * i.e. right at the boundary.  FALSIFIED (all re-gate to 56 or worse): sources-before-
+ * component-bytes (70), b15 computed after the bytes, b15 after the sources, fully
+ * interleaved source/new pairs (84), b15 declared first, newG/newB decl swap,
+ * sourceG/sourceB decl swap.  The prologue also copies $a3 into $s1 (colorval) after
+ * $a0 into $s0 where retail does it first -- the same emission-order tie.
+ * PROTOTYPE RE-CHECKED: 4 args (colorIndex REGPARM $10, colorH ARG stack, bright
+ * REGPARM $6, colorval REGPARM $11), void return -- matches the SYM exactly. */
 void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
 
 {
@@ -162,32 +176,41 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
   int chr;
   int chg;
   int chb;
+  CVECTOR newColor;
+  int b15;
   int newR;
   int newG;
   int newB;
-  int b15;
-  CVECTOR newColor;
   int bestIndex;
-  tCompRGB *p;
 
   b15 = bright * 0x111;
-  p = gTableCache + colorIndex;
-  chr = colorH & 0xff;
-  chg = (u_int)colorH >> 8 & 0xff;
-  chb = (u_int)colorH >> 0x10 & 0xff;
-  sourceR = (u_char)p->r;
+  /* colorH's THREE COMPONENT BYTES are read with lbu out of its ARG HOME on the stack
+     (oracle `sw $a1,0x34($sp)` then `lbu 0x34($sp)` / `addiu $v1,$sp,0x34; lbu 1($v1);
+     lbu 2($v1)`), which is also why the SYM classes colorH as ARG (stack) rather than
+     REGPARM -- taking its address forces the spill.  The shift/mask spelling
+     (`colorH & 0xff`, `>>8 & 0xff`, `>>16 & 0xff`) compiles to srl/andi and has no
+     lbu at all. */
+  chr = ((u_char *)&colorH)[0];
+  chg = ((u_char *)&colorH)[1];
+  chb = ((u_char *)&colorH)[2];
+  sourceR = gTableCache[colorIndex].r;
+  sourceG = gTableCache[colorIndex].g;
+  sourceB = gTableCache[colorIndex].b;
   newR = sourceR + ((int)(chr * b15) >> 0xc);
   if (0xff < newR) newR = 0xff;
-  sourceG = (u_char)p->g;
   newG = sourceG + ((int)(chg * b15) >> 0xc);
   if (0xff < newG) newG = 0xff;
-  sourceB = (u_char)p->b;
   newB = sourceB + ((int)(chb * b15) >> 0xc);
   if (0xff < newB) newB = 0xff;
-  newColor.r = (u_char)newR & 0xf8;
-  newColor.g = (u_char)newG & 0xf8;
-  newColor.b = (u_char)newB & 0xf8;
-  newColor.cd = 0;
+  /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
+     `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
+  newColor.r = (u_char)(newR & ~7);
+  newColor.g = (u_char)(newG & ~7);
+  newColor.b = (u_char)(newB & ~7);
+  /* newColor.cd is deliberately NOT initialised: the oracle builds the by-value CVECTOR
+     argument by re-reading all four bytes back off the stack (`lbu $v0,0x13($sp)` for
+     .cd) with no preceding store, so retail leaves it whatever was in the slot.  Harmless
+     -- Night_FindClosestColor only reads .r/.g/.b -- but writing 0 costs an extra sb. */
   if (((Night_FindClosestColor(newColor,&bestIndex) < 0x201) || (Chunk_numLight + 4 <= colorIndex)) ||
       (0xff < Night_gTotalLights)) {
     *colorval = (u_char)bestIndex;
@@ -274,14 +297,22 @@ void Night_DoLightningEffect(DRender_tView *Vi)
     Hrz_LightningFlicker(0);
     Night_gLightning = 0;
   }
-  if (((Night_gNextLightning < simGlobal.gameTicks) &&
+  if (((simGlobal.gameTicks > Night_gNextLightning) &&
       (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
      ) {
     r = random();
     Night_gLightningType = r & 1;
     Hrz_LightningFlicker(1);
     tunnel = BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos);
-    Night_gDrawLightning = tunnel == (void *)0x0;
+    /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
+       `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
+       else arm; the boolean-expression form folds to a single sltiu. */
+    if (tunnel != (void *)0x0) {
+      Night_gDrawLightning = 0;
+    }
+    else {
+      Night_gDrawLightning = 1;
+    }
     Night_gLightning = 1;
     r = random();
     Night_gNextFlicker = simGlobal.gameTicks + (r & 3);
@@ -294,7 +325,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
       lightningInit = '\0';
     }
   }
-  if (Night_gEndNextLightning < simGlobal.gameTicks) {
+  if (simGlobal.gameTicks > Night_gEndNextLightning) {
     Night_GenerateNextLightningEvent();
     Hrz_CalculateLightning();
     lightningInit = '\x01';
@@ -429,6 +460,10 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
  * four wired per-TU
  * codegen flags (w39-a9 probe: no_split_addresses +4, no_schedule_insns +6,
  * no_schedule_insns2 +14, no_strength_reduce 0). */
+/* NEAR-MISS 4 diffs, COUNT-EXACT 33/33 (w40-a9): prologue EMISSION ORDER only -- retail
+ * emits `sw $s2,24($sp); lui $s2` BEFORE `sw $s0,16($sp); lui/addiu $s0`, ours the other
+ * way round.  Identical registers, identical instructions, different order = the
+ * documented callee-save emission-order tie-break (catalog sec.F). */
 void Night_InitWeatherTables(void)
 
 {
@@ -488,58 +523,90 @@ void Night_SetWeatherColors(int colorIndex)
 void Night_GenerateAllLightTables(void)
 
 {
-  static char colorCreationTable[16];
-  int colorIndex;
-  int bright;
-  int i;
-  int tbl_off;
-  CVECTOR *additive_walk;
+  /* SYM: STAT char[16].  Retail passes colorCreationTable[i] (a dither-ordered brightness
+     permutation, D_80120DAC = 00 0F 07 05 0B 0D 03 09 01 0E 0A 04 02 0C 06 08) as the
+     BRIGHTNESS argument of BOTH Night_SetPlayerHeadLightColor and Night_SetCopLightColors
+     (oracle `addu $v0,$s0,$s4; lbu $s1,0($v0)` then `addu $a2,$s1,zero` / `addu $a1,$s1,zero`);
+     the old body passed the raw loop counter -- a REAL BUG (wrong headlight/cop-light
+     brightness slot filled for every colour). */
+  static char colorCreationTable[16] = {0,15,7,5,11,13,3,9,1,14,10,4,2,12,6,8};
 
-  tbl_off = 0;
   gNightInitCache = (tNightInitCache *)&Render_gPalettePtr;
   gTableCache = (tCompRGB *)&Render_gPalettePtr;
   Night_gTotalLights = Chunk_numLight;
-  i = 0;
-  do {
-    (&gTableCache->r)[tbl_off] = Chunk_lightTable[i].r;
-    (&gTableCache->g)[tbl_off] = Chunk_lightTable[i].g;
-    (&gTableCache->b)[tbl_off] = Chunk_lightTable[i].b;
-    tbl_off = tbl_off + 3;
-    i = i + 1;
-  } while (i < 0x100);
-  for (colorIndex = 0; colorIndex < Night_gTotalLights; colorIndex = colorIndex + 1) {
-    bright = 0;
-    if (GameSetup_gData.Weather == 1) {
-      Night_SetWeatherColors(colorIndex);
-      bright = 0;
-    }
-    for (; bright < 0x10; bright = bright + 1) {
-      Night_SetPlayerHeadLightColor(0,colorIndex,bright);
-      if ((GameSetup_gData.cops != 0) && (bright < 8)) {
-        Night_SetCopLightColors(colorIndex,bright);
+  {
+    int i;
+
+    i = 0;
+    do {
+      gTableCache[i].r = Chunk_lightTable[i].r;
+      gTableCache[i].g = Chunk_lightTable[i].g;
+      gTableCache[i].b = Chunk_lightTable[i].b;
+      i = i + 1;
+    } while (i < 0x100);
+  }
+  {
+    int colorIndex;
+    int i;
+
+    colorIndex = 0;
+    while (colorIndex < Night_gTotalLights) {
+      {
+        int i;
+
+        if (GameSetup_gData.Weather == 1) {
+          Night_SetWeatherColors(colorIndex);
+          i = 0;
+        }
+        else {
+          i = 0;
+        }
+        while (i < 0x10) {
+          int bright;
+
+          bright = colorCreationTable[i];
+          Night_SetPlayerHeadLightColor(0,colorIndex,bright);
+          if ((GameSetup_gData.cops != 0) && (i < 8)) {
+            Night_SetCopLightColors(colorIndex,bright);
+          }
+          i = i + 1;
+        }
       }
+      colorIndex = colorIndex + 1;
     }
   }
-  tbl_off = 0;
-  i = 0;
-  do {
-    Chunk_lightTable[i].r = (&gTableCache->r)[tbl_off];
-    Chunk_lightTable[i].g = (&gTableCache->g)[tbl_off];
-    Chunk_lightTable[i].b = (&gTableCache->b)[tbl_off];
-    tbl_off = tbl_off + 3;
-    i = i + 1;
-  } while (i < 0x100);
-  i = 0;
-  additive_walk = Night_gAdditiveHeadlightColor;
-  do {
-    additive_walk->r = (u_char)((int)((u_int)(u_char)Night_gPlayerHeadLightColor[0] * i) / 0xf);
-    additive_walk->g =
-         (u_char)((int)((u_int)*(u_char *)((char *)Night_gPlayerHeadLightColor + 1) * i) / 0xf);
-    additive_walk->b =
-         (u_char)((int)((u_int)*(u_char *)((char *)Night_gPlayerHeadLightColor + 2) * i) / 0xf);
-    i = i + 1;
-    additive_walk = additive_walk + 1;
-  } while (i < 0x10);
+  {
+    int i;
+
+    i = 0;
+    do {
+      Chunk_lightTable[i].r = gTableCache[i].r;
+      Chunk_lightTable[i].g = gTableCache[i].g;
+      Chunk_lightTable[i].b = gTableCache[i].b;
+      i = i + 1;
+    } while (i < 0x100);
+  }
+  /* the .g/.b components MUST be read through a CVECTOR-typed view, not a byte cast:
+     the struct-typed MEM keeps gcc from folding the access into the one-instruction
+     %gp_rel(sym+N) assembler macro, so the base address is LICM-hoisted into a register
+     and the two components are read as 1($a3)/2($a3) -- exactly the oracle
+     (`lui $a3,%hi(sym); addiu $a3,$a3,%lo(sym)` in the preheader, `lbu $v0,0x1($a3)` /
+     `lbu $v0,0x2($a3)`), while element [0] stays %gp_rel.  A byte-pointer spelling
+     (`*(u_char*)((char*)sym+1)` or `((u_char*)sym)[1]`) gp-rels all three and is 2 short. */
+  {
+    int i;
+
+    i = 0;
+    do {
+      Night_gAdditiveHeadlightColor[i].r =
+           (u_char)((int)((u_int)(u_char)Night_gPlayerHeadLightColor[0] * i) / 0xf);
+      Night_gAdditiveHeadlightColor[i].g =
+           (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->g * i) / 0xf);
+      Night_gAdditiveHeadlightColor[i].b =
+           (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->b * i) / 0xf);
+      i = i + 1;
+    } while (i < 0x10);
+  }
   return;
 }
 
@@ -547,34 +614,40 @@ void Night_GenerateAllLightTables(void)
 void Night_InitNightDriving(void)
 
 {
-  char *mem;
-  int sz;
-  void *shp;
-  u_int r;
-  char name [256];
+  char *mem;          /* SYM: the ONLY REG local ($10 = s0) -- it serves TWO roles,
+                         first the loadshapeadr buffer then the locateshape result */
+  char name [256];    /* SYM: AUTO char[256] @ -0x110 => sp+16 */
 
-  gNight_renderNight = 0;
-  if (GameSetup_gData.Time != 0) {
-    gNight_renderNight = (int)(GameSetup_gData.commMode != 1);
-    if (gNight_renderNight == 0) {
-      TrackSpec_gSpec.depthcuespec.distance = 0xff;
-      TrackSpec_gSpec.depthcuespec.color.r = '\0';
-      TrackSpec_gSpec.depthcuespec.color.g = '\0';
-      TrackSpec_gSpec.depthcuespec.color.b = '\0';
-      TrackSpec_gSpec.depthcuespec.color.cd = '\0';
-    }
+  /* ONE `&&` expression, ONE store: the oracle computes the flag in $v0 (`addu
+     $v0,zero,zero` in the Time==0 beqz delay slot, xori/sltu otherwise) and stores it
+     once at the join, then RE-TESTS Time (same CSE'd $v1) to gate the depth-cue clear
+     and RE-LOADS the flag for the early-out.  A leading `= 0` plus an overwrite emits
+     two stores; an if/else pair or a ternary both come out 4-7 instructions long
+     (measured).  Same lever family as methodology sec.3.12 #7. */
+  gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
+  if ((GameSetup_gData.Time != 0) && (gNight_renderNight == 0)) {
+    /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
+       `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
+       (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
+    TrackSpec_gSpec.depthcuespec.distance = 0xff;
+    *(u_long *)&TrackSpec_gSpec.depthcuespec.color = 0;
   }
   if (gNight_renderNight == 0) {
     return;
   }
   sprintf(name,"%snight.psh",Paths_Paths[0x19]);
-  sz = filesize(name);
-  nightfile = (char *)reservememadr("night.psh",sz,0);
-  shp = (void *)loadshapeadr(name,(void *)0x0);
-  sz = filesize(name);
-  blockmove(shp,nightfile,sz);
-  purgememadr(shp);
-  mem = (char *)locateshape(nightfile,"nght",sz);
+  /* no `sz`/`shp` locals: the SYM lists only `mem` and `name`.  Both filesize() results
+     are consumed straight out of $v0 (the second one lands in the blockmove arg while
+     the loadshapeadr pointer is parked in $s0 from the jal delay slot), and `mem`
+     carries the shape buffer BEFORE it carries the locateshape result. */
+  nightfile = (char *)reservememadr("night.psh",filesize(name),0);
+  mem = (char *)loadshapeadr(name,(void *)0x0);
+  blockmove(mem,nightfile,filesize(name));
+  purgememadr(mem);
+  /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.c: `void *locateshape(void
+     *shapefile,int *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
+     a phantom read of the stale blockmove size. */
+  mem = (char *)locateshape(nightfile,"nght");
   Night_gNightTbl = mem + 0x10;
   Night_InitPlayerHeadLightColor(0);
   if (GameSetup_gData.cops != 0) {
@@ -586,10 +659,8 @@ void Night_InitNightDriving(void)
   Night_GenerateAllLightTables();
   if (GameSetup_gData.Weather == 1) {
     Night_gLightning = 0;
-    r = random();
-    Night_gNextLightning = D_8011E0B0[0] + (r & 0x1ff);
-    r = random();
-    Night_gEndNextLightning = Night_gNextLightning + (r & 0x31);
+    Night_gNextLightning = D_8011E0B0[0] + (random() & 0x1ff);
+    Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
     Hrz_CalculateLightning();
   }
@@ -670,6 +741,13 @@ void Night_RestartNightDriving(void)
  * per-TU codegen flags (no_split_addresses 31, no_schedule_insns 33, no_schedule_insns2
  * 22, no_strength_reduce 8 -- all >= current).  Prototype re-checked vs the raw oracle:
  * single REGPARM $a0 (Vi), VOID return ($v0 holds the last guard byte at the exit). */
+/* NEAR-MISS 8 diffs, COUNT-EXACT 68/68 (w40-a9): a $v0/$v1 rotation on the
+ * `Camera_gInfo[Vi->player].target` load -- ours `lw $v1,4($v0)` (separate temp) + `li
+ * $v0,128`, retail `lw $v0,4($v0)` (SELF-temp, dest reuses the just-computed base) + `li
+ * $v1,128`.  Falsified: hoisting `Night_gZNear = 0x80;` above the two shift assignments
+ * (16, worse), and two other spellings of the target byte read (`((u_char*)t)[0x447]`,
+ * `*(u_char*)((char*)t+0x447)`) -- both byte-identical at 8.  Sec.3.15 scratch-register
+ * tie-break class. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -701,34 +779,20 @@ void Night_SetEnviroment(DRender_tView *Vi)
 }
 
 /* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ----
- * NEAR-MISS 77 diffs (ours 65 / oracle 64), was 106 (ours 66 / oracle 64).
- * MATCH (w38-a10), all from the SYM block @43cab4 + the raw oracle:
- *  (1) SYM BLOCK SCOPES restored: {x,xdist} live in the z-guard block and
- *      {lookup,newR,newG,newB,addColor} in the x-guard block -- xdist REUSES
- *      zfar's register ($6) exactly because they are in disjoint blocks.
- *  (2) `zfar` holds znear + (1<<(gZDistShift+6)), i.e. the sum is computed
- *      SPECULATIVELY before the first guard (oracle `addu a2,a3,v0` precedes
- *      `slt v0,a3,v1; beqz`), not folded into the second compare.
- *  (3) the three channel SUMS are computed first, then the three clamps
- *      (oracle batches `addu`+copy trios then three slti/bnez/li 255).
- *  (4) the blue channel shift is LOGICAL: `((u_int)lookup >> 0x10) & 0xff`
- *      (oracle `srl`, not `sra`) -- a signed `int` shift emitted `sra`.
- * RESIDUAL (1 insn over + coloring): ours copies the `color` REGPARM out of
- * $a1 into $t3 because {zfar,xdist} win $a1, and newR/newG swap $a3<->$t0
- * (SYM: newR $7=a3, newG $8=t0, newB $6=a2). Tried: inlining zfar into the
- * condition (88), materializing zfar before z/znear (79), znear-before-z (77,
- * tie). This is the allocno-priority race between the short-lived guard temps
- * and the long-lived, few-ref `color` parameter.
- * w39-a9 RE-PROBE (all re-gated, none improved on 77): the w32/w33 "param-copy priority
- * dial" (`CVECTOR *c = color;` used at every site -- 88 at 66 insns) · a self-copy
- * `color = color;` (77, gcc drops it) · shortening zfar's live range by folding its
- * assignment into the guard via a comma expression (88) · hoisting `xdist` above the
- * `x` load (77) · -G8 (77) · all four wired per-TU codegen flags (no_split_addresses 78,
- * no_schedule_insns 83, no_schedule_insns2 83, no_strength_reduce 77).  The single extra
- * insn is always `addu t3,a1,zero` -- `zfar` beats `color` for $a1 because its live range
- * is far shorter (priority = floor_log2(refs)*refs/live_length), and no source form
- * reachable from here changes that ordering.  STRONG FLOOR pending a permuter run (the
- * C++ permuter harness is still blocked for C++ TUs). */
+ * NEAR-MISS 77 diffs (ours 65 / oracle 64).  The ONE extra instruction is a copy of the
+ * `color` parameter out of its home register (`addu $t3,$a1,zero` at insn 1): our build
+ * gives `xdist` $a1 -- which IS color's home -- so color has to be relocated, and that
+ * one decision rotates the whole body.  Retail keeps color in $a1 for the entire
+ * function and puts xdist in $a2 (SYM: xdist $6, zfar $6, newB $6, z $3/v1, x $4/a0,
+ * znear $7/a3, newR $7, newG $8/t0, index/lookup $2/v0, addColor $3).
+ * FALSIFIED (11 shapes, every one re-gates to exactly 77/65 -- byte-identical output):
+ * znear/zfar before z; z between them; decl-with-init; xdist before x; zfar-before-znear
+ * decl order; z-after-index decl order; `z > znear`; `x > -xdist`; both; `zfar > z`;
+ * and swapping the two halves of the `index` expression (81, worse).
+ * PROTOTYPE RE-CHECKED against the SYM: 2 REGPARM args (v $4, color $5), void return,
+ * fsize 0 / mask 0 (true leaf, which we reproduce).  This is an allocno tie-break on a
+ * leaf function -- local-alloc territory; the next tool is a -dl/-dg dump comparison,
+ * not another source spelling. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

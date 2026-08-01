@@ -276,8 +276,20 @@ void Fog_Update(int player)
   if (Fog_gNumKeys != 1) {
     BWorldSm_FindClosestQuadRez(&gCView.cview.translation,fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
-    key = Fog_FindKey(currentslice,Fog_gCurrentKeyArr[player]);
-    Fog_gCurrentKeyArr[player] = key;
+    /* MATCH (w40-a10, 4 -> PASS): the slot ADDRESS must be its own named
+     * pointer local.  Written as two separate `Fog_gCurrentKeyArr[player]`
+     * expressions, cse still shares the address but the `lui/addiu %hi/%lo`
+     * pair belongs to the CALL-ARGUMENT statement, so sched1 gives it the
+     * longer path-to-jal priority (lui->addiu->addu->lw->jal = 4) and hoists
+     * it ABOVE the `lh $s1,0($s0)` / `sll $s0,$s2,2` pair (priority 2/3).
+     * Binding the address to `slot` in its own statement moves the
+     * materialization into that statement's luid slot, restoring retail's
+     * lh / sll / lui / addiu / addu / lw order. */
+    {
+      FogKey **slot = &Fog_gCurrentKeyArr[player];
+      key = Fog_FindKey(currentslice,*slot);
+      *slot = key;
+    }
     /* MATCH: NO cached `nextkey` local -- the oracle re-reads key->next (and
      * key->slice / key->distance) at each use; only `nextslice` is a real
      * variable (it is mutated by += numslices).  The interpolating arm is the
@@ -292,10 +304,8 @@ void Fog_Update(int player)
      * `lui $v1` rematerialised in the mflo delay slot while the else arm stores
      * $a0 via the beq-slot `lui $v0`.  (The w38 note claiming the funnel costs
      * 36 diffs was measured on an older body and is WRONG -- re-verified.)
-     * RESIDUAL 4 = one scheduling tie at the head: retail issues
-     * `lh $s1,0($s0)` + `sll $s0,$s2,2` BEFORE materialising &Fog_gCurrentKey,
-     * ours materialises the address first.  Statement splits/reorders of the
-     * Fog_gCurrentKey[player] read (3 forms) are all sched-equivalent. */
+     * (w39's "residual 4 = scheduling tie" note is now CLOSED -- see the
+     * slot-pointer MATCH note below.) */
     nextslice = key->next->slice;
     if (key->distance != key->next->distance) {
       if (nextslice < key->slice) {
@@ -426,27 +436,36 @@ void Fog_InitFogTriggers(void)
    *      statements, so ours came out last where retail has it first.
    *  (4) `slice_off = 0;` before the zero-trip guard, `k = slice_off;` inside
    *      it, and the counter increment AFTER the call (not before).
-   * RESIDUAL 4 = the $s0<->$s1 allocno tie on (k, slice_off): retail gives the
-   * counter $s0, we give it to the offset.  Six init-order/loop-shape spellings
-   * measured (4/12/12/12/14/16 diffs) -- none flips the pair. */
+   * w40-a10 (4 -> 2): the residual was NOT an allocno tie -- it was the LOOP
+   * FORM.  A natural rotated `for (k = 0; k < num_player; k++)` with the
+   * byte offset written as the INDEX EXPRESSION `k * 0x84` gets loop.c to
+   * strength-reduce the offset into a giv, and THAT ordering hands the
+   * counter $s0 and the giv $s1 (= retail) plus retail's exact schedule
+   * (`addiu $s0,$s0,1` before the jal, `addiu $s1,$s1,0x84` in the bnez
+   * delay slot).  Every explicit-guard + do-while spelling puts the
+   * FIRST-INITIALIZED variable in $s1 (longer live range -> lower allocno
+   * priority), so the retail `addu $s0,$zero,$zero; addu $s1,$s0,$zero`
+   * init pair is unreachable that way (measured 8/12/14/14/28).
+   * RESIDUAL 2 = the zero-trip GUARD OPCODE: ours `blez $s2`, retail
+   * `beqz $s2`.  gcc's rotation guard IS the duplicated loop-exit test, so
+   * its opcode is fixed by the comparison: signed `k < n` folds to `blez`,
+   * `k != n` folds to `beqz` but then the bottom test is a 1-insn `bne`
+   * (13 diffs), and an UNSIGNED bound gives `beqz` + `sltu` (2 diffs, the
+   * same trade).  A source-level `if (num_player != 0)` around the `for`
+   * keeps BOTH guards (59 vs 57 insns).  Mechanism named; a single-opcode
+   * residual. */
   Fog_gCurrentKey = Fog_gHeadKey;
   D_8013DB84 = Fog_gHeadKey;
   if (GameSetup_gData.commMode == 1) {
     num_player = 2;
   }
   fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
-  slice_off = 0;
-  if (num_player != 0) {
-    k = slice_off;
-    do {
-      /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
-       * pointer each iteration and does `addu a1,a1,slice_off`); the Ghidra
-       * `fogslicePos->quadPts + slice_off - 8` form is the same address. */
-      BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
-      k = k + 1;
-      slice_off = slice_off + 0x84;
-    } while (k < num_player);
+  /* MATCH: plain base+offset off fogslicePos (oracle re-reads the gp-rel
+   * pointer each iteration and does `addu a1,a1,slice_off`). */
+  for (k = 0; k < num_player; k = k + 1) {
+    BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + k * 0x84));
   }
+  slice_off = 0;
   return;
 }
 
@@ -547,7 +566,25 @@ void CV_ColorTracks(int track,int weather,int night)
    * `brightness = 0` ahead of the memset (27 diffs / +3 insns) -- all no-ops or
    * worse.  A 1-insn allocno razor edge with no zero-cost source lever; the
    * C++ permuter is unavailable, so this needs the permuter fix or a retail
-   * RTL-level difference we have not found. */
+   * RTL-level difference we have not found.
+   * w40-a10 RE-CHECK (dumps re-run, numbers CONFIRMED unchanged: 81 = 14 refs
+   * / 114 insns, 85 = 11 refs / 90 insns, alloc order `83 89 81 85 80 82 84`;
+   * track/night already land on retail's $s2/$s3, so ONLY the 81<->85 pair is
+   * wrong).  Two more zero-cost ref dials tried and FALSIFIED, both because
+   * cc1 folds them before life analysis (the catalog's "copies of a computed
+   * value do NOT dial" rule): (a) `brightness = (short)contrast;` instead of
+   * `brightness = 0;` -- copy-propagated back to a literal, refs stay 11
+   * (lreg dump identical); (b) the embedded-assignment LUID lever
+   * `memset(&color, contrast = 0, 4);` -- same, 72 diffs, refs/lengths
+   * unchanged.  The arithmetic bound is exact: contrast needs refs>=12
+   * (3*12/90 = .400) or live_length<=89 (33/89 = .3708) to beat weather's
+   * .36842, and its live range CANNOT start later than the memset (it must
+   * cross that call to earn a callee-saved reg at all -- `memset` first then
+   * `contrast = 0` leaves it in a caller-saved temp).  Reducing weather's 14
+   * refs is possible only by breaking cse's reuse of weather's register as
+   * the constant 1 in the three `bne $s3,$s1` night tests -- which requires
+   * testing `night` BEFORE `weather` and so contradicts the oracle's
+   * track/weather/night compare order at every arm.  FLOOR (STRONG). */
   contrast = 0;
   memset(&color,0,4);
   brightness = 0;

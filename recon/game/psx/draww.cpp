@@ -1057,6 +1057,23 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
    *      sets z AND light) and only then the low half is overwritten with
    *      z+tz -- identity-then-tweak, vs the old separate sra+sh for .light;
    *  (c) the three sums MUTATE t1/t3/t2 in place before the field stores. */
+  /* MATCH (w40-a2) -- THE $s0/$s1 FLIP, 404 -> 230 at ZERO instruction cost.
+   * `prim` defaults to the in-cache GT4 slot here and is OVERRIDDEN in the
+   * doSubdivision==0 arm below (the arm that allocates a packet + OT-links it).
+   * WHY IT MATTERS: with the init living only in the `else` arm, cc1's global.c
+   * ranked prim ABOVE sd and gave it $s0, where the oracle (SYM: sd REGPARM
+   * $0x10=$s0, prim REG $0x11=$s1) has them the other way round -- 182 of the 404
+   * diff lines were that one swap plus its caller-saved fallout.
+   * RTL RECEIPT (cc1plpsx -dg/-dl on the preprocessed TU, scratch/rtl):
+   *     prim = pseudo 145: 24 refs / 114 insns -> priority 4*24/114 = 0.842 (rank 9)
+   *     sd   = pseudo  80: 62 refs / 850 insns -> priority 5*62/850 = 0.365 (rank 15)
+   *   allocno_compare = floor_log2(refs)*refs/live_length, so prim only loses $s0
+   *   once its live_length exceeds ~263 insns; defining it at the top of the body
+   *   stretches the range over the whole function and drops it below sd.
+   * The `addiu $s1,$s0,0x110` that the oracle issues in the else-arm's `j` delay
+   * slot therefore moves into our prologue -- one instruction placed differently,
+   * paid for by 174 diff lines. Semantically identical (default-then-override). */
+  prim = &sd->GT4Prim;
   {
     int t1;
     int t2;
@@ -1193,8 +1210,13 @@ gte_swc2(0x8,&depthcue);
      * each arm adds sd->offset into $v0 separately, and gcc cross-jump-merges the two
      * `sd->otz =` stores into the shared tail `sw`. */
     depth_avg = sd->otz;
-    save_pre_otz = depth_avg >> 1;
-    sd->otz = save_pre_otz;
+    /* MATCH (w40-a2): STORE-THEN-READ-BACK -- the oracle emits `sra v0,a1,1` and then a
+     * redundant `addu s3,v0,zero` copy before the `sw` in the bne delay slot; that copy
+     * is cse forwarding the just-STORED field value into a second (named) evaluation.
+     * Writing `save_pre_otz = depth_avg>>1; sd->otz = save_pre_otz;` computes straight
+     * into $s3 and loses the copy. */
+    sd->otz = depth_avg >> 1;
+    save_pre_otz = sd->otz;
     if (sd->offset == Draw_gMidGroundOtz) {
       save_pre_otz = save_pre_otz << 2;
       sd->otz = (depth_avg >> 4) + sd->offset;
@@ -1204,17 +1226,24 @@ gte_swc2(0x8,&depthcue);
     }
     if ((0 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
       if ((flag & 0x80) != 0) {
+        /* MATCH (w40-a2): same shape the SECOND (flag&0x80) block below already uses --
+         * the oracle loads the scratchpad PALETTE cursor exactly ONCE (`lui t0,0x1F80;
+         * lw t0,0(t0)`) and drives both OT-slot computations off that register, while
+         * re-reading `sd->otz` for each of them (`lw v0,0x94(s0)` ... `lw a2,0x94(s0)`).
+         * Per-use `Render_gPalettePtr` costs a second scratchpad load. */
+        u_char *pal;
         aprim = (DR_TWIN *)Render_gPacketPtr;
+        pal = Render_gPalettePtr;
         r.w = 0;
         r.h = 0;
         r.x = 0;
         r.y = 0;
         *(u_int *)aprim =
              *(u_int *)aprim & 0xff000000 |
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+             *(u_int *)(pal + sd->otz * 4) & 0xffffff;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
+        *(u_int *)(pal + sd->otz * 4) =
+             *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
         SetTexWindow(aprim,&r);
       }
       if (doSubdivision == 0) {
@@ -1241,19 +1270,36 @@ gte_swc2(0x8,&depthcue);
             : : "r"(prim), "r"(sd), "r"(&sd->otz)
             : "$12", "$13", "$14", "memory");
       }
-      else {
-        prim = &sd->GT4Prim;
-      }
       /* MATCH (2026-08-01): the four dvxy AUTOs ARE packed screen-XY words, and the
        * oracle stores each with ONE `sw` (0x8/0x14/0x20/0x2C off prim) -- the 8
        * separate `sh` halves cost 4 extra insns AND, decisively, 4 extra references
        * to `prim`: at 29 body refs the oracle's prim sits just under the
        * floor_log2 razor edge at 32, so it loses $s0 to `sd`; at 33 ours crossed it
        * and stole $s0, flipping the entire function's $s0/$s1 assignment. */
-      *(long *)&prim->x0 = dvxy0;
-      *(long *)&prim->x1 = dvxy1;
-      *(long *)&prim->x2 = dvxy2;
-      *(long *)&prim->x3 = dvxy3;
+      {
+        /* MATCH (w40-a2): the oracle batches the three screen-XY reloads into THREE
+         * distinct scratch regs (`lw v1,68(sp); lw a0,76(sp); lw a1,72(sp)` then the
+         * three `sw`), so each load fills the previous one's delay slot; the plain
+         * four-statement form serialized them through ONE reg and paid 3 `nop`s
+         * (catalog par.B "load-3/store-3 grouped temps"). 230 -> 227, 596 -> 593. */
+        long q1;
+        long q2;
+        long q3;
+        *(long *)&prim->x0 = dvxy0;
+        q1 = dvxy1;
+        q2 = dvxy2;
+        q3 = dvxy3;
+        *(long *)&prim->x1 = q1;
+        *(long *)&prim->x2 = q2;
+        *(long *)&prim->x3 = q3;
+      }
+      /* NEGATIVE (w40-a2, retested at TWO baselines, 227 and 139): the oracle's
+       * `beqz $v0` makes the DrawW_NightColorCalc call the FALL-THROUGH, so the arms
+       * look swapped -- but writing `if (nightFlags != 0) {NightColorCalc} else {...}`
+       * REGRESSES hard (227->374, 139->302) and leaves ours 9-12 insns SHORTER than the
+       * oracle: with the depth-cue block as the out-of-line arm gcc cross-jump-merges
+       * part of its two colour tails.  The polarity is downstream of that merge, not a
+       * free arm-order choice -- do not re-try before the merge is killed. */
       if (sd->nightFlags == '\0') {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read
@@ -1273,9 +1319,23 @@ gte_swc2(0x8,&depthcue);
           a = *(long *)(Chunk_lightTable + vt2.light);
 gte_ldrgb(&a);
           gte_dpcs();
-          c = *(long *)(Chunk_lightTable + vt3.light);
-          a = *(long *)(Chunk_lightTable + vt0.light);
-          b = *(long *)(Chunk_lightTable + vt1.light);
+          /* MATCH (w40-a2): a/b/c are address-taken AUTOs (gte_ldrgb3 needs their
+           * addresses), so writing them directly serializes load->store->load->store
+           * through ONE scratch and pays a `nop` per pair.  The oracle runs the three
+           * light-table chains in PARALLEL (all three `lh` indices, then all three
+           * `lw`s, then the three `sw`s) -- reproduce with three register temps
+           * (catalog par.A "N named value-temps / parallel chains"). */
+          {
+            long tc;
+            long ta;
+            long tb;
+            ta = *(long *)(Chunk_lightTable + vt0.light);
+            tb = *(long *)(Chunk_lightTable + vt1.light);
+            tc = *(long *)(Chunk_lightTable + vt3.light);
+            c = tc;
+            a = ta;
+            b = tb;
+          }
 gte_strgb(&prim->r3);
 gte_ldrgb3(&a,&b,&c);
           gte_dpct();
@@ -1939,7 +1999,10 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 {
   Group * group;
-  u_char bVar1;
+  int bVar1;   /* MATCH (w40-a2): the anim type is a SIGNED int in the original -- a u_char
+                  local made cc1plus emit `sltiu $v0,$v1,2` for the dispatch chain where
+                  the oracle has the signed `slti $v0,$v1,0x2` (balance_case_nodes uses
+                  signed compares). The `lbu` field read is unchanged. */
   Group *pThis;
   int iVar2;
   void *pvVar3;
@@ -2085,7 +2148,9 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int loc_24;
   int loc_20;
   int tu6;
-  u_char bVar7;
+  int bVar7;   /* MATCH (w40-a2): a u_char flag makes cc1plus re-mask on every use
+                  (`andi v0,s1,255` x3) -- the oracle tests it bare (`bnez s1`), so the
+                  original local was int-width (catalog par.C u_char->u_int lever). */
   int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
 
@@ -2123,7 +2188,7 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
                                             (Draw_tGiveShelbyMoreCache *)sd), instData_p != 0)))) {
             bVar7 = 1;
           }
-          if (!(bool)bVar7) {
+          if (bVar7 == 0) {
             /* MATCH (2026-07-11, rule-8/movstrsi): the oracle disasm shows a genuine
                UNALIGNED 8-byte struct copy here (`lwl/lwr` from $s2+0x14 into a temp,
                `swl/swr` into the stack `quat` local) -- groupBase_p is a variable-
@@ -2702,15 +2767,27 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
   buildInd = 0;
   while (1) {
     if (chunkCount <= buildInd) break;
-    if ((*(volatile u_char *)&buildList->enableBits & 2U) != 0) {
+    if (((u_int)buildList[buildInd].enableBits & 2U) != 0) {
       Chunk *chunkDat;
       Trk_SimObject *simObjs;
       int chunkInd;
       int geomRez;
-      chunkInd = buildList->chunkInd;
+      chunkInd = buildList[buildInd].chunkInd;
       chunkDat = Track_chunkList + chunkInd;
       simObjs = (Trk_SimObject *)(chunkDat->simObjBuf + 1);
-      geomRez = (int)*(volatile signed char *)&buildList->geomRez;  /* MATCH: volatile kills the buildList+2 giv; residual = lbu+sll/sra vs oracle lb (volatile blocks the fold) */
+      geomRez = (int)*(signed char *)&buildList[buildInd].geomRez;
+      /* MATCH (w40-a2): TWO cooperating fixes, must land together.
+         (1) `(signed char)` cast -> the oracle's `lb $a1,0x2($s2)` (`char` is UNSIGNED on
+             this build, so the plain field read emitted `lbu`; the previous
+             `*(volatile signed char*)` form kept the giv down but cost `lbu+sll+sra`).
+         (2) INDEX FORM for every buildList access (`buildList[buildInd].f`, pointer no
+             longer walked) -- catalog "giv-anchor Cure B": with the pointer-walk form
+             loop.c built a SECOND address giv anchored at `buildList+2` for this one
+             byte read (`addiu s4,s2,2` in the prologue + a per-iteration bump), which
+             cost 2 insns AND an extra callee-saved allocno that shifted every saved-reg
+             role. Index form reduces onto the single +0 walker the oracle uses.
+         Also dropped the `volatile` on the enableBits test (scaffolding that is a no-op
+         under the index form). 59 -> 45 diffs, insns 225 -> 223 (oracle 222). */
       if (chunkDat->objInstanceBuf != (Group *)0x0) {
         *(short *)((char *)sd + 0xda) = 1;
         gChunkObjInfo.simObjs = simObjs;
@@ -2735,7 +2812,6 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
         DrawW_BuildObjectFacets(gVi,&gChunkObjInfo);
       }
     }
-    buildList = buildList + 1;
     buildInd = buildInd + 1;
   }
   }
@@ -2908,19 +2984,66 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      and the `sm` (Skidmark_Chunk*, SYM REG $s2, size 0x2B0) walker is still
      modelled as the invented `skidIdx`/`skidIter` byte offsets -- that walker,
      not the matrix rows, is the next lever. */
+  /* CORRECTNESS + MATCH (w40-a2): `Skid_gCtrlScratch_94` is a real linked .bss int
+   * (skidmark.cpp), but the OT depth this function computes is written by
+   * `gte_swc2(0x7, 0x1F800094)` straight into SCRATCHPAD -- so every read of the .bss
+   * symbol saw a stale value and the whole skidmark depth clamp / OT index ran on
+   * garbage (same bug class as the Skid_gCtrlScratch_98 compares fixed in wave-9).
+   * 0x1F800094 is `sd->otz`'s address in the same cache header, and the oracle keeps
+   * that literal in its OWN callee-saved reg across the calls (`lui fp,0x1F80;
+   * ori fp,fp,0x94` in the prologue), so model it as a local pointer. */
+  int *otz94;
+  /* MATCH (w40-a2): 0x404040 is stored four times deep inside the loop across calls;
+   * the oracle materializes it ONCE into a callee-saved reg in the prologue
+   * (`lui s3,0x40; ori s3,s3,0x4040`).  Diff-neutral on its own but it reproduces the
+   * oracle's prologue materialization SET (0x1F800000 base + 0x1F800094 + 0x404040);
+   * the only one still missing is `t = &fskid->t` ($s6), which REGRESSES (344->415)
+   * every time it is added -- retested twice, w39 and w40. */
+  int grey;
+
+  otz94 = (int *)0x1f800094;
+  grey = 0x404040;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   ccount_local = fskid->count;
-  l2 = (fskid->m).m[3];
-  skidIdx = ccount_local * 0x2b0;
-  (sd->matB).m[0][0] = (short)((fskid->m).m[0] >> 4);
-  (sd->matB).m[0][1] = (short)((int)l2 >> 4);
-  (sd->matB).m[0][2] = (short)((fskid->m).m[6] >> 4);
-  (sd->matB).m[1][0] = (short)((fskid->m).m[1] >> 4);
-  (sd->matB).m[1][1] = (short)((fskid->m).m[4] >> 4);
-  (sd->matB).m[1][2] = (short)((fskid->m).m[7] >> 4);
-  (sd->matB).m[2][0] = (short)((fskid->m).m[2] >> 4);
-  (sd->matB).m[2][1] = (short)((fskid->m).m[5] >> 4);
-  (sd->matB).m[2][2] = (short)((fskid->m).m[8] >> 4);
+  /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
+   * blocks of `int r0,r1,r2`; the oracle runs each row as three PARALLEL chains
+   * (`lw r0; lw r1; lw r2; sra; sra; sra; sh; sh; sh`) so the loads fill each other's
+   * delay slots -- the flat nine-statement form serialized them through one scratch
+   * and paid a `nop` per row. */
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = (fskid->m).m[0];
+    r1 = (fskid->m).m[3];
+    r2 = (fskid->m).m[6];
+    skidIdx = ccount_local * 0x2b0;
+    (sd->matB).m[0][0] = (short)(r0 >> 4);
+    (sd->matB).m[0][1] = (short)(r1 >> 4);
+    (sd->matB).m[0][2] = (short)(r2 >> 4);
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = (fskid->m).m[1];
+    r1 = (fskid->m).m[4];
+    r2 = (fskid->m).m[7];
+    (sd->matB).m[1][0] = (short)(r0 >> 4);
+    (sd->matB).m[1][1] = (short)(r1 >> 4);
+    (sd->matB).m[1][2] = (short)(r2 >> 4);
+  }
+  {
+    int r0;
+    int r1;
+    int r2;
+    r0 = (fskid->m).m[2];
+    r1 = (fskid->m).m[5];
+    r2 = (fskid->m).m[8];
+    (sd->matB).m[2][0] = (short)(r0 >> 4);
+    (sd->matB).m[2][1] = (short)(r1 >> 4);
+    (sd->matB).m[2][2] = (short)(r2 >> 4);
+  }
   do {
     do {
       ccount_local = ccount_local + -1;
@@ -2956,11 +3079,17 @@ gte_SetTransMatrix(&sd->matB);
        * %hi/%lo(sym)). draww_externs.h still declares it a plain extern
        * (header edits are out of scope here), so the literal cast is applied
        * locally at this one use site only -- no other TU's codegen changes. */
-      if ((Render_gPacketPtr < *(u_char **)0x1f800008) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
+      /* MATCH (w40-a2): the packet cursor and its end-limit ARE fields of the same
+       * scratchpad cache header `sd` already points at (0x1F800004 = head.cprim.PrimPtr,
+       * 0x1F800008 = head.cprim.MPrimPtr) -- reaching them through the `Render_gPacketPtr`
+       * literal-address macro made gcc materialize a SECOND scratchpad base
+       * (`ori s7,s6,4`) in its own callee-saved reg, which is the slot the oracle spends
+       * on `count*0x2B0`. Same base, same bytes, one fewer allocno. */
+      if ((sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
 gte_ldv0((int *)(depth_index));
         gte_rtps();
 gte_stlvnl((void *)0x1f800098);
-        primPtr = Render_gPacketPtr;
+        primPtr = sd->head.cprim.PrimPtr;
         /* CORRECTNESS FIX (2026-07-12, oracle @0x800C92E0): SXY goes to the
          * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
          * scratchpad literal 0x1F800008 (= Render_gPacketEnd's slot). */
@@ -3003,12 +3132,12 @@ gte_stlvnl((void *)0x1f8000c8);
 gte_stsxy3((void *)0x1f800014,(void *)0x1f80002c,(void *)0x1f800020);
           gte_avsz4();
 gte_swc2(0x7,(void *)0x1f800094);
-          vt_y = Skid_gCtrlScratch_94 >> 5;
-          Skid_gCtrlScratch_94 = vt_y + 0x32;
-          if (Skid_gCtrlScratch_94 < 1) {
+          vt_y = *otz94 >> 5;
+          *otz94 = vt_y + 0x32;
+          if (*otz94 < 1) {
             return;
           }
-          if (Draw_gViewOtSize + -3 < Skid_gCtrlScratch_94) {
+          if (Draw_gViewOtSize + -3 < *otz94) {
             return;
           }
           if (color_pack == 0) {
@@ -3020,10 +3149,10 @@ gte_swc2(0x7,(void *)0x1f800094);
                  *(u_int *)(((coorddef *)(pt1_index + 0x24))->y + 0x10);
           }
           else {
-            *(u_int *)((int)primPtr + 4) = 0x404040;
-            *(u_int *)((int)primPtr + 0x10) = 0x404040;
-            *(u_int *)((int)primPtr + 0x28) = 0x404040;
-            *(u_int *)((int)primPtr + 0x1c) = 0x404040;
+            *(u_int *)((int)primPtr + 4) = grey;
+            *(u_int *)((int)primPtr + 0x10) = grey;
+            *(u_int *)((int)primPtr + 0x28) = grey;
+            *(u_int *)((int)primPtr + 0x1c) = grey;
           }
           *(u_char *)((int)primPtr + 7) = 0x3e;
           *(u_char *)((int)primPtr + 3) = 0xc;
@@ -3080,7 +3209,7 @@ gte_swc2(0x7,(void *)0x1f800094);
                 "sw	$t6,0(%0)\n\t"
                 "swl	$t4,2($t5)"
                 : "=&r"(primOut)
-                : "r"(&Render_gPalettePtr), "r"(Skid_gCtrlScratch_94)
+                : "r"(&Render_gPalettePtr), "r"(*otz94)
                 : "$12", "$13", "$14", "memory");
           }
         }

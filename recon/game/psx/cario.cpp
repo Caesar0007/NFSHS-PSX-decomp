@@ -113,13 +113,24 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   u_short lastMask;
   u_short lastLastMask;
 
-  /* 161 -> 101 (rule-8) -> 63 (`== -1` exit-in-the-middle on the nibble loops +
-   * parenthesized dest offset + `mask = x&3` before the tail) -> 32 (rollOver holds
-   * the SHIFTED nibble).  RESIDUAL 32 (ours 111 / oracle 113): the two SHIFT-ONLY
-   * mask loops keep the unsigned `nor v0,zero,a2; bnez` canonicalization and are not
-   * loop-rotated, where retail peels a guard and shares one `li v0,-1`.  Probes:
-   * hand-written rotated guard+do-while 37, `== -1` if-break form 47, swapped `|`
-   * operand order 32 (neutral) -- the comma-while at 32 is the best measured. */
+  /* 161 -> 101 (rule-8) -> 63 -> 32 -> 22 (w40-a5), count now EXACT 113/113.
+   * The w39 note ("hand-written rotated guard+do-while 37") measured BOTH shift-only
+   * mask loops at once; taking them SEPARATELY, the FIRST one wants the peeled+rotated
+   * form and the second does NOT:
+   *     mask = mask - 1;
+   *     if (mask != -1) { do { lastMask = lastMask << 4; mask = mask - 1; }
+   *                       while (mask != -1); }
+   * gives retail's `addiu a2,-1; li v0,-1; beq a2,v0,SKIP` peel + the body in the
+   * back-edge DELAY SLOT (`bne a2,v0,LOOP; sll t4,t4,4`) and kills the unsigned
+   * `nor v0,zero,a2; bnez` canonicalization -- that loop is now byte-identical AND
+   * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
+   * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
+   * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
+   * RESIDUAL 22 (15 lines): (a) 5x commutative `or rd,v1,v0` vs the oracle's
+   * `or rd,v0,v1` -- RTL canonicalization, NOT source-order-driven (swapping the
+   * `|` operands at all 5 sites measured 26, i.e. it does not even change the
+   * emitted order); (b) the second mask loop's peel as above; (c) one `addu t4,t5,zero`
+   * scheduling slot. */
   columns = w >> 2;
   mask = w & 3;
   if (mask != 0) {
@@ -131,8 +142,12 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   if (mask == 0) {
     lastMask = 0;
   }
-  while (mask = mask - 1, mask != -1) {
-    lastMask = lastMask << 4;
+  mask = mask - 1;
+  if (mask != -1) {
+    do {
+      lastMask = lastMask << 4;
+      mask = mask - 1;
+    } while (mask != -1);
   }
   firstMask = 0;
   mask = x & 3;
@@ -342,7 +357,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     } while (i < 0xc);
     *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
     *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
-    i = 0;
     CarIO_Plate2[player]->width = 0x18;
     CarIO_Plate1[player]->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
@@ -352,7 +366,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 
       length = strlen(text);
       start = 0x18 - length * 3;
-      while (i < length) {
+      for (i = 0; i < length; i = i + 1) {
         char ascii;
 
         ascii = text[i];
@@ -390,7 +404,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
           CarIO_CopyFromShape((short *)((int)pShape + 0x10),thePlate,7,0xc,start,5);
         }
         start = start + 6;
-        i = i + 1;
       }
     }
     if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
@@ -472,18 +485,34 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  * No pointer local in the SYM => CarIO_textureName[i] / palCopyNum[i] /
  * CarIO_carPixMap[carPixMapCount] are written in INDEX form and the retail
  * walkers ($fp, 88(sp), $s1) come back as compiler givs.
- * 687 -> 344 diffs (ours 477 / oracle 491 -- ours is now 14 insns SHORTER).
- * RESIDUAL = ONE allocation decision, diagnosed with -dg/-dl (w39-a5):
- *   pseudo 81 = carObj, 28 refs / 720 insns, prio floor_log2(28)*28/720 = .1556
- *   -> it WINS $fp here, which shifts vx $s6->$s5, vy $s7->$s6, the
- *      CarIO_textureName giv $fp->$s7 and pushes `palette` out of $s4.
- *   Retail SPILLS carObj to its incoming arg home 140(sp) (SYM: carObj = class ARG)
- *   and gives $fp to the textureName giv.  Every carObj materialization site was
- *   counted 1:1 against the oracle's `0x8C($sp)` reloads (15 outside the loop, 6
- *   inside x2 = the same 28), and `palette` (pseudo 197, 6 refs / 120) is far below
- *   carObj either way -- so this is NOT a ref-count difference we can spell away;
- *   it is the allocno/copy-preference identity residue (catalog sec.G).  Do not
- *   re-derive: dump -dg/-dl and compare the priority table before touching it. */
+ * 687 -> 344 -> 186 (w40-a5), ours 491 == oracle 491 (COUNT EXACT).
+ * THE CARBJ-SPILL DECISION IS SOLVED -- it was NOT an allocno identity residue.
+ * -dg/-dl on the w39 body: pseudo 81 = carObj, 28 refs / 720 insns, prio
+ * floor_log2(28)*28/720 = .1556, 17th of 29 -- it took the LAST free callee-saved
+ * register ($fp) because only 8 distinct s-registers were consumed ahead of it.
+ * The hole was `cx` (pseudo 378, 8 refs / 81 insns, prio .296) REUSING $s0: our
+ * palette-block `license` flag was assigned 1 AFTER the LicenseCheck/LoadPmx calls,
+ * so its pseudo had calls_crossed == 0 and got a CALLER-saved register ($a0),
+ * leaving $s0 free inside the loop.  Retail's SYM says license = REG $10 ($s0).
+ * Writing the flag FIRST (`license = 1;` before the two calls, in the two Plate1
+ * arms only) makes it call-crossing -> callee-saved -> $s0 is occupied -> cx must
+ * take $s4(20), cy $s5(21), vx $s6(22), vy $s7(23), the CarIO_textureName giv $fp,
+ * and carObj SPILLS to its incoming arg home 140($sp) exactly like retail
+ * (SYM: carObj = class ARG).  gcc still sinks the constant materialization past
+ * the calls, so the emitted `li s0,1` sits next to the `flag = 1` store like the
+ * oracle.  Do NOT do the same in the Plate2 (flag = 2) arms: retail materializes
+ * the LicenseCheck `1` argument separately there (`li v0,1`), and the pre-call form
+ * costs that (214 vs 186).
+ * RESIDUAL 186 (89 diff lines) -- structurally identical, three classes:
+ *  (a) ~75 lines are a pure $t0<->$t1 alternation on RELOAD scratch registers for
+ *      the spilled parms/locals (ours starts the spill pool at $t0/$t1 where retail
+ *      starts at $v0/$t0).  gcc-2.8 reload picks spill registers via
+ *      order_regs_for_reload = ascending hard_reg_n_uses, a whole-function property;
+ *      no source lever reaches it.
+ *  (b) 3 one-insn scheduling slots (the CarIO_carPixMapCount/textureStartIndex
+ *      block's reload order, the locateshapez a0/a1 arg-load order, the
+ *      recolor_flag reload in the palIndex block).
+ *  (c) the Plate2 arm's `li s0,1` sinking (see above). */
 void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
 
 {
@@ -504,7 +533,12 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
         /* oracle: `andi v0,inside,1; beqz v0,<+3 arm>` -- the inside!=0 case is
          * the FALL-THROUGH, so it is the if-BODY (arm order was inverted). */
         if (((carObj->render).inside & 1U) != 0) {
-          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount / 3] * 3;
+          /* SYM block line 22: `index` REG $02($v0) -- the /3 quotient is a
+           * NAMED local in retail, not an inline subexpression. */
+          int index;
+
+          index = CarIO_carVRamCount / 3;
+          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[index] * 3;
         }
         else {
           CarIO_carVRamCount = CarIO_carVRamCount + 3;
@@ -539,7 +573,11 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
       if (R3DCar_InMenu == 0) {
         index = vx - 0x280;
       }
-      vx = vx + CarIO_carVRamOffset[index >> 6];
+      /* the `>> 6` is its OWN statement on the named local: the oracle emits the
+       * `sra v1,v1,6` at the two arms' merge point, BEFORE the carVRamOffset base
+       * is materialized (folded into the subscript it lands after the lui/addiu). */
+      index = index >> 6;
+      vx = vx + CarIO_carVRamOffset[index];
     }
     (carObj->render).textureOffsetU = (short)((vx & 0x3f) << 2);
     (carObj->render).textureOffsetV = (u_short)vy & 0xff;
@@ -581,10 +619,19 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
 
           license_vx = vx + CarIO_licensePlate[carType][1];
           license_vy = vy + CarIO_licensePlate[carType][2];
+          /* `license = 1` is set BEFORE the two calls (the flag-first spelling):
+           * that is what makes the pseudo CALL-CROSSING, so gcc must give it a
+           * callee-saved register -- retail's `license` REG $10($s0) per the SYM.
+           * With it set after the calls the flag is caller-saved ($a0) and $s0
+           * stays free INSIDE the loop, which lets `cx` reuse $s0; that single
+           * reuse shifts palette/cx/cy/vx/vy one register each and hands $fp to
+           * carObj instead of spilling it to its ARG home 140($sp).  gcc still
+           * SINKS the constant materialization past the calls here (the `li s0,1`
+           * lands next to the `flag = 1` store exactly as the oracle does). */
+          license = 1;
           CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
           Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,license_vx,
                      license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
-          license = 1;
           CarIO_carPixMap[carPixMapCount].flag = 1;
         }
         else if (i == CarIO_licensePlate[carType][3]) {
@@ -638,10 +685,10 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
 
             license_vx = vx + CarIO_licensePlate[carType][1];
             license_vy = vy + CarIO_licensePlate[carType][2];
+            license = 1;      /* flag-first: keeps `license` call-crossing -> $s0 */
             CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
                        cx,cy,&CarIO_carPixMap[carPixMapCount]);
-            license = 1;
             CarIO_carPixMap[carPixMapCount].flag = 1;
           }
           else if (i == CarIO_licensePlate[carType][3]) {

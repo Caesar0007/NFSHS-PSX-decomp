@@ -81,11 +81,17 @@ void Font_SetABR(int abr)
  * list) -- keep it in the signature so the indirect call type matches.
  * width/height are INT locals per the SYM: u_char locals would re-mask every use
  * (andi 0xff) that the oracle does not have. */
-/* w39-a6 FLOOR (48 diffs, count EXACT 55/55): the residual is one uniform v0<->v1 swap in
- * the packet/palette header merge that cascades through the whole body.  FALSIFIED here:
- * moving the `dv` computation to any of 3 earlier source positions (+1 insn each, 79-87
- * diffs); accumulating dv in place / pre-masking (54); reversing the u0 `|` chain (48);
- * swapping either merge's operand order (50/52/54).  Allocator tie-break. */
+/* w40-a6: 48 -> 42, count EXACT 55/55.  The w39 "FLOOR" note was WRONG about the dv
+ * position: the SYM puts `dv` in REG $06 = $a2 = the `src` PARAM's own register, i.e. dv
+ * is computed FIRST and reuses src's dying reg in place (oracle `lw a2,12(a2); sll a2,a2,4;
+ * sra a2,a2,20` as the first three insns).  What made the earlier attempts cost +1 insn was
+ * moving the WHOLE `(dv + v & 0xff) << 8` expression up with it; splitting it -- `dv` alone
+ * at the top, the `+v`/mask/shift as its own statement at the u0 site -- keeps 55/55.
+ * RESIDUAL 42: sched1 hoists our `(dv + v & 0xff) << 8` (and with it the `v` stack-arg
+ * load, t3-vs-t6) above the header merge, where retail interleaves it after the palette
+ * store; that in turn rotates v0<->v1 through the merge.  Variants measured: split into
+ * 3 statements 72, `dv | clut | u` order 44, `u | dv | clut` 62, whole expr at top 87 (+1
+ * insn), palette-before-bump 87 (+1 insn). */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
@@ -95,6 +101,7 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   int dv;
   u_int *pal;
 
+  dv = (*(int *)((u_char *)src + 0xc) << 4) >> 0x14;
   sprt = (SPRT *)Render_gPacketPtr;
   pal = (u_int *)Render_gPalettePtr;
   width = ch->width;
@@ -106,8 +113,8 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   *(int *)&sprt->x0 = y << 0x10 | x;
   *(u_long *)&sprt->r0 = font_tint;
   *(u_int *)&sprt->w = height << 0x10 | width;
-  dv = (*(int *)((u_char *)src + 0xc) << 4) >> 0x14;
-  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | (dv + v & 0xffU) << 8 | u;
+  dv = (dv + v & 0xffU) << 8;
+  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv | u;
   SetSemiTrans(sprt,1);
   return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
 }
@@ -370,9 +377,15 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
  */
 /* w39-a6: 34 -> 28, count EXACT 86/86.  `cfbase = &currentfont` must be the LAST of the
  * three prologue initialisers -- placed first it materializes the %hi/%lo + the $s5 save
- * three insns too early.  RESIDUAL 28 = a 3-way rotation of the hoisted literal constants
- * in the DR_MODE tail (ours 0x1F800004/0x00ffffff/0xff000000 = t2/t3/t1, oracle
- * t3/t1/t2); swapping the merge's `|` operand order makes it worse (38). */
+ * three insns too early.  w40-a6 28 -> 22: the palette write-back must be written BEFORE
+ * the packet-cursor bump (the same order lever that took Weather_CreateSplat 40 -> 6 and
+ * Weather_DoWeather's tail 66 -> 60); with the bump 2nd, gcc issues `addiu/sw` ahead of
+ * the merge instead of interleaving it.  RESIDUAL 22 = the t1<->t2 rotation of the hoisted
+ * 0x00ffffff / 0xff000000 literals plus the bump's 2-slot schedule.  Measured NEGATIVE:
+ * dropping the fabricated `tpage` local (32), 0xffffff-first palette spelling (24),
+ * dr_mode-first packet spelling (26), dropping `cfbase` for direct &currentfont uses
+ * (+2 insns / 52 -- the SYM has no cfbase local but gcc will not hoist the address
+ * itself here, so the local stays). */
 void Font_TextXY(char *string,int x,int y)
 
 {
@@ -415,8 +428,10 @@ void Font_TextXY(char *string,int x,int y)
     pal = (u_int *)Render_gPalettePtr;
     tpage = (int)font_currentTPage;
     *(u_int *)dr_mode = *pal & 0xffffff | *(u_int *)dr_mode & 0xff000000;
-    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+    /* MATCH: palette write-back BEFORE the cursor bump (same lever as
+     * Weather_CreateSplat / Weather_DoWeather) -- 28 -> 22. */
     *pal = *pal & 0xff000000 | (u_int)dr_mode & 0xffffff;
+    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
     SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
   }
   return;

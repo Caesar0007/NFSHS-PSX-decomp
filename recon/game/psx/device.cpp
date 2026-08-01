@@ -331,15 +331,20 @@ int Device_PSXPadMulti(u_long param)
  * i.e. every analog axis read was biased by min*255/(max-min) at runtime.
  * The div guards (`bnez $v1 / break 7`, the -1 / INT_MIN `break 6` pair) are maspsx
  * --expand-div's automatic expansion of a plain C `/` -- never write them by hand.
- * RESIDUAL 22 diffs (ours 76 / oracle 64 = +12): retail CROSS-JUMPS the two arms'
- * divide tails into ONE shared `div` block (`j .L800BDA70` out of the min<max arm);
- * our cc1plus keeps both copies.  w39-a5 probes (all WORSE, do not retry):
- *   explicit `goto` to a shared divide + denominator folded into `max`   44 (62/64)
- *   split `v = v - min;` then `v = (v*0xff)/(max-min);`                  62 (76/64)
- *   early-`return 0/0xff` guards instead of if/else arms                 37 (77/64)
- * The goto form DOES produce the single shared divide (62 vs 64 insns) but re-colors
- * min/max out of their SYM homes because `max` is then mutated; there is no spelling
- * that shares the tail without inventing a denominator local the SYM does not have. */
+ * PASS (w40-a5, 22 -> 0).  The +12 was NOT a missing denominator local and NOT an
+ * un-reachable cross-jump: it was pure BLOCK ORDER.  The three-way chain must place
+ * the `min == max` case BETWEEN the two scaling arms --
+ *     if (min < max) {...} else if (min == max) { v = 0; } else {...}
+ * -- not last (`else if (min != max) {...} else { v = 0; }`).  With the `v = 0` block
+ * physically between the arms, gcc's cross-jump merges ALL THREE `v = 0` sites into
+ * that one block (.L800BDA5C) AND lets the second arm's divide FALL INTO the shared
+ * div+guard block, so the first arm's `j .L800BDA70` is emitted and its 13-insn
+ * duplicate div/guard/mflo tail disappears.  Same statements, same semantics, one
+ * arm swapped: catalog "a shared goto-target block belongs at the site that FALLS
+ * THROUGH into it" / "case BODIES emit in SOURCE order".  No extra locals -- the SYM's
+ * three (min $a1, max $a0, v $v1) are exactly what the body still uses, and fsize 32 /
+ * mask $80030000 (ra+s0+s1, 16-byte arg area, ZERO stack locals) confirms there never
+ * was a hidden AUTO denominator slot. */
 int Device_Analog(u_long param)
 
 {
@@ -364,7 +369,10 @@ int Device_Analog(u_long param)
       v = ((v - min) * 0xff) / (max - min);
     }
   }
-  else if (min != max) {
+  else if (min == max) {
+    v = 0;
+  }
+  else {
     if (v < max) {
       v = 0xff;
     }
@@ -374,9 +382,6 @@ int Device_Analog(u_long param)
     else {
       v = ((min - v) * 0xff) / (min - max);
     }
-  }
-  else {
-    v = 0;
   }
   return v;
 }

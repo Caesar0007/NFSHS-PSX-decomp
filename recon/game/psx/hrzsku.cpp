@@ -791,7 +791,20 @@ void Hrz_LightningFlicker(int on)
  * not reachable via any tried source reshape (flat block-of-9, interleaved-per-row, and
  * block-scoped-per-row all tried; interleaved was worse at 76, block-scoped 74). Accepted
  * floor; count differs by 4 (genuine structural gap in the gcc RA output vs any equivalent
- * C, not a coloring coin-flip). */
+ * C, not a coloring coin-flip).
+ * w40-a8 UPDATE (the note above was partly stale -- the single-{t1,t2,t3}-block form gates
+ * 72 with the count EXACT 56/56).  Splitting {t1,t2,t3} into THREE per-row blocks (one per
+ * source row, the SYM's "same names reused per row" read the other way) gates 62 but drops
+ * to 52 insns: the three short-lived triples no longer create the register pressure that
+ * evicts temp.m[0]/[2]/[3]/[5], so gcc forwards the just-stored value instead of the
+ * oracle's four `lw NN(sp)` reloads.  Kept the 62 form (gate is the sole authority) but the
+ * 4-insn gap is the honest structural residual.  ALSO TRIED and rejected: splitting the
+ * r-block load from the shift (`r0 = temp.m[k]; ... (short)(r0>>4)`) = no change at all in
+ * both forms; reading temp through an `int *tp = temp.m;` alias to defeat store-forwarding
+ * = 85/61 (much worse).  The remaining residual is the raw-load triple landing on $a3/$a1
+ * instead of the SYM's $t1/$t0 -- our r-pseudos share $v0/$v1 (short ranges) where the
+ * oracle's span far enough to need six registers ($v0,$v1,$a0-$a3), which is what pushes
+ * its raw triple down to $t0-$t2. */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -815,12 +828,18 @@ void HrzSetPsxMatrix(matrixtdef *m)
     temp.m[0] = t1;
     temp.m[1] = -t2;
     temp.m[2] = t3;
+  }
+  {
+    int t1, t2, t3;                 /* w40-a8: per-ROW block (see note above) */
     t1 = m->m[3];
     t2 = m->m[4];
     t3 = m->m[5];
     temp.m[3] = t1;
     temp.m[4] = -t2;
     temp.m[5] = t3;
+  }
+  {
+    int t1, t2, t3;
     t1 = m->m[6];
     t2 = m->m[7];
     t3 = m->m[8];
@@ -929,6 +948,13 @@ void Hrz_SetDitheringPrim(int dither,int otz)
  * evaluation per block (a repeated full expression re-loads pal/ViewOtSize after the
  * may-alias *prim store = +16 insns); FT4 uses the TextureQuad tag-split bump.
  * STATE wave-13: 615 -> 393 diffs, count 459 vs 458 (was 513/458). The residual is a
+ * w40-a8: the first-RMW OR operands were swapped to `slot[-2] & 0xffffff | *(u_int *)prim
+ * & 0xff000000` in all THREE prim blocks -- that flips the loop.c hoist ORDER of the two
+ * mask constants to the oracle's (0xFFFFFF materialized BEFORE 0xFF000000), the same
+ * two-constant hoist-order tie the flare small-flare family and Sky_RenderStars carry.
+ * Gate unchanged (393, LCS non-monotone) but the preheader now differs from the oracle in
+ * exactly ONE position: ours emits the 0x1F800004 (Render_gPacketPtr address) lui/ori pair
+ * BEFORE the gSkyColor %lo add, the oracle AFTER; everything downstream is the
  * near-uniform ALLOCNO RENAME cascade over ~12 loop pseudos (i t2 vs t4, temp a3 vs t1,
  * pmx a2 vs a3, pSkyZ s3 vs s4, palette-hi t4 vs s0, color bases shifted): body content,
  * frame (72), and every access shape match line-for-line under the renames. Root = the
@@ -1059,7 +1085,7 @@ void Hrz_BuildSky(void)
                 prim = (POLY_GT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
                 slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-                *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+                *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
                 slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
                 *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
                 Render_gPacketPtr = (u_char *)prim + 0x34;
@@ -1086,7 +1112,7 @@ void Hrz_BuildSky(void)
                 prim = (POLY_FT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
                 slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-                *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+                *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
                 tag = slot[-2];
                 Render_gPacketPtr = (u_char *)prim + 0x28;
                 slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
@@ -1109,7 +1135,7 @@ void Hrz_BuildSky(void)
               u_int *slot;
               prim = (POLY_G4 *)Render_gPacketPtr;
               slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
-              *(u_int *)prim = *(u_int *)prim & 0xff000000 | slot[-2] & 0xffffff;
+              *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
               slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
               *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
               Render_gPacketPtr = (u_char *)prim + 0x24;
@@ -1348,26 +1374,26 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     dy = temp2d[0].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
     shape_overlap = 0;
     shape_visible = (int)hsd;
-    do {
+  up_delta_loop:
       if (0 < *(int *)(shape_visible + 0x124)) {
         *(short *)(shape_visible + 0x14) = *(short *)(shape_visible + 0x58) + dx;
         *(short *)(shape_visible + 0x16) = *(short *)(shape_visible + 0x5a) + dy;
       }
       shape_overlap = shape_overlap + 1;
       shape_visible = shape_visible + 4;
-    } while (shape_overlap < 0x11);
+    if (shape_overlap < 0x11) goto up_delta_loop;
     dx = temp2d[1].vx - *(short *)(((int)hsd + 0x58) + farI * 4);
     dy = temp2d[1].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
     shape_w_idx = 0;
     shape_idx = (int)hsd;
-    do {
+  down_delta_loop:
       if (0 < *(int *)(shape_idx + 0x124)) {
         *(short *)(shape_idx + 0x58) = *(short *)(shape_idx + 0x58) + dx;
         *(short *)(shape_idx + 0x5a) = *(short *)(shape_idx + 0x5a) + dy;
       }
       shape_w_idx = shape_w_idx + 1;
       shape_idx = shape_idx + 4;
-    } while (shape_w_idx < 0x11);
+    if (shape_w_idx < 0x11) goto down_delta_loop;
   }
   Horizon_InterpolateLineSCoords((DVECTOR *)((int)hsd + 0x9c),(DVECTOR *)((int)hsd + 0x58),(DVECTOR *)((int)hsd + 0x14),
              gfxPmxHeightPercentage,0x10,1);

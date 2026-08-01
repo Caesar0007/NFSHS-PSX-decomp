@@ -225,6 +225,185 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
   return;
 }
 
+/* case-4 spark ribbon: SYM block (Vi,is,dSouffle) + (ptrans,invertedm) = an inlined
+ * static helper returning the skip flag (oracle `.L800DD9F8: bnez $v1,<ret>` with the
+ * two arms setting $v1 = 1 / 0). ---- */
+static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sfxsouffle *dSouffle)
+{
+  SVECTOR ptrans;
+  coorddef invertedm;
+  int dx;
+
+  invertedm = is->motion;
+  Math_NormalizeVector(&invertedm);
+  invertedm.x = is->source.x - (invertedm.x << 2);
+  invertedm.y = is->source.y - (invertedm.y << 2);
+  invertedm.z = is->source.z - (invertedm.z << 2);
+  Sfx_Transform(&invertedm,&ptrans,&Vi->cview.translation);
+  if (ptrans.vz < 0x40) {
+    return 1;
+  }
+  dx = ptrans.vx - is->trans.vx;
+  /* oracle `blez v0,.L800DD924` => the dx>0 arm is the FALL-THROUGH, so the
+     positive test must be written first. */
+  if ((0 < dx) ? (dx < 0x20) : (is->trans.vx - ptrans.vx < 0x20)) {
+    /* the clamped endpoint is measured from is->trans.vx, NOT from ptrans.vx --
+       oracle `lhu $v1,0x30($s2)` feeds both `addiu $v0,$v1,0x20` and
+       `addiu $v0,$v1,-0x20` before `sh $v0,0x58($sp)`. */
+    ptrans.vx = (is->trans.vx < ptrans.vx) ? is->trans.vx + 0x20 : is->trans.vx + -0x20;
+  }
+  dSouffle->v0.vx = is->trans.vx;
+  dSouffle->v0.vy = is->trans.vy + 0x20;
+  dSouffle->v0.vz = is->trans.vz;
+  dSouffle->v3.vx = is->trans.vx;
+  dSouffle->v3.vy = is->trans.vy + -0x20;
+  dSouffle->v3.vz = is->trans.vz;
+  dSouffle->v1.vx = ptrans.vx;
+  dSouffle->v1.vy = ptrans.vy + 0x20;
+  dSouffle->v1.vz = ptrans.vz;
+  dSouffle->v2.vx = ptrans.vx;
+  dSouffle->v2.vy = ptrans.vy + -0x20;
+  dSouffle->v2.vz = ptrans.vz;
+  return 0;
+}
+
+/* ---- inlined ribbon-facet helpers (SFX.CPP, static; SYM proves both case-10 and case-8
+ * bodies are INLINED FUNCTION instances: their block records carry (Vi,is,color,sd) as
+ * block-scope REG/AUTO "locals" = the inlined callee's PARAMETERS, and the caller copies
+ * a switch-scope CVECTOR into the callee's own parm slot with a 4-byte align-1 movstrsi
+ * (`sw v0,0x48(sp); lwl/lwr 0x48; swl/swr 0x6C` for case 10 -- 0x50 -> 0x64 for case 8,
+ * i.e. `color` and `gcolor` respectively).  Two separate helpers, not one: the only
+ * difference is the ChangeTPage mode (1 vs 2) and the SYM lists exactly 4 parameters. ---- */
+static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,CVECTOR color,Sfx_tCache *sd)
+{
+  int scale;
+  coorddef pt[2];
+  SVECTOR dest[4];
+  SVECTOR *dp;
+
+  pt[0] = is->motion;
+  Math_NormalizeVector(&pt[0]);
+  pt[1] = is->source;
+  scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
+  pt[0].x = pt[1].x - (pt[0].x * scale >> 4);
+  pt[0].y = pt[1].y - (pt[0].y * scale >> 4);
+  pt[0].z = pt[1].z - (pt[0].z * scale >> 4);
+  dp = &dest[0];
+  Sfx_ThickenXZ(dp,&pt[0],&pt[1],&Vi->cview.translation);
+  TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
+  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+    VECTOR check;
+    POLY_FT4 *prim;
+
+    gte_ldv0(&dest[1]);
+    gte_rtps();
+    prim = (POLY_FT4 *)Render_gPacketPtr;
+    gte_stlvnl(&check);
+    if (check.vz >= 0x20) {
+      gte_stsxy(&prim->x1);
+      gte_ldv3(dp,&dest[2],&dest[3]);
+      gte_rtpt();
+      *(u_long *)&prim->r0 = *(u_long *)&color;
+      gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
+      gte_avsz4();
+      gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+      sd->otz = (sd->otz >> 1) + 0x32;
+      if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
+        u_long l3,l2,l1,l0;
+        Draw_tPixMap *pmx;
+
+        *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+        pmx = gSparkHPixmap[6 - (u_char)is->cycle];
+        l0 = *(u_int *)&pmx->u0;
+        l1 = *(u_int *)&pmx->u1;
+        l2 = *(u_int *)&pmx->u2;
+        l3 = *(u_int *)&pmx->u3;
+        *(u_int *)&prim->u0 = l0;
+        *(u_int *)&prim->u1 = l1;
+        *(u_int *)&prim->u2 = l2;
+        *(u_int *)&prim->u3 = l3;
+        {
+          u_short tpage;
+          tpage = pmx->tpage;
+          ChangeTPage(&tpage,1);
+          prim->tpage = tpage;
+        }
+        prim->tag = prim->tag & 0xff000000 |
+                    *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+        l0 = (u_int)Render_gPacketPtr & 0xffffff;
+        Render_gPacketPtr = Render_gPacketPtr + 0x28;
+        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
+      }
+    }
+  }
+}
+
+static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,CVECTOR color,Sfx_tCache *sd)
+{
+  int scale;
+  coorddef pt[2];
+  SVECTOR dest[4];
+  SVECTOR *dp;
+
+  pt[0] = is->motion;
+  Math_NormalizeVector(&pt[0]);
+  pt[1] = is->source;
+  scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
+  pt[0].x = pt[1].x - (pt[0].x * scale >> 4);
+  pt[0].y = pt[1].y - (pt[0].y * scale >> 4);
+  pt[0].z = pt[1].z - (pt[0].z * scale >> 4);
+  dp = &dest[0];
+  Sfx_ThickenXZ(dp,&pt[0],&pt[1],&Vi->cview.translation);
+  TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
+  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
+    VECTOR check;
+    POLY_FT4 *prim;
+
+    gte_ldv0(&dest[1]);
+    gte_rtps();
+    prim = (POLY_FT4 *)Render_gPacketPtr;
+    gte_stlvnl(&check);
+    if (check.vz >= 0x20) {
+      gte_stsxy(&prim->x1);
+      gte_ldv3(dp,&dest[2],&dest[3]);
+      gte_rtpt();
+      *(u_long *)&prim->r0 = *(u_long *)&color;
+      gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
+      gte_avsz4();
+      gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+      sd->otz = (sd->otz >> 1) + 0x32;
+      if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
+        u_long l3,l2,l1,l0;
+        Draw_tPixMap *pmx;
+
+        *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
+        pmx = gSparkHPixmap[6 - (u_char)is->cycle];
+        l0 = *(u_int *)&pmx->u0;
+        l1 = *(u_int *)&pmx->u1;
+        l2 = *(u_int *)&pmx->u2;
+        l3 = *(u_int *)&pmx->u3;
+        *(u_int *)&prim->u0 = l0;
+        *(u_int *)&prim->u1 = l1;
+        *(u_int *)&prim->u2 = l2;
+        *(u_int *)&prim->u3 = l3;
+        {
+          u_short tpage;
+          tpage = pmx->tpage;
+          ChangeTPage(&tpage,2);
+          prim->tpage = tpage;
+        }
+        prim->tag = prim->tag & 0xff000000 |
+                    *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+        l0 = (u_int)Render_gPacketPtr & 0xffffff;
+        Render_gPacketPtr = Render_gPacketPtr + 0x28;
+        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
+      }
+    }
+  }
+}
+
 /* ---- Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle  [SFX.CPP:367-525] ----
  * REWRITTEN 2026-07-31 (w38-a5) against the raw oracle CFG.  The prior in-file claim of
  * "74 diffs (864/938)" was STALE -- the gate measured 1346 at wave start.  Structure taken
@@ -261,83 +440,57 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
  * eaclib `intcos`/`fastintcos` (same for sin) are CO-EQUAL LINKER XDEFs at one address, so
  * the spelling is byte-identical (verify_asm is reloc-name lenient).
  *
- * ============================ w39-a9 STATUS + FULL SYM MAP ============================
- * GATE 399 diffs (ours 945 / oracle 938) -- was 422 at wave start; -23 came from adopting
- * -G8 for this TU (see tools/build.py PER_TU_FLAGS "recon/game/psx/sfx.cpp").
- * The residual is 196 REGISTER-NAME lines + only ~11 structural insns, i.e. this is an
- * ALLOCATION problem now, not a control-flow one; the case bodies, the jump table order,
- * the call skeleton and the delay slots all line up.
+ * ============================ w40-a9 STATUS ============================
+ * GATE 340 diffs (ours 942 / oracle 938) -- was 399 at wave start.
  *
- * The briefing's targeted lever ("kill the &wpos callee-saved hoist") was ATTEMPTED and
- * FAILED as a local edit.  Ours emits `addiu s0,sp,72` once + two `addu a0,s0,zero`;
- * retail emits `addiu a0,sp,72` TWICE (once in the Math_NormalizeVector jal delay slot,
- * once immediately after).  cse unifies the two `&wpos` rtxes because after folding they
- * are the identical `(plus (frame) 72)`.  FALSIFIED shapes (both re-gate to exactly 399,
- * byte-identical output): `(coorddef *)&wpos.x` and `(coorddef *)((char *)&wpos.z - 8)`.
- * The hoist is a SYMPTOM of the whole-frame divergence below, not an independent knob --
- * do not re-grind it in isolation.
+ * 🏆 THE BANKED SYM REWRITE LANDED, but the SYM's "each case block REDECLARES Vi/is/
+ * dSouffle" reading was WRONG.  Those block records are an INLINED CALLEE'S PARAMETERS:
+ * gcc-2.8 emits an inlined function as BLOCK(parms) > BLOCK(body locals).  PROOF (not
+ * inference): the caller copies a switch-scope CVECTOR into the callee's own parm slot
+ * with a 4-byte align-1 movstrsi -- case 10 `sw $v0,0x48($sp); lwl/lwr 0x48 ->
+ * swl/swr 0x6C` = the SYM's switch-level `color`@sp+72 into case-10's parm `color`@
+ * sp+108, and case 8 does 0x50 -> 0x64 (`gcolor`@sp+80 -> parm@sp+100).  That is
+ * exactly a by-value struct argument being copied into an inlined callee's frame, and
+ * it simultaneously explains (a) the two "dead" CVECTORs at switch scope, (b) the
+ * OVERLAPPING case-8/case-10 stack slots (expand_inline_function allocates the inline's
+ * locals as assign_stack_TEMPs, freed and reused at block end -- DECL slots never
+ * overlap), and (c) Sfx_BuildSmokeFacet's identical (is,dSouffle,radius)+(sina,cosa)
+ * block pair, i.e. a SHARED quad helper inlined there too.
+ * => cases 4 / 10 / 8 are now three `static inline` helpers (Sfx_BuildSparkFacet,
+ *    Sfx_BuildRibbonFacet, Sfx_BuildBigRibbonFacet); case 4 RETURNS the skip flag
+ *    (the oracle's $v1 at .L800DD9F8).  All three verified inlined (no out-of-line sym).
  *
- * ROOT CAUSE = our LOCAL SET / FRAME LAYOUT, and the SYM hands over the full ground truth.
- * SYM `8c Function start` @45bddd: fp=$29(sp)  fsize=224  retreg=31  mask=$800F0000
- *   => saved regs are EXACTLY s0,s1,s2,s3,ra (5).  Ours saves s0,s1,s2,s3,s4,ra (6) and
- *   has an 8-byte-smaller frame (216 / 192 local bytes vs retail 224 / 200).
- * SYM REGISTER MAP (Def/Def2 `class REG $N`; $10=s0 $11=s1 $12=s2 $13=s3 $2=v0 $3=v1
- *   $4=a0 $5=a1 $6=a2 $7=a3):
- *   fn scope : Vi   REGPARM $10 = s0   (OURS PUTS IT IN s1 -- the head of the cascade)
- *              is   REGPARM $12 = s2   (ours agrees)
- *              sd   REG     $13 = s3   (ours agrees)
- *              dSouffle AUTO STRUCT sfxsouffle size 48 @ -0xC8 => sp+24
- *   Every case body is a NESTED BLOCK that REDECLARES `Vi` / `is` / `dSouffle` as REG
- *   locals (dSouffle as a `sfxsouffle *`).  That is the wave-9-a1 block lever in its ONLY
- *   working form (same identifier redeclared in SIBLING blocks => fresh gcc-2.8 pseudo per
- *   block); it is why retail can put `dSouffle` in s0 in case 4 AFTER `Vi` dies there
- *   (oracle `addiu s0,sp,0x18`) while ours is stuck with a0.
- *   case 1/2/3  (SYM block line 9  @800DD7E8): color  AUTO CVECTOR @-0x98 => sp+72
- *                                              gcolor AUTO CVECTOR @-0x90 => sp+80
- *                                              (both DEAD in the emitted code -- frame
- *                                               reservation only; ours declares neither)
- *   case 4      (SYM block line 36 @800DD874): Vi/is/dSouffle REG s0/s2/s0
- *                                              ptrans    AUTO SVECTOR  @-0x88 => sp+88
- *                                              invertedm AUTO coorddef @-0x98 => sp+72
- *                                              (`invertedm` is what this file calls `wpos`;
- *                                               there is NO `ds`/`skip`/`dx` SYM local --
- *                                               those three are our inventions)
- *   case 10     (SYM block line 46 @800DDA74): color AUTO CVECTOR   @-0x74 => sp+108
- *                                              scale REG $3 = v1
- *                                              pt    AUTO coorddef[2] @-0x48 => sp+152
- *                                              dest  AUTO SVECTOR[4]  @-0x68 => sp+120
- *                                              check AUTO VECTOR      @-0x30 => sp+176
- *                                              prim  REG $10 = s0
- *                                    + inlined OT-link block @800DDC44:
- *                                              l0..l3 REG v1,a1,a2,a3 · pmx REG v0
- *                                              tpage  AUTO USHORT @-0x20 => sp+192
- *   case 6      (line 53 @800DDD0C): is/dSouffle REG s2/s0 · sina REG v0 · cosa REG s1
- *   case 7      (line 62 @800DDDEC): + radius REG s0 · sina v0 · cosa s1
- *   case 9      (line 71 @800DDEF4): same shape as case 7
- *   case 11     (line 80 @800DDFFC): same shape as case 7
- *   case 8      (line 89 @800DE130): color @-0x7c => sp+100 · scale REG v1
- *                                    pt   coorddef[2] @-0x50 => sp+144
- *                                    dest SVECTOR[4]  @-0x70 => sp+112
- *                                    check VECTOR     @-0x38 => sp+168 · prim REG s0
- *                                    + inlined OT-link block @800DE300: l0..l3/pmx as above,
- *                                      tpage AUTO @-0x1e => sp+194
- *   case 13/14  (@800DE3C8): is REG s2 · dSouffle REG $4 = a0 · sina v0 · cosa s0
- *                            + block: prim REG $8 = t0 · pt REG $4 = a0
- *                            + block line 137: pmx REG v0 · l0..l3 REG v1,a0,a2,v0
- * SLOT-MAP DIFF (ours vs retail, local bytes only): retail occupies
- *   ...0x48 0x4b 0x4c 0x50 0x53 0x58 0x5a 0x5c 0x64 0x67 0x6c 0x6f 0x70 0x78 0x80 0x88
- *      0x90 0x94 0x98 0x9c 0xa0 0xa4 0xa8 0xac 0xb0 0xb8 0xc0 0xc2
- *   ours 72 76 80 88 90 92 96 104 112 120 124 128 132 136 140 144 148 152 160 163 168 171
- *        176 179 180 184 187 188   (top slot 188 vs retail's 194)
+ * WHAT THAT FIXED (each measured):
+ *  - saved-reg mask is now EXACTLY the SYM's $800F0000 = s0,s1,s2,s3,ra.  The old build
+ *    spilled a 6th (s4) because cse unified the two `&wpos` rtxes into one pseudo live
+ *    across Math_NormalizeVector; inside an inlined callee the address is rematerialised
+ *    per use, exactly like retail's two `addiu $a0,$sp,0x48`.
+ *  - Vi now lands in $s0 (SYM $10), was $s1 -- the head of the whole cascade; s0 is then
+ *    freed for &dSouffle in case 4 and the packet pointer in case 10, as in the oracle.
+ *  - EARLY BASE-POINTER HOIST for the ribbon array: `SVECTOR *dp = &dest[0];` reproduces
+ *    retail's callee-saved $s1 base held across Sfx_ThickenXZ + TrsProj_SetPsxMatrix and
+ *    reused as gte_ldv3's first operand (376 -> 340).  The bare array-name argument lets
+ *    cse drop the pseudo and rematerialise instead.
+ *  - the OT-link packet-link temp goes through `l0` (SYM $3), not a recycled `scale`.
  *
- * NEXT-WAVE RECIPE (a full rule-8 rewrite, one-session job -- partial edits scramble the
- * LCS on a 940-insn monster, catalog wave-12): (1) delete the invented `ds`/`skip`/`dx`
- * locals; (2) give every case its OWN brace block that REDECLARES `Vi`,`is` and a
- * `sfxsouffle *dSouffle` pointer, in the SYM's order; (3) declare each block's AUTOs in
- * the SYM's slot order so the frame reaches 224/200 and the top slot lands at 0xC2;
- * (4) add the two dead `color`/`gcolor` CVECTORs to the case-1/2/3 block.  Expect the
- * s1->s0 `Vi` fix and the s4 spill to fall out together.
- * NOTE cases 1/2/3, 6, 7, 9, 11 already byte-match; preserve them verbatim.
+ * REMAINING (177 diff lines, five ~46-line clusters):
+ *  (1) FRAME 216 vs SYM fsize 224 -- every sp displacement in cases 4/10/8/13-14 is
+ *      offset, which is most of the residual.  DIAGNOSTIC (do NOT adopt): adding a dead
+ *      `int deadfrm[2];` at fn scope gates 340 -> 332 at an unchanged 942 insns, i.e.
+ *      the frame delta alone is worth ~8 diff lines.  Rejected as fabricated-local
+ *      scaffolding; the REAL cause is the inline temp-slot layout -- in retail the case-8
+ *      and case-10 inline instances are offset by 8 and INTERLEAVE
+ *      (c8 tpage@194 > c10 tpage@192 > c10 check@176 > c8 check@168 > c10 pt@152 >
+ *       c8 pt@144 > c10 dest@120 > c8 dest@112 > c10 color@108 > c8 color@100),
+ *      whereas our two instances land on identical slots.  Swapping the pt/dest
+ *      declaration order was tried and REGRESSES hard (1095) -- the order is right.
+ *  (2) the 0xFFFFFF / 0xFF000000 / &Render_gPacketPtr / Render_gPalettePtr four-constant
+ *      register rotation in the case-10/8/13-14 OT-link tails -- the SAME allocator tie
+ *      documented as a STRONG FLOOR on Sfx_AdditivePrim above (and as the PrimStop /
+ *      SpotPrims / SubdividFacet family in the catalog).
+ *  (3) case 10/8: `scale` lands in $a3 where the SYM says $3(v1), and the first product
+ *      in $v1 where retail uses $t6 -- a downstream consequence of (1).
+ * NOTE cases 1/2/3, 6, 7, 9, 11 byte-match; preserve them verbatim.
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
@@ -347,6 +500,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
   sd = (Sfx_tCache *)0x1f800000;   /* oracle: literal scratchpad address, not %hi/%lo(Sfx_gCache) */
   switch((u_char)is->type) {
+    CVECTOR color, gcolor;
   case 1:
     Sfx_BuildSmokeFacet(is,&dSouffle,gSMokePalette);
     Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
@@ -363,121 +517,14 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,1,0xf,sd);
     break;
   case 4:
-    {
-      coorddef wpos;
-      SVECTOR ptrans;
-      sfxsouffle *ds;
-      int dx;
-      int skip;
-
-      wpos = is->motion;
-      Math_NormalizeVector(&wpos);
-      wpos.x = is->source.x - (wpos.x << 2);
-      wpos.y = is->source.y - (wpos.y << 2);
-      wpos.z = is->source.z - (wpos.z << 2);
-      Sfx_Transform(&wpos,&ptrans,&Vi->cview.translation);
-      ds = &dSouffle;
-      if (ptrans.vz < 0x40) {
-        skip = 1;
-      }
-      else {
-        dx = ptrans.vx - is->trans.vx;
-        /* oracle `blez v0,.L800DD924` => the dx>0 arm is the FALL-THROUGH, so the
-           positive test must be written first. */
-        if ((0 < dx) ? (dx < 0x20) : (is->trans.vx - ptrans.vx < 0x20)) {
-          /* BUG FIX (w38-a5): the clamped endpoint is measured from is->trans.vx, NOT
-             from ptrans.vx -- oracle `lhu $v1,0x30($s2)` (is->trans.vx) feeds both
-             `addiu $v0,$v1,0x20` and `addiu $v0,$v1,-0x20` before `sh $v0,0x58($sp)`.
-             The old form re-based on ptrans.vx, so the 32-unit minimum separation was
-             not enforced (spark ribbon could stay degenerate). */
-          ptrans.vx = (is->trans.vx < ptrans.vx) ? is->trans.vx + 0x20 : is->trans.vx + -0x20;
-        }
-        ds->v0.vx = is->trans.vx;
-        ds->v0.vy = is->trans.vy + 0x20;
-        ds->v0.vz = is->trans.vz;
-        ds->v3.vx = is->trans.vx;
-        ds->v3.vy = is->trans.vy + -0x20;
-        ds->v3.vz = is->trans.vz;
-        ds->v1.vx = ptrans.vx;
-        ds->v1.vy = ptrans.vy + 0x20;
-        ds->v1.vz = ptrans.vz;
-        ds->v2.vx = ptrans.vx;
-        ds->v2.vy = ptrans.vy + -0x20;
-        ds->v2.vz = ptrans.vz;
-        skip = 0;
-      }
-      if (skip == 0) {
-        dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
-        Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
-      }
+    if (Sfx_BuildSparkFacet(Vi,is,&dSouffle) == 0) {
+      dSouffle.pmx = *gSparkHPixmap[6 - (u_char)is->cycle];
+      Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
     }
     break;
   case 10:
-    {
-      SVECTOR ribbon[4];
-      VECTOR proj;
-      coorddef wpos;
-      coorddef src;
-      CVECTOR colour;
-      POLY_FT4 *prim;
-      Draw_tPixMap *pmx;
-      u_short tpage;
-      u_long ccode;
-      u_int p0f,p1f,p2f,p3f;
-      int scale;
-
-      ccode = 0x2e181010;
-      colour = *(CVECTOR *)&ccode;
-      wpos = is->motion;
-      Math_NormalizeVector(&wpos);
-      src = is->source;
-      scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
-      wpos.x = src.x - (wpos.x * scale >> 4);
-      wpos.y = src.y - (wpos.y * scale >> 4);
-      wpos.z = src.z - (wpos.z * scale >> 4);
-      Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
-      TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-        gte_ldv0(&ribbon[1]);
-        gte_rtps();
-        prim = (POLY_FT4 *)Render_gPacketPtr;
-        gte_stlvnl(&proj);
-        if (proj.vz >= 0x20) {
-          gte_stsxy(&prim->x1);
-          gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
-          gte_rtpt();
-          *(u_long *)&prim->r0 = *(u_long *)&colour;
-          gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
-          gte_avsz4();
-          gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-          sd->otz = (sd->otz >> 1) + 0x32;
-          if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-            *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-            pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-            /* 4 named temps: oracle loads all four pixmap words into DISTINCT regs
-               (lw v1/a1/a2/a3) then stores all four -- the loads fill each other's
-               load-delay slots.  Per-field copies serialize through one reg (+4 nops). */
-            p0f = *(u_int *)&pmx->u0;
-            p1f = *(u_int *)&pmx->u1;
-            p2f = *(u_int *)&pmx->u2;
-            p3f = *(u_int *)&pmx->u3;
-            *(u_int *)&prim->u0 = p0f;
-            *(u_int *)&prim->u1 = p1f;
-            *(u_int *)&prim->u2 = p2f;
-            *(u_int *)&prim->u3 = p3f;
-            tpage = pmx->tpage;
-            ChangeTPage(&tpage,1);
-            prim->tpage = tpage;
-            prim->tag = prim->tag & 0xff000000 |
-                        *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-            scale = (u_int)Render_gPacketPtr & 0xffffff;
-            Render_gPacketPtr = Render_gPacketPtr + 0x28;
-            *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-                 *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | scale;
-          }
-        }
-      }
-    }
+    *(u_long *)&color = 0x2e181010;
+    Sfx_BuildRibbonFacet(Vi,is,color,sd);
     break;
   case 6:
     {
@@ -588,71 +635,8 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     }
     break;
   case 8:
-    {
-      SVECTOR ribbon[4];
-      VECTOR proj;
-      coorddef wpos;
-      coorddef src;
-      CVECTOR colour;
-      POLY_FT4 *prim;
-      Draw_tPixMap *pmx;
-      u_short tpage;
-      u_long ccode;
-      u_int p0f,p1f,p2f,p3f;
-      int scale;
-
-      ccode = 0x2e301818;
-      colour = *(CVECTOR *)&ccode;
-      wpos = is->motion;
-      Math_NormalizeVector(&wpos);
-      src = is->source;
-      scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
-      wpos.x = src.x - (wpos.x * scale >> 4);
-      wpos.y = src.y - (wpos.y * scale >> 4);
-      wpos.z = src.z - (wpos.z * scale >> 4);
-      Sfx_ThickenXZ(ribbon,&wpos,&src,&Vi->cview.translation);
-      TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-      if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-        gte_ldv0(&ribbon[1]);
-        gte_rtps();
-        prim = (POLY_FT4 *)Render_gPacketPtr;
-        gte_stlvnl(&proj);
-        if (proj.vz >= 0x20) {
-          gte_stsxy(&prim->x1);
-          gte_ldv3(&ribbon[0],&ribbon[2],&ribbon[3]);
-          gte_rtpt();
-          *(u_long *)&prim->r0 = *(u_long *)&colour;
-          gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
-          gte_avsz4();
-          gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-          sd->otz = (sd->otz >> 1) + 0x32;
-          if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-            *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-            pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-            /* 4 named temps: oracle loads all four pixmap words into DISTINCT regs
-               (lw v1/a1/a2/a3) then stores all four -- the loads fill each other's
-               load-delay slots.  Per-field copies serialize through one reg (+4 nops). */
-            p0f = *(u_int *)&pmx->u0;
-            p1f = *(u_int *)&pmx->u1;
-            p2f = *(u_int *)&pmx->u2;
-            p3f = *(u_int *)&pmx->u3;
-            *(u_int *)&prim->u0 = p0f;
-            *(u_int *)&prim->u1 = p1f;
-            *(u_int *)&prim->u2 = p2f;
-            *(u_int *)&prim->u3 = p3f;
-            tpage = pmx->tpage;
-            ChangeTPage(&tpage,2);
-            prim->tpage = tpage;
-            prim->tag = prim->tag & 0xff000000 |
-                        *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-            scale = (u_int)Render_gPacketPtr & 0xffffff;
-            Render_gPacketPtr = Render_gPacketPtr + 0x28;
-            *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-                 *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | scale;
-          }
-        }
-      }
-    }
+    *(u_long *)&gcolor = 0x2e301818;
+    Sfx_BuildBigRibbonFacet(Vi,is,gcolor,sd);
     break;
   case 13:
   case 14:

@@ -153,51 +153,37 @@ void Texture_AddSharedPalette(char *ptr_to_data,Draw_tPixMap *ptr_to_pmx,int bpp
 void Texture_InitClut(void)
 
 {
-  int clut;
-  int cbase;
+  /* MATCH (w40-a10, 16 -> PASS): the SYM `8c` block for this function lists
+   * EXACTLY TWO named REG locals -- `x` ($7) and `y` ($5) -- and NOTHING else.
+   * The w39 body carried invented `clut` and `cbase` locals SHARED across all
+   * three loop nests, which fused three independent compiler temps into one
+   * pseudo each and mis-coloured loop 1 (retail keeps loop 1's clut in $v1 and
+   * ORs cbase into it IN PLACE so the rotated `sll $v1,$a1,6` fills the
+   * back-edge delay slot; the shared local forced a fresh $v0 dest + a `nop`).
+   * Writing every clut/cbase as an INLINE EXPRESSION -- the SYM-faithful shape
+   * -- gives each nest its own temp and reproduces retail exactly.
+   * (Intermediate evidence: a loop-1-private `clut1` alone = 8 diffs; adding
+   * per-loop `cbase2`/`cbase3` = PASS; per-loop `y` copies REGRESS (26-35), so
+   * `y` really is the one shared counter the SYM names.  The w39 note's
+   * "source-hoisted cbase" lever and its 49-54-diff rotation dead end were
+   * both artifacts of the shared locals.) */
   int x;
   int y;
 
-  /* MATCH (w39-a10, 37 -> 16, now COUNT-EXACT 65/65).  Three levers:
-   *  (1) SOURCE-HOISTED `cbase` -- the loop-invariant `(x>>4)&0x3f` must be its
-   *      own statement placed BEFORE the clut initialisation.  loop.c inserts
-   *      its own hoisted copy AFTER everything already in the preheader, so the
-   *      in-expression form emits `li clut` BEFORE the andi chain; retail has
-   *      andi first.  (Same lever took Texture_InitMenuClut 14 -> PASS.)
-   *  (2) counter POST-INCREMENT `gFreePalN[gNbFreePalN++]` -- puts the
-   *      `addiu v1,v1,1` before the `addu v0,v0,base` and frees the counter
-   *      load's delay slot for the `y++`.
-   *  (3) loops 2 and 3 are `for (clut = K; y < N; y++)` (y initialised on its
-   *      own line before, so `y = 0` sits outside the invariant chain); loop 1
-   *      keeps the do-while with `clut = y * 0x40` as its LAST statement, which
-   *      is what rotates that multiply into the back-edge delay slot.
-   * RESIDUAL 16 = one register rotation in loop 1 only: retail keeps clut in
-   * $v1 and ORs cbase INTO it (`or v1,v1,a2`, so the rotated `sll v1,a1,6` fills
-   * the back-edge delay slot), we compute the OR into a fresh $v0 and pay a
-   * `nop` there; cbase/base land in $t0/$t1 instead of $a2/$t0.  Writing the OR
-   * in place (`clut = clut | cbase;`) DOES buy the delay-slot fill and exact
-   * count but rotates all six registers one step (54 diffs) -- and decl-order
-   * permutations, a private loop-1 counter and per-loop cbase locals do not
-   * unwind that rotation (measured: 49-54).  Permuter is unavailable for C++
-   * TUs, so this is where it stands. */
   x = 0;
   gNbFreePal4 = 0;
   do {
     y = 0;
-    cbase = (u_short)(x >> 4) & 0x3f;
     for (; y < 0x78; y++) {
-      clut = y * 0x40;
-      gFreePal4[gNbFreePal4++] = (u_short)clut | cbase;
+      gFreePal4[gNbFreePal4++] = (u_short)(y * 0x40) | ((u_short)(x >> 4) & 0x3f);
     }
     x = x + 0x10;
   } while (x < 0x100);
   x = 0;
   do {
     y = 0;
-    cbase = (u_short)(x >> 4) & 0x3f;
-    for (clut = 0x2000; y < 0x20; y++) {
-      gFreePal4[gNbFreePal4++] = (u_short)clut | cbase;
-      clut = clut + 0x40;
+    for (; y < 0x20; y++) {
+      gFreePal4[gNbFreePal4++] = (u_short)(0x2000 + y * 0x40) | ((u_short)(x >> 4) & 0x3f);
     }
     x = x + 0x10;
   } while (x < 0x80);
@@ -205,10 +191,8 @@ void Texture_InitClut(void)
   gNbFreePal8 = 0;
   do {
     y = 0;
-    cbase = (u_short)(x >> 4) & 0x3f;
-    for (clut = 0x1e00; y < 8; y++) {
-      gFreePal8[gNbFreePal8++] = (u_short)clut | cbase;
-      clut = clut + 0x40;
+    for (; y < 8; y++) {
+      gFreePal8[gNbFreePal8++] = (u_short)(0x1e00 + y * 0x40) | ((u_short)(x >> 4) & 0x3f);
     }
     x = x + 0x100;
   } while (x < 0x100);
@@ -385,13 +369,34 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
           /* MATCH: two real BITFIELD assignments (lw / and ~0xfff / or x&0xfff /
            * and 0xf000ffff / or (y&0xfff)<<16 / sw), NOT one fused
            * `word & 0xf000f000 | ...` expression which collapses to a single
-           * `and`.  FLOOR (18 diffs, ours 109/107): our cc1 additionally hoists
-           * `x & 0xfff` out of the loop into $fp (+sw/lw fp), which the retail
-           * loop.c cost model refused -- it hoists only the two 2-insn
-           * `(v&0xfff)<<16` movables and the -0x1000 constant.  Tried: bitfield
-           * store order swaps, type-first order, dropping the frame filler,
-           * u_char kind -- none suppress the extra savings-1 hoist. */
-          shp->shapex = x;
+           * `and`.
+           * MATCH (w40-a10, 18 -> PASS): the shapex write must be spelled as the
+           * RAW-WORD read-modify-write; only the shapey write stays a bitfield
+           * assignment.  MECHANISM, read off cc1's own `-dL` loop dump
+           * (`Loop from 30 to 264: 84 real insns`): with BOTH as bitfield
+           * assignments the RTL for `shp->shapex = x` is
+           *   andi r95,x,0xfff / lw r96,12(shp) / and r97,r96,r98 / ior r97,r95
+           * so the `x & 0xfff` movable has life 4 and loop.c logs
+           *   `Insn 63: regno 95 (life 4), savings 1  moved to 279`
+           * -- it hoists it into $fp, costing the extra `sw fp`/`lw fp` pair
+           * (109 vs 107) and shifting every frame offset.  Retail's loop.c
+           * refused it, exactly as ours refuses the IDENTICAL clutx movable one
+           * arm later (`Insn 163: regno 114 (life 4), savings 1 not desirable`)
+           * and the second 0xf000ffff constant (`Insn 79 ... not desirable`
+           * where the first, `Insn 67`, with the same life/savings, moved) --
+           * i.e. the cost model is STATEFUL and we sit one movable over retail's
+           * budget edge.  Writing the shapex store as `word = (word &
+           * 0xfffff000) | (x & 0xfff)` makes gcc evaluate the `|`'s LEFT operand
+           * first, so the andi lands immediately before its use (life 1) and
+           * loop.c declines it -- the same disposition retail's build reached.
+           * Byte-identical merged sequence either way (`lw / andi / and $s2 /
+           * or / and $a1 / or $s7 / sw`).  Falsified: bitfield-store order swap
+           * (35 diffs, and it inverts which mask is hoisted), flag-store first
+           * (32), r.x/r.y first (24), a block-local `xf` copy (18), an explicit
+           * `(x & 0xfff)` cast (18), raw-word RMW for shapey too (66) or for
+           * shapey only (68). */
+          *(u_int *)((char *)shp + 0xc) =
+              (*(u_int *)((char *)shp + 0xc) & 0xfffff000) | (x & 0xfff);
           shp->shapey = y;
           *(u_char *)shp = *(u_char *)shp | 8;
           r.x = (short)x;
@@ -489,31 +494,29 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
 {
   u_int abr;
 
+  /* MATCH (w40-a10, 4 -> PASS): `return 0` must be the loop's POST-EXIT
+   * fall-through (`if (shp == 0) break;` + a trailing `return 0;`), NOT an
+   * inline early-return inside the guard.  Written inline, gcc's post-reload
+   * cross-jump pass merges the two `jr ra` tails (`move v0,0; jr ra` and the
+   * bare `jr ra`), leaving `move v0,0; j <shared tail>`; reorg then EAGER-
+   * STEALS that `move` into the `beqz $a0` delay slot -- 28 insns vs the
+   * oracle's 30, with the oracle's separate `.L800DFF08: jr ra; addu v0,zero,
+   * zero` block gone.  As the post-loop block it stays its own return block
+   * and dbr fills its OWN `jr ra` slot with the `move`.  (This REFUTES the
+   * catalog's "dual `jr ra` tails always cross-jump-merge" negative for this
+   * shape; `goto ret0;`+label and the `else { return 0; }` arm PASS too, the
+   * `return 0` position is what matters, not the spelling.  A named `zero`
+   * local instead regresses to 9.)
+   * NOTE the clamp must stay IN PLACE (`if (abr == 3) abr = 2;` then one
+   * return): jump-opt splits it into the oracle's own `bne v0,a3,.L800DFF10;
+   * jr ra; addiu v0,2` tail.  Explicit two-return spellings measured
+   * 14/16/19. */
   while( true ) {
-    if (shp == (shapetbl *)0x0) {
-      return 0;
-    }
+    if (shp == (shapetbl *)0x0) break;
     if (*(char *)shp == 'k') {
       abr = (u_short)shp->width >> 5 & 3;
-      /* MATCH: clamp-in-place then ONE return -- a ternary/two-return form makes
-       * gcc build the value in $v1 and copy it out at a shared tail. */
       if (abr == 3) { abr = 2; }
       return abr;
-      /* FLOOR (4 diffs, 28/30) -- MECHANISM (w39-a10): gcc's post-reload
-       * cross-jump pass merges the two return blocks (both end `jr ra`), which
-       * leaves `move v0,zero; j <shared jr ra>`; reorg then EAGER-STEALS that
-       * `move` into the `beqz $a0` delay slot and retargets the branch, so we
-       * lose both the separate return-0 block and the oracle's empty slot.
-       * Retail's simple-delay-slot pass consumed the `move` as the return
-       * block's OWN slot first, after which the eager fill had nothing to take.
-       * Same family as the catalog's "dual `jr ra` tails always cross-jump-
-       * merge" negative result.  Original note: the oracle keeps TWO separate `jr ra` tails --
-       * .L800DFF08 `jr ra; addu v0,zero,zero` for `return 0` and .L800DFF10
-       * `jr ra; nop` for `return abr`.  gcc-2.8 cross-jump-merges them here and
-       * sinks the 0 into the `beqz shp` delay slot.  Tried: while(shp!=0)+trailing
-       * return 0 (6), for(;;)+break (6), goto-loop (29), continue-form (27),
-       * named ret var (4, identical).  Same class as the catalog's
-       * "dual jr ra tails always cross-jump-merge" negative result. */
     }
     if ((*(u_int *)shp & 0xffffff00) != 0) {
       shp = (shapetbl *)((int)&(*(u_int *)((char *)shp + 0x0)) + ((int)*(u_int *)shp >> 8));
@@ -522,6 +525,7 @@ int Texture_GetTranslucencyMode(shapetbl *shp)
       shp = (shapetbl *)0x0;
     }
   }
+  return 0;
 }
 
 /* ---- Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap  [TEXTURE.CPP:538-667] SLD-FLAG:NONMONO ---- */

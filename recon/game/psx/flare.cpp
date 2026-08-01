@@ -811,11 +811,13 @@ gte_SetRotMatrix(&mtx);
       {
         DR_MODE *aprim;         /* a0 */
         u_int *slot;            /* a2 (anonymous -- no SYM record) */
+        u_int pkt24;
         aprim = (DR_MODE *)Render_gPacketPtr;
         slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+        pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | (u_int)aprim & 0xffffff;
         {
           /* MATCH: the AND must land in its OWN variable -- gcc-2.8's fold()
              rewrites `(flags & 0x40) != 0` (any spelling: Yoda, >0, !!, explicit
@@ -882,18 +884,24 @@ void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fp
     int dz;                     /* a3 */
     t = (coorddef *)&Vi->cview;
     tx = t->x;
-    dx = fpt->x - tx;
     ty = t->y;
-    dy = fpt->y - ty;
     tz = t->z;
-    dz = fpt->z - tz;
+    dx = fpt->x;
+    dy = fpt->y;
+    dz = fpt->z;
+    dx = dx - tx;
+    dy = dy - ty;
+    dz = dz - tz;
     sdiff.vx = (short)(dx >> 10);
     sdiff.vy = (short)(dy >> 10);
     sdiff.vz = (short)(dz >> 10);
     if ((flags & 5U) != 0) {
-      dx = fpt2->x - tx;
-      dy = fpt2->y - ty;
-      dz = fpt2->z - tz;
+      dx = fpt2->x;
+      dy = fpt2->y;
+      dz = fpt2->z;
+      dx = dx - tx;
+      dy = dy - ty;
+      dz = dz - tz;
       sdiff2.vx = (short)(dx >> 10);
       sdiff2.vy = (short)(dy >> 10);
       sdiff2.vz = (short)(dz >> 10);
@@ -955,11 +963,13 @@ gte_stszotz(&otz);
     if ((flags & 0x40U) != 0) {
       DR_MODE *aprim;           /* a0 */
       u_int *slot;              /* t0 */
+      u_int pkt24;
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     z = diff.vz;
@@ -1077,11 +1087,13 @@ gte_SetRotMatrix(&mtx);
     {
       DR_MODE *aprim;           /* a0 */
       u_int *slot;              /* t0 */
+      u_int pkt24;
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       {
         /* MATCH: see Flare_CarShapedHalo -- the AND needs its own VAR_DECL to
            stop gcc's fold() turning the test into `(flags >> 6) & 1`. */
@@ -1165,11 +1177,14 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
       DR_MODE *aprim;
       u_int *slot;
 
+      u_int pkt24;
+
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)Render_gPalettePtr;
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     {
@@ -1219,12 +1234,15 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
       DR_MODE *aprim;
       u_int *slot;
 
+      u_int pkt24;
+
       aprim = (DR_MODE *)Render_gPacketPtr;
       slot = (u_int *)Render_gPalettePtr;
       slot = (u_int *)((int)slot + otz * 4);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
+      pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = *slot & 0xff000000 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | (u_int)aprim & 0xffffff;
       SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
     }
   }
@@ -1734,6 +1752,22 @@ gte_SetRotMatrix(&mtx);
  * no zero-cost source lever changes the qty priority).  The SAME rotation is the whole
  * residual of Flare_2DHalo (68), most of Flare_LensFlare's tail, Flare_CarShapedHalo and
  * Flare_Halo2's tails, and Sky_RenderStars (2, LICM-hoist ORDER variant of the same tie).
+ * w40-a8 QUANTIFICATION of that floor across the halo family (tool: scratch/quant_a8.py --
+ * aligns ours vs oracle, then searches register permutations that make an aligned pair
+ * equal, reporting how many pairs remain OUTSIDE):
+ *     Flare_Sun          50 diffs = 25 pairs, 25/25 explained by {t1->t2,t2->t3,t3->t1}
+ *                        -> 0 OUTSIDE.  100%% floor, count exact.  Do not grind.
+ *     Flare_Halo2        48 diffs = 24 pairs, 24/24 explained -> 0 OUTSIDE (after the
+ *                        w40 batched-load fix below).  100%% floor, count exact.
+ *     Flare_2DHalo       60 diffs = 24 pairs, 21 explained, 3 OUTSIDE (+12 count-only):
+ *                        a v0<->t0 swap between the otz*4 shift and the palette-base load
+ *                        in the SECOND tail block, plus prologue save-order.
+ *     Flare_CarShapedHalo 59 diffs = 27 pairs, only 6 explained by a t0<->t1 2-cycle;
+ *                        21 OUTSIDE = an s6<->s7 swap (type param vs the zero-init
+ *                        angleZ; the SYM says angleZ=$s6, so the ORACLE is right and our
+ *                        build gives angleZ $s7) + a v0/v1 pick on `andi ...,127`.
+ *                        THIS ONE IS NOT THE FLOOR -- it is the biggest remaining lead
+ *                        in flare.cpp: demote `type` / promote `angleZ` in allocno order.
  * w39-a8 probes, ALL byte-neutral or worse: Hrz_SetDitheringPrim's exact spelling (slot
  * first, unmasked `tag = *slot` then `(tag & 0xff000000)|(...)`) = 50; unmasked pkt24 with
  * the original statement order = 50; swapping the first RMW's OR operands = 56.  Also NOT

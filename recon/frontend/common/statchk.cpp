@@ -148,52 +148,42 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
 short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
-  bool bDoRecordCheck;
-  short nCar;
-  int k;
-  tRecordBuffer *RecordHolders;
-  void *nCarTotalTimes;
-  void *nRankCarTotalTimes;
-  tCarInfo *carInfo;
-  int idx;
-  short *pSlot;
-  uint nLapIndicator;
-  ushort retvalue;
+  int retvalue;
+  short bDoRecordCheck;
+  short nLaps;
+  short nLapIndicator;
   int nCheckTotalTime;
+  short k;
+  short nCar;
+  int *nCarTotalTimes;
+  short *nRankCarTotalTimes;
+  tRecordBuffer *RecordHolders;
   int LASTPLACE [2];
   int TOPLIST [2];
   int NUMBERONE [2];
   
-  bDoRecordCheck = false;
-  k = Front_GetLapsForType();
-  carInfo = (tCarInfo *)LASTPLACE;
-  memset(carInfo,0,8);
-  memset(TOPLIST,0,8);
-  memset(NUMBERONE,0,8);
+  bDoRecordCheck = 0;
+  nLaps = Front_GetLapsForType();
+  memset(LASTPLACE,0,sizeof(LASTPLACE));
+  memset(TOPLIST,0,sizeof(TOPLIST));
+  memset(NUMBERONE,0,sizeof(NUMBERONE));
   RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",0x168,0x10);
-  nCheckTotalTime = (int)(short)nNumCars;
-  nCarTotalTimes = (int *)reservememadr("carttime",nCheckTotalTime << 2,0x10);
-  nRankCarTotalTimes = (short *)reservememadr("carttrnk",nCheckTotalTime << 1,0x10);
+  nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
+  nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);
   retvalue = 0;
-  if (0 < nCheckTotalTime) {
-    idx = 0;
-    do {
-      *(ushort *)((int)nRankCarTotalTimes + dummyCars[idx >> 0x10].position * 2 + -2) = retvalue;
-      retvalue = retvalue + 1;
-      idx = (uint)retvalue << 0x10;
-    } while ((short)retvalue < nCheckTotalTime);
+  for (k = 0; k < nNumCars; k++) {
+    nRankCarTotalTimes[dummyCars[k].position - 1] = k;
   }
   nCar = Front_GetTrackRaced();
   Stattool_GetRecords(nCar,RecordHolders);
   nLapIndicator = 9;
-  if ((short)k == 2) {
+  if (nLaps == 2) {
     nLapIndicator = 1;
   }
-  nLapIndicator = nLapIndicator << 2 | nLapIndicator;
-  for (k = 0; nCheckTotalTime = (k << 0x10) >> 0x10, k << 0x10 < (int)((uint)nNumCars << 0x10);
-      k = k + 1) {
-    carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nCheckTotalTime].carType);
-    nCar = *(short *)(nCheckTotalTime * 2 + (int)nRankCarTotalTimes);
+  for (k = 0; k < nNumCars; k++) {
+    tCarInfo *carInfo;
+    carInfo = GetCarFromSimID(&carManager, (short)dummyCars[k].carType);
+    nCar = nRankCarTotalTimes[k];
     if ((dummyCars[nCar].carFlags & 0x200U) != 0) {
       purgememadr(RecordHolders);
       purgememadr(nCarTotalTimes);
@@ -203,50 +193,45 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
     if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
       if ((((byte)frontEnd.gameMode < 3) && ((dummyCars[nCar].carFlags & 4U) != 0)) &&
          (dummyCars[nCar].finalFinishType == 2)) {
-        bDoRecordCheck = true;
+        bDoRecordCheck = 1;
       }
       if (bDoRecordCheck) {
-        nCar = *(short *)(((k << 0x10) >> 0xf) + (int)nRankCarTotalTimes);
+        nCar = nRankCarTotalTimes[k];
         nCheckTotalTime = dummyCars[nCar].finalTotalTime;
-        bDoRecordCheck = false;
-        if ((nCheckTotalTime < *(int *)(RecordHolders[6].sName + nLapIndicator * 4 + 0xc)) ||
-           ((*(int *)(RecordHolders[7].sName + nLapIndicator * 4 + 0xc) == 0 && (0 < nCheckTotalTime)))) {
+        bDoRecordCheck = 0;
+        if ((nCheckTotalTime < RecordHolders[nLapIndicator + 6].nTime) ||
+           ((RecordHolders[nLapIndicator + 7].nTime == 0 && (0 < nCheckTotalTime)))) {
           TOPLIST[nCar] = 1;
         }
-        else if ((nCheckTotalTime < *(int *)(RecordHolders[7].sName + nLapIndicator * 4 + 0xc)) ||
-                ((*(int *)(RecordHolders[7].sName + nLapIndicator * 4 + 0xc) == 0 && (0 < nCheckTotalTime)))) {
-          pSlot = (short *)(((k << 0x10) >> 0xf) + (int)nRankCarTotalTimes);
-          TOPLIST[*pSlot] = 1;
-          LASTPLACE[*pSlot] = 1;
+        else if ((nCheckTotalTime < RecordHolders[nLapIndicator + 7].nTime) ||
+                ((RecordHolders[nLapIndicator + 7].nTime == 0 && (0 < nCheckTotalTime)))) {
+          TOPLIST[nRankCarTotalTimes[k]] = 1;
+          LASTPLACE[nRankCarTotalTimes[k]] = 1;
         }
-        if ((nCheckTotalTime < *(int *)(RecordHolders->sName + nLapIndicator * 4 + 0xc)) ||
-           ((*(int *)(RecordHolders[7].sName + nLapIndicator * 4 + 0xc) == 0 && (0 < nCheckTotalTime)))) {
-          pSlot = (short *)(((k << 0x10) >> 0xf) + (int)nRankCarTotalTimes);
-          TOPLIST[*pSlot] = 1;
-          NUMBERONE[*pSlot] = 1;
+        if ((nCheckTotalTime < RecordHolders[nLapIndicator].nTime) ||
+           ((RecordHolders[nLapIndicator + 7].nTime == 0 && (0 < nCheckTotalTime)))) {
+          TOPLIST[nRankCarTotalTimes[k]] = 1;
+          NUMBERONE[nRankCarTotalTimes[k]] = 1;
         }
       }
     }
   }
-  if (LASTPLACE[0] == 0) {
-StatChkTop_lastPlace0Check:
-    if ((LASTPLACE[1] == 0) || (TOPLIST[0] == 0)) goto StatChkTop_topListJoin;
-  }
-  else {
-    if (LASTPLACE[1] == 0) {
-      if (TOPLIST[1] != 0) {
+  if (LASTPLACE[0] != 0) {
+    if (LASTPLACE[1] != 0) {
+      if (dummyCars[1].finalTotalTime < dummyCars->finalTotalTime) {
         TOPLIST[0] = 0;
-        goto StatChkTop_topListJoin;
       }
-      goto StatChkTop_lastPlace0Check;
+      else {
+        TOPLIST[1] = 0;
+      }
     }
-    if (dummyCars[1].finalTotalTime < dummyCars->finalTotalTime) {
+    else if (TOPLIST[1] != 0) {
       TOPLIST[0] = 0;
-      goto StatChkTop_topListJoin;
     }
   }
-  TOPLIST[1] = 0;
-StatChkTop_topListJoin:
+  else if ((LASTPLACE[1] != 0) && (TOPLIST[0] != 0)) {
+    TOPLIST[1] = 0;
+  }
   if ((NUMBERONE[0] != 0) && (NUMBERONE[1] != 0)) {
     if (dummyCars[1].finalTotalTime < dummyCars->finalTotalTime) {
       NUMBERONE[0] = 0;

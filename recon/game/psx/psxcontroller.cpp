@@ -342,6 +342,26 @@ int InGame_GetDevice(int control)
  * g_value=8 -- all exactly neutral on this TU).  This is the gcc-2.8 loop.c
  * `threshold*savings*lifetime >= insn_count` cost model choosing to move a third
  * invariant that retail's cc1 left in place; -dL territory.
+ * w41-a7 -dL RECEIPT (the w39/w40 notes called for it; now measured).  With `hp = hoff+i`
+ * as the FIRST loop statement the dump prints, for the SetRamp loop:
+ *     Loop from 38 to 234: 58 real insns.
+ *     Insn 49: regno 96 (life 2), move-insn savings 2  moved      <- &hoff  %hi
+ *     Insn 50: regno 95 (life 1), forces 49 savings 1  moved      <- &hoff  %lo
+ *     Insn 55: regno 98 (life 2), move-insn savings 2  moved      <- &Cars_gHumanRaceCarList %hi
+ *     Insn 56: regno 97 (life 1), forces 55 savings 1  moved      <- ... %lo
+ *     Insn 71: regno 105 (life 50), savings 1          moved      <- the `1` stored to the 3 ramp fields
+ *     Insn 92/134/176: (life 1) savings 1              not desirable
+ * loop.c moves a movable iff `threshold*savings*lifetime >= insn_count`.  From the four
+ * verdicts, insn_count = 58 and threshold is pinned to [15,57]: savings1*life1 is refused
+ * (T < 58) while savings2*life2 is taken (4T >= 58 => T >= 15).  Retail hoisted the
+ * Cars list pair and the constant but NOT the &hoff pair, which under this model needs
+ * 4T < insn_count, i.e. retail's loop counted >= 61 real insns at loop.c time -- 3+ more
+ * than ours.  Both movables are shape-identical (2-insn split-address pairs, life 2), so
+ * no per-movable source lever can separate them; shortening a lui/addiu pair's life below
+ * 2 is impossible.  Re-measured this wave: moving `hp = hoff + i;` AFTER the three ramp
+ * stores makes the &hoff pair the SECOND movable (life 2 vs the Cars pair's life 5) but
+ * BOTH are still moved -> 17 diffs, worse.  => genuine gcc-2.8 loop.c cost-model floor at
+ * 13; re-opening it needs the loop to legitimately carry 3 more pre-optimization insns.
  * w40-a7 re-audit (unchanged at 13).  The residual is EXACTLY three instructions in
  * two places: our preheader carries `lui $v0,%hi(hoff); addiu $s6,$v0,%lo(hoff)` and the
  * body does `addu $s0,$v1,$s6`; the oracle carries nothing in the preheader and does

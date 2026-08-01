@@ -14,60 +14,55 @@ int kNoColor;   /* 0x800529d0 (EXT data global) */
 void DrawShape_SubtractNFS4RectEdges(RECT &rect)
 
 {
-  short y1;
-  short y2;
-  short tpage;
-  int linkAddr;
-  short x2;
-  short x1;
-  short i;
+  /* SYM 8c: fsize 32, mask $80010000 (ra,s0); locals are EXACTLY
+   *   dr_mode(DR_MODE* $s0) prim(POLY_G4* $a0) x1($a3) y1($t3) x2($a2) y2($t2) i($t5)
+   * -- `top`, `linkAddr`, `tpage`, `prevPrim`, `prevDrm` were all Ghidra fictions.
+   * All five shorts are plain `short` locals: that is what lets combine narrow the
+   * shared rect.w load to `lhu` and pay the sign-extend only on the >>3 use
+   * (lhu + sll 16 + sra 19) exactly like the oracle -- no (u_short) casts. */
   DR_MODE *dr_mode;
-  short top;
-  u_char  *prevDrm;
-  u_char  *prevPrim;
-  u_char  *prim;
-  
+  POLY_G4 *prim;
+  short x1;
+  short y1;
+  short x2;
+  short y2;
+  short i;
+
   i = 0;
-  top = rect.y;
-  y1 = top + 1;
-  y2 = y1 + rect.h;
-  x1 = (u_short)rect.x + 2;
-  x2 = (uint)(u_short)rect.x + ((int)((uint)(u_short)rect.w << 0x10) >> 0x13);
+  y1 = rect.y + 1;
+  y2 = y1 + rect.h + -1;
+  x1 = rect.x + 2;
+  x2 = rect.x + (rect.w >> 3);
   do {
-    prim = Render_gPacketPtr;
-    prevPrim = Render_gPalettePtr;
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x24;
-    *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-    *(u_long *)(prim + 4) = 0x808080;
-    prim[7] = 0x3a;
-    prim[3] = 8;
-    *(short *)(prim + 10) = top + 3;
+    prim = (POLY_G4 *)Render_gPacketPtr;
+    prim->tag = prim->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
+    *(u_long *)Render_gPalettePtr =
+         *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)prim & 0xffffff;
+    Render_gPacketPtr = (u_char *)prim + 0x24;
+    *(u_long *)&prim->r0 = 0x808080;
+    prim->code = 0x3a;
+    ((u_char *)&prim->tag)[3] = 8;
+    prim->y0 = y1 + 2;
     i = i + 1;
-    *(u_long *)(prim + 0x14) = 0x808080;
-    *(u_long *)(prim + 0x1c) = 0;
-    *(u_long *)(prim + 0xc) = 0;
-    *(short *)(prim + 8) = (short)x1;
-    *(short *)(prim + 0x10) = (short)x2;
-    *(short *)(prim + 0x12) = y1;
-    *(short *)(prim + 0x18) = (short)x1;
-    *(short *)(prim + 0x1a) = y2 + -3;
-    *(short *)(prim + 0x20) = (short)x2;
-    *(short *)(prim + 0x22) = y2 + -1;
-    dr_mode = (DR_MODE *)Render_gPacketPtr;
-    prevDrm = Render_gPalettePtr;
-    x1 = (uint)(u_short)rect.x + (uint)(u_short)rect.w + -2;
-    x2 = x1 - ((int)((uint)(u_short)rect.w << 0x10) >> 0x13);
-  } while (i * 0x10000 >> 0x10 < 2);
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(uint *)prevDrm = *(uint *)prevDrm & 0xff000000 | linkAddr;
-  tpage = GetTPage(2,2,0,0x100);
-  SetDrawMode(dr_mode,0,0,(uint)(u_short)tpage,(RECT *)0x0);
+    *(u_long *)&prim->r2 = 0x808080;
+    *(u_long *)&prim->r3 = 0;
+    *(u_long *)&prim->r1 = 0;
+    prim->x0 = x1;
+    prim->x1 = x2;
+    prim->y1 = y1;
+    prim->x2 = x1;
+    prim->y2 = y2 + -2;
+    prim->x3 = x2;
+    prim->y3 = y2;
+    x1 = rect.x + rect.w + -2;
+    x2 = x1 - (rect.w >> 3);
+  } while (i < 2);
+  dr_mode = (DR_MODE *)Render_gPacketPtr;
+  dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
+  *(u_long *)Render_gPalettePtr =
+       *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
+  Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0);
   return;
 }
 

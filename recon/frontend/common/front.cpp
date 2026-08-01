@@ -196,111 +196,90 @@ void Front_ResetPSXAnalogs(int player)
 int GetPSXPadValue(int value,int player)
 
 {
-  byte bVar1;
   int newControl;
-  byte bVar2;
   int type;
-  uint uVar3;
-  uint uVar4;
   
   PAD_update();
   if (gPadinfo.buf[player * 4].nopad == '\0') {
-    bVar2 = gPadinfo.buf[player * 4].ID;
+    type = gPadinfo.buf[player * 4].ID;
   }
   else {
-    bVar2 = 0;
+    type = 0;
   }
-  if (bVar2 != 0x53) {
-    if (bVar2 < 0x54) {
-      if (bVar2 == 0x23) {
-        if (value == 0x8000) {
-          bVar2 = frontEnd.IImaxRange[player];
-          uVar3 = 0x2000000;
-        }
-        else {
-          if (0x8000 < value) {
-            if (value != 0x200000) {
-              if (value != 0x800000) goto front_badPadValue;
-              bVar2 = frontEnd.deadSpot[player];
-              bVar1 = frontEnd.steeringRange[player];
-              goto GetPad_returnJ1J2neg;
-            }
-            uVar4 = player << 0x1e | ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000;
-            uVar3 = ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100;
-            goto GetPad_returnJ1Inverted;
-          }
-          if (value == 0x400) {
-            return player << 0x1e | 0x30aff01;
-          }
-          if (value != 0x4000) goto front_badPadValue;
-          bVar2 = frontEnd.ImaxRange[player];
-          uVar3 = 0x1000000;
-        }
-        uVar4 = player << 0x1e;
-        uVar3 = (uint)bVar2 << 8 | uVar3;
-        goto GetPad_returnJ1Inverted;
-      }
-      goto front_badPadValue;
+  switch (type) {
+  case 0x53:
+  case 0x73:
+    switch (value) {
+    case 0x800000:
+      newControl = player << 0x1e |
+                   (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
+                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100 | 1;
+      return newControl;
+    case 0x200000:
+      newControl = player << 0x1e |
+                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
+                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100 | 1;
+      return newControl;
+    case 0x100000:
+      newControl = player << 0x1e |
+                   ((0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 | 0x1000000) |
+                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100 | 1;
+      return newControl;
+    case 0x400000:
+      newControl = player << 0x1e |
+                   (((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 | 0x1000000) |
+                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100 | 1;
+      return newControl;
+    case -0x80000000:
+      newControl = player << 0x1e |
+                   ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x2000000) |
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
+      return newControl;
+    case 0x20000000:
+      newControl = player << 0x1e |
+                   (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x2000000) |
+                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100 | 1;
+      return newControl;
+    case 0x10000000:
+      newControl = player << 0x1e |
+                   ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x3000000) |
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
+      return newControl;
+    case 0x40000000:
+      newControl = player << 0x1e |
+                   (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x3000000) |
+                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100 | 1;
+      return newControl;
     }
-    if (bVar2 != 0x73) goto front_badPadValue;
-  }
-  if (value == 0x400000) {
-    uVar3 = ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 | 0x1000000;
-    bVar2 = frontEnd.J1MAX[player];
-GetPad_returnJ1Pos:
-    return player << 0x1e | uVar3 | (bVar2 + 0x80) * 0x100 | 1;
-  }
-  if (value < 0x400001) {
-    if (value == 0x100000) {
-      uVar3 = (0x7f - (uint)(byte)frontEnd.J1MIN[player]) * 0x10000 | 0x1000000;
-      bVar2 = frontEnd.J1MAX[player];
-      goto GetPad_returnJ2;
+    break;
+  case 0x23:
+    switch (value) {
+    case 0x800000:
+      newControl = player << 0x1e |
+                   (0x7f - (byte)frontEnd.deadSpot[player]) * 0x10000 |
+                   (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100 | 1;
+      return newControl;
+    case 0x200000:
+      newControl = player << 0x1e |
+                   ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000 |
+                   ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100 | 1;
+      return newControl;
+    case 0x4000:
+      newControl = player << 0x1e |
+                   ((byte)frontEnd.ImaxRange[player] * 0x100 | 0x1000000) | 1;
+      return newControl;
+    case 0x8000:
+      newControl = player << 0x1e |
+                   ((byte)frontEnd.IImaxRange[player] * 0x100 | 0x2000000) | 1;
+      return newControl;
+    case 0x400:
+      newControl = player << 0x1e | 0x30aff01;
+      return newControl;
     }
-    if (0x100000 < value) {
-      if (value == 0x200000) {
-        uVar4 = player << 0x1e | ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000;
-        uVar3 = ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
-GetPad_returnJ1Inverted:
-        return uVar4 | uVar3 | 1;
-      }
-front_badPadValue:
-      return player << 0x1a | value << 8 | 2;
-    }
-    if (value != -0x80000000) goto front_badPadValue;
-    bVar2 = frontEnd.J2MIN[player];
-    uVar3 = 0x2000000;
+    break;
   }
-  else {
-    if (value != 0x10000000) {
-      if (value < 0x10000001) {
-        if (value == 0x800000) {
-          bVar2 = frontEnd.J1MIN[player];
-          bVar1 = frontEnd.J2MAX[player];
-GetPad_returnJ1J2neg:
-          return player << 0x1e | (0x7f - (uint)bVar2) * 0x10000 | (0x7f - (uint)bVar1) * 0x100 | 1;
-        }
-        goto front_badPadValue;
-      }
-      if (value == 0x20000000) {
-        bVar2 = frontEnd.J2MIN[player];
-        uVar3 = 0x2000000;
-      }
-      else {
-        if (value != 0x40000000) goto front_badPadValue;
-        bVar2 = frontEnd.J2MIN[player];
-        uVar3 = 0x3000000;
-      }
-      uVar3 = (bVar2 + 0x80) * 0x10000 | uVar3;
-      bVar2 = frontEnd.J2MAX[player];
-      goto GetPad_returnJ1Pos;
-    }
-    bVar2 = frontEnd.J2MIN[player];
-    uVar3 = 0x3000000;
-  }
-  uVar3 = (0x7f - (uint)bVar2) * 0x10000 | uVar3;
-  bVar2 = frontEnd.J2MAX[player];
-GetPad_returnJ2:
-  return player << 0x1e | uVar3 | (0x7f - (uint)bVar2) * 0x100 | 1;
+  newControl = player << 0x1a | value << 8 | 2;
+  return newControl;
 }
 
 

@@ -460,8 +460,8 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)(prim + 0x1a) =
          ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-         (int)(((uint)(ushort)shp->shapey & 0x100) << 0x10) >> 0x14 |
-         (texX & 0x3c0U) >> 6 | ((uint)(ushort)shp->shapey & 0x200) << 2;
+         (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+         (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
     addw = 0;
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
       u = u - 1;
@@ -480,14 +480,16 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       w1 = 1;
     }
     if ((flags & 4) != 0) {
-      *(short *)(prim + 8) = ((width + x) - i) + (addw + -1);
+      addw = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
+                             reassociate the -1 out and re-add addw at each vertex (w42-a7) */
+      *(short *)(prim + 8) = ((width + x) - i) + addw;
       *(short *)(prim + 10) = y;
       *(short *)(prim + 0x16) = y;
-      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + (addw + -1);
+      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addw;
       *(short *)(prim + 0x22) = y + height;
-      *(short *)(prim + 0x20) = ((shp->width + x) - i) + (addw + -1);
+      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addw;
       *(short *)(prim + 0x2e) = y + height;
-      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + (addw + -1);
+      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addw;
     }
     else {
       *(short *)(prim + 8) = i + x;

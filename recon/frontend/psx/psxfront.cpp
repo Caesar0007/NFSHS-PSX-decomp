@@ -126,7 +126,7 @@ void CleanupSpinningCars(void)
     Texture_KillMenuTexture();
     PSXFront_FreeDrawMemory();
     R3DCar_InMenu = 0;
-    gFlip = -1;
+    gFlip[0] = -1;
     rendering3DEnvironmentInitialized = '\0';
     Platform_ResetDCTBuffer();
     sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
@@ -249,7 +249,7 @@ void Init_RenderingEnvironment(void)
   SetDefDispEnv(&gEnviro[0].disp,0,0x100,0x200,0xf0);
   SetDefDispEnv(&gEnviro[1].disp,0,0,0x200,0xf0);
   Draw_InitViews();
-  Draw_gRearView = -1;
+  Draw_gRearView[0] = -1;
   /* DISGUISED BARE-VA FIX (w14-a2): raw @0x8004dd64-98 shows the true args are
    * (x0=0,y0=0,x1=0,y1=0x100,w=0x200,h=0xf0,dtd=0,isbg=1,otsize=10) -- y0 was a bogus fabricated
    * literal -0x7fec0000==0x80140000 (not a real symbol; just wrong) and y1 read an UNINITIALIZED
@@ -261,9 +261,9 @@ void Init_RenderingEnvironment(void)
   blockclear(&gCView,0x8c);
   gCView.id = Draw_gPlayer1View[0];
   PSXFront_AllocateDrawMemory();
-  Draw_gDoVSync = 1;
+  Draw_gDoVSync[0] = 1;
   FETextRender_SetABR(0,false);
-  gFlip = 0;
+  gFlip[0] = 0;
   return;
 }
 
@@ -275,7 +275,7 @@ void Init_PSX_FrontEnd(void)
 {
   int movieRes;
   
-  gFlip = -1;
+  gFlip[0] = -1;
   addtimer(PAD_update);
   InitGeom();
   PSX_AllocShapes();

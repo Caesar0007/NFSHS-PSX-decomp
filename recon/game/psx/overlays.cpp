@@ -153,13 +153,22 @@ void RaceStatistics(void)
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
   short HUD_STATS_POS_Y;
+  /* DECL ORDER IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in PSEUDO-REGNO
+     order and cc1plus numbers pseudos in declaration order, so the SYM's AUTO offsets read
+     off the retail decl sequence directly.  fsize 176 = string@0x20, POS_X 0x48, SIZE_W
+     0x50, SIZE_H 0x58, POS_Y 0x60, <sizeH16> 0x68, <posy> 0x6C, HOTPURSUIT_Y 0x70, <barH>
+     0x78, <posyL> 0x7C, <barH8> 0x80 -- i.e. TWO int temps sit BETWEEN POS_Y and
+     HOTPURSUIT_Y (HImode decl slots take an 8-byte stride, SImode spills 4). */
+  int sizeH16;
+  int posy;
   short HUD_STATS_HOTPURSUIT_Y;
+  int barH;
+  int posyL;
+  int barH8;
   int halfH;
   int titleX;
   int titleY;
-  int posy;
   int dataY;
-  int barH;
 
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
   /* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
@@ -180,7 +189,8 @@ void RaceStatistics(void)
   if (GameSetup_gData.raceType == 1) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
-  halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
+  sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
+  halfH = sizeH16 >> 0x11;
   posy = 0x78 - halfH;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
   col1 = HUD_STATS_POS_X + 0xa;
@@ -199,7 +209,9 @@ void RaceStatistics(void)
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   i = 0;
-  barH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x10;
+  posyL = posy;
+  barH = sizeH16 >> 0x10;
+  barH8 = barH + -8;
   while (1) {
     if (Cars_gNumHumanRaceCars <= (int)i) break;
     {
@@ -207,9 +219,9 @@ void RaceStatistics(void)
       int colmid;
 
       colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + 2);
-      Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - posy) + 0x13),0,'\0','\0');
+      Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - posyL) + 0x13),0,'\0','\0');
       if (0 < (int)i) {
-        Hud_FBuildF4(0,col1 + -2,posy,1,barH + -8,0,'\0','\0');
+        Hud_FBuildF4(0,col1 + -2,posyL,1,barH8,0,'\0','\0');
       }
       if (2 < D_8013D99C) {
         Font_TextColor(3);

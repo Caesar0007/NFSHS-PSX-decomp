@@ -401,7 +401,7 @@ void Hud_BTCStats(short player,bool postgame)
      PLAYERWIDTH/showtimeleft/HUD_STATS_*). */
   startY = startY + 0xf;
   for (i = 0; i < Hud_NextPerp[player]; i = i + 1) {
-    if ((int)i * 2 + 4 < StatsTimer_arr[player]) {
+    if (StatsTimer_arr[player] > (int)i * 2 + 4) {
       Font_TextColor(4);
       sprintf(string,"%d",(int)i + 1);
       Font_TextXY(string,col[0],startY + (int)i * 0xc);
@@ -415,7 +415,7 @@ void Hud_BTCStats(short player,bool postgame)
                   startY + (int)i * 0xc);
     }
   }
-  if (showtimeleft && ((int)i * 2 + 4 < StatsTimer_arr[player])) {
+  if (showtimeleft && (StatsTimer_arr[player] > (int)i * 2 + 4)) {
     Font_TextColor(3);
     Hud_ParseTime(FinalBTC_Countdown,string);
     Font_TextXY(TextSys_Word(0x4d),col[0],startY + (int)i * 0xc + 2);

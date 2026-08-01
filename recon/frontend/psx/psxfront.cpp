@@ -51,12 +51,12 @@ void PSXFront_FreeDrawMemory(void)
 void InitializeSpinningCars(void)
 
 {
+  /* SYM: the ONLY local is `i` (INT).  carData_walk/obj_walk were fabricated -- retail indexes
+   * GameSetup_gData.carInfo[i] / gCarObj[i] and loop.c strength-reduces both into givs ($s2 stride
+   * 0xB4, $s3 stride 4).  Loop is TOP-tested with a `j` back-edge, not gcc's rotated do-while. */
   Car_tObj *carObj;
   int i;
-  uint index;
-  GameSetup_tCarData *carData_walk;
-  Car_tObj **obj_walk;
-  
+
   if (rendering3DEnvironmentInitialized == '\0') {
     R3DCar_InMenu[0] = 1;
     Platform_ResetDCTBuffer();
@@ -67,21 +67,20 @@ void InitializeSpinningCars(void)
     inFrontEnd[0] = 0;
     DrawC_ReadeMapData();
     Fe3D_InitShowroom();
-    carData_walk = GameSetup_gData.carInfo;
-    obj_walk = gCarObj;
     GameSetup_gData.Weather = 0;
-    for (index = 0; (int)index < 2; index = index + 1) {
+    i = 0;
+    while (1) {
+      if (2 <= i) break;
       carObj = (Car_tObj *)reservememadr("carObj",0x8dc,0);
-      *obj_walk = carObj;
+      gCarObj[i] = carObj;
       blockclear(carObj,0x8dc);
-      carObj->carInfo = carData_walk;
-      carData_walk->carType = 1;
-      carData_walk = carData_walk + 1;
-      obj_walk = obj_walk + 1;
+      carObj->carInfo = &GameSetup_gData.carInfo[i];
+      carObj->carInfo->carType = 1;
       strcpy(carObj->carName,GameSetup_gCarNames[carObj->carInfo->carType]);
-      (carObj->N).objID = index | 0x100;
-      R3DCar_Instantiate3DCar(carObj,index);
+      (carObj->N).objID = i | 0x100;
+      R3DCar_Instantiate3DCar(carObj,i);
       (carObj->N).active = '\x01';
+      i = i + 1;
     }
     R3DCar_PostStartUp();
     gMenuRotate[1] = 0;

@@ -423,7 +423,6 @@ void Hud_BTCStats(short player,bool postgame)
 void Hud_RenderStatsView(void)
 
 {
-  short player;
   int screen;
   int t;
 
@@ -463,18 +462,21 @@ HudStats_finalize:
   if (screen == 0) {
     D_8013D99C = 0;
     /* the oracle keeps the incremented value in its own pseudo and stores it BOTH
-       before and after the clamp (`addu $v1,$v0,$zero` / two `sw $v1,%gp_rel(...)`);
-       the plain `X = X + 1; if (K < X) X = K;` form stores straight out of $v0. */
+       before and after the clamp (`addu $v1,$v0,$zero` / two `sw $v1,%gp_rel(...)`). */
     StatsTimer = StatsTimer + 1;
     t = StatsTimer;
     if (10000 < t) {
       t = 10000;
     }
     StatsTimer = t;
-    player = 0;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
-      return;
+    }
+    else {
+      /* w40-a4: there is no `player` local (SYM lists only `screen`); the two
+         Hud_BTCStats(0/1,true) call sites CROSS-JUMP into the single shared
+         `jal` @0x800DB090 with $a0 set per arm. */
+      Hud_BTCStats(0,true);
     }
   }
   else {
@@ -487,15 +489,14 @@ HudStats_finalize:
     D_8013D99C = t;
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
-      return;
     }
-    player = 1;
-    if (GameSetup_gData.commMode != 1) {
+    else if (GameSetup_gData.commMode == 1) {
+      Hud_BTCStats(1,true);
+    }
+    else {
       RaceStatistics();
-      return;
     }
   }
-  Hud_BTCStats(player,true);
   return;
 }
 

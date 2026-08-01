@@ -3268,7 +3268,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
    * strength reduction creates the t9 giv (i*12, decremented alongside the counter) */
   for (;;) {
     POLY_FT3 *prim;
-    short facetFlag;
+    u_int facetFlag;   /* SYM $t3 = flag & 0xfff (the MASKED value), not the raw field */
+    u_short rawFlag;
     int overlayFlag;
     Transformer_zFacet *facet;
     int id0;
@@ -3321,20 +3322,21 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       if (bfct < 0) continue;
       if (sd->sub_otSize < bfct) continue;
     }
+    rawFlag = facet->flag;         /* the flag lhu fills the tex lbu's load-delay slot */
     overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
-    facetFlag = facet->flag;   /* flag lhu lands in the tex-lbu load-delay slot */
+    facetFlag = rawFlag & 0xfff;
     /* SYM truth: NO `which` at this scope -- the decode MUTATES overlayFlag in
      * place (one pseudo, oracle a1 throughout); `which` is an overlay-arm local.
-     * Every mask is written against (facetFlag & 0xfff) so cc1 CSEs the andi
+     * Every mask is written against facetFlag so cc1 CSEs the andi
      * ONCE into facetFlag's own register ($t3) and reuses it for the &4/&1
      * tests in the arms -- exactly retail's `andi t3,a0,4095` in the delay slot. */
     if (overlayFlag != 0) {
       overlayFlag = overlayFlag & 0x3f;
-      if (facetFlag < 0) {
+      if ((short)rawFlag < 0) {
         overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
       }
-      if ((((facetFlag & 0xfff) & 0x3f0) != 0) &&
-          (overlayFlag = overlayFlag & (facetFlag & 0xfff) >> 4, overlayFlag != 0)) {
+      if (((facetFlag & 0x3f0) != 0) &&
+          (overlayFlag = overlayFlag & facetFlag >> 4, overlayFlag != 0)) {
         for (; (overlayFlag & 3) == 0; overlayFlag = overlayFlag >> 2) {
         }
       }
@@ -3359,7 +3361,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       {
         u_long color;
         u_char code;
-        if (((facetFlag & 0xfff) & 4) != 0) {   /* fall-through = the !=0 arm */
+        if ((facetFlag & 4) != 0) {   /* fall-through = the !=0 arm */
           color = sd->eColor1;
           *(u_long *)&prim->r0 = color;
         }
@@ -3434,7 +3436,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         u_long color;
         u_char code;
         color = sd->color;
-        if (((facetFlag & 0xfff) & 1) != 0) {
+        if ((facetFlag & 1) != 0) {
           code = 0x26;
         }
         else {
@@ -3490,7 +3492,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         u_long color;
         u_char code;
         color = sd->color;
-        if (((facetFlag & 0xfff) & 1) != 0) {
+        if ((facetFlag & 1) != 0) {
           code = 0x26;
         }
         else {
@@ -3501,7 +3503,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       }
       /* byte path INLINE first (oracle bnez skips it), halfword arm out of
        * line; UV pairs as direct lbu triples (wave-9 lhu->2x lbu fix) */
-      if (((envmap & 2U) != 0) && (((facetFlag & 0xfff) & 1) == 0)) {
+      if (((envmap & 2U) != 0) && ((facetFlag & 1) == 0)) {
         Draw_tPixMap *pmx;
         u_char u0, u1, u2, v0, v1, v2, u, v;
         u_short clut, tpage;

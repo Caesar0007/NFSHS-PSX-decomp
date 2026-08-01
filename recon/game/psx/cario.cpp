@@ -113,13 +113,24 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   u_short lastMask;
   u_short lastLastMask;
 
-  /* 161 -> 101 (rule-8) -> 63 (`== -1` exit-in-the-middle on the nibble loops +
-   * parenthesized dest offset + `mask = x&3` before the tail) -> 32 (rollOver holds
-   * the SHIFTED nibble).  RESIDUAL 32 (ours 111 / oracle 113): the two SHIFT-ONLY
-   * mask loops keep the unsigned `nor v0,zero,a2; bnez` canonicalization and are not
-   * loop-rotated, where retail peels a guard and shares one `li v0,-1`.  Probes:
-   * hand-written rotated guard+do-while 37, `== -1` if-break form 47, swapped `|`
-   * operand order 32 (neutral) -- the comma-while at 32 is the best measured. */
+  /* 161 -> 101 (rule-8) -> 63 -> 32 -> 22 (w40-a5), count now EXACT 113/113.
+   * The w39 note ("hand-written rotated guard+do-while 37") measured BOTH shift-only
+   * mask loops at once; taking them SEPARATELY, the FIRST one wants the peeled+rotated
+   * form and the second does NOT:
+   *     mask = mask - 1;
+   *     if (mask != -1) { do { lastMask = lastMask << 4; mask = mask - 1; }
+   *                       while (mask != -1); }
+   * gives retail's `addiu a2,-1; li v0,-1; beq a2,v0,SKIP` peel + the body in the
+   * back-edge DELAY SLOT (`bne a2,v0,LOOP; sll t4,t4,4`) and kills the unsigned
+   * `nor v0,zero,a2; bnez` canonicalization -- that loop is now byte-identical AND
+   * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
+   * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
+   * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
+   * RESIDUAL 22 (15 lines): (a) 5x commutative `or rd,v1,v0` vs the oracle's
+   * `or rd,v0,v1` -- RTL canonicalization, NOT source-order-driven (swapping the
+   * `|` operands at all 5 sites measured 26, i.e. it does not even change the
+   * emitted order); (b) the second mask loop's peel as above; (c) one `addu t4,t5,zero`
+   * scheduling slot. */
   columns = w >> 2;
   mask = w & 3;
   if (mask != 0) {
@@ -131,8 +142,12 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
   if (mask == 0) {
     lastMask = 0;
   }
-  while (mask = mask - 1, mask != -1) {
-    lastMask = lastMask << 4;
+  mask = mask - 1;
+  if (mask != -1) {
+    do {
+      lastMask = lastMask << 4;
+      mask = mask - 1;
+    } while (mask != -1);
   }
   firstMask = 0;
   mask = x & 3;

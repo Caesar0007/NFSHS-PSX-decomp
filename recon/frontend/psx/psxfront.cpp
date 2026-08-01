@@ -30,7 +30,7 @@ void PSXFront_AllocateDrawMemory(void)
   Draw_InitViewOT();
   gEnviro[0].server = (char *)reservememadr("ps0",80000,0x10);
   gEnviro[1].server = (char *)reservememadr("ps1",80000,0x10);
-  Draw_SetViewMemBudget(Draw_gPlayer1View,80000);
+  Draw_SetViewMemBudget(Draw_gPlayer1View[0],80000);
   return;
 }
 
@@ -255,11 +255,11 @@ void Init_RenderingEnvironment(void)
    * literal -0x7fec0000==0x80140000 (not a real symbol; just wrong) and y1 read an UNINITIALIZED
    * `stackv` local where the oracle passes the plain constant 0x100 ($a3, set once and never
    * touched again before the call). */
-  Draw_gPlayer1View =
+  Draw_gPlayer1View[0] =
        Draw_SetView
                  (0,0,0,0x100,0x200,0xf0,0,1,10);
   blockclear(&gCView,0x8c);
-  gCView.id = Draw_gPlayer1View;
+  gCView.id = Draw_gPlayer1View[0];
   PSXFront_AllocateDrawMemory();
   Draw_gDoVSync = 1;
   FETextRender_SetABR(0,false);

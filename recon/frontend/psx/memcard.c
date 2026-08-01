@@ -1022,14 +1022,14 @@ int iMCRD_DefaultCBProc1(void)
 short ascii2sjis(u_char ascii_code)
 
 {
-  ushort sjis_code;
-  byte stmp;
+  uint sjis_code;
+  int stmp;
   uint code;
-  byte stmp2;
-  int kind;
-  
+  uint base;
+  byte kind;
+
   stmp = 0;
-  kind = 0;
+  kind = stmp;                  /* MATCH: oracle's addu a1,v1,zero = kind inits from stmp's zero */
   if ((byte)(ascii_code - 0x20) < 0x10) {
     kind = 1;
   }
@@ -1037,31 +1037,38 @@ short ascii2sjis(u_char ascii_code)
     if ((byte)(ascii_code - 0x3a) < 7) {
       kind = 0xb;
     }
-    else if ((byte)(ascii_code + 0xbf) < 0x1a) {
+    /* MATCH: negative literals (-0x41/-0x5b/-0x61/-0x7b), NOT the algebraically-equal
+     * +0xbf/+0xa5/+0x9f/+0x85 - the oracle's addiu immediates are the signed forms. */
+    else if ((byte)(ascii_code - 0x41) < 0x1a) {
       stmp = 1;
     }
-    else if ((byte)(ascii_code + 0xa5) < 6) {
+    else if ((byte)(ascii_code - 0x5b) < 6) {
       kind = 0x25;
     }
-    else if ((byte)(ascii_code + 0x9f) < 0x1a) {
+    else if ((byte)(ascii_code - 0x61) < 0x1a) {
       stmp = 2;
     }
     else {
       kind = 0x3f;
-      if (3 < (byte)(ascii_code + 0x85)) {
+      if (3 < (byte)(ascii_code - 0x7b)) {
         return 0;
       }
     }
   }
-  if (kind == 0) {
-    code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];
-    sjis_code = (short)code * 0x100;
+  /* MATCH: kind!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
+   * ascii_table arm; the inverted (kind==0 first) shape emits bnez. */
+  if (kind != 0) {
+    /* MATCH: the +0x1f must be its own in-place mutation of the widened kind -
+     * inline, gcc reassociates it to (ascii_code-0x1f)-kind. */
+    base = kind;
+    base = base + 0x1f;
+    code = (uint)ascii_k_table[(uint)ascii_code - base];
   }
   else {
-    code = (uint)ascii_k_table[(uint)ascii_code - (kind + 0x1f)];
-    sjis_code = ascii_k_table[(uint)ascii_code - (kind + 0x1f)] << 8;
+    code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];
   }
-  return sjis_code | (ushort)(code >> 8) & 0xff;
+  sjis_code = code << 8;
+  return sjis_code | ((ushort)code >> 8);
 }
 
 /* lines 2097-2101: (static data / macros / comments - no emitted code) */

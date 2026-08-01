@@ -596,34 +596,40 @@ void Night_GenerateAllLightTables(void)
 void Night_InitNightDriving(void)
 
 {
-  char *mem;
-  int sz;
-  void *shp;
-  u_int r;
-  char name [256];
+  char *mem;          /* SYM: the ONLY REG local ($10 = s0) -- it serves TWO roles,
+                         first the loadshapeadr buffer then the locateshape result */
+  char name [256];    /* SYM: AUTO char[256] @ -0x110 => sp+16 */
 
-  gNight_renderNight = 0;
-  if (GameSetup_gData.Time != 0) {
-    gNight_renderNight = (int)(GameSetup_gData.commMode != 1);
-    if (gNight_renderNight == 0) {
-      TrackSpec_gSpec.depthcuespec.distance = 0xff;
-      TrackSpec_gSpec.depthcuespec.color.r = '\0';
-      TrackSpec_gSpec.depthcuespec.color.g = '\0';
-      TrackSpec_gSpec.depthcuespec.color.b = '\0';
-      TrackSpec_gSpec.depthcuespec.color.cd = '\0';
-    }
+  /* ONE `&&` expression, ONE store: the oracle computes the flag in $v0 (`addu
+     $v0,zero,zero` in the Time==0 beqz delay slot, xori/sltu otherwise) and stores it
+     once at the join, then RE-TESTS Time (same CSE'd $v1) to gate the depth-cue clear
+     and RE-LOADS the flag for the early-out.  A leading `= 0` plus an overwrite emits
+     two stores; an if/else pair or a ternary both come out 4-7 instructions long
+     (measured).  Same lever family as methodology sec.3.12 #7. */
+  gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
+  if ((GameSetup_gData.Time != 0) && (gNight_renderNight == 0)) {
+    /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
+       `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
+       (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
+    TrackSpec_gSpec.depthcuespec.distance = 0xff;
+    *(u_long *)&TrackSpec_gSpec.depthcuespec.color = 0;
   }
   if (gNight_renderNight == 0) {
     return;
   }
   sprintf(name,"%snight.psh",Paths_Paths[0x19]);
-  sz = filesize(name);
-  nightfile = (char *)reservememadr("night.psh",sz,0);
-  shp = (void *)loadshapeadr(name,(void *)0x0);
-  sz = filesize(name);
-  blockmove(shp,nightfile,sz);
-  purgememadr(shp);
-  mem = (char *)locateshape(nightfile,"nght",sz);
+  /* no `sz`/`shp` locals: the SYM lists only `mem` and `name`.  Both filesize() results
+     are consumed straight out of $v0 (the second one lands in the blockmove arg while
+     the loadshapeadr pointer is parked in $s0 from the jal delay slot), and `mem`
+     carries the shape buffer BEFORE it carries the locateshape result. */
+  nightfile = (char *)reservememadr("night.psh",filesize(name),0);
+  mem = (char *)loadshapeadr(name,(void *)0x0);
+  blockmove(mem,nightfile,filesize(name));
+  purgememadr(mem);
+  /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.c: `void *locateshape(void
+     *shapefile,int *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
+     a phantom read of the stale blockmove size. */
+  mem = (char *)locateshape(nightfile,"nght");
   Night_gNightTbl = mem + 0x10;
   Night_InitPlayerHeadLightColor(0);
   if (GameSetup_gData.cops != 0) {
@@ -635,10 +641,8 @@ void Night_InitNightDriving(void)
   Night_GenerateAllLightTables();
   if (GameSetup_gData.Weather == 1) {
     Night_gLightning = 0;
-    r = random();
-    Night_gNextLightning = D_8011E0B0[0] + (r & 0x1ff);
-    r = random();
-    Night_gEndNextLightning = Night_gNextLightning + (r & 0x31);
+    Night_gNextLightning = D_8011E0B0[0] + (random() & 0x1ff);
+    Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
     Hrz_CalculateLightning();
   }

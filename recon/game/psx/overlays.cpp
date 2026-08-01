@@ -111,13 +111,23 @@ void RaceSummary(void)
 
     pos = Cars_gRaceCarList[i]->stats.finalPosition;
     if (pos * 2 + 4 < StatsTimer) {
-      Font_TextColor((Cars_gRaceCarList[i]->carFlags & 4U) != 0 ? 3 : 4);
+      if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
+        Font_TextColor(3);
+      }
+      else {
+        Font_TextColor(4);
+      }
       sprintf(string,"%d",pos);
       Font_TextXY(string,colpos | 1,dataY + pos * 0xc);
       Font_TextColor(3);
       sprintf(string,"%s",(char *)(*(int *)((int)Cars_gRaceCarList[i] + 0x288) + 0x5c));
       Font_TextXY(string,colname,dataY + pos * 0xc);
-      Font_TextColor((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0 ? 3 : 4);
+      if ((*(u_int *)((int)Cars_gRaceCarList[i] + 0x260) & 4) != 0) {
+        Font_TextColor(3);
+      }
+      else {
+        Font_TextColor(4);
+      }
       sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
       Font_TextXY(string,colcar,dataY + pos * 0xc);
       if (GameSetup_gData.pinkSlipsForfeit == i) {

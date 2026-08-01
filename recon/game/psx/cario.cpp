@@ -342,7 +342,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     } while (i < 0xc);
     *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
     *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
-    i = 0;
     CarIO_Plate2[player]->width = 0x18;
     CarIO_Plate1[player]->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
@@ -352,7 +351,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 
       length = strlen(text);
       start = 0x18 - length * 3;
-      while (i < length) {
+      for (i = 0; i < length; i = i + 1) {
         char ascii;
 
         ascii = text[i];
@@ -390,7 +389,6 @@ void CarIO_CreateLicense(char *text,int carType,int player)
           CarIO_CopyFromShape((short *)((int)pShape + 0x10),thePlate,7,0xc,start,5);
         }
         start = start + 6;
-        i = i + 1;
       }
     }
     if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {

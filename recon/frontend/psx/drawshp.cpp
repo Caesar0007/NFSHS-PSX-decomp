@@ -52,12 +52,50 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
    * -G / -mno-split-addresses axis (tools/gprobe.py: g8 / g0 / nosplit / g8+nosplit
    * all == baseline on this TU).
    *
-   * RESIDUAL 54 @ 108/108 = ONE allocno promotion, quantified: the caller-saved rank
-   * order is ours [rect, y2, y1, 0x808080, 0xFFFFFF] -> $t0..$t4 vs the oracle's
-   * [0xFFFFFF, rect, y2, y1, 0x808080].  0xFFFFFF alone moves from rank 5 to rank 1
-   * and rotates the other four one step; every other register (i=$t5,
-   * 0x1F800004=$t6, 0xFF000000=$t7, prim=$a0, x1=$a3, x2=$a2, dr_mode=$s0) is
-   * already SYM/oracle-exact. */
+   * RESIDUAL 54 @ 108/108 = ONE allocno promotion -- FLOOR, full bar, quantified.
+   *  o PROTOTYPE AUDIT: SYM `8c` gives every register.  rect REGPARM $09=$t1,
+   *    dr_mode $10=$s0, prim $04=$a0, x1 $07=$a3, y1 $0b=$t3, x2 $06=$a2,
+   *    y2 $0a=$t2, i $0d=$t5; return is VOID (`Def class EXT type FCN VOID`).
+   *    We reproduce prim/x1/x2/i/dr_mode/$t6/$t7 exactly.
+   *  o WHAT IS LEFT: the caller-saved rank order is ours [rect, y2, y1, 0x808080,
+   *    0xFFFFFF] -> $t0..$t4 vs the oracle's [0xFFFFFF, rect, y2, y1, 0x808080].
+   *    0xFFFFFF alone moves rank 5 -> rank 1 and rotates the other four one step;
+   *    the post-loop block's own four materializations then shift one the other way
+   *    as a knock-on.  scratch a9_perm.py (rotation-blind diff, 5-cycle in the loop +
+   *    (-1) shift after it) scores 92/108: the ENTIRE loop body is covered by the
+   *    permutation, and the 16 uncovered lines are the `lui 0xff00` prologue slot and
+   *    the post-loop $v0/$v1 + `addiu v1,s0,12` position, both downstream of it.
+   *  o NAMED MECHANISM + IMPOSSIBILITY BOUND: gcc-2.8 `allocno_compare` priority is
+   *    floor_log2(refs)*refs/live_length.  `-dl` measures the 0xFFFFFF pseudo at
+   *    refs=5 / live=63 -> 0.1587, and `rect` at refs=9 / live=136 -> 0.1985, so the
+   *    mask cannot outrank rect.  refs is STRUCTURALLY PINNED at 5 (one preheader def
+   *    at loop weight 1 + two in-loop uses at weight 2 -- and the oracle itself has
+   *    exactly two `and ...,$t0`, so retail's pseudo has the same use set), and live
+   *    is bounded below by the loop (53 RTL insns) + the preheader tail: the shortest
+   *    hoist slot measured on this loop is 61.  Best reachable pri = 10/61 = 0.164 <
+   *    0.1985.  Lowering `rect` instead needs refs<=7 (the oracle has both in-loop
+   *    rect loads) or live>159 (+23 over the whole function).  => not source-reachable
+   *    under this cc1; the "allocno_compare live-length weighting" identity class.
+   *  o TRICHOTOMY (w32/33): (1) loop.c giv anchor -- N/A, the movable is a constant
+   *    and its hoist decision is already flipped to the oracle's; (2) cse
+   *    double-evaluation -- N/A, there is no redundant register copy in the residual
+   *    (count is exact and every insn maps 1:1 under the permutation); (3) true
+   *    allocno identity -- yes, bounded above.
+   *  o -G / -mno-split-addresses leg: satisfied cluster-wide (w42 gprobe) and
+   *    re-confirmed on this TU.
+   *  o FALSIFIED DIALS (all gated, ~30): OR-operand swaps on the tag and the linkWord
+   *    in both blocks; tagWord / prevWord / primLink temps; prevPrim typed u_long*;
+   *    prim staged via a u_char*; masks spelled `~0xff000000` / `~0xffffff`; a mask
+   *    folded into the cursor-bump expression; loop shape (for-rotated, while(1)+
+   *    break, do-while); i/x/y as int (all lose the SYM short sign-extends and the
+   *    count); rect.w cached in the loop; a second RECT* local for the loop or the
+   *    pre-loop reads; init order permutations; the r0-store position; a named `m24`
+   *    mask local def'd before the loop / at the loop top / before first use / late in
+   *    the loop (the in-loop-def ref dial DOES raise pri to 0.276 but costs 2-4 insns);
+   *    and the W43 relay's pointer-local-via-decay slot spellings (60/79/60/64) --
+   *    that lever targets the LICM decline which `prevPrim` already fixed.
+   *  o ROUTE: permuter (multi-basin), or the per-object toolchain-identity
+   *    investigation that already owns the allocno_compare delta. */
   DR_MODE *dr_mode;
   u_char *prevPrim;
   POLY_G4 *prim;

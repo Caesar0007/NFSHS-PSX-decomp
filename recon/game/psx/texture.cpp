@@ -369,13 +369,34 @@ void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
           /* MATCH: two real BITFIELD assignments (lw / and ~0xfff / or x&0xfff /
            * and 0xf000ffff / or (y&0xfff)<<16 / sw), NOT one fused
            * `word & 0xf000f000 | ...` expression which collapses to a single
-           * `and`.  FLOOR (18 diffs, ours 109/107): our cc1 additionally hoists
-           * `x & 0xfff` out of the loop into $fp (+sw/lw fp), which the retail
-           * loop.c cost model refused -- it hoists only the two 2-insn
-           * `(v&0xfff)<<16` movables and the -0x1000 constant.  Tried: bitfield
-           * store order swaps, type-first order, dropping the frame filler,
-           * u_char kind -- none suppress the extra savings-1 hoist. */
-          shp->shapex = x;
+           * `and`.
+           * MATCH (w40-a10, 18 -> PASS): the shapex write must be spelled as the
+           * RAW-WORD read-modify-write; only the shapey write stays a bitfield
+           * assignment.  MECHANISM, read off cc1's own `-dL` loop dump
+           * (`Loop from 30 to 264: 84 real insns`): with BOTH as bitfield
+           * assignments the RTL for `shp->shapex = x` is
+           *   andi r95,x,0xfff / lw r96,12(shp) / and r97,r96,r98 / ior r97,r95
+           * so the `x & 0xfff` movable has life 4 and loop.c logs
+           *   `Insn 63: regno 95 (life 4), savings 1  moved to 279`
+           * -- it hoists it into $fp, costing the extra `sw fp`/`lw fp` pair
+           * (109 vs 107) and shifting every frame offset.  Retail's loop.c
+           * refused it, exactly as ours refuses the IDENTICAL clutx movable one
+           * arm later (`Insn 163: regno 114 (life 4), savings 1 not desirable`)
+           * and the second 0xf000ffff constant (`Insn 79 ... not desirable`
+           * where the first, `Insn 67`, with the same life/savings, moved) --
+           * i.e. the cost model is STATEFUL and we sit one movable over retail's
+           * budget edge.  Writing the shapex store as `word = (word &
+           * 0xfffff000) | (x & 0xfff)` makes gcc evaluate the `|`'s LEFT operand
+           * first, so the andi lands immediately before its use (life 1) and
+           * loop.c declines it -- the same disposition retail's build reached.
+           * Byte-identical merged sequence either way (`lw / andi / and $s2 /
+           * or / and $a1 / or $s7 / sw`).  Falsified: bitfield-store order swap
+           * (35 diffs, and it inverts which mask is hoisted), flag-store first
+           * (32), r.x/r.y first (24), a block-local `xf` copy (18), an explicit
+           * `(x & 0xfff)` cast (18), raw-word RMW for shapey too (66) or for
+           * shapey only (68). */
+          *(u_int *)((char *)shp + 0xc) =
+              (*(u_int *)((char *)shp + 0xc) & 0xfffff000) | (x & 0xfff);
           shp->shapey = y;
           *(u_char *)shp = *(u_char *)shp | 8;
           r.x = (short)x;

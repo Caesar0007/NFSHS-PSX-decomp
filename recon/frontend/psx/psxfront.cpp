@@ -356,21 +356,26 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
   else if ((*flags & 0x40U) != 0) {
     int fbot;
     int ftop;
+    /* MATCH: rawT/rawB are the PRE-ABS values.  SYM's fbot($v0)/ftop($a1) hold ONLY the final
+     * `0x80 - fade*` results -- keeping the raw in the same variable made ftop's allocno outrank
+     * the flip_axis CSE temp and rotated $a0/$a1 through the whole arm (70 diffs).  Split = PASS. */
+    int rawT;
+    int rawB;
     /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
      * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
-    ftop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
-    fadetop = ftop;
-    if (ftop * 0x10000 < 0) {
-      fadetop = -ftop;
+    rawT = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    fadetop = rawT;
+    if (rawT * 0x10000 < 0) {
+      fadetop = -rawT;
     }
     fadetop = fadetop << 1;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
-    fadebottom = fbot;
-    if (fbot * 0x10000 < 0) {
-      fadebottom = -fbot;
+    rawB = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    fadebottom = rawB;
+    if (rawB * 0x10000 < 0) {
+      fadebottom = -rawB;
     }
     fadebottom = fadebottom << 1;
     if (0x80 < fadebottom) {

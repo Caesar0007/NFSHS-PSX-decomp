@@ -354,12 +354,22 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
           ChangeTPage(&tpage,mode);
           prim->tpage = tpage;
         }
+        /* MATCH (w41-a9, 168 -> 116 and the insn count exact 938/938): the OT link
+           RE-READS the packet cursor into `prim` and then uses THAT one pointer for all
+           three jobs -- the tag read-modify-write, the cursor bump, and the OT word.
+           Oracle: `lui $s0,0x1F80; lw $s0,4($s0)` (the reload lands in the SYM's
+           prim=$s0), then `lw/and/or/sw 0($s0)`, `addiu $v1,$s0,0x28`, `and $a1,$s0,
+           0xFFFFFF`.  Keeping the ORIGINAL `prim` live instead and taking the cursor
+           from a fresh `Render_gPacketPtr` read costs a second base register AND leaves
+           the `and`/`or` pair un-cross-jumped in this arm (+2 `and` +2 `or` on the
+           opcode census, i.e. the whole 942-vs-938 overage). */
+        prim = (POLY_FT4 *)Render_gPacketPtr;
         prim->tag = prim->tag & 0xff000000 |
                     *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        l0 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x28;
+        Render_gPacketPtr = (u_char *)prim + 0x28;
         *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
+             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 |
+             (u_int)prim & 0xffffff;
       }
     }
   }

@@ -884,7 +884,7 @@ void Hud_Init(void)
       x = g1Player[5].x;
     }
     if (Hud_BeTheCop != 0) {
-      y = g1Player[2].y + (splitY + 0xe);
+      y = (splitY + 0xe) + g1Player[2].y;
     }
     else {
       y = g1Player[5].y + splitY;
@@ -910,14 +910,15 @@ void Hud_Init(void)
       x = g1Player[5].x + g1Player[9].x;
     }
     if (Hud_BeTheCop != 0) {
-      y = g1Player[2].y + (splitY + 0xc);
+      y = (splitY + 0xc) + g1Player[2].y;
     }
     else {
       y = g1Player[5].y + splitY + 1;
     }
+    x = x + HudPmx_gShapes[0x76].width;
     Hud_BuildTimeSprites(gSprt1 + 0x1e,
                (GameSetup_gData.checkpointHUD[i] == 0) ? "0M00S00" : "0.000",
-               x + HudPmx_gShapes[0x76].width,y);
+               x,y);
     HudSplitTimeDiff1[i] = gSprt1[0x1f].y0 - gSprt1[0x1e].y0;
     currentSpriteColor = textcolour;
     HudSplitTimeDiff2[i] = gSprt1[0x22].y0 - gSprt1[0x1e].y0;
@@ -939,8 +940,10 @@ void Hud_Init(void)
     y = g1Player[1].y + g1Player[0xb].y + splitY;
     Hud_BuildSprite2(gSprt1 + 0x31,0x1a,x + -1,y);
     Hud_BuildSprite2(gSprt1 + 0x32,0x1b,x + -2,y + -1);
+    x = x + 2;
+    y = y + 6;
     do {
-      Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x + 2,y + 6);
+      Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x,y);
       j = j + 1;
     } while (j < 8);
     Hud_InitMapFrame(i,0);

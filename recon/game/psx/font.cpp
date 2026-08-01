@@ -129,6 +129,15 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
  * `colour == 15` ($s1); both `if (rgb == 0) rgb = 0x400;` tails cross-jump into one
  * block (.L800CB62C) while the i<8 / i<12 / i<4 arms branch straight to the store.
  * Divides are SIGNED (mult + magic + sign fixup), not unsigned.
+ * w41-a6 PASS (was 6 diffs): the SYM's `r $v0, g $v1, b $a0` are the registers the
+ * oracle uses for the THREE blended sums (`addu v0,t8,a2` = fr+br, `addu v1,t4,a1` =
+ * fg+bg, `addu a0,a3,a0` = fb+bb, all emitted BEFORE the shifts) -- i.e. r/g/b are the
+ * blend accumulators, NOT copies of fclr.  Writing them as `r = fr + br; g = fg + bg;
+ * b = fb + bb; rgb = r << 10 | g << 5 | b;` gets the three-up-front emission, but ONLY
+ * once the pre-loop `r = fclr.r; ...` copies are dropped and fr1/fg1/fb1 read
+ * `fclr.r/g/b` directly -- keeping both uses makes r/g/b loop-carried and costs 117
+ * diffs / one insn.  (The inline `(fr+br) << 10 | ...` expression computes sum3 only
+ * after the first `or`, which was the 6-diff residual.)
  */
 void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
 
@@ -162,12 +171,9 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
   shpfontclut.shapey = (short)font_cluty;
   *(long *)&fclr = forecolour;
   *(long *)&bclr = backcolour;
-  r = fclr.r;
-  g = fclr.g;
-  b = fclr.b;
-  fr1 = (r * 31) / 255;
-  fg1 = (g * 31) / 255;
-  fb1 = (b * 31) / 255;
+  fr1 = (fclr.r * 31) / 255;
+  fg1 = (fclr.g * 31) / 255;
+  fb1 = (fclr.b * 31) / 255;
   for (i = 0; i < 16; i++) {
     if ((in_game != 0) && (opaque == 0)) {
       if (i < 8) {
@@ -194,7 +200,10 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
         rgb = 0;
       }
       else {
-        rgb = (fr + br) << 10 | (fg + bg) << 5 | (fb + bb);
+        r = fr + br;
+        g = fg + bg;
+        b = fb + bb;
+        rgb = r << 10 | g << 5 | b;
         if (colour == 0xf) {
           rgb = rgb | 0x8000;
         }

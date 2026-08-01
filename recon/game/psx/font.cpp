@@ -81,11 +81,17 @@ void Font_SetABR(int abr)
  * list) -- keep it in the signature so the indirect call type matches.
  * width/height are INT locals per the SYM: u_char locals would re-mask every use
  * (andi 0xff) that the oracle does not have. */
-/* w39-a6 FLOOR (48 diffs, count EXACT 55/55): the residual is one uniform v0<->v1 swap in
- * the packet/palette header merge that cascades through the whole body.  FALSIFIED here:
- * moving the `dv` computation to any of 3 earlier source positions (+1 insn each, 79-87
- * diffs); accumulating dv in place / pre-masking (54); reversing the u0 `|` chain (48);
- * swapping either merge's operand order (50/52/54).  Allocator tie-break. */
+/* w40-a6: 48 -> 42, count EXACT 55/55.  The w39 "FLOOR" note was WRONG about the dv
+ * position: the SYM puts `dv` in REG $06 = $a2 = the `src` PARAM's own register, i.e. dv
+ * is computed FIRST and reuses src's dying reg in place (oracle `lw a2,12(a2); sll a2,a2,4;
+ * sra a2,a2,20` as the first three insns).  What made the earlier attempts cost +1 insn was
+ * moving the WHOLE `(dv + v & 0xff) << 8` expression up with it; splitting it -- `dv` alone
+ * at the top, the `+v`/mask/shift as its own statement at the u0 site -- keeps 55/55.
+ * RESIDUAL 42: sched1 hoists our `(dv + v & 0xff) << 8` (and with it the `v` stack-arg
+ * load, t3-vs-t6) above the header merge, where retail interleaves it after the palette
+ * store; that in turn rotates v0<->v1 through the merge.  Variants measured: split into
+ * 3 statements 72, `dv | clut | u` order 44, `u | dv | clut` 62, whole expr at top 87 (+1
+ * insn), palette-before-bump 87 (+1 insn). */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
@@ -95,6 +101,7 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   int dv;
   u_int *pal;
 
+  dv = (*(int *)((u_char *)src + 0xc) << 4) >> 0x14;
   sprt = (SPRT *)Render_gPacketPtr;
   pal = (u_int *)Render_gPalettePtr;
   width = ch->width;
@@ -106,8 +113,8 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   *(int *)&sprt->x0 = y << 0x10 | x;
   *(u_long *)&sprt->r0 = font_tint;
   *(u_int *)&sprt->w = height << 0x10 | width;
-  dv = (*(int *)((u_char *)src + 0xc) << 4) >> 0x14;
-  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | (dv + v & 0xffU) << 8 | u;
+  dv = (dv + v & 0xffU) << 8;
+  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv | u;
   SetSemiTrans(sprt,1);
   return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
 }

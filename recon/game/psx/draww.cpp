@@ -2035,6 +2035,7 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   iVar10 = 0;
   animInst = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   iVar2 = gObjInfo->objInstanceBuf->m_num_elements;
+  sd = (Draw_DCache *)&Render_gPalettePtr;
   if (iVar2 == 0) {
     iVar10 = 0;
   }
@@ -2049,10 +2050,9 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
        world matrix itself is a SEPARATE scratchpad literal (0x1F800014, matches
        sd->matB's own address -- Draw_DCache.matB @+0x14) forced into its own
        register by the gte_SetTransMatrix() call argument. */
-    sd = (Draw_DCache *)&Render_gPalettePtr;
     ((MATRIX *)0x1f800014)->t[2] = 0;
     ((MATRIX *)0x1f800014)->t[1] = 0;
-    ((MATRIX *)0x1f800014)->t[0] = 0;
+    (sd->matB).t[0] = 0;
 gte_SetTransMatrix((void *)0x1f800014);
     for (iVar9 = 0; iVar9 < iVar2; iVar9 = iVar9 + 1) {
       if ((psVar5 == (short *)0x0) || ((((u_short)psVar5[iVar9] >> 0xc ^ 1) & 1) == 0)) {
@@ -2467,6 +2467,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int doFrustumClip;
   Trk_SimObject *simObjs;
   short light;
+  Group *instGroup;   /* SYM REG $2 */
   Trk_CollideBoomInst *objInstance;
   Trk_ObjectDef *objDef;
   int totalCount;
@@ -2476,8 +2477,9 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int objectIndex;
 
   simObjs = gObjInfo->simObjs;
-  objInstance = (Trk_CollideBoomInst *)(gObjInfo->objInstanceBuf + 1);
-  groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
+  instGroup = gObjInfo->objInstanceBuf;
+  objInstance = (Trk_CollideBoomInst *)(instGroup + 1);
+  groupNumElements = instGroup->m_num_elements;
   doFrustumClip = gObjInfo->doFrustumClip;
   totalCount = 0;
   if (groupNumElements == 0) {
@@ -2493,7 +2495,18 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      * previous draw had left at 0x1F800028..0x30. */
     DW_WORLDMAT.t[2] = 0;
     DW_WORLDMAT.t[1] = 0;
-    DW_WORLDMAT.t[0] = 0;
+    /* MATCH (w42-a2): t[0] is materialized as its OWN literal scratchpad address,
+     * not as a displacement off the base the other two share.  Oracle @0x800C857C:
+     *   sw $zero,0x1C($v0)   ; t[2], $v0 = 0x1F800014 (lui+ori)
+     *   sw $zero,0x18($v0)   ; t[1]
+     *   lui $at,0x1F80 ; sw $zero,0x28($at)      <-- the $at assembler macro form
+     * The $at expansion only appears for a store whose address gcc emitted as a
+     * bare `sw $r,ADDR` macro (catalog: "$at-macro store in the diff => wrong
+     * declared shape") -- i.e. this one store was a separate address expression in
+     * the source, so gcc never folded it onto the CSE'd base.  0x1F800028 ==
+     * &DW_WORLDMAT.t[0] (matrixtdef.t @+0x14 of the matrix @0x1F800014); identical
+     * semantics, and it is what makes the insn count EXACT (433 -> 434 == oracle). */
+    *(int *)0x1f800028 = 0;
 gte_SetTransMatrix(&DW_WORLDMAT);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
       objectOffset = (int)goffsets[objInstance->zoffset];
@@ -2667,10 +2680,24 @@ DrawWChunkFacets_emitObj:
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
-          light = -1;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
-            goto DrawWChunkFacets_emitObj;
+          /* MATCH (w42-a2): case 5 passes its light INLINE as the literal -1 --
+           * exactly the same cross-jump-DEPTH rule the case-2/case-9 notes above
+           * document, and the reason `light` (SYM REG $s1) must NOT be live here.
+           * Oracle: this arm ends `addiu $v0,$zero,-0x1; sw $fp,0x14($sp)` and
+           * FALLS INTO the shared tail at .L800C8B30 (`sw $v0,0x18($sp)`; the
+           * 7th arg's stack home), while the flags&1 arm sign-extends its own
+           * $s1 and enters one insn later at .L800C8B34.  Routing this arm
+           * through the `light` variable extended $s1's live range across the
+           * whole switch, where the oracle REUSES $s1 as each arm's `sy`
+           * (`lh $s1,0x1E($s4); sll $s1,$s1,8`) -- so `light` got spilled to a
+           * HImode stack slot, costing the phantom 8 frame bytes (136 vs SYM
+           * fsize 128) and rotating totalCount off $s7 onto $fp. */
+          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                              (coorddef *)&objInstance->x,objectOffset,-1);
+          totalCount = totalCount + objectOffset;
+          break;
           }
           anim = Object_GetAnim(simObjs + objInstance->simIndex);
           (*(*anim->_vf)[2].pfn)
@@ -2954,7 +2981,8 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 {
   int skidChunk_p;
   int vert_count;
-  int depth_index;
+  int smBase;
+  int segOff;
   int vert_idx;
   POLY_GT4 *prim;
   void *primPtr;
@@ -3094,6 +3122,8 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 gte_SetRotMatrix(&sd->matB);
 gte_SetTransMatrix(&sd->matB);
     ti2 = ((coorddef *)(pt1_index + 0xc))->x;
+    smBase = pt1_index;
+    segOff = 0x10;
     for (depth_skid = 0; depth_skid < (short)ti2; depth_skid = depth_skid + 1) {
       /* MATCH (2026-07-11): oracle re-reads Render_gPacketEnd's TRUE storage
        * address (scratchpad 0x1F800008, same "Render_gPacketPtr style" fixed-
@@ -3109,8 +3139,28 @@ gte_SetTransMatrix(&sd->matB);
        * literal-address macro made gcc materialize a SECOND scratchpad base
        * (`ori s7,s6,4`) in its own callee-saved reg, which is the slot the oracle spends
        * on `count*0x2B0`. Same base, same bytes, one fewer allocno. */
+      /* CORRECTNESS FIX (w42-a2) -- LATENT BUG, the whole first half of this
+       * loop's geometry was garbage.  The two gte_ldv0() calls below read
+       * `depth_index`, which is NEVER ASSIGNED anywhere in this function: it is
+       * the CLUT-ramp index (SYM block @0x800C9548 line 125, `depth_index`
+       * class REG $3 == $v1), and Ghidra merged it with the ANONYMOUS $v1
+       * compiler temp that carries the vertex address here -- same register,
+       * two disjoint lifetimes, one Ghidra name.  So the recon fed the GTE an
+       * uninitialised value for skid-segment vertices 0 and 1 (the near edge of
+       * every skidmark quad) while only vertices 2/3 (via ->next) were right.
+       * Raw oracle @0x800C92B8/0x800C92F4 (authority):
+       *   addu  $v1,$s2,$t3   ; $s2 = sm (Skidmark_Chunk*), $t3 = 0x10 + i*0x1C
+       *   lwc2  $0,0($v1); lwc2 $1,4($v1)        = &sm->seg[i].svx[0]
+       *   ...
+       *   addiu $v1,$v1,8
+       *   lwc2  $0,0($v1); lwc2 $1,4($v1)        = &sm->seg[i].svx[1]
+       * Skidmark_Chunk.seg @+0x10, stride 0x1C; Skidmark_Segment.svx[2] @+0x0.
+       * `pt1_index` is the oracle's $t1 walker (sm + i*0x1C), so the two
+       * addresses are pt1_index+0x10 and pt1_index+0x18 -- and the +8 step
+       * between them is the oracle's own `addiu $v1,$v1,8`. */
       if ((sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
-gte_ldv0((int *)(depth_index));
+        int svp = smBase + segOff;                  /* &sm->seg[i].svx[0] */
+gte_ldv0((int *)(svp));
         gte_rtps();
 gte_stlvnl((void *)0x1f800098);
         primPtr = sd->head.cprim.PrimPtr;
@@ -3118,7 +3168,8 @@ gte_stlvnl((void *)0x1f800098);
          * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
          * scratchpad literal 0x1F800008 (= Render_gPacketEnd's slot). */
 gte_swc2(0xe,(void *)(primPtr + 8));
-gte_ldv0((int *)(depth_index));
+        svp = svp + 8;                              /* &sm->seg[i].svx[1] */
+gte_ldv0((int *)(svp));
         gte_rtps();
 gte_stlvnl((void *)0x1f8000a8);
 gte_ldv0((int *)(((coorddef *)(pt1_index + 0x24))->y + 8));
@@ -3267,6 +3318,7 @@ gte_swc2(0x7,(void *)0x1f800094);
         }
       }
       pt1_index = (int)&((coorddef *)(pt1_index + 0x18))->y;
+      segOff = segOff + 0x1c;
     }
   } while( true );
 }
@@ -3452,10 +3504,15 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
        * t2=$a1) -- a WORD-PAIR copy, i.e. the original knew the CCOORD16s are 4-aligned.
        * A plain `vt0 = geomVertices[3];` struct assignment carries CCOORD16's align-2
        * and expands to the unaligned lwl/lwr+swl/swr movstrsi run (8 insns/copy vs 4). */
-      ONYX_COPYVT(&vt0,&geomVertices[3]);
-      ONYX_COPYVT(&vt1,&geomVertices[1]);
-      ONYX_COPYVT(&vt2,&geomVertices[0]);
-      ONYX_COPYVT(&vt3,&geomVertices[2]);
+      { int t1, t2;
+        t1 = ((int *)&geomVertices[3])[0]; t2 = ((int *)&geomVertices[3])[1];
+        ((int *)&vt0)[0] = t1; ((int *)&vt0)[1] = t2;
+        t1 = ((int *)&geomVertices[1])[0]; t2 = ((int *)&geomVertices[1])[1];
+        ((int *)&vt1)[0] = t1; ((int *)&vt1)[1] = t2;
+        t1 = ((int *)&geomVertices[0])[0]; t2 = ((int *)&geomVertices[0])[1];
+        ((int *)&vt2)[0] = t1; ((int *)&vt2)[1] = t2;
+        t1 = ((int *)&geomVertices[2])[0]; t2 = ((int *)&geomVertices[2])[1];
+        ((int *)&vt3)[0] = t1; ((int *)&vt3)[1] = t2; }
       gte_ldv0((int *)(&vt0));
       gte_rtps();
       gte_stlvnl(((char *)sd + 0x98));

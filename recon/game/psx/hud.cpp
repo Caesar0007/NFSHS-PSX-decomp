@@ -1020,9 +1020,12 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   }
   temp2 = __builtin_abs(time);
   temp1 = temp2 / 0x40;
-  hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   min = (temp1 / 0x3c) % 0x3c;
   sec = temp1 % 0x3c;
+  /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
+     Residual 10 = which pseudo __builtin_abs targets (oracle: abs->v0 then saves a2;
+     ours: abs->a2 then copies v0).  Everything after insn 9 is byte-identical. */
+  hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10];
@@ -2033,6 +2036,7 @@ void Hud_BuildWingmanInterface(int player)
   int splitY;
   int flashTicks;
   POLY_F4 *poly;
+  u_char *pal;
   int x;
   int y;
 
@@ -2042,7 +2046,7 @@ void Hud_BuildWingmanInterface(int player)
   }
   flashTicks = Hud_gWingmanFlashTicks[player] - ticks;
   x = (int)g1Player[0xe].x;
-  y = g1Player[0xe].y + HudMapOffsetY + splitY + 2;
+  y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);
   Hud_BuildString(TextSys_Word(0x29),x - 0x1b,y + 3,0x808080,0,false);
   Hud_BuildString(TextSys_Word(0x2a),x - 0x1b,y + 0xc,0x808080,player,false);
   Hud_BuildString(TextSys_Word(0x2b),x - 0x1b,y + 0x15,0x808080,player,false);
@@ -2050,10 +2054,10 @@ void Hud_BuildWingmanInterface(int player)
   Hud_BuildString(TextSys_Word(0x2d),x - 0x1b,y + 0x27,0x808080,player,false);
   if (0 < flashTicks) {
     poly = (POLY_F4 *)Render_gPacketPtr;
-    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+    pal = Render_gPalettePtr;
+    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
     Render_gPacketPtr = (u_char *)poly + 0x18;
-    *(u_int *)Render_gPalettePtr =
-         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)poly & 0xffffff;
     Hud_BuildF4(poly,0,x - 0x10,y + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,
                (flashTicks % 0x14) * 10);
   }
@@ -2063,19 +2067,19 @@ void Hud_BuildWingmanInterface(int player)
     i = 0;
     do {
       poly = (POLY_F4 *)Render_gPacketPtr;
-      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      pal = Render_gPalettePtr;
+      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
       Render_gPacketPtr = (u_char *)poly + 0x18;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)poly & 0xffffff;
       Hud_BuildF4(poly,0,x - 0x1c,y + i * 9 + 2,0x4b,7,0);
       i = i + 1;
     } while (i < 5);
   }
   poly = (POLY_F4 *)Render_gPacketPtr;
-  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+  pal = Render_gPalettePtr;
+  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
   Render_gPacketPtr = (u_char *)poly + 0x18;
-  *(u_int *)Render_gPalettePtr =
-       *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)poly & 0xffffff;
+  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)poly & 0xffffff;
   Hud_BuildF4(poly,1,x - 0x1c,y,0x4b,0x30,0);
   return;
 }
@@ -2515,22 +2519,23 @@ void Hud_BuildReplay(void)
   }
   *(u_int *)&gSprite0[0x34].u0 =
        *(u_int *)&(HudPmx_gShapes + 0x6e - Replay_ReplayInterface.pause)->pixmap.u0;
-  if (Replay_ReplayInterface.speed != 1) {
-    if (Replay_ReplayInterface.speed < 2) {
-      spr = 0x74;
-      if (Replay_ReplayInterface.speed == 0) {
-        spr = 0x72;
-      }
-    }
-    else {
-      spr = 0x74;
-      if (Replay_ReplayInterface.speed == 2) {
-        spr = 0x75;
-      }
-    }
-  }
-  else {
+  /* MATCH: a real `switch` -- the oracle's dispatch is gcc-2.8 balance_case_nodes
+   * (root `beq 1`, `slti 2` bound test, then `beqz`/`beq 2` leaves) with the default
+   * body duplicated into the two guard delay slots; an if/else-if cascade emits the
+   * arms inline with the opposite polarity. */
+  switch (Replay_ReplayInterface.speed) {
+  case 0:
+    spr = 0x72;
+    break;
+  case 1:
     spr = 0x73;
+    break;
+  case 2:
+    spr = 0x75;
+    break;
+  default:
+    spr = 0x74;
+    break;
   }
   gSprite0[0x38].u0 = HudPmx_gShapes[spr].pixmap.u0;
   gSprite0[0x38].v0 = HudPmx_gShapes[spr].pixmap.v0;
@@ -2854,10 +2859,20 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
 
 {
   /* SYM-exact locals (8c @0x800d7ca8, fsize 72): x REGPARM $fp | y ARG 0x4C(sp) |
-   * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s3 | j $s0 | k $s2 | by $s5 |
-   * index $v1.  y/num live in their ARG HOMES (spilled at entry, re-loaded after each
-   * loop) because the two nested loops need all nine callee-saved regs; the x/j*10 and
-   * y/i*9 walkers are compiler givs, so the source is index-form. */
+   * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s0 | j $s3 | k $s2 | by $s5 |
+   * index $v1.  (NOTE: the SYM's `i` is the INNER counter and `j` the OUTER one -- our
+   * i/j are swapped w.r.t. the original; codegen-neutral.)  y/num live in their ARG
+   * HOMES (spilled at entry, re-loaded after each loop) because the two nested loops
+   * need all nine callee-saved regs; the x/j*10 and y/i*9 walkers are compiler givs.
+   * MATCH (w42): the two-statement `by = y; by = by + i*9;` form in the FIRST loop is
+   * load-bearing -- the single-expression `by = y + i*9;` makes `by` a replaceable
+   * DEST_REG giv, loop.c folds the copy away, one callee-saved reg is freed and `y`
+   * then WINS a register instead of spilling to its ARG home (73 diffs, 3 insns short).
+   * Splitting it keeps `by` a real pseudo, fills the pool, and spills y like retail.
+   * Also: `j = 0;` must precede the `by = ...` statement in BOTH loops, and the
+   * `| 0x3c` belongs at the CALL SITE (keeps `index` in $v1 per the SYM), not folded
+   * into `index` itself.  73 -> 37.  Residual: giv base is 0 (i*9) + a y reload where
+   * retail's giv base is y itself (+1 insn), and the index/$v1-vs-$a0 chain. */
   int i;
   int j;
   int k;
@@ -2868,8 +2883,9 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
     k = 0;
     i = 0;
     do {
-      by = y + i * 9;
       j = 0;
+      by = y;
+      by = by + i * 9;
       do {
         if ((Hud_Character[num] & 1 << k) != 0) {
           Flare_2DHalo(x + j * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
@@ -2884,12 +2900,11 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
   k = 0;
   i = 0;
   do {
-    by = y + i * 9 + 1;
     j = 0;
+    by = y + i * 9 + 1;
     do {
       index = (Hud_Character[num] & 1 << k) != 0;
-      index = index | 0x3c;
-      Hud_FBuildSprite(index,x + j * 10 + 1,by,0x808080,0);
+      Hud_FBuildSprite(index | 0x3c,x + j * 10 + 1,by,0x808080,0);
       j = j + 1;
       k = k + 1;
     } while (j < 5);
@@ -3348,17 +3363,22 @@ void Hud_Render(void)
     return;
   }
   if (((HudBustedOverlay == 0) && (BTC_BonusTime != 0)) && (0xfa < ticks - BTC_BonusTimeTick)) {
+    /* MATCH: plain if / else-if / else with BOTH 0x32 arms written out -- gcc
+     * cross-jumps them into the single shared `j; addiu a0,0x32` block the oracle
+     * reaches from the splitscreen==0 branch AND from the car[1] fall-through.
+     * The old `goto` into the else arm emitted an extra un-filled `j; nop`. */
     if (DashHUD_gInfo.splitscreen != 0) {
-      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) != 0) {
+      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) {
         countamount = 0xfa;
-        if ((Cars_gRaceCarList[1]->carFlags & 0x200U) != 0) goto HudRender_setRateFast;
+      }
+      else if ((Cars_gRaceCarList[1]->carFlags & 0x200U) == 0) {
+        countamount = 0xfa;
       }
       else {
-        countamount = 0xfa;
+        countamount = 0x32;
       }
     }
     else {
-HudRender_setRateFast:
       countamount = 0x32;
     }
     count = countamount;
@@ -3366,10 +3386,14 @@ HudRender_setRateFast:
       count = BTC_BonusTime;
     }
     BTC_Countdown = BTC_Countdown + count;
-    BTC_BonusTime = BTC_BonusTime - countamount;
-    if (BTC_BonusTime < 0) {
-      BTC_BonusTime = 0;
+    /* MATCH: single store -- the oracle computes the difference, clamps it in a
+     * register and stores ONCE (`subu; bgez; addu v1,zero,zero; sw`); writing the
+     * subtraction back to the global first emits an extra `sw` (census sw 17v16). */
+    count = BTC_BonusTime - countamount;
+    if (count < 0) {
+      count = 0;
     }
+    BTC_BonusTime = count;
   }
   if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0)) {
     i = 0;

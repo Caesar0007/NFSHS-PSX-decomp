@@ -71,7 +71,7 @@ typedef struct CARDINFO_def {         /* 616 bytes */
 typedef struct MCRDFILEHEADER_def {   /* 512 bytes */
     u_char  magicnumber[2];           /* +0x0 */
     u_char  type, nslots;             /* +0x2 */
-    u_short title[32];                /* +0x4 */
+    short   title[32];                /* +0x4 (SJIS codes; retail reads them with lh) */
     u_char  unused[28];               /* +0x44 */
     u_char  iconclut[32];             /* +0x60 */
     u_char  icon1[128], icon2[128], icon3[128];   /* +0x80 */
@@ -140,7 +140,7 @@ extern long MemCardCreateFile(long chan, char *name, long nslots);
 extern long MemCardDeleteFile(long chan, char *name);
 extern long MemCardFormat(long chan);
 extern long MemCardGetDirentry(long chan, char *pat, DIRENTRY *dir, int *count, long a, long b);
-extern u_char *getshapeclut(shapetbl *shape, int src);   /* libgs shape CLUT */
+extern u_char *getshapeclut(shapetbl *shape);   /* libgs shape CLUT (1 arg: oracle @0x800F6C3C never reads $a1) */
 extern void blockclear(void *dst, int size);             /* eaclib */
 extern void blockmove(void *src, void *dst, int size);
 extern int  addtimer(void (*proc)(void));
@@ -284,27 +284,33 @@ void MCRD_getopts(MCRDOPTS_def *pOPT)
 void MCRD_setopts(MCRDOPTS_def *pOPT)
 
 {
-  int loc;
-  
-  if (pOPT->productCode == (char *)0x0) {
-    gMemCardInfo.productCode[0] = '\0';
-    gMemCardInfo.productLocation = N_AMERICA;
-  }
-  else {
+  /* MATCH: the productCode!=NULL body is the IF-ARM (the oracle's beqz pushes the
+   * NULL case out-of-line to .L8004F634), and the region letter comes from a real
+   * 3-case switch + default - gcc's balanced case tree emits the beq(1)/beqz(0)/
+   * beq(2) ladder, and the two 'A' arms (N_AMERICA + default) cross-jump-merge. */
+  if (pOPT->productCode != (char *)0x0) {
     gMemCardInfo.productCode[0] = 'B';
-    loc = pOPT->productLocation;
-    if (loc == 1) {
+    switch (pOPT->productLocation) {
+    case JAPAN:
       gMemCardInfo.productCode[1] = 'I';
-    }
-    else if ((loc == 0) || (loc != 2)) {
-      gMemCardInfo.productCode[1] = 'A';
-    }
-    else {
+      break;
+    case EUROPE:
       gMemCardInfo.productCode[1] = 'E';
+      break;
+    case N_AMERICA:
+      gMemCardInfo.productCode[1] = 'A';
+      break;
+    default:
+      gMemCardInfo.productCode[1] = 'A';
+      break;
     }
     strncpy(gMemCardInfo.productCode + 2,pOPT->productCode,10);
     gMemCardInfo.productCode[0xc] = '\0';
     gMemCardInfo.productLocation = pOPT->productLocation;
+  }
+  else {
+    gMemCardInfo.productCode[0] = '\0';
+    gMemCardInfo.productLocation = N_AMERICA;
   }
   gMemCardInfo.ConfirmFormatProc = pOPT->ConfirmFormatProc;
   gMemCardInfo.ConfirmOverwriteProc = pOPT->ConfirmOverwriteProc;
@@ -323,21 +329,27 @@ void MCRD_loadfile(int card,MCRDFILE_def *pFILE,int bNameHasProductCode)
 {
   MCRDFILEINFO_def *pMFI;
   
-  blockclear(&gMemCardInfo.fileinfo,0x23c);
-  gMemCardInfo.fileinfo.cardnum = card;
+  /* MATCH: everything goes through the fileinfo POINTER - the oracle anchors one
+   * saved reg on &gMemCardInfo.fileinfo (small displacements, productCode at -0x25C
+   * and the task/bReady base at -0x260 derived FROM it).  Writing the fields as
+   * gMemCardInfo.fileinfo.X instead anchors on &gMemCardInfo and inflates every
+   * displacement by 0x260. */
+  pMFI = &gMemCardInfo.fileinfo;
+  blockclear(pMFI,0x23c);
+  pMFI->cardnum = card;
   if (bNameHasProductCode == 0) {
-    strcpy(gMemCardInfo.fileinfo.name,gMemCardInfo.productCode);
+    strcpy(pMFI->name,gMemCardInfo.productCode);
   }
-  strcat(gMemCardInfo.fileinfo.name,pFILE->name);
-  gMemCardInfo.fileinfo.title = pFILE->title;
-  gMemCardInfo.fileinfo.size = pFILE->size;
-  gMemCardInfo.fileinfo.offset = pFILE->offset;
-  gMemCardInfo.fileinfo.icon[0] = pFILE->icon[0];
-  gMemCardInfo.fileinfo.icon[1] = pFILE->icon[1];
-  gMemCardInfo.fileinfo.icon[2] = pFILE->icon[2];
-  gMemCardInfo.fileinfo.pData = pFILE->pData;
-  pFILE->numicons = &gMemCardInfo.fileinfo.header.type;
-  pFILE->numblocks = &gMemCardInfo.fileinfo.header.nslots;
+  strcat(pMFI->name,pFILE->name);
+  pMFI->title = pFILE->title;
+  pMFI->size = pFILE->size;
+  pMFI->offset = pFILE->offset;
+  pMFI->icon[0] = pFILE->icon[0];
+  pMFI->icon[1] = pFILE->icon[1];
+  pMFI->icon[2] = pFILE->icon[2];
+  pMFI->pData = pFILE->pData;
+  pFILE->numicons = &pMFI->header.type;
+  pFILE->numblocks = &pMFI->header.nslots;
   gMemCardInfo.task = LOAD_FILE;
   gMemCardInfo.bReady = 0;
   return;
@@ -350,27 +362,30 @@ int iMCRD_DoFileLoad(int card)
 
 {
   uchar ch;
-  int error;
-  long sync_done;
   int err_state;
   uint attr;
+  uint hdr;
+  long sync_done;
   long sync;
   uchar *src;
-  shapetbl *s;
-  uint *pIcon;
+  shapetbl *pIcon;
   int i;
   int iconNum;
   MCRDFILEINFO_def *pMFI;
-  int ret;
   long cmd;
   long res;
-  
-  ret = (int)&gMemCardInfo.fileinfo /* 0x80052fc8; +0x30 -> .header.title[] */;
-  if ((gMemCardInfo.fileinfo.title != (char *)0x0) ||
-     (gMemCardInfo.fileinfo.icon[0] != (shapetbl *)0x0)) {
+
+  /* MATCH: pMFI is the base anchor (retail derives &gMemCardInfo as pMFI-0x260).
+   * The two title/icon walks are INDEX forms - loop.c builds the header.title giv
+   * (stride 2 off pMFI) and the icon[] giv (sll i,2) itself; a hand byte-offset
+   * (i = iconNum*4) blocks that.  The shape header's x/y clears are two BITFIELD
+   * assignments (0xF000FFFF then 0xFFFFF000 off ONE lw/sw) - a single folded
+   * 0xF000F000 mask is a reconstruction bug. */
+  pMFI = &gMemCardInfo.fileinfo;
+  if ((pMFI->title != (char *)0x0) || (pMFI->icon[0] != (shapetbl *)0x0)) {
     res = MemCardReadFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (u_long *)&gMemCardInfo.fileinfo.header,0,0x200);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (u_long *)&pMFI->header,0,0x200);
     while (sync_done = MemCardSync(1,&cmd,&res), sync_done == 0) {
       ((int(*)(void))gMemCardInfo.LoadingDataProc)();
       VSync(0);
@@ -380,58 +395,60 @@ int iMCRD_DoFileLoad(int card)
       return err_state;
     }
     i = 0;
-    if (gMemCardInfo.fileinfo.title != (char *)0x0) {
+    if (pMFI->title != (char *)0x0) {
       while (1) {
-        ch = sjis2ascii(*(short *)(ret + 0x30));
-        gMemCardInfo.fileinfo.title[i] = ch;
-        ret = ret + 2;
+        ch = sjis2ascii(pMFI->header.title[i]);
+        pMFI->title[i] = ch;
         if (ch == '\0') break;
         i = i + 1;
       }
     }
     iconNum = 0;
-    i = 0;
     do {
-      pIcon = *(uint **)((int)gMemCardInfo.fileinfo.icon + i);
-      if (pIcon == (uint *)0x0) break;
-      src = gMemCardInfo.fileinfo.header.icon1;
+      pIcon = *(shapetbl **)((char *)pMFI->icon + i);
+      if (pIcon == (shapetbl *)0x0) break;
+      src = pMFI->header.icon1;
       if (iconNum != 0) {
         if (iconNum == 1) {
-          src = gMemCardInfo.fileinfo.header.icon2;
+          src = pMFI->header.icon2;
         }
         else {
-          src = gMemCardInfo.fileinfo.header.icon3;
+          src = pMFI->header.icon3;
         }
       }
-      blockmove(src,pIcon + 4,0x80);
+      blockmove(src,&pIcon->data,0x80);
       attr = shapetype(4);
       *(char *)pIcon = (char)attr;
-      attr = attr & 0xff | 0x9000;
-      *pIcon = attr;
-      *(u_short *)((int)pIcon + 6) = 0x10;
-      *(u_short *)(pIcon + 1) = 0x10;
-      *(u_short *)((int)pIcon + 10) = 0;
-      *(u_short *)(pIcon + 2) = 0;
-      pIcon[3] = pIcon[3] & 0xf000f000;
-      pIcon = (uint *)((int)pIcon + ((int)attr >> 8));
-      blockmove(gMemCardInfo.fileinfo.header.iconclut,pIcon + 4,0x20);
+      hdr = attr & 0xff | 0x9000;   /* MATCH: a FRESH pseudo - reusing attr forces a copy */
+      *(uint *)pIcon = hdr;
+      pIcon->height = 0x10;
+      pIcon->width = 0x10;
+      pIcon->centery = 0;
+      pIcon->centerx = 0;
+      pIcon->shapey = 0;
+      pIcon->shapex = 0;
+      pIcon = (shapetbl *)((int)pIcon + ((int)hdr >> 8));
+      blockmove(pMFI->header.iconclut,&pIcon->data,0x20);
       attr = cluttype(0x10);
       *(char *)pIcon = (char)attr;
       iconNum = iconNum + 1;
-      *(u_short *)(pIcon + 1) = 0x10;
-      *(u_short *)((int)pIcon + 6) = 1;
-      *(u_short *)((int)pIcon + 10) = 0;
-      *(u_short *)(pIcon + 2) = 0;
-      *pIcon = attr & 0xff;
-      pIcon[3] = pIcon[3] & 0xf000f000;
-      i = iconNum * 4;
+      pIcon->width = 0x10;
+      pIcon->height = 1;
+      pIcon->centery = 0;
+      pIcon->centerx = 0;
+      *(uint *)pIcon = attr & 0xff;
+      pIcon->shapey = 0;
+      pIcon->shapex = 0;
+      i = iconNum * 4;   /* MATCH: routing the byte offset through the multiply-set
+                          * i blocks loop.c from strength-reducing icon[] into a
+                          * walking pointer (retail recomputes sll/addu per iter). */
     } while (iconNum < 3);
   }
-  if (gMemCardInfo.fileinfo.size != 0) {
+  if (pMFI->size != 0) {
     res = MemCardReadFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (u_long *)gMemCardInfo.fileinfo.pData,gMemCardInfo.fileinfo.offset + 0x200,
-                     gMemCardInfo.fileinfo.size);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (u_long *)pMFI->pData,pMFI->offset + 0x200,
+                     pMFI->size);
     if (res == 0) {
       gMemCardInfo.bReady = 1;
       return 0x10;
@@ -454,49 +471,46 @@ int iMCRD_DoFileLoad(int card)
 int MCRD_savefile(int card,MCRDFILE_def *pFILE)
 
 {
-  short sjis;
+  u_short sjis;
   uint len;
   uchar *clut;
-  MCRDFILE_def *pScan;
-  char *src;
   int i;
   int nIcons;
   MCRDFILEINFO_def *pMFI;
-  int ret;
-  
-  ret = (int)&gMemCardInfo.fileinfo /* 0x80052fc8; +0x30 -> .header.title[] */;
-  if ((pFILE->size & 0x7fU) == 0) {
-    blockclear(&gMemCardInfo.fileinfo,0x23c);
-    gMemCardInfo.fileinfo.header.magicnumber[0] = 'S';
-    gMemCardInfo.fileinfo.header.magicnumber[1] = 'C';
-    strcpy(gMemCardInfo.fileinfo.name,gMemCardInfo.productCode);
-    src = pFILE->name;
-    strcat(gMemCardInfo.fileinfo.name,src);
-    gMemCardInfo.fileinfo.size = pFILE->size;
-    gMemCardInfo.fileinfo.flags = pFILE->flags;
-    gMemCardInfo.fileinfo.offset = pFILE->offset;
-    gMemCardInfo.fileinfo.pData = pFILE->pData;
+
+  /* MATCH: pMFI is the function's base anchor (retail keeps &gMemCardInfo.fileinfo
+   * in a saved reg; productCode is reached at -0x25C off it).  Also: getshapeclut
+   * takes ONE argument (its own oracle never reads $a1) - the 2nd arg was a
+   * fabricated Ghidra leftover that also forced a spare saved reg for pFILE->name. */
+  pMFI = &gMemCardInfo.fileinfo;
+  if ((pFILE->size & 0x7fU) != 0) goto MCRDsave_errorDefault;
+  {
+    blockclear(pMFI,0x23c);
+    pMFI->header.magicnumber[0] = 'S';
+    pMFI->header.magicnumber[1] = 'C';
+    strcpy(pMFI->name,gMemCardInfo.productCode);
+    strcat(pMFI->name,pFILE->name);
+    pMFI->cardnum = card;
+    pMFI->size = pFILE->size;
+    pMFI->flags = pFILE->flags;
+    pMFI->offset = pFILE->offset;
+    pMFI->pData = pFILE->pData;
     i = 0;
-    gMemCardInfo.fileinfo.cardnum = card;
     if ((pFILE->flags & 0x200) != 0) {
       nIcons = 0;
-      pScan = pFILE;
       do {
-        if (pScan->icon[0] != (shapetbl *)0x0) {
+        if (pFILE->icon[i] != (shapetbl *)0x0) {
           nIcons = nIcons + 1;
         }
         i = i + 1;
-        pScan = (MCRDFILE_def *)&pScan->title;
       } while (i < 3);
       if (nIcons == 0) {
         return -1;
       }
-      gMemCardInfo.fileinfo.header.type = (char)nIcons + '\x10';
-      i = pFILE->size + 0x2000;
-      gMemCardInfo.fileinfo.header.nslots = (uchar)(i >> 0xd);
-      if (i < 0) {
-        gMemCardInfo.fileinfo.header.nslots = (uchar)(pFILE->size + 0x3fff >> 0xd);
-      }
+      pMFI->header.type = (char)nIcons + '';
+      /* MATCH: a plain signed divide - retail's bgez/addiu 0x3FFF/sra 13 is gcc's
+       * own /0x2000 guard, not a hand-written rounding branch. */
+      pMFI->header.nslots = (uchar)((pFILE->size + 0x2000) / 0x2000);
       if (pFILE->title == (char *)0x0) {
         return -1;
       }
@@ -505,35 +519,34 @@ int MCRD_savefile(int card,MCRDFILE_def *pFILE)
         return -1;
       }
       len = strlen(pFILE->title);
+      /* MATCH: the -1 must be the FALL-THROUGH of this test (retail's shared
+       * error block sits right here and the head's size-check jumps INTO it via
+       * cross-jump); a goto to a tail label puts the block at the end instead. */
+      if (0x20 < len) {
+MCRDsave_errorDefault:
+        return -1;
+      }
       i = 0;
-      if (0x20 < len) goto MCRDsave_errorDefault;
       do {
         sjis = ascii2sjis(pFILE->title[i]);
-        *(short *)(ret + 0x30) = sjis;
+        pMFI->header.title[i] = sjis;
         if (sjis == 0) break;
         i = i + 1;
-        ret = ret + 2;
       } while (i < 0x20);
-      clut = getshapeclut(pFILE->icon[0],(int)src);
-      blockmove(clut + 0x10,gMemCardInfo.fileinfo.header.iconclut,0x20);
-      blockmove
-                (&pFILE->icon[0]->data,gMemCardInfo.fileinfo.header.icon1,0x80);
-      if ((1 < nIcons) &&
-         (blockmove
-                    (&pFILE->icon[1]->data,gMemCardInfo.fileinfo.header.icon2,0x80), nIcons == 3)) {
-        blockmove
-                  (&pFILE->icon[2]->data,gMemCardInfo.fileinfo.header.icon3,0x80);
+      clut = getshapeclut(pFILE->icon[0]);
+      blockmove(clut + 0x10,pMFI->header.iconclut,0x20);
+      blockmove(&pFILE->icon[0]->data,pMFI->header.icon1,0x80);
+      if (1 < nIcons) {
+        blockmove(&pFILE->icon[1]->data,pMFI->header.icon2,0x80);
+        if (nIcons == 3) {
+          blockmove(&pFILE->icon[2]->data,pMFI->header.icon3,0x80);
+        }
       }
     }
-    ret = 0;
     gMemCardInfo.task = WRITE_FILE;
     gMemCardInfo.bReady = 0;
+    return 0;
   }
-  else {
-MCRDsave_errorDefault:
-    ret = -1;
-  }
-  return ret;
 }
 
 /* lines 749-750: (static data / macros / comments - no emitted code) */
@@ -551,18 +564,23 @@ int iMCRD_DoFileWrite(int card)
   long cmd;
   long res;
   
-  if ((gMemCardInfo.fileinfo.flags & 0x200) != 0) {
+  /* MATCH: the SYM's pMFI is the function's base anchor - the oracle keeps
+   * &gMemCardInfo.fileinfo in a saved reg and derives &gMemCardInfo from it
+   * (-0x260) for .channel; writing gMemCardInfo.fileinfo.X anchors the other way
+   * and inflates every displacement by 0x260. */
+  pMFI = &gMemCardInfo.fileinfo;
+  if ((pMFI->flags & 0x200) != 0) {
     res = MemCardCreateFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (uint)gMemCardInfo.fileinfo.header.nslots);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (uint)pMFI->header.nslots);
     err_state = iMCRD_HandleError(2,res,card);
     if (err_state != 0) {
       return err_state;
     }
     timedwait(0x40);
     res = MemCardWriteFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (u_long *)&gMemCardInfo.fileinfo.header,0,0x200);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (u_long *)&pMFI->header,0,0x200);
     if (res == 0) {
       gMemCardInfo.bReady = 1;
       return 0xd;
@@ -576,9 +594,9 @@ int iMCRD_DoFileWrite(int card)
     }
   }
   res = MemCardWriteFile
-                  (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                   (u_long *)gMemCardInfo.fileinfo.pData,gMemCardInfo.fileinfo.offset + 0x200,
-                   gMemCardInfo.fileinfo.size);
+                  (gMemCardInfo.channel,pMFI->name,
+                   (u_long *)pMFI->pData,pMFI->offset + 0x200,
+                   pMFI->size);
   if (res == 0) {
     gMemCardInfo.bReady = 1;
     return 0xd;
@@ -588,8 +606,8 @@ int iMCRD_DoFileWrite(int card)
   } while (sync == 0);
   err = iMCRD_HandleError(2,res,card);
   if (err == 0) {
+    gMemCardInfo.bReady = 0;      /* MATCH: retail stores bReady BEFORE task here */
     gMemCardInfo.task = LOAD_CARD;
-    gMemCardInfo.bReady = 0;
     return 0xc;
   }
   return err;
@@ -632,123 +650,127 @@ int MCRD_handlecardevents(int card)
   CARDINFO_def *pCI;
   long sync;
   int ret;
-  int status;
   u_long cmd;
   u_long res;
-  
+
+  /* MATCH: ONE result variable + a single tail `return ret;` - every retail exit is
+   * `j .L800501B0/B4; addu $v0,$s0,$zero`, i.e. a funnel, never a direct return
+   * literal.  Keeping ret in $s0 is also what lets cse reuse the constant 2 as the
+   * shift amount in the res==1 arm (retail's `sllv v0,v0,s0`). */
   ret = 0x17;
   pCI = MCRD_getcard(card);
   sync = MemCardSync(0,(long *)&cmd,(long *)&res);
   if (sync == 0) {
-    return 0x15;
+    ret = 0x15;
+    goto MCRDhandleCard_end;
   }
-  if (sync < 1) {
-    if (sync != -1) {
-      return 0x17;
-    }
-    switch(gMemCardInfo.task) {
-    case NONE:
-      if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
-        gMemCardInfo.bReady = 0;
-        sync = MemCardExist(gMemCardInfo.channel);
-        if (sync != 0) {
-          return 0x15;
-        }
-        return 0x17;
-      }
-      goto MCRDhandleCard_returnCode22;
-    case LOAD_CARD:
-      ret = 0x17;
-      if (card == gMemCardInfo.fileinfo.cardnum) {
-        pCI->lasterror = 0;
-        gMemCardInfo.bReady = 0;
-        gMemCardInfo.task = NONE;
-        ret = iMCRD_LoadCard(card);
-      }
-      break;
-    case WRITE_FILE:
-      ret = 0x17;
-      if (card == gMemCardInfo.fileinfo.cardnum) {
-        pCI->lasterror = 0;
-        gMemCardInfo.bReady = 0;
-        gMemCardInfo.task = NONE;
-        ret = iMCRD_DoFileWrite(card);
-      }
-      break;
-    case LOAD_FILE:
-      ret = 0x17;
-      if (card == gMemCardInfo.fileinfo.cardnum) {
-        pCI->lasterror = 0;
-        gMemCardInfo.bReady = 0;
-        gMemCardInfo.task = NONE;
-        ret = iMCRD_DoFileLoad(card);
-      }
-      break;
-    case DELETE_FILE:
-      ret = 0x17;
-      if (card == gMemCardInfo.fileinfo.cardnum) {
-        pCI->lasterror = 0;
-        gMemCardInfo.bReady = 0;
-        gMemCardInfo.task = NONE;
-        ret = iMCRD_DoFileDelete(card);
-      }
-    }
+  /* MATCH: physical block order - retail lays the sync>0 (cmd/res) half FIRST and
+   * the task switch last; `if (sync <= 0) {...} else {cmd half}` makes the cmd half
+   * the bgtz target and pushes the task switch past it. */
+  if (sync <= 0) {
+    if (sync == -1) goto MCRDhandleCard_task;
+    goto MCRDhandleCard_end;
   }
   else {
-    if (sync != 1) {
-      return 0x17;
-    }
-    if (cmd != 1) {
-      if (cmd == 2) {
-        switch(res) {
-        case 0:
-        case 3:
-          gMemCardInfo.task = LOAD_CARD;
-          gMemCardInfo.fileinfo.cardnum = card;
-          return 4;
-        case 1:
-          iMCRD_InitCard(card);
-          pCI->status = -1;
-          return 2;
-        case 2:
-          iMCRD_InitCard(card);
-          return 3;
-        case 4:
-          pCI->status = -2;
-          return 5;
-        default:
-          return 0x17;
+    if (sync != 1) goto MCRDhandleCard_end;
+    switch(cmd) {
+    case 1:
+      switch(res) {
+      case 0:
+        gMemCardInfo.bReady = cmd;
+        gMemCardInfo.existencecheckticks[card + -1] = timerhz;
+        ret = 0x16;
+        if (pCI->status == -1) {
+          MemCardAccept(gMemCardInfo.channel);
         }
-      }
-      return 0x17;
-    }
-    if (res == 1) {
-      gMemCardInfo.bReady = cmd;
-      gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-      pCI->status = -1;
-      return 2;
-    }
-    if (res != 0) {
-      if (res == 2) {
+        break;
+      case 1:
+        ret = 2;
+        gMemCardInfo.bReady = cmd;
+        gMemCardInfo.existencecheckticks[card + -1] = timerhz;
+        pCI->status = -1;
+        break;
+      case 2:
+        ret = 3;
         gMemCardInfo.bReady = cmd;
         pCI->status = -4;
-        return 3;
-      }
-      if (res == 3) {
+        break;
+      case 3:
+        ret = 0x15;
         MemCardAccept(gMemCardInfo.channel);
-        return 0x15;
+        break;
+      default:
+        ret = 0x17;
+        break;
       }
-      return 0x17;
+      break;
+    case 2:
+      switch(res) {
+      case 0:
+      case 3:
+        ret = 4;
+        gMemCardInfo.fileinfo.cardnum = card;
+        gMemCardInfo.task = LOAD_CARD;
+        break;
+      case 1:
+        iMCRD_InitCard(card);
+        pCI->status = -1;
+        ret = 2;
+        break;
+      case 2:
+        iMCRD_InitCard(card);
+        ret = 3;
+        break;
+      case 4:
+        pCI->status = -2;
+        ret = 5;
+        break;
+      }
+      break;
     }
-    gMemCardInfo.bReady = cmd;
-    gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-    if (pCI->status == -1) {
-      MemCardAccept(gMemCardInfo.channel);
-      return 0x16;
-    }
-MCRDhandleCard_returnCode22:
-    ret = 0x16;
+    goto MCRDhandleCard_end;
   }
+MCRDhandleCard_task:
+  /* MATCH: every dispatch here is a real SWITCH with OUT-OF-LINE case bodies
+   * (retail's beq-to-arm ladders); an if/else-if chain inlines each arm and flips
+   * the branches to bne.  res is unsigned, so gcc omits the low bound test on
+   * case 0.  Case bodies emit in SOURCE order = the oracle's block VA order. */
+  switch(gMemCardInfo.task) {
+  case NONE:
+    ret = 0x16;
+    if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
+      gMemCardInfo.bReady = 0;
+      ret = 0x17;
+      if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
+      ret = 0x15;
+    }
+    break;
+  case LOAD_CARD:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_LoadCard(card);
+  case WRITE_FILE:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_DoFileWrite(card);
+  case LOAD_FILE:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_DoFileLoad(card);
+  case DELETE_FILE:
+    if (card != gMemCardInfo.fileinfo.cardnum) goto MCRDhandleCard_end;
+    pCI->lasterror = 0;
+    gMemCardInfo.bReady = 0;
+    gMemCardInfo.task = NONE;
+    return iMCRD_DoFileDelete(card);
+  }
+MCRDhandleCard_end:
   return ret;
 }
 
@@ -889,19 +911,23 @@ int iMCRD_FormatCard(int card)
   long fmtRes;
   int result;
   
+  result = 0;
   pCI = MCRD_getcard(card);
   fmtRes = MemCardFormat(gMemCardInfo.channel);
-  if (fmtRes == 1) {
+  /* MATCH: a real switch - the oracle's beq(1) / slti BOUND / beq(2) ladder is
+   * gcc-2.8 emit_case_nodes for a 2-node case tree, not an if/else-if chain
+   * (which emits two plain beq's and no bound test). The two arms' identical
+   * tails (status store + result=-1) cross-jump-merge into .L800504A0. */
+  switch (fmtRes) {
+  case 1:
+    pCI->status = -1;
     result = -1;
+    break;
+  case 2:
+    pCI->status = -4;
+    result = -1;
+    break;
   }
-  else {
-    result = 0;
-    if ((fmtRes < 2) || (result = 0, fmtRes != 2)) goto iMCRDformat_setReady;
-    result = -4;
-  }
-  pCI->status = result;
-  result = -1;
-iMCRDformat_setReady:
   pCI->status = 0;
   pCI->freeblocks = 0xf;
   return result;
@@ -926,17 +952,20 @@ int iMCRD_HandleError(int func,int opResult,int card)
   
   ret_state = 0;
   pcard = MCRD_getcard(card);
+  /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with
+   * the three arms out-of-line is gcc's balance_case_nodes tree; the equivalent
+   * if/else-if chain inlines each arm and flips every branch to bne. */
   if (opResult != 0) {
-    if (func == 2) {
+    switch (func) {
+    case 1:
+      ret_state = 10;
+      break;
+    case 2:
       ret_state = 0xd;
-    }
-    else if (func < 3) {
-      if (func == 1) {
-        ret_state = 10;
-      }
-    }
-    else if (func == 3) {
+      break;
+    case 3:
       ret_state = 0x10;
+      break;
     }
   }
   switch(opResult) {
@@ -952,22 +981,26 @@ int iMCRD_HandleError(int func,int opResult,int card)
     break;
   case 3:
     accept = MemCardAccept(gMemCardInfo.channel);
-    if (accept != 0) {
+    /* MATCH: the accept==0 arm is the IF-BODY (fall-through) - retail's bnez sends
+     * the success arm out-of-line. */
+    if (accept == 0) {
+      scratch_i = 0x17;
+      goto iMCRDError_setLastError;
+    }
+    else {
       gMemCardInfo.task = LOAD_CARD;
       gMemCardInfo.bReady = 0;
       return ret_state;
     }
-    scratch_i = 0x17;
-    goto iMCRDError_setLastError;
   case 4:
     if (func == 2) {
       confirm = ((int(*)(void))gMemCardInfo.ConfirmFormatProc)();
-      numberoftries = 0;
       if (confirm != 0) {
+        numberoftries = 0;   /* MATCH: lands in the beqz delay slot, not the jalr's */
         do {
-          confirm = iMCRD_FormatCard(card);
+          result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
           numberoftries = numberoftries + 1;
-          if (confirm != -1) {
+          if (result != -1) {
             gMemCardInfo.task = WRITE_FILE;
             return 6;
           }
@@ -1022,14 +1055,14 @@ int iMCRD_DefaultCBProc1(void)
 short ascii2sjis(u_char ascii_code)
 
 {
-  ushort sjis_code;
-  byte stmp;
+  uint sjis_code;
+  int stmp;
   uint code;
-  byte stmp2;
-  int kind;
-  
+  uint base;
+  byte kind;
+
   stmp = 0;
-  kind = 0;
+  kind = stmp;                  /* MATCH: oracle's addu a1,v1,zero = kind inits from stmp's zero */
   if ((byte)(ascii_code - 0x20) < 0x10) {
     kind = 1;
   }
@@ -1037,31 +1070,38 @@ short ascii2sjis(u_char ascii_code)
     if ((byte)(ascii_code - 0x3a) < 7) {
       kind = 0xb;
     }
-    else if ((byte)(ascii_code + 0xbf) < 0x1a) {
+    /* MATCH: negative literals (-0x41/-0x5b/-0x61/-0x7b), NOT the algebraically-equal
+     * +0xbf/+0xa5/+0x9f/+0x85 - the oracle's addiu immediates are the signed forms. */
+    else if ((byte)(ascii_code - 0x41) < 0x1a) {
       stmp = 1;
     }
-    else if ((byte)(ascii_code + 0xa5) < 6) {
+    else if ((byte)(ascii_code - 0x5b) < 6) {
       kind = 0x25;
     }
-    else if ((byte)(ascii_code + 0x9f) < 0x1a) {
+    else if ((byte)(ascii_code - 0x61) < 0x1a) {
       stmp = 2;
     }
     else {
       kind = 0x3f;
-      if (3 < (byte)(ascii_code + 0x85)) {
+      if (3 < (byte)(ascii_code - 0x7b)) {
         return 0;
       }
     }
   }
-  if (kind == 0) {
-    code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];
-    sjis_code = (short)code * 0x100;
+  /* MATCH: kind!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
+   * ascii_table arm; the inverted (kind==0 first) shape emits bnez. */
+  if (kind != 0) {
+    /* MATCH: the +0x1f must be its own in-place mutation of the widened kind -
+     * inline, gcc reassociates it to (ascii_code-0x1f)-kind. */
+    base = kind;
+    base = base + 0x1f;
+    code = (uint)ascii_k_table[(uint)ascii_code - base];
   }
   else {
-    code = (uint)ascii_k_table[(uint)ascii_code - (kind + 0x1f)];
-    sjis_code = ascii_k_table[(uint)ascii_code - (kind + 0x1f)] << 8;
+    code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];
   }
-  return sjis_code | (ushort)(code >> 8) & 0xff;
+  sjis_code = code << 8;
+  return sjis_code | ((ushort)code >> 8);
 }
 
 /* lines 2097-2101: (static data / macros / comments - no emitted code) */
@@ -1074,9 +1114,12 @@ u_char sjis2ascii(short sjis_code)
   int kind;
 
   kind = 0;
-  hi = (int)((uint)(ushort)sjis_code << 0x10) >> 0x18;
+  hi = sjis_code >> 8;          /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
   if ((sjis_code & 0xffU) == 0x81) {
-    return *(uchar *)((int)ascii_k_table + (hi & 0xff) + 0xc);
+    /* MATCH: the reverse table is its OWN symbol @0x80052ad0 indexed from 0x40 -
+     * the oracle's lbu -0x40(base); modelling it as ascii_k_table+0xc folded the
+     * displacement into %lo and aliased a different object (real bug). */
+    return sjis_k_table[(hi & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
     if (9 < hi - 0x4f) {
@@ -1087,7 +1130,9 @@ u_char sjis2ascii(short sjis_code)
         kind = 2;
       }
     }
-    return sjis_table[kind][1] + ((char)((ushort)sjis_code >> 8) - sjis_table[kind][0]);
+    /* MATCH: the second byte is `hi` itself (already sign-extended), not a fresh
+     * (char)(sjis_code>>8) re-extract - the oracle reuses the saved copy. */
+    return sjis_table[kind][1] + (hi - sjis_table[kind][0]);
   }
   return '\0';
 }

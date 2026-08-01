@@ -14,60 +14,70 @@ int kNoColor;   /* 0x800529d0 (EXT data global) */
 void DrawShape_SubtractNFS4RectEdges(RECT &rect)
 
 {
-  short y1;
-  short y2;
-  short tpage;
-  int linkAddr;
-  short x2;
-  short x1;
-  short i;
+  /* SYM 8c: fsize 32, mask $80010000 (ra,s0); locals are EXACTLY
+   *   dr_mode(DR_MODE* $s0) prim(POLY_G4* $a0) x1($a3) y1($t3) x2($a2) y2($t2) i($t5)
+   * -- `top`, `linkAddr`, `tpage`, `prevPrim`, `prevDrm` were all Ghidra fictions.
+   * All five shorts are plain `short` locals: that is what lets combine narrow the
+   * shared rect.w load to `lhu` and pay the sign-extend only on the >>3 use
+   * (lhu + sll 16 + sra 19) exactly like the oracle -- no (u_short) casts. */
+  /* RESIDUAL 49 @ ours 107 / oracle 108 -- STRONG evidence, mechanism named:
+   * cc1's loop.c declines to hoist the lone `lui 0x1F800000` (Render_gPalettePtr's
+   * address) out of the loop.  -dL receipt (tools/rtl_dump.py -dL):
+   *     Insn 84: regno 108 (life 1), move-insn savings 1 not desirable
+   *     Insn 84: possible biv, reg 108, const = 528482304   (= 0x1F800000)
+   * while the four 2-insn constants (0x1F800004 life 21, 0xffffff 11, 0xff000000 7,
+   * 0x808080 15) are all "moved".  Retail hoisted it, so $s0 there holds the palette
+   * base; ours spends $s0 on the 0xff000000 mask -> whole-fn scratch rotation.
+   * The address pseudo genuinely has life 1 in BOTH builds (one use: the pointer
+   * value is loaded once and reused), so there is no zero-cost source lever to
+   * lengthen it -- this is the documented savings-1 lone-lui LICM cost-model class.
+   * FALSIFIED here: loop shape (do-while / for / while-top / exit-in-the-middle all
+   * 49; goto-TEST 126), i-increment position (4 placements, all 49), OT-link
+   * statement/operand orders (4 x 2), and the whole -G / -mno-split-addresses axis
+   * (tools/gprobe.py: g8 / g0 / nosplit / g8+nosplit all == baseline on this TU). */
   DR_MODE *dr_mode;
-  short top;
-  u_char  *prevDrm;
-  u_char  *prevPrim;
-  u_char  *prim;
-  
+  POLY_G4 *prim;
+  short x1;
+  short y1;
+  short x2;
+  short y2;
+  short i;
+
   i = 0;
-  top = rect.y;
-  y1 = top + 1;
-  y2 = y1 + rect.h;
-  x1 = (u_short)rect.x + 2;
-  x2 = (uint)(u_short)rect.x + ((int)((uint)(u_short)rect.w << 0x10) >> 0x13);
+  y1 = rect.y + 1;
+  y2 = y1 + rect.h + -1;
+  x1 = rect.x + 2;
+  x2 = rect.x + (rect.w >> 3);
   do {
-    prim = Render_gPacketPtr;
-    prevPrim = Render_gPalettePtr;
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x24;
-    *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-    *(u_long *)(prim + 4) = 0x808080;
-    prim[7] = 0x3a;
-    prim[3] = 8;
-    *(short *)(prim + 10) = top + 3;
+    prim = (POLY_G4 *)Render_gPacketPtr;
+    prim->tag = prim->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
+    *(u_long *)Render_gPalettePtr =
+         *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)prim & 0xffffff;
+    Render_gPacketPtr = (u_char *)prim + 0x24;
+    *(u_long *)&prim->r0 = 0x808080;
+    prim->code = 0x3a;
+    ((u_char *)&prim->tag)[3] = 8;
+    prim->y0 = y1 + 2;
     i = i + 1;
-    *(u_long *)(prim + 0x14) = 0x808080;
-    *(u_long *)(prim + 0x1c) = 0;
-    *(u_long *)(prim + 0xc) = 0;
-    *(short *)(prim + 8) = (short)x1;
-    *(short *)(prim + 0x10) = (short)x2;
-    *(short *)(prim + 0x12) = y1;
-    *(short *)(prim + 0x18) = (short)x1;
-    *(short *)(prim + 0x1a) = y2 + -3;
-    *(short *)(prim + 0x20) = (short)x2;
-    *(short *)(prim + 0x22) = y2 + -1;
-    dr_mode = (DR_MODE *)Render_gPacketPtr;
-    prevDrm = Render_gPalettePtr;
-    x1 = (uint)(u_short)rect.x + (uint)(u_short)rect.w + -2;
-    x2 = x1 - ((int)((uint)(u_short)rect.w << 0x10) >> 0x13);
-  } while (i * 0x10000 >> 0x10 < 2);
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(uint *)prevDrm = *(uint *)prevDrm & 0xff000000 | linkAddr;
-  tpage = GetTPage(2,2,0,0x100);
-  SetDrawMode(dr_mode,0,0,(uint)(u_short)tpage,(RECT *)0x0);
+    *(u_long *)&prim->r2 = 0x808080;
+    *(u_long *)&prim->r3 = 0;
+    *(u_long *)&prim->r1 = 0;
+    prim->x0 = x1;
+    prim->x1 = x2;
+    prim->y1 = y1;
+    prim->x2 = x1;
+    prim->y2 = y2 + -2;
+    prim->x3 = x2;
+    prim->y3 = y2;
+    x1 = rect.x + rect.w + -2;
+    x2 = x1 - (rect.w >> 3);
+  } while (i < 2);
+  dr_mode = (DR_MODE *)Render_gPacketPtr;
+  dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
+  *(u_long *)Render_gPalettePtr =
+       *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
+  Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0);
   return;
 }
 
@@ -77,47 +87,43 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
 void DrawShape_NFS4RoundRectangle(int textID,RECT &position,short selected)
 
 {
-  tTexture_ShapeInfo *shapes;
-  int abr;
-  int dseIndex;
-  int x;
-  int y;
-  tTexture_ShapeInfo *left;
-  short flags;
-  int dseFlags;
-  int dseX;
-  int dseY;
+  /* SYM 8c: fsize 80, mask $801f0000 (ra,s4..s0); locals are EXACTLY
+   *   drawFlags(AUTO -0x30 = sp+0x20) flags(short $s3) left(tTexture_ShapeInfo* $s2)
+   * REGPARM: textID $a0, position $s1, selected $a2.  `shapes`/`abr`/`x`/`y`/
+   * `dseIndex`/`dseFlags`/`dseX`/`dseY` were Ghidra fictions -- the two
+   * DrawShapeExtended calls were being handed FOUR UNINITIALISED locals each
+   * (real bug), and the PSXDraw*Square coordinates were uninitialised too. */
   tDrawShapeExtended drawFlags;
-  
-  shapes = gHelpShapes;
+  short flags;
+  tTexture_ShapeInfo *left;
+
+  flags = 0;
+  left = gHelpShapes + 0x29;
   if (-1 < textID) {
     FETextRender_MenuTextPositionedJustify
-              ((short)textID,
-               (short)(((uint)(u_short)position.x +
-                       ((int)((uint)(u_short)position.w << 0x10) >> 0x11)) * 0x10000 >> 0x10),
-               position.y + 4,2,textState_Selected,textType_FramedInfo);
+              ((short)textID,(short)(position.x + (position.w >> 1)),
+               (short)(position.y + 4),2,textState_Selected,textType_FramedInfo);
   }
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
   if (selected == 0) {
-    PSXDrawTransSquare
-              (0x841d08,x,y,(int)position.w + shapes[0x29].width * -2 + 1,1,1);
-    abr = (int)position.x + (int)shapes[0x29].width;
-    PSXDrawTransSquare
-              (0,x,y,(int)position.w + shapes[0x29].width * -2 + 1,shapes[0x29].height + -1
-               ,1);
-    FeDraw_SetABRMode(abr);
+    flags = 1;
+  }
+  DrawShapeExtended(0x29,flags | 8,position.x,position.y,0,0,&drawFlags);
+  DrawShapeExtended(0x29,flags | 0xc,(int)position.x + (int)position.w - (int)left->width,
+                    position.y,0,0,&drawFlags);
+  if (selected != 0) {
+    PSXDrawSquare(0x841d08,(int)position.x + (int)left->width,
+                  (int)position.y + (int)left->height + -1,
+                  (int)position.w - left->width * 2 + 1,1);
+    PSXDrawSquare(0,(int)position.x + (int)left->width,position.y,
+                  (int)position.w - left->width * 2 + 1,left->height + -1);
   }
   else {
-    PSXDrawSquare
-              (0x841d08,(int)position.x + (int)shapes[0x29].width,
-               (int)position.y + (int)shapes[0x29].height + -1,
-               (int)position.w + shapes[0x29].width * -2 + 1,1);
-    PSXDrawSquare
-              (0,(int)position.x + (int)shapes[0x29].width,(int)position.y,
-               (int)position.w + shapes[0x29].width * -2 + 1,shapes[0x29].height + -1);
+    PSXDrawTransSquare(0x841d08,(int)position.x + (int)left->width,
+                       (int)position.y + (int)left->height + -1,
+                       (int)position.w - left->width * 2 + 1,1,1);
+    PSXDrawTransSquare(0,(int)position.x + (int)left->width,position.y,
+                       (int)position.w - left->width * 2 + 1,left->height + -1,1);
+    FeDraw_SetABRMode(0);
   }
   return;
 }
@@ -128,58 +134,62 @@ void DrawShape_NFS4RoundRectangle(int textID,RECT &position,short selected)
 void DrawShape_NFS4Rectangle(RECT &position)
 
 {
-  tTexture_ShapeInfo *shapes;
-  int abr;
-  int dseIndex;
-  int x;
-  int y;
+  /* SYM 8c: fsize 96, mask $803f0000 (ra,s5..s0); locals are EXACTLY
+   *   topleft($s5=&gHelpShapes[0x2a]) topright($s3=[0x2b])
+   *   bottomleft($s4=[0x2c]) bottomright($s2=[0x2d]) drawFlags(AUTO -0x38=sp+0x28)
+   * REGPARM position $s0.  `shapes`/`abr`/`x`/`y`/`dseIndex`/`dseFlags`/`dseX`/
+   * `dseY` were Ghidra fictions: all four DrawShapeExtended calls and every
+   * PSXDraw* coordinate were UNINITIALISED locals (real bug).  Recovered from
+   * the raw oracle. */
+  tDrawShapeExtended drawFlags;
   tTexture_ShapeInfo *bottomright;
   tTexture_ShapeInfo *topright;
   tTexture_ShapeInfo *bottomleft;
   tTexture_ShapeInfo *topleft;
-  int dseFlags;
-  int dseX;
-  int dseY;
-  tDrawShapeExtended drawFlags;
-  
-  shapes = gHelpShapes;
-  drawFlags.tint[1] = 0x150800;
-  drawFlags.tint[3] = 0x4a1900;
+
   drawFlags.tint[0] = 0x7b2908;
+  drawFlags.tint[1] = 0x150800;
   drawFlags.tint[2] = 0x291000;
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            ((int)position.w,dseFlags,dseX,dseY,0,0,&drawFlags);
+  drawFlags.tint[3] = 0x4a1900;
+  topleft = gHelpShapes_v[0] + 0x2a;
+  topright = gHelpShapes_v[0] + 0x2b;
+  bottomleft = gHelpShapes_v[0] + 0x2c;
+  bottomright = gHelpShapes_v[0] + 0x2d;
+  DrawShapeExtended(0x2a,9,position.x,position.y,0,0,&drawFlags);
+  DrawShapeExtended(0x2b,9,(int)position.x + (int)position.w - (int)topright->width,
+                    position.y,0,0,&drawFlags);
+  DrawShapeExtended(0x2c,9,position.x,
+                    (int)position.y + (int)position.h - (int)bottomleft->height,0,0,&drawFlags);
+  DrawShapeExtended(0x2d,9,(int)position.x + (int)position.w - (int)bottomright->width,
+                    (int)position.y + (int)position.h - (int)bottomright->height,0,0,&drawFlags);
   PSXDrawTransSquare
-            (drawFlags.tint[1],x,y,
-             ((int)position.w - (int)shapes[0x2a].width) - (int)shapes[0x2b].width,1,1);
+            (drawFlags.tint[1],(int)position.x + (int)topleft->width,position.y,
+             (int)position.w - (int)topleft->width - (int)topright->width,1,1);
   PSXDrawTransSquare
-            (drawFlags.tint[0],x,y,
-             ((int)position.w - (int)shapes[0x2c].width) - (int)shapes[0x2d].width,1,1);
+            (drawFlags.tint[0],(int)position.x + (int)bottomleft->width,
+             (int)position.y + (int)position.h + -1,
+             (int)position.w - (int)bottomleft->width - (int)bottomright->width,1,1);
   PSXDrawTransGouraudSquare
-            (x,(int)position.y + (int)shapes[0x2a].height,2,
-             ((int)position.h - (int)shapes[0x2a].height) - (int)shapes[0x2c].height,1,
+            (position.x,(int)position.y + (int)topleft->height,2,
+             (int)position.h - (int)topleft->height - (int)bottomleft->height,1,
              drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
   PSXDrawTransGouraudSquare
-            (x,(int)position.y + (int)shapes[0x2b].height,2,
-             ((int)position.h - (int)shapes[0x2b].height) - (int)shapes[0x2d].height,1,
+            ((int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,2,
+             (int)position.h - (int)topright->height - (int)bottomright->height,1,
              drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
   PSXDrawTransSquare
-            (0,x,y,shapes[0x2a].width + -2,
-             ((int)position.h - (int)shapes[0x2a].height) - (int)shapes[0x2c].height,1);
+            (0,(int)position.x + 2,(int)position.y + (int)topleft->height,
+             topleft->width + -2,
+             (int)position.h - (int)topleft->height - (int)bottomleft->height,1);
   PSXDrawTransSquare
-            (0,x,y,2 - shapes[0x2b].width,
-             ((int)position.h - (int)shapes[0x2b].height) - (int)shapes[0x2d].height,1);
-  abr = (int)position.x + (int)shapes[0x2a].width;
+            (0,(int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,
+             -topright->width + 2,
+             (int)position.h - (int)topright->height - (int)bottomright->height,1);
   PSXDrawTransSquare
-            (0,x,y,((int)position.w - (int)shapes[0x2a].width) - (int)shapes[0x2b].width,
+            (0,(int)position.x + (int)topleft->width,(int)position.y + 1,
+             (int)position.w - (int)topleft->width - (int)topright->width,
              position.h + -2,1);
-  FeDraw_SetABRMode(abr);
+  FeDraw_SetABRMode(0);
   return;
 }
 
@@ -189,19 +199,20 @@ void DrawShape_NFS4Rectangle(RECT &position)
 void DrawShape_NFS4TransRectangle(RECT &r,short opacity)
 
 {
-  int abr;
-  int x;
-  int y;
-  short opac;
-  
-  opac = (short)(((uint)(u_short)opacity << 0x11) >> 0x10);
-  PSXDrawTransSquare(0,x,y,4,(int)r.h,opac);
-  PSXDrawTransSquare(0,x,y,4,(int)r.h,opac);
-  PSXDrawTransSquare(0,x,y,r.w + -8,2,opac);
-  PSXDrawTransSquare(0,x,y,r.w + -8,2,opac);
-  abr = r.x + 4;
-  PSXDrawTransSquare(0,x,y,r.w + -8,r.h + -4,opacity);
-  FeDraw_SetABRMode(abr);
+  /* SYM: fsize 48, mask $800f0000 (ra,s3,s2,s1,s0); Block start/end both line 1
+   * => ZERO named locals.  The old Ghidra body carried fabricated x/y/abr/opac
+   * and passed UNINITIALISED x/y as the draw coordinates (real bug).  Every
+   * coordinate is re-read from *r (lh) at each call site per the oracle.
+   * MATCH: the doubled opacity MUST be spelled  opacity << 1  (not * 2): the
+   * shift form lets combine fold promotion+double into one (raw<<17)>>16 off the
+   * raw parm copy, deferring the plain sign-extend to the last call site; the
+   * multiply form CSEs one shared (int)opacity and is 1 insn short. */
+  PSXDrawTransSquare(0,r.x,r.y,4,r.h,opacity << 1);
+  PSXDrawTransSquare(0,r.x + r.w + -4,r.y,4,r.h,opacity << 1);
+  PSXDrawTransSquare(0,r.x + 4,r.y,r.w + -8,2,opacity << 1);
+  PSXDrawTransSquare(0,r.x + 4,r.y + r.h + -2,r.w + -8,2,opacity << 1);
+  PSXDrawTransSquare(0,r.x + 4,r.y + 2,r.w + -8,r.h + -4,opacity);
+  FeDraw_SetABRMode(0);
   return;
 }
 

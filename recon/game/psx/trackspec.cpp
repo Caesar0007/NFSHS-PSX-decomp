@@ -47,8 +47,24 @@ int TrackSpec_gPrevSpec;
  *   (b) the tail's shared literals 8 (3 sites) and 16 (4 sites): retail hoists them
  *       early into $a0/$v1, we materialize them late in $v0 (22 diffs).  Source
  *       ORDER does NOT reach it -- moving all seven stores as a block to four
- *       different positions around the sky loop measured 24 every time.  The next
- *       handle is a -dS/-dR sched trace, not another reshape.
+ *       different positions around the sky loop measured 24 every time.
+ *   w42-a5 RAN THE -dS SCHED TRACE (tools/rtl_dump.py trackspec.cpp -dS ->
+ *   scratch/rtl/trackspec.i.sched).  RECEIPT: in the tail block ("basic block
+ *   number 9 from 652 to 610") EVERY insn has `priority = 1` -- the whole block is
+ *   independent `li`/`sb`/`sw` pairs off one base, so gcc-2.8's BACKWARD list
+ *   scheduler has nothing but the LUID tie-break and therefore reproduces SOURCE
+ *   ORDER exactly.  ⇒ retail's `li $a0,8` + `li $v1,16` standing ~30 insns before
+ *   their first use at the TOP of that block cannot be produced by ANY store
+ *   ordering: those two `li`s had a LOW LUID, i.e. they were already at the block
+ *   head in retail's RTL, which no straight-line C statement sequence emits (a
+ *   statement emits its `li` adjacent to its store).  This is the same phenomenon
+ *   as CreateLicense's hoisted `li $a2,48` in cario.cpp -- a cross-function
+ *   "constant materialized at block head" identity, NOT a per-function reshape.
+ *   Positive by-product (gate-neutral, not adopted): putting `clearcolor.r = '\b'`
+ *   BEFORE `clearcolor.g = '\x10'` does reproduce retail's SHAPE -- the 8-constant
+ *   then lives in its own register ($v1) across the whole 16-store group instead of
+ *   being re-materialized into $v0 afterwards -- but measures 24 as well, because
+ *   the register letters still differ ($v1/$v0 vs retail $a0/$v1).
  * FLOOR-BAR NOTE: prototype re-audited (1 pointer arg, void return, SYM REGPARM $05,
  * fsize 0 / mask $00000000 leaf, no $v0 at the single `jr $ra`); the w40 per-TU flag
  * probes still stand (g_value 8 no-op, all four -f keys negative).

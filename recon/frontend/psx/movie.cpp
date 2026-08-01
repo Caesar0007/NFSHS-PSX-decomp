@@ -6,22 +6,83 @@
 #include "movie.h"
 
 /* ---- Movie.obj STAT (file-local) globals ---- */
-static int     width, height;                       /* 0x80052a24/28 */
-static CdlLOC  loc;                                 /* 0x80052cf8 */
-static short   PPWTop, PPWBottom, gMode;            /* 0x80052cfc/cfe/d00 */
-static int     gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
-static short   gMovieHeight, gMovieWidth;           /* 0x80052d08/d0a */
-static u_long  gMovieFrame, gEndFrame;              /* 0x80052d0c/d10 */
-static int     movieFlags__[4]; /* 0x80052d14..d20 - aggregate forces .bss (absolute), not .sbss */
-#define bMovieLoaded movieFlags__[0]
-#define bStopMovie   movieFlags__[1]
-#define bRewindMovie movieFlags__[2]
-#define isFirstSlice movieFlags__[3]
+/* MATCH: every one of these statics is reached ABSOLUTELY (lui %hi / %lo) in the oracle,
+ * never gp-relative -- force them out of .sdata/.sbss with an explicit .bss section
+ * attribute (catalog §I-addendum; the -G4 default would put every <=4-byte scalar in sbss). */
+static int     width_d asm("width") __attribute__((section(".bss")));     /* 0x80052a24 */
+static int     height_d asm("height") __attribute__((section(".bss")));    /* 0x80052a28 */
+static CdlLOC  loc_d asm("loc") __attribute__((section(".bss")));   /* 0x80052cf8 */
+extern CdlLOC  loc_v[] asm("loc");   /* unsized view: forces base materialization */
+extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");
+extern short   user_exit_v[] asm("user_exit");
+#define user_exit user_exit_v[0]  /* unsized view (see MATCH note below) */
+#define StCdIntrFlag StCdIntrFlag_v[0]
+static short     PPWTop_d asm("PPWTop") __attribute__((section(".bss")));    /* 0x80052cfc */
+static short     PPWBottom_d asm("PPWBottom") __attribute__((section(".bss"))); /* 0x80052cfe */
+static short     gMode_d asm("gMode") __attribute__((section(".bss")));     /* 0x80052d00 */
+static int     gIsRGB24_d asm("gIsRGB24") __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
+static short     gMovieHeight_d asm("gMovieHeight") __attribute__((section(".bss")));/* 0x80052d08 */
+static short     gMovieWidth_d asm("gMovieWidth") __attribute__((section(".bss")));/* 0x80052d0a */
+static u_long  gMovieFrame_d asm("gMovieFrame") __attribute__((section(".bss")));/* 0x80052d0c */
+static u_long  gEndFrame_d asm("gEndFrame") __attribute__((section(".bss")));  /* 0x80052d10 */
+extern int width_v[] asm("width");
+#define gWidth width_v[0]
+extern int height_v[] asm("height");
+#define gHeight height_v[0]
+extern short PPWTop_v[] asm("PPWTop");
+#define PPWTop PPWTop_v[0]
+extern short PPWBottom_v[] asm("PPWBottom");
+#define PPWBottom PPWBottom_v[0]
+extern short gMode_v[] asm("gMode");
+#define gMode gMode_v[0]
+extern int gIsRGB24_v[] asm("gIsRGB24");
+#define gIsRGB24 gIsRGB24_v[0]
+extern short gMovieHeight_v[] asm("gMovieHeight");
+#define gMovieHeight gMovieHeight_v[0]
+extern short gMovieWidth_v[] asm("gMovieWidth");
+#define gMovieWidth gMovieWidth_v[0]
+extern u_long  gMovieFrame_v[] asm("gMovieFrame");
+extern u_long  gEndFrame_v[]   asm("gEndFrame");
+#define gMovieFrame gMovieFrame_v[0]
+#define gEndFrame   gEndFrame_v[0]
+/* MATCH: EVERY file-static above is reached through an UNSIZED-ARRAY view (asm-label
+ * alias onto the same symbol).  The scalar form makes cc1 emit the single `lw/sw $r,sym`
+ * ASSEMBLER MACRO (unschedulable, expands to a self-temp or an $at store); the unsized
+ * form makes gcc lower %hi/%lo itself into a separate, schedulable register -- which is
+ * what retail's aspsx build shows everywhere in this TU.  (catalog E/§3.12 #5.)
+ * MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
+ * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
+static int     bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14 */
+static int     bStopMovie_d   asm("bStopMovie") __attribute__((section(".bss")));   /* 0x80052d18 */
+static int     bRewindMovie_d asm("bRewindMovie") __attribute__((section(".bss"))); /* 0x80052d1c */
+static int     isFirstSlice_d asm("isFirstSlice") __attribute__((section(".bss"))); /* 0x80052d20 */
+/* MATCH: unsized-array views onto the same four symbols -- the scalar form emits the
+ * `sw $r,sym` ASSEMBLER MACRO ($at), the unsized-array form emits gcc's own lui+sw. */
+extern int     bMovieLoaded_v[] asm("bMovieLoaded");
+extern int     bStopMovie_v[]   asm("bStopMovie");
+extern int     bRewindMovie_v[] asm("bRewindMovie");
+extern int     isFirstSlice_v[] asm("isFirstSlice");
+#define bMovieLoaded bMovieLoaded_v[0]
+#define bStopMovie   bStopMovie_v[0]
+#define bRewindMovie bRewindMovie_v[0]
+#define isFirstSlice isFirstSlice_v[0]
 static DECENV  dec;                                 /* 0x80052d28 */
-static u_long *vlcbuf0 __attribute__((section(".bss")));   /* 0x80052d58 (.bss=absolute, not .sbss) */
-static u_long *vlcbuf1 __attribute__((section(".bss")));   /* 0x80052d5c */
-static u_short *imgbuf __attribute__((section(".bss")));   /* 0x80052d60 */
-static u_long *sect_buff __attribute__((section(".bss")));   /* 0x80052d64 */
+static u_long  *vlcbuf0_d asm("vlcbuf0") __attribute__((section(".bss")));   /* 0x80052d58 (.bss=absolute, not .sbss) */
+static u_long  *vlcbuf1_d asm("vlcbuf1") __attribute__((section(".bss")));   /* 0x80052d5c */
+static u_short *imgbuf_d asm("imgbuf") __attribute__((section(".bss")));   /* 0x80052d60 */
+static u_long  *sect_buff_d asm("sect_buff") __attribute__((section(".bss")));   /* 0x80052d64 */
+
+/* MATCH: unsized-array VIEWS onto the same storage (asm-label aliases).  Reading the
+ * scalar form folds the %hi into the dest arg reg (self-temp `lui a0; lw a0,0(a0)`);
+ * the unsized-array form forces the oracle's SEPARATE scratch (`lui v0; lw a0,0(v0)`).
+ * §3.12 #5 / §3.15-CORRECTION. */
+extern u_long  *vlcbuf0_v[]  asm("vlcbuf0");
+extern u_long  *vlcbuf1_v[]  asm("vlcbuf1");
+extern u_short *imgbuf_v[]   asm("imgbuf");
+extern u_long  *sect_buff_v[] asm("sect_buff");
+#define vlcbuf0   vlcbuf0_v[0]
+#define vlcbuf1   vlcbuf1_v[0]
+#define sect_buff sect_buff_v[0]
 
 /* lines 1-129: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -29,8 +90,16 @@ static u_long *sect_buff __attribute__((section(".bss")));   /* 0x80052d64 */
 void Movie_Init(char movie)
 
 {
-  PPWTop = 3;
-  PPWBottom = 2;
+  /* MATCH: the oracle materializes &movie24bit and branches on it (la + beqz) -- the
+   * original source tested the table itself; gcc-2.8 does not fold "&array != 0". */
+  if (movie24bit) {
+    PPWTop = 3;
+    PPWBottom = 2;
+  }
+  else {
+    PPWTop = 1;
+    PPWBottom = 1;
+  }
   gMovieWidth = moviewidth[(byte)movie];
   gMovieHeight = movieheight[(byte)movie];
   Movie_SetDecodeOffset(0,0,0,0x100);
@@ -41,7 +110,7 @@ void Movie_Init(char movie)
   download[0] = 0;
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
-  imgbuf = (u_short *)reservememadr
+  imgbuf_v[0] = (u_short *)reservememadr
                      ("imgbuf",((uint)((int)PPWTop << 5) / (uint)(int)PPWBottom) * 0x1e0,0x10);
   sect_buff = (u_long *)reservememadr("sect_buff",0x10000,0x10);
   Platform_ResetDCTBuffer();
@@ -76,7 +145,7 @@ void Movie_DeInit(void)
   CdControlB('\f',(u_char *)0x0,(u_char *)0x0);
   purgememadr(vlcbuf0);
   purgememadr(vlcbuf1);
-  purgememadr(imgbuf);
+  purgememadr(imgbuf_v[0]);
   purgememadr(sect_buff);
   Platform_ResetDCTBuffer();
   CD_Restart(0);
@@ -89,19 +158,26 @@ void Movie_DeInit(void)
 void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
 
 {
-  int bottom;
-  
-  bottom = (int)PPWBottom;
-  dec.rect[0].h = gMovieHeight;
-  dec.rect[1].h = gMovieHeight;
-  dec.rect[0].w = (short)(((int)gMovieWidth * (int)PPWTop) / bottom);
-  dec.rect[0].x = x0;
-  dec.rect[0].y = y0;
-  dec.rect[1].x = x1;
-  dec.rect[1].y = y1;
-  dec.rect[1].w = dec.rect[0].w;
-  ClearImage(dec.rect,'\0','\0','\0');
-  ClearImage(dec.rect + 1,'\0','\0','\0');
+  /* MATCH: the oracle keeps &dec.rect[0] and &dec.rect[1] in registers (they are the
+   * two ClearImage arguments) and writes every field through them, in the order
+   * x0,y0,x1,y1,h,h,w,w -- statement order IS store order here. */
+  RECT *r0 = dec.rect;
+  RECT *r1 = dec.rect + 1;
+  short mh;
+  short mw;
+
+  mh = gMovieHeight;
+  r0->x = x0;
+  r0->y = y0;
+  r1->x = x1;
+  r1->y = y1;
+  mw = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
+  r0->h = mh;
+  r1->h = mh;
+  r0->w = mw;
+  r1->w = mw;
+  ClearImage(r0,'\0','\0','\0');
+  ClearImage(r1,'\0','\0','\0');
   DrawSync(0);
   return;
 }
@@ -128,24 +204,31 @@ void Movie_Load(char movie)
   gIsRGB24 = movie24bit[(byte)movie];
   gMovieWidth = moviewidth[(byte)movie];
   gMovieHeight = movieheight[(byte)movie];
-  if (gIsRGB24 == 0) {
-    PPWTop = 1;
-    PPWBottom = 1;
-    gMode = 2;
-  }
-  else {
+  /* MATCH: the oracle's beqz skips to the 1/1/2 block -- the 24-bit arm is the
+   * fall-through, so it must be the `if` body. */
+  if (gIsRGB24 != 0) {
     PPWTop = 3;
     PPWBottom = 2;
     gMode = 3;
   }
+  else {
+    PPWTop = 1;
+    PPWBottom = 1;
+    gMode = 2;
+  }
   found = CdSearchFile(&file,gFEFileName);
   if (found != (void *)0x0) {
-    loc.minute = file.pos.minute;
-    loc.sector = file.pos.sector;
-    loc.second = file.pos.second;
-    strSetDefDecEnv(&dec);
-    strInit__FP6CdlLOCiPFe_vT2(&loc,0xfffffff,strCallback,(fn_void *)0x0);
-    strNextVlc(&dec);
+    /* MATCH: the oracle holds &loc and &dec in callee-saved registers (they are the
+     * store base and the two call arguments) -- real pointer locals reproduce that. */
+    CdlLOC *lp = loc_v;
+    DECENV *d = &dec;
+
+    lp->minute = file.pos.minute;
+    lp->second = file.pos.second;
+    lp->sector = file.pos.sector;
+    strSetDefDecEnv(d);
+    strInit__FP6CdlLOCiPFe_vT2(lp,0xfffffff,strCallback,(fn_void *)0x0);
+    strNextVlc(d);
     bMovieLoaded = 1;
   }
   return;
@@ -157,30 +240,38 @@ void Movie_Load(char movie)
 int Movie_NextFrame(void)
 
 {
-  int bottom;
-  int vh;
   int ret;
   int xstep;
-  
-  DecDCTin(dec.vlcbuf[dec.vlcid],(int)gMode);
+  /* MATCH: SYM says fsize=32 with mask s0+ra and NO named locals -- the oracle's frame
+   * carries 8 bytes of never-referenced slack that our expression shape does not
+   * allocate; a dead 2-word local restores the exact frame + sp displacements. */
+  int deadfrm[2];
+  /* MATCH: the oracle parks &dec in a callee-saved register (addiu s0,v0,%lo) and
+   * reaches every field by displacement -- a real pointer local reproduces it. */
+  DECENV *d = &dec;
+
+  (void)deadfrm;
+
+  DecDCTin(d->vlcbuf[d->vlcid],(int)gMode);
   DecDCTinSync(1);
-  bottom = (int)PPWBottom;
-  xstep = ((int)PPWTop << 4) / bottom;
-  vh = dec.slice.h + -1;
-  if (vh < 0) {
-    vh = dec.slice.h + 0xe;
-  }
+  xstep = ((int)PPWTop << 4) / (int)PPWBottom;
+  /* MATCH: the `h-1; if(<0) h+14; >>4` sequence Ghidra shows is gcc's own signed /16
+   * guard -- it is a plain `(h - 1) / 16`, not a hand-written clamp, and writing it
+   * that way puts the slice.h load where the oracle has it (after the 2nd divide). */
   DecDCTout
-            ((u_long *)dec.imgbuf,
-             ((dec.slice.w + -1) / xstep + 1) * xstep * 0x10 * ((vh >> 4) + 1) >> 1);
-  ret = strNextVlc(&dec);
-  if (ret < 0) {
-    ret = -1;
-  }
-  else {
-    strSync(&dec,0);
+            ((u_long *)d->imgbuf,
+             ((((d->slice.w + -1) / xstep + 1) * xstep) << 4) *
+             ((d->slice.h + -1) / 0x10 + 1) >> 1);
+  ret = strNextVlc(d);
+  /* MATCH: the error arm is the OUT-OF-LINE branch target in the oracle (bltz skips
+   * to it) and the success arm falls through -- write it in that polarity. */
+  if (ret >= 0) {
+    strSync(d,0);
     VSync(0);
     ret = 0;
+  }
+  else {
+    ret = -1;
   }
   return ret;
 }
@@ -214,7 +305,7 @@ void * Movie_Finished(void)
   void *finished;
   
   finished = (void *)0x0;
-  if ((((gEndFrame <= gMovieFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
+  if ((((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
      (bRewindMovie != 0)) {
     finished = (void *)0x1;
   }
@@ -230,17 +321,24 @@ int Movie_Play(char movie)
   bool dispRect;
   void *finished;
   int frame_ret;
-  uint pad_p1;
-  uint pad_p2;
   uint joyval;
   DISPENV disp;
   DRAWENV draw;
+  /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
+   * never-referenced frame slack our expression shape does not allocate. */
+  int deadfrm[4];
   
+  (void)deadfrm;
   SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
   Movie_Init(movie);
   Movie_Load(movie);
-  while ((finished = Movie_Finished(), finished != (void *)0x1 &&
-         (frame_ret = Movie_NextFrame(), frame_ret != -1))) {
+  /* MATCH: two SEPARATE branch tests -- the `&&`-comma form made gcc materialize
+   * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
+  while( true ) {
+    finished = Movie_Finished();
+    if (finished == (void *)0x1) break;
+    frame_ret = Movie_NextFrame();
+    if (frame_ret == -1) break;
     dispRect = dec.rectid == 0;
     SetDefDispEnv
               (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
@@ -251,8 +349,8 @@ int Movie_Play(char movie)
                (int)dec.rect[dispRect].h);
     if (gIsRGB24 != 0) {
       disp.isrgb24 = '\x01';
-      disp.disp.w = (short)((ulonglong)((longlong)((int)disp.disp.w << 1) * 0x55555556) >> 0x20) -
-                    (short)(((int)disp.disp.w << 1) >> 0x1f);
+      /* MATCH: the 0x55555556 mult-high + sign fixup IS gcc's own signed divide by 3. */
+      disp.disp.w = (short)(((int)disp.disp.w << 1) / 3);
     }
     PutDispEnv(&disp);
     PutDrawEnv(&draw);
@@ -263,9 +361,9 @@ int Movie_Play(char movie)
     Movie_DownloadFrame();
     download[0] = 1;
     PAD_update();
-    pad_p1 = PAD_state(0);
-    pad_p2 = PAD_state(4);
-    joyval = (pad_p1 | pad_p2) & 0xffff;
+    /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
+     * unmasked in a register); per-local u_short narrowing emitted two. */
+    joyval = ((uint)PAD_state(0) | (uint)PAD_state(4)) & 0xffff;
     if ((joyval != 0) && ((Movie_Stop(), skip_all != '\0' || (joyval == 8)))) {
       user_exit = 1;
     }
@@ -302,10 +400,12 @@ void strSetDefDecEnv(DECENV *dec)
   int bottom;
   int top;
   
-  img = imgbuf;
+  /* MATCH: the oracle loads the globals in the order vlcbuf1, imgbuf, gMovieHeight,
+   * vlcbuf0 -- statement order IS load order here. */
+  mh = gMovieHeight;
   vb1 = vlcbuf1;
   vb0 = vlcbuf0;
-  mh = gMovieHeight;
+  img = imgbuf_v[0];
   top = (int)PPWTop;
   bottom = (int)PPWBottom;
   dec->vlcid = 0;
@@ -344,15 +444,18 @@ extern "C" void strInit__FP6CdlLOCiPFe_vT2(CdlLOC *loc,int frame_size,fn_void *c
 void strCallback(void)
 
 {
-  short xstep;
-  int topsh;
   int rw;
-  int remTop;
   int bottom;
   int vh;
   int hstep;
   int rem;
-  
+  int rectid;
+  uint nextRect;
+  int one;
+  /* MATCH: SYM fsize=32 with mask s0+ra -- 8 bytes of never-referenced frame slack. */
+  int deadfrm[2];
+
+  (void)deadfrm;
   if ((gIsRGB24 != 0) && (StCdIntrFlag != 0)) {
     StCdInterrupt();
     StCdIntrFlag = 0;
@@ -360,40 +463,42 @@ void strCallback(void)
   if (download[0] != 0) {
     LoadImage(&dec.slice,(u_long *)dec.imgbuf);
   }
+  /* MATCH: the slice.x advance is written INSIDE each arm (the oracle joins only after
+   * the store); a shared `xstep` temp merged the two adds into one block. */
   if (isFirstSlice != 0) {
     bottom = (int)PPWBottom;
-    topsh = (int)PPWTop << 4;
-    hstep = topsh / bottom;
+    hstep = ((int)PPWTop << 4) / bottom;
     rw = (int)dec.rect[dec.rectid].w;
     rem = rw % hstep;
-    remTop = rem * PPWTop;
     if (rem != 0) {
       isFirstSlice = 0;
-      xstep = (short)(remTop / bottom);
+      /* MATCH: the rem*PPWTop multiply belongs INSIDE the guard (the oracle schedules
+       * it into the beqz delay slot); as a preceding statement it lands before the test. */
+      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / bottom);
       goto strCallback_inlinedJoin;
     }
   }
-  bottom = (int)PPWBottom;
-  xstep = (short)(((int)PPWTop << 4) / bottom);
+  dec.slice.x = dec.slice.x + (short)(((int)PPWTop << 4) / (int)PPWBottom);
 strCallback_inlinedJoin:
-  dec.slice.x = dec.slice.x + xstep;
-  if ((int)dec.slice.x < (int)dec.rect[dec.rectid].x + (int)dec.rect[dec.rectid].w) {
+  rectid = dec.rectid;
+  if ((int)dec.slice.x < (int)dec.rect[rectid].x + (int)dec.rect[rectid].w) {
     bottom = (int)PPWBottom;
     hstep = ((int)PPWTop << 4) / bottom;
-    vh = dec.slice.h + -1;
-    if (vh < 0) {
-      vh = dec.slice.h + 0xe;
-    }
     DecDCTout
               ((u_long *)dec.imgbuf,
-               ((dec.slice.w + -1) / hstep + 1) * hstep * 0x10 * ((vh >> 4) + 1) >> 1);
+               ((((dec.slice.w + -1) / hstep + 1) * hstep) << 4) *
+               ((dec.slice.h + -1) / 0x10 + 1) >> 1);
   }
   else {
-    dec.rectid = (int)(dec.rectid == 0);
-    dec.isdone = 1;
-    dec.slice.x = dec.rect[dec.rectid].x;
-    isFirstSlice = 1;
-    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - height) / 2);
+    /* MATCH: ONE materialization of the constant 1 feeds isdone, isFirstSlice AND the
+     * srav shift amount of the /2 (cse reuses the register). */
+    one = 1;
+    nextRect = (uint)(rectid == 0);
+    dec.rectid = nextRect;
+    dec.isdone = one;
+    dec.slice.x = dec.rect[nextRect].x;
+    isFirstSlice = one;
+    dec.slice.y = dec.rect[nextRect].y + (short)((0xf0 - gHeight) / 2);
   }
   return;
 }
@@ -443,7 +548,7 @@ u_long * strNext(DECENV *dec)
   RECT rect;
   u_long *addr;
   CDSECTOR *sector;
-  
+
   cnt = 50000;
   while( true ) {
     st = StGetNext((u_long *)&addr,(u_long *)&sector);
@@ -453,36 +558,44 @@ u_long * strNext(DECENV *dec)
       return (u_long *)0x0;
     }
   }
-  if ((*addr == sector->headm) && (addr[1] == sector->headv)) {
-    fc = sector->frameCount;
-    if ((fc < gMovieFrame) || (gEndFrame <= fc)) {
-      bRewindMovie = 1;
-      fc = gMovieFrame;
-    }
-    gMovieFrame = fc;
-    if ((width != (uint)sector->width) || (height != (uint)sector->height)) {
-      bottom = (int)PPWBottom;
-      rect.x = 0;
-      rect.y = 0;
-      rect.h = 0x1e0;
-      rect.w = (short)((PPWTop * 0x280) / bottom);
-      ClearImage(&rect,'\0','\0','\0');
-      width = (int)sector->width;
-      height = (int)sector->height;
-    }
-    wt = width * PPWTop;
-    bottom = (int)PPWBottom;
-    mh = (short)height;
-    dec->rect[1].h = (short)height;
-    dec->rect[0].h = mh;
-    (dec->slice).h = mh;
-    ws = (short)(wt / bottom);
-    dec->rect[1].w = ws;
-    dec->rect[0].w = ws;
-    return addr;
-  }
+  /* MATCH: the oracle's header check falls through into the StFreeRing/return-0 tail and
+   * BRANCHES to the accept path (bne .. free ; beq .. body). */
+  if (*addr != sector->headm) goto freeit;
+  if (addr[1] == sector->headv) goto accept;
+freeit:
   StFreeRing(addr);
   return (u_long *)0x0;
+accept:
+  fc = sector->frameCount;
+  /* MATCH: on the rewind path the oracle does NOT store gMovieFrame (it jumps over the
+   * store), and the rewind block is laid out BEFORE the store block. */
+  if (fc < gMovieFrame) goto rewind;
+  if (fc < gEndFrame) goto setframe;
+rewind:
+  bRewindMovie = 1;
+  goto framedone;
+setframe:
+  gMovieFrame = fc;
+framedone:
+  if ((gWidth != (uint)sector->width) || (gHeight != (uint)sector->height)) {
+    rect.x = 0;
+    rect.y = 0;
+    rect.h = 0x1e0;
+    rect.w = (short)((PPWTop * 0x280) / (int)PPWBottom);
+    ClearImage(&rect,'\0','\0','\0');
+    gWidth = (int)sector->width;
+    gHeight = (int)sector->height;
+  }
+  wt = gWidth * PPWTop;
+  bottom = (int)PPWBottom;
+  mh = (short)gHeight;
+  dec->rect[1].h = (short)gHeight;
+  dec->rect[0].h = mh;
+  (dec->slice).h = mh;
+  ws = (short)(wt / bottom);
+  dec->rect[1].w = ws;
+  dec->rect[0].w = ws;
+  return addr;
 }
 
 /* lines 601-603: (static data / macros / comments - no emitted code) */
@@ -493,21 +606,27 @@ void strSync(DECENV *dec,int arg1)
 {
   int viewOff;
   uint nextRect;
-  int ridx;
-  u_long cnt;
-  
+  int one;
+  /* MATCH: the spin counter lives in a STACK SLOT and is re-loaded/stored on every
+   * iteration (sw/lw 0(sp)) -- a plain register local can never reproduce that. */
+  volatile u_long cnt;
+
   cnt = 0x800000;
   if (dec->isdone == 0) {
-    viewOff = 0xf0 - height;
+    /* MATCH: the /2 is loop-INVARIANT in the oracle (hoisted into $a1 before the spin)
+     * and the constant 1 is materialized up front, then reused as the srav amount. */
+    one = 1;
+    viewOff = (0xf0 - gHeight) / 2;
     do {
       cnt = cnt - 1;
       if (cnt == 0) {
-        dec->isdone = 1;
+        dec->isdone = one;
         nextRect = (uint)(dec->rectid == 0);
         dec->rectid = nextRect;
-        ridx = dec->rectid;
         (dec->slice).x = dec->rect[nextRect].x;
-        (dec->slice).y = dec->rect[ridx].y + (short)(viewOff / 2);
+        /* MATCH: the second access RE-READS dec->rectid from memory (the oracle emits a
+         * 2nd lw 0x20 + sll) -- a cached local gets store-forwarded away. */
+        (dec->slice).y = dec->rect[dec->rectid].y + (short)viewOff;
       }
     } while (dec->isdone == 0);
   }

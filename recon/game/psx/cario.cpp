@@ -367,7 +367,23 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  *     block around the guard is exactly diff-neutral (104, 229) -- so the SYM
  *     block shape is reachable but does not move the coloring.
  *   - the 0x11800/width/CopyToShape tail: t2 vs t4 and a v0/v1/t0 rotation.
- * Next handle is a -dg allocno dump on this body, not more statement order. */
+ * w42-a5 QUANTIFIED IT (tools/posdiff.py): count EXACT 229/229 and the FIRST-USE
+ * register order is identical up to $a3 -- then ours consumes only THREE caller-saved
+ * temps (t2 t1 t0) where retail consumes FIVE (t0 t4 t1 t3 t2).  Instruction-for-
+ * instruction the tail is the same code; retail simply keeps two more values live in
+ * t-registers.  The concrete carrier: retail hoists the THIRD CarIO_CopyFromShape arg
+ * (`li $a2,48`) up with $a0/$a1 BEFORE the two 0x11800 read-modify-writes and the two
+ * width stores, and holds both plate pointers in $t3/$t2 across them; ours cannot,
+ * because $a2 is busy holding CarIO_Plate1[player] there, so `li $a2,48` is emitted
+ * last and the plate pointers land in $v0/$v1/$a2.  {$t0,$t1} collapse does NOT reduce
+ * this residual (104 -> 104), so it is not the ReadIn reload-pool class.
+ * NOTE this is the SAME "retail materializes a constant at the TOP of a straight-line
+ * block, tens of insns before its first use" phenomenon that trackspec.cpp's
+ * TrackSpec_SetDefault residual is made of (see its note + the -dS receipt there:
+ * every insn in such a block has sched priority 1, so gcc-2.8's backward list
+ * scheduler falls back on the LUID tie-break = source order, and no C statement order
+ * emits a `li` detached from its consumer).  Treat the two together; it looks like a
+ * per-object toolchain/identity axis, not two independent function-level ties. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -582,6 +598,19 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  *      starts at $v0/$t0).  gcc-2.8 reload picks spill registers via
  *      order_regs_for_reload = ascending hard_reg_n_uses, a whole-function property;
  *      no source lever reaches it.
+ *      w42-a5 -dg RECEIPT (tools/rtl_dump.py cario.cpp -dg ->
+ *      scratch/rtl/cario.i.greg): the dump literally prints `Spilling reg 8.` /
+ *      `Spilling reg 9.` for this function -- $t0/$t1 ARE our reload spill pool,
+ *      confirmed, not inferred.  29 allocnos are offered; the `Register
+ *      dispositions` list omits 80 81 82 85 88 89 195 226 267 323 544 (eleven
+ *      allocnos get NO hard reg and live in memory), and ~150 of the surviving
+ *      pseudos are `in 2` ($v0).  That $v0 population is exactly why
+ *      order_regs_for_reload never offers $v0 as a spill register for us while
+ *      retail's build did: hard_reg_n_uses[$v0] is huge here.  Any fix has to
+ *      REDUCE the number of pseudos homed in $v0 across the whole body -- a
+ *      whole-function property, no local statement reshape touches it.
+ *      collapse.py re-measured this wave: raw 186 -> 22 with {$t0,$t1} collapsed,
+ *      -> 12 with {$v0,$v1,$t0,$t1} collapsed.
  *  (b) 3 one-insn scheduling slots (the CarIO_carPixMapCount/textureStartIndex
  *      block's reload order, the locateshapez a0/a1 arg-load order, the
  *      recolor_flag reload in the palIndex block).
@@ -813,15 +842,23 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
    * are compiler GIVs, so every access is written in INDEX form (catalog:
    * "SYM has only i => the pointers are givs").  player (REGPARM $10) is only
    * ever used as CarIO_PlateN[player], so gcc hoists player*4 to 56(sp).
- * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below).
- * RESIDUAL 27 diffs (ours 301 / oracle 298 = +3), TWO clusters, both scheduling:
- *  (a) the spilled `&carObj->..palCopyNum[i]` giv: retail emits its store ONCE, in
- *      the loop-guard `beqz`'s DELAY SLOT (shared by the preheader fall-through and
- *      the back edge); ours stores it separately in the preheader (+ a load-delay
- *      nop) and again at the loop tail.  Reload/dbr placement, not source-shaped.
- *  (b) `addu a1,v0,s5` vs the oracle's `addu a1,s5,v0` -- commutative operand order
- *      on the ONE pmx materialization (RTL canonicalization; every other addu in the
- *      function already matches).
+ * 459 -> 97 (rule-8 rewrite) -> 27 (palShare ref-count lever, below) -> 25 (w42-a5).
+ * (b) IS SOLVED (w42-a5): the `addu a1,v0,s5` / oracle `addu a1,s5,v0` operand order
+ * was NOT an unreachable RTL canonicalization -- writing the pmx address with the
+ * SCALED INDEX TERM FIRST in an explicit int-cast
+ * (`(Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap)`, catalog 5.0c
+ * commutative-addu-operand-order) reproduces it, 27 -> 25, no cascade.
+ * RESIDUAL 25 diffs (ours 301 / oracle 298 = +3), ONE cluster, scheduling:
+ *  (a) the spilled `&carObj->..palCopyNum[i]` giv (60(sp)).  Raw oracle
+ *      @0x800BCF74: the loop TOP is the `slti` and `sw $t0,0x3C($sp)` sits in the
+ *      guard `beqz`'s DELAY SLOT, i.e. the giv's memory copy is written once per
+ *      iteration INSIDE the loop, and the tail only does `j; addiu $t0,$t0,2`
+ *      (no store).  Ours writes 60(sp) twice -- once in the preheader (`lw
+ *      t0,108(sp); nop; sw t0,60(sp)`, +1 nop +1 store) and once at the loop tail
+ *      -- which is also why our `jal locateshapez` slot is a nop (dbr scans back
+ *      from the branch and stops at the `slti` that sets its condition reg, so it
+ *      can never reach our preheader store).  = the whole +3.  Reload/dbr
+ *      placement of a spilled giv; no source spelling reached it this wave.
  * Per-TU flag probes on cario.cpp (w39-a5, all measured over ALL 11 fns):
  *   no_split_addresses 459->402/Update, ReadIn 344->512, LicenseCheck PASS->11  WORSE
  *   no_schedule_insns  Update->265 but ReadIn 344->603                          WORSE
@@ -863,7 +900,11 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
     if (shape != (shapetbl *)0x0) {
       Draw_tPixMap *pmx;
 
-      pmx = &CarIO_carPixMap[carPixMapCount];
+      /* MATCH: index term FIRST in the address add -- the oracle emits
+       * `addu a1,s5,v0` (scaled index, then the gp-loaded base); the natural
+       * `&CarIO_carPixMap[carPixMapCount]` gives `addu a1,v0,s5` (base first).
+       * Catalog 5.0c commutative-addu-operand-order. */
+      pmx = (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap);
       if ((pmx->flag & 0x80) == 0) continue;
       {
         int license;

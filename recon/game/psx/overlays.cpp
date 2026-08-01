@@ -52,9 +52,27 @@ void OptionsBarThing(int x,int y,int w,int h)
  *  4. MISSING GUARD ARM: retail wrote the semantically-no-op `bestLap != 0 ? bestLap : 0`
  *     null guard (raw `lw a0,1000(v0); bnez a0,T; addu a0,zero,zero`) -- again as TWO full
  *     Hud_ParseTime calls (the ternary spelling scores 153 vs the if/else 83).
- * Residual 65 = one uniform register rotation (ours s0/s3/s4 vs oracle s1/s5/s4) plus the
- * oracle RE-COMPUTING `dataY + pos*12` per Font_TextXY where cse caches it for us.
- * FALSIFIED at the final base (re-probe only with a new idea): purging titleX (82), titleY
+ *  5. w42-a4, 65 -> 7: THE halfH SPELLING.  `halfH = HUD_STATS_SIZE_H >> 1;` (the plain
+ *     source a human writes) instead of the hand-expanded `(int)(SIZE_H << 0x10) >> 0x11`.
+ *     Mechanism: retail's SIZE_H product lives in ONE callee-saved pseudo ($s0) that is
+ *     mutated in place down the chain `sll s0,s0,16; sra t0,s0,16; sra s0,s0,17` -- combine
+ *     MERGES the (short)-extend with the >>1 into the single `sra 17` while the separate
+ *     `sra t0,...,16` keeps feeding the spilled `(int)SIZE_H`.  Writing the shift pair by
+ *     hand gave the sra16 TWO uses, so combine could not merge, halfH was computed as
+ *     `((x<<16)>>16)>>1` off a short-lived $v0 -- and that one extra pseudo rotated $s0/$s1
+ *     (halfH vs the 0xa0-centring temp) through the whole function.  ONE spelling, ~58 diffs.
+ *     (Related falsifications at this base: in-place `halfH = product; SIZE_H = (short)halfH;
+ *     halfH = (halfH<<16)>>17` = 254 -- it LOSES the early `(int)SIZE_H` materialization
+ *     entirely (347 insns); the `(int)(short)halfH >> 1` variant = 254; sh-first = 85.)
+ *  6. w42-a4, 7 -> 5: `colpos = HUD_STATS_POS_X;` is the FIRST col* assignment (retail
+ *     stores it at 104(sp) BEFORE colname's 112(sp)); it was written after coltime.
+ * Residual 5 = ONE emission-order tie in the OptionsBarThing/RenderPauseBox tail: retail
+ * reloads all three AUTOs through the same scratch and copies (`lhu t0,72(sp); addu
+ * s2,t0,zero`), ours loads SIZE_W straight into $s2 -- exactly the "ours 1 insn shorter,
+ * oracle has a redundant copy" uncoalesced-temp shape.  FALSIFIED here: an `int sizeW =
+ * (u_short)SIZE_W;` local (5, neutral), the `(int)(u_short)` cast (5, neutral), reusing
+ * the dead `barH` local as the carrier (77).
+ * FALSIFIED at the 65 base (re-probe only with a new idea): purging titleX (82), titleY
  * (90) or barH (65, neutral); the (u_short) halfH spelling (83).  NOTE the whole ladder is
  * LCS-NON-MONOTONE -- the halfH spelling flipped sign twice as other levers landed. */
 void RaceSummary(void)
@@ -80,7 +98,7 @@ void RaceSummary(void)
     HUD_STATS_SIZE_W = 0xef;
   }
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
-  halfH = (int)(HUD_STATS_SIZE_H << 0x10) >> 0x11;
+  halfH = HUD_STATS_SIZE_H >> 1;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
   /* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
      order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO
@@ -101,13 +119,13 @@ void RaceSummary(void)
   Font_TextColor(3);
   /* each col* is computed immediately before its own Font_TextXY (oracle interleaves the
      `addiu $v0,$s6,K; addu $sN,$v0,$zero` pairs with the calls @0x800D9B2C..0x800D9B94). */
+  colpos = HUD_STATS_POS_X;
   colname = HUD_STATS_POS_X + 0x11;
   Font_TextXY(TextSys_Word(0x2e),colname,(titleY + 0xf) * 0x10000 >> 0x10);
   colcar = HUD_STATS_POS_X + 0x5f;
   Font_TextXY(TextSys_Word(0x3a),colcar,(titleY + 0xf) * 0x10000 >> 0x10);
   coltime = HUD_STATS_POS_X + 0xa7;
   Font_TextXY(TextSys_Word(0x3b),coltime,(titleY + 0xf) * 0x10000 >> 0x10);
-  colpos = HUD_STATS_POS_X;
   colbestlap = HUD_STATS_POS_X + 0xe1;
   if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
@@ -190,7 +208,22 @@ void RaceSummary(void)
  * s4/s7/s2/s3), the `mult $v1,$a1` (0x96) the synthesized shift chain replaces, and two
  * 2-insn lui/addiu hoist positions.  FALSIFIED at the 94 base: `int rows` product
  * liveness (98), `int pitch = 0x96` for the mult (139), purging halfH (94, neutral),
- * titleX (160) or titleY (123), and the y-coordinate ternaries as two calls (259/248). */
+ * titleX (160) or titleY (123), and the y-coordinate ternaries as two calls (259/248).
+ * w42-a4 re-probe of the mult+rows pair (the w41 "land them TOGETHER" lead): rows+pitch
+ * DOES reproduce the retail head STRUCTURE -- real `mult v1,a1` off `li a1,150`, the
+ * product kept live for BOTH the `+0x28` and `+0x1C` arms, and n*75 demoted out of a
+ * callee-saved reg -- and drives the insn count 471 -> 473 of 475.  It still gates WORSE
+ * (138) for ONE reason, readable in the -dg dump: with `pitch` a real pseudo, sched1
+ * hoists the whole `lw numHuman; mult` chain ABOVE the register saves, so the product's
+ * live range spans the prologue and reload cannot colour it (greg: "Need 2 regs of class
+ * MD_REGS (for insn 55) / Spilling reg 9,64,65,66") -- it emits `mflo t1; sw t1,132(sp)`
+ * + an `lhu` truncation reload where retail has `mflo s3`.  Retail's mult is issued AFTER
+ * the saves.  Variants measured: rows-only 98, pitch-only 139, rows+pitch 138, SIZE_W
+ * after POS_X 123, `short pitch` 138, pitch also driving the two `col +=` increments
+ * (94/139 -- cse const-props it back in the loop, so the increments are NOT the reason
+ * retail has a variable multiplier).  NEXT IDEA for this axis: stop sched1 from hoisting
+ * the mult chain (shorten the product's live range) rather than another spelling of the
+ * multiplier -- the multiplier form is SOLVED, the schedule is not. */
 void RaceStatistics(void)
 
 {
@@ -380,7 +413,16 @@ void RaceStatistics(void)
  *       `SIZE_H - ((y-POS_Y)+8)` into `(SIZE_H-8) - (y-POS_Y)` (3 spellings falsified:
  *       ternary-first, showtimeleft-term-first, POS_Y-as-base);
  *   (c) the showtimeleft bar's remaining 6-insn evaluation order;
- *   (d) `lui t0` vs `lui v1` scratch pick on the StatsTimer base + one nop/lhu swap. */
+ *   (d) `lui t0` vs `lui v1` scratch pick on the StatsTimer base + one nop/lhu swap.
+ * w42-a4 re-probe of cluster (b) -- the refold `SIZE_H - ((y-POS_Y)+8)` -> `(SIZE_H-8) -
+ * (y-POS_Y)` survives EVERY spelling tried, because cc1 splits the `postgame ? 8 : 0`
+ * ternary into arms FIRST and then folds the now-constant addend inside each arm.
+ * FALSIFIED at the 49 base: addition-operand swap `((postgame?8:0) + dy)` (49, neutral),
+ * `(postgame != 0) * 8` (49, neutral), a per-arm ternary of two full subtractions (59),
+ * TWO FULL Hud_FBuildF4 CALLS per postgame arm (134 -- the w41 value-select-ternary lever
+ * does NOT transfer here, this is a value argument inside a loop, not a call selector),
+ * and right-association `(SIZE_H - dy) - (postgame?8:0)` (55).  The s1<->s2 half of the
+ * cluster is downstream of the same fold (it decides which subterm is evaluated first). */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */
@@ -514,17 +556,25 @@ void Hud_BTCStats(short player,bool postgame)
 }
 
 /* ---- Hud_RenderStatsView__Fv  [OVERLAYS.CPP:450-507] SLD-VERIFIED ---- */
-/* w41-a4 OPEN, 23 diffs (134 ours / 139 oracle).  The 4-insn deficit IS a10's `bne 4v5`
- * missing arm and it is LOCATED: the commMode==1 re-test at the head of the .L800DAF88
- * block (`lui v0; lw v1,%lo(D_801131F8); li v0,1; bne v1,v0`).  Our CFG is 1:1 with the
- * oracle, but every path into HudStats_secondCar has already established commMode==1
- * (the goto from HudStats_common and the fall-through from HudStats_check200B's own
- * commMode test), so cse folds our second test away.  Retail keeps it because
- * .L800DAF88 is a 2-predecessor JOIN and cse_basic_block restarts there.  A flat
- * independent-statement chain (catalog SS B, the Device_ReadPad 138->PASS pattern) is the
- * untried handle.  The other cluster is base-CSE: ours hoists &Cars_gHumanRaceCarList
- * into v1 and offsets (`addiu a1,v1,0; lw v0,4(a1)`) where retail self-temps each element
- * (`lui v0,%hi(list+4); lw v0,%lo(list+4)(v0)`).  Sizing the extern [9] measured NEUTRAL. */
+/* w42-a4: 23 -> 8 diffs, insn count now EXACT 139/139.  ONE lever, and it cracked BOTH
+ * w41 clusters at once -- the PER-ELEMENT SPLAT DATA-LABEL alias (catalog w41 SS D):
+ * declaring `extern Car_tObj *D_8010FA4C;` (= Cars_gHumanRaceCarList[1], a real splat
+ * label in asm/data/data_8010CCD4.data.s) and reading it at the .L800DAF88 join instead
+ * of `Cars_gHumanRaceCarList[1]`.
+ *   WHY it works (the mechanism, worth reusing): the .L800DAF30 edge into that join is
+ * `beqz (list[1]->carFlags & 0x200)` and the join's OWN first test was the identical
+ * expression, so jump.c THREADED that edge past the join -- leaving .L800DAF88 with a
+ * single (fall-through) predecessor, on which cse had already recorded commMode==1 and
+ * therefore DELETED the commMode re-test (the whole 4-insn `bne` deficit a10's census
+ * flagged).  Retail's element read is a self-temp `lui/%lo(D_8010FA4C)` load that gcc
+ * cannot equate with the base+4 form, so the edge is NOT threaded, the block stays a
+ * 2-predecessor join, cse_basic_block restarts, and the test survives.  The alias fixes
+ * the address FORM and the missing arm with one edit -- it is a CFG lever, not a reloc
+ * cosmetic.  (Applying the same alias to the screen!=0 branch's list[1] read REGRESSES
+ * 8 -> 15 / 140 insns; it is site-specific.  Sizing the extern [9] measured NEUTRAL.)
+ * Residual 8 = two copies of ONE reorg tie: retail fills the `lw %lo(list)` load-delay
+ * slot with the clamped `sw StatsTimer` and pays the nop after `lw 0x260`, ours does the
+ * reverse.  Same instruction multiset, pure delay-slot pick. */
 void Hud_RenderStatsView(void)
 
 {
@@ -554,7 +604,7 @@ HudStats_check200B:
   if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
   if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
-  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_finalize;
+  if ((D_8010FA4C->carFlags & 0x200U) == 0) goto HudStats_finalize;
   if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
   if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;

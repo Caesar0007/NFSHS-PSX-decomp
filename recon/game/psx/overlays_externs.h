@@ -22,6 +22,12 @@ extern short          Hud_NextPerp[2];         /* 0x8013d994 */
 extern int            Cars_gNumRaceCars;       /* 0x8013c7f8 */
 extern int            Cars_gNumHumanRaceCars;  /* 0x8013c800 */
 extern Car_tObj      *Cars_gHumanRaceCarList[];/* 0x8010fa48 */
+/* w42-a4: the retail per-element splat DATA LABEL for Cars_gHumanRaceCarList[1]
+   (catalog w41 -> SS D).  Hud_RenderStatsView's .L800DAF88 join reaches element [1]
+   through its OWN %hi/%lo(D_8010FA4C) self-temp load, NOT through the CSE'd array base
+   -- which is what stops jump.c threading the identical `[1]->carFlags & 0x200` test
+   from the .L800DAF30 edge and keeps the block a 2-predecessor join. */
+extern Car_tObj      *D_8010FA4C;              /* 0x8010fa4c = Cars_gHumanRaceCarList[1] */
 extern Car_tObj      *Cars_gRaceCarList[];     /* 0x8010fa00 */
 extern GameSetup_tData GameSetup_gData;         /* 0x801131ec */
 extern Sim_tSimGlobalVar simGlobal;             /* 0x8011e0ac */

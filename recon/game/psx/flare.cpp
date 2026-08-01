@@ -98,7 +98,30 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
  * NEGATIVE: (1) alone REGRESSES Flare_PreCalcHexLightBeam (16->18, no loop -> no LICM) and
  * shifts Hrz_BuildSky's preheader one slot too early (390->388 gate but a structurally
  * WORSE preheader) -- gate every site, do not apply blind.
- * ================================================================================= */
+ * =================================================================================
+*
+ * ===== w42-a6: THE TWO-MASK $t1<->$t2 ROTATION IS THE allocno_compare IDENTITY DELTA =====
+ * Flare_Sun 28, Flare_Halo2 28, Flare_2DHalo 24-of-40, CarShapedHalo ~10-of-19, LensFlare
+ * ~8-of-48 (+ Font_TextXY ~12-of-22 and Weather_DoWeather ~12-of-60 in the sibling TUs) are
+ * ALL one repeated 7-diff unit: `lui 0xFFFFFF` / `lui 0xFF000000` are emitted in the SAME
+ * ORDER as the oracle but land in the OPPOSITE registers.  QUANTIFIED on Flare_Sun (site 1):
+ *   0xFFFFFF     birth insn 85, last use 115  -> live 30
+ *   0xFF000000   birth insn 92, last use 116  -> live 24
+ * Both quantities have identical ref counts, so the pick is purely the live-length tie-break:
+ * OUR cc1 gives the earlier hard reg to the SHORTER-lived quantity (0xFF000000 -> $t1);
+ * retail gives it to the LONGER-lived one (0xFFFFFF -> $t1).  That is exactly the
+ * "allocno_compare live-length weighting" true-identity residue recorded in the catalog
+ * (w32-w33 §G, 7 clean cases) -- not a source shape.  MEASURED NEGATIVE this wave (all on
+ * Flare_2DHalo block 1, gate 40 baseline): drop the addr24 temp (46), addr24 AFTER the first
+ * RMW (40), swap the first RMW's OR operands (40), pkt24 computed first (63, -1 insn).
+ * A source flip would need 0xFFFFFF's live range SHORTER than 0xFF000000's, i.e. its `lui`
+ * born AFTER the other one -- but every spelling that does that also moves the emission
+ * order away from the oracle.  => permuter / toolchain-identity class, do NOT re-grind by
+ * hand.  (The Flare_HexFlare family's 14-diff residual is the SAME tie with `i` as the
+ * rival: mask 5 refs/50 live = .200 vs i 7 refs/54 live = .2593; the flip needs mask refs
+ * >= 7 (a 3rd in-loop use, which does not exist) or i's live > 70.)
+ * =========================================================================================
+ */
 
 /* ---- Flare_Tri__FPlN20i  [FLARE.CPP:75-89] SLD-VERIFIED ---- */
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)
@@ -678,11 +701,20 @@ void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,sh
       int i;                    /* gType index temp (a0; anonymous -- no SYM record) */
       u_long c;                 /* serial copy temp (v0; anti-dependence keeps the two
                                    color word-copies lw/nop/sw serial like the oracle) */
+      /* MATCH (w42-a6): ONE `type & 0x7f` computed into `i` first, then the +1/+0xb per
+       * arm.  Writing the mask in BOTH arms costs `type` one extra REG_N_REFS (6 vs 5)
+       * even though cse merges the two andi's into one insn -- and 6 refs put `type`'s
+       * allocno_compare priority (2*6/400 = .0300) just ABOVE angleZ's (1*3/107 = .0280),
+       * which is the whole $s6<->$s7 rotation.  With 5 refs (2*5/400 = .0250) angleZ wins
+       * $s6 and `type` takes $s7 exactly as the SYM says.  45 -> 25. */
+      int j = type & 0x7fU;   /* MATCH: SEPARATE temp for the masked value -- oracle keeps
+                               * it in $v1 and both arms do `addiu a0,v1,K`; reusing `i`
+                               * in place emits `andi a0,..;addiu a0,a0,K` (25 -> 19). */
       if (R3DCar_InMenu != 0) {
-        i = (type & 0x7fU) + 1;
+        i = j + 1;
       }
       else {
-        i = (type & 0x7fU) + 0xb;
+        i = j + 0xb;
       }
       if ((type & 0x100U) != 0) {
         ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;

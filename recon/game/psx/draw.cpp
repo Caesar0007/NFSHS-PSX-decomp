@@ -473,8 +473,10 @@ void Draw_StopRenderingView(int viewid)
   *(u_int *)pEnv = *(u_int *)pEnv & 0xff000000 |
        *(u_int *)(pal + view->otsize * 4 + -4) & 0xffffff;
   Render_gPacketPtr = (char *)pEnv + 0x40;
-  pal = pal + view->otsize * 4 + -4;
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)pEnv & 0xffffff;
+  {
+  u_int *otw = (u_int *)(view->otsize * 4 + (int)pal);
+  otw[-1] = otw[-1] & 0xff000000 | (u_int)pEnv & 0xffffff;
+  }
   SetDrawEnv(pEnv,&LEnv);
   return;
 }

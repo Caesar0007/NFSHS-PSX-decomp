@@ -458,10 +458,15 @@ void Font_TextXY(char *string,int x,int y)
     dr_mode = (DR_MODE *)Render_gPacketPtr;
     pal = (u_int *)Render_gPalettePtr;
     tpage = (int)font_currentTPage;
-    *(u_int *)dr_mode = *pal & 0xffffff | *(u_int *)dr_mode & 0xff000000;
-    /* MATCH: palette write-back BEFORE the cursor bump (same lever as
-     * Weather_CreateSplat / Weather_DoWeather) -- 28 -> 22. */
-    *pal = *pal & 0xff000000 | (u_int)dr_mode & 0xffffff;
+    *(u_int *)dr_mode = *(u_int *)dr_mode & 0xff000000 | *pal & 0xffffff;
+    /* MATCH (w42-a6): dr_mode-mask-FIRST in BOTH RMWs (`*dr & 0xff000000 | *pal &
+     * 0xffffff` then `(u_int)dr_mode & 0xffffff | *pal & 0xff000000`) aligns the whole
+     * tail load block with the oracle -- SAME gate 22 but the alpha-renamed structural
+     * residual halves 8 -> 4 (posdiff), leaving only the t1<->t2 mask rotation and the
+     * cursor bump's 2-slot position.  Swept all 4 RMW operand orders x 3 bump positions:
+     * 22/22/24/26 and bump-between = 28-32 (bump issues too EARLY, before the RMW1 store).
+     * Palette write-back stays BEFORE the cursor bump. */
+    *pal = (u_int)dr_mode & 0xffffff | *pal & 0xff000000;
     Render_gPacketPtr = (u_char *)dr_mode + 0xc;
     SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
   }

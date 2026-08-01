@@ -6,7 +6,8 @@
 #include "psxfront_externs.h"
 
 /* ---- PSXFront.obj STAT (file-local) globals ---- */
-static char     *STR_FRMT;                          /* 0x80052a54 */
+static char     *STR_FRMT[2];                       /* 0x80052a54 (sized>G4 -> .bss/absolute, not
+                                                       .sbss/gp-rel -- same device as rendering3DEnvInit__) */
 static u_short   ofs[2];                            /* 0x80052a5c */
 static char      rendering3DEnvInit__[8];           /* 0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
 #define rendering3DEnvironmentInitialized rendering3DEnvInit__[0]
@@ -30,7 +31,7 @@ void PSXFront_AllocateDrawMemory(void)
   Draw_InitViewOT();
   gEnviro[0].server = (char *)reservememadr("ps0",80000,0x10);
   gEnviro[1].server = (char *)reservememadr("ps1",80000,0x10);
-  Draw_SetViewMemBudget(Draw_gPlayer1View,80000);
+  Draw_SetViewMemBudget(Draw_gPlayer1View[0],80000);
   return;
 }
 
@@ -50,37 +51,36 @@ void PSXFront_FreeDrawMemory(void)
 void InitializeSpinningCars(void)
 
 {
+  /* SYM: the ONLY local is `i` (INT).  carData_walk/obj_walk were fabricated -- retail indexes
+   * GameSetup_gData.carInfo[i] / gCarObj[i] and loop.c strength-reduces both into givs ($s2 stride
+   * 0xB4, $s3 stride 4).  Loop is TOP-tested with a `j` back-edge, not gcc's rotated do-while. */
   Car_tObj *carObj;
   int i;
-  uint index;
-  GameSetup_tCarData *carData_walk;
-  Car_tObj **obj_walk;
-  
+
   if (rendering3DEnvironmentInitialized == '\0') {
-    R3DCar_InMenu = 1;
+    R3DCar_InMenu[0] = 1;
     Platform_ResetDCTBuffer();
     Texture_InitMenuTexture();
-    inFrontEnd = 1;
+    inFrontEnd[0] = 1;
     CarIO_StartUp();
     R3DCar_StartUp();
-    inFrontEnd = 0;
+    inFrontEnd[0] = 0;
     DrawC_ReadeMapData();
     Fe3D_InitShowroom();
-    carData_walk = GameSetup_gData.carInfo;
-    obj_walk = gCarObj;
     GameSetup_gData.Weather = 0;
-    for (index = 0; (int)index < 2; index = index + 1) {
+    i = 0;
+    while (1) {
+      if (2 <= i) break;
       carObj = (Car_tObj *)reservememadr("carObj",0x8dc,0);
-      *obj_walk = carObj;
+      gCarObj[i] = carObj;
       blockclear(carObj,0x8dc);
-      carObj->carInfo = carData_walk;
-      carData_walk->carType = 1;
-      carData_walk = carData_walk + 1;
-      obj_walk = obj_walk + 1;
+      carObj->carInfo = &GameSetup_gData.carInfo[i];
+      carObj->carInfo->carType = 1;
       strcpy(carObj->carName,GameSetup_gCarNames[carObj->carInfo->carType]);
-      (carObj->N).objID = index | 0x100;
-      R3DCar_Instantiate3DCar(carObj,index);
+      (carObj->N).objID = i | 0x100;
+      R3DCar_Instantiate3DCar(carObj,i);
       (carObj->N).active = '\x01';
+      i = i + 1;
     }
     R3DCar_PostStartUp();
     gMenuRotate[1] = 0;
@@ -88,8 +88,8 @@ void InitializeSpinningCars(void)
     blockclear(&gCView,0x8c);
     DrawC_gMenuColor[1] = -1;
     DrawC_gMenuColor[0] = -1;
-    DrawC_gMenuLights = 0;
-    DrawC_gMenuLightsDirection = 0;
+    DrawC_gMenuLights[0] = 0;
+    DrawC_gMenuLightsDirection[0] = 0;
     rendering3DEnvironmentInitialized = '\x01';
   }
   return;
@@ -101,37 +101,32 @@ void InitializeSpinningCars(void)
 void CleanupSpinningCars(void)
 
 {
-  int status;
-  Car_tObj *addr;
+  /* SYM: i, handle, fname[60] -- that is ALL.  `ppCar`/`addr`/`status` were fabricated; retail
+   * indexes gCarObj[i] (loop.c turns the walker into a giv) and RE-READS it for purgememadr, so the
+   * handle then lands in the walker's dead $s0 rather than in i's $s1. w42-a7. */
   int handle;
-  Car_tObj **ppCar;
   int i;
   char fname [60];
   
   if (rendering3DEnvironmentInitialized != '\0') {
     DrawSync(0);
-    i = 0;
-    ppCar = gCarObj;
-    do {
-      i = i + 1;
-      R3DCar_DeInstantiate3DCar(*ppCar);
-      addr = *ppCar;
-      ppCar = ppCar + 1;
-      purgememadr(addr);
-    } while (i < 2);
-    inFrontEnd = 1;
+    for (i = 0; i < 2; i = i + 1) {
+      R3DCar_DeInstantiate3DCar(gCarObj[i]);
+      purgememadr(gCarObj[i]);
+    }
+    inFrontEnd[0] = 1;
     R3DCar_CleanUp();
     CarIO_CleanUp();
-    inFrontEnd = 0;
+    inFrontEnd[0] = 0;
     Texture_KillMenuTexture();
     PSXFront_FreeDrawMemory();
-    R3DCar_InMenu = 0;
-    gFlip = -1;
+    R3DCar_InMenu[0] = 0;
+    gFlip[0] = -1;
     rendering3DEnvironmentInitialized = '\0';
     Platform_ResetDCTBuffer();
     sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
-    i = asyncloadfileat(fname,CF_DVLC);
-    while (status = getasyncreadstatus(i), status == 0) {
+    handle = asyncloadfileat(fname,CF_DVLC);
+    while (getasyncreadstatus(handle) == 0) {
       systemtask(0);
     }
   }
@@ -176,24 +171,24 @@ void DoTitleScreen(void)
   char artfilename [20];
   
   elapsedticks();
-  if (creditShapeFile == (char *)0x0) {
+  if (creditShapeFile[0] == (char *)0x0) {
     sprintf(artfilename,"title.psh");
-    sprintf(fileName,STR_FRMT,Paths_Paths[0x20],artfilename);
-    creditShapeFile = (char *)loadshapeadr(fileName,(void *)0x0);
+    sprintf(fileName,STR_FRMT[0],Paths_Paths[0x20],artfilename);
+    creditShapeFile[0] = (char *)loadshapeadr(fileName,(void *)0x0);
     systemtask(0);
-    if (creditShapeFile == (char *)0x0) {
+    if (creditShapeFile[0] == (char *)0x0) {
       return;
     }
   }
-  shape = (tTexture_ShapeInfo *)locateshapez(creditShapeFile,(void *)"back");
+  shape = (tTexture_ShapeInfo *)locateshapez(creditShapeFile[0],(void *)"back");
   Quick_DD(1,0,1);
   settrans(0);
   movfxya(shape,0,0);
   settrans(1);
   Quick_DD(0,1,0);
-  purgememadr(creditShapeFile);
-  titleScreenDisplayed = '\x01';
-  creditShapeFile = (char *)0x0;
+  purgememadr(creditShapeFile[0]);
+  creditShapeFile[0] = (char *)0x0;
+  titleScreenDisplayed[0] = '\x01';
   return;
 }
 
@@ -249,21 +244,21 @@ void Init_RenderingEnvironment(void)
   SetDefDispEnv(&gEnviro[0].disp,0,0x100,0x200,0xf0);
   SetDefDispEnv(&gEnviro[1].disp,0,0,0x200,0xf0);
   Draw_InitViews();
-  Draw_gRearView = -1;
+  Draw_gRearView[0] = -1;
   /* DISGUISED BARE-VA FIX (w14-a2): raw @0x8004dd64-98 shows the true args are
    * (x0=0,y0=0,x1=0,y1=0x100,w=0x200,h=0xf0,dtd=0,isbg=1,otsize=10) -- y0 was a bogus fabricated
    * literal -0x7fec0000==0x80140000 (not a real symbol; just wrong) and y1 read an UNINITIALIZED
    * `stackv` local where the oracle passes the plain constant 0x100 ($a3, set once and never
    * touched again before the call). */
-  Draw_gPlayer1View =
+  Draw_gPlayer1View[0] =
        Draw_SetView
                  (0,0,0,0x100,0x200,0xf0,0,1,10);
   blockclear(&gCView,0x8c);
-  gCView.id = Draw_gPlayer1View;
+  gCView.id = Draw_gPlayer1View[0];
   PSXFront_AllocateDrawMemory();
-  Draw_gDoVSync = 1;
+  Draw_gDoVSync[0] = 1;
   FETextRender_SetABR(0,false);
-  gFlip = 0;
+  gFlip[0] = 0;
   return;
 }
 
@@ -273,32 +268,33 @@ void Init_RenderingEnvironment(void)
 void Init_PSX_FrontEnd(void)
 
 {
-  int movieRes;
-  
-  gFlip = -1;
+  /* SYM lists NO locals here (movieRes was fabricated -- retail compares play_movie's $v0 directly).
+   * 🔴 initlinkmode takes THREE args (oracle sets $a2 at every site: `addu a2,a1,zero` / `addu a2,a0,
+   * zero`) -- the recon passed only two, dropping the 3rd (§3.12 #18).  Polarity: the FIRST-TIME
+   * (!= 0) arm is the FALL-THROUGH in retail (`beqz v1` skips to the short arm). w42-a7. */
+  gFlip[0] = -1;
   addtimer(PAD_update);
   InitGeom();
   PSX_AllocShapes();
   Texture_InitMenuClut();
-  screenwidth = 0x200;
-  screenbpp = 0x10;
-  if (ComingIntoTheFrontEndTheVeryFirstTime[0] == 0) {
-    Init_RenderingEnvironment();
-    TextSys_LoadWords((uint)(byte)frontEnd.language);
-  }
-  else {
-    movieRes = play_movie('\x04');
-    if (movieRes != 1) {
+  screenwidth[0] = 0x200;
+  screenbpp[0] = 0x10;
+  if (ComingIntoTheFrontEndTheVeryFirstTime[0] != 0) {
+    if (play_movie('\x04') != 1) {
       play_movie('\0');
     }
-    initlinkmode(0,1);
+    initlinkmode(0,1,1);
     Init_RenderingEnvironment();
-    initlinkmode(0,0x14);
+    initlinkmode(0,0x14,0);
     DoLanguageScreen();
     TextSys_LoadWords((uint)(byte)frontEnd.language);
     DoTitleScreen();
-    initlinkmode(0,1);
+    initlinkmode(0,1,1);
     Front_SecondaryMemCardCheck();
+  }
+  else {
+    Init_RenderingEnvironment();
+    TextSys_LoadWords((uint)(byte)frontEnd.language);
   }
   FeTools_init();
   Audio_InitDriver(0xd800,0x18000);
@@ -315,110 +311,84 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
                tDrawShapeExtended *extra)
 
 {
+  /* SYM 8c block lists exactly FIVE locals: fadetop/fadebottom (SHORT), i (SHORT),
+   * fbot/ftop (INT) -- plus the REG copies of the stack params bright/color/extra.
+   * The former recon carried 9 fabricated temps (adjY/cHi/cMid/cLo/cB/cG/fadeC1/fadeC2/shpAddr).
+   * 🔴 `shpAddr` was NEVER ASSIGNED and every shape-field read went through it (wild reads); the
+   * oracle's `addu $t0,$a0,$zero` is the tShp REGPARM copy -- all 0x1N($t0) reads are tShp fields. */
+  /* SYM BLOCK STRUCTURE (90/92 records): fadetop($a3)/fadebottom($a0) at function block start;
+   * `i`($t0) declared in the block at 0x8004E0CC (the 0x80 arm); fbot($v0)/ftop($a1) declared in
+   * the block at 0x8004E178 (the 0x40 arm).  Block-local scope is the allocno-CLASS lever (w41 §A). */
   short fadetop;
-  int fbot;
-  int adjY;
-  short i;
-  int ftop;
-  int cHi;
-  int cLo;
   short fadebottom;
-  int shpAddr;
-  int cMid;
-  int cB;
-  int cG;
-  uint fadeC1;
-  uint fadeC2;
-  
-  fbot = *flags;
-  if ((fbot & 0x400U) == 0) {
-    if (0 < *y) goto AdjShape_applyOffset;
-    *x = *x - (int)*(short *)(shpAddr + 0x14);
-    adjY = -((int)*(short *)(shpAddr + 0x16) + *y);
+
+  if ((*flags & 0x400U) != 0) {
+    *x = *x - tShp->centerx;
+    *y = *y - tShp->centery;
   }
-  else {
-    *x = *x - (int)*(short *)(shpAddr + 0x14);
-    adjY = *y - (int)*(short *)(shpAddr + 0x16);
+  else if (*y <= 0) {
+    *x = *x - tShp->centerx;
+    *y = -(tShp->centery + *y);
   }
-  *y = adjY;
-AdjShape_applyOffset:
   if ((*flags & 0x100U) != 0) {
-    *x = *x - ((int)((uint)*(ushort *)(shpAddr + 0x10) << 0x10) >> 0x11);
-    *y = *y - ((int)((uint)*(ushort *)(shpAddr + 0x12) << 0x10) >> 0x11);
+    *x = *x - ((int)((uint)(ushort)tShp->width << 0x10) >> 0x11);
+    *y = *y - ((int)((uint)(ushort)tShp->height << 0x10) >> 0x11);
   }
   if ((*flags & 0x20U) != 0) {
-    *y = (extra->flip_axis * 2 - (*y + (int)*(short *)(shpAddr + 0x12))) + 1;
+    *y = (extra->flip_axis * 2 - (*y + tShp->height)) + 1;
     *flags = *flags | 2;
   }
-  fadeC2 = *flags;
-  if ((fadeC2 & 0x10) != 0) {
-    cHi = (uint)*(byte *)((int)extra->tint + 2) * bright;
-    if (cHi < 0) {
-      cHi = cHi + 0x7f;
-    }
-    cMid = (extra->tint[0] >> 8 & 0xffU) * bright;
-    if (cMid < 0) {
-      cMid = cMid + 0x7f;
-    }
-    cLo = (uint)(byte)extra->tint[0] * bright;
-    if (cLo < 0) {
-      cLo = cLo + 0x7f;
-    }
-    *color = (cHi >> 7) << 0x10 | (cMid >> 7) << 8 | cLo >> 7;
-    return;
+  if ((*flags & 0x10U) != 0) {
+    /* byte-2 term spelled (w>>16)&0xff so combine narrows IT to `lbu +2` and leaves the >>8 term
+     * on the full word load (`lw; sra 8; andi 0xff`) -- retail's exact 3-load mix (w42-a7). */
+    *color = (((extra->tint[0] >> 0x10) & 0xff) * bright / 128) << 0x10 |
+             ((extra->tint[0] >> 8 & 0xff) * bright / 128) << 8 |
+             (int)*(byte *)((int)extra->tint) * bright / 128;
   }
-  if ((fadeC2 & 0x80) != 0) {
-    i = 0;
-    cMid = 0;
-    do {
-      cMid = cMid >> 0xe;
-      cLo = (uint)*(byte *)((int)extra->tint + cMid + 2) * bright;
-      if (cLo < 0) {
-        cLo = cLo + 0x7f;
-      }
-      cG = (*(int *)((int)extra->tint + cMid) >> 8 & 0xffU) * bright;
-      if (cG < 0) {
-        cG = cG + 0x7f;
-      }
-      cB = (uint)*(byte *)((int)extra->tint + cMid) * bright;
-      if (cB < 0) {
-        cB = cB + 0x7f;
-      }
-      *(int *)(cMid + (int)color) = (cLo >> 7) << 0x10 | (cG >> 7) << 8 | cB >> 7;
-      i = i + 1;
-      cMid = i * 0x10000;
-    } while (i * 0x10000 >> 0x10 < 4);
-    return;
+  else if ((*flags & 0x80U) != 0) {
+    short i;
+    for (i = 0; i < 4; i = i + 1) {
+      color[i] = (((extra->tint[i] >> 0x10) & 0xff) * bright / 128) << 0x10 |
+                 ((extra->tint[i] >> 8 & 0xff) * bright / 128) << 8 |
+                 (int)*(byte *)((int)(extra->tint + i)) * bright / 128;
+    }
   }
-  if ((fadeC2 & 0x40) != 0) {
+  else if ((*flags & 0x40U) != 0) {
+    int fbot;
+    int ftop;
+    /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
+     * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
     ftop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    fadetop = ftop;
     if (ftop * 0x10000 < 0) {
-      ftop = -ftop;
+      fadetop = -ftop;
     }
-    fadetop = (short)(ftop << 1);
-    if (0x80 < (ftop << 0x11) >> 0x10) {
+    fadetop = fadetop * 2;
+    if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)*(ushort *)(shpAddr + 0x12)))
-            + 1;
+    fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    fadebottom = fbot;
     if (fbot * 0x10000 < 0) {
-      fbot = -fbot;
+      fadebottom = -fbot;
     }
-    cMid = fbot << 0x11;
-    if (0x80 < (fbot << 0x11) >> 0x10) {
-      cMid = 0x800000;
+    fadebottom = fadebottom * 2;
+    if (0x80 < fadebottom) {
+      fadebottom = 0x80;
     }
-    fadeC2 = 0x80 - (cMid >> 0x10);
-    fadeC2 = fadeC2 * 0x10000 | fadeC2 * 0x100 | fadeC2;
-    fadeC1 = 0x80 - (int)fadetop;
-    *color = fadeC2;
-    color[1] = fadeC2;
-    fadeC1 = fadeC1 * 0x10000 | fadeC1 * 0x100 | fadeC1;
-    color[2] = fadeC1;
-    color[3] = fadeC1;
-    return;
+    /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
+     * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
+    ftop = 0x80;
+    fbot = ftop - fadebottom;
+    ftop = ftop - fadetop;
+    *color = fbot << 0x10 | fbot << 8 | fbot;
+    color[1] = fbot << 0x10 | fbot << 8 | fbot;
+    color[2] = ftop << 0x10 | ftop << 8 | ftop;
+    color[3] = ftop << 0x10 | ftop << 8 | ftop;
   }
-  *color = bright << 0x10 | bright << 8 | bright;
+  else {
+    *color = bright << 0x10 | bright << 8 | bright;
+  }
   return;
 }
 
@@ -429,146 +399,105 @@ AdjShape_applyOffset:
 void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
 {
-  byte tc6;
-  short colX;
-  short clut;
-  int texXp;
-  short uvAdj;
-  short x1;
-  byte v_byte;
-  int linkAddr;
-  short height;
-  int verts_done;
-  int remW;
-  int c3;
-  short w1;
-  int bpp;
-  int bitOff;
-  short xoff;
-  short tmpH;
-  int addw;
-  int col;
-  int stripW;
-  int texX;
-  byte u_byte;
-  short v;
-  short i;
-  int accW;
-  short u;
-  int shape_x;
-  short w;
-  short dstY0;
-  short dstY1;
-  short width;
-  short vh;
-  byte tc1;
-  u_char  *prevPrim;
+  /* SYM 8c block: prim(POLY_GT4* $s0) width(AUTO -0x58) height($v1) u($s2) v($t4) vh(AUTO -0x50)
+   * bpp($a1) i($s1) w($s5) w1($a1); addw(INT $a2) declared in the LOOP block @0x8004E2FC.
+   * Params: shp=$s4 flags=$t6 x=$t2 y=$s7 color=$t5.  The old recon carried ~35 fabricated locals
+   * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
+   * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
   u_char  *prim;
-  short srcH;
-  short shpW2;
-  short shpW;
-  short ts4;
-  short colX1;
-  
-  dstY0 = (short)y;
-  tmpH = shp->height;
-  shpW = shp->width;
-  bpp = (int)(byte)shp->depth;
+  u_char  *prevPrim;
+  int      linkAddr;
+  short    width;
+  short    height;
+  short    u;
+  short    v;
+  short    vh;
+  short    bpp;
+  short    i;
+  int      w;
+  short    w1;
+
+  height = shp->height;
+  width = shp->width;
+  bpp = (byte)shp->depth;
   if ((flags & 2) != 0) {
-    dstY0 = dstY0 + tmpH;
-    tmpH = -tmpH;
+    y = y + height;
+    height = -height;
   }
-  u_byte = (byte)shp->shapey;
-  srcH = shp->height;
+  v = (byte)shp->shapey;
+  vh = shp->height;
   if ((flags & 2) != 0) {
-    u_byte = u_byte - 1;
+    v = (byte)shp->shapey - 1;
   }
-  accW = 0;
-  dstY1 = tmpH + dstY0;
-  while( true ) {
+  i = 0;
+  while (i < shp->width) {
+    int addw;
+    int texX;
+
+    texX = (uint)(ushort)shp->shapex + (i * bpp) / 16;
+    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
+        ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
+    w = 0xff - u;
+    if (shp->width - i < w) {
+      w = shp->width - i;
+    }
     prim = Render_gPacketPtr;
     prevPrim = Render_gPalettePtr;
-    colX = (short)accW;
-    col = (int)colX;
-    bitOff = col * bpp;
-    if (shp->width <= col) break;
-    if (bitOff < 0) {
-      bitOff = bitOff + 0xf;
-    }
-    verts_done = (int)((uint)(ushort)shp->shapex << 0x10) >> 0xc;
-    texX = (uint)(ushort)shp->shapex + (bitOff >> 4);
-    texXp = (int)((texX & 0xffffffc0U) << 0x10) >> 0xc;
-    shape_x = (accW + verts_done / bpp) - texXp / bpp;
-    stripW = 0xff - (shape_x * 0x10000 >> 0x10);
-    remW = shp->width - col;
-    if (remW < stripW) {
-      stripW = remW;
-    }
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x34;
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+    linkAddr = (uint)prim & 0xffffff;
+    Render_gPacketPtr = prim + 0x34;
     *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-    *(int *)(prim + 4) = *color;
+    *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
-    c3 = color[3];
-    prim[7] = (flags & 1) * '\x02' + '<';
+    prim[7] = (flags & 1) * 2 + 0x3c;
     prim[3] = 0xc;
-    *(int *)(prim + 0x28) = c3;
-    clut = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-    *(short *)(prim + 0xe) = clut;
+    *(int *)(prim + 0x28) = color[3];
+    *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)(prim + 0x1a) =
-         ((byte)shp->type & 3) << 7 | (ushort)((abr & 3U) << 5) |
-         (short)(shp->shapey & 0x100U) >> 4 | (ushort)((texX & 0x3c0U) >> 6) |
-         (shp->shapey & 0x200U) << 2;
-    tmpH = 0;
+         ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
+         (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+         (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
+    addw = 0;
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
-      shape_x = shape_x + -1;
-      tmpH = 1;
+      u = u - 1;
+      addw = 1;
     }
-    tc1 = (byte)shape_x;
-    v_byte = tc1 + (char)stripW;
-    prim[0xc] = tc1;
-    prim[0xd] = u_byte;
-    prim[0x18] = v_byte;
-    prim[0x19] = u_byte;
-    prim[0x24] = tc1;
-    prim[0x30] = v_byte;
-    tc6 = (char)srcH + u_byte;
-    prim[0x25] = tc6;
-    prim[0x31] = tc6;
-    if (stripW << 0x10 < 1) {
-      stripW = 1;
+    w1 = w;
+    prim[0xc] = u;
+    prim[0xd] = v;
+    prim[0x18] = u + w1;
+    prim[0x19] = v;
+    prim[0x24] = u;
+    prim[0x30] = u + w1;
+    prim[0x25] = vh + v;
+    prim[0x31] = vh + v;
+    if (w1 <= 0) {
+      w1 = 1;
     }
-    uvAdj = tmpH + -1;
-    if ((flags & 4) == 0) {
-      tmpH = colX + xoff;
-      x1 = (short)stripW + tmpH;
-      *(short *)(prim + 8) = tmpH;
-      *(short *)(prim + 10) = dstY0;
-      *(short *)(prim + 0x14) = x1;
-      *(short *)(prim + 0x16) = dstY0;
-      *(short *)(prim + 0x20) = tmpH;
-      *(short *)(prim + 0x22) = dstY1;
-      *(short *)(prim + 0x2c) = x1;
-      *(short *)(prim + 0x2e) = dstY1;
+    if ((flags & 4) != 0) {
+      addw = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
+                             reassociate the -1 out and re-add addw at each vertex (w42-a7) */
+      *(short *)(prim + 8) = ((width + x) - i) + addw;
+      *(short *)(prim + 10) = y;
+      *(short *)(prim + 0x16) = y;
+      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addw;
+      *(short *)(prim + 0x22) = y + height;
+      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addw;
+      *(short *)(prim + 0x2e) = y + height;
+      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addw;
     }
     else {
-      *(short *)(prim + 8) = ((shpW + xoff) - colX) + uvAdj;
-      *(short *)(prim + 10) = dstY0;
-      shpW2 = shp->width;
-      colX1 = colX + (short)stripW;
-      *(short *)(prim + 0x16) = dstY0;
-      *(short *)(prim + 0x14) = ((shpW2 + xoff) - colX1) + uvAdj;
-      tmpH = shp->width;
-      *(short *)(prim + 0x22) = dstY1;
-      *(short *)(prim + 0x20) = ((tmpH + xoff) - colX) + uvAdj;
-      tmpH = shp->width;
-      *(short *)(prim + 0x2e) = dstY1;
-      *(short *)(prim + 0x2c) = ((tmpH + xoff) - colX1) + uvAdj;
+      *(short *)(prim + 8) = i + x;
+      *(short *)(prim + 10) = y;
+      *(short *)(prim + 0x14) = w1 + (i + x);
+      *(short *)(prim + 0x16) = y;
+      *(short *)(prim + 0x20) = i + x;
+      *(short *)(prim + 0x22) = y + height;
+      *(short *)(prim + 0x2c) = w1 + (i + x);
+      *(short *)(prim + 0x2e) = y + height;
     }
-    accW = accW + stripW;
+    i = i + w1;
   }
   return;
 }
@@ -598,32 +527,30 @@ void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int 
 void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
 
 {
-  tTexture_ShapeInfo *shapeTbl;
+  /* SYM: the only locals are tShp (REG) + color[4] (AUTO) -- there is NO `shapeTbl`.  Retail wrote
+   * the table select as a real if/ELSE that lands `tShp = table + index` in each arm (oracle emits
+   * `sll v0,index,5` in BOTH arms + a shared `addu s0,v1,v0` join, then recomputes it in the 0x200
+   * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
   tTexture_ShapeInfo *tShp;
   int color [4];
 
-  /* @0x8004E678: the incoming flags/x/y params are forwarded to AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended (via &flags/&x/&y)
-   * and the draw calls. The recon overwrote them with never-assigned Ghidra locals flagsv/xv/yv right
-   * before the call, feeding garbage flags/x/y. Use the real params (M15). */
-  shapeTbl = gCurrentShapes;
   if ((flags & 8) != 0) {
-    shapeTbl = gHelpShapes[0];
-  }
-  if ((flags & 0x200) != 0) {
-    shapeTbl = extra->custom_shapes;
-  }
-  /* @0x8004E6C4-C8: tShp = shapeTbl + index (index*0x20; sizeof tTexture_ShapeInfo=32), computed once
-   * and passed to all three calls. (M16) the gouraud branch @0x8004E740 passed uninitialized abrv (as
-   * flags) and (int)extra (as x) -> use the real flags/x. The shape pointer also used an uninitialized
-   * Ghidra local `shp` for shapeTbl+(int)shp -> use tShp. (The shp/index uninit was a side-finding NOT
-   * in the audit's M16, confirmed vs oracle: $s0=tShp=shapeTbl+index, passed to all 3 calls.) */
-  tShp = shapeTbl + index;
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
-  if ((flags & 0xc0U) == 0) {
-    DrawFlatShape(tShp,flags,x,y,color,abr);
+    tShp = gHelpShapes[0] + index;
   }
   else {
+    tShp = gCurrentShapes + index;
+  }
+  if ((flags & 0x200) != 0) {
+    tShp = extra->custom_shapes + index;
+  }
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
+     brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
+  if ((flags & 0xc0U) != 0) {
     DrawGouraudShape(tShp,flags,x,y,color,abr);
+  }
+  else {
+    DrawFlatShape(tShp,flags,x,y,color,abr);
   }
   return;
 }
@@ -636,101 +563,75 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
                int abr)
 
 {
-  char v;
-  byte v_byte;
-  byte u_byte;
-  short clut;
-  int scaledW;
-  int scaledH;
-  int scaledX;
-  int scaledY;
-  int tpage_word;
-  byte v1_byte;
-  char vh;
-  char u;
-  char u1_byte;
-  char uw;
-  uint linkAddr;
-  int vert_dx;
-  short height;
-  short srcH;
-  short width;
-  short srcW;
-  short dstY;
-  short dstX;
-  short bpp;
-  u_char  *prevPrim;
+  /* SYM 8c block: prim(POLY_GT4* $s3) width($s2) height($s1) u/v/uw/vh (CHAR) bpp(AUTO SHORT
+   * @sp+0x10) + the color/abr REG copies -- 9 locals, not the 28 the old recon declared.
+   * x($s6) and y($s5) are the REGPARMs, MUTATED IN PLACE by the flip arms; width/height likewise
+   * (`negu $s2,$s2`).  The bpp divide is SIGNED (div + break 7 + break 6). w42-a7 */
   u_char  *prim;
-  short srcH2;
-  byte depth;
-  
+  u_char  *prevPrim;
+  uint     linkAddr;
+  short    width;
+  short    height;
+  short    bpp;
+  char     u;
+  char     v;
+  char     uw;
+  char     vh;
+
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  dstX = (short)x;
-  dstY = (short)y;
-  srcW = shp->width;
-  srcH = shp->height;
-  depth = shp->depth;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x34;
+  width = shp->width;
+  height = shp->height;
+  bpp = (byte)shp->depth;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x34;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(int *)(prim + 4) = *color;
+  *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];
   *(int *)(prim + 0x28) = color[3];
   SetPolyGT4((POLY_GT4 *)prim);
   SetSemiTrans(prim,flags & 1);
-  clut = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-  *(short *)(prim + 0xe) = clut;
+  *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
   *(ushort *)(prim + 0x1a) =
-       ((byte)shp->type & 3) << 7 | (ushort)((abr & 3U) << 5) |
-       (short)(shp->shapey & 0x100U) >> 4 | (ushort)(((ushort)shp->shapex & 0x3c0) >> 6) |
-       (shp->shapey & 0x200U) << 2;
+       ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
+       (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+       ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
   if ((flags & 4U) != 0) {
-    scaledW = fixedmult(scalex,(int)srcW);
-    dstX = dstX + (short)scaledW;
-    srcW = -srcW;
+    x = x + fixedmult(scalex,width);
+    width = -width;
   }
   if ((flags & 2U) != 0) {
-    scaledH = fixedmult(scaley,(int)srcH);
-    dstY = dstY + (short)scaledH;
-    srcH = -srcH;
+    y = y + fixedmult(scaley,height);
+    height = -height;
   }
-  *(short *)(prim + 8) = dstX;
-  *(short *)(prim + 10) = dstY;
-  scaledX = fixedmult(scalex,(int)srcW);
-  *(short *)(prim + 0x14) = dstX + -1 + (short)scaledX;
-  *(short *)(prim + 0x16) = dstY;
-  *(short *)(prim + 0x20) = dstX;
-  scaledY = fixedmult(scaley,(int)srcH);
-  *(short *)(prim + 0x22) = dstY + (short)scaledY;
-  scaledY = fixedmult(scalex,(int)srcW);
-  *(short *)(prim + 0x2c) = dstX + -1 + (short)scaledY;
-  scaledY = fixedmult(scaley,(int)srcH);
-  *(short *)(prim + 0x2e) = dstY + (short)scaledY;
-  vert_dx = (int)depth;
-  tpage_word = (ushort)shp->shapex & 0x3f;
-  u1_byte = (char)((uint)(tpage_word << 4) / (uint)vert_dx);
-  srcH2 = shp->height;
-  v_byte = (byte)shp->shapey;
+  *(short *)(prim + 8) = x;
+  *(short *)(prim + 10) = y;
+  *(short *)(prim + 0x14) = (x + -1) + fixedmult(scalex,width);
+  *(short *)(prim + 0x16) = y;
+  *(short *)(prim + 0x20) = x;
+  *(short *)(prim + 0x22) = y + fixedmult(scaley,height);
+  *(short *)(prim + 0x2c) = (x + -1) + fixedmult(scalex,width);
+  *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
+  u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
+  v = (byte)shp->shapey;
   if ((flags & 4U) != 0) {
-    u1_byte = u1_byte + -1;
+    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
   }
-  v1_byte = u1_byte + (char)shp->width;
+  uw = u + (byte)shp->width;
   if ((flags & 2U) != 0) {
-    v_byte = v_byte - 1;
+    v = (byte)shp->shapey - 1;
   }
-  prim[0xd] = v_byte;
-  prim[0x19] = v_byte;
-  u_byte = v_byte + (char)srcH2;
-  prim[0xc] = u1_byte;
-  prim[0x18] = v1_byte;
-  prim[0x24] = u1_byte;
-  prim[0x25] = u_byte;
-  prim[0x30] = v1_byte;
-  prim[0x31] = u_byte;
+  prim[0xd] = v;
+  prim[0x19] = v;
+  vh = v + (byte)shp->height;
+  prim[0xc] = u;
+  prim[0x18] = uw;
+  prim[0x24] = u;
+  prim[0x25] = vh;
+  prim[0x30] = uw;
+  prim[0x31] = vh;
   return;
 }
 
@@ -757,33 +658,29 @@ void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int
 void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawShapeExtended *extra)
 
 {
-  tTexture_ShapeInfo *shapeTbl;
+  /* SYM: scalex/scaley are REAL INT locals ($s2/$s3 -- the oracle materializes 0x20000/0x10000 into
+   * callee-saved regs in the prologue and passes THOSE at both call sites), tShp REG, color[4] AUTO.
+   * No `shapeTbl`: the table select is an if/ELSE assigning tShp per arm (flags&8 = fall-through). */
   tTexture_ShapeInfo *tShp;
-  int scalex;
-  int scaley;
+  int scalex = 0x20000;
+  int scaley = 0x10000;
   int color [4];
 
-  /* ScaleShapeExtended: same uninit-local-shadow pattern -- forward the real flags/x/y params to
-   * AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended, not the never-assigned Ghidra locals flagsv/xv/yv (M15). */
-  shapeTbl = gCurrentShapes;
   if ((flags & 8) != 0) {
-    shapeTbl = gHelpShapes[0];
-  }
-  if ((flags & 0x200) != 0) {
-    shapeTbl = extra->custom_shapes;
-  }
-  /* @0x8004EAE4-E8 / EB14 / EB50: tShp = shapeTbl + index (index*0x20) is passed as $a0 to
-   * AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended and both Scale draw calls. The recon used (tTexture_ShapeInfo*)(0x80-fade) as the
-   * AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended shape arg (the bright value mis-decoded into the pointer slot) and an
-   * uninitialized `shp` for shapeTbl+shp in both Scale calls -- all should be tShp (the same uninit
-   * shape-pointer class fixed in DrawShapeExtended/M16; this is the ScaleShapeExtended sibling). */
-  tShp = shapeTbl + index;
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
-  if ((flags & 0xc0U) == 0) {
-    ScaleFlatShape(tShp,flags,x,y,0x20000,0x10000,color,abr);
+    tShp = gHelpShapes[0] + index;
   }
   else {
-    ScaleGouraudShape(tShp,flags,x,y,0x20000,0x10000,color,abr);
+    tShp = gCurrentShapes + index;
+  }
+  if ((flags & 0x200) != 0) {
+    tShp = extra->custom_shapes + index;
+  }
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  if ((flags & 0xc0U) != 0) {
+    ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
+  }
+  else {
+    ScaleFlatShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }
   return;
 }
@@ -831,10 +728,9 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
   prevPrim = Render_gPalettePtr;
   x_s = (short)x;
   x1 = x_s + (short)w;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x18;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x18;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   *(int *)(prim + 4) = col;
   prim[7] = 0x28;
@@ -869,10 +765,9 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
   
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x24;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x24;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   *(int *)(prim + 4) = c1;
   *(int *)(prim + 0xc) = c2;
@@ -901,37 +796,35 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
 
 {
-  int linkAddr;
-  uint opacityv;
-  uint y_plus_h_pack;
-  int i;
-  int iter;
+  /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
+   * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
+   * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
+  int      linkAddr;
+  int      i;
   u_char  *prevPrim;
   u_char  *prim;
-  
-  iter = 0;
+
+  i = 0;
   if (0 < opacity) {
-    y_plus_h_pack = (y + h) * 0x10000;
     do {
       prim = Render_gPacketPtr;
       prevPrim = Render_gPalettePtr;
-      iter = iter + 1;
-      *(uint *)Render_gPacketPtr =
-           *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-      linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x24;
+      i = i + 1;
+      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+      linkAddr = (uint)prim & 0xffffff;
+      Render_gPacketPtr = prim + 0x24;
       *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-      *(uint *)(prim + 8) = y << 0x10 | opacityv;
-      *(uint *)(prim + 0x18) = y_plus_h_pack | opacityv;
+      *(uint *)(prim + 8) = y << 0x10 | x;
+      *(uint *)(prim + 0x18) = (y + h) << 0x10 | x;
       *(int *)(prim + 4) = c1;
       *(int *)(prim + 0xc) = c2;
       *(int *)(prim + 0x14) = c3;
       *(int *)(prim + 0x1c) = c4;
       prim[7] = 0x39;
       prim[3] = 8;
-      *(uint *)(prim + 0x10) = y << 0x10 | opacityv + w;
-      *(uint *)(prim + 0x20) = y_plus_h_pack | opacityv + w;
-    } while (iter < opacity);
+      *(uint *)(prim + 0x10) = y << 0x10 | (x + w);
+      *(uint *)(prim + 0x20) = (y + h) << 0x10 | (x + w);
+    } while (i < opacity);
   }
   return;
 }
@@ -943,43 +836,36 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
 void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 
 {
+  /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
+   * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
+   * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
   int linkAddr;
-  short x_plus_w;
-  short xv;
-  short yv;
-  short y_plus_h;
   short i;
-  int iter;
-  short ts1;
-  short ts2;
   u_char  *prevPrim;
   u_char  *prim;
-  
-  iter = 0;
+
+  i = 0;
   if (0 < opacity) {
-    x_plus_w = xv + (short)w;
-    y_plus_h = yv + (short)h;
     do {
       prim = Render_gPacketPtr;
       prevPrim = Render_gPalettePtr;
-      iter = iter + 1;
-      *(uint *)Render_gPacketPtr =
-           *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-      linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x18;
+      i = i + 1;
+      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+      linkAddr = (uint)prim & 0xffffff;
+      Render_gPacketPtr = prim + 0x18;
       *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
       *(int *)(prim + 4) = col;
       prim[7] = 0x2a;
       prim[3] = 5;
-      *(short *)(prim + 8) = xv;
-      *(short *)(prim + 10) = yv;
-      *(short *)(prim + 0xc) = x_plus_w;
-      *(short *)(prim + 0xe) = yv;
-      *(short *)(prim + 0x10) = xv;
-      *(short *)(prim + 0x12) = y_plus_h;
-      *(short *)(prim + 0x14) = x_plus_w;
-      *(short *)(prim + 0x16) = y_plus_h;
-    } while (iter * 0x10000 >> 0x10 < (int)opacity);
+      *(short *)(prim + 8) = x;
+      *(short *)(prim + 10) = y;
+      *(short *)(prim + 0xc) = x + w;
+      *(short *)(prim + 0xe) = y;
+      *(short *)(prim + 0x10) = x;
+      *(short *)(prim + 0x12) = y + h;
+      *(short *)(prim + 0x14) = x + w;
+      *(short *)(prim + 0x16) = y + h;
+    } while (i < opacity);
   }
   return;
 }
@@ -991,78 +877,54 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
 
 {
-  byte uv_y_top;
-  uint tpageBit;
-  short w1;
-  int tpage_clut;
-  byte uv_y_bottom;
-  int dv;
-  int c4;
-  int linkAddr;
-  int h;
-  short x_plus_w;
-  int height;
-  int width;
-  char *permFile;
-  short w;
-  short vh;
-  char fullName [48];
-  u_char  *next_pkt;
+  /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
+   * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
+   * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
+   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7 */
   u_char  *prim;
   u_char  *prevPrim;
-  byte char_w;
-  byte char_h;
-  byte uv_offset;
-  short dstX;
-  u_long fontTint;
-  byte char_x;
-  short y_top;
-  byte tc2;
-  
+  int      linkAddr;
+  int      width;
+  int      height;
+  int      dv;
+  int      yoff;
+  int      ytop;
+
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  char_w = ch->width;
-  char_h = ch->height;
-  uv_offset = ch->yoffset;
-  uv_y_bottom = ((char)((*(int *)((int)src + 0xc) << 4) >> 0x14) + (char)v) - 1;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  next_pkt = Render_gPacketPtr + 0x28;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  Render_gPacketPtr = next_pkt;
-  fontTint = font_tint;
+  width = ch->width;
+  height = ch->height;
+  yoff = *(signed char *)&ch->yoffset;
+  ytop = ((y - yoff) + 5) - (height + yoff);
+  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x28;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(u_long *)(prim + 4) = fontTint;
+  *(u_long *)(prim + 4) = font_tint;
   prim[3] = 9;
   prim[7] = 0x2c;
-  y_top = ((short)y + (char)uv_offset * -2 + 5) - (ushort)char_h;
   *(ushort *)(prim + 0xe) = gFontClut;
-  char_x = *(byte *)src;
-  tpage_clut = *(int *)((int)src + 0xc);
-  tc2 = (byte)u;
-  uv_y_top = tc2 + char_w;
-  prim[0xd] = uv_y_bottom;
-  prim[0x15] = uv_y_bottom;
-  dstX = (short)x;
-  x_plus_w = dstX + (ushort)char_w;
-  prim[0xc] = tc2;
-  prim[0x14] = uv_y_top;
-  prim[0x1c] = tc2;
-  prim[0x1d] = uv_y_bottom + char_h;
-  prim[0x24] = uv_y_top;
-  prim[0x25] = uv_y_bottom + char_h;
-  *(short *)(prim + 8) = dstX;
-  tpageBit = (uint)tpage_clut >> 0x14 & 0x10;
+  prim[0xd] = dv;
+  prim[0x15] = dv;
+  prim[0xc] = u;
+  prim[0x14] = u + width;
+  prim[0x1c] = u;
+  prim[0x1d] = dv + height;
+  prim[0x24] = u + width;
+  prim[0x25] = dv + height;
+  *(short *)(prim + 8) = x;
   *(ushort *)(prim + 0x16) =
-       (char_x & 3) << 7 | (ushort)tpageBit | (ushort)((int)(tpage_clut & 0x3ffU) >> 6);
-  *(ushort *)(prim + 10) = y_top + (ushort)char_h;
-  *(short *)(prim + 0x10) = x_plus_w;
-  *(ushort *)(prim + 0x12) = y_top + (ushort)char_h;
-  *(short *)(prim + 0x18) = dstX;
-  *(short *)(prim + 0x1a) = y_top;
-  *(short *)(prim + 0x20) = x_plus_w;
-  *(short *)(prim + 0x22) = y_top;
-  return tpageBit;
+       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
+       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
+  *(short *)(prim + 10) = ytop + height;
+  *(short *)(prim + 0x10) = x + width;
+  *(short *)(prim + 0x12) = ytop + height;
+  *(short *)(prim + 0x18) = x;
+  *(short *)(prim + 0x1a) = ytop;
+  *(short *)(prim + 0x20) = x + width;
+  *(short *)(prim + 0x22) = ytop;
+  return 0;
 }
 
 /* end of psxfront.cpp */

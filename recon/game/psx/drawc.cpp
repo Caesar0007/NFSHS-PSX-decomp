@@ -181,9 +181,24 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
     coorddef tmp;
     coorddef tmp2;
     pos = &(carObj->N).position;
-    tmp.x = (carObj->N).position.x - (Cars_gHumanRaceCarList[i]->N).position.x;
-    tmp.y = pos->y - (Cars_gHumanRaceCarList[i]->N).position.y;
-    tmp.z = pos->z - (Cars_gHumanRaceCarList[i]->N).position.z;
+    /* MATCH (w42-a3, 81 -> 71): retail evaluates the SUBTRAHEND first at every
+       component (`lw v0,0(v1)` HRCL[i]; `lw a0,0xA0(v0)`; then `lw v0,0xA0(a1)`;
+       `subu`).  Written as `carObj->... - HRCL[i]->...` cc1 evaluated the minuend
+       first, which born the HRCL ADDRESS pseudo too late to win $v1 (it took $a1,
+       pushing the i*4 giv off $a0 and letting carObj keep $a0 -- i.e. the whole
+       head rotation AND the missing `addu a1,a0,zero` param copy hang off this).
+       A per-component subtrahend temp restores retail's order and puts the HRCL
+       address back in $v1.  RESIDUAL 71 = carObj still in $a0 (retail $a1 per SYM
+       REGPARM $5) and the i*4 giv in $a2 (retail $a0): a global-allocno conflict
+       tie -- retail's a0/a1 are barred for the i*4 pseudo, ours are not. */
+    { int h;
+    h = (Cars_gHumanRaceCarList[i]->N).position.x;
+    tmp.x = (carObj->N).position.x - h;
+    h = (Cars_gHumanRaceCarList[i]->N).position.y;
+    tmp.y = pos->y - h;
+    h = (Cars_gHumanRaceCarList[i]->N).position.z;
+    tmp.z = pos->z - h;
+    }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&nightMat);
     DrawW_WorldSetUpMatrix(&gNightMat,&nightMat);
@@ -3268,7 +3283,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
    * strength reduction creates the t9 giv (i*12, decremented alongside the counter) */
   for (;;) {
     POLY_FT3 *prim;
-    short facetFlag;
+    u_int facetFlag;   /* SYM $t3 = flag & 0xfff (the MASKED value), not the raw field */
+    u_short rawFlag;
     int overlayFlag;
     Transformer_zFacet *facet;
     int id0;
@@ -3321,20 +3337,21 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       if (bfct < 0) continue;
       if (sd->sub_otSize < bfct) continue;
     }
+    rawFlag = facet->flag;         /* the flag lhu fills the tex lbu's load-delay slot */
     overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
-    facetFlag = facet->flag;   /* flag lhu lands in the tex-lbu load-delay slot */
+    facetFlag = rawFlag & 0xfff;
     /* SYM truth: NO `which` at this scope -- the decode MUTATES overlayFlag in
      * place (one pseudo, oracle a1 throughout); `which` is an overlay-arm local.
-     * Every mask is written against (facetFlag & 0xfff) so cc1 CSEs the andi
+     * Every mask is written against facetFlag so cc1 CSEs the andi
      * ONCE into facetFlag's own register ($t3) and reuses it for the &4/&1
      * tests in the arms -- exactly retail's `andi t3,a0,4095` in the delay slot. */
     if (overlayFlag != 0) {
       overlayFlag = overlayFlag & 0x3f;
-      if (facetFlag < 0) {
+      if ((short)rawFlag < 0) {
         overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
       }
-      if ((((facetFlag & 0xfff) & 0x3f0) != 0) &&
-          (overlayFlag = overlayFlag & (facetFlag & 0xfff) >> 4, overlayFlag != 0)) {
+      if (((facetFlag & 0x3f0) != 0) &&
+          (overlayFlag = overlayFlag & facetFlag >> 4, overlayFlag != 0)) {
         for (; (overlayFlag & 3) == 0; overlayFlag = overlayFlag >> 2) {
         }
       }
@@ -3359,7 +3376,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       {
         u_long color;
         u_char code;
-        if (((facetFlag & 0xfff) & 4) != 0) {   /* fall-through = the !=0 arm */
+        if ((facetFlag & 4) != 0) {   /* fall-through = the !=0 arm */
           color = sd->eColor1;
           *(u_long *)&prim->r0 = color;
         }
@@ -3434,7 +3451,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         u_long color;
         u_char code;
         color = sd->color;
-        if (((facetFlag & 0xfff) & 1) != 0) {
+        if ((facetFlag & 1) != 0) {
           code = 0x26;
         }
         else {
@@ -3490,7 +3507,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         u_long color;
         u_char code;
         color = sd->color;
-        if (((facetFlag & 0xfff) & 1) != 0) {
+        if ((facetFlag & 1) != 0) {
           code = 0x26;
         }
         else {
@@ -3501,7 +3518,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       }
       /* byte path INLINE first (oracle bnez skips it), halfword arm out of
        * line; UV pairs as direct lbu triples (wave-9 lhu->2x lbu fix) */
-      if (((envmap & 2U) != 0) && (((facetFlag & 0xfff) & 1) == 0)) {
+      if (((envmap & 2U) != 0) && ((facetFlag & 1) == 0)) {
         Draw_tPixMap *pmx;
         u_char u0, u1, u2, v0, v1, v2, u, v;
         u_short clut, tpage;
@@ -3832,47 +3849,23 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
   u_short uv0;
   u_long *puVar6;
   u_int *puVar7;
-  u_int *puVar8;
 
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
 gte_ldv0(vt0);
     gte_rtps();
-    /* scratchpad SXY staging = EA-expander template block (scratches $t0/$v0/$v1/$a0 --
-     * the reason vt0 is copied out of $a0 up-front).
-     * MATCH (w40-a3, 109 -> 60, insns now EXACT 122/122): the packet cursor is a
-     * HARD-CODED $t0 in both halves (methodology 3.25 axis-2: this block is an EA
-     * .obj-expander template, so fixed scratch registers are the FAITHFUL form --
-     * the same recipe as DRAWC_OTLINK_FT3/MODE at the top of this TU, not a pin).
-     * With a `"=&r"` OUTPUT operand instead, gcc gave the cursor $a1 -- the first
-     * reg free after the $v0/$v1/$a0 clobbers -- which evicted the vt1 PARAM and
-     * cost a SECOND `addu` param copy (the 123-vs-122 insn).  $t0 is clobbered by
-     * both halves so nothing is allocated across them; verified in the objdump.
-     * Residual 60 = a one-step register rotation (ours prim/puVar7/mlo/mhi =
-     * $a0/$a1/$a2/$a3, retail $t0/$a0/$a1/$a2) plus which z-test delay slot reorg
-     * duplicates the mlo `lui` into (retail vt1's, ours vt2's).
-     * BUG FIX (w38-a3): the `nop` after `lw %0,4(%0)` was MISSING.  The oracle has it
-     * (`lui t0; lw t0,4(t0); nop; addiu v0,t0,8`) and it is a REAL R3000 load-delay
-     * slot -- without it `addiu $v0,%0,8` reads the PRE-load %0, so the following
-     * `swc2 $14,0($v0)` wrote the transformed SXY to a wild address.  Inside an
-     * __asm__ neither maspsx nor gnu-as fills the slot for us. */
-    __asm__ volatile(
-        "lui	$t0,0x1f80
-	lw	$t0,4($t0)
-	nop
-	addiu	$v0,$t0,8
-	swc2	$14,0($v0)"
-        : : : "$2", "$3", "$4", "$8", "memory");
+    /* MATCH (w42-a3): the two SXY staging blocks are ORDINARY C, not an EA
+     * expander template.  SYM: `prim` is a FUNCTION-scope POLY_FT4* in $t0;
+     * 0x1F800004 is Render_gPacketPtr and 8/0x10/0x18/0x20 are POLY_FT4's
+     * xy0..xy3 (the 0x20/0x18 swap = the quad winding, same as the u2/u3 swap
+     * at the tail).  Identical shape to the PASSing sibling DrawC_ShadowPrim.
+     * Writing it as C makes `prim` a real variable assigned in TWO basic blocks
+     * => a GLOBAL allocno, so local_alloc hands $a0/$a1/$a2 to the block-local
+     * ot/mask temps first and `prim` lands in $t0 exactly like retail. */
+    prim = (POLY_FT4 *)Render_gPacketPtr;
+gte_swc2(0xe,(char *)prim + 0x8);
 gte_ldv3(vt1,vt2,vt3);
     gte_rtpt();
-    __asm__ volatile(
-        "addiu	$a0,$t0,16
-	addiu	$v1,$t0,32
-	addiu	$v0,$t0,24
-	"
-        "swc2	$12,0($a0)
-	swc2	$13,0($v1)
-	swc2	$14,0($v0)"
-        : : : "$2", "$3", "$4", "$8", "memory");
+gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     if (R3DCar_InMenu != 0) {                /* fall-through arm = InMenu (oracle beqz jumps to avsz4) */
       sd->otz = 0;
     }
@@ -3892,20 +3885,20 @@ gte_ldv3(vt1,vt2,vt3);
       mlo = 0xffffff;                          /* masks FIRST (oracle: a1/a2 hoisted before the loads,
                                                 * first lui even sits in the z-chain delay slot) */
       mhi = 0xff000000;
-      puVar8 = (u_int *)(sd->head).cprim.PrimPtr;
+      prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
       puVar6 = (sd->head).cprim.LastPrim;
-      (sd->head).cprim.PrimPtr = (char *)(puVar8 + 10);
+      (sd->head).cprim.PrimPtr = (char *)prim + 0x28;
       /* volatile: the oracle reloads sd->otz fresh here (stored just above) */
       puVar7 = (u_int *)(puVar6 + *(int volatile *)&sd->otz);
-      *puVar8 = *puVar8 & mhi | *puVar7 & mlo;
-      *puVar7 = *puVar7 & mhi | (u_int)puVar8 & mlo;
+      *(u_int *)prim = *(u_int *)prim & mhi | *puVar7 & mlo;
+      *puVar7 = *puVar7 & mhi | (u_int)prim & mlo;
       uVar5 = sd->color;
-      *(u_char *)((int)puVar8 + 3) = 9;
-      puVar8[1] = uVar5;
-      *(u_char *)((int)puVar8 + 7) = 0x2e;
+      *(u_char *)((int)prim + 3) = 9;
+      ((u_int *)prim)[1] = uVar5;
+      *(u_char *)((int)prim + 7) = 0x2e;
       uVar1 = pmx->tpage;
-      *(u_short *)((int)puVar8 + 0xe) = pmx->clut;
-      *(u_short *)((int)puVar8 + 0x16) = uVar1;
+      *(u_short *)((int)prim + 0xe) = pmx->clut;
+      *(u_short *)((int)prim + 0x16) = uVar1;
       /* RESIDUAL (w38-a3): 109 diffs at 123/122 insns.  ONE extra insn = a second
          register copy: gcc gives the asm's `tp8` cursor $a1 (retail uses $t0), so
          vt1 has to be copied out of $a1 (`addu t2,a1,zero`) ON TOP OF the vt0 copy
@@ -3919,10 +3912,10 @@ gte_ldv3(vt1,vt2,vt3);
       uv1 = *u1;
       uv3 = *u3;
       uv2 = *u2;
-      *(u_short *)(puVar8 + 3) = uv0;
-      *(u_short *)(puVar8 + 5) = uv1;
-      *(u_short *)(puVar8 + 7) = uv3;    /* EA swap: prim u2 slot <- *u3 */
-      *(u_short *)(puVar8 + 9) = uv2;
+      *(u_short *)((u_int *)prim + 3) = uv0;
+      *(u_short *)((u_int *)prim + 5) = uv1;
+      *(u_short *)((u_int *)prim + 7) = uv3;    /* EA swap: prim u2 slot <- *u3 */
+      *(u_short *)((u_int *)prim + 9) = uv2;
 
     }
   }
@@ -4218,11 +4211,22 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       hilight[1] = 0x20 - hilight[0];
       hilight_direction[1] = 1;
     }
+    /* MATCH (w42-a3, 105 -> 99): retail's fill loop is a DOWN-WALKING POINTER
+       (`addiu v0,sp,47` = &hilight_state[31], `sb v1,0(v0)`, and `addiu v0,v0,-1`
+       in the bgez delay slot).  Our loop.c declined to strength-reduce the plain
+       `hilight_state[i] = -1` index form (it recomputed `addu v0,base,i` every
+       iteration, +1 insn); modelling the giv explicitly reproduces the oracle's
+       body byte-for-byte.  `for(i=31;i>=0;i--)` measured identical to the index
+       do-while (no SR either). */
+    {
+    signed char *hs = &hilight_state[0x1f];
     i = 0x1f;
     do {
-      hilight_state[i] = -1;
+      *hs = -1;
       i = i + -1;
+      hs = hs + -1;
     } while (-1 < i);
+    }
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
        `addiu spN` base materializations is loop.c strength-reduction seeding the

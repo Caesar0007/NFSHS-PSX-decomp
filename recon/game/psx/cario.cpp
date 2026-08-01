@@ -863,7 +863,11 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
     if (shape != (shapetbl *)0x0) {
       Draw_tPixMap *pmx;
 
-      pmx = &CarIO_carPixMap[carPixMapCount];
+      /* MATCH: index term FIRST in the address add -- the oracle emits
+       * `addu a1,s5,v0` (scaled index, then the gp-loaded base); the natural
+       * `&CarIO_carPixMap[carPixMapCount]` gives `addu a1,v0,s5` (base first).
+       * Catalog 5.0c commutative-addu-operand-order. */
+      pmx = (Draw_tPixMap *)(carPixMapCount * 16 + (int)CarIO_carPixMap);
       if ((pmx->flag & 0x80) == 0) continue;
       {
         int license;

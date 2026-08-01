@@ -1068,6 +1068,7 @@ short ascii2sjis(u_char ascii_code)
   int stmp;
   uint code;
   uint base;
+  u_short *pk;
   byte kind;
 
   stmp = 0;
@@ -1109,7 +1110,12 @@ short ascii2sjis(u_char ascii_code)
      * inline, gcc reassociates it to (ascii_code-0x1f)-kind. */
     base = kind;
     base = base + 0x1f;
-    code = (uint)ascii_k_table[(uint)ascii_code - base];
+    /* MATCH: the table base is materialized into its OWN pointer local and then
+     * ADVANCED, not indexed - `ascii_k_table[idx]` (or a &-taken element, or an
+     * idx*2 + (int)base int-cast) all cost a 73rd insn. */
+    pk = ascii_k_table;
+    pk = pk + ((uint)ascii_code - base);
+    code = (uint)*pk;
   }
   else {
     code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];

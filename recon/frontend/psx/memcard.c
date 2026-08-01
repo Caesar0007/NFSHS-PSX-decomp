@@ -361,38 +361,36 @@ void MCRD_loadfile(int card,MCRDFILE_def *pFILE,int bNameHasProductCode)
 int iMCRD_DoFileLoad(int card)
 
 {
-  uchar ch;
-  int err_state;
-  uint attr;
-  uint hdr;
-  long sync_done;
-  long sync;
-  uchar *src;
-  shapetbl *pIcon;
-  int i;
-  int iconNum;
-  MCRDFILEINFO_def *pMFI;
   long cmd;
   long res;
+  int i;
+  int error;
+  MCRDFILEINFO_def *pMFI;
+  shapetbl *s;
+  uchar ch;
+  uchar *src;
+  uint attr;
 
-  /* MATCH: pMFI is the base anchor (retail derives &gMemCardInfo as pMFI-0x260).
-   * The two title/icon walks are INDEX forms - loop.c builds the header.title giv
-   * (stride 2 off pMFI) and the icon[] giv (sll i,2) itself; a hand byte-offset
-   * (i = iconNum*4) blocks that.  The shape header's x/y clears are two BITFIELD
-   * assignments (0xF000FFFF then 0xFFFFF000 off ONE lw/sw) - a single folded
-   * 0xF000F000 mask is a reconstruction bug. */
+  /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
+   * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
+   * `i` serves BOTH the title walk and the icon walk (the icon loop re-inits it to 0),
+   * and ONE `error` carries both iMCRD_HandleError results; the remaining names here
+   * are short-lived expression temps (no SYM record = compiler temps).
+   * pMFI is the base anchor (retail derives &gMemCardInfo as pMFI-0x260).
+   * The shape header's x/y clears are two BITFIELD assignments (0xF000FFFF then
+   * 0xFFFFF000 off ONE lw/sw) - a single folded 0xF000F000 mask is a recon bug. */
   pMFI = &gMemCardInfo.fileinfo;
   if ((pMFI->title != (char *)0x0) || (pMFI->icon[0] != (shapetbl *)0x0)) {
     res = MemCardReadFile
                     (gMemCardInfo.channel,pMFI->name,
                      (u_long *)&pMFI->header,0,0x200);
-    while (sync_done = MemCardSync(1,&cmd,&res), sync_done == 0) {
+    while (MemCardSync(1,&cmd,&res) == 0) {
       ((int(*)(void))gMemCardInfo.LoadingDataProc)();
       VSync(0);
     }
-    err_state = iMCRD_HandleError(3,res,card);
-    if (err_state != 0) {
-      return err_state;
+    error = iMCRD_HandleError(3,res,card);
+    if (error != 0) {
+      return error;
     }
     i = 0;
     if (pMFI->title != (char *)0x0) {
@@ -403,46 +401,48 @@ int iMCRD_DoFileLoad(int card)
         i = i + 1;
       }
     }
-    iconNum = 0;
+    i = 0;
     do {
-      pIcon = *(shapetbl **)((char *)pMFI->icon + i);
-      if (pIcon == (shapetbl *)0x0) break;
+      s = pMFI->icon[i];
+      if (s == (shapetbl *)0x0) break;
       src = pMFI->header.icon1;
-      if (iconNum != 0) {
-        if (iconNum == 1) {
+      if (i != 0) {
+        if (i == 1) {
           src = pMFI->header.icon2;
         }
         else {
           src = pMFI->header.icon3;
         }
       }
-      blockmove(src,&pIcon->data,0x80);
+      blockmove(src,&s->data,0x80);
       attr = shapetype(4);
-      *(char *)pIcon = (char)attr;
-      hdr = attr & 0xff | 0x9000;   /* MATCH: a FRESH pseudo - reusing attr forces a copy */
-      *(uint *)pIcon = hdr;
-      pIcon->height = 0x10;
-      pIcon->width = 0x10;
-      pIcon->centery = 0;
-      pIcon->centerx = 0;
-      pIcon->shapey = 0;
-      pIcon->shapex = 0;
-      pIcon = (shapetbl *)((int)pIcon + ((int)hdr >> 8));
-      blockmove(pMFI->header.iconclut,&pIcon->data,0x20);
+      *(char *)s = (char)attr;
+      *(uint *)s = attr & 0xff | 0x9000;
+      s->height = 0x10;
+      s->width = 0x10;
+      s->centery = 0;
+      s->centerx = 0;
+      s->shapey = 0;
+      s->shapex = 0;
+      /* MATCH: store-then-read-back of the `next` bitfield - cse forwards the
+       * just-stored word (oracle `sw v1,0(s0); sra v1,v1,8`) instead of a reload,
+       * AND the extra RTL insn puts the loop at 63 > the giv's worth (62), so
+       * loop.c DECLINES to strength-reduce icon[i] into a walking pointer
+       * (retail recomputes `sll i,2; addu` per iteration).  A `hdr` temp folds
+       * the read away, drops the loop to 62 and costs a 9th callee-saved reg. */
+      s = (shapetbl *)((int)s + s->next);
+      blockmove(pMFI->header.iconclut,&s->data,0x20);
       attr = cluttype(0x10);
-      *(char *)pIcon = (char)attr;
-      iconNum = iconNum + 1;
-      pIcon->width = 0x10;
-      pIcon->height = 1;
-      pIcon->centery = 0;
-      pIcon->centerx = 0;
-      *(uint *)pIcon = attr & 0xff;
-      pIcon->shapey = 0;
-      pIcon->shapex = 0;
-      i = iconNum * 4;   /* MATCH: routing the byte offset through the multiply-set
-                          * i blocks loop.c from strength-reducing icon[] into a
-                          * walking pointer (retail recomputes sll/addu per iter). */
-    } while (iconNum < 3);
+      *(char *)s = (char)attr;
+      i = i + 1;
+      s->width = 0x10;
+      s->height = 1;
+      s->centery = 0;
+      s->centerx = 0;
+      *(uint *)s = attr & 0xff;
+      s->shapey = 0;
+      s->shapex = 0;
+    } while (i < 3);
   }
   if (pMFI->size != 0) {
     res = MemCardReadFile
@@ -453,12 +453,11 @@ int iMCRD_DoFileLoad(int card)
       gMemCardInfo.bReady = 1;
       return 0x10;
     }
-    do {
-      sync = MemCardSync(0,&cmd,&res);
-    } while (sync == 0);
-    i = iMCRD_HandleError(3,res,card);
-    if (i != 0) {
-      return i;
+    while (MemCardSync(0,&cmd,&res) == 0) {
+    }
+    error = iMCRD_HandleError(3,res,card);
+    if (error != 0) {
+      return error;
     }
   }
   gMemCardInfo.bReady = 1;

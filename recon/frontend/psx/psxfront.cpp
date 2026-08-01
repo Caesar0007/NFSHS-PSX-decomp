@@ -811,14 +811,14 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
       Render_gPacketPtr = prim + 0x24;
       *(uint *)Render_gPalettePtr =
           *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
+      prim[7] = 0x39;
+      prim[3] = 8;
       *(uint *)(prim + 8) = y << 0x10 | x;
       *(uint *)(prim + 0x18) = (y + h) << 0x10 | x;
       *(int *)(prim + 4) = c1;
       *(int *)(prim + 0xc) = c2;
       *(int *)(prim + 0x14) = c3;
       *(int *)(prim + 0x1c) = c4;
-      prim[7] = 0x39;
-      prim[3] = 8;
       *(uint *)(prim + 0x10) = y << 0x10 | (x + w);
       *(uint *)(prim + 0x20) = (y + h) << 0x10 | (x + w);
     } while (i < opacity);

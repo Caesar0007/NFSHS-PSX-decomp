@@ -89,157 +89,134 @@ void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 void tScreenUserName::DrawBackground()
 
 {
-  char ch;
+  short i;
+  short k;
   short x;
-  int colText;
-  char *word;
-  int fade;
-  uint startY;
-  uint gray;
   short y;
-  uint lineFade;
-  int rowY;
-  int yAcc;
-  char output [2];
+  int gray;
+  short fade;
+  volatile short fadebox;
+  short gridpos;
   short row;
   short col;
-  int t;
-  
-  t = this->callingMenu->fScreenFade;
-  x = (short)t;
-  fade = ((t << 0x10) >> 0x11) + -0x80;
-  if ((fade < 0x80) && (fade < 1)) {
-    fade = 0;
+  char output[2];
+  int screenFade;
+  int temp;
+
+  screenFade = this->callingMenu->fScreenFade;
+  temp = ((short)screenFade >> 1) - 0x80;
+  if (temp <= 0) {
+    temp = 0;
   }
-  else if (0x80 < fade) {
-    fade = 0x80;
+  else if (temp >= 0x81) {
+    temp = 0x80;
   }
-  gray = (t << 0x10) >> 0x12;
-  if (((0x7f < (int)gray) || (lineFade = 0, 0 < (int)gray)) && (lineFade = gray, 0x80 < (int)gray)) {
-    lineFade = 0x80;
+  fadebox = temp;
+  temp = (short)screenFade >> 2;
+  if (temp <= 0) {
+    temp = 0;
   }
-  if ((x < 0x80) && (x < 1)) {
+  else if (temp >= 0x81) {
+    temp = 0x80;
+  }
+  gridpos = temp;
+  fade = screenFade;
+  if (fade < 1) {
     this->fTextFade = 0;
   }
   else {
-    if (0x80 < x) {
-      x = 0x80;
+    if (fade > 0x80) {
+      fade = 0x80;
     }
-    this->fTextFade = x;
+    this->fTextFade = fade;
   }
-  SubtractiveBox(0xf0,0x2a,0xc2,0x55,0x80808,0x80808,0,0);
-  SubtractiveBox
-            (0xf0,0x7f,0xc2,0x55,0,0,0x80808,0x80808);
-  startY = (uint)(ushort)MENUUSERNAME_STARTY;
+  gray = 0x80808;
+  SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
+  SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
+  y = MENUUSERNAME_STARTY;
   row = 0;
-  rowY = 0;            /* @0x800125e9 = 0x00 (rodata byte after "zUser%d") */
-  output[0] = ' ';     /* @0x800125e8 = 0x20 */
-  output[1] = '\0';    /* @0x800125e9 = 0x00 */
+  strcpy(output," ");
   do {
     if (menu_kUserNameRows <= row) {
-      SubtractiveBox
-                (0xf0,0x2a,0xc2,0x55,0x505050,0x505050,0,0);
-      SubtractiveBox
-                (0xf0,0x7f,0xc2,0x55,0,0,0x505050,0x505050);
+      gray = 0x505050;
+      SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
+      SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
       x = 0xfc;
-      t = 0;
+      i = 0;
       do {
-        DrawVerticalLine(x,0x2e,
-                         (short)(((lineFade & 0xffff) - ((t << 0x10) >> 0xf)) * 0x10000 >> 0x10));
-        t = t + 1;
+        DrawVerticalLine(x,0x2e,gridpos - i * 2);
+        i++;
         x = x + 0x1c;
-      } while (t * 0x10000 >> 0x10 < 7);
-      t = 0;
-      x = MENUUSERNAME_STARTY + -3;
+      } while (i < 7);
+      k = 0;
+      y = MENUUSERNAME_STARTY - 3;
       if (0 < menu_kUserNameRows + 1) {
         do {
-          DrawHorizontalLine(0xf0,x,(short)lineFade + (menu_kUserNameRows - (short)t) * -2
-                            );
-          t = t + 1;
-          x = x + 0xf;
-        } while (t * 0x10000 >> 0x10 < menu_kUserNameRows + 1);
+          DrawHorizontalLine(0xf0,y,gridpos - (menu_kUserNameRows - k) * 2);
+          k++;
+          y = y + 0xf;
+        } while (k < menu_kUserNameRows + 1);
       }
-      t = 0;
+      i = 0;
       do {
-        DrawShapeExtended
-                  (t,0,0,0,(int)(short)fade,0,
-                   (tDrawShapeExtended *)0x0);
-        t = t + 1;
-      } while (t * 0x10000 >> 0x10 < 0x20);
+        DrawShapeExtended(i,0,0,0,fadebox,0,(tDrawShapeExtended *)0x0);
+        i++;
+      } while (i < 0x20);
       return;
     }
     x = 0x102;
     col = 0;
-    yAcc = (startY - 1) * 0x10000;
-    rowY = (int)(short)startY;
-    while (ch = this->fRowList[0][(int)col + row * 9], ch != '\0') {
-      output[0] = ch;
+    while ((output[0] = this->fRowList[0][col + row * 9]) != '\0') {
+      int colText;
+
       colText = CalcFadeVal(0xb54200,this->fTextFade);
-      y = (short)((uint)yAcc >> 0x10);
       switch(output[0]) {
       case '!':
-        t = 0x205;
+        i = 0x205;
         goto DrawBg4b1ac_emitText;
       default:
-        FETextRender_FullTextRGB
-                  (output,x + 8,y,colText,'\x01',2);
+        FETextRender_FullTextRGB(output,x + 8,y - 1,colText,1,2);
         break;
       case '#':
-        t = 0x206;
+        i = 0x206;
         goto DrawBg4b1ac_emitText;
       case '$':
-        word = TextSys_Word(0x206);
-        FETextRender_FullTextRGB
-                  (word,x + 0x24,y,colText,'\x01',2);
-        colText = 1;
+        FETextRender_FullTextRGB(TextSys_Word(0x206),x + 0x24,y - 1,colText,1,2);
+        k = 1;
         do {
-          t = rowY + -2;
-          PSXDrawSquare
-                    (0,(int)x + (short)colText * 0x1c + -6,t,2,0xe);
-          colText = colText + 1;
-        } while (colText * 0x10000 >> 0x10 < 3);
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
+          k++;
+        } while (k < 3);
         break;
       case '&':
-        t = 0x207;
+        i = 0x207;
 DrawBg4b1ac_emitText:
-        word = TextSys_Word(t);
-        FETextRender_FullTextRGB
-                  (word,x + 0x16,y,colText,'\x01',2);
-        t = rowY + -2;
-        PSXDrawSquare(0,x + 0x16,t,2,0xe);
+        FETextRender_FullTextRGB(TextSys_Word(i),x + 0x16,y - 1,colText,1,2);
+        PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
         break;
       case '-':
         break;
       case '@':
-        word = TextSys_Word(0x205);
-        FETextRender_FullTextRGB
-                  (word,x + 0x24,y,colText,'\x01',2);
-        colText = 1;
+        FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x24,y - 1,colText,1,2);
+        k = 1;
         do {
-          t = rowY + -2;
-          PSXDrawSquare
-                    (0,(int)x + (short)colText * 0x1c + -6,t,2,0xe);
-          colText = colText + 1;
-        } while (colText * 0x10000 >> 0x10 < 3);
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
+          k++;
+        } while (k < 3);
         break;
       case '^':
-        word = TextSys_Word(0x207);
-        FETextRender_FullTextRGB
-                  (word,x + 0x4e,y,colText,'\x01',2);
-        colText = 1;
+        FETextRender_FullTextRGB(TextSys_Word(0x207),x + 0x4e,y - 1,colText,1,2);
+        k = 1;
         do {
-          t = rowY + -2;
-          PSXDrawSquare
-                    (0,(int)x + (short)colText * 0x1c + -6,t,2,0xe);
-          colText = colText + 1;
-        } while (colText * 0x10000 >> 0x10 < 6);
+          PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
+          k++;
+        } while (k < 6);
       }
       x = x + 0x1c;
       col = col + 1;
     }
-    startY = startY + 0xf;
-    rowY = (ushort)row + 1;
-    row = (short)rowY;
+    y = y + 0xf;
+    row++;
   } while( true );
 }
 

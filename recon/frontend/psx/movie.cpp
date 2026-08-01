@@ -20,6 +20,8 @@ static short   gMovieHeight __attribute__((section(".bss")));/* 0x80052d08 */
 static short   gMovieWidth __attribute__((section(".bss")));/* 0x80052d0a */
 static u_long  gMovieFrame __attribute__((section(".bss")));/* 0x80052d0c */
 static u_long  gEndFrame __attribute__((section(".bss")));  /* 0x80052d10 */
+extern u_long  gMovieFrame_v[] asm("gMovieFrame");
+extern u_long  gEndFrame_v[]   asm("gEndFrame");
 /* MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
  * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
 static int     bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14 */
@@ -251,7 +253,7 @@ void * Movie_Finished(void)
   void *finished;
   
   finished = (void *)0x0;
-  if ((((gEndFrame <= gMovieFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
+  if ((((gMovieFrame_v[0] >= gEndFrame_v[0]) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
      (bRewindMovie != 0)) {
     finished = (void *)0x1;
   }

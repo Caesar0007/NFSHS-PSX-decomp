@@ -1011,8 +1011,8 @@ void tScreenCarSelect::DrawForeground()
   int overlayDirection;
   
   currentItem = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
-  validCar = (*this->_vf[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + this->_vf[1][3].delta,&carInfo);
+  validCar = (*(*this->_vf)[3].pfn)
+                    (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[3].delta,&carInfo);
   bShowStats = false;
   (menuDefs->itemOpponentUpgrades).fFlags =
        (menuDefs->itemOpponentUpgrades).
@@ -1107,8 +1107,8 @@ void tScreenCarSelect::DrawForeground()
       if (validCar == 0) {
         *(signed char *)&carInfo.fCarID = -1;
       }
-      (*this->_vf[1][2].pfn)
-                (this->fPermShapes.fFilename + -0x14 + this->_vf[1][2].delta,&carInfo);
+      (*(*this->_vf)[2].pfn)
+                (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[2].delta,&carInfo);
       if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);

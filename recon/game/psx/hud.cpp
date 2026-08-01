@@ -1020,9 +1020,12 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   }
   temp2 = __builtin_abs(time);
   temp1 = temp2 / 0x40;
-  hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   min = (temp1 / 0x3c) % 0x3c;
   sec = temp1 % 0x3c;
+  /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
+     Residual 10 = which pseudo __builtin_abs targets (oracle: abs->v0 then saves a2;
+     ours: abs->a2 then copies v0).  Everything after insn 9 is byte-identical. */
+  hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10];

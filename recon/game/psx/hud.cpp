@@ -854,8 +854,9 @@ void Hud_Init(void)
     y = (g1Player[3].y + splitY) - timelapshift;
     Hud_BuildSprite2(gSprt1 + 6,0x6b,x,y);
     x = x + w1;
-    Hud_BuildG4(HudG4 + 1,1,x,y,0x1d,10,0,0x707070,0,0x707070);
-    x = x + 0x1d;
+    w2 = 0x1d;
+    Hud_BuildG4(HudG4 + 1,1,x,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w2;
     Hud_BuildF4(HudF4 + 1,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 7,0x7d,x,y);
     w1 = HudPmx_gShapes[0x6b].width;
@@ -863,8 +864,9 @@ void Hud_Init(void)
     y = g1Player[4].y + splitY;
     Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
     x = x + w1;
-    Hud_BuildG4(HudG4 + 3,1,x,y,0x3c,10,0,0x707070,0,0x707070);
-    x = x + 0x3c;
+    w2 = 0x3c;
+    Hud_BuildG4(HudG4 + 3,1,x,y,w2,10,0,0x707070,0,0x707070);
+    x = x + w2;
     Hud_BuildF4(HudF4 + 2,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 9,0x7d,x,y);
     w1 = HudPmx_gShapes[0x76].width;

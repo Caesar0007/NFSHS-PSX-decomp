@@ -20,20 +20,16 @@
 void FeDraw_SetABRMode(int abr)
 
 {
-  short tpage;
-  int linkAddr;
+  /* SYM 8c: locals are EXACTLY abr (REGPARM int) + dr_mode (REG DR_MODE*).
+   * `tpage`, `linkAddr`, `prevPrim` were Ghidra fictions. */
   DR_MODE *dr_mode;
-  u_char *prevPrim;
 
   dr_mode = (DR_MODE *)Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  tpage = GetTPage(2,abr,0,0x100);
-  SetDrawMode(dr_mode,0,0,(u_long)(u_short)tpage,(RECT *)0x0);
+  dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
+  *(u_long *)Render_gPalettePtr =
+       *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
+  Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,abr,0,0x100),(RECT *)0x0);
   return;
 }
 

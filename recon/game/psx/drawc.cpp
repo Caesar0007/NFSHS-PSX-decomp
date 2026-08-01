@@ -4201,18 +4201,14 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 
   lightPmx = gMenuPixmap[3];
   if (gShowroomLights != 0) {
-    int iVar4;
-    int iVar5;
-    signed char *pcVar6;
-    COORD16 *pCVar7;
-    u_int uVar8;
-    int iVar11;
-    u_long *puVar18;
-    signed char *pcVar15;
-
-    iVar4 = gettick();
-    iVar5 = iVar4 / 256;
-    hilight[0] = (iVar4 - (iVar5 << 8)) >> 3;
+    /* rule-8 (w41-a3): the SYM names ONLY i, j, index, prim, lightPmx, the three
+       AUTO arrays and the per-block {r0,r1,r2} / {t1,t2,t3} / {z,t1,t2,t3} /
+       {index,iPlus} / {ot} / {l0..l3} sets.  The eight Ghidra iVarN/pcVarN/
+       puVarN/pCVarN walkers are gone; the fn-scope i/j do double duty (the
+       gettick split, the hilight fill, and the inner 2-iteration loop). */
+    i = gettick();
+    j = i / 256;
+    hilight[0] = (i - (j << 8)) >> 3;
     hilight_direction[0] = -1;
     if (DrawC_gMenuLightsDirection == 0) {
       hilight[1] = hilight[0] + 0x10U & 0x1f;
@@ -4222,11 +4218,11 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
       hilight[1] = 0x20 - hilight[0];
       hilight_direction[1] = 1;
     }
-    iVar5 = 0x1f;
+    i = 0x1f;
     do {
-      hilight_state[iVar5] = -1;
-      iVar5 = iVar5 + -1;
-    } while (-1 < iVar5);
+      hilight_state[i] = -1;
+      i = i + -1;
+    } while (-1 < i);
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
        `addiu spN` base materializations is loop.c strength-reduction seeding the
@@ -4278,14 +4274,13 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
     TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-    pcVar6 = hilight_state;
     sd->otz = 0;
     for (index = 0; index < 0x20; index = index + 1) {
       int iPlus = index * 2 + 2;
       if (iPlus == 0x40) {
         iPlus = 0;
       }
-      iVar11 = 0;
+      i = 0;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) {
         return;
       }
@@ -4297,16 +4292,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt0).y = t2;
         (sd->vt0).z = t3;
       }
-      pCVar7 = Fe3D_lightsVertex + iPlus;
       {
-        short t1 = pCVar7->x;
-        short t2 = pCVar7->y;
-        short t3 = pCVar7->z;
+        COORD16 *z = Fe3D_lightsVertex + iPlus;
+        short t1 = z->x;
+        short t2 = z->y;
+        short t3 = z->z;
         (sd->vt1).x = t1;
         (sd->vt1).y = t2;
         (sd->vt1).z = t3;
       }
-      pcVar15 = pcVar6 + index;
       {
         short t2 = Fe3D_lightsVertex[index * 2 + 1].y;
         short t3 = Fe3D_lightsVertex[index * 2 + 1].z;
@@ -4324,9 +4318,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt3).y = t2;
         (sd->vt3).z = t3;
       }
-      puVar18 = hilight_colors;
-      for (; iVar11 < 2; iVar11 = iVar11 + 1) {
-        if ((iVar11 == 0) || (-1 < (signed char)*pcVar15)) {
+      for (; i < 2; i = i + 1) {
+        if ((i == 0) || (-1 < (signed char)hilight_state[index])) {
 gte_ldv0((char *)sd + 0xac);
           gte_rtps();
           prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
@@ -4340,13 +4333,12 @@ gte_swc2(0xe,(char *)prim + 0x8);
 gte_ldv3((char *)sd + 0xb4,(char *)sd + 0x3d0,(char *)sd + 0xbc);
           gte_rtpt();
 gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
-          if (iVar11 == 0) {
-            uVar8 = 0x300a00;
+          if (i == 0) {
+            *(u_int *)&prim->r0 = 0x300a00;
           }
           else {
-            uVar8 = puVar18[(signed char)*pcVar15];
+            *(u_int *)&prim->r0 = hilight_colors[(signed char)hilight_state[index]];
           }
-          *(u_int *)&prim->r0 = uVar8;
           prim->code = 0x2e;
           *(u_char *)((int)prim + 3) = 9;
           {

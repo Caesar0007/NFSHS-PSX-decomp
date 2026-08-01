@@ -58,7 +58,7 @@ void RaceSummary(void)
     HUD_STATS_SIZE_W = 0xef;
   }
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
-  halfH = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10) >> 0x11;
+  halfH = (int)(HUD_STATS_SIZE_H << 0x10) >> 0x11;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
   /* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
      order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO

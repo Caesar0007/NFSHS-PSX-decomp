@@ -2857,10 +2857,20 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
 
 {
   /* SYM-exact locals (8c @0x800d7ca8, fsize 72): x REGPARM $fp | y ARG 0x4C(sp) |
-   * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s3 | j $s0 | k $s2 | by $s5 |
-   * index $v1.  y/num live in their ARG HOMES (spilled at entry, re-loaded after each
-   * loop) because the two nested loops need all nine callee-saved regs; the x/j*10 and
-   * y/i*9 walkers are compiler givs, so the source is index-form. */
+   * num ARG 0x50(sp) | flare_intensity REGPARM $s6 | i $s0 | j $s3 | k $s2 | by $s5 |
+   * index $v1.  (NOTE: the SYM's `i` is the INNER counter and `j` the OUTER one -- our
+   * i/j are swapped w.r.t. the original; codegen-neutral.)  y/num live in their ARG
+   * HOMES (spilled at entry, re-loaded after each loop) because the two nested loops
+   * need all nine callee-saved regs; the x/j*10 and y/i*9 walkers are compiler givs.
+   * MATCH (w42): the two-statement `by = y; by = by + i*9;` form in the FIRST loop is
+   * load-bearing -- the single-expression `by = y + i*9;` makes `by` a replaceable
+   * DEST_REG giv, loop.c folds the copy away, one callee-saved reg is freed and `y`
+   * then WINS a register instead of spilling to its ARG home (73 diffs, 3 insns short).
+   * Splitting it keeps `by` a real pseudo, fills the pool, and spills y like retail.
+   * Also: `j = 0;` must precede the `by = ...` statement in BOTH loops, and the
+   * `| 0x3c` belongs at the CALL SITE (keeps `index` in $v1 per the SYM), not folded
+   * into `index` itself.  73 -> 37.  Residual: giv base is 0 (i*9) + a y reload where
+   * retail's giv base is y itself (+1 insn), and the index/$v1-vs-$a0 chain. */
   int i;
   int j;
   int k;
@@ -2871,8 +2881,9 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
     k = 0;
     i = 0;
     do {
-      by = y + i * 9;
       j = 0;
+      by = y;
+      by = by + i * 9;
       do {
         if ((Hud_Character[num] & 1 << k) != 0) {
           Flare_2DHalo(x + j * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
@@ -2887,12 +2898,11 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
   k = 0;
   i = 0;
   do {
-    by = y + i * 9 + 1;
     j = 0;
+    by = y + i * 9 + 1;
     do {
       index = (Hud_Character[num] & 1 << k) != 0;
-      index = index | 0x3c;
-      Hud_FBuildSprite(index,x + j * 10 + 1,by,0x808080,0);
+      Hud_FBuildSprite(index | 0x3c,x + j * 10 + 1,by,0x808080,0);
       j = j + 1;
       k = k + 1;
     } while (j < 5);

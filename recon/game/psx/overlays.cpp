@@ -52,9 +52,22 @@ void OptionsBarThing(int x,int y,int w,int h)
  *  4. MISSING GUARD ARM: retail wrote the semantically-no-op `bestLap != 0 ? bestLap : 0`
  *     null guard (raw `lw a0,1000(v0); bnez a0,T; addu a0,zero,zero`) -- again as TWO full
  *     Hud_ParseTime calls (the ternary spelling scores 153 vs the if/else 83).
- * Residual 65 = one uniform register rotation (ours s0/s3/s4 vs oracle s1/s5/s4) plus the
- * oracle RE-COMPUTING `dataY + pos*12` per Font_TextXY where cse caches it for us.
- * FALSIFIED at the final base (re-probe only with a new idea): purging titleX (82), titleY
+ *  5. w42-a4, 65 -> 7: THE halfH SPELLING.  `halfH = HUD_STATS_SIZE_H >> 1;` (the plain
+ *     source a human writes) instead of the hand-expanded `(int)(SIZE_H << 0x10) >> 0x11`.
+ *     Mechanism: retail's SIZE_H product lives in ONE callee-saved pseudo ($s0) that is
+ *     mutated in place down the chain `sll s0,s0,16; sra t0,s0,16; sra s0,s0,17` -- combine
+ *     MERGES the (short)-extend with the >>1 into the single `sra 17` while the separate
+ *     `sra t0,...,16` keeps feeding the spilled `(int)SIZE_H`.  Writing the shift pair by
+ *     hand gave the sra16 TWO uses, so combine could not merge, halfH was computed as
+ *     `((x<<16)>>16)>>1` off a short-lived $v0 -- and that one extra pseudo rotated $s0/$s1
+ *     (halfH vs the 0xa0-centring temp) through the whole function.  ONE spelling, ~58 diffs.
+ *     (Related falsifications at this base: in-place `halfH = product; SIZE_H = (short)halfH;
+ *     halfH = (halfH<<16)>>17` = 254 -- it LOSES the early `(int)SIZE_H` materialization
+ *     entirely (347 insns); the `(int)(short)halfH >> 1` variant = 254; sh-first = 85.)
+ * Residual 7 = two pure emission-order ties: the `sh colpos,104(sp)` slot position in the
+ * col* store block, and the loop tail's `lhu t0,72(sp); addu s2,t0,zero` (retail reloads
+ * into a scratch and copies; ours loads straight into $s2).
+ * FALSIFIED at the 65 base (re-probe only with a new idea): purging titleX (82), titleY
  * (90) or barH (65, neutral); the (u_short) halfH spelling (83).  NOTE the whole ladder is
  * LCS-NON-MONOTONE -- the halfH spelling flipped sign twice as other levers landed. */
 void RaceSummary(void)
@@ -80,7 +93,7 @@ void RaceSummary(void)
     HUD_STATS_SIZE_W = 0xef;
   }
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
-  halfH = (int)(HUD_STATS_SIZE_H << 0x10) >> 0x11;
+  halfH = HUD_STATS_SIZE_H >> 1;
   HUD_STATS_POS_Y = (short)(0x78 - halfH);
   /* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
      order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO

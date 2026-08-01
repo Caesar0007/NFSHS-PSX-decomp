@@ -378,9 +378,8 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
     }
     /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
      * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
-    ftop = 0x80;
-    fbot = ftop - fadebottom;
-    ftop = ftop - fadetop;
+    fbot = 0x80 - fadebottom;
+    ftop = 0x80 - fadetop;
     *color = fbot << 0x10 | fbot << 8 | fbot;
     color[1] = fbot << 0x10 | fbot << 8 | fbot;
     color[2] = ftop << 0x10 | ftop << 8 | ftop;

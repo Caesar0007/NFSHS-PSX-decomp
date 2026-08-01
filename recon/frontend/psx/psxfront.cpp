@@ -478,10 +478,9 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     if (remW < stripW) {
       stripW = remW;
     }
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x34;
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+    linkAddr = (uint)prim & 0xffffff;
+    Render_gPacketPtr = prim + 0x34;
     *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
     *(int *)(prim + 4) = *color;
     *(int *)(prim + 0x10) = color[1];
@@ -645,10 +644,9 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   srcW = shp->width;
   srcH = shp->height;
   depth = shp->depth;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x34;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x34;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   *(int *)(prim + 4) = *color;
   *(int *)(prim + 0x10) = color[1];
@@ -805,10 +803,9 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
   prevPrim = Render_gPalettePtr;
   x_s = (short)x;
   x1 = x_s + (short)w;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x18;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x18;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   *(int *)(prim + 4) = col;
   prim[7] = 0x28;
@@ -843,10 +840,9 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
   
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x24;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  linkAddr = (uint)prim & 0xffffff;
+  Render_gPacketPtr = prim + 0x24;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   *(int *)(prim + 4) = c1;
   *(int *)(prim + 0xc) = c2;
@@ -890,10 +886,9 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
       prim = Render_gPacketPtr;
       prevPrim = Render_gPalettePtr;
       iter = iter + 1;
-      *(uint *)Render_gPacketPtr =
-           *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-      linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x24;
+      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+      linkAddr = (uint)prim & 0xffffff;
+      Render_gPacketPtr = prim + 0x24;
       *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
       *(uint *)(prim + 8) = y << 0x10 | opacityv;
       *(uint *)(prim + 0x18) = y_plus_h_pack | opacityv;
@@ -917,43 +912,36 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
 void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 
 {
+  /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
+   * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
+   * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
   int linkAddr;
-  short x_plus_w;
-  short xv;
-  short yv;
-  short y_plus_h;
   short i;
-  int iter;
-  short ts1;
-  short ts2;
   u_char  *prevPrim;
   u_char  *prim;
-  
-  iter = 0;
+
+  i = 0;
   if (0 < opacity) {
-    x_plus_w = xv + (short)w;
-    y_plus_h = yv + (short)h;
     do {
       prim = Render_gPacketPtr;
       prevPrim = Render_gPalettePtr;
-      iter = iter + 1;
-      *(uint *)Render_gPacketPtr =
-           *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-      linkAddr = (uint)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x18;
+      i = i + 1;
+      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+      linkAddr = (uint)prim & 0xffffff;
+      Render_gPacketPtr = prim + 0x18;
       *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
       *(int *)(prim + 4) = col;
       prim[7] = 0x2a;
       prim[3] = 5;
-      *(short *)(prim + 8) = xv;
-      *(short *)(prim + 10) = yv;
-      *(short *)(prim + 0xc) = x_plus_w;
-      *(short *)(prim + 0xe) = yv;
-      *(short *)(prim + 0x10) = xv;
-      *(short *)(prim + 0x12) = y_plus_h;
-      *(short *)(prim + 0x14) = x_plus_w;
-      *(short *)(prim + 0x16) = y_plus_h;
-    } while (iter * 0x10000 >> 0x10 < (int)opacity);
+      *(short *)(prim + 8) = x;
+      *(short *)(prim + 10) = y;
+      *(short *)(prim + 0xc) = x + w;
+      *(short *)(prim + 0xe) = y;
+      *(short *)(prim + 0x10) = x;
+      *(short *)(prim + 0x12) = y + h;
+      *(short *)(prim + 0x14) = x + w;
+      *(short *)(prim + 0x16) = y + h;
+    } while (i < opacity);
   }
   return;
 }

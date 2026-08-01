@@ -562,21 +562,27 @@ void strSync(DECENV *dec,int arg1)
 {
   int viewOff;
   uint nextRect;
-  int ridx;
-  u_long cnt;
-  
+  int one;
+  /* MATCH: the spin counter lives in a STACK SLOT and is re-loaded/stored on every
+   * iteration (sw/lw 0(sp)) -- a plain register local can never reproduce that. */
+  volatile u_long cnt;
+
   cnt = 0x800000;
   if (dec->isdone == 0) {
-    viewOff = 0xf0 - gHeight;
+    /* MATCH: the /2 is loop-INVARIANT in the oracle (hoisted into $a1 before the spin)
+     * and the constant 1 is materialized up front, then reused as the srav amount. */
+    one = 1;
+    viewOff = (0xf0 - gHeight) / 2;
     do {
       cnt = cnt - 1;
       if (cnt == 0) {
-        dec->isdone = 1;
+        dec->isdone = one;
         nextRect = (uint)(dec->rectid == 0);
         dec->rectid = nextRect;
-        ridx = dec->rectid;
         (dec->slice).x = dec->rect[nextRect].x;
-        (dec->slice).y = dec->rect[ridx].y + (short)(viewOff / 2);
+        /* MATCH: the second access RE-READS dec->rectid from memory (the oracle emits a
+         * 2nd lw 0x20 + sll) -- a cached local gets store-forwarded away. */
+        (dec->slice).y = dec->rect[dec->rectid].y + (short)viewOff;
       }
     } while (dec->isdone == 0);
   }

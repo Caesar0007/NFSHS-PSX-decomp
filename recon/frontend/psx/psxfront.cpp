@@ -837,7 +837,6 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
   /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
    * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
    * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
-  int linkAddr;
   short i;
   u_char  *prevPrim;
   u_char  *prim;
@@ -849,9 +848,8 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
       prevPrim = Render_gPalettePtr;
       i = i + 1;
       *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-      linkAddr = (uint)prim & 0xffffff;
       Render_gPacketPtr = prim + 0x18;
-      *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+      *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | (uint)prim & 0xffffff;
       *(int *)(prim + 4) = col;
       prim[7] = 0x2a;
       prim[3] = 5;

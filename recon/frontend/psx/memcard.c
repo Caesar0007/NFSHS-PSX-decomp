@@ -402,7 +402,10 @@ int iMCRD_DoFileLoad(int card)
       }
     }
     i = 0;
-    do {
+    /* MATCH: top-tested while - the exit test stays at the bottom and the
+     * icon[i] load/NULL-check stay at the loop TOP; a do/while lets gcc rotate
+     * the load out into the preheader (the oracle's loop label sits ON it). */
+    while (i < 3) {
       s = pMFI->icon[i];
       if (s == (shapetbl *)0x0) break;
       src = pMFI->header.icon1;
@@ -442,7 +445,7 @@ int iMCRD_DoFileLoad(int card)
       *(uint *)s = attr & 0xff;
       s->shapey = 0;
       s->shapex = 0;
-    } while (i < 3);
+    }
   }
   if (pMFI->size != 0) {
     res = MemCardReadFile

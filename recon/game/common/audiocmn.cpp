@@ -1383,9 +1383,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int wetNoiseAmp;
   int roadNoiseFreq;
   int wetNoiseFreq;
-  /* SLD places iAmpIn in the frame rather than a saved register.  Volatile models
-     that single store/reload boundary; ampIn below carries the reloaded value. */
-  volatile int iAmpIn;
+  /* SLD places iAmpIn in the frame rather than a saved register.  The volatile
+     defining store models that boundary; the later read remains ordinary. */
+  int iAmpIn;
   int tuntrig;
   int cam;
   int roadNoisePatch;
@@ -1409,7 +1409,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (iVar6 < 0) {
     iVar6 = iVar6 + 0xffff;
   }
-  iAmpIn = iVar6 >> 0x10;
+  *(volatile int *)&iAmpIn = iVar6 >> 0x10;
   iVar9 = (car->linearVel_ch).z;
   if (iVar9 < 0) {
     iVar9 = -iVar9;
@@ -1450,7 +1450,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      (blowout override + case-7 check) -- split from iVar12 which is reused for 3
      unrelated short-lived values later in the function. */
   roadSurface = (car->N).driveSurfaceType;
-  tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
+  *(volatile int *)&tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
   if (tuntrig != 0) {
     if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
       fReverbLevel = (char)((100 < (u_char)fReverbLevel + 10) ?
@@ -1579,15 +1579,15 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     cobblestoneAmp = 0xff;
   }
   {
-  int ampIn = iAmpIn;
+  uVar7 = (u_int)iAmpIn;
 
-  amplitude = ampIn * (freq + 0x28);
+  amplitude = (int)uVar7 * (freq + 0x28);
   if (amplitude < 0) {
     amplitude = amplitude + 0x7f;
   }
   amplitude = amplitude >> 7;
-  if (amplitude < ampIn) {
-    amplitude = ampIn;
+  if (amplitude < (int)uVar7) {
+    amplitude = (int)uVar7;
   }
   loadAmp = amplitude * 0x7f >> 7;
   roadNoiseAmp = roadNoiseAmp * amplitude >> 7;

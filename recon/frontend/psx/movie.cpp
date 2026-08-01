@@ -6,12 +6,20 @@
 #include "movie.h"
 
 /* ---- Movie.obj STAT (file-local) globals ---- */
-static int     width, height;                       /* 0x80052a24/28 */
-static CdlLOC  loc;                                 /* 0x80052cf8 */
-static short   PPWTop, PPWBottom, gMode;            /* 0x80052cfc/cfe/d00 */
+/* MATCH: every one of these statics is reached ABSOLUTELY (lui %hi / %lo) in the oracle,
+ * never gp-relative -- force them out of .sdata/.sbss with an explicit .bss section
+ * attribute (catalog §I-addendum; the -G4 default would put every <=4-byte scalar in sbss). */
+static int     width __attribute__((section(".bss")));     /* 0x80052a24 */
+static int     height __attribute__((section(".bss")));    /* 0x80052a28 */
+static CdlLOC  loc __attribute__((section(".bss")));       /* 0x80052cf8 */
+static short   PPWTop __attribute__((section(".bss")));    /* 0x80052cfc */
+static short   PPWBottom __attribute__((section(".bss"))); /* 0x80052cfe */
+static short   gMode __attribute__((section(".bss")));     /* 0x80052d00 */
 static int     gIsRGB24 __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
-static short   gMovieHeight, gMovieWidth;           /* 0x80052d08/d0a */
-static u_long  gMovieFrame, gEndFrame;              /* 0x80052d0c/d10 */
+static short   gMovieHeight __attribute__((section(".bss")));/* 0x80052d08 */
+static short   gMovieWidth __attribute__((section(".bss")));/* 0x80052d0a */
+static u_long  gMovieFrame __attribute__((section(".bss")));/* 0x80052d0c */
+static u_long  gEndFrame __attribute__((section(".bss")));  /* 0x80052d10 */
 static int     movieFlags__[4]; /* 0x80052d14..d20 - aggregate forces .bss (absolute), not .sbss */
 #define bMovieLoaded movieFlags__[0]
 #define bStopMovie   movieFlags__[1]
@@ -39,8 +47,16 @@ extern int      gIsRGB24_v[]  asm("gIsRGB24");
 void Movie_Init(char movie)
 
 {
-  PPWTop = 3;
-  PPWBottom = 2;
+  /* MATCH: the oracle materializes &movie24bit and branches on it (la + beqz) -- the
+   * original source tested the table itself; gcc-2.8 does not fold "&array != 0". */
+  if (movie24bit) {
+    PPWTop = 3;
+    PPWBottom = 2;
+  }
+  else {
+    PPWTop = 1;
+    PPWBottom = 1;
+  }
   gMovieWidth = moviewidth[(byte)movie];
   gMovieHeight = movieheight[(byte)movie];
   Movie_SetDecodeOffset(0,0,0,0x100);

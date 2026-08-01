@@ -2140,7 +2140,9 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int loc_24;
   int loc_20;
   int tu6;
-  u_char bVar7;
+  int bVar7;   /* MATCH (w40-a2): a u_char flag makes cc1plus re-mask on every use
+                  (`andi v0,s1,255` x3) -- the oracle tests it bare (`bnez s1`), so the
+                  original local was int-width (catalog par.C u_char->u_int lever). */
   int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
 
@@ -2178,7 +2180,7 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
                                             (Draw_tGiveShelbyMoreCache *)sd), instData_p != 0)))) {
             bVar7 = 1;
           }
-          if (!(bool)bVar7) {
+          if (bVar7 == 0) {
             /* MATCH (2026-07-11, rule-8/movstrsi): the oracle disasm shows a genuine
                UNALIGNED 8-byte struct copy here (`lwl/lwr` from $s2+0x14 into a temp,
                `swl/swr` into the stack `quat` local) -- groupBase_p is a variable-

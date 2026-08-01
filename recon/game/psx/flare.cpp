@@ -684,12 +684,14 @@ void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,sh
        * allocno_compare priority (2*6/400 = .0300) just ABOVE angleZ's (1*3/107 = .0280),
        * which is the whole $s6<->$s7 rotation.  With 5 refs (2*5/400 = .0250) angleZ wins
        * $s6 and `type` takes $s7 exactly as the SYM says.  45 -> 25. */
-      i = type & 0x7fU;
+      int j = type & 0x7fU;   /* MATCH: SEPARATE temp for the masked value -- oracle keeps
+                               * it in $v1 and both arms do `addiu a0,v1,K`; reusing `i`
+                               * in place emits `andi a0,..;addiu a0,a0,K` (25 -> 19). */
       if (R3DCar_InMenu != 0) {
-        i = i + 1;
+        i = j + 1;
       }
       else {
-        i = i + 0xb;
+        i = j + 0xb;
       }
       if ((type & 0x100U) != 0) {
         ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;

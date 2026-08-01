@@ -555,7 +555,7 @@ u_long * strNext(DECENV *dec)
 
 {
   u_long st;
-  u_long fc;
+
   short mh;
   short ws;
   int bottom;
@@ -582,16 +582,17 @@ freeit:
   StFreeRing(addr);
   return (u_long *)0x0;
 accept:
-  fc = sector->frameCount;
   /* MATCH: on the rewind path the oracle does NOT store gMovieFrame (it jumps over the
-   * store), and the rewind block is laid out BEFORE the store block. */
-  if (fc < gMovieFrame) goto rewind;
-  if (fc < gEndFrame) goto setframe;
+   * store), and the rewind block is laid out BEFORE the store block.
+   * MATCH: no `fc` temp (the SYM lists none) -- the global has to be the FIRST
+   * operand evaluated so the two loads fill each other's load-delay slot. */
+  if (gMovieFrame > sector->frameCount) goto rewind;
+  if (sector->frameCount < gEndFrame) goto setframe;
 rewind:
   bRewindMovie = 1;
   goto framedone;
 setframe:
-  gMovieFrame = fc;
+  gMovieFrame = sector->frameCount;
 framedone:
   if ((gWidth != (uint)sector->width) || (gHeight != (uint)sector->height)) {
     rect.x = 0;

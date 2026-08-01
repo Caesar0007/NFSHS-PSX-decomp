@@ -34,7 +34,8 @@ extern int               Weather_gDensityTimerGoal;            /* 0x8013dc00 */
 extern int               Weather_gIntensityTimerGoal;          /* 0x8013dc04 */
 extern int               Weather_gSnowTrack;                   /* 0x8013dc08 */
 extern int               Weather_gTrackIntensityLimit;         /* 0x8013dc0c */
-extern int               Weather_gLastProcessTime[2];          /* 0x8013de54 */
+/* Weather_gLastProcessTime: SPLIT STORAGE, file-static (SYM class STAT) -- defined
+ * per-element in weather.cpp with an asm()-label array view; no cross-TU extern. */
 
 /* ---- shared game globals (SYM Globals.jsonl; declared in their owning TUs) ---- */
 extern GameSetup_tData   GameSetup_gData;          /* 0x801131ec */

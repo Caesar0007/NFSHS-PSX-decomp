@@ -13,23 +13,23 @@
 #define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
 #define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
 
-/* Weather_gLastProcessTime[2] (weather_externs.h) is declared as ONE 8-byte array, but the
- * Weather_Init/Weather_Restart oracles reach its CONSTANT-index elements as TWO INDEPENDENT
- * %gp_rel(D_8013DE54)/%gp_rel(D_8013DE58) globals -- no address materialization at all -- not
- * via a computed array-index off one base (8 bytes is over this build's -G4 small-data
- * threshold as ONE object, but each 4-byte element alone qualifies). Model that TRUE per-element
- * storage as two real tentative-def scalars (section 3.12 #6 gp-rel-owner lever, applied per-
- * element) for those two constant-index call sites. Weather_DoWeather's VARIABLE-index access
- * (player 0/1) instead genuinely needs base+offset array codegen in its oracle (real `addu
- * a1,s0,v0` with s0=player<<2) -- unresolved as its own near-miss, not attempted this pass --
- * so it keeps referencing the header's array form, tentative-defined here as a SEPARATE object
- * (0-initialized same as the scalars; Init/Restart write both forms in every real code path so
- * they stay in sync at runtime -- a known duality to collapse when Weather_DoWeather is sealed). */
-int Weather_gLastProcessTime0;
-int Weather_gLastProcessTime1;
-#define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime0
+/* Weather_gLastProcessTime[2] is SPLIT STORAGE, same shape as the four server arrays below.
+ * Weather_Init/Weather_Restart reach the CONSTANT-index elements as two independent one-insn
+ * %gp_rel(D_8013DE54)/%gp_rel(D_8013DE58) symbols (8 bytes is over this build's -G4 threshold
+ * as ONE object, each 4-byte element alone is gp-eligible), while Weather_DoWeather's RUNTIME
+ * index needs an absolute array base (`lui/addiu %hi/%lo(D_8013DE54)` + `addu v1,s1,v0`).
+ * w40-a6: the old model was a DUPLICATING dual -- two fabricated scalars PLUS a separate
+ * `int Weather_gLastProcessTime[2]` object -- i.e. the catalog's per-element-dual BUG CLASS:
+ * the two forms alias by NAME ONLY, so Init/Restart's resets (written through the scalars)
+ * never reached the storage DoWeather reads.  Replaced with the aliasing model: one tentative
+ * def per element + an UNSIZED asm()-label array VIEW aliased onto element [0]'s symbol, so
+ * both access paths hit the SAME memory (unsized+extern keeps it out of maspsx's sbss_entries,
+ * so the view stays absolute). */
+int Weather_gLastProcessTime;                   /* [0] @0x8013de54 (oracle D_8013DE54) */
+int Weather_gLastProcessTime1;                  /* [1] @0x8013de58 (oracle D_8013DE58) */
+extern int Weather_gLastProcessTimeA[] asm("Weather_gLastProcessTime");
+#define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime
 #define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime1
-int Weather_gLastProcessTime[2];
 
 /* ---- SPLIT-STORAGE data-mat for the four per-player server arrays (w39-a6) ----------------
  * Oracle evidence (Weather_Init__Fv.s): every CONSTANT-index element is reached through its
@@ -1204,8 +1204,8 @@ void Weather_DoWeather(DRender_tView *Vi)
         } while (i < Weather_gSys.num[player]);
       }
     }
-    if (1 < simGlobal.gameTicks - Weather_gLastProcessTime[player]) {
-      Weather_gLastProcessTime[player] = simGlobal.gameTicks;
+    if (1 < simGlobal.gameTicks - Weather_gLastProcessTimeA[player]) {
+      Weather_gLastProcessTimeA[player] = simGlobal.gameTicks;
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
     Weather_SetIdentMatrix();

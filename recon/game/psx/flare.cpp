@@ -1721,14 +1721,17 @@ gte_SetRotMatrix(&mtx);
         DR_MODE *aprim;
         u_int *slot;
         u_int pkt24;
+        u_int addr24_0;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
+
+        addr24_0 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_0;
         SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
       }
     }
@@ -1817,14 +1820,17 @@ gte_stlvnl(&diff);
         DR_MODE *aprim;
         u_int *slot;
         u_int pkt24;
+        u_int addr24_0;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
+
+        addr24_0 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_0;
         SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
       }
       {
@@ -1847,14 +1853,17 @@ gte_SetRotMatrix(&scalemat);
         DR_MODE *aprim;
         u_int *slot;
         u_int pkt24;
+        u_int addr24_1;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
+
+        addr24_1 = (u_int)aprim & 0xffffff;
         slot = (u_int *)(otz * 4);
         slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
         *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
         pkt24 = *slot & 0xff000000;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (u_int)aprim & 0xffffff;
+        *slot = pkt24 | addr24_1;
         SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
       }
     }

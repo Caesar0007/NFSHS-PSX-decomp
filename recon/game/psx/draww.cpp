@@ -2161,7 +2161,21 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
    * group as the FALL-THROUGH `j <epilogue>; [ds] addu $v0,$zero,$zero` -- the
    * non-empty case is the branch TARGET, not the else arm. */
-  if (iVar6 != 0) {
+  /* MATCH (w41-a2, partial): the oracle's guard is an EARLY RETURN --
+   * `lw $a3,0($a3); bnez $a3,.L800C7BF4; [ds] sw $a3,0x54($sp); j <epilogue>;
+   * [ds] addu $v0,$zero,$zero` -- so the empty-group case falls through into a
+   * `return 0` that shares the epilogue.  Writing it as `if (count == 0) return 0;`
+   * aligns that `addu $v0,$zero,$zero` delay slot (121 -> 120) but does NOT flip
+   * the branch itself: the arm census is still beqz 4v3 / bnez 2v3 / j 2v3.
+   * REASON (head diff): the oracle SPILLS all three of Vi/sd/simObjs to their ARG
+   * homes (`sw $a0,0x80($sp); sw $a1,0x84($sp); sw $a2,0x88($sp)`) and RELOADS sd
+   * (`lw $t0,0x84($sp); addiu $v0,$t0,0x14`) for the matB zeroing, while ours keeps
+   * sd live in $s5 -- the same ARG-SPILL-pressure gap as Draw_kCtrlSkidmark.  The
+   * polarity is downstream of that, not an independent arm-order choice. */
+  if (iVar6 == 0) {
+    return 0;
+  }
+  {
     /* MATCH (2026-07-11, correctness bug): gte_SetTransMatrix was reading a
        fabricated/wrong global (CF_DVLC -- a video-buffer symbol, completely
        unrelated) instead of the just-zeroed sd->matB the oracle loads (`lw

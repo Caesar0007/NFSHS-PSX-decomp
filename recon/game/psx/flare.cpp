@@ -63,6 +63,43 @@ void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd);
 void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd);
 
 
+/* ============================ w41-a8 OT-LINK LEVER PAIR ============================
+ * Two source shapes, applied together, that fix the whole `Flare_*` / Sky OT-link family.
+ * Landed: Sky_RenderStars 2->PASS, OctFlare/Spikes/HexFlare/ReflectHexFlare 20->14 each,
+ * 2DHalo 60->40, Sun 50->28 (a "100%-certified floor" -- REFUTED), Halo2 48->28,
+ * CarShapedHalo 59->45, LensFlare 56->48.  Scripted appliers kept at scratch/
+ * otlink_lever{,2,3}.py + slot_lever{,2}.py (see the REPORT -- worktrees get pruned).
+ *
+ * (1) addr24-EARLY (LICM movable ORDER).  loop.c hoists movables in INSN order = the
+ *     order each constant is first GENERATED in RTL.  Inside
+ *         `A & 0xff000000 | B & 0xffffff`
+ *     that is ff000000-then-ffffff, but the oracle's preheader materializes
+ *     `lui;ori 0xFFFFFF` BEFORE `lui 0xFF000000`.  Flipping the OR operands DOES reorder
+ *     the hoists, but it also flips which subexpression lands in $v1 vs $v0 (measured on
+ *     Sky_RenderStars: 8 diffs one statement flipped, 12 both).  The DECOUPLED fix is to
+ *     give the SECOND RMW's `(u_int)prim & 0xffffff` its own temp evaluated right after
+ *     `prim = Render_gPacketPtr;` (`addr24`, the Flare_Tri `pkt_addr24` idiom):
+ *         prim   = Render_gPacketPtr;
+ *         addr24 = (u_int)prim & 0xffffff;      <-- generates 0xFFFFFF FIRST
+ *         *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
+ *         ...
+ *         *slot = pkt24 | addr24;
+ *     The 0xFFFFFF def now precedes the 0xFF000000 def AND the first RMW keeps its
+ *     prim-mask-first evaluation order.
+ * (2) ONE-EXPRESSION SLOT (accumulate into the INDEX, not the base).  Replace
+ *         slot = (u_int *)Render_gPalettePtr; slot = (u_int *)((int)slot + otz * 4);
+ *     with the Hrz_TextureQuad/Sky_RenderStars form
+ *         pal = Render_gPalettePtr;  slot = (u_int *)(otz * 4 + (int)pal);
+ *     so the shift result itself is the addu DEST (oracle `sll a1,s3,2 ; lui v0 ; lw v0 ;
+ *     addu a1,a1,v0`).  The `pal` temp is REQUIRED -- inlining Render_gPalettePtr into the
+ *     expression costs an insn (HexFlare 29 diffs / 116 insns).
+ * Applying (1)+(2) took Flare_HexFlare's ALPHA-RENAMED structural residual to 0/117 (the
+ * remaining 14 gate diffs are a single $t0<->$t1 allocno swap between `i` and 0xFFFFFF).
+ * NEGATIVE: (1) alone REGRESSES Flare_PreCalcHexLightBeam (16->18, no loop -> no LICM) and
+ * shifts Hrz_BuildSky's preheader one slot too early (390->388 gate but a structurally
+ * WORSE preheader) -- gate every site, do not apply blind.
+ * ================================================================================= */
+
 /* ---- Flare_Tri__FPlN20i  [FLARE.CPP:75-89] SLD-VERIFIED ---- */
 void Flare_Tri(long *cp,long *p1,long *p2,int otz)
 
@@ -1118,6 +1155,14 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
  * preserved, so only a load/store SPLIT spans it). SYM has no rgb local (compiler-temp stand-in).
  * Residual 2 = position of the `lw v1,0(gp)` across the bump addiu/sw pair -- a list-scheduler
  * ready-tie (ours schedules the bump first); not source-reachable, permuter class. */
+/* ---- Flare_2DSpike__FPlT0i -- w41-a8 FLOOR (2 diffs, count exact 43/43) ----
+ * The ONLY residual is the sched1 ISSUE POSITION of `rgb = *(u_int *)&gfrgb2;`
+ * (`lw v1,0(gp)`): the oracle issues it BEFORE the packet-cursor bump
+ * (`addiu v0,a0,20 ; sw v0,0(t0)`), ours after.  Source position is IRRELEVANT here --
+ * measured 3 spellings: statement moved one earlier (before the OT-slot store) = 4 diffs,
+ * moved one later (after the bump) = 2, and `*(volatile u_int *)&gfrgb2` = 2.  A sched1
+ * ready-list tie, not source-reachable.  (STRONG per the floor bar: prototype is void/void
+ * per SYM, count exact, 3 alternate forms measured, named mechanism.) */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {

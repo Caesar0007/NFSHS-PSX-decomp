@@ -126,11 +126,24 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
    * every hoisted-constant register letter (t4/t5/t6/t8/t9) fell into place with it.
    * Applying the same shape to the SECOND (`current <<= 4`) loop regresses (37,
    * ours 112) -- retail leaves that one unpeeled with its own fresh `li v0,-1`.
-   * RESIDUAL 22 (15 lines): (a) 5x commutative `or rd,v1,v0` vs the oracle's
-   * `or rd,v0,v1` -- RTL canonicalization, NOT source-order-driven (swapping the
-   * `|` operands at all 5 sites measured 26, i.e. it does not even change the
-   * emitted order); (b) the second mask loop's peel as above; (c) one `addu t4,t5,zero`
-   * scheduling slot. */
+   * 22 -> 0 PASS (w41-a5, 113/113).  🏆 THE "COMMUTATIVE-OPERAND RTL CANONICALIZATION
+   * FLOOR" WAS A COMPOSITE-EXPRESSION ARTIFACT, NOT A FLOOR.  All five `or rd,v1,v0`
+   * (ours) vs `or rd,v0,v1` (oracle) diffs came from writing a read-modify-write as ONE
+   * composite expression -- `X = (X << 4) | rollOver;` / `d = (d & mask) | v;`.  In that
+   * form cc1 builds the IOR from two fresh sub-expressions and RTL canonicalization picks
+   * the operand order (which is why the w40 probe that merely SWAPPED the `|` operands in
+   * the composite measured no change at all -- correct observation, wrong conclusion).
+   * Writing the SAME arithmetic as a compound-assignment PAIR -- `X <<= 4; X |= rollOver;`
+   * / `d &= mask; d |= v;` -- makes the destination a genuine input operand, so it lands
+   * FIRST exactly like retail.  Four splits, each worth exactly 2 diffs, strictly
+   * monotone (8->6->4->2->0).  ⇒ before filing any commutative-operand-order diff as an
+   * RTL floor, check whether the C is a composite expression that should be a
+   * read-modify-write pair.
+   * TWO more, found the same pass: (b) the trailing `current <<= 4` loop DOES take the
+   * peel -- but only the `mask=mask-1; while(mask!=-1){body; mask=mask-1;}` spelling
+   * (22->12); the do-while spelling that won for the FIRST mask loop regresses here (37),
+   * which is what the w40 note measured; (c) inside `if (lastLastMask != 0xffff)` the
+   * oracle emits `lastMask = lastLastMask` BEFORE `columns+1` -- statement order (12->10). */
   columns = w >> 2;
   mask = w & 3;
   if (mask != 0) {
@@ -159,11 +172,12 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
     firstMask = (firstMask << 4) | 0xf;
     rollOver = (lastMask & 0xf000) >> 0xc;
     lastMask = lastMask << 4;
-    lastLastMask = (lastLastMask << 4) | rollOver;
+    lastLastMask <<= 4;
+    lastLastMask |= rollOver;
   }
   if (lastLastMask != 0xffff) {
-    columns = columns + 1;
     lastMask = lastLastMask;
+    columns = columns + 1;
   }
   while (1) {
     int i;
@@ -182,11 +196,13 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
       mask = mask - 1;
       if (mask == -1) break;
       rollOver = (current & 0xf000) >> 0xc;
+      next <<= 4;
       current = current << 4;
-      next = (next << 4) | rollOver;
+      next |= rollOver;
     }
     i = 1;
-    dest[0] = (short)((dest[0] & firstMask) | current);
+    dest[0] &= firstMask;
+    dest[0] |= current;
     while (i < columns - 1) {
       mask = x & 3;
       dest[i] = (short)next;
@@ -199,21 +215,25 @@ void CarIO_CopyFromShape(short *source,short *dest,int w,int h,int x,int y)
         mask = mask - 1;
         if (mask == -1) break;
         rollOver = (current & 0xf000) >> 0xc;
+        next <<= 4;
         current = current << 4;
-        next = (next << 4) | rollOver;
+        next |= rollOver;
       }
-      dest[i] = (short)(dest[i] | current);
+      dest[i] |= current;
       i = i + 1;
     }
     mask = x & 3;
-    dest[i] = (short)((dest[i] & lastMask) | next);
+    dest[i] &= lastMask;
+    dest[i] |= next;
     if (lastLastMask == 0xffff) {
       current = *source;
       source = source + 1;
-      while (mask = mask - 1, mask != -1) {
+      mask = mask - 1;
+      while (mask != -1) {
         current = current << 4;
+        mask = mask - 1;
       }
-      dest[i] = (short)(dest[i] | current);
+      dest[i] |= current;
     }
     dest = dest + 0xc;
   }

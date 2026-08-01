@@ -153,51 +153,37 @@ void Texture_AddSharedPalette(char *ptr_to_data,Draw_tPixMap *ptr_to_pmx,int bpp
 void Texture_InitClut(void)
 
 {
-  int clut;
-  int cbase;
+  /* MATCH (w40-a10, 16 -> PASS): the SYM `8c` block for this function lists
+   * EXACTLY TWO named REG locals -- `x` ($7) and `y` ($5) -- and NOTHING else.
+   * The w39 body carried invented `clut` and `cbase` locals SHARED across all
+   * three loop nests, which fused three independent compiler temps into one
+   * pseudo each and mis-coloured loop 1 (retail keeps loop 1's clut in $v1 and
+   * ORs cbase into it IN PLACE so the rotated `sll $v1,$a1,6` fills the
+   * back-edge delay slot; the shared local forced a fresh $v0 dest + a `nop`).
+   * Writing every clut/cbase as an INLINE EXPRESSION -- the SYM-faithful shape
+   * -- gives each nest its own temp and reproduces retail exactly.
+   * (Intermediate evidence: a loop-1-private `clut1` alone = 8 diffs; adding
+   * per-loop `cbase2`/`cbase3` = PASS; per-loop `y` copies REGRESS (26-35), so
+   * `y` really is the one shared counter the SYM names.  The w39 note's
+   * "source-hoisted cbase" lever and its 49-54-diff rotation dead end were
+   * both artifacts of the shared locals.) */
   int x;
   int y;
 
-  /* MATCH (w39-a10, 37 -> 16, now COUNT-EXACT 65/65).  Three levers:
-   *  (1) SOURCE-HOISTED `cbase` -- the loop-invariant `(x>>4)&0x3f` must be its
-   *      own statement placed BEFORE the clut initialisation.  loop.c inserts
-   *      its own hoisted copy AFTER everything already in the preheader, so the
-   *      in-expression form emits `li clut` BEFORE the andi chain; retail has
-   *      andi first.  (Same lever took Texture_InitMenuClut 14 -> PASS.)
-   *  (2) counter POST-INCREMENT `gFreePalN[gNbFreePalN++]` -- puts the
-   *      `addiu v1,v1,1` before the `addu v0,v0,base` and frees the counter
-   *      load's delay slot for the `y++`.
-   *  (3) loops 2 and 3 are `for (clut = K; y < N; y++)` (y initialised on its
-   *      own line before, so `y = 0` sits outside the invariant chain); loop 1
-   *      keeps the do-while with `clut = y * 0x40` as its LAST statement, which
-   *      is what rotates that multiply into the back-edge delay slot.
-   * RESIDUAL 16 = one register rotation in loop 1 only: retail keeps clut in
-   * $v1 and ORs cbase INTO it (`or v1,v1,a2`, so the rotated `sll v1,a1,6` fills
-   * the back-edge delay slot), we compute the OR into a fresh $v0 and pay a
-   * `nop` there; cbase/base land in $t0/$t1 instead of $a2/$t0.  Writing the OR
-   * in place (`clut = clut | cbase;`) DOES buy the delay-slot fill and exact
-   * count but rotates all six registers one step (54 diffs) -- and decl-order
-   * permutations, a private loop-1 counter and per-loop cbase locals do not
-   * unwind that rotation (measured: 49-54).  Permuter is unavailable for C++
-   * TUs, so this is where it stands. */
   x = 0;
   gNbFreePal4 = 0;
   do {
     y = 0;
-    cbase = (u_short)(x >> 4) & 0x3f;
     for (; y < 0x78; y++) {
-      clut = y * 0x40;
-      gFreePal4[gNbFreePal4++] = (u_short)clut | cbase;
+      gFreePal4[gNbFreePal4++] = (u_short)(y * 0x40) | ((u_short)(x >> 4) & 0x3f);
     }
     x = x + 0x10;
   } while (x < 0x100);
   x = 0;
   do {
     y = 0;
-    cbase = (u_short)(x >> 4) & 0x3f;
-    for (clut = 0x2000; y < 0x20; y++) {
-      gFreePal4[gNbFreePal4++] = (u_short)clut | cbase;
-      clut = clut + 0x40;
+    for (; y < 0x20; y++) {
+      gFreePal4[gNbFreePal4++] = (u_short)(0x2000 + y * 0x40) | ((u_short)(x >> 4) & 0x3f);
     }
     x = x + 0x10;
   } while (x < 0x80);
@@ -205,10 +191,8 @@ void Texture_InitClut(void)
   gNbFreePal8 = 0;
   do {
     y = 0;
-    cbase = (u_short)(x >> 4) & 0x3f;
-    for (clut = 0x1e00; y < 8; y++) {
-      gFreePal8[gNbFreePal8++] = (u_short)clut | cbase;
-      clut = clut + 0x40;
+    for (; y < 8; y++) {
+      gFreePal8[gNbFreePal8++] = (u_short)(0x1e00 + y * 0x40) | ((u_short)(x >> 4) & 0x3f);
     }
     x = x + 0x100;
   } while (x < 0x100);

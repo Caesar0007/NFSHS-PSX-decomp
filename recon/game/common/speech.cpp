@@ -1763,202 +1763,193 @@ StatusReply_subFetch:
 void Status__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 
 {
-  short sVar1;
-  bool bVar2;
-  int iVar3;
-  __vtbl_ptr_type (*pa_Var4) [31];
   int tu5;
-  int iVar5;
-  Car_tObj *pCVar6;
-  u_long uVar7;
-  int (*tstr8)(...);
-  Speaker *pSVar8;
-  DispatchSpeaker *pDVar9;
-  u_int uVar10;
+  int uVar10;
   int dist;
-  void *ctx;
   SPCHNFSType_PURS_UPDT *PURS_UPDT;
-  SPCHNFSType_REVINTRO *REVINTRO;
-  int reg_a3;
   
-  pSVar8 = (pThis->_base_Speaker).fSub;
-  bVar2 = false;
-  if ((pSVar8 == (Speaker *)0x0) ||
-     (dist = (int)(*pSVar8->_vf)[0x1b].delta,
-     iVar3 = (*(*pSVar8->_vf)[0x1b].pfn)((int)&(pSVar8->fPosition).flags + dist), iVar3 == 0)) {
-    bVar2 = true;
+  bool initialInvalid = false;
+  if (((pThis->_base_Speaker).fSub == (Speaker *)0x0) ||
+     (dist = (int)(*(pThis->_base_Speaker).fSub->_vf)[0x1b].delta,
+     (*(*(pThis->_base_Speaker).fSub->_vf)[0x1b].pfn)
+       ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + dist) == 0)) {
+    initialInvalid = true;
   }
-  if (bVar2) {
-    return;
-  }
-  pSVar8 = (pThis->_base_Speaker).fSub;
-  pa_Var4 = pSVar8->_vf;
-  iVar3 = (*(*pa_Var4)[0x19].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x19].delta);
-  if ((*(u_int *)(iVar3 + 0x260) & 0x200) != 0) {
-    pSVar8 = (pThis->_base_Speaker).fSub;
-    pa_Var4 = pSVar8->_vf;
-    iVar3 = (*(*pa_Var4)[0x18].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x18].delta);
-    pSVar8 = (pThis->_base_Speaker).fSub;
-    if (pSVar8->fHavePerp == 0) {
-      if (iVar3 < 0x640000) {
-        pa_Var4 = pSVar8->_vf;
-        sVar1 = (*pa_Var4)[6].delta;
-        tu5 = (*(*pa_Var4)[0x1b].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x1b].delta)
-        ;
-        (*(*pa_Var4)[6].pfn)((int)&(pSVar8->fPosition).flags + (int)sVar1,tu5);
+  if (!initialInvalid) {
+  {
+    __vtbl_ptr_type (*initialVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+    int car = (*(*initialVf)[0x19].pfn)
+      ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*initialVf)[0x19].delta);
+
+    if ((*(u_int *)(car + 0x260) & 0x200) != 0) {
+    __vtbl_ptr_type (*perpVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+    int perpDistance = (*(*perpVf)[0x18].pfn)
+      ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*perpVf)[0x18].delta);
+    Speaker *branchSub = (pThis->_base_Speaker).fSub;
+
+    if (branchSub->fHavePerp != 0) {
+      if (0x15e0000 < perpDistance) {
+        branchSub->fHavePerp = 0;
+        (((pThis->_base_Speaker).fSub)->fUpdate).flags = 0;
+        __vtbl_ptr_type (*clearVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+        (*(*clearVf)[2].pfn)
+          ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*clearVf)[2].delta);
       }
     }
-    else if (0x15e0000 < iVar3) {
-      pSVar8->fHavePerp = 0;
-      (((pThis->_base_Speaker).fSub)->fUpdate).flags = 0;
-      pSVar8 = (pThis->_base_Speaker).fSub;
-      pa_Var4 = pSVar8->_vf;
-      (*(*pa_Var4)[2].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[2].delta);
+    else if (perpDistance < 0x640000) {
+        __vtbl_ptr_type (*nearVf)[31] = branchSub->_vf;
+        __vtbl_ptr_type *nearEntry = &(*nearVf)[6];
+        int nearThis = (int)&branchSub->fPosition.flags + (int)nearEntry->delta;
+        tu5 = (*(*nearVf)[0x1b].pfn)((int)&(branchSub->fPosition).flags + (int)(*nearVf)[0x1b].delta)
+        ;
+        (*nearEntry->pfn)(nearThis,tu5);
+    }
     }
   }
   if (pThis->fStatusSub != (Speaker *)0x0) {
-    iVar3 = pThis->fStatusCount + -1;
-    pThis->fStatusCount = iVar3;
-    if (iVar3 != 0) {
-      return;
+    if (pThis->fStatusCount-- == 1) {
+      Speaker *statusSub = pThis->fStatusSub;
+
+      if (statusSub == &pThis->_base_Speaker) {
+        StatusReply__Q26Speech15DispatchSpeaker(pThis);
+      }
+      else {
+        bool isCurrentSub = false;
+
+        if ((pThis->_base_Speaker).fSub != (Speaker *)0x0) {
+          isCurrentSub = statusSub == (pThis->_base_Speaker).fSub->fSub;
+        }
+        if (isCurrentSub) {
+          __vtbl_ptr_type (*statusVf)[31] = statusSub->_vf;
+          (*(*statusVf)[2].pfn)
+            ((int)&statusSub->fPosition.flags + (int)(*statusVf)[2].delta);
+        }
+        else {
+          __vtbl_ptr_type (*statusVf)[31] = statusSub->_vf;
+          (*(*statusVf)[2].pfn)
+            ((int)&statusSub->fPosition.flags + (int)(*statusVf)[2].delta);
+          *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
+          __vtbl_ptr_type (*dispatchVf)[31] = (pThis->_base_Speaker)._vf;
+          (*(*dispatchVf)[0xe].pfn)
+            ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*dispatchVf)[0xe].delta);
+        }
+      }
     }
-    pDVar9 = (DispatchSpeaker *)pThis->fStatusSub;
-    if (pDVar9 == pThis) {
-      StatusReply__Q26Speech15DispatchSpeaker(pThis);
-      return;
-    }
-    pSVar8 = (pThis->_base_Speaker).fSub;
-    bVar2 = false;
-    if (pSVar8 != (Speaker *)0x0) {
-      bVar2 = pDVar9 == (DispatchSpeaker *)pSVar8->fSub;
-    }
-    if (bVar2) {
-      pa_Var4 = (pDVar9->_base_Speaker)._vf;
-      (*(*pa_Var4)[2].pfn)((int)pDVar9->fPerp + (*pa_Var4)[2].delta + -0x5c);
-      return;
-    }
-    pa_Var4 = (pDVar9->_base_Speaker)._vf;
-    (*(*pa_Var4)[2].pfn)((int)pDVar9->fPerp + (*pa_Var4)[2].delta + -0x5c);
-    *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-    pa_Var4 = (pThis->_base_Speaker)._vf;
-    (*(*pa_Var4)[0xe].pfn)((int)pThis->fPerp + (*pa_Var4)[0xe].delta + -0x5c);
     return;
   }
   if (0 < pThis->fStatusCount) {
     pThis->fStatusCount = pThis->fStatusCount + -1;
     return;
   }
-  pSVar8 = (pThis->_base_Speaker).fSub;
-  bVar2 = false;
-  if ((pSVar8->fBlockade).flags == 0) {
-    bVar2 = (pSVar8->fArrest).flags == 0;
+  bool canUpdate = false;
+  if (((pThis->_base_Speaker).fSub->fBlockade).flags == 0) {
+    canUpdate = ((pThis->_base_Speaker).fSub->fArrest).flags == 0;
   }
-  if (!bVar2) {
+  if (!canUpdate) {
     return;
   }
-  pSVar8 = pSVar8->fSub;
-  bVar2 = false;
-  if (pSVar8 != (Speaker *)0x0) {
-    iVar3 = (*(*pSVar8->_vf)[0x1b].pfn)
-                      ((int)&(pSVar8->fPosition).flags + (int)(*pSVar8->_vf)[0x1b].delta);
-    pSVar8 = (pThis->_base_Speaker).fSub;
-    pa_Var4 = pSVar8->_vf;
-    iVar5 = (*(*pa_Var4)[0x1b].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x1b].delta);
-    bVar2 = iVar3 != iVar5;
+  Speaker *nestedSpeaker = (pThis->_base_Speaker).fSub->fSub;
+  bool nestedDifferent = false;
+  if (nestedSpeaker != (Speaker *)0x0) {
+    int nestedPosition = (*(*nestedSpeaker->_vf)[0x1b].pfn)
+                      ((int)&(nestedSpeaker->fPosition).flags + (int)(*nestedSpeaker->_vf)[0x1b].delta);
+    __vtbl_ptr_type (*currentVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+    int currentPosition = (*(*currentVf)[0x1b].pfn)
+      ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*currentVf)[0x1b].delta);
+    nestedDifferent = nestedPosition != currentPosition;
   }
-  if (bVar2) {
+  if (nestedDifferent) {
     Promote__Q26Speech7Speaker(((pThis->_base_Speaker).fSub)->fSub);
   }
   uVar10 = pThis->fUpdateCount & 3;
   if (uVar10 == 1) {
+    goto DispStatus_updateCount1;
+  }
+  if (uVar10 < 2) {
+    if (uVar10 == 0) goto DispStatus_updateCount38;
+    goto DispStatus_fetchSpeechCtx;
+  }
+  if (uVar10 == 2) goto DispStatus_updateCount2;
+  if (uVar10 == 3) goto DispStatus_updateCount3;
+  goto DispStatus_fetchSpeechCtx;
+DispStatus_updateCount2:
+  {
+    bool fastEnough = false;
+
+    __vtbl_ptr_type (*distanceVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+    int updateDistance = (*(*distanceVf)[0x18].pfn)
+      ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*distanceVf)[0x18].delta);
+    if (updateDistance < 0x280000) {
+      __vtbl_ptr_type (*carVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+      Car_tObj *car = (Car_tObj *)(*(*carVf)[0x19].pfn)
+        ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*carVf)[0x19].delta);
+      int carSpeed = CalcMph__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,car);
+      if (0x32 < carSpeed) {
+        __vtbl_ptr_type (*positionVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+        Car_tObj *position = (Car_tObj *)(*(*positionVf)[0x1b].pfn)
+          ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*positionVf)[0x1b].delta);
+        int positionSpeed = CalcMph__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,position);
+        fastEnough = 0x32 < positionSpeed;
+      }
+    }
+    if (fastEnough) {
+      (((pThis->_base_Speaker).fSub)->fUpdate).flags = 8;
+      goto DispStatus_fetchSpeechCtx;
+    }
+    goto DispStatus_updateCount38;
+  }
+DispStatus_updateCount38:
+  ((pThis->_base_Speaker).fSub->fUpdate).flags = 0x26;
+  goto DispStatus_fetchSpeechCtx;
+DispStatus_updateCount3:
+    {
+    __vtbl_ptr_type (*checkVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+    int ready = (*(*checkVf)[0x14].pfn)
+      ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*checkVf)[0x14].delta);
+    if ((ready != 0) && (pThis->fUpdateCount == 7)) {
+      (((pThis->_base_Speaker).fSub)->fUpdate).flags = 0;
+      __vtbl_ptr_type (*resetVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+      (*(*resetVf)[2].pfn)
+        ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*resetVf)[2].delta);
+      pThis->fUpdateCount = pThis->fUpdateCount + 1;
+      return;
+    }
+    __vtbl_ptr_type (*case3DistanceVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+    int case3Distance = (*(*case3DistanceVf)[0x18].pfn)
+      ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*case3DistanceVf)[0x18].delta);
+    if (case3Distance < 0x140000) {
+      __vtbl_ptr_type (*nearVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+      (*(*nearVf)[0xf].pfn)
+        ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*nearVf)[0xf].delta);
+      pThis->fUpdateCount = pThis->fUpdateCount + 1;
+      return;
+    }
+    goto DispStatus_updateCount1;
+    }
 DispStatus_updateCount1:
-    pSVar8 = (pThis->_base_Speaker).fSub;
-    uVar7 = 1;
-  }
-  else {
-    if (uVar10 < 2) {
-      if (uVar10 != 0) goto DispStatus_fetchSpeechCtx;
-    }
-    else {
-      if (uVar10 != 2) {
-        if (uVar10 != 3) goto DispStatus_fetchSpeechCtx;
-        pSVar8 = (pThis->_base_Speaker).fSub;
-        pa_Var4 = pSVar8->_vf;
-        iVar3 = (*(*pa_Var4)[0x14].pfn)
-                          ((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x14].delta);
-        if ((iVar3 != 0) && (pThis->fUpdateCount == 7)) {
-          (((pThis->_base_Speaker).fSub)->fUpdate).flags = 0;
-          pSVar8 = (pThis->_base_Speaker).fSub;
-          sVar1 = (*pSVar8->_vf)[2].delta;
-          tstr8 = (*pSVar8->_vf)[2].pfn;
-call_subspeaker_vf: /* @0x80096aa0 */
-          (*tstr8)((int)&(pSVar8->fPosition).flags + (int)sVar1);
-          pThis->fUpdateCount = pThis->fUpdateCount + 1;
-          return;
-        }
-        pSVar8 = (pThis->_base_Speaker).fSub;
-        pa_Var4 = pSVar8->_vf;
-        iVar3 = (*(*pa_Var4)[0x18].pfn)
-                          ((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x18].delta);
-        if (iVar3 < 0x140000) {
-          pSVar8 = (pThis->_base_Speaker).fSub;
-          sVar1 = (*pSVar8->_vf)[0xf].delta;
-          tstr8 = (*pSVar8->_vf)[0xf].pfn;
-          goto call_subspeaker_vf;
-        }
-        goto DispStatus_updateCount1;
-      }
-      pSVar8 = (pThis->_base_Speaker).fSub;
-      pa_Var4 = pSVar8->_vf;
-      bVar2 = false;
-      iVar3 = (*(*pa_Var4)[0x18].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x18].delta)
-      ;
-      if (iVar3 < 0x280000) {
-        pSVar8 = (pThis->_base_Speaker).fSub;
-        pa_Var4 = pSVar8->_vf;
-        pCVar6 = (Car_tObj *)
-                 (*(*pa_Var4)[0x19].pfn)
-                           ((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x19].delta);
-        iVar3 = CalcMph__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar6);
-        if (0x32 < iVar3) {
-          pSVar8 = (pThis->_base_Speaker).fSub;
-          pa_Var4 = pSVar8->_vf;
-          pCVar6 = (Car_tObj *)
-                   (*(*pa_Var4)[0x1b].pfn)
-                             ((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x1b].delta);
-          iVar3 = CalcMph__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar6);
-          bVar2 = 0x32 < iVar3;
-        }
-      }
-      if (bVar2) {
-        (((pThis->_base_Speaker).fSub)->fUpdate).flags = 8;
-        goto DispStatus_fetchSpeechCtx;
-      }
-    }
-    pSVar8 = (pThis->_base_Speaker).fSub;
-    uVar7 = 0x26;
-  }
-  (pSVar8->fUpdate).flags = uVar7;
+  ((pThis->_base_Speaker).fSub->fUpdate).flags = 1;
 DispStatus_fetchSpeechCtx:
   *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-  pa_Var4 = (pThis->_base_Speaker)._vf;
-  iVar3 = (*(*pa_Var4)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var4)[0x1e].delta + -0x5c);
-  pSVar8 = (pThis->_base_Speaker).fSub;
-  pa_Var4 = pSVar8->_vf;
-  iVar5 = (*(*pa_Var4)[0x11].pfn)((int)&(pSVar8->fPosition).flags + (int)(*pa_Var4)[0x11].delta);
-  ctx = *(void **)(iVar3 + iVar5 * 4 + 8);
-  iVar3 = (pThis->_base_Speaker).fFrom;
-  REVINTRO = &(pThis->_base_Speaker).fReverse;
-  (pThis->_base_Speaker).fTo = (int)ctx;
-  SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar3,REVINTRO);
+  __vtbl_ptr_type (*dispatchVf)[31] = (pThis->_base_Speaker)._vf;
+  int speechTable = (*(*dispatchVf)[0x1e].pfn)
+    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*dispatchVf)[0x1e].delta);
+  __vtbl_ptr_type (*speakerVf)[31] = (pThis->_base_Speaker).fSub->_vf;
+  int speechIndex = (*(*speakerVf)[0x11].pfn)
+    ((int)&((pThis->_base_Speaker).fSub->fPosition).flags + (int)(*speakerVf)[0x11].delta);
+  int speechEntry = speechTable;
+  speechEntry += speechIndex * 4;
+  int speechContext = *(int *)(speechEntry + 8);
+  (pThis->_base_Speaker).fTo = speechContext;
+  SPCHNFS_D_C_INTRO_CALL(speechContext,(pThis->_base_Speaker).fFrom,
+                         &(pThis->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   PURS_UPDT = &((pThis->_base_Speaker).fSub)->fUpdate;
   SPCHNFS_D_C_IN_PURS_NEAR_PERP(PURS_UPDT);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  pSVar8 = (pThis->_base_Speaker).fSub;
   pThis->fStatusCount = 0x60;
-  pThis->fStatusSub = pSVar8;
+  pThis->fStatusSub = (pThis->_base_Speaker).fSub;
   pThis->fUpdateCount = pThis->fUpdateCount + 1;
+  }
   return;
 }
 

@@ -397,8 +397,9 @@ secondHeldDone:
       h += (2 - mode) * 17;
     }
 
-    *(volatile u_char *)&r->flags |= (acc << 3);
-    switch (r->flags >> 3) {
+    r->flags |= (acc << 3);
+    right = r->flags;
+    switch (((u_char)right) >> 3) {
       case 15:
         r->flags &= 7;
         menukeys |= 0x200000;

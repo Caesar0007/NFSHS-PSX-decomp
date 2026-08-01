@@ -879,22 +879,18 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 
   /* rotate the 12 turbulence velocity vectors into camera space (frame-local copy) */
   {
-    signed char *vel;
-
-    vel = (signed char *)Weather_gRandomVelocityVectors;
     n = 0;
     while (1) {
       if (12 <= n) break;
-      temp_vector.vx = vel[0];
-      temp_vector.vy = vel[1];
-      temp_vector.vz = vel[2];
+      temp_vector.vx = (signed char)Weather_gRandomVelocityVectors[n][0];
+      temp_vector.vy = (signed char)Weather_gRandomVelocityVectors[n][1];
+      temp_vector.vz = (signed char)Weather_gRandomVelocityVectors[n][2];
       gte_ldv0(&temp_vector);
       gte_mvmva(1,0,0,0,0);
       gte_stlvnl(&result);
       Weather_gTransformedRandomVelocityVectors[n].vx = (short)result.vx;
       Weather_gTransformedRandomVelocityVectors[n].vy = (short)result.vy;
       Weather_gTransformedRandomVelocityVectors[n].vz = (short)result.vz;
-      vel = vel + 3;
       n = n + 1;
     }
   }

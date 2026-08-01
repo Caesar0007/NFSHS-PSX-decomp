@@ -403,145 +403,103 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
 void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
 {
-  byte tc6;
-  short colX;
-  short clut;
-  int texXp;
-  short uvAdj;
-  short x1;
-  byte v_byte;
-  int linkAddr;
-  short height;
-  int verts_done;
-  int remW;
-  int c3;
-  short w1;
-  int bpp;
-  int bitOff;
-  short xoff;
-  short tmpH;
-  int addw;
-  int col;
-  int stripW;
-  int texX;
-  byte u_byte;
-  short v;
-  short i;
-  int accW;
-  short u;
-  int shape_x;
-  short w;
-  short dstY0;
-  short dstY1;
-  short width;
-  short vh;
-  byte tc1;
-  u_char  *prevPrim;
+  /* SYM 8c block: prim(POLY_GT4* $s0) width(AUTO -0x58) height($v1) u($s2) v($t4) vh(AUTO -0x50)
+   * bpp($a1) i($s1) w($s5) w1($a1); addw(INT $a2) declared in the LOOP block @0x8004E2FC.
+   * Params: shp=$s4 flags=$t6 x=$t2 y=$s7 color=$t5.  The old recon carried ~35 fabricated locals
+   * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
+   * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
   u_char  *prim;
-  short srcH;
-  short shpW2;
-  short shpW;
-  short ts4;
-  short colX1;
-  
-  dstY0 = (short)y;
-  tmpH = shp->height;
-  shpW = shp->width;
-  bpp = (int)(byte)shp->depth;
+  u_char  *prevPrim;
+  int      linkAddr;
+  short    width;
+  short    height;
+  short    u;
+  short    v;
+  short    vh;
+  short    bpp;
+  short    i;
+  int      w;
+  short    w1;
+
+  height = shp->height;
+  width = shp->width;
+  bpp = (byte)shp->depth;
   if ((flags & 2) != 0) {
-    dstY0 = dstY0 + tmpH;
-    tmpH = -tmpH;
+    y = y + height;
+    height = -height;
   }
-  u_byte = (byte)shp->shapey;
-  srcH = shp->height;
+  v = (byte)shp->shapey;
+  vh = shp->height;
   if ((flags & 2) != 0) {
-    u_byte = u_byte - 1;
+    v = (byte)shp->shapey - 1;
   }
-  accW = 0;
-  dstY1 = tmpH + dstY0;
-  while( true ) {
+  i = 0;
+  while (i < shp->width) {
+    int addw;
+    int texX;
+
+    texX = (uint)(ushort)shp->shapex + (i * bpp) / 16;
+    u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
+        ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
+    w = 0xff - u;
+    if (shp->width - i < w) {
+      w = shp->width - i;
+    }
     prim = Render_gPacketPtr;
     prevPrim = Render_gPalettePtr;
-    colX = (short)accW;
-    col = (int)colX;
-    bitOff = col * bpp;
-    if (shp->width <= col) break;
-    if (bitOff < 0) {
-      bitOff = bitOff + 0xf;
-    }
-    verts_done = (int)((uint)(ushort)shp->shapex << 0x10) >> 0xc;
-    texX = (uint)(ushort)shp->shapex + (bitOff >> 4);
-    texXp = (int)((texX & 0xffffffc0U) << 0x10) >> 0xc;
-    shape_x = (accW + verts_done / bpp) - texXp / bpp;
-    stripW = 0xff - (shape_x * 0x10000 >> 0x10);
-    remW = shp->width - col;
-    if (remW < stripW) {
-      stripW = remW;
-    }
     *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
     linkAddr = (uint)prim & 0xffffff;
     Render_gPacketPtr = prim + 0x34;
     *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-    *(int *)(prim + 4) = *color;
+    *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
-    c3 = color[3];
-    prim[7] = (flags & 1) * '\x02' + '<';
+    prim[7] = (flags & 1) * 2 + 0x3c;
     prim[3] = 0xc;
-    *(int *)(prim + 0x28) = c3;
-    clut = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-    *(short *)(prim + 0xe) = clut;
+    *(int *)(prim + 0x28) = color[3];
+    *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)(prim + 0x1a) =
-         ((byte)shp->type & 3) << 7 | (ushort)((abr & 3U) << 5) |
-         (short)(shp->shapey & 0x100U) >> 4 | (ushort)((texX & 0x3c0U) >> 6) |
-         (shp->shapey & 0x200U) << 2;
-    tmpH = 0;
+         ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
+         (int)(((uint)(ushort)shp->shapey & 0x100) << 0x10) >> 0x14 |
+         (texX & 0x3c0U) >> 6 | ((uint)(ushort)shp->shapey & 0x200) << 2;
+    addw = 0;
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
-      shape_x = shape_x + -1;
-      tmpH = 1;
+      u = u - 1;
+      addw = 1;
     }
-    tc1 = (byte)shape_x;
-    v_byte = tc1 + (char)stripW;
-    prim[0xc] = tc1;
-    prim[0xd] = u_byte;
-    prim[0x18] = v_byte;
-    prim[0x19] = u_byte;
-    prim[0x24] = tc1;
-    prim[0x30] = v_byte;
-    tc6 = (char)srcH + u_byte;
-    prim[0x25] = tc6;
-    prim[0x31] = tc6;
-    if (stripW << 0x10 < 1) {
-      stripW = 1;
+    w1 = w;
+    prim[0xc] = u;
+    prim[0xd] = v;
+    prim[0x18] = u + w1;
+    prim[0x19] = v;
+    prim[0x24] = u;
+    prim[0x30] = u + w1;
+    prim[0x25] = vh + v;
+    prim[0x31] = vh + v;
+    if (w1 <= 0) {
+      w1 = 1;
     }
-    uvAdj = tmpH + -1;
-    if ((flags & 4) == 0) {
-      tmpH = colX + xoff;
-      x1 = (short)stripW + tmpH;
-      *(short *)(prim + 8) = tmpH;
-      *(short *)(prim + 10) = dstY0;
-      *(short *)(prim + 0x14) = x1;
-      *(short *)(prim + 0x16) = dstY0;
-      *(short *)(prim + 0x20) = tmpH;
-      *(short *)(prim + 0x22) = dstY1;
-      *(short *)(prim + 0x2c) = x1;
-      *(short *)(prim + 0x2e) = dstY1;
+    if ((flags & 4) != 0) {
+      *(short *)(prim + 8) = ((width + x) - i) + (addw + -1);
+      *(short *)(prim + 10) = y;
+      *(short *)(prim + 0x16) = y;
+      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + (addw + -1);
+      *(short *)(prim + 0x22) = y + height;
+      *(short *)(prim + 0x20) = ((shp->width + x) - i) + (addw + -1);
+      *(short *)(prim + 0x2e) = y + height;
+      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + (addw + -1);
     }
     else {
-      *(short *)(prim + 8) = ((shpW + xoff) - colX) + uvAdj;
-      *(short *)(prim + 10) = dstY0;
-      shpW2 = shp->width;
-      colX1 = colX + (short)stripW;
-      *(short *)(prim + 0x16) = dstY0;
-      *(short *)(prim + 0x14) = ((shpW2 + xoff) - colX1) + uvAdj;
-      tmpH = shp->width;
-      *(short *)(prim + 0x22) = dstY1;
-      *(short *)(prim + 0x20) = ((tmpH + xoff) - colX) + uvAdj;
-      tmpH = shp->width;
-      *(short *)(prim + 0x2e) = dstY1;
-      *(short *)(prim + 0x2c) = ((tmpH + xoff) - colX1) + uvAdj;
+      *(short *)(prim + 8) = i + x;
+      *(short *)(prim + 10) = y;
+      *(short *)(prim + 0x14) = w1 + (i + x);
+      *(short *)(prim + 0x16) = y;
+      *(short *)(prim + 0x20) = i + x;
+      *(short *)(prim + 0x22) = y + height;
+      *(short *)(prim + 0x2c) = w1 + (i + x);
+      *(short *)(prim + 0x2e) = y + height;
     }
-    accW = accW + stripW;
+    i = i + w1;
   }
   return;
 }

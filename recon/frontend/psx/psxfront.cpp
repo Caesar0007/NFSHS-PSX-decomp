@@ -847,7 +847,7 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
       prim = Render_gPacketPtr;
       prevPrim = Render_gPalettePtr;
       i = i + 1;
-      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+      *(uint *)prim = *(uint *)prevPrim & 0xffffff | *(uint *)prim & 0xff000000;
       Render_gPacketPtr = prim + 0x18;
       *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | (uint)prim & 0xffffff;
       *(int *)(prim + 4) = col;

@@ -176,8 +176,8 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   r1->h = mh;
   r0->w = mw;
   r1->w = mw;
-  ClearImage(r0,' ',' ',' ');
-  ClearImage(r1,' ',' ',' ');
+  ClearImage(r0,'\0','\0','\0');
+  ClearImage(r1,'\0','\0','\0');
   DrawSync(0);
   return;
 }
@@ -582,7 +582,7 @@ framedone:
     rect.y = 0;
     rect.h = 0x1e0;
     rect.w = (short)((PPWTop * 0x280) / (int)PPWBottom);
-    ClearImage(&rect,' ',' ',' ');
+    ClearImage(&rect,'\0','\0','\0');
     gWidth = (int)sector->width;
     gHeight = (int)sector->height;
   }

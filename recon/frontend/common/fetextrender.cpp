@@ -188,127 +188,103 @@ void FETextRender_MenuTextPositionedJustifyFade(int fade,short index,short x,sho
 int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,int size,bool JustGrabHeight)
 
 {
-  char cVar1;
-  short sVar2;
-  u_int uVar3;
-  u_int uVar4;
-  short sVar5;
-  u_int uVar6;
-  int iVar7;
-  short sVar8;
-  u_int uVar9;
-  u_int uVar10;
+  int OriginalY;
+  short x;
+  unsigned short index1;
+  unsigned short index2;
+  long strLength;
   char buffer [128];
   char source [512];
-  
-  sVar2 = r.y;
+  short spacing;
+
+  OriginalY = r.y;
   FETextRender_SetFont(size);
-  if (size == 1) {
-    sVar8 = 10;
+  switch (size) {
+  case 0:
+    spacing = 8;
+    break;
+  case 1:
+    spacing = 10;
+    break;
+  default:
+    spacing = 0x10;
+    break;
+  }
+  index1 = 0;
+  strLength = strlen(str);
+  if (gSemiTransText != 0) {
+    Font_TextColor(0xf);
   }
   else {
-    sVar8 = 0x10;
-    if ((size < 2) && (size == 0)) {
-      sVar8 = 8;
-    }
+    Font_TextColor(1);
   }
-  uVar10 = 0;
-  uVar3 = strlen(str);
-  iVar7 = 1;
-  if (gSemiTransText != 0) {
-    iVar7 = 0xf;
-  }
-  Font_TextColor(iVar7);
   Font_TextTint(col);
-  blockmove(str,source,uVar3 + 1);
+  blockmove(str,source,strLength + 1);
   if (size == 0) {
     s_lower(source);
   }
-  if (0 < (int)uVar3) {
-    uVar4 = 0;
+  if (strLength > 0) {
     do {
-      cVar1 = source[uVar4];
-      uVar4 = uVar10;
-      while (cVar1 == ' ') {
-        uVar4 = uVar4 + 1;
-        cVar1 = source[uVar4 & 0xffff];
+      while (source[index1] == ' ') {
+        index1++;
       }
-      uVar10 = uVar4 + ((int)((u_int)(u_short)r.w << 0x10) >> 0x13) + 10;
-      uVar9 = uVar4 & 0xffff;
-      if ((int)uVar3 < (int)(uVar10 & 0xffff)) {
-        uVar10 = uVar3;
+      index2 = index1 + (r.w >> 3) + 10;
+      if (strLength < index2) {
+        index2 = strLength;
       }
-      iVar7 = (uVar10 & 0xffff) - uVar9;
-      blockmove(source + uVar9,buffer,iVar7 + 1);
-      buffer[iVar7] = '\0';
-      iVar7 = textpixels(buffer);
-      uVar6 = uVar10 & 0xffff;
-      if (r.w < (short)iVar7) {
+      blockmove(source + index1,buffer,index2 - index1 + 1);
+      buffer[index2 - index1] = '\0';
+      x = textpixels(buffer);
+      if (r.w < x) {
         do {
-          if (source[uVar6] == ' ') goto FETextRender_skipTrailSpace;
-          do {
-            if (uVar6 <= uVar9) break;
-            uVar10 = uVar10 - 1;
-            uVar6 = uVar10 & 0xffff;
-          } while (source[uVar6] != ' ');
-          cVar1 = source[uVar10 & 0xffff];
-          while (cVar1 == ' ') {
-FETextRender_skipTrailSpace:
-            if ((uVar10 & 0xffff) <= uVar9) break;
-            uVar10 = uVar10 - 1;
-            cVar1 = source[uVar10 & 0xffff];
+          while ((source[index2] != ' ') && (index1 < index2)) {
+            index2--;
           }
-          buffer[((uVar10 & 0xffff) - uVar9) + 1] = '\0';
-          iVar7 = textpixels(buffer);
-        } while ((r.w < (short)iVar7) && (uVar6 = uVar10 & 0xffff, uVar9 < (uVar10 & 0xffff)));
-        uVar6 = uVar10 & 0xffff;
+          while ((source[index2] == ' ') && (index1 < index2)) {
+            index2--;
+          }
+          buffer[index2 - index1 + 1] = '\0';
+          x = textpixels(buffer);
+        } while ((r.w < x) && (index1 < index2));
       }
-      if (uVar6 == (uVar4 & 0xffff)) {
-        buffer[1] = source[uVar6 + 1];
-        cVar1 = source[uVar6];
-        while ((cVar1 != '\0' && (source[uVar6] != ' '))) {
-          uVar10 = uVar10 + 1;
-          uVar6 = uVar10 & 0xffff;
-          cVar1 = source[uVar6];
+      if (index2 == index1) {
+        buffer[1] = source[index2 + 1];
+        while ((source[index2] != '\0') && (source[index2] != ' ')) {
+          index2++;
         }
-        buffer[(uVar10 & 0xffff) - (uVar4 & 0xffff)] = '\0';
+        buffer[index2 - index1] = '\0';
       }
-      uVar9 = uVar10 & 0xffff;
-      cVar1 = source[uVar9];
-      while (cVar1 != '\0') {
-        if (source[uVar9] == ' ') goto FETextRender_skipLeadSpace;
-        uVar10 = uVar10 + 1;
-        uVar9 = uVar10 & 0xffff;
-        cVar1 = source[uVar9];
+      while ((source[index2] != '\0') && (source[index2] != ' ')) {
+        index2++;
       }
-      cVar1 = source[uVar10 & 0xffff];
-      while (cVar1 == ' ') {
-FETextRender_skipLeadSpace:
-        uVar10 = uVar10 + 1;
-        cVar1 = source[uVar10 & 0xffff];
+      while (source[index2] == ' ') {
+        index2++;
       }
-      buffer[(uVar10 & 0xffff) - (uVar4 & 0xffff)] = '\0';
-      iVar7 = textpixels(buffer);
-      sVar5 = r.x;
-      if ((justify == 1) || (justify == 4)) {
-        sVar5 = sVar5 - (short)iVar7;
-      }
-      else if ((justify == 2) || (justify == 5)) {
-        sVar5 = sVar5 - ((short)iVar7 >> 1);
+      buffer[index2 - index1] = '\0';
+      {
+        short pixels = textpixels(buffer);
+
+        index1 = index2;
+        x = r.x;
+        if ((justify == 1) || (justify == 4)) {
+          x -= pixels;
+        }
+        else if ((justify == 2) || (justify == 5)) {
+          x -= pixels >> 1;
+        }
       }
       if (JustGrabHeight == 0) {
-        Font_TextXY(buffer,(int)sVar5,(int)r.y);
+        Font_TextXY(buffer,x,r.y);
         if (justify - 3U < 3) {
           Font_TextTint(0);
-          Font_TextXY(buffer,sVar5 + 2,r.y + 1);
+          Font_TextXY(buffer,x + 2,r.y + 1);
           Font_TextTint(col);
         }
       }
-      r.y = r.y + sVar8;
-      uVar4 = uVar10 & 0xffff;
-    } while ((int)(uVar10 & 0xffff) < (int)uVar3);
+      r.y += spacing;
+    } while (index1 < strLength);
   }
-  return (int)r.y - (int)sVar2;
+  return r.y - OriginalY;
 }
 
 

@@ -548,110 +548,90 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
 void Physics_AutoShift(Car_tObj *carObj)
 
 {
-  char cVar1;
-  bool bVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  Car_tSpecs *pCVar6;
-  u_int uVar7;
-  u_int uVar8;
+  int wheelRpm;
   int previousRpm;
-  int iVar9;
-  int velocity;
   int previousGear;
   int nextGear;
-  u_int uVar10;
-  int wheelRpm;
-  int ShiftPoint;
-  int iVar11;
   int SkipLastGear;
+  int ShiftPoint;
   int sliding;
-  
-  pCVar6 = carObj->specs;
-  iVar9 = pCVar6->redline;
-  iVar11 = iVar9 / 6;
+
+  previousRpm = carObj->specs->redline;
+  SkipLastGear = 0;
+  ShiftPoint = previousRpm - previousRpm / 6;
   if (1 < (u_char)(carObj->control).gear) {
     if (carObj->RSControl != 0) {
-      iVar11 = iVar9 / 2;
+      ShiftPoint = previousRpm - previousRpm / 2;
     }
-    iVar11 = iVar9 - iVar11;
-    iVar4 = carObj->slide;
-    if (iVar4 < 0) {
-      iVar4 = -iVar4;
+    sliding = (0 <= carObj->slide) ? carObj->slide : -carObj->slide;
+    previousRpm = fixedmult(
+        carObj->specs->velToRpmRatioInv[carObj->specs->numGears - 2],
+        previousRpm << 0x10);
+    if (carObj->specs->maxSpeed < previousRpm) {
+      SkipLastGear = 1;
     }
-    iVar9 = fixedmult(pCVar6->gearVelInv[pCVar6->numGears + 6],iVar9 << 0x10);
-    bVar2 = carObj->specs->maxSpeed < iVar9;
-    iVar9 = 1;
-    if (bVar2) {
-      iVar9 = 2;
-    }
-    uVar7 = (u_int)(u_char)(carObj->control).gear;
-    uVar10 = uVar7;
-    if ((int)uVar7 < carObj->specs->numGears - iVar9) {
-      uVar10 = uVar7 + 1;
-    }
-    if (2 < uVar7) {
-      uVar7 = uVar7 - 1;
-    }
-    iVar9 = (carObj->N).speedXZ;
-    if ((carObj->linearVel_ch).z < 0) {
-      iVar9 = -iVar9;
-    }
-    iVar3 = fixedmult(iVar9,carObj->specs->velToRpmRatio[(u_char)(carObj->control).gear]);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xffff;
-    }
-    iVar3 = iVar3 >> 0x10;
-    fixedmult(iVar9,carObj->specs->velToRpmRatio[uVar10]);
-    iVar9 = fixedmult(iVar9,carObj->specs->velToRpmRatio[uVar7]);
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xffff;
-    }
-    if (gGasRatio < 0x8001) {
-      iVar5 = iVar3;
-      if (iVar3 < 0) {
-        iVar5 = -iVar3;
+    {
+      int lastGearOffset = SkipLastGear + 1;
+
+      nextGear = (u_char)(carObj->control).gear;
+      if (nextGear < carObj->specs->numGears - lastGearOffset) {
+        nextGear++;
       }
-      if (iVar5 <= carObj->specs->redline) {
-        if (iVar11 <= iVar9 >> 0x10) {
-          return;
+    }
+    previousGear = (u_char)(carObj->control).gear;
+    if (2 < previousGear) {
+      previousGear--;
+    }
+    {
+      int velocity;
+
+      velocity = (carObj->N).speedXZ;
+      if ((carObj->linearVel_ch).z < 0) {
+        velocity = -velocity;
+      }
+      wheelRpm = fixedmult(velocity,
+                           carObj->specs->velToRpmRatio[(u_char)(carObj->control).gear]) /
+                 0x10000;
+      fixedmult(velocity,carObj->specs->velToRpmRatio[nextGear]);
+      previousRpm = fixedmult(velocity,carObj->specs->velToRpmRatio[previousGear]) /
+                    0x10000;
+    }
+    {
+      if ((0x8000 < gGasRatio) ||
+          (carObj->specs->redline <
+           ((0 <= wheelRpm) ? wheelRpm : -wheelRpm))) {
+        if (ShiftPoint + 500 < wheelRpm) {
+          if ((u_char)(carObj->control).gear <
+              carObj->specs->numGears - (SkipLastGear + 1)) {
+            if (nextGear != (u_char)(carObj->control).gear) {
+              char oldGear = (carObj->control).gear;
+
+              (carObj->control).downShifting = '\0';
+              (carObj->control).gear = (char)nextGear;
+              (carObj->control).lastGear = oldGear;
+              (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
+            }
+            return;
+          }
         }
-        if ((int)uVar7 < 2) {
-          return;
+        if ((previousRpm < ShiftPoint) &&
+            (previousGear != (u_char)(carObj->control).gear)) {
+          char oldGear = (carObj->control).gear;
+
+          (carObj->control).downShifting = '\x01';
+          (carObj->control).gear = (char)previousGear;
+          (carObj->control).lastGear = oldGear;
+          (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
         }
-        if (0x1998 < iVar4) {
-          return;
-        }
-        if (uVar7 == (u_char)(carObj->control).gear) {
-          return;
-        }
-        pCVar6 = carObj->specs;
+      }
+      else if ((previousRpm < ShiftPoint) &&
+               (1 < previousGear) &&
+               (sliding < 0x1999) &&
+               (previousGear != (u_char)(carObj->control).gear)) {
         (carObj->control).downShifting = '\x01';
-        (carObj->control).gear = (char)uVar7;
-        (carObj->control).gearShiftTimer = (char)pCVar6->gearShiftDelay;
-        return;
+        (carObj->control).gear = (char)previousGear;
+        (carObj->control).gearShiftTimer = (char)carObj->specs->gearShiftDelay;
       }
-    }
-    if ((iVar11 + 500 < iVar3) &&
-       (uVar8 = (u_int)(u_char)(carObj->control).gear,
-       (int)uVar8 < (int)(carObj->specs->numGears - (bVar2 + 1)))) {
-      if (uVar10 != uVar8) {
-        cVar1 = (carObj->control).gear;
-        pCVar6 = carObj->specs;
-        (carObj->control).downShifting = '\0';
-        (carObj->control).gear = (char)uVar10;
-        (carObj->control).lastGear = cVar1;
-        (carObj->control).gearShiftTimer = (char)pCVar6->gearShiftDelay;
-      }
-    }
-    else if ((iVar9 >> 0x10 < iVar11) && (uVar7 != (u_char)(carObj->control).gear)) {
-      cVar1 = (carObj->control).gear;
-      pCVar6 = carObj->specs;
-      (carObj->control).downShifting = '\x01';
-      (carObj->control).gear = (char)uVar7;
-      (carObj->control).lastGear = cVar1;
-      (carObj->control).gearShiftTimer = (char)pCVar6->gearShiftDelay;
     }
   }
   return;

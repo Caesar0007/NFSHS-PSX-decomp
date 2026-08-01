@@ -497,58 +497,90 @@ void Night_SetWeatherColors(int colorIndex)
 void Night_GenerateAllLightTables(void)
 
 {
-  static char colorCreationTable[16];
-  int colorIndex;
-  int bright;
-  int i;
-  int tbl_off;
-  CVECTOR *additive_walk;
+  /* SYM: STAT char[16].  Retail passes colorCreationTable[i] (a dither-ordered brightness
+     permutation, D_80120DAC = 00 0F 07 05 0B 0D 03 09 01 0E 0A 04 02 0C 06 08) as the
+     BRIGHTNESS argument of BOTH Night_SetPlayerHeadLightColor and Night_SetCopLightColors
+     (oracle `addu $v0,$s0,$s4; lbu $s1,0($v0)` then `addu $a2,$s1,zero` / `addu $a1,$s1,zero`);
+     the old body passed the raw loop counter -- a REAL BUG (wrong headlight/cop-light
+     brightness slot filled for every colour). */
+  static char colorCreationTable[16] = {0,15,7,5,11,13,3,9,1,14,10,4,2,12,6,8};
 
-  tbl_off = 0;
   gNightInitCache = (tNightInitCache *)&Render_gPalettePtr;
   gTableCache = (tCompRGB *)&Render_gPalettePtr;
   Night_gTotalLights = Chunk_numLight;
-  i = 0;
-  do {
-    (&gTableCache->r)[tbl_off] = Chunk_lightTable[i].r;
-    (&gTableCache->g)[tbl_off] = Chunk_lightTable[i].g;
-    (&gTableCache->b)[tbl_off] = Chunk_lightTable[i].b;
-    tbl_off = tbl_off + 3;
-    i = i + 1;
-  } while (i < 0x100);
-  for (colorIndex = 0; colorIndex < Night_gTotalLights; colorIndex = colorIndex + 1) {
-    bright = 0;
-    if (GameSetup_gData.Weather == 1) {
-      Night_SetWeatherColors(colorIndex);
-      bright = 0;
-    }
-    for (; bright < 0x10; bright = bright + 1) {
-      Night_SetPlayerHeadLightColor(0,colorIndex,bright);
-      if ((GameSetup_gData.cops != 0) && (bright < 8)) {
-        Night_SetCopLightColors(colorIndex,bright);
+  {
+    int i;
+
+    i = 0;
+    do {
+      gTableCache[i].r = Chunk_lightTable[i].r;
+      gTableCache[i].g = Chunk_lightTable[i].g;
+      gTableCache[i].b = Chunk_lightTable[i].b;
+      i = i + 1;
+    } while (i < 0x100);
+  }
+  {
+    int colorIndex;
+    int i;
+
+    colorIndex = 0;
+    while (colorIndex < Night_gTotalLights) {
+      {
+        int i;
+
+        if (GameSetup_gData.Weather == 1) {
+          Night_SetWeatherColors(colorIndex);
+          i = 0;
+        }
+        else {
+          i = 0;
+        }
+        while (i < 0x10) {
+          int bright;
+
+          bright = colorCreationTable[i];
+          Night_SetPlayerHeadLightColor(0,colorIndex,bright);
+          if ((GameSetup_gData.cops != 0) && (i < 8)) {
+            Night_SetCopLightColors(colorIndex,bright);
+          }
+          i = i + 1;
+        }
       }
+      colorIndex = colorIndex + 1;
     }
   }
-  tbl_off = 0;
-  i = 0;
-  do {
-    Chunk_lightTable[i].r = (&gTableCache->r)[tbl_off];
-    Chunk_lightTable[i].g = (&gTableCache->g)[tbl_off];
-    Chunk_lightTable[i].b = (&gTableCache->b)[tbl_off];
-    tbl_off = tbl_off + 3;
-    i = i + 1;
-  } while (i < 0x100);
-  i = 0;
-  additive_walk = Night_gAdditiveHeadlightColor;
-  do {
-    additive_walk->r = (u_char)((int)((u_int)(u_char)Night_gPlayerHeadLightColor[0] * i) / 0xf);
-    additive_walk->g =
-         (u_char)((int)((u_int)*(u_char *)((char *)Night_gPlayerHeadLightColor + 1) * i) / 0xf);
-    additive_walk->b =
-         (u_char)((int)((u_int)*(u_char *)((char *)Night_gPlayerHeadLightColor + 2) * i) / 0xf);
-    i = i + 1;
-    additive_walk = additive_walk + 1;
-  } while (i < 0x10);
+  {
+    int i;
+
+    i = 0;
+    do {
+      Chunk_lightTable[i].r = gTableCache[i].r;
+      Chunk_lightTable[i].g = gTableCache[i].g;
+      Chunk_lightTable[i].b = gTableCache[i].b;
+      i = i + 1;
+    } while (i < 0x100);
+  }
+  /* the .g/.b components MUST be read through a CVECTOR-typed view, not a byte cast:
+     the struct-typed MEM keeps gcc from folding the access into the one-instruction
+     %gp_rel(sym+N) assembler macro, so the base address is LICM-hoisted into a register
+     and the two components are read as 1($a3)/2($a3) -- exactly the oracle
+     (`lui $a3,%hi(sym); addiu $a3,$a3,%lo(sym)` in the preheader, `lbu $v0,0x1($a3)` /
+     `lbu $v0,0x2($a3)`), while element [0] stays %gp_rel.  A byte-pointer spelling
+     (`*(u_char*)((char*)sym+1)` or `((u_char*)sym)[1]`) gp-rels all three and is 2 short. */
+  {
+    int i;
+
+    i = 0;
+    do {
+      Night_gAdditiveHeadlightColor[i].r =
+           (u_char)((int)((u_int)(u_char)Night_gPlayerHeadLightColor[0] * i) / 0xf);
+      Night_gAdditiveHeadlightColor[i].g =
+           (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->g * i) / 0xf);
+      Night_gAdditiveHeadlightColor[i].b =
+           (u_char)((int)((u_int)((CVECTOR *)Night_gPlayerHeadLightColor)->b * i) / 0xf);
+      i = i + 1;
+    } while (i < 0x10);
+  }
   return;
 }
 

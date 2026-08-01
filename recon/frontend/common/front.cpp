@@ -982,8 +982,6 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
   short numOpponents;
 
   streamData->numOpponents = 0;
-  carLineup = streamData->carLineup;
-  tTournamentDefinition *ptVar2 = tournamentManager.fDefinition;
   if ((frontEnd.raceType == '\x02') ||
      ((frontEnd.raceType == '\0' && (frontEnd.oppNumber == '\x02')))) {
     tCarInfo *carInfo;
@@ -992,32 +990,34 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     tCarClassType opponentClass;
     BOOL usePlayerUpgrades;
     tTourneyInfo *tourn;
-    int iVar7;
-    int iVar11;
 
     if (frontEnd.raceType == '\x02') {
-      opponentClass = (tCarClassType)ptVar2->fTournaments
-              [(uint)ptVar2->fTiers[tournamentManager.fTier].fTournOffset +
+      opponentClass = (tCarClassType)tournamentManager.fDefinition->fTournaments
+              [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
                tournamentManager.fTournament].fOpponentCarClass;
     }
     else {
       opponentClass = cct_OpenClass;
     }
     if (opponentClass != cct_OpenClass) {
-      iVar7 = (uint)ptVar2->fTiers[tournamentManager.fTier].fTournOffset +
-              tournamentManager.fTournament;
+      usePlayerUpgrades = 0;
+      tourn = &tournamentManager.fDefinition->fTournaments
+              [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+               tournamentManager.fTournament];
     }
     else {
-      iVar7 = (uint)ptVar2->fTiers[2].fTournOffset +
-              (uint)(byte)streamData->playerCars[0].fCarID;
+      usePlayerUpgrades = 1;
+      tourn = &tournamentManager.fDefinition->fTournaments
+              [(uint)tournamentManager.fDefinition->fTiers[2].fTournOffset +
+               (uint)(byte)streamData->playerCars[0].fCarID];
     }
-    tourn = &ptVar2->fTournaments[iVar7];
-    usePlayerUpgrades = opponentClass == cct_OpenClass;
-    iVar11 = 5;
+    numOpponents = 5;
     if (frontEnd.raceType == '\x02') {
-      iVar11 = tournamentManager.fNumRacers + -1;
+      numOpponents = tournamentManager.fNumRacers + -1;
     }
-    for (i = 0; i < iVar11; i = i + 1) {
+    i = 0;
+    if (0 < numOpponents) {
+      do {
       carModel = (tCarModels)tourn->fOpponentCar[i];
       carInfo = GetCarFromID(&carManager, (ushort)carModel);
       carColor = carInfo->fDefaultColor;
@@ -1026,41 +1026,43 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
       }
       FindSimilarCar(&carManager, &carModel,&carColor,0,(tCarModels *)0x0);
       AddCarToIngameList(&carManager, &carModel,&carColor);
-      carLineup[i + 1].isPlayerCar = 0;
-      carLineup[i + 1].carModel = carModel;
-      carLineup[i + 1].carColor = carInfo->fColorOrder[(byte)carColor];
-      if (!usePlayerUpgrades) {
-        carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
+      streamData->carLineup[i + 1].isPlayerCar = 0;
+      streamData->carLineup[i + 1].carModel = carModel;
+      streamData->carLineup[i + 1].carColor = carInfo->fColorOrder[(byte)carColor];
+      if (usePlayerUpgrades) {
+        streamData->carLineup[i + 1].carUpgrades = streamData->playerCars[0].fUpgrades;
       }
       else {
-        carLineup[i + 1].carUpgrades = streamData->playerCars[0].fUpgrades;
+        streamData->carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
       }
       if ((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) {
         void *pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
-        if ((pvVar5 == (void *)0x0) || (frontEnd.opponentUpgrades == '\0')) {
-          carLineup[i + 1].carUpgrades = '\0';
+        if ((pvVar5 != (void *)0x0) && (frontEnd.opponentUpgrades != '\0')) {
+          streamData->carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
         }
         else {
-          carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
+          streamData->carLineup[i + 1].carUpgrades = '\0';
         }
       }
+      i = i + 1;
       streamData->totalCars = streamData->totalCars + 2;
       streamData->numOpponents = streamData->numOpponents + 1;
+      } while (i < numOpponents);
     }
     if (frontEnd.raceType == '\x02') {
       UpdateCarLineup(&tournamentManager);
       streamData->numOpponents = (short)tournamentManager.fNumRacers + -1;
-      for (i = 0; i < iVar11 + 1; i = i + 1) {
-        carLineup[i].personality = tournamentManager.fCarLineup[i].personality;
-        carLineup[i].position = tournamentManager.fCarLineup[i].position;
+      for (i = 0; i < numOpponents + 1; i = i + 1) {
+        streamData->carLineup[i].personality = tournamentManager.fCarLineup[i].personality;
+        streamData->carLineup[i].position = tournamentManager.fCarLineup[i].position;
       }
     }
     else {
       for (i = 0; i < 5; i = i + 1) {
-        carLineup[i + kPersonalityBlurrr].personality = (tPersonalities)i;
-        carLineup[i + kPersonalityBlurrr].position = (char)(i + 1);
+        streamData->carLineup[i + kPersonalityBlurrr].personality = (tPersonalities)i;
+        streamData->carLineup[i + kPersonalityBlurrr].position = (char)(i + 1);
       }
-      carLineup[0].position = '\x06';
+      streamData->carLineup[0].position = '\x06';
     }
   }
   else if (((byte)frontEnd.raceType < 2) && (frontEnd.oppNumber == '\x01')) {
@@ -1069,8 +1071,9 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     char carColor;
     tCarModels modelList [3];
 
+    carLineup = streamData->carLineup;
     GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&carInfo);
-    carModel = (tCarModels)(int)carInfo.fCarID;
+    carModel = (tCarModels)(int)*(signed char *)&carInfo.fCarID;
     carColor = carInfo.fColorOrder[carInfo.fDefaultColor];
     if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
       if (streamData->totalModels < 0x10) {
@@ -1096,6 +1099,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     streamData->totalCars = streamData->totalCars + 2;
   }
   else {
+    carLineup = streamData->carLineup;
     carLineup[0].position = '\x01';
     carLineup[1].position = '\x02';
   }

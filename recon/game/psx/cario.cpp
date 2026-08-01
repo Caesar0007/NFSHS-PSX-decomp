@@ -485,18 +485,34 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  * No pointer local in the SYM => CarIO_textureName[i] / palCopyNum[i] /
  * CarIO_carPixMap[carPixMapCount] are written in INDEX form and the retail
  * walkers ($fp, 88(sp), $s1) come back as compiler givs.
- * 687 -> 344 diffs (ours 477 / oracle 491 -- ours is now 14 insns SHORTER).
- * RESIDUAL = ONE allocation decision, diagnosed with -dg/-dl (w39-a5):
- *   pseudo 81 = carObj, 28 refs / 720 insns, prio floor_log2(28)*28/720 = .1556
- *   -> it WINS $fp here, which shifts vx $s6->$s5, vy $s7->$s6, the
- *      CarIO_textureName giv $fp->$s7 and pushes `palette` out of $s4.
- *   Retail SPILLS carObj to its incoming arg home 140(sp) (SYM: carObj = class ARG)
- *   and gives $fp to the textureName giv.  Every carObj materialization site was
- *   counted 1:1 against the oracle's `0x8C($sp)` reloads (15 outside the loop, 6
- *   inside x2 = the same 28), and `palette` (pseudo 197, 6 refs / 120) is far below
- *   carObj either way -- so this is NOT a ref-count difference we can spell away;
- *   it is the allocno/copy-preference identity residue (catalog sec.G).  Do not
- *   re-derive: dump -dg/-dl and compare the priority table before touching it. */
+ * 687 -> 344 -> 186 (w40-a5), ours 491 == oracle 491 (COUNT EXACT).
+ * THE CARBJ-SPILL DECISION IS SOLVED -- it was NOT an allocno identity residue.
+ * -dg/-dl on the w39 body: pseudo 81 = carObj, 28 refs / 720 insns, prio
+ * floor_log2(28)*28/720 = .1556, 17th of 29 -- it took the LAST free callee-saved
+ * register ($fp) because only 8 distinct s-registers were consumed ahead of it.
+ * The hole was `cx` (pseudo 378, 8 refs / 81 insns, prio .296) REUSING $s0: our
+ * palette-block `license` flag was assigned 1 AFTER the LicenseCheck/LoadPmx calls,
+ * so its pseudo had calls_crossed == 0 and got a CALLER-saved register ($a0),
+ * leaving $s0 free inside the loop.  Retail's SYM says license = REG $10 ($s0).
+ * Writing the flag FIRST (`license = 1;` before the two calls, in the two Plate1
+ * arms only) makes it call-crossing -> callee-saved -> $s0 is occupied -> cx must
+ * take $s4(20), cy $s5(21), vx $s6(22), vy $s7(23), the CarIO_textureName giv $fp,
+ * and carObj SPILLS to its incoming arg home 140($sp) exactly like retail
+ * (SYM: carObj = class ARG).  gcc still sinks the constant materialization past
+ * the calls, so the emitted `li s0,1` sits next to the `flag = 1` store like the
+ * oracle.  Do NOT do the same in the Plate2 (flag = 2) arms: retail materializes
+ * the LicenseCheck `1` argument separately there (`li v0,1`), and the pre-call form
+ * costs that (214 vs 186).
+ * RESIDUAL 186 (89 diff lines) -- structurally identical, three classes:
+ *  (a) ~75 lines are a pure $t0<->$t1 alternation on RELOAD scratch registers for
+ *      the spilled parms/locals (ours starts the spill pool at $t0/$t1 where retail
+ *      starts at $v0/$t0).  gcc-2.8 reload picks spill registers via
+ *      order_regs_for_reload = ascending hard_reg_n_uses, a whole-function property;
+ *      no source lever reaches it.
+ *  (b) 3 one-insn scheduling slots (the CarIO_carPixMapCount/textureStartIndex
+ *      block's reload order, the locateshapez a0/a1 arg-load order, the
+ *      recolor_flag reload in the palIndex block).
+ *  (c) the Plate2 arm's `li s0,1` sinking (see above). */
 void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
 
 {

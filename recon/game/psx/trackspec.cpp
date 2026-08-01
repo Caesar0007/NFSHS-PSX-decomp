@@ -26,13 +26,35 @@ int TrackSpec_gPrevSpec;
  *   80  spec 76 refs prio 1.64 -> $a0   (copy-preference for the incoming $a0)
  *   195 sky walker   prio 0.50 -> $a1 (reuse)
  * Retail instead has sky-walker=$a0 and spec=$a1, i.e. something took $a0 BEFORE
- * spec despite spec's lower-numbered copy preference.  Probes measured here:
- *   goto-loop on the ring loop (kills the giv)          218  WORSE
- *   arm order `i < 8` first                             195
- *   arm order `8 <= i` first                            193  <- kept
- *   per-TU no_split_addresses/no_schedule_insns{,2}/
- *     no_strength_reduce                                see the trackspec flag receipts
- * The residual is the documented allocno/copy-preference identity class. */
+ * spec despite spec's lower-numbered copy preference.
+ * MECHANISM (named, w40-a5): gcc-2.8 global.c find_reg SKIPS any hard register that
+ * a CONFLICTING allocno PREFERS (`regs_someone_prefers`).  `spec` is the destination
+ * of the parm copy `pseudo80 = $a0`, so it PREFERS $a0; every allocno that conflicts
+ * with it -- and spec is live across the whole body, so that is all of them -- avoids
+ * $a0 and lands on $a1/$v1/... instead, leaving $a0 for spec itself.  Retail's build
+ * gave $a0 to the sky walker anyway and paid the `addu $a1,$a0,$zero` copy (its extra
+ * 1 insn: ours 141 vs oracle 142).  There is no C-level handle on that avoidance --
+ * the preference exists for ANY spelling of a pointer parameter.  Also note retail's
+ * ring loop has NO walker at all (`addu $v1,$a1,$a2` rematerialized per iteration),
+ * which is what frees the register we spend on pseudo 191.
+ * FLOOR RECEIPT (upgraded w40-a5 to the w38+ bar):
+ *   prototype   -- 1 pointer arg, void return; SYM REGPARM $05 + `retreg 31`,
+ *                  fsize 0 / mask $00000000 (leaf, no frame, no AUTO locals),
+ *                  and the raw oracle sets no $v0 at its single `jr $ra`.
+ *   trichotomy  -- the retail `addu a1,a0,zero` is NOT a loop.c giv anchor (it is
+ *                  the parm copy, outside every loop) and NOT a cse double-eval
+ *                  (there is exactly one evaluation of the parameter); it is class
+ *                  (3) true coalescing identity.
+ *   probes      -- goto-loop on the ring loop 218 WORSE; arm order `i<8` first 195,
+ *                  `8<=i` first 193 (kept); a `CTrackSpec *s = spec;` local used for
+ *                  the whole body 193 (gcc coalesces the copy away); the same with
+ *                  `spec` kept for the first store 193.
+ *   flags       -- whole-TU, w40-a5: g_value 8 = NO-OP (this TU owns only 4-byte
+ *                  scalars and the oracle already reaches all three with %gp_rel;
+ *                  there is no 5..8-byte owned object, so the -G8 discriminator is
+ *                  silent AND the measurement is identical); no_strength_reduce 222,
+ *                  no_split_addresses 222, no_schedule_insns 217 (+ breaks SetUp and
+ *                  Read), no_schedule_insns2 193 (+ breaks Load) -- all NEGATIVE. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {

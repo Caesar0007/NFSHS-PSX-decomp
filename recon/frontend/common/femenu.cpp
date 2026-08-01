@@ -838,150 +838,98 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
                short fFadeVal)
 
 {
-  short sVar1;
-  int tickFadeColor;
-  int tickColor;
-  int interp_color;
-  int x_pack;
-  int iVar2;
-  int tu2;
-  int ti6;
-  int col1;
-  int rel_x;
-  int ti5;
-  int ti2;
-  int ti7;
-  int amount;
-  short ts7;
-  int ti8;
-  int amountWidth;
-  int shiftAmount;
-  int endX_minus1;
-  short tickX;
-  int shadowColor;
-  int amount_00;
-  short loc_60;
-  short loc_58;
+  POLY_F4 *prim;
+  short x1;
   short width;
   short factor;
-  short ts1;
-  u_char *tp4;
-  u_char *pkt2;
-  u_char bVar1;
-  short ts2;
-  u_int *pkt;
-  u_int *tp3;
-  
-  sVar1 = fWidth;
-  fWidth = (u_int)(u_short)fWidth;
-  x_pack = (int)(u_short)fX;
-  amountWidth = (int)sVar1;
-  iVar2 = ((int)value - (int)min) * amountWidth;
-  ti8 = (int)max - (int)min;
-  amount_00 = iVar2 / ti8;
-  amount = (int)fSelFade;
-  bVar1 = amount == 0;
-  shiftAmount = (int)bVar1;
-  ts7 = (short)amount_00;
-  if (reverse == 0) {
-    rel_x = (int)fX;
-    pkt = (u_int *)Render_gPacketPtr;
-    tp3 = (u_int *)Render_gPalettePtr;
-    iVar2 = rel_x;
-    while (Render_gPalettePtr = (u_char *)tp3, Render_gPacketPtr = (u_char *)pkt,
-          iVar2 < rel_x + amountWidth) {
-      *pkt = *pkt & 0xff000000 | *tp3 & 0xffffff;
-      Render_gPacketPtr = (u_char *)(pkt + 6);
-      *tp3 = *tp3 & 0xff000000 | (u_int)pkt & 0xffffff;
-      ts2 = (short)x_pack;
-      *(short *)(pkt + 2) = ts2;
-      *(short *)((int)pkt + 10) = fY;
-      *(short *)(pkt + 3) = ts2 + rectwidth;
-      *(short *)((int)pkt + 0xe) = fY;
-      *(short *)(pkt + 4) = ts2;
-      *(short *)(pkt + 5) = ts2 + rectwidth;
-      *(short *)((int)pkt + 0x12) = fY + fHeight;
-      *(short *)((int)pkt + 0x16) = fY + fHeight;
-      tickColor = 0;
-      if (shadow == 0) {
-        if ((int)ts2 < rel_x + ts7) {
-          if (amount == 0) {
-            interp_color = 0xc83c1e;
+  short fadeVal;
+  int myDarkBlue;
+  int Col;
+
+  width = ((value - min) * fWidth) / (max - min);
+  factor = fSelFade == 0;
+  fadeVal = fFadeVal;
+  myDarkBlue = 0xc83c1e;
+  if (!reverse) {
+    x1 = fX;
+    while (x1 < fX + fWidth) {
+      prim = (POLY_F4 *)Render_gPacketPtr;
+      *(u_int *)prim = (*(u_int *)prim & 0xff000000) |
+                       (*(u_int *)Render_gPalettePtr & 0xffffff);
+      Render_gPacketPtr = (u_char *)prim + 0x18;
+      *(u_int *)Render_gPalettePtr =
+          (*(u_int *)Render_gPalettePtr & 0xff000000) | ((u_int)prim & 0xffffff);
+      *(short *)((u_char *)prim + 8) = x1;
+      *(short *)((u_char *)prim + 10) = fY;
+      *(short *)((u_char *)prim + 12) = x1 + rectwidth;
+      *(short *)((u_char *)prim + 14) = fY;
+      *(short *)((u_char *)prim + 16) = x1;
+      *(short *)((u_char *)prim + 20) = x1 + rectwidth;
+      *(short *)((u_char *)prim + 18) = fY + fHeight;
+      *(short *)((u_char *)prim + 22) = fY + fHeight;
+      Col = 0;
+      if (!shadow) {
+        if (x1 < fX + width) {
+          if (fSelFade) {
+            Col = CalcFadeVal(myDarkBlue,
+                (short)((((x1 - fX) * 0xbe) / fWidth) >> factor) |
+                (((((x1 - fX) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
+                ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
           }
           else {
-            ti5 = ts2 - rel_x;
-            amount_00 = amount;
-            interp_color = CalcFadeVal(0xc83c1e,((ti5 * -0xd2) / amountWidth + 0xd2 >> shiftAmount)
-                                               << 0x10 | (((ti5 * 0x7c) / amountWidth + 0x42 >>
-                                                          shiftAmount) << 0x10) >> 8 |
-                                               (int)(short)((ti5 * 0xbe) / amountWidth >>
-                                                           shiftAmount),amount);
+            Col = myDarkBlue;
           }
         }
         else {
-          interp_color = 0x280f00;
+          Col = 0x280f00;
         }
-        tickColor = CalcFadeVal(interp_color,amount_00);
+        Col = CalcFadeVal(Col,fadeVal);
       }
-      pkt[1] = tickColor;
-      SetPolyF4((POLY_F4 *)pkt);
-      SetSemiTrans(pkt,0);
-      x_pack = x_pack + (u_int)(u_short)rectwidth + (u_int)(u_short)rectspace;
-      pkt = (u_int *)Render_gPacketPtr;
-      tp3 = (u_int *)Render_gPalettePtr;
-      iVar2 = x_pack * 0x10000 >> 0x10;
+      *(int *)((u_char *)prim + 4) = Col;
+      SetPolyF4(prim);
+      SetSemiTrans(prim,0);
+      x1 += rectwidth + rectspace;
     }
   }
   else {
-    iVar2 = x_pack + fWidth + -1;
-    ti2 = (x_pack << 0x10) >> 0x10;
-    if (x_pack << 0x10 <= iVar2 * 0x10000) {
-      endX_minus1 = ti2 + amountWidth;
-      do {
-        pkt2 = Render_gPacketPtr;
-        tp4 = Render_gPalettePtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        tu2 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x18;
-        *(u_int *)tp4 = *(u_int *)tp4 & 0xff000000 | tu2;
-        ts1 = (short)iVar2;
-        *(short *)(pkt2 + 8) = ts1;
-        *(short *)(pkt2 + 10) = fY;
-        *(short *)(pkt2 + 0xc) = ts1 + rectwidth;
-        *(short *)(pkt2 + 0xe) = fY;
-        *(short *)(pkt2 + 0x10) = ts1;
-        *(short *)(pkt2 + 0x14) = ts1 + rectwidth;
-        *(short *)(pkt2 + 0x12) = fY + fHeight;
-        *(short *)(pkt2 + 0x16) = fY + fHeight;
-        ti6 = 0;
-        if (shadow == 0) {
-          if ((int)ts1 < endX_minus1 - ts7) {
-            col1 = 0x280f00;
-          }
-          else {
-            ti7 = endX_minus1 - ts1;
-            if (amount == 0) {
-              col1 = 0xc83c1e;
-            }
-            else {
-              amount_00 = amount;
-              col1 = CalcFadeVal(0xc83c1e,((ti7 * -0xd2) / amountWidth + 0xd2 >> bVar1) << 0x10 |
-                                         (((ti7 * 0x7c) / amountWidth + 0x42 >> bVar1) << 0x10) >> 8
-                                         | (int)(short)((ti7 * 0xbe) / amountWidth >> bVar1),amount)
-              ;
-            }
-          }
-          ti6 = CalcFadeVal(col1,amount_00);
+    x1 = fX + fWidth - 1;
+    while (fX <= x1) {
+      prim = (POLY_F4 *)Render_gPacketPtr;
+      *(u_int *)prim = (*(u_int *)prim & 0xff000000) |
+                       (*(u_int *)Render_gPalettePtr & 0xffffff);
+      Render_gPacketPtr = (u_char *)prim + 0x18;
+      *(u_int *)Render_gPalettePtr =
+          (*(u_int *)Render_gPalettePtr & 0xff000000) | ((u_int)prim & 0xffffff);
+      *(short *)((u_char *)prim + 8) = x1;
+      *(short *)((u_char *)prim + 10) = fY;
+      *(short *)((u_char *)prim + 12) = x1 + rectwidth;
+      *(short *)((u_char *)prim + 14) = fY;
+      *(short *)((u_char *)prim + 16) = x1;
+      *(short *)((u_char *)prim + 20) = x1 + rectwidth;
+      *(short *)((u_char *)prim + 18) = fY + fHeight;
+      *(short *)((u_char *)prim + 22) = fY + fHeight;
+      Col = 0;
+      if (!shadow) {
+        if (x1 < fX + fWidth - width) {
+          Col = 0x280f00;
         }
-        *(int *)(pkt2 + 4) = ti6;
-        SetPolyF4((POLY_F4 *)pkt2);
-        SetSemiTrans(pkt2,0);
-        iVar2 = iVar2 - ((u_int)(u_short)rectwidth + (u_int)(u_short)rectspace);
-      } while (ti2 <= iVar2 * 0x10000 >> 0x10);
+        else if (fSelFade) {
+          Col = CalcFadeVal(myDarkBlue,
+              (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
+              (((((fX + fWidth - x1) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
+              ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
+        }
+        else {
+          Col = myDarkBlue;
+        }
+        Col = CalcFadeVal(Col,fadeVal);
+      }
+      *(int *)((u_char *)prim + 4) = Col;
+      SetPolyF4(prim);
+      SetSemiTrans(prim,0);
+      x1 -= rectwidth + rectspace;
     }
   }
-  return;
 }
 
 

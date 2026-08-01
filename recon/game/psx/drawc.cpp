@@ -181,9 +181,24 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
     coorddef tmp;
     coorddef tmp2;
     pos = &(carObj->N).position;
-    tmp.x = (carObj->N).position.x - (Cars_gHumanRaceCarList[i]->N).position.x;
-    tmp.y = pos->y - (Cars_gHumanRaceCarList[i]->N).position.y;
-    tmp.z = pos->z - (Cars_gHumanRaceCarList[i]->N).position.z;
+    /* MATCH (w42-a3, 81 -> 71): retail evaluates the SUBTRAHEND first at every
+       component (`lw v0,0(v1)` HRCL[i]; `lw a0,0xA0(v0)`; then `lw v0,0xA0(a1)`;
+       `subu`).  Written as `carObj->... - HRCL[i]->...` cc1 evaluated the minuend
+       first, which born the HRCL ADDRESS pseudo too late to win $v1 (it took $a1,
+       pushing the i*4 giv off $a0 and letting carObj keep $a0 -- i.e. the whole
+       head rotation AND the missing `addu a1,a0,zero` param copy hang off this).
+       A per-component subtrahend temp restores retail's order and puts the HRCL
+       address back in $v1.  RESIDUAL 71 = carObj still in $a0 (retail $a1 per SYM
+       REGPARM $5) and the i*4 giv in $a2 (retail $a0): a global-allocno conflict
+       tie -- retail's a0/a1 are barred for the i*4 pseudo, ours are not. */
+    { int h;
+    h = (Cars_gHumanRaceCarList[i]->N).position.x;
+    tmp.x = (carObj->N).position.x - h;
+    h = (Cars_gHumanRaceCarList[i]->N).position.y;
+    tmp.y = pos->y - h;
+    h = (Cars_gHumanRaceCarList[i]->N).position.z;
+    tmp.z = pos->z - h;
+    }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&nightMat);
     DrawW_WorldSetUpMatrix(&gNightMat,&nightMat);

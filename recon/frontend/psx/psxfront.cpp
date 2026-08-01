@@ -544,11 +544,13 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
     tShp = extra->custom_shapes + index;
   }
   AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
-  if ((flags & 0xc0U) == 0) {
-    DrawFlatShape(tShp,flags,x,y,color,abr);
+  /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
+     brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
+  if ((flags & 0xc0U) != 0) {
+    DrawGouraudShape(tShp,flags,x,y,color,abr);
   }
   else {
-    DrawGouraudShape(tShp,flags,x,y,color,abr);
+    DrawFlatShape(tShp,flags,x,y,color,abr);
   }
   return;
 }
@@ -699,11 +701,11 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
     tShp = extra->custom_shapes + index;
   }
   AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
-  if ((flags & 0xc0U) == 0) {
-    ScaleFlatShape(tShp,flags,x,y,scalex,scaley,color,abr);
+  if ((flags & 0xc0U) != 0) {
+    ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }
   else {
-    ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
+    ScaleFlatShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }
   return;
 }

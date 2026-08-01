@@ -152,7 +152,21 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
   return bestDiff;
 }
 
-/* ---- Night_CreateNightTableElement__FiliPUc  [NIGHT.CPP:181-231] SLD-VERIFIED ---- */
+/* ---- Night_CreateNightTableElement__FiliPUc  [NIGHT.CPP:181-231] SLD-VERIFIED ----
+ * NEAR-MISS 56 diffs, COUNT-EXACT 113/113 (w40-a9; was 85 with 110/113).
+ * Residual is a pure allocno swap against the SYM register map (sourceR $4/a0,
+ * sourceG $5/a1, sourceB $3/v1, chr $3, chg $8/t0, chb $9/t1, b15 $7/a3, newR $6/a2,
+ * newG $5/a1, newB $4/a0): ours puts b15 in $a1 and sourceG in $a3 (the SYM has them
+ * the other way round) and swaps newG/newB between $a0 and $a1.  Priority estimate
+ * says it is a razor edge -- b15 has 4 refs (floor_log2=2 -> weight 8) over ~40 insns,
+ * sourceG 2 refs (weight 2) over ~8, so the b15-loses condition is len_b15 > 4*len_g,
+ * i.e. right at the boundary.  FALSIFIED (all re-gate to 56 or worse): sources-before-
+ * component-bytes (70), b15 computed after the bytes, b15 after the sources, fully
+ * interleaved source/new pairs (84), b15 declared first, newG/newB decl swap,
+ * sourceG/sourceB decl swap.  The prologue also copies $a3 into $s1 (colorval) after
+ * $a0 into $s0 where retail does it first -- the same emission-order tie.
+ * PROTOTYPE RE-CHECKED: 4 args (colorIndex REGPARM $10, colorH ARG stack, bright
+ * REGPARM $6, colorval REGPARM $11), void return -- matches the SYM exactly. */
 void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
 
 {
@@ -446,6 +460,10 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
  * four wired per-TU
  * codegen flags (w39-a9 probe: no_split_addresses +4, no_schedule_insns +6,
  * no_schedule_insns2 +14, no_strength_reduce 0). */
+/* NEAR-MISS 4 diffs, COUNT-EXACT 33/33 (w40-a9): prologue EMISSION ORDER only -- retail
+ * emits `sw $s2,24($sp); lui $s2` BEFORE `sw $s0,16($sp); lui/addiu $s0`, ours the other
+ * way round.  Identical registers, identical instructions, different order = the
+ * documented callee-save emission-order tie-break (catalog sec.F). */
 void Night_InitWeatherTables(void)
 
 {
@@ -723,6 +741,13 @@ void Night_RestartNightDriving(void)
  * per-TU codegen flags (no_split_addresses 31, no_schedule_insns 33, no_schedule_insns2
  * 22, no_strength_reduce 8 -- all >= current).  Prototype re-checked vs the raw oracle:
  * single REGPARM $a0 (Vi), VOID return ($v0 holds the last guard byte at the exit). */
+/* NEAR-MISS 8 diffs, COUNT-EXACT 68/68 (w40-a9): a $v0/$v1 rotation on the
+ * `Camera_gInfo[Vi->player].target` load -- ours `lw $v1,4($v0)` (separate temp) + `li
+ * $v0,128`, retail `lw $v0,4($v0)` (SELF-temp, dest reuses the just-computed base) + `li
+ * $v1,128`.  Falsified: hoisting `Night_gZNear = 0x80;` above the two shift assignments
+ * (16, worse), and two other spellings of the target byte read (`((u_char*)t)[0x447]`,
+ * `*(u_char*)((char*)t+0x447)`) -- both byte-identical at 8.  Sec.3.15 scratch-register
+ * tie-break class. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -754,34 +779,20 @@ void Night_SetEnviroment(DRender_tView *Vi)
 }
 
 /* ---- Night_AdditiveNightCalc__FP6VECTORP7CVECTOR  [NIGHT.CPP:811-861] SLD-VERIFIED ----
- * NEAR-MISS 77 diffs (ours 65 / oracle 64), was 106 (ours 66 / oracle 64).
- * MATCH (w38-a10), all from the SYM block @43cab4 + the raw oracle:
- *  (1) SYM BLOCK SCOPES restored: {x,xdist} live in the z-guard block and
- *      {lookup,newR,newG,newB,addColor} in the x-guard block -- xdist REUSES
- *      zfar's register ($6) exactly because they are in disjoint blocks.
- *  (2) `zfar` holds znear + (1<<(gZDistShift+6)), i.e. the sum is computed
- *      SPECULATIVELY before the first guard (oracle `addu a2,a3,v0` precedes
- *      `slt v0,a3,v1; beqz`), not folded into the second compare.
- *  (3) the three channel SUMS are computed first, then the three clamps
- *      (oracle batches `addu`+copy trios then three slti/bnez/li 255).
- *  (4) the blue channel shift is LOGICAL: `((u_int)lookup >> 0x10) & 0xff`
- *      (oracle `srl`, not `sra`) -- a signed `int` shift emitted `sra`.
- * RESIDUAL (1 insn over + coloring): ours copies the `color` REGPARM out of
- * $a1 into $t3 because {zfar,xdist} win $a1, and newR/newG swap $a3<->$t0
- * (SYM: newR $7=a3, newG $8=t0, newB $6=a2). Tried: inlining zfar into the
- * condition (88), materializing zfar before z/znear (79), znear-before-z (77,
- * tie). This is the allocno-priority race between the short-lived guard temps
- * and the long-lived, few-ref `color` parameter.
- * w39-a9 RE-PROBE (all re-gated, none improved on 77): the w32/w33 "param-copy priority
- * dial" (`CVECTOR *c = color;` used at every site -- 88 at 66 insns) · a self-copy
- * `color = color;` (77, gcc drops it) · shortening zfar's live range by folding its
- * assignment into the guard via a comma expression (88) · hoisting `xdist` above the
- * `x` load (77) · -G8 (77) · all four wired per-TU codegen flags (no_split_addresses 78,
- * no_schedule_insns 83, no_schedule_insns2 83, no_strength_reduce 77).  The single extra
- * insn is always `addu t3,a1,zero` -- `zfar` beats `color` for $a1 because its live range
- * is far shorter (priority = floor_log2(refs)*refs/live_length), and no source form
- * reachable from here changes that ordering.  STRONG FLOOR pending a permuter run (the
- * C++ permuter harness is still blocked for C++ TUs). */
+ * NEAR-MISS 77 diffs (ours 65 / oracle 64).  The ONE extra instruction is a copy of the
+ * `color` parameter out of its home register (`addu $t3,$a1,zero` at insn 1): our build
+ * gives `xdist` $a1 -- which IS color's home -- so color has to be relocated, and that
+ * one decision rotates the whole body.  Retail keeps color in $a1 for the entire
+ * function and puts xdist in $a2 (SYM: xdist $6, zfar $6, newB $6, z $3/v1, x $4/a0,
+ * znear $7/a3, newR $7, newG $8/t0, index/lookup $2/v0, addColor $3).
+ * FALSIFIED (11 shapes, every one re-gates to exactly 77/65 -- byte-identical output):
+ * znear/zfar before z; z between them; decl-with-init; xdist before x; zfar-before-znear
+ * decl order; z-after-index decl order; `z > znear`; `x > -xdist`; both; `zfar > z`;
+ * and swapping the two halves of the `index` expression (81, worse).
+ * PROTOTYPE RE-CHECKED against the SYM: 2 REGPARM args (v $4, color $5), void return,
+ * fsize 0 / mask 0 (true leaf, which we reproduce).  This is an allocno tie-break on a
+ * leaf function -- local-alloc territory; the next tool is a -dl/-dg dump comparison,
+ * not another source spelling. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

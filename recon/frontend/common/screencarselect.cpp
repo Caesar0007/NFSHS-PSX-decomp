@@ -1000,112 +1000,80 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 void tScreenCarSelect::DrawForeground()
 
 {
-  char state;
-  ushort splineInterval;
-  short bShowStats;
-  int elapsedticks;
-  tGlobalMenuDefs *mdefs;
-  int iVar5;
-  void *pv;
-  int iVar7;
-  char *sMenuText;
-  float camerax;
-  float cameray;
-  tOverlay *ovl;
-  short knot1;
-  short knot2;
-  __vtbl_ptr_type (*vtbl) [10];
-  int iVar10;
-  short knot3;
-  int fadeVal;
-  tCarInfo *carObj;
-  short knot4;
-  short sVar12;
   short i;
-  tMenuItem *currentItem;
-  int iVar14;
-  u_long textTicks;
-  uint uVar15;
-  int textColor;
-  int textID;
-  byte validCar;
   tCarInfo carInfo;
-  tDrawShapeExtended drawFlags;
-  int cameraY;
-  int cameraZ;
-  int screenX;
-  int screenY;
-  int camRot;
+  short bShowStats;
+  tMenuItem *currentItem;
+  BOOL validCar;
+  signed char state;
+  tOverlay *ovl;
+  short sVar12;
+  int overlayDirection;
   
-  vtbl = this->_vf;
   currentItem = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
-  iVar5 = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
-  mdefs = menuDefs;
+  validCar = (*this->_vf[1][3].pfn)
+                    (this->fPermShapes.fFilename + -0x14 + this->_vf[1][3].delta,&carInfo);
   bShowStats = false;
   (menuDefs->itemOpponentUpgrades).fFlags =
        (menuDefs->itemOpponentUpgrades).
        fFlags | 1;
   sVar12 = this->fState;
   if (sVar12 == 1) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemGarageCar;
-    (mdefs->itemUpgradeCar).fFlags =
-         (mdefs->itemUpgradeCar).fFlags &
+    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemGarageCar;
+    (menuDefs->itemUpgradeCar).fFlags =
+         (menuDefs->itemUpgradeCar).fFlags &
          0xfffffffe;
     if (((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) &&
-       (pv = FECheat_IsCheatEnabled(cheat_FinishedTournament), pv != (void *)0x0)) {
+       (FECheat_IsCheatEnabled(cheat_FinishedTournament) != (void *)0x0)) {
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;
     }
-    if ((iVar5 == 0) || (4 < carInfo.fCarClass)) {
+    if ((validCar != 0) && (carInfo.fCarClass < 5)) {
+      this->fOverlays[4].direction = 1;
+    }
+    else {
       (menuDefs->itemUpgradeCar).fFlags =
            (menuDefs->itemUpgradeCar).fFlags
            | 1;
       this->fOverlays[4].direction = -1;
     }
-    else {
-      this->fOverlays[4].direction = 1;
-    }
   }
   else if (sVar12 == 0) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemCar;
-    uVar15 = (mdefs->itemShowcase).fFlags;
-    (mdefs->itemColor).fFlags =
-         (mdefs->itemColor).fFlags &
-         0xfffffffe;
-    (mdefs->itemShowcase).fFlags =
-         uVar15 & 0xfffffffe;
+    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemCar) {
+      bShowStats = true;
+    }
+    (menuDefs->itemColor).fFlags &= 0xfffffffe;
+    (menuDefs->itemShowcase).fFlags &= 0xfffffffe;
     if (carInfo.fCarClass == '\a') {
-      uVar15 = (mdefs->itemShowcase).fFlags;
-      (mdefs->itemColor).fFlags =
-           (mdefs->itemColor).fFlags | 1;
-      (mdefs->itemShowcase).fFlags =
-           uVar15 | 1;
+      (menuDefs->itemColor).fFlags |= 1;
+      (menuDefs->itemShowcase).fFlags |= 1;
     }
   }
   else if (sVar12 == 2) {
-    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemDealerCar) {
+    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemDealerCar) {
       bShowStats = true;
     }
   }
   else if (sVar12 == 3) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &mdefs->itemSellerCar;
-    (mdefs->itemSellCar).fFlags =
-         (mdefs->itemSellCar).fFlags &
+    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemSellerCar) {
+      bShowStats = true;
+    }
+    (menuDefs->itemSellCar).fFlags =
+         (menuDefs->itemSellCar).fFlags &
          0xfffffffe;
-    if (iVar5 == 0) {
-      this->fOverlays[4].direction = -1;
-      (mdefs->itemSellCar).fFlags =
-           (mdefs->itemSellCar).fFlags | 1;
+    if (validCar != 0) {
+      this->fOverlays[4].direction = 1;
     }
     else {
-      this->fOverlays[4].direction = 1;
+      this->fOverlays[4].direction = -1;
+      (menuDefs->itemSellCar).fFlags =
+           (menuDefs->itemSellCar).fFlags | 1;
     }
   }
   else if (sVar12 == 4) {
     bShowStats = true;
   }
-  if (iVar5 == 0) {
+  if (validCar == 0) {
     bShowStats = false;
   }
   sVar12 = 1;
@@ -1113,153 +1081,155 @@ void tScreenCarSelect::DrawForeground()
     sVar12 = -1;
   }
   this->fOverlays[6].direction = sVar12;
-  iVar14 = 0;
-  carObj = (tCarInfo *)0x1;
-  iVar7 = 0;
-  do {
-    iVar10 = iVar7 >> 0x10;
-    ovl = this->fCurrentOverlays[iVar10];
-    if (ovl == (tOverlay *)0x0) {
-DrawFG_overlayFetch:
-      state = gStateOverlays[this->fState][iVar10];
-      if (-1 < state) {
-        this->fCurrentOverlays[iVar10] = this->fOverlays + state;
-        this->fOverlays[state].transition = 0;
-        this->fCurrentOverlays[iVar10]->direction = 1;
+  for (i = 0; i < 4; i++) {
+    overlayDirection = 1;
+    ovl = this->fCurrentOverlays[i];
+    if (ovl != (tOverlay *)0x0) {
+      if ((int)ovl->ID == (int)gStateOverlays[this->fState][i]) {
+        continue;
       }
-    }
-    else if (((int)ovl->ID != (int)gStateOverlays[this->fState][iVar10]) &&
-            (ovl->direction = -1, this->fCurrentOverlays[iVar10]->transition < 1)) {
-      this->fCurrentOverlays[iVar10] = (tOverlay *)0x0;
-      goto DrawFG_overlayFetch;
-    }
-    iVar14 = iVar14 + 1;
-    iVar7 = iVar14 * 0x10000;
-    if (3 < iVar14 * 0x10000 >> 0x10) {
-      iVar14 = 1;
-      iVar7 = 0x10000;
-      do {
-        this->DrawOverlay(*(tOverlay **)((int)this->fCurrentOverlays + (iVar7 >> 0xe)));
-        iVar14 = iVar14 + 1;
-        iVar7 = iVar14 * 0x10000;
-      } while (iVar14 * 0x10000 >> 0x10 < 4);
-      if (iVar5 == 0) {
-        carInfo.fCarID = -1;
+      ovl->direction = -1;
+      if (this->fCurrentOverlays[i]->transition > 0) {
+        continue;
       }
-      vtbl = this->_vf;
-      (*vtbl[1][2].pfn)
-                (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,&carInfo);
+      this->fCurrentOverlays[i] = (tOverlay *)0x0;
+    }
+    state = gStateOverlays[this->fState][i];
+    if (-1 < state) {
+      this->fCurrentOverlays[i] = this->fOverlays + state;
+      this->fCurrentOverlays[i]->transition = 0;
+      this->fCurrentOverlays[i]->direction = overlayDirection;
+    }
+  }
+  for (i = 1; i < 4; i++) {
+    this->DrawOverlay(this->fCurrentOverlays[i]);
+  }
+      if (validCar == 0) {
+        *(signed char *)&carInfo.fCarID = -1;
+      }
+      (*this->_vf[1][2].pfn)
+                (this->fPermShapes.fFilename + -0x14 + this->_vf[1][2].delta,&carInfo);
       if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
-        iVar10 = 0;
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);
         this->fFadeTicks[0] = ticks;
       }
       this->UpdateBrightness(0);
-      if ((ushort)this->fState - 5 < 2) {
+      if ((u_int)((ushort)this->fState - 5) >= 2) {
+        showRoomFlag = 0;
+        this->fCameraRotation = this->fCameraRotation + 3;
+        DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x13a,0x54,4.0,-7.5,
+                   (char)this->fBrightness[0],true,this->fCameraRotation,kPlayerOne);
+        goto DrawFG_afterCarRender;
+      }
+      {
+        int screenX;
+        int screenY;
+        int camRot;
+        int cameraY;
+        int cameraZ;
+        int textID;
+        u_long textTicks;
+        long elapsedticks;
+        short knot1;
+        short knot2;
+        short knot3;
+        short knot4;
+        tDrawShapeExtended drawFlags;
+        int textColor;
+        int fadeVal;
+
         screenX = 0;
         screenY = 0;
         camRot = 0;
         cameraY = 0;
         elapsedticks = (ticks - this->fSpeechTicks) + -0x100;
         cameraZ = 0;
-        if ((-1 < elapsedticks) && (-1 < carInfo.fSpeechCarID)) {
-          iVar14 = (elapsedticks >> 9) % 0x13 + 0x3e4 + carInfo.fSpeechCarID * 0x13;
-          uVar15 = elapsedticks + (elapsedticks >> 9) * -0x200;
-          iVar7 = TextSys_WordFlags(iVar14 * 0x10000 >> 0x10);
-          iVar7 = kRGBVals[(byte)textDefinitions[iVar7][4]];
-          if ((uVar15 < 0x80) || (0x200 - uVar15 < 0x80)) {
-            iVar7 = CalcFadeVal(iVar7,iVar10);
+        if ((-1 < elapsedticks) && (-1 < (signed char)carInfo.fSpeechCarID)) {
+          textID = (signed char)carInfo.fSpeechCarID * 0x13 + 0x3e4 +
+                   (elapsedticks >> 9) % 0x13;
+          textTicks = elapsedticks - ((elapsedticks >> 9) << 9);
+          textColor = kRGBVals[(byte)textDefinitions[TextSys_WordFlags((short)textID)][4]];
+          if (textTicks < 0x80) {
+            fadeVal = 0x80 - textTicks;
+            textColor = CalcFadeVal(textColor,fadeVal);
           }
-          sMenuText = TextSys_Word(iVar14);
-          iVar10 = TextSys_WordX(iVar14);
-          iVar14 = TextSys_WordY(iVar14);
-          FETextRender_FullTextRGB(sMenuText,(short)iVar10,(short)iVar14,iVar7,'\0',0);
+          else if (0x200 - textTicks < 0x80) {
+            fadeVal = textTicks - 0x180;
+            textColor = CalcFadeVal(textColor,fadeVal);
+          }
+          FETextRender_FullTextRGB(TextSys_Word(textID),(short)TextSys_WordX(textID),
+                                  (short)TextSys_WordY(textID),textColor,'\0',0);
         }
         drawFlags.tint[0] = 0x551e00;
         drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-        uVar15 = this->fSpeechTicks;
-        iVar7 = 0x80;
-        if (0x100 < uVar15) {
-          if (uVar15 < 0x181) {
-            iVar7 = 0x180 - uVar15;
-          }
-          else {
-            iVar7 = 0;
-          }
+        if (this->fSpeechTicks < 0x101) {
+          fadeVal = 0x80;
         }
-        DrawShapeExtended(0xA,0x200,0,0,iVar7,0,&drawFlags);
-        carObj = (tCarInfo *)(ticks - this->fShowroomTicks);
-        while (600 < (int)carObj) {
-          iVar14 = this->fSplineInterval;
+        else {
+          if (this->fSpeechTicks >= 0x181) {
+            fadeVal = 0;
+            goto DrawFG_fadeDone;
+          }
+          fadeVal = 0x180 - this->fSpeechTicks;
+        }
+DrawFG_fadeDone:
+        DrawShapeExtended(0xA,0x200,0,0,fadeVal,0,&drawFlags);
+        elapsedticks = ticks - this->fShowroomTicks;
+        while (600 < elapsedticks) {
           this->fShowroomTicks = this->fShowroomTicks + 600;
-          iVar7 = iVar14 + 1;
-          this->fSplineInterval = iVar7;
-          carObj = (tCarInfo *)(carObj[-3].fShapeName + 4);
-          if (6 < iVar7) {
-            this->fSplineInterval = iVar14 + -4;
+          this->fSplineInterval = this->fSplineInterval + 1;
+          elapsedticks -= 600;
+          if (6 < this->fSplineInterval) {
+            this->fSplineInterval = this->fSplineInterval - 5;
           }
         }
-        splineInterval = (ushort)this->fSplineInterval;
-        uVar15 = (uint)splineInterval;
+        knot1 = this->fSplineInterval;
         gRotateOffset[0] = 0;
-        if (6 < (short)splineInterval) {
-          uVar15 = uVar15 - 5;
+        if (6 < knot1) {
+          knot1 -= 5;
           gRotateOffset[0] = 0x4000000;
         }
-        iVar7 = uVar15 + 1;
+        knot2 = knot1 + 1;
         gRotateOffset[1] = gRotateOffset[0];
-        if (6 < iVar7 * 0x10000 >> 0x10) {
-          iVar7 = uVar15 - 4;
+        if (6 < knot2) {
+          knot2 = knot1 - 4;
           gRotateOffset[1] = gRotateOffset[0] + 0x4000000;
         }
-        iVar14 = iVar7 + 1;
+        knot3 = knot2 + 1;
         gRotateOffset[2] = gRotateOffset[1];
-        if (6 < iVar14 * 0x10000 >> 0x10) {
-          iVar14 = iVar7 + -4;
+        if (6 < knot3) {
+          knot3 = knot2 - 4;
           gRotateOffset[2] = gRotateOffset[1] + 0x4000000;
         }
-        sVar12 = (short)(iVar14 + 1);
+        knot4 = knot3 + 1;
         gRotateOffset[3] = gRotateOffset[2];
-        if (6 < (iVar14 + 1) * 0x10000 >> 0x10) {
-          sVar12 = (short)iVar14 + -4;
+        if (6 < knot4) {
+          knot4 = knot3 - 4;
           gRotateOffset[3] = gRotateOffset[2] + 0x4000000;
         }
-        this->CalcSplinePosition((int)(short)uVar15,(int)(short)iVar7,(int)(short)iVar14,(int)sVar12,
-                           (u_long)carObj,cameraY,cameraZ,screenX,screenY,camRot);
-        camerax = -4.59177e-40;
+        this->CalcSplinePosition((int)knot1,(int)knot2,(int)knot3,(int)knot4,
+                           (u_long)elapsedticks,cameraY,cameraZ,screenX,screenY,camRot);
         showRoomFlag = 1;
-        __floatsisf(cameraY);
-        cameray = camerax;
-        __floatsisf(cameraZ);
-        DrawCar__FR8tCarInfossffcbUl7tPlayer(carObj,(short)screenX,(short)screenY,camerax,cameray,(char)this->fBrightness[0],
+        DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,(short)screenX,(short)screenY,
+                   (float)cameraY * 0.0000152587890625f,
+                   (float)cameraZ * 0.0000152587890625f,(char)this->fBrightness[0],
                    true,camRot,kPlayerOne);
-        if ((((iVar5 != 0) &&
-             (iVar5 = gettick(), 0x280 < iVar5 - this->fSpeechTicks)) &&
-            (this->fSpeechPlayed == 0)) && (-1 < carInfo.fSpeechCarID)) {
+        if ((((validCar != 0) &&
+             (0x280 < gettick() - this->fSpeechTicks)) &&
+             (this->fSpeechPlayed == 0)) && (-1 < (signed char)carInfo.fSpeechCarID)) {
           this->fSpeechPlayed = 1;
-          FeAudio_AsyncPlaySpeech(0,(int)carInfo.fSpeechCarID)
+          FeAudio_AsyncPlaySpeech(0,(int)(signed char)carInfo.fSpeechCarID)
           ;
         }
       }
-      else {
-        showRoomFlag = 0;
-        this->fCameraRotation = this->fCameraRotation + 3;
-        DrawCar__FR8tCarInfossffcbUl7tPlayer(carObj,0x13a,0x54,4.0,-7.5,(char)this->fBrightness[0],true,this->fCameraRotation
-                   ,kPlayerOne);
-      }
+DrawFG_afterCarRender:
       if (((gCarObj[0]->async_handle == 0) && (this->fBrightness[0] == this->fDestBrightness[0])) &&
          ((this->fBrightness[0] == 0 && (0x80 < ticks - this->fFadeTicks[0])))) {
-        sVar12 = 0x20;
-        if (carInfo.fAvailable != '\0') {
-          sVar12 = 0x80;
-        }
-        this->SetBrightness(sVar12,0);
+        this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
         TurnOn(this->fVideoWall);
       }
       return;
-    }
-  } while( true );
 }
 
 

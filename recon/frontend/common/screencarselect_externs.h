@@ -51,8 +51,15 @@ static int  gCatmullRom[4][4] = {         /* STAT @0x80051f18 Catmull-Rom basis 
 static tCarStatType remap[5] = { (tCarStatType)0, (tCarStatType)2, (tCarStatType)1, (tCarStatType)3, (tCarStatType)4 };  /* STAT @0x80051f58 */
 static short textVals[5], text2PVals[5];  /* STAT @0x80051f6c/f78 */
 static short tvOrder[10], tvSplitOrder[5];/* STAT @0x80051f84/f98 */
-static char gStateOverlays[1][32] = {     /* STAT @0x80051fa4 (byte-exact) */
-    {-1, 6, 0, -1, 4, 6, 0, -1, -1, 6, 2, -1, 4, 6, 1, -1, -1, 6, 3, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
+static signed char gStateOverlays[8][4] = { /* STAT @0x80051fa4 (byte-exact) */
+    {-1, 6, 0, -1},
+    { 4, 6, 0, -1},
+    {-1, 6, 2, -1},
+    { 4, 6, 1, -1},
+    {-1, 6, 3,  5},
+    {-1,-1,-1, -1},
+    {-1,-1,-1, -1},
+    {-1,-1,-1, -1}
 };
 static char gOverlayPositions[1][112] = { /* STAT @0x80051fc4 (byte-exact) */
     {34, 1, 0, 1, -56, 0, 12, 0, 34, 1, -56, 0, -56, 0, 12, 0,

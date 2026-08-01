@@ -2895,7 +2895,7 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
     } while (j < 5);
     i = i + 1;
   } while (i < 5);
-  Hud_FBuildF4(0,x - 3,y - 2,0x38,0x31,0,' ',' ');
+  Hud_FBuildF4(0,x - 3,y - 2,0x38,0x31,0,'\0','\0');
   Hud_GoTpage(1);
   return;
 }

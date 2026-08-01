@@ -366,7 +366,10 @@ WeatherDensity_numAdd:
  * different `j` delay-slot filler (ours the addiu half of a `la`, oracle a nop).
  * FALSIFIED: writing the guard in the oracle's polarity
  * (`if (velY < tbl[state]) goto velYUpdate; goto call;`) lets gcc merge the two gotos --
- * 58 insns / 6 diffs, i.e. structurally further away. */
+ * 58 insns / 6 diffs, i.e. structurally further away.
+ * w41-a6: re-gated at 4, count EXACT 62/62, -G8 probe no change.  The SECOND, structurally
+ * identical guard (`vy > tbl[state]`) MATCHES byte-for-byte with the same source shape, so
+ * the residual is specific to the first guard's branch-sense choice, not the goto graph. */
 void Weather_ChangeIntensityBasedOnTime(void)
 
 {
@@ -945,7 +948,14 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
     }
   }
 }
-/* ---- Weather_CreateSnow__FP7SVECTOR  [WEATHER.CPP:923-961] SLD-VERIFIED ---- */
+/* ---- Weather_CreateSnow__FP7SVECTOR  [WEATHER.CPP:923-961] SLD-VERIFIED ----
+ * w41-a6 (10 diffs, count EXACT 108/108): two sched1 permutations, no register-class or
+ * structural error.  (a) the header merge -- retail stores the merged word BEFORE
+ * computing the packet-cursor bump (so the bump reuses the dying `$v1`), ours computes the
+ * bump first into `$v0`; same family as Weather_CreateRain's per-arm residual.  (b) the
+ * `((int)pt & 4)` mask is emitted BEFORE the `la` of gWeatherPixmap, retail after.
+ * The palette-before-bump order lever (which took CreateSplat 40 -> 6) was already
+ * measured NEGATIVE here in w40. */
 void Weather_CreateSnow(SVECTOR *pt)
 {
   SVECTOR gv [4];
@@ -999,7 +1009,14 @@ void Weather_CreateSnow(SVECTOR *pt)
  * merge in BOTH arms -- ours reloads the palette pointer for the write-back where the
  * oracle keeps it in one register.  The `u_int *pal` CSE local that fixed exactly this in
  * CreateSnow/DoWeather/CreateSplat REGRESSES here (fn-scope 122, block-scope-per-arm 134)
- * even though it takes the count to 115: the two arms' pal pseudos interfere.  Left alone. */
+ * even though it takes the count to 115: the two arms' pal pseudos interfere.  Left alone.
+ * w41-a6 (16, count EXACT 113/113, 8 diffs per arm).  The whole residual is ONE shape:
+ * retail computes the packet-cursor bump AFTER the header store so it reuses the just-dead
+ * `$v1` (`sw v1,0(t2); addiu v1,t2,20`) and interleaves the bump STORE into the middle of
+ * the palette merge; sched1 hoists our `addiu` above the store into `$v0`, which also
+ * flips the palette `or`'s destination (ours dest = the prim term, retail = the pal term).
+ * MEASURED NEGATIVE: palette-write-back-before-bump (16, neutral); the pal-term-first
+ * `or` spelling (52). */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
@@ -1144,7 +1161,16 @@ void Weather_CreateSplat
  * one more saved reg, plus `addu s2,s0,zero` copied in a jal delay slot for the pos.vy
  * store) where combine_givs merges ours down to two -- the documented combine_givs floor
  * (catalog: "combine_givs merges N address givs down to 2 in EVERY index spelling").
- * A `y_pos` temp is folded away and changes nothing (measured identical 36/111). */
+ * A `y_pos` temp is folded away and changes nothing (measured identical 36/111).
+ * w41-a6 FLOOR RE-VERIFIED (36 diffs, ours 111 / oracle 113).  Prototype audit: SYM arity
+ * num/splats + void return confirmed; -G identity probe: -G8 leaves it at 36 (no change)
+ * and no weather %gp_rel symbol is >4 bytes, so the -G axis is closed.  MECHANISM (named):
+ * retail's 3rd address giv is materialised as `addu s2,s0,zero` in the FIRST
+ * `jal random` delay slot and used only for the `pos.vy` halfword store, costing one more
+ * callee-saved reg (s0-s5, frame 48) than our two combine_givs-merged walkers (s0-s4,
+ * frame 40).  Trichotomy: NOT a cse double-evaluation copy (the copy DIES BEFORE its
+ * source, so make_regs_eqv would propagate it away) and not a prototype artefact -- it is
+ * the combine_givs merge, which no index spelling avoids. */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
@@ -1188,7 +1214,29 @@ void Weather_DoSplats
  * in three distinct registers (lui/addiu x3 before the frame stores) and then does
  * addu/lw x3 off one shared `sll player,2`; ours emits them serially through $v0, which
  * rotates Vi/player/wpt/wprevpt/wd across $s2-$s7.  FALSIFIED: hoisting the three array
- * bases into local pointers before reading `player` (gcc folds them straight back). */
+ * bases into local pointers before reading `player` (gcc folds them straight back).
+ * w41-a6 (still 60, count EXACT 197/197).  Residual decomposes into FOUR ties, all
+ * measured, none source-reachable so far:
+ *  (1) HEAD a0<->a1: two LOCAL-alloc quantities -- Q1={&Weather_gPServerA} and
+ *      Q2={player*4 -> +base -> lw s4}.  gcc's local_alloc orders by live length; ours has
+ *      Q1 (born at the hoisted `la`, ~17 insns) longer than Q2 (~8), so Q1 takes $a0 --
+ *      retail has them the other way round.  MEASURED NEGATIVE: reversing the three
+ *      array-read statements, routing the index through a second local, wrapping the three
+ *      reads in a block scope (all exactly 60).
+ *  (2) the two `sll sN,s2,2` sites emit one slot after the `lui/addiu` pair, retail one
+ *      slot before (4 diffs).
+ *  (3) the Camera_GetMode result: retail copies `$v0` into `$a1` in the following load's
+ *      delay slot; ours nops it.  MEASURED NEGATIVE: an explicit copy-through local
+ *      (`n = Camera_GetMode(...); mode = n;`) = 96 diffs / +2 insns.
+ *  (4) the DR_MODE tail: t1<->t2 rotation of the two hoisted 0x00ffffff / 0xff000000 mask
+ *      literals (SAME materialization order, reversed registers -- a local_alloc tie) plus
+ *      the packet-cursor bump scheduled 2 slots late.  MEASURED NEGATIVE: moving the bump
+ *      between the two merges = 66.  The IDENTICAL t1<->t2 rotation appears in
+ *      Font_TextXY's tail, so one lever would fix both.
+ *  -G8 IDENTITY PROBE: -G8 gives 58 (2 better) with zero regressions across the TU, but
+ *  every %gp_rel symbol in the weather oracles is <=4 bytes (the >4-byte server arrays are
+ *  modelled as per-element split storage and their RUNTIME-index sites use an absolute
+ *  base), so there is no positive -G8 discriminator -- NOT adopted. */
 void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;

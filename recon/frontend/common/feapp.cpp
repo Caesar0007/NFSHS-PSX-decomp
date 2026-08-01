@@ -719,14 +719,10 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   int player;
   tCarInfo carInfo;
   u_long ticks_l351;
-  tFEApplication *ptVar5;
-  tFEApplication *ptVar6;
   int iVar10;
   __vtbl_ptr_type (*pa_Var11) [11];
   tMenu *this_tMenu_l92;
   __vtbl_ptr_type (*pa_Var12) [10];
-  char *pcVar15;
-  char *pcVar16;
   tMenu *ptVar17;
   tDialogBase *this_tDialogBase_l181;
   tMenu *this_tMenu_l139;
@@ -752,6 +748,8 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
     this->fPlayer = this->fPlayer + 1;
   } while ((u_char)this->fPlayer < 2);
   this->SetMenu(0,newMenu);
+  tMenuCommand *commandBase = command;
+  tInputKeyType *keyValBase = keyVal;
   do {
     tick = ticks;
     doRedraw = true;
@@ -862,9 +860,9 @@ MainLoop_perPlayerFlagCheck:
       bool perPlayer = false;
       if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
         inputStartPlayer = (tPlayer)(u_char)this->fPlayer;
-        wasSubMenu = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
-        if (((wasSubMenu & 0x10) != 0) ||
-           ((frontEnd.gameMode == '\x01' && ((wasSubMenu & 8) == 0)))) {
+        u_char menuFlags = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
+        if (((menuFlags & 0x10) != 0) ||
+           ((frontEnd.gameMode == '\x01' && ((menuFlags & 8) == 0)))) {
           perPlayer = true;
         }
         inputEndPlayer = inputStartPlayer;
@@ -873,16 +871,16 @@ MainLoop_perPlayerFlagCheck:
           inputEndPlayer = kPlayerTwo;
         }
         this_tMenu_l139 = this->fCurrentMenu[(u_char)this->fPlayer];
-        wasSubMenu = this_tMenu_l139->fFlags;
-        if ((wasSubMenu & 0x20) != 0) {
+        u_char inputFlags = this_tMenu_l139->fFlags;
+        if ((inputFlags & 0x20) != 0) {
           inputStartPlayer = (tPlayer)(u_char)this->fInputPlayer;
           inputEndPlayer = inputStartPlayer;
         }
-        if ((wasSubMenu & 0x40) != 0) {
+        if ((inputFlags & 0x40) != 0) {
           inputEndPlayer = kPlayerOne;
           inputStartPlayer = kPlayerOne;
         }
-        if ((wasSubMenu & 0x80) != 0) {
+        if ((inputFlags & 0x80) != 0) {
           inputEndPlayer = kPlayerTwo;
           inputStartPlayer = kPlayerTwo;
         }
@@ -906,44 +904,44 @@ MainLoop_perPlayerFlagCheck:
 i = inputStartPlayer;
           MainLoop_perPlayerInputTop:
           if (inputEndPlayer < i) goto MainLoop_nextPlayer;
-          command[i].type = kMenu_Command_None;
-          keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
-          if (keyVal[i] != kInput_KeyType_NoKey) {
+          commandBase[i].type = kMenu_Command_None;
+          keyValBase[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
+          if (keyValBase[i] != kInput_KeyType_NoKey) {
             this->fInputPlayer = (char)i;
           }
           if ((0xf < ticks - ticksAtLastInput[i]) ||
-             ((debounce & keyVal[i]) == kInput_KeyType_NoKey)) {
-            this->fLastKeyPressed[i] = keyVal[i];
+             ((debounce & keyValBase[i]) == kInput_KeyType_NoKey)) {
+            this->fLastKeyPressed[i] = keyValBase[i];
           }
-          if (keyVal[i] != kInput_KeyType_NoKey) {
+          if (keyValBase[i] != kInput_KeyType_NoKey) {
             dialog = tDialogBase::GetTopMostDialog();
             demoLoopLastInputTick = tick;
             ticksAtLastInput[i] = tick;
-            if ((keyVal[i] == 4) && ((this->helpPopup).currentlyOn != 0)) {
-              keyVal[i] = kInput_KeyType_Cross;
+            if ((keyValBase[i] == 4) && ((this->helpPopup).currentlyOn != 0)) {
+              keyValBase[i] = kInput_KeyType_AlreadyProcessed;
               ((tDialogBase *)&this->helpPopup)->Hide();
             }
             if (dialog != 0) {
-              if (keyVal[i] != kInput_KeyType_Circle) {
+              if (keyValBase[i] != kInput_KeyType_Circle) {
                 (**(int (**)(...))(*(int *)(dialog + 0x60) + 0x4c))
-                          (dialog + *(short *)(*(int *)(dialog + 0x60) + 0x48),i,keyVal + i,
-                           command + i);
+                          (dialog + *(short *)(*(int *)(dialog + 0x60) + 0x48),i,keyValBase + i,
+                           commandBase + i);
               }
             }
             tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
             if (ptVar18 != (tScreen *)0x0) {
               (*(*ptVar18->_vf)[9].pfn)
                         ((ptVar18->fPermShapes).fFilename + (*ptVar18->_vf)[9].delta + -0x14,i,
-                         keyVal + i,command + i);
+                         keyValBase + i,commandBase + i);
             }
-            if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
+            if (keyValBase[i] != kInput_KeyType_AlreadyProcessed) {
               pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
               (*(*pa_Var11)[3].pfn)
                         ((int)this->fCurrentMenu[(u_char)this->fPlayer]->fItemList +
-                         (*pa_Var11)[3].delta + -0x10,i,keyVal + i,command + i);
+                         (*pa_Var11)[3].delta + -0x10,i,keyValBase + i,commandBase + i);
             }
           }
-          iVar10 = command[i].type;
+          iVar10 = commandBase[i].type;
           if (iVar10 == 0) goto MainLoop_commandSwitchDefault;
           switch(iVar10) {
           case 1:
@@ -958,7 +956,7 @@ i = inputStartPlayer;
             this->backDepth[(u_char)this->fPlayer] = 0;
 MainLoop_setMenuAndNext:
             this->SetMenu((u_short)(u_char)this->fPlayer,
-                    command[i].nextMenu);
+                    commandBase[i].nextMenu);
             i = i + kPlayerTwo;
             goto MainLoop_perPlayerInputTop;
           case 3:
@@ -970,7 +968,7 @@ MainLoop_setMenuAndNext:
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             stackBackupPin = (short)this->backDepth[(u_char)this->fPlayer];
             this->SetMenu((u_short)(u_char)this->fPlayer,
-                    command[i].nextMenu);
+                    commandBase[i].nextMenu);
             this->backDepth[1] = 0;
             break;
           case 4:
@@ -1094,20 +1092,15 @@ MainLoop_carInfoApplied:
             err = PinkSlipsNoError;
             player = 0;
             while ((player < 2) && (err == PinkSlipsNoError)) {
-              ptVar5 = FEApp;
-              pcVar15 = TextSys_Word(player + 0x295);
-              ptVar6 = FEApp;
-              (ptVar5->NoInputMemCardDialog).string = pcVar15;
-              ((tDialogBase *)&ptVar6->NoInputMemCardDialog)->Display();
+              (FEApp->NoInputMemCardDialog).string = TextSys_Word(player + 0x295);
+              ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
               while ((FEApp->NoInputMemCardDialog).fFullyOpen != 1)
               {
                 FEApp->Redraw();
               }
               err = SavePinkSlipsCarsWithErrorDialogs((short)player,0,(u_short)(u_char)frontEnd.pinkSlipsCar[player]);
               if ((err != PinkSlipsNoError) && (player == 1)) {
-                pcVar15 = TextSys_Word(0x297);
-                pcVar16 = PlayerName(0);
-                sprintf(string,pcVar15,pcVar16,1);
+                sprintf(string,TextSys_Word(0x297),PlayerName(0),1);
                 (FEApp->NoInputMemCardDialog).string = string;
                 SavePinkSlipsCarsWithErrorDialogs(0,1,-1);
               }

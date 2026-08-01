@@ -514,17 +514,25 @@ void Hud_BTCStats(short player,bool postgame)
 }
 
 /* ---- Hud_RenderStatsView__Fv  [OVERLAYS.CPP:450-507] SLD-VERIFIED ---- */
-/* w41-a4 OPEN, 23 diffs (134 ours / 139 oracle).  The 4-insn deficit IS a10's `bne 4v5`
- * missing arm and it is LOCATED: the commMode==1 re-test at the head of the .L800DAF88
- * block (`lui v0; lw v1,%lo(D_801131F8); li v0,1; bne v1,v0`).  Our CFG is 1:1 with the
- * oracle, but every path into HudStats_secondCar has already established commMode==1
- * (the goto from HudStats_common and the fall-through from HudStats_check200B's own
- * commMode test), so cse folds our second test away.  Retail keeps it because
- * .L800DAF88 is a 2-predecessor JOIN and cse_basic_block restarts there.  A flat
- * independent-statement chain (catalog SS B, the Device_ReadPad 138->PASS pattern) is the
- * untried handle.  The other cluster is base-CSE: ours hoists &Cars_gHumanRaceCarList
- * into v1 and offsets (`addiu a1,v1,0; lw v0,4(a1)`) where retail self-temps each element
- * (`lui v0,%hi(list+4); lw v0,%lo(list+4)(v0)`).  Sizing the extern [9] measured NEUTRAL. */
+/* w42-a4: 23 -> 8 diffs, insn count now EXACT 139/139.  ONE lever, and it cracked BOTH
+ * w41 clusters at once -- the PER-ELEMENT SPLAT DATA-LABEL alias (catalog w41 SS D):
+ * declaring `extern Car_tObj *D_8010FA4C;` (= Cars_gHumanRaceCarList[1], a real splat
+ * label in asm/data/data_8010CCD4.data.s) and reading it at the .L800DAF88 join instead
+ * of `Cars_gHumanRaceCarList[1]`.
+ *   WHY it works (the mechanism, worth reusing): the .L800DAF30 edge into that join is
+ * `beqz (list[1]->carFlags & 0x200)` and the join's OWN first test was the identical
+ * expression, so jump.c THREADED that edge past the join -- leaving .L800DAF88 with a
+ * single (fall-through) predecessor, on which cse had already recorded commMode==1 and
+ * therefore DELETED the commMode re-test (the whole 4-insn `bne` deficit a10's census
+ * flagged).  Retail's element read is a self-temp `lui/%lo(D_8010FA4C)` load that gcc
+ * cannot equate with the base+4 form, so the edge is NOT threaded, the block stays a
+ * 2-predecessor join, cse_basic_block restarts, and the test survives.  The alias fixes
+ * the address FORM and the missing arm with one edit -- it is a CFG lever, not a reloc
+ * cosmetic.  (Applying the same alias to the screen!=0 branch's list[1] read REGRESSES
+ * 8 -> 15 / 140 insns; it is site-specific.  Sizing the extern [9] measured NEUTRAL.)
+ * Residual 8 = two copies of ONE reorg tie: retail fills the `lw %lo(list)` load-delay
+ * slot with the clamped `sw StatsTimer` and pays the nop after `lw 0x260`, ours does the
+ * reverse.  Same instruction multiset, pure delay-slot pick. */
 void Hud_RenderStatsView(void)
 
 {
@@ -554,7 +562,7 @@ HudStats_check200B:
   if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
   if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
-  if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) goto HudStats_finalize;
+  if ((D_8010FA4C->carFlags & 0x200U) == 0) goto HudStats_finalize;
   if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
   if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;

@@ -119,58 +119,62 @@ void DrawShape_NFS4RoundRectangle(int textID,RECT &position,short selected)
 void DrawShape_NFS4Rectangle(RECT &position)
 
 {
-  tTexture_ShapeInfo *shapes;
-  int abr;
-  int dseIndex;
-  int x;
-  int y;
+  /* SYM 8c: fsize 96, mask $803f0000 (ra,s5..s0); locals are EXACTLY
+   *   topleft($s5=&gHelpShapes[0x2a]) topright($s3=[0x2b])
+   *   bottomleft($s4=[0x2c]) bottomright($s2=[0x2d]) drawFlags(AUTO -0x38=sp+0x28)
+   * REGPARM position $s0.  `shapes`/`abr`/`x`/`y`/`dseIndex`/`dseFlags`/`dseX`/
+   * `dseY` were Ghidra fictions: all four DrawShapeExtended calls and every
+   * PSXDraw* coordinate were UNINITIALISED locals (real bug).  Recovered from
+   * the raw oracle. */
+  tDrawShapeExtended drawFlags;
   tTexture_ShapeInfo *bottomright;
   tTexture_ShapeInfo *topright;
   tTexture_ShapeInfo *bottomleft;
   tTexture_ShapeInfo *topleft;
-  int dseFlags;
-  int dseX;
-  int dseY;
-  tDrawShapeExtended drawFlags;
-  
-  shapes = gHelpShapes;
-  drawFlags.tint[1] = 0x150800;
-  drawFlags.tint[3] = 0x4a1900;
+
   drawFlags.tint[0] = 0x7b2908;
+  drawFlags.tint[1] = 0x150800;
   drawFlags.tint[2] = 0x291000;
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            (dseIndex,dseFlags,dseX,dseY,0,0,&drawFlags);
-  DrawShapeExtended
-            ((int)position.w,dseFlags,dseX,dseY,0,0,&drawFlags);
+  drawFlags.tint[3] = 0x4a1900;
+  topleft = gHelpShapes_v[0] + 0x2a;
+  topright = gHelpShapes_v[0] + 0x2b;
+  bottomleft = gHelpShapes_v[0] + 0x2c;
+  bottomright = gHelpShapes_v[0] + 0x2d;
+  DrawShapeExtended(0x2a,9,position.x,position.y,0,0,&drawFlags);
+  DrawShapeExtended(0x2b,9,(int)position.x + (int)position.w - (int)topright->width,
+                    position.y,0,0,&drawFlags);
+  DrawShapeExtended(0x2c,9,position.x,
+                    (int)position.y + (int)position.h - (int)bottomleft->height,0,0,&drawFlags);
+  DrawShapeExtended(0x2d,9,(int)position.x + (int)position.w - (int)bottomright->width,
+                    (int)position.y + (int)position.h - (int)bottomright->height,0,0,&drawFlags);
   PSXDrawTransSquare
-            (drawFlags.tint[1],x,y,
-             ((int)position.w - (int)shapes[0x2a].width) - (int)shapes[0x2b].width,1,1);
+            (drawFlags.tint[1],(int)position.x + (int)topleft->width,position.y,
+             (int)position.w - (int)topleft->width - (int)topright->width,1,1);
   PSXDrawTransSquare
-            (drawFlags.tint[0],x,y,
-             ((int)position.w - (int)shapes[0x2c].width) - (int)shapes[0x2d].width,1,1);
+            (drawFlags.tint[0],(int)position.x + (int)bottomleft->width,
+             (int)position.y + (int)position.h + -1,
+             (int)position.w - (int)bottomleft->width - (int)bottomright->width,1,1);
   PSXDrawTransGouraudSquare
-            (x,(int)position.y + (int)shapes[0x2a].height,2,
-             ((int)position.h - (int)shapes[0x2a].height) - (int)shapes[0x2c].height,1,
+            (position.x,(int)position.y + (int)topleft->height,2,
+             (int)position.h - (int)topleft->height - (int)bottomleft->height,1,
              drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
   PSXDrawTransGouraudSquare
-            (x,(int)position.y + (int)shapes[0x2b].height,2,
-             ((int)position.h - (int)shapes[0x2b].height) - (int)shapes[0x2d].height,1,
+            ((int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,2,
+             (int)position.h - (int)topright->height - (int)bottomright->height,1,
              drawFlags.tint[2],drawFlags.tint[2],drawFlags.tint[3],drawFlags.tint[3]);
   PSXDrawTransSquare
-            (0,x,y,shapes[0x2a].width + -2,
-             ((int)position.h - (int)shapes[0x2a].height) - (int)shapes[0x2c].height,1);
+            (0,(int)position.x + 2,(int)position.y + (int)topleft->height,
+             topleft->width + -2,
+             (int)position.h - (int)topleft->height - (int)bottomleft->height,1);
   PSXDrawTransSquare
-            (0,x,y,2 - shapes[0x2b].width,
-             ((int)position.h - (int)shapes[0x2b].height) - (int)shapes[0x2d].height,1);
-  abr = (int)position.x + (int)shapes[0x2a].width;
+            (0,(int)position.x + (int)position.w + -2,(int)position.y + (int)topright->height,
+             -topright->width + 2,
+             (int)position.h - (int)topright->height - (int)bottomright->height,1);
   PSXDrawTransSquare
-            (0,x,y,((int)position.w - (int)shapes[0x2a].width) - (int)shapes[0x2b].width,
+            (0,(int)position.x + (int)topleft->width,(int)position.y + 1,
+             (int)position.w - (int)topleft->width - (int)topright->width,
              position.h + -2,1);
-  FeDraw_SetABRMode(abr);
+  FeDraw_SetABRMode(0);
   return;
 }
 

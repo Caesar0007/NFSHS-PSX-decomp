@@ -1429,277 +1429,144 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
 /* ---- HandlePullOver__13AIHigh_Player  AIHigh_Player::HandlePullOver  [AIH_PLAY.CPP:906-1014] SLD-VERIFIED ---- */
 
+static inline int AICop_IsLastChaseLevel(AICop_PerpChaseInfo *info)
+{
+  return info->bestChaseLevelIndex_ == info->copGameInfo_->numLevels - 1;
+}
+
 void AIHigh_Player::HandlePullOver()
-
-
-
 {
   int chaseTime;
-  int lapIndex;
-
   bool bVar1;
-
   int iVar2;
-
-  int _Var3;
-
-  Car_tObj *pCVar4;
-
   int iVar5;
-
-  copLevel_t *pcVar6;
-
   int a;
-
-  
-
-  if (this->pullOverMode_ == 0) {
-
-    iVar2 = this->CheckIfCaught();
-
-    if (iVar2 == 0) {
-
+  if (this->pullOverMode_ != 0) {
+    this->beatingTicksLeft_ -= AI_elapsedTime;
+    if (0 < this->beatingTicksLeft_) {
       return;
-
     }
-
-    (this->carObj_)->pullOver = 1;
-
-    this->CleanupBlockaders(1);
-
-    pcVar6 = (this->perpChaseInfo_).chaseLevel_;
-
-    iVar2 = pcVar6->engagementLapFraction * AITune_gRoughLapTime;
-
-    if (iVar2 < 0) {
-
-      iVar2 = iVar2 + 0xffff;
-
+    if ((this->carObj_)->carIndex < 2) {
+      Hud_Perp_OverlayOff((this->carObj_)->carIndex);
     }
-
-    iVar5 = (this->perpChaseInfo_).engagementTime_;
-
-    if (iVar5 < 0) {
-
-      iVar5 = iVar5 + 0xffff;
-
-    }
-
-    this->beatingTicksLeft_ = pcVar6->beatingTicks;
-
     this->lastPullOverTime_ = simGlobal.gameTicks;
-
-    bVar1 = false;
-
-    if (((this->basicPerpInfo_.crime_ != 4) &&
-
-        (((this->carObj_)->stats).numFines == 0)) &&
-
-       (((this->perpChaseInfo_).copGameInfo_)->levels[(this->perpChaseInfo_).bestChaseLevelIndex_].
-
-        numWarningsAdded != 0)) {
-
-      bVar1 = (iVar2 >> 0x10) * 0x20 - (iVar5 >> 0x10) <
-
-              ((this->perpChaseInfo_).chaseLevel_)->warningTicks;
-
+    if (this->pullOverMode_ == 3) {
+      if (((this->carObj_)->carFlags & 4U) != 0) {
+        AICop_numArrestedHumans = AICop_numArrestedHumans + 1;
+      }
+      ((this->carObj_)->stats).finishType = 3;
     }
-
-    if ((bVar1) && (this->numWarnings_ < 2)) {
-
-      pCVar4 = this->carObj_;
-
-      this->numWarnings_ =
-
-           this->numWarnings_ + ((this->perpChaseInfo_).chaseLevel_)->numWarningsAdded;
-
-      (pCVar4->stats).numWarnings = (pCVar4->stats).numWarnings + 1;
-
-      _Var3 = 1;
-
+    if (AICop_numArrestedHumans == Cars_gNumHumanRaceCars) {
+      simVar.endSimGame = 1;
+      Stats_ExtrapolateOpponentTimes(2);
     }
+    {
+      AICop_PerpChaseInfo *chaseInfo = &this->perpChaseInfo_;
+      int engagementLapTime;
 
-    else {
-
-      pCVar4 = this->carObj_;
-
-      this->numBusts_ = this->numBusts_ + 1;
-
-      (pCVar4->stats).numFines = (pCVar4->stats).numFines + 1;
-
-      iVar2 = 2;
-
+      chaseInfo->chaseLevelIndex_ = 0;
+      if (chaseInfo->bestChaseLevelIndex_ < 0) {
+        chaseInfo->bestChaseLevelIndex_ = 0;
+      }
+      chaseInfo->chaseLevel_ =
+          chaseInfo->copGameInfo_->levels + chaseInfo->chaseLevelIndex_;
+      engagementLapTime =
+          chaseInfo->chaseLevel_->engagementLapFraction * AITune_gRoughLapTime;
+      if (engagementLapTime < 0) {
+        engagementLapTime = engagementLapTime + 0xffff;
+      }
+      iVar5 = (engagementLapTime >> 0x10) << 5;
+      a = 0x10000 / iVar5;
+      chaseInfo->engagementTime_ = (engagementLapTime >> 0x10) << 0x15;
+      chaseInfo->engagementPercentIncreasePerTick_ = a;
       if (GameSetup_gData.numLaps == 2) {
-
-        iVar2 = 0;
-
+        iVar2 = 0x13333;
       }
-
       else if (GameSetup_gData.numLaps == 4) {
-
-        iVar2 = 1;
-
+        iVar2 = 0xa8f5;
       }
-
-      if ((AIHigh_Player_kNumArrestsByLap[iVar2] <= this->numBusts_) ||
-
-         ((_Var3 = 2,
-
-          (this->perpChaseInfo_).bestChaseLevelIndex_ ==
-
-          ((this->perpChaseInfo_).copGameInfo_)->numLevels + -1 &&
-
-          (_Var3 = 2, Cars_gNumHumanRaceCars == 1)))) {
-
-        this->pullOverMode_ = 3;
-
-        pCVar4 = this->carObj_;
-
-        this->beatingTicksLeft_ =
-
-             this->beatingTicksLeft_ + 0xc0;
-
-        (pCVar4->stats).numArrests = (pCVar4->stats).numArrests + 1;
-
-        goto LAB_8006322c;
-
+      else {
+        goto LAB_80062f48;
       }
-
-    }
-
-    this->pullOverMode_ = _Var3;
-
-LAB_8006322c:
-
-    this->HandleSpeech();
-
-    return;
-
-  }
-
-  iVar2 = this->beatingTicksLeft_ - AI_elapsedTime;   /* H29: decrement dropped (m2c self-assign fold); oracle 0x80062DA0-B8 store+test the decremented value */
-
-  this->beatingTicksLeft_ = iVar2;
-
-  if (0 < iVar2) {
-
-    return;
-
-  }
-
-  iVar2 = (this->carObj_)->carIndex;
-
-  if (iVar2 < 2) {
-
-    Hud_Perp_OverlayOff(iVar2);
-
-  }
-
-  this->lastPullOverTime_ = simGlobal.gameTicks;
-
-  if (this->pullOverMode_ == 3) {
-
-    if (((this->carObj_)->carFlags & 4U) != 0) {
-
-      AICop_numArrestedHumans = AICop_numArrestedHumans + 1;
-
-    }
-
-    ((this->carObj_)->stats).finishType = 3;
-
-  }
-
-  if (AICop_numArrestedHumans == Cars_gNumHumanRaceCars) {
-
-    simVar.endSimGame = 1;
-
-    Stats_ExtrapolateOpponentTimes(2);
-
-  }
-
-  (this->perpChaseInfo_).chaseLevelIndex_ = 0;
-
-  if ((this->perpChaseInfo_).bestChaseLevelIndex_ < 0) {
-
-    (this->perpChaseInfo_).bestChaseLevelIndex_ = 0;
-
-  }
-
-  pcVar6 = ((this->perpChaseInfo_).copGameInfo_)->levels + (this->perpChaseInfo_).chaseLevelIndex_;
-
-  (this->perpChaseInfo_).chaseLevel_ = pcVar6;
-
-  iVar2 = pcVar6->engagementLapFraction * AITune_gRoughLapTime;
-
-  if (iVar2 < 0) {
-
-    iVar2 = iVar2 + 0xffff;
-
-  }
-
-  iVar5 = (iVar2 >> 0x10) << 5;
-
-  a = 0x10000 / iVar5;
-
-
-  (this->perpChaseInfo_).engagementTime_ = (iVar2 >> 0x10) << 0x15;
-
-  (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = a;
-
-  if (GameSetup_gData.numLaps == 2) {
-
-    iVar2 = 0x13333;
-
-  }
-
-  else {
-
-    iVar2 = 0xa8f5;
-
-    if (GameSetup_gData.numLaps != 4) goto LAB_80062f48;
-
-  }
-
-  iVar2 = fixedmult(a,iVar2);
-
-  (this->perpChaseInfo_).engagementPercentIncreasePerTick_ = iVar2;
-
+      iVar2 = fixedmult(a,iVar2);
+      chaseInfo->engagementPercentIncreasePerTick_ = iVar2;
 LAB_80062f48:
-
-  (this->perpChaseInfo_).blockadeDone_ = 0;
-
-  this->basicPerpInfo_.crime_ = 0;
-
-  this->RemoveCloseCops();
-
-  if (((this->pullOverMode_ != 3) || (Cars_gNumHumanRaceCars != 1)) ||
-
-     (((this->carObj_)->carFlags & 8U) != 0)) {
-
-    Cars_ResetCollidedCars(this->carObj_,1,1);
-
-  }
-
-  if (this->pullOverMode_ == 3) {
-
-    if ((Cars_gNumHumanRaceCars == 2) && (AICop_numArrestedHumans != 2)) {
-
-      DashHUD_gInfo.showhud[(this->carObj_)->carIndex] = 0;
-
+      chaseInfo->blockadeDone_ = 0;
     }
-
+    this->basicPerpInfo_.crime_ = 0;
+    this->RemoveCloseCops();
+    if (((this->pullOverMode_ != 3) || (Cars_gNumHumanRaceCars != 1)) ||
+        (((this->carObj_)->carFlags & 8U) != 0)) {
+      Cars_ResetCollidedCars(this->carObj_,1,1);
+    }
+    if (this->pullOverMode_ != 3) {
+      (this->carObj_)->pullOver = 0;
+    }
+    else if ((Cars_gNumHumanRaceCars == 2) && (AICop_numArrestedHumans != 2)) {
+      DashHUD_gInfo.showhud[(this->carObj_)->carIndex] = 0;
+    }
+    this->pullOverMode_ = 0;
+    return;
   }
 
-  else {
-
-    (this->carObj_)->pullOver = 0;
-
+  iVar2 = this->CheckIfCaught();
+  if (iVar2 == 0) {
+    return;
   }
+  (this->carObj_)->pullOver = 1;
+  this->CleanupBlockaders(1);
+  {
+    AICop_PerpChaseInfo *chaseInfo = &this->perpChaseInfo_;
+    copLevel_t *pcVar6;
+    int engagementLapTime;
+    int chaseLapTime;
 
-  this->pullOverMode_ = 0;
-
-  return;
-
+    pcVar6 = chaseInfo->chaseLevel_;
+    engagementLapTime = pcVar6->engagementLapFraction * AITune_gRoughLapTime;
+    if (engagementLapTime < 0) {
+      engagementLapTime = engagementLapTime + 0xffff;
+    }
+    chaseLapTime = (engagementLapTime >> 0x10) * 0x20;
+    iVar5 = chaseInfo->engagementTime_;
+    if (iVar5 < 0) {
+      iVar5 = iVar5 + 0xffff;
+    }
+    chaseTime = chaseLapTime - (iVar5 >> 0x10);
+    this->beatingTicksLeft_ = pcVar6->beatingTicks;
+    this->lastPullOverTime_ = simGlobal.gameTicks;
+    bVar1 = false;
+    if (((this->basicPerpInfo_.crime_ != 4) &&
+         (((this->carObj_)->stats).numFines == 0)) &&
+        (chaseInfo->copGameInfo_->levels[chaseInfo->bestChaseLevelIndex_]
+             .numWarningsAdded != 0)) {
+      bVar1 = chaseTime < chaseInfo->chaseLevel_->warningTicks;
+    }
+  }
+    if ((bVar1) && (this->numWarnings_ < 2)) {
+      this->numWarnings_ =
+          this->numWarnings_ + (this->perpChaseInfo_).chaseLevel_->numWarningsAdded;
+      (this->carObj_->stats).numWarnings = (this->carObj_->stats).numWarnings + 1;
+      this->pullOverMode_ = 1;
+      goto LAB_8006322c;
+    }
+    else {
+      this->numBusts_ = this->numBusts_ + 1;
+      (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1;
+      iVar5 = GameSetup_gData.numLaps;
+      if ((AIHigh_Player_kNumArrestsByLap[
+               iVar5 == 2 ? 0 : (iVar5 == 4 ? 1 : 2)] <= this->numBusts_) ||
+          (AICop_IsLastChaseLevel(&this->perpChaseInfo_) &&
+           Cars_gNumHumanRaceCars == 1)) {
+        this->pullOverMode_ = 3;
+        this->beatingTicksLeft_ = this->beatingTicksLeft_ + 0xc0;
+        (this->carObj_->stats).numArrests =
+            (this->carObj_->stats).numArrests + 1;
+        goto LAB_8006322c;
+      }
+      this->pullOverMode_ = 2;
+    }
+LAB_8006322c:
+  this->HandleSpeech();
 }
 
 

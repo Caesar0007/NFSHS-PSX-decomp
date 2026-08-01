@@ -181,7 +181,6 @@ void RaceStatistics(void)
   int halfH;
   int titleX;
   int titleY;
-  int dataY;
 
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
   /* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
@@ -222,8 +221,7 @@ void RaceStatistics(void)
   }
   Font_TextColor(6);
   Font_TextXY(TextSys_Word(0x39),titleX * 0x10000 >> 0x10,titleY);
-  dataY = (titleY + 0x11) * 0x10000 >> 0x10;
-  Hud_FBuildF4(0,HUD_STATS_POS_X,dataY + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
+  Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   if (GameSetup_gData.raceType == 1) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
@@ -238,16 +236,16 @@ void RaceStatistics(void)
       int colmid;
 
       colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + 2);
-      Hud_FBuildF4(0,col2 + -2,dataY + 0xb,1,barH - ((dataY - posyL) + 0x13),0,'\0','\0');
+      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1,barH - ((((titleY + 0x11) * 0x10000 >> 0x10) - posyL) + 0x13),0,'\0','\0');
       if (0 < (int)i) {
         Hud_FBuildF4(0,col1 + -2,posyL,1,barH8,0,'\0','\0');
       }
       if (2 < D_8013D99C) {
         Font_TextColor(3);
         sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
-        /* CORRECTNESS (w39-a4): the Y arg is dataY-4, NOT (-halfH)-4.  Raw oracle
-           @0x800DA2D0 `addiu $a2,$s3,-0x4` with $s3 = dataY. */
-        Font_TextXY(string,colmid,dataY + -4);
+        /* CORRECTNESS (w39-a4): the Y arg is ((titleY + 0x11) * 0x10000 >> 0x10)-4, NOT (-halfH)-4.  Raw oracle
+           @0x800DA2D0 `addiu $a2,$s3,-0x4` with $s3 = ((titleY + 0x11) * 0x10000 >> 0x10). */
+        Font_TextXY(string,colmid,((titleY + 0x11) * 0x10000 >> 0x10) + -4);
       }
     }
     /* NOT `a && b`: the oracle keeps two separate compares off ONE load
@@ -269,14 +267,14 @@ void RaceStatistics(void)
             Font_TextColor(4);
           }
           sprintf(string,TextSys_Word(0x34),(int)j + 1);
-          Font_TextXY(string,(int)col1,dataY + (int)j * 0xc + 0xc);
+          Font_TextXY(string,(int)col1,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
           if ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) {
             Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j],string);
           }
           else {
             Hud_ParseTime(0,string);
           }
-          Font_TextXY(string,col2 + 5,dataY + (int)j * 0xc + 0xc);
+          Font_TextXY(string,col2 + 5,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
         }
         j = j + 1;
       } while ((int)j < GameSetup_gData.numLaps);
@@ -287,8 +285,8 @@ void RaceStatistics(void)
       Font_TextColor(3);
       Font_TextXY(string,(int)col1,
                   GameSetup_gData.numLaps != 1 ?
-                  dataY + GameSetup_gData.numLaps * 0xc + 0xc :
-                  dataY + GameSetup_gData.numLaps * 0xc);
+                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc :
+                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
@@ -304,7 +302,7 @@ void RaceStatistics(void)
       }
       Font_TextXY(string,col2 + 5,
                   (GameSetup_gData.numLaps != 1 ?
-                   dataY + GameSetup_gData.numLaps * 0xc : dataY) + 0xc);
+                   ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
     if (GameSetup_gData.raceType == 1) {
       if (GameSetup_gData.numLaps * 2 + 6 < D_8013D99C) {

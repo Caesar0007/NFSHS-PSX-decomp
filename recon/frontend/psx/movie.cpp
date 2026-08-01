@@ -506,7 +506,14 @@ strCallback_inlinedJoin:
   }
   else {
     /* MATCH: ONE materialization of the constant 1 feeds isdone, isFirstSlice AND the
-     * srav shift amount of the /2 (cse reuses the register). */
+     * srav shift amount of the /2 (cse reuses the register).
+     * RESIDUAL (6 diffs, count-exact 191/191): retail also feeds that register to the
+     * rectid test -- `li a1,1; sltu a0,a3,a1` -- so rectid stays live past the `li`
+     * and is forced to $a3; we emit `sltiu a0,a1,1` (immediate) and rectid dies into
+     * $a1.  Every source spelling of the compare against a VARIABLE (`rectid < one`,
+     * `rectid < dec.isdone`, hoisting `one = 1` above the `if`, re-reading rectid
+     * later) is constant-folded by cse back to the immediate form or regresses
+     * (16/24 diffs); gcc-2.8's `seq_si_zero` pattern hard-codes the literal 1. */
     one = 1;
     nextRect = (uint)(rectid == 0);
     dec.rectid = nextRect;

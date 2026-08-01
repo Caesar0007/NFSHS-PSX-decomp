@@ -884,7 +884,19 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
    * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
    * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
-   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7 */
+   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7
+   * ---- w43-a2 residual 68 (count EXACT 82/82, brcensus clean, rove_op clean) ----
+   * The whole fn is ONE basic block (no branches), so local_alloc decides every home and the
+   * residual is a single register rotation: ytop lands in $a1 (gcc reuses the dying `y` REGPARM)
+   * where retail uses a fresh $t8, which then frees $a1 for the SECOND `src+0xc` read (retail
+   * `lw a1,12(a2)`; ours self-temps `lw a2,12(a2)`) and flips the $v0/$v1 roles of the second
+   * OT-link chain vs the font_tint load.  MEASURED NEGATIVE (all re-gated): ytop as one/two/three
+   * named locals, fully inlined at all 4 use sites, `ybase+5` as its own MODIFY_EXPR statement,
+   * `5 + (y-yoff)`, `(y+5)-yoff`, hoff computed first, hoff mutated into `yoff` in place, the
+   * ytop computation deferred to 4 different later statement positions, a named local for the
+   * second `src+0xc` read, and 5 positions for the font_tint store (the between-prim[3]-and-
+   * prim[7] slot below is the best of those, 72->68).  gcc folds `(A+5)-B` to `A-(B-5)` through
+   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along. */
   u_char  *prim;
   u_char  *prevPrim;
   int      linkAddr;

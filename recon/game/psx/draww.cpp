@@ -944,12 +944,8 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   int newIndex;
   DR_TWIN * aprim;
   int p0;
-  u_long l1;
-  u_long l2;
-  u_long l3;
   int dU;
   short vert2_proj_x;
-  u_long l0;
   int vertProj_p;
   short vert0_proj_x;
   short tu27;
@@ -2917,17 +2913,10 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
 {
-  u_long l1;
-  u_long l0;
   int skidChunk_p;
   int vert_count;
   int depth_index;
-  int uv_v_pack;
   int vert_idx;
-  u_long l2;
-  int uv_u_pack;
-  u_long l3;
-  int uv_alpha;
   POLY_GT4 *prim;
   void *primPtr;
   Draw_tPixMap *pmx;
@@ -3152,15 +3141,42 @@ gte_swc2(0x7,(void *)0x1f800094);
           }
           *(u_char *)((int)primPtr + 7) = 0x3e;
           *(u_char *)((int)primPtr + 3) = 0xc;
-          uv_v_pack = *(int *)(pmx_dst + 4);
-          uv_u_pack = *(int *)(pmx_dst + 8);
-          uv_alpha = *(int *)(pmx_dst + 0xc);
-          *(u_int *)((int)primPtr + 0xc) = *(u_int *)pmx_dst;
-          *(int *)((int)primPtr + 0x18) = uv_v_pack;
-          *(int *)((int)primPtr + 0x24) = uv_u_pack;
-          *(int *)((int)primPtr + 0x30) = uv_alpha;
-          if (*(short *)((int)primPtr + 0xe) == -1) {
-            vert_idx = (vt_y - (short)Skid_gScratchPos1) * 0x10 >> (Skid_gScratchPos2);
+          /* MATCH (w41-a2): SYM block @0x800C950C line 119 declares FOUR ULONG REG
+           * locals l0..l3 ($2/$3/$4/$5).  The oracle batches all four pixmap word
+           * loads (lw v0,0(a3); lw v1,4(a3); lw a0,8(a3); lw a1,0xC(a3)) and only
+           * then issues the four prim stores, so each load fills the previous one's
+           * delay slot; the three-temp form (first word copied by a direct
+           * load-store expression) serialized the head pair. */
+          {
+            u_long l0, l1, l2, l3;
+
+            l0 = *(u_long *)pmx_dst;
+            l1 = *(u_long *)(pmx_dst + 4);
+            l2 = *(u_long *)(pmx_dst + 8);
+            l3 = *(u_long *)(pmx_dst + 0xc);
+            *(u_long *)((int)primPtr + 0xc) = l0;
+            *(u_long *)((int)primPtr + 0x18) = l1;
+            *(u_long *)((int)primPtr + 0x24) = l2;
+            *(u_long *)((int)primPtr + 0x30) = l3;
+          }
+          /* CORRECTNESS + MATCH (w41-a2, census lh 4v2 / lhu 2v5):
+           * (a) the POLY_GT4 clut at +0xE is a U_SHORT compared against the literal
+           *     0xFFFF -- the oracle is `lhu $v1,0xE($a2); ori $v0,$zero,0xFFFF;
+           *     bne $v1,$v0`.  Reading it as a SIGNED short and comparing to -1 is
+           *     the recurring unsigned-vs--1 class (it happens to be true here for
+           *     the same bit pattern, but it emits `lh` + a different constant).
+           * (b) `Skid_gScratchPos1`/`Skid_gScratchPos2` are linked .bss ints in
+           *     skidmark.cpp, but the oracle reads BOTH as u_shorts straight off the
+           *     scratchpad cache base ($s1): `lhu $v0,0xDC($s1); lhu $v1,0xDE($s1)`
+           *     == Draw_tGiveShelbyMoreCache::startfog / ::distfog.  Same stale-read
+           *     bug class as Skid_gCtrlScratch_94/98 already fixed here -- the depth
+           *     ramp index was computed from .bss values nothing in this frame wrote.
+           *     The `sll 16; sra 16` on the first one is the u_short read narrowed
+           *     back to SIGNED for the subtract; the second stays unsigned (it is a
+           *     shift COUNT feeding `srav`). */
+          if (*(u_short *)((int)primPtr + 0xe) == 0xffff) {
+            vert_idx = (vt_y - (short)*(u_short *)&DW_SCRATCH->startfog) * 0x10 >>
+                       *(u_short *)&DW_SCRATCH->distfog;
             if (vert_idx < 0) {
               vert_idx = 0;
             }

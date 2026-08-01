@@ -336,7 +336,6 @@ void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 void Hud_BuildSpriteFromFont(SPRT *sprt,char ch,int x,int y)
 
 {
-  u_int uVar1;
   int u;
   int v;
   int w;
@@ -1107,42 +1106,20 @@ void Hud_BuildTach(int player)
   int tachNeedle_p;
   int needle_y;
   int needle_x;
-  int lookupResult;
-  int fangle_norm;
-  int rpm_norm;
-  int tachShape_p;
-  int color_pack;
-  int needle_idx2;
   int carType;
   void *tp9;
-  int needle_idx;
   u_int uVar1;
   u_long y;
   int sin1;
-  int ti2;
   u_long x;
   int fangle;
-  int arg1_00;
-  int loc_48;
   int sin;
   int cos;
   SPRT *gSprt1;
   int cos1;
   u_long color;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int loc_1c;
-  int loc_18;
-  int loc_14;
-  int loc_10;
-  int loc_c;
-  int loc_8;
-  int loc_4;
   u_char *prim2;
-  u_char *tp2;
   u_char *tp3;
-  u_char *tp1;
   
   if (player != 0) {
     gSprt1 = gSprite1;
@@ -1150,26 +1127,25 @@ void Hud_BuildTach(int player)
   else {
     gSprt1 = gSprite0;
   }
-  rpm_norm = GameSetup_gData.carInfo[player].carType;
   carType = 0x1d;
-  if (rpm_norm < 0x1e) {
-    carType = rpm_norm;
+  if (GameSetup_gData.carInfo[player].carType < 0x1e) {
+    carType = GameSetup_gData.carInfo[player].carType;
   }
   if (GameSetup_gData.Time != 0) {
-    tachShape_p = (int)night_needle;
+    color = night_needle[carType];
   }
   else {
-    tachShape_p = (int)day_needle;
+    color = day_needle[carType];
   }
-  color = *(u_long *)(tachShape_p + carType * 4);
-  arg1_00 = (DashHUD_gInfo.rpm * 0x10000) / 0x2a30 + 0x5999;
-  if (arg1_00 < 0x5999) {
-    arg1_00 = 0x5999;
+  rpm = DashHUD_gInfo.rpm;
+  fangle = (rpm * 0x10000) / 0x2a30 + 0x5999;
+  if (fangle < 0x5999) {
+    fangle = 0x5999;
   }
-  if (0x13334 < arg1_00) {
-    arg1_00 = 0x13334;
+  if (0x13334 < fangle) {
+    fangle = 0x13334;
   }
-  fixedsincos(arg1_00,&sin,&cos);
+  fixedsincos(fangle,&sin,&cos);
   /* needle glyph shapes: player0 = &HudPmx_gShapes[0x81] (0x801116AC), player1 =
    * &HudPmx_gShapes[0x83] (0x801116D4) -- were disguised bare VAs -0x7feee954/-0x7feee92c */
   if (player != 0) {
@@ -1182,15 +1158,16 @@ void Hud_BuildTach(int player)
   clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
   needle_y = fixedmult(cos,0x1d);
   needle_x = fixedmult(sin,0x1d);
+  clut = clut | (needle_x + 0x9d) << 8;
   if (player != 0) {
-    uVar1 = (clut | (needle_x + 0x9d) << 8) | (needle_y + 0x75);
+    clut = clut | (needle_y + 0x75);
   }
   else {
-    uVar1 = (clut | (needle_x + 0x9d) << 8) | (needle_y + 0x1d);
+    clut = clut | (needle_y + 0x1d);
   }
-  *(u_int *)&gSprt1[2].u0 = uVar1;   /* word-fused u0/v0/clut store */
+  *(u_int *)&gSprt1[2].u0 = clut;   /* word-fused u0/v0/clut store */
   cos1 = fixedmult(cos,10) + 0xe;
-  ti2 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
+  sin1 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
   {
     u_char *pal;
 
@@ -1207,7 +1184,7 @@ void Hud_BuildTach(int player)
     *(short *)((u_char *)tp9 + 8) = 0xe - (short)needle_y;
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
     *(short *)((u_char *)tp9 + 10) = 0xe - (short)needle_x;
-    *(short *)((u_char *)tp9 + 0xe) = (short)ti2;
+    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
     prim2 = Render_gPacketPtr;
     pal = Render_gPalettePtr;
@@ -1215,17 +1192,17 @@ void Hud_BuildTach(int player)
     Render_gPacketPtr = prim2 + 0x14;
     *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim2 & 0xffffff;
   }
-  Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,ti2,color);
-  Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,ti2,0);
+  Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
+  Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
   prim[7] = prim[7] & 0xfd;
-  fixedsincos(arg1_00 + -0x200,&sin,&cos);
+  fixedsincos(fangle + -0x200,&sin,&cos);
   ts3 = 0xe - (short)fixedmult(cos,0x20);
   *(short *)(prim + 0xc) = ts3;
   *(short *)(prim2 + 0xc) = ts3;
   ts4 = 0xe - (short)fixedmult(sin,0x20);
   *(short *)(prim + 0xe) = ts4;
   *(short *)(prim2 + 0xe) = ts4;
-  fixedsincos(arg1_00 + 0x200,&sin,&cos);
+  fixedsincos(fangle + 0x200,&sin,&cos);
   ts1 = 0xe - (short)fixedmult(cos,0x20);
   *(short *)(prim + 0x10) = ts1;
   *(short *)(prim2 + 0x10) = ts1;

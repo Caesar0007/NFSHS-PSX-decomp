@@ -1300,9 +1300,23 @@ gte_swc2(0x8,&depthcue);
           a = *(long *)(Chunk_lightTable + vt2.light);
 gte_ldrgb(&a);
           gte_dpcs();
-          c = *(long *)(Chunk_lightTable + vt3.light);
-          a = *(long *)(Chunk_lightTable + vt0.light);
-          b = *(long *)(Chunk_lightTable + vt1.light);
+          /* MATCH (w40-a2): a/b/c are address-taken AUTOs (gte_ldrgb3 needs their
+           * addresses), so writing them directly serializes load->store->load->store
+           * through ONE scratch and pays a `nop` per pair.  The oracle runs the three
+           * light-table chains in PARALLEL (all three `lh` indices, then all three
+           * `lw`s, then the three `sw`s) -- reproduce with three register temps
+           * (catalog par.A "N named value-temps / parallel chains"). */
+          {
+            long tc;
+            long ta;
+            long tb;
+            tc = *(long *)(Chunk_lightTable + vt3.light);
+            ta = *(long *)(Chunk_lightTable + vt0.light);
+            tb = *(long *)(Chunk_lightTable + vt1.light);
+            c = tc;
+            a = ta;
+            b = tb;
+          }
 gte_strgb(&prim->r3);
 gte_ldrgb3(&a,&b,&c);
           gte_dpct();

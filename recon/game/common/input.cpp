@@ -422,10 +422,15 @@ secondHeldDone:
   }
 
   {
-    for (i = 0; i < 32; i++) {
-      if ((iactive[i] != 0) && (*h != 0) &&
+    char *interfaceActive;
+
+    i = 0;
+    interfaceActive = iactive;
+    left = 1;
+    for (; i < 32; i++) {
+      if ((interfaceActive[i] != 0) && (*h != 0) &&
           ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
-        menukeys |= (one << i);
+        menukeys |= (left << i);
       }
       h++;
     }

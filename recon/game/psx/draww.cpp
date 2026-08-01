@@ -2980,8 +2980,16 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
    * that literal in its OWN callee-saved reg across the calls (`lui fp,0x1F80;
    * ori fp,fp,0x94` in the prologue), so model it as a local pointer. */
   int *otz94;
+  /* MATCH (w40-a2): 0x404040 is stored four times deep inside the loop across calls;
+   * the oracle materializes it ONCE into a callee-saved reg in the prologue
+   * (`lui s3,0x40; ori s3,s3,0x4040`).  Diff-neutral on its own but it reproduces the
+   * oracle's prologue materialization SET (0x1F800000 base + 0x1F800094 + 0x404040);
+   * the only one still missing is `t = &fskid->t` ($s6), which REGRESSES (344->415)
+   * every time it is added -- retested twice, w39 and w40. */
+  int grey;
 
   otz94 = (int *)0x1f800094;
+  grey = 0x404040;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   ccount_local = fskid->count;
   /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
@@ -3128,10 +3136,10 @@ gte_swc2(0x7,(void *)0x1f800094);
                  *(u_int *)(((coorddef *)(pt1_index + 0x24))->y + 0x10);
           }
           else {
-            *(u_int *)((int)primPtr + 4) = 0x404040;
-            *(u_int *)((int)primPtr + 0x10) = 0x404040;
-            *(u_int *)((int)primPtr + 0x28) = 0x404040;
-            *(u_int *)((int)primPtr + 0x1c) = 0x404040;
+            *(u_int *)((int)primPtr + 4) = grey;
+            *(u_int *)((int)primPtr + 0x10) = grey;
+            *(u_int *)((int)primPtr + 0x28) = grey;
+            *(u_int *)((int)primPtr + 0x1c) = grey;
           }
           *(u_char *)((int)primPtr + 7) = 0x3e;
           *(u_char *)((int)primPtr + 3) = 0xc;

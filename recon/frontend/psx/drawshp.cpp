@@ -20,6 +20,21 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
    * All five shorts are plain `short` locals: that is what lets combine narrow the
    * shared rect.w load to `lhu` and pay the sign-extend only on the >>3 use
    * (lhu + sll 16 + sra 19) exactly like the oracle -- no (u_short) casts. */
+  /* RESIDUAL 49 @ ours 107 / oracle 108 -- STRONG evidence, mechanism named:
+   * cc1's loop.c declines to hoist the lone `lui 0x1F800000` (Render_gPalettePtr's
+   * address) out of the loop.  -dL receipt (tools/rtl_dump.py -dL):
+   *     Insn 84: regno 108 (life 1), move-insn savings 1 not desirable
+   *     Insn 84: possible biv, reg 108, const = 528482304   (= 0x1F800000)
+   * while the four 2-insn constants (0x1F800004 life 21, 0xffffff 11, 0xff000000 7,
+   * 0x808080 15) are all "moved".  Retail hoisted it, so $s0 there holds the palette
+   * base; ours spends $s0 on the 0xff000000 mask -> whole-fn scratch rotation.
+   * The address pseudo genuinely has life 1 in BOTH builds (one use: the pointer
+   * value is loaded once and reused), so there is no zero-cost source lever to
+   * lengthen it -- this is the documented savings-1 lone-lui LICM cost-model class.
+   * FALSIFIED here: loop shape (do-while / for / while-top / exit-in-the-middle all
+   * 49; goto-TEST 126), i-increment position (4 placements, all 49), OT-link
+   * statement/operand orders (4 x 2), and the whole -G / -mno-split-addresses axis
+   * (tools/gprobe.py: g8 / g0 / nosplit / g8+nosplit all == baseline on this TU). */
   DR_MODE *dr_mode;
   POLY_G4 *prim;
   short x1;

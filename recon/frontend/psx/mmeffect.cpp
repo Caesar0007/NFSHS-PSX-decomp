@@ -21,7 +21,17 @@ void FeDraw_SetABRMode(int abr)
 
 {
   /* SYM 8c: locals are EXACTLY abr (REGPARM int) + dr_mode (REG DR_MODE*).
-   * `tpage`, `linkAddr`, `prevPrim` were Ghidra fictions. */
+   * `tpage`, `linkAddr`, `prevPrim` were Ghidra fictions.
+   * RESIDUAL 8 @ 39/39 -- a dbr delay-slot PICK plus the `li a3,256` position.
+   * The oracle fills GetTPage's jal slot with the PALETTE store and emits the
+   * cursor store ahead of it; ours picks the cursor store.  Source order
+   * bump-then-pal does give the oracle's slot but then sched1 hoists the cursor
+   * store above the dr_mode tag store (40).  FALSIFIED: both statement orders x
+   * both OR-operand orders; volatile on the tag store / palette store / cursor
+   * store in all 6 combinations (39-42); bump spelled `+ 0xc` / `+= 0xc` /
+   * `(dr_mode + 1)`; and the -G / -mno-split-addresses axis (tools/gprobe.py --
+   * all four settings == baseline).  SAME residual shape as drawshp's
+   * DrawShape_SubtractNFS4RectEdges post-loop DR_MODE block: one lever cracks both. */
   DR_MODE *dr_mode;
 
   dr_mode = (DR_MODE *)Render_gPacketPtr;

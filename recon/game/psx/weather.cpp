@@ -1161,8 +1161,6 @@ void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;
   DVECTOR *wprevpt;
-  SVECTOR *p;
-  DVECTOR *pp;
   char *wd;
   int player;
   int ab;
@@ -1214,24 +1212,22 @@ void Weather_DoWeather(DRender_tView *Vi)
     if (Camera_gInfo[player].inCar) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServerA[player]);
     }
-    /* emit one snow/rain primitive per particle; p + pp advance in lockstep.
-     * MATCH: the loop walks its OWN cursors, copied from wpt/wprevpt -- the oracle emits
-     * `addu s0,s6,zero` / `addu s2,s7,zero` right before the loop (2 insns ours lacked when
-     * the loop mutated wpt/wprevpt in place), and the in-loop refs then give the cursors
-     * the low-numbered saved regs while wpt/wprevpt keep the high ones. */
+    /* emit one snow/rain primitive per particle.
+     * MATCH: INDEX form `wpt[n]` / `wprevpt[n]`, NOT an in-place `wpt++` walk.  The SYM
+     * `8c` block lists exactly {n,wpt,wprevpt,wd,player,ab,clean_up,i,prim} -- there are NO
+     * cursor locals -- so the oracle's preheader `addu s0,s6,zero` / `addu s2,s7,zero` +
+     * `addiu s0,s0,8` / `addiu s2,s2,4` are loop.c GIVs strength-reduced out of the index
+     * form.  In-place `wpt++` gives the loop's refs to wpt itself and mis-colors the whole
+     * saved-reg file; a hand-written cursor pair reproduces the insns but not the coloring. */
     n = 0;
     if (0 < Weather_gSys.num[player]) {
-      p = wpt;
-      pp = wprevpt;
       do {
         if (Weather_gType == Weather_kRain) {
-          Weather_CreateRain(p,pp,wd + n);
+          Weather_CreateRain(wpt + n,wprevpt + n,wd + n);
         }
         else {
-          Weather_CreateSnow(p);
+          Weather_CreateSnow(wpt + n);
         }
-        p = p + 1;
-        pp = pp + 1;
         n = n + 1;
       } while (n < Weather_gSys.num[player]);
     }

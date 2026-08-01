@@ -470,6 +470,27 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  * flip (116 @918) -- EVERY one of them lets cse fold the two palette loads into one and
  * comes out 18-20 instructions SHORT.  A lower LCS count on a body that is 20 insns short
  * is the classic fuzzy-alignment trap; the count-exact form below is the right structure.
+ * w42-a5 (all NEUTRAL or WORSE -- do NOT re-try, receipts):
+ *  - posdiff (alpha-rename by first-use) says the first-use register order is
+ *    IDENTICAL to retail (s0 a0 s2 a1 s3 s1 v0 v1 a2 a3 t2 t3 t4 t5 t6 t1 t0) with
+ *    a 56-line structural residual, i.e. the 116 is NOT a rotation -- it is ONE
+ *    instruction placed differently, repeated at the three OT-link tails: retail
+ *    issues the OT-word LOAD (`lw v0,0(a0)`) BEFORE the packet-cursor STORE
+ *    (`sw v1,4(at)`); ours emits the store first.
+ *  - ALIAS LEVER TESTED AND REJECTED.  Hypothesis: gcc-2.8 alias.c
+ *    `fixed_scalar_and_varying_struct_p` lets a FIXED-address scalar (the cursor
+ *    cell at 0x1F800004) and a VARYING-address STRUCT not conflict, so giving the
+ *    OT word a struct view (`typedef struct {u_int link;} T; ((T*)(pal+otz*4))->link`)
+ *    should free the scheduler to hoist the load.  Measured: on the case-13/14 site
+ *    alone = EXACTLY 116/938 (no effect at all); applied inside the inlined ribbon
+ *    helper (cases 8+10) = 86 diffs but 918 insns, because it makes the two inline
+ *    instances' OT tails identical enough for gcc to CROSS-JUMP-MERGE them (a whole
+ *    25-insn tail disappears) -- 20 insns SHORT, the classic fuzzy-alignment trap.
+ *  - `prim = (POLY_FT4*)Render_gPacketPtr;` re-read at the case-13/14 site (the form
+ *    that WON inside the ribbon helper) = 150 @942 (+4) -- the `link` local is right
+ *    there; do not port the helper's shape.
+ *  - an explicit `u_char *pk = Render_gPacketPtr;` read hoisted above the tag RMW
+ *    (to reproduce retail's early `lw t0,0(t1)`) = 116/938, gcc coalesces it away.
  * NOTE cases 1/2/3, 6, 7, 9, 11 byte-match; preserve them verbatim.
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)

@@ -1064,21 +1064,23 @@ int iMCRD_DefaultCBProc1(void)
 short ascii2sjis(u_char ascii_code)
 
 {
-  uint sjis_code;
-  int stmp;
-  uint code;
+  /* SYM 8c block: sjis_code USHORT $3($v1), stmp UCHAR $3($v1), stmp2 UCHAR $5($a1).
+   * `base`/`pk` are compiler temps in retail (no SYM record) - kept as C locals only
+   * because the exact statement split is load-bearing (see the MATCH notes below). */
+  u_short sjis_code;
+  u_char stmp;
+  u_char stmp2;
   uint base;
   u_short *pk;
-  byte kind;
 
   stmp = 0;
-  kind = stmp;                  /* MATCH: oracle's addu a1,v1,zero = kind inits from stmp's zero */
+  stmp2 = stmp;                 /* MATCH: oracle's addu a1,v1,zero = stmp2 inits from stmp's zero */
   if ((byte)(ascii_code - 0x20) < 0x10) {
-    kind = 1;
+    stmp2 = 1;
   }
   else if (9 < (byte)(ascii_code - 0x30)) {
     if ((byte)(ascii_code - 0x3a) < 7) {
-      kind = 0xb;
+      stmp2 = 0xb;
     }
     /* MATCH: negative literals (-0x41/-0x5b/-0x61/-0x7b), NOT the algebraically-equal
      * +0xbf/+0xa5/+0x9f/+0x85 - the oracle's addiu immediates are the signed forms. */
@@ -1086,42 +1088,54 @@ short ascii2sjis(u_char ascii_code)
       stmp = 1;
     }
     else if ((byte)(ascii_code - 0x5b) < 6) {
-      kind = 0x25;
+      stmp2 = 0x25;
     }
     else if ((byte)(ascii_code - 0x61) < 0x1a) {
       stmp = 2;
     }
     /* MATCH: the last two arms are a FLAT continuation of the same else-if chain.
-     * Folding them into one `else { kind = 0x3f; if (...) return 0; }` block makes
+     * Folding them into one `else { stmp2 = 0x3f; if (...) return 0; }` block makes
      * gcc sink the stmp=2 arm to just before the merge (its `j` then dies, ours 71
      * vs 72) and inverts the 0x61 guard to bnez; the flat chain keeps the stmp=2
      * arm out-of-line with its own `j` = the oracle's beqz + j/li v1,2 pair. */
     else if ((byte)(ascii_code - 0x7b) < 4) {
-      kind = 0x3f;
+      stmp2 = 0x3f;
     }
     else {
       return 0;
     }
   }
-  /* MATCH: kind!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
-   * ascii_table arm; the inverted (kind==0 first) shape emits bnez. */
-  if (kind != 0) {
-    /* MATCH: the +0x1f must be its own in-place mutation of the widened kind -
-     * inline, gcc reassociates it to (ascii_code-0x1f)-kind. */
-    base = kind;
+  /* MATCH: stmp2!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
+   * ascii_table arm; the inverted (stmp2==0 first) shape emits bnez. */
+  if (stmp2 != 0) {
+    /* MATCH: the +0x1f must be its own in-place mutation of the widened stmp2 -
+     * inline, gcc reassociates it to (ascii_code-0x1f)-stmp2. */
+    base = stmp2;
     base = base + 0x1f;
     /* MATCH: the table base is materialized into its OWN pointer local and then
      * ADVANCED, not indexed - `ascii_k_table[idx]` (or a &-taken element, or an
-     * idx*2 + (int)base int-cast) all cost a 73rd insn. */
+     * idx*2 + (int)base int-cast) costs a 73rd insn or a wider recolor.
+     * RESIDUAL (4 diffs, count exact): a pure $v0<->$v1 tie between this pointer
+     * and the scaled-index chain.  Retail accumulates the base INTO the index reg
+     * and reuses it as the lhu dest (addu $v1,$v1,$v0 / lhu $v1,0($v1)); ours
+     * mutates the pointer in place (addu $v0,$v1,$v0 / lhu $v1,0($v0)).  Both
+     * pseudos are block-local so local_alloc decides: the index chain has ~7 refs
+     * over 4 insns vs the pointer's 3 over 6, so ours picks first and takes the
+     * lower reg.  13 spellings measured (array index, &element, int-cast address,
+     * compound +=, index-into-sjis_code, hoisted index, byte-base cast, volatile):
+     * every one either stays at 4 or costs an insn. */
     pk = ascii_k_table;
     pk = pk + ((uint)ascii_code - base);
-    code = (uint)*pk;
+    sjis_code = *pk;
   }
   else {
-    code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];
+    sjis_code = (ascii_table[stmp][0] + ascii_code) - ascii_table[stmp][1];
   }
-  sjis_code = code << 8;
-  return sjis_code | ((ushort)code >> 8);
+  /* MATCH: sjis_code is the SYM's USHORT local - the 16-bit type is what produces
+   * the oracle's `andi $v1,$v1,0xffff; srl $v1,$v1,8` byte-swap tail (a uint
+   * `code` temp + a separate (ushort) cast on the shift emits the same bytes only
+   * by accident and mis-schedules the else arm's sll). */
+  return (sjis_code << 8) | (sjis_code >> 8);
 }
 
 /* lines 2097-2101: (static data / macros / comments - no emitted code) */

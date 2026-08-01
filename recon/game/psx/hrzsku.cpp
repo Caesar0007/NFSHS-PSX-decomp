@@ -804,7 +804,23 @@ void Hrz_LightningFlicker(int on)
  * = 85/61 (much worse).  The remaining residual is the raw-load triple landing on $a3/$a1
  * instead of the SYM's $t1/$t0 -- our r-pseudos share $v0/$v1 (short ranges) where the
  * oracle's span far enough to need six registers ($v0,$v1,$a0-$a3), which is what pushes
- * its raw triple down to $t0-$t2. */
+ * its raw triple down to $t0-$t2.
+ * w41-a8 MECHANISM (why the 4-insn gap exists; SYM refutes the 3-block form kept below):
+ * SYM @40e9d3 has ONE {t1,t2,t3} block spanning ALL THREE rows -- the same three pseudos
+ * are RE-DEFINED per row, so when the r-blocks run only the LAST row's raw values
+ * (temp.m[6]/[8], still in $t1/$t2) can be store-forwarded; temp.m[0]/[2]/[3]/[5] have
+ * been overwritten and MUST be reloaded -- that IS the oracle's four extra `lw NN(sp)`.
+ * Three per-row t-blocks give three independent live pseudos, gcc forwards all nine and
+ * the fn comes out 4 insns SHORT.  Restoring the single block reproduces the reloads and
+ * gates count-EXACT 56/56, but 72 LCS diffs vs this form's 62 (identical alpha-renamed
+ * structural residual 33/56 either way), so the gate ledger keeps the 3-block form.  The
+ * single-block variants are saved verbatim at scratch/hrz_1tblock.cpp (+ _v2, per-element
+ * r-stores, also 72).  RE-OPEN LEAD from the 56/56 base: retail's nine r-values OUT-RANK
+ * the t-triple (they take $v0/$v1/$a0-$a3, pushing the raw loads to $t0-$t2); ours is the
+ * reverse.  allocno_compare is on a razor edge (t: 6 refs/~18 live = 0.67; r: 2 refs/~3
+ * live = 0.67) -- a dial that LENGTHENS the t-triple's live range or SHORTENS the
+ * r-values' flips the whole function.  Tried+FALSIFIED: per-element r-store (72),
+ * mpsx.m[0][2]-before-[0][1] store order (76). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;

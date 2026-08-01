@@ -837,30 +837,32 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
   /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
    * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
    * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
+  uint     otWord;
   short i;
-  u_char  *prevPrim;
-  u_char  *prim;
+  POLY_F4 *prevPrim;
+  POLY_F4 *prim;
 
   i = 0;
   if (0 < opacity) {
     do {
-      prim = Render_gPacketPtr;
-      prevPrim = Render_gPalettePtr;
+      prim = (POLY_F4 *)Render_gPacketPtr;
+      prevPrim = (POLY_F4 *)Render_gPalettePtr;
       i = i + 1;
-      *(uint *)prim = *(uint *)prevPrim & 0xffffff | *(uint *)prim & 0xff000000;
-      Render_gPacketPtr = prim + 0x18;
-      *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | (uint)prim & 0xffffff;
-      *(int *)(prim + 4) = col;
-      prim[7] = 0x2a;
-      prim[3] = 5;
-      *(short *)(prim + 8) = x;
-      *(short *)(prim + 10) = y;
-      *(short *)(prim + 0xc) = x + w;
-      *(short *)(prim + 0xe) = y;
-      *(short *)(prim + 0x10) = x;
-      *(short *)(prim + 0x12) = y + h;
-      *(short *)(prim + 0x14) = x + w;
-      *(short *)(prim + 0x16) = y + h;
+      prim->tag = prevPrim->tag & 0xffffff | prim->tag & 0xff000000;
+      otWord = prevPrim->tag;
+      Render_gPacketPtr = (u_char *)prim + 0x18;
+      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      *(int *)&prim->r0 = col;
+      prim->code = 0x2a;
+      ((u_char *)prim)[3] = 5;
+      prim->x0 = x;
+      prim->y0 = y;
+      prim->x1 = x + w;
+      prim->y1 = y;
+      prim->x2 = x;
+      prim->y2 = y + h;
+      prim->x3 = x + w;
+      prim->y3 = y + h;
     } while (i < opacity);
   }
   return;

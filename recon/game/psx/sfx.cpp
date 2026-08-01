@@ -230,8 +230,8 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
  * two arms setting $v1 = 1 / 0). ---- */
 static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sfxsouffle *dSouffle)
 {
-  SVECTOR ptrans;
   coorddef invertedm;
+  SVECTOR ptrans;
   int dx;
 
   invertedm = is->motion;
@@ -267,18 +267,44 @@ static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sf
   return 0;
 }
 
-/* ---- inlined ribbon-facet helpers (SFX.CPP, static; SYM proves both case-10 and case-8
- * bodies are INLINED FUNCTION instances: their block records carry (Vi,is,color,sd) as
- * block-scope REG/AUTO "locals" = the inlined callee's PARAMETERS, and the caller copies
+/* ---- inlined ribbon-facet helper (SFX.CPP, static).  SYM proves both the case-10 and the
+ * case-8 bodies are INLINED FUNCTION instances: their block records carry (Vi,is,color,sd)
+ * as block-scope REG/AUTO "locals" = the inlined callee's PARAMETERS, and the caller copies
  * a switch-scope CVECTOR into the callee's own parm slot with a 4-byte align-1 movstrsi
  * (`sw v0,0x48(sp); lwl/lwr 0x48; swl/swr 0x6C` for case 10 -- 0x50 -> 0x64 for case 8,
- * i.e. `color` and `gcolor` respectively).  Two separate helpers, not one: the only
- * difference is the ChangeTPage mode (1 vs 2) and the SYM lists exactly 4 parameters. ---- */
-static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,CVECTOR color,Sfx_tCache *sd)
+ * i.e. `color` and `gcolor` respectively).
+ *
+ * 🏆 w41-a9 CORRECTION (340 -> 168, and the whole 224-byte frame now byte-exact):
+ * it is ONE helper with FIVE parameters, not two 4-parameter twins.  The proof is the
+ * SYM's inline stack-slot arithmetic -- read the two instances' slot bases off
+ * `fsize=224` + the AUTO offsets:
+ *      case 10 (line 46): color 108  dest 120  pt 152  check 176  tpage 192
+ *      case  8 (line 89): color 100  dest 112  pt 144  check 168  tpage 194
+ * Each instance is one contiguous inline frame; `dest` starts exactly 20 bytes above the
+ * frame base and `color` exactly 12 bytes above it (base 92 / 100).  20 bytes = a FIVE-word
+ * incoming-arg block and 12 = the FOURTH arg slot, so the callee's signature is
+ * (a0,a1,a2,color@a3,a4) -- five parameters with `color` FOURTH.  A 4-parameter helper gives
+ * a 16-byte block (measured: dest lands at base+16, colour at base+8) and is 8/4 bytes off
+ * on EVERY slot from `color` upward, which is what the whole ~170-line frame-offset half of
+ * the residual was.  The missing 3rd parameter is the ChangeTPage mode (1 for case 10, 2 for
+ * case 8): gcc-2.8 constant-propagates it through the inline expansion, so it leaves no
+ * instruction and no SYM record -- which is exactly why the SYM's surviving parameter list
+ * reads (Vi,is,color,sd) with `color` apparently third.  Putting `mode` third keeps the SYM's
+ * RELATIVE order (Vi,is,...,color,sd) intact.  MEASURED (slot-map ours-vs-oracle, all 130
+ * sp-relative operands): 4 parms -> 83 mismatched slots; +mode as arg 3 -> 6; the same five
+ * parms with `color` third -> 6; with `color` fourth -> 0.
+ * Also load-bearing and measured together (each ALONE regresses -- land as one change):
+ *   - `dest` is declared BEFORE `pt` (retail dest 120 < pt 152; the SYM lists AUTOs in
+ *     REVERSE declaration order, cf. the spark helper's ptrans/invertedm pair below);
+ *   - the spark helper declares `invertedm` BEFORE `ptrans` (retail 72 / 88);
+ *   - the switch-scope `CVECTOR color, gcolor;` is declared just before `case 10:`,
+ *     not at the top of the switch body (see the note at that declaration). ---- */
+static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,int mode,
+                                        CVECTOR color,Sfx_tCache *sd)
 {
   int scale;
-  coorddef pt[2];
   SVECTOR dest[4];
+  coorddef pt[2];
   SVECTOR *dp;
 
   pt[0] = is->motion;
@@ -325,72 +351,7 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
         {
           u_short tpage;
           tpage = pmx->tpage;
-          ChangeTPage(&tpage,1);
-          prim->tpage = tpage;
-        }
-        prim->tag = prim->tag & 0xff000000 |
-                    *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        l0 = (u_int)Render_gPacketPtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x28;
-        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
-      }
-    }
-  }
-}
-
-static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,CVECTOR color,Sfx_tCache *sd)
-{
-  int scale;
-  coorddef pt[2];
-  SVECTOR dest[4];
-  SVECTOR *dp;
-
-  pt[0] = is->motion;
-  Math_NormalizeVector(&pt[0]);
-  pt[1] = is->source;
-  scale = *(short *)((char *)is + 0x3a);   /* push-back scale */
-  pt[0].x = pt[1].x - (pt[0].x * scale >> 4);
-  pt[0].y = pt[1].y - (pt[0].y * scale >> 4);
-  pt[0].z = pt[1].z - (pt[0].z * scale >> 4);
-  dp = &dest[0];
-  Sfx_ThickenXZ(dp,&pt[0],&pt[1],&Vi->cview.translation);
-  TrsProj_SetPsxMatrix(&gWorldMat,(coorddef *)0x0);
-  if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-    VECTOR check;
-    POLY_FT4 *prim;
-
-    gte_ldv0(&dest[1]);
-    gte_rtps();
-    prim = (POLY_FT4 *)Render_gPacketPtr;
-    gte_stlvnl(&check);
-    if (check.vz >= 0x20) {
-      gte_stsxy(&prim->x1);
-      gte_ldv3(dp,&dest[2],&dest[3]);
-      gte_rtpt();
-      *(u_long *)&prim->r0 = *(u_long *)&color;
-      gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
-      gte_avsz4();
-      gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
-      sd->otz = (sd->otz >> 1) + 0x32;
-      if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
-        u_long l3,l2,l1,l0;
-        Draw_tPixMap *pmx;
-
-        *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-        pmx = gSparkHPixmap[6 - (u_char)is->cycle];
-        l0 = *(u_int *)&pmx->u0;
-        l1 = *(u_int *)&pmx->u1;
-        l2 = *(u_int *)&pmx->u2;
-        l3 = *(u_int *)&pmx->u3;
-        *(u_int *)&prim->u0 = l0;
-        *(u_int *)&prim->u1 = l1;
-        *(u_int *)&prim->u2 = l2;
-        *(u_int *)&prim->u3 = l3;
-        {
-          u_short tpage;
-          tpage = pmx->tpage;
-          ChangeTPage(&tpage,2);
+          ChangeTPage(&tpage,mode);
           prim->tpage = tpage;
         }
         prim->tag = prim->tag & 0xff000000 |
@@ -440,56 +401,49 @@ static inline void Sfx_BuildBigRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *
  * eaclib `intcos`/`fastintcos` (same for sin) are CO-EQUAL LINKER XDEFs at one address, so
  * the spelling is byte-identical (verify_asm is reloc-name lenient).
  *
- * ============================ w40-a9 STATUS ============================
- * GATE 340 diffs (ours 942 / oracle 938) -- was 399 at wave start.
+ * ============================ w41-a9 STATUS ============================
+ * GATE 168 diffs (ours 942 / oracle 938) -- was 340 at wave start, 399 before w40.
+ * FRAME + EVERY STACK SLOT IS NOW BYTE-EXACT (fsize 224 == SYM; slot map ours-vs-oracle
+ * 130/130 sp-relative operands identical, was 47/130).
  *
- * 🏆 THE BANKED SYM REWRITE LANDED, but the SYM's "each case block REDECLARES Vi/is/
- * dSouffle" reading was WRONG.  Those block records are an INLINED CALLEE'S PARAMETERS:
- * gcc-2.8 emits an inlined function as BLOCK(parms) > BLOCK(body locals).  PROOF (not
- * inference): the caller copies a switch-scope CVECTOR into the callee's own parm slot
- * with a 4-byte align-1 movstrsi -- case 10 `sw $v0,0x48($sp); lwl/lwr 0x48 ->
- * swl/swr 0x6C` = the SYM's switch-level `color`@sp+72 into case-10's parm `color`@
- * sp+108, and case 8 does 0x50 -> 0x64 (`gcolor`@sp+80 -> parm@sp+100).  That is
- * exactly a by-value struct argument being copied into an inlined callee's frame, and
- * it simultaneously explains (a) the two "dead" CVECTORs at switch scope, (b) the
- * OVERLAPPING case-8/case-10 stack slots (expand_inline_function allocates the inline's
- * locals as assign_stack_TEMPs, freed and reused at block end -- DECL slots never
- * overlap), and (c) Sfx_BuildSmokeFacet's identical (is,dSouffle,radius)+(sina,cosa)
- * block pair, i.e. a SHARED quad helper inlined there too.
- * => cases 4 / 10 / 8 are now three `static inline` helpers (Sfx_BuildSparkFacet,
- *    Sfx_BuildRibbonFacet, Sfx_BuildBigRibbonFacet); case 4 RETURNS the skip flag
- *    (the oracle's $v1 at .L800DD9F8).  All three verified inlined (no out-of-line sym).
+ * 🏆 THE FRAME/INTERLEAVE PROBLEM IS SOLVED (see the helper's header comment for the
+ * derivation).  It was NOT an assign_stack_temp ordering quirk: the case-8 and case-10
+ * inline instances are offset by 8 because the helper takes FIVE parameters (20-byte
+ * incoming-arg block) with `color` FOURTH, and because gcc-2.8 lays an inline instance
+ * out as one contiguous frame whose base moves with the caller's free-slot state.
+ * Landed as ONE change (each part alone REGRESSES -- receipts in mismatched-slot counts
+ * out of 130): 4-parm twins 83 -> +5th `mode` parm 6 -> `color` moved to 4th 0.
+ * Companion decl-order fixes, same commit: spark helper `invertedm` before `ptrans`
+ * (retail 72/88), ribbon helper `dest` before `pt` (retail 120/152), switch-scope
+ * `CVECTOR color,gcolor` declared just before `case 10:` (their slots 72/80 REUSE case
+ * 4's freed inline frame, which is only possible if cc1plus reached the decls after
+ * expanding case 4).  The old note "swapping pt/dest REGRESSES hard (1095) -- the order
+ * is right" was a verify_asm LCS ARTIFACT: with the sp displacements blinded the diff is
+ * 170 for every ordering, and the slot-map metric is what discriminates.  Likewise the
+ * old "two separate helpers, not one" reading was wrong.
+ * The rejected `int deadfrm[2];` scaffolding diagnostic is superseded -- do not reuse it.
  *
- * WHAT THAT FIXED (each measured):
- *  - saved-reg mask is now EXACTLY the SYM's $800F0000 = s0,s1,s2,s3,ra.  The old build
+ * EARLIER (w40) findings, still valid:
+ *  - saved-reg mask is EXACTLY the SYM's $800F0000 = s0,s1,s2,s3,ra.  The pre-inline build
  *    spilled a 6th (s4) because cse unified the two `&wpos` rtxes into one pseudo live
  *    across Math_NormalizeVector; inside an inlined callee the address is rematerialised
  *    per use, exactly like retail's two `addiu $a0,$sp,0x48`.
- *  - Vi now lands in $s0 (SYM $10), was $s1 -- the head of the whole cascade; s0 is then
- *    freed for &dSouffle in case 4 and the packet pointer in case 10, as in the oracle.
+ *  - Vi lands in $s0 (SYM $10); s0 is then freed for &dSouffle in case 4 and the packet
+ *    pointer in case 10, as in the oracle.
  *  - EARLY BASE-POINTER HOIST for the ribbon array: `SVECTOR *dp = &dest[0];` reproduces
  *    retail's callee-saved $s1 base held across Sfx_ThickenXZ + TrsProj_SetPsxMatrix and
  *    reused as gte_ldv3's first operand (376 -> 340).  The bare array-name argument lets
  *    cse drop the pseudo and rematerialise instead.
  *  - the OT-link packet-link temp goes through `l0` (SYM $3), not a recycled `scale`.
  *
- * REMAINING (177 diff lines, five ~46-line clusters):
- *  (1) FRAME 216 vs SYM fsize 224 -- every sp displacement in cases 4/10/8/13-14 is
- *      offset, which is most of the residual.  DIAGNOSTIC (do NOT adopt): adding a dead
- *      `int deadfrm[2];` at fn scope gates 340 -> 332 at an unchanged 942 insns, i.e.
- *      the frame delta alone is worth ~8 diff lines.  Rejected as fabricated-local
- *      scaffolding; the REAL cause is the inline temp-slot layout -- in retail the case-8
- *      and case-10 inline instances are offset by 8 and INTERLEAVE
- *      (c8 tpage@194 > c10 tpage@192 > c10 check@176 > c8 check@168 > c10 pt@152 >
- *       c8 pt@144 > c10 dest@120 > c8 dest@112 > c10 color@108 > c8 color@100),
- *      whereas our two instances land on identical slots.  Swapping the pt/dest
- *      declaration order was tried and REGRESSES hard (1095) -- the order is right.
- *  (2) the 0xFFFFFF / 0xFF000000 / &Render_gPacketPtr / Render_gPalettePtr four-constant
+ * REMAINING (168 lines; the sp-displacement half is gone, this is the register half):
+ *  (1) the 0xFFFFFF / 0xFF000000 / &Render_gPacketPtr / Render_gPalettePtr four-constant
  *      register rotation in the case-10/8/13-14 OT-link tails -- the SAME allocator tie
  *      documented as a STRONG FLOOR on Sfx_AdditivePrim above (and as the PrimStop /
  *      SpotPrims / SubdividFacet family in the catalog).
- *  (3) case 10/8: `scale` lands in $a3 where the SYM says $3(v1), and the first product
- *      in $v1 where retail uses $t6 -- a downstream consequence of (1).
+ *  (2) case 10/8: `scale` lands in $a3 where the SYM says $3(v1), and the first product
+ *      in $v1 where retail uses $t6.
+ *  (3) ours is 942 insns vs oracle 938 -- 4 instructions over, not yet localised.
  * NOTE cases 1/2/3, 6, 7, 9, 11 byte-match; preserve them verbatim.
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
@@ -500,7 +454,6 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
   sd = (Sfx_tCache *)0x1f800000;   /* oracle: literal scratchpad address, not %hi/%lo(Sfx_gCache) */
   switch((u_char)is->type) {
-    CVECTOR color, gcolor;
   case 1:
     Sfx_BuildSmokeFacet(is,&dSouffle,gSMokePalette);
     Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,0,0xf,sd);
@@ -522,9 +475,15 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       Sfx_AdditivePrim(&dSouffle.pmx,&dSouffle.v0,2,0x28,sd);
     }
     break;
+    /* SYM slot map: the two switch-scope CVECTORs sit at sp+72/sp+80 -- the SAME
+       bytes case 4's inlined `invertedm` occupies.  Their temp slots can only be
+       the RE-USE of case 4's freed inline frame, i.e. cc1plus reached these decls
+       AFTER expanding case 4 => in the original they are declared HERE (C++ allows
+       a declaration mid-block), not at the top of the switch body. */
+    CVECTOR color, gcolor;
   case 10:
     *(u_long *)&color = 0x2e181010;
-    Sfx_BuildRibbonFacet(Vi,is,color,sd);
+    Sfx_BuildRibbonFacet(Vi,is,1,color,sd);
     break;
   case 6:
     {
@@ -636,7 +595,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
     break;
   case 8:
     *(u_long *)&gcolor = 0x2e301818;
-    Sfx_BuildBigRibbonFacet(Vi,is,gcolor,sd);
+    Sfx_BuildRibbonFacet(Vi,is,2,gcolor,sd);
     break;
   case 13:
   case 14:

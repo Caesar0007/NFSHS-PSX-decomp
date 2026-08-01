@@ -13,7 +13,23 @@ int          gCountSm;   /* @0x8013dacc  (bss(zero)) */
 int          gUseSm;   /* @0x8013dad0  (bss(zero)) */
 int          gMaxSChunk;   /* @0x8013dad4  (bss(zero)) */
 /* skid-spline control-point + scratch state (extern-declared in draww/bworld externs,
-   defined here in the owning Skidmark.obj TU; BSS zero -- runtime spline work area). */
+   defined here in the owning Skidmark.obj TU; BSS zero -- runtime spline work area).
+   🔴 AUDIT (w40-a9, at the coordinator's request after a2's Draw_kCtrlSkidmark fix):
+   these are LINK-HARNESS STORAGE ONLY -- there is NO writer and no reader anywhere in
+   skidmark.cpp (grep: the four lines below are the only occurrences in this TU), and
+   NO Skidmark_* oracle contains a scratchpad literal at all: the complete `lui`
+   immediate census over asm/nonmatchings/main/Skidmark_*.s is
+     2x (0xFFFFF...), 1x %hi(D_801131F8), 1x %hi(D_80056A14)
+   -- zero `lui 0x1F80`, zero swc2/GTE (this TU uses none).  So the scratchpad-vs-.bss
+   stale-data bug class (Skid_gCtrlScratch_94 @0x1F800094, Skid_gScratchPos1/2 @0x1F8000DC
+   /0xDE) is entirely contained in draww.cpp/hrzsku.cpp, which own BOTH the writes (GTE
+   swc2 to the literal address) and the reads.  These definitions exist only so those TUs
+   link; none of them appears in configs/symbol_addrs.txt or asm/data (they are Ghidra
+   "lost-symbol" inventions, not real NFS4.EXE symbols).  When draww/hrzsku convert the
+   cluster to fixed-address lvalue macros (methodology sec.3.6b) these four lines must be
+   DELETED in the same pass -- a macro collides with an extern decl.  Deliberately left in
+   place this wave: removing them alone would break the draww/hrzsku link with no gate
+   benefit here (skidmark.cpp's own gates are unaffected either way, verified). */
 int          Skid_gCtrlPoint_0, Skid_gCtrlPoint_1, Skid_gCtrlPoint_2, Skid_gCtrlPoint_3;
 int          Skid_gCtrlPoint_4, Skid_gCtrlPoint_5, Skid_gCtrlPoint_6;
 int          Skid_gCtrlScratch_94, Skid_gCtrlScratch_98;

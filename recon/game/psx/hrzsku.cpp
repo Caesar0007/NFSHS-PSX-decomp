@@ -791,7 +791,20 @@ void Hrz_LightningFlicker(int on)
  * not reachable via any tried source reshape (flat block-of-9, interleaved-per-row, and
  * block-scoped-per-row all tried; interleaved was worse at 76, block-scoped 74). Accepted
  * floor; count differs by 4 (genuine structural gap in the gcc RA output vs any equivalent
- * C, not a coloring coin-flip). */
+ * C, not a coloring coin-flip).
+ * w40-a8 UPDATE (the note above was partly stale -- the single-{t1,t2,t3}-block form gates
+ * 72 with the count EXACT 56/56).  Splitting {t1,t2,t3} into THREE per-row blocks (one per
+ * source row, the SYM's "same names reused per row" read the other way) gates 62 but drops
+ * to 52 insns: the three short-lived triples no longer create the register pressure that
+ * evicts temp.m[0]/[2]/[3]/[5], so gcc forwards the just-stored value instead of the
+ * oracle's four `lw NN(sp)` reloads.  Kept the 62 form (gate is the sole authority) but the
+ * 4-insn gap is the honest structural residual.  ALSO TRIED and rejected: splitting the
+ * r-block load from the shift (`r0 = temp.m[k]; ... (short)(r0>>4)`) = no change at all in
+ * both forms; reading temp through an `int *tp = temp.m;` alias to defeat store-forwarding
+ * = 85/61 (much worse).  The remaining residual is the raw-load triple landing on $a3/$a1
+ * instead of the SYM's $t1/$t0 -- our r-pseudos share $v0/$v1 (short ranges) where the
+ * oracle's span far enough to need six registers ($v0,$v1,$a0-$a3), which is what pushes
+ * its raw triple down to $t0-$t2. */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -815,12 +828,18 @@ void HrzSetPsxMatrix(matrixtdef *m)
     temp.m[0] = t1;
     temp.m[1] = -t2;
     temp.m[2] = t3;
+  }
+  {
+    int t1, t2, t3;                 /* w40-a8: per-ROW block (see note above) */
     t1 = m->m[3];
     t2 = m->m[4];
     t3 = m->m[5];
     temp.m[3] = t1;
     temp.m[4] = -t2;
     temp.m[5] = t3;
+  }
+  {
+    int t1, t2, t3;
     t1 = m->m[6];
     t2 = m->m[7];
     t3 = m->m[8];

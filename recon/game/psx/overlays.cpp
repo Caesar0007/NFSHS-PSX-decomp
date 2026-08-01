@@ -64,9 +64,14 @@ void OptionsBarThing(int x,int y,int w,int h)
  *     (Related falsifications at this base: in-place `halfH = product; SIZE_H = (short)halfH;
  *     halfH = (halfH<<16)>>17` = 254 -- it LOSES the early `(int)SIZE_H` materialization
  *     entirely (347 insns); the `(int)(short)halfH >> 1` variant = 254; sh-first = 85.)
- * Residual 7 = two pure emission-order ties: the `sh colpos,104(sp)` slot position in the
- * col* store block, and the loop tail's `lhu t0,72(sp); addu s2,t0,zero` (retail reloads
- * into a scratch and copies; ours loads straight into $s2).
+ *  6. w42-a4, 7 -> 5: `colpos = HUD_STATS_POS_X;` is the FIRST col* assignment (retail
+ *     stores it at 104(sp) BEFORE colname's 112(sp)); it was written after coltime.
+ * Residual 5 = ONE emission-order tie in the OptionsBarThing/RenderPauseBox tail: retail
+ * reloads all three AUTOs through the same scratch and copies (`lhu t0,72(sp); addu
+ * s2,t0,zero`), ours loads SIZE_W straight into $s2 -- exactly the "ours 1 insn shorter,
+ * oracle has a redundant copy" uncoalesced-temp shape.  FALSIFIED here: an `int sizeW =
+ * (u_short)SIZE_W;` local (5, neutral), the `(int)(u_short)` cast (5, neutral), reusing
+ * the dead `barH` local as the carrier (77).
  * FALSIFIED at the 65 base (re-probe only with a new idea): purging titleX (82), titleY
  * (90) or barH (65, neutral); the (u_short) halfH spelling (83).  NOTE the whole ladder is
  * LCS-NON-MONOTONE -- the halfH spelling flipped sign twice as other levers landed. */
@@ -114,13 +119,13 @@ void RaceSummary(void)
   Font_TextColor(3);
   /* each col* is computed immediately before its own Font_TextXY (oracle interleaves the
      `addiu $v0,$s6,K; addu $sN,$v0,$zero` pairs with the calls @0x800D9B2C..0x800D9B94). */
+  colpos = HUD_STATS_POS_X;
   colname = HUD_STATS_POS_X + 0x11;
   Font_TextXY(TextSys_Word(0x2e),colname,(titleY + 0xf) * 0x10000 >> 0x10);
   colcar = HUD_STATS_POS_X + 0x5f;
   Font_TextXY(TextSys_Word(0x3a),colcar,(titleY + 0xf) * 0x10000 >> 0x10);
   coltime = HUD_STATS_POS_X + 0xa7;
   Font_TextXY(TextSys_Word(0x3b),coltime,(titleY + 0xf) * 0x10000 >> 0x10);
-  colpos = HUD_STATS_POS_X;
   colbestlap = HUD_STATS_POS_X + 0xe1;
   if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);

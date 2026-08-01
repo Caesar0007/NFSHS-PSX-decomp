@@ -796,36 +796,35 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
 
 {
-  int linkAddr;
-  uint opacityv;
-  uint y_plus_h_pack;
-  int i;
-  int iter;
+  /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
+   * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
+   * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
+  int      linkAddr;
+  int      i;
   u_char  *prevPrim;
   u_char  *prim;
-  
-  iter = 0;
+
+  i = 0;
   if (0 < opacity) {
-    y_plus_h_pack = (y + h) * 0x10000;
     do {
       prim = Render_gPacketPtr;
       prevPrim = Render_gPalettePtr;
-      iter = iter + 1;
+      i = i + 1;
       *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
       linkAddr = (uint)prim & 0xffffff;
       Render_gPacketPtr = prim + 0x24;
       *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-      *(uint *)(prim + 8) = y << 0x10 | opacityv;
-      *(uint *)(prim + 0x18) = y_plus_h_pack | opacityv;
+      *(uint *)(prim + 8) = y << 0x10 | x;
+      *(uint *)(prim + 0x18) = (y + h) << 0x10 | x;
       *(int *)(prim + 4) = c1;
       *(int *)(prim + 0xc) = c2;
       *(int *)(prim + 0x14) = c3;
       *(int *)(prim + 0x1c) = c4;
       prim[7] = 0x39;
       prim[3] = 8;
-      *(uint *)(prim + 0x10) = y << 0x10 | opacityv + w;
-      *(uint *)(prim + 0x20) = y_plus_h_pack | opacityv + w;
-    } while (iter < opacity);
+      *(uint *)(prim + 0x10) = y << 0x10 | (x + w);
+      *(uint *)(prim + 0x20) = (y + h) << 0x10 | (x + w);
+    } while (i < opacity);
   }
   return;
 }

@@ -50,8 +50,14 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   {
     extern int screenbpp[];
     extern int timerhz[];
+    /* MATCH: reaching timerhz through a pointer local makes its address a plain
+       schedulable pseudo instead of an in-struct array MEM: retail materializes the
+       %hi in a SEPARATE scratch ($v1) and issues the load BEFORE the mdechandle
+       store, which still holds the call result in $v0.  A direct timerhz[0] read
+       sinks below the store and then self-temps into $a0. */
+    int *hzp = timerhz;
     vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
-    vid->displaytimeincr = fixeddiv(fixedmult(timerhz[0] << 0x10,0xa0000),fps);
+    vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
   }
   vid->state = VIDEOSTATE_IDLE;
   return (int)vid;

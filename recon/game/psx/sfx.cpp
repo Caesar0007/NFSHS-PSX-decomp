@@ -167,7 +167,14 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
  * fresh into $s0 right before reusing it (`lw s0,0(t0)`) instead of trusting `prim`'s call-spanning
  * copy; tried re-fetching into `prim`, a separate `pkt`/`u_int*` local, an address-of-macro cast,
  * and both OR-operand orderings -- all either reproduce this exact coloring or regress (extra
- * instrs from a second independent macro-deref CSE-blocked by pointer-type punning). */
+ * instrs from a second independent macro-deref CSE-blocked by pointer-type punning).
+ * w41-a9 RE-CONFIRMED under the upgraded FLOOR BAR: the `prim = (POLY_FT4 *)Render_gPacketPtr;`
+ * re-read that took Sfx_BuildSouffleFacet's identical OT-link tail from 168 -> 116 AND made its
+ * instruction count exact does NOT transfer here -- 38 -> 42 both with and without keeping the
+ * `l0` mask temp, at an unchanged count-exact 126/126.  This fn's tail is already count-exact,
+ * so the residual is purely the 0xFFFFFF / 0xFF000000 / packet-cursor constant-register tie
+ * (the PrimStop / SpotPrims / SubdividFacet family; w12-a7 proved no zero-cost source lever
+ * exists for it -- flipping the ref count needs an EMITTED instruction). STRONG FLOOR. */
 void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCache *sd)
 
 {
@@ -412,7 +419,8 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  * the spelling is byte-identical (verify_asm is reloc-name lenient).
  *
  * ============================ w41-a9 STATUS ============================
- * GATE 168 diffs (ours 942 / oracle 938) -- was 340 at wave start, 399 before w40.
+ * GATE 116 diffs (ours 938 / oracle 938) -- was 340 at wave start, 399 before w40.
+ * INSTRUCTION COUNT IS NOW EXACT (938 == 938) as well as the frame.
  * FRAME + EVERY STACK SLOT IS NOW BYTE-EXACT (fsize 224 == SYM; slot map ours-vs-oracle
  * 130/130 sp-relative operands identical, was 47/130).
  *
@@ -453,7 +461,15 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  *      SpotPrims / SubdividFacet family in the catalog).
  *  (2) case 10/8: `scale` lands in $a3 where the SYM says $3(v1), and the first product
  *      in $v1 where retail uses $t6.
- *  (3) ours is 942 insns vs oracle 938 -- 4 instructions over, not yet localised.
+ *  (3) SOLVED: the 942-vs-938 overage was the OT-link `prim` re-read (see the MATCH
+ *      note at that statement).  Count is now exact.
+ * MEASURED NEGATIVES on the remaining 116 (do NOT re-try): moving the palette-word load
+ * before the cursor store (statement swap 118 @920 insns), hoisting it into a named
+ * `l0`/`l1` temp (151/143 @921), a block-local `u_int *ot` pointer (102 @918), the
+ * `((u_int*)Render_gPalettePtr)[sd->otz]` index form (86 @918) and the OR-operand Yoda
+ * flip (116 @918) -- EVERY one of them lets cse fold the two palette loads into one and
+ * comes out 18-20 instructions SHORT.  A lower LCS count on a body that is 20 insns short
+ * is the classic fuzzy-alignment trap; the count-exact form below is the right structure.
  * NOTE cases 1/2/3, 6, 7, 9, 11 byte-match; preserve them verbatim.
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)

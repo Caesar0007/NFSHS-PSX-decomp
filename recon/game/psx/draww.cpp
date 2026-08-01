@@ -2467,6 +2467,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int doFrustumClip;
   Trk_SimObject *simObjs;
   short light;
+  Group *instGroup;   /* SYM REG $2 */
   Trk_CollideBoomInst *objInstance;
   Trk_ObjectDef *objDef;
   int totalCount;
@@ -2476,8 +2477,9 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int objectIndex;
 
   simObjs = gObjInfo->simObjs;
-  objInstance = (Trk_CollideBoomInst *)(gObjInfo->objInstanceBuf + 1);
-  groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
+  instGroup = gObjInfo->objInstanceBuf;
+  objInstance = (Trk_CollideBoomInst *)(instGroup + 1);
+  groupNumElements = instGroup->m_num_elements;
   doFrustumClip = gObjInfo->doFrustumClip;
   totalCount = 0;
   if (groupNumElements == 0) {
@@ -2667,10 +2669,24 @@ DrawWChunkFacets_emitObj:
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
-          light = -1;
           matrix.m[2] = t1;
           matrix.m[5] = t2;
-            goto DrawWChunkFacets_emitObj;
+          /* MATCH (w42-a2): case 5 passes its light INLINE as the literal -1 --
+           * exactly the same cross-jump-DEPTH rule the case-2/case-9 notes above
+           * document, and the reason `light` (SYM REG $s1) must NOT be live here.
+           * Oracle: this arm ends `addiu $v0,$zero,-0x1; sw $fp,0x14($sp)` and
+           * FALLS INTO the shared tail at .L800C8B30 (`sw $v0,0x18($sp)`; the
+           * 7th arg's stack home), while the flags&1 arm sign-extends its own
+           * $s1 and enters one insn later at .L800C8B34.  Routing this arm
+           * through the `light` variable extended $s1's live range across the
+           * whole switch, where the oracle REUSES $s1 as each arm's `sy`
+           * (`lh $s1,0x1E($s4); sll $s1,$s1,8`) -- so `light` got spilled to a
+           * HImode stack slot, costing the phantom 8 frame bytes (136 vs SYM
+           * fsize 128) and rotating totalCount off $s7 onto $fp. */
+          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+                              (coorddef *)&objInstance->x,objectOffset,-1);
+          totalCount = totalCount + objectOffset;
+          break;
           }
           anim = Object_GetAnim(simObjs + objInstance->simIndex);
           (*(*anim->_vf)[2].pfn)

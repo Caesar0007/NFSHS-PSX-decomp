@@ -1379,9 +1379,28 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              RE-MEASURED w39-a3 2026-08-01 on the post-matB-fix baseline (Prim 756):
              converting BOTH of Prim's ePmx0/ePmx1 tint blocks to per-vertex named
              pairs (cu0/cv0 .. cu2/cv2 loaded, then stored) gives 1413 -> 1394 insns
-             (5 over oracle instead of 24) but 756 -> 1507 diffs.  The temps are the
-             RIGHT shape -- the metric explosion is pure re-anchoring, the same
-             verdict as w38-a3.  Still banked; needs the frame/colouring pass. */
+             (5 over oracle instead of 24) but 756 -> 1507 diffs.
+             w40-a3 SPLIT THE LANDING -- the two tint FORMS behave differently:
+               (a) the `*(u_char *)(idN + 0xd6/0xd7)` id-morph form (this block, 4
+                   sites across Prim+PrimClip): per-vertex BLOCK-SCOPED pairs are a
+                   STRICT WIN on both metrics -- Prim 756->746 (1413->1403 insns),
+                   PrimClip 867->857 (1902->1892).  LANDED.
+               (b) the `(char)(sd->vtN).y/.z` form (4 more sites): pairs bring the
+                   insn count to 1394/1886 (5 and 9 over) AND the emitted block is
+                   then COUNT-EXACT and offset-exact against the oracle -- verified
+                   line-by-line with tools/side_by_side.py: ours
+                     lbu a0,116; lbu a1,117; lbu a2,132; lbu v0,174; lbu v1,176;
+                     addiu a0,a0,64; addu v0,v0,a0; addu a1,a1,a2; addu v1,v1,a1;
+                     sb v0,12(a3); sb v1,13(a3); ...
+                   vs retail's identical stream in $t4-$t7.  ONLY the register class
+                   differs (retail uses the $t4-$t7 band, we use $a0-$a2/$v0/$v1) plus
+                   a 1-slot addu/sb interleave.  But the LCS aligner re-anchors the
+                   whole switch and the gate reads 746->1507 / 857->2073.  NOT landed:
+                   it is a pure colouring residual now, so it should go in together
+                   with whatever moves those five temps into the $t-band.  Frame and
+                   prologue colouring are ALREADY correct for both fns (Prim 56/56 +
+                   exact prologue, PrimClip 80/80), so the old "needs the frame fix
+                   first" note is STALE -- what is left is the $a/$v-vs-$t class. */
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
           {
             u_char cu0 = *(u_char *)(id0 + 0xd6);

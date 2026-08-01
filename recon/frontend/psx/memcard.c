@@ -1028,12 +1028,12 @@ int iMCRD_HandleError(int func,int opResult,int card)
     tmp_int = 0x13;
     break;
   case 6:
-    scratch_i = 0xe;
     if (((int(*)(void))gMemCardInfo.ConfirmOverwriteProc)() != 0) {
       MemCardDeleteFile(gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
       gMemCardInfo.task = WRITE_FILE;
       return 0x15;
     }
+    scratch_i = 0xe;
 iMCRDError_setLastError:
     pCI->lasterror = scratch_i;
     gMemCardInfo.bReady = 1;

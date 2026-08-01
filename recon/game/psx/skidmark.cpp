@@ -197,8 +197,8 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
       prevskid->clr = *color;
       prevskid->type = type;
       prevskid->pt = *skidpt;
-      prevskid->chunk = gUseSm;
       prevskid->nseg = &sm->seg[sm->n];
+      prevskid->chunk = gUseSm;
       sm->n = sm->n + 1;
       return;
     }
@@ -210,11 +210,16 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
   }
   sm->seg[sm->n].next = &sm->seg[sm->n + 1];
   sm->seg[sm->n + 1].next = (Skidmark_Segment *)0x0;
+  /* `chunk = gUseSm` is the LAST of the prevskid stores: the oracle issues its
+     %gp_rel load only after `sm->seg[n+1].next = 0` and lands the store in the
+     `lh $v1,12($s0)` LOAD-DELAY SLOT.  Written any earlier the value is allocated to
+     $v1 (which `lh $v1,12($s0)` then needs), so the store has to precede the lh and
+     the slot fills with a nop -- +1 insn per tail, at both tails. */
   prevskid->clr = *color;
   prevskid->type = type;
   prevskid->pt = *skidpt;
-  prevskid->chunk = gUseSm;
   prevskid->nseg = &sm->seg[sm->n + 1];
+  prevskid->chunk = gUseSm;
   sm->n = sm->n + 2;
   return;
 }

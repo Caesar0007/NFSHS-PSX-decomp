@@ -296,17 +296,15 @@ void RaceStatistics(void)
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
-      else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType != 2) {
-        if ((GameSetup_gData.raceType == 1) &&
-            ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
-          sprintf(string,TextSys_Word(0x3d));
-        }
-        else {
-          sprintf(string,TextSys_Word(0x35));
-        }
+      else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
+        Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
+      }
+      else if ((GameSetup_gData.raceType == 1) &&
+               ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
+        sprintf(string,TextSys_Word(0x3d));
       }
       else {
-        Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
+        sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,col2 + 5,
                   (GameSetup_gData.numLaps != 1 ?

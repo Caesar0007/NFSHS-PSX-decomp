@@ -182,7 +182,13 @@ void RaceStatistics(void)
   HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
      `addiu $a0,$a0,0x1C` off the SAME (numLaps+1)*12 product) -- it is not the folded
-     constant 0x34 that the old spelling used. */
+     constant 0x34 that the old spelling used.
+     w41-a4 OPEN (banked, receipts): with THIS spelling cse still const-folds the arm
+     (it records numLaps==1 off the branch) and we emit `li $t1,0x34`.  A named
+     `int rows = (numLaps+1)*0xc;` used on BOTH sides reproduces the oracle exactly
+     (`addiu $a1,$a1,0x1C; sh` == oracle `addiu $a0,$a0,0x1C; sh`) -- retail kept the
+     product live in a local.  Insn count unchanged 459/475 but LCS 230->236, so land
+     it TOGETHER with the head register rotation (ours s1/s4/s7/s2 vs oracle s4/s7/s2/s3). */
   if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x1c;
   }

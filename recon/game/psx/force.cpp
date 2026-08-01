@@ -145,14 +145,52 @@ void Force_Vbl(void)
  *      writing it that way deletes the whole save/restore pair.
  *  (4) the two surface-clamp arms must use a CALLER-saved temp for `|linearVel.z|` (the
  *      oracle holds it in $v0 in BOTH arms); Ghidra had the 10..0xF arm reusing `v1`.
- * Falsified: spelling the clamps as `if (0x78000 < x) v1 = 0x78000; else v1 = x;`
- * (the oracle's `slt $v1,$v1,$v0` operand order) REGRESSES 223 -> 255/246 -- keep the
- * `v1 = 0x78000; if (x < 0x78001) v1 = x;` default-then-override form.
- * RESIDUAL 223 (ours 271 / oracle 278, 7 short): the surface-switch arms and the impact
- * block still schedule their constant materializations differently (retail splits
- * `lui $s3,0x0007` / `ori $s3,$s3,0x8000` across the clamp branch and hoists `li $v0,18`
- * above the audio loop), and the loop head still differs -- next lever is the loop's own
- * SYM block structure (Block start line 61/62/65/68/72/76/77). */
+ *
+ * w40-a7: 223 -> PASS 278/278.  SIX cooperating fixes, in the order they paid:
+ *  (1) 🔴 CORRECTNESS: five `(u_int)x >> 0x10` unsigned shifts (a10's w39 census hit
+ *      `srl 5 vs 0`) were Ghidra's rendering of gcc's SIGNED divide-by-2^16 expansion.
+ *      The oracle has ZERO `srl` and twelve `sra`, each guarded by `bgez x,L;
+ *      addu x,x,$fp` with `$fp` holding 65535 (0xFFFF does not fit an addiu imm16, so
+ *      gcc materializes it in a register and CSEs it across the loop).  Every site is a
+ *      plain `/ 0x10000` in C -- writing the guard by hand emitted the unsigned shift and
+ *      ROUNDED NEGATIVE VALUES THE WRONG WAY.  223 -> 205.
+ *  (2) 🔴 the audio-event walk is `car->audio[c]` (Cars_tAudio[7] @+0x798, stride 24),
+ *      NOT the Ghidra `(car->N).simRoadInfo.quadPts[c*2-4].z` + `piVar6[0x1e7]` int-index
+ *      soup.  Index form keeps the member offsets (0x79C/0x7A0/0x7A8) as LOAD
+ *      DISPLACEMENTS off a single `car + c*24` giv that loop.c walks by -24 -- exactly the
+ *      oracle -- and deletes the fabricated `piVar6`/`iVar2` locals (the SYM lists NO
+ *      pointer local for this loop).  Loop shape is exit-in-the-middle
+ *      `while (1) { if (c < 0) break; ...; c = c - 1; }` = the oracle's top `bltz` + the
+ *      unconditional `j` back-edge (a `for`/`while` rotates it).  SYM block scopes applied:
+ *      `c` is local to the `audioCount != 0` body (Block start line 62) and
+ *      `force`/`shock`/`time` to the impact arm (Block start line 77).  205 -> 185.
+ *  (3) `(fixeddiv(...) << 5) / 0x10000`, NOT `... * 0x20 / 0x10000`: gcc-2.8 FOLDS
+ *      `(x*32)/65536` into `x/2048` (`addiu 2047; sra 11`), which the oracle does not
+ *      have.  The shift spelling survives fold, then cse turns it back into `sll 5`
+ *      followed by the full `/0x10000` guard+`sra 16` the oracle shows.  185 -> 141.
+ *  (4) the two post-loop results are the SYM locals `v0`/`v1` REUSED
+ *      (`v0 = fixedmult(...)/0x10000;` ... `f->high = (u_char)v0;`), not fresh `u_char`
+ *      temps: a u_char destination lets gcc narrow the divide's final shift to `srl`,
+ *      and the oracle keeps both results in v0's/v1's own callee-saved regs across the
+ *      second `fixedmult` call.  The pre-call clamp needs a block-local `clamped` copy
+ *      (`clamped = v0; if (0xa0000 < clamped) clamped = 0xa0000;`) so the clamp happens
+ *      on the arg-register copy (`addu $a0,$s4,$zero; lui $v0,10; slt; lui $a0,10`)
+ *      instead of writing back into v0.  Guard polarity is `!= 0` (body = fall-through).
+ *      141 -> 130.
+ *  (5) the surface clamps ARE the both-arms-assign ternary
+ *      `v1 = 0x78000 < X ? 0x78000 : X;` (the w39 note's "falsified" verdict was measured
+ *      against the pre-(1)-(4) body and is WITHDRAWN); the default-then-override form
+ *      costs 85 diffs here.  130 -> 45.
+ *  (6) 🔑 the last 45 were the constant-materialization ORDER: retail emits
+ *      `addu $s4,$zero,$zero; lui $v1,7; ori $v1; lui $s3,7` BEFORE the `lw 0x420`,
+ *      with a `nop` in the load-delay slot.  That only happens when the |z| is a
+ *      SUB-EXPRESSION of the ternary (so expand_expr materializes both 0x78000 copies
+ *      while expanding the comparison, before it ever touches the operand's branches).
+ *      Spelling it `__builtin_abs((car->linearVel_ch).z) >> 2` INSIDE both ternary arms
+ *      does it -- a hand-rolled `if (t < 0) t = -t;` temp, or an `ABS()`-style macro that
+ *      expands to a ternary, both put the load first and lose.  (methodology 5.0c:
+ *      `__builtin_abs` inlines on BOTH cc1 2.7.2 and 2.8.0; bare `abs()` emits a `jal`.)
+ *      45 -> PASS. */
 void Force_Update(Car_tObj *car)
 
 {
@@ -167,7 +205,6 @@ void Force_Update(Car_tObj *car)
 
 
   u_int uVar3;
-  int iVar1;
 
 
 
@@ -220,24 +257,16 @@ void Force_Update(Car_tObj *car)
     case 8:
     case 9:
       v0 = 0;
-      iVar1 = (car->linearVel_ch).z;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      iVar1 = iVar1 >> 2;
-      v1 = 0x78000 < iVar1 ? 0x78000 : iVar1;
+      v1 = 0x78000 < __builtin_abs((car->linearVel_ch).z) >> 2 ?
+           0x78000 : __builtin_abs((car->linearVel_ch).z) >> 2;
       goto ForceUpd_audioRevLoop;
     case 10:
     case 0xb:
     case 0xc:
     case 0xd:
     case 0xf:
-      iVar1 = (car->linearVel_ch).z;
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
-      }
-      iVar1 = iVar1 >> 1;
-      v0 = 0x58000 < iVar1 ? 0x58000 : iVar1;
+      v0 = 0x58000 < __builtin_abs((car->linearVel_ch).z) >> 1 ?
+           0x58000 : __builtin_abs((car->linearVel_ch).z) >> 1;
       break;
     case 0xe:
       v0 = 0;

@@ -1151,10 +1151,15 @@ void tScreenControllerConfig::DrawForeground()
 
               sprintf(string2pointer,TextSys_Word((int)TL[2]));
               if (TL[3] == 0) {
-                for (j = 0;
-                     (j < (short)strlen(string2pointer)) && (j < this->fTextTypeOn);
-                     j++) {
-                  string1pointer[j] = string2pointer[j];
+                j = 0;
+                if (0 < this->fTextTypeOn) {
+                  do {
+                    if (j >= (short)strlen(string2pointer)) {
+                      break;
+                    }
+                    string1pointer[j] = string2pointer[j];
+                    j++;
+                  } while (j < this->fTextTypeOn);
                 }
                 string1pointer[j] = '\0';
                 brightstring[0] = string1pointer[j - 1];

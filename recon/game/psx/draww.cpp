@@ -1210,8 +1210,13 @@ gte_swc2(0x8,&depthcue);
      * each arm adds sd->offset into $v0 separately, and gcc cross-jump-merges the two
      * `sd->otz =` stores into the shared tail `sw`. */
     depth_avg = sd->otz;
-    save_pre_otz = depth_avg >> 1;
-    sd->otz = save_pre_otz;
+    /* MATCH (w40-a2): STORE-THEN-READ-BACK -- the oracle emits `sra v0,a1,1` and then a
+     * redundant `addu s3,v0,zero` copy before the `sw` in the bne delay slot; that copy
+     * is cse forwarding the just-STORED field value into a second (named) evaluation.
+     * Writing `save_pre_otz = depth_avg>>1; sd->otz = save_pre_otz;` computes straight
+     * into $s3 and loses the copy. */
+    sd->otz = depth_avg >> 1;
+    save_pre_otz = sd->otz;
     if (sd->offset == Draw_gMidGroundOtz) {
       save_pre_otz = save_pre_otz << 2;
       sd->otz = (depth_avg >> 4) + sd->offset;

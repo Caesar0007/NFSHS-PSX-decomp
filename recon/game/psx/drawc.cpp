@@ -3573,9 +3573,17 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          bgez -> sra 16 + andi 0xff : sra 24`).  Duplicating the array read in
          both arms let cc1 CSE the address and then LOOP-INVARIANT-HOIST
          `&DrawC_gOverlay[index]` out of the facet loop -- 2 extra insns plus a
-         stack slot (frame 80 vs the SYM's 72). */
+         stack slot (frame 80 vs the SYM's 72).
+         MATCH (w40-a3, 38 -> 29): the `<< 0x10` must be its OWN statement.  Fused
+         into the initializer, cc1 sinks the `sll` into the bgez delay slot and
+         then needs a THIRD register for the loaded halfword (`lhu v1` + in-place
+         `sll v1,v1,16`); split, the shift lands before the `facet->flag` load in
+         its own reg (`sll a0,v0,16`) and the halfword load gets retail's $v0.
+         Residual 3 insns = cc1 still hoists the `lh flag` into the lhu's load-delay
+         slot (retail leaves the nop and keeps sll-before-lh) -- a sched1 tie. */
       {
-        u_int ov = (u_int)(u_short)DrawC_gOverlay[index] << 0x10;
+        u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
+        ov = ov << 0x10;
         if (facet->flag < 0) {
           overlayFlag = (int)ov >> 0x18;
         }
@@ -3584,7 +3592,8 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
         }
       }
       if (((((u_int)type) & 0x40) != 0) && ((overlayFlag & 0x40) == 0)) {
-        u_int ov = (u_int)(u_short)DrawC_gOverlay[0x18] << 0x10;
+        u_int ov = (u_int)(u_short)DrawC_gOverlay[0x18];
+        ov = ov << 0x10;
         if (facet->flag < 0) {
           overlayFlag = (int)ov >> 0x18;
         }

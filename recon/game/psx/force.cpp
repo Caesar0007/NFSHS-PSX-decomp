@@ -200,16 +200,7 @@ void Force_Update(Car_tObj *car)
   int impactmultiplier;
   int v0;
   int v1;
-
-
-
-
   u_int uVar3;
-
-
-
-
-
   int frontmultiplier;
   int rearmultiplier;
   

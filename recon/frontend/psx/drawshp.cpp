@@ -189,19 +189,20 @@ void DrawShape_NFS4Rectangle(RECT &position)
 void DrawShape_NFS4TransRectangle(RECT &r,short opacity)
 
 {
-  int abr;
-  int x;
-  int y;
-  short opac;
-  
-  opac = (short)(((uint)(u_short)opacity << 0x11) >> 0x10);
-  PSXDrawTransSquare(0,x,y,4,(int)r.h,opac);
-  PSXDrawTransSquare(0,x,y,4,(int)r.h,opac);
-  PSXDrawTransSquare(0,x,y,r.w + -8,2,opac);
-  PSXDrawTransSquare(0,x,y,r.w + -8,2,opac);
-  abr = r.x + 4;
-  PSXDrawTransSquare(0,x,y,r.w + -8,r.h + -4,opacity);
-  FeDraw_SetABRMode(abr);
+  /* SYM: fsize 48, mask $800f0000 (ra,s3,s2,s1,s0); Block start/end both line 1
+   * => ZERO named locals.  The old Ghidra body carried fabricated x/y/abr/opac
+   * and passed UNINITIALISED x/y as the draw coordinates (real bug).  Every
+   * coordinate is re-read from *r (lh) at each call site per the oracle.
+   * MATCH: the doubled opacity MUST be spelled  opacity << 1  (not * 2): the
+   * shift form lets combine fold promotion+double into one (raw<<17)>>16 off the
+   * raw parm copy, deferring the plain sign-extend to the last call site; the
+   * multiply form CSEs one shared (int)opacity and is 1 insn short. */
+  PSXDrawTransSquare(0,r.x,r.y,4,r.h,opacity << 1);
+  PSXDrawTransSquare(0,r.x + r.w + -4,r.y,4,r.h,opacity << 1);
+  PSXDrawTransSquare(0,r.x + 4,r.y,r.w + -8,2,opacity << 1);
+  PSXDrawTransSquare(0,r.x + 4,r.y + r.h + -2,r.w + -8,2,opacity << 1);
+  PSXDrawTransSquare(0,r.x + 4,r.y + 2,r.w + -8,r.h + -4,opacity);
+  FeDraw_SetABRMode(0);
   return;
 }
 

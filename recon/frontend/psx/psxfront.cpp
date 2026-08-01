@@ -721,34 +721,36 @@ void LoadAllHelpShapes(void)
 void PSXDrawSquare(int col,int x,int y,int w,int h)
 
 {
-  short y1;
-  short x1;
-  int linkAddr;
-  u_char  *prim;
-  u_char  *prevPrim;
-  short x_s;
-  
-  prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
-  x_s = (short)x;
-  x1 = x_s + (short)w;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  linkAddr = (uint)prim & 0xffffff;
-  Render_gPacketPtr = prim + 0x18;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(int *)(prim + 4) = col;
-  prim[7] = 0x28;
-  y1 = (short)y;
-  *(short *)(prim + 10) = y1;
-  *(short *)(prim + 0xe) = y1;
-  y1 = y1 + (short)h;
-  prim[3] = 5;
-  *(short *)(prim + 8) = x_s;
-  *(short *)(prim + 0xc) = x1;
-  *(short *)(prim + 0x10) = x_s;
-  *(short *)(prim + 0x12) = y1;
-  *(short *)(prim + 0x14) = x1;
-  *(short *)(prim + 0x16) = y1;
+  /* SYM 8c: fsize=0 mask=0 = TRUE frameless LEAF; the ONLY local is `prim` (REG $8 = $t0,
+   * type PTR STRUCT POLY_F4 size 24) and `h` gets a REG home ($0xd = $t5).  x_s/x1/y1/linkAddr/
+   * prevPrim were FABRICATED -- retail stores straight out of the parm regs ($a1 x, $a2 y->y+h,
+   * $a3 x+w mutated in place) and lets cse hold the OT-slot POINTER in one anonymous temp while
+   * DE-referencing it twice (the 1st setaddr store may alias).  w43-a3 */
+  POLY_F4 *prim;
+  uint link;
+
+  prim = (POLY_F4 *)Render_gPacketPtr;
+  /* setaddr(prim, getaddr(OT)) -- 24-bit tag bitfield RMW */
+  prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
+  /* The OT word is RE-READ for the second setaddr (the store above may alias it), and that read
+   * happens BEFORE the packet-cursor store: gcc cannot float a load above a may-aliasing store to
+   * 0x1F800004, so the oracle's `lw v0,0(t2); ...; sw v1,0(t4); ...; sw v0,0(t2)` order is only
+   * reachable if the source reads the OT word first.  Bump-between / bump-first / `+= 0x18`
+   * spellings all measured worse (52 / 34 / 31 vs 12 for bump-last).  w43-a3 */
+  link = *(uint *)Render_gPalettePtr;
+  Render_gPacketPtr = (u_char *)prim + 0x18;
+  *(uint *)Render_gPalettePtr = link & 0xff000000 | (uint)prim & 0xffffff;
+  *(int *)&prim->r0 = col;
+  prim->code = 0x28;
+  *((u_char *)prim + 3) = 5;
+  prim->y0 = y;
+  prim->y1 = y;
+  prim->x0 = x;
+  prim->x1 = x + w;
+  prim->x2 = x;
+  prim->y2 = y + h;
+  prim->x3 = x + w;
+  prim->y3 = y + h;
   return;
 }
 

@@ -264,9 +264,14 @@ void RaceStatistics(void)
         if ((int)j * 2 + 4 < D_8013D99C) {
           /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
              @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
-          Font_TextColor(((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) &&
-                         ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] ==
-                          (Cars_gHumanRaceCarList[i]->stats).finalBestLap) ? 3 : 4);
+          if (((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) &&
+              ((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] ==
+               (Cars_gHumanRaceCarList[i]->stats).finalBestLap)) {
+            Font_TextColor(3);
+          }
+          else {
+            Font_TextColor(4);
+          }
           sprintf(string,TextSys_Word(0x34),(int)j + 1);
           Font_TextXY(string,(int)col1,dataY + (int)j * 0xc + 0xc);
           Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0 ?

@@ -678,11 +678,18 @@ void Flare_CarShapedHalo(int type,COORD16 *ptCenter,COORD16 *pt1,COORD16 *pt2,sh
       int i;                    /* gType index temp (a0; anonymous -- no SYM record) */
       u_long c;                 /* serial copy temp (v0; anti-dependence keeps the two
                                    color word-copies lw/nop/sw serial like the oracle) */
+      /* MATCH (w42-a6): ONE `type & 0x7f` computed into `i` first, then the +1/+0xb per
+       * arm.  Writing the mask in BOTH arms costs `type` one extra REG_N_REFS (6 vs 5)
+       * even though cse merges the two andi's into one insn -- and 6 refs put `type`'s
+       * allocno_compare priority (2*6/400 = .0300) just ABOVE angleZ's (1*3/107 = .0280),
+       * which is the whole $s6<->$s7 rotation.  With 5 refs (2*5/400 = .0250) angleZ wins
+       * $s6 and `type` takes $s7 exactly as the SYM says.  45 -> 25. */
+      i = type & 0x7fU;
       if (R3DCar_InMenu != 0) {
-        i = (type & 0x7fU) + 1;
+        i = i + 1;
       }
       else {
-        i = (type & 0x7fU) + 0xb;
+        i = i + 0xb;
       }
       if ((type & 0x100U) != 0) {
         ptCenter->y = -DrawC_gReflectOffset - ptCenter->y;

@@ -1112,18 +1112,19 @@ void Weather_CreateSplat
  *  - plain top-tested `while (i < gCurrentNumSplats)`: gcc rotates it and CSEs the
  *    guard load with the loop-carried one ($a2 reused), where the if+do/while form
  *    reloads gCurrentNumSplats inside the body.
- * RESIDUAL 62 = giv-anchor: gcc anchors the loop walker at +4 (startTick, the LAST
- * access in body order -- combine_givs rule) and walks a second IV at +0; the oracle
- * anchors at +0 and re-COPIES it (addu s2,s0,zero in a jal delay slot) for the pos.vy
- * store.  Index form, cast-pointer spellings and per-field pointers all measured
- * neutral-or-worse. */
+ * w40-a6 62 -> 36 (ours 111 / oracle 113): the SYM `8c` block lists ONLY `i` as a REG
+ * local (plus the two REGPARMs num=$14/s4 and splats=$04) -- so the `splats = splats + 1`
+ * pointer walk AND the `y_pos` temp were both invented.  INDEX FORM `splats[i]` throughout
+ * lets loop.c build the walkers as givs off the untouched param, which recovers the whole
+ * saved-reg map bar one.  RESIDUAL 2 insns: retail carries a THIRD address giv (frame 48 /
+ * one more saved reg, plus `addu s2,s0,zero` copied in a jal delay slot for the pos.vy
+ * store) where combine_givs merges ours down to two -- the documented combine_givs floor
+ * (catalog: "combine_givs merges N address givs down to 2 in EVERY index spelling").
+ * A `y_pos` temp is folded away and changes nothing (measured identical 36/111). */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
 {
-  short y_pos;
-  u_int rnd;
-  u_int uVar1;
   int i;
 
   if (gCurrentNumSplats < num) {
@@ -1131,28 +1132,26 @@ void Weather_DoSplats
   }
   i = 0;
   while (i < gCurrentNumSplats) {
-      if (splats->startTick <= simGlobal.gameTicks) {
-        if (splats->startTick + 0x20 < simGlobal.gameTicks) {
+      if (splats[i].startTick <= simGlobal.gameTicks) {
+        if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
             gCurrentNumSplats = i;
           }
           else {
-            (splats->pos).vx = (short)((u_int)random() % 320);
+            splats[i].pos.vx = (short)((u_int)random() % 320);
             if (GameSetup_gData.commMode == 1) {
-              y_pos = (short)((u_int)random() % 0xf0 >> 1);
+              splats[i].pos.vy = (short)((u_int)random() % 0xf0 >> 1);
             }
             else {
-              y_pos = (short)((u_int)random() % 0xf0);
+              splats[i].pos.vy = (short)((u_int)random() % 0xf0);
             }
-            (splats->pos).vy = y_pos;
-            splats->startTick = simGlobal.gameTicks + (u_int)random() % 100;
+            splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
         }
         else {
-          Weather_CreateSplat(splats);
+          Weather_CreateSplat(&splats[i]);
         }
       }
-      splats = splats + 1;
       i = i + 1;
   }
   return;

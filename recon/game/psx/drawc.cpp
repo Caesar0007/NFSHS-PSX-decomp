@@ -406,9 +406,23 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
    * feeding carObj->render.sub_otz, the depth-sort key used by DrawC_PrimStop/other OT-link code.
    * This was a genuine rendering-visible bug; both fixes are now APPLIED below. */
 #if defined(__mips__)
-  __asm__ volatile ("mfc2 %0, $19" : "=r"(shapeIdx));
+  /* MATCH (w40-a3): this is a POINTER-FORM GTE store macro, not a bare `mfc2` read
+     into a compiler pseudo -- the oracle @0x800BEDF4 is
+       addiu $v0,$s3,0x40 ; mfc2 $t4,$19 ; nop ; sra $t4,$t4,2 ; sw $t4,0($v0)
+     i.e. a fixed-$t4 scratch (the EA/PsyQ template family, cf. DRAWC_OTLINK_* above)
+     with an "r" ADDRESS operand, which is what forces the separate `addiu` address
+     materialization (catalog H: pointer-form gte_st* = forced address remat).  The
+     "memory" clobber is what makes the following `sd->sub_otz` read a REAL reload
+     (`lw $s0,0x40($s3)`) -- with the old `"=r"` form cc1plus kept the value in a
+     pseudo and CSE'd the reload away, which was the whole ~17-diff "our compiler
+     folds a round-trip retail kept" note. */
+  __asm__ volatile ("mfc2	$t4,$19
+	nop
+	sra	$t4,$t4,2
+	sw	$t4,0(%0)"
+                    : : "r"(&sd->sub_otz) : "$12", "memory");
 #else
-  shapeIdx = 0;
+  sd->sub_otz = 0;
 #endif
   /* [2026-07-11 consolidation] APPLIED the depth-sort-key fix documented above (correctness
      over byte-match per project policy): shapeIdx (raw SZ3) is scaled >>2 before the store,
@@ -416,9 +430,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
      carObj->render.sub_otz subtracts (shapeIdx>>2)<<2, not shapeIdx*4. Oracle-evidenced:
      `sra $t4,$t4,2` before `sw 0x40($s3)` @0x800BEDF8. Costs ~17 fuzzy diffs (our cc1plus
      CSEs a reload the PsyQ compiler kept) -- accepted. */
-  shapeIdx = shapeIdx >> 2;
-  sd->sub_otz = shapeIdx;
-  sub_otz_h2 = sd->sub_otz >> 1;
+  shapeIdx = sd->sub_otz;
+  sub_otz_h2 = shapeIdx >> 1;
   if (R3DCar_InMenu == 0) {
     sd->sub_otz = sub_otz_h2;
     if ((sub_otz_h2 < 0) || (Draw_gViewOtSize + -3 < sub_otz_h2)) {

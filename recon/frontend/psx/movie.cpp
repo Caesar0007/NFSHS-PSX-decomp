@@ -23,6 +23,16 @@ static u_long *vlcbuf1 __attribute__((section(".bss")));   /* 0x80052d5c */
 static u_short *imgbuf __attribute__((section(".bss")));   /* 0x80052d60 */
 static u_long *sect_buff __attribute__((section(".bss")));   /* 0x80052d64 */
 
+/* MATCH: unsized-array VIEWS onto the same storage (asm-label aliases).  Reading the
+ * scalar form folds the %hi into the dest arg reg (self-temp `lui a0; lw a0,0(a0)`);
+ * the unsized-array form forces the oracle's SEPARATE scratch (`lui v0; lw a0,0(v0)`).
+ * §3.12 #5 / §3.15-CORRECTION. */
+extern u_long  *vlcbuf0_v[]  asm("vlcbuf0");
+extern u_long  *vlcbuf1_v[]  asm("vlcbuf1");
+extern u_short *imgbuf_v[]   asm("imgbuf");
+extern u_long  *sect_buff_v[] asm("sect_buff");
+extern int      gIsRGB24_v[]  asm("gIsRGB24");
+
 /* lines 1-129: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- Movie_Init  (movie.cpp:130, code lines 130-169) ---- */
@@ -74,10 +84,10 @@ void Movie_DeInit(void)
   CdControlB('\v',(u_char *)0x0,(u_char *)0x0);
   CdControlB('\t',(u_char *)0x0,(u_char *)0x0);
   CdControlB('\f',(u_char *)0x0,(u_char *)0x0);
-  purgememadr(vlcbuf0);
-  purgememadr(vlcbuf1);
-  purgememadr(imgbuf);
-  purgememadr(sect_buff);
+  purgememadr(vlcbuf0_v[0]);
+  purgememadr(vlcbuf1_v[0]);
+  purgememadr(imgbuf_v[0]);
+  purgememadr(sect_buff_v[0]);
   Platform_ResetDCTBuffer();
   CD_Restart(0);
   return;
@@ -331,9 +341,9 @@ extern "C" void strInit__FP6CdlLOCiPFe_vT2(CdlLOC *loc,int frame_size,fn_void *c
   DecDCTReset(0);
   bRewindMovie = 0;
   DecDCToutCallback((void *)callback);
-  StSetRing(sect_buff,0x20);
+  StSetRing(sect_buff_v[0],0x20);
   StClearRing();
-  StSetStream(gIsRGB24,1,frame_size,(void *)0x0,(void *)endcallback);
+  StSetStream(gIsRGB24_v[0],1,frame_size,(void *)0x0,(void *)endcallback);
   strKickCD(loc);
   return;
 }

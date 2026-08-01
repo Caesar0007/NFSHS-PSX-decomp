@@ -2495,7 +2495,18 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      * previous draw had left at 0x1F800028..0x30. */
     DW_WORLDMAT.t[2] = 0;
     DW_WORLDMAT.t[1] = 0;
-    DW_WORLDMAT.t[0] = 0;
+    /* MATCH (w42-a2): t[0] is materialized as its OWN literal scratchpad address,
+     * not as a displacement off the base the other two share.  Oracle @0x800C857C:
+     *   sw $zero,0x1C($v0)   ; t[2], $v0 = 0x1F800014 (lui+ori)
+     *   sw $zero,0x18($v0)   ; t[1]
+     *   lui $at,0x1F80 ; sw $zero,0x28($at)      <-- the $at assembler macro form
+     * The $at expansion only appears for a store whose address gcc emitted as a
+     * bare `sw $r,ADDR` macro (catalog: "$at-macro store in the diff => wrong
+     * declared shape") -- i.e. this one store was a separate address expression in
+     * the source, so gcc never folded it onto the CSE'd base.  0x1F800028 ==
+     * &DW_WORLDMAT.t[0] (matrixtdef.t @+0x14 of the matrix @0x1F800014); identical
+     * semantics, and it is what makes the insn count EXACT (433 -> 434 == oracle). */
+    *(int *)0x1f800028 = 0;
 gte_SetTransMatrix(&DW_WORLDMAT);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
       objectOffset = (int)goffsets[objInstance->zoffset];

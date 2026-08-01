@@ -786,14 +786,6 @@ void Hud_Init(void)
   int w1;
   int w2;
   u_long textcolour;
-  SPRT *gSprt1;
-  POLY_F4 *HudF4;
-  POLY_G4 *HudG4;
-  long splitY;
-  int timelapshift;
-  SPRT *spriteReplay;
-  int baseX;
-  int baseY;
 
   textcolour = 0xa0a0a0;
   i = 0;
@@ -809,6 +801,13 @@ void Hud_Init(void)
   i = 0;
   while (true) {
     if (DashHUD_gInfo.splitscreen < i) break;
+    {
+    SPRT *gSprt1;
+    POLY_F4 *HudF4;
+    POLY_G4 *HudG4;
+    long splitY;
+    int timelapshift;
+
     if (i != 0) {
       gSprt1 = gSprite1;
     }
@@ -834,11 +833,7 @@ void Hud_Init(void)
     Hud_BuildSprite(gSprt1,0x68,g1Player->x,(g1Player->y + splitY) - timelapshift,0xbebe,0);
     currentSpriteColor = 0x808080;
     Hud_BuildSprite2(gSprt1 + 1,0x80,g1Player[1].x,g1Player[1].y + splitY);
-    j = 0x81;
-    if (i != 0) {
-      j = 0x83;
-    }
-    Hud_BuildSprite2(gSprt1 + 2,j,0,0);
+    Hud_BuildSprite2(gSprt1 + 2,(i != 0) ? 0x83 : 0x81,0,0);
     *(int *)&gSprt1[2].w = 0x1c001c;
     w1 = HudPmx_gShapes[0x6b].width;
     w2 = 0x46;
@@ -918,13 +913,12 @@ void Hud_Init(void)
     else {
       y = g1Player[5].y + splitY + 1;
     }
-    spriteReplay = gSprt1 + 0x1e;
-    Hud_BuildTimeSprites(spriteReplay,
+    Hud_BuildTimeSprites(gSprt1 + 0x1e,
                (GameSetup_gData.checkpointHUD[i] == 0) ? "0M00S00" : "0.000",
                x + HudPmx_gShapes[0x76].width,y);
-    HudSplitTimeDiff1[i] = spriteReplay[1].y0 - spriteReplay[0].y0;
+    HudSplitTimeDiff1[i] = gSprt1[0x1f].y0 - gSprt1[0x1e].y0;
     currentSpriteColor = textcolour;
-    HudSplitTimeDiff2[i] = spriteReplay[4].y0 - spriteReplay[0].y0;
+    HudSplitTimeDiff2[i] = gSprt1[0x22].y0 - gSprt1[0x1e].y0;
     w1 = HudPmx_gShapes[0x2c].width;
     w2 = HudPmx_gShapes[0x47].width;
     x = g1Player[0xe].x + g1Player[10].x;
@@ -948,21 +942,28 @@ void Hud_Init(void)
       j = j + 1;
     } while (j < 8);
     Hud_InitMapFrame(i,0);
+    }
     i = i + 1;
   }
-  gSprt1 = gSprite0;
-  j = 0;
+  {
+  SPRT *spriteReplay;
+  int baseX;
+  int baseY;
+
+  spriteReplay = gSprite0;
+  i = 0;
   currentSpriteColor = 0x808080;
   currentSpriteTransparent = 1;
   baseX = g1Player[0xd].x;
   baseY = g1Player[0xd].y;
-  Hud_BuildSprite2(gSprt1 + 0x37,0x6f,baseX,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x33,0x6c,baseX + 0x12,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x34,0x6e,baseX + 0x25,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x35,0x3f,baseX + 0x3a,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x38,0x72,baseX + 0x4a,baseY);
-  Hud_BuildSprite2(gSprt1 + 0x36,0,baseX + 0x6d,baseY + -7);
-  Hud_BuildSprite2(gSprt1 + 0x39,3,0,baseY + 4);
+  Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x33,0x6c,baseX + 0x12,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x34,0x6e,baseX + 0x25,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x35,0x3f,baseX + 0x3a,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x38,0x72,baseX + 0x4a,baseY);
+  Hud_BuildSprite2(spriteReplay + 0x36,0,baseX + 0x6d,baseY + -7);
+  Hud_BuildSprite2(spriteReplay + 0x39,3,0,baseY + 4);
+  }
   currentSpriteTransparent = 0;
   Hud_InitCdPlayer();
   Hud_Reset();
@@ -972,10 +973,10 @@ void Hud_Init(void)
   BTC_UserHasControl = 0;
   HudBustedOverlay = 0;
   do {
-    PerpOverlayOn[j] = 0;
-    PerpOverlayMessage[j] = 0;
-    j = j + 1;
-  } while (j < 2);
+    PerpOverlayOn[i] = 0;
+    PerpOverlayMessage[i] = 0;
+    i = i + 1;
+  } while (i < 2);
   Hud_kTurnSongOffNext = 0;
   return;
 }

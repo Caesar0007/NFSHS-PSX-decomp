@@ -367,7 +367,23 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  *     block around the guard is exactly diff-neutral (104, 229) -- so the SYM
  *     block shape is reachable but does not move the coloring.
  *   - the 0x11800/width/CopyToShape tail: t2 vs t4 and a v0/v1/t0 rotation.
- * Next handle is a -dg allocno dump on this body, not more statement order. */
+ * w42-a5 QUANTIFIED IT (tools/posdiff.py): count EXACT 229/229 and the FIRST-USE
+ * register order is identical up to $a3 -- then ours consumes only THREE caller-saved
+ * temps (t2 t1 t0) where retail consumes FIVE (t0 t4 t1 t3 t2).  Instruction-for-
+ * instruction the tail is the same code; retail simply keeps two more values live in
+ * t-registers.  The concrete carrier: retail hoists the THIRD CarIO_CopyFromShape arg
+ * (`li $a2,48`) up with $a0/$a1 BEFORE the two 0x11800 read-modify-writes and the two
+ * width stores, and holds both plate pointers in $t3/$t2 across them; ours cannot,
+ * because $a2 is busy holding CarIO_Plate1[player] there, so `li $a2,48` is emitted
+ * last and the plate pointers land in $v0/$v1/$a2.  {$t0,$t1} collapse does NOT reduce
+ * this residual (104 -> 104), so it is not the ReadIn reload-pool class.
+ * NOTE this is the SAME "retail materializes a constant at the TOP of a straight-line
+ * block, tens of insns before its first use" phenomenon that trackspec.cpp's
+ * TrackSpec_SetDefault residual is made of (see its note + the -dS receipt there:
+ * every insn in such a block has sched priority 1, so gcc-2.8's backward list
+ * scheduler falls back on the LUID tie-break = source order, and no C statement order
+ * emits a `li` detached from its consumer).  Treat the two together; it looks like a
+ * per-object toolchain/identity axis, not two independent function-level ties. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -582,6 +598,19 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  *      starts at $v0/$t0).  gcc-2.8 reload picks spill registers via
  *      order_regs_for_reload = ascending hard_reg_n_uses, a whole-function property;
  *      no source lever reaches it.
+ *      w42-a5 -dg RECEIPT (tools/rtl_dump.py cario.cpp -dg ->
+ *      scratch/rtl/cario.i.greg): the dump literally prints `Spilling reg 8.` /
+ *      `Spilling reg 9.` for this function -- $t0/$t1 ARE our reload spill pool,
+ *      confirmed, not inferred.  29 allocnos are offered; the `Register
+ *      dispositions` list omits 80 81 82 85 88 89 195 226 267 323 544 (eleven
+ *      allocnos get NO hard reg and live in memory), and ~150 of the surviving
+ *      pseudos are `in 2` ($v0).  That $v0 population is exactly why
+ *      order_regs_for_reload never offers $v0 as a spill register for us while
+ *      retail's build did: hard_reg_n_uses[$v0] is huge here.  Any fix has to
+ *      REDUCE the number of pseudos homed in $v0 across the whole body -- a
+ *      whole-function property, no local statement reshape touches it.
+ *      collapse.py re-measured this wave: raw 186 -> 22 with {$t0,$t1} collapsed,
+ *      -> 12 with {$v0,$v1,$t0,$t1} collapsed.
  *  (b) 3 one-insn scheduling slots (the CarIO_carPixMapCount/textureStartIndex
  *      block's reload order, the locateshapez a0/a1 arg-load order, the
  *      recolor_flag reload in the palIndex block).

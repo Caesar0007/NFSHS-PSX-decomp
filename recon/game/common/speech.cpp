@@ -2779,16 +2779,15 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*stateVf)[0x19].delta);
   }
   if ((*(u_int *)(initialCarState + 0x260) & 0x200) == 0) {
-    Speaker *SubChain;
-    Speaker *Sub;
+    int var_v0 = Dispatch__6Speech();
+    int temp_v1_2;
 
-    Sub = (Speaker *)Dispatch__6Speech();
-    do {
-      SubChain = Sub;
-      Sub = SubChain->fSub;
-      if (Sub == (Speaker *)0x0) goto MSEngage_dispatchCheck;
-    } while (Sub != &pThis->_base_Speaker);
-    SubChain->fSub = (pThis->_base_Speaker).fSub;
+MSEngage_unlinkLoop:
+    temp_v1_2 = var_v0;
+    var_v0 = *(int *)(temp_v1_2 + 0x48);
+    if (var_v0 == 0) goto MSEngage_dispatchCheck;
+    if (var_v0 != (int)&pThis->_base_Speaker) goto MSEngage_unlinkLoop;
+    *(Speaker **)(temp_v1_2 + 0x48) = (pThis->_base_Speaker).fSub;
     (pThis->_base_Speaker).fSub = (Speaker *)0x0;
   }
 MSEngage_dispatchCheck:
@@ -3006,17 +3005,16 @@ MSEngage_validateAndProceed:
   pSVar12 = (SPCHNFSType_VOICE *)*(u_int *)(savedDispatch + 0x48);
   savedDispatch = Dispatch__6Speech();
   *(MobileSpeaker **)(savedDispatch + 0x48) = pThis;
-  dispatchSpeaker = Dispatch__6Speech();
   {
-  iVar7 = *(int *)(dispatchSpeaker + 0x4c);
-  iVar7 = iVar7 + 8;
-  dispatchSpeaker = dispatchSpeaker + *(short *)iVar7;
-  __vtbl_ptr_type (*dispatchPositionVf)[31] = (pThis->_base_Speaker)._vf;
-  pCVar3 = (Car_tObj *)(*(*dispatchPositionVf)[0x1b].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags +
-                     (int)(*dispatchPositionVf)[0x1b].delta);
+  int temp_v0_21 = Dispatch__6Speech();
+  int temp_v0_22 = *(int *)(temp_v0_21 + 0x4c);
+  int temp_a1_4 = *(int *)((int)pThis + 0x4c);
+  int temp_s1_2 = temp_v0_22 + 8;
+  int temp_s0_3 = temp_v0_21 + *(short *)(temp_v0_22 + 8);
+  pCVar3 = (Car_tObj *)(**(int (**)(...))(temp_a1_4 + 0xdc))
+                    ((int)pThis + *(short *)(temp_a1_4 + 0xd8));
+  (**(int (**)(...))(temp_s1_2 + 4))(temp_s0_3,pCVar3);
   }
-  (**(int (**)(...))(iVar7 + 4))(dispatchSpeaker,pCVar3);
   savedDispatch = Dispatch__6Speech();
   *(u_int *)(savedDispatch + 0x48) = (u_int)pSVar12;
   return;

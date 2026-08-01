@@ -1390,14 +1390,11 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   int roadNoisePatch;
   u_char bVar1;
   short sVar2;
-  int iVar4;
   int iVar6;
   u_int uVar7;
   int sndPlayer;
   int iVar9;
   int iVar10;
-  int iVar11;
-  int iVar12;
   
   AudioCmn_CheckState(car);
   if (AudioCmn_kAudioOn) {
@@ -1425,22 +1422,18 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   if (0x7f < CurCarGasLevel) {
     CurCarGasLevel = 0x7f;
   }
-  /* Keep the source-level freq lifetime distinct from iFreqIn.  Retail carries
-     iFreqIn in $s2, then reuses that register for PlayerPan and loadAmp. */
-  freq = iFreqIn;
   /* SYM: cobbleMod is a distinct REG local ($s3) spanning from this clamp through the
      switch-case modulo below -- split out of the Ghidra iVar4 temp (which is reused later
      for unrelated short-lived values) so its live range doesn't force one register to
      cover the whole function. */
-  cobbleMod = CurCarGasLevel;
-  if (CurCarGasLevel < 0) {
-    cobbleMod = CurCarGasLevel + 0xf;
-  }
-  cobbleMod = 8 - (cobbleMod >> 4);
+  cobbleMod = 8 - CurCarGasLevel / 0x10;
   if (cobbleMod < 3) {
     cobbleMod = 3;
   }
   roadNoiseFreq = 0x40;
+  /* Keep the source-level freq lifetime distinct from iFreqIn.  Retail carries
+     iFreqIn in $s2, then reuses that register for PlayerPan and loadAmp. */
+  freq = iFreqIn;
   if (0x96 < freq) {
     freq = 0x96;
   }
@@ -1514,11 +1507,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   case 10:
   case 0xb:
   case 0xd:
-    iVar9 = roadNoiseAmp;
-    if (roadNoiseAmp < 0) {
-      iVar9 = roadNoiseAmp + 3;
-    }
-    roadNoiseAmp = roadNoiseAmp + (iVar9 >> 2);
+    roadNoiseAmp += roadNoiseAmp / 4;
     roadNoiseFreq = 0x18;
     break;
   case 4:
@@ -1531,15 +1520,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
     cobbleCount = cobbleCount + 1;
     cobbleCount = cobbleCount % cobbleMod;
     if ((cobbleCount == 0) && ((car->N).objAltitude < 0x3333) && (0 < gMasterSFXLevel)) {
-      iVar9 = 0;
-      if (SPSC) {
-        iVar9 = PlayerPan;
-      }
-      iVar4 = 0x40;
-      if (roadSurface == 7) {
-        iVar4 = 0x28;
-      }
-      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x1d,iVar9,CurCarGasLevel / 2,iVar4);
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x1d,SPSC ? PlayerPan : 0,
+          CurCarGasLevel / 2,roadSurface == 7 ? 0x28 : 0x40);
     }
   }
   if (gMasterEngineLevel == 0) {
@@ -1568,25 +1550,23 @@ void AudioCmn_SoundCar(Car_tObj *car,int dstArg,int iFreqIn,int doppler,int azim
   uVar7 = (u_int)(u_char)(car->control).gasLevel;
   iVar10 = PlayersRampedGasLevel[car->carIndex];
   if (iVar10 < (int)uVar7) {
-    iVar12 = (int)(uVar7 - iVar10) / 2;
-    iVar11 = iVar10 + iVar12;
-    if (iVar12 < 1) {
-      iVar11 = iVar10 + 1;
+    int delta = (int)(uVar7 - iVar10) / 2;
+    if (0 < delta) {
+      PlayersRampedGasLevel[car->carIndex] = iVar10 + delta;
+    }
+    else {
+      PlayersRampedGasLevel[car->carIndex] = iVar10 + 1;
     }
   }
-  else {
-    iVar12 = uVar7 - iVar10;
-    if (iVar10 <= (int)uVar7) goto LAB_80078d54;
-    if (iVar12 < 0) {
-      iVar12 = iVar12 + 7;
+  else if ((int)uVar7 < iVar10) {
+    int delta = ((int)uVar7 - iVar10) / 8;
+    if (delta < 0) {
+      PlayersRampedGasLevel[car->carIndex] = iVar10 + delta;
     }
-    iVar11 = iVar10 + -1;
-    if (iVar12 >> 3 < 0) {
-      iVar11 = iVar10 + (iVar12 >> 3);
+    else {
+      PlayersRampedGasLevel[car->carIndex] = iVar10 - 1;
     }
   }
-  PlayersRampedGasLevel[car->carIndex] = iVar11;
-LAB_80078d54:
   /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
      live range ends earlier) -- the re-read of the just-updated ramped gas level,
      clamped and carried into the gear-shift block below. */

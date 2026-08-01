@@ -385,18 +385,9 @@ void SetPads(void)
 void InitFrontEndStructure(void)
 
 {
-  tfrontEnd *ptVar1;
-  tfrontEnd *ptVar2;
-  int iVar3;
-  tCarInfo *ptVar4;
   int j;
-  int iVar5;
   int i;
-  int iVar6;
-  int iVar7;
-  tfrontEnd *ptVar8;
-  int iStack_30;
-  
+
   frontEnd.randomSeed = 0;
   frontEnd.catchup = '\x01';
   frontEnd.currentPlayer = '\0';
@@ -407,32 +398,18 @@ void InitFrontEndStructure(void)
   frontEnd.raceType = '\0';
   frontEnd.skillLevel = '\0';
   frontEnd.headstart = '\x14';
-  ptVar1 = &frontEnd;
-  iVar7 = 0;
-  do {
-    iVar6 = iVar7 + 1;
-    ptVar1->track[0] = '\0';
-    ptVar1->lapind[0] = '\0';
-    ptVar1->trackmirrored[0] = '\0';
-    ptVar1->trackdirection[0] = '\0';
-    ptVar1->timeOfDay[0] = '\0';
-    ptVar1->weather[0] = '\0';
-    ptVar1->traffic[0] = '\0';
-    ptVar1->situations[0] = '\0';
-    ptVar1->checkPointDisplay[0] = '\0';
-    ptVar1->playerCar[0] = '\0';
-    /* DISGUISED BARE-VA FIX (w14-a2): `iVar7 + -0x7feeb9ff` was a frozen literal that only
-     * happened to equal &frontEnd+1 for the first iteration (-0x7feeb9ff == 0x80114601 ==
-     * frontEnd+1); raw @0x800276b4 shows this is really recomputed EVERY iteration as
-     * `$v0 = $s3 + $a0` (a0=&frontEnd held constant, s3=the loop counter) -- i.e. a fresh
-     * &frontEnd+i, not an accumulated offset. */
-    ptVar1 = (tfrontEnd *)((char *)&frontEnd + iVar6);
-    iVar7 = iVar6;
-  } while (iVar6 < 5);
-  iVar7 = 0;
-  ptVar2 = &frontEnd;
-  iVar6 = 0;
-  iStack_30 = 0;
+  for (i = 0; i < 5; i++) {
+    frontEnd.track[i] = '\0';
+    frontEnd.lapind[i] = '\0';
+    frontEnd.trackmirrored[i] = '\0';
+    frontEnd.trackdirection[i] = '\0';
+    frontEnd.timeOfDay[i] = '\0';
+    frontEnd.weather[i] = '\0';
+    frontEnd.traffic[i] = '\0';
+    frontEnd.situations[i] = '\0';
+    frontEnd.checkPointDisplay[i] = '\0';
+    frontEnd.playerCar[i] = '\0';
+  }
   frontEnd.localSpeech = '\0';
   frontEnd.opponentUpgrades = '\0';
   frontEnd.dealerCar = '\0';
@@ -451,59 +428,43 @@ void InitFrontEndStructure(void)
   frontEnd.policeTier = '\0';
   frontEnd.policeMission = '\0';
   frontEnd.measurement = '\0';
-  ptVar1 = ptVar2;
-  ptVar8 = ptVar2;
-  do {
-    iVar5 = 0;
-    ptVar1->AnalogOn[0] = 1;
-    ptVar2->ABS[0] = '\0';
-    ptVar2->transmission[0] = '\x01';
-    ptVar2->displaySpeed[0] = '\0';
-    ptVar2->displayTach[0] = '\x01';
-    ptVar2->displayMap[0] = '\x01';
-    ptVar2->displayOpponentID[0] = '\x01';
-    ptVar2->displayTime[0] = '\x01';
-    ptVar2->displayPosition[0] = '\x01';
-    ptVar2->displayLapNumber[0] = '\x01';
-    ptVar2->displayMirror[0] = '\0';
-    ptVar2->pinkSlipsWins[0] = '\0';
-    ptVar1->pinkSlipsCash[0] = 0;
+  for (i = 0; i < 2; i++) {
+    frontEnd.AnalogOn[i] = 1;
+    frontEnd.ABS[i] = '\0';
+    frontEnd.transmission[i] = '\x01';
+    frontEnd.displaySpeed[i] = '\0';
+    frontEnd.displayTach[i] = '\x01';
+    frontEnd.displayMap[i] = '\x01';
+    frontEnd.displayOpponentID[i] = '\x01';
+    frontEnd.displayTime[i] = '\x01';
+    frontEnd.displayPosition[i] = '\x01';
+    frontEnd.displayLapNumber[i] = '\x01';
+    frontEnd.displayMirror[i] = '\0';
+    frontEnd.pinkSlipsWins[i] = '\0';
+    frontEnd.pinkSlipsCash[i] = 0;
     frontEnd.pinkSlipsForfeit = -1;
-    ptVar1->cameraType[0][1] = '\x03';
-    ptVar1->cameraType[1][0] = '\x06';
-    ptVar1->cameraType[1][1] = '\a';
-    ptVar1->cameraType[0][0] = '\0';
-    frontEnd.playerNameList[iVar7 * 4][0] = '\0';
-    iVar3 = iVar6;
-    do {
-      frontEnd.cameraSway[0][iVar3] = '\0';
-      iVar5 = iVar5 + 1;
-      iVar3 = iVar5 + iVar6;
-    } while (iVar5 < 4);
-    iVar3 = 0;
-    ptVar2->rampSteer[0] = '\x01';
-    ptVar2->rampGas[0] = '\x01';
-    ptVar2->rampBrake[0] = '\x01';
-    do {
-      ptVar4 = GetCarFromID(&carManager, (short)iVar3);
-      iVar5 = iVar3 + iStack_30;
-      iVar3 = iVar3 + 1;
-      frontEnd.carColors[0][iVar5] = ptVar4->fDefaultColor;
-    } while (iVar3 < 0x30);
-    ptVar8->controlType[0] = 0x41;
-    ptVar2->controlConfig[0] = '\0';
-    ptVar2->defaultedPlayerName[0] = '\x01';
-    ptVar2->shockMode[0] = 'U';
-    ptVar2->shockImpact[0] = 'U';
-    Front_ResetPSXAnalogs(iVar7);
-    Front_ResetPSXController(iVar7,0);
-    ptVar2 = (tfrontEnd *)((int)&ptVar2->randomSeed + 1);
-    ptVar8 = (tfrontEnd *)&ptVar8->currentPlayer;
-    iVar6 = iVar6 + 4;
-    ptVar1 = (tfrontEnd *)&ptVar1->raceType;
-    iVar7 = iVar7 + 1;
-    iStack_30 = iStack_30 + 0x30;
-  } while (iVar7 < 2);
+    frontEnd.cameraType[i][1] = '\x03';
+    frontEnd.cameraType[i][2] = '\x06';
+    frontEnd.cameraType[i][3] = '\a';
+    frontEnd.cameraType[i][0] = '\0';
+    frontEnd.playerNameList[i][0] = '\0';
+    for (j = 0; j < 4; j++) {
+      frontEnd.cameraSway[i][j] = '\0';
+    }
+    frontEnd.rampSteer[i] = '\x01';
+    frontEnd.rampGas[i] = '\x01';
+    frontEnd.rampBrake[i] = '\x01';
+    for (j = 0; j < 0x30; j++) {
+      frontEnd.carColors[i][j] = ((tCarInfo *)GetCarFromID(&carManager,(short)j))->fDefaultColor;
+    }
+    frontEnd.controlType[i] = 0x41;
+    frontEnd.controlConfig[i] = '\0';
+    frontEnd.defaultedPlayerName[i] = '\x01';
+    frontEnd.shockMode[i] = 'U';
+    frontEnd.shockImpact[i] = 'U';
+    Front_ResetPSXAnalogs(i);
+    Front_ResetPSXController(i,0);
+  }
   frontEnd.numBTracksActivated = '\0';
   Front_ResetSettingsMenu(0);
   Front_ResetSettingsMenu(1);

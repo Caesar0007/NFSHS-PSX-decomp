@@ -393,8 +393,8 @@ void Hud_BTCStats(short player,bool postgame)
   }
   if (showtimeleft) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,
-                 HUD_STATS_SIZE_H + startY + 0xf - (startY + 0xf - HUD_STATS_POS_Y) -
-                 (postgame ? 0x18 : 0x10),HUD_STATS_SIZE_W,1,0,'\0','\0');
+                 startY + 0xf + HUD_STATS_SIZE_H -
+                 ((startY + 0xf - HUD_STATS_POS_Y) + (postgame ? 8 : 0)) - 0x10,HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   /* in-place `startY += 0xf` (`addiu $a0,$s6,0xF; addu $s6,$a0,$zero` @0x800DAB9C) -- there is
      no separate dataY local (SYM lists only i/col/startY/string/chasinghuman/showname/

@@ -294,13 +294,16 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_char *prim;
       u_int *slot;
       u_int pkt24;
+      u_int addr24_0;
 
       prim = Render_gPacketPtr;
+
+      addr24_0 = (u_int)prim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x24;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24_0;
       *(u_int *)(prim + 4) = 0x3a000000;
       prim[3] = 8;
       *(long *)(prim + 0xc) = rgb2;
@@ -317,13 +320,16 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_char *prim;
       u_int *slot;
       u_int pkt24;
+      u_int addr24_1;
 
       prim = Render_gPacketPtr;
+
+      addr24_1 = (u_int)prim & 0xffffff;
       slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x1c;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | addr24_1;
       *(u_int *)(prim + 4) = 0x32000000;
       prim[3] = 6;
       *(long *)(prim + 0xc) = rgb1;
@@ -1175,12 +1181,16 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
 
       u_int pkt24;
 
+      u_int addr24_0;
+
       aprim = (DR_MODE *)Render_gPacketPtr;
+
+      addr24_0 = (u_int)aprim & 0xffffff;
       slot = (u_int *)Render_gPalettePtr;
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = pkt24 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | addr24_0;
       SetDrawMode(aprim,0,0,0x120,(RECT *)0x0);
     }
     {
@@ -1232,13 +1242,17 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
 
       u_int pkt24;
 
+      u_int addr24_1;
+
       aprim = (DR_MODE *)Render_gPacketPtr;
+
+      addr24_1 = (u_int)aprim & 0xffffff;
       slot = (u_int *)Render_gPalettePtr;
       slot = (u_int *)((int)slot + otz * 4);
       *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)aprim + 0xc;
-      *slot = pkt24 | (u_int)aprim & 0xffffff;
+      *slot = pkt24 | addr24_1;
       SetDrawMode(aprim,0,1,0x120,(RECT *)0x0);
     }
   }

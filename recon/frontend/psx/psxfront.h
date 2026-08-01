@@ -28,7 +28,7 @@ void PSXDrawSquare(int col,int x,int y,int w,int h);
 void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4);
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4);
 void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity);
-int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6);
+void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6);
 
 /* ---- PSXFront.obj EXT data globals ---- */
 extern tTexture_ShapeInfo *gHelpShapes[]; /* 0x80052a64 (unsized array: base-reg materialization for delay-slot store, not $at macro) */

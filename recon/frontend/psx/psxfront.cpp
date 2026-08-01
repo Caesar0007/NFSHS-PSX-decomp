@@ -874,7 +874,7 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 
 /* ---- FontUpsideDownBlit  (psxfront.cpp:1434, code lines 1434-1466) ---- */
 /* GPU packet: builds POLY_FT4 (stride 0x28, code 0x2c); prim=u_char* build cursor, prevPrim=u_char* link word */
-int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
+void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
 
 {
   /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
@@ -924,7 +924,7 @@ int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int ar
   *(short *)(prim + 0x1a) = ytop;
   *(short *)(prim + 0x20) = x + width;
   *(short *)(prim + 0x22) = ytop;
-  return 0;
+  return;
 }
 
 /* end of psxfront.cpp */

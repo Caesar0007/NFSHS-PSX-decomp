@@ -563,18 +563,23 @@ int iMCRD_DoFileWrite(int card)
   long cmd;
   long res;
   
-  if ((gMemCardInfo.fileinfo.flags & 0x200) != 0) {
+  /* MATCH: the SYM's pMFI is the function's base anchor - the oracle keeps
+   * &gMemCardInfo.fileinfo in a saved reg and derives &gMemCardInfo from it
+   * (-0x260) for .channel; writing gMemCardInfo.fileinfo.X anchors the other way
+   * and inflates every displacement by 0x260. */
+  pMFI = &gMemCardInfo.fileinfo;
+  if ((pMFI->flags & 0x200) != 0) {
     res = MemCardCreateFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (uint)gMemCardInfo.fileinfo.header.nslots);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (uint)pMFI->header.nslots);
     err_state = iMCRD_HandleError(2,res,card);
     if (err_state != 0) {
       return err_state;
     }
     timedwait(0x40);
     res = MemCardWriteFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (u_long *)&gMemCardInfo.fileinfo.header,0,0x200);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (u_long *)&pMFI->header,0,0x200);
     if (res == 0) {
       gMemCardInfo.bReady = 1;
       return 0xd;
@@ -588,9 +593,9 @@ int iMCRD_DoFileWrite(int card)
     }
   }
   res = MemCardWriteFile
-                  (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                   (u_long *)gMemCardInfo.fileinfo.pData,gMemCardInfo.fileinfo.offset + 0x200,
-                   gMemCardInfo.fileinfo.size);
+                  (gMemCardInfo.channel,pMFI->name,
+                   (u_long *)pMFI->pData,pMFI->offset + 0x200,
+                   pMFI->size);
   if (res == 0) {
     gMemCardInfo.bReady = 1;
     return 0xd;
@@ -600,8 +605,8 @@ int iMCRD_DoFileWrite(int card)
   } while (sync == 0);
   err = iMCRD_HandleError(2,res,card);
   if (err == 0) {
+    gMemCardInfo.bReady = 0;      /* MATCH: retail stores bReady BEFORE task here */
     gMemCardInfo.task = LOAD_CARD;
-    gMemCardInfo.bReady = 0;
     return 0xc;
   }
   return err;

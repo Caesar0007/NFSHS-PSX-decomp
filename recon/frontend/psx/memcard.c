@@ -71,7 +71,7 @@ typedef struct CARDINFO_def {         /* 616 bytes */
 typedef struct MCRDFILEHEADER_def {   /* 512 bytes */
     u_char  magicnumber[2];           /* +0x0 */
     u_char  type, nslots;             /* +0x2 */
-    u_short title[32];                /* +0x4 */
+    short   title[32];                /* +0x4 (SJIS codes; retail reads them with lh) */
     u_char  unused[28];               /* +0x44 */
     u_char  iconclut[32];             /* +0x60 */
     u_char  icon1[128], icon2[128], icon3[128];   /* +0x80 */
@@ -362,27 +362,30 @@ int iMCRD_DoFileLoad(int card)
 
 {
   uchar ch;
-  int error;
-  long sync_done;
   int err_state;
   uint attr;
+  uint hdr;
+  long sync_done;
   long sync;
   uchar *src;
-  shapetbl *s;
-  uint *pIcon;
+  shapetbl *pIcon;
   int i;
   int iconNum;
   MCRDFILEINFO_def *pMFI;
-  int ret;
   long cmd;
   long res;
-  
-  ret = (int)&gMemCardInfo.fileinfo /* 0x80052fc8; +0x30 -> .header.title[] */;
-  if ((gMemCardInfo.fileinfo.title != (char *)0x0) ||
-     (gMemCardInfo.fileinfo.icon[0] != (shapetbl *)0x0)) {
+
+  /* MATCH: pMFI is the base anchor (retail derives &gMemCardInfo as pMFI-0x260).
+   * The two title/icon walks are INDEX forms - loop.c builds the header.title giv
+   * (stride 2 off pMFI) and the icon[] giv (sll i,2) itself; a hand byte-offset
+   * (i = iconNum*4) blocks that.  The shape header's x/y clears are two BITFIELD
+   * assignments (0xF000FFFF then 0xFFFFF000 off ONE lw/sw) - a single folded
+   * 0xF000F000 mask is a reconstruction bug. */
+  pMFI = &gMemCardInfo.fileinfo;
+  if ((pMFI->title != (char *)0x0) || (pMFI->icon[0] != (shapetbl *)0x0)) {
     res = MemCardReadFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (u_long *)&gMemCardInfo.fileinfo.header,0,0x200);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (u_long *)&pMFI->header,0,0x200);
     while (sync_done = MemCardSync(1,&cmd,&res), sync_done == 0) {
       ((int(*)(void))gMemCardInfo.LoadingDataProc)();
       VSync(0);
@@ -392,58 +395,60 @@ int iMCRD_DoFileLoad(int card)
       return err_state;
     }
     i = 0;
-    if (gMemCardInfo.fileinfo.title != (char *)0x0) {
+    if (pMFI->title != (char *)0x0) {
       while (1) {
-        ch = sjis2ascii(*(short *)(ret + 0x30));
-        gMemCardInfo.fileinfo.title[i] = ch;
-        ret = ret + 2;
-        if (ch == '\0') break;
+        ch = sjis2ascii(pMFI->header.title[i]);
+        pMFI->title[i] = ch;
+        if (ch == ' ') break;
         i = i + 1;
       }
     }
     iconNum = 0;
-    i = 0;
     do {
-      pIcon = *(uint **)((int)gMemCardInfo.fileinfo.icon + i);
-      if (pIcon == (uint *)0x0) break;
-      src = gMemCardInfo.fileinfo.header.icon1;
+      pIcon = *(shapetbl **)((char *)pMFI->icon + i);
+      if (pIcon == (shapetbl *)0x0) break;
+      src = pMFI->header.icon1;
       if (iconNum != 0) {
         if (iconNum == 1) {
-          src = gMemCardInfo.fileinfo.header.icon2;
+          src = pMFI->header.icon2;
         }
         else {
-          src = gMemCardInfo.fileinfo.header.icon3;
+          src = pMFI->header.icon3;
         }
       }
-      blockmove(src,pIcon + 4,0x80);
+      blockmove(src,&pIcon->data,0x80);
       attr = shapetype(4);
       *(char *)pIcon = (char)attr;
-      attr = attr & 0xff | 0x9000;
-      *pIcon = attr;
-      *(u_short *)((int)pIcon + 6) = 0x10;
-      *(u_short *)(pIcon + 1) = 0x10;
-      *(u_short *)((int)pIcon + 10) = 0;
-      *(u_short *)(pIcon + 2) = 0;
-      pIcon[3] = pIcon[3] & 0xf000f000;
-      pIcon = (uint *)((int)pIcon + ((int)attr >> 8));
-      blockmove(gMemCardInfo.fileinfo.header.iconclut,pIcon + 4,0x20);
+      hdr = attr & 0xff | 0x9000;   /* MATCH: a FRESH pseudo - reusing attr forces a copy */
+      *(uint *)pIcon = hdr;
+      pIcon->height = 0x10;
+      pIcon->width = 0x10;
+      pIcon->centery = 0;
+      pIcon->centerx = 0;
+      pIcon->shapey = 0;
+      pIcon->shapex = 0;
+      pIcon = (shapetbl *)((int)pIcon + ((int)hdr >> 8));
+      blockmove(pMFI->header.iconclut,&pIcon->data,0x20);
       attr = cluttype(0x10);
       *(char *)pIcon = (char)attr;
       iconNum = iconNum + 1;
-      *(u_short *)(pIcon + 1) = 0x10;
-      *(u_short *)((int)pIcon + 6) = 1;
-      *(u_short *)((int)pIcon + 10) = 0;
-      *(u_short *)(pIcon + 2) = 0;
-      *pIcon = attr & 0xff;
-      pIcon[3] = pIcon[3] & 0xf000f000;
-      i = iconNum * 4;
+      pIcon->width = 0x10;
+      pIcon->height = 1;
+      pIcon->centery = 0;
+      pIcon->centerx = 0;
+      *(uint *)pIcon = attr & 0xff;
+      pIcon->shapey = 0;
+      pIcon->shapex = 0;
+      i = iconNum * 4;   /* MATCH: routing the byte offset through the multiply-set
+                          * i blocks loop.c from strength-reducing icon[] into a
+                          * walking pointer (retail recomputes sll/addu per iter). */
     } while (iconNum < 3);
   }
-  if (gMemCardInfo.fileinfo.size != 0) {
+  if (pMFI->size != 0) {
     res = MemCardReadFile
-                    (gMemCardInfo.channel,gMemCardInfo.fileinfo.name,
-                     (u_long *)gMemCardInfo.fileinfo.pData,gMemCardInfo.fileinfo.offset + 0x200,
-                     gMemCardInfo.fileinfo.size);
+                    (gMemCardInfo.channel,pMFI->name,
+                     (u_long *)pMFI->pData,pMFI->offset + 0x200,
+                     pMFI->size);
     if (res == 0) {
       gMemCardInfo.bReady = 1;
       return 0x10;

@@ -557,6 +557,25 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  * oracle.  Do NOT do the same in the Plate2 (flag = 2) arms: retail materializes
  * the LicenseCheck `1` argument separately there (`li v0,1`), and the pre-call form
  * costs that (214 vs 186).
+ * w41-a5 QUANTIFIED THE RESIDUAL (scratch/collapse_a5.py -- diff ours vs oracle with
+ * $t0 and $t1 collapsed to one token, so only NON-scratch-pick content survives):
+ *   raw 186  ->  collapsed 22.
+ * So 164 of the 186 are literally "which of two interchangeable reload scratch
+ * registers gcc picked", and the REAL residual is only 11 instruction slots:
+ *   (i)  the `reload & 0x10` head block: the CSE'd `CarIO_carPixMapCount` value lives
+ *        in $v0 for retail (a normally-allocated pseudo) but in a reload scratch for
+ *        us, so retail's pool starts one register earlier for the whole function.
+ *        This is the ONE decision that produces the entire t0/t1 alternation.
+ *   (ii) `lw a0,136(sp)` one slot late; (iii) `addiu s1,s1,16` one slot early;
+ *   (iv) the loop tail's `sw <count>,68(sp)`: retail puts it in the back-edge `j`
+ *        delay slot, ours emits it before the `j`.
+ * A global $t0<->$t1 rename does NOT clean it (186 -> 70) because the pool
+ * ALTERNATES phase between regions -- confirming this is pool ORDER, not a rotation.
+ * ⇒ the next handle is (i) alone: get the head-block value into a real pseudo
+ * ($v0) instead of a spill reload.  Register-use census ours-vs-oracle over the whole
+ * function (scratch/regcensus): v0 222/225, t0 54/48, t1 46/49, every other register
+ * IDENTICAL -- i.e. the census difference IS the output of the pick, not its input,
+ * so "reshape which caller-saved regs the body consumes" has nothing to bite on.
  * RESIDUAL 186 (89 diff lines) -- structurally identical, three classes:
  *  (a) ~75 lines are a pure $t0<->$t1 alternation on RELOAD scratch registers for
  *      the spilled parms/locals (ours starts the spill pool at $t0/$t1 where retail

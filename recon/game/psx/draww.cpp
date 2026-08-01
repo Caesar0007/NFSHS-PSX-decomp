@@ -1630,7 +1630,17 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         int cx;
         int cz;
         int dist;
-        sd->nightFlags = 4;
+        /* MATCH (w41-a2): the oracle materializes this 4 into a REGISTER
+         * (`addiu $v0,$zero,0x4; sb $v0,0x106($s0)`) and then REUSES that register
+         * as the shift COUNT for the Camera_gInfo element scale -- `sllv $v0,$a1,$v0`
+         * instead of a plain `sll $v0,$a1,4` (cse substitutes an equivalent register
+         * for a constant it already has in hand; sizeof(Camera_tCamSlot) == 0x110 ==
+         * ((x<<4)+x)<<4).  A bare literal store is folded into the `sb` immediate and
+         * never leaves a register behind, so ours emits the constant shift.  Same
+         * named-constant device as `negOne` above. */
+        int four = 4;
+
+        sd->nightFlags = (char)four;
         cx = (pChunkCp->x - ((Camera_gInfo[Vi->player].target)->position).x) >> 10;
         cz = (pChunkCp->z - ((Camera_gInfo[Vi->player].target)->position).z) >> 10;
         dist = cx * cx + cz * cz;

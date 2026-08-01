@@ -238,157 +238,147 @@ void tScreenTournSelect::DrawBackground()
   char buffer [64];
   short i;
   short j;
+  short tvIdx;
   RECT r;
   tTourneyInfo *tourn;
   int YellowCol;
   int DarkGreyCol;
   int GreyCol;
-  short shapeY;
-  u_long movieRGB;
-  byte tb1;
   long number;
-  ushort tu2;
-  int row, col, tvIdx;
-  int ti6;
-  int ti7;
-  char *tstr8;
-  tListIteratorTournament *tp9;
-  tTournamentDefinition *amount;
-  RECT *r_00;
-  int ti10;
+  int word;
+  char *descriptionText;
+  short shapeY;
+  short shapeX;
   char moviename [80];
+  u_long movieRGB [1];
+  byte tournament;
+  tfrontEnd *fe = &frontEnd;
 
-  tb1 = frontEnd.tournament;
-  if (frontEnd.tier != '\0') {
-    tb1 = frontEnd.specialevent;
+  if (fe->tier != 0) {
+    tournament = fe->specialevent;
   }
-  ti10 = 0;
-  tourn = (tournamentManager.fDefinition)->fTournaments +
-             (uint)tb1 +
-             (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset;
-  amount = tournamentManager.fDefinition;
-  YellowCol = CalcFadeVal(0xbebe,(int)tournamentManager.fDefinition);
-  DarkGreyCol = CalcFadeVal(0x232323,(int)amount);
-  GreyCol = CalcFadeVal(0x505050,(int)amount);
+  else {
+    tournament = fe->tournament;
+  }
+  tourn = &tournamentManager.fDefinition->fTournaments
+            [tournament +
+             tournamentManager.fDefinition->fTiers[(byte)fe->tier].fTournOffset];
+  YellowCol = CalcFadeVal(0xbebe,this->fScreenFadeVal);
+  DarkGreyCol = CalcFadeVal(0x232323,this->fScreenFadeVal);
+  GreyCol = CalcFadeVal(0x505050,this->fScreenFadeVal);
   number = tournamentManager.fMoney;
   FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x7b,textState_Selected,textType_ScreenInfo);
-  ti6 = TextSys_WordX(0x7b);
-  ti7 = TextSys_WordY(0x7b);
-  DrawMoney(ti6 + 0x8c,ti7 + 9,6,number,YellowCol,DarkGreyCol);
+  DrawMoney(TextSys_WordX(0x7b) + 0x8c,TextSys_WordY(0x7b) + 9,6,
+            number,YellowCol,DarkGreyCol);
   FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x99,textState_Selected,textType_Default);
-  ti6 = TextSys_WordX(0x99);
-  ti7 = TextSys_WordY(0x99);
-  DrawMoney(ti6 + 0x8c,ti7 + 9,6,tourn->fEntranceFee,YellowCol,DarkGreyCol);
+  DrawMoney(TextSys_WordX(0x99) + 0x8c,TextSys_WordY(0x99) + 9,6,
+            tourn->fEntranceFee,YellowCol,DarkGreyCol);
   FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x9a,textState_Selected,textType_Default);
-  ti6 = TextSys_WordY(0x9a);
+  y = TextSys_WordY(0x9a) + 9;
+  i = 0;
   do {
-    ti6 = ti6 + 9;
-    tstr8 = TextSys_Word((short)ti10 + 0x2d4);
-    ti7 = TextSys_WordX(0x9a);
-    FETextRender_FullTextRGB(tstr8,(short)ti7,(short)((uint)(ti6 * 0x10000) >> 0x10),GreyCol,'\0',0);
-    ti7 = TextSys_WordX(0x99);
-    DrawMoney(ti7 + 0x8c,ti6 * 0x10000 >> 0x10,6,tourn->fPrize[(short)ti10],YellowCol,DarkGreyCol);
-    ti10 = ti10 + 1;
-  } while (ti10 * 0x10000 >> 0x10 < 3);
+    FETextRender_FullTextRGB(TextSys_Word(i + 0x2d4),TextSys_WordX(0x9a),
+                             y,GreyCol,'\0',0);
+    DrawMoney(TextSys_WordX(0x99) + 0x8c,y,6,tourn->fPrize[i],
+              YellowCol,DarkGreyCol);
+    y += 9;
+    i++;
+  } while (i < 3);
   this->UpdateVideoWall(tourn);
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
     ::UploadSwapShapes((tScreen *)this,0x20);
-    ti6 = ticks;
     this->fTransitionDirection = 1;
-    this->fTVTicks = ti6;
+    this->fTVTicks = ticks;
   }
   this->DrawVideoWall();
-  ti6 = 0;
+  shapeY = 0;
   if ((this->fFrame & 1U) == 0) {
-    ti6 = 0x50;
+    shapeY = 0x50;
   }
+  shapeX = 0x200;
+  movieRGB[0] = 0x2c1e1e;
   i = 0;
   do {
     j = 0;
     do {
-      tvIdx = (j + i * 4) * 0x10000 >> 0x10;
+      tvIdx = (short)(j + i * 4);
       this->tvConfigs[tvIdx].x = j * 0x50 + 0xa5;
       this->tvConfigs[tvIdx].w = 0x50;
       this->tvConfigs[tvIdx].h = 0x30;
-      this->tvConfigs[tvIdx].uw = '\x14';
+      this->tvConfigs[tvIdx].uw = 0x14;
       this->tvConfigs[tvIdx].y = i * 0x30 + 0x29;
-      this->tvConfigs[tvIdx].u = (char)j * '\x14';
-      this->tvConfigs[tvIdx].v = (char)i * '(';
-      this->tvConfigs[tvIdx].vh = '(';
-      tu2 = GetTPage(2,0,0x200,(int)(short)ti6);
-      j = j + 1;
-      this->tvConfigs[tvIdx].tpage = tu2;
+      this->tvConfigs[tvIdx].u = j * 0x14;
+      this->tvConfigs[tvIdx].v = i * 0x28;
+      this->tvConfigs[tvIdx].vh = 0x28;
+      this->tvConfigs[tvIdx].tpage = GetTPage(2,0,shapeX,shapeY);
       this->tvConfigs[tvIdx].state = tv_StateOn;
       this->tvConfigs[tvIdx].clut = 0;
       this->tvConfigs[tvIdx].flags = 0x22;
-      this->tvConfigs[tvIdx].tint = 0x2c1e1e;
+      this->tvConfigs[tvIdx].tint = movieRGB[0];
       this->tvConfigs[tvIdx].destBrightness = 0x80;
       this->tvConfigs[tvIdx].transition = 0x80;
-    } while (j * 0x10000 >> 0x10 < 4);
-    i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 2);
-  row = VIDEO_state(this->hVideo);
-  if (row == 0) {
+      j++;
+    } while (j < 4);
+    i++;
+  } while (i < 2);
+  if (VIDEO_state(this->hVideo) != 0) {
+    if (VIDEO_updateframexy(this->hVideo,shapeX,shapeY) != 0) {
+      this->fFrame++;
+    }
+  }
+  else {
     this->fCurrentMovie = 0;
     sprintf(moviename,"%szzzTRN.dct",Paths_Paths[0x29]);
     VIDEO_spoolfile(this->hVideo,moviename);
     VIDEO_startplayback(this->hVideo);
   }
-  else {
-    ti6 = VIDEO_updateframexy(this->hVideo,0x200,ti6);
-    if (ti6 != 0) {
-      this->fFrame = this->fFrame + 1;
-    }
-  }
-  ti6 = 0;
+  i = 0;
   do {
-    DrawTVLines(this->tvConfigs + (short)ti6);
-    ti6 = ti6 + 1;
-  } while (ti6 * 0x10000 >> 0x10 < 8);
+    DrawTVLines(&this->tvConfigs[i]);
+    i++;
+  } while (i < 8);
   r.x = 0x145;
   r.y = 0x2b;
   r.w = 0x13a;
   r.h = 10;
-  if (frontEnd.tier == '\0') {
-    tp9 = &menuDefs->iteratorTournament;
+  if (frontEnd.tier != '\0') {
+    word = TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth);
   }
   else {
-    tp9 = &menuDefs->iteratorSpecialEvent;
+    word = TextValue(&menuDefs->iteratorTournament,kPlayerBoth);
   }
-  ti6 = TextValue(tp9,kPlayerBoth);
-  r_00 = &r;
-  FETextRender_WordWrapFade((int)this->fScreenFadeVal,(short)ti6,r_00,textState_Hilighted,
+  FETextRender_WordWrapFade((int)this->fScreenFadeVal,(short)word,&r,textState_Hilighted,
              textType_VideoWall);
   r.x = 0xaa;
   r.w = r.w + -10;
-  if (frontEnd.tier == '\0') {
-    tp9 = &menuDefs->iteratorTournament;
+  if (frontEnd.tier != '\0') {
+    i = TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth);
   }
   else {
-    tp9 = &menuDefs->iteratorSpecialEvent;
+    i = TextValue(&menuDefs->iteratorTournament,kPlayerBoth);
   }
-  ti6 = TextValue(tp9,kPlayerBoth);
-  row = (ti6 + 0x26) * 0x10000 >> 0x10;
-  if ((row != this->fPrevi) || (this->PreCalculatedTournamentY == -1)) {
-    this->fPrevi = row;
-    tstr8 = TextSys_Word(row);
-    row = FETextRender_WordWrapHeight(r.w,tstr8);
-    this->PreCalculatedTournamentY = 0x75 - row;
+  i += 0x26;
+  if ((i != this->fPrevi) || (this->PreCalculatedTournamentY == -1)) {
+    this->fPrevi = i;
+    this->PreCalculatedTournamentY =
+      0x75 - FETextRender_WordWrapHeight(r.w,TextSys_Word(i));
   }
   r.y = (short)this->PreCalculatedTournamentY;
-  col = 0;
-  tstr8 = TextSys_Word((int)(short)(ti6 + 0x26));
-  row = CalcFadeVal(0x505050,(int)r_00);
-  FETextRender_WordWrapTextRGB(tstr8,r,row);
+  j = i - 0x367;
+  descriptionText = TextSys_Word(i);
+  i = 0;
+  FETextRender_WordWrapTextRGB(descriptionText,r,
+                               CalcFadeVal(0x505050,this->fScreenFadeVal));
   FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,
              textType_ScreenInfo);
-  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,(short)((uint)((ti6 + 0x39) * 0x10000) >> 0x10),
+  j += 0x37a;
+  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,j,
              0xaa,0x7d,0,textState_Hilighted,textType_ScreenInfo);
   do {
-    DrawTV(this->tvConfigs + (short)col);
-    col = col + 1;
-  } while (col * 0x10000 >> 0x10 < 8);
+    DrawTV(&this->tvConfigs[i]);
+    i++;
+  } while (i < 8);
   return;
 }
 

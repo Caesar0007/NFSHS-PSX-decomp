@@ -1062,52 +1062,51 @@ ForceVbl_drawCtrlCheck:
 void tScreenControllerConfig::DrawForeground()
 
 {
-  char ch;
-  bool flag;
-  ushort arrowFade;
+  short TL [5];
   short i;
   short j;
-  short fadeDir;
-  int TextIndex;
-  void *transDone;
-  int ColText;
-  char *astringpointer;
-  uint slen;
-  int howfarout;
-  short *pTextLoc;
-  short coord;
-  int k;
-  short *pTL;
-  int ColText2;
-  short (*pNumTexts) [3];
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
-  short TL [5];
   char string1 [40];
   char string2 [40];
   char brightstring [2];
-  
+  char *astringpointer;
+  int brightX;
+  short sl;
+  short fade;
+
   this->SetCurrentController(false);
   this->CheckConfigs();
   brightstring[1] = '\0';
-  fadeDir = 8;
-  if ((((this->fFadeTextOut == 0) && (fadeDir = 8, this->fAnim == 0)) &&
-      (fadeDir = 8, this->fAnimFade == 0)) && (fadeDir = 8, *(int *)this->fFade == 0)) {
-    transDone = ::TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
-    fadeDir = 8;
-    if (((transDone != (void *)0x0) && (fadeDir = 8, this->fTransitioningOut == 0)) &&
-       (fadeDir = -8, 0 < this->fArrowFadeDir)) {
+  short fadeDir;
+  if ((this->fFadeTextOut == 0) && (this->fAnim == 0) &&
+      (this->fAnimFade == 0) && (*(int *)this->fFade == 0) &&
+      (::TransitionIsFinished(&menuDefs[0]->menuControllerConfig) != 0) &&
+      (this->fTransitioningOut == 0)) {
+    fadeDir = -8;
+    if (0 < this->fArrowFadeDir) {
       this->fTextTypeOn = 0;
     }
   }
+  else {
+    fadeDir = 8;
+  }
   this->fArrowFadeDir = fadeDir;
-  arrowFade = this->fArrowFade + this->fArrowFadeDir;
-  this->fArrowFade = arrowFade;
-  if ((int)((uint)arrowFade << 0x10) < 0) {
+  this->fArrowFade = this->fArrowFade + this->fArrowFadeDir;
+  if (this->fArrowFade < 0) {
     this->fArrowFade = 0;
   }
-  if (this->fArrowFade < 0x80) {
+  if (0x7f < this->fArrowFade) {
+    char controller = this->fCurrentController;
+
+    this->fArrowFade = 0x80;
+    this->fTextController = controller;
+    if (controller == '\x06') {
+      this->fTextController = '\x05';
+    }
+    char config = frontEnd.controlConfig[this->player];
+    this->fFadeTextOut = 0;
+    this->fTextConfig = config;
+  }
+  else {
     if (this->fArrowFade == 0) {
       this->fTextTypeOn = this->fTextTypeOn + 1;
     }
@@ -1117,141 +1116,107 @@ void tScreenControllerConfig::DrawForeground()
     if (this->fArrowFade != 0) {
       FETextRender_SetABR(1,true);
     }
-    if (this->fTextController != '\0') {
-      ColText2 = 100;
-      fadeDir = 0;
-      TextIndex = kRGBVals[(byte)textDefinitions[0xb][3]];
-      ColText = CalcFadeVal(TextIndex,0xffffff,100,(int)this->fArrowFade);
-      ColText2 = CalcFadeVal(TextIndex,ColText2);
-      while( true ) {
-        pNumTexts = NumTexts;
-        TextIndex = (byte)this->fTextController - 1;
-        if ((int)NumTexts[TextIndex][(byte)this->fTextConfig] <= (int)fadeDir) break;
-        TextIndex = (int)ControllerItemIndex[TextIndex][(byte)this->fTextConfig][fadeDir][0];
-        pTL = TL;
-        if (TextIndex != -1) {
-          k = 4;
-          pTextLoc = TextLocations[TextIndex];
-          do {
-            coord = *pTextLoc;
-            pTextLoc = pTextLoc + 1;
-            k = k + -1;
-            *pTL = coord;
-            pTL = pTL + 1;
-          } while (k != -1);
-          astringpointer = TextSys_Word((int)TL[2]);
-          slen = strlen(astringpointer);
-          i = (short)slen;
-          TextIndex = (int)i;
-          coord = this->fTextTypeOn;
-          if (TextIndex < this->fTextTypeOn) {
-            coord = i;
-          }
-          k = (int)coord;
-          if (this->fTextTypeOn < TextIndex) {
-            astringpointer = TextSys_Word((int)TL[2]);
-            sprintf(string2,astringpointer);
-            howfarout = slen - k;
-            coord = (short)howfarout;
-            if (TL[3] == 0) {
-              TextIndex = 0;
-              coord = 0;
-              if (0 < this->fTextTypeOn) {
-                do {
-                  coord = (short)TextIndex;
-                  slen = strlen(string2);
-                  k = TextIndex << 0x10;
-                  howfarout = k >> 0x10;
-                  TextIndex = TextIndex + 1;
-                  if ((int)(slen << 0x10) <= k) break;
-                  string1[howfarout] = string2[howfarout];
-                  coord = (short)TextIndex;
-                } while (TextIndex * 0x10000 >> 0x10 < (int)this->fTextTypeOn);
+    {
+      if (this->fTextController != '\0') {
+        int ColText;
+        int ColText2;
+        i = 0;
+        char *string2pointer = string2;
+        char *string1pointer = string1;
+
+        ColText = kRGBVals[(byte)textDefinitions[0xb][3]];
+        ColText2 = CalcFadeVal(ColText,0xffffff,100,(int)this->fArrowFade);
+        ColText = CalcFadeVal(ColText,(int)this->fArrowFade);
+        for (; i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig]; i++) {
+          int TextIndex = (signed char)ControllerItemIndex[(byte)this->fTextController - 1]
+                                                          [(byte)this->fTextConfig][i][0];
+
+          if (TextIndex != -1) {
+            short *pTL = TL;
+            short *pTextLoc = TextLocations[TextIndex];
+            int n = 4;
+
+            do {
+              *pTL++ = *pTextLoc++;
+              n--;
+            } while (n != -1);
+            int k;
+            sl = (short)strlen(TextSys_Word((int)TL[2]));
+            k = this->fTextTypeOn;
+            if (sl < k) {
+              k = sl;
+            }
+            if (this->fTextTypeOn < sl) {
+              int howfarout;
+
+              sprintf(string2pointer,TextSys_Word((int)TL[2]));
+              if (TL[3] == 0) {
+                for (j = 0;
+                     (j < (short)strlen(string2pointer)) && (j < this->fTextTypeOn);
+                     j++) {
+                  string1pointer[j] = string2pointer[j];
+                }
+                string1pointer[j] = '\0';
+                brightstring[0] = string1pointer[j - 1];
               }
-              string1[coord] = '\0';
-              brightstring[0] = string1[coord + -1];
+              else {
+                howfarout = sl - k;
+                for (j = howfarout; j < sl; j++) {
+                  string1pointer[j - (sl - k)] = string2pointer[j];
+                }
+                string1pointer[j - (sl - k)] = '\0';
+                brightstring[0] = string1pointer[0];
+              }
+              FETextRender_SetFont(0);
+              brightX = textpixels(string1pointer) - strlen(string1pointer);
+              if (TL[3] == 1) {
+                brightX = TL[0] - brightX;
+              }
+              else {
+                brightX = TL[0] + brightX;
+              }
+              astringpointer = string1pointer;
+              FETextRender_FullTextRGB(brightstring,(short)brightX,TL[1],ColText2,
+                                       '\0',(ushort)(TL[3] == 0));
             }
             else {
-              if (howfarout * 0x10000 >> 0x10 < TextIndex) {
-                do {
-                  j = (short)howfarout;
-                  howfarout = howfarout + 1;
-                  coord = (short)howfarout;
-                  string1[(int)j - (TextIndex - k)] = string2[j];
-                } while (howfarout * 0x10000 >> 0x10 < TextIndex);
-              }
-              string1[(int)coord - (i - k)] = '\0';
-              brightstring[0] = string1[0];
+              astringpointer = TextSys_Word((int)TL[2]);
             }
-            FETextRender_SetFont(0);
-            k = (int)TL[0];
-            TextIndex = textpixels(string1);
-            slen = strlen(string1);
-            TextIndex = TextIndex - slen;
-            if (TL[3] == 1) {
-              TextIndex = -TextIndex;
+            FETextRender_FullTextRGB(astringpointer,TL[0],TL[1],ColText,'\0',TL[3]);
+            brightX = textpixels(astringpointer) - strlen(astringpointer);
+            if (TL[3] != 0) {
+              brightX = -brightX;
             }
-            astringpointer = string1;
-            FETextRender_FullTextRGB(brightstring,(short)((uint)((k + TextIndex) * 0x10000) >> 0x10),TL[1],ColText
-                       ,'\0',(ushort)(TL[3] == 0));
+            PSXDrawSquare(0,(int)TL[0],(int)TL[1],brightX,7);
           }
-          else {
-            astringpointer = TextSys_Word((int)TL[2]);
-          }
-          FETextRender_FullTextRGB
-                    (astringpointer,TL[0],TL[1],ColText2,'\0',TL[3]);
-          TextIndex = textpixels(astringpointer);
-          slen = strlen(astringpointer);
-          TextIndex = TextIndex - slen;
-          if (TL[3] != 0) {
-            TextIndex = -TextIndex;
-          }
-          PSXDrawSquare(0,(int)TL[0],(int)TL[1],TextIndex,7);
         }
-        fadeDir = fadeDir + 1;
       }
     }
-    fadeDir = 0;
-    while( true ) {
-      ColText = (byte)this->fTextController - 1;
-      if ((int)NumTexts[ColText][(byte)this->fTextConfig] <= (int)fadeDir) break;
-      flag = false;
-      if ((this->negconPopUp).currentlyOn == 0)
-      {
+    for (i = 0;
+         i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig];
+         i++) {
+      int TextIndex = (byte)this->fTextController - 1;
+      bool flag = false;
+
+      if ((this->negconPopUp).currentlyOn == 0) {
         flag = (this->negconPopUp).fCurrentlyRunning == 0;
       }
-      if (((flag) && (-1 < ColText)) &&
-         (ColText = (int)ControllerItemIndex[ColText][(byte)this->fTextConfig][fadeDir][1], ColText != -1))
-      {
-        this->DrawArrow(ArrowLocations[ColText]);
+      if (flag && (TextIndex >= 0)) {
+        TextIndex = (signed char)ControllerItemIndex[TextIndex][(byte)this->fTextConfig][i][1];
+        if (TextIndex != -1) {
+          this->DrawArrow(ArrowLocations[TextIndex]);
+        }
       }
-      fadeDir = fadeDir + 1;
     }
     FETextRender_SetABR(0,false);
-    fadeDir = (short)((menuDefs[0]->menuControllerConfig).fScreenFade >> 1);
-    ColText = 0;
-    if (0x80 < fadeDir) {
-      fadeDir = 0x80;
+    fade = (short)((menuDefs[0]->menuControllerConfig).fScreenFade >> 1);
+    if (0x80 < fade) {
+      fade = 0x80;
     }
-    do {
-      /* CORRECTNESS FIX: oracle @0x80045678 calls ScaleShapeExtended(ColText+0x16,
-       * 0,0,0, fadeDir,0,NULL) -- the prior recon passed uninitialized fabricated
-       * locals (pNumTexts cast to int, shapeFlags/shapeX/shapeY never assigned). */
-      ScaleShapeExtended
-                (ColText + 0x16,0,0,0,(int)fadeDir,0,
-                 (tDrawShapeExtended *)0x0);
-      ColText = ColText + 1;
-    } while (ColText * 0x10000 >> 0x10 < 2);
-  }
-  else {
-    this->fArrowFade = 0x80;
-    this->fTextController = this->fCurrentController;
-    if (this->fCurrentController == '\x06') {
-      this->fTextController = '\x05';
+    for (i = 0; i < 2; i++) {
+      ScaleShapeExtended(i + 0x16,0,0,0,(int)fade,0,
+                         (tDrawShapeExtended *)0x0);
     }
-    ch = frontEnd.controlConfig[this->player];
-    this->fFadeTextOut = 0;
-    this->fTextConfig = ch;
   }
   return;
 }

@@ -12,7 +12,7 @@ void Movie_Load(char movie);
 int Movie_NextFrame(void);
 void Movie_DownloadFrame(void);
 void Movie_Stop(void);
-void * Movie_Finished(void);
+int Movie_Finished(void);
 int Movie_Play(char movie);
 int play_movie(char movie);
 void strSetDefDecEnv(DECENV *dec);

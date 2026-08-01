@@ -299,15 +299,15 @@ void Movie_Stop(void)
 /* lines 315-319: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Finished  (movie.cpp:320, code lines 320-321) ---- */
-void * Movie_Finished(void)
+int Movie_Finished(void)
 
 {
-  void *finished;
-  
-  finished = (void *)0x0;
+  int finished;
+
+  finished = 0;
   if ((((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
      (bRewindMovie != 0)) {
-    finished = (void *)0x1;
+    finished = 1;
   }
   return finished;
 }
@@ -319,7 +319,7 @@ int Movie_Play(char movie)
 
 {
   bool dispRect;
-  void *finished;
+  int finished;
   int frame_ret;
   uint joyval;
   DISPENV disp;
@@ -336,7 +336,12 @@ int Movie_Play(char movie)
    * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
   while( true ) {
     finished = Movie_Finished();
-    if (finished == (void *)0x1) break;
+    /* MATCH: `(x ^ 1) == 0` is the ONLY spelling of "x == 1" that cc1plus keeps
+     * as the oracle's `xori v0,v0,1; beqz v0`.  Plain `x == 1` (and `!(x ^ 1)`,
+     * and the inverted `if (x != 1) ... else break`) all hoist a `li reg,1` out
+     * of the loop and branch register-to-register -- which ALSO gave that
+     * constant a 3rd reference and stole the first saved register. */
+    if ((finished ^ 1) == 0) break;
     frame_ret = Movie_NextFrame();
     if (frame_ret == -1) break;
     dispRect = dec.rectid == 0;

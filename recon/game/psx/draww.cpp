@@ -3504,10 +3504,15 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
        * t2=$a1) -- a WORD-PAIR copy, i.e. the original knew the CCOORD16s are 4-aligned.
        * A plain `vt0 = geomVertices[3];` struct assignment carries CCOORD16's align-2
        * and expands to the unaligned lwl/lwr+swl/swr movstrsi run (8 insns/copy vs 4). */
-      ONYX_COPYVT(&vt0,&geomVertices[3]);
-      ONYX_COPYVT(&vt1,&geomVertices[1]);
-      ONYX_COPYVT(&vt2,&geomVertices[0]);
-      ONYX_COPYVT(&vt3,&geomVertices[2]);
+      { int t1, t2;
+        t1 = ((int *)&geomVertices[3])[0]; t2 = ((int *)&geomVertices[3])[1];
+        ((int *)&vt0)[0] = t1; ((int *)&vt0)[1] = t2;
+        t1 = ((int *)&geomVertices[1])[0]; t2 = ((int *)&geomVertices[1])[1];
+        ((int *)&vt1)[0] = t1; ((int *)&vt1)[1] = t2;
+        t1 = ((int *)&geomVertices[0])[0]; t2 = ((int *)&geomVertices[0])[1];
+        ((int *)&vt2)[0] = t1; ((int *)&vt2)[1] = t2;
+        t1 = ((int *)&geomVertices[2])[0]; t2 = ((int *)&geomVertices[2])[1];
+        ((int *)&vt3)[0] = t1; ((int *)&vt3)[1] = t2; }
       gte_ldv0((int *)(&vt0));
       gte_rtps();
       gte_stlvnl(((char *)sd + 0x98));

@@ -921,10 +921,10 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
        * align-2 lwl/lwr/swl/swr soup instead, so the word pun is the faithful form. */
       *(long *)&tv->vx = *(long *)&temp_vector.vx;
       tv->vz = temp_vector.vz;
+      tv = tv + 1;
       if (reset != 0) {
         wd[n] = 0;
       }
-      tv = tv + 1;
       n = n + 1;
     }
   }

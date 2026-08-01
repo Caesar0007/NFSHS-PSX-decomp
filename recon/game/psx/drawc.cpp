@@ -586,10 +586,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x81;
         }
       }
-      if (((carObj->render).signalLight[shadow_align_b ^ 1] & 0x80U) != 0) {
+      /* the ^1 is a STATEMENT, not two sub-expressions: retail emits ONE
+       * `xori a0,a0,1` mutating the mirror index in place (census xori 3v2). */
+      shadow_align_b = shadow_align_b ^ 1;
+      if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;
       }
-      if (((carObj->render).signalLight[shadow_align_b ^ 1] & 8U) != 0) {
+      if (((carObj->render).signalLight[shadow_align_b] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 0x100U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x8000;
         }

@@ -46,7 +46,6 @@ void RaceSummary(void)
   char string [40];
   int halfH;
   int titleY;
-  int headerY;
   int dataY;
   int barH;
   int titleX;
@@ -82,16 +81,15 @@ void RaceSummary(void)
   /* each col* is computed immediately before its own Font_TextXY (oracle interleaves the
      `addiu $v0,$s6,K; addu $sN,$v0,$zero` pairs with the calls @0x800D9B2C..0x800D9B94). */
   colname = HUD_STATS_POS_X + 0x11;
-  headerY = (titleY + 0xf) * 0x10000 >> 0x10;
-  Font_TextXY(TextSys_Word(0x2e),colname,headerY);
+  Font_TextXY(TextSys_Word(0x2e),colname,(titleY + 0xf) * 0x10000 >> 0x10);
   colcar = HUD_STATS_POS_X + 0x5f;
-  Font_TextXY(TextSys_Word(0x3a),colcar,headerY);
+  Font_TextXY(TextSys_Word(0x3a),colcar,(titleY + 0xf) * 0x10000 >> 0x10);
   coltime = HUD_STATS_POS_X + 0xa7;
-  Font_TextXY(TextSys_Word(0x3b),coltime,headerY);
+  Font_TextXY(TextSys_Word(0x3b),coltime,(titleY + 0xf) * 0x10000 >> 0x10);
   colpos = HUD_STATS_POS_X;
   colbestlap = HUD_STATS_POS_X + 0xe1;
   if (GameSetup_gData.numLaps != 1) {
-    Font_TextXY(TextSys_Word(0x3c),colbestlap,headerY);
+    Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
   }
   dataY = (titleY + 0x11) * 0x10000 >> 0x10;
   Hud_FBuildF4(0,HUD_STATS_POS_X,dataY + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');

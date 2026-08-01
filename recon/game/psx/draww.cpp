@@ -2954,7 +2954,8 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 {
   int skidChunk_p;
   int vert_count;
-  int depth_index;
+  int smBase;
+  int segOff;
   int vert_idx;
   POLY_GT4 *prim;
   void *primPtr;
@@ -3094,6 +3095,8 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 gte_SetRotMatrix(&sd->matB);
 gte_SetTransMatrix(&sd->matB);
     ti2 = ((coorddef *)(pt1_index + 0xc))->x;
+    smBase = pt1_index;
+    segOff = 0x10;
     for (depth_skid = 0; depth_skid < (short)ti2; depth_skid = depth_skid + 1) {
       /* MATCH (2026-07-11): oracle re-reads Render_gPacketEnd's TRUE storage
        * address (scratchpad 0x1F800008, same "Render_gPacketPtr style" fixed-
@@ -3109,8 +3112,28 @@ gte_SetTransMatrix(&sd->matB);
        * literal-address macro made gcc materialize a SECOND scratchpad base
        * (`ori s7,s6,4`) in its own callee-saved reg, which is the slot the oracle spends
        * on `count*0x2B0`. Same base, same bytes, one fewer allocno. */
+      /* CORRECTNESS FIX (w42-a2) -- LATENT BUG, the whole first half of this
+       * loop's geometry was garbage.  The two gte_ldv0() calls below read
+       * `depth_index`, which is NEVER ASSIGNED anywhere in this function: it is
+       * the CLUT-ramp index (SYM block @0x800C9548 line 125, `depth_index`
+       * class REG $3 == $v1), and Ghidra merged it with the ANONYMOUS $v1
+       * compiler temp that carries the vertex address here -- same register,
+       * two disjoint lifetimes, one Ghidra name.  So the recon fed the GTE an
+       * uninitialised value for skid-segment vertices 0 and 1 (the near edge of
+       * every skidmark quad) while only vertices 2/3 (via ->next) were right.
+       * Raw oracle @0x800C92B8/0x800C92F4 (authority):
+       *   addu  $v1,$s2,$t3   ; $s2 = sm (Skidmark_Chunk*), $t3 = 0x10 + i*0x1C
+       *   lwc2  $0,0($v1); lwc2 $1,4($v1)        = &sm->seg[i].svx[0]
+       *   ...
+       *   addiu $v1,$v1,8
+       *   lwc2  $0,0($v1); lwc2 $1,4($v1)        = &sm->seg[i].svx[1]
+       * Skidmark_Chunk.seg @+0x10, stride 0x1C; Skidmark_Segment.svx[2] @+0x0.
+       * `pt1_index` is the oracle's $t1 walker (sm + i*0x1C), so the two
+       * addresses are pt1_index+0x10 and pt1_index+0x18 -- and the +8 step
+       * between them is the oracle's own `addiu $v1,$v1,8`. */
       if ((sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) && (((coorddef *)(pt1_index + 0x24))->y != 0)) {
-gte_ldv0((int *)(depth_index));
+        int svp = smBase + segOff;                  /* &sm->seg[i].svx[0] */
+gte_ldv0((int *)(svp));
         gte_rtps();
 gte_stlvnl((void *)0x1f800098);
         primPtr = sd->head.cprim.PrimPtr;
@@ -3118,7 +3141,8 @@ gte_stlvnl((void *)0x1f800098);
          * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
          * scratchpad literal 0x1F800008 (= Render_gPacketEnd's slot). */
 gte_swc2(0xe,(void *)(primPtr + 8));
-gte_ldv0((int *)(depth_index));
+        svp = svp + 8;                              /* &sm->seg[i].svx[1] */
+gte_ldv0((int *)(svp));
         gte_rtps();
 gte_stlvnl((void *)0x1f8000a8);
 gte_ldv0((int *)(((coorddef *)(pt1_index + 0x24))->y + 8));
@@ -3267,6 +3291,7 @@ gte_swc2(0x7,(void *)0x1f800094);
         }
       }
       pt1_index = (int)&((coorddef *)(pt1_index + 0x18))->y;
+      segOff = segOff + 0x1c;
     }
   } while( true );
 }

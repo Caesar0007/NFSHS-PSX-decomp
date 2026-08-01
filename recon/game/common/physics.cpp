@@ -1066,13 +1066,13 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   int bblip [8] = { 0, 0, 200, 175, 150, 125, 100, 0 };
   driveAcc = 0;
   wheelRpm = 0;
-  damage = 0;
   temp = carObj->specs->redline;
   if (temp < 0) {
     temp = temp + 7;
   }
   smokeRpm = temp >> 3;
   randtemp = fastRandom * randSeed;
+  damage = 0;
   temp = (carObj->N).damage[1] + (carObj->N).damage[5];
   fastRandom = randtemp & 0xffff;
   if (temp < 0) {
@@ -1130,9 +1130,7 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
     if (damage) {
       carObj->flywheelRpm = carObj->flywheelRpm + -100;
 cfLbl1:   /* @0x800aae38  (-f-build goto label) */
-      if (carObj->flywheelRpm < 0) {
-        carObj->flywheelRpm = 0;
-      }
+      carObj->flywheelRpm = MAX(carObj->flywheelRpm,0);
     }
     else {
       if ((carObj->flywheelRpm < desiredRpm) &&
@@ -1179,7 +1177,6 @@ cfLbl1:   /* @0x800aae38  (-f-build goto label) */
 Phy_CalcAcc_clearWheelSpinExit:
     carObj->frontWheelSpin = 0;
     carObj->wheelSpin = 0;
-    driveAcc = 0;
     goto Phy_CalcAcc_finalAdjustReturn;
   }
   if ((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) || (carObj->RSControl != 0)) {
@@ -1230,7 +1227,7 @@ Phy_CalcAcc_clearWheelSpinExit:
         rpmDrop = 0x32;
       }
     }
-    if (smokeRpm >> 3 < diffFlywheelRpm) {
+    if (smokeRpm < diffFlywheelRpm) {
       carObj->wheelSpin = 2;
     }
     if (diffFlywheelRpm <= rpmDrop) {
@@ -1263,10 +1260,7 @@ Phy_CalcAcc_clearWheelSpinExit:
       }
       carObj->flywheelRpm = wheelRpm;
       if (exceedRedline == 0) {
-        if (desiredRpm < carObj->flywheelRpm) {
-          desiredRpm = carObj->flywheelRpm;
-        }
-        carObj->flywheelRpm = desiredRpm;
+        carObj->flywheelRpm = MAX(carObj->flywheelRpm,desiredRpm);
       }
     }
     else if (diffDesiredRpm == 0) {
@@ -1292,22 +1286,19 @@ Phy_CalcAcc_clearWheelSpinExit:
         }
         driveAcc = fixedmult(driveAcc,gGasRatio);
       }
-      if (carObj->flywheelRpm <= desiredRpm) {
-        desiredRpm = carObj->flywheelRpm;
-      }
-      carObj->flywheelRpm = desiredRpm;
+      carObj->flywheelRpm = MIN(carObj->flywheelRpm,desiredRpm);
       ratio = carObj->slide;
       if (ratio < 0) {
         ratio = -ratio;
       }
       ratio = ratio + 0x10000;
-      if ((GameSetup_gData.sgge & 8U) == 0) {
-        if (0x20000 < ratio) {
-          ratio = 0x20000;
+      if ((GameSetup_gData.sgge & 8U) != 0) {
+        if (0x30000 < ratio) {
+          ratio = 0x30000;
         }
       }
-      else if (0x30000 < ratio) {
-        ratio = 0x30000;
+      else if (0x20000 < ratio) {
+        ratio = 0x20000;
       }
       if (driveAcc < 0) {
         driveAcc = driveAcc + 0xff;

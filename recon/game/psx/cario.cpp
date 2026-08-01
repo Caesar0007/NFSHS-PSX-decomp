@@ -504,7 +504,12 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
         /* oracle: `andi v0,inside,1; beqz v0,<+3 arm>` -- the inside!=0 case is
          * the FALL-THROUGH, so it is the if-BODY (arm order was inverted). */
         if (((carObj->render).inside & 1U) != 0) {
-          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[CarIO_carVRamCount / 3] * 3;
+          /* SYM block line 22: `index` REG $02($v0) -- the /3 quotient is a
+           * NAMED local in retail, not an inline subexpression. */
+          int index;
+
+          index = CarIO_carVRamCount / 3;
+          CarIO_carVRamCount = CarIO_carVRamCount + CarIO_carVRamAdd[index] * 3;
         }
         else {
           CarIO_carVRamCount = CarIO_carVRamCount + 3;
@@ -581,10 +586,19 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
 
           license_vx = vx + CarIO_licensePlate[carType][1];
           license_vy = vy + CarIO_licensePlate[carType][2];
+          /* `license = 1` is set BEFORE the two calls (the flag-first spelling):
+           * that is what makes the pseudo CALL-CROSSING, so gcc must give it a
+           * callee-saved register -- retail's `license` REG $10($s0) per the SYM.
+           * With it set after the calls the flag is caller-saved ($a0) and $s0
+           * stays free INSIDE the loop, which lets `cx` reuse $s0; that single
+           * reuse shifts palette/cx/cy/vx/vy one register each and hands $fp to
+           * carObj instead of spilling it to its ARG home 140($sp).  gcc still
+           * SINKS the constant materialization past the calls here (the `li s0,1`
+           * lands next to the `flag = 1` store exactly as the oracle does). */
+          license = 1;
           CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
           Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],recolor_flag,license_vx,
                      license_vy,-1,-1,&CarIO_carPixMap[carPixMapCount]);
-          license = 1;
           CarIO_carPixMap[carPixMapCount].flag = 1;
         }
         else if (i == CarIO_licensePlate[carType][3]) {
@@ -638,10 +652,10 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
 
             license_vx = vx + CarIO_licensePlate[carType][1];
             license_vy = vy + CarIO_licensePlate[carType][2];
+            license = 1;      /* flag-first: keeps `license` call-crossing -> $s0 */
             CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
             Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
                        cx,cy,&CarIO_carPixMap[carPixMapCount]);
-            license = 1;
             CarIO_carPixMap[carPixMapCount].flag = 1;
           }
           else if (i == CarIO_licensePlate[carType][3]) {

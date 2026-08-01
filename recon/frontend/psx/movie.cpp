@@ -20,11 +20,22 @@ static short   gMovieHeight __attribute__((section(".bss")));/* 0x80052d08 */
 static short   gMovieWidth __attribute__((section(".bss")));/* 0x80052d0a */
 static u_long  gMovieFrame __attribute__((section(".bss")));/* 0x80052d0c */
 static u_long  gEndFrame __attribute__((section(".bss")));  /* 0x80052d10 */
-static int     movieFlags__[4]; /* 0x80052d14..d20 - aggregate forces .bss (absolute), not .sbss */
-#define bMovieLoaded movieFlags__[0]
-#define bStopMovie   movieFlags__[1]
-#define bRewindMovie movieFlags__[2]
-#define isFirstSlice movieFlags__[3]
+/* MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
+ * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
+static int     bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14 */
+static int     bStopMovie_d   asm("bStopMovie") __attribute__((section(".bss")));   /* 0x80052d18 */
+static int     bRewindMovie_d asm("bRewindMovie") __attribute__((section(".bss"))); /* 0x80052d1c */
+static int     isFirstSlice_d asm("isFirstSlice") __attribute__((section(".bss"))); /* 0x80052d20 */
+/* MATCH: unsized-array views onto the same four symbols -- the scalar form emits the
+ * `sw $r,sym` ASSEMBLER MACRO ($at), the unsized-array form emits gcc's own lui+sw. */
+extern int     bMovieLoaded_v[] asm("bMovieLoaded");
+extern int     bStopMovie_v[]   asm("bStopMovie");
+extern int     bRewindMovie_v[] asm("bRewindMovie");
+extern int     isFirstSlice_v[] asm("isFirstSlice");
+#define bMovieLoaded bMovieLoaded_v[0]
+#define bStopMovie   bStopMovie_v[0]
+#define bRewindMovie bRewindMovie_v[0]
+#define isFirstSlice isFirstSlice_v[0]
 static DECENV  dec;                                 /* 0x80052d28 */
 static u_long *vlcbuf0 __attribute__((section(".bss")));   /* 0x80052d58 (.bss=absolute, not .sbss) */
 static u_long *vlcbuf1 __attribute__((section(".bss")));   /* 0x80052d5c */

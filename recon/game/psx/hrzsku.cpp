@@ -1230,11 +1230,18 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
              (11 diffs, ours 112 vs oracle 111); the single expression makes the shift
              result itself the addu dest + accumulator == oracle `sll a1,s3,2 ;
              lui v0 ; lw v0 ; addu a1,a1,v0`. 11 -> 2 diffs, count exact.
-             RESIDUAL 2 = emission ORDER of the two LICM-hoisted mask constants
-             (ours lui 0xff000000 BEFORE lui 0xffffff, oracle after). Tried flipping the
-             OR operand order of the first RMW statement (8 diffs) and of the second
-             (6 diffs) -- both worse; the hoist order is not steered by operand order
-             here. Same 2-constant hoist-order residual as the Flare_*Flare family. */
+             w41-a8: PASS.  The last 2 diffs were the emission ORDER of the two
+             LICM-hoisted mask constants (ours lui 0xff000000 BEFORE lui 0xffffff, oracle
+             after).  LEVER (new; generalizes to the whole OT-link family): loop.c hoists
+             movables in INSN order = the order the constants are first GENERATED in RTL,
+             and inside `A & 0xff000000 | B & 0xffffff` that is ff000000-then-ffffff.
+             Flipping the OR operands DOES reorder the hoists but also flips which
+             subexpression lands in $v1 vs $v0 (measured 8 diffs; 12 with both statements
+             flipped).  The DECOUPLED fix: give the SECOND RMW's `(u_int)prim & 0xffffff`
+             its own temp evaluated BEFORE the first RMW (`pkt24` -- the Flare_Tri
+             `pkt_addr24` idiom).  The 0xFFFFFF def then precedes the 0xFF000000 def, the
+             movable list hoists in the oracle's order, and the first RMW keeps its
+             prim-mask-first evaluation.  Same tie is carried by Flare_*Flare + BuildSky. */
           u_int *slot;
           u_int tag;
           u_int pkt24;

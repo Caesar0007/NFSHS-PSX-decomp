@@ -1637,13 +1637,31 @@ void Hud_BuildNumbers0(int player)
 }
 
 /* ---- Hud_BuildNumbers__Fi  [HUD.CPP:1721-1897] SLD-VERIFIED ----
- * SYM-structured rewrite (rule 8), twin of Hud_BuildNumbers0: fn-scope locals per SYM
- * (i/pSprt/HudF4/HudG4/splitY + speed/hun/ten/x/y/w1/w2/w3/w7/color2/prim/SpeedColor, AUTO ones
- * spill), block-scoped j per merge region.  Oracle-derived shapes: pSprt select = if/ELSE, +=
- * selects testing the `i = player` copy (i lives to the 2nd HudTach test -> callee $s2 like the
- * oracle); tag-links = pSprt[j] index loops with a per-region pal cache; GoTpage merges =
- * direct Render_gPalettePtr macro (call-clobber forces the reload); carInfo[j].HudMap after the
- * position loop is the RETAIL code's own out-of-range index (j==0x28) -- kept faithfully. */
+ * RESIDUAL 705 (ours 759 / oracle 758).  SYM-structured (rule 8): fn-scope locals = the SYM's
+ * i/pSprt/HudF4/HudG4/splitY; block-scoped `j` per merge region; the speed group
+ * (speed/hun/ten/x/y/w1/w2/w3/w7/color2/prim/SpeedColor) block-scoped inside the 2nd HudTach
+ * `if` per SYM block @0x800D5640 (diff-neutral, kept for fidelity).
+ *
+ * BANKED TWO-PART LANDING (w40-a1, receipted -- do NOT land either half alone):
+ *  PART 1 = the player/i ROLE SWAP.  The oracle's two entry copies are `addu $fp,$a0,$zero`
+ *    then `addu $s2,$fp,$zero`; $fp drives the pSprt select, the carInfo[]*3 index at SIX sites
+ *    (HudLapnum/HudTime/HudPosition/HudTach-1st/HudSpeed/HudSpeedMult) and wrongway[], while
+ *    $s2 drives ONLY the HudF4/HudG4/splitY `+=` selects and the SECOND HudTach test.  The SYM
+ *    ($0x1e=$fp is `i`, $0x12=$s2 is REGPARM `player`) therefore says retail wrote the MIRROR of
+ *    this body: `i` for the pSprt select + every carInfo[] index + wrongway, and the parameter
+ *    `player` only for the three `+=` selects and the 2nd HudTach test.  Applying the swap
+ *    reproduces the oracle prologue BYTE-EXACT (`sw fp;addu fp,a0;sw s2;addu s2,fp` in that
+ *    order, `beqz fp` for pSprt, `sll v1,fp,1` at all six index sites) and moves the count
+ *    759 -> 757 (oracle 758) -- but the gate goes 705 -> 1075.
+ *  PART 2 = pSprt must land in $s5, not $s4.  With PART 1 alone our allocator gives `x` its own
+ *    $s3 (it CONFLICTS with `player`), pushing pSprt to $s4 and w1 to $s5; retail SHARES $s2
+ *    between `player` and `x` (disjoint ranges), leaving $s3=w1 $s4=w2 $s5=pSprt.  That one
+ *    allocno decision renames every caller-saved temp in the six tag-link loops, which is what
+ *    the LCS metric counts -- catalog rule "LAND WITH the frame/coloring fix in ONE pass; the
+ *    LCS diff metric REGRESSES when insns improve against a wrong-register frame".
+ *  NEGATIVE receipt (w40): purging the block-local `u_char *pal` caches (the SYM blocks declare
+ *    only `j`) costs 705 -> 781 / 763 insns -- the pal CSE local IS load-bearing here (catalog
+ *    "scratchpad pointer-pair CSE local ... SITE-dependent"), keep it. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -1652,18 +1670,6 @@ void Hud_BuildNumbers(int player)
   POLY_F4 *HudF4;
   POLY_G4 *HudG4;
   int splitY;
-  int speed;
-  int hun;
-  int ten;
-  int x;
-  int y;
-  int w1;
-  int w2;
-  int w3;
-  int w7;
-  int color2;
-  POLY_GT4 *prim;
-  u_long SpeedColor;
 
   i = player;
   if (player != 0) {
@@ -1801,6 +1807,19 @@ void Hud_BuildNumbers(int player)
   }
   Hud_GoTpage(1);
   if (GameSetup_gData.carInfo[i].HudTach != 0) {
+    int speed;
+    int hun;
+    int ten;
+    int x;
+    int y;
+    int w1;
+    int w2;
+    int w3;
+    int w7;
+    int color2;
+    POLY_GT4 *prim;
+    u_long SpeedColor;
+
     speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed);
     if (speed < 0) {
       speed = speed + 0xffff;

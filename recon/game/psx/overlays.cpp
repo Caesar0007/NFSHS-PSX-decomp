@@ -208,7 +208,22 @@ void RaceSummary(void)
  * s4/s7/s2/s3), the `mult $v1,$a1` (0x96) the synthesized shift chain replaces, and two
  * 2-insn lui/addiu hoist positions.  FALSIFIED at the 94 base: `int rows` product
  * liveness (98), `int pitch = 0x96` for the mult (139), purging halfH (94, neutral),
- * titleX (160) or titleY (123), and the y-coordinate ternaries as two calls (259/248). */
+ * titleX (160) or titleY (123), and the y-coordinate ternaries as two calls (259/248).
+ * w42-a4 re-probe of the mult+rows pair (the w41 "land them TOGETHER" lead): rows+pitch
+ * DOES reproduce the retail head STRUCTURE -- real `mult v1,a1` off `li a1,150`, the
+ * product kept live for BOTH the `+0x28` and `+0x1C` arms, and n*75 demoted out of a
+ * callee-saved reg -- and drives the insn count 471 -> 473 of 475.  It still gates WORSE
+ * (138) for ONE reason, readable in the -dg dump: with `pitch` a real pseudo, sched1
+ * hoists the whole `lw numHuman; mult` chain ABOVE the register saves, so the product's
+ * live range spans the prologue and reload cannot colour it (greg: "Need 2 regs of class
+ * MD_REGS (for insn 55) / Spilling reg 9,64,65,66") -- it emits `mflo t1; sw t1,132(sp)`
+ * + an `lhu` truncation reload where retail has `mflo s3`.  Retail's mult is issued AFTER
+ * the saves.  Variants measured: rows-only 98, pitch-only 139, rows+pitch 138, SIZE_W
+ * after POS_X 123, `short pitch` 138, pitch also driving the two `col +=` increments
+ * (94/139 -- cse const-props it back in the loop, so the increments are NOT the reason
+ * retail has a variable multiplier).  NEXT IDEA for this axis: stop sched1 from hoisting
+ * the mult chain (shorten the product's live range) rather than another spelling of the
+ * multiplier -- the multiplier form is SOLVED, the schedule is not. */
 void RaceStatistics(void)
 
 {
@@ -398,7 +413,16 @@ void RaceStatistics(void)
  *       `SIZE_H - ((y-POS_Y)+8)` into `(SIZE_H-8) - (y-POS_Y)` (3 spellings falsified:
  *       ternary-first, showtimeleft-term-first, POS_Y-as-base);
  *   (c) the showtimeleft bar's remaining 6-insn evaluation order;
- *   (d) `lui t0` vs `lui v1` scratch pick on the StatsTimer base + one nop/lhu swap. */
+ *   (d) `lui t0` vs `lui v1` scratch pick on the StatsTimer base + one nop/lhu swap.
+ * w42-a4 re-probe of cluster (b) -- the refold `SIZE_H - ((y-POS_Y)+8)` -> `(SIZE_H-8) -
+ * (y-POS_Y)` survives EVERY spelling tried, because cc1 splits the `postgame ? 8 : 0`
+ * ternary into arms FIRST and then folds the now-constant addend inside each arm.
+ * FALSIFIED at the 49 base: addition-operand swap `((postgame?8:0) + dy)` (49, neutral),
+ * `(postgame != 0) * 8` (49, neutral), a per-arm ternary of two full subtractions (59),
+ * TWO FULL Hud_FBuildF4 CALLS per postgame arm (134 -- the w41 value-select-ternary lever
+ * does NOT transfer here, this is a value argument inside a loop, not a call selector),
+ * and right-association `(SIZE_H - dy) - (postgame?8:0)` (55).  The s1<->s2 half of the
+ * cluster is downstream of the same fold (it decides which subterm is evaluated first). */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

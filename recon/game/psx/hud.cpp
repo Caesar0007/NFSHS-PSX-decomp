@@ -1,3 +1,28 @@
+/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
+ * RESIDUAL 117 (ours 204 / oracle 215).  w40-a1: `ix = x` moved AHEAD of `ox = x` (gcc was
+ * rematerializing ix out of ox's stack slot -- one bogus `lw s1,28(sp)`), and the invented
+ * `cVar1` local purged (SYM has no such local; diff-neutral, rule-8 hygiene).
+ * TWO STANDING RESIDUALS, both allocator-level, with w39+w40 receipts:
+ *  (1) str/'#' allocno swap: retail str=$s2 / '#'=$s3, ours str=$s3 / '#'=$s2 (a pure
+ *      allocno_compare tie; '#' has 8 loop refs vs str's 6 so it out-prioritises str here).
+ *      NEGATIVE w40: naming the constant (`int hash='#'` inited at the top = the catalog
+ *      INVERSE priority dial) makes it WORSE (117 -> 134); it does not flip the pair.
+ *  (2) `shp` lives in a callee-saved reg ($s0) across the Hud_FBuildSprite call, retail
+ *      instead rematerialises `&HudPmx_gShapes[K]` into a CALLER-saved $t0/$t1 either side
+ *      of the call (`lui $t0` in the bnez delay slot + a duplicate `lui $t0` after the jal,
+ *      then `addiu $t0,$t0,%lo; lh $v1,0x10($t0)`).  w40 receipts, all NEGATIVE:
+ *        - delete `shp`, use `HudPmx_gShapes[K].width`:   204 (cse hoists the ARRAY BASE
+ *          into a callee-saved reg and re-permutes every param home -- this is the catalog
+ *          "element-pointer local kills an address-CSE-hoist cascade" row, confirmed);
+ *        - move the `shp =` assignment BELOW the `if`:    131 (address+field FOLD into one
+ *          `lui;lh %lo(sym+0x10)` -- loses the oracle's 3-insn split, 210/215);
+ *        - four DISTINCT single-assignment `shp` locals (chasing reg_equiv_constant
+ *          rematerialisation):                            117 (identical codegen).
+ *      => the element-pointer local IS the right source shape; the saved-vs-caller reg is
+ *      an allocator choice we cannot reach from C.  Downstream of it: the merge association
+ *      (`(ix+3)+w` retail vs `ix+(w+3)` ours) and the two-insn `j;li a2,-1` that our build
+ *      cross-jump-MERGES into the 0xE5 arm's identical `offy = -1` tail (branch-polarity
+ *      swap of that if/else tested w40: byte-identical output, no effect). */
 /* game/psx/hud.cpp -- RECONSTRUCTED (NFS4 PSX in-race HUD; C++ TU)
  *   62 fns: sprite/poly builders, tachometer, number rasterizer, mini-map + radar,
  *   CD player, wingman interface, render views (hud/tac/map/stats), 3-2-1-GO, BTC/busted.
@@ -1216,7 +1241,6 @@ void Hud_BuildTach(int player)
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
-  char cVar1;
   HudPmx_tShape *shp;
   int offy;
   char alphShape;
@@ -1226,17 +1250,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   int numch;
 
   Hud_GoTpage(1);
+  ix = x;
   ox = x;
   numch = strlen(str);
   i = 0;
-  ix = x;
   while (true) {
     if (numch <= i) break;    /* exit-in-the-middle: top test + `j` back-edge, tail out-of-line */
-    cVar1 = *str;
-    if (cVar1 == ' ') {
+    if (*str == ' ') {
       ix = ix + 3;
     }
-    else if (cVar1 == '*') {
+    else if (*str == '*') {
       ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
       if (gPadinfo.buf[0].ID == '#') {
         shp = &HudPmx_gShapes[0xad];
@@ -1275,39 +1298,39 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
     }
     else {
       offy = 0;
-      if (cVar1 == '^') {
+      if (*str == '^') {
         alphShape = 0xaa;
         if (gPadinfo.buf[player * 4].ID == '#') {
           alphShape = 0xad;
         }
       }
-      else if (cVar1 == '(') {
+      else if (*str == '(') {
         alphShape = 0xa9;
         if (gPadinfo.buf[player * 4].ID == '#') {
           alphShape = 0xab;
         }
       }
-      else if (cVar1 == ')') {
+      else if (*str == ')') {
         alphShape = 0xa8;
         if (gPadinfo.buf[player * 4].ID == '#') {
           alphShape = 0xac;
         }
       }
-      else if (cVar1 == '&') {
+      else if (*str == '&') {
         alphShape = 0xae;
       }
       else {
-        alphShape = cVar1 + 0x6e;
-        if (9 < (u_char)(cVar1 - 0x30U)) {
-          if (cVar1 == '-') {
+        alphShape = *str + 0x6e;
+        if (9 < (u_char)(*str - 0x30U)) {
+          if (*str == '-') {
             alphShape = 0x48;
           }
-          else if (cVar1 == ':') {
+          else if (*str == ':') {
             alphShape = 0x49;
           }
           else {
-            alphShape = cVar1 + 0x8a;
-            if ((u_char)(cVar1 + 0x40U) < 0x1d) {
+            alphShape = *str + 0x8a;
+            if ((u_char)(*str + 0x40U) < 0x1d) {
               offy = -1;
             }
             else {

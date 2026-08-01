@@ -949,7 +949,7 @@ void Weather_CreateSnow(SVECTOR *pt)
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
   pal = (u_int *)RENDER_PALETTEPTR_ADDR;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-  RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x28;
+  RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;   /* MATCH: bump off the loaded prim, no re-read */
   *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
@@ -992,7 +992,7 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
     *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
-    RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x14;
+    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
     *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
     *((char *)prim + 3) = 4;                       /* OT tag length (4 words) */
     *(u_int *)&prim->r0 = 0x52000000;              /* rgb0=0, code=0x52 (LINE_G2) */
@@ -1007,7 +1007,7 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
     *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)RENDER_PALETTEPTR_ADDR & 0xffffff;
-    RENDER_PACKETPTR_ADDR = RENDER_PACKETPTR_ADDR + 0x14;
+    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
     *(u_int *)RENDER_PALETTEPTR_ADDR = *(u_int *)RENDER_PALETTEPTR_ADDR & 0xff000000 | (u_int)prim & 0xffffff;
     *((char *)prim + 3) = 4;
     *(u_int *)&prim->r0 = 0x52000000;

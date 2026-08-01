@@ -95,6 +95,21 @@ char *Platform_ReserveMemory(int size,char *string)
  * (18), `size + gCurrentMemory` order (18), `gCurrentMemory - gLowMemory + size` (18),
  * `size - gLowMemory + gCurrentMemory` (18), `size + (gCurrentMemory - gLowMemory)` (18),
  * subtract folded into the compare (20), multiply-back fused with the add (20/22).
+ * w42-a4 -- a STRICTLY BETTER STRUCTURAL BASE exists, banked but NOT adopted (it gates
+ * 10 vs the current 7, and the gate is the wave metric): writing the two statements
+ * SUB-FIRST -- `size = size - gLowMemory; size = size + gCurrentMemory;` (or the
+ * compound `size -= gLowMemory; size += gCurrentMemory;`, identical) -- is count-EXACT
+ * 17/17 AND keeps `size` in its REGPARM home $a0 for the whole function, so the entire
+ * prologue/divide/round/compare/tail is byte-identical and the residual is ONLY the
+ * batching of the three gp-rel loads (retail issues all three, then `addu a0,a2,a0;
+ * subu a0,a0,a1`; ours interleaves `subu` between them and reuses $v1 for gLowMemory).
+ * The ADD-first split (the semantic order retail used) is the one that rotates $a0<->$a1
+ * (18 diffs) -- i.e. STATEMENT ORDER, not operand order, is what holds the param home
+ * here.  Measured: sub-first split 10, sub-first compound 10, add-first split 18,
+ * add-first compound 18, `gCurrentMemory - gLowMemory + size` 18, one-expression
+ * sub-first `(size - gLowMemory) + gCurrentMemory` 18, one-expression add-first 7 (current).
+ * NEXT IDEA: from the 10-diff base, get the three gp loads to batch (a load-scheduling
+ * lever), not another algebraic spelling -- the register allocation is already retail's.
  * Prototype re-checked vs the raw oracle: 2 args ($a0 size read at insn 1, $a1 string never
  * read), returns char* in $v0. */
 char *Platform_TempReserveMemory(int size,char *string)

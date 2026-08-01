@@ -140,7 +140,7 @@ extern long MemCardCreateFile(long chan, char *name, long nslots);
 extern long MemCardDeleteFile(long chan, char *name);
 extern long MemCardFormat(long chan);
 extern long MemCardGetDirentry(long chan, char *pat, DIRENTRY *dir, int *count, long a, long b);
-extern u_char *getshapeclut(shapetbl *shape, int src);   /* libgs shape CLUT */
+extern u_char *getshapeclut(shapetbl *shape);   /* libgs shape CLUT (1 arg: oracle @0x800F6C3C never reads $a1) */
 extern void blockclear(void *dst, int size);             /* eaclib */
 extern void blockmove(void *src, void *dst, int size);
 extern int  addtimer(void (*proc)(void));
@@ -466,49 +466,46 @@ int iMCRD_DoFileLoad(int card)
 int MCRD_savefile(int card,MCRDFILE_def *pFILE)
 
 {
-  short sjis;
+  u_short sjis;
   uint len;
   uchar *clut;
-  MCRDFILE_def *pScan;
-  char *src;
   int i;
   int nIcons;
   MCRDFILEINFO_def *pMFI;
-  int ret;
-  
-  ret = (int)&gMemCardInfo.fileinfo /* 0x80052fc8; +0x30 -> .header.title[] */;
-  if ((pFILE->size & 0x7fU) == 0) {
-    blockclear(&gMemCardInfo.fileinfo,0x23c);
-    gMemCardInfo.fileinfo.header.magicnumber[0] = 'S';
-    gMemCardInfo.fileinfo.header.magicnumber[1] = 'C';
-    strcpy(gMemCardInfo.fileinfo.name,gMemCardInfo.productCode);
-    src = pFILE->name;
-    strcat(gMemCardInfo.fileinfo.name,src);
-    gMemCardInfo.fileinfo.size = pFILE->size;
-    gMemCardInfo.fileinfo.flags = pFILE->flags;
-    gMemCardInfo.fileinfo.offset = pFILE->offset;
-    gMemCardInfo.fileinfo.pData = pFILE->pData;
+
+  /* MATCH: pMFI is the function's base anchor (retail keeps &gMemCardInfo.fileinfo
+   * in a saved reg; productCode is reached at -0x25C off it).  Also: getshapeclut
+   * takes ONE argument (its own oracle never reads $a1) - the 2nd arg was a
+   * fabricated Ghidra leftover that also forced a spare saved reg for pFILE->name. */
+  pMFI = &gMemCardInfo.fileinfo;
+  if ((pFILE->size & 0x7fU) != 0) goto MCRDsave_errorDefault;
+  {
+    blockclear(pMFI,0x23c);
+    pMFI->header.magicnumber[0] = 'S';
+    pMFI->header.magicnumber[1] = 'C';
+    strcpy(pMFI->name,gMemCardInfo.productCode);
+    strcat(pMFI->name,pFILE->name);
+    pMFI->cardnum = card;
+    pMFI->size = pFILE->size;
+    pMFI->flags = pFILE->flags;
+    pMFI->offset = pFILE->offset;
+    pMFI->pData = pFILE->pData;
     i = 0;
-    gMemCardInfo.fileinfo.cardnum = card;
     if ((pFILE->flags & 0x200) != 0) {
       nIcons = 0;
-      pScan = pFILE;
       do {
-        if (pScan->icon[0] != (shapetbl *)0x0) {
+        if (pFILE->icon[i] != (shapetbl *)0x0) {
           nIcons = nIcons + 1;
         }
         i = i + 1;
-        pScan = (MCRDFILE_def *)&pScan->title;
       } while (i < 3);
       if (nIcons == 0) {
         return -1;
       }
-      gMemCardInfo.fileinfo.header.type = (char)nIcons + '\x10';
-      i = pFILE->size + 0x2000;
-      gMemCardInfo.fileinfo.header.nslots = (uchar)(i >> 0xd);
-      if (i < 0) {
-        gMemCardInfo.fileinfo.header.nslots = (uchar)(pFILE->size + 0x3fff >> 0xd);
-      }
+      pMFI->header.type = (char)nIcons + '';
+      /* MATCH: a plain signed divide - retail's bgez/addiu 0x3FFF/sra 13 is gcc's
+       * own /0x2000 guard, not a hand-written rounding branch. */
+      pMFI->header.nslots = (uchar)((pFILE->size + 0x2000) / 0x2000);
       if (pFILE->title == (char *)0x0) {
         return -1;
       }
@@ -517,35 +514,34 @@ int MCRD_savefile(int card,MCRDFILE_def *pFILE)
         return -1;
       }
       len = strlen(pFILE->title);
+      /* MATCH: the -1 must be the FALL-THROUGH of this test (retail's shared
+       * error block sits right here and the head's size-check jumps INTO it via
+       * cross-jump); a goto to a tail label puts the block at the end instead. */
+      if (0x20 < len) {
+MCRDsave_errorDefault:
+        return -1;
+      }
       i = 0;
-      if (0x20 < len) goto MCRDsave_errorDefault;
       do {
         sjis = ascii2sjis(pFILE->title[i]);
-        *(short *)(ret + 0x30) = sjis;
+        pMFI->header.title[i] = sjis;
         if (sjis == 0) break;
         i = i + 1;
-        ret = ret + 2;
       } while (i < 0x20);
-      clut = getshapeclut(pFILE->icon[0],(int)src);
-      blockmove(clut + 0x10,gMemCardInfo.fileinfo.header.iconclut,0x20);
-      blockmove
-                (&pFILE->icon[0]->data,gMemCardInfo.fileinfo.header.icon1,0x80);
-      if ((1 < nIcons) &&
-         (blockmove
-                    (&pFILE->icon[1]->data,gMemCardInfo.fileinfo.header.icon2,0x80), nIcons == 3)) {
-        blockmove
-                  (&pFILE->icon[2]->data,gMemCardInfo.fileinfo.header.icon3,0x80);
+      clut = getshapeclut(pFILE->icon[0]);
+      blockmove(clut + 0x10,pMFI->header.iconclut,0x20);
+      blockmove(&pFILE->icon[0]->data,pMFI->header.icon1,0x80);
+      if (1 < nIcons) {
+        blockmove(&pFILE->icon[1]->data,pMFI->header.icon2,0x80);
+        if (nIcons == 3) {
+          blockmove(&pFILE->icon[2]->data,pMFI->header.icon3,0x80);
+        }
       }
     }
-    ret = 0;
     gMemCardInfo.task = WRITE_FILE;
     gMemCardInfo.bReady = 0;
+    return 0;
   }
-  else {
-MCRDsave_errorDefault:
-    ret = -1;
-  }
-  return ret;
 }
 
 /* lines 749-750: (static data / macros / comments - no emitted code) */

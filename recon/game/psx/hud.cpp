@@ -1097,29 +1097,26 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
 void Hud_BuildTach(int player)
 
 {
-  u_long clut;
-  u_char *prim;
-  short ts3;
-  short ts4;
-  short ts1;
-  int rpm;
-  int tachNeedle_p;
-  int needle_y;
-  int needle_x;
-  int carType;
-  void *tp9;
-  u_int uVar1;
-  u_long y;
-  int sin1;
-  u_long x;
   int fangle;
   int sin;
   int cos;
+  int rpm;
   SPRT *gSprt1;
+  u_long clut;
+  u_long x;
+  u_long y;
   int cos1;
+  int sin1;
+  int carType;
   u_long color;
+  int tachNeedle_p;
+  u_char *prim;
   u_char *prim2;
+  void *tp9;
   u_char *tp3;
+  short ts3;
+  short ts4;
+  short ts1;
   
   if (player != 0) {
     gSprt1 = gSprite1;
@@ -1156,14 +1153,14 @@ void Hud_BuildTach(int player)
   }
   clut = *(u_long *)tachNeedle_p;
   clut = clut & 0xffff0000;   /* in-place mutate: load lands in clut's reg directly */
-  needle_y = fixedmult(cos,0x1d);
-  needle_x = fixedmult(sin,0x1d);
-  clut = clut | (needle_x + 0x9d) << 8;
+  x = fixedmult(cos,0x1d);
+  y = fixedmult(sin,0x1d);
+  clut = clut | (y + 0x9d) << 8;
   if (player != 0) {
-    clut = clut | (needle_y + 0x75);
+    clut = clut | (x + 0x75);
   }
   else {
-    clut = clut | (needle_y + 0x1d);
+    clut = clut | (x + 0x1d);
   }
   *(u_int *)&gSprt1[2].u0 = clut;   /* word-fused u0/v0/clut store */
   cos1 = fixedmult(cos,10) + 0xe;
@@ -1181,9 +1178,9 @@ void Hud_BuildTach(int player)
     Render_gPacketPtr = prim + 0x24;
     *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp9 & 0xffffff;
     ((u_char *)tp9)[3] = 3;
-    *(short *)((u_char *)tp9 + 8) = 0xe - (short)needle_y;
+    *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
-    *(short *)((u_char *)tp9 + 10) = 0xe - (short)needle_x;
+    *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
     *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
     prim2 = Render_gPacketPtr;

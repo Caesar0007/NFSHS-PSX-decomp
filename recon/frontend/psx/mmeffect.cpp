@@ -20,25 +20,33 @@
 void FeDraw_SetABRMode(int abr)
 
 {
-  /* SYM 8c: locals are EXACTLY abr (REGPARM int) + dr_mode (REG DR_MODE*).
-   * `tpage`, `linkAddr`, `prevPrim` were Ghidra fictions.
-   * RESIDUAL 8 @ 39/39 -- a dbr delay-slot PICK plus the `li a3,256` position.
-   * The oracle fills GetTPage's jal slot with the PALETTE store and emits the
-   * cursor store ahead of it; ours picks the cursor store.  Source order
-   * bump-then-pal does give the oracle's slot but then sched1 hoists the cursor
-   * store above the dr_mode tag store (40).  FALSIFIED: both statement orders x
-   * both OR-operand orders; volatile on the tag store / palette store / cursor
-   * store in all 6 combinations (39-42); bump spelled `+ 0xc` / `+= 0xc` /
-   * `(dr_mode + 1)`; and the -G / -mno-split-addresses axis (tools/gprobe.py --
-   * all four settings == baseline).  SAME residual shape as drawshp's
-   * DrawShape_SubtractNFS4RectEdges post-loop DR_MODE block: one lever cracks both. */
+  /* SYM 8c: named locals are EXACTLY abr (REGPARM int) + dr_mode (REG DR_MODE*).
+   * SLD: 0x8004D708..0x8004D740 -- the WHOLE OT-link block -- is ONE source line
+   * (236); the SetDrawMode call is line 237.  So retail wrote line 236 as a single
+   * OT-link MACRO, and `linkWord` below is that macro's internal temp (it holds no
+   * value across a statement boundary in the original, which is why the SYM has no
+   * Def record for it -- cf. psxfront.cpp's `linkAddr`, the same house idiom).
+   *
+   * MATCH (the lever, cracked 2026-08-02): SPLIT the palette read-modify-write into
+   * a VALUE statement + a STORE statement, and put the packet-cursor bump BETWEEN
+   * them.  That makes the palette store the LAST insn before `jal GetTPage`, so
+   * dbr's backward `fill_simple_delay_slots` scan takes IT into the call's delay
+   * slot (the oracle's pick) while the cursor store keeps its position ahead of the
+   * OR chain.  The un-split form leaves the cursor store last -> dbr steals THAT.
+   * FALSIFIED (all gated): bump-before-pal (40) incl. a `next` cursor temp (40) and
+   * a swapped pal-OR (40); the Draw_PrimStruct struct-field view of the cursor for
+   * both orders (17 / 19); volatile on the palette store (8); psxfront's exact
+   * `prevPrim`+`linkAddr` spelling (30) and `linkAddr` alone (30); linkWord with the
+   * OR operands swapped (26); and the -G / -mno-split-addresses axis (gprobe: all
+   * four settings == baseline). */
   DR_MODE *dr_mode;
+  u_long linkWord;
 
   dr_mode = (DR_MODE *)Render_gPacketPtr;
   dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;
-  *(u_long *)Render_gPalettePtr =
-       *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
+  linkWord = *(u_long *)Render_gPalettePtr & 0xff000000 | (u_long)dr_mode & 0xffffff;
   Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+  *(u_long *)Render_gPalettePtr = linkWord;
   SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,abr,0,0x100),(RECT *)0x0);
   return;
 }

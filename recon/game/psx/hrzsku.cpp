@@ -1076,14 +1076,15 @@ void Hrz_BuildSky(void)
                 (pSkyMesh[temp].vy      <= (short)*(u_short *)((char *)sd + 0x12))) &&
                ((-1 < pSkyMesh[temp + 17].vy) || (-1 < pSkyMesh[temp + 18].vy) ||
                 (-1 < pSkyMesh[temp + 1].vy)  || (-1 < pSkyMesh[temp].vy)))) {
-            if (Sky_gTrackSpec->type == 1) {
-              if ((Sky_gTrackSpec->flags & 0x20U) != 0) {
+            CSkySpec *sk = Sky_gTrackSpec;
+            if (sk->type == 1) {
+              if ((sk->flags & 0x20U) != 0) {
                 POLY_GT4 *prim;
                 Draw_tPixMap *pmx;
 
                 u_int *slot;
-                prim = (POLY_GT4 *)Render_gPacketPtr;
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                prim = (POLY_GT4 *)Render_gPacketPtr;
                 slot = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4);
                 *(u_int *)prim = slot[-2] & 0xffffff | *(u_int *)prim & 0xff000000;
                 slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
@@ -1116,7 +1117,7 @@ void Hrz_BuildSky(void)
                 tag = slot[-2];
                 Render_gPacketPtr = (u_char *)prim + 0x28;
                 slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
-                *(u_long *)&prim->r0 = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
+                *(u_long *)&prim->r0 = *(u_long *)&sk->frontcolors[0];
                 *((u_char *)prim + 3) = 9;
                 prim->code = 0x2c;
                 *(u_long *)&prim->u0 = *(u_long *)pmx;

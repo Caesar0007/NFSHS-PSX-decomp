@@ -533,17 +533,19 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
   tTexture_ShapeInfo *tShp;
   int color [4];
+  int bright;
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes[0] + index;
   }
   else {
-    tShp = gCurrentShapes + index;
+    tShp = gCurrentShapes[0] + index;
   }
+  bright = 0x80 - fade;
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
   if ((flags & 0xc0U) != 0) {
@@ -665,17 +667,19 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   int scalex = 0x20000;
   int scaley = 0x10000;
   int color [4];
+  int bright;
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes[0] + index;
   }
   else {
-    tShp = gCurrentShapes + index;
+    tShp = gCurrentShapes[0] + index;
   }
+  bright = 0x80 - fade;
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   if ((flags & 0xc0U) != 0) {
     ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }

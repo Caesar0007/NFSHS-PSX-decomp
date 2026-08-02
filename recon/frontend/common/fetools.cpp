@@ -80,59 +80,65 @@ void s_lower(char *string)
 void FeTools_DrawPSXButton(u_char padType, u_short button, int x, int y)
 {
   tDrawShapeExtended drawFlags;
-  int idx;       /* shape index of the button glyph (var_a0 / var_t0) */
-  int drawX;     /* var_a2 */
-  int drawY;     /* var_a3 */
-  int px;        /* var_s2 -- running X */
-  int py;        /* var_s1 -- running Y (= y + 1) */
-  int btn;       /* button & 0xFFFF */
-  int tmpY;      /* var_s1 - 1 (case 0xA0) */
+  int type;
 
-  px = x;
-  py = y + 1;
-  btn = button & 0xFFFF;
+  type = 0;
   drawFlags.tint[0] = 0xBEBE;
-  switch (btn) {
+  y = y + 1;
+  switch (button) {
   case 0x50:
-    DrawShapeExtended(0x1A, 0x18, px + 3, py - 2, 0, 0, &drawFlags);
-    idx = 0x1B;
-    drawX = px + 4;
-    drawY = py + 4;
-    break;
+    DrawShapeExtended(0x1A,0x18,x + 3,y - 2,0,0,&drawFlags);
+    DrawShapeExtended(0x1B,0x18,x + 4,y + 4,0,0,&drawFlags);
+    return;
   case 0xA0:
-    tmpY = py - 1;
-    DrawShapeExtended(0x1C, 0x18, px, tmpY, 0, 0, &drawFlags);
-    idx = 0x1D;
-    drawX = px + 0xA;
-    drawY = tmpY;
-    break;
+    DrawShapeExtended(0x1C,0x18,x,y - 1,0,0,&drawFlags);
+    y = y - 1;
+    DrawShapeExtended(0x1D,0x18,x + 0xA,y,0,0,&drawFlags);
+    return;
   default:
-    if ((padType & 0xFF) == 0x23) {
-      if (btn != 0x1000) {
-        if (btn < 0x1001) {
-          idx = 0;
-          if (btn == 8) { idx = 0x15; py -= 1; }
-        } else if (btn != 0x4000) {
-          idx = 0;
-          if (btn == 0x8000) { idx = 0x14; py -= 2; }
-        } else { idx = 0x13; py -= 4; }
-      } else { idx = 0x12; py -= 3; }
-    } else {
-      if (btn != 0x1000) {
-        if (btn < 0x1001) {
-          idx = 0;
-          if (btn == 8) { idx = 0x10; px += 2; }
-        } else if (btn != 0x4000) {
-          idx = 0;
-          if (btn == 0x8000) { idx = 0xE; py -= 3; }
-        } else { idx = 0xC; py -= 3; }
-      } else { idx = 0xF; py -= 3; }
+    if (padType == 0x23) {
+      switch (button) {
+      case 0x1000:
+        type = 0x12;
+        y = y - 3;
+        break;
+      case 0x4000:
+        type = 0x13;
+        y = y - 4;
+        break;
+      case 0x8000:
+        type = 0x14;
+        y = y - 2;
+        break;
+      case 8:
+        type = 0x15;
+        y = y - 1;
+        break;
+      }
     }
-    drawX = px;
-    drawY = py;
+    else {
+      switch (button) {
+      case 0x1000:
+        type = 0xF;
+        y = y - 3;
+        break;
+      case 0x4000:
+        type = 0xC;
+        y = y - 3;
+        break;
+      case 0x8000:
+        type = 0xE;
+        y = y - 3;
+        break;
+      case 8:
+        type = 0x10;
+        x = x + 2;
+        break;
+      }
+    }
     break;
   }
-  DrawShapeExtended(idx, 0x18, drawX, drawY, 0, 0, &drawFlags);
+  DrawShapeExtended(type,0x18,x,y,0,0,&drawFlags);
   return;
 }
 

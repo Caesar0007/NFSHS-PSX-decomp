@@ -771,29 +771,25 @@ DrawBgGridposDone:
 void tScreenMemcard::DrawForeground()
 
 {
-  short fade;
+  int fade;
   int k;
-  int i;
-  int fade_tmp;
 
-  fade_tmp = (uint)(ushort)this->fScreenFadeVal * 2 + -0x80;
-  fade = (short)fade_tmp;
-  k = fade_tmp * 0x10000 >> 0x10;
-  if (k < 0x80) {
-    if (k < 1) goto DrawFg_setZero;
+  fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
+  if ((short)fade < 0x80) {
+    if ((short)fade < 1) goto DrawFg_setZero;
   }
-  if (k < 0x81) goto DrawFg_join;
+  if ((short)fade < 0x81) goto DrawFg_join;
   fade = 0x80;
   goto DrawFg_join;
 DrawFg_setZero:
   fade = 0;
 DrawFg_join:
-  i = 0;
+  k = 0;
   do {
-    DrawShapeExtended(0x38 + i,0,0,0,(int)fade,0,
+    DrawShapeExtended(0x38 + k,0,0,0,(short)fade,0,
                (tDrawShapeExtended *)0x0);
-    i = i + 1;
-  } while (i < 4);
+    k = k + 1;
+  } while (k < 4);
   return;
 }
 

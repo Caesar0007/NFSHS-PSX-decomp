@@ -2085,6 +2085,61 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
    * rematerialized per use and the whole file rotates.  The lever that would land
    * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
    * declaration move; do not re-try the move on its own. */
+  /* RECEIPT (w45-a5) -- ROOT CAUSE ISOLATED AND THE w41 DIAGNOSIS CORRECTED.
+     Re-gated baseline 130 (ours 193 / oracle 189 = +4 EXACTLY).
+     `sd` IS NOT AN ALLOCNO AT ALL -- it never reaches the register allocator.
+     -dg (tools/rtl_dump.py -> scratch/rtl/draww.i.greg) prints
+        ;; 20 regs to allocate: 93 123 92 83 130 81 84 85 141 91 89 80 82 183 ...
+        ;; Register dispositions: 80 in 30  81 in 5  83 in 17 ...
+     -- 80 is `Vi` and it takes $30/$fp; there is NO pseudo anywhere in that
+     table holding 0x1F800000.  `sd = (Draw_DCache *)&Render_gPalettePtr;` is a
+     CONST_INT initializer (Render_gPalettePtr is the 3.6b fixed-address macro),
+     so cse propagates 0x1F800000 into every use and the pseudo disappears
+     BEFORE local-alloc.  Consequence, visible 1:1 in tools/ourdis.py:
+       ours   5x `lui $r,0x1f80` (one per call-arg site) + `lui $at,0x1f80;
+              sw $zero,40($at)`   <- the ASSEMBLER $at macro, 2 insns
+       oracle 1x `lui $fp,0x1F80` + 3x `addu $aN,$fp,$zero` + `sw $fp,0x14($sp)`
+              + `sw $zero,0x28($fp)`                      <- 1 insn
+     = the whole +4.  So this is NOT the w41 "allocno-priority inversion"
+     (that verdict was formed without a -dg dump); Vi legitimately owns $fp
+     because nothing else is competing for it.  Getting sd allocated would also
+     hand Vi its SYM home $s7 and unwind the whole 9-value rotation
+     (ours s1/s3/s4/s5/s6/s7/fp vs oracle s0..s7/fp).
+     FALSIFIED THIS WAVE (all re-gated, all reverted):
+       USE-fence `__asm__ volatile("" : : "r"(sd))` after the init  138 (+2 insns)
+       same fence inside the else arm                               142
+       sd assigned inside the else arm only                         138
+       sd assigned before groupNumElements                          130 (no-op)
+       two static sets of the same constant / `sd = sd;`            130 (no-op --
+         jump-opt collapses them, so REG_N_SETS stays 1)
+       set in BOTH guard arms                                       137
+       all three matB.t[] stores routed through sd                  143
+       gte_SetTransMatrix(&sd->matB) instead of the 0x1F800014 literal 130
+       t[0] store moved ahead of t[2]/t[1]                          130
+     MECHANISM READ OUT OF THE GCC SOURCE (C:\Temp\gcc-2.8.1-src\extracted\
+     local-alloc.c, update_equiv_regs): the LOCAL-ALLOC substitution is gated on
+     `REG_N_REFS(regno) == 2 && REG_BASIC_BLOCK(regno) < 0`, which sd (6 refs)
+     does NOT satisfy -- so local-alloc is innocent and the propagation is
+     cse.c's, upstream.  Note the same routine does `REG_LIVE_LENGTH *= 2` for
+     ANY pseudo carrying a REG_EQUIV note, i.e. a constant-initialized pointer is
+     priority-HALVED even when it does survive: any lever here must either kill
+     the REG_EQUIV or beat a 2x live-length penalty.
+     NEW NAMED ANGLE (untried, in order):
+       1. Make the initializer NON-CONSTANT-P so cse cannot propagate and no
+          REG_EQUIV note is attached.  The honest candidate is the storage-shape
+          menu (catalog w44 -> six forms): give the scratchpad cache a SIZED
+          asm-label VIEW (`extern Draw_DCache sd_v[1] asm("...")`-style) or the
+          volatile-MEM form which w44 proved "defeats TARGET_SPLIT_ADDRESSES";
+          here we want the OPPOSITE polarity (register base instead of the $at
+          macro), so probe both the sized and unsized views on the 0x1F800000
+          base and read which one stops the fold.
+       2. Ask the a10 instrument lane for the cse.c constant-propagation gate
+          (which predicate lets `(mem (const_int 0x1F800028))` validate on MIPS;
+          if it is rejected, gcc must force a base register and we win for free).
+       3. Required delta for the simulator: we need ONE extra call-crossing
+          allocno holding 0x1F800000 whose priority lands LAST (it must take
+          $fp, i.e. rank 9 of 9), pushing Vi from $fp up to $s7.  Everything
+          else in the table is already the oracle's set. */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;

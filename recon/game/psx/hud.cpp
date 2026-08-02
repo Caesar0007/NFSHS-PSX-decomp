@@ -3405,15 +3405,18 @@ HudRender_amtDone:
           Hud_BuildReplay();
         }
         if (i == DashHUD_gInfo.splitscreen) {
-          /* MATCH: explicit goto-chain, NOT `&&`/if -- gcc store-flags the whole
-           * thing into `sltu a0,zero,countdown` (one insn) when it can prove the
-           * result is the 0/1 of the last test; retail branches twice and sets
-           * a0 in the first beqz's delay slot. */
-          if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
+          /* RESIDUAL 4 (only diff in this fn): gcc-2.8 store-flags this guard into
+           * ONE `sltu a0,zero,countdown`; retail branches twice (`beqz [ds li a0,1]`
+           * / `bnez [ds nop]` / `addu a0,zero,zero`).  FALSIFIED spellings: nested
+           * if, explicit goto-chain, if/else both-arms, 3-arm cascade, and TWO full
+           * Hud_BuildCdPlayer calls (that one regresses -- it moves `countamount` off
+           * $a0 in the BTC block above, proving retail reuses the SAME variable).
+           * NEXT ANGLE: the fold needs BOTH arms to be single `SET reg,const` insns
+           * adjacent to the jump -- find a zero-cost shape where the 0-arm is a
+           * reg-reg copy instead (e.g. the 0 already live in another local). */
+          countamount = 1;
+          if ((simGlobal.gameTicks < 0x240) && (countdown == ' ')) {
             countamount = 0;
-          }
-          else {
-            countamount = 1;
           }
           Hud_BuildCdPlayer(countamount,i);
         }

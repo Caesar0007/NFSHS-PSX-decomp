@@ -72,11 +72,14 @@ def norm_ins(t):
     # a synthetic `D_<hex>` data label. This includes PSX scratchpad addresses (0x1F80xxxx)
     # and short, unmapped values such as D_100FF; neither can be a relocatable executable
     # symbol (the image is linked in KSEG0). Resolve those literals before the blanket
-    # %hi/%lo->0 handling below, while leaving eight-digit KSEG labels reloc-normalized.
+    # %hi/%lo->0 handling below, while leaving eight-digit KSEG0 labels reloc-normalized.
+    # Values outside KSEG0 are constants too: notably spimdisasm turns -0x62FFFF into
+    # D_FF9D0001 in R3DCar_CalcCarDimensions even though the raw `lui 0xFF9D` / `addiu 1`
+    # pair contains no address relocation.
     def _literal_dlabel(m):
         digits = m.group(1)
         addr = int(digits, 16)
-        return addr, len(digits) < 8 or (addr >> 16) == 0x1F80
+        return addr, len(digits) < 8 or not (0x80000000 <= addr < 0xA0000000)
     def _dlabel_lo(m):
         addr, is_literal = _literal_dlabel(m)
         return str(addr & 0xFFFF) if is_literal else '0'

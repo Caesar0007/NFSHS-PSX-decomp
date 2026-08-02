@@ -24,7 +24,9 @@ def norm(t):
     t=re.sub(r'\((\d+) ?& ?(\d+)\)',lambda m:str(int(m.group(1))&int(m.group(2))),t)
     def literal_dlabel(m):
         digits=m.group(1);addr=int(digits,16)
-        return addr,len(digits)<8 or (addr>>16)==0x1F80
+        # The linked image lives in KSEG0. D_ labels outside that range are
+        # spimdisasm names for literal constants, not relocatable symbols.
+        return addr,len(digits)<8 or not (0x80000000<=addr<0xA0000000)
     def dlabel_hi(m):
         addr,is_literal=literal_dlabel(m)
         return str(addr>>16) if is_literal else '0'

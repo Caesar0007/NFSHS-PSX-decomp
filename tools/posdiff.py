@@ -56,10 +56,10 @@ def norm_ins(t):
     t = re.sub(r'\((\d+) ?& ?(\d+)\)', lambda m: str(int(m.group(1))&int(m.group(2))), t)
     def _dlabel_lo(m):
         addr = int(m.group(1), 16)
-        return str(addr & 0xFFFF) if (addr >> 16) == 0x1F80 else '0'
+        return str(addr & 0xFFFF) if not (0x80000000 <= addr < 0xA0000000) else '0'
     def _dlabel_hi(m):
         addr = int(m.group(1), 16)
-        return str(addr >> 16) if (addr >> 16) == 0x1F80 else '0'
+        return str(addr >> 16) if not (0x80000000 <= addr < 0xA0000000) else '0'
     t = re.sub(r'%lo\(D_([0-9A-Fa-f]{8})\)', _dlabel_lo, t)
     t = re.sub(r'%hi\(D_([0-9A-Fa-f]{8})\)', _dlabel_hi, t)
     t = re.sub(r'%hi\([^)]*\)', '0', t)

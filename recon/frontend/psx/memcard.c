@@ -790,12 +790,26 @@ int MCRD_handlecardevents(int card)
     case 1:
       switch(res) {
       case 0:
+        /* MATCH (w45): DEPTH-3 REF DIAL -- the two nested do{}while(0) wrappers are a
+         * semantic no-op that exist ONLY to loop-weight this arm's references x3 in
+         * flow.c (REG_N_REFS += loop_depth).  They flip the $a0 caller-save handout:
+         * the &gMemCardInfo base pseudo goes 4 refs/22 live (pri .364, rank 12, lost
+         * $a0 to cmd) -> 12 refs/22 live (pri 1.636, rank 0, TAKES $a0), while cmd
+         * only reaches 9/20 = 1.350 (its other 6 refs are outside the wrapper).
+         * allocno_compare priority = floor_log2(refs)*refs/live_length, so the win
+         * needs the flr2 STEP at 8 refs -- depth 2 gives base 8 (1.091) but ALSO
+         * lifts cmd to 8 (1.200) and loses.  56 -> 28 diffs, count stays 211/211.
+         * (This REFUTES the w44 receipt below, which recorded depth 3 as "wrecks the
+         * arm (202 diffs)" -- that measurement must have wrapped a different span.)
+         * DO NOT "simplify" the wrappers away. */
+        do { do {
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
         status = 0x16;
         if (pCI->status == -1) {
           MemCardAccept(gMemCardInfo.channel);
         }
+        } while (0); } while (0);
         break;
       case 1:
         status = 2;

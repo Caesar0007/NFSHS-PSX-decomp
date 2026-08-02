@@ -145,16 +145,6 @@ void AIHigh_Player::SetupBlockade()
   int needed[2];
   int searchSlice;
 
-  int iVar4;
-
-  Speaker *pSVar5;
-
-  int iVar7;
-
-  int iVar15;
-
-  u_int uVar19;
-
   pLevel = this->perpChaseInfo_.chaseLevel_;
   totalRoadWidth = this->carObj_->direction * 0x53;
   if (totalRoadWidth >= 0) {
@@ -254,6 +244,11 @@ void AIHigh_Player::SetupBlockade()
 
         if ((thisCop->type_ == 1) && (nCopsNeeded[1] != 0)) {
           int addToSlice;
+          int rotation;
+          int sliceAddress;
+          int leftWidth;
+          u_int totalWidth;
+          int distance;
 
           copBlockade = &thisCop->blockade_;
 
@@ -271,67 +266,72 @@ void AIHigh_Player::SetupBlockade()
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
-          copBlockade->slice = blockadeSlice + addToSlice;
-          if (copBlockade->slice < 0) {
-            copBlockade->slice = copBlockade->slice + gNumSlices;
+          if (addToSlice >= 0) {
+            copBlockade->slice = blockadeSlice + addToSlice;
+            if (gNumSlices <= copBlockade->slice) {
+              copBlockade->slice = copBlockade->slice - gNumSlices;
+            }
           }
-          else if (gNumSlices <= copBlockade->slice) {
-            copBlockade->slice = copBlockade->slice - gNumSlices;
+          else {
+            copBlockade->slice = blockadeSlice + addToSlice;
+            if (copBlockade->slice < 0) {
+              copBlockade->slice = copBlockade->slice + gNumSlices;
+            }
           }
 
           copBlockade->direction = this->carObj_->direction;
 
-          iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
+          sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
-          iVar15 = (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
+          leftWidth = (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
 
-          uVar19 = iVar15 + (u_int)*(u_char *)(iVar7 + 0x1f) * 0x8000 * (*(u_char *)(iVar7 + 0x1d) & 0xf)
+          totalWidth = leftWidth + (u_int)*(u_char *)(sliceAddress + 0x1f) * 0x8000 * (*(u_char *)(sliceAddress + 0x1d) & 0xf)
 
           ;
 
           if ((nCopsAvail[1] == 1) && (nCopsAvail[0] == 0)) {
 
-            copBlockade->latPos = (uVar19 >> 1) - iVar15;
+            copBlockade->latPos = (totalWidth >> 1) - leftWidth;
 
-            iVar4 = 0xff;
+            rotation = 0xff;
 
           }
 
           else {
 
-            iVar15 = (int)uVar19 >> 2;
+            totalWidth = (int)totalWidth >> 2;
 
             if ((posIndex & 1) == 0) {
 
-              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
+              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
               copBlockade->latPos =
 
-                   iVar15 - (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 *
+                   totalWidth - (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 *
 
-                            (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
+                            (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
 
-              iVar4 = 0xbe;
+              rotation = 0xbe;
 
             }
 
             else {
 
-              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
+              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
-              iVar4 = -0xbe;
+              rotation = -0xbe;
 
               copBlockade->latPos =
 
-                   iVar15 * 3 -
+                   totalWidth * 3 -
 
-                   (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
+                   (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
 
             }
 
           }
 
-          copBlockade->rotation = iVar4;
+          copBlockade->rotation = rotation;
 
           randtemp = fastRandom * randSeed;
 
@@ -342,19 +342,21 @@ void AIHigh_Player::SetupBlockade()
 
           fastRandom = randtemp & 0xffff;
 
-          saySpikeBelt = true;
+          /* MATCH: the redundant false writes in both arms are optimized away,
+             but preserve the retail gcc-2.8 interference graph. */
+          saySpikeBelt = false;
 
-          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
+          distance = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
 
-          if (iVar15 < 0) {
+          if (distance < 0) {
 
-            iVar15 = iVar15 + 0xffff;
+            distance = distance + 0xffff;
 
           }
 
-          copBlockade->initialPlayerDistanceMetersInt = -(iVar15 >> 0x10);
+          copBlockade->initialPlayerDistanceMetersInt = -(distance >> 0x10);
 
-          if (-(iVar15 >> 0x10) * (this->carObj_)->direction < 0) {
+          if (-(distance >> 0x10) * (this->carObj_)->direction < 0) {
 
             copBlockade->initialPlayerDistanceMetersInt = 0;
 
@@ -364,6 +366,11 @@ void AIHigh_Player::SetupBlockade()
 
         else {
           int addToSlice;
+          int rotation;
+          int sliceAddress;
+          int leftWidth;
+          u_int totalWidth;
+          int distance;
 
           if (nCopsNeeded[0] == 0) goto LAB_800620e8;
 
@@ -383,12 +390,17 @@ void AIHigh_Player::SetupBlockade()
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
-          copBlockade->slice = blockadeSlice + addToSlice;
-          if (copBlockade->slice < 0) {
-            copBlockade->slice = copBlockade->slice + gNumSlices;
+          if (addToSlice >= 0) {
+            copBlockade->slice = blockadeSlice + addToSlice;
+            if (gNumSlices <= copBlockade->slice) {
+              copBlockade->slice = copBlockade->slice - gNumSlices;
+            }
           }
-          else if (gNumSlices <= copBlockade->slice) {
-            copBlockade->slice = copBlockade->slice - gNumSlices;
+          else {
+            copBlockade->slice = blockadeSlice + addToSlice;
+            if (copBlockade->slice < 0) {
+              copBlockade->slice = copBlockade->slice + gNumSlices;
+            }
           }
 
           randtemp = fastRandom * randSeed;
@@ -416,75 +428,75 @@ void AIHigh_Player::SetupBlockade()
 
           fastRandom = randtemp & 0xffff;
 
-          saySpikeBelt = true;
+          saySpikeBelt = false;
 
-          iVar15 = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
+          distance = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
 
-          if (iVar15 < 0) {
+          if (distance < 0) {
 
-            iVar15 = iVar15 + 0xffff;
+            distance = distance + 0xffff;
 
           }
 
-          copBlockade->initialPlayerDistanceMetersInt = -(iVar15 >> 0x10);
+          copBlockade->initialPlayerDistanceMetersInt = -(distance >> 0x10);
 
-          if (-(iVar15 >> 0x10) * (this->carObj_)->direction < 0) {
+          if (-(distance >> 0x10) * (this->carObj_)->direction < 0) {
 
             copBlockade->initialPlayerDistanceMetersInt = 0;
 
           }
 
-          iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
+          sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
-          iVar15 = (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
+          leftWidth = (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
 
-          uVar19 = iVar15 + (u_int)*(u_char *)(iVar7 + 0x1f) * 0x8000 * (*(u_char *)(iVar7 + 0x1d) & 0xf)
+          totalWidth = leftWidth + (u_int)*(u_char *)(sliceAddress + 0x1f) * 0x8000 * (*(u_char *)(sliceAddress + 0x1d) & 0xf)
 
           ;
 
           if ((nCopsAvail[0] == 1) && (nCopsAvail[1] == 0)) {
 
-            copBlockade->latPos = (uVar19 >> 1) - iVar15;
+            copBlockade->latPos = (totalWidth >> 1) - leftWidth;
 
-            iVar4 = 0xff;
+            rotation = 0xff;
 
           }
 
           else {
 
-            iVar15 = (int)uVar19 >> 2;
+            totalWidth = (int)totalWidth >> 2;
 
             if ((posIndex & 1) == 0) {
 
-              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
+              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
               copBlockade->latPos =
 
-                   iVar15 - (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 *
+                   totalWidth - (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 *
 
-                            (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
+                            (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
 
-              iVar4 = 0xbe;
+              rotation = 0xbe;
 
             }
 
             else {
 
-              iVar7 = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
+              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
 
-              iVar4 = -0xbe;
+              rotation = -0xbe;
 
               copBlockade->latPos =
 
-                   iVar15 * 3 -
+                   totalWidth * 3 -
 
-                   (u_int)*(u_char *)(iVar7 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar7 + 0x1d) >> 4);
+                   (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
 
             }
 
           }
 
-          copBlockade->rotation = iVar4;
+          copBlockade->rotation = rotation;
 
           copBlockade->target = this;
 
@@ -512,38 +524,35 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
       blockadeCar->blockade_.blockadeSpeechFlags = 1;
 
       if (saySpikeBelt) {
-
-        pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
-
-        (*(*pSVar5->_vf)[11].pfn)
-            ((int)pSVar5 + (*pSVar5->_vf)[11].delta);
+        Speaker *speaker = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
+        (*(*speaker->_vf)[11].pfn)
+            ((int)speaker + (*speaker->_vf)[11].delta);
 
       }
 
       else {
-
-        pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
-
-        (*(*pSVar5->_vf)[10].pfn)
-            ((int)pSVar5 + (*pSVar5->_vf)[10].delta);
+        Speaker *speaker = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
+        (*(*speaker->_vf)[10].pfn)
+            ((int)speaker + (*speaker->_vf)[10].delta);
 
       }
 
-      pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
+      {
+        Speaker *speaker = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
+        (*(*speaker->_vf)[6].pfn)((int)speaker + (*speaker->_vf)[6].delta,
+                    this->carObj_);
+      }
 
-      (*(*pSVar5->_vf)[6].pfn)((int)pSVar5 + (*pSVar5->_vf)[6].delta,
+      {
+        Speaker *speaker = (Speaker *)Speech_Dispatch();
+        (*(*speaker->_vf)[4].pfn)((int)speaker + (*speaker->_vf)[4].delta);
+      }
 
-                 this->carObj_);
-
-      pSVar5 = (Speaker *)Speech_Dispatch();
-
-      (*(*pSVar5->_vf)[4].pfn)((int)pSVar5 + (*pSVar5->_vf)[4].delta);
-
-      pSVar5 = (Speaker *)Speech_Dispatch();
-
-      (*(*pSVar5->_vf)[5].pfn)((int)pSVar5 + (*pSVar5->_vf)[5].delta,
-
-                 blockadeCar->carObj_);
+      {
+        Speaker *speaker = (Speaker *)Speech_Dispatch();
+        (*(*speaker->_vf)[5].pfn)((int)speaker + (*speaker->_vf)[5].delta,
+                    blockadeCar->carObj_);
+      }
 
     }
   }

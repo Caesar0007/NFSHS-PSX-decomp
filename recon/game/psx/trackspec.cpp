@@ -121,6 +121,25 @@ int TrackSpec_gPrevSpec;
  *       long-waiting ones (39/33/27/25/24 all beat uid-654), so the stopping point
  *       is a function of block 0's dependence shape, not of statement order.
  *   (b) one `sb $v1,240` placement (2 diffs), same class.
+ * 🏆 w45-a9: 6 -> 4, count still exact 142/142.  Residual (a) -- the `li $a3,23` drain --
+ * IS SOURCE-REACHABLE after all, but not through statement order: a ZERO-INSN SCHEDULING
+ * FENCE (`__asm__ volatile("" : : "r"(i));`, §2b.5) placed after the `weather` read splits
+ * block 0 into two sched2 regions so the LICM hoist can no longer drain past it.  See the
+ * fence's own comment for the position sweep.  RESIDUAL 4, TWO items:
+ *   (a') `li $v1,1` issues at ours[7] vs retail[4] -- it must float ABOVE the fence, i.e.
+ *        into region 1, but its statements (horizonstate/skystate) are after the weather
+ *        read and the store order to `spec` is fixed.  MEASURED NEGATIVE: fence moved to
+ *        every other head position (8/6/6/6/6); a fence-protected `int one = 1;` pseudo
+ *        used at both stores (188 -- the extra allocno re-colors the whole body).
+ *        NEW NAMED ANGLE: the 1 is ALSO stored to depthcuestate and horizonspec.mirror
+ *        later in the block; SPREAD ITS USES (the w44-a10 lever that cracked the 8/16
+ *        pair) by moving ONE of those later `= 1` stores UP to just before the fence --
+ *        that gives the constant a use in region 1 without adding an allocno, which is
+ *        exactly what the `one` local failed to do.
+ *   (b) the `sb $v1,240` placement (2 diffs) is unchanged and still the same drain class;
+ *        try a SECOND fence inside the depthcue block once (a') lands (lever-order
+ *        dependence -- the fence position sweep above already shows this fn is basin-
+ *        sensitive).
  *   NEW ANGLE for whoever takes it next: both are ready-list DRAIN points -- the dial
  *   is the number/shape of insns released late in block 0 / the depthcue block, i.e.
  *   add or remove ONE RTL insn there (the giv-worth razor's +1-insn family), or
@@ -187,6 +206,17 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   i = 0;
   spec->fogstate = 0;
   weather = (short)GameSetup_gData.Weather;
+  /* MATCH (w45-a9, 6 -> 4): ZERO-INSN SCHEDULING FENCE (§2b.5) at the ready-list DRAIN
+   * point.  `li $a3,23` is loop.c's LICM hoist of the ring loop's 0x17; it has no
+   * consumer in block 0, so sched2 held it in the ready list until the list drained and
+   * issued it at position 2 (retail: 7).  w44-a10 proved statement order cannot reach it
+   * (27 head-order variants, all 6).  An empty asm splits the block into two scheduling
+   * regions, so the hoist can no longer drain past this point and lands exactly where
+   * retail has it.  POSITION IS THE DIAL, operands are irrelevant -- measured here:
+   * after fogstate 8, after weather 4 (kept), after horizonstate 6, after weatherstate 6,
+   * after night 6, after skystate 6; operand variants at the winning position
+   * (i / weather / spec / i+weather / i+spec) all 4. */
+  __asm__ volatile("" : : "r"(i));
   spec->horizonstate = 1;
   spec->skystate = 1;
   spec->weatherstate = weather;

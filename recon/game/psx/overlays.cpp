@@ -89,6 +89,19 @@ void OptionsBarThing(int x,int y,int w,int h)
  * calls' a2 expressions TEXTUALLY different so cse cannot equate them (`W & 0xffffU` vs
  * `(u_short)W`) DOES buy the missing instruction -- count becomes EXACT 349/349 -- but as a
  * whole second reload+`addu a2,t0,zero` in the wrong place (64 diffs), not retail's copy.
+ * w45-a9 (5 stays; NEW DATA POINT + refined angle): the ZERO-INSN USE FENCE (§2b.5) DOES
+ * buy the missing instruction cleanly -- `__asm__ volatile("" : : "r"(HUD_STATS_SIZE_W));`
+ * placed immediately before the OptionsBarThing call makes the count EXACT 349/349 (vs our
+ * 348) at 6 diffs, and the `(u_short)` cast form is identical (6).  What it produces is an
+ * EXTRA HImode reload of SIZE_W *ahead of* the 88(sp) load, not retail's `lhu $t0,72(sp);
+ * addu $s2,$t0,$zero` in place -- i.e. the fence supplies the missing PSEUDO but at the
+ * wrong point in the reload order.  (Fencing SIZE_H instead = 28; fencing both = 350/349,
+ * 27.)  ⇒ the mechanism is confirmed source-reachable; only the POSITION is wrong.
+ * NEW NAMED ANGLE: walk the fence DOWN one arg/statement at a time -- between the two calls,
+ * and inside the arg list order (the fence must land AFTER the 88(sp) POS_Y reload and
+ * BEFORE the $s2 copy).  Failing that, pair it with the `(u_short)W` vs `W & 0xffffU`
+ * textual-difference trick from the w44 note (which also reached 349/349) so the second
+ * consumer is the one the fence feeds.
  * NEW ANGLE for the next attempt: this is the w43 MIPS PROMOTE_MODE row -- a DECLARED
  * narrow local always promotes to SImode, so the HImode pseudo retail copies from must be
  * an ANONYMOUS cse temp.  Look for a second HImode consumer of SIZE_W in the same extended
@@ -240,7 +253,26 @@ void RaceSummary(void)
  * the saves.  Variants measured: rows-only 98, pitch-only 139, rows+pitch 138, SIZE_W
  * after POS_X 123, `short pitch` 138, pitch also driving the two `col +=` increments
  * (94/139 -- cse const-props it back in the loop, so the increments are NOT the reason
- * retail has a variable multiplier).  NEXT IDEA for this axis: stop sched1 from hoisting
+ * retail has a variable multiplier).
+ * 🔑 w45-a9 EXECUTED THE "NEXT IDEA" BELOW WITH THE ZERO-INSN USE FENCE (§2b.5) -- IT WORKS
+ * ON THE MECHANISM, and its result is the structurally-correct base to continue from (NOT
+ * landed: gates 102 vs the kept 94, but its COUNT IS EXACT 475/475 where the kept form is
+ * 471):
+ *     { int pitch = 0x96;  __asm__ volatile("" : : "r"(pitch));
+ *       HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch; }
+ * The fence is a sched1 fixpoint, so the `lw numHuman; mult` chain can no longer hoist above
+ * the register saves and reload colours the product normally: ours now emits the REAL
+ * `mult $v1,$v0` + **`mflo $s3`** (retail `mult $v1,$a1` + `mflo $s3`), and the w42 greg
+ * spill (`mflo $t1; sw $t1,132(sp)` + the lhu truncation reload) is GONE.  ⇒ the multiplier
+ * form AND the schedule are both solved.  What is left at 102 is ONE thing: retail
+ * INTERLEAVES its three constant materializations into the prologue save sequence
+ * (`sw s7,164(sp); li s7,160; sw s2,144(sp); li s2,1`, with `li a1,150` at insn 3) while ours
+ * emits all nine saves first and the constants after.  NEW NAMED ANGLE from that base: 150 /
+ * 160 / 1 are exactly the constants retail parks in CALLEE-SAVED regs, so give each its own
+ * named local in the SYM's decl order and fence them TOGETHER in one asm before the first
+ * use -- the interleave is reload's save-insn placement around live callee-saved constants,
+ * a live-range dial, not a statement-order dial.
+ * OLD NEXT IDEA for this axis: stop sched1 from hoisting
  * the mult chain (shorten the product's live range) rather than another spelling of the
  * multiplier -- the multiplier form is SOLVED, the schedule is not. */
 void RaceStatistics(void)
@@ -464,7 +496,36 @@ void RaceStatistics(void)
  * side (`(startY+0xf+SIZE_H-(postgame?0:8)) - (startY+0xf-POS_Y) - 0x10`, algebraically
  * re-signed) so gcc expands the difference term second and can reuse the shared
  * `startY+0xf` pseudo in place, which is the only shape that produces retail's
- * `subu v1,v1,POS_Y` self-mutation. */
+ * `subu v1,v1,POS_Y` self-mutation.
+ * ---- w45-a9 RECEIPT BAR: 27 stays (count 472 / 473).  Two clusters remain:
+ *  (a) `li $s5,1` (the col-rule loop's i=1) issues at ours[214] vs retail[193] (retail puts
+ *      it in the delay slot of the Font_TextXY(0x4c) `jal`, i.e. BEFORE the first
+ *      Hud_FBuildF4).  FALSIFIED THIS WAVE: hoisting `i = 1;` out of the `for` to a
+ *      statement ahead of that Hud_FBuildF4 call (`for (; i < 4; ...)`) = 27, byte-for-byte
+ *      the same diff -- loop.c re-sinks the init into the preheader, so SOURCE POSITION OF
+ *      THE INIT IS NOT THE DIAL.
+ *  (b) the col-loop `s2 - (s1 + 8)` fold + the s1/s2 role swap (s1 = (short)startY-term,
+ *      s2 = SIZE_H-term in ours; mirrored in retail).  The 3 tail insns are ALGEBRAICALLY
+ *      EQUAL, not wrong: ours `(A-8)-B` vs retail `A-(B+8)` (verified by hand; there is NO
+ *      semantic bug here despite the `addiu v0,s1,-8` vs `addiu v0,s1,8` diff line).
+ *      FALSIFIED THIS WAVE with the new zero-insn USE fence (§2b.5), which is what finally
+ *      cracked the sibling sched ties in flare.cpp: a fenced `int inset = dy + (postgame?8:0);`
+ *      local inside the loop = 59 @470 (the extra allocno re-colors s0/s1); fencing the
+ *      SUBEXPRESSION without a local = 41 @478 (+6 insns, the fence's own reload survives).
+ *      ⇒ the fence CANNOT block this fold: cc1 splits the ternary into arms and folds the
+ *      constant inside each arm BEFORE any pseudo the fence could hold exists.
+ *  NEW NAMED ANGLE (untried, in priority order): the fold happens because the `+8` addend is
+ *  CONSTANT in each arm.  Make it non-constant to cse/fold but free at runtime: source the 8
+ *  from a value gcc cannot constant-propagate across the loop -- e.g. reuse the already-live
+ *  `showtimeleft ? 0x10 : 0` term's register (`inset = dy + ((postgame?8:0))` -> `dy +
+ *  (postgame ? (showtimeleft ? 8 : 8) : 0)` is still folded, but `dy + (postgame << 3)` with
+ *  `postgame` the BOOL REGPARM is NOT: it is a runtime shift, so there is no constant to sink
+ *  into SIZE_H).  `postgame * 8` was tried at the 49 base as `(postgame != 0) * 8` and was
+ *  neutral, but that was BEFORE the minuend re-sign landed -- re-measure it here (lever-order
+ *  dependence, §2b.4).  Second angle: cluster (a) is a reorg delay-slot choice, so try the
+ *  fence as a REGION SPLITTER (not a value holder) between the Font_TextXY(0x4c) call and the
+ *  first Hud_FBuildF4 -- the trackspec.cpp SetDefault seal this wave shows an operand-less
+ *  fence moves a drain point without costing an insn. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

@@ -35,6 +35,12 @@ CVECTOR      gfrgb = {255u, 255u, 255u, 0};   /* @0x8013d86c */
 CVECTOR      gfrgb2 = {64u, 64u, 128u, 0};   /* @0x8013d870 */
 int          gscale = 4096;   /* @0x8013d874 */
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
+ * macro family over this bitfield.  A bitfield store generates the masked VALUE
+ * (& 0xffffff) BEFORE the destination mask (& 0xff000000); the hand-written
+ * `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 / §2b.1 */
+typedef struct { unsigned addr : 24, len : 8; } Flare_PTag;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Flare_Tri(long *cp,long *p1,long *p2,int otz);
 void Flare_SetMatrix(matrixtdef *m);
@@ -266,7 +272,19 @@ void Flare_OctFlareSpikes(long *center,int otz)
 
   /* MATCH: SYM locals = flare_dvxy[13], i(t3), rgb1(s2)/rgb2(s1) pre-loop caches,
    * cent(t8), id0(a3)/id1(t1)/id2(a2) in-place reused across both prims;
-   * SpikePt0/1/2[i] -> givs, OctPt1/2[i] stay indexed (giv budget). */
+   * SpikePt0/1/2[i] -> givs, OctPt1/2[i] stay indexed (giv budget).
+   * ---- w45-a9 SEAL 4 -> PASS 225/225: the LICM PREHEADER ORDER IS THE SOURCE
+   * STATEMENT ORDER of the OT-link block (loop.c hoists movables in RTL-generation
+   * order).  Retail's preheader = pktaddr(t2) | palette-addr(s0) | otz*4(t9) |
+   * 0xFFFFFF(t0) | 0xFF000000(t7).  Two edits, each moving ONE movable's birth:
+   *   (1) `pal = Render_gPalettePtr;` as its OWN statement before `slot = otz*4 + pal`
+   *       (the one-expression form generated `sll` BEFORE the `lui 0x1F80`);
+   *   (2) `addr24_0 = prim & 0xffffff;` moved AFTER the slot statement (it was the
+   *       w41 addr24-EARLY spelling, which put 0xFFFFFF ahead of the palette base).
+   * addr24 still precedes the first RMW, so 0xFFFFFF is still born before 0xFF000000
+   * (the w41 lever's actual requirement).  GENERAL RULE for this family: order the
+   * OT-link statements = order you want the preheader constants; addr24 goes between
+   * the slot computation and the first RMW, not at the top of the block. */
 gte_ldv0(&Flare_gSpikes);
 
   gte_rtps();
@@ -353,9 +371,11 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_int *slot;
       u_int pkt24;
       u_int addr24_0;
+      u_char *pal;
       prim = Render_gPacketPtr;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       addr24_0 = (u_int)prim & 0xffffff;
-      slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x24;
@@ -725,6 +745,15 @@ gte_ldv0(ptCenter);
       *(u_long *)&color[0] = c;
       c = Flare_gType[i].cbeam;
       *(u_long *)&color[1] = c;
+      /* MATCH (w45-a9 SEAL 3 -> PASS 630/630): sched2 was hoisting `lw s3,8(v1)` (the
+       * `scale` field load) up into the LOAD-DELAY slot of `lw v0,0(v1)`, where retail
+       * leaves a `nop` and issues the scale/flags pair adjacently AFTER the `andi
+       * v0,s7,128`.  s3's use is far down the block, so its scheduler priority (longest
+       * path to block end) is the highest in the ready list and it always wins that slot.
+       * The zero-insn USE fence (§2b.5) is a sched fixpoint: the two gType field loads
+       * that follow it in source order can no longer migrate above it.  Emits nothing;
+       * the andi still hoists above them (it is after the fence too), = retail. */
+      __asm__ volatile("" : : "r"(c));
       scale = Flare_gType[i].scale;
       flags = Flare_gType[i].flags;
     }
@@ -1194,7 +1223,17 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
  * measured 3 spellings: statement moved one earlier (before the OT-slot store) = 4 diffs,
  * moved one later (after the bump) = 2, and `*(volatile u_int *)&gfrgb2` = 2.  A sched1
  * ready-list tie, not source-reachable.  (STRONG per the floor bar: prototype is void/void
- * per SYM, count exact, 3 alternate forms measured, named mechanism.) */
+ * per SYM, count exact, 3 alternate forms measured, named mechanism.)
+ * ---- w45-a9: THE "NOT SOURCE-REACHABLE" VERDICT IS REFUTED -- PASS 43/43. ----
+ * The floor above was correct about the MECHANISM (a sched1 issue-position tie) and wrong
+ * about reachability: the ZERO-INSN USE FENCE (§2b.5) pins the issue position directly.
+ * `__asm__ volatile("" : : "r"(rgb));` immediately after the read is a scheduling fixpoint,
+ * so the `lw v1,0(gp)` must issue BEFORE it while the packet-cursor bump (which follows the
+ * fence in source order) must issue AFTER -- exactly retail's 26/27/28.  Emits nothing.
+ * GENERALIZATION: any "the oracle issues load X one slot earlier than sched1 does" residual
+ * where source POSITION has already been swept is a USE-FENCE target, not a floor.  The
+ * PTag-bitfield spellings were also measured here (§2b.1): value-side bitfield READ = 6,
+ * plain word READ = 6 (both re-color the bump to $v1) -- this fn wants the hand-masked OR. */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
@@ -1209,6 +1248,7 @@ void Flare_2DSpike(long *center,long *end,int otz)
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
   rgb = *(u_int *)&gfrgb2;
+  __asm__ volatile("" : : "r"(rgb));
   Render_gPacketPtr = prim + 0x14;
   prim[3] = 4;
   *(u_int *)(prim + 0xc) = 0;
@@ -1232,7 +1272,33 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
    * (walkers are compiler givs, SYM has only i) with plain /0x10000 signed
    * division (bgez/addu 0xFFFF/sra guards regenerate; 0xFFFF hoists to a2 by
    * loop.c); packet allocs per the proven TU idiom: aprim = PacketPtr FIRST,
-   * two-set slot (+ otz*4 in the tail block only). */
+   * two-set slot (+ otz*4 in the tail block only).
+   * ---- w45-a9 RECEIPT BAR: 12 -> 6 (count-exact 247/247).  TWO landed levers:
+   *   (1) the serial `c` copy temp for the two Flare_gType color word-copies (ONE REUSED
+   *       temp; two temps = 10, direct-second-store = 10 -- both re-measured in the
+   *       post-fence basin, so these are STRONG falsifications, not stale notes);
+   *   (2) the dual-param USE fence (see the fence's own comment) -- fixed the s1 REGPARM
+   *       copy sinking into the guard branch's delay slot.
+   * TWO RESIDUALS LEFT, 2 diffs each:
+   *   (A) `sw s3,92(sp)` issues at ours[12] vs retail[9] (retail's prologue save order is
+   *       s5,s6,s0,s1,s3,ra,s4,s2; ours s5,s6,s0,s1,ra,s4,s3,s2 around the `lui t0`).
+   *       MEASURED NEGATIVE at THIS baseline: moving the `sd =` assignment below the pt2
+   *       stores (6, no move); swapping the `pt`/`pt2` declaration order (6, no move).
+   *       NEW NAMED ANGLE: s3 is `pt`, defined ONLY in the fall-through block (`addiu
+   *       s3,sp,24` -- the very insn retail puts in the delay slot).  Its save placement
+   *       is the same reorg/thread interaction the fence just fixed for s1, so give `pt`
+   *       an ENTRY-BLOCK birth (`pt = &pt2;` hoisted above the guard) and name `pt` as a
+   *       third fence operand.  Exact analogue of the s1 fix; untried.
+   *   (B) the SECOND color copy lands in $v1 (ours) where retail reuses the now-dead
+   *       gType base register $v0 (`lw v0,4(v0)`).  ONE `c` pseudo spans the base's death
+   *       so $v0 is unavailable to it; two pseudos would allow it but cost the serial
+   *       schedule (10).  NEW NAMED ANGLE: keep ONE `c` but kill the BASE instead -- take
+   *       the element address into a pointer local and re-assign it for the second read
+   *       (`p = &Flare_gType[flare_type]; c = p->chalo; ...; p = p; c = p->cbeam;` /
+   *       `*(u_long *)((char *)p + 4)`), so the base pseudo dies at the second load and
+   *       local-alloc can hand $v0 to the reborn range (dead-base-reuse, catalog §F row
+   *       115).  Or re-run the two-temp spelling AFTER (A) lands (lever-order
+   *       dependence, §2b.4 -- (1) and (2) already proved order-dependence here). */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;
@@ -1241,14 +1307,26 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
   sd = (Draw_FlareCache *)&Render_gPalettePtr;
   pt2.vx = (short)x;
   pt2.vy = (short)y;
+  /* MATCH (w45-a9, 8 -> 6): retail copies ALL FOUR REGPARMs into their callee-saved
+   * homes in the prologue (`addu s1,a3,zero` @8) and fills the guard branch's delay slot
+   * from the FALL-THROUGH thread (`addiu s3,sp,24`).  scaley/scalex are first used only
+   * inside the loop, so reorg sank the s1 copy into that delay slot instead.  A zero-insn
+   * USE fence naming BOTH scale params (§2b.5) gives them an entry-block use, so the
+   * copies stay put and the slot is filled from the thread = retail.  ⚠️ fencing ONLY
+   * scaley (or fencing at the very top of the fn) instead ROTATES s0/s1 (22 diffs) --
+   * both params must be named, and after the pt2 stores. */
+  __asm__ volatile("" : : "r"(scalex), "r"(scaley));
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000) {
     int flare_type;
+    u_long c;
 
     pt = &pt2;
     otz = 0;
     flare_type = type & 0xffU;
-    *(u_long *)&gfrgb = Flare_gType[flare_type].chalo;
-    *(u_long *)&gfrgb2 = Flare_gType[flare_type].cbeam;
+    c = Flare_gType[flare_type].chalo;
+    *(u_long *)&gfrgb = c;
+    c = Flare_gType[flare_type].cbeam;
+    *(u_long *)&gfrgb2 = c;
     {
       DR_MODE *aprim;
       u_int *slot;
@@ -1337,7 +1415,22 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
   /* MATCH: SYM locals = pt[2] AUTO + i REG(t0) LONG + block-scope prim LINE_G2*(a0).
    * pt[0]=*center saved to STACK once, body reloads it (swc2 memory clobber);
    * top-test + j back-edge loop (exit-in-the-middle prevents rotation);
-   * gte_stsxy pointer form materializes &pt[1] each iteration (PsyQ inline_c shape). */
+   * gte_stsxy pointer form materializes &pt[1] each iteration (PsyQ inline_c shape).
+   * ---- w45-a9 SEAL 16 -> PASS 53/53, the SAME two-part edit as Flare_OctFlareSpikes ----
+   * The 16 diffs were TWO coupled residuals, both fixed by the OT-link statement order:
+   *  (a) preheader movable order: retail = pktaddr(t1) | palette-base(t4) | otz*4(t3) |
+   *      0xFFFFFF(a3) | 0xFF000000(t2).  Splitting `pal = Render_gPalettePtr;` out of the
+   *      slot expression puts the `lui 0x1F80` ahead of the `sll`, and giving the
+   *      prim-address mask its own `addr24` temp BEFORE the first RMW generates 0xFFFFFF
+   *      ahead of 0xFF000000 (the RMW's left operand generates the HI mask first).
+   *  (b) the i/mask $a3<->$t0 rotation: `*slot = pkt24 | (addr24 & 0xffffff)` re-masks an
+   *      already-masked value -- ZERO INSNS, but it lifts the 0xFFFFFF pseudo from 3 refs
+   *      to 4, crossing the floor_log2 step (1 -> 2) in allocno_compare, so the mask now
+   *      out-prioritises the counter and takes $a3 (the lower hard reg in MIPS' numeric
+   *      handout) while `i` drops to $t0, exactly as the SYM says.  (w44 ref-step family.)
+   * NOTE this refutes the w41 note "(1) alone REGRESSES PreCalcHexLightBeam (16->18, no
+   * loop -> no LICM)": there IS a preheader here, and (1) only works together with the
+   * addr24 temp placed AFTER the slot statement. */
   i = 0;
   pt[0] = *center;
   while (true) {
@@ -1347,14 +1440,18 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
       u_int *slot;
       u_int rgb;
       u_int pkt24;
+      u_char *pal;
+      u_int addr24;
 
 gte_ldv0(&Flare_gOct[i]);
       prim = (LINE_G2 *)Render_gPacketPtr;
-      slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
+      addr24 = (u_int)prim & 0xffffff;
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)prim + 0x14;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | (addr24 & 0xffffff);
       gte_rtps_b();
       rgb = *(u_int *)&gfrgb2;
       *((u_char *)prim + 3) = 4;
@@ -1679,7 +1776,33 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
    * Per-TU flag probe (w39, now that compile_cpp honours the keys): flare.cpp is
    * NOT a no_split_addresses / no_schedule_insns / no_schedule_insns2 /
    * no_strength_reduce object -- whole-TU baseline 15 PASS / 458 diffs vs
-   * 10/1387, 4/2086, 2/845, 15/889. */
+   * 10/1387, 4/2086, 2/845, 15/889.
+   * ---- w45-a9: cluster (a)'s TWO MISSING INSNS ARE NOW SOURCE-REACHABLE (not landed --
+   * it costs 2 gate diffs, so it was reverted under verify-or-revert; ADOPT IT FIRST next
+   * time, it is the structurally correct base).  THE SPELLING:
+   *     { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
+   *       __asm__ volatile("" : : "r"(vx0), "r"(vy0));      // §2b.5 zero-insn USE fence
+   *       sx = vx0;  sy = vy0; }
+   * -> COUNT BECOMES EXACT 409/409 (from 407) at 36 diffs (baseline 34).  The fence stops
+   * reload from folding the two `lh`s straight into the $fp/$s7 homes, so retail's
+   * `lh <tmp>,0(base); addu $fp,<tmp>,$zero` copy pair materializes -- that pair IS the
+   * documented 2-insn gap and it is what lets retail's scheduler hold sx-2 across the pt[]
+   * build.  What is left after it: (i) the reload BASE -- retail spills screenPos and reads
+   * `lh v0,0($t7)` off the 184(sp) reload, ours still reads through the live `$a0`; (ii) the
+   * two temps land in $v1/$a2, retail's in $v0/$v1.  NEXT STEPS from that base: force the
+   * ARG-slot reload (screenPos is SYM class ARG) by taking `DVECTOR *sp2 = screenPos;` only
+   * INSIDE this block after a call, or by fencing `screenPos` itself so its pseudo must be
+   * reloaded; then re-run the 24 pt-group orderings from the (a) probe list -- they were all
+   * measured on the 407-insn base and are stale in this basin (§2b.4 lever-order).
+   * FALSIFIED this wave: fencing `sx`/`sy` AFTER the assignments (36 @407 -- no copy pair,
+   * just a nop shuffle).  Cluster (b) (the 0xFFFFFF/0xFF000000/pkt-addr 3-cycle) is the SAME
+   * tie that Flare_PreCalcHexLightBeam SEALED this wave -- apply that recipe verbatim to the
+   * tail OT-link block here: `pal = Render_gPalettePtr;` split out, `addr24` temp AFTER the
+   * slot statement and BEFORE the first RMW, and the zero-insn re-mask `pkt24 | (addr24 &
+   * 0xffffff)` for the +1 ref-step.  MEASURED THIS WAVE: applying just the statement-order
+   * half of that recipe (addr24 moved below the two slot statements) at all 7 OT sites in
+   * this fn is DIFF-NEUTRAL (34, 0 TU regressions) -- so here the mask order is NOT the
+   * dial; the `pal` split + the ref-step re-mask are the untried halves. */
   int dx;
   int dy;
   DVECTOR pxy;

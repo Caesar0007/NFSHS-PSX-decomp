@@ -76,7 +76,6 @@ void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
   coorddef gravity_ch;
   int iVar1;
-  int iVar3;
   int iVar2;
 
   if ((carObj->carFlags & 0x10U) != 0) {
@@ -89,16 +88,15 @@ void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
     gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
     (carObj->linearAcc_ch).x = (carObj->linearAcc_ch).x + gravity_ch.x;
     (carObj->linearAcc_ch).y = (carObj->linearAcc_ch).y + gravity_ch.y;
-    iVar3 = gravity_ch.z + (carObj->linearAcc_ch).z;
+    (carObj->linearAcc_ch).z = (carObj->linearAcc_ch).z + gravity_ch.z;
   }
   else {
     if (0x3f < (u_char)(carObj->control).brakeLevel) {
       return;
     }
     gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
-    iVar3 = fixedmult(gravity_ch.z,(carObj->N).gravityMult);
-    iVar1 = __builtin_abs(iVar3);
-    gravity_ch.z = iVar3;
+    gravity_ch.z = fixedmult(gravity_ch.z,(carObj->N).gravityMult);
+    iVar1 = __builtin_abs(gravity_ch.z);
     if (iVar1 < 0xccd) {
       return;
     }
@@ -116,9 +114,8 @@ void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
         iVar1 = gravity_ch.z >> 1;
       }
     }
-    iVar3 = iVar2 + iVar1;
+    (carObj->linearAcc_ch).z = iVar2 + iVar1;
   }
-  (carObj->linearAcc_ch).z = iVar3;
   return;
 }
 

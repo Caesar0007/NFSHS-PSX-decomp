@@ -471,214 +471,87 @@ void R3DCcar_ReadTrackShadow(void)
 void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int carType)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  short *psVar7;
-  Transformer_zObj *obj;
-  Transformer_zObj *pTVar8;
-  int minWheelX;
-  int maxWheelX;
-  int iVar9;
-  int iVar10;
-  int j;
-  int iVar11;
-  int minWheelZ;
-  int maxWheelZ;
-  int iVar12;
-  COORD16 *pCVar13;
   int i;
-  int iVar14;
-  char (*pacVar15) [6];
   coorddef minp;
   coorddef maxp;
-  
-  pacVar15 = R3DCar_ObjectInfo;
+
   minp.x = 0x630000;
   minp.y = 0x630000;
   minp.z = 0x630000;
   maxp.x = -0x630000;
   maxp.y = -0x630000;
   maxp.z = -0x630000;
-  for (iVar14 = 0; iVar14 < 0x39; iVar14 = iVar14 + 1) {
-    pTVar8 = scene->obj[iVar14];
-    if (((*pacVar15)[3] == '\x01') && (pTVar8->numVertex != 0)) {
-      if ((((iVar14 == 0) || (0x2e < iVar14)) || ((iVar14 == 2 && (carType == 0x1c)))) &&
-         (iVar11 = 0, pTVar8->numVertex != 0)) {
-        iVar9 = 0;
-        do {
-          iVar4 = (pTVar8->translation).x;
-          if (iVar4 < 0) {
-            iVar4 = iVar4 + 0xff;
-          }
-          iVar4 = (int)*(short *)((int)&pTVar8->vertex->x + iVar9) + (iVar4 >> 8);
-          if (minp.x <= iVar4) {
-            iVar4 = minp.x;
-          }
-          iVar5 = (pTVar8->translation).y;
-          if (iVar5 < 0) {
-            iVar5 = iVar5 + 0xff;
-          }
-          iVar5 = (int)*(short *)((int)&pTVar8->vertex->y + iVar9) + (iVar5 >> 8);
-          if (minp.y <= iVar5) {
-            iVar5 = minp.y;
-          }
-          iVar6 = (pTVar8->translation).z;
-          if (iVar6 < 0) {
-            iVar6 = iVar6 + 0xff;
-          }
-          iVar6 = (int)*(short *)((int)&pTVar8->vertex->z + iVar9) + (iVar6 >> 8);
-          if (minp.z <= iVar6) {
-            iVar6 = minp.z;
-          }
-          iVar1 = (pTVar8->translation).x;
-          if (iVar1 < 0) {
-            iVar1 = iVar1 + 0xff;
-          }
-          iVar1 = (int)*(short *)((int)&pTVar8->vertex->x + iVar9) + (iVar1 >> 8);
-          if (iVar1 < maxp.x) {
-            iVar1 = maxp.x;
-          }
-          iVar2 = (pTVar8->translation).y;
-          if (iVar2 < 0) {
-            iVar2 = iVar2 + 0xff;
-          }
-          iVar2 = (int)*(short *)((int)&pTVar8->vertex->y + iVar9) + (iVar2 >> 8);
-          if (iVar2 < maxp.y) {
-            iVar2 = maxp.y;
-          }
-          iVar3 = (pTVar8->translation).z;
-          if (iVar3 < 0) {
-            iVar3 = iVar3 + 0xff;
-          }
-          iVar3 = (int)*(short *)((int)&pTVar8->vertex->z + iVar9) + (iVar3 >> 8);
-          if (iVar3 < maxp.z) {
-            iVar3 = maxp.z;
-          }
-          iVar11 = iVar11 + 1;
-          iVar9 = iVar9 + 6;
-          minp.x = iVar4;
-          minp.y = iVar5;
-          minp.z = iVar6;
-          maxp.x = iVar1;
-          maxp.y = iVar2;
-          maxp.z = iVar3;
-        } while (iVar11 < (int)(u_int)pTVar8->numVertex);
+
+  for (i = 0; i < 57; i++) {
+  int j;
+    Transformer_zObj *obj;
+
+    obj = scene->obj[i];
+    if (((signed char)R3DCar_ObjectInfo[i][3] == 1) && (obj->numVertex != 0)) {
+      if ((i == 0) || (i > 46) || ((i == 2) && (carType == 28))) {
+        for (j = 0; j < obj->numVertex; j++) {
+          minp.x = obj->vertex[j].x + obj->translation.x / 256 >= minp.x ?
+              minp.x : obj->vertex[j].x + obj->translation.x / 256;
+          minp.y = obj->vertex[j].y + obj->translation.y / 256 >= minp.y ?
+              minp.y : obj->vertex[j].y + obj->translation.y / 256;
+          minp.z = obj->vertex[j].z + obj->translation.z / 256 >= minp.z ?
+              minp.z : obj->vertex[j].z + obj->translation.z / 256;
+          maxp.x = obj->vertex[j].x + obj->translation.x / 256 >= maxp.x ?
+              obj->vertex[j].x + obj->translation.x / 256 : maxp.x;
+          maxp.y = obj->vertex[j].y + obj->translation.y / 256 >= maxp.y ?
+              obj->vertex[j].y + obj->translation.y / 256 : maxp.y;
+          maxp.z = obj->vertex[j].z + obj->translation.z / 256 >= maxp.z ?
+              obj->vertex[j].z + obj->translation.z / 256 : maxp.z;
+        }
       }
-      iVar11 = 0x630000;
-      if (0x2e < iVar14) {
-        iVar9 = 0x630000;
-        iVar4 = -0x630000;
-        iVar5 = -0x630000;
-        iVar6 = 0;
-        if (pTVar8->numVertex != 0) {
-          iVar10 = 0;
-          pCVar13 = pTVar8->vertex;
-          iVar1 = iVar11;
-          iVar2 = iVar4;
-          iVar3 = iVar9;
-          iVar12 = iVar5;
-          do {
-            iVar11 = (pTVar8->translation).x;
-            if (iVar11 < 0) {
-              iVar11 = iVar11 + 0xff;
-            }
-            iVar11 = (int)pCVar13->x + (iVar11 >> 8);
-            if (iVar11 < 0) {
-              iVar11 = -iVar11;
-            }
-            if (iVar1 <= iVar11) {
-              iVar11 = iVar1;
-            }
-            iVar9 = (pTVar8->translation).z;
-            if (iVar9 < 0) {
-              iVar9 = iVar9 + 0xff;
-            }
-            iVar9 = (int)*(short *)((int)&pTVar8->vertex->z + iVar10) + (iVar9 >> 8);
-            if (iVar9 < 0) {
-              iVar9 = -iVar9;
-            }
-            if (iVar3 <= iVar9) {
-              iVar9 = iVar3;
-            }
-            iVar4 = (pTVar8->translation).x;
-            psVar7 = (short *)((int)&pTVar8->vertex->x + iVar10);
-            if (iVar4 < 0) {
-              iVar4 = iVar4 + 0xff;
-            }
-            iVar4 = (int)*psVar7 + (iVar4 >> 8);
-            if (iVar4 < 0) {
-              iVar4 = -iVar4;
-            }
-            if (iVar4 < iVar2) {
-              iVar4 = iVar2;
-            }
-            iVar5 = (pTVar8->translation).z;
-            if (iVar5 < 0) {
-              iVar5 = iVar5 + 0xff;
-            }
-            iVar5 = (int)psVar7[2] + (iVar5 >> 8);
-            if (iVar5 < 0) {
-              iVar5 = -iVar5;
-            }
-            if (iVar5 < iVar12) {
-              iVar5 = iVar12;
-            }
-            iVar10 = iVar10 + 6;
-            iVar6 = iVar6 + 1;
-            pCVar13 = pCVar13 + 1;
-            iVar1 = iVar11;
-            iVar2 = iVar4;
-            iVar3 = iVar9;
-            iVar12 = iVar5;
-          } while (iVar6 < (int)(u_int)pTVar8->numVertex);
+
+      if (i > 46) {
+        int minWheelX;
+        int minWheelZ;
+        int maxWheelX;
+        int maxWheelZ;
+
+        minWheelX = 0x630000;
+        minWheelZ = 0x630000;
+        maxWheelX = -0x630000;
+        maxWheelZ = -0x630000;
+        for (j = 0; j < obj->numVertex; j++) {
+          minWheelX = __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) >= minWheelX ?
+              minWheelX : __builtin_abs(obj->vertex[j].x + obj->translation.x / 256);
+          minWheelZ = __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) >= minWheelZ ?
+              minWheelZ : __builtin_abs(obj->vertex[j].z + obj->translation.z / 256);
+          maxWheelX = __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) >= maxWheelX ?
+              __builtin_abs(obj->vertex[j].x + obj->translation.x / 256) : maxWheelX;
+          maxWheelZ = __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) >= maxWheelZ ?
+              __builtin_abs(obj->vertex[j].z + obj->translation.z / 256) : maxWheelZ;
         }
-        if (iVar14 < 0x35) {
-          if (0x2e < iVar14) {
-            (carObj->N).wheelFrontX = (iVar11 + iVar4 + 1 >> 1) << 8;
-            (carObj->N).wheelFrontZ = (iVar9 + iVar5 + 1 >> 1) << 8;
-            (carObj->N).wheelWidthF = (iVar4 - iVar11) * 0x100 + 0xccc;
-          }
-        }
-        else {
-          (carObj->N).wheelBackX = (iVar11 + iVar4 + 1 >> 1) << 8;
-          (carObj->N).wheelBackZ = (iVar9 + iVar5 + 1 >> 1) << 8;
-          (carObj->N).wheelWidthB = (iVar4 - iVar11) * 0x100 + 0xccc;
+
+        if (i >= 53) {
+          carObj->N.wheelBackX = ((minWheelX + maxWheelX + 1) >> 1) << 8;
+          carObj->N.wheelBackZ = ((minWheelZ + maxWheelZ + 1) >> 1) << 8;
+          carObj->N.wheelWidthB = ((maxWheelX - minWheelX) << 8) + 0xccc;
+        } else if (i >= 47) {
+          carObj->N.wheelFrontX = ((minWheelX + maxWheelX + 1) >> 1) << 8;
+          carObj->N.wheelFrontZ = ((minWheelZ + maxWheelZ + 1) >> 1) << 8;
+          carObj->N.wheelWidthF = ((maxWheelX - minWheelX) << 8) + 0xccc;
         }
       }
     }
-    pacVar15 = pacVar15 + 1;
   }
-  (carObj->N).dimension.x = (maxp.x - minp.x) / 2 << 8;
-  (carObj->N).dimension.y = (maxp.y - minp.y) / 2 << 8;
-  iVar14 = (maxp.z - minp.z) / 2 << 8;
-  (carObj->N).dimension.z = iVar14;
-  if (carType == 0x1c) {
-    (carObj->N).dimension.z = iVar14 >> 1;
+
+  carObj->N.dimension.x = ((maxp.x - minp.x) / 2) << 8;
+  carObj->N.dimension.y = ((maxp.y - minp.y) / 2) << 8;
+  carObj->N.dimension.z = ((maxp.z - minp.z) / 2) << 8;
+  if (carType == 28) {
+    carObj->N.dimension.z >>= 1;
   }
-  iVar14 = (carObj->N).dimension.x;
-  if (iVar14 < 0) {
-    iVar14 = iVar14 + 0xff;
-  }
-  iVar11 = (carObj->N).dimension.y;
-  if (iVar11 < 0) {
-    iVar11 = iVar11 + 0xff;
-  }
-  iVar14 = fixedsqrt((iVar14 >> 8) * (iVar14 >> 8) + (iVar11 >> 8) * (iVar11 >> 8));
-  (carObj->N).dimensionRadius = iVar14;
-  if (iVar14 < 0) {
-    iVar14 = iVar14 + 0xff;
-  }
-  iVar11 = (carObj->N).dimension.z;
-  if (iVar11 < 0) {
-    iVar11 = iVar11 + 0xff;
-  }
-  iVar14 = fixedsqrt((iVar14 >> 8) * (iVar14 >> 8) + (iVar11 >> 8) * (iVar11 >> 8));
-  (carObj->N).dimensionRadius = iVar14;
-  return;
+
+  carObj->N.dimensionRadius =
+      fixedsqrt((carObj->N.dimension.x / 256) * (carObj->N.dimension.x / 256) +
+                (carObj->N.dimension.y / 256) * (carObj->N.dimension.y / 256));
+  carObj->N.dimensionRadius =
+      fixedsqrt((carObj->N.dimensionRadius / 256) * (carObj->N.dimensionRadius / 256) +
+                (carObj->N.dimension.z / 256) * (carObj->N.dimension.z / 256));
 }
 
 /* ---- R3DCar_DeInstantiate3DCar__FP8Car_tObj  [R3DCAR.CPP:1046-1048] SLD-VERIFIED ---- */

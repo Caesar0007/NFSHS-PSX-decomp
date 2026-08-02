@@ -584,7 +584,6 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
   if ((u_int)(int)carNumber >= this->fNumCars) {
     this->GetGarageCar(carNumber,carInfo,0);
-    carInfo.fCarIndex = (uchar)carNumber;
   }
   else {
     blockmove(this->fCars + carNumber,&carInfo,0xcc);
@@ -593,8 +592,8 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
     carInfo.fUpgrades = '\0';
     carInfo.fCountry = '\0';
     carInfo.fViewable = uVar1;
-    carInfo.fCarIndex = (uchar)carNumber;
   }
+  carInfo.fCarIndex = (uchar)carNumber;
   return;
 }
 

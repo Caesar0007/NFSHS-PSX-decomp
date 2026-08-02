@@ -851,7 +851,6 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
   /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
    * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
    * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
-  uint     otWord;
   short i;
   POLY_F4 *prevPrim;
   POLY_F4 *prim;
@@ -862,10 +861,14 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
       prim = (POLY_F4 *)Render_gPacketPtr;
       prevPrim = (POLY_F4 *)Render_gPalettePtr;
       i = i + 1;
-      prim->tag = prevPrim->tag & 0xffffff | prim->tag & 0xff000000;
-      otWord = prevPrim->tag;
+      /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the full P_TAG bitfield
+       * addPrim() shape.  Here the value side IS a bitfield READ (unlike
+       * PSXDrawTransGouraudSquare, which needs the plain word): the second 0xffffff mask
+       * is what lifts that constant's loop-weighted allocno onto retail's $t0 ahead of
+       * the (y+h) vertex value.  Probe: plain-word value 14, hand-masked OR 22/34.  w44-a2 */
+      ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)prevPrim)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
-      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      ((PSXFront_PTag *)prevPrim)->addr = (uint)prim;
       *(int *)&prim->r0 = col;
       prim->code = 0x2a;
       ((u_char *)prim)[3] = 5;

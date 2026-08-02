@@ -3443,8 +3443,11 @@ HudRender_amtDone:
     while (true) {
       if (2 <= j) break;
       wingmode = Input_WingCommandMode(j);
-      if (((u_char)Hud_gWingmanInterface[j] == wingmode) && (HudBustedOverlay != 0)) goto HudRender_initMapFrame;
-      if (Hud_gWingmanFlashTicks[j] < ticks) {
+      if (((u_char)Hud_gWingmanInterface[j] == wingmode) && (HudBustedOverlay != 0)) {
+        Hud_gWingmanInterface[j] = 0;
+        Hud_InitMapFrame(j,0);
+      }
+      else if (Hud_gWingmanFlashTicks[j] < ticks) {
         if ((u_char)Hud_gWingmanInterface[j] != wingmode) {
           if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
           if (HudBustedOverlay == 0) {

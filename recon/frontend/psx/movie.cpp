@@ -424,10 +424,10 @@ void strSetDefDecEnv(DECENV *dec)
   
   /* MATCH: the oracle loads the globals in the order vlcbuf1, imgbuf, gMovieHeight,
    * vlcbuf0 -- statement order IS load order here. */
-  mh = gMovieHeight;
-  vb1 = vlcbuf1;
-  vb0 = vlcbuf0;
+  vb1 = vlcbuf1_d;
   img = imgbuf_d;
+  mh = gMovieHeight_d;
+  vb0 = vlcbuf0;
   top = (int)PPWTop;
   bottom = (int)PPWBottom;
   dec->vlcid = 0;

@@ -249,9 +249,9 @@ void tScreenTournamentStandings::DrawBackground()
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
   wwwww = shape->width;
-  lbx = (wwwww >> 1) - 2 - shape->centerx;
+  lbx = ((wwwww >> 1) - shape->centerx) - 2;
   tt = ticks[0] % (short)wwwww;
-  if ((wwwww >> 1) < tt) {
+  if ((wwwww / 2) < tt) {
     tt = wwwww - tt;
   }
   DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
@@ -266,13 +266,12 @@ void tScreenTournamentStandings::DrawBackground()
     if ((0 < self->moneyAwarded) || ((0 < self->moneyDamage || (0 < self->moneyBonus)))) {
       AudioCmn_PlayFESFX(0x15);
     }
-    int speed = self->fCountSpeed;
-    self->moneyAwarded -= speed;
+    self->moneyAwarded -= self->fCountSpeed;
     if (self->moneyAwarded < 1) {
       self->moneyAwarded = 0;
-      self->moneyDamage -= speed;
+      self->moneyDamage -= self->fCountSpeed;
       if (self->moneyDamage < 1) {
-        long bonus = self->moneyBonus - speed;
+        long bonus = self->moneyBonus - self->fCountSpeed;
         self->fCountedDown = 1;
         self->moneyDamage = 0;
         if (bonus < 0) {
@@ -293,7 +292,7 @@ void tScreenTournamentStandings::DrawBackground()
                              textType_TrackRecords,(uint)(self->gotbonus != 0),1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,self->moneyBonus,colf,colb);
   }
-  FETextRender_FullTextFade(fade,TextSys_Word(0x315),TextSys_WordX(0x2fa),TextSys_WordY(0x315),
+  FETextRender_FullTextFade(fade,TextSys_Word(0x315),(short)TextSys_WordX(0x2fa),(short)TextSys_WordY(0x315),
                            textType_TrackRecords,textState_Hilighted,1);
   DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9,
             ((self->moneyFinal - self->moneyAwarded) + self->moneyDamage) - self->moneyBonus,colf,colb);
@@ -309,97 +308,78 @@ void tScreenPinkSlipStandings::DrawBackground()
 {
   int fade;
   char sBuildOutput [50];
-  uint i;
+  int i;
   tMenuTextState state;
   tMenuTextType type;
   int wwwww;
   tTexture_ShapeInfo *shape;
   int lbx;
   int tt;
-  tDrawShapeExtended drawflags;
-  int iVar1;
-  int iVar2;
-  char *str;
-  int iVar4;
-  tMenuTextState textState;
-  int iVar7;
+  int row;
 
   wwwww = 0x2fe;
-  fade = (int)this->
-               fScreenFadeVal;
+  fade = (int)this->fScreenFadeVal;
   type = textType_TrackRecords;
-  for (i = 0; textState = textState_Hilighted,
-      (int)i < (int)(uint)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
-    tTrackInformation trackInfo;
-    char string [30];
+  for (i = 0; state = textState_Hilighted,
+      i < (int)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
+      tTrackInformation trackInfo;
+      char string [30];
 
-    if (i != (byte)frontEnd.pinkSlipsTrackIndex) {
-      textState = (tMenuTextState)((int)i < (int)(uint)(byte)frontEnd.pinkSlipsTrackIndex);
-    }
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
-    iVar1 = TextSys_WordX(0x2f7);
-    iVar2 = TextSys_WordY(wwwww);
-    FETextRender_MenuTextPositionedJustifyFade(fade,trackInfo.fTrackID + 0xd5,(short)iVar1,(short)iVar2,0,textState,
-               type);
-    if (frontEnd.pinkSlipsWinner[i] == -1) {
-      str = TextSys_Word(0x30d);
-    }
-    else {
-      str = PlayerName((int)frontEnd.pinkSlipsWinner[i]);
-    }
-    sprintf(string,str);
-    iVar1 = TextSys_WordX(0x2fb);
-    iVar2 = TextSys_WordY(wwwww);
-    FETextRender_FullTextFade(fade,string,(short)iVar1,(short)iVar2,type,textState,1);
-    wwwww = wwwww + 1;
+      if (i != (byte)frontEnd.pinkSlipsTrackIndex) {
+        state = (tMenuTextState)(i < (int)(byte)frontEnd.pinkSlipsTrackIndex);
+      }
+      GetTrack(&trackManager,(byte)frontEnd.track[i],&trackInfo);
+      FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
+                 (short)((signed char)trackInfo.fTrackID + 0xd5),
+                 (short)TextSys_WordX(0x2f7),(short)TextSys_WordY(wwwww),0,state,
+                 type);
+      if (frontEnd.pinkSlipsWinner[i] == -1) {
+        sprintf(string,TextSys_Word(0x30d));
+      }
+      else {
+        sprintf(string,PlayerName((int)frontEnd.pinkSlipsWinner[i]));
+      }
+      FETextRender_FullTextFade(fade,string,(short)TextSys_WordX(0x2fb),
+                 (short)TextSys_WordY(wwwww),type,state,1);
+      wwwww = wwwww + 1;
   }
-  wwwww = 0;
-  iVar1 = 0x313;
+  i = 0;
+  row = 0x313;
   do {
-    str = PlayerName(wwwww);
-    iVar2 = TextSys_WordX(0x2f8);
-    iVar4 = TextSys_WordY(iVar1);
-    FETextRender_FullTextFade(fade,str,(short)iVar2,(short)iVar4,type,textState_Hilighted,0);
-    if (frontEnd.pinkSlipsWins[wwwww] == '\x01') {
-      str = TextSys_Word(799);
-      sprintf(sBuildOutput,str);
+    FETextRender_FullTextFade(fade,PlayerName(i),(short)TextSys_WordX(0x2f8),
+               (short)TextSys_WordY(row),type,state,0);
+    if (frontEnd.pinkSlipsWins[i] == '\x01') {
+      sprintf(sBuildOutput,TextSys_Word(799));
     }
     else {
-      str = TextSys_Word(0x31e);
-      sprintf(sBuildOutput,str,(uint)(byte)frontEnd.pinkSlipsWins[wwwww]);
+      sprintf(sBuildOutput,TextSys_Word(0x31e),(uint)(byte)frontEnd.pinkSlipsWins[i]);
     }
-    iVar2 = TextSys_WordX(0x2fb);
-    iVar4 = TextSys_WordY(iVar1);
-    FETextRender_FullTextFade(fade,sBuildOutput,(short)iVar2,(short)iVar4,type,
-               textState_Hilighted,1);
-    wwwww = wwwww + 1;
-    iVar1 = iVar1 + 1;
-  } while (wwwww < 2);
-  wwwww = TextSys_WordX(0x2f6);
-  iVar1 = TextSys_WordY(0x2fc);
-  FETextRender_MenuTextPositionedJustifyFade(fade,0x2c1,(short)wwwww,(short)iVar1,2,textState_Hilighted,type);
-  str = TextSys_Word(0x2c1);
-  wwwww = textpixels(str);
-  iVar7 = TextSys_WordX(0x2f6);
-  iVar1 = TextSys_WordY(0x2fc);
-  PSXDrawSquare(0,iVar7 - (wwwww >> 1),iVar1 + -1,wwwww,9);
+    FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
+               (short)TextSys_WordY(row),type,
+               state,1);
+    i = i + 1;
+    row = row + 1;
+  } while (i < 2);
+  FETextRender_MenuTextPositionedJustifyFade(fade,0x2c1,(short)TextSys_WordX(0x2f6),
+               (short)TextSys_WordY(0x2fc),2,textState_Hilighted,type);
+  wwwww = textpixels(TextSys_Word(0x2c1));
+  PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),
+               TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
-  wwwww = shape->width;
-  lbx = (wwwww >> 1) - 2 - shape->centerx;
-  tt = ticks[0] % (short)wwwww;
-  if ((wwwww >> 1) < tt) {
-    tt = wwwww - tt;
+  int halfWidth = (shape->width >> 1) - 2;
+  lbx = halfWidth - shape->centerx;
+  tt = ticks[0] % (short)shape->width;
+  if ((shape->width / 2) < tt) {
+    tt = shape->width - tt;
   }
+  tDrawShapeExtended drawflags;
   drawflags.tint[0] = 0x282828;
   DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,
-             (int)this->
-                  fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,
-             (int)this->
-                  fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x27,0x400,0,-1,
-             (int)this->
-                  fScreenFadeVal,0,&drawflags);
+             (int)this->fScreenFadeVal,0,&drawflags);
   ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes[0],0);
   return;
 }

@@ -226,16 +226,13 @@ void AIHigh_Player::SetupBlockade()
   int posIndex;
   int loop;
   int needed[2];
-
-  short sVar1;
+  int searchSlice;
 
   int iVar4;
 
   Speaker *pSVar5;
 
   int iVar7;
-
-  int (*pcVar8)(...);
 
   int iVar15;
 
@@ -244,22 +241,22 @@ void AIHigh_Player::SetupBlockade()
   pLevel = this->perpChaseInfo_.chaseLevel_;
   totalRoadWidth = this->carObj_->direction * 0x53;
   if (totalRoadWidth >= 0) {
-    blockadeSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
-    if (gNumSlices <= blockadeSlice) {
-      blockadeSlice = blockadeSlice - gNumSlices;
+    searchSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
+    if (gNumSlices <= searchSlice) {
+      searchSlice = searchSlice - gNumSlices;
     }
   }
   else {
-    blockadeSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
-    if (blockadeSlice < 0) {
-      blockadeSlice = blockadeSlice + gNumSlices;
+    searchSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
+    if (searchSlice < 0) {
+      searchSlice = searchSlice + gNumSlices;
     }
   }
 
   nCopsNeeded[0] = pLevel->copBlockaders[0];
   nCopsNeeded[1] = pLevel->copBlockaders[1];
   blockadeHandle = triggerManagerCops->CheckForClosestTriggerOfType(
-      blockadeSlice,(triggerType)2,this->carObj_->direction);
+      searchSlice,(triggerType)2,this->carObj_->direction);
 
   if (blockadeHandle != -1) {
 
@@ -324,8 +321,8 @@ void AIHigh_Player::SetupBlockade()
 
     fastRandom = randtemp & 0xffff;
 
-    blockadeFlags =
-        (u_int)(u_char)"\x05\x06\x04\x02"[(randtemp >> 8 & 0xffff) % 5];
+    blockadeType = (randtemp >> 8 & 0xffff) % 5;
+    blockadeFlags = (u_int)(u_char)"\x05\x06\x04\x02"[blockadeType];
 
     blockadeCar = (AIHigh_Cop *)0x0;
     {
@@ -335,12 +332,13 @@ void AIHigh_Player::SetupBlockade()
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
 
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
-      copBlockade = &thisCop->blockade_;
       if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
           (thisCop->blockade_.mode == 1)) {
 
         if ((thisCop->type_ == 1) && (nCopsNeeded[1] != 0)) {
           int addToSlice;
+
+          copBlockade = &thisCop->blockade_;
 
           if (blockadeCar == (AIHigh_Cop *)0x0) {
 
@@ -451,6 +449,8 @@ void AIHigh_Player::SetupBlockade()
           int addToSlice;
 
           if (nCopsNeeded[0] == 0) goto LAB_800620e8;
+
+          copBlockade = &thisCop->blockade_;
 
           if (blockadeCar == (AIHigh_Cop *)0x0) {
 
@@ -594,13 +594,12 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
       blockadeCar->blockade_.blockadeSpeechFlags = 1;
 
-      if (!saySpikeBelt) {
+      if (saySpikeBelt) {
 
         pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
 
-        sVar1 = (*pSVar5->_vf)[11].delta;
-
-        pcVar8 = (*pSVar5->_vf)[11].pfn;
+        (*(*pSVar5->_vf)[11].pfn)
+            ((int)pSVar5 + (*pSVar5->_vf)[11].delta);
 
       }
 
@@ -608,13 +607,10 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
         pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
 
-        sVar1 = (*pSVar5->_vf)[10].delta;
-
-        pcVar8 = (*pSVar5->_vf)[10].pfn;
+        (*(*pSVar5->_vf)[10].pfn)
+            ((int)pSVar5 + (*pSVar5->_vf)[10].delta);
 
       }
-
-      (*pcVar8)((int)pSVar5 + (int)sVar1);
 
       pSVar5 = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
 

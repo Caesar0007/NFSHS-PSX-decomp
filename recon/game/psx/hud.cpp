@@ -1793,7 +1793,28 @@ void Hud_BuildNumbers0(int player)
  *    LCS diff metric REGRESSES when insns improve against a wrong-register frame".
  *  NEGATIVE receipt (w40): purging the block-local `u_char *pal` caches (the SYM blocks declare
  *    only `j`) costs 705 -> 781 / 763 insns -- the pal CSE local IS load-bearing here (catalog
- *    "scratchpad pointer-pair CSE local ... SITE-dependent"), keep it. */
+ *    "scratchpad pointer-pair CSE local ... SITE-dependent"), keep it.
+ * ===== w45-a8: 620 -> 388, COUNT-EXACT 758/758, posdiff residual 497 -> 272 =====
+ *  LEVER 1: all 19 OT-link pairs (16 by tools' scratch/ptag.py + the 3 switch-case ones by
+ *    hand) rewritten as the addPrim P_TAG bitfield idiom.  620 -> 464.
+ *  LEVER 2: 🔴 PART 1 ABOVE IS NOW LANDED AND IS A WIN -- 464 -> 388.  The w40 receipt's
+ *    "PART 1 alone regresses 705 -> 1075, do NOT land it alone" was BASIN-RELATIVE: with the
+ *    P_TAG lowering in place the same swap is worth -76 AND makes the count exact.  This is
+ *    the LEVER-ORDER-DEPENDENCE meta (a falsified spelling is falsified only in its basin) --
+ *    re-test every banked "do not land alone" pair after any landscape change.
+ *    The PROLOGUE IS NOW BYTE-EXACT, as PART 1 predicted:
+ *      addiu sp,sp,-80 / sw fp,72(sp) / addu fp,a0,zero / sw s2,48(sp) / addu s2,fp,zero ...
+ *    and the s-register FIRST-USE order is oracle-identical (fp a0 s2 s7 s6 s5 s4 s3 s1 s0).
+ *  REMAINING = PART 2, unchanged and now the ONLY s-pool item: pSprt is $s4 for us, $s5 for
+ *    retail (`lw s4,0(gp)` vs `lw s5,0(gp)` at both gSprite selects), which renames the
+ *    caller-saved temps through all six tag-link loops.  Retail SHARES $s2 between `player`
+ *    and the speed block's `x` (their ranges ARE disjoint in our source too -- `player`'s last
+ *    use is the `carInfo[player].HudTach` guard, `x` is born inside that block), leaving
+ *    $s3=w1 $s4=w2 $s5=pSprt.  NEW NAMED ANGLE: the two are disjoint, so this is a find_reg
+ *    PREFERENCE question, not a conflict -- dump `-dg` for this fn and check whether `x`'s
+ *    allocno lists $s2 in its `conflicts:`/`regs_someone_prefers` bar-list; if it does, the
+ *    barrier is another allocno PREFERRING $s2, and the fix is to move THAT pseudo's birth
+ *    (w41 block-local-vs-global class), not to reshape `x`. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -1804,25 +1825,25 @@ void Hud_BuildNumbers(int player)
   int splitY;
 
   i = player;
-  if (player != 0) {
+  if (i != 0) {
     pSprt = gSprite1;
   }
   else {
     pSprt = gSprite0;
   }
   HudF4 = gHudF4;
-  if (i != 0) {
+  if (player != 0) {
     HudF4 = HudF4 + 7;
   }
   HudG4 = gHudG4;
-  if (i != 0) {
+  if (player != 0) {
     HudG4 = HudG4 + 4;
   }
   splitY = 0;
-  if (i != 0) {
+  if (player != 0) {
     splitY = -0xf;
   }
-  if (((GameSetup_gData.carInfo[player].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
+  if (((GameSetup_gData.carInfo[i].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
     u_char *pal;
@@ -1849,7 +1870,7 @@ void Hud_BuildNumbers(int player)
     ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)pal)->addr;
     ((Hud_PTag *)pal)->addr = (u_int)&HudF4[1];
   }
-  if ((((GameSetup_gData.carInfo[player].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
+  if ((((GameSetup_gData.carInfo[i].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
       ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
@@ -1878,7 +1899,7 @@ void Hud_BuildNumbers(int player)
     ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)pal)->addr;
     ((Hud_PTag *)pal)->addr = (u_int)&HudF4[2];
   }
-  if (((GameSetup_gData.carInfo[player].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
+  if (((GameSetup_gData.carInfo[i].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
      (1 < DashHUD_gInfo.opponents)) {
     int j;
     u_char *pal;
@@ -1904,7 +1925,7 @@ void Hud_BuildNumbers(int player)
     }
   }
   Hud_GoTpage(0);
-  if (GameSetup_gData.carInfo[player].HudTach != 0) {
+  if (GameSetup_gData.carInfo[i].HudTach != 0) {
     switch (DashHUD_gInfo.gear) {
     case 0:
       ((Hud_PTag *)&pSprt[48])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
@@ -1920,7 +1941,7 @@ void Hud_BuildNumbers(int player)
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[DashHUD_gInfo.gear + 39];
       break;
     }
-    if (GameSetup_gData.carInfo[player].HudSpeed == 0) {
+    if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
       ((Hud_PTag *)&pSprt[50])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[50];
     }
@@ -1930,7 +1951,7 @@ void Hud_BuildNumbers(int player)
     }
   }
   Hud_GoTpage(1);
-  if (GameSetup_gData.carInfo[i].HudTach != 0) {
+  if (GameSetup_gData.carInfo[player].HudTach != 0) {
     int speed;
     int hun;
     int ten;
@@ -1944,7 +1965,7 @@ void Hud_BuildNumbers(int player)
     POLY_GT4 *prim;
     u_long SpeedColor;
 
-    speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
+    speed = fixedmult(GameSetup_gData.carInfo[i].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
     SpeedColor = 0xc8c8c8;
     color2 = 0x505050;
     w1 = HudPmx_gShapes[0x2c].width + 1;
@@ -1994,7 +2015,7 @@ void Hud_BuildNumbers(int player)
       *(u_int *)&prim->r2 = color2;
     }
   }
-  if ((DashHUD_gInfo.wrongway[player] != 0) && ((simGlobal.gameTicks >> 5 & 1U) != 0)) {
+  if ((DashHUD_gInfo.wrongway[i] != 0) && ((simGlobal.gameTicks >> 5 & 1U) != 0)) {
     u_char *pal;
 
     pal = Render_gPalettePtr;

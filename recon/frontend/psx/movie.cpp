@@ -423,7 +423,16 @@ void strSetDefDecEnv(DECENV *dec)
   int top;
   
   /* MATCH: the oracle loads the globals in the order vlcbuf1, imgbuf, gMovieHeight,
-   * vlcbuf0 -- statement order IS load order here. */
+   * vlcbuf0.  The SCALAR (`_d`) spelling compiles to the UNSCHEDULABLE `lw $r,sym`
+   * assembler macro, which pins each read where the statement sits; the unsized-view
+   * (`_v[]`) spelling gives cc1's schedulable %hi/%lo split, and sched1 then floats
+   * the four reads into the wrong order (8-12 diffs for every permutation).  Mixing
+   * is deliberate: the three pinned reads are scalars, vlcbuf0 stays a view.
+   * RESIDUAL (4 diffs, count-exact 35/35): retail batches all three `lui`s ahead of
+   * the three loads (only the split form is schedulable enough to hoist them), so we
+   * cannot have BOTH the pinned order and the hoisted luis from one spelling.
+   * Falsified: all 16 scalar/view masks x 4 statement orders (+24 store-order perms,
+   * +the no-temp form, +PPWTop/PPWBottom scalar). */
   vb1 = vlcbuf1_d;
   img = imgbuf_d;
   mh = gMovieHeight_d;

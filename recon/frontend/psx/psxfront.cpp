@@ -399,6 +399,65 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
 /* lines 923-927: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawGouraudShape  (psxfront.cpp:928, code lines 928-985) ---- */
+/* ---- w44-a1 RESIDUAL 198 (count EXACT 245/245, frame 104 == SYM fsize, brcensus CLEAN) ----
+ * MECHANISM (quantified from `tools/rtl_dump.py -dL`, loop 85..652, 170 real insns):
+ *   loop.c hoists SIX movables where retail hoists ONE.  Its savings-1 verdicts here are
+ *   life-driven with a razor at life 10:
+ *     insn 191 regno 158 (life 16) = const 0x1F800004  -> MOVED   (retail: rematerialised in-loop)
+ *     insn 205 regno 162 (life 12) = const 0x00FFFFFF  -> MOVED   (retail: hoisted, $t3)  <-- the only one retail hoists
+ *     insn 210 regno 165 (life 10) = const 0xFF000000  -> MOVED   (retail: rematerialised in-loop)
+ *     insn 269 regno 183 (life  1), 462 regno 245 (life 1) -> "not desirable"
+ *   The two EXTRA hoisted constants are live across the in-loop GetClut call, so reload spills
+ *   $t7/$t8 as well as $t1-$t6:  rove_op `sw 25v23  lw 30v28` == exactly TWO extra spill pairs.
+ *   Kill those two hoists and the spill pairs vanish 1:1.
+ * FALSIFIED this wave (all measured, gate + posdiff + rove_op):
+ *   - bump-early (`prim = Render_gPacketPtr; Render_gPacketPtr = prim + 0x34;` adjacent) DOES kill
+ *     both address hoists (life 16 -> 4) and both spill pairs (sw/lw census then MATCHES), but the
+ *     lowered pressure also lets `vh`/`width` leave their AUTO slots: frame 104 -> 96 (SYM fsize is
+ *     104) and the `lhu 18(s4); sh 24(sp)` vh re-read pair is CSE'd away -> 241/245, gate 230.
+ *   - RMW operand-order swaps (4-way matrix): each swap alone removes ONE hoist (243 insns,
+ *     gate 196-202); both together restore 245 but the hoist set is unchanged (gate 196).
+ *   - bump-last / bump-after-pal: 243, gate 196-198.
+ *   - `char`/`u_char` u,v,vh (to chase retail's QImode `sb t4,32(sp)` AUTO): 244, gate 285
+ *     (confirms the w43 PROMOTE_MODE negative for this fn).
+ *   - fresh-dest `sy` temp for the shapey load (retail `addu t4,v0,zero` + `addiu t4,v0,-1`): 246.
+ * ---- UPDATE (same wave, after the a7 blocking-register-cascade forward: RE-TEST SHELVED
+ *      NEGATIVES).  bump-early was shelved at 230 because it dropped the frame to 96; adding the
+ *      SYM-fsize filler restores 104 and the SAME edit now gates 164 (was 198).  L1 state:
+ *        - 0x1F800004 movable life 16 -> 4, DECLINED: the loop now rematerialises `lui;ori` at its
+ *          top exactly like retail, and BOTH extra spill pairs are gone (rove_op sw/lw MATCH).
+ *        - residual census: `lhu 9v10  sh 19v20` = the ONE `lhu 0x12(s4); sh 0x18(sp)` vh-AUTO pair
+ *          retail keeps and we no longer emit (ours 241 vs 245).
+ *        - the mask inversion is now SOLVED by addr24-EARLY (see the loop body): -dL's moved list is
+ *          exactly {short-sign-extend pair, 0xFFFFFF, 2 address givs} = retail's.  164 -> 160.
+ *          RMW operand-order swaps to trade the two masks' lives measured 174 (all three
+ *          combinations) -- worse; the a4 do{}while(0) depth dial does NOT reach loop.c at all
+ *          ("Loop from 189 to 248 is phony" -- the wrapper is recognised and stripped, hoist set
+ *          byte-identical); volatile on the cursor read/write/both = no change (the movable is the
+ *          CONSTANT insn, not the MEM); a7's unsized/sized asm-label views do not apply -- these are
+ *          LITERAL scratchpad addresses, not symbols, so there is no %hi/%lo pseudo pair to remove.
+ * NEW NAMED ANGLE #1 (vh): the filler is a stand-in.  The real fix is to make `vh` need memory --
+ *   untried: give `vh` a second, later use inside the loop (retail reloads it per vertex row), or
+ *   declare the three AUTOs in the SYM's slot order so reload's pseudo-regno slot assignment lands
+ *   width@16/vh@24/v@32 without a filler (DECL POSITION IS THE FRAME LAYOUT, w41).  Note the filler
+ *   is an ARRAY, so it is slotted at expand and steals 16(sp) -- every sp displacement is shifted by
+ *   8; a NON-array 8-byte filler (or a real vh use) would also fix ~10 displacement diffs.
+ * NEW NAMED ANGLE #2 (masks): with the addresses out of the movable set only TWO savings-1
+ *   constants compete and the measured cut is life 10 (0xFF000000 moved at 10, 0xFFFFFF declined at
+ *   7 under bump-early).  Aim 0xFFFFFF ABOVE 10 and 0xFF000000 BELOW: split the first RMW so the
+ *   0xFFFFFF term is evaluated into its own named temp at the TOP of the loop body (addr24-EARLY,
+ *   w41) while the 0xFF000000 term stays fused inside both RMW expressions -- that lengthens one and
+ *   shortens the other independently, which the operand-order swaps could not do (they move BOTH).
+ * NEW NAMED ANGLE (untried, for the next pass): the two goals are SEPARABLE -- kill the two address
+ *   hoists WITHOUT lowering whole-loop pressure.  loop.c's verdict is per-movable LIFE, so shorten
+ *   ONLY the 0x1F800004 and 0xFF000000 lives while ADDING an unrelated long-lived in-loop value to
+ *   hold the frame at 104:  (a) bump-early PLUS a source-level pressure restorer -- e.g. keep the
+ *   `vh` AUTO alive by re-reading `shp->height` at its USE site inside the loop (the oracle's
+ *   `lhu`/`sh` pair) instead of before it; (b) split the 0xFF000000 term so its two uses sit
+ *   adjacent (life <= 9 = the measured razor) while leaving 0xFFFFFF spanning the whole RMW block;
+ *   (c) probe the razor directly per the w43 giv-worth recipe -- inject N dummy statements into a
+ *   scratch copy and re-dump -dL to find the exact life cut, then aim each constant at it.
+ */
 /* GPU packet: builds POLY_GT4 (stride 0x34, code 0x3c); prim=u_char* build cursor, prevPrim=u_char* link word */
 void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
@@ -418,6 +477,13 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
+  int      deadfrm[2];   /* w44-a1 SYM-fsize FILLER.  The oracle frame is 104 (0x68) with THREE
+                            AUTOs -- width@16(sp), vh@24(sp), v@32(sp).  Once the packet-cursor
+                            bump moved next to its read (below) loop.c stopped hoisting the two
+                            scratchpad address constants, pressure dropped, and `vh` left its AUTO
+                            slot -> frame 96.  The filler restores 104 and with it retail's whole
+                            spill/reload layout (198 -> 164 diffs).  It stands in for the vh AUTO
+                            we cannot yet force back into memory -- see the receipt above. */
 
   height = shp->height;
   width = shp->width;
@@ -445,10 +511,28 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       wsel = shp->width - i;
     }
     w = wsel;
+    uint *pal;   /* w44-a1: retail keeps the palette-cursor POINTER in $a0 across both RMWs
+                    (`lui a0,0x1F80; lw a0,0(a0)` once, then lw/lw/sw off $a0) -- 246 -> 245
+                    count-EXACT.  The w43 "straight-line emitters want the purge" rule does NOT
+                    apply in a LOOP: here the oracle caches (w43 loop-vs-straight-line row). */
+    uint  addr24;
+
     prim = Render_gPacketPtr;
-    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    Render_gPacketPtr = prim + 0x34;
-    *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
+    Render_gPacketPtr = prim + 0x34;   /* w44-a1: the cursor bump ADJACENT to its read collapses the
+                                          0x1F800004 movable's life 16 -> 4, so loop.c declines it and
+                                          the address is rematerialised in-loop exactly like retail
+                                          (`lui;ori` at the top of the loop body).  sched2 sinks the
+                                          store back into the middle of the RMW pair, matching the
+                                          oracle's `sw v0,0(a2)` placement. */
+    /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
+       the top of the loop body lengthens the 0xFFFFFF movable and shortens 0xFF000000 --
+       INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
+       the movable set retail has: 0xFFFFFF is the ONLY hoisted constant, both scratchpad
+       addresses AND 0xFF000000 are rematerialised in-loop. */
+    addr24 = (uint)prim & 0xffffff;
+    pal = (uint *)Render_gPalettePtr;
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
+    *pal = *pal & 0xff000000 | addr24;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
@@ -562,6 +646,39 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
 /* lines 1085-1088: (static data / macros / comments - no emitted code) */
 
 /* ---- ScaleGouraudShape  (psxfront.cpp:1089, code lines 1089-1138) ---- */
+/* ---- w44-a1: 157 -> 60 (count EXACT 175/175, frame 64 == oracle, brcensus + rove_op CLEAN,
+ *      ALL NINE callee-saved registers now oracle-exact; posdiff first-use order IDENTICAL).
+ * The three landed levers are commented at their sites (palette-pointer cache / late-born xm1 /
+ * 0x20-store-last / batched width+height byte reads).  MECHANISM behind the register landing
+ * (measured with tools/rtl_dump.py -dg -dl + tools/prio.py):
+ *   block 4 owns THREE call-crossing local quantities -- the width sign-extend, the height
+ *   sign-extend and `x-1`.  local_alloc hands out $s0,$s1,$s2 in REVERSE BIRTH ORDER, so retail's
+ *   birth order (width-narrow, height-narrow, x-1) yields x-1=$s0, height-narrow=$s1,
+ *   width-narrow=$s2 -- and only THEN can global_alloc give `height` $s1 and `width` $s2 (each
+ *   dies exactly where its own narrow is born).  Naming `x-1` any earlier makes it born first, the
+ *   height narrow takes $s0 (already owned by block 0's `abr`), `height` can no longer share it,
+ *   and a 10th live value spills (177 insns, frame 72).  Measured for 8 spellings.
+ *   The x-vs-y home is an allocno_compare razor: x 7 refs/99 live = .1414 beats y 7/110 = .1273,
+ *   so x took the lower reg; moving the `prim+0x20 = x` store to the END lengthens x past y and
+ *   flips the pair to retail's (x=$s6, y=$s5).  One ref less on x does it too, but the only way to
+ *   drop that ref is to feed the 0x14 vertex from xm1 -- which re-triggers the early-birth spill.
+ * RESIDUAL 60, three clusters:
+ *   (a) ~13 diffs: `pal` and the 0xFFFFFF mask hold $a1/$a2 the other way round from retail.
+ *       Both are block-0 local quantities; OR-operand swaps measured 58/60/70 (noise, not the
+ *       mechanism), prim/pal statement swap = no change.
+ *   (b) ~6 diffs: retail feeds BOTH right-edge vertices from $s0 (`addu v0,s0,v0` then
+ *       `addu s0,s0,v0`); ours reassociates the inline `(x-1)` at 0x14 into `addiu v0,v0,-1;
+ *       addu v0,s6,v0`.  Blocked by the birth-order constraint above.
+ *   (c) ~7 diffs: the divide result / u / uw rotate $a1<->$v1 (`mflo a1` vs `mflo v1`) -- the
+ *       w43 local_alloc qty birth-order + fresh-dest class, untried here.
+ * NEW NAMED ANGLE: (b) and (c) are the SAME dial.  Retail's `x-1` is born late AND used twice, so
+ *   it must be born late WITHOUT its def being scheduled up.  Untried lever: make the def's
+ *   dependency chain shorter than the two sign-extends' so sched1 leaves it in place -- e.g. feed
+ *   the 0x14 vertex from a SECOND named local initialised from xm1 (`xr = xm1;`) so the xm1 def
+ *   itself keeps only ONE dependent chain, or split the two right-edge vertices into their own
+ *   block scope.  For (a): dump -dl for block 0 and compare the pal/mask quantity lifetimes --
+ *   the pair is a two-quantity tie of exactly the kind the w43 birth-order row cracks.
+ */
 /* GPU packet: builds POLY_GT4 (stride 0x34, SetPolyGT4); prim=u_char* build cursor, prevPrim=u_char* link word */
 void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
                int abr)
@@ -579,14 +696,22 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   char     v;
   char     uw;
   char     vh;
+  int      xm1;
+  uint    *pal;   /* w44-a1 MATCH: retail holds the PALETTE-CURSOR POINTER in $a2 across the whole
+                     RMW pair (`lui a2,0x1F80; lw a2,0(a2)` ONCE, then `lw v1,0(a2)` / `lw v0,0(a2)` /
+                     `sw v0,0(a2)`).  Reading the scratchpad literal `Render_gPalettePtr` three times
+                     makes cc1 reload the POINTER after the may-aliasing `*prim` store (+1 insn) --
+                     the straight-line-emitter purge rule does NOT apply here (w43 loop-vs-
+                     straight-line row): the oracle caches.  176 -> 175 = COUNT-EXACT. */
 
   prim = Render_gPacketPtr;
+  pal = (uint *)Render_gPalettePtr;
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
   Render_gPacketPtr = prim + 0x34;
-  *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
+  *pal = *pal & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];
@@ -608,30 +733,41 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   }
   *(short *)(prim + 8) = x;
   *(short *)(prim + 10) = y;
-  *(short *)(prim + 0x14) = (x + -1) + fixedmult(scalex,width);
+  *(short *)(prim + 0x14) = (x - 1) + fixedmult(scalex,width);
   *(short *)(prim + 0x16) = y;
-  *(short *)(prim + 0x20) = x;
   *(short *)(prim + 0x22) = y + fixedmult(scaley,height);
-  *(short *)(prim + 0x2c) = (x + -1) + fixedmult(scalex,width);
+  xm1 = x - 1;
+  xm1 = xm1 + fixedmult(scalex,width);
+  *(short *)(prim + 0x2c) = xm1;
   *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
-  u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
-  v = (byte)shp->shapey;
-  if ((flags & 4U) != 0) {
-    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
+  *(short *)(prim + 0x20) = x;
+  {
+    /* w44-a1 MATCH: retail BATCHES the two byte field reads (`lbu a2,0x10(s4)` = width,
+       `lbu a0,0x12(s4)` = height) ahead of the u/v flip guards so `vh = v + height` can be an
+       IN-PLACE mutation of v's register right after the two v stores (`addu v0,v0,a0`).  Reading
+       the fields at their use sites sinks the height load past the u/uw stores and re-orders the
+       whole sb run (36/48/37/49 instead of retail's 36/37/48/49). */
+    int sw = (byte)shp->width;
+    int sh_ = (byte)shp->height;
+    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
+    v = (byte)shp->shapey;
+    if ((flags & 4U) != 0) {
+      u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
+    }
+    uw = u + sw;
+    if ((flags & 2U) != 0) {
+      v = (byte)shp->shapey - 1;
+    }
+    prim[0xd] = v;
+    prim[0x19] = v;
+    vh = v + sh_;
+    prim[0xc] = u;
+    prim[0x18] = uw;
+    prim[0x24] = u;
+    prim[0x25] = vh;
+    prim[0x30] = uw;
+    prim[0x31] = vh;
   }
-  uw = u + (byte)shp->width;
-  if ((flags & 2U) != 0) {
-    v = (byte)shp->shapey - 1;
-  }
-  prim[0xd] = v;
-  prim[0x19] = v;
-  vh = v + (byte)shp->height;
-  prim[0xc] = u;
-  prim[0x18] = uw;
-  prim[0x24] = u;
-  prim[0x25] = vh;
-  prim[0x30] = uw;
-  prim[0x31] = vh;
   return;
 }
 

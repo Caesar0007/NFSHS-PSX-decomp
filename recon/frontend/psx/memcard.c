@@ -649,60 +649,95 @@ int iMCRD_DoFileDelete(int card)
 int MCRD_handlecardevents(int card)
 
 {
+  /* SYM 8c block (the COMPLETE local set - no others exist in retail):
+   *   card   REGPARM INT   $11 = $s1      status INT           $10 = $s0
+   *   pCI    PTR CARDINFO  $12 = $s2      ret    INT           $03 = $v1
+   *   cmd/res ULONG AUTO   sp-0x18 / sp-0x14
+   * `ret` is the MemCardSync return; `status` is the value the funnel returns. */
   CARDINFO_def *pCI;
-  long sync;
   int ret;
+  int status;
   u_long cmd;
   u_long res;
 
-  /* MATCH: ONE result variable + a single tail `return ret;` - every retail exit is
+  /* MATCH: ONE result variable + a single tail `return status;` - every retail exit is
    * `j .L800501B0/B4; addu $v0,$s0,$zero`, i.e. a funnel, never a direct return
-   * literal.  Keeping ret in $s0 is also what lets cse reuse the constant 2 as the
+   * literal.  Keeping status in $s0 is also what lets cse reuse the constant 2 as the
    * shift amount in the res==1 arm (retail's `sllv v0,v0,s0`). */
-  ret = 0x17;
+  /* RESIDUAL 44 (209/211), THREE parts, two of them one mechanism:
+   * (1)+(2) a $a0<->$a1 role swap between `cmd` and the &gMemCardInfo base of the
+   *   res==0/res==1 arms, plus the store/load schedule swap that FOLLOWS FROM IT
+   *   (with cmd in $a0 the bReady store must precede the timerhz load so $a0 can be
+   *   recycled; retail, with cmd in $a1, loads timerhz first).  QUANTIFIED off the
+   *   cc1 -dg/-dl dumps (scratch/a6/rtl_c.py, C lane): global.c allocates in
+   *   descending allocno_compare priority = floor_log2(refs)*refs/live_length, and
+   *   the printed order is `123 82 144 159 167 175 183 135 193 147 83 80 92 81`.
+   *     pseudo 144 = cmd  : 7 refs / 20 live -> 2*7/20 = 0.700  (rank 3, takes $a0)
+   *     pseudo  92 = base : 4 refs / 22 live -> 2*4/22 = 0.364  (rank 13, takes $a1)
+   *   Neither pseudo carries a hard-reg preference and cmd conflicts only with
+   *   $v0/$v1, so cmd reaches $a0 first.  For the base to win it needs > 0.700,
+   *   i.e. live_length <= 11 at 4 refs (or 8 refs) - and its range inherently spans
+   *   the def, the index addu, the bReady store and the channel load past the
+   *   pCI->status branch.  FALSIFIED (all gate-neutral at 44 unless noted): named
+   *   fMemCardInfo_def* base local (early, late, and used for every field);
+   *   channel read hoisted into a local (58); store order swapped; `status = 0x16`
+   *   moved before/after the stores; Yoda compare; early-exit `goto` for both
+   *   .L800500D8 branch sites; cmd dispatch as an if/else-if chain (207, -2 insns).
+   *   The ONE dial that moves it is an INVENTED `int st = pCI->status;` local read
+   *   BEFORE the stores (38): it adds a pseudo that displaces cmd off $a0 - but the
+   *   SYM block above lists NO such local, and it also hoists the pCI->status load
+   *   above the timerhz load where retail keeps it after both stores, so the LCS
+   *   gain is bought with a real structural regression.  REJECTED per rule 8.
+   * (3) ours is 2 insns SHORT: retail keeps a DUPLICATE 2-insn return-funnel block
+   *   (.L800500D8 `j .L800501B4; addu $v0,$s0,$zero`) reached by the res==0 arm's
+   *   `bne pCI->status,-1` and the NONE arm's `bgez ticks`; our gcc cross-jumps it
+   *   into the single .L800501B0 copy.  FALSIFIED: explicit `return status;` at
+   *   either or both sites (block order scrambles, 230), `goto` at both sites
+   *   (no-op).  Not yet reached. */
+  status = 0x17;
   pCI = MCRD_getcard(card);
-  sync = MemCardSync(0,(long *)&cmd,(long *)&res);
-  if (sync == 0) {
-    ret = 0x15;
+  ret = MemCardSync(0,(long *)&cmd,(long *)&res);
+  if (ret == 0) {
+    status = 0x15;
     goto MCRDhandleCard_end;
   }
-  /* MATCH: physical block order - retail lays the sync>0 (cmd/res) half FIRST and
-   * the task switch last; `if (sync <= 0) {...} else {cmd half}` makes the cmd half
+  /* MATCH: physical block order - retail lays the ret>0 (cmd/res) half FIRST and
+   * the task switch last; `if (ret <= 0) {...} else {cmd half}` makes the cmd half
    * the bgtz target and pushes the task switch past it. */
-  if (sync <= 0) {
-    if (sync == -1) goto MCRDhandleCard_task;
+  if (ret <= 0) {
+    if (ret == -1) goto MCRDhandleCard_task;
     goto MCRDhandleCard_end;
   }
   else {
-    if (sync != 1) goto MCRDhandleCard_end;
+    if (ret != 1) goto MCRDhandleCard_end;
     switch(cmd) {
     case 1:
       switch(res) {
       case 0:
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-        ret = 0x16;
+        status = 0x16;
         if (pCI->status == -1) {
           MemCardAccept(gMemCardInfo.channel);
         }
         break;
       case 1:
-        ret = 2;
+        status = 2;
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
         pCI->status = -1;
         break;
       case 2:
-        ret = 3;
+        status = 3;
         gMemCardInfo.bReady = cmd;
         pCI->status = -4;
         break;
       case 3:
-        ret = 0x15;
+        status = 0x15;
         MemCardAccept(gMemCardInfo.channel);
         break;
       default:
-        ret = 0x17;
+        status = 0x17;
         break;
       }
       break;
@@ -710,22 +745,22 @@ int MCRD_handlecardevents(int card)
       switch(res) {
       case 0:
       case 3:
-        ret = 4;
+        status = 4;
         gMemCardInfo.fileinfo.cardnum = card;
         gMemCardInfo.task = LOAD_CARD;
         break;
       case 1:
         iMCRD_InitCard(card);
         pCI->status = -1;
-        ret = 2;
+        status = 2;
         break;
       case 2:
         iMCRD_InitCard(card);
-        ret = 3;
+        status = 3;
         break;
       case 4:
         pCI->status = -2;
-        ret = 5;
+        status = 5;
         break;
       }
       break;
@@ -739,12 +774,12 @@ MCRDhandleCard_task:
    * case 0.  Case bodies emit in SOURCE order = the oracle's block VA order. */
   switch(gMemCardInfo.task) {
   case NONE:
-    ret = 0x16;
+    status = 0x16;
     if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
       gMemCardInfo.bReady = 0;
-      ret = 0x17;
+      status = 0x17;
       if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
-      ret = 0x15;
+      status = 0x15;
     }
     break;
   case LOAD_CARD:
@@ -773,7 +808,7 @@ MCRDhandleCard_task:
     return iMCRD_DoFileDelete(card);
   }
 MCRDhandleCard_end:
-  return ret;
+  return status;
 }
 
 /* lines 1169-1311: (static data / macros / comments - no emitted code) */

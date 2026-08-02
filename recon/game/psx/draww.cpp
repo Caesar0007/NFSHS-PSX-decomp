@@ -90,7 +90,12 @@ void Night_NightCopCalc(VECTOR *v,short *idx);
  * shape menu, the UNSIZED asm-label view yields the UNSCHEDULABLE `la` macro form
  * = position-pinned, which is what would force the lbu to issue first.  Try a
  * per-SITE view `extern u_char (*Night_gWLT_v[])[256] asm("Night_gWeatherLightingTable");`
- * here only (night.cpp already owns both spellings of this symbol). */
+ * here only (night.cpp already owns both spellings of this symbol).
+ * UPDATE (w45-a6, same session): that view WAS tried -- `extern u_char (*Night_gWLT_v[])[256]
+ * asm("Night_gWeatherLightingTable")` leaves the diff byte-identical (still 2), so the
+ * lbu-vs-lui order is NOT an address-materialization question either.  Remaining
+ * angle: a pure sched1/sched2 ready-list tie -- read it off cc1 -dS/-dR for this fn
+ * (both loads are ready at the same cycle and the tie is broken by luid). */
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
 /* w45-a6 RECEIPT -- DrawQuad 100 -> 20 (count-exact 592/592).
  * LANDED: the addPrim P_TAG-bitfield idiom at BOTH OT-link sites (see below).

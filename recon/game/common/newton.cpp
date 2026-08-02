@@ -601,7 +601,14 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   coorddef tireCoord [4];
   coorddef carNormal;
   
-  carNormal = *(coorddef *)&(newtonObj->orientMat).m[3];
+  {
+    int r2 = ((coorddef *)&(newtonObj->orientMat).m[3])->x;
+    int r3 = ((coorddef *)&(newtonObj->orientMat).m[3])->y;
+    int r4 = ((coorddef *)&(newtonObj->orientMat).m[3])->z;
+    carNormal.x = r2;
+    carNormal.y = r3;
+    carNormal.z = r4;
+  }
   elevation.x = 0;
   elevation.y = 0;
   elevation.z = 0;
@@ -628,9 +635,9 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
         widthVector.z = r3;
         {
           int v1 = -(newtonObj->dimension).y >> 8;
-          int r1 = v1 * (carNormal.x >> 8);
-          int r2 = v1 * (carNormal.y >> 8);
-          int r3 = v1 * (carNormal.z >> 8);
+          int r1 = v1 * ((newtonObj->orientMat).m[3] >> 8);
+          int r2 = v1 * ((newtonObj->orientMat).m[4] >> 8);
+          int r3 = v1 * ((newtonObj->orientMat).m[5] >> 8);
           vecOffset.x = r1;
           vecOffset.y = r2;
           vecOffset.z = r3;
@@ -672,73 +679,86 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   BWorldSm_Pos testSimRoadInfo;
 
   wheelsInAir = 0;
-  bounce = 0;
   testSimRoadInfo = newtonObj->simRoadInfo;
   {
   coorddef roadNormal;
   coorddef roadCenterPoint;
   int roadSurfaceType;
-  coorddef *wheelHeightPtr = wheelHeight;
-  coorddef *point = tireCoord;
-  char *wheelInst = (char *)newtonObj;
+  int wheelIndex;
 
-  for (; wheelInst < (char *)&newtonObj->speedXZ; wheelInst = wheelInst + 0x30) {
-    *wheelHeightPtr = *point;
-    ((Car_tWheel *)(wheelInst + 0x28c))->actualHeight = point->y;
-    BWorldSm_FindClosestTriangleRez(point,&testSimRoadInfo,1);
+  for (wheelIndex = 0;
+       (int)((char *)newtonObj + wheelIndex * 0x30) < (int)((char *)newtonObj + 0xc0);
+       wheelIndex = wheelIndex + 1) {
+    wheelHeight[wheelIndex] = tireCoord[wheelIndex];
+    ((Car_tObj *)newtonObj)->wheel[wheelIndex].actualHeight = tireCoord[wheelIndex].y;
+    BWorldSm_FindClosestTriangleRez(&tireCoord[wheelIndex],&testSimRoadInfo,1);
     roadNormal = *(coorddef *)BWorldSm_UNormal(&testSimRoadInfo);
     roadSurfaceType = 0xe;
     if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
       roadSurfaceType = (u_int)(testSimRoadInfo.simQuad)->surface;
     }
-    ((Car_tWheel *)(wheelInst + 0x28c))->roadSurfaceType = roadSurfaceType;
+    ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadSurfaceType = roadSurfaceType;
     roadSurfaceType = roadSurfaceType & 0xf;
     if (((roadNormal.y < 0x1999) || (roadSurfaceType == 0xe)) || (roadSurfaceType == 0)) {
       roadNormal.y = 0x10000;
       roadNormal.x = 0;
       roadNormal.z = 0;
-      elevation.x = elevation.x + point->x;
-      iVar20 = point->y - newtonObj->objAltitude;
-accumGroundElev: /* @0x800a0398 */
-      elevation.y = elevation.y + iVar20;
-      elevation.z = elevation.z + point->z;
+      elevation.x = elevation.x + tireCoord[wheelIndex].x;
+      elevation.y = elevation.y + (tireCoord[wheelIndex].y - newtonObj->objAltitude);
+      elevation.z = elevation.z + tireCoord[wheelIndex].z;
     }
     else {
-      if (testSimRoadInfo.simQuad == (Trk_NewSimQuad *)0x0) {
-        roadCenterPoint = *(coorddef *)(BWorldSm_slices + testSimRoadInfo.slice);
-      }
-      else {
+      if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
         roadCenterPoint = testSimRoadInfo.quadPts[0];
       }
+      else {
+        roadCenterPoint = *(coorddef *)(BWorldSm_slices + testSimRoadInfo.slice);
+      }
       if ((u_int)(roadSurfaceType - 2) < 2) {
-        iVar20 = Newton_FindGroundElevationRough(point,&roadNormal,&roadCenterPoint)
+        iVar20 = Newton_FindGroundElevationRough(&tireCoord[wheelIndex],&roadNormal,&roadCenterPoint)
         ;
-        wheelHeightPtr->y = iVar20;
+        wheelHeight[wheelIndex].y = iVar20;
       }
       else {
-        iVar20 = Newton_FindGroundElevationGeneral(point,&roadNormal,&roadCenterPoint);
-        wheelHeightPtr->y = iVar20;
+        iVar20 = Newton_FindGroundElevationGeneral(&tireCoord[wheelIndex],&roadNormal,&roadCenterPoint);
+        wheelHeight[wheelIndex].y = iVar20;
       }
-      ((Car_tWheel *)(wheelInst + 0x28c))->actualHeight = wheelHeightPtr->y;
-      if (0x20000 < wheelHeightPtr->y - point->y) {
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].actualHeight = wheelHeight[wheelIndex].y;
+      int wheelY = wheelHeight[wheelIndex].y;
+      if (0x20000 < wheelY - tireCoord[wheelIndex].y) {
         roadNormal.x = 0;
         roadNormal.y = 0x10000;
         roadNormal.z = 0;
-        wheelHeightPtr->y = point->y;
-        elevation.x = elevation.x + point->x;
-        iVar20 = point->y;
-        goto accumGroundElev;
+        wheelHeight[wheelIndex].y = tireCoord[wheelIndex].y;
+        elevation.x = elevation.x + tireCoord[wheelIndex].x;
+        elevation.y = elevation.y + tireCoord[wheelIndex].y;
+        elevation.z = elevation.z + tireCoord[wheelIndex].z;
       }
-      elevation.x = elevation.x + wheelHeightPtr->x;
-      elevation.y = elevation.y + wheelHeightPtr->y;
-      elevation.z = elevation.z + wheelHeightPtr->z;
+      else {
+        elevation.x = elevation.x + wheelHeight[wheelIndex].x;
+        elevation.y = elevation.y + wheelY;
+        elevation.z = elevation.z + wheelHeight[wheelIndex].z;
+      }
     }
-    ((Car_tWheel *)(wheelInst + 0x28c))->currentPos = *wheelHeightPtr;
-    wheelHeightPtr = wheelHeightPtr + 1;
-    point = point + 1;
-    ((Car_tWheel *)(wheelInst + 0x28c))->roadNormal = roadNormal;
+    {
+      int r1 = wheelHeight[wheelIndex].x;
+      int r2 = wheelHeight[wheelIndex].y;
+      int r3 = wheelHeight[wheelIndex].z;
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].currentPos.x = r1;
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].currentPos.y = r2;
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].currentPos.z = r3;
+    }
+    {
+      int r1 = roadNormal.x;
+      int r2 = roadNormal.y;
+      int r3 = roadNormal.z;
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadNormal.x = r1;
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadNormal.y = r2;
+      ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadNormal.z = r3;
+    }
   }
   }
+  bounce = wheelsInAir;
   {
   coorddef wheelVec;
   int compressionValue [4];
@@ -748,28 +768,24 @@ accumGroundElev: /* @0x800a0398 */
   count = 0;
   wheelVec.x = 0;
   wheelVec.z = 0;
-  pBVar4 = newtonObj;
   for (i = 0; i < 4; i = i + 1) {
     int limit;
 
-    wheelVec.y = (*(int *)(pBVar4[1].simRoadInfo.quadPts16 + 2) -
-                 tireCoord[i].y) / 2;
-    pBVar4[1].simRoadInfo.forward.x = 0;
+    wheelVec.y = (((Car_tObj *)newtonObj)->wheel[i].currentPos.y - tireCoord[i].y) / 2;
+    ((Car_tObj *)newtonObj)->wheel[i].rebound = 0;
     if (wheelVec.y < -0x2665) {
-      pBVar4[1].simRoadInfo.normal.z = 1;
+      ((Car_tObj *)newtonObj)->wheel[i].wheelInAir = 1;
       wheelsInAir = wheelsInAir + 1;
     }
-    else if (pBVar4[1].simRoadInfo.normal.z == 1) {
-      if (wheelVec.y < 1) {
-        if (((newtonObj->objAltitude < 0x3333) && (-0x1999 < (newtonObj->linearVel).y)) &&
-           (0xf333 < (newtonObj->orientationToGround).y)) {
-          pBVar4[1].simRoadInfo.normal.z = 0;
-        }
-      }
-      else {
+    else if (((Car_tObj *)newtonObj)->wheel[i].wheelInAir == 1) {
+      if (wheelVec.y > 0) {
         bounce = bounce + 1;
-        pBVar4[1].simRoadInfo.normal.z = 0;
-        pBVar4[1].simRoadInfo.forward.x = 1;
+        ((Car_tObj *)newtonObj)->wheel[i].wheelInAir = 0;
+        ((Car_tObj *)newtonObj)->wheel[i].rebound = 1;
+      }
+      else if (((newtonObj->objAltitude < 0x3333) && (-0x1999 < (newtonObj->linearVel).y)) &&
+               (0xf333 < (newtonObj->orientationToGround).y)) {
+        ((Car_tObj *)newtonObj)->wheel[i].wheelInAir = 0;
       }
     }
     limit = -0x3333;
@@ -779,29 +795,14 @@ accumGroundElev: /* @0x800a0398 */
     if (wheelVec.y < limit) {
       wheelVec.y = limit;
     }
-    iVar3 = wheelVec.y;
-    if (wheelVec.y < 0) {
-      iVar3 = wheelVec.y + 0xff;
-    }
-    ti5 = carNormal.y;
-    if (carNormal.y < 0) {
-      ti5 = carNormal.y + 0xff;
-    }
-    iVar3 = (iVar3 >> 8) * (ti5 >> 8);
-    compressionValue[i] = iVar3;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    ti1 = *(int *)(newtonObj[1].damage[3] + 0x138);
-    if (ti1 < 0) {
-      ti1 = ti1 + 0xff;
-    }
-    iVar3 = (iVar3 >> 8) * (ti1 >> 8);
-    pBVar4[1].simRoadInfo.normal.y = iVar3;
+    compressionValue[i] = (wheelVec.y / 0x100) * (carNormal.y / 0x100);
+    ((Car_tObj *)newtonObj)->wheel[i].wheelAcc =
+        (compressionValue[i] / 0x100) *
+        (((Car_tObj *)newtonObj)->specs->suspensionStiffness / 0x100);
     if (*(int *)(*(int *)(newtonObj[1].simRoadInfo.quadPts16 + 1) + 0x40) == 1) {
-      pBVar4[1].simRoadInfo.normal.y = iVar3 * 2;
+      ((Car_tObj *)newtonObj)->wheel[i].wheelAcc =
+          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc * 2;
     }
-    pBVar4 = (BO_tNewtonObj *)&(pBVar4->simRoadInfo).quadPts[2].z;
   }
   {
     int i;
@@ -812,17 +813,18 @@ accumGroundElev: /* @0x800a0398 */
               newtonObj[1].wheelRot[0] + newtonObj[1].orientMat.m[4];
     }
     wheelData = (char *)newtonObj;
-    for (i = 0; i < 4; i = i + 1) {
+    for (i = 0; (int)wheelData < (int)((char *)newtonObj + 0xc0);
+         i = i + 1, wheelData = wheelData + 0x30) {
       int wheelBounce;
 
-      wheelBounce = *(int *)(wheelData + 0x2a8);
+      wheelBounce = ((Car_tObj *)newtonObj)->wheel[i].wheelAcc;
       if (bounce == 0) {
         if ((wheelBounce < 0) && (0xdc28 < (newtonObj->orientationToGround).y)) {
           wheelBounce = wheelBounce >> 1;
-          *(int *)(wheelData + 0x2a8) = wheelBounce;
+          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc = wheelBounce;
         }
       }
-      else if ((*(int *)(wheelData + 0x2b0) != 0) && ((newtonObj->linearVel).y < 0)) {
+      else if ((((Car_tObj *)newtonObj)->wheel[i].rebound != 0) && ((newtonObj->linearVel).y < 0)) {
         int speed;
 
         speed = (newtonObj->linearVel).y;
@@ -837,18 +839,17 @@ accumGroundElev: /* @0x800a0398 */
 
             ratio = fixedmult(speed,0x1000);
             if (ratio < 0x4ccd) {
-              speed = 0x4ccc;
+              ratio = 0x4ccc;
             }
             else {
-              speed = fixedmult(speed,0x1000);
+              ratio = fixedmult(speed,0x1000);
             }
-            wheelBounce = fixedmult(speed,wheelBounce);
+            wheelBounce = fixedmult(ratio,wheelBounce);
           }
-          *(int *)(wheelData + 0x2a8) =
-              *(int *)(wheelData + 0x2a8) + wheelBounce;
+          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc =
+              ((Car_tObj *)newtonObj)->wheel[i].wheelAcc + wheelBounce;
         }
       }
-      wheelData = wheelData + 0x30;
     }
   }
   {
@@ -860,16 +861,18 @@ accumGroundElev: /* @0x800a0398 */
       desiredCompression =
           fixedmult((tireCoord[i].y - wheelHeight[i].y) >> 1,(newtonObj->orientMat).m[4]);
       if (desiredCompression > 0) {
-        if (desiredCompression >= *(int *)(newtonObj[1].damage[3] + 0x150)) {
-          desiredCompression = *(int *)(newtonObj[1].damage[3] + 0x150);
+        int limit = desiredCompression;
+        if (limit >= ((Car_tObj *)newtonObj)->specs->tireRange) {
+          limit = ((Car_tObj *)newtonObj)->specs->tireRange;
         }
+        desiredCompression = limit;
       }
       else {
-        if (desiredCompression < -*(int *)(newtonObj[1].damage[3] + 0x150)) {
-          desiredCompression = -*(int *)(newtonObj[1].damage[3] + 0x150);
+        if (desiredCompression < -((Car_tObj *)newtonObj)->specs->tireRange) {
+          desiredCompression = -((Car_tObj *)newtonObj)->specs->tireRange;
         }
       }
-      newtonObj[1].wheelRot[swap[i] * 0xc + -0x17] = desiredCompression;
+      ((Car_tObj *)newtonObj)->wheel[swap[i]].impactCompression = desiredCompression;
     }
   }
   }
@@ -878,8 +881,8 @@ accumGroundElev: /* @0x800a0398 */
   coorddef tempVecZ;
 
       elevation.x = elevation.x >> 2;
-      elevation.z = elevation.z >> 2;
       elevation.y = elevation.y >> 2;
+      elevation.z = elevation.z >> 2;
       tempVecZ.x = (wheelHeight[0].x + wheelHeight[1].x) - (wheelHeight[2].x + wheelHeight[3].x) >>
                    1;
       tempVecZ.y = (wheelHeight[0].y + wheelHeight[1].y) - (wheelHeight[2].y + wheelHeight[3].y) >>
@@ -896,13 +899,16 @@ accumGroundElev: /* @0x800a0398 */
       Math_NormalizeShortVector(&tempVecX);
       iVar20 = fixedmult(tempVecZ.y,tempVecX.z);
       iVar24 = fixedmult(tempVecZ.z,tempVecX.y);
-      tempVecY.x = iVar20 - iVar24;
+      iVar20 = iVar20 - iVar24;
+      tempVecY.x = iVar20;
       iVar20 = fixedmult(tempVecZ.z,tempVecX.x);
       iVar24 = fixedmult(tempVecZ.x,tempVecX.z);
-      tempVecY.y = iVar20 - iVar24;
+      iVar20 = iVar20 - iVar24;
+      tempVecY.y = iVar20;
       iVar20 = fixedmult(tempVecZ.x,tempVecX.y);
       iVar24 = fixedmult(tempVecZ.y,tempVecX.x);
-      tempVecY.z = iVar20 - iVar24;
+      iVar20 = iVar20 - iVar24;
+      tempVecY.z = iVar20;
       Math_NormalizeShortVector(&tempVecY);
       if (tempVecY.y >= 0) {
         normal->x = tempVecY.x;
@@ -928,7 +934,6 @@ accumGroundElev: /* @0x800a0398 */
         int pitch;
         int roll;
         int temp;
-        int factor;
 
         newtonObj[1].shadowMat.m[8] =
             fixedmult((newtonObj->angularVel).x,(newtonObj->orientMat).m[0]) +
@@ -943,60 +948,63 @@ accumGroundElev: /* @0x800a0398 */
             fixedmult((newtonObj->angularVel).y,(newtonObj->orientMat).m[7]) +
             fixedmult((newtonObj->angularVel).z,(newtonObj->orientMat).m[8]);
 
-        {
-          int desiredPitch;
-          int limit;
-
-          desiredPitch = (*(int *)&newtonObj[1].positionXZ + newtonObj[1].orientMat.m[2]) -
-                         (newtonObj[1].simRoadInfo.normal.y + newtonObj[1].cumulatedRot) >> 2;
-          if (desiredPitch > 0) {
-            limit = *(int *)(newtonObj[1].damage[3] + 0x13c);
-            if (limit >= desiredPitch) {
-              limit = desiredPitch;
-            }
-          }
-          else {
-            limit = -*(int *)(newtonObj[1].damage[3] + 0x13c);
-            if (limit < desiredPitch) {
-              limit = desiredPitch;
-            }
+        pitch = (((Car_tObj *)newtonObj)->wheel[2].wheelAcc +
+                 ((Car_tObj *)newtonObj)->wheel[3].wheelAcc -
+                 (((Car_tObj *)newtonObj)->wheel[0].wheelAcc +
+                  ((Car_tObj *)newtonObj)->wheel[1].wheelAcc)) >> 2;
+        if (pitch > 0) {
+          int limit = ((Car_tObj *)newtonObj)->specs->pitchAngularVelCap;
+          if (limit >= pitch) {
+            limit = pitch;
           }
           pitch = limit;
         }
-        {
-          int desiredRoll;
-          int limit;
-
-          desiredRoll = (newtonObj[1].simRoadInfo.normal.y + *(int *)&newtonObj[1].positionXZ) -
-                        (newtonObj[1].cumulatedRot + newtonObj[1].orientMat.m[2]) >> 2;
-          if (desiredRoll > 0) {
-            limit = *(int *)(newtonObj[1].damage[3] + 0x140);
-            if (limit >= desiredRoll) {
-              limit = desiredRoll;
-            }
+        else {
+          int limit = -((Car_tObj *)newtonObj)->specs->pitchAngularVelCap;
+          if (limit < pitch) {
+            limit = pitch;
           }
-          else {
-            limit = -*(int *)(newtonObj[1].damage[3] + 0x140);
-            if (limit < desiredRoll) {
-              limit = desiredRoll;
-            }
+          pitch = limit;
+        }
+
+        roll = (((Car_tObj *)newtonObj)->wheel[0].wheelAcc +
+                ((Car_tObj *)newtonObj)->wheel[2].wheelAcc -
+                (((Car_tObj *)newtonObj)->wheel[1].wheelAcc +
+                 ((Car_tObj *)newtonObj)->wheel[3].wheelAcc)) >> 2;
+        if (roll > 0) {
+          int limit = ((Car_tObj *)newtonObj)->specs->rollAngularVelCap;
+          if (limit >= roll) {
+            limit = roll;
+          }
+          roll = limit;
+        }
+        else {
+          int limit = -((Car_tObj *)newtonObj)->specs->rollAngularVelCap;
+          if (limit < roll) {
+            limit = roll;
           }
           roll = limit;
         }
 
         temp = newtonObj[1].shadowMat.m[8];
-        factor = 0xd999;
         if (__builtin_abs(temp) < 0x13333) {
-          factor = *(int *)(newtonObj[1].damage[3] + 0x130);
+          newtonObj[1].shadowMat.m[8] =
+              fixedmult(temp,*(int *)(newtonObj[1].damage[3] + 0x130));
         }
-        newtonObj[1].shadowMat.m[8] = fixedmult(temp,factor) + pitch;
+        else {
+          newtonObj[1].shadowMat.m[8] = fixedmult(temp,0xd999);
+        }
+        newtonObj[1].shadowMat.m[8] = newtonObj[1].shadowMat.m[8] + pitch;
 
         temp = newtonObj[1].shadowCoord[0].y;
-        factor = 0xd999;
         if (__builtin_abs(temp) < 0x13333) {
-          factor = *(int *)(newtonObj[1].damage[3] + 0x134);
+          newtonObj[1].shadowCoord[0].y =
+              fixedmult(temp,*(int *)(newtonObj[1].damage[3] + 0x134));
         }
-        newtonObj[1].shadowCoord[0].y = fixedmult(temp,factor) - roll;
+        else {
+          newtonObj[1].shadowCoord[0].y = fixedmult(temp,0xd999);
+        }
+        newtonObj[1].shadowCoord[0].y = newtonObj[1].shadowCoord[0].y - roll;
 
         transpose(&newtonObj->orientMat,&transposeMat);
         (newtonObj->angularVel).x =
@@ -1013,13 +1021,13 @@ accumGroundElev: /* @0x800a0398 */
             fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[8]);
       }
       if (simGlobal.gameTicks < 0x40) {
-        tstr9 = (int)&newtonObj->roadCenterPoint;
+        newtonObj->objAltitude = Newton_CalcPerpenHeightOfCenterPointFromGround
+                                   (newtonObj,normal,&newtonObj->roadCenterPoint);
       }
       else {
-        tstr9 = (int)&elevation;
+        newtonObj->objAltitude = Newton_CalcPerpenHeightOfCenterPointFromGround
+                                   (newtonObj,normal,&elevation);
       }
-      iVar20 = Newton_CalcPerpenHeightOfCenterPointFromGround(newtonObj,normal,(coorddef *)tstr9);
-      newtonObj->objAltitude = iVar20;
       return elevation.y;
 }
 

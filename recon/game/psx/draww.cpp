@@ -1568,6 +1568,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
+  MATRIX *mB;                      /* &sd->matB, the shared trans-matrix base */
   /* RE-GATE (w44-a7): 125 diffs, ours 358 / oracle 359 (worklist said 179).
      TRIAGE (tools/posdiff.py): alpha-renamed LCS 261/359, structural residual 98,
      and the first-use order differs ONLY in where `s4`(=buildList) and `fp`(=the
@@ -1649,12 +1650,24 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      light stores) that gcc's scheduler reorders across statement boundaries
      -- a §A row-38 "N named value-temps" class floor, untried further this
      session. */
-  int negOne = -1;
-  int gteFlag = 1;
+  /* MATCH (w45-a5, 118 -> 114): BIRTH ORDER.  The oracle's prologue interleaves
+     the saves with the initializing copies in allocation order --
+       s3=Vi, fp=buildInd(0), s6=negOne(-1), s5=&tmp, s7=gteFlag(1),
+       s4=buildList, s0=sd(0x1F800000)
+     -- so buildInd/negOne/gteFlag are BORN BEFORE sd and chunkCount.  With the
+     old `int negOne = -1; int gteFlag = 1;` declaration-initializers sitting
+     ahead of `buildInd = 0`, ours emitted the buildList parm copy first and
+     rotated the whole prologue.  Assigning them as statements in the oracle's
+     birth order fixes it.  Measured: this form 114 · assign after the sd block
+     142 · assign around the doublelayer store 142 · decl-initializers 118. */
+  int negOne;
+  int gteFlag;
 
+  buildInd = 0;
+  negOne = -1;
+  gteFlag = 1;
   sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
   chunkCount = BWorld_gChunkCount;
-  buildInd = 0;
   sd->doublelayer = 1;
   sd->identMat = gIdentTemplate;
   sd->offsubdivid = 0;
@@ -1678,9 +1691,16 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
       sd->nightFlags = 0;
       sd->vertices = (CCOORD16 *)(chunkDat->vertexBuf + 1);
+      /* MATCH (w45-a5, 114 -> 100): the oracle reads sd->chunkInd for the
+         chunk-centre index (`lbu $a0,0xE4($s0)` then the x12 sll/addu/sll
+         chain) BEFORE it loads the Track_materials global
+         (`lui $v1; lw $v1,0($v1)`), and only then stores it to sd->materials.
+         With the materials store written first, our chunkInd byte load lands
+         after the global load and the whole v0/v1/a0 web rotates.  All three
+         orderings that put pChunkCp ahead of the materials store measure 100. */
+      pChunkCp = Chunk_chunkCenters + sd->chunkInd;
       sd->materials = Track_materials;
       sd->light = negOne;
-      pChunkCp = Chunk_chunkCenters + sd->chunkInd;
       if (gNight_renderNight != 0) {
         int cx;
         int cz;
@@ -1696,8 +1716,15 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         int four = 4;
 
         sd->nightFlags = (char)four;
-        cx = (pChunkCp->x - ((Camera_gInfo[Vi->player].target)->position).x) >> 10;
-        cz = (pChunkCp->z - ((Camera_gInfo[Vi->player].target)->position).z) >> 10;
+        /* MATCH (w45-a5, 94 -> 92): same subtrahend-first operand-load-order class as
+           the sd->trans block above -- the oracle issues `lw $v1,168($a0)` (the
+           camera-target position component) BEFORE `lw $v0,8($s2)` (the chunk
+           centre).  Only the .z site is load-bearing (splitting .x alone measures
+           94, splitting .z alone or both measures 92); written uniformly. */
+        { int px = ((Camera_gInfo[Vi->player].target)->position).x;
+          cx = (pChunkCp->x - px) >> 10; }
+        { int pz = ((Camera_gInfo[Vi->player].target)->position).z;
+          cz = (pChunkCp->z - pz) >> 10; }
         dist = cx * cx + cz * cz;
         if (dist <= 0x47DFFFF) {
           if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
@@ -1722,8 +1749,12 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           int cx2;
           int cz2;
           int dist2;
-          cx2 = (pChunkCp->x - (BW_gCopCarObj->N).position.x) >> 10;
-          cz2 = (pChunkCp->z - (BW_gCopCarObj->N).position.z) >> 10;
+          /* MATCH (w45-a5, 92 -> 88): third site of the subtrahend-first class (both
+             axes load-bearing here: z-only measures 90, both 88). */
+          { int px = (BW_gCopCarObj->N).position.x;
+            cx2 = (pChunkCp->x - px) >> 10; }
+          { int pz = (BW_gCopCarObj->N).position.z;
+            cz2 = (pChunkCp->z - pz) >> 10; }
           dist2 = cx2 * cx2 + cz2 * cz2;
           if (dist2 <= 0x47DFFFF) {
             sd->nightFlags = sd->nightFlags | 2;
@@ -1744,13 +1775,32 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           }
         }
       }
-      sd->trans.x = (short)((pChunkCp->x - (Vi->cview).translation.x) >> 10);
-      sd->trans.y = (short)((pChunkCp->y - (Vi->cview).translation.y) >> 10);
-      sd->trans.z = (short)((pChunkCp->z - (Vi->cview).translation.z) >> 10);
-      (sd->matB).t[2] = 0;
-      (sd->matB).t[1] = 0;
+      /* MATCH (w45-a5, 100 -> 94): OPERAND LOAD ORDER.  The oracle loads the
+         SUBTRAHEND first (`lw $v1,8($s3)` = Vi->cview.translation.N) and only
+         then the minuend (`lw $v0,0($s2)` = pChunkCp->N).  A single
+         `a->N - b->N` expression evaluates left-to-right, so ours loaded them
+         the other way round at all three axes.  Same device as DrawW_DoLines'
+         per-axis split below.  (One shared temp measures the same 94.) */
+      { int vx = (Vi->cview).translation.x;
+        sd->trans.x = (short)((pChunkCp->x - vx) >> 10); }
+      { int vy = (Vi->cview).translation.y;
+        sd->trans.y = (short)((pChunkCp->y - vy) >> 10); }
+      { int vz = (Vi->cview).translation.z;
+        sd->trans.z = (short)((pChunkCp->z - vz) >> 10); }
+      /* MATCH (w45-a5, 125 -> 118, count 358 -> EXACT 359): the oracle computes
+         `addiu $v0,$s0,0x14` = &sd->matB ONCE and reaches t[2]/t[1] through it
+         (`sw $zero,0x1C($v0)` / `0x18($v0)`) while t[0] keeps the sd base
+         (`sw $zero,0x28($s0)`); the SAME $v0 then feeds the gte_SetTransMatrix
+         expansion (`lw $t4,0x14($v0)` ...).  Writing all three stores as
+         `(sd->matB).t[k]` gives sd-relative displacements 48/44/40 and a
+         separate address for the call; a named MATRIX* for the two high
+         offsets + the call reproduces the shared base.  Measured: this form
+         118 · all three through mB 120 · none (sd for all) 125. */
+      mB = &sd->matB;
+      mB->t[2] = 0;
+      mB->t[1] = 0;
       (sd->matB).t[0] = 0;
-      gte_SetTransMatrix(&sd->matB);
+      gte_SetTransMatrix(mB);
       /* MATCH: BRANCH-POLARITY FLIP vs the prior draft -- the oracle tests
          `rezInd != 0` (not `== 0`) and puts the stripBuf (geomRez!=0) block as
          the FALL-THROUGH common path, with the lorezstripBuf (geomRez==0)
@@ -2085,6 +2135,61 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
    * rematerialized per use and the whole file rotates.  The lever that would land
    * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
    * declaration move; do not re-try the move on its own. */
+  /* RECEIPT (w45-a5) -- ROOT CAUSE ISOLATED AND THE w41 DIAGNOSIS CORRECTED.
+     Re-gated baseline 130 (ours 193 / oracle 189 = +4 EXACTLY).
+     `sd` IS NOT AN ALLOCNO AT ALL -- it never reaches the register allocator.
+     -dg (tools/rtl_dump.py -> scratch/rtl/draww.i.greg) prints
+        ;; 20 regs to allocate: 93 123 92 83 130 81 84 85 141 91 89 80 82 183 ...
+        ;; Register dispositions: 80 in 30  81 in 5  83 in 17 ...
+     -- 80 is `Vi` and it takes $30/$fp; there is NO pseudo anywhere in that
+     table holding 0x1F800000.  `sd = (Draw_DCache *)&Render_gPalettePtr;` is a
+     CONST_INT initializer (Render_gPalettePtr is the 3.6b fixed-address macro),
+     so cse propagates 0x1F800000 into every use and the pseudo disappears
+     BEFORE local-alloc.  Consequence, visible 1:1 in tools/ourdis.py:
+       ours   5x `lui $r,0x1f80` (one per call-arg site) + `lui $at,0x1f80;
+              sw $zero,40($at)`   <- the ASSEMBLER $at macro, 2 insns
+       oracle 1x `lui $fp,0x1F80` + 3x `addu $aN,$fp,$zero` + `sw $fp,0x14($sp)`
+              + `sw $zero,0x28($fp)`                      <- 1 insn
+     = the whole +4.  So this is NOT the w41 "allocno-priority inversion"
+     (that verdict was formed without a -dg dump); Vi legitimately owns $fp
+     because nothing else is competing for it.  Getting sd allocated would also
+     hand Vi its SYM home $s7 and unwind the whole 9-value rotation
+     (ours s1/s3/s4/s5/s6/s7/fp vs oracle s0..s7/fp).
+     FALSIFIED THIS WAVE (all re-gated, all reverted):
+       USE-fence `__asm__ volatile("" : : "r"(sd))` after the init  138 (+2 insns)
+       same fence inside the else arm                               142
+       sd assigned inside the else arm only                         138
+       sd assigned before groupNumElements                          130 (no-op)
+       two static sets of the same constant / `sd = sd;`            130 (no-op --
+         jump-opt collapses them, so REG_N_SETS stays 1)
+       set in BOTH guard arms                                       137
+       all three matB.t[] stores routed through sd                  143
+       gte_SetTransMatrix(&sd->matB) instead of the 0x1F800014 literal 130
+       t[0] store moved ahead of t[2]/t[1]                          130
+     MECHANISM READ OUT OF THE GCC SOURCE (C:\Temp\gcc-2.8.1-src\extracted\
+     local-alloc.c, update_equiv_regs): the LOCAL-ALLOC substitution is gated on
+     `REG_N_REFS(regno) == 2 && REG_BASIC_BLOCK(regno) < 0`, which sd (6 refs)
+     does NOT satisfy -- so local-alloc is innocent and the propagation is
+     cse.c's, upstream.  Note the same routine does `REG_LIVE_LENGTH *= 2` for
+     ANY pseudo carrying a REG_EQUIV note, i.e. a constant-initialized pointer is
+     priority-HALVED even when it does survive: any lever here must either kill
+     the REG_EQUIV or beat a 2x live-length penalty.
+     NEW NAMED ANGLE (untried, in order):
+       1. Make the initializer NON-CONSTANT-P so cse cannot propagate and no
+          REG_EQUIV note is attached.  The honest candidate is the storage-shape
+          menu (catalog w44 -> six forms): give the scratchpad cache a SIZED
+          asm-label VIEW (`extern Draw_DCache sd_v[1] asm("...")`-style) or the
+          volatile-MEM form which w44 proved "defeats TARGET_SPLIT_ADDRESSES";
+          here we want the OPPOSITE polarity (register base instead of the $at
+          macro), so probe both the sized and unsized views on the 0x1F800000
+          base and read which one stops the fold.
+       2. Ask the a10 instrument lane for the cse.c constant-propagation gate
+          (which predicate lets `(mem (const_int 0x1F800028))` validate on MIPS;
+          if it is rejected, gcc must force a base register and we win for free).
+       3. Required delta for the simulator: we need ONE extra call-crossing
+          allocno holding 0x1F800000 whose priority lands LAST (it must take
+          $fp, i.e. rank 9 of 9), pushing Vi from $fp up to $s7.  Everything
+          else in the table is already the oracle's set. */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
@@ -2212,6 +2317,35 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      declaration sequence, and let the three ARG params stay memory-resident
      (reference the parameter directly at each use instead of caching it in a
      local -- catalog w22: "different register CLASS, not a different sN"). */
+  /* RECEIPT (w45-a5) -- PARKED at 120 (ours 192 / oracle 200, EIGHT SHORT).
+     PROLOGUE DIFFED BYTE-FOR-BYTE (tools/ourdis.py vs the oracle .s) and the two
+     are IDENTICAL for 14 instructions -- same frame (-0x80), same `addiu $s4,
+     $a3,4`, same nine callee-saved saves at the same offsets, same `sw $a0,
+     0x80($sp)` -- with EXACTLY ONE divergence:
+         oracle  sw $a0,0x80($sp);  sw $a1,0x84($sp);  sw $a2,0x88($sp)
+         ours    sw a0,128(sp);     <MISSING>;         sw a2,136(sp)
+     i.e. the ONLY prologue difference in the whole function is that retail
+     ALSO spills `sd` ($a1) to its incoming ARG home and we do not.  That is the
+     w44/w40 ARG-SPILL class, and it confirms the w44 reading exactly.
+     Note both builds save the SAME nine callee-saved registers, so the pool is
+     not merely "one short": retail has an EXTRA call-crossing pseudo that
+     outranks sd and pushes sd out to memory, and the ~8 missing instructions are
+     that pseudo's work plus retail's `lw $a1,0x84($sp)` reloads.
+     FALSIFIED THIS WAVE (re-gated, reverted): guard-polarity rewrites -- the
+     `bnez`-into-the-loop shape the census asks for is NOT independently
+     reachable: `if (n != 0) goto work; return 0; work:` gates 120 (no change)
+     and `if (n != 0) { body }` gates 121 at 191 insns.  The polarity really is
+     downstream of the spill, as the w44 note suspected.
+     NEW NAMED ANGLE: this is the w40 ARG-SPILL-FORCING recipe, not a polarity or
+     decl-order job.  A param spills only when the callee-saved pool is FULL AT
+     ITS PRIORITY RANK, so (1) find the retail pseudo we are missing -- start
+     from the 8-insn deficit and the SYM 8c block's REG entries, since a SYM REG
+     local we never materialized is both the missing work AND the missing
+     allocno; (2) failing that, raise a rival's rank across the calls with the
+     zero-insn ref-step family (a semantic no-op re-mask, or making an existing
+     flag/count assignment CALL-CROSSING by moving it above the first jal, which
+     is the exact w40 ReadIn 344->186 device).  Gate on the appearance of
+     `sw $a1,0x84($sp)` in tools/ourdis.py output, not on the LCS. */
 
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;
@@ -3159,6 +3293,55 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      Do NOT re-test t/m WITHOUT the gClutDepth view -- that is exactly the w39/w40/
      w41 "adding t regresses 344->415" measurement, and it was measuring the
      missing saved register, not the walkers. */
+  /* RECEIPT (w45-a5) -- PARKED at the re-gated baseline 332 (ours 361 / oracle
+     353, i.e. EIGHT INSNS OVER).  Three things settled this wave:
+     (1) WALKER-PROBE RECOVERY: `scratch/skid_walker_view.cpp` is GONE and is NOT
+         recoverable.  scratch/ is gitignored, so it was never an object: the
+         w44-a7 merge (main 3565ea25, side commits 1a02c482/c844114f/cef1caeb/
+         4d42abbb) touches recon/game/psx/draww.cpp and NOTHING else, and
+         `git rev-list --all --objects | grep skid_walker` is empty tree-wide.
+         NOTHING WAS LOST -- the full recipe is the w44 receipt above.
+     (2) The gClutDepth unsized asm-label VIEW reproduces EXACTLY in this basin:
+            extern short gClutDepth_v[] __asm__("gClutDepth");
+            ... = ((short (*)[16])gClutDepth_v)[idx][vert_idx];
+         gates 336 with the count UNCHANGED at 361 -- bit-for-bit the w44 number,
+         so the w44 measurement stands and the +4 is pure LCS churn (the LCS is
+         non-monotone on a far-miss; posdiff's structural residual is 256/353
+         either way).  It is NOT landed here only because verify-or-revert needs a
+         paired win to carry it.
+     (3) FRESH TRIAGE (this wave, the piece w44 never ran):
+           tools/brcensus.py : beqz 7v8  bnez 9v8   -- equal totals (16 = 16) with
+             a beqz<->bnez SWAP = exactly ONE arm's branch polarity inverted.
+           tools/rove_op.py  : sra 13v14  sll 10v12  lh 3v2  lhu 4v5  sw 31v32
+             lw 76v78  andi 2v1
+           tools/posdiff.py  : LCS 97/353, and the first-use orders differ only by
+             a small permutation (ours s4 a0 s7 s6 v0 fp s3 s5 ... vs oracle
+             s4 a0 s6 fp s3 s1 s7 s5 ...).
+         READ: the `sll`/`sra` DEFICIT tracking together (-2 sll, -1 sra) with an
+         EXTRA `lh` and a MISSING `lhu` is the w40 "missing SHORT SIGN-EXTENSION
+         PAIRS" signature -- retail reads a short field `lhu` and canonicalizes
+         `sll 16; sra 16` because the value lands in an INT local, while ours
+         declares the local `short` and gets a bare `lh`.  That is a rule-8 TYPE
+         question, not coloring, and it is worth 3 insns of the 8-insn excess.
+     NEW NAMED ANGLE (ordered, all untried):
+       A. Land the gClutDepth VIEW together with the short->int local retyping
+          (the rove_op sll/sra/lh/lhu signature above): the view is provably the
+          oracle's addressing and the retype is provably the oracle's arithmetic,
+          and together they move the COUNT (the only monotone metric here) toward
+          353.  Gate on insn count + posdiff, NOT on the LCS.
+       B. Then the single inverted arm from brcensus (one beqz that should be a
+          bnez) -- find it with tools/chunkdiff.py, which localizes a mismatched
+          run in one call.
+       C. Only then re-test the m/t walkers (w44 step 1), and if a 5-register
+          rotation survives, dial it with the ALLOCNO PRIORITY family rather than
+          birth order: per the w45 a10 gcc-source finding, gcc-2.8's local_alloc
+          uses `QTY_CMP_PRI` = the SAME floor_log2(refs)*refs*size/life formula as
+          allocno_compare (local-alloc.c:1727) -- the "longest-lived-first /
+          reverse-birth-order" law in the catalog is the gcc-2.7 rule and is FALSE
+          here.  So compute refs/live for the rotating quantities and look for a
+          floor_log2 STEP; the zero-insn re-mask (`| (x & 0xffffff)`) and the
+          do{}while(0) depth wrapper are the dials even for block-local qtys that
+          never reach find_reg. */
 
   int skidChunk_p;
   int vert_count;
@@ -3915,47 +4098,65 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     bool bVar10 = i < group->m_num_elements << 1;
     i = i + 2;
     if (!bVar10) break;
-    CCOORD16 *pCoord;
-    int pts;
-    int idx;
-    char *rightN;
-    short sVar7;
-    short sVar8;
-    short sVar9;
-    short sVar12;
-    short sVar13;
-    short sVar14;
-    /* MATCH: parallel named-temp chains (catalog SA row 38 / GT3 load-3
-       pattern) -- batch the three rightN loads + three pCoord lhu's + three
-       5-bit extends BEFORE any store; the old serialized per-axis form cost
-       ~14 interleave diffs. */
-    pts = (u_int)curLine->firstPoint;
-    idx = slice + (u_int)curLine->slice;
-    rightN = ((Trk_NewSlice *)((idx << 5) + (int)BWorldSm_slices))->right;
-    pCoord = wpts + pts;
-    /* SYM inner block names six shorts: x,y,z (= pts->x/y/z, oracle $v1/$a0/$a1) and
-       wx,wy,wz (= the 5-bit sign-extended right-normal bytes, oracle $t0/$t1/$a3).
-       The oracle issues ALL SIX loads first and only then the three sll/sra extends. */
-    sVar7 = pCoord->x;
-    sVar8 = pCoord->y;
-    sVar9 = pCoord->z;
-    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
-    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
-    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
+    /* MATCH (w45-a5) -- PASS 88/88.  Four cooperating levers, in this order:
+       (1) RULE-8: SYM VA 800ca0f8 block declares EXACTLY seven inner names --
+           `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1) y($4=$a0)
+           z($5=$a1) wx($8=$t0) wy($9=$t1) wz($7=$a3).  The old `pCoord` +
+           integer `pts` + `idx` + sVar7..sVar14 set was Ghidra invention;
+           deleting it and naming the six shorts per SYM took 54 -> 43 and put
+           wx/wy/wz in their oracle registers.
+       (2) `(signed char)b >> 3` IS the 5-bit extend -- combine merges the
+           widen into the oracle's `lbu; sll 24; sra 27` (the hand-expanded
+           `(int)((u_int)(u_char)b << 0x18) >> 0x1b` form is equivalent here but
+           the plain spelling is what a 1998 author wrote; cf. catalog w42
+           "PLAIN SPELLING BEATS HAND-EXPANDED SHIFTS").
+       (3) STATEMENT ORDER: `pts` (the firstPoint load) must be the FIRST
+           statement of the block -- the oracle issues `lbu a2,0(t4)` before the
+           slice byte, then sched1 defers the `sll/addu` address arithmetic past
+           the slice chain.  pts-first: 43 -> 29.
+       (4) The `rn` POINTER MUST EXIST AND BE ASSIGNED *AFTER* `pts`
+           (29 -> 2, count 87 -> 88 exact).  It is a compiler temp (absent from
+           SYM) but it is REAL: the oracle folds rn[0] into `lbu t0,18(v0)` off
+           the still-live slice base and only then materializes rn by MUTATING
+           that base IN PLACE (`addiu v0,v0,18; lbu t1,1(v0); lbu a3,2(v0)`).
+           Measured basin: rn-after-pts 2 · rn-first 4 · rn-after-wx 40 · no rn
+           at all (displacements 19/20, one insn SHORT) 29.
+       (5) The last diff was the commutative `addu` operand order on the slice
+           base -- `BWorldSm_slices[i]` emits `addu v0,s1,v0` (base first) while
+           the oracle wants the scaled index first (`addu v0,v0,s1`); the
+           explicit `(T*)((i << 5) + (int)base)` cast form delivers it
+           (methodology 5.0c commutative-addu lever).  2 -> PASS. */
+    CCOORD16 *pts;
+    char *rn;
+    short x;
+    short y;
+    short z;
+    short wx;
+    short wy;
+    short wz;
+
+    pts = wpts + (u_int)curLine->firstPoint;
+    rn = ((Trk_NewSlice *)(((slice + (u_int)curLine->slice) << 5) + (int)BWorldSm_slices))->right;
+    wx = (signed char)rn[0] >> 3;
+    wy = (signed char)rn[1] >> 3;
+    wz = (signed char)rn[2] >> 3;
+    x = pts->x;
+    y = pts->y;
+    z = pts->z;
     /* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
        `addiu t3,t3,8` mid-body and again at the tail) and splits the stores across a
        base/base+6 giv pair -- the index form pts3d[0]/pts3d[1] + a single +16 bump
        collapses that to one walker.  Operand order `t + (v +/- n)` matches the oracle's
        `addu v1,v1,t0; addu v1,t8,v1` (vertex value first, translation last). */
-    pts3d->x = tx + (sVar7 - sVar12);
-    pts3d->y = ty + (sVar8 - sVar13);
-    pts3d->z = tz + (sVar9 - sVar14);
-    pts3d->light = pCoord->light;
+    pts3d->x = tx + (x - wx);
+    pts3d->y = ty + (y - wy);
+    pts3d->z = tz + (z - wz);
+    pts3d->light = pts->light;
     pts3d = pts3d + 1;
-    pts3d->x = tx + (sVar7 + sVar12);
-    pts3d->y = ty + (sVar8 + sVar13);
-    pts3d->z = tz + (sVar9 + sVar14);
-    pts3d->light = pCoord->light;
+    pts3d->x = tx + (x + wx);
+    pts3d->y = ty + (y + wy);
+    pts3d->z = tz + (z + wz);
+    pts3d->light = pts->light;
     pts3d = pts3d + 1;
     curLine = curLine + 1;
   }

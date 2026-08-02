@@ -421,6 +421,32 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
  *   - `char`/`u_char` u,v,vh (to chase retail's QImode `sb t4,32(sp)` AUTO): 244, gate 285
  *     (confirms the w43 PROMOTE_MODE negative for this fn).
  *   - fresh-dest `sy` temp for the shapey load (retail `addu t4,v0,zero` + `addiu t4,v0,-1`): 246.
+ * ---- UPDATE (same wave, after the a7 blocking-register-cascade forward: RE-TEST SHELVED
+ *      NEGATIVES).  bump-early was shelved at 230 because it dropped the frame to 96; adding the
+ *      SYM-fsize filler restores 104 and the SAME edit now gates 164 (was 198).  L1 state:
+ *        - 0x1F800004 movable life 16 -> 4, DECLINED: the loop now rematerialises `lui;ori` at its
+ *          top exactly like retail, and BOTH extra spill pairs are gone (rove_op sw/lw MATCH).
+ *        - residual census: `lhu 9v10  sh 19v20` = the ONE `lhu 0x12(s4); sh 0x18(sp)` vh-AUTO pair
+ *          retail keeps and we no longer emit (ours 241 vs 245).
+ *        - the two MASKS are still inverted: we hoist 0xFF000000 and rematerialise 0xFFFFFF; retail
+ *          does the opposite.  RMW operand-order swaps to trade their lives measured 174 (all three
+ *          combinations) -- worse; the a4 do{}while(0) depth dial does NOT reach loop.c at all
+ *          ("Loop from 189 to 248 is phony" -- the wrapper is recognised and stripped, hoist set
+ *          byte-identical); volatile on the cursor read/write/both = no change (the movable is the
+ *          CONSTANT insn, not the MEM); a7's unsized/sized asm-label views do not apply -- these are
+ *          LITERAL scratchpad addresses, not symbols, so there is no %hi/%lo pseudo pair to remove.
+ * NEW NAMED ANGLE #1 (vh): the filler is a stand-in.  The real fix is to make `vh` need memory --
+ *   untried: give `vh` a second, later use inside the loop (retail reloads it per vertex row), or
+ *   declare the three AUTOs in the SYM's slot order so reload's pseudo-regno slot assignment lands
+ *   width@16/vh@24/v@32 without a filler (DECL POSITION IS THE FRAME LAYOUT, w41).  Note the filler
+ *   is an ARRAY, so it is slotted at expand and steals 16(sp) -- every sp displacement is shifted by
+ *   8; a NON-array 8-byte filler (or a real vh use) would also fix ~10 displacement diffs.
+ * NEW NAMED ANGLE #2 (masks): with the addresses out of the movable set only TWO savings-1
+ *   constants compete and the measured cut is life 10 (0xFF000000 moved at 10, 0xFFFFFF declined at
+ *   7 under bump-early).  Aim 0xFFFFFF ABOVE 10 and 0xFF000000 BELOW: split the first RMW so the
+ *   0xFFFFFF term is evaluated into its own named temp at the TOP of the loop body (addr24-EARLY,
+ *   w41) while the 0xFF000000 term stays fused inside both RMW expressions -- that lengthens one and
+ *   shortens the other independently, which the operand-order swaps could not do (they move BOTH).
  * NEW NAMED ANGLE (untried, for the next pass): the two goals are SEPARABLE -- kill the two address
  *   hoists WITHOUT lowering whole-loop pressure.  loop.c's verdict is per-movable LIFE, so shorten
  *   ONLY the 0x1F800004 and 0xFF000000 lives while ADDING an unrelated long-lived in-loop value to
@@ -450,6 +476,13 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
+  int      deadfrm[2];   /* w44-a1 SYM-fsize FILLER.  The oracle frame is 104 (0x68) with THREE
+                            AUTOs -- width@16(sp), vh@24(sp), v@32(sp).  Once the packet-cursor
+                            bump moved next to its read (below) loop.c stopped hoisting the two
+                            scratchpad address constants, pressure dropped, and `vh` left its AUTO
+                            slot -> frame 96.  The filler restores 104 and with it retail's whole
+                            spill/reload layout (198 -> 164 diffs).  It stands in for the vh AUTO
+                            we cannot yet force back into memory -- see the receipt above. */
 
   height = shp->height;
   width = shp->width;
@@ -483,9 +516,14 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
                     apply in a LOOP: here the oracle caches (w43 loop-vs-straight-line row). */
 
     prim = Render_gPacketPtr;
+    Render_gPacketPtr = prim + 0x34;   /* w44-a1: the cursor bump ADJACENT to its read collapses the
+                                          0x1F800004 movable's life 16 -> 4, so loop.c declines it and
+                                          the address is rematerialised in-loop exactly like retail
+                                          (`lui;ori` at the top of the loop body).  sched2 sinks the
+                                          store back into the middle of the RMW pair, matching the
+                                          oracle's `sw v0,0(a2)` placement. */
     pal = (uint *)Render_gPalettePtr;
     *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
-    Render_gPacketPtr = prim + 0x34;
     *pal = *pal & 0xff000000 | (uint)prim & 0xffffff;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];

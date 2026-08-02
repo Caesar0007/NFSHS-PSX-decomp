@@ -428,8 +428,9 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
  *          top exactly like retail, and BOTH extra spill pairs are gone (rove_op sw/lw MATCH).
  *        - residual census: `lhu 9v10  sh 19v20` = the ONE `lhu 0x12(s4); sh 0x18(sp)` vh-AUTO pair
  *          retail keeps and we no longer emit (ours 241 vs 245).
- *        - the two MASKS are still inverted: we hoist 0xFF000000 and rematerialise 0xFFFFFF; retail
- *          does the opposite.  RMW operand-order swaps to trade their lives measured 174 (all three
+ *        - the mask inversion is now SOLVED by addr24-EARLY (see the loop body): -dL's moved list is
+ *          exactly {short-sign-extend pair, 0xFFFFFF, 2 address givs} = retail's.  164 -> 160.
+ *          RMW operand-order swaps to trade the two masks' lives measured 174 (all three
  *          combinations) -- worse; the a4 do{}while(0) depth dial does NOT reach loop.c at all
  *          ("Loop from 189 to 248 is phony" -- the wrapper is recognised and stripped, hoist set
  *          byte-identical); volatile on the cursor read/write/both = no change (the movable is the
@@ -514,6 +515,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
                     (`lui a0,0x1F80; lw a0,0(a0)` once, then lw/lw/sw off $a0) -- 246 -> 245
                     count-EXACT.  The w43 "straight-line emitters want the purge" rule does NOT
                     apply in a LOOP: here the oracle caches (w43 loop-vs-straight-line row). */
+    uint  addr24;
 
     prim = Render_gPacketPtr;
     Render_gPacketPtr = prim + 0x34;   /* w44-a1: the cursor bump ADJACENT to its read collapses the
@@ -522,9 +524,15 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
                                           (`lui;ori` at the top of the loop body).  sched2 sinks the
                                           store back into the middle of the RMW pair, matching the
                                           oracle's `sw v0,0(a2)` placement. */
+    /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
+       the top of the loop body lengthens the 0xFFFFFF movable and shortens 0xFF000000 --
+       INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
+       the movable set retail has: 0xFFFFFF is the ONLY hoisted constant, both scratchpad
+       addresses AND 0xFF000000 are rematerialised in-loop. */
+    addr24 = (uint)prim & 0xffffff;
     pal = (uint *)Render_gPalettePtr;
     *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
-    *pal = *pal & 0xff000000 | (uint)prim & 0xffffff;
+    *pal = *pal & 0xff000000 | addr24;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];

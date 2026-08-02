@@ -397,6 +397,7 @@ void StampImage(int xo,int depth)
   int frame;
   int i;
   int tpageX;
+  int x;
 
   if ((Render_gBlurEffectMode & 2U) != 0) {
     frame = gFlip;
@@ -407,9 +408,8 @@ void StampImage(int xo,int depth)
   if ((Render_gBlurEffectMode & 4U) == 0) {
     xo = 0;
   }
-  i = 0;
-  int x = xo;
-  for (; i < 5; i = i + 1, x = x + 0x40) {
+  for (i = 0; i < 5; i = i + 1) {
+    x = xo + (i << 6);
     ft4_p = (POLY_FT4 *)Render_gPacketPtr;
     ((StampTag *)ft4_p)->addr =
         ((StampTag *)(Render_gPalettePtr + depth * 4))->addr;

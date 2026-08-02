@@ -1612,151 +1612,145 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 
 {
-  bool bVar1;
-  int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [31];
-  int iVar4;
-  int *piVar5;
-  Car_tObj *car;
-  Speaker *pSVar6;
-  u_long uVar7;
-  SPCHNFSType_CONFIRM *CONFIRM;
-  void *ctx;
-  DispatchSpeaker *pDVar8;
-  SPCHNFSType_DISTANCE *pSVar9;
-  __vtbl_ptr_type (*reg_a1) [31];
-  int reg_a2;
-  SPCHNFSType_REVINTRO *REVINTRO;
-  int reg_a3;
   Speaker *Blocker;
-  Speaker *pSVar10;
-  
-  pSVar6 = (pThis->_base_Speaker).fSub;
-  bVar1 = false;
-  if ((pSVar6 == (Speaker *)0x0) ||
-     (iVar2 = (*(*pSVar6->_vf)[0x1b].pfn)
-                        ((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0x1b].delta),
-     iVar2 == 0)) {
-    bVar1 = true;
+  bool invalid = false;
+  int context;
+  int from;
+  SPCHNFSType_REVINTRO *reverse;
+
+  if (((pThis->_base_Speaker).fSub == (Speaker *)0x0) ||
+      ((*(*(pThis->_base_Speaker).fSub->_vf)[0x1b].pfn)
+         ((int)&((pThis->_base_Speaker).fSub->fPosition).flags +
+          (int)(*(pThis->_base_Speaker).fSub->_vf)[0x1b].delta) == 0)) {
+    invalid = true;
   }
-  iVar2 = ((int)Speech_fgSpeech);
-  if (bVar1) {
+  if (invalid) {
     return;
   }
-  *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-  pSVar6 = (pThis->_base_Speaker).fSub;
-  pSVar10 = (Speaker *)0x0;
-  if ((pSVar6->fBlockade).flags == 0) {
-    pa_Var3 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-    pSVar6 = (pThis->_base_Speaker).fSub;
-    pa_Var3 = pSVar6->_vf;
-    iVar4 = (*(*pa_Var3)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x11].delta);
-    ctx = *(void **)(iVar2 + iVar4 * 4 + 8);
-    iVar2 = (pThis->_base_Speaker).fFrom;
-    (pThis->_base_Speaker).fTo = (int)ctx;
-  }
-  else {
-    if (*(int *)(iVar2 + 0x388) != 0) {
-      (*(*pSVar6->_vf)[0xd].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0xd].delta);
+
+  Speech_fgSpeech->fSpeakerCar = 0;
+  Blocker = (Speaker *)0x0;
+  if ((pThis->_base_Speaker).fSub->fBlockade.flags != 0) {
+    if (Speech_fgSpeech->fMultiplePerps != 0) {
+      (*(*(pThis->_base_Speaker).fSub->_vf)[0xd].pfn)
+        ((int)&((pThis->_base_Speaker).fSub->fPosition).flags +
+         (*(pThis->_base_Speaker).fSub->_vf)[0xd].delta);
       return;
     }
-    pSVar10 = pSVar6->fSub;
-    bVar1 = false;
-    if (pSVar10 != (Speaker *)0x0) {
-      bVar1 = (pSVar10->fBlockade).flags != 0;
+    Speaker *candidate = (pThis->_base_Speaker).fSub->fSub;
+    bool hasBlocker = false;
+    if (candidate != (Speaker *)0x0) {
+      hasBlocker = candidate->fBlockade.flags != 0;
     }
-    if (bVar1) {
-      pa_Var3 = (pThis->_base_Speaker)._vf;
-      iVar2 = (*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-      pSVar6 = (pThis->_base_Speaker).fSub;
-      reg_a1 = pSVar6->_vf;
-      iVar4 = (*(*reg_a1)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*reg_a1)[0x11].delta);
-      (pThis->_base_Speaker).fTo = *(int *)(iVar2 + iVar4 * 4 + 8);
-      pSVar6 = pSVar10;
+    Blocker = candidate;
+    if (hasBlocker) {
+      CallSignBank *bank = (CallSignBank *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+        ((int)pThis + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
+      Speaker *sub = (pThis->_base_Speaker).fSub;
+      (pThis->_base_Speaker).fTo = bank->fMobile[(*(*sub->_vf)[0x11].pfn)
+        ((int)&sub->fPosition.flags + (*sub->_vf)[0x11].delta)];
     }
     else {
-      pa_Var3 = (pThis->_base_Speaker)._vf;
-      piVar5 = (int *)(*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-      (pThis->_base_Speaker).fTo = *piVar5;
+      Blocker = (pThis->_base_Speaker).fSub;
+      int *bank = (int *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+        ((int)pThis + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
+      (pThis->_base_Speaker).fTo = *bank;
     }
-    (*(*pSVar6->_vf)[0xd].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0xd].delta);
-    CONFIRM = &(pThis->_base_Speaker).fConfirm;
-    *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-    SPCHNFS_D_A_CONFIRM(CONFIRM);
+    (*(*Blocker->_vf)[0xd].pfn)
+      ((int)&Blocker->fPosition.flags + (*Blocker->_vf)[0xd].delta);
+    Speech_fgSpeech->fSpeakerCar = 0;
+    SPCHNFS_D_A_CONFIRM(&(pThis->_base_Speaker).fConfirm);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    ctx = (void *)(pThis->_base_Speaker).fTo;
-    iVar2 = (pThis->_base_Speaker).fFrom;
-    pSVar10 = pSVar6;
-  }
-  REVINTRO = &(pThis->_base_Speaker).fReverse;
-  SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar2,REVINTRO);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  pSVar6 = (pThis->_base_Speaker).fSub;
-  pa_Var3 = pSVar6->_vf;
-  car = (Car_tObj *)
-        (*(*pa_Var3)[0x19].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x19].delta);
-  FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,car);
-  pSVar6 = (pThis->_base_Speaker).fSub;
-  uVar7 = (pSVar6->fBlockade).flags;
-  pDVar8 = pThis;
-  if (uVar7 == 1) {
-    pa_Var3 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-    iVar4 = (*(*pSVar10->_vf)[0x11].pfn)
-                      ((int)&(pSVar10->fPosition).flags + (int)(*pSVar10->_vf)[0x11].delta);
-    pSVar9 = &(pThis->_base_Speaker).fDistance;
-    reg_a3 = *(int *)(iVar2 + iVar4 * 4 + 8);
-    iVar2 = (pThis->_base_Speaker).fLocation;
-    (pThis->_base_Speaker).fSpikeSide.flags = 4;
-    (pThis->_base_Speaker).fWing = reg_a3;
-    SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,iVar2,pSVar9,reg_a3,&(pThis->_base_Speaker).fSpikeSide);
+    context = (pThis->_base_Speaker).fTo;
+    from = (pThis->_base_Speaker).fFrom;
+    reverse = &(pThis->_base_Speaker).fReverse;
   }
   else {
-    if (uVar7 != 2) {
-      if (pSVar6->fSub != (Speaker *)0x0) {
-        pa_Var3 = (pThis->_base_Speaker)._vf;
-        iVar2 = (*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-        pSVar6 = ((pThis->_base_Speaker).fSub)->fSub;
-        pa_Var3 = pSVar6->_vf;
-        iVar4 = (*(*pa_Var3)[0x11].pfn)
-                          ((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x11].delta);
-        pSVar9 = &(pThis->_base_Speaker).fDistance;
-        iVar4 = *(int *)(iVar2 + iVar4 * 4 + 8);
-        iVar2 = (pThis->_base_Speaker).fLocation;
-        (pThis->_base_Speaker).fWing = iVar4;
-        SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(pSVar9,(SPCHNFSType_POSITION *)pThis,iVar2,iVar4);
-        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        pSVar6 = (pThis->_base_Speaker).fSub;
-        pa_Var3 = pSVar6->_vf;
-        (*(*pa_Var3)[0xe].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0xe].delta);
-        pSVar6 = ((pThis->_base_Speaker).fSub)->fSub;
-        pThis->fStatusCount = 0x140;
-        pThis->fUpdateCount = pThis->fUpdateCount + 1;
-        pThis->fStatusSub = pSVar6;
-      }
-      goto StatusReply_subFetch;
-    }
-    iVar2 = (pThis->_base_Speaker).fLocation;
-    pSVar9 = &(pThis->_base_Speaker).fDistance;
-    SPCHNFS_D_C_RDBLK_CONFIRMED((SPCHNFSType_POSITION *)pThis,iVar2,pSVar9);
+    CallSignBank *bank = (CallSignBank *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+      ((int)pThis + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
+    Speaker *sub = (pThis->_base_Speaker).fSub;
+    context = bank->fMobile[(*(*sub->_vf)[0x11].pfn)
+      ((int)&sub->fPosition.flags + (*sub->_vf)[0x11].delta)];
+    from = (pThis->_base_Speaker).fFrom;
+    reverse = &(pThis->_base_Speaker).fReverse;
+    (pThis->_base_Speaker).fTo = context;
   }
+
+  SPCHNFS_D_C_INTRO_CALL(context,from,reverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  pSVar6 = (pThis->_base_Speaker).fSub;
-  if (pSVar10 != pSVar6) {
-    (*(*pSVar6->_vf)[0xe].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0xe].delta);
+  {
+    Speaker *sub = (pThis->_base_Speaker).fSub;
+    Car_tObj *car = (Car_tObj *)(*(*sub->_vf)[0x19].pfn)
+      ((int)&sub->fPosition.flags + (*sub->_vf)[0x19].delta);
+    FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,car);
   }
+
+  if ((pThis->_base_Speaker).fSub->fBlockade.flags == 1) {
+    CallSignBank *bank = (CallSignBank *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+      ((int)pThis + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
+    int wing = bank->fMobile[(*(*Blocker->_vf)[0x11].pfn)
+      ((int)&Blocker->fPosition.flags + (*Blocker->_vf)[0x11].delta)];
+    int location = (pThis->_base_Speaker).fLocation;
+    SPCHNFSType_DISTANCE *distance = &(pThis->_base_Speaker).fDistance;
+    (pThis->_base_Speaker).fSpikeSide.flags = 4;
+    (pThis->_base_Speaker).fWing = wing;
+    SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
+      location,distance,wing,
+      &(pThis->_base_Speaker).fSpikeSide);
+  }
+  else {
+    if ((pThis->_base_Speaker).fSub->fBlockade.flags != 2) {
+      goto StatusReply_backup;
+    }
+    SPCHNFS_D_C_RDBLK_CONFIRMED((SPCHNFSType_POSITION *)pThis,
+      (pThis->_base_Speaker).fLocation,&(pThis->_base_Speaker).fDistance);
+  }
+
+StatusReply_play:
+  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+  if (Blocker != (pThis->_base_Speaker).fSub) {
+    Speaker *sub = (pThis->_base_Speaker).fSub;
+    (*(*sub->_vf)[0xe].pfn)
+      ((int)&sub->fPosition.flags + (*sub->_vf)[0xe].delta);
+  }
+  goto StatusReply_subFetch;
+
+StatusReply_backup:
+  if ((pThis->_base_Speaker).fSub->fSub != (Speaker *)0x0) {
+    {
+      CallSignBank *bank = (CallSignBank *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+        ((int)pThis + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
+      Speaker *sub = (pThis->_base_Speaker).fSub->fSub;
+      (pThis->_base_Speaker).fWing = bank->fMobile[(*(*sub->_vf)[0x11].pfn)
+        ((int)&sub->fPosition.flags + (*sub->_vf)[0x11].delta)];
+    }
+    SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(&(pThis->_base_Speaker).fDistance,
+      (SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
+      (pThis->_base_Speaker).fWing);
+    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+    {
+      Speaker *sub = (pThis->_base_Speaker).fSub;
+      (*(*sub->_vf)[0xe].pfn)
+        ((int)&sub->fPosition.flags + (*sub->_vf)[0xe].delta);
+    }
+    Speaker *statusSub = (pThis->_base_Speaker).fSub->fSub;
+    pThis->fStatusCount = 0x140;
+    pThis->fUpdateCount = pThis->fUpdateCount + 1;
+    pThis->fStatusSub = statusSub;
+  }
+
 StatusReply_subFetch:
-  pSVar10 = (pThis->_base_Speaker).fSub;
-  pSVar6 = pSVar10->fSub;
-  bVar1 = false;
-  if (pSVar6 != (Speaker *)0x0) {
-    bVar1 = (pSVar6->fBlockade).flags != 0;
+  {
+    Speaker *sub = (pThis->_base_Speaker).fSub;
+    Speaker *child = sub->fSub;
+    bool blocked = false;
+    if (child != (Speaker *)0x0) {
+      blocked = child->fBlockade.flags != 0;
+    }
+    if (blocked) {
+      sub->fBlockade.flags = 0;
+    }
   }
-  if (bVar1) {
-    (pSVar10->fBlockade).flags = 0;
-  }
-  return;
 }
 
 /* ---- Status__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1718-1848] SLD-VERIFIED ---- */

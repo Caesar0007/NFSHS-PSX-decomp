@@ -1785,6 +1785,7 @@ extern "C" int * Front_AppendPerpData__FPiR9tFEStream(int *stream,tFEStream *str
 
 {
   tCarInfo *ptVar1;
+  tCarManager *carManagerPtr;
   int iVar2;
   int *piVar3;
   short i;
@@ -1808,16 +1809,16 @@ extern "C" int * Front_AppendPerpData__FPiR9tFEStream(int *stream,tFEStream *str
     *piVar3++ = 0x26;
     *piVar3++ = 0;
   }
-  /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
-     (*piVar3++ = v;), same idiom as the sibling Append* fns. The manual `*(short*)(&carModel +
-     i*8)` / `(&carColor)[i*8]` byte-offset casts are left as-is: tPerpModelList.carModel is
-     declared `int` in nfs4_types.h (a header outside this pass's scope) but the oracle reads
-     only its low 16 bits (`lh`) -- this cast already reproduces that and predates this pass. */
+  /* MATCH: SYM-implied `short i` loop counter and pointer-increment stores. IDA's retail
+     allocation shows s0 holding the complete streamData+i*8 per-perp base, reused by the
+     16-bit carModel and byte carColor reads. Materializing carManagerPtr before that base
+     calculation also gives GCC's scheduler the oracle's early lui placement. */
   i = 0;
   if (0 < streamData->numPerpObjects) {
     do {
-      iVar2 = (i << 0x10) >> 0xd;
-      ptVar1 = GetCarFromID(&carManager, *(short *)((int)&streamData->perps[0].carModel + iVar2));
+      carManagerPtr = &carManager;
+      iVar2 = (int)streamData + ((i << 0x10) >> 0xd);
+      ptVar1 = GetCarFromID(carManagerPtr, *(short *)(iVar2 + 608));
       *piVar3++ = 0x104;
       i = i + 1;
       *piVar3++ = (int)streamData->currentCar;
@@ -1827,7 +1828,7 @@ extern "C" int * Front_AppendPerpData__FPiR9tFEStream(int *stream,tFEStream *str
       *piVar3++ = 1;
       *piVar3++ = 0x10a;
       *piVar3++ = (int)streamData->currentCar;
-      *piVar3++ = (uint)(byte)(&streamData->perps[0].carColor)[iVar2];
+      *piVar3++ = (uint)*(byte *)(iVar2 + 612);
       *piVar3++ = 0x10b;
       *piVar3++ = (int)streamData->currentCar;
       *piVar3++ = 0;

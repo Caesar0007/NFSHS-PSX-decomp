@@ -1405,7 +1405,7 @@ int tListIteratorCarColor::Increment(tPlayer arg1)
 
 /* ---- tListIteratorCarColor::Decrement  [FECARS.CPP:1218-1228] SLD-VERIFIED ---- */
 
-int tListIteratorCarColor::Decrement(tPlayer arg1)
+void tListIteratorCarColor::Decrement(tPlayer arg1)
 
 {
   int iVar1;
@@ -1418,10 +1418,9 @@ int tListIteratorCarColor::Decrement(tPlayer arg1)
   pbVar3 = (u_char *)(iVar1 + (int)(signed char)carInfo->fCarID + this->fValue);
   uVar2 = (u_int)*pbVar3;
   if (uVar2 == 0) {
-    uVar2 = (u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors;
+    uVar2 = (u_int)(u_char)carInfo->fNumDarkColors + (u_int)(u_char)carInfo->fNumLightColors;
   }
   *pbVar3 = (u_char)(uVar2 - 1);
-  return uVar2 - 1;
 }
 
 

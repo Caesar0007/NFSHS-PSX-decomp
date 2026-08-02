@@ -4874,7 +4874,7 @@ struct tListIteratorCarColor : public tListIterator {   /* 32 bytes */
     char Value(tPlayer arg1);
     int TextValue(tPlayer arg1);
     int Increment(tPlayer arg1);
-    int Decrement(tPlayer arg1);
+    void Decrement(tPlayer arg1);
 
 };
 

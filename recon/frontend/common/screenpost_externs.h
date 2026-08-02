@@ -13,7 +13,7 @@ extern tTournamentManager tournamentManager;
 extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;
-extern int                ticks;
+extern int                ticks[];
 extern char              *Paths_Paths[];
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
@@ -81,7 +81,7 @@ void FETextRender_WordWrap(...);
 void  FeAudio_AsyncPlaySpeech(...);
 void *FECheat_IsCheatEnabled(...);
 int  GetNumPinkSlipsCars(...);
-void*  GetStockCar(...); void GetTrack(tTrackManager*, unsigned short, void*);
+void*  GetStockCar(...); void GetTrack(tTrackManager*, short, void*);
 tTrackInformation *GetTrackByID(tTrackManager*, short); void GetTrackToRace(tTournamentManager*, void*);
 int   LoadGame(...);
 void  MCRD_handlecardevents(...);
@@ -116,7 +116,7 @@ char *Stattool_GetAINameFromPersonality(...);
 int   TournPointTotal(...);
 int   textpixels(...);
 int   tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &);
-extern tTexture_ShapeInfo *gCurrentShapes;
+extern tTexture_ShapeInfo *gCurrentShapes[];
 extern __nfs4_vtbl_ptr_t tScreenTournamentStandings_vtable[10], tScreenTournamentStandings3item_vtable[10], tScreenPinkSlipStandings_vtable[10];
 
 /* ===== singletons owned by ScreenPost.obj (.bss zero, referenced cross-TU: front.cpp/femenudefs) ===== */

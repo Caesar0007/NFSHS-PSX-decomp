@@ -58,14 +58,14 @@ OUT = BUILD  # object output root; overridden by --out
 # manual lowering back into the macro form maspsx already knows how to
 # expand correctly.
 #
-# w24-a9: the retail binary's jtbl sites are MIXED -- 11 of 33 TUs carry the
+# w24-a9: the retail binary's jtbl sites are MIXED -- 7 of 33 TUs carry the
 # ASPSX $at macro form (older macro-emitting toolchain build of those
 # particular objects), the other 22 already match our explicit 5-insn form.
 # Enabling this GLOBALLY would fuse the jtbl shape in ALL 33 sites and
 # regress the 22 that are already correct without it. NFS4_JTBL_AT_FUSION=1
 # stays as a blunt global override for one-off testing/bisection, but the
 # real gate is per-TU: see PER_TU_FLAGS below (the "jtbl_at_fusion" key),
-# which scopes `--jtbl-at-fusion` to exactly the 11 TUs that need it.
+# which scopes `--jtbl-at-fusion` to exactly the 7 TUs that need it.
 JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 
 # --- w24-a9: per-TU build-flag overrides -----------------------------------
@@ -149,8 +149,8 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           measured on movf.c: both schedulers off = 105
 #                           diffs/236 insns (retail NEEDS sched2 ON).
 #
-# The 11 TUs below own the retail binary's 11 ASPSX-$at-macro jtbl sites
-# (w23-a11 investigation); the other 22 jtbl TUs are deliberately absent
+# The 7 TUs below own the retail binary's 7 ASPSX-$at-macro jtbl sites
+# (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
     # screencontroller.obj addresses its three 4-byte flare-state objects with
@@ -242,7 +242,10 @@ PER_TU_FLAGS = {
     # Night_SetPlayerHeadLightColor 10 -> PASS (both previously certified "GENUINE FLOOR"),
     # Night_GenerateAllLightTables 118 -> 114, all other 16 fns unchanged.
     "recon/game/psx/night.cpp":             {"g_value": "8"},
-    "recon/game/common/audiocmn.cpp":       {"jtbl_at_fusion": True},  # AudioCmn_SoundCar
+    # audiocmn.cpp does NOT want jtbl_at_fusion: SoundCar's retail switch uses
+    # the explicit five-instruction table-base form. Removing the stale override
+    # takes detailed SoundCar 176 -> 169 (526 -> 527 instructions) while the
+    # whole 48-function TU gate remains 33 PASS / 6 near / 9 far.
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint
     "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop

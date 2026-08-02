@@ -1189,6 +1189,23 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   return;
 }
 
+/* w45-a8: 163 (268/269) -> 85, posdiff structural residual 27.  LEVER: all FOUR OT/palette
+ * links (prim, tp9, prim2, gSprt1[2]) rewritten as the addPrim P_TAG bitfield pair.  The
+ * w44 birth-order receipt below is now largely spent -- what remains is a t1/t2/t3 rotation
+ * plus two small scheduling clusters:
+ *  (i) ONE insn short (268/269): retail keeps the two `clut |= x + K` arms UNMERGED because
+ *      the player==0 arm's value is computed SPECULATIVELY before the guard into $v1
+ *      (`addiu v1,s7,29`), so the two arms' tails (`or s0,s0,v0` / `or s0,s0,v1`) differ and
+ *      cross_jump cannot merge them; ours computes both into $v0 and merges the `or`.
+ *      TRIED + FALSIFIED THIS WAVE: a named `xlo = x + 0x1d;` local placed immediately before
+ *      the `clut |= (y+0x9d)<<8` statement -- gate 85 -> 87, because sched1 SINKS the addiu to
+ *      just before the `beqz` and reorg then steals IT for the delay slot instead of the
+ *      y-term `or` (the oracle's slot filler).  NEW NAMED ANGLE: the temp must be born while
+ *      $v0 is still LIVE with the y-term, i.e. after `clut |= (y+0x9d)<<8;` -- and it must not
+ *      be the last insn before the branch, so pair it with a second statement (e.g. write the
+ *      y-term as its own named local too) so the `or` stays reorg's backward-scan pick.
+ * (ii) the t1/t2/t3 rotation on the three scratchpad/packet bases is caller-saved =
+ *      local_alloc qty territory (`-dl` birth order), same class as BuildReplay's residual. */
 /* ---- Hud_BuildTach__Fi  [HUD.CPP:1376-1442] SLD-VERIFIED ----
  * RESIDUAL 163 (ours 268 / oracle 269, posdiff structural 65).  w44-a5 read the SYM 8c block
  * @0x800d3e94 (fsize 88, mask 0xc0ff0000) for the FIRST time; it is the ground truth here:
@@ -1296,12 +1313,12 @@ void Hud_BuildTach(int player)
     prim = Render_gPacketPtr;
     pal = Render_gPalettePtr;
     tp9 = (void *)(prim + 0x14);
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)pal & 0xffffff;
+    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim + 0x14;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim & 0xffffff;
-    *(u_int *)tp9 = *(u_int *)tp9 & 0xff000000 | *(u_int *)pal & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)prim;
+    ((Hud_PTag *)tp9)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim + 0x24;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp9 & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)tp9;
     ((u_char *)tp9)[3] = 3;
     *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
@@ -1310,9 +1327,9 @@ void Hud_BuildTach(int player)
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
     prim2 = Render_gPacketPtr;
     pal = Render_gPalettePtr;
-    *(u_int *)prim2 = *(u_int *)prim2 & 0xff000000 | *(u_int *)pal & 0xffffff;
+    ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim2 + 0x14;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim2 & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)prim2;
   }
   Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
   Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
@@ -1335,8 +1352,8 @@ void Hud_BuildTach(int player)
   *(short *)(prim2 + 10) = *(short *)(prim2 + 10) + 2;
   *(short *)(prim2 + 0x12) = ts1 + 2;
   *(short *)(prim2 + 0xe) = *(short *)(prim2 + 0xe) + 2;
-  gSprt1[2].tag = (u_long *)((u_int)gSprt1[2].tag & 0xff000000 | *(u_int *)tp3 & 0xffffff);
-  *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (u_int)(gSprt1 + 2) & 0xffffff;
+  ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)tp3)->addr;
+  ((Hud_PTag *)tp3)->addr = (u_int)(gSprt1 + 2);
   return;
 }
 

@@ -186,10 +186,10 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * pure-address addiu into the branch's delay slot regardless of source position). */
   light = (int *)&(carObj->render).light;
   i = gCView.player;
+  pos = &(carObj->N).position;
   if (((Cars_gList[i]->control).lights & 6U) != 0) {
     coorddef tmp;
     coorddef tmp2;
-    pos = &(carObj->N).position;
     /* MATCH (w42-a3, 81 -> 71): retail evaluates the SUBTRAHEND first at every
        component (`lw v0,0(v1)` HRCL[i]; `lw a0,0xA0(v0)`; then `lw v0,0xA0(a1)`;
        `subu`).  Written as `carObj->... - HRCL[i]->...` cc1 evaluated the minuend
@@ -215,14 +215,31 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        Dials to try: lengthen carObj's range (a later carObj-based read the
        oracle also has) or shorten the giv's (a second `i` use inside the if).
        Removing the `h` subtrahend temp was RE-TESTED and is WORSE (87, 106
-       insns) -- `h` models a genuine cse temp (w43 purge-rule exception). */
-    { int h;
-    h = (Cars_gHumanRaceCarList[i]->N).position.x;
-    tmp.x = (carObj->N).position.x - h;
-    h = (Cars_gHumanRaceCarList[i]->N).position.y;
-    tmp.y = pos->y - h;
-    h = (Cars_gHumanRaceCarList[i]->N).position.z;
-    tmp.z = pos->z - h;
+       insns) -- `h` models a genuine cse temp (w43 purge-rule exception).
+       ===== w45-a4: 69 -> 36, THE ROTATION IS SOLVED. Two edits, both required:
+       (1) the `pos` hoist above (count-exact 107/107, the w44 note's own
+           recommendation);
+       (2) 🏆 ONE-TEMP -> THREE BLOCK-LOCAL TEMPS (h0/h1/h2).  A single reused
+           `h` is ONE pseudo -> one hard reg for all three subtrahends ($a2),
+           and (being def'd/used in one block but ALIVE across the whole block
+           chain) it conflicts with the global allocnos.  Three separate
+           block-local quantities are handed out by LOCAL_ALLOC, each dying
+           immediately, so each REUSES a just-dead register exactly like retail
+           ($a0 = the dead giv, $a1 = the dead carObj, $v1 = the dead HRCL base)
+           -- and, decisively, they stop barring $a0/$a1 for the global
+           allocnos.  Result: first-use order became retail-exact
+           `a1 a0 v1 v0 s1 s0 a2 ...` = carObj -> $a1 WITH the `addu a1,a0,zero`
+           REGPARM copy, the i*4 giv -> $a0, pos -> $a2 (SYM REG $6).
+           GENERAL RULE (new): N sequential same-shape reads that each die at
+           once want N DISTINCT block-local temps, not one reused temp -- the
+           reuse both pins one register and inflates the local's conflict set. */
+    { int h0; int h1; int h2;
+    h0 = (Cars_gHumanRaceCarList[i]->N).position.x;
+    tmp.x = (carObj->N).position.x - h0;
+    h1 = (Cars_gHumanRaceCarList[i]->N).position.y;
+    tmp.y = pos->y - h1;
+    h2 = (Cars_gHumanRaceCarList[i]->N).position.z;
+    tmp.z = pos->z - h2;
     }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&nightMat);
@@ -245,15 +262,42 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        (addu $v1,$v1,$v0 once, then lbu 0/1/2($v1)) and ONE for &light
        ($a2 = sp+104).  Spelling the full &Night_gWeatherColor[type] address
        at each of the three byte reads made cc1 rematerialize it. */
-    u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
     u_char *lp = (u_char *)&light;
+    u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
     short newR;
     short newG;
     short newB;
-    /* MATCH (w44-a8, 71 -> 69): the weather byte is the FIRST operand.  Compare/
-       add operand order IS load order here: `lp[N] + wc[N]` loaded lp into $v0
-       and wc into $a0, `wc[N] + lp[N]` swaps them, which is retail's pairing
-       (`lbu $a0,0x68($sp)` lp; `lbu $v0,0x0($v1)` wc; `addu $a0,$a0,$v0`). */
+    /* MATCH (w45-a4, RE-TESTED after the h0/h1/h2 split re-landscaped the fn --
+       the w44-a8 "weather byte FIRST" receipt was basin-relative and is now
+       FALSE).  Retail loads lp[N] first and adds `lp[N] + wc[N]`
+       (`lbu $a0,0x68($sp)` lp0; `lbu $v0,0x0($v1)` wc0; `addu $a0,$a0,$v0`).
+       4-way A/B (decl order x operand order) at the NEW basin: operand order
+       `wc[N] + lp[N]` = 36, `lp[N] + wc[N]` = 38; DECL ORDER IS A NO-OP (both
+       36/38).  So the w44 operand receipt SURVIVES the re-landscape; only its
+       load-order rationale is wrong (the oracle's `addu $a0,$a0,$v0` differs
+       from ours by DEST register, not by which addend is first).
+       RESIDUAL 36 (count-exact 107/107, block STRUCTURE byte-identical --
+       same load order, same 3 copies, same 3 slti/bnez, same 3 sb): a pure
+       3-WAY SUM/COPY REGISTER ROTATION.  ours sums {R:$v0(=wc0's reg),
+       G:$a1(wc1), B:$a0(wc2)} + copies {t0,a3,v1}; retail sums {R:$a0(=lp0's
+       reg), G:$a3 FRESH, B:$a1(lp2)} + copies {t1,t0,v1}.  Retail's R-copy
+       reaching $t1 (not $t0) proves retail has ONE MORE value simultaneously
+       live here than we do -- v0/v1/a0..a3/t0 were all conflicting at that
+       allocno.  FALSIFIED at this basin (4-way + 4-way A/B, all count-exact):
+       decl order lp/wc; operand order lp+wc; two-statement in-place accumulate
+       (`newR = lp[0]; newR += wc[0];` = 44) either direction (46); per-channel
+       block-local int pre-temps (38).
+       NEW NAMED ANGLE: the missing live value is the tell -- find the extra
+       overlapping range, don't chase the rotation.  Retail's copies are
+       t1/t0/v1 = handed out AFTER a3, so a3 must already be occupied when the
+       R-copy is born; in ours a3 is still free.  Candidate: retail computes
+       the G sum into a FRESH pseudo ($a3) while both lp1 and wc1 are still
+       live, i.e. G is the only channel whose addends BOTH outlive the add ->
+       spell G alone as a 3-operand form that keeps both bytes live
+       (e.g. read lp[1]/wc[1] into named locals used again in the clamp test:
+       `int g0=lp[1],g1=wc1; newG=(short)(g0+g1); if (0xff < g0+g1) ...`), or
+       equivalently give the R channel a second use so its sum cannot die into
+       the copy.  Cross-check with tools/prio.py -dg allocno ranks first. */
     newR = (short)((int)wc[0] + (int)lp[0]);
     newG = (short)((int)wc[1] + (int)lp[1]);
     newB = (short)((int)wc[2] + (int)lp[2]);
@@ -430,7 +474,12 @@ int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarC
   envMapBigBit = 0;
   vertCount = (int)(carObj->render).currentCarType;
   matPart_a = (int)&DrawC_gScreenMat;
-  carTypeOffRange = vertCount - 0x16U < 6;
+  /* MATCH (w45-a4, 102 -> 86): the `- 0x16` needs its OWN pseudo.  Fused,
+     cc1 computes the difference IN PLACE on the loaded value (`addiu s1,s4,-22;
+     sltiu s1,s1,6`) which swaps the two SYM locals' homes; split, the value
+     keeps retail's $s1, the difference gets retail's scratch $v0 and the flag
+     lands in $s4 (`lh s1,2236(s2); addiu v0,s1,-22; sltiu s4,v0,6`). */
+  { u_int ctd = vertCount - 0x16U; carTypeOffRange = ctd < 6; }
 gte_SetRotMatrix(&DrawC_gScreenMat);
   matPart_b = (int)&DrawC_gScreenMat;
 gte_SetTransMatrix(&DrawC_gScreenMat);
@@ -631,7 +680,18 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         }
       }
       /* the ^1 is a STATEMENT, not two sub-expressions: retail emits ONE
-       * `xori a0,a0,1` mutating the mirror index in place (census xori 3v2). */
+       * `xori a0,a0,1` mutating the mirror index in place (census xori 3v2).
+       * w45-a4 RESIDUAL (part of PrimStart 86): this block is a clean 2-value
+       * swap -- ours {mirrorIdx:$a1, &signalLight[idx]:$a0}, retail
+       * {mirrorIdx:$a0, addr:$a1}, i.e. retail ranks the INDEX above the
+       * address (birth order) and we rank the address above the index.  Both
+       * addu dests are already fresh, so the w43 ascii2sjis fresh-dest half
+       * is satisfied; the missing half is the qty LIVE-LENGTH order.  NEW
+       * NAMED ANGLE: `shadow_align_b` is a Ghidra-invented fn-scope name that
+       * is REUSED elsewhere in this function -- give the mirror index its own
+       * block-local name here (so its qty is born and dies inside this block
+       * and out-lives the address temp), which is the same variable-identity
+       * lever that took ShowroomPrims 93->4 this wave. */
       shadow_align_b = shadow_align_b ^ 1;
       if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;
@@ -1469,6 +1529,30 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              Instruments: prio.py/-dg on the ids+facet+prim allocnos; the id-morph
              statements (`id0 = id0*8; id0 = id0 + (int)sd;`) are the ref/live dial.
              ===== end w44-a8 =====
+             ===== w45-a4 STATUS: Prim (746 / 1403 vs 1389) and PrimClip
+             (857 / 1892 vs 1877) were NOT re-attacked this wave -- the wave's
+             budget went to the six smaller drawc fns, four of which cracked
+             on ONE lever family: VARIABLE IDENTITY (which named C local holds
+             which value / how many distinct block-local temps a sequential
+             read-run gets).  Receipts: NightHeadlight 69->36 (one reused
+             subtrahend temp -> three block-local h0/h1/h2 solved the whole
+             a0/a1/a2 rotation INCLUDING the missing REGPARM copy),
+             ShowroomPrims 93->4 (three counters that Ghidra had called i/j
+             are all retail's `index`; the tick is `j` with an anonymous /256),
+             PrimStart 102->86 (a fused `-0x16` split into its own pseudo),
+             PrimMenu residual = a clean id0/id2/overlayFlag 3-cycle.
+             => THE RECOMMENDED NEXT ATTACK ON Prim/PrimClip IS THE SAME LENS,
+             not another asm-template or clobber experiment: their ~60 flat
+             fn-scope locals are still Ghidra names (iVar7/iVar8/uVar10/
+             psVar6/psVar12/tp1..tp20/...).  The w44-a8 angle (make id2 land
+             in $a3 and facet in $a2, then the tint band follows) is exactly
+             a variable-identity problem: id0/id1/id2 have identical refs and
+             monotonically increasing live lengths, so allocno_compare ranks
+             id0 FIRST and it steals the low reg, while retail ranks them in
+             REVERSE (longest-lived first = local_alloc's qty_compare_1).  See
+             the parallel receipt in DrawC_PrimMenu, which is the same 3-cycle
+             in a 480-insn function and is therefore the cheap proving ground:
+             crack PrimMenu's ids first, then transcribe to Prim/PrimClip.
              LEAD (w38-a3, MEASURED, NOT APPLIED -- see the block comment at the top of
              DrawC_Prim): this 6-statement u/v block and its `(char)(sd->vtN).y/.z`
              sibling are the SOLE source of the +21 (Prim) / +17 (PrimClip) EXCESS
@@ -3807,7 +3891,42 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          `sll v1,v1,16`); split, the shift lands before the `facet->flag` load in
          its own reg (`sll a0,v0,16`) and the halfword load gets retail's $v0.
          Residual 3 insns = cc1 still hoists the `lh flag` into the lhu's load-delay
-         slot (retail leaves the nop and keeps sll-before-lh) -- a sched1 tie. */
+         slot (retail leaves the nop and keeps sll-before-lh) -- a sched1 tie.
+         ===== w45-a4 (29, ours 295 / oracle 298).  MECHANISM NAMED:
+         retail's schedule is protected by an ANTI-DEPENDENCE we do not have --
+         it loads the overlay halfword into $v0 (`lhu v0,0(v0)`) and then loads
+         `facet->flag` into the SAME $v0 (`lh v0,0(s1)`), so the flag load
+         CANNOT be hoisted above `sll a0,v0,16`.  Ours puts the halfword in $v1,
+         so there is no conflict, sched1 pulls the `lh` into the lhu's load-delay
+         slot, and dbr then takes the now-adjacent `sll` as the bgez's SIMPLE
+         fill instead of retail's EAGER STEAL of the target block's `sra v1,a0,16`.
+         => this is a REGISTER-ASSIGNMENT problem wearing a scheduling costume;
+         the 2 missing insns are the nop + the standalone sll at each of the two
+         sites.  FALSIFIED this wave: volatile on the overlay load (105/293),
+         volatile on facet->flag (39/297), volatile on the shift store (33/295),
+         a separate `ovraw` pseudo for the raw halfword (33), if/else ARM SWAP
+         (35), volatile view on `type` at the real_type site and at all three
+         sites (both exactly 29 -- so the loop-head `andi` position is NOT an
+         LICM-of-`type` artifact; retail simply places the block after the gate
+         and w44's re-test of that placement stands at 48).
+         NEW NAMED ANGLE: force the two loads to share a register.  Retail's
+         `lhu v0` / `lh v0` pairing means the flag value and the overlay
+         halfword are the SAME C pseudo in the original -- i.e. the source read
+         the flag into the variable the overlay word had just vacated (a
+         DEAD-VARIABLE STAGING reuse, the w10 NightCopCalc lever).  Spell it as
+         one `int w`: `w = DrawC_gOverlay[index]; ov = w << 16; w = facet->flag;
+         if (w < 0) ...` -- one variable, two lifetimes, exactly retail's $v0.
+         ...TESTED SAME WAVE AND FALSIFIED: `int w` staging at both sites = 45,
+         at the first site only = 37, and BOTH stay at 295 insns -- the staging
+         does not create the anti-dependence (cc1 splits the two lifetimes into
+         separate pseudos again).  REFINED ANGLE: the anti-dependence has to be
+         created by ALLOCATION, not by source aliasing, so attack it from the
+         allocno side -- the halfword temp must out-rank whatever currently
+         holds $v0 across this block.  Concretely: dump -dg (tools/rtl_dump.py)
+         for this fn, find which pseudo owns $v0 at the overlay load, and use
+         the w44 ref-step family (`ov = ov | (ov & 0);` zero-insn re-mask, or a
+         loop-depth do{}while(0) around the two-site block) to push the overlay
+         halfword's refs over the flr2 boundary. */
       {
         u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
         ov = ov << 0x10;
@@ -4295,9 +4414,12 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        {index,iPlus} / {ot} / {l0..l3} sets.  The eight Ghidra iVarN/pcVarN/
        puVarN/pCVarN walkers are gone; the fn-scope i/j do double duty (the
        gettick split, the hilight fill, and the inner 2-iteration loop). */
-    i = gettick();
-    j = i / 256;
-    hilight[0] = (i - (j << 8)) >> 3;
+    /* MATCH (w45-a4, 14 -> 6): the tick lives in `j`, and the /256 quotient
+       is an ANONYMOUS sub-expression (not a named local).  With `i = gettick()`
+       the tick shared `i`'s pseudo with the inner 2-iteration counter and the
+       divide-dividend survivor landed in $a3 instead of retail's $v1. */
+    j = gettick();
+    hilight[0] = (j - (j / 256 << 8)) >> 3;
     hilight_direction[0] = -1;
     if (DrawC_gMenuLightsDirection == 0) {
       hilight[1] = hilight[0] + 0x10U & 0x1f;
@@ -4313,32 +4435,75 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        `hilight_state[i] = -1` index form (it recomputed `addu v0,base,i` every
        iteration, +1 insn); modelling the giv explicitly reproduces the oracle's
        body byte-for-byte.  `for(i=31;i>=0;i--)` measured identical to the index
-       do-while (no SR either). */
+       do-while (no SR either).
+       ===== w45-a4: 93 -> 4 (count-exact 297/297).  FOUR VARIABLE-IDENTITY /
+       ORDER edits, each measured (see the per-site notes):
+        (1) vt2 block: `&Fe3D_lightsVertex[index*2+1]` as a POINTER local ->
+            loop.c builds a real ADDRESS giv instead of an OFFSET giv + a
+            per-iteration `addu` (this was the whole +1 insn; 93->80, 298->297).
+        (2) fill-loop counter = `index`, not `i`               (80 -> 42)
+        (3) the 2x5 hilight loop's OUTER counter = `index` too (42 -> 16)
+        (4) PrimPtr-vs-MPrimPtr compare operand order          (16 -> 14)
+        (5) `j = gettick()` with an ANONYMOUS /256             (14 ->  6)
+        (6) `index = 0x1f;` BEFORE the `hs` pointer decl       ( 6 ->  4)
+       META: retail runs {fill counter, the 2x5 outer counter, the main
+       0..0x1F loop, the tick} on essentially ONE counter/tmp band ($t0/$v1)
+       and reserves `i` ($a3) for the INNER counters.  Ghidra's `j` was pure
+       fiction; every use of a wrong variable identity rotated a0/a1/a2/a3/
+       t0..t3 by one slot across the ENTIRE function.
+       RESIDUAL 4 = two independent SINGLE-SLOT scheduling swaps, both
+       count-exact and register-exact:
+         (a) retail emits `li v1,-1` BEFORE `li t0,31`; ours emits it after
+             `addiu v0,sp,47`.  FALSIFIED here: named `signed char m1 = -1`
+             / `int m1` before or after the counter init, all four fill-loop
+             statement orders (store-first / ptr-first / store-last /
+             `*hs-- = -1` postdec), `while (0 <= index)`.
+         (b) retail loads `lhu v0,0(t2)` (x) before `lhu v1,2(t2)` (y) in the
+             vt0 fetch; ours swaps them.  FALSIFIED: all 4 store orders
+             (xyz/yxz/yzx/zyx), the pointer-local form, load order yxz.
+       NEW NAMED ANGLE: both are sched2 READY-LIST DRAIN points (w44 -dR
+       class) -- the dial is +-1 RTL insn released late in the block, not a
+       spelling.  Run tools/rtl_dump.py -dR on this TU and read the two ready
+       lists; then either (i) shorten the `hs` address computation by one RTL
+       insn (e.g. seed it from `hilight_state` + a named 31 so the addiu is
+       born with the counter) or (ii) give the vt0 x-load a second consumer so
+       it wins the tie.  stmtclimb (with a def-use audit) is the cheap probe. */
     {
+    index = 0x1f;
+    /* MATCH (w45-a4, 80 -> 42): the fill counter is `index`, NOT `i`.  Retail
+       runs the whole fn on ONE counter register for {fill, j, index} vs `i`
+       for the inner 2-iteration loop; using `i` here made our fill counter
+       share a pseudo with the inner `i` (=$a3 everywhere) and rotated a0/a1/
+       a2/a3/t0..t3 by one across the whole function.  A fresh block-local
+       counter measures 84, `j` measures 80, `index` 42. */
     signed char *hs = &hilight_state[0x1f];
-    i = 0x1f;
     do {
       *hs = -1;
-      i = i + -1;
+      index = index + -1;
       hs = hs + -1;
-    } while (-1 < i);
+    } while (-1 < index);
     }
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
        `addiu spN` base materializations is loop.c strength-reduction seeding the
        givs FROM the array bases, which only happens if the source indexes
        hilight[j] / hilight_direction[j] (the SYM names only i and j). */
-    j = 0;
+    /* MATCH (w45-a4, 42 -> 16): the OUTER counter of this pair is `index`
+       too, not `j` -- retail runs {fill counter, this outer counter, the
+       main 0..0x1F loop} on ONE pseudo ($t0) and keeps `i` ($a3) for the
+       inner counters.  `j` here is a Ghidra naming artifact; with `j` the
+       whole a0/a1/a2/t0 band rotates by one. */
+    index = 0;
     do {
       i = 0;
       do {
-        if ((signed char)hilight_state[hilight[j] + i * hilight_direction[j] & 0x1f] < i) {
-          hilight_state[hilight[j] + i * hilight_direction[j] & 0x1f] = (char)i;
+        if ((signed char)hilight_state[hilight[index] + i * hilight_direction[index] & 0x1f] < i) {
+          hilight_state[hilight[index] + i * hilight_direction[index] & 0x1f] = (char)i;
         }
         i = i + 1;
       } while (i < 5);
-      j = j + 1;
-    } while (j < 2);
+      index = index + 1;
+    } while (index < 2);
     ChangeTPage(&lightPmx->tpage,1);
     TrsProj_SetTransPrecision(8);
     {
@@ -4381,7 +4546,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         iPlus = 0;
       }
       i = 0;
-      if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) {
+      /* MATCH (w45-a4, 16 -> 14): compare operand order IS load order --
+         retail loads PrimPtr (+4) BEFORE MPrimPtr (+8). */
+      if (!((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr)) {
         return;
       }
       {
@@ -4402,9 +4569,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt1).z = t3;
       }
       {
-        short t2 = Fe3D_lightsVertex[index * 2 + 1].y;
-        short t3 = Fe3D_lightsVertex[index * 2 + 1].z;
-        short t1 = Fe3D_lightsVertex[index * 2 + 1].x;
+        COORD16 *z1 = &Fe3D_lightsVertex[index * 2 + 1];
+        short t1 = z1->x;
+        short t2 = z1->y;
+        short t3 = z1->z;
         (sd->vt2).x = t1;
         (sd->vt2).y = t2;
         (sd->vt2).z = t3;

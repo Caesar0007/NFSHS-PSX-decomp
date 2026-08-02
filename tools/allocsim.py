@@ -261,8 +261,9 @@ class Sim:
     def _find_reg(self, p, hard_conf, used_so_far, losers,
                   accept_call_clobbered, override, alt=False):
         d = self.L.get(p, dict(refs=0, live=1, size=1, calls=0))
-        refs = override.get(p, {}).get('refs', d['refs']) if override else d['refs']
-        calls = d['calls']
+        ovp = override.get(p, {}) if override else {}
+        refs = ovp.get('refs', d['refs'])
+        calls = ovp.get('calls', d['calls'])
         size = d['size']
 
         if accept_call_clobbered:

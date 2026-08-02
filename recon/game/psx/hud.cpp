@@ -811,6 +811,8 @@ void Hud_Init(void)
   int w1;
   int w2;
   u_long textcolour;
+  int sye;
+  int syc;
 
   textcolour = 0xa0a0a0;
   i = 0;
@@ -915,7 +917,8 @@ void Hud_Init(void)
       x = g1Player[5].x;
     }
     if (Hud_BeTheCop != 0) {
-      y = (splitY + 0xe) + g1Player[2].y;
+      sye = splitY + 0xe;
+      y = sye + g1Player[2].y;
     }
     else {
       y = g1Player[5].y + splitY;
@@ -941,7 +944,8 @@ void Hud_Init(void)
       x = g1Player[5].x + g1Player[9].x;
     }
     if (Hud_BeTheCop != 0) {
-      y = (splitY + 0xc) + g1Player[2].y;
+      syc = splitY + 0xc;
+      y = syc + g1Player[2].y;
     }
     else {
       y = g1Player[5].y + splitY + 1;

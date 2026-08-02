@@ -2216,13 +2216,37 @@ void Hud_WingmanFlash(int player,int index)
  *      statement not reference Render_gPacketPtr (e.g. read the palette pointer first,
  *      `pal = Render_gPalettePtr;` before `poly = ...`) so the 0x1F800004 movable is
  *      generated after the modulo's magic (addr24-EARLY, applied in reverse).
- *  (2) `flashTicks = Hud_gWingmanFlashTicks[player] - ticks;` -- retail loads `ticks` FIRST
- *      (`lui a2,%hi(ticks); lw a2` before `lw a1,0(v1)`) and emits `subu s3,a1,a2`; ours loads
- *      the array element first and emits `subu s3,a2,a1`.  Same evaluation-order family as the
- *      Hud_Render `ticks > FlashTicks[j]` flip that was worth 26 diffs there -- but a
- *      subtraction cannot simply be swapped.  NEXT ANGLE: hoist the `ticks` read into its own
- *      statement (`now = ticks; flashTicks = Hud_gWingmanFlashTicks[player] - now;`) and
- *      measure BOTH orders of the two statements. */
+ *  (2) `flashTicks = Hud_gWingmanFlashTicks[player] - ticks;` -- retail loads `ticks` FIRST.
+ * ===== w45-a8: 144 -> 98 (211/211), posdiff structural residual 96 -> 48. TWO levers =====
+ *  (A) all three OT-links rewritten as the addPrim P_TAG bitfield pair (Hud_PTag), replacing
+ *      the w43 SPLIT-RMW `palw` spelling: 144 -> 114.  (The split-RMW read statement and the
+ *      `palw` local are GONE -- the bitfield store generates the bump-inside-RMW order for
+ *      free.)  `pal = Render_gPalettePtr;` now precedes `poly = ...` (measured neutral, kept
+ *      because it matches retail's evaluation order).
+ *  (B) cluster (2) SOLVED exactly as the old NEXT ANGLE predicted: `now = ticks;` as its own
+ *      statement BEFORE the subtraction -> retail's `lui a2,%hi(ticks); lw a2` first and
+ *      `subu s3,a1,a2`: 114 -> 98, structural residual 97 -> 48.
+ * REMAINING 48, two clusters, both re-probed THIS wave in the new basin:
+ *  (1) LICM constant-hoist ORDER unchanged (retail /20-magic first, then 0x1F800004, 0xFFFFFF,
+ *      0xFF000000; ours 0x1F800004 first) -> t0..t3 rotate through the body.  RE-FALSIFIED in
+ *      this basin: `pal`-before-`poly` (neutral), `fc = (flashTicks % 0x14) * 10;` hoisted both
+ *      to the call site AND as the first statement of the `if` (both exactly neutral, 98) --
+ *      so the magic's position is decided during whole-fn RTL generation, not by statement
+ *      order inside the guarded block.  NEW NAMED ANGLE: the four constants are CALLER-saved
+ *      ($t0-$t3) block-local quantities -> local_alloc's `qty_compare_1` (LONGER-LIVED first,
+ *      later-born wins ties), NOT allocno_compare.  Run `tools/rtl_dump.py -dl` and read the
+ *      per-qty birth/live table for this block, then move the /20 magic's BIRTH earlier by
+ *      giving `flashTicks % 0x14` a use OUTSIDE the guarded block (e.g. compute it before the
+ *      `if (0 < flashTicks)` test, where it is unconditionally live) -- that is a birth-order
+ *      move the in-block hoists could not make.
+ *  (2) `y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);` -- retail keeps `addiu v0,t0,2`
+ *      (splitY+2) as its own term and adds it last; gcc's fold reassociates our parenthesised
+ *      form to `((y+mapoff)+2)+splitY`.  Only a separate STATEMENT stops fold -- and
+ *      `sy = splitY + 2;` REGRESSES 98 -> 122 (re-tested this wave; the 3rd operand order
+ *      `(splitY+2) + (y+mapoff)` is exactly neutral).  NEW NAMED ANGLE: 2 == 0-(-2) and
+ *      -0xf+2 == -0xd, so retail's `splitY` may itself be the SUM: initialise `splitY = 2;` /
+ *      `splitY = -0xd;` and drop the `+2` -- then check whether the oracle's `addiu v0,t0,2`
+ *      is really the *icon* row's `+2` (`... * 9 + 2`) rather than this statement's. */
 void Hud_BuildWingmanInterface(int player)
 
 {
@@ -2230,9 +2254,9 @@ void Hud_BuildWingmanInterface(int player)
    * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
   int splitY;
   int flashTicks;
+  int now;
   POLY_F4 *poly;
   u_char *pal;
-  u_int palw;
   int x;
   int xf;
   int y;
@@ -2241,7 +2265,8 @@ void Hud_BuildWingmanInterface(int player)
   if (player != 0) {
     splitY = -0xf;
   }
-  flashTicks = Hud_gWingmanFlashTicks[player] - ticks;
+  now = ticks;
+  flashTicks = Hud_gWingmanFlashTicks[player] - now;
   x = (int)g1Player[0xe].x;
   xf = x - 0x1c;
   y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);
@@ -2251,12 +2276,11 @@ void Hud_BuildWingmanInterface(int player)
   Hud_BuildString(TextSys_Word(0x2c),x - 0x1b,y + 0x1e,0x808080,player,false);
   Hud_BuildString(TextSys_Word(0x2d),x - 0x1b,y + 0x27,0x808080,player,false);
   if (0 < flashTicks) {
-    poly = (POLY_F4 *)Render_gPacketPtr;
     pal = Render_gPalettePtr;
-    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
-    palw = *(u_int *)pal;
+    poly = (POLY_F4 *)Render_gPacketPtr;
+    ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = (u_char *)poly + 0x18;
-    *(u_int *)pal = palw & 0xff000000 | (u_int)poly & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)poly;
     Hud_BuildF4(poly,0,x - 0x10,y + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,
                (flashTicks % 0x14) * 10);
   }
@@ -2265,22 +2289,20 @@ void Hud_BuildWingmanInterface(int player)
 
     i = 0;
     do {
-      poly = (POLY_F4 *)Render_gPacketPtr;
       pal = Render_gPalettePtr;
-      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
-      palw = *(u_int *)pal;
+      poly = (POLY_F4 *)Render_gPacketPtr;
+      ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
       Render_gPacketPtr = (u_char *)poly + 0x18;
-      *(u_int *)pal = palw & 0xff000000 | (u_int)poly & 0xffffff;
+      ((Hud_PTag *)pal)->addr = (u_int)poly;
       Hud_BuildF4(poly,0,xf,y + i * 9 + 2,0x4b,7,0);
       i = i + 1;
     } while (i < 5);
   }
-  poly = (POLY_F4 *)Render_gPacketPtr;
   pal = Render_gPalettePtr;
-  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
-  palw = *(u_int *)pal;
+  poly = (POLY_F4 *)Render_gPacketPtr;
+  ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
   Render_gPacketPtr = (u_char *)poly + 0x18;
-  *(u_int *)pal = palw & 0xff000000 | (u_int)poly & 0xffffff;
+  ((Hud_PTag *)pal)->addr = (u_int)poly;
   Hud_BuildF4(poly,1,xf,y,0x4b,0x30,0);
   return;
 }

@@ -5,6 +5,11 @@
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
+typedef struct tPsyQPrimTag {
+  unsigned int addr : 24;
+  unsigned int len : 8;
+} tPsyQPrimTag;
+
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
    feapp_externs.h decls all FE TUs consume). FEApp = the global FE application pointer. ---- */
 int             currentVideo;     /* FE play-movie index (SYM STAT; externed as shared int) */
@@ -314,175 +319,140 @@ void tFEApplication::DrawHelpIcons()
 void tFEApplication::Redraw()
 
 {
-  int i;
+  short i;
   u_char saveFPlayer;
   short height;
   char buffer [32];
-  int drenv;
-  u_char *daprim;
+  DRAWENV *drenv;
+  DR_AREA *daprim;
   RECT r;
-  int iVar1;
-  int musThresh;
-  tMenuCommand emptycommand;
-  tInputKeyType JustOneToPass;
-  tGlobalMenuDefs *globalMenuDefs;
-  tInputKeyType JustOneToPass_l85;
-  int curItem;
-  u_char *prev_pkt_p1;
-  int pkt_addr24_p1;
-  int menu_per_player;
-  int parentMenu_p;
-  tMenu *curMenu;
-  int ti8;
-  int pa_Var9;
-  tMenu *ptVar2;
-  u_char bVar2;
-  __vtbl_ptr_type (*pa_Var2) [11];
-  int ti2;
-  int pa_Var3;
-  int freeHeap_or_buf;
-  int pkt_addr24_p2;
 
   saveFPlayer = this->fPlayer;
   FeAudio_systemtask(0);
   Draw_StartFrameRender();
   Draw_StartRenderingView(Draw_gPlayer1View);
-  iVar1 = largestunused();
-  sprintf(buffer,(char *)(bigBuf + 0x44),iVar1);
+  sprintf(buffer,(char *)(bigBuf + 0x44),largestunused());
   FETextRender_FullText(buffer,0x100,0xd7,textType_FramedInfo,textState_Selected,0);
-  iVar1 = AudioMus_Buffered();
-  musThresh = AudioMus_Threshold();
-  sprintf(buffer,(char *)(bigBuf + 0x48),iVar1,musThresh);
+  sprintf(buffer,(char *)(bigBuf + 0x48),AudioMus_Buffered(),AudioMus_Threshold());
   FETextRender_FullText(buffer,0x10,0xd7,textType_FramedInfo,textState_Hilighted,0);
-  drenv = (int)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
+  drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   if (this->fCurrentMenu[1] != (tMenu *)0x0) {
-    height = (short)((u_int)(screenheight - (screenheight >> 0x1f)) >> 1);
+    height = (short)(((u_int)screenheight + ((u_int)screenheight >> 0x1f)) >> 1);
   }
   else {
     height = (short)screenheight;
   }
   tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();
-  globalMenuDefs = menuDefs[0];
-  if ((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[4].nopad == '\0')) {
-    (menuDefs[0]->itemMainTwoPlayerRace).fFlags
-         = (menuDefs[0]->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
-  }
-  else {
-    (menuDefs[0]->itemMainTwoPlayerRace).fFlags
-         = (menuDefs[0]->itemMainTwoPlayerRace).fFlags | 1;
-    JustOneToPass = kInput_KeyType_Up;
+  if ((gPadinfo.buf[0].nopad != '\0') || (gPadinfo.buf[4].nopad != '\0')) {
+    tGlobalMenuDefs *globalMenuDefs = menuDefs[0];
+    (globalMenuDefs->itemMainTwoPlayerRace).fFlags
+         = (globalMenuDefs->itemMainTwoPlayerRace).fFlags | 1;
+    tMenuCommand emptycommand;
+    tInputKeyType JustOneToPass = kInput_KeyType_Up;
     if ((tMenuItemGoToMenuNFS4Button *)
         this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] ==
         &globalMenuDefs->itemMainTwoPlayerRace) {
       (&globalMenuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
     }
   }
-  globalMenuDefs = menuDefs[0];
-  if (gPadinfo.buf[0].nopad == '\0') {
-    (menuDefs[0]->itemMainOnePlayerRace).fFlags
-         = (menuDefs[0]->itemMainOnePlayerRace).fFlags & 0xfffffffe;
+  else {
+    (menuDefs[0]->itemMainTwoPlayerRace).fFlags
+         = (menuDefs[0]->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
+  }
+  if (gPadinfo.buf[0].nopad != '\0') {
+    tGlobalMenuDefs *globalMenuDefs = menuDefs[0];
+    (globalMenuDefs->itemMainOnePlayerRace).fFlags
+         = (globalMenuDefs->itemMainOnePlayerRace).fFlags | 1;
+    tMenuCommand emptycommand;
+    tInputKeyType JustOneToPass = kInput_KeyType_Down;
+    if ((tGlobalMenuDefs *)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem]
+        == globalMenuDefs) {
+      (&globalMenuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
+    }
   }
   else {
     (menuDefs[0]->itemMainOnePlayerRace).fFlags
-         = (menuDefs[0]->itemMainOnePlayerRace).fFlags | 1;
-    curItem = (int)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem];
-    JustOneToPass_l85 = kInput_KeyType_Down;
-    if ((tGlobalMenuDefs *)curItem == globalMenuDefs) {
-      ((tMenuNFS4 *)(curItem + 0xb0))->ProcessInput(kPlayerOne,JustOneToPass_l85,emptycommand);
-    }
+         = (menuDefs[0]->itemMainOnePlayerRace).fFlags & 0xfffffffe;
   }
-  daprim = Render_gPacketPtr;
-  prev_pkt_p1 = Render_gPalettePtr;
-  i = 1;
+  {
+  u_char **packetCell = (u_char **)0x1f800004;
+  daprim = (DR_AREA *)*packetCell;
   r.x = 0;
-  r.y = *(short *)(drenv + 2);
+  r.y = *(short *)((char *)drenv + 2);
   r.w = 0x200;
   r.h = (short)screenheight;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24_p1 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(u_int *)prev_pkt_p1 = *(u_int *)prev_pkt_p1 & 0xff000000 | pkt_addr24_p1;
-  SetDrawArea((DR_AREA *)daprim,&r);
-  do {
+  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr,
+  ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
+  *packetCell = (u_char *)daprim + 0xc;
+  SetDrawArea(daprim,&r);
+  }
+  for (i = 1; i >= 0; i--) {
     this->fPlayer = (char)i;
-    this->fYOffset = ((u_short)i & 0xff) * height;
-    menu_per_player = (int)this->fCurrentMenu[i & 0xff];
-    if (menu_per_player != 0) {
-      (**(int (**)(...))(*(int *)(menu_per_player + 0x68) + 0x54))
-                (menu_per_player + *(short *)(*(int *)(menu_per_player + 0x68) + 0x50));
+    this->fYOffset = (u_char)this->fPlayer * height;
+    if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
+      (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[10].pfn)
+                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[10].delta);
     }
-    parentMenu_p = (int)this->fParentMenu[(u_char)this->fPlayer];
-    if (parentMenu_p != 0) {
-      (**(int (**)(...))(*(int *)(parentMenu_p + 0x68) + 0x54))
-                (parentMenu_p + *(short *)(*(int *)(parentMenu_p + 0x68) + 0x50));
+    if (this->fParentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
+      (*(*this->fParentMenu[(u_char)this->fPlayer]->_vf)[10].pfn)
+                ((char *)this->fParentMenu[(u_char)this->fPlayer] +
+                 (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[10].delta);
     }
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->UpdateTransition();
     }
-    curMenu = this->fCurrentMenu[(u_char)this->fPlayer];
-    if ((curMenu != (tMenu *)0x0) &&
-       (ti8 = (*(*curMenu->_vf)[8].pfn)((int)curMenu->fItemList + (*curMenu->_vf)[8].delta + -0x10),
-       ti8 != 0)) {
-      pa_Var9 = (int)this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-      (**(int (**)(...))(pa_Var9 + 0x4c))
-                ((int)this->fCurrentMenu[(u_char)this->fPlayer]->fItemList +
-                 *(short *)(pa_Var9 + 0x48) + -0x10);
+    if ((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
+       ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
+                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta) != 0)) {
+      (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].pfn)
+                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
     }
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(false);
     }
-    ptVar2 = this->fCurrentMenu[(u_char)this->fPlayer];
-    if (ptVar2 != (tMenu *)0x0) {
-      bVar2 = false;
-      if (this->waitingForOtherPlayer[(u_char)this->fPlayer] == 0) {
-Redraw_vtableCallback9:
-        pa_Var2 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-        (*(*pa_Var2)[9].pfn)
-                  ((int)this->fCurrentMenu[(u_char)this->fPlayer]->fItemList +
-                   (*pa_Var2)[9].delta + -0x10);
+    if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
+      if ((this->waitingForOtherPlayer[(u_char)this->fPlayer] == 0) ||
+          (((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
+                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) == 0) &&
+           ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
+                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta) == 0))) {
+        (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].pfn)
+                  ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                   (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
       }
-      else {
-        ti2 = (*(*ptVar2->_vf)[7].pfn)((int)ptVar2->fItemList + (*ptVar2->_vf)[7].delta + -0x10);
-        if (ti2 == 0) {
-          pa_Var3 = (int)this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-          freeHeap_or_buf =
-               (**(int (**)(...))(pa_Var3 + 0x44))
-                         ((int)this->fCurrentMenu[(u_char)this->fPlayer]->fItemList +
-                          *(short *)(pa_Var3 + 0x40) + -0x10);
-          bVar2 = freeHeap_or_buf == 0;
-        }
-        if ((bool)bVar2) goto Redraw_vtableCallback9;
-      }
-      ptVar2 = this->fParentMenu[(u_char)this->fPlayer];
-      if (ptVar2 != (tMenu *)0x0) {
-        (*(*ptVar2->_vf)[9].pfn)((int)ptVar2->fItemList + (*ptVar2->_vf)[9].delta + -0x10);
+      if (this->fParentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
+        (*(*this->fParentMenu[(u_char)this->fPlayer]->_vf)[9].pfn)
+                  ((char *)this->fParentMenu[(u_char)this->fPlayer] +
+                   (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
       }
     }
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
+      daprim = (DR_AREA *)Render_gPacketPtr;
     }
-    daprim = Render_gPacketPtr;
-    prev_pkt_p1 = Render_gPalettePtr;
+    else {
+      daprim = (DR_AREA *)Render_gPacketPtr;
+    }
+    {
     r.x = 0;
-    r.y = *(short *)(drenv + 2) + this->fYOffset;
+    r.y = *(short *)((char *)drenv + 2) + this->fYOffset;
     r.w = 0x200;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24_p2 = (u_int)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)prev_pkt_p1 = *(u_int *)prev_pkt_p1 & 0xff000000 | pkt_addr24_p2;
     r.h = height;
-    SetDrawArea((DR_AREA *)daprim,&r);
-    i = i - 1;
-    if (i * 0x10000 < 0) {
-      this->fPlayer = saveFPlayer;
-      Draw_StopRenderingView(Draw_gPlayer1View);
-      Draw_StopFrameRender();
-      return;
+    ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr,
+    ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
+    Render_gPacketPtr = (u_char *)daprim + 0xc;
+    SetDrawArea(daprim,&r);
     }
-  } while( true );
+  }
+  this->fPlayer = saveFPlayer;
+  Draw_StopRenderingView(Draw_gPlayer1View);
+  Draw_StopFrameRender();
 }
 
 

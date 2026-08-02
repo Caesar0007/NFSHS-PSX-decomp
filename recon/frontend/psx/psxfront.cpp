@@ -914,7 +914,11 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * took 68 -> 66 (font_tint store moved BELOW the gFontClut store) -> 64 (`width = ch->width;`
    * hoisted to the very top, ahead of `prim = Render_gPacketPtr;`), then plateaued over all 14
    * movable statements.  Then a10's SPREAD-THE-USES relay took 64 -> 60: move ONE USE (not the
-   * def) toward the top of the block -- `prim[0xc] = u;` hoisted to slot 2.  a10's zero-insn
+   * def) toward the top of the block -- `prim[0xc] = u;` hoisted to slot 2.  Re-running the climb
+   * with EVERY statement movable (scratch/font_climb2_a2.py) then took 60 -> 56 (the prim+0x16
+   * tpage word up to slot 18) -> 52 (font_tint store to slot 13) -> 50 (the prim+0x1a ytop store
+   * to slot 22); it was still descending when the wave's time cap stopped it, so RESUME THAT
+   * CLIMB FIRST next pass -- position, not spelling, is what is moving this function.  a10's zero-insn
    * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
    * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
    * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
@@ -957,29 +961,29 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+  /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
+   * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1. */
+  *(u_long *)(prim + 4) = font_tint;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   prim[3] = 9;
   prim[7] = 0x2c;
   *(ushort *)(prim + 0xe) = gFontClut;
-  /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
-   * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1. */
-  *(u_long *)(prim + 4) = font_tint;
+  *(ushort *)(prim + 0x16) =
+       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
+       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
   prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0x14] = u + width;
+  *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;
   prim[0x24] = u + width;
   prim[0x25] = dv + height;
   *(short *)(prim + 8) = x;
-  *(ushort *)(prim + 0x16) =
-       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
-       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
   *(short *)(prim + 10) = ytop + height;
   *(short *)(prim + 0x10) = x + width;
   *(short *)(prim + 0x12) = ytop + height;
   *(short *)(prim + 0x18) = x;
-  *(short *)(prim + 0x1a) = ytop;
   *(short *)(prim + 0x20) = x + width;
   *(short *)(prim + 0x22) = ytop;
   return;

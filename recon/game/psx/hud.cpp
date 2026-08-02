@@ -1241,6 +1241,7 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   int i;
   int ox;
   int numch;
+  int iw;
 
   Hud_GoTpage(1);
   ix = x;
@@ -1258,13 +1259,15 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
         if (justwidth == 0) {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
-        ix = ix + 3 + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
+        iw = ix + 3;
+        ix = iw + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
       }
       else {
         if (justwidth == 0) {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
-        ix = ix + 3 + D_801119E0[0].width;
+        iw = ix + 3;
+        ix = iw + D_801119E0[0].width;
       }
       if (GameSetup_gData.commMode == 1) {
         if (gPadinfo.buf[4].ID == '#') {
@@ -1275,13 +1278,15 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
             if (justwidth == 0) {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
-          ix = ix + 3 + D_80111A1C[0].width;
+          iw = ix + 3;
+        ix = iw + D_80111A1C[0].width;
         }
         else {
             if (justwidth == 0) {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
-          ix = ix + 3 + D_801119E0[0].width;
+          iw = ix + 3;
+        ix = iw + D_801119E0[0].width;
         }
       }
     }
@@ -1321,25 +1326,28 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
             alphShape = *str + 0x8a;
             if ((u_char)(*str + 0x40U) < 0x1d) {
               offy = -1;
+              goto HudBuildStr_haveShape;
             }
-            else {
+            {
               /* BUGFIX (w38-a1): was `*str == -0x1b` -- `char` is UNSIGNED on this build, so
                * the compare was provably false and gcc DELETED this whole arm (oracle
                * @800D4574 has `lbu v1,0(s2); li v0,0xE5; bne` + the 0x67/-1 block).  Compare
                * the raw byte value instead. */
               alphShape = *str + 0x43;
               if ((u_char)*str == 0xe5) {
-                alphShape = 0x67;
                 offy = -1;
+                alphShape = 0x67;
               }
             }
           }
         }
       }
+HudBuildStr_haveShape:
       if (justwidth == 0) {
         Hud_FBuildSprite((u_int)alphShape,ix,y + offy,color,0);
       }
-      ix = ix + 1 + HudPmx_gShapes[alphShape].width;
+      iw = ix + 1;
+      ix = iw + HudPmx_gShapes[alphShape].width;
     }
 HudBuildStr_next:
     str = str + 1;

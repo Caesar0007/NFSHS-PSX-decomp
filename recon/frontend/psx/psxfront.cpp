@@ -928,6 +928,15 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 /* lines 1369-1376: (static data / macros / comments - no emitted code) */
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8).  The tag-link code is the SDK
+ * addPrim()/setaddr()/getaddr() macro family over this bitfield -- the shape that cracked
+ * libgpu P06.c AddPrim, where the hand-masked-OR spelling put the two mask constants in the
+ * wrong registers.  Inside a LOOP the same lowering also fixes the LICM PREHEADER ORDER: a
+ * bitfield store generates the masked VALUE (& 0xffffff) BEFORE the destination mask
+ * (& 0xff000000), so loop.c hoists the two constants in retail's order (LO then HI); the
+ * hand-written `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 */
+typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
+
 /* ---- PSXDrawTransGouraudSquare  (psxfront.cpp:1377, code lines 1377-1398) ---- */
 /* GPU packet: builds POLY_G4 (stride 0x24, code 0x39); prim=u_char* build cursor, prevPrim=u_char* link word */
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
@@ -936,7 +945,6 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
   /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
    * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
    * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
-  uint     otWord;
   int      i;
   POLY_G4 *prevPrim;
   POLY_G4 *prim;
@@ -947,10 +955,13 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
       prim = (POLY_G4 *)Render_gPacketPtr;
       prevPrim = (POLY_G4 *)Render_gPalettePtr;
       i = i + 1;
-      prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
-      otWord = prevPrim->tag;
+      /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the P_TAG 24-bit bitfield
+       * stores.  The VALUE side must NOT be a bitfield READ (`((PTag *)prevPrim)->addr`):
+       * that masks twice, lifting the 0xffffff allocno's loop-weighted ref count 5 -> 7
+       * past the `i` counter's .2745 and stealing its $t0 (measured 14 diffs).  w44-a2 */
+      ((PSXFront_PTag *)prim)->addr = prevPrim->tag;
       Render_gPacketPtr = (u_char *)prim + 0x24;
-      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      ((PSXFront_PTag *)prevPrim)->addr = (uint)prim;
       *(int *)&prim->r0 = c1;
       *(int *)&prim->r1 = c2;
       *(int *)&prim->r2 = c3;
@@ -976,7 +987,6 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
   /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
    * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
    * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
-  uint     otWord;
   short i;
   POLY_F4 *prevPrim;
   POLY_F4 *prim;
@@ -987,10 +997,14 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
       prim = (POLY_F4 *)Render_gPacketPtr;
       prevPrim = (POLY_F4 *)Render_gPalettePtr;
       i = i + 1;
-      prim->tag = prevPrim->tag & 0xffffff | prim->tag & 0xff000000;
-      otWord = prevPrim->tag;
+      /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the full P_TAG bitfield
+       * addPrim() shape.  Here the value side IS a bitfield READ (unlike
+       * PSXDrawTransGouraudSquare, which needs the plain word): the second 0xffffff mask
+       * is what lifts that constant's loop-weighted allocno onto retail's $t0 ahead of
+       * the (y+h) vertex value.  Probe: plain-word value 14, hand-masked OR 22/34.  w44-a2 */
+      ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)prevPrim)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
-      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      ((PSXFront_PTag *)prevPrim)->addr = (uint)prim;
       *(int *)&prim->r0 = col;
       prim->code = 0x2a;
       ((u_char *)prim)[3] = 5;
@@ -1029,7 +1043,36 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * ytop computation deferred to 4 different later statement positions, a named local for the
    * second `src+0xc` read, and 5 positions for the font_tint store (the between-prim[3]-and-
    * prim[7] slot below is the best of those, 72->68).  gcc folds `(A+5)-B` to `A-(B-5)` through
-   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along. */
+   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along.
+   * ---- w44-a2 residual 64 (count still EXACT 82/82) ----
+   * STATEMENT POSITION is the live lever here, not expression shape: a greedy per-statement
+   * position hill-climb (scratch/font_climb_a2.py -- every movable statement x every slot)
+   * took 68 -> 66 (font_tint store moved BELOW the gFontClut store) -> 64 (`width = ch->width;`
+   * hoisted to the very top, ahead of `prim = Render_gPacketPtr;`), then plateaued over all 14
+   * movable statements.  Then a10's SPREAD-THE-USES relay took 64 -> 60: move ONE USE (not the
+   * def) toward the top of the block -- `prim[0xc] = u;` hoisted to slot 2.  Re-running the climb
+   * with EVERY statement movable (scratch/font_climb2_a2.py) then took 60 -> 56 (the prim+0x16
+   * tpage word up to slot 18) -> 52 (font_tint store to slot 13) -> 50 (the prim+0x1a ytop store
+   * to slot 22); it was still descending when the wave's time cap stopped it, so RESUME THAT
+   * CLIMB FIRST next pass -- position, not spelling, is what is moving this function.  a10's zero-insn
+   * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
+   * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
+   * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
+   * bitfield addPrim spellings that cracked BOTH PSXDrawTrans*Square (72 / 132), dropping the
+   * `prevPrim` local for inline Render_gPalettePtr (79), the cursor bump hoisted to 4 earlier
+   * slots (80 / 124), `dv` deferred past the link block (78 insns -- cse then MERGES the two
+   * src+0xc loads the oracle keeps SEPARATE, so dv must stay early), ytop via embedded
+   * MODIFY_EXPR / two statements / in-place mutation / a named `five` (80-88), inlining the
+   * yoff+ybase+hoff+ytop temps per the SYM local list (68-109), and the permuter's own
+   * score-755 candidate (gates 89 -- scorer/gate disagreement, cf. tools/PERMUTER.md).
+   * MECHANISM: this is NOT a register rotation -- an a1<->t8 permblind swap only takes 68->62
+   * and posdiff's alpha-renamed LCS is 15/82, so most of the residual is EMISSION ORDER inside
+   * the single block: retail issues the packet-cursor store + the first OT-link RMW BEFORE the
+   * dv chain and hoists `and t3,t1,t3` (linkAddr) + `lui %hi(font_tint)` ABOVE the first `sw`,
+   * while ours runs the dv chain first and emits both after it.  Ours also runs ONE HARD
+   * REGISTER SHORT (15 vs 16 first-use registers): retail keeps ybase/ytop in a fresh $t8 and
+   * (ybase+5) in $v1, ours folds the +5 into hoff and mutates the dying `y` REGPARM in place,
+   * which frees $a1 so the 2nd src+0xc read self-temps into $a2 instead of retail's $a1. */
   u_char  *prim;
   u_char  *prevPrim;
   int      linkAddr;
@@ -1041,9 +1084,10 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   int      hoff;
   int      ytop;
 
-  prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
   width = ch->width;
+  prim = Render_gPacketPtr;
+  prim[0xc] = u;
+  prevPrim = Render_gPalettePtr;
   height = ch->height;
   yoff = *(signed char *)&ch->yoffset;
   ybase = y - yoff;
@@ -1053,30 +1097,29 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  prim[3] = 9;
   /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
    * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1. */
   *(u_long *)(prim + 4) = font_tint;
+  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+  prim[3] = 9;
   prim[7] = 0x2c;
   *(ushort *)(prim + 0xe) = gFontClut;
+  *(ushort *)(prim + 0x16) =
+       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
+       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
   prim[0xd] = dv;
   prim[0x15] = dv;
-  prim[0xc] = u;
   prim[0x14] = u + width;
+  *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;
   prim[0x24] = u + width;
   prim[0x25] = dv + height;
   *(short *)(prim + 8) = x;
-  *(ushort *)(prim + 0x16) =
-       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
-       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
   *(short *)(prim + 10) = ytop + height;
   *(short *)(prim + 0x10) = x + width;
   *(short *)(prim + 0x12) = ytop + height;
   *(short *)(prim + 0x18) = x;
-  *(short *)(prim + 0x1a) = ytop;
   *(short *)(prim + 0x20) = x + width;
   *(short *)(prim + 0x22) = ytop;
   return;

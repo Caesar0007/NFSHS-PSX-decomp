@@ -1186,7 +1186,11 @@ void R3DCar_MATRIX3DT_Copy(int *from,int *to)
 void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 {
-  int i = 0;             /* SYM fn REG s4 -- ALL loop counters (fused; PrimMenu precedent) */
+  /* MATCH: source-level working alias separates the incoming ABI parameter from the
+     long-lived object pointer.  This is an allocation/coalescing lever, not a pin. */
+  Car_tObj *carP = carObj;
+#define carObj carP
+  int i;                 /* SYM fn REG s4 -- born at the first visibility loop */
   Transformer_zObj *obj; /* SYM fn REG a1 -- per-iteration scene object */
   coorddef parent;       /* SYM fn AUTO sp+0x18 -- base obj[0] translation cache */
   matrixtdef bodyMat;
@@ -1294,8 +1298,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
      genuinely never written by the oracle -- only pos.x/pos.z hold the two dot-product sums. */
   coorddef car;
   coorddef pos;
-  car.x = (carObj->N).position.x - *(int *)((int)Vi + 8);
   detailIndex = (carObj->render).detail + 2;
+  car.x = (carObj->N).position.x - *(int *)((int)Vi + 8);
   car.y = (carObj->N).position.y - *(int *)((int)Vi + 0xc);
   car.z = (carObj->N).position.z - *(int *)((int)Vi + 0x10);
   pos.x = car.x / 0x100 * ((carObj->N).orientMat.m[0] / 0x100) +
@@ -1344,8 +1348,6 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
-    int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
-    rear = 0;
     if (carType == 0x1c) {
       int wheelRotation;
       wheelRotation = (carObj->N).wheelRot[1];
@@ -1355,6 +1357,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     else {
       int vel;    /* SYM blk 196 REG a0 -- clamped IN PLACE */
       int spin;   /* SYM blk 196 REG v0 -- abs(wheelSpin), hoisted guard */
+      int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
+      rear = 0;
       spin = carObj->wheelSpin;
       if (spin < 0) {
         spin = -spin;
@@ -1417,10 +1421,10 @@ R_ICFt_wheelspinRpmCalc:
     }
     (carObj->render).brakeLight = brakeLight;
   }
+  i = 0;
   if (carType < 0x1c) {
     for (; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      bool bVar2;
       u_int uVar8;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
       switch((short)(code - 2)) {
@@ -1429,7 +1433,9 @@ R_ICFt_wheelspinRpmCalc:
          + shared dmgCheck/visibility-join tail LAST (L800B05B8..L800B05D0) */
       case 0:
       case 7:
-        if (((carObj->render).inside & 1U) != 0) goto switchD_800b03ec_caseD_f;
+        if (((carObj->render).inside & 1U) != 0) {
+          code = 0;
+        }
         break;
       case 1:
       case 2:
@@ -1438,7 +1444,9 @@ R_ICFt_wheelspinRpmCalc:
         }
         break;
       case 9:
-        if (((carObj->render).upgradeFlags & 4U) != 0) goto switchD_800b03ec_caseD_f;
+        if (((carObj->render).upgradeFlags & 4U) != 0) {
+          code = 0;
+        }
         break;
       case 10:
         if (((carObj->render).upgradeFlags & 4U) == 0) {
@@ -1464,13 +1472,19 @@ R_ICFt_wheelspinRpmCalc:
         }
         break;
       case 0xb:
-        if (((carObj->render).upgradeFlags & 1U) != 0) goto switchD_800b03ec_caseD_f;
+        if (((carObj->render).upgradeFlags & 1U) != 0) {
+          code = 0;
+        }
         break;
       case 3:
-        if (((carObj->render).damageParts & 1U) != 0) goto switchD_800b03ec_caseD_f;
+        if (((carObj->render).damageParts & 1U) != 0) {
+          code = 0;
+        }
         break;
       case 4:
-        if (((carObj->render).damageParts & 2U) != 0) goto switchD_800b03ec_caseD_f;
+        if (((carObj->render).damageParts & 2U) != 0) {
+          code = 0;
+        }
         break;
       case 0x10:
         if ((carObj->render).brakeLight != 0) break;
@@ -1486,24 +1500,33 @@ R_ICFt_brakeAIBranch:
         }
         break;
       case 0x12:
-        if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) goto cfLbl1;
-        goto switchD_800b03ec_caseD_f;
-      case 0x13:
-        if (cop_flag) {
-          if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) goto R_ICFt_caseE_dmgCheck;
-          goto switchD_800b03ec_caseD_f;
-        }
-        if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) break;
-        if (R3DCar_SignalBrakeFlare[carType] == 0) goto switchD_800b03ec_caseD_f;   /* @0x800B055C lbu SignalBrakeFlare(carType) */
-        bVar2 = i - 6U < 6;
-        if ((carObj->render).brakeLight == 0) {
+        if ((*(u_int *)(carObj->render).signalLight & 0x800080) == 0) {
           code = 0;
         }
-        goto R_ICFt_postSwitchVis;
+        else if ((cop_flag != 0) && (((carObj->render).damageParts & 4U) != 0)) {
+          code = 0;
+        }
+        break;
+      case 0x13:
+        if (cop_flag == 0) {
+          if ((*(u_int *)(carObj->render).signalLight & 0x800080) != 0) break;
+          if (R3DCar_SignalBrakeFlare[carType] == 0) goto switchD_800b03ec_caseD_f;   /* @0x800B055C lbu SignalBrakeFlare(carType) */
+          if ((carObj->render).brakeLight == 0) {
+            code = 0;
+          }
+          goto R_ICFt_postSwitchVis;
+        }
+        if ((*(u_int *)(carObj->render).signalLight & 0x800080) == 0) {
+          code = 0;
+        }
+        else if (((carObj->render).damageParts & 4U) != 0) {
+          code = 0;
+        }
+        break;
       case 0xd:
 cfLbl1:   /* @0x800b0524  (-f-build goto label) */
-        if (cop_flag) goto R_ICFt_caseE_dmgCheck;
-        break;
+        if (cop_flag == 0) break;
+        goto R_ICFt_caseE_dmgCheck;
       default:
         goto switchD_800b03ec_caseD_8;
       case 0xf:
@@ -1518,9 +1541,8 @@ switchD_800b03ec_caseD_8: ;   /* empty stmt: gcc2.7.2 rejects label before '}' *
         }
         break;
       }
-      bVar2 = i - 6U < 6;
 R_ICFt_postSwitchVis:
-      if (bVar2) {
+      if (i - 6U < 6) {
         /* #148: restored to source-level switch(i). The compiler emitted a 6-entry jumptable
          * @0x80056470 for indices 6..11 -> {6,7:0x800b05f4(A) 8,9:0x800b0600(B) 10,11:0x800b0648(C)};
          * Ghidra rendered it as switch-on-target-VA against an (empty) recovered jt array, which broke
@@ -1796,6 +1818,7 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
     } while (i < DrawC_gShadowMax);
   }
   (carObj->N).eIndexShadow = (short)i;
+#undef carObj
   return;
 }
 

@@ -3447,7 +3447,7 @@ HudRender_amtDone:
         Hud_gWingmanInterface[j] = 0;
         Hud_InitMapFrame(j,0);
       }
-      else if (Hud_gWingmanFlashTicks[j] < ticks) {
+      else if (ticks > Hud_gWingmanFlashTicks[j]) {
         if ((u_char)Hud_gWingmanInterface[j] != wingmode) {
           if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
           if (HudBustedOverlay == 0) {

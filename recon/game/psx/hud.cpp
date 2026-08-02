@@ -14,6 +14,21 @@
  *      live=298 pri=0.2282; `str` = p80 refs=8 live=159 pri=0.1509.  To flip we need
  *      str refs>=16 (4*16/159=0.40) or '#' refs<=14 (3*14/298=0.1409).  FALSIFIED: naming
  *      the '#' constant in a local (w40, and re-tried w44 at this baseline).
+ *      W44-a1 RELAY APPLIED (local_alloc hands $s0/$s1/$s2 out in REVERSE BIRTH ORDER of a
+ *      block's call-crossing quantities; last-USE position = the live-length dial):
+ *      - retail str=$s2 (LOWER) => by the law retail's `str` pseudo is born LATER than the
+ *        '#' constant.  TESTED, both FALSIFIED at this 52 baseline: (a) moving
+ *        `numch = strlen(str);` ahead of `ix = x; ox = x;` to re-order the births -> 56,
+ *        posdiff residual 14->16, s2/s3 UNCHANGED; (b) `int hash = '#';` materialised at the
+ *        top of the fn (the only way to give '#' an earlier birth than the LICM preheader)
+ *        + all 8 compares against it -> 54, residual 14->45 (it DOES move s2 earlier in the
+ *        first-use order but shatters the body) -- this re-confirms the w40 negative at the
+ *        new baseline, so it is now a STRONG falsification, not a stale note.
+ *      - the last-USE dial does NOT apply: retail's `addiu $s2,$s2,1` sits at the loop tail
+ *        (oracle @800D45D4) exactly where our `addiu $s3,$s3,1` sits, so str's live range
+ *        cannot be shortened by moving its final use.
+ *      => str/'#' is NOT a birth-order rotation; it needs the live-length reduction computed
+ *      below, or the find_reg cost-pass route (permuter).
  *      W44-a10 RELAY APPLIED (refs+1 recomputation, procedure 1): str at refs 9 gives
  *      3*9/159 = 0.1698 -- still LOSES to '#' (0.2282); the floor_log2 step is at 16, so a
  *      one-ref dial CANNOT reach it here.  The zero-insn redundant-mask lever

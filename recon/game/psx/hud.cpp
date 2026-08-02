@@ -3222,7 +3222,20 @@ HudRender321_drawCountNum:
  * ten $s0 | diff $v0 (block @line 34).  x is MUTATED in place (`x += w1`, then `x -= w1/w2`)
  * while xx/yy keep the untouched origin for the two box calls -- that pair of copies is what
  * the SYM's xx/yy are for; the previous recon fabricated ~25 scalar temps instead and spilled
- * 24 bytes of frame. */
+ * 24 bytes of frame.
+ * w45-a8 PASS (was 64 diffs at 200/200), two independent levers:
+ *  (1) both OT-links rewritten as the addPrim P_TAG bitfield pair (64 -> 26);
+ *  (2) the s5/s6/s7 3-cycle was ONE allocno_compare razor.  -dg receipts BEFORE:
+ *        p88 w1  refs 5 live 110 pri .0909 -> s5
+ *        p83 y   refs 4 live  91 pri .0879 -> s6   (ties Col, wins on lower allocno)
+ *        p86 Col refs 4 live  91 pri .0879 -> s7
+ *      SYM wants Col $s5 | w1 $s6 | y $s7, i.e. Col must clear .0909 -- reachable with
+ *      refs 5 (.1099) OR live <= 87 (.0919).  Moving `Col = 200;` BELOW the
+ *      BTC_playedsoundalready guard in the else-arm (so it no longer spans the
+ *      AudioCmn_PlayWrongWaySFX call) takes the live length under the bound; the then-arm
+ *      must KEEP `Col = 0xc800;` FIRST (gcc then sinks the else-arm's `li s5,200` into the
+ *      guard's bnez delay slot exactly like retail).  Moving both arms = 8 diffs, moving
+ *      only the then-arm = 20 -- the else-arm assignment position is the whole dial. */
 void BigBTCTime(int secs)
 
 {
@@ -3263,19 +3276,18 @@ void BigBTCTime(int secs)
         BTC_playedsoundalready = 0;
         return;
       }
-      Col = 200;
       if (BTC_playedsoundalready == 0) {
         AudioCmn_PlayWrongWaySFX();
         BTC_playedsoundalready = 1;
       }
+      Col = 200;
       Col2 = 100;
     }
     x = x + w1;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = (u_char *)prim + 0x34;
-    prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    *(u_int *)Render_gPalettePtr =
-         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + secs % 10,x + -1,y,Col);
     *(int *)((char *)prim + 0x28) = Col2;
     *(int *)((char *)prim + 0x1c) = Col2;
@@ -3289,9 +3301,8 @@ void BigBTCTime(int secs)
       }
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = (u_char *)prim + 0x34;
-      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + ten,x,y,Col);
       *(int *)((char *)prim + 0x28) = Col2;
       *(int *)((char *)prim + 0x1c) = Col2;

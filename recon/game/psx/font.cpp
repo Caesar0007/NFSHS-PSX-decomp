@@ -336,7 +336,28 @@ void Font_ReSetBlitter(void)
  * moved ahead of the `pv1` load (2), the c_val read moved ahead of the three zero stores
  * (5, +1 insn), and `font_abr + 0` to perturb the expression (2).  Mechanism: a sched2
  * ready-list tie -- the gp-rel `font_abr` load feeds only the far-away `jal GetTPage`, so
- * it has the lowest critical-path priority and is issued last; retail issues it first. */
+ * it has the lowest critical-path priority and is issued last; retail issues it first.
+ * w45-a3 (still 2, 27/27) -- RECEIPT SHARPENED, mechanism reclassified.  The output is
+ * BYTE-IDENTICAL across EVERY source spelling of the read: `abr_val = font_abr;` placed
+ * before the three zero stores, after them, or inlined into the GetTPage argument list all
+ * gate 2 with the same 27 instructions -- AND SO DOES `*(volatile u_long *)&font_abr`.
+ * A volatile MEM cannot be moved by any scheduler, so the placement is NOT a sched1/sched2
+ * ready-list tie as the w39/w41 notes claimed; cc1 has already canonicalized the load into
+ * that slot before scheduling ever runs.  (Only hoisting the read above `setfont(f1)` moves
+ * it -- 9 diffs / 30 insns, because it then has to survive the call.)
+ * Storage-shape menu swept precisely this session (w44 section E), all neutral or worse:
+ * unsized asm-label view `extern u_long v[] __asm__("font_abr")` 3 (+1 insn), sized [1]
+ * view 2 (exactly neutral), sized [4] view 3, pointer-cast-through-view 3.  Rewriting the
+ * three zero stores as a struct assignment is 17 (+5 insns).
+ * NEW NAMED ANGLE: since the placement survives volatile, the remaining inputs are the ones
+ * that change what cc1 EMITS rather than where it schedules -- make the three currentfont
+ * zero stores and the font_abr load MAY-ALIAS so cc1's own RTL generation cannot separate
+ * them.  Concretely: give `font_abr` a sized [1] STRUCT view (w44 menu item 3, the
+ * MEM_IN_STRUCT_P aliasing lever -- the one storage shape that deliberately ADDS aliasing)
+ * and write the zero stores through a matching struct view of `currentfont`, so the store
+ * group and the load carry the same MEM_IN_STRUCT_P flag.  Untried; the plain sized-[1]
+ * SCALAR view above being exactly neutral is consistent with the flag, not the size, being
+ * the operative bit. */
 void Font_SwitchFont(char *f1)
 
 {

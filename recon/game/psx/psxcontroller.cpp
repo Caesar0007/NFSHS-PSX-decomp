@@ -405,7 +405,25 @@ int InGame_GetDevice(int control)
  * `hoff[2]` / `hoff[8]` (13 each, neutral -- and neutral on ResetPSXController too, so
  * the §E sized-view lever does not apply here).  `hoff` is SYM class STAT
  * (nfs4-f-v3.txt:454b75, ARY INT dims 1 2) and is referenced by no other TU, so the
- * declaration is free to change if a future lever needs it. */
+ * declaration is free to change if a future lever needs it.
+ * w45-a3 (still 13, 99/98).  The w41 -dL model above is sound, and its own arithmetic names
+ * the ONLY reachable input: loop.c moves a movable iff threshold*savings*lifetime >=
+ * insn_count; the &hoff pair is savings 2 / life 2 (a lui+addiu split pair -- life cannot go
+ * below 2 and savings is fixed by its shape), so the single free variable is the loop's RTL
+ * INSN COUNT at loop.c time: ours 58, retail needed >= 61.
+ * NEW NAMED ANGLE (untried; replaces the "genuine cost-model floor" verdict, which treated
+ * insn_count as fixed when it is precisely the input the source controls).  loop.c runs
+ * EARLY -- after cse1 but before cse2 (-frerun-cse-after-loop, on at -O2), combine, and both
+ * schedulers.  So the loop only has to carry 3 more insns AT LOOP.C TIME; anything a later
+ * pass folds away costs nothing in the output.  That is a bounded search: source forms whose
+ * extra RTL dies in combine.  Candidates, cheapest first -- (a) write the three ramp stores
+ * through the SYM-typed control-block pointer instead of `*(int *)(ctrl + K)` byte math
+ * (combine folds the address arithmetic back, but loop.c counts it first); (b) spell the
+ * three `InGame_GetDevice(h[K - *hp]) == 1` guards against a named `int one = 1;` (the copy
+ * is coalesced away later); (c) write the `short i` extension explicitly as `(i << 16) >> 16`
+ * -- two RTL insns combine re-merges into the existing sll/sra pair.  MEASURE EACH ON THE
+ * -dL LINE, NOT THE GATE: apply, re-dump, and check `Loop from N to M: K real insns` reaches
+ * K >= 61 before looking at the diff count. */
 void InGame_SetRamp(void)
 
 {

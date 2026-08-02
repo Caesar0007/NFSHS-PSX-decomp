@@ -1593,8 +1593,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (amplitude < (int)uVar7) {
     amplitude = (int)uVar7;
   }
-  loadAmp = amplitude * 0x7f >> 7;
-  roadNoiseAmp = roadNoiseAmp * amplitude >> 7;
+  uVar7 = (u_int)amplitude;
+  loadAmp = (int)uVar7 * 0x7f >> 7;
+  roadNoiseAmp = roadNoiseAmp * (int)uVar7 >> 7;
   }
   if (tuntrig != 0) {
     wetNoiseAmp = 0;

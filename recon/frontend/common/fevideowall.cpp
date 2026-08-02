@@ -243,7 +243,7 @@ void tVideoWall::Draw()
 void tVideoWall::TurnOff()
 
 {
-  extern int ticksA[] __asm__("ticks");
+  extern int ticksA[];
 
   if (this->fTransitionDirection != -1) {
     int tickCounter = ticksA[0];
@@ -278,7 +278,7 @@ void tVideoWall::TurnOffInstant()
 void tVideoWall::TurnOn()
 
 {
-  extern int ticksA[] __asm__("ticks");
+  extern int ticksA[];
 
   if (this->fTransitionDirection != 1) {
     int tickCounter = ticksA[0];

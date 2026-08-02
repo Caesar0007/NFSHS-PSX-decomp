@@ -1418,7 +1418,10 @@ void tListIteratorCarColor::Decrement(tPlayer arg1)
   pbVar3 = (u_char *)(iVar1 + (int)(signed char)carInfo->fCarID + this->fValue);
   uVar2 = (u_int)*pbVar3;
   if (uVar2 == 0) {
-    uVar2 = (u_int)(u_char)carInfo->fNumDarkColors + (u_int)(u_char)carInfo->fNumLightColors;
+    /* Keep the two color-count reads distinct through GCC's scheduler. */
+    u_int darkColors = *(volatile u_char *)&carInfo->fNumDarkColors;
+    u_int lightColors = *(volatile u_char *)&carInfo->fNumLightColors;
+    uVar2 = darkColors + lightColors;
   }
   *pbVar3 = (u_char)(uVar2 - 1);
 }

@@ -12,7 +12,7 @@ extern tTournamentManager tournamentManager;
 extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;
-extern int                ticks;
+extern int                ticks[];
 extern char              *Paths_Paths[];
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
@@ -112,7 +112,8 @@ void  DrawSlider(...);
 void  PSXDrawSquare(int,int,int,int,int);
 void  FETextRender_FullTextRGB(...);
 void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
-void FETextRender_WordWrap(...);
+void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
+                           tMenuTextType textType);
 void  FeAudio_AsyncPlaySpeech(...);
 void *FECheat_IsCheatEnabled(...);
 int  GetNumPinkSlipsCars(...);

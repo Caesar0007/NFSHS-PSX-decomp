@@ -865,8 +865,9 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
     sub_otSize = carObj->render.sub_otSize + -1;
     worldZ = carObj->render.world_otz;
   }
-  ((DrawC_tTag *)sd->sub_ot)->addr = sd->head.cprim.LastPrim[worldZ];
-  ((DrawC_tTag *)&sd->head.cprim.LastPrim[worldZ])->addr = (u_long)(sd->sub_ot + sub_otSize);
+  ((DrawC_tTag *)sd->sub_ot)->addr = sd->head.cprim.LastPrim[worldZ] & 0xffffff;
+  ((DrawC_tTag *)&sd->head.cprim.LastPrim[worldZ])->addr =
+      (u_long)(sd->sub_ot + sub_otSize) & 0xffffff;
   return;
 }
 
@@ -4107,8 +4108,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
     {
       u_int *puVar8 = (u_int *)(ot + sd->otz);
-      pDVar7->tag = (u_long *)((u_int)pDVar7->tag & 0xff000000 | *puVar8 & 0xffffff);
-      *puVar8 = *puVar8 & 0xff000000 | (u_int)pDVar7 & 0xffffff;
+      ((DrawC_tTag *)pDVar7)->addr = *puVar8 & 0xffffff;
+      ((DrawC_tTag *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
     }
     SetDrawMode(pDVar7,0,0,0x120,(RECT *)0x0);
   }
@@ -4157,8 +4158,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->head).cprim.PrimPtr = (char *)(prim + 1);
         {
           u_long *ot = (u_long *)((sd->head).cprim.LastPrim + sd->otz);
-          *(u_int *)prim = *(u_int *)prim & 0xff000000 | *ot & 0xffffff;
-          *ot = *ot & 0xff000000 | (u_int)prim & 0xffffff;
+          ((DrawC_tTag *)prim)->addr = *ot;
+          ((DrawC_tTag *)ot)->addr = (u_int)prim;
         }
         gte_stsxy3_g3(prim);
         {
@@ -4179,8 +4180,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
     {
       u_int *puVar8 = (u_int *)(ot + sd->otz);
-      pDVar7->tag = (u_long *)((u_int)pDVar7->tag & 0xff000000 | *puVar8 & 0xffffff);
-      *puVar8 = *puVar8 & 0xff000000 | (u_int)pDVar7 & 0xffffff;
+      ((DrawC_tTag *)pDVar7)->addr = *puVar8 & 0xffffff;
+      ((DrawC_tTag *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
     }
     SetDrawMode(pDVar7,0,1,0x120,(RECT *)0x0);
   }

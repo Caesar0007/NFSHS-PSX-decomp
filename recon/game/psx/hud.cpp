@@ -1574,8 +1574,8 @@ void Hud_BuildNumbers0(int player)
         if (j < num) {
           pal = (u_int *)Render_gPalettePtr;
           do {
-            pSprt[j].tag = pSprt[j].tag & 0xff000000 | *pal & 0xffffff;
-            *pal = *pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+            ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+            ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
             j = j + 1;
           } while (j < num);
         }
@@ -1586,15 +1586,15 @@ void Hud_BuildNumbers0(int player)
         j = 4;
         pal = (u_int *)Render_gPalettePtr;
         do {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *pal & 0xffffff;
-          *pal = *pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+          ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 6);
         pal = (u_int *)Render_gPalettePtr;
-        HudG4->tag = HudG4->tag & 0xff000000 | *pal & 0xffffff;
-        *pal = *pal & 0xff000000 | (u_int)HudG4 & 0xffffff;
-        HudF4->tag = HudF4->tag & 0xff000000 | *pal & 0xffffff;
-        *pal = *pal & 0xff000000 | (u_int)HudF4 & 0xffffff;
+        ((Hud_PTag *)HudG4)->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)HudG4;
+        ((Hud_PTag *)HudF4)->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)HudF4;
       }
     }
   }
@@ -1640,24 +1640,21 @@ void Hud_BuildNumbers0(int player)
       j = 0x1e;
       pal = Render_gPalettePtr;
       do {
-        pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+        ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
         j = j + 1;
       } while (j < 0x22);
       j = 10;
       do {
         if (j == 10) {
           Hud_GoTpage(0);
-          pSprt[10].tag =
-               pSprt[10].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-          *(u_int *)Render_gPalettePtr =
-               *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[10] & 0xffffff;
+          ((Hud_PTag *)&pSprt[10])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[10];
           Hud_GoTpage(1);
         }
         else {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-          *(u_int *)Render_gPalettePtr =
-               *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
         }
         j = j + 1;
       } while (j < 0xc);
@@ -1699,24 +1696,21 @@ void Hud_BuildNumbers0(int player)
         j = 0x1e;
         pal = Render_gPalettePtr;
         do {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+          ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 0x25);
         j = 10;
         do {
           if (j == 10) {
             Hud_GoTpage(0);
-            pSprt[10].tag =
-                 pSprt[10].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[10] & 0xffffff;
+            ((Hud_PTag *)&pSprt[10])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[10];
             Hud_GoTpage(1);
           }
           else {
-            pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+            ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
           }
           j = j + 1;
         } while (j < 0xc);
@@ -1741,24 +1735,21 @@ void Hud_BuildNumbers0(int player)
         j = 0x1e;
         pal = Render_gPalettePtr;
         do {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+          ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 0x23);
         j = 10;
         do {
           if (j == 10) {
             Hud_GoTpage(0);
-            pSprt[10].tag =
-                 pSprt[10].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[10] & 0xffffff;
+            ((Hud_PTag *)&pSprt[10])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[10];
             Hud_GoTpage(1);
           }
           else {
-            pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+            ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
           }
           j = j + 1;
         } while (j < 0xc);
@@ -1769,10 +1760,10 @@ void Hud_BuildNumbers0(int player)
     u_char *pal;
 
     pal = Render_gPalettePtr;
-    HudG4[2].tag = HudG4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudG4[2] & 0xffffff;
-    HudF4[3].tag = HudF4[3].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudF4[3] & 0xffffff;
+    ((Hud_PTag *)&HudG4[2])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[2];
+    ((Hud_PTag *)&HudF4[3])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[3];
   }
   return;
 }
@@ -1841,22 +1832,22 @@ void Hud_BuildNumbers(int player)
     j = 0x14;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x17);
     j = 6;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 8);
     pal = Render_gPalettePtr;
-    HudG4[1].tag = HudG4[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudG4[1] & 0xffffff;
-    HudF4[1].tag = HudF4[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudF4[1] & 0xffffff;
+    ((Hud_PTag *)&HudG4[1])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[1];
+    ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[1];
   }
   if ((((GameSetup_gData.carInfo[player].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
       ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
@@ -1870,22 +1861,22 @@ void Hud_BuildNumbers(int player)
     j = 0x17;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x1e);
     j = 8;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 10);
     pal = Render_gPalettePtr;
-    HudG4[3].tag = HudG4[3].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudG4[3] & 0xffffff;
-    HudF4[2].tag = HudF4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudF4[2] & 0xffffff;
+    ((Hud_PTag *)&HudG4[3])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[3];
+    ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[2];
   }
   if (((GameSetup_gData.carInfo[player].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
      (1 < DashHUD_gInfo.opponents)) {
@@ -1901,15 +1892,14 @@ void Hud_BuildNumbers(int player)
     j = 0x25;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x28);
     if (GameSetup_gData.carInfo[j].HudMap != 0) {  /* retail bug: j==0x28, not player */
       Hud_GoTpage(0);
-      pSprt[40].tag = pSprt[40].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[40] & 0xffffff;
+      ((Hud_PTag *)&pSprt[40])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[40];
       Hud_GoTpage(1);
     }
   }
@@ -1917,33 +1907,26 @@ void Hud_BuildNumbers(int player)
   if (GameSetup_gData.carInfo[player].HudTach != 0) {
     switch (DashHUD_gInfo.gear) {
     case 0:
-      pSprt[48].tag = pSprt[48].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[48] & 0xffffff;
+      ((Hud_PTag *)&pSprt[48])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[48];
       break;
     case 1:
-      pSprt[47].tag = pSprt[47].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[47] & 0xffffff;
+      ((Hud_PTag *)&pSprt[47])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[47];
       break;
     default:
-      pSprt[DashHUD_gInfo.gear + 39].tag =
-           pSprt[DashHUD_gInfo.gear + 39].tag & 0xff000000 |
-           *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 |
-           (u_int)&pSprt[DashHUD_gInfo.gear + 39] & 0xffffff;
+      ((Hud_PTag *)&pSprt[DashHUD_gInfo.gear + 39])->addr =
+           ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[DashHUD_gInfo.gear + 39];
       break;
     }
     if (GameSetup_gData.carInfo[player].HudSpeed == 0) {
-      pSprt[50].tag = pSprt[50].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[50] & 0xffffff;
+      ((Hud_PTag *)&pSprt[50])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[50];
     }
     else {
-      pSprt[49].tag = pSprt[49].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[49] & 0xffffff;
+      ((Hud_PTag *)&pSprt[49])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[49];
     }
   }
   Hud_GoTpage(1);
@@ -1972,9 +1955,8 @@ void Hud_BuildNumbers(int player)
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = Render_gPacketPtr + 0x34;
-    prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    *(u_int *)Render_gPalettePtr =
-         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     hun = speed / 100;
     ten = speed / 10 + hun * -10;
     Hud_BuildGT4(prim,HudPmx_gShapes + speed % 10 + 0x2c,x,y,SpeedColor);
@@ -1992,9 +1974,8 @@ void Hud_BuildNumbers(int player)
     if ((hun != 0) || (ten != 0)) {
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       Hud_BuildGT4(prim,HudPmx_gShapes + ten + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
       *(u_int *)&prim->r2 = color2;
@@ -2005,9 +1986,8 @@ void Hud_BuildNumbers(int player)
     if (hun != 0) {
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       x = x - 1 - (int)HudPmx_gShapes[hun + 0x2c].width;
       Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
@@ -2018,8 +1998,8 @@ void Hud_BuildNumbers(int player)
     u_char *pal;
 
     pal = Render_gPalettePtr;
-    pSprt[0].tag = pSprt[0].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[0] & 0xffffff;
+    ((Hud_PTag *)&pSprt[0])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&pSprt[0];
   }
   return;
 }

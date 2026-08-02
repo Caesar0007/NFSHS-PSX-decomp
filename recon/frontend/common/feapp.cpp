@@ -748,9 +748,10 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
     this->fPlayer = this->fPlayer + 1;
   } while ((u_char)this->fPlayer < 2);
   this->SetMenu(0,newMenu);
-  tMenuCommand *commandBase = command;
+  tMenuCommand *commandBase;
   tInputKeyType *keyValBase = keyVal;
   do {
+    commandBase = command;
     tick = ticks;
     doRedraw = true;
     this->fPlayer = '\0';
@@ -782,11 +783,11 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
         iVar10 = (*(*pa_Var11)[8].pfn)
                            ((int)this->fTransitionToMenu[(u_char)this->fPlayer]->fItemList +
                             (*pa_Var11)[8].delta + -0x10);
-        if (iVar10 == 0) {
-          this->fParentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
+        if (iVar10 != 0) {
+          this->fParentMenu[(u_char)this->fPlayer] = this->fCurrentMenu[(u_char)this->fPlayer];
         }
         else {
-          this->fParentMenu[(u_char)this->fPlayer] = this->fCurrentMenu[(u_char)this->fPlayer];
+          this->fParentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
         }
         this->fCurrentMenu[(u_char)this->fPlayer] = this->fTransitionToMenu[(u_char)this->fPlayer];
         pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
@@ -794,7 +795,11 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
                   ((int)this->fCurrentMenu[(u_char)this->fPlayer]->fItemList +
                    (*pa_Var11)[2].delta + -0x10);
         this->fTransitionToMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
-        if ((wasSubMenu == 0) || (this->fTransitionToScreen[0] != (tScreen *)0x0)) {
+        if ((wasSubMenu != 0) && (this->fTransitionToScreen[0] == (tScreen *)0x0)) {
+          doRedraw = false;
+          this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
+        }
+        else {
           pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
           (*(*pa_Var11)[6].pfn)
                     ((int)this->fCurrentMenu[(u_char)this->fPlayer]->fItemList +
@@ -805,15 +810,10 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
             this->SetMenu(1,this->fCurrentMenu[(int)this_tMenu_l92]->fChildMenu);
           }
         }
-        else {
-          doRedraw = false;
-          this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
-        }
         demoLoopLastInputTick = ticks;
       }
 MainLoop_subMenuDetect:
-      wasSubMenu = (u_int)(u_char)this->fPlayer;
-      if (wasSubMenu == 1) {
+      if ((u_char)this->fPlayer == 1) {
         ptVar17 = this->fCurrentMenu[1];
         if ((((ptVar17 != (tMenu *)0x0) &&
              (iVar10 = (*(*ptVar17->_vf)[7].pfn)
@@ -831,10 +831,9 @@ MainLoop_subMenuDetect:
           }
           this->fCurrentScreen[(u_char)this->fPlayer] = (tScreen *)0x0;
         }
-        wasSubMenu = (u_int)(u_char)this->fPlayer;
       }
-      if (this->fTransitionToScreen[wasSubMenu] != (tScreen *)0x0) {
-        tScreen *ptVar18 = this->fCurrentScreen[wasSubMenu];
+      if (this->fTransitionToScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
+        tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
         if (ptVar18 != (tScreen *)0x0) {
           iVar10 = (*(*ptVar18->_vf)[8].pfn)
                              ((ptVar18->fPermShapes).fFilename + (*ptVar18->_vf)[8].delta + -0x14);
@@ -946,9 +945,8 @@ i = inputStartPlayer;
           switch(iVar10) {
           case 1:
             AudioCmn_PlayFESFX(0);
-            wasSubMenu = (u_int)(u_char)this->fPlayer;
-            this->backList[wasSubMenu * 8][this->backDepth[wasSubMenu]] =
-                 this->fCurrentMenu[wasSubMenu];
+            this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] =
+                 this->fCurrentMenu[(u_char)this->fPlayer];
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             goto MainLoop_setMenuAndNext;
           case 2:
@@ -961,9 +959,8 @@ MainLoop_setMenuAndNext:
             goto MainLoop_perPlayerInputTop;
           case 3:
             AudioCmn_PlayFESFX(0);
-            wasSubMenu = (u_int)(u_char)this->fPlayer;
-            this->backList[wasSubMenu * 8][this->backDepth[wasSubMenu]] =
-                 this->fCurrentMenu[wasSubMenu];
+            this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] =
+                 this->fCurrentMenu[(u_char)this->fPlayer];
             needToSetChildMenu = true;
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             stackBackupPin = (short)this->backDepth[(u_char)this->fPlayer];
@@ -1040,7 +1037,7 @@ MainLoop_backoutPath:
             AudioCmn_PlayFESFX(1);
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
             this->SetMenu((u_short)(u_char)this->fPlayer,
-                    this->backList[(u_int)(u_char)this->fPlayer * 8]
+                    this->backList[(u_int)(u_char)this->fPlayer]
                                   [this->backDepth[(u_char)this->fPlayer]]);
             pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
             iVar10 = (*(*pa_Var11)[8].pfn)
@@ -1050,35 +1047,6 @@ MainLoop_backoutPath:
               this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             }
             break;
-          case 5:
-          case 7:
-MainLoop_carInfoPinkSlips:
-            if (frontEnd.raceType == '\x06') {
-              carManager.GetPinkSlipsCar((u_short)(u_char)frontEnd.pinkSlipsCar[(u_char)this->fPlayer],
-                         carInfo,(u_short)(u_char)this->fPlayer);
-              goto MainLoop_carInfoApplied;
-            }
-MainLoop_carInfoStockGarage:
-            if (frontEnd.carListType == '\0') {
-              carManager.GetStockCar((u_short)(u_char)frontEnd.playerCar[(u_char)this->fPlayer],carInfo)
-              ;
-            }
-            else {
-              carManager.GetGarageCar((u_short)(u_char)frontEnd.garageCar[(u_char)this->fPlayer],carInfo,
-                         (u_short)(u_char)this->fPlayer);
-            }
-MainLoop_carInfoApplied:
-            ticks_l351 = ticks;
-            if (carInfo.fEnginePatch != 0) {
-              AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch);
-              ticks_l351 = ticks;
-            }
-            while ((u_int)(ticks - ticks_l351) < 0x100) {
-              FeAudio_systemtask(0);
-            }
-            GameSetup_gData.replayMode = 0;
-            this->PerformMenuDestruction();
-            return kApp_Command_StartRace;
           case 6:
             iVar10 = 1 - (u_int)(u_char)this->fPlayer;
             if (*(int *)((int)this + iVar10 * 4 + 0x230) == 0) {
@@ -1113,6 +1081,35 @@ MainLoop_carInfoApplied:
             AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
             i = i + kPlayerTwo;
             goto MainLoop_perPlayerInputTop;
+          case 5:
+          case 7:
+MainLoop_carInfoPinkSlips:
+            if (frontEnd.raceType == '\x06') {
+              carManager.GetPinkSlipsCar((u_short)(u_char)frontEnd.pinkSlipsCar[(u_char)this->fPlayer],
+                         carInfo,(u_short)(u_char)this->fPlayer);
+              goto MainLoop_carInfoApplied;
+            }
+MainLoop_carInfoStockGarage:
+            if (frontEnd.carListType == '\0') {
+              carManager.GetStockCar((u_short)(u_char)frontEnd.playerCar[(u_char)this->fPlayer],carInfo)
+              ;
+            }
+            else {
+              carManager.GetGarageCar((u_short)(u_char)frontEnd.garageCar[(u_char)this->fPlayer],carInfo,
+                         (u_short)(u_char)this->fPlayer);
+            }
+MainLoop_carInfoApplied:
+            ticks_l351 = ticks;
+            if (carInfo.fEnginePatch != 0) {
+              AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch);
+              ticks_l351 = ticks;
+            }
+            while ((u_int)(ticks - ticks_l351) < 0x100) {
+              FeAudio_systemtask(0);
+            }
+            GameSetup_gData.replayMode = 0;
+            this->PerformMenuDestruction();
+            return kApp_Command_StartRace;
           case 8:
             GameSetup_gData.replayMode = 2;
             this->PerformMenuDestruction();

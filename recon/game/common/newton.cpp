@@ -679,6 +679,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   BWorldSm_Pos testSimRoadInfo;
 
   wheelsInAir = 0;
+  bounce = 0;
   testSimRoadInfo = newtonObj->simRoadInfo;
   {
   coorddef roadNormal;
@@ -735,9 +736,11 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
         elevation.z = elevation.z + tireCoord[wheelIndex].z;
       }
       else {
-        elevation.x = elevation.x + wheelHeight[wheelIndex].x;
+        int r1 = wheelHeight[wheelIndex].x;
+        int r3 = wheelHeight[wheelIndex].z;
+        elevation.x = elevation.x + r1;
         elevation.y = elevation.y + wheelY;
-        elevation.z = elevation.z + wheelHeight[wheelIndex].z;
+        elevation.z = elevation.z + r3;
       }
     }
     {
@@ -758,7 +761,6 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
     }
   }
   }
-  bounce = wheelsInAir;
   {
   coorddef wheelVec;
   int compressionValue [4];
@@ -806,50 +808,49 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   }
   {
     int i;
-    char *wheelData;
 
     if (bounce != 0) {
       count = newtonObj[1].simRoadInfo.forward.x + newtonObj[1].position.x +
               newtonObj[1].wheelRot[0] + newtonObj[1].orientMat.m[4];
     }
-    wheelData = (char *)newtonObj;
-    for (i = 0; (int)wheelData < (int)((char *)newtonObj + 0xc0);
-         i = i + 1, wheelData = wheelData + 0x30) {
+    for (i = 0; i < 4; i = i + 1) {
+      int newWheelAcc;
       int wheelBounce;
 
-      wheelBounce = ((Car_tObj *)newtonObj)->wheel[i].wheelAcc;
       if (bounce == 0) {
-        if ((wheelBounce < 0) && (0xdc28 < (newtonObj->orientationToGround).y)) {
-          wheelBounce = wheelBounce >> 1;
-          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc = wheelBounce;
+        if ((((Car_tObj *)newtonObj)->wheel[i].wheelAcc < 0) &&
+            (0xdc28 < (newtonObj->orientationToGround).y)) {
+          newWheelAcc = ((Car_tObj *)newtonObj)->wheel[i].wheelAcc >> 1;
+          goto storeWheelAcc;
         }
       }
-      else if ((((Car_tObj *)newtonObj)->wheel[i].rebound != 0) && ((newtonObj->linearVel).y < 0)) {
+      if ((bounce != 0) && (((Car_tObj *)newtonObj)->wheel[i].rebound != 0) &&
+          ((newtonObj->linearVel).y < 0)) {
         int speed;
 
-        speed = (newtonObj->linearVel).y;
-        if (speed < 0) {
-          speed = -speed;
-        }
-        speed = speed + newtonObj->groundVel;
+        speed = __builtin_abs((newtonObj->linearVel).y) + newtonObj->groundVel;
         if (-1 < speed) {
           wheelBounce = speed / count >> 1;
           if (speed < 0x100000) {
             int ratio;
 
             ratio = fixedmult(speed,0x1000);
-            if (ratio < 0x4ccd) {
-              ratio = 0x4ccc;
+            if (ratio >= 0x4ccd) {
+              ratio = fixedmult(speed,0x1000);
             }
             else {
-              ratio = fixedmult(speed,0x1000);
+              ratio = 0x4ccc;
             }
             wheelBounce = fixedmult(ratio,wheelBounce);
           }
-          ((Car_tObj *)newtonObj)->wheel[i].wheelAcc =
-              ((Car_tObj *)newtonObj)->wheel[i].wheelAcc + wheelBounce;
+          newWheelAcc = ((Car_tObj *)newtonObj)->wheel[i].wheelAcc + wheelBounce;
+          goto storeWheelAcc;
         }
       }
+      goto nextWheel;
+storeWheelAcc:
+      ((Car_tObj *)newtonObj)->wheel[i].wheelAcc = newWheelAcc;
+nextWheel:;
     }
   }
   {
@@ -905,10 +906,8 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
       iVar24 = fixedmult(tempVecZ.x,tempVecX.z);
       iVar20 = iVar20 - iVar24;
       tempVecY.y = iVar20;
-      iVar20 = fixedmult(tempVecZ.x,tempVecX.y);
-      iVar24 = fixedmult(tempVecZ.y,tempVecX.x);
-      iVar20 = iVar20 - iVar24;
-      tempVecY.z = iVar20;
+      tempVecY.z = fixedmult(tempVecZ.x,tempVecX.y) -
+                   fixedmult(tempVecZ.y,tempVecX.x);
       Math_NormalizeShortVector(&tempVecY);
       if (tempVecY.y >= 0) {
         normal->x = tempVecY.x;
@@ -986,13 +985,12 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
           roll = limit;
         }
 
-        temp = newtonObj[1].shadowMat.m[8];
-        if (__builtin_abs(temp) < 0x13333) {
+        if (__builtin_abs(newtonObj[1].shadowMat.m[8]) < 0x13333) {
           newtonObj[1].shadowMat.m[8] =
-              fixedmult(temp,*(int *)(newtonObj[1].damage[3] + 0x130));
+              fixedmult(newtonObj[1].shadowMat.m[8],*(int *)(newtonObj[1].damage[3] + 0x130));
         }
         else {
-          newtonObj[1].shadowMat.m[8] = fixedmult(temp,0xd999);
+          newtonObj[1].shadowMat.m[8] = fixedmult(newtonObj[1].shadowMat.m[8],0xd999);
         }
         newtonObj[1].shadowMat.m[8] = newtonObj[1].shadowMat.m[8] + pitch;
 

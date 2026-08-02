@@ -3686,8 +3686,24 @@ HudRender_amtDone:
            * adjacent to the jump -- find a zero-cost shape where the 0-arm is a
            * reg-reg copy instead (e.g. the 0 already live in another local). */
           countamount = 1;
-          if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
-            countamount = 0;
+          if (simGlobal.gameTicks < 0x240) {
+            if (countdown == '\0') {
+              countamount = 0;
+              /* MATCH (w45-a7) -- STORE-FLAG BREAKER, the lever that sealed this fn.
+               * gcc-2.8 jump.c folds `x = 1; if (c) x = 0;` into ONE store-flag insn
+               * (`sltu a0,zero,countdown`) ONLY when the guarded block is a SINGLE
+               * `(set reg const)` insn.  A zero-length USE fence beside the store makes
+               * the block two insns, so the pattern no longer matches and gcc keeps
+               * retail's branch shape (`bnez [ds nop]` / `addu a0,zero,zero`), with the
+               * `li a0,1` still scheduled into the OUTER beqz delay slot.
+               * FALSIFIED before this: nested if, explicit goto-chain, if/else both-arms,
+               * 3-arm cascade, two full Hud_BuildCdPlayer calls (that one regresses --
+               * it moves `countamount` off $a0 in the BTC block above, proving retail
+               * reuses the SAME variable), and the fence placed OUTSIDE this block
+               * (before the countdown test) -- the block must itself stop being a
+               * lone const-set. */
+              __asm__ volatile("" : : "r"(countamount));
+            }
           }
           Hud_BuildCdPlayer(countamount,i);
         }

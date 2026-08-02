@@ -918,7 +918,7 @@ void Hud_Init(void)
     }
     if (Hud_BeTheCop != 0) {
       sye = splitY + 0xe;
-      y = sye + g1Player[2].y;
+      y = g1Player[2].y + sye;
     }
     else {
       y = g1Player[5].y + splitY;
@@ -945,7 +945,7 @@ void Hud_Init(void)
     }
     if (Hud_BeTheCop != 0) {
       syc = splitY + 0xc;
-      y = syc + g1Player[2].y;
+      y = g1Player[2].y + syc;
     }
     else {
       y = g1Player[5].y + splitY + 1;

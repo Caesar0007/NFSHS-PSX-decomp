@@ -3253,11 +3253,19 @@ void Hud_RenderTacView(void)
   j = 0;
   if (-1 < DashHUD_gInfo.splitscreen) {
     do {
-      if ((GameSetup_gData.carInfo[j].HudTach != 0) && (DashHUD_gInfo.showhud[j] != 0)) {
+      /* MATCH (w44-a5): ONE shared `j * 4` feeding BOTH the showhud test and the
+       * Hud_gTacView[] fetch, index-term FIRST in the address add -- reproduces the
+       * oracle's single `sll $v1,$s1,2; addu` per iteration.  40 -> 35 diffs, one of
+       * the two surplus callee-saved regs gone. */
+      int j4;
+
+      j4 = j * 4;
+      if ((GameSetup_gData.carInfo[j].HudTach != 0) &&
+          (((int *)(j4 + (int)&DashHUD_gInfo))[7] != 0)) {
         u_char *pal;
         DR_MODE *tp;
 
-        Draw_StartRenderingView(Hud_gTacView[j]);
+        Draw_StartRenderingView(*(int *)(j4 + (int)Hud_gTacView));
         DashHUD_HUDCalc(j);
         Hud_BuildTach(j);
         pal = Render_gPalettePtr;
@@ -3266,7 +3274,7 @@ void Hud_RenderTacView(void)
         tp = &gTPage1[j][2];
         tp->tag = tp->tag & 0xff000000 | *(u_int *)pal & 0xffffff;
         *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp & 0xffffff;
-        Draw_StopRenderingView(Hud_gTacView[j]);
+        Draw_StopRenderingView(*(int *)(j4 + (int)Hud_gTacView));
       }
       j = j + 1;
     } while (j <= DashHUD_gInfo.splitscreen);

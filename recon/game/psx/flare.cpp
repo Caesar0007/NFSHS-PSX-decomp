@@ -1283,12 +1283,15 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
   pt2.vy = (short)y;
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000) {
     int flare_type;
+    u_long c;
 
     pt = &pt2;
     otz = 0;
     flare_type = type & 0xffU;
-    *(u_long *)&gfrgb = Flare_gType[flare_type].chalo;
-    *(u_long *)&gfrgb2 = Flare_gType[flare_type].cbeam;
+    c = Flare_gType[flare_type].chalo;
+    *(u_long *)&gfrgb = c;
+    c = Flare_gType[flare_type].cbeam;
+    *(u_long *)&gfrgb2 = c;
     {
       DR_MODE *aprim;
       u_int *slot;

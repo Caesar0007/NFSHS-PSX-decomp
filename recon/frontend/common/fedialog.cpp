@@ -233,20 +233,9 @@ static const tHelpData kHelpArrayTemplate /* @0x80010244 */ =
 void tDialogHelp::CalculateDimensions()
 
 {
-  short sVar2;
-  bool bVar3;
-  bool showLeftRight;
-  bool showCross;
-  tTexture_ShapeInfo *ptVar5;
-  short sVar6;
-  u_short uVar7;
   int newWidth;
-  u_int *puVar8;
-  int iVar9;
-  u_int uVar10;
   tMenu *menu;
   short i;
-  int iVar11;
   tPlayer player;
   tHelpData helpArray [1];
 
@@ -254,48 +243,49 @@ void tDialogHelp::CalculateDimensions()
   FETextRender_SetFont(0);
   this->numItems = 0;
   this->AddItem(0x59,0);
-  iVar9 = (int)this->specificPlayer;
   player = (tPlayer)0;
-  if (iVar9 != -1) {
-    player = (tPlayer)iVar9;
+  if (this->specificPlayer != -1) {
+    player = (tPlayer)this->specificPlayer;
   }
-  showLeftRight = false;
   if (helpArray[this->variant].autoGenerate != '\0') {
+    bool showLeftRight;
+    bool showCross;
+
+    showLeftRight = false;
     showCross = false;
     menu = FEApp->fCurrentMenu[player];
-    i = 0;
-    while (puVar8 = *(u_int **)((int)menu->fItemList + ((i << 0x10) >> 0xe)),
-          puVar8 != (u_int *)0x0) {
-      uVar10 = *puVar8;
-      if (((uVar10 ^ 1) & 1) != 0) {
-        if ((uVar10 & 0x400) == 0) {
-          showCross = true;
-        }
-        else {
+    for (i = 0; ; i = i + 1) {
+      if (menu->fItemList[i] == (tMenuItem *)0x0) {
+        break;
+      }
+      if (((menu->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+        if ((menu->fItemList[i]->fFlags & 0x400) != 0) {
           showLeftRight = true;
         }
+        else {
+          showCross = true;
+        }
       }
-      i = i + 1;
     }
-    sVar6 = menu->GetNumberEnabledItems();
-    if (1 < sVar6) {
+    if (1 < menu->GetNumberEnabledItems()) {
       this->AddItem(0x52,0x50);
     }
     if (showLeftRight) {
       this->AddItem(0x53,0xa0);
     }
     if (showCross) {
-      bVar3 = false;
+      bool hasSpecialFlags;
+
+      hasSpecialFlags = false;
       if (((menu->fFlags & 0x10000) != 0) || ((menu->fFlags & 0x20000) != 0)) {
-        bVar3 = true;
+        hasSpecialFlags = true;
       }
-      if (bVar3) {
-        sVar6 = 0x56;
+      if (hasSpecialFlags) {
+        this->AddItem(0x56,0x4000);
       }
       else {
-        sVar6 = 0x55;
+        this->AddItem(0x55,0x4000);
       }
-      this->AddItem(sVar6,0x4000);
     }
     if (0 < FEApp->backDepth[player]) {
       this->AddItem(0x54,0x1000);
@@ -303,99 +293,92 @@ void tDialogHelp::CalculateDimensions()
     if (menu->fOptionsMenu != (tMenu *)0x0) {
       this->AddItem(0x57,-0x8000);
     }
-    if ((menu->fFlags & 0x800) == 0) {
-      bVar3 = false;
-      if (((menu->fNextMenu != (tMenu *)0x0) || ((menu->fFlags & 0x400) != 0)) ||
-         (menu->fOnButtonPress != (u_char **)0x0)) {
-        bVar3 = true;
-      }
-      if ((!bVar3) && ((menu->fFlags & 4) == 0)) goto CalcDim_helpArrFetch;
-      sVar6 = 0x56;
+    if ((menu->fFlags & 0x800) != 0) {
+      this->AddItem(0x58,8);
     }
     else {
-      sVar6 = 0x58;
+      bool canContinue;
+
+      canContinue = false;
+      if (((menu->fNextMenu != (tMenu *)0x0) || ((menu->fFlags & 0x400) != 0)) ||
+          (menu->fOnButtonPress != (void *)0x0)) {
+        canContinue = true;
+      }
+      if ((!canContinue) && ((menu->fFlags & 4) == 0)) {
+        goto CalcDim_helpArrFetch;
+      }
+      this->AddItem(0x56,8);
     }
-    this->AddItem(sVar6,8);
   }
 CalcDim_helpArrFetch:
-  sVar2 = this->variant;
   i = 0;
-  sVar6 = helpArray[this->variant].items[0].text;
-  while (sVar6 != 0) {
-    iVar9 = (i << 0x10) >> 0xe;
-    this->AddItem(*(short *)((int)&helpArray[sVar2].items[0].text + iVar9),
-            *(short *)((int)&helpArray[sVar2].items[0].button + iVar9));
+  while (helpArray[this->variant].items[i].text != 0) {
+    this->AddItem(helpArray[this->variant].items[i].text,
+                  helpArray[this->variant].items[i].button);
     i = i + 1;
-    sVar2 = this->variant;
-    sVar6 = *(short *)((int)&helpArray[this->variant].items[0].text + (i * 0x10000 >> 0xe));
   }
   this->helpcontrollers = 0;
   PAD_update();
   if (gPadinfo.buf[0].nopad == '\0') {
-    uVar7 = this->helpcontrollers | 1;
+    short controllerFlags;
+
+    controllerFlags = this->helpcontrollers | 1;
     if (gPadinfo.buf[0].ID == '#') {
-      uVar7 = this->helpcontrollers | 2;
+      controllerFlags = this->helpcontrollers | 2;
     }
-    this->helpcontrollers = uVar7;
+    this->helpcontrollers = controllerFlags;
   }
   if (gPadinfo.buf[4].nopad == '\0') {
-    uVar7 = this->helpcontrollers | 1;
+    short controllerFlags;
+
+    controllerFlags = this->helpcontrollers | 1;
     if (gPadinfo.buf[4].ID == '#') {
-      uVar7 = this->helpcontrollers | 2;
+      controllerFlags = this->helpcontrollers | 2;
     }
-    this->helpcontrollers = uVar7;
+    this->helpcontrollers = controllerFlags;
   }
-  sVar6 = this->numItems;
   i = 0;
   this->width = 0;
-  if (0 < sVar6) {
-    iVar9 = 0;
+  if (0 < this->numItems) {
     do {
-      iVar9 = textpixels(*(char **)((int)this->text + (iVar9 >> 0xe)));
-      if (this->width < iVar9) {
-        this->width = (short)iVar9;
+      newWidth = textpixels(this->text[i]);
+      if (this->width < newWidth) {
+        this->width = (short)newWidth;
       }
       i = i + 1;
-      iVar9 = i * 0x10000;
-    } while (i * 0x10000 >> 0x10 < (int)this->numItems);
+    } while (i < this->numItems);
   }
   if (this->helpcontrollers == 3) {
-    newWidth = this->width;
     this->lefttext = 0x46;
-    newWidth = newWidth + 0x46;
+    this->width = this->width + 0x46;
   }
   else {
-    newWidth = this->width;
     this->lefttext = 0x28;
-    newWidth = newWidth + 0x28;
+    this->width = this->width + 0x28;
   }
-  this->width = newWidth;
   if (this->numItems < 2) {
     this->height = 0;
   }
   else {
     this->height = this->numItems * 0xf;
   }
-  ptVar5 = gHelpShapes;
   this->left = (short)((screenwidth - this->width) / 2);
   this->top = (short)((0xf0 - this->height) / 2);
-  if ((int)this->width < ptVar5[3].width + 0x14) {
-    this->width = ptVar5[3].width + 0x14;
+  if ((int)this->width < gHelpShapes[3].width + 0x14) {
+    this->width = gHelpShapes[3].width + 0x14;
   }
-  iVar11 = ticks;
   this->width = this->width + 0x14;
-  uVar10 = iVar11 - this->startTicks;
   this->height = this->height + 10;
-  if (uVar10 < 0x32) {
-    sVar6 = gHelpShapes[0x2a].height;
+  if ((u_int)(ticks - this->startTicks) < 0x32) {
     this->width =
          gHelpShapes[0x2a].width * 2 +
          (short)((((int)this->width - (((int)gHelpShapes[0x2a].width << 0x11) >> 0x10)
-                  ) * uVar10) / 0x32);
+                  ) * (ticks - this->startTicks)) / 0x32);
     this->height =
-         sVar6 * 2 +
-         (short)((u_int)(((int)this->height - (((int)sVar6 << 0x11) >> 0x10)) *
-                       (iVar11 - this->startTicks)) / 0x32);
+         gHelpShapes[0x2a].height * 2 +
+         (short)((u_int)(((int)this->height -
+                         (((int)gHelpShapes[0x2a].height << 0x11) >> 0x10)) *
+                        (ticks - this->startTicks)) / 0x32);
   }
   this->top = 0x14;
   this->left = 0x1f9 - this->width;

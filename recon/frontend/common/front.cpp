@@ -2674,127 +2674,135 @@ char * PlayerNameMixedCase(int player)
 
 
 
+/* The retail headers supplied these tiny default constructors inline.  Keeping
+   their initialization with the owning type is important here: tAllScreens is
+   just an aggregate of screens, and GCC can then interleave each member's base
+   constructor with its vptr/field setup exactly as in Front.obj. */
+inline tDialogBase::tDialogBase()
+{
+  *(void **)&_vf = (void *)tDialogBase_vtable;
+  MaxW = 0x120;
+  currentlyOn = 0;
+  reservedheight = 0;
+  MaxH = 0;
+  OffsetY = 0;
+  OffsetX = 0;
+  height = 0;
+  width = 0;
+  top = 0;
+  left = 0;
+  specificPlayer = -1;
+  fDefault = 0;
+  timeOutTicks = 0;
+}
+
+inline tDialogMessageString::tDialogMessageString()
+{
+  *(void **)&_vf = (void *)tDialogMessageString_vtable;
+  Centerit = 0;
+  fFullyOpen = 0;
+  timeOutTicks = 0;
+  fFadeText = 0x80;
+}
+
+inline tDialogBackUpOnly::tDialogBackUpOnly(int)
+{
+  *(void **)&_vf = (void *)tDialogBackUpOnly_vtable;
+}
+
+inline tScreenMain::tScreenMain()
+{
+  *(void **)&_vf = (void *)tScreenMain_vtable;
+}
+
+inline tScreenCarSelectDuel::tScreenCarSelectDuel()
+{
+  *(void **)&_vf = (void *)tScreenCarSelectDuel_vtable;
+}
+
+inline tScreenCarSelectTwoPlayer::tScreenCarSelectTwoPlayer()
+  /* The dummy CarDialog argument makes the inherited screen vptr assignment
+     occur before the member's inlined construction, matching C++'s real
+     compiler-generated vptr phase without changing the reconstructed layout. */
+  : CarDialog((*(void **)&_vf = (void *)tScreenCarSelectTwoPlayer_vtable, 0))
+{
+}
+
+inline tScreenPinkSlipsCarSelect::tScreenPinkSlipsCarSelect()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlipsCarSelect_vtable;
+}
+
+inline tScreenTrackRecords::tScreenTrackRecords()
+{
+  *(void **)&_vf = (void *)tScreenTrackRecords_vtable;
+}
+
+inline tScreenTrackInfo::tScreenTrackInfo()
+{
+  *(void **)&_vf = (void *)tScreenTrackInfo_vtable;
+}
+
+inline tScreenTrackSelect::tScreenTrackSelect()
+{
+  *(void **)&_vf = (void *)tScreenTrackSelect_vtable;
+}
+
+inline tScreenTournamentTrophy::tScreenTournamentTrophy()
+{
+  *(void **)&_vf = (void *)tScreenTournamentTrophy_vtable;
+}
+
+inline tScreenTrophyInfo::tScreenTrophyInfo()
+{
+  *(void **)&_vf = (void *)tScreenTrophyInfo_vtable;
+}
+
+inline tScreenDisplay::tScreenDisplay()
+{
+  *(void **)&_vf = (void *)tScreenDisplay_vtable;
+}
+
+inline tScreenUserName::tScreenUserName()
+{
+  *(void **)&_vf = (void *)tScreenUserName_vtable;
+}
+
+inline tScreenPinkSlipCongrats::tScreenPinkSlipCongrats()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlipCongrats_vtable;
+}
+
+inline tScreenTournamentStandings3item::tScreenTournamentStandings3item()
+{
+  *(void **)&_vf = (void *)tScreenTournamentStandings3item_vtable;
+}
+
+inline tScreenPinkSlipStandings::tScreenPinkSlipStandings()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlipStandings_vtable;
+}
+
+inline tScreenPinkSlips::tScreenPinkSlips()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlips_vtable;
+}
+
+inline tScreenBeTheCopCongrats::tScreenBeTheCopCongrats()
+{
+  *(void **)&_vf = (void *)tScreenBeTheCopCongrats_vtable;
+}
+
+inline tScreenTournamentCongrats::tScreenTournamentCongrats()
+{
+  *(void **)&_vf = (void *)tScreenTournamentCongrats_vtable;
+}
+
 /* ---- tAllScreens::ctor  [FRONT.CPP:226-232] ---- */
 
 tAllScreens::tAllScreens()
 
 {
-
-  /* [2026-07-11] deleted 30 REDUNDANT tScreen_ctor/tScreenXxx_ctor(...) manual calls: all
-     are undefined phantom externs, and the real member/base sub-objects (tScreenMain,
-     tScreenCarSelect[+Duel/TwoPlayer/PinkSlips variants], tScreenTournSelect,
-     tScreenTournamentStandings, tScreenTrophyRoom, tScreenControllerConfig, tScreenAudio,
-     tScreenMemcard, and every plain tScreen/tDialog* CarDialog member) auto-construct via
-     C++'s own implicit member-initialization -- confirmed by objdump -r on the CURRENT
-     (unfixed) object: it already emits BOTH the real ctor calls (__7tScreen x16,
-     __16tScreenCarSelect x6, __18tScreenTournSelect, __26tScreenTournamentStandings x3,
-     __17tScreenTrophyRoom, __23tScreenControllerConfig, __12tScreenAudio, __14tScreenMemcard
-     = 30 calls, EXACT oracle sequence/counts) AND the 30 phantom calls -- textbook
-     double-construction. Deleting the manual calls leaves exactly the oracle's 30 real
-     jal targets, in the oracle's own order (gcc emits automatic member-init as one
-     contiguous block, then schedules the following vtable-store/field-init statements
-     into nearby delay slots -- that's why the oracle LOOKS interleaved). */
-  *(void **)&((this->screenMain)._vf) = (void *)tScreenMain_vtable;
-  *(void **)&((this->screenCarSelectDuel)._vf) = (void *)tScreenCarSelectDuel_vtable;
-  *(void **)&((this->screenCarSelectTwoPlayer)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  (this->screenCarSelectTwoPlayer).CarDialog.MaxW = 0x120;
-  *(void **)&((this->screenCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBase_vtable;
-  (this->screenCarSelectTwoPlayer).CarDialog.currentlyOn = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.reservedheight = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.MaxH = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.OffsetY = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.OffsetX = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.height = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.width = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.top = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.left = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.specificPlayer = -1;
-  (this->screenCarSelectTwoPlayer).CarDialog.fDefault = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.timeOutTicks = 0;
-  *(void **)&((this->screenCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogMessageString_vtable;
-  (this->screenCarSelectTwoPlayer).CarDialog.Centerit = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.fFullyOpen = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.timeOutTicks = 0;
-  (this->screenCarSelectTwoPlayer).CarDialog.fFadeText = 0x80;
-  *(void **)&((this->screenCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
-  *(void **)&((this->screenCarSelectPlayerTwo)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  (this->screenCarSelectPlayerTwo).CarDialog.MaxW = 0x120;
-  *(void **)&((this->screenCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBase_vtable;
-  (this->screenCarSelectPlayerTwo).CarDialog.currentlyOn = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.reservedheight = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.MaxH = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.OffsetY = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.OffsetX = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.height = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.width = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.top = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.left = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.specificPlayer = -1;
-  (this->screenCarSelectPlayerTwo).CarDialog.fDefault = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.timeOutTicks = 0;
-  *(void **)&((this->screenCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogMessageString_vtable;
-  (this->screenCarSelectPlayerTwo).CarDialog.Centerit = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.fFullyOpen = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.timeOutTicks = 0;
-  (this->screenCarSelectPlayerTwo).CarDialog.fFadeText = 0x80;
-  *(void **)&((this->screenCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
-  *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.MaxW = 0x120;
-  *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBase_vtable;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.currentlyOn = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.reservedheight = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.MaxH = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.OffsetY = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.OffsetX = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.height = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.width = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.top = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.left = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.specificPlayer = -1;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.fDefault = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.timeOutTicks = 0;
-  *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogMessageString_vtable;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.Centerit = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.fFullyOpen = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.timeOutTicks = 0;
-  (this->screenPinkSlipsCarSelectTwoPlayer).CarDialog.fFadeText = 0x80;
-  *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
-  *(void **)&((this->screenPinkSlipsCarSelectTwoPlayer)._vf) = (void *)tScreenPinkSlipsCarSelect_vtable;
-  *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo)._vf) = (void *)tScreenCarSelectTwoPlayer_vtable;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.MaxW = 0x120;
-  *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBase_vtable;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.currentlyOn = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.reservedheight = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.MaxH = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.OffsetY = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.OffsetX = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.height = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.width = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.top = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.left = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.specificPlayer = -1;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.fDefault = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.timeOutTicks = 0;
-  *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogMessageString_vtable;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.Centerit = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.fFullyOpen = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.timeOutTicks = 0;
-  (this->screenPinkSlipsCarSelectPlayerTwo).CarDialog.fFadeText = 0x80;
-  *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo).CarDialog._vf) = (void *)tDialogBackUpOnly_vtable;
-  *(void **)&((this->screenPinkSlipsCarSelectPlayerTwo)._vf) = (void *)tScreenPinkSlipsCarSelect_vtable;
-  *(void **)&((this->screenTrackRecords)._vf) = (void *)tScreenTrackRecords_vtable;
-  *(void **)&((this->screenTrackInfo)._vf) = (void *)tScreenTrackInfo_vtable;
-  *(void **)&((this->screenTrackSelect)._vf) = (void *)tScreenTrackSelect_vtable;
-  *(void **)&((this->screenTournamentTrophy)._vf) = (void *)tScreenTournamentTrophy_vtable;
-  *(void **)&((this->screenTrophyInfo)._vf) = (void *)tScreenTrophyInfo_vtable;
-  *(void **)&((this->screenDisplay)._vf) = (void *)tScreenDisplay_vtable;
-  *(void **)&((this->screenUserName)._vf) = (void *)tScreenUserName_vtable;
-  *(void **)&((this->screenPinkSlipCongrats)._vf) = (void *)tScreenPinkSlipCongrats_vtable;
-  *(void **)&((this->screenPinkSlipStandings)._vf) = (void *)tScreenPinkSlipStandings_vtable;
-  *(void **)&((this->screenTournamentStandings3item)._vf) = (void *)tScreenTournamentStandings3item_vtable;
-  *(void **)&((this->screenPinkSlips)._vf) = (void *)tScreenPinkSlips_vtable;
-  *(void **)&((this->screenBeTheCopCongrats)._vf) = (void *)tScreenBeTheCopCongrats_vtable;
-  *(void **)&((this->screenTournamentCongrats)._vf) = (void *)tScreenTournamentCongrats_vtable;
   return;
 }
 

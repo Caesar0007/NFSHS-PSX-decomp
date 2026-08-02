@@ -3740,6 +3740,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     BOOL               fFullyOpen;   /* +0x84 */
     short              fDefault, ReturnValue;   /* +0x88 */
     int                fFadeText;   /* +0x8C */
+    tDialogBase();
     /* reconstructed member fns (FECheats.obj cross-refs; ABI-neutral) */
     void Display();
 
@@ -3759,6 +3760,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
 struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
     char               *string;   /* +0x90 */
     BOOL               Centerit;   /* +0x94 */
+    tDialogMessageString();
     /* FEDialog methods */
     void CalculateDimensions();
     void Draw();
@@ -4963,6 +4965,7 @@ struct tScreenUserName : public tScreen {   /* 204 bytes */
     short              fTextFade;   /* +0x68 */
     BOOL               fInTransition;   /* +0x6C */
     char               fRowList[10][9];   /* +0x70 */
+    tScreenUserName();
     /* reconstructed member fns (non-virtual decls; ABI-neutral) */
     void Initialize();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -4988,6 +4991,7 @@ struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {   /* 148 bytes */
+    tScreenTournamentStandings3item();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     ~tScreenTournamentStandings3item();
 };
@@ -5010,6 +5014,7 @@ struct SPEECHINFO {   /* 36 bytes */
 };
 
 struct tDialogBackUpOnly : public tDialogMessageString {   /* 152 bytes */
+    tDialogBackUpOnly(int);
     /* FEDialog methods */
     /* SYM: `94 Def class EXT type FCN VOID` -- returns nothing */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval, tMenuCommand &command);
@@ -5182,6 +5187,7 @@ struct tScreenMain : public tScreen {   /* 1464 bytes */
     int                fCurrentSlot;   /* +0x5A8 */
     int                fCurrentBG[2];   /* +0x5AC */
     int                fNumTVsInTransition;   /* +0x5B4 */
+    tScreenMain();
     /* methods (non-virtual decls; storage-neutral) — ScreenMain.obj */
     void SwapBackground(int num);
     int  DoneLoadingBackground();
@@ -5277,6 +5283,7 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {   /* 976 bytes */
     short              fPreviousOpponent;   /* +0x3A0 */
     BOOL               fOpponentTVsInitialized;   /* +0x3A4 */
     tShapeInformation  fOpponentShapes;   /* +0x3A8 */
+    tScreenCarSelectDuel();
     /* --- reconstructed member fns (Duel) --- */
     ~tScreenCarSelectDuel();
     void PreLoad();
@@ -5296,6 +5303,7 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {   /* 976 bytes */
 
 struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {   /* 1080 bytes */
     tDialogBackUpOnly  CarDialog;   /* +0x3A0 */
+    tScreenCarSelectTwoPlayer();
     /* --- reconstructed member fns (TwoPlayer) --- */
     /* MATCH 2026-07-11 (dtor-surgery): INLINE-in-class, empty body -- see the
      * tScreenControllerConfig dtor comment above for the full rationale. Standalone
@@ -5320,6 +5328,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {   /* 1100 
     CARDINFO_def       *pCI;   /* +0x43C */
     int                fStartCheckTick;   /* +0x440 */
     BOOL               fCardFailed, fExitingScreen;   /* +0x444 */
+    tScreenPinkSlipsCarSelect();
     /* --- reconstructed member fns (PinkSlips) --- */
     /* MATCH 2026-07-11 (dtor-surgery): INLINE-in-class, empty body -- see the
      * tScreenControllerConfig dtor comment above for the full rationale. Standalone
@@ -5359,6 +5368,7 @@ struct tScreenTournSelect : public tScreen {   /* 712 bytes */
 };
 
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {   /* 148 bytes */
+    tScreenPinkSlipStandings();
     void DrawBackground();
     int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
     ~tScreenPinkSlipStandings();
@@ -5393,6 +5403,7 @@ struct tScreenTrophyRoom : public tScreen {   /* 344 bytes */
 
 struct tScreenTrophyInfo : public tScreen {   /* 104 bytes */
     int                BannerCol;   /* +0x64 */
+    tScreenTrophyInfo();
     /* --- reconstructed member fns (ScreenTrophyInfo.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void DrawBackground();
@@ -5400,6 +5411,7 @@ struct tScreenTrophyInfo : public tScreen {   /* 104 bytes */
 };
 
 struct tScreenDisplay : public tScreen {   /* 100 bytes */
+    tScreenDisplay();
     /* --- reconstructed member fns (ScreenDisplay.obj; non-virtual, ABI-neutral) --- */
     void DrawBackground();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -5490,6 +5502,7 @@ struct tScreenCongrats : public tScreen {   /* 388 bytes */
 struct tScreenTournamentTrophy : public tScreenCongrats {   /* 392 bytes */
     short              fShapeCount;   /* +0x184 */
     char               fDoUpdate;   /* +0x186 */
+    tScreenTournamentTrophy();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
     int GetCar(tCarInfo &car);
     void DrawCongratsMessage();
@@ -5499,6 +5512,7 @@ struct tScreenTournamentTrophy : public tScreenCongrats {   /* 392 bytes */
 
 struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
     short              fWinner;   /* +0x184 */
+    tScreenPinkSlipCongrats();
     void DrawCongratsMessage();
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
@@ -5508,6 +5522,7 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
 };
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {   /* 388 bytes */
+    tScreenBeTheCopCongrats();
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
@@ -5515,6 +5530,7 @@ struct tScreenBeTheCopCongrats : public tScreenCongrats {   /* 388 bytes */
 };
 
 struct tScreenTournamentCongrats : public tScreenCongrats {   /* 388 bytes */
+    tScreenTournamentCongrats();
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
@@ -5525,6 +5541,7 @@ struct tScreenTrackRecords : public tScreen {   /* 116 bytes */
     tRecordBuffer      *TrackRecords;   /* +0x64 */
     int                flare_intensity, flareextra;   /* +0x68 */
     BOOL               fReadNewData;   /* +0x70 */
+    tScreenTrackRecords();
     /* --- reconstructed member fns (ScreenTrackRecords.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void Initialize();
@@ -5544,6 +5561,7 @@ struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     tVideoWall         fVideoWall;   /* +0x260 */
     BOOL               fTVsInitialized;   /* +0x298 */
     u_long             fVideoTicks;   /* +0x29C */
+    tScreenTrackSelect();
     /* --- reconstructed member fns (ScreenTracks.obj; non-virtual, ABI-neutral) --- */
     void DrawBackground();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -5561,6 +5579,7 @@ struct tScreenTrackInfo : public tScreen {   /* 676 bytes */
     tTrackInfo         fTrack;   /* +0x64 */
     tTVConfig          tvConfigs[10];   /* +0x8C */
     tVideoWall         fVideoWall;   /* +0x26C */
+    tScreenTrackInfo();
     /* --- reconstructed member fns (ScreenTrackInfo.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void DrawBackground();
@@ -5578,6 +5597,7 @@ struct tScreenPinkSlips : public tScreen {   /* 712 bytes */
     tTVConfig          fTrackTVs[8];   /* +0x84 */
     tTVConfig          fImageTVs[4];   /* +0x204 */
     BOOL               fTVsInitialized;   /* +0x2C4 */
+    tScreenPinkSlips();
     /* methods (non-virtual decls; storage-neutral) — ScreenPinkSlips.obj */
     void DrawBackground();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);

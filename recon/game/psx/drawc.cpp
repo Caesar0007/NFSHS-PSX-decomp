@@ -4339,9 +4339,12 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        {index,iPlus} / {ot} / {l0..l3} sets.  The eight Ghidra iVarN/pcVarN/
        puVarN/pCVarN walkers are gone; the fn-scope i/j do double duty (the
        gettick split, the hilight fill, and the inner 2-iteration loop). */
-    i = gettick();
-    j = i / 256;
-    hilight[0] = (i - (j << 8)) >> 3;
+    /* MATCH (w45-a4, 14 -> 6): the tick lives in `j`, and the /256 quotient
+       is an ANONYMOUS sub-expression (not a named local).  With `i = gettick()`
+       the tick shared `i`'s pseudo with the inner 2-iteration counter and the
+       divide-dividend survivor landed in $a3 instead of retail's $v1. */
+    j = gettick();
+    hilight[0] = (j - (j / 256 << 8)) >> 3;
     hilight_direction[0] = -1;
     if (DrawC_gMenuLightsDirection == 0) {
       hilight[1] = hilight[0] + 0x10U & 0x1f;
@@ -4357,32 +4360,75 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        `hilight_state[i] = -1` index form (it recomputed `addu v0,base,i` every
        iteration, +1 insn); modelling the giv explicitly reproduces the oracle's
        body byte-for-byte.  `for(i=31;i>=0;i--)` measured identical to the index
-       do-while (no SR either). */
+       do-while (no SR either).
+       ===== w45-a4: 93 -> 4 (count-exact 297/297).  FOUR VARIABLE-IDENTITY /
+       ORDER edits, each measured (see the per-site notes):
+        (1) vt2 block: `&Fe3D_lightsVertex[index*2+1]` as a POINTER local ->
+            loop.c builds a real ADDRESS giv instead of an OFFSET giv + a
+            per-iteration `addu` (this was the whole +1 insn; 93->80, 298->297).
+        (2) fill-loop counter = `index`, not `i`               (80 -> 42)
+        (3) the 2x5 hilight loop's OUTER counter = `index` too (42 -> 16)
+        (4) PrimPtr-vs-MPrimPtr compare operand order          (16 -> 14)
+        (5) `j = gettick()` with an ANONYMOUS /256             (14 ->  6)
+        (6) `index = 0x1f;` BEFORE the `hs` pointer decl       ( 6 ->  4)
+       META: retail runs {fill counter, the 2x5 outer counter, the main
+       0..0x1F loop, the tick} on essentially ONE counter/tmp band ($t0/$v1)
+       and reserves `i` ($a3) for the INNER counters.  Ghidra's `j` was pure
+       fiction; every use of a wrong variable identity rotated a0/a1/a2/a3/
+       t0..t3 by one slot across the ENTIRE function.
+       RESIDUAL 4 = two independent SINGLE-SLOT scheduling swaps, both
+       count-exact and register-exact:
+         (a) retail emits `li v1,-1` BEFORE `li t0,31`; ours emits it after
+             `addiu v0,sp,47`.  FALSIFIED here: named `signed char m1 = -1`
+             / `int m1` before or after the counter init, all four fill-loop
+             statement orders (store-first / ptr-first / store-last /
+             `*hs-- = -1` postdec), `while (0 <= index)`.
+         (b) retail loads `lhu v0,0(t2)` (x) before `lhu v1,2(t2)` (y) in the
+             vt0 fetch; ours swaps them.  FALSIFIED: all 4 store orders
+             (xyz/yxz/yzx/zyx), the pointer-local form, load order yxz.
+       NEW NAMED ANGLE: both are sched2 READY-LIST DRAIN points (w44 -dR
+       class) -- the dial is +-1 RTL insn released late in the block, not a
+       spelling.  Run tools/rtl_dump.py -dR on this TU and read the two ready
+       lists; then either (i) shorten the `hs` address computation by one RTL
+       insn (e.g. seed it from `hilight_state` + a named 31 so the addiu is
+       born with the counter) or (ii) give the vt0 x-load a second consumer so
+       it wins the tie.  stmtclimb (with a def-use audit) is the cheap probe. */
     {
+    index = 0x1f;
+    /* MATCH (w45-a4, 80 -> 42): the fill counter is `index`, NOT `i`.  Retail
+       runs the whole fn on ONE counter register for {fill, j, index} vs `i`
+       for the inner 2-iteration loop; using `i` here made our fill counter
+       share a pseudo with the inner `i` (=$a3 everywhere) and rotated a0/a1/
+       a2/a3/t0..t3 by one across the whole function.  A fresh block-local
+       counter measures 84, `j` measures 80, `index` 42. */
     signed char *hs = &hilight_state[0x1f];
-    i = 0x1f;
     do {
       *hs = -1;
-      i = i + -1;
+      index = index + -1;
       hs = hs + -1;
-    } while (-1 < i);
+    } while (-1 < index);
     }
     /* MATCH (w40-a3): INDEX form, not walking pointers -- retail's
        `addu $a1,$a2,$zero` / `addu $a0,$t1,$zero` pair right after the three
        `addiu spN` base materializations is loop.c strength-reduction seeding the
        givs FROM the array bases, which only happens if the source indexes
        hilight[j] / hilight_direction[j] (the SYM names only i and j). */
-    j = 0;
+    /* MATCH (w45-a4, 42 -> 16): the OUTER counter of this pair is `index`
+       too, not `j` -- retail runs {fill counter, this outer counter, the
+       main 0..0x1F loop} on ONE pseudo ($t0) and keeps `i` ($a3) for the
+       inner counters.  `j` here is a Ghidra naming artifact; with `j` the
+       whole a0/a1/a2/t0 band rotates by one. */
+    index = 0;
     do {
       i = 0;
       do {
-        if ((signed char)hilight_state[hilight[j] + i * hilight_direction[j] & 0x1f] < i) {
-          hilight_state[hilight[j] + i * hilight_direction[j] & 0x1f] = (char)i;
+        if ((signed char)hilight_state[hilight[index] + i * hilight_direction[index] & 0x1f] < i) {
+          hilight_state[hilight[index] + i * hilight_direction[index] & 0x1f] = (char)i;
         }
         i = i + 1;
       } while (i < 5);
-      j = j + 1;
-    } while (j < 2);
+      index = index + 1;
+    } while (index < 2);
     ChangeTPage(&lightPmx->tpage,1);
     TrsProj_SetTransPrecision(8);
     {
@@ -4425,7 +4471,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         iPlus = 0;
       }
       i = 0;
-      if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) {
+      /* MATCH (w45-a4, 16 -> 14): compare operand order IS load order --
+         retail loads PrimPtr (+4) BEFORE MPrimPtr (+8). */
+      if (!((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr)) {
         return;
       }
       {
@@ -4446,9 +4494,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt1).z = t3;
       }
       {
-        short t2 = Fe3D_lightsVertex[index * 2 + 1].y;
-        short t3 = Fe3D_lightsVertex[index * 2 + 1].z;
-        short t1 = Fe3D_lightsVertex[index * 2 + 1].x;
+        COORD16 *z1 = &Fe3D_lightsVertex[index * 2 + 1];
+        short t1 = z1->x;
+        short t2 = z1->y;
+        short t3 = z1->z;
         (sd->vt2).x = t1;
         (sd->vt2).y = t2;
         (sd->vt2).z = t3;

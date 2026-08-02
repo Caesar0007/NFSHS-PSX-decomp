@@ -105,7 +105,7 @@ extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines i
                                      tightly before gPlayerEnteredNameAlready[2] -- a wrong 4B `sw`
                                      here would clobber 3 adjacent bytes incl. that neighbor global */
 extern int gFEBigHandle[];
-extern int gLargestUnused;
+extern int gLargestUnused[];
 extern int gMasterAmbientLevel;
 extern int gMasterEngineLevel;
 extern int gMasterFENarrationLevel;

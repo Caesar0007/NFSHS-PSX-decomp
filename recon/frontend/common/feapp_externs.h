@@ -15,7 +15,8 @@ extern Car_tStats         Cars_gNewCarStatsList[];   /* was stale scalar int; ow
 extern tPadModuleState   gPadinfo;
 extern char              bigBuf[];
 extern int               Cars_gNumRaceCars;
-extern int               screenheight, ticks, gFlip, gLargestUnused, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;
+extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;
+extern int               gLargestUnused[];
 
 /* audio */
 void AudioCmn_PlayFESFX(int);

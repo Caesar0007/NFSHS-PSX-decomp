@@ -628,7 +628,7 @@ int Front_Menu(tFront_ProcessingType role)
   
   tVar3 = kApp_Command_StartRace;
   _7tScreen_fSuppressLoadingText = 1;
-  gLargestUnused = largestunused();
+  gLargestUnused[0] = largestunused();
   FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
   InitializeSpinningCars();
   Front_ConstructAll();
@@ -678,7 +678,7 @@ FrontMenu_runFrontEndCleanup:
   gFEBigHandle[0] = 0;
   frontEnd.recordlaptime =
        Stattool_ReturnRecordLapTime((ushort)(byte)frontEnd.track[0]);
-  gLargestUnused = largestunused();
+  gLargestUnused[0] = largestunused();
   return tVar3;
 }
 

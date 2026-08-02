@@ -8,7 +8,7 @@
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
    feapp_externs.h decls all FE TUs consume). FEApp = the global FE application pointer. ---- */
 int             currentVideo;     /* FE play-movie index (SYM STAT; externed as shared int) */
-int             gLargestUnused;   /* @0x800514b8  largest unused heap block (SYM u_long, extern int) */
+int             gLargestUnused[1];   /* @0x800514b8  largest unused heap block (SYM u_long) */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
 
 
@@ -635,10 +635,10 @@ void tFEApplication::RunDemoVideo()
     PSXFront_FreeDrawMemory();
     FeTools_deinit();
     FreeHelpShapeCluts();
-    gLargestUnused = largestunused();
+    gLargestUnused[0] = largestunused();
     this_00 = (tScreen *)(u_int)(u_char)((char)currentVideo + 1U);
     play_movie((char)currentVideo + 1U);
-    gLargestUnused = largestunused();
+    gLargestUnused[0] = largestunused();
     PSXFront_AllocateDrawMemory();
     FeTools_init();
     (this_00)->DisplayLoadingText();
@@ -647,7 +647,7 @@ void tFEApplication::RunDemoVideo()
     LoadAllHelpShapes();
     this->UpdateMusic();
     AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
-    gLargestUnused = largestunused();
+    gLargestUnused[0] = largestunused();
     pa_Var2 = this->fCurrentMenu[0]->_vf;
     (*(*pa_Var2)[2].pfn)((int)this->fCurrentMenu[0]->fItemList + (*pa_Var2)[2].delta + -0x10);
     pa_Var4 = this->fCurrentScreen[0]->_vf;
@@ -846,7 +846,7 @@ MainLoop_subMenuDetect:
           }
         }
         this->fCurrentScreen[(u_char)this->fPlayer] = this->fTransitionToScreen[(u_char)this->fPlayer];
-        gLargestUnused = largestunused();
+        gLargestUnused[0] = largestunused();
         pa_Var12 = this->fCurrentScreen[(u_char)this->fPlayer]->_vf;
         (*(*pa_Var12)[6].pfn)
                   ((this->fCurrentScreen[(u_char)this->fPlayer]->fPermShapes).fFilename +
@@ -858,19 +858,19 @@ MainLoop_subMenuDetect:
 MainLoop_perPlayerFlagCheck:
       bool perPlayer = false;
       if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-        inputStartPlayer = (tPlayer)(u_char)this->fPlayer;
-        u_char menuFlags = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
+        inputEndPlayer = (tPlayer)(u_char)this->fPlayer;
+        inputStartPlayer = inputEndPlayer;
+        u_int menuFlags = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
         if (((menuFlags & 0x10) != 0) ||
            ((frontEnd.gameMode == '\x01' && ((menuFlags & 8) == 0)))) {
           perPlayer = true;
         }
-        inputEndPlayer = inputStartPlayer;
         if (perPlayer) {
           inputStartPlayer = kPlayerOne;
           inputEndPlayer = kPlayerTwo;
         }
         this_tMenu_l139 = this->fCurrentMenu[(u_char)this->fPlayer];
-        u_char inputFlags = this_tMenu_l139->fFlags;
+        u_int inputFlags = this_tMenu_l139->fFlags;
         if ((inputFlags & 0x20) != 0) {
           inputStartPlayer = (tPlayer)(u_char)this->fInputPlayer;
           inputEndPlayer = inputStartPlayer;
@@ -969,21 +969,46 @@ MainLoop_setMenuAndNext:
             this->backDepth[1] = 0;
             break;
           case 4:
-            if (((this->fPlayer != '\0') || (this->backDepth[0] <= (int)stackBackupPin)) &&
-               ((this->fPlayer != '\x01' || (this->backDepth[(u_char)this->fPlayer] < 1)))) {
-              wasSubMenu = (u_int)(u_char)this->fPlayer;
-              if (this->waitingForOtherPlayer[wasSubMenu] != 0) {
-                this->waitingForOtherPlayer[wasSubMenu] = 0;
-                break;
-              }
-              *(u_int *)((int)this + (1 - wasSubMenu) * 4 + 0x230) = 0;
-              this->waitingForOtherPlayer[(u_char)this->fPlayer] = 0;
+            if (((this->fPlayer == '\0') &&
+                 ((int)stackBackupPin < this->backDepth[0])) ||
+                ((this->fPlayer == '\x01') &&
+                 (0 < this->backDepth[(u_char)this->fPlayer]))) {
+              goto MainLoop_doBack;
             }
+            if (this->waitingForOtherPlayer[(u_char)this->fPlayer] != 0) {
+              this->waitingForOtherPlayer[(u_char)this->fPlayer] = 0;
+              break;
+            }
+            this->waitingForOtherPlayer[1 - (u_char)this->fPlayer] = 0;
+            this->waitingForOtherPlayer[(u_char)this->fPlayer] = 0;
             if (this->fPlayer == '\0') {
-              if ((this->backDepth[0] != (int)stackBackupPin) ||
-                 (this->fCurrentMenu[1] == (tMenu *)0x0)) {
-                goto MainLoop_backoutPath;
+              if ((this->backDepth[0] == (int)stackBackupPin) &&
+                  (this->fCurrentMenu[1] != (tMenu *)0x0)) {
+                ptVar17 = this->fParentMenu[0];
+                if (ptVar17 != (tMenu *)0x0) {
+                  (*(*ptVar17->_vf)[5].pfn)
+                            ((int)ptVar17->fItemList + (*ptVar17->_vf)[5].delta + -0x10);
+                }
+                ptVar17 = this->fParentMenu[1];
+                if (ptVar17 != (tMenu *)0x0) {
+                  (*(*ptVar17->_vf)[5].pfn)
+                            ((int)ptVar17->fItemList + (*ptVar17->_vf)[5].delta + -0x10);
+                }
+                pa_Var11 = this->fCurrentMenu[1]->_vf;
+                stackBackupPin = -1;
+                (*(*pa_Var11)[5].pfn)
+                          ((int)this->fCurrentMenu[1]->fItemList + (*pa_Var11)[5].delta + -0x10);
+                (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+                this->backDepth[1] = 0;
               }
+            }
+            else if ((this->fPlayer == '\x01') &&
+                     (this->backDepth[1] < 1) &&
+                     (this->fCurrentMenu[1] != (tMenu *)0x0)) {
+              ptVar17 = this->fCurrentMenu[1];
+              this->backDepth[0] = stackBackupPin + -1;
+              pa_Var11 = ptVar17->_vf;
+              (*(*pa_Var11)[5].pfn)((int)ptVar17->fItemList + (*pa_Var11)[5].delta + -0x10);
               ptVar17 = this->fParentMenu[0];
               if (ptVar17 != (tMenu *)0x0) {
                 (*(*ptVar17->_vf)[5].pfn)
@@ -994,46 +1019,19 @@ MainLoop_setMenuAndNext:
                 (*(*ptVar17->_vf)[5].pfn)
                           ((int)ptVar17->fItemList + (*ptVar17->_vf)[5].delta + -0x10);
               }
-              pa_Var11 = this->fCurrentMenu[1]->_vf;
               stackBackupPin = -1;
-              (*(*pa_Var11)[5].pfn)
-                        ((int)this->fCurrentMenu[1]->fItemList + (*pa_Var11)[5].delta + -0x10);
               (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-              this->backDepth[1] = 0;
-MainLoop_backDepthCheck:
-              if (this->backDepth[(u_char)this->fPlayer] < 1) {
-                if ((u_char)this->fPlayer != 1) break;
+              this->SetMenu(0,this->backList[0][this->backDepth[0]]);
+            }
+            if (this->backDepth[(u_char)this->fPlayer] < 1) {
+              if ((u_char)this->fPlayer == 1) {
                 AudioCmn_PlayFESFX(1);
                 i = i + kPlayerTwo;
                 goto MainLoop_perPlayerInputTop;
               }
+              break;
             }
-            else {
-MainLoop_backoutPath:
-              if (this->fPlayer != '\x01') goto MainLoop_backDepthCheck;
-              if (this->backDepth[1] < 1) {
-                if (this->fCurrentMenu[1] != (tMenu *)0x0) {
-                  ptVar17 = this->fCurrentMenu[1];
-                  this->backDepth[0] = stackBackupPin + -1;
-                  pa_Var11 = ptVar17->_vf;
-                  (*(*pa_Var11)[5].pfn)((int)ptVar17->fItemList + (*pa_Var11)[5].delta + -0x10);
-                  ptVar17 = this->fParentMenu[0];
-                  if (ptVar17 != (tMenu *)0x0) {
-                    (*(*ptVar17->_vf)[5].pfn)
-                              ((int)ptVar17->fItemList + (*ptVar17->_vf)[5].delta + -0x10);
-                  }
-                  ptVar17 = this->fParentMenu[1];
-                  if (ptVar17 != (tMenu *)0x0) {
-                    (*(*ptVar17->_vf)[5].pfn)
-                              ((int)ptVar17->fItemList + (*ptVar17->_vf)[5].delta + -0x10);
-                  }
-                  stackBackupPin = -1;
-                  (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-                  this->SetMenu(0,this->backList[0][this->backDepth[0]]);
-                }
-                goto MainLoop_backDepthCheck;
-              }
-            }
+MainLoop_doBack:
             AudioCmn_PlayFESFX(1);
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
             this->SetMenu((u_short)(u_char)this->fPlayer,

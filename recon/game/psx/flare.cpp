@@ -745,6 +745,15 @@ gte_ldv0(ptCenter);
       *(u_long *)&color[0] = c;
       c = Flare_gType[i].cbeam;
       *(u_long *)&color[1] = c;
+      /* MATCH (w45-a9 SEAL 3 -> PASS 630/630): sched2 was hoisting `lw s3,8(v1)` (the
+       * `scale` field load) up into the LOAD-DELAY slot of `lw v0,0(v1)`, where retail
+       * leaves a `nop` and issues the scale/flags pair adjacently AFTER the `andi
+       * v0,s7,128`.  s3's use is far down the block, so its scheduler priority (longest
+       * path to block end) is the highest in the ready list and it always wins that slot.
+       * The zero-insn USE fence (§2b.5) is a sched fixpoint: the two gType field loads
+       * that follow it in source order can no longer migrate above it.  Emits nothing;
+       * the andi still hoists above them (it is after the fence too), = retail. */
+      __asm__ volatile("" : : "r"(c));
       scale = Flare_gType[i].scale;
       flags = Flare_gType[i].flags;
     }

@@ -177,6 +177,10 @@ POLY_FT4     gHudFT4[10];   /* @0x8013e5a0  (bss?) */
 POLY_G4      gHudG4[8];   /* @0x8013e730  (bss?) */
 char         BTC_CurrentPerpName[10];   /* @0x8013e850  (bss?) */
 
+/* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the
+ * SDK addPrim()/setaddr()/getaddr() macro family operating on this bitfield. */
+typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Hud_CreateHudViews(void);
 void Hud_GoTpage(int page);
@@ -364,19 +368,14 @@ void Hud_BuildSprite2(SPRT *sprt,int shapeIdx,int x,int y)
 void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 
 {
-  int tu1;
   u_char *prim;
   u_char *prev_pkt;
-  u_int   prev_hi;
 
   prim = Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)prim =
-       *(u_int *)prim & 0xff000000 | *(u_int *)prev_pkt & 0xffffff;
-  prev_hi = *(u_int *)prev_pkt & 0xff000000;
+  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
   Render_gPacketPtr = prim + 0x14;
-  tu1 = (u_int)prim & 0xffffff;
-  *(u_int *)prev_pkt = prev_hi | tu1;
+  ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
   Hud_BuildSprite((SPRT *)prim,shapeIdx,x,y,color,trans);
   return;
 }
@@ -662,17 +661,12 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 {
   POLY_F4 *prim;
   u_char  *prev_pkt;
-  u_int    prev_hi;
-  int      pkt_addr24;
 
   prim     = (POLY_F4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)prim =
-       *(u_int *)prim & 0xff000000 | *(u_int *)prev_pkt & 0xffffff;
-  prev_hi = *(u_int *)prev_pkt & 0xff000000;
+  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
   Render_gPacketPtr = (u_char *)prim + 0x18;
-  pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+  ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
 
@@ -1492,9 +1486,7 @@ HudBuildStr_next:
   return ix - ox;
 }
 
-/* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the
- * SDK addPrim()/setaddr()/getaddr() macro family operating on this bitfield. */
-typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
+/* (Hud_PTag typedef moved to the forward-declaration block, w45-a8) */
 
 /* ---- Hud_BuildNumbers0__Fi  [HUD.CPP:1551-1712] SLD-VERIFIED ----
  * 🔴 w40-a1 FINDING (same class as Hud_BuildNumbers, NOT yet landed): the oracle makes TWO

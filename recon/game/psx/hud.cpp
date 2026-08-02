@@ -2816,8 +2816,15 @@ void Hud_BuildReplay(void)
 
 /* D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30), same standalone-global
  * alias as recon/game/common/aiinit.cpp's D_8011321C precedent -- the oracle reaches it via a
- * bare lui/lw, not a GameSetup_gData struct-field offset. */
-extern int D_8011321C;
+ * bare lui/lw, not a GameSetup_gData struct-field offset.
+ * MATCH (w45-a7): declared UNSIZED-ARRAY + accessed [0] on purpose.  As a scalar
+ * `extern int` cc1 emits the one-insn assembler MACRO `lw $v0,D_8011321C`, which is
+ * unschedulable AND may_trap -> reorg can never speculate it into a branch delay slot
+ * ("scalar extern = delay-slot poison pill").  The unsized-array form makes gcc do its
+ * own %hi/%lo split, so the bare `lui` is the first insn of the loop-prep block and
+ * reorg EAGER-STEALS it into the `bnez s1` slot exactly like retail (which then keeps
+ * a second copy at .L800D75E8 for the `bne v0,v1` entry). */
+extern int D_8011321C[];
 
 /* ---- Hud_NextPlayer__Fi  [HUD.CPP:2862-2889] SLD-VERIFIED ----
  * FIXED (was 40 diffs, ours 85/oracle 89 -- 4 insns SHORT): the recon was missing the oracle's
@@ -2865,10 +2872,18 @@ int Hud_NextPlayer(int player)
   if (1 < Cars_gNumRaceCars) {
     iVar1 = Stats_GetPosition(carObj_00);
     if ((iVar1 == 1) && (uVar5 == 0)) {
+      /* MATCH (w45-a7): zero-length VOLATILE asm = a reorg barrier, not a pin.  Without
+       * it fill_simple_delay_slots grabs this block's `li v0,-1` out of the fall-through
+       * into the `bnez s1` delay slot and leaves the following `j` slot a nop; retail
+       * has the nop-free pair (`bnez [ds lui]` / `j [ds li v0,-1]`).  The volatile insn
+       * makes resource_conflicts_p fail the simple fill, so reorg falls through to
+       * fill_eager_delay_slots and steals from the TARGET instead (see the unsized-array
+       * receipt on D_8011321C above -- both levers are required, 6 -> 4 -> PASS). */
+      __asm__ volatile("");
       return -1;
     }
     iVar4 = 0;
-    uVar5 = uVar5 ^ D_8011321C;
+    uVar5 = uVar5 ^ D_8011321C[0];
     iVar1 = carObj_00->sortIndex;
     if (0 < Cars_gNumCars + -1) {
       do {

@@ -253,7 +253,26 @@ void RaceSummary(void)
  * the saves.  Variants measured: rows-only 98, pitch-only 139, rows+pitch 138, SIZE_W
  * after POS_X 123, `short pitch` 138, pitch also driving the two `col +=` increments
  * (94/139 -- cse const-props it back in the loop, so the increments are NOT the reason
- * retail has a variable multiplier).  NEXT IDEA for this axis: stop sched1 from hoisting
+ * retail has a variable multiplier).
+ * 🔑 w45-a9 EXECUTED THE "NEXT IDEA" BELOW WITH THE ZERO-INSN USE FENCE (§2b.5) -- IT WORKS
+ * ON THE MECHANISM, and its result is the structurally-correct base to continue from (NOT
+ * landed: gates 102 vs the kept 94, but its COUNT IS EXACT 475/475 where the kept form is
+ * 471):
+ *     { int pitch = 0x96;  __asm__ volatile("" : : "r"(pitch));
+ *       HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch; }
+ * The fence is a sched1 fixpoint, so the `lw numHuman; mult` chain can no longer hoist above
+ * the register saves and reload colours the product normally: ours now emits the REAL
+ * `mult $v1,$v0` + **`mflo $s3`** (retail `mult $v1,$a1` + `mflo $s3`), and the w42 greg
+ * spill (`mflo $t1; sw $t1,132(sp)` + the lhu truncation reload) is GONE.  ⇒ the multiplier
+ * form AND the schedule are both solved.  What is left at 102 is ONE thing: retail
+ * INTERLEAVES its three constant materializations into the prologue save sequence
+ * (`sw s7,164(sp); li s7,160; sw s2,144(sp); li s2,1`, with `li a1,150` at insn 3) while ours
+ * emits all nine saves first and the constants after.  NEW NAMED ANGLE from that base: 150 /
+ * 160 / 1 are exactly the constants retail parks in CALLEE-SAVED regs, so give each its own
+ * named local in the SYM's decl order and fence them TOGETHER in one asm before the first
+ * use -- the interleave is reload's save-insn placement around live callee-saved constants,
+ * a live-range dial, not a statement-order dial.
+ * OLD NEXT IDEA for this axis: stop sched1 from hoisting
  * the mult chain (shorten the product's live range) rather than another spelling of the
  * multiplier -- the multiplier form is SOLVED, the schedule is not. */
 void RaceStatistics(void)

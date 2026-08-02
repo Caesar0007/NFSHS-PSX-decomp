@@ -841,6 +841,16 @@ int MCRD_handlecardevents(int card)
       }
       break;
     }
+    __asm__ volatile("" : : "r"(cmd));   /* 2026-08-02: zero-insn USE fence.  INTENDED as
+        * a cmd live-extender (demote p144 below the base's .364) -- that part MISSED (the
+        * fence at this JOIN re-loads cmd into a NEW pseudo, p144 unchanged, a0/a1 rotation
+        * stays).  BUT its USE insn makes this exit path differ from the sibling tails, so
+        * cross-jump can NOT merge it -> the retail 2-insn REORG TRAMPOLINE materializes:
+        * count now EXACT 211/211 (was 209).  🏆 NEW LEVER: asm-USE fence at a block exit
+        * BLOCKS CROSS-JUMP MERGE = reproduces un-merged reorg trampolines (part-3 class).
+        * Residual 56 = ONE mechanism: the cmd(p144 .700) vs &gMemCardInfo-base(.364) $a0
+        * priority order -- base range <= 11 not sched-reachable from source (02rr model);
+        * instrumented-cc1 / permuter territory. */
     goto MCRDhandleCard_end;
   }
 MCRDhandleCard_task:
@@ -1177,8 +1187,11 @@ int iMCRD_HandleError(int func,int opResult,int card)
                        * $s1; naming it lengthens its live range so pCI wins $s1 and
                        * the sentinel shares opResult's dead $s2, as retail does. */
 
+        numberoftries = 0;   /* MATCH: written FIRST so reorg eager-steals it into the
+                              * beqz delay slot (retail's pick); the register coupling
+                              * this used to break is resolved by the pCI depth dial at
+                              * the lasterror join below. */
         failed = -1;
-        numberoftries = 0;   /* MATCH: lands in the beqz delay slot, not the jalr's */
         /* MATCH: the retry test is the loop CONDITION, not an in-body early return -
          * retail's `bne result,sentinel` short-circuits straight to the success block
          * (the -1 sentinel is loop-invariant, hoisted into a saved reg), and the
@@ -1199,9 +1212,19 @@ int iMCRD_HandleError(int func,int opResult,int card)
           do {
             result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
           } while (0);
+          /* MATCH (4 -> seal attempt): the success exit is an in-body GOTO PAST the
+           * post-loop compare, so retail's `bne result,sentinel` lands on the success
+           * block's `lui` and LABELS it - reorg then cannot steal that lui into the
+           * `beq` delay slot (nop stays), while the post-loop -1 materialization is
+           * stolen into the loop-back bnez slot.  A plain loop-condition exit lands
+           * ON the compare, leaves the lui unlabeled, and reorg fills the wrong slot. */
+          if (result != failed) goto iMCRDError_formatOK;
           numberoftries = numberoftries + 1;
-        } while ((result == failed) && (numberoftries < 3));
+        } while (numberoftries < 3);
         if (result != -1) {
+          /* MATCH: label INSIDE the if-block - keeps retail's polarity (beq sends the
+           * ==-1 exhausted path to the out-of-line fail arm, success = fall-through). */
+iMCRDError_formatOK:
           gMemCardInfo.task = WRITE_FILE;
           return 6;
         }
@@ -1238,8 +1261,17 @@ iMCRDError_setLastError:
   default:
     tmp_int = 0x17;
   }
-  pCI->lasterror = tmp_int;
-  gMemCardInfo.bReady = 1;
+  /* MATCH: LOOP-DEPTH REF DIAL #2 (zero-insn) - doubles the weight of this pCI ref so
+   * pCI reaches 8 weighted refs (2*8/79 = .2025) and outranks the loop sentinel
+   * (.1875) even when `numberoftries = 0` is written first (which shortens the
+   * sentinel's live range to 16).  Decouples the slot-pick from the $s1/$s2 rotation
+   * (removing it rotates $s1/$s2 through the whole fn: 34 diffs). */
+  do {
+    pCI->lasterror = tmp_int;
+    gMemCardInfo.bReady = 1;   /* MATCH: inside the wrapper - the LOOP barrier at the
+                                * edge would otherwise pin its address lui BELOW the
+                                * lasterror store (retail hoists it above, 2 diffs). */
+  } while (0);
 iMCRDError_return:
   return code;
 }

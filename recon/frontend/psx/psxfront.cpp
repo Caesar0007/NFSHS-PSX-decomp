@@ -531,7 +531,12 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * and dropping the vh pair.  So the question is v's allocation, not vh's: why does
    * retail's v pseudo (8+ loop-weighted refs) get NO register?  Same allocator-exclusion
    * class as femenudefs `this`.  MEASURED here: sy-temp neutral (cse folds); deadfrm
-   * filler still load-bearing in this basin (without it 192/frame-96). */
+   * filler still load-bearing in this basin (without it 192/frame-96).
+   * SCALE-RECIPE PORTS FALSIFIED (2026-08-02): sb-tail depth dial 147 (promotes u/v/vh =
+   * the WRONG side of the v-vs-x contest); aimed flags&4-arm wrapper 152 (the LOOP-NOTE
+   * barrier inside the arm costs more than the x-rank gain).  The t2/t3/t4 3-cycle is
+   * barrier-sensitive -- depth-dial family CLOSED for this fn; route = own permuter round
+   * (queue after Font) or the instrumented-cc1 decision-trace instrument. */
   if ((flags & 2) != 0) {
     v = (byte)shp->shapey - 1;
   }
@@ -1163,7 +1168,10 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
    * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1.
    * (2026-08-02: addPrim-bitfield RE-FALSIFIED under the new dial taxonomy too -- bitfield-read
-   * 144@84, plain-read 156@88 -- the mask+linkAddr form IS this fn's retail shape.) */
+   * 144@84, plain-read 156@88 -- the mask+linkAddr form IS this fn's retail shape.)
+   * (permuter 535: split-RMW measured 52 ALONE -- its candidate gain rode on a
+   * SEMANTICALLY-INVALID co-mutation (hoff=yoff), rejected; permuter candidates need
+   * SEMANTIC REVIEW per mutation, not just byte re-gate.) */
   *(u_long *)(prim + 4) = font_tint;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   prim[3] = 9;

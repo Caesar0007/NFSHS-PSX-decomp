@@ -445,10 +445,13 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       wsel = shp->width - i;
     }
     w = wsel;
+    uint *pal;
+
     prim = Render_gPacketPtr;
-    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
+    pal = (uint *)Render_gPalettePtr;
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
     Render_gPacketPtr = prim + 0x34;
-    *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
+    *pal = *pal & 0xff000000 | (uint)prim & 0xffffff;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];

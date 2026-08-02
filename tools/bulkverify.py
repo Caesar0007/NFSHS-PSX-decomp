@@ -13,7 +13,19 @@ vspec=ilu.spec_from_file_location('vfy', ROOT/'tools'/'verify_asm.py')
 # can't exec verify_asm (it runs on import) -> inline norm
 def norm(t):
     t=re.sub(r'\s+',' ',t.strip()).replace('$','')
+    t=re.sub(r'\bs8\b','fp',t)
     t=re.sub(r',\s+',',',t); t=re.sub(r'0x([0-9a-fA-F]+)',lambda m:str(int(m.group(1),16)),t)
+    m=re.match(r'^break\b(.*)$',t)
+    if m:
+        ops=[o for o in re.split(r'[ ,]+',m.group(1).strip()) if o and o!='0']
+        t='break'+((' '+','.join(ops)) if ops else '')
+    m=re.match(r'^syscall\b(.*)$',t)
+    if m:
+        ops=[o for o in re.split(r'[ ,]+',m.group(1).strip()) if o and o!='0']
+        t='syscall'+((' '+','.join(ops)) if ops else '')
+    cop0={'sr':'12','status':'12','cause':'13','epc':'14','badvaddr':'8','prid':'15','index':'0',
+          'random':'1','entrylo':'2','context':'4','config':'16','bpc':'3','bda':'5','dcic':'7','bdam':'9','bpcm':'11'}
+    t=re.sub(r'\bc0_(\w+)\b',lambda m:cop0.get(m.group(1),m.group(0)),t)
     # eval unevaluated constant-literal paren exprs the oracle sometimes prints verbatim
     # (spimdisasm renders a li-macro hi/lo split as `(N >> 16)` / `(N & 65535)` instead of
     # folding it -- our compiled side always shows the folded decimal). Mirrors verify_asm.py's
@@ -37,6 +49,8 @@ def norm(t):
     t=re.sub(r'%lo\(D_([0-9A-Fa-f]{1,8})\)',dlabel_lo,t)
     t=re.sub(r'%hi\([^)]*\)','0',t);t=re.sub(r'%lo\([^)]*\)','0',t);t=re.sub(r'%gp_rel\([^)]*\)','0',t)
     t=re.sub(r'^move (\w+),(\w+)$',r'addu \1,\2,zero',t)
+    t=re.sub(r'^or (\w+),zero,(\w+)$',r'addu \1,\2,zero',t)
+    t=re.sub(r'^or (\w+),(\w+),zero$',r'addu \1,\2,zero',t)
     t=re.sub(r'^(?:addiu|ori) (\w+),zero,(\-?\d+)$',r'li \1,\2',t)
     m=re.match(r'(beq|bne)\s+(\w+,\w+),',t)
     if m:return f"{m.group(1)} {m.group(2)},T"
@@ -50,6 +64,9 @@ def oracle_ins(fn):
     for ln in p.read_text().splitlines():
         ln=re.sub(r'/\*.*?\*/','',ln);s=ln.strip()
         if s.startswith('endlabel'): break
+        mw=re.match(r'\.word\s+0x([0-9a-fA-F]+)\b',s)
+        if mw and (int(mw.group(1),16)>>26)==0x12:
+            out.append('cop2 '+mw.group(1).lower());continue
         if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel','alabel')) or s.startswith('.L') or s.endswith(':'):continue
         out.append(norm(s))
     return out
@@ -67,8 +84,10 @@ for m in mods:
         mm=re.match(r'^[0-9a-f]{8} <(.+)>:',ln)
         if mm: cur=mm.group(1); bodies[cur]=[]; continue
         if cur:
-            ii=re.match(r'^\s*[0-9a-f]+:\t[0-9a-f]+\s*\t(.*)',ln)
-            if ii: bodies[cur].append(norm(ii.group(1)))
+            ii=re.match(r'^\s*[0-9a-f]+:\t([0-9a-f]+)\s*\t(.*)',ln)
+            if ii:
+                word,insn=ii.group(1),ii.group(2)
+                bodies[cur].append('cop2 '+word if re.match(r'c(?:op)?2\b',insn) else norm(insn))
             elif ('R_MIPS_LO16' in ln or 'R_MIPS_GPREL16' in ln) and bodies[cur]:
                 # LO16/GPREL16-reloc addend on the prev insn = unlinked offset; oracle folds it
                 # into a per-address symbol (%lo/%gp_rel->0). Zero ours to match (byte-identical
@@ -91,8 +110,8 @@ print(f"  near-miss (<=15):    {near}")
 print(f"  far (>15):           {far}")
 print(f"=== {tot_pass} FREE byte-matches from verbatim import ===")
 for f in sorted(matched)[:60]: print('  +',f)
-print(f"=== near-misses (<=15 diffs), top 40 ===")
-for f,n in sorted(near_list,key=lambda x:x[1])[:40]: print(f'  {n:2} {f}')
+print(f"=== near-misses (<=15 diffs), all ===")
+for f,n in sorted(near_list,key=lambda x:x[1]): print(f'  {n:2} {f}')
 print(f"=== far residuals (>15 diffs), largest 60 ===")
 for f,n,m,ours_n,oracle_n in sorted(far_list,key=lambda x:x[1],reverse=True)[:60]:
     print(f'  {n:4} {f} ({m}: ours {ours_n} / oracle {oracle_n})')

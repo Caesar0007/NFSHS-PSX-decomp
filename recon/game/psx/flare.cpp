@@ -1281,6 +1281,15 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
   sd = (Draw_FlareCache *)&Render_gPalettePtr;
   pt2.vx = (short)x;
   pt2.vy = (short)y;
+  /* MATCH (w45-a9, 8 -> 6): retail copies ALL FOUR REGPARMs into their callee-saved
+   * homes in the prologue (`addu s1,a3,zero` @8) and fills the guard branch's delay slot
+   * from the FALL-THROUGH thread (`addiu s3,sp,24`).  scaley/scalex are first used only
+   * inside the loop, so reorg sank the s1 copy into that delay slot instead.  A zero-insn
+   * USE fence naming BOTH scale params (§2b.5) gives them an entry-block use, so the
+   * copies stay put and the slot is filled from the thread = retail.  ⚠️ fencing ONLY
+   * scaley (or fencing at the very top of the fn) instead ROTATES s0/s1 (22 diffs) --
+   * both params must be named, and after the pt2 stores. */
+  __asm__ volatile("" : : "r"(scalex), "r"(scaley));
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000) {
     int flare_type;
     u_long c;

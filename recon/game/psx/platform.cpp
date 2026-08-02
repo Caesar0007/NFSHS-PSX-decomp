@@ -57,11 +57,22 @@ void Platform_InitMemory(void)
  *     (mem) in the `bnez` delay slot and leaves the two `jr ra` tails UNMERGED, exactly
  *     as the oracle @0x800DC318-0x800DC330.  The old `if (... <= gTotal) {success}` form
  *     put v0=0 in the slot (that was the documented 12-diff residual (b)).
- * Residual 6 = the divide guard: gcc rematerializes `size+6` from $a0 and DUPLICATES the
- * `sra` into both arms, where the oracle keeps a copy `addu v1,v0,zero` on the positive
- * path plus ONE shared `sra`.  Tried: separate quotient local (8), extra `q = size` copy
- * (6, same shape), hand-written guard `if (size<0)` (22, folds wrong).  $a0 stays live so
- * combine can always refold (size+3)+3 -> a0+6; no source form found that kills it. */
+ * w45-a3: PASS 19/19 (was 6).  THE LAST LEVER = keep the ROUNDED value in `size` as its
+ * own statement (`size = size + 3; size = (size / 4) * 4;`) instead of consuming the divide
+ * inline in the `newmem` expression.  MECHANISM: expand_divmod's sdiv-by-power-of-2 always
+ * emits `t1 = op0; if (op0 >= 0) goto L; t1 = t1 + 3; L: q = t1 >> 2`.  When the divide is
+ * consumed inline, op0 is a dead anonymous temp, local-alloc's combine_regs coalesces t1
+ * onto it and the `t1 = op0` copy VANISHES -- leaving the bgez delay slot empty (our `nop`).
+ * Assigning the quotient back into the `size` VARIABLE keeps op0's pseudo live across the
+ * guard, the two qtys conflict, combine_regs declines, and the copy survives as retail's
+ * `addu v1,v0,zero` in the bgez delay slot ($v1 = the distinct t1).
+ * NOTE this is the EXACT INVERSE of the sibling Platform_TempReserveMemory lever above --
+ * there the arithmetic must stay ANONYMOUS, here it must stay in the VARIABLE.  The
+ * discriminator is which pseudo retail keeps live, read straight off the delay slot:
+ * empty bgez slot = ours coalesced = give the value a variable home.
+ * Measured this session: rounded-into-size 0, base 6, bias-inline 6, named `n` 6, separate
+ * `rounded` local 6, mem-before-newmem 8, mem-drives-newmem 8, `>>2` instead of `/4` 11 (-3 insns,
+ * drops the guard). */
 char *Platform_ReserveMemory(int size,char *string)
 
 {
@@ -69,7 +80,8 @@ char *Platform_ReserveMemory(int size,char *string)
   char *mem;
 
   size = size + 3;
-  newmem = gCurrentMemory + (size / 4) * 4;
+  size = (size / 4) * 4;
+  newmem = gCurrentMemory + size;
   mem = (char *)gCurrentMemory;
   if ((int)gTotalMemory < newmem - gLowMemory) {
     return (char *)0x0;
@@ -79,37 +91,21 @@ char *Platform_ReserveMemory(int size,char *string)
 }
 
 /* ---- Platform_TempReserveMemory__FiPc  [PLATFORM.CPP:161-178] SLD-VERIFIED ---- */
-/* NEAR-MISS 7 diffs (18 ours / 17 oracle), was 20 (w39-a4).  SYM: NO named locals,
- * REGPARM size = $4 ($a0) -- the source reuses the `size` param as the running scratch.
- * Two levers landed here:
- *   (1) the `*4` multiply-back is its OWN statement (`size = (size / 4) * 4;`), which is
- *       what puts the rounded value back into size's own register (oracle `sll $a0,$v0,2`);
- *   (2) the address arithmetic is ONE expression `(size + gCurrentMemory) - gLowMemory`.
- *       Split into two statements gcc rotates the whole function one register over
- *       (size->$a1, gLowMemory->$a0 -- 18 diffs, insn-exact); as one expression the
- *       prologue/divide/compare/tail are all byte-identical.
- * Residual 7 = ONE scheduling slot: the oracle issues `lw $a1,%gp_rel(gLowMemory)` right
- * after the gCurrentMemory load (filling its load-delay) and then does the in-place
- * `addu $a0,$a2,$a0; subu $a0,$a0,$a1`; ours emits `nop` + `addu $a1,$a0,$a2` into a fresh
- * reg + a later gLowMemory load.  Tried (all worse or neutral): the two-statement split
- * (18), `size + gCurrentMemory` order (18), `gCurrentMemory - gLowMemory + size` (18),
- * `size - gLowMemory + gCurrentMemory` (18), `size + (gCurrentMemory - gLowMemory)` (18),
- * subtract folded into the compare (20), multiply-back fused with the add (20/22).
- * w42-a4 -- a STRICTLY BETTER STRUCTURAL BASE exists, banked but NOT adopted (it gates
- * 10 vs the current 7, and the gate is the wave metric): writing the two statements
- * SUB-FIRST -- `size = size - gLowMemory; size = size + gCurrentMemory;` (or the
- * compound `size -= gLowMemory; size += gCurrentMemory;`, identical) -- is count-EXACT
- * 17/17 AND keeps `size` in its REGPARM home $a0 for the whole function, so the entire
- * prologue/divide/round/compare/tail is byte-identical and the residual is ONLY the
- * batching of the three gp-rel loads (retail issues all three, then `addu a0,a2,a0;
- * subu a0,a0,a1`; ours interleaves `subu` between them and reuses $v1 for gLowMemory).
- * The ADD-first split (the semantic order retail used) is the one that rotates $a0<->$a1
- * (18 diffs) -- i.e. STATEMENT ORDER, not operand order, is what holds the param home
- * here.  Measured: sub-first split 10, sub-first compound 10, add-first split 18,
- * add-first compound 18, `gCurrentMemory - gLowMemory + size` 18, one-expression
- * sub-first `(size - gLowMemory) + gCurrentMemory` 18, one-expression add-first 7 (current).
- * NEXT IDEA: from the 10-diff base, get the three gp loads to batch (a load-scheduling
- * lever), not another algebraic spelling -- the register allocation is already retail's.
+/* w45-a3: PASS 17/17 (was 7 diffs / 18 insns).  THE LEVER = the address arithmetic
+ * INLINE IN THE `if` CONDITION as an ANONYMOUS temp -- NOT assigned back into `size`.
+ * SYM has NO named locals here, so the anonymous form is also the faithful one.
+ * MECHANISM (gcc-2.8 local-alloc.c/global.c, read this session): assigning the sum back
+ * into `size` keeps ONE pseudo for the variable that spans the div-guard branch -> a
+ * GLOBAL allocno; global_alloc's pass 0 only reuses registers already in `regs_used_so_far`
+ * (`IOR_COMPL_HARD_REG_SET (used, regs_used_so_far)` -- "we never allocate a register for
+ * the first time in pass 0"), so the block-local gLowMemory qty had already taken $a0 from
+ * local_alloc and `size` was pushed off its REGPARM home, rotating the whole function.
+ * Written inline, the sum is a fresh block-local temp, `size` keeps $a0, and cur/low/tot
+ * land in $a2/$a1/$v1 exactly as retail.  OPERAND ORDER is load-bearing: `gCurrentMemory +
+ * size` = PASS, `size + gCurrentMemory` = 2 diffs (addu operand order only).
+ * Measured this session: inline-if curfirst 0, inline-if addfirst 2, `int cur;` + inline-if 0,
+ * low-read-at-top (makes low global too) 8 count-exact, add-first split 18, sub-first split 10,
+ * separate `newmem` local 22, fully-inlined incl. the +3 22, param-untouched `int n` 18.
  * Prototype re-checked vs the raw oracle: 2 args ($a0 size read at insn 1, $a1 string never
  * read), returns char* in $v0. */
 char *Platform_TempReserveMemory(int size,char *string)
@@ -117,8 +113,7 @@ char *Platform_TempReserveMemory(int size,char *string)
 {
   size = size + 3;
   size = (size / 4) * 4;
-  size = (size + gCurrentMemory) - gLowMemory;
-  if ((int)gTotalMemory < size) {
+  if ((int)gTotalMemory < (gCurrentMemory + size) - gLowMemory) {
     return (char *)0x0;
   }
   return (char *)gCurrentMemory;

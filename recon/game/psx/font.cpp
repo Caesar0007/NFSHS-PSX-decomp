@@ -7,6 +7,12 @@
 #include "../../nfs4_types.h"
 #include "font_externs.h"
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
+ * house idiom.  Writing the OT/packet link through the BITFIELD (rather than hand-rolled
+ * `x & 0xff000000 | y & 0xffffff` word RMWs) is what reproduces retail's mask order,
+ * fresh-dest selection and cursor-bump schedule (arsenal section 2b.1). */
+typedef struct { unsigned addr : 24, len : 8; } Font_PTag;
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -103,7 +109,32 @@ void Font_SetABR(int abr)
  * the LUID here -- the chain's critical-path priority dominates), `v + dv` operand order,
  * an explicit `(u_int)` cast, a `vv = v;` copy-through local, inlining the whole expression
  * at the u0 store (87, +1 insn), dropping the `pal` CSE local (43, +1 insn), and moving the
- * width/height reads after the merge (62).  -G8 probe: no change. */
+ * width/height reads after the merge (62).  -G8 probe: no change.
+ * w45-a3 (still 42, 55/55; posdiff structural residual 23/55).  TWO RECEIPTS OVERTURNED
+ * and one NEW ANGLE:
+ *  (1) THE OLD ROOT-CAUSE CLAIM IS REFUTED.  `*(volatile int *)&v` gates 42 with a
+ *      BYTE-IDENTICAL body.  A volatile MEM cannot be moved by sched1, so the early
+ *      position of the `lw t3,40(sp)` is NOT a scheduling hoist -- it is where RTL
+ *      generation puts it.  Stop attacking it as a scheduler tie.
+ *  (2) The P_TAG addPrim idiom (arsenal 2b.1) that took the SIBLING Font_TextXY 8 -> PASS
+ *      REGRESSES here: 42 -> 48 gate AND 23 -> 39 posdiff, i.e. genuinely worse, not LCS
+ *      noise.  All 14 combinations (bitfield/raw len x 3 bump positions x dv/wh positions)
+ *      measured 48-80.  So Font_Blit's link is NOT the addPrim shape even though its
+ *      sibling twelve lines away is.
+ *  NEW NAMED ANGLE (untried, mechanism-derived).  The SYM says v lives in $t6, and $t6 is
+ *  the HIGHEST of the three rotating registers -- so retail's `v` allocno must have the
+ *  LOWEST priority of {pal, mask, v}.  With priority = floor_log2(refs)*refs/live_length
+ *  and v at refs 2 / live 2 it is currently the HIGHEST (1.00) and therefore takes the
+ *  lowest free t-reg.  Ours: v 1.00 -> t3, pal .32 -> t4, mask .107 -> t6.  Retail's order
+ *  (pal t3 < mask t4 < v t6) is exactly what a LONGER v live range would produce.
+ *  FALSIFIED so far as ways to lengthen it: a `vloc = v` copy local (42, copy-propagated
+ *  away -- gcc re-sinks the stack load), `v + 0` (42), a volatile read (42), and an empty
+ *  USE fence on v (74 -- the fence pins it too hard and recolors the head).  The angle that
+ *  remains is the OTHER direction: do not lengthen v, but RAISE pal's and mask's refs past
+ *  the floor_log2 step boundaries (w44 REF-STEP family) so that v is demoted relatively --
+ *  mask is at 3 refs, one zero-insn re-mask puts it at 4 and doubles its floor_log2 factor
+ *  (.107 -> .285), which alone reorders mask ahead of pal.  Needs a -dl/-dg dump
+ *  (tools/rtl_dump.py) to confirm the real refs/live before spelling it. */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
@@ -305,7 +336,28 @@ void Font_ReSetBlitter(void)
  * moved ahead of the `pv1` load (2), the c_val read moved ahead of the three zero stores
  * (5, +1 insn), and `font_abr + 0` to perturb the expression (2).  Mechanism: a sched2
  * ready-list tie -- the gp-rel `font_abr` load feeds only the far-away `jal GetTPage`, so
- * it has the lowest critical-path priority and is issued last; retail issues it first. */
+ * it has the lowest critical-path priority and is issued last; retail issues it first.
+ * w45-a3 (still 2, 27/27) -- RECEIPT SHARPENED, mechanism reclassified.  The output is
+ * BYTE-IDENTICAL across EVERY source spelling of the read: `abr_val = font_abr;` placed
+ * before the three zero stores, after them, or inlined into the GetTPage argument list all
+ * gate 2 with the same 27 instructions -- AND SO DOES `*(volatile u_long *)&font_abr`.
+ * A volatile MEM cannot be moved by any scheduler, so the placement is NOT a sched1/sched2
+ * ready-list tie as the w39/w41 notes claimed; cc1 has already canonicalized the load into
+ * that slot before scheduling ever runs.  (Only hoisting the read above `setfont(f1)` moves
+ * it -- 9 diffs / 30 insns, because it then has to survive the call.)
+ * Storage-shape menu swept precisely this session (w44 section E), all neutral or worse:
+ * unsized asm-label view `extern u_long v[] __asm__("font_abr")` 3 (+1 insn), sized [1]
+ * view 2 (exactly neutral), sized [4] view 3, pointer-cast-through-view 3.  Rewriting the
+ * three zero stores as a struct assignment is 17 (+5 insns).
+ * NEW NAMED ANGLE: since the placement survives volatile, the remaining inputs are the ones
+ * that change what cc1 EMITS rather than where it schedules -- make the three currentfont
+ * zero stores and the font_abr load MAY-ALIAS so cc1's own RTL generation cannot separate
+ * them.  Concretely: give `font_abr` a sized [1] STRUCT view (w44 menu item 3, the
+ * MEM_IN_STRUCT_P aliasing lever -- the one storage shape that deliberately ADDS aliasing)
+ * and write the zero stores through a matching struct view of `currentfont`, so the store
+ * group and the load carry the same MEM_IN_STRUCT_P flag.  Untried; the plain sized-[1]
+ * SCALAR view above being exactly neutral is consistent with the flag, not the size, being
+ * the operative bit. */
 void Font_SwitchFont(char *f1)
 
 {
@@ -461,18 +513,21 @@ void Font_TextXY(char *string,int x,int y)
     dr_mode = (DR_MODE *)Render_gPacketPtr;
     pal = (u_int *)Render_gPalettePtr;
     tpage = (int)font_currentTPage;
-    *(u_int *)dr_mode = *(u_int *)dr_mode & 0xff000000 | *pal & 0xffffff;
-    /* MATCH (w42-a6): dr_mode-mask-FIRST in BOTH RMWs (`*dr & 0xff000000 | *pal &
-     * 0xffffff` then `(u_int)dr_mode & 0xffffff | *pal & 0xff000000`) aligns the whole
-     * tail load block with the oracle -- SAME gate 22 but the alpha-renamed structural
-     * residual halves 8 -> 4 (posdiff), leaving only the t1<->t2 mask rotation and the
-     * cursor bump's 2-slot position.  Swept all 4 RMW operand orders x 3 bump positions:
-     * 22/22/24/26 and bump-between = 28-32 (bump issues too EARLY, before the RMW1 store).
-     * Palette write-back stays BEFORE the cursor bump. */
-    {
-      u_int addr24 = (u_int)dr_mode & 0xffffff;
-      *pal = (addr24 & 0xffffff) | *pal & 0xff000000;
-    }
+    /* w45-a3: PASS 86/86 (was 8).  This tail IS PsyQ addPrim(pal, dr_mode):
+     *   setaddr(dr_mode, getaddr(pal));  bump;  setaddr(pal, dr_mode);
+     * BOTH halves must go through the P_TAG BITFIELD.  The value side being a
+     * bitfield READ (`((PTag*)pal)->addr`, gcc: lw + and) is the load-bearing dial --
+     * a plain `*pal` read gates 22, and mixing one raw word RMW with one bitfield
+     * half gates 8/22.  With both bitfields the cursor bump schedules ahead of the
+     * palette store and its register is recycled for addr24 exactly as retail; bump
+     * POSITION in the source is then irrelevant (all three placements gate 0).
+     * HISTORY: 34 (w39-a6) -> 28 -> 22 (w40-a6) -> 8 (w44) -> PASS.  The standing
+     * "t1<->t2 rotation of the hoisted 0x00ffffff / 0xff000000 mask literals, attack
+     * as a PAIR with Weather_DoWeather's DR_MODE tail" verdict was WRONG: those two
+     * literals only existed because the link was hand-rolled as word RMWs.  Bitfield
+     * stores have no mask constants to rotate. */
+    ((Font_PTag *)dr_mode)->addr = ((Font_PTag *)pal)->addr;
+    ((Font_PTag *)pal)->addr = (u_long)dr_mode;
     Render_gPacketPtr = (u_char *)dr_mode + 0xc;
     SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
   }

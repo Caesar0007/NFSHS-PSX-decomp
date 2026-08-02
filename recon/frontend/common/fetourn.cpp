@@ -755,68 +755,36 @@ void tTournamentManager::UpdateCarLineup()
 long tTournamentManager::GetTrackFinishPrize(short position)
 
 {
-  int openClassAdjust[6][7];
-  int *piVar1;
-  int *piVar2;
-  int *piVar3;
-  long lVar4;
-  int *piVar5;
-  tTournamentDefinition *ptVar6;
-  long carPrice;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  long result;
-  int iVar10;
   tTourneyInfo *currentTourney;
+  long result;
   tCarInfo carInfo;
-  int aiStack_c0 [42];
-  
-  iVar10 = 0;
-  piVar1 = (int *)gTrackFinishPrizes;
-  piVar2 = aiStack_c0;
-  do {
-    piVar5 = piVar2;
-    piVar3 = piVar1;
-    iVar7 = piVar3[1];
-    iVar8 = piVar3[2];
-    iVar9 = piVar3[3];
-    *piVar5 = *piVar3;
-    piVar5[1] = iVar7;
-    piVar5[2] = iVar8;
-    piVar5[3] = iVar9;
-    piVar1 = piVar3 + 4;
-    piVar2 = piVar5 + 4;
-  } while (piVar3 + 4 != gTrackFinishPrizes + 0x28);
-  iVar7 = piVar3[5];
-  piVar5[4] = gTrackFinishPrizes[0x28];
-  piVar5[5] = iVar7;
-  lVar4 = 0;
+  long carPrice;
+  int openClassAdjust[7][6];
+
+  result = 0;
+  memcpy(openClassAdjust,gTrackFinishPrizes,sizeof(openClassAdjust));
   if ((ushort)position < 6) {
-    ptVar6 = this->fDefinition;
-    iVar7 = (uint)ptVar6->fTiers[this->fTier].fTournOffset + this->fTournament;
-    if ((ptVar6->fTournaments[iVar7].fOpponentCarClass == '\n') &&
+    currentTourney = &this->fDefinition->fTournaments[
+        this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
+    if ((currentTourney->fOpponentCarClass == '\n') &&
        (GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0),
        carInfo.fCarClass < 7)) {
+      carPrice = carInfo.fPrices[0];
       if ((carInfo.fUpgrades & 1) != 0) {
-        carInfo.fPrices[0] = carInfo.fPrices[0] + carInfo.fPrices[1];
+        carPrice = carPrice + carInfo.fPrices[1];
       }
       if ((carInfo.fUpgrades & 2) != 0) {
-        carInfo.fPrices[0] = carInfo.fPrices[0] + carInfo.fPrices[2];
+        carPrice = carPrice + carInfo.fPrices[2];
       }
       if ((carInfo.fUpgrades & 4) != 0) {
-        carInfo.fPrices[0] = carInfo.fPrices[0] + carInfo.fPrices[3];
+        carPrice = carPrice + carInfo.fPrices[3];
       }
-      iVar10 = fixedmult(*(int *)((int)aiStack_c0 +
-                                  ((int)((uint)(ushort)position << 0x10) >> 0xe) +
-                                  (uint)carInfo.fCarClass * 0x18),carInfo.fPrices[0]);
+      result += fixedmult(openClassAdjust[carInfo.fCarClass][position],carPrice);
     }
-    lVar4 = iVar10 + *(int *)((int)this->fDefinition->fTracks
-                                   [(uint)ptVar6->fTournaments[iVar7].fTrackOffset +
-                                    this->fCurrentTrack].fPrize +
-                             ((int)((uint)(ushort)position << 0x10) >> 0xe));
+    result = result + this->fDefinition->fTracks[
+        currentTourney->fTrackOffset + this->fCurrentTrack].fPrize[position];
   }
-  return lVar4;
+  return result;
 }
 
 

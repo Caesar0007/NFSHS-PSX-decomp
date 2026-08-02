@@ -275,7 +275,29 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        `wc[N] + lp[N]` = 36, `lp[N] + wc[N]` = 38; DECL ORDER IS A NO-OP (both
        36/38).  So the w44 operand receipt SURVIVES the re-landscape; only its
        load-order rationale is wrong (the oracle's `addu $a0,$a0,$v0` differs
-       from ours by DEST register, not by which addend is first). */
+       from ours by DEST register, not by which addend is first).
+       RESIDUAL 36 (count-exact 107/107, block STRUCTURE byte-identical --
+       same load order, same 3 copies, same 3 slti/bnez, same 3 sb): a pure
+       3-WAY SUM/COPY REGISTER ROTATION.  ours sums {R:$v0(=wc0's reg),
+       G:$a1(wc1), B:$a0(wc2)} + copies {t0,a3,v1}; retail sums {R:$a0(=lp0's
+       reg), G:$a3 FRESH, B:$a1(lp2)} + copies {t1,t0,v1}.  Retail's R-copy
+       reaching $t1 (not $t0) proves retail has ONE MORE value simultaneously
+       live here than we do -- v0/v1/a0..a3/t0 were all conflicting at that
+       allocno.  FALSIFIED at this basin (4-way + 4-way A/B, all count-exact):
+       decl order lp/wc; operand order lp+wc; two-statement in-place accumulate
+       (`newR = lp[0]; newR += wc[0];` = 44) either direction (46); per-channel
+       block-local int pre-temps (38).
+       NEW NAMED ANGLE: the missing live value is the tell -- find the extra
+       overlapping range, don't chase the rotation.  Retail's copies are
+       t1/t0/v1 = handed out AFTER a3, so a3 must already be occupied when the
+       R-copy is born; in ours a3 is still free.  Candidate: retail computes
+       the G sum into a FRESH pseudo ($a3) while both lp1 and wc1 are still
+       live, i.e. G is the only channel whose addends BOTH outlive the add ->
+       spell G alone as a 3-operand form that keeps both bytes live
+       (e.g. read lp[1]/wc[1] into named locals used again in the clamp test:
+       `int g0=lp[1],g1=wc1; newG=(short)(g0+g1); if (0xff < g0+g1) ...`), or
+       equivalently give the R channel a second use so its sum cannot die into
+       the copy.  Cross-check with tools/prio.py -dg allocno ranks first. */
     newR = (short)((int)wc[0] + (int)lp[0]);
     newG = (short)((int)wc[1] + (int)lp[1]);
     newB = (short)((int)wc[2] + (int)lp[2]);

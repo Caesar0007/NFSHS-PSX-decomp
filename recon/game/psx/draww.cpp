@@ -3915,47 +3915,44 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     bool bVar10 = i < group->m_num_elements << 1;
     i = i + 2;
     if (!bVar10) break;
-    CCOORD16 *pCoord;
-    int pts;
-    int idx;
-    char *rightN;
-    short sVar7;
-    short sVar8;
-    short sVar9;
-    short sVar12;
-    short sVar13;
-    short sVar14;
-    /* MATCH: parallel named-temp chains (catalog SA row 38 / GT3 load-3
-       pattern) -- batch the three rightN loads + three pCoord lhu's + three
-       5-bit extends BEFORE any store; the old serialized per-axis form cost
-       ~14 interleave diffs. */
-    pts = (u_int)curLine->firstPoint;
-    idx = slice + (u_int)curLine->slice;
-    rightN = ((Trk_NewSlice *)((idx << 5) + (int)BWorldSm_slices))->right;
-    pCoord = wpts + pts;
-    /* SYM inner block names six shorts: x,y,z (= pts->x/y/z, oracle $v1/$a0/$a1) and
-       wx,wy,wz (= the 5-bit sign-extended right-normal bytes, oracle $t0/$t1/$a3).
-       The oracle issues ALL SIX loads first and only then the three sll/sra extends. */
-    sVar7 = pCoord->x;
-    sVar8 = pCoord->y;
-    sVar9 = pCoord->z;
-    sVar12 = (short)((int)((u_int)(u_char)rightN[0] << 0x18) >> 0x1b);
-    sVar13 = (short)((int)((u_int)(u_char)rightN[1] << 0x18) >> 0x1b);
-    sVar14 = (short)((int)((u_int)(u_char)rightN[2] << 0x18) >> 0x1b);
+    /* MATCH (w45-a5, rule-8): SYM VA 800ca0f8 block declares EXACTLY seven inner
+       names -- `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1)
+       y($4=$a0) z($5=$a1) wx($8=$t0) wy($9=$t1) wz($7=$a3).  There is NO
+       `rightN`, NO `idx` and NO integer `pts`: those were Ghidra inventions.
+       The oracle's walking `$v0` slice base is a COMPILER temp that gets
+       mutated in place (`lbu t0,18(v0); addiu v0,v0,18; lbu t1,1(v0)`), which
+       is exactly what the indexed `BWorldSm_slices[..].right[k]` form yields
+       once no source pointer holds it alive.  `(signed char)b >> 3` is the
+       5-bit extend (`lbu; sll 24; sra 27` after combine merges the widen). */
+    CCOORD16 *pts;
+    short x;
+    short y;
+    short z;
+    short wx;
+    short wy;
+    short wz;
+
+    pts = wpts + (u_int)curLine->firstPoint;
+    wx = (signed char)BWorldSm_slices[slice + (u_int)curLine->slice].right[0] >> 3;
+    wy = (signed char)BWorldSm_slices[slice + (u_int)curLine->slice].right[1] >> 3;
+    wz = (signed char)BWorldSm_slices[slice + (u_int)curLine->slice].right[2] >> 3;
+    x = pts->x;
+    y = pts->y;
+    z = pts->z;
     /* MATCH: the oracle walks pts3d with TWO +8 bumps per iteration (one per vertex,
        `addiu t3,t3,8` mid-body and again at the tail) and splits the stores across a
        base/base+6 giv pair -- the index form pts3d[0]/pts3d[1] + a single +16 bump
        collapses that to one walker.  Operand order `t + (v +/- n)` matches the oracle's
        `addu v1,v1,t0; addu v1,t8,v1` (vertex value first, translation last). */
-    pts3d->x = tx + (sVar7 - sVar12);
-    pts3d->y = ty + (sVar8 - sVar13);
-    pts3d->z = tz + (sVar9 - sVar14);
-    pts3d->light = pCoord->light;
+    pts3d->x = tx + (x - wx);
+    pts3d->y = ty + (y - wy);
+    pts3d->z = tz + (z - wz);
+    pts3d->light = pts->light;
     pts3d = pts3d + 1;
-    pts3d->x = tx + (sVar7 + sVar12);
-    pts3d->y = ty + (sVar8 + sVar13);
-    pts3d->z = tz + (sVar9 + sVar14);
-    pts3d->light = pCoord->light;
+    pts3d->x = tx + (x + wx);
+    pts3d->y = ty + (y + wy);
+    pts3d->z = tz + (z + wz);
+    pts3d->light = pts->light;
     pts3d = pts3d + 1;
     curLine = curLine + 1;
   }

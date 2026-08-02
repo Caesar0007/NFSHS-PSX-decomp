@@ -551,6 +551,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     int addw;
     int texX;
     int wsel;
+    int c3;
 
     texX = (uint)(ushort)shp->shapex + (i * bpp) / 16;
     u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
@@ -580,9 +581,18 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
+    /* MATCH (w45-a1, permuter-derived then bisected to this ONE site): reading
+     * color[3] into a named temp HERE -- before the prim[7]/prim[3] tag stores --
+     * rather than at its store site.  Lengthening c3's live range across the tag
+     * stores is what re-colors the region (113 -> 103, posdiff 63 -> 58); the
+     * other two mutations in the permuter's score-825 candidate (a `nvi = 0x30`
+     * index variable and a `<<3 <<13` shift split) measured EXACTLY 0 each and
+     * were rejected as scaffolding.  Natural 1998 shape: latch the colour, then
+     * build the packet header. */
+    c3 = color[3];
     prim[7] = (flags & 1) * 2 + 0x3c;
     prim[3] = 0xc;
-    *(int *)(prim + 0x28) = color[3];
+    *(int *)(prim + 0x28) = c3;
     *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)(prim + 0x1a) =
          ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |

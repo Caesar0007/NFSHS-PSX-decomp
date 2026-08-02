@@ -212,7 +212,7 @@ void DrawTV(tTVConfig &tv)
       texture->v3 = noise->height + noise->shapey;
       texture->tpage =
            ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
-           (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
+           ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) |
            (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
            (noise->shapey & 0x200U) << 2;
       texture->clut =
@@ -237,10 +237,14 @@ void DrawTV(tTVConfig &tv)
         *packetPtrSlot = *packetPtrSlot + 0x34;
         *(u_int *)Render_gPalettePtr =
              *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)reflection & 0xffffff;
-        *(u_int *)&reflection->r1 = *(u_int *)&reflection->r0 =
-             ((0x80 - bright) * (0x80 - fadeTop) / 0x80) * 0x10101;
-        *(u_int *)&reflection->r3 = *(u_int *)&reflection->r2 =
-             ((0x80 - bright) * (0x80 - fadeBottom) / 0x80) * 0x10101;
+        *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
+             (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
+             (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
+             ((0x80 - bright) * (0x80 - fadeTop) / 0x80);
+        *(u_int *)&reflection->r2 = *(u_int *)&reflection->r3 =
+             (((0x80 - bright) * (0x80 - fadeBottom) / 0x80) << 0x10) |
+             (((0x80 - bright) * (0x80 - fadeBottom) / 0x80) << 8) |
+             ((0x80 - bright) * (0x80 - fadeBottom) / 0x80);
         reflection->code = 0x3e;
         ((u_char *)reflection)[3] = 0xc;
         reflection->x0 = videoX;
@@ -267,7 +271,7 @@ void DrawTV(tTVConfig &tv)
         reflection->v3 = noise->shapey - 1 + noise->height;
         reflection->tpage =
              ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
-             (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
+             ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) |
              (u_short)(((u_short)noise->shapex & 0x3c0) >> 6) |
              (noise->shapey & 0x200U) << 2;
         reflection->clut =
@@ -327,11 +331,11 @@ void DrawTV(tTVConfig &tv)
         *(u_int *)Render_gPalettePtr =
              *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
         ((u_char *)texture)[3] = 0xc;
-        *(u_int *)&((POLY_GT4 *)texture)->r1 = *(u_int *)&((POLY_GT4 *)texture)->r0 =
+        *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
              (((tint >> 8 & 0xff) * (0x80 - fadeTop) >> 7) << 8) |
              ((tint & 0xff) * (0x80 - fadeTop) >> 7);
-        *(u_int *)&((POLY_GT4 *)texture)->r3 = *(u_int *)&((POLY_GT4 *)texture)->r2 =
+        *(u_int *)&((POLY_GT4 *)texture)->r2 = *(u_int *)&((POLY_GT4 *)texture)->r3 =
              (((tint >> 16 & 0xff) * (0x80 - fadeBottom) >> 7) << 16) |
              (((tint >> 8 & 0xff) * (0x80 - fadeBottom) >> 7) << 8) |
              ((tint & 0xff) * (0x80 - fadeBottom) >> 7);

@@ -2735,6 +2735,21 @@ int Hud_BuildRadar(int player)
   return visible;
 }
 
+/* w45-a8: 161 (192/191) -> 126, COUNT-EXACT 191/191, posdiff residual 53.  Two levers:
+ *  (a) all five OT/palette links rewritten as the addPrim P_TAG bitfield pair (161 -> 129);
+ *      dial (a) measured BOTH ways -- value side as a bitfield READ wins (plain
+ *      `*(u_int *)pal` read = 139).
+ *  (b) the missing 191st insn was retail's `addu t0,v0,zero` palette-pointer COPY = the
+ *      cse.c DOUBLE-EVALUATION member of the redundant-copy trichotomy: the gSprite0[0x39]
+ *      link reads `Render_gPalettePtr` ANONYMOUSLY and `pal = Render_gPalettePtr;` follows,
+ *      so cse turns the named read into a copy of the anonymous one (129 -> 126, count exact).
+ * REMAINING 53 = one CALLER-saved rotation (ours a0/t0/a1/a2 vs retail a1/a0/a2/a3 for the
+ * 0x66808080 constant, the gp-rel gSprite0 base and `pal`).  These are BLOCK-LOCAL quantities
+ * (they never cross a call in this fn) -> local_alloc `qty_compare_1`, NOT allocno_compare.
+ * NEW NAMED ANGLE: dump `tools/rtl_dump.py recon/game/psx/hud.cpp -dl`, read this block's qty
+ * birth order + live lengths, and move the 0x66808080 constant's BIRTH (it is materialised
+ * inside the `selection == 4` if/else -- hoisting one of the two arms' stores earlier changes
+ * its qty number) so the reverse-birth-order handout lands a1 instead of a0. */
 /* ---- Hud_BuildReplay__Fv  [HUD.CPP:2752-2849] SLD-VERIFIED ----
  * w44-a6 RE-GATED baseline: 161 diffs (ours 192 / oracle 191), posdiff structural residual 76.
  * NOT worked this wave (budget) -- census + the named angle:
@@ -2804,27 +2819,23 @@ void Hud_BuildReplay(void)
     *(u_int *)&gSprite0[0x39].r0 = 0x66808080;
   }
   i = 0x33;
-  pal = Render_gPalettePtr;
   tSs1 = gSprite0;
-  tSs1[0x39].tag =
-       (u_long *)((u_int)tSs1[0x39].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[0x39] & 0xffffff;
+  ((Hud_PTag *)&tSs1[0x39])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+  pal = Render_gPalettePtr;
+  ((Hud_PTag *)pal)->addr = (u_int)&tSs1[0x39];
   do {
-    tSs1[i].tag = (u_long *)((u_int)tSs1[i].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[i] & 0xffffff;
+    ((Hud_PTag *)&tSs1[i])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&tSs1[i];
     i = i + 1;
   } while (i < 0x38);
   tSs1 = gSprite0;
   pal = Render_gPalettePtr;
-  tSs1[0x38].tag =
-       (u_long *)((u_int)tSs1[0x38].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[0x38] & 0xffffff;
-  gTPage1[0][3].tag =
-       (u_long *)((u_int)gTPage1[0][3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage1[0][3] & 0xffffff;
-  gTPage0[0][3].tag =
-       (u_long *)((u_int)gTPage0[0][3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage0[0][3] & 0xffffff;
+  ((Hud_PTag *)&tSs1[0x38])->addr = ((Hud_PTag *)pal)->addr;
+  ((Hud_PTag *)pal)->addr = (u_int)&tSs1[0x38];
+  ((Hud_PTag *)&gTPage1[0][3])->addr = ((Hud_PTag *)pal)->addr;
+  ((Hud_PTag *)pal)->addr = (u_int)&gTPage1[0][3];
+  ((Hud_PTag *)&gTPage0[0][3])->addr = ((Hud_PTag *)pal)->addr;
+  ((Hud_PTag *)pal)->addr = (u_int)&gTPage0[0][3];
   return;
 }
 

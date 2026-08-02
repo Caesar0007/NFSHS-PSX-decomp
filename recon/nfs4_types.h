@@ -4985,7 +4985,7 @@ struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
     void Initialize();
     void Cleanup();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
     void DrawBackground();
     ~tScreenTournamentStandings();
 };

@@ -22,7 +22,8 @@ char textDefinitions[14][6] = {   /* @0x800515b8 (ARY ARY CHAR, SYM dims 14x6 ->
   {1,0,0,16,20,9},
   {3,2,0,9,9,9},
 };
-int  gSemiTransText __attribute__((section(".data"))) = 0;   /* @0x8005160c; oracle refs ALL absolute lui/%hi (0 gp_rel) -> out of .sdata; net -5 diffs across 3 fns (SetABR +1 = maspsx store-macro split, catalog F floor) */
+int  gSemiTransText __attribute__((section(".data"))) = 0;
+extern int gSemiTransText_arr[] asm("gSemiTransText");
 
 
 /* ---- FETextRender_SetFont  [FETEXTRENDER.CPP:72-88] SLD-VERIFIED ---- */
@@ -72,7 +73,7 @@ void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,
   x = x - sVar1;
 FETextFullRGB_setSemiTrans:
   iVar2 = 1;
-  if (gSemiTransText != 0) {
+  if (gSemiTransText_arr[0] != 0) {
     iVar2 = 0xf;
   }
   Font_TextColor(iVar2);
@@ -212,7 +213,7 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
   }
   index1 = 0;
   strLength = strlen(str);
-  if (gSemiTransText != 0) {
+  if (gSemiTransText_arr[0] != 0) {
     Font_TextColor(0xf);
   }
   else {
@@ -400,7 +401,7 @@ void FETextRender_SetABR(int abr,bool trans)
 
 {
   
-  gSemiTransText = trans;
+  gSemiTransText_arr[0] = trans;
   Font_SetABR(abr);
   return;
 }

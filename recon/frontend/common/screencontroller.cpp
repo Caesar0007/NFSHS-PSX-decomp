@@ -382,17 +382,11 @@ SetCurCtrl_noNegconDialog:
         fSetMenu = &menus->menuControllerDualShock;
         goto SetCurCtrl_menuSetVertHelp;
       }
-      int timedOut = 0;
-
-      if (PadGetState((this->player != 0) * 0x10) == 2) {
-        timedOut = true;
-      }
-      else if (((this->fTimeOutStartTick != 0) &&
-                (PadGetState((this->player != 0) * 0x10) == 1)) &&
-               (0x60 < ticks - this->fTimeOutStartTick)) {
-        timedOut = true;
-      }
-      if ((timedOut) || (this->fCurrentController == '\x03')) {
+      if ((PadGetState((this->player != 0) * 0x10) == 2) ||
+          (((this->fTimeOutStartTick != 0) &&
+            (PadGetState((this->player != 0) * 0x10) == 1)) &&
+           (0x60 < ticks - this->fTimeOutStartTick)) ||
+          (this->fCurrentController == '\x03')) {
         setmenutonull = true;
         goto SetCurCtrl_unknown;
       }

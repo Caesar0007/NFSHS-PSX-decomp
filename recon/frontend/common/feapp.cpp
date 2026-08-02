@@ -15,6 +15,7 @@ typedef struct tPsyQPrimTag {
 int             currentVideo;     /* FE play-movie index (SYM STAT; externed as shared int) */
 int             gLargestUnused[1];   /* @0x800514b8  largest unused heap block (SYM u_long) */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
+extern int Draw_gDoVSync_arr[] asm("Draw_gDoVSync");
 
 
 /* ---- tFEApplication::ctor  [FEAPP.CPP:89-95] SLD-VERIFIED ---- */
@@ -163,7 +164,7 @@ void tFEApplication::PerformMenuInitialization()
   AudioMus_Volume((int)this_00);
   InitializeClass_noarg();
   Clock_SystemStartUp();
-  Draw_gDoVSync = 1;
+  Draw_gDoVSync_arr[0] = 1;
   FETextRender_SetABR(0,false);
   return;
 }
@@ -192,7 +193,7 @@ void tFEApplication::PerformMenuDestruction()
     *(u_int *)((int)this->fCurrentScreen + off) = 0;
   } while (i < 2);
   AudioMus_StopSong(1000);
-  Draw_gDoVSync = 0;
+  Draw_gDoVSync_arr[0] = 0;
   FETextRender_SetABR(0,false);
   return;
 }

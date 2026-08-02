@@ -146,20 +146,18 @@ void tScreenTournamentStandings3item::GetShapeInfo(short &numPermShapes,short &n
 
 
 /* ---- tScreenTournamentStandings::ProcessInput  [SCREENPOST.CPP:152-158] ---- */
-int tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_input,
+void tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_input,
               tMenuCommand &menu_cmd)
 
 {
-  int iVar1;
-
   if (key_input != kInput_KeyType_Cross) {
-    return 2;
+    return;
   }
   if (this->fCountedDown == 0) {
     key_input = kInput_KeyType_AlreadyProcessed;
     this->fStartCountdownNOW = 1;
   }
-  return 1;
+  return;
 }
 
 

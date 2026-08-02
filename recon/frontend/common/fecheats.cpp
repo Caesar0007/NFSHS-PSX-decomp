@@ -238,10 +238,8 @@ void * FECheat_ActivateCheat(char *cheat)
   tFEApplication *ptVar2;
   char *pcVar4;
   tDialogMessageString *dlgThis;
-  tCheat *entry;
   int i;
   int j;
-  int off;
   int result;
   char buffer [8];
 
@@ -264,10 +262,9 @@ void * FECheat_ActivateCheat(char *cheat)
       ptVar2 = FEApp;
       dlgThis->string = pcVar4;
       ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
-      entry = &cheatList[i];
-      FECheat_HandleActivation((tCheatCode)entry->cheat);
+      FECheat_HandleActivation((tCheatCode)cheatList[i].cheat);
       result = 1;
-      gFECheats = gFECheats | result << entry->cheat;
+      gFECheats = gFECheats | result << cheatList[i].cheat;
       break;
     }
     i = i + 1;
@@ -337,8 +334,6 @@ void * FECheat_ActivateBonusByCode(char *code)
 {
   int i;
   int j;
-  int off;
-  tCheat *entry;
   int result;
   char buffer [8];
 
@@ -349,21 +344,17 @@ void * FECheat_ActivateBonusByCode(char *code)
   result = 0;
   FECheat_EncodeString2(code,buffer);
   i = 0;
-  entry = bonusList;
-  off = 0;
   do {
     for (j = 0; j < 8; j = j + 1) {
-      if (bonusList[0].name[j + off] != buffer[j]) break;
+      if (bonusList[i].name[j] != buffer[j]) break;
     }
-    i = i + 1;
     if (j == 8) {
       AudioCmn_PlayFESFX(0x1a);
-      FECheat_ActivateBonus((tCheatCode)entry->cheat);
+      FECheat_ActivateBonus((tCheatCode)bonusList[i].cheat);
       result = 1;
       break;
     }
-    entry = entry + 1;
-    off = off + 0xc;
+    i = i + 1;
   } while (i < 3);
   return (void *)result;
 }

@@ -217,7 +217,37 @@ void InGame_ResetPSXController(int player,int config)
  *    speculative fills never appear.  The dependency runs allocation -> cross-jump, so no
  *    statement shape can request it.
  *  - -G/flag identity: recorded neutral above (four -f keys + g_value=8).
- *  The permuter is the only remaining instrument and is blocked for C++ TUs (w38 s2F). */
+ *  The permuter is the only remaining instrument and is blocked for C++ TUs (w38 s2F).
+ *
+ * w45-a3: 329 -> 279 (ours 212 / oracle 233).  THE w40 "ALLOCATION -> CROSS-JUMP, NO
+ * STATEMENT SHAPE CAN REQUEST IT" VERDICT IS REFUTED.  Moving the final `| 1` OUT of the
+ * case bodies and onto the return -- `newControl = <chain>; return newControl | 1;`
+ * instead of `newControl = <chain> | 1; return newControl;` -- makes gcc's jump2 pass
+ * cross-jump the case tails exactly the way retail's do.  Gate 329 -> 279, and the
+ * ALPHA-RENAMED structural residual (tools/posdiff.py, the honest metric on a far-miss)
+ * more than halves: LCS match 57/233 -> 98/233, residual 176 -> 135.  So cross-jumping IS
+ * source-reachable here; it is the SHARED TAIL'S CONTENT, not the allocator, that decides.
+ * This is the w44 catalog rule read in the right order: a cross-jump merge is compared on
+ * RENUMBERED regs, so you shape the tail and let the allocation follow, not the reverse.
+ * CURRENT RESIDUAL = OVER-merging: 212 vs 233 insns, i.e. we now merge 21 insns MORE than
+ * retail, all in ONE region (chunkdiff `delete size 21  ours[61:82]` -- the 0x23/plain-pad
+ * group's J1MIN/J1MAX pair).  Retail's shared tail is only the single `ori v0,a0,1`; ours
+ * also merged that group's two `lw ...136/144(a0)` range-cal loads and its `sll s1,2`.
+ * NEXT NAMED ANGLE (untried): DE-merge exactly that one group.  Two instruments, in order:
+ *  (1) the arsenal 2b.5 USE fence -- `__asm__ volatile("" : : "r"(newControl));` at the end
+ *      of the over-merged group's arms makes those tails differ so jump2 declines them,
+ *      while leaving the other groups merged (this is the sanctioned fence class, not a
+ *      register pin).  Apply to the SMALLEST set of arms that restores 233.
+ *  (2) failing that, put the `| 1` back inline for that ONE group only and keep it at the
+ *      return for the others -- the dial is per-group, and nothing requires all three
+ *      switch groups to use the same spelling.
+ * Also re-open from the 279 base (LEVER-ORDER meta -- the falsified lists above were all
+ * measured in the 329 basin): the nopad trichotomy spellings and the parameter first-use
+ * order (ours copies value->$s0 before player->$s1, retail the reverse; posdiff
+ * `s0 a0 s1 a1` vs `s1 a1 s0 a0`).
+ * Measured this session on the 329 base: `| 1` at the return 279 (adopted), `c = value;
+ * switch (c)` 374, direct `return <expr>` per case (no newControl local) = compile error
+ * (the local is referenced by the outer-switch fallthrough path). */
 int InGame_GetPSXPadValue(int value,int player)
 
 {
@@ -239,43 +269,43 @@ int InGame_GetPSXPadValue(int value,int player)
     case 0x800000:
       newControl = player << 0x1e |
                    (0x80 - GameSetup_gData.controllerData.J1MIN[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 ;
+      return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    (GameSetup_gData.controllerData.J1MIN[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 ;
+      return newControl | 1;
     case 0x100000:
       newControl = player << 0x1e |
                    ((0x80 - GameSetup_gData.controllerData.J1MIN[player]) * 0x10000 | 0x1000000) |
-                   (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 ;
+      return newControl | 1;
     case 0x400000:
       newControl = player << 0x1e |
                    ((GameSetup_gData.controllerData.J1MIN[player] + 0x80) * 0x10000 | 0x1000000) |
-                   (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 ;
+      return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
                    ((0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 | 0x2000000) |
-                   (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 ;
+      return newControl | 1;
     case 0x20000000:
       newControl = player << 0x1e |
                    ((GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 | 0x2000000) |
-                   (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 ;
+      return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
                    ((0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 | 0x3000000) |
-                   (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 ;
+      return newControl | 1;
     case 0x40000000:
       newControl = player << 0x1e |
                    ((GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 | 0x3000000) |
-                   (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 ;
+      return newControl | 1;
     }
     break;
   case 0x23:
@@ -283,21 +313,21 @@ int InGame_GetPSXPadValue(int value,int player)
     case 0x800000:
       newControl = player << 0x1e |
                    (0x80 - GameSetup_gData.controllerData.deadSpot[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.steeringRange[player]) * 0x100 | 1;
-      return newControl;
+                   (0x80 - GameSetup_gData.controllerData.steeringRange[player]) * 0x100 ;
+      return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    (GameSetup_gData.controllerData.deadSpot[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100 ;
+      return newControl | 1;
     case 0x4000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.ImaxRange[player] * 0x100 | 0x1000000) | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.ImaxRange[player] * 0x100 | 0x1000000) ;
+      return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.IImaxRange[player] * 0x100 | 0x2000000) | 1;
-      return newControl;
+                   (GameSetup_gData.controllerData.IImaxRange[player] * 0x100 | 0x2000000) ;
+      return newControl | 1;
     case 0x400:
       newControl = player << 0x1e | 0x30aff01;
       return newControl;

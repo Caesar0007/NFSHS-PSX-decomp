@@ -792,6 +792,15 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 /* lines 1369-1376: (static data / macros / comments - no emitted code) */
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8).  The tag-link code is the SDK
+ * addPrim()/setaddr()/getaddr() macro family over this bitfield -- the shape that cracked
+ * libgpu P06.c AddPrim, where the hand-masked-OR spelling put the two mask constants in the
+ * wrong registers.  Inside a LOOP the same lowering also fixes the LICM PREHEADER ORDER: a
+ * bitfield store generates the masked VALUE (& 0xffffff) BEFORE the destination mask
+ * (& 0xff000000), so loop.c hoists the two constants in retail's order (LO then HI); the
+ * hand-written `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 */
+typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
+
 /* ---- PSXDrawTransGouraudSquare  (psxfront.cpp:1377, code lines 1377-1398) ---- */
 /* GPU packet: builds POLY_G4 (stride 0x24, code 0x39); prim=u_char* build cursor, prevPrim=u_char* link word */
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
@@ -800,7 +809,6 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
   /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
    * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
    * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
-  uint     otWord;
   int      i;
   POLY_G4 *prevPrim;
   POLY_G4 *prim;
@@ -811,10 +819,13 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
       prim = (POLY_G4 *)Render_gPacketPtr;
       prevPrim = (POLY_G4 *)Render_gPalettePtr;
       i = i + 1;
-      prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
-      otWord = prevPrim->tag;
+      /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the P_TAG 24-bit bitfield
+       * stores.  The VALUE side must NOT be a bitfield READ (`((PTag *)prevPrim)->addr`):
+       * that masks twice, lifting the 0xffffff allocno's loop-weighted ref count 5 -> 7
+       * past the `i` counter's .2745 and stealing its $t0 (measured 14 diffs).  w44-a2 */
+      ((PSXFront_PTag *)prim)->addr = prevPrim->tag;
       Render_gPacketPtr = (u_char *)prim + 0x24;
-      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      ((PSXFront_PTag *)prevPrim)->addr = (uint)prim;
       *(int *)&prim->r0 = c1;
       *(int *)&prim->r1 = c2;
       *(int *)&prim->r2 = c3;

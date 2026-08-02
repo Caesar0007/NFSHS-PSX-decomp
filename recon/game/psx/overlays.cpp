@@ -15,6 +15,11 @@
    D_8013D99C ever gains an initializer or another owner, re-check that adjacency. */
 short Hud_NextPerp[2];
 int StatsTimer;
+/* w44-a9 probe: sized asm-label view of StatsTimer[0] -- an ARRAY_REF store sets
+   MEM_IN_STRUCT_P, which (unlike the fixed-scalar store) may-aliases the varying
+   `car->carFlags` load and should keep it BELOW the store the way retail schedules it. */
+extern int StatsTimer_v1[1] asm("StatsTimer");
+extern int D_8013D99C_v1[1] asm("D_8013D99C");
 int D_8013D99C;
 
 
@@ -623,7 +628,7 @@ HudStats_finalize:
     if (10000 < t) {
       t = 10000;
     }
-    StatsTimer = t;
+    StatsTimer_v1[0] = t;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
     }
@@ -641,7 +646,7 @@ HudStats_finalize:
     if (10000 < t) {
       t = 10000;
     }
-    D_8013D99C = t;
+    D_8013D99C_v1[0] = t;
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
     }

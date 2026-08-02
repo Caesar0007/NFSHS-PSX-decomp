@@ -1123,10 +1123,30 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
      hun = (time - temp1*0x40)...`) gives 12 diffs but REPRODUCES the oracle's coalescing
      exactly (abs->v0, dividend dies, `addiu v0,v0,63` in place) -- the only residual
      there is WHERE the survivor copy is made (entry a1->a2 vs post-abs v0->a2).
-     NEW ANGLE: find a 1-insn computation, distinct to cse, that yields abs(time) for the
-     survivor -- e.g. survivor = a value produced by the CLAMP arm (so its def is a real
-     insn cse cannot equate with the abs), or route temp2 through a narrower/different
-     mode local (w43 "a NARROWER local is the cse copy that SURVIVES"). */
+     w45-a7 RE-RUN, 10 more spellings, ALL 10 or 12 (count 99/99 throughout).  NEW
+     FALSIFICATIONS: in-place divide `temp1=abs(time); temp2=temp1; temp1=temp1/0x40;`
+     (10) -- the in-place-mutation lever does NOT stop cse propagating the survivor;
+     anon-abs-first-then-named `temp1=abs(time)/0x40; temp2=abs(time);` (10); named-first
+     then anon (10); block-scoped `{int t3=abs(time); temp2=t3; temp1=t3/0x40;}` (10);
+     anonymous abs AT THE USE SITE in hun (10); `(temp1<<6)` instead of `temp1*0x40` (10);
+     survivor = the CLAMPED PARAM `temp2=time;` before (12) / after (12) the divide /
+     inside `do{}while(0)` (12) -- all three coalesce temp2 with `time` and CLAMP a2 at
+     entry instead of copying post-abs; ternary abs for the survivor (66, +2 insns).
+     MECHANISM NARROWED: our `addiu v0,a2,63` proves COMBINE folded expand_divmod's
+     `(set v0 a2)` copy into the guard-add -- i.e. v0 is provably the divide temp and a2
+     the abs pseudo.  Retail's `addiu v0,v0,63` + `addu a2,v0,zero` is the mirror: the
+     divide temp is COALESCED with the abs pseudo and the survivor is the surviving copy.
+     Every source-level copy we can write is removed before local-alloc (param copies get
+     coalesced by copy-prop; abs copies get cse-propagated), so the copy that reaches
+     local-alloc is always expand_divmod's own.
+     NEW NAMED ANGLE (untried): stop COMBINE from folding the divide's copy into the
+     `+63` -- if `(set div a2)` survives as its own insn, local-alloc's make_regs_eqv can
+     canonicalise the OUTLIVING pseudo (a2) and the direction flips.  Concretely: place a
+     def of the survivor (or any insn writing a2's pseudo) BETWEEN the abs and the divide
+     so the copy and the add are no longer adjacent single-use.  Secondary: hand this to
+     the allocator-simulator lane as a COALESCING-DIRECTION delta (not a priority delta) --
+     it is the only survivor in this fn and needs local-alloc qty ordering, not
+     allocno_compare. */
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;

@@ -579,14 +579,21 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   char     v;
   char     uw;
   char     vh;
+  uint    *pal;   /* w44-a1 MATCH: retail holds the PALETTE-CURSOR POINTER in $a2 across the whole
+                     RMW pair (`lui a2,0x1F80; lw a2,0(a2)` ONCE, then `lw v1,0(a2)` / `lw v0,0(a2)` /
+                     `sw v0,0(a2)`).  Reading the scratchpad literal `Render_gPalettePtr` three times
+                     makes cc1 reload the POINTER after the may-aliasing `*prim` store (+1 insn) --
+                     the straight-line-emitter purge rule does NOT apply here (w43 loop-vs-
+                     straight-line row): the oracle caches.  176 -> 175 = COUNT-EXACT. */
 
   prim = Render_gPacketPtr;
+  pal = (uint *)Render_gPalettePtr;
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
   Render_gPacketPtr = prim + 0x34;
-  *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
+  *pal = *pal & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];

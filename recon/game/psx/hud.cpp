@@ -3382,11 +3382,12 @@ void Hud_Render(void)
 HudRender_amt250:
     countamount = 0xfa;
 HudRender_amtDone:
+    remain = BTC_BonusTime;
     count = countamount;
-    if (BTC_BonusTime < countamount) {
-      count = BTC_BonusTime;
+    if (remain < countamount) {
+      count = remain;
     }
-    remain = BTC_BonusTime - countamount;
+    remain = remain - countamount;
     BTC_Countdown = BTC_Countdown + count;
     /* MATCH: single store -- the oracle computes the difference, clamps it in a
      * register and stores ONCE (`subu; bgez; addu v1,zero,zero; sw`); writing the

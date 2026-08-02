@@ -474,7 +474,12 @@ int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarC
   envMapBigBit = 0;
   vertCount = (int)(carObj->render).currentCarType;
   matPart_a = (int)&DrawC_gScreenMat;
-  carTypeOffRange = vertCount - 0x16U < 6;
+  /* MATCH (w45-a4, 102 -> 86): the `- 0x16` needs its OWN pseudo.  Fused,
+     cc1 computes the difference IN PLACE on the loaded value (`addiu s1,s4,-22;
+     sltiu s1,s1,6`) which swaps the two SYM locals' homes; split, the value
+     keeps retail's $s1, the difference gets retail's scratch $v0 and the flag
+     lands in $s4 (`lh s1,2236(s2); addiu v0,s1,-22; sltiu s4,v0,6`). */
+  { u_int ctd = vertCount - 0x16U; carTypeOffRange = ctd < 6; }
 gte_SetRotMatrix(&DrawC_gScreenMat);
   matPart_b = (int)&DrawC_gScreenMat;
 gte_SetTransMatrix(&DrawC_gScreenMat);
@@ -675,7 +680,18 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         }
       }
       /* the ^1 is a STATEMENT, not two sub-expressions: retail emits ONE
-       * `xori a0,a0,1` mutating the mirror index in place (census xori 3v2). */
+       * `xori a0,a0,1` mutating the mirror index in place (census xori 3v2).
+       * w45-a4 RESIDUAL (part of PrimStart 86): this block is a clean 2-value
+       * swap -- ours {mirrorIdx:$a1, &signalLight[idx]:$a0}, retail
+       * {mirrorIdx:$a0, addr:$a1}, i.e. retail ranks the INDEX above the
+       * address (birth order) and we rank the address above the index.  Both
+       * addu dests are already fresh, so the w43 ascii2sjis fresh-dest half
+       * is satisfied; the missing half is the qty LIVE-LENGTH order.  NEW
+       * NAMED ANGLE: `shadow_align_b` is a Ghidra-invented fn-scope name that
+       * is REUSED elsewhere in this function -- give the mirror index its own
+       * block-local name here (so its qty is born and dies inside this block
+       * and out-lives the address temp), which is the same variable-identity
+       * lever that took ShowroomPrims 93->4 this wave. */
       shadow_align_b = shadow_align_b ^ 1;
       if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;

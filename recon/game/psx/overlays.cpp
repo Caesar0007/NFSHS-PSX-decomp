@@ -79,7 +79,21 @@ void OptionsBarThing(int x,int y,int w,int h)
  * the dead `barH` local as the carrier (77).
  * FALSIFIED at the 65 base (re-probe only with a new idea): purging titleX (82), titleY
  * (90) or barH (65, neutral); the (u_short) halfH spelling (83).  NOTE the whole ladder is
- * LCS-NON-MONOTONE -- the halfH spelling flipped sign twice as other levers landed. */
+ * LCS-NON-MONOTONE -- the halfH spelling flipped sign twice as other levers landed.
+ * w44-a9 (all measured, 5 stays): the residual copy is a MODE-CONVERSION pseudo, not a
+ * cse double-eval.  Retail = `lhu $t0,72(sp); addu $s2,$t0,$zero` (an HImode reload feeding
+ * a separate SImode pseudo); ours = `lhu $s2,72(sp)` (reload folds the zero_extend into the
+ * load).  FALSIFIED: the trichotomy-#2 mixed named/anonymous pair (`int sizeW = (u_short)W;`
+ * for the 2nd call, the literal cast for the 1st) = 5 neutral (copy-propagated); a `u_short
+ * sizeW` carrier for both calls = 5 neutral (the HImode copy coalesces); making the two
+ * calls' a2 expressions TEXTUALLY different so cse cannot equate them (`W & 0xffffU` vs
+ * `(u_short)W`) DOES buy the missing instruction -- count becomes EXACT 349/349 -- but as a
+ * whole second reload+`addu a2,t0,zero` in the wrong place (64 diffs), not retail's copy.
+ * NEW ANGLE for the next attempt: this is the w43 MIPS PROMOTE_MODE row -- a DECLARED
+ * narrow local always promotes to SImode, so the HImode pseudo retail copies from must be
+ * an ANONYMOUS cse temp.  Look for a second HImode consumer of SIZE_W in the same extended
+ * BB (the Hud_FBuildF4 `(u_short)HUD_STATS_SIZE_W` arg is the candidate) and give the two
+ * consumers a shared HImode subexpression so combine cannot merge load+zero_extend. */
 void RaceSummary(void)
 
 {
@@ -427,7 +441,25 @@ void RaceStatistics(void)
  * TWO FULL Hud_FBuildF4 CALLS per postgame arm (134 -- the w41 value-select-ternary lever
  * does NOT transfer here, this is a value argument inside a loop, not a call selector),
  * and right-association `(SIZE_H - dy) - (postgame?8:0)` (55).  The s1<->s2 half of the
- * cluster is downstream of the same fold (it decides which subterm is evaluated first). */
+ * cluster is downstream of the same fold (it decides which subterm is evaluated first).
+ * w44-a9 re-read of cluster (c) (the showtimeleft bar) -- the residual is now NAMED
+ * precisely: retail evaluates the SUM first and then MUTATES the shared `startY+0xf` value
+ * IN PLACE into the difference --
+ *   `sra v1,..;addiu v1,v1,15` (= y) ; `addu a0,v1,SIZE_H` (= top) ;
+ *   `subu v1,v1,POS_Y` (in-place!) ; `subu v0,a0,v1`
+ * -- while ours evaluates the DIFFERENCE first into a FRESH pseudo (`subu a0,v1,POS_Y`)
+ * and the sum second (`addu v0,v1,SIZE_H`), then `subu v0,v0,a0`.  Same value, mirrored
+ * operand order at every step; cause = gcc expands the more COMPLEX operand of `X - Y`
+ * first and our Y carries the `postgame ? 8 : 0` ternary.
+ * FALSIFIED w44-a9: pulling the ternary out of the subtrahend
+ * (`... - (startY+0xf-POS_Y) - (postgame?8:0) - 0x10`) = 120 diffs @465 (8 SHORT -- the
+ * per-arm fold collapses); re-associating the subtrahend as one parenthesized group
+ * (`(A) - ((B) + t + 0x10)`) = 54 @471 (2 short).
+ * NEW ANGLE: make the SUM the complex operand instead -- keep the ternary on the MINUEND
+ * side (`(startY+0xf+SIZE_H-(postgame?0:8)) - (startY+0xf-POS_Y) - 0x10`, algebraically
+ * re-signed) so gcc expands the difference term second and can reuse the shared
+ * `startY+0xf` pseudo in place, which is the only shape that produces retail's
+ * `subu v1,v1,POS_Y` self-mutation. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */
@@ -523,8 +555,8 @@ void Hud_BTCStats(short player,bool postgame)
   }
   if (showtimeleft) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,
-                 startY + 0xf + HUD_STATS_SIZE_H -
-                 ((startY + 0xf - HUD_STATS_POS_Y) + (postgame ? 8 : 0)) - 0x10,HUD_STATS_SIZE_W,1,0,'\0','\0');
+                 (startY + 0xf + HUD_STATS_SIZE_H - (postgame ? 8 : 0)) -
+                 (startY + 0xf - HUD_STATS_POS_Y) - 0x10,HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   /* in-place `startY += 0xf` (`addiu $a0,$s6,0xF; addu $s6,$a0,$zero` @0x800DAB9C) -- there is
      no separate dataY local (SYM lists only i/col/startY/string/chasinghuman/showname/
@@ -577,9 +609,25 @@ void Hud_BTCStats(short player,bool postgame)
  * the address FORM and the missing arm with one edit -- it is a CFG lever, not a reloc
  * cosmetic.  (Applying the same alias to the screen!=0 branch's list[1] read REGRESSES
  * 8 -> 15 / 140 insns; it is site-specific.  Sizing the extern [9] measured NEUTRAL.)
- * Residual 8 = two copies of ONE reorg tie: retail fills the `lw %lo(list)` load-delay
- * slot with the clamped `sw StatsTimer` and pays the nop after `lw 0x260`, ours does the
- * reverse.  Same instruction multiset, pure delay-slot pick. */
+ * w44-a9: 8 -> PASS (139/139).  The residual was two copies of ONE scheduling pick --
+ * retail fills the `lw %lo(Cars_gHumanRaceCarList[k])` load-delay slot with the clamped
+ * timer store and pays the nop after `lw 0x260(carFlags)`; ours emitted BOTH loads first
+ * and the store last.  MECHANISM (gcc-2.8 alias.c `fixed_scalar_and_varying_struct_p`):
+ * a store to a plain global SCALAR is a FIXED-address, !MEM_IN_STRUCT_P ref, which that
+ * heuristic declares NOT to conflict with a VARYING-address STRUCT load -- so sched was
+ * free to sink it below `car->carFlags`.  Storing through a SIZED asm-label array VIEW
+ * (`extern int StatsTimer_v1[1] asm("StatsTimer");`, see the top of this TU) makes the
+ * store an ARRAY_REF -> MEM_IN_STRUCT_P set -> the heuristic no longer applies -> the
+ * carFlags load stays BELOW the store, while the constant-index element load
+ * `Cars_gHumanRaceCarList[0]` (fixed address, provably different decl) still hoists ABOVE
+ * it = retail's exact lw/sw/lw/nop.
+ * ⚠️ SIZING IS LOAD-BEARING: the pre-existing UNSIZED `StatsTimer_arr[]` view loses the
+ * gp-rel store (140 insns / 27 diffs); `[1]` keeps it.  Also falsified at the 8 base: the
+ * in-place clamp `if (10000 < StatsTimer) StatsTimer = 10000;` (140 insns / 15 diffs) and
+ * a `Car_tObj *car = Cars_gHumanRaceCarList[k];` pointer local (8, neutral -- coalesced).
+ * REUSABLE LEVER: the sized asm-label array view is the general "make a scalar-global
+ * store ALIAS a pointer-based struct load" instrument -- the mirror image of the w43
+ * pointer-local-defeats-true_dependence row, which un-aliases in the other direction. */
 void Hud_RenderStatsView(void)
 
 {

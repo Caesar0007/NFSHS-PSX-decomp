@@ -677,8 +677,8 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   bool doRedraw;
   u_long ticksAtLastInput [2];
   u_long tick;
-  tPlayer inputStartPlayer;
-  tPlayer inputEndPlayer;
+  short inputStartPlayer;
+  short inputEndPlayer;
   short i;
   int demoLoopLastInputTick;
   char string [80];

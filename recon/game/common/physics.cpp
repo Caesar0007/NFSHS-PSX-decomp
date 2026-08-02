@@ -2087,11 +2087,12 @@ void Physics_Real(Car_tObj *carObj)
       coorddef dirVector;
 
       currentRpm = __builtin_abs(carObj->currentSpeed) / 0x60000;
-      if (currentRpm < 3) {
-        lookAhead = carObj->RSControl * 3;
+      int rsControl = carObj->RSControl;
+      if (currentRpm >= 3) {
+        lookAhead = rsControl * currentRpm;
       }
       else {
-        lookAhead = carObj->RSControl * currentRpm;
+        lookAhead = rsControl * 3;
       }
       if (lookAhead >= 0) {
         sliceAhead = (carObj->N).simRoadInfo.slice + lookAhead;

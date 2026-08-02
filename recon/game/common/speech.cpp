@@ -2749,7 +2749,7 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
   SPCHNFSType_COLOUR *pSVar13;
   SPCHNFSType_COLOUR *COLOUR;
   SPCHNFSType_REVINTRO *pSVar14;
-  Speaker *Sub;
+  Speaker *SubChain;
   u_int uVar15;
   
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
@@ -2773,15 +2773,16 @@ void Engage__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj *p
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*stateVf)[0x19].delta);
   }
   if ((*(u_int *)(initialCarState + 0x260) & 0x200) == 0) {
-    int var_v0 = Dispatch__6Speech();
-    int temp_v1_2;
-
+    Speaker *next;
+    SubChain = (Speaker *)Dispatch__6Speech();
 MSEngage_unlinkLoop:
-    temp_v1_2 = var_v0;
-    var_v0 = *(int *)(temp_v1_2 + 0x48);
-    if (var_v0 == 0) goto MSEngage_dispatchCheck;
-    if (var_v0 != (int)&pThis->_base_Speaker) goto MSEngage_unlinkLoop;
-    *(Speaker **)(temp_v1_2 + 0x48) = (pThis->_base_Speaker).fSub;
+    next = SubChain->fSub;
+    if (next == (Speaker *)0x0) goto MSEngage_dispatchCheck;
+    if (next != &pThis->_base_Speaker) {
+      SubChain = next;
+      goto MSEngage_unlinkLoop;
+    }
+    SubChain->fSub = (pThis->_base_Speaker).fSub;
     (pThis->_base_Speaker).fSub = (Speaker *)0x0;
   }
 MSEngage_dispatchCheck:

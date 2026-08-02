@@ -2401,8 +2401,8 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
 
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
   *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
-  shapeDef_p = Track_materials;
   isCullable = objDef->vertexCount;
+  shapeDef_p = Track_materials;
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
   drawResult = gNight_renderNight;
   *(int *)&sd[1].head.clipW = offset;
@@ -2413,34 +2413,37 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
       *(u_char *)((int)sd[1].matB.t + 2) = 5;
     }
-    tmp.x = pCp->x - ((Camera_gInfo[Vi->player].target)->position).x;
-    tmp.y = pCp->y - ((Camera_gInfo[Vi->player].target)->position).y;
-    tmp.z = pCp->z - ((Camera_gInfo[Vi->player].target)->position).z;
+    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; tmp.x = pCp->x - posX; }
+    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; tmp.y = pCp->y - posY; }
+    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; tmp.z = pCp->z - posZ; }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
       *(u_char *)((int)sd[1].matB.t + 2) = *(u_char *)((int)sd[1].matB.t + 2) | 2;
-      tmp.x = pCp->x - (BW_gCopCarObj->N).position.x;
-      tmp.y = pCp->y - (BW_gCopCarObj->N).position.y;
-      tmp.z = pCp->z - (BW_gCopCarObj->N).position.z;
+      { int posX = (BW_gCopCarObj->N).position.x; tmp.x = pCp->x - posX; }
+      { int posY = (BW_gCopCarObj->N).position.y; tmp.y = pCp->y - posY; }
+      { int posZ = (BW_gCopCarObj->N).position.z; tmp.z = pCp->z - posZ; }
       transform(&tmp.x,gCopMat.m,&tmp2.x);
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
     }
-    (sd->matB).t[2] = 0;
-    (sd->matB).t[1] = 0;
-    (sd->matB).t[0] = 0;
-gte_SetTransMatrix((MATRIX *)&(sd->matB));
+    {
+      MATRIX *m = (MATRIX *)&(sd->matB);
+      m->t[2] = 0;
+      m->t[1] = 0;
+      (sd->matB).t[0] = 0;
+gte_SetTransMatrix(m);
+    }
   }
-  tmp.x = pCp->x - (Vi->cview).translation.x;
-  tmp.y = pCp->y - (Vi->cview).translation.y;
-  tmp.z = pCp->z - (Vi->cview).translation.z;
+  { int tX = (Vi->cview).translation.x; tmp.x = pCp->x - tX; }
+  { int tY = (Vi->cview).translation.y; tmp.y = pCp->y - tY; }
+  { int tZ = (Vi->cview).translation.z; tmp.z = pCp->z - tZ; }
   TrsProj_SetPsxTransZero();
   TrsProj_TransPt(&tmp,&tmp2);
   if (offset == -1) {
     *(int *)&sd[1].head.clipW = Draw_gMidGroundOtz;
     tmp2.x = tmp2.x >> 2;
-    tmp2.z = tmp2.z >> 2;
     tmp2.y = tmp2.y >> 2;
+    tmp2.z = tmp2.z >> 2;
   }
   *(u_int *)(sd[1].matB.m[0] + 2) = 0;
   sd[1].matB.m[1][1] = 0;
@@ -2452,10 +2455,10 @@ gte_SetTransMatrix((MATRIX *)&(sd->matB));
   sd->light = light;
   DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
   DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)mat_local);
-  (sd->matB).t[2] = 0;
-  (sd->matB).t[1] = 0;
+  ((MATRIX *)mat_local)->t[2] = 0;
+  ((MATRIX *)mat_local)->t[1] = 0;
   (sd->matB).t[0] = 0;
-gte_SetTransMatrix(&tmp2);
+gte_SetTransMatrix((MATRIX *)mat_local);
   return (u_int)objDef->quadCount;
 }
 

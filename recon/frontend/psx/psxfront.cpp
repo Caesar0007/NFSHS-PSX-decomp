@@ -536,7 +536,59 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * the WRONG side of the v-vs-x contest); aimed flags&4-arm wrapper 152 (the LOOP-NOTE
    * barrier inside the arm costs more than the x-rank gain).  The t2/t3/t4 3-cycle is
    * barrier-sensitive -- depth-dial family CLOSED for this fn; route = own permuter round
-   * (queue after Font) or the instrumented-cc1 decision-trace instrument. */
+   * (queue after Font) or the instrumented-cc1 decision-trace instrument.
+   * ---- w45-a1: 113 -> 103.  PERMUTER ROUND RUN (the wave's one job, ~7k iters, -j 2).
+   * Its best (score 825) carried THREE semantically-valid mutations; bisected site-by-site
+   * per the trust rules, TWO measured EXACTLY 0 on the gate and were rejected as scaffolding
+   * (`nvi = 0x30; prim[nvi] = u+w1`, and `(texX & 0xffffffc0U) << 3 << 13`).  The whole gain
+   * is the ONE honest shape now landed above: latch color[3] into `c3` BEFORE the tag stores.
+   * 🏆 THE SLOT MAP IS NOW EXACT (ourdis vs oracle .s) -- this supersedes the guesswork above:
+   *        ours                          retail (== SYM: width AUTO -0x58, vh AUTO -0x50)
+   *   16   deadfrm[2] filler             width   (sh, halfword)
+   *   24   width       (sh)              vh      (sh, halfword)
+   *   32   vh          (sb, NARROWED)    v       (sb, caller-save byte slot)
+   *   40-60 caller-save t1..t6           caller-save t1..t6   <-- BYTE-IDENTICAL, both builds
+   *   ORACLE FACTS: retail loads shp->height TWICE (`lhu v1,0x12(s4)` for height, `lhu
+   *   t8,0x12(s4)` for vh) and spills vh in the flags&2 `beqz` DELAY SLOT; it also keeps the
+   *   raw shapey in its own pseudo (`addu t4,v0,zero` + `addiu t4,v0,-1`), where ours mutates
+   *   the load's register in place.  Ours byte-NARROWS vh's spill (only consumer is a u_char
+   *   store); retail keeps it HImode.  So retail has THREE memory-homed values (width/vh/v)
+   *   and ours has TWO + an array filler -- and the filler, being an aggregate, is slotted at
+   *   EXPAND and therefore STEALS 16(sp), pushing width and vh one slot down each.
+   * 🔑 QUANTIFIED TARGET (allocno_compare, confirmed against tools/prio.py):
+   *   ours  v=p90 refs 9 live 159 pri .1698 -> t2 | x=p82 refs 11 live 340 .0971 -> t3
+   *         mask=p166 refs 7 live 153 .0915 -> t4     (handout is numeric-order by priority)
+   *   retail wants x -> t2, mask -> t3, v -> t4, i.e. v must fall BELOW mask.
+   *   The reachable points are floor_log2 STEPS (w44 ref-step family):
+   *     v refs 9 -> 7  => .0881  < mask .0915   (refs 8 still .1509 -- the 8->7 step IS the cut)
+   *     or x refs 11 -> 16 (.1882) AND mask 7 -> 9 (.1765), both above v .1698.
+   *   v's 9 refs = 2 pre-loop defs + 4 in-loop uses at loop weight 2 minus cse merging; the
+   *   two `vh + v` texts are ALREADY cse-merged pre-flow, so hoisting them into one temp does
+   *   NOT remove a ref (measured: refs stayed 9, gate 113 -> 128).  A legal -2 must delete a
+   *   whole in-loop USE, and all four (prim 0xd/0x19/0x25/0x31) are in the oracle.
+   * FALSIFIED THIS WAVE (all re-gated from the NEW 103 basin, so not basin-stale):
+   *   noflr 175 | noflr+vbot-before-call 239 | vbot-before-call+filler 259 | PTAG value-side
+   *   plain-read 147 | bump-BETWEEN 165 | shift-split 103 (exactly 0) | nvi index 103 (0) |
+   *   `int vbot` at the store site 128 | volatile vh read 113 (0 -- does NOT block the
+   *   REG_EQUIV as hoped) | vh 2nd def `vh = -height` in the arm 186.
+   * 🎯 NEW NAMED ANGLE #A (the strongest lead, UNTRIED as an attack base): the variant
+   *   `noflr + vbot hoisted BEFORE the GetClut call` reaches **ours 244 vs oracle 245**,
+   *   frame **104**, and slots **sh 16(sp) + sh 24(sp)** -- i.e. it reproduces retail's FRAME
+   *   and BOTH halfword AUTOs at the exact retail offsets, and is 1 insn from count-exact.
+   *   Its gate is worse (239) purely because the register rotation differs.  Attack the
+   *   rotation FROM THAT BASIN rather than from this one: it already has the frame/slot
+   *   structure that this basin can only fake with the aggregate filler.  Needed there: v's
+   *   byte slot at 32(sp) (= one more memory-homed value) + the t2/t3/t4 assignment.
+   * 🎯 NEW NAMED ANGLE #B: run a10's `tools/allocsim.py --solve p82=t2,p166=t3,p90=t4` on
+   *   this fn's -dg/-dl dumps.  a10 validated the simulator's full 30/30 handout for exactly
+   *   this function (v->t2/x->t3/mask->t4 reproduced), so its minimal (drefs, dlive) receipt
+   *   is directly actionable; pair each required delta with the w44 zero-insn inflators
+   *   (no-op re-mask / deliberate arm duplication / do{}while(0) depth) chosen for that pseudo.
+   * 🎯 NEW NAMED ANGLE #C: retail's separate raw-shapey pseudo (`addu t4,v0,zero`) is the
+   *   w40 uncoalesced-temp identity -- model it as a real local COPIED FROM (`vraw`), noting
+   *   make_regs_eqv keeps the copy only when it OUTLIVES its source.  (Scripted probe skipped
+   *   this wave: the `v = (byte)shp->shapey;` anchor is NOT unique in the TU -- slice the file
+   *   at this function's definition first.) */
   if ((flags & 2) != 0) {
     v = (byte)shp->shapey - 1;
   }
@@ -1132,8 +1184,21 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * ytop (use-before-def, uninitialized store; the gate can't see semantics).  REVERTED --
    * honest converged baseline = 50.  ⚠️ stmtclimb is DATAFLOW-BLIND: any accepted move must
    * be def-use audited before adoption (tool TODO: reject moves that lift a def past a use).
+   * ---- w45-a1: the climb is CONVERGED, not "still descending".  Re-ran the full
+   * single-move neighbourhood under a NEW def-use-guarded climber (tools/stmtclimb2.py,
+   * which parses the fn's locals, derives per-statement (defs,uses) and REJECTS any order
+   * that uses a local before defining it -- validated: it accepts the baseline order and
+   * rejects exactly the `ytop`-def-past-its-use move that w45 had to revert by hand).  It
+   * found NOTHING: the best body is byte-identical to this one.  Since the guard can only
+   * REMOVE candidates the unguarded climb already tried, 50 is a true single-move local
+   * optimum and w44's "still descending when the cap hit" note is CLOSED -- the descent had
+   * already terminated; its apparent continuation was the invalid move.
    * Residual 50 = the receipted emission-order + one-hard-register-short; route = permuter
-   * multi-basin or compound multi-move.  a10's zero-insn
+   * multi-basin or compound multi-move (COMPOUND is now the only unexplored positional
+   * neighbourhood: every SINGLE move is exhausted, so the next pass should climb PAIRS of
+   * statements -- restrict the pair search to the ~8 statements the receipt names as
+   * emission-order-relevant (the font_tint store, the two OT-link RMWs, the dv chain, the
+   * prim+0x16 tpage word) to keep it O(8^2 * slots) rather than O(34^2 * slots)).  a10's zero-insn
    * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
    * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
    * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit

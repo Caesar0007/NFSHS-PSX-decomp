@@ -2317,6 +2317,35 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      declaration sequence, and let the three ARG params stay memory-resident
      (reference the parameter directly at each use instead of caching it in a
      local -- catalog w22: "different register CLASS, not a different sN"). */
+  /* RECEIPT (w45-a5) -- PARKED at 120 (ours 192 / oracle 200, EIGHT SHORT).
+     PROLOGUE DIFFED BYTE-FOR-BYTE (tools/ourdis.py vs the oracle .s) and the two
+     are IDENTICAL for 14 instructions -- same frame (-0x80), same `addiu $s4,
+     $a3,4`, same nine callee-saved saves at the same offsets, same `sw $a0,
+     0x80($sp)` -- with EXACTLY ONE divergence:
+         oracle  sw $a0,0x80($sp);  sw $a1,0x84($sp);  sw $a2,0x88($sp)
+         ours    sw a0,128(sp);     <MISSING>;         sw a2,136(sp)
+     i.e. the ONLY prologue difference in the whole function is that retail
+     ALSO spills `sd` ($a1) to its incoming ARG home and we do not.  That is the
+     w44/w40 ARG-SPILL class, and it confirms the w44 reading exactly.
+     Note both builds save the SAME nine callee-saved registers, so the pool is
+     not merely "one short": retail has an EXTRA call-crossing pseudo that
+     outranks sd and pushes sd out to memory, and the ~8 missing instructions are
+     that pseudo's work plus retail's `lw $a1,0x84($sp)` reloads.
+     FALSIFIED THIS WAVE (re-gated, reverted): guard-polarity rewrites -- the
+     `bnez`-into-the-loop shape the census asks for is NOT independently
+     reachable: `if (n != 0) goto work; return 0; work:` gates 120 (no change)
+     and `if (n != 0) { body }` gates 121 at 191 insns.  The polarity really is
+     downstream of the spill, as the w44 note suspected.
+     NEW NAMED ANGLE: this is the w40 ARG-SPILL-FORCING recipe, not a polarity or
+     decl-order job.  A param spills only when the callee-saved pool is FULL AT
+     ITS PRIORITY RANK, so (1) find the retail pseudo we are missing -- start
+     from the 8-insn deficit and the SYM 8c block's REG entries, since a SYM REG
+     local we never materialized is both the missing work AND the missing
+     allocno; (2) failing that, raise a rival's rank across the calls with the
+     zero-insn ref-step family (a semantic no-op re-mask, or making an existing
+     flag/count assignment CALL-CROSSING by moving it above the first jal, which
+     is the exact w40 ReadIn 344->186 device).  Gate on the appearance of
+     `sw $a1,0x84($sp)` in tools/ourdis.py output, not on the LCS. */
 
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;
@@ -3264,6 +3293,55 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      Do NOT re-test t/m WITHOUT the gClutDepth view -- that is exactly the w39/w40/
      w41 "adding t regresses 344->415" measurement, and it was measuring the
      missing saved register, not the walkers. */
+  /* RECEIPT (w45-a5) -- PARKED at the re-gated baseline 332 (ours 361 / oracle
+     353, i.e. EIGHT INSNS OVER).  Three things settled this wave:
+     (1) WALKER-PROBE RECOVERY: `scratch/skid_walker_view.cpp` is GONE and is NOT
+         recoverable.  scratch/ is gitignored, so it was never an object: the
+         w44-a7 merge (main 3565ea25, side commits 1a02c482/c844114f/cef1caeb/
+         4d42abbb) touches recon/game/psx/draww.cpp and NOTHING else, and
+         `git rev-list --all --objects | grep skid_walker` is empty tree-wide.
+         NOTHING WAS LOST -- the full recipe is the w44 receipt above.
+     (2) The gClutDepth unsized asm-label VIEW reproduces EXACTLY in this basin:
+            extern short gClutDepth_v[] __asm__("gClutDepth");
+            ... = ((short (*)[16])gClutDepth_v)[idx][vert_idx];
+         gates 336 with the count UNCHANGED at 361 -- bit-for-bit the w44 number,
+         so the w44 measurement stands and the +4 is pure LCS churn (the LCS is
+         non-monotone on a far-miss; posdiff's structural residual is 256/353
+         either way).  It is NOT landed here only because verify-or-revert needs a
+         paired win to carry it.
+     (3) FRESH TRIAGE (this wave, the piece w44 never ran):
+           tools/brcensus.py : beqz 7v8  bnez 9v8   -- equal totals (16 = 16) with
+             a beqz<->bnez SWAP = exactly ONE arm's branch polarity inverted.
+           tools/rove_op.py  : sra 13v14  sll 10v12  lh 3v2  lhu 4v5  sw 31v32
+             lw 76v78  andi 2v1
+           tools/posdiff.py  : LCS 97/353, and the first-use orders differ only by
+             a small permutation (ours s4 a0 s7 s6 v0 fp s3 s5 ... vs oracle
+             s4 a0 s6 fp s3 s1 s7 s5 ...).
+         READ: the `sll`/`sra` DEFICIT tracking together (-2 sll, -1 sra) with an
+         EXTRA `lh` and a MISSING `lhu` is the w40 "missing SHORT SIGN-EXTENSION
+         PAIRS" signature -- retail reads a short field `lhu` and canonicalizes
+         `sll 16; sra 16` because the value lands in an INT local, while ours
+         declares the local `short` and gets a bare `lh`.  That is a rule-8 TYPE
+         question, not coloring, and it is worth 3 insns of the 8-insn excess.
+     NEW NAMED ANGLE (ordered, all untried):
+       A. Land the gClutDepth VIEW together with the short->int local retyping
+          (the rove_op sll/sra/lh/lhu signature above): the view is provably the
+          oracle's addressing and the retype is provably the oracle's arithmetic,
+          and together they move the COUNT (the only monotone metric here) toward
+          353.  Gate on insn count + posdiff, NOT on the LCS.
+       B. Then the single inverted arm from brcensus (one beqz that should be a
+          bnez) -- find it with tools/chunkdiff.py, which localizes a mismatched
+          run in one call.
+       C. Only then re-test the m/t walkers (w44 step 1), and if a 5-register
+          rotation survives, dial it with the ALLOCNO PRIORITY family rather than
+          birth order: per the w45 a10 gcc-source finding, gcc-2.8's local_alloc
+          uses `QTY_CMP_PRI` = the SAME floor_log2(refs)*refs*size/life formula as
+          allocno_compare (local-alloc.c:1727) -- the "longest-lived-first /
+          reverse-birth-order" law in the catalog is the gcc-2.7 rule and is FALSE
+          here.  So compute refs/live for the rotating quantities and look for a
+          floor_log2 STEP; the zero-insn re-mask (`| (x & 0xffffff)`) and the
+          do{}while(0) depth wrapper are the dials even for block-local qtys that
+          never reach find_reg. */
 
   int skidChunk_p;
   int vert_count;

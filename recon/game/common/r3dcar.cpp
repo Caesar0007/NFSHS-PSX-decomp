@@ -1186,10 +1186,6 @@ void R3DCar_MATRIX3DT_Copy(int *from,int *to)
 void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
 
 {
-  /* MATCH: source-level working alias separates the incoming ABI parameter from the
-     long-lived object pointer.  This is an allocation/coalescing lever, not a pin. */
-  Car_tObj *carP = carObj;
-#define carObj carP
   int i;                 /* SYM fn REG s4 -- born at the first visibility loop */
   Transformer_zObj *obj; /* SYM fn REG a1 -- per-iteration scene object */
   coorddef parent;       /* SYM fn AUTO sp+0x18 -- base obj[0] translation cache */
@@ -1325,19 +1321,32 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       insideMat.m[2] = -insideMat.m[2];
       insideMat.m[1] = -insideMat.m[1];
     }
-    roll = (carObj->render).bodyRoll;
-    if (rightHandDrive != 0) {
-      roll = -roll;
-    }
+    /* MATCH: stripped depth raises roll's GCC flow priority without runtime code. */
+    do {
+    do {
+      roll = (carObj->render).bodyRoll;
+      if (rightHandDrive != 0) {
+        roll = -roll;
+      }
+    } while (0);
+    } while (0);
     fixedxformz(&bodyMat,(carObj->render).bodyRoll);
     fixedxformx(&matP,(carObj->render).bodyPitch + 100);
     Math_fasttransmult(&bodyMat,&matP,&bodyMat);
     Math_fasttransmult(&bodyMat,&(carObj->N).orientMat,&bodyMat);
     fixedxformz(&bodyIMat,roll);
     Math_fasttransmult(&bodyIMat,&matP,&bodyIMat);
-    Math_fasttransmult(&bodyIMat,&insideMat,&insideMat);
-    Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
-    Math_fasttransmult(&insideMat,(matrixtdef *)((int)Vi + 0x44),&orientIMat);
+    /* MATCH: three stripped depth levels cross the matrix-base ref-step (14 refs),
+       so it takes s4 before the long-lived car pointer and naturally leaves carObj in s5. */
+    do {
+    do {
+    do {
+      Math_fasttransmult(&bodyIMat,&insideMat,&insideMat);
+      Math_fasttransmult(&bodyMat,(matrixtdef *)((int)Vi + 0x44),&orientMat);
+      Math_fasttransmult(&insideMat,(matrixtdef *)((int)Vi + 0x44),&orientIMat);
+    } while (0);
+    } while (0);
+    } while (0);
   }
   else {
     matrixtdef matP; /* SYM blk 174 @sp+0xf0 (reuses car/pos slot -- dead by this point) */
@@ -1823,7 +1832,6 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
     }
   }
   (carObj->N).eIndexShadow = (short)i;
-#undef carObj
   return;
 }
 

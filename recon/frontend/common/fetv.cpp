@@ -105,7 +105,7 @@ void DrawTV(tTVConfig &tv)
 {
   POLY_FT4 *texture;
   POLY_GT4 *reflection;
-  tTexture_ShapeInfo *noise = &gHelpShapes[(rand() & 3) + 0x22];
+  tTexture_ShapeInfo *noise = &gHelpShapes[0][(rand() & 3) + 0x22];
   short videoX;
   short videoY;
   short videoWidth;
@@ -171,14 +171,15 @@ void DrawTV(tTVConfig &tv)
     DrawTVLines(tv);
   }
   if ((tv.flags & 0x10) == 0) {
+    u_char **packetPtrSlot = (u_char **)0x1f800004;
     if (tv.state != tv_StateOn) {
       u_int *palette;
 
-      texture = (POLY_FT4 *)Render_gPacketPtr;
+      texture = (POLY_FT4 *)*packetPtrSlot;
       palette = (u_int *)Render_gPalettePtr;
       *(u_int *)texture =
            *(u_int *)texture & 0xff000000 | *palette & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x28;
+      *packetPtrSlot = *packetPtrSlot + 0x28;
       *palette = *palette & 0xff000000 | (u_int)texture & 0xffffff;
       *(u_int *)&texture->r0 =
            (0x40 - (bright >> 1)) * 0x10000 |
@@ -217,9 +218,8 @@ void DrawTV(tTVConfig &tv)
       texture->clut =
            GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       if ((tv.flags & 4) != 0) {
-        fadeTop = (((short)(tv.flip_axis - videoY + 1) < 0) ?
-                   -(tv.flip_axis - videoY + 1) :
-                   (tv.flip_axis - videoY + 1)) * 2;
+        short flipDelta = tv.flip_axis - videoY + 1;
+        fadeTop = ((flipDelta < 0) ? -flipDelta : flipDelta) * 2;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
@@ -231,10 +231,10 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        reflection = (POLY_GT4 *)Render_gPacketPtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x34;
+        reflection = (POLY_GT4 *)*packetPtrSlot;
+        *(u_int *)*packetPtrSlot =
+             *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+        *packetPtrSlot = *packetPtrSlot + 0x34;
         *(u_int *)Render_gPalettePtr =
              *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)reflection & 0xffffff;
         *(u_int *)&reflection->r1 = *(u_int *)&reflection->r0 =
@@ -260,11 +260,11 @@ void DrawTV(tTVConfig &tv)
         reflection->v1 = noise->shapey - 1;
         reflection->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                          (int)noise->depth;
-        reflection->v2 = noise->height + noise->shapey - 1;
+        reflection->v2 = noise->shapey - 1 + noise->height;
         reflection->u3 = noise->width +
                          ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                          (int)noise->depth;
-        reflection->v3 = noise->height + noise->shapey - 1;
+        reflection->v3 = noise->shapey - 1 + noise->height;
         reflection->tpage =
              ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
              (short)(noise->shapey & 0x100U) >> 4 | 0x60U |
@@ -274,11 +274,11 @@ void DrawTV(tTVConfig &tv)
              GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       }
     }
-    texture = (POLY_FT4 *)Render_gPacketPtr;
+    texture = (POLY_FT4 *)*packetPtrSlot;
     if (tv.state != tv_StateOff) {
-      *(u_int *)Render_gPacketPtr =
-           *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x28;
+      *(u_int *)*packetPtrSlot =
+           *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+      *packetPtrSlot = *packetPtrSlot + 0x28;
       *(u_int *)Render_gPalettePtr =
            *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
       *(u_int *)&texture->r0 = tint;
@@ -320,10 +320,10 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        texture = (POLY_FT4 *)Render_gPacketPtr;
-        *(u_int *)Render_gPacketPtr =
-             *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        Render_gPacketPtr = Render_gPacketPtr + 0x34;
+        texture = (POLY_FT4 *)*packetPtrSlot;
+        *(u_int *)*packetPtrSlot =
+             *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+        *packetPtrSlot = *packetPtrSlot + 0x34;
         *(u_int *)Render_gPalettePtr =
              *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
         ((u_char *)texture)[3] = 0xc;
@@ -349,9 +349,9 @@ void DrawTV(tTVConfig &tv)
         ((POLY_GT4 *)texture)->u1 = tv.u + tv.uw;
         ((POLY_GT4 *)texture)->v1 = tv.v - 1;
         ((POLY_GT4 *)texture)->u2 = tv.u;
-        ((POLY_GT4 *)texture)->v2 = tv.v + tv.vh - 1;
+        ((POLY_GT4 *)texture)->v2 = tv.vh - 1 + tv.v;
         ((POLY_GT4 *)texture)->u3 = tv.u + tv.uw;
-        ((POLY_GT4 *)texture)->v3 = tv.v + tv.vh - 1;
+        ((POLY_GT4 *)texture)->v3 = tv.vh - 1 + tv.v;
         ((POLY_GT4 *)texture)->tpage = tv.tpage;
         ((POLY_GT4 *)texture)->clut = tv.clut;
       }

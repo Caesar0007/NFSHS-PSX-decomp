@@ -797,7 +797,12 @@ int MCRD_handlecardevents(int card)
          * lifts cmd to 8 (1.200) and loses.  56 -> 28 diffs, count stays 211/211.
          * (This REFUTES the w44 receipt below, which recorded depth 3 as "wrecks the
          * arm (202 diffs)" -- that measurement must have wrapped a different span.)
-         * DO NOT "simplify" the wrappers away. */
+         * DO NOT "simplify" the wrappers away.
+         * (w45 re-measure from the FINAL basin: ONE wrapper also gates 2 diffs,
+         * but there cmd still OUTRANKS the base (1.200 vs 1.091) and only wins
+         * $a1 through a conflict/preference accident -- the two-wrapper form is
+         * the rank-EXPLAINED one (base rank 0 @1.636, cmd rank 2 @1.350), so it
+         * is the one kept.  Three or four wrappers regress to 54.) */
         do { do {
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;

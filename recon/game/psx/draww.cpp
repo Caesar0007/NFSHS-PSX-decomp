@@ -2177,7 +2177,41 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      polarity) before touching any register; the w10 note in this file already
      flags the quaternion copy as a genuine UNALIGNED lwl/lwr stream, so the
      8-insn hole is most likely a second movstrsi-shaped copy still written as
-     scalar math, or the wave-9 `Pack8` cast applied at only one of two sites. */
+     scalar math, or the wave-9 `Pack8` cast applied at only one of two sites.
+     CENSUS RUN (tools/brcensus.py, w44-a7):  beqz 4v3  bnez 2v3  j 2v3
+     -- equal conditional totals with a beqz<->bnez SWAP (one arm's polarity is
+     inverted) plus a `j` DEFICIT (we tail-merged a block the oracle keeps as a
+     separate jump).  Located at the head guard; the oracle prologue is
+         addiu $sp,$sp,-0x80
+         sw $s4,0x68($sp); addiu $s4,$a3,0x4
+         ... sw $a0,0x80($sp); sw $a1,0x84($sp); sw $a2,0x88($sp)
+         sw $zero,0x50($sp)
+         lw $a3,0x0($a3); nop
+         bnez $a3,.L800C7BF4
+          sw $a3,0x54($sp)
+     THREE separate facts fall out, and together they are the 8-insn deficit:
+       (a) Vi ($a0), sd ($a1) and simObjs ($a2) are SYM class ARG -- retail spills
+           all three to their incoming stack homes in the prologue and RELOADS
+           them at each use (`lw $a1,132(sp)` / `lw $a1,128(sp)` appear at the
+           DrawObjectTransform sites in the oracle).  We keep `sd` in $s5
+           (`addu $a1,$s5,$zero` / `addu $a2,$s5,$zero`), which is exactly why the
+           oracle has loads we lack.  Same ARG-spill class as Draw_kCtrlSkidmark's
+           `sw $a0,0x58($sp)`.
+       (b) totalCount is a stack AUTO at 0x50($sp) (`sw $zero,0x50($sp)`) and
+           groupNumElements at 0x54($sp); our decl order puts the count at
+           0x50($sp) instead, so every AUTO displacement is off by one slot --
+           the w41 decl-position-IS-frame-layout rule, the same fix that landed
+           on DrawW_BuildObjectFacets this wave.
+       (c) the zero-count guard is `bnez` with the groupNumElements store riding
+           its delay slot, i.e. the SOURCE arm order is
+              if (groupNumElements != 0) { ...loop... } else { totalCount = 0; }
+           and not our `if (== 0) {...} else {...}`.
+     NEW NAMED ANGLE: do the full rule-8 SYM rewrite here exactly as
+     DrawW_BuildObjectFacets got this wave -- pull the SYM 8c block, delete the
+     ~20 fabricated iVarN/loc_NN locals, order the scalar AUTOs into the SYM's
+     declaration sequence, and let the three ARG params stay memory-resident
+     (reference the parameter directly at each use instead of caching it in a
+     local -- catalog w22: "different register CLASS, not a different sN"). */
 
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;

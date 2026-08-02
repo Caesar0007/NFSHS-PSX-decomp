@@ -3915,16 +3915,36 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     bool bVar10 = i < group->m_num_elements << 1;
     i = i + 2;
     if (!bVar10) break;
-    /* MATCH (w45-a5, rule-8): SYM VA 800ca0f8 block declares EXACTLY seven inner
-       names -- `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1)
-       y($4=$a0) z($5=$a1) wx($8=$t0) wy($9=$t1) wz($7=$a3).  There is NO
-       `rightN`, NO `idx` and NO integer `pts`: those were Ghidra inventions.
-       The oracle's walking `$v0` slice base is a COMPILER temp that gets
-       mutated in place (`lbu t0,18(v0); addiu v0,v0,18; lbu t1,1(v0)`), which
-       is exactly what the indexed `BWorldSm_slices[..].right[k]` form yields
-       once no source pointer holds it alive.  `(signed char)b >> 3` is the
-       5-bit extend (`lbu; sll 24; sra 27` after combine merges the widen). */
+    /* MATCH (w45-a5) -- PASS 88/88.  Four cooperating levers, in this order:
+       (1) RULE-8: SYM VA 800ca0f8 block declares EXACTLY seven inner names --
+           `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1) y($4=$a0)
+           z($5=$a1) wx($8=$t0) wy($9=$t1) wz($7=$a3).  The old `pCoord` +
+           integer `pts` + `idx` + sVar7..sVar14 set was Ghidra invention;
+           deleting it and naming the six shorts per SYM took 54 -> 43 and put
+           wx/wy/wz in their oracle registers.
+       (2) `(signed char)b >> 3` IS the 5-bit extend -- combine merges the
+           widen into the oracle's `lbu; sll 24; sra 27` (the hand-expanded
+           `(int)((u_int)(u_char)b << 0x18) >> 0x1b` form is equivalent here but
+           the plain spelling is what a 1998 author wrote; cf. catalog w42
+           "PLAIN SPELLING BEATS HAND-EXPANDED SHIFTS").
+       (3) STATEMENT ORDER: `pts` (the firstPoint load) must be the FIRST
+           statement of the block -- the oracle issues `lbu a2,0(t4)` before the
+           slice byte, then sched1 defers the `sll/addu` address arithmetic past
+           the slice chain.  pts-first: 43 -> 29.
+       (4) The `rn` POINTER MUST EXIST AND BE ASSIGNED *AFTER* `pts`
+           (29 -> 2, count 87 -> 88 exact).  It is a compiler temp (absent from
+           SYM) but it is REAL: the oracle folds rn[0] into `lbu t0,18(v0)` off
+           the still-live slice base and only then materializes rn by MUTATING
+           that base IN PLACE (`addiu v0,v0,18; lbu t1,1(v0); lbu a3,2(v0)`).
+           Measured basin: rn-after-pts 2 · rn-first 4 · rn-after-wx 40 · no rn
+           at all (displacements 19/20, one insn SHORT) 29.
+       (5) The last diff was the commutative `addu` operand order on the slice
+           base -- `BWorldSm_slices[i]` emits `addu v0,s1,v0` (base first) while
+           the oracle wants the scaled index first (`addu v0,v0,s1`); the
+           explicit `(T*)((i << 5) + (int)base)` cast form delivers it
+           (methodology 5.0c commutative-addu lever).  2 -> PASS. */
     CCOORD16 *pts;
+    char *rn;
     short x;
     short y;
     short z;
@@ -3933,9 +3953,10 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     short wz;
 
     pts = wpts + (u_int)curLine->firstPoint;
-    wx = (signed char)BWorldSm_slices[slice + (u_int)curLine->slice].right[0] >> 3;
-    wy = (signed char)BWorldSm_slices[slice + (u_int)curLine->slice].right[1] >> 3;
-    wz = (signed char)BWorldSm_slices[slice + (u_int)curLine->slice].right[2] >> 3;
+    rn = ((Trk_NewSlice *)(((slice + (u_int)curLine->slice) << 5) + (int)BWorldSm_slices))->right;
+    wx = (signed char)rn[0] >> 3;
+    wy = (signed char)rn[1] >> 3;
+    wz = (signed char)rn[2] >> 3;
     x = pts->x;
     y = pts->y;
     z = pts->z;

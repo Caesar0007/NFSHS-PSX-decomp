@@ -35,6 +35,12 @@ CVECTOR      gfrgb = {255u, 255u, 255u, 0};   /* @0x8013d86c */
 CVECTOR      gfrgb2 = {64u, 64u, 128u, 0};   /* @0x8013d870 */
 int          gscale = 4096;   /* @0x8013d874 */
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
+ * macro family over this bitfield.  A bitfield store generates the masked VALUE
+ * (& 0xffffff) BEFORE the destination mask (& 0xff000000); the hand-written
+ * `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 / §2b.1 */
+typedef struct { unsigned addr : 24, len : 8; } Flare_PTag;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Flare_Tri(long *cp,long *p1,long *p2,int otz);
 void Flare_SetMatrix(matrixtdef *m);
@@ -1208,7 +1214,17 @@ void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCac
  * measured 3 spellings: statement moved one earlier (before the OT-slot store) = 4 diffs,
  * moved one later (after the bump) = 2, and `*(volatile u_int *)&gfrgb2` = 2.  A sched1
  * ready-list tie, not source-reachable.  (STRONG per the floor bar: prototype is void/void
- * per SYM, count exact, 3 alternate forms measured, named mechanism.) */
+ * per SYM, count exact, 3 alternate forms measured, named mechanism.)
+ * ---- w45-a9: THE "NOT SOURCE-REACHABLE" VERDICT IS REFUTED -- PASS 43/43. ----
+ * The floor above was correct about the MECHANISM (a sched1 issue-position tie) and wrong
+ * about reachability: the ZERO-INSN USE FENCE (§2b.5) pins the issue position directly.
+ * `__asm__ volatile("" : : "r"(rgb));` immediately after the read is a scheduling fixpoint,
+ * so the `lw v1,0(gp)` must issue BEFORE it while the packet-cursor bump (which follows the
+ * fence in source order) must issue AFTER -- exactly retail's 26/27/28.  Emits nothing.
+ * GENERALIZATION: any "the oracle issues load X one slot earlier than sched1 does" residual
+ * where source POSITION has already been swept is a USE-FENCE target, not a floor.  The
+ * PTag-bitfield spellings were also measured here (§2b.1): value-side bitfield READ = 6,
+ * plain word READ = 6 (both re-color the bump to $v1) -- this fn wants the hand-masked OR. */
 void Flare_2DSpike(long *center,long *end,int otz)
 
 {
@@ -1223,6 +1239,7 @@ void Flare_2DSpike(long *center,long *end,int otz)
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)otz & 0xffffff;
   *(u_int *)otz = *(u_int *)otz & 0xff000000 | (u_int)prim & 0xffffff;
   rgb = *(u_int *)&gfrgb2;
+  __asm__ volatile("" : : "r"(rgb));
   Render_gPacketPtr = prim + 0x14;
   prim[3] = 4;
   *(u_int *)(prim + 0xc) = 0;

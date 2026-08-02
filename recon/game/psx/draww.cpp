@@ -1749,8 +1749,12 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           int cx2;
           int cz2;
           int dist2;
-          cx2 = (pChunkCp->x - (BW_gCopCarObj->N).position.x) >> 10;
-          cz2 = (pChunkCp->z - (BW_gCopCarObj->N).position.z) >> 10;
+          /* MATCH (w45-a5, 92 -> 88): third site of the subtrahend-first class (both
+             axes load-bearing here: z-only measures 90, both 88). */
+          { int px = (BW_gCopCarObj->N).position.x;
+            cx2 = (pChunkCp->x - px) >> 10; }
+          { int pz = (BW_gCopCarObj->N).position.z;
+            cz2 = (pChunkCp->z - pz) >> 10; }
           dist2 = cx2 * cx2 + cz2 * cz2;
           if (dist2 <= 0x47DFFFF) {
             sd->nightFlags = sd->nightFlags | 2;

@@ -2073,13 +2073,27 @@ void Hud_InitMap(void)
  *   `Render_gPacketPtr` macro uses; qualifying the cell `u_char *volatile *` (volatile on the
  *   POINTEE does not defeat ADDRESS cse).  The in-source claim that the pktcell local `keeps the
  *   0x1F800004 constant un-hoisted like retail` is STALE AND FALSE -- it is hoisted into $fp.
- * NEW ANGLE: make the two loops' scratchpad addresses UN-CSE-able so each loop rematerializes
- *   its own -- the w42/w43 per-site address FORM dial: give each loop its own distinct
- *   address expression (e.g. one site as `*(u_char **)0x1F800004`, the other reached as
- *   `((u_char **)0x1F800000)[1]`, byte-identical target, different rtx so cse cannot equate
- *   them), or wrap one in the `__asm__("" : "=r"(p) : "0"(p))` identity fence.  Second lever:
- *   once $fp is free, check that `mapy = 0x18` lands there (it is currently const-propagated to
- *   each call site) -- if not, the SYM says it must, and a10's ref-step applies to it. */
+ * ===== w45-a8: 161 -> 121 (317/308), posdiff structural 69 -> 48 =====
+ * LEVER: both OT/palette links rewritten as the addPrim P_TAG bitfield pair.
+ * The +9 insn excess and the $fp root cause are UNCHANGED and are now the whole residual.
+ * The w44 NEW ANGLE was executed and BOTH halves are FALSIFIED with mechanisms:
+ *   (a) distinct address rtx -- `pktcell = &((u_char **)0x1F800000)[1];` in the race loop:
+ *       EXACTLY neutral (121/317).  gcc folds the &[1] back to the integer constant
+ *       0x1F800004 in the TREE, long before cse, so the two loops never had distinct rtx.
+ *   (b) `__asm__("" : "=r"(pktcell) : "0"(pktcell));` identity fence in the race loop:
+ *       121 -> 122 and 317 -> 318 (the fence itself materialises an extra insn); it does
+ *       break the CSE but pays more than it saves.
+ * NEW NAMED ANGLE (the SECOND lever, still untried): attack the OCCUPANT of $fp, not the CSE.
+ *   Retail's $fp holds `mapy` (`addiu $fp,$zero,0x18`, SYM REG $0x1e) -- with $fp taken, the
+ *   packet-cursor address CANNOT be parked there and must be rematerialised per loop into a
+ *   caller-saved reg, which is exactly retail's shape.  Ours const-propagates `mapy` to the
+ *   four `mapy - z & 0xffff` call-argument sites, so $fp is free for the address.  MIPS has no
+ *   reverse-subtract-immediate, so each site must materialise 0x18 in a register anyway --
+ *   i.e. the constant is ALREADY paid 4 times and a single fn-scope register copy is strictly
+ *   cheaper.  Make gcc see that: give `mapy` a NON-constant-foldable definition (the w44
+ *   repeated-literal-as-named-local dial in its strong form -- e.g. derive it from a value the
+ *   optimiser cannot fold, or spread one extra use of it above the first loop), then check
+ *   `-dg` that it out-ranks the address allocno for $fp. */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -2121,8 +2135,8 @@ void Hud_BuildMapMarkers(int player)
       pktcell = (u_char **)0x1F800004;   /* one addr materialization per iter (shared by read+bump) -- keeps the 0x1F800004 constant un-hoisted like retail */
       sprt = (SPRT *)*pktcell;
       pal = Render_gPalettePtr;
-      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
       if ((*(u_int *)((char *)Cars_gCopCarList[i] + 0x570) & 2) != 0) {
         currentSpriteColor = ((gFlip == 0) && (simVar.quickPauseSim == 0)) ? 0xff0000 : 0xff;
@@ -2154,8 +2168,8 @@ void Hud_BuildMapMarkers(int player)
       pktcell = (u_char **)0x1F800004;   /* see cop loop */
       sprt = (SPRT *)*pktcell;
       pal = Render_gPalettePtr;
-      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
       if ((Cars_gRaceCarList[i]->carFlags & 0x200U) != 0) {
         if ((*(u_int *)((char *)Cars_gRaceCarList[i] + 0x570) & 2) != 0) {

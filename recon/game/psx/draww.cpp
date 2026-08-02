@@ -1276,7 +1276,10 @@ gte_swc2(0x8,&depthcue);
        * oracle: with the depth-cue block as the out-of-line arm gcc cross-jump-merges
        * part of its two colour tails.  The polarity is downstream of that merge, not a
        * free arm-order choice -- do not re-try before the merge is killed. */
-      if (sd->nightFlags == '\0') {
+      if (sd->nightFlags != '\0') {
+        DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
+      }
+      else {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read
          * instruction-by-instruction): BOTH arms were wrong.
@@ -1327,9 +1330,6 @@ gte_strgb(&color);
           *(long *)&prim->r2 = color;
           *(long *)&prim->r3 = color;
         }
-      }
-      else {
-        DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
       }
       *(u_char *)((int)&prim->tag + 3) = 0xc;
       prim->code = *(u_char *)&workPmx->flag | 0x3c;
@@ -1385,8 +1385,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
          * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
          * insns the oracle never pays. */
-        p = Render_gPacketPtr;
-        tp20 = Render_gPalettePtr;
         iVar2 = (u_int)workPmx->u3 - (u_int)workPmx->u0;
         if (iVar2 < 0) {
           iVar2 = -iVar2;
@@ -1399,6 +1397,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         r.h = (short)ti5 + 1;
         r.x = 0;
         r.y = 0;
+        p = Render_gPacketPtr;
+        tp20 = Render_gPalettePtr;
         /* MATCH: the oracle reads each scratchpad cursor ONCE (`lw a0,0(t2)` /
          * `lw t0,0(t0)`) and drives the whole OT-link off those two registers -- the
          * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra

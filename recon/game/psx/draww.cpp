@@ -126,6 +126,19 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
  * only ~58 are needed.  Alternative direction: shed 11 of prim's 24 refs by routing
  * the four `*(long*)&prim->xN` and the four colour-word stores through ONE
  * `long *px = (long *)((char *)prim + 8);` base (each group is worth -3 refs). */
+/* w45-a6 ADDENDUM (a10 gcc-lane intel, consumed): a10's allocator simulator solved
+ * this fn on the OLD 100-diff baseline as a 4-cycle rotation of four BLOCK-LOCAL
+ * qtys -- p317 (packet-cursor read), p318 (the literal 0x1F800004), p329 (the
+ * 0x00FFFFFF mask) and p322 (the 0xFF000000 mask) -- with the required delta being
+ * +1 reference on EACH mask (refs 3 -> 4 crosses the floor_log2 edge).  The P_TAG
+ * bitfield conversion landed above IS that delta (a bitfield store generates the
+ * value mask before the dest mask and changes both masks' ref counts): 100 -> 20,
+ * and the mask registers no longer appear in the diff at all.
+ * MEASURED after landing: all FOUR P_TAG dial combinations -- {bitfield-read,
+ * plain-word-read} x {bump BETWEEN, bump BEFORE} -- gate identically at 20, i.e.
+ * the mask rotation is fully resolved and the remaining 20 is the prim/sd $s0/$s1
+ * trade + the dvxy store scheduling only. */
+
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad);
 void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd);
 void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd);
@@ -208,6 +221,16 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);
  *  (3) a t3/t4 swap on the two quad-row base pointers (lw 408(sp) / lw 456(sp)).
  * Not attacked this wave (budget went to the P_TAG sweep + the DrawObject twins);
  * every cluster is small and independent. */
+/* w45-a6 ADDENDUM (a10 gcc-lane intel): the "REVERSE-BIRTH-ORDER law" cited in
+ * cluster (1) above is the gcc-2.7 local_alloc rule and is FALSE for this 2.8
+ * toolchain -- local-alloc.c:1727 QTY_CMP_PRI is the SAME
+ * floor_log2(refs)*refs*size/life priority as allocno_compare.  So the fx/fy/fz
+ * trio is a REF/LIVE dial, not a birth-order one, and the 76 -> 70 win landed here
+ * (emitting fz, fy, fx) works because it changes the three qtys' LIVE LENGTHS, not
+ * because it reverses births.  Clusters (2) and (3) are therefore also ref-step
+ * targets: dump with tools/rtl_dump.py -dg -dl and drive
+ * tools/reqdelta.py --want "<pseudo>=<reg>,..." for the minimal delta. */
+
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd);
 void DepthCue_Init(void);
 
@@ -361,6 +384,24 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
  *   rotation + advance-addiu schedule, reload-reg naming cascades (t7/t8/t9/s4),
  *   leaf prim a0-coalesce (oracle s3 + addu copy = placeholder-call artifact).
  *   All operand/coloring class, count near-exact (586 vs 588) -- permuter targets. */
+/* w45-a6 RECEIPT -- 115 -> 35 this wave via the addPrim P_TAG-bitfield idiom at the
+ * four doublelayer OT-link sites; posdiff first-use order is now IDENTICAL to the
+ * oracle and the structural residual is 18 (ours 587 / oracle 588, 1 SHORT).
+ * RESIDUAL 35 = TWO clusters, both BLOCK-LOCAL qty picks:
+ *  (a) the child-index pivot chain: oracle keeps n+1 in $a3 (and mutates it in
+ *      place, `addiu a3,a3,3`), we keep it in $v1 -- identical instruction stream,
+ *      different register.
+ *  (b) the GT4 OT-link prim: oracle loads it into $s3 (callee-saved) and then
+ *      copies `addu a0,s3,zero` for the AddSubdividPrimGT4 call; we load straight
+ *      into $a0 (that copy is our 1-insn shortfall).
+ * a10 (w45 gcc lane) explicitly RE-OPENED this class: local-alloc.c:1727 QTY_CMP_PRI
+ * is the SAME floor_log2(refs)*refs*size/life priority as allocno_compare, so the
+ * w44 ref-step dial APPLIES to these block-local qtys (the old "local qty = birth/
+ * life only" reading was the gcc-2.7 rule).  NEW NAMED ANGLE: dump -dg/-dl, find the
+ * two qtys in the .lreg "in block N" section, and drive tools/reqdelta.py for the
+ * minimal +1-ref / -1-live delta; for (b) the natural zero-insn inflator is one more
+ * reference to `prim` (e.g. reading back a field of the just-linked prim) which also
+ * lengthens its range across the call and forces the callee-saved home + the copy. */
 void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Draw_SVertex *v1,
                Draw_SVertex *v2,Draw_SVertex *v3,short n,short subDivide)
 

@@ -8,6 +8,10 @@
 
 int kNoColor;   /* 0x800529d0 (EXT data global) */
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
+ * macro family, same house idiom that PASSed PSXDrawTrans*Square/PrimStop (w44). */
+typedef struct { unsigned addr : 24, len : 8; } DrawShp_PTag;
+
 /* lines 1-50: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- DrawShape_SubtractNFS4RectEdges  (drawshp.cpp:51, code lines 51-81) ---- */
@@ -158,6 +162,7 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   u_char *prevPrim;
   POLY_G4 *prim;
   u_long linkWord;
+  u_long linkW2;   /* 2nd OT-link macro temp (permuter find, fresh-dest for the $v0/$v1 tie) */
   u_long m24;
   short x1;
   short y1;
@@ -173,13 +178,11 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   do {
     prim = (POLY_G4 *)Render_gPacketPtr;
     prevPrim = Render_gPalettePtr;
-    do {   /* the OT-link MACRO body -- see the w44 note above */
-      m24 = 0xffffff;
-      prim->tag = prim->tag & 0xff000000 | *(u_long *)prevPrim & m24;
-      linkWord = *(u_long *)prevPrim & 0xff000000 | (u_long)prim & m24;
-    } while (0);
+    /* EA-1998 addPrim(): the P_TAG bitfield setaddr pair with the packet bump between
+     * them -- the exact house shape that PASSed PSXDrawTrans*Square (w44). */
+    ((DrawShp_PTag *)prim)->addr = ((DrawShp_PTag *)prevPrim)->addr;
     Render_gPacketPtr = (u_char *)prim + 0x24;
-    *(u_long *)prevPrim = linkWord;
+    ((DrawShp_PTag *)prevPrim)->addr = (u_long)prim;
     *(u_long *)&prim->r0 = 0x808080;
     prim->code = 0x3a;
     ((u_char *)&prim->tag)[3] = 8;

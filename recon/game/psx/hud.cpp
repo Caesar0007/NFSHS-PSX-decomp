@@ -1241,7 +1241,11 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   int i;
   int ox;
   int numch;
-  int iw;
+  int iw1;
+  int iw2;
+  int iw3;
+  int iw4;
+  int iw5;
 
   Hud_GoTpage(1);
   ix = x;
@@ -1259,15 +1263,15 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
         if (justwidth == 0) {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
-        iw = ix + 3;
-        ix = iw + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
+        iw1 = ix + 3;
+        ix = iw1 + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
       }
       else {
         if (justwidth == 0) {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
-        iw = ix + 3;
-        ix = iw + D_801119E0[0].width;
+        iw2 = ix + 3;
+        ix = iw2 + D_801119E0[0].width;
       }
       if (GameSetup_gData.commMode == 1) {
         if (gPadinfo.buf[4].ID == '#') {
@@ -1278,15 +1282,15 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
             if (justwidth == 0) {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
-          iw = ix + 3;
-        ix = iw + D_80111A1C[0].width;
+          iw3 = ix + 3;
+        ix = iw3 + D_80111A1C[0].width;
         }
         else {
             if (justwidth == 0) {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
-          iw = ix + 3;
-        ix = iw + D_801119E0[0].width;
+          iw4 = ix + 3;
+        ix = iw4 + D_801119E0[0].width;
         }
       }
     }
@@ -1346,8 +1350,8 @@ HudBuildStr_haveShape:
       if (justwidth == 0) {
         Hud_FBuildSprite((u_int)alphShape,ix,y + offy,color,0);
       }
-      iw = ix + 1;
-      ix = iw + HudPmx_gShapes[alphShape].width;
+      iw5 = ix + 1;
+      ix = iw5 + HudPmx_gShapes[alphShape].width;
     }
 HudBuildStr_next:
     str = str + 1;

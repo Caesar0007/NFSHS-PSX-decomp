@@ -4080,9 +4080,18 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
           {
             coorddef *pChunkCp;
             pChunkCp = Chunk_chunkCenters + buildList->chunkInd;
-            trans.x = (short)(pChunkCp->x - (Vi->cview).translation.x >> 10);
-            trans.y = (short)(pChunkCp->y - (Vi->cview).translation.y >> 10);
-            trans.z = (short)(pChunkCp->z - (Vi->cview).translation.z >> 10);
+            {
+              int tx = (Vi->cview).translation.x;
+              trans.x = (short)(pChunkCp->x - tx >> 10);
+            }
+            {
+              int ty = (Vi->cview).translation.y;
+              trans.y = (short)(pChunkCp->y - ty >> 10);
+            }
+            {
+              int tz = (Vi->cview).translation.z;
+              trans.z = (short)(pChunkCp->z - tz >> 10);
+            }
             DrawW_BuildChunkCenterLineFacets(chunkDat,group,(Draw_tGiveShelbyMoreCache *)sd,&trans);
           }
         }

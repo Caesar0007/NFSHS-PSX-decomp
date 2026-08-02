@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2592 at 100% (74.1%)
+TOTAL: 3496 functions, 2593 at 100% (74.2%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -884,7 +884,7 @@ VA             %match  unit                     function
 0x8004E264     91.77%  frontend/psx/psxfront    DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii
 0x8004E638    100.00%  frontend/psx/psxfront    DrawFlatShape__FP18tTexture_ShapeInfoiiiPii
 0x8004E678    100.00%  frontend/psx/psxfront    DrawShapeExtended__FiiiiiiP18tDrawShapeExtended
-0x8004E77C     95.97%  frontend/psx/psxfront    ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii
+0x8004E77C    100.00%  frontend/psx/psxfront    ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii
 0x8004EA38    100.00%  frontend/psx/psxfront    ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii
 0x8004EA88    100.00%  frontend/psx/psxfront    ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended
 0x8004EBB4    100.00%  frontend/psx/psxfront    LoadAllHelpShapes__Fv

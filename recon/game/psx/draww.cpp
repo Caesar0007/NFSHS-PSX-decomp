@@ -1206,12 +1206,9 @@ gte_swc2(0x8,&depthcue);
         r.h = 0;
         r.x = 0;
         r.y = 0;
-        *(u_int *)aprim =
-             *(u_int *)aprim & 0xff000000 |
-             *(u_int *)(pal + sd->otz * 4) & 0xffffff;
+        ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(pal + sd->otz * 4))->addr;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *(u_int *)(pal + sd->otz * 4) =
-             *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
+        ((DrawW_PTag *)(pal + sd->otz * 4))->addr = (u_long)aprim;
         SetTexWindow(aprim,&r);
       }
       /* RECEIPT (w44-a7) -- THE ORACLE'S TRUE SHAPE HERE IS AN if/else, AND IT IS
@@ -1433,10 +1430,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * `lw t0,0(t0)`) and drives the whole OT-link off those two registers -- the
          * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra
          * scratchpad loads. */
-        *(u_int *)p = *(u_int *)p & 0xff000000 | *(u_int *)(tp20 + sd->otz * 4) & 0xffffff;
-        uVar3_00 = (u_int)p & 0xffffff;
+        ((DrawW_PTag *)p)->addr = ((DrawW_PTag *)(tp20 + sd->otz * 4))->addr;
         Render_gPacketPtr = p + 0xc;
-        *(u_int *)(tp20 + sd->otz * 4) = *(u_int *)(tp20 + sd->otz * 4) & 0xff000000 | uVar3_00;
+        ((DrawW_PTag *)(tp20 + sd->otz * 4))->addr = (u_long)p;
         SetTexWindow((DR_TWIN *)p,&r);
       }
     }

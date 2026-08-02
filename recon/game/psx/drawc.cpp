@@ -4339,8 +4339,8 @@ gte_ldv0((char *)sd + 0xac);
           (sd->head).cprim.PrimPtr = (char *)(prim + 1);
           {
             u_long *ot = (u_long *)((sd->head).cprim.LastPrim + sd->otz);
-            prim->tag = prim->tag & 0xff000000 | *ot & 0xffffff;
-            *ot = *ot & 0xff000000 | (u_int)prim & 0xffffff;
+            ((DrawC_tTag *)prim)->addr = *ot;
+            ((DrawC_tTag *)ot)->addr = (u_int)prim;
           }
 gte_swc2(0xe,(char *)prim + 0x8);
 gte_ldv3((char *)sd + 0xb4,(char *)sd + 0x3d0,(char *)sd + 0xbc);

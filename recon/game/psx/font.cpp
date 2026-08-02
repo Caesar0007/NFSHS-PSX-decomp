@@ -109,7 +109,32 @@ void Font_SetABR(int abr)
  * the LUID here -- the chain's critical-path priority dominates), `v + dv` operand order,
  * an explicit `(u_int)` cast, a `vv = v;` copy-through local, inlining the whole expression
  * at the u0 store (87, +1 insn), dropping the `pal` CSE local (43, +1 insn), and moving the
- * width/height reads after the merge (62).  -G8 probe: no change. */
+ * width/height reads after the merge (62).  -G8 probe: no change.
+ * w45-a3 (still 42, 55/55; posdiff structural residual 23/55).  TWO RECEIPTS OVERTURNED
+ * and one NEW ANGLE:
+ *  (1) THE OLD ROOT-CAUSE CLAIM IS REFUTED.  `*(volatile int *)&v` gates 42 with a
+ *      BYTE-IDENTICAL body.  A volatile MEM cannot be moved by sched1, so the early
+ *      position of the `lw t3,40(sp)` is NOT a scheduling hoist -- it is where RTL
+ *      generation puts it.  Stop attacking it as a scheduler tie.
+ *  (2) The P_TAG addPrim idiom (arsenal 2b.1) that took the SIBLING Font_TextXY 8 -> PASS
+ *      REGRESSES here: 42 -> 48 gate AND 23 -> 39 posdiff, i.e. genuinely worse, not LCS
+ *      noise.  All 14 combinations (bitfield/raw len x 3 bump positions x dv/wh positions)
+ *      measured 48-80.  So Font_Blit's link is NOT the addPrim shape even though its
+ *      sibling twelve lines away is.
+ *  NEW NAMED ANGLE (untried, mechanism-derived).  The SYM says v lives in $t6, and $t6 is
+ *  the HIGHEST of the three rotating registers -- so retail's `v` allocno must have the
+ *  LOWEST priority of {pal, mask, v}.  With priority = floor_log2(refs)*refs/live_length
+ *  and v at refs 2 / live 2 it is currently the HIGHEST (1.00) and therefore takes the
+ *  lowest free t-reg.  Ours: v 1.00 -> t3, pal .32 -> t4, mask .107 -> t6.  Retail's order
+ *  (pal t3 < mask t4 < v t6) is exactly what a LONGER v live range would produce.
+ *  FALSIFIED so far as ways to lengthen it: a `vloc = v` copy local (42, copy-propagated
+ *  away -- gcc re-sinks the stack load), `v + 0` (42), a volatile read (42), and an empty
+ *  USE fence on v (74 -- the fence pins it too hard and recolors the head).  The angle that
+ *  remains is the OTHER direction: do not lengthen v, but RAISE pal's and mask's refs past
+ *  the floor_log2 step boundaries (w44 REF-STEP family) so that v is demoted relatively --
+ *  mask is at 3 refs, one zero-insn re-mask puts it at 4 and doubles its floor_log2 factor
+ *  (.107 -> .285), which alone reorders mask ahead of pal.  Needs a -dl/-dg dump
+ *  (tools/rtl_dump.py) to confirm the real refs/live before spelling it. */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {

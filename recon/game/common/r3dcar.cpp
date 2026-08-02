@@ -1570,8 +1570,10 @@ R_ICFt_postSwitchVis:
           if (((carObj->render).damageParts & 4U) != 0) {
             int damage;   /* SYM blk 362 REG v0 -- DamageSpoiler byte read ONCE */
             damage = R3DCar_DamageSpoiler[carType];   /* @0x800B0620 lbu DamageSpoiler(carType) */
-            code = damage & 1;
-            if (((carObj->render).upgradeFlags & 4U) == 0) {
+            if (((carObj->render).upgradeFlags & 4U) != 0) {
+              code = damage & 1;
+            }
+            else {
               code = damage & 0x80;
             }
             if (code != 0) {

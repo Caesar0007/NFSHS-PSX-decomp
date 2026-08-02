@@ -491,6 +491,37 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  *    there; do not port the helper's shape.
  *  - an explicit `u_char *pk = Render_gPacketPtr;` read hoisted above the tag RMW
  *    (to reproduce retail's early `lw t0,0(t1)`) = 116/938, gcc coalesces it away.
+ * ===== w44-a9 THREE-TAIL VERDICT (the briefed w43 SPLIT-RMW lever, applied and measured) =
+ * The residual really is ONE instruction placement repeated at the three OT tails: retail
+ * emits `lw a0,20(s3); addiu v1,s0,40; sll a0,a0,2; addu a0,a0,a2; lw v0,0(a0)` and ONLY
+ * THEN `sw v1,4(at)` (the packet-cursor store); ours stores the cursor first and computes
+ * the OT address + load after.  Because the cursor store is a store to a LITERAL address
+ * and the OT read goes through an unknown pointer, gcc can never hoist the load over the
+ * store -- so the order has to come from the SOURCE.
+ * APPLIED the w43 split-RMW verbatim (`otv = *(u_int*)(pal+otz*4) & 0xff000000 | link;`
+ * as its own statement, cursor bump BETWEEN value and store, then `*(...) = otv;`):
+ *   - inside the inlined ribbon helper (cases 8+10) : 119 diffs @ 921 insns (17 SHORT)
+ *   - at the case-13/14 tail alone                 : 119 diffs @ 921 insns (17 SHORT)
+ *   - same + Yoda OR operands at that tail         : 119 diffs @ 921 (canonicalized, no-op)
+ * 🔑 MECHANISM OF THE COST (this is the new, named finding): the split DOES move the load
+ * above the store, but it also makes that arm's tail RTL-identical to the shared merge
+ * block, so gcc's CROSS-JUMP pass swallows a whole ~17-insn tail.  The cost is NOT the
+ * split -- it is cross-jump depth.  Every historical falsification in the list above
+ * (statement swap 118@920, named l0/l1 temp 151/143@921, block-local `u_int *ot` 102@918,
+ * index form 86@918, struct view 86@918) lands on the SAME 918-921 band, i.e. they are all
+ * the same cross-jump collapse, not five independent failures.
+ * ALSO measured w44-a9 at the case-13/14 tail: `prim = (POLY_FT4*)Render_gPacketPtr;`
+ * re-read + `link`/bump off `prim` = 150 @942 (+4); the link/bump off `prim` WITHOUT the
+ * re-read = 149 @941 (+3).  Both keep the wrong load/store order too.
+ * 🆕 NEW ANGLE (untried): stop fighting the placement and attack the CROSS-JUMP DEPTH
+ * first (catalog w41 "Skidmark_Add 98->14 refuting a $s4<->$s5 tie floor": cross-jump depth
+ * is controlled by which VARIABLE each arm's tail uses).  Give each of the three tails a
+ * DISTINCT link/OT variable identity (a per-arm named local for the link word, and the
+ * per-arm `mode`/offset constant participating in the tail) so the arms stay un-merged,
+ * THEN apply the split-RMW.  If the arms cannot be de-merged, the second angle is the
+ * inverse: accept the merge and re-derive the whole tail from the MERGED oracle block
+ * (the oracle's `j T` targets .L800DE0E0/.L800DE100/.L800DE114/.L800DE11C/.L800DE120 -- map
+ * which of OUR arms should reach which merge entry, rather than assuming a 1:1 tail set).
  * NOTE cases 1/2/3, 6, 7, 9, 11 byte-match; preserve them verbatim.
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)

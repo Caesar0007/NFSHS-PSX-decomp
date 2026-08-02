@@ -383,7 +383,38 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  * every insn in such a block has sched priority 1, so gcc-2.8's backward list
  * scheduler falls back on the LUID tie-break = source order, and no C statement order
  * emits a `li` detached from its consumer).  Treat the two together; it looks like a
- * per-object toolchain/identity axis, not two independent function-level ties. */
+ * per-object toolchain/identity axis, not two independent function-level ties.
+ * ===== w44-a9 DATA POINT FOR THE PER-OBJECT IDENTITY INVESTIGATION (relay to a10) =====
+ * SHARPENED: the hoisted material is not one stray constant -- it is the COMPLETE ARG
+ * SETUP of the CarIO_CopyFromShape call, sitting ~18 insns before its `jal`, with real
+ * body work interleaved AFTER it.  Oracle @ the 0x11800 tail, in order:
+ *     lui t4,1 ; ori t4,t4,6144        (0x11800 mask)
+ *     addiu a0,a3,16                   <-- CopyFromShape arg0 = shape+0x10
+ *     addu  a1,s3,zero                 <-- arg1 = thePlate
+ *     li    a2,48                      <-- arg2 = 0x30
+ *     sll   t0,s6,2 ; lui/addiu t1 ; addu t1,t0,t1
+ *     li    a3,22                      <-- arg3 = 0x16
+ *     lw t3,0(t1) ; addu t0,t0,v0 ; lbu v1,0(t3) ; lw t2,0(t0)
+ *     or v1,v1,t4 ; sw v1,0(t3) ; lbu v0,0(t2) ; or v0,v0,t4 ; sw v0,0(t2)
+ *     lw t0,0(t0) ; lw v1,0(t1) ; li v0,24 ; sh v0,4(v1) ; sh v0,4(t0)
+ *     sw zero,16(sp) ; jal CopyFromShape ; sw zero,20(sp)
+ * Ours emits the same instructions but with the four arg-setup insns adjacent to the jal
+ * (they end up filling the two plate-pointer load-delay slots instead of retail's second
+ * pointer load).  THIS IS THE SHARP FORM OF THE QUESTION for a10: in gcc-2.8, call
+ * argument-setup insns are chained to their CALL_INSN by SCHED_GROUP_P, so the scheduler
+ * moves them WITH the call and can never leave 18 insns of unrelated work between them.
+ * Retail's build DID -- i.e. retail's arg values were materialized OUTSIDE the call
+ * sequence (low luid, own insns), which is what `expand_call`'s
+ * `precompute_register_parameters` does only for args it considers non-trivial.  So the
+ * SetDefault "block-head li" and this "pre-call arg block" are ONE mechanism seen twice:
+ * retail's cc1 put value materializations at a LOWER luid than ours.
+ * ⇒ a10 lanes worth testing with these two exhibits: (1) a per-object flag that changes
+ * expand_call's precompute decision; (2) `-fno-defer-pop` / arg-evaluation-order options;
+ * (3) whether cc1 2.8.0 precomputes when the call has >4 args (both exhibits' calls have
+ * 6 args -- two go on the stack via `sw zero,16(sp)/20(sp)`, which is exactly the case
+ * where gcc pre-evaluates register args to avoid clobbering while pushing).
+ * w44-a9 also falsified locally: swapping the two `width = 0x18` stores to Plate1-first
+ * (104 -> 106); the Plate2-first order stays. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {

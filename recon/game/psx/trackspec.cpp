@@ -65,6 +65,18 @@ int TrackSpec_gPrevSpec;
  *   then lives in its own register ($v1) across the whole 16-store group instead of
  *   being re-materialized into $v0 afterwards -- but measures 24 as well, because
  *   the register letters still differ ($v1/$v0 vs retail $a0/$v1).
+ * w44-a9 (24 stays, NEW falsification + NEW angle): the obvious answer to "retail's two
+ * `li`s had a LOW LUID" is to make them REAL STATEMENTS -- two named locals `int c8 = 8;`
+ * / `int c16 = 16;` assigned at the head of the tail block and used at all seven store
+ * sites.  MEASURED: 24, byte-for-byte the SAME diff -- cse const-propagates the locals back
+ * into every `sb` and DELETES the two `li` insns, so the pseudo never exists.  (Same
+ * outcome the RaceStatistics `int pitch = 0x96;` probe had for a different reason.)
+ * ⇒ any block-head-constant lever needs the pseudo to survive cse, i.e. a value cse cannot
+ * prove constant.  NEW ANGLE (untried, in priority order): (1) source the two values from
+ * an EARLIER STORED FIELD re-read that cse cannot forward across the two loops (e.g. read
+ * back `(spec->fogspec).dist2base` for the 8) -- the loops break cse's extended basic
+ * block, so the load is opaque at the tail; (2) failing that, this is a10's per-object
+ * identity axis and the CreateLicense call-arg data point below is its twin.
  * FLOOR-BAR NOTE: prototype re-audited (1 pointer arg, void return, SYM REGPARM $05,
  * fsize 0 / mask $00000000 leaf, no $v0 at the single `jr $ra`); the w40 per-TU flag
  * probes still stand (g_value 8 no-op, all four -f keys negative).

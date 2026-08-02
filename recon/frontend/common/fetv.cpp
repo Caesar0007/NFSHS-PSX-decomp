@@ -106,6 +106,7 @@ void DrawTV(tTVConfig &tv)
   POLY_FT4 *texture;
   POLY_GT4 *reflection;
   tTexture_ShapeInfo *noise = &gHelpShapes[0][(rand() & 3) + 0x22];
+  u_char **packetPtrSlot = (u_char **)0x1f800004;
   short videoX;
   short videoY;
   short videoWidth;
@@ -171,7 +172,6 @@ void DrawTV(tTVConfig &tv)
     DrawTVLines(tv);
   }
   if ((tv.flags & 0x10) == 0) {
-    u_char **packetPtrSlot = (u_char **)0x1f800004;
     if (tv.state != tv_StateOn) {
       u_int *palette;
 

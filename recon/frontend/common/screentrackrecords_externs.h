@@ -5,10 +5,10 @@
 #include "../../lib/libfns.h"
 
 extern tfrontEnd   frontEnd;
-extern int  ticks;
+extern int  ticks[];
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
-extern tTexture_ShapeInfo *gCurrentShapes;
+extern tTexture_ShapeInfo *gCurrentShapes[];
 extern bool NewRecords[8];
 extern bool NewBestLap;
 void trap(int code);

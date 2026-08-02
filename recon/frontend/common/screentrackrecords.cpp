@@ -180,114 +180,92 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
 void tScreenTrackRecords::DrawBackground()
 
 {
-  short fade;
-  int fadeCalc;
-  int boxy;
-  int boxx;
-  int midy;
-  int Col;
-  int ColTextBright;
-  char *word;
-  int wy;
-  int boxw;
-  int maxitem;
-  int clampTmp;
+  char string[50];
+  char string2[50];
+  int fade;
   int fadeAmt;
+  int clampTmp;
+  int lineFadeCalc;
   short linefadeval;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
-  char string [50];
-  char string2 [50];
+  short maxitem;
+  short boxx;
+  short boxy;
+  short boxw;
+  short midy;
+  short j;
+  int Col;
+  int ColTextSel;
+  int ColTextBright;
+  tTexture_ShapeInfo *shape;
+  int lbx;
+  int tt;
   tDrawShapeExtended drawflags;
-  
-  fadeCalc = this->fScreenFadeVal * 0x134;
-  if (fadeCalc < 0) {
-    fadeCalc = fadeCalc + 0x7f;
+
+  fade = (this->fScreenFadeVal * 0x134) / 0x80;
+  fadeAmt = fade - 0xb4;
+  if (fadeAmt < 0) {
+    fadeAmt = 0;
   }
-  fadeCalc = fadeCalc >> 7;
-  clampTmp = fadeCalc;
-  if (fadeCalc < 0) {
+  if (0x80 < fadeAmt) {
+    fadeAmt = 0x80;
+  }
+  clampTmp = fade;
+  if (clampTmp < 0) {
     clampTmp = 0;
   }
-  fade = (short)clampTmp;
-  if (0xb4 < fadeCalc) {
-    fade = 0xb4;
+  if (0xb4 < clampTmp) {
+    clampTmp = 0xb4;
   }
-  fadeCalc = (fadeCalc * 0x80) / 0xb4;
-  clampTmp = fadeCalc;
-  if (fadeCalc < 0) {
-    clampTmp = 0;
+  lineFadeCalc = (fade * 0x80) / 0xb4;
+  if (lineFadeCalc < 0) {
+    lineFadeCalc = 0;
   }
-  linefadeval = (short)clampTmp;
-  if (0x80 < fadeCalc) {
-    linefadeval = 0x80;
+  if (0x80 < lineFadeCalc) {
+    lineFadeCalc = 0x80;
   }
-  fadeCalc = (0xb4 - fade) / 0x14;
-  clampTmp = TextSys_WordX(0x248);
+  linefadeval = lineFadeCalc;
+  maxitem = (0xb4 - (short)clampTmp) / 0x14;
+  boxx = TextSys_WordX(0x248);
   boxy = TextSys_WordY(0x256);
-  boxx = TextSys_WordX(0x24f);
+  boxw = TextSys_WordX(0x24f) - boxx;
   midy = TextSys_WordY(0x25f);
-  Col = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][4]],fadeAmt);
-  ColTextBright = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fadeAmt);
-  maxitem = fadeCalc * 0x10000;
-  this->DrawRecords((short)((uint)maxitem >> 0x10));
-  word = TextSys_Word(0x251);
-  wy = Front_GetLapsForType();
-  sprintf(string2,word,wy);
-  fade = Front_GetTrackRaced();
-  word = TextSys_Word(fade + 0xd5);
-  sprintf(string,"%s %s",word,string2);
-  wy = TextSys_WordY(0x255);
-  FETextRender_FullTextRGB
-            (string,0x104,(short)wy,ColTextBright,'\0',2);
-  ColTextBright = textpixels(string);
-  wy = TextSys_WordY(0x255);
-  boxw = textpixels(string);
-  PSXDrawSquare(0,0x104 - (ColTextBright >> 1),wy,boxw,9);
-  TextSys_WordY(0x255);
-  DrawShapeExtended
-            ((int)this,shapeFlags,shapeX,shapeY,
-             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  TextSys_WordY(0x255);
-  DrawShapeExtended
-            ((int)this,shapeFlags,shapeX,shapeY,
-             (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  Col = 0x232323;
+  ColTextSel = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][4]],(short)fadeAmt);
+  ColTextBright = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],(short)fadeAmt);
+  this->DrawRecords(maxitem);
+  sprintf(string2,TextSys_Word(0x251),Front_GetLapsForType());
+  sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd5),string2);
+  FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x255),ColTextBright,0,2);
+  PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x255),textpixels(string),9);
+  shape = &gCurrentShapes[0][0x26];
+  lbx = (((short)shape->width >> 1) - shape->centerx) - 2;
+  tt = ticks[0] % (short)shape->width;
+  if (((short)shape->width / 2) < tt) {
+    tt = (short)shape->width - tt;
+  }
+  DrawShapeExtended(0x27,0,lbx + tt,TextSys_WordY(0x255) + 1,
+                    (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x27,0,lbx - tt,TextSys_WordY(0x255) + 1,
+                    (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x505050;
-  DrawShapeExtended
-            ((int)this,shapeFlags,shapeX,shapeY,
-             (int)this->fScreenFadeVal,0,&drawflags);
-  for (fade = 0; ColTextBright = (int)fade, ColTextBright < 3; fade = fade + 1) {
-    wy = TextSys_WordX(ColTextBright + 0x24c);
-    word = TextSys_Word(ColTextBright + 0x252);
-    FETextRender_FullTextRGB
-              (word,(short)wy,(short)((uint)((boxy + 4) * 0x10000) >> 0x10),Col,'\0',0);
-    if (0 < maxitem >> 0x10) {
-      ColTextBright = -(int)linefadeval + 0x80;
-      if (ColTextBright < 0) {
-        ColTextBright = -(int)linefadeval + 0x8f;
-      }
-      PSXDrawSquare
-                (0x232323,wy + -6,(short)boxy + 2,2,ColTextBright >> 4);
+  DrawShapeExtended(0x26,0x410,-2,0,(int)this->fScreenFadeVal,0,&drawflags);
+  for (j = 0; j < 3; j++) {
+    int xx = TextSys_WordX(j + 0x24c);
+    FETextRender_FullTextRGB(TextSys_Word(j + 0x252),(short)xx,(short)(boxy + 4),
+                             ColTextSel,0,0);
+    if (0 < maxitem) {
+      PSXDrawSquare(Col,xx - 6,(short)boxy + 2,2,(0x80 - linefadeval) / 0x10);
     }
   }
-  word = TextSys_Word(0x262);
-  ColTextBright = TextSys_WordX(0x249);
-  FETextRender_FullTextRGB
-            (word,(short)ColTextBright,(short)midy + 3,Col,'\0',0);
-  boxy = (int)(short)boxy;
-  PSXDrawBrightEndLine
-            (0x232323,(int)(short)clampTmp,boxy + 3,(int)(short)((short)boxx - (short)clampTmp),-1,2,
-             (int)linefadeval,0x23);
-  clampTmp = TextSys_WordX(0x24c);
-  PSXDrawBrightEndLine
-            (0x232323,clampTmp + -6,boxy + 4,2,((short)midy + -0xc) - boxy,1,(int)linefadeval,0);
-  if (8 < (short)fadeCalc) {
-    fadeCalc = TextSys_WordX(0x24c);
-    clampTmp = TextSys_WordY(0x260);
-    PSXDrawSquare(0x232323,fadeCalc + -6,clampTmp + -1,2,8);
+  FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249),
+                           (short)(midy + 3),ColTextSel,0,0);
+  PSXDrawBrightEndLine(Col,boxx,(short)boxy + 3,boxw,-1,2,linefadeval,0x23);
+  PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
+                       ((short)midy - 0xc) - (short)boxy,1,linefadeval,0);
+  if (8 < maxitem) {
+    PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
   }
-  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0);
+  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes[0],0);
   return;
 }
 

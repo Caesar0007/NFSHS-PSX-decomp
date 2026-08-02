@@ -77,7 +77,10 @@ for m in mods:
     try: obj=bld.compile_c(m, False) if m.suffix=='.c' else bld.compile_cpp(m)
     except SystemExit: comp_fail+=1; continue
     except Exception: comp_fail+=1; continue
-    dis=subprocess.run([OBJD,'-d','-r',str(obj)],capture_output=True,text=True).stdout
+    # Keep explicit zero words: inside .text they are real branch/call delay-slot
+    # nops. Without -z objdump elides runs of zeros and manufactures residuals
+    # that the authoritative single-function verifier correctly reports as PASS.
+    dis=subprocess.run([OBJD,'-d','-r','-z',str(obj)],capture_output=True,text=True).stdout
     # parse function bodies
     cur=None; bodies={}
     for ln in dis.splitlines():

@@ -693,7 +693,15 @@ int MCRD_handlecardevents(int card)
    *   `bne pCI->status,-1` and the NONE arm's `bgez ticks`; our gcc cross-jumps it
    *   into the single .L800501B0 copy.  FALSIFIED: explicit `return status;` at
    *   either or both sites (block order scrambles, 230), `goto` at both sites
-   *   (no-op).  Not yet reached. */
+   *   (no-op), and a SECOND textual `return status;` placed just before the
+   *   MCRDhandleCard_end label - that one DOES reach count-exact 211/211 but
+   *   un-merges the WRONG pair (it duplicates the sync==0 funnel .L800500D0 and
+   *   flips its guard to beqz; the .L800500D8 trampoline is still absent).
+   *   Retail's trampoline is a reorg leftover: both of its predecessors
+   *   (`bne pCI->status,-1` / `bgez ticks`) already carry `addiu $s0,0x16` in
+   *   their delay slots, so reorg cannot steal `addu $v0,$s0,$zero` into them and
+   *   keeps a 2-insn trampoline instead - ours reaches the single funnel directly
+   *   and is simply 2 insns tighter.  Not source-reachable so far. */
   status = 0x17;
   pCI = MCRD_getcard(card);
   ret = MemCardSync(0,(long *)&cmd,(long *)&res);

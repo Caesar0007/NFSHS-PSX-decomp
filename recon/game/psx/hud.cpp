@@ -3415,7 +3415,7 @@ HudRender_amtDone:
            * adjacent to the jump -- find a zero-cost shape where the 0-arm is a
            * reg-reg copy instead (e.g. the 0 already live in another local). */
           countamount = 1;
-          if ((simGlobal.gameTicks < 0x240) && (countdown == ' ')) {
+          if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
             countamount = 0;
           }
           Hud_BuildCdPlayer(countamount,i);

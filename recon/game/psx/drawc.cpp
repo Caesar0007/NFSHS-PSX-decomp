@@ -199,7 +199,23 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        A per-component subtrahend temp restores retail's order and puts the HRCL
        address back in $v1.  RESIDUAL 71 = carObj still in $a0 (retail $a1 per SYM
        REGPARM $5) and the i*4 giv in $a2 (retail $a0): a global-allocno conflict
-       tie -- retail's a0/a1 are barred for the i*4 pseudo, ours are not. */
+       tie -- retail's a0/a1 are barred for the i*4 pseudo, ours are not.
+       w44-a8 MEASURED ALTERNATIVE (not landed, gate-only regression): moving
+       `pos = &carObj->N.position;` OUT of this `if` to function scope -- which
+       is what the SYM says (pos is `Def2 class REG $6` in the OUTER block, "Block
+       start line = 1", not the line-16 block) -- makes the fn COUNT-EXACT
+       107/107 and puts the `addiu pos,carObj,0xA0` in the beqz DELAY SLOT
+       exactly like retail (@800BE9C0), leaving ONLY the a0/a1/a2/a3 rotation.
+       Gate reads 74 vs 69 purely because the LCS aligner re-anchors on the
+       extra insn.  NEW ANGLE for the next pass: land the hoist and attack the
+       one remaining item -- the missing `addu $a1,$a0,$zero` REGPARM copy.
+       Per the w43 REGPARM-copy rule the displacer is the i*4 giv (no SYM
+       record => a compiler giv): it must out-rank carObj in allocno priority
+       (retail: giv live 9..22 vs carObj 1..25 => giv shorter => wins $a0).
+       Dials to try: lengthen carObj's range (a later carObj-based read the
+       oracle also has) or shorten the giv's (a second `i` use inside the if).
+       Removing the `h` subtrahend temp was RE-TESTED and is WORSE (87, 106
+       insns) -- `h` models a genuine cse temp (w43 purge-rule exception). */
     { int h;
     h = (Cars_gHumanRaceCarList[i]->N).position.x;
     tmp.x = (carObj->N).position.x - h;
@@ -234,9 +250,13 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
     short newR;
     short newG;
     short newB;
-    newR = (short)((int)lp[0] + (int)wc[0]);
-    newG = (short)((int)lp[1] + (int)wc[1]);
-    newB = (short)((int)lp[2] + (int)wc[2]);
+    /* MATCH (w44-a8, 71 -> 69): the weather byte is the FIRST operand.  Compare/
+       add operand order IS load order here: `lp[N] + wc[N]` loaded lp into $v0
+       and wc into $a0, `wc[N] + lp[N]` swaps them, which is retail's pairing
+       (`lbu $a0,0x68($sp)` lp; `lbu $v0,0x0($v1)` wc; `addu $a0,$a0,$v0`). */
+    newR = (short)((int)wc[0] + (int)lp[0]);
+    newG = (short)((int)wc[1] + (int)lp[1]);
+    newB = (short)((int)wc[2] + (int)lp[2]);
     if (0xff < newR) {
       newR = 0xff;
     }

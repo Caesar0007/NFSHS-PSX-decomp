@@ -1529,6 +1529,30 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              Instruments: prio.py/-dg on the ids+facet+prim allocnos; the id-morph
              statements (`id0 = id0*8; id0 = id0 + (int)sd;`) are the ref/live dial.
              ===== end w44-a8 =====
+             ===== w45-a4 STATUS: Prim (746 / 1403 vs 1389) and PrimClip
+             (857 / 1892 vs 1877) were NOT re-attacked this wave -- the wave's
+             budget went to the six smaller drawc fns, four of which cracked
+             on ONE lever family: VARIABLE IDENTITY (which named C local holds
+             which value / how many distinct block-local temps a sequential
+             read-run gets).  Receipts: NightHeadlight 69->36 (one reused
+             subtrahend temp -> three block-local h0/h1/h2 solved the whole
+             a0/a1/a2 rotation INCLUDING the missing REGPARM copy),
+             ShowroomPrims 93->4 (three counters that Ghidra had called i/j
+             are all retail's `index`; the tick is `j` with an anonymous /256),
+             PrimStart 102->86 (a fused `-0x16` split into its own pseudo),
+             PrimMenu residual = a clean id0/id2/overlayFlag 3-cycle.
+             => THE RECOMMENDED NEXT ATTACK ON Prim/PrimClip IS THE SAME LENS,
+             not another asm-template or clobber experiment: their ~60 flat
+             fn-scope locals are still Ghidra names (iVar7/iVar8/uVar10/
+             psVar6/psVar12/tp1..tp20/...).  The w44-a8 angle (make id2 land
+             in $a3 and facet in $a2, then the tint band follows) is exactly
+             a variable-identity problem: id0/id1/id2 have identical refs and
+             monotonically increasing live lengths, so allocno_compare ranks
+             id0 FIRST and it steals the low reg, while retail ranks them in
+             REVERSE (longest-lived first = local_alloc's qty_compare_1).  See
+             the parallel receipt in DrawC_PrimMenu, which is the same 3-cycle
+             in a 480-insn function and is therefore the cheap proving ground:
+             crack PrimMenu's ids first, then transcribe to Prim/PrimClip.
              LEAD (w38-a3, MEASURED, NOT APPLIED -- see the block comment at the top of
              DrawC_Prim): this 6-statement u/v block and its `(char)(sd->vtN).y/.z`
              sibling are the SOLE source of the +21 (Prim) / +17 (PrimClip) EXCESS
@@ -3867,7 +3891,42 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          `sll v1,v1,16`); split, the shift lands before the `facet->flag` load in
          its own reg (`sll a0,v0,16`) and the halfword load gets retail's $v0.
          Residual 3 insns = cc1 still hoists the `lh flag` into the lhu's load-delay
-         slot (retail leaves the nop and keeps sll-before-lh) -- a sched1 tie. */
+         slot (retail leaves the nop and keeps sll-before-lh) -- a sched1 tie.
+         ===== w45-a4 (29, ours 295 / oracle 298).  MECHANISM NAMED:
+         retail's schedule is protected by an ANTI-DEPENDENCE we do not have --
+         it loads the overlay halfword into $v0 (`lhu v0,0(v0)`) and then loads
+         `facet->flag` into the SAME $v0 (`lh v0,0(s1)`), so the flag load
+         CANNOT be hoisted above `sll a0,v0,16`.  Ours puts the halfword in $v1,
+         so there is no conflict, sched1 pulls the `lh` into the lhu's load-delay
+         slot, and dbr then takes the now-adjacent `sll` as the bgez's SIMPLE
+         fill instead of retail's EAGER STEAL of the target block's `sra v1,a0,16`.
+         => this is a REGISTER-ASSIGNMENT problem wearing a scheduling costume;
+         the 2 missing insns are the nop + the standalone sll at each of the two
+         sites.  FALSIFIED this wave: volatile on the overlay load (105/293),
+         volatile on facet->flag (39/297), volatile on the shift store (33/295),
+         a separate `ovraw` pseudo for the raw halfword (33), if/else ARM SWAP
+         (35), volatile view on `type` at the real_type site and at all three
+         sites (both exactly 29 -- so the loop-head `andi` position is NOT an
+         LICM-of-`type` artifact; retail simply places the block after the gate
+         and w44's re-test of that placement stands at 48).
+         NEW NAMED ANGLE: force the two loads to share a register.  Retail's
+         `lhu v0` / `lh v0` pairing means the flag value and the overlay
+         halfword are the SAME C pseudo in the original -- i.e. the source read
+         the flag into the variable the overlay word had just vacated (a
+         DEAD-VARIABLE STAGING reuse, the w10 NightCopCalc lever).  Spell it as
+         one `int w`: `w = DrawC_gOverlay[index]; ov = w << 16; w = facet->flag;
+         if (w < 0) ...` -- one variable, two lifetimes, exactly retail's $v0.
+         ...TESTED SAME WAVE AND FALSIFIED: `int w` staging at both sites = 45,
+         at the first site only = 37, and BOTH stay at 295 insns -- the staging
+         does not create the anti-dependence (cc1 splits the two lifetimes into
+         separate pseudos again).  REFINED ANGLE: the anti-dependence has to be
+         created by ALLOCATION, not by source aliasing, so attack it from the
+         allocno side -- the halfword temp must out-rank whatever currently
+         holds $v0 across this block.  Concretely: dump -dg (tools/rtl_dump.py)
+         for this fn, find which pseudo owns $v0 at the overlay load, and use
+         the w44 ref-step family (`ov = ov | (ov & 0);` zero-insn re-mask, or a
+         loop-depth do{}while(0) around the two-site block) to push the overlay
+         halfword's refs over the flr2 boundary. */
       {
         u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
         ov = ov << 0x10;

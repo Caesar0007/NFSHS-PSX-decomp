@@ -120,7 +120,10 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   height = ch->height;
   *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *pal & 0xffffff;
   Render_gPacketPtr = (u_char *)sprt + 0x14;
-  *pal = *pal & 0xff000000 | (u_int)sprt & 0xffffff;
+  {
+    u_int addr24 = (u_int)sprt & 0xffffff;
+    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
+  }
   *((u_char *)sprt + 3) = 4;
   *(int *)&sprt->x0 = y << 0x10 | x;
   *(u_long *)&sprt->r0 = font_tint;
@@ -466,7 +469,10 @@ void Font_TextXY(char *string,int x,int y)
      * cursor bump's 2-slot position.  Swept all 4 RMW operand orders x 3 bump positions:
      * 22/22/24/26 and bump-between = 28-32 (bump issues too EARLY, before the RMW1 store).
      * Palette write-back stays BEFORE the cursor bump. */
-    *pal = (u_int)dr_mode & 0xffffff | *pal & 0xff000000;
+    {
+      u_int addr24 = (u_int)dr_mode & 0xffffff;
+      *pal = (addr24 & 0xffffff) | *pal & 0xff000000;
+    }
     Render_gPacketPtr = (u_char *)dr_mode + 0xc;
     SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
   }

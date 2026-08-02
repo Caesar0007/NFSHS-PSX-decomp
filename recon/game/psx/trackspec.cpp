@@ -77,6 +77,54 @@ int TrackSpec_gPrevSpec;
  * back `(spec->fogspec).dist2base` for the 8) -- the loops break cse's extended basic
  * block, so the load is opaque at the tail; (2) failing that, this is a10's per-object
  * identity axis and the CreateLicense call-arg data point below is its twin.
+ * 🏆 w44-a10: 24 -> 6, COUNT STILL EXACT 142/142.  THE w42-a5 "-dS PROVES NO
+ * STATEMENT ORDER REACHES IT" RECEIPT (kept verbatim below) IS **REFUTED**.  Two
+ * one-line statement moves did it:
+ *   (1) `clearcolor.r = '\b';` + `clearcolor.g = '\x10';` moved to the TOP of the
+ *       tail block (immediately before `sunAngleInSky = -0x1848;`), in that order
+ *       -> 24 -> 8.  This is what puts retail's `li $a0,8` + `li $v1,16` AT THE
+ *       BLOCK HEAD and gives the two constants retail's own registers.
+ *   (2) `depthcuespec.color.r = 0x80;` moved before `depthcuespec.distance = 0x44;`
+ *       -> 8 -> 6.
+ * MECHANISM (the w42 receipt read the WRONG scheduler pass):
+ *   - `-dS` = **sched1**, which runs BEFORE reload.  There, every constant `li` is a
+ *     register BIRTH and gcc-2.8 sched.c hands it LAUNCH_PRIORITY (the dump prints
+ *     `7f000001`, visible in the T-N ready-list trace) so it is scheduled the instant
+ *     it becomes ready = pinned directly above its earliest use.  That is why sched1
+ *     reproduces source order, and it is what the w42 receipt actually measured.
+ *   - `-dR` = **sched2**, post-reload.  There LAUNCH_PRIORITY is NOT applied (every
+ *     insn prints priority 1) and constants DO float: in OUR OWN build insn 590
+ *     (`li $v0,19660`) enters the ready list at T-6 and is not placed until T-16 --
+ *     it floats 10 slots above its use.  So "a `li` 30 insns above its use is
+ *     unreachable" was false on its face.
+ *   - What actually pinned our 8/16 constants was REGISTER ASSIGNMENT, not order:
+ *     both landed in $v0, the same register the whole tail-block constant chain
+ *     uses, so output/anti-dependences serialize the block and sched2's ready list
+ *     never holds more than one insn.  Retail's 8/16 live in $a0/$v1, outside that
+ *     chain, so they are ready early and float to the block head.  Moving ONE use of
+ *     each constant to the block head lengthens its live range across the $v0 chain,
+ *     local_alloc is forced onto $a0/$v1, and sched2's float then happens for free.
+ *   ⇒ GENERAL LEVER (catalog): when a shared constant's `li` sits adjacent to its
+ *     first use but retail hoists it, SPREAD that constant's USES across the block
+ *     (move one use to the block head) -- it is a register-allocation dial dressed
+ *     up as a scheduling diff.  Moving the whole group as a block (what w40/w42
+ *     tried) cannot work: it keeps the live range short.
+ * RESIDUAL 6 (count exact), TWO scheduler ready-list tie-breaks, both now understood
+ * and both measured inert to statement order (27 head-order + 22 tail-order variants,
+ * scratch/a10/run_ts{1..5}.py):
+ *   (a) `li $a3,23` vs `li $v1,1` issue order at the head (4 diffs).  $a3 = loop.c's
+ *       LICM hoist of the ring loop's `0x17`; it has NO consumer inside block 0, so
+ *       it is ready at T-1 and floats until the ready list DRAINS.  sched2 trace:
+ *       insn 654 sits in the ready list from T-26 to T-44 and is only picked when
+ *       just insns 17 and 5 remain -> position 3; retail's drained one step later ->
+ *       position 8.  `rank_for_schedule` sorts newly-RELEASED insns ahead of
+ *       long-waiting ones (39/33/27/25/24 all beat uid-654), so the stopping point
+ *       is a function of block 0's dependence shape, not of statement order.
+ *   (b) one `sb $v1,240` placement (2 diffs), same class.
+ *   NEW ANGLE for whoever takes it next: both are ready-list DRAIN points -- the dial
+ *   is the number/shape of insns released late in block 0 / the depthcue block, i.e.
+ *   add or remove ONE RTL insn there (the giv-worth razor's +1-insn family), or
+ *   permuter.  Statement order is exhausted.
  * FLOOR-BAR NOTE: prototype re-audited (1 pointer arg, void return, SYM REGPARM $05,
  * fsize 0 / mask $00000000 leaf, no $v0 at the single `jr $ra`); the w40 per-TU flag
  * probes still stand (g_value 8 no-op, all four -f keys negative).
@@ -187,6 +235,8 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
     }
     (spec->skyspec).ringAngles[i] = i << 0xc;
   }
+  (spec->skyspec).clearcolor.r = '\b';
+  (spec->skyspec).clearcolor.g = '\x10';
   (spec->skyspec).sunAngleInSky = -0x1848;
   (spec->skyspec).sunHeightInSky = 0xee;
   (spec->skyspec).moonHeightInSky = 0xee;
@@ -202,19 +252,17 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
   (spec->skyspec).sunBeamColor.r = '!';
   (spec->skyspec).sunBeamColor.g = '!';
   (spec->skyspec).sunHaloColor.r = '\x19';
-  (spec->skyspec).clearcolor.g = '\x10';
   (spec->skyspec).sunBeamColor.b = '\x10';
   (spec->nightspec).nightcolor.g = '\x10';
   (spec->nightspec).nightcolor.b = '\x10';
   (spec->skyspec).sunHaloColor.g = '\n';
+  (spec->depthcuespec).color.r = 0x80;
   (spec->depthcuespec).distance = 0x44;
-  (spec->skyspec).clearcolor.r = '\b';
   (spec->skyspec).clearcolor.b = '\b';
   (spec->skyspec).moonAngleInSky = 0;
   (spec->skyspec).sunHaloColor.b = '\0';
   (spec->skyspec).yoffset = 0;
   (spec->nightspec).nightcolor.r = '\b';
-  (spec->depthcuespec).color.r = 0x80;
   (spec->depthcuespec).color.g = 0x80;
   (spec->depthcuespec).color.b = 0x80;
   (spec->worldcolorspec).worldR = 0;

@@ -995,7 +995,10 @@ void Weather_CreateSnow(SVECTOR *pt)
   pal = (u_int *)RENDER_PALETTEPTR_ADDR;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
   RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;   /* MATCH: bump off the loaded prim, no re-read */
-  *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
+  {
+    u_int addr24 = (u_int)prim & 0xffffff;
+    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
+  }
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
 
@@ -1050,7 +1053,10 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
       /* MATCH: `(prim & 0xffffff) | (*pal & 0xff000000)` -- the 0xffffff term FIRST.
        * The reversed spelling costs the 0xffffff constant its allocno rank and rotates
        * a0<->a1 (the pal pointer) through both arms (52 -> 16). */
-      *pal = (u_int)prim & 0xffffff | *pal & 0xff000000;
+      {
+        u_int addr24 = (u_int)prim & 0xffffff;
+        *pal = (addr24 & 0xffffff) | *pal & 0xff000000;
+      }
     }
     *((char *)prim + 3) = 4;                       /* OT tag length (4 words) */
     *(u_int *)&prim->r0 = 0x52000000;              /* rgb0=0, code=0x52 (LINE_G2) */
@@ -1071,7 +1077,10 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
       /* MATCH: `(prim & 0xffffff) | (*pal & 0xff000000)` -- the 0xffffff term FIRST.
        * The reversed spelling costs the 0xffffff constant its allocno rank and rotates
        * a0<->a1 (the pal pointer) through both arms (52 -> 16). */
-      *pal = (u_int)prim & 0xffffff | *pal & 0xff000000;
+      {
+        u_int addr24 = (u_int)prim & 0xffffff;
+        *pal = (addr24 & 0xffffff) | *pal & 0xff000000;
+      }
     }
     *((char *)prim + 3) = 4;
     *(u_int *)&prim->r0 = 0x52000000;
@@ -1113,7 +1122,10 @@ void Weather_CreateSplat
   /* MATCH: the palette write-back BEFORE the cursor bump.  With the bump 2nd (the
    * Ghidra order) gcc issues `addiu/sw` ahead of the tag store (64 diffs); with it
    * 3rd the scheduler interleaves it into the palette merge exactly like retail. */
-  *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (u_int)prim & 0xffffff;
+  {
+    u_int addr24 = (u_int)prim & 0xffffff;
+    *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (addr24 & 0xffffff);
+  }
   RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;
   *((char *)prim + 3) = 9;
   prim->code = 0x2e;
@@ -1332,7 +1344,10 @@ void Weather_DoWeather(DRender_tView *Vi)
     /* MATCH: palette write-back BEFORE the cursor bump (same order lever as
      * Weather_CreateSplat) -- the scheduler then interleaves the bump into the
      * palette merge like retail. */
-    *pal = *pal & 0xff000000 | (u_int)prim & 0xffffff;
+    {
+    u_int addr24 = (u_int)prim & 0xffffff;
+    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
+  }
     RENDER_PACKETPTR_ADDR = (u_char *)prim + 0xc;
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }

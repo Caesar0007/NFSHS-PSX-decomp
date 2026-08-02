@@ -75,7 +75,52 @@ void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2);
 void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv);
 void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache *sd);
 void Night_NightCopCalc(VECTOR *v,short *idx);
+/* w45-a6 RECEIPT -- residual 2 (count-exact 57/57).  The ONLY diff is the position
+ * of `lbu v0,269(a2)` (sd->night_LightningType): the oracle issues it BEFORE the
+ * lui/addiu %hi/%lo split of Night_gWeatherLightingTable, we issue it between the
+ * two halves.  Both fill the same load-delay slot; it is a sched luid tie.
+ * FALSIFIED this wave: (a) giving the type read its own statement through the SYM's
+ * outer-scope `index` local -- gcc copy-props it back, output byte-identical;
+ * (b) index-term-FIRST pointer arithmetic -- 2 -> 22 (and the extra deref scales
+ * *idx by 256, a wrong shape).
+ * SLD CONSTRAINT: every insn of this statement attributes to DRAWW.CPP line 761
+ * (SYM 3dd55b..3dd561), so a fix must stay on ONE source line.
+ * NEW NAMED ANGLE: the table is declared SIZED (`extern u_char (*T[2])[256]`), which
+ * is exactly what produces the schedulable lui/addiu split.  Per the w44 storage-
+ * shape menu, the UNSIZED asm-label view yields the UNSCHEDULABLE `la` macro form
+ * = position-pinned, which is what would force the lbu to issue first.  Try a
+ * per-SITE view `extern u_char (*Night_gWLT_v[])[256] asm("Night_gWeatherLightingTable");`
+ * here only (night.cpp already owns both spellings of this symbol). */
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
+/* w45-a6 RECEIPT -- DrawQuad 100 -> 20 (count-exact 592/592).
+ * LANDED: the addPrim P_TAG-bitfield idiom at BOTH OT-link sites (see below).
+ * RESIDUAL 20 = the SAME default-then-override-vs-if/else trade the w44-a7 block
+ * below documents, RE-MEASURED at the new (post-P_TAG) baseline:
+ *     default-then-override (this file) : gate  20
+ *     retail's if/else shape            : gate 204   <- still loses sd's $s0
+ * ALLOCNO RECEIPT at the new baseline (tools/rtl_dump.py -dg -dl + tools/prio.py,
+ * if/else form):  prim p141 = 24 refs / 114 live -> floor_log2(24)*24/114 = 0.8421
+ *                 sd   p 80 = 62 refs / 846 live -> floor_log2(62)*62/846 = 0.3664
+ * prim is the FIRST call-crossing allocno so find_reg hands it $s0 (gcc-2.8.1
+ * global.c, read this wave: pass 0 can NEVER allocate a register for the first
+ * time because `used |= ~regs_used_so_far`, and pass 1 walks hard regs in NUMERIC
+ * order since MIPS defines no REG_ALLOC_ORDER).  REQUIRED DELTA, solved exactly:
+ *     sd must reach   >= 120 refs (floor_log2(r)*r > 714.1 at live 846), or
+ *     prim must drop  <=  13 refs at live 114, or live > 263 at 24 refs.
+ * MECHANISM PROVEN THIS WAVE (measured, NOT landed -- it is scaffolding): wrapping
+ * the vertex-setup block in N nested do{}while(0) weights its in-body refs by N+1
+ * (3 levels -> sd 62 -> 83 refs, prio.py agrees to 4 decimals).  At 9 levels sd
+ * reaches 125 refs (0.884 > 0.8421) and THE FLIP HAPPENS: if/else 282 -> 133 with
+ * sd in $s0.  But the LOOP_BEG/END barriers rotate the vertex block's caller-saved
+ * regs (+1 insn, structural residual 52 -> 147), so the net is worse than 20.
+ * NEW NAMED ANGLE (the honest version of the same delta): retail's sd ref count
+ * must be ~2x ours, i.e. the original body reads `sd->...` where this recon caches
+ * sd-derived values in locals.  Un-cache them one at a time (geomVertices,
+ * currentQuadMat, depthcue, save_pre_otz, the tVn* backface reads), re-reading
+ * prio.py after each -- a reload that cse folds is +1 ref at ZERO insn cost, and
+ * only ~58 are needed.  Alternative direction: shed 11 of prim's 24 refs by routing
+ * the four `*(long*)&prim->xN` and the four colour-word stores through ONE
+ * `long *px = (long *)((char *)prim + 8);` base (each group is worth -3 refs). */
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad);
 void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd);
 void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd);
@@ -83,21 +128,81 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList);
 void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat);
 void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat);
 void DrawW_ResetAnimationTimer(void);
+/* w45-a6 RECEIPT -- residual 4 (ours 31 / oracle 33, ours SHORTER).
+ * Oracle `lw v0,0(v0); nop; addu v1,v0,zero` = THREE pseudos (address, value,
+ * result); we have two (the value pseudo IS the result pseudo, so the load lands
+ * straight in $v1 and `mflo` fills its delay slot).
+ * FALSIFIED this wave (all byte-identical to the base -- gcc coalesces every time):
+ *   (a) `int tick = animation_timer[..]; iVar2 = tick;`   (copy-propagated away);
+ *   (b) the same PLUS a second use of `tick` in the compare (still coalesced);
+ *   (c) the UNSIZED asm-label view of animation_timer (storage-shape menu #2) --
+ *       no change, so the load's DEST choice is not an addressing-shape question.
+ * Earlier waves falsified: compute-order swap, ternary-return, cached-address
+ * `int *pTick`, direct-dual-return, and the SetScreen (long long)+re-read recipe.
+ * NEW NAMED ANGLE: per w44, a reg-reg copy only survives when the copied value comes
+ * from a DISTINCT 1-insn computation, or when the two pseudos genuinely CONFLICT.
+ * Untried dial: make the RESULT pseudo live BEFORE the load (default-then-override --
+ * give the result variable a value on a path that reaches the load, e.g. hoist the
+ * maxTick clamp so the result is live-in at the load).  Then value and result
+ * conflict and local_alloc's combine_regs cannot merge their qtys. */
 int DrawW_GetAnimationTime(Trk_AnimateInst *animInst);
 void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time);
 void DrawW_DoObjectAnimations(void);
 int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo);
 int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq);
 int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offset);
+/* w45-a6 RECEIPT -- 212 diffs, count-EXACT 434/434, posdiff alpha-renamed first-use
+ * order IDENTICAL: this is a pure whole-function callee-saved ROTATION (ours s3/fp
+ * where the oracle has s4/s7), NOT structure.  Quantified with tools/rtl_dump.py
+ * -dg -dl + tools/prio.py (allocno_compare = floor_log2(refs)*refs/live_length):
+ *     rank 3  p88  79 refs / 375 live = 1.2640   -> ours $s3, oracle wants $s4
+ *     rank 4  p234 12 refs /  29 live = 1.2414   -> ours $s4, oracle wants $s3
+ * 1.8% apart -- a razor.  EXACT REQUIRED DELTA (any ONE suffices):
+ *     p88  refs 79 -> 77   (6*77/375 = 1.2320 < 1.2414), or
+ *     p88  live 375 -> 382 (6*79/382 = 1.2408 < 1.2414), or
+ *     p234 live  29 ->  28 (3*12/28  = 1.2857 > 1.2640).
+ * p88 is the 79-ref dominant walker (objInstance); p234 is a 12-ref/29-insn
+ * block-local inside the loop.  NEW NAMED ANGLE: shed exactly TWO objInstance
+ * references -- cheapest pair is the `objInstance->type` re-read after
+ * ObjectClipped() plus one `&objInstance->x` address take, both routable through
+ * the already-live `type` local / one cached address WITHOUT changing the emitted
+ * stream (cse folds them).  Re-run prio.py after each single edit and stop the
+ * moment p88 crosses below 1.2414. */
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo);
 void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd);
 void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList);
 int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r);
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid);
 void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd);
+/* w45-a6 RECEIPT -- 101 diffs (ours 506 / oracle 507).  posdiff shows a FOUR-WAY
+ * callee-saved rotation, not a swap: ours {fp,s5,s7,s6,s3} vs oracle {s3,s6,fp,s5,s7},
+ * alpha-renamed structural residual 247, so structure diverges too.
+ * Its OT-link is already the EA DMPSX fixed-$t4-$t7 `__asm__` template (NOT a
+ * hand-masked word RMW), so the P_TAG lever that cracked DrawQuad and SubdividFacet
+ * this wave does not apply here.  NEW NAMED ANGLE: the w42 rule "an EA-template
+ * verdict must be re-checked vs SYM fn-scope locals + a PASSing sibling"
+ * (DivideShadowPrim 60 -> PASS) applies -- re-derive this fn's SYM 8c block first and
+ * check whether the template's clobber list is evicting a parameter (a clobber that
+ * grabs a callee-saved reg is a documented cause of exactly this whole-fn rotation),
+ * then re-run posdiff before touching any coloring. */
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd);
 void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans);
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);
+/* w45-a6 RECEIPT -- 76 diffs, count-EXACT 268/268, posdiff first-use order
+ * IDENTICAL.  THREE independent clusters, all scheduling/coloring:
+ *  (1) the fx/fy/fz `lb;sra 1` trio: the oracle INTERLEAVES load-with-process
+ *      (lb s4,15; lb s3,16; sra s4; sh s4; lb s2,17; sra s3; sh s3; ...) and hands
+ *      out s4/s3/s2 in REVERSE birth order; we batch all three loads first and hand
+ *      out s2/s3/s4 in forward birth order.  This is the w44 REVERSE-BIRTH-ORDER law
+ *      for local_alloc.  NEW NAMED ANGLE: split the shared `{int t0,t1,t2;}` block
+ *      into three SIBLING `{ int t; ... }` blocks so each axis is a fresh block-local
+ *      qty, then read the -dl birth order (free) before touching anything else.
+ *  (2) an $a2 <-> $a3 rotation on the two 8-iteration copy-loop offset counters
+ *      (li 72/80 and li 144/152) -- the same two-constant live-length identity unit
+ *      as the w42 two-mask rotation; the dial is which counter is BORN first.
+ *  (3) a t3/t4 swap on the two quad-row base pointers (lw 408(sp) / lw 456(sp)).
+ * Not attacked this wave (budget went to the P_TAG sweep + the DrawObject twins);
+ * every cluster is small and independent. */
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd);
 void DepthCue_Init(void);
 

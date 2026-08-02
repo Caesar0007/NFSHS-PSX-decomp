@@ -372,7 +372,7 @@ int iMCRD_DoFileLoad(int card)
   uchar ch;
   uchar *src;
   uint attr;
-  uint hdr;
+  uint attr2;
 
   /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
    * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
@@ -422,14 +422,22 @@ int iMCRD_DoFileLoad(int card)
       }
       blockmove(src,&s->data,0x80);
       attr = shapetype(4);
-      *(char *)s = (char)attr;
-      /* MATCH: ONE mask temp shared by both shape headers.  Two separate temps (or
-       * an inline mask in either header) leaves the clut header's word RMW in $v1
-       * where retail keeps it in $v0, mis-schedules its type store / loop test and
-       * costs the back-edge delay slot (37 -> 31 diffs, structural residual 19 -> 14).
-       * Residual: block 1 then pays three attr/hdr copies into $a1/$a3. */
-      hdr = attr & 0xff | 0x9000;
-      *(uint *)s = hdr;
+      s->type = attr;
+      /* MATCH (w44, 31 -> PASS): the header word is TWO BITFIELD ASSIGNMENTS, not a
+       * folded `hdr = attr & 0xff | 0x9000; *(uint *)s = hdr;` word store.  `s->next`
+       * is a read-modify-write of word 0 whose load cse FORWARDS from the `s->type`
+       * byte just stored - that is exactly retail's `sb $v0,0($s0); andi $v1,$v0,0xFF;
+       * ori $v1,$v1,0x9000; sw $v1,0($s0)`.  Two consequences the folded form cannot
+       * reach: (a) the RMW's mask lands in a FRESH pseudo (attr is still live at the
+       * `and`, because its death is the byte store) so `andi` gets $v1 and the
+       * offset-0xC RMW word keeps retail's $v0 - the folded form ties the whole
+       * attr/mask/hdr chain into $v0 and pushes the 0xC word to $v1; (b) with the 0xC
+       * word in $v0 the loop-test `slti $v0` clobbers it, so `sw $v0,0xC($s0)` can no
+       * longer be a simple back-edge delay-slot filler and reorg EAGER-STEALS the loop
+       * head's `sll $v0,$s1,2` instead (that is the 170th instruction; the folded form
+       * measured 169).  attr is also SPLIT per block: one shared `attr` is a global
+       * allocno barred from $v0/$v1 and costs a `move` per header. */
+      s->next = 0x90;
       s->height = 0x10;
       s->width = 0x10;
       s->centery = 0;
@@ -444,15 +452,14 @@ int iMCRD_DoFileLoad(int card)
        * the read away, drops the loop to 62 and costs a 9th callee-saved reg. */
       s = (shapetbl *)((int)s + s->next);
       blockmove(pMFI->header.iconclut,&s->data,0x20);
-      attr = cluttype(0x10);
-      hdr = attr & 0xff;
-      *(char *)s = (char)attr;
+      attr2 = cluttype(0x10);
+      s->type = attr2;
       i = i + 1;
       s->width = 0x10;
       s->height = 1;
       s->centery = 0;
       s->centerx = 0;
-      *(uint *)s = hdr;
+      s->next = 0;
       s->shapey = 0;
       s->shapex = 0;
     }

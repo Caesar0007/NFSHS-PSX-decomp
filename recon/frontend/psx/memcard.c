@@ -1011,6 +1011,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
   int scratch_i;
   int tmp_int;
   CARDINFO_def *pCI;
+  fMemCardInfo_def *gmi;
   int code;
 
   /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
@@ -1050,13 +1051,20 @@ int iMCRD_HandleError(int func,int opResult,int card)
   case 3:
     /* MATCH: the accept==0 arm is the IF-BODY (fall-through) - retail's bnez sends
      * the success arm out-of-line. */
-    if (MemCardAccept(gMemCardInfo.channel) == 0) {
+    /* MATCH (w44, -1 insn): retail reaches gMemCardInfo through ONE pseudo that both
+     * predecessors of the setLastError join define ($s0 in both the case-3 and case-6
+     * arms), so the join's `bReady = 1` store reuses it (`sw $v0,52($s0)`); a direct
+     * `gMemCardInfo.bReady` there rematerializes the address (`lui`) at the join.
+     * Assign the base PER-BLOCK (uninitialized decl + one assignment per arm) - a
+     * function-scope initialized pointer would be GCSE-hoisted to one materialization. */
+    gmi = &gMemCardInfo;
+    if (MemCardAccept(gmi->channel) == 0) {
       scratch_i = 0x17;
       goto iMCRDError_setLastError;
     }
     else {
-      gMemCardInfo.task = LOAD_CARD;
-      gMemCardInfo.bReady = 0;
+      gmi->task = LOAD_CARD;
+      gmi->bReady = 0;
       goto iMCRDError_return;
     }
   case 4:
@@ -1101,16 +1109,21 @@ int iMCRD_HandleError(int func,int opResult,int card)
     tmp_int = 0x13;
     break;
   case 6:
-    if (((int(*)(void))gMemCardInfo.ConfirmOverwriteProc)() != 0) {
-      MemCardDeleteFile(gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
-      gMemCardInfo.task = WRITE_FILE;
+    gmi = &gMemCardInfo;
+    if (((int(*)(void))gmi->ConfirmOverwriteProc)() != 0) {
+      MemCardDeleteFile(gmi->channel,gmi->fileinfo.name);
+      gmi->task = WRITE_FILE;
       return 0x15;
     }
     scratch_i = 0xe;
 iMCRDError_setLastError:
+    /* MATCH (w44, -12): `goto iMCRDError_return` NOT `return code` - retail has ONE
+     * return-value materialization (`addu $v0,$s4,$zero`) in the shared exit block,
+     * reached by `j` from here; an in-block `return code` emits a second copy AND
+     * pushes the lasterror/bReady stores off retail's $v0 onto $v1. */
     pCI->lasterror = scratch_i;
-    gMemCardInfo.bReady = 1;
-    return code;
+    gmi->bReady = 1;
+    goto iMCRDError_return;
   case 7:
     tmp_int = 0x14;
     break;

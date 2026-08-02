@@ -422,21 +422,24 @@ void strSetDefDecEnv(DECENV *dec)
   int bottom;
   int top;
   
-  /* MATCH: the oracle loads the globals in the order vlcbuf1, imgbuf, gMovieHeight,
-   * vlcbuf0.  The SCALAR (`_d`) spelling compiles to the UNSCHEDULABLE `lw $r,sym`
-   * assembler macro, which pins each read where the statement sits; the unsized-view
-   * (`_v[]`) spelling gives cc1's schedulable %hi/%lo split, and sched1 then floats
-   * the four reads into the wrong order (8-12 diffs for every permutation).  Mixing
-   * is deliberate: the three pinned reads are scalars, vlcbuf0 stays a view.
-   * RESIDUAL (4 diffs, count-exact 35/35): retail batches all three `lui`s ahead of
-   * the three loads (only the split form is schedulable enough to hoist them), so we
-   * cannot have BOTH the pinned order and the hoisted luis from one spelling.
-   * Falsified: all 16 scalar/view masks x 4 statement orders (+24 store-order perms,
-   * +the no-temp form, +PPWTop/PPWBottom scalar). */
-  vb1 = vlcbuf1_d;
-  img = imgbuf_d;
-  mh = gMovieHeight_d;
+  /* MATCH (w44): the READ order and the STORE order must BOTH be
+   * vlcbuf0, vlcbuf1, imgbuf, gMovieHeight -- i.e. the four fields written in
+   * declaration order of DECENV (vlcbuf[0], vlcbuf[1], imgbuf, slice.h), which is
+   * simply what a 1998 programmer writes.  Every read goes through the UNSIZED-ARRAY
+   * VIEW (`_v[]`), uniformly: that is cc1's schedulable %hi/%lo split, so sched can
+   * batch the three `lui`s ahead of their loads exactly as retail does, while the
+   * scalar (`_d`) spelling emits the UNSCHEDULABLE `lw $r,sym` assembler macro whose
+   * halves can never separate.  With the coupled orders sched1 lands the oracle's
+   * shape byte-for-byte (3 batched luis, 3 loads, then vlcbuf0's own lui/lw pair).
+   * The earlier 4-diff residual came from de-coupling the two orders: the previous
+   * form pinned the READS with scalars but then no lui could hoist.  Exhaustively
+   * measured: 16 scalar/view masks x 24 read orders on the real TU (best 4), and
+   * 24 read orders x 24 store orders all-views in a standalone cc1 harness -- this
+   * is the unique zero. */
   vb0 = vlcbuf0;
+  vb1 = vlcbuf1;
+  img = imgbuf_v[0];
+  mh = gMovieHeight;
   top = (int)PPWTop;
   bottom = (int)PPWBottom;
   dec->vlcid = 0;
@@ -444,10 +447,10 @@ void strSetDefDecEnv(DECENV *dec)
   dec->isdone = 0;
   (dec->slice).x = 0;
   (dec->slice).y = 0;
+  dec->vlcbuf[0] = vb0;
   dec->vlcbuf[1] = vb1;
   dec->imgbuf = img;
   (dec->slice).h = mh;
-  dec->vlcbuf[0] = vb0;
   (dec->slice).w = (short)((top << 4) / bottom);
   return;
 }

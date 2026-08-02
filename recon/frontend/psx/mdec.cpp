@@ -136,10 +136,20 @@ void mdec(int handle,char *src,int x,int y)
 /* ---- mdecdone  (mdec.cpp:381, code lines 381-382) ---- */
 int mdecdone(int handle)
 
-{ /* FLOOR (3 diffs): gcc-2.8.0 materializes &gMDECinfo.hDecode directly (lw v0,0) vs oracle's
-   &gMDECinfo + lw 4(v0). Source-unreachable gp-rel field-addr selection; no pin-free lever.
-   Re-falsified 2026-07-11: ptr-temp, ((int*)&g)[1], unsized-array-cast all fold back. */
-  return (uint)(gMDECinfo.hDecode != handle);
+{ /* MATCH (w44): the oracle materializes &gMDECinfo as an ADDRESS VALUE (lui+addiu = `la`)
+   and keeps the field offset as the load DISPLACEMENT (lw 4(v0)) -- 3 insns, where the plain
+   read folds to the 2-insn `lui %hi(sym+4); lw %lo(sym+4)` split.  MECHANISM: gcc-2.8's
+   TARGET_SPLIT_ADDRESSES lowering (mips_check_split -> HIGH/LO_SUM of the WHOLE `sym+4`) is
+   NOT applied to a VOLATILE MEM -- a volatile reference must have a plain REG(+disp) address,
+   so cc1 forces `&gMDECinfo` into a register first.  The `volatile` is also the semantically
+   honest reading: mdecdone is the POLLING predicate for an asynchronous decode, and
+   gMDECinfo.hDecode is cleared behind the compiler's back by MDECCompleteHandler (the
+   DecDCTout completion callback) -- exactly the read that must not be cached (methodology
+   §3.12 #13).  PER-SITE only: qualifying the whole object, or the hDecode field, TU-wide
+   regresses restoremdec (11) / mdecreset (16) respectively -- retail's setters used the plain
+   struct.  (All five earlier shapes -- ptr-temp, ((int*)&g)[1], unsized asm-label views
+   int[]/int[2]/int[4]/T[1]/T[], -G0 and -mno-split-addresses -- fold back; measured again.) */
+  return (uint)(((volatile tMdecHandle *)&gMDECinfo)->hDecode != handle);
 }
 
 /* lines 383-387: (static data / macros / comments - no emitted code) */

@@ -750,7 +750,26 @@ int MCRD_handlecardevents(int card)
    *   which predecessor reaches them, so the w43 cross-jump-DEPTH rule applies:
    *   give one arm's `status` store a different VARIABLE identity (e.g. the NONE
    *   arm reaching the funnel through a distinct exit value) rather than trying to
-   *   perturb the delay slots. */
+   *   perturb the delay slots.
+   *   w44 REF-INFLATOR TEST (a10's procedure - recompute the loser at +1 and x2):
+   *     base at 5 refs -> 2*5/22 = .4545   (no flip, needs > .700)
+   *     base at 6 refs -> 2*6/22 = .5455   (no flip)   <- MEASURED: 44, unchanged
+   *     base at 8 refs -> 3*8/22 = 1.09    (flips)     <- needs loop DEPTH 3
+   *   Only the x2-of-x2 case reconciles, and depth 3 wrecks the arm (202 diffs): the
+   *   extra LOOP_BEG/END pairs act as scheduling barriers on a straight-line block
+   *   (a4 measured the same barrier effect independently).  So unlike
+   *   iMCRD_HandleError - where ONE depth level supplied the single missing ref -
+   *   this pair needs a 4->8 ref jump that no zero-cost dial reaches.  The inflator
+   *   route is therefore MEASURED CLOSED at reachable depths; a cse-folded re-mask
+   *   inflator cannot apply either because the contested value is an ADDRESS.
+   *   w44 BIRTH-ORDER CHECK (a1's law - local_alloc hands out $s0/$s1/$s2 in reverse
+   *   birth order of a block's call-crossing quantities): does NOT govern this pair.
+   *   cmd(144) and base(92) are GLOBAL allocnos (both appear in the -dg allocate
+   *   list) contesting the CALLER-saved $a0, so the priority sort - not local_alloc's
+   *   birth sequence - is the arbiter here; the $s0-$s2 assignment in this function
+   *   is already oracle-exact.  ==> the remaining route is the live_length side:
+   *   defer the base's DEF past the index math + timerhz load so its range falls
+   *   from 22 to <= 11 (8/11 = .727 > .700), or lengthen cmd's range past 38. */
   status = 0x17;
   pCI = MCRD_getcard(card);
   ret = MemCardSync(0,(long *)&cmd,(long *)&res);

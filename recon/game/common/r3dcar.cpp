@@ -1958,13 +1958,11 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   int changeCar;         /* SYM fn REG a3 -- "new car loaded" flag */
   int countryFlag;       /* SYM fn REG s5 */
   int cop_flag;          /* SYM fn REG s4 */
-  bool bVar1;
   u_char bVar2;
   short sVar3;
   u_short uVar7;
   int iVar8;
   int iVar9;
-  char *addr;
   Transformer_zScene *pTVar10;
   int iVar11;
   int iVar12;
@@ -1972,9 +1970,8 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   int iVar15;
   int iVar16;
   GameSetup_tCarData *pGVar14;
-  matrixtdef *pmVar17;
-  void *pvVar18;
   u_int uVar20;
+  u_long *(*subOtStart)[2];
   Transformer_zScene **ppTVar21;
   coorddef parent;       /* SYM fn AUTO sp+0x18 */
   matrixtdef bodyMat;
@@ -1995,21 +1992,26 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   {
     rightHandDrive = AITune_trackInfo[GameSetup_gData.track].driveSide + 1 >> 1 ^ 1;
   }
-  carType = carObj->carInfo->carType;
+  pGVar14 = carObj->carInfo;
+  carType = pGVar14->carType;
   R3DCar_rightHandDrive = rightHandDrive;
-  cop_flag = carType - 0x16U < 6;
+  iVar8 = carType - 0x16;
+  cop_flag = (u_int)iVar8 < 6;
   if (cop_flag == 0) {
-    carObj->carInfo->Country = 0;
+    pGVar14->Country = 0;
   }
+  subOtStart = R3DCar_subOtStart;
   uVar20 = R3DCar_InMenu & 0x80;
+  iVar9 = uVar20 != 0;
+  u_long **subOtRow = subOtStart[gFlip];
+  iVar11 = ((carObj->N).objID & 0xfU) * 0x200;
   (carObj->render).sub_ot =
-       R3DCar_subOtStart[gFlip][uVar20 != 0] + ((carObj->N).objID & 0xfU) * 0x200;
+       subOtRow[iVar9] + iVar11;
   if (uVar20 != 0) goto R_ICFtMenu_sceneCounterJoin;
   (carObj->render).sub_otSize = 0x200;
   (carObj->render).sub_otOffset = 0x100;
   (carObj->render).sort_carObj = (u_char *)0x0;
   (carObj->render).sort_flag = 0;
-  pvVar18 = (void *)R3DCar_aSyncLoading;
   DrawC_gScreenMat.m[0][0] = 0x1000;
   DrawC_gScreenMat.m[1][0] = 0;
   DrawC_gScreenMat.m[2][0] = 0;
@@ -2022,31 +2024,29 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   DrawC_gScreenMat.t[0] = 0;
   DrawC_gScreenMat.t[1] = 0;
   DrawC_gScreenMat.t[2] = 0;
-  bVar1 = -1 < R3DCar_aSyncLoading;
   (carObj->render).detail = 0;
-  if ((bVar1) && (pvVar18 != (void *)Vi->player)) goto R_ICFtMenu_sceneCounterJoin;
+  if ((-1 < R3DCar_aSyncLoading) && (R3DCar_aSyncLoading != Vi->player))
+    goto R_ICFtMenu_sceneCounterJoin;
   if (carObj->async_handle == 0) {
     if ((u_int)(u_char)(carObj->render).newCountry != carObj->carInfo->Country) {
       (carObj->render).newCarType = (carObj->render).newCarType | 0x80;
     }
     if (carObj->async_handle != 0) goto R_ICFtMenu_asyncHandleCheck;
     if ((carObj->render).newCarType != carType) {
-      iVar8 = AudioMus_Buffered();
-      iVar9 = AudioMus_Threshold();
-      if (iVar9 <= iVar8) {
+      if (AudioMus_Buffered() >= AudioMus_Threshold()) {
         char filename [10];  /* SYM blk 221 @ff58 */
         char bigname [100];  /* SYM blk 221 @ff68 */
-        if (carType < 0x1c) {
-          uVar7 = (carObj->render).inside | 0x10;
+        if (0x1b < carType) {
+          (carObj->render).inside = (carObj->render).inside & 0xef;
         }
         else {
-          uVar7 = (carObj->render).inside & 0xef;
+          (carObj->render).inside = (carObj->render).inside | 0x10;
         }
-        (carObj->render).inside = uVar7;
         sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
         if (cop_flag != 0) {
-          filename[2] =
-               R3DCar_CopCountry[(u_char)R3DCar_CopIndex[carType + -0x16][carObj->carInfo->Country]];
+          int index;  /* SYM blk 247 REG a3 */
+          index = (u_char)R3DCar_CopIndex[carType + -0x16][carObj->carInfo->Country];
+          filename[2] = R3DCar_CopCountry[index];
         }
         strcpy(bigname,Paths_Paths[0x18]);
         strcat(bigname,filename);
@@ -2054,13 +2054,11 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
           strcat(bigname,"h");
         }
         strcat(bigname,".viv");
-        pvVar18 = (void *)0x10;
         iVar8 = asyncloadfile(bigname,(void *)0x10);
         carObj->async_handle = iVar8;
         R3DCar_aSyncLoading = Vi->player;
-        pGVar14 = carObj->carInfo;
         (carObj->render).newCarType = (short)carType;
-        (carObj->render).newCountry = (char)pGVar14->Country;
+        (carObj->render).newCountry = (char)carObj->carInfo->Country;
       }
     }
     if (carObj->async_handle != 0) goto R_ICFtMenu_asyncHandleCheck;
@@ -2070,45 +2068,42 @@ R_ICFtMenu_asyncHandleCheck:
     {
     int status;   /* SYM blk 273 REG s0 */
     status = getasyncreadstatus(carObj->async_handle);
-    if ((status < 1) && (status != -1)) {
-      if (status == -2) {
-R_ICFtMenu_asyncAbort:
-        uVar7 = (carObj->render).newCarType;
-        carObj->async_handle = 0;
-R_ICFtMenu_markNewCarType:
-        (carObj->render).newCarType = uVar7 | 0x80;
+    if ((0 < status) || (status == -1)) {
+      if (((carObj->render).newCarType != carType) ||
+          ((u_int)(u_char)(carObj->render).newCountry != carObj->carInfo->Country)) {
+        char *cancelFile = getasyncreadadr(carObj->async_handle);
+        if (cancelFile != (char *)0x0) {
+          purgememadr(cancelFile);
+          goto R_ICFtMenu_asyncAbort;
+        }
       }
-    }
-    else {
-      if (((carObj->render).newCarType == carType) &&
-         ((u_int)(u_char)(carObj->render).newCountry == carObj->carInfo->Country)) {
+      else {
         char *bigFile;   /* SYM blk 281 REG v0 */
-        bigFile = getasyncreadadr(carObj->async_handle,pvVar18);
+        bigFile = getasyncreadadr(carObj->async_handle);
         R3DCar_BigFile = bigFile;
         if (bigFile == (char *)0x0) {
           changeCar = 0;
           goto R_ICFtMenu_sceneCounterJoin;
         }
         carObj->async_handle = 0;
-        if (status != -1) {
-          R3DCar_aSyncLoading = -1;
+        if (status == -1) {
+          purgememadr(bigFile);
+          R3DCar_BigFile = (char *)0x0;
+          (carObj->render).newCarType = (carObj->render).newCarType | 0x80;
           goto R_ICFtMenu_bigFileCheck;
         }
-        purgememadr(bigFile);
-        uVar7 = (carObj->render).newCarType;
-        R3DCar_BigFile = (char *)0x0;
-        goto R_ICFtMenu_markNewCarType;
+        R3DCar_aSyncLoading = -1;
+        goto R_ICFtMenu_bigFileCheck;
       }
-      pvVar18 = getasyncreadadr(carObj->async_handle,pvVar18);
-      if (pvVar18 != (void *)0x0) {
-        purgememadr(pvVar18);
-        goto R_ICFtMenu_asyncAbort;
-      }
+    }
+    else if (status == -2) {
+R_ICFtMenu_asyncAbort:
+      carObj->async_handle = 0;
+      (carObj->render).newCarType = (carObj->render).newCarType | 0x80;
     }
     }
   }
 R_ICFtMenu_bigFileCheck:
-  changeCar = 0;
   if (R3DCar_BigFile != (char *)0x0) {
     char filename [10];  /* SYM blk 321 @ff58 -- sibling redecl */
     char workFile [10];  /* SYM blk 321 @ff68 */
@@ -2118,8 +2113,7 @@ R_ICFtMenu_bigFileCheck:
     reload = 0;
     if (-1 < currentCarType) {
       char cVar6;
-      cVar6 = R3DCar_LoadedSceneCounter[countryFlag][currentCarType] + -1;
-      R3DCar_LoadedSceneCounter[countryFlag][currentCarType] = cVar6;
+      cVar6 = --R3DCar_LoadedSceneCounter[countryFlag][currentCarType];
       reload = 1;
       if (cVar6 == '\0') {
         purgememadr(R3DCar_LoadedScenePointer[countryFlag][currentCarType]);
@@ -2130,35 +2124,40 @@ R_ICFtMenu_bigFileCheck:
     bVar2 = (carObj->render).newCountry;
     (carObj->render).currentCarType = sVar3;
     (carObj->render).currentCountry = bVar2;
-    currentCarType = (int)sVar3;
+    carType = (int)sVar3;
     if (Vi->player != 0) {
       (carObj->render).currentCountry = bVar2 | 0x80;
     }
     countryFlag = (int)((u_char)(carObj->render).currentCountry >> 7);
     (carObj->render).inside = (carObj->render).inside >> 4;
-    sprintf(filename,"zz%s",GameSetup_gCarNames[0] + currentCarType * 5);
+    sprintf(filename,"zz%s",GameSetup_gCarNames[0] + carType * 5);
     if (cop_flag != 0) {
-      filename[2] =
-           R3DCar_CopCountry[(u_char)R3DCar_CopIndex[currentCarType + -0x16]
-                           [(u_char)(carObj->render).currentCountry & 0x7f]];
+      int index;  /* SYM blk 372 REG a3 */
+      index = (u_char)R3DCar_CopIndex[carType + -0x16]
+                                         [(u_char)(carObj->render).currentCountry & 0x7f];
+      filename[2] = R3DCar_CopCountry[index];
     }
     strcpy(workFile,filename);
     if (((carObj->render).inside & 1U) != 0) {
       strcat(workFile,"h");
     }
-    ppTVar21 = R3DCar_LoadedScenePointer[countryFlag] + currentCarType;
+    Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
+    ppTVar21 = loadedSceneBase + countryFlag * 50 + carType;
     if (*ppTVar21 != (Transformer_zScene *)0x0) {
       purgememadr(*ppTVar21);
       *ppTVar21 = (Transformer_zScene *)0x0;
     }
     pTVar10 = R3DCar_ReadInCarData(workFile,carObj);
     *ppTVar21 = pTVar10;
-    R3DCar_LoadedSceneCounter[countryFlag][currentCarType] =
-         R3DCar_LoadedSceneCounter[countryFlag][currentCarType] + '\x01';
-    R3DCar_CalcCarDimensions(carObj,*ppTVar21,currentCarType);
+    R3DCar_LoadedSceneCounter[countryFlag][carType] =
+         R3DCar_LoadedSceneCounter[countryFlag][carType] + '\x01';
+    R3DCar_CalcCarDimensions(carObj,*ppTVar21,carType);
     R3DCar_ReadInCarTextureMenu(carObj,R3DCar_BigFile,reload,Vi->player);
     R3DCar_BigFile = (char *)0x0;
     changeCar = 1;
+  }
+  else {
+    changeCar = 0;
   }
 R_ICFtMenu_sceneCounterJoin:
   carType = (int)(carObj->render).currentCarType;
@@ -2169,12 +2168,7 @@ R_ICFtMenu_sceneCounterJoin:
   }
   if (-1 < (carObj->render).detail) {
     if ((R3DCar_InMenu & 0x80U) == 0) {
-      if (cop_flag == 0) {
-        if (changeCar != 0) {
-          (carObj->render).brakeLight = 0;
-        }
-      }
-      else {
+      if (cop_flag != 0) {
         if (((carObj->render).signalLight[0] & 0x80U) == 0) {
           (carObj->render).signalLight[0] = 0x80;
           (carObj->render).signalLight[1] = 0x88;
@@ -2194,14 +2188,17 @@ R_ICFtMenu_sceneCounterJoin:
           (carObj->render).brakeLight = 2;
         }
       }
-    }
-    if (carType < 0x1c) {
-      if (((carObj->render).upgradeFlags & 2U) != 0) {
-        rideHeight = (carObj->render).upgradeHeight;
+      else {
+        if (changeCar != 0) {
+          (carObj->render).brakeLight = 0;
+        }
       }
     }
-    else {
+    if (0x1b < carType) {
       rideHeight = 0;
+    }
+    else if (((carObj->render).upgradeFlags & 2U) != 0) {
+      rideHeight = (carObj->render).upgradeHeight;
     }
     if (((carObj->render).detail == 0) && (0x1b < carType)) {
       (carObj->render).detail = 1;
@@ -2224,71 +2221,25 @@ R_ICFtMenu_sceneCounterJoin:
     car.x = (carObj->N).position.x - (Vi->cview).translation.x;
     car.y = (carObj->N).position.y - (Vi->cview).translation.y;
     car.z = (carObj->N).position.z - (Vi->cview).translation.z;
-    iVar9 = car.x;
-    if (car.x < 0) {
-      iVar9 = car.x + 0xff;
-    }
-    iVar11 = (carObj->N).orientMat.m[0];
-    if (iVar11 < 0) {
-      iVar11 = iVar11 + 0xff;
-    }
-    iVar16 = car.y;
-    if (car.y < 0) {
-      iVar16 = car.y + 0xff;
-    }
-    iVar12 = (carObj->N).orientMat.m[1];
-    if (iVar12 < 0) {
-      iVar12 = iVar12 + 0xff;
-    }
-    iVar15 = car.z;
-    if (car.z < 0) {
-      iVar15 = car.z + 0xff;
-    }
-    iVar13 = (carObj->N).orientMat.m[2];
-    if (iVar13 < 0) {
-      iVar13 = iVar13 + 0xff;
-    }
-    /* MATCH: += accumulation (oracle adds each product into the named var; a single
-       sum-expression serializes all three mults through anonymous temps) */
-    pos.x = (iVar9 >> 8) * (iVar11 >> 8);
-    pos.x = pos.x + (iVar16 >> 8) * (iVar12 >> 8);
-    pos.x = pos.x + (iVar15 >> 8) * (iVar13 >> 8);
-    iVar11 = (carObj->N).orientMat.m[6];
-    if (iVar11 < 0) {
-      iVar11 = iVar11 + 0xff;
-    }
-    iVar12 = (carObj->N).orientMat.m[7];
-    if (iVar12 < 0) {
-      iVar12 = iVar12 + 0xff;
-    }
-    iVar15 = car.z;
-    if (car.z < 0) {
-      iVar15 = car.z + 0xff;
-    }
-    iVar13 = (carObj->N).orientMat.m[8];
-    if (iVar13 < 0) {
-      iVar13 = iVar13 + 0xff;
-    }
-    pos.z = (iVar9 >> 8) * (iVar11 >> 8);
-    pos.z = pos.z + (iVar16 >> 8) * (iVar12 >> 8);
-    pos.z = pos.z + (iVar15 >> 8) * (iVar13 >> 8);
-    iVar9 = fixedatan(pos.x,pos.z);
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 0xf;
-    }
-    R3DCar_yawCam = 0x1000 - (iVar9 >> 4);
+    pos.x = (car.x / 0x100) * ((carObj->N).orientMat.m[0] / 0x100) +
+            (car.y / 0x100) * ((carObj->N).orientMat.m[1] / 0x100) +
+            (car.z / 0x100) * ((carObj->N).orientMat.m[2] / 0x100);
+    pos.z = (car.x / 0x100) * ((carObj->N).orientMat.m[6] / 0x100) +
+            (car.y / 0x100) * ((carObj->N).orientMat.m[7] / 0x100) +
+            (car.z / 0x100) * ((carObj->N).orientMat.m[8] / 0x100);
+    R3DCar_yawCam = 0x1000 - fixedatan(pos.x,pos.z) / 0x10;
     }
     R3DCar_MATRIX3DT_Copy((carObj->N).orientMat.m,bodyMat.m);
     R3DCar_MATRIX3DT_Copy((carObj->N).orientMat.m,insideMat.m);
     if ((R3DCar_InMenu & 0x80U) != 0) {
       bodyMat.m[3] = -bodyMat.m[3];
-      bodyMat.m[5] = -bodyMat.m[5];
       bodyMat.m[4] = -bodyMat.m[4];
+      bodyMat.m[5] = -bodyMat.m[5];
     }
     else if (rightHandDrive != 0) {
       insideMat.m[0] = -insideMat.m[0];
-      insideMat.m[2] = -insideMat.m[2];
       insideMat.m[1] = -insideMat.m[1];
+      insideMat.m[2] = -insideMat.m[2];
     }
     Math_fasttransmult(&bodyMat,&(Vi->cview).mrotationInv,&orientMat);
     Math_fasttransmult(&insideMat,&(Vi->cview).mrotationInv,&orientIMat);
@@ -2307,9 +2258,7 @@ R_ICFtMenu_sceneCounterJoin:
           }
           break;
         case 7:
-          uVar7 = (carObj->render).inside;
-R_ICFtMenu_caseB_upgrade:
-          if ((uVar7 & 1) != 0) {
+          if (((carObj->render).inside & 1U) != 0) {
             code = 0;
           }
           break;
@@ -2344,8 +2293,10 @@ R_ICFtMenu_caseB_upgrade:
           }
           break;
         case 0xb:
-          uVar7 = (u_short)(u_char)(carObj->render).upgradeFlags;
-          goto R_ICFtMenu_caseB_upgrade;
+          if (((carObj->render).upgradeFlags & 1U) != 0) {
+            code = 0;
+          }
+          break;
         case 0xe:
         case 0x11:
           if (cop_flag != 0) break;
@@ -2389,25 +2340,36 @@ R_ICFtMenu_clearVisibility:
       int suspensionOffset;  /* SYM blk 663 REG a0 */
       obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[i];
       if ((obj->numFacet != 0) && (R3DCar_ObjectVisible[i] != '\0')) {
-        if ((i == 0xf) || (suspensionOffset = rideHeight, 0x2e < i)) {
-          suspensionOffset = 0;
-        }
+        if (i == 0xf) goto R_ICFtMenu_suspensionZero;
+        if (i < 0x2f) goto R_ICFtMenu_suspensionRide;
+R_ICFtMenu_suspensionZero:
+        suspensionOffset = 0;
+        goto R_ICFtMenu_suspensionSelected;
+R_ICFtMenu_suspensionRide:
+        suspensionOffset = rideHeight;
+R_ICFtMenu_suspensionSelected:
         tmp.x = (obj->translation).x - parent.x;
         tmp.y = ((obj->translation).y - parent.y) - suspensionOffset;
         tmp.z = (obj->translation).z - parent.z;
-        if (((0x1b < carType) || (i < 0x23)) || (pmVar17 = &insideMat, 0x28 < i)) {
-          pmVar17 = &bodyMat;
+        if ((carType < 0x1c) && (0x22 < i) && (i < 0x29)) {
+          transform(&tmp.x,insideMat.m,&translation.x);
         }
-        transform(&tmp.x,pmVar17->m,&translation.x);
+        else {
+          transform(&tmp.x,bodyMat.m,&translation.x);
+        }
         tmp.x = ((carObj->N).position.x + translation.x) - (Vi->cview).translation.x;
         tmp.y = ((carObj->N).position.y + translation.y) - (Vi->cview).translation.y;
         tmp.z = ((carObj->N).position.z + translation.z) - (Vi->cview).translation.z;
         transform(&tmp.x,(Vi->cview).mrotationInv.m,(int *)((int)R3DCar_position + i * 0xc))
         ;
-        if (((0x1b < carType) || (i < 0x23)) || (pmVar17 = &orientIMat, 0x28 < i)) {
-          pmVar17 = &orientMat;
+        if ((carType < 0x1c) && (0x22 < i) && (i < 0x29)) {
+          R3DCar_MATRIX3DT_Copy(orientIMat.m,
+                               (int *)((int)R3DCar_orientMat + i * 0x24));
         }
-        R3DCar_MATRIX3DT_Copy(pmVar17->m,(int *)((int)R3DCar_orientMat + i * 0x24));
+        else {
+          R3DCar_MATRIX3DT_Copy(orientMat.m,
+                               (int *)((int)R3DCar_orientMat + i * 0x24));
+        }
       }
     }
     TrsProj_TransformProjectVertex(&(Vi->cview).mrotationInv,&(Vi->cview).translationInv,1,&(carObj->N).position,
@@ -2419,8 +2381,7 @@ R_ICFtMenu_clearVisibility:
       coorddef temp1;            /* SYM blk 703 @ff88 */
       coorddef temp2;            /* SYM blk 703 @ff98 */
       coorddef dimension;        /* SYM blk 703 @ffa8 */
-      dimension.x = (carObj->N).dimension.x;
-      dimension.z = (carObj->N).dimension.z;
+      dimension = (carObj->N).dimension;
       lengthVector.x = fixedmult(dimension.z,(carObj->N).orientMat.m[6]);
       lengthVector.y = fixedmult(dimension.z,(carObj->N).orientMat.m[7]);
       lengthVector.z = fixedmult(dimension.z,(carObj->N).orientMat.m[8]);
@@ -2438,25 +2399,29 @@ R_ICFtMenu_clearVisibility:
         ;
       }
       else {
+        frontWidthVector.z = widthVector.z;
         frontWidthVector.x = widthVector.x;
         frontWidthVector.y = widthVector.y;
-        frontWidthVector.z = widthVector.z;
       }
-      temp1.x = (carObj->N).position.x + lengthVector.x;
-      temp1.z = (carObj->N).position.z + lengthVector.z;
-      (carObj->N).shadowCoord[0].x = temp1.x - frontWidthVector.x;
-      (carObj->N).shadowCoord[0].y = lengthVector.y - frontWidthVector.y;
-      (carObj->N).shadowCoord[0].z = temp1.z - frontWidthVector.z;
-      (carObj->N).shadowCoord[1].x = temp1.x + frontWidthVector.x;
-      (carObj->N).shadowCoord[1].y = lengthVector.y + frontWidthVector.y;
-      (carObj->N).shadowCoord[1].z = temp1.z + frontWidthVector.z;
-      temp2.x = (carObj->N).position.x - lengthVector.x;
-      temp2.z = (carObj->N).position.z - lengthVector.z;
+      temp1 = (carObj->N).position;
+      temp1.y = 0;
+      temp2.x = temp1.x + lengthVector.x;
+      temp2.y = temp1.y + lengthVector.y;
+      temp2.z = temp1.z + lengthVector.z;
+      (carObj->N).shadowCoord[0].x = temp2.x - frontWidthVector.x;
+      (carObj->N).shadowCoord[0].y = temp2.y - frontWidthVector.y;
+      (carObj->N).shadowCoord[0].z = temp2.z - frontWidthVector.z;
+      (carObj->N).shadowCoord[1].x = temp2.x + frontWidthVector.x;
+      (carObj->N).shadowCoord[1].y = temp2.y + frontWidthVector.y;
+      (carObj->N).shadowCoord[1].z = temp2.z + frontWidthVector.z;
+      temp2.x = temp1.x - lengthVector.x;
+      temp2.y = temp1.y - lengthVector.y;
+      temp2.z = temp1.z - lengthVector.z;
       (carObj->N).shadowCoord[2].x = temp2.x - widthVector.x;
-      (carObj->N).shadowCoord[2].y = -lengthVector.y - widthVector.y;
+      (carObj->N).shadowCoord[2].y = temp2.y - widthVector.y;
       (carObj->N).shadowCoord[2].z = temp2.z - widthVector.z;
       (carObj->N).shadowCoord[3].x = temp2.x + widthVector.x;
-      (carObj->N).shadowCoord[3].y = -lengthVector.y + widthVector.y;
+      (carObj->N).shadowCoord[3].y = temp2.y + widthVector.y;
       (carObj->N).shadowCoord[3].z = temp2.z + widthVector.z;
       TrsProj_TransformProjectVertex(&(Vi->cview).mrotationInv,&(Vi->cview).translationInv,4,(carObj->N).shadowCoord,
                  R3DCar_shadowVertex);

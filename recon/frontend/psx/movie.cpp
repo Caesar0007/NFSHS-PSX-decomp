@@ -578,6 +578,7 @@ u_long * strNext(DECENV *dec)
   int bottom;
   int cnt;
   int wt;
+  int *wp;
   RECT rect;
   u_long *addr;
   CDSECTOR *sector;
@@ -611,13 +612,25 @@ rewind:
 setframe:
   gMovieFrame = sector->frameCount;
 framedone:
-  if ((gWidth != (uint)sector->width) || (gHeight != (uint)sector->height)) {
+  /* MATCH: reach gWidth through a POINTER LOCAL, in BOTH the test and the store.
+   * (a) it anchors %hi(width) in the callee-saved reg the oracle keeps across the
+   *     ClearImage call (`lui s0,%hi(width)` at the head of this block, `%lo` in
+   *     both displacements);
+   * (b) `*wp` is a plain indirect MEM, not an ARRAY_REF, so gcc-2.8's
+   *     true_dependence no longer makes it may-alias `sector->height` -- the height
+   *     `lhu` then schedules into the width `lhu`'s load-delay slot and reuses the
+   *     dying sector register, exactly as retail (the direct `gWidth = ...` form
+   *     leaves a `nop` there and is 1 insn long).
+   * The scalar `width_d` spelling also unblocks the alias but loses the shared %hi
+   * (assembler macro -> its own `lui $at`), so it stays 1 insn long too. */
+  wp = width_v;
+  if ((*wp != (uint)sector->width) || (gHeight != (uint)sector->height)) {
     rect.x = 0;
     rect.y = 0;
     rect.h = 0x1e0;
     rect.w = (short)((PPWTop * 0x280) / (int)PPWBottom);
     ClearImage(&rect,'\0','\0','\0');
-    gWidth = (int)sector->width;
+    *wp = (int)sector->width;
     gHeight = (int)sector->height;
   }
   wt = gWidth * PPWTop;

@@ -25,6 +25,15 @@
 #include "../../nfs4_types.h"
 #include "drawc_externs.h"
 
+/* PsyQ P_TAG-style OT word: the low 24 bits are the link address, the high byte
+ * the packet length.  A 24-bit BITFIELD store is exactly the oracle's
+ * `lw; and 0xff000000; and val,0xffffff; or; sw` -- and it is what EA wrote
+ * (libgpu setaddr()).  See DrawC_PrimStop. */
+typedef struct {
+    u_long addr : 24;
+    u_long len  : 8;
+} DrawC_tTag;
+
 /* ---- EA DMPSX-analog OT-link templates (2026-07-09, see fastmovf.c + hub) ----
  * Variant A (FT3 alloc): prim = sd->PrimPtr; slot = sub_ot+otz; PrimPtr += 0x20;
  *   prim->tag = slot->addr24 | 7<<24; slot->addr24 = prim.  prim -> OUTPUT reg.
@@ -856,9 +865,8 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
     sub_otSize = carObj->render.sub_otSize + -1;
     worldZ = carObj->render.world_otz;
   }
-  *sd->sub_ot = *sd->sub_ot & 0xff000000 | sd->head.cprim.LastPrim[worldZ] & 0xffffff;
-  sd->head.cprim.LastPrim[worldZ] =
-       sd->head.cprim.LastPrim[worldZ] & 0xff000000 | (u_long)(sd->sub_ot + sub_otSize) & 0xffffff;
+  ((DrawC_tTag *)sd->sub_ot)->addr = sd->head.cprim.LastPrim[worldZ];
+  ((DrawC_tTag *)&sd->head.cprim.LastPrim[worldZ])->addr = (u_long)(sd->sub_ot + sub_otSize);
   return;
 }
 

@@ -809,6 +809,8 @@ void Hud_InitMapFrame(int i,int mode)
  * OURS hoists BOTH constants (`li fp,0x4D`, `li s7,0x53`), so both callee-saved homes are
  * spent on literals and `y` SPILLS to the frame (`sw a3,84(sp)` / `lw a3,84(sp)`), and the
  * first bne's slot is left `nop` = the +1 insn.
+ * (a10 w45 correction: local-alloc's QTY_CMP_PRI is the SAME flr2(refs)*refs/life formula,
+ * so a block-local rotation takes the ref-step dial too -- applies to the 0x53 pseudo here.)
  * ALLOCATOR MATH (why the constant beats y): priority ~ flr2(refs)*refs/live_length; both
  * have 2 loop-weighted refs, but the hoisted constant's live range is short at its def while
  * `y` is live across both calls -> the constant wins the callee-saved reg.  Fixing the HOIST,
@@ -821,6 +823,9 @@ void Hud_InitMapFrame(int i,int mode)
  * hoisted too and we lose retail's preheader].  Best found: a block-scoped named local for
  * the 0x4D constant [19] OR a named copy of `y` before the loop [19] -- NOT additive (same
  * 2 diffs), and both are scaffolding a 1998 author would not write, so NOT landed.
+ * ALSO FALSIFIED w45-a7 (the angle written below, tested immediately): putting the S-test
+ * inside a `c != 0x4d` guard so its block is not always-executed -- inverted-nest form [24,
+ * 79 insns] and explicit `if (c != 0x4d){...}` guard after the M-arm [31, 80 insns].
  * NEW NAMED ANGLE: stop loop.c hoisting the 0x53 WITHOUT losing the 0x4D hoist.  loop.c
  * treats the two `(set p (const_int K))` movables identically, so the discriminator must be
  * OUTSIDE the constants: make the S-test's basic block NOT always-executed within the loop
@@ -3230,7 +3235,16 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
  * base a value that is ALREADY in a callee-saved reg for another reason -- e.g. derive it from
  * the SAME expression that feeds Hud_BlackThinBox(x - 3, y - 2, ...) after the loop (a shared
  * `y - 2` / `y` term gives cse a reason to keep y live in a register across the loop), or
- * reorder so the BlackThinBox call precedes loop 1 (check the oracle's block VAs first). */
+ * reorder so the BlackThinBox call precedes loop 1 (check the oracle's block VAs first).
+ * w45-a7 RE-MEASURED the two-level walker retail actually shows (`by = y;` in the OUTER
+ * PREHEADER, `inner = by;` copy in the inner preheader, `by = by + 9;` at the outer bottom,
+ * body using the copy): it DOES fix the +1 insn -- count becomes EXACT 111/111 -- but the
+ * LCS goes 37 -> 76 and, decisively, posdiff's structural residual goes 18 -> 38 and the
+ * whole first-loop register web rotates.  Both walker seedings measured (a spare local as
+ * the walker, or `by` as the walker with the spare as the copy): 78 / 76.  NOT LANDED --
+ * per the briefing rule, judge on posdiff + insn count together, and posdiff says the
+ * base-0 form is the closer body.  So the +1 insn is NOT the thing to chase first; the
+ * open item stays the ARG-HOME reload / y-liveness angle above. */
   int i;
   int j;
   int k;
@@ -3629,9 +3643,9 @@ void Hud_RenderHudView(void)
  *   only known LICM killer and it is too coarse.  Untried, in order: (a) reach splitscreen
  *   and showhud through an unsized-array asm-label VIEW of DashHUD_gInfo
  *   (`extern int DashHUD_view[] asm("DashHUD_gInfo");` + `DashHUD_view[0]` / `[7+j]`) --
- *   the w13 lever that turns a %hi into a schedulable RTL pseudo; if the view makes the
- *   tail load separate-scratch AND the body reuse the tail's pseudo, the base stops being
- *   invariant, which is exactly retail's shape; (b) ask the a10 allocator/instrument lane
+ *   the w13 lever that turns a %hi into a schedulable RTL pseudo -- 🔴 TRIED AND FALSIFIED
+ *   w45-a7: view on BOTH condition and body [66 diffs / 79 insns], view on the loop
+ *   condition only [35, no change], view on the body only [69 / 78]; (b) ask the a10 allocator/instrument lane
  *   for loop.c's `-dL` move-insn table on this fn -- the hoist decision is a cost-model
  *   verdict (threshold*savings*lifetime vs insn weight) and the required delta may be a
  *   single ref-count step on the base. */

@@ -798,7 +798,39 @@ void Hud_InitMapFrame(int i,int mode)
   return;
 }
 
-/* ---- Hud_BuildTimeSprites__FP4SPRTPcii  [HUD.CPP:883-923] SLD-VERIFIED ---- */
+/* ---- Hud_BuildTimeSprites__FP4SPRTPcii  [HUD.CPP:883-923] SLD-VERIFIED ----
+ * PARKED at 21 (ours 78 / oracle 77 -- exactly ONE extra insn, a `nop`).
+ * ROOT CAUSE (w45-a7, single mechanism, everything else is its cascade): retail does NOT
+ * hoist the second compare constant.  Retail's loop preheader holds only `li s7,0x4D` and
+ * `addu s3,a0,zero`, and `0x53` is REMATERIALIZED every iteration by `addiu $v0,$zero,0x53`
+ * sitting in the FIRST `bne`'s delay slot (a caller-saved temp, born+dead inside one block
+ * => local-alloc, never a global allocno).  That leaves `$fp` free for the 4th param `y`
+ * (`addu fp,a3,zero` in the zero-trip guard's delay slot, `addu a3,fp,zero` at the call).
+ * OURS hoists BOTH constants (`li fp,0x4D`, `li s7,0x53`), so both callee-saved homes are
+ * spent on literals and `y` SPILLS to the frame (`sw a3,84(sp)` / `lw a3,84(sp)`), and the
+ * first bne's slot is left `nop` = the +1 insn.
+ * ALLOCATOR MATH (why the constant beats y): priority ~ flr2(refs)*refs/live_length; both
+ * have 2 loop-weighted refs, but the hoisted constant's live range is short at its def while
+ * `y` is live across both calls -> the constant wins the callee-saved reg.  Fixing the HOIST,
+ * not the priority, is the lever.
+ * FALSIFIED w45-a7 (all keep ours at 78, diffs in brackets): `else if` for the S-test [22,
+ * +2 insns]; `for(c=*str; c; c=*str)` [21]; 'M'/'S' char literals instead of hex [21];
+ * swapping the two tests [21]; braces around the S-test [21]; `(u_char)c == 0x53` [21];
+ * `do{}while` with an explicit zero-trip guard [21]; `while(true){if(!c)break;...}` [27, 76
+ * insns]; goto-loop [30, 73 insns -- kills LICM for BOTH constants, so 0x4D stops being
+ * hoisted too and we lose retail's preheader].  Best found: a block-scoped named local for
+ * the 0x4D constant [19] OR a named copy of `y` before the loop [19] -- NOT additive (same
+ * 2 diffs), and both are scaffolding a 1998 author would not write, so NOT landed.
+ * NEW NAMED ANGLE: stop loop.c hoisting the 0x53 WITHOUT losing the 0x4D hoist.  loop.c
+ * treats the two `(set p (const_int K))` movables identically, so the discriminator must be
+ * OUTSIDE the constants: make the S-test's basic block NOT always-executed within the loop
+ * (loop.c's `maybe_never` gate skips movables it cannot prove are reached) -- e.g. reach the
+ * S-test only through the M-test's fall-through in a shape whose block gcc cannot prove is
+ * always entered.  Concretely untried: `if (c != 0x4d) { if (c == 0x53) c = langSec; }` plus
+ * the M-arm assigning langMin and FALLING PAST the S-test (semantically identical because
+ * langMin is never 'S'), which puts the 0x53 def inside a conditional block.  Secondary:
+ * ask the a10 allocator lane for the required delta on `y` vs the 0x53 pseudo -- if `y`'s
+ * refs can be lifted one flr2 step (2 -> 4 weighted) it takes `$fp` even with both hoists. */
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {

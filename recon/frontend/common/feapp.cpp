@@ -184,13 +184,13 @@ void tFEApplication::PerformMenuDestruction()
   i = 0;
   do {
     off = (i << 0x10) >> 0xe;
-    screen = *(int *)((int)this->fCurrentScreen + off);
+    screen = *(int *)((char *)this + off + 0xc);
     if (screen != 0) {
       (**(int (**)(...))(*(int *)(screen + 0x60) + 0x3c))
                 (screen + *(short *)(*(int *)(screen + 0x60) + 0x38));
     }
     i = i + 1;
-    *(u_int *)((int)this->fCurrentScreen + off) = 0;
+    *(u_int *)((char *)this + off + 0xc) = 0;
   } while (i < 2);
   AudioMus_StopSong(1000);
   Draw_gDoVSync_arr[0] = 0;

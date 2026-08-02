@@ -103,6 +103,10 @@ void DepthCue_Init(void);
 
 
 /* ---- DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:235-282] SLD-VERIFIED ---- */
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/getaddr()
+   house idiom the retail OT-link code was written with (w45-a6). */
+typedef struct { unsigned addr : 24, len : 8; } DrawW_PTag;
+
 void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2,Draw_SVertex *v3,
                Draw_tGiveShelbyMoreCache *sd)
 
@@ -383,12 +387,9 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
         u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        {
-          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
-          Render_gPacketPtr = (u_char *)prim + 0x28;
-          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
-        }
+        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        ((DrawW_PTag *)pal)->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v0,v1,v4,sd);
       }
 DrawWSubdiv_edge1:
@@ -400,12 +401,9 @@ DrawWSubdiv_edge1:
         u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        {
-          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
-          Render_gPacketPtr = (u_char *)prim + 0x28;
-          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
-        }
+        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        ((DrawW_PTag *)pal)->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v1,v2,v5,sd);
       }
 DrawWSubdiv_edge2:
@@ -417,12 +415,9 @@ DrawWSubdiv_edge2:
         u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        {
-          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
-          Render_gPacketPtr = (u_char *)prim + 0x28;
-          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
-        }
+        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        ((DrawW_PTag *)pal)->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v2,v3,v6,sd);
       }
 DrawWSubdiv_edge3:
@@ -434,12 +429,9 @@ DrawWSubdiv_edge3:
         u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
         pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        *(u_int *)prim = (*(u_int *)prim & 0xff000000) | (*pal & 0xffffff);
-        {
-          u_int t = *pal;   /* MATCH: bump store sits between pal load and pal store (oracle) */
-          Render_gPacketPtr = (u_char *)prim + 0x28;
-          *pal = ((u_int)prim & 0xffffff) | (t & 0xff000000);
-        }
+        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        Render_gPacketPtr = (u_char *)prim + 0x28;
+        ((DrawW_PTag *)pal)->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v3,v0,v7,sd);
       }
 DrawWSubdiv_edgedone:

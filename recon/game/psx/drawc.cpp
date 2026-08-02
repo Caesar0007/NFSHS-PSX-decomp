@@ -186,10 +186,10 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * pure-address addiu into the branch's delay slot regardless of source position). */
   light = (int *)&(carObj->render).light;
   i = gCView.player;
+  pos = &(carObj->N).position;
   if (((Cars_gList[i]->control).lights & 6U) != 0) {
     coorddef tmp;
     coorddef tmp2;
-    pos = &(carObj->N).position;
     /* MATCH (w42-a3, 81 -> 71): retail evaluates the SUBTRAHEND first at every
        component (`lw v0,0(v1)` HRCL[i]; `lw a0,0xA0(v0)`; then `lw v0,0xA0(a1)`;
        `subu`).  Written as `carObj->... - HRCL[i]->...` cc1 evaluated the minuend
@@ -215,14 +215,31 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        Dials to try: lengthen carObj's range (a later carObj-based read the
        oracle also has) or shorten the giv's (a second `i` use inside the if).
        Removing the `h` subtrahend temp was RE-TESTED and is WORSE (87, 106
-       insns) -- `h` models a genuine cse temp (w43 purge-rule exception). */
-    { int h;
-    h = (Cars_gHumanRaceCarList[i]->N).position.x;
-    tmp.x = (carObj->N).position.x - h;
-    h = (Cars_gHumanRaceCarList[i]->N).position.y;
-    tmp.y = pos->y - h;
-    h = (Cars_gHumanRaceCarList[i]->N).position.z;
-    tmp.z = pos->z - h;
+       insns) -- `h` models a genuine cse temp (w43 purge-rule exception).
+       ===== w45-a4: 69 -> 36, THE ROTATION IS SOLVED. Two edits, both required:
+       (1) the `pos` hoist above (count-exact 107/107, the w44 note's own
+           recommendation);
+       (2) 🏆 ONE-TEMP -> THREE BLOCK-LOCAL TEMPS (h0/h1/h2).  A single reused
+           `h` is ONE pseudo -> one hard reg for all three subtrahends ($a2),
+           and (being def'd/used in one block but ALIVE across the whole block
+           chain) it conflicts with the global allocnos.  Three separate
+           block-local quantities are handed out by LOCAL_ALLOC, each dying
+           immediately, so each REUSES a just-dead register exactly like retail
+           ($a0 = the dead giv, $a1 = the dead carObj, $v1 = the dead HRCL base)
+           -- and, decisively, they stop barring $a0/$a1 for the global
+           allocnos.  Result: first-use order became retail-exact
+           `a1 a0 v1 v0 s1 s0 a2 ...` = carObj -> $a1 WITH the `addu a1,a0,zero`
+           REGPARM copy, the i*4 giv -> $a0, pos -> $a2 (SYM REG $6).
+           GENERAL RULE (new): N sequential same-shape reads that each die at
+           once want N DISTINCT block-local temps, not one reused temp -- the
+           reuse both pins one register and inflates the local's conflict set. */
+    { int h0; int h1; int h2;
+    h0 = (Cars_gHumanRaceCarList[i]->N).position.x;
+    tmp.x = (carObj->N).position.x - h0;
+    h1 = (Cars_gHumanRaceCarList[i]->N).position.y;
+    tmp.y = pos->y - h1;
+    h2 = (Cars_gHumanRaceCarList[i]->N).position.z;
+    tmp.z = pos->z - h2;
     }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&nightMat);
@@ -245,15 +262,20 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        (addu $v1,$v1,$v0 once, then lbu 0/1/2($v1)) and ONE for &light
        ($a2 = sp+104).  Spelling the full &Night_gWeatherColor[type] address
        at each of the three byte reads made cc1 rematerialize it. */
-    u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
     u_char *lp = (u_char *)&light;
+    u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
     short newR;
     short newG;
     short newB;
-    /* MATCH (w44-a8, 71 -> 69): the weather byte is the FIRST operand.  Compare/
-       add operand order IS load order here: `lp[N] + wc[N]` loaded lp into $v0
-       and wc into $a0, `wc[N] + lp[N]` swaps them, which is retail's pairing
-       (`lbu $a0,0x68($sp)` lp; `lbu $v0,0x0($v1)` wc; `addu $a0,$a0,$v0`). */
+    /* MATCH (w45-a4, RE-TESTED after the h0/h1/h2 split re-landscaped the fn --
+       the w44-a8 "weather byte FIRST" receipt was basin-relative and is now
+       FALSE).  Retail loads lp[N] first and adds `lp[N] + wc[N]`
+       (`lbu $a0,0x68($sp)` lp0; `lbu $v0,0x0($v1)` wc0; `addu $a0,$a0,$v0`).
+       4-way A/B (decl order x operand order) at the NEW basin: operand order
+       `wc[N] + lp[N]` = 36, `lp[N] + wc[N]` = 38; DECL ORDER IS A NO-OP (both
+       36/38).  So the w44 operand receipt SURVIVES the re-landscape; only its
+       load-order rationale is wrong (the oracle's `addu $a0,$a0,$v0` differs
+       from ours by DEST register, not by which addend is first). */
     newR = (short)((int)wc[0] + (int)lp[0]);
     newG = (short)((int)wc[1] + (int)lp[1]);
     newB = (short)((int)wc[2] + (int)lp[2]);

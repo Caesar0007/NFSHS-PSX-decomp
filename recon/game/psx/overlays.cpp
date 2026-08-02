@@ -89,6 +89,19 @@ void OptionsBarThing(int x,int y,int w,int h)
  * calls' a2 expressions TEXTUALLY different so cse cannot equate them (`W & 0xffffU` vs
  * `(u_short)W`) DOES buy the missing instruction -- count becomes EXACT 349/349 -- but as a
  * whole second reload+`addu a2,t0,zero` in the wrong place (64 diffs), not retail's copy.
+ * w45-a9 (5 stays; NEW DATA POINT + refined angle): the ZERO-INSN USE FENCE (§2b.5) DOES
+ * buy the missing instruction cleanly -- `__asm__ volatile("" : : "r"(HUD_STATS_SIZE_W));`
+ * placed immediately before the OptionsBarThing call makes the count EXACT 349/349 (vs our
+ * 348) at 6 diffs, and the `(u_short)` cast form is identical (6).  What it produces is an
+ * EXTRA HImode reload of SIZE_W *ahead of* the 88(sp) load, not retail's `lhu $t0,72(sp);
+ * addu $s2,$t0,$zero` in place -- i.e. the fence supplies the missing PSEUDO but at the
+ * wrong point in the reload order.  (Fencing SIZE_H instead = 28; fencing both = 350/349,
+ * 27.)  ⇒ the mechanism is confirmed source-reachable; only the POSITION is wrong.
+ * NEW NAMED ANGLE: walk the fence DOWN one arg/statement at a time -- between the two calls,
+ * and inside the arg list order (the fence must land AFTER the 88(sp) POS_Y reload and
+ * BEFORE the $s2 copy).  Failing that, pair it with the `(u_short)W` vs `W & 0xffffU`
+ * textual-difference trick from the w44 note (which also reached 349/349) so the second
+ * consumer is the one the fence feeds.
  * NEW ANGLE for the next attempt: this is the w43 MIPS PROMOTE_MODE row -- a DECLARED
  * narrow local always promotes to SImode, so the HImode pseudo retail copies from must be
  * an ANONYMOUS cse temp.  Look for a second HImode consumer of SIZE_W in the same extended

@@ -584,6 +584,30 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *   this function (v->t2/x->t3/mask->t4 reproduced), so its minimal (drefs, dlive) receipt
    *   is directly actionable; pair each required delta with the w44 zero-insn inflators
    *   (no-op re-mask / deliberate arm duplication / do{}while(0) depth) chosen for that pseudo.
+   * ==== w45-a1 RESULT: 113 -> 103 -> 83.  THE v-ROOT ABOVE IS SOLVED. ====
+   * The `prim[0x19] = prim[0xd]` read-back (see the MATCH note in the loop body) delivered
+   * the simulator's required delta exactly (p90 refs 9 -> 7) and the handout is now RETAIL'S:
+   * x -> $t2, mask -> $t3, v -> $t4.  Everything above about "the v-vs-x contest" is now
+   * HISTORY -- do not re-grind it.  tools/prio.py + a10's allocsim both re-confirm the new
+   * table; the ALLOCATION question is CLOSED for this function.
+   * WHAT THE REMAINING 83 IS (re-measured, not inherited): ours 240 vs oracle 245 and a
+   * STACK-SLOT displacement mismatch.  Retail has THREE memory-homed values (width@16,
+   * vh@24 halfword, v@32 byte) and frame 104; ours has TWO (width@24, vh@32 byte-narrowed)
+   * plus the aggregate filler that is slotted at EXPAND and therefore steals 16(sp).
+   * Removing the filler DOES move width->16 and vh->24 (= retail) but drops the frame to 96,
+   * which then shifts every prologue/epilogue and caller-save displacement (gate 155).  So
+   * the ONE thing still missing is a THIRD genuine memory-homed value to occupy 32(sp) --
+   * expand-time slots always sort below reload spill slots, so the filler can never be made
+   * to land last from source; it has to be a real spilled pseudo instead.
+   * 🎯 NEW NAMED ANGLE #A' (supersedes #A, now measured from the 83 basin): the variant
+   *   `noflr + vbot hoisted before the GetClut call` is now **COUNT-EXACT 245/245** with
+   *   frame **104** and both halfword AUTOs at **16/24(sp)** -- structurally the closest this
+   *   function has ever been -- but its gate is 240 because the register assignment diverges
+   *   wholesale.  That is a textbook PERMUTER MULTI-BASIN re-seed target (a structurally
+   *   different base at a worse score, exactly the LocateNextGroupType/SetScreen pattern),
+   *   and it is now cheap to aim: run a10's `tools/allocsim.py --solve` in THAT basin to get
+   *   its per-pseudo required deltas first, then spend the permuter round there rather than
+   *   in this basin (this basin's permuter round is SPENT -- see the harvest note above).
    * 🎯 NEW NAMED ANGLE #C: retail's separate raw-shapey pseudo (`addu t4,v0,zero`) is the
    *   w40 uncoalesced-temp identity -- model it as a real local COPIED FROM (`vraw`), noting
    *   make_regs_eqv keeps the copy only when it OUTLIVES its source.  (Scripted probe skipped

@@ -1272,7 +1272,33 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
    * (walkers are compiler givs, SYM has only i) with plain /0x10000 signed
    * division (bgez/addu 0xFFFF/sra guards regenerate; 0xFFFF hoists to a2 by
    * loop.c); packet allocs per the proven TU idiom: aprim = PacketPtr FIRST,
-   * two-set slot (+ otz*4 in the tail block only). */
+   * two-set slot (+ otz*4 in the tail block only).
+   * ---- w45-a9 RECEIPT BAR: 12 -> 6 (count-exact 247/247).  TWO landed levers:
+   *   (1) the serial `c` copy temp for the two Flare_gType color word-copies (ONE REUSED
+   *       temp; two temps = 10, direct-second-store = 10 -- both re-measured in the
+   *       post-fence basin, so these are STRONG falsifications, not stale notes);
+   *   (2) the dual-param USE fence (see the fence's own comment) -- fixed the s1 REGPARM
+   *       copy sinking into the guard branch's delay slot.
+   * TWO RESIDUALS LEFT, 2 diffs each:
+   *   (A) `sw s3,92(sp)` issues at ours[12] vs retail[9] (retail's prologue save order is
+   *       s5,s6,s0,s1,s3,ra,s4,s2; ours s5,s6,s0,s1,ra,s4,s3,s2 around the `lui t0`).
+   *       MEASURED NEGATIVE at THIS baseline: moving the `sd =` assignment below the pt2
+   *       stores (6, no move); swapping the `pt`/`pt2` declaration order (6, no move).
+   *       NEW NAMED ANGLE: s3 is `pt`, defined ONLY in the fall-through block (`addiu
+   *       s3,sp,24` -- the very insn retail puts in the delay slot).  Its save placement
+   *       is the same reorg/thread interaction the fence just fixed for s1, so give `pt`
+   *       an ENTRY-BLOCK birth (`pt = &pt2;` hoisted above the guard) and name `pt` as a
+   *       third fence operand.  Exact analogue of the s1 fix; untried.
+   *   (B) the SECOND color copy lands in $v1 (ours) where retail reuses the now-dead
+   *       gType base register $v0 (`lw v0,4(v0)`).  ONE `c` pseudo spans the base's death
+   *       so $v0 is unavailable to it; two pseudos would allow it but cost the serial
+   *       schedule (10).  NEW NAMED ANGLE: keep ONE `c` but kill the BASE instead -- take
+   *       the element address into a pointer local and re-assign it for the second read
+   *       (`p = &Flare_gType[flare_type]; c = p->chalo; ...; p = p; c = p->cbeam;` /
+   *       `*(u_long *)((char *)p + 4)`), so the base pseudo dies at the second load and
+   *       local-alloc can hand $v0 to the reborn range (dead-base-reuse, catalog §F row
+   *       115).  Or re-run the two-temp spelling AFTER (A) lands (lever-order
+   *       dependence, §2b.4 -- (1) and (2) already proved order-dependence here). */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;

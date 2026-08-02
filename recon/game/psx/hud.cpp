@@ -2931,7 +2931,20 @@ int Hud_NextPlayer(int player)
  * string-literal/GameSetup_gData address hoisted speculatively in the oracle's OR-shaped delay
  * slots, freed up in ours by the AND/early-return rewrite) -- not chased further, diminishing
  * returns. Net: correctness fix landed (matches the already-fixed sibling), insn count 94->97
- * (of 98). */
+ * (of 98).
+ * SEALED w45-a7 (57 -> 6 -> PASS 98/98).  The "register-materialization floor" above was
+ * WRONG -- it was two ordinary shape bugs:
+ *  (1) PREP-BLOCK ORDER, mirror of the sibling Hud_NextPlayer: `iVar3 = 0; uVar4 ^=
+ *      GameSetup_gData.reverseTrack; iVar1 = carObj_00->sortIndex;` must sit ABOVE the
+ *      `0 < Cars_gNumCars-1` guard (retail materializes &GameSetup_gData FIRST, loads
+ *      reverseTrack off it at +0x30 and lands the `xor` in the blez delay slot).  With the
+ *      xor inside the guard, gcc loaded Cars_gNumCars first and the whole base/index
+ *      register web rotated.  57 -> 6, count 97 -> 98 exact.
+ *  (2) NO `iVar2 = iVar1 << 2` PRECOMPUTE: index the array directly
+ *      (`iVar2 = (int)Cars_gSortedList[iVar1];`).  Retail's `sll` appears TWICE because
+ *      reorg eager-steals the merge block's first insn into the `bnez` delay slot and
+ *      leaves a copy behind; a hand-carried `iVar2` (with the `iVar2 = 0` arm) emits a
+ *      reg-reg copy instead of the second `sll`.  6 -> 0. */
 char * Hud_NextPlayerNameOrCarOrTime(int player)
 
 {
@@ -2949,14 +2962,14 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   carObj_00 = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
     iVar1 = Stats_GetPosition(carObj_00);
-    iVar3 = 0;
     if ((iVar1 == 1) && (uVar4 == 0)) {
       return "";
     }
     {
+      iVar3 = 0;
+      uVar4 = uVar4 ^ GameSetup_gData.reverseTrack;
       iVar1 = carObj_00->sortIndex;
       if (0 < Cars_gNumCars + -1) {
-        uVar4 = uVar4 ^ GameSetup_gData.reverseTrack;
         do {
           if (uVar4 != 0) {
             iVar1 = iVar1 + -1;
@@ -2967,12 +2980,10 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
           if (iVar1 < 0) {
             iVar1 = iVar1 + Cars_gNumCars;
           }
-          iVar2 = iVar1 << 2;
           if (Cars_gNumCars <= iVar1) {
             iVar1 = 0;
-            iVar2 = 0;
           }
-          iVar2 = *(int *)((int)Cars_gSortedList + iVar2);
+          iVar2 = (int)Cars_gSortedList[iVar1];
           if ((*(u_int *)(iVar2 + 0x260) & 0xc) != 0) {
             if (GameSetup_gData.carInfo[player].HudOpponentID == 2) {
               return (char *)(iVar2 + 0x249);

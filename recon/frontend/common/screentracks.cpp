@@ -4,151 +4,136 @@
  */
 #include "screentracks.h"
 
+typedef struct {
+  u_int addr : 24;
+  u_int len : 8;
+} tTrackSelectPrimTag;
+
 
 /* ---- tScreenTrackSelect::DrawBackground ---- */
 void tScreenTrackSelect::DrawBackground()
 
 {
-  short tpage;
   short creditsTextVal;
-  short tpage2;
-  int videoState;
-  int frameAdvanced;
-  VIDEOSTATE state;
-  int pkt_addr24;
-  short bright;
-  int pkt_addr24_2;
-  uint tu1;
-  byte swapShapesReady;
-  byte videoFinished;
   short shapeY;
-  int movieFrame_p;
   RECT r;
-  RECT r2;
   tTrackInformation trackInfo;
-  char moviename [80];
-  u_char *cur_pkt;
-  u_char *prev_pkt;
-  u_char *cur_pkt_2;
-  byte frameEven;
-  int movieRetCode;
-  u_char *prev_pkt_2;
-  void *tp1;
+  POLY_FT4 *prim;
+  VIDEOSTATE state;
   
   r.x = 0x140;
   r.y = 200;
   r.w = 0xaa;
   r.h = 0xc;
   creditsTextVal = TextValue(&menuDefs->iteratorTrack,kPlayerBoth);
-  DrawShape_NFS4RoundRectangle((int)creditsTextVal,&r,0);
+  DrawShape_NFS4RoundRectangle(creditsTextVal,&r,0);
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
   this->UpdateBrightness(trackInfo);
   this->UpdateVideoWall(trackInfo);
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if (((this->fSwapShapes.fFile != (char *)0x0) &&
-      ((this->fVideoWall).fTransitionDirection != -1)) && (this->fBrightness == 0)) {
-    ::UploadSwapShapes((tScreen *)this,10);
-    TurnOn(&this->fVideoWall);
+  {
+    tVideoWall *videoWall = &this->fVideoWall;
+
+    if (((this->fSwapShapes.fFile != (char *)0x0) &&
+        (videoWall->fTransitionDirection != -1)) && (this->fBrightness == 0)) {
+      ::UploadSwapShapes((tScreen *)this,10);
+      TurnOn(videoWall);
+    }
   }
-  frameEven = (this->fFrame & 1U) == 0;
-  swapShapesReady = frameEven << 7;
-  videoState = VIDEO_state(this->hVideo);
-  if (videoState == 1) {
-    r2.w = 0xaa;
-    r2.x = 0x200;
-    r2.y = 0;
-    r2.h = 0x100;
-    ClearImage(&r2,'\0','\0','\0');
+  shapeY = ((this->fFrame & 1U) == 0) << 7;
+  state = (VIDEOSTATE)VIDEO_state(this->hVideo);
+  if (state == VIDEOSTATE_SPOOLING) {
+    RECT r;
+    int startTicks;
+
+    r.w = 0xaa;
+    r.x = 0x200;
+    r.y = 0;
+    r.h = 0x100;
+    ClearImage(&r,'\0','\0','\0');
     DrawSync(0);
-    movieRetCode = ticks[0];
+    startTicks = ticks[0];
     this->fBrightness = 0;
-    this->fStartTicks = movieRetCode - 0x14;
+    this->fStartTicks = startTicks - 0x14;
   }
-  else if (videoState == 3) {
-    frameAdvanced = VIDEO_updateframexy
-                    (this->hVideo,0x200,((uint)frameEven << 0x17) >> 0x10);
-    if (frameAdvanced != 0) {
-      tu1 = this->fFrame + 1;
-      swapShapesReady = ((tu1 & 1) == 0) << 7;
-      this->fFrame = tu1;
+  else if (state == VIDEOSTATE_PLAYING) {
+    if (VIDEO_updateframexy(this->hVideo,0x200,(u_short)shapeY) != 0) {
+      this->fFrame = this->fFrame + 1;
+      shapeY = ((this->fFrame & 1U) == 0) << 7;
     }
   }
   else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) &&
-          (0x100 < ticks[0] - this->fVideoTicks)) {
-    if (this->fBrightness <= this->fDestBrightness) {
-      bright = 0x20;
-      if (trackInfo.fAvailable != '\0') {
-        bright = 0x80;
-      }
-      this->SetBrightness(bright);
+          ((uint)(ticks[0] - this->fVideoTicks) >= 0x101U)) {
+    if (this->fDestBrightness >= this->fBrightness) {
+      this->SetBrightness(trackInfo.fAvailable != '\0' ? 0x80 : 0x20);
     }
-    sprintf
-              (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)this->fMovieTrack);
-    VIDEO_spoolfile(this->hVideo,moviename);
+    {
+      char moviename[80];
+
+      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],
+              (int)this->fMovieTrack);
+      VIDEO_spoolfile(this->hVideo,moviename);
+    }
     VIDEO_startplayback(this->hVideo);
   }
-  cur_pkt = Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
   if (0 < this->fBrightness) {
-    videoFinished = swapShapesReady | 0x7f;
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (uint)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x28;
-    *(uint *)prev_pkt = *(uint *)prev_pkt & 0xff000000 | pkt_addr24;
-    pkt_addr24_2 = (int)this->fBrightness;
-    cur_pkt[3] = 9;
-    *(u_short *)(cur_pkt + 10) = 0x69;
-    *(u_short *)(cur_pkt + 0x12) = 0x69;
-    *(u_short *)(cur_pkt + 8) = 0x99;
-    *(u_short *)(cur_pkt + 0x18) = 0x99;
-    *(u_short *)(cur_pkt + 0x10) = 0x139;
-    *(u_short *)(cur_pkt + 0x1a) = 0xe8;
-    *(u_short *)(cur_pkt + 0x20) = 0x139;
-    *(u_short *)(cur_pkt + 0x22) = 0xe8;
-    cur_pkt[0xc] = 0;
-    cur_pkt[0xd] = swapShapesReady;
-    cur_pkt[0x14] = 0x50;
-    cur_pkt[0x15] = swapShapesReady;
-    cur_pkt[0x1c] = 0;
-    cur_pkt[0x1d] = videoFinished;
-    cur_pkt[0x24] = 0x50;
-    cur_pkt[0x25] = videoFinished;
-    *(int *)(cur_pkt + 4) = pkt_addr24_2 << 0x10 | pkt_addr24_2 << 8 | pkt_addr24_2;
-    cur_pkt[7] = 0x2e;
-    tpage = GetTPage(2,1,0x200,0);
-    *(short *)(cur_pkt + 0x16) = tpage;
-    *(u_short *)(cur_pkt + 0xe) = 0;
-    prev_pkt_2 = Render_gPacketPtr;
-    cur_pkt_2 = Render_gPalettePtr;
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    *(uint *)cur_pkt_2 = *(uint *)cur_pkt_2 & 0xff000000 | (uint)Render_gPacketPtr & 0xffffff;
-    tu1 = (uint)this->fBrightness;
-    tp1 = Render_gPacketPtr + 3;
-    Render_gPacketPtr = Render_gPacketPtr + 0x28;
-    *(u_char *)tp1 = 9;
-    *(u_short *)(prev_pkt_2 + 0x10) = 0x1d9;
-    *(u_short *)(prev_pkt_2 + 0x20) = 0x1d9;
-    prev_pkt_2[0x14] = 0x60;
-    prev_pkt_2[0x24] = 0x60;
-    *(u_short *)(prev_pkt_2 + 10) = 0x69;
-    *(u_short *)(prev_pkt_2 + 0x12) = 0x69;
-    *(uint *)(prev_pkt_2 + 4) = tu1 << 0x10 | tu1 << 8 | tu1;
-    *(u_short *)(prev_pkt_2 + 8) = 0x139;
-    *(u_short *)(prev_pkt_2 + 0x18) = 0x139;
-    *(u_short *)(prev_pkt_2 + 0x1a) = 0xe8;
-    *(u_short *)(prev_pkt_2 + 0x22) = 0xe8;
-    prev_pkt_2[0xc] = 0x10;
-    prev_pkt_2[0xd] = swapShapesReady;
-    prev_pkt_2[0x15] = swapShapesReady;
-    prev_pkt_2[0x1c] = 0x10;
-    prev_pkt_2[0x1d] = videoFinished;
-    prev_pkt_2[0x25] = videoFinished;
-    prev_pkt_2[7] = 0x2e;
-    tpage2 = GetTPage(2,1,0x240,0);
-    *(short *)(prev_pkt_2 + 0x16) = tpage2;
-    *(u_short *)(prev_pkt_2 + 0xe) = 0;
+    short shapeX;
+
+    shapeX = 0x200;
+    prim = (POLY_FT4 *)Render_gPacketPtr;
+    ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
+    Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
+    ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
+                          this->fBrightness << 8 | this->fBrightness;
+    ((tTrackSelectPrimTag *)prim)->len = 9;
+    prim->code = 0x2e;
+    prim->x0 = 0x99;
+    prim->y0 = 0x69;
+    prim->x1 = 0x139;
+    prim->y1 = 0x69;
+    prim->x2 = 0x99;
+    prim->y2 = 0xe8;
+    prim->x3 = 0x139;
+    prim->y3 = 0xe8;
+    prim->u0 = shapeX & 0x3f;
+    prim->v0 = shapeY;
+    prim->u1 = (shapeX & 0x3f) + 0x50;
+    prim->v1 = shapeY;
+    prim->u2 = shapeX & 0x3f;
+    prim->v2 = shapeY | 0x7f;
+    prim->u3 = (shapeX & 0x3f) + 0x50;
+    prim->v3 = shapeY | 0x7f;
+    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,0);
+    prim->clut = 0;
+
+    shapeX += 0x50;
+    prim = (POLY_FT4 *)Render_gPacketPtr;
+    ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
+    Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
+    ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
+                          this->fBrightness << 8 | this->fBrightness;
+    ((tTrackSelectPrimTag *)prim)->len = 9;
+    prim->code = 0x2e;
+    prim->x0 = 0x139;
+    prim->y0 = 0x69;
+    prim->x1 = 0x1d9;
+    prim->y1 = 0x69;
+    prim->x2 = 0x139;
+    prim->y2 = 0xe8;
+    prim->x3 = 0x1d9;
+    prim->y3 = 0xe8;
+    prim->u0 = shapeX & 0x3f;
+    prim->v0 = shapeY;
+    prim->u1 = (shapeX & 0x3f) + 0x50;
+    prim->v1 = shapeY;
+    prim->u2 = shapeX & 0x3f;
+    prim->v2 = shapeY | 0x7f;
+    prim->u3 = (shapeX & 0x3f) + 0x50;
+    prim->v3 = shapeY | 0x7f;
+    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,0);
+    prim->clut = 0;
   }
   this->DrawVideoWall();
   return;

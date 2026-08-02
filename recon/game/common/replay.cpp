@@ -301,7 +301,8 @@ void Replay_SaveInput(int car)
 
 {
   Input_Fetch(car);
-  controlData[car].steering[Replay_ReplayCounter[car]] =
+  controlData[car].steering[
+      *(int *)((char *)Replay_ReplayCounter + (car << 2))] =
       (char)((int)(signed char)Input_gSim.steering / 4) + '@';
   controlData[car].gas[Replay_ReplayCounter[car]] = Input_gSim.gas >> 3;
   controlData[car].brake[Replay_ReplayCounter[car]] = Input_gSim.brake >> 3;

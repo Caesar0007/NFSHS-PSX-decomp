@@ -98,6 +98,7 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
 
 {
   short track;
+  int newBestLap;
   tCarInfo *carInfo;
   tRecordBuffer *TrackRecords;
   char *playerName;
@@ -126,7 +127,10 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
     memcpy_call(TrackRecords,&DummyRaceResult,0x14);
     track = Front_GetTrackRaced();
     blockmove(TrackRecords,Stats_gTrackRecords + track * 0x11,0x154);
-    NewBestLap = 1;
+    /* MATCH: materialize the value before forming the global lvalue. GCC 2.8.1 then gives
+       the shorter-lived NewBestLap address $v0 and this value $v1, matching retail. */
+    newBestLap = 1;
+    NewBestLap = newBestLap;
     purgememadr(TrackRecords);
   }
   return;

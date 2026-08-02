@@ -866,14 +866,12 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
         if (carObj->direction != carObj->desiredDirection) {
           return;
         }
-        t = carObj->desiredSpeed;
-        if (!(t < newSpeed)) t = newSpeed;
-        carObj->currentSpeed = t;
-        /* NEAR-MISS 5 diffs 213/214 (w11-a8, was 231): oracle loads desiredSpeed into
-           v0 then copies to t=v1 (uncoalesced); ours coalesces the load into t. Tried
-           two-local init, ternary, both-assign if/else, fn-scope t - all coalesce or
-           regress. 1-insn copy class. Correctness fixed: brakeLevel +=elapsed*4
-           saturate & -=elapsed release were MISSING in the old recon (Ghidra fold). */
+        carObj->currentSpeed =
+            (carObj->currentSpeed > carObj->desiredSpeed) ?
+            carObj->desiredSpeed : carObj->currentSpeed;
+        /* MATCH: the original MIN-style field expression matters here.  Re-reading
+           currentSpeed after its store lets GCC forward newSpeed in a1 while loading
+           desiredSpeed through v0 and copying the selected value to v1, as retail. */
       }
     }
     else {

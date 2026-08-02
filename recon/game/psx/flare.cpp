@@ -266,7 +266,19 @@ void Flare_OctFlareSpikes(long *center,int otz)
 
   /* MATCH: SYM locals = flare_dvxy[13], i(t3), rgb1(s2)/rgb2(s1) pre-loop caches,
    * cent(t8), id0(a3)/id1(t1)/id2(a2) in-place reused across both prims;
-   * SpikePt0/1/2[i] -> givs, OctPt1/2[i] stay indexed (giv budget). */
+   * SpikePt0/1/2[i] -> givs, OctPt1/2[i] stay indexed (giv budget).
+   * ---- w45-a9 SEAL 4 -> PASS 225/225: the LICM PREHEADER ORDER IS THE SOURCE
+   * STATEMENT ORDER of the OT-link block (loop.c hoists movables in RTL-generation
+   * order).  Retail's preheader = pktaddr(t2) | palette-addr(s0) | otz*4(t9) |
+   * 0xFFFFFF(t0) | 0xFF000000(t7).  Two edits, each moving ONE movable's birth:
+   *   (1) `pal = Render_gPalettePtr;` as its OWN statement before `slot = otz*4 + pal`
+   *       (the one-expression form generated `sll` BEFORE the `lui 0x1F80`);
+   *   (2) `addr24_0 = prim & 0xffffff;` moved AFTER the slot statement (it was the
+   *       w41 addr24-EARLY spelling, which put 0xFFFFFF ahead of the palette base).
+   * addr24 still precedes the first RMW, so 0xFFFFFF is still born before 0xFF000000
+   * (the w41 lever's actual requirement).  GENERAL RULE for this family: order the
+   * OT-link statements = order you want the preheader constants; addr24 goes between
+   * the slot computation and the first RMW, not at the top of the block. */
 gte_ldv0(&Flare_gSpikes);
 
   gte_rtps();
@@ -353,9 +365,11 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       u_int *slot;
       u_int pkt24;
       u_int addr24_0;
+      u_char *pal;
       prim = Render_gPacketPtr;
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
       addr24_0 = (u_int)prim & 0xffffff;
-      slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = prim + 0x24;

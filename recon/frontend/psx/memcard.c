@@ -1143,25 +1143,27 @@ short ascii2sjis(u_char ascii_code)
   /* MATCH: stmp2!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
    * ascii_table arm; the inverted (stmp2==0 first) shape emits bnez. */
   if (stmp2 != 0) {
-    /* MATCH: the +0x1f must be its own in-place mutation of the widened stmp2 -
-     * inline, gcc reassociates it to (ascii_code-0x1f)-stmp2. */
+    /* MATCH (block-15 local_alloc, -dl/-dg receipts): TWO ingredients, both needed.
+     * (a) the table base is materialized into its own pointer local BEFORE the
+     *     +0x1f computation.  local-alloc's qty_compare_1 sorts LONGER-LIVED first
+     *     and breaks ties by qty number (later-born wins); born first, pk's qty is
+     *     strictly longer, so it sorts ahead and takes the lower hard reg $v0,
+     *     leaving $v1 for the index chain = the oracle.  Materializing it AFTER the
+     *     +0x1f (or `ascii_k_table[...]` directly) ties the two qtys, the later-born
+     *     chain wins, and the whole 7-insn block comes out $v0<->$v1 swapped (14).
+     * (b) the load is an ARRAY INDEX off pk, so the addu gets a FRESH dest that
+     *     local-alloc's combine_regs unifies with the DYING index chain
+     *     (addu $v1,$v1,$v0; lhu $v1,0($v1) - dest reuses the address reg).
+     *     A pointer MUTATION `pk = pk + idx` makes pk itself the addu dest
+     *     (insn 152 `(set (reg/v 86) (plus (reg 114) ...))`) -> addu $v0,$v1,$v0
+     *     and lhu $v1,0($v0) instead (4 diffs).
+     * Falsified on the way: &-taken element, idx*2 + (int)base int-casts, compound
+     * +=, byte-base (char*) cast, index into sjis_code itself, hoisted idx local,
+     * volatile deref - each either stays at 4/14 or costs a 73rd insn. */
+    pk = ascii_k_table;
     base = stmp2;
     base = base + 0x1f;
-    /* MATCH: the table base is materialized into its OWN pointer local and then
-     * ADVANCED, not indexed - `ascii_k_table[idx]` (or a &-taken element, or an
-     * idx*2 + (int)base int-cast) costs a 73rd insn or a wider recolor.
-     * RESIDUAL (4 diffs, count exact): a pure $v0<->$v1 tie between this pointer
-     * and the scaled-index chain.  Retail accumulates the base INTO the index reg
-     * and reuses it as the lhu dest (addu $v1,$v1,$v0 / lhu $v1,0($v1)); ours
-     * mutates the pointer in place (addu $v0,$v1,$v0 / lhu $v1,0($v0)).  Both
-     * pseudos are block-local so local_alloc decides: the index chain has ~7 refs
-     * over 4 insns vs the pointer's 3 over 6, so ours picks first and takes the
-     * lower reg.  13 spellings measured (array index, &element, int-cast address,
-     * compound +=, index-into-sjis_code, hoisted index, byte-base cast, volatile):
-     * every one either stays at 4 or costs an insn. */
-    pk = ascii_k_table;
-    pk = pk + ((uint)ascii_code - base);
-    sjis_code = *pk;
+    sjis_code = pk[(uint)ascii_code - base];
   }
   else {
     sjis_code = (ascii_table[stmp][0] + ascii_code) - ascii_table[stmp][1];

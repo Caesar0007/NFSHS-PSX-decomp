@@ -10,6 +10,7 @@ extern tTournamentManager tournamentManager;
 extern tScreenTrophyRoom *screenTrophyRoom;
 extern int                kRGBVals[28];
 extern char               textDefinitions[14][6];
+extern int                ticks;
 
 /* --- data owned by ScreenTrophyInfo.obj (EXT linkage) --- */
 int  kBannerColors[4] = { 0x003c410a, 0x00003e44, 0x00212121, 0x00003044 };  /* EXT @0x80052078 */

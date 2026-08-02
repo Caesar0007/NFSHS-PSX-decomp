@@ -21,51 +21,40 @@ extern int A_ticks[] __asm__("ticks");
 void tScreenPinkSlips::DrawBackground()
 
 {
-  bool bVar1;
-  short index;
-  ushort uVar2;
-  uint uVar3;
-  int iVar4;
-  uint uVar5;
-  int j;
-  int flare_intensity;
-  tMenuTextState textState;
-  short i;
-  short tv;
-  int iVar8;
   RECT r;
+  short i;
+  short j;
+  short tv;
+  tMenuTextState textState;
   tTrackInformation trackInfo;
-  char moviename [80];
   short shapeY;
-  
+
   i = 0;
   r.x = 0x15b;
   r.y = 0x8f;
   r.w = 0x90;
   r.h = 0xe;
-  while( true ) {
-    iVar4 = (int)i;
+  while (i < (short)(byte)frontEnd.pinkSlipsNumTracks) {
+    int flare_intensity = (int)(short)this->fMenu->fCurrentItem;
+    BOOL selected = false;
+
     textState = textState_Selected;
-    if ((int)(uint)(byte)frontEnd.pinkSlipsNumTracks <= iVar4) break;
-    flare_intensity = (int)(short)this->fMenu->fCurrentItem;
-    bVar1 = false;
-    if ((iVar4 == flare_intensity + -1) || ((iVar4 == 0 && (flare_intensity == 0)))) {
-      bVar1 = true;
+    if ((i == flare_intensity - 1) || ((i == 0) && (flare_intensity == 0))) {
+      selected = true;
     }
-    if (bVar1) {
+    if (selected) {
       flareextra_248 = flareextra_248 + 1;
       if (0x3c < flareextra_248) {
         flareextra_248 = 0;
       }
-      uVar3 = (uint)flareextra_248 >> 0x1f;
-      uVar5 = flareextra_248;
-      if (0x1e < flareextra_248) {
-        uVar3 = 0x3c - flareextra_248;
-        uVar5 = uVar3 >> 0x1f;
+      flare_intensity = flareextra_248;
+      if (0x1e < flare_intensity) {
+        flare_intensity = 0x3c - flare_intensity;
       }
-      iVar4 = (((int)(uVar5 + uVar3) >> 1) + 0x14) * (0x80 - this->fScreenFadeVal);
-      if (0 < iVar4) {
-        Flare_2DHalo(r.x + -0xf,r.y + 6,iVar4 / 2,(iVar4 * 2) / 3,0x17);
+      flare_intensity = (flare_intensity / 2 + 0x14) * (0x80 - this->fScreenFadeVal);
+      if (0 < flare_intensity) {
+        Flare_2DHalo(r.x + -0xf,r.y + 6,flare_intensity / 2,
+                    (flare_intensity * 2) / 3,0x17);
         DrawShapeExtended(0x38,0,r.x + -0x12,r.y,
                    (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
       }
@@ -73,89 +62,89 @@ void tScreenPinkSlips::DrawBackground()
     }
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
     frontEnd.pinkSlipsTrackIndex = (char)i;
-    index = TextValue(&menuDefs->iteratorTrack,kPlayerBoth);
-    FETextRender_MenuTextPositionedJustify(index,r.x + 10,r.y + 3,0,textState,textType_FlybyHelp);
+    FETextRender_MenuTextPositionedJustify(
+        TextValue(&menuDefs->iteratorTrack,kPlayerBoth),r.x + 10,r.y + 3,0,
+        textState,textType_FlybyHelp);
     DrawShape_NFS4RoundRectangle(-1,&r,1);
     i = i + 1;
     r.y = r.y + 0xe;
   }
-  uVar2 = (ushort)this->fMenu->fCurrentItem;
-  frontEnd.pinkSlipsTrackIndex = (char)uVar2;
-  if ((uVar2 & 0xff) != 0) {
-    frontEnd.pinkSlipsTrackIndex = frontEnd.pinkSlipsTrackIndex + -1;
+  {
+    u_short currentItem = (u_short)this->fMenu->fCurrentItem;
+
+    frontEnd.pinkSlipsTrackIndex = (char)currentItem;
+    if ((currentItem & 0xff) != 0) {
+      frontEnd.pinkSlipsTrackIndex = (char)(currentItem - 1);
+    }
   }
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              &trackInfo);
   this->UpdateVideoWall(trackInfo);
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  if ((this->fSwapShapes.fFile != (char *)0x0) && (-1 < this->fTransitionDirection)) {
+  if ((this->fSwapShapes.fFile != (char *)0x0) &&
+      (-1 < *(signed char *)&this->fTransitionDirection)) {
     ::UploadSwapShapes((tScreen *)this,4);
     this->fTransitionDirection = '\x01';
     this->fTVTicks = ticks;
   }
   this->DrawVideoWall();
-  bVar1 = (this->fFrame & 1U) == 0;
-  shapeY = (ushort)bVar1 << 7;
-  iVar4 = VIDEO_state(this->hVideo);
-  if (iVar4 == 0) {
-    if (0x100 < ticks - this->fTVTicks) {
-      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
-      VIDEO_spoolfile(this->hVideo,moviename);
-      VIDEO_startplayback(this->hVideo);
-    }
-  }
-  else {
-    iVar4 = VIDEO_updateframexy(this->hVideo,0x200,(uint)bVar1 << 7);
+  shapeY = (ushort)((this->fFrame & 1U) == 0) << 7;
+  if (VIDEO_state(this->hVideo) != 0) {
+    i = VIDEO_updateframexy(this->hVideo,0x200,shapeY);
     tv = 0;
-    if (iVar4 != 0) {
-      uVar5 = this->fFrame + 1;
-      shapeY = (ushort)((uVar5 & 1) == 0) << 7;
-      this->fFrame = uVar5;
+    if (i != 0) {
+      this->fFrame = this->fFrame + 1;
+      shapeY = (ushort)((this->fFrame & 1U) == 0) << 7;
     }
-    iVar4 = 0;
+    i = 0;
     do {
       j = 0;
-      iVar8 = (short)iVar4 * 0x40;
       do {
         this->fTrackTVs[tv].x = (short)j * 0x50 + 0xa0;
-        this->fTrackTVs[tv].y = (short)iVar8 + 0x19;
+        this->fTrackTVs[tv].y = i * 0x40 + 0x19;
         this->fTrackTVs[tv].w = 0x50;
         this->fTrackTVs[tv].h = 0x40;
         this->fTrackTVs[tv].u = (char)j * '(';
-        this->fTrackTVs[tv].v = (char)iVar8 + (char)shapeY;
+        this->fTrackTVs[tv].v = (char)(i * 0x40) + (char)shapeY;
         this->fTrackTVs[tv].uw = '(';
         this->fTrackTVs[tv].vh = '@';
-        if ((short)iVar4 == 1) {
+        if (i == 1) {
           this->fTrackTVs[tv].vh = '?';
         }
-        uVar2 = GetTPage(2,0,0x200,(int)shapeY);
+        this->fTrackTVs[tv].tpage = GetTPage(2,0,0x200,(int)shapeY);
         j = j + 1;
-        this->fTrackTVs[tv].tpage = uVar2;
         this->fTrackTVs[tv].clut = 0;
         this->fTrackTVs[tv].flags = 0x20;
         this->fTrackTVs[tv].tint = 0x808080;
         this->fTrackTVs[tv].state = tv_StateOn;
         tv = tv + 1;
-      } while (j * 0x10000 >> 0x10 < 4);
-      iVar4 = iVar4 + 1;
-    } while (iVar4 * 0x10000 >> 0x10 < 2);
+      } while (j < 4);
+      i = i + 1;
+    } while (i < 2);
   }
-  iVar4 = 0xf0;
+  else if (0x100 < ticks - this->fTVTicks) {
+    char moviename [80];
+
+    sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
+    VIDEO_spoolfile(this->hVideo,moviename);
+    VIDEO_startplayback(this->hVideo);
+  }
+  i = 0xf0;
   do {
-    PSXDrawTransSquare(0x303030,iVar4,0xf,2,0x81,1);
-    iVar4 = iVar4 + 0x50;
-  } while (iVar4 * 0x10000 >> 0x10 < 0x1e0);
-  iVar4 = 0x4f;
+    PSXDrawTransSquare(0x303030,i,0xf,2,0x81,1);
+    i = i + 0x50;
+  } while (i < 0x1e0);
+  i = 0x4f;
   do {
-    PSXDrawTransSquare(0x202020,0xa0,iVar4,0x141,1,1);
-    iVar4 = iVar4 + 0x40;
-  } while (iVar4 * 0x10000 >> 0x10 < 0x8f);
+    PSXDrawTransSquare(0x202020,0xa0,i,0x141,1,1);
+    i = i + 0x40;
+  } while (i < 0x8f);
   FeDraw_SetABRMode(2);
-  iVar4 = 0;
+  i = 0;
   do {
-    DrawTV(this->fTrackTVs + (short)iVar4);
-    iVar4 = iVar4 + 1;
-  } while (iVar4 * 0x10000 >> 0x10 < 8);
+    DrawTV(this->fTrackTVs + i);
+    i = i + 1;
+  } while (i < 8);
   return;
 }
 

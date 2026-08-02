@@ -907,7 +907,28 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * ytop computation deferred to 4 different later statement positions, a named local for the
    * second `src+0xc` read, and 5 positions for the font_tint store (the between-prim[3]-and-
    * prim[7] slot below is the best of those, 72->68).  gcc folds `(A+5)-B` to `A-(B-5)` through
-   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along. */
+   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along.
+   * ---- w44-a2 residual 64 (count still EXACT 82/82) ----
+   * STATEMENT POSITION is the live lever here, not expression shape: a greedy per-statement
+   * position hill-climb (scratch/font_climb_a2.py -- every movable statement x every slot)
+   * took 68 -> 66 (font_tint store moved BELOW the gFontClut store) -> 64 (`width = ch->width;`
+   * hoisted to the very top, ahead of `prim = Render_gPacketPtr;`), then plateaued over all 14
+   * movable statements.  ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
+   * bitfield addPrim spellings that cracked BOTH PSXDrawTrans*Square (72 / 132), dropping the
+   * `prevPrim` local for inline Render_gPalettePtr (79), the cursor bump hoisted to 4 earlier
+   * slots (80 / 124), `dv` deferred past the link block (78 insns -- cse then MERGES the two
+   * src+0xc loads the oracle keeps SEPARATE, so dv must stay early), ytop via embedded
+   * MODIFY_EXPR / two statements / in-place mutation / a named `five` (80-88), inlining the
+   * yoff+ybase+hoff+ytop temps per the SYM local list (68-109), and the permuter's own
+   * score-755 candidate (gates 89 -- scorer/gate disagreement, cf. tools/PERMUTER.md).
+   * MECHANISM: this is NOT a register rotation -- an a1<->t8 permblind swap only takes 68->62
+   * and posdiff's alpha-renamed LCS is 15/82, so most of the residual is EMISSION ORDER inside
+   * the single block: retail issues the packet-cursor store + the first OT-link RMW BEFORE the
+   * dv chain and hoists `and t3,t1,t3` (linkAddr) + `lui %hi(font_tint)` ABOVE the first `sw`,
+   * while ours runs the dv chain first and emits both after it.  Ours also runs ONE HARD
+   * REGISTER SHORT (15 vs 16 first-use registers): retail keeps ybase/ytop in a fresh $t8 and
+   * (ybase+5) in $v1, ours folds the +5 into hoff and mutates the dying `y` REGPARM in place,
+   * which frees $a1 so the 2nd src+0xc read self-temps into $a2 instead of retail's $a1. */
   u_char  *prim;
   u_char  *prevPrim;
   int      linkAddr;

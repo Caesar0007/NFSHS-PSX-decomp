@@ -30,105 +30,52 @@ void FEInput_VerifyControllerValues(int controller)
 int FEInput_GetNoDebounceKey(int key,int controller)
 
 {
-  u_char uVar1;
-  bool bVar2;
-  u_int uVar3;
   char *analogs;
-  
+
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {
     return 0;
   }
   FEInput_VerifyControllerValues(controller);
-  uVar1 = gPadinfo.buf[controller * 4].ID;
-  if ((uVar1 == 's') || (uVar1 == 'S')) {
-    if (key == 0x400000) {
-      bVar2 = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0xc1;
-      goto FEInpNoDeb_negconButtonII;
+  analogs = (char *)&gPadinfo.buf[controller * 4].data.negcon.twist;
+  if ((gPadinfo.buf[controller * 4].ID == 's') ||
+      (gPadinfo.buf[controller * 4].ID == 'S')) {
+    switch (key) {
+    case 0x800000:
+      return (u_char)analogs[0] < 0x40;
+    case 0x200000:
+      return (u_char)analogs[0] >= 0xc1;
+    case 0x100000:
+      return (u_char)analogs[1] < 0x40;
+    case 0x400000:
+      return (u_char)analogs[1] >= 0xc1;
+    case (int)0x80000000:
+      return (u_char)analogs[2] < 0x40;
+    case 0x20000000:
+      return (u_char)analogs[2] >= 0xc1;
+    case 0x10000000:
+      return (u_char)analogs[3] < 0x40;
+    case 0x40000000:
+      return (u_char)analogs[3] >= 0xc1;
+    default:
+      return ((~(u_int)gPadinfo.buf[controller * 4].data.standard.state) & key) != 0;
     }
-    if (key < 0x400001) {
-      if (key == 0x100000) {
-        bVar2 = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x40;
-FEInpNoDeb_negconButtonI:
-        if (!bVar2) {
-          return 0;
-        }
-        return 1;
-      }
-      if (key < 0x100001) {
-        if (key == (int)0x80000000) {
-          bVar2 = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x40;
-          goto FEInpNoDeb_negconButtonI;
-        }
-      }
-      else if (key == 0x200000) {
-        bVar2 = gPadinfo.buf[controller * 4].data.negcon.twist < 0xc1;
-        goto FEInpNoDeb_negconButtonII;
-      }
-    }
-    else {
-      if (key == 0x10000000) {
-        bVar2 = gPadinfo.buf[controller * 4].data.negcon.leftshift < 0x40;
-        goto FEInpNoDeb_negconButtonI;
-      }
-      if (key < 0x10000001) {
-        if (key == 0x800000) {
-          bVar2 = gPadinfo.buf[controller * 4].data.negcon.twist < 0x40;
-          goto FEInpNoDeb_negconButtonI;
-        }
-      }
-      else {
-        if (key == 0x20000000) {
-          bVar2 = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0xc1;
-FEInpNoDeb_negconButtonII:
-          if (!bVar2) {
-            return 1;
-          }
-          return 0;
-        }
-        if (key == 0x40000000) {
-          bVar2 = gPadinfo.buf[controller * 4].data.negcon.leftshift < 0xc1;
-          goto FEInpNoDeb_negconButtonII;
-        }
-      }
-    }
-    uVar3 = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state;
   }
-  else {
-    if (uVar1 != '#') {
-      uVar3 = PAD_state(controller << 2);
-      if ((uVar3 & 0xffff & key) != 0) {
-        return 1;
-      }
-      return 0;
+  if (gPadinfo.buf[controller * 4].ID == '#') {
+    switch (key) {
+    case 0x8000:
+      return gPadinfo.buf[controller * 4].data.negcon.buttonII >= 0x41;
+    case 0x4000:
+      return gPadinfo.buf[controller * 4].data.negcon.buttonI >= 0x41;
+    case 0x200000:
+      return gPadinfo.buf[controller * 4].data.negcon.twist >= 0xa1;
+    case 0x800000:
+      return gPadinfo.buf[controller * 4].data.negcon.twist < 0x62;
+    default:
+      return (((u_int)PAD_state(controller << 2) & 0xffff) & key) != 0;
     }
-    if (key == 0x8000) {
-      bVar2 = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41;
-      goto FEInpNoDeb_negconButtonII;
-    }
-    if (key < 0x8001) {
-      if (key == 0x4000) {
-        bVar2 = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41;
-        goto FEInpNoDeb_negconButtonII;
-      }
-    }
-    else {
-      if (key == 0x200000) {
-        bVar2 = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1;
-        goto FEInpNoDeb_negconButtonII;
-      }
-      if (key == 0x800000) {
-        bVar2 = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62;
-        goto FEInpNoDeb_negconButtonI;
-      }
-    }
-    uVar3 = PAD_state(controller << 2);
-    uVar3 = uVar3 & 0xffff;
   }
-  if ((uVar3 & key) != 0) {
-    return 1;
-  }
-  return 0;
+  return (((u_int)PAD_state(controller << 2) & 0xffff) & key) != 0;
 }
 
 

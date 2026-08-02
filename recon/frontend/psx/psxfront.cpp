@@ -624,24 +624,33 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   *(short *)(prim + 0x2c) = xm1;
   *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
   *(short *)(prim + 0x20) = x;
-  u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
-  v = (byte)shp->shapey;
-  if ((flags & 4U) != 0) {
-    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
+  {
+    /* w44-a1 MATCH: retail BATCHES the two byte field reads (`lbu a2,0x10(s4)` = width,
+       `lbu a0,0x12(s4)` = height) ahead of the u/v flip guards so `vh = v + height` can be an
+       IN-PLACE mutation of v's register right after the two v stores (`addu v0,v0,a0`).  Reading
+       the fields at their use sites sinks the height load past the u/uw stores and re-orders the
+       whole sb run (36/48/37/49 instead of retail's 36/37/48/49). */
+    int sw = (byte)shp->width;
+    int sh_ = (byte)shp->height;
+    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
+    v = (byte)shp->shapey;
+    if ((flags & 4U) != 0) {
+      u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
+    }
+    uw = u + sw;
+    if ((flags & 2U) != 0) {
+      v = (byte)shp->shapey - 1;
+    }
+    prim[0xd] = v;
+    prim[0x19] = v;
+    vh = v + sh_;
+    prim[0xc] = u;
+    prim[0x18] = uw;
+    prim[0x24] = u;
+    prim[0x25] = vh;
+    prim[0x30] = uw;
+    prim[0x31] = vh;
   }
-  uw = u + (byte)shp->width;
-  if ((flags & 2U) != 0) {
-    v = (byte)shp->shapey - 1;
-  }
-  prim[0xd] = v;
-  prim[0x19] = v;
-  vh = v + (byte)shp->height;
-  prim[0xc] = u;
-  prim[0x18] = uw;
-  prim[0x24] = u;
-  prim[0x25] = vh;
-  prim[0x30] = uw;
-  prim[0x31] = vh;
   return;
 }
 

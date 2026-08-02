@@ -1318,8 +1318,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     R3DCar_MATRIX3DT_Copy((carObj->N).orientMat.m,insideMat.m);
     if (rightHandDrive != 0) {
       insideMat.m[0] = -insideMat.m[0];
-      insideMat.m[2] = -insideMat.m[2];
       insideMat.m[1] = -insideMat.m[1];
+      insideMat.m[2] = -insideMat.m[2];
     }
     /* MATCH: stripped depth raises roll's GCC flow priority without runtime code. */
     do {
@@ -1374,7 +1374,8 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       if (spin < 0) {
         spin = -spin;
       }
-      for (; rear < 2; rear = rear + 1) {
+      while (1) {
+        if (rear >= 2) break;
         if (replayMode != 2) {
           vel = (carObj->linearVel_ch).z >> 6;
         }
@@ -1409,6 +1410,7 @@ R_ICFt_wheelspinRpmCalc:
         }
         /* MATCH: index form -- oracle walker a2 is the strength-reduced giv of wheelRot[rear] */
         (carObj->N).wheelRot[rear] = (carObj->N).wheelRot[rear] + vel & 0xffff;
+        rear = rear + 1;
       }
     }
   }
@@ -1589,7 +1591,7 @@ R_ICFt_postVisibility:
     }
   }
   else {
-    for (; i < 0x39; i = i + 1) {
+    for (i = 0; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
       u_int uVar8;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
@@ -1632,8 +1634,6 @@ R_ICFt_loop2Post:
   coorddef tmp;        /* SYM blk 428 @ff40 */
   for (i = 0; i < 0x39; i = i + 1) {
     int suspensionOffset;   /* SYM blk 428 REG a0 */
-    matrixtdef *pmVar12;    /* sibling redecl -- fresh pseudos per region */
-    matrixtdef *pmVar13;
     obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[i];
     if ((obj->numFacet == 0) || (R3DCar_ObjectVisible[i] == '\0'))
     goto R_ICFt_matrixCopyDone;
@@ -1664,34 +1664,36 @@ R_ICFt_loop2Post:
     tmp.z = (obj->translation).z - parent.z;
     if (i < 0x2f) {
       if ((carType < 0x1c) && (0x22 < i) && (i < 0x29)) {
-        pmVar13 = &insideMat;
+        transform(&tmp.x,insideMat.m,&translation.x);
       }
       else {
-        pmVar13 = &bodyMat;
+        transform(&tmp.x,bodyMat.m,&translation.x);
       }
     }
     else {
-      pmVar13 = &(carObj->N).orientMat;
+      transform(&tmp.x,(carObj->N).orientMat.m,&translation.x);
     }
-    transform(&tmp.x,pmVar13->m,&translation.x);
     tmp.x = ((carObj->N).position.x + translation.x) - *(int *)((int)Vi + 8);
     tmp.y = ((carObj->N).position.y + translation.y) - *(int *)((int)Vi + 0xc);
     tmp.z = ((carObj->N).position.z + translation.z) - *(int *)((int)Vi + 0x10);
     transform(&tmp.x,((matrixtdef *)((int)Vi + 0x44))->m,
               (int *)((int)R3DCar_position + i * 0xc));
     if (carType == 0x1c) {
-      if (i == 0x1f) {
+      switch (i) {
+      case 0x1f:
         fixedxformy(&tmpMat,(carObj->N).wheelRot[0]);
         Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
         Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
                            (matrixtdef *)((int)R3DCar_orientMat + 0x45c));
-      }
-      else {
-        if (i != 0x23) goto switchD_800b0a34_caseD_29;
+        break;
+      case 0x23:
         fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
         Math_fasttransmult(&tmpMat,&bodyMat,&tmpMat);
         Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
                            (matrixtdef *)((int)R3DCar_orientMat + 0x4ec));
+        break;
+      default:
+        goto switchD_800b0a34_caseD_29;
       }
       goto R_ICFt_matrixCopyDone;
     }
@@ -1701,33 +1703,43 @@ R_ICFt_loop2Post:
     case 0x2f:
       fixedxformx(&tmpMat,(carObj->N).wheelRot[0]);
       Math_fasttransmult(&tmpMat,&steerMat,&tmpMat);
-      pmVar13 = &(carObj->N).orientMat;
-      goto R_ICFt_matrixSetJoin;
+      Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
+      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x30:
     case 0x31:
     case 0x32:
     case 0x33:
     case 0x34:
-      pmVar13 = (matrixtdef *)((int)R3DCar_orientMat + 0x69c);
-      break;
+      R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x69c))->m,
+                            (int *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x35:
       fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
-      pmVar13 = &(carObj->N).orientMat;
-      goto R_ICFt_matrixSetJoin;
+      Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
+      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x36:
-      pmVar13 = (matrixtdef *)((int)R3DCar_orientMat + 0x774);
-      break;
+      R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x774))->m,
+                            (int *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x37:
       fixedxformx(&tmpMat,(carObj->N).wheelRot[1]);
-      pmVar13 = &(carObj->N).orientMat;
-      goto R_ICFt_matrixSetJoin;
+      Math_fasttransmult(&tmpMat,&(carObj->N).orientMat,&tmpMat);
+      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x38:
-      pmVar13 = (matrixtdef *)((int)R3DCar_orientMat + 0x7bc);
-      break;
+      R3DCar_MATRIX3DT_Copy(((matrixtdef *)((int)R3DCar_orientMat + 0x7bc))->m,
+                            (int *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x23:
     case 0x24:
-      pmVar13 = &orientIMat;
-      break;
+      R3DCar_MATRIX3DT_Copy(orientIMat.m,
+                            (int *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     case 0x25: {
       int steeringAngle;      /* SYM blk 546 REG v0 */
       steeringAngle = (carObj->control).steering;
@@ -1735,7 +1747,10 @@ R_ICFt_loop2Post:
         steeringAngle = -steeringAngle;
       }
       fixedxformz(&tmpMat,steeringAngle * -0x38);
-      goto R_ICFt_setInsideMat;
+      Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
+      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     }
     case 0x26: {
       matrixtdef matR;         /* SYM blk 558 @ff60 -- block-scoped to THIS case only (sibling
@@ -1749,10 +1764,12 @@ R_ICFt_loop2Post:
         roll = -roll;
       }
       fixedxformz(&matR,roll);
-      pmVar12 = &matP;
-      fixedxformx(pmVar12,pitch);
-      pmVar13 = &matR;
-      goto R_ICFt_matrixPrepY;
+      fixedxformx(&matP,pitch);
+      Math_fasttransmult(&matR,&matP,&tmpMat);
+      Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
+      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     }
     case 0x27:
     case 0x28: {
@@ -1773,24 +1790,18 @@ R_ICFt_loop2Post:
         steeringAngle = -steeringAngle;
       }
       fixedxformy(&matY,steeringAngle * (maxAngleFactor >> 1));
-      pmVar13 = &matX;
-      pmVar12 = &matY;
-    }
-R_ICFt_matrixPrepY:
-      Math_fasttransmult(pmVar13,pmVar12,&tmpMat);
-R_ICFt_setInsideMat:
-      pmVar13 = &insideMat;
-R_ICFt_matrixSetJoin:
-      Math_fasttransmult(&tmpMat,pmVar13,&tmpMat);
-      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),(matrixtdef *)((int)R3DCar_orientMat + i * 0x24))
-      ;
+      Math_fasttransmult(&matX,&matY,&tmpMat);
+      Math_fasttransmult(&tmpMat,&insideMat,&tmpMat);
+      Math_fasttransmult(&tmpMat,(matrixtdef *)((int)Vi + 0x44),
+                         (matrixtdef *)((int)R3DCar_orientMat + i * 0x24));
       goto R_ICFt_matrixCopyDone;
+    }
     default:
 switchD_800b0a34_caseD_29:
-      pmVar13 = &orientMat;
-      break;
+      R3DCar_MATRIX3DT_Copy(orientMat.m,
+                            (int *)((int)R3DCar_orientMat + i * 0x24));
+      goto R_ICFt_matrixCopyDone;
     }
-    R3DCar_MATRIX3DT_Copy(pmVar13->m,(int *)((int)R3DCar_orientMat + i * 0x24));
 R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   }

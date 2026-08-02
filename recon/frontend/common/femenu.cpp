@@ -6,6 +6,11 @@
  */
 #include "femenu.h"
 
+typedef struct tFEMenuPrimTag {
+  unsigned int addr : 24;
+  unsigned int len : 8;
+} tFEMenuPrimTag;
+
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 tPlayer      gMenu_SubMenuPlayer[] = { (tPlayer)-1 };   /* @0x800517c0 -- unsized-array form (§3.12 #5) */
 
@@ -842,23 +847,19 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
   short x1;
   short width;
   short factor;
-  short fadeVal;
   int myDarkBlue;
   int Col;
 
-  width = ((value - min) * fWidth) / (max - min);
-  factor = fSelFade == 0;
-  fadeVal = fFadeVal;
+  factor = !fSelFade;
   myDarkBlue = 0xc83c1e;
+  width = ((value - min) * fWidth) / (max - min);
   if (!reverse) {
     x1 = fX;
     while (x1 < fX + fWidth) {
       prim = (POLY_F4 *)Render_gPacketPtr;
-      *(u_int *)prim = (*(u_int *)prim & 0xff000000) |
-                       (*(u_int *)Render_gPalettePtr & 0xffffff);
+      ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
-      *(u_int *)Render_gPalettePtr =
-          (*(u_int *)Render_gPalettePtr & 0xff000000) | ((u_int)prim & 0xffffff);
+      ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
       *(short *)((u_char *)prim + 8) = x1;
       *(short *)((u_char *)prim + 10) = fY;
       *(short *)((u_char *)prim + 12) = x1 + rectwidth;
@@ -869,6 +870,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       *(short *)((u_char *)prim + 22) = fY + fHeight;
       Col = 0;
       if (!shadow) {
+        /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 < fX + width) {
           if (fSelFade) {
             Col = CalcFadeVal(myDarkBlue,
@@ -879,11 +881,11 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
           else {
             Col = myDarkBlue;
           }
+          Col = CalcFadeVal(Col,fFadeVal);
         }
         else {
-          Col = 0x280f00;
+          Col = CalcFadeVal(0x280f00,fFadeVal);
         }
-        Col = CalcFadeVal(Col,fadeVal);
       }
       *(int *)((u_char *)prim + 4) = Col;
       SetPolyF4(prim);
@@ -895,11 +897,9 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
     x1 = fX + fWidth - 1;
     while (fX <= x1) {
       prim = (POLY_F4 *)Render_gPacketPtr;
-      *(u_int *)prim = (*(u_int *)prim & 0xff000000) |
-                       (*(u_int *)Render_gPalettePtr & 0xffffff);
+      ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
-      *(u_int *)Render_gPalettePtr =
-          (*(u_int *)Render_gPalettePtr & 0xff000000) | ((u_int)prim & 0xffffff);
+      ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
       *(short *)((u_char *)prim + 8) = x1;
       *(short *)((u_char *)prim + 10) = fY;
       *(short *)((u_char *)prim + 12) = x1 + rectwidth;
@@ -910,19 +910,22 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       *(short *)((u_char *)prim + 22) = fY + fHeight;
       Col = 0;
       if (!shadow) {
+        /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 < fX + fWidth - width) {
-          Col = 0x280f00;
-        }
-        else if (fSelFade) {
-          Col = CalcFadeVal(myDarkBlue,
-              (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
-              (((((fX + fWidth - x1) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
-              ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
+          Col = CalcFadeVal(0x280f00,fFadeVal);
         }
         else {
-          Col = myDarkBlue;
+          if (fSelFade) {
+            Col = CalcFadeVal(myDarkBlue,
+                (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
+                (((((fX + fWidth - x1) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
+                ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
+          }
+          else {
+            Col = myDarkBlue;
+          }
+          Col = CalcFadeVal(Col,fFadeVal);
         }
-        Col = CalcFadeVal(Col,fadeVal);
       }
       *(int *)((u_char *)prim + 4) = Col;
       SetPolyF4(prim);

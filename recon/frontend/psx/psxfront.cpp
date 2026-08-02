@@ -913,7 +913,11 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * position hill-climb (scratch/font_climb_a2.py -- every movable statement x every slot)
    * took 68 -> 66 (font_tint store moved BELOW the gFontClut store) -> 64 (`width = ch->width;`
    * hoisted to the very top, ahead of `prim = Render_gPacketPtr;`), then plateaued over all 14
-   * movable statements.  ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
+   * movable statements.  Then a10's SPREAD-THE-USES relay took 64 -> 60: move ONE USE (not the
+   * def) toward the top of the block -- `prim[0xc] = u;` hoisted to slot 2.  a10's zero-insn
+   * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
+   * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
+   * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
    * bitfield addPrim spellings that cracked BOTH PSXDrawTrans*Square (72 / 132), dropping the
    * `prevPrim` local for inline Render_gPalettePtr (79), the cursor bump hoisted to 4 earlier
    * slots (80 / 124), `dv` deferred past the link block (78 insns -- cse then MERGES the two
@@ -942,6 +946,7 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
 
   width = ch->width;
   prim = Render_gPacketPtr;
+  prim[0xc] = u;
   prevPrim = Render_gPalettePtr;
   height = ch->height;
   yoff = *(signed char *)&ch->yoffset;
@@ -961,7 +966,6 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   *(u_long *)(prim + 4) = font_tint;
   prim[0xd] = dv;
   prim[0x15] = dv;
-  prim[0xc] = u;
   prim[0x14] = u + width;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;

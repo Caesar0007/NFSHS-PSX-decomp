@@ -2518,34 +2518,37 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
       *(u_char *)((int)sd[1].matB.t + 2) = 5;
     }
-    tmp.x = (Vi->cview).translation.x - ((Camera_gInfo[Vi->player].target)->position).x;
-    tmp.y = (Vi->cview).translation.y - ((Camera_gInfo[Vi->player].target)->position).y;
-    tmp.z = (Vi->cview).translation.z - ((Camera_gInfo[Vi->player].target)->position).z;
+    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; tmp.x = (Vi->cview).translation.x - posX; }
+    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; tmp.y = (Vi->cview).translation.y - posY; }
+    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; tmp.z = (Vi->cview).translation.z - posZ; }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
       *(u_char *)((int)sd[1].matB.t + 2) = *(u_char *)((int)sd[1].matB.t + 2) | 2;
-      tmp.x = (Vi->cview).translation.x - (BW_gCopCarObj->N).position.x;
-      tmp.y = (Vi->cview).translation.y - (BW_gCopCarObj->N).position.y;
-      tmp.z = (Vi->cview).translation.z - (BW_gCopCarObj->N).position.z;
+      { int posX = (BW_gCopCarObj->N).position.x; tmp.x = (Vi->cview).translation.x - posX; }
+      { int posY = (BW_gCopCarObj->N).position.y; tmp.y = (Vi->cview).translation.y - posY; }
+      { int posZ = (BW_gCopCarObj->N).position.z; tmp.z = (Vi->cview).translation.z - posZ; }
       transform(&tmp.x,gCopMat.m,&tmp2.x);
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
     }
-    (sd->matB).t[2] = 0;
-    (sd->matB).t[1] = 0;
-    (sd->matB).t[0] = 0;
-gte_SetTransMatrix((MATRIX *)&(sd->matB));
+    {
+      MATRIX *m = (MATRIX *)&(sd->matB);
+      m->t[2] = 0;
+      m->t[1] = 0;
+      (sd->matB).t[0] = 0;
+gte_SetTransMatrix(m);
+    }
   }
   if (offset == -1) {
     *(int *)&sd[1].head.clipW = Draw_gMidGroundOtz;
-    sd[1].matB.m[0][2] = (short)(pCp->x - (Vi->cview).translation.x >> 0xc);
-    sd[1].matB.m[1][0] = (short)(pCp->y - (Vi->cview).translation.y >> 0xc);
-    sd[1].matB.m[1][1] = (short)(pCp->z - (Vi->cview).translation.z >> 0xc);
+    { int tX = (Vi->cview).translation.x; sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 0xc); }
+    { int tY = (Vi->cview).translation.y; sd[1].matB.m[1][0] = (short)(pCp->y - tY >> 0xc); }
+    { int tZ = (Vi->cview).translation.z; sd[1].matB.m[1][1] = (short)(pCp->z - tZ >> 0xc); }
   }
   else {
-    sd[1].matB.m[0][2] = (short)(pCp->x - (Vi->cview).translation.x >> 10);
-    sd[1].matB.m[1][0] = (short)(pCp->y - (Vi->cview).translation.y >> 10);
-    sd[1].matB.m[1][1] = (short)(pCp->z - (Vi->cview).translation.z >> 10);
+    { int tX = (Vi->cview).translation.x; sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 10); }
+    { int tY = (Vi->cview).translation.y; sd[1].matB.m[1][0] = (short)(pCp->y - tY >> 10); }
+    { int tZ = (Vi->cview).translation.z; sd[1].matB.m[1][1] = (short)(pCp->z - tZ >> 10); }
   }
   *(u_char *)((int)sd[1].matB.t + 3) = 1;
   sd->light = -1;

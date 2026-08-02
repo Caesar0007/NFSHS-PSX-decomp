@@ -1984,38 +1984,36 @@ void DrawW_DoObjectAnimations(void)
 int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 {
-  Group * group;
-  int bVar1;   /* MATCH (w40-a2): the anim type is a SIGNED int in the original -- a u_char
-                  local made cc1plus emit `sltiu $v0,$v1,2` for the dispatch chain where
-                  the oracle has the signed `slti $v0,$v1,0x2` (balance_case_nodes uses
-                  signed compares). The `lbu` field read is unchanged. */
-  Group *pThis;
-  int iVar2;
-  void *pvVar3;
-  int iVar4;
-  short *psVar5;
-  int iVar6;
-  int iVar7;
-  Trk_SimpleInst *objInstance;
-  Trk_AnimateInst *animInst;
-  Trk_ObjectDef *objDef;
-  Trk_ObjectDef *objDef_00;
-  int objectOffset;
-  int iVar8;
-  int objectIndex;
-  int iVar9;
-  int totalCount;
-  int iVar10;
-  int zClipSq;
-  int iVar11;
-  Draw_DCache *sd;
-  matrixtdef matrix;
-  coorddef cp;
-  coorddef pt2;
-  int groupNumElements;
-  int offset;
-  int doFrustumClip;
-  short *visList;
+  /* rule-8 SYM rewrite (w44-a7): SYM 8c block @0x800C78A8 names EVERY local and
+     fixes both the register map and the AUTO SLOT ORDER:
+       Vi REGPARM $0x17=$s7 · gObjInfo REGPARM $5=$a1
+       sd $0x1e=$fp · objInstance $0x10=$s0 · objDef $0x11=$s1 · totalCount $0x15=$s5
+       group $2=$v0 · groupNumElements AUTO -0x40 · offset AUTO -0x3c
+       doFrustumClip AUTO -0x38 · zClipSq $0x16=$s6 · visList AUTO -0x34
+       objectIndex $0x14=$s4 (blk16) · objectOffset $0x12=$s2 + matrix AUTO -0x88 (blk25)
+       cp AUTO -0x60 (blk95) · pt2 AUTO -0x50 (blk114);  fsize 168.
+     The DECLARATION ORDER of the four scalar AUTOs IS the frame layout (reload
+     slots the pseudos in the order the decls are reached, w41): the old order
+     (groupNumElements, visList, offset, doFrustumClip) put gObjInfo->offset at
+     112(sp) and visList at 108(sp) where the oracle has 108/116. */
+  Draw_DCache *sd;                 /* $fp   -- the 0x1F800000 scratchpad cache */
+  Trk_AnimateInst *objInstance;    /* $s0   -- SYM type Trk_SimpleInst* */
+  Trk_ObjectDef *objDef;           /* $s1 */
+  int totalCount;                  /* $s5 */
+  int groupNumElements;            /* AUTO -0x40 -> 104(sp) */
+  int offset;                      /* AUTO -0x3c -> 108(sp) */
+  int doFrustumClip;               /* AUTO -0x38 -> 112(sp) */
+  int zClipSq;                     /* $s6 */
+  short *visList;                  /* AUTO -0x34 -> 116(sp) */
+  int objectIndex;                 /* $s4 (SYM block line 16) */
+  int objectOffset;                /* $s2 (SYM block line 25) */
+  matrixtdef matrix;               /* AUTO -0x88 -> 32(sp) */
+  coorddef cp;                     /* AUTO -0x60 -> 72(sp) */
+  coorddef pt2;                    /* AUTO -0x50 -> 88(sp) */
+  int animType;
+  void *clipRes;
+  int distSq;
+
   
   /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
    * (Draw_DCache*, REG $0x1e == $fp) in the FUNCTION-scope block and the oracle
@@ -2032,18 +2030,18 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
    * rematerialized per use and the whole file rotates.  The lever that would land
    * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
    * declaration move; do not re-try the move on its own. */
-  iVar10 = 0;
-  animInst = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
-  iVar2 = gObjInfo->objInstanceBuf->m_num_elements;
+  totalCount = 0;
+  objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
+  groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
-  if (iVar2 == 0) {
-    iVar10 = 0;
+  if (groupNumElements == 0) {
+    totalCount = 0;
   }
   else {
-    iVar6 = gObjInfo->offset;
-    iVar7 = gObjInfo->doFrustumClip;
-    iVar11 = gObjInfo->zClipSq;
-    psVar5 = gObjInfo->visList;
+    offset = gObjInfo->offset;
+    doFrustumClip = gObjInfo->doFrustumClip;
+    zClipSq = gObjInfo->zClipSq;
+    visList = gObjInfo->visList;
     /* SYM: block-scoped REG local `sd` (Draw_DCache*, $fp) -- the scratchpad cache
        cursor cast ONCE here, not re-cast at every call site (used below at every
        ObjectClipped/DrawObjectSimple/DrawObjectTransform/Flare_Halo2 call). The
@@ -2054,46 +2052,46 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     ((MATRIX *)0x1f800014)->t[1] = 0;
     (sd->matB).t[0] = 0;
 gte_SetTransMatrix((void *)0x1f800014);
-    for (iVar9 = 0; iVar9 < iVar2; iVar9 = iVar9 + 1) {
-      if ((psVar5 == (short *)0x0) || ((((u_short)psVar5[iVar9] >> 0xc ^ 1) & 1) == 0)) {
-        iVar8 = iVar6;
-        if (iVar6 == 0) {
-          iVar8 = (int)goffsets[animInst->zoffset];
+    for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+      if ((visList == (short *)0x0) || ((((u_short)visList[objectIndex] >> 0xc ^ 1) & 1) == 0)) {
+        objectOffset = offset;
+        if (offset == 0) {
+          objectOffset = (int)goffsets[objInstance->zoffset];
         }
-        bVar1 = animInst->type;
+        animType = objInstance->type;
         /* SYM block-scoping (line70/71 vs 95/107/114, all converging on the shared
            loop-tail at line124/132) + the oracle's flat forward-beq compare chain
            (==1 / <2-skip / ==3 / ==7 / skip) with BOTH case bodies pushed OUT OF LINE
            after the chain -- neither a plain if/else-if (inlines case1) nor a switch
            (gcc picks a range-check lowering for {1,3,7}) reproduces this; an explicit
            goto dispatch matches the oracle's actual block layout 1:1. */
-        if (bVar1 == 1) goto animCase1;
-        if (bVar1 < 2) goto animNext;
-        if ((bVar1 == 3) || (bVar1 == 7)) goto animCase37;
+        if (animType == 1) goto animCase1;
+        if (animType < 2) goto animNext;
+        if ((animType == 3) || (animType == 7)) goto animCase37;
         goto animNext;
       animCase1:
-        objDef_00 = Track_gObjDefs[animInst->pad];
-        if (((iVar7 == 0) ||
-            (pvVar3 = ObjectClipped(Vi,(int)animInst->pad,(coorddef *)&animInst->count,
+        objDef = Track_gObjDefs[objInstance->pad];
+        if (((doFrustumClip == 0) ||
+            (clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->count,
                                  (Draw_tGiveShelbyMoreCache *)sd),
-            pvVar3 == (void *)0x0)) &&
-           ((iVar11 == -1 ||
-            (iVar4 = xzsquaredist32((coorddef *)&animInst->count,&(Vi->cview).translation),
-            iVar4 < iVar11)))) {
-          iVar8 = DrawObjectSimple(Vi,sd,objDef_00,
-                             (coorddef *)&animInst->count,iVar8);
-          iVar10 = iVar10 + iVar8;
+            clipRes == (void *)0x0)) &&
+           ((zClipSq == -1 ||
+            (distSq = xzsquaredist32((coorddef *)&objInstance->count,&(Vi->cview).translation),
+            distSq < zClipSq)))) {
+          objectOffset = DrawObjectSimple(Vi,sd,objDef,
+                             (coorddef *)&objInstance->count,objectOffset);
+          totalCount = totalCount + objectOffset;
         }
         goto animNext;
       animCase37:
-        Anim_GetRotPos(animInst,1,DrawW_GetAnimationTime(animInst),&cp,&matrix);
-        if ((iVar11 == -1) ||
-           (iVar4 = xzsquaredist32(&cp,&(Vi->cview).translation),
-           iVar4 < iVar11)) {
-          iVar8 = DrawObjectTransform(Vi,sd,&matrix,
-                             Track_gObjDefs[animInst->pad],&cp,iVar8,-1);
-          iVar10 = iVar10 + iVar8;
-          if ((animInst->flags & 2) != 0) {
+        Anim_GetRotPos(objInstance,1,DrawW_GetAnimationTime(objInstance),&cp,&matrix);
+        if ((zClipSq == -1) ||
+           (distSq = xzsquaredist32(&cp,&(Vi->cview).translation),
+           distSq < zClipSq)) {
+          objectOffset = DrawObjectTransform(Vi,sd,&matrix,
+                             Track_gObjDefs[objInstance->pad],&cp,objectOffset,-1);
+          totalCount = totalCount + objectOffset;
+          if ((objInstance->flags & 2) != 0) {
             pt2.x = cp.x + matrix.m[6] * -0x10;
             pt2.y = cp.y + matrix.m[7] * -0x10;
             pt2.z = cp.z + matrix.m[8] * -0x10;
@@ -2102,10 +2100,10 @@ gte_SetTransMatrix((void *)0x1f800014);
         }
       animNext:;
       }
-      animInst = (Trk_AnimateInst *)((int)&animInst->size + (int)animInst->size);
+      objInstance = (Trk_AnimateInst *)((int)&objInstance->size + (int)objInstance->size);
     }
   }
-  return iVar10;
+  return totalCount;
 }
 
 /* ---- DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi  [DRAWW.CPP:2054-2151] SLD-VERIFIED ---- */

@@ -3348,6 +3348,7 @@ void Hud_Render(void)
   int countamount;
   int count;
   int wingmode;
+  int remain;
   int i;
   char *iface;
   int j;
@@ -3370,32 +3371,30 @@ void Hud_Render(void)
      * reaches from the splitscreen==0 branch AND from the car[1] fall-through.
      * The old `goto` into the else arm emitted an extra un-filled `j; nop`. */
     if (DashHUD_gInfo.splitscreen != 0) {
-      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) {
+      if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) goto HudRender_amt250;
+      if ((Cars_gRaceCarList[1]->carFlags & 0x200U) == 0) {
         countamount = 0xfa;
-      }
-      else if ((Cars_gRaceCarList[1]->carFlags & 0x200U) == 0) {
-        countamount = 0xfa;
-      }
-      else {
-        countamount = 0x32;
+        goto HudRender_amtDone;
       }
     }
-    else {
-      countamount = 0x32;
-    }
+    countamount = 0x32;
+    goto HudRender_amtDone;
+HudRender_amt250:
+    countamount = 0xfa;
+HudRender_amtDone:
     count = countamount;
     if (BTC_BonusTime < countamount) {
       count = BTC_BonusTime;
     }
+    remain = BTC_BonusTime - countamount;
     BTC_Countdown = BTC_Countdown + count;
     /* MATCH: single store -- the oracle computes the difference, clamps it in a
      * register and stores ONCE (`subu; bgez; addu v1,zero,zero; sw`); writing the
      * subtraction back to the global first emits an extra `sw` (census sw 17v16). */
-    count = BTC_BonusTime - countamount;
-    if (count < 0) {
-      count = 0;
+    if (remain < 0) {
+      remain = 0;
     }
-    BTC_BonusTime = count;
+    BTC_BonusTime = remain;
   }
   if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0)) {
     for (i = 0; i <= DashHUD_gInfo.splitscreen; i = i + 1) {
@@ -3440,26 +3439,24 @@ void Hud_Render(void)
      * block LAST (.L800D9424) reached by goto from BOTH the equal-and-busted
      * head test and the replay-mode tail test; the loop back-edge is a `j` with
      * `addiu $s0,$s0,1` in the delay slot (top-tested while). */
-    iface = Hud_gWingmanInterface;
     while (true) {
       if (2 <= j) break;
       wingmode = Input_WingCommandMode(j);
-      if (((u_char)*iface == wingmode) && (HudBustedOverlay != 0)) goto HudRender_initMapFrame;
+      if (((u_char)Hud_gWingmanInterface[j] == wingmode) && (HudBustedOverlay != 0)) goto HudRender_initMapFrame;
       if (Hud_gWingmanFlashTicks[j] < ticks) {
-        if ((u_char)*iface != wingmode) {
+        if ((u_char)Hud_gWingmanInterface[j] != wingmode) {
           if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
           if (HudBustedOverlay == 0) {
             Hud_InitMapFrame(j,wingmode);
-            *iface = (char)wingmode;
+            Hud_gWingmanInterface[j] = (char)wingmode;
           }
         }
         if (Replay_ReplayMode < 2) goto HudRender_next;
 HudRender_initMapFrame:
-        *iface = 0;
+        Hud_gWingmanInterface[j] = 0;
         Hud_InitMapFrame(j,0);
       }
 HudRender_next:
-      iface = iface + 1;
       j = j + 1;
     }
     Hud_gShowedCDPlayer = 0;

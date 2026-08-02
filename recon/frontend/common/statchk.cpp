@@ -306,69 +306,69 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
     nLapIndicator = 1;
   }
 
-  for (k = 0; k < nNumCars; k = k + 1) {
-      nCar = nRankCarTotalTimes[k];
-      carInfo = GetCarFromSimID(&carManager, (short)cars[nCar].carType);
+  for (nCar = 0; nCar < nNumCars; nCar = nCar + 1) {
+      carInfo = GetCarFromSimID(&carManager,
+                 (short)cars[nRankCarTotalTimes[nCar]].carType);
       if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
         if ((byte)frontEnd.gameMode < 3) {
 StatChkSave_validateCarFinish:
-          if (((cars[nCar].carFlags & 4U) != 0) && (cars[nCar].finalFinishType == 2))
+          if (((cars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) &&
+              (cars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
           {
             bDoRecordCheck = true;
           }
         }
-        else if (nCar == GameSetup_gData.localCar) {
+        else if (nRankCarTotalTimes[nCar] == GameSetup_gData.localCar) {
           goto StatChkSave_validateCarFinish;
         }
-        if (bDoRecordCheck) {
-          nCheckTotalTime = cars[nCar].finalTotalTime;
+        if (bDoRecordCheck == true) {
+          nCheckTotalTime = cars[nRankCarTotalTimes[nCar]].finalTotalTime;
           bDoRecordCheck = false;
           if ((nCheckTotalTime < RecordHolders[nLapIndicator + 7].nTime) ||
              ((RecordHolders[nLapIndicator + 7].nTime == 0) && (0 < nCheckTotalTime))) {
             DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
             bTopTenFlag = true;
-            DummyRaceResult.nBestLap = cars[nCar].finalBestLap;
+            DummyRaceResult.nBestLap = cars[nRankCarTotalTimes[nCar]].finalBestLap;
             *(u_long *)RecordHolders[nLapIndicator + 7].sName = *(u_long *)DummyRaceResult.sName;
             *(u_long *)(RecordHolders[nLapIndicator + 7].sName + 4) = *(u_long *)(DummyRaceResult.sName + 4);
             RecordHolders[nLapIndicator + 7].nCar = DummyRaceResult.nCar;
             RecordHolders[nLapIndicator + 7].nTime = nCheckTotalTime;
             RecordHolders[nLapIndicator + 7].nBestLap = DummyRaceResult.nBestLap;
             DummyRaceResult.nTime = nCheckTotalTime;
-            for (nCheckTotalTime = nLapIndicator; nCheckTotalTime < nLapIndicator + 8;
-                 nCheckTotalTime = nCheckTotalTime + 1) {
-              nTopTenSort[nCheckTotalTime - nLapIndicator] = RecordHolders[nCheckTotalTime].nTime;
-              if (RecordHolders[nCheckTotalTime].nTime == 0) {
-                nTopTenSort[nCheckTotalTime - nLapIndicator] = (nCheckTotalTime + 1) * 0x23280;
+            for (k = nLapIndicator; k < nLapIndicator + 8; k = k + 1) {
+              nTopTenSort[k - nLapIndicator] = RecordHolders[k].nTime;
+              if (RecordHolders[k].nTime == 0) {
+                nTopTenSort[k - nLapIndicator] = (k + 1) * 0x23280;
               }
             }
             Stattool_nCreateIndex(8,nTopTenSort,nTopTenIndex);
-            for (nCheckTotalTime = 0; nCheckTotalTime < 8; nCheckTotalTime = nCheckTotalTime + 1) {
-              if (nTopTenIndex[nCheckTotalTime] == 7) {
-                nPlace = nCheckTotalTime + 1;
+            for (k = 0; k < 8; k = k + 1) {
+              if (nTopTenIndex[k] == 7) {
+                nPlace = k + 1;
               }
             }
-            for (nCheckTotalTime = 0; nCheckTotalTime < 8; nCheckTotalTime = nCheckTotalTime + 1) {
-              if (nTopTenIndex[nCheckTotalTime] == nCar) {
-                topPlacements[nCar] = (int)nPlace;
+            for (k = 0; k < 8; k = k + 1) {
+              if (nTopTenIndex[k] == nRankCarTotalTimes[nCar]) {
+                topPlacements[nRankCarTotalTimes[nCar]] = (int)nPlace;
                 break;
               }
             }
-            strcpy(DummyRaceResult.sName,PlayerName((int)nCar));
+            strcpy(DummyRaceResult.sName,PlayerName((int)nRankCarTotalTimes[nCar]));
             *(u_long *)RecordHolders[nLapIndicator + 7].sName = *(u_long *)DummyRaceResult.sName;
             *(u_long *)(RecordHolders[nLapIndicator + 7].sName + 4) = *(u_long *)(DummyRaceResult.sName + 4);
             RecordHolders[nLapIndicator + 7].nCar = DummyRaceResult.nCar;
             RecordHolders[nLapIndicator + 7].nTime = DummyRaceResult.nTime;
             RecordHolders[nLapIndicator + 7].nBestLap = DummyRaceResult.nBestLap;
             memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
-            for (nCheckTotalTime = 0; nCheckTotalTime < 8; nCheckTotalTime = nCheckTotalTime + 1) {
-              memcpy(&RecordHolders[nLapIndicator + nCheckTotalTime],
-                     buffer + nTopTenIndex[nCheckTotalTime] * uRecSz,uRecSz);
+            for (k = 0; k < 8; k = k + 1) {
+              memcpy(&RecordHolders[nLapIndicator + k],
+                     buffer + nTopTenIndex[k] * uRecSz,uRecSz);
             }
           }
         }
       }
   }
-  if (bTopTenFlag) {
+  if (bTopTenFlag == true) {
     blockmove(RecordHolders,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
   }
   if (topPlacements[0] == topPlacements[1]) {

@@ -262,6 +262,37 @@ def _is_method_header(l: str) -> bool:
     return k >= 0 and (l[k].isalnum() or l[k] == "_")  # name( ... { -> method def
 
 
+def _is_method_header_brace_next(l: str) -> bool:
+    """Inside a struct body: True if l STARTS an inline C++ method/ctor/dtor
+    DEFINITION whose OPENING BRACE sits on the FOLLOWING line, i.e. the line
+    ends with `)` (or a member-init-list) and carries no `;`/`{`:
+
+        inline void *GetData(void)
+        {
+            return this + 1;
+        }
+
+    (`struct Group` in nfs4_types.h is written this way; _is_method_header only
+    matches a same-line `{`, so the header + `{` + body leaked into pycparser
+    and broke `base.c` for every TU that includes it -- w44-a2.)  Same `name(`
+    vs `(*name)` data-member discriminator as the two predicates above."""
+    s = l.strip()
+    if not s.endswith(")") or ";" in s or "{" in s:
+        return False
+    i = l.find("(")
+    if i < 0:
+        return False
+    j = i + 1
+    while j < len(l) and l[j] == " ":
+        j += 1
+    if j < len(l) and l[j] == "*":
+        return False  # (*name) -> function-pointer data member
+    k = i - 1
+    while k >= 0 and l[k] == " ":
+        k -= 1
+    return k >= 0 and (l[k].isalnum() or l[k] == "_")
+
+
 STRUCT_OPEN = re.compile(r"^\s*(typedef\s+)?(struct|union)\b.*\{\s*$")
 
 
@@ -277,6 +308,7 @@ def sanitize(text: str) -> str:
     externc_depths = set()      # brace depths opened by `extern "C" {`
     struct_depths = []          # stack of depths that are struct/union bodies
     skip_until = None           # while dropping an inline method body: depth to return to
+    awaiting_brace = None       # method header seen, its `{` is on a later line
     for l in lines:
         # --- dropping the body of an inline struct-scope method/ctor/dtor ---
         if skip_until is not None:
@@ -284,6 +316,16 @@ def sanitize(text: str) -> str:
             if depth <= skip_until:
                 skip_until = None
             continue
+        # --- brace-on-next-line inline method: swallow its body too ---
+        if awaiting_brace is not None:
+            if l.strip().startswith("{"):
+                start = awaiting_brace
+                awaiting_brace = None
+                depth += l.count("{") - l.count("}")
+                if depth > start:
+                    skip_until = start
+                continue
+            awaiting_brace = None   # not a definition after all -> normal handling
         s = l.strip()
         # --- entering bodies (decide before counting this line's braces) ---
         if 'extern "C"' in s and "{" in s:
@@ -315,6 +357,11 @@ def sanitize(text: str) -> str:
             depth += l.count("{") - l.count("}")
             if depth > start:           # a body opened -> skip lines until it closes
                 skip_until = start
+            continue
+        # --- inside a struct: inline method DEFINITION whose `{` is on the next line ---
+        if (struct_depths and depth == struct_depths[-1] + 1
+                and _is_method_header_brace_next(l)):
+            awaiting_brace = depth
             continue
         if opening_struct:
             struct_depths.append(depth)

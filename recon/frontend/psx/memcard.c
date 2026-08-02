@@ -812,9 +812,20 @@ int MCRD_handlecardevents(int card)
         } while (0); } while (0);
         break;
       case 1:
+        /* MATCH (w45): the SAME ref dial, one level, at the LOCAL_ALLOC layer.
+         * local-alloc.c uses the IDENTICAL priority (QTY_CMP_PRI =
+         * floor_log2(n_refs)*n_refs*size/(death-birth)) and this arm is one basic
+         * block, so its base/timerhz quantities are QTYs, not global allocnos.
+         * Un-wrapped, the &gMemCardInfo base outranks the timerhz value and takes
+         * the lower reg ($v1), pushing timerhz to $a0 -- retail is the other way
+         * round ($a0 base, $v1 timerhz).  Wrapping ONLY the tick store doubles
+         * timerhz's refs (4->8, over the flr2 step) while the base picks up just
+         * its addu ref (5->6), inverting the QTY order.  28 -> 16 diffs. */
         status = 2;
         gMemCardInfo.bReady = cmd;
+        do {
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
+        } while (0);
         pCI->status = -1;
         break;
       case 2:

@@ -9,8 +9,13 @@
 /* EXT/STAT data owned by FeMenuOptions.obj (byte-exact from retail binary) */
 /* PulsateYellow: storage in front_data.data.s @0x800515ac; declared extern int[] in
  * femenuoptions_externs.h (store-[] lever §3.12 #5 -> addr in genreg not $at). */
-int fHelpText = 0;            /* @0x800515b0 */
+extern int fHelpText[];       /* @0x800515b0, storage in front_data.data.s */
 static int flareextra = 0;     /* file-static */
+
+typedef struct tPsyQPrimTag {
+  unsigned int addr : 24;
+  unsigned int len : 8;
+} tPsyQPrimTag;
 
 
 /* permuter-found register-materialization lever (score-0, iter 289): routing the
@@ -982,35 +987,11 @@ UpdfOpenH_currMenuCheck:
 void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
 
 {
-  short sVar1;
-  u_short uVar2;
-  bool fPlayList;
-  tTexture_ShapeInfo *shape;
   int ColText;
   int x;
   int y;
-  int tstr10;
-  int iVar7;
-  int iVar8;
-  int pkt_addr24;
-  int ti1;
-  int tu1;
-  int boxWidth_d;
-  int hh;
-  int itemColor;
-  tTexture_ShapeInfo *shapebottom;
-  int xx;
-  int yy;
-  tTexture_ShapeInfo *shapetop;
-  int ww;
-  RECT full;
-  RECT temp;
-  tDrawShapeExtended drawFlags;
-  int width;
-  int gray;
-  DRAWENV *drenv;
-  u_char *cur_pkt;
-  u_char *daprim;
+  tTexture_ShapeInfo *shape;
+  bool fPlayList;
 
   /* SYM: fn-scope locals are ONLY ColText/x/y/shape/fPlayList; drawFlags+
      width are scoped to the "if (currMenu!=0||fPlayList)" block; xx/yy/ww/
@@ -1030,80 +1011,88 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   x = TextSys_WordX(this->fTextDescription) + offx;
   y = TextSys_WordY(this->fTextDescription) + offy;
   shape = &gHelpShapes[0x1e];
-  fHelpText = -1;
+  fHelpText[0] = -1;
   fPlayList = (tInsideBoxSongMenu *)this->currMenu == &menuDefs->menuPlayListMenu;
   if ((this->fFadeVal != 0x80) && (fPlayList)) {
     DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,
                flareextra);
   }
   if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList)) {
-    boxWidth_d = fPlayList ? 0xdc : (int)this->fWidth;
+    tDrawShapeExtended drawFlags;
+    int width;
+    tDrawShapeExtended *drawFlagsPtr;
+    int draw;
+
+    width = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
-    DrawShapeExtended(0x39,0x18,((x + boxWidth_d) - (int)shape->width) - 0xa,(fPlayList ? y + -3 : y + -2),0,1,&drawFlags);
-    DrawShapeExtended(0x3a,0x18,((x + boxWidth_d) - (int)shape->width) - 0xa,(fPlayList ? y + 3 : y + 4),0,1,&drawFlags);
+    drawFlagsPtr = &drawFlags;
+    const int right = x + width;
+    draw = 1;
+    DrawShapeExtended(0x39,0x18,(right - (int)shape->width) - 0xa,(fPlayList ? y + -3 : y + -2),0,draw,drawFlagsPtr);
+    DrawShapeExtended(0x3a,0x18,(right - (int)shape->width) - 0xa,(fPlayList ? y + 3 : y + 4),0,draw,drawFlagsPtr);
   }
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
-    uVar2 = this->fOpenHeight;
-    sVar1 = this->fWidth;
-    ww = (int)sVar1;
+    int xx;
+    int yy;
+    int ww;
+    int hh;
+    DRAWENV *drenv;
+    DR_AREA *daprim;
+    RECT full;
+    RECT temp;
+    int gray;
+    tTexture_ShapeInfo *shapetop;
+    tTexture_ShapeInfo *shapebottom;
+
     xx = x + this->fDiffX;
-    hh = (u_int)uVar2 << 0x10;
     yy = y + this->fDiffY;
+    ww = this->fWidth;
+    hh = this->fOpenHeight;
     drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-    daprim = Render_gPacketPtr;
-    cur_pkt = Render_gPalettePtr;
     full.x = 0;
     full.y = *(short *)((char *)drenv + 2);
     full.h = (short)screenheight;
     full.w = 0x200;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
+    daprim = (DR_AREA *)Render_gPacketPtr;
+    ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
+    ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
     Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)cur_pkt = *(u_int *)cur_pkt & 0xff000000 | pkt_addr24;
-    SetDrawArea((DR_AREA *)daprim,&full);
-    width = hh >> 0x11;
+    SetDrawArea(daprim,&full);
     gray = 0x505050;
-    SubtractiveBox(xx,yy,ww,width,gray,gray,0,0);
-    SubtractiveBox(xx,yy + width,ww,width,0,0,gray,gray);
+    SubtractiveBox(xx,yy,ww,hh >> 1,gray,gray,0,0);
+    SubtractiveBox(xx,yy + (hh >> 1),ww,hh >> 1,0,0,gray,gray);
     shapetop = gHelpShapes + 0x1f;
     shapebottom = gHelpShapes + 0x20;
     (**(int (**)(...))((int)this->currMenu->_vf + 0x5c))
               ((int)this->currMenu->fItemList + *(short *)((int)this->currMenu->_vf + 0x58) + -0x10,
                xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,ww,
                (int)((u_int)(u_short)this->fSlideOffset << 0x11) >> 0x10,(int)this->fHeight);
-    itemColor = hh >> 0x10;
-    if ((this->fFillback != 0) && (shapetop->height < itemColor)) {
+    if ((this->fFillback != 0) && (shapetop->height < hh)) {
       DrawShapeExtended(0x1f,0xc,xx,yy,0,0,(tDrawShapeExtended *)0x0);
       DrawShapeExtended(0x1f,8,(xx + ww) - (int)shapetop->width,yy,0,0,(tDrawShapeExtended *)0x0);
-      DrawShapeExtended(0x20,0xc,xx,(yy + itemColor) - (int)shapebottom->height,0,0,(tDrawShapeExtended *)0x0);
-      DrawShapeExtended(0x20,8,(xx + ww) - (int)shapebottom->width,(yy + itemColor) - (int)shapebottom->height,0,0,(tDrawShapeExtended *)0x0);
+      DrawShapeExtended(0x20,0xc,xx,(yy + hh) - (int)shapebottom->height,0,0,(tDrawShapeExtended *)0x0);
+      DrawShapeExtended(0x20,8,(xx + ww) - (int)shapebottom->width,(yy + hh) - (int)shapebottom->height,0,0,(tDrawShapeExtended *)0x0);
     }
     PSXDrawSquare(0,xx + shapetop->width + 5,yy,
-               ((ww - shapetop->width) - (int)shapebottom->width) + -10,itemColor);
-    ti1 = (int)shapetop->height;
-    if (ti1 + shapebottom->height < itemColor) {
-      PSXDrawSquare(0,xx,yy + ti1,ww,(itemColor - ti1) - (int)shapebottom->height);
+               ((ww - shapetop->width) - (int)shapebottom->width) + -10,hh);
+    if (shapetop->height + shapebottom->height < hh) {
+      PSXDrawSquare(0,xx,yy + shapetop->height,ww,
+                    (hh - shapetop->height) - (int)shapebottom->height);
     }
-    daprim = Render_gPacketPtr;
-    cur_pkt = Render_gPalettePtr;
     temp.x = (short)xx;
     temp.y = *(short *)((char *)drenv + 2) + (short)yy;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    tu1 = (u_int)Render_gPacketPtr & 0xffffff;
+    daprim = (DR_AREA *)Render_gPacketPtr;
+    addPrim(Render_gPalettePtr,daprim);
     Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    *(u_int *)cur_pkt = *(u_int *)cur_pkt & 0xff000000 | tu1;
-    temp.w = sVar1;
-    temp.h = uVar2;
-    SetDrawArea((DR_AREA *)daprim,&temp);
-    if (fHelpText != -1) {
-      tstr10 = (int)TextSys_Word(fHelpText);
-      iVar7 = TextSys_WordX(fHelpText);
-      iVar8 = TextSys_WordY(fHelpText);
-      FETextRender_FullTextRGB((char *)tstr10,(short)iVar7,(short)iVar8,PulsateYellow[0],'\0',2);
+    temp.w = this->fWidth;
+    temp.h = this->fOpenHeight;
+    SetDrawArea(daprim,&temp);
+    if (fHelpText[0] != -1) {
+      FETextRender_FullTextRGB(TextSys_Word(fHelpText[0]),TextSys_WordX(fHelpText[0]),
+                               TextSys_WordY(fHelpText[0]),PulsateYellow[0],'\0',2);
     }
-    FETextRender_FullTextRGB((char *)TextSys_Word(this->fTextDescription),(short)x,(short)y,ColText,'\0',(u_short)fPlayList);
+    FETextRender_FullTextRGB((char *)TextSys_Word(this->fTextDescription),(short)x,(short)y,ColText,'\0',
+                             fPlayList ? 1 : 0);
     DrawShapeExtended(0x1e,8,(x + (int)this->fWidth) - (int)shape->width,y + -2,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
     if (this->fFillback != 0) {
       PSXDrawSquare(0,x,y + -2,(int)this->fWidth - (int)shape->width,
@@ -2222,7 +2211,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
   u_int player;
   
   player = (u_int)(u_char)FEApp->fInputPlayer;
-  fHelpText = GetHelpText(screenControllerConfig[0]);
+  fHelpText[0] = GetHelpText(screenControllerConfig[0]);
   sVar2 = this->fType;
   if (sVar2 == 1) {
     uVar1 = gPadinfo.buf[player * 4].ID;

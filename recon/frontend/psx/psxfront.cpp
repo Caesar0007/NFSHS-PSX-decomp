@@ -356,31 +356,35 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
   else if ((*flags & 0x40U) != 0) {
     int fbot;
     int ftop;
+    /* MATCH: rawT/rawB are the PRE-ABS values.  SYM's fbot($v0)/ftop($a1) hold ONLY the final
+     * `0x80 - fade*` results -- keeping the raw in the same variable made ftop's allocno outrank
+     * the flip_axis CSE temp and rotated $a0/$a1 through the whole arm (70 diffs).  Split = PASS. */
+    int rawT;
+    int rawB;
     /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
      * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
-    ftop = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
-    fadetop = ftop;
-    if (ftop * 0x10000 < 0) {
-      fadetop = -ftop;
+    rawT = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
+    fadetop = rawT;
+    if (rawT * 0x10000 < 0) {
+      fadetop = -rawT;
     }
-    fadetop = fadetop * 2;
+    fadetop = fadetop << 1;
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    fbot = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
-    fadebottom = fbot;
-    if (fbot * 0x10000 < 0) {
-      fadebottom = -fbot;
+    rawB = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
+    fadebottom = rawB;
+    if (rawB * 0x10000 < 0) {
+      fadebottom = -rawB;
     }
-    fadebottom = fadebottom * 2;
+    fadebottom = fadebottom << 1;
     if (0x80 < fadebottom) {
       fadebottom = 0x80;
     }
     /* the 0x80 is ONE constant that ends up mutated in place into `ftop` (SYM ftop=$a1: the oracle
      * does `li a1,0x80` -> `subu v0,a1,v0` (fbot) -> `subu a1,a1,v0` (ftop)). */
-    ftop = 0x80;
-    fbot = ftop - fadebottom;
-    ftop = ftop - fadetop;
+    fbot = 0x80 - fadebottom;
+    ftop = 0x80 - fadetop;
     *color = fbot << 0x10 | fbot << 8 | fbot;
     color[1] = fbot << 0x10 | fbot << 8 | fbot;
     color[2] = ftop << 0x10 | ftop << 8 | ftop;
@@ -405,8 +409,6 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
    * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
   u_char  *prim;
-  u_char  *prevPrim;
-  int      linkAddr;
   short    width;
   short    height;
   short    u;
@@ -433,20 +435,20 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   while (i < shp->width) {
     int addw;
     int texX;
+    int wsel;
 
     texX = (uint)(ushort)shp->shapex + (i * bpp) / 16;
     u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
         ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
-    w = 0xff - u;
-    if (shp->width - i < w) {
-      w = shp->width - i;
+    wsel = 0xff - u;
+    if (shp->width - i < wsel) {
+      wsel = shp->width - i;
     }
+    w = wsel;
     prim = Render_gPacketPtr;
-    prevPrim = Render_gPalettePtr;
-    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-    linkAddr = (uint)prim & 0xffffff;
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
     Render_gPacketPtr = prim + 0x34;
-    *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+    *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
@@ -456,7 +458,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
     *(ushort *)(prim + 0x1a) =
          ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-         (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+         (shp->shapey & 0x100) >> 4 |
          (texX & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
     addw = 0;
     if (((flags & 4) != 0) && (shp->width < 0xff)) {
@@ -533,17 +535,19 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
   tTexture_ShapeInfo *tShp;
   int color [4];
+  int bright;
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes[0] + index;
   }
   else {
-    tShp = gCurrentShapes + index;
+    tShp = gCurrentShapes[0] + index;
   }
+  bright = 0x80 - fade;
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
   if ((flags & 0xc0U) != 0) {
@@ -568,8 +572,6 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
    * x($s6) and y($s5) are the REGPARMs, MUTATED IN PLACE by the flip arms; width/height likewise
    * (`negu $s2,$s2`).  The bpp divide is SIGNED (div + break 7 + break 6). w42-a7 */
   u_char  *prim;
-  u_char  *prevPrim;
-  uint     linkAddr;
   short    width;
   short    height;
   short    bpp;
@@ -579,14 +581,12 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   char     vh;
 
   prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  linkAddr = (uint)prim & 0xffffff;
+  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
   Render_gPacketPtr = prim + 0x34;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+  *(uint *)Render_gPalettePtr = *(uint *)Render_gPalettePtr & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];
@@ -596,7 +596,7 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
   *(ushort *)(prim + 0x1a) =
        ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
-       (int)((ushort)shp->shapey & 0x100) << 0x10 >> 0x14 |
+       (shp->shapey & 0x100) >> 4 |
        ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
   if ((flags & 4U) != 0) {
     x = x + fixedmult(scalex,width);
@@ -665,17 +665,19 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   int scalex = 0x20000;
   int scaley = 0x10000;
   int color [4];
+  int bright;
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes[0] + index;
   }
   else {
-    tShp = gCurrentShapes + index;
+    tShp = gCurrentShapes[0] + index;
   }
+  bright = 0x80 - fade;
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,(0x80 - fade) * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   if ((flags & 0xc0U) != 0) {
     ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }
@@ -717,34 +719,36 @@ void LoadAllHelpShapes(void)
 void PSXDrawSquare(int col,int x,int y,int w,int h)
 
 {
-  short y1;
-  short x1;
-  int linkAddr;
-  u_char  *prim;
-  u_char  *prevPrim;
-  short x_s;
-  
-  prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
-  x_s = (short)x;
-  x1 = x_s + (short)w;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  linkAddr = (uint)prim & 0xffffff;
-  Render_gPacketPtr = prim + 0x18;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(int *)(prim + 4) = col;
-  prim[7] = 0x28;
-  y1 = (short)y;
-  *(short *)(prim + 10) = y1;
-  *(short *)(prim + 0xe) = y1;
-  y1 = y1 + (short)h;
-  prim[3] = 5;
-  *(short *)(prim + 8) = x_s;
-  *(short *)(prim + 0xc) = x1;
-  *(short *)(prim + 0x10) = x_s;
-  *(short *)(prim + 0x12) = y1;
-  *(short *)(prim + 0x14) = x1;
-  *(short *)(prim + 0x16) = y1;
+  /* SYM 8c: fsize=0 mask=0 = TRUE frameless LEAF; the ONLY local is `prim` (REG $8 = $t0,
+   * type PTR STRUCT POLY_F4 size 24) and `h` gets a REG home ($0xd = $t5).  x_s/x1/y1/linkAddr/
+   * prevPrim were FABRICATED -- retail stores straight out of the parm regs ($a1 x, $a2 y->y+h,
+   * $a3 x+w mutated in place) and lets cse hold the OT-slot POINTER in one anonymous temp while
+   * DE-referencing it twice (the 1st setaddr store may alias).  w43-a3 */
+  POLY_F4 *prim;
+  uint link;
+
+  prim = (POLY_F4 *)Render_gPacketPtr;
+  /* setaddr(prim, getaddr(OT)) -- 24-bit tag bitfield RMW */
+  prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
+  /* The OT word is RE-READ for the second setaddr (the store above may alias it), and that read
+   * happens BEFORE the packet-cursor store: gcc cannot float a load above a may-aliasing store to
+   * 0x1F800004, so the oracle's `lw v0,0(t2); ...; sw v1,0(t4); ...; sw v0,0(t2)` order is only
+   * reachable if the source reads the OT word first.  Bump-between / bump-first / `+= 0x18`
+   * spellings all measured worse (52 / 34 / 31 vs 12 for bump-last).  w43-a3 */
+  link = *(uint *)Render_gPalettePtr;
+  Render_gPacketPtr = (u_char *)prim + 0x18;
+  *(uint *)Render_gPalettePtr = link & 0xff000000 | (uint)prim & 0xffffff;
+  *(int *)&prim->r0 = col;
+  prim->code = 0x28;
+  *((u_char *)prim + 3) = 5;
+  prim->y0 = y;
+  prim->y1 = y;
+  prim->x0 = x;
+  prim->x1 = x + w;
+  prim->x2 = x;
+  prim->y2 = y + h;
+  prim->x3 = x + w;
+  prim->y3 = y + h;
   return;
 }
 
@@ -755,37 +759,34 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
 void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 {
-  int linkAddr;
-  short y_s;
-  short y_plus_h;
-  short x_plus_w;
-  short x_s;
-  u_char  *prevPrim;
-  u_char  *prim;
-  
-  prim = Render_gPacketPtr;
-  prevPrim = Render_gPalettePtr;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  linkAddr = (uint)prim & 0xffffff;
-  Render_gPacketPtr = prim + 0x24;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(int *)(prim + 4) = c1;
-  *(int *)(prim + 0xc) = c2;
-  *(int *)(prim + 0x14) = c3;
-  *(int *)(prim + 0x1c) = c4;
-  SetPolyG4((POLY_G4 *)prim);
-  x_s = (short)x;
-  x_plus_w = x_s + (short)w;
-  y_s = (short)y;
-  *(short *)(prim + 10) = y_s;
-  *(short *)(prim + 0x12) = y_s;
-  y_plus_h = y_s + (short)h;
-  *(short *)(prim + 8) = x_s;
-  *(short *)(prim + 0x10) = x_plus_w;
-  *(short *)(prim + 0x18) = x_s;
-  *(short *)(prim + 0x1a) = y_plus_h;
-  *(short *)(prim + 0x20) = x_plus_w;
-  *(short *)(prim + 0x22) = y_plus_h;
+  /* SYM 8c: the ONLY local is prim (REG $0x10 = $s0, PTR STRUCT size 36 tag POLY_G4);
+   * x/y/w/h are REGPARM $s3/$s1/$s2/$s4 and c1..c4 REG $a3/$t0/$t1/$t2.  linkAddr,
+   * x_s, y_s, x_plus_w and y_plus_h were Ghidra fabrications: retail MUTATES the w
+   * and y params in place (addu $s2,$s3,$s2 / addu $s1,$s1,$s4) and lets the `sh`
+   * stores do the narrowing -- no (short) casts, no extra pseudos. */
+  uint     otWord;
+  POLY_G4 *prevPrim;
+  POLY_G4 *prim;
+
+  prim = (POLY_G4 *)Render_gPacketPtr;
+  prevPrim = (POLY_G4 *)Render_gPalettePtr;
+  prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
+  otWord = prevPrim->tag;
+  Render_gPacketPtr = (u_char *)prim + 0x24;
+  prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+  *(int *)&prim->r0 = c1;
+  *(int *)&prim->r1 = c2;
+  *(int *)&prim->r2 = c3;
+  *(int *)&prim->r3 = c4;
+  SetPolyG4(prim);
+  prim->x0 = x;
+  prim->y0 = y;
+  prim->x1 = x + w;
+  prim->y1 = y;
+  prim->x2 = x;
+  prim->y2 = y + h;
+  prim->x3 = x + w;
+  prim->y3 = y + h;
   return;
 }
 
@@ -799,31 +800,31 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
   /* SYM: opacity/c1..c4 (ARG->REG copies), prim (POLY_G4*), i (INT).  🔴 `opacityv` was NEVER
    * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
    * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
-  int      linkAddr;
+  uint     otWord;
   int      i;
-  u_char  *prevPrim;
-  u_char  *prim;
+  POLY_G4 *prevPrim;
+  POLY_G4 *prim;
 
   i = 0;
   if (0 < opacity) {
     do {
-      prim = Render_gPacketPtr;
-      prevPrim = Render_gPalettePtr;
+      prim = (POLY_G4 *)Render_gPacketPtr;
+      prevPrim = (POLY_G4 *)Render_gPalettePtr;
       i = i + 1;
-      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-      linkAddr = (uint)prim & 0xffffff;
-      Render_gPacketPtr = prim + 0x24;
-      *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-      *(uint *)(prim + 8) = y << 0x10 | x;
-      *(uint *)(prim + 0x18) = (y + h) << 0x10 | x;
-      *(int *)(prim + 4) = c1;
-      *(int *)(prim + 0xc) = c2;
-      *(int *)(prim + 0x14) = c3;
-      *(int *)(prim + 0x1c) = c4;
-      prim[7] = 0x39;
-      prim[3] = 8;
-      *(uint *)(prim + 0x10) = y << 0x10 | (x + w);
-      *(uint *)(prim + 0x20) = (y + h) << 0x10 | (x + w);
+      prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
+      otWord = prevPrim->tag;
+      Render_gPacketPtr = (u_char *)prim + 0x24;
+      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      *(int *)&prim->r0 = c1;
+      *(int *)&prim->r1 = c2;
+      *(int *)&prim->r2 = c3;
+      *(int *)&prim->r3 = c4;
+      prim->code = 0x39;
+      ((u_char *)prim)[3] = 8;
+      *(uint *)&prim->x0 = y << 0x10 | x;
+      *(uint *)&prim->x2 = (y + h) << 0x10 | x;
+      *(uint *)&prim->x1 = y << 0x10 | (x + w);
+      *(uint *)&prim->x3 = (y + h) << 0x10 | (x + w);
     } while (i < opacity);
   }
   return;
@@ -839,32 +840,32 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
   /* SYM locals: h (ARG->REG copy), prim (POLY_F4 *), i (SHORT). Everything else the old recon
    * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
    * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
-  int linkAddr;
+  uint     otWord;
   short i;
-  u_char  *prevPrim;
-  u_char  *prim;
+  POLY_F4 *prevPrim;
+  POLY_F4 *prim;
 
   i = 0;
   if (0 < opacity) {
     do {
-      prim = Render_gPacketPtr;
-      prevPrim = Render_gPalettePtr;
+      prim = (POLY_F4 *)Render_gPacketPtr;
+      prevPrim = (POLY_F4 *)Render_gPalettePtr;
       i = i + 1;
-      *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-      linkAddr = (uint)prim & 0xffffff;
-      Render_gPacketPtr = prim + 0x18;
-      *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-      *(int *)(prim + 4) = col;
-      prim[7] = 0x2a;
-      prim[3] = 5;
-      *(short *)(prim + 8) = x;
-      *(short *)(prim + 10) = y;
-      *(short *)(prim + 0xc) = x + w;
-      *(short *)(prim + 0xe) = y;
-      *(short *)(prim + 0x10) = x;
-      *(short *)(prim + 0x12) = y + h;
-      *(short *)(prim + 0x14) = x + w;
-      *(short *)(prim + 0x16) = y + h;
+      prim->tag = prevPrim->tag & 0xffffff | prim->tag & 0xff000000;
+      otWord = prevPrim->tag;
+      Render_gPacketPtr = (u_char *)prim + 0x18;
+      prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+      *(int *)&prim->r0 = col;
+      prim->code = 0x2a;
+      ((u_char *)prim)[3] = 5;
+      prim->x0 = x;
+      prim->y0 = y;
+      prim->x1 = x + w;
+      prim->y1 = y;
+      prim->x2 = x;
+      prim->y2 = y + h;
+      prim->x3 = x + w;
+      prim->y3 = y + h;
     } while (i < opacity);
   }
   return;
@@ -874,13 +875,25 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 
 /* ---- FontUpsideDownBlit  (psxfront.cpp:1434, code lines 1434-1466) ---- */
 /* GPU packet: builds POLY_FT4 (stride 0x28, code 0x2c); prim=u_char* build cursor, prevPrim=u_char* link word */
-int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
+void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
 
 {
   /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
    * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
    * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
-   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7 */
+   * (y - yoff + 5) - (height + yoff), keeping `height + yoff` as its own shared term. w42-a7
+   * ---- w43-a2 residual 68 (count EXACT 82/82, brcensus clean, rove_op clean) ----
+   * The whole fn is ONE basic block (no branches), so local_alloc decides every home and the
+   * residual is a single register rotation: ytop lands in $a1 (gcc reuses the dying `y` REGPARM)
+   * where retail uses a fresh $t8, which then frees $a1 for the SECOND `src+0xc` read (retail
+   * `lw a1,12(a2)`; ours self-temps `lw a2,12(a2)`) and flips the $v0/$v1 roles of the second
+   * OT-link chain vs the font_tint load.  MEASURED NEGATIVE (all re-gated): ytop as one/two/three
+   * named locals, fully inlined at all 4 use sites, `ybase+5` as its own MODIFY_EXPR statement,
+   * `5 + (y-yoff)`, `(y+5)-yoff`, hoff computed first, hoff mutated into `yoff` in place, the
+   * ytop computation deferred to 4 different later statement positions, a named local for the
+   * second `src+0xc` read, and 5 positions for the font_tint store (the between-prim[3]-and-
+   * prim[7] slot below is the best of those, 72->68).  gcc folds `(A+5)-B` to `A-(B-5)` through
+   * every spelling tried, so the `addiu t4,t4,-5` vs retail's `addiu v1,t8,5` rides along. */
   u_char  *prim;
   u_char  *prevPrim;
   int      linkAddr;
@@ -888,6 +901,8 @@ int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int ar
   int      height;
   int      dv;
   int      yoff;
+  int      ybase;
+  int      hoff;
   int      ytop;
 
   prim = Render_gPacketPtr;
@@ -895,14 +910,18 @@ int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int ar
   width = ch->width;
   height = ch->height;
   yoff = *(signed char *)&ch->yoffset;
-  ytop = ((y - yoff) + 5) - (height + yoff);
+  ybase = y - yoff;
+  hoff = height + yoff;
+  ytop = (ybase + 5) - hoff;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
   linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  *(u_long *)(prim + 4) = font_tint;
   prim[3] = 9;
+  /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
+   * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1. */
+  *(u_long *)(prim + 4) = font_tint;
   prim[7] = 0x2c;
   *(ushort *)(prim + 0xe) = gFontClut;
   prim[0xd] = dv;
@@ -924,7 +943,7 @@ int FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int ar
   *(short *)(prim + 0x1a) = ytop;
   *(short *)(prim + 0x20) = x + width;
   *(short *)(prim + 0x22) = ytop;
-  return 0;
+  return;
 }
 
 /* end of psxfront.cpp */

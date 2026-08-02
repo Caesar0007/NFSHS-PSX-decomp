@@ -287,7 +287,11 @@ void MCRD_setopts(MCRDOPTS_def *pOPT)
   /* MATCH: the productCode!=NULL body is the IF-ARM (the oracle's beqz pushes the
    * NULL case out-of-line to .L8004F634), and the region letter comes from a real
    * 3-case switch + default - gcc's balanced case tree emits the beq(1)/beqz(0)/
-   * beq(2) ladder, and the two 'A' arms (N_AMERICA + default) cross-jump-merge. */
+   * beq(2) ladder.  MATCH: N_AMERICA and default share ONE labelled body (two
+   * separate 'A' bodies leave the case-0 arm storing through the cached &gMemCardInfo
+   * base in $a0 while the default rematerializes its own lui, so their stores never
+   * cross-jump - +1 insn).  One body puts both labels on the same block, which the
+   * dispatch fall-through reaches by `j` = the oracle's shared sb %lo(...)($v1). */
   if (pOPT->productCode != (char *)0x0) {
     gMemCardInfo.productCode[0] = 'B';
     switch (pOPT->productLocation) {
@@ -298,8 +302,6 @@ void MCRD_setopts(MCRDOPTS_def *pOPT)
       gMemCardInfo.productCode[1] = 'E';
       break;
     case N_AMERICA:
-      gMemCardInfo.productCode[1] = 'A';
-      break;
     default:
       gMemCardInfo.productCode[1] = 'A';
       break;
@@ -361,38 +363,37 @@ void MCRD_loadfile(int card,MCRDFILE_def *pFILE,int bNameHasProductCode)
 int iMCRD_DoFileLoad(int card)
 
 {
-  uchar ch;
-  int err_state;
-  uint attr;
-  uint hdr;
-  long sync_done;
-  long sync;
-  uchar *src;
-  shapetbl *pIcon;
-  int i;
-  int iconNum;
-  MCRDFILEINFO_def *pMFI;
   long cmd;
   long res;
+  int i;
+  int error;
+  MCRDFILEINFO_def *pMFI;
+  shapetbl *s;
+  uchar ch;
+  uchar *src;
+  uint attr;
+  uint hdr;
 
-  /* MATCH: pMFI is the base anchor (retail derives &gMemCardInfo as pMFI-0x260).
-   * The two title/icon walks are INDEX forms - loop.c builds the header.title giv
-   * (stride 2 off pMFI) and the icon[] giv (sll i,2) itself; a hand byte-offset
-   * (i = iconNum*4) blocks that.  The shape header's x/y clears are two BITFIELD
-   * assignments (0xF000FFFF then 0xFFFFF000 off ONE lw/sw) - a single folded
-   * 0xF000F000 mask is a reconstruction bug. */
+  /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
+   * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
+   * `i` serves BOTH the title walk and the icon walk (the icon loop re-inits it to 0),
+   * and ONE `error` carries both iMCRD_HandleError results; the remaining names here
+   * are short-lived expression temps (no SYM record = compiler temps).
+   * pMFI is the base anchor (retail derives &gMemCardInfo as pMFI-0x260).
+   * The shape header's x/y clears are two BITFIELD assignments (0xF000FFFF then
+   * 0xFFFFF000 off ONE lw/sw) - a single folded 0xF000F000 mask is a recon bug. */
   pMFI = &gMemCardInfo.fileinfo;
   if ((pMFI->title != (char *)0x0) || (pMFI->icon[0] != (shapetbl *)0x0)) {
     res = MemCardReadFile
                     (gMemCardInfo.channel,pMFI->name,
                      (u_long *)&pMFI->header,0,0x200);
-    while (sync_done = MemCardSync(1,&cmd,&res), sync_done == 0) {
+    while (MemCardSync(1,&cmd,&res) == 0) {
       ((int(*)(void))gMemCardInfo.LoadingDataProc)();
       VSync(0);
     }
-    err_state = iMCRD_HandleError(3,res,card);
-    if (err_state != 0) {
-      return err_state;
+    error = iMCRD_HandleError(3,res,card);
+    if (error != 0) {
+      return error;
     }
     i = 0;
     if (pMFI->title != (char *)0x0) {
@@ -403,46 +404,58 @@ int iMCRD_DoFileLoad(int card)
         i = i + 1;
       }
     }
-    iconNum = 0;
-    do {
-      pIcon = *(shapetbl **)((char *)pMFI->icon + i);
-      if (pIcon == (shapetbl *)0x0) break;
+    i = 0;
+    /* MATCH: top-tested while - the exit test stays at the bottom and the
+     * icon[i] load/NULL-check stay at the loop TOP; a do/while lets gcc rotate
+     * the load out into the preheader (the oracle's loop label sits ON it). */
+    while (i < 3) {
+      s = pMFI->icon[i];
+      if (s == (shapetbl *)0x0) break;
       src = pMFI->header.icon1;
-      if (iconNum != 0) {
-        if (iconNum == 1) {
+      if (i != 0) {
+        if (i == 1) {
           src = pMFI->header.icon2;
         }
         else {
           src = pMFI->header.icon3;
         }
       }
-      blockmove(src,&pIcon->data,0x80);
+      blockmove(src,&s->data,0x80);
       attr = shapetype(4);
-      *(char *)pIcon = (char)attr;
-      hdr = attr & 0xff | 0x9000;   /* MATCH: a FRESH pseudo - reusing attr forces a copy */
-      *(uint *)pIcon = hdr;
-      pIcon->height = 0x10;
-      pIcon->width = 0x10;
-      pIcon->centery = 0;
-      pIcon->centerx = 0;
-      pIcon->shapey = 0;
-      pIcon->shapex = 0;
-      pIcon = (shapetbl *)((int)pIcon + ((int)hdr >> 8));
-      blockmove(pMFI->header.iconclut,&pIcon->data,0x20);
+      *(char *)s = (char)attr;
+      /* MATCH: ONE mask temp shared by both shape headers.  Two separate temps (or
+       * an inline mask in either header) leaves the clut header's word RMW in $v1
+       * where retail keeps it in $v0, mis-schedules its type store / loop test and
+       * costs the back-edge delay slot (37 -> 31 diffs, structural residual 19 -> 14).
+       * Residual: block 1 then pays three attr/hdr copies into $a1/$a3. */
+      hdr = attr & 0xff | 0x9000;
+      *(uint *)s = hdr;
+      s->height = 0x10;
+      s->width = 0x10;
+      s->centery = 0;
+      s->centerx = 0;
+      s->shapey = 0;
+      s->shapex = 0;
+      /* MATCH: store-then-read-back of the `next` bitfield - cse forwards the
+       * just-stored word (oracle `sw v1,0(s0); sra v1,v1,8`) instead of a reload,
+       * AND the extra RTL insn puts the loop at 63 > the giv's worth (62), so
+       * loop.c DECLINES to strength-reduce icon[i] into a walking pointer
+       * (retail recomputes `sll i,2; addu` per iteration).  A `hdr` temp folds
+       * the read away, drops the loop to 62 and costs a 9th callee-saved reg. */
+      s = (shapetbl *)((int)s + s->next);
+      blockmove(pMFI->header.iconclut,&s->data,0x20);
       attr = cluttype(0x10);
-      *(char *)pIcon = (char)attr;
-      iconNum = iconNum + 1;
-      pIcon->width = 0x10;
-      pIcon->height = 1;
-      pIcon->centery = 0;
-      pIcon->centerx = 0;
-      *(uint *)pIcon = attr & 0xff;
-      pIcon->shapey = 0;
-      pIcon->shapex = 0;
-      i = iconNum * 4;   /* MATCH: routing the byte offset through the multiply-set
-                          * i blocks loop.c from strength-reducing icon[] into a
-                          * walking pointer (retail recomputes sll/addu per iter). */
-    } while (iconNum < 3);
+      hdr = attr & 0xff;
+      *(char *)s = (char)attr;
+      i = i + 1;
+      s->width = 0x10;
+      s->height = 1;
+      s->centery = 0;
+      s->centerx = 0;
+      *(uint *)s = hdr;
+      s->shapey = 0;
+      s->shapex = 0;
+    }
   }
   if (pMFI->size != 0) {
     res = MemCardReadFile
@@ -453,12 +466,11 @@ int iMCRD_DoFileLoad(int card)
       gMemCardInfo.bReady = 1;
       return 0x10;
     }
-    do {
-      sync = MemCardSync(0,&cmd,&res);
-    } while (sync == 0);
-    i = iMCRD_HandleError(3,res,card);
-    if (i != 0) {
-      return i;
+    while (MemCardSync(0,&cmd,&res) == 0) {
+    }
+    error = iMCRD_HandleError(3,res,card);
+    if (error != 0) {
+      return error;
     }
   }
   gMemCardInfo.bReady = 1;
@@ -647,60 +659,95 @@ int iMCRD_DoFileDelete(int card)
 int MCRD_handlecardevents(int card)
 
 {
+  /* SYM 8c block (the COMPLETE local set - no others exist in retail):
+   *   card   REGPARM INT   $11 = $s1      status INT           $10 = $s0
+   *   pCI    PTR CARDINFO  $12 = $s2      ret    INT           $03 = $v1
+   *   cmd/res ULONG AUTO   sp-0x18 / sp-0x14
+   * `ret` is the MemCardSync return; `status` is the value the funnel returns. */
   CARDINFO_def *pCI;
-  long sync;
   int ret;
+  int status;
   u_long cmd;
   u_long res;
 
-  /* MATCH: ONE result variable + a single tail `return ret;` - every retail exit is
+  /* MATCH: ONE result variable + a single tail `return status;` - every retail exit is
    * `j .L800501B0/B4; addu $v0,$s0,$zero`, i.e. a funnel, never a direct return
-   * literal.  Keeping ret in $s0 is also what lets cse reuse the constant 2 as the
+   * literal.  Keeping status in $s0 is also what lets cse reuse the constant 2 as the
    * shift amount in the res==1 arm (retail's `sllv v0,v0,s0`). */
-  ret = 0x17;
+  /* RESIDUAL 44 (209/211), THREE parts, two of them one mechanism:
+   * (1)+(2) a $a0<->$a1 role swap between `cmd` and the &gMemCardInfo base of the
+   *   res==0/res==1 arms, plus the store/load schedule swap that FOLLOWS FROM IT
+   *   (with cmd in $a0 the bReady store must precede the timerhz load so $a0 can be
+   *   recycled; retail, with cmd in $a1, loads timerhz first).  QUANTIFIED off the
+   *   cc1 -dg/-dl dumps (scratch/a6/rtl_c.py, C lane): global.c allocates in
+   *   descending allocno_compare priority = floor_log2(refs)*refs/live_length, and
+   *   the printed order is `123 82 144 159 167 175 183 135 193 147 83 80 92 81`.
+   *     pseudo 144 = cmd  : 7 refs / 20 live -> 2*7/20 = 0.700  (rank 3, takes $a0)
+   *     pseudo  92 = base : 4 refs / 22 live -> 2*4/22 = 0.364  (rank 13, takes $a1)
+   *   Neither pseudo carries a hard-reg preference and cmd conflicts only with
+   *   $v0/$v1, so cmd reaches $a0 first.  For the base to win it needs > 0.700,
+   *   i.e. live_length <= 11 at 4 refs (or 8 refs) - and its range inherently spans
+   *   the def, the index addu, the bReady store and the channel load past the
+   *   pCI->status branch.  FALSIFIED (all gate-neutral at 44 unless noted): named
+   *   fMemCardInfo_def* base local (early, late, and used for every field);
+   *   channel read hoisted into a local (58); store order swapped; `status = 0x16`
+   *   moved before/after the stores; Yoda compare; early-exit `goto` for both
+   *   .L800500D8 branch sites; cmd dispatch as an if/else-if chain (207, -2 insns).
+   *   The ONE dial that moves it is an INVENTED `int st = pCI->status;` local read
+   *   BEFORE the stores (38): it adds a pseudo that displaces cmd off $a0 - but the
+   *   SYM block above lists NO such local, and it also hoists the pCI->status load
+   *   above the timerhz load where retail keeps it after both stores, so the LCS
+   *   gain is bought with a real structural regression.  REJECTED per rule 8.
+   * (3) ours is 2 insns SHORT: retail keeps a DUPLICATE 2-insn return-funnel block
+   *   (.L800500D8 `j .L800501B4; addu $v0,$s0,$zero`) reached by the res==0 arm's
+   *   `bne pCI->status,-1` and the NONE arm's `bgez ticks`; our gcc cross-jumps it
+   *   into the single .L800501B0 copy.  FALSIFIED: explicit `return status;` at
+   *   either or both sites (block order scrambles, 230), `goto` at both sites
+   *   (no-op).  Not yet reached. */
+  status = 0x17;
   pCI = MCRD_getcard(card);
-  sync = MemCardSync(0,(long *)&cmd,(long *)&res);
-  if (sync == 0) {
-    ret = 0x15;
+  ret = MemCardSync(0,(long *)&cmd,(long *)&res);
+  if (ret == 0) {
+    status = 0x15;
     goto MCRDhandleCard_end;
   }
-  /* MATCH: physical block order - retail lays the sync>0 (cmd/res) half FIRST and
-   * the task switch last; `if (sync <= 0) {...} else {cmd half}` makes the cmd half
+  /* MATCH: physical block order - retail lays the ret>0 (cmd/res) half FIRST and
+   * the task switch last; `if (ret <= 0) {...} else {cmd half}` makes the cmd half
    * the bgtz target and pushes the task switch past it. */
-  if (sync <= 0) {
-    if (sync == -1) goto MCRDhandleCard_task;
+  if (ret <= 0) {
+    if (ret == -1) goto MCRDhandleCard_task;
     goto MCRDhandleCard_end;
   }
   else {
-    if (sync != 1) goto MCRDhandleCard_end;
+    if (ret != 1) goto MCRDhandleCard_end;
     switch(cmd) {
     case 1:
       switch(res) {
       case 0:
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-        ret = 0x16;
+        status = 0x16;
         if (pCI->status == -1) {
           MemCardAccept(gMemCardInfo.channel);
         }
         break;
       case 1:
-        ret = 2;
+        status = 2;
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
         pCI->status = -1;
         break;
       case 2:
-        ret = 3;
+        status = 3;
         gMemCardInfo.bReady = cmd;
         pCI->status = -4;
         break;
       case 3:
-        ret = 0x15;
+        status = 0x15;
         MemCardAccept(gMemCardInfo.channel);
         break;
       default:
-        ret = 0x17;
+        status = 0x17;
         break;
       }
       break;
@@ -708,22 +755,22 @@ int MCRD_handlecardevents(int card)
       switch(res) {
       case 0:
       case 3:
-        ret = 4;
+        status = 4;
         gMemCardInfo.fileinfo.cardnum = card;
         gMemCardInfo.task = LOAD_CARD;
         break;
       case 1:
         iMCRD_InitCard(card);
         pCI->status = -1;
-        ret = 2;
+        status = 2;
         break;
       case 2:
         iMCRD_InitCard(card);
-        ret = 3;
+        status = 3;
         break;
       case 4:
         pCI->status = -2;
-        ret = 5;
+        status = 5;
         break;
       }
       break;
@@ -737,12 +784,12 @@ MCRDhandleCard_task:
    * case 0.  Case bodies emit in SOURCE order = the oracle's block VA order. */
   switch(gMemCardInfo.task) {
   case NONE:
-    ret = 0x16;
+    status = 0x16;
     if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
       gMemCardInfo.bReady = 0;
-      ret = 0x17;
+      status = 0x17;
       if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
-      ret = 0x15;
+      status = 0x15;
     }
     break;
   case LOAD_CARD:
@@ -771,7 +818,7 @@ MCRDhandleCard_task:
     return iMCRD_DoFileDelete(card);
   }
 MCRDhandleCard_end:
-  return ret;
+  return status;
 }
 
 /* lines 1169-1311: (static data / macros / comments - no emitted code) */
@@ -914,11 +961,18 @@ int iMCRD_FormatCard(int card)
   result = 0;
   pCI = MCRD_getcard(card);
   fmtRes = MemCardFormat(gMemCardInfo.channel);
-  /* MATCH: a real switch - the oracle's beq(1) / slti BOUND / beq(2) ladder is
-   * gcc-2.8 emit_case_nodes for a 2-node case tree, not an if/else-if chain
-   * (which emits two plain beq's and no bound test). The two arms' identical
-   * tails (status store + result=-1) cross-jump-merge into .L800504A0. */
+  /* MATCH: a real switch WITH the empty success case (0).  THREE case nodes is
+   * what makes gcc-2.8's balance_case_nodes split the list at the middle, so the
+   * root (1) gets BOTH children; emit_case_nodes' "neither subtree bounded" arm
+   * then emits the discriminating compare, and jump.c collapses the empty
+   * case-0 subtree into the default + inverts it -> the oracle's
+   *     beq ==1 / slti $v0,$v1,2 / bnez -> default / beq ==2 / j default.
+   * A plain 2-case switch keeps the list LINEAR (balance_case_nodes only splits
+   * when i > 2), the root has a right child only, and emit_case_nodes takes the
+   * "handle node->right explicitly" else-arm = two bare beq's, NO bound test. */
   switch (fmtRes) {
+  case 0:
+    break;
   case 1:
     pCI->status = -1;
     result = -1;
@@ -939,32 +993,31 @@ int iMCRD_FormatCard(int card)
 int iMCRD_HandleError(int func,int opResult,int card)
 
 {
-  CARDINFO_def *pcard;
-  long accept;
-  int confirm;
   int scratch_i;
   int tmp_int;
-  int result;
-  int numberoftries;
   CARDINFO_def *pCI;
   int code;
-  int ret_state;
-  
-  ret_state = 0;
-  pcard = MCRD_getcard(card);
+
+  /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
+   * and a NESTED block (90 @0x800505f4 .. 92 @0x80050644, source lines 76-98) holding
+   * numberoftries REG $16($s0) and result REG $3($v1).  numberoftries takes func's own
+   * $s0 because it is block-local and func is dead by then; declaring it at function
+   * scope makes it a global allocno that can never reuse that register. */
+  code = 0;
+  pCI = MCRD_getcard(card);
   /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with
    * the three arms out-of-line is gcc's balance_case_nodes tree; the equivalent
    * if/else-if chain inlines each arm and flips every branch to bne. */
   if (opResult != 0) {
     switch (func) {
     case 1:
-      ret_state = 10;
+      code = 10;
       break;
     case 2:
-      ret_state = 0xd;
+      code = 0xd;
       break;
     case 3:
-      ret_state = 0x10;
+      code = 0x10;
       break;
     }
   }
@@ -972,72 +1025,87 @@ int iMCRD_HandleError(int func,int opResult,int card)
   case 0:
     goto iMCRDError_return;
   case 1:
-    pcard->status = -1;
+    pCI->status = -1;
     tmp_int = 2;
     break;
   case 2:
-    pcard->status = -4;
+    pCI->status = -4;
     tmp_int = 3;
     break;
   case 3:
-    accept = MemCardAccept(gMemCardInfo.channel);
     /* MATCH: the accept==0 arm is the IF-BODY (fall-through) - retail's bnez sends
      * the success arm out-of-line. */
-    if (accept == 0) {
+    if (MemCardAccept(gMemCardInfo.channel) == 0) {
       scratch_i = 0x17;
       goto iMCRDError_setLastError;
     }
     else {
       gMemCardInfo.task = LOAD_CARD;
       gMemCardInfo.bReady = 0;
-      return ret_state;
+      goto iMCRDError_return;
     }
   case 4:
     if (func == 2) {
-      confirm = ((int(*)(void))gMemCardInfo.ConfirmFormatProc)();
-      if (confirm != 0) {
+      if (((int(*)(void))gMemCardInfo.ConfirmFormatProc)() != 0) {
+        /* MATCH: SYM nested block - numberoftries/result live only here. */
+        int numberoftries;
+        int result;
+        int failed;   /* MATCH: the -1 sentinel loop.c hoists out of the retry test.
+                       * As a bare literal it becomes a short-lived hoisted allocno
+                       * whose priority (3 refs / 16 insns) beats pCI's and steals
+                       * $s1; naming it lengthens its live range so pCI wins $s1 and
+                       * the sentinel shares opResult's dead $s2, as retail does. */
+
+        failed = -1;
         numberoftries = 0;   /* MATCH: lands in the beqz delay slot, not the jalr's */
+        /* MATCH: the retry test is the loop CONDITION, not an in-body early return -
+         * retail's `bne result,sentinel` short-circuits straight to the success block
+         * (the -1 sentinel is loop-invariant, hoisted into a saved reg), and the
+         * loop-exhausted path is decided by a SECOND `result == -1` compare after the
+         * loop against a freshly materialized -1.  An in-body `if (result != -1)
+         * return 6;` drops that second compare entirely (census beq 3v4).
+         * Success is the FALL-THROUGH of that second compare (retail `beq` sends the
+         * exhausted path out-of-line, physically AFTER the success block). */
         do {
           result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
           numberoftries = numberoftries + 1;
-          if (result != -1) {
-            gMemCardInfo.task = WRITE_FILE;
-            return 6;
-          }
-        } while (numberoftries < 3);
-        pcard->status = -2;
+        } while ((result == failed) && (numberoftries < 3));
+        if (result != -1) {
+          gMemCardInfo.task = WRITE_FILE;
+          return 6;
+        }
+        pCI->status = -2;
         tmp_int = 7;
         break;
       }
     }
-    pcard->status = -2;
+    pCI->status = -2;
     tmp_int = 5;
     break;
   case 5:
     tmp_int = 0x13;
     break;
   case 6:
-    confirm = ((int(*)(void))gMemCardInfo.ConfirmOverwriteProc)();
-    scratch_i = 0xe;
-    if (confirm != 0) {
+    if (((int(*)(void))gMemCardInfo.ConfirmOverwriteProc)() != 0) {
       MemCardDeleteFile(gMemCardInfo.channel,gMemCardInfo.fileinfo.name);
       gMemCardInfo.task = WRITE_FILE;
       return 0x15;
     }
+    scratch_i = 0xe;
 iMCRDError_setLastError:
-    pcard->lasterror = scratch_i;
+    pCI->lasterror = scratch_i;
     gMemCardInfo.bReady = 1;
-    return ret_state;
+    return code;
   case 7:
     tmp_int = 0x14;
     break;
   default:
     tmp_int = 0x17;
   }
-  pcard->lasterror = tmp_int;
+  pCI->lasterror = tmp_int;
   gMemCardInfo.bReady = 1;
 iMCRDError_return:
-  return ret_state;
+  return code;
 }
 
 /* lines 1896-1897: (static data / macros / comments - no emitted code) */
@@ -1055,20 +1123,23 @@ int iMCRD_DefaultCBProc1(void)
 short ascii2sjis(u_char ascii_code)
 
 {
-  uint sjis_code;
-  int stmp;
-  uint code;
+  /* SYM 8c block: sjis_code USHORT $3($v1), stmp UCHAR $3($v1), stmp2 UCHAR $5($a1).
+   * `base`/`pk` are compiler temps in retail (no SYM record) - kept as C locals only
+   * because the exact statement split is load-bearing (see the MATCH notes below). */
+  u_short sjis_code;
+  u_char stmp;
+  u_char stmp2;
   uint base;
-  byte kind;
+  u_short *pk;
 
   stmp = 0;
-  kind = stmp;                  /* MATCH: oracle's addu a1,v1,zero = kind inits from stmp's zero */
+  stmp2 = stmp;                 /* MATCH: oracle's addu a1,v1,zero = stmp2 inits from stmp's zero */
   if ((byte)(ascii_code - 0x20) < 0x10) {
-    kind = 1;
+    stmp2 = 1;
   }
   else if (9 < (byte)(ascii_code - 0x30)) {
     if ((byte)(ascii_code - 0x3a) < 7) {
-      kind = 0xb;
+      stmp2 = 0xb;
     }
     /* MATCH: negative literals (-0x41/-0x5b/-0x61/-0x7b), NOT the algebraically-equal
      * +0xbf/+0xa5/+0x9f/+0x85 - the oracle's addiu immediates are the signed forms. */
@@ -1076,32 +1147,54 @@ short ascii2sjis(u_char ascii_code)
       stmp = 1;
     }
     else if ((byte)(ascii_code - 0x5b) < 6) {
-      kind = 0x25;
+      stmp2 = 0x25;
     }
     else if ((byte)(ascii_code - 0x61) < 0x1a) {
       stmp = 2;
     }
+    /* MATCH: the last two arms are a FLAT continuation of the same else-if chain.
+     * Folding them into one `else { stmp2 = 0x3f; if (...) return 0; }` block makes
+     * gcc sink the stmp=2 arm to just before the merge (its `j` then dies, ours 71
+     * vs 72) and inverts the 0x61 guard to bnez; the flat chain keeps the stmp=2
+     * arm out-of-line with its own `j` = the oracle's beqz + j/li v1,2 pair. */
+    else if ((byte)(ascii_code - 0x7b) < 4) {
+      stmp2 = 0x3f;
+    }
     else {
-      kind = 0x3f;
-      if (3 < (byte)(ascii_code - 0x7b)) {
-        return 0;
-      }
+      return 0;
     }
   }
-  /* MATCH: kind!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
-   * ascii_table arm; the inverted (kind==0 first) shape emits bnez. */
-  if (kind != 0) {
-    /* MATCH: the +0x1f must be its own in-place mutation of the widened kind -
-     * inline, gcc reassociates it to (ascii_code-0x1f)-kind. */
-    base = kind;
+  /* MATCH: stmp2!=0 is the IF-BODY (fall-through) - the oracle's beqz jumps to the
+   * ascii_table arm; the inverted (stmp2==0 first) shape emits bnez. */
+  if (stmp2 != 0) {
+    /* MATCH: the +0x1f must be its own in-place mutation of the widened stmp2 -
+     * inline, gcc reassociates it to (ascii_code-0x1f)-stmp2. */
+    base = stmp2;
     base = base + 0x1f;
-    code = (uint)ascii_k_table[(uint)ascii_code - base];
+    /* MATCH: the table base is materialized into its OWN pointer local and then
+     * ADVANCED, not indexed - `ascii_k_table[idx]` (or a &-taken element, or an
+     * idx*2 + (int)base int-cast) costs a 73rd insn or a wider recolor.
+     * RESIDUAL (4 diffs, count exact): a pure $v0<->$v1 tie between this pointer
+     * and the scaled-index chain.  Retail accumulates the base INTO the index reg
+     * and reuses it as the lhu dest (addu $v1,$v1,$v0 / lhu $v1,0($v1)); ours
+     * mutates the pointer in place (addu $v0,$v1,$v0 / lhu $v1,0($v0)).  Both
+     * pseudos are block-local so local_alloc decides: the index chain has ~7 refs
+     * over 4 insns vs the pointer's 3 over 6, so ours picks first and takes the
+     * lower reg.  13 spellings measured (array index, &element, int-cast address,
+     * compound +=, index-into-sjis_code, hoisted index, byte-base cast, volatile):
+     * every one either stays at 4 or costs an insn. */
+    pk = ascii_k_table;
+    pk = pk + ((uint)ascii_code - base);
+    sjis_code = *pk;
   }
   else {
-    code = ((uint)ascii_table[stmp][0] + (uint)ascii_code) - (uint)ascii_table[stmp][1];
+    sjis_code = (ascii_table[stmp][0] + ascii_code) - ascii_table[stmp][1];
   }
-  sjis_code = code << 8;
-  return sjis_code | ((ushort)code >> 8);
+  /* MATCH: sjis_code is the SYM's USHORT local - the 16-bit type is what produces
+   * the oracle's `andi $v1,$v1,0xffff; srl $v1,$v1,8` byte-swap tail (a uint
+   * `code` temp + a separate (ushort) cast on the shift emits the same bytes only
+   * by accident and mis-schedules the else arm's sll). */
+  return (sjis_code << 8) | (sjis_code >> 8);
 }
 
 /* lines 2097-2101: (static data / macros / comments - no emitted code) */
@@ -1111,15 +1204,25 @@ u_char sjis2ascii(short sjis_code)
 
 {
   uint hi;
+  u_char hb;
   int kind;
 
   kind = 0;
   hi = sjis_code >> 8;          /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
+  hb = hi;                      /* the SECOND BYTE itself */
+  /* MATCH: retail keeps TWO live values for the second byte - the sign-extended
+   * word in $v1 that all three RANGE TESTS read, and a byte-typed copy in $a2
+   * (the oracle's `addu $a2,$v1,$zero`, filled into the 0x81 bne's delay slot)
+   * that the k-table index and the final subtraction read.  A second int/uint
+   * local, a plain `hv = hi;` copy, or a textual re-evaluation of sjis_code>>8
+   * are ALL copy-propagated back to one pseudo (measured, 9 spellings); only the
+   * NARROWER u_char type makes the second value a genuinely distinct pseudo that
+   * survives cse - and its uses need no mask because both consumers narrow anyway. */
   if ((sjis_code & 0xffU) == 0x81) {
     /* MATCH: the reverse table is its OWN symbol @0x80052ad0 indexed from 0x40 -
      * the oracle's lbu -0x40(base); modelling it as ascii_k_table+0xc folded the
      * displacement into %lo and aliased a different object (real bug). */
-    return sjis_k_table[(hi & 0xff) - 0x40];
+    return sjis_k_table[(hb & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
     if (9 < hi - 0x4f) {
@@ -1130,9 +1233,7 @@ u_char sjis2ascii(short sjis_code)
         kind = 2;
       }
     }
-    /* MATCH: the second byte is `hi` itself (already sign-extended), not a fresh
-     * (char)(sjis_code>>8) re-extract - the oracle reuses the saved copy. */
-    return sjis_table[kind][1] + (hi - sjis_table[kind][0]);
+    return sjis_table[kind][1] + (hb - sjis_table[kind][0]);
   }
   return '\0';
 }

@@ -17,6 +17,11 @@
  */
 #include "video.h"
 #include "video_externs.h"
+/* MATCH: split-address view of `ticks` for videodecode's PRE-LOOP read only -- a bare
+   scalar extern compiles to the atomic `lw $r,sym` assembler macro, so its lui cannot
+   interleave with timerhz's the way retail does.  The IN-LOOP read must stay the plain
+   scalar: the array view there lets loop.c hoist the %hi out of the loop (+2 insns). */
+extern int ticks_a[] asm("ticks");
 
 /* lines 1-61: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -50,8 +55,14 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   {
     extern int screenbpp[];
     extern int timerhz[];
+    /* MATCH: reaching timerhz through a pointer local makes its address a plain
+       schedulable pseudo instead of an in-struct array MEM: retail materializes the
+       %hi in a SEPARATE scratch ($v1) and issues the load BEFORE the mdechandle
+       store, which still holds the call result in $v0.  A direct timerhz[0] read
+       sinks below the store and then self-temps into $a0. */
+    int *hzp = timerhz;
     vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
-    vid->displaytimeincr = fixeddiv(fixedmult(timerhz[0] << 0x10,0xa0000),fps);
+    vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
   }
   vid->state = VIDEOSTATE_IDLE;
   return (int)vid;
@@ -236,13 +247,24 @@ int videodecode(VIDEOSTRUCT *vid,STREAMCHUNKHDR *chunk,int x,int y)
     vid->framewidth = (int)(short)chunk[1].size;
     vid->frameheight = (int)*(short *)((int)&chunk[1].size + 2);
     mdec(vid->mdechandle,(char *)(chunk + 1),x,y);
-    timeout = ticks + timerhz * 4;
+    timeout = ticks_a[0] + timerhz * 4;
+    /* MATCH (allocno ref dial, -dg receipts): the poll step sits in two nested
+       scopes.  gcc-2.8 weights REG_N_REFS by loop_depth, so the in-loop
+       `vid->mdechandle` read counts 4x instead of 2x -> vid 8 refs / live 52 =>
+       priority 4615 vs timeout 3/9 => 3333, so `vid` is allocated FIRST and takes
+       $s0 with timeout in $s1 (SYM: vid REGPARM $10=s0, timeout REG $11=s1).
+       Flat (unwrapped) the numbers invert (vid 6/52 = 2307 < 3333) and the whole
+       function comes out as a clean s0<->s1 role swap, 18 diffs at 43/43 insns.
+       SYM shows 4 nested Block records inside this loop body, so nested scopes
+       are real here; the exact nesting SITE is a codegen dial, not SYM-placed. */
     do {
-      done = mdecdone(vid->mdechandle);
-      if (done != 0) {
-        return 1;
-      }
-      systemtask(0);
+      do { do {
+        done = mdecdone(vid->mdechandle);
+        if (done != 0) {
+          return 1;
+        }
+        systemtask(0);
+      } while (0); } while (0);
     } while (ticks <= timeout);
     mdecreset();
   }

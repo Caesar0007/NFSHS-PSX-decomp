@@ -17,8 +17,8 @@ int initmdec(int width,int height,int bpp,int memtype)
 
 {
   int area;
+  int stripsize;
   void *buf;
-  short hs;
   int stride;
   void *bufsize;
   MDECSTRUCT *mdec;
@@ -37,7 +37,12 @@ int initmdec(int width,int height,int bpp,int memtype)
   if (area < 0) {
     area = area + 0xff;
   }
-  bufsize = (void *)(bpp * 0x1e0 + (area >> 8) * 0x300);
+  /* MATCH: the strip-buffer term is its OWN statement (lower luid) so sched1 issues the
+     area chain before the bpp chain, while the sum keeps `bpp*0x1e0` as addu operand 1.
+     A one-expression form gets the two independent chains in the opposite order; folding
+     the term back into `area`/`bufsize` makes the add an in-place RMW (addu s0,s0,s1). */
+  stripsize = (area >> 8) * 0x300;
+  bufsize = (void *)(bpp * 0x1e0 + stripsize);
   buf = reservememadr("MDEC buffers",(int)bufsize,memtype);
   mdec->stripbuf = (u_long *)buf;
   blockclear(buf,(int)bufsize);
@@ -47,12 +52,14 @@ int initmdec(int width,int height,int bpp,int memtype)
   if (stride < 0) {
     stride = stride + 0xf;
   }
-  hs = (short)height;
-  mdec->framerect.h = hs;
+  mdec->framerect.h = (short)height;
+  /* MATCH: no `hs` local in the SYM -- retail narrows `height` IN PLACE, so the
+     sign-extended value lands back in height's own register (oracle $s3). */
+  height = (short)height;
   mdec->framerect.w = (short)(stride >> 4);
-  mdec->striprect.h = hs;
+  mdec->striprect.h = (short)height;
   mdec->striprectsize =
-       ((int)mdec->striprect.w * (int)hs) / 2;
+       ((int)mdec->striprect.w * height) / 2;
   gMDECinfo.numhandles = gMDECinfo.numhandles + 1;
   return (int)mdec;
 }
@@ -100,7 +107,10 @@ void mdec(int handle,char *src,int x,int y)
   MDECSTRUCT *mdec = (MDECSTRUCT *)handle;
   
   timeout = ticks + timerhz * 4;
-  while (gMDECinfo.hDecode != 0) {
+  /* MATCH: exit-in-the-middle prevents gcc's loop rotation -- the oracle keeps the
+     hDecode test at the TOP of the loop with an unconditional `j` back-edge. */
+  while (1) {
+    if (gMDECinfo.hDecode == 0) break;
     systemtask(0);
     if (timeout < ticks) {
       mdecreset();

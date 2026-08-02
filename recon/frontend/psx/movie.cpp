@@ -166,7 +166,13 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   short mh;
   short mw;
 
-  mh = gMovieHeight;
+  /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
+   * (`_d`), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
+   * schedulable and cc1 sinks the load past the `addiu s0,a0,8`; the scalar
+   * macro form is unschedulable and issues where retail has it.  (Same symbol
+   * uses the view form in strNext/Movie_Init -- both spellings are correct,
+   * pick per site.) */
+  mh = gMovieHeight_d;
   r0->x = x0;
   r0->y = y0;
   r1->x = x1;
@@ -299,15 +305,15 @@ void Movie_Stop(void)
 /* lines 315-319: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Finished  (movie.cpp:320, code lines 320-321) ---- */
-void * Movie_Finished(void)
+int Movie_Finished(void)
 
 {
-  void *finished;
-  
-  finished = (void *)0x0;
+  int finished;
+
+  finished = 0;
   if ((((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
      (bRewindMovie != 0)) {
-    finished = (void *)0x1;
+    finished = 1;
   }
   return finished;
 }
@@ -319,7 +325,7 @@ int Movie_Play(char movie)
 
 {
   bool dispRect;
-  void *finished;
+  int finished;
   int frame_ret;
   uint joyval;
   DISPENV disp;
@@ -336,7 +342,12 @@ int Movie_Play(char movie)
    * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
   while( true ) {
     finished = Movie_Finished();
-    if (finished == (void *)0x1) break;
+    /* MATCH: `(x ^ 1) == 0` is the ONLY spelling of "x == 1" that cc1plus keeps
+     * as the oracle's `xori v0,v0,1; beqz v0`.  Plain `x == 1` (and `!(x ^ 1)`,
+     * and the inverted `if (x != 1) ... else break`) all hoist a `li reg,1` out
+     * of the loop and branch register-to-register -- which ALSO gave that
+     * constant a 3rd reference and stole the first saved register. */
+    if ((finished ^ 1) == 0) break;
     frame_ret = Movie_NextFrame();
     if (frame_ret == -1) break;
     dispRect = dec.rectid == 0;
@@ -364,8 +375,19 @@ int Movie_Play(char movie)
     /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
      * unmasked in a register); per-local u_short narrowing emitted two. */
     joyval = ((uint)PAD_state(0) | (uint)PAD_state(4)) & 0xffff;
-    if ((joyval != 0) && ((Movie_Stop(), skip_all != '\0' || (joyval == 8)))) {
-      user_exit = 1;
+    /* MATCH: the guard must be a plain nested `if`, NOT the comma form
+     * `joyval && (Movie_Stop(), A || B)` -- inside a comma expression gcc
+     * MATERIALIZES the disjunction in a register (addu v1,zero,zero / li v1,1
+     * / beqz v1) instead of short-circuit branching.  And the two arms must
+     * share ONE `user_exit = 1;` store: an `if/else if` pair with a store in
+     * each cross-jump-merges to the same code, but flow.c still counts both
+     * refs of the HImode constant 1 (7 vs 5 loop-weighted), which lifts that
+     * allocno above the `&dec` base and swaps s2/s3 through the whole fn. */
+    if (joyval != 0) {
+      Movie_Stop();
+      if ((skip_all != '\0') || (joyval == 8)) {
+        user_exit = 1;
+      }
     }
   }
   Movie_DeInit();
@@ -405,7 +427,7 @@ void strSetDefDecEnv(DECENV *dec)
   mh = gMovieHeight;
   vb1 = vlcbuf1;
   vb0 = vlcbuf0;
-  img = imgbuf_v[0];
+  img = imgbuf_d;
   top = (int)PPWTop;
   bottom = (int)PPWBottom;
   dec->vlcid = 0;
@@ -445,13 +467,11 @@ void strCallback(void)
 
 {
   int rw;
-  int bottom;
   int vh;
   int hstep;
   int rem;
   int rectid;
   uint nextRect;
-  int one;
   /* MATCH: SYM fsize=32 with mask s0+ra -- 8 bytes of never-referenced frame slack. */
   int deadfrm[2];
 
@@ -466,15 +486,16 @@ void strCallback(void)
   /* MATCH: the slice.x advance is written INSIDE each arm (the oracle joins only after
    * the store); a shared `xstep` temp merged the two adds into one block. */
   if (isFirstSlice != 0) {
-    bottom = (int)PPWBottom;
-    hstep = ((int)PPWTop << 4) / bottom;
-    rw = (int)dec.rect[dec.rectid].w;
-    rem = rw % hstep;
+    /* MATCH: the SYM lists NO locals for this fn -- `hstep`/`rw` as named
+     * locals give the quotient and the width their OWN pseudos, so the quotient
+     * cannot reuse the dividend's register and the whole caller-saved pool
+     * rotates by one (decbase a1->a2, PPWTop a2->a3, isFirstSlice a3->t0). */
+    rem = (int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / (int)PPWBottom);
     if (rem != 0) {
       isFirstSlice = 0;
       /* MATCH: the rem*PPWTop multiply belongs INSIDE the guard (the oracle schedules
        * it into the beqz delay slot); as a preceding statement it lands before the test. */
-      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / bottom);
+      dec.slice.x = dec.slice.x + (short)((rem * PPWTop) / (int)PPWBottom);
       goto strCallback_inlinedJoin;
     }
   }
@@ -482,22 +503,25 @@ void strCallback(void)
 strCallback_inlinedJoin:
   rectid = dec.rectid;
   if ((int)dec.slice.x < (int)dec.rect[rectid].x + (int)dec.rect[rectid].w) {
-    bottom = (int)PPWBottom;
-    hstep = ((int)PPWTop << 4) / bottom;
+    hstep = ((int)PPWTop << 4) / (int)PPWBottom;
     DecDCTout
               ((u_long *)dec.imgbuf,
                ((((dec.slice.w + -1) / hstep + 1) * hstep) << 4) *
                ((dec.slice.h + -1) / 0x10 + 1) >> 1);
   }
   else {
-    /* MATCH: ONE materialization of the constant 1 feeds isdone, isFirstSlice AND the
-     * srav shift amount of the /2 (cse reuses the register). */
-    one = 1;
+    /* MATCH: the `dec.isdone = 1` store must come BEFORE the rectid store in the
+     * SOURCE.  Then cc1 materializes the constant 1 into a register first and cse
+     * feeds that register to the rectid test -- retail's `li a1,1; sltu a0,a3,a1`
+     * (register form) -- which in turn keeps rectid live past the `li` and pins it
+     * to $a3.  With the rectid store first, gcc emits the immediate `sltiu a0,a1,1`
+     * and rectid dies into $a1, rotating the tail.  (gcc reschedules the two stores
+     * back into retail's emitted order.) */
     nextRect = (uint)(rectid == 0);
+    dec.isdone = 1;
     dec.rectid = nextRect;
-    dec.isdone = one;
     dec.slice.x = dec.rect[nextRect].x;
-    isFirstSlice = one;
+    isFirstSlice = 1;
     dec.slice.y = dec.rect[nextRect].y + (short)((0xf0 - gHeight) / 2);
   }
   return;
@@ -539,7 +563,7 @@ u_long * strNext(DECENV *dec)
 
 {
   u_long st;
-  u_long fc;
+
   short mh;
   short ws;
   int bottom;
@@ -566,16 +590,17 @@ freeit:
   StFreeRing(addr);
   return (u_long *)0x0;
 accept:
-  fc = sector->frameCount;
   /* MATCH: on the rewind path the oracle does NOT store gMovieFrame (it jumps over the
-   * store), and the rewind block is laid out BEFORE the store block. */
-  if (fc < gMovieFrame) goto rewind;
-  if (fc < gEndFrame) goto setframe;
+   * store), and the rewind block is laid out BEFORE the store block.
+   * MATCH: no `fc` temp (the SYM lists none) -- the global has to be the FIRST
+   * operand evaluated so the two loads fill each other's load-delay slot. */
+  if (gMovieFrame > sector->frameCount) goto rewind;
+  if (sector->frameCount < gEndFrame) goto setframe;
 rewind:
   bRewindMovie = 1;
   goto framedone;
 setframe:
-  gMovieFrame = fc;
+  gMovieFrame = sector->frameCount;
 framedone:
   if ((gWidth != (uint)sector->width) || (gHeight != (uint)sector->height)) {
     rect.x = 0;

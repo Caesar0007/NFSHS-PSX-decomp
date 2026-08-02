@@ -1955,10 +1955,14 @@ void Physics_Real(Car_tObj *carObj)
       fixedmult((carObj->linearAcc_ch).z,pCVar12->gTransferFactor) + ratio;
   ratio = fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
                     pCVar12->accToAlphaRotInertia);
-  ratio += fixedmult(fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
-                              leftMult - rightMult),
-                     pCVar12->accToAlphaRotInertia) *
-           2;
+  {
+    int wheelMult = leftMult - rightMult;
+
+    ratio += fixedmult(fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
+                                 wheelMult),
+                       pCVar12->accToAlphaRotInertia) *
+             2;
+  }
   finalAngularAcc_ch.y = ratio;
   if ((((carObj->N).angularVel.y > 0) && (finalAngularAcc_ch.y > 0)) ||
       (((carObj->N).angularVel.y < 0) && (finalAngularAcc_ch.y < 0))) {
@@ -2065,12 +2069,13 @@ void Physics_Real(Car_tObj *carObj)
         carObj->RSGasLevel = '\0';
       }
       if (diffRpm < 0) {
-        tempGas = __builtin_abs(diffRpm << 9) / pCVar12->redline;
-        if (0xff < tempGas) {
-          tempGas = 0xff;
+        u_int brakeLevel =
+            __builtin_abs(diffRpm << 9) / pCVar12->redline;
+        if (0xff < (int)brakeLevel) {
+          brakeLevel = 0xff;
         }
-        carObj->RSBrakeLevel = (char)tempGas;
-        if (0x80 < (u_char)tempGas) {
+        carObj->RSBrakeLevel = (char)brakeLevel;
+        if (0x80 < (u_char)brakeLevel) {
           carObj->RSGasLevel = '\0';
         }
       }
@@ -2104,21 +2109,25 @@ void Physics_Real(Car_tObj *carObj)
         int roadPosition;
         coorddef offset;
 
+        pTVar9 = BWorldSm_slices + sliceAhead;
         carPos = (carObj->N).position;
-        dirVector.x = BWorldSm_slices[sliceAhead].center[0];
-        dirVector.y = BWorldSm_slices[sliceAhead].center[1];
-        dirVector.z = BWorldSm_slices[sliceAhead].center[2];
+        dirVector.x = pTVar9->center[0];
+        dirVector.y = pTVar9->center[1];
+        dirVector.z = pTVar9->center[2];
         roadPosition =
             Physics_CalculateRSControlDesiredPosition(
                 carObj,sliceAhead,__builtin_abs(lookAhead * 3));
+        pTVar9 = BWorldSm_slices + sliceAhead;
         offset.x = fixedmult(
-            (int)(signed char)BWorldSm_slices[sliceAhead].right[0] << 9,
+            (int)(signed char)pTVar9->right[0] << 9,
             roadPosition);
+        pTVar9 = BWorldSm_slices + sliceAhead;
         offset.y = fixedmult(
-            (int)(signed char)BWorldSm_slices[sliceAhead].right[1] << 9,
+            (int)(signed char)pTVar9->right[1] << 9,
             roadPosition);
+        pTVar9 = BWorldSm_slices + sliceAhead;
         offset.z = fixedmult(
-            (int)(signed char)BWorldSm_slices[sliceAhead].right[2] << 9,
+            (int)(signed char)pTVar9->right[2] << 9,
             roadPosition);
         dirVector.x += offset.x;
         dirVector.y += offset.y;

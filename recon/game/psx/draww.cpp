@@ -1568,6 +1568,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
+  MATRIX *mB;                      /* &sd->matB, the shared trans-matrix base */
   /* RE-GATE (w44-a7): 125 diffs, ours 358 / oracle 359 (worklist said 179).
      TRIAGE (tools/posdiff.py): alpha-renamed LCS 261/359, structural residual 98,
      and the first-use order differs ONLY in where `s4`(=buildList) and `fp`(=the
@@ -1649,12 +1650,24 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      light stores) that gcc's scheduler reorders across statement boundaries
      -- a §A row-38 "N named value-temps" class floor, untried further this
      session. */
-  int negOne = -1;
-  int gteFlag = 1;
+  /* MATCH (w45-a5, 118 -> 114): BIRTH ORDER.  The oracle's prologue interleaves
+     the saves with the initializing copies in allocation order --
+       s3=Vi, fp=buildInd(0), s6=negOne(-1), s5=&tmp, s7=gteFlag(1),
+       s4=buildList, s0=sd(0x1F800000)
+     -- so buildInd/negOne/gteFlag are BORN BEFORE sd and chunkCount.  With the
+     old `int negOne = -1; int gteFlag = 1;` declaration-initializers sitting
+     ahead of `buildInd = 0`, ours emitted the buildList parm copy first and
+     rotated the whole prologue.  Assigning them as statements in the oracle's
+     birth order fixes it.  Measured: this form 114 · assign after the sd block
+     142 · assign around the doublelayer store 142 · decl-initializers 118. */
+  int negOne;
+  int gteFlag;
 
+  buildInd = 0;
+  negOne = -1;
+  gteFlag = 1;
   sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
   chunkCount = BWorld_gChunkCount;
-  buildInd = 0;
   sd->doublelayer = 1;
   sd->identMat = gIdentTemplate;
   sd->offsubdivid = 0;
@@ -1747,10 +1760,20 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       sd->trans.x = (short)((pChunkCp->x - (Vi->cview).translation.x) >> 10);
       sd->trans.y = (short)((pChunkCp->y - (Vi->cview).translation.y) >> 10);
       sd->trans.z = (short)((pChunkCp->z - (Vi->cview).translation.z) >> 10);
-      (sd->matB).t[2] = 0;
-      (sd->matB).t[1] = 0;
+      /* MATCH (w45-a5, 125 -> 118, count 358 -> EXACT 359): the oracle computes
+         `addiu $v0,$s0,0x14` = &sd->matB ONCE and reaches t[2]/t[1] through it
+         (`sw $zero,0x1C($v0)` / `0x18($v0)`) while t[0] keeps the sd base
+         (`sw $zero,0x28($s0)`); the SAME $v0 then feeds the gte_SetTransMatrix
+         expansion (`lw $t4,0x14($v0)` ...).  Writing all three stores as
+         `(sd->matB).t[k]` gives sd-relative displacements 48/44/40 and a
+         separate address for the call; a named MATRIX* for the two high
+         offsets + the call reproduces the shared base.  Measured: this form
+         118 · all three through mB 120 · none (sd for all) 125. */
+      mB = &sd->matB;
+      mB->t[2] = 0;
+      mB->t[1] = 0;
       (sd->matB).t[0] = 0;
-      gte_SetTransMatrix(&sd->matB);
+      gte_SetTransMatrix(mB);
       /* MATCH: BRANCH-POLARITY FLIP vs the prior draft -- the oracle tests
          `rezInd != 0` (not `== 0`) and puts the stripBuf (geomRez!=0) block as
          the FALL-THROUGH common path, with the lorezstripBuf (geomRez==0)

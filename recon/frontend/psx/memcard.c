@@ -866,16 +866,19 @@ int MCRD_handlecardevents(int card)
       }
       break;
     }
-    __asm__ volatile("" : : "r"(cmd));   /* 2026-08-02: zero-insn USE fence.  INTENDED as
-        * a cmd live-extender (demote p144 below the base's .364) -- that part MISSED (the
-        * fence at this JOIN re-loads cmd into a NEW pseudo, p144 unchanged, a0/a1 rotation
-        * stays).  BUT its USE insn makes this exit path differ from the sibling tails, so
-        * cross-jump can NOT merge it -> the retail 2-insn REORG TRAMPOLINE materializes:
-        * count now EXACT 211/211 (was 209).  🏆 NEW LEVER: asm-USE fence at a block exit
-        * BLOCKS CROSS-JUMP MERGE = reproduces un-merged reorg trampolines (part-3 class).
-        * Residual 56 = ONE mechanism: the cmd(p144 .700) vs &gMemCardInfo-base(.364) $a0
-        * priority order -- base range <= 11 not sched-reachable from source (02rr model);
-        * instrumented-cc1 / permuter territory. */
+    /* w45 RETIRED LEVER (kept as a receipt, do NOT re-add): a
+     * `__asm__ volatile("" : : "r"(cmd));` USE fence sat here from 2026-08-02.
+     * It was a cross-jump BLOCKER -- its USE insn made this exit path differ
+     * from the sibling tails so cross_jump could not merge them, which
+     * materialised retail's un-merged 2-insn reorg trampoline and took the
+     * count 209 -> exact 211/211 (at 44 -> 56 diffs).  Once the $a0 handout was
+     * fixed by the ref dials above, the fence became PURE COST: it is a stack
+     * AUTO, so "r"(cmd) emits a real `lw a3,0x10($sp)`, it un-merges the WRONG
+     * tail (the cmd==2/res==4 arm instead of retail's .L800500D8), and it also
+     * suppressed reorg's fill of four `j` delay slots.  MEASURED post-dial:
+     * fence-on-cmd 16 diffs / 211 insns, fence-on-status or -pCI 15 / 210,
+     * NO FENCE 4 diffs / 209.  Removed.  (LEVER-ORDER-DEPENDENCE meta: a
+     * spelling is only falsified inside its basin -- and so is a WINNER.) */
     goto MCRDhandleCard_end;
   }
 MCRDhandleCard_task:

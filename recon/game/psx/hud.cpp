@@ -3350,6 +3350,7 @@ void Hud_Render(void)
   int wingmode;
   int i;
   char *iface;
+  int j;
 
   if (Replay_ReplayInterface.statsScreen != 0) {
     if (simGlobal.gameTicks < 0x240) {
@@ -3404,9 +3405,15 @@ void Hud_Render(void)
           Hud_BuildReplay();
         }
         if (i == DashHUD_gInfo.splitscreen) {
-          countamount = 1;
+          /* MATCH: explicit goto-chain, NOT `&&`/if -- gcc store-flags the whole
+           * thing into `sltu a0,zero,countdown` (one insn) when it can prove the
+           * result is the 0/1 of the last test; retail branches twice and sets
+           * a0 in the first beqz's delay slot. */
           if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
             countamount = 0;
+          }
+          else {
+            countamount = 1;
           }
           Hud_BuildCdPlayer(countamount,i);
         }
@@ -3427,32 +3434,33 @@ void Hud_Render(void)
       Hud_BTCStats(player,false);
       Draw_StopRenderingView(Hud_gStatsView);
     }
-    i = 0;
+    j = 0;
     /* MATCH: retail walks Hud_gWingmanInterface with an explicit pointer ($s2:
      * lbu/sb 0($s2) + `addiu $s2,$s2,1`), and lays the shared init-map-frame
      * block LAST (.L800D9424) reached by goto from BOTH the equal-and-busted
      * head test and the replay-mode tail test; the loop back-edge is a `j` with
      * `addiu $s0,$s0,1` in the delay slot (top-tested while). */
     iface = Hud_gWingmanInterface;
-    while (i < 2) {
-      wingmode = Input_WingCommandMode(i);
+    while (true) {
+      if (2 <= j) break;
+      wingmode = Input_WingCommandMode(j);
       if (((u_char)*iface == wingmode) && (HudBustedOverlay != 0)) goto HudRender_initMapFrame;
-      if (Hud_gWingmanFlashTicks[i] < ticks) {
+      if (Hud_gWingmanFlashTicks[j] < ticks) {
         if ((u_char)*iface != wingmode) {
           if (1 < Replay_ReplayMode) goto HudRender_initMapFrame;
           if (HudBustedOverlay == 0) {
-            Hud_InitMapFrame(i,wingmode);
+            Hud_InitMapFrame(j,wingmode);
             *iface = (char)wingmode;
           }
         }
         if (Replay_ReplayMode < 2) goto HudRender_next;
 HudRender_initMapFrame:
         *iface = 0;
-        Hud_InitMapFrame(i,0);
+        Hud_InitMapFrame(j,0);
       }
 HudRender_next:
       iface = iface + 1;
-      i = i + 1;
+      j = j + 1;
     }
     Hud_gShowedCDPlayer = 0;
     if (((simGlobal.gameTicks < 0x240) && (countdown != '\0')) && (Hud_BeTheCop == 0)) {

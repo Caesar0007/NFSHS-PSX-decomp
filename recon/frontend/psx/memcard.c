@@ -1018,7 +1018,35 @@ int iMCRD_HandleError(int func,int opResult,int card)
    * and a NESTED block (90 @0x800505f4 .. 92 @0x80050644, source lines 76-98) holding
    * numberoftries REG $16($s0) and result REG $3($v1).  numberoftries takes func's own
    * $s0 because it is block-local and func is dead by then; declaring it at function
-   * scope makes it a global allocno that can never reuse that register. */
+   * scope makes it a global allocno that can never reuse that register.
+   *
+   * RESIDUAL 22 (count EXACT 135/135) = ONE allocno-order inversion: retail gives
+   * $s3 to `card` (SYM REGPARM $0x13) and $s4 to `code` (SYM REG $0x14); we give
+   * $s3 to `code`.  FULLY QUANTIFIED from -dl/-dg (w44):
+   *   allocno_compare priority = floor_log2(refs)*refs/live_length
+   *   ours  code = 2*5/93 = .1075  >  card = 2*4/88 = .0909  -> code allocated first
+   * The whole -dg order (102 84 103 86 83 80 85 104 81 87 82) reproduces exactly, so
+   * the model is confirmed and the razor is: card needs ONE more weighted ref (2*5/88
+   * = .1136), or live_length <= 74, or code must drop to 4 refs / grow past 110 insns.
+   * Retail's ref counts are IDENTICAL to ours (oracle $s3: 1 def + 2 uses, one of them
+   * in the retry loop = 4 weighted; $s4: 1 zero-init + 3 arms + 1 return read = 5), so
+   * the divergence is in live_length or in loop-note placement, not in the source's
+   * reference structure.
+   * PROVEN CARRIER (diagnostic, NOT adopted - it is scaffolding): wrapping the
+   * FormatCard call in a `do { } while (0)` raises its loop depth, giving card the
+   * 5th weighted ref -> the rotation flips and the fn drops to 4 diffs (135/135, the
+   * only residual then being the numberoftries-zero-init position + one delay slot).
+   * FALSIFIED carriers (each measured): while(1)+break / for+break / call-in-condition
+   * / goto-loop loop spellings (all 22, all 135 insns); `register int card` (22);
+   * decl-order per SYM (22); `int code = 0` declarator init (22); duplicate `code = 0`
+   * (22, deleted); code=0 after the getcard call (22); merging scratch_i/tmp_int (22);
+   * un-funnelling the case-3 else arm to `return code` (27 - REFUTES that angle);
+   * a block-local copy of card for the loop (39); purging the `failed` sentinel (52);
+   * swapping the two loop-init statements (54).
+   * NEXT ANGLE: find a zero-instruction 5th `card` reference - the phantom-ref classes
+   * (cse-merged duplicate subexpression, cross-jump-merged duplicate insn) are the only
+   * known ones that add REG_N_REFS without adding an instruction; or shorten card's
+   * live range by 14 insns (it is live in blocks 1-12 and 18-22 per -dl). */
   code = 0;
   pCI = MCRD_getcard(card);
   /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with

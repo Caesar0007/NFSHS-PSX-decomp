@@ -919,9 +919,9 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   int      hoff;
   int      ytop;
 
+  width = ch->width;
   prim = Render_gPacketPtr;
   prevPrim = Render_gPalettePtr;
-  width = ch->width;
   height = ch->height;
   yoff = *(signed char *)&ch->yoffset;
   ybase = y - yoff;
@@ -933,11 +933,11 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   prim[3] = 9;
+  prim[7] = 0x2c;
+  *(ushort *)(prim + 0xe) = gFontClut;
   /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
    * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1. */
   *(u_long *)(prim + 4) = font_tint;
-  prim[7] = 0x2c;
-  *(ushort *)(prim + 0xe) = gFontClut;
   prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0xc] = u;

@@ -1,4 +1,30 @@
 /* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
+ * RESIDUAL 52 (count EXACT 215/215, posdiff structural residual 14).  w44-a6 landed:
+ *  (a) PER-SITE named `iwN = ix + K;` temps for every `ix = ix + K + width` -- gcc's fold
+ *      reassociates the inline `(ix+K)+width` into `ix+(width+K)` (ours `v0=w; v0+=K;
+ *      s1+=v0`), while retail computes `addiu v0,s1,K` then the SHARED cross-jumped
+ *      `addu s1,v0,v1`.  ONE shared temp only reaches 82; five distinct temps reach 52
+ *      (a shared temp merges five disjoint live ranges -- w41 row).
+ *  (b) `offy = -1; alphShape = 0x67;` (offy FIRST) in the 0xE5 arm: the two `offy=-1`
+ *      sites then have DIFFERENT tail insns, so cross_jump stops merging them and gcc no
+ *      longer inverts the `sltiu 0x1d` guard -- restores retail's `beqz` + the separate
+ *      `j .L458C; [ds] li a2,-1` arm.  (The merge WAS the cause of the polarity flip.)
+ * STANDING RESIDUAL (allocno, quantified w44-a6 via -dg/-dl):
+ *  (1) str/'#' swap -- retail str=$s2 / '#'=$s3, ours reversed.  '#' = p108 refs=17
+ *      live=298 pri=0.2282; `str` = p80 refs=8 live=159 pri=0.1509.  To flip we need
+ *      str refs>=16 (4*16/159=0.40) or '#' refs<=14 (3*14/298=0.1409).  FALSIFIED: naming
+ *      the '#' constant in a local (w40, and re-tried w44 at this baseline).
+ *      NEW ANGLE: retail loads `*str` TWICE (`lbu $a0,0($s2)` @800D4354 AND `lbu $v1,0($s2)`
+ *      @800D4574) where we CSE to one -- that second load is worth +2 in-loop refs on str.
+ *      FALSIFIED for forcing it: `volatile u_char` read (54, +2 insns) and a block-local
+ *      `char c2 = *str;` (no change).  Remaining untried: give the 0xE5 arm's compare a
+ *      DIFFERENT memory expression retail also had (e.g. a second `char *` cursor local
+ *      that aliases str), or demote '#' by 3 refs by spelling 2 of the 8 `== '#'` tests
+ *      against a value already in a register.
+ *  (2) the HudPmx_gShapes index/base role swap after the Hud_FBuildSprite call: retail
+ *      recomputes the CALL-ARG `andi a0,s0,0xFF` and reuses it as the index (base ->$v1);
+ *      we recompute the BASE into $a0 and put the index in $v1.  Downstream of (1). */
+/* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
  * RESIDUAL 117 (ours 204 / oracle 215).  w40-a1: `ix = x` moved AHEAD of `ox = x` (gcc was
  * rematerializing ix out of ox's stack slot -- one bogus `lw s1,28(sp)`), and the invented
  * `cVar1` local purged (SYM has no such local; diff-neutral, rule-8 hygiene).

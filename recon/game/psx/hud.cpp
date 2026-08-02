@@ -3592,7 +3592,39 @@ void Hud_RenderHudView(void)
  * `DashHUD_gInfo.showhud[j]` into a +4 giv and therefore has to park %hi(DashHUD_gInfo)
  * in a callee-saved reg across the three jals (two extra saved regs, $s7 + $s4);
  * retail recomputes `sll $v1,$s1,2; addu` per iteration and shares that one shift with
- * Hud_gTacView[j].  Retail's saved set is exactly $s0-$s5 (mask 0x803f0000). */
+ * Hud_gTacView[j].  Retail's saved set is exactly $s0-$s5 (mask 0x803f0000).
+ * w45-a7 MECHANISM PINNED (35 diffs, ours 74 / oracle 71 -- 3 extra insns = 1 extra
+ * callee-saved save/restore pair + 1 giv increment):
+ *   RETAIL DOES NOT HOIST `%hi(DashHUD_gInfo)` OUT OF THE LOOP.  Its loop TAIL emits
+ *   `lui $v1,%hi(DashHUD_gInfo); lw $v0,%lo(...)($v1)` for the `j <= splitscreen` test --
+ *   a SEPARATE-scratch load -- and the next iteration's body REUSES that same $v1:
+ *   `addiu $v0,$v1,%lo(DashHUD_gInfo)` (in the HudTach beqz delay slot) `+ sll $v1,$s1,2`
+ *   `+ addu` `+ lw $v0,0x1C($v0)`.  Because the base is DEFINED INSIDE the loop it is not
+ *   loop-invariant, so loop.c cannot strength-reduce showhud[j] into an address giv, and
+ *   no callee-saved register is spent on it.  Ours hoists the `(high sym)` to the preheader
+ *   (and, with the natural `DashHUD_gInfo.showhud[j]` spelling, additionally copies it into
+ *   $s7), which makes `base + j*4` invariant+giv-able -> the $s4 walker (`addiu $s4,$s4,4`)
+ *   and a 7-register saved set ($s0-$s6/$s7) against retail's 6 ($s0-$s5).
+ * FALSIFIED w45-a7: natural `DashHUD_gInfo.showhud[j]` [36 diffs / 75 insns -- it DOES fix
+ *   the entry to retail's separate-scratch `lui v1; lw v0,0(v1)` and matches the first-use
+ *   order, but gcc then parks the %hi in $s7 AND still builds the $s4 giv, so it is a net
+ *   loss]; `Hud_gTacView[j]` natural too [40]; SR-blocker spellings on `j4` -- function-scope
+ *   + pre-loop `j4 = 0` [35], second `j4 = j*4` before the Stop call [35], `j << 2` [35] --
+ *   the giv is built off the biv `j` regardless of how `j4` is spelled; top-test `while`
+ *   [56], `while(true){if(...)break;}` [56]; goto-loop [75 diffs / 72 insns -- kills loop.c
+ *   entirely, so the GENUINE givs $s2 (gTPage1 +0x30) and $s3 (GameSetup_gData +0xB4) die
+ *   too and the *180 multiply chain reappears inline].
+ * NEW NAMED ANGLE: the target is a SELECTIVE LICM block -- stop `(set p (high
+ *   DashHUD_gInfo))` being hoisted while KEEPING the two address givs.  goto-loop is the
+ *   only known LICM killer and it is too coarse.  Untried, in order: (a) reach splitscreen
+ *   and showhud through an unsized-array asm-label VIEW of DashHUD_gInfo
+ *   (`extern int DashHUD_view[] asm("DashHUD_gInfo");` + `DashHUD_view[0]` / `[7+j]`) --
+ *   the w13 lever that turns a %hi into a schedulable RTL pseudo; if the view makes the
+ *   tail load separate-scratch AND the body reuse the tail's pseudo, the base stops being
+ *   invariant, which is exactly retail's shape; (b) ask the a10 allocator/instrument lane
+ *   for loop.c's `-dL` move-insn table on this fn -- the hoist decision is a cost-model
+ *   verdict (threshold*savings*lifetime vs insn weight) and the required delta may be a
+ *   single ref-count step on the base. */
 void Hud_RenderTacView(void)
 
 {

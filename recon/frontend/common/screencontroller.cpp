@@ -303,30 +303,18 @@ void tScreenControllerConfig::SwapInController()
 void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 {
-  byte padID;
-  bool dialogIdle;
-  uint playerMask;
   bool setmenutonull;
-  tGlobalMenuDefs *menus;
-  short choice;
-  char *word;
-  uint padOffset;
-  int padState;
-  char ctrlType;
   tInsideBoxMenu *fSetMenu;
-  int firsttimeU;
-  
-  firsttimeU = firsttime;
+  tDialogYesNo *dialog;
+
   fSetMenu = (tInsideBoxMenu *)0x0;
-  word = TextSys_Word(0x20b);
-  (this->negconPopUp).string = word;
-  (this->negconPopUp).yesnowords[0] = 0x20c;
-  (this->negconPopUp).yesnowords[1] = 0x20d;
-  (this->negconPopUp).fDefault = 1;
-  playerMask = -(uint)(this->player != 0);
-  padOffset = playerMask & 0x20;
+  dialog = &this->negconPopUp;
+  dialog->string = TextSys_Word(0x20b);
+  dialog->yesnowords[0] = 0x20c;
+  dialog->yesnowords[1] = 0x20d;
+  dialog->fDefault = 1;
   setmenutonull = false;
-  if ((&gPadinfo.buf[0].nopad)[padOffset] != '\0') {
+  if (gPadinfo.buf[(this->player != 0) * 4].nopad != '\0') {
     this->fCurrentController = '\0';
     if (0x7f < this->fArrowFade) {
       this->CurrentlyLoadedArt = 0;
@@ -334,95 +322,113 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
     setmenutonull = true;
     goto SetCurCtrl_menuSetVertHelp;
   }
-  padID = (&gPadinfo.buf[0].ID)[padOffset];
-  if (padID == 0x53) {
+  switch (gPadinfo.buf[(this->player != 0) * 4].ID) {
+  case 0x23:
+    {
+      bool dialogIdle;
+      int choice;
+
+      this->fTimeOutStartTick = 0;
+      if (((firsttime == 0) && (this->fCurrentController != '\x02')) &&
+         (this->fCurrentController != '\x01')) {
+        dialogIdle = false;
+        if (dialog->currentlyOn == 0) {
+          dialogIdle = dialog->fCurrentlyRunning == 0;
+        }
+        if (dialogIdle) {
+          choice = this->negconChoice;
+          if (choice != -1) {
+            goto SetCurCtrl_noNegconDialog;
+          }
+          this->fCurrentController = '\0';
+          this->fArrowFade = 0x80;
+          this->negconChoice = Run((tDialogInteractive *)dialog);
+          {
+            char ctrlType = '\x01';
+            if (this->negconChoice != 0) {
+              ctrlType = '\x02';
+            }
+            this->fCurrentController = ctrlType;
+          }
+          {
+            tGlobalMenuDefs *menus = menuDefs[0];
+
+            this->negconChoice = choice;
+            fSetMenu = &menus->menuControllerNegcon;
+          }
+          goto SetCurCtrl_menuSetVertHelp;
+        }
+SetCurCtrl_noNegconDialog:
+        {
+          setmenutonull = true;
+          firsttime = true;
+          this->fArrowFade = 0x80;
+          this->fCurrentController = '\0';
+        }
+      }
+      else {
+        fSetMenu = &menuDefs[0]->menuControllerNegcon;
+      }
+      goto SetCurCtrl_menuSetVertHelp;
+    }
+  case 0x41:
+    {
+      if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
+        tGlobalMenuDefs *menus;
+
+        this->fCurrentController = '\x04';
+        menus = menuDefs[0];
+        this->fTimeOutStartTick = 0;
+        fSetMenu = &menus->menuControllerDualShock;
+        goto SetCurCtrl_menuSetVertHelp;
+      }
+      int timedOut = 0;
+
+      if (PadGetState((this->player != 0) * 0x10) == 2) {
+        timedOut = true;
+      }
+      else if (((this->fTimeOutStartTick != 0) &&
+                (PadGetState((this->player != 0) * 0x10) == 1)) &&
+               (0x60 < ticks - this->fTimeOutStartTick)) {
+        timedOut = true;
+      }
+      if ((timedOut) || (this->fCurrentController == '\x03')) {
+        setmenutonull = true;
+        goto SetCurCtrl_unknown;
+      }
+      if (this->fTimeOutStartTick == 0) {
+        this->fTimeOutStartTick = ticks;
+      }
+      goto SetCurCtrl_menuSetVertHelp;
+    }
+  case 0x53:
+  case 0x73:
 SetCurCtrl_dualShockDetected:
     this->fTimeOutStartTick = 0;
-    padState = PadGetState((uint)(this->player != 0) << 4);
-    if (padState == 6) {
+    if (PadGetState((this->player != 0) * 0x10) == 6) {
       this->fCurrentController = '\x06';
       fSetMenu = &menuDefs[0]->menuControllerDualShockAnalog;
     }
     else {
-      padState = PadGetState((uint)(this->player != 0) << 4);
-      if (padState == 2) {
+      if (PadGetState((this->player != 0) * 0x10) == 2) {
         this->fCurrentController = '\x05';
         fSetMenu = &menuDefs[0]->menuControllerAnalog;
       }
     }
-  }
-  else {
-    if (padID < 0x54) {
-      if (padID == 0x23) {
-        this->fTimeOutStartTick = 0;
-        if (((firsttimeU == 0) && (this->fCurrentController != '\x02')) &&
-           (this->fCurrentController != '\x01')) {
-          dialogIdle = false;
-          if ((this->negconPopUp).currentlyOn ==
-              0) {
-            dialogIdle = (this->negconPopUp).fCurrentlyRunning == 0;
-          }
-          if ((dialogIdle) && (this->negconChoice == -1)) {
-            this->fCurrentController = '\0';
-            this->fArrowFade = 0x80;
-            choice = Run((tDialogInteractive *)&this->negconPopUp);
-            this->negconChoice = choice;
-            ctrlType = '\x01';
-            if (choice != 0) {
-              ctrlType = '\x02';
-            }
-            this->fCurrentController = ctrlType;
-            menus = menuDefs[0];
-            this->negconChoice = -1;
-            fSetMenu = &menus->menuControllerNegcon;
-          }
-          else {
-            setmenutonull = true;
-            firsttimeU = 1;
-            this->fArrowFade = 0x80;
-            this->fCurrentController = '\0';
-          }
-        }
-        else {
-          fSetMenu = &menuDefs[0]->menuControllerNegcon;
-        }
-        goto SetCurCtrl_menuSetVertHelp;
-      }
-      if (padID == 0x41) {
-        padState = PadGetState(playerMask & 0x10);
-        dialogIdle = false;
-        if (padState == 6) {
-          this->fCurrentController = '\x04';
-          menus = menuDefs[0];
-          this->fTimeOutStartTick = 0;
-          fSetMenu = &menus->menuControllerDualShock;
-          goto SetCurCtrl_menuSetVertHelp;
-        }
-        padState = PadGetState((uint)(this->player != 0) << 4);
-        if ((padState == 2) ||
-           (((this->fTimeOutStartTick != 0 &&
-             (padState = PadGetState((uint)(this->player != 0) << 4),
-             padState == 1)) && (0x60 < ticks - this->fTimeOutStartTick)))) {
-          dialogIdle = true;
-        }
-        if ((!dialogIdle) && (this->fCurrentController != '\x03')) {
-          if (this->fTimeOutStartTick == 0) {
-            this->fTimeOutStartTick = ticks;
-          }
-          goto SetCurCtrl_menuSetVertHelp;
-        }
-      }
-    }
-    else if (padID == 0x73) goto SetCurCtrl_dualShockDetected;
+    break;
+  default:
     setmenutonull = true;
+SetCurCtrl_unknown:
     this->fTimeOutStartTick = 0;
     this->fCurrentController = '\x03';
+    break;
   }
 SetCurCtrl_menuSetVertHelp:
   if ((fSetMenu != (tInsideBoxMenu *)0x0) || (setmenutonull)) {
-    SetMenu(&menuDefs[0]->itemControllerSettings,firsttimeU,fSetMenu);
+    SetMenu(&menuDefs[0]->itemControllerSettings,firsttime,fSetMenu);
   }
-  if (((byte)this->fCurrentController - 5 < 2) && ((byte)this->fTextConfig < 2)) {
+  if (((uint)((byte)this->fCurrentController - 5) < 2U) &&
+      ((byte)this->fTextConfig < 2)) {
     (menuDefs[0]->menuControllerConfig).VertHelp = 1;
   }
   else {

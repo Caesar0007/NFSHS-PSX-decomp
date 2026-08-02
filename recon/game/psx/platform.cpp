@@ -57,11 +57,22 @@ void Platform_InitMemory(void)
  *     (mem) in the `bnez` delay slot and leaves the two `jr ra` tails UNMERGED, exactly
  *     as the oracle @0x800DC318-0x800DC330.  The old `if (... <= gTotal) {success}` form
  *     put v0=0 in the slot (that was the documented 12-diff residual (b)).
- * Residual 6 = the divide guard: gcc rematerializes `size+6` from $a0 and DUPLICATES the
- * `sra` into both arms, where the oracle keeps a copy `addu v1,v0,zero` on the positive
- * path plus ONE shared `sra`.  Tried: separate quotient local (8), extra `q = size` copy
- * (6, same shape), hand-written guard `if (size<0)` (22, folds wrong).  $a0 stays live so
- * combine can always refold (size+3)+3 -> a0+6; no source form found that kills it. */
+ * w45-a3: PASS 19/19 (was 6).  THE LAST LEVER = keep the ROUNDED value in `size` as its
+ * own statement (`size = size + 3; size = (size / 4) * 4;`) instead of consuming the divide
+ * inline in the `newmem` expression.  MECHANISM: expand_divmod's sdiv-by-power-of-2 always
+ * emits `t1 = op0; if (op0 >= 0) goto L; t1 = t1 + 3; L: q = t1 >> 2`.  When the divide is
+ * consumed inline, op0 is a dead anonymous temp, local-alloc's combine_regs coalesces t1
+ * onto it and the `t1 = op0` copy VANISHES -- leaving the bgez delay slot empty (our `nop`).
+ * Assigning the quotient back into the `size` VARIABLE keeps op0's pseudo live across the
+ * guard, the two qtys conflict, combine_regs declines, and the copy survives as retail's
+ * `addu v1,v0,zero` in the bgez delay slot ($v1 = the distinct t1).
+ * NOTE this is the EXACT INVERSE of the sibling Platform_TempReserveMemory lever above --
+ * there the arithmetic must stay ANONYMOUS, here it must stay in the VARIABLE.  The
+ * discriminator is which pseudo retail keeps live, read straight off the delay slot:
+ * empty bgez slot = ours coalesced = give the value a variable home.
+ * Measured this session: rounded-into-size 0, base 6, bias-inline 6, named `n` 6, separate
+ * `rounded` local 6, mem-before-newmem 8, mem-drives-newmem 8, `>>2` instead of `/4` 11 (-3 insns,
+ * drops the guard). */
 char *Platform_ReserveMemory(int size,char *string)
 
 {
@@ -69,7 +80,8 @@ char *Platform_ReserveMemory(int size,char *string)
   char *mem;
 
   size = size + 3;
-  newmem = gCurrentMemory + (size / 4) * 4;
+  size = (size / 4) * 4;
+  newmem = gCurrentMemory + size;
   mem = (char *)gCurrentMemory;
   if ((int)gTotalMemory < newmem - gLowMemory) {
     return (char *)0x0;

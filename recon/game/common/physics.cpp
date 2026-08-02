@@ -2040,16 +2040,16 @@ void Physics_Real(Car_tObj *carObj)
                             ? 2 : (u_char)(carObj->control).gear]) /
           0x10000;
     }
-    currentRpm =
+    int adjustedRpm =
         fixedmult((carObj->linearVel_ch).z,
                   pCVar12->velToRpmRatio[
                       ((u_char)(carObj->control).gear < 2)
                           ? 2 : (u_char)(carObj->control).gear]);
-    if (currentRpm < 0) {
-      currentRpm += 0xffff;
+    if (adjustedRpm < 0) {
+      adjustedRpm += 0xffff;
     }
     tempGas = (desiredRpm << 8) / pCVar12->redline;
-    diffRpm = desiredRpm - (currentRpm >> 16);
+    diffRpm = desiredRpm - (adjustedRpm >> 16);
     if (diffRpm >= 0xc9) {
       int gasLevel;
 

@@ -591,10 +591,24 @@ void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1)
  * scratch-address idiom (§3.6b, identical body to the passing siblings) now competes for
  * caller-saved $t-regs with those 4 stack reloads. Oracle picks $t5 for the packet-ptr scratch
  * + $t3/$t4 for the two stack reloads it needs early; ours picks $t3 for the scratch + $t4/$t5
- * for the reloads -- a uniform register-class shift, insn-for-insn identical otherwise. Matches
- * the catalog's "register-materialization FLOOR (§3.15 v0-vs-a2 tie-break)" row E: maspsx/gcc
- * pick the address scratch from allocator state, not source-shapable without a working permuter.
- * Accepted as a near-miss floor. */
+ * for the reloads -- a uniform register-class shift, insn-for-insn identical otherwise.
+ * w44-a5 ROOT-CAUSED (the "register-materialization FLOOR" verdict that stood here is STALE):
+ * the whole fn is ONE basic block, so the residual is ONE sched1 ready-list pick at the point
+ * right after `lw $t1,0(0x1F800000)`.  Retail issues the OT-RMW's `lw $v1,0($a0)` there; ours
+ * issues the four incoming-stack-arg loads (h/col1/x0off/x1off from sp+0x40..0x4C).  EVERY
+ * downstream diff cascades from that single pick: the $t3<->$t5 scratch naming, the $v0<->$v1
+ * mask pair, and the `addiu $v1,$a0,0x18`-vs-`sw` order.
+ * MEASURED (12 spellings, ALL exactly 38 diffs at 48/48): RMW-side = palette re-read vs the
+ * cached prev_pkt, split value/store statements, cursor-bump moved up, mask-operand order
+ * flipped, addr24-EARLY, full prev_pkt purge (71 = worse); PARAM-side = (signed char) casts at
+ * the call, named `signed char` locals BEFORE the RMW and AFTER it, named int/u_long locals for
+ * h/col1.  The param side is provably NOT luid-steerable here (the conversions land where
+ * sched1 wants them regardless of statement position).
+ * NEW ANGLE: attack sched1's PRIORITY, not the luid -- lengthen the OT-RMW chain's critical
+ * path so it outranks the arg-load chain (retail's own store-then-read-back / read-before-bump
+ * spellings add a dependent step at count parity), or shorten the arg-store chain.  Free
+ * instrument, never run on this fn: `tools/rtl_dump.py recon/game/psx/hud.cpp -dS` prints the
+ * actual sched1 ready-list priorities for this block. */
 void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char x0off, char x1off)
 {
   POLY_F4 *prim;
@@ -1023,8 +1037,26 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   min = (temp1 / 0x3c) % 0x3c;
   sec = temp1 % 0x3c;
   /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
-     Residual 10 = which pseudo __builtin_abs targets (oracle: abs->v0 then saves a2;
-     ours: abs->a2 then copies v0).  Everything after insn 9 is byte-identical. */
+     RESIDUAL 10 (99/99 count-exact), w44-a5 MECHANISM (supersedes "copy-direction pick"):
+     the oracle's 5 insns are `v0=abs(a1); bgez v0; [slot] a2=v0; v0=v0+63; sra a1,v0,6`
+     -- i.e. the divide's copy_to_mode_reg temp is COALESCED with the abs pseudo (the abs
+     value DIES at the divide) and the SURVIVING temp2 is a SEPARATE pseudo fed by an
+     extra copy.  Ours is the mirror: temp2 IS the abs pseudo (lives on) and the divide
+     copies into a fresh v0.  gcc-2.8 cannot emit the oracle's shape from a source-level
+     copy: expand_divmod always emits `tmp = copy(op0)` with tmp fresh, so op0 only dies
+     if nothing else uses it -- and any `temp2 = temp3;` copy is killed by cse's copy
+     propagation (op0 is never modified at cse time).  FALSIFIED (all exactly 10, count
+     99/99): temp3+copy either side of the divide; `time = abs(time)` in place; two
+     `__builtin_abs(time)` calls (cse unifies); `(temp2 ^ zero)` runtime-zero (folds);
+     `hun = (temp2 % 0x40)*100/0x40`.  NEAR MISS WORTH RE-RUNNING: making the SURVIVOR
+     the clamped `time` and the dividend the abs (`temp1 = __builtin_abs(time)/0x40;
+     hun = (time - temp1*0x40)...`) gives 12 diffs but REPRODUCES the oracle's coalescing
+     exactly (abs->v0, dividend dies, `addiu v0,v0,63` in place) -- the only residual
+     there is WHERE the survivor copy is made (entry a1->a2 vs post-abs v0->a2).
+     NEW ANGLE: find a 1-insn computation, distinct to cse, that yields abs(time) for the
+     survivor -- e.g. survivor = a value produced by the CLAMP arm (so its def is a real
+     insn cse cannot equate with the abs), or route temp2 through a narrower/different
+     mode local (w43 "a NARROWER local is the cse copy that SURVIVES"). */
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
@@ -1093,7 +1125,36 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   return;
 }
 
-/* ---- Hud_BuildTach__Fi  [HUD.CPP:1376-1442] SLD-VERIFIED ---- */
+/* ---- Hud_BuildTach__Fi  [HUD.CPP:1376-1442] SLD-VERIFIED ----
+ * RESIDUAL 163 (ours 268 / oracle 269, posdiff structural 65).  w44-a5 read the SYM 8c block
+ * @0x800d3e94 (fsize 88, mask 0xc0ff0000) for the FIRST time; it is the ground truth here:
+ *   player REGPARM $s1 | fangle $fp | sin/cos AUTO -0x40/-0x3c | rpm $v0 | gSprt1 AUTO -0x38 |
+ *   clut $s0 | x $s7 | y $s4 | cos1 AUTO -0x34 | sin1 $s6 | carType $a0 | color AUTO -0x30 |
+ *   block@0x800d401c { prim POLY_F3* $s2, prim2 POLY_F3* $s0 }   -- and NOTHING ELSE.
+ * => the mask 0xffffff, 0xff000000, tp9, tp3, ts3/ts4/ts1, pal and the &HudPmx_gShapes[0x82]
+ *    address are all COMPILER TEMPS (correctly un-SYM'd), and our AUTO set already matches.
+ * OUR ONLY ROLE DIVERGENCE is a 4-way rotation of the call-crossing set:
+ *      ours   y=$s3  sin1=$s4  mask24=$s5  shapeaddr=$s6
+ *      retail mask24=$s3  y=$s4  shapeaddr=$s5  sin1=$s6      (SYM-confirmed y=$s4, sin1=$s6)
+ * The +1 insn (`addiu $v1,$s7,0x1D` hoisted above the clut-x `beqz` + a DUPLICATED `or`) is
+ * DOWNSTREAM of that rotation, not a source shape: jump2's cross_jump compares RENUMBERED regs,
+ * so retail's two arms survive un-merged only because their pseudos got $v0 and $v1; ours both
+ * get $v0 and merge.  -dg receipts: y = pseudo 88, refs 3, live 69, pri 0.0435 (12th of 14);
+ * the mask/shape/sin1 are local_alloc (block) quantities, y is a GLOBAL allocno.
+ * MEASURED, all >= 163 (13 spellings): default-then-override / hoisted-local / ternary / arm-swap
+ * for the clut-x select (163-165, count never moved off 268); mask named in an early local at 3
+ * positions (167/172/194 -- the top-of-body one DOES reach 269/269 count-exact but posdiff 76);
+ * cos1/sin1 statement swap (154 LCS but posdiff 69); a named `fourteen` constant (163); the full
+ * SYM-faithful rewrite (prim/prim2 typed POLY_F3* inside the SYM block, tachNeedle_p/tp3/pal
+ * purged) = 177, i.e. block scope is NOT the dial here.
+ * NEW ANGLE (two, both untried): (1) a10's REF-STEP -- floor_log2(refs) steps at powers of two,
+ *   so add ONE more no-op `& 0xffffff` ref to the mask and recompute mask-vs-y rank (the mask
+ *   already has 8 refs, so the step to 16 is out of reach -- instead DEMOTE y from 3 refs to 2
+ *   by folding `0xe - (short)y` into the expression that already produces y, dropping y below
+ *   floor_log2's 2->4 step); (2) a1's REVERSE-BIRTH law -- local_alloc hands out the low s-regs
+ *   in REVERSE birth order of a block's call-crossing quantities, so read `-dl` for this fn and
+ *   move the mask's first materialization LATER (it is currently born in the OT block) so it
+ *   sorts ahead of the shape address.  Both are one-statement edits. */
 void Hud_BuildTach(int player)
 
 {
@@ -1902,7 +1963,32 @@ void Hud_InitMap(void)
   return;
 }
 
-/* ---- Hud_BuildMapMarkers__Fi  [HUD.CPP:2019-2133] SLD-VERIFIED ---- */
+/* ---- Hud_BuildMapMarkers__Fi  [HUD.CPP:2019-2133] SLD-VERIFIED ----
+ * RESIDUAL 161 (ours 317 / oracle 308, posdiff structural 69, frame 72 == SYM fsize 72).
+ * w44-a5 FIRST EXAMINATION SINCE w38.  Census: rove_op `sw 26v24` (+2 stores), brcensus clean
+ * (no jal/branch deficit) => no missing logic, it is +9 insns of allocation/materialization.
+ * ROOT CAUSE FOUND, first-use order is the tell:
+ *      ours   $s5(i) $fp $s7 $v0 $s4 $t0 $s6 ...
+ *      oracle $fp    $s5 $s6 $v0 $s4 $t0 $s7 ...
+ *   OUR $fp holds the LITERAL 0x1F800004 (`lui $fp,0x1f80; ori $fp,$fp,4` in the prologue) --
+ *   cse computes the scratchpad packet-cursor address ONCE for BOTH marker loops and, being
+ *   live across them, it lands in a callee-saved reg.  RETAIL rematerializes it INSIDE each
+ *   loop into a caller-saved reg (`lui $a1,0x1F80; ori $a1,$a1,4; lw $a2,0($a1)` @0x800d5c54 and
+ *   `$a2` @0x800d5e64) and keeps `mapy` (SYM: REG $0x1e = $fp, `addiu $fp,$zero,0x18`) in $fp.
+ *   Retail also rematerializes 0xff000000 per loop while hoisting 0xffffff into $s6.
+ *   NOTE this is NOT the LICM budget: the -dL dump for the cop loop (352-766, 146 real insns)
+ *   shows the 0x1F800004 movable is NOT in its moved list -- it is a cross-loop CSE + allocation.
+ * MEASURED (both byte-neutral, still 161/317): replacing the `pktcell` local with direct
+ *   `Render_gPacketPtr` macro uses; qualifying the cell `u_char *volatile *` (volatile on the
+ *   POINTEE does not defeat ADDRESS cse).  The in-source claim that the pktcell local `keeps the
+ *   0x1F800004 constant un-hoisted like retail` is STALE AND FALSE -- it is hoisted into $fp.
+ * NEW ANGLE: make the two loops' scratchpad addresses UN-CSE-able so each loop rematerializes
+ *   its own -- the w42/w43 per-site address FORM dial: give each loop its own distinct
+ *   address expression (e.g. one site as `*(u_char **)0x1F800004`, the other reached as
+ *   `((u_char **)0x1F800000)[1]`, byte-identical target, different rtx so cse cannot equate
+ *   them), or wrap one in the `__asm__("" : "=r"(p) : "0"(p))` identity fence.  Second lever:
+ *   once $fp is free, check that `mapy = 0x18` lands there (it is currently const-propagated to
+ *   each call site) -- if not, the SYM says it must, and a10's ref-step applies to it. */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -2872,7 +2958,29 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
    * Also: `j = 0;` must precede the `by = ...` statement in BOTH loops, and the
    * `| 0x3c` belongs at the CALL SITE (keeps `index` in $v1 per the SYM), not folded
    * into `index` itself.  73 -> 37.  Residual: giv base is 0 (i*9) + a y reload where
-   * retail's giv base is y itself (+1 insn), and the index/$v1-vs-$a0 chain. */
+   * retail's giv base is y itself (+1 insn), and the index/$v1-vs-$a0 chain.
+ * w44-a5 (posdiff structural residual 18, first-use order ALREADY oracle-identical):
+ * the +1 insn is fully localized to the first loop's outer-body head:
+ *   ours   addu $s4,$s2,0 (j=0) | addu $s5,$s2,0 (giv base = 0) | lw $t0,76(sp) (y RELOAD) |
+ *          addu $s3,$t0,$s5 (by = y + giv)      <-- 4 insns, y reloaded every outer iteration
+ *   retail addu $s4,$a1,0 (giv base = y, in the OUTER PREHEADER) | addu $s3,$s2,0 (j=0) |
+ *          addu $s5,$s4,0 (by = copy, INNER preheader) ; bottom: addiu $s4,$s4,9
+ * So retail's `y + i*9` giv is seeded from the INCOMING $a1 before the loop, while ours seeds
+ * from 0 and re-loads y out of its ARG home each iteration (gcc will not hoist that MEM load
+ * past the Flare_2DHalo calls).  MEASURED: explicit `by = y; ... by = by + 9;` walker in loop 1
+ * = 108 insns (3 SHORT, 75 diffs); same walker in loop 2 = 107/78; single-expression
+ * `by = y + i*9;` = 108/73 (the w42 finding reconfirmed); walker in loop 2 only = 112/41.
+ * So every base-y form loses 4 insns elsewhere and every base-0 form is +1 here.
+ * ALSO MEASURED NEGATIVE (w44-a5): seeding the split form from a preheader pseudo
+ * (`int y0; y0 = y;` before the loop, `by = y0; by = by + i*9;` inside) = 93 diffs / 114 insns
+ * and the FRAME GROWS to 80 (SYM fsize is 72) -- the extra pseudo forces a spill slot.
+ * NEW ANGLE: the ARG-HOME reload is the target, not the giv base.  Retail reads y from the
+ * incoming $a1 in the outer preheader and NEVER reloads it inside loop 1; ours reloads because
+ * gcc will not move the MEM load past the Flare_2DHalo calls.  So make the first loop's `by`
+ * base a value that is ALREADY in a callee-saved reg for another reason -- e.g. derive it from
+ * the SAME expression that feeds Hud_BlackThinBox(x - 3, y - 2, ...) after the loop (a shared
+ * `y - 2` / `y` term gives cse a reason to keep y live in a register across the loop), or
+ * reorder so the BlackThinBox call precedes loop 1 (check the oracle's block VAs first). */
   int i;
   int j;
   int k;

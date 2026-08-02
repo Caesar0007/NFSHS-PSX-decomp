@@ -398,6 +398,15 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
 
 /* lines 923-927: (static data / macros / comments - no emitted code) */
 
+/* PsyQ libgpu P_TAG head word (addr:24 | len:8).  The tag-link code is the SDK
+ * addPrim()/setaddr()/getaddr() macro family over this bitfield -- the shape that cracked
+ * libgpu P06.c AddPrim, where the hand-masked-OR spelling put the two mask constants in the
+ * wrong registers.  Inside a LOOP the same lowering also fixes the LICM PREHEADER ORDER: a
+ * bitfield store generates the masked VALUE (& 0xffffff) BEFORE the destination mask
+ * (& 0xff000000), so loop.c hoists the two constants in retail's order (LO then HI); the
+ * hand-written `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 */
+typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
+
 /* ---- DrawGouraudShape  (psxfront.cpp:928, code lines 928-985) ---- */
 /* ---- w44-a1 RESIDUAL 198 (count EXACT 245/245, frame 104 == SYM fsize, brcensus CLEAN) ----
  * MECHANISM (quantified from `tools/rtl_dump.py -dL`, loop 85..652, 170 real insns):
@@ -477,13 +486,8 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
-  int      deadfrm[2];   /* w44-a1 SYM-fsize FILLER.  The oracle frame is 104 (0x68) with THREE
-                            AUTOs -- width@16(sp), vh@24(sp), v@32(sp).  Once the packet-cursor
-                            bump moved next to its read (below) loop.c stopped hoisting the two
-                            scratchpad address constants, pressure dropped, and `vh` left its AUTO
-                            slot -> frame 96.  The filler restores 104 and with it retail's whole
-                            spill/reload layout (198 -> 164 diffs).  It stands in for the vh AUTO
-                            we cannot yet force back into memory -- see the receipt above. */
+  int      deadfrm[2];   /* w44-a1 SYM-fsize FILLER (frame 104; removing it = 192/frame-96
+                          * in the addPrim basin too).  See the vh/v-root receipt below. */
 
   height = shp->height;
   width = shp->width;
@@ -494,9 +498,49 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   }
   v = (byte)shp->shapey;
   vh = shp->height;
+  /* 2026-08-02 INLINE ADDENDA (angle #1 measured, 3 falsifications + 2 ORACLE FACTS):
+   * retail's vh pair is PRE-loop: `lhu $t8,0x12($s4)` with the spill `sh $t8,0x18($sp)`
+   * in the flags&2 beqz DELAY SLOT, then ONE in-loop reload `lhu $t8,0x18($sp)` @8004E53C
+   * feeding a single addu for both sb's => vh is a SPILLED PSEUDO (assigned pre-loop,
+   * loses the callee-saved contest), not an in-loop re-read.  FALSIFIED: in-loop re-read
+   * at use site (226 @239, vh leaves memory entirely, frame 96); in-loop re-read at loop
+   * top (163 @242, register rotation); `(void)&vh` address-taken (195 @240 -- TREE_
+   * ADDRESSABLE forces ALL accesses through memory, over-shoots).  LIVE ROUTE: ours has
+   * only 9 call-crossing candidates so vh WINS a reg; retail had 10 -- find the 10th
+   * crossing value (or demote vh's allocno below the 9th) without adding insns.
+   * DISPOSITIONS MEASURED (-dg, 2026-08-02): our s-pool = s0:p86(prim) s1:p93 s2:p89
+   * s3:p141 s4:p80(shp) s5:p94 s6:p115 s7:p83; arg-home-equiv pseudos ride t-regs
+   * (p81>t5 p82>t3 p84>t4 p90>t2 = retail's SYM flags:$t6/x:$t2/color:$t5 pattern,
+   * reload-served).  vh ~= p87 (3refs/166live, call-crossing) is ABSENT from the
+   * dispositions -> gcc gave it REG_EQUIV to its defining `shp->height` MEM, so reload
+   * re-reads lhu 0x12(s4) per use with NO sh -- retail instead has a REAL AUTO home
+   * (sh 0x18(sp) + lhu reload).  So the question is not the s-pool contest at all:
+   * it is why retail's vh pseudo did NOT get the REG_EQUIV-to-source-mem treatment
+   * (update_equiv_regs requires a SINGLE def whose source mem is unchanged -- retail's
+   * source must WRITE vh a second time, or read it through a shape that blocks the
+   * equivalence: e.g. `vh = shp->height; if (flags&2) vh = vh;`-class second def, or
+   * the height field aliased by the prim stores).  NEXT: a second CONDITIONAL def of
+   * vh (mirroring the v-1 guard) breaks single-def REG_EQUIV at zero insn cost if the
+   * arm folds -- same femenudefs update_equiv_regs family as the tGlobalMenuDefs this
+   * question.
+   * 🏆 ROOT UNIFIED (2026-08-02, labeled census in the addPrim basin): the WHOLE 120
+   * cascades from ONE root -- retail keeps BOTH v (byte AUTO @32(sp)) and vh (half AUTO
+   * @24(sp)) MEMORY-RESIDENT across the in-loop calls (spill sb/sh + per-region reloads,
+   * v's reload feeding addu v0,t8,t7 with t7=lbu 32(sp)), freeing $t2 for x -- ours keeps
+   * v LIVE IN $t2, displacing x->t3, mask->t4 (the 3-cycle), shifting bpp's slot 16->24,
+   * and dropping the vh pair.  So the question is v's allocation, not vh's: why does
+   * retail's v pseudo (8+ loop-weighted refs) get NO register?  Same allocator-exclusion
+   * class as femenudefs `this`.  MEASURED here: sy-temp neutral (cse folds); deadfrm
+   * filler still load-bearing in this basin (without it 192/frame-96). */
   if ((flags & 2) != 0) {
     v = (byte)shp->shapey - 1;
   }
+  /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
+   * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
+   * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different
+   * lvalue shape), each of which costs a real insn in the arm; measure vs the
+   * missing-pair budget (+2) next pass.  Also PENDING: confirm p87==vh in the
+   * lreg insn stream before further REG_EQUIV surgery. */
   i = 0;
   while (i < shp->width) {
     int addw;
@@ -518,21 +562,16 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     uint  addr24;
 
     prim = Render_gPacketPtr;
-    Render_gPacketPtr = prim + 0x34;   /* w44-a1: the cursor bump ADJACENT to its read collapses the
-                                          0x1F800004 movable's life 16 -> 4, so loop.c declines it and
-                                          the address is rematerialised in-loop exactly like retail
-                                          (`lui;ori` at the top of the loop body).  sched2 sinks the
-                                          store back into the middle of the RMW pair, matching the
-                                          oracle's `sw v0,0(a2)` placement. */
+    Render_gPacketPtr = prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */
     /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
        the top of the loop body lengthens the 0xFFFFFF movable and shortens 0xFF000000 --
        INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
        the movable set retail has: 0xFFFFFF is the ONLY hoisted constant, both scratchpad
        addresses AND 0xFF000000 are rematerialised in-loop. */
-    addr24 = (uint)prim & 0xffffff;
     pal = (uint *)Render_gPalettePtr;
-    *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
-    *pal = *pal & 0xff000000 | addr24;
+    /* EA-1998 addPrim(): P_TAG bitfield setaddr pair (house idiom). */
+    ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)pal)->addr;
+    ((PSXFront_PTag *)pal)->addr = (uint)prim;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
@@ -566,12 +605,12 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
                              reassociate the -1 out and re-add addw at each vertex (w42-a7) */
       *(short *)(prim + 8) = ((width + x) - i) + addw;
       *(short *)(prim + 10) = y;
-      *(short *)(prim + 0x16) = y;
       *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addw;
-      *(short *)(prim + 0x22) = y + height;
+      *(short *)(prim + 0x16) = y;
       *(short *)(prim + 0x20) = ((shp->width + x) - i) + addw;
-      *(short *)(prim + 0x2e) = y + height;
+      *(short *)(prim + 0x22) = y + height;
       *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addw;
+      *(short *)(prim + 0x2e) = y + height;
     }
     else {
       *(short *)(prim + 8) = i + x;
@@ -678,6 +717,21 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
  *   itself keeps only ONE dependent chain, or split the two right-edge vertices into their own
  *   block scope.  For (a): dump -dl for block 0 and compare the pal/mask quantity lifetimes --
  *   the pair is a two-quantity tie of exactly the kind the w43 birth-order row cracks.
+ * 2026-08-02 INLINE SESSION ADDENDA (measured):
+ *   - ORACLE FACT: retail's `prim+0x20 = x` store is MID-sequence (call-2's delay slot, between
+ *     the 0x16 and 0x22 statements), NOT at the end -- and retail feeds BOTH right-edge vertices
+ *     from ONE late-born x-1 in $s0 (`addu v0,s0,v0` @0x14, then in-place `addu s0,s0,v0` @0x2c).
+ *   - FALSIFIED x2: full retail statement order (xm1 stmt before 0x14, 0x20 mid) = 177/frame-72
+ *     early-birth spill, AND the embedded-def form `fixedmult(..) + (xm1 = x - 1)` = SAME 177 --
+ *     cc1 expands the call-free operand FIRST regardless of side (expand_expr saves nothing
+ *     across the call), so xm1's addiu always lands pre-call-1 from source.  Retail's late
+ *     `addiu s0,s6,-1` (after call 1, after the height sign-extend) is a SCHED1 SINK of a
+ *     low-priority def that OUR sched instead hoists as a delay-slot filler => the reachable
+ *     dial is sched-pressure around call 1, not statement position.  Block-0 (a) tie measured:
+ *     pal p97 4refs/19live=.421 -> $a1, mask p105 3refs/23live=.130 -> $a2; retail needs the
+ *     mask FIRST -- mask cannot reach .421 at 3 refs (needs live<=7); pal cannot drop below
+ *     mask without losing the cache shape => (a) is priority-inversion territory, permuter or
+ *     a 4th mask ref.  Field-reads-before-prim/pal statement order: NEUTRAL (60).
  */
 /* GPU packet: builds POLY_GT4 (stride 0x34, SetPolyGT4); prim=u_char* build cursor, prevPrim=u_char* link word */
 void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
@@ -697,6 +751,9 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   char     uw;
   char     vh;
   int      xm1;
+  int      one;   /* permuter find (score 620->305): the shared -1 subtrahend is a
+                   * NAMED constant materialized ONCE between the SetSemiTrans and
+                   * GetClut calls -- it lives in a reg across the calls like retail. */
   uint    *pal;   /* w44-a1 MATCH: retail holds the PALETTE-CURSOR POINTER in $a2 across the whole
                      RMW pair (`lui a2,0x1F80; lw a2,0(a2)` ONCE, then `lw v1,0(a2)` / `lw v0,0(a2)` /
                      `sw v0,0(a2)`).  Reading the scratchpad literal `Render_gPalettePtr` three times
@@ -709,15 +766,17 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *pal & 0xffffff;
+  /* EA-1998 addPrim(): P_TAG bitfield setaddr pair, bump between (house idiom). */
+  ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)pal)->addr;
   Render_gPacketPtr = prim + 0x34;
-  *pal = *pal & 0xff000000 | (uint)prim & 0xffffff;
+  ((PSXFront_PTag *)pal)->addr = (uint)prim;
   *(int *)(prim + 4) = color[0];
   *(int *)(prim + 0x10) = color[1];
   *(int *)(prim + 0x1c) = color[2];
   *(int *)(prim + 0x28) = color[3];
   SetPolyGT4((POLY_GT4 *)prim);
   SetSemiTrans(prim,flags & 1);
+  one = 1;
   *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
   *(ushort *)(prim + 0x1a) =
        ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
@@ -733,14 +792,14 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   }
   *(short *)(prim + 8) = x;
   *(short *)(prim + 10) = y;
-  *(short *)(prim + 0x14) = (x - 1) + fixedmult(scalex,width);
+  *(short *)(prim + 0x14) = (x - one) + fixedmult(scalex,width);
   *(short *)(prim + 0x16) = y;
+  *(short *)(prim + 0x20) = x;
   *(short *)(prim + 0x22) = y + fixedmult(scaley,height);
-  xm1 = x - 1;
+  xm1 = x - one;
   xm1 = xm1 + fixedmult(scalex,width);
   *(short *)(prim + 0x2c) = xm1;
   *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
-  *(short *)(prim + 0x20) = x;
   {
     /* w44-a1 MATCH: retail BATCHES the two byte field reads (`lbu a2,0x10(s4)` = width,
        `lbu a0,0x12(s4)` = height) ahead of the u/v flip guards so `vh = v + height` can be an
@@ -752,21 +811,26 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
     u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
     v = (byte)shp->shapey;
     if ((flags & 4U) != 0) {
-      u = (((ushort)shp->shapex & 0x3f) << 4) / bpp - 1;
+      u = u - one;   /* 2026-08-02: == re-divide spelling and == kept-q-temp spelling (all 32,
+                    * copy-prop folds); kept as the simplest.  Retail's mflo-v1/u-a1 mirror
+                    * is not spelling-reachable -- allocator identity. */
     }
     uw = u + sw;
     if ((flags & 2U) != 0) {
-      v = (byte)shp->shapey - 1;
+      v = (byte)shp->shapey - one;
     }
     prim[0xd] = v;
     prim[0x19] = v;
     vh = v + sh_;
     prim[0xc] = u;
-    prim[0x18] = uw;
-    prim[0x24] = u;
-    prim[0x25] = vh;
-    prim[0x30] = uw;
-    prim[0x31] = vh;
+    do {   /* permuter r2 find (score 230->175): depth dial on the sb tail -- doubles
+            * the loop-weighted refs of u/uw/vh for the caller-save contest */
+      prim[0x18] = uw;
+      prim[0x24] = u;
+      prim[0x25] = vh;
+      prim[0x30] = uw;
+      prim[0x31] = vh;
+    } while (0);
   }
   return;
 }
@@ -928,14 +992,7 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 /* lines 1369-1376: (static data / macros / comments - no emitted code) */
 
-/* PsyQ libgpu P_TAG head word (addr:24 | len:8).  The tag-link code is the SDK
- * addPrim()/setaddr()/getaddr() macro family over this bitfield -- the shape that cracked
- * libgpu P06.c AddPrim, where the hand-masked-OR spelling put the two mask constants in the
- * wrong registers.  Inside a LOOP the same lowering also fixes the LICM PREHEADER ORDER: a
- * bitfield store generates the masked VALUE (& 0xffffff) BEFORE the destination mask
- * (& 0xff000000), so loop.c hoists the two constants in retail's order (LO then HI); the
- * hand-written `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 */
-typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
+/* (PSXFront_PTag typedef moved above DrawGouraudShape, 2026-08-02 EA-style sweep) */
 
 /* ---- PSXDrawTransGouraudSquare  (psxfront.cpp:1377, code lines 1377-1398) ---- */
 /* GPU packet: builds POLY_G4 (stride 0x24, code 0x39); prim=u_char* build cursor, prevPrim=u_char* link word */
@@ -1054,7 +1111,14 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * with EVERY statement movable (scratch/font_climb2_a2.py) then took 60 -> 56 (the prim+0x16
    * tpage word up to slot 18) -> 52 (font_tint store to slot 13) -> 50 (the prim+0x1a ytop store
    * to slot 22); it was still descending when the wave's time cap stopped it, so RESUME THAT
-   * CLIMB FIRST next pass -- position, not spelling, is what is moving this function.  a10's zero-insn
+   * CLIMB FIRST next pass -- position, not spelling, is what is moving this function.
+   * ---- 2026-08-02 INLINE: climb RESUMED (tools/stmtclimb.py); its round-1 '46' move was
+   * BOGUS -- it moved the `ytop = (ybase+5) - hoff;` DEF past the prim+0x1a store that READS
+   * ytop (use-before-def, uninitialized store; the gate can't see semantics).  REVERTED --
+   * honest converged baseline = 50.  ⚠️ stmtclimb is DATAFLOW-BLIND: any accepted move must
+   * be def-use audited before adoption (tool TODO: reject moves that lift a def past a use).
+   * Residual 50 = the receipted emission-order + one-hard-register-short; route = permuter
+   * multi-basin or compound multi-move.  a10's zero-insn
    * REF-STEP INFLATOR (no-op `& 0xffff` re-mask) measured NEUTRAL on all four ytop/(ytop+height)
    * store sites and on width (64 -> 64); on ybase it costs an insn (65/83).
    * ALSO MEASURED NEGATIVE this wave (all re-gated): the P_TAG 24-bit
@@ -1092,13 +1156,14 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   yoff = *(signed char *)&ch->yoffset;
   ybase = y - yoff;
   hoff = height + yoff;
-  ytop = (ybase + 5) - hoff;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
   linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
-   * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1. */
+   * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1.
+   * (2026-08-02: addPrim-bitfield RE-FALSIFIED under the new dial taxonomy too -- bitfield-read
+   * 144@84, plain-read 156@88 -- the mask+linkAddr form IS this fn's retail shape.) */
   *(u_long *)(prim + 4) = font_tint;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
   prim[3] = 9;
@@ -1110,6 +1175,7 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0x14] = u + width;
+  ytop = (ybase + 5) - hoff;
   *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;

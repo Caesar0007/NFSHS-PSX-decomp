@@ -1377,7 +1377,22 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
   /* MATCH: SYM locals = pt[2] AUTO + i REG(t0) LONG + block-scope prim LINE_G2*(a0).
    * pt[0]=*center saved to STACK once, body reloads it (swc2 memory clobber);
    * top-test + j back-edge loop (exit-in-the-middle prevents rotation);
-   * gte_stsxy pointer form materializes &pt[1] each iteration (PsyQ inline_c shape). */
+   * gte_stsxy pointer form materializes &pt[1] each iteration (PsyQ inline_c shape).
+   * ---- w45-a9 SEAL 16 -> PASS 53/53, the SAME two-part edit as Flare_OctFlareSpikes ----
+   * The 16 diffs were TWO coupled residuals, both fixed by the OT-link statement order:
+   *  (a) preheader movable order: retail = pktaddr(t1) | palette-base(t4) | otz*4(t3) |
+   *      0xFFFFFF(a3) | 0xFF000000(t2).  Splitting `pal = Render_gPalettePtr;` out of the
+   *      slot expression puts the `lui 0x1F80` ahead of the `sll`, and giving the
+   *      prim-address mask its own `addr24` temp BEFORE the first RMW generates 0xFFFFFF
+   *      ahead of 0xFF000000 (the RMW's left operand generates the HI mask first).
+   *  (b) the i/mask $a3<->$t0 rotation: `*slot = pkt24 | (addr24 & 0xffffff)` re-masks an
+   *      already-masked value -- ZERO INSNS, but it lifts the 0xFFFFFF pseudo from 3 refs
+   *      to 4, crossing the floor_log2 step (1 -> 2) in allocno_compare, so the mask now
+   *      out-prioritises the counter and takes $a3 (the lower hard reg in MIPS' numeric
+   *      handout) while `i` drops to $t0, exactly as the SYM says.  (w44 ref-step family.)
+   * NOTE this refutes the w41 note "(1) alone REGRESSES PreCalcHexLightBeam (16->18, no
+   * loop -> no LICM)": there IS a preheader here, and (1) only works together with the
+   * addr24 temp placed AFTER the slot statement. */
   i = 0;
   pt[0] = *center;
   while (true) {
@@ -1387,14 +1402,18 @@ void Flare_PreCalcHexLightBeam(long *center,int otz)
       u_int *slot;
       u_int rgb;
       u_int pkt24;
+      u_char *pal;
+      u_int addr24;
 
 gte_ldv0(&Flare_gOct[i]);
       prim = (LINE_G2 *)Render_gPacketPtr;
-      slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
+      pal = Render_gPalettePtr;
+      slot = (u_int *)(otz * 4 + (int)pal);
+      addr24 = (u_int)prim & 0xffffff;
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
       pkt24 = *slot & 0xff000000;
       Render_gPacketPtr = (u_char *)prim + 0x14;
-      *slot = pkt24 | (u_int)prim & 0xffffff;
+      *slot = pkt24 | (addr24 & 0xffffff);
       gte_rtps_b();
       rgb = *(u_int *)&gfrgb2;
       *((u_char *)prim + 3) = 4;

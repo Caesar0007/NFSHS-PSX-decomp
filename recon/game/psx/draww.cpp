@@ -1222,6 +1222,44 @@ gte_swc2(0x8,&depthcue);
              *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
         SetTexWindow(aprim,&r);
       }
+      /* RECEIPT (w44-a7) -- THE ORACLE'S TRUE SHAPE HERE IS AN if/else, AND IT IS
+       * MUTUALLY EXCLUSIVE WITH THE $s0/$s1 FLIP ABOVE.  Oracle @0x800C69F0:
+       *     beqz  $s5,.L800C6A00        ; doSubdivision == 0 -> the OT-link arm
+       *      addiu $v0,$s0,0x94
+       *     j     .L800C6A38            ; else-arm ...
+       *      addiu $s1,$s0,0x110        ; ... prim = &sd->GT4Prim, in the j slot
+       *   .L800C6A00: lw $s1,0x4($s0)   ; prim = cprim.PrimPtr, then the OT-link
+       * i.e.  if (doSubdivision != 0) prim = &sd->GT4Prim;
+       *       else { prim = cprim.PrimPtr; OT-link; }
+       * MEASURED (this wave, both with the nightFlags + cursor-defer fixes in):
+       *     if/else form           : gate 282, posdiff structural residual  52
+       *     default-then-override  : gate 100, posdiff structural residual 113
+       * The if/else kills the last 52 lines of structure but LOSES the register
+       * assignment: with the default gone, prim's live range collapses to 114
+       * insns and allocno_compare ranks it ABOVE sd, so prim takes $s0 and sd
+       * takes $s1 -- the exact inverse of the SYM (sd REGPARM $0x10 = $s0,
+       * prim REG $0x11 = $s1) -- and ~230 diff lines of fallout follow.
+       * -dg/-dl RECEIPT (tools/rtl_dump.py + tools/prio.py, if/else form):
+       *     prim = p141: 24 refs / 114 live -> 4*24/114 = 0.8421  (rank  7)
+       *     sd   = p 80: 62 refs / 848 live -> 5*62/848 = 0.3656  (rank 13)
+       *   rank 7 is the FIRST call-crossing allocno, so it takes $s0.
+       * For sd to win, prim's priority must fall below 0.3656.  Solving
+       * floor_log2(r)*r/live < 0.3656 over the reachable (r,live):
+       *     live 114 (if/else)  =>  r <= 13   (r = 14 gives 0.368, a razor MISS)
+       *     r = 24              =>  live > 263
+       * Retail's own $s1 span is 0x800C69FC..0x800C6C48 = 148 insns with 26 refs
+       * (4*26/148 = 0.70), i.e. RETAIL'S OWN NUMBERS ALSO RANK prim ABOVE sd ->
+       * this is the w41/w43 find_reg cost-pass boundary, third instance.
+       * FALSIFIED: re-adding the top-of-function `prim = &sd->GT4Prim;` on top of
+       * the if/else is a NO-OP (cse deletes it; output byte-identical, 282).
+       * NEW NAMED ANGLE (untried): hold BOTH properties by giving prim a longer
+       * live range that is NOT a redundant assignment -- hoist the whole
+       * `if (0 < sd->otz && ...)` body one level so prim's def dominates the first
+       * flag&0x80 block (+37 insns of live range), then shed 9 of prim's 24 refs
+       * (the four `*(long*)&prim->xN` and four `*(u_int*)&prim->uN` stores are the
+       * only compressible groups): at r=15 / live=151 the priority is
+       * 3*15/151 = 0.298 < 0.3656 and sd wins.  Otherwise: permuter. */
+
       if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
@@ -1530,6 +1568,23 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
+  /* RE-GATE (w44-a7): 125 diffs, ours 358 / oracle 359 (worklist said 179).
+     TRIAGE (tools/posdiff.py): alpha-renamed LCS 261/359, structural residual 98,
+     and the first-use order differs ONLY in where `s4`(=buildList) and `fp`(=the
+     constant 0) sit -- ours  s3 a0 s4 a1 s6 fp s5 s7 s0 ...
+                       oracle s3 a0 fp s6 s5 s7 s4 a1 s0 ...
+     i.e. the prologue emits the saved-reg initializers in allocation-priority
+     order and our `buildList` copy outranks the `0` constant where the oracle has
+     it the other way round.  The remaining mass is a set of one-insn transpositions
+     of the same shape all through the body (`lw v1,168(a0)` / `lw v1,160(a0)` /
+     `lw v1,8(s3)`... each landing one slot early or late), i.e. sched1 ready-list
+     ties downstream of that head order.
+     NEW NAMED ANGLE (untried this wave, needs a dedicated pass): the briefing's
+     giv-worth razor -- run tools/rtl_dump.py -dL on this TU and read the
+     `giv of insn N not worth while, W vs insn_count` line for the trough loop;
+     W is constant, so the dial is the loop's RTL insn count and it is usually a
+     1-insn razor.  Pair it with the negOne/giv history already recorded below. */
+
   /* MATCH (2026-07-11 FABLE-1): full SYM-driven + scratchpad-overlay rewrite.
      SYM's real local set is {sd (REG, Draw_tGiveShelbyMoreCache* -- NOT the
      ad-hoc `(Draw_tGiveShelbyMoreCache*)&Render_gPalettePtr` cast at each call
@@ -2110,6 +2165,20 @@ gte_SetTransMatrix((void *)0x1f800014);
 int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq)
 
 {
+  /* RE-GATE (w44-a7): 120 diffs, ours 192 / oracle 200 -- we are EIGHT INSNS
+     SHORT (worklist said 84).  TRIAGE (tools/posdiff.py): alpha-renamed LCS
+     121/200, structural residual 79, and the first-use order is oracle-identical
+     except for one adjacent swap (ours ... a0 a2 a1 v0 t4 ...  vs oracle
+     ... a0 a1 a2 v0 t0 t4 ...).  Per the catalog's posdiff rule a single adjacent
+     swap at an 8-insn deficit is NOT coloring: `ours SHORTER` + intact call
+     skeleton = collapsed inline math or a missing arm.
+     NEW NAMED ANGLE (untried): run tools/brcensus.py first (jal deficit = dropped
+     call, conditional-branch deficit = missing arm, beqz<->bnez at equal totals =
+     polarity) before touching any register; the w10 note in this file already
+     flags the quaternion copy as a genuine UNALIGNED lwl/lwr stream, so the
+     8-insn hole is most likely a second movstrsi-shaped copy still written as
+     scalar math, or the wave-9 `Pack8` cast applied at only one of two sites. */
+
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;
   int buildResult;
@@ -2460,6 +2529,34 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      walking pointer as Trk_CollideBoomInst* turns every `pGVar12[N].m_num_elements`
      byte-math expression into a real field access, which is rule-8/SYM-driven local
      structure (SYM names this pointer `objInstance`). */
+  /* RECEIPT (w44-a7) -- RE-GATED 212 diffs, COUNT-EXACT 434/434 (the worklist's
+     78 is stale in the usual direction).  posdiff's first-use order is IDENTICAL
+     to the oracle; the whole residual is ONE saved-register pair swap plus its
+     fallout: SYM says objInstance REG $0x14 = $s4 (objDef $s6, totalCount $s7,
+     type $s0, light $s1, objectOffset $fp -- all of those we already match), but
+     we give objInstance $s3 and push each case block's t1 from $s3/$s5 to $s4/$s5.
+     -dl/-dg RECEIPT (tools/rtl_dump.py + tools/prio.py):
+       objInstance = p88 : 79 refs / 375 live -> 6*79/375 = 1.2640  (rank 3)
+       block-10 t2 = p131: 12 refs /  27 live -> 3*12/ 27 = 1.3333  (rank 2 -> $s2)
+       block-10 t1 = p130: 12 refs /  36 live -> 3*12/ 36 = 1.0000  (rank 7)
+     Only ONE hard reg ($s2) is consumed before objInstance, so it lands on $s3.
+     The SYM proves retail consumed TWO before objInstance took $s4 ($s2 <- the
+     b81/b195 t2's, $s3 <- the b81/b195 t1's and the b150/b252 t2's) -- i.e.
+     block-10's t1 must outrank objInstance.  Two quantified, reachable dials:
+       (a) objInstance refs 79 -> <= 63 crosses the floor_log2 razor 6 -> 5 and
+           gives 5*63/375 = 0.84 < t1's 1.00.  That is ~8 fewer SOURCE refs (42
+           today; the compressible groups are objInstance->x x7 and ->pad x6).
+       (b) objInstance live 375 -> > 474 gives < 1.00 (the loop is 375 of the
+           function's 754 RTL insns, so this needs a use outside the loop --
+           less faithful, listed for completeness).
+     FALSIFIED this wave: moving each `matrix.m[K+6] = fixedmult(matrix.m[K+6],sX);`
+     RMW to AFTER the two `matrix.m[K] = t1/t2;` stores (9 sites) -- 212 -> 229 and
+     the count collapses 434 -> 423.  The RMW must stay third; the oracle's store
+     order (m[0], m[3], m[6], the last riding the next jal's delay slot) is a
+     scheduling consequence of the register assignment, not a source order.
+     NB the SYM types objInstance `Trk_SimpleInst *` (size 20), not
+     Trk_CollideBoomInst -- EA declared the small record and byte-cast the rest. */
+
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;
   int doFrustumClip;
@@ -2977,6 +3074,58 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
 {
+  /* RECEIPT (w44-a7) -- THE WALKER REGRESSION IS EXPLAINED: A gClutDepth LICM
+     HOIST WAS EATING THE SAVED REGISTER THAT `t` NEEDS.
+     Oracle prologue (asm/nonmatchings/main/Draw_kCtrlSkidmark...s):
+         addiu $sp,$sp,-0x58
+         sw $s4,0x40($sp); addu  $s4,$a0,$zero        ; m    = fskid
+         sw $s6,0x48($sp); addiu $s6,$s4,0x24         ; t    = &fskid->t
+         sw $fp,0x50($sp); lui/ori $fp,0x1F800094     ; otz94
+         sw $s3,0x3C($sp); lui/ori $s3,0x404040       ; grey
+         sw $s1,0x34($sp); lui     $s1,0x1F800000     ; sd
+         ...             ; sw $a0,0x58($sp)           ; fskid SPILLED to its ARG
+         lw $s5,0x30($s4)                             ;   home (SYM class ARG!)
+     OURS (before this wave) materialized otz94/grey/sd but NOT m/t, and instead
+     burned $fp on `lui %hi(gClutDepth); addiu %lo(gClutDepth)` hoisted all the way
+     to the function entry.  -dL proves it is a DOUBLE LICM hoist:
+         Insn 723: regno 239 (life 6),   move-insn savings 2  moved to 795
+         Insn 724: regno 238 (life 5),   move-insn forces 723 savings 1 moved to 797
+         Insn 795: regno 239 (life 226), savings 1 halved since already moved -> 809
+         Insn 797: regno 238 (life 226), savings 1 halved since already moved -> 811
+     i.e. the %hi/%lo pair is lifted out of the inner loop and then out of the outer
+     loop, arriving in the prologue with a 226-insn live range -> a callee-saved
+     home.  The oracle keeps it CALLER-saved at the use site
+     (`lui $t8,%hi(gClutDepth) ... addiu $t8,$t8,%lo(gClutDepth)` @0x800C9584).
+     CURE FOUND + MEASURED: an unsized asm-label VIEW of the table --
+         extern short gClutDepth_v[] __asm__("gClutDepth");
+         ... = ((short (*)[16])gClutDepth_v)[idx][vert_idx];
+     -- removes the hoist entirely.  With that plus `m = (matrixtdef *)fskid;` and
+     `t = &fskid->t;` routed through every (fskid->m).m[] / fskid->t use, OUR
+     PROLOGUE REPRODUCES THE ORACLE'S COMPLETE MATERIALIZATION SET *AND* THE
+     `sw $a0,0x58($sp)` ARG SPILL (verified with tools/ourdis.py):
+         sw a0,88(sp); move s5,a0; addiu s7,s5,36; lui/ori s8,0x1F800094;
+         lui/ori s6,0x404040; lui s3,0x1f80
+     -- exactly the oracle's set, modulo a 5-register rotation
+        (ours m=$s5 t=$s7 otz94=$s8 grey=$s6 sd=$s3
+         vs   m=$s4 t=$s6 otz94=$fp grey=$s3 sd=$s1).
+     NOT ADOPTED: the LCS gate goes 332 -> 366 and the count 361 -> 365 (the m/t
+     pair costs 4 insns the oracle pays for elsewhere) while posdiff's structural
+     residual is unchanged at ~256.  Reverted per verify-or-revert; the full
+     working tree is kept at scratch/skid_walker_view.cpp.
+     Isolated control: the gClutDepth view WITHOUT m/t gates 336 (structural 256).
+     NEW NAMED ANGLE for the next pass, in this order:
+       1. LAND THE VIEW + m/t FIRST (they are provably the oracle's shape) and
+          accept the temporary gate rise;
+       2. hunt the 12-insn excess (ours 365 vs oracle 353) with tools/brcensus.py
+          -- posdiff says the mass here is STRUCTURE, not coloring (alpha-renamed
+          LCS is only 94/353);
+       3. the 5-register rotation should then fall out, because with gClutDepth off
+          the callee-saved pool our set of saved-reg consumers finally equals the
+          oracle's.
+     Do NOT re-test t/m WITHOUT the gClutDepth view -- that is exactly the w39/w40/
+     w41 "adding t regresses 344->415" measurement, and it was measuring the
+     missing saved register, not the walkers. */
+
   int skidChunk_p;
   int vert_count;
   int smBase;

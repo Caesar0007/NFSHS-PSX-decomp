@@ -618,19 +618,12 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
   *(short *)(prim + 10) = y;
   *(short *)(prim + 0x14) = (x - 1) + fixedmult(scalex,width);
   *(short *)(prim + 0x16) = y;
-  *(short *)(prim + 0x20) = x;
   *(short *)(prim + 0x22) = y + fixedmult(scaley,height);
-  /* w44-a1 MATCH: retail keeps `x - 1` in a CALL-CROSSING pseudo ($s0) and MUTATES it in place at
-     the 2nd right-edge vertex (`addiu s0,s6,-1` ... `addu s0,s0,v0`).  The named local must be BORN
-     LAST among block-4's call-crossing local quantities -- local_alloc hands out s0,s1,s2 in REVERSE
-     birth order, and retail's order is width-narrow, height-narrow, x-1.  Declaring/assigning xm1
-     before the 0x14 store makes it born FIRST -> it takes s2, the height narrow takes s0 (which
-     block-0's `abr` already owns) so `height` can no longer share it -> a 10th live value -> spill
-     (177 insns).  Spelling `x - 1` inline at 0x14 and only naming it here keeps the birth last. */
   xm1 = x - 1;
   xm1 = xm1 + fixedmult(scalex,width);
   *(short *)(prim + 0x2c) = xm1;
   *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
+  *(short *)(prim + 0x20) = x;
   u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
   v = (byte)shp->shapey;
   if ((flags & 4U) != 0) {

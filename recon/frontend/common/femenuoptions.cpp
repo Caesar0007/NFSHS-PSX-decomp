@@ -2199,127 +2199,111 @@ char GetCurrentStickRange2(int player)
 void tInsideBoxTwoWaySlider::Calibrate()
 
 {
-  uchar uVar1;
-  short sVar2;
-  u_char range;
-  char cVar4;
-  u_char bVar5;
-  int iVar6;
-  u_int uVar7;
-  u_int uVar8;
-  int iVar9;
-  u_int player;
-  
-  player = (u_int)(u_char)FEApp->fInputPlayer;
+  int range;
+  int player;
+  tPadModuleState *padInfo;
+
+  player = (u_char)FEApp->fInputPlayer;
+  padInfo = (tPadModuleState *)((char *)&gPadinfo + player * 0x20);
   fHelpText[0] = GetHelpText(screenControllerConfig[0]);
-  sVar2 = this->fType;
-  if (sVar2 == 1) {
-    uVar1 = gPadinfo.buf[player * 4].ID;
-    if (uVar1 == '#') {
-      uVar8 = (u_int)gPadinfo.buf[player * 4].data.negcon.twist;
-      if (uVar8 < 0x80) {
-        iVar6 = 0x80 - uVar8;
+  switch (this->fType) {
+  case 0:
+    if (padInfo->buf[0].ID == '#') {
+      range = padInfo->buf[0].data.negcon.twist;
+      range = (range < 0x80) ? 0x80 - range : range - 0x80;
+      if (range < (u_char)frontEnd.deadSpot[player] + 10) {
+        range = (u_char)frontEnd.deadSpot[player] + 10;
       }
-      else {
-        iVar6 = uVar8 - 0x80;
-      }
-      iVar9 = (u_char)frontEnd.steeringRange[player] - 10;
-      if (iVar9 < iVar6) {
-        iVar6 = iVar9;
-      }
-      cVar4 = (char)iVar6;
-      if (iVar6 < 0) {
-        cVar4 = '\0';
-      }
-      frontEnd.deadSpot[player] = cVar4;
+      frontEnd.steeringRange[player] = (char)range;
     }
-    else if ((uVar1 == 'S') || (uVar1 == 's')) {
+    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
       range = GetCurrentStickRange(player);
-      uVar7 = (u_char)frontEnd.J1MAX[player] - 10;
-      uVar8 = (u_int)range;
-      if ((int)uVar7 < (int)(u_int)range) {
-        uVar8 = uVar7;
+      if (range < (u_char)frontEnd.J1MIN[player] + 10) {
+        range = (u_char)frontEnd.J1MIN[player] + 10;
       }
-      cVar4 = (char)uVar8;
-      if ((int)uVar8 < 0) {
-        cVar4 = '\0';
-      }
-      frontEnd.J1MIN[player] = cVar4;
+      frontEnd.J1MAX[player] = (char)range;
     }
-  }
-  else if (sVar2 < 2) {
-    if (sVar2 == 0) {
-      uVar1 = gPadinfo.buf[player * 4].ID;
-      if (uVar1 == '#') {
-        uVar8 = (u_int)gPadinfo.buf[player * 4].data.negcon.twist;
-        if (uVar8 < 0x80) {
-          iVar6 = 0x80 - uVar8;
-        }
-        else {
-          iVar6 = uVar8 - 0x80;
-        }
-        iVar9 = (u_char)frontEnd.deadSpot[player] + 10;
-        if (iVar6 < iVar9) {
-          iVar6 = iVar9;
-        }
-        frontEnd.steeringRange[player] = (char)iVar6;
+    break;
+  case 1:
+    if (padInfo->buf[0].ID == '#') {
+      char value;
+
+      range = padInfo->buf[0].data.negcon.twist;
+      range = (range < 0x80) ? 0x80 - range : range - 0x80;
+      if ((u_char)frontEnd.steeringRange[player] - 10 < range) {
+        range = (u_char)frontEnd.steeringRange[player] - 10;
       }
-      else if ((uVar1 == 'S') || (uVar1 == 's')) {
-        range = GetCurrentStickRange(player);
-        uVar8 = (u_char)frontEnd.J1MIN[player] + 10;
-        if (range < uVar8) {
-          range = (u_char)uVar8;
-        }
-        frontEnd.J1MAX[player] = range;
+      value = (char)range;
+      if (range < 0) {
+        value = 0;
       }
+      frontEnd.deadSpot[player] = value;
     }
-  }
-  else if (sVar2 == 2) {
-    uVar1 = gPadinfo.buf[player * 4].ID;
-    if (uVar1 == '#') {
-      frontEnd.ImaxRange[player] = gPadinfo.buf[player * 4].data.negcon.buttonI;
+    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+      char value;
+
+      range = GetCurrentStickRange(player);
+      if ((u_char)frontEnd.J1MAX[player] - 10 < range) {
+        range = (u_char)frontEnd.J1MAX[player] - 10;
+      }
+      value = (char)range;
+      if (range < 0) {
+        value = 0;
+      }
+      frontEnd.J1MIN[player] = value;
     }
-    else if ((uVar1 == 'S') || (uVar1 == 's')) {
+    break;
+  case 2:
+    if (padInfo->buf[0].ID == '#') {
+      char value;
+
+      range = padInfo->buf[0].data.negcon.buttonI;
+      value = (char)range;
+      if (range < 0) {
+        value = 0;
+      }
+      frontEnd.ImaxRange[player] = value;
+    }
+    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+      char value;
+
       range = GetCurrentStickRange2(player);
-      uVar7 = (u_char)frontEnd.J2MIN[player] + 10;
-      uVar8 = (u_int)range;
-      if (range < uVar7) {
-        uVar8 = uVar7;
+      if (range < (u_char)frontEnd.J2MIN[player] + 10) {
+        range = (u_char)frontEnd.J2MIN[player] + 10;
       }
-      /* @0x8001FB80: first (unclamped) J2MAX write; @0x8001FB84-94: second write stores
-       * (uVar8>=0 ? uVar8 : 0) -- a clamp-to-nonnegative (delay-slot store). The recon wrote the
-       * unclamped (char)uVar8 twice, dropping the negative->0 clamp (mirror J2MIN below) (M11). */
-      frontEnd.J2MAX[player] = (char)uVar8;
-      cVar4 = (char)uVar8;
-      if ((int)uVar8 < 0) {
-        cVar4 = '\0';
+      frontEnd.J2MAX[player] = (char)range;
+      value = (char)range;
+      if (range < 0) {
+        value = 0;
       }
-      frontEnd.J2MAX[player] = cVar4;
+      frontEnd.J2MAX[player] = value;
     }
-  }
-  else if (sVar2 == 3) {
-    uVar1 = gPadinfo.buf[player * 4].ID;
-    if (uVar1 == '#') {
-      range = gPadinfo.buf[player * 4].data.negcon.buttonII;
-      bVar5 = 10;
-      if (9 < range) {
-        bVar5 = range;
+    break;
+  case 3:
+    if (padInfo->buf[0].ID == '#') {
+      char minimum;
+
+      range = padInfo->buf[0].data.negcon.buttonII;
+      minimum = 10;
+      if (minimum <= range) {
+        minimum = (char)range;
       }
-      frontEnd.IImaxRange[player] = bVar5;
+      frontEnd.IImaxRange[player] = minimum;
     }
-    else if ((uVar1 == 'S') || (uVar1 == 's')) {
+    else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
+      char value;
+
       range = GetCurrentStickRange2(player);
-      uVar7 = (u_char)frontEnd.J2MAX[player] - 10;
-      uVar8 = (u_int)range;
-      if ((int)uVar7 < (int)(u_int)range) {
-        uVar8 = uVar7;
+      if ((u_char)frontEnd.J2MAX[player] - 10 < range) {
+        range = (u_char)frontEnd.J2MAX[player] - 10;
       }
-      cVar4 = (char)uVar8;
-      if ((int)uVar8 < 0) {
-        cVar4 = '\0';
+      value = (char)range;
+      if (range < 0) {
+        value = 0;
       }
-      frontEnd.J2MIN[player] = cVar4;
+      frontEnd.J2MIN[player] = value;
     }
+    break;
   }
   return;
 }

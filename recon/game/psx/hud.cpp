@@ -792,7 +792,44 @@ void Hud_InitMapFrame(int i,int mode)
   return;
 }
 
-/* ---- Hud_BuildTimeSprites__FP4SPRTPcii  [HUD.CPP:883-923] SLD-VERIFIED ---- */
+/* ---- Hud_BuildTimeSprites__FP4SPRTPcii  [HUD.CPP:883-923] SLD-VERIFIED ----
+ * PARKED at 21 (ours 78 / oracle 77 -- exactly ONE extra insn, a `nop`).
+ * ROOT CAUSE (w45-a7, single mechanism, everything else is its cascade): retail does NOT
+ * hoist the second compare constant.  Retail's loop preheader holds only `li s7,0x4D` and
+ * `addu s3,a0,zero`, and `0x53` is REMATERIALIZED every iteration by `addiu $v0,$zero,0x53`
+ * sitting in the FIRST `bne`'s delay slot (a caller-saved temp, born+dead inside one block
+ * => local-alloc, never a global allocno).  That leaves `$fp` free for the 4th param `y`
+ * (`addu fp,a3,zero` in the zero-trip guard's delay slot, `addu a3,fp,zero` at the call).
+ * OURS hoists BOTH constants (`li fp,0x4D`, `li s7,0x53`), so both callee-saved homes are
+ * spent on literals and `y` SPILLS to the frame (`sw a3,84(sp)` / `lw a3,84(sp)`), and the
+ * first bne's slot is left `nop` = the +1 insn.
+ * (a10 w45 correction: local-alloc's QTY_CMP_PRI is the SAME flr2(refs)*refs/life formula,
+ * so a block-local rotation takes the ref-step dial too -- applies to the 0x53 pseudo here.)
+ * ALLOCATOR MATH (why the constant beats y): priority ~ flr2(refs)*refs/live_length; both
+ * have 2 loop-weighted refs, but the hoisted constant's live range is short at its def while
+ * `y` is live across both calls -> the constant wins the callee-saved reg.  Fixing the HOIST,
+ * not the priority, is the lever.
+ * FALSIFIED w45-a7 (all keep ours at 78, diffs in brackets): `else if` for the S-test [22,
+ * +2 insns]; `for(c=*str; c; c=*str)` [21]; 'M'/'S' char literals instead of hex [21];
+ * swapping the two tests [21]; braces around the S-test [21]; `(u_char)c == 0x53` [21];
+ * `do{}while` with an explicit zero-trip guard [21]; `while(true){if(!c)break;...}` [27, 76
+ * insns]; goto-loop [30, 73 insns -- kills LICM for BOTH constants, so 0x4D stops being
+ * hoisted too and we lose retail's preheader].  Best found: a block-scoped named local for
+ * the 0x4D constant [19] OR a named copy of `y` before the loop [19] -- NOT additive (same
+ * 2 diffs), and both are scaffolding a 1998 author would not write, so NOT landed.
+ * ALSO FALSIFIED w45-a7 (the angle written below, tested immediately): putting the S-test
+ * inside a `c != 0x4d` guard so its block is not always-executed -- inverted-nest form [24,
+ * 79 insns] and explicit `if (c != 0x4d){...}` guard after the M-arm [31, 80 insns].
+ * NEW NAMED ANGLE: stop loop.c hoisting the 0x53 WITHOUT losing the 0x4D hoist.  loop.c
+ * treats the two `(set p (const_int K))` movables identically, so the discriminator must be
+ * OUTSIDE the constants: make the S-test's basic block NOT always-executed within the loop
+ * (loop.c's `maybe_never` gate skips movables it cannot prove are reached) -- e.g. reach the
+ * S-test only through the M-test's fall-through in a shape whose block gcc cannot prove is
+ * always entered.  Concretely untried: `if (c != 0x4d) { if (c == 0x53) c = langSec; }` plus
+ * the M-arm assigning langMin and FALLING PAST the S-test (semantically identical because
+ * langMin is never 'S'), which puts the 0x53 def inside a conditional block.  Secondary:
+ * ask the a10 allocator lane for the required delta on `y` vs the 0x53 pseudo -- if `y`'s
+ * refs can be lifted one flr2 step (2 -> 4 weighted) it takes `$fp` even with both hoists. */
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {
@@ -1117,10 +1154,30 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
      hun = (time - temp1*0x40)...`) gives 12 diffs but REPRODUCES the oracle's coalescing
      exactly (abs->v0, dividend dies, `addiu v0,v0,63` in place) -- the only residual
      there is WHERE the survivor copy is made (entry a1->a2 vs post-abs v0->a2).
-     NEW ANGLE: find a 1-insn computation, distinct to cse, that yields abs(time) for the
-     survivor -- e.g. survivor = a value produced by the CLAMP arm (so its def is a real
-     insn cse cannot equate with the abs), or route temp2 through a narrower/different
-     mode local (w43 "a NARROWER local is the cse copy that SURVIVES"). */
+     w45-a7 RE-RUN, 10 more spellings, ALL 10 or 12 (count 99/99 throughout).  NEW
+     FALSIFICATIONS: in-place divide `temp1=abs(time); temp2=temp1; temp1=temp1/0x40;`
+     (10) -- the in-place-mutation lever does NOT stop cse propagating the survivor;
+     anon-abs-first-then-named `temp1=abs(time)/0x40; temp2=abs(time);` (10); named-first
+     then anon (10); block-scoped `{int t3=abs(time); temp2=t3; temp1=t3/0x40;}` (10);
+     anonymous abs AT THE USE SITE in hun (10); `(temp1<<6)` instead of `temp1*0x40` (10);
+     survivor = the CLAMPED PARAM `temp2=time;` before (12) / after (12) the divide /
+     inside `do{}while(0)` (12) -- all three coalesce temp2 with `time` and CLAMP a2 at
+     entry instead of copying post-abs; ternary abs for the survivor (66, +2 insns).
+     MECHANISM NARROWED: our `addiu v0,a2,63` proves COMBINE folded expand_divmod's
+     `(set v0 a2)` copy into the guard-add -- i.e. v0 is provably the divide temp and a2
+     the abs pseudo.  Retail's `addiu v0,v0,63` + `addu a2,v0,zero` is the mirror: the
+     divide temp is COALESCED with the abs pseudo and the survivor is the surviving copy.
+     Every source-level copy we can write is removed before local-alloc (param copies get
+     coalesced by copy-prop; abs copies get cse-propagated), so the copy that reaches
+     local-alloc is always expand_divmod's own.
+     NEW NAMED ANGLE (untried): stop COMBINE from folding the divide's copy into the
+     `+63` -- if `(set div a2)` survives as its own insn, local-alloc's make_regs_eqv can
+     canonicalise the OUTLIVING pseudo (a2) and the direction flips.  Concretely: place a
+     def of the survivor (or any insn writing a2's pseudo) BETWEEN the abs and the divide
+     so the copy and the add are no longer adjacent single-use.  Secondary: hand this to
+     the allocator-simulator lane as a COALESCING-DIRECTION delta (not a priority delta) --
+     it is the only survivor in this fn and needs local-alloc qty ordering, not
+     allocno_compare. */
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
@@ -2726,15 +2783,25 @@ int Hud_BuildRadar(int player)
 
       sprt = (SPRT *)Render_gPacketPtr;
       pal = Render_gPalettePtr;
-      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
-      tag = *(u_int *)pal;
+      /* MATCH (w45-a7): EA-1998 addPrim() -- the PsyQ P_TAG bitfield setaddr pair
+       * (value side = a bitfield READ), packet-cursor bump BETWEEN the two stores.
+       * Replaces the hand-masked `*sprt & 0xff000000 | *pal & 0xffffff` form and the
+       * `tag` staging temp it needed: 46 -> 8 diffs, ours 452 -> 450 = oracle. */
+      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
       Render_gPacketPtr = (u_char *)sprt + 0x14;
-      *(u_int *)pal = tag & 0xff000000 | (u_int)sprt & 0xffffff;
-      if ((gFlip == 0) && (simVar.quickPauseSim == 0)) {
-        currentSpriteColor = 0xff0000;
+      ((Hud_PTag *)pal)->addr = (u_int)sprt;
+      /* MATCH (w45-a7): De Morgan + SWAPPED ARMS.  Retail reaches the 0xFF arm from BOTH
+       * tests (`bnez a0` on gFlip and, after it, `beqz v0` on quickPauseSim whose delay slot
+       * carries `lui v0,0xFF0000`), i.e. the `||`-chain's TRUE arm is the shared inline block
+       * and the 0xFF0000 arm is the fall-through set from a delay slot.  The natural
+       * `if (A==0 && B==0) 0xff0000; else 0xff;` inverts that and costs an extra `j`
+       * (8 -> 4 diffs, ours 452 -> 450 = oracle).  Falsified: default+override [9],
+       * ternary [19, 449 insns], explicit goto-chain [10]. */
+      if ((gFlip != 0) || (simVar.quickPauseSim != 0)) {
+        currentSpriteColor = 0xff;
       }
       else {
-        currentSpriteColor = 0xff;
+        currentSpriteColor = 0xff0000;
       }
       Hud_BuildSprite(sprt,0x7a,scr[i + Cars_gNumRaceCars].x + mapx + -2 & 0xffff,
                  scr[i + Cars_gNumRaceCars].z + mapz & 0xffff,currentSpriteColor,0);
@@ -2873,8 +2940,15 @@ void Hud_BuildReplay(void)
 
 /* D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30), same standalone-global
  * alias as recon/game/common/aiinit.cpp's D_8011321C precedent -- the oracle reaches it via a
- * bare lui/lw, not a GameSetup_gData struct-field offset. */
-extern int D_8011321C;
+ * bare lui/lw, not a GameSetup_gData struct-field offset.
+ * MATCH (w45-a7): declared UNSIZED-ARRAY + accessed [0] on purpose.  As a scalar
+ * `extern int` cc1 emits the one-insn assembler MACRO `lw $v0,D_8011321C`, which is
+ * unschedulable AND may_trap -> reorg can never speculate it into a branch delay slot
+ * ("scalar extern = delay-slot poison pill").  The unsized-array form makes gcc do its
+ * own %hi/%lo split, so the bare `lui` is the first insn of the loop-prep block and
+ * reorg EAGER-STEALS it into the `bnez s1` slot exactly like retail (which then keeps
+ * a second copy at .L800D75E8 for the `bne v0,v1` entry). */
+extern int D_8011321C[];
 
 /* ---- Hud_NextPlayer__Fi  [HUD.CPP:2862-2889] SLD-VERIFIED ----
  * FIXED (was 40 diffs, ours 85/oracle 89 -- 4 insns SHORT): the recon was missing the oracle's
@@ -2922,10 +2996,18 @@ int Hud_NextPlayer(int player)
   if (1 < Cars_gNumRaceCars) {
     iVar1 = Stats_GetPosition(carObj_00);
     if ((iVar1 == 1) && (uVar5 == 0)) {
+      /* MATCH (w45-a7): zero-length VOLATILE asm = a reorg barrier, not a pin.  Without
+       * it fill_simple_delay_slots grabs this block's `li v0,-1` out of the fall-through
+       * into the `bnez s1` delay slot and leaves the following `j` slot a nop; retail
+       * has the nop-free pair (`bnez [ds lui]` / `j [ds li v0,-1]`).  The volatile insn
+       * makes resource_conflicts_p fail the simple fill, so reorg falls through to
+       * fill_eager_delay_slots and steals from the TARGET instead (see the unsized-array
+       * receipt on D_8011321C above -- both levers are required, 6 -> 4 -> PASS). */
+      __asm__ volatile("");
       return -1;
     }
     iVar4 = 0;
-    uVar5 = uVar5 ^ D_8011321C;
+    uVar5 = uVar5 ^ D_8011321C[0];
     iVar1 = carObj_00->sortIndex;
     if (0 < Cars_gNumCars + -1) {
       do {
@@ -2973,7 +3055,20 @@ int Hud_NextPlayer(int player)
  * string-literal/GameSetup_gData address hoisted speculatively in the oracle's OR-shaped delay
  * slots, freed up in ours by the AND/early-return rewrite) -- not chased further, diminishing
  * returns. Net: correctness fix landed (matches the already-fixed sibling), insn count 94->97
- * (of 98). */
+ * (of 98).
+ * SEALED w45-a7 (57 -> 6 -> PASS 98/98).  The "register-materialization floor" above was
+ * WRONG -- it was two ordinary shape bugs:
+ *  (1) PREP-BLOCK ORDER, mirror of the sibling Hud_NextPlayer: `iVar3 = 0; uVar4 ^=
+ *      GameSetup_gData.reverseTrack; iVar1 = carObj_00->sortIndex;` must sit ABOVE the
+ *      `0 < Cars_gNumCars-1` guard (retail materializes &GameSetup_gData FIRST, loads
+ *      reverseTrack off it at +0x30 and lands the `xor` in the blez delay slot).  With the
+ *      xor inside the guard, gcc loaded Cars_gNumCars first and the whole base/index
+ *      register web rotated.  57 -> 6, count 97 -> 98 exact.
+ *  (2) NO `iVar2 = iVar1 << 2` PRECOMPUTE: index the array directly
+ *      (`iVar2 = (int)Cars_gSortedList[iVar1];`).  Retail's `sll` appears TWICE because
+ *      reorg eager-steals the merge block's first insn into the `bnez` delay slot and
+ *      leaves a copy behind; a hand-carried `iVar2` (with the `iVar2 = 0` arm) emits a
+ *      reg-reg copy instead of the second `sll`.  6 -> 0. */
 char * Hud_NextPlayerNameOrCarOrTime(int player)
 
 {
@@ -2991,14 +3086,14 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   carObj_00 = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
     iVar1 = Stats_GetPosition(carObj_00);
-    iVar3 = 0;
     if ((iVar1 == 1) && (uVar4 == 0)) {
       return "";
     }
     {
+      iVar3 = 0;
+      uVar4 = uVar4 ^ GameSetup_gData.reverseTrack;
       iVar1 = carObj_00->sortIndex;
       if (0 < Cars_gNumCars + -1) {
-        uVar4 = uVar4 ^ GameSetup_gData.reverseTrack;
         do {
           if (uVar4 != 0) {
             iVar1 = iVar1 + -1;
@@ -3009,12 +3104,10 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
           if (iVar1 < 0) {
             iVar1 = iVar1 + Cars_gNumCars;
           }
-          iVar2 = iVar1 << 2;
           if (Cars_gNumCars <= iVar1) {
             iVar1 = 0;
-            iVar2 = 0;
           }
-          iVar2 = *(int *)((int)Cars_gSortedList + iVar2);
+          iVar2 = (int)Cars_gSortedList[iVar1];
           if ((*(u_int *)(iVar2 + 0x260) & 0xc) != 0) {
             if (GameSetup_gData.carInfo[player].HudOpponentID == 2) {
               return (char *)(iVar2 + 0x249);
@@ -3072,9 +3165,16 @@ void Hud_RenderMapView(void)
          * (lui 0x1F80; lw) -- spelling the macro at every use makes gcc LICM the
          * 0x1F800000 base into a callee-saved reg instead. */
         pal = Render_gPalettePtr;
-        HudFT4->tag =
-             (u_long *)((u_int)HudFT4->tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)HudFT4 & 0xffffff;
+        /* MATCH (w45-a7) -- SEALED THE FN.  EA-1998 addPrim(): the P_TAG bitfield
+         * setaddr pair (house idiom, cf. psxfront.cpp/drawshp.cpp).  The explicit
+         * `tag & 0xff000000 | *pal & 0xffffff` spelling is byte-identical IN THE BODY
+         * but births the HI(0xff000000) mask pseudo FIRST, so the two hoisted mask
+         * regs are initialised s2-then-s1 in the prologue; retail is s1(0xFFFFFF)
+         * then s2(0xFF000000).  The bitfield READ `y->addr` evaluates the RHS
+         * extraction first => LO pseudo born first => retail's prologue order.
+         * (Swapping the `|` operands instead re-colors the body v0/v1: 4 -> 8.) */
+        ((Hud_PTag *)HudFT4)->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)HudFT4;
       }
       else {
         u_char *pal;
@@ -3192,7 +3292,16 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
  * base a value that is ALREADY in a callee-saved reg for another reason -- e.g. derive it from
  * the SAME expression that feeds Hud_BlackThinBox(x - 3, y - 2, ...) after the loop (a shared
  * `y - 2` / `y` term gives cse a reason to keep y live in a register across the loop), or
- * reorder so the BlackThinBox call precedes loop 1 (check the oracle's block VAs first). */
+ * reorder so the BlackThinBox call precedes loop 1 (check the oracle's block VAs first).
+ * w45-a7 RE-MEASURED the two-level walker retail actually shows (`by = y;` in the OUTER
+ * PREHEADER, `inner = by;` copy in the inner preheader, `by = by + 9;` at the outer bottom,
+ * body using the copy): it DOES fix the +1 insn -- count becomes EXACT 111/111 -- but the
+ * LCS goes 37 -> 76 and, decisively, posdiff's structural residual goes 18 -> 38 and the
+ * whole first-loop register web rotates.  Both walker seedings measured (a spare local as
+ * the walker, or `by` as the walker with the spare as the copy): 78 / 76.  NOT LANDED --
+ * per the briefing rule, judge on posdiff + insn count together, and posdiff says the
+ * base-0 form is the closer body.  So the +1 insn is NOT the thing to chase first; the
+ * open item stays the ARG-HOME reload / y-liveness angle above. */
   int i;
   int j;
   int k;
@@ -3575,7 +3684,39 @@ void Hud_RenderHudView(void)
  * `DashHUD_gInfo.showhud[j]` into a +4 giv and therefore has to park %hi(DashHUD_gInfo)
  * in a callee-saved reg across the three jals (two extra saved regs, $s7 + $s4);
  * retail recomputes `sll $v1,$s1,2; addu` per iteration and shares that one shift with
- * Hud_gTacView[j].  Retail's saved set is exactly $s0-$s5 (mask 0x803f0000). */
+ * Hud_gTacView[j].  Retail's saved set is exactly $s0-$s5 (mask 0x803f0000).
+ * w45-a7 MECHANISM PINNED (35 diffs, ours 74 / oracle 71 -- 3 extra insns = 1 extra
+ * callee-saved save/restore pair + 1 giv increment):
+ *   RETAIL DOES NOT HOIST `%hi(DashHUD_gInfo)` OUT OF THE LOOP.  Its loop TAIL emits
+ *   `lui $v1,%hi(DashHUD_gInfo); lw $v0,%lo(...)($v1)` for the `j <= splitscreen` test --
+ *   a SEPARATE-scratch load -- and the next iteration's body REUSES that same $v1:
+ *   `addiu $v0,$v1,%lo(DashHUD_gInfo)` (in the HudTach beqz delay slot) `+ sll $v1,$s1,2`
+ *   `+ addu` `+ lw $v0,0x1C($v0)`.  Because the base is DEFINED INSIDE the loop it is not
+ *   loop-invariant, so loop.c cannot strength-reduce showhud[j] into an address giv, and
+ *   no callee-saved register is spent on it.  Ours hoists the `(high sym)` to the preheader
+ *   (and, with the natural `DashHUD_gInfo.showhud[j]` spelling, additionally copies it into
+ *   $s7), which makes `base + j*4` invariant+giv-able -> the $s4 walker (`addiu $s4,$s4,4`)
+ *   and a 7-register saved set ($s0-$s6/$s7) against retail's 6 ($s0-$s5).
+ * FALSIFIED w45-a7: natural `DashHUD_gInfo.showhud[j]` [36 diffs / 75 insns -- it DOES fix
+ *   the entry to retail's separate-scratch `lui v1; lw v0,0(v1)` and matches the first-use
+ *   order, but gcc then parks the %hi in $s7 AND still builds the $s4 giv, so it is a net
+ *   loss]; `Hud_gTacView[j]` natural too [40]; SR-blocker spellings on `j4` -- function-scope
+ *   + pre-loop `j4 = 0` [35], second `j4 = j*4` before the Stop call [35], `j << 2` [35] --
+ *   the giv is built off the biv `j` regardless of how `j4` is spelled; top-test `while`
+ *   [56], `while(true){if(...)break;}` [56]; goto-loop [75 diffs / 72 insns -- kills loop.c
+ *   entirely, so the GENUINE givs $s2 (gTPage1 +0x30) and $s3 (GameSetup_gData +0xB4) die
+ *   too and the *180 multiply chain reappears inline].
+ * NEW NAMED ANGLE: the target is a SELECTIVE LICM block -- stop `(set p (high
+ *   DashHUD_gInfo))` being hoisted while KEEPING the two address givs.  goto-loop is the
+ *   only known LICM killer and it is too coarse.  Untried, in order: (a) reach splitscreen
+ *   and showhud through an unsized-array asm-label VIEW of DashHUD_gInfo
+ *   (`extern int DashHUD_view[] asm("DashHUD_gInfo");` + `DashHUD_view[0]` / `[7+j]`) --
+ *   the w13 lever that turns a %hi into a schedulable RTL pseudo -- 🔴 TRIED AND FALSIFIED
+ *   w45-a7: view on BOTH condition and body [66 diffs / 79 insns], view on the loop
+ *   condition only [35, no change], view on the body only [69 / 78]; (b) ask the a10 allocator/instrument lane
+ *   for loop.c's `-dL` move-insn table on this fn -- the hoist decision is a cost-model
+ *   verdict (threshold*savings*lifetime vs insn weight) and the required delta may be a
+ *   single ref-count step on the base. */
 void Hud_RenderTacView(void)
 
 {
@@ -3754,8 +3895,24 @@ HudRender_amtDone:
            * adjacent to the jump -- find a zero-cost shape where the 0-arm is a
            * reg-reg copy instead (e.g. the 0 already live in another local). */
           countamount = 1;
-          if ((simGlobal.gameTicks < 0x240) && (countdown == '\0')) {
-            countamount = 0;
+          if (simGlobal.gameTicks < 0x240) {
+            if (countdown == '\0') {
+              countamount = 0;
+              /* MATCH (w45-a7) -- STORE-FLAG BREAKER, the lever that sealed this fn.
+               * gcc-2.8 jump.c folds `x = 1; if (c) x = 0;` into ONE store-flag insn
+               * (`sltu a0,zero,countdown`) ONLY when the guarded block is a SINGLE
+               * `(set reg const)` insn.  A zero-length USE fence beside the store makes
+               * the block two insns, so the pattern no longer matches and gcc keeps
+               * retail's branch shape (`bnez [ds nop]` / `addu a0,zero,zero`), with the
+               * `li a0,1` still scheduled into the OUTER beqz delay slot.
+               * FALSIFIED before this: nested if, explicit goto-chain, if/else both-arms,
+               * 3-arm cascade, two full Hud_BuildCdPlayer calls (that one regresses --
+               * it moves `countamount` off $a0 in the BTC block above, proving retail
+               * reuses the SAME variable), and the fence placed OUTSIDE this block
+               * (before the countdown test) -- the block must itself stop being a
+               * lone const-set. */
+              __asm__ volatile("" : : "r"(countamount));
+            }
           }
           Hud_BuildCdPlayer(countamount,i);
         }
@@ -3872,12 +4029,16 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
       do {
         psVar3 = Hud_NextPerp + i;
         iVar2 = (int)*psVar3;
-        if ((iVar2 == 0) || (*(int *)(BTCPerpInfo[0][iVar2 - 1].name + iVar4 + 0xc) != 0)) {
-          pcVar1 = BTCPerpInfo[0][iVar2].name + iVar4 + 0xc;
-          *(u_int *)pcVar1 = 0;
-          pcVar1 = BTCPerpInfo[0][*psVar3].name + iVar4 + 8;
-          *(u_int *)pcVar1 = 0;
-          sprintf(BTCPerpInfo[0][*psVar3].name + iVar4,BTC_CurrentPerpName);
+        /* MATCH (w45-a7): REAL 2-D FIELD ACCESS, not the hand-folded byte form.
+         * `BTCPerpInfo[0][iVar2-1].name + iVar4 + 0xc` lets gcc fold (iVar2-1)*16+12 into
+         * iVar2*16-4 and park `&BTCPerpInfo-4` in an EXTRA callee-saved reg ($s4); retail
+         * keeps the index expression whole -- `addiu v0,v1,-1; sll v0,v0,4; addu s1; addu
+         * s3; lw v0,12(v0)` -- which only the named-field/real-index spelling produces.
+         * 37 -> 19 diffs. */
+        if ((iVar2 == 0) || (BTCPerpInfo[i][iVar2 - 1].caught != 0)) {
+          BTCPerpInfo[i][iVar2].caught = 0;
+          BTCPerpInfo[i][*psVar3].time = 0;
+          sprintf(BTCPerpInfo[i][*psVar3].name,BTC_CurrentPerpName);
           *psVar3 = *psVar3 + 1;
         }
         i = i + 1;

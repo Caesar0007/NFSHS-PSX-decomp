@@ -2561,98 +2561,82 @@ int SpecialCharacter(char current)
 int tUserNameMenuItem::Draw(bool selected)
 
 {
-  char current_00;
-  tTexture_ShapeInfo *shape;
-  short sVar2;
-  int shapetodraw;
   int x;
   int y;
-  int ColText;
-  int Col;
-  char *sMenuText;
-  u_int sl;
-  int current;
-  int iVar5;
-  int yy;
-  int j;
-  int xx;
-  int startx;
-  char output [2];
-  /* SYM AUTO local optimizer-ELIMINATED (disasm: cursor draw uses fFlags, slot sp+0x28 unused) */
-  tDrawShapeExtended tCol;
-  tDrawShapeExtended fFlags;
-  int cursorX;
+  tTexture_ShapeInfo *shape;
   
   x = TextSys_WordX(this->fTextDescription);
   y = TextSys_WordY(this->fTextDescription);
-  shape = gHelpShapes;
+  shape = &gHelpShapes[0x1e];
   if (this->fFadeVal != 0x80) {
+    short j;
+    char output[2];
+    int ColText;
+    int Col;
+    tDrawShapeExtended tCol;
+    short sl;
+    short startx;
+    int xx;
+    int yy;
+
     output[1] = '\0';
     ColText = CalcFadeVal(0xbebe,(int)this->fFadeVal);
     Col = CalcFadeVal(0xbebe,(int)this->fFadeVal);
     j = 0;
-    sMenuText = TextSys_Word(this->fTextDescription);
-    FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,ColText,'\0',0);
-    sl = strlen(this->fData);
-    sVar2 = (short)sl;
+    FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),(short)x,(short)y,
+                            ColText,'\0',0);
+    sl = (short)strlen(this->fData);
     startx = x + 0x4e + this->fMaxStringLength * -10;
-    iVar5 = x;
-    if (0 < sVar2) {
+    if (0 < sl) {
       do {
-        output[0] = this->fData[(short)j];
-        FETextRender_FullTextRGB(output,(short)((u_int)((startx + (short)j * 0x14) * 0x10000) >> 0x10),
-                   (short)((u_int)((y + 0x11) * 0x10000) >> 0x10),ColText,'\x01',0);
+        output[0] = this->fData[j];
+        FETextRender_FullTextRGB(output,(short)(startx + j * 0x14),(short)(y + 0x11),
+                                ColText,'\x01',0);
         j = j + 1;
-      } while (j * 0x10000 >> 0x10 < (int)sVar2);
+      } while (j < sl);
     }
-    sl = sl & 0xffff;
-    if (sVar2 < this->fMaxStringLength) {
+    if (sl < this->fMaxStringLength) {
       do {
-        PSXDrawSquare(Col,(startx * 0x10000 >> 0x10) + (short)sl * 0x14,y + 0x19,0x11,1);
+        PSXDrawSquare(Col,startx + sl * 0x14,y + 0x19,0x11,1);
         sl = sl + 1;
-      } while ((int)(sl * 0x10000) >> 0x10 < (int)this->fMaxStringLength);
+      } while (sl < this->fMaxStringLength);
     }
     if (this->fFadeVal == 0) {
+      tDrawShapeExtended fFlags;
+      char current;
+
       fFlags.tint[0] = PulsateYellow[0];
-      current = (int)this->fCurrentColumn + this->fCurrentRow * 9;
-      current_00 = this->fRowList[0][current];
-      if ((current_00 == '!') || (current_00 == '@')) {
-        shapetodraw = 0x4e;
-        cursorX = this->fCurrentColumn * 0x1c + 0xfd;
+      current = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
+      xx = this->fCurrentColumn * 0x1c + 0x102;
+      yy = this->fCurrentRow * 0xf;
+      if ((current == '!') || (current == '@')) {
+        DrawShapeExtended(0x4e,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
-      else if ((u_char)(current_00 - 0x23U) < 2) {
-        shapetodraw = 0x4f;
-        cursorX = this->fCurrentColumn * 0x1c + 0xfd;
+      else if ((u_char)(current - 0x23U) < 2) {
+        DrawShapeExtended(0x4f,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
-      else if ((current_00 == '&') || (current_00 == '^')) {
-        shapetodraw = 0x50;
-        cursorX = this->fCurrentColumn * 0x1c + 0xfd;
+      else if ((current == '&') || (current == '^')) {
+        DrawShapeExtended(0x50,0x10,xx - 5,yy - 3,0,0,&fFlags);
+      }
+      else if ((u_char)(current - 0x61U) < 0x1a) {
+        DrawShapeExtended((u_char)current - 0x37,0x10,xx - 5,yy - 3,0,0,&fFlags);
+      }
+      else if ((u_char)(current - 0x30U) < 0xa) {
+        DrawShapeExtended((u_char)current + 0x14,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
       else {
-        if ((u_char)(current_00 - 0x61U) < 0x1a) {
-          shapetodraw = (u_char)this->fRowList[0][current] - 0x37;
-        }
-        else if ((u_char)(current_00 - 0x30U) < 0xa) {
-          shapetodraw = (u_char)this->fRowList[0][current] + 0x14;
-        }
-        else {
-          shapetodraw = SpecialCharacter(current_00);
-        }
-        cursorX = (this->fCurrentColumn * 0x1c + 0x102) - 5;
+        int shapetodraw = SpecialCharacter(current);
+        DrawShapeExtended(shapetodraw,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
-      yy = *(short *)&MENUUSERNAME_STARTY /* @0x800529b2 */ + this->fCurrentRow * 0xf;
-      DrawShapeExtended(shapetodraw,0x10,cursorX,yy - 3,0,0,&fFlags);
     }
   }
-  xx = x + 0x9c;
-  DrawShapeExtended(0x1e,8,xx - (int)shape[0x1e].width,y + -3,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
-  iVar5 = 0x9c;
-  PSXDrawSquare(0,x,y + -3,0x9c - shape[0x1e].width,(int)shape[0x1e].height);
-  shape = gHelpShapes;
-  DrawShapeExtended(0x21,8,xx - (int)shape[0x21].width,y + 0xc,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
-  iVar5 = (int)shape[0x21].height;
-  PSXDrawSquare(0,x,y + 0xc,0x9c - shape[0x21].width,iVar5);
-  return iVar5;
+  DrawShapeExtended(0x1e,8,x + 0x9c - (int)shape->width,y - 3,
+                    (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
+  PSXDrawSquare(0,x,y + -3,0x9c - shape->width,(int)shape->height);
+  shape = &gHelpShapes[0x21];
+  DrawShapeExtended(0x21,8,x + 0x9c - (int)shape->width,y + 0xc,
+                    (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
+  PSXDrawSquare(0,x,y + 0xc,0x9c - shape->width,(int)shape->height);
 }
 
 

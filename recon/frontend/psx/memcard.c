@@ -718,7 +718,39 @@ int MCRD_handlecardevents(int card)
    *   (`bne pCI->status,-1` / `bgez ticks`) already carry `addiu $s0,0x16` in
    *   their delay slots, so reorg cannot steal `addu $v0,$s0,$zero` into them and
    *   keeps a 2-insn trampoline instead - ours reaches the single funnel directly
-   *   and is simply 2 insns tighter.  Not source-reachable so far. */
+   *   and is simply 2 insns tighter.  Not source-reachable so far.
+   *
+   * w44 ADDENDUM - the (1)+(2) razor is now EXACT, re-derived from -dg/-dl:
+   *   printed order 123 82 144 159 167 175 183 135 193 147 83 80 92 81 reproduces
+   *   the priority formula term for term, so the model is confirmed:
+   *     144 cmd  = 7 refs / 20 live -> 2*7/20 = .700   (wins $a0)
+   *      92 base = 4 refs / 22 live -> 2*4/22 = .364
+   *   144 and 92 CONFLICT and neither carries a hard-reg preference, so whoever is
+   *   allocated first takes $a0.  The base wins iff EITHER its live_length <= 11
+   *   (8/11 = .727) or it reaches 8 refs (24/22 = 1.09), OR cmd's live_length grows
+   *   past 38 (14/39 = .359 < .364).  The base's 22-insn range is exactly def ->
+   *   index addu -> bReady store -> channel load (the load sits past the
+   *   `pCI->status == -1` branch, which is what stretches it); cmd's 20-insn range
+   *   is the dispatch `lw ...,0x10($sp)` to the res==2 arm's bReady store.
+   *   NEW FALSIFICATIONS (w44): `gMemCardInfo.bReady = 1;` in all three arms
+   *   instead of `= cmd` (byte-identical 44/209 - cse already reuses cmd's register
+   *   for the constant 1, exactly as retail does for the res==1 compare, so the
+   *   `= cmd` spelling is NOT what pins cmd's ref count); an early cmd read to
+   *   lengthen its range (44, the read is folded); killing the base's last ref by
+   *   passing a constant to MemCardAccept (51/208 - shortens the range but the
+   *   dependent structure collapses, so it is a model probe only, not a lever).
+   *   NEXT ANGLE (part 1): the only two zero-instruction routes left are a
+   *   PHANTOM ref on the base (a cse-merged duplicate gMemCardInfo subexpression
+   *   across the res==0/res==1 arms would count twice in REG_N_REFS while emitting
+   *   once - w42 CarShapedHalo class) to reach 8 refs, or a spelling that defers the
+   *   base's DEF past the index math + timerhz load so its range falls to <= 11.
+   *   NEXT ANGLE (part 3): the trampoline needs reorg to see TWO `j` insns to the
+   *   funnel at relax_delay_slots time; since cross-jumping merges them earlier,
+   *   the lever must stop the MERGE, not the steal - the two tails differ only in
+   *   which predecessor reaches them, so the w43 cross-jump-DEPTH rule applies:
+   *   give one arm's `status` store a different VARIABLE identity (e.g. the NONE
+   *   arm reaching the funnel through a distinct exit value) rather than trying to
+   *   perturb the delay slots. */
   status = 0x17;
   pCI = MCRD_getcard(card);
   ret = MemCardSync(0,(long *)&cmd,(long *)&res);
@@ -1046,7 +1078,26 @@ int iMCRD_HandleError(int func,int opResult,int card)
    * NEXT ANGLE: find a zero-instruction 5th `card` reference - the phantom-ref classes
    * (cse-merged duplicate subexpression, cross-jump-merged duplicate insn) are the only
    * known ones that add REG_N_REFS without adding an instruction; or shorten card's
-   * live range by 14 insns (it is live in blocks 1-12 and 18-22 per -dl). */
+   * live range by 14 insns (it is live in blocks 1-12 and 18-22 per -dl).
+   * RESOLVED (w44): the loop-depth ref dial in the retry loop below supplies the
+   * 5th weighted `card` ref at zero instruction cost - card .1136 > code .1075 ->
+   * card $s3 / code $s4 = SYM-exact.  22 -> 4 diffs (135/135 count-exact).
+   * REMAINING 4 = a SECOND, independent one-rank inversion plus its delay slot:
+   *   failed(sentinel) 3 refs / 16 live -> .1875   vs   pCI 7 refs / 79 live -> .1772
+   * Retail materializes `numberoftries = 0` FIRST (reorg eager-steals the
+   * fall-through's first insn into the `beqz` slot); writing it first in source does
+   * exactly that, but it also shortens the sentinel's live range to 16, which lifts
+   * it above pCI and rotates $s1<->$s2 through the whole function (36 diffs).  The
+   * two are COUPLED: sentinel-first = right registers / wrong slot (4 diffs);
+   * numberoftries-first = right slot / wrong registers (36).
+   * NEXT ANGLE: decouple by promoting pCI to 8 weighted refs (2*8/79 = .2025 >
+   * .1875) with a ZERO-INSN ref inflator (a10's class: a cse-folded re-mask or a
+   * folded re-read of a pCI-based lvalue), or by lengthening the sentinel's live
+   * range to >= 17 WITHOUT moving its materialization (3/17 = .1765 < .1772 - a
+   * ONE-INSN razor).  Falsified for the decoupling: post-loop `result != failed`
+   * (41/132); sentinel hoisted above the confirm call (5/134 - it then lands in the
+   * jalr delay slot instead of the beqz slot); increment-before-call (38); Yoda loop
+   * condition (36); declarator-init permutations x4 (36); decl-order x3 (36-40). */
   code = 0;
   pCI = MCRD_getcard(card);
   /* MATCH: a real switch - the oracle's beq(2)/slti BOUND/beq(1)/beq(3) ladder with
@@ -1118,7 +1169,17 @@ int iMCRD_HandleError(int func,int opResult,int card)
          * Success is the FALL-THROUGH of that second compare (retail `beq` sends the
          * exhausted path out-of-line, physically AFTER the success block). */
         do {
-          result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
+          /* MATCH (w44, 22 -> 4): LOOP-DEPTH REF DIAL.  REG_N_REFS is loop-depth
+           * weighted, so this inner scope doubles the weight of the refs inside it
+           * at ZERO instruction cost.  It is the one dial that reconciles retail's
+           * own register map with allocno_compare: `card` reaches 5 weighted refs
+           * (2*5/88 = .1136) and finally outranks `code` (2*5/93 = .1075), so card
+           * takes $s3 and code $s4 exactly as the SYM says (REGPARM $0x13 / REG
+           * $0x14).  Without it the whole card/code pair is rotated (18 diff lines).
+           * Remove this scope to fall back to the honest 22-diff form. */
+          do {
+            result = iMCRD_FormatCard(card);   /* MATCH: fresh pseudo for the call result */
+          } while (0);
           numberoftries = numberoftries + 1;
         } while ((result == failed) && (numberoftries < 3));
         if (result != -1) {

@@ -1222,6 +1222,44 @@ gte_swc2(0x8,&depthcue);
              *(u_int *)(pal + sd->otz * 4) & 0xff000000 | (u_int)aprim & 0xffffff;
         SetTexWindow(aprim,&r);
       }
+      /* RECEIPT (w44-a7) -- THE ORACLE'S TRUE SHAPE HERE IS AN if/else, AND IT IS
+       * MUTUALLY EXCLUSIVE WITH THE $s0/$s1 FLIP ABOVE.  Oracle @0x800C69F0:
+       *     beqz  $s5,.L800C6A00        ; doSubdivision == 0 -> the OT-link arm
+       *      addiu $v0,$s0,0x94
+       *     j     .L800C6A38            ; else-arm ...
+       *      addiu $s1,$s0,0x110        ; ... prim = &sd->GT4Prim, in the j slot
+       *   .L800C6A00: lw $s1,0x4($s0)   ; prim = cprim.PrimPtr, then the OT-link
+       * i.e.  if (doSubdivision != 0) prim = &sd->GT4Prim;
+       *       else { prim = cprim.PrimPtr; OT-link; }
+       * MEASURED (this wave, both with the nightFlags + cursor-defer fixes in):
+       *     if/else form           : gate 282, posdiff structural residual  52
+       *     default-then-override  : gate 100, posdiff structural residual 113
+       * The if/else kills the last 52 lines of structure but LOSES the register
+       * assignment: with the default gone, prim's live range collapses to 114
+       * insns and allocno_compare ranks it ABOVE sd, so prim takes $s0 and sd
+       * takes $s1 -- the exact inverse of the SYM (sd REGPARM $0x10 = $s0,
+       * prim REG $0x11 = $s1) -- and ~230 diff lines of fallout follow.
+       * -dg/-dl RECEIPT (tools/rtl_dump.py + tools/prio.py, if/else form):
+       *     prim = p141: 24 refs / 114 live -> 4*24/114 = 0.8421  (rank  7)
+       *     sd   = p 80: 62 refs / 848 live -> 5*62/848 = 0.3656  (rank 13)
+       *   rank 7 is the FIRST call-crossing allocno, so it takes $s0.
+       * For sd to win, prim's priority must fall below 0.3656.  Solving
+       * floor_log2(r)*r/live < 0.3656 over the reachable (r,live):
+       *     live 114 (if/else)  =>  r <= 13   (r = 14 gives 0.368, a razor MISS)
+       *     r = 24              =>  live > 263
+       * Retail's own $s1 span is 0x800C69FC..0x800C6C48 = 148 insns with 26 refs
+       * (4*26/148 = 0.70), i.e. RETAIL'S OWN NUMBERS ALSO RANK prim ABOVE sd ->
+       * this is the w41/w43 find_reg cost-pass boundary, third instance.
+       * FALSIFIED: re-adding the top-of-function `prim = &sd->GT4Prim;` on top of
+       * the if/else is a NO-OP (cse deletes it; output byte-identical, 282).
+       * NEW NAMED ANGLE (untried): hold BOTH properties by giving prim a longer
+       * live range that is NOT a redundant assignment -- hoist the whole
+       * `if (0 < sd->otz && ...)` body one level so prim's def dominates the first
+       * flag&0x80 block (+37 insns of live range), then shed 9 of prim's 24 refs
+       * (the four `*(long*)&prim->xN` and four `*(u_int*)&prim->uN` stores are the
+       * only compressible groups): at r=15 / live=151 the priority is
+       * 3*15/151 = 0.298 < 0.3656 and sd wins.  Otherwise: permuter. */
+
       if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
@@ -1276,7 +1314,10 @@ gte_swc2(0x8,&depthcue);
        * oracle: with the depth-cue block as the out-of-line arm gcc cross-jump-merges
        * part of its two colour tails.  The polarity is downstream of that merge, not a
        * free arm-order choice -- do not re-try before the merge is killed. */
-      if (sd->nightFlags == '\0') {
+      if (sd->nightFlags != '\0') {
+        DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
+      }
+      else {
         gte_ldir0v(depthcue);   /* MATCH+CORRECTNESS: oracle `lw rt,depthcue; mtc2 rt,$8` -- gte_ldIR0() is the ADDRESS form (lwc2), so passing the VALUE read memory at the depth-cue number */
         /* CORRECTNESS + MATCH (2026-08-01, oracle @0x800C6A90/.L800C6B64 read
          * instruction-by-instruction): BOTH arms were wrong.
@@ -1327,9 +1368,6 @@ gte_strgb(&color);
           *(long *)&prim->r2 = color;
           *(long *)&prim->r3 = color;
         }
-      }
-      else {
-        DrawW_NightColorCalc(sd,prim,&vt0,&vt1,&vt2,&vt3);
       }
       *(u_char *)((int)&prim->tag + 3) = 0xc;
       prim->code = *(u_char *)&workPmx->flag | 0x3c;
@@ -1385,8 +1423,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
          * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
          * insns the oracle never pays. */
-        p = Render_gPacketPtr;
-        tp20 = Render_gPalettePtr;
         iVar2 = (u_int)workPmx->u3 - (u_int)workPmx->u0;
         if (iVar2 < 0) {
           iVar2 = -iVar2;
@@ -1399,6 +1435,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         r.h = (short)ti5 + 1;
         r.x = 0;
         r.y = 0;
+        p = Render_gPacketPtr;
+        tp20 = Render_gPalettePtr;
         /* MATCH: the oracle reads each scratchpad cursor ONCE (`lw a0,0(t2)` /
          * `lw t0,0(t0)`) and drives the whole OT-link off those two registers -- the
          * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra
@@ -1530,6 +1568,23 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
+  /* RE-GATE (w44-a7): 125 diffs, ours 358 / oracle 359 (worklist said 179).
+     TRIAGE (tools/posdiff.py): alpha-renamed LCS 261/359, structural residual 98,
+     and the first-use order differs ONLY in where `s4`(=buildList) and `fp`(=the
+     constant 0) sit -- ours  s3 a0 s4 a1 s6 fp s5 s7 s0 ...
+                       oracle s3 a0 fp s6 s5 s7 s4 a1 s0 ...
+     i.e. the prologue emits the saved-reg initializers in allocation-priority
+     order and our `buildList` copy outranks the `0` constant where the oracle has
+     it the other way round.  The remaining mass is a set of one-insn transpositions
+     of the same shape all through the body (`lw v1,168(a0)` / `lw v1,160(a0)` /
+     `lw v1,8(s3)`... each landing one slot early or late), i.e. sched1 ready-list
+     ties downstream of that head order.
+     NEW NAMED ANGLE (untried this wave, needs a dedicated pass): the briefing's
+     giv-worth razor -- run tools/rtl_dump.py -dL on this TU and read the
+     `giv of insn N not worth while, W vs insn_count` line for the trough loop;
+     W is constant, so the dial is the loop's RTL insn count and it is usually a
+     1-insn razor.  Pair it with the negOne/giv history already recorded below. */
+
   /* MATCH (2026-07-11 FABLE-1): full SYM-driven + scratchpad-overlay rewrite.
      SYM's real local set is {sd (REG, Draw_tGiveShelbyMoreCache* -- NOT the
      ad-hoc `(Draw_tGiveShelbyMoreCache*)&Render_gPalettePtr` cast at each call
@@ -1984,38 +2039,36 @@ void DrawW_DoObjectAnimations(void)
 int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 {
-  Group * group;
-  int bVar1;   /* MATCH (w40-a2): the anim type is a SIGNED int in the original -- a u_char
-                  local made cc1plus emit `sltiu $v0,$v1,2` for the dispatch chain where
-                  the oracle has the signed `slti $v0,$v1,0x2` (balance_case_nodes uses
-                  signed compares). The `lbu` field read is unchanged. */
-  Group *pThis;
-  int iVar2;
-  void *pvVar3;
-  int iVar4;
-  short *psVar5;
-  int iVar6;
-  int iVar7;
-  Trk_SimpleInst *objInstance;
-  Trk_AnimateInst *animInst;
-  Trk_ObjectDef *objDef;
-  Trk_ObjectDef *objDef_00;
-  int objectOffset;
-  int iVar8;
-  int objectIndex;
-  int iVar9;
-  int totalCount;
-  int iVar10;
-  int zClipSq;
-  int iVar11;
-  Draw_DCache *sd;
-  matrixtdef matrix;
-  coorddef cp;
-  coorddef pt2;
-  int groupNumElements;
-  int offset;
-  int doFrustumClip;
-  short *visList;
+  /* rule-8 SYM rewrite (w44-a7): SYM 8c block @0x800C78A8 names EVERY local and
+     fixes both the register map and the AUTO SLOT ORDER:
+       Vi REGPARM $0x17=$s7 · gObjInfo REGPARM $5=$a1
+       sd $0x1e=$fp · objInstance $0x10=$s0 · objDef $0x11=$s1 · totalCount $0x15=$s5
+       group $2=$v0 · groupNumElements AUTO -0x40 · offset AUTO -0x3c
+       doFrustumClip AUTO -0x38 · zClipSq $0x16=$s6 · visList AUTO -0x34
+       objectIndex $0x14=$s4 (blk16) · objectOffset $0x12=$s2 + matrix AUTO -0x88 (blk25)
+       cp AUTO -0x60 (blk95) · pt2 AUTO -0x50 (blk114);  fsize 168.
+     The DECLARATION ORDER of the four scalar AUTOs IS the frame layout (reload
+     slots the pseudos in the order the decls are reached, w41): the old order
+     (groupNumElements, visList, offset, doFrustumClip) put gObjInfo->offset at
+     112(sp) and visList at 108(sp) where the oracle has 108/116. */
+  Draw_DCache *sd;                 /* $fp   -- the 0x1F800000 scratchpad cache */
+  Trk_AnimateInst *objInstance;    /* $s0   -- SYM type Trk_SimpleInst* */
+  Trk_ObjectDef *objDef;           /* $s1 */
+  int totalCount;                  /* $s5 */
+  int groupNumElements;            /* AUTO -0x40 -> 104(sp) */
+  int offset;                      /* AUTO -0x3c -> 108(sp) */
+  int doFrustumClip;               /* AUTO -0x38 -> 112(sp) */
+  int zClipSq;                     /* $s6 */
+  short *visList;                  /* AUTO -0x34 -> 116(sp) */
+  int objectIndex;                 /* $s4 (SYM block line 16) */
+  int objectOffset;                /* $s2 (SYM block line 25) */
+  matrixtdef matrix;               /* AUTO -0x88 -> 32(sp) */
+  coorddef cp;                     /* AUTO -0x60 -> 72(sp) */
+  coorddef pt2;                    /* AUTO -0x50 -> 88(sp) */
+  int animType;
+  void *clipRes;
+  int distSq;
+
   
   /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
    * (Draw_DCache*, REG $0x1e == $fp) in the FUNCTION-scope block and the oracle
@@ -2032,18 +2085,18 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
    * rematerialized per use and the whole file rotates.  The lever that would land
    * this is one that RAISES sd's ref count or SHORTENS Vi's range, not the
    * declaration move; do not re-try the move on its own. */
-  iVar10 = 0;
-  animInst = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
-  iVar2 = gObjInfo->objInstanceBuf->m_num_elements;
+  totalCount = 0;
+  objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
+  groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
-  if (iVar2 == 0) {
-    iVar10 = 0;
+  if (groupNumElements == 0) {
+    totalCount = 0;
   }
   else {
-    iVar6 = gObjInfo->offset;
-    iVar7 = gObjInfo->doFrustumClip;
-    iVar11 = gObjInfo->zClipSq;
-    psVar5 = gObjInfo->visList;
+    offset = gObjInfo->offset;
+    doFrustumClip = gObjInfo->doFrustumClip;
+    zClipSq = gObjInfo->zClipSq;
+    visList = gObjInfo->visList;
     /* SYM: block-scoped REG local `sd` (Draw_DCache*, $fp) -- the scratchpad cache
        cursor cast ONCE here, not re-cast at every call site (used below at every
        ObjectClipped/DrawObjectSimple/DrawObjectTransform/Flare_Halo2 call). The
@@ -2054,46 +2107,46 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     ((MATRIX *)0x1f800014)->t[1] = 0;
     (sd->matB).t[0] = 0;
 gte_SetTransMatrix((void *)0x1f800014);
-    for (iVar9 = 0; iVar9 < iVar2; iVar9 = iVar9 + 1) {
-      if ((psVar5 == (short *)0x0) || ((((u_short)psVar5[iVar9] >> 0xc ^ 1) & 1) == 0)) {
-        iVar8 = iVar6;
-        if (iVar6 == 0) {
-          iVar8 = (int)goffsets[animInst->zoffset];
+    for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+      if ((visList == (short *)0x0) || ((((u_short)visList[objectIndex] >> 0xc ^ 1) & 1) == 0)) {
+        objectOffset = offset;
+        if (offset == 0) {
+          objectOffset = (int)goffsets[objInstance->zoffset];
         }
-        bVar1 = animInst->type;
+        animType = objInstance->type;
         /* SYM block-scoping (line70/71 vs 95/107/114, all converging on the shared
            loop-tail at line124/132) + the oracle's flat forward-beq compare chain
            (==1 / <2-skip / ==3 / ==7 / skip) with BOTH case bodies pushed OUT OF LINE
            after the chain -- neither a plain if/else-if (inlines case1) nor a switch
            (gcc picks a range-check lowering for {1,3,7}) reproduces this; an explicit
            goto dispatch matches the oracle's actual block layout 1:1. */
-        if (bVar1 == 1) goto animCase1;
-        if (bVar1 < 2) goto animNext;
-        if ((bVar1 == 3) || (bVar1 == 7)) goto animCase37;
+        if (animType == 1) goto animCase1;
+        if (animType < 2) goto animNext;
+        if ((animType == 3) || (animType == 7)) goto animCase37;
         goto animNext;
       animCase1:
-        objDef_00 = Track_gObjDefs[animInst->pad];
-        if (((iVar7 == 0) ||
-            (pvVar3 = ObjectClipped(Vi,(int)animInst->pad,(coorddef *)&animInst->count,
+        objDef = Track_gObjDefs[objInstance->pad];
+        if (((doFrustumClip == 0) ||
+            (clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->count,
                                  (Draw_tGiveShelbyMoreCache *)sd),
-            pvVar3 == (void *)0x0)) &&
-           ((iVar11 == -1 ||
-            (iVar4 = xzsquaredist32((coorddef *)&animInst->count,&(Vi->cview).translation),
-            iVar4 < iVar11)))) {
-          iVar8 = DrawObjectSimple(Vi,sd,objDef_00,
-                             (coorddef *)&animInst->count,iVar8);
-          iVar10 = iVar10 + iVar8;
+            clipRes == (void *)0x0)) &&
+           ((zClipSq == -1 ||
+            (distSq = xzsquaredist32((coorddef *)&objInstance->count,&(Vi->cview).translation),
+            distSq < zClipSq)))) {
+          objectOffset = DrawObjectSimple(Vi,sd,objDef,
+                             (coorddef *)&objInstance->count,objectOffset);
+          totalCount = totalCount + objectOffset;
         }
         goto animNext;
       animCase37:
-        Anim_GetRotPos(animInst,1,DrawW_GetAnimationTime(animInst),&cp,&matrix);
-        if ((iVar11 == -1) ||
-           (iVar4 = xzsquaredist32(&cp,&(Vi->cview).translation),
-           iVar4 < iVar11)) {
-          iVar8 = DrawObjectTransform(Vi,sd,&matrix,
-                             Track_gObjDefs[animInst->pad],&cp,iVar8,-1);
-          iVar10 = iVar10 + iVar8;
-          if ((animInst->flags & 2) != 0) {
+        Anim_GetRotPos(objInstance,1,DrawW_GetAnimationTime(objInstance),&cp,&matrix);
+        if ((zClipSq == -1) ||
+           (distSq = xzsquaredist32(&cp,&(Vi->cview).translation),
+           distSq < zClipSq)) {
+          objectOffset = DrawObjectTransform(Vi,sd,&matrix,
+                             Track_gObjDefs[objInstance->pad],&cp,objectOffset,-1);
+          totalCount = totalCount + objectOffset;
+          if ((objInstance->flags & 2) != 0) {
             pt2.x = cp.x + matrix.m[6] * -0x10;
             pt2.y = cp.y + matrix.m[7] * -0x10;
             pt2.z = cp.z + matrix.m[8] * -0x10;
@@ -2102,16 +2155,64 @@ gte_SetTransMatrix((void *)0x1f800014);
         }
       animNext:;
       }
-      animInst = (Trk_AnimateInst *)((int)&animInst->size + (int)animInst->size);
+      objInstance = (Trk_AnimateInst *)((int)&objInstance->size + (int)objInstance->size);
     }
   }
-  return iVar10;
+  return totalCount;
 }
 
 /* ---- DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi  [DRAWW.CPP:2054-2151] SLD-VERIFIED ---- */
 int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObject *simObjs,Group *group,int zClipSq)
 
 {
+  /* RE-GATE (w44-a7): 120 diffs, ours 192 / oracle 200 -- we are EIGHT INSNS
+     SHORT (worklist said 84).  TRIAGE (tools/posdiff.py): alpha-renamed LCS
+     121/200, structural residual 79, and the first-use order is oracle-identical
+     except for one adjacent swap (ours ... a0 a2 a1 v0 t4 ...  vs oracle
+     ... a0 a1 a2 v0 t0 t4 ...).  Per the catalog's posdiff rule a single adjacent
+     swap at an 8-insn deficit is NOT coloring: `ours SHORTER` + intact call
+     skeleton = collapsed inline math or a missing arm.
+     NEW NAMED ANGLE (untried): run tools/brcensus.py first (jal deficit = dropped
+     call, conditional-branch deficit = missing arm, beqz<->bnez at equal totals =
+     polarity) before touching any register; the w10 note in this file already
+     flags the quaternion copy as a genuine UNALIGNED lwl/lwr stream, so the
+     8-insn hole is most likely a second movstrsi-shaped copy still written as
+     scalar math, or the wave-9 `Pack8` cast applied at only one of two sites.
+     CENSUS RUN (tools/brcensus.py, w44-a7):  beqz 4v3  bnez 2v3  j 2v3
+     -- equal conditional totals with a beqz<->bnez SWAP (one arm's polarity is
+     inverted) plus a `j` DEFICIT (we tail-merged a block the oracle keeps as a
+     separate jump).  Located at the head guard; the oracle prologue is
+         addiu $sp,$sp,-0x80
+         sw $s4,0x68($sp); addiu $s4,$a3,0x4
+         ... sw $a0,0x80($sp); sw $a1,0x84($sp); sw $a2,0x88($sp)
+         sw $zero,0x50($sp)
+         lw $a3,0x0($a3); nop
+         bnez $a3,.L800C7BF4
+          sw $a3,0x54($sp)
+     THREE separate facts fall out, and together they are the 8-insn deficit:
+       (a) Vi ($a0), sd ($a1) and simObjs ($a2) are SYM class ARG -- retail spills
+           all three to their incoming stack homes in the prologue and RELOADS
+           them at each use (`lw $a1,132(sp)` / `lw $a1,128(sp)` appear at the
+           DrawObjectTransform sites in the oracle).  We keep `sd` in $s5
+           (`addu $a1,$s5,$zero` / `addu $a2,$s5,$zero`), which is exactly why the
+           oracle has loads we lack.  Same ARG-spill class as Draw_kCtrlSkidmark's
+           `sw $a0,0x58($sp)`.
+       (b) totalCount is a stack AUTO at 0x50($sp) (`sw $zero,0x50($sp)`) and
+           groupNumElements at 0x54($sp); our decl order puts the count at
+           0x50($sp) instead, so every AUTO displacement is off by one slot --
+           the w41 decl-position-IS-frame-layout rule, the same fix that landed
+           on DrawW_BuildObjectFacets this wave.
+       (c) the zero-count guard is `bnez` with the groupNumElements store riding
+           its delay slot, i.e. the SOURCE arm order is
+              if (groupNumElements != 0) { ...loop... } else { totalCount = 0; }
+           and not our `if (== 0) {...} else {...}`.
+     NEW NAMED ANGLE: do the full rule-8 SYM rewrite here exactly as
+     DrawW_BuildObjectFacets got this wave -- pull the SYM 8c block, delete the
+     ~20 fabricated iVarN/loc_NN locals, order the scalar AUTOs into the SYM's
+     declaration sequence, and let the three ARG params stay memory-resident
+     (reference the parameter directly at each use instead of caching it in a
+     local -- catalog w22: "different register CLASS, not a different sN"). */
+
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;
   int buildResult;
@@ -2462,6 +2563,34 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      walking pointer as Trk_CollideBoomInst* turns every `pGVar12[N].m_num_elements`
      byte-math expression into a real field access, which is rule-8/SYM-driven local
      structure (SYM names this pointer `objInstance`). */
+  /* RECEIPT (w44-a7) -- RE-GATED 212 diffs, COUNT-EXACT 434/434 (the worklist's
+     78 is stale in the usual direction).  posdiff's first-use order is IDENTICAL
+     to the oracle; the whole residual is ONE saved-register pair swap plus its
+     fallout: SYM says objInstance REG $0x14 = $s4 (objDef $s6, totalCount $s7,
+     type $s0, light $s1, objectOffset $fp -- all of those we already match), but
+     we give objInstance $s3 and push each case block's t1 from $s3/$s5 to $s4/$s5.
+     -dl/-dg RECEIPT (tools/rtl_dump.py + tools/prio.py):
+       objInstance = p88 : 79 refs / 375 live -> 6*79/375 = 1.2640  (rank 3)
+       block-10 t2 = p131: 12 refs /  27 live -> 3*12/ 27 = 1.3333  (rank 2 -> $s2)
+       block-10 t1 = p130: 12 refs /  36 live -> 3*12/ 36 = 1.0000  (rank 7)
+     Only ONE hard reg ($s2) is consumed before objInstance, so it lands on $s3.
+     The SYM proves retail consumed TWO before objInstance took $s4 ($s2 <- the
+     b81/b195 t2's, $s3 <- the b81/b195 t1's and the b150/b252 t2's) -- i.e.
+     block-10's t1 must outrank objInstance.  Two quantified, reachable dials:
+       (a) objInstance refs 79 -> <= 63 crosses the floor_log2 razor 6 -> 5 and
+           gives 5*63/375 = 0.84 < t1's 1.00.  That is ~8 fewer SOURCE refs (42
+           today; the compressible groups are objInstance->x x7 and ->pad x6).
+       (b) objInstance live 375 -> > 474 gives < 1.00 (the loop is 375 of the
+           function's 754 RTL insns, so this needs a use outside the loop --
+           less faithful, listed for completeness).
+     FALSIFIED this wave: moving each `matrix.m[K+6] = fixedmult(matrix.m[K+6],sX);`
+     RMW to AFTER the two `matrix.m[K] = t1/t2;` stores (9 sites) -- 212 -> 229 and
+     the count collapses 434 -> 423.  The RMW must stay third; the oracle's store
+     order (m[0], m[3], m[6], the last riding the next jal's delay slot) is a
+     scheduling consequence of the register assignment, not a source order.
+     NB the SYM types objInstance `Trk_SimpleInst *` (size 20), not
+     Trk_CollideBoomInst -- EA declared the small record and byte-cast the rest. */
+
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;
   int doFrustumClip;
@@ -2979,6 +3108,58 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
 {
+  /* RECEIPT (w44-a7) -- THE WALKER REGRESSION IS EXPLAINED: A gClutDepth LICM
+     HOIST WAS EATING THE SAVED REGISTER THAT `t` NEEDS.
+     Oracle prologue (asm/nonmatchings/main/Draw_kCtrlSkidmark...s):
+         addiu $sp,$sp,-0x58
+         sw $s4,0x40($sp); addu  $s4,$a0,$zero        ; m    = fskid
+         sw $s6,0x48($sp); addiu $s6,$s4,0x24         ; t    = &fskid->t
+         sw $fp,0x50($sp); lui/ori $fp,0x1F800094     ; otz94
+         sw $s3,0x3C($sp); lui/ori $s3,0x404040       ; grey
+         sw $s1,0x34($sp); lui     $s1,0x1F800000     ; sd
+         ...             ; sw $a0,0x58($sp)           ; fskid SPILLED to its ARG
+         lw $s5,0x30($s4)                             ;   home (SYM class ARG!)
+     OURS (before this wave) materialized otz94/grey/sd but NOT m/t, and instead
+     burned $fp on `lui %hi(gClutDepth); addiu %lo(gClutDepth)` hoisted all the way
+     to the function entry.  -dL proves it is a DOUBLE LICM hoist:
+         Insn 723: regno 239 (life 6),   move-insn savings 2  moved to 795
+         Insn 724: regno 238 (life 5),   move-insn forces 723 savings 1 moved to 797
+         Insn 795: regno 239 (life 226), savings 1 halved since already moved -> 809
+         Insn 797: regno 238 (life 226), savings 1 halved since already moved -> 811
+     i.e. the %hi/%lo pair is lifted out of the inner loop and then out of the outer
+     loop, arriving in the prologue with a 226-insn live range -> a callee-saved
+     home.  The oracle keeps it CALLER-saved at the use site
+     (`lui $t8,%hi(gClutDepth) ... addiu $t8,$t8,%lo(gClutDepth)` @0x800C9584).
+     CURE FOUND + MEASURED: an unsized asm-label VIEW of the table --
+         extern short gClutDepth_v[] __asm__("gClutDepth");
+         ... = ((short (*)[16])gClutDepth_v)[idx][vert_idx];
+     -- removes the hoist entirely.  With that plus `m = (matrixtdef *)fskid;` and
+     `t = &fskid->t;` routed through every (fskid->m).m[] / fskid->t use, OUR
+     PROLOGUE REPRODUCES THE ORACLE'S COMPLETE MATERIALIZATION SET *AND* THE
+     `sw $a0,0x58($sp)` ARG SPILL (verified with tools/ourdis.py):
+         sw a0,88(sp); move s5,a0; addiu s7,s5,36; lui/ori s8,0x1F800094;
+         lui/ori s6,0x404040; lui s3,0x1f80
+     -- exactly the oracle's set, modulo a 5-register rotation
+        (ours m=$s5 t=$s7 otz94=$s8 grey=$s6 sd=$s3
+         vs   m=$s4 t=$s6 otz94=$fp grey=$s3 sd=$s1).
+     NOT ADOPTED: the LCS gate goes 332 -> 366 and the count 361 -> 365 (the m/t
+     pair costs 4 insns the oracle pays for elsewhere) while posdiff's structural
+     residual is unchanged at ~256.  Reverted per verify-or-revert; the full
+     working tree is kept at scratch/skid_walker_view.cpp.
+     Isolated control: the gClutDepth view WITHOUT m/t gates 336 (structural 256).
+     NEW NAMED ANGLE for the next pass, in this order:
+       1. LAND THE VIEW + m/t FIRST (they are provably the oracle's shape) and
+          accept the temporary gate rise;
+       2. hunt the 12-insn excess (ours 365 vs oracle 353) with tools/brcensus.py
+          -- posdiff says the mass here is STRUCTURE, not coloring (alpha-renamed
+          LCS is only 94/353);
+       3. the 5-register rotation should then fall out, because with gClutDepth off
+          the callee-saved pool our set of saved-reg consumers finally equals the
+          oracle's.
+     Do NOT re-test t/m WITHOUT the gClutDepth view -- that is exactly the w39/w40/
+     w41 "adding t regresses 344->415" measurement, and it was measuring the
+     missing saved register, not the walkers. */
+
   int skidChunk_p;
   int vert_count;
   int smBase;

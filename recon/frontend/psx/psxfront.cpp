@@ -659,7 +659,21 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     prim[0xc] = u;
     prim[0xd] = v;
     prim[0x18] = u + w1;
-    prim[0x19] = v;
+    /* 🏆 MATCH (w45-a1) -- THE v-ROOT CRACK.  Vertex 1's V equals vertex 0's V, so the
+     * quad's second row is written by READING BACK the byte just stored at prim[0xd]
+     * rather than referencing `v` again (store-then-read-back, w40/w42 family: cc1
+     * forwards the stored value, so this costs ZERO instructions -- count stays 240).
+     * WHY IT IS LOAD-BEARING: it deletes one IN-LOOP use of `v`, and in-loop refs carry
+     * loop weight 2, so v's REG_N_REFS drops 9 -> 7.  That crosses the floor_log2 step at
+     * 8 (allocno_compare pri = floor_log2(refs)*refs/live): v .1698 -> .0881, which lands
+     * BELOW mask (.0915) and x (.0971).  Since find_reg hands out caller-saved regs in
+     * NUMERIC order by descending priority, the whole t2/t3/t4 3-cycle inverts to retail's:
+     *     before  v->t2  x->t3  mask->t4        after  x->t2  mask->t3  v->t4
+     * This delta was predicted independently two ways BEFORE it was written: by hand from
+     * tools/prio.py, and by a10's validated allocator replica, which answered
+     * `--solve 82=t2,167=t3,90=t4`  ->  `p90 refs 9 -> 7 (|d|=2)` -- a single-pseudo,
+     * single-dial requirement.  103 -> 83. */
+    prim[0x19] = prim[0xd];
     prim[0x24] = u;
     prim[0x30] = u + w1;
     prim[0x25] = vh + v;

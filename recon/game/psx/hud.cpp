@@ -177,6 +177,10 @@ POLY_FT4     gHudFT4[10];   /* @0x8013e5a0  (bss?) */
 POLY_G4      gHudG4[8];   /* @0x8013e730  (bss?) */
 char         BTC_CurrentPerpName[10];   /* @0x8013e850  (bss?) */
 
+/* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the
+ * SDK addPrim()/setaddr()/getaddr() macro family operating on this bitfield. */
+typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Hud_CreateHudViews(void);
 void Hud_GoTpage(int page);
@@ -364,19 +368,14 @@ void Hud_BuildSprite2(SPRT *sprt,int shapeIdx,int x,int y)
 void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 
 {
-  int tu1;
   u_char *prim;
   u_char *prev_pkt;
-  u_int   prev_hi;
 
   prim = Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)prim =
-       *(u_int *)prim & 0xff000000 | *(u_int *)prev_pkt & 0xffffff;
-  prev_hi = *(u_int *)prev_pkt & 0xff000000;
+  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
   Render_gPacketPtr = prim + 0x14;
-  tu1 = (u_int)prim & 0xffffff;
-  *(u_int *)prev_pkt = prev_hi | tu1;
+  ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
   Hud_BuildSprite((SPRT *)prim,shapeIdx,x,y,color,trans);
   return;
 }
@@ -662,17 +661,12 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 {
   POLY_F4 *prim;
   u_char  *prev_pkt;
-  u_int    prev_hi;
-  int      pkt_addr24;
 
   prim     = (POLY_F4 *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
-  *(u_int *)prim =
-       *(u_int *)prim & 0xff000000 | *(u_int *)prev_pkt & 0xffffff;
-  prev_hi = *(u_int *)prev_pkt & 0xff000000;
+  ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
   Render_gPacketPtr = (u_char *)prim + 0x18;
-  pkt_addr24 = (u_int)prim & 0xffffff;
-  *(u_int *)prev_pkt = prev_hi | pkt_addr24;
+  ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
 
@@ -1195,6 +1189,23 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
   return;
 }
 
+/* w45-a8: 163 (268/269) -> 85, posdiff structural residual 27.  LEVER: all FOUR OT/palette
+ * links (prim, tp9, prim2, gSprt1[2]) rewritten as the addPrim P_TAG bitfield pair.  The
+ * w44 birth-order receipt below is now largely spent -- what remains is a t1/t2/t3 rotation
+ * plus two small scheduling clusters:
+ *  (i) ONE insn short (268/269): retail keeps the two `clut |= x + K` arms UNMERGED because
+ *      the player==0 arm's value is computed SPECULATIVELY before the guard into $v1
+ *      (`addiu v1,s7,29`), so the two arms' tails (`or s0,s0,v0` / `or s0,s0,v1`) differ and
+ *      cross_jump cannot merge them; ours computes both into $v0 and merges the `or`.
+ *      TRIED + FALSIFIED THIS WAVE: a named `xlo = x + 0x1d;` local placed immediately before
+ *      the `clut |= (y+0x9d)<<8` statement -- gate 85 -> 87, because sched1 SINKS the addiu to
+ *      just before the `beqz` and reorg then steals IT for the delay slot instead of the
+ *      y-term `or` (the oracle's slot filler).  NEW NAMED ANGLE: the temp must be born while
+ *      $v0 is still LIVE with the y-term, i.e. after `clut |= (y+0x9d)<<8;` -- and it must not
+ *      be the last insn before the branch, so pair it with a second statement (e.g. write the
+ *      y-term as its own named local too) so the `or` stays reorg's backward-scan pick.
+ * (ii) the t1/t2/t3 rotation on the three scratchpad/packet bases is caller-saved =
+ *      local_alloc qty territory (`-dl` birth order), same class as BuildReplay's residual. */
 /* ---- Hud_BuildTach__Fi  [HUD.CPP:1376-1442] SLD-VERIFIED ----
  * RESIDUAL 163 (ours 268 / oracle 269, posdiff structural 65).  w44-a5 read the SYM 8c block
  * @0x800d3e94 (fsize 88, mask 0xc0ff0000) for the FIRST time; it is the ground truth here:
@@ -1302,12 +1313,12 @@ void Hud_BuildTach(int player)
     prim = Render_gPacketPtr;
     pal = Render_gPalettePtr;
     tp9 = (void *)(prim + 0x14);
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *(u_int *)pal & 0xffffff;
+    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim + 0x14;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim & 0xffffff;
-    *(u_int *)tp9 = *(u_int *)tp9 & 0xff000000 | *(u_int *)pal & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)prim;
+    ((Hud_PTag *)tp9)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim + 0x24;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tp9 & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)tp9;
     ((u_char *)tp9)[3] = 3;
     *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
@@ -1316,9 +1327,9 @@ void Hud_BuildTach(int player)
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
     prim2 = Render_gPacketPtr;
     pal = Render_gPalettePtr;
-    *(u_int *)prim2 = *(u_int *)prim2 & 0xff000000 | *(u_int *)pal & 0xffffff;
+    ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim2 + 0x14;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)prim2 & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)prim2;
   }
   Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
   Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
@@ -1341,8 +1352,8 @@ void Hud_BuildTach(int player)
   *(short *)(prim2 + 10) = *(short *)(prim2 + 10) + 2;
   *(short *)(prim2 + 0x12) = ts1 + 2;
   *(short *)(prim2 + 0xe) = *(short *)(prim2 + 0xe) + 2;
-  gSprt1[2].tag = (u_long *)((u_int)gSprt1[2].tag & 0xff000000 | *(u_int *)tp3 & 0xffffff);
-  *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (u_int)(gSprt1 + 2) & 0xffffff;
+  ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)tp3)->addr;
+  ((Hud_PTag *)tp3)->addr = (u_int)(gSprt1 + 2);
   return;
 }
 
@@ -1492,9 +1503,7 @@ HudBuildStr_next:
   return ix - ox;
 }
 
-/* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the
- * SDK addPrim()/setaddr()/getaddr() macro family operating on this bitfield. */
-typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
+/* (Hud_PTag typedef moved to the forward-declaration block, w45-a8) */
 
 /* ---- Hud_BuildNumbers0__Fi  [HUD.CPP:1551-1712] SLD-VERIFIED ----
  * 🔴 w40-a1 FINDING (same class as Hud_BuildNumbers, NOT yet landed): the oracle makes TWO
@@ -1565,8 +1574,8 @@ void Hud_BuildNumbers0(int player)
         if (j < num) {
           pal = (u_int *)Render_gPalettePtr;
           do {
-            pSprt[j].tag = pSprt[j].tag & 0xff000000 | *pal & 0xffffff;
-            *pal = *pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+            ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+            ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
             j = j + 1;
           } while (j < num);
         }
@@ -1577,15 +1586,15 @@ void Hud_BuildNumbers0(int player)
         j = 4;
         pal = (u_int *)Render_gPalettePtr;
         do {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *pal & 0xffffff;
-          *pal = *pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+          ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 6);
         pal = (u_int *)Render_gPalettePtr;
-        HudG4->tag = HudG4->tag & 0xff000000 | *pal & 0xffffff;
-        *pal = *pal & 0xff000000 | (u_int)HudG4 & 0xffffff;
-        HudF4->tag = HudF4->tag & 0xff000000 | *pal & 0xffffff;
-        *pal = *pal & 0xff000000 | (u_int)HudF4 & 0xffffff;
+        ((Hud_PTag *)HudG4)->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)HudG4;
+        ((Hud_PTag *)HudF4)->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)HudF4;
       }
     }
   }
@@ -1631,24 +1640,21 @@ void Hud_BuildNumbers0(int player)
       j = 0x1e;
       pal = Render_gPalettePtr;
       do {
-        pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+        ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
         j = j + 1;
       } while (j < 0x22);
       j = 10;
       do {
         if (j == 10) {
           Hud_GoTpage(0);
-          pSprt[10].tag =
-               pSprt[10].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-          *(u_int *)Render_gPalettePtr =
-               *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[10] & 0xffffff;
+          ((Hud_PTag *)&pSprt[10])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[10];
           Hud_GoTpage(1);
         }
         else {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-          *(u_int *)Render_gPalettePtr =
-               *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+          ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
         }
         j = j + 1;
       } while (j < 0xc);
@@ -1690,24 +1696,21 @@ void Hud_BuildNumbers0(int player)
         j = 0x1e;
         pal = Render_gPalettePtr;
         do {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+          ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 0x25);
         j = 10;
         do {
           if (j == 10) {
             Hud_GoTpage(0);
-            pSprt[10].tag =
-                 pSprt[10].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[10] & 0xffffff;
+            ((Hud_PTag *)&pSprt[10])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[10];
             Hud_GoTpage(1);
           }
           else {
-            pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+            ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
           }
           j = j + 1;
         } while (j < 0xc);
@@ -1732,24 +1735,21 @@ void Hud_BuildNumbers0(int player)
         j = 0x1e;
         pal = Render_gPalettePtr;
         do {
-          pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+          ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+          ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 0x23);
         j = 10;
         do {
           if (j == 10) {
             Hud_GoTpage(0);
-            pSprt[10].tag =
-                 pSprt[10].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[10] & 0xffffff;
+            ((Hud_PTag *)&pSprt[10])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[10];
             Hud_GoTpage(1);
           }
           else {
-            pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-            *(u_int *)Render_gPalettePtr =
-                 *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+            ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+            ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[j];
           }
           j = j + 1;
         } while (j < 0xc);
@@ -1760,10 +1760,10 @@ void Hud_BuildNumbers0(int player)
     u_char *pal;
 
     pal = Render_gPalettePtr;
-    HudG4[2].tag = HudG4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudG4[2] & 0xffffff;
-    HudF4[3].tag = HudF4[3].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudF4[3] & 0xffffff;
+    ((Hud_PTag *)&HudG4[2])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[2];
+    ((Hud_PTag *)&HudF4[3])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[3];
   }
   return;
 }
@@ -1793,7 +1793,28 @@ void Hud_BuildNumbers0(int player)
  *    LCS diff metric REGRESSES when insns improve against a wrong-register frame".
  *  NEGATIVE receipt (w40): purging the block-local `u_char *pal` caches (the SYM blocks declare
  *    only `j`) costs 705 -> 781 / 763 insns -- the pal CSE local IS load-bearing here (catalog
- *    "scratchpad pointer-pair CSE local ... SITE-dependent"), keep it. */
+ *    "scratchpad pointer-pair CSE local ... SITE-dependent"), keep it.
+ * ===== w45-a8: 620 -> 388, COUNT-EXACT 758/758, posdiff residual 497 -> 272 =====
+ *  LEVER 1: all 19 OT-link pairs (16 by tools' scratch/ptag.py + the 3 switch-case ones by
+ *    hand) rewritten as the addPrim P_TAG bitfield idiom.  620 -> 464.
+ *  LEVER 2: 🔴 PART 1 ABOVE IS NOW LANDED AND IS A WIN -- 464 -> 388.  The w40 receipt's
+ *    "PART 1 alone regresses 705 -> 1075, do NOT land it alone" was BASIN-RELATIVE: with the
+ *    P_TAG lowering in place the same swap is worth -76 AND makes the count exact.  This is
+ *    the LEVER-ORDER-DEPENDENCE meta (a falsified spelling is falsified only in its basin) --
+ *    re-test every banked "do not land alone" pair after any landscape change.
+ *    The PROLOGUE IS NOW BYTE-EXACT, as PART 1 predicted:
+ *      addiu sp,sp,-80 / sw fp,72(sp) / addu fp,a0,zero / sw s2,48(sp) / addu s2,fp,zero ...
+ *    and the s-register FIRST-USE order is oracle-identical (fp a0 s2 s7 s6 s5 s4 s3 s1 s0).
+ *  REMAINING = PART 2, unchanged and now the ONLY s-pool item: pSprt is $s4 for us, $s5 for
+ *    retail (`lw s4,0(gp)` vs `lw s5,0(gp)` at both gSprite selects), which renames the
+ *    caller-saved temps through all six tag-link loops.  Retail SHARES $s2 between `player`
+ *    and the speed block's `x` (their ranges ARE disjoint in our source too -- `player`'s last
+ *    use is the `carInfo[player].HudTach` guard, `x` is born inside that block), leaving
+ *    $s3=w1 $s4=w2 $s5=pSprt.  NEW NAMED ANGLE: the two are disjoint, so this is a find_reg
+ *    PREFERENCE question, not a conflict -- dump `-dg` for this fn and check whether `x`'s
+ *    allocno lists $s2 in its `conflicts:`/`regs_someone_prefers` bar-list; if it does, the
+ *    barrier is another allocno PREFERRING $s2, and the fix is to move THAT pseudo's birth
+ *    (w41 block-local-vs-global class), not to reshape `x`. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -1804,25 +1825,25 @@ void Hud_BuildNumbers(int player)
   int splitY;
 
   i = player;
-  if (player != 0) {
+  if (i != 0) {
     pSprt = gSprite1;
   }
   else {
     pSprt = gSprite0;
   }
   HudF4 = gHudF4;
-  if (i != 0) {
+  if (player != 0) {
     HudF4 = HudF4 + 7;
   }
   HudG4 = gHudG4;
-  if (i != 0) {
+  if (player != 0) {
     HudG4 = HudG4 + 4;
   }
   splitY = 0;
-  if (i != 0) {
+  if (player != 0) {
     splitY = -0xf;
   }
-  if (((GameSetup_gData.carInfo[player].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
+  if (((GameSetup_gData.carInfo[i].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
     u_char *pal;
@@ -1832,24 +1853,24 @@ void Hud_BuildNumbers(int player)
     j = 0x14;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x17);
     j = 6;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 8);
     pal = Render_gPalettePtr;
-    HudG4[1].tag = HudG4[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudG4[1] & 0xffffff;
-    HudF4[1].tag = HudF4[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudF4[1] & 0xffffff;
+    ((Hud_PTag *)&HudG4[1])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[1];
+    ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[1];
   }
-  if ((((GameSetup_gData.carInfo[player].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
+  if ((((GameSetup_gData.carInfo[i].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
       ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
@@ -1861,24 +1882,24 @@ void Hud_BuildNumbers(int player)
     j = 0x17;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x1e);
     j = 8;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 10);
     pal = Render_gPalettePtr;
-    HudG4[3].tag = HudG4[3].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudG4[3] & 0xffffff;
-    HudF4[2].tag = HudF4[2].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&HudF4[2] & 0xffffff;
+    ((Hud_PTag *)&HudG4[3])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[3];
+    ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[2];
   }
-  if (((GameSetup_gData.carInfo[player].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
+  if (((GameSetup_gData.carInfo[i].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
      (1 < DashHUD_gInfo.opponents)) {
     int j;
     u_char *pal;
@@ -1892,53 +1913,45 @@ void Hud_BuildNumbers(int player)
     j = 0x25;
     pal = Render_gPalettePtr;
     do {
-      pSprt[j].tag = pSprt[j].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[j] & 0xffffff;
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x28);
     if (GameSetup_gData.carInfo[j].HudMap != 0) {  /* retail bug: j==0x28, not player */
       Hud_GoTpage(0);
-      pSprt[40].tag = pSprt[40].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[40] & 0xffffff;
+      ((Hud_PTag *)&pSprt[40])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[40];
       Hud_GoTpage(1);
     }
   }
   Hud_GoTpage(0);
-  if (GameSetup_gData.carInfo[player].HudTach != 0) {
+  if (GameSetup_gData.carInfo[i].HudTach != 0) {
     switch (DashHUD_gInfo.gear) {
     case 0:
-      pSprt[48].tag = pSprt[48].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[48] & 0xffffff;
+      ((Hud_PTag *)&pSprt[48])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[48];
       break;
     case 1:
-      pSprt[47].tag = pSprt[47].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[47] & 0xffffff;
+      ((Hud_PTag *)&pSprt[47])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[47];
       break;
     default:
-      pSprt[DashHUD_gInfo.gear + 39].tag =
-           pSprt[DashHUD_gInfo.gear + 39].tag & 0xff000000 |
-           *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 |
-           (u_int)&pSprt[DashHUD_gInfo.gear + 39] & 0xffffff;
+      ((Hud_PTag *)&pSprt[DashHUD_gInfo.gear + 39])->addr =
+           ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[DashHUD_gInfo.gear + 39];
       break;
     }
-    if (GameSetup_gData.carInfo[player].HudSpeed == 0) {
-      pSprt[50].tag = pSprt[50].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[50] & 0xffffff;
+    if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
+      ((Hud_PTag *)&pSprt[50])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[50];
     }
     else {
-      pSprt[49].tag = pSprt[49].tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)&pSprt[49] & 0xffffff;
+      ((Hud_PTag *)&pSprt[49])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[49];
     }
   }
   Hud_GoTpage(1);
-  if (GameSetup_gData.carInfo[i].HudTach != 0) {
+  if (GameSetup_gData.carInfo[player].HudTach != 0) {
     int speed;
     int hun;
     int ten;
@@ -1952,7 +1965,7 @@ void Hud_BuildNumbers(int player)
     POLY_GT4 *prim;
     u_long SpeedColor;
 
-    speed = fixedmult(GameSetup_gData.carInfo[player].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
+    speed = fixedmult(GameSetup_gData.carInfo[i].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
     SpeedColor = 0xc8c8c8;
     color2 = 0x505050;
     w1 = HudPmx_gShapes[0x2c].width + 1;
@@ -1963,9 +1976,8 @@ void Hud_BuildNumbers(int player)
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = Render_gPacketPtr + 0x34;
-    prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    *(u_int *)Render_gPalettePtr =
-         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     hun = speed / 100;
     ten = speed / 10 + hun * -10;
     Hud_BuildGT4(prim,HudPmx_gShapes + speed % 10 + 0x2c,x,y,SpeedColor);
@@ -1983,9 +1995,8 @@ void Hud_BuildNumbers(int player)
     if ((hun != 0) || (ten != 0)) {
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       Hud_BuildGT4(prim,HudPmx_gShapes + ten + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
       *(u_int *)&prim->r2 = color2;
@@ -1996,21 +2007,20 @@ void Hud_BuildNumbers(int player)
     if (hun != 0) {
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = Render_gPacketPtr + 0x34;
-      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       x = x - 1 - (int)HudPmx_gShapes[hun + 0x2c].width;
       Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
       *(u_int *)&prim->r2 = color2;
     }
   }
-  if ((DashHUD_gInfo.wrongway[player] != 0) && ((simGlobal.gameTicks >> 5 & 1U) != 0)) {
+  if ((DashHUD_gInfo.wrongway[i] != 0) && ((simGlobal.gameTicks >> 5 & 1U) != 0)) {
     u_char *pal;
 
     pal = Render_gPalettePtr;
-    pSprt[0].tag = pSprt[0].tag & 0xff000000 | *(u_int *)pal & 0xffffff;
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&pSprt[0] & 0xffffff;
+    ((Hud_PTag *)&pSprt[0])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&pSprt[0];
   }
   return;
 }
@@ -2064,13 +2074,27 @@ void Hud_InitMap(void)
  *   `Render_gPacketPtr` macro uses; qualifying the cell `u_char *volatile *` (volatile on the
  *   POINTEE does not defeat ADDRESS cse).  The in-source claim that the pktcell local `keeps the
  *   0x1F800004 constant un-hoisted like retail` is STALE AND FALSE -- it is hoisted into $fp.
- * NEW ANGLE: make the two loops' scratchpad addresses UN-CSE-able so each loop rematerializes
- *   its own -- the w42/w43 per-site address FORM dial: give each loop its own distinct
- *   address expression (e.g. one site as `*(u_char **)0x1F800004`, the other reached as
- *   `((u_char **)0x1F800000)[1]`, byte-identical target, different rtx so cse cannot equate
- *   them), or wrap one in the `__asm__("" : "=r"(p) : "0"(p))` identity fence.  Second lever:
- *   once $fp is free, check that `mapy = 0x18` lands there (it is currently const-propagated to
- *   each call site) -- if not, the SYM says it must, and a10's ref-step applies to it. */
+ * ===== w45-a8: 161 -> 121 (317/308), posdiff structural 69 -> 48 =====
+ * LEVER: both OT/palette links rewritten as the addPrim P_TAG bitfield pair.
+ * The +9 insn excess and the $fp root cause are UNCHANGED and are now the whole residual.
+ * The w44 NEW ANGLE was executed and BOTH halves are FALSIFIED with mechanisms:
+ *   (a) distinct address rtx -- `pktcell = &((u_char **)0x1F800000)[1];` in the race loop:
+ *       EXACTLY neutral (121/317).  gcc folds the &[1] back to the integer constant
+ *       0x1F800004 in the TREE, long before cse, so the two loops never had distinct rtx.
+ *   (b) `__asm__("" : "=r"(pktcell) : "0"(pktcell));` identity fence in the race loop:
+ *       121 -> 122 and 317 -> 318 (the fence itself materialises an extra insn); it does
+ *       break the CSE but pays more than it saves.
+ * NEW NAMED ANGLE (the SECOND lever, still untried): attack the OCCUPANT of $fp, not the CSE.
+ *   Retail's $fp holds `mapy` (`addiu $fp,$zero,0x18`, SYM REG $0x1e) -- with $fp taken, the
+ *   packet-cursor address CANNOT be parked there and must be rematerialised per loop into a
+ *   caller-saved reg, which is exactly retail's shape.  Ours const-propagates `mapy` to the
+ *   four `mapy - z & 0xffff` call-argument sites, so $fp is free for the address.  MIPS has no
+ *   reverse-subtract-immediate, so each site must materialise 0x18 in a register anyway --
+ *   i.e. the constant is ALREADY paid 4 times and a single fn-scope register copy is strictly
+ *   cheaper.  Make gcc see that: give `mapy` a NON-constant-foldable definition (the w44
+ *   repeated-literal-as-named-local dial in its strong form -- e.g. derive it from a value the
+ *   optimiser cannot fold, or spread one extra use of it above the first loop), then check
+ *   `-dg` that it out-ranks the address allocno for $fp. */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -2112,8 +2136,8 @@ void Hud_BuildMapMarkers(int player)
       pktcell = (u_char **)0x1F800004;   /* one addr materialization per iter (shared by read+bump) -- keeps the 0x1F800004 constant un-hoisted like retail */
       sprt = (SPRT *)*pktcell;
       pal = Render_gPalettePtr;
-      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
       if ((*(u_int *)((char *)Cars_gCopCarList[i] + 0x570) & 2) != 0) {
         currentSpriteColor = ((gFlip == 0) && (simVar.quickPauseSim == 0)) ? 0xff0000 : 0xff;
@@ -2145,8 +2169,8 @@ void Hud_BuildMapMarkers(int player)
       pktcell = (u_char **)0x1F800004;   /* see cop loop */
       sprt = (SPRT *)*pktcell;
       pal = Render_gPalettePtr;
-      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)sprt & 0xffffff;
+      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
+      ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
       if ((Cars_gRaceCarList[i]->carFlags & 0x200U) != 0) {
         if ((*(u_int *)((char *)Cars_gRaceCarList[i] + 0x570) & 2) != 0) {
@@ -2224,13 +2248,37 @@ void Hud_WingmanFlash(int player,int index)
  *      statement not reference Render_gPacketPtr (e.g. read the palette pointer first,
  *      `pal = Render_gPalettePtr;` before `poly = ...`) so the 0x1F800004 movable is
  *      generated after the modulo's magic (addr24-EARLY, applied in reverse).
- *  (2) `flashTicks = Hud_gWingmanFlashTicks[player] - ticks;` -- retail loads `ticks` FIRST
- *      (`lui a2,%hi(ticks); lw a2` before `lw a1,0(v1)`) and emits `subu s3,a1,a2`; ours loads
- *      the array element first and emits `subu s3,a2,a1`.  Same evaluation-order family as the
- *      Hud_Render `ticks > FlashTicks[j]` flip that was worth 26 diffs there -- but a
- *      subtraction cannot simply be swapped.  NEXT ANGLE: hoist the `ticks` read into its own
- *      statement (`now = ticks; flashTicks = Hud_gWingmanFlashTicks[player] - now;`) and
- *      measure BOTH orders of the two statements. */
+ *  (2) `flashTicks = Hud_gWingmanFlashTicks[player] - ticks;` -- retail loads `ticks` FIRST.
+ * ===== w45-a8: 144 -> 98 (211/211), posdiff structural residual 96 -> 48. TWO levers =====
+ *  (A) all three OT-links rewritten as the addPrim P_TAG bitfield pair (Hud_PTag), replacing
+ *      the w43 SPLIT-RMW `palw` spelling: 144 -> 114.  (The split-RMW read statement and the
+ *      `palw` local are GONE -- the bitfield store generates the bump-inside-RMW order for
+ *      free.)  `pal = Render_gPalettePtr;` now precedes `poly = ...` (measured neutral, kept
+ *      because it matches retail's evaluation order).
+ *  (B) cluster (2) SOLVED exactly as the old NEXT ANGLE predicted: `now = ticks;` as its own
+ *      statement BEFORE the subtraction -> retail's `lui a2,%hi(ticks); lw a2` first and
+ *      `subu s3,a1,a2`: 114 -> 98, structural residual 97 -> 48.
+ * REMAINING 48, two clusters, both re-probed THIS wave in the new basin:
+ *  (1) LICM constant-hoist ORDER unchanged (retail /20-magic first, then 0x1F800004, 0xFFFFFF,
+ *      0xFF000000; ours 0x1F800004 first) -> t0..t3 rotate through the body.  RE-FALSIFIED in
+ *      this basin: `pal`-before-`poly` (neutral), `fc = (flashTicks % 0x14) * 10;` hoisted both
+ *      to the call site AND as the first statement of the `if` (both exactly neutral, 98) --
+ *      so the magic's position is decided during whole-fn RTL generation, not by statement
+ *      order inside the guarded block.  NEW NAMED ANGLE: the four constants are CALLER-saved
+ *      ($t0-$t3) block-local quantities -> local_alloc's `qty_compare_1` (LONGER-LIVED first,
+ *      later-born wins ties), NOT allocno_compare.  Run `tools/rtl_dump.py -dl` and read the
+ *      per-qty birth/live table for this block, then move the /20 magic's BIRTH earlier by
+ *      giving `flashTicks % 0x14` a use OUTSIDE the guarded block (e.g. compute it before the
+ *      `if (0 < flashTicks)` test, where it is unconditionally live) -- that is a birth-order
+ *      move the in-block hoists could not make.
+ *  (2) `y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);` -- retail keeps `addiu v0,t0,2`
+ *      (splitY+2) as its own term and adds it last; gcc's fold reassociates our parenthesised
+ *      form to `((y+mapoff)+2)+splitY`.  Only a separate STATEMENT stops fold -- and
+ *      `sy = splitY + 2;` REGRESSES 98 -> 122 (re-tested this wave; the 3rd operand order
+ *      `(splitY+2) + (y+mapoff)` is exactly neutral).  NEW NAMED ANGLE: 2 == 0-(-2) and
+ *      -0xf+2 == -0xd, so retail's `splitY` may itself be the SUM: initialise `splitY = 2;` /
+ *      `splitY = -0xd;` and drop the `+2` -- then check whether the oracle's `addiu v0,t0,2`
+ *      is really the *icon* row's `+2` (`... * 9 + 2`) rather than this statement's. */
 void Hud_BuildWingmanInterface(int player)
 
 {
@@ -2238,9 +2286,9 @@ void Hud_BuildWingmanInterface(int player)
    * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
   int splitY;
   int flashTicks;
+  int now;
   POLY_F4 *poly;
   u_char *pal;
-  u_int palw;
   int x;
   int xf;
   int y;
@@ -2249,7 +2297,8 @@ void Hud_BuildWingmanInterface(int player)
   if (player != 0) {
     splitY = -0xf;
   }
-  flashTicks = Hud_gWingmanFlashTicks[player] - ticks;
+  now = ticks;
+  flashTicks = Hud_gWingmanFlashTicks[player] - now;
   x = (int)g1Player[0xe].x;
   xf = x - 0x1c;
   y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);
@@ -2259,12 +2308,11 @@ void Hud_BuildWingmanInterface(int player)
   Hud_BuildString(TextSys_Word(0x2c),x - 0x1b,y + 0x1e,0x808080,player,false);
   Hud_BuildString(TextSys_Word(0x2d),x - 0x1b,y + 0x27,0x808080,player,false);
   if (0 < flashTicks) {
-    poly = (POLY_F4 *)Render_gPacketPtr;
     pal = Render_gPalettePtr;
-    *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
-    palw = *(u_int *)pal;
+    poly = (POLY_F4 *)Render_gPacketPtr;
+    ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = (u_char *)poly + 0x18;
-    *(u_int *)pal = palw & 0xff000000 | (u_int)poly & 0xffffff;
+    ((Hud_PTag *)pal)->addr = (u_int)poly;
     Hud_BuildF4(poly,0,x - 0x10,y + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,
                (flashTicks % 0x14) * 10);
   }
@@ -2273,22 +2321,20 @@ void Hud_BuildWingmanInterface(int player)
 
     i = 0;
     do {
-      poly = (POLY_F4 *)Render_gPacketPtr;
       pal = Render_gPalettePtr;
-      *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
-      palw = *(u_int *)pal;
+      poly = (POLY_F4 *)Render_gPacketPtr;
+      ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
       Render_gPacketPtr = (u_char *)poly + 0x18;
-      *(u_int *)pal = palw & 0xff000000 | (u_int)poly & 0xffffff;
+      ((Hud_PTag *)pal)->addr = (u_int)poly;
       Hud_BuildF4(poly,0,xf,y + i * 9 + 2,0x4b,7,0);
       i = i + 1;
     } while (i < 5);
   }
-  poly = (POLY_F4 *)Render_gPacketPtr;
   pal = Render_gPalettePtr;
-  *(u_int *)poly = *(u_int *)poly & 0xff000000 | *(u_int *)pal & 0xffffff;
-  palw = *(u_int *)pal;
+  poly = (POLY_F4 *)Render_gPacketPtr;
+  ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
   Render_gPacketPtr = (u_char *)poly + 0x18;
-  *(u_int *)pal = palw & 0xff000000 | (u_int)poly & 0xffffff;
+  ((Hud_PTag *)pal)->addr = (u_int)poly;
   Hud_BuildF4(poly,1,xf,y,0x4b,0x30,0);
   return;
 }
@@ -2721,6 +2767,21 @@ int Hud_BuildRadar(int player)
   return visible;
 }
 
+/* w45-a8: 161 (192/191) -> 126, COUNT-EXACT 191/191, posdiff residual 53.  Two levers:
+ *  (a) all five OT/palette links rewritten as the addPrim P_TAG bitfield pair (161 -> 129);
+ *      dial (a) measured BOTH ways -- value side as a bitfield READ wins (plain
+ *      `*(u_int *)pal` read = 139).
+ *  (b) the missing 191st insn was retail's `addu t0,v0,zero` palette-pointer COPY = the
+ *      cse.c DOUBLE-EVALUATION member of the redundant-copy trichotomy: the gSprite0[0x39]
+ *      link reads `Render_gPalettePtr` ANONYMOUSLY and `pal = Render_gPalettePtr;` follows,
+ *      so cse turns the named read into a copy of the anonymous one (129 -> 126, count exact).
+ * REMAINING 53 = one CALLER-saved rotation (ours a0/t0/a1/a2 vs retail a1/a0/a2/a3 for the
+ * 0x66808080 constant, the gp-rel gSprite0 base and `pal`).  These are BLOCK-LOCAL quantities
+ * (they never cross a call in this fn) -> local_alloc `qty_compare_1`, NOT allocno_compare.
+ * NEW NAMED ANGLE: dump `tools/rtl_dump.py recon/game/psx/hud.cpp -dl`, read this block's qty
+ * birth order + live lengths, and move the 0x66808080 constant's BIRTH (it is materialised
+ * inside the `selection == 4` if/else -- hoisting one of the two arms' stores earlier changes
+ * its qty number) so the reverse-birth-order handout lands a1 instead of a0. */
 /* ---- Hud_BuildReplay__Fv  [HUD.CPP:2752-2849] SLD-VERIFIED ----
  * w44-a6 RE-GATED baseline: 161 diffs (ours 192 / oracle 191), posdiff structural residual 76.
  * NOT worked this wave (budget) -- census + the named angle:
@@ -2790,27 +2851,23 @@ void Hud_BuildReplay(void)
     *(u_int *)&gSprite0[0x39].r0 = 0x66808080;
   }
   i = 0x33;
-  pal = Render_gPalettePtr;
   tSs1 = gSprite0;
-  tSs1[0x39].tag =
-       (u_long *)((u_int)tSs1[0x39].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[0x39] & 0xffffff;
+  ((Hud_PTag *)&tSs1[0x39])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+  pal = Render_gPalettePtr;
+  ((Hud_PTag *)pal)->addr = (u_int)&tSs1[0x39];
   do {
-    tSs1[i].tag = (u_long *)((u_int)tSs1[i].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-    *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[i] & 0xffffff;
+    ((Hud_PTag *)&tSs1[i])->addr = ((Hud_PTag *)pal)->addr;
+    ((Hud_PTag *)pal)->addr = (u_int)&tSs1[i];
     i = i + 1;
   } while (i < 0x38);
   tSs1 = gSprite0;
   pal = Render_gPalettePtr;
-  tSs1[0x38].tag =
-       (u_long *)((u_int)tSs1[0x38].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&tSs1[0x38] & 0xffffff;
-  gTPage1[0][3].tag =
-       (u_long *)((u_int)gTPage1[0][3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage1[0][3] & 0xffffff;
-  gTPage0[0][3].tag =
-       (u_long *)((u_int)gTPage0[0][3].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-  *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gTPage0[0][3] & 0xffffff;
+  ((Hud_PTag *)&tSs1[0x38])->addr = ((Hud_PTag *)pal)->addr;
+  ((Hud_PTag *)pal)->addr = (u_int)&tSs1[0x38];
+  ((Hud_PTag *)&gTPage1[0][3])->addr = ((Hud_PTag *)pal)->addr;
+  ((Hud_PTag *)pal)->addr = (u_int)&gTPage1[0][3];
+  ((Hud_PTag *)&gTPage0[0][3])->addr = ((Hud_PTag *)pal)->addr;
+  ((Hud_PTag *)pal)->addr = (u_int)&gTPage0[0][3];
   return;
 }
 
@@ -3230,7 +3287,20 @@ HudRender321_drawCountNum:
  * ten $s0 | diff $v0 (block @line 34).  x is MUTATED in place (`x += w1`, then `x -= w1/w2`)
  * while xx/yy keep the untouched origin for the two box calls -- that pair of copies is what
  * the SYM's xx/yy are for; the previous recon fabricated ~25 scalar temps instead and spilled
- * 24 bytes of frame. */
+ * 24 bytes of frame.
+ * w45-a8 PASS (was 64 diffs at 200/200), two independent levers:
+ *  (1) both OT-links rewritten as the addPrim P_TAG bitfield pair (64 -> 26);
+ *  (2) the s5/s6/s7 3-cycle was ONE allocno_compare razor.  -dg receipts BEFORE:
+ *        p88 w1  refs 5 live 110 pri .0909 -> s5
+ *        p83 y   refs 4 live  91 pri .0879 -> s6   (ties Col, wins on lower allocno)
+ *        p86 Col refs 4 live  91 pri .0879 -> s7
+ *      SYM wants Col $s5 | w1 $s6 | y $s7, i.e. Col must clear .0909 -- reachable with
+ *      refs 5 (.1099) OR live <= 87 (.0919).  Moving `Col = 200;` BELOW the
+ *      BTC_playedsoundalready guard in the else-arm (so it no longer spans the
+ *      AudioCmn_PlayWrongWaySFX call) takes the live length under the bound; the then-arm
+ *      must KEEP `Col = 0xc800;` FIRST (gcc then sinks the else-arm's `li s5,200` into the
+ *      guard's bnez delay slot exactly like retail).  Moving both arms = 8 diffs, moving
+ *      only the then-arm = 20 -- the else-arm assignment position is the whole dial. */
 void BigBTCTime(int secs)
 
 {
@@ -3271,19 +3341,18 @@ void BigBTCTime(int secs)
         BTC_playedsoundalready = 0;
         return;
       }
-      Col = 200;
       if (BTC_playedsoundalready == 0) {
         AudioCmn_PlayWrongWaySFX();
         BTC_playedsoundalready = 1;
       }
+      Col = 200;
       Col2 = 100;
     }
     x = x + w1;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = (u_char *)prim + 0x34;
-    prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    *(u_int *)Render_gPalettePtr =
-         *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+    ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+    ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + secs % 10,x + -1,y,Col);
     *(int *)((char *)prim + 0x28) = Col2;
     *(int *)((char *)prim + 0x1c) = Col2;
@@ -3297,9 +3366,8 @@ void BigBTCTime(int secs)
       }
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = (u_char *)prim + 0x34;
-      prim->tag = prim->tag & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)prim & 0xffffff;
+      ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
       Hud_BuildGT4(prim,HudPmx_gShapes + 0x2c + ten,x,y,Col);
       *(int *)((char *)prim + 0x28) = Col2;
       *(int *)((char *)prim + 0x1c) = Col2;

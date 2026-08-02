@@ -399,6 +399,38 @@ extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeE
 /* lines 923-927: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawGouraudShape  (psxfront.cpp:928, code lines 928-985) ---- */
+/* ---- w44-a1 RESIDUAL 198 (count EXACT 245/245, frame 104 == SYM fsize, brcensus CLEAN) ----
+ * MECHANISM (quantified from `tools/rtl_dump.py -dL`, loop 85..652, 170 real insns):
+ *   loop.c hoists SIX movables where retail hoists ONE.  Its savings-1 verdicts here are
+ *   life-driven with a razor at life 10:
+ *     insn 191 regno 158 (life 16) = const 0x1F800004  -> MOVED   (retail: rematerialised in-loop)
+ *     insn 205 regno 162 (life 12) = const 0x00FFFFFF  -> MOVED   (retail: hoisted, $t3)  <-- the only one retail hoists
+ *     insn 210 regno 165 (life 10) = const 0xFF000000  -> MOVED   (retail: rematerialised in-loop)
+ *     insn 269 regno 183 (life  1), 462 regno 245 (life 1) -> "not desirable"
+ *   The two EXTRA hoisted constants are live across the in-loop GetClut call, so reload spills
+ *   $t7/$t8 as well as $t1-$t6:  rove_op `sw 25v23  lw 30v28` == exactly TWO extra spill pairs.
+ *   Kill those two hoists and the spill pairs vanish 1:1.
+ * FALSIFIED this wave (all measured, gate + posdiff + rove_op):
+ *   - bump-early (`prim = Render_gPacketPtr; Render_gPacketPtr = prim + 0x34;` adjacent) DOES kill
+ *     both address hoists (life 16 -> 4) and both spill pairs (sw/lw census then MATCHES), but the
+ *     lowered pressure also lets `vh`/`width` leave their AUTO slots: frame 104 -> 96 (SYM fsize is
+ *     104) and the `lhu 18(s4); sh 24(sp)` vh re-read pair is CSE'd away -> 241/245, gate 230.
+ *   - RMW operand-order swaps (4-way matrix): each swap alone removes ONE hoist (243 insns,
+ *     gate 196-202); both together restore 245 but the hoist set is unchanged (gate 196).
+ *   - bump-last / bump-after-pal: 243, gate 196-198.
+ *   - `char`/`u_char` u,v,vh (to chase retail's QImode `sb t4,32(sp)` AUTO): 244, gate 285
+ *     (confirms the w43 PROMOTE_MODE negative for this fn).
+ *   - fresh-dest `sy` temp for the shapey load (retail `addu t4,v0,zero` + `addiu t4,v0,-1`): 246.
+ * NEW NAMED ANGLE (untried, for the next pass): the two goals are SEPARABLE -- kill the two address
+ *   hoists WITHOUT lowering whole-loop pressure.  loop.c's verdict is per-movable LIFE, so shorten
+ *   ONLY the 0x1F800004 and 0xFF000000 lives while ADDING an unrelated long-lived in-loop value to
+ *   hold the frame at 104:  (a) bump-early PLUS a source-level pressure restorer -- e.g. keep the
+ *   `vh` AUTO alive by re-reading `shp->height` at its USE site inside the loop (the oracle's
+ *   `lhu`/`sh` pair) instead of before it; (b) split the 0xFF000000 term so its two uses sit
+ *   adjacent (life <= 9 = the measured razor) while leaving 0xFFFFFF spanning the whole RMW block;
+ *   (c) probe the razor directly per the w43 giv-worth recipe -- inject N dummy statements into a
+ *   scratch copy and re-dump -dL to find the exact life cut, then aim each constant at it.
+ */
 /* GPU packet: builds POLY_GT4 (stride 0x34, code 0x3c); prim=u_char* build cursor, prevPrim=u_char* link word */
 void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
@@ -445,7 +477,10 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       wsel = shp->width - i;
     }
     w = wsel;
-    uint *pal;
+    uint *pal;   /* w44-a1: retail keeps the palette-cursor POINTER in $a0 across both RMWs
+                    (`lui a0,0x1F80; lw a0,0(a0)` once, then lw/lw/sw off $a0) -- 246 -> 245
+                    count-EXACT.  The w43 "straight-line emitters want the purge" rule does NOT
+                    apply in a LOOP: here the oracle caches (w43 loop-vs-straight-line row). */
 
     prim = Render_gPacketPtr;
     pal = (uint *)Render_gPalettePtr;
@@ -565,6 +600,39 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
 /* lines 1085-1088: (static data / macros / comments - no emitted code) */
 
 /* ---- ScaleGouraudShape  (psxfront.cpp:1089, code lines 1089-1138) ---- */
+/* ---- w44-a1: 157 -> 60 (count EXACT 175/175, frame 64 == oracle, brcensus + rove_op CLEAN,
+ *      ALL NINE callee-saved registers now oracle-exact; posdiff first-use order IDENTICAL).
+ * The three landed levers are commented at their sites (palette-pointer cache / late-born xm1 /
+ * 0x20-store-last / batched width+height byte reads).  MECHANISM behind the register landing
+ * (measured with tools/rtl_dump.py -dg -dl + tools/prio.py):
+ *   block 4 owns THREE call-crossing local quantities -- the width sign-extend, the height
+ *   sign-extend and `x-1`.  local_alloc hands out $s0,$s1,$s2 in REVERSE BIRTH ORDER, so retail's
+ *   birth order (width-narrow, height-narrow, x-1) yields x-1=$s0, height-narrow=$s1,
+ *   width-narrow=$s2 -- and only THEN can global_alloc give `height` $s1 and `width` $s2 (each
+ *   dies exactly where its own narrow is born).  Naming `x-1` any earlier makes it born first, the
+ *   height narrow takes $s0 (already owned by block 0's `abr`), `height` can no longer share it,
+ *   and a 10th live value spills (177 insns, frame 72).  Measured for 8 spellings.
+ *   The x-vs-y home is an allocno_compare razor: x 7 refs/99 live = .1414 beats y 7/110 = .1273,
+ *   so x took the lower reg; moving the `prim+0x20 = x` store to the END lengthens x past y and
+ *   flips the pair to retail's (x=$s6, y=$s5).  One ref less on x does it too, but the only way to
+ *   drop that ref is to feed the 0x14 vertex from xm1 -- which re-triggers the early-birth spill.
+ * RESIDUAL 60, three clusters:
+ *   (a) ~13 diffs: `pal` and the 0xFFFFFF mask hold $a1/$a2 the other way round from retail.
+ *       Both are block-0 local quantities; OR-operand swaps measured 58/60/70 (noise, not the
+ *       mechanism), prim/pal statement swap = no change.
+ *   (b) ~6 diffs: retail feeds BOTH right-edge vertices from $s0 (`addu v0,s0,v0` then
+ *       `addu s0,s0,v0`); ours reassociates the inline `(x-1)` at 0x14 into `addiu v0,v0,-1;
+ *       addu v0,s6,v0`.  Blocked by the birth-order constraint above.
+ *   (c) ~7 diffs: the divide result / u / uw rotate $a1<->$v1 (`mflo a1` vs `mflo v1`) -- the
+ *       w43 local_alloc qty birth-order + fresh-dest class, untried here.
+ * NEW NAMED ANGLE: (b) and (c) are the SAME dial.  Retail's `x-1` is born late AND used twice, so
+ *   it must be born late WITHOUT its def being scheduled up.  Untried lever: make the def's
+ *   dependency chain shorter than the two sign-extends' so sched1 leaves it in place -- e.g. feed
+ *   the 0x14 vertex from a SECOND named local initialised from xm1 (`xr = xm1;`) so the xm1 def
+ *   itself keeps only ONE dependent chain, or split the two right-edge vertices into their own
+ *   block scope.  For (a): dump -dl for block 0 and compare the pal/mask quantity lifetimes --
+ *   the pair is a two-quantity tie of exactly the kind the w43 birth-order row cracks.
+ */
 /* GPU packet: builds POLY_GT4 (stride 0x34, SetPolyGT4); prim=u_char* build cursor, prevPrim=u_char* link word */
 void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
                int abr)

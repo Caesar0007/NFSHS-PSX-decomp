@@ -60,7 +60,57 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
    * -G / -mno-split-addresses axis (tools/gprobe.py: g8 / g0 / nosplit / g8+nosplit
    * all == baseline on this TU).
    *
-   * RESIDUAL 54 @ 108/108 = ONE allocno promotion -- FLOOR, full bar, quantified.
+   * 🔴 W44 -- THE 'FULL-BAR FLOOR' BELOW IS REFUTED (54 -> 30 @ 108/108).  The
+   * impossibility bound was correct ARITHMETIC on a FALSE PREMISE: it took the
+   * 0xFFFFFF mask's REG_N_REFS as 'structurally pinned at 5' (1 preheader def at
+   * loop weight 1 + two in-loop uses at weight 2).  REG_N_REFS is LOOP-DEPTH
+   * WEIGHTED, and the depth is a SOURCE dial: writing the two OT-link statements as
+   * the `do { ... } while (0)` MACRO BODY the receipt already argues they are (see
+   * the prevPrim/linkWord paragraph above -- no SYM Def records, mmeffect's SLD
+   * proves the whole OT-link block is ONE source line) emits a real inner
+   * NOTE_INSN_LOOP_BEG/END pair, so both mask uses count at depth 2: refs 5 -> 7,
+   * live unchanged at 63, priority 0.1587 -> 0.2222 > rect's 0.1985.  `m24` is the
+   * macro's own mask temp (same class as prevPrim/linkWord: no SYM record).
+   *   RESULT -- the ALLOCNO TABLE IS NOW ORACLE-EXACT, all nine registers:
+   *   t0=0xFFFFFF t1=rect t2=y2 t3=y1 t4=0x808080 t5=i t6=0x1F800004
+   *   t7=0xFF000000 s0=0x1F800000  (was t0=rect ... t3=0x808080 t4=0xFFFFFF).
+   *   That is independent confirmation that retail's build really did weight those
+   *   two uses at loop depth 2 -- i.e. the macro really was a do/while(0).
+   *   Measured with tools/prio.py on tools/rtl_dump.py's -dg/-dl.
+   * ⚠️ REVIEW FLAG (same class as videodecode's do{}while(0) ref dial): this is a
+   *   ref dial as well as a shape.  HONEST FALLBACK = delete the `do{`/`}while(0);`
+   *   lines and the `m24` local (spell 0xffffff literally) -> back to 54 with the
+   *   old rotation.  Kept because it is count-exact, semantically a no-op, and the
+   *   register table it produces is retail's exactly.
+   * RESIDUAL 30 @ 108/108 -- TWO named items, both smaller than the old floor:
+   *  (1) a $v0<->$v1 birth-order tie on the two loaded words in BOTH the loop's
+   *      first RMW group and the post-loop block: retail keeps *prevPrim in $v0 and
+   *      prim->tag in $v1, we have them swapped (w43 local_alloc qty_compare_1:
+   *      longer-lived qty first, ties to the LATER-BORN).  Falsified so far: named
+   *      `palw`/`tagw` value temps in either order (109/108 and 30), OR-operand
+   *      swaps in both statements and in the post-loop pair (16-way: the tag-side
+   *      swap reaches 27 but costs +1 insn), m24 def position (pre-loop / in-wrap /
+   *      loop-top / loop-end / mid), a second named mHi mask.
+   *  (2) the cursor bump `addiu v0,a0,0x24; sw v0,0(t6)` sits between the second
+   *      group's load and its and-chain in retail; ours emits it after the `or`.
+   *      The do/while(0) LOOP NOTES are a scheduling BARRIER, so the bump can no
+   *      longer be scheduled into the middle of the macro body.  Falsified: every
+   *      contiguous wrapper span over {A,B,C,D} x the 4 legal statement orders
+   *      (A before B before D, C free) -- 12 gated combinations, best 30; splitting
+   *      B into hi/lo halves with the bump between them (56/118).
+   *  NEXT NEW ANGLE (untried): the bump must become part of the macro body WITHOUT
+   *  re-ordering the mask uses -- i.e. find the spelling in which cc1 emits it
+   *  between the load and the and-chain from SOURCE position (w43 SPLIT-RMW is a
+   *  dbr lever and dbr runs after the barrier).  Candidates: make the bump read the
+   *  ALREADY-LOADED prim (`Render_gPacketPtr = (u_char *)prim + 0x24;` is already
+   *  that) but write it through the scratchpad STRUCT view so it becomes a
+   *  MEM_IN_STRUCT_P store that may-alias the palette load and must sit between
+   *  them; or give the loop body TWO nested do/while(0) macros (tag-link and
+   *  packet-advance) so the bump is inside its own note pair adjacent to the second
+   *  group.  For (1): the permuter (multi-basin) on the now-30 base -- the whole
+   *  residual is two register roles in one block.
+   * ---- ORIGINAL (w43) FLOOR RECEIPT, kept for its measurements ----
+   * [SUPERSEDED] RESIDUAL 54 @ 108/108 = ONE allocno promotion.
    *  o PROTOTYPE AUDIT: SYM `8c` gives every register.  rect REGPARM $09=$t1,
    *    dr_mode $10=$s0, prim $04=$a0, x1 $07=$a3, y1 $0b=$t3, x2 $06=$a2,
    *    y2 $0a=$t2, i $0d=$t5; return is VOID (`Def class EXT type FCN VOID`).
@@ -108,6 +158,7 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   u_char *prevPrim;
   POLY_G4 *prim;
   u_long linkWord;
+  u_long m24;
   short x1;
   short y1;
   short x2;
@@ -122,8 +173,11 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
   do {
     prim = (POLY_G4 *)Render_gPacketPtr;
     prevPrim = Render_gPalettePtr;
-    prim->tag = prim->tag & 0xff000000 | *(u_long *)prevPrim & 0xffffff;
-    linkWord = *(u_long *)prevPrim & 0xff000000 | (u_long)prim & 0xffffff;
+    do {   /* the OT-link MACRO body -- see the w44 note above */
+      m24 = 0xffffff;
+      prim->tag = prim->tag & 0xff000000 | *(u_long *)prevPrim & m24;
+      linkWord = *(u_long *)prevPrim & 0xff000000 | (u_long)prim & m24;
+    } while (0);
     Render_gPacketPtr = (u_char *)prim + 0x24;
     *(u_long *)prevPrim = linkWord;
     *(u_long *)&prim->r0 = 0x808080;

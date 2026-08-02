@@ -2332,23 +2332,19 @@ tUserNameMenuItem::tUserNameMenuItem(u_int textDescription)
 
 /* ---- CheckForCheats  [FEMENUOPTIONS.CPP:1701-1708] SLD-VERIFIED ---- */
 
-void * CheckForCheats(char *fData)
+bool CheckForCheats(char *fData)
 
 {
-  void *result;
-  u_int len;
+  int len;
 
-  result = (void *)0x0;
-  for (len = strlen(fData); (int)len < 8; len = len + 1) {
+  for (len = strlen(fData); len < 8; len = len + 1) {
     fData[len] = '\0';
   }
-  if (FECheat_ActivateCheat(fData) != 0) {
-    result = (void *)0x1;
+  if ((FECheat_ActivateCheat(fData) != 0) ||
+      (FECheat_ActivateBonusByCode(fData) != 0)) {
+    return true;
   }
-  else if (FECheat_ActivateBonusByCode(fData) != 0) {
-    result = (void *)0x1;
-  }
-  return result;
+  return false;
 }
 
 
@@ -2377,7 +2373,6 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
   short sVar3;
   short sVar4;
   u_int uVar5;
-  void *pvVar6;
   int iVar7;
   int iVar9;
   int sfxArg;
@@ -2458,8 +2453,7 @@ UserNameProcInp_playSfxAndMarkProcessed:
       goto UserNameProcInp_markProcessed;
     }
     if ((uVar10 == 0x21) || (uVar10 == 0x40)) {
-      pvVar6 = CheckForCheats(this->fData);
-      if (pvVar6 != (void *)0x0) {
+      if (CheckForCheats(this->fData)) {
         *this->fData = '\0';
         goto UserNameProcInp_skipDashColumns;
       }

@@ -1691,9 +1691,16 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
       sd->nightFlags = 0;
       sd->vertices = (CCOORD16 *)(chunkDat->vertexBuf + 1);
+      /* MATCH (w45-a5, 114 -> 100): the oracle reads sd->chunkInd for the
+         chunk-centre index (`lbu $a0,0xE4($s0)` then the x12 sll/addu/sll
+         chain) BEFORE it loads the Track_materials global
+         (`lui $v1; lw $v1,0($v1)`), and only then stores it to sd->materials.
+         With the materials store written first, our chunkInd byte load lands
+         after the global load and the whole v0/v1/a0 web rotates.  All three
+         orderings that put pChunkCp ahead of the materials store measure 100. */
+      pChunkCp = Chunk_chunkCenters + sd->chunkInd;
       sd->materials = Track_materials;
       sd->light = negOne;
-      pChunkCp = Chunk_chunkCenters + sd->chunkInd;
       if (gNight_renderNight != 0) {
         int cx;
         int cz;
@@ -1709,8 +1716,15 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         int four = 4;
 
         sd->nightFlags = (char)four;
-        cx = (pChunkCp->x - ((Camera_gInfo[Vi->player].target)->position).x) >> 10;
-        cz = (pChunkCp->z - ((Camera_gInfo[Vi->player].target)->position).z) >> 10;
+        /* MATCH (w45-a5, 94 -> 92): same subtrahend-first operand-load-order class as
+           the sd->trans block above -- the oracle issues `lw $v1,168($a0)` (the
+           camera-target position component) BEFORE `lw $v0,8($s2)` (the chunk
+           centre).  Only the .z site is load-bearing (splitting .x alone measures
+           94, splitting .z alone or both measures 92); written uniformly. */
+        { int px = ((Camera_gInfo[Vi->player].target)->position).x;
+          cx = (pChunkCp->x - px) >> 10; }
+        { int pz = ((Camera_gInfo[Vi->player].target)->position).z;
+          cz = (pChunkCp->z - pz) >> 10; }
         dist = cx * cx + cz * cz;
         if (dist <= 0x47DFFFF) {
           if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
@@ -1757,9 +1771,18 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           }
         }
       }
-      sd->trans.x = (short)((pChunkCp->x - (Vi->cview).translation.x) >> 10);
-      sd->trans.y = (short)((pChunkCp->y - (Vi->cview).translation.y) >> 10);
-      sd->trans.z = (short)((pChunkCp->z - (Vi->cview).translation.z) >> 10);
+      /* MATCH (w45-a5, 100 -> 94): OPERAND LOAD ORDER.  The oracle loads the
+         SUBTRAHEND first (`lw $v1,8($s3)` = Vi->cview.translation.N) and only
+         then the minuend (`lw $v0,0($s2)` = pChunkCp->N).  A single
+         `a->N - b->N` expression evaluates left-to-right, so ours loaded them
+         the other way round at all three axes.  Same device as DrawW_DoLines'
+         per-axis split below.  (One shared temp measures the same 94.) */
+      { int vx = (Vi->cview).translation.x;
+        sd->trans.x = (short)((pChunkCp->x - vx) >> 10); }
+      { int vy = (Vi->cview).translation.y;
+        sd->trans.y = (short)((pChunkCp->y - vy) >> 10); }
+      { int vz = (Vi->cview).translation.z;
+        sd->trans.z = (short)((pChunkCp->z - vz) >> 10); }
       /* MATCH (w45-a5, 125 -> 118, count 358 -> EXACT 359): the oracle computes
          `addiu $v0,$s0,0x14` = &sd->matB ONCE and reaches t[2]/t[1] through it
          (`sw $zero,0x1C($v0)` / `0x18($v0)`) while t[0] keeps the sd base

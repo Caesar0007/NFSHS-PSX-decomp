@@ -894,6 +894,18 @@ MCRDhandleCard_task:
       status = 0x17;
       if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
       status = 0x15;
+    } else {
+      /* MATCH (w45): ZERO-INSN USE FENCE as a CROSS-JUMP BLOCKER.  `status` lives
+       * in $s0, so "r"(status) emits no instruction -- its only effect is to make
+       * this else-arm's tail textually different from the plain `return status;`
+       * funnel, so cross_jump cannot fold it in.  What survives is retail's shared
+       * 2-insn trampoline .L800500D8 (`j <epilogue>; addu $v0,$s0,$zero`), which
+       * is ALSO the target of the res==0 arm's `bne pCI->status,-1` -- gcc merges
+       * the two un-mergeable exits with EACH OTHER.  Count 209 -> exact 211/211.
+       * The polarity matters: the fence must hang in an `else` (keeping the guard
+       * `bgez`), NOT on an inverted `if (ticks >= 0) {...}` -- that makes the exit
+       * the FALL-THROUGH, flips the branch to `bltz` and inlines the block (8). */
+      __asm__ volatile("" : : "r"(status));
     }
     break;
   case LOAD_CARD:

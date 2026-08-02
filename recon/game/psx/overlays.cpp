@@ -477,7 +477,36 @@ void RaceStatistics(void)
  * side (`(startY+0xf+SIZE_H-(postgame?0:8)) - (startY+0xf-POS_Y) - 0x10`, algebraically
  * re-signed) so gcc expands the difference term second and can reuse the shared
  * `startY+0xf` pseudo in place, which is the only shape that produces retail's
- * `subu v1,v1,POS_Y` self-mutation. */
+ * `subu v1,v1,POS_Y` self-mutation.
+ * ---- w45-a9 RECEIPT BAR: 27 stays (count 472 / 473).  Two clusters remain:
+ *  (a) `li $s5,1` (the col-rule loop's i=1) issues at ours[214] vs retail[193] (retail puts
+ *      it in the delay slot of the Font_TextXY(0x4c) `jal`, i.e. BEFORE the first
+ *      Hud_FBuildF4).  FALSIFIED THIS WAVE: hoisting `i = 1;` out of the `for` to a
+ *      statement ahead of that Hud_FBuildF4 call (`for (; i < 4; ...)`) = 27, byte-for-byte
+ *      the same diff -- loop.c re-sinks the init into the preheader, so SOURCE POSITION OF
+ *      THE INIT IS NOT THE DIAL.
+ *  (b) the col-loop `s2 - (s1 + 8)` fold + the s1/s2 role swap (s1 = (short)startY-term,
+ *      s2 = SIZE_H-term in ours; mirrored in retail).  The 3 tail insns are ALGEBRAICALLY
+ *      EQUAL, not wrong: ours `(A-8)-B` vs retail `A-(B+8)` (verified by hand; there is NO
+ *      semantic bug here despite the `addiu v0,s1,-8` vs `addiu v0,s1,8` diff line).
+ *      FALSIFIED THIS WAVE with the new zero-insn USE fence (§2b.5), which is what finally
+ *      cracked the sibling sched ties in flare.cpp: a fenced `int inset = dy + (postgame?8:0);`
+ *      local inside the loop = 59 @470 (the extra allocno re-colors s0/s1); fencing the
+ *      SUBEXPRESSION without a local = 41 @478 (+6 insns, the fence's own reload survives).
+ *      ⇒ the fence CANNOT block this fold: cc1 splits the ternary into arms and folds the
+ *      constant inside each arm BEFORE any pseudo the fence could hold exists.
+ *  NEW NAMED ANGLE (untried, in priority order): the fold happens because the `+8` addend is
+ *  CONSTANT in each arm.  Make it non-constant to cse/fold but free at runtime: source the 8
+ *  from a value gcc cannot constant-propagate across the loop -- e.g. reuse the already-live
+ *  `showtimeleft ? 0x10 : 0` term's register (`inset = dy + ((postgame?8:0))` -> `dy +
+ *  (postgame ? (showtimeleft ? 8 : 8) : 0)` is still folded, but `dy + (postgame << 3)` with
+ *  `postgame` the BOOL REGPARM is NOT: it is a runtime shift, so there is no constant to sink
+ *  into SIZE_H).  `postgame * 8` was tried at the 49 base as `(postgame != 0) * 8` and was
+ *  neutral, but that was BEFORE the minuend re-sign landed -- re-measure it here (lever-order
+ *  dependence, §2b.4).  Second angle: cluster (a) is a reorg delay-slot choice, so try the
+ *  fence as a REGION SPLITTER (not a value holder) between the Font_TextXY(0x4c) call and the
+ *  first Hud_FBuildF4 -- the trackspec.cpp SetDefault seal this wave shows an operand-less
+ *  fence moves a drain point without costing an insn. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

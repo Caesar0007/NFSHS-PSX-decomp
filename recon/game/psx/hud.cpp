@@ -2124,6 +2124,12 @@ void Hud_WingmanFlash(int player,int index)
  *      RMW, which only a split read statement reproduces.  This also flipped player onto $s2.
  * FALSIFIED this wave (do not retry as-is): a named `sy = splitY + 2` temp (residual 96->108)
  * and hoisting `fc = (flashTicks % 0x14) * 10` above the packet block (96->127).
+ * W44-a1 RELAY (local_alloc = REVERSE BIRTH ORDER of a block's call-crossing quantities;
+ * last-USE position = the live-length dial) is the right instrument for cluster (1) below but
+ * was NOT exercised here (budget): the four hoisted constants land in CALLER-saved $t0-$t3,
+ * not the $s0/$s1/$s2 pool the law was verified on -- extend it only after `-dl` confirms they
+ * are block-local quantities.  The s-register set here is ALREADY oracle-exact after the
+ * SPLIT-RMW lever, so no s-pool rotation remains in this fn to test the law against.
  * RESIDUAL 96, two named clusters:
  *  (1) LICM constant-hoist ORDER: retail emits the /20 magic (`lui t3,26214;ori`) FIRST, then
  *      0x1F800004, then 0xFFFFFF, then 0xFF000000; ours emits 0x1F800004 first and the magic

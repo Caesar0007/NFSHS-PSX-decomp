@@ -3947,12 +3947,16 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
       do {
         psVar3 = Hud_NextPerp + i;
         iVar2 = (int)*psVar3;
-        if ((iVar2 == 0) || (*(int *)(BTCPerpInfo[0][iVar2 - 1].name + iVar4 + 0xc) != 0)) {
-          pcVar1 = BTCPerpInfo[0][iVar2].name + iVar4 + 0xc;
-          *(u_int *)pcVar1 = 0;
-          pcVar1 = BTCPerpInfo[0][*psVar3].name + iVar4 + 8;
-          *(u_int *)pcVar1 = 0;
-          sprintf(BTCPerpInfo[0][*psVar3].name + iVar4,BTC_CurrentPerpName);
+        /* MATCH (w45-a7): REAL 2-D FIELD ACCESS, not the hand-folded byte form.
+         * `BTCPerpInfo[0][iVar2-1].name + iVar4 + 0xc` lets gcc fold (iVar2-1)*16+12 into
+         * iVar2*16-4 and park `&BTCPerpInfo-4` in an EXTRA callee-saved reg ($s4); retail
+         * keeps the index expression whole -- `addiu v0,v1,-1; sll v0,v0,4; addu s1; addu
+         * s3; lw v0,12(v0)` -- which only the named-field/real-index spelling produces.
+         * 37 -> 19 diffs. */
+        if ((iVar2 == 0) || (BTCPerpInfo[i][iVar2 - 1].caught != 0)) {
+          BTCPerpInfo[i][iVar2].caught = 0;
+          BTCPerpInfo[i][*psVar3].time = 0;
+          sprintf(BTCPerpInfo[i][*psVar3].name,BTC_CurrentPerpName);
           *psVar3 = *psVar3 + 1;
         }
         i = i + 1;

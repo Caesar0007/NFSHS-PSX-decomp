@@ -3015,9 +3015,16 @@ void Hud_RenderMapView(void)
          * (lui 0x1F80; lw) -- spelling the macro at every use makes gcc LICM the
          * 0x1F800000 base into a callee-saved reg instead. */
         pal = Render_gPalettePtr;
-        HudFT4->tag =
-             (u_long *)((u_int)HudFT4->tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)HudFT4 & 0xffffff;
+        /* MATCH (w45-a7) -- SEALED THE FN.  EA-1998 addPrim(): the P_TAG bitfield
+         * setaddr pair (house idiom, cf. psxfront.cpp/drawshp.cpp).  The explicit
+         * `tag & 0xff000000 | *pal & 0xffffff` spelling is byte-identical IN THE BODY
+         * but births the HI(0xff000000) mask pseudo FIRST, so the two hoisted mask
+         * regs are initialised s2-then-s1 in the prologue; retail is s1(0xFFFFFF)
+         * then s2(0xFF000000).  The bitfield READ `y->addr` evaluates the RHS
+         * extraction first => LO pseudo born first => retail's prologue order.
+         * (Swapping the `|` operands instead re-colors the body v0/v1: 4 -> 8.) */
+        ((Hud_PTag *)HudFT4)->addr = ((Hud_PTag *)pal)->addr;
+        ((Hud_PTag *)pal)->addr = (u_int)HudFT4;
       }
       else {
         u_char *pal;

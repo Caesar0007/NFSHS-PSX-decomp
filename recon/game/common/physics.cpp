@@ -1692,10 +1692,7 @@ void Physics_Real(Car_tObj *carObj)
   int tempSteer;
   int frontGrip;
   int roadGrip;
-  int desiredRpm;
-  int diffRpm;
   bool bVar1;
-  int currentRpm;
   void *pvVar2;
   int iVar3;
   int iVar4;
@@ -1704,13 +1701,9 @@ void Physics_Real(Car_tObj *carObj)
   int iVar7;
   u_int uVar8;
   Trk_NewSlice *pTVar9;
-  int lookAhead;
-  int tempGas;
   int iVar10;
-  int sliceAhead;
   int iVar11;
   int damp;
-  int roadPosition;
   int rotationalAccCap;
   Car_tSpecs *pCVar12;
   u_int uVar13;
@@ -1720,9 +1713,6 @@ void Physics_Real(Car_tObj *carObj)
   coorddef finalAngularAcc_ch;
   coorddef carAccCap_ch;
   matrixtdef transposeMat;
-  coorddef carPos;
-  coorddef dirVector;
-  coorddef offset;
   
   (carObj->linearAcc_ch).x = 0;
   (carObj->linearAcc_ch).y = 0;
@@ -1834,7 +1824,9 @@ void Physics_Real(Car_tObj *carObj)
           (frontWheel.steeringAngle < 0)))) {
       int ratio;
 
-      ratio = MIN(ABS(carObj->slide) << 1,0x10000);
+      ratio = (0x10000 < (__builtin_abs(carObj->slide) << 1))
+                  ? 0x10000
+                  : (__builtin_abs(carObj->slide) << 1);
       frontWheel.steeringAngle =
           fixedmult(frontWheel.steeringAngle,ratio);
     }
@@ -1846,7 +1838,9 @@ void Physics_Real(Car_tObj *carObj)
           (frontWheel.steeringAngle < 0)))) {
       int ratio;
 
-      ratio = MIN(ABS(carObj->slide) << 1,0x10000);
+      ratio = (0x10000 < (__builtin_abs(carObj->slide) << 1))
+                  ? 0x10000
+                  : (__builtin_abs(carObj->slide) << 1);
       frontWheel.steeringAngle =
           fixedmult(frontWheel.steeringAngle,ratio);
     }
@@ -1866,7 +1860,9 @@ void Physics_Real(Car_tObj *carObj)
   carObj->crash = 0;
   brakeAcc =
       (gBrakeRatio / 0x100) * (pCVar12->maxBrakeAcc / 0x100);
-  brakeAcc = MIN(brakeAcc,ABS((carObj->linearVel_ch).z) << 5);
+  brakeAcc = (brakeAcc < (__builtin_abs((carObj->linearVel_ch).z) << 5))
+                 ? brakeAcc
+                 : (__builtin_abs((carObj->linearVel_ch).z) << 5);
   {
     int damage;
     int damageMult;
@@ -1914,12 +1910,13 @@ void Physics_Real(Car_tObj *carObj)
       carObj->gTransferFront = carObj->gTransferFront * 3 / 4;
     }
   }
+  frontWheel.roadGrip = frontGrip - carObj->gTransferFront;
   frontWheel.roadGrip =
-      (frontMult / 0x100) *
-      ((frontGrip - carObj->gTransferFront) / 0x100);
+      (frontMult / 0x100) * (frontWheel.roadGrip / 0x100);
   rearWheel.roadGrip =
-      (rearMult / 0x100) *
-      (((roadGrip - frontGrip) + carObj->gTransferFront) / 0x100);
+      (roadGrip - frontGrip) + carObj->gTransferFront;
+  rearWheel.roadGrip =
+      (rearMult / 0x100) * (rearWheel.roadGrip / 0x100);
   carObj->wheelLock = 0;
   frontWheel.finalAcc.x = 0;
   frontWheel.finalAcc.z = 0;
@@ -1956,16 +1953,20 @@ void Physics_Real(Car_tObj *carObj)
       -fixedmult((carObj->linearAcc_ch).x / 8,pCVar12->gTransferFactor);
   carObj->gTransferFront =
       fixedmult((carObj->linearAcc_ch).z,pCVar12->gTransferFactor) + ratio;
-  finalAngularAcc_ch.y =
-      fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
-                pCVar12->accToAlphaRotInertia);
-  ratio = fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
-                    leftMult - rightMult);
-  finalAngularAcc_ch.y +=
-      fixedmult(ratio,pCVar12->accToAlphaRotInertia) * 2;
+  ratio = fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
+                    pCVar12->accToAlphaRotInertia);
+  ratio += fixedmult(fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
+                              leftMult - rightMult),
+                     pCVar12->accToAlphaRotInertia) *
+           2;
+  finalAngularAcc_ch.y = ratio;
   if ((((carObj->N).angularVel.y > 0) && (finalAngularAcc_ch.y > 0)) ||
       (((carObj->N).angularVel.y < 0) && (finalAngularAcc_ch.y < 0))) {
-    if (((carObj->control).handBrake == '\0') || ((GameSetup_gData.sgge & 8U) != 0)) {
+    if (((carObj->control).handBrake != '\0') &&
+        ((GameSetup_gData.sgge & 8U) == 0)) {
+      finalAngularAcc_ch.y = finalAngularAcc_ch.y / 2;
+    }
+    else {
       if (((((carObj->control).desiredSteering < 0) &&
             (0x3333 < (carObj->N).angularVel.y)) ||
            ((0 < (carObj->control).desiredSteering &&
@@ -1975,11 +1976,8 @@ void Physics_Real(Car_tObj *carObj)
       }
       else {
         finalAngularAcc_ch.y =
-             fixedmult(finalAngularAcc_ch.y,carObj->specs->spinVelCap);
+            fixedmult(finalAngularAcc_ch.y,carObj->specs->spinVelCap);
       }
-    }
-    else {
-      finalAngularAcc_ch.y = finalAngularAcc_ch.y / 2;
     }
   }
   finalAngularAcc_ch.x = 0;
@@ -2017,118 +2015,134 @@ void Physics_Real(Car_tObj *carObj)
   (carObj->N).angularVel.y += (carObj->angularAcc).y / 0x40;
   (carObj->N).angularVel.z += (carObj->angularAcc).z / 0x20;
   if (carObj->RSControl != 0) {
+    int desiredRpm;
+    int currentRpm;
+    int diffRpm;
+    int tempGas;
+
     if (carObj->desiredSpeed < 0x471c7) {
       desiredRpm =
           fixedmult(0x188000,
                     pCVar12->velToRpmRatio[
                         ((u_char)(carObj->control).gear < 2)
-                            ? 2 : (u_char)(carObj->control).gear]);
+                            ? 2 : (u_char)(carObj->control).gear]) /
+          0x10000;
     }
     else {
       desiredRpm =
           fixedmult(carObj->desiredSpeed,
                     pCVar12->velToRpmRatio[
                         ((u_char)(carObj->control).gear < 2)
-                            ? 2 : (u_char)(carObj->control).gear]);
+                            ? 2 : (u_char)(carObj->control).gear]) /
+          0x10000;
     }
-    desiredRpm /= 0x10000;
     currentRpm =
         fixedmult((carObj->linearVel_ch).z,
                   pCVar12->velToRpmRatio[
                       ((u_char)(carObj->control).gear < 2)
                           ? 2 : (u_char)(carObj->control).gear]);
-    currentRpm /= 0x10000;
+    if (currentRpm < 0) {
+      currentRpm += 0xffff;
+    }
     tempGas = (desiredRpm << 8) / pCVar12->redline;
-    diffRpm = desiredRpm - currentRpm;
-    if (diffRpm < 0xc9) {
-      if (diffRpm < 200) {
-        tempGas = tempGas + (diffRpm * 0x80) / desiredRpm;
-        if (tempGas < 0) {
+    diffRpm = desiredRpm - (currentRpm >> 16);
+    if (diffRpm >= 0xc9) {
+      int gasLevel;
+
+      tempGas += (diffRpm * 0x80) / desiredRpm;
+      gasLevel = tempGas;
+      if (0xe0 < gasLevel) {
+        gasLevel = 0xe0;
+      }
+      carObj->RSGasLevel = (char)gasLevel;
+    }
+    else if (diffRpm < 200) {
+      tempGas = tempGas + (diffRpm * 0x80) / desiredRpm;
+      if (tempGas >= 0) {
+        carObj->RSGasLevel = (char)tempGas;
+      }
+      else {
+        carObj->RSGasLevel = '\0';
+      }
+      if (diffRpm < 0) {
+        tempGas = __builtin_abs(diffRpm << 9) / pCVar12->redline;
+        if (0xff < tempGas) {
+          tempGas = 0xff;
+        }
+        carObj->RSBrakeLevel = (char)tempGas;
+        if (0x80 < (u_char)tempGas) {
           carObj->RSGasLevel = '\0';
         }
-        else {
-          carObj->RSGasLevel = (char)tempGas;
+      }
+    }
+    {
+      int lookAhead;
+      int sliceAhead;
+      coorddef carPos;
+      coorddef dirVector;
+
+      currentRpm = __builtin_abs(carObj->currentSpeed) / 0x60000;
+      if (currentRpm < 3) {
+        lookAhead = carObj->RSControl * 3;
+      }
+      else {
+        lookAhead = carObj->RSControl * currentRpm;
+      }
+      if (lookAhead >= 0) {
+        sliceAhead = (carObj->N).simRoadInfo.slice + lookAhead;
+        if (gNumSlices <= sliceAhead) {
+          sliceAhead = sliceAhead - gNumSlices;
         }
-        if (diffRpm < 0) {
-          tempGas = diffRpm * 0x200;
-          if (tempGas < 0) {
-            tempGas = diffRpm * -0x200;
-          }
-          tempGas = (u_int)tempGas / (u_int)pCVar12->redline;
-          if (0xff < tempGas) {
-            tempGas = 0xff;
-          }
-          carObj->RSBrakeLevel = (char)tempGas;
-          if (0x80 < (u_char)tempGas) {
-            carObj->RSGasLevel = '\0';
-          }
+      }
+      else {
+        sliceAhead = (carObj->N).simRoadInfo.slice + lookAhead;
+        if (sliceAhead < 0) {
+          sliceAhead = sliceAhead + gNumSlices;
         }
       }
-    }
-    else {
-      tempGas = tempGas + (diffRpm * 0x80) / desiredRpm;
-      if (0xe0 < tempGas) {
-        tempGas = 0xe0;
+      {
+        int roadPosition;
+        coorddef offset;
+
+        carPos = (carObj->N).position;
+        dirVector.x = BWorldSm_slices[sliceAhead].center[0];
+        dirVector.y = BWorldSm_slices[sliceAhead].center[1];
+        dirVector.z = BWorldSm_slices[sliceAhead].center[2];
+        roadPosition =
+            Physics_CalculateRSControlDesiredPosition(
+                carObj,sliceAhead,__builtin_abs(lookAhead * 3));
+        offset.x = fixedmult(
+            (int)(signed char)BWorldSm_slices[sliceAhead].right[0] << 9,
+            roadPosition);
+        offset.y = fixedmult(
+            (int)(signed char)BWorldSm_slices[sliceAhead].right[1] << 9,
+            roadPosition);
+        offset.z = fixedmult(
+            (int)(signed char)BWorldSm_slices[sliceAhead].right[2] << 9,
+            roadPosition);
+        dirVector.x += offset.x;
+        dirVector.y += offset.y;
+        dirVector.z += offset.z;
+        dirVector.x -= carPos.x;
+        dirVector.y -= carPos.y;
+        dirVector.z -= carPos.z;
+        Math_NormalizeVector(&dirVector);
+        carObj->RSSteering =
+            (fixedmult(dirVector.x,(carObj->N).orientMat.m[0]) +
+             fixedmult(dirVector.y,(carObj->N).orientMat.m[1]) +
+             fixedmult(dirVector.z,(carObj->N).orientMat.m[2])) / 0x100;
+        if (carObj->RSSteering > 0x7f) {
+          carObj->RSSteering = 0x7f;
+        }
+        else if (carObj->RSSteering < -0x7f) {
+          carObj->RSSteering = -0x7f;
+        }
       }
-      carObj->RSGasLevel = (char)tempGas;
-    }
-    currentRpm = ABS(carObj->currentSpeed);
-    if (currentRpm / 0x60000 < 3) {
-      lookAhead = carObj->RSControl * 3;
-    }
-    else {
-      lookAhead = carObj->RSControl * (currentRpm / 0x60000);
-    }
-    if (lookAhead < 0) {
-      sliceAhead = (carObj->N).simRoadInfo.slice + lookAhead;
-      if (sliceAhead < 0) {
-        sliceAhead = sliceAhead + gNumSlices;
-      }
-    }
-    else {
-      sliceAhead = (carObj->N).simRoadInfo.slice + lookAhead;
-      if (gNumSlices <= sliceAhead) {
-        sliceAhead = sliceAhead - gNumSlices;
-      }
-    }
-    roadPosition =
-        Physics_CalculateRSControlDesiredPosition(carObj,sliceAhead,
-                                                  ABS(lookAhead * 3));
-    carPos = (carObj->N).position;
-    dirVector.x = BWorldSm_slices[sliceAhead].center[0];
-    dirVector.y = BWorldSm_slices[sliceAhead].center[1];
-    dirVector.z = BWorldSm_slices[sliceAhead].center[2];
-    offset.x =
-        fixedmult((int)(signed char)BWorldSm_slices[sliceAhead].right[0] << 9,
-                  roadPosition);
-    offset.y =
-        fixedmult((int)(signed char)BWorldSm_slices[sliceAhead].right[1] << 9,
-                  roadPosition);
-    offset.z =
-        fixedmult((int)(signed char)BWorldSm_slices[sliceAhead].right[2] << 9,
-                  roadPosition);
-    dirVector.x = dirVector.x + offset.x - carPos.x;
-    dirVector.y = dirVector.y + offset.y - carPos.y;
-    dirVector.z = dirVector.z + offset.z - carPos.z;
-    Math_NormalizeVector(&dirVector);
-    carObj->RSSteering =
-        (fixedmult(dirVector.x,(carObj->N).orientMat.m[0]) +
-         fixedmult(dirVector.y,(carObj->N).orientMat.m[1]) +
-         fixedmult(dirVector.z,(carObj->N).orientMat.m[2])) / 0x100;
-    if (carObj->RSSteering > 0x7f) {
-      carObj->RSSteering = 0x7f;
-    }
-    else if (carObj->RSSteering < -0x7f) {
-      carObj->RSSteering = -0x7f;
     }
   }
   if ((GameSetup_gData.sgge & 8U) == 0) {
     if ((carObj->control).gasLevel != '\0') {
-      ratio = carObj->slide;
-      if (ratio < 0) {
-        ratio = -ratio;
-      }
-      if (ratio < 0x199a) {
+      if (__builtin_abs(carObj->slide) < 0x199a) {
         goto PhyReal_iceBraking;
       }
     }
@@ -2150,9 +2164,9 @@ PhyReal_iceBraking:
   }
   else {
     if (((carObj->control).gear == '\x01') &&
-        (ABS(gravity_ch.z) < 0x8000)) {
-      if ((ABS((carObj->linearVel_ch).z) < 0x140000) ||
-          (ABS((carObj->control).steering) > 0x20)) {
+        (__builtin_abs(gravity_ch.z) < 0x8000)) {
+      if ((__builtin_abs((carObj->linearVel_ch).z) < 0x140000) ||
+          (__builtin_abs((carObj->control).steering) > 0x20)) {
         damp = 0xfd70;
       }
       else {

@@ -2732,15 +2732,25 @@ int Hud_BuildRadar(int player)
 
       sprt = (SPRT *)Render_gPacketPtr;
       pal = Render_gPalettePtr;
-      *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *(u_int *)pal & 0xffffff;
-      tag = *(u_int *)pal;
+      /* MATCH (w45-a7): EA-1998 addPrim() -- the PsyQ P_TAG bitfield setaddr pair
+       * (value side = a bitfield READ), packet-cursor bump BETWEEN the two stores.
+       * Replaces the hand-masked `*sprt & 0xff000000 | *pal & 0xffffff` form and the
+       * `tag` staging temp it needed: 46 -> 8 diffs, ours 452 -> 450 = oracle. */
+      ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
       Render_gPacketPtr = (u_char *)sprt + 0x14;
-      *(u_int *)pal = tag & 0xff000000 | (u_int)sprt & 0xffffff;
-      if ((gFlip == 0) && (simVar.quickPauseSim == 0)) {
-        currentSpriteColor = 0xff0000;
+      ((Hud_PTag *)pal)->addr = (u_int)sprt;
+      /* MATCH (w45-a7): De Morgan + SWAPPED ARMS.  Retail reaches the 0xFF arm from BOTH
+       * tests (`bnez a0` on gFlip and, after it, `beqz v0` on quickPauseSim whose delay slot
+       * carries `lui v0,0xFF0000`), i.e. the `||`-chain's TRUE arm is the shared inline block
+       * and the 0xFF0000 arm is the fall-through set from a delay slot.  The natural
+       * `if (A==0 && B==0) 0xff0000; else 0xff;` inverts that and costs an extra `j`
+       * (8 -> 4 diffs, ours 452 -> 450 = oracle).  Falsified: default+override [9],
+       * ternary [19, 449 insns], explicit goto-chain [10]. */
+      if ((gFlip != 0) || (simVar.quickPauseSim != 0)) {
+        currentSpriteColor = 0xff;
       }
       else {
-        currentSpriteColor = 0xff;
+        currentSpriteColor = 0xff0000;
       }
       Hud_BuildSprite(sprt,0x7a,scr[i + Cars_gNumRaceCars].x + mapx + -2 & 0xffff,
                  scr[i + Cars_gNumRaceCars].z + mapz & 0xffff,currentSpriteColor,0);

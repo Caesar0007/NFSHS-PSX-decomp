@@ -1358,13 +1358,15 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       int vel;    /* SYM blk 196 REG a0 -- clamped IN PLACE */
       int spin;   /* SYM blk 196 REG v0 -- abs(wheelSpin), hoisted guard */
       int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
+      int replayMode;
       rear = 0;
+      replayMode = Replay_ReplayMode;
       spin = carObj->wheelSpin;
       if (spin < 0) {
         spin = -spin;
       }
       for (; rear < 2; rear = rear + 1) {
-        if (Replay_ReplayMode != 2) {
+        if (replayMode != 2) {
           vel = (carObj->linearVel_ch).z >> 6;
         }
         else {
@@ -1379,7 +1381,7 @@ R_ICFt_wheelspinRpmCalc:
             vel = (carObj->flywheelRpm << 0x10) /
                   carObj->specs->velToRpmRatio[
                       (u_char)(carObj->control).gear];
-            if (Replay_ReplayMode != 2) {
+            if (replayMode != 2) {
               vel = vel << 9;
             }
             else {
@@ -1632,15 +1634,17 @@ R_ICFt_loop2Post:
       int limit;
       index = R3DCar_Suspension[i + -0x2f];
       suspensionOffset = carObj->wheel[index].impactCompression;
-      if (suspensionOffset < 1) {
+      if (0 < suspensionOffset) {
+        if (0x1eb8 < suspensionOffset) {
+          suspensionOffset = 0x1eb8;
+        }
+      }
+      else {
         limit = -0x1eb8;
         if (-0x1eb9 < suspensionOffset) {
           limit = suspensionOffset;
         }
         suspensionOffset = limit;
-      }
-      else if (0x1eb8 < suspensionOffset) {
-        suspensionOffset = 0x1eb8;
       }
     }
     else {
@@ -1650,7 +1654,10 @@ R_ICFt_loop2Post:
     tmp.y = ((obj->translation).y - parent.y) - suspensionOffset;
     tmp.z = (obj->translation).z - parent.z;
     if (i < 0x2f) {
-      if (((0x1b < carType) || (i < 0x23)) || (pmVar13 = &insideMat, 0x28 < i)) {
+      if ((carType < 0x1c) && (0x22 < i) && (i < 0x29)) {
+        pmVar13 = &insideMat;
+      }
+      else {
         pmVar13 = &bodyMat;
       }
     }
@@ -1780,42 +1787,40 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   TrsProj_TransformProjectVertex((matrixtdef *)((int)Vi + 0x44),(coorddef *)((int)Vi + 0x38),1,&(carObj->N).position,
              &R3DCar_center);
-  if ((R3DCar_shadowColour.r == '\0') || ((carObj->N).simOptz != '\0')) {
-    R3DCar_shadowFlag = 0;
-  }
-  else {
+  if ((R3DCar_shadowColour.r != '\0') && ((carObj->N).simOptz == '\0')) {
     Newton_CalcRealShadowCoordinates(carObj,simGlobal.gameTicks);
     TrsProj_TransformProjectVertex((matrixtdef *)((int)Vi + 0x44),(coorddef *)((int)Vi + 0x38),4,(carObj->N).shadowCoord,
                R3DCar_shadowVertex);
     R3DCar_shadowFlag = 1;
   }
+  else {
+    R3DCar_shadowFlag = 0;
+  }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
-    if (Replay_ReplayMode == 2) {
+    if (Replay_ReplayMode != 2) {
       (carObj->N).positionXZ =
-           (carObj->N).positionXZ +
-           (short)((carObj->linearVel_ch).z >> (0x12U - Replay_ReplayInterface.speed));
+           (carObj->N).positionXZ + *(short *)((int)&(carObj->linearVel_ch).z + 2);
     }
     else {
       (carObj->N).positionXZ =
-           (carObj->N).positionXZ + *(short *)((int)&(carObj->linearVel_ch).z + 2);
+           (carObj->N).positionXZ +
+           (short)((carObj->linearVel_ch).z >> (0x12U - Replay_ReplayInterface.speed));
     }
   }
   /* MATCH: gShadowMax read AT USE (oracle loads it after the envmap loop); walkers are
      compiler givs of the index form (SYM tail blocks have NO named pointer locals) */
   i = 0;
-  if (0 < DrawC_gEnvMapMax) {
-    do {
-      if ((carObj->N).simRoadInfo.slice < DrawC_gEnvMap[i].slice) break;
-      i = i + 1;
-    } while (i < DrawC_gEnvMapMax);
+  for (; i < DrawC_gEnvMapMax; i = i + 1) {
+    if ((carObj->N).simRoadInfo.slice < DrawC_gEnvMap[i].slice) {
+      break;
+    }
   }
   (carObj->N).eIndexEnvMap = (short)i;
   i = 0;
-  if (0 < DrawC_gShadowMax) {
-    do {
-      if ((carObj->N).simRoadInfo.slice < DrawC_gShadow[i].slice) break;
-      i = i + 1;
-    } while (i < DrawC_gShadowMax);
+  for (; i < DrawC_gShadowMax; i = i + 1) {
+    if ((carObj->N).simRoadInfo.slice < DrawC_gShadow[i].slice) {
+      break;
+    }
   }
   (carObj->N).eIndexShadow = (short)i;
 #undef carObj

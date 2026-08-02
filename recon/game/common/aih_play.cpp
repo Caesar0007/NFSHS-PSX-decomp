@@ -29,169 +29,86 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   int ready[2];
   int assigned[2];
   int split;
-  AIHigh_Cop*thisCop;
+  AICop_PerpChaseInfo *chaseInfo;
+  bool cannotSetup;
 
-  bool bVar1;
+  chaseInfo = &this->perpChaseInfo_;
+  pLevel = chaseInfo->chaseLevel_;
 
-  int iVar2;
+  memset(ready,0,sizeof(ready));
+  memset(assigned,0,sizeof(assigned));
 
-  int iVar3;
-
-  Car_tObj *pCVar4;
-
-  int *piVar5;
-
-  AIHigh_Base *pAVar6;
-
-  int iVar7;
-
-  Car_tObj **ppCVar8;
-
-  copLevel_t *pcVar9;
-
-  int local_28 [4];
-
-  int local_18;
-
-  int local_14;
-
-  
-
-  pcVar9 = (this->perpChaseInfo_).chaseLevel_;
-
-  memset((u_char *)(local_28 + 2),'\0',8);
-
-  memset((u_char *)(local_28 + 4),'\0',8);
-
-  iVar7 = Cars_gNumCopCars;
-
-  bVar1 = false;
-
-  if ((((pcVar9->numBlockaders == 0) || ((this->perpChaseInfo_).blockadeDone_ != 0)) ||
-
-      ((this->basicPerpInfo_.copsAssigned_[0] < pcVar9->copChasers[0] &&
-
-       (Cars_gNumHumanRaceCars != 2)))) ||
-
-     ((this->basicPerpInfo_.copsAssigned_[1] < pcVar9->copChasers[1] &&
-
-      (Cars_gNumHumanRaceCars != 2)))) {
-
-    bVar1 = true;
-
+  cannotSetup = false;
+  split = Cars_gNumHumanRaceCars == 2;
+  if ((pLevel->numBlockaders == 0) ||
+      (chaseInfo->blockadeDone_ != 0) ||
+      ((this->basicPerpInfo_.copsAssigned_[0] < pLevel->copChasers[0]) && !split) ||
+      ((this->basicPerpInfo_.copsAssigned_[1] < pLevel->copChasers[1]) && !split)) {
+    cannotSetup = true;
+  }
+  if (cannotSetup) {
+    goto return_false;
   }
 
-  iVar3 = 0;
+  nCopsNeeded[0] = pLevel->copBlockaders[0];
+  nCopsNeeded[1] = pLevel->copBlockaders[1];
 
-  if (!bVar1) {
-
-    local_28[0] = pcVar9->copBlockaders[0];
-
-    local_28[1] = pcVar9->copBlockaders[1];
-
-    ppCVar8 = Cars_gCopCarList;
-
-    for (iVar3 = 0; iVar2 = Cars_gNumCopCars, iVar3 < iVar7; iVar3 = iVar3 + 1) {
-
-      pAVar6 = highLevelAIObjs[(*ppCVar8)->carIndex];
-
-      if (((*ppCVar8)->AIFlags & 0xcU) == 0xc) {
-
-        pCVar4 = pAVar6[1].carObj_;
-
-        piVar5 = local_28 + (int)&(pCVar4->N).oldSlice;
-
-        if (*piVar5 < local_28[(int)pCVar4]) {
-
-          local_28[(int)((int)&(pCVar4->N).objID + 2)] =
-
-               local_28[(int)((int)&(pCVar4->N).objID + 2)] + 1;
-
-          *piVar5 = *piVar5 + 1;
-
-          pAVar6[1].stateType_ = 1;
-
-          pAVar6[1].schedulingOff_ = (int)this;
-
-        }
-
+  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+    AIHigh_Cop *thisCop;
+    Car_tObj *copCar = Cars_gCopCarList[copLoop];
+    thisCop = (AIHigh_Cop *)highLevelAIObjs[copCar->carIndex];
+    if ((copCar->AIFlags & 0xcU) == 0xc) {
+      int type = thisCop->type_;
+      if (nCopsNeeded[type] > assigned[type]) {
+        ready[type] = ready[type] + 1;
+        assigned[type] = assigned[type] + 1;
+        thisCop->blockade_.mode = 1;
+        thisCop->blockade_.target = this;
       }
-
-      ppCVar8 = ppCVar8 + 1;
-
     }
-
-    iVar7 = 0;
-
-    if ((local_18 < local_28[0]) || (local_14 < local_28[1])) {
-
-      ppCVar8 = Cars_gCopCarList;
-
-      for (; iVar7 < iVar2; iVar7 = iVar7 + 1) {
-
-        pAVar6 = highLevelAIObjs[(*ppCVar8)->carIndex];
-
-        if ((((*ppCVar8)->AIFlags & 0xcU) == 8) && (pAVar6[1].stateType_ != 2)) {
-
-          iVar3 = local_28[(int)&((pAVar6[1].carObj_)->N).oldSlice];
-
-          if (iVar3 < local_28[(int)pAVar6[1].carObj_]) {
-
-            local_28[(int)&((pAVar6[1].carObj_)->N).oldSlice] = iVar3 + 1;
-
-            pAVar6[1].stateType_ = 1;
-
-            pAVar6[1].schedulingOff_ = (int)this;
-
-          }
-
-        }
-
-        ppCVar8 = ppCVar8 + 1;
-
-      }
-
-    }
-
-    iVar7 = Cars_gNumCopCars;
-
-    if ((Cars_gNumHumanRaceCars != 1) && (iVar3 = 0, local_14 < local_28[1])) {
-
-      ppCVar8 = Cars_gCopCarList;
-
-      for (; iVar3 < iVar7; iVar3 = iVar3 + 1) {
-
-        pAVar6 = highLevelAIObjs[(*ppCVar8)->carIndex];
-
-        if ((((((*ppCVar8)->AIFlags & 0xcU) == 8) && (pAVar6[1].carObj_ == (Car_tObj *)0x0)) &&
-
-            (local_14 < local_28[1])) && (local_14 == 0)) {
-
-          local_14 = 1;
-
-          pAVar6[1].stateType_ = 4;
-
-          pAVar6[1].schedulingOff_ = (int)this;
-
-        }
-
-        ppCVar8 = ppCVar8 + 1;
-
-      }
-
-    }
-
-    iVar3 = 0;
-
-    if ((local_28[0] <= local_28[2]) && (iVar3 = 1, local_28[3] < local_28[1])) {
-
-      iVar3 = 0;
-
-    }
-
   }
 
-  return iVar3;
+  if ((nCopsNeeded[0] > assigned[0]) || (nCopsNeeded[1] > assigned[1])) {
+    AIHigh_Cop *thisCop;
+    for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+      Car_tObj *copCar = Cars_gCopCarList[copLoop];
+      thisCop = (AIHigh_Cop *)highLevelAIObjs[copCar->carIndex];
+      if (((copCar->AIFlags & 0xcU) == 8) &&
+          (thisCop->blockade_.mode != 2)) {
+        int type = thisCop->type_;
+        if (nCopsNeeded[type] > assigned[type]) {
+          assigned[type] = assigned[type] + 1;
+          thisCop->blockade_.mode = 1;
+          thisCop->blockade_.target = this;
+        }
+      }
+    }
+  }
+
+  if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1])) {
+    for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+      AIHigh_Cop *thisCop;
+      Car_tObj *copCar = Cars_gCopCarList[copLoop];
+      thisCop = (AIHigh_Cop *)highLevelAIObjs[copCar->carIndex];
+      if (((copCar->AIFlags & 0xcU) == 8) &&
+          (thisCop->type_ == 0) &&
+          (nCopsNeeded[1] > assigned[1]) &&
+          (assigned[1] == 0)) {
+        assigned[1] = 1;
+        thisCop->blockade_.mode = 4;
+        thisCop->blockade_.target = this;
+      }
+    }
+  }
+
+  if (ready[0] < nCopsNeeded[0]) {
+    goto return_false;
+  }
+  if (ready[1] >= nCopsNeeded[1]) {
+    return 1;
+  }
+return_false:
+  return 0;
 
 }
 

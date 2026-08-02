@@ -1776,7 +1776,33 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
    * Per-TU flag probe (w39, now that compile_cpp honours the keys): flare.cpp is
    * NOT a no_split_addresses / no_schedule_insns / no_schedule_insns2 /
    * no_strength_reduce object -- whole-TU baseline 15 PASS / 458 diffs vs
-   * 10/1387, 4/2086, 2/845, 15/889. */
+   * 10/1387, 4/2086, 2/845, 15/889.
+   * ---- w45-a9: cluster (a)'s TWO MISSING INSNS ARE NOW SOURCE-REACHABLE (not landed --
+   * it costs 2 gate diffs, so it was reverted under verify-or-revert; ADOPT IT FIRST next
+   * time, it is the structurally correct base).  THE SPELLING:
+   *     { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
+   *       __asm__ volatile("" : : "r"(vx0), "r"(vy0));      // §2b.5 zero-insn USE fence
+   *       sx = vx0;  sy = vy0; }
+   * -> COUNT BECOMES EXACT 409/409 (from 407) at 36 diffs (baseline 34).  The fence stops
+   * reload from folding the two `lh`s straight into the $fp/$s7 homes, so retail's
+   * `lh <tmp>,0(base); addu $fp,<tmp>,$zero` copy pair materializes -- that pair IS the
+   * documented 2-insn gap and it is what lets retail's scheduler hold sx-2 across the pt[]
+   * build.  What is left after it: (i) the reload BASE -- retail spills screenPos and reads
+   * `lh v0,0($t7)` off the 184(sp) reload, ours still reads through the live `$a0`; (ii) the
+   * two temps land in $v1/$a2, retail's in $v0/$v1.  NEXT STEPS from that base: force the
+   * ARG-slot reload (screenPos is SYM class ARG) by taking `DVECTOR *sp2 = screenPos;` only
+   * INSIDE this block after a call, or by fencing `screenPos` itself so its pseudo must be
+   * reloaded; then re-run the 24 pt-group orderings from the (a) probe list -- they were all
+   * measured on the 407-insn base and are stale in this basin (§2b.4 lever-order).
+   * FALSIFIED this wave: fencing `sx`/`sy` AFTER the assignments (36 @407 -- no copy pair,
+   * just a nop shuffle).  Cluster (b) (the 0xFFFFFF/0xFF000000/pkt-addr 3-cycle) is the SAME
+   * tie that Flare_PreCalcHexLightBeam SEALED this wave -- apply that recipe verbatim to the
+   * tail OT-link block here: `pal = Render_gPalettePtr;` split out, `addr24` temp AFTER the
+   * slot statement and BEFORE the first RMW, and the zero-insn re-mask `pkt24 | (addr24 &
+   * 0xffffff)` for the +1 ref-step.  MEASURED THIS WAVE: applying just the statement-order
+   * half of that recipe (addr24 moved below the two slot statements) at all 7 OT sites in
+   * this fn is DIFF-NEUTRAL (34, 0 TU regressions) -- so here the mask order is NOT the
+   * dial; the `pal` split + the ref-step re-mask are the untried halves. */
   int dx;
   int dy;
   DVECTOR pxy;

@@ -106,7 +106,6 @@ void DrawTV(tTVConfig &tv)
   POLY_FT4 *texture;
   POLY_GT4 *reflection;
   tTexture_ShapeInfo *noise = &gHelpShapes[0][(rand() & 3) + 0x22];
-  u_char **packetPtrSlot = (u_char **)0x1f800004;
   short videoX;
   short videoY;
   short videoWidth;
@@ -172,6 +171,8 @@ void DrawTV(tTVConfig &tv)
     DrawTVLines(tv);
   }
   if ((tv.flags & 0x10) == 0) {
+    u_char **packetPtrSlot = (u_char **)0x1f800004;
+
     if (tv.state != tv_StateOn) {
       u_int *palette;
 
@@ -218,8 +219,11 @@ void DrawTV(tTVConfig &tv)
       texture->clut =
            GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       if ((tv.flags & 4) != 0) {
-        short flipDelta = tv.flip_axis - videoY + 1;
-        fadeTop = ((flipDelta < 0) ? -flipDelta : flipDelta) * 2;
+        fadeTop = tv.flip_axis - videoY + 1;
+        if (fadeTop < 0) {
+          fadeTop = -fadeTop;
+        }
+        fadeTop *= 2;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
@@ -278,8 +282,8 @@ void DrawTV(tTVConfig &tv)
              GetClut((noise->clutID & 0x3fU) << 4, noise->clutID >> 6);
       }
     }
-    texture = (POLY_FT4 *)*packetPtrSlot;
     if (tv.state != tv_StateOff) {
+      texture = (POLY_FT4 *)*packetPtrSlot;
       *(u_int *)*packetPtrSlot =
            *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
       *packetPtrSlot = *packetPtrSlot + 0x28;

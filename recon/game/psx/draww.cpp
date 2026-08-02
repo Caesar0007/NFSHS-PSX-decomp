@@ -4247,11 +4247,9 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      lbu+sll24+sra25 on cc1plus 2.8.0 (proven invariant across 8 source shapes,
      scratchpad/lbtest*.cpp); an int temp with a net-zero ++/-- pair blocks the
      merge and folds away completely (0 extra insns). */
-  { int t0, t1, t2;
-    t0 = (signed char)BWorldSm_slices[slice].forward[0]; t0++; t0--; fx = (u_short)(t0 >> 1);
-    t1 = (signed char)BWorldSm_slices[slice].forward[1]; t1++; t1--; fy = (u_short)(t1 >> 1);
-    t2 = (signed char)BWorldSm_slices[slice].forward[2]; t2++; t2--; fz = (u_short)(t2 >> 1);
-  }
+  { int t2 = (signed char)BWorldSm_slices[slice].forward[2]; t2++; t2--; fz = (u_short)(t2 >> 1); }
+  { int t1 = (signed char)BWorldSm_slices[slice].forward[1]; t1++; t1--; fy = (u_short)(t1 >> 1); }
+  { int t0 = (signed char)BWorldSm_slices[slice].forward[0]; t0++; t0--; fx = (u_short)(t0 >> 1); }
   sx = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[0] << 9) >> 10);
   sy = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[1] << 9) >> 10);
   sz = (short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[2] << 9) >> 10);

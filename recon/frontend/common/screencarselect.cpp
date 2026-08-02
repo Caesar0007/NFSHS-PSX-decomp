@@ -4,6 +4,8 @@
  */
 #include "screencarselect.h"
 
+extern tFEApplication *FEAppB[] asm("FEApp");
+
 
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0). Mangled R =
@@ -909,7 +911,7 @@ void tScreenCarSelect::DrawBackground()
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
     bVar1 = (this->fSwapShapes.fFile != (char *)0x0) &&
             (this->fVideoWall[0].fTransitionDirection != -1) &&
-            (gCarObj[(byte)FEApp->fPlayer]->async_handle == 0) &&
+            (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) &&
             (0x80 < ticks[0] - this->fFadeTicks[0]);
     if (bVar1) {
       ::UploadSwapShapes((tScreen *)this,0xb);
@@ -1887,8 +1889,6 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
    FEApp-> access across this whole function (3+ uses spanning several
    calls); the plain scalar extern compiles to the unschedulable
    `lw $r,sym` macro and gets rematerialized at each use instead. */
-extern tFEApplication *FEAppB[] asm("FEApp");
-
 void tScreenCarSelectTwoPlayer::DrawBackground()
 
 {
@@ -2252,7 +2252,7 @@ int tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
   if (PinkSlipsScreenState[1] != CardLoadedFine) {
     return 0;
   }
-  player = (byte)FEApp->fPlayer;
+  player = (byte)FEAppB[0]->fPlayer;
   garageNumber = (ushort)frontEnd.pinkSlipsCar[player];
   carManager.GetPinkSlipsCar(garageNumber,carInfo,(ushort)player);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];

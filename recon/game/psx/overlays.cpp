@@ -455,7 +455,12 @@ void RaceStatistics(void)
  * (`... - (startY+0xf-POS_Y) - (postgame?8:0) - 0x10`) = 120 diffs @465 (8 SHORT -- the
  * per-arm fold collapses); re-associating the subtrahend as one parenthesized group
  * (`(A) - ((B) + t + 0x10)`) = 54 @471 (2 short).
- * NEW ANGLE: make the SUM the complex operand instead -- keep the ternary on the MINUEND
+ * ✅ w44-a9 LANDED (49 -> 27): the minuend form below.  The SAME re-sign does NOT transfer
+ * to the col-loop expression (cluster b) -- measured there: MODIFY_EXPR embedded assignment
+ * `SIZE_H - (inset = dy + (postgame?8:0)) - ...` = 48 @469 (4 SHORT), and swapping the two
+ * subtracted terms `SIZE_H - (showtimeleft?0x10:0) - (dy + (postgame?8:0))` = 36 @471
+ * (2 short).  Cluster (b) still wants the UN-refolded `s2 - (s1 + 8)`; the fold survives.
+ * OLD NOTE (this is what LANDED): make the SUM the complex operand -- keep the ternary on the MINUEND
  * side (`(startY+0xf+SIZE_H-(postgame?0:8)) - (startY+0xf-POS_Y) - 0x10`, algebraically
  * re-signed) so gcc expands the difference term second and can reuse the shared
  * `startY+0xf` pseudo in place, which is the only shape that produces retail's

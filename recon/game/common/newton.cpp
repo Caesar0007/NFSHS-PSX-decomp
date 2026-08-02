@@ -601,14 +601,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   coorddef tireCoord [4];
   coorddef carNormal;
   
-  {
-    int r2 = (newtonObj->orientMat).m[3];
-    int r3 = (newtonObj->orientMat).m[4];
-    int r4 = (newtonObj->orientMat).m[5];
-    carNormal.x = r2;
-    carNormal.y = r3;
-    carNormal.z = r4;
-  }
+  carNormal = *(coorddef *)&(newtonObj->orientMat).m[3];
   elevation.x = 0;
   elevation.y = 0;
   elevation.z = 0;
@@ -926,21 +919,9 @@ accumGroundElev: /* @0x800a0398 */
         normal->z = 0;
       }
       if ((newtonObj->orientationToGround).y < -0xe666) {
-        iVar20 = (newtonObj->angularVel).x * 0xfd;
-        if (iVar20 < 0) {
-          iVar20 = iVar20 + 0xff;
-        }
-        (newtonObj->angularVel).x = iVar20 >> 8;
-        iVar20 = (newtonObj->angularVel).y * 0xfd;
-        if (iVar20 < 0) {
-          iVar20 = iVar20 + 0xff;
-        }
-        (newtonObj->angularVel).y = iVar20 >> 8;
-        iVar20 = (newtonObj->angularVel).z * 0xfd;
-        if (iVar20 < 0) {
-          iVar20 = iVar20 + 0xff;
-        }
-        (newtonObj->angularVel).z = iVar20 >> 8;
+        (newtonObj->angularVel).x = (newtonObj->angularVel).x * 0xfd / 0x100;
+        (newtonObj->angularVel).y = (newtonObj->angularVel).y * 0xfd / 0x100;
+        (newtonObj->angularVel).z = (newtonObj->angularVel).z * 0xfd / 0x100;
       }
       else if (wheelsInAir < 4) {
         matrixtdef transposeMat;

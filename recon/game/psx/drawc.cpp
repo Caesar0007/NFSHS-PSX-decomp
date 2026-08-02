@@ -1418,7 +1418,58 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
-          /* LEAD (w38-a3, MEASURED, NOT APPLIED -- see the block comment at the top of
+          /* ===== w44-a8 RE-AIM: THE TINT-REGISTER PREMISE, RE-MEASURED =====
+             VERDICT: BOTH readings are right, PER BLOCK -- the discriminator is
+             whether the SYM names the u/v locals in that block.
+              * SYM block @800c0248-0474 (the facet-uv arm, `u0/u1/u2 + v0/v1/v2`)
+                DOES declare `u` = `Def class REG $00000005` and `v` = `$00000006`
+                => $a1/$a2, and the oracle @800C03B8 is literally
+                `lbu $a1,0x3EE($s1); lbu $a2,0x3EF($s1)` with the per-vertex
+                bytes in $v0/$v1/$a0.  That block already matches.
+              * SYM blocks @800c0588-076c and @800c077c-0840 (the tV/ePmx tint
+                arms -- THIS block and its `(char)(sd->vtN).y/.z` sibling) declare
+                NO u/v at all (only xy0-2 / color / code / clut / tpage).  Their
+                temps are ANONYMOUS cc1 temps, and retail put them in the
+                $t4-$t7 band (oracle @800C0710 and @800C07EC).  So the "$t4-$t7 =
+                template scratch only" correction does NOT apply here: the OT-link
+                template scratches $t4-$t6 AND the tint temps live there, because
+                they are dead across the link.
+             MEASUREMENTS THIS WAVE (base Prim 746 / PrimClip 857):
+              * chunkdiff: the FOUR largest mismatched runs (167 insns, incl. ALL
+                +11 excess nops) are these tint blocks and nothing else.  Cracking
+                the register class is the whole Prim/PrimClip residual.
+              * writing the tint add INLINE (no named u/v, per the SYM's silence)
+                -- cse did NOT fold: +12 insns, 758/869.  FALSIFIED.
+              * pair conversion of the `(char)(sd->vtN).y/.z` sites: 1403->1394 and
+                opcode-sequence-identical to retail, but posdiff STRUCTURAL residual
+                also rises 399->429 and the gate goes 746->1507.  Still not landable.
+              * DROPPING $t4/$t5/$t6 from the FT3 template's clobber list: ZERO
+                change (746, same 1403).  The clobbers are NOT what pushes the tint
+                temps out of the $t band -- they only bar live-ACROSS values, and
+                these die before the next link.  FALSIFIED.
+              * `"=&r"` OUTPUT SUSPECT: FALSIFIED for both fns.  Converting EVERY
+                DRAWC_OTLINK_FT3 to the compiler-loaded split form (prim loaded by
+                plain C, FT3B does the tail -- i.e. no compiler-allocated asm
+                output at all) leaves Prim byte-identical (746 / 1403) and costs
+                PrimClip +14 (857->871).  The DivideShadowPrim precedent does not
+                transfer here.
+              * w44-a4's do{}while(0) LOOP_BEG/END reweighting relay: wrapping
+                DRAWC_OTLINK_FT3 in do{}while(0) is a NO-OP for Prim (746) and
+                -14 worse for PrimClip (871).  The mechanism needs a C body with
+                pseudos to reweight; our OT link is a bare asm template, so no
+                LOOP notes and no refs to reweight.  FALSIFIED for drawc.
+             NEW NAMED ANGLE (next pass): the class is DOWNSTREAM of the global
+             allocnos, not of the tint block itself.  In retail's tint block the
+             live set is sd=$s1, prim=$a1, id0=$t1, id1=$t0, id2=$a3, facet=$a2 --
+             i.e. the WHOLE $v0/$v1/$a0..$a3 band is spoken for and the anonymous
+             tint temps get the first free pair above it ($t4-$t7).  In ours the ids
+             sit in $t0-$t2 and prim in $a2, leaving $a0/$a1/$v0/$v1 free, so the
+             tint temps take them.  => attack the ID/PRIM placement first (make id2
+             land in $a3 and facet in $a2), and the tint band follows for free.
+             Instruments: prio.py/-dg on the ids+facet+prim allocnos; the id-morph
+             statements (`id0 = id0*8; id0 = id0 + (int)sd;`) are the ref/live dial.
+             ===== end w44-a8 =====
+             LEAD (w38-a3, MEASURED, NOT APPLIED -- see the block comment at the top of
              DrawC_Prim): this 6-statement u/v block and its `(char)(sd->vtN).y/.z`
              sibling are the SOLE source of the +21 (Prim) / +17 (PrimClip) EXCESS
              NOPS.  Each statement loads one byte and immediately consumes it, so
@@ -3673,7 +3724,23 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
              recomputed -- real_type is mutated by the >>8 below) assignment to
              the loop head lengthens real_type's range, demotes it to $s3 and
              hands facet $s1: 53 -> 38 diffs.  Cost: the 2-insn andi block sits
-             at the loop head instead of after the gate. */
+             at the loop head instead of after the gate.
+             w44-a8 RE-TEST + ROOT CAUSE: moving it back after the gate now reads
+             48 diffs / 296 insns (vs 29 / 295 here) -- still worse, so KEEP the
+             hoist.  But the REAL residual is now named: we are exactly 3 insns
+             short and the missing block is retail's `lw $t0,0x54($sp); nop;
+             andi $s3,$t0,0xFFBF` @800C3CF4.  SYM ground truth: `type` is
+             `Def class ARG $0000000c` (NO register home at all -- fsize 72 + the
+             o32 $a3 home 0xC = sp+0x54), and our prologue ALREADY spills it
+             byte-identically (`sw $a3,0x54($sp)`).  Retail RELOADS it from that
+             slot at all THREE use sites (@800C3CF4, @800C3D44, @800C3DB0); ours
+             loads it once because the loop-head position lets LICM hoist the
+             reload into the preheader.  NEW ANGLE: keep the andi at the loop head
+             but defeat the reload hoist -- give `type` its ARG identity (read it
+             through its stack home per use, or split each use into its own
+             statement so loop.c's savings budget declines the load) rather than
+             moving the andi.  The other 2 residual insns are the sched1 tie
+             already documented at the DrawC_gOverlay block below. */
           real_type = ((u_int)type) & 0xffbf;
           id0 = facet->vertexId0;
           id1 = facet->vertexId1;

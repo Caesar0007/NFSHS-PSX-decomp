@@ -45,7 +45,6 @@ void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions);
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity);
 int ObjectFinishedMultiAnim_Draw(ObjectFinishedMultiAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 ObjectMultiAnim * ObjectMultiAnim_ct(ObjectMultiAnim *pThis,coorddef *impactVel,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, ObjectFinishedMultiAnim *finishedAnim);
-int ObjectMultiAnim_Draw(ObjectMultiAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 int ObjectFinishedSignAnim_Draw(ObjectFinishedSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int impactAngle,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim);
 int ObjectSignAnim_Draw(ObjectSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
@@ -993,110 +992,121 @@ ObjectMultiAnim * ObjectMultiAnim_ct(ObjectMultiAnim *pThis,coorddef *impactVel,
 
 
 
-/* ---- ObjectMultiAnim_Draw  [OBJECT.CPP:1188-1296] SLD-VERIFIED ---- */
-int ObjectMultiAnim_Draw(ObjectMultiAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset)
+/* ---- ObjectMultiAnim::Draw  [OBJECT.CPP:1188-1296] SLD-VERIFIED ----
+ * PASS 265/265.  The retail method symbol was previously missing because this
+ * was emitted as a flat helper.  SLD scopes recover the 208-byte frame and the
+ * animIndex/partCount/objInst allocation; struct copies recover the packed quat
+ * and base coordinate bursts.  The short-lived t3 plus targeted volatile matrix
+ * destinations preserve retail's three fixedmult-result store schedules. */
+int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
-  int status;
-  int ret;
-  Trk_AnimateInst *animInst;
-  int animIndex;
-  int ticks;
-  int partCount;
-  int i;
-  int objInst;
-  ObjectAnim *anim;
-  Trk_ObjectDef *pObjDef;
-  ObjectFinishedMultiAnim *finishedAnim;
-  short serial;
-  int sx;
-  int sy;
-  int sz;
-  int t1;
-  int t2;
-  Trk_CollideBoomInst *oci;
   matrixtdef matrix;
-  matrixtdef RSmatrix;
   coorddef animcp;
-  coorddef cp;
-  coorddef impact;
-  tQuat quat;
 
-  status = (pThis->script)->GetTimedAnimPosRot(0, &animcp, &matrix);
-  if (status + 1U < 2) {
-    finishedAnim = pThis->finishedAnim;
-    serial = pThis->simObj->serialNum;
-    pThis->finishedAnim = (ObjectFinishedMultiAnim *)0x0;
-    anim = gSimObjAnims[serial];
-    if (anim != (ObjectAnim *)0x0) {
-      (*(*anim->_vf)[1].pfn)((int)&anim->_vf + (int)(*anim->_vf)[1].delta,3);
+  if ((u_int)(script->GetTimedAnimPosRot(0,&animcp,&matrix) + 1) < 2) {
+    int i;
+    ObjectAnim *anim;
+
+    anim = (ObjectAnim *)finishedAnim;
+    i = simObj->serialNum;
+    finishedAnim = (ObjectFinishedMultiAnim *)0x0;
+    if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
+      (*(*gSimObjAnims[i]->_vf)[1].pfn)
+        ((int)&gSimObjAnims[i]->_vf + (int)(*gSimObjAnims[i]->_vf)[1].delta,3);
     }
-    gSimObjAnims[serial] = &finishedAnim->_base_ObjectAnim;
-    ret = (*(*(finishedAnim->_base_ObjectAnim)._vf)[2].pfn)
-                    ((int)&(finishedAnim->_base_ObjectAnim)._vf +
-                     (int)(*(finishedAnim->_base_ObjectAnim)._vf)[2].delta,Vi,sd,offset);
+    gSimObjAnims[i] = anim;
+    return (*(*anim->_vf)[2].pfn)
+      ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,sd,offset);
   }
   else {
-    animInst = *pThis->script->inst;
-    ticks = simGlobal.gameTicks - pThis->script->baseTicks;
-    partCount = pThis->animParms->numPieces;
-    animIndex = (int)animInst->interval * (int)animInst->count >> 1;
-    i = 0;
-    if (animIndex < ticks) {
-      ticks = animIndex;
+    Trk_ObjectDef *pObjDef;
+    int animIndex;
+    int partCount;
+    coorddef cp;
+    coorddef impact;
+    matrixtdef RSmatrix;
+    Trk_AnimateBoomInst *objInst;
+
+    animIndex = 0;
+    {
+      int ticks;
+      Trk_AnimateInst *animInst;
+
+      ticks = simGlobal.gameTicks - script->baseTicks;
+      animInst = *script->inst;
+      partCount = animParms->numPieces;
+      if (((int)animInst->interval * (int)animInst->count >> 1) < ticks) {
+        ticks = (int)animInst->interval * (int)animInst->count >> 1;
+      }
+      impact.x = impactVel.x * ticks;
+      impact.y = impactVel.y * ticks;
+      impact.z = impactVel.z * ticks;
     }
-    impact.x = (pThis->impactVel).x;
-    impact.z = (pThis->impactVel).z;
-    oci = pThis->objCollideInstance;
-    if (oci->type != '\x06') {
-      quat.x = oci->qx;
-      quat.y = oci->qy;
-      quat.z = oci->qz;
-      quat.w = oci->qw;
+    if (objCollideInstance->type != '\x06') {
+      tQuat quat;
+
+      quat = *(tQuat *)&objCollideInstance->qx;
       Quatern_QuatToMat(&quat,&RSmatrix);
-      sx = (int)oci->sx << 8;
-      sy = (int)oci->sy << 8;
-      sz = (int)oci->sz << 8;
-      RSmatrix.m[0] = fixedmult(RSmatrix.m[0],sx);
-      RSmatrix.m[3] = fixedmult(RSmatrix.m[3],sx);
-      RSmatrix.m[6] = fixedmult(RSmatrix.m[6],sx);
-      RSmatrix.m[1] = fixedmult(RSmatrix.m[1],sy);
-      RSmatrix.m[4] = fixedmult(RSmatrix.m[4],sy);
-      RSmatrix.m[7] = fixedmult(RSmatrix.m[7],sy);
-      RSmatrix.m[2] = fixedmult(RSmatrix.m[2],sz);
-      RSmatrix.m[5] = fixedmult(RSmatrix.m[5],sz);
-      RSmatrix.m[8] = fixedmult(RSmatrix.m[8],sz);
+      {
+        int t1;
+        int t2;
+        int t3;
+        int sx;
+        int sy;
+        int sz;
+
+        sx = (int)objCollideInstance->sx << 8;
+        sy = (int)objCollideInstance->sy << 8;
+        sz = (int)objCollideInstance->sz << 8;
+        t1 = fixedmult(RSmatrix.m[0],sx);
+        t2 = fixedmult(RSmatrix.m[3],sx);
+        t3 = fixedmult(RSmatrix.m[6],sx);
+        *(volatile int *)&RSmatrix.m[0] = t1;
+        *(volatile int *)&RSmatrix.m[3] = t2;
+        RSmatrix.m[6] = t3;
+        t1 = fixedmult(RSmatrix.m[1],sy);
+        t2 = fixedmult(RSmatrix.m[4],sy);
+        t3 = fixedmult(RSmatrix.m[7],sy);
+        *(volatile int *)&RSmatrix.m[1] = t1;
+        *(volatile int *)&RSmatrix.m[4] = t2;
+        RSmatrix.m[7] = t3;
+        t1 = fixedmult(RSmatrix.m[2],sz);
+        t2 = fixedmult(RSmatrix.m[5],sz);
+        t3 = fixedmult(RSmatrix.m[8],sz);
+        *(volatile int *)&RSmatrix.m[2] = t1;
+        *(volatile int *)&RSmatrix.m[5] = t2;
+        RSmatrix.m[8] = t3;
+      }
     }
-    objInst = (int)(gPersistObjInst + 1);
-    if (0 < partCount) {
-      do {
-        (pThis->script)->GetTimedAnimPosRot(i, &animcp, &matrix);
-        if (pThis->objCollideInstance->type != '\x06') {
-          Math_fasttransmult(&matrix,&RSmatrix,&matrix);
-        }
-        t1 = (int)pThis->simObj;
-        cp.x = *(int *)t1 + animcp.x + impact.x * ticks;
-        cp.y = *(int *)(t1 + 4) + animcp.y;
-        cp.z = *(int *)(t1 + 8) + animcp.z + impact.z * ticks;
-        while( true ) {
-          if ((char)*(short *)(objInst + 2) == '\b') {
-            oci = pThis->objCollideInstance;
-            t2 = (int)oci->boomIndex;
-            if (((oci->type != '\x05') || (*(u_char *)(objInst + 0xd) == oci->boomIndex)) &&
-               ((oci->type != '\x06' ||
-                (*(char *)(objInst + 0xd) == *(char *)((int)&oci->y + 1))))) break;
+    objInst = (Trk_AnimateBoomInst *)(gPersistObjInst + 1);
+    while (animIndex < partCount) {
+      script->GetTimedAnimPosRot(animIndex,&animcp,&matrix);
+      if (objCollideInstance->type != '\x06') {
+        Math_fasttransmult(&matrix,&RSmatrix,&matrix);
+      }
+      cp = *(coorddef *)simObj;
+      cp.x += animcp.x + impact.x;
+      cp.y += animcp.y;
+      cp.z += animcp.z + impact.z;
+      while( true ) {
+        if (objInst->type == '\b') {
+          if (((objCollideInstance->type != '\x05') ||
+               (objInst->boomIndex == objCollideInstance->boomIndex)) &&
+              ((objCollideInstance->type != '\x06') ||
+               (objInst->boomIndex == ((u_char *)&objCollideInstance->y)[1]))) {
+            break;
           }
-          objInst = objInst + *(short *)objInst;
         }
-        pObjDef = Track_gObjDefs[*(short *)(objInst + 6)];
-        DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
-        i = i + 1;
-        objInst = objInst + *(short *)objInst;
-      } while (i < partCount);
+        objInst = (Trk_AnimateBoomInst *)((char *)objInst + objInst->size);
+      }
+      pObjDef = Track_gObjDefs[objInst->pad];
+      DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
+      animIndex = animIndex + 1;
+      objInst = (Trk_AnimateBoomInst *)((char *)objInst + objInst->size);
     }
-    ret = 4;
+    return 4;
   }
-  return ret;
 }
 
 /* ---- ObjectFinishedSignAnim_Draw  [OBJECT.CPP:1302-1304] SLD-VERIFIED ---- */

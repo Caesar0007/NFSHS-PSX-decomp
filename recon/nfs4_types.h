@@ -3823,6 +3823,7 @@ struct ObjectMultiAnim {   /* 48 bytes */
     int                objectAngle, impactAngle;   /* +0x20 */
     AnimScript         *script;   /* +0x28 */
     ObjectFinishedMultiAnim *finishedAnim;   /* +0x2C */
+    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
 struct ObjectSignAnim {   /* 48 bytes */

@@ -727,6 +727,7 @@ extern void FILE_priorityop(unsigned int id, int priority)
     int oldprio, sr;
     FileOp *prev, *scan, *node;
 
+    __asm__("" : : "r"(id));
     FILE_CS_ENTER(sr);
     oldprio = op->prio;
     op->prio = priority;

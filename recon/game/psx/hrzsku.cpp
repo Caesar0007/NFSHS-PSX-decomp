@@ -92,7 +92,16 @@ void Hrz_BuildHorizon(DRender_tView *Vi);
  * matching the oracle's single hoisted `lw`. Residual = a uniform `$t0`<->`$t1` register
  * swap between `sc` (pointer, `addiu ,4` stride) and `i` (counter, `addiu ,1`) in BOTH
  * loops -- tried sc[i]-index form (worse, 39 diffs) and increment-statement reordering
- * (worse, 28 diffs); a genuine allocator coalescing tie-break, accepted. */
+ * (worse, 28 diffs); a genuine allocator coalescing tie-break, accepted.
+ * w46-a9 (26 -> PASS): NOT a coalescing tie-break -- a plain floor_log2 REF-STEP on the
+ * two block-local quantities (w45 SS.A0: QTY_CMP_PRI == allocno_compare, so the ref dial
+ * reaches block-local qtys too).  `sc` has 5 references per loop body and `i` only 4, so
+ * `sc` sorts first and takes $t0; ONE extra reference to `i` crosses the 4->8 weighted
+ * step and flips them.  A zero-operand-output USE FENCE on a reg-resident local is
+ * exactly that: one REG_N_REFS reference at ZERO instructions.  Placement measured:
+ * before the `i++` PASS (x1 and x2 both PASS), between `i++` and `sc++` PASS, AFTER the
+ * `sc++` costs +2 insns (82/6), a fence on `sc` instead is a no-op (26), and swapping the
+ * two increments is a no-op (26) -- i.e. the dial is i's REF COUNT, not statement order.*/
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray)
 
 {
@@ -117,6 +126,7 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
         percentage = percentage + 1;
         s0 = s0 + 1;
         s1 = s1 + 1;
+        __asm__ __volatile__("" : : "r"(i));
         i = i + 1;
         sc = sc + 1;
       } while (i < n);
@@ -139,6 +149,7 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
         sc->vy = s0->vy + (short)(p >> 0x10);
         s0 = s0 + 1;
         s1 = s1 + 1;
+        __asm__ __volatile__("" : : "r"(i));
         i = i + 1;
         sc = sc + 1;
       } while (i < n);

@@ -105,3 +105,19 @@ gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. 
 gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/lex.c
 gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config  \
   `echo ../../gccsrc/gcc-2.8.1/cp/parse.c | sed 's,^\./,,'`
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/ptree.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/rtti.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/spew.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/typeck.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/cvt.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/except.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/friend.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/init.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/method.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/search.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/tree.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/xref.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/repo.c
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89   -o ../cc1plus \
+      call.o decl.o errfn.o expr.o pt.o sig.o typeck2.o class.o decl2.o error.o lex.o parse.o ptree.o rtti.o spew.o typeck.o cvt.o except.o friend.o init.o method.o search.o tree.o xref.o repo.o `cat ../stamp-objlist` ../c-common.o ../c-pragma.o `if [ xobstack.o != x ]; then echo ../obstack.o; else true; fi` `case "gcc -std=gnu89 -w" in "cc") if [ x != x ]; then echo ../; else true; fi ;; esac` `if [ x != x ]; then echo ../; else true; fi` 
+make[1]: Leaving directory 'C:/Temp/nfs4-wt46-a10/scratch/gccbuild-ecoff/cp'

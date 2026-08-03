@@ -1,0 +1,61 @@
+==============================================================================
+void FontUpsideDownBlit(int, int, void *, int, int, struct charactertbl *, int)
+
+--- block 1 : 27 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q26   p131       v0       4    4     0   0/0        2.0000
+   1  q18   p120       v0       6    8     0   0/0        1.5000
+   2  q16   p113       v0       4    6     0   0/0        1.3333
+   3  q15   p115       v1       6   10     0   0/0        1.2000
+   4  q12   p108       v0       2    2     0   0/0        1.0000
+   5  q17   p116       v0       2    2     0   0/0        1.0000
+   6  q19   p121       v0       2    2     0   0/0        1.0000
+   7  q20   p122       v0       2    2     0   0/0        1.0000
+   8  q21   p123       v0       2    2     0   0/0        1.0000
+   9  q11   p147       t0      17   88     0   0/0        0.7727
+  10  q6    p87        t1      26  136     0   0/0        0.7647
+  11  q22   p140       v1      10   52     0   0/0        0.5769
+  12  q3    p85        v0       4   16     0   0/0        0.5000
+  13  q14   p88        t2       4   26     0   0/0        0.3076
+  14  q23   p137       a2       7   48     0   0/0        0.2916
+  15  q25   p96        a1       6   54     0   1/0        0.2222
+  16  q2    p89        t3       5   54     0   0/0        0.1851
+  17  q10   p144       t4       7   78     0   0/0        0.1794
+  18  q24   p143       v0       3   20     0   0/0        0.1500
+  19  q8    p82        a2       4   64     0   0/1        0.1250
+  20  q13   p111       t5       3   24     0   0/0        0.1250
+  21  q9    p156       t6       7  122     0   0/0        0.1147
+  22  q1    p97        v1       3   30     0   0/0        0.1000
+  23  q7    p83        a3       4   90     0   0/1        0.0888
+  24  q5    p159       t7       6  136     0   0/0        0.0882
+  25  q0    p80        a0       4  148     0   0/1        0.0540
+  26  q4    p84        s0       2   68     0   0/0        0.0294
+
+   find_free_reg per-window availability (why a reg was refused)
+   q8   p82     win [24,88) calls 0 sugg 1 : 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 5(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q7   p83     win [20,110) calls 0 sugg 1 : 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 5(live) 6(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q0   p80     win [2,150) calls 0 sugg 1 : 0(live) 1(fixed) 2(notsugg) 3(notsugg) 5(live) 6(live) 7(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q25  p96     win [100,154) calls 0 sugg 1 : 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q26  p131    win [126,130) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q18  p120    win [56,64) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q16  p113    win [42,48) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q15  p115    win [40,50) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q12  p108    win [32,34) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q17  p116    win [52,54) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q19  p121    win [66,68) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q20  p122    win [70,72) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q21  p123    win [74,76) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q11  p147    win [30,118) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q6   p87     win [18,154) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q22  p140    win [86,138) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q3   p85     win [12,28) calls 0 sugg 0 : 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q14  p88     win [38,64) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q23  p137    win [88,136) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q2   p89     win [8,62) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q10  p144    win [28,106) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q24  p143    win [96,116) calls 0 sugg 0 : 0(live) 1(fixed) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 12(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q13  p111    win [36,60) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q9   p156    win [26,148) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 13(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p97     win [4,34) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 11(live) 12(live) 14(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q5   p159    win [16,152) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 13(live) 14(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q4   p84     win [14,82) calls 0 sugg 0 : 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 13(live) 14(live) 15(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)

@@ -1,0 +1,195 @@
+==============================================================================
+MCRD_handlecardevents
+
+--- block 3 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p90        v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p90     win [2,4) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 5 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p91        v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p91     win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 7 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p146       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p146    win [2,4) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 11 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p126       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p126    win [2,4) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 12 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p127       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p127    win [2,4) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 14 : 5 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p100       v0      18    8     0   0/0        9.0000
+   1  q0    p93        v0       6    2     0   0/0        6.0000
+   2  q4    p103       v0       6    2     0   0/0        6.0000
+   3  q2    p101       v1       6    4     0   0/0        3.0000
+   4  q3    p102       v1       6    4     0   0/0        3.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q1   p100    win [12,20) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q0   p93     win [6,8) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q4   p103    win [24,26) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q2   p101    win [16,20) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q3   p102    win [22,26) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 16 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p114       v0      12    8     0   0/0        4.5000
+   1  q2    p115       v1       4    4     0   0/0        2.0000
+   2  q0    p106       a0       6   12     0   0/0        1.0000
+   3  q3    p116       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q1   p114    win [12,20) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q2   p115    win [16,20) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q0   p106    win [6,18) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q3   p116    win [22,24) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 17 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p117       v0       2    2     0   0/0        1.0000
+   1  q1    p120       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p117    win [6,8) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p120    win [10,12) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 18 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p121       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p121    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 20 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 138   (refs 2   calls 0) + qty 0   (head pseudo 139  )  ->  qty refs 4   calls 0
+    pseudo 142   (refs 2   calls 0) + qty 1   (head pseudo 141  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p136       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p136    win [6,8) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 21 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p138       v0       4    6     0   0/0        1.3333
+   1  q1    p142       v1       4    4     0   0/0        2.0000
+   2  q2    p143       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p138    win [2,8) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p142    win [6,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q2   p143    win [10,12) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 23 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p128       v0       5    8     0   0/0        1.2500
+   1  q1    p132       v1       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p128    win [6,14) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p132    win [12,14) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 24 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p133       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p133    win [8,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 26 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p134       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p134    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 27 : 2 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 196   (refs 2   calls 0) + qty 0   (head pseudo 197  )  ->  qty refs 4   calls 0
+    pseudo 200   (refs 2   calls 0) + qty 1   (head pseudo 199  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p191       v0       2    2     0   0/0        1.0000
+   1  q1    p194       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p191    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p194    win [8,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 28 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p196       v0       4    6     0   0/0        1.3333
+   1  q1    p200       v1       4    4     0   0/0        2.0000
+   2  q2    p201       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p196    win [2,8) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p200    win [6,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q2   p201    win [10,12) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 30 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p148       v0       2    2     0   0/0        1.0000
+   1  q1    p152       v0       6    6     0   0/0        2.0000
+   2  q2    p153       v0       2    4     0   0/0        0.5000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p148    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p152    win [8,14) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q2   p153    win [14,18) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 34 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p160       v0       2    2     0   0/0        1.0000
+   1  q1    p161       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p160    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p161    win [8,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 36 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p168       v0       2    2     0   0/0        1.0000
+   1  q1    p169       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p168    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p169    win [8,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 38 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p176       v0       2    2     0   0/0        1.0000
+   1  q1    p177       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p176    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p177    win [8,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+
+--- block 40 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p184       v0       2    2     0   0/0        1.0000
+   1  q1    p185       v0       2    2     0   0/0        1.0000
+
+   find_free_reg per-window availability (why a reg was refused)
+   q0   p184    win [4,6) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+   q1   p185    win [8,10) calls 0 sugg 0 : 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)

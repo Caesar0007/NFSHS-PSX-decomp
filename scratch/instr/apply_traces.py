@@ -233,6 +233,15 @@ def patch_local_alloc(root):
               "   QTY_CMP_PRI is also used by qty_sugg_compare.  */\n")
     s = sub1(s, anchor, LA_DUMP + "\n" + anchor, "la helper def")
 
+    # 2b) FUNCTION MARKER at local_alloc entry -- the trace stream is otherwise
+    #     one undifferentiated blob.  `current_function_name` is a char* global.
+    a = "local_alloc ()\n{\n  register int b, i;\n  int max_qty;\n"
+    b = (a
+         + "\n  if (nfs4_la_trace ())\n"
+           "    fprintf (stderr, \"\\n===== FUNCTION %s =====\\n\","
+           " current_function_name);\n")
+    s = sub1(s, a, b, "function marker")
+
     # 3) group-1 (suggested) order dump
     a = ("  /* Try to put each quantity in a suggested physical register, if it has one.\n"
          "     This may cause registers to be allocated that otherwise wouldn't be, but\n"

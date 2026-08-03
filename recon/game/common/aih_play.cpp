@@ -266,6 +266,7 @@ void AIHigh_Player::SetupBlockade()
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
+          blockadeFlags = 0;
           if (addToSlice >= 0) {
             copBlockade->slice = blockadeSlice + addToSlice;
             if (gNumSlices <= copBlockade->slice) {
@@ -390,6 +391,7 @@ void AIHigh_Player::SetupBlockade()
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
+          blockadeFlags = 0;
           if (addToSlice >= 0) {
             copBlockade->slice = blockadeSlice + addToSlice;
             if (gNumSlices <= copBlockade->slice) {

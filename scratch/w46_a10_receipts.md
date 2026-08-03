@@ -540,6 +540,54 @@ setup hugs retail's `jal` was a bare local, a `p->field`, or a constant.
 
 ---
 
+---
+
+# §7 — RESUME / OPEN ITEMS (no floors — each is a named next step)
+
+| item | state | exact next step |
+|---|---|---|
+| `PrimMenu` / `Prim` / `PrimClip` / `PrimHalo` / `ShowroomPrims` / `SpotPrims` qty tables | **BLOCKED** by a gcc-2.8.1 **C++ front-end ICE** at `drawc.cpp:2102` (and `hud.cpp:2473`) that truncates the TU | slice the `.i` (§6.4 step-by-step) or stub the ICE function's body, re-run, verify `SAME`, then `qtytrace.py --steps --blocked`. ~15 min. |
+| `Hud_RenderHudView` / `Render` / `RenderTacView` / `RenderMapView` / `BuildReplay` / `BuildCdPlayer` qty tables | same ICE (hud.cpp:2473) | same slice procedure with `-G8` |
+| `Wingman` table is INDICATIVE only | `Hud_BuildWingmanInterface__Fi` measures d204 vs CC1PLPSX | find the divergence class first (it is one of only 3 in psxfront-class TUs); until then use the table for STRUCTURE (merges, suggestions), not priorities |
+| the 3 C++ divergences | `DrawGouraudShape` d208, `InitializeSpinningCars` d94, `PSXDrawTransGouraudSquare` d52 | all three are inline-GTE / `__asm__`-heavy — likely a 2.8.0-vs-2.8.1 asm-operand or reorg difference. Diff their `.s` head-to-head to classify; if it is one construct, the whole C++ lane goes to 25/25 |
+| `iMCRD_DoFileLoad` d115 (the 1/20 C-lane divergence) | ours parks a value in `$fp` + saves it; retail uses `$s7` and never touches `$fp` | dump `[allocno_compare]`/`[find_reg]` for it from both and find which allocno takes reg 30; probably a `regs_ever_live`/frame-pointer-elimination difference |
+| a full python `local_alloc` replica (`qtysim.py`) | **deliberately NOT built** | superseded: the instrumented cc1 IS the replica and it is validated 27/27 on the real binary. Build one only if the trace ever becomes unavailable. |
+| `--want` solver for qtys | implemented, **untested against a landed edit** | first consumer to use it should report whether the predicted delta landed |
+
+## §8 — WHAT TO PUT IN THE CATALOG (harvest list)
+1. **🔴🔴 NEW LAW — 3-QTY BLOCKS ARE NOT PRIORITY-ORDERED** (§3.2): gcc-2.8
+   `local-alloc.c:1588` hand-rolls the sort for `next_qty <= 3` and its comparator
+   takes qty NUMBERS while EXCHANGE permutes `qty_order`. Measured 38/38 exact,
+   12/38 non-descending. **Dials: birth order (qty numbering), and crossing the
+   3→4 qty-count boundary.** Same family as the w44 `balance_case_nodes` >2-node
+   switch split — gcc-2.8 small-N special cases are a whole dial CLASS.
+2. **🔴 The instrumented cc1 is an ORACLE with `-mgas -msplit-addresses -funsigned-char`**
+   (+ `-fno-exceptions -fno-rtti` for C++): 19/20 C, 22/25 C++. `-msplit-addresses`
+   ALONE IS A NO-OP (needs `TARGET_GAS`) — that one flag pair was the entire w45
+   "ELF-vs-ECOFF" mystery. **The ECOFF hypothesis is FALSIFIED** (byte-identical).
+3. **A qty's refs/calls are SUMS over `combine_regs` merges** — `REG_N_REFS` of the
+   head pseudo is the WRONG number to dial. `[qty_combine]` prints the merges.
+4. **Pass-1 register suggestions jump the whole priority queue**: a qty with a
+   copy-suggestion from an incoming argument hard reg takes that reg regardless of
+   priority (Font's bottom-3 qtys hold `$a0/$a2/$a3`). The lever is to break the
+   copy relationship, not to move refs.
+5. **calls.c PRECOMPUTE trigger** (§4): on MIPS at -O2 it reduces to *"the arg's rtl
+   is not already a REG and `rtx_cost > 2`"*; `COSTS_N_INSNS(1) == 2`, so the bar is
+   literally "costs more than one instruction". **A `p->field` off a pseudo base
+   (cost 2) hugs the jal; a SYMBOLIC global load (cost 6) or any arithmetic gets
+   precomputed.** Hoisting an arg into a named local KILLS the precompute.
+6. **Basin-relative-falsification fired on a RECEIPT**, not just a spelling: w45's
+   hce rank table (base .364 vs cmd .700) is stale — the base is now 12 refs /
+   1.6363 and legitimately wins `$a0` (§6.2). **Re-measure every cross-agent number.**
+7. **`CC1PLPSX.EXE` is gcc-2.8.0**, not 2.7.2 (version strings in the binaries).
+8. **The "silent reload re-home" is a corner case** — 0 hits across 3 TUs; the
+   observable `retry_global_alloc` accounts for the re-homes we actually see.
+9. **Gotcha:** a 64-bit host cc1 needs `extern char *getenv ();` in every patched
+   file (K&R implicit-int truncates the pointer → segfault); and `configure` must be
+   reached by a RELATIVE path or `mingw32-make` cannot find `Makefile.in`.
+
+---
+
 ## HOW TO REQUEST A RECEIPT
 Post (in your report / or just rely on this file): the FN NAME, the TU, and the wanted
 register assignment (`--want "pN=tM"` form or "retail puts X in $a0, ours puts Y").

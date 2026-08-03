@@ -2655,166 +2655,81 @@ void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi)
 void R3DCar_InsertAllListFacet(DRender_tView *Vi)
 
 {
-  int size;
-  int cop_type;
-  int iVar1;
-  int iVar2;
-  int lightB;
-  int sub_otSize;
-  Car_tObj *sort_carObj;
-  Car_tObj *pCVar3;
-  int diffZ;
-  int iVar4;
-  int type;
-  int *piVar5;
-  int carZ;
-  Car_tObj **ppCVar6;
-  int *piVar7;
-  int visible;
-  int *piVar8;
-  int *piVar9;
-  int j;
-  int iVar10;
-  int minWheelZ;
-  int sort;
-  int iVar11;
-  Car_tObj *carObj;
-  Car_tObj *pCVar12;
-  int maxAngleFactor;
   int i;
-  int iVar13;
-  int roll;
-  Car_tObj **ppCVar14;
-  int *piVar15;
-  int maxMid;
-  int *piVar16;
-  int inCarCam;
-  int *sort_max;
-  int *sort_min;
-  coorddef parent;
-  matrixtdef bodyMat;
-  matrixtdef orientMat;
-  matrixtdef insideMat;
-  matrixtdef orientIMat;
-  matrixtdef steerMat;
-  matrixtdef tmpMat;
-  coorddef translation;
-  coorddef tmp;
-  coorddef lengthVector;
-  coorddef widthVector;
-  coorddef frontWidthVector;
-  coorddef temp1;
-  coorddef temp2;
-  coorddef dimension;
-  int worldZ;
-  int reflect;
-  int rightHandDrive;
-  char workFile [10];
-  
-  iVar13 = -(((u_int)(Cars_gNumCars << 5) >> 3) + 7 & 0xfffffff8);
-  piVar5 = (int *)((int)&rightHandDrive + iVar13);
-  piVar7 = (int *)((int)&rightHandDrive +
-                  (iVar13 - (((u_int)(Cars_gNumCars << 5) >> 3) + 7 & 0xfffffff8)));
+  int sort;
+  int sort_min[Cars_gNumCars];
+  int sort_max[Cars_gNumCars];
+
   gWSavePtr = (u_long)SetSp(&gScratchLastWord);
   stackSpeedUpEnbabledFlag = 1;
-  iVar13 = 0;
   if (Vi->player == 0) {
-    if (R3DCar_ClockLast < generic128HzClock) {
+    if (generic128HzClock > R3DCar_ClockLast) {
       R3DCar_Clock = 1;
-      R3DCar_ClockLast = generic128HzClock + 6;
+      R3DCar_ClockLast = *(volatile int *)&generic128HzClock + 6;
     }
     else {
       R3DCar_Clock = 0;
     }
   }
-  piVar16 = R3DCar_PositionZ;
-  ppCVar14 = Cars_gList;
-  piVar9 = piVar7;
-  piVar15 = piVar5;
-  for (; iVar1 = Cars_gNumCars, iVar11 = 1, iVar13 < Cars_gNumCars; iVar13 = iVar13 + 1) {
-    pCVar12 = *ppCVar14;
-    iVar1 = R3DCar_Visibilty(pCVar12,Vi);
-    *piVar16 = iVar1;
-    (pCVar12->render).sort_carObj = (u_char *)0x0;
-    (pCVar12->render).sort_flag = 0;
-    *piVar15 = 0;
-    iVar1 = 0x1a0;
-    if ((pCVar12->render).currentCarType != 0x1c) {
-      iVar1 = (pCVar12->N).dimension.z >> 9;
+  for (i = 0; i < Cars_gNumCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+
+    R3DCar_PositionZ[i] = R3DCar_Visibilty(carObj, Vi);
+    carObj->render.sort_carObj = (u_char *)0;
+    carObj->render.sort_flag = 0;
+    sort_min[i] = 0;
+    if (carObj->render.currentCarType == 0x1c) {
+      sort_max[i] = 0x1a0;
+    } else {
+      sort_max[i] = carObj->N.dimension.z >> 9;
     }
-    *piVar9 = iVar1;
-    piVar9 = piVar9 + 1;
-    piVar15 = piVar15 + 1;
-    piVar16 = piVar16 + 1;
-    ppCVar14 = ppCVar14 + 1;
   }
-  piVar16 = R3DCar_PositionZ;
-  ppCVar14 = Cars_gList;
-  rightHandDrive = Cars_gNumCars + -1;
-  piVar9 = piVar5;
-  piVar15 = piVar7;
-  for (iVar13 = 0; iVar10 = Cars_gNumCars, iVar13 < rightHandDrive; iVar13 = iVar13 + 1) {
-    if (*piVar16 != -0x80000000) {
-      pCVar12 = *ppCVar14;
-      piVar8 = R3DCar_PositionZ + iVar11;
-      ppCVar6 = Cars_gList + iVar11;
-      for (iVar10 = iVar11; iVar10 < iVar1; iVar10 = iVar10 + 1) {
-        pCVar3 = *ppCVar6;
-        iVar4 = *piVar16 - *piVar8;
-        if (((pCVar12->render).sort_carObj == (u_char *)0x0) &&
-           ((pCVar3->render).sort_carObj == (u_char *)0x0)) {
-          iVar2 = iVar4;
-          if (iVar4 < 0) {
-            iVar2 = -iVar4;
-          }
-          if (iVar2 < (pCVar12->N).dimension.z + (pCVar3->N).dimension.z) {
-            (pCVar3->render).sort_carObj = (u_char *)pCVar12;
-            (pCVar12->render).sort_flag = (pCVar12->render).sort_flag + 1;
-            if (iVar4 < 0) {
-              *piVar9 = *piVar9 - ((pCVar3->N).dimension.z >> 9);
-            }
-            else {
-              *piVar15 = *piVar15 + ((pCVar3->N).dimension.z >> 9);
-            }
+  sort = 1;
+  for (i = 0; i < Cars_gNumCars - 1; i++) {
+    if (R3DCar_PositionZ[i] != -0x80000000) {
+      Car_tObj *carObj = Cars_gList[i];
+      int j;
+
+      for (j = sort; j < Cars_gNumCars; j++) {
+        Car_tObj *sort_carObj = Cars_gList[j];
+        int diffZ = R3DCar_PositionZ[i] - R3DCar_PositionZ[j];
+        int size = carObj->N.dimension.z + sort_carObj->N.dimension.z;
+
+        if (carObj->render.sort_carObj == (u_char *)0 &&
+            sort_carObj->render.sort_carObj == (u_char *)0 &&
+            __builtin_abs(diffZ) < size) {
+          sort_carObj->render.sort_carObj = (u_char *)carObj;
+          carObj->render.sort_flag++;
+          if (diffZ < 0) {
+            sort_min[i] -= sort_carObj->N.dimension.z >> 9;
+          } else {
+            sort_max[i] += sort_carObj->N.dimension.z >> 9;
           }
         }
-        piVar8 = piVar8 + 1;
-        ppCVar6 = ppCVar6 + 1;
       }
     }
-    iVar11 = iVar11 + 1;
-    piVar15 = piVar15 + 1;
-    piVar9 = piVar9 + 1;
-    piVar16 = piVar16 + 1;
-    ppCVar14 = ppCVar14 + 1;
+    sort++;
   }
-  ppCVar14 = Cars_gList;
   R3DCar_subOt = R3DCar_subOtStart[gFlip][gCView.player];
-  piVar9 = R3DCar_PositionZ;
-  for (iVar13 = 0; iVar13 < iVar10; iVar13 = iVar13 + 1) {
-    if (*piVar9 != -0x80000000) {
-      pCVar12 = *ppCVar14;
-      *piVar5 = *piVar5 + -0x30;
-      iVar1 = *piVar7;
-      *piVar7 = iVar1 + 0x30;
-      if ((pCVar12->render).sort_carObj == (u_char *)0x0) {
-        iVar11 = (iVar1 + 0x30) - *piVar5;
-        (pCVar12->render).sub_ot = R3DCar_subOt;
-        R3DCar_subOt = R3DCar_subOt + iVar11;
-        iVar1 = (pCVar12->N).dimension.z;
-        (pCVar12->render).sub_otSize = iVar11;
-        (pCVar12->render).sub_otOffset = *piVar7 - (iVar1 >> 10);
-      }
-      else {
-        (pCVar12->render).sub_ot = (u_long *)0x0;
-        (pCVar12->render).sub_otSize = 0;
-        (pCVar12->render).sub_otOffset = 0;
+  for (i = 0; i < Cars_gNumCars; i++) {
+    if (R3DCar_PositionZ[i] != -0x80000000) {
+      Car_tObj *carObj = Cars_gList[i];
+
+      sort_min[i] -= 0x30;
+      sort_max[i] += 0x30;
+      if (carObj->render.sort_carObj == (u_char *)0) {
+        int sub_otSize = sort_max[i] - sort_min[i];
+
+        carObj->render.sub_ot = R3DCar_subOt;
+        R3DCar_subOt += sub_otSize;
+        carObj->render.sub_otSize = sub_otSize;
+        carObj->render.sub_otOffset = sort_max[i] - (carObj->N.dimension.z >> 10);
+      } else {
+        carObj->render.sub_ot = (u_long *)0;
+        carObj->render.sub_otSize = 0;
+        carObj->render.sub_otOffset = 0;
       }
     }
-    piVar7 = piVar7 + 1;
-    piVar5 = piVar5 + 1;
-    ppCVar14 = ppCVar14 + 1;
-    piVar9 = piVar9 + 1;
   }
   DrawC_gScreenMat.m[0][0] = 0x1000;
   DrawC_gScreenMat.m[1][0] = 0;
@@ -2829,17 +2744,16 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi)
   DrawC_gScreenMat.t[1] = 0;
   DrawC_gScreenMat.t[2] = 0;
   gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
-  ppCVar14 = Cars_gList;
   stackSpeedUpEnbabledFlag = 0;
-  for (iVar13 = 0; iVar13 < Cars_gNumCars; iVar13 = iVar13 + 1) {
-    pCVar12 = *ppCVar14;
+  for (i = 0; i < Cars_gNumCars; i++) {
+    Car_tObj *carObj = Cars_gList[i];
+
     gWSavePtr = (u_long)SetSp(&gScratchLastWord);
-    ppCVar14 = ppCVar14 + 1;
     stackSpeedUpEnbabledFlag = 1;
-    R3DCar_InsertCarFacetZ(pCVar12,Vi);
+    R3DCar_InsertCarFacetZ(carObj, Vi);
     gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
     stackSpeedUpEnbabledFlag = 0;
-    R3DCar_InsertCarFacetII(pCVar12);
+    R3DCar_InsertCarFacetII(carObj);
   }
   return;
 }

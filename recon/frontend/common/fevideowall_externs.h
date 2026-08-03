@@ -3,7 +3,7 @@
 #define _FE_FEVIDEOWALL_EXTERNS_H_
 #include "../../nfs4_types.h"
 
-extern int ticks;
+extern int ticks[];
 
 /* TV tiles (FETv) */
 void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short);

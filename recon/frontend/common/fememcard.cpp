@@ -311,9 +311,7 @@ void Init_Memcard(bool redraw,bool pinkslips)
   mcrdopts.ConfirmFormatProc = (void *)FormatConfirm;
   mcrdopts.ConfirmOverwriteProc = (void *)(pinkslips ? OverwriteAlwaysYes : OverwriteConfirm);
   mcrdopts.LoadingDataProc = (void *)(redraw ? LoadingRedrawProc : LoadingProc);
-  mcrdopts.SavingDataProc = (void *)SavingProc;
-  /* residual 4: gcc schedules the &mcrdopts addiu early vs oracle's jal-slot placement --
-     scheduling tie (pointer-temp form tried, no change) */
+  *(void * volatile *)&mcrdopts.SavingDataProc = (void *)SavingProc;
   MCRD_setopts(&mcrdopts);
   addtimer(Clock_MasterInterruptHandler);
   timedwait(0x14);

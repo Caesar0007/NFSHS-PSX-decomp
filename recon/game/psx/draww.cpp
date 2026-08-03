@@ -146,7 +146,10 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList);
 void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat);
 void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat);
 void DrawW_ResetAnimationTimer(void);
-/* w45-a6 RECEIPT -- residual 4 (ours 31 / oracle 33, ours SHORTER).
+/* w46-a7: SOLVED -- PASS 33/33.  The lever is the SYMMETRIC if/else result-funnel
+ * (see the in-body receipt); the w45 "ours is better-scheduled, permuter or accept"
+ * verdict below is RETIRED and kept only as the falsification list.
+ * ---- superseded w45-a6 RECEIPT -- residual 4 (ours 31 / oracle 33, ours SHORTER).
  * Oracle `lw v0,0(v0); nop; addu v1,v0,zero` = THREE pseudos (address, value,
  * result); we have two (the value pseudo IS the result pseudo, so the load lands
  * straight in $v1 and `mflo` fills its delay slot).
@@ -2170,10 +2173,31 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
     return simGlobal.gameTicks;
   }
+  /* MATCH 100% (w46-a7): the missing insns were a THIRD pseudo + its copy -- oracle
+     `lw v0,0(v0); nop; addu v1,v0,zero` = a block-local load temp (`tick`, dies at
+     the copy, so local_alloc recycles the just-dead address register v0) feeding the
+     GLOBAL allocno that carries the result (`iVar2` -> v1).  Our single-variable form
+     made the load dest BE the result pseudo, so the load went straight to v1 and the
+     mflo filled its delay slot -- 31 insns, 2 SHORTER than retail.
+     THE DIAL IS THE ASSIGNMENT SHAPE, NOT THE VARIABLE COUNT: adding `tick` and
+     writing the default-then-override (`iVar2 = tick; if (maxTick <= tick/iVar2)
+     iVar2 = maxTick;`) is copy-propagated straight back to the 4-diff base (probed
+     both compare operands this wave), and the inverted default (`iVar2 = maxTick;
+     ... if (tick < maxTick) iVar2 = tick;`) regresses to 10.  Only the SYMMETRIC
+     if/else -- each arm assigning the result once -- keeps the copy alive: with two
+     assignments to iVar2 gcc has to materialize it as its own pseudo, and the
+     else-arm `iVar2 = tick` IS the oracle's `addu v1,v0,zero`, which cross-jump then
+     hoists above the compare.  (Catalog par.A "flat guard-chain / result-funnel"
+     family; the earlier receipt's "ours is objectively better-scheduled floor,
+     permuter candidate" verdict is retired.) */
+  int tick;
   maxTick = (animInst->count + -2) * (int)animInst->interval;
-  iVar2 = animation_timer[animInst->objectIndex - 1];
-  if (maxTick <= iVar2) {
+  tick = animation_timer[animInst->objectIndex - 1];
+  if (maxTick <= tick) {
     iVar2 = maxTick;
+  }
+  else {
+    iVar2 = tick;
   }
   return iVar2;
 }

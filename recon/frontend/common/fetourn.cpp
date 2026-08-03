@@ -821,25 +821,18 @@ void tTournamentManager::GetAwardInformation(tAwardInformation &info_r)
 void tTournamentManager::UpdateAwardInformation()
 
 {
-  ushort uVar1;
-  int iVar2;
   tCarInfo *ptVar3;
-  int iVar4;
   long bill;
   long bonus;
   
   this->CalcTrackFinishDamageBill(true,bill,bonus);   /* now takes long& */
-  iVar2 = this->fMoney - bill;
-  this->fMoney = iVar2;
-  iVar4 = (this->fAwards).fMoney;
-  iVar2 = iVar2 + bonus;
-  this->fMoney = iVar2;
-  iVar2 = iVar2 + iVar4;
-  iVar4 = (this->fAwards).fTournMoney;
-  uVar1 = (this->fAwards).fActivateFlags;
-  this->fMoney = iVar2;
-  this->fMoney = iVar2 + iVar4;
-  if ((uVar1 & 2) != 0) {
+  /* SLD names only bill and bonus: the four direct compound updates are
+     retail's load/add/store chain; decompiler arithmetic temps lose a store. */
+  this->fMoney -= bill;
+  this->fMoney += bonus;
+  this->fMoney += (this->fAwards).fMoney;
+  this->fMoney += (this->fAwards).fTournMoney;
+  if (((this->fAwards).fActivateFlags & 2) != 0) {
     FECheat_ActivateBonus((this->fAwards).fActivateCarClass);
   }
   if (((this->fAwards).fActivateFlags & 4) != 0) {
@@ -857,7 +850,7 @@ void tTournamentManager::UpdateAwardInformation()
   if (((this->fAwards).fAwardCar != 0) && ((this->fAwards).fAwardCarGarageFull == 0)) {
     ptVar3 = GetCarFromID(&carManager, (short)(this->fAwards).fAwardCarModel);
     PurchaseCar(&carManager, (short)(this->fAwards).fAwardCarModel,
-               (short)ptVar3->fColorOrder[(byte)(this->fAwards).fAwardCarColor],0);
+               (short)(signed char)ptVar3->fColorOrder[(byte)(this->fAwards).fAwardCarColor],0);
     PurchaseUpgrade(&carManager, (ushort)(byte)frontEnd.garageCar[0],
                (ushort)(byte)(this->fAwards).fAwardCarUpgrades,0);
   }

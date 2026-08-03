@@ -877,13 +877,32 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
              * the giv anchor this form exists to kill) or deleting an instruction
              * retail has.  Also falsified on the do-while form: a `volatile` store to
              * break combine_givs (51 diffs / 46 insns).  allocno_compare live-length
-             * identity; the goto form is the permuter seed. */
-            do {
+             * identity; the goto form is the permuter seed.
+             * 🏆 w47-a2 SEALED (7 -> PASS 43/43): the "no spelling reaches the window"
+             * verdict was right about SPELLINGS and wrong about DIALS -- the w44/w45
+             * do{}while(0) loop-depth ref dial supplies exactly the missing refs at zero
+             * instructions (see the MATCH note on the loop-back test below).  RULE: a
+             * goto-loop that trades a giv anchor for an allocno rotation is only HALF the
+             * fix -- re-weight the counter/bound with a phony-loop wrapper to get the
+             * loop-depth refs the goto form threw away. */
+top:
+            {
                 int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;
                 *(short *)(sentence + 8) = *(unsigned short *)(sentence + 6) + (short)r;
                 sentence = sentence + 0xc;
-            } while (i < n);
+            }
+            /* MATCH (w47-a2): the loop-back test is wrapped in do{...}while(0) as a pure
+             * REF DIAL -- do NOT "simplify" it away.  The label+goto loop (above) is what
+             * kills loop.c's giv anchor (43/43), but without LOOP notes `n` and `i` lose
+             * their loop weighting and `ok` outranks `n` in allocno_compare, rotating
+             * $s2<->$s3 (the 18-diff residual w33/w34 filed as an allocno live-length
+             * identity).  A do{}while(0) is stripped by loop.c as a phony loop (so it can
+             * NOT bring the giv anchor back) but flow.c still counts the refs inside it at
+             * loop depth 1, i.e. DOUBLED: i 4->5 refs, n 3->4.  New priorities
+             * (floor_log2(refs)*refs/live): walker 1.765 > i 0.625 > n 0.533 > ok 0.417 =
+             * retail's exact order walker $s0 / i $s1 / n $s2 / ok $s3.  Zero instructions. */
+            do { if (i < n) goto top; } while (0);
         }
     }
     return ok;

@@ -1267,7 +1267,8 @@ Phy_CalcAcc_clearWheelSpinExit:
       }
       carObj->flywheelRpm = wheelRpm;
       if (exceedRedline == 0) {
-        carObj->flywheelRpm = MAX(carObj->flywheelRpm,desiredRpm);
+        carObj->flywheelRpm =
+            ((carObj->flywheelRpm > desiredRpm) ? carObj->flywheelRpm : desiredRpm);
       }
     }
     else if (diffDesiredRpm == 0) {
@@ -1280,16 +1281,14 @@ Phy_CalcAcc_clearWheelSpinExit:
         carObj->flywheelRpm = carObj->flywheelRpm + -100;
       }
       else {
-        if (diffFlywheelRpm < 0xc9) {
-          if (diffFlywheelRpm < -200) {
-            carObj->flywheelRpm = carObj->flywheelRpm + 200;
-          }
-          else {
-            carObj->flywheelRpm = wheelRpm;
-          }
+        if (diffFlywheelRpm >= 0xc9) {
+          carObj->flywheelRpm = carObj->flywheelRpm + -200;
+        }
+        else if (diffFlywheelRpm < -200) {
+          carObj->flywheelRpm = carObj->flywheelRpm + 200;
         }
         else {
-          carObj->flywheelRpm = carObj->flywheelRpm + -200;
+          carObj->flywheelRpm = wheelRpm;
         }
         driveAcc = fixedmult(driveAcc,gGasRatio);
       }
@@ -1298,11 +1297,12 @@ Phy_CalcAcc_clearWheelSpinExit:
         temp = carObj->flywheelRpm;
       }
       carObj->flywheelRpm = temp;
+      temp = 0x10000;
       ratio = carObj->slide;
       if (ratio < 0) {
         ratio = -ratio;
       }
-      ratio = ratio + 0x10000;
+      ratio = ratio + temp;
       if ((GameSetup_gData.sgge & 8U) != 0) {
         if (0x30000 < ratio) {
           ratio = 0x30000;
@@ -1315,11 +1315,11 @@ Phy_CalcAcc_clearWheelSpinExit:
     }
   }
   if (carObj->flywheelRpm < 0) {
-    temp = (carObj->linearVel_ch).z * -0x20;
-    if ((((driveAcc < 1) || (temp < 1)) || (driveAcc - temp < 1)) &&
-       (((-1 < driveAcc || (-1 < temp)) || (-1 < driveAcc - temp)))) {
+    ratio = (carObj->linearVel_ch).z * -0x20;
+    if ((((driveAcc < 1) || (ratio < 1)) || (driveAcc - ratio < 1)) &&
+       (((-1 < driveAcc || (-1 < ratio)) || (-1 < driveAcc - ratio)))) {
+      driveAcc = ratio;
       carObj->flywheelRpm = 0;
-      driveAcc = temp;
     }
   }
 Phy_CalcAcc_finalAdjustReturn:

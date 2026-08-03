@@ -1927,6 +1927,7 @@ struct AnimDef {   /* 20 bytes */
 
 struct ObjectAnim {   /* 4 bytes */
     __vtbl_ptr_type      (*_vf)[3];   /* +0x0 */
+    ~ObjectAnim();
 };
 
 struct ObjectFinishedMultiAnim {   /* 4 bytes */

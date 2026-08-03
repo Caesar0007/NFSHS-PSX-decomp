@@ -1262,14 +1262,10 @@ extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __
 
 /* ---- ___15ObjectMultiAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-/* ---- ObjectAnim_dt  @0x800a6de0  base deleting-dtor (vtable-only ref; not separately
- * reconstructed -- surfaced by #75 bare-VA pass). nfs4-f.exe: if(__in_chrg&1){ _vf=vtable; delete } */
-void ObjectAnim_dt(ObjectAnim *pThis,int __in_chrg)
+/* ---- _._10ObjectAnim  [OBJECT.H:53] SLD-VERIFIED ---- */
+ObjectAnim::~ObjectAnim()
 {
-  if (__in_chrg & 1) {
-    pThis->_vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-    __builtin_delete(pThis);
-  }
+  _vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
 }
 
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg)

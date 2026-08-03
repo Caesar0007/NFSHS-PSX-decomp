@@ -4,7 +4,7 @@
 #include "../../nfs4_types.h"
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
 /* functions defined in game/common/object.cpp: */
-void ObjectAnim_dt(ObjectAnim*,int);
+extern "C" void ___10ObjectAnim(ObjectAnim*,int);
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim*,int);
 extern "C" void ___14ObjectSignAnim(ObjectSignAnim*,int);
 extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim*,int);
@@ -12,7 +12,7 @@ extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim*,int);
 
 __vtbl_ptr_type ObjectAnim_vtable[3] = {   /* @0x800560e8 */
   {0, 0, (int (*)(...))0},                           /* @0x800560e8  null */
-  {0, 0, (int (*)(...))&ObjectAnim_dt},              /* @0x800560f0  _._10ObjectAnim */
+  {0, 0, (int (*)(...))&___10ObjectAnim},            /* @0x800560f0  _._10ObjectAnim */
   {0, 0, (int (*)(...))&__pure_virtual},             /* @0x800560f8  __pure_virtual */
 };
 __vtbl_ptr_type ObjectMultiAnim_vtable[3] = {   /* @0x800560b8 */

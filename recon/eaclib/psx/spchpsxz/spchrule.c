@@ -17,7 +17,11 @@ typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
 typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet[];  /* sentence rule-set callback (spchinit-owned); unsized-array
                                                * decl => separate-temp base materialization (catalog SSE #5) */
-extern SentenceRuleTestFn gSentenceRuleTest;  /* sentence rule-test callback */
+extern SentenceRuleTestFn gSentenceRuleTest[]; /* sentence rule-test callback; UNSIZED-ARRAY decl for the
+                                               * same reason as its sibling above (w47-a9 fingerprint: the
+                                               * scalar decl is <= -G4 small-data-eligible, so cc1 emits the
+                                               * unschedulable assembler macro `lw $r,sym` where retail has
+                                               * the %hi/%lo split -- catalog SSE #5 / IDT Ch9) */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
@@ -187,7 +191,17 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      * modelling the three slots as a plain local `unsigned int decode[3]` with read-backs (49 diffs
      * / 81 insns -- the read-backs become real `lw`s, cc1 does not forward stack loads here) and
      * taking the slot's address into a local pointer (neutral, 14).  A fix needs a store form that
-     * keeps a dead stack store WITHOUT killing cse's memory table -- not available from C here. */
+     * keeps a dead stack store WITHOUT killing cse's memory table -- not available from C here.
+     * w47-a2: also falsified the obvious inversion `ruleByte = rd[0]; ruleByteStore = ruleByte;`
+     * (22 diffs, still 78/78): it does collapse the double load, but then the byte lands directly
+     * in $s3 and the whole packed/ruleType chain re-colors -- retail's shape needs the load in a
+     * CALLER-saved temp AND a surviving copy into $s3, i.e. the same local-qty-vs-global-allocno
+     * copy question as spchevnt's two residuals (see iSPCH_InitEventQueue's note there): the
+     * producer's dest must be a distinct short-lived pseudo, which a single named assignment can
+     * never give.  NEXT ANGLE (untried, needs a store form that survives DSE without a volatile):
+     * an ADDRESS-TAKEN non-volatile slot (`unsigned int slotv; unsigned int *keep = &slotv;
+     * *keep = rd[0];`) -- addressable so the store stays, non-volatile so cse's memory table is
+     * only alias-invalidated rather than flushed. */
     if (gSentenceRuleSet[0] != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
@@ -364,8 +378,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 } else {
                     int testResult;
                     short **sentSlot = &sentence;
-                    if (gSentenceRuleTest != 0)
-                        testResult = gSentenceRuleTest(
+                    if (gSentenceRuleTest[0] != 0)
+                        testResult = gSentenceRuleTest[0](
                             (unsigned short)**sentSlot, ruleId, testValue, (int)*sentSlot);
                     else
                         testResult = -1;

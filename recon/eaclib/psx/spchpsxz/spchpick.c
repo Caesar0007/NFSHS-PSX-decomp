@@ -148,7 +148,18 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * loop, the lever that cracked iSPCH_SentenceGetChoices) -- cse folds the second
  * `one = 1` away so the movable comes back, 38 diffs / 67 insns with $fp.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
  * (23/68), lowNib declared first (38/67), a named `one` local (22/67, still hoisted),
- * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0). */
+ * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0).
+ * 🏆 w47-a2 SEALED 6 -> PASS (65/65) -- the residual `p` web was NOT toolchain identity.
+ * NEW ANGLE "REORG EAGER-STEAL DUPLICATE MASQUERADES AS A PREHEADER INIT": the oracle's
+ * `addu $v0,$s6,$s1` at 0x801007D4 (before the loop label) and the identical insn in the
+ * back-branch delay slot at 0x8010084C are ONE source statement -- reorg stole the loop's
+ * FIRST insn into the back branch's slot, retargeted the loop label past it and left the
+ * loop-entry copy in the preheader.  So retail computes the cursor at the TOP OF THE LOOP
+ * BODY (`int p = sample + i;` as the body's first declaration), NOT as a pre-loop init plus
+ * a bottom update: with the pre-loop init cc1 const-props the just-assigned `i = 0` and
+ * emits `addu $v1,$s6,$zero` (the 6-diff residual, plus the $v1-vs-$v0 coloring that
+ * followed from it).  RULE: when the SAME insn appears in the preheader and in the
+ * back-branch delay slot, it is one loop-top statement, not two. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
@@ -175,7 +186,6 @@ valid_count:
     {
         int i = 0;
     if (0 < count) {
-        int p = sample + i;
         /* MATCH (w34-a9, 22 -> 15 diffs, 67 -> 66 insns): `bit` is a LOOP-CARRIED
          * pseudo re-armed to 1 at the bottom of every iteration instead of a fresh
          * `1u << cycleByte` per iteration.  Two effects, both needed:
@@ -236,6 +246,7 @@ valid_count:
          * freechan EBB-boundary lever does not reach it (the use is an addu, not a compare,
          * and the branch distance is too short for cse's path limit). */
         do {
+            int p = sample + i;
             unsigned int bit;
             unsigned int cycleByte = *(unsigned char *)(p + 0xc);
             result = 0;
@@ -255,7 +266,6 @@ valid_count:
             i = i + 1;
             if (result == 0)
                 goto done;
-            p = sample + i;
         } while (i < count);
     }
     }
@@ -485,15 +495,30 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * double-evaluation shape), the `p[0]` index form on BOTH reads, and moving
      * `j = j + 1` after the total accumulation.  The oracle's `addu a0,v0,zero` is a
      * genuine local-alloc rotation (retail {p:$a0, byte:$v1, addr:$v0} vs ours
-     * {p:$v0, byte:$a0, addr:$v1}), not a missing evaluation. */
+     * {p:$v0, byte:$a0, addr:$v1}), not a missing evaluation.
+     * 🏆 w47-a2 SEALED (9 -> PASS 83/83).  NEW ANGLE "ONE C89 FUNCTION-SCOPE CURSOR ACROSS
+     * BOTH LOOPS": every falsified lever above kept `p` declared INSIDE a loop body, so it
+     * is a BLOCK-LOCAL quantity -- and being a copy of the call's return value it carries a
+     * qty_phys_copy_sugg of $v0, which local_alloc honours in its FIRST (suggestion) pass;
+     * the block's other temps are then pushed onto $a0/$v1 and the copy retail emits has
+     * nowhere to come from (ours 1 insn shorter).  Declaring ONE `unsigned char *p;` at
+     * FUNCTION scope and assigning it in BOTH the phase-1 and the phase-3 loop makes the
+     * pseudo span two basic blocks => REG_BASIC_BLOCK == -1 => local_alloc ignores it
+     * entirely; the block temps take $v0/$v1 and global_alloc homes the cursor in $a0,
+     * materializing retail's `addu a0,v0,zero` and the whole 3-way rotation at once.
+     * (This is also the more faithful shape: C89 puts every declaration at the top of the
+     * function, and the two loops walk the same table.)  RULE: an "ours-1-shorter, oracle
+     * copies the call result into a fresh register" residual on a per-loop pointer = the
+     * original shared ONE function-scope variable with another loop -- check the sibling
+     * loops before filing a local-alloc rotation. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
     int            j = 0;
     int            i;
+    unsigned char *p;   /* MATCH: ONE function-scope cursor shared with phase 3 -- see below */
     if (n != 0) {
         do {
-            unsigned char *p;
             p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
             weights[j] = *p;
             j = j + 1;
@@ -532,8 +557,7 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
     j = 0;
     if (n != 0) {
         do {
-            char *p;
-            p = (char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
             if (*p == '\0') {
                 *(char *)(outOrder + i) = (char)j;
                 i = i + 1;
@@ -641,15 +665,29 @@ choose:
                      * DOES kill move_movables, and goto-loop + `!= -2` reaches EXACT 80/80 parity
                      * -- but at 34 diffs (the un-strength-reduced walker re-colors the whole body),
                      * so it is not kept.  What is still missing is a source form that keeps the
-                     * reduced loop AND leaves the `li -2` in the block. */
+                     * reduced loop AND leaves the `li -2` in the block.
+                     * 🏆 w47-a2 SEALED 1 -> PASS (80/80).  NEW ANGLE "PRE-SET THE DEFAULT BEFORE
+                     * THE TEST": the residual was NOT the eaclib never-merges-tails identity.  The
+                     * early-out arm (`if (mismatch) { result = 0; goto out; }`) is a BLOCK whose
+                     * body is byte-identical to the `fail:` block, so jump.c cross-jumps it away,
+                     * the bne then targets `fail:` -- and because that shared block re-sets s4,
+                     * reorg is free to fill the slot from the FALL-THROUGH (`li s4,-1`) instead.
+                     * Writing the default assignment BEFORE the test (`result = 0; if (match)
+                     * { result = -1; *outChoice = result; } goto out;`) leaves NO arm to merge: the
+                     * `result = 0` insn simply PRECEDES the branch, so fill_simple_delay_slots'
+                     * backward scan (which skips over -- but does not stop at -- the conflicting
+                     * `lh`/`li -2` compare feeders) moves it into the bne's delay slot and the
+                     * branch goes straight to the shared epilogue, +1 insn = retail's 80.
+                     * RULE: an oracle branch whose delay slot holds a store the fall-through
+                     * immediately overwrites is a DEFAULT ASSIGNED BEFORE THE TEST, never an
+                     * early-out arm. */
                     int mark = -2;
-                    if (*outChoice != (short)mark) {
-                        result = 0;
-                        goto out;
+                    result = 0;
+                    if (*outChoice == (short)mark) {
+                        mark = -1;
+                        result = mark;
+                        *outChoice = (short)result;
                     }
-                    mark = -1;
-                    result = mark;
-                    *outChoice = (short)result;
                     goto out;
                 }
                 r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);
@@ -723,6 +761,27 @@ extern void iSPCH_RandomizeSentencePicks(int sentence)
  *   not: retail needs la-first AND base->$v0, and no spelling produces that pair.
  *   Local-alloc quantity-order tie (longest-live-first among two block-0 temps),
  *   permuter target -- do not re-enumerate spellings.
+ * w47-a2 QUANTIFIED (NEW NAMED ANGLE, still 4 -- do not re-enumerate spellings, attack the
+ *   number): entry-block local qtys are exactly TWO -- base{high r90, lo_sum r89} and the
+ *   mult chain {r93,r94,r95} (cc1 -dl, tools/rtl_dump_c.py).  next_qty==2 takes local-alloc's
+ *   hand-rolled case-2 branch, which IS a priority compare, so the winner (=$v0) is decided by
+ *   QTY_CMP_PRI = floor_log2(refs)*refs*size/(death-birth) with combine_regs SUMMING each qty's
+ *   member refs (w46 law).  Measured: base refs 2+2=4, mult refs 2+2+2=6.
+ *     la-LAST  (every anonymous spelling): base life ~4, mult life ~10 -> PRI 2.0 vs 1.2
+ *       -> base wins $v0, mult $v1 = RETAIL'S REGISTERS, but the la sits after the sll chain.
+ *     la-FIRST (every named-base spelling): base life ~10, mult life ~6 -> PRI 0.8 vs 2.0
+ *       -> mult wins $v0 = the 12-diff role swap.
+ *   So with the la emitted first the base CANNOT win at 4 refs: it needs PRI > 2.0, i.e. >= 8
+ *   refs (3*8/10=2.4) -- ~6 extra uses of the base -- or the mult qty must drop to <= 2 refs
+ *   (impossible: n*6 is a 3-insn sll/addu/sll chain).  => the reachable target is a form where
+ *   the MULT CHAIN IS NOT A BLOCK-LOCAL QTY AT ALL (it writes straight into `choice`'s global
+ *   pseudo, leaving the base as the block's ONLY local qty -> it takes $v0 unconditionally AND
+ *   the la is emitted first).  Falsified for that (w47-a2, mini-TU probe scratch/w47_a2_iterate.py,
+ *   15 spellings): choice_carries_mult `(short*)(n*12)` then `(char*)chBase + (int)choice`,
+ *   choice_mult_then_add via a null base, mutate `choice = ispch_gChoice; choice += n*6;`,
+ *   named (int, char pointer, row, deref, idx, reversed) bases, split decls, idx-first.  Flag axis CLOSED for
+ *   this fn: -fno-schedule-insns (24), -fno-schedule-insns2 (10), both (28), -mno-split-addresses
+ *   (15/43 insns), -G0, -G8, -fno-strength-reduce all >= the 8-probe baseline.
  * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
  * at the epilogue: $v0 = the "ran out" flag). */
 extern int iSPCH_IterateChoice(int sentence)
@@ -832,13 +891,32 @@ extern int iSPCH_SentenceMakeChoice(int sentence, int mode)
              * the giv anchor this form exists to kill) or deleting an instruction
              * retail has.  Also falsified on the do-while form: a `volatile` store to
              * break combine_givs (51 diffs / 46 insns).  allocno_compare live-length
-             * identity; the goto form is the permuter seed. */
-            do {
+             * identity; the goto form is the permuter seed.
+             * 🏆 w47-a2 SEALED (7 -> PASS 43/43): the "no spelling reaches the window"
+             * verdict was right about SPELLINGS and wrong about DIALS -- the w44/w45
+             * do{}while(0) loop-depth ref dial supplies exactly the missing refs at zero
+             * instructions (see the MATCH note on the loop-back test below).  RULE: a
+             * goto-loop that trades a giv anchor for an allocno rotation is only HALF the
+             * fix -- re-weight the counter/bound with a phony-loop wrapper to get the
+             * loop-depth refs the goto form threw away. */
+top:
+            {
                 int r = iSPCH_Rand((int)*(short *)(sentence + 4));
                 i = i + 1;
                 *(short *)(sentence + 8) = *(unsigned short *)(sentence + 6) + (short)r;
                 sentence = sentence + 0xc;
-            } while (i < n);
+            }
+            /* MATCH (w47-a2): the loop-back test is wrapped in do{...}while(0) as a pure
+             * REF DIAL -- do NOT "simplify" it away.  The label+goto loop (above) is what
+             * kills loop.c's giv anchor (43/43), but without LOOP notes `n` and `i` lose
+             * their loop weighting and `ok` outranks `n` in allocno_compare, rotating
+             * $s2<->$s3 (the 18-diff residual w33/w34 filed as an allocno live-length
+             * identity).  A do{}while(0) is stripped by loop.c as a phony loop (so it can
+             * NOT bring the giv anchor back) but flow.c still counts the refs inside it at
+             * loop depth 1, i.e. DOUBLED: i 4->5 refs, n 3->4.  New priorities
+             * (floor_log2(refs)*refs/live): walker 1.765 > i 0.625 > n 0.533 > ok 0.417 =
+             * retail's exact order walker $s0 / i $s1 / n $s2 / ok $s3.  Zero instructions. */
+            do { if (i < n) goto top; } while (0);
         }
     }
     return ok;

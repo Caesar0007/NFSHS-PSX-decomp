@@ -301,20 +301,19 @@ void tCreditManager::DrawCurrCredit()
      `CalcFadeVal(0x505050,0x40)` -- the oracle reloads `this->fTextFade`
      (offset 8) as the 2nd arg, not the literal 0x40 (0x40 IS correct for
      the two tail bright-line CalcFadeVal calls, which stayed literal).
-     Result: 610->12 verify_asm diffs, insn count now EXACT (451/451).
-     Residual 12-diff FLOOR (2 sites, tried multiple rephrasings, no
-     source-level lever moved either): (1) the tagByte reload after the
-     TAB-flag skip-loop compiles to a register copy (`addu v1,v0,zero`)
-     where the oracle emits a fresh `lbu v1,0(s0)` -- gcc-2.8 CSEs the
-     do-while's last failed byte-compare across the join even though the
-     \n-flag and ASTERISK-flag reloads (textually identical pattern) do
-     NOT get this treatment; a coloring coin-flip on carbon-copy source.
-     (2) the rollthedice 25x-loop's post-loop `y=y+8` stages the sum in a
+     Result: 610->8 verify_asm diffs, insn count now EXACT (451/451).
+     The 2026-08-03 follow-up makes the post-NEWLINE and post-ASTERISK
+     tag reads volatile: this defeats GCC's inappropriate cross-join CSE
+     and restores both of retail's fresh `lbu v1,0(s0)` instructions at
+     zero code-size cost. Residual 8-diff FLOOR: the rollthedice 25x-loop's
+     post-loop `y=y+8` stages the sum in a
      temp (`addiu v1,s3,8; addu s3,v1,zero; addiu s3,v1,8`, 3 insns) where
      the oracle does a direct `nop; addiu s3,s3,8` (1 insn) -- tried
      do/for-loop shape, increment-before/after-call, increment-order
-     swap; no rephrasing changed it. Likely a genuine loop-carried-value
-     scheduling floor in gcc-2.8's non-SSA allocator (§F class). */
+     swap, an explicit old-y local, and increment-then-`y-8`; the latter
+     two recolor the whole function and add two instructions. Likely a
+     genuine loop-carried-value scheduling floor in gcc-2.8's non-SSA
+     allocator (§F class). */
   int t16;
   tCredit *fShowCred;
   short y;
@@ -418,7 +417,7 @@ void tCreditManager::DrawCurrCredit()
       do {
         p = p + 1;
       } while (*p == tagByte);
-      tagByte = *p;
+      tagByte = *(volatile byte *)p;
     }
     if (tagByte == 9) {
       hidden = true;
@@ -432,7 +431,7 @@ void tCreditManager::DrawCurrCredit()
       do {
         p = p + 1;
       } while (*p == tagByte);
-      tagByte = *p;
+      tagByte = *(volatile byte *)p;
     }
     if (tagByte == 0x5e) {
       rollthedice = true;

@@ -371,9 +371,24 @@ void Font_SwitchFont(char *f1)
   base = (u_char *)&(currentfont);
   pv1 = *(u_char **)(base + 136);
   abr_val = font_abr;
-  *(u_int *)(base + 0x94) = 0;
-  *(u_int *)(base + 0x98) = 0;
-  *(u_int *)(base + 0x9c) = 0;
+  /* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
+     side alone that is the operative bit -- font_abr is untouched.  Writing the three
+     currentfont zero stores through a STRUCT type sets MEM_IN_STRUCT_P on them, which
+     stops gcc's fixed_scalar_and_varying_struct_p heuristic from declaring the gp-rel
+     `font_abr` scalar load independent of the store group; the load can then no longer
+     sink below them and lands at retail's position (before the three `sw zero`).
+     MEASURED: struct view on the stores alone = PASS (kept); sized-[1] STRUCT view on
+     font_abr as well = 2; sized-[1] scalar array view on font_abr + struct stores = 2;
+     struct view on font_abr alone = 2; a whole-struct assignment of a zeroed temp = 20
+     (+6 insns).  This closes the w39/w41/w45 receipt chain above -- the "cc1 canonicalized
+     the load into that slot before scheduling" reading was right that it is not a
+     scheduler tie, and the alias flag is what actually pins it. */
+  {
+    struct FontZeroView { u_int a, b, c; };
+    ((struct FontZeroView *)(base + 0x94))->a = 0;
+    ((struct FontZeroView *)(base + 0x94))->b = 0;
+    ((struct FontZeroView *)(base + 0x94))->c = 0;
+  }
   c_val = *(int *)(pv1 + 0xc);
   {
     int arg3 = (c_val << 4) >> 0x14;

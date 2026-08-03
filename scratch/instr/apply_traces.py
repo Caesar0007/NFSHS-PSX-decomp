@@ -42,7 +42,13 @@ def sub1(s, old, new, what):
     return s.replace(old, new)
 
 
+# 🔴 `extern char *getenv ();` IS MANDATORY.  The host gcc is x86_64-w64-mingw32,
+# so cc1.exe is a 64-BIT binary; under K&R rules an undeclared getenv() is assumed
+# to return `int`, which TRUNCATES the returned pointer to 32 bits and makes the
+# very first `*e` segfault.  (Cost: one whole build cycle in w46.)
 TRACE_FN = r'''
+extern char *getenv ();
+
 static int %(name)s ()
 {
   static int t = -1;
@@ -162,6 +168,8 @@ def patch_global(root):
 # =========================================================================
 LA_DUMP = r'''
 /* ---- w46-a10 instrumentation ---- */
+extern char *getenv ();
+
 static int nfs4_la_trace ()
 {
   static int t = -1;
@@ -268,9 +276,15 @@ def patch_local_alloc(root):
 	  if (! why_ && qty_n_calls_crossed[qty] != 0
 	      && TEST_HARD_REG_BIT (call_used_reg_set, r_))
 	    why_ = 3;
+	  if (! why_ && accept_call_clobbered
+	      && TEST_HARD_REG_BIT (call_fixed_reg_set, r_))
+	    why_ = 4;
+	  if (! why_ && just_try_suggested)
+	    why_ = 5;			/* simply not one of the suggestions */
 	  fprintf (stderr, " %d(%s)", r_,
 		   why_ == 1 ? "live" : why_ == 2 ? "fixed"
-		   : why_ == 3 ? "callused" : "other");
+		   : why_ == 3 ? "callused" : why_ == 4 ? "callfixed"
+		   : why_ == 5 ? "notsugg" : "other");
 	}
       fprintf (stderr, "\n");
     }

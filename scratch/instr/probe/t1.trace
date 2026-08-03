@@ -1,0 +1,29 @@
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/-1:1/2/0/0/0=0 1/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/-1:1/2/0/0/0=0 1/-1:1/2/0/0/0=0
+[find_free_reg]    qty 0 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [9,11) blocked:
+[find_free_reg]    qty 0 -> reg 64
+[find_free_reg]    qty 1 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [9,11) blocked:
+[find_free_reg]    qty 1 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/92:4/2/0/0/0=40000 3/97:4/2/0/0/0=40000 4/88:4/2/0/0/0=40000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/92:4/2/0/0/0=40000 3/97:4/2/0/0/0=40000 4/88:4/2/0/0/0=40000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[find_free_reg]    qty 0 reg1 92 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 3 reg1 97 class 1 calls 0 acc 0 sugg 0 win [12,14) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 4 reg1 88 class 1 calls 0 acc 0 sugg 0 win [18,20) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 1 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [5,7) blocked:
+[find_free_reg]    qty 1 -> reg 64
+[find_free_reg]    qty 2 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [5,7) blocked:
+[find_free_reg]    qty 2 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/99:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 99 class 1 calls 0 acc 0 sugg 1 win [4,6) blocked: 0(fixed) 1(fixed) 3(other) 4(other) 5(other) 6(other) 7(other) 8(other) 9(other) 10(other) 11(other) 12(other) 13(other) 14(other) 15(other) 16(other) 17(other) 18(other) 19(other) 20(other) 21(other) 22(other) 23(other) 24(other) 25(other) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/99:2/2/0/1/0=10000
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 4/93:4/3/0/1=26666 5/102:9/11/0/1=24545 1/84:9/16/0/1=16875 0/83:7/12/0/1=11666 3/87:4/13/0/1=6153 2/85:4/15/0/1=5333
+[find_reg]         allocno 4 pseudo 93 refs 4 live 3 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 65
+[find_reg]         allocno 5 pseudo 102 refs 9 live 11 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 1 pseudo 84 refs 9 live 16 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 0 pseudo 83 refs 7 live 12 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 3 pseudo 87 refs 4 live 13 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 2 pseudo 85 refs 4 live 15 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8

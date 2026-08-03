@@ -15,12 +15,120 @@ Predecessor receipts (READ THEM FIRST, still fully valid): `scratch/w45_a10_rece
 
 | deliverable | state |
 |---|---|
-| 1. instrumented cc1 rebuild (+ committed patches/script) | IN PROGRESS |
-| 2. ECOFF reconfigure | pending |
-| 3. local-alloc QTY-identity replica in allocsim | pending |
-| 4. calls.c PRECOMPUTE_REGISTER_PARAMETERS trigger (a9) | pending |
-| 5. new trace points (find_free_reg, reload1 6277/7362) | pending |
+| 1. instrumented cc1 rebuild (+ committed patches/script) | ✅ **DONE** — `scratch/gccbuild/cc1.exe` (ELF) + `scratch/gccbuild-ecoff/cc1.exe`; patches = `scratch/instr/apply_traces.py`, build = `scratch/instr/build_cc1.sh` (both committed) |
+| 2. ECOFF reconfigure | ✅ **DONE — hypothesis REFUTED, but the lane got the win anyway: 19/20 identical to CC1PSX (was 6/17). See §1+2.** |
+| 3. local-alloc QTY-identity replica | ✅ see §3 |
+| 4. calls.c PRECOMPUTE trigger (a9) | ✅ see §4 |
+| 5. new trace points (find_free_reg, qty_combine, reload re-homes) | ✅ see §5 |
 | 6. on-demand receipts (a1/a2/a3/a5) | OPEN — post requests, they get served here |
+
+---
+
+# 🏆🏆 §1+2 — THE INSTRUMENTED cc1 IS NOW A **NEAR-ORACLE**, NOT A LABORATORY
+### and the ECOFF hypothesis is REFUTED — the real gap was TWO MISSING FLAGS
+
+**Headline: `19 / 20` functions BYTE-IDENTICAL to the real PsyQ `CC1PSX.EXE` on
+`memcard.i` (w45 measured 6 / 17 and blamed the ELF-vs-ECOFF config).**
+
+| config | flags | identical / 20 |
+|---|---|---|
+| ELF, w45 flags | `-O2 -G4` | 2 |
+| **ECOFF**, w45 flags | `-O2 -G4` | **2** ← ECOFF changed NOTHING |
+| ELF | `-O2 -G4 -mgas -msplit-addresses` | 18 |
+| ECOFF | `-O2 -G4 -mgas -msplit-addresses` | **18** ← still identical to ELF |
+| ECOFF | `+ -funsigned-char` | **19** |
+
+## 🔴 THE FLAGS (this is the whole finding — write them into every future probe)
+```
+cc1.exe -quiet -O2 -G4 -mgas -msplit-addresses -funsigned-char <tu>.i -o <tu>.s
+```
+* **`-mgas -msplit-addresses` MUST BE PASSED AS A PAIR.** `config/mips/mips.c:3696`:
+  `mips_split_addresses = 1` only if `TARGET_GAS && TARGET_SPLIT_ADDRESSES && optimize
+  && !flag_pic`. `-msplit-addresses` **alone silently does nothing** (measured). Without
+  the pair, every symbol address comes out as the unsplittable `la $r,sym` assembler
+  macro instead of retail's `lui %hi / addiu %lo` pair — which is *the same
+  scalar-vs-view schedulability property the w44 storage-shape menu is about*, so it
+  poisoned EVERY function with a global reference. **This one flag pair accounts for
+  16 of the 17 previously-"divergent" functions.**
+* **`-funsigned-char`**: PsyQ's cc1 defines `__CHAR_UNSIGNED__` (methodology gotcha
+  #11); ours defaults signed → `lb` where retail has `lbu` (`iMCRD_LoadCard`, 1 diff).
+* ECOFF vs ELF: **byte-identical instruction streams on all 20 functions.** The
+  ELF/ECOFF difference is confined to `.def/.scl/.type` debug directives and
+  `.set nobopt`, which are not codegen. ⇒ **the w45 "reconfigure to ECOFF and most of
+  the 11 differing functions close" hypothesis is FALSIFIED.** Both builds are kept
+  (`scratch/gccbuild/` = ELF, `scratch/gccbuild-ecoff/` = ECOFF); use either.
+
+## The ONE remaining C-lane divergence
+`iMCRD_DoFileLoad` (170 vs 171 insns): retail keeps a value in `$s7` and never
+allocates `$fp`; ours parks it in `$fp`, saves `$fp` **and** shifts the whole
+constant-hoist set. A genuine allocator/RTL divergence in a high-pressure function —
+**not** a config difference. 1/20 = **95 % fidelity for the C lane.**
+
+## WHAT THIS UNLOCKS (read this, a2/a9 especially)
+The instrumented cc1 can now be pointed at a REAL recon `.i` and its
+`[qty_order] / [find_free_reg] / [allocno_compare] / [find_reg] / [caller-save] /
+[qty_combine] / [reload-rehome]` traces describe **the same compilation the gate
+measures** — for any function it reproduces byte-exactly. So a trace is a RECEIPT for
+those functions, not just a mechanism illustration. For a function where it does NOT
+reproduce retail (check first!), fall back to `allocsim` on the real dumps.
+
+### RUN IT
+```bash
+cd scratch/instr
+export TMPDIR='C:\Temp\nfs4-wt46-a10\scratch\instr\tmp\'   # ⚠ trailing BACKSLASH
+export TMP=$TMPDIR TEMP=$TMPDIR                            # ⚠ or dumps come out EMPTY
+mkdir -p mine && cp <the .i> mine/            # ⚠ cc1 names dumps after the INPUT path
+GCC_TRACE_ALLOC=1 ../gccbuild-ecoff/cc1.exe -quiet -O2 -G4 \
+    -mgas -msplit-addresses -funsigned-char mine/<tu>.i -o mine/<tu>.s 2> trace.txt
+```
+Then **verify fidelity first**: `sh cmp_cc1.sh <the .i> <Gvalue>` prints per-function
+SAME/dN vs the real CC1PSX. Only trust traces for `SAME` functions.
+
+### REBUILD FROM SCRATCH (both configs, ~6 min each)
+```bash
+sh scratch/instr/build_cc1.sh elf
+sh scratch/instr/build_cc1.sh ecoff
+# then, for the C++ lane, from the build dir:
+mingw32-make CC="gcc -std=gnu89 -w" CFLAGS="-O1 -w -std=gnu89" LANGUAGES="c c++" cc1plus
+```
+`scratch/instr/apply_traces.py` applies every source patch (idempotent, keeps
+`*.orig`); `build_cc1.sh` does extract → patch → configure → make.
+
+### 🔴 GOTCHAS THIS ROUND PAID FOR (added to the scripts' headers)
+1. **`extern char *getenv ();` is MANDATORY in every patched file.** The host gcc is
+   `x86_64-w64-mingw32`, so cc1.exe is a **64-bit** binary; K&R implicit declaration
+   makes `getenv` return `int`, **truncating the pointer** → the very first `*e`
+   segfaults. Cost: one full build cycle.
+2. **configure MUST be invoked through a RELATIVE path** (`../gccsrc/gcc-2.8.1/configure`).
+   An absolute msys path is baked in as `srcdir` and native `mingw32-make` then dies
+   with `No rule to make target '/c/Temp/.../Makefile.in'`.
+3. (carried from w45, all still true) `CC="gcc -std=gnu89 -w"`; the obstack.h
+   cast-as-lvalue rewrite; TMPDIR/TMP/TEMP as Windows paths **with a trailing
+   backslash**; a new `static` helper needs a `PROTO` forward decl above its first
+   USE; **copy the `.i` per probe** or you clobber a shared TU's `.greg`/`.lreg`.
+
+## §5 — NEW TRACE POINTS (all live, all verified firing)
+| trace | source site | what it answers |
+|---|---|---|
+| `[qty_sugg_order]` | local-alloc.c, before the *suggested*-register pass | group-1 order (`qty_sugg_compare`: fewest copy-suggestions first, then `QTY_CMP_PRI`) |
+| `[qty_order     ]` | local-alloc.c, before the priority pass | group-2 order (pure `QTY_CMP_PRI`) — **the block-local qty table a1/a3/a5 want** |
+| **`[find_free_reg]`** 🆕 | `find_free_reg`, before the numeric scan | for each register IN THE CLASS that is unavailable over this qty's `[born,dead)` window: **which one and WHY** — `live` / `fixed` / `callused` / `callfixed` / `notsugg` |
+| `[find_free_reg] -> reg` | at `post_mark_life` | the register handed out |
+| **`[qty_combine]`** 🆕 | `combine_regs`, at the merge | `pseudo S (refs r calls c) merged into qty Q of pseudo U -> qty refs R calls C` — **the qty-formation ground truth** |
+| `[qty_sugg]` 🆕 | `combine_regs` hard-reg path | which hard reg a qty copy-suggests |
+| `[allocno_compare]` | global.c after `qsort` | global allocno order + refs/live/calls/size/pri |
+| `[find_reg]` | global.c | per-allocno entry state + the register won |
+| `[caller-save]` | global.c | `CALLER_SAVE_PROFITABLE` retry firing |
+| **`[reload-rehome]`** 🆕 | reload1.c ×3 | `retry_global_alloc` **and the two SILENT inheritance re-homes** (`reg_renumber[REGNO(old)] = REGNO(reload_reg_rtx[j])` at the two `special`/inheritance sites) — allocsim's only unexplained residual class, now observable |
+
+Sample (real output):
+```
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/92:4/2/0/0/0=40000 ...
+[find_free_reg]    qty 0 reg1 92 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 4/93:4/3/0/1=26666 5/102:9/11/0/1=24545 ...
+[find_reg]         allocno 4 pseudo 93 refs 4 live 3 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 65
+```
 
 ---
 

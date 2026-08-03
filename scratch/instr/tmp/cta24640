@@ -1,0 +1,2581 @@
+	.text
+	.ent	MCRD_init
+MCRD_init:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$16,16($sp)
+	la	$16,gMemCardInfo
+	move	$4,$16
+	sw	$31,24($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	blockclear
+	li	$5,6108			# 0x000017dc
+	.set	macro
+	.set	reorder
+
+	li	$4,1			# 0x00000001
+	la	$2,iMCRD_DefaultCBProc1
+	sw	$2,36($16)
+	sw	$2,32($16)
+	la	$2,asyncidle
+	sw	$0,48($16)
+	sw	$17,56($16)
+	sw	$2,44($16)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardInit
+	sw	$2,40($16)
+	.set	macro
+	.set	reorder
+
+	li	$16,1			# 0x00000001
+$L2:
+	.set	noreorder
+	.set	nomacro
+	jal	timedwait
+	li	$4,10			# 0x0000000a
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_InitCard
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,1
+	slt	$2,$16,9
+	bne	$2,$0,$L2
+	la	$4,iMCRD_timersub
+	jal	addtimer
+	jal	MemCardStart
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_init
+	.text
+	.ent	iMCRD_InitCard
+iMCRD_InitCard:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	sw	$31,16($sp)
+	jal	MCRD_getcard
+	move	$3,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$0,$L7
+	addu	$4,$3,16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L8
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+$L7:
+	li	$2,-1			# 0xffffffff
+	sw	$2,0($3)
+	li	$2,15			# 0x0000000f
+	li	$5,600			# 0x00000258
+	sw	$0,4($3)
+	sw	$0,8($3)
+	.set	noreorder
+	.set	nomacro
+	jal	blockclear
+	sw	$2,12($3)
+	.set	macro
+	.set	reorder
+
+	move	$2,$0
+$L8:
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_InitCard
+	.text
+	.ent	MCRD_restore
+MCRD_restore:
+	.frame	$sp,24,$31		# vars= 0, regs= 1/0, args= 16, extra= 0
+	.mask	0x80000000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,24
+	la	$4,iMCRD_timersub
+	sw	$31,16($sp)
+	jal	deltimer
+	move	$4,$0
+	move	$5,$4
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardSync
+	move	$6,$4
+	.set	macro
+	.set	reorder
+
+	jal	MemCardStop
+	jal	MemCardEnd
+	lw	$31,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,24
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_restore
+	.text
+	.ent	MCRD_getopts
+MCRD_getopts:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	la	$3,gMemCardInfo
+	lw	$2,0($3)
+	sw	$0,4($4)
+	sw	$2,0($4)
+	lw	$2,32($3)
+	#nop
+	sw	$2,20($4)
+	lw	$2,36($3)
+	#nop
+	sw	$2,24($4)
+	lw	$2,40($3)
+	#nop
+	sw	$2,28($4)
+	lw	$2,44($3)
+	#nop
+	sw	$2,32($4)
+	lw	$2,20($3)
+	#nop
+	sw	$2,8($4)
+	lwl	$5,27($3)
+	lwr	$5,24($3)
+	lwl	$6,31($3)
+	lwr	$6,28($3)
+	swl	$5,15($4)
+	swr	$5,12($4)
+	swl	$6,19($4)
+	swr	$6,16($4)
+	j	$31
+	.end	MCRD_getopts
+	.text
+	.ent	MCRD_setopts
+MCRD_setopts:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$31,24($sp)
+	sw	$16,16($sp)
+	lw	$2,4($17)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L12
+	li	$2,66			# 0x00000042
+	.set	macro
+	.set	reorder
+
+	la	$4,gMemCardInfo+4
+	sb	$2,0($4)
+	lw	$3,0($17)
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L14
+	li	$2,73			# 0x00000049
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$0,$L17
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L15
+	li	$2,65			# 0x00000041
+	.set	macro
+	.set	reorder
+
+	j	$L20
+$L14:
+	.set	noreorder
+	.set	nomacro
+	j	$L13
+	sb	$2,1($4)
+	.set	macro
+	.set	reorder
+
+$L15:
+	li	$2,69			# 0x00000045
+	.set	noreorder
+	.set	nomacro
+	j	$L13
+	sb	$2,1($4)
+	.set	macro
+	.set	reorder
+
+$L17:
+	li	$2,65			# 0x00000041
+$L20:
+	sb	$2,gMemCardInfo+5
+$L13:
+	la	$16,gMemCardInfo+6
+	move	$4,$16
+	lw	$5,4($17)
+	.set	noreorder
+	.set	nomacro
+	jal	strncpy
+	li	$6,10			# 0x0000000a
+	.set	macro
+	.set	reorder
+
+	sb	$0,10($16)
+	lw	$2,0($17)
+	.set	noreorder
+	.set	nomacro
+	j	$L19
+	sw	$2,-6($16)
+	.set	macro
+	.set	reorder
+
+$L12:
+	la	$2,gMemCardInfo+4
+	sb	$0,0($2)
+	sw	$0,-4($2)
+$L19:
+	lw	$2,20($17)
+	la	$3,gMemCardInfo+32
+	sw	$2,0($3)
+	lw	$2,24($17)
+	#nop
+	sw	$2,4($3)
+	lw	$2,28($17)
+	#nop
+	sw	$2,8($3)
+	lw	$2,32($17)
+	#nop
+	sw	$2,12($3)
+	lw	$2,8($17)
+	#nop
+	sw	$2,-12($3)
+	lwl	$7,15($17)
+	lwr	$7,12($17)
+	lwl	$8,19($17)
+	lwr	$8,16($17)
+	swl	$7,-5($3)
+	swr	$7,-8($3)
+	swl	$8,-1($3)
+	swr	$8,-4($3)
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_setopts
+	.text
+	.ent	MCRD_loadfile
+MCRD_loadfile:
+	.frame	$sp,40,$31		# vars= 0, regs= 5/0, args= 16, extra= 0
+	.mask	0x800f0000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$17,20($sp)
+	move	$17,$4
+	sw	$19,28($sp)
+	move	$19,$5
+	sw	$16,16($sp)
+	move	$16,$6
+	sw	$18,24($sp)
+	la	$18,gMemCardInfo+608
+	move	$4,$18
+	sw	$31,32($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	blockclear
+	li	$5,572			# 0x0000023c
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$16,$0,$L22
+	sw	$17,0($18)
+	.set	macro
+	.set	reorder
+
+	addu	$4,$18,4
+	.set	noreorder
+	.set	nomacro
+	jal	strcpy
+	addu	$5,$18,-604
+	.set	macro
+	.set	reorder
+
+$L22:
+	lw	$5,0($19)
+	.set	noreorder
+	.set	nomacro
+	jal	strcat
+	addu	$4,$18,4
+	.set	macro
+	.set	reorder
+
+	lw	$2,4($19)
+	#nop
+	sw	$2,28($18)
+	lw	$2,8($19)
+	#nop
+	sw	$2,32($18)
+	lw	$2,12($19)
+	#nop
+	sw	$2,36($18)
+	lw	$2,24($19)
+	#nop
+	sw	$2,560($18)
+	lw	$2,28($19)
+	#nop
+	sw	$2,564($18)
+	lw	$2,32($19)
+	#nop
+	sw	$2,568($18)
+	lw	$2,20($19)
+	#nop
+	sw	$2,556($18)
+	addu	$2,$18,46
+	sw	$2,36($19)
+	addu	$2,$18,47
+	sw	$2,40($19)
+	li	$2,3			# 0x00000003
+	sw	$2,-560($18)
+	sw	$0,-556($18)
+	lw	$31,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_loadfile
+	.text
+	.ent	iMCRD_DoFileLoad
+iMCRD_DoFileLoad:
+	.frame	$sp,72,$31		# vars= 8, regs= 10/0, args= 24, extra= 0
+	.mask	0xc0ff0000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,72
+	sw	$18,40($sp)
+	la	$18,gMemCardInfo+608
+	sw	$31,68($sp)
+	sw	$fp,64($sp)
+	sw	$23,60($sp)
+	sw	$22,56($sp)
+	sw	$21,52($sp)
+	sw	$20,48($sp)
+	sw	$19,44($sp)
+	sw	$17,36($sp)
+	sw	$16,32($sp)
+	lw	$2,28($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L25
+	move	$fp,$4
+	.set	macro
+	.set	reorder
+
+	lw	$2,560($18)
+	#nop
+	beq	$2,$0,$L24
+$L25:
+	addu	$5,$18,4
+	addu	$6,$18,44
+	move	$7,$0
+	lw	$4,-548($18)
+	li	$2,512			# 0x00000200
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardReadFile
+	sw	$2,16($sp)
+	.set	macro
+	.set	reorder
+
+	sw	$2,28($sp)
+	li	$4,1			# 0x00000001
+$L51:
+	addu	$5,$sp,24
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardSync
+	addu	$6,$sp,28
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L27
+	li	$4,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	lw	$2,gMemCardInfo+40
+	#nop
+	jal	$31,$2
+	.set	noreorder
+	.set	nomacro
+	jal	VSync
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L51
+	li	$4,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L27:
+	lw	$5,28($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_HandleError
+	move	$6,$fp
+	.set	macro
+	.set	reorder
+
+	bne	$2,$0,$L50
+	lw	$2,28($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L30
+	move	$17,$0
+	.set	macro
+	.set	reorder
+
+	move	$16,$18
+$L33:
+	lh	$4,48($16)
+	jal	sjis2ascii
+	lw	$3,28($18)
+	#nop
+	addu	$3,$3,$17
+	sb	$2,0($3)
+	andi	$2,$2,0x00ff
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L30
+	addu	$16,$16,2
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L33
+	addu	$17,$17,1
+	.set	macro
+	.set	reorder
+
+$L30:
+	move	$17,$0
+	li	$23,1			# 0x00000001
+	li	$21,16			# 0x00000010
+	li	$20,-268435456			# 0xf0000000
+	ori	$20,$20,0xffff
+	li	$22,-4096			# 0xfffff000
+	move	$19,$18
+$L38:
+	lw	$16,560($19)
+	#nop
+	beq	$16,$0,$L24
+	.set	noreorder
+	.set	nomacro
+	beq	$17,$0,$L40
+	addu	$4,$18,172
+	.set	macro
+	.set	reorder
+
+	bne	$17,$23,$L41
+	.set	noreorder
+	.set	nomacro
+	j	$L40
+	addu	$4,$18,300
+	.set	macro
+	.set	reorder
+
+$L41:
+	addu	$4,$18,428
+$L40:
+	addu	$5,$16,16
+	.set	noreorder
+	.set	nomacro
+	jal	blockmove
+	li	$6,128			# 0x00000080
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	shapetype
+	li	$4,4			# 0x00000004
+	.set	macro
+	.set	reorder
+
+	addu	$4,$18,140
+	li	$6,32			# 0x00000020
+	sb	$2,0($16)
+	andi	$3,$2,0x00ff
+	addu	$19,$19,4
+	lw	$2,12($16)
+	ori	$3,$3,0x9000
+	sw	$3,0($16)
+	sra	$3,$3,8
+	sh	$21,6($16)
+	sh	$21,4($16)
+	sh	$0,10($16)
+	sh	$0,8($16)
+	and	$2,$2,$20
+	and	$2,$2,$22
+	sw	$2,12($16)
+	addu	$16,$16,$3
+	.set	noreorder
+	.set	nomacro
+	jal	blockmove
+	addu	$5,$16,16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	cluttype
+	li	$4,16			# 0x00000010
+	.set	macro
+	.set	reorder
+
+	sb	$2,0($16)
+	andi	$3,$2,0x00ff
+	lw	$2,12($16)
+	addu	$17,$17,1
+	sh	$21,4($16)
+	sh	$23,6($16)
+	sh	$0,10($16)
+	sh	$0,8($16)
+	sw	$3,0($16)
+	and	$2,$2,$20
+	and	$2,$2,$22
+	sw	$2,12($16)
+	slt	$2,$17,3
+	bne	$2,$0,$L38
+$L24:
+	lw	$2,32($18)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L44
+	addu	$5,$18,4
+	.set	macro
+	.set	reorder
+
+	la	$16,gMemCardInfo+60
+	lw	$4,0($16)
+	lw	$6,556($18)
+	lw	$7,36($18)
+	sw	$2,16($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardReadFile
+	addu	$7,$7,512
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L46
+	sw	$2,28($sp)
+	.set	macro
+	.set	reorder
+
+	li	$2,1			# 0x00000001
+	sw	$2,-8($16)
+	.set	noreorder
+	.set	nomacro
+	j	$L50
+	li	$2,16			# 0x00000010
+	.set	macro
+	.set	reorder
+
+$L46:
+	move	$4,$0
+$L52:
+	addu	$5,$sp,24
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardSync
+	addu	$6,$sp,28
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L52
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+	li	$4,3			# 0x00000003
+	lw	$5,28($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_HandleError
+	move	$6,$fp
+	.set	macro
+	.set	reorder
+
+	bne	$2,$0,$L50
+$L44:
+	li	$2,1			# 0x00000001
+	sw	$2,gMemCardInfo+52
+	li	$2,15			# 0x0000000f
+$L50:
+	lw	$31,68($sp)
+	lw	$fp,64($sp)
+	lw	$23,60($sp)
+	lw	$22,56($sp)
+	lw	$21,52($sp)
+	lw	$20,48($sp)
+	lw	$19,44($sp)
+	lw	$18,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,72
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_DoFileLoad
+	.text
+	.ent	MCRD_savefile
+MCRD_savefile:
+	.frame	$sp,40,$31		# vars= 0, regs= 6/0, args= 16, extra= 0
+	.mask	0x801f0000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$17,20($sp)
+	sw	$20,32($sp)
+	move	$20,$5
+	sw	$31,36($sp)
+	sw	$19,28($sp)
+	sw	$18,24($sp)
+	sw	$16,16($sp)
+	lw	$2,8($20)
+	la	$19,gMemCardInfo+608
+	andi	$2,$2,0x007f
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L55
+	move	$17,$4
+	.set	macro
+	.set	reorder
+
+	move	$4,$19
+	.set	noreorder
+	.set	nomacro
+	jal	blockclear
+	li	$5,572			# 0x0000023c
+	.set	macro
+	.set	reorder
+
+	addu	$16,$19,4
+	move	$4,$16
+	addu	$5,$19,-604
+	li	$2,83			# 0x00000053
+	sb	$2,44($19)
+	li	$2,67			# 0x00000043
+	.set	noreorder
+	.set	nomacro
+	jal	strcpy
+	sb	$2,45($19)
+	.set	macro
+	.set	reorder
+
+	lw	$5,0($20)
+	.set	noreorder
+	.set	nomacro
+	jal	strcat
+	move	$4,$16
+	.set	macro
+	.set	reorder
+
+	sw	$17,0($19)
+	lw	$2,8($20)
+	#nop
+	sw	$2,32($19)
+	lw	$2,16($20)
+	#nop
+	sw	$2,40($19)
+	lw	$2,12($20)
+	#nop
+	sw	$2,36($19)
+	lw	$2,20($20)
+	#nop
+	sw	$2,556($19)
+	lw	$2,16($20)
+	#nop
+	andi	$2,$2,0x0200
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L56
+	move	$16,$0
+	.set	macro
+	.set	reorder
+
+	move	$18,$16
+	move	$3,$20
+$L57:
+	lw	$2,24($3)
+	#nop
+	beq	$2,$0,$L60
+	addu	$18,$18,1
+$L60:
+	addu	$16,$16,1
+	slt	$2,$16,3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L57
+	addu	$3,$3,4
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$18,$0,$L74
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	addu	$2,$18,16
+	sb	$2,46($19)
+	lw	$3,8($20)
+	#nop
+	addu	$2,$3,8192
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L75
+	sra	$2,$2,13
+	.set	macro
+	.set	reorder
+
+	addu	$2,$3,16383
+	sra	$2,$2,13
+$L75:
+	sb	$2,47($19)
+	lw	$4,4($20)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L74
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	jal	strlen
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L74
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	lw	$4,4($20)
+	jal	strlen
+	sltu	$2,$2,33
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L66
+	move	$16,$0
+	.set	macro
+	.set	reorder
+
+$L55:
+	.set	noreorder
+	.set	nomacro
+	j	$L74
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+$L66:
+	move	$17,$19
+$L67:
+	lw	$2,4($20)
+	#nop
+	addu	$2,$2,$16
+	lbu	$4,0($2)
+	jal	ascii2sjis
+	sh	$2,48($17)
+	andi	$2,$2,0xffff
+	beq	$2,$0,$L68
+	addu	$16,$16,1
+	slt	$2,$16,32
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L67
+	addu	$17,$17,2
+	.set	macro
+	.set	reorder
+
+$L68:
+	lw	$4,24($20)
+	jal	getshapeclut
+	addu	$4,$2,16
+	addu	$5,$19,140
+	.set	noreorder
+	.set	nomacro
+	jal	blockmove
+	li	$6,32			# 0x00000020
+	.set	macro
+	.set	reorder
+
+	addu	$5,$19,172
+	lw	$4,24($20)
+	li	$6,128			# 0x00000080
+	.set	noreorder
+	.set	nomacro
+	jal	blockmove
+	addu	$4,$4,16
+	.set	macro
+	.set	reorder
+
+	slt	$2,$18,2
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L76
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	addu	$5,$19,300
+	lw	$4,28($20)
+	li	$6,128			# 0x00000080
+	.set	noreorder
+	.set	nomacro
+	jal	blockmove
+	addu	$4,$4,16
+	.set	macro
+	.set	reorder
+
+	li	$2,3			# 0x00000003
+	.set	noreorder
+	.set	nomacro
+	bne	$18,$2,$L76
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	addu	$5,$19,428
+	lw	$4,32($20)
+	li	$6,128			# 0x00000080
+	.set	noreorder
+	.set	nomacro
+	jal	blockmove
+	addu	$4,$4,16
+	.set	macro
+	.set	reorder
+
+$L56:
+	move	$2,$0
+$L76:
+	la	$4,gMemCardInfo+48
+	li	$3,2			# 0x00000002
+	sw	$3,0($4)
+	sw	$0,4($4)
+$L74:
+	lw	$31,36($sp)
+	lw	$20,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_savefile
+	.text
+	.ent	iMCRD_DoFileWrite
+iMCRD_DoFileWrite:
+	.frame	$sp,48,$31		# vars= 8, regs= 4/0, args= 24, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,48
+	sw	$16,32($sp)
+	la	$16,gMemCardInfo+608
+	sw	$31,44($sp)
+	sw	$18,40($sp)
+	sw	$17,36($sp)
+	lw	$2,40($16)
+	#nop
+	andi	$2,$2,0x0200
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L78
+	move	$18,$4
+	.set	macro
+	.set	reorder
+
+	addu	$17,$16,4
+	lw	$4,-548($16)
+	lbu	$6,47($16)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardCreateFile
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	li	$4,2			# 0x00000002
+	move	$5,$2
+	move	$6,$18
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_HandleError
+	sw	$5,28($sp)
+	.set	macro
+	.set	reorder
+
+	bne	$2,$0,$L92
+	.set	noreorder
+	.set	nomacro
+	jal	timedwait
+	li	$4,64			# 0x00000040
+	.set	macro
+	.set	reorder
+
+	move	$5,$17
+	addu	$6,$16,44
+	move	$7,$0
+	lw	$4,-548($16)
+	li	$2,512			# 0x00000200
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardWriteFile
+	sw	$2,16($sp)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L81
+	sw	$2,28($sp)
+	.set	macro
+	.set	reorder
+
+	li	$2,1			# 0x00000001
+	sw	$2,-556($16)
+	.set	noreorder
+	.set	nomacro
+	j	$L92
+	li	$2,13			# 0x0000000d
+	.set	macro
+	.set	reorder
+
+$L81:
+	move	$4,$0
+$L93:
+	addu	$5,$sp,24
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardSync
+	addu	$6,$sp,28
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L93
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+	li	$4,2			# 0x00000002
+	lw	$5,28($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_HandleError
+	move	$6,$18
+	.set	macro
+	.set	reorder
+
+	bne	$2,$0,$L92
+$L78:
+	addu	$5,$16,4
+	la	$17,gMemCardInfo+60
+	lw	$4,0($17)
+	lw	$6,556($16)
+	lw	$7,36($16)
+	lw	$2,32($16)
+	addu	$7,$7,512
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardWriteFile
+	sw	$2,16($sp)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L87
+	sw	$2,28($sp)
+	.set	macro
+	.set	reorder
+
+	li	$2,1			# 0x00000001
+	sw	$2,-8($17)
+	.set	noreorder
+	.set	nomacro
+	j	$L92
+	li	$2,13			# 0x0000000d
+	.set	macro
+	.set	reorder
+
+$L87:
+	move	$4,$0
+$L94:
+	addu	$5,$sp,24
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardSync
+	addu	$6,$sp,28
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L94
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+	li	$4,2			# 0x00000002
+	lw	$5,28($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_HandleError
+	move	$6,$18
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L92
+	li	$3,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	li	$2,12			# 0x0000000c
+	la	$4,gMemCardInfo+52
+	sw	$0,0($4)
+	sw	$3,-4($4)
+$L92:
+	lw	$31,44($sp)
+	lw	$18,40($sp)
+	lw	$17,36($sp)
+	lw	$16,32($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,48
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_DoFileWrite
+	.text
+	.ent	iMCRD_DoFileDelete
+iMCRD_DoFileDelete:
+	.frame	$sp,32,$31		# vars= 0, regs= 4/0, args= 16, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$18,24($sp)
+	move	$18,$4
+	sw	$17,20($sp)
+	li	$17,17			# 0x00000011
+	sw	$16,16($sp)
+	la	$16,gMemCardInfo+608
+	sw	$31,28($sp)
+	lw	$4,-548($16)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardDeleteFile
+	addu	$5,$16,4
+	.set	macro
+	.set	reorder
+
+	move	$3,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$0,$L97
+	li	$2,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L98
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+	j	$L101
+$L97:
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	j	$L96
+	sw	$2,-560($16)
+	.set	macro
+	.set	reorder
+
+$L98:
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	li	$17,18			# 0x00000012
+	li	$3,19			# 0x00000013
+	sw	$3,4($2)
+	li	$2,1			# 0x00000001
+	sw	$2,-556($16)
+$L96:
+	move	$2,$17
+$L101:
+	lw	$31,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_DoFileDelete
+	.text
+	.ent	MCRD_handlecardevents
+MCRD_handlecardevents:
+	.frame	$sp,40,$31		# vars= 8, regs= 4/0, args= 16, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$17,28($sp)
+	move	$17,$4
+	sw	$16,24($sp)
+	li	$16,23			# 0x00000017
+	sw	$31,36($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	sw	$18,32($sp)
+	.set	macro
+	.set	reorder
+
+	move	$4,$0
+	move	$18,$2
+	addu	$5,$sp,16
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardSync
+	addu	$6,$sp,20
+	.set	macro
+	.set	reorder
+
+	move	$4,$2
+	beq	$4,$0,$L159
+	.set	noreorder
+	.set	nomacro
+	bgtz	$4,$L105
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	li	$2,-1			# 0xffffffff
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$2,$L107
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	j	$L158
+$L105:
+	.set	noreorder
+	.set	nomacro
+	bne	$4,$2,$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	lw	$3,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$4,$L111
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L132
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	j	$L158
+$L111:
+	lw	$4,20($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$3,$L123
+	li	$16,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$0,$L113
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$2,$L128
+	li	$2,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$4,$2,$L129
+	li	$16,23			# 0x00000017
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+$L113:
+	la	$4,gMemCardInfo+52
+	addu	$2,$17,-1
+	sw	$3,0($4)
+	lw	$3,timerhz
+	sll	$2,$2,2
+	sw	$3,gMemCardInfo+64($2)
+	lw	$3,0($18)
+	li	$2,-1			# 0xffffffff
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$2,$L104
+	li	$16,22			# 0x00000016
+	.set	macro
+	.set	reorder
+
+	lw	$4,8($4)
+	jal	MemCardAccept
+	.set	noreorder
+	.set	nomacro
+	j	$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+$L123:
+	sw	$3,gMemCardInfo+52
+	addu	$2,$17,-1
+	lw	$3,timerhz
+	sll	$2,$2,$16
+	sw	$3,gMemCardInfo+64($2)
+	li	$2,-1			# 0xffffffff
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	sw	$2,0($18)
+	.set	macro
+	.set	reorder
+
+$L128:
+	li	$16,3			# 0x00000003
+	li	$2,-4			# 0xfffffffc
+	sw	$3,gMemCardInfo+52
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	sw	$2,0($18)
+	.set	macro
+	.set	reorder
+
+$L129:
+	lw	$4,gMemCardInfo+60
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardAccept
+	li	$16,21			# 0x00000015
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+$L132:
+	lw	$3,20($sp)
+	#nop
+	sltu	$2,$3,5
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L104
+	sll	$2,$3,2
+	.set	macro
+	.set	reorder
+
+	lw	$2,$L139($2)
+	#nop
+	j	$2
+	.rdata
+	.align	3
+$L139:
+	.word	$L135
+	.word	$L136
+	.word	$L137
+	.word	$L135
+	.word	$L138
+	.text
+$L135:
+	li	$16,4			# 0x00000004
+	la	$3,gMemCardInfo+608
+	li	$2,1			# 0x00000001
+	sw	$17,0($3)
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	sw	$2,-560($3)
+	.set	macro
+	.set	reorder
+
+$L136:
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_InitCard
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	li	$2,-1			# 0xffffffff
+	sw	$2,0($18)
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	li	$16,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+$L137:
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_InitCard
+	move	$4,$17
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	li	$16,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+$L138:
+	li	$2,-2			# 0xfffffffe
+	sw	$2,0($18)
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	li	$16,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+$L107:
+	lw	$3,gMemCardInfo+48
+	#nop
+	sltu	$2,$3,5
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L104
+	sll	$2,$3,2
+	.set	macro
+	.set	reorder
+
+	lw	$2,$L156($2)
+	#nop
+	j	$2
+	.rdata
+	.align	3
+$L156:
+	.word	$L144
+	.word	$L148
+	.word	$L150
+	.word	$L152
+	.word	$L154
+	.text
+$L144:
+	addu	$2,$17,-1
+	sll	$2,$2,2
+	lw	$2,gMemCardInfo+64($2)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bgez	$2,$L145
+	li	$16,22			# 0x00000016
+	.set	macro
+	.set	reorder
+
+	la	$2,gMemCardInfo+52
+	lw	$4,8($2)
+	li	$16,23			# 0x00000017
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardExist
+	sw	$0,0($2)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+$L159:
+	.set	noreorder
+	.set	nomacro
+	j	$L104
+	li	$16,21			# 0x00000015
+	.set	macro
+	.set	reorder
+
+$L145:
+ #APP
+ #NO_APP
+	.set	noreorder
+	.set	nomacro
+	j	$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+$L148:
+	la	$3,gMemCardInfo+608
+	lw	$2,0($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$17,$2,$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	move	$4,$17
+	sw	$0,4($18)
+	sw	$0,-556($3)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_LoadCard
+	sw	$0,-560($3)
+	.set	macro
+	.set	reorder
+
+	j	$L158
+$L150:
+	la	$3,gMemCardInfo+608
+	lw	$2,0($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$17,$2,$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	move	$4,$17
+	sw	$0,4($18)
+	sw	$0,-556($3)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_DoFileWrite
+	sw	$0,-560($3)
+	.set	macro
+	.set	reorder
+
+	j	$L158
+$L152:
+	la	$3,gMemCardInfo+608
+	lw	$2,0($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$17,$2,$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	move	$4,$17
+	sw	$0,4($18)
+	sw	$0,-556($3)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_DoFileLoad
+	sw	$0,-560($3)
+	.set	macro
+	.set	reorder
+
+	j	$L158
+$L154:
+	la	$3,gMemCardInfo+608
+	lw	$2,0($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$17,$2,$L158
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	move	$4,$17
+	sw	$0,4($18)
+	sw	$0,-556($3)
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_DoFileDelete
+	sw	$0,-560($3)
+	.set	macro
+	.set	reorder
+
+	j	$L158
+$L104:
+	move	$2,$16
+$L158:
+	lw	$31,36($sp)
+	lw	$18,32($sp)
+	lw	$17,28($sp)
+	lw	$16,24($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_handlecardevents
+	.text
+	.ent	MCRD_fileexists
+MCRD_fileexists:
+	.frame	$sp,56,$31		# vars= 24, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,56
+	sw	$16,40($sp)
+	move	$16,$5
+	sw	$31,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	sw	$17,44($sp)
+	.set	macro
+	.set	reorder
+
+	addu	$17,$2,16
+	la	$5,gMemCardInfo+4
+	.set	noreorder
+	.set	nomacro
+	jal	strcpy
+	addu	$4,$sp,16
+	.set	macro
+	.set	reorder
+
+	addu	$4,$sp,16
+	.set	noreorder
+	.set	nomacro
+	jal	strcat
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$16,$0
+$L161:
+	move	$4,$17
+	.set	noreorder
+	.set	nomacro
+	jal	strcmp
+	addu	$5,$sp,16
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L164
+	move	$2,$16
+	.set	macro
+	.set	reorder
+
+	addu	$16,$16,1
+	slt	$2,$16,15
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L161
+	addu	$17,$17,40
+	.set	macro
+	.set	reorder
+
+	li	$2,-1			# 0xffffffff
+$L164:
+	lw	$31,48($sp)
+	lw	$17,44($sp)
+	lw	$16,40($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,56
+	.set	macro
+	.set	reorder
+
+	.end	MCRD_fileexists
+	.text
+	.ent	iMCRD_timersub
+iMCRD_timersub:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$4,$0
+	la	$3,gMemCardInfo+64
+$L168:
+	lw	$2,0($3)
+	addu	$4,$4,1
+	addu	$2,$2,-1
+	sw	$2,0($3)
+	slt	$2,$4,8
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L168
+	addu	$3,$3,4
+	.set	macro
+	.set	reorder
+
+	j	$31
+	.end	iMCRD_timersub
+	.text
+	.ent	garyMemCardGrabBlocks
+garyMemCardGrabBlocks:
+	.frame	$sp,40,$31		# vars= 0, regs= 3/0, args= 24, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$17,28($sp)
+	move	$17,$5
+	sw	$31,32($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	sw	$16,24($sp)
+	.set	macro
+	.set	reorder
+
+	addu	$16,$2,16
+	li	$3,15			# 0x0000000f
+	la	$5,$LC0
+	move	$6,$16
+	lw	$4,gMemCardInfo+60
+	addu	$7,$2,8
+	sw	$0,16($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardGetDirentry
+	sw	$3,20($sp)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	blez	$17,$L173
+	move	$3,$0
+	.set	macro
+	.set	reorder
+
+$L174:
+	addu	$3,$3,1
+	slt	$2,$3,$17
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L174
+	addu	$16,$16,40
+	.set	macro
+	.set	reorder
+
+$L173:
+	lw	$2,24($16)
+	#nop
+	bgez	$2,$L178
+	addu	$2,$2,8191
+$L178:
+	lw	$31,32($sp)
+	lw	$17,28($sp)
+	lw	$16,24($sp)
+	sra	$2,$2,13
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	garyMemCardGrabBlocks
+	.text
+	.ent	iMCRD_LoadCard
+iMCRD_LoadCard:
+	.frame	$sp,40,$31		# vars= 0, regs= 4/0, args= 24, extra= 0
+	.mask	0x80070000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$18,32($sp)
+	move	$18,$4
+	sw	$31,36($sp)
+	sw	$17,28($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	sw	$16,24($sp)
+	.set	macro
+	.set	reorder
+
+	move	$17,$2
+	addu	$16,$17,16
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_InitCard
+	move	$4,$18
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L181
+	li	$2,11			# 0x0000000b
+	.set	macro
+	.set	reorder
+
+	la	$5,$LC0
+	move	$6,$16
+	li	$2,15			# 0x0000000f
+	lw	$4,gMemCardInfo+60
+	addu	$7,$17,8
+	sw	$0,16($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardGetDirentry
+	sw	$2,20($sp)
+	.set	macro
+	.set	reorder
+
+	li	$4,1			# 0x00000001
+	move	$5,$2
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_HandleError
+	move	$6,$18
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L181
+	move	$4,$0
+	.set	macro
+	.set	reorder
+
+$L183:
+	lb	$2,0($16)
+	#nop
+	beq	$2,$0,$L186
+	lw	$3,24($16)
+	#nop
+	bgez	$3,$L187
+	addu	$3,$3,8191
+$L187:
+	lw	$2,12($17)
+	sra	$3,$3,13
+	subu	$2,$2,$3
+	sw	$2,12($17)
+$L186:
+	addu	$4,$4,1
+	slt	$2,$4,15
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L183
+	addu	$16,$16,40
+	.set	macro
+	.set	reorder
+
+	lw	$2,12($17)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L189
+	li	$2,-3			# 0xfffffffd
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L190
+	sw	$2,0($17)
+	.set	macro
+	.set	reorder
+
+$L189:
+	sw	$0,0($17)
+$L190:
+	li	$2,1			# 0x00000001
+	sw	$2,gMemCardInfo+52
+	li	$2,9			# 0x00000009
+$L181:
+	lw	$31,36($sp)
+	lw	$18,32($sp)
+	lw	$17,28($sp)
+	lw	$16,24($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_LoadCard
+	.text
+	.ent	iMCRD_FormatCard
+iMCRD_FormatCard:
+	.frame	$sp,32,$31		# vars= 0, regs= 3/0, args= 16, extra= 0
+	.mask	0x80030000,-8
+	.fmask	0x00000000,0
+	subu	$sp,$sp,32
+	sw	$17,20($sp)
+	move	$17,$0
+	sw	$31,24($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	sw	$16,16($sp)
+	.set	macro
+	.set	reorder
+
+	lw	$4,gMemCardInfo+60
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardFormat
+	move	$16,$2
+	.set	macro
+	.set	reorder
+
+	move	$3,$2
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L194
+	slt	$2,$3,2
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L200
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+	li	$2,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L195
+	move	$2,$17
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L201
+	li	$3,15			# 0x0000000f
+	.set	macro
+	.set	reorder
+
+$L194:
+	.set	noreorder
+	.set	nomacro
+	j	$L199
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+$L195:
+	li	$2,-4			# 0xfffffffc
+$L199:
+	sw	$2,0($16)
+	li	$17,-1			# 0xffffffff
+	move	$2,$17
+$L200:
+	li	$3,15			# 0x0000000f
+$L201:
+	sw	$0,0($16)
+	sw	$3,12($16)
+	lw	$31,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,32
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_FormatCard
+	.text
+	.ent	iMCRD_HandleError
+iMCRD_HandleError:
+	.frame	$sp,40,$31		# vars= 0, regs= 6/0, args= 16, extra= 0
+	.mask	0x801f0000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,40
+	sw	$16,16($sp)
+	move	$16,$4
+	sw	$18,24($sp)
+	move	$18,$5
+	sw	$19,28($sp)
+	move	$19,$6
+	sw	$20,32($sp)
+	move	$20,$0
+	move	$4,$19
+	sw	$31,36($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	MCRD_getcard
+	sw	$17,20($sp)
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$18,$0,$L203
+	move	$17,$2
+	.set	macro
+	.set	reorder
+
+	li	$2,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$2,$L206
+	slt	$2,$16,3
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L210
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$2,$L205
+	sltu	$2,$18,8
+	.set	macro
+	.set	reorder
+
+	j	$L245
+$L210:
+	li	$2,3			# 0x00000003
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$2,$L207
+	sltu	$2,$18,8
+	.set	macro
+	.set	reorder
+
+	j	$L245
+$L205:
+	.set	noreorder
+	.set	nomacro
+	j	$L203
+	li	$20,10			# 0x0000000a
+	.set	macro
+	.set	reorder
+
+$L206:
+	.set	noreorder
+	.set	nomacro
+	j	$L203
+	li	$20,13			# 0x0000000d
+	.set	macro
+	.set	reorder
+
+$L207:
+	li	$20,16			# 0x00000010
+$L203:
+	sltu	$2,$18,8
+$L245:
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L238
+	sll	$2,$18,2
+	.set	macro
+	.set	reorder
+
+	lw	$2,$L239($2)
+	#nop
+	j	$2
+	.rdata
+	.align	3
+$L239:
+	.word	$L213
+	.word	$L214
+	.word	$L215
+	.word	$L216
+	.word	$L220
+	.word	$L234
+	.word	$L235
+	.word	$L237
+	.text
+$L214:
+	li	$2,-1			# 0xffffffff
+	sw	$2,0($17)
+	.set	noreorder
+	.set	nomacro
+	j	$L211
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+$L215:
+	li	$2,-4			# 0xfffffffc
+	sw	$2,0($17)
+	.set	noreorder
+	.set	nomacro
+	j	$L211
+	li	$2,3			# 0x00000003
+	.set	macro
+	.set	reorder
+
+$L216:
+	la	$16,gMemCardInfo
+	lw	$4,60($16)
+	jal	MemCardAccept
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L217
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L218
+	li	$2,23			# 0x00000017
+	.set	macro
+	.set	reorder
+
+$L217:
+	sw	$2,48($16)
+	.set	noreorder
+	.set	nomacro
+	j	$L213
+	sw	$0,52($16)
+	.set	macro
+	.set	reorder
+
+$L220:
+	li	$2,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	bne	$16,$2,$L246
+	li	$2,-2			# 0xfffffffe
+	.set	macro
+	.set	reorder
+
+	lw	$2,gMemCardInfo+32
+	#nop
+	jal	$31,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L221
+	move	$16,$0
+	.set	macro
+	.set	reorder
+
+	li	$18,-1			# 0xffffffff
+$L223:
+	.set	noreorder
+	.set	nomacro
+	jal	iMCRD_FormatCard
+	move	$4,$19
+	.set	macro
+	.set	reorder
+
+	move	$3,$2
+	.set	noreorder
+	.set	nomacro
+	bne	$3,$18,$L231
+	addu	$16,$16,1
+	.set	macro
+	.set	reorder
+
+	slt	$2,$16,3
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L223
+	li	$2,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	beq	$3,$2,$L233
+$L231:
+	li	$2,2			# 0x00000002
+	sw	$2,gMemCardInfo+48
+	.set	noreorder
+	.set	nomacro
+	j	$L244
+	li	$2,6			# 0x00000006
+	.set	macro
+	.set	reorder
+
+$L233:
+	li	$2,-2			# 0xfffffffe
+	sw	$2,0($17)
+	.set	noreorder
+	.set	nomacro
+	j	$L211
+	li	$2,7			# 0x00000007
+	.set	macro
+	.set	reorder
+
+$L221:
+	li	$2,-2			# 0xfffffffe
+$L246:
+	sw	$2,0($17)
+	.set	noreorder
+	.set	nomacro
+	j	$L211
+	li	$2,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+$L234:
+	.set	noreorder
+	.set	nomacro
+	j	$L211
+	li	$2,19			# 0x00000013
+	.set	macro
+	.set	reorder
+
+$L235:
+	la	$16,gMemCardInfo
+	lw	$2,36($16)
+	#nop
+	jal	$31,$2
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L236
+	li	$2,14			# 0x0000000e
+	.set	macro
+	.set	reorder
+
+	lw	$4,60($16)
+	.set	noreorder
+	.set	nomacro
+	jal	MemCardDeleteFile
+	addu	$5,$16,612
+	.set	macro
+	.set	reorder
+
+	li	$2,21			# 0x00000015
+	li	$3,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	j	$L244
+	sw	$3,48($16)
+	.set	macro
+	.set	reorder
+
+$L236:
+$L218:
+	sw	$2,4($17)
+	li	$2,1			# 0x00000001
+	.set	noreorder
+	.set	nomacro
+	j	$L213
+	sw	$2,52($16)
+	.set	macro
+	.set	reorder
+
+$L237:
+	.set	noreorder
+	.set	nomacro
+	j	$L211
+	li	$2,20			# 0x00000014
+	.set	macro
+	.set	reorder
+
+$L238:
+	li	$2,23			# 0x00000017
+$L211:
+	sw	$2,4($17)
+	li	$2,1			# 0x00000001
+	sw	$2,gMemCardInfo+52
+$L213:
+	move	$2,$20
+$L244:
+	lw	$31,36($sp)
+	lw	$20,32($sp)
+	lw	$19,28($sp)
+	lw	$18,24($sp)
+	lw	$17,20($sp)
+	lw	$16,16($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,40
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_HandleError
+	.text
+	.ent	iMCRD_DefaultCBProc1
+iMCRD_DefaultCBProc1:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	.end	iMCRD_DefaultCBProc1
+	.text
+	.ent	ascii2sjis
+ascii2sjis:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$5,$0
+	move	$3,$5
+	addu	$2,$4,-32
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,16
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L249
+	move	$6,$4
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L250
+	li	$3,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L249:
+	addu	$2,$4,-48
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,10
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L250
+	addu	$2,$4,-58
+	.set	macro
+	.set	reorder
+
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,7
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L252
+	addu	$2,$4,-65
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L250
+	li	$3,11			# 0x0000000b
+	.set	macro
+	.set	reorder
+
+$L252:
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,26
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L254
+	addu	$2,$4,-91
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L250
+	li	$5,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L254:
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,6
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L256
+	addu	$2,$4,-97
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L250
+	li	$3,37			# 0x00000025
+	.set	macro
+	.set	reorder
+
+$L256:
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,26
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L258
+	addu	$2,$4,-123
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L250
+	li	$5,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+$L258:
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,4
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L260
+	li	$3,63			# 0x0000003f
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+$L260:
+$L250:
+	andi	$3,$3,0x00ff
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$0,$L262
+	addu	$3,$3,31
+	.set	macro
+	.set	reorder
+
+	andi	$2,$6,0x00ff
+	subu	$2,$2,$3
+	sll	$2,$2,1
+	lhu	$3,ascii_k_table($2)
+	.set	noreorder
+	.set	nomacro
+	j	$L265
+	sll	$2,$3,8
+	.set	macro
+	.set	reorder
+
+$L262:
+	sll	$3,$5,2
+	andi	$4,$6,0x00ff
+	lhu	$2,ascii_table($3)
+	lhu	$3,ascii_table+2($3)
+	addu	$2,$2,$4
+	subu	$3,$2,$3
+	sll	$2,$3,8
+$L265:
+	andi	$3,$3,0xffff
+	srl	$3,$3,8
+	or	$2,$2,$3
+	sll	$2,$2,16
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	sra	$2,$2,16
+	.set	macro
+	.set	reorder
+
+	.end	ascii2sjis
+	.text
+	.ent	sjis2ascii
+sjis2ascii:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$5,$0
+	sll	$2,$4,16
+	sra	$3,$2,24
+	andi	$4,$4,0x00ff
+	li	$2,129			# 0x00000081
+	.set	noreorder
+	.set	nomacro
+	bne	$4,$2,$L267
+	move	$6,$3
+	.set	macro
+	.set	reorder
+
+	andi	$2,$6,0x00ff
+	lbu	$2,sjis_k_table-64($2)
+	j	$31
+$L267:
+	li	$2,130			# 0x00000082
+	.set	noreorder
+	.set	nomacro
+	bne	$4,$2,$L268
+	addu	$2,$3,-79
+	.set	macro
+	.set	reorder
+
+	sltu	$2,$2,10
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L274
+	sll	$2,$5,1
+	.set	macro
+	.set	reorder
+
+	addu	$2,$3,-96
+	sltu	$2,$2,26
+	beq	$2,$0,$L270
+	.set	noreorder
+	.set	nomacro
+	j	$L269
+	li	$5,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+$L270:
+	addu	$2,$3,127
+	andi	$2,$2,0x00ff
+	sltu	$2,$2,26
+	beq	$2,$0,$L269
+	li	$5,2			# 0x00000002
+$L269:
+	sll	$2,$5,1
+$L274:
+	lbu	$3,sjis_table($2)
+	lbu	$2,sjis_table+1($2)
+	subu	$3,$6,$3
+	addu	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	andi	$2,$2,0x00ff
+	.set	macro
+	.set	reorder
+
+$L268:
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	move	$2,$0
+	.set	macro
+	.set	reorder
+
+	.end	sjis2ascii

@@ -1132,11 +1132,26 @@ void Weather_CreateSplat
   /* MATCH: the palette write-back BEFORE the cursor bump.  With the bump 2nd (the
    * Ghidra order) gcc issues `addiu/sw` ahead of the tag store (64 diffs); with it
    * 3rd the scheduler interleaves it into the palette merge exactly like retail. */
+  /* w46-a9 (6 -> PASS).  Three cooperating dials, all zero-instruction:
+   *  (1) SPLIT the cursor bump into a value statement (`next`) and its store, and
+   *      put the store INSIDE the palette RMW -- retail's `sw $v1,0($a3)` issues
+   *      between the addr24 mask and the palette merge, which no placement of a
+   *      fused `PTR = prim + 0x28;` statement can reach.
+   *  (2) SPLIT the palette read-modify-write itself (`palw` read, then the write)
+   *      -- the read must issue before the addr24 mask, exactly as the oracle's
+   *      `lw $v0,0($a1) / and $a0,$t0,$a0` pair shows (w43 SPLIT-RMW row).
+   *  (3) a zero-operand USE fence after the `next` value statement pins the
+   *      `addiu $v1,$t0,0x28` into the tag merge instead of letting it sink. */
   {
-    u_int addr24 = (u_int)prim & 0xffffff;
-    *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (addr24 & 0xffffff);
+    u_char *next = (u_char *)prim + 0x28;
+    __asm__ __volatile__("");
+    {
+      u_int palw = *(u_int *)tp3;
+      u_int addr24 = (u_int)prim & 0xffffff;
+      RENDER_PACKETPTR_ADDR = next;
+      *(u_int *)tp3 = palw & 0xff000000 | (addr24 & 0xffffff);
+    }
   }
-  RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;
   *((char *)prim + 3) = 9;
   prim->code = 0x2e;
   size = 0x12;
@@ -1144,8 +1159,16 @@ void Weather_CreateSplat
     size = 0xc;
   }
   splatTick = simGlobal.gameTicks - splat->startTick;
-  prim->r0 = prim->g0 = prim->b0 = (u_char)(-0x80 - splatTick * 4);
-  splatTick = splatTick >> 3;
+  /* w46-a9: retail issues `li $v0,-128 / subu $v0,$v0,$a0` BEFORE `sra $v1,$v1,3`
+   * (both are ready right after the `sll`, a sched2 ready-list tie).  Naming the
+   * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
+   * fence between the two ORIGINAL statements over-shoots (sra sinks too far). */
+  {
+    int col = -0x80 - splatTick * 4;
+    __asm__ __volatile__("");
+    splatTick = splatTick >> 3;
+    prim->r0 = prim->g0 = prim->b0 = (u_char)col;
+  }
   prim->x0 = vx - splatTick;
   prim->y0 = vy + splatTick - splatTick;
   prim->x1 = vx + size + splatTick;

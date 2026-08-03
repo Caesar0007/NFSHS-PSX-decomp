@@ -1286,7 +1286,10 @@ LAB_80083500:
       }
       if (((*ppCVar16)->pullOver != 0) && (((*ppCVar16)->stats).finishType != 3)) {
         Camera_UpdatePulloverCam(player);
-        goto LAB_80083584;
+LAB_80083584:
+        Camera_gInfo[player].inCar = 0;
+        Camera_gInfo[player].modechange = 1;
+        goto LAB_80083810;
       }
       if (Camera_gInfo[player].modechange != 0) {
         camera_flags *flagMode;
@@ -1438,9 +1441,6 @@ LAB_80083500:
         Camera_UpdateCopCam2(player);
       }
     goto LAB_80083810;
-LAB_80083584:
-    Camera_gInfo[player].inCar = 0;
-    Camera_gInfo[player].modechange = 1;
     }
 LAB_80083810:
     iVar17 = iVar17 + 0x10;

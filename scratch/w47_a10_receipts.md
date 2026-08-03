@@ -248,9 +248,66 @@ Probe `base3.i` (loop + 5 live vars across 8 calls + static helper):
 ---
 
 ## 5. RECEIPTS SERVED TO a1-a6
-(none requested yet — a10 polls the a1..a6 worktree scratch dirs; post a request as
-`C:/Temp/nfs4-wt47-aN/scratch/REQ_a10_*.txt` or name the fn in your report and I will run
-allocsim / reqdelta / qtyprio / qtytrace on it.)
+
+### 5.1 a4 — `iSNDpsxmemconstrain` (sdmemman.c), served unprompted from a4's §2
+a4's §2 records the W35 causal chain REFUTED and asks for allocno instruments on the
+3-way rotation. `recon/eaclib/psx/sndpsxz/sdmemman.c` in a4's worktree is byte-identical to
+base `ba09f774`, so these numbers are valid for a4's baseline basin.
+
+**`allocsim` reproduces the function exactly — MATCH 9/9, order IDENTICAL:**
+```
+ # pseudo   sim  actual    refs live    pri
+ 0: p87    v1   (v1  )     4    5     1.6000
+ 1: p85    a2   (a2  )     6   14     0.8571
+ 2: p93    v1   (v1  )     3    5     0.6000
+ 3: p99    v1   (v1  )     3    5     0.6000
+ 4: p100   a0   (a0  )     3    7     0.4285
+ 5: p86    a3   (a3  )     2    6     0.3333
+ 6: p81    a1   (a1  )     7   54     0.2592
+ 7: p80    a0   (a0  )     5   40     0.2500
+ 8: p82    t0   (t0  )     4   40     0.2000
+```
+**Pseudo identity (`pseudoid.py`)** — this is the "two head loads" pair a4 is chasing:
+| pseudo | RTL def | meaning |
+|---|---|---|
+| `p85` | `(set (reg/v:SI 85) (mem:SI (reg/v:SI 80)))` | the **word** head load |
+| `p87` | `(set (reg:SI 87) (zero_extend (mem:HI (p82 + 1306))))` | the **halfword** head load |
+| `p86` | `(set (reg/v:SI 86) (minus (p87) (p85)))` | their **difference** |
+| `p93` / `p99` | same `zero_extend(mem:HI (p82 + 1308 / 1310))` | the two sibling halfwords |
+| `p100` | `(set (reg:SI 100) (mem:SI (reg/v:SI 80)))` | the re-load of the word |
+
+**`reqdelta` menu (single-dial, ±40):**
+```
+--want p87=a3         : p87 live  5 -> 24   (|d|=19, live-length dial)
+--want p85=v1,p87=a2  : p87 refs  4 -> 3    (|d|=1,  REF-STEP floor_log2 2->1)   <-- CHEAPEST
+                        p85 refs  6 -> 8    (|d|=2,  REF-STEP floor_log2 2->3)
+                        p87 live  5 -> 10   (|d|=5)
+                        p85 live 14 -> 7    (|d|=7)
+--want p87=v0         : NO single-dial delta within ±40, and no two-dial (refs+live) pair.
+```
+⇒ **the head-load pair swap (`p85`↔`p87`) is a ONE-REFERENCE problem** (`p87 refs 4→3`, or
+`p85 refs 6→8`), i.e. squarely in the w44 zero-insn inflator family — not a spelling problem,
+exactly as a4 suspected. `p87=v0` is unreachable by any refs/live dial in this basin: if a4's
+target really is `$v0` for the halfword, the basin has to change first (a4 should post the
+exact retail handout as `--want` and re-run).
+
+### 5.2 a4 — `iSNDdmcallback` (sdma.c) §1 NEXT ANGLE
+a4 describes it as "a 1-dial reqdelta problem" but does not name the two block-local qtys.
+Both live in the SPLIT basin (`hwbase` + `wait`), which does not exist at base — so the
+dumps must be produced FROM a4's split variant. **Recipe for a4 (5 min, self-serve):**
+```sh
+# with the split edit applied in your worktree:
+python tools/rtl_dump_c.py recon/eaclib/psx/sndpsxz/sdma.c -dg -dl
+python tools/qtytrace.py <trace> iSNDdmcallback --steps      # if they are LOCAL qtys
+python tools/reqdelta.py <greg> <lreg> iSNDdmcallback --want "pXX=v1,pYY=v0"
+```
+They are block-local `lo_sum`/base qtys, so `qtytrace` (not `allocsim`) is the right tool;
+see §6.2 for the `-fno-delayed-branch` trace recipe (the C lane uses `cc1-ecoff.exe`).
+
+### 5.3 Standing offer (unfilled)
+No agent posted an explicit `REQ_a10_*` file this wave. a1/a2/a3/a5/a6 carried no named
+allocno request in their scratch at poll time. The instruments and recipes are in §6.2 and
+in `w45_a10_receipts.md` §6.
 
 ## 6. ICE-STUB TRACE DEBT (drawc/hud, w46 §6.4) — **CLOSED**
 

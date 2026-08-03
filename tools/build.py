@@ -148,6 +148,10 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           exists for A/B experiments; NO TU uses it --
 #                           measured on movf.c: both schedulers off = 105
 #                           diffs/236 insns (retail NEEDS sched2 ON).
+#   "no_builtin"          -> pass -fno-builtin to cc1/cc1plus for an object
+#                           whose retail code calls a libc routine that this
+#                           compiler otherwise expands inline. Whole-TU
+#                           verification is mandatory before adoption.
 #
 # The 7 TUs below own the retail binary's 7 ASPSX-$at-macro jtbl sites
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
@@ -277,6 +281,9 @@ PER_TU_FLAGS = {
     # assignments + both cursor shapes land exactly; retail's patch loop shows NO
     # strength reduction).  Same adoption precedent as movf.c's no_schedule_insns.
     "recon/eaclib/psx/sndpsxz/sbdload.c":   {"no_strength_reduce": True},
+    # stattool.obj has an out-of-line memcpy for its 20-byte record copy.
+    # CC1PLPSX otherwise builtin-expands it to eight extra instructions.
+    "recon/frontend/common/stattool.cpp":   {"no_builtin": True},
     # "no_delayed_branch" PROTOTYPED on libetc/INTR.cpp (w24-a9 task 3) and
     # NOT enabled here: net +3 PASS (ResetCallback/InterruptCallback/
     # DMACallback/VSyncCallbacks 4->0 diffs each) but a genuine regression
@@ -602,6 +609,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-fno-schedule-insns2")
     if tu_flags.get("no_strength_reduce"):
         cc1_flags.append("-fno-strength-reduce")
+    if tu_flags.get("no_builtin"):
+        cc1_flags.append("-fno-builtin")
     r = run([CC1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
@@ -660,6 +669,8 @@ def compile_cpp(src: Path) -> Path:
         cc1pl_flags.append("-fno-schedule-insns2")
     if tu_flags.get("no_strength_reduce"):
         cc1pl_flags.append("-fno-strength-reduce")
+    if tu_flags.get("no_builtin"):
+        cc1pl_flags.append("-fno-builtin")
     r = run([CC1PL, *cc1pl_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")

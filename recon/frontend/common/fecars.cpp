@@ -450,9 +450,7 @@ void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
 void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short withoutCarInGarageNumber)
 
 {
-  int iVar1;
   u_int i;
-  int iVar3;
   tCarInfo carInfo;
   
   if (withoutCarInGarageNumber != -1) {
@@ -462,17 +460,14 @@ void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short wit
   blockmove(this->fPinkSlipsCars[playerNum],&save,0x80);
   i = 0;
   if (this->fNumCars != 0) {
-    iVar3 = playerNum * 0x30;
-    iVar1 = iVar3;
     do {
-      save.fSaveAvailable[i] = this->fPinkSlipsAvailableCars[0][iVar1];
-      save.fSaveViewable[i] = this->fPinkSlipsViewableCars[0][iVar1];
+      save.fSaveAvailable[i] = this->fPinkSlipsAvailableCars[playerNum][i];
+      save.fSaveViewable[i] = this->fPinkSlipsViewableCars[playerNum][i];
       i = i + 1;
-      iVar1 = i + iVar3;
     } while (i < this->fNumCars);
   }
   if (withoutCarInGarageNumber != -1) {
-    carManager.AddToPinkSlipsList((short)carInfo.fCarID,(u_short)carInfo.fColor,playerNum);
+    carManager.AddToPinkSlipsList((short)(signed char)carInfo.fCarID,(u_short)carInfo.fColor,playerNum);
     carManager.AddUpgradesToPinkSlipsList((u_short)(u_char)frontEnd.pinkSlipsCar[playerNum],(u_short)carInfo.fUpgrades,
                playerNum);
   }

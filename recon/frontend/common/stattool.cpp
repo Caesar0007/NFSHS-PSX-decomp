@@ -241,16 +241,14 @@ void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 
 {
   int fsize;
-  char *fmt;
   char filename [80];
   
-  if (cheatones == 0) {
-    fmt = "%szrecord.dat";
+  if (cheatones != 0) {
+    sprintf(filename,"%sznfsrec.dat",Paths_Paths[0x24]);
   }
   else {
-    fmt = "%sznfsrec.dat";
+    sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
   }
-  sprintf(filename,fmt,Paths_Paths[0x24]);
   fsize = filesize(filename);
   if (fsize == 0xe9c) {
     loadfileatadrz(filename,Records);

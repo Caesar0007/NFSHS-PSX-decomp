@@ -365,6 +365,13 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
 void FeAudio_InitCommentary(int language,int arg1)
 
 {
+  u_int speechName;
+  /* These are distinct existing rodata symbols in the retail link, not two
+     fields of bigBuf. Keeping their identities prevents a false shared %hi. */
+  extern u_int D_8001016C[];
+  extern char D_80010170[];
+
+  speechName = D_8001016C[0];
   ginfo.nHandle = 0;
   ginfo.multiplay = 1;
   ginfo.nSoundHandle = 0;
@@ -375,8 +382,11 @@ void FeAudio_InitCommentary(int language,int arg1)
   ginfo.sSpeechData = (char *)0x0;
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
-  *(u_int *)ginfo.name = (*(u_int*)((char*)&bigBuf + 364));
-  sprintf(currentSpeechViv,(char *)(bigBuf + 0x170),Paths_Paths[0x26],allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
+  *(u_int *)ginfo.name = speechName;
+  /* The volatile value read keeps the language pointer load at the call site,
+     matching retail while leaving the Paths_Paths %hi free to schedule early. */
+  sprintf(currentSpeechViv,D_80010170,Paths_Paths[0x26],
+          *(char * volatile *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
   speechfileHeader[0] = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */
   return;
 }

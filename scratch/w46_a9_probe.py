@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 """Probe harness: apply a variant to a TU IN PLACE (per-TU flags are path-keyed!),
 gate, restore.  Usage: python scratch/probe.py <tu> <fnlist> <variantfile>
 variantfile = python module defining OLD and NEW strings."""

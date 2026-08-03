@@ -44,6 +44,30 @@
  *      DIFFERENT memory expression retail also had (e.g. a second `char *` cursor local
  *      that aliases str), or demote '#' by 3 refs by spelling 2 of the 8 `== '#'` tests
  *      against a value already in a register.
+ *  W46-a4 REQDELTA RE-RUN (tools/allocsim.py MATCH 17/17 on this fn, order identical to the
+ *      -dg dump) -- and it CORRECTS the w44 arithmetic above:
+ *        p108 ('#', const 35) refs=17 live=298 calls=5 pri=0.2281  -> ours $s2
+ *        p80  (`str`)         refs=8  live=159 calls=7 pri=0.1509  -> ours $s3
+ *      reqdelta --want "p80=s2,p108=s3" gives exactly two single dials:
+ *        p108 refs 17 -> 14   (floor_log2 4->3)    == remove 2 of the 8 `== '#'` compares
+ *        p80  refs  8 -> 13   (NOT 16 -- floor_log2(13)==3 already, so 3*13/159 = .2452
+ *                              beats .2281; the w44 note's "str refs>=16" was wrong)
+ *      🔴 THE LIVE-LENGTH DIAL IS UNREACHABLE, not merely untried: `str` is LOOP-CARRIED
+ *      (defined at the param copy, incremented at the loop tail), so it is live in EVERY
+ *      block of the loop and its 159 is the loop's own extent -- there is no source shape
+ *      that gets it under 105.  Symmetrically '#' would need live > 450 (it is 298).
+ *      ⇒ both remaining dials are REF dials and both would change the instruction stream:
+ *      +5 refs on `str` means three extra in-loop `*str` loads (retail has exactly two,
+ *      worth +2 -> refs 10 -> .1886, still short), and -3 refs on '#' means spelling two of
+ *      the eight tests as `(v ^ '#') == 0` (the w43 xori-immediate row) which the oracle
+ *      contradicts -- every one of its eight sites is `bne $v0,$s3` off the shared register.
+ *      ⇒ RETAIL'S OWN REF/LIVE NUMBERS CONTRADICT allocno_compare here (retail str refs=10
+ *      from its two `lbu 0($s2)` at 800D4354/800D4574 still scores below '#'), which is the
+ *      w41/w43 find_reg COST-PASS model boundary, not a priority question => PERMUTER target.
+ *      w46 falsifications at this basin: `*(u_char *)str` re-read in the 0xE5 arm [52,
+ *      unchanged]; `str = str + 0;` cursor no-op before the loop [52]; strlen before ix/ox
+ *      [56, re-confirming the w44 negative]; an extra `if (*str == 0) break;` loop test to
+ *      buy str two refs [56, 217 insns].
  *  (2) the HudPmx_gShapes index/base role swap after the Hud_FBuildSprite call: retail
  *      recomputes the CALL-ARG `andi a0,s0,0xFF` and reuses it as the index (base ->$v1);
  *      we recompute the BASE into $a0 and put the index in $v1.  Downstream of (1). */
@@ -830,6 +854,42 @@ void Hud_InitMapFrame(int i,int mode)
  * langMin is never 'S'), which puts the 0x53 def inside a conditional block.  Secondary:
  * ask the a10 allocator lane for the required delta on `y` vs the 0x53 pseudo -- if `y`'s
  * refs can be lifted one flr2 step (2 -> 4 weighted) it takes `$fp` even with both hoists. */
+/* w46-a4 QUANTIFIED with tools/allocsim.py + reqdelta.py (MATCH 9/9, order identical to
+ * the -dg dump), so the target is no longer a guess.  OUR TABLE (rank: pseudo reg refs/live/pri)
+ *   0 p87  s1 18/23 3.1304   1 p81  s2 8/33 .7272   2 p80  s3 7/33 .4242   3 p82  s4 7/33 .4242
+ *   4 p89  s5 3/23 .1304     5 p90  s6 3/24 .1250
+ *   6 p112 s7 3/40 .0750  <- the 0x53 constant      7 p111 fp 3/42 .0714  <- the 0x4D constant
+ *   8 p83  -- 3/66 .0454  <- `y` (param a3), no reg => the frame spill
+ * RETAIL WANTS  p111=$s7, p83=$fp, p112=NO REG (reload then rematerializes it from its
+ * REG_EQUIV const_int -- that IS the `addiu v0,zero,0x53` in the bne delay slot, and it is
+ * why retail is 77 and we are 78: our hoisted `li s7,83` costs a preheader insn AND leaves
+ * the slot empty).  So BOTH constants are hoisted in retail too; 0x53 simply loses the
+ * allocation.  reqdelta --want "p111=s7,p83=fp,p112=none" gives exactly TWO single dials:
+ *     p112 refs 40->... no: p112 refs 3 -> 1  (flr2 step 1->0)   -- UNREACHABLE (1 def + 1
+ *          loop-weighted use == 3 by construction)
+ *     p112 live 40 -> >=67                                        -- the reachable one
+ * VERIFIED BY --what-if 112:live=70 -> handout becomes exactly p111=s7, p83=fp, p112=--.
+ * WHY 67: the hoisted `li` is emitted at loop_start, i.e. AFTER the two movstrsi rodata->stack
+ * aggregate copies (~26 insns).  `y` is born at the prologue param copy, so its live range
+ * INCLUDES those 26 insns (66) while the hoisted constant's does not (40).  Anything that
+ * makes the 0x53 pseudo BORN BEFORE the aggregate copies wins the whole rotation.
+ * loop.c cannot be talked out of the hoist: -dL says `Insn 81: regno 111 (life 1), move-insn
+ * savings 1 moved to 165` and the same for 91/112, and move_movables' gate is
+ * `threshold*savings*lifetime >= insn_count` with threshold=(loop_has_call?1:2)*(1+n_non_fixed_regs)
+ * ~= 61 (-3 per move) against insn_count=25 -- no source shape can push a 25-insn loop past 58.
+ * The three-case gate at loop.c:698 also always passes here (the constant is a compiler temp,
+ * so case (2) `!REG_USERVAR_P && !REG_LOOP_TEST_P` is satisfied regardless of maybe_never).
+ * ⇒ the SELECTIVE-HOIST-DEFEAT framing above is CLOSED; the live-length dial is the open one.
+ * NEW FALSIFICATIONS (w46-a4, all still 78 insns): the two separator lookups moved INSIDE the
+ * loop [80]; S-test before M-test [21]; a zero-insn extra `y` reference `y | (y & 0)` [21];
+ * a named `yy = y;` copy immediately before the loop [19]; a named `int sc = 0x53;` declared
+ * FIRST in the function and used for the S-test [15] -- and the same with both constants named
+ * [15] and with the S-test first [15].  The 15s are the closest yet but are scaffolding a 1998
+ * author would not write AND they do not remove the nop, so none were landed.
+ * NEW NAMED ANGLE: find a FAITHFUL source shape whose 0x53 pseudo is born before the two
+ * `char sep[6] = {...}` aggregate copies -- e.g. any spelling in which the S-comparison value
+ * is produced by the same expression that also feeds something ahead of the copies, so cse
+ * cannot re-materialise it at the loop.  Everything else in this function is already exact. */
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {
@@ -882,6 +942,21 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
  *     arg-first in retail, and the following `addu` operands are swapped with it;
  *   - three more single-insn position swaps around `addu s2,zero,zero` / `addiu s1,s1,6` /
  *     `ori v0,v0,32896`.
+ *   w46-a4 LOCALISED the 43 to SIX independent one-insn position swaps (side_by_side lines):
+ *     167/170  `li s3,29`     ours 3 slots EARLY
+ *     218/221  `li s3,60`     ours 3 slots EARLY
+ *     311/314  `addu s0,s0,s4` ours 3 slots EARLY
+ *     326/328  `li a1,1`      ours 2 slots LATE
+ *     422-437  the BuildTimeSprites arg block: retail emits [lui %hi(A); lw t1,56(sp);
+ *              addiu %lo(A); addu v0,t1,t0] BEFORE [lui/addiu %hi/%lo(B); lh v1,2376(B)]
+ *              and lands `addu s0,s0,v1` in the `bnez v0` DELAY SLOT; ours does the `lh`
+ *              first, the base second, and pays `addiu a0,s5,600` in the slot instead
+ *     484-490 / 535-537 / 558-564  `addu s2,zero,zero`, `addiu s1,s1,6`,
+ *              `ori v0,v0,32896` + `li a1,111` + `lw s1,0(gp)` -- three more local reorders
+ *   The 422-437 block is the only one worth more than one instruction: it is the
+ *   load-before-compute / delay-slot-filler row (catalog w40 "statement position IS the
+ *   delay-slot filler") applied to the spilled-`i` reload vs the HudPmx_gShapes[0x76].width
+ *   load.  NOT PROBED this wave (budget).
  *   NEXT ANGLE: these are statement-position (luid) dials -- take the `lw`-of-the-spilled-arg
  *   to its own statement BEFORE the base materialization at the 2376(t1) site, and re-order
  *   the two textcolour/`li` assignments to bracket the call they feed (the w40 "statement's
@@ -1134,7 +1209,7 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
     time = 0;
   }
   temp2 = __builtin_abs(time);
-  temp1 = temp2 / 0x40;
+  temp1 = time / 0x40;
   min = (temp1 / 0x3c) % 0x3c;
   sec = temp1 % 0x3c;
   /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
@@ -1178,6 +1253,30 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
      the allocator-simulator lane as a COALESCING-DIRECTION delta (not a priority delta) --
      it is the only survivor in this fn and needs local-alloc qty ordering, not
      allocno_compare. */
+  /* w46-a4 LEVER (10 -> 6, count 99/99): DIVIDE THE CLAMPED PARAM, NOT THE ABS.
+     `temp1 = time / 0x40;` (was `temp2 / 0x40`).  Semantically identical -- time is
+     already clamped >= 0 -- but it splits the two roles onto two pseudos: the divide's
+     op0 becomes `time` (so expand_divmod's copy is NOT combine-folded any more: ours now
+     emits the oracle's IN-PLACE `addiu v0,v0,63`) and the abs value keeps its own
+     register for the `hun` numerator.  4 of the 10 diffs go; the `subu v1,a2,v1` /
+     `sra a1,v0,6` tail is byte-exact.
+     RESIDUAL 6 = the abs is computed FROM the divide's copy instead of from the param:
+       ours   `addu v0,a1,zero; bgez v0; addu a2,v0,zero; negu a2,a2; bgez v0; addiu v0,v0,63`
+       retail `bgez a1; addu v0,a1,zero; negu v0,v0; bgez v0; addu a2,v0,zero; addiu v0,v0,63`
+     i.e. retail's abs guard tests the PARAM and negates in place; ours tests the copy.
+     FALSIFIED IN THIS (NEW) BASIN -- the w44/w45 lists were basin-relative, these are
+     re-runs: temp1=abs;temp2=temp1;temp1/=64 (10); + hun off time (72); time=abs(time)
+     in place + temp2=time (10); divide-first-then-abs (19, +1 insn); hun off `time`
+     (14, 97 insns); ternary clamp (7, +1 insn); clamp+abs+divide inside a fresh block
+     scope on a local copy (6, identical); `temp2 += time - time` late-use fence (6,
+     identical); anon-abs-divide-then-named-abs (10); u_int survivor (10).
+     NEW NAMED ANGLE: the surviving 6 is an ORDER question, not a coalescing one -- both
+     builds now have the same three copies, retail just issues the abs block BEFORE the
+     divide's copy_to_mode_reg.  Attack it as a sched2 ready-list drain (the abs's `bgez`
+     and the divide's copy are both ready at the top of the entry block): walk a ZERO-INSN
+     USE FENCE between the clamp and the abs / between the abs and the divide (catalog w45
+     'the fence is a sched-issue-position fixpoint; POSITION is the dial'), and/or hand it
+     to the a10 lane as a -dR ready-list question for this one block. */
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
@@ -2687,7 +2786,28 @@ HudCdPlay_buildOutString:
   }
 }
 
-/* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ---- */
+/* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ----
+ * w46-a4: RESIDUAL 4, count EXACT 450/450, and the four diffs are ONE PAIR OF INSTRUCTIONS
+ * MOVED: `sw s6,232(sp)` + `addu s6,s0,zero` (the callee-saved save of `visible` plus its
+ * init as a COPY of the `i`-zero).  Ours issues the pair immediately after `addu s0,zero,zero`;
+ * retail issues it after the whole `&Camera_gInfo[player]` address chain (`lui/addiu/sw a0,
+ * 248(sp)/sll/addu/sll/addu`) and before `sw fp,240(sp)`.  Everything else is byte-identical,
+ * so this is a sched2 ready-list DRAIN tie inside the entry block (every insn there is
+ * priority 1 post-reload; the order is the luid tie-break).
+ * FALSIFIED w46-a4 (all keep 450 insns unless noted): moving `visible = 0;` to every position
+ * between `car = ...` and the first loop -- after mapx [4], after mapz [4], after cenZ [4],
+ * mid-matrix [4] (i.e. the statement position is a NO-OP: cse makes `visible` a copy of the
+ * `i` zero regardless of where it is written); consts-before-car [8]; consts,car,visible [8];
+ * splitting `&Camera_gInfo[player]` into its own block-scoped pointer local [16]; explicit
+ * `i = 0; visible = i;` [34]; zero-insn USE fences walked through the head -- fence(car) after
+ * `car =` [14], fence(visible) after `visible =` [50], fence(mapz) [97, +1 insn],
+ * fence(visible) before cenX [36], fence(visible) before the loop [19, +1 insn].
+ * NEW NAMED ANGLE: this is the ±1-RTL-insn ready-list drain class -- read `-dR` (sched2) for
+ * the entry block and find which insn retail releases late; the dial is one RTL insn issued
+ * at the tail of that block, not any statement position (proved above).  Alternatively hand
+ * it to the permuter: it is a 4-diff count-exact residual, the cheapest permuter target in
+ * this TU. */
+/* ---- Hud_BuildRadar__Fi ---- */
 int Hud_BuildRadar(int player)
 
 {
@@ -3717,6 +3837,43 @@ void Hud_RenderHudView(void)
  *   for loop.c's `-dL` move-insn table on this fn -- the hoist decision is a cost-model
  *   verdict (threshold*savings*lifetime vs insn weight) and the required delta may be a
  *   single ref-count step on the base. */
+/* w46-a4 -dL TABLE READ (angle (b) above, ANSWERED -- and it CLOSES the hoist-defeat route):
+ *   `Loop from 24 to 167: 49 real insns.`
+ *     Insn 38/39  regno 89/88   high/lo_sum GameSetup_gData        savings 2/1  MOVED (the $s3 giv)
+ *     Insn 55/56  regno 99/98   high/lo_sum (DashHUD_gInfo + 28)   savings 2/1  MOVED  <== THE BUG
+ *     Insn 69     regno 104     symbol_ref  Hud_gTacView           savings 1    NOT DESIRABLE  (= retail:
+ *                               its lui/addiu sits INSIDE the body at 800D8CBC)
+ *     Insn 102/103 regno 112/111 high/lo_sum (gTPage1 + 24)        savings 2/1  MOVED (the $s2 giv)
+ *     Insn 111/116 regno 115/118 the 0xFF000000 / 0xFFFFFF masks   savings 1    MOVED ($s5/$s4, = retail)
+ *     Insn 155    regno 129     high DashHUD_gInfo (the LOOP-EXIT test's base)  savings 1  NOT DESIRABLE
+ *   ⇒ our TAIL base already behaves exactly like retail's `lui $v1,%hi(DashHUD_gInfo)` at
+ *     .L800D8D24; the sole divergence is the SECOND, FOLDED movable `high(DashHUD_gInfo+28)`
+ *     that the `[7]`/`showhud` constant index creates.  Retail has no such second base: its
+ *     body reuses the tail's $v1 across the back edge (`addiu $v0,$v1,%lo(DashHUD_gInfo)`
+ *     in the HudTach beqz delay slot), so the base never crosses the three jals and never
+ *     needs a callee-saved home.
+ *   MERGING THE TWO BASES MAKES IT WORSE, MEASURED: writing the body as the struct-cast
+ *     displacement form `((dashhud_info *)(j4 + (int)&DashHUD_gInfo))->showhud[0]` does give
+ *     retail's `addu; lw 0x1C(v0)` shape and collapses the two movables into ONE -- but the
+ *     single movable then has savings 3 / life 3 and is moved even harder [36 diffs, 75 insns].
+ *     Same for the natural `DashHUD_gInfo.showhud[j]` [36/75] and `*(int *)(j4 +
+ *     (int)&DashHUD_gInfo.showhud[0])` [35/74, unchanged].
+ *   THE BUDGET IS NOT REACHABLE: move_movables moves iff `threshold*savings*lifetime >=
+ *     insn_count`, threshold = (loop_has_call?1:2)*(1+n_non_fixed_regs) ~= 61 and decays by 3
+ *     per move (gcc-2.8.1 loop.c:535/1640/1728).  With insn_count = 49 and savings*life = 4
+ *     (or 9 in the merged form) the verdict cannot be flipped by any source shape -- only
+ *     Insn 69's and 155's savings*life == 1 movables sit near the razor.  ⇒ the "selective
+ *     LICM block" framing is CLOSED for this base.
+ *   NEW NAMED ANGLE: make the body's showhud address NOT LOOP-INVARIANT at all, so no movable
+ *     is created -- i.e. reach showhud through a base that is DEFINED IN THE LOOP.  The only
+ *     value retail defines in the loop that carries `%hi(DashHUD_gInfo)` is the exit test's
+ *     own base, so the faithful shape is one where the C source READS THE EXIT TEST'S BASE
+ *     AND THE BODY'S THROUGH THE SAME EXPRESSION with the exit test's read happening FIRST in
+ *     the rotated loop (i.e. a loop rotation that puts the `splitscreen` re-read at the TOP of
+ *     the next iteration, feeding a pointer local that the body then indexes).  Secondary:
+ *     `-mno-split-addresses` removes gcc's own %hi/%lo lowering (catalog w33) and would delete
+ *     this movable outright -- but it is a PER_TU flag and hud.cpp holds 60 other functions,
+ *     so it needs a whole-TU probe (tools/gprobe.py) before anyone tries it. */
 void Hud_RenderTacView(void)
 
 {
@@ -4017,7 +4174,27 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
   if (Replay_ReplayMode < 2) {
     psVar3 = Hud_NextPerp + player;
     FinalBTC_Countdown = BTC_Countdown;
-    sprintf(BTCPerpInfo[player][*psVar3].name,name);
+    /* w46-a4 LEVER (19 -> 10, count now EXACT 110/110): the sprintf index is a FRESH
+     * `Hud_NextPerp[player]` array read, NOT `*psVar3`.  With `*psVar3` the load is tied
+     * to the pointer local, gcc issues `lw BTC_Countdown` / `sw FinalBTC_Countdown`
+     * back-to-back and pays a load-delay `nop` (the 111th insn); the array read lets the
+     * scheduler interleave the sprintf address chain (`lh a0,0(s0); sll a0,a0,4;
+     * addu a0,a0,s3`) between the gp load and its store, exactly as retail does.
+     * RESIDUAL 10 = the head `player` arithmetic only: retail sign-extends the short param
+     * into $v1 and MUTATES IN PLACE (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`, i.e. the
+     * *5 row offset is built BEFORE the *2 pointer offset and `player` dies at `sll v1,v1,1`);
+     * ours sign-extends into $a0, builds *2 first and keeps `player` live for `addu v0,a2,a0`.
+     * FALSIFIED HERE (this basin): FinalBTC first (10, identical) / after the sprintf (29)
+     * / sprintf before psVar3 (29) / row-base char* local first (14) / name-pointer local
+     * first (29) / int copy of player used for both indices (20) / `&Hud_NextPerp[i]` +
+     * `*psVar3` index (36).
+     * NEW NAMED ANGLE: this is a 4-insn block-local QTY question (all four pseudos are
+     * born and die inside the entry block) -- per catalog w45 §A0 `QTY_CMP_PRI ==
+     * allocno_compare`, so read the -dl qty table for this block and apply the ref-step /
+     * live-length dial to the sign-extended `player` pseudo so it ranks where retail's does
+     * (retail's dies 2 insns earlier).  A source shape that makes the *5 the FIRST consumer
+     * of `player` without moving the sprintf is the direct route. */
+    sprintf(BTCPerpInfo[player][Hud_NextPerp[player]].name,name);
     if (caught != 0) {
       BTCPerpInfo[player][*psVar3].caught = 1;
       BTCPerpInfo[player][*psVar3].time = time;

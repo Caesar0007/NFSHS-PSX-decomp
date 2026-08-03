@@ -12,7 +12,7 @@ glabel iSPCH_SentenceUsesParm
     /* FB96C 8010B16C 2400BFAF */  sw         $ra, 0x24($sp)
     /* FB970 8010B170 1800B2AF */  sw         $s2, 0x18($sp)
     /* FB974 8010B174 1400B1AF */  sw         $s1, 0x14($sp)
-    /* FB978 8010B178 402C040C */  jal        func_8010B100
+    /* FB978 8010B178 402C040C */  jal        VoxSentence_GetNumPhrases
     /* FB97C 8010B17C 1000B0AF */   sw        $s0, 0x10($sp)
     /* FB980 8010B180 21800000 */  addu       $s0, $zero, $zero
     /* FB984 8010B184 21904000 */  addu       $s2, $v0, $zero
@@ -21,7 +21,7 @@ glabel iSPCH_SentenceUsesParm
   .L8010B190:
     /* FB990 8010B190 21206002 */  addu       $a0, $s3, $zero
     /* FB994 8010B194 04006526 */  addiu      $a1, $s3, 0x4
-    /* FB998 8010B198 432C040C */  jal        func_8010B10C
+    /* FB998 8010B198 432C040C */  jal        iSPCH_GetOffset8
     /* FB99C 8010B19C 21300002 */   addu      $a2, $s0, $zero
     /* FB9A0 8010B1A0 21204000 */  addu       $a0, $v0, $zero
     /* FB9A4 8010B1A4 02008290 */  lbu        $v0, 0x2($a0)

@@ -799,7 +799,7 @@ dlabel D_80054FE0
     /* 457E8 80054FE8 00000000 */ .word 0x00000000
     /* 457EC 80054FEC 54430E80 */ .word __pure_virtual
     /* 457F0 80054FF0 00000000 */ .word 0x00000000
-    /* 457F4 80054FF4 48130680 */ .word func_80061348
+    /* 457F4 80054FF4 48130680 */ .word ___15AIHigh_BTC_Perp
     /* 457F8 80054FF8 00000000 */ .word 0x00000000
     /* 457FC 80054FFC 00B50580 */ .word CheckForCrimes__16AIHigh_BasicPerp
 enddlabel D_80054FE0

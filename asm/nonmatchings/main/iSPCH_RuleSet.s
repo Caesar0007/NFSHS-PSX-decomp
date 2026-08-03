@@ -27,7 +27,7 @@ glabel iSPCH_RuleSet
     /* FBAE4 8010B2E4 2120A002 */  addu       $a0, $s5, $zero
     /* FBAE8 8010B2E8 0C00A526 */  addiu      $a1, $s5, 0xC
     /* FBAEC 8010B2EC 21300002 */  addu       $a2, $s0, $zero
-    /* FBAF0 8010B2F0 492C040C */  jal        func_8010B124
+    /* FBAF0 8010B2F0 492C040C */  jal        iSPCH_GetOffset16
     /* FBAF4 8010B2F4 21804000 */   addu      $s0, $v0, $zero
     /* FBAF8 8010B2F8 2800801A */  blez       $s4, .L8010B39C
     /* FBAFC 8010B2FC 21B04000 */   addu      $s6, $v0, $zero

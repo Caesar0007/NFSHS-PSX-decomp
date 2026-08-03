@@ -24,7 +24,7 @@ glabel iSPCH_OrderSentences
     /* F15D8 80100DD8 2120A002 */  addu       $a0, $s5, $zero
   .L80100DDC:
     /* F15DC 80100DDC 0C00A526 */  addiu      $a1, $s5, 0xC
-    /* F15E0 80100DE0 D801040C */  jal        func_80100760
+    /* F15E0 80100DE0 D801040C */  jal        iSPCH_GetOffset16
     /* F15E4 80100DE4 21300002 */   addu      $a2, $s0, $zero
     /* F15E8 80100DE8 21204000 */  addu       $a0, $v0, $zero
     /* F15EC 80100DEC 00008390 */  lbu        $v1, 0x0($a0)
@@ -73,7 +73,7 @@ glabel iSPCH_OrderSentences
     /* F1680 80100E80 2120A002 */  addu       $a0, $s5, $zero
   .L80100E84:
     /* F1684 80100E84 0C00A526 */  addiu      $a1, $s5, 0xC
-    /* F1688 80100E88 D801040C */  jal        func_80100760
+    /* F1688 80100E88 D801040C */  jal        iSPCH_GetOffset16
     /* F168C 80100E8C 21300002 */   addu      $a2, $s0, $zero
     /* F1690 80100E90 00004290 */  lbu        $v0, 0x0($v0)
     /* F1694 80100E94 00000000 */  nop

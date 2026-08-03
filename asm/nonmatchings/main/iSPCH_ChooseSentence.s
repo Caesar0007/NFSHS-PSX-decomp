@@ -43,7 +43,7 @@ glabel iSPCH_ChooseSentence
     /* F1FE4 801017E4 00000000 */   nop
     /* F1FE8 801017E8 02001424 */  addiu      $s4, $zero, 0x2
   .L801017EC:
-    /* F1FEC 801017EC CF01040C */  jal        func_8010073C
+    /* F1FEC 801017EC CF01040C */  jal        VoxEvent_GetFilterLengthFlag
     /* F1FF0 801017F0 21206002 */   addu      $a0, $s3, $zero
     /* F1FF4 801017F4 FF004230 */  andi       $v0, $v0, 0xFF
     /* F1FF8 801017F8 04004010 */  beqz       $v0, .L8010180C
@@ -77,7 +77,7 @@ glabel iSPCH_ChooseSentence
     /* F205C 8010185C 18004010 */  beqz       $v0, .L801018C0
     /* F2060 80101860 21206002 */   addu      $a0, $s3, $zero
     /* F2064 80101864 0C006526 */  addiu      $a1, $s3, 0xC
-    /* F2068 80101868 D801040C */  jal        func_80100760
+    /* F2068 80101868 D801040C */  jal        iSPCH_GetOffset16
     /* F206C 8010186C 21302002 */   addu      $a2, $s1, $zero
     /* F2070 80101870 21804000 */  addu       $s0, $v0, $zero
     /* F2074 80101874 21200002 */  addu       $a0, $s0, $zero

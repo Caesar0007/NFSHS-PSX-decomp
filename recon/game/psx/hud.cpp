@@ -3777,6 +3777,43 @@ void Hud_RenderHudView(void)
  *   for loop.c's `-dL` move-insn table on this fn -- the hoist decision is a cost-model
  *   verdict (threshold*savings*lifetime vs insn weight) and the required delta may be a
  *   single ref-count step on the base. */
+/* w46-a4 -dL TABLE READ (angle (b) above, ANSWERED -- and it CLOSES the hoist-defeat route):
+ *   `Loop from 24 to 167: 49 real insns.`
+ *     Insn 38/39  regno 89/88   high/lo_sum GameSetup_gData        savings 2/1  MOVED (the $s3 giv)
+ *     Insn 55/56  regno 99/98   high/lo_sum (DashHUD_gInfo + 28)   savings 2/1  MOVED  <== THE BUG
+ *     Insn 69     regno 104     symbol_ref  Hud_gTacView           savings 1    NOT DESIRABLE  (= retail:
+ *                               its lui/addiu sits INSIDE the body at 800D8CBC)
+ *     Insn 102/103 regno 112/111 high/lo_sum (gTPage1 + 24)        savings 2/1  MOVED (the $s2 giv)
+ *     Insn 111/116 regno 115/118 the 0xFF000000 / 0xFFFFFF masks   savings 1    MOVED ($s5/$s4, = retail)
+ *     Insn 155    regno 129     high DashHUD_gInfo (the LOOP-EXIT test's base)  savings 1  NOT DESIRABLE
+ *   ⇒ our TAIL base already behaves exactly like retail's `lui $v1,%hi(DashHUD_gInfo)` at
+ *     .L800D8D24; the sole divergence is the SECOND, FOLDED movable `high(DashHUD_gInfo+28)`
+ *     that the `[7]`/`showhud` constant index creates.  Retail has no such second base: its
+ *     body reuses the tail's $v1 across the back edge (`addiu $v0,$v1,%lo(DashHUD_gInfo)`
+ *     in the HudTach beqz delay slot), so the base never crosses the three jals and never
+ *     needs a callee-saved home.
+ *   MERGING THE TWO BASES MAKES IT WORSE, MEASURED: writing the body as the struct-cast
+ *     displacement form `((dashhud_info *)(j4 + (int)&DashHUD_gInfo))->showhud[0]` does give
+ *     retail's `addu; lw 0x1C(v0)` shape and collapses the two movables into ONE -- but the
+ *     single movable then has savings 3 / life 3 and is moved even harder [36 diffs, 75 insns].
+ *     Same for the natural `DashHUD_gInfo.showhud[j]` [36/75] and `*(int *)(j4 +
+ *     (int)&DashHUD_gInfo.showhud[0])` [35/74, unchanged].
+ *   THE BUDGET IS NOT REACHABLE: move_movables moves iff `threshold*savings*lifetime >=
+ *     insn_count`, threshold = (loop_has_call?1:2)*(1+n_non_fixed_regs) ~= 61 and decays by 3
+ *     per move (gcc-2.8.1 loop.c:535/1640/1728).  With insn_count = 49 and savings*life = 4
+ *     (or 9 in the merged form) the verdict cannot be flipped by any source shape -- only
+ *     Insn 69's and 155's savings*life == 1 movables sit near the razor.  ⇒ the "selective
+ *     LICM block" framing is CLOSED for this base.
+ *   NEW NAMED ANGLE: make the body's showhud address NOT LOOP-INVARIANT at all, so no movable
+ *     is created -- i.e. reach showhud through a base that is DEFINED IN THE LOOP.  The only
+ *     value retail defines in the loop that carries `%hi(DashHUD_gInfo)` is the exit test's
+ *     own base, so the faithful shape is one where the C source READS THE EXIT TEST'S BASE
+ *     AND THE BODY'S THROUGH THE SAME EXPRESSION with the exit test's read happening FIRST in
+ *     the rotated loop (i.e. a loop rotation that puts the `splitscreen` re-read at the TOP of
+ *     the next iteration, feeding a pointer local that the body then indexes).  Secondary:
+ *     `-mno-split-addresses` removes gcc's own %hi/%lo lowering (catalog w33) and would delete
+ *     this movable outright -- but it is a PER_TU flag and hud.cpp holds 60 other functions,
+ *     so it needs a whole-TU probe (tools/gprobe.py) before anyone tries it. */
 void Hud_RenderTacView(void)
 
 {

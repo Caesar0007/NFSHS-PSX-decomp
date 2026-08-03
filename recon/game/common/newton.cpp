@@ -1314,131 +1314,101 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction)
 
 {
-  static coorddef dummy;
-  u_char uVar1;
-  u_long uVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  u_int uVar12;
-  Trk_NewSimQuad *pTVar13;
-  int quadCenterY;
-  BO_tNewtonObj *pBVar14;
-  int i;
-  Trk_NewSlice *pTVar15;
   int backwards;
-  u_int backwards_00;
   coorddef rOffset;
   matrixtdef transposeMat;
-  coorddef temp;
-  
-  backwards_00 = (u_int)(direction != 1);
+
+  backwards = direction != 1;
   BWorldSm_SetSlice(slice,&n->simRoadInfo);
-  pTVar15 = BWorldSm_slices;
   n->totalSlice = (u_short)slice;
-  (n->roadMatrix).m[0] = (int)pTVar15[slice].right[0] << 9;
-  (n->roadMatrix).m[1] = (int)pTVar15[slice].right[1] << 9;
-  (n->roadMatrix).m[2] = (int)pTVar15[slice].right[2] << 9;
-  (n->roadMatrix).m[3] = (int)pTVar15[slice].normal[0] << 9;
-  (n->roadMatrix).m[4] = (int)pTVar15[slice].normal[1] << 9;
-  (n->roadMatrix).m[5] = (int)pTVar15[slice].normal[2] << 9;
-  (n->roadMatrix).m[6] = (int)pTVar15[slice].forward[0] << 9;
-  (n->roadMatrix).m[7] = (int)pTVar15[slice].forward[1] << 9;
-  (n->roadMatrix).m[8] = (int)pTVar15[slice].forward[2] << 9;
+  n->roadMatrix.m[0] = (signed char)BWorldSm_slices[slice].right[0] << 9;
+  n->roadMatrix.m[1] = (signed char)BWorldSm_slices[slice].right[1] << 9;
+  n->roadMatrix.m[2] = (signed char)BWorldSm_slices[slice].right[2] << 9;
+  n->roadMatrix.m[3] = (signed char)BWorldSm_slices[slice].normal[0] << 9;
+  n->roadMatrix.m[4] = (signed char)BWorldSm_slices[slice].normal[1] << 9;
+  n->roadMatrix.m[5] = (signed char)BWorldSm_slices[slice].normal[2] << 9;
+  n->roadMatrix.m[6] = (signed char)BWorldSm_slices[slice].forward[0] << 9;
+  n->roadMatrix.m[7] = (signed char)BWorldSm_slices[slice].forward[1] << 9;
+  n->roadMatrix.m[8] = (signed char)BWorldSm_slices[slice].forward[2] << 9;
   Math_NormalizeShortVector((coorddef *)&n->roadMatrix);
-  Math_NormalizeShortVector((coorddef *)((n->roadMatrix).m + 3));
-  Math_NormalizeShortVector((coorddef *)((n->roadMatrix).m + 6));
+  Math_NormalizeShortVector((coorddef *)(n->roadMatrix.m + 3));
+  Math_NormalizeShortVector((coorddef *)(n->roadMatrix.m + 6));
   transpose(&n->roadMatrix,&transposeMat);
-  Newton_CopyRoadMatrixToOrientMat(n,backwards_00);
-  Newton_CopyRoadMatrixToShadowMat(n,backwards_00);
-  iVar3 = fixedmult(offset->x,transposeMat.m[0]);
-  iVar4 = fixedmult(offset->y,transposeMat.m[1]);
-  iVar5 = fixedmult(offset->z,transposeMat.m[2]);
-  iVar6 = fixedmult(offset->x,transposeMat.m[3]);
-  iVar7 = fixedmult(offset->y,transposeMat.m[4]);
-  iVar8 = fixedmult(offset->z,transposeMat.m[5]);
-  iVar9 = fixedmult(offset->x,transposeMat.m[6]);
-  iVar10 = fixedmult(offset->y,transposeMat.m[7]);
-  iVar11 = fixedmult(offset->z,transposeMat.m[8]);
-  pTVar15 = BWorldSm_slices + slice;
-  (n->position).x = iVar3 + iVar4 + iVar5 + pTVar15->center[0];
-  (n->position).y = iVar6 + iVar7 + iVar8 + pTVar15->center[1];
-  uVar12 = n[1].simRoadInfo.quadPts[1].y;
-  (n->position).z = iVar9 + iVar10 + iVar11 + pTVar15->center[2];
-  if ((uVar12 & 4) == 0) {
-    n->simOptz = '\x02';
-  }
-  else {
-    n->simOptz = '\0';
+  Newton_CopyRoadMatrixToOrientMat(n,backwards);
+  Newton_CopyRoadMatrixToShadowMat(n,backwards);
+
+  rOffset.x = fixedmult(offset->x,transposeMat.m[0]) +
+              fixedmult(offset->y,transposeMat.m[1]) +
+              fixedmult(offset->z,transposeMat.m[2]);
+  rOffset.y = fixedmult(offset->x,transposeMat.m[3]) +
+              fixedmult(offset->y,transposeMat.m[4]) +
+              fixedmult(offset->z,transposeMat.m[5]);
+  rOffset.z = fixedmult(offset->x,transposeMat.m[6]) +
+              fixedmult(offset->y,transposeMat.m[7]) +
+              fixedmult(offset->z,transposeMat.m[8]);
+
+  n->position.x = rOffset.x + BWorldSm_slices[slice].center[0];
+  n->position.y = rOffset.y + BWorldSm_slices[slice].center[1];
+  n->position.z = rOffset.z + BWorldSm_slices[slice].center[2];
+  if (((Car_tObj *)n)->carFlags & 4) {
+    n->simOptz = 0;
+  } else {
+    n->simOptz = 2;
   }
   Newton_FindClosestQuad(n);
   Newton_UpdateRoadInfo(n);
   Newton_UpdateRoadGeometry(n);
-  Newton_CopyRoadMatrixToOrientMat(n,backwards_00);
-  Newton_CopyRoadMatrixToShadowMat(n,backwards_00);
-  if (n->simOptz == '\x02') {
+  Newton_CopyRoadMatrixToOrientMat(n,backwards);
+  Newton_CopyRoadMatrixToShadowMat(n,backwards);
+  if (n->simOptz == 2) {
     n->groundElevation = BWorldSm_slices[slice].center[1];
-  }
-  else {
-    iVar3 = 0;
-    if (n->simOptz == '\x01') {
-      pBVar14 = n;
-      for (i = 0; i < 4; i = i + 1) {
-        if ((n->simRoadInfo).simQuad == (Trk_NewSimQuad *)0x0) {
-          temp.y = BWorldSm_slices[(n->simRoadInfo).slice].center[1];
-        }
-        else {
-          temp.y = (pBVar14->simRoadInfo).quadPts[0].y;
-        }
-        pBVar14 = (BO_tNewtonObj *)&(pBVar14->simRoadInfo).simRotFlag;
-        iVar3 = iVar3 + temp.y;
+  } else if (n->simOptz == 1) {
+    int i;
+    int quadCenterY = 0;
+
+    for (i = 0; i < 4; i++) {
+      coorddef temp;
+
+      if (n->simRoadInfo.simQuad != (Trk_NewSimQuad *)0) {
+        temp = n->simRoadInfo.quadPts[i];
+      } else {
+        temp = *(coorddef *)BWorldSm_slices[n->simRoadInfo.slice].center;
       }
-      if (iVar3 < 0) {
-        iVar3 = iVar3 + 3;
-      }
-      n->groundElevation = iVar3 >> 2;
+      quadCenterY += temp.y;
     }
-    else {
-      if (stackSpeedUpEnbabledFlag == 0) {
-        iVar3 = Newton_FindGroundElevationAndNormal(n,&dummy_133);
-        n->groundElevation = iVar3;
-      }
-      else {
-        gWSavePtr = SetSp(gWSavePtr);
-        stackSpeedUpEnbabledFlag = 0;
-        iVar3 = Newton_FindGroundElevationAndNormal(n,&dummy_133);
-        uVar2 = gWSavePtr;
-        n->groundElevation = iVar3;
-        gWSavePtr = SetSp(uVar2);
-        stackSpeedUpEnbabledFlag = 1;
-      }
-      (n->position).y = n->groundElevation + (n->dimension).y;
+    quadCenterY /= 4;
+    n->groundElevation = quadCenterY;
+  } else {
+    if (stackSpeedUpEnbabledFlag != 0) {
+      gWSavePtr = SetSp(gWSavePtr);
+      stackSpeedUpEnbabledFlag = 0;
+      n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_133);
+      gWSavePtr = SetSp(gWSavePtr);
+      stackSpeedUpEnbabledFlag = 1;
+    } else {
+      n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_133);
     }
+    n->position.y = n->groundElevation + n->dimension.y;
   }
-  iVar3 = Newton_CalcPerpenHeightOfLowestPointFromGround(n,(coorddef *)((n->roadMatrix).m + 3),&n->roadCenterPoint);
-  iVar4 = (n->position).y;
-  uVar1 = n->simOptz;
-  n->objAltitude = iVar3;
+  int altitude;
+
+  altitude = Newton_CalcPerpenHeightOfLowestPointFromGround(
+      n,(coorddef *)(n->roadMatrix.m + 3),&n->roadCenterPoint);
+  *(volatile int *)&n->objAltitude = altitude;
   n->objAltitude = 0;
-  (n->position).y = iVar4 - iVar3;
-  if (uVar1 == '\0') {
-    pTVar13 = (n->simRoadInfo).simQuad;
-    iVar3 = 0xe;
-    if (pTVar13 != (Trk_NewSimQuad *)0x0) {
-      n->groundSurfaceType = (u_int)pTVar13->surface;
+  n->position.y -= altitude;
+  int surfaceType;
+
+  if (n->simOptz == 0) {
+    surfaceType = 0xe;
+    if (n->simRoadInfo.simQuad != (Trk_NewSimQuad *)0) {
+      n->groundSurfaceType = n->simRoadInfo.simQuad->surface;
       goto NewtonSetInitSlice_setDriveSurf;
     }
+  } else {
+    surfaceType = 1;
   }
-  else {
-    iVar3 = 1;
-  }
-  n->groundSurfaceType = iVar3;
+  n->groundSurfaceType = surfaceType;
 NewtonSetInitSlice_setDriveSurf:
   n->driveSurfaceType = n->groundSurfaceType & 0xf;
   return;

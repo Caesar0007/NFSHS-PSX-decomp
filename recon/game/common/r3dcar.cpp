@@ -2300,10 +2300,10 @@ void R3DCar_InsertCarFacetII(Car_tObj *carObj)
 {
   int i;
   int light;
+  int lightAvg;
   int lightR;
   int lightG;
   int lightB;
-  int lightAvg;
   int worldZ;
   int carType;
   int countryFlag;
@@ -2311,36 +2311,22 @@ void R3DCar_InsertCarFacetII(Car_tObj *carObj)
   Transformer_zOverlay *overlay;
   Draw_CarCache *sd;
   int inAir;
-  int cop_type;
-  int index;
-  int iVar6;
-  int copIndex;
-  int envmap;
-  int clip;
-  Transformer_zObj *obj;
-  int type;
-  int offset;
-  int visible;
-  int iVar11;
-  int iVar12;
-  int mirror;
   int reflect;
-  int iStack_2c;
   
-  rightHandDrive = R3DCar_rightHandDrive;
   reflect = 0;
   carType = (int)(carObj->render).currentCarType;
   countryFlag = (u_char)(carObj->render).currentCountry >> 7;
+  rightHandDrive = R3DCar_rightHandDrive;
   overlay = R3DCar_LoadedScenePointer[countryFlag][carType]->overlay;
-  inAir = carObj->wheel[0].wheelInAir | carObj->wheel[1].wheelInAir |
-          carObj->wheel[2].wheelInAir | carObj->wheel[3].wheelInAir;
-  if (inAir == 0) {
+  if ((carObj->wheel[0].wheelInAir | carObj->wheel[1].wheelInAir |
+       carObj->wheel[2].wheelInAir | carObj->wheel[3].wheelInAir) == 0) {
     if (GameSetup_gData.Time == 0) {
       reflect = (u_int)(DrawC_gWetRoad != 0);
     }
     else {
+      inAir = -1;
       if (GameSetup_gData.commMode == 1) {
-        reflect = -1;
+        reflect = inAir;
         if (DrawC_gWetRoad == 0) goto R_ICFtII_setQuadLight;
         inAir = 1;
       }
@@ -2355,34 +2341,37 @@ R_ICFtII_setQuadLight:
   light = BWorldSm_QuadLight(&(carObj->N).simRoadInfo);
   (carObj->render).light = light & 0xffffff;
   if (-1 < (carObj->render).detail) {
+    sd = (Draw_CarCache *)&Render_gPalettePtr;
     if (gNight_renderNight != 0) {
       DrawC_NightHeadlight(carObj);
     }
-    light = (carObj->render).light;
-    lightR = light & 0xff;
-    lightG = (light & 0xff00) >> 8;
-    lightB = (light >> 0x10) & 0xff;
-    lightAvg = (lightR + lightG + lightB) / 3;
+    lightR = (carObj->render).light & 0xff;
+    lightG = ((carObj->render).light & 0xff00) >> 8;
+    lightB = ((u_int)(carObj->render).light >> 0x10) & 0xff;
+    light = (lightR + lightG) + lightB;
+    lightAvg = light / 3;
     light = lightAvg * 0x10000;
     if (lightAvg < 0x18) {
       lightAvg = 0x18;
       light = 0x180000;
     }
-    sd = (Draw_CarCache *)&Render_gPalettePtr;
-    sd->color = light + lightAvg * 0x101;
+    sd->color = light + (lightAvg << 8) + lightAvg;
     worldZ = DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,sd);
     if (-1 < worldZ) {
-      i = 0;
-      iVar12 = i;
-      iVar11 = i;
-      iStack_2c = 0;
-      for (; i < 0x39; i = i + 1) {
+      for (i = 0; i < 0x39; i = i + 1) {
+        Transformer_zObj *obj;
+        int visible;
+
         obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[i];
         visible = (u_char)R3DCar_ObjectVisible[i];
         if ((obj->numFacet != 0) && (visible != 0)) {
-          envmap = (int)*(signed char *)&R3DCar_ObjectInfo[0][iStack_2c * 2 + 1];
-          offset = (int)*(signed char *)&R3DCar_ObjectInfo[0][iStack_2c * 2];
-          mirror = false;
+          int mirror;
+          int envmap;
+          int offset;
+
+          envmap = (signed char)R3DCar_ObjectInfo[i][1];
+          offset = (signed char)R3DCar_ObjectInfo[i][0];
+          mirror = 0;
           if ((carType < 0x1c) && ((i - 0x1cU < 2 && (R3DCar_RecessedLight[carType] != '\0')))) {
             offset = -offset;
           }
@@ -2390,14 +2379,15 @@ R_ICFtII_setQuadLight:
             mirror = true;
             sd->head.mirror = sd->head.mirror ^ 1;
           }
-          type = visible - 0x11;
-          if (type >= 0) {
-            index = -1;
+          visible -= 0x11;
+          if (visible >= 0) {
+            int type = visible;
+            int index = -1;
             if (carType < 0x1c) {
               if (0x15 < carType) {
-                copIndex = R3DCar_CopIndex[carType - 0x16]
-                                             [(carObj->render).currentCountry & 0x7f];
-                cop_type = R3DCar_FlareCopSirenType[copIndex][type];
+                int copIndex = R3DCar_CopIndex[carType - 0x16]
+                                                   [(carObj->render).currentCountry & 0x7f];
+                int cop_type = R3DCar_FlareCopSirenType[copIndex][type];
                 if (cop_type != 0) {
                   type = cop_type;
                 }
@@ -2411,15 +2401,15 @@ R_ICFtII_setQuadLight:
                   type = type | 0x600;
                 }
               }
-              index = (int)R3DCar_FlareOverlayIndex[visible - 0x11];
+              index = (int)R3DCar_FlareOverlayIndex[visible];
             }
             sd->sub_otz = (carObj->render).sub_otz + offset;
-            DrawC_PrimHalo((matrixtdef *)((int)R3DCar_orientMat + iVar11),
-                       (coorddef *)((int)R3DCar_position + iVar12),obj,
+            DrawC_PrimHalo((matrixtdef *)((int)R3DCar_orientMat + i * 0x24),
+                       (coorddef *)((int)R3DCar_position + i * 0xc),obj,
                        type,index,reflect,sd);
           }
           else {
-            clip = 0x20;
+            int clip = 0x20;
             if (0x1b < carType) {
               clip = 0x40;
               envmap = 0x22;
@@ -2444,13 +2434,13 @@ R_ICFtII_setQuadLight:
             }
             sd->sub_otz = (carObj->render).sub_otz + offset;
             if (worldZ < clip) {
-              DrawC_PrimClip((matrixtdef *)((int)R3DCar_orientMat + iVar11),
-                         (coorddef *)((int)R3DCar_position + iVar12),obj,overlay,envmap,
+              DrawC_PrimClip((matrixtdef *)((int)R3DCar_orientMat + i * 0x24),
+                         (coorddef *)((int)R3DCar_position + i * 0xc),obj,overlay,envmap,
                          sd);
             }
             else {
-              DrawC_Prim((matrixtdef *)((int)R3DCar_orientMat + iVar11),
-                         (coorddef *)((int)R3DCar_position + iVar12),obj,overlay,envmap,
+              DrawC_Prim((matrixtdef *)((int)R3DCar_orientMat + i * 0x24),
+                         (coorddef *)((int)R3DCar_position + i * 0xc),obj,overlay,envmap,
                          sd);
             }
           }
@@ -2458,15 +2448,13 @@ R_ICFtII_setQuadLight:
             sd->head.mirror = sd->head.mirror ^ 1;
           }
         }
-        iVar12 = iVar12 + 0xc;
-        iVar11 = iVar11 + 0x24;
-        iStack_2c = iStack_2c + 3;
       }
       DrawC_PrimStop(carObj,sd);
       if (R3DCar_shadowFlag != 0) {
-        sd->color = ((int)(lightAvg * R3DCar_shadowColour.r) >> 8) +
-                       ((int)(lightAvg * R3DCar_shadowColour.g) >> 8) * 0x100 +
-                       ((int)(lightAvg * R3DCar_shadowColour.b) >> 8) * 0x10000;
+        lightR = (int)(lightAvg * R3DCar_shadowColour.r) >> 8;
+        lightG = (int)(lightAvg * R3DCar_shadowColour.g) >> 8;
+        lightB = (int)(lightAvg * R3DCar_shadowColour.b) >> 8;
+        sd->color = (lightB << 16) + (lightG << 8) + lightR;
         if (worldZ < 0x20) {
           DrawC_ShadowPrimClip(R3DCar_shadowVertex,sd);
         }

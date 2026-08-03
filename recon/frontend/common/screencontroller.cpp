@@ -288,13 +288,14 @@ ChkConfigs_swapIn:
 void tScreenControllerConfig::SwapInController()
 
 {
-  int cmp;
-  char *fileName;
-  
+  /* MATCH: SLD reports a 24-byte frame with only ra/s0 saved and no locals.
+     Passing the table entry directly removes the decompiler's uninitialized
+     fileName pseudo and lets GCC rematerialize fileNames after strcmp. */
   if ((this->CurrentlyLoadedArt == -1) ||
-     (cmp = strcmp(fileNames[(byte)this->fCurrentController],
-                         fileNames[this->CurrentlyLoadedArt]), cmp != 0)) {
-    ::AsyncLoadSwapShapeFile((tScreen *)this,fileName);
+     (strcmp(fileNames[(byte)this->fCurrentController],
+             fileNames[this->CurrentlyLoadedArt]) != 0)) {
+    ::AsyncLoadSwapShapeFile((tScreen *)this,
+                             fileNames[(byte)this->fCurrentController]);
     this->CurrentlyLoadedArt = (ushort)(byte)this->fCurrentController;
   }
   return;

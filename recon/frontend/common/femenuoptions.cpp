@@ -2274,12 +2274,15 @@ void tInsideBoxTwoWaySlider::Calibrate()
     break;
   case 3:
     if (padInfo->buf[0].ID == '#') {
-      char minimum;
+      /* MATCH: the bound is an int carrier.  GCC can then share literal 10
+         between the comparison and fallback value, selecting retail's
+         `li; slt` pair instead of `slti` followed by a late `li`. */
+      int minimum;
 
       range = padInfo->buf[0].data.negcon.buttonII;
       minimum = 10;
       if (minimum <= range) {
-        minimum = (char)range;
+        minimum = range;
       }
       frontEnd.IImaxRange[player] = minimum;
     }

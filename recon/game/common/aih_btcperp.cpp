@@ -11,6 +11,16 @@
 
 extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */
 
+struct SpeakerVirtualDispatch {
+  char data[76];
+  virtual int slot0(Car_tObj *carObj);
+  virtual int slot1();
+  virtual int slot2();
+  virtual int slot3();
+  virtual int slot4();
+  virtual int slot5(Car_tObj *carObj);
+};
+
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 u_char       strategyChart[5][3] = { 4u, 4u, 4u, 0, 0, 0, 1u, 0, 1u, 1u, 1u, 1u, 2u, 2u, 2u };   /* @0x8010ce7c */
 int          AIHigh_BTC_uTurnProb1000Skills[3] = { 3, 4, 5 };   /* @0x8010ce8c */
@@ -1344,8 +1354,6 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
   AIHigh_BTC_HumanCop *chaserCop;
 
-  Speaker *pSVar2;
-
   AIState_Normal *this_00;
 
   AIState_Base *pAVar3;
@@ -1355,10 +1363,6 @@ void AIHigh_BTC_AIPerp::HighExecute()
   AIState_Base *pAVar5;
 
   Car_tObj *otherCarObj;
-
-  Car_tObj *pCVar6;
-
-  coorddef cStack_20;
 
   
 
@@ -1396,13 +1400,8 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         if (this->perpMode_ != 2) {
 
-          pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
-
-          (**(int (**)(...))((int)*pSVar2->_vf + 0xc))
-
-                    ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 8),
-
-                     this->carObj_);
+          ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+              ->slot0(this->carObj_);
 
         }
 
@@ -1440,17 +1439,12 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
       }
 
-      if (this->escapeDuration_ + -0x40 < simGlobal.gameTicks - this->madeContactTime_) {
+      if (simGlobal.gameTicks - this->madeContactTime_ > this->escapeDuration_ - 0x40) {
 
         if (Camera_gInfo[0].forceFocus != 0) {
 
-          pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
-
-          (**(int (**)(...))((int)*pSVar2->_vf + 0x34))
-
-                    ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x30),
-
-                     this->carObj_);
+          ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+              ->slot5(this->carObj_);
 
           Camera_ResetRelPos(3);
 
@@ -1470,19 +1464,15 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
       }
 
-      pCVar6 = this->carObj_;
-
       otherCarObj = ((this->originalActivationCop_))->carObj_;
 
-      if (otherCarObj->direction == pCVar6->direction) {
+      if (otherCarObj->direction == this->carObj_->direction) {
 
-        iVar1 = AIWorld_ApxSplineDistance(pCVar6,otherCarObj);
+        iVar1 = AIWorld_ApxSplineDistance(this->carObj_,otherCarObj);
 
-        pCVar6 = this->carObj_;
+        if (0 < iVar1 * this->carObj_->direction) {
 
-        if (0 < iVar1 * pCVar6->direction) {
-
-          iVar1 = pCVar6->currentSpeed;
+          iVar1 = this->carObj_->currentSpeed;
 
           if (iVar1 < 0) {
 
@@ -1526,17 +1516,17 @@ perpMode_merge:
 
     pAVar3 = operator new(8);
 
-    pCVar6 = this->carObj_;
+    carObj = this->carObj_;
 
-    (new(pAVar3) AIState_Base(pCVar6));
+    (new(pAVar3) AIState_Base(carObj));
 
     pAVar3->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_AIPerp_vtable;
 
-    memset((u_char *)&cStack_20,'\0',0xc);
+    memset((u_char *)&trafficOffset,'\0',0xc);
 
-    cStack_20.y = pCVar6->carIndex * 0xa0000;
+    trafficOffset.y = carObj->carIndex * 0xa0000;
 
-    Newton_SetInitialSlicePositionOrientationEtc(&pAVar3->carObj_->N,0,&cStack_20,1);
+    Newton_SetInitialSlicePositionOrientationEtc(&pAVar3->carObj_->N,0,&trafficOffset,1);
 
     (pAVar3->carObj_->N).active = '\0';
 
@@ -1544,7 +1534,7 @@ perpMode_merge:
 
     if (pAVar5 != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))((int)pAVar5->_vf + 0x14))((int)&pAVar5->carObj_ + (int)*(short *)((int)pAVar5->_vf + 0x10),3);
+      (*(*pAVar5->_vf)[2].pfn)((int)&pAVar5->carObj_ + (int)(*pAVar5->_vf)[2].delta,3);
 
     }
 
@@ -1560,17 +1550,17 @@ perpMode_merge:
 
     chaserCop = this->CheckForActivation();
 
-    if (chaserCop == (AIHigh_BTC_HumanCop *)0x0) {
+    if (chaserCop != (AIHigh_BTC_HumanCop *)0x0) {
 
-      this->schedulingOff_ = 1;
+      this->NewStage(chaserCop);
+
+      this->schedulingOff_ = 0;
 
     }
 
     else {
 
-      this->NewStage(chaserCop);
-
-      this->schedulingOff_ = 0;
+      this->schedulingOff_ = 1;
 
     }
 
@@ -1584,13 +1574,8 @@ perpMode_merge:
 
       if (this->perpMode_ != 2) {
 
-        pSVar2 = (Speaker *)Speech_Mobile(((this->originalActivationCop_))->carObj_);
-
-        (**(int (**)(...))((int)*pSVar2->_vf + 0xc))
-
-                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 8),
-
-                   this->carObj_);
+        ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+            ->slot0(this->carObj_);
 
       }
 
@@ -1614,17 +1599,17 @@ perpMode_merge:
 
       this_00 = operator new(8);
 
-      pAVar3 = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
+      newState = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
 
       pAVar5 = this->state_;
 
       if (pAVar5 != (AIState_Base *)0x0) {
 
-        (*(int (*)(...))((int)pAVar5->_vf + 0x14))((int)&pAVar5->carObj_ + (int)*(short *)((int)pAVar5->_vf + 0x10),3);
+        (*(*pAVar5->_vf)[2].pfn)((int)&pAVar5->carObj_ + (int)(*pAVar5->_vf)[2].delta,3);
 
       }
 
-      this->state_ = pAVar3;
+      this->state_ = newState;
 
       this->stateType_ = 2;
 

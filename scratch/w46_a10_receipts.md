@@ -5,6 +5,12 @@ Consumers: a1 (DrawGouraudShape / FontUpsideDownBlit), a2 (hce arm-0 find_reg pr
 a3 (PrimMenu qty table), a5 (BuildNumbers pSprt / Wingman / BuildTach), a9 (CreateLicense
 PRECOMPUTE_REGISTER_PARAMETERS).
 
+🔴 **TOOLCHAIN-IDENTITY CORRECTION (measured this wave):** both PsyQ compilers
+report `GNU C[++] 2.8.0 SN32 Build 4.0.0007` — i.e. **`CC1PLPSX.EXE` is gcc-2.8.0,
+NOT gcc-2.7.2.** The methodology's §3.12#7 / §5.0c "our seal pipeline = CC1PLPSX /
+gcc-2.7.2" line is stale for THIS PsyQ 4.3 drop. (Consistent with `verify_asm`'s
+"gcc-2.8.0 authoritative" rule and with our 2.8.1-built cc1plus reaching 22/25.)
+
 Predecessor receipts (READ THEM FIRST, still fully valid): `scratch/w45_a10_receipts.md`
 — §0 allocsim model, §1 DrawGouraudShape delta, §2 hce delta, §3 Font all-local proof
 (`QTY_CMP_PRI == allocno_compare`), §4 DrawQuad, §5 BuildNumbers, §6 how-to-run, §7 cc1 build recipe.
@@ -120,6 +126,20 @@ mingw32-make CC="gcc -std=gnu89 -w" CFLAGS="-O1 -w -std=gnu89" LANGUAGES="c c++"
 | `[find_reg]` | global.c | per-allocno entry state + the register won |
 | `[caller-save]` | global.c | `CALLER_SAVE_PROFITABLE` retry firing |
 | **`[reload-rehome]`** 🆕 | reload1.c ×3 | `retry_global_alloc` **and the two SILENT inheritance re-homes** (`reg_renumber[REGNO(old)] = REGNO(reload_reg_rtx[j])` at the two `special`/inheritance sites) — allocsim's only unexplained residual class, now observable |
+
+### 🔎 MEASURED: the "silent re-home" class is RARE
+With `[reload-rehome]` live on all three traced TUs (psxfront C++, hud C++, memcard C):
+* `retry_global_alloc` (reload1.c:3722, inside `spill_hard_reg`) fired **6 times**
+  (e.g. `pseudo 97 now in 8`, `pseudo 240 now in -1` = spilled to stack). This one is
+  ALSO printed by the stock `-dg` dumpfile as `Register N now in M`, so allocsim can
+  already see it.
+* the **two SILENT inheritance sites** (`reg_renumber[REGNO(old)] = REGNO(reload_reg_rtx[j])`
+  at reload1.c:6297 and :7383 — the w45 "6277/7362") fired **ZERO times**.
+  Both are guarded by `REG_N_DEATHS(old)==1 && REG_N_SETS(old)==1` (:6290) / the
+  reload-inheritance path (:7383), which is a narrow condition.
+⇒ **allocsim's "only unexplained residual" is dominated by `retry_global_alloc`,
+which is observable in the stock dump; the truly silent sites are a corner case.**
+When one DOES bite, the instrumented cc1 now names it.
 
 Sample (real output):
 ```

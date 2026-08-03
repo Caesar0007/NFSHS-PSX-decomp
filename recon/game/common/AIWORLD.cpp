@@ -464,42 +464,28 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
                         write, not the old cVar1/cVar2 scalar-cache shortcut. */
   int futureSlice;   /* SYM: REG -- rewired from anonymous iVar3's slice-wrap result */
   int currentSlice;   /* SYM: REG -- (carObj->N).simRoadInfo.slice, cached once */
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  /* REMAINING residual (52 diffs, insn-count-exact 70/70): carObj lands in s0 here vs oracle's
-     s1 (a uniform s0<->s1 swap cascading through the accumulator regs too) -- the same
-     "carObj cached across multiple calls, physical reg is a coin-flip" class as
-     AIWorld_CalculateDeltaRoadYaw/ZSplineDistance. Tried: decl-order swap (no effect, reverted).
-     Accepted as a coloring floor; the 2 real bugs (signed-char BWorldSm_slices reads via real
-     Trk_NewSlice.right[] fields, right.x/y/z struct materialization order) are fixed+verified. */
 
   if ((carObj->carFlags & 0x10U) != 0) {
-    iVar3 = carObj->currentSpeed;
-    if (iVar3 < 0) {
-      iVar3 = -iVar3;
-    }
-    if (iVar3 < 0x140000) {
+    if (__builtin_abs(carObj->currentSpeed) < 0x140000) {
       slicesAhead = 0;
     }
   }
   currentSlice = (carObj->N).simRoadInfo.slice;
   futureSlice = currentSlice + slicesAhead;
-  if (slicesAhead < 0) {
-    if (futureSlice < 0) {
-      futureSlice = futureSlice + gNumSlices;
+  if (slicesAhead >= 0) {
+    if (gNumSlices <= futureSlice) {
+      futureSlice = futureSlice - gNumSlices;
     }
   }
-  else if (gNumSlices <= futureSlice) {
-    futureSlice = futureSlice - gNumSlices;
+  else if (futureSlice < 0) {
+    futureSlice = futureSlice + gNumSlices;
   }
   right.x = (int)(signed char)BWorldSm_slices[futureSlice].right[0] << 9;
   right.y = (int)(signed char)BWorldSm_slices[futureSlice].right[1] << 9;
   right.z = (int)(signed char)BWorldSm_slices[futureSlice].right[2] << 9;
-  iVar3 = fixedmult((carObj->N).linearVel.x,right.x);
-  iVar4 = fixedmult((carObj->N).linearVel.y,right.y);
-  iVar5 = fixedmult((carObj->N).linearVel.z,right.z);
-  return iVar3 + iVar4 + iVar5;
+  return fixedmult((carObj->N).linearVel.x,right.x) +
+         fixedmult((carObj->N).linearVel.y,right.y) +
+         fixedmult((carObj->N).linearVel.z,right.z);
 }
 
 /* ---- AIWorld_CalcSpeed__FP8Car_tObj  [@0x800738d4] ---- */

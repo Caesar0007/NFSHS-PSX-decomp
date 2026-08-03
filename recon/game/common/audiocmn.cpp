@@ -340,10 +340,14 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
           SNDbankremove(s->handle);
         }
       }
+      /* MATCH: the stripped wrapper adds two loop-weighted refs to the shared -1
+         sentinel, placing it in s1 and bank in s2 without emitting instructions. */
+      do {
 FAIL_HANDLE:
-      s->handle = -1;
+        s->handle = -1;
 FAIL_PATCH:
-      s->patch = -1;
+        s->patch = -1;
+      } while (0);
       return;
     }
     slot++;

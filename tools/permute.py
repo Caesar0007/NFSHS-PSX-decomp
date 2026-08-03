@@ -375,7 +375,16 @@ def do_setup(module, symbol, asm_rel):
         sys.exit(f"[setup cpp] {pp.stderr}")
 
     # 2. sanitize C++ -> pycparser-clean C, then reduce to the one function.
-    base_c = san.reduce_to_fn(san.sanitize(pp.stdout), src_name)
+    sanitized = san.sanitize(pp.stdout)
+    base_c = san.reduce_to_fn(sanitized, src_name)
+    if src_name not in base_c and symbol != src_name:
+        # Some reconstructed C++ functions retain their raw cfront-mangled
+        # spelling instead of Class::method syntax.  Prefer the normal
+        # demangled lookup, but fall back to that exact source spelling.
+        raw_base_c = san.reduce_to_fn(sanitized, symbol)
+        if symbol in raw_base_c:
+            src_name = symbol
+            base_c = raw_base_c
     if src_name not in base_c:
         sys.exit(f"[setup] target function {src_name} not found after reduce")
     base_c = _lower_method(base_c, src_name)   # C++ method -> plain-C (explicit thiz)

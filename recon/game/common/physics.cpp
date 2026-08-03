@@ -1086,27 +1086,28 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   if (specs->redline + 500 < carObj->flywheelRpm) {
     exceedRedline = 1;
   }
-  drag = 0x10000;
   if (carObj->carInfo->GroundEffects != 0) {
     drag = (carObj->specs->frontAeroDownForce + carObj->specs->rearAeroDownForce) / 2 + 0x10000;
+  } else {
+    drag = 0x10000;
   }
   drag = fixedmult((carObj->linearVel_ch).z,drag);
   drag = fixedmult(specs->dragCoeff,
                    (drag / 0x10000) * (drag / 0x10000) * (drag / 0x10000));
   if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
     int candidateRpm = specs->redline + 0xfa;
-    if (fixedmult(candidateRpm,gGasRatio) < candidateRpm) {
-      desiredRpm = fixedmult(specs->redline + 0xfa,gGasRatio);
-    } else {
+    if (fixedmult(candidateRpm,gGasRatio) >= candidateRpm) {
       desiredRpm = specs->redline + 0xfa;
+    } else {
+      desiredRpm = fixedmult(specs->redline + 0xfa,gGasRatio);
     }
   }
   else {
     int candidateRpm = specs->redline + 100;
-    if (fixedmult(candidateRpm,gGasRatio) < candidateRpm) {
-      desiredRpm = fixedmult(specs->redline + 100,gGasRatio);
-    } else {
+    if (fixedmult(candidateRpm,gGasRatio) >= candidateRpm) {
       desiredRpm = specs->redline + 100;
+    } else {
+      desiredRpm = fixedmult(specs->redline + 100,gGasRatio);
     }
   }
   if (specs->redline <= carObj->flywheelRpm) {
@@ -1148,13 +1149,13 @@ cfLbl1:   /* @0x800aae38  (-f-build goto label) */
       else if (((carObj->control).gearShiftTimer != '\0') &&
                ((carObj->control).lastGear != '\x01')) {
         if ((carObj->control).downShifting != '\0') {
-          if ((u_char)(carObj->control).brakeLevel < 0x41) {
+          if ((u_char)(carObj->control).brakeLevel >= 0x41) {
             carObj->flywheelRpm =
-                carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
+                carObj->flywheelRpm + bblip[(u_char)(carObj->control).desiredGear];
           }
           else {
             carObj->flywheelRpm =
-                carObj->flywheelRpm + bblip[(u_char)(carObj->control).desiredGear];
+                carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
           }
           desiredRpm = specs->redline;
           if (carObj->flywheelRpm <= specs->redline) {
@@ -1292,7 +1293,11 @@ Phy_CalcAcc_clearWheelSpinExit:
         }
         driveAcc = fixedmult(driveAcc,gGasRatio);
       }
-      carObj->flywheelRpm = MIN(carObj->flywheelRpm,desiredRpm);
+      temp = desiredRpm;
+      if (temp >= carObj->flywheelRpm) {
+        temp = carObj->flywheelRpm;
+      }
+      carObj->flywheelRpm = temp;
       ratio = carObj->slide;
       if (ratio < 0) {
         ratio = -ratio;

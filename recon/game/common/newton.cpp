@@ -56,7 +56,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
 extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo);
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj);
 extern "C" void Newton_LimitAngularVelocity__FP13BO_tNewtonObj(int newtonObj);
-extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(Car_tObj *newtonObj);
+extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);
 int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix);
 int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
 
@@ -2260,13 +2260,11 @@ extern "C" void Newton_LimitAngularVelocity__FP13BO_tNewtonObj(int newtonObj)
 }
 
 /* ---- Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj  [NEWTON.CPP:2466-2733] SLD-VERIFIED ---- */
-extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(Car_tObj *newtonObj)
-
+extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj)
 {
+  int elevationOfGround;
   int objAltitude;
   int groundVel;
-  coorddef collisionPoint;
-  int elevationOfGround;
   int relativeClosingVelocity;
   coorddef normal;
   coorddef shadowNormal;
@@ -2274,184 +2272,134 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(Car_tObj *newtonO
   int elapsedTime;
   int iTimeCount;
   int modifiedGravity;
-  int bounceVel;
-  int k;
-  int scale;
-  int iVar1;
-  int iVar2;
-  void *pvVar3;
-  u_int uVar4;
-  int iVar5;
-  Car_tObj *pCVar6;
-  int iVar7;
-  int iVar8;
-  coorddef cStack_60;
-  int iStack_50;
-  int iStack_4c;
-  int iStack_48;
-  coorddef cStack_40;
-  int iStack_30;
-  int iStack_2c;
-  u_char auStack_28 [8];
-  
-  if (((newtonObj->N).active != '\0') &&
-     (iVar1 = Sched_ExecuteCheck(1,3,(newtonObj->N).distToPlayer,(newtonObj->N).objID,&iStack_30,&iStack_2c,
-                         auStack_28,newtonObj->forceNoSimOptz), iVar1 != 0)) {
-    if ((newtonObj->N).simOptz < 2) {
-      iVar1 = Newton_FindGroundElevationAndNormal(&newtonObj->N,&cStack_60);
-      iStack_50 = cStack_60.x;
-      iStack_4c = cStack_60.y;
-      iStack_48 = cStack_60.z;
-      iVar7 = (newtonObj->N).groundElevation;
-      (newtonObj->N).groundElevation = iVar1;
-      iVar1 = (iVar1 - iVar7) * iStack_30;
-      iVar8 = (newtonObj->N).objAltitude;
-      iVar7 = fixedmult(iStack_2c * 0x4800,(newtonObj->N).gravityMult);
-      iVar5 = (newtonObj->N).orientMat.m[3];
-      (newtonObj->N).linearVel.y = (newtonObj->N).linearVel.y - iVar7;
-      iVar7 = fixedmult(iVar5,cStack_60.x);
-      iVar5 = fixedmult((newtonObj->N).orientMat.m[4],cStack_60.y);
-      iVar2 = fixedmult((newtonObj->N).orientMat.m[5],cStack_60.z);
-      (newtonObj->N).orientationToGround.y = iVar7 + iVar5 + iVar2;
-      Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi((int)newtonObj,(int *)&iStack_50,(newtonObj->N).orientationToGround.y);
-      iVar7 = (newtonObj->N).linearVel.x;
-      iVar5 = (newtonObj->N).linearVel.z;
-      if (iVar7 < 0) {
-        iVar7 = -iVar7;
-      }
-      if (iVar5 < 0) {
-        iVar5 = -iVar5;
-      }
-      iVar7 = Math_BetterDist(iVar7,iVar5);
-      (newtonObj->N).speedXZ = iVar7;
-      iVar7 = (newtonObj->N).roadGravityModifier * 7 + (iVar1 - (newtonObj->N).groundVel);
-      if (iVar7 < 0) {
-        iVar7 = iVar7 + 7;
-      }
-      (newtonObj->N).roadGravityModifier = iVar7 >> 3;
-      (newtonObj->N).groundVel = iVar1;
-      if (iVar8 < 0x3333) {
-        if ((newtonObj->N).flightTime == 0) {
-          Newton_CheckForSpikeBelts__FP13BO_tNewtonObj((BO_tNewtonObj *)newtonObj);
+
+  modifiedGravity = 0x4800;
+  if (newtonObj->active &&
+      Sched_ExecuteCheck(1,3,newtonObj->distToPlayer,newtonObj->objID,
+                         &timeCount,&elapsedTime,(char *)&iTimeCount,
+                         ((Car_tObj *)newtonObj)->forceNoSimOptz)) {
+    if (newtonObj->simOptz >= 2) {
+      newtonObj->linearVel.y = 0;
+      newtonObj->flightTime = 0;
+      elevationOfGround =
+          Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef(
+              (int)newtonObj,&normal);
+      newtonObj->position.y = elevationOfGround + newtonObj->dimension.y;
+    } else {
+      elevationOfGround = Newton_FindGroundElevationAndNormal(newtonObj,&normal);
+      shadowNormal = normal;
+      relativeClosingVelocity = newtonObj->groundElevation;
+      newtonObj->groundElevation = elevationOfGround;
+      groundVel = (elevationOfGround - relativeClosingVelocity) * timeCount;
+      objAltitude = newtonObj->objAltitude;
+      newtonObj->linearVel.y -=
+          fixedmult(elapsedTime * modifiedGravity,newtonObj->gravityMult);
+      newtonObj->orientationToGround.y =
+          fixedmult(newtonObj->orientMat.m[3],normal.x) +
+          fixedmult(newtonObj->orientMat.m[4],normal.y) +
+          fixedmult(newtonObj->orientMat.m[5],normal.z);
+      Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(
+          (int)newtonObj,(int *)&shadowNormal,newtonObj->orientationToGround.y);
+
+      newtonObj->speedXZ =
+          Math_BetterDist(__builtin_abs(newtonObj->linearVel.x),
+                          __builtin_abs(newtonObj->linearVel.z));
+
+      newtonObj->roadGravityModifier =
+          (newtonObj->roadGravityModifier * 7 +
+           (groundVel - newtonObj->groundVel)) / 8;
+      newtonObj->groundVel = groundVel;
+
+      if (objAltitude >= 0x3333) {
+        newtonObj->roadGravityModifier = 0;
+        newtonObj->flightTime += elapsedTime;
+        newtonObj->linearVel.y -=
+            fixedmult(elapsedTime * modifiedGravity,newtonObj->gravityMult);
+      } else {
+        if (newtonObj->flightTime != 0) {
+          if ((((Car_tObj *)newtonObj)->carFlags & 4) != 0) {
+            Physics_FixEngineRpm((Car_tObj *)newtonObj);
+          }
+
+          relativeClosingVelocity = groundVel - newtonObj->linearVel.y;
+          if (newtonObj->orientationToGround.y < 0xb334) {
+            coorddef collisionPoint;
+            collisionPoint = newtonObj->roadCenterPoint;
+            collisionPoint.y -= 0x1999;
+            Collide_TestWithPlane(newtonObj,&normal,&collisionPoint);
+            if (newtonObj->collision.impulse > 0x50000) {
+              int maxImpulse = 0x140000;
+              if (newtonObj->collision.impulse > 0x13ffff) {
+                maxImpulse = newtonObj->collision.impulse;
+              }
+              newtonObj->collision.impulse = maxImpulse;
+            }
+            if (newtonObj->orientationToGround.y < 0x3333) {
+              ((Car_tObj *)newtonObj)->collision.smoking = 1;
+            }
+          } else {
+            int bounceVel = 0;
+            int k;
+            for (k = 0; k < 4; k++) {
+              bounceVel += ((Car_tObj *)newtonObj)->wheel[k].wheelAcc;
+            }
+            if (bounceVel > 0) {
+              newtonObj->linearVel.y = groundVel + bounceVel * 3 / 4;
+              newtonObj->collision.impulse = relativeClosingVelocity * 2;
+              newtonObj->flightTime = 0;
+              newtonObj->position.y -= objAltitude;
+              objAltitude = 0xccc;
+              newtonObj->objAltitude = objAltitude;
+              if (newtonObj->collision.impulse > 0x140000) {
+                newtonObj->collision.sfxType = 0x10000;
+                newtonObj->collision.otherObj = 0;
+                newtonObj->collision.collisionPoint = newtonObj->position;
+                Newton_AddDamageZone(newtonObj,newtonObj->collision.impulse,9,0);
+              }
+              if (Force_IsForceOn((Car_tObj *)newtonObj)) {
+                Force_HitWall(newtonObj->collision.impulse);
+              }
+            }
+          }
+          Newton_LimitAngularVelocity__FP13BO_tNewtonObj((int)newtonObj);
+        } else {
+          Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(newtonObj);
         }
-        else {
-          if ((newtonObj->carFlags & 4U) != 0) {
-            Physics_FixEngineRpm(newtonObj);
+
+        if (objAltitude < 0xa3d) {
+          int scale;
+          newtonObj->position.y -= objAltitude;
+          newtonObj->objAltitude = 0;
+          if (((((Car_tObj *)newtonObj)->carFlags & 0x400) == 0) &&
+              newtonObj->orientationToGround.y > 0xe666) {
+            newtonObj->flightTime = 0;
           }
-          iVar5 = (newtonObj->N).linearVel.y;
-          iVar7 = 0;
-          if ((newtonObj->N).orientationToGround.y < 0xb334) {
-            cStack_40.x = (newtonObj->N).roadCenterPoint.x;
-            cStack_40.z = (newtonObj->N).roadCenterPoint.z;
-            cStack_40.y = (newtonObj->N).roadCenterPoint.y + -0x1999;
-            Collide_TestWithPlane(&newtonObj->N,&cStack_60,&cStack_40);
-            iVar7 = (newtonObj->N).collision.impulse;
-            if (0x50000 < iVar7) {
-              iVar5 = 0x140000;
-              if (0x13ffff < iVar7) {
-                iVar5 = iVar7;
-              }
-              (newtonObj->N).collision.impulse = iVar5;
+          if (groundVel > 0x5ffff) {
+            scale = 0xffdf;
+            if (groundVel > 0xc0000) {
+              scale = 0xffbe;
             }
-            if ((newtonObj->N).orientationToGround.y < 0x3333) {
-              (newtonObj->collision).smoking = 1;
-            }
+            newtonObj->linearVel.x = fixedmult(newtonObj->linearVel.x,scale);
+            newtonObj->linearVel.z = fixedmult(newtonObj->linearVel.z,scale);
           }
-          else {
-            iVar2 = 0;
-            pCVar6 = newtonObj;
-            do {
-              iVar2 = iVar2 + 1;
-              iVar7 = iVar7 + pCVar6->wheel[0].wheelAcc;
-              pCVar6 = (Car_tObj *)&(pCVar6->N).simRoadInfo.quadPts[2].z;
-            } while (iVar2 < 4);
-            if (0 < iVar7) {
-              iVar7 = iVar7 * 3;
-              if (iVar7 < 0) {
-                iVar7 = iVar7 + 3;
-              }
-              iVar2 = (newtonObj->N).position.y;
-              (newtonObj->N).linearVel.y = iVar1 + (iVar7 >> 2);
-              iVar7 = (iVar1 - iVar5) * 2;
-              (newtonObj->N).collision.impulse = iVar7;
-              (newtonObj->N).flightTime = 0;
-              iVar2 = iVar2 - iVar8;
-              iVar8 = 0xccc;
-              (newtonObj->N).position.y = iVar2;
-              (newtonObj->N).objAltitude = 0xccc;
-              if (0x140000 < iVar7) {
-                (newtonObj->N).collision.sfxType = 0x10000;
-                (newtonObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-                iVar7 = (newtonObj->N).position.y;
-                iVar5 = (newtonObj->N).position.z;
-                (newtonObj->N).collision.collisionPoint.x = (newtonObj->N).position.x;
-                (newtonObj->N).collision.collisionPoint.y = iVar7;
-                (newtonObj->N).collision.collisionPoint.z = iVar5;
-                Newton_AddDamageZone(&newtonObj->N,(newtonObj->N).collision.impulse,9,0);
-              }
-              iVar7 = Force_IsForceOn(newtonObj);
-              if (iVar7 != 0) {
-                Force_HitWall((newtonObj->N).collision.impulse);
-              }
-            }
-          }
-          Newton_LimitAngularVelocity__FP13BO_tNewtonObj(newtonObj);
-        }
-        if (iVar8 < 0xa3d) {
-          iVar7 = (newtonObj->N).position.y;
-          uVar4 = newtonObj->carFlags;
-          (newtonObj->N).objAltitude = 0;
-          (newtonObj->N).position.y = iVar7 - iVar8;
-          if (((uVar4 & 0x400) == 0) && (0xe666 < (newtonObj->N).orientationToGround.y)) {
-            (newtonObj->N).flightTime = 0;
-          }
-          if (0x5ffff < iVar1) {
-            iVar7 = 0xffdf;
-            if (0xc0000 < iVar1) {
-              iVar7 = 0xffbe;
-            }
-            iVar5 = fixedmult((newtonObj->N).linearVel.x,iVar7);
-            iVar2 = (newtonObj->N).linearVel.z;
-            (newtonObj->N).linearVel.x = iVar5;
-            iVar7 = fixedmult(iVar2,iVar7);
-            (newtonObj->N).linearVel.z = iVar7;
-          }
-          iVar7 = (newtonObj->N).speedXZ;
-          if (iVar7 < 0x50000) {
-            if (iVar1 < 0) {
-              iVar1 = iVar1 + 3;
-            }
-            (newtonObj->N).linearVel.y = iVar1 >> 2;
-          }
-          else if (iVar7 < 0xa0000) {
-            (newtonObj->N).linearVel.y = iVar1 / 2;
-          }
-          else {
-            (newtonObj->N).linearVel.y = iVar1;
+          if (newtonObj->speedXZ < 0x50000) {
+            newtonObj->linearVel.y = groundVel / 4;
+          } else if (newtonObj->speedXZ < 0xa0000) {
+            newtonObj->linearVel.y = groundVel / 2;
+          } else {
+            newtonObj->linearVel.y = groundVel;
           }
         }
       }
-      else {
-        (newtonObj->N).roadGravityModifier = 0;
-        (newtonObj->N).flightTime = (newtonObj->N).flightTime + (short)iStack_2c;
-        iVar1 = fixedmult(iStack_2c * 0x4800,(newtonObj->N).gravityMult);
-        (newtonObj->N).linearVel.y = (newtonObj->N).linearVel.y - iVar1;
+
+      newtonObj->lastUpdated = simGlobal.gameTicks;
+      if (BWorldSm_TunnelFlagSm(&newtonObj->simRoadInfo) &&
+          newtonObj->linearVel.y > 0 &&
+          newtonObj->position.y - newtonObj->roadCenterPoint.y > 0x80000) {
+        newtonObj->linearVel.y = -newtonObj->linearVel.y;
       }
-      (newtonObj->N).lastUpdated = simGlobal.gameTicks;
-      pvVar3 = BWorldSm_TunnelFlagSm(&(newtonObj->N).simRoadInfo);
-      if (((pvVar3 != (void *)0x0) && (iVar1 = (newtonObj->N).linearVel.y, 0 < iVar1)) &&
-         (0x80000 < (newtonObj->N).position.y - (newtonObj->N).roadCenterPoint.y)) {
-        (newtonObj->N).linearVel.y = -iVar1;
-      }
-    }
-    else {
-      (newtonObj->N).linearVel.y = 0;
-      (newtonObj->N).flightTime = 0;
-      iVar1 = Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef(newtonObj,&cStack_60);
-      (newtonObj->N).position.y = iVar1 + (newtonObj->N).dimension.y;
     }
   }
-  return;
 }
 
 /* ---- Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef  [NEWTON.CPP:2736-2745] SLD-VERIFIED ---- */

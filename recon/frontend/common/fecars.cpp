@@ -487,24 +487,18 @@ void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
 
 {
   u_int i;
-  u_int iVar3;
-  tCarInfo *carInfo;
-  int iVar2;
 
   i = 0;
   if (this->fNumCars != 0) {
-    iVar3 = 0;
     do {
-      carInfo = (tCarInfo *)((char *)this->fCars + iVar3);
-      iVar2 = (int)(signed char)carInfo->fCarID;
-      if ((-1 < iVar2) && ((u_char)carInfo->fCarClass == carClass)) {
-        this->fAvailableCars[iVar2] = avail;
+      if (((signed char)this->fCars[i].fCarID >= 0) &&
+          ((u_char)this->fCars[i].fCarClass == carClass)) {
+        this->fAvailableCars[(signed char)this->fCars[i].fCarID] = avail;
         if (avail != 0) {
-          this->fViewableCars[iVar2] = '\x01';
+          this->fViewableCars[(signed char)this->fCars[i].fCarID] = '\x01';
         }
       }
       i = i + 1;
-      iVar3 = iVar3 + 0xcc;
     } while (i < this->fNumCars);
   }
   return;
@@ -533,27 +527,16 @@ void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
 
 {
   u_int i;
-  u_int iVar4;
-  tCarInfo *carInfo;
-  int iVar2;
 
-  i = 0;
-  if (this->fNumCars != 0) {
-    iVar4 = 0;
-    do {
-      carInfo = (tCarInfo *)((char *)this->fCars + iVar4);
-      iVar2 = (int)(signed char)carInfo->fCarID;
-      if (iVar2 >= 0) {
-        if ((u_char)carInfo->fCarClass == carClass) {
-          this->fViewableCars[iVar2] = view;
-        }
+  for (i = 0; i < this->fNumCars; i = i + 1) {
+    if ((signed char)this->fCars[i].fCarID >= 0) {
+      if ((u_char)this->fCars[i].fCarClass == carClass) {
+        this->fViewableCars[(signed char)this->fCars[i].fCarID] = view;
       }
-      else {
-        this->fViewableCars[iVar2] = '\0';
-      }
-      i = i + 1;
-      iVar4 = iVar4 + 0xcc;
-    } while (i < this->fNumCars);
+    }
+    else {
+      this->fViewableCars[(signed char)this->fCars[i].fCarID] = '\0';
+    }
   }
   return;
 }

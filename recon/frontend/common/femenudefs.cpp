@@ -1137,15 +1137,16 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
    track verify_asm's diff-line count here (known caveat, [[reference_psx_cpp_reconstruction_methodology]]
    "survey tools over-count vs verify_asm").
 
-   [2026-08-03 GCC-2.8.1 follow-up, 7->6] Consume the first player value directly through a
-   volatile byte lvalue after caching the normal array-index value.  This preserves retail's two
-   `lbu` operations without the redundant `andi` produced when the volatile result is the array
-   index.  Instruction count is now exact (25/25); the residue is one adjacent-load scheduling
-   position plus the linked `%hi` scratch choice.  Do not pin. */
+   [2026-08-03 GCC-2.8.1 follow-up, 7->4] Keep the volatile byte read in a separate `bVar1`
+   pseudo before caching the normal array-index value in `bVar2`, then store `bVar1` into
+   `fPlayer`. This reproduces retail's `lbu a3` / `lbu v1` order without an `andi` and keeps the
+   following store in place. Instruction count is exact (25/25); the remaining four lines are
+   only the linked FEApp `%hi` materialization (`v0` fused versus retail's separate `v1`). */
 
 extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *command)
 
 {
+  u_int bVar1;
   u_int bVar2;
   tGlobalMenuDefs *ptVar3;
   tScreenUserName *ptVar4;
@@ -1153,8 +1154,9 @@ extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *comma
 
   ptVar3 = menuDefs[0];
   dlgThis = &ptVar3->menuItemUserName;
+  bVar1 = *(volatile u_char *)&FEApp->fInputPlayer;
   bVar2 = FEApp->fInputPlayer;
-  dlgThis->fPlayer = *(volatile u_char *)&FEApp->fInputPlayer;
+  dlgThis->fPlayer = bVar1;
   dlgThis->fMaxStringLength = 7;
   ptVar4 = screenUserName;
   dlgThis->fCurrentRow = 0;

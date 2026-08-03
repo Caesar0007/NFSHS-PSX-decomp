@@ -1617,10 +1617,10 @@ void Hud_BuildNumbers0(int player)
                            Hud_BeTheCop != 0 ? BTC_Countdown : DashHUD_gInfo.laptime);
     }
     {
-      u_int *pal;
       {
         int j;
         int num;
+        u_int *pal;
 
         num = 8;
         if (Hud_BeTheCop != 0) {
@@ -1639,6 +1639,7 @@ void Hud_BuildNumbers0(int player)
       }
       {
         int j;
+        u_int *pal;
 
         j = 4;
         pal = (u_int *)Render_gPalettePtr;

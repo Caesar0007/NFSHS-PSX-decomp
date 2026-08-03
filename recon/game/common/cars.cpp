@@ -871,8 +871,8 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
   coorddef point;
   int visible;
   int audioSurface;
-  int rear;
   int front;
+  int rear;
   int skidFront;
   int originalFront;
   int originalRear;
@@ -890,7 +890,11 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
   }
   roadSurface = (carObj->N).driveSurfaceType;
   if (((carObj->N).distToPlayer < 0x3c0000) && ((carObj->N).objAltitude < 0x6666)) {
-    visible = 1;
+    do {
+      do {
+        visible = 1;
+      } while (0);
+    } while (0);
   }
   front = 0;
   if (visible != 0) {
@@ -898,24 +902,32 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     position.y = (carObj->N).position.y;
     position.z = (carObj->N).position.z;
     position.y = (carObj->N).groundElevation;
-    if (carObj->frontSkid > 0) {
-      front = (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
-      originalFront = front;
-      carObj->frontSkid = front;
-      if (__builtin_abs((carObj->linearVel_ch).z) > 0x140000) {
-        skidFront = front - __builtin_abs((carObj->linearVel_ch).z / 8);
+    do {
+      if (carObj->frontSkid > 0) {
+        int cappedFront =
+            (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
+        int skidVelocity;
+        front = cappedFront;
+        do {
+          do {
+            originalFront = front;
+          } while (0);
+        } while (0);
+        skidVelocity = (carObj->linearVel_ch).z;
+        carObj->frontSkid = front;
+        if (__builtin_abs(skidVelocity) > 0x140000) {
+          skidFront = front - __builtin_abs(skidVelocity / 8);
+          break;
+        }
       }
       else {
-        skidFront = front;
+        originalFront = 0;
       }
-    }
-    else {
-      originalFront = 0;
       skidFront = front;
-    }
+    } while (0);
     if (carObj->rearSkid > 0) {
-      rear = (0xa0000 < carObj->rearSkid) ? 0xa0000 : carObj->rearSkid;
-      carObj->rearSkid = rear;
+      rear = carObj->rearSkid =
+          (0xa0000 < carObj->rearSkid) ? 0xa0000 : carObj->rearSkid;
       originalRear = rear;
     }
     else {

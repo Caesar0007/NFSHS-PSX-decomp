@@ -267,11 +267,13 @@ void * tMenuItemLeftRightFade::TransitionIsFinished()
 
 {
   short sVar1;
-  
+
   sVar1 = this->fFadeDir;
   if (sVar1 != 0) {
     if (sVar1 < 0) {
       if (this->fFadeVal < 1) goto LRFadeTrans_resetTrans;
+      /* This redundant reset invalidates GCC's cached structure-field load. */
+      this->fInTransition = 0;
       if ((this->fFadeDir < 1) || (this->fFadeVal < 0x80)) goto LRFadeTrans_setTrans;
     } else if ((sVar1 < 1) || (this->fFadeVal < 0x80)) goto LRFadeTrans_setTrans;
   }

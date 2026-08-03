@@ -48,3 +48,62 @@ NEW (w47): a zero-insn USE FENCE (w45/w46 sched-issue-position fixpoint) between
   (b) 🔴 The rotation is NOT downstream of the order: with the order corrected, `lo` STILL lands
       in $v1 instead of $a3.  W35's "(ii) follows from (i)" is FALSIFIED.  The rotation is an
       independent allocno fact and must be attacked with reqdelta/allocsim, not by re-spelling.
+
+## 3. 🏆 iSNDplatformresolve (sdresolv.c) — 3 diffs @126 → **PASS 127/127**
+
+The w33/w34 notes named the blocker but blamed the WRONG reorg pass: it is the BACKWARD
+`fill_simple_delay_slots` scan (with `cur = scan++` the advance sits *before* the compare in the
+insn stream; the volatile compare load is skipped as the branch's own dependency and the scan walks
+back one more and takes the advance), not the eager fill.  Three cooperating edits:
+1. **advance AFTER the compare** + `found:` reads `scan->spu` (w34-a5's shape) — makes `scan`($v1)
+   live-in at `found` so no fill may clobber it.  Alone: 7 diffs @126.
+2. **zero-insn IDENTITY FENCE** `__asm__ ("" : "=r"(cur) : "0"(cur));` on the copy — defining `cur`
+   with an opaque asm breaks cse's copy-propagation so the compare addresses through `cur`($a0)
+   like retail, AND blocks the backward fill.  Measured: input-only fences (`"r"(cur)`, with or
+   without a `"memory"` clobber) = 4 diffs — they block the fill but do NOT break the copy-prop;
+   only the OUTPUT (identity) form does.  Zero instructions (127 == oracle), no hard reg named.
+3. **statement order** `scan = cur + 1;` before `idx++;` (luid = independent-chain issue order).
+Without (2): 7.  Without (3): 4.  Without (1): 3/4.  All three required.
+🔴 GOVERNANCE NOTE: (2) stands in for the per-obj **old-gcc no-copy-prop identity** already recorded
+for sndpsxz (methodology §3.25-3d, catalog w33 §G).  Flagged for the flag-axis lanes — if a per-TU
+flag reproduces "cc1 does not copy-propagate this copy", delete the asm and the match should hold.
+Honest fallback documented in-source: 7 diffs.
+
+### NEW NAMED ANGLE: **the IDENTITY FENCE** (`"=r"(x) : "0"(x)`)
+A third fence mode beyond w45/w46's input-only fence (which does live-range stretching, cross-jump
+de-merging and sched-fixpoint work).  The identity form additionally **breaks cse/loop copy
+propagation**: the destination becomes an asm-defined pseudo with no equivalence to its source and
+no parm-copy preference.  Zero insns when the allocator ties the tied operands.  It is the direct
+source-level handle on the whole documented "retail keeps a redundant copy / no-copy-prop"
+per-object identity family.
+
+## 4. 🏆 iSNDdownloadbank (sbdload.c) — 23 → 14 diffs (86 insns / oracle 84)
+
+Residual class (c) of the standing floor note — "the oracle spends one extra `addu a0,v0,zero` at
+the arm merge; ours coalesces abs straight into $a0" — is **source-reachable** after all, via
+**STORE-THEN-READ-BACK**:
+```
+- abs = bankData + off4 + *(int *)(cur4 + 0x14);   *(int *)(cur4 + 0x14) = abs;
++ *(int *)(cur4 + 0x14) = bankData + off4 + *(int *)(cur4 + 0x14);   abs = *(int *)(cur4 + 0x14);
+```
+cse forwards the just-stored value as a register COPY = retail's exact `addu v0,v0,v1; sw v0,20(s1);
+addu a0,v0,zero`, in BOTH arms, and it fixes the whole merge's a0/v0 colouring.
+🔑 The earlier rejects (in-place `abs +=`, arg temp, per-arm abs — 46/42/37) all wrote the VALUE into
+a variable; **the load-bearing detail is that the second read must come from MEMORY** (the field just
+written).  Same family as the identity fence: both are source handles on the no-copy-prop identity.
+RE-TESTED IN THE NEW BASIN (lever-order law): walker clear loop **31** (was 50 in the old basin);
+bound-load-before-`i++` via a named local — diff-neutral (sched1 re-floats the lhu), reverted.
+RESIDUAL 14 = the clear loop's `-fno-strength-reduce` degradation (+1 insn) + its `addu fp,s4,zero`
+delay-slot fallout + the loop-tail lhu/addiu issue order (+1 nop) — all downstream of the SAME
+per-obj SR identity (clear loop wants SR ON, patch loop wants it OFF).
+
+## 5. The twins (iSNDserverremove100hzclient / iSNDserverremoveclient) — 3 diffs each, UNCHANGED
+
+Both still carry the governance-blocked `volatile int cb` device (3 diffs @44; honest `int cb` = 41
+@42).  W34's named mechanism is "a pseudo copied straight out of a parameter's hard reg carries a
+copy PREFERENCE for that reg, and find_reg skips a reg a conflicting allocno prefers".
+NEW MEASUREMENT (w47): honest `int cb` + an explicit one-insn asm copy
+`__asm__ ("addu %0,%1,$0" : "=r"(target) : "r"(cb));` gives the oracle's **43/43 count** but still
+42 diffs — the asm-output pseudo ALSO lands in $a0, so the parm preference is NOT the whole story;
+the rotation survives removing the copy preference.  => the w34 mechanism note is INCOMPLETE.
+Route: reqdelta/allocsim on {i, base, cb} rather than another spelling.

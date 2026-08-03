@@ -1312,6 +1312,25 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  *   currently one `pal` reassigned inside one block, lines "prim = ..." and "prim2 = ...") --
  *   that is the w46 split lever applied at the right granularity, and it is the one scope
  *   change that DOES split the quantity here. */
+/* ===== w46-a5 FINAL: 85 -> 43 (count 268/269) =====
+ * The NEW NAMED ANGLE above was EXECUTED and is a WIN: the two OT-link sites shared one
+ * `pal`, so one quantity held $t3 across both; giving the prim2 site its own `pal2` splits it.
+ * ⇒ REFINEMENT OF THE LEVER: the split must follow the ASSIGNMENTS, not the braces.  A scope
+ *   change that merely renames one quantity is neutral (measured, prim/prim2 block move);
+ *   a change that turns N assignments into N variables is what moves the allocator.
+ * RESIDUAL 43, chunkdiff: 6 runs / 22 insns, all SCHEDULING now (no register rotation left):
+ *   (1) a 4-5 insn block (`lw t4,40(sp)` / `lui v0,16896` / `addu` / `or`) issues 2 slots
+ *       later for us and duplicates `sh s6,14(t0)` into it;
+ *   (2) the `prim2 + 10 / + 0xe / + 0x12 "+2" tail` re-reads (`lhu v0,10(s0)`,`lhu v1,14(s0)`)
+ *       are batched by us and interleaved with the stores by retail;
+ *   (3) two `lw a0,24(sp); jal; li a1,32` groups where retail keeps the arg live.
+ *   All three are w45 USE-FENCE territory (position is the dial) -- walk a zero-insn fence
+ *   through the fixedsincos tail one statement at a time.
+ * a10 RELAY: BuildTach reproduces BYTE-IDENTICAL under the rebuilt near-oracle cc1, so
+ *   C:/Temp/nfs4-wt46-a10/scratch/qtytables/BuildTach_qty.txt is RECEIPT-GRADE.  Its block 8
+ *   (7 qtys, qsort path) names q0/p140 (2 refs / 10 life = .2000) as the low-priority
+ *   straggler: refs 2->4 gives .4000, 2->8 gives 2.4000.  ⚠️ that table is for the w46 BASE
+ *   source; re-dump after the pal2 split before using the numbers. */
 void Hud_BuildTach(int player)
 
 {
@@ -1624,6 +1643,16 @@ HudBuildStr_next:
  *       free at y's birth (retail's $v1 holds the `player` copy up to index 25 and frees it
  *       right there).  Dial = the ref-step on `y` (it has many refs) or moving the `y + 7`
  *       pair's birth later. */
+/* ===== w46-a5 FINAL: 141 -> 59 (count 532/531).  THREE splits, all the same lever =====
+ *   (a) pal per inner sub-block                                 141 -> 123
+ *   (b) the j=4 sub-block's SECOND pal assignment -> pal_2       123 ->  97
+ *   (c) `int y` split: the checkpoint region gets its own y_2    97 ->  59
+ * (c) is the generalisation past pointers -- ANY local reused by two disjoint regions is one
+ * quantity spanning both; y was shared by the Hud_BeTheCop==0 row-layout block and BOTH arms
+ * of the checkpoint block.  Splitting only the first checkpoint arm gives 91; splitting both
+ * arms gives 59 (so the else-arm `Hud_BuildDistanceString` result is the load-bearing half).
+ * RESIDUAL 59: re-census before continuing -- the two clusters recorded above were measured
+ * in the 141 basin and the falsification receipts there are BASIN-RELATIVE. */
 void Hud_BuildNumbers0(int player)
 
 {
@@ -1947,6 +1976,23 @@ void Hud_BuildNumbers0(int player)
  *   "p620=s3,p621=s4,p82=s5,p617=s6"), NOT on the byte gate -- the gate is non-monotone across
  *   this 4-cycle (three of the four registers move together or not at all).  A helper for the
  *   combinatorial part is committed as tools/dialsearch.py. */
+/* ===== w46-a5 FINAL: 388 -> 256 (count 758/758) =====
+ * LEVER (LANDED, tools/scratch/palsplit.py): the HudLapnum / HudTime / HudPosition blocks each
+ * reassigned ONE `pal` two or three times, so each block held one quantity across all of its
+ * OT-link groups.  Splitting per assignment (pal / pal_2 / pal_3) = 388 -> 256, zero insn
+ * change.  ⚠️ THE PART-2 RECEIPT ABOVE (the {w1,w2,ten,pSprt} 4-cycle and its 3-dial required
+ * delta) WAS COMPUTED IN THE 388 BASIN -- re-dump `-dg/-dl` and re-run allocsim before acting
+ * on those live-length windows; the pal split changed the block structure the speed-block
+ * quantities live in.
+ * a10 RELAY: BuildNumbers is BYTE-IDENTICAL under the near-oracle cc1 ⇒
+ *   C:/Temp/nfs4-wt46-a10/scratch/qtytables/BuildNumbers_qty.txt (with --steps boundary math)
+ *   is receipt-grade for the BASE source, and a10's `--want` solver will serve the delta once
+ *   the two pSprt candidate pseudo numbers are re-read from the new dump.
+ * 🔴 a10 LAW TO APPLY FIRST: a block with EXACTLY 3 quantities is NOT priority-ordered
+ *   (hand-rolled sort at local-alloc.c:1588; 32% of 3-qty blocks come out non-descending).
+ *   Count `next_qty` for the speed block BEFORE using any ref/live dial there -- if it is 3,
+ *   the dial is BIRTH ORDER, or crossing the 3<->4 quantity boundary by adding/fusing one
+ *   block-local temp. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -2250,6 +2296,13 @@ void Hud_InitMap(void)
  *   are structurally distinct at cse time, not merely algebraically equal (the w45 falsification
  *   `&((u_char**)0x1F800000)[1]` failed because gcc folds it in the TREE, before cse; an
  *   asm-label view survives to RTL). */
+/* ===== w46-a5 FINAL: 121, UNCHANGED.  One more falsification, and it CONFIRMS the SYM =====
+ * (d) per-loop `rx2/rz2/x2/z2` for the race loop (the w46 storage-split lever that won on four
+ *     other functions here): 121 -> 161.  ⇒ the SYM is RIGHT that rx/rz/x/z are FUNCTION-scope
+ *     single variables spanning both loops, and this function is the CONTROL that shows the
+ *     split lever is not a blanket win -- it pays exactly when retail's variable really was
+ *     several, and costs when retail's really was one.  Use the SYM 8c block as the gate on
+ *     whether to split. */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -3038,6 +3091,13 @@ int Hud_BuildRadar(int player)
  *      with the address materialisation ordered `lw gp / lui 0x1F80` (ours) vs
  *      `lui 0x1F80 / lw gp` (retail) -- an RTL-generation order dial: read Render_gPalettePtr
  *      BEFORE the g1Player/gSprite0 base in each region. */
+/* ===== w46-a5 FINAL: 126 -> 41 (count 190/191) =====
+ *   (a) `pal` split into two block-local pointers                126 -> 81
+ *   (b) `SPRT *tSs1` split per assignment (tSs1 / tSs1_2 / tSs1_3 for the colour loop, the
+ *       link region and the 0x38/gTPage region)                   81 -> 41
+ * (b) was the NEW NAMED ANGLE recorded in (a)'s receipt, executed.  Both are zero-insn.
+ * RESIDUAL 41 -- re-census; the caller-saved rotation described in the 81-basin receipt above
+ * is partly consumed by (b) and its remaining half must be re-read from the new sbs. */
 void Hud_BuildReplay(void)
 
 {

@@ -57,7 +57,22 @@
  *             (Earlier levers, all diff-neutral at 4 and now moot: done-in-declaration; `done = 0`
  *             before/after the disarm call; `switch (intr & 0xFF)` vs the `(unsigned char)` cast;
  *             declaration reordering (rs before madr/done); `result[0]` vs `*result`.)
- *     [near]  CD_Read (198->64->31->12->2 diffs; insn parity 163/163).  w34-a3: the residual-2 is
+ *     [PASS]  CD_Read -- w47-a5: the w34-a3 "STRONG floor" below FELL (163/163, 2 -> 0).  The
+ *             diagnosis (a sched2 LAUNCH_PRIORITY tie: retail issues the curOff FEEDER before
+ *             the a1 argument load) was correct, and that is exactly why source ORDER is inert:
+ *             the boost wins every ready-list tie.  A zero-insn USE FENCE is a BARRIER, not a
+ *             hint.  Two cooperating levers, both needed:
+ *               (1) fence the CACHE-BASE materialization (`char *cache = CD_sectorCache;` +
+ *                   `__asm__("" : : "r"(cache));`) -- retail issues `addiu v0,s1,60` BEFORE
+ *                   `lw a0,8(s0)`, so the pin goes on the BASE, not on the offset (fencing the
+ *                   offset instead gets the loads right but inverts the addu operands: 6);
+ *               (2) ACCUMULATE THE ADDRESS INTO THE INDEX (`off = rs->curOff; off += (int)cache;`
+ *                   then `blockmove((void *)off, ...)`) -- the catalog's SampleLength row: the
+ *                   index's register becomes the addu DEST and the call argument, giving
+ *                   retail's `addu a0,a0,v0`; the array form `&cache[off]` yields `addu a0,v0,a0`.
+ *             The three w34 falsifications stand as written -- all three are ORDER hints, none
+ *             is a barrier, and none touches the addu operand roles.
+ *     [was]   CD_Read (198->64->31->12->2 diffs; insn parity 163/163).  w34-a3: the residual-2 is
  *             the sched2 LAUNCH_PRIORITY tie on the cached-sector blockmove's argument loads --
  *             retail issues `lw a0,8(s0)` (curOff, which still needs the `addu a0,a0,v0` that ends
  *             up in the jal delay slot) BEFORE `lw a1,0xC(s0)`, ours the reverse, because $a1's
@@ -399,7 +414,12 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     addtimer((void *)CD_timerfunc, (void *)dest);
 
     if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {
-        blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);   /* sector already cached */
+        { char *cache = (char *)CD_sectorCache;
+          int off;
+          __asm__("" : : "r"(cache));  /* w47-a5: sched fixpoint -- pin the cache-base addiu first */
+          off = rs->curOff;
+          off += (int)cache;
+          blockmove((void *)off, rs->curDst, rs->curLen); }  /* sector already cached */
         if (rs->remLen > 0) {                            /* more to read -> advance to the next sector */
             rs->curOff = 0;
             rs->curDst = (char *)rs->curDst + rs->curLen;

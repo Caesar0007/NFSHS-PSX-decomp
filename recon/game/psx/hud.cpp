@@ -2875,7 +2875,6 @@ void Hud_BuildReplay(void)
   char hilite [5] = {4,0,1,2,3};
   int spr;
   SPRT *tSs1;
-  u_char *pal;
 
   i = 0x33;
   do {
@@ -2920,22 +2919,26 @@ void Hud_BuildReplay(void)
   }
   i = 0x33;
   tSs1 = gSprite0;
+  {
   ((Hud_PTag *)&tSs1[0x39])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
-  pal = Render_gPalettePtr;
+  u_char *pal = Render_gPalettePtr;
   ((Hud_PTag *)pal)->addr = (u_int)&tSs1[0x39];
   do {
     ((Hud_PTag *)&tSs1[i])->addr = ((Hud_PTag *)pal)->addr;
     ((Hud_PTag *)pal)->addr = (u_int)&tSs1[i];
     i = i + 1;
   } while (i < 0x38);
+  }
   tSs1 = gSprite0;
-  pal = Render_gPalettePtr;
+  {
+  u_char *pal = Render_gPalettePtr;
   ((Hud_PTag *)&tSs1[0x38])->addr = ((Hud_PTag *)pal)->addr;
   ((Hud_PTag *)pal)->addr = (u_int)&tSs1[0x38];
   ((Hud_PTag *)&gTPage1[0][3])->addr = ((Hud_PTag *)pal)->addr;
   ((Hud_PTag *)pal)->addr = (u_int)&gTPage1[0][3];
   ((Hud_PTag *)&gTPage0[0][3])->addr = ((Hud_PTag *)pal)->addr;
   ((Hud_PTag *)pal)->addr = (u_int)&gTPage0[0][3];
+  }
   return;
 }
 

@@ -1260,10 +1260,13 @@ short tMenu::GetNumberEnabledItems()
   short result;
   short i;
   
-  result = 0;
+  /* MATCH: the loop count is initialized only after the early-return
+     guard.  GCC fills the guard delay slot with result=0, then retains
+     the retail result-to-index copy instead of folding i to literal zero. */
   if (this->fNeverAnyEnabled != 0) {
-    return result;
+    return 0;
   }
+  result = 0;
   i = result;
   /* The explicit backedge prevents GCC's loop pass from rotating this into
      a bottom-tested loop; retail performs the null test at the loop head. */

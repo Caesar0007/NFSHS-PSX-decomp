@@ -2197,10 +2197,20 @@ void tInsideBoxTwoWaySlider::Calibrate()
   int range;
   int player;
   tPadModuleState *padInfo;
+  tPadModuleState *padBase;
+  tScreenControllerConfig *screen;
+  tFEApplication *app;
 
-  player = (u_char)FEApp->fInputPlayer;
-  padInfo = (tPadModuleState *)((char *)&gPadinfo + player * 0x20);
-  fHelpText[0] = GetHelpText(screenControllerConfig[0]);
+  /* MATCH (12->4): preserve the retail volatile global-pointer load order,
+     then expose gPadinfo's base before reading the player byte.  This gives
+     GCC the exact screen/a0, app/v1, and pad-base lifetimes; only the dying
+     FEApp symbol-address scratch remains a v1-vs-v0 allocation tie. */
+  screen = *(tScreenControllerConfig * volatile *)&screenControllerConfig[0];
+  app = *(tFEApplication * volatile *)&FEApp;
+  padBase = &gPadinfo;
+  player = (u_char)app->fInputPlayer;
+  padInfo = (tPadModuleState *)((char *)padBase + player * 0x20);
+  fHelpText[0] = GetHelpText(screen);
   switch (this->fType) {
   case 0:
     if (padInfo->buf[0].ID == '#') {

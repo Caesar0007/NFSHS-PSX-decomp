@@ -679,6 +679,18 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *      `sb v1,25(s0)` (the prim[0x19] read-back costs a copy where retail stores $t4
    *      twice -- still NET POSITIVE, removing it = 47).  🎯 ANGLE #F: this is now the ONLY
    *      register pair left; run reqdelta for it on a fresh dump of THIS basin.
+   *      2026-08-03 MEASURED (20 basin): allocsim 30/30 on the fresh dump; vraw=p96 rides
+   *      $v0 like retail; the u+w1 dest is NOT in the global table = a BLOCK-LOCAL QTY
+   *      sharing its block with the read-back's forwarded-value copy (ours uw1->$v0,
+   *      copy->$v1; retail uw1->$v1, no copy).  QTY birth-order probes ALL FALSIFIED:
+   *      read-back statement moved before the 0x18 store 46 / named v2 temp born before
+   *      46 / named v2 at site 20 (exactly 0 -- same pseudo) / named uw1 temp 67 @248
+   *      (basin-retry of the old 78 -- still negative).  🎯 ANGLE #F': the block's qty
+   *      ORDER must be read, not probed -- run the instrumented cc1 (C:/Temp/
+   *      nfs4-instr-cc1, GCC_TRACE_ALLOC=1) on psxfront.i and read [qty_order]/
+   *      [find_free_reg] for this block: if it is a <=3-qty block the broken-sort law
+   *      applies and the dial is the 3<->4 boundary, not birth order.  (Draw is a C++
+   *      trace-divergent fn -- use the trace for qty structure only, not bytes.)
    *   d. one `nop` + `sh s7,10(s0)` ordering and `sll v0,s5,16` vs `sll v0,a1,16` (ours
    *      tests `w`, retail `w1`).  `w1 = wsel` / dropping `w` = 168 (the two-variable
    *      w/w1 pair is load-bearing); `(int)w1` cast = 0; a `uw1` temp for `u + w1` = 78.
@@ -1394,6 +1406,18 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   arms are textually identical apart from a term that re-reads `src+0xc`.  Second, cheaper
    *   route: shorten p128's LIVE range instead of raising its refs (.1429 -> >.32 needs live
    *   21 -> <=9), i.e. move the tpage word's two uses adjacent to the read.
+   *   2026-08-03 ANGLE #E FALSIFIED AS SPELLED (48 basin, 4 probes): fence-before-tpage
+   *   "r"(prim) 108 / "r"(src) 74 / fence-after 110 / cross-jump duplicate if(width) 143@81.
+   *   MECHANISM: in a mono-block 50-qty function the fence is TOO BLUNT -- it pins every
+   *   value crossing it, and the collateral live-range shifts rotate far more than p128
+   *   (the CONFLICT-SET boundary from the PrimMenu receipt, single-block form).  The
+   *   cross-jump duplicate loses an insn (81/82) -- the cond folds.  🎯 #E': the dial must
+   *   touch ONLY p128 or ONLY ytop: (1) qtytrace --want "p128=a1" (the solver's first live
+   *   test) for an exact minimal delta; (2) instrumented-cc1 [qty_order]/[find_free_reg]
+   *   trace (Font IS in the byte-identical set -- its trace is a RECEIPT) to read who takes
+   *   $a1 first and which single qty to demote; (3) route (b) untried half: ytop live
+   *   25 -> >56 via a LATE ytop consumer (the last store at prim+0x22 already reads it --
+   *   a post-return-adjacent use does not exist; needs a real spelling idea).
    * 🔬 POSITIONAL NEIGHBOURHOOD (tools/stmtclimb3.py, committed this wave): from the 50 basin
    *   PHASE 1 gated ALL 625 def-use-valid single moves (every one = 50, confirming w45's
    *   single-move optimum EXHAUSTIVELY rather than greedily) and PHASE 2 gated 825 COMPOUND

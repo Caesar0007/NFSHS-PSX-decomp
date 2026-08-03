@@ -588,116 +588,107 @@ void FindLocation__Q26Speech7SpeakerP8Car_tObj(Speaker *pThis,Car_tObj *car)
 
 {
   int slice;
-  int actual;
-  int reg_zero;
-  int carPos_x;
-  int loc_x_diff;
-  int best_dist;
-  LocationBank *this_00;
-  int carPos_z;
-  int loc_idx;
-  int loc_x;
-  int loc_z_diff;
-  int loc_z;
-  int loc_radius;
-  int distance;
-  int iVar1;
   LocationBank *location;
-  double reg_f12_13;
-  double reg_f14_15;
-  
-  carPos_x = fixedmult(car->currentSpeed,0x50000);
-  if (carPos_x / 0x60000 < 0) {
-    iVar1 = fixedmult(car->currentSpeed,0x50000);
-    if (-1 < (int)(car->N).simRoadInfo.slice + iVar1 / 0x60000) goto FindLoc_noWrapCalc;
-    iVar1 = fixedmult(car->currentSpeed,0x50000);
-    iVar1 = (int)(car->N).simRoadInfo.slice + iVar1 / 0x60000 + gNumSlices;
-  }
-  else {
-    loc_x_diff = fixedmult(car->currentSpeed,0x50000);
-    if ((int)(car->N).simRoadInfo.slice + loc_x_diff / 0x60000 < gNumSlices) {
-FindLoc_noWrapCalc:
-      iVar1 = fixedmult(car->currentSpeed,0x50000);
-      iVar1 = (int)(car->N).simRoadInfo.slice + iVar1 / 0x60000;
+
+  if (fixedmult(car->currentSpeed,0x50000) / 0x60000 >= 0) {
+    int advance = fixedmult(car->currentSpeed,0x50000) / 0x60000;
+    if ((int)car->N.simRoadInfo.slice + advance < gNumSlices) {
+      slice = fixedmult(car->currentSpeed,0x50000) / 0x60000 + (int)car->N.simRoadInfo.slice;
     }
     else {
-      best_dist = fixedmult(car->currentSpeed,0x50000);
-      iVar1 = ((int)(car->N).simRoadInfo.slice + best_dist / 0x60000) - gNumSlices;
+      int offset = fixedmult(car->currentSpeed,0x50000) / 0x60000;
+      slice = (int)car->N.simRoadInfo.slice + offset - gNumSlices;
     }
   }
-  this_00 = (LocationBank *)
+  else {
+    int advance = fixedmult(car->currentSpeed,0x50000) / 0x60000;
+    if ((int)car->N.simRoadInfo.slice + advance < 0) {
+      int offset = fixedmult(car->currentSpeed,0x50000) / 0x60000;
+      slice = (int)car->N.simRoadInfo.slice + offset + gNumSlices;
+    }
+    else {
+      int offset = fixedmult(car->currentSpeed,0x50000) / 0x60000;
+      slice = (int)car->N.simRoadInfo.slice + offset;
+    }
+  }
+
+  location = (LocationBank *)
             (*(*pThis->_vf)[0x1d].pfn)
-                      ((int)&(pThis->fPosition).flags + (int)(*pThis->_vf)[0x1d].delta,iVar1);
-  if (this_00 == (LocationBank *)0x0) {
+                      ((int)&(pThis->fPosition).flags + (int)(*pThis->_vf)[0x1d].delta,slice);
+  if (location == (LocationBank *)0x0) {
     (pThis->fDistance).flags = 0;
     (pThis->fPosition).flags = 0;
-    pThis->fLocation = *(int *)(reg_zero + 8);
-    return;
-  }
-  carPos_z = Distance__Q26Speech12LocationBanki(this_00,(int)(car->N).simRoadInfo.slice);
-  iVar1 = Distance__Q26Speech12LocationBanki(this_00,iVar1);
-  loc_idx = 4;
-  if (iVar1 == 0) {
-    (pThis->fDistance).flags = 0;
-    goto FindLoc_assignIdx;
-  }
-  __floatsidf(iVar1);
-  loc_z_diff = __ltdf2(reg_f12_13,reg_f14_15);
-  if (loc_z_diff < 0) {
-    (pThis->fDistance).flags = 0;
-    if (iVar1 + 2 < carPos_z) {
-      (pThis->fPosition).flags = 9;
-    }
-    if (iVar1 + -2 < carPos_z) {
-      (pThis->fPosition).flags = 8;
-      goto FindLoc_assignAndReturn;
-    }
-FindLoc_setIdxDefault:
-    loc_idx = 2;
+    pThis->fLocation = location->fBankId;
   }
   else {
-    if (GameSetup_gData.measurement == 1) {
-      if (iVar1 < 0xa6) {
+    int actual = Distance__Q26Speech12LocationBanki(location,(int)car->N.simRoadInfo.slice);
+    int distance = Distance__Q26Speech12LocationBanki(location,slice);
+
+    if (distance == 0) {
+      (pThis->fDistance).flags = 0;
+      (pThis->fPosition).flags = 4;
+    }
+    else if ((double)distance < 100.0 / 3.0) {
+      (pThis->fDistance).flags = 0;
+      if (distance + 2 < actual) {
+        (pThis->fPosition).flags = 9;
+      }
+      if (distance - 2 < actual) {
+        (pThis->fPosition).flags = 8;
+      }
+      else {
+        (pThis->fPosition).flags = 2;
+      }
+    }
+    else if (GameSetup_gData.measurement == 1) {
+      if (distance < 0xa6) {
         (pThis->fDistance).flags = 8;
-        if (iVar1 + -2 < carPos_z) {
+        if (distance - 2 < actual) {
           (pThis->fPosition).flags = 0x10;
-          goto FindLoc_assignAndReturn;
+        }
+        else {
+          (pThis->fPosition).flags = 2;
         }
       }
       else {
-        loc_radius = 0x10;
         (pThis->fDistance).flags = 0x10;
-        if (iVar1 + -2 < carPos_z) {
-FindLoc_setRadiusReturn:
-          (pThis->fPosition).flags = loc_radius;
-          goto FindLoc_assignAndReturn;
+        if (distance - 2 < actual) {
+          (pThis->fPosition).flags = 0x10;
+        }
+        else {
+          (pThis->fPosition).flags = 2;
         }
       }
-      goto FindLoc_setIdxDefault;
     }
-    if (iVar1 < 0x86) {
+    else if (distance < 0x86) {
       (pThis->fDistance).flags = 1;
-      if (carPos_z <= iVar1 + -2) goto FindLoc_setIdxDefault;
-      loc_idx = 0x10;
+      if (distance - 2 < actual) {
+        (pThis->fPosition).flags = 0x10;
+      }
+      else {
+        (pThis->fPosition).flags = 2;
+      }
+    }
+    else if (distance < 0x10c) {
+      (pThis->fDistance).flags = 2;
+      if (distance - 2 < actual) {
+        (pThis->fPosition).flags = 0x10;
+      }
+      else {
+        (pThis->fPosition).flags = 2;
+      }
     }
     else {
-      loc_radius = 2;
-      if (iVar1 < 0x10c) {
-        (pThis->fDistance).flags = 2;
-        if (carPos_z <= iVar1 + -2) goto FindLoc_setRadiusReturn;
-        loc_idx = 0x10;
+      (pThis->fDistance).flags = 4;
+      if (distance - 2 < actual) {
+        (pThis->fPosition).flags = 0x10;
       }
       else {
-        (pThis->fDistance).flags = 4;
-        loc_idx = 0x10;
-        if (carPos_z <= iVar1 + -2) goto FindLoc_setIdxDefault;
+        (pThis->fPosition).flags = 2;
       }
     }
+    pThis->fLocation = location->fBankId;
   }
-FindLoc_assignIdx:
-  (pThis->fPosition).flags = loc_idx;
-FindLoc_assignAndReturn:
-  pThis->fLocation = this_00->fBankId;
   return;
 }
 

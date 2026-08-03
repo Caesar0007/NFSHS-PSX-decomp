@@ -298,9 +298,32 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        `int g0=lp[1],g1=wc1; newG=(short)(g0+g1); if (0xff < g0+g1) ...`), or
        equivalently give the R channel a second use so its sum cannot die into
        the copy.  Cross-check with tools/prio.py -dg allocno ranks first. */
-    newR = (short)((int)wc[0] + (int)lp[0]);
-    newG = (short)((int)wc[1] + (int)lp[1]);
-    newB = (short)((int)wc[2] + (int)lp[2]);
+    /* MATCH (w46-a3, 36 -> 4, count-exact 107/107): TWO cooperating edits,
+       and NEITHER works without the other (lever-order law):
+        (a) a zero-insn `__asm__("" : : )` sched fence in front of the three
+            sums -- it pins the `%lo` of &Night_gWeatherColor[type] and the
+            first lp load into retail's issue order;
+        (b) `lp[N] + wc[N]` operand order at ALL THREE channels, so each
+            sum's dest is the FIRST-loaded (lp) register exactly like retail
+            (`lbu a0,0x68(sp); lbu v0,0(v1); addu a0,a0,v0`).
+       Measured at this basin: wc-first+no fence 36 (the w45 receipt's
+       basin), lp-first+no fence 38, fence+lp-first 4.  The w45 'operand
+       receipt survives' note was TRUE only pre-fence -- the fence inverts
+       it, which is the basin law again.
+       The w45 'G keeps both addends live' angle is REAL but subsumed:
+       alone it gives 24, with the fence it is +6 WORSE than the plain
+       lp-first form (10 vs 4).
+       RESIDUAL 4 = ONE single-slot sched2 swap: `addiu v0,v0,0` (the wc
+       %lo) vs `lbu a0,104(sp)` (lp[0]).  FALSIFIED at this basin: decl
+       swap, fence between the two decls, fence before the decls, a second
+       fence.  NEXT ANGLE: this is a ready-list DRAIN tie -- per w46-a10 the
+       block's qty COUNT is the dial when it is small (local-alloc.c:1588
+       hand-rolls next_qty<=3); count the qtys in this block from -dl and
+       try crossing the 3-to-4 boundary with one extra/removed block-local. */
+    __asm__("" : : );
+    newR = (short)((int)lp[0] + (int)wc[0]);
+    newG = (short)((int)lp[1] + (int)wc[1]);
+    newB = (short)((int)lp[2] + (int)wc[2]);
     if (0xff < newR) {
       newR = 0xff;
     }
@@ -667,11 +690,20 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
     }
     if (!carTypeOffRange) {
-      shadow_align_b = (sd->head).mirror;
-      if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
+      /* MATCH (w46-a3, 86 -> 70): VARIABLE IDENTITY -- the mirror index gets
+         its OWN block-local name.  `shadow_align_b` is a Ghidra fn-scope
+         invention reused for four unrelated values later in this function;
+         as one fn-scope pseudo it out-lived the address temp and lost the
+         a0/a1 order (ours {idx:$a1, &signalLight[idx]:$a0}, retail the
+         reverse).  A block-local qty born and dead inside this region wins
+         $a0 like retail.  Same lever family as ShowroomPrims 93->4.
+         (A SECOND name for the xored value measures 88 -- retail mutates
+         ONE pseudo in place, `xori a0,a0,1`.) */
+      u_int mir = (sd->head).mirror;
+      if (((carObj->render).signalLight[mir] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x40;
       }
-      if (((carObj->render).signalLight[shadow_align_b] & 8U) != 0) {
+      if (((carObj->render).signalLight[mir] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 1U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x80;
         }
@@ -692,11 +724,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
        * block-local name here (so its qty is born and dies inside this block
        * and out-lives the address temp), which is the same variable-identity
        * lever that took ShowroomPrims 93->4 this wave. */
-      shadow_align_b = shadow_align_b ^ 1;
-      if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
+      mir = mir ^ 1;
+      if (((carObj->render).signalLight[mir] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;
       }
-      if (((carObj->render).signalLight[shadow_align_b] & 8U) != 0) {
+      if (((carObj->render).signalLight[mir] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 0x100U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x8000;
         }
@@ -3471,9 +3503,20 @@ gte_SetTransMatrix(((char *)sd + 0x14));
                       * addu t2,t2,s1 (a fused a*8+b stages through a fresh temp) */
     id0 = id0 + (int)sd;
     id1 = id1 * 8;
-    id1 = id1 + (int)sd;
-    id2 = id2 * 8;
-    id2 = id2 + (int)sd;
+    /* MATCH (w46-a3, allocsim required-delta): the id0/id1/id2 + overlayFlag
+     * 3-cycle (retail id0=$t2 id1=$t1 id2=$a2 overlayFlag=$a1) is decided by
+     * allocno_compare -- all three ids have refs 18 / live 91,98,101, so OUR
+     * order is id0,id1,id2 and retail's is id2,id1,id0.  The floor_log2
+     * REF-STEP dial (catalog w44/w45 sec.A0) reverses it at ZERO instructions:
+     * one do{}while(0) depth level doubles the wrapped refs (loop weight
+     * 2->4), so wrapping id1's `+= sd` gives refs 18->20 and wrapping BOTH of
+     * id2's in-place statements gives 18->22:
+     *     id0 4*18/ 91 = .7912   id1 4*20/ 98 = .8163   id2 4*22/101 = .8712
+     * -> allocation order id2,id1,id0 -> a2,t1,t2 = retail.  Verified against
+     * tools/allocsim.py (43/43 on this fn) AND in the real -dl dump. */
+    do { id1 = id1 + (int)sd; } while (0);
+    do { id2 = id2 * 8; } while (0);
+    do { id2 = id2 + (int)sd; } while (0);
     gte_ldVXY0m(*(u_int *)(id0 + 0xD0));
     gte_ldVZ0m(*(u_int *)(id0 + 0xD4));
     gte_ldVXY1m(*(u_int *)(id1 + 0xD0));
@@ -3567,25 +3610,40 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * bare addiu (u_char would inject an andi 0xff). */
         char u;
         u_char v;
-        u_char u0, v0;   /* ONE reused pair (retail's $t4/$t5): the v-load fills
-                          * the u-load's delay slot; a single temp costs a nop
-                          * per vertex, six per-vertex temps recolour the fn */
+        u_char u0;   /* w46-a3 MATCH: ONE merged byte temp, NOT the u0/v0 pair.
+             * The pair form gives TWO global allocnos (each has 3 deaths, so
+             * local_alloc skips them); the second one has pri 3*12/14 = 2.571,
+             * ranks ABOVE overlayFlag (1.8125) and takes $a1 -- which is the
+             * ONLY reason overlayFlag cannot reach retail's $a1 and the whole
+             * id 3-cycle stays rotated.  Merging u/v into one pseudo (refs 24,
+             * live 14) leaves $a1 free: allocsim then reproduces retail's
+             * handout EXACTLY (overlayFlag $a1, id2 $a2, id1 $t1, id0 $t2)
+             * and the gate drops 95 -> 58.
+             * COST: +6 load-delay nops (retail keeps 2 regs in flight, $t4/$t5,
+             * and pairs the two lbu's).  REQUIRED DELTA to recover them, from
+             * tools/reqdelta.py: a SECOND uv pseudo is admissible only if it is
+             * a global allocno with pri < .7578 (below id0) -- i.e. refs 12 and
+             * live >= 48, or refs <= 4 with the pair NOT becoming local qtys.
+             * FALSIFIED at this basin: 6 per-vertex temps (201/197), v-only
+             * split (240/244), in-place sums (95/97) -- every one of them makes
+             * the second value a LOCAL qty or a high-pri global, and it takes
+             * $a1 before overlayFlag can. */
 
         u = (sd->ePmx0).u0;
         v = (sd->ePmx0).v0;
         u = u + '@';   /* +0x40 AFTER both base lbu's (oracle order) */
         u0 = *(u_char *)(id0 + 0xD6);
-        v0 = *(u_char *)(id0 + 0xD7);
         prim->u0 = u0 + u;
-        prim->v0 = v0 + v;
+        u0 = *(u_char *)(id0 + 0xD7);
+        prim->v0 = u0 + v;
         u0 = *(u_char *)(id1 + 0xD6);
-        v0 = *(u_char *)(id1 + 0xD7);
         prim->u1 = u0 + u;
-        prim->v1 = v0 + v;
+        u0 = *(u_char *)(id1 + 0xD7);
+        prim->v1 = u0 + v;
         u0 = *(u_char *)(id2 + 0xD6);
-        v0 = *(u_char *)(id2 + 0xD7);
         prim->u2 = u0 + u;
-        prim->v2 = v0 + v;
+        u0 = *(u_char *)(id2 + 0xD7);
+        prim->v2 = u0 + v;
       }
     }
     if ((overlayFlag & 3) != 0) {   /* fall-through = the overlay arm (oracle beqz) */
@@ -3928,6 +3986,16 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          loop-depth do{}while(0) around the two-site block) to push the overlay
          halfword's refs over the flr2 boundary. */
       {
+      /* w46-a3 (29, ours 295 / oracle 298 = 3 SHORT).  RE-READ OF THE SHAPE:
+         retail is  `lhu v0,0(v0)` (the halfword loaded into the ADDRESS's
+         own dying register) + a load-delay `nop` + `sll a0,v0,16` into a
+         FRESH reg, with BOTH sra's derived from that one shift.  The three
+         missing insns ARE those three nops: our destination choice removes
+         the hazard.  So the dial is the ANTI-DEPENDENCE (who owns $v0 across
+         this block), NOT the shift spelling.  FALSIFIED this wave: explicit
+         fresh shift temp `int ovs = (int)(ov << 0x10)` both sites 38, site-1
+         only 33, fully inlined 38 -- every one makes us SHORTER still.
+         Do the -dg pass first (see scratch/w46_a3_receipts.md sec.5). */
         u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
         ov = ov << 0x10;
         if (facet->flag < 0) {
@@ -4469,6 +4537,12 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        born with the counter) or (ii) give the vt0 x-load a second consumer so
        it wins the tie.  stmtclimb (with a def-use audit) is the cheap probe. */
     {
+    /* MATCH (w46-a3, 2 -> PASS): the fill sentinel is a NAMED local declared
+       BEFORE the counter init -- retail emits `li v1,-1` ahead of `li t0,31`.
+       This exact spelling was FALSIFIED in w45 at the pre-fence basin; the
+       vt0 sched fence above changed the landscape and it now lands (catalog
+       w45 LAW: falsifications are BASIN-RELATIVE, re-test after every edit). */
+    signed char m1 = -1;
     index = 0x1f;
     /* MATCH (w45-a4, 80 -> 42): the fill counter is `index`, NOT `i`.  Retail
        runs the whole fn on ONE counter register for {fill, j, index} vs `i`
@@ -4478,7 +4552,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        counter measures 84, `j` measures 80, `index` 42. */
     signed char *hs = &hilight_state[0x1f];
     do {
-      *hs = -1;
+      *hs = m1;
       index = index + -1;
       hs = hs + -1;
     } while (-1 < index);
@@ -4555,6 +4629,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         short t1 = Fe3D_lightsVertex[index * 2].x;
         short t2 = Fe3D_lightsVertex[index * 2].y;
         short t3 = Fe3D_lightsVertex[index * 2].z;
+        /* MATCH (w46-a3, 4 -> 2): ZERO-INSN SCHED FENCE, position IS the dial
+           (catalog w45 fence grammar).  Retail loads x(0) before y(2) here;
+           sched2's ready list drained the other way for us and every spelling
+           family was already falsified (all 4 store orders, load order yxz,
+           pointer-local).  A bare `__asm__("" : : )` placed BETWEEN the three
+           loads and the three stores pins the load order to retail's without
+           emitting anything.  Measured at this basin: before-block 4,
+           after-t1 14, HERE 2, after-block 6, extra t1 consumer 14. */
+        __asm__("" : : );
         (sd->vt0).x = t1;
         (sd->vt0).y = t2;
         (sd->vt0).z = t3;

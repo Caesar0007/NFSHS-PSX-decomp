@@ -215,6 +215,18 @@ if P1 > P0 :  swap positions 0,1
 ```
 The priority-descending order would be `q1, q0, q2`; gcc emits **`q0, q1, q2`**.
 Hand-running the switch on (1.3333, 2.0, 1.0) gives exactly `[0,1,2]`. ✅
+### ✅ CORPUS-WIDE VALIDATION (`scratch/instr/validate_3qty.py`, committed)
+Run over EVERY `[qty_order]` line in all four traced TUs (psxfront C++ / memcard C /
+hud C++ / drawc C++):
+```
+3-qty blocks : 38   model-exact 38   NOT priority-descending 12
+other blocks : 435  descending  435
+```
+**38 / 38 (100 %) of three-quantity blocks are predicted EXACTLY by the hand-rolled
+model above**, and **12 of them (32 %) come out in an order that `QTY_CMP_PRI` does
+not explain.** Every one of the 435 blocks with a different qty count is correctly
+priority-descending (the `qsort` / trivial paths). The law is measured, not inferred.
+
 (Blocks with 4+ qtys in the same trace — hce block 14 (5 qtys: 9.0/6.0/6.0/3.0/3.0),
 block 16 (4 qtys: 4.5/2.0/1.0/1.0), BuildTach block 8 (7 qtys) — are all correctly
 descending, i.e. the `qsort` path.)

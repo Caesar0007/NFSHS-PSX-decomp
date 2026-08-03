@@ -1,0 +1,253 @@
+module                                 base P/D    flag                       dDIFF   dPASS
+eaclib/psx/eacpsxz/nfile               18/132      -fsigned-char                 +2      +0
+eaclib/psx/eacpsxz/nfile               18/132      -mno-split-addresses        +357      -9
+eaclib/psx/eacpsxz/nfile               18/132      -finline-functions          +891      -8
+eaclib/psx/eacpsxz/nfile               18/132      -fno-omit-frame-pointer     +301     -18
+eaclib/psx/eacpsxz/nfile               18/132      -fno-schedule-insns         +459     -12
+eaclib/psx/eacpsxz/nfile               18/132      -fno-schedule-insns2        +269     -14
+eaclib/psx/eacpsxz/nfile               18/132      -fno-delayed-branch         +546     -17
+eaclib/psx/eacpsxz/nfile               18/132      -funroll-loops               +13      +0
+eaclib/psx/eacpsxz/nfile               18/132      -fno-cse-follow-jumps        +22      -1
+eaclib/psx/eacpsxz/nfile               18/132      -fno-expensive-optimizations    +162      -6
+eaclib/psx/eacpsxz/nfile               18/132      inert: mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave
+eaclib/psx/eacpsxz/stream              28/8        -mno-split-addresses         +16      -2
+eaclib/psx/eacpsxz/stream              28/8        -finline-functions         +1428     -16
+eaclib/psx/eacpsxz/stream              28/8        -fno-omit-frame-pointer     +499     -28
+eaclib/psx/eacpsxz/stream              28/8        -fno-schedule-insns         +382     -10
+eaclib/psx/eacpsxz/stream              28/8        -fno-schedule-insns2        +143     -16
+eaclib/psx/eacpsxz/stream              28/8        -fno-delayed-branch         +599     -28
+eaclib/psx/eacpsxz/stream              28/8        -funroll-loops               +33      +0
+eaclib/psx/eacpsxz/stream              28/8        -fno-cse-follow-jumps        +33      -1
+eaclib/psx/eacpsxz/stream              28/8        -fno-expensive-optimizations     +38      +0
+eaclib/psx/eacpsxz/stream              28/8        inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave
+eaclib/psx/spchpsxz/spchpick           21/37       -fsigned-char                 +2      +0
+eaclib/psx/spchpsxz/spchpick           21/37       -mno-split-addresses        +333     -14
+eaclib/psx/spchpsxz/spchpick           21/37       -finline-functions         +1352     -10
+eaclib/psx/spchpsxz/spchpick           21/37       -fno-omit-frame-pointer     +289     -21
+eaclib/psx/spchpsxz/spchpick           21/37       -fno-schedule-insns         +334     -12
+eaclib/psx/spchpsxz/spchpick           21/37       -fno-schedule-insns2        +208     -15
+eaclib/psx/spchpsxz/spchpick           21/37       -fno-delayed-branch         +484     -20
+eaclib/psx/spchpsxz/spchpick           21/37       -fno-strength-reduce         +90      -2
+eaclib/psx/spchpsxz/spchpick           21/37       -funroll-loops               +41      -2
+eaclib/psx/spchpsxz/spchpick           21/37       -fno-expensive-optimizations     +38      -3
+eaclib/psx/spchpsxz/spchpick           21/37       inert: mmemcpy regstruct shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/eacpsxz/nsync               8/29        -fno-omit-frame-pointer     +174      -8
+eaclib/psx/eacpsxz/nsync               8/29        -fno-schedule-insns          +61      -2
+eaclib/psx/eacpsxz/nsync               8/29        -fno-schedule-insns2         +42      -6
+eaclib/psx/eacpsxz/nsync               8/29        -fno-delayed-branch         +174      -8
+eaclib/psx/eacpsxz/nsync               8/29        -fno-cse-follow-jumps        +23      +0
+eaclib/psx/eacpsxz/nsync               8/29        -fno-expensive-optimizations     +18      -1
+eaclib/psx/eacpsxz/nsync               8/29        inert: sgnchar nosplit inlinefn mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave
+eaclib/psx/spchpsxz/spchevnt           12/28       -mno-split-addresses        +179      -7
+eaclib/psx/spchpsxz/spchevnt           12/28       -finline-functions          +444      -5
+eaclib/psx/spchpsxz/spchevnt           12/28       -fno-omit-frame-pointer     +231     -12
+eaclib/psx/spchpsxz/spchevnt           12/28       -fno-schedule-insns          +97      -4
+eaclib/psx/spchpsxz/spchevnt           12/28       -fno-schedule-insns2         +89      -6
+eaclib/psx/spchpsxz/spchevnt           12/28       -fno-delayed-branch         +161     -10
+eaclib/psx/spchpsxz/spchevnt           12/28       -fno-strength-reduce        +142      -5
+eaclib/psx/spchpsxz/spchevnt           12/28       -funroll-loops               +35      -1
+eaclib/psx/spchpsxz/spchevnt           12/28       -fno-expensive-optimizations     +62      -3
+eaclib/psx/spchpsxz/spchevnt           12/28       inert: sgnchar mmemcpy regstruct shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/eacpsxz/syncfile            7/21        -mno-split-addresses         +10      -2
+eaclib/psx/eacpsxz/syncfile            7/21        -finline-functions           +53      -1
+eaclib/psx/eacpsxz/syncfile            7/21        -fno-omit-frame-pointer     +120      -7
+eaclib/psx/eacpsxz/syncfile            7/21        -fno-schedule-insns          +34      -2
+eaclib/psx/eacpsxz/syncfile            7/21        -fno-schedule-insns2         +51      -7
+eaclib/psx/eacpsxz/syncfile            7/21        -fno-delayed-branch         +106      -7
+eaclib/psx/eacpsxz/syncfile            7/21        inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens
+eaclib/psx/eacpsxz/asinfunc            1/2         -mno-split-addresses         +33      +0
+eaclib/psx/eacpsxz/asinfunc            1/2         -finline-functions           +52      -1
+eaclib/psx/eacpsxz/asinfunc            1/2         -fno-omit-frame-pointer      +16      -1
+eaclib/psx/eacpsxz/asinfunc            1/2         -fno-schedule-insns2          +3      -1
+eaclib/psx/eacpsxz/asinfunc            1/2         -fno-delayed-branch          +24      -1
+eaclib/psx/eacpsxz/asinfunc            1/2         -fno-expensive-optimizations      +4      +0
+eaclib/psx/eacpsxz/asinfunc            1/2         inert: sgnchar mmemcpy regstruct nosched1 nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/eacpsxz/resize              0/2         -mno-split-addresses         +17      +0
+eaclib/psx/eacpsxz/resize              0/2         -fno-omit-frame-pointer      +12      +0
+eaclib/psx/eacpsxz/resize              0/2         -fno-schedule-insns           +6      +0
+eaclib/psx/eacpsxz/resize              0/2         -fno-schedule-insns2         +28      +0
+eaclib/psx/eacpsxz/resize              0/2         -fno-delayed-branch          +33      +0
+eaclib/psx/eacpsxz/resize              0/2         -fno-expensive-optimizations     +16      +0
+eaclib/psx/eacpsxz/resize              0/2         inert: sgnchar inlinefn mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/eacpsxz/setfont             0/2         -mno-split-addresses         +25      +0
+eaclib/psx/eacpsxz/setfont             0/2         -fno-omit-frame-pointer      +13      +0
+eaclib/psx/eacpsxz/setfont             0/2         -fno-schedule-insns          +11      +0
+eaclib/psx/eacpsxz/setfont             0/2         -fno-schedule-insns2         +14      +0
+eaclib/psx/eacpsxz/setfont             0/2         -fno-delayed-branch          +43      +0
+eaclib/psx/eacpsxz/setfont             0/2         inert: sgnchar inlinefn mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens
+eaclib/psx/eacpsxz/fileroot            9/0         -fsigned-char                 +8      -2
+eaclib/psx/eacpsxz/fileroot            9/0         -mno-split-addresses         +70      -5
+eaclib/psx/eacpsxz/fileroot            9/0         -fno-omit-frame-pointer     +131      -9
+eaclib/psx/eacpsxz/fileroot            9/0         -fno-schedule-insns          +38      -8
+eaclib/psx/eacpsxz/fileroot            9/0         -fno-schedule-insns2         +53      -8
+eaclib/psx/eacpsxz/fileroot            9/0         -fno-delayed-branch         +254      -9
+eaclib/psx/eacpsxz/fileroot            9/0         -fno-expensive-optimizations      +6      -1
+eaclib/psx/eacpsxz/fileroot            9/0         inert: inlinefn mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp
+module                                 base P/D    flag                       dDIFF   dPASS
+eaclib/psx/eacpsxz/unref               1/17        -fno-omit-frame-pointer      +31      -1
+eaclib/psx/eacpsxz/unref               1/17        -fno-schedule-insns          +12      +0
+eaclib/psx/eacpsxz/unref               1/17        -fno-schedule-insns2         +20      -1
+eaclib/psx/eacpsxz/unref               1/17        -fno-delayed-branch          +83      -1
+eaclib/psx/eacpsxz/unref               1/17        -funroll-loops              +104      +0
+eaclib/psx/eacpsxz/unref               1/17        -fno-expensive-optimizations     +32      +0
+eaclib/psx/eacpsxz/unref               1/17        inert: sgnchar nosplit inlinefn mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/eacpsxz/vramfxya            2/34        -mno-split-addresses          +9      +0
+eaclib/psx/eacpsxz/vramfxya            2/34        -finline-functions          +106      -1
+eaclib/psx/eacpsxz/vramfxya            2/34        -fno-omit-frame-pointer      +90      -2
+eaclib/psx/eacpsxz/vramfxya            2/34        -fno-schedule-insns         +120      +0
+eaclib/psx/eacpsxz/vramfxya            2/34        -fno-schedule-insns2         +31      -1
+eaclib/psx/eacpsxz/vramfxya            2/34        -fno-delayed-branch          +55      -1
+eaclib/psx/eacpsxz/vramfxya            2/34        inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens
+eaclib/psx/eacpsxz/cdfs                13/2        -mno-split-addresses        +449     -10
+eaclib/psx/eacpsxz/cdfs                13/2        -finline-functions          +147      -2
+eaclib/psx/eacpsxz/cdfs                13/2        -fno-omit-frame-pointer     +183     -13
+eaclib/psx/eacpsxz/cdfs                13/2        -fno-schedule-insns         +255      -7
+eaclib/psx/eacpsxz/cdfs                13/2        -fno-schedule-insns2        +149     -10
+eaclib/psx/eacpsxz/cdfs                13/2        -fno-delayed-branch         +389     -12
+eaclib/psx/eacpsxz/cdfs                13/2        -funroll-loops               +23      -1
+eaclib/psx/eacpsxz/cdfs                13/2        -fno-cse-follow-jumps       +202      -1
+eaclib/psx/eacpsxz/cdfs                13/2        -fno-expensive-optimizations     +83      -2
+eaclib/psx/eacpsxz/cdfs                13/2        inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave
+eaclib/psx/eacpsxz/trnsmult            0/31        -fno-omit-frame-pointer      +72      +0
+eaclib/psx/eacpsxz/trnsmult            0/31        -fno-schedule-insns           +6      +0
+eaclib/psx/eacpsxz/trnsmult            0/31        -fno-schedule-insns2         +21      +0
+eaclib/psx/eacpsxz/trnsmult            0/31        -fno-delayed-branch          +20      +0
+eaclib/psx/eacpsxz/trnsmult            0/31        -fno-strength-reduce         +47      +0
+eaclib/psx/eacpsxz/trnsmult            0/31        inert: sgnchar nosplit inlinefn mmemcpy regstruct shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens
+eaclib/psx/spchpsxz/spchbank           7/4         -mno-split-addresses         +65      -7
+eaclib/psx/spchpsxz/spchbank           7/4         -finline-functions          +113      -1
+eaclib/psx/spchpsxz/spchbank           7/4         -fno-omit-frame-pointer      +82      -7
+eaclib/psx/spchpsxz/spchbank           7/4         -fno-schedule-insns           +9      -1
+eaclib/psx/spchpsxz/spchbank           7/4         -fno-schedule-insns2         +23      -3
+eaclib/psx/spchpsxz/spchbank           7/4         -fno-delayed-branch          +91      -7
+eaclib/psx/spchpsxz/spchbank           7/4         -funroll-loops               +58      -1
+eaclib/psx/spchpsxz/spchbank           7/4         -fno-expensive-optimizations     +12      -1
+eaclib/psx/spchpsxz/spchbank           7/4         inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/spchpsxz/spchinit           6/3         -mno-split-addresses         +96      -4
+eaclib/psx/spchpsxz/spchinit           6/3         -finline-functions            +8      +0
+eaclib/psx/spchpsxz/spchinit           6/3         -fno-omit-frame-pointer      +58      -6
+eaclib/psx/spchpsxz/spchinit           6/3         -fno-schedule-insns          +41      -5
+eaclib/psx/spchpsxz/spchinit           6/3         -fno-schedule-insns2         +32      -5
+eaclib/psx/spchpsxz/spchinit           6/3         -fno-delayed-branch          +58      -6
+eaclib/psx/spchpsxz/spchinit           6/3         -fno-expensive-optimizations      +2      +0
+eaclib/psx/spchpsxz/spchinit           6/3         inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/spchpsxz/spchrule           4/57        -mno-split-addresses         +22      +0
+eaclib/psx/spchpsxz/spchrule           4/57        -finline-functions          +238      -2
+eaclib/psx/spchpsxz/spchrule           4/57        -fno-omit-frame-pointer     +128      -4
+eaclib/psx/spchpsxz/spchrule           4/57        -fno-schedule-insns          +52      -1
+eaclib/psx/spchpsxz/spchrule           4/57        -fno-schedule-insns2         +46      -2
+eaclib/psx/spchpsxz/spchrule           4/57        -fno-delayed-branch          +85      -4
+eaclib/psx/spchpsxz/spchrule           4/57        -funroll-loops               +53      -1
+eaclib/psx/spchpsxz/spchrule           4/57        -fno-expensive-optimizations      +1      +0
+eaclib/psx/spchpsxz/spchrule           4/57        inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        -mno-split-addresses         +20      +0
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        -fno-omit-frame-pointer       +8      +0
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        -fno-schedule-insns          +12      +0
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        -fno-schedule-insns2          +4      +0
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        -fno-delayed-branch          +22      +0
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        -fno-expensive-optimizations     +14      +0
+eaclib/psx/sndpsxz/sbhdrcpy            0/13        inert: sgnchar inlinefn mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/sndpsxz/sst                 15/13       -mno-split-addresses        +100      -8
+eaclib/psx/sndpsxz/sst                 15/13       -finline-functions          +530      -6
+eaclib/psx/sndpsxz/sst                 15/13       -fno-omit-frame-pointer     +233     -15
+eaclib/psx/sndpsxz/sst                 15/13       -mmemcpy                    +239      -4
+eaclib/psx/sndpsxz/sst                 15/13       -fno-schedule-insns         +289     -10
+eaclib/psx/sndpsxz/sst                 15/13       -fno-schedule-insns2        +144     -11
+eaclib/psx/sndpsxz/sst                 15/13       -fno-delayed-branch         +282     -15
+eaclib/psx/sndpsxz/sst                 15/13       -fno-strength-reduce         +18      -1
+eaclib/psx/sndpsxz/sst                 15/13       -funroll-loops               +78      -3
+eaclib/psx/sndpsxz/sst                 15/13       -fno-expensive-optimizations     +13      -1
+eaclib/psx/sndpsxz/sst                 15/13       inert: sgnchar regstruct shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/sndpsxz/sserver             5/3         -mno-split-addresses         +23      -3
+eaclib/psx/sndpsxz/sserver             5/3         -finline-functions           +95      -1
+eaclib/psx/sndpsxz/sserver             5/3         -fno-omit-frame-pointer      +59      -5
+eaclib/psx/sndpsxz/sserver             5/3         -fno-schedule-insns          +48      -1
+eaclib/psx/sndpsxz/sserver             5/3         -fno-schedule-insns2         +33      -3
+eaclib/psx/sndpsxz/sserver             5/3         -fno-delayed-branch          +84      -5
+eaclib/psx/sndpsxz/sserver             5/3         inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens
+module                                 base P/D    flag                       dDIFF   dPASS
+eaclib/psx/sndpsxz/salloc              2/20        -mno-split-addresses        +145      -2
+eaclib/psx/sndpsxz/salloc              2/20        -finline-functions          +353      +0
+eaclib/psx/sndpsxz/salloc              2/20        -fno-omit-frame-pointer     +105      -2
+eaclib/psx/sndpsxz/salloc              2/20        -fno-schedule-insns         +111      +0
+eaclib/psx/sndpsxz/salloc              2/20        -fno-schedule-insns2         +62      +0
+eaclib/psx/sndpsxz/salloc              2/20        -fno-delayed-branch         +138      -2
+eaclib/psx/sndpsxz/salloc              2/20        -fno-strength-reduce         +54      +0
+eaclib/psx/sndpsxz/salloc              2/20        -funroll-loops               +25      +0
+eaclib/psx/sndpsxz/salloc              2/20        -fno-caller-saves           +106      +0
+eaclib/psx/sndpsxz/salloc              2/20        -fno-expensive-optimizations    +121      +0
+eaclib/psx/sndpsxz/salloc              2/20        inert: sgnchar mmemcpy regstruct shortenum nocommon wstrings nobuiltin nocsejmp
+eaclib/psx/sndpsxz/slib                3/71        -mno-split-addresses         +96      -3
+eaclib/psx/sndpsxz/slib                3/71        -fno-omit-frame-pointer     +144      -3
+eaclib/psx/sndpsxz/slib                3/71        -fno-schedule-insns          +78      -2
+eaclib/psx/sndpsxz/slib                3/71        -fno-schedule-insns2         +64      -3
+eaclib/psx/sndpsxz/slib                3/71        -fno-delayed-branch         +107      -3
+eaclib/psx/sndpsxz/slib                3/71        -fno-cse-follow-jumps        +25      +0
+eaclib/psx/sndpsxz/slib                3/71        -fno-expensive-optimizations     +27      -1
+eaclib/psx/sndpsxz/slib                3/71        inert: sgnchar inlinefn mmemcpy regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave
+eaclib/psx/sndpsxz/sbdload             0/23        -fno-omit-frame-pointer      +61      +0
+eaclib/psx/sndpsxz/sbdload             0/23        -fno-schedule-insns          +28      +0
+eaclib/psx/sndpsxz/sbdload             0/23        -fno-schedule-insns2         +12      +0
+eaclib/psx/sndpsxz/sbdload             0/23        -fno-delayed-branch          +16      +0
+eaclib/psx/sndpsxz/sbdload             0/23        -funroll-loops               +22      +0
+eaclib/psx/sndpsxz/sbdload             0/23        inert: sgnchar nosplit inlinefn mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave nocsejmp noexpens
+eaclib/psx/sndpsxz/spktplay            11/6        -mno-split-addresses        +111      -8
+eaclib/psx/sndpsxz/spktplay            11/6        -finline-functions           +20      -2
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-omit-frame-pointer     +160     -11
+eaclib/psx/sndpsxz/spktplay            11/6        -mmemcpy                    +116      -1
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-schedule-insns         +183      -5
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-schedule-insns2        +145      -8
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-delayed-branch         +183     -11
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-strength-reduce         +21      -1
+eaclib/psx/sndpsxz/spktplay            11/6        -funroll-loops               +64      -1
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-cse-follow-jumps        +32      -1
+eaclib/psx/sndpsxz/spktplay            11/6        -fno-expensive-optimizations    +156      -2
+eaclib/psx/sndpsxz/spktplay            11/6        inert: sgnchar regstruct shortenum nocommon wstrings nobuiltin nocallsave
+eaclib/psx/sndpsxz/sdpacket            11/16       -mno-split-addresses        +105      -6
+eaclib/psx/sndpsxz/sdpacket            11/16       -finline-functions          +522      -2
+eaclib/psx/sndpsxz/sdpacket            11/16       -fno-omit-frame-pointer     +139     -11
+eaclib/psx/sndpsxz/sdpacket            11/16       -fno-schedule-insns         +623      -6
+eaclib/psx/sndpsxz/sdpacket            11/16       -fno-schedule-insns2        +139      -6
+eaclib/psx/sndpsxz/sdpacket            11/16       -fno-delayed-branch         +224     -11
+eaclib/psx/sndpsxz/sdpacket            11/16       -fno-strength-reduce         +12      -1
+eaclib/psx/sndpsxz/sdpacket            11/16       -funroll-loops               +68      -2
+eaclib/psx/sndpsxz/sdpacket            11/16       -fno-expensive-optimizations     +86      -2
+eaclib/psx/sndpsxz/sdpacket            11/16       inert: sgnchar mmemcpy regstruct shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/sndpsxz/ssysserv            2/3         -mno-split-addresses          +8      -1
+eaclib/psx/sndpsxz/ssysserv            2/3         -fno-omit-frame-pointer      +30      -2
+eaclib/psx/sndpsxz/ssysserv            2/3         -fno-schedule-insns2          +4      -1
+eaclib/psx/sndpsxz/ssysserv            2/3         -fno-delayed-branch          +20      -2
+eaclib/psx/sndpsxz/ssysserv            2/3         inert: sgnchar inlinefn mmemcpy regstruct nosched1 nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens
+eaclib/psx/sndpsxz/smemman             3/48        -mno-split-addresses         +21      -2
+eaclib/psx/sndpsxz/smemman             3/48        -finline-functions          +112      +0
+eaclib/psx/sndpsxz/smemman             3/48        -fno-omit-frame-pointer      +60      -3
+eaclib/psx/sndpsxz/smemman             3/48        -mmemcpy                     +64      +0
+eaclib/psx/sndpsxz/smemman             3/48        -fno-schedule-insns          +59      -2
+eaclib/psx/sndpsxz/smemman             3/48        -fno-schedule-insns2         +10      -1
+eaclib/psx/sndpsxz/smemman             3/48        -fno-delayed-branch          +39      -2
+eaclib/psx/sndpsxz/smemman             3/48        -fno-expensive-optimizations      -7      +0
+eaclib/psx/sndpsxz/smemman             3/48        inert: sgnchar regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/sndpsxz/sdmemman            1/73        -mno-split-addresses         +12      -1
+eaclib/psx/sndpsxz/sdmemman            1/73        -finline-functions          +137      +0
+eaclib/psx/sndpsxz/sdmemman            1/73        -fno-omit-frame-pointer      +49      -1
+eaclib/psx/sndpsxz/sdmemman            1/73        -mmemcpy                    +135      -1
+eaclib/psx/sndpsxz/sdmemman            1/73        -fno-schedule-insns          +45      +0
+eaclib/psx/sndpsxz/sdmemman            1/73        -fno-schedule-insns2         +15      +0
+eaclib/psx/sndpsxz/sdmemman            1/73        -fno-delayed-branch          +43      -1
+eaclib/psx/sndpsxz/sdmemman            1/73        -fno-cse-follow-jumps        +30      +0
+eaclib/psx/sndpsxz/sdmemman            1/73        -fno-expensive-optimizations     +28      -1
+eaclib/psx/sndpsxz/sdmemman            1/73        inert: sgnchar regstruct nostrred shortenum nocommon unroll wstrings nobuiltin nocallsave
+eaclib/psx/sndpsxz/sdma                5/4         -mno-split-addresses         +59      -5
+eaclib/psx/sndpsxz/sdma                5/4         -finline-functions          +228      -3
+eaclib/psx/sndpsxz/sdma                5/4         -fno-omit-frame-pointer      +93      -5
+eaclib/psx/sndpsxz/sdma                5/4         -fno-schedule-insns          +23      -2
+eaclib/psx/sndpsxz/sdma                5/4         -fno-schedule-insns2         +54      -5
+eaclib/psx/sndpsxz/sdma                5/4         -fno-delayed-branch          +91      -5
+eaclib/psx/sndpsxz/sdma                5/4         -funroll-loops                +8      -1
+eaclib/psx/sndpsxz/sdma                5/4         -fno-expensive-optimizations     +35      -2
+eaclib/psx/sndpsxz/sdma                5/4         inert: sgnchar mmemcpy regstruct nostrred shortenum nocommon wstrings nobuiltin nocallsave nocsejmp
+eaclib/psx/sndpsxz/sdresolv            1/3         -fno-omit-frame-pointer      +66      -1
+eaclib/psx/sndpsxz/sdresolv            1/3         -fno-schedule-insns2         +48      -1
+eaclib/psx/sndpsxz/sdresolv            1/3         -fno-delayed-branch          +83      -1
+eaclib/psx/sndpsxz/sdresolv            1/3         -fno-strength-reduce         +21      -1
+eaclib/psx/sndpsxz/sdresolv            1/3         inert: sgnchar nosplit inlinefn mmemcpy regstruct nosched1 shortenum nocommon unroll wstrings nobuiltin nocallsave nocsejmp noexpens

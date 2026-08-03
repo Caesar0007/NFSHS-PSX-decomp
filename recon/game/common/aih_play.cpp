@@ -143,27 +143,26 @@ void AIHigh_Player::SetupBlockade()
   int posIndex;
   int loop;
   int needed[2];
-  int searchSlice;
 
   pLevel = this->perpChaseInfo_.chaseLevel_;
   totalRoadWidth = this->carObj_->direction * 0x53;
   if (totalRoadWidth >= 0) {
-    searchSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
-    if (gNumSlices <= searchSlice) {
-      searchSlice = searchSlice - gNumSlices;
+    blockadeSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
+    if (gNumSlices <= blockadeSlice) {
+      blockadeSlice = blockadeSlice - gNumSlices;
     }
   }
   else {
-    searchSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
-    if (searchSlice < 0) {
-      searchSlice = searchSlice + gNumSlices;
+    blockadeSlice = this->carObj_->N.simRoadInfo.slice + totalRoadWidth;
+    if (blockadeSlice < 0) {
+      blockadeSlice = blockadeSlice + gNumSlices;
     }
   }
 
   nCopsNeeded[0] = pLevel->copBlockaders[0];
   nCopsNeeded[1] = pLevel->copBlockaders[1];
   blockadeHandle = triggerManagerCops->CheckForClosestTriggerOfType(
-      searchSlice,(triggerType)2,this->carObj_->direction);
+      blockadeSlice,(triggerType)2,this->carObj_->direction);
 
   if (blockadeHandle != -1) {
 
@@ -343,10 +342,6 @@ void AIHigh_Player::SetupBlockade()
 
           fastRandom = randtemp & 0xffff;
 
-          /* MATCH: the redundant false writes in both arms are optimized away,
-             but preserve the retail gcc-2.8 interference graph. */
-          saySpikeBelt = false;
-
           distance = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
 
           if (distance < 0) {
@@ -429,8 +424,6 @@ void AIHigh_Player::SetupBlockade()
               ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
           fastRandom = randtemp & 0xffff;
-
-          saySpikeBelt = false;
 
           distance = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
 

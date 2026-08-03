@@ -76,6 +76,17 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
      * load in the alignpad statement, splitting `size += tail` (6), dropping the `tail` local
      * (29 and 93/94).  Raising it needs `tail` to gain an in-block use, which retail does not
      * have either -- a genuine one-instruction scheduler tie.
+     * ==== w47-a5: PASS 94/94.  The w34-a3 STRONG-floor verdict below is REFUTED. ====
+     * Its reasoning is entirely correct as far as it goes -- both candidates feed the same join
+     * insn, so no reassociation can make the register copy out-prioritise the load.  The error
+     * is the implicit premise that the only way to win a ready-list tie is to WIN it.  A
+     * zero-insn USE FENCE on `tail` right after the MEM_tailsize call is a scheduling BARRIER:
+     * the copy cannot sink past it and the align load cannot float above it, so priority never
+     * gets a vote.  Cost: 0 instructions (`tail` is already register-resident).  This is the
+     * w45 fence FIXPOINT law; the same one-line lever also cleared cdfs CD_Read and stream
+     * restartstream this wave -- every 'sched1/sched2 ready-list tie' floor in this cluster
+     * should be re-tested with it before being quoted again.
+     * ---- superseded w34-a3 verdict ----
      * w34-a3 RE-VERDICT: STRONG floor (>=3 further alternate forms, all worse, none flipping the
      * tie).  The barrier is structural, not a spelling: both candidates feed the SAME join insn
      * (`addu v0,size,tail` / `addiu a0,align,15` -> `addu v0,v0,a0`), so any reassociation that
@@ -103,6 +114,7 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     /* 3. aligned physical payload needed, clamped to available span */
     name = getblockname(userptr);
     tail = MEM_tailsize(name, flags);
+    __asm__("" : : "r"(tail));   /* w47-a5 sched fixpoint: pin the return copy above the align load */
     align = *(int *)((char *)cls + 0x28);
     alignpad = align + 15;                            /* MATCH: its own statement -- inside one
                                                        * expression gcc reassociates the +15 onto

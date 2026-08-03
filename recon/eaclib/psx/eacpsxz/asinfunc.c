@@ -91,6 +91,25 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * only flip the second add's operand ORDER, `addu v0,v0,a1` instead of `addu v0,a1,v0`) -- i.e.
      * cse re-materialises the `(plus asintbl, idx)` value rather than substituting the live
      * equivalent register, and no C spelling of the second subscript changes that decision.
+     * ==== w47-a5 NEW NAMED ANGLE (the w33/w34 'no C spelling reaches it' claim is REFUTED for
+     * the INSTRUCTION SHAPE; what is left is a 2-pointer coloring, which is a different and
+     * much smaller target).  A zero-insn OPACITY FENCE with a matching "0" constraint makes
+     * the aliased pointer un-coalescable, so retail's register COPY survives instead of being
+     * propagated away:
+     *     const unsigned char *pt = &kArcsinTable[idx];
+     *     const unsigned char *qt = pt;
+     *     __asm__("" : "=r"(qt) : "0"(qt));
+     *     t0 = pt[0];  t1 = qt[1];
+     * That gates 24 at COUNT-EXACT 48/48 with retail's exact insn shape --
+     *     ours   addu v0,v1,v0 / addu v1,v0,zero / lbu a1,0(v0) / lbu v0,1(v1)
+     *     oracle addu v1,a1,v0 / addu v0,v1,zero / lbu v1,0(v1) / lbu v0,1(v0)
+     * i.e. the sum lands in the WRONG member of the pair (retail: sum->v1, copy->v0; ours the
+     * other way), which is a local-alloc QTY_CMP_PRI question (w45 SS-A0), NOT a cse question.
+     * Measured around it: fence on `pt` instead of `qt` = 25 diffs / 47 insns (the copy is
+     * eliminated again); load order t1-then-t0 = 22 / 48.  NEXT: qtytrace/-dl the two pointer
+     * qtys and dial the pair with the standard birth/live/ref levers -- do NOT go back to
+     * spelling the subscript.  The 2-diff baseline is kept because 24 > 2, not because the
+     * fence form is wrong.
      * SLD could not have helped:
      * eaclib .lib C members are debug-stripped (0 SLD records anywhere above 0x800E0000). */
 

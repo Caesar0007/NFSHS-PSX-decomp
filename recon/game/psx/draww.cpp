@@ -95,7 +95,29 @@ void Night_NightCopCalc(VECTOR *v,short *idx);
  * asm("Night_gWeatherLightingTable")` leaves the diff byte-identical (still 2), so the
  * lbu-vs-lui order is NOT an address-materialization question either.  Remaining
  * angle: a pure sched1/sched2 ready-list tie -- read it off cc1 -dS/-dR for this fn
- * (both loads are ready at the same cycle and the tie is broken by luid). */
+ * (both loads are ready at the same cycle and the tie is broken by luid).
+ * w46-a7 RE-PROBED at this basin, still 2.  FALSIFIED here (all leave the 2-diff
+ * adjacent swap byte-identical, or regress): (a) a zero-insn USE FENCE on a
+ * separate `int lt = sd->night_LightningType;` -- the fence costs a REAL insn
+ * because `lt` is not yet reg-resident at that point (58 insns, 21 diffs);
+ * (b) `lt` as a plain separate statement (2, byte-identical -- copy-propagated);
+ * (c) CORRECT index-first pointer arithmetic `**(sd->night_LightningType +
+ *     Night_gWeatherLightingTable)` -- 2, byte-identical (the w45 note's 2->22
+ *     attempt was a WRONG shape, this one is type-exact and fold canonicalizes
+ *     the operand order back);  (d) the same with `lt` split out -- 2;
+ * (e) a `row` pointer temp for the first deref -- 4;  (f) reading `*idx` into a
+ *     temp first -- 4;  (g) storage-shape menu #4, a per-site VOLATILE view
+ *     `extern u_char (*volatile Night_gWLT_vol[2])[256] asm("...")` at file
+ *     scope -- 4 (and note a BLOCK-scope extern with an asm label does not
+ *     assemble: `Error: bad expression`).
+ * ⇒ the lbu-vs-lui order is neither an addressing-shape nor an expression-order
+ * question; both insns are ready in the same cycle and BOTH forms of the source
+ * produce the same RTL order.  NEW NAMED ANGLE: this is a sched2 ready-list DRAIN
+ * tie -- per the w45 grammar the only dial left is a zero-insn USE FENCE placed
+ * at the guard-block HEAD on a value that is ALREADY in a register there (sd is
+ * in $a2, znear in $t0, zfar in $t1, z in $a3) so the fence costs 0 insns; walk
+ * it one statement at a time through the arm.  (My probe used `lt`, which is NOT
+ * reg-resident -- that is why it cost an insn; retry with `"r"(sd)`.) */
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
 /* w45-a6 RECEIPT -- DrawQuad 100 -> 20 (count-exact 592/592).
  * LANDED: the addPrim P_TAG-bitfield idiom at BOTH OT-link sites (see below).
@@ -205,7 +227,26 @@ void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd);
  * (DivideShadowPrim 60 -> PASS) applies -- re-derive this fn's SYM 8c block first and
  * check whether the template's clobber list is evicting a parameter (a clobber that
  * grabs a callee-saved reg is a documented cause of exactly this whole-fn rotation),
- * then re-run posdiff before touching any coloring. */
+ * then re-run posdiff before touching any coloring.
+ * w46-a7 -- THE CLOBBER-EVICTION ANGLE IS FALSIFIED: this fn's template carries
+ * exactly the same clobber list as DrawQuad's and DoLines' sealed instances
+ * ("$12","$13","$14","memory"), so it is not evicting a parameter.
+ * QUANTIFIED INSTEAD (tools/rtl_dump.py -dg -dl + prio.py + reqdelta.py):
+ *     p80 geomVertices  16 refs / 278 live -> 0.2302   ours $fp   SYM $s3
+ *     p81 lineQuad      17 refs / 278 live -> 0.2446   ours $s5   SYM $s6
+ *     p85 the 0-counter 16 refs / 276 live -> 0.2319   ours $s7   SYM $fp
+ *     p288 = a COMPILER temp `geomVertices + 20` (insn 946, loop/cse-created),
+ *           29 refs / 266 live -> 0.4361, and it is what currently holds $s3.
+ * 🏆 reqdelta --want "p80=s3,p81=s6,p85=fp" returns ONE dial that fixes ALL THREE:
+ *     p80 refs 16 -> 31   (|d| = 15 weighted, i.e. ~7-8 in-loop source refs)
+ * NEW NAMED ANGLE: those 15 refs are sitting in p288.  The four vertex copies are
+ * written through cse-able base expressions `((int *)&geomVertices[N])[0/1]`, so
+ * gcc strength-reduces them into ONE `geomVertices+20` pseudo that outranks the
+ * parameter itself.  Re-spell the eight word loads as plain index expressions off
+ * the SAME base -- `((int *)geomVertices)[2*N]` / `[2*N+1]` -- (catalog par.A #1,
+ * index-form defeats the base hoist): every load then references geomVertices,
+ * p288 disappears, and p80 lands well past 31.  Do this BEFORE any coloring work;
+ * the whole 4-way rotation is downstream of it. */
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd);
 void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans);
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);
@@ -232,7 +273,29 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);
  * (emitting fz, fy, fx) works because it changes the three qtys' LIVE LENGTHS, not
  * because it reverses births.  Clusters (2) and (3) are therefore also ref-step
  * targets: dump with tools/rtl_dump.py -dg -dl and drive
- * tools/reqdelta.py --want "<pseudo>=<reg>,..." for the minimal delta. */
+ * tools/reqdelta.py --want "<pseudo>=<reg>,..." for the minimal delta.
+ * w46-a7 RE-GATED 70 (count-exact 268/268).  Cluster (1) re-read precisely: the
+ * oracle does not merely reverse the emission order, it INTERLEAVES per axis and
+ * assigns the registers the other way round -- `lb s4,15; lb s3,16; sra s4;
+ * sh s4,368; lb s2,17; sra s3; sh s3,376; lb a1,18; sra s2; ...; sh s2,384` (so
+ * s4=fx, s3=fy, s2=fz), while we batch all three loads and then all three stores
+ * with s4=fz, s3=fy, s2=fx.
+ * FALSIFIED this wave: fx,fy,fz block order (76) · one shared block holding all
+ * three temps (70, i.e. neutral) · a 4th duplicate fx block to cross the 3-vs-4
+ * qty boundary (72) · a second net-zero `t2++;t2--;` pair on fz (76) · dropping
+ * the `tN++; tN--;` net-zero pairs entirely (207 -- they remain load-bearing).
+ * NEW NAMED ANGLE (a10 w46 LAW, unused here): a block with EXACTLY 3 quantities
+ * is NOT priority-ordered -- local-alloc.c:1588 hand-rolls next_qty <= 3 with a
+ * broken comparator -- so for THIS trio the dials are BIRTH ORDER and crossing
+ * the 3-vs-4 qty boundary, NOT the ref-step.  My 4th-temp probe crossed the
+ * boundary in the wrong direction (a duplicate fx, which also duplicates work);
+ * the right probe is a 4th qty that is NOT one of fx/fy/fz -- e.g. hoist the
+ * `BWorldSm_slices[slice].forward` base into its own block-local pointer so the
+ * block has {base,t0,t1,t2} = 4 qtys and the real comparator runs.  Use
+ * tools/qtytrace.py (branch w46-a10) to read the block's qty count FIRST.
+ * Cluster (3) is the cheapest independent win left (~10 of the 70): the two
+ * quad-row base pointers `lw t4,408(sp)` / `lw t3,456(sp)` are swapped against
+ * the oracle and drive six dependent loads. */
 
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd);
 void DepthCue_Init(void);
@@ -448,7 +511,26 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        n+1/n+2 computation, cascading a t8<->t9/t2<->t3/t1<->t2 rename through
        the 4 repeated GT3-prim-add blocks later in the fn) is a genuine
        allocator-internal floor, not reachable by a source-order lever;
-       permuter candidate (not run here -- fn is large/GTE-heavy, see the two
+       w46-a7 SUPERSEDES the 'allocator-internal floor' verdict below with numbers.
+       RE-GATED 35, ours 587 / oracle 588 (ours is ONE insn SHORT).  The residual
+       is the v4..v8 index chain: retail keeps `n` (after `n = n + 1`) in $a3 and
+       finally MUTATES it in place (`addiu a3,a3,3`), computing each `+1/+2/+3`
+       off $a3; we keep it in $v1.  Same insns, one register apart, plus a
+       one-slot add-before-shift ordering difference at the head of the chain.
+       🏆 THE COUNT-EXACT BASIN EXISTS (new): declaring ONE extra block-local
+       `int m;` and driving v5..v8 off `m = n` makes the function 588 == 588
+       insn-EXACT at 38 diffs -- i.e. the missing instruction is bought by
+       crossing the block's qty count, exactly the a10 w46 LAW (a block with
+       EXACTLY 3 quantities is NOT priority-ordered: local-alloc.c:1588 hand-rolls
+       next_qty <= 3 with a broken comparator, so birth order and the 3-vs-4
+       boundary are the dials, not the ref-step).  38 > 35 today, but 35 is
+       count-INEXACT and therefore cannot be a floor under the project bar --
+       WORK FROM THE 588/588 BASIN.  Falsified from it this wave: m assigned
+       before `n = n + 1` (41), m mutated for v8 (45), the copy+mutate form (169),
+       `n += 3` early (35, count-inexact), `n += 4` early (35, count-inexact).
+       NEXT: read the block's qty count + birth order with tools/qtytrace.py
+       (branch w46-a10) from the 588/588 basin and move the BIRTHS, not the refs.
+       ---- superseded: permuter candidate (not run here -- fn is large/GTE-heavy, see the two
        already-running permuter jobs on the smaller Night_* fns for the
        time-budget tradeoff). */
     v4 = &r_div->v[n];
@@ -2742,6 +2824,27 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
   Track_tMaterial *shapeDef_p;
   int drawResult;
 
+  /* w46-a7 RECEIPT -- 5 diffs, ours 190 / oracle 189 (the +1 is a load-delay `nop`).
+     PROLOGUE PARAM-COPY SINK (the same named class as DrawW_DoLines in this TU):
+     the 5th parameter `offset` arrives in the stack arg slot; retail loads it with
+     `lw s5,96(sp)` at insn 16, using it to FILL the load-delay slot after
+     `lbu v0,3(s4)`, and therefore leaves `sw s5,68(sp)` inside the normal save run
+     at 9.  We load it at insn 6, immediately after hoisting its save to insn 5, and
+     pay a `nop` where retail has the load.  Identical insn multiset otherwise --
+     chunkdiff: 3 runs, 4 insns.
+     FALSIFIED this wave (all 5, byte-identical): three statement positions for
+     `*(int *)&sd[1].head.clipW = offset;` (last in the group / after the mirror
+     store / first); zero-insn USE fences on shapeDef_p, drawResult and isCullable
+     placed inside the same statement group.  The copy/load is emitted by
+     assign_parms at function entry, BEFORE any body statement, so no source
+     position can reach it -- consistent with DoLines, where the same class also
+     ignored every statement move.
+     NEW NAMED ANGLE: the only reachable dial is the load's SCHED PRIORITY, i.e. the
+     depth of its dependence chain to the end of the entry block.  Its sole consumer
+     here is `sw s5,236(s0)`.  Lengthen that chain (make `offset` feed something with
+     a longer tail, or shorten the chain of whatever currently outranks it) and the
+     load sinks to the delay slot on its own.  Read the two candidates' priorities
+     off cc1 -dR (sched2) for this fn before touching source. */
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
   *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
   isCullable = objDef->vertexCount;
@@ -3427,6 +3530,24 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
      accepted; this value feeds DrawW_BuildCustomObjectFacets via the scratchpad field. */
   *(short *)((char *)sd + 0x148) = 0x400;
   if (gPersistObjInst != (Group *)0x0) {
+    /* w46-a7 RECEIPT -- 30 diffs, count-EXACT 222/222, 4 tiny independent clusters
+       (chunkdiff: 10 insns total).  The one worth naming:
+         RANGE-CHAIN REMATERIALIZATION -- the shared `chunkM1` temp below is CSE'd
+         into a live register ($a0) that spans BOTH track-guard chains, so our second
+         chain reuses it (`sltiu v0,a0,53`); retail RECOMPUTES `addiu v0,s5,-1` at the
+         second site because it needs $a0 there for a `lui a0,0x1F80` (the scratchpad
+         cache pointer) that we materialize elsewhere.
+       FALSIFIED this wave: inlining `thisChunkInd - 1U` at BOTH sites (45, count 223)
+       · inlining at the SECOND site only (30, byte-identical -- cse folds it back)
+       · two separate named temps (45, count 223).
+       NEW NAMED ANGLE: the dial is NOT the temp, it is WHERE `0x1F800000` (the sd
+       scratchpad base) is materialized.  Retail's `lui a0,8064` lands inside the
+       second guard chain and is what evicts the CSE'd `chunkM1`.  Find the source
+       site that owns that constant (a `(Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr`
+       / `sd` use) and move it INTO the second chain's block; the remat follows for
+       free.  Remaining clusters: an early store-order pair (`sw a0,0(gp)` vs
+       `sw t0,24(sp)` + the `lw s5,136(v1)` position) and one `v1`-vs-`a1` operand on
+       an `xori ...,4`. */
     u_int chunkM1 = thisChunkInd - 1U;
     if (((GameSetup_gData.track != 4) ||
         (((0x27 < chunkM1 && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
@@ -4489,7 +4610,25 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
      Vi > buildList > sd = oracle's s0/s1/s2. -28 diffs. RESIDUAL 14 = prologue
      param-copy schedule (ours copies a1->s1 at top, oracle sinks it to the loop
      head) + a translation.x-vs-pChunkCp->x load-order sched tie in trans.x/y/z;
-     both pure sched2 tie-breaks; permuter candidates. */
+     both pure sched2 tie-breaks; permuter candidates.
+     w46-a7 RE-GATED 8 (count-exact 199/199).  The residual is now ONE named
+     class, shared with DrawObjectSimple in this same TU:
+       PROLOGUE PARAM-COPY SINK -- retail issues `addu s0,a0,zero` (Vi) at insn 2
+       but SINKS `addu s1,a1,zero` (buildList) all the way to insn 32, the loop
+       head, and consequently leaves `sw s1,68(sp)` inside the normal save run at
+       15 instead of hoisting it to the top.  Ours issues the a1 copy at insn 2
+       and hoists its save with it.  Identical insn multiset, one transposition.
+     FALSIFIED this wave (all 8, i.e. byte-identical): moving the `Vi++; Vi--;`
+     pair below `chunkCount = ...`; a second `Vi++; Vi--;` pair; a zero-insn USE
+     fence on buildList at the loop head.  A fence on Vi at the top REGRESSES to
+     14.  REMOVING either net-zero pair regresses to 42 -- both are still needed.
+     NEW NAMED ANGLE: the param copy is emitted by assign_parms at function entry,
+     so no statement-level source position can reach it -- the only reachable dial
+     is its sched priority (= its dependence-chain depth to the block end).  Give
+     buildList's FIRST use a shorter chain (or Vi's a longer one) and the copy
+     sinks; concretely, try making the loop's first buildList read (`geomRez =
+     (signed char)buildList->geomRez;`) the LAST link of a chain rather than the
+     first.  Same instrument applies to DrawObjectSimple's `lw s5,96(sp)`. */
   int chunkCount;
 
   Vi++; Vi--;  /* MATCH: net-zero pair -- lifts Vi's allocno priority above buildList (see above) */

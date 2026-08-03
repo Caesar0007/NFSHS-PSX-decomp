@@ -687,6 +687,10 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *   variant is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
   if ((flags & 2) != 0) {
     v = (byte)shp->shapey - 1;
+    vb = v;
+  }
+  else {
+    vb = v;
   }
   /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
    * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
@@ -694,8 +698,6 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * lvalue shape), each of which costs a real insn in the arm; measure vs the
    * missing-pair budget (+2) next pass.  Also PENDING: confirm p87==vh in the
    * lreg insn stream before further REG_EQUIV surgery. */
-  vb = v;   /* MUST sit AFTER the flags&2 arm: retail's 0x20(sp) byte holds the
-             * DECREMENTED v.  A `vb = v;` before the arm gates 34 -- and is a REAL BUG. */
   i = 0;
   while (i < shp->width) {
     int addw;

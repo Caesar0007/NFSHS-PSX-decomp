@@ -628,8 +628,10 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     int texX;
     int wsel;
     int c3;
+    int ibp;
 
-    texX = (uint)(ushort)shp->shapex + (i * bpp) / 16;
+    ibp = (i * bpp) / 16;
+    texX = (uint)(ushort)shp->shapex + ibp;
     u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
         ((int)((texX & 0xffffffc0U) << 0x10) >> 0xc) / bpp;
     wsel = 0xff - u;

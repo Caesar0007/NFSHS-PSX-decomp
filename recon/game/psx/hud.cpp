@@ -4041,7 +4041,27 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
   if (Replay_ReplayMode < 2) {
     psVar3 = Hud_NextPerp + player;
     FinalBTC_Countdown = BTC_Countdown;
-    sprintf(BTCPerpInfo[player][*psVar3].name,name);
+    /* w46-a4 LEVER (19 -> 10, count now EXACT 110/110): the sprintf index is a FRESH
+     * `Hud_NextPerp[player]` array read, NOT `*psVar3`.  With `*psVar3` the load is tied
+     * to the pointer local, gcc issues `lw BTC_Countdown` / `sw FinalBTC_Countdown`
+     * back-to-back and pays a load-delay `nop` (the 111th insn); the array read lets the
+     * scheduler interleave the sprintf address chain (`lh a0,0(s0); sll a0,a0,4;
+     * addu a0,a0,s3`) between the gp load and its store, exactly as retail does.
+     * RESIDUAL 10 = the head `player` arithmetic only: retail sign-extends the short param
+     * into $v1 and MUTATES IN PLACE (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`, i.e. the
+     * *5 row offset is built BEFORE the *2 pointer offset and `player` dies at `sll v1,v1,1`);
+     * ours sign-extends into $a0, builds *2 first and keeps `player` live for `addu v0,a2,a0`.
+     * FALSIFIED HERE (this basin): FinalBTC first (10, identical) / after the sprintf (29)
+     * / sprintf before psVar3 (29) / row-base char* local first (14) / name-pointer local
+     * first (29) / int copy of player used for both indices (20) / `&Hud_NextPerp[i]` +
+     * `*psVar3` index (36).
+     * NEW NAMED ANGLE: this is a 4-insn block-local QTY question (all four pseudos are
+     * born and die inside the entry block) -- per catalog w45 §A0 `QTY_CMP_PRI ==
+     * allocno_compare`, so read the -dl qty table for this block and apply the ref-step /
+     * live-length dial to the sign-extended `player` pseudo so it ranks where retail's does
+     * (retail's dies 2 insns earlier).  A source shape that makes the *5 the FIRST consumer
+     * of `player` without moving the sprintf is the direct route. */
+    sprintf(BTCPerpInfo[player][Hud_NextPerp[player]].name,name);
     if (caught != 0) {
       BTCPerpInfo[player][*psVar3].caught = 1;
       BTCPerpInfo[player][*psVar3].time = time;

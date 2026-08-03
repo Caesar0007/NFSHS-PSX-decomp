@@ -294,23 +294,26 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
   
   strcpy(infilename,filename);
   strcat(infilename,".geo");
+  filestart = (char *)locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178); in_a2 was a bogus Ghidra incoming-reg artifact */
   offset = 0x24c;
   i = 0;
   pVStack_38 = &vt;
   pSStack_34 = &nm;
   iStack_30 = 0x7e07e07f;
-  pacVar11 = R3DCar_ObjectInfo;
-  filestart = (char *)locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178); in_a2 was a bogus Ghidra incoming-reg artifact */
   locatebigentry(R3DCar_BigFile,infilename,0,(int *)0x0,(int)&filesize);
   rawData = (char *)reservememadr(infilename,filesize,0);
-  scene = (Transformer_zScene *)rawData;
   blockmove(filestart,rawData,filesize);
+  scene = (Transformer_zScene *)rawData;
   carType = (int)(carObj->render).currentCarType;
   eScaleX = R3DCar_EnvMapInfo[carType].eScaleX;
   eScaleY = R3DCar_EnvMapInfo[carType].eScaleY;
   (carObj->render).rideHeight = R3DCar_EnvMapInfo[carType].rideHeight << 7;
+  pacVar11 = R3DCar_ObjectInfo;
   (carObj->render).upgradeHeight = R3DCar_EnvMapInfo[carType].upgradeHeight << 7;
-  while (i < 0x39) {
+  while (1) {
+    if (i >= 0x39) {
+      goto R3DCar_objects_done;
+    }
     scene->obj[i] = (Transformer_zObj *)((int)rawData + offset);
     offset = offset + 0x1c;
     Nobj = scene->obj[i];
@@ -391,6 +394,7 @@ R3DCar_vertex_loop:
     pacVar11 = pacVar11 + 1;
     i = i + 1;
   }
+R3DCar_objects_done:
   return scene;
 }
 

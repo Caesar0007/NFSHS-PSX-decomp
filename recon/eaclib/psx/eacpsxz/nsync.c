@@ -80,7 +80,19 @@ extern int filesize(char *name)   /* @0x800E566C */
  *  `a->memclass`, read the whole file in, close, then run the optional   *
  *  loadfilecallback hook.  Returns the buffer (NULL on any failure).     *
  * ===================================================================== */
-/* RESIDUAL 22 (count-exact 62/62), w32-a3 analysis -- a pure s2<->s3 swap: retail keeps the
+/* ==== w47-a5: SOLVED, PASS 62/62.  The "do NOT re-fight from source" verdict below was WRONG. ====
+ * The w32/w35 arithmetic was RIGHT ("`a` needs >=8 refs") -- what was missing is the w44 zero-insn
+ * REF-STEP family, which did not exist when that note was written.  reqdelta/allocsim confirm the
+ * minimal dial is exactly p81(`a`) refs 6 -> 8 (floor_log2 step 2->3; pri .194 -> .387, overtaking
+ * size's .333 while staying under handle's .476, so s1/s2/s3 land retail-exact).
+ * DELIVERY -- a do{}while(0) PHONY LOOP around the two `a` dereferences ONLY (flow.c weights refs
+ * inside by loop_depth, so 2 in-span refs = +2).  SPAN GRANULARITY IS THE WHOLE TRICK: wrapping the
+ * entire hook CALL statement also lifts buf(p88) 7->8, r(p92) and p93 by one each, which re-sorts
+ * the allocno list and swaps their s0/s1 (22 -> 28, measured).  Loading name/memclass into two
+ * block-locals inside the wrapper keeps the lift on `a` alone -- same instructions emitted (the two
+ * loads were already there), 22 -> 0.
+ * ---- superseded w32-a3 note (kept for the numbers, which are all still correct) ----
+ * RESIDUAL 22 (count-exact 62/62), w32-a3 analysis -- a pure s2<->s3 swap: retail keeps the
  * LoadArgs pointer in $s2 and the file size in $s3, ours has them the other way round.  Everything
  * else (retry->s0, retry-1->s1, buf->s0-after-retry-dies, hook result->s1) already matches, and IDA
  * (nfs4-psx-IDA.c sub_800E56B0: `v4 // $s1` = retry-1, `v5 // $s3` = size, `v7 // $s0` = buf,
@@ -126,7 +138,18 @@ extern void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 
             if (loadfilecallback != 0) {
                 void *r;                /* post-load hook */
-                r = (void *)loadfilecallback(buf, a->name, a->memclass);
+                /* MATCH (w47-a5, the w44 zero-insn REF-STEP dial): allocsim/reqdelta say the ONLY
+                 * minimal dial for retail's handout (a->$s2, size->$s3) is `a`'s REG_N_REFS 6 -> 8
+                 * (floor_log2 step 2->3: pri 0.194 -> 0.387, overtaking size's 0.333 while staying
+                 * under handle's 0.476 so the s1/s2/s3 order lands exactly).  This do{}while(0)
+                 * wrapper is a PHONY loop: it emits NO instruction, but flow.c weights the two
+                 * `a` dereferences inside it by loop_depth 2, which is precisely +2 refs.
+                 * DO NOT "simplify" it away -- it is the whole 22->0. */
+                {
+                    char *nm; int mc;
+                    do { nm = a->name; mc = a->memclass; } while (0);
+                    r = (void *)loadfilecallback(buf, nm, mc);
+                }
                 if (r == 0)
                     purgememadr(buf);                   /* hook failed -> free */
                 buf = r;

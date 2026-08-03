@@ -200,10 +200,8 @@ int GetPSXPadValue(int value,int player)
   int type;
   
   PAD_update();
-  if (gPadinfo.buf[player * 4].nopad == '\0') {
-    type = gPadinfo.buf[player * 4].ID;
-  }
-  else {
+  type = gPadinfo.buf[player * 4].ID;
+  if (gPadinfo.buf[player * 4].nopad != '\0') {
     type = 0;
   }
   switch (type) {
@@ -213,43 +211,43 @@ int GetPSXPadValue(int value,int player)
     case 0x800000:
       newControl = player << 0x1e |
                    (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+      return newControl | 1;
     case 0x100000:
       newControl = player << 0x1e |
                    ((0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 | 0x1000000) |
-                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x400000:
       newControl = player << 0x1e |
                    (((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 | 0x1000000) |
-                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+      return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
                    ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x2000000) |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x20000000:
       newControl = player << 0x1e |
                    (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x2000000) |
-                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+      return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
                    ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x3000000) |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
-      return newControl;
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x40000000:
       newControl = player << 0x1e |
                    (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x3000000) |
-                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+      return newControl | 1;
     }
     break;
   case 0x23:
@@ -257,21 +255,21 @@ int GetPSXPadValue(int value,int player)
     case 0x800000:
       newControl = player << 0x1e |
                    (0x7f - (byte)frontEnd.deadSpot[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100 | 1;
-      return newControl;
+                   (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100;
+      return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100 | 1;
-      return newControl;
+                   ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100;
+      return newControl | 1;
     case 0x4000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.ImaxRange[player] * 0x100 | 0x1000000) | 1;
-      return newControl;
+                   ((byte)frontEnd.ImaxRange[player] * 0x100 | 0x1000000);
+      return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.IImaxRange[player] * 0x100 | 0x2000000) | 1;
-      return newControl;
+                   ((byte)frontEnd.IImaxRange[player] * 0x100 | 0x2000000);
+      return newControl | 1;
     case 0x400:
       newControl = player << 0x1e | 0x30aff01;
       return newControl;

@@ -298,9 +298,32 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        `int g0=lp[1],g1=wc1; newG=(short)(g0+g1); if (0xff < g0+g1) ...`), or
        equivalently give the R channel a second use so its sum cannot die into
        the copy.  Cross-check with tools/prio.py -dg allocno ranks first. */
-    newR = (short)((int)wc[0] + (int)lp[0]);
-    newG = (short)((int)wc[1] + (int)lp[1]);
-    newB = (short)((int)wc[2] + (int)lp[2]);
+    /* MATCH (w46-a3, 36 -> 4, count-exact 107/107): TWO cooperating edits,
+       and NEITHER works without the other (lever-order law):
+        (a) a zero-insn `__asm__("" : : )` sched fence in front of the three
+            sums -- it pins the `%lo` of &Night_gWeatherColor[type] and the
+            first lp load into retail's issue order;
+        (b) `lp[N] + wc[N]` operand order at ALL THREE channels, so each
+            sum's dest is the FIRST-loaded (lp) register exactly like retail
+            (`lbu a0,0x68(sp); lbu v0,0(v1); addu a0,a0,v0`).
+       Measured at this basin: wc-first+no fence 36 (the w45 receipt's
+       basin), lp-first+no fence 38, fence+lp-first 4.  The w45 'operand
+       receipt survives' note was TRUE only pre-fence -- the fence inverts
+       it, which is the basin law again.
+       The w45 'G keeps both addends live' angle is REAL but subsumed:
+       alone it gives 24, with the fence it is +6 WORSE than the plain
+       lp-first form (10 vs 4).
+       RESIDUAL 4 = ONE single-slot sched2 swap: `addiu v0,v0,0` (the wc
+       %lo) vs `lbu a0,104(sp)` (lp[0]).  FALSIFIED at this basin: decl
+       swap, fence between the two decls, fence before the decls, a second
+       fence.  NEXT ANGLE: this is a ready-list DRAIN tie -- per w46-a10 the
+       block's qty COUNT is the dial when it is small (local-alloc.c:1588
+       hand-rolls next_qty<=3); count the qtys in this block from -dl and
+       try crossing the 3-to-4 boundary with one extra/removed block-local. */
+    __asm__("" : : );
+    newR = (short)((int)lp[0] + (int)wc[0]);
+    newG = (short)((int)lp[1] + (int)wc[1]);
+    newB = (short)((int)lp[2] + (int)wc[2]);
     if (0xff < newR) {
       newR = 0xff;
     }

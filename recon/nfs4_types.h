@@ -3547,7 +3547,7 @@ struct tScreen {   /* 100 bytes */
 };
 
 struct tCarLineup {   /* 20 bytes */
-    BOOL               isPlayerCar;   /* +0x0 */
+    bool               isPlayerCar;   /* +0x0 */
     int                personality;   /* +0x4 */
     char               position;   /* +0x8 */
     int                carModel;   /* +0xC */
@@ -3635,7 +3635,7 @@ struct tAwardInformation {   /* 68 bytes */
 struct tCompetitor {   /* 16 bytes */
     int                fPersonality;   /* +0x0 */
     u_char             fVariation;   /* +0x4 */
-    char               fIsPlayerCar;   /* +0x5 */
+    signed char        fIsPlayerCar;   /* +0x5 */
     BOOL               fEliminated;   /* +0x8 */
     u_short            fPoints;   /* +0xC */
     u_char             fPosition;   /* +0xE */

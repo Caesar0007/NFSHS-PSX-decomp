@@ -722,31 +722,23 @@ short tTournamentManager::GetNumCompetitors()
 void tTournamentManager::UpdateCarLineup()
 
 {
-  int _i;
-  short sVar1;
-  int iVar2;
   short i;
   short k;
-  short sVar3;
-  
-  sVar1 = this->GetNumCompetitors();
-  sVar3 = 0;
-  _i = 0;
-  if (0 < sVar1) {
-    iVar2 = 0;
+  short numCompetitors;
+
+  numCompetitors = this->GetNumCompetitors();
+  k = 0;
+  i = 0;
+  if (0 < numCompetitors) {
     do {
-      iVar2 = iVar2 >> 0xc;
-      if (*(int *)((int)&this->fCompetitors[0].fEliminated + iVar2) == 0) {
-        this->fCarLineup[sVar3].isPlayerCar =
-             (uint)((&this->fCompetitors[0].fIsPlayerCar)[iVar2] != '\0');
-        this->fCarLineup[sVar3].personality =
-             *(tPersonalities *)((int)&this->fCompetitors[0].fPersonality + iVar2);
-        this->fCarLineup[sVar3].position = (&this->fCompetitors[0].fPosition)[iVar2];
-        sVar3 = sVar3 + 1;
+      if (this->fCompetitors[i].fEliminated == 0) {
+        this->fCarLineup[k].isPlayerCar = this->fCompetitors[i].fIsPlayerCar;
+        this->fCarLineup[k].personality = this->fCompetitors[i].fPersonality;
+        this->fCarLineup[k].position = this->fCompetitors[i].fPosition;
+        k = k + 1;
       }
-      _i = _i + 1;
-      iVar2 = _i * 0x10000;
-    } while (_i * 0x10000 >> 0x10 < (int)sVar1);
+      i = i + 1;
+    } while (i < numCompetitors);
   }
   return;
 }

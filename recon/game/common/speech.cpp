@@ -511,35 +511,42 @@ u_int CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(int param_1,int *loc
 int Distance__Q26Speech12LocationBanki(LocationBank *pThis,int slice)
 
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  
-  iVar4 = pThis->fStartSlice;
-  iVar2 = pThis->fEndSlice;
-  if (iVar2 < iVar4) {
-    if ((iVar4 <= slice) || (iVar1 = slice - iVar2, slice <= iVar2)) {
-      return 0;
+  int start;
+  int end;
+  int forward;
+  int backward;
+
+  start = pThis->fStartSlice;
+  end = pThis->fEndSlice;
+  if (end < start) {
+    if (slice >= start) {
+      goto Distance_wrappedZero;
     }
-  }
-  else {
-    if (iVar4 <= slice) {
-      iVar3 = slice - iVar2;
-      if (slice <= iVar2) {
-        return 0;
-      }
-      iVar1 = (iVar4 + gNumSlices) - slice;
-      goto Distance_clampMin;
+    forward = slice - end;
+    if (slice <= end) {
+      goto Distance_wrappedZero;
     }
-    iVar1 = (slice + gNumSlices) - iVar2;
+Distance_backward:
+    backward = start - slice;
+Distance_min:
+    if (backward < forward) {
+      forward = backward;
+    }
+    return forward;
+Distance_wrappedZero:
+    return 0;
   }
-  iVar3 = iVar4 - slice;
-Distance_clampMin:
-  if (iVar3 < iVar1) {
-    iVar1 = iVar3;
+
+  if (slice < start) {
+    forward = (slice + gNumSlices) - end;
+    goto Distance_backward;
   }
-  return iVar1;
+  if (slice > end) {
+    backward = slice - end;
+    forward = (start + gNumSlices) - slice;
+    goto Distance_min;
+  }
+  return 0;
 }
 
 /* ---- FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki  [SPEECH.CPP:594-618] SLD-VERIFIED ---- */

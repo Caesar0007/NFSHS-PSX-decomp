@@ -3829,6 +3829,10 @@ struct ObjectMultiAnim {   /* 48 bytes */
     int                objectAngle, impactAngle;   /* +0x20 */
     AnimScript         *script;   /* +0x28 */
     ObjectFinishedMultiAnim *finishedAnim;   /* +0x2C */
+    ObjectMultiAnim(coorddef *impactVel, AnimDef *def,
+                    Trk_CollideBoomInst *objCollideInstance,
+                    Trk_ObjectDef *objDef, Trk_SimObject *simObj,
+                    ObjectFinishedMultiAnim *finishedAnim);
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 

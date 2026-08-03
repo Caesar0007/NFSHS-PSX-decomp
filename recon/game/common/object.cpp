@@ -43,7 +43,6 @@ void Object_DeInitIMassObjectInfo(void);
 int Object_GetNumIMassObjects(void);
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions);
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity);
-ObjectMultiAnim * ObjectMultiAnim_ct(ObjectMultiAnim *pThis,coorddef *impactVel,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, ObjectFinishedMultiAnim *finishedAnim);
 ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int impactAngle,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim);
 extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg);
 extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg);
@@ -444,9 +443,8 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
       (finishedMulti->_base_ObjectAnim)._vf =
            (__vtbl_ptr_type (*) [3])ObjectFinishedMultiAnim_vtable;
       gSimObjAnims[simObj->serialNum] =
-          &ObjectMultiAnim_ct((ObjectMultiAnim *)__builtin_new(sizeof(ObjectMultiAnim)),
-                              &N->linearVel,animDef,objInstance,objDef,simObj,
-                              finishedMulti)->_base_ObjectAnim;
+          &(new ObjectMultiAnim(&N->linearVel,animDef,objInstance,objDef,simObj,
+                                finishedMulti))->_base_ObjectAnim;
     }
     else {
       ObjectFinishedSignAnim *finishedSign;
@@ -951,40 +949,31 @@ int ObjectFinishedMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 
 /* ---- ObjectMultiAnim_ct  [OBJECT.CPP:1165-1183] SLD-VERIFIED ---- */
-ObjectMultiAnim * ObjectMultiAnim_ct(ObjectMultiAnim *pThis,coorddef *impactVel,AnimDef *def,
+ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
           Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj,
           ObjectFinishedMultiAnim *finishedAnim)
 
 {
-  u_char bVar1;
-  int iVar2;
-  AnimScript *pAVar3;
-  AnimDef *pAVar4;
-  
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectMultiAnim_vtable;
-  (pThis->impactVel).x = impactVel->x >> 6;
-  (pThis->impactVel).y = impactVel->y >> 6;
-  iVar2 = impactVel->z;
-  pThis->animParms = def;
-  pThis->objCollideInstance = objCollideInstance;
-  pThis->objDef = objDef;
-  pThis->simObj = simObj;
-  (pThis->impactVel).z = iVar2 >> 6;
+  _base_ObjectAnim._vf = (__vtbl_ptr_type (*) [3])ObjectMultiAnim_vtable;
+  this->impactVel.x = impactVel->x >> 6;
+  this->impactVel.y = impactVel->y >> 6;
+  int z = impactVel->z;
+  animParms = def;
+  this->objCollideInstance = objCollideInstance;
+  this->objDef = objDef;
+  this->simObj = simObj;
+  this->impactVel.z = z >> 6;
   if (objCollideInstance->type == '\x06') {
-    pAVar3 = __builtin_new(sizeof(AnimScript));
-    pAVar4 = pThis->animParms;
-    bVar1 = *(u_char *)((int)&objCollideInstance->y + 1);
+    script = new AnimScript(gPersistObjInst,8,
+                            *(u_char *)((int)&objCollideInstance->y + 1),
+                            animParms->numPieces);
   }
   else {
-    pAVar3 = __builtin_new(sizeof(AnimScript));
-    pAVar4 = pThis->animParms;
-    bVar1 = objCollideInstance->boomIndex;
+    script = new AnimScript(gPersistObjInst,8,objCollideInstance->boomIndex,
+                            animParms->numPieces);
   }
-  pAVar3 = new(pAVar3) AnimScript(gPersistObjInst,8,(u_int)bVar1,pAVar4->numPieces);  /* @placement-ctor (was flat __10AnimScriptP5Groupiii); storage from __builtin_new above */
-  pThis->script = pAVar3;
-  (pThis->script)->SetAnimAttrib(2);
-  pThis->finishedAnim = finishedAnim;
-  return pThis;
+  script->SetAnimAttrib(2);
+  this->finishedAnim = finishedAnim;
 }
 
 

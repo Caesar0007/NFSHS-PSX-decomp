@@ -191,7 +191,17 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      * modelling the three slots as a plain local `unsigned int decode[3]` with read-backs (49 diffs
      * / 81 insns -- the read-backs become real `lw`s, cc1 does not forward stack loads here) and
      * taking the slot's address into a local pointer (neutral, 14).  A fix needs a store form that
-     * keeps a dead stack store WITHOUT killing cse's memory table -- not available from C here. */
+     * keeps a dead stack store WITHOUT killing cse's memory table -- not available from C here.
+     * w47-a2: also falsified the obvious inversion `ruleByte = rd[0]; ruleByteStore = ruleByte;`
+     * (22 diffs, still 78/78): it does collapse the double load, but then the byte lands directly
+     * in $s3 and the whole packed/ruleType chain re-colors -- retail's shape needs the load in a
+     * CALLER-saved temp AND a surviving copy into $s3, i.e. the same local-qty-vs-global-allocno
+     * copy question as spchevnt's two residuals (see iSPCH_InitEventQueue's note there): the
+     * producer's dest must be a distinct short-lived pseudo, which a single named assignment can
+     * never give.  NEXT ANGLE (untried, needs a store form that survives DSE without a volatile):
+     * an ADDRESS-TAKEN non-volatile slot (`unsigned int slotv; unsigned int *keep = &slotv;
+     * *keep = rd[0];`) -- addressable so the store stays, non-volatile so cse's memory table is
+     * only alias-invalidated rather than flushed. */
     if (gSentenceRuleSet[0] != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);

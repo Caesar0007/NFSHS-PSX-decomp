@@ -295,7 +295,25 @@ PER_TU_FLAGS = {
 
 
 def per_tu_flags(src: Path) -> dict:
-    return PER_TU_FLAGS.get(src.relative_to(ROOT).as_posix(), {})
+    rel = src.relative_to(ROOT).as_posix()
+    flags = dict(PER_TU_FLAGS.get(rel, {}))
+    # w47-a7 CLASS RULE: the entire front overlay was built -G0 (zero GPREL16
+    # relocs across all 50 overlay objects vs 2378 elsewhere; the retail map
+    # has NO front .sdata/.sbss group -- _front_sdata_size == 0).  Every
+    # recon/frontend/** TU therefore defaults to g_value "0"; an explicit
+    # PER_TU_FLAGS entry still wins.  Safe for PASSing fns by construction:
+    # a fn matching a zero-gp-rel oracle emits no gp-rel itself at -G4, so
+    # -G0 cannot change its code -- it only removes SPURIOUS gp-rel from
+    # not-yet-matching fns.  (Census: tools/w47_a7_gcensus.py, receipts
+    # scratch/w47_a7_census.md.)
+    # SCOPE (consolidation regate, 2026-08-04): recon/frontend/COMMON only.
+    # frontend/psx is RESIDENT code (survives overlay swaps) and is -G
+    # sensitive the other way: FontUpsideDownBlit regressed 48->104 under
+    # -G0 while all 20 memcard.c fns held -- so the overlay class rule must
+    # not touch frontend/psx.
+    if rel.startswith("recon/frontend/common/") and "g_value" not in flags:
+        flags["g_value"] = "0"
+    return flags
 
 
 # --- w25-a1: PER-FUNCTION delayed-branch dual-compile splice ---------------
@@ -598,7 +616,11 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     if r.returncode:
         sys.exit(f"[cpp] {rel}\n{r.stderr}")
 
-    cc1_flags = list(CC1_FLAGS)
+    # w47 fix: compile_c honoured only the global -G; the per-TU "g_value" key
+    # (long wired in compile_cpp below) silently no-op'd for the entire C lane
+    # (all of eaclib/syslib + frontend .c) -- found independently by w47-a7/a8/a9.
+    tu_g_value = str(tu_flags.get("g_value", G_VALUE))
+    cc1_flags = [f"-G{tu_g_value}" if f == f"-G{G_VALUE}" else f for f in CC1_FLAGS]
     if tu_flags.get("no_delayed_branch"):
         cc1_flags.append("-fno-delayed-branch")
     if tu_flags.get("no_split_addresses"):
@@ -620,7 +642,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",
-                  *AS_ARCH, f"-G{G_VALUE}", "-I", ROOT / "include",
+                  *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
                   "-I", ROOT, "-o", obj]
     if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")

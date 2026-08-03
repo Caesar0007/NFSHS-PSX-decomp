@@ -16,8 +16,13 @@ def rep(t, a, b):
 
 
 def noflr(t):
+    # 🔴 the FIRST version of this helper searched for the next ';' AFTER the
+    # decl's trailing comment and deleted through it -- that swallowed the very
+    # next STATEMENT (`height = shp->height;`), an uninitialised-read the byte
+    # gate cannot see (w46-a1; caught by reading ourdis, not by the gate).
+    # Delete EXACTLY the declaration line + its trailing comment lines.
     i = t.index('  int      deadfrm[2];')
-    j = t.index(';', t.index('*/', i)) + 1
+    j = t.index('*/', i) + 2
     j = t.index(chr(10), j) + 1
     return t[:i] + t[j:]
 

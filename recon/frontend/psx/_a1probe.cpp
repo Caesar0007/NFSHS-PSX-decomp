@@ -1268,15 +1268,15 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   int      hoff;
   int      ytop;
 
-  prim = Render_gPacketPtr;
   width = ch->width;
+  prim = Render_gPacketPtr;
   prim[0xc] = u;
-  prevPrim = Render_gPalettePtr;
   height = ch->height;
   yoff = *(signed char *)&ch->yoffset;
-  ybase = y - yoff;
   linkAddr = (uint)prim & 0xffffff;
+  ybase = y - yoff;
   hoff = height + yoff;
+  prevPrim = Render_gPalettePtr;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;

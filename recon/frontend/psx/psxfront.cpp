@@ -487,6 +487,8 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   int      w;
   short    w1;
   u_char vb;
+
+  height = shp->height;
   width = shp->width;
   bpp = (byte)shp->depth;
   if ((flags & 2) != 0) {

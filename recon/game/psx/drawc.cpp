@@ -3627,7 +3627,19 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              * FALSIFIED at this basin: 6 per-vertex temps (201/197), v-only
              * split (240/244), in-place sums (95/97) -- every one of them makes
              * the second value a LOCAL qty or a high-pri global, and it takes
-             * $a1 before overlayFlag can. */
+             * $a1 before overlayFlag can.
+             * FALSIFIED post-w46 (inline, 58-basin) -- the fence route does NOT
+             * deliver the live>=48 bar: v0t pair NO fence 97 @481 (5 of 6 nops
+             * recovered, allocation broken -- the schedule-vs-allocation trade
+             * in pure form), + join fence 141 @483, + else-arm deep fence 140
+             * @484, + dual deep 141 @485 (cross-arm liveness conflicts rotate
+             * OTHER pseudos -- worse than no fence), vertex-2-only refs<=4 +
+             * join fence 132 @486 (no nops recovered, still rotates).  ANGLE:
+             * the pri math alone is insufficient -- the fence's conflict set is
+             * the killer; needs the instrumented cc1 [find_free_reg] trace on
+             * the pair basin (C:/Temp/nfs4-instr-cc1, ICE-stub recipe in
+             * scratch/w45_a10_receipts.md sec.6.4) to see WHO evicts whom, or a
+             * live-stretch consumer INSIDE the envmap arm (an OT-tail use). */
 
         u = (sd->ePmx0).u0;
         v = (sd->ePmx0).v0;

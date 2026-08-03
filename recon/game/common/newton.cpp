@@ -2048,9 +2048,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
   
   collision_type = 0;
   newHeight = 0;
-  cautionaryCenter.x = (newtonObj->roadCenterPoint).x;
-  cautionaryCenter.y = (newtonObj->roadCenterPoint).y;
-  cautionaryCenter.z = (newtonObj->roadCenterPoint).z;
+  cautionaryCenter = newtonObj->roadCenterPoint;
   memset((u_char *)&speedVec,'\0',0xc);
   testSimRoadInfo = newtonObj->simRoadInfo;
   if (0x280000 < newtonObj->speedXZ) {

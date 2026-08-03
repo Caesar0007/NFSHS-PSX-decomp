@@ -529,10 +529,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     else {
       int impact;
 
-      impact = diff * 2;
-      if (impact < 0) {
-        impact = -impact;
-      }
+      impact = __builtin_abs(diff * 2);
       wallType = Physics_AttenuateVelocity(carObj,collide * impact,&(carObj->N).roadMatrix);
       Physics_CorrectPostCollisionYaw(carObj,wallType,normal);
     }

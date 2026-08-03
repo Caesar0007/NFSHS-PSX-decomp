@@ -3490,12 +3490,7 @@ void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 {
   bool bVar1;
   int iVar2;
-  Speaker *pSVar3;
-  __vtbl_ptr_type (*pa_Var4) [31];
-  int iVar5;
   Car_tObj *car;
-  Car_tObj *carObj;
-  MobileSpeaker *ctx;
   SPCHNFSType_VOICE *ctx_00;
   SPCHNFSType_VOICE *VOICE;
   int reg_a1;
@@ -3506,41 +3501,56 @@ void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
   bVar1 = false;
-  ctx = pThis;
   if ((pThis->_base_Speaker).fSub != (Speaker *)0x0) {
-    iVar2 = Dispatch__6Speech();
-    ctx = (MobileSpeaker *)(iVar2 + *(short *)(*(int *)(iVar2 + 0x4c) + 0xb0));
-    pSVar3 = (Speaker *)(**(int (**)(...))(*(int *)(iVar2 + 0x4c) + 0xb4))();
-    bVar1 = pSVar3 == (pThis->_base_Speaker).fSub;
+    DispatchSpeaker *dispatchStatus = (DispatchSpeaker *)Dispatch__6Speech();
+    Speaker *statusSub = (Speaker *)
+        (*(*(dispatchStatus->_base_Speaker)._vf)[0x16].pfn)
+                  ((int)&(dispatchStatus->_base_Speaker).fPosition.flags +
+                   (int)(*(dispatchStatus->_base_Speaker)._vf)[0x16].delta);
+    bVar1 = statusSub == (pThis->_base_Speaker).fSub;
   }
   if (bVar1) {
+    int *bank;
+
     VOICE = &pThis->fVoice;
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    pa_Var4 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var4)[0x1e].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var4)[0x1e].delta);
-    pSVar3 = (pThis->_base_Speaker).fSub;
-    pa_Var4 = pSVar3->_vf;
-    iVar5 = (*(*pa_Var4)[0x11].pfn)((int)&(pSVar3->fPosition).flags + (int)(*pa_Var4)[0x11].delta);
-    iVar2 = *(int *)(iVar2 + iVar5 * 4 + 8);
-    pSVar6 = &(pThis->_base_Speaker).fConfirm;
-    (pThis->_base_Speaker).fTo = iVar2;
     ctx_00 = VOICE;
-    SPCHNFS_C_A_CONFIRM(VOICE,iVar2,pSVar6);
+    do {
+      bank = (int *)
+          ((int)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                     ((int)&(pThis->_base_Speaker).fPosition.flags +
+                      (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta) +
+           (*(*(pThis->_base_Speaker).fSub->_vf)[0x11].pfn)
+                     ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+                      (int)(*(pThis->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+    } while (0);
+    pSVar6 = &(pThis->_base_Speaker).fConfirm;
+    do {
+      do {
+        do {
+          do {
+            do {
+              SPCHNFS_C_A_CONFIRM(ctx_00,
+                  (pThis->_base_Speaker).fTo = bank[2],pSVar6);
+            } while (0);
+          } while (0);
+        } while (0);
+      } while (0);
+    } while (0);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    pa_Var4 = (pThis->_base_Speaker)._vf;
     car = (Car_tObj *)
-          (*(*pa_Var4)[0x1b].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var4)[0x1b].delta);
+          (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags +
+                     (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
     SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,car);
     pSVar6 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
     COLOUR = &(pThis->_base_Speaker).fColour;
     SPCHNFS_C_C_IN_PURS_NEAR_PERP(VOICE,COLOUR,(int)pSVar6);
   }
   else {
-    pa_Var4 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var4)[0x1e].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var4)[0x1e].delta);
+    iVar2 = (*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags +
+                       (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta);
     VOICE = &pThis->fVoice;
     COLOUR = *(SPCHNFSType_COLOUR **)(iVar2 + 4);
     pSVar6 = &(pThis->_base_Speaker).fConfirm;

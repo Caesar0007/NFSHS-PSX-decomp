@@ -290,7 +290,39 @@ void RaceSummary(void)
  * a live-range dial, not a statement-order dial.
  * OLD NEXT IDEA for this axis: stop sched1 from hoisting
  * the mult chain (shorten the product's live range) rather than another spelling of the
- * multiplier -- the multiplier form is SOLVED, the schedule is not. */
+ * multiplier -- the multiplier form is SOLVED, the schedule is not.
+ * ---- w46-a8: 94 KEPT (471/475), but the w45 "NEW NAMED ANGLE" WAS EXECUTED and produced a
+ * STRUCTURALLY BETTER, COUNT-EXACT 475/475 BASIN at LCS 100.  Not landed (it gates worse
+ * than the kept 94 and the LCS is non-monotone here), but it is the base to resume from --
+ * reproduce it with scratch/p_rst3.py variant `t1` (committed):
+ *     int pitch, cx, one, rows;                 // added to the decl block, after titleY
+ *     rows = (numLaps + 1) * 0xc;  HUD_STATS_SIZE_H = rows + 0x28;
+ *     ...  if (numLaps == 1) HUD_STATS_SIZE_H = rows + 0x1c;
+ *     { pitch = 0x96; cx = 0xa0; one = 1;
+ *       __asm__ volatile("" : : "r"(pitch), "r"(cx), "r"(one));
+ *       HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch; }
+ *     HUD_STATS_POS_X = cx - ...;  col2 = cx;  titleX = cx - ...;
+ * WHAT IT BUYS (all read off the side_by_side, not the LCS number):
+ *   - the w45 fence keeps the real `mult` + `mflo $s3` (as documented) AND
+ *   - `cx` reproduces retail's CONSTANT-INTERLEAVED-INTO-THE-PROLOGUE-SAVES shape exactly
+ *     (`sw $sN,K(sp); li $sN,160` adjacent, where the kept form emits all nine saves first);
+ *   - `rows` reproduces retail's kept product: ours `addiu $a1,$a1,28` == oracle
+ *     `addiu $a0,$a0,28`, replacing the const-folded `li $t1,52`.  This closes the w41
+ *     "land rows TOGETHER with the head rotation" item -- rows lands cleanly here.
+ * WHAT IS LEFT (the whole residual, and it is now ONE thing): the callee-saved CONSTANT
+ * RANK.  Retail 1 -> $s2 and 160 -> $s7 with `li $a1,150` at insn 4; ours 160 -> $s2 and
+ * 1 -> $s1, and the 150 materializes late in $v0.  Everything else in the head is
+ * instruction-for-instruction.
+ * MEASURED AROUND THAT BASIN: fence(pitch) alone 102 @475 (the w45 form); +cx 102; +cx+one
+ * with `one` also routed into the four Hud_FBuildF4 `1` args 112; +one only 108; pitch also
+ * driving the two `col += 0x96` increments 176; +rows with cx not routed to titleX 100;
+ * +rows +one routed 116.  So `one` must stay DECLARED-AND-FENCED BUT UNUSED (routing it
+ * into the arg lists costs 16), and cx must be routed to all three sites.
+ * NEW NAMED ANGLE: this is now a pure allocno-rank problem with a count-exact base, i.e.
+ * exactly what tools/allocsim.py + reqdelta.py are for -- dump this basin (-dg/-dl), ask
+ * `--want "p<one>=s2,p<cx>=s7"`, and apply the ref/live delta it prints.  The three
+ * constants are fn-scope locals, so they are GLOBAL allocnos and find_reg DOES reach them
+ * (unlike the local-qty cases elsewhere in this wave). */
 void RaceStatistics(void)
 
 {
@@ -541,7 +573,32 @@ void RaceStatistics(void)
  *  dependence, §2b.4).  Second angle: cluster (a) is a reorg delay-slot choice, so try the
  *  fence as a REGION SPLITTER (not a value holder) between the Font_TextXY(0x4c) call and the
  *  first Hud_FBuildF4 -- the trackspec.cpp SetDefault seal this wave shows an operand-less
- *  fence moves a drain point without costing an insn. */
+ *  fence moves a drain point without costing an insn.
+ * ---- w46-a8: 27 STAYS.  BOTH w45 ANGLES EXECUTED AND FALSIFIED.
+ *  (1) NON-CONSTANT ADDEND for the col-loop fold.  The `postgame << 3` idea does make the
+ *      addend a runtime shift, and the fold does die -- but the result is WORSE, not better:
+ *      `postgame << 3` 38 @471, `(int)postgame << 3` 38, `postgame * 8` 38 (all 2 insns
+ *      SHORT -- killing the fold also kills the shared subterm retail keeps).  The
+ *      already-0/1-provable spellings are simply neutral: `(postgame != 0) * 8` 27,
+ *      `(postgame != 0) << 3` 27 -- so the w45 "re-measure it post-minuend-re-sign
+ *      (lever-order)" prediction is answered: it is basin-INSENSITIVE here, 27 both times.
+ *      Masked variants `-(int)postgame & 8` and `((int)postgame << 3) & 8` = 39.
+ *  (2) FENCE AS A REGION SPLITTER for cluster (a) (`li $s5,1`).  An operand-less
+ *      `__asm__ volatile("")` is EXACTLY NEUTRAL (27, byte-identical) at every position
+ *      tried -- after Font_TextXY(0x4c), after the first Hud_FBuildF4, before it, before the
+ *      `for`, and two of those together -- and so is a `"r"(startY)` fence there.  gcc-2.8
+ *      drops an asm with no operands and no clobbers before reorg ever sees it, so the
+ *      "operand-less fence splits a region" reading of the trackspec seal is WRONG: that
+ *      fence carries `"r"(i)`, and it is the OPERAND that creates the RTL barrier insn.
+ *      ⇒ any future fence in this fn must name a live value.
+ *  NEW NAMED ANGLE: cluster (a) wants `li $s5,1` inside the Font_TextXY(0x4c) jal's delay
+ *  slot.  That is a reorg STEAL, and the only zero-insn handle on a steal is what the fn
+ *  offers reorg to steal.  Since a value-carrying fence at that point is untested (only the
+ *  empty one and `startY` were), try `"r"(i)` / `"r"(col[3])` fences BETWEEN the two calls;
+ *  and for cluster (b) the fold is now proven unreachable from the addend side, so attack it
+ *  from the MINUEND side as the showtimeleft bar was (algebraic re-sign of the col-loop
+ *  height so the ternary sits on the minuend) -- w44 measured the two subtracted terms
+ *  swapped (36) but never the full re-sign that sealed the sibling expression. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

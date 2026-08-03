@@ -134,7 +134,38 @@ void Font_SetABR(int abr)
  *  the floor_log2 step boundaries (w44 REF-STEP family) so that v is demoted relatively --
  *  mask is at 3 refs, one zero-insn re-mask puts it at 4 and doubles its floor_log2 factor
  *  (.107 -> .285), which alone reorders mask ahead of pal.  Needs a -dl/-dg dump
- *  (tools/rtl_dump.py) to confirm the real refs/live before spelling it. */
+ *  (tools/rtl_dump.py) to confirm the real refs/live before spelling it.
+ * ---- w46-a8: THE DUMP WAS TAKEN.  THE w45 REF/LIVE FIGURES ABOVE ARE GUESSES AND WRONG,
+ * and the ref-step angle they motivate is FALSIFIED.  Receipts (tools/rtl_dump.py -dg -dl):
+ *  - `;; 1 regs to allocate: 90` -- Font_Blit has exactly ONE global allocno.  pal/mask/v
+ *    are all `in block 0` LOCAL-ALLOC QTYs, so `allocsim`/`reqdelta`/find_reg cannot reach
+ *    them; only QTY_CMP_PRI (same formula, §A0) applies.
+ *  - REAL numbers from the .lreg, with the dispositions: pseudo 91 = `pal`, 4 refs / 21
+ *    live -> pri 2*4/21 = .190 -> $t4(12); pseudo 98 = the 0xff000000 mask, 3 refs / 40
+ *    -> 1*3/40 = .075 -> $t6(14); pseudo 84 = `v` (the 40(sp) stack arg), 2 refs / 54
+ *    -> 1*2/54 = .037 -> $t3(11).  So OUR priority order is already pal > mask > v --
+ *    the w45 note's "v 1.00 / pal .32 / mask .107" ordering never existed.
+ *  - Consequently the ref-step dial pushes the WRONG allocno.  MEASURED, all at 55/55:
+ *    a fold-collapsed re-mask (`(x & 0xff000000) & 0xff000000`) on the header store, on the
+ *    pal store, on both, an `(addr24 & 0xffffff) & 0xffffff`, an `& (0xff000000|0xffffff)`
+ *    on the OR result, and a cse-folded extra `*pal` read = ALL EXACTLY 42 (gcc's tree-level
+ *    fold() removes an adjacent double mask before RTL, so there is no extra REF at all --
+ *    the w44 inflator needs the two masks SEPARATED BY A STATEMENT, as in its `pkt24 |
+ *    (addr24 & 0xffffff)` original).  The statement-separated forms DO create the ref and
+ *    they REGRESS: header 48, pal store 48, both 54, pal+addr24 48/54.
+ *  - Also measured and negative: the w46 MEM_IN_STRUCT_P store view (Font_SwitchFont's seal
+ *    lever, 12 lines up) applied to this fn's two OT stores -- header 72, pal 62, both 48,
+ *    pal-store-only-on-the-dest 42.
+ * NEW NAMED ANGLE (mechanism-derived from the real numbers).  v is allocated LAST here (it
+ * has the LOWEST priority) yet still takes $t3, which means $t3 is free across v's whole
+ * 54-insn window; retail's v lands in $t6, i.e. in retail $t3/$t4/$t5 were OCCUPIED over
+ * that window.  So the dial is not v's priority at all -- it is the LIVE EXTENT of pal and
+ * mask: they must SPAN v's window (insn ~13 to the end) so local_alloc's find_free_reg
+ * cannot offer $t3/$t4 to v.  Concretely: give the 0xff000000 mask a use after the `u0`
+ * store (its range currently ends at the pal store, 40 insns), and/or move the addr24/pal
+ * OT-link block BELOW the `sprt->u0` composition so pal's 21-insn range covers the tail.
+ * That is a live-length edit, not a ref edit, and it is the one direction w45 never tried
+ * (it tried to LENGTHEN v, which is the mirror image and was correctly falsified). */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {

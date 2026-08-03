@@ -452,7 +452,40 @@ int InGame_GetDevice(int control)
  * is coalesced away later); (c) write the `short i` extension explicitly as `(i << 16) >> 16`
  * -- two RTL insns combine re-merges into the existing sll/sra pair.  MEASURE EACH ON THE
  * -dL LINE, NOT THE GATE: apply, re-dump, and check `Loop from N to M: K real insns` reaches
- * K >= 61 before looking at the diff count. */
+ * K >= 61 before looking at the diff count.
+ * ---- w46-a8: THE insn_count TARGET WAS REACHED AND THE MODEL PREDICTION FAILED.  13 stays.
+ * Measured on the -dL line exactly as instructed (scratch/probe_dl.py + p_ramp{,2}.py):
+ *   spelling                                      real insns   savings-2 movables moved
+ *   baseline                                          58                 2
+ *   `hoff + ((i << 16) >> 16)`                        61                 2   (gate 20)
+ *   ... + one `((0xK - *hp) << 16) >> 16` guard        63                 2   (gate 23)
+ *   ... + two guards                                  65                 2   (gate 26)
+ *   ... + three guards                                67                 2   (gate 29)
+ *   ... + a shifted Cars list index                   66                 2   (gate 22)
+ * BOTH savings-2 / life-2 pairs are STILL hoisted at 67 real insns.  ⇒ the w41 bracket
+ * `threshold in [15,57]` is REFUTED: from `4T >= 67` the true bound is T >= 16.75, and the
+ * savings-1/life-1 "not desirable" verdicts only give T < 67.  If T is the catalog's
+ * `(loop_has_call?1:2)*(1+n_non_fixed_regs)` ~= 50, the loop would need > 200 real insns
+ * for the &hoff pair to be declined -- unreachable for a 58-insn loop.  insn_count is
+ * therefore NOT the free variable the w45 note claimed.
+ * ALSO MEASURED (report-only; tools/build.py is off-limits this wave, the probe patched and
+ * RESTORED it byte-for-byte via scratch/flagprobe.py): the PER_TU key `no_split_addresses`,
+ * which the w39/w40 notes never listed for this TU.  In an isolated cc1try it produces
+ * EXACTLY retail's frame shape for this fn (frame 40, six saved regs, `sw ra,36`, NO
+ * preheader lui/addiu for either hoff or the Cars list -- the whole 13-diff residual), BUT
+ * the whole-TU gate is decisively negative: SetRamp 41, ResetPSXController 324,
+ * GetPSXPadValue 347, GetDevice PASS.  ⇒ the object is not a no-split-addresses object;
+ * the lever is needed for ONE SYMBOL and gcc has no per-symbol switch (and the unsized
+ * asm-label view cannot help, since a runtime-indexed array can never use the `lw $r,sym`
+ * assembler-macro form the view relies on).
+ * NEW NAMED ANGLE: attack `savings`/`lifetime`, not insn_count.  loop.c computes a movable's
+ * savings from its own shape, so the only way to shrink savings*lifetime for the &hoff pair
+ * is to stop it being ONE 2-insn pair: give `hoff`'s address a SECOND, differently-spelled
+ * in-loop materialization (the w44 "distinct address rtx per site" cure for cross-loop CSE)
+ * so neither copy is a life-2 movable on its own.  Alternatively confirm T empirically by
+ * SHRINKING the loop (a scratch cc1try harness with the guards deleted) until the
+ * savings-1/life-1 movables flip to "moved" -- that pins T from above and settles whether
+ * any insn_count is reachable at all. */
 void InGame_SetRamp(void)
 
 {

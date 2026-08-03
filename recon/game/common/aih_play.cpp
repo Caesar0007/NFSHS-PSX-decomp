@@ -862,149 +862,88 @@ void AIHigh_Player::MaintainAvailableCops()
 
 
 {
-  bool bVar1;
+  int need[2];
+  int got[2];
+  int availableCops;
 
-  int iVar2;
+  memset((u_char *)need, '\0', sizeof(need));
+  memset((u_char *)got, '\0', sizeof(got));
 
-  u_int uVar3;
-
-  stateType_t sVar4;
-
-  Car_tObj *pCVar5;
-
-  AIHigh_Base *pAVar6;
-
-  Car_tObj **ppCVar7;
-
-  int iVar8;
-
-  int iVar9;
-
-  int iVar10;
-
-  int local_18 [4];
-
-  
-
-  memset((u_char *)local_18,'\0',8);
-
-  memset((u_char *)(local_18 + 2),'\0',8);
-
-  iVar10 = 3;
-
-  if ((Cars_gNumRaceCars != 1) && (iVar10 = 4, Cars_gNumHumanRaceCars == 2)) {
-
-    iVar10 = 2;
-
+  availableCops = 3;
+  if (Cars_gNumRaceCars != 1) {
+    availableCops = 4;
+    if (Cars_gNumHumanRaceCars == 2) {
+      availableCops = 2;
+    }
   }
 
-  iVar8 = 0;
+  {
+    int playLoop;
 
-  ppCVar7 = Cars_gRaceCarList;
+    for (playLoop = 0; playLoop < Cars_gNumRaceCars; playLoop++) {
+      Car_tObj *playerCarObj;
+      AIHigh_Player *playerHighObj;
+      AICop_PerpChaseInfo *pInfo;
 
-  while (bVar1 = iVar8 < Cars_gNumRaceCars, iVar8 = iVar8 + 1, bVar1) {
-
-    pAVar6 = highLevelAIObjs[(*ppCVar7)->carIndex];
-
-    local_18[0] = local_18[0] + *(int *)(pAVar6[6].schedulingOff_ + 0xc) +
-
-                  *(int *)pAVar6[6].schedulingOff_;
-
-    ppCVar7 = ppCVar7 + 1;
-
-    local_18[1] = local_18[1] + *(int *)(pAVar6[6].schedulingOff_ + 0x10) +
-
-                  *(int *)(pAVar6[6].schedulingOff_ + 4);
-
+      playerCarObj = Cars_gRaceCarList[playLoop];
+      playerHighObj = (AIHigh_Player *)highLevelAIObjs[playerCarObj->carIndex];
+      pInfo = &playerHighObj->perpChaseInfo_;
+      need[0] += pInfo->chaseLevel_->copBlockaders[0];
+      need[1] += pInfo->chaseLevel_->copBlockaders[1];
+      need[0] += pInfo->chaseLevel_->copChasers[0];
+      need[1] += pInfo->chaseLevel_->copChasers[1];
+    }
   }
 
-  ppCVar7 = Cars_gCopCarList;
+  {
+    int copLoop;
+    int playLoop;
 
-  iVar8 = 0;
+    for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
+      Car_tObj *copCarObj;
+      AIHigh_Cop *copHighObj;
+      bool available;
 
-  /* MATCH: oracle DEFERS Cars_gNumCopCars's load to right before this loop (0x80062740),
-     not up-front after the memsets -- iVar9's single use is this loop's exit test. */
-  iVar9 = Cars_gNumCopCars;
-
-  while (true) {
-
-    iVar2 = Cars_gNumCopCars;
-
-    if (iVar9 <= iVar8) break;
-
-    pCVar5 = *ppCVar7;
-
-    bVar1 = false;
-
-    if ((((pCVar5->AIFlags & 4U) == 0) ||
-
-        (sVar4 = highLevelAIObjs[pCVar5->carIndex][1].stateType_, sVar4 == 1)) || (sVar4 == 2)) {
-
-      bVar1 = true;
-
-    }
-
-    if (bVar1) {
-
-      local_18[(int)((int)&((highLevelAIObjs[pCVar5->carIndex][1].carObj_)->N).objID + 2)] =
-
-           local_18[(int)((int)&((highLevelAIObjs[pCVar5->carIndex][1].carObj_)->N).objID + 2)] + 1;
-
-      iVar10 = iVar10 + -1;
-
-      uVar3 = pCVar5->AIFlags | 8;
-
-    }
-
-    else {
-
-      uVar3 = pCVar5->AIFlags & 0xfffffff7;
-
-    }
-
-    pCVar5->AIFlags = uVar3;
-
-    ppCVar7 = ppCVar7 + 1;
-
-    iVar8 = iVar8 + 1;
-
-  }
-
-  ppCVar7 = Cars_gCopCarList;
-
-  iVar9 = 0;
-
-  while (true) {
-
-    if (!(0 < iVar10 && (iVar9 < iVar2))) break;
-
-    pCVar5 = *ppCVar7;
-
-    if ((pCVar5->AIFlags & 8U) == 0) {
-
-      iVar8 = local_18[(int)((int)&((highLevelAIObjs[pCVar5->carIndex][1].carObj_)->N).objID + 2)];
-
-      if (iVar8 < local_18[(int)highLevelAIObjs[pCVar5->carIndex][1].carObj_]) {
-
-        local_18[(int)((int)&((highLevelAIObjs[pCVar5->carIndex][1].carObj_)->N).objID + 2)] =
-
-             iVar8 + 1;
-
-        iVar10 = iVar10 + -1;
-
-        pCVar5->AIFlags = pCVar5->AIFlags | 8;
-
+      copCarObj = Cars_gCopCarList[copLoop];
+      copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
+      available = (copCarObj->AIFlags & 4U) == 0 ||
+                  highLevelAIObjs[copCarObj->carIndex][1].stateType_ == STATE_PURGATORY ||
+                  highLevelAIObjs[copCarObj->carIndex][1].stateType_ == STATE_NORMAL;
+      if (available) {
+        playLoop = copHighObj->type_;
+        got[playLoop]++;
+        availableCops--;
+        copCarObj->AIFlags |= 8;
       }
-
+      else {
+        copCarObj->AIFlags &= ~8U;
+      }
     }
-
-    ppCVar7 = ppCVar7 + 1;
-
-    iVar9 = iVar9 + 1;
-
   }
 
-  return;
+  {
+    int copLoop;
+
+    for (copLoop = 0;
+         availableCops > 0 && copLoop < Cars_gNumCopCars;
+         copLoop++) {
+      Car_tObj *copCarObj;
+
+      copCarObj = Cars_gCopCarList[copLoop];
+      if ((copCarObj->AIFlags & 8U) == 0) {
+        AIHigh_Cop *copHighObj;
+        int playLoop;
+
+        copHighObj = (AIHigh_Cop *)highLevelAIObjs[copCarObj->carIndex];
+        playLoop = copHighObj->type_;
+        if (need[playLoop] > got[playLoop]) {
+          got[playLoop]++;
+          availableCops--;
+          copCarObj->AIFlags |= 8;
+        }
+      }
+    }
+  }
 
 }
 

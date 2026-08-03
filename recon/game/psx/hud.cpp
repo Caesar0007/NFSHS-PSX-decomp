@@ -1402,10 +1402,12 @@ void Hud_BuildTach(int player)
     *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
     prim2 = Render_gPacketPtr;
-    pal = Render_gPalettePtr;
-    ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)pal)->addr;
+    {
+    u_char *pal2 = Render_gPalettePtr;
+    ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)pal2)->addr;
     Render_gPacketPtr = prim2 + 0x14;
-    ((Hud_PTag *)pal)->addr = (u_int)prim2;
+    ((Hud_PTag *)pal2)->addr = (u_int)prim2;
+    }
   }
   Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
   Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);

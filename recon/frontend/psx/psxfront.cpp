@@ -618,9 +618,9 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *   make_regs_eqv keeps the copy only when it OUTLIVES its source.  (Scripted probe skipped
    *   this wave: the `v = (byte)shp->shapey;` anchor is NOT unique in the TU -- slice the file
    *   at this function's definition first.)
-   * ==== w46-a1 RESULT: 83 -> 67 -> 37 -> 33 (ours 244 / oracle 245).  THE SLOT MAP AND THE
-   *      SYM-fsize FILLER QUESTION ARE BOTH CLOSED -- do not re-grind either. ====
-   * THREE levers landed, in order (each verified whole-TU, 22 PASS, zero regressions):
+   * ==== w46-a1 RESULT: 83 -> 67 -> 37 -> 33 -> 21 (ours 244 / oracle 245).  THE SLOT MAP,
+   *      THE SYM-fsize FILLER AND THE WHOLE ALLOCNO HANDOUT ARE CLOSED -- do not re-grind. ====
+   * FOUR levers landed, in order (each verified whole-TU, 22 PASS, zero regressions):
    *  (1) 83->67  texX STATEMENT SPLIT: `ibp = (i * bpp) / 16; texX = shapex + ibp;`.
    *      Retail issues the mult/mflo/bgez/addiu-15/sra-4 divide chain BEFORE the `lhu
    *      0x18(s4)` shapex load (whose load-delay it then NOPs); the fused single expression
@@ -647,44 +647,49 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *   byte gate cannot see (it scored BETTER, 34, than the correct 33 form).  Caught only by
    *   reading `tools/ourdis.py` output against the oracle.  Scripted edits must delete an
    *   EXACT decl+comment span; and every probe win must be read, not just gated.
-   * REMAINING 33 (re-measured, count 244 vs 245) -- FOUR named items:
-   *   a. $t4<->$t5 SWAP: p90(`v`) vs p84(`color`).  allocsim/reqdelta receipt (validated
-   *      29/29 on this basin): v refs=6 live=160 pri .0750 vs color refs=9 live=338 .0798;
-   *      the MINIMAL delta is `p90 refs 6 -> 7` (.0875, lands BETWEEN color .0798 and mask
-   *      .0915) or `p84 refs 9 -> 8` (.0710).  ⚠️ +2 is TOO MUCH: an extra IN-LOOP v use
-   *      carries loop weight 2 -> refs 8 -> .1500, which vaults v back over x/mask and
-   *      restores the old 3-cycle (that is exactly why dropping the prim[0x19] read-back
-   *      measures 47).  So the dial needs ONE **non-loop** reference.  FALSIFIED (all
-   *      re-gated from this basin, all 33 = exactly 0): `vb = v & 0xff` / `& 0xffff` /
-   *      `(u_char)v` re-mask inflators, `v = v - 1;` self-decrement in the flags&2 arm,
-   *      deliberate arm-duplication of `vb = v;`, moving `vb = v;` after the arm.  cse folds
-   *      each before flow.c counts it.  🎯 NEW NAMED ANGLE #D: the ref must be created where
-   *      cse CANNOT merge it -- try a second STORE of v (`prim[0xd] = v;` duplicated into
-   *      the flags&2 arm so cross-jump merges the code but flow.c counts both arms, the w43
-   *      "cross-jumped duplicate stores still cost REG_N_REFS" row applied OUTSIDE the loop),
-   *      or demote `color` instead by giving c3 a pre-loop latch.
+   *  (4) 33->21  ANGLE #D LANDED -- the $t4<->$t5 `v`-vs-`color` swap.  allocsim/reqdelta
+   *      (validated 29/29 on the 33 basin) priced it EXACTLY: v = p90 refs 6 live 160
+   *      pri .0750 vs color = p84 refs 9 live 338 .0798, and the minimal delta was
+   *      `p90 refs 6 -> 7` -- ONE **non-loop** reference (an extra IN-LOOP use carries loop
+   *      weight 2 -> refs 8 -> .1500, which vaults v back over x/mask and restores the OLD
+   *      3-cycle; that is exactly why dropping the prim[0x19] read-back measures 47).
+   *      Every cse-visible inflator measured EXACTLY 0 (`vb = v & 0xff` / `& 0xffff` /
+   *      `(u_char)v`, `v = v - 1;` self-decrement in the arm, `vb = v | (v & 0)`, moving
+   *      `vb = v;` after the arm).  What works is the w43 CROSS-JUMPED DUPLICATE applied
+   *      OUTSIDE the loop: write `vb = v;` in BOTH arms of the flags&2 if/else.  cross_jump
+   *      merges the two identical stores back into one insn (count unchanged, 244) but
+   *      flow.c counts BOTH refs -> p90 hits 7 -> .0875, landing between color .0798 and
+   *      mask .0915.  33 -> 21, and the extra `move v1,t4` cascade went with it.
+   * REMAINING 21 (count 244 vs 245) -- named items:
    *   b. the vraw copy `addu t4,v0,zero` (angle #C) is STILL missing: `vraw` as short /
-   *      u_char / byte all measure EXACTLY 0 (cse copy-props them); `int vraw` adds the insn
-   *      but costs 14 diffs.  make_regs_eqv keeps a copy only when it OUTLIVES its source --
-   *      here the source dies at the copy.  🎯 ANGLE #C': give `vraw` a SECOND consumer that
-   *      outlives v (e.g. the flags&2 arm reads vraw AND a later pre-loop statement does).
-   *   c. our extra `addu v1,t5,zero` before `sb v1,25(s0)`: the w45 prim[0x19] read-back
-   *      costs a real copy here where retail just stores $t4 twice.  It is still NET
-   *      POSITIVE (removing it = 47) because it is what holds v's refs at 6; it should
-   *      disappear for free once (a) lands.
+   *      u_char / byte all measure EXACTLY 0 (cse copy-props them, re-confirmed from the 21
+   *      basin); `int vraw` adds the insn but costs 11 diffs (32).  make_regs_eqv keeps a
+   *      copy only when it OUTLIVES its source -- here the source dies at the copy.
+   *      🎯 ANGLE #C': give `vraw` a SECOND consumer that outlives v (e.g. the flags&2 arm
+   *      reads vraw AND a later pre-loop statement does) -- untried.
+   *   c. `-addu v0,s2,a1 / +addu v1,s2,a1` (`u + w1` lands in $v0, retail $v1) with the
+   *      dependent `sb 0x18/0x30` pair; plus our extra `addu v1,t4,zero` before
+   *      `sb v1,25(s0)` (the prim[0x19] read-back costs a copy where retail stores $t4
+   *      twice -- still NET POSITIVE, removing it = 47).  🎯 ANGLE #F: this is now the ONLY
+   *      register pair left; run reqdelta for it on a fresh dump of THIS basin.
    *   d. one `nop` + `sh s7,10(s0)` ordering and `sll v0,s5,16` vs `sll v0,a1,16` (ours
    *      tests `w`, retail `w1`).  `w1 = wsel` / dropping `w` = 168 (the two-variable
-   *      w/w1 pair is load-bearing); `(int)w1` cast = 0.
+   *      w/w1 pair is load-bearing); `(int)w1` cast = 0; a `uw1` temp for `u + w1` = 78.
    * PERMUTER (the wave's one job, -j 2, TWO rounds, both bisected per the trust rules):
    *   round 1 seeded from the count-exact-245 `noflr + vbot-before-call` basin of angle #A'
    *   (~2000 iters, base 1420 -> best 1000).  Its best candidate carried exactly TWO valid
    *   mutations: `volatile int vbot;` and `prim - -0x10` (an encoding no-op).  Transplanted
    *   and gated in the real tree: volatile vbot = 122/53/71/138 depending on placement --
    *   REJECTED.  ⇒ angle #A' is now CLOSED: that basin is both worse AND permuter-spent.
-   *   round 2 re-seeded from the 37 basin (~1000 iters, base 485 -> best 475); its single
-   *   valid mutation `prim[0x30] = (prim[0x18] = u + w1);` gates 47 here (scorer/gate
-   *   disagreement again -- tools/PERMUTER.md).  The `prim[0x30] = prim[0x18];` read-back
-   *   variant is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
+   *   round 2 re-seeded from the 37 basin (base 485 -> best 470); its THREE distinct valid
+   *   mutations were each transplanted and gated in the real tree:
+   *     `prim[0x30] = (prim[0x18] = u + w1);`      -> 47  (rejected)
+   *     `prim[0x25] = vb; prim[0x25] = vh + prim[0x25];` -> 21 (exactly 0 = scaffolding)
+   *     a `u_char *nv = prim;` alias for the last three flags&4 stores + hoisting
+   *     `*(short*)(prim+10) = y;` out of both arms  -> anchor-ambiguous, not landed
+   *   i.e. 2 of 3 measured ZERO, the third negative -- the same "mostly incidental noise"
+   *   ratio the w45 trust rules predict.  The `prim[0x30] = prim[0x18];` read-back variant
+   *   is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
   if ((flags & 2) != 0) {
     v = (byte)shp->shapey - 1;
     vb = v;
@@ -1386,7 +1391,25 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   single-move optimum EXHAUSTIVELY rather than greedily) and PHASE 2 gated 825 COMPOUND
    *   PAIR moves built from the 45 best singles -- best still 50.  ⇒ 50 was also a TWO-move
    *   local optimum; position is EXHAUSTED as a lever from that basin, which is why the win
-   *   came from expression shape instead.  The climb was re-launched from the 48 basin. */
+   *   came from expression shape instead.  RE-RUN FROM THE 48 BASIN (35 statements): 650
+   *   valid singles + 586 pairs gated, best still 48 -- so 48 is ALSO a single- AND two-move
+   *   positional optimum.  ⇒ for this function, position is a CLOSED dial in both basins;
+   *   only refs/live (the qty table above) and expression shape remain.
+   * 🔑 a10 (gcc lane) CONFIRMATIONS for this table, w46: (i) it VALIDATES 27/27 against the
+   *   real CC1PLPSX `.lreg` -- q4/p84 ranks DEAD LAST at .0294, which is exactly WHY it sits
+   *   on $s0 (the §A0 law reproduced on this function); (ii) FOUR of the qtys are pass-1
+   *   "suggestion" allocations that the ref dial CANNOT reach -- aim only at the qsort-ordered
+   *   rest; (iii) 🔴 NEW LAW: `local-alloc.c:1588` hand-rolls the ordering for `next_qty <= 3`
+   *   with a BROKEN comparator, so any 3-quantity BLOCK is NOT priority-ordered (38/38
+   *   corpus-validated, 32% non-descending) -- in such a block the dials are BIRTH ORDER and
+   *   crossing the 3-vs-4 qty-count boundary (add/remove one block-local temp).  This whole
+   *   function is ONE block with 50 qtys, so (iii) does not bite here, but it does bite any
+   *   small arm.  a10 also ships `tools/qtytrace.py` (branch w46-a10: `--steps` ref-step math,
+   *   `--want` delta solver, solver UNTESTED) and a near-oracle instrumented `cc1plus-ecoff.exe`
+   *   at C:/Temp/nfs4-instr-cc1 (`-mgas -msplit-addresses -funsigned-char -fno-exceptions
+   *   -fno-rtti`; psxfront 22/25 byte-identical -- FontUpsideDownBlit is in the identical set,
+   *   DrawGouraudShape is one of the 3 inline-GTE divergences, so use it for qty/allocno traces
+   *   on Draw, never as a byte oracle). */
   u_char  *prim;
   u_char  *prevPrim;
   int      linkAddr;

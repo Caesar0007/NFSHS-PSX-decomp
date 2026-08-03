@@ -2345,7 +2345,6 @@ void Hud_BuildWingmanInterface(int player)
   int flashTicks;
   int now;
   POLY_F4 *poly;
-  u_char *pal;
   int x;
   int xf;
   int y;
@@ -2365,7 +2364,7 @@ void Hud_BuildWingmanInterface(int player)
   Hud_BuildString(TextSys_Word(0x2c),x - 0x1b,y + 0x1e,0x808080,player,false);
   Hud_BuildString(TextSys_Word(0x2d),x - 0x1b,y + 0x27,0x808080,player,false);
   if (0 < flashTicks) {
-    pal = Render_gPalettePtr;
+    u_char *pal = Render_gPalettePtr;
     poly = (POLY_F4 *)Render_gPacketPtr;
     ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = (u_char *)poly + 0x18;
@@ -2378,7 +2377,7 @@ void Hud_BuildWingmanInterface(int player)
 
     i = 0;
     do {
-      pal = Render_gPalettePtr;
+      u_char *pal = Render_gPalettePtr;
       poly = (POLY_F4 *)Render_gPacketPtr;
       ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
       Render_gPacketPtr = (u_char *)poly + 0x18;
@@ -2387,11 +2386,13 @@ void Hud_BuildWingmanInterface(int player)
       i = i + 1;
     } while (i < 5);
   }
-  pal = Render_gPalettePtr;
+  {
+  u_char *pal = Render_gPalettePtr;
   poly = (POLY_F4 *)Render_gPacketPtr;
   ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
   Render_gPacketPtr = (u_char *)poly + 0x18;
   ((Hud_PTag *)pal)->addr = (u_int)poly;
+  }
   Hud_BuildF4(poly,1,xf,y,0x4b,0x30,0);
   return;
 }

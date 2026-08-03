@@ -257,6 +257,29 @@ extern FileHandle *reservehandle(void)
  *     71/71, and without the seqMask dial 34 at 73/71 -- both introduce a cross-block `seqv`
  *     allocno retail does not have, which then steals retail's $a3 from seqMask.  Not kept. */
 
+/* w47-a1 -- 40 (71/71) unchanged, but the blocker is now QUANTIFIED with allocsim (validated
+ * 13/13 on this fn, order-vs-dump IDENTICAL) and it is NOT the allocno order the w34/w35 notes
+ * chased.  Retail's handout is [slot=a0, off=a1, i=a2, seqMask=a3, lo_sum=t0, hicopy=t1].
+ *   BASIN A (in-tree, seq read hoisted to the guard = w35 flip-1): p90 slot=a0 OK, p82 off=a2,
+ *     p80 i=a3, p91 lo_sum=t0, p92 hicopy=a1, p88 seqMask=t1.
+ *   BASIN B (no seq hoist, 46 diffs): p82 off=a0, p90 slot=a1 (an EXACT 1.5000 priority tie that
+ *     off wins on the lower allocno number), i=a2 (retail), lo_sum=a3, hicopy=t0, seqMask=t1.
+ * 🔴 THE REAL BLOCKER (new): `off` (p82) carries a HARD-REG-5 CONFLICT in BOTH basins -- the greg
+ * dump prints `;; 82 conflicts: ... 2 5 29` -- so NO allocno-order dial can ever give it retail's
+ * $a1.  reqdelta confirms: no single- or two-dial (refs/live/calls) delta in +-60 reaches the
+ * retail handout, in EITHER basin.  The hard-5 conflict is manufactured by LOCAL-alloc, which
+ * runs FIRST and parks the THIRD oparray-reload + slot-address pair (p107/p108) in $a1; retail's
+ * local-alloc parked the same pair in $a0 (`lw a0,24(t0); addu a0,a1,a0`), leaving $a1 free for
+ * the global `off`.  ==> the reachable target is a LOCAL-ALLOC question (which hard reg the
+ * block-local recompute pair gets), not a global-allocno one.  NEXT ANGLE: dial the block-local
+ * qty priorities in the free-slot block (w46 QTY_CMP_PRI == allocno_compare; check next_qty vs
+ * the 3-QTY LAW) so the recompute pair takes $a0 -- e.g. by changing how many DISTINCT block-local
+ * temps that block has, or their births.  Falsified this wave (with numbers): unifying the three
+ * slot addresses into ONE `op` variable (48 diffs -- p90 becomes refs=16/pri 3.37, allocated first,
+ * but it then carries hard-3/4 conflicts and takes $a1 itself); all four mask constants assigned
+ * INSIDE the loop so loop.c hoists them after the base pair (46 -- fixes the preheader ORDER,
+ * base-pair-before-constants like retail, but `off=0` then lands before the pair and the a-band
+ * rotates). */
 extern FileOp *reserveop(void)
 {
     int i, sr, off;
@@ -871,7 +894,23 @@ extern void FILE_cancelop(unsigned int id)
      * a nop; `action = 1; op->cancelreq = action;` and `op->cancelreq = action = 1;`
      * both REGRESS to 18); (b) a v0/v1 name swap on the `gFileMgr.state--` RMW in the
      * unlink arm (address in v1 + value in v0 in retail, reversed here) -- join-block
-     * rematerialization coloring. */
+     * rematerialization coloring.
+     * w47-a1 -- 14 unchanged, but SPLIT into two named classes (do not re-fight as one):
+     *  (a) the two 1-line clusters (`li v0,1` before the status compare, `li v2,2` in the
+     *      action==2 bnez delay slot) are the SAME cse-copy-prop-of-a-live-constant identity as
+     *      iFILE_ExecCommand's `li a1,124` (see there): retail REMATERIALIZES a constant that is
+     *      still live in a register, our cc1 copy-propagates.  THREE instances in this TU now =>
+     *      a per-module FLAG-AXIS suspicion, not a spelling problem (routed to w47 a8/a9).
+     *  (b) the 5-line (10-diff) v0/v1 swap on the `gFileMgr.state--` RMW is a LOCAL-ALLOC qty
+     *      question: the RMW block holds exactly THREE block-local quantities (the la address,
+     *      the loaded value, and the `li -1` for the status store), and per the w46 3-QTY LAW
+     *      blocks with next_qty <= 3 are NOT priority-ordered (local-alloc.c:1588 hand-rolls the
+     *      <=3 case) -- so the retail order (value first => $v0) is unreachable by any ref/live
+     *      dial.  NEXT ANGLE: cross the 3<->4 boundary by adding/removing ONE DISTINCT block-local
+     *      temp in that block.  Falsified this wave (all 14, 109/109): `nq = state; state = nq-1;`
+     *      split RMW, `state = state - 1;` double-eval, a `FileMgr *m` base local, and the
+     *      `action = 2;`-before-RMW reorder;  `op->status = -1;` moved ahead of the RMW reaches 12
+     *      but at 111/109 (two insns long) => rejected. */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
@@ -1206,7 +1245,15 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  * that one choice.  This is the documented "old-gcc no-copy-prop" per-obj toolchain-identity class
  * (methodology 3.25-3b tail: DrawOTag/_padSetActAlign/CdRead2 siblings) -- invariant across our
  * cc1/cc1plus, not source-reachable.
- * Raw nfs4-f.exe DD398..DD81F SHA-256:
+ * w47-a1 -- 10 unchanged; the class is now corroborated THREE times inside this one TU (here,
+ * plus FILE_cancelop's `li v0,1` and `li v0,2`), which upgrades it from "one fn's identity" to a
+ * per-module FLAG-AXIS lead: every instance is cse choosing a register COPY of a still-live
+ * constant where retail emits a fresh `li`.  Reported to the w47 flag lanes (a8/a9) as the
+ * nfile.obj fingerprint.  The other cluster here (`sll v1,v1,2` scheduled before vs after the
+ * jump-table `lui/addiu`) is the classic sll-index-vs-base sched1 tie and would be the target for
+ * a zero-insn fence walked between the switch discriminant and the switch (untried: the fence
+ * would have to sit inside the case dispatch, where C gives no statement position). */
+/* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)
 {

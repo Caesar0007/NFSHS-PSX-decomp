@@ -355,6 +355,24 @@ success:
 extern int FILE_operror(unsigned int id)
 {
     volatile int frame[3];
+    /* w47-a1 (13 -> 3, 11/12): TWO zero-insn devices, both catalog-grammar.
+     *  (1) the SHIFT SPLIT into its own statement (`idx = id >> 0x18;`) writes the shift
+     *      OUT-OF-PLACE (`srl v1,a0,24`) instead of in place on $a0, and
+     *  (2) the USE FENCE right after it holds `id` live in $a0 across the shift (0 insns --
+     *      the value is already register-resident, w45 cost profile) so the in-place form is
+     *      illegal; $a0 then DIES at the fence, freeing it for the %hi base.
+     * Result: `lui a0,%hi` lands in retail's register and the whole index chain (sll/addu/
+     * lw %lo/sll/addu/lw) is instruction-identical.  The fence also pins the frame `addiu
+     * sp,sp,-16` at ENTRY (without it gcc sinks the unused-frame allocation to the tail = 2
+     * further diffs).  RESIDUAL 3 = the oracle's surviving assign_parms PARM COPY
+     * (`addu v1,a0,zero` + in-place `srl v1,v1,24`); see the w34/w47 note above -- our cse
+     * copy-propagates $a0 into every use because $a0 is unmodified between the copy and the
+     * uses, and no C spelling modifies it (the %hi that clobbers $a0 in retail is still a
+     * pseudo at cse time).  NEW ANGLE (w47): this is now a PER-TU FLAG question, not a
+     * spelling one -- the parm-copy survival differs between cc1 configurations. */
+    unsigned int idx = id >> 0x18;
+    __asm__("" : : "r"(id));
+    return ((FileOp *)((char *)gFileMgr.oparray + idx * 0x30))->error;
     /* The volatile aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
      * direct field return remains better than caching `op`. GCC still sinks the otherwise unused
      * allocation to the tail instead of placing it at entry, and keeps `id` in a0 instead of

@@ -1977,6 +1977,8 @@ void Hud_BuildNumbers(int player)
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
     u_char *pal;
+    u_char *pal_2;
+    u_char *pal_3;
 
     *(int *)&pSprt[20].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.lap];
     *(int *)&pSprt[22].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.maxlaps];
@@ -1988,23 +1990,25 @@ void Hud_BuildNumbers(int player)
       j = j + 1;
     } while (j < 0x17);
     j = 6;
-    pal = Render_gPalettePtr;
+    pal_2 = Render_gPalettePtr;
     do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
-      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal_2)->addr;
+      ((Hud_PTag *)pal_2)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 8);
-    pal = Render_gPalettePtr;
-    ((Hud_PTag *)&HudG4[1])->addr = ((Hud_PTag *)pal)->addr;
-    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[1];
-    ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)pal)->addr;
-    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[1];
+    pal_3 = Render_gPalettePtr;
+    ((Hud_PTag *)&HudG4[1])->addr = ((Hud_PTag *)pal_3)->addr;
+    ((Hud_PTag *)pal_3)->addr = (u_int)&HudG4[1];
+    ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)pal_3)->addr;
+    ((Hud_PTag *)pal_3)->addr = (u_int)&HudF4[1];
   }
   if ((((GameSetup_gData.carInfo[i].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
       ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
     u_char *pal;
+    u_char *pal_2;
+    u_char *pal_3;
 
     if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
       Hud_BuildTimeString(pSprt + 23,DashHUD_gInfo.record);
@@ -2017,17 +2021,17 @@ void Hud_BuildNumbers(int player)
       j = j + 1;
     } while (j < 0x1e);
     j = 8;
-    pal = Render_gPalettePtr;
+    pal_2 = Render_gPalettePtr;
     do {
-      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
-      ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
+      ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal_2)->addr;
+      ((Hud_PTag *)pal_2)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 10);
-    pal = Render_gPalettePtr;
-    ((Hud_PTag *)&HudG4[3])->addr = ((Hud_PTag *)pal)->addr;
-    ((Hud_PTag *)pal)->addr = (u_int)&HudG4[3];
-    ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)pal)->addr;
-    ((Hud_PTag *)pal)->addr = (u_int)&HudF4[2];
+    pal_3 = Render_gPalettePtr;
+    ((Hud_PTag *)&HudG4[3])->addr = ((Hud_PTag *)pal_3)->addr;
+    ((Hud_PTag *)pal_3)->addr = (u_int)&HudG4[3];
+    ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)pal_3)->addr;
+    ((Hud_PTag *)pal_3)->addr = (u_int)&HudF4[2];
   }
   if (((GameSetup_gData.carInfo[i].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
      (1 < DashHUD_gInfo.opponents)) {

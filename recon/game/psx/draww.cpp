@@ -3384,6 +3384,17 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
   return (u_int)(dist < r);
 }
 
+/* MATCH (w46-a6, step A): UNSIZED ASM-LABEL VIEW of the depth-CLUT table.  The
+   sized `extern short gClutDepth[256][16]` decl gives loop.c a %hi/%lo pseudo
+   PAIR it hoists twice (inner loop then outer loop, -dL insns 723/724 -> 795/797
+   -> 809/811) so the address arrives in the prologue with a 226-insn live range
+   and eats a CALLEE-SAVED register.  The oracle materializes it at the use site
+   (`lui $t8,%hi(gClutDepth); addiu $t8,$t8,%lo(gClutDepth)` @0x800C9584) and
+   spends that callee-saved slot on `t = &fskid->t` ($s6) instead.  The unsized
+   view removes the symbol's pseudo pair entirely -> nothing to hoist (catalog
+   w45 §B/F "the unsized asm-label view KILLS a LICM address hoist"). */
+extern short gClutDepth_v[] __asm__("gClutDepth");
+
 /* ---- Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark  [DRAWW.CPP:2900-3038] SLD-VERIFIED ---- */
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
@@ -3564,9 +3575,11 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   int grey;
 
   otz94 = (int *)0x1f800094;
-  grey = 0x404040;
   sd = (Draw_DCache *)&Render_gPalettePtr;
+  t = &fskid->t;
+  grey = 0x404040;
   ccount_local = fskid->count;
+  skidIdx = ccount_local * 0x2b0;
   /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
    * blocks of `int r0,r1,r2`; the oracle runs each row as three PARALLEL chains
    * (`lw r0; lw r1; lw r2; sra; sra; sra; sh; sh; sh`) so the loads fill each other's
@@ -3579,7 +3592,6 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     r0 = (fskid->m).m[0];
     r1 = (fskid->m).m[3];
     r2 = (fskid->m).m[6];
-    skidIdx = ccount_local * 0x2b0;
     (sd->matB).m[0][0] = (short)(r0 >> 4);
     (sd->matB).m[0][1] = (short)(r1 >> 4);
     (sd->matB).m[0][2] = (short)(r2 >> 4);
@@ -3617,14 +3629,14 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
       bVar2 = false;
       skidChunk_p = (int)BWorld_IsSliceInBuildList((int)*(short *)((int)&((coorddef *)(pt1_index + 0xc))->x + 2));
       if (skidChunk_p != 0) {
-        vert_count = Draw_CircleClip((coorddef *)pt1_index,&fskid->t,0x320000);
+        vert_count = Draw_CircleClip((coorddef *)pt1_index,t,0x320000);
         bVar2 = vert_count != 0;
       }
       skidIdx = skidIter;
     } while (!(bool)bVar2);
-    ts.x = ((coorddef *)pt1_index)->x - (fskid->t).x;
-    ts.y = ((coorddef *)pt1_index)->y - (fskid->t).y;
-    ts.z = ((coorddef *)pt1_index)->z - (fskid->t).z;
+    ts.x = ((coorddef *)pt1_index)->x - t->x;
+    ts.y = ((coorddef *)pt1_index)->y - t->y;
+    ts.z = ((coorddef *)pt1_index)->z - t->z;
     transform(&ts.x,(int *)fskid,&td.x);
     (sd->matB).t[0] = td.x >> 6;
     (sd->matB).t[1] = td.y >> 6;
@@ -3672,7 +3684,7 @@ gte_SetTransMatrix(&sd->matB);
         int svp = smBase + segOff;                  /* &sm->seg[i].svx[0] */
 gte_ldv0((int *)(svp));
         gte_rtps();
-gte_stlvnl((void *)0x1f800098);
+gte_stlvnl(&sd->tVn0);
         primPtr = sd->head.cprim.PrimPtr;
         /* CORRECTNESS FIX (2026-07-12, oracle @0x800C92E0): SXY goes to the
          * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
@@ -3681,13 +3693,13 @@ gte_swc2(0xe,(void *)(primPtr + 8));
         svp = svp + 8;                              /* &sm->seg[i].svx[1] */
 gte_ldv0((int *)(svp));
         gte_rtps();
-gte_stlvnl((void *)0x1f8000a8);
+gte_stlvnl(&sd->tVn1);
 gte_ldv0((int *)(((coorddef *)(pt1_index + 0x24))->y + 8));
         gte_rtps();
-gte_stlvnl((void *)0x1f8000b8);
+gte_stlvnl(&sd->tVn2);
 gte_ldv0((int *)(((coorddef *)(pt1_index + 0x24))->y));
         gte_rtps();
-gte_stlvnl((void *)0x1f8000c8);
+gte_stlvnl(&sd->tVn3);
         /* MATCH (2026-07-11): the four gte_stlvnl() calls just above write the
          * transformed vx/vy/vz triples DIRECTLY to scratchpad 0x1f800098 /
          * 0x1f8000a8 / 0x1f8000b8 / 0x1f8000c8 (matching DrawW_OnyxLinePrim's
@@ -3705,16 +3717,35 @@ gte_stlvnl((void *)0x1f8000c8);
          * gcc's natural CSE of the base address AND wins outright
          * (379->365 insns, 462->410 diffs). */
         {
-        int *skidCmp = (int *)0x1f800098;
-        if (((skidCmp[0] < skidCmp[2]) ||
-            (((skidCmp[4] < skidCmp[6] || (skidCmp[8] < skidCmp[10])) ||
-             (skidCmp[12] < skidCmp[14])))) &&
-           ((((-skidCmp[0] < skidCmp[2] || (-skidCmp[4] < skidCmp[6])
-              ) || (-skidCmp[8] < skidCmp[10])) ||
-            (-skidCmp[12] < skidCmp[14])))) {
+        /* MATCH (w46-a6): the compares read the four transformed normals by
+         * DISPLACEMENT off the shared scratchpad base -- oracle
+         * `lw $v0,0x98($s1); lw $v1,0xA0($s1)` ... `lw $v0,0xC8($s1);
+         * lw $v1,0xD0($s1)` (@0x800C93B0-0x800C9428).  A `skidCmp` pointer
+         * local instead creates an address PSEUDO for `sd+0x98` which loop.c
+         * hoists into a CALLEE-SAVED register (it is loop-invariant and shared
+         * with the gte_stlvnl store), eating the slot the oracle spends on
+         * `t = &fskid->t` ($s6). */
+        if (((sd->tVn0.vx < sd->tVn0.vz) ||
+            (((sd->tVn1.vx < sd->tVn1.vz || (sd->tVn2.vx < sd->tVn2.vz)) ||
+             (sd->tVn3.vx < sd->tVn3.vz)))) &&
+           ((((-sd->tVn0.vx < sd->tVn0.vz || (-sd->tVn1.vx < sd->tVn1.vz)
+              ) || (-sd->tVn2.vx < sd->tVn2.vz)) ||
+            (-sd->tVn3.vx < sd->tVn3.vz)))) {
           color_pack = ((coorddef *)(pt1_index + 0x24))->x;
           pmx_dst = (int)&gSkidMarkPixmap[color_pack & 1];
-gte_stsxy3((void *)0x1f800014,(void *)0x1f80002c,(void *)0x1f800020);
+          /* CORRECTNESS BUG (w46-a6) -- the three transformed screen XYs were
+           * written to SCRATCHPAD 0x1F800014/2C/20 (= sd->matB's interior!),
+           * clobbering the rotation matrix and leaving the primitive's
+           * x1y1/x3y3/x2y2 fields UNWRITTEN (garbage vertices 1..3 on every
+           * skidmark quad).  Raw oracle @0x800C9440-0x800C9468 is authority:
+           *     addiu $a1,$a2,0x14 ; addiu $a0,$a2,0x2C ; addiu $v0,$a2,0x20
+           *     swc2  $12,0($a1)   ; swc2  $13,0($a0)   ; swc2  $14,0($v0)
+           * and $a2 is `prim` (SYM Block line 62, REG $6) -- proven by the
+           * later `sw $v0,0xC($a2)` / `lhu $v1,0xE($a2)` pixmap+clut stores.
+           * POLY_GT4: x1y1@0x14, x2y2@0x20, x3y3@0x2C.  Also -3 insns: the
+           * oracle's addiu-off-prim replaces our lui/ori literal pairs. */
+gte_stsxy3((void *)((int)primPtr + 0x14),(void *)((int)primPtr + 0x2c),
+                     (void *)((int)primPtr + 0x20));
           gte_avsz4();
 gte_swc2(0x7,(void *)0x1f800094);
           vt_y = *otz94 >> 5;
@@ -3783,7 +3814,8 @@ gte_swc2(0x7,(void *)0x1f800094);
             else if (0xf < vert_idx) {
               vert_idx = 0xf;
             }
-            *(short *)((int)primPtr + 0xe) = gClutDepth[*(u_short *)(pmx_dst + 10)][vert_idx];
+            *(short *)((int)primPtr + 0xe) =
+                 ((short (*)[16])gClutDepth_v)[*(u_short *)(pmx_dst + 10)][vert_idx];
           }
           /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (2026-07-11; same shape
            * as DrawW_OnyxLinePrim's sealed instance -- fastmovf.c family;
@@ -3821,7 +3853,7 @@ gte_swc2(0x7,(void *)0x1f800094);
                 "sw	$t6,0(%0)\n\t"
                 "swl	$t4,2($t5)"
                 : "=&r"(primOut)
-                : "r"(&Render_gPalettePtr), "r"(*otz94)
+                : "r"(sd), "r"(*otz94)
                 : "$12", "$13", "$14", "memory");
           }
         }

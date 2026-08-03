@@ -1268,16 +1268,16 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   int      hoff;
   int      ytop;
 
-  width = ch->width;
   prim = Render_gPacketPtr;
+  width = ch->width;
   prim[0xc] = u;
   prevPrim = Render_gPalettePtr;
   height = ch->height;
   yoff = *(signed char *)&ch->yoffset;
   ybase = y - yoff;
+  linkAddr = (uint)prim & 0xffffff;
   hoff = height + yoff;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
-  linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
@@ -1295,10 +1295,10 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   *(ushort *)(prim + 0x16) =
        (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
        (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
+  prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0x14] = u + width;
   ytop = (ybase + 5) - hoff;
-  prim[0xd] = dv;
   *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;

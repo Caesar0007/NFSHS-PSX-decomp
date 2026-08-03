@@ -486,10 +486,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
-  int      deadfrm[2];   /* w44-a1 SYM-fsize FILLER (frame 104; removing it = 192/frame-96
-                          * in the addPrim basin too).  See the vh/v-root receipt below. */
-
-  height = shp->height;
+  u_char vb;
   width = shp->width;
   bpp = (byte)shp->depth;
   if ((flags & 2) != 0) {
@@ -622,6 +619,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * lvalue shape), each of which costs a real insn in the arm; measure vs the
    * missing-pair budget (+2) next pass.  Also PENDING: confirm p87==vh in the
    * lreg insn stream before further REG_EQUIV surgery. */
+  vb = v;
   i = 0;
   while (i < shp->width) {
     int addw;
@@ -703,8 +701,8 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     prim[0x19] = prim[0xd];
     prim[0x24] = u;
     prim[0x30] = u + w1;
-    prim[0x25] = vh + v;
-    prim[0x31] = vh + v;
+    prim[0x25] = vh + vb;
+    prim[0x31] = vh + vb;
     if (w1 <= 0) {
       w1 = 1;
     }

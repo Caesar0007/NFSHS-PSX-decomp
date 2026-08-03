@@ -628,7 +628,6 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     int texX;
     int wsel;
     int c3;
-    int addwm1;
     int ibp;
 
     ibp = (i * bpp) / 16;
@@ -709,15 +708,15 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       w1 = 1;
     }
     if ((flags & 4) != 0) {
-      addwm1 = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
+      addw = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
                              reassociate the -1 out and re-add addw at each vertex (w42-a7) */
-      *(short *)(prim + 8) = ((width + x) - i) + addwm1;
+      *(short *)(prim + 8) = ((width + x) - i) + addw;
       *(short *)(prim + 10) = y;
-      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
+      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addw;
       *(short *)(prim + 0x16) = y;
-      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addwm1;
+      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addw;
       *(short *)(prim + 0x22) = y + height;
-      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1;
+      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addw;
       *(short *)(prim + 0x2e) = y + height;
     }
     else {
@@ -1296,10 +1295,10 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   *(ushort *)(prim + 0x16) =
        (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
        (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
-  prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0x14] = u + width;
   ytop = (ybase + 5) - hoff;
+  prim[0xd] = dv;
   *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;

@@ -1201,12 +1201,17 @@ void tMenuOptions::TransitionOn()
   tMenuOptions *ptVar3;
   
   ptVar3 = this;
-  while (ptVar2 = (ptVar3)->fItemList[0], ptVar2 != (tMenuItem *)0x0) {
-    if (((ptVar2->fFlags ^ 1) & 1) != 0) {
-      (*(*ptVar2->_vf)[8].pfn)((char *)ptVar2 + (int)(*ptVar2->_vf)[8].delta);
-    }
-    ptVar3 = (tMenuOptions *)&(ptVar3)->fTitle;
+TransitionOn_nextItem:
+  ptVar2 = ptVar3->fItemList[0];
+  if (ptVar2 == (tMenuItem *)0x0) {
+    goto TransitionOn_itemsDone;
   }
+  if (((ptVar2->fFlags ^ 1) & 1) != 0) {
+    (*(*ptVar2->_vf)[8].pfn)((char *)ptVar2 + (int)(*ptVar2->_vf)[8].delta);
+  }
+  ptVar3 = (tMenuOptions *)&ptVar3->fTitle;
+  goto TransitionOn_nextItem;
+TransitionOn_itemsDone:
   this->fTransitionDirection = '\x01';
   iVar1 = ticks[0];
   this->fInMenuTransition = 1;

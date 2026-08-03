@@ -3251,6 +3251,7 @@ struct Speech {   /* 932 bytes */
     MobileSpeaker      *fMobile[4];   /* +0x390 */
     DispatchSpeaker    *fDispatch;   /* +0x3A0 */
     Speech();
+    ~Speech();
 };
 
 struct MobileSpeaker {   /* 104 bytes */

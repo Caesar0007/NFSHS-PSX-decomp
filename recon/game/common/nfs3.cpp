@@ -274,7 +274,7 @@ void Nfs2_CleanUpGameModule(void)
   Replay_StoringReplay();
   AudioCmn_DeInit();
   if (_6Speech_fgSpeech != 0) {
-    Speech_dt((Speech *)_6Speech_fgSpeech,3);
+    delete (Speech *)_6Speech_fgSpeech;
     _6Speech_fgSpeech = 0;
   }
   CopSpeak_CleanUp();

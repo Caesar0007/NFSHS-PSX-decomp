@@ -95,6 +95,5 @@ extern int Weather_DeInit(void);
 extern int Weather_Init(void);
 extern int Weather_Restart(void);
 extern void Speech_Reset();
-extern void Speech_dt(Speech *, int);
 
 #endif

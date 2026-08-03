@@ -185,7 +185,6 @@ u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u
 int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(int param_1,void *header,u_int bn,int *hoffset,int *hsize);
 void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(Speech *pThis,char *header,CarBankName *bn,long hoffset,long hsize);
 void Reset__6Speech(void);
-void Speech_dt(void *param_1,u_int __in_chrg);
 u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car);
 int SubmitRequest__6Speechlll(int param_1,int localoffset,u_int size);
 void Report__Q26Speech7SpeakerP8Car_tObj(Speaker *pThis,Car_tObj *cop);
@@ -1156,36 +1155,23 @@ void Reset__6Speech(void)
   return;
 }
 
-/* ---- _._6Speech  [SPEECH.CPP:1267-1283] SLD-VERIFIED ---- */
-void Speech_dt(void *param_1,u_int __in_chrg)
+} /* extern "C" */
 
+/* ---- _._6Speech  [SPEECH.CPP:1267-1283] SLD-VERIFIED ---- */
+Speech::~Speech()
 {
-  int i;
-  u_int *puVar1;
-  void *pvVar2;
-  int iVar3;
-  
-  if (*(int *)((int)param_1 + 0x36c) != 0) {
+  if (fBankOffset != 0) {
     SPCH_Deinit();
-    purgememadr(*(void **)((int)param_1 + 0x36c));
+    purgememadr(fBankOffset);
   }
-  if (*(int *)((int)param_1 + 0x364) != 0) {
-    FILE_closesync(*(int *)((int)param_1 + 0x368),100);   /* oracle 0x85b84/b88: a1=0x64 (was dropped) */
-  }
-  iVar3 = 0;
-  __builtin_delete(*(void **)((int)param_1 + 0x3a0));
-  pvVar2 = param_1;
-  do {
-    puVar1 = (u_int *)((int)pvVar2 + 0x390);
-    pvVar2 = (void *)((int)pvVar2 + 4);
-    iVar3 = iVar3 + 1;
-    __builtin_delete((void *)*puVar1);
-  } while (iVar3 < 4);
-  if ((__in_chrg & 1) != 0) {
-    __builtin_delete(param_1);
-  }
-  return;
+  if (fFileOpen != 0)
+    FILE_closesync(fFileHandle, 100);
+  delete fDispatch;
+  for (int i = 0; i < 4; i++)
+    delete fMobile[i];
 }
+
+extern "C" {
 
 /* ---- BankPatch__6SpeechlP8Car_tObj  [SPEECH.CPP:1297-1307] SLD-VERIFIED ---- */
 u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car)

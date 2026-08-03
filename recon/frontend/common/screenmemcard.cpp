@@ -832,7 +832,6 @@ void tScreenMemcard::Initialize()
   tGlobalMenuDefs *menus;
   uint saveFlags;
   uint loadFlags;
-  tScreenMemcard *walk;
   int i;
   uint msgId;
   
@@ -870,7 +869,6 @@ void tScreenMemcard::Initialize()
   menus = menuDefs[0];
   saveFlags = (menus->itemSaveGame).fFlags;
   loadFlags = (menus->itemLoadGame).fFlags;
-  walk = this;
   (menus->itemLoadGame).fTextDescription = msgId;
   (menus->itemSaveGame).fFlags = saveFlags | 1;
   (menus->itemLoadGame).fFlags = loadFlags | 1;
@@ -878,15 +876,10 @@ void tScreenMemcard::Initialize()
     this->goticon[i] = '\0';
     this->numicon[i] = '\0';
     this->numblock[i] = '\0';
-    /* FLOOR: gcc hoists a shared base (this+0x514/0x532, 30 apart) for these
-       two stores regardless of statement order tried; oracle keeps `walk`
-       bare (this+i*2) and uses the full field displacements directly --
-       genuine base-anchor materialization tie-break (§3.12 GENUINE FLOOR
-       family), not source-shapable. 8-diff residual, insn count exact. */
-    walk->fFadeIcon[0] = 0x80;
-    walk->fMemIconClutId[0] = 0;
+    /* Direct indexing lets GCC share the retail this + i * 2 base. */
+    this->fFadeIcon[i] = 0x80;
+    this->fMemIconClutId[i] = 0;
     i = i + 1;
-    walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
   } while (i < 0xf);
   this->fInitedMemCard = 0;
   this->fGetNewIcons = 0;

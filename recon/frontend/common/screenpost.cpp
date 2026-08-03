@@ -314,10 +314,11 @@ void tScreenPinkSlipStandings::DrawBackground()
   int lbx;
   int tt;
   int row;
+  int pixels;
 
-  wwwww = 0x2fe;
   fade = (int)this->fScreenFadeVal;
   type = textType_TrackRecords;
+  wwwww = 0x2fe;
   for (i = 0; state = textState_Hilighted,
       i < (int)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
       tTrackInformation trackInfo;
@@ -363,9 +364,12 @@ void tScreenPinkSlipStandings::DrawBackground()
   } while (i < 2);
   FETextRender_MenuTextPositionedJustifyFade(fade,0x2c1,(short)TextSys_WordX(0x2f6),
                (short)TextSys_WordY(0x2fc),2,textState_Hilighted,type);
-  wwwww = textpixels(TextSys_Word(0x2c1));
-  PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),
-               TextSys_WordY(0x2fc) - 1,wwwww,9);
+  /* MATCH 2026-08-03 (8->4): this width is a new source value, not the
+     earlier row-word cursor.  Keeping it separate lets GCC preserve the
+     textpixels result in the TextSys_WordX delay slot, as retail does. */
+  pixels = textpixels(TextSys_Word(0x2c1));
+  PSXDrawSquare(0,TextSys_WordX(0x2f6) - (pixels >> 1),
+               TextSys_WordY(0x2fc) - 1,pixels,9);
   shape = &gCurrentShapes[0][0x27];
   int halfWidth = (shape->width >> 1) - 2;
   lbx = halfWidth - shape->centerx;

@@ -100,10 +100,25 @@ void InGame_ResetPSXController(int player,int config)
   type = gPadinfo.buf[player * 4].ID;
   h = Input_gHandler;
   type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
+  /* w46-a8 (40 -> 21): the store is BACK at retail's position (after the controlType if)
+     and the w41 lever-(7) job -- making the `player*4` giv a GLOBAL allocno instead of a
+     block-local qty that steals $s0 pre-global-alloc -- is done by a ZERO-INSN USE FENCE
+     in the pre-branch block instead.  The fence gives the giv a def/use pair that straddles
+     the branch (catalog w41 §A: "move one statement so def/uses straddle a branch"), but
+     unlike the statement move it does NOT drag the controllerConfig store ahead of the
+     compare, which was ~12 of the 40 residual lines.  MEASURED (all with the store restored
+     after the if): `&hoff[player]` 21 @306 (kept -- cheapest, +1 insn), `&controllerConfig
+     [player]` 21 @308, +`h`/+`config`/+`type`/+`player` as extra operands 21 @306 (neutral),
+     `controllerConfig[player]` VALUE 27 @306, `&Cars_gHumanRaceCarList[player]` 33,
+     `hoff[player]` value 22, `h - hoff[player]` / `&h[-hoff[player]]` 32 @309,
+     `&frontEnd.controlType[player]` 263, `&gPadinfo.buf[player*4].ID` 265,
+     `&controllerConfig[0]` 243, `player` alone 241, no fence + store after the if 266.
+     Keeping the store where w41 put it and fencing there instead: 28/32/44/48/52. */
+  __asm__ volatile("" : : "r"(&hoff[player]));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
   }
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
   h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
   h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
   h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
@@ -256,10 +271,13 @@ int InGame_GetPSXPadValue(int value,int player)
   int type;
 
   PAD_update();
-  if (gPadinfo.buf[player * 4].nopad == '\0') {
-    type = gPadinfo.buf[player * 4].ID;
-  }
-  else {
+  /* w46-a8 (279 -> 264, with the two de-merge fences below): the nopad trichotomy
+     RE-OPENED from the w45 `| 1`-on-the-return basin.  In the OLD 329 basin this
+     spelling measured 322 and was rejected; in the 279 basin it is the BEST of the
+     four (264 vs 271/271/271 for if/else, ternary and default-then-override) --
+     a textbook basin-relative falsification (catalog w45 LEVER-ORDER law). */
+  type = gPadinfo.buf[player * 4].ID;
+  if (gPadinfo.buf[player * 4].nopad != '\0') {
     type = 0;
   }
   switch (type) {
@@ -314,11 +332,22 @@ int InGame_GetPSXPadValue(int value,int player)
       newControl = player << 0x1e |
                    (0x80 - GameSetup_gData.controllerData.deadSpot[player]) * 0x10000 |
                    (0x80 - GameSetup_gData.controllerData.steeringRange[player]) * 0x100 ;
+      /* w46-a8 DE-MERGE FENCE (zero insns, §2b.5 -- NOT a register pin).  The w45 `| 1`-
+         on-the-return lever made gcc's jump2 cross-jump the case tails like retail, but it
+         OVER-merges: these two 0x23 arms had their range-cal loads and `sll s1,2` folded
+         into the shared tail as well, where retail merges only the final `ori v0,a0,1`.
+         An empty asm at the end of exactly these two arms makes their tails differ so
+         jump2 declines them while every other group stays merged.  MEASURED (each set is
+         the whole fence configuration, k1 nopad spelling): {8,9} 264 (kept), {9} 266,
+         {8} 268, {8,9,10} / {8,9,11} / all-four-0x23 268, {9,10} 270, none 272, {8,10} 272,
+         adding ANY 0x53/0x73 arm 267-280, all eight 0x53/0x73 arms 331. */
+      __asm__ volatile("" : : "r"(newControl));
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    (GameSetup_gData.controllerData.deadSpot[player] + 0x80) * 0x10000 |
                    (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100 ;
+      __asm__ volatile("" : : "r"(newControl));
       return newControl | 1;
     case 0x4000:
       newControl = player << 0x1e |
@@ -423,7 +452,40 @@ int InGame_GetDevice(int control)
  * is coalesced away later); (c) write the `short i` extension explicitly as `(i << 16) >> 16`
  * -- two RTL insns combine re-merges into the existing sll/sra pair.  MEASURE EACH ON THE
  * -dL LINE, NOT THE GATE: apply, re-dump, and check `Loop from N to M: K real insns` reaches
- * K >= 61 before looking at the diff count. */
+ * K >= 61 before looking at the diff count.
+ * ---- w46-a8: THE insn_count TARGET WAS REACHED AND THE MODEL PREDICTION FAILED.  13 stays.
+ * Measured on the -dL line exactly as instructed (scratch/probe_dl.py + p_ramp{,2}.py):
+ *   spelling                                      real insns   savings-2 movables moved
+ *   baseline                                          58                 2
+ *   `hoff + ((i << 16) >> 16)`                        61                 2   (gate 20)
+ *   ... + one `((0xK - *hp) << 16) >> 16` guard        63                 2   (gate 23)
+ *   ... + two guards                                  65                 2   (gate 26)
+ *   ... + three guards                                67                 2   (gate 29)
+ *   ... + a shifted Cars list index                   66                 2   (gate 22)
+ * BOTH savings-2 / life-2 pairs are STILL hoisted at 67 real insns.  ⇒ the w41 bracket
+ * `threshold in [15,57]` is REFUTED: from `4T >= 67` the true bound is T >= 16.75, and the
+ * savings-1/life-1 "not desirable" verdicts only give T < 67.  If T is the catalog's
+ * `(loop_has_call?1:2)*(1+n_non_fixed_regs)` ~= 50, the loop would need > 200 real insns
+ * for the &hoff pair to be declined -- unreachable for a 58-insn loop.  insn_count is
+ * therefore NOT the free variable the w45 note claimed.
+ * ALSO MEASURED (report-only; tools/build.py is off-limits this wave, the probe patched and
+ * RESTORED it byte-for-byte via scratch/flagprobe.py): the PER_TU key `no_split_addresses`,
+ * which the w39/w40 notes never listed for this TU.  In an isolated cc1try it produces
+ * EXACTLY retail's frame shape for this fn (frame 40, six saved regs, `sw ra,36`, NO
+ * preheader lui/addiu for either hoff or the Cars list -- the whole 13-diff residual), BUT
+ * the whole-TU gate is decisively negative: SetRamp 41, ResetPSXController 324,
+ * GetPSXPadValue 347, GetDevice PASS.  ⇒ the object is not a no-split-addresses object;
+ * the lever is needed for ONE SYMBOL and gcc has no per-symbol switch (and the unsized
+ * asm-label view cannot help, since a runtime-indexed array can never use the `lw $r,sym`
+ * assembler-macro form the view relies on).
+ * NEW NAMED ANGLE: attack `savings`/`lifetime`, not insn_count.  loop.c computes a movable's
+ * savings from its own shape, so the only way to shrink savings*lifetime for the &hoff pair
+ * is to stop it being ONE 2-insn pair: give `hoff`'s address a SECOND, differently-spelled
+ * in-loop materialization (the w44 "distinct address rtx per site" cure for cross-loop CSE)
+ * so neither copy is a life-2 movable on its own.  Alternatively confirm T empirically by
+ * SHRINKING the loop (a scratch cc1try harness with the guards deleted) until the
+ * savings-1/life-1 movables flip to "moved" -- that pins T from above and settles whether
+ * any insn_count is reachable at all. */
 void InGame_SetRamp(void)
 
 {

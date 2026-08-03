@@ -144,6 +144,30 @@ int TrackSpec_gPrevSpec;
  *   is the number/shape of insns released late in block 0 / the depthcue block, i.e.
  *   add or remove ONE RTL insn there (the giv-worth razor's +1-insn family), or
  *   permuter.  Statement order is exhausted.
+ * ---- w46-a8: 4 STAYS.  The w45 "SPREAD THE 1's USES" angle for residual (a') is
+ * FALSIFIED, and so is the (b) second-fence angle.  Everything measured at this base:
+ *   SPREAD-THE-1 (give the constant a use in sched2 region 1, i.e. before the fence):
+ *     `"r"(1)` as a 2nd operand of the existing fence 7 @143 (+1 insn -- cse does NOT fold
+ *     the asm's constant onto the later stores, so it is a real extra `li`), a separate
+ *     `"r"(1)` fence before 7 @143 / after 7 @143, moving `depthcuestate = 1;` above the
+ *     fence 18 @142, moving `horizonspec.mirror = 1;` above it 7 @141, moving
+ *     `horizonstate = 1;` above it 6 @142, a fenced `int one = 1;` local 187.
+ *     Moving mirror/depthcuestate above `fogstate = 0` instead: 7 @141 / 8 @142 / 7 @141.
+ *     ⇒ ANY spelling that puts a use of the 1 in region 1 also drags its STORE there,
+ *     which is worse than the missing `li` position -- and the asm-operand form that would
+ *     avoid the store costs the insn instead.  The lever cannot be paid for.
+ *   SECOND FENCE for residual (b) (`sb $v1,240`): four positions inside the depthcue block
+ *     (before depthcuespec.color.r / .distance / clearcolor.b / color.g) measure 40/38/38/40
+ *     -- a second region boundary there wrecks the whole tail block, it does not refine it.
+ *   FENCE POSITION re-sweep (2 positions the w45 list lacked): before `fogstate = 0` 6,
+ *     before the `weather` read 8; a SECOND fence at the top of the fn KEPT alongside the
+ *     existing one is 4 (neutral -- a different 4? worth a side_by_side if resumed).
+ *   NEW NAMED ANGLE: (a') needs the `li $v1,1` in region 1 WITHOUT a store there.  The only
+ *   zero-insn way left is to make region 1 itself longer, i.e. move the FENCE later while
+ *   keeping `li $a3,23` pinned -- which the position sweep says is impossible with ONE
+ *   fence.  So: TWO fences bracketing the `li a3,23` drain point (one before the weather
+ *   read, one after the horizonstate/skystate stores), so the 1 is released inside the
+ *   middle region while 0x17 still cannot drain past the first.  Untried.
  * FLOOR-BAR NOTE: prototype re-audited (1 pointer arg, void return, SYM REGPARM $05,
  * fsize 0 / mask $00000000 leaf, no $v0 at the single `jr $ra`); the w40 per-TU flag
  * probes still stand (g_value 8 no-op, all four -f keys negative).

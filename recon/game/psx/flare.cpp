@@ -1298,7 +1298,25 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
    *       `*(u_long *)((char *)p + 4)`), so the base pseudo dies at the second load and
    *       local-alloc can hand $v0 to the reborn range (dead-base-reuse, catalog §F row
    *       115).  Or re-run the two-temp spelling AFTER (A) lands (lever-order
-   *       dependence, §2b.4 -- (1) and (2) already proved order-dependence here). */
+   *       dependence, §2b.4 -- (1) and (2) already proved order-dependence here).
+   * ---- w46-a8: BOTH w45 ANGLES EXECUTED AND FALSIFIED (6 stays, count-exact 247/247).
+   *   (A) `pt` ENTRY-BLOCK BIRTH: hoisting `pt = &pt2;` above the guard measures 8 with the
+   *       fence unchanged AND 8 with `pt` added as a third fence operand -- the hoist itself
+   *       costs 2 diffs, so the s1-fix analogue does NOT transfer to s3.  The `sw s3,92(sp)`
+   *       save position is unmoved in both.
+   *   (B) KILL-THE-BASE: all three pointer-local spellings for the second gType colour read
+   *       are much worse -- `p = &Flare_gType[ft]; c = p->chalo; p = p; c = *(u_long*)((char*)p+4);`
+   *       20, `p = (Flare_tInfo*)((char*)p+4); c = *(u_long*)p;` 22, plain `c = p->cbeam;` 20.
+   *       Combining (A)+(B) is worse still (22/24).  The single-`c`-pseudo-spans-the-base
+   *       diagnosis stands; the cure does not.
+   *   Also measured NEUTRAL here (the w46 Font_SwitchFont seal lever): a MEM_IN_STRUCT_P
+   *   struct view on the gfrgb / gfrgb2 word stores -- 6 in all three combinations.
+   *   NEW NAMED ANGLE: residual (A) is a sched2 STORE-PLACEMENT drain (a prologue `sw` that
+   *   retail issues 3 slots earlier), i.e. exactly the class the trackspec.cpp SetDefault
+   *   seal cracked with a fence WALK.  The existing dual-param fence is a fixpoint AFTER the
+   *   pt2 stores; walk a SECOND zero-insn fence through the entry block one statement at a
+   *   time (before `sd =`, between the two pt2 stores, after the guard) -- position is the
+   *   dial and this fn has never had more than one fence position tested. */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;
@@ -1802,7 +1820,29 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
    * 0xffffff)` for the +1 ref-step.  MEASURED THIS WAVE: applying just the statement-order
    * half of that recipe (addr24 moved below the two slot statements) at all 7 OT sites in
    * this fn is DIFF-NEUTRAL (34, 0 TU regressions) -- so here the mask order is NOT the
-   * dial; the `pal` split + the ref-step re-mask are the untried halves. */
+   * dial; the `pal` split + the ref-step re-mask are the untried halves.
+   * ---- w46-a8: THE COUNT-EXACT-409 FENCED BASIN WAS BUILT AND FULLY SWEPT.  It does not
+   * beat the kept 34 @407, so it is again NOT landed (verify-or-revert), but the follow-up
+   * list the w45 note left is now CLOSED and must not be re-run:
+   *   - the fenced split-temp base reproduces exactly as written: 36 diffs, count-exact
+   *     409/409.
+   *   - FORCING THE ARG-SLOT RELOAD (the w45 "next step") does NOTHING: fencing `screenPos`
+   *     itself before the block, naming `screenPos` as a third operand of the same fence, a
+   *     `DVECTOR *sp2 = screenPos;` local inside the block, and that local defined after a
+   *     fence on screenPos -- ALL exactly 36 @409.  Swapping the two temps' declaration
+   *     order (vy0 first) is also 36.  ⇒ retail's `lw $t7,184(sp)` ARG reload is not
+   *     reachable by any source handle on the pointer; it is a spill decision.
+   *   - ALL 24 pt-group orderings RE-RUN IN THIS BASIN (the w45 note flagged the old list
+   *     stale): the current order is joint-best at 36 (perms 0,1,2,12,14,15 = 36; the rest
+   *     42/50/52/56).  The basin-stale hypothesis is therefore falsified -- the ordering
+   *     ranking is the SAME in both basins.
+   *   ⇒ from the fenced base the residual 36 is: (i) the ARG spill above, and (ii) the two
+   *   head temps landing in $v1/$a2 vs retail's $v0/$v1.  NEW NAMED ANGLE: (ii) is a
+   *   local-alloc QTY pick (both temps are born and die inside the entry block) -- per §A0
+   *   compute their QTY_CMP_PRI from a `-dl` dump of THIS basin and use the ref/live dials,
+   *   which is the one instrument never applied to this function.  The untried tail halves
+   *   (`pal = Render_gPalettePtr;` split out at the 7 OT sites) remain open and are
+   *   independent of the head cluster. */
   int dx;
   int dy;
   DVECTOR pxy;

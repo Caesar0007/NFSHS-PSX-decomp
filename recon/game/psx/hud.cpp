@@ -1633,6 +1633,7 @@ void Hud_BuildNumbers0(int player)
   POLY_G4 *HudG4;
   int splitY;
   int y;
+  int y_2;
   int primAddr;
 
   i = player;
@@ -1770,11 +1771,11 @@ void Hud_BuildNumbers0(int player)
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointDisplay < 1) {
         return;
       }
-      y = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
-      if (y < -0x95ff) {
+      y_2 = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
+      if (y_2 < -0x95ff) {
         return;
       }
-      if (0x95ff < y) {
+      if (0x95ff < y_2) {
         return;
       }
       if (Hud_BeTheCop != 0) {
@@ -1783,7 +1784,7 @@ void Hud_BuildNumbers0(int player)
       if (DashHUD_gInfo.wrongway[player] != 0) {
         return;
       }
-      if (y < 0) {
+      if (y_2 < 0) {
         *(u_int *)&pSprt[10].u0 = *(int *)&(HudPmx_gShapes[0x77].pixmap);
       }
       else {
@@ -1819,8 +1820,8 @@ void Hud_BuildNumbers0(int player)
       }
     }
     else {
-      y = (int)Hud_BuildDistanceString(pSprt + 30,player);
-      if (y == 0) {
+      y_2 = (int)Hud_BuildDistanceString(pSprt + 30,player);
+      if (y_2 == 0) {
         return;
       }
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointUpdate < 0) {

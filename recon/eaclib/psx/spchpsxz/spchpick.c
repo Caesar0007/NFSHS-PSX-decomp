@@ -148,7 +148,18 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * loop, the lever that cracked iSPCH_SentenceGetChoices) -- cse folds the second
  * `one = 1` away so the movable comes back, 38 diffs / 67 insns with $fp.  Also falsified this wave: `1u << (cycleByte & 0x1f)`
  * (23/68), lowNib declared first (38/67), a named `one` local (22/67, still hoisted),
- * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0). */
+ * `(result + 1) << cycleByte` (22/67, cc1 folds result to 0).
+ * 🏆 w47-a2 SEALED 6 -> PASS (65/65) -- the residual `p` web was NOT toolchain identity.
+ * NEW ANGLE "REORG EAGER-STEAL DUPLICATE MASQUERADES AS A PREHEADER INIT": the oracle's
+ * `addu $v0,$s6,$s1` at 0x801007D4 (before the loop label) and the identical insn in the
+ * back-branch delay slot at 0x8010084C are ONE source statement -- reorg stole the loop's
+ * FIRST insn into the back branch's slot, retargeted the loop label past it and left the
+ * loop-entry copy in the preheader.  So retail computes the cursor at the TOP OF THE LOOP
+ * BODY (`int p = sample + i;` as the body's first declaration), NOT as a pre-loop init plus
+ * a bottom update: with the pre-loop init cc1 const-props the just-assigned `i = 0` and
+ * emits `addu $v1,$s6,$zero` (the 6-diff residual, plus the $v1-vs-$v0 coloring that
+ * followed from it).  RULE: when the SAME insn appears in the preheader and in the
+ * back-branch delay slot, it is one loop-top statement, not two. */
 extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
@@ -175,7 +186,6 @@ valid_count:
     {
         int i = 0;
     if (0 < count) {
-        int p = sample + i;
         /* MATCH (w34-a9, 22 -> 15 diffs, 67 -> 66 insns): `bit` is a LOOP-CARRIED
          * pseudo re-armed to 1 at the bottom of every iteration instead of a fresh
          * `1u << cycleByte` per iteration.  Two effects, both needed:
@@ -236,6 +246,7 @@ valid_count:
          * freechan EBB-boundary lever does not reach it (the use is an addu, not a compare,
          * and the branch distance is too short for cse's path limit). */
         do {
+            int p = sample + i;
             unsigned int bit;
             unsigned int cycleByte = *(unsigned char *)(p + 0xc);
             result = 0;
@@ -255,7 +266,6 @@ valid_count:
             i = i + 1;
             if (result == 0)
                 goto done;
-            p = sample + i;
         } while (i < count);
     }
     }

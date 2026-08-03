@@ -1558,16 +1558,18 @@ int tMenuItemLeftRightAudioSlider::Percentage()
   int iVar4;
   tListIterator *ptVar5;
   tListIterator *ptVar6;
-  int iVar6;
   int percent;
 
   ptVar5 = this->fData;
   pa_Var2 = ptVar5->_vf;
   uVar3 = (*(*pa_Var2)[2].pfn)((char *)ptVar5 + (int)(*pa_Var2)[2].delta,0xffffffff);
   ptVar6 = this->fData;
-  iVar6 = ((uVar3 & 0xff) - (u_int)(u_char)ptVar6->fMinValue) * 100;
+  /* MATCH: SLD's only source local is `percent` in $s0.  Assign the scaled
+     numerator to it before division; the decompiler's iVar6 pseudo kept that
+     value in a caller register and displaced the inlined iterator `this`. */
+  percent = ((uVar3 & 0xff) - (u_int)(u_char)ptVar6->fMinValue) * 100;
   iVar4 = (u_int)(u_char)ptVar6->fMaxValue - (u_int)(u_char)ptVar6->fMinValue;
-  percent = iVar6 / iVar4;
+  percent = percent / iVar4;
   cVar1 = (*(*ptVar6->_vf)[2].pfn)
                     ((char *)ptVar6 + (int)(*ptVar6->_vf)[2].delta,0xffffffff);
   if ((cVar1 != '\0') && (percent < 100)) {

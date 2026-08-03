@@ -3499,6 +3499,87 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
           floor_log2 STEP; the zero-insn re-mask (`| (x & 0xffffff)`) and the
           do{}while(0) depth wrapper are the dials even for block-local qtys that
           never reach find_reg. */
+  /* ================= RECEIPT (w46-a6) -- PLAN A/B/C EXECUTED, 332 -> 303 ======
+     BASELINE re-gated at 6a43ac79: 332 diffs, ours 361 / oracle 353 (EIGHT over).
+     NOW: 303 diffs, ours 354 / oracle 353 (ONE over), posdiff residual 234 -> 225,
+     brcensus CLEAN, opcode census down to `addiu +2 / lw -1` (everything else --
+     sw, nop, andi, lh, lhu, sll, sra, lui, addu -- is now EXACT).
+
+     WHAT LANDED (each gated + full-TU re-gated, 21 PASS held):
+       A1. gClutDepth unsized asm-label view (kills the double LICM hoist that ate
+           a callee-saved register; alone it is LCS-neutral at 336/361 -- exactly
+           the w44/w45 measurement -- and only pays once `t` exists to use the
+           freed slot).
+       A2. EVERY 0x1F8000xx literal routed through the SYM's `sd` (Draw_DCache*,
+           REG $s1): the 4 gte_stlvnl targets (&sd->tVn0..tVn3), the 4 backface
+           compares (sd->tVnN.vx/vz by displacement, NOT a `skidCmp` pointer local
+           -- that local is an address PSEUDO loop.c hoists into a saved reg), the
+           startfog/distfog pair (0xDC/0xDE off the same base, via the bigger
+           Draw_tGiveShelbyMoreCache view), and the OT-link template's base
+           operand.  This alone was -6 insns AND it dissolved the whole
+           `lh/lhu/sll/sra` census signature the w45 receipt read as "missing short
+           sign-extension pairs": there was no type bug at all -- the two `lui
+           0x1F80`s were what the census was seeing.  (All five (short)/(u_short)/
+           local spellings of the fog read measure IDENTICAL once the base is
+           shared -- recorded so nobody re-sweeps them.)
+       A3. CORRECTNESS: gte_stsxy3 wrote SXY0/1/2 to 0x1F800014/2C/20 (inside
+           sd->matB) instead of prim->x1y1/x3y3/x2y2.  Oracle @0x800C9440 uses
+           `addiu $aN,$a2,0x14/0x2C/0x20` with $a2 == prim (proved by the later
+           `sw $v0,0xC($a2)` pixmap + `lhu $v1,0xE($a2)` clut on the same reg).
+       B.  The ONE inverted arm brcensus flagged (`beqz 7v8 bnez 9v8`): the oracle
+           guards with `beqz $t0` @0x800C94B0, so the GREY arm is the fall-through
+           and the pixmap arm is the branch target -- `if (color_pack != 0)`.
+       C1. `bVar2` u_char -> int (killed a per-iteration `andi ,255` + a copy;
+           oracle is `sltu $s0,$zero,$v0; beqz $s0`).
+       C2. `m = &fskid->m` as a separate variable -- this is what FORCES the SYM's
+           `fskid` class ARG stack home: the oracle spills `sw $a0,0x58($sp)` and
+           RELOADS it (`lw $t8,0x58($sp); lw $v0,0x34($t8)`) for `fskid->smp`
+           while keeping `m` in a callee-saved reg.  With 9 callee-saved consumers
+           the pool is full and the param loses -- exactly the w40 ARG-SPILL
+           FORCING mechanism.  Our `sw a0,88(sp)` now appears.
+       C3. `skidIter` DELETED -- retail mutates the byte cursor IN PLACE in the
+           exit test's delay slot (`beq $s5,$v0,exit; addiu $s7,$s7,-0x2B0`) and
+           forms the pointer with one `addu $s2,$v0,$s7`.  The copy-through-a-
+           second-variable form created an extra call-crossing allocno.
+
+     RESIDUAL = ONE 6-WAY CALLEE-SAVED ROTATION, QUANTIFIED WITH allocsim
+     (tools/allocsim.py reproduces our handout 23/23 IDENTICAL; dump via
+      `python tools/rtl_dump.py recon/game/psx/draww.cpp -dg -dl`):
+        pseudo  what                     ours  RETAIL   refs/live   QTY pri
+        p107    bVar2 flag                s0     s0  OK   9/5       5.4000
+        p92     pt1_index (sm base)       s1     s2      17/40      1.7000
+        p98     sd = 0x1F800000           s2     s1      96/438     1.3150
+        p102    ccount                    s3     s5      14/229     0.1834
+        p100    m = &fskid->m             s4     s4  OK   14/234    0.1794
+        p109    grey 0x404040 (hi half)   s5     s3      13/232     0.1681
+        p104    skidIdx                   s6     s7      10/220     0.1363
+        p103    t = &fskid->t             s7     s6      10/233     0.1287
+        p108    otz94 = 0x1F800094        fp     fp  OK   10/236    0.1271
+     REQUIRED DELTAS (tools/reqdelta.py, flr2 boundary math -- the chain must be
+     applied top-down, each step is a strict prerequisite for the next):
+       1. p98 must outrank p92  ->  p92 refs 17->15 (floor_log2 4->3, .170->.1097)
+                                OR p92 live 40->52 (+12).   [reqdelta-verified]
+       2. p109 must outrank p102 -> p109 refs 13->15, or p109 live 232->=212.
+       3. p100 must outrank p102 -> p100 live 234->=228, or p102 live 229->=235.
+       4. p103 must outrank p104 -> p103 live 233->=219, or p104 live 220->=234.
+     FALSIFIED IN THIS BASIN (do not re-run): all 24 permutations of the four init
+     statements (otz94/sd/t/grey) -- every one gates 317-325 at the same count;
+     all 5 positions of `skidIdx = ccount*0x2b0` (before/after each matrix block /
+     inside block 1) -- all identical at 305/posdiff 230; moving the `>> 4` into
+     the r0/r1/r2 load statements (any subset of rows) -- identical; all 3
+     orderings of {exit test, cursor decrement, pt1_index form} -- identical.
+
+     NEW NAMED ANGLE (the one that pays delta #1, and it is a rule-8 job, not a
+     dial): the oracle runs TWO walkers -- `$s2` = the Skidmark_Chunk BASE (SYM
+     `sm`, REG $s2, PTR STRUCT size 688, block line 33) held constant across the
+     inner loop, and `$t1`/`$t3` = per-segment cursors advanced by `addiu ,0x1C`
+     with `$t7` the index.  OUR recon fuses all of them into the single invented
+     `pt1_index` int, which is why p92 carries 17 refs where retail's `sm` carries
+     fewer.  Materialize `Skidmark_Chunk *sm` with its real fields and give the
+     inner loop its own cursor locals; that is the same "one fabricated iVarN
+     spanning two register lifetimes = two real SYM locals" split that cracked
+     SetupBlockader (424->345), and it moves p92's ref count directly.
+     ============================================================================ */
 
   int skidChunk_p;
   int vert_count;
@@ -3524,11 +3605,14 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   int ccount_local;
   coorddef *t;
   int skidIdx;
-  int skidIter;
   coorddef td;
   coorddef ts;
   int ti2;
-  u_char bVar2;
+  /* MATCH (w46-a6): SYM has no u_char here and the oracle keeps the
+   * backface flag as a plain word in $s0 (`sltu $s0,$zero,$v0;
+   * beqz $s0` @0x800C91B8) -- a u_char local forced an extra
+   * `andi ...,255` + a copy on every loop iteration. */
+  int bVar2;
 
   /* MATCH (wave-14): `sd` (SYM REG Draw_DCache*, the scratchpad cache cursor
      -- same idiom as DrawW_BuildObjectFacets/DoTrough) was DECLARED but never
@@ -3576,6 +3660,7 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
 
   otz94 = (int *)0x1f800094;
   sd = (Draw_DCache *)&Render_gPalettePtr;
+  m = &fskid->m;
   t = &fskid->t;
   grey = 0x404040;
   ccount_local = fskid->count;
@@ -3589,9 +3674,9 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     int r0;
     int r1;
     int r2;
-    r0 = (fskid->m).m[0];
-    r1 = (fskid->m).m[3];
-    r2 = (fskid->m).m[6];
+    r0 = m->m[0];
+    r1 = m->m[3];
+    r2 = m->m[6];
     (sd->matB).m[0][0] = (short)(r0 >> 4);
     (sd->matB).m[0][1] = (short)(r1 >> 4);
     (sd->matB).m[0][2] = (short)(r2 >> 4);
@@ -3600,9 +3685,9 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     int r0;
     int r1;
     int r2;
-    r0 = (fskid->m).m[1];
-    r1 = (fskid->m).m[4];
-    r2 = (fskid->m).m[7];
+    r0 = m->m[1];
+    r1 = m->m[4];
+    r2 = m->m[7];
     (sd->matB).m[1][0] = (short)(r0 >> 4);
     (sd->matB).m[1][1] = (short)(r1 >> 4);
     (sd->matB).m[1][2] = (short)(r2 >> 4);
@@ -3611,9 +3696,9 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     int r0;
     int r1;
     int r2;
-    r0 = (fskid->m).m[2];
-    r1 = (fskid->m).m[5];
-    r2 = (fskid->m).m[8];
+    r0 = m->m[2];
+    r1 = m->m[5];
+    r2 = m->m[8];
     (sd->matB).m[2][0] = (short)(r0 >> 4);
     (sd->matB).m[2][1] = (short)(r1 >> 4);
     (sd->matB).m[2][2] = (short)(r2 >> 4);
@@ -3621,23 +3706,29 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   do {
     do {
       ccount_local = ccount_local + -1;
-      skidIter = skidIdx + -0x2b0;
       if (ccount_local == -1) {
         return;
       }
-      pt1_index = (int)(fskid->smp[-1].seg[0].svx + -2) + skidIdx;
-      bVar2 = false;
+      /* MATCH (w46-a6): retail has NO `skidIter` -- the SYM lists no such
+       * local and the oracle mutates the byte cursor IN PLACE inside the
+       * exit-test's delay slot (`beq $s5,$v0,exit; addiu $s7,$s7,-0x2B0`
+       * @0x800C917C) and then forms the chunk pointer with a single
+       * `addu $s2,$v0,$s7`.  The old copy-through-a-second-variable form
+       * created an extra call-crossing allocno that took $s1 away from
+       * `sd`.  Identical arithmetic: smp[-1]+0x10-2*8 == (int)smp-0x2B0. */
+      skidIdx = skidIdx + -0x2b0;
+      pt1_index = (int)fskid->smp + skidIdx;
+      bVar2 = 0;
       skidChunk_p = (int)BWorld_IsSliceInBuildList((int)*(short *)((int)&((coorddef *)(pt1_index + 0xc))->x + 2));
       if (skidChunk_p != 0) {
         vert_count = Draw_CircleClip((coorddef *)pt1_index,t,0x320000);
         bVar2 = vert_count != 0;
       }
-      skidIdx = skidIter;
-    } while (!(bool)bVar2);
+    } while (bVar2 == 0);
     ts.x = ((coorddef *)pt1_index)->x - t->x;
     ts.y = ((coorddef *)pt1_index)->y - t->y;
     ts.z = ((coorddef *)pt1_index)->z - t->z;
-    transform(&ts.x,(int *)fskid,&td.x);
+    transform(&ts.x,(int *)m,&td.x);
     (sd->matB).t[0] = td.x >> 6;
     (sd->matB).t[1] = td.y >> 6;
     (sd->matB).t[2] = td.z >> 6;
@@ -3756,19 +3847,24 @@ gte_swc2(0x7,(void *)0x1f800094);
           if (Draw_gViewOtSize + -3 < *otz94) {
             return;
           }
-          if (color_pack == 0) {
+          /* MATCH (w46-a6, step B -- the ONE inverted arm brcensus flagged as
+           * `beqz 7v8 bnez 9v8`): the oracle's guard is `beqz $t0,.L800C94CC`
+           * @0x800C94B0, i.e. the GREY arm is the FALL-THROUGH and the pixmap
+           * arm is the branch TARGET.  Writing `if (color_pack == 0)` first
+           * emitted `bnez` and swapped the two blocks' physical order. */
+          if (color_pack != 0) {
+            *(u_int *)((int)primPtr + 4) = grey;
+            *(u_int *)((int)primPtr + 0x10) = grey;
+            *(u_int *)((int)primPtr + 0x28) = grey;
+            *(u_int *)((int)primPtr + 0x1c) = grey;
+          }
+          else {
             *(int *)((int)primPtr + 4) = ((coorddef *)(pt1_index + 0x18))->z;
             *(int *)((int)primPtr + 0x10) = ((coorddef *)(pt1_index + 0x18))->z;
             *(u_int *)((int)primPtr + 0x28) =
                  *(u_int *)(((coorddef *)(pt1_index + 0x24))->y + 0x10);
             *(u_int *)((int)primPtr + 0x1c) =
                  *(u_int *)(((coorddef *)(pt1_index + 0x24))->y + 0x10);
-          }
-          else {
-            *(u_int *)((int)primPtr + 4) = grey;
-            *(u_int *)((int)primPtr + 0x10) = grey;
-            *(u_int *)((int)primPtr + 0x28) = grey;
-            *(u_int *)((int)primPtr + 0x1c) = grey;
           }
           *(u_char *)((int)primPtr + 7) = 0x3e;
           *(u_char *)((int)primPtr + 3) = 0xc;
@@ -3806,8 +3902,13 @@ gte_swc2(0x7,(void *)0x1f800094);
            *     back to SIGNED for the subtract; the second stays unsigned (it is a
            *     shift COUNT feeding `srav`). */
           if (*(u_short *)((int)primPtr + 0xe) == 0xffff) {
-            vert_idx = (vt_y - (short)*(u_short *)&DW_SCRATCH->startfog) * 0x10 >>
-                       *(u_short *)&DW_SCRATCH->distfog;
+            /* MATCH (w46-a6): read the fog pair by DISPLACEMENT off the shared
+             * scratchpad base -- oracle `lhu $v0,0xDC($s1); lhu $v1,0xDE($s1)`
+             * @0x800C9548.  The DW_SCRATCH literal form materialized TWO extra
+             * `lui 0x1F80`s.  (Draw_DCache stops at 0xDC; the fog pair lives in
+             * the bigger Draw_tGiveShelbyMoreCache view of the same header.) */
+            vert_idx = (vt_y - ((Draw_tGiveShelbyMoreCache *)sd)->startfog) * 0x10 >>
+                       ((Draw_tGiveShelbyMoreCache *)sd)->distfog;
             if (vert_idx < 0) {
               vert_idx = 0;
             }

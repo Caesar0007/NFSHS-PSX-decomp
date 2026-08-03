@@ -1243,18 +1243,8 @@ void Camera_UpdateBTCopCam(int player)
 void Camera_Update(void)
 {
   int player;
-  int *piVar15;
-  Car_tObj **ppCVar16;
-  int iVar17;
-  
-  player = 0;
-  iVar17 = 0;
-  ppCVar16 = Cars_gHumanRaceCarList;
-  piVar15 = Camera_gInfo[0].rotation.m + 6;
-  do {
-    if (Camera_gInfo[0].splitscreen < player) {
-      return;
-    }
+
+  for (player = 0; player <= Camera_gInfo[0].splitscreen; player++) {
     {
     Car_tObj *anchor;
 
@@ -1268,9 +1258,13 @@ void Camera_Update(void)
       if (anchor->N.orientationToGround.y < 0x8000) {
         int direction;
 
-        direction = fixedmult(piVar15[0],anchor->N.roadMatrix.m[6]) +
-                    fixedmult(piVar15[1],anchor->N.roadMatrix.m[7]) +
-                    fixedmult(piVar15[2],anchor->N.roadMatrix.m[8]);
+        direction =
+            fixedmult(Camera_gInfo[0].rotation.m[player * 68 + 6],
+                      anchor->N.roadMatrix.m[6]) +
+            fixedmult(Camera_gInfo[0].rotation.m[player * 68 + 7],
+                      anchor->N.roadMatrix.m[7]) +
+            fixedmult(Camera_gInfo[0].rotation.m[player * 68 + 8],
+                      anchor->N.roadMatrix.m[8]);
         Camera_gInfo[player].direction = direction < 0;
         Camera_gInfo[player].tumbling = 100;
       }
@@ -1284,7 +1278,8 @@ LAB_80083500:
         Camera_UpdateBTCopCam(player);
         goto LAB_80083584;
       }
-      if (((*ppCVar16)->pullOver != 0) && (((*ppCVar16)->stats).finishType != 3)) {
+      if ((Cars_gHumanRaceCarList[player]->pullOver != 0) &&
+          (Cars_gHumanRaceCarList[player]->stats.finishType != 3)) {
         Camera_UpdatePulloverCam(player);
 LAB_80083584:
         Camera_gInfo[player].inCar = 0;
@@ -1303,10 +1298,10 @@ LAB_80083584:
         Camera_gInfo[player].checkcollisions = flagMode->checkcollisions;
         Camera_gInfo[player].inCar = Camera_gInfo[player].mode < 2;
         Camera_gInfo[player].modechange = 0;
-        Camera_gInfo[player].anchor = &(*ppCVar16)->N;
-        Camera_gInfo[player].target = &(*ppCVar16)->N;
+        Camera_gInfo[player].anchor = &Cars_gHumanRaceCarList[player]->N;
+        Camera_gInfo[player].target = &Cars_gHumanRaceCarList[player]->N;
         if ((1 < Replay_ReplayMode) &&
-            (*(int *)((int)&Replay_ReplayCamera[0].cameraMode + iVar17) == 0x13)) {
+            (Replay_ReplayCamera[player].cameraMode == 0x13)) {
           Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
         }
       }
@@ -1443,11 +1438,8 @@ LAB_80083584:
     goto LAB_80083810;
     }
 LAB_80083810:
-    iVar17 = iVar17 + 0x10;
-    ppCVar16 = ppCVar16 + 1;
-    piVar15 = piVar15 + 0x44;
-    player = player + 1;
-  } while( true );
+    ;
+  }
 }
 
 /* ---- Camera_Init__Fv  [@0x80083858] ---- */

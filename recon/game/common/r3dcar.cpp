@@ -2328,13 +2328,12 @@ void R3DCar_InsertCarFacetII(Car_tObj *carObj)
       if (GameSetup_gData.commMode == 1) {
         reflect = inAir;
         if (DrawC_gWetRoad == 0) goto R_ICFtII_setQuadLight;
-        inAir = 1;
+        reflect = 1;
       }
       else {
-        inAir = -2;
         if (DrawC_gWetRoad == 0) goto R_ICFtII_setQuadLight;
+        reflect = -2;
       }
-      reflect = inAir;
     }
   }
 R_ICFtII_setQuadLight:
@@ -2348,14 +2347,11 @@ R_ICFtII_setQuadLight:
     lightR = (carObj->render).light & 0xff;
     lightG = ((carObj->render).light & 0xff00) >> 8;
     lightB = ((u_int)(carObj->render).light >> 0x10) & 0xff;
-    light = (lightR + lightG) + lightB;
-    lightAvg = light / 3;
-    light = lightAvg * 0x10000;
+    lightAvg = (lightR + lightG + lightB) / 3;
     if (lightAvg < 0x18) {
       lightAvg = 0x18;
-      light = 0x180000;
     }
-    sd->color = light + (lightAvg << 8) + lightAvg;
+    sd->color = (lightAvg << 16) + (lightAvg << 8) + lightAvg;
     worldZ = DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,sd);
     if (-1 < worldZ) {
       for (i = 0; i < 0x39; i = i + 1) {

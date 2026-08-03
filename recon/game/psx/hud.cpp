@@ -1683,6 +1683,7 @@ void Hud_BuildNumbers0(int player)
       {
         int j;
         u_int *pal;
+        u_int *pal_2;
 
         j = 4;
         pal = (u_int *)Render_gPalettePtr;
@@ -1691,11 +1692,11 @@ void Hud_BuildNumbers0(int player)
           ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
           j = j + 1;
         } while (j < 6);
-        pal = (u_int *)Render_gPalettePtr;
-        ((Hud_PTag *)HudG4)->addr = ((Hud_PTag *)pal)->addr;
-        ((Hud_PTag *)pal)->addr = (u_int)HudG4;
-        ((Hud_PTag *)HudF4)->addr = ((Hud_PTag *)pal)->addr;
-        ((Hud_PTag *)pal)->addr = (u_int)HudF4;
+        pal_2 = (u_int *)Render_gPalettePtr;
+        ((Hud_PTag *)HudG4)->addr = ((Hud_PTag *)pal_2)->addr;
+        ((Hud_PTag *)pal_2)->addr = (u_int)HudG4;
+        ((Hud_PTag *)HudF4)->addr = ((Hud_PTag *)pal_2)->addr;
+        ((Hud_PTag *)pal_2)->addr = (u_int)HudF4;
       }
     }
   }

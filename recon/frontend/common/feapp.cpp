@@ -223,13 +223,12 @@ void tFEApplication::PerformMenuDestruction()
  *  - post-loop tail: the y+=8 in the branch delay slot always fires; the two DrawShapeExtended
  *    calls use `x`/`y` (still-live vars from the loop, not fresh literals) -- `x-1`/`y-9` are
  *    increments on the live values, not restated constants.
- *  Residual 4-diff floor: `x = x + 5 + (iVar4 - uVar3);` oracle associates the `+5` onto `x`
- *  FIRST (`v1=x+5` computed once, reused) where ours re-associates onto the difference term
- *  despite identical source parenthesization -- gcc-2.8's tree reassociation picks its own
- *  grouping for a flat +chain regardless of C parens. Every attempt to force it (extra temp,
- *  operand reorder, mutating iVar4 in place) either left it unchanged or REGRESSED into a
- *  uniform x<->y ($s2<->$s3) register swap elsewhere in the function (adding any new pseudo
- *  here recolors the whole head, per catalog row 37) -- accepted as a genuine floor. */
+ *  - the compound `x += 5 + difference` makes gcc form retail's `v1=x+5` before the subtract,
+ *    but shortens x's global-alloc live length and initially swapped x/y ($s2/$s3).  GCC 2.8.1
+ *    flow/global-alloc dumps identify the exact dial: y needs one more weighted reference.
+ *    Duplicating the existing y-=8 in two pad[4].ID arms supplies that reference-family step;
+ *    jump.c cross-jumps the identical updates back to one instruction and folds the condition
+ *    into the immediately following pad-ID test.  Final output is byte-exact (254/254). */
 
 void tFEApplication::DrawHelpIcons()
 
@@ -266,7 +265,12 @@ void tFEApplication::DrawHelpIcons()
     y = y + 8;
     if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
        ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
-      y = y - 8;
+      if (gPadinfo.buf[4].ID == '#') {
+        y = y - 8;
+      }
+      else {
+        y = y - 8;
+      }
       DrawShapeExtended(0x35,0x18,x,y,0,0,&flags);
     }
     if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
@@ -289,7 +293,7 @@ void tFEApplication::DrawHelpIcons()
     iVar4 = textpixels(pcVar2);
     pcVar2 = TextSys_Word(0xfc);
     uVar3 = strlen(pcVar2);
-    x = x + 5 + (iVar4 - uVar3);
+    x += 5 + (iVar4 - uVar3);
     bVar1 = false;
     if ((this->fCurrentMenu[0]->fOptionsMenu != (tMenu *)0x0) ||
        ((this->fCurrentMenu[1] != (tMenu *)0x0 &&

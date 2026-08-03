@@ -458,7 +458,6 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 
 {
   tTexture_ShapeInfo *ptVar1;
-  u_int uVar2;
   u_int i;
   
   if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
@@ -474,15 +473,13 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
   if (numShapes != 0) {
     ptVar1 = (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
     data.fShapes = ptVar1;
-    i = 0;
-    if (numShapes != 0) {
-      uVar2 = 0;
-      do {
-        i = i + 1;
-        data.fShapes[uVar2].clutID = 0;
-        uVar2 = i & 0xffff;
-      } while ((i & 0xffff) < numShapes);
-    }
+  }
+  i = 0;
+  if (numShapes != 0) {
+    do {
+      data.fShapes[(u_short)i].clutID = 0;
+      i = i + 1;
+    } while ((i & 0xffff) < numShapes);
   }
   return;
 }

@@ -1293,6 +1293,25 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  *   in REVERSE birth order of a block's call-crossing quantities, so read `-dl` for this fn and
  *   move the mask's first materialization LATER (it is currently born in the OT block) so it
  *   sorts ahead of the shape address.  Both are one-statement edits. */
+/* ===== w46-a5: 85, UNCHANGED.  Re-gated 85 (ours 268 / oracle 269).
+ * INSTRUMENT RECEIPT (allocsim on this base, model MATCH 12/14 -- the 2 MISSes are
+ * reload re-homes, p87->s7 and p88->s4, i.e. the documented global.c model boundary):
+ *   the w44 receipt's "ours y=$s3" is STALE -- y (p88, refs 3 / live 70, pri .0428) is
+ *   ALREADY in $s4, retail's register.  The live rotation is in the CALLER-saved band:
+ *   ours   0x1F800004 = $t2, pal = $t3     retail  0x1F800004 = $t3, pal = $t0 / $t1
+ *   i.e. exactly the Hud_BuildWingmanInterface class (a scratchpad-pointer quantity vs the
+ *   hoisted-constant band), but here `pal` is ALREADY block-local, so the Wingman fix has
+ *   no purchase.  FALSIFIED this wave (exactly neutral, 85/268): moving prim/prim2 into the
+ *   SYM's block @0x800d401c and extending that block to the end of the function -- C++ scope
+ *   alone does NOT change the quantity when the live range is unchanged (this is the
+ *   BOUNDARY of the w46 pal lever: it works only when the scope change actually SPLITS one
+ *   quantity into several, never when it merely renames one).
+ * NEW NAMED ANGLE (unexecuted): pal is loaded TWICE here (`lui t3,8064; lw t3,0(t3)` at both
+ *   link sites) and retail puts the two loads in DIFFERENT registers ($t1 then $t0) while ours
+ *   uses $t3 for both.  Give the two link sites SEPARATE block-local pal variables (they are
+ *   currently one `pal` reassigned inside one block, lines "prim = ..." and "prim2 = ...") --
+ *   that is the w46 split lever applied at the right granularity, and it is the one scope
+ *   change that DOES split the quantity here. */
 void Hud_BuildTach(int player)
 
 {
@@ -1581,6 +1600,28 @@ HudBuildStr_next:
  * ETimeString arg = ternary (no unconditional laptime pre-load); tag-link walk loops cache
  * the palette ptr in a block-local `pal` (oracle hoists it), while the GoTpage digit loops
  * re-read Render_gPalettePtr per branch (calls clobber it -- no cache var there). */
+/* ===== w46-a5: 141 -> 123 (count 532/531 unchanged) =====
+ * LEVER (LANDED): the `u_int *pal` declared in the outer HudTime block was reassigned inside
+ *   BOTH inner sub-blocks, so it was ONE quantity spanning them.  Declaring it separately in
+ *   each sub-block splits it into two: 141 -> 123.  Same family as the Wingman/BuildReplay
+ *   wins this wave -- see the LEVER note on Hud_BuildWingmanInterface.
+ * FALSIFIED this wave (all measured from the 141 basin):
+ *   the `Hud_BeTheCop != 0 ? BTC_Countdown : DashHUD_gInfo.laptime` polarity: `== 0 ?` with
+ *   the arms swapped is EXACTLY neutral (gcc canonicalizes the COND_EXPR); duplicating the
+ *   Hud_BuildETimeString call into both arms = 151; a named `etime` if/else temp = 145;
+ *   the `!= 0` if/else = 145.  ⇒ the `bnez`-vs-`beqz` at .L(index 52) is decided by RTL
+ *   expand's operand-complexity pick (gp-relative load vs struct-field load), NOT by source
+ *   arm order.  NEW NAMED ANGLE: make the two arms EQUALLY complex -- read
+ *   DashHUD_gInfo.laptime through a gp-relative alias (the standalone-global unsized-array
+ *   view already used for D_8011321C in this TU) so both arms are one `lw`.
+ * RESIDUAL 123, two named clusters (chunkdiff, minsz 7 -> only 2 runs):
+ *   (1) that one branch polarity + the paired `lw a1,0(gp)` / `lw a1,52(a1)` arm swap;
+ *   (2) a v0/v1/a0 3-cycle through the whole `Hud_BeTheCop == 0` y-store block: `y` is $a0
+ *       for us and $v1 for retail, and the `y + 7` temp takes the other one.  Both are
+ *       block-local qtys -> QTY_CMP_PRI: `y` must out-rank the `y+7` temp, and $v1 must be
+ *       free at y's birth (retail's $v1 holds the `player` copy up to index 25 and frees it
+ *       right there).  Dial = the ref-step on `y` (it has many refs) or moving the `y + 7`
+ *       pair's birth later. */
 void Hud_BuildNumbers0(int player)
 
 {
@@ -1873,6 +1914,35 @@ void Hud_BuildNumbers0(int player)
  *    allocno lists $s2 in its `conflicts:`/`regs_someone_prefers` bar-list; if it does, the
  *    barrier is another allocno PREFERRING $s2, and the fix is to move THAT pseudo's birth
  *    (w41 block-local-vs-global class), not to reshape `x`. */
+/* ===== w46-a5: 388, UNCHANGED -- but the PART-2 required delta is now SOLVED ON PAPER =====
+ * allocsim MATCH 47/47 on this base (model exact).  Pseudo map (tools/pseudoid.py):
+ *   p82 pSprt(gSprite1) | p81 i/y=$fp | p80 player | p83 HudF4 | p84 HudG4 | p85 splitY
+ *   p639 speed(=move from fixedmult) | p616 hun | p617 ten | p618 x | p625 prim
+ *   p620 w1 | p621 w2 | p622 w3 | p623 w7
+ * OURS vs RETAIL (read off the oracle .s, not guessed):
+ *   ours   s0=HudG4,hun  s1=HudF4,prim  s2=player,x  s3=speed,ten  s4=pSprt  s5=w1  s6=splitY,w2  s7=w7
+ *   retail s0=HudG4,hun  s1=HudF4,prim  s2=player,x  s3=w1         s4=speed,w2  s5=pSprt  s6=splitY,ten  s7=w7
+ *   => a 4-cycle {w1,w2,ten,pSprt} : s5->s3, s6->s4, s3->s6, s4->s5.  Everything else is
+ *   ALREADY oracle-exact (prologue byte-exact, s first-use order identical, count 758/758).
+ * ✅ REQUIRED DELTA (allocsim --what-if, verified to reproduce retail's FULL handout):
+ *      p620 (w1)  live 61 -> 43..45   (pri 12/live must land in (.2611,.2823): 43,44,45 only)
+ *      p621 (w2)  live 16 -> 11       (pri 3/live must land in (.2611,.2823): 11 ONLY)
+ *      p617 (ten) live 51 -> >= 54    (pri 14/live must drop below pSprt's .2611)
+ *    With those three the sim gives w1=$s3, w2=$s4, pSprt=$s5, ten=$s6 -- retail exactly.
+ *    reqdelta proves there is NO single- or two-dial solution for the full 4-cycle (searched
+ *    refs +-40 and live +-60 on every allocno).  A ONE-dial solution exists for the pSprt half
+ *    alone -- `p621 refs 3 -> 4` (the floor_log2 step at 4: .1875 -> .5000) puts pSprt in $s5 --
+ *    but it re-ranks w1/w2/ten wrongly, and the source realisation (a do{}while(0) depth wrapper
+ *    round the w2/w3 pair, w44 inflator #3) MEASURES 388 -> 419 and +1 insn, so the pSprt half
+ *    is NOT worth landing alone.  FALSIFIED this wave: w2/w7 statement swap 398; w2+w3 moved
+ *    below the OT block 490; w2+w3 moved to just above the `ten == 1` cascade 497.
+ * NEW NAMED ANGLE (the only one left, and it is now a MEASURABLE search rather than a guess):
+ *   all three dials are LIVE-LENGTH dials, i.e. pure statement position inside the speed block,
+ *   and the windows are exact and known.  Drive tools/stmtclimb2.py over the ~14 statements of
+ *   that block but score on the allocsim HANDOUT (rtl_dump -> allocsim --target
+ *   "p620=s3,p621=s4,p82=s5,p617=s6"), NOT on the byte gate -- the gate is non-monotone across
+ *   this 4-cycle (three of the four registers move together or not at all).  A helper for the
+ *   combinatorial part is committed as tools/dialsearch.py. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -2153,6 +2223,25 @@ void Hud_InitMap(void)
  *   repeated-literal-as-named-local dial in its strong form -- e.g. derive it from a value the
  *   optimiser cannot fold, or spread one extra use of it above the first loop), then check
  *   `-dg` that it out-ranks the address allocno for $fp. */
+/* ===== w46-a5: 121, UNCHANGED.  ONE MORE ANGLE FALSIFIED, WITH ITS MECHANISM =====
+ * (c) identity fence on mapy -- `__asm__("" : "=r"(mapy) : "0"(mapy));` right after
+ *     `mapy = 0x18;`: 121 -> 188 and 317 -> 320.  The fence is NOT zero-insn for a CONSTANT
+ *     (the w45 cost profile "\"r\"(reg-resident local) = 0 insns" only holds for a value that
+ *     already lives in a register); here it materialises the literal AND forces a copy, +3
+ *     insns, and the extra quantity re-ranks the loop band.
+ * ⇒ the three known ways to give `mapy` an allocno (distinct address rtx, plain use fence,
+ *   identity fence) are now all measured and all cost insns.  The residual is unchanged: our
+ *   $fp holds the cross-loop-CSE'd 0x1F800004, retail's holds mapy.
+ * NEW NAMED ANGLE: attack the CSE from the STORAGE-SHAPE menu instead of from mapy.  The two
+ *   loops reach the packet cursor through the same integer literal, so cse fuses them before
+ *   any allocator sees them; the w45 storage-shape row says a SIZED `[1]` asm-label view is
+ *   MEM_IN_STRUCT_P (aliasing) while the unsized `[]` view removes the %hi/%lo pseudo pair
+ *   entirely.  Give ONE of the two loops a differently-SHAPED (not differently-spelled) view of
+ *   0x1F800004 -- e.g. the cop loop keeps the integer-literal macro and the race loop goes
+ *   through a `extern u_char *SPAD_pkt[];` unsized asm-label view -- so the two address rtxs
+ *   are structurally distinct at cse time, not merely algebraically equal (the w45 falsification
+ *   `&((u_char**)0x1F800000)[1]` failed because gcc folds it in the TREE, before cse; an
+ *   asm-label view survives to RTL). */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -2337,6 +2426,43 @@ void Hud_WingmanFlash(int player,int index)
  *      -0xf+2 == -0xd, so retail's `splitY` may itself be the SUM: initialise `splitY = 2;` /
  *      `splitY = -0xd;` and drop the `+2` -- then check whether the oracle's `addiu v0,t0,2`
  *      is really the *icon* row's `+2` (`... * 9 + 2`) rather than this statement's. */
+/* ===== w46-a5: 98 -> 18 (count 211/211).  TWO LEVERS, and the wave's most transferable find.
+ * 🏆 LEVER A -- STORAGE-SCOPE OF A REUSED POINTER LOCAL IS A GLOBAL-ALLOCNO-vs-LOCAL-QTY DIAL
+ *   (98 -> 22).  `u_char *pal` was a FUNCTION-scope local assigned in all three packet-build
+ *   regions, so gcc built ONE GLOBAL allocno for it: `-dl` says
+ *      Register 85 used 16 times across 47 insns; dies in 3 places
+ *   and `-dg` says `;; 85 conflicts: ... 2 3 4 5 6 7 8 9 10 29` -- it conflicts with $a3, so
+ *   find_reg could never give it $a3.  Meanwhile the block-3 0xFFFFFF mask is a LOCAL QTY
+ *   (p124, refs 4 / live 21, QTY_CMP_PRI .3810) and local_alloc runs FIRST, so the mask took
+ *   $a3 and the whole hoisted-constant band shifted DOWN one register:
+ *      ours   0xFFFFFF=$a3 0xFF000000=$t0 0x1F800004=$t1 /20-magic=$t2 pal=$t3
+ *      retail pal=$a3      0xFFFFFF=$t0   0xFF000000=$t1 0x1F800004=$t2 /20-magic=$t3
+ *   Declaring `pal` BLOCK-LOCAL in each of the three regions (the shape Hud_BuildNumbers
+ *   already uses) turns it into three local qtys whose priority out-ranks the constants, so
+ *   pal takes $a3 and every constant moves up one -- retail's exact band, ZERO insn change.
+ *   ⚠️ SCOPE OF THE LEVER (measured both ways this wave): it pays only when the scope change
+ *   actually SPLITS one quantity into several (Wingman 98->22, BuildReplay 126->81,
+ *   BuildNumbers0 141->123); a scope change that merely renames ONE quantity whose live range
+ *   is unchanged is EXACTLY neutral (Hud_BuildTach prim/prim2, 85 -> 85).
+ * LEVER B -- loop-giv base grouping (22 -> 18): `(y + 2) + i * 9` instead of `y + i * 9 + 2`
+ *   in the icon-row Hud_BuildF4 call recovers retail's `addiu a3,a3,2` position.
+ * RESIDUAL 18, three clusters:
+ *  (1) `y = g1Player[0xe].y + HudMapOffsetY + (splitY + 2);` -- retail keeps `addiu v0,t0,2`
+ *      (splitY+2) as its own term; fold reassociates ours to `((gy+mapoff)+2)+splitY`.
+ *      RE-FALSIFIED in the 18-basin: `(gy+mapoff)+(splitY+2)` neutral; `sy = splitY+2` named
+ *      temp 42; split into two statements 30; `splitY+2+gy+mapoff` 34; `mapoff+gy+(splitY+2)` 20.
+ *      🔴 The w45 "maybe splitY is itself 2 / -0xd" angle is now DEAD BY EVIDENCE: the oracle
+ *      prologue is `addu $t0,$zero,$zero` / `addiu $t0,$zero,-0xF`, so retail's splitY IS
+ *      0/-15 and the `+2` is genuinely this statement's.
+ *  (2) the /20 magic's lui/ori pair is emitted 4 slots later than retail's (positions 86-87 vs
+ *      82-83) although its `mult` is at the identical index -- a sched2 ready-list DRAIN order
+ *      at the head of block 3, not a statement-order dial (hoisting `fc` was measured neutral
+ *      in w45 and the band is now register-correct, so only the emission order is left).
+ *      NEW NAMED ANGLE: the w45 zero-insn USE FENCE is a sched-issue-position fixpoint --
+ *      walk one through the head of the flashTicks block statement by statement.
+ *  (3) `li s0,2` + `addu a3,s4,s0` (retail) vs `addu s0,s4,zero` + `addiu a3,s0,2` (ours) at
+ *      the final F4: retail materialises the literal 2 into a callee-saved register.  That is
+ *      the w45 NAMED-ONE lever; its placement statement is the dial and it was not swept. */
 void Hud_BuildWingmanInterface(int player)
 
 {
@@ -2440,6 +2566,26 @@ void Hud_InitCdPlayer(void)
  *      `x + (dx + K)` -- which IS the oracle's tree (`addiu $v0,$s3,10`; `addu $v0,$s7,$v0`;
  *      `addiu $a1,$a1,-0x4c`) -- REGRESSES: both sites 77->141, first site only 77->122
  *      (it re-colors x/y), second site only 77->83.  Left flat. */
+/* ===== w46-a5: 73, UNCHANGED.  Residual FULLY localised (chunkdiff: ONE run >= 6) =====
+ * The w44 "eager-cache bug" diagnosis is REFUTED by the instruction streams: the scroll-tick
+ * loop is 13 insns in BOTH builds, one-for-one, and the store order is identical --
+ *   ours   lui/lw ticks | lw v1,gp(lastTick) | slt v0,v1,v0 | beqz | addiu v1,v1,4
+ *          lw v0,gp(scroll) | sw v1 | addiu v0,v0,1 | sw v0
+ *   retail lui/lw ticks | lw a0,gp(lastTick) | slt v0,a0,v0 | beqz | addiu v0,a0,4
+ *          lw v1,gp(scroll) | sw v0 | addiu v1,v1,1 | sw v1
+ *   i.e. the SOURCE already re-reads both globals exactly like retail.  The only difference is
+ *   that OUR build COALESCED the loaded-lastTick pseudo with the lastTick+4 pseudo (both $v1)
+ *   while retail kept them apart ($a0 and $v0).  ⇒ this is a local-qty ASSIGNMENT question,
+ *   not a caching bug; do NOT "split the tick locals", the source is already right.
+ * The one remaining run >= 6 (ours[275:282] / oracle[272:281]) is the w39 cluster (1) verbatim:
+ *   retail RE-LOADS `*p` (`lbu v0,0(a0)`) in the non-digit arm of the width select while our
+ *   cc1 keeps the byte live in a second register, which flips the char/base pair.
+ * NEW NAMED ANGLE (w45 VARIABLE-IDENTITY family, untried here): the three `*p` reads in that
+ *   if/else are ONE pseudo for us.  Give the digit test and the two width arms their own
+ *   block-local byte temps (`N sequential same-shape reads want N DISTINCT block-local temps`)
+ *   -- each dies in place, the else arm has nothing live to reuse, and gcc must re-load.
+ *   That is the exact inverse of the failed "make gcc drop the live byte" attempts, which all
+ *   tried to shorten ONE pseudo's range instead of splitting it. */
 void Hud_BuildCdPlayer(int type,int arg1)
 
 {
@@ -2867,6 +3013,23 @@ int Hud_BuildRadar(int player)
  *   before the 0xFF000000 term, and apply the w43 SPLIT-RMW palw form used successfully on
  *   Hud_BuildWingmanInterface to all five tag/palette RMW sites here (the loop body, the
  *   0x39 and 0x38 sites, and both gTPage sites) -- they are the same 3-statement idiom. */
+/* ===== w46-a5: 126 -> 81 (count 191 -> 190, oracle 191) =====
+ * LEVER (LANDED): the same STORAGE-SCOPE split as Hud_BuildWingmanInterface -- `u_char *pal`
+ *   was function-scope and assigned in both packet regions (the 0x39+loop region and the
+ *   0x38/gTPage region), making it one global allocno.  Two block-local pals: 126 -> 81.
+ *   Measured: splitting EITHER region alone, or both, all give exactly 81 -- it is the live-range
+ *   SPLIT that pays, not which half.  The tSs1 walker was left function-scope (SYM shape).
+ * RESIDUAL 81 (ours 190 / oracle 191 -- one insn SHORT now), two clusters:
+ *  (1) the sprite-colour prologue is a clean caller-saved rotation: ours a0/a2/t0 where retail
+ *      uses a1/a3/a0 for the 0x66808080 literal, the &gSprite0 base and the gp-relative
+ *      g1Player base.  Retail's band starts one register HIGHER, exactly the Wingman symptom --
+ *      so something ELSE should be holding $a0 there.  NEW NAMED ANGLE: `tSs1` is reassigned
+ *      three times (before the first loop, before the link loop, before the 0x38 block); split
+ *      it the same way `pal` was and check whether the first tSs1 quantity claims $a0.
+ *  (2) the scratchpad palette pointer is $t0 for us and $a0 for retail at BOTH link regions,
+ *      with the address materialisation ordered `lw gp / lui 0x1F80` (ours) vs
+ *      `lui 0x1F80 / lw gp` (retail) -- an RTL-generation order dial: read Render_gPalettePtr
+ *      BEFORE the g1Player/gSprite0 base in each region. */
 void Hud_BuildReplay(void)
 
 {
@@ -3493,6 +3656,28 @@ void BigBTCTime(int secs)
 }
 
 /* ---- Hud_RenderHudView__Fv  [HUD.CPP:3426-3736] SLD-VERIFIED ---- */
+/* ===== w46-a5: 88, UNCHANGED.  Residual RE-CLASSIFIED -- it is a FRAME-SLOT permutation =====
+ * chunkdiff with minsz 4 reports ZERO mismatched runs: every diff is a single instruction, and
+ * ~35 of the 88 are one 5-cycle over the AUTO/spill slots
+ *      ours 96 -> retail 108 | 100 -> 112 | 104 -> 96 | 108 -> 100 | 112 -> 104
+ * applied uniformly to every `sw`/`lw` that touches them.  Five spilled quantities (the
+ * viewOff/tpageOff givs and the loop's carried values) get their stack slots in a rotated
+ * order; the P_TAG map in this function is therefore NOT the residual and the w45 advice to
+ * "only convert a winning site" stands unchanged (no new winning site found).
+ * FALSIFIED this wave: the w45 NAMED-ONE lever on the 0xA0 screen-centre literal.  Retail
+ *   materialises 160 ONCE in $s0 and computes `160 - (ww2 + 1)` and `160 - ww2` from it; ours
+ *   folds to `159 - ww2` and re-materialises 160.  A named `scrmid = 0xa0;` local was tried at
+ *   THREE positions (with ww2, before Font_TextColor, before the colour select): 120 / 120 / 291.
+ *   Mechanism: cse const-propagates the named local back into the expression and the RTL
+ *   simplifier then re-folds `160 - (x+1)` to `159 - x`, so the named local buys nothing and
+ *   costs an allocno.  ⇒ retail's `addiu a1,s4,1; subu a1,s0,a1` needs the `+1` to be
+ *   NON-constant at fold time, not the 160.
+ * NEW NAMED ANGLE (frame cluster): stack slots for reload-spilled pseudos are handed out in
+ *   the order the pseudos are SPILLED, i.e. in allocno order -- so the 5-cycle is downstream of
+ *   the same priority formula as every register rotation.  Run allocsim on this function,
+ *   identify the five spilled allocnos (disposition `--`), and apply the ref-step to the pair
+ *   that must swap; do NOT chase the slot numbers directly (declaration order does not reach
+ *   reload-created slots). */
 void Hud_RenderHudView(void)
 {
   /* SYM-exact shape (8c @0x800d82d0): fn-scope sBuildOutput[64] AUTO -0x80, j REG $fp;

@@ -801,131 +801,97 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
   static int lastImpactSample;
-  int iSFXnum;
-  u_int uVar1;
+  int iSFXnum = 0;
 
   if (surface1 == 8) {
-    return 0x13;
+    iSFXnum = 0x13;
   }
-  if ((surface1 == 2) && (surface2 == 0)) {
-    return 0x1f;
+  else if (surface1 == 2 && surface2 == 0) {
+    iSFXnum = 0x1f;
   }
-  if (surface1 != 1) {
-LAB_80077a88:
-    if (surface2 == 7) {
-      return 0x12;
-    }
-    if ((surface1 != 1) || ((surface2 != 0 && (surface2 != 3)))) {
-      if (0x5a < force) {
-        iSFXnum = 0x21;
-      }
-      else if (force - 0x47U < 0x14) {
-        iSFXnum = 0x20;
-      }
-      else if (force - 0x33U < 0x14) {
-        iSFXnum = 0x25;
-      }
-      else if (force - 0x1aU < 0x19) {
-        iSFXnum = 0x22;
-      }
-      else if (0x19 < force) {
-        iSFXnum = 0;
-      }
-      else {
-        iSFXnum = 0x1e;
-      }
-    }
-    else if (0x50 < force) {
-      iSFXnum = 0x21;
-    }
-    else if (force - 0x17U < 0x3a) {
-      iSFXnum = 0x22;
-    }
-    else if (force - 0x11U < 6) {
-      iSFXnum = 0x20;
-    }
-    else if (0x10 < force) {
-      iSFXnum = 0;
-    }
-    else {
-      iSFXnum = 0x1d;
-    }
-    /* anti-repeat (2nd half): candidates here are 0x12,0x1e,0x20,0x21,0x22,0x25 (0 is dead). */
-    if (iSFXnum == lastImpactSample) {
-      if (iSFXnum == 0x21) {
-        /* exempt, unchanged */
-      }
-      else if (iSFXnum == 0x20) {
-        uVar1 = random();
-        iSFXnum = ((uVar1 & 1) == 0) ? 0x22 : 0x25;
-      }
-      else if (iSFXnum < 0x21) {
-        if (iSFXnum == 0x1e) {
-          iSFXnum = 0x22;
-        }
-      }
-      else if (iSFXnum == 0x22) {
-        uVar1 = random();
-        iSFXnum = ((uVar1 & 1) == 0) ? 0x25 : 0x1e;
-      }
-      else if (iSFXnum == 0x25) {
-        uVar1 = random();
-        iSFXnum = ((uVar1 & 1) == 0) ? 0x22 : 0x1e;
-      }
-    }
-    return iSFXnum;
+  else if (surface1 == 1 && surface2 == 0xd) {
+    iSFXnum = 0x1e;
   }
-  if (surface2 == 0xd) {
-    return 0x1e;
-  }
-  if (surface2 == 0xe) {
-LAB_80077b80:
+  else if (surface1 == 1 && surface2 == 0xe) {
     iSFXnum = 0x1d;
   }
-  else if (surface2 == 4) {
-    if (0x6e < force) {
+  else if (surface1 == 1 && surface2 == 4) {
+    if (force > 0x6e)
+      iSFXnum = 0x21;
+    else
+      iSFXnum = (random() & 1) ? 0x25 : 0x20;
+  }
+  else if (surface1 == 1 && surface2 == 0xf) {
+    switch ((u_int)random() % 4) {
+    case 1: iSFXnum = 0x22; break;
+    case 0: iSFXnum = 0x23; break;
+    case 2: iSFXnum = 0x20; break;
+    case 3: iSFXnum = 0x25; break;
+    default: iSFXnum = 0x23; break;
+    }
+  }
+  else if (surface1 == 1 && surface2 == 5) {
+    iSFXnum = 0x1d;
+  }
+  else if (surface2 == 7) {
+    iSFXnum = 0x12;
+  }
+  else if (surface1 == 1 && (surface2 == 0 || surface2 == 3)) {
+    if (force > 0x50) {
       iSFXnum = 0x21;
     }
     else {
-      uVar1 = random();
-      iSFXnum = ((uVar1 & 1) == 0) ? 0x20 : 0x25;
+      if (force <= 0x50 && force > 0x16)
+        iSFXnum = 0x22;
+      else if (force <= 0x16 && force > 0x10)
+        iSFXnum = 0x20;
+      else if (force <= 0x10)
+        iSFXnum = 0x1d;
     }
-  }
-  else if (surface2 == 0xf) {
-    uVar1 = random() & 3;
-    if (uVar1 == 1) {
-      iSFXnum = 0x22;
-    }
-    else if (uVar1 == 0) {
-      iSFXnum = 0x23;
-    }
-    else if (uVar1 == 2) {
-      iSFXnum = 0x20;
-    }
-    else {
-      iSFXnum = 0x25;
+
+    if (iSFXnum == lastImpactSample && iSFXnum != 0x21) {
+      switch (iSFXnum) {
+      case 0x22:
+        iSFXnum = (random() & 1) ? 0x1d : 0x20;
+        break;
+      case 0x1d:
+        iSFXnum = (random() & 1) ? 0x22 : 0x20;
+        break;
+      case 0x20:
+        iSFXnum = (random() & 1) ? 0x1d : 0x22;
+        break;
+      }
     }
   }
   else {
-    if (surface2 != 5) goto LAB_80077a88;
-    goto LAB_80077b80;
-  }
-  /* anti-repeat (1st half, surface1==1): candidates here are 0x12,0x1d,0x20,0x21,0x22,0x23,0x25. */
-  if (iSFXnum == lastImpactSample) {
-    if (iSFXnum == 0x20) {
-      uVar1 = random();
-      iSFXnum = ((uVar1 & 1) == 0) ? 0x22 : 0x1d;
+    if (force > 0x5a) {
+      iSFXnum = 0x21;
     }
-    else if (iSFXnum != 0x21) {
-      if (iSFXnum < 0x21) {
-        if (iSFXnum == 0x1d) {
-          uVar1 = random();
-          iSFXnum = ((uVar1 & 1) == 0) ? 0x20 : 0x22;
-        }
-      }
-      else if (iSFXnum == 0x22) {
-        uVar1 = random();
-        iSFXnum = ((uVar1 & 1) == 0) ? 0x20 : 0x1d;
+    else {
+      if (force <= 0x5a && force > 0x46)
+        iSFXnum = 0x20;
+      else if (force <= 0x46 && force > 0x32)
+        iSFXnum = 0x25;
+      else if (force <= 0x32 && force > 0x19)
+        iSFXnum = 0x22;
+      else if (force <= 0x19)
+        iSFXnum = 0x1e;
+    }
+
+    if (iSFXnum == lastImpactSample && iSFXnum != 0x21) {
+      switch (iSFXnum) {
+      case 0x1e:
+        iSFXnum = 0x22;
+        break;
+      case 0x22:
+        iSFXnum = (random() & 1) ? 0x1e : 0x25;
+        break;
+      case 0x25:
+        iSFXnum = (random() & 1) ? 0x1e : 0x22;
+        break;
+      case 0x20:
+        iSFXnum = (random() & 1) ? 0x25 : 0x22;
+        break;
       }
     }
   }

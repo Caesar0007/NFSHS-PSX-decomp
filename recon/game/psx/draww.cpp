@@ -2962,8 +2962,42 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
            two extra spill stores (`sw s6,32/36(sp)` + `sw s3,44/48(sp)` where the
            oracle has just `addu s5,v0,zero`) -- i.e. our $s6 claimant is call-crossing
            where the oracle's is not.
-     NEXT: re-run tools/prio.py + tools/reqdelta.py --want on the NEW dispositions
-     (the razors have all moved; every earlier falsification here is basin-relative). */
+     w46-a7 CONTINUED, 144 -> 42.  All six SYM registers now match (objInstance $s4,
+     objDef $s6, totalCount $s7, objectOffset $fp, type $s0, light $s1).  Levers, in
+     the order they landed, all zero-insn (count stays 434/434 throughout):
+       2. objDef (p89) live 85 -> 89: hoist case 2's `objDef = Track_gObjDefs[...]`
+          above its m[8] RMW.  reqdelta wanted live > 86.7 so it falls under case 5's
+          t1 (p233, 0.9230) -> objDef takes $s6, t1 takes $s5.       [144 -> 120]
+       3. objectOffset (p91) refs 30 -> 14: write all four DrawObjectTransform arms in
+          case 1's own direct-add form `totalCount = totalCount + call(...)` instead of
+          storing the result back into objectOffset first.  The store-back was DEAD (the
+          next iteration re-loads objectOffset from goffsets[]) and cost 2 weighted refs
+          per arm; totalCount (22/377) then outranks it and the pair lands $s7 / $fp.
+                                                                      [120 -> 98]
+       4. the m[6]/m[7]/m[8] RMW STORE, not the call, is what retail defers: retail emits
+          `sw m[K]=t1; sw m[K+3]=t2; jal <next fixedmult>; [ds] sw m[K+6]=<result>`.
+          Moving the whole RMW statement after the two stores (the w44 falsification,
+          RE-TESTED here and still bad: 250 diffs, count collapses to 422) is the wrong
+          split.  The right one keeps the CALL third and moves only the STORE last:
+          `t3 = fixedmult(matrix.m[K+6],sX); ... matrix.m[K+6] = t3;`  [98 -> 50]
+       5. the two groups whose m[2]/m[5] stores are NOT adjacent to the RMW (the flags&1
+          type==9 arm and case 9) additionally want those stores moved UP, above the
+          light / offsubdivid / objDef statements.                     [50 -> 42]
+     RESIDUAL 42, two independent clusters:
+      (A) ~14 diffs: in case 2 the objDef load (`lh v0,6(s4) ... lw s6,0(v0)`) must issue
+          AFTER the last `jal fixedmult` and after the three matrix stores -- but lever 2
+          put it BEFORE the RMW, and that position is exactly what buys objDef its $s6.
+          The two requirements are currently coupled.  FALSIFIED this wave: objDef moved
+          back below the three stores (56, loses $s6); that PLUS hoisting the flags&1
+          arm's objDef above its `if (type == 9)` block to restore the live length (52,
+          and the count drops to 432).  NEW NAMED ANGLE: buy objDef's +4 live somewhere
+          that is NOT an emission-order change -- case 1 and case 5 also assign objDef,
+          and case 5's is already the arm's first statement, so the reachable dial is
+          case 1 (`objDef = ...; totalCount += DrawObjectSimple(...)`, currently the
+          shortest segment): lengthen THAT segment and restore case 2's oracle order.
+      (B) ~4 diffs: a $v0/$v1 swap on case 5's anim vtable dispatch (`lh a0,16(v1);
+          lw v1,20(v1); jalr v1` oracle vs `...v0...` ours) -- a two-pseudo local rotation
+          in the `(*(*anim->_vf)[2].pfn)(...)` expression. */
 
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;

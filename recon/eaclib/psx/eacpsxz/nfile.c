@@ -525,8 +525,19 @@ extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, i
 {
     volatile int frame[4];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    /* w47-a1 (2 -> PASS): TWO changes, one of them a CORRECTNESS fix.
+     *  (1) the callback store is UNCONDITIONAL in retail -- it sits in the status-test branch's
+     *      delay slot, i.e. it executes even when status == 0 (the old recon had it inside the
+     *      `if`, which only matched because reorg happened to steal a different insn into the
+     *      slot).  Hoisting it out gives reorg the SIMPLE fill it actually did.
+     *  (2) the zero-insn USE FENCE on `callback` pins the assign_parms param copy
+     *      (`addu a3,a1,zero`) at retail's prologue position; without it sched1 sinks the copy
+     *      to just before the store (w46 prologue-param-copy-sink class -- reachable here
+     *      because the fence bars the sink, not because a statement moved). */
+    __asm__("" : : "r"(callback));
+    op->callback = (void (*)(void))callback;   /* the oracle stores this UNCONDITIONALLY: it sits in
+                                               * the status-test branch's delay slot */
     if (op->status != 0) {
-        op->callback = (void (*)(void))callback;   /* delay-slot scheduling makes this unconditional */
         gFileMgr.cbpending++;
         callback(id, op->status, op->param);
         gFileMgr.cbpending--;

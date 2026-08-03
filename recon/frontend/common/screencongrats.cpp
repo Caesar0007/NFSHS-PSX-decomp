@@ -340,7 +340,6 @@ void tScreenCongrats::Initialize()
 {
   __vtbl_ptr_type (*vtbl) [10];
   int tick;
-  int cashAwarded;
 
   tick = ticks[0];
   this->fSpeechToPlay = 0;
@@ -350,33 +349,25 @@ void tScreenCongrats::Initialize()
   this->fEnterTick = tick;
   SetLicensePlate();
   vtbl = this->_vf;
-  (*vtbl[1][0].pfn)(this->fPermShapes.fFilename + vtbl[1][0].delta + -0x14);
+  (*vtbl[1][0].pfn)((char *)this + vtbl[1][0].delta);
   vtbl = this->_vf;
   tick = (*vtbl[1][2].pfn)
-                    (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
+                    ((char *)this + vtbl[1][2].delta,
                      &this->fCarInfo);
-  cashAwarded = this->CashAwarded;
   this->fGotCar = tick;
-  /* @0x80048AA0: oracle `blez v1,.L(cashAwarded<1 case)` computes the cashAwarded>=1 (else) body
-   * on the FALLTHROUGH and the cashAwarded<1 (if) body at the branch target -- invert polarity.
-   * NOTE: oracle keeps a provably-dead-given-the-outer->0-guard `<0` recheck (`bgez`+`+0x3f`
-   * adjust) that this toolchain's -O2 elides regardless of how the two tests are source-shaped
-   * (tried: cached-local vs fresh-field-read, separate-tracked-var, identical operator form --
-   * all fold identically); residual left for permuter/coloring, not a clean structural lever. */
-  if (cashAwarded > 0) {
+  /* MATCH: use the field directly in the comparison and division. GCC CSEs the
+     load later, after lowering signed /64 to retail's bgez/addiu/sra sequence;
+     a cached local lets its value-range pass incorrectly remove that sequence. */
+  if (this->CashAwarded > 0) {
     this->fCountedDown = 0;
     this->fStartCountdownNOW = 0;
-    if (cashAwarded < 0) {
-      cashAwarded = cashAwarded + 0x3f;
-    }
-    cashAwarded = cashAwarded >> 6;
+    this->fCountSpeed = this->CashAwarded / 0x40;
   }
   else {
     this->fCountedDown = 1;
     this->fStartCountdownNOW = 1;
-    cashAwarded = 1000;
+    this->fCountSpeed = 1000;
   }
-  this->fCountSpeed = cashAwarded;
   this->Initialize();
   return;
 }

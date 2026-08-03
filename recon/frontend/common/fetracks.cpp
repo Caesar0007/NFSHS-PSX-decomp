@@ -23,20 +23,16 @@ int          tracks_maxTrackIndex;   /* @0x80051620  (bss(zero)) */
 void tTrackManager::Initialize()
 
 {
-  int iVar1;
   short i;
-  int iVar2;
   
-  iVar2 = 0;
+  i = 0;
   this->fNumTracks = 0;
   this->fTracks = (tTrackInformation *)0x0;
   do {
-    iVar1 = iVar2 << 0x10;
-    iVar2 = iVar2 + 1;
-    iVar1 = iVar1 >> 0xe;
-    *(u_int *)((int)this->fAvailableTracks + iVar1) = 0;
-    *(u_int *)((int)this->fViewableTracks + iVar1) = 0;
-  } while (iVar2 * 0x10000 >> 0x10 < 0x10);
+    this->fAvailableTracks[i] = 0;
+    this->fViewableTracks[i] = 0;
+    i = i + 1;
+  } while (i < 0x10);
   return;
 }
 
@@ -188,20 +184,12 @@ void tTrackManager::SetClassAvailable(tTrackClassType trackClass,bool avail)
 tTrackInformation * tTrackManager::GetTrackByID(short track)
 
 {
-  tTrackInformation *ptVar1;
-  u_int uVar2;
   u_long i;
   
-  uVar2 = 0;
-  if (this->fNumTracks != 0) {
-    ptVar1 = this->fTracks;
-    do {
-      uVar2 = uVar2 + 1;
-      if ((int)ptVar1->fTrackID == (int)track) {
-        return ptVar1;
-      }
-      ptVar1 = ptVar1 + 1;
-    } while (uVar2 < this->fNumTracks);
+  for (i = 0; i < this->fNumTracks; i = i + 1) {
+    if ((int)(signed char)this->fTracks[i].fTrackID == (int)track) {
+      return &this->fTracks[i];
+    }
   }
   return this->fTracks;
 }

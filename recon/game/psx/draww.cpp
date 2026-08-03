@@ -3069,9 +3069,8 @@ gte_SetTransMatrix(&DW_WORLDMAT);
         }
         objDef = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
-        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+        totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,light);
-        totalCount = totalCount + objectOffset;
       }
       else {
         /* MATCH (2026-08-01): the oracle @0x800C8780 dispatches with gcc's
@@ -3109,8 +3108,8 @@ DrawWChunkFacets_emitObj:
           matrix.m[4] = t2;
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
-          matrix.m[8] = fixedmult(matrix.m[8],sz);
           objDef = Track_gObjDefs[objInstance->pad];
+          matrix.m[8] = fixedmult(matrix.m[8],sz);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
           /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
@@ -3123,10 +3122,9 @@ DrawWChunkFacets_emitObj:
            * is the catalog's cross-jump-DEPTH-follows-the-variable rule; assigning
            * `light` in all three arms collapsed them to one depth AND turned both `lh`
            * sites into `lhu` (census lh 19v21 / lhu 3v1). */
-          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+          totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,
                               *(short *)&objInstance->simIndex);
-          totalCount = totalCount + objectOffset;
           break;
         }
         case 9: {
@@ -3154,9 +3152,8 @@ DrawWChunkFacets_emitObj:
         matrix.m[2] = t1;
         matrix.m[5] = t2;
         /* MATCH (w41-a2): inline light, see the case-2 note. */
-        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+        totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,objInstance->qw);
-        totalCount = totalCount + objectOffset;
         break;
         }
         case 5: {
@@ -3197,9 +3194,8 @@ DrawWChunkFacets_emitObj:
            * (`lh $s1,0x1E($s4); sll $s1,$s1,8`) -- so `light` got spilled to a
            * HImode stack slot, costing the phantom 8 frame bytes (136 vs SYM
            * fsize 128) and rotating totalCount off $s7 onto $fp. */
-          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+          totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,-1);
-          totalCount = totalCount + objectOffset;
           break;
           }
           anim = Object_GetAnim(simObjs + objInstance->simIndex);

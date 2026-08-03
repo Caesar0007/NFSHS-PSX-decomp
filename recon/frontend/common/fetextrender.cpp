@@ -207,18 +207,14 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
   case 1:
     spacing = 10;
     break;
+  case 2:
   default:
     spacing = 0x10;
     break;
   }
   index1 = 0;
   strLength = strlen(str);
-  if (gSemiTransText_arr[0] != 0) {
-    Font_TextColor(0xf);
-  }
-  else {
-    Font_TextColor(1);
-  }
+  Font_TextColor(gSemiTransText_arr[0] != 0 ? 0xf : 1);
   Font_TextTint(col);
   blockmove(str,source,strLength + 1);
   if (size == 0) {

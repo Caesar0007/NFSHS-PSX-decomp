@@ -78,6 +78,25 @@ measures** — for any function it reproduces byte-exactly. So a trace is a RECE
 those functions, not just a mechanism illustration. For a function where it does NOT
 reproduce retail (check first!), fall back to `allocsim` on the real dumps.
 
+### 🟢 THE BINARIES SURVIVE WORKTREE PRUNE THIS TIME
+Copied OUTSIDE every worktree to **`C:\Temp
+fs4-instr-cc1\`** (the w45 lesson —
+the built cc1.exe was lost at prune):
+```
+C:\Temp
+fs4-instr-cc1\cc1-elf.exe        (mipsel-unknown-elf,   C)
+C:\Temp
+fs4-instr-cc1\cc1-ecoff.exe      (mipsel-unknown-ecoff, C)      <- use this
+C:\Temp
+fs4-instr-cc1\cc1plus-ecoff.exe  (mipsel-unknown-ecoff, C++)    <- and this
+C:\Temp
+fs4-instr-cc1\{apply_traces.py,build_cc1.sh,cmp_fns.py,cmp_cc1.sh}
+C:\Temp
+fs4-instr-cc1	mp\              (a ready TMPDIR)
+```
+(The same files are committed under `scratch/instr/` on branch `w46-a10`; only the
+`.exe`s are outside git.)
+
 ### RUN IT
 ```bash
 cd scratch/instr

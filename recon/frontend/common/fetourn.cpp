@@ -187,10 +187,13 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
   tTournamentDefinition *ptVar1;
   
   ptVar1 = this->fDefinition;
+  /* Retail adds fTrackOffset and fCurrentTrack before the single 40-byte
+     scale.  Writing the tournament lookup as index+base also preserves its
+     offset-first MIPS addu operand order. */
   blockmove(ptVar1->fTracks +
-             (uint)ptVar1->fTournaments
-                   [(uint)ptVar1->fTiers[this->fTier].fTournOffset + this->fTournament].fTrackOffset
-             + this->fCurrentTrack,track,0x28);
+             ((uint)(((uint)ptVar1->fTiers[this->fTier].fTournOffset + this->fTournament)
+                       + ptVar1->fTournaments)->fTrackOffset
+              + this->fCurrentTrack),track,0x28);
   track->fDirection = this->fDirection[this->fCurrentTrack];
   track->fMirrored = this->fMirror[this->fCurrentTrack];
   track->fTimeOfDay = this->fTimeOfDay[this->fCurrentTrack];

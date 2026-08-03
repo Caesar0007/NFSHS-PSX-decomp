@@ -332,43 +332,26 @@ int AskTheUserToSaveTheGame(void)
 
 {
   int is_cheater;
-  int answer;
   tDialogMessageString *dlgThis;
 
-  /* NEAR-MISS 22 diffs (2026-07-11, was 25): the manual `tDialogYesNo_ctor(&YesNoDialog)` call was
-     a REDUNDANT/dead second construction -- tDialogYesNo has a real declared ctor
-     (fedialog.cpp:776 `tDialogYesNo::tDialogYesNo()`), so simply declaring the local already
-     invokes it automatically; `tDialogYesNo_ctor` is an undefined phantom extern with no
-     definition anywhere in the tree (checked repo-wide). Dropped the manual call AND re-tried
-     block-scoping YesNoDialog into the `if` (the earlier 2026-07-05 attempt regressed 25->29
-     because it block-scoped the declaration but LEFT the redundant manual ctor call in, doubling
-     construction inside the block); with the manual call gone this combination is a real win
-     (25->22, insn 35->32 vs oracle 30).
-
-     [BUG FIX 2026-07-27, 22->19] Re-examined via objdump (the "coloring only" verdict above did
-     NOT check for a duplicate call) and found the SAME DOUBLE-DESTRUCTION bug as PinkSlipsPreSave/
-     MenuExtended_LoadGame/GoToTwoPlayerSingleRace: `tScreen_dtor((tScreen*)&YesNoDialog,2)` was
-     firing IN ADDITION to `tDialogYesNo::~tDialogYesNo()`'s own automatic scope-exit call --
-     `jal tScreen_dtor` then `jal ___12tDialogYesNo` back to back, both `a1=2`. Dropped the manual
-     call. Residual (19 diffs, insn 29 vs oracle 30 -- 1 short now) = the SAME sp-relative-vs-
-     s0-relative field-store addressing floor documented on the sibling fns above (oracle
-     re-derives `a0=s0` once and stores string/yesnowords/fDefault via `a0` displacement; ours
-     stays sp-relative) PLUS the pre-existing answer-default-0 coloring tie-break (s0 vs
-     v0-in-delay-slot). Both are gcc scratch-register tie-breaks, not source-reachable without a
-     pin (forbidden). Accept. */
+  /* MATCH 2026-08-03: SLD starts YesNoDialog and answer only inside the
+     non-cheater block.  Keeping the dialog base pointer live in dlgThis and
+     returning answer from that block reproduces retail's s0 allocation and
+     the single automatic constructor/destructor pair. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
-  answer = 0;
   if ((is_cheater ^ 1) != 0) {
+    int answer;
     tDialogYesNo YesNoDialog;
 
-    YesNoDialog.string =
-         TextSys_Word(0x331);
-    YesNoDialog.yesnowords[0] = 0x321;
-    YesNoDialog.yesnowords[1] = 0x322;
-    YesNoDialog.fDefault = 0;
-    answer = (short)Run((tDialogInteractive *)&YesNoDialog);
+    dlgThis = (tDialogMessageString *)&YesNoDialog;
+    dlgThis->string = TextSys_Word(0x331);
+    ((tDialogYesNo *)dlgThis)->yesnowords[0] = 0x321;
+    ((tDialogYesNo *)dlgThis)->yesnowords[1] = 0x322;
+    ((tDialogYesNo *)dlgThis)->fDefault = 0;
+    answer = (short)Run((tDialogInteractive *)dlgThis);
+    return answer;
   }
-  return answer;
+  return 0;
 }
 
 

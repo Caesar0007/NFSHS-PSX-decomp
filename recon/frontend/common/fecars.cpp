@@ -424,20 +424,15 @@ void tCarManager::SaveCars(tSaveCarInfo &save)
 void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
 
 {
-  int iVar1;
   u_int i;
-  int iVar3;
   
   blockmove(&load,this->fPinkSlipsCars[playerNum],0x80);
   i = 0;
   if (this->fNumCars != 0) {
-    iVar3 = playerNum * 0x30;
-    iVar1 = iVar3;
     do {
-      this->fPinkSlipsAvailableCars[0][iVar1] = load.fSaveAvailable[i];
-      this->fPinkSlipsViewableCars[0][iVar1] = load.fSaveViewable[i];
+      this->fPinkSlipsAvailableCars[playerNum][i] = load.fSaveAvailable[i];
+      this->fPinkSlipsViewableCars[playerNum][i] = load.fSaveViewable[i];
       i = i + 1;
-      iVar1 = i + iVar3;
     } while (i < this->fNumCars);
   }
   return;
@@ -889,17 +884,11 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
 
 {
   tCarInfo *ptVar1;
-  u_int uVar2;
-  u_int carColor;
+  short carColor;
 
   ptVar1 = this->GetCarFromID((short)model);
-  carColor = (u_int)ptVar1->fColorOrder[(u_char)color];
-  uVar2 = carColor;
-  if ((int)carColor < 0) {
-    uVar2 = carColor + 7;
-  }
-  gCarSelected[(int)uVar2 >> 3][model] =
-       gCarSelected[(int)uVar2 >> 3][model] | (u_char)(1 << (carColor & 7));
+  carColor = (short)(signed char)ptVar1->fColorOrder[(u_char)color];
+  gCarSelected[carColor / 8][model] |= (u_char)(1 << (carColor & 7));
   return;
 }
 

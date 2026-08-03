@@ -14,80 +14,76 @@ tDialogBase  *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)) */
 short tDialogBase::ShouldTimeOut()
 
 {
-  short sVar1;
-  
-  if ((this->timeOutTicks < 1) || (sVar1 = 1, ticks - this->startTicks < this->timeOutTicks)) {
-    sVar1 = 0;
+  short result;
+
+  result = 0;
+  if (0 < this->timeOutTicks) {
+    result = 1;
+    if (ticks - this->startTicks < this->timeOutTicks) {
+      result = 0;
+    }
   }
-  return sVar1;
+  return result;
 }
 
 
 
 /* ---- tDialogBase::InitializeClass  [FEDIALOG.CPP:83-84] SLD-VERIFIED ---- */
 
-int tDialogBase::InitializeClass()
+void tDialogBase::InitializeClass()
 
 {
-  int iVar1;
-  
-  iVar1 = this->HideAllDialogs();
-  return iVar1;
+  this->HideAllDialogs();
+  return;
 }
 
 
 
 /* ---- tDialogBase::DrawAllDialogs  [FEDIALOG.CPP:90-101] SLD-VERIFIED ---- */
 
-int tDialogBase::DrawAllDialogs()
+/* NEAR-MATCH 2026-08-03 (2 diffs, 52/52): SLD's sole local is short i.
+   The remaining difference is only the commutative operand order of the
+   virtual-call this adjustment.  GCC's expand_binop swaps an operand that is
+   already the requested target; the hand-written old-ABI dispatch exposes
+   that target propagation while retail's C++ virtual-call lowering did not. */
+
+void tDialogBase::DrawAllDialogs()
 
 {
   short sVar1;
   __vtbl_ptr_type (*pa_Var2) [10];
-  tDialogBase *ptVar3;
-  int iVar4;
   tDialogBase **pptVar5;
-  int i;
+  short i;
   
   i = 0;
-  ptVar3 = DialogVisibilityList[0];
-  while( true ) {
-    if (ptVar3 == (tDialogBase *)0x0) {
-      return 0;
-    }
-    iVar4 = (int)(short)i;
-    if (7 < iVar4) break;
-    pptVar5 = DialogVisibilityList + iVar4;
+  while (DialogVisibilityList[i] != (tDialogBase *)0x0) {
+    if (7 < i) break;
+    pptVar5 = DialogVisibilityList + i;
     sVar1 = (*pptVar5)->ShouldTimeOut();
     if ((sVar1 != 0) && ((*pptVar5)->Hide(), *pptVar5 == (tDialogBase *)0x0)) {
-      return 0;
+      return;
     }
     pa_Var2 = ((*pptVar5))->_vf;
-    (*pa_Var2[1][1].pfn)(((*pptVar5))->fPermShapes.fFilename + pa_Var2[1][1].delta + -0x14);
+    (*pa_Var2[1][1].pfn)(((*pptVar5))->fPermShapes.fFilename +
+                         pa_Var2[1][1].delta + -0x14);
     i = i + 1;
-    ptVar3 = *(tDialogBase **)((int)DialogVisibilityList + (i * 0x10000 >> 0xe));
   }
-  return iVar4 * 4;
+  return;
 }
 
 
 
 /* ---- tDialogBase::HideAllDialogs  [FEDIALOG.CPP:107-111] SLD-VERIFIED ---- */
 
-int tDialogBase::HideAllDialogs()
+void tDialogBase::HideAllDialogs()
 
 {
-  int iVar1;
   short i;
   
-  i = 0;
-  iVar1 = 0;
-  do {
-    *(u_int *)((int)DialogVisibilityList + (iVar1 >> 0xe)) = 0;
-    i = i + 1;
-    iVar1 = i * 0x10000;
-  } while (i * 0x10000 >> 0x10 < 8);
-  return iVar1;
+  for (i = 0; i < 8; i++) {
+    DialogVisibilityList[i] = (tDialogBase *)0x0;
+  }
+  return;
 }
 
 
@@ -107,8 +103,7 @@ int tDialogBase::GetTopMostDialog()
 void tDialogBase::Display()
 
 {
-  short shift_idx;
-  int i;
+  short i;
   
   i = 7;
   if (this->currentlyOn == 0) {
@@ -116,10 +111,9 @@ void tDialogBase::Display()
     this->fFullyOpen = 0;
     this->ReturnValue = this->fDefault;
     do {
-      shift_idx = (short)i;
-      i = i + -1;
-      DialogVisibilityList[shift_idx] = DialogVisibilityList[shift_idx + -1];
-    } while (0 < i * 0x10000);
+      DialogVisibilityList[i] = DialogVisibilityList[i - 1];
+      i = i - 1;
+    } while (0 < i);
     DialogVisibilityList[0] = this;
     this->ShouldTimeOut();
     (DialogVisibilityList[0])->ShouldTimeOut();

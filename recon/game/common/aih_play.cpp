@@ -164,13 +164,19 @@ void AIHigh_Player::SetupBlockade()
   blockadeHandle = triggerManagerCops->CheckForClosestTriggerOfType(
       blockadeSlice,(triggerType)2,this->carObj_->direction);
 
-  if (blockadeHandle != -1) {
+  if (blockadeHandle == -1) {
+    this->CheckForNewLevel(1);
+    return;
+  }
+  {
 
     blockade = triggerManagerCops->GetTrigger(blockadeHandle,&used);
     loop = 0;
     do {
+      AITrigger_TriggerManager *manager;
       if ((AILife_IsSliceInAnyVisibleArea(blockade->roadblock.slice) != 0) ||
           (AILife_IsSliceCloseToAnyCopCar(blockade->roadblock.slice) != 0)) {
+        manager = triggerManagerCops;
         blockadeHandle = blockade->roadblock.slice + 1;
         if (gNumSlices <= blockadeHandle) {
           blockadeHandle = blockade->roadblock.slice - (gNumSlices - 1);
@@ -179,9 +185,12 @@ void AIHigh_Player::SetupBlockade()
       else {
         break;
       }
-      blockadeHandle = triggerManagerCops->CheckForClosestTriggerOfType(
+      blockadeHandle = manager->CheckForClosestTriggerOfType(
           blockadeHandle,(triggerType)2,this->carObj_->direction);
-      if (blockadeHandle == -1) goto LAB_80062130;
+      if (blockadeHandle == -1) {
+        this->CheckForNewLevel(1);
+        return;
+      }
 
       blockade = triggerManagerCops->GetTrigger(blockadeHandle,&used);
       loop = loop + 1;
@@ -219,6 +228,8 @@ void AIHigh_Player::SetupBlockade()
       }
     }
 
+    blockadeCar = (AIHigh_Cop *)0x0;
+
     randtemp = fastRandom * randSeed;
 
     posIndex = 0;
@@ -230,9 +241,8 @@ void AIHigh_Player::SetupBlockade()
     blockadeType = (randtemp >> 8 & 0xffff) % 5;
     blockadeFlags = (u_int)(u_char)"\x05\x06\x04\x02"[blockadeType];
 
-    blockadeCar = (AIHigh_Cop *)0x0;
     {
-      AICop_PerpChaseInfo *chaseInfo = &this->perpChaseInfo_;
+      AICop_PerpChaseInfo *chaseInfo;
       AIHigh_Cop *thisCop;
       blockade_t *copBlockade;
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
@@ -243,10 +253,6 @@ void AIHigh_Player::SetupBlockade()
 
         if ((thisCop->type_ == 1) && (nCopsNeeded[1] != 0)) {
           int addToSlice;
-          int rotation;
-          int sliceAddress;
-          int leftWidth;
-          u_int totalWidth;
           int distance;
 
           copBlockade = &thisCop->blockade_;
@@ -261,77 +267,64 @@ void AIHigh_Player::SetupBlockade()
 
           copBlockade->blockadeSpeechFlags = 0;
           copBlockade->flags = blockadeFlags;
+          chaseInfo = &this->perpChaseInfo_;
           copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
           blockadeFlags = 0;
-          if (addToSlice >= 0) {
-            copBlockade->slice = blockadeSlice + addToSlice;
-            if (gNumSlices <= copBlockade->slice) {
-              copBlockade->slice = copBlockade->slice - gNumSlices;
-            }
-          }
-          else {
-            copBlockade->slice = blockadeSlice + addToSlice;
-            if (copBlockade->slice < 0) {
-              copBlockade->slice = copBlockade->slice + gNumSlices;
-            }
-          }
+          copBlockade->slice = addToSlice >= 0
+              ? (blockadeSlice + addToSlice >= gNumSlices
+                    ? blockadeSlice + addToSlice - gNumSlices
+                    : blockadeSlice + addToSlice)
+              : (blockadeSlice + addToSlice < 0
+                    ? blockadeSlice + addToSlice + gNumSlices
+                    : blockadeSlice + addToSlice);
 
           copBlockade->direction = this->carObj_->direction;
 
-          sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
-
-          leftWidth = (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
-
-          totalWidth = leftWidth + (u_int)*(u_char *)(sliceAddress + 0x1f) * 0x8000 * (*(u_char *)(sliceAddress + 0x1d) & 0xf)
-
-          ;
+          totalRoadWidth =
+                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                       (BWorldSm_slices[copBlockade->slice].laneCount >> 4) +
+                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthRt << 15) *
+                       (BWorldSm_slices[copBlockade->slice].laneCount & 0xf);
 
           if ((nCopsAvail[1] == 1) && (nCopsAvail[0] == 0)) {
 
-            copBlockade->latPos = (totalWidth >> 1) - leftWidth;
+            copBlockade->latPos = ((u_int)totalRoadWidth >> 1) -
+                (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                (BWorldSm_slices[copBlockade->slice].laneCount >> 4);
 
-            rotation = 0xff;
+            copBlockade->rotation = 0xff;
 
           }
 
           else {
 
-            totalWidth = (int)totalWidth >> 2;
-
             if ((posIndex & 1) == 0) {
-
-              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
-
               copBlockade->latPos =
 
-                   totalWidth - (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 *
+                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   totalRoadWidth / 4;
 
-                            (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
-
-              rotation = 0xbe;
+              copBlockade->rotation = 0xbe;
 
             }
 
             else {
 
-              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
-
-              rotation = -0xbe;
-
               copBlockade->latPos =
 
-                   totalWidth * 3 -
+                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   (totalRoadWidth / 4) * 3;
 
-                   (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
+              copBlockade->rotation = -0xbe;
 
             }
 
           }
-
-          copBlockade->rotation = rotation;
 
           randtemp = fastRandom * randSeed;
 
@@ -362,10 +355,6 @@ void AIHigh_Player::SetupBlockade()
 
         else {
           int addToSlice;
-          int rotation;
-          int sliceAddress;
-          int leftWidth;
-          u_int totalWidth;
           int distance;
 
           if (nCopsNeeded[0] == 0) goto LAB_800620e8;
@@ -382,23 +371,19 @@ void AIHigh_Player::SetupBlockade()
 
           copBlockade->blockadeSpeechFlags = 0;
           copBlockade->flags = blockadeFlags;
+          chaseInfo = &this->perpChaseInfo_;
           copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
           copBlockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
           blockadeFlags = 0;
-          if (addToSlice >= 0) {
-            copBlockade->slice = blockadeSlice + addToSlice;
-            if (gNumSlices <= copBlockade->slice) {
-              copBlockade->slice = copBlockade->slice - gNumSlices;
-            }
-          }
-          else {
-            copBlockade->slice = blockadeSlice + addToSlice;
-            if (copBlockade->slice < 0) {
-              copBlockade->slice = copBlockade->slice + gNumSlices;
-            }
-          }
+          copBlockade->slice = addToSlice >= 0
+              ? (blockadeSlice + addToSlice >= gNumSlices
+                    ? blockadeSlice + addToSlice - gNumSlices
+                    : blockadeSlice + addToSlice)
+              : (blockadeSlice + addToSlice < 0
+                    ? blockadeSlice + addToSlice + gNumSlices
+                    : blockadeSlice + addToSlice);
 
           randtemp = fastRandom * randSeed;
 
@@ -441,57 +426,48 @@ void AIHigh_Player::SetupBlockade()
 
           }
 
-          sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
-
-          leftWidth = (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
-
-          totalWidth = leftWidth + (u_int)*(u_char *)(sliceAddress + 0x1f) * 0x8000 * (*(u_char *)(sliceAddress + 0x1d) & 0xf)
-
-          ;
+          totalRoadWidth =
+                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                       (BWorldSm_slices[copBlockade->slice].laneCount >> 4) +
+                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthRt << 15) *
+                       (BWorldSm_slices[copBlockade->slice].laneCount & 0xf);
 
           if ((nCopsAvail[0] == 1) && (nCopsAvail[1] == 0)) {
 
-            copBlockade->latPos = (totalWidth >> 1) - leftWidth;
+            copBlockade->latPos = ((u_int)totalRoadWidth >> 1) -
+                (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                (BWorldSm_slices[copBlockade->slice].laneCount >> 4);
 
-            rotation = 0xff;
+            copBlockade->rotation = 0xff;
 
           }
 
           else {
 
-            totalWidth = (int)totalWidth >> 2;
-
             if ((posIndex & 1) == 0) {
-
-              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
-
               copBlockade->latPos =
 
-                   totalWidth - (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 *
+                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   totalRoadWidth / 4;
 
-                            (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
-
-              rotation = 0xbe;
+              copBlockade->rotation = 0xbe;
 
             }
 
             else {
 
-              sliceAddress = copBlockade->slice * 0x20 + (int)BWorldSm_slices;
-
-              rotation = -0xbe;
-
               copBlockade->latPos =
 
-                   totalWidth * 3 -
+                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   (totalRoadWidth / 4) * 3;
 
-                   (u_int)*(u_char *)(sliceAddress + 0x1e) * 0x8000 * (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4);
+              copBlockade->rotation = -0xbe;
 
             }
 
           }
-
-          copBlockade->rotation = rotation;
 
           copBlockade->target = this;
 
@@ -503,7 +479,7 @@ void AIHigh_Player::SetupBlockade()
           requestSpikeBeltAtSlice = -1;
         }
 
-        (this->perpChaseInfo_).blockadeDone_ = 1;
+        chaseInfo->blockadeDone_ = 1;
 
         posIndex = posIndex + 1;
 
@@ -550,10 +526,6 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
       }
 
     }
-  }
-  else {
-LAB_80062130:
-    this->CheckForNewLevel(1);
   }
 
   return;

@@ -369,18 +369,12 @@ void tScreen::Cleanup()
 void tScreen::Draw(bool drawBackground)
 
 {
-  int delta;
-  int (*pfn)(...);
-
   if (drawBackground != 0) {
-    delta = (*this->_vf)[2].delta;
-    pfn = (*this->_vf)[2].pfn;
+    (*(*this->_vf)[2].pfn)((char *)this + (*this->_vf)[2].delta);
   }
   else {
-    delta = (*this->_vf)[3].delta;
-    pfn = (*this->_vf)[3].pfn;
+    (*(*this->_vf)[3].pfn)((char *)this + (*this->_vf)[3].delta);
   }
-  (*pfn)((char *)this + delta);
   return;
 }
 

@@ -830,6 +830,42 @@ void Hud_InitMapFrame(int i,int mode)
  * langMin is never 'S'), which puts the 0x53 def inside a conditional block.  Secondary:
  * ask the a10 allocator lane for the required delta on `y` vs the 0x53 pseudo -- if `y`'s
  * refs can be lifted one flr2 step (2 -> 4 weighted) it takes `$fp` even with both hoists. */
+/* w46-a4 QUANTIFIED with tools/allocsim.py + reqdelta.py (MATCH 9/9, order identical to
+ * the -dg dump), so the target is no longer a guess.  OUR TABLE (rank: pseudo reg refs/live/pri)
+ *   0 p87  s1 18/23 3.1304   1 p81  s2 8/33 .7272   2 p80  s3 7/33 .4242   3 p82  s4 7/33 .4242
+ *   4 p89  s5 3/23 .1304     5 p90  s6 3/24 .1250
+ *   6 p112 s7 3/40 .0750  <- the 0x53 constant      7 p111 fp 3/42 .0714  <- the 0x4D constant
+ *   8 p83  -- 3/66 .0454  <- `y` (param a3), no reg => the frame spill
+ * RETAIL WANTS  p111=$s7, p83=$fp, p112=NO REG (reload then rematerializes it from its
+ * REG_EQUIV const_int -- that IS the `addiu v0,zero,0x53` in the bne delay slot, and it is
+ * why retail is 77 and we are 78: our hoisted `li s7,83` costs a preheader insn AND leaves
+ * the slot empty).  So BOTH constants are hoisted in retail too; 0x53 simply loses the
+ * allocation.  reqdelta --want "p111=s7,p83=fp,p112=none" gives exactly TWO single dials:
+ *     p112 refs 40->... no: p112 refs 3 -> 1  (flr2 step 1->0)   -- UNREACHABLE (1 def + 1
+ *          loop-weighted use == 3 by construction)
+ *     p112 live 40 -> >=67                                        -- the reachable one
+ * VERIFIED BY --what-if 112:live=70 -> handout becomes exactly p111=s7, p83=fp, p112=--.
+ * WHY 67: the hoisted `li` is emitted at loop_start, i.e. AFTER the two movstrsi rodata->stack
+ * aggregate copies (~26 insns).  `y` is born at the prologue param copy, so its live range
+ * INCLUDES those 26 insns (66) while the hoisted constant's does not (40).  Anything that
+ * makes the 0x53 pseudo BORN BEFORE the aggregate copies wins the whole rotation.
+ * loop.c cannot be talked out of the hoist: -dL says `Insn 81: regno 111 (life 1), move-insn
+ * savings 1 moved to 165` and the same for 91/112, and move_movables' gate is
+ * `threshold*savings*lifetime >= insn_count` with threshold=(loop_has_call?1:2)*(1+n_non_fixed_regs)
+ * ~= 61 (-3 per move) against insn_count=25 -- no source shape can push a 25-insn loop past 58.
+ * The three-case gate at loop.c:698 also always passes here (the constant is a compiler temp,
+ * so case (2) `!REG_USERVAR_P && !REG_LOOP_TEST_P` is satisfied regardless of maybe_never).
+ * ⇒ the SELECTIVE-HOIST-DEFEAT framing above is CLOSED; the live-length dial is the open one.
+ * NEW FALSIFICATIONS (w46-a4, all still 78 insns): the two separator lookups moved INSIDE the
+ * loop [80]; S-test before M-test [21]; a zero-insn extra `y` reference `y | (y & 0)` [21];
+ * a named `yy = y;` copy immediately before the loop [19]; a named `int sc = 0x53;` declared
+ * FIRST in the function and used for the S-test [15] -- and the same with both constants named
+ * [15] and with the S-test first [15].  The 15s are the closest yet but are scaffolding a 1998
+ * author would not write AND they do not remove the nop, so none were landed.
+ * NEW NAMED ANGLE: find a FAITHFUL source shape whose 0x53 pseudo is born before the two
+ * `char sep[6] = {...}` aggregate copies -- e.g. any spelling in which the S-comparison value
+ * is produced by the same expression that also feeds something ahead of the copies, so cse
+ * cannot re-materialise it at the loop.  Everything else in this function is already exact. */
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {

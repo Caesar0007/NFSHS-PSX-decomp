@@ -1523,89 +1523,55 @@ extern "C" void Newton_QDUpdateVel__FP13BO_tNewtonObj(int newtonObj)
 }
 
 /* ---- Newton_OptzRotxform__FP10matrixtdefiiiPiiT4  [NEWTON.CPP:1569-1617] SLD-VERIFIED ---- */
-extern "C" bool Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(int *m,int ax,int ay,int az,u_int *reOrthoNeeded,
-               u_int reOrthoLimit,int *cumulatedRot)
+extern "C" int Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(
+    matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,
+    int reOrthoLimit,int *cumulatedRot)
 
 {
   matrixtdef mx;
   matrixtdef my;
   matrixtdef mz;
   matrixtdef mt;
-  int changed;
+  matrixtdef *myPtr;
   int absx;
   int absy;
   int absz;
-  int *piVar1;
-  int *piVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  bool bVar7;
-  matrixtdef mStack_c0;
-  int local_98 [8];
-  u_int auStack_78 [2];
-  matrixtdef mStack_70;
-  matrixtdef local_48;
-  
-  piVar2 = local_98;
-  iVar3 = ax;
+
+  myPtr = &my;
+
+  absx = ax;
   if (ax < 0) {
-    iVar3 = -ax;
+    absx = -absx;
   }
-  iVar4 = ay;
+  absy = ay;
   if (ay < 0) {
-    iVar4 = -ay;
+    absy = -absy;
   }
-  iVar6 = az;
+  absz = az;
   if (az < 0) {
-    iVar6 = -az;
+    absz = -absz;
   }
   *reOrthoNeeded = 0;
-  *cumulatedRot = *cumulatedRot + iVar3 + iVar4 + iVar6;
-  fixedxformy(piVar2,ay);
-  bVar7 = 0x13 < iVar4;
-  if (iVar3 < 0xe) {
-    piVar1 = local_48.m;
-    do {
-      iVar3 = piVar2[1];
-      iVar4 = piVar2[2];
-      iVar5 = piVar2[3];
-      *piVar1 = *piVar2;
-      piVar1[1] = iVar3;
-      piVar1[2] = iVar4;
-      piVar1[3] = iVar5;
-      piVar2 = piVar2 + 4;
-      piVar1 = piVar1 + 4;
-    } while (piVar2 != auStack_78);
-    *piVar1 = *piVar2;
+  *cumulatedRot += absx + absy + absz;
+  fixedxformy(myPtr,ay);
+  absy = absy > 19;
+  if (absx > 13) {
+    fixedxformx(&mx,ax);
+    Math_fasttransmult(&mx,myPtr,&mt);
+    absy = 1;
   }
   else {
-    fixedxformx(&mStack_c0,ax);
-    Math_fasttransmult(&mStack_c0,(matrixtdef *)piVar2,&local_48);
-    bVar7 = true;
+    mt = *myPtr;
   }
-  if (iVar6 < 0xe) {
-    piVar2 = local_48.m;
-    do {
-      iVar3 = piVar2[1];
-      iVar4 = piVar2[2];
-      iVar6 = piVar2[3];
-      *m = *piVar2;
-      m[1] = iVar3;
-      m[2] = iVar4;
-      m[3] = iVar6;
-      piVar2 = piVar2 + 4;
-      m = m + 4;
-    } while (piVar2 != local_48.m + 8);
-    *m = *piVar2;
+  if (absz > 13) {
+    fixedxformz(&mz,az);
+    Math_fasttransmult(&mt,&mz,m);
+    absy = 1;
   }
   else {
-    fixedxformz(&mStack_70,az);
-    Math_fasttransmult(&local_48,&mStack_70,(matrixtdef *)m);
-    bVar7 = true;
+    *m = mt;
   }
-  return bVar7;
+  return absy;
 }
 
 /* ---- Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj  [NEWTON.CPP:1621-1667] SLD-VERIFIED ---- */
@@ -1636,7 +1602,7 @@ extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj)
       iVar3 = iVar3 + 0x3f;
     }
     angularVel.z = iVar3 >> 6;
-    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4((int *)&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x1000,newtonObj + 0x98);
+    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x1000,newtonObj + 0x98);
     m1 = (matrixtdef *)(newtonObj + 0xf0);
     if (iVar2 != 0) {
       Math_fasttransmult(m1,&mStack_50,m1);
@@ -1680,7 +1646,7 @@ extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj)
       iVar3 = iVar3 + 0xf;
     }
     angularVel.z = iVar3 >> 4;
-    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4((int *)&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x2000,newtonObj + 0x98);
+    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x2000,newtonObj + 0x98);
     m1 = (matrixtdef *)(newtonObj + 0xf0);
     if (iVar2 != 0) {
       Math_fasttransmult(m1,&mStack_50,m1);

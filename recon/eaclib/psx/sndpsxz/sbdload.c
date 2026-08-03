@@ -59,11 +59,11 @@ extern int iSNDdownloadbank(int bankData, int patchData)
                 off = *(int *)(cur2 + 0xc);
             if (off != 0) {
                 if (*(unsigned char *)(bankData + 4) == type4) {
-                    abs = bankData + off4 + *(int *)(cur4 + 0x14);
-                    *(int *)(cur4 + 0x14) = abs;
+                    *(int *)(cur4 + 0x14) = bankData + off4 + *(int *)(cur4 + 0x14);
+                    abs = *(int *)(cur4 + 0x14);   /* read-back: cse forwards -> retail's addu copy */
                 } else {
-                    abs = anchor + off2 + *(int *)(cur2 + 0xc);
-                    *(int *)(cur2 + 0xc) = abs;
+                    *(int *)(cur2 + 0xc) = anchor + off2 + *(int *)(cur2 + 0xc);
+                    abs = *(int *)(cur2 + 0xc);
                 }
                 if (iSNDresolvetaggedpatch(abs, patchData, (int)scratch) != 7)
                     ret = 8;
@@ -127,6 +127,27 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      *      base+constant, not four parallel cursors.  Neither matches the PSX oracle (descending
      *      clear walker; four +4 cursors), i.e. EA rewrote the function between generations, so the
      *      NFS2 source does NOT supply the "different loop shape" that would reopen this.  The
-     *      per-obj SR identity (clear loop needs SR ON, patch loop needs it OFF) is unchanged. */
+     *      per-obj SR identity (clear loop needs SR ON, patch loop needs it OFF) is unchanged.
+     *
+     *  🏆 W47-a4: 23 -> 14 diffs (86 insns / oracle 84) -- residual class (c) SOLVED by
+     *  STORE-THEN-READ-BACK (catalog w43/w44/w45).  Retail computes the rebased pointer into $v0,
+     *  STORES it, and only then copies it to the call's $a0 (`addu v0,v0,v1; sw v0,20(s1);
+     *  addu a0,v0,zero`); our `abs = base + off + *field; *field = abs;` computed straight into $a0
+     *  and was one insn short at BOTH arms.  Writing the store first and then reading the field BACK
+     *  into `abs` makes cse forward the just-stored value as a register COPY -- retail's exact
+     *  three-instruction shape, in both arms, and it also fixed the a0/v0 colouring of the whole
+     *  merge.  (This is the same lever family the w31/w32 notes above were looking for under the
+     *  name "old-gcc no-copy-prop identity"; it is source-reachable after all.  The earlier
+     *  in-place `abs +=` / arg-temp / per-arm-abs attempts all wrote the VALUE into a variable --
+     *  the load-bearing detail is that the second read must come from MEMORY, i.e. from the field
+     *  that was just written.)
+     *  RE-TESTED IN THE NEW BASIN (lever-order-dependence law): walker clear loop 31 (was 50),
+     *  bound-load-before-`i++` via a named `nents` local 14 (diff-neutral, reverted -- sched1
+     *  re-floats the lhu below the increment regardless of statement position).
+     *  REMAINING 14 = the clear loop's -fno-strength-reduce degradation (`sll s0,3; addu` + a
+     *  separate `li -1` vs retail's `sw v1,0(v0); addiu v0,v0,-8` descending walker, +1 insn), the
+     *  `addu fp,s4,zero` delay-slot occupant that follows from it, and the loop-tail `lhu`/`addiu`
+     *  issue order (+1 nop).  All three are downstream of the SAME per-obj SR identity already
+     *  documented above -- the clear loop wants SR ON while the patch loop wants it OFF. */
     return ret;
 }

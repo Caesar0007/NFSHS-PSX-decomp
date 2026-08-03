@@ -56,7 +56,31 @@ struct SNDResolveEntry {
  * canonical `scan` (v1).  That is the make_regs_eqv canonicalisation the sibling sdma.c iSNDdmqueue
  * beat by giving the source a SEPARATE pseudo that dies at the copy -- not available here, because
  * `scan` is loop-carried and by construction outlives `cur` in every iteration.  Also measured and
- * rejected this pass: Yoda compare order (9 diffs), `scan->spu` vs `cur->spu` at found (both 7). */
+ * rejected this pass: Yoda compare order (9 diffs), `scan->spu` vs `cur->spu` at found (both 7).
+ *
+ * ***** 🏆 W47-a4: SOLVED -- PASS 127/127 (was 3 diffs @126). *****
+ * The w34-a5 mechanism note was RIGHT about the blocker and WRONG about which reorg pass fills the
+ * slot: it is the BACKWARD `fill_simple_delay_slots` scan, not the eager fill.  With `cur = scan++`
+ * the advance sits BEFORE the compare in the insn stream, the volatile compare load is skipped as
+ * the branch's own dependency, and the scan keeps walking back and takes `addiu v1,a0,8`.
+ * Three cooperating edits, each measured (gate = verify_asm, oracle 127):
+ *   1. ADVANCE AFTER THE COMPARE (`cur = scan; if(..) goto found; scan = cur + 1;`) + `found:` reads
+ *      `scan->spu` -- this is the shape w34-a5 identified; it makes `scan`(v1) live-in at `found`
+ *      (`lw v0,4(v1)`) so no fill can clobber it.  Alone: 7 diffs @126 (cse copy-propagates
+ *      `cur = scan`, the compare loads `0(v1)`, and the COPY gets taken into the slot instead).
+ *   2. ZERO-INSN IDENTITY FENCE on the copy -- `__asm__ ("" : "=r"(cur) : "0"(cur));`.  Defining
+ *      `cur` with an opaque asm breaks cse's copy-propagation, so the compare addresses through
+ *      `cur`(a0) exactly like retail, AND the asm blocks the backward simple fill.  Alone (as an
+ *      INPUT-only fence `"r"(cur)`, with or without a "memory" clobber): 4 diffs -- an input fence
+ *      blocks the fill but does NOT break the copy-prop; only the OUTPUT (identity) form does.
+ *      It is a ZERO-INSN barrier (127 == oracle), not a register pin: no hard register is named.
+ *      ⚠️ WHAT IT STANDS IN FOR: retail's cc1 simply did not copy-propagate this copy -- the
+ *      per-obj "old-gcc no-copy-prop / weaker-cse" identity already recorded for the sndpsxz
+ *      allocators (methodology sec 3.25-3d; catalog w33 sec G).  If a per-TU flag for sndpsxz ever
+ *      reproduces that, DELETE this line and the match should hold.  Honest fallback without it: 7.
+ *   3. STATEMENT ORDER `scan = cur + 1;` BEFORE `idx++;` -- independent-chain issue order is fixed
+ *      by luid (catalog w43); with `idx++` first the two tail addiu's come out swapped (4 diffs).
+ */
 extern int iSNDplatformresolve(int cursor, int bank, int patch)
 {
     unsigned int  id;
@@ -85,9 +109,14 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
             end = -1;
             scan = (struct SNDResolveEntry *)e;
             do {
-                cur = scan++;
+                cur = scan;
+                /* MATCH: zero-insn IDENTITY fence -- breaks cse copy-prop so the compare addresses
+                 * through `cur`(a0) like retail, and blocks fill_simple_delay_slots' backward scan
+                 * from stealing the advance into the beq slot.  See the banner. DO NOT "simplify". */
+                __asm__ ("" : "=r"(cur) : "0"(cur));
                 if (*(volatile int *)&cur->offset == offset)
                     goto found;
+                scan = cur + 1;
                 idx++;
             } while (*(volatile int *)&cur[1].offset != end);
         }
@@ -104,7 +133,7 @@ checked:
             return -6;
         goto resolve;
 found:
-        *spuField = cur->spu;
+        *spuField = scan->spu;
         goto checked;
 resolve:
         dma = iSNDdmqueuesplit(bank + offset, (unsigned int)buf, blocks, 1);

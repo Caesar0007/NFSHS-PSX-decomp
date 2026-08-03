@@ -62,34 +62,53 @@ void tScreen::DisplayLoadingText()
 
 /* ---- tScreen::GoNonInterlaced  [FESCREEN.CPP:144-173] SLD-VERIFIED ---- */
 
+/* MATCH (2026-08-03, 11->2): retail does not write literal 240 to every
+   halfword. It stores `screenheight = 240`, reloads the low half once for
+   the three gEnviro heights/first drawenv height, then reloads it for the
+   second drawenv. Keeping those two value ranges separate reproduces the
+   oracle's lhu $a1 / lhu $v1 allocation. The explicit base/view pointers
+   preserve GCC 2.8.1's split-address and index scheduling without adding
+   code. Exact 52/52; the final two-line floor is only the first lhu moving
+   four slots later than retail. */
+
 void tScreen::GoNonInterlaced()
 
 {
   int iVar1;
   int iVar2;
+  short height;
   short sVar3;
+  Draw_tView *views;
+  Draw_tView *view0;
+  Draw_tView *view1;
+  int *playerView;
   
-  iVar1 = Draw_gPlayer1View;
+  views = Draw_gView;
   screenheight = 0xf0;
+  height = (short)screenheight;
   gEnviro[0].disp.isinter = '\0';
   gEnviro[1].disp.isinter = '\0';
+  playerView = A_Draw_gPlayer1View;
+  iVar1 = *playerView;
+  view0 = views + iVar1;
   gEnviro[0].disp.disp.y = 0x100;
   gEnviro[1].disp.disp.y = 0;
-  gEnviro[0].disp.disp.h = 0xf0;
-  gEnviro[0].disp.screen.h = 0xf0;
-  gEnviro[1].disp.screen.h = 0xf0;
-  Draw_gView[Draw_gPlayer1View].drawenv[0].dfe = '\0';
-  iVar2 = Draw_gPlayer1View;
-  Draw_gView[iVar1].drawenv[0].clip.y = 0;
-  Draw_gView[iVar1].drawenv[0].clip.h = 0xf0;
-  Draw_gView[iVar1].drawenv[0].ofs[0] = 0;
-  Draw_gView[iVar1].drawenv[0].ofs[1] = 0;
+  gEnviro[0].disp.disp.h = height;
+  gEnviro[0].disp.screen.h = height;
+  gEnviro[1].disp.screen.h = height;
+  view0->drawenv[0].dfe = '\0';
+  iVar2 = *playerView;
+  view1 = views + iVar2;
+  view0->drawenv[0].clip.y = 0;
+  view0->drawenv[0].clip.h = height;
+  view0->drawenv[0].ofs[0] = 0;
+  view0->drawenv[0].ofs[1] = 0;
   sVar3 = (short)screenheight;
-  Draw_gView[iVar2].drawenv[1].clip.y = 0x100;
-  Draw_gView[iVar2].drawenv[1].ofs[0] = 0;
-  Draw_gView[iVar2].drawenv[1].ofs[1] = 0x100;
-  Draw_gView[iVar2].drawenv[1].dfe = '\0';
-  Draw_gView[iVar2].drawenv[1].clip.h = sVar3;
+  view1->drawenv[1].clip.y = 0x100;
+  view1->drawenv[1].ofs[0] = 0;
+  view1->drawenv[1].ofs[1] = 0x100;
+  view1->drawenv[1].dfe = '\0';
+  view1->drawenv[1].clip.h = sVar3;
   DrawSync(0);
   VSync(0);
   return;

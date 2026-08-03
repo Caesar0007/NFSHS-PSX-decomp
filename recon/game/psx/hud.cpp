@@ -942,6 +942,21 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
  *     arg-first in retail, and the following `addu` operands are swapped with it;
  *   - three more single-insn position swaps around `addu s2,zero,zero` / `addiu s1,s1,6` /
  *     `ori v0,v0,32896`.
+ *   w46-a4 LOCALISED the 43 to SIX independent one-insn position swaps (side_by_side lines):
+ *     167/170  `li s3,29`     ours 3 slots EARLY
+ *     218/221  `li s3,60`     ours 3 slots EARLY
+ *     311/314  `addu s0,s0,s4` ours 3 slots EARLY
+ *     326/328  `li a1,1`      ours 2 slots LATE
+ *     422-437  the BuildTimeSprites arg block: retail emits [lui %hi(A); lw t1,56(sp);
+ *              addiu %lo(A); addu v0,t1,t0] BEFORE [lui/addiu %hi/%lo(B); lh v1,2376(B)]
+ *              and lands `addu s0,s0,v1` in the `bnez v0` DELAY SLOT; ours does the `lh`
+ *              first, the base second, and pays `addiu a0,s5,600` in the slot instead
+ *     484-490 / 535-537 / 558-564  `addu s2,zero,zero`, `addiu s1,s1,6`,
+ *              `ori v0,v0,32896` + `li a1,111` + `lw s1,0(gp)` -- three more local reorders
+ *   The 422-437 block is the only one worth more than one instruction: it is the
+ *   load-before-compute / delay-slot-filler row (catalog w40 "statement position IS the
+ *   delay-slot filler") applied to the spilled-`i` reload vs the HudPmx_gShapes[0x76].width
+ *   load.  NOT PROBED this wave (budget).
  *   NEXT ANGLE: these are statement-position (luid) dials -- take the `lw`-of-the-spilled-arg
  *   to its own statement BEFORE the base materialization at the 2376(t1) site, and re-order
  *   the two textcolour/`li` assignments to bracket the call they feed (the w40 "statement's
@@ -2771,7 +2786,28 @@ HudCdPlay_buildOutString:
   }
 }
 
-/* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ---- */
+/* ---- Hud_BuildRadar__Fi  [HUD.CPP:2497-2614] SLD-VERIFIED ----
+ * w46-a4: RESIDUAL 4, count EXACT 450/450, and the four diffs are ONE PAIR OF INSTRUCTIONS
+ * MOVED: `sw s6,232(sp)` + `addu s6,s0,zero` (the callee-saved save of `visible` plus its
+ * init as a COPY of the `i`-zero).  Ours issues the pair immediately after `addu s0,zero,zero`;
+ * retail issues it after the whole `&Camera_gInfo[player]` address chain (`lui/addiu/sw a0,
+ * 248(sp)/sll/addu/sll/addu`) and before `sw fp,240(sp)`.  Everything else is byte-identical,
+ * so this is a sched2 ready-list DRAIN tie inside the entry block (every insn there is
+ * priority 1 post-reload; the order is the luid tie-break).
+ * FALSIFIED w46-a4 (all keep 450 insns unless noted): moving `visible = 0;` to every position
+ * between `car = ...` and the first loop -- after mapx [4], after mapz [4], after cenZ [4],
+ * mid-matrix [4] (i.e. the statement position is a NO-OP: cse makes `visible` a copy of the
+ * `i` zero regardless of where it is written); consts-before-car [8]; consts,car,visible [8];
+ * splitting `&Camera_gInfo[player]` into its own block-scoped pointer local [16]; explicit
+ * `i = 0; visible = i;` [34]; zero-insn USE fences walked through the head -- fence(car) after
+ * `car =` [14], fence(visible) after `visible =` [50], fence(mapz) [97, +1 insn],
+ * fence(visible) before cenX [36], fence(visible) before the loop [19, +1 insn].
+ * NEW NAMED ANGLE: this is the ±1-RTL-insn ready-list drain class -- read `-dR` (sched2) for
+ * the entry block and find which insn retail releases late; the dial is one RTL insn issued
+ * at the tail of that block, not any statement position (proved above).  Alternatively hand
+ * it to the permuter: it is a 4-diff count-exact residual, the cheapest permuter target in
+ * this TU. */
+/* ---- Hud_BuildRadar__Fi ---- */
 int Hud_BuildRadar(int player)
 
 {

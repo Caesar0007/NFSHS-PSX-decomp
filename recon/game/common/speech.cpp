@@ -184,7 +184,6 @@ bool CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(u_int param_1,u_int *
 u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u_int id,u_int bn);
 int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(int param_1,void *header,u_int bn,int *hoffset,int *hsize);
 void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(Speech *pThis,char *header,CarBankName *bn,long hoffset,long hsize);
-u_int * Speech_ct(u_int *param_1);
 void Reset__6Speech(void);
 void Speech_dt(void *param_1,u_int __in_chrg);
 u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car);
@@ -1024,173 +1023,98 @@ void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(Speech *pThis,char *hea
   purgememadr(banknames);
 }
 
-/* ---- __6Speech  [SPEECH.CPP:1110-1228] SLD-VERIFIED ---- */
-u_int * Speech_ct(u_int *param_1)
+} /* extern "C" */
 
+/* ---- __6Speech  [SPEECH.CPP:1110-1228] SLD-VERIFIED ---- */
+Speech::Speech()
 {
-  CarBank *pThis;  /* folded receiver temp (SYM REG `this`) */
   int numracers;
   int numhumancops;
-  int bn;
+  CarBankName bn[9];
   int banksize;
-  char * SpeechLanguage;
-  int filename;
-  char * header;
+  char *SpeechLanguage;
+  char filename[100];
+  char *header;
   long hoffset;
   long hsize;
-  int i;
-  bool bVar1;
-  u_int *puVar2;
-  u_int *puVar3;
-  void *pvVar4;
-  GameSetup_tData *pGVar5;
-  int iVar6;
-  void *pvVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  u_int uVar11;
-  u_char *puVar12;
-  u_char auStack_f8 [112];
-  char acStack_88 [104];
-  u_int local_20;
-  u_int local_1c;
-  
-  iVar8 = 8;
-  puVar2 = param_1 + 2;
-  puVar3 = param_1;
-  do {
-    *puVar3 = 0xffffffff;
-    puVar2[-1] = 0xffffffff;
-    *puVar2 = 0xffffffff;
-    puVar2 = puVar2 + 3;
-    iVar8 = iVar8 + -1;
-    puVar3 = puVar3 + 3;
-  } while (iVar8 != -1);
-  puVar2 = param_1 + 0x1b;
-  iVar8 = 8;
-  puVar3 = param_1 + 0x1d;
-  do {
-    *puVar2 = 0xffffffff;
-    puVar3[-1] = 0xffffffff;
-    *puVar3 = 0xffffffff;
-    puVar3 = puVar3 + 3;
-    iVar8 = iVar8 + -1;
-    puVar2 = puVar2 + 3;
-  } while (iVar8 != -1);
-  puVar2 = param_1 + 0x36;
-  iVar8 = 0xf;
-  puVar3 = puVar2;
-  do {
-    puVar3[2] = 0xffffffff;
-    iVar8 = iVar8 + -1;
-    puVar3 = puVar3 + 4;
-  } while (iVar8 != -1);
-  puVar3 = param_1 + 0x76;
-  iVar8 = 0xf;
-  do {
-    puVar3[2] = 0xffffffff;
-    iVar8 = iVar8 + -1;
-    puVar3 = puVar3 + 4;
-  } while (iVar8 != -1);
-  pvVar4 = __builtin_new(0x64);
-  *(void ***)((int)pvVar4 + 0x4c) = (void**)Speaker_vtable;
-  *(u_int *)((int)pvVar4 + 0x48) = 0;
-  *(void ***)((int)pvVar4 + 0x4c) = (void**)DispatchSpeaker_vtable;
-  param_1[0xe8] = pvVar4;
-  puVar3 = param_1;
-  for (iVar8 = 0; iVar10 = 0, iVar8 < 4; iVar8 = iVar8 + 1) {
-    pvVar4 = __builtin_new(0x68);
-    *(void ***)((int)pvVar4 + 0x4c) = (void**)Speaker_vtable;
-    *(u_int *)((int)pvVar4 + 0x48) = 0;
-    *(void ***)((int)pvVar4 + 0x4c) = (void**)MobileSpeaker_vtable;
-    *(u_int *)((int)pvVar4 + 0x60) = 0;
-    puVar3[0xe4] = pvVar4;
-    puVar3 = puVar3 + 1;
+
+  DispatchSpeaker *dispatch = (DispatchSpeaker *)__builtin_new(sizeof(DispatchSpeaker));
+  dispatch->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])Speaker_vtable;
+  dispatch->_base_Speaker.fSub = 0;
+  dispatch->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])DispatchSpeaker_vtable;
+  fDispatch = dispatch;
+
+  for (int i = 0; i < 4; i++) {
+    MobileSpeaker *mobile = (MobileSpeaker *)__builtin_new(sizeof(MobileSpeaker));
+    mobile->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])Speaker_vtable;
+    mobile->_base_Speaker.fSub = 0;
+    mobile->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])MobileSpeaker_vtable;
+    mobile->fCarObj = 0;
+    fMobile[i] = mobile;
   }
-  iVar9 = 0;
-  pGVar5 = &GameSetup_gData;
-  param_1[0xd9] = 0;
-  param_1[0xdb] = 0;
-  iVar8 = 0;
-  if (0 < GameSetup_gData.numCars) {
-    do {
-      iVar6 = pGVar5->carInfo[0].carClass;
-      if ((iVar6 == 1) || (iVar6 == 2)) {
-        iVar8 = iVar8 + 1;
-      }
-      else if (iVar6 == 0x41) {
-        iVar10 = iVar10 + 1;
-      }
-      iVar9 = iVar9 + 1;
-      pGVar5 = (GameSetup_tData *)((pGVar5->controllerData).shockImpact + 1);
-    } while (iVar9 < GameSetup_gData.numCars);
+
+  fFileOpen = 0;
+  fBankOffset = 0;
+  numracers = 0;
+  numhumancops = 0;
+  for (int i = 0; i < GameSetup_gData.numCars; i++) {
+    if (GameSetup_gData.carInfo[i].carClass == 1)
+      numracers++;
+    else if (GameSetup_gData.carInfo[i].carClass == 2)
+      numracers++;
+    else if (GameSetup_gData.carInfo[i].carClass == 0x41)
+      numhumancops++;
   }
-  if ((iVar10 == 0) && (1 < iVar8)) {
-    param_1[0xe2] = 1;
-  }
-  else {
-    param_1[0xe2] = 0;
-  }
-  iVar8 = 0;
+  if (numhumancops == 0 && numracers > 1)
+    fMultiplePerps = 1;
+  else
+    fMultiplePerps = 0;
+
   gettick();
-  bVar1 = 0 < GameSetup_gData.numCars;
-  param_1[0xdf] = GameSetup_gData.numCars;
-  if (bVar1) {
-    puVar12 = auStack_f8;
-    do {
-      SetCar__Q26Speech11CarBankNamei((u_int *)puVar12,iVar8);
-      iVar8 = iVar8 + 1;
-      puVar12 = puVar12 + 0xc;
-    } while (iVar8 < (int)param_1[0xdf]);
+  fCarCount = GameSetup_gData.numCars;
+  for (int i = 0; i < fCarCount; i++)
+    SetCar__Q26Speech11CarBankNamei((u_int *)&bn[i], i);
+
+  CountLocations__6Speech(this);
+  fBankCount = 0;
+  banksize = 0;
+  switch (GameSetup_gData.languageSpeech) {
+  case 2:
+    SpeechLanguage = gSpeechLangSuffix[0];
+    break;
+  case 1:
+    SpeechLanguage = gSpeechLangSuffix[1];
+    break;
+  case 6:
+    SpeechLanguage = gSpeechLangSuffix[2];
+    break;
+  default:
+    SpeechLanguage = gSpeechLangSuffix[3];
+    break;
   }
-  CountLocations__6Speech(param_1);
-  param_1[0xdc] = 0;
-  iVar8 = 0;
-  if (GameSetup_gData.languageSpeech == 2) {
-    uVar11 = (u_int)gSpeechLangSuffix[0] /* @0x8013d06c "fre" */;
+
+  sprintf(filename, "%szzzz%s.viv", Paths_Paths[0x1d], SpeechLanguage);
+  header = (char *)loadbigfileheader(filename, (void *)0x10);
+  hoffset = 0;
+  hsize = 0;
+  if (header)
+    banksize = CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(
+        (int)this, header, (u_int)bn, (int *)&hoffset, (int *)&hsize);
+  if (banksize > 0)
+    fBankOffset = (long *)reservememadr("spch index", fBankCount * 4 + banksize, 0);
+  if (fBankOffset) {
+    long rate = SPCH_GetSampleDataRate(0x2b11, 0x10, 2);
+    SPCH_Init(Speech_HandleRequest__Fllll, 0x12345678, rate);
+    SPCH_InitBankMem(Speech_AllocateRAM__FlPc, Speech_PurgeRAM__FPc, fBankCount);
+    fFileOpen = FILE_opensync(filename, 1, 100, (int)&fFileHandle) != 0;
+    LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(this, header, bn, hoffset, hsize);
   }
-  else if (GameSetup_gData.languageSpeech < 3) {
-    if (GameSetup_gData.languageSpeech == 1) {
-      uVar11 = (u_int)gSpeechLangSuffix[1] /* @0x8013d070 "ger" */;
-    }
-    else {
-      uVar11 = (u_int)gSpeechLangSuffix[3] /* @0x8013d078 "eng" */;
-    }
-  }
-  else if (GameSetup_gData.languageSpeech == 6) {
-    uVar11 = (u_int)gSpeechLangSuffix[2] /* @0x8013d074 "brt" */;
-  }
-  else {
-    uVar11 = (u_int)gSpeechLangSuffix[3] /* @0x8013d078 "eng" */;
-  }
-  sprintf(acStack_88,"%szzzz%s.viv",Paths_Paths[0x1d],uVar11);
-  pvVar4 = (void *)loadbigfileheader(acStack_88,(void *)0x10);
-  local_20 = 0;
-  local_1c = 0;
-  if (pvVar4 != (void *)0x0) {
-    iVar8 = CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(param_1,pvVar4,auStack_f8,&local_20,&local_1c);
-  }
-  if (0 < iVar8) {
-    pvVar7 = reservememadr("spch index",param_1[0xdc] * 4 + iVar8,0);
-    param_1[0xdb] = pvVar7;
-  }
-  if (param_1[0xdb] != 0) {
-    uVar11 = SPCH_GetSampleDataRate(0x2b11,0x10,2);
-    SPCH_Init(Speech_HandleRequest__Fllll,0x12345678,uVar11);
-    SPCH_InitBankMem(Speech_AllocateRAM__FlPc,
-               Speech_PurgeRAM__FPc,param_1[0xdc]);
-    iVar8 = FILE_opensync(acStack_88,1,100,(int)(param_1 + 0xda));
-    param_1[0xd9] = (u_int)(iVar8 != 0);
-    LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell((Speech *)param_1,(char *)pvVar4,
-                                                       (CarBankName *)auStack_f8,local_20,local_1c);
-  }
-  if (pvVar4 != (void *)0x0) {
-    purgememadr(pvVar4);
-  }
+  if (header)
+    purgememadr(header);
   gettick();
-  return param_1;
 }
+
+extern "C" {
 
 /* ---- Reset__6Speech  [SPEECH.CPP:1248-1261] SLD-VERIFIED ---- */
 void Reset__6Speech(void)

@@ -1,6 +1,7 @@
 /* game/common/nfs3.cpp -- RECONSTRUCTED (game boot / module start-up + main() entry; C TU, 11 fns) */
 #include "../../nfs4_types.h"
 #include "nfs3_externs.h"
+#include "new.h"
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
 int *gFileMem; int *gFileHandleTable;
@@ -201,7 +202,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   CopSpeak_StartUp();
   if ((GameSetup_gData.raceType == 1) && (_6Speech_fgSpeech == 0)) {
     pThis = __builtin_new(0x3a4);
-    _6Speech_fgSpeech = (int)Speech_ct((Speech *)pThis);
+    _6Speech_fgSpeech = (int)new ((Speech *)pThis) Speech;
   }
   Render_InitPauseMenu();
   Render_InitTrackRender();

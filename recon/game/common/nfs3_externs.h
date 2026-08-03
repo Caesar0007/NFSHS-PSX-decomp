@@ -90,7 +90,6 @@ extern int Sim_CleanUp(void);
 extern int Sim_MainGameLoop(void);
 extern int Sim_Restart(void);
 extern int Sim_StartUp(void);
-extern int Speech_ct(Speech *);
 extern int Stats_GetNumOpponents(void);
 extern int Weather_DeInit(void);
 extern int Weather_Init(void);

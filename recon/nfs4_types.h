@@ -2231,11 +2231,13 @@ struct SPCHNFSType_REVINTRO {   /* 4 bytes */
 
 struct CarBank {   /* 12 bytes */
     int                fFull, fMake, fModel;   /* +0x0 */
+    CarBank() : fFull(-1), fMake(-1), fModel(-1) {}
 };
 
 struct LocationBank {   /* 16 bytes */
     int                fStartSlice, fEndSlice, fBankId;   /* +0x0 */
     char               *fName;   /* +0xC */
+    LocationBank() : fBankId(-1) {}
 };
 
 struct CallSignBank {   /* 68 bytes */
@@ -3248,6 +3250,7 @@ struct Speech {   /* 932 bytes */
     Car_tObj           *fSpeakerCar;   /* +0x38C */
     MobileSpeaker      *fMobile[4];   /* +0x390 */
     DispatchSpeaker    *fDispatch;   /* +0x3A0 */
+    Speech();
 };
 
 struct MobileSpeaker {   /* 104 bytes */

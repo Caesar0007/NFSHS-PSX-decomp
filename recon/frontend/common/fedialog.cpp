@@ -41,11 +41,10 @@ void tDialogBase::InitializeClass()
 
 /* ---- tDialogBase::DrawAllDialogs  [FEDIALOG.CPP:90-101] SLD-VERIFIED ---- */
 
-/* NEAR-MATCH 2026-08-03 (2 diffs, 52/52): SLD's sole local is short i.
-   The remaining difference is only the commutative operand order of the
-   virtual-call this adjustment.  GCC's expand_binop swaps an operand that is
-   already the requested target; the hand-written old-ABI dispatch exposes
-   that target propagation while retail's C++ virtual-call lowering did not. */
+/* MATCH 2026-08-03: SLD's sole local is short i.  Expressing the old-ABI
+   virtual-call adjustment directly as object + delta is significant here:
+   routing it through fPermShapes.fFilename - 0x14 exposed the call-argument
+   target to GCC's expand_binop and reversed the otherwise-commutative addu. */
 
 void tDialogBase::DrawAllDialogs()
 
@@ -64,8 +63,7 @@ void tDialogBase::DrawAllDialogs()
       return;
     }
     pa_Var2 = ((*pptVar5))->_vf;
-    (*pa_Var2[1][1].pfn)(((*pptVar5))->fPermShapes.fFilename +
-                         pa_Var2[1][1].delta + -0x14);
+    (*pa_Var2[1][1].pfn)((char *)*pptVar5 + pa_Var2[1][1].delta);
     i = i + 1;
   }
   return;

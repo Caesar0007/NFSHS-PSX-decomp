@@ -62,32 +62,34 @@ void tScreen::DisplayLoadingText()
 
 /* ---- tScreen::GoNonInterlaced  [FESCREEN.CPP:144-173] SLD-VERIFIED ---- */
 
-/* MATCH (2026-08-03, 11->2): retail does not write literal 240 to every
+/* NEAR-MATCH (2026-08-03, 11->1): retail does not write literal 240 to every
    halfword. It stores `screenheight = 240`, reloads the low half once for
    the three gEnviro heights/first drawenv height, then reloads it for the
-   second drawenv. Keeping those two value ranges separate reproduces the
-   oracle's lhu $a1 / lhu $v1 allocation. The explicit base/view pointers
-   preserve GCC 2.8.1's split-address and index scheduling without adding
-   code. Exact 52/52; the final two-line floor is only the first lhu moving
-   four slots later than retail. */
+   second drawenv. GCC 2.8.1's scheduler otherwise moves the first load below
+   the two hardware-environment stores; retaining their volatile byte view
+   fixes that ordering, while an int carrier restores retail's $a1/$a2
+   allocation. The sole residual is GCC's redundant `andi $a1, 0xffff`
+   after the already-zero-extending volatile lhu (53/52 instructions). */
 
 void tScreen::GoNonInterlaced()
 
 {
   int iVar1;
   int iVar2;
-  short height;
+  int height;
   short sVar3;
   Draw_tView *views;
   Draw_tView *view0;
   Draw_tView *view1;
   int *playerView;
+  volatile char *env;
   
-  views = Draw_gView;
   screenheight = 0xf0;
-  height = (short)screenheight;
-  gEnviro[0].disp.isinter = '\0';
-  gEnviro[1].disp.isinter = '\0';
+  height = *(volatile u_short *)&screenheight;
+  views = Draw_gView;
+  env = (volatile char *)gEnviro;
+  env[16] = '\0';
+  env[40] = '\0';
   playerView = A_Draw_gPlayer1View;
   iVar1 = *playerView;
   view0 = views + iVar1;

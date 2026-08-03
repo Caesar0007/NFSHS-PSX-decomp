@@ -17,7 +17,11 @@ typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
 typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int, int);
 extern SentenceRuleSetFn gSentenceRuleSet[];  /* sentence rule-set callback (spchinit-owned); unsized-array
                                                * decl => separate-temp base materialization (catalog SSE #5) */
-extern SentenceRuleTestFn gSentenceRuleTest;  /* sentence rule-test callback */
+extern SentenceRuleTestFn gSentenceRuleTest[]; /* sentence rule-test callback; UNSIZED-ARRAY decl for the
+                                               * same reason as its sibling above (w47-a9 fingerprint: the
+                                               * scalar decl is <= -G4 small-data-eligible, so cc1 emits the
+                                               * unschedulable assembler macro `lw $r,sym` where retail has
+                                               * the %hi/%lo split -- catalog SSE #5 / IDT Ch9) */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
@@ -364,8 +368,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 } else {
                     int testResult;
                     short **sentSlot = &sentence;
-                    if (gSentenceRuleTest != 0)
-                        testResult = gSentenceRuleTest(
+                    if (gSentenceRuleTest[0] != 0)
+                        testResult = gSentenceRuleTest[0](
                             (unsigned short)**sentSlot, ruleId, testValue, (int)*sentSlot);
                     else
                         testResult = -1;

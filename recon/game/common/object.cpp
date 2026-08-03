@@ -43,7 +43,6 @@ void Object_DeInitIMassObjectInfo(void);
 int Object_GetNumIMassObjects(void);
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions);
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity);
-ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int impactAngle,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim);
 extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg);
 extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg);
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg);
@@ -382,10 +381,11 @@ Object_CreateSignAnim(BO_tNewtonObj *N,AnimDef *animDef,
   ObjectSignAnim *signAnim;
 
   signAnim = (ObjectSignAnim *)__builtin_new(sizeof(ObjectSignAnim));
-  return ObjectSignAnim_ct(signAnim,&N->linearVel,
-                           fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8) >> 8,
-                           animDef,objInstance,objDef,simObj,
-                           (coorddef *)((N->roadMatrix).m + 3),finishedSign);
+  return new(signAnim) ObjectSignAnim(
+      &N->linearVel,
+      fixedatan((N->linearVel).x >> 8,(N->linearVel).z >> 8) >> 8,
+      animDef,objInstance,objDef,simObj,
+      (coorddef *)((N->roadMatrix).m + 3),finishedSign);
 }
 
 
@@ -1110,99 +1110,59 @@ int ObjectFinishedSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 
 /* ---- ObjectSignAnim_ct  [OBJECT.CPP:1308-1354] SLD-VERIFIED ---- */
-ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int impactAngle,AnimDef *def,
+ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
           Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj,
           coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim)
 
 {
-  int iVar1;
-  AnimScript *pAVar2;
-  int iVar3;
-  int iVar4;
   int vel;
-  int iVar5;
   coorddef *roty;
   coorddef *rotz;
   coorddef *rotx;
-  matrixtdef *m2;
   matrixtdef yawMat;
   matrixtdef objAngleMat;
   matrixtdef tmpMat;
   matrixtdef mat;
-  
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectSignAnim_vtable;
-  iVar5 = impactVel->x;
-  iVar1 = impactVel->z;
-  iVar3 = impactVel->y;
-  iVar4 = impactVel->z;
-  (pThis->impactVel).x = impactVel->x;
-  (pThis->impactVel).y = iVar3;
-  (pThis->impactVel).z = iVar4;
-  pThis->impactAngle = impactAngle << 8;
-  pThis->animParms = def;
-  if (iVar5 < 0) {
-    iVar5 = -iVar5;
-  }
-  if (iVar1 < 0) {
-    iVar1 = -iVar1;
-  }
-  pThis->objCollideInstance = objCollideInstance;
-  pThis->objDef = objDef;
-  pThis->simObj = simObj;
-  iVar3 = CalcObjYawAngle((CCOORD16 *)(objDef + 1));
-  pThis->objectAngle = iVar3 << 8;
-  if (iVar5 + iVar1 >> 0x10 < 10) {
-    pAVar2 = __builtin_new(sizeof(AnimScript));
-    iVar5 = pThis->animParms->baseAnim;
-    iVar1 = pThis->animParms->numPieces;
-  }
-  else {
-    pAVar2 = __builtin_new(sizeof(AnimScript));
-    iVar1 = pThis->animParms->numPieces;
-    iVar5 = pThis->animParms->baseAnim + 1;
-  }
-  pAVar2 = new(pAVar2) AnimScript(iVar5,iVar1);  /* @placement-ctor (was flat __10AnimScriptii); storage from __builtin_new above */
-  pThis->script = pAVar2;
-  (pThis->script)->SetAnimAttrib(2);
-  pThis->finishedAnim = finishedAnim;
-  iVar5 = roadNormal->y;
-  iVar1 = roadNormal->z;
-  (finishedAnim->finalMatrix).m[3] = roadNormal->x;
-  (finishedAnim->finalMatrix).m[4] = iVar5;
-  (finishedAnim->finalMatrix).m[5] = iVar1;
-  (finishedAnim->finalMatrix).m[6] = 0;
-  (finishedAnim->finalMatrix).m[7] = 0;
-  (finishedAnim->finalMatrix).m[8] = 0x10000;
-  m2 = &finishedAnim->finalMatrix;
-  iVar5 = fixedmult((finishedAnim->finalMatrix).m[4],0x10000);
-  iVar1 = fixedmult((finishedAnim->finalMatrix).m[5],(finishedAnim->finalMatrix).m[7]);
-  (finishedAnim->finalMatrix).m[0] = iVar5 - iVar1;
-  iVar5 = fixedmult((finishedAnim->finalMatrix).m[5],(finishedAnim->finalMatrix).m[6]);
-  iVar1 = fixedmult((finishedAnim->finalMatrix).m[3],(finishedAnim->finalMatrix).m[8]);
-  (finishedAnim->finalMatrix).m[1] = iVar5 - iVar1;
-  iVar5 = fixedmult((finishedAnim->finalMatrix).m[3],(finishedAnim->finalMatrix).m[7]);
-  iVar1 = fixedmult((finishedAnim->finalMatrix).m[4],(finishedAnim->finalMatrix).m[6]);
-  iVar3 = (finishedAnim->finalMatrix).m[1];
-  (finishedAnim->finalMatrix).m[2] = iVar5 - iVar1;
-  iVar5 = fixedmult(iVar3,(finishedAnim->finalMatrix).m[5]);
-  iVar1 = fixedmult((finishedAnim->finalMatrix).m[2],(finishedAnim->finalMatrix).m[4]);
-  (finishedAnim->finalMatrix).m[6] = iVar5 - iVar1;
-  iVar5 = fixedmult((finishedAnim->finalMatrix).m[2],(finishedAnim->finalMatrix).m[3]);
-  iVar1 = fixedmult((finishedAnim->finalMatrix).m[0],(finishedAnim->finalMatrix).m[5]);
-  (finishedAnim->finalMatrix).m[7] = iVar5 - iVar1;
-  iVar5 = fixedmult((finishedAnim->finalMatrix).m[0],(finishedAnim->finalMatrix).m[4]);
-  iVar1 = fixedmult((finishedAnim->finalMatrix).m[1],(finishedAnim->finalMatrix).m[3]);
-  (finishedAnim->finalMatrix).m[8] = iVar5 - iVar1;
-  reorthogonalize(m2);
+
+  _base_ObjectAnim._vf = (__vtbl_ptr_type (*) [3])ObjectSignAnim_vtable;
+  vel = (__builtin_abs(impactVel->x) + __builtin_abs(impactVel->z)) >> 16;
+  this->impactVel = *impactVel;
+  this->impactAngle = impactAngle << 8;
+  animParms = def;
+  this->objCollideInstance = objCollideInstance;
+  this->objDef = objDef;
+  this->simObj = simObj;
+  objectAngle = CalcObjYawAngle((CCOORD16 *)(objDef + 1)) << 8;
+  if (vel < 10)
+    script = new AnimScript(animParms->baseAnim,animParms->numPieces);
+  else
+    script = new AnimScript(animParms->baseAnim + 1,animParms->numPieces);
+  script->SetAnimAttrib(2);
+  this->finishedAnim = finishedAnim;
+
+  rotx = (coorddef *)&finishedAnim->finalMatrix.m[0];
+  roty = (coorddef *)&finishedAnim->finalMatrix.m[3];
+  rotz = (coorddef *)&finishedAnim->finalMatrix.m[6];
+  *roty = *roadNormal;
+  rotz->x = 0;
+  rotz->y = 0;
+  rotz->z = 0x10000;
+  rotx->x = fixedmult(roty->y,rotz->z) - fixedmult(roty->z,rotz->y);
+  rotx->y = fixedmult(roty->z,rotz->x) - fixedmult(roty->x,rotz->z);
+  rotx->z = fixedmult(roty->x,rotz->y) - fixedmult(roty->y,rotz->x);
+  rotz->x = fixedmult(rotx->y,roty->z) - fixedmult(rotx->z,roty->y);
+  rotz->y = fixedmult(rotx->z,roty->x) - fixedmult(rotx->x,roty->z);
+  rotz->z = fixedmult(rotx->x,roty->y) - fixedmult(rotx->y,roty->x);
+  reorthogonalize(&finishedAnim->finalMatrix);
   fixedxformx(&mat,0x4000);
-  fixedxformy(&objAngleMat,-pThis->objectAngle);
-  fixedxformy(&yawMat,pThis->impactAngle);
+  fixedxformy(&objAngleMat,-objectAngle);
+  fixedxformy(&yawMat,this->impactAngle);
   Math_fasttransmult(&objAngleMat,&mat,&tmpMat);
   Math_fasttransmult(&tmpMat,&yawMat,&tmpMat);
-  Math_fasttransmult(&tmpMat,m2,m2);
+  Math_fasttransmult(&tmpMat,&finishedAnim->finalMatrix,
+                     &finishedAnim->finalMatrix);
   finishedAnim->objDef = objDef;
   finishedAnim->objCollideInstance = objCollideInstance;
-  return pThis;
 }
 
 

@@ -3846,6 +3846,11 @@ struct ObjectSignAnim {   /* 48 bytes */
     int                objectAngle, impactAngle;   /* +0x20 */
     AnimScript         *script;   /* +0x28 */
     ObjectFinishedSignAnim *finishedAnim;   /* +0x2C */
+    ObjectSignAnim(coorddef *impactVel, int impactAngle, AnimDef *def,
+                   Trk_CollideBoomInst *objCollideInstance,
+                   Trk_ObjectDef *objDef, Trk_SimObject *simObj,
+                   coorddef *roadNormal,
+                   ObjectFinishedSignAnim *finishedAnim);
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 

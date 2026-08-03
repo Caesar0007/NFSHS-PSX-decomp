@@ -27,7 +27,30 @@
  * sign-extended index ($a2) and re-materializes `&Fe3D_lightsVertex[idx]` for the .z
  * store, where our build CSEs the address across .x/.y/.z (7 insns); plus one
  * `addu v1,v0,zero` copy of the csin/ccos result.  Both are cse/coloring, not shape.
- */
+ * w46-a9 (24 -> 14): the `addu v1,v0,zero` half is SOURCE-REACHABLE and it is a
+ * SHIFT-ISSUE-ORDER problem, not a cse one.  `(x<<5)+(x<<4)` makes gcc evaluate the
+ * <<5 FIRST into $v0 -- which is where the call result already lives -- so it has to
+ * save a copy in $v1 before clobbering it; retail issues `sll $v1,$v0,4` first and only
+ * then `sll $v0,$v0,5` (the last use, safe to clobber).  Simply reversing the addends
+ * does NOT work (cc1 canonicalizes commutative operands, measured identical at 24);
+ * what works is NESTING the larger shift on the smaller one -- `((x<<4)<<1)+(x<<4)` --
+ * which forces the <<4 to be a real subexpression evaluated first and cse'd for both
+ * terms.  (Named `lo4` temp variants: 20 and 16; `(x+(x<<1))<<4` and `x*48`: 32 each,
+ * both fold to a mult chain.)  Algebraically identical: x*32 + x*16 == x*48.
+ * RESIDUAL 14 (ours 105 / oracle 107) is now entirely the SECOND item: retail keeps
+ * `sll $v1,$s3,16` and COPIES it (`addu $a2,$v1,$zero`) so the two consumers each get
+ * their own `sra ,16`, while ours emits one sign-extend and CSEs it.  Falsified from
+ * this basin (all 14, counts 101-105): a two-local copy chain (`sx = sVar4; iPlus =
+ * sx;` and the reverse), a `(short)(short)` double cast, an explicit `sh = sVar4<<16;
+ * iPlus = sh;` pair with `sh>>16` / `iPlus>>16` consumers in either role assignment,
+ * and swapping which index variable feeds .x/.y vs .z (30, worse).  Every spelling of
+ * "make a second copy" is copy-propagated away.
+ * 🔑 NEW NAMED ANGLE: per the w40 make_regs_eqv rule the surviving copy must OUTLIVE
+ * its source, and here BOTH consumers are inside one loop iteration, so the copy never
+ * outlives.  The reachable shape is to make the .z consumer live ACROSS the second
+ * `sVar4 = sVar4 + 1;` (i.e. sink the .z store below the increment, so the old index
+ * genuinely survives a redefinition of its source) -- untried, and it also explains
+ * retail's rematerialized `&Fe3D_lightsVertex[idx]` for the .z store. */
 
 void Fe3D_InitShowroom(void)
 
@@ -46,11 +69,11 @@ void Fe3D_InitShowroom(void)
   pCVar6 = Fe3D_spotVertex;
   do {
     iVar1 = csin(angle);
-    Fe3D_spotVertex[i].x = (short)(((iVar1 << 5) + (iVar1 << 4)) >> 8);
+    Fe3D_spotVertex[i].x = (short)((((iVar1 << 4) << 1) + (iVar1 << 4)) >> 8);
     Fe3D_spotVertex[i].y = 0;
     iVar1 = ccos(angle);
     angle = angle + 0x80;
-    Fe3D_spotVertex[i].z = (short)(((iVar1 << 5) + (iVar1 << 4)) >> 8);
+    Fe3D_spotVertex[i].z = (short)((((iVar1 << 4) << 1) + (iVar1 << 4)) >> 8);
     i = i + 1;
   } while (i < 0x20);
   angle = 0;

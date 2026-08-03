@@ -2383,7 +2383,7 @@ void Hud_BuildWingmanInterface(int player)
       ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
       Render_gPacketPtr = (u_char *)poly + 0x18;
       ((Hud_PTag *)pal)->addr = (u_int)poly;
-      Hud_BuildF4(poly,0,xf,y + i * 9 + 2,0x4b,7,0);
+      Hud_BuildF4(poly,0,xf,(y + 2) + i * 9,0x4b,7,0);
       i = i + 1;
     } while (i < 5);
   }

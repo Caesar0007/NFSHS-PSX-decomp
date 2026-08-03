@@ -345,7 +345,16 @@ success:
          * extra `addiu`).  Retail emits high-then-copy, we emit copy-then-high, and the hoisted insn is
          * appended to the preheader after the straight-line copy.  Moving `pbase = base;` INTO the loop
          * body (so it is hoisted too, and hoisted second) makes gcc coalesce the copy away entirely:
-         * 5 diffs at 55/56 insns.  Tested and reverted w34-a5. */
+         * 5 diffs at 55/56 insns.  Tested and reverted w34-a5.
+         * W47-a3 (2026-08-03) NEW NAMED ANGLE (not attempted -- needs a two-role variable):
+         *   loop.c APPENDS hoisted movables AFTER everything already in the preheader, so a
+         *   straight-line preheader copy can NEVER follow a hoisted address -- retail's
+         *   high-then-copy is only reachable if the COPY is itself a movable hoisted after the
+         *   address (i.e. `pbase = base;` inside the loop body, below the first sndpp access).
+         *   w34-a5 showed that placement makes copy-prop delete the copy.  The untried escape is
+         *   the w45 two-role/variable-identity device: give `pbase` a SECOND role inside the loop
+         *   (redefined after its last use) so make_regs_eqv cannot propagate it away, then it
+         *   survives as a movable and hoists second. */
         *(volatile short *)(SNDPD_CTRLREG + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
         InterruptCallback(9, iSNDpacketirqcallback);   /* re-arm: 9 == SPU IRQ index, handler = self */
         iSNDpsxenablespuirq();

@@ -1,5 +1,25 @@
-/* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 2/4 PASS ***
+/* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/4 PASS ***
  *   (w35-a1: iSNDallocchan 245->4 diffs @298/298 EXACT, iSNDfreechan 74->19 @107/110)
+ *   (w47-a3: iSNDallocchan 4 -> PASS; only iSNDfreechan @16 remains)
+ *
+ * ★★ W47-a3 (2026-08-03) -- iSNDallocchan 4 -> PASS.  NEW NAMED LEVER, generalizable:
+ *   *** BACKWARD-SCAN-WINDOW TAIL SELECTS THE DELAY SLOT.  Hoist the init you WANT in the slot
+ *       out of the guarded block so it is the LAST insn before the branch. ***
+ *   The w35 note filed the 4 diffs as "a dbr tie, twice (once per pass)": retail leaves
+ *   `addu $s5,$s4,$zero` (bestval = best) at the loop head and fills the count guard's `beqz` slot
+ *   with the fall-through's `addu $s1,$zero,$zero` (c = 0); ours filled it with bestval=best.
+ *   That is NOT a tie -- reorg's fill_simple_delay_slots takes the LAST safe insn in its backward
+ *   scan window, and our window ended with `bestval = best` because `c = 0` was written INSIDE the
+ *   `if (gs[0x11] != 0)` block.  Moving `c = 0;` ABOVE the guard (it is dead on the taken path, so
+ *   this is semantics-neutral) puts it at the window tail; the simple fill takes it, bestval=best
+ *   stays at the loop head, and the count stays EXACT 298/298.  Applied to BOTH passes = PASS.
+ *   FALSIFIED on the way (record the basin: post-w35 form, 4-diff base):
+ *     - zero-insn USE FENCE `__asm__("" : : "r"(bestval))` after `bestval = best;` to block the
+ *       simple fill and force the EAGER steal: it DOES block the simple fill, but reorg does NOT
+ *       fall through to an eager fill here -- the slot goes empty (3 diffs @299/298, parity lost).
+ *       So the fence's "blocks the simple fill -> forces the eager steal" catalog row (w45 SS.F,
+ *       proven on sdpacket's iSNDfillspuwithpackets) is NOT universal: it needs the eager candidate
+ *       to be eligible independently.  Prefer the window-tail lever when you can move the init.
  *   Source obj : nfs4\eaclib\psx\salloc.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x800FE724 .. 0x800FEDC4].  Sound-channel allocation/arbitration (no SPU pokes -- pure
  *   priority logic over the channel pool sndgs[0x25]).  Ghidra nfs4-f.exe.c L163749..164019.
@@ -215,8 +235,12 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
                 bestval = best;
+                /* MATCH (w47-a3): `c = 0` hoisted ABOVE the count guard so it is the LAST insn in
+                 * reorg's backward scan window -- fill_simple_delay_slots then steals IT into the
+                 * `beqz` slot (retail's exact slot) instead of `bestval = best`, which stays at the
+                 * loop head where retail has it. */
+                c = 0;
                 if (gs[0x11] != 0) {
-                    c = 0;
                     off = c;
                     do {
                         one = 1;
@@ -248,8 +272,8 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
                 bestv = best;
+                c = 0;                 /* MATCH (w47-a3): same delay-slot lever as pass 1 */
                 if (gs[0x11] != 0) {
-                    c = 0;
                     off = c;
                     do {
                         if ((priority & (1 << c)) != 0 &&

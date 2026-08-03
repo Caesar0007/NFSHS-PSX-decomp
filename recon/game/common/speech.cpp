@@ -2402,17 +2402,13 @@ void Ready__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tObj
 int PickVoice__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj)
 
 {
-  int iVar1;
-  
   if ((carObj->carFlags & 0x40U) != 0) {
-    iVar1 = pThis->fSuperCount++;
-    return iVar1 % 6;
+    return pThis->fSuperCount++ % 6;
   }
   if ((carObj->carFlags & 0x80U) != 0) {
     return 0;
   }
-  iVar1 = pThis->fCopCount++;
-  return iVar1 % 9;
+  return pThis->fCopCount++ % 9;
 }
 
 /* ---- GetVoice__6SpeechP8Car_tObj  [SPEECH.CPP:2156-2157] SLD-VERIFIED ---- */

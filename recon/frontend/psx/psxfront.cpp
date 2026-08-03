@@ -1381,7 +1381,8 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0x14] = u + width;
-  ytop = (ybase + 5) - hoff;
+  ybase = ybase + 5;
+  ytop = ybase - hoff;
   *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;

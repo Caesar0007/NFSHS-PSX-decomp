@@ -1277,6 +1277,7 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   ybase = y - yoff;
   hoff = height + yoff;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
+  linkAddr = (uint)prim & 0xffffff;
   Render_gPacketPtr = prim + 0x28;
   *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
   /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
@@ -1287,8 +1288,8 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * SEMANTICALLY-INVALID co-mutation (hoff=yoff), rejected; permuter candidates need
    * SEMANTIC REVIEW per mutation, not just byte re-gate.) */
   *(u_long *)(prim + 4) = font_tint;
-  linkAddr = (uint)prim & 0xffffff;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+  prim[3] = 9;
   prim[7] = 0x2c;
   *(ushort *)(prim + 0xe) = gFontClut;
   *(ushort *)(prim + 0x16) =
@@ -1296,7 +1297,6 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
        (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
   prim[0xd] = dv;
   prim[0x15] = dv;
-  prim[3] = 9;
   prim[0x14] = u + width;
   ytop = (ybase + 5) - hoff;
   *(short *)(prim + 0x1a) = ytop;

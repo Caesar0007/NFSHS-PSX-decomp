@@ -44,6 +44,30 @@
  *      DIFFERENT memory expression retail also had (e.g. a second `char *` cursor local
  *      that aliases str), or demote '#' by 3 refs by spelling 2 of the 8 `== '#'` tests
  *      against a value already in a register.
+ *  W46-a4 REQDELTA RE-RUN (tools/allocsim.py MATCH 17/17 on this fn, order identical to the
+ *      -dg dump) -- and it CORRECTS the w44 arithmetic above:
+ *        p108 ('#', const 35) refs=17 live=298 calls=5 pri=0.2281  -> ours $s2
+ *        p80  (`str`)         refs=8  live=159 calls=7 pri=0.1509  -> ours $s3
+ *      reqdelta --want "p80=s2,p108=s3" gives exactly two single dials:
+ *        p108 refs 17 -> 14   (floor_log2 4->3)    == remove 2 of the 8 `== '#'` compares
+ *        p80  refs  8 -> 13   (NOT 16 -- floor_log2(13)==3 already, so 3*13/159 = .2452
+ *                              beats .2281; the w44 note's "str refs>=16" was wrong)
+ *      🔴 THE LIVE-LENGTH DIAL IS UNREACHABLE, not merely untried: `str` is LOOP-CARRIED
+ *      (defined at the param copy, incremented at the loop tail), so it is live in EVERY
+ *      block of the loop and its 159 is the loop's own extent -- there is no source shape
+ *      that gets it under 105.  Symmetrically '#' would need live > 450 (it is 298).
+ *      ⇒ both remaining dials are REF dials and both would change the instruction stream:
+ *      +5 refs on `str` means three extra in-loop `*str` loads (retail has exactly two,
+ *      worth +2 -> refs 10 -> .1886, still short), and -3 refs on '#' means spelling two of
+ *      the eight tests as `(v ^ '#') == 0` (the w43 xori-immediate row) which the oracle
+ *      contradicts -- every one of its eight sites is `bne $v0,$s3` off the shared register.
+ *      ⇒ RETAIL'S OWN REF/LIVE NUMBERS CONTRADICT allocno_compare here (retail str refs=10
+ *      from its two `lbu 0($s2)` at 800D4354/800D4574 still scores below '#'), which is the
+ *      w41/w43 find_reg COST-PASS model boundary, not a priority question => PERMUTER target.
+ *      w46 falsifications at this basin: `*(u_char *)str` re-read in the 0xE5 arm [52,
+ *      unchanged]; `str = str + 0;` cursor no-op before the loop [52]; strlen before ix/ox
+ *      [56, re-confirming the w44 negative]; an extra `if (*str == 0) break;` loop test to
+ *      buy str two refs [56, 217 insns].
  *  (2) the HudPmx_gShapes index/base role swap after the Hud_FBuildSprite call: retail
  *      recomputes the CALL-ARG `andi a0,s0,0xFF` and reuses it as the index (base ->$v1);
  *      we recompute the BASE into $a0 and put the index in $v1.  Downstream of (1). */

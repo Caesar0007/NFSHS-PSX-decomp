@@ -306,60 +306,48 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 {
   int slot;
   int check;
-  u_int name;
-  void *pThis;
-  int iVar1;
-  AudioCmn_tAsyncSfxSlot *pAVar2;
-  int local_30 [2];
-  
-  iVar1 = 0;
-  pAVar2 = AudioCmn_gSfxSlot;
-  while (((patch != pAVar2->patch || (bank != pAVar2->bank)) || (pAVar2->handle != -1))) {
-    iVar1 = iVar1 + 1;
-    pAVar2 = pAVar2 + 1;
-    if (0x1f < iVar1) {
-      return;
-    }
-  }
-  if (size != 0) {
-    do {
-      iVar1 = SNDmemlargestunused(local_30);
-      if (size <= iVar1 + -0x1000) {
-        local_30[0] = SNDbankadd(&pAVar2->handle,(int)pbank);
-        if (local_30[0] == 7) {
-          name = SNDbankheadersize(pAVar2->handle);
-          pThis = reservememadr("SFXHDR",name,0x10)
-          ;
-          pAVar2->header = (char *)pThis;
-          if (pThis != 0x0) {
-            SNDbankheadercopy(pThis,(u_char *)pAVar2->handle);
-            pAVar2->patch = patch;
-            pAVar2->ticks = simGlobal.gameTicks;
+
+  slot = 0;
+  do {
+    AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
+    if ((patch == s->patch) && (bank == s->bank) && (s->handle == -1)) {
+      if (size != 0) {
+        while (SNDmemlargestunused(&check) - 0x1000 < size) {
+          if (AudioCmn_RemoveOldestAsyncSfx(bank) == -1) {
+            if (bank == 2) {
+              puts("out of SPU ram on speech!\n");
+              s->handle = -1;
+              goto FAIL_PATCH;
+            }
+            goto FAIL_HANDLE;
+          }
+        }
+        check = SNDbankadd(&s->handle,(int)pbank);
+        if (check == 7) {
+          s->header = (char *)reservememadr("SFXHDR",SNDbankheadersize(s->handle),0x10);
+          if (s->header != 0) {
+            SNDbankheadercopy(s->header,(u_char *)s->handle);
+            s->patch = patch;
+            s->ticks = simGlobal.gameTicks;
             return;
           }
         }
         if (bank == 2) {
           puts("SNDbankadd failed on speech!\n");
         }
-        SNDbankheadersize(pAVar2->handle);
-        if (-1 < local_30[0]) {
-          SNDbankremove(pAVar2->handle);
+        SNDbankheadersize(s->handle);
+        if (check >= 0) {
+          SNDbankremove(s->handle);
         }
-        goto LAB_800768b8;
       }
-      iVar1 = AudioCmn_RemoveOldestAsyncSfx(bank);
-    } while (iVar1 != -1);
-    if (bank == 2) {
-      puts("out of SPU ram on speech!\n");
-      pAVar2->handle = -1;
-      goto LAB_800768bc;
+FAIL_HANDLE:
+      s->handle = -1;
+FAIL_PATCH:
+      s->patch = -1;
+      return;
     }
-  }
-LAB_800768b8:
-  pAVar2->handle = -1;
-LAB_800768bc:
-  pAVar2->patch = -1;
-  return;
+    slot++;
+  } while (slot < 32);
 }
 
 /* ---- AudioCmn_GetAsyncSfx__Fiib  [@0x80076900] ---- */

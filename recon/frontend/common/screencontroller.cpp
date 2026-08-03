@@ -1,6 +1,7 @@
 /* frontend/common/screencontroller.cpp  --  RECONSTRUCTED  (controller-config screen; C++ TU)
  *   8 MEMBER fns of tScreenController : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
  */
+#include "../../lib/nfs4_new.h"
 #include "screencontroller.h"
 
 /* ScreenController.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes via
@@ -308,7 +309,7 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   tDialogYesNo *dialog;
 
   fSetMenu = (tInsideBoxMenu *)0x0;
-  dialog = &this->negconPopUp;
+  dialog = (tDialogYesNo *)this->negconPopUp;
   dialog->string = TextSys_Word(0x20b);
   dialog->yesnowords[0] = 0x20c;
   dialog->yesnowords[1] = 0x20d;
@@ -1203,8 +1204,8 @@ void tScreenControllerConfig::DrawForeground()
       int TextIndex = (byte)this->fTextController - 1;
       bool flag = false;
 
-      if ((this->negconPopUp).currentlyOn == 0) {
-        flag = (this->negconPopUp).fCurrentlyRunning == 0;
+      if (((tDialogYesNo *)this->negconPopUp)->currentlyOn == 0) {
+        flag = ((tDialogYesNo *)this->negconPopUp)->fCurrentlyRunning == 0;
       }
       if (flag && (TextIndex >= 0)) {
         TextIndex = (signed char)ControllerItemIndex[TextIndex][(byte)this->fTextConfig][i][1];
@@ -1301,14 +1302,16 @@ void tScreenControllerConfig::Cleanup()
 
 /* ---- tScreenControllerConfig::tScreenControllerConfig  (screencontroller.cpp:1889) ---- */
 tScreenControllerConfig::tScreenControllerConfig()
-  /* base _base_tScreen + member negconPopUp(tDialogYesNo @+0xB8) constructed implicitly by g++ */
+  /* base tScreen is implicit; negconPopUp is explicitly constructed below so
+     the derived vptr store can precede its constructor, as in retail. */
 {
+  this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable;   /* vptr @0x60 */
+  new ((tDialogYesNo *)this->negconPopUp) tDialogYesNo();
   this->fGotTick = 0;
   this->fAnim = 0;
   this->fFade[1] = 0;
   this->fFade[0] = 0;
   this->player = 0;
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable;   /* vptr @0x60 */
   return;
 }
 

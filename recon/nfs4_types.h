@@ -5080,7 +5080,10 @@ struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
     short              fArrowFade, fArrowFadeDir, fTextTypeOn;   /* +0xA8 */
     BOOL               fFadeTextOut;   /* +0xB0 */
     short              mult;   /* +0xB4 */
-    tDialogYesNo       negconPopUp;   /* +0xB8 */
+    short              negconPad;   /* +0xB6: alignment formerly supplied by tDialogYesNo */
+    /* Raw storage lets the reconstructed constructor reproduce the original
+       compiler-generated order: derived vptr first, then member ctor. */
+    char               negconPopUp[sizeof(tDialogYesNo)];   /* +0xB8 */
     int                fTimeOutStartTick;   /* +0x160 */
     BOOL               SuperFastFadeOut, fPlayedInSound;   /* +0x164 */
     short              fShakingItem;   /* +0x16C */
@@ -5119,7 +5122,7 @@ struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
      * materialized vtable's dtor slot) is hand-transcribed verbatim as a file-scope __asm__ in
      * screencontroller.cpp (byte-identical to what this inline body used to compile to
      * out-of-line, before the surgery -- see that file for the proof/detail). */
-    ~tScreenControllerConfig() { }
+    ~tScreenControllerConfig() { ((tDialogYesNo *)negconPopUp)->~tDialogYesNo(); }
 };
 
 struct tCheat {   /* 12 bytes */

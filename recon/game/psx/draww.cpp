@@ -1431,18 +1431,26 @@ gte_swc2(0x8,&depthcue);
        * floor_log2 razor edge at 32, so it loses $s0 to `sd`; at 33 ours crossed it
        * and stole $s0, flipping the entire function's $s0/$s1 assignment. */
       {
-        /* MATCH (w40-a2): the oracle batches the three screen-XY reloads into THREE
-         * distinct scratch regs (`lw v1,68(sp); lw a0,76(sp); lw a1,72(sp)` then the
-         * three `sw`), so each load fills the previous one's delay slot; the plain
-         * four-statement form serialized them through ONE reg and paid 3 `nop`s
-         * (catalog par.B "load-3/store-3 grouped temps"). 230 -> 227, 596 -> 593. */
+        /* MATCH (w40-a2, CORRECTED w46-a7): the oracle batches FOUR screen-XY reloads
+         * into FOUR distinct scratch regs (`lw v0,64(sp); lw v1,68(sp); lw a0,76(sp);
+         * lw a1,72(sp)` then the four `sw`), so each load fills the previous one's
+         * delay slot; the plain four-statement form serialized them through ONE reg
+         * and paid 3 `nop`s (catalog par.B "load-N/store-N grouped temps", the same
+         * lever the sealed AddSubdividPrimGT3/GT4 siblings 40 lines above already use).
+         * w40-a2 read the oracle as load-3/store-3 and left dvxy0 stored DIRECTLY,
+         * which cost a `nop` (its lw could not fill a slot) AND shifted the whole
+         * group's registers down one (v0/v1/a0 vs the oracle's v1/a0/a1).  Adding the
+         * FOURTH temp `q0` is worth 13 of the 20 residual diffs: 20 -> 7, 592 -> 591.
+         * (The remaining 7 = the default-then-override / if-else trade only.) */
+        long q0;
         long q1;
         long q2;
         long q3;
-        *(long *)&prim->x0 = dvxy0;
+        q0 = dvxy0;
         q1 = dvxy1;
         q2 = dvxy2;
         q3 = dvxy3;
+        *(long *)&prim->x0 = q0;
         *(long *)&prim->x1 = q1;
         *(long *)&prim->x2 = q2;
         *(long *)&prim->x3 = q3;

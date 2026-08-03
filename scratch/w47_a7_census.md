@@ -11,12 +11,17 @@ Tables: `scratch/w47_a7_census_all.md` (461 objects) · `scratch/w47_a7_census_e
 1. 🏆 **The entire front overlay is `-G0`.** 0 GPREL16 relocs across all 50 overlay
    objects vs 2378 elsewhere; the map has *no front sdata/sbss group at all*.
    `screencontroller.cpp`'s proven `g_value "0"` is a **class rule**, not a one-off.
-2. 🔴 **No eaclib TU should change its `-G`.** Measured on 6 TUs: `-G4 ≡ -G8` byte-for-byte
-   in **every** one, and **every** `-G0`/`-G2` candidate the census generated regresses —
-   except **`spchrule` (−3 diffs, 0 regressions)**, which independently replicates a8's win.
-3. ⚠️ **Two heuristics were falsified by the gate** (exclusive-reference ownership, and the
-   pre-split "sfx tell"). They are lead generators, not proofs. Documented in §4 so the
-   next wave doesn't re-derive them as truth.
+2. 🔴 **The eaclib `-G` axis is CLOSED — no eaclib TU should change its `-G`.** Measured on
+   6 TUs: `-G4 ≡ -G8` byte-for-byte in **every** one, and **every** `-G0`/`-G2` candidate
+   regresses. `spchrule`'s −3 was **not** a `-G` finding — a9 showed it was one scalar-declared
+   extern, fixed as a source edit. **Joint closure with a9** (who measured `G4≡G8` in 31/31
+   failing eaclib TUs, `G0` better nowhere).
+3. ⚠️ **The whole ADDRESSING-side UPPER bound is UNSOUND** (a9): a `%hi/%lo` access to a
+   ≤4-byte symbol is evidence about the **declaration shape**, not about `-G` — an unsized or
+   over-declared `extern` yields that form at *any* `-G`. Every verdict it generated was
+   falsified by the gate. Only the **PLACEMENT** signature and the **GPREL16 lower bound** are
+   declaration-independent (they read the oracle + SYM sizes alone) — and those are what carry
+   findings 1 and 4. See §4.
 4. 🐛 **Build defect confirmed** (a8): `compile_c` ignored `PER_TU_FLAGS["g_value"]`.
    Patch snippet in §6 — without it every eaclib `-G` probe silently no-ops.
 
@@ -100,7 +105,7 @@ temporary `NFS4_PROBE_G` hook + the `compile_c` fix (§6), both reverted afterwa
 | `eacpsxz/nsync` | `0..2` | 8 PASS / 29 diffs | **+28** | **+28** | ≡G4 | ❌ census falsified |
 | `eacpsxz/memstd` | `0..2` | 13 PASS / 0 diffs | −1 PASS / **+2** | −1 / +2 | ≡G4 | ❌ census falsified |
 | `spchpsxz/spchpick` | `0..2` (S) | 21 PASS / 37 diffs | **+16** | **+16** | ≡G4 | ❌ census falsified |
-| `spchpsxz/spchrule` | UNDET, (S) flagged | 7 PASS / 57 diffs | **−3** ✅ | **−3** ✅ | ≡G4 | ✅ **wants `-G0`/`-G2`** — replicates a8 |
+| `spchpsxz/spchrule` | UNDET, (S) flagged | 7 PASS / 57 diffs | −3 | −3 | ≡G4 | ⚠️ **NOT a `-G` finding** — a9: one scalar-declared extern; fix is a source edit |
 
 ### What the probes prove
 * **`-G4 ≡ -G8` in 6/6 eaclib TUs, zero delta.** Confirms a8's resolution limit
@@ -108,16 +113,25 @@ temporary `NFS4_PROBE_G` hook + the `compile_c` fix (§6), both reverted afterwa
   Combined with a10's "default is 8", the `>=8` rows (`loadshp`, `nasync`) mean *"took the
   default"*, and the current global `-G4` is behaviourally identical for them — **no change
   needed, and no risk either way**.
-* **`spchrule` is the single actionable eaclib `-G` finding**, and it is *explicit* `-G0`/`-G2`
-  (a real makefile override, against the `-G8` default). −3 diffs, 0 regressions across all 9 fns.
-* Recommended `PER_TU_FLAGS` addition (consolidator wires it — needs §6's fix to take effect):
-  ```python
-  "recon/eaclib/psx/spchpsxz/spchrule.c": {"g_value": "0"},
-  ```
+* **`spchrule` is RETRACTED as a `-G` finding.** The −3 reproduced a8's number exactly, but a9
+  identified the mechanism: the recon declares one extern as a scalar, so cc1 full-addresses it
+  at `-G4` and the `-G0` build happened to land the same shape. The correct fix is the source
+  declaration (a9 landed it), **not** a `g_value` entry.
+* ⇒ **NO `PER_TU_FLAGS` `g_value` change is recommended for any eaclib TU.** The lane's
+  actionable output is the *frontend* class rule (§0.1) and the build defect (§6).
 
 ---
 
-## 4. ⚠️ TWO HEURISTICS THE GATE FALSIFIED (do not re-derive these as truth)
+## 4. ⚠️ WHAT THE GATE FALSIFIED (do not re-derive these as truth)
+
+**(0) 🔴 The ADDRESSING-side UPPER bound is unsound in principle** (a9). `G < size(s)` inferred
+from a full-addressed access to a small owned symbol assumes cc1 *knew* the true size. It often
+did not: an `extern int a[];` (unsized) or an over-declared extern is ineligible for small data
+at **any** `-G` — IDT R30xx Ch9's unsized-array warning, and methodology §3.12 #5. So that bound
+measures **declaration shape**, not `-G`. All three candidates it produced regressed, and the one
+apparent win (`spchrule`) was a declaration bug. The census keeps the bound only to *generate
+leads*; the `--validate` gate passes on the PLACEMENT + GPREL16 evidence, which is
+declaration-independent.
 
 **(a) Exclusive-reference ownership.** eaclib `.lib` members carry **no data `Def` records** in
 the SYM (165 eaclib objects → 2 data symbols with SYM sizes, both in `pad.obj`, a direct `.obj`).

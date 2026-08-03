@@ -18,9 +18,21 @@ intersects them.
       exactly what tools/build.py's PER_TU_FLAGS["g_value"] controls:
           lw $r,%gp_rel(sym)($gp)  -> R_MIPS_GPREL16   iff size(sym) <= -G
           lui %hi(sym)/lw %lo(sym) -> R_MIPS_HI16/LO16 otherwise
-      =>  G >= max{ size(s) : s reached by GPREL16 }
+      =>  G >= max{ size(s) : s reached by GPREL16 }          [HARD]
           G <  min{ size(s) : s OWNED BY X, in small data, reached by a
                               HI16 whose partner LO16 rides a MEMOP }
+                                                                [🔴 UNSOUND]
+
+      🔴 w47-a9: the UPPER bound above is NOT sound and must not be used as a
+      verdict.  An extern declared UNSIZED (`extern int a[];`) or larger than
+      it really is produces the %hi/%lo form at ANY -G -- IDT R30xx Ch9's
+      unsized-array warning.  So a full-addressed access to a small symbol is
+      evidence about the DECLARATION SHAPE, not about -G.  Measured: every
+      -G0/-G2 candidate this bound generated (nsync, memstd, spchpick) REGRESSED
+      on a whole-TU gate, and spchrule's apparent -G0 win turned out to be one
+      scalar-declared extern (fixed as a source edit by a9).
+      Only the PLACEMENT signature (P) and the GPREL16 LOWER bound are
+      declaration-independent -- they read the oracle + SYM sizes alone.
 
 TWO FILTERS THAT ARE LOAD-BEARING (both falsified the naive census first)
 ------------------------------------------------------------------------

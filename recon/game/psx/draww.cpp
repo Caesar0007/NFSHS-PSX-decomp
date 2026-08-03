@@ -2370,17 +2370,25 @@ gte_SetTransMatrix((void *)0x1f800014);
         goto animNext;
       animCase1:
         objDef = Track_gObjDefs[objInstance->pad];
-        if (((doFrustumClip == 0) ||
-            (clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->count,
-                                 (Draw_tGiveShelbyMoreCache *)sd),
-            clipRes == (void *)0x0)) &&
-           ((zClipSq == -1 ||
-            (distSq = xzsquaredist32((coorddef *)&objInstance->count,&(Vi->cview).translation),
-            distSq < zClipSq)))) {
-          objectOffset = DrawObjectSimple(Vi,sd,objDef,
-                             (coorddef *)&objInstance->count,objectOffset);
-          totalCount = totalCount + objectOffset;
+        /* MATCH (w46-a6): the oracle has NO materialized boolean here -- every
+         * guard branches DIRECTLY to the shared loop tail (`beqz $t0,.L800C7A24`
+         * @0x800C7A08 with an ARG SETUP in its delay slot, `bnez $v0,.L800C7B54`,
+         * `beq $s6,$t0,.L800C7A44`, `beqz $v0,.L800C7B54`).  The `&&`/`||`
+         * compound form made cc1plus build the flag in a callee-saved reg
+         * (`move s2,zero` / `li s2,1` / `beqz s2`) = +2 insns AND it stole the
+         * delay slot the oracle fills with `addu $a0,$s7,$zero`. */
+        if (doFrustumClip != 0) {
+          clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->count,
+                             (Draw_tGiveShelbyMoreCache *)sd);
+          if (clipRes != (void *)0x0) goto animNext;
         }
+        if (zClipSq != -1) {
+          distSq = xzsquaredist32((coorddef *)&objInstance->count,&(Vi->cview).translation);
+          if (zClipSq <= distSq) goto animNext;
+        }
+        objectOffset = DrawObjectSimple(Vi,sd,objDef,
+                           (coorddef *)&objInstance->count,objectOffset);
+        totalCount = totalCount + objectOffset;
         goto animNext;
       animCase37:
         Anim_GetRotPos(objInstance,1,DrawW_GetAnimationTime(objInstance),&cp,&matrix);

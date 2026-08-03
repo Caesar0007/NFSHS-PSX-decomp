@@ -6,7 +6,9 @@
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
-extern int ticks;
+/* Address-visible view: several retail routines schedule %hi(ticks)
+   independently of the load; a scalar extern collapses it into a macro. */
+extern int ticks[];
 extern tGlobalMenuDefs *menuDefs;
 /* class vtables (FEDialog.obj-defined subclasses) */
 extern __vtbl_ptr_type tDialogBase_vtable[], tDialogHelp_vtable[], tDialogMessageString_vtable[], tDialogBackUpOnly_vtable[],

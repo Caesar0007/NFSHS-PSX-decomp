@@ -14,16 +14,16 @@ tDialogBase  *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)) */
 short tDialogBase::ShouldTimeOut()
 
 {
-  short result;
-
-  result = 0;
+  /* MATCH 2026-08-03 (15->PASS): keep the expired case as the inner positive
+     return and the zero case as the tail.  The ticks array view exposes its
+     address pseudo, so GCC fills the outer branch delay with %hi(ticks)
+     instead of preloading the zero result. */
   if (0 < this->timeOutTicks) {
-    result = 1;
-    if (ticks - this->startTicks < this->timeOutTicks) {
-      result = 0;
+    if (this->timeOutTicks <= ticks[0] - this->startTicks) {
+      return 1;
     }
   }
-  return result;
+  return 0;
 }
 
 
@@ -117,7 +117,7 @@ void tDialogBase::Display()
     DialogVisibilityList[0] = this;
     this->ShouldTimeOut();
     (DialogVisibilityList[0])->ShouldTimeOut();
-    this->startTicks = ticks;
+    this->startTicks = ticks[0];
     AudioCmn_PlayFESFX(0xf);
     this->fFullyOpen = 0;
     this->fFadeText = 0x80;
@@ -363,16 +363,16 @@ CalcDim_helpArrFetch:
   }
   this->width = this->width + 0x14;
   this->height = this->height + 10;
-  if ((u_int)(ticks - this->startTicks) < 0x32) {
+  if ((u_int)(ticks[0] - this->startTicks) < 0x32) {
     this->width =
          gHelpShapes[0x2a].width * 2 +
          (short)((((int)this->width - (((int)gHelpShapes[0x2a].width << 0x11) >> 0x10)
-                  ) * (ticks - this->startTicks)) / 0x32);
+                  ) * (ticks[0] - this->startTicks)) / 0x32);
     this->height =
          gHelpShapes[0x2a].height * 2 +
          (short)((u_int)(((int)this->height -
                          (((int)gHelpShapes[0x2a].height << 0x11) >> 0x10)) *
-                        (ticks - this->startTicks)) / 0x32);
+                        (ticks[0] - this->startTicks)) / 0x32);
   }
   this->top = 0x14;
   this->left = 0x1f9 - this->width;
@@ -570,7 +570,7 @@ void tDialogMessageString::Draw()
   pa_Var1 = this->_vf;
   (*pa_Var1[1][0].pfn)
             (this->fPermShapes.fFilename + pa_Var1[1][0].delta + -0x14);
-  if (ticks < this->startTicks + 0x32) {
+  if (ticks[0] < this->startTicks + 0x32) {
     this->fFullyOpen = 0;
   }
   else {
@@ -711,7 +711,7 @@ void tDialogYesNo::CalculateDimensions()
   
   ((tDialogMessageString *)this)->CalculateDimensions();
   if (this->MaxH == 0) {
-    iVar2 = ticks - this->startTicks;
+    iVar2 = ticks[0] - this->startTicks;
     if (iVar2 < 0x32) {
       sVar1 = this->height +
               (short)((iVar2 * 0xf) / 0x32);
@@ -792,7 +792,7 @@ void tDialogYesNo::Draw()
     this->fFullyOpen = 0;
   }
   i = 0;
-  if (0x31 < ticks - this->startTicks) {
+  if (0x31 < ticks[0] - this->startTicks) {
     x = (int)this->left +
             ((int)((u_int)(u_short)this->width
                   << 0x10) >> 0x12);

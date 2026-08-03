@@ -1532,46 +1532,35 @@ extern "C" int Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(
   matrixtdef my;
   matrixtdef mz;
   matrixtdef mt;
-  matrixtdef *myPtr;
+  int changed;
   int absx;
   int absy;
   int absz;
 
-  myPtr = &my;
-
-  absx = ax;
-  if (ax < 0) {
-    absx = -absx;
-  }
-  absy = ay;
-  if (ay < 0) {
-    absy = -absy;
-  }
-  absz = az;
-  if (az < 0) {
-    absz = -absz;
-  }
+  absx = __builtin_abs(ax);
+  absy = __builtin_abs(ay);
+  absz = __builtin_abs(az);
   *reOrthoNeeded = 0;
   *cumulatedRot += absx + absy + absz;
-  fixedxformy(myPtr,ay);
-  absy = absy > 19;
+  fixedxformy(&my,ay);
+  changed = absy > 19;
   if (absx > 13) {
     fixedxformx(&mx,ax);
-    Math_fasttransmult(&mx,myPtr,&mt);
-    absy = 1;
+    Math_fasttransmult(&mx,&my,&mt);
+    changed = 1;
   }
   else {
-    mt = *myPtr;
+    mt = my;
   }
   if (absz > 13) {
     fixedxformz(&mz,az);
     Math_fasttransmult(&mt,&mz,m);
-    absy = 1;
+    changed = 1;
   }
   else {
     *m = mt;
   }
-  return absy;
+  return changed;
 }
 
 /* ---- Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj  [NEWTON.CPP:1621-1667] SLD-VERIFIED ---- */

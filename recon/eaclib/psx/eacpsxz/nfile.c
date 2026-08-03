@@ -449,8 +449,11 @@ extern int FILE_completeop(unsigned int id)
     int st = *(volatile int *)&op->status;      /* dead first read -- the oracle keeps BOTH
                                                  * status loads (lw v0,8; lw v1,8): the status
                                                  * word is IRQ-written, volatile semantics */
-    int result = 0;
-    if (*(volatile int *)&op->status == 1) {    /* op finished */
+    int result;
+    __asm__("" : : "r"(id));
+    if (*(volatile int *)&op->status != 1) {    /* op not finished */
+        result = 0;
+    } else {                                    /* op finished */
         int type = (op->id >> 0x14) & 0xF;  /* op type nibble */
         switch (type) {
             case 2: case 9:           result = op->result24; break;

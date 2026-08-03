@@ -1771,17 +1771,21 @@ int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 
 /* ---- tScreenCarSelectTwoPlayer::DrawVideoWall  [SCREENCARSELECT.CPP:1668-1701] ---- */
+/* MATCH 2026-08-03 (18->PASS): the unsized FEApp view keeps %hi(FEApp)
+   live while reloading the pointer value at each access, as in retail.
+   A dedicated int offset is copy-coalesced directly into the third argument
+   register; sharing the later short text offset forced GCC to use $a3 and
+   insert a move.  Direct fVideoWall expressions also match SLD's local set. */
 void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
 
 {
   short valid;
   __vtbl_ptr_type (*vtbl) [10];
   short sVar2;
-  tVideoWall *vw;
+  int offset;
   short i;
   byte validCar;
   tCarInfo carInfo;
-  tFEApplication *feApp;
 
   vtbl = this->_vf;
   valid = (*vtbl[1][3].pfn)
@@ -1795,19 +1799,17 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   } while (i < 0xc);
   if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fTVsInitialized == 0)) {
-    feApp = FEApp;
-    sVar2 = 0;
-    if (feApp->fPlayer != '\0') {
-      sVar2 = 0x69;
+    offset = 0;
+    if (FEAppB[0]->fPlayer != '\0') {
+      offset = 0x69;
     }
-    vw = this->fVideoWall;
-    SetOffset(vw,6,sVar2);
+    SetOffset(this->fVideoWall,6,offset);
     sVar2 = 0x2d;
-    if (feApp->fPlayer != '\0') {
+    if (FEAppB[0]->fPlayer != '\0') {
       sVar2 = 0x96;
     }
-    SetAvailableText(vw,0xf8,0x10e,sVar2);
-    UpdateImages(vw);
+    SetAvailableText(this->fVideoWall,0xf8,0x10e,sVar2);
+    UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }
   if ((0 < this->fScreenFadeVal) &&
@@ -1815,11 +1817,10 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
     TurnOffInstant(this->fVideoWall);
     this->SetBrightness(0,0);
   }
-  vw = this->fVideoWall;
-  ::UpdateTransition(vw);
-  SetValid(vw,valid);
-  SetAvailable(vw,(ushort)carInfo.fAvailable);
-  ::Draw(vw);
+  ::UpdateTransition(this->fVideoWall);
+  SetValid(this->fVideoWall,valid);
+  SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
+  ::Draw(this->fVideoWall);
   return;
 }
 

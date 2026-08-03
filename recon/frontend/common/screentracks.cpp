@@ -338,7 +338,11 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
      There is NO `return -0x7ffb0000`: the `lui $v0,0x8005` that produced it is
      just the `lui $v0,%hi(FEApp)` sitting in the `bne` delay slot at 0x80042178,
      and the SYM types this function FCN VOID -- the Triangle tail simply falls
-     into the epilogue with $v0 incidental. */
+     into the epilogue with $v0 incidental.
+     [2026-08-03, 12->PASS] Keep the Square arm's masked trafficFlags in its
+     own block-local pseudo instead of reusing the Triangle arm's cmdResult.
+     With ptVar1 retained for the two stores, GCC assigns retail's menuDefs
+     base to $a0 and trafficFlags to $a1, with no reload or extra instruction. */
   tGlobalMenuDefs *ptVar1;
   void *pvVar2;
   __vtbl_ptr_type (*menuVtbl) [11];
@@ -348,13 +352,13 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
+    uint trafficFlags;
+
     ptVar1 = menuDefsA[0];
-    cmdResult = (ptVar1->itemTraffic).fFlags &
-            0xfffffffe;
-    (ptVar1->itemTraffic).fFlags = cmdResult;
+    trafficFlags = (ptVar1->itemTraffic).fFlags & 0xfffffffe;
+    (ptVar1->itemTraffic).fFlags = trafficFlags;
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (ptVar1->itemTraffic).fFlags = cmdResult | 1
-      ;
+      (ptVar1->itemTraffic).fFlags = trafficFlags | 1;
     }
     if (2 < trackInfo.fTrackDifficulty) {
       (menuDefsA[0]->itemTraffic).fFlags =

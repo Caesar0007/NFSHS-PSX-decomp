@@ -55,9 +55,14 @@ int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 
 {
   int result;
-  
-  result = CalcFadeVal(kRGBVals[(byte)textDefinitions[type][3]],
-                             kRGBVals[(byte)textDefinitions[type][4]],(int)fSelFade,(int)fFade);
+
+  /* MATCH 2026-08-03 (19->10): keep the two text-definition reads as
+     independent volatile row views.  GCC otherwise folds one scaled base
+     into the other; retail keeps separate pseudos for the [3] and [4]
+     loads.  The remaining ten are operand-order/allocation differences. */
+  result = CalcFadeVal(kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][3]],
+                       kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][4]],
+                       (int)fSelFade,(int)fFade);
   return result;
 }
 

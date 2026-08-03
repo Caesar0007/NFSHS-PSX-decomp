@@ -106,11 +106,11 @@ extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines i
                                      here would clobber 3 adjacent bytes incl. that neighbor global */
 extern int gFEBigHandle[];
 extern int gLargestUnused[];
-extern int gMasterAmbientLevel;
-extern int gMasterEngineLevel;
-extern int gMasterFENarrationLevel;
-extern int gMasterMusicLevel;
-extern int gMasterSFXLevel;
+extern int gMasterAmbientLevel[];
+extern int gMasterEngineLevel[];
+extern int gMasterFENarrationLevel[];
+extern int gMasterMusicLevel[];
+extern int gMasterSFXLevel[];
 extern int gPSXMemCardFull[];
 extern tPadModuleState gPadinfo;
 extern int gUseFrontend;

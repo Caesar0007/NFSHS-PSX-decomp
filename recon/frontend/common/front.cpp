@@ -457,10 +457,13 @@ void InitFrontEndStructure(void)
   frontEnd.engineVolume = 'U';
   frontEnd.ambientVolume = 'U';
   frontEnd.song = '\0';
-  gMasterMusicLevel = 0x55;
-  gMasterSFXLevel = 0x55;
-  gMasterFENarrationLevel = 0x55;
-  gMasterAmbientLevel = 0x55;
+  /* MATCH 2026-08-03 (18->PASS): the unsized-array declarations expose
+     address pseudos which GCC can schedule and reuse; scalar absolute-store
+     macros reserve $at and cannot reproduce retail's four-store sequence. */
+  gMasterMusicLevel[0] = 0x55;
+  gMasterSFXLevel[0] = 0x55;
+  gMasterFENarrationLevel[0] = 0x55;
+  gMasterAmbientLevel[0] = 0x55;
   frontEnd.sensitivity = '\0';
   frontEnd.GotAPlayList = 0;
   Setup(&CreditManager);
@@ -2418,33 +2421,32 @@ int * Front_BuildStream(int *stream)
 void Front_GetInGameVars(void)
 
 {
-  GameSetup_tData *pGVar1;
+  /* MATCH 2026-08-03 (29->PASS): SLD records only `int i`; direct indexed
+     controller arrays recover retail's induction variable and address
+     lifetimes.  Array views of the volume globals likewise expose their
+     address pseudos.  Assigning musicVolume directly (instead of inventing a
+     local absent from SLD) creates the frontEnd base before the music-global
+     base and resolves the final prologue scheduler tie. */
   int i;
-  int iVar2;
-  int iVar3;
   
-  byte musicLevel = (byte)gMasterMusicLevel;
-  frontEnd.musicVolume = musicLevel;
-  AudioMus_Volume((int)((uint)musicLevel * 0x23) >> 6);
-  pGVar1 = &GameSetup_gData;
-  frontEnd.sfxVolume = (char)gMasterSFXLevel;
-  frontEnd.engineVolume = (char)gMasterEngineLevel;
-  frontEnd.narrationVolume = (char)gMasterFENarrationLevel;
-  frontEnd.ambientVolume = (char)gMasterAmbientLevel;
+  frontEnd.musicVolume = (char)gMasterMusicLevel[0];
+  AudioMus_Volume((int)((uint)(byte)frontEnd.musicVolume * 0x23) >> 6);
+  frontEnd.sfxVolume = (char)gMasterSFXLevel[0];
+  frontEnd.engineVolume = (char)gMasterEngineLevel[0];
+  frontEnd.narrationVolume = (char)gMasterFENarrationLevel[0];
+  frontEnd.ambientVolume = (char)gMasterAmbientLevel[0];
   frontEnd.pinkSlipsForfeit = (short)GameSetup_gData.pinkSlipsForfeit;
-  iVar2 = 0;
+  i = 0;
   do {
-    frontEnd.controlConfig[iVar2] = (char)(pGVar1->controllerData).controllerConfig[0];
-    frontEnd.deadSpot[iVar2] = (char)(pGVar1->controllerData).deadSpot[0];
-    frontEnd.steeringRange[iVar2] = (char)(pGVar1->controllerData).steeringRange[0];
-    frontEnd.IImaxRange[iVar2] = (char)(pGVar1->controllerData).IImaxRange[0];
-    frontEnd.ImaxRange[iVar2] = (char)(pGVar1->controllerData).ImaxRange[0];
-    iVar3 = iVar2 + 1;
-    frontEnd.shockMode[iVar2] = (char)(pGVar1->controllerData).shockMode[0];
-    frontEnd.shockImpact[iVar2] = (char)(pGVar1->controllerData).shockImpact[0];
-    pGVar1 = (GameSetup_tData *)&pGVar1->numLaps;
-    iVar2 = iVar3;
-  } while (iVar3 < 2);
+    frontEnd.controlConfig[i] = (char)GameSetup_gData.controllerData.controllerConfig[i];
+    frontEnd.deadSpot[i] = (char)GameSetup_gData.controllerData.deadSpot[i];
+    frontEnd.steeringRange[i] = (char)GameSetup_gData.controllerData.steeringRange[i];
+    frontEnd.IImaxRange[i] = (char)GameSetup_gData.controllerData.IImaxRange[i];
+    frontEnd.ImaxRange[i] = (char)GameSetup_gData.controllerData.ImaxRange[i];
+    frontEnd.shockMode[i] = (char)GameSetup_gData.controllerData.shockMode[i];
+    frontEnd.shockImpact[i] = (char)GameSetup_gData.controllerData.shockImpact[i];
+    i = i + 1;
+  } while (i < 2);
   return;
 }
 

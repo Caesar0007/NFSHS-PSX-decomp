@@ -183,7 +183,7 @@ void FindLocation__Q26Speech7SpeakerP8Car_tObj(Speaker *pThis,Car_tObj *car);
 bool CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(u_int param_1,u_int *bank,char *name,u_int id);
 u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u_int id,u_int bn);
 int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(int param_1,void *header,u_int bn,int *hoffset,int *hsize);
-void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(int param_1,void *header,u_int bn,void *hoffset,int param_5);
+void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(Speech *pThis,char *header,CarBankName *bn,long hoffset,long hsize);
 u_int * Speech_ct(u_int *param_1);
 void Reset__6Speech(void);
 void Speech_dt(void *param_1,u_int __in_chrg);
@@ -885,141 +885,145 @@ int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(int param_1,void *he
 }
 
 /* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell  [SPEECH.CPP:990-1102] SLD-VERIFIED ---- */
-void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(int param_1,void *header,u_int bn,void *hoffset,int param_5)
+void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(Speech *pThis,char *header,CarBankName *bn,long hoffset,long hsize)
 
 {
-  Speech *pThis;  /* folded receiver temp (SYM REG `this`) */
-  long hsize;
-  char * data;
+  char *data;
   long offset;
   long size;
   int id;
   int dt;
   int filecount;
-  char * c;
-  char * hdata;
-  void * banknames;
-  char * p;
-  int b;
+  char *c;
+  char *hdata;
+  char **banknames;
+  char *p;
   int i;
-  char * name;
-  int namelen;
-  char cVar1;
-  bool bVar2;
-  bool bVar3;
-  int iVar4;
-  int iVar5;
-  u_int *puVar6;
-  char *pcVar7;
-  char *pcVar8;
-  char *pcVar9;
-  int iVar10;
-  u_char *puVar11;
-  u_int uVar12;
-  void *local_48;
-  int local_44;
-  int local_40;
-  int local_3c;
-  int local_38;
-  void *local_34;
-  u_int *local_30;
-  int local_2c;
-  
-  local_40 = 0;
-  local_3c = 0;
-  iVar10 = *(int *)(param_1 + 0x36c) + *(int *)(param_1 + 0x370) * 4;
-  locatebigentry(header,"j:eventdat\\event.dat",0,(int *)&local_48,(int)&local_44);
-  FILE_readsync(*(int *)(param_1 + 0x368),local_48,iVar10,local_44,100);   /* oracle 0x85248: +size(local_44) +prio(0x64) */
-  SPCH_ResolveData(iVar10);
-  pcVar8 = (char *)((int)header + 0x10);
-  puVar11 = (u_char *)(iVar10 + local_44);
-  local_38 = ((u_int)(((u_int)(((u_int)(*(u_char *)((int)header + 8)) << 8 | (u_char)(*(u_char *)((int)header + 9)))) << 8 | (u_char)(*(u_char *)((int)header + 10)))) << 8 | (u_char)(*(u_char *)((int)header + 0xb)));
-  local_34 = reservememadr("spch temp",param_5,0x10);
-  uVar12 = 100;
-  FILE_readsync(*(int *)(param_1 + 0x368),hoffset,(int)local_34,param_5,uVar12);   /* oracle 0x852c0: +size(param_5=$s3) +prio(uVar12=0x64) */
-  local_30 = reservememadr("spch temp",*(int *)(param_1 + 0x370) << 2,0x10)
-  ;
-  iVar10 = 0;
-  puVar6 = local_30;
-  if (0 < *(int *)(param_1 + 0x370)) {
-    do {
-      *puVar6 = 0;
-      *(u_int *)(iVar10 * 4 + *(int *)(param_1 + 0x36c)) = 0;
-      iVar10 = iVar10 + 1;
-      puVar6 = puVar6 + 1;
-    } while (iVar10 < *(int *)(param_1 + 0x370));
+
+  id = 0;
+  dt = 0;
+  data = (char *)pThis->fBankOffset + pThis->fBankCount * 4;
+  locatebigentry(header,"j:eventdat\\event.dat",0,&offset,(int)&size);
+  FILE_readsync(pThis->fFileHandle,offset,data,size,100);
+  SPCH_ResolveData(data);
+  c = header + 0x10;
+  data += size;
+  {
+    int a = (u_char)header[8];
+    header += 8;
+    int b = (u_char)header[1];
+    int cc = (u_char)header[2];
+    int d = (u_char)header[3];
+
+    filecount = (((a << 8 | b) << 8 | cc) << 8 | d);
   }
-  pcVar7 = (char *)((int)header + 0xf);
-  for (local_2c = 0; local_2c < local_38; local_2c = local_2c + 1) {
-    systemtask(0);
-    pcVar9 = pcVar8 + 8;
-    iVar10 = 0;
-    local_48 = (void *)((u_int)(((u_int)(((u_int)(*pcVar8) << 8 | (u_char)(pcVar7[2]))) << 8 | (u_char)(pcVar7[3]))) << 8 | (u_char)(pcVar7[4]));
-    local_44 = ((u_int)(((u_int)(((u_int)(pcVar7[5]) << 8 | (u_char)(pcVar7[6]))) << 8 | (u_char)(pcVar7[7]))) << 8 | (u_char)(pcVar7[8]));
-    pcVar7 = pcVar7 + 8;
-    cVar1 = *pcVar9;
-    pcVar8 = pcVar9;
-    while (cVar1 != '\0') {
-      iVar10 = iVar10 + 1;
-      pcVar8 = pcVar8 + 1;
-      pcVar7 = pcVar7 + 1;
-      cVar1 = *pcVar8;
+  hdata = (char *)reservememadr("spch temp",hsize,0x10);
+  FILE_readsync(pThis->fFileHandle,hoffset,hdata,hsize,100);
+  banknames = (char **)reservememadr("spch temp",pThis->fBankCount << 2,0x10);
+  {
+    int j;
+
+    for (j = 0; j < pThis->fBankCount; j++) {
+        banknames[j] = 0;
+        pThis->fBankOffset[j] = 0;
     }
-    bVar3 = false;
-    if (4 < iVar10) {
-      bVar2 = false;
-      if (((pcVar7[-3] == '.') && (pcVar7[-2] == 'h')) && (pcVar7[-1] == 'd')) {
-        bVar2 = *pcVar7 == 'r';
+  }
+  p = c - 1;
+  for (i = 0; i < filecount; i++) {
+    char *name;
+    int namelen;
+    bool isheader;
+
+    systemtask(0);
+    name = c + 8;
+    namelen = 0;
+    {
+      {
+        int a = (u_char)c[0];
+        int b = (u_char)c[1];
+        int cc = (u_char)c[2];
+        int d = (u_char)c[3];
+
+        offset = (((a << 8 | b) << 8 | cc) << 8 | d);
       }
-      if ((bVar2) && (iVar4 = CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(param_1,pcVar9,local_40,bn), iVar4 != 0)) {
-        bVar3 = true;
+      {
+        int a = (u_char)c[4];
+        int b = (u_char)c[5];
+        int cc = (u_char)c[6];
+        int d = (u_char)c[7];
+
+        size = (((a << 8 | b) << 8 | cc) << 8 | d);
       }
-      if (bVar3) {
-        local_40 = local_40 + 1;
-        memcpy(puVar11,(u_char *)(((int)local_34 + (int)local_48) - (int)hoffset),local_44);
-        iVar10 = SPCH_AddBank(puVar11);
-        puVar11 = puVar11 + local_44;
-        local_30[iVar10] = pcVar9;
+    }
+    p += 8;
+    c += 8;
+    while (*c != '\0') {
+      namelen++;
+      c++;
+      p++;
+    }
+    isheader = false;
+    if (namelen >= 5) {
+      bool extension = false;
+      {
+        int a = (u_char)p[-3];
+        int b = (u_char)p[-2];
+        int cc = (u_char)p[-1];
+        int d = (u_char)p[0];
+
+        if (((a == '.') && (b == 'h')) && (cc == 'd')) {
+          extension = d == 'r';
+        }
+      }
+      if (extension && CheckMultiBank__6SpeechPciPQ26Speech11CarBankName((int)pThis,name,id,(u_int)bn)) {
+        isheader = true;
+      }
+      if (isheader) {
+        id++;
+        memcpy(data,hdata + offset - hoffset,size);
+        banknames[SPCH_AddBank(data)] = name;
+        data += size;
       }
       else {
-        bVar3 = false;
-        if (((pcVar7[-3] == '.') && (pcVar7[-2] == 'd')) && (pcVar7[-1] == 'a')) {
-          bVar3 = *pcVar7 == 't';
+        bool extension = false;
+        {
+          int a = (u_char)p[-3];
+          int b = (u_char)p[-2];
+          int cc = (u_char)p[-1];
+          int d = (u_char)p[0];
+
+          if (((a == '.') && (b == 'd')) && (cc == 'a')) {
+            extension = d == 't';
+          }
         }
-        if (bVar3) {
-          iVar4 = local_3c * 4;
-          if (((local_3c < *(int *)(param_1 + 0x370)) && ((char *)local_30[local_3c] != (char *)0x0)
-              ) && (iVar5 = strncmp(pcVar9,(char *)local_30[local_3c],iVar10 + -3), iVar5 == 0))
-          {
-            local_3c = local_3c + 1;
-            *(void **)(iVar4 + *(int *)(param_1 + 0x36c)) = local_48;
+        if (extension) {
+          if ((dt < pThis->fBankCount) && (banknames[dt] != 0) &&
+              (strncmp(name,banknames[dt],namelen - 3) == 0)) {
+            pThis->fBankOffset[dt++] = offset;
           }
           else {
-            iVar4 = 0;
-            puVar6 = local_30;
-            if (0 < *(int *)(param_1 + 0x370)) {
+            int j = 0;
+            char **namep = banknames;
+
+            if (0 < pThis->fBankCount) {
               do {
-                if ((char *)*puVar6 != (char *)0x0) {
-                  iVar5 = strncmp(pcVar9,(char *)*puVar6,iVar10 + -3);
-                  if (iVar5 == 0) {
-                    *(void **)(iVar4 * 4 + *(int *)(param_1 + 0x36c)) = local_48;
-                    local_3c = iVar4 + 1;
-                  }
+                if ((*namep != 0) && (strncmp(name,*namep,namelen - 3) == 0)) {
+                  pThis->fBankOffset[j] = offset;
+                  dt = j + 1;
                 }
-                iVar4 = iVar4 + 1;
-                puVar6 = puVar6 + 1;
-              } while (iVar4 < *(int *)(param_1 + 0x370));
+                j++;
+                namep++;
+              } while (j < pThis->fBankCount);
             }
           }
         }
       }
     }
-    pcVar7 = pcVar7 + 1;
-    pcVar8 = pcVar8 + 1;
+    p++;
+    c++;
   }
-  purgememadr(local_34);
-  purgememadr(local_30);
-  return;
+  purgememadr(hdata);
+  purgememadr(banknames);
 }
 
 /* ---- __6Speech  [SPEECH.CPP:1110-1228] SLD-VERIFIED ---- */
@@ -1180,7 +1184,8 @@ u_int * Speech_ct(u_int *param_1)
                Speech_PurgeRAM__FPc,param_1[0xdc]);
     iVar8 = FILE_opensync(acStack_88,1,100,(int)(param_1 + 0xda));
     param_1[0xd9] = (u_int)(iVar8 != 0);
-    LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(param_1,pvVar4,auStack_f8,local_20,local_1c);
+    LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell((Speech *)param_1,(char *)pvVar4,
+                                                       (CarBankName *)auStack_f8,local_20,local_1c);
   }
   if (pvVar4 != (void *)0x0) {
     purgememadr(pvVar4);

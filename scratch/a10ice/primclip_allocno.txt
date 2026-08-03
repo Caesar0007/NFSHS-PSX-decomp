@@ -1,0 +1,105 @@
+ # pseudo   sim  actual        refs live      pri
+ 0: p175   v1   (v1  )  refs=8    live=4     6.0000
+ 1: p516   v1   (v1  )  refs=8    live=4     6.0000
+ 2: p704   v1   (v1  )  refs=8    live=4     6.0000
+ 3: p888   v1   (v1  )  refs=8    live=4     6.0000
+ 4: p159   v1   (v1  )  refs=8    live=5     4.8000
+ 5: p500   v1   (v1  )  refs=8    live=5     4.8000
+ 6: p688   v1   (v1  )  refs=8    live=5     4.8000
+ 7: p872   v1   (v1  )  refs=8    live=5     4.8000
+ 8: p495   a2   (a2  )  refs=78   live=100   4.6800
+ 9: p862   a3   (a3  )  refs=114  live=169   4.0473
+10: p108   v0   (v0  )  refs=10   live=8     3.7500
+11: p678   a3   (a3  )  refs=52   live=89    2.9213
+12: p154   a3   (a3  )  refs=54   live=93    2.9032
+13: p85    s1   (s1  )  refs=765  live=2666  2.5825
+14: p280   v1   (v1  )  refs=12   live=14    2.5714
+15: p687   v1   (v1  )  refs=16   live=26    2.4615
+16: p795   a0   (a0  )  refs=6    live=5     2.4000
+17: p1063  v0   (v0  )  refs=6    live=5     2.4000
+18: p679   a1   (a1  )  refs=35   live=74    2.3648
+19: p865   v1   (v1  )  refs=8    live=11    2.1818
+20: p244   v1   (v1  )  refs=4    live=4     2.0000
+21: p285   a0   (a0  )  refs=6    live=6     2.0000
+22: p1078  v1   (v1  )  refs=4    live=4     2.0000
+23: p1079  a1   (a1  )  refs=8    live=12    2.0000
+24: p1117  v1   (v1  )  refs=4    live=4     2.0000
+25: p180   a2   (a2  )  refs=8    live=13    1.8461
+26: p521   a2   (a2  )  refs=8    live=13    1.8461
+27: p709   a2   (a2  )  refs=8    live=13    1.8461
+28: p893   a2   (a2  )  refs=8    live=13    1.8461
+29: p245   a0   (a0  )  refs=6    live=7     1.7142
+30: p681   a0   (a0  )  refs=8    live=14    1.7142
+31: p1080  v0   (v0  )  refs=6    live=7     1.7142
+32: p288   a1   (a1  )  refs=10   live=18    1.6666
+33: p871   a0   (a0  )  refs=12   live=23    1.5652
+34: p155   t0   (t0  )  refs=46   live=163   1.4110
+35: p109   v1   (v1  )  refs=4    live=6     1.3333
+36: p158   a1   (a1  )  refs=12   live=29    1.2413
+37: p685   a1   (a1  )  refs=12   live=29    1.2413
+38: p289   a2   (a2  )  refs=10   live=25    1.2000
+39: p680   a2   (a2  )  refs=6    live=10    1.2000
+40: p864   a1   (a1  )  refs=6    live=10    1.2000
+41: p1118  a1   (a1  )  refs=6    live=10    1.2000
+42: p1130  v1   (v1  )  refs=6    live=10    1.2000
+43: p156   a0   (a0  )  refs=12   live=31    1.1612
+44: p157   a2   (a2  )  refs=12   live=31    1.1612
+45: p683   a0   (a0  )  refs=12   live=31    1.1612
+46: p684   a2   (a2  )  refs=12   live=31    1.1612
+47: p143   a1   (a1  )  refs=9    live=24    1.1250
+48: p183   v1   (v1  )  refs=8    live=22    1.0909
+49: p524   v1   (v1  )  refs=8    live=22    1.0909
+50: p712   v1   (v1  )  refs=8    live=22    1.0909
+51: p896   v1   (v1  )  refs=8    live=22    1.0909
+52: p100   a1   (a1  )  refs=9    live=26    1.0384
+53: p99    a2   (a2  )  refs=9    live=27    1.0000
+54: p811   a2   (a2  )  refs=6    live=12    1.0000
+55: p849   a2   (a2  )  refs=6    live=12    1.0000
+56: p1162  a2   (a2  )  refs=9    live=27    1.0000
+57: p140   a3   (a3  )  refs=10   live=31    0.9677
+58: p682   t0   (t0  )  refs=38   live=205   0.9268
+59: p141   t0   (t0  )  refs=8    live=26    0.9230
+60: p1067  a2   (a2  )  refs=8    live=27    0.8888
+61: p799   t1   (t1  )  refs=8    live=28    0.8571
+62: p139   t1   (t1  )  refs=9    live=32    0.8437
+63: p810   t2   (t2  )  refs=6    live=16    0.7500
+64: p848   t1   (t1  )  refs=6    live=16    0.7500
+65: p863   a2   (a2  )  refs=31   live=168   0.7380
+66: p866   t0   (t0  )  refs=44   live=326   0.6748
+67: p686   t3   (t3  )  refs=10   live=53    0.5660
+68: p101   a3   (a3  )  refs=7    live=25    0.5600
+69: p142   t2   (t2  )  refs=7    live=25    0.5600
+70: p98    t0   (t0  )  refs=7    live=30    0.4666
+71: p496   a3   (a3  )  refs=24   live=223   0.4304
+72: p870   t1   (t1  )  refs=16   live=172   0.3720
+73: p497   t0   (t0  )  refs=16   live=184   0.3478
+74: p498   t1   (t1  )  refs=16   live=189   0.3386
+75: p499   t2   (t2  )  refs=16   live=192   0.3333
+76: p328   s0   (s0  )  refs=10   live=95    0.3157
+77: p867   t2   (t2  )  refs=16   live=232   0.2758
+78: p868   t3   (t3  )  refs=16   live=237   0.2700
+79: p869   t8   (t8  )  refs=16   live=240   0.2666
+80: p80    s0   (s0  )  refs=10   live=126   0.2380
+81: p87    s2   (s2  )  refs=41   live=1216  0.1685
+82: p86    s3   (s3  )  refs=35   live=1187  0.1474
+83: p107   t1   (t1  )  refs=3    live=22    0.1363
+84: p106   t2   (t2  )  refs=3    live=23    0.1304
+85: p149   t3   (t3  )  refs=3    live=28    0.1071
+86: p148   t4   (t4  )  refs=3    live=29    0.1034
+87: p89    s4   (s4  )  refs=7    live=201   0.0696
+88: p90    s5   (s5  )  refs=7    live=202   0.0693
+89: p91    s6   (s6  )  refs=7    live=203   0.0689
+90: p92    s7   (s7  )  refs=7    live=204   0.0686
+91: p94    fp   (fp  )  refs=7    live=205   0.0682
+92: p93    --   (--  )  refs=7    live=208   0.0673
+93: p88    s4   (s4  )  refs=15   live=706   0.0637
+94: p102   t3   (t3  )  refs=3    live=48    0.0625
+95: p81    s2   (s2  )  refs=4    live=154   0.0519
+96: p144   t5   (t5  )  refs=3    live=60    0.0500
+97: p84    --   (--  )  refs=12   live=871   0.0413
+98: p82    --   (--  )  refs=16   live=2666  0.0240
+99: p83    s5   (s5  )  refs=5    live=1400  0.0071
+100: p766   t7   (t7  )  refs=3    live=444   0.0067
+101: p950   s6   (s6  )  refs=3    live=686   0.0043
+
+MATCH 102/102  (order-vs-dump: IDENTICAL)

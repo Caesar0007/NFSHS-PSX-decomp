@@ -1,0 +1,187 @@
+==============================================================================
+void DrawC_PrimMenu(struct matrixtdef *, struct coorddef *, struct Transformer_zObj *, struct Transformer_zOverlay *, int, struct Draw_CarCache *)
+
+--- block 0 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p88        v0       2    6     0   0/0        0.3333
+
+--- block 3 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p94        v0       4    6     0   0/0        1.3333
+   1  q1    p95        v1       4    6     0   0/0        1.3333
+   2  q2    p96        a0       4    6     0   0/0        1.3333
+
+--- block 6 : 17 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q14   p129       v0       6    6     0   0/0        2.0000
+   1  q15   p132       v0       4    4     0   0/0        2.0000
+   2  q8    p118       v0       4    6     0   0/0        1.3333
+   3  q10   p120       v0       4    6     0   0/0        1.3333
+   4  q12   p125       v0       4    6     0   0/0        1.3333
+   5  q0    p99        v0       4    8     0   0/0        1.0000
+   6  q3    p105       v0       4    8     0   0/0        1.0000
+   7  q11   p122       v1       4    8     0   0/0        1.0000
+   8  q1    p101       v1       4   10     0   0/0        0.8000
+   9  q4    p107       v1       4   10     0   0/0        0.8000
+  10  q16   p133       v0       3    4     0   0/0        0.7500
+  11  q2    p103       a0       4   12     0   0/0        0.6666
+  12  q5    p109       a0       4   12     0   0/0        0.6666
+  13  q6    p111       v1       4   14     0   0/0        0.5714
+  14  q7    p113       a0       4   16     0   0/0        0.5000
+  15  q9    p115       a1       4   16     0   0/0        0.5000
+  16  q13   p124       v1       4   16     0   0/0        0.5000
+
+--- block 8 : 3 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 317   (refs 2   calls 0) + qty 1   (head pseudo 316  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p139       v0       4   12     0   0/0        0.6666
+   1  q2    p138       v1       4    4     0   0/0        2.0000
+   2  q1    p140       a0       4   12     0   0/0        0.6666
+
+--- block 9 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p317       v0       4    4     0   0/0        2.0000
+   1  q0    p312       v0       2    2     0   0/0        1.0000
+
+--- block 10 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 157   (refs 4   calls 0) + qty 2   (head pseudo 156  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p149       v0       4    2     0   0/0        4.0000
+
+--- block 11 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p154       v0       4    2     0   0/0        4.0000
+   1  q2    p157       v0       8    6     0   0/0        4.0000
+   2  q1    p155       v1       4    6     0   0/0        1.3333
+
+--- block 12 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p165       v0       4    4     0   0/0        2.0000
+
+--- block 15 : 2 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 169   (refs 4   calls 0) + qty 0   (head pseudo 168  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p167       v0       4    2     0   0/0        4.0000
+   1  q0    p166       v1       4    4     0   0/0        2.0000
+
+--- block 16 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 174   (refs 4   calls 0) + qty 0   (head pseudo 172  )  ->  qty refs 8   calls 0
+    pseudo 175   (refs 4   calls 0) + qty 0   (head pseudo 174  )  ->  qty refs 12  calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p169       v0       8    4     0   0/0        6.0000
+
+--- block 17 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p175       v0      12    6     0   0/0        6.0000
+   1  q1    p176       v0       4    2     0   0/0        4.0000
+
+--- block 18 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p180       v0       4    2     0   0/0        4.0000
+
+--- block 20 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p189       v0       4    2     0   0/0        4.0000
+
+--- block 21 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p190       v0       4    2     0   0/0        4.0000
+
+--- block 22 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p306       v0       4    2     0   0/0        4.0000
+
+--- block 23 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p193       v0       6    2     0   0/0        6.0000
+
+--- block 24 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p194       v0       4    2     0   0/0        4.0000
+
+--- block 25 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p200       v0       4    2     0   0/0        4.0000
+   1  q0    p195       v0       4    6     0   0/0        1.3333
+   2  q1    p196       v1       4    6     0   0/0        1.3333
+   3  q2    p197       a0       4    6     0   0/0        1.3333
+
+--- block 28 : 9 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p199       v0       4    2     0   0/0        4.0000
+   1  q5    p207       v0       4    2     0   0/0        4.0000
+   2  q6    p208       v0       4    2     0   0/0        4.0000
+   3  q7    p209       v0       4    2     0   0/0        4.0000
+   4  q8    p210       v0       4    2     0   0/0        4.0000
+   5  q1    p201       v0       4    4     0   0/0        2.0000
+   6  q2    p202       v1       4    4     0   0/0        2.0000
+   7  q3    p211       v1      16   34     0   0/0        1.8823
+   8  q4    p212       a0      12   34     0   0/0        1.0588
+
+--- block 30 : 7 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p223       v0      16    8     0   0/0        8.0000
+   1  q0    p214       v1       6    6     0   0/0        2.0000
+   2  q6    p229       v0       4    4     0   0/0        2.0000
+   3  q1    p215       a0       4    6     0   0/0        1.3333
+   4  q3    p224       v0       4    8     0   0/0        1.0000
+   5  q4    p225       v1       4    8     0   0/0        1.0000
+   6  q5    p226       a0       4    8     0   0/0        1.0000
+
+--- block 32 : 13 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p242       v0       4    2     0   0/0        4.0000
+   1  q0    p247       v1      12   10     0   0/0        3.6000
+   2  q7    p250       v0       8    8     0   0/0        3.0000
+   3  q10   p256       v0       8    8     0   0/0        3.0000
+   4  q2    p230       v0      10   12     0   0/0        2.5000
+   5  q8    p252       v1       8   10     0   0/0        2.4000
+   6  q11   p258       v1       8   10     0   0/0        2.4000
+   7  q6    p240       v0       4    4     0   0/0        2.0000
+   8  q9    p254       a0       8   12     0   0/0        2.0000
+   9  q12   p260       a0       8   12     0   0/0        2.0000
+  10  q3    p239       v1       4    8     0   0/0        1.0000
+  11  q4    p237       a1       8   24     0   0/0        1.0000
+  12  q5    p238       a2       8   40     0   0/0        0.6000
+
+--- block 33 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p261       v0       4    8     0   0/0        1.0000
+   1  q1    p262       v1       4    8     0   0/0        1.0000
+   2  q2    p263       a0       4    8     0   0/0        1.0000
+
+--- block 35 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p267       v0       4    2     0   0/0        4.0000
+
+--- block 37 : 12 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 304   (refs 4   calls 0) + qty 0   (head pseudo 302  )  ->  qty refs 8   calls 0
+    pseudo 299   (refs 6   calls 0) + qty 1   (head pseudo 305  )  ->  qty refs 10  calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p282       v0       8    6     0   0/0        4.0000
+   1  q6    p285       v0       8    8     0   0/0        3.0000
+   2  q9    p291       v0       8    8     0   0/0        3.0000
+   3  q1    p269       v1      10   12     0   0/0        2.5000
+   4  q7    p287       v1       8   10     0   0/0        2.4000
+   5  q10   p293       v1       8   10     0   0/0        2.4000
+   6  q5    p279       v0       4    4     0   0/0        2.0000
+   7  q8    p289       a0       8   12     0   0/0        2.0000
+   8  q11   p295       a0       8   12     0   0/0        2.0000
+   9  q2    p278       a0       4    8     0   0/0        1.0000
+  10  q3    p276       a1       8   24     0   0/0        1.0000
+  11  q4    p277       a2       8   40     0   0/0        0.6000
+
+--- block 38 : 7 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p304       v0       8    6     0   0/0        4.0000
+   1  q1    p299       v1      10    8     0   0/0        3.7500
+   2  q2    p300       v0       4    4     0   0/0        2.0000
+   3  q3    p301       v1       4    4     0   0/0        2.0000
+   4  q4    p296       v0       4    6     0   0/0        1.3333
+   5  q5    p297       v1       4    6     0   0/0        1.3333
+   6  q6    p298       a0       4    6     0   0/0        1.3333

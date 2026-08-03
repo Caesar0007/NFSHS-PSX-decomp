@@ -252,5 +252,152 @@ Probe `base3.i` (loop + 5 live vars across 8 calls + static helper):
 `C:/Temp/nfs4-wt47-aN/scratch/REQ_a10_*.txt` or name the fn in your report and I will run
 allocsim / reqdelta / qtyprio / qtytrace on it.)
 
-## 6. ICE-STUB TRACE DEBT (drawc/hud, w46 §6.4) — status
-pending, see final report.
+## 6. ICE-STUB TRACE DEBT (drawc/hud, w46 §6.4) — **CLOSED**
+
+### 6.1 🏆 THE ICE ROOT CAUSE — it is `reorg.c`, and the fix costs NOTHING
+
+w46 recorded the instrumented `cc1plus-ecoff` ICE'ing at `drawc.cpp:2102` / `hud.cpp:2473`
+and called it "a 2.8.1-vs-2.8.0 C++ front-end regression". **It is not a front-end bug and
+the stub-and-slice recipe is not needed.** Bisected by flag on an isolated `DrawC_PrimMenu`:
+
+```
+-O2 -G4 ...                                     ICE
+-O1 -G4                                         ICE
+-O0 -G4                                         OK
+-O2 -G4 -fno-schedule-insns -fno-schedule-insns2 ICE
+-O2 -G4 -fno-caller-saves / -fno-strength-reduce /
+        -fno-cse-follow-jumps / -fno-expensive-optimizations  ICE
+-O2 -G4 -fno-delayed-branch                     ✅ OK
+```
+
+⇒ **the ICE is in `reorg.c` `dbr_schedule` (the delay-slot filler).**
+
+🔑 **Why this is free:** `dbr_schedule` is the LAST pass in `rest_of_compilation`
+(`toplev.c:3572`, `if (optimize > 0 && flag_delayed_branch)`) — it runs **after**
+`local_alloc`, `global_alloc` and `reload`. Every trace point we care about
+(`[qty_sugg_order]`, `[qty_combine]`, `[find_free_reg]`, `[allocno_compare]`, `[find_reg]`)
+has already fired. **Adding `-fno-delayed-branch` changes ZERO allocator decisions** — it only
+leaves the delay slots as `nop`s in the final `.s`.
+
+**Fidelity is still checkable**, because the real CC1PLPSX accepts the same flag: build the
+reference with `CC1PLPSX -quiet -O2 -G<n> -fno-delayed-branch` and `cmp_fns.py` against it.
+(CC1PLPSX compiles all 20 drawc / 62 hud functions with it — the ICE is purely our rebuild's.)
+
+### 6.2 THE NEW RECIPE (supersedes w46 §6.4)
+```sh
+python tools/rtl_dump.py recon/game/psx/drawc.cpp -dg -dl        # real CC1PLPSX dumps
+cp scratch/rtl/drawc.i mydir/tr.i                                # cc1 names dumps after input!
+export TMPDIR='C:\...\mydir\tmp\' TMP="$TMPDIR" TEMP="$TMPDIR"
+# reference (real compiler, SAME flag):
+cp scratch/rtl/drawc.i mydir/ref.i
+C:/Temp/psq43/COMPILER/CC1PLPSX.EXE -quiet -O2 -G4 -fno-delayed-branch ref.i -o ref.s
+# traced:
+GCC_TRACE_ALLOC=1 C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe -quiet -O2 -G4 \
+   -mgas -msplit-addresses -funsigned-char -fno-exceptions -fno-rtti \
+   -fno-delayed-branch tr.i -o tr.s 2> trace.txt
+python C:/Temp/nfs4-instr-cc1/cmp_fns.py A/ref.s B/tr.s        # needs dir-style paths
+python tools/qtytrace.py trace.txt <fn> [--steps|--blocked]
+```
+⚠️ `cmp_fns.py` crashes on paths without a parent directory component
+(`p.split('/')[-2]`) — put each `.s` in its own subdir.
+
+`scratch/a10ice/stubloop.py` (committed) automates the residual stubbing for any TU that
+still ICEs after `-fno-delayed-branch`: it reads the ICE'ing function out of cc1's own
+`In function \`X':` line, stubs its body, and re-runs until clean.
+
+### 6.3 drawc.cpp — RESULT
+`-fno-delayed-branch` alone took the traced TU from **10/20 → 14/20** functions emitted with
+**no stubbing at all**, and `cmp_fns.py` vs `CC1PLPSX -fno-delayed-branch` gives:
+
+| function | fidelity | trace is a receipt? |
+|---|---|---|
+| **`DrawC_PrimMenu`** | **SAME** | 🏆 **YES** |
+| `DrawC_DividePrim`, `DrawC_PrimStart`, `DrawC_PrimStop`, `DrawC_NightHeadlight`, `DrawC_MenuColorData`, `ChangeTPage`, `DrawC_ReadeMapData`, `DrawC_BuildRenderingData`, `DrawC_KillRenderingData`, `DrawC_SetEnviroment` | SAME | YES |
+| `DrawC_Prim` | d405 | no — laboratory only |
+| `DrawC_PrimClip` | d762 | no — laboratory only |
+| `DrawC_ReadLightingData` | d126 | no |
+| `DrawC_PrimHalo` + the 5 Shadow/Spot/Showroom fns | still ICE (a SECOND, distinct bug in `PrimHalo`) | — |
+
+`11 / 20 IDENTICAL`. Artefacts: `scratch/a10ice/{trace.txt,tr.s,ref_ndb.s,pm_qty.txt}`.
+
+### 6.4 🎯 **THE ANSWER a3 ASKED FOR — the Prim-route conflict set**
+
+a3's parked NEXT ANGLE on `DrawC_PrimMenu` was:
+> *"count the QTYs in the envmap join block from `-dl`. If it is a <=3-qty block,
+> local-alloc.c:1588's hand-rolled comparator applies and the dial is BIRTH ORDER /
+> crossing the 3-to-4 qty boundary, not refs."*
+
+🔴 **ANSWER: NO — the `<=3-qty` law does not apply. The envmap uv value is not a local qty
+at all; it is GLOBAL ALLOCNO 30.**
+
+From the fidelity-clean trace (`[allocno_compare]` + `[find_reg]`):
+```
+[allocno_compare] ... 30/205:24/14/0/1=68571 ...
+[find_reg] allocno 30 pseudo 205 refs 24 live 14 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 2
+```
+`p205` is a3's **merged uv temp** (`(set (reg/v:QI 205) (mem:QI (plus (reg 146/147/148) (const_int 214))))`
+— reused at all three vertices, which is exactly why the merge made it one high-refs allocno).
+It is **rank #2 of 42** at `pri 6.8571`, and takes `$v0`.
+
+`allocsim` on the REAL dumps reproduces the whole function **42/42, order IDENTICAL**, and
+confirms a3's landed 3-cycle fix is exactly reproduced:
+```
+10: p144  a1  refs=29 live=64   1.8125   <- overlayFlag  ✅ retail $a1
+24: p148  a2  refs=22 live=103  0.8543   <- id2          ✅ retail $a2
+25: p147  t1  refs=20 live=100  0.8000   <- id1          ✅ retail $t1
+26: p146  t2  refs=18 live=95   0.7578   <- id0          ✅ retail $t2
+```
+**No allocno in our PrimMenu reaches `$t4`–`$t7` at all** (highest caller-saved in use: `$t3`
+= p142, then `$t8`/`$t9`). Retail's uv group living in `$t4`–`$t7` therefore requires MORE
+simultaneously-live global allocnos across the envmap region — i.e. a **second** uv pseudo,
+not a re-ranking of the merged one.
+
+`reqdelta --want p205=t4` returns **no single-dial delta**, and the reason is structural:
+`p205`'s live window is only **14 insns**, so regs `$v0..$t3` (10 registers) can never all be
+busy across it, whatever its priority. ⇒ **a3's stated bar is confirmed and sharpened:**
+the second uv value must be a GLOBAL allocno with a LONG live range (a3's `live >= 48` at
+refs 12 stands), and *shortening the merged temp's refs is provably the wrong dial*.
+Do not spend more budget on re-spelling the merged temp.
+
+### 6.5 `DrawC_Prim` / `DrawC_PrimClip` — allocno tables ARE valid receipts
+Their *traces* are not (d405 / d762), but `allocsim` consumes the **real** compiler's
+`.greg`/`.lreg` and reproduces both exactly:
+```
+DrawC_Prim      MATCH  90/90   (order-vs-dump: IDENTICAL)
+DrawC_PrimClip  MATCH 102/102  (order-vs-dump: IDENTICAL)
+```
+Committed: `scratch/a10ice/prim_allocno.txt`, `scratch/a10ice/primclip_allocno.txt`.
+Both open with the same signature a3 predicted — five (Prim) / four (PrimClip) identical
+`refs=8 live=4 pri=6.0000` `$v1` allocnos followed by the matching `refs=8 live=5 pri=4.8000`
+band: **the per-vertex envmap group, equal refs, ascending lives, ascending registers** —
+the same shape as PrimMenu's id triple, so the PrimMenu transcription carries over.
+
+### 6.6 hud.cpp — RESULT
+`-fno-delayed-branch` took hud from truncated-at-`Hud_BuildCdPlayer` to **38/62**; three
+further functions carry their own distinct ICEs and were stubbed by `stubloop.py`
+(**`Hud_BuildCdPlayer`, `Hud_RenderMapView`, `Hud_RenderHudView`**), after which the TU
+compiles **clean: 61 functions, 0 ICE, 46/62 IDENTICAL** vs `CC1PLPSX -O2 -G8 -fno-delayed-branch`.
+
+**Fidelity-clean ⇒ the trace IS a receipt for:**
+`Hud_BuildReplay` · `Hud_BuildNumbers` · `Hud_BuildTach` · `Hud_Render321Go` ·
+`Hud_RenderPauseBox` · `Hud_WingmanFlash` · `Hud_InitMap*` · `Hud_InitTables` · `Hud_Kill` ·
+`uppercase` (+ 36 more).
+
+**NOT receipts** (laboratory only): `Hud_Render` (d204) · `Hud_RenderTacView` (d50) ·
+`Hud_BuildNumbers0` (d502) · `Hud_Init` (d388) · the three stubbed fns.
+
+Artefacts: `scratch/a10ice/{hudf.i,hudf_trace.txt,hudf.s,hud_qty_receipts.txt}`.
+Qty tables for the five clean targets are in `hud_qty_receipts.txt`.
+
+⚠️ Note for a8: **`Hud_BuildNumbers` is fidelity-clean but `Hud_BuildNumbers0` is not** —
+the w45 §5 plan to use the instrument on both is only half-supported. For `BuildNumbers0`
+use `allocsim` on the real dumps instead.
+
+### 6.7 RESIDUAL / RESUME
+* `DrawC_PrimHalo` carries a second, distinct ICE that `-fno-delayed-branch` does not clear
+  and that no single `-fno-*` in the -O2 set clears. Not chased (out of budget). Route:
+  run `stubloop.py` on drawc to stub `PrimHalo` and recover `ShadowPrim*`/`SpotPrims`/
+  `ShowroomPrims` traces, then bisect PrimHalo's body for the offending construct.
+* The 3 hud ICEs likewise remain uncharacterised (only worked around).
+* Worth doing once: these are bugs in OUR rebuild, so the real fix is a `reorg.c` patch in
+  `C:/Temp/nfs4-instr-cc1` sources — that would restore full-`.s` fidelity checking too.

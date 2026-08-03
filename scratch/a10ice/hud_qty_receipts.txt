@@ -1,0 +1,100 @@
+########## Hud_BuildReplay
+==============================================================================
+void Hud_BuildReplay()
+
+--- block 0 : 5 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p82        v0       2    2     0   0/0        1.0000
+   1  q1    p?         v1       1    2     0   0/0        0.0000
+   2  q2    p?         a0       1    2     0   0/0        0.0000
+   3  q3    p?         a1       1    2     0   0/0        0.0000
+   4  q4    p?         a2       1    2     0   0/0        0.0000
+
+--- block 1 : 2 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 104   (refs 2   calls 0) + qty 3   (head pseudo 103  )  ->  qty refs 4   calls 0
+    pseudo 105   (refs 2   calls 0) + qty 3   (head pseudo 104  )  ->  qty refs 6   calls 0
+    pseudo 106   (refs 2   calls 0) + qty 3   (head pseudo 105  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p96        v0       4    2     0   0/0        4.0000
+   1  q0    p93        v0       4    4     0   0/0        2.0000
+
+--- block 2 : 6 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p106       v0       8    8     0   0/0        3.0000
+   1  q1    p100       v0       2    2     0   1/0        1.0000
+   2  q5    p112       v0       2    2     0   0/0        1.0000
+########## Hud_BuildNumbers__
+no traced function matching 'Hud_BuildNumbers__'
+########## Hud_BuildTach
+==============================================================================
+void Hud_BuildTach(int)
+
+--- block 3 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p109       v0       8    8     0   0/0        3.0000
+   1  q1    p105       v1       5    6     0   0/0        1.6666
+   2  q0    p102       v0       2    2     0   0/0        1.0000
+   3  q3    p111       v0       2    2     0   0/0        1.0000
+
+--- block 5 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 124   (refs 2   calls 0) + qty 0   (head pseudo 125  )  ->  qty refs 4   calls 0
+    pseudo 128   (refs 2   calls 0) + qty 1   (head pseudo 127  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p123       v0       2    2     0   0/0        1.0000
+
+--- block 6 : 2 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 129   (refs 2   calls 0) + qty 0   (head pseudo 130  )  ->  qty refs 4   calls 0
+    pseudo 133   (refs 2   calls 0) + qty 1   (head pseudo 132  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p128       v0       4    4     0   0/0        2.0000
+   1  q0    p124       v1       4    6     0   0/0        1.3333
+
+########## Hud_Render321Go
+==============================================================================
+void Hud_Render321Go()
+
+--- block 0 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p91        a0       2    2     0   0/1        1.0000
+   1  q1    p90        v0       2    2     0   0/0        1.0000
+   2  q2    p93        v0       2    6     0   0/0        0.3333
+   3  q3    p96        v1       2    6     0   0/0        0.3333
+
+--- block 1 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p101       v0       2    4     0   0/0        0.5000
+
+--- block 2 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p102       v0       2    4     0   0/0        0.5000
+   1  q1    p103       v1       2    2     0   0/0        1.0000
+   2  q2    p106       v0       2    2     0   0/0        1.0000
+
+--- block 3 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 110   (refs 2   calls 0) + qty 0   (head pseudo 109  )  ->  qty refs 4   calls 0
+    pseudo 111   (refs 2   calls 0) + qty 0   (head pseudo 110  )  ->  qty refs 6   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+########## Hud_RenderPauseBox
+==============================================================================
+void Hud_RenderPauseBox(int, int, int, int)
+
+--- block 1 : 14 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q11   p120       v0       2    2     0   0/0        1.0000
+   1  q12   p121       v0       2    2     0   0/0        1.0000
+   2  q7    p97        s0       6   18     1   0/0        0.6666
+   3  q8    p107       s1       9   44     3   1/0        0.6136
+   4  q4    p86        s2       9   58     3   1/0        0.4655
+   5  q9    p99        s3       5   32     2   1/0        0.3125
+   6  q6    p93        s3       3   14     1   1/0        0.2142
+   7  q13   p124       v0       2   16     0   0/0        0.1250
+   8  q10   p104       s0       3   28     2   1/0        0.1071
+   9  q0    p80        s4       7  132     7   2/0        0.1060
+  10  q1    p81        s5       6  132     7   2/0        0.0909
+  11  q2    p82        s6       6  132     7   2/0        0.0909
+  12  q3    p123       s7       6  134     7   1/0        0.0895
+  13  q5    p92        --       3   36     2   1/0        0.0833

@@ -3986,6 +3986,16 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          loop-depth do{}while(0) around the two-site block) to push the overlay
          halfword's refs over the flr2 boundary. */
       {
+      /* w46-a3 (29, ours 295 / oracle 298 = 3 SHORT).  RE-READ OF THE SHAPE:
+         retail is  `lhu v0,0(v0)` (the halfword loaded into the ADDRESS's
+         own dying register) + a load-delay `nop` + `sll a0,v0,16` into a
+         FRESH reg, with BOTH sra's derived from that one shift.  The three
+         missing insns ARE those three nops: our destination choice removes
+         the hazard.  So the dial is the ANTI-DEPENDENCE (who owns $v0 across
+         this block), NOT the shift spelling.  FALSIFIED this wave: explicit
+         fresh shift temp `int ovs = (int)(ov << 0x10)` both sites 38, site-1
+         only 33, fully inlined 38 -- every one makes us SHORTER still.
+         Do the -dg pass first (see scratch/w46_a3_receipts.md sec.5). */
         u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
         ov = ov << 0x10;
         if (facet->flag < 0) {

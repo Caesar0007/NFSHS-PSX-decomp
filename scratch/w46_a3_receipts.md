@@ -236,6 +236,24 @@ this wave's PrimMenu work now supplies the MECHANISM and the instrument:
 
 ---
 
+## 6b. w46-a10 INTEL — where it applies here
+
+a10's `<=3-qty block` law (local-alloc.c:1588 hand-rolls `next_qty <= 3` with a
+broken comparator) does **NOT** apply to the PrimMenu 3-cycle: p144/p146/p147/
+p148 are all in the function's `;; 43 regs to allocate:` list, i.e. GLOBAL
+allocnos, and `allocsim` reproduces the whole handout 43/43 including them.
+The ref-step dial was therefore the right instrument and it landed exactly as
+predicted (refs 18 -> 20 / 22 confirmed in the real `-dl`).
+
+Where the a10 law IS the next instrument: the two remaining single-slot
+drain ties — PrimMenu's envmap uv join block and NightHeadlight's tint block —
+both live in ONE basic block with a handful of block-local qtys.  Count them
+from `-dl` and try crossing the 3-to-4 boundary.
+
+a10's drawc qty tables were blocked by the gcc-2.8.1 front-end ICE at
+drawc.cpp:2102 (their receipts sec.6.4 has the 15-min stub-and-resume recipe);
+`tools/qtytrace.py` on branch `w46-a10` is the tool to run once that is done.
+
 ## 7. TOOLS / PROCESS
 
 Committed under `scratch/`:

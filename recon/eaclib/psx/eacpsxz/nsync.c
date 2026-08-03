@@ -250,6 +250,7 @@ extern void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
 {
     int handle;
     void *buf;
+    int rm1;
     if (FILE_opensync(a->name, 1, retry, &handle) == 0)
         return 0;                                       /* open fail: no close */
 
@@ -295,14 +296,14 @@ extern void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
         goto closefail;
 
     {
-        FILE_readsync(handle, 0, buf, 0xA90, retry - 1);
+        rm1 = retry - 1;
+        FILE_readsync(handle, 0, buf, 0xA90, rm1);
 
         if (typeofbigfile(buf) == 0) {                  /* not a big file */
 purgefail:
             {
-                int close_retry = retry - 1;
                 purgememadr(buf);
-                FILE_closesync(handle, close_retry);
+                FILE_closesync(handle, rm1);
                 return 0;
             }
         }
@@ -318,11 +319,34 @@ purgefail:
                 purgememadr(buf);
                 buf = full;
                 FILE_readsync(handle, 0xA90, (char *)buf + 0xA90,
-                              fullsize - 0xA90, retry - 1);
+                              fullsize - 0xA90, rm1);
             }
         }
     }
 
+    /* MATCH (w47-a5): 7 -> 4, count-exact 81/81.  The w33/w34 note below is RIGHT that the
+     * oracle map falls out as soon as THIS close RECOMPUTES `retry - 1` instead of reusing the
+     * shared rm1 pseudo -- and "no source form found makes it recompute" is now false.  A
+     * ZERO-INSN OPACITY FENCE on rm1 (empty asm, matching "0" constraint, so the value stays in
+     * its own register and NO instruction is emitted) destroys cse's value-number equality
+     * `rm1 == retry - 1` from this point on, so both trailing closes recompute `addiu a1,s4,-1`
+     * exactly like retail, `retry` stays live to the epilogue (5 refs / 76 insns) and the whole
+     * retry/`a` allocno pair lands on the oracle's map.  24 (plain rm1) -> 4.
+     * RESIDUAL 4 = a pure 2-insn ISSUE-ORDER swap in the first readsync's arg block: retail
+     * emits `li a3,0xA90` then `addiu s3,s4,-1` (i.e. rm1's def sits INSIDE the arg group,
+     * between `lw a0,0x18(sp)` and the jal), ours defs rm1 first because it is its own
+     * statement and gets the lower luid.  NEW NAMED ANGLE (untried levers listed so the next
+     * agent does not repeat mine): fence-walk did NOT move it (fence before the call, after the
+     * call and at the success close all give the identical 4); embedded assignment
+     * `FILE_readsync(..., (rm1 = retry - 1))` = 39 diffs / 84 insns; a named `int n0 = 0xA90`
+     * for the 4th arg folds back (4); writing the readsync with the bare expression and
+     * aliasing rm1 after it = 38 / 85; bare `retry - 1` everywhere + a fence on `retry` = 30 /
+     * 79.  => the remaining dial is the ARG-GROUP membership of rm1's def (calls.c precompute:
+     * on MIPS -O2 an arg is precomputed only when its rtx is not already a REG and
+     * rtx_cost > 2), i.e. retail's 5th arg was an EXPRESSION whose cse temp is the shared rm1 --
+     * reproducing that needs cse to build the temp AND survive, which is the same
+     * old-gcc-cse identity the C-lane flag axis (w47 a7-a9) is chartered to test. */
+    __asm__("" : "=r"(rm1) : "0"(rm1));
     FILE_closesync(handle, retry - 1);
     return buf;
 

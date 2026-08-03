@@ -1257,24 +1257,26 @@ short tMenu::GetNumberEnabledItems()
 
 {
   u_int *puVar1;
-  short i;
-  int iVar2;
-  short sVar3;
   short result;
+  short i;
   
-  sVar3 = 0;
+  result = 0;
   if (this->fNeverAnyEnabled != 0) {
-    return 0;
+    return result;
   }
-  iVar2 = 0;
-  while (puVar1 = (u_int *)this->fItemList[(short)iVar2], puVar1 != (u_int *)0x0
-        ) {
+  i = result;
+  /* The explicit backedge prevents GCC's loop pass from rotating this into
+     a bottom-tested loop; retail performs the null test at the loop head. */
+GetNumberEnabledItems_loop:
+  puVar1 = (u_int *)this->fItemList[i];
+  if (puVar1 != (u_int *)0x0) {
     if (((*puVar1 ^ 1) & 1) != 0) {
-      sVar3 = sVar3 + 1;
+      result = result + 1;
     }
-    iVar2 = iVar2 + 1;
+    i = i + 1;
+    goto GetNumberEnabledItems_loop;
   }
-  return sVar3;
+  return result;
 }
 
 

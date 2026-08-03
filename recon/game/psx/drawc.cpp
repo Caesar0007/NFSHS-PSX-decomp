@@ -4495,6 +4495,12 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        born with the counter) or (ii) give the vt0 x-load a second consumer so
        it wins the tie.  stmtclimb (with a def-use audit) is the cheap probe. */
     {
+    /* MATCH (w46-a3, 2 -> PASS): the fill sentinel is a NAMED local declared
+       BEFORE the counter init -- retail emits `li v1,-1` ahead of `li t0,31`.
+       This exact spelling was FALSIFIED in w45 at the pre-fence basin; the
+       vt0 sched fence above changed the landscape and it now lands (catalog
+       w45 LAW: falsifications are BASIN-RELATIVE, re-test after every edit). */
+    signed char m1 = -1;
     index = 0x1f;
     /* MATCH (w45-a4, 80 -> 42): the fill counter is `index`, NOT `i`.  Retail
        runs the whole fn on ONE counter register for {fill, j, index} vs `i`
@@ -4504,7 +4510,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        counter measures 84, `j` measures 80, `index` 42. */
     signed char *hs = &hilight_state[0x1f];
     do {
-      *hs = -1;
+      *hs = m1;
       index = index + -1;
       hs = hs + -1;
     } while (-1 < index);
@@ -4581,6 +4587,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         short t1 = Fe3D_lightsVertex[index * 2].x;
         short t2 = Fe3D_lightsVertex[index * 2].y;
         short t3 = Fe3D_lightsVertex[index * 2].z;
+        /* MATCH (w46-a3, 4 -> 2): ZERO-INSN SCHED FENCE, position IS the dial
+           (catalog w45 fence grammar).  Retail loads x(0) before y(2) here;
+           sched2's ready list drained the other way for us and every spelling
+           family was already falsified (all 4 store orders, load order yxz,
+           pointer-local).  A bare `__asm__("" : : )` placed BETWEEN the three
+           loads and the three stores pins the load order to retail's without
+           emitting anything.  Measured at this basin: before-block 4,
+           after-t1 14, HERE 2, after-block 6, extra t1 consumer 14. */
+        __asm__("" : : );
         (sd->vt0).x = t1;
         (sd->vt0).y = t2;
         (sd->vt0).z = t3;

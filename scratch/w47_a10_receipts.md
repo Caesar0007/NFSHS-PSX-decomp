@@ -450,6 +450,63 @@ Qty tables for the five clean targets are in `hud_qty_receipts.txt`.
 the w45 §5 plan to use the instrument on both is only half-supported. For `BuildNumbers0`
 use `allocsim` on the real dumps instead.
 
+## 6b. psxfront.cpp — TRACED (the w45 §3 Font debt, ranked #1) — **DELIVERED**
+
+`-fno-delayed-branch` makes psxfront compile clean with **no stubbing at all**:
+`25/25 functions, 0 ICE, 22/25 IDENTICAL` vs `CC1PLPSX -O2 -G4 -fno-delayed-branch`.
+
+| target | fidelity | trace is a receipt? |
+|---|---|---|
+| **`FontUpsideDownBlit`** | **SAME** | 🏆 **YES** — first fidelity-clean local-qty trace for it |
+| `DrawGouraudShape` | d207 | ❌ no — use `allocsim` (validated 145/145 in w45) |
+| `InitializeSpinningCars` d94 · `PSXDrawTransGouraudSquare` d53 | — | no |
+| the other 22 (incl. `PSX_AllocShapes`, `ScaleGouraudShape`, `DrawFlatShape`, …) | SAME | YES |
+
+Artefacts: `scratch/a10ice/{pf_trace.txt, pf.s, pfref.s}`.
+
+### 6b.1 🏆 `FontUpsideDownBlit` — THE $a1 CONTEST, ANSWERED
+
+**It is a 27-QTY BLOCK** (one block, `block 1`, 27 qtys). ⇒ the w46-a10 `<=3-qty`
+hand-rolled-comparator law does **NOT** apply here; `qty_compare` / `QTY_CMP_PRI` sorts it.
+The standing question is settled with a traced receipt, not an inference.
+
+**w45 §3's empirical claim is CONFIRMED, now from the trace (third independent proof):**
+`q4/p84` — refs 2, life **72 (near-longest)** — has the **LOWEST** priority in the block
+(**0.0277**) and is allocated **LAST**, which is exactly why it lands on the callee-saved
+`$s0`. A longest-life-first model predicts the opposite. The gcc-2.7 "local_alloc =
+longest-life-first" lore stays FALSIFIED for this compiler.
+
+🔴 **THE $a1 HOLDER IS NOT PRIORITY-DRIVEN — IT IS SUGGESTION-DRIVEN.**
+```
+15  q18   p96    a1    refs 8  life 100  sugg 1/0   PRI 0.2400
+```
+`p96` = `(set (reg/v:SI 96) (minus (reg/v:SI 94) (reg/v:SI 95)))`. Its `sugg` column is
+**1/0** — it carries a *suggestion*, so `local-alloc.c:1612` **GROUP 1** assigns it via
+`find_free_reg(..., just_try_suggested=1)` **BEFORE** the GROUP-2 priority pass
+(`local-alloc.c:1661`) ever runs. Only four qtys in the whole block have suggestions:
+```
+[qty_sugg] qty0 (p80) COPY-suggests hard reg 4 ($a0)
+[qty_sugg] qty1 (p81) COPY-suggests hard reg 5 ($a1)
+[qty_sugg] qty2 (p82) COPY-suggests hard reg 6 ($a2)
+           ... (p83) -> $a3         <- the incoming parameter copies
+           q18 (p96)  plain sugg    -> $a1
+```
+⇒ **the REF-STEP / live dial on the priority table cannot move `$a1`.**
+`QTY_CMP_SUGG(q) = ncopy_sugg ? ncopy_sugg : nsugg*FIRST_PSEUDO_REGISTER`, so the
+copy-suggested parameter qtys sort ahead of `p96`, and `p96` then takes `$a1` because the
+parameter that copy-suggested `$a1` (`p81`) is already dead by `insn 195`.
+
+**⇒ NEW NAMED ANGLE for a1 (replaces the 14 falsified spelling families):** the dial for
+Font's `$a1` is the **SUGGESTION relationship**, i.e. *which value is copy-related to which
+incoming argument register, and how long the `$a1` parameter stays live*. Concretely:
+* extend the `$a1` **parameter's** live range past `insn 195` (any use of the 2nd argument
+  after the `p94 - p95` subtraction) so its copy-suggestion still owns `$a1` and `p96` is
+  pushed to the next free reg — zero instructions if the extra use is CSE-folded;
+* or remove `p96`'s suggestion by breaking its copy-relation to a hard reg (give the
+  difference its own named local that is not passed as an argument).
+This is a *different mechanism* from the ref-step family, which is why every refs/live
+experiment measured nothing.
+
 ### 6.7 RESIDUAL / RESUME
 * `DrawC_PrimHalo` carries a second, distinct ICE that `-fno-delayed-branch` does not clear
   and that no single `-fno-*` in the -O2 set clears. Not chased (out of budget). Route:

@@ -225,8 +225,24 @@ void RaceSummary(void)
     }
     i = i + 1;
   }
-  OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
-  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,(u_short)HUD_STATS_SIZE_W,(int)HUD_STATS_SIZE_H);
+  {
+  /* w46-a8 SEAL (5 -> PASS, 349/349).  THE `& 0xffff` NAMED CARRIER.  Retail reloads the
+     SIZE_W AUTO through the shared scratch and COPIES it into the callee-saved carrier
+     (`lhu $t0,72(sp); addu $s2,$t0,$zero`) where every `(u_short)` spelling let reload fold
+     the zero-extend straight into the destination (`lhu $s2,72(sp)`, 1 insn short).
+     `HUD_STATS_SIZE_W & 0xffff` on a `short` builds `(and:SI (sign_extend:SI (mem:HI)) 0xffff)`
+     -- combine narrows the load to `lhu` but the AND's result is a SEPARATE pseudo from the
+     load's, so the long-lived carrier is a COPY, exactly retail's pair.  MEASURED at this
+     base: `(u_short)` cast named local = 5 (folded), `int t2=(u_short)W; int w2=t2;` split
+     = 5 (coalesced), named y2/w2/h2 triple = 5, zero-insn USE fence before the call = 6
+     (count-exact 349 but the extra load lands ahead of the 88(sp) reload), fence + named
+     carrier = 6 (the volatile asm invalidates memory in cse, so the carrier cannot be CSE'd
+     onto the fence's load -- that is WHY the w45 fence angle could not be walked into place),
+     statement-expression fence inside arg 3 = 6, fence on POS_Y too = 7 (350 insns). */
+  int w2 = HUD_STATS_SIZE_W & 0xffff;
+  OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,w2,(int)HUD_STATS_SIZE_H);
+  Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,w2,(int)HUD_STATS_SIZE_H);
+  }
   return;
 }
 

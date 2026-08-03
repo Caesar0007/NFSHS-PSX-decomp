@@ -38,36 +38,10 @@ extern void  TextSys_LoadInGame(int language);                      /* textsys.o
 extern void  TextSys_UnloadWords(void);                             /* textsys.obj */
 extern void  Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char c0, char c1);  /* hud.obj */
 extern void  Hud_RenderPauseBox(int x, int y, int w, int h);       /* hud.obj */
-extern void *__builtin_new(u_int size);
-extern void  __builtin_delete(void *p);
-
 /* ---- tPMenu / tPMenuItem methods rendered as free fns by Ghidra (PauseMenu.obj) ---- */
 extern int   IsEnabled(int item);
 extern int   IsDisabled(int item);
 extern int   ItemEnabledNum(void *menu, int item);     /* dropped-arg Logic site disasm-bound */
 extern int   NumEnabledItems(void *menu);
-
-/* ---- PauseMenu.obj menu-item ctors (free-fn, explicit pThis; variadic absorbs varying arg shapes)
- *   + dtors (free-fn, (pThis, in-charge-flag)).  mpause calls these cross-TU; PauseMenu.obj defines
- *   them member-style. ---- */
-extern void  tPMenuItemNonInteractiveText_ct(int pThis, ...);
-extern void  tPMenuItemCommandButton_ct(int pThis, ...);
-extern void  tPMenuItemGoToMenuButton_ct(int pThis, ...);
-extern void  tPMenuItemLeftRightChoice_ct(int pThis, ...);
-extern void  tPMenuItemLeftRightSlider_ct(int pThis, ...);
-extern void  tPMenuItemLeftRightSliderIndexed_ct(int pThis, ...);
-extern void  tPListIterator_ct(int pThis, ...);
-extern void  tPListIteratorIndexed_ct(int pThis, ...);
-extern void  tPMenu_ct(int pThis, ...);
-
-extern void  tPMenuItemNonInteractiveText_dt(void *pThis, int flag);
-extern void  tPMenuItemCommandButton_dt(void *pThis, int flag);
-extern void  tPMenuItemGoToMenuButton_dt(void *pThis, int flag);
-extern void  tPMenuItemLeftRightChoice_dt(void *pThis, int flag);
-extern void  tPMenuItemLeftRightSlider_dt(void *pThis, int flag);
-extern void  tPMenuItemLeftRightSliderIndexed_dt(void *pThis, int flag);
-extern void  tPListIterator_dt(void *pThis, int flag);
-extern void  tPListIteratorIndexed_dt(void *pThis, int flag);
-extern void  tPMenu_dt(void *pThis, int flag);
 
 #endif /* MPAUSE_EXTERNS_H */

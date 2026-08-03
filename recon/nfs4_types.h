@@ -3467,6 +3467,8 @@ struct tPMenuItemCommandButton : public tPMenuItemInteractive {   /* 16 bytes */
 };
 
 struct tPauseMenuDefs {   /* 856 bytes */
+    tPauseMenuDefs();
+    ~tPauseMenuDefs();
     tPMenuItemNonInteractiveText itemGamePaused;   /* +0x0 */
     tPMenuItemCommandButton itemContinue, itemRestart;   /* +0xC */
     tPMenuItemGoToMenuButton itemOptions;   /* +0x2C */

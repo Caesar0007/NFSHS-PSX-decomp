@@ -1,8 +1,9 @@
 /* game/common/mpause.cpp -- RECONSTRUCTED (NFS4 PSX mini/in-race pause menu; C++ TU)
- *   10 fns: class tPauseMenuDefs (ctor/dtor as free _ct/_dt) + 8 free MPause_* (music/
+ *   10 fns: class tPauseMenuDefs ctor/dtor + 8 free MPause_* (music/
  *   controller/logic/render/init/start/end/kill). GTE-free. Full SYM-locals applied.
  */
 #include "../../nfs4_types.h"
+#include "../../lib/nfs4_new.h"
 #include "mpause_externs.h"
 
 /* ---- mpause.obj OWNED globals (Ghidra left $gp-relative; SYM names via disasm-proto,
@@ -79,85 +80,53 @@ static inline void MPause_SetCommandPlayer(tPMenuItemCommandButton *item, int pl
 
 
 /* ---- tPauseMenuDefs  [MPAUSE.CPP:172-264] SLD-VERIFIED ---- */
-int tPauseMenuDefs_ct(int param_1)
-
+tPauseMenuDefs::tPauseMenuDefs()
+  : itemGamePaused(0),
+    itemContinue(1,kMPause_Continue),
+    itemRestart(2,kMPause_Restart),
+    itemOptions(3,&menuOptions,0),
+    itemQuitRace(4,kMPause_QuitToRaceSummary),
+    itemForfeitRace(5,kMPause_ForfeitToRaceSummary),
+    menuPause(&itemGamePaused,&itemContinue,&itemRestart,&itemOptions,&itemQuitRace,
+              &itemForfeitRace,0),
+    itemOptionsTitle(6),
+    itemAudioSettings(7,&menuAudioSettings,0),
+    itemControllerSettings(8,&menuControllerConfig,0),
+    menuOptions(&itemOptionsTitle,&itemAudioSettings,&itemControllerSettings,0),
+    itemAudioSettingsTitle(10),
+    iteratorAudioMode(InGameSelectListAudioMode,&GameSetup_gData.userSetting.audioMode),
+    itemAudioSettingsAudioMode(0xb,&iteratorAudioMode),
+    itemAudioSettingsMusicVolume(0xc,&gMasterMusicLevel,0x7f),
+    itemAudioSettingsFXVolume(0xd,&gMasterSFXLevel,0x7f),
+    itemAudioSettingsSpeechVolume(0xe,&gMasterFENarrationLevel,0x7f),
+    itemAudioSettingsEngineVolume(0xf,&gMasterEngineLevel,0x7f),
+    itemAudioSettingsAmbientVolume(0x10,&gMasterAmbientLevel,0x7f),
+    menuAudioSettings(&itemAudioSettingsTitle,&itemAudioSettingsAudioMode,
+                      &itemAudioSettingsMusicVolume,&itemAudioSettingsFXVolume,
+                      &itemAudioSettingsSpeechVolume,&itemAudioSettingsEngineVolume,
+                      &itemAudioSettingsAmbientVolume,0),
+    iteratorConfig(SelectListConfig,GameSetup_gData.controllerData.controllerConfig,
+                   &Device_gPausePortIndex),
+    itemControllerSettingsTitle(0x14),
+    itemControllerConfig(0x15,&iteratorConfig),
+    itemControllerShockMode(0x1b,GameSetup_gData.controllerData.shockMode,0x7f,
+                            &Device_gPausePortIndex),
+    itemControllerShockImpact(0x1c,GameSetup_gData.controllerData.shockImpact,0x7f,
+                              &Device_gPausePortIndex),
+    menuControllerConfig(&itemControllerSettingsTitle,&itemControllerConfig,
+                         &itemControllerShockMode,&itemControllerShockImpact,0),
+    itemConfirmTitle(4),
+    itemConfirmAreYouSure(0x24),
+    itemConfirmNo(0x26,kMPause_BackupMenu),
+    itemConfirmYes(0x25,kMPause_BackupMenu),
+    menuConfirmYesNo(&itemConfirmTitle,&itemConfirmAreYouSure,&itemConfirmNo,
+                     &itemConfirmYes,0)
 {
-  tPMenuItemNonInteractiveText_ct(param_1,0);
-  tPMenuItemCommandButton_ct(param_1 + 0xc,1,1);
-  tPMenuItemCommandButton_ct(param_1 + 0x1c,2,2);
-  tPMenuItemGoToMenuButton_ct(param_1 + 0x2c,3,param_1 + 0xe8,0);
-  tPMenuItemCommandButton_ct(param_1 + 0x40,4,4);
-  tPMenuItemCommandButton_ct(param_1 + 0x50,5,5);
-  tPMenu_ct(param_1 + 0x60,param_1,param_1 + 0xc,param_1 + 0x1c,param_1 + 0x2c,param_1 + 0x40,
-                 param_1 + 0x50,0);
-  tPMenuItemNonInteractiveText_ct(param_1 + 0xb4,6);
-  tPMenuItemGoToMenuButton_ct(param_1 + 0xc0,7,param_1 + 0x1c8,0);
-  tPMenuItemGoToMenuButton_ct(param_1 + 0xd4,8,param_1 + 0x278,0);
-  tPMenu_ct(param_1 + 0xe8,param_1 + 0xb4,param_1 + 0xc0,param_1 + 0xd4,0);
-  tPMenuItemNonInteractiveText_ct(param_1 + 0x13c,10);
-  tPListIterator_ct(param_1 + 0x148,InGameSelectListAudioMode,(void *)((char *)&GameSetup_gData + 0xec) /* @0x801132d8 */);
-  tPMenuItemLeftRightChoice_ct(param_1 + 0x154,0xb,param_1 + 0x148);
-  tPMenuItemLeftRightSlider_ct(param_1 + 0x164,0xc,&gMasterMusicLevel,0x7f);
-  tPMenuItemLeftRightSlider_ct(param_1 + 0x178,0xd,&gMasterSFXLevel,0x7f);
-  tPMenuItemLeftRightSlider_ct(param_1 + 0x18c,0xe,&gMasterFENarrationLevel,0x7f);
-  tPMenuItemLeftRightSlider_ct(param_1 + 0x1a0,0xf,&gMasterEngineLevel,0x7f)
-  ;
-  tPMenuItemLeftRightSlider_ct(param_1 + 0x1b4,0x10,&gMasterAmbientLevel,0x7f);
-  tPMenu_ct(param_1 + 0x1c8,param_1 + 0x13c,param_1 + 0x154,param_1 + 0x164,param_1 + 0x178,
-                 param_1 + 0x18c,param_1 + 0x1a0,param_1 + 0x1b4,0);
-  tPListIteratorIndexed_ct(param_1 + 0x21c,SelectListConfig,(void *)((char *)&GameSetup_gData + 0x60) /* @0x8011324c */,&Device_gPausePortIndex);
-  tPMenuItemNonInteractiveText_ct(param_1 + 0x22c,0x14);
-  tPMenuItemLeftRightChoice_ct(param_1 + 0x238,0x15,param_1 + 0x21c);
-  tPMenuItemLeftRightSliderIndexed_ct(param_1 + 0x248,0x1b,(void *)((char *)&GameSetup_gData + 0xa8) /* @0x80113294 */,0x7f,&Device_gPausePortIndex);
-  tPMenuItemLeftRightSliderIndexed_ct(param_1 + 0x260,0x1c,(void *)((char *)&GameSetup_gData + 0xb0) /* @0x8011329c */,0x7f,&Device_gPausePortIndex);
-  tPMenu_ct(param_1 + 0x278,param_1 + 0x22c,param_1 + 0x238,param_1 + 0x248,param_1 + 0x260,0);
-  tPMenuItemNonInteractiveText_ct(param_1 + 0x2cc,4);
-  tPMenuItemNonInteractiveText_ct(param_1 + 0x2d8,0x24);
-  tPMenuItemCommandButton_ct(param_1 + 0x2e4,0x26,7);
-  tPMenuItemCommandButton_ct(param_1 + 0x2f4,0x25,7);
-  tPMenu_ct(param_1 + 0x304,param_1 + 0x2cc,param_1 + 0x2d8,param_1 + 0x2e4,param_1 + 0x2f4,0);
-  return param_1;
 }
 
 /* ---- ~tPauseMenuDefs  [MPAUSE.CPP:268-268] SLD-VERIFIED ---- */
-extern "C" void ___14tPauseMenuDefs(tPMenuItemNonInteractiveText *param_1,u_int __in_chrg)
-
+tPauseMenuDefs::~tPauseMenuDefs()
 {
-  tPMenu_dt((tPMenu *)&param_1[0x40].fTextDescription,2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)(param_1 + 0x3f),2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[0x3d]._vf,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x3c]._vf,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x3b]._vf,2);
-  tPMenu_dt((tPMenu *)&param_1[0x34]._vf,2);
-  tPMenuItemLeftRightSliderIndexed_dt((tPMenuItemLeftRightSliderIndexed *)&param_1[0x32]._vf,2);
-  tPMenuItemLeftRightSliderIndexed_dt((tPMenuItemLeftRightSliderIndexed *)&param_1[0x30]._vf,2);
-  tPMenuItemLeftRightChoice_dt((tPMenuItemLeftRightChoice *)&param_1[0x2f].fTextDescription,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x2e].fTextDescription,2);
-  tPListIteratorIndexed_dt((tPListIteratorIndexed *)(param_1 + 0x2d),2);
-  tPMenu_dt((tPMenu *)(param_1 + 0x26),2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x24].fTextDescription,2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x22]._vf,2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)(param_1 + 0x21),2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x1f].fTextDescription,2);
-  tPMenuItemLeftRightSlider_dt((tPMenuItemLeftRightSlider *)&param_1[0x1d]._vf,2);
-  tPMenuItemLeftRightChoice_dt((tPMenuItemLeftRightChoice *)&param_1[0x1c].fTextDescription,2);
-  tPListIterator_dt((tPListIterator *)&param_1[0x1b].fTextDescription,2);
-  tPMenuItemNonInteractiveText_dt((tPMenuItemNonInteractiveText *)&param_1[0x1a].fTextDescription,2);
-  tPMenu_dt((tPMenu *)&param_1[0x13].fTextDescription,2);
-  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)&param_1[0x11]._vf,2);
-  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)(param_1 + 0x10),2);
-  tPMenuItemNonInteractiveText_dt(param_1 + 0xf,2);
-  tPMenu_dt((tPMenu *)(param_1 + 8),2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[6]._vf,2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[5].fTextDescription,2);
-  tPMenuItemGoToMenuButton_dt((tPMenuItemGoToMenuButton *)&param_1[3]._vf,2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)&param_1[2].fTextDescription,2);
-  tPMenuItemCommandButton_dt((tPMenuItemCommandButton *)(param_1 + 1),2);
-  tPMenuItemNonInteractiveText_dt(param_1,2);
-  if ((__in_chrg & 1) != 0) {
-    __builtin_delete(param_1);
-  }
-  return;
 }
 
 /* ---- MPause_MusicLogic__Fc  [MPAUSE.CPP:290-371] SLD-VERIFIED ---- */
@@ -441,11 +410,8 @@ void MPause_Render(void)
 void MPause_InitMPause(void)
 
 {
-  void *pvVar1;
-  
   TextSys_LoadInGame(GameSetup_gData.userSetting.language);
-  pvVar1 = __builtin_new(0x358);
-  gPauseMenuDefs = (tPauseMenuDefs *)tPauseMenuDefs_ct(pvVar1);
+  gPauseMenuDefs = new tPauseMenuDefs;
   return;
 }
 
@@ -500,7 +466,7 @@ void MPause_KillMPause(void)
 {
   DrawSync(0);
   if (((int)gPauseMenuDefs) != 0) {
-    ___14tPauseMenuDefs(((int)gPauseMenuDefs),3);
+    delete gPauseMenuDefs;
   }
   TextSys_UnloadWords();
   return;

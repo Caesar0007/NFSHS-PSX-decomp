@@ -128,110 +128,88 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
 
 {
   int i;
-  int iVar2;
-  Car_tSpecs *pCVar3;
-  int iVar4;
+  int rpmAtMaxSpeedInHighestGear;
   int accAtMaxSpeedInHighestGear;
-  int iVar5;
-  
+
   i = 0;
-  accAtMaxSpeedInHighestGear = (int)carObj->specs;
-  *(int *)(accAtMaxSpeedInHighestGear + 0x15c) =
-       0x10000 / *(int *)(accAtMaxSpeedInHighestGear + 0xf0);
+  carObj->specs->redlineInv = 0x10000 / carObj->specs->redline;
   if (carObj->carInfo->WeightTransfer == 1) {
     carObj->specs->steeringRamp = carObj->specs->steeringRamp + 1;
-    i = fixedmult(carObj->specs->maxSteeringAcc,0x1147a);
-    carObj->specs->maxSteeringAcc = i;
+    carObj->specs->maxSteeringAcc =
+        fixedmult(carObj->specs->maxSteeringAcc,0x1147a);
   }
   if (carObj->carInfo->GroundEffects == 1) {
     carObj->specs->steeringRamp = carObj->specs->steeringRamp + 1;
-    i = fixedmult(carObj->specs->frontAeroDownForce,0x13333);
-    carObj->specs->frontAeroDownForce = i;
-    i = fixedmult(carObj->specs->rearAeroDownForce,0x13333);
-    carObj->specs->rearAeroDownForce = i;
-    i = fixedmult(carObj->specs->mass,0xcccc);
-    carObj->specs->mass = i;
-    i = fixedmult(carObj->specs->lateralGripMult,0x11999);
-    carObj->specs->lateralGripMult = i;
+    carObj->specs->frontAeroDownForce =
+        fixedmult(carObj->specs->frontAeroDownForce,0x13333);
+    carObj->specs->rearAeroDownForce =
+        fixedmult(carObj->specs->rearAeroDownForce,0x13333);
+    carObj->specs->mass = fixedmult(carObj->specs->mass,0xcccc);
+    carObj->specs->lateralGripMult =
+        fixedmult(carObj->specs->lateralGripMult,0x11999);
   }
   if (carObj->carInfo->EngineMods == 1) {
     carObj->specs->gearShiftDelay = carObj->specs->gearShiftDelay / 2;
-    i = fixedmult(carObj->specs->maxBrakeAcc,0x14000);
-    carObj->specs->maxBrakeAcc = i;
-    i = 0;
+    carObj->specs->maxBrakeAcc =
+        fixedmult(carObj->specs->maxBrakeAcc,0x14000);
     do {
-      iVar2 = fixedmult(carObj->specs->torqueCurve[i],0x12666);
-      iVar5 = i + 1;
-      carObj->specs->torqueCurve[i] = iVar2;
-      i = iVar5;
-    } while (iVar5 < 0x29);
-    i = fixedmult(carObj->specs->maxSpeed,0x11999);
-    carObj->specs->maxSpeed = i;
+      carObj->specs->torqueCurve[i] =
+          fixedmult(carObj->specs->torqueCurve[i],0x12666);
+      i++;
+    } while (i < 41);
+    carObj->specs->maxSpeed = fixedmult(carObj->specs->maxSpeed,0x11999);
   }
-  pCVar3 = carObj->specs;
-  i = pCVar3->numGears;
-  iVar2 = 0;
-  if (0 < i) {
-    i = 0;
-    do {
-      iVar4 = (int)pCVar3->velToRpmRatio + i + -0xc;
-      iVar5 = 0x28f;
-      if (*(int *)(iVar4 + 0xc) != 0) {
-        iVar5 = fixeddiv(0x10000,*(int *)(iVar4 + 0xc));
-        iVar4 = (int)carObj->specs->velToRpmRatio + i + -0xc;
-      }
-      *(int *)(iVar4 + 0x180) = iVar5;
-      iVar2 = iVar2 + 1;
-      iVar5 = fixeddiv(*(int *)((int)carObj->specs->velToRpmRatio + i),carObj->specs->mass);
-      *(int *)((int)carObj->specs->gearAccCoeff + i) = iVar5;
-      iVar5 = fixeddiv(*(int *)((int)carObj->specs->gearAccCoeff + i),0xa0000);
-      *(int *)((int)carObj->specs->gearAccCoeff + i) = iVar5;
-      iVar5 = fixedmult(*(int *)((int)carObj->specs->gearAccCoeff + i),
-                         *(int *)((int)carObj->specs->gearEfficiency + i));
-      *(int *)((int)carObj->specs->gearAccCoeff + i) = iVar5;
-      iVar5 = fixedmult(*(int *)((int)carObj->specs->velToRpmRatioInv + i),
-                         carObj->specs->redline << 0x10);
-      iVar5 = fixeddiv(0x10000,iVar5);
-      *(int *)((int)carObj->specs->gearVelInv + i) = iVar5;
-      pCVar3 = carObj->specs;
-      i = i + 4;
-    } while (iVar2 < pCVar3->numGears);
-    pCVar3 = carObj->specs;
-    i = pCVar3->numGears;
+
+  for (i = 0; i < carObj->specs->numGears; i++) {
+    if (carObj->specs->velToRpmRatio[i] != 0) {
+      carObj->specs->velToRpmRatioInv[i] =
+          fixeddiv(0x10000,carObj->specs->velToRpmRatio[i]);
+    }
+    else {
+      carObj->specs->velToRpmRatioInv[i] = 0x28f;
+    }
+    carObj->specs->gearAccCoeff[i] =
+        fixeddiv(carObj->specs->velToRpmRatio[i],carObj->specs->mass);
+    carObj->specs->gearAccCoeff[i] =
+        fixeddiv(carObj->specs->gearAccCoeff[i],0xa0000);
+    carObj->specs->gearAccCoeff[i] =
+        fixedmult(carObj->specs->gearAccCoeff[i],
+                  carObj->specs->gearEfficiency[i]);
+    carObj->specs->gearVelInv[i] =
+        fixeddiv(0x10000,
+                 fixedmult(carObj->specs->velToRpmRatioInv[i],
+                           carObj->specs->redline << 16));
   }
-  i = fixedmult(pCVar3->maxSpeed,pCVar3->velToRpmRatio[i + -1]);
-  if (i < 0) {
-    i = i + 0xffff;
-  }
-  i = i >> 0x10;
-  pCVar3 = carObj->specs;
-  if (i < 0) {
-    i = i + 0xff;
-  }
-  i = fixedmult(pCVar3->torqueCurve[i >> 8],pCVar3->velToRpmRatioInv[pCVar3->numGears + 7])
-  ;
-  iVar2 = carObj->specs->maxSpeed;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xffff;
-  }
-  iVar2 = iVar2 >> 0x10;
-  i = fixeddiv(i,iVar2 * iVar2 * iVar2);
-  carObj->specs->dragCoeff = i;
+
+  rpmAtMaxSpeedInHighestGear =
+      fixedmult(carObj->specs->maxSpeed,
+                carObj->specs->velToRpmRatio[
+                    carObj->specs->numGears - 1]) / 0x10000;
+  accAtMaxSpeedInHighestGear =
+      fixedmult(carObj->specs->torqueCurve[
+                    rpmAtMaxSpeedInHighestGear / 0x100],
+                carObj->specs->gearAccCoeff[carObj->specs->numGears - 1]);
+  carObj->specs->dragCoeff =
+      fixeddiv(accAtMaxSpeedInHighestGear,
+               (carObj->specs->maxSpeed / 0x10000) *
+               (carObj->specs->maxSpeed / 0x10000) *
+               (carObj->specs->maxSpeed / 0x10000));
+
   if (7 < GameSetup_gData.track) {
     carObj->specs->gasOffFactor = carObj->specs->gasOffFactor + 0x2666;
-    carObj->specs->frontBrakeRatio = carObj->specs->frontBrakeRatio + -0x2666;
+    carObj->specs->frontBrakeRatio = carObj->specs->frontBrakeRatio - 0x2666;
     carObj->specs->frontGripBias = carObj->specs->frontGripBias + 0x147;
   }
-  i = fixedmult(0x10000,carObj->specs->wheelBase / 2);
-  carObj->specs->alphaToAccRotInertia = i;
-  i = fixedmult(carObj->specs->alphaToAccRotInertia,0x648);
-  carObj->specs->alphaToAccRotInertia = i;
-  carObj->specs->alphaToAccRotInertia = carObj->specs->alphaToAccRotInertia << 8;
-  i = fixeddiv(0x10000,carObj->specs->alphaToAccRotInertia);
-  carObj->specs->accToAlphaRotInertia = i;
-  i = fixeddiv(0x10000,carObj->specs->lateralGripMult);
-  carObj->specs->lateralGripMultInv = i;
-  return;
+
+  carObj->specs->alphaToAccRotInertia =
+      fixedmult(0x10000,carObj->specs->wheelBase / 2);
+  carObj->specs->alphaToAccRotInertia =
+      fixedmult(carObj->specs->alphaToAccRotInertia,0x648);
+  carObj->specs->alphaToAccRotInertia <<= 8;
+  carObj->specs->accToAlphaRotInertia =
+      fixeddiv(0x10000,carObj->specs->alphaToAccRotInertia);
+  carObj->specs->lateralGripMultInv =
+      fixeddiv(0x10000,carObj->specs->lateralGripMult);
 }
 
 /* ---- Physics_CheckGamedata__Fv  [PHYSICS.CPP:414-465] SLD-VERIFIED ---- */

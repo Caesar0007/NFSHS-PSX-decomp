@@ -124,44 +124,34 @@ tInputKeyType
 FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
 
 {
-  bool bVar1;
-  int iVar2;
   u_short i;
-  u_short uVar4;
-  
-  uVar4 = 0;
-  while( true ) {
-    bVar1 = false;
-    iVar2 = FEInput_GetDebounceKey(getKeyMappings[uVar4].PSXKey,player);
-    if ((iVar2 != 0) ||
-       (((debounce & getKeyMappings[uVar4].FEKey) == kInput_KeyType_NoKey &&
-        (iVar2 = FEInput_GetNoDebounceKey(getKeyMappings[uVar4].PSXKey,player), iVar2 != 0))))
-    {
-      bVar1 = true;
-    }
-    if (bVar1) break;
-    uVar4 = uVar4 + 1;
-    /* Retail clears the found pseudo in the loop back-edge delay slot. */
-    bVar1 = false;
-    if (0xf < uVar4) {
-      if (FEInput_GetDebounceKey(0x4000,player) != 0) {
-        return kInput_KeyType_Cross;
-      }
-      if (FEInput_GetDebounceKey(0x1000,player) != 0) {
-        return kInput_KeyType_Triangle;
-      }
-      if (FEInput_GetDebounceKey(0x2000,player) != 0) {
-        return kInput_KeyType_Circle;
-      }
-      /* Inverting only this final test preserves the bnez tail layout. */
-      if (FEInput_GetDebounceKey(0x8000,player) == 0) {
-        return (tInputKeyType)
-            ((u_int)(FEInput_GetDebounceKey(8,player) != 0) << 0xd);
-      }
-      return kInput_KeyType_Square;
+
+  /* MATCH 2026-08-03 (5->PASS): SLD records only `unsigned short i`.
+     Keeping the short-circuit test directly in the for-loop condition lets
+     GCC create retail's temporary found pseudo, clear it in the back-edge
+     delay slot, and place the mapping/Square return blocks in oracle order. */
+  for (i = 0; i < 16; i++) {
+    if ((FEInput_GetDebounceKey(getKeyMappings[i].PSXKey,player) != 0) ||
+        (((debounce & getKeyMappings[i].FEKey) == kInput_KeyType_NoKey) &&
+         (FEInput_GetNoDebounceKey(getKeyMappings[i].PSXKey,player) != 0))) {
+      return (tInputKeyType)getKeyMappings[i].FEKey;
     }
   }
-  return (tInputKeyType)getKeyMappings[uVar4].FEKey;
+  if (FEInput_GetDebounceKey(0x4000,player) != 0) {
+    return kInput_KeyType_Cross;
+  }
+  if (FEInput_GetDebounceKey(0x1000,player) != 0) {
+    return kInput_KeyType_Triangle;
+  }
+  if (FEInput_GetDebounceKey(0x2000,player) != 0) {
+    return kInput_KeyType_Circle;
+  }
+  /* Inverting only this final test preserves the bnez tail layout. */
+  if (FEInput_GetDebounceKey(0x8000,player) == 0) {
+    return (tInputKeyType)
+        ((u_int)(FEInput_GetDebounceKey(8,player) != 0) << 0xd);
+  }
+  return kInput_KeyType_Square;
 }
 
 

@@ -3045,20 +3045,22 @@ gte_SetTransMatrix(&DW_WORLDMAT);
                               objInstance->z - (Vi->cview).translation.z));
         if (type == 9) {
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-          int t1, t2, sx, sy;
+          int t1, t2, t3, sx, sy;
 
           sx = (int)objInstance->qz << 8;
           sy = (int)objInstance->qy << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
-          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          t3 = fixedmult(matrix.m[6],sx);
           matrix.m[0] = t1;
           matrix.m[3] = t2;
+          matrix.m[6] = t3;
           t1 = fixedmult(matrix.m[1],sy);
           t2 = fixedmult(matrix.m[4],sy);
-          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          t3 = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
+          matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sx);
           t2 = fixedmult(matrix.m[5],sx);
           matrix.m[8] = fixedmult(matrix.m[8],sx);
@@ -3090,7 +3092,7 @@ DrawWChunkFacets_emitObj:
           break;
         case 2: {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
-          int t1, t2, sx, sy, sz;
+          int t1, t2, t3, sx, sy, sz;
 
           Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
           sx = (int)objInstance->sx << 8;
@@ -3098,20 +3100,23 @@ DrawWChunkFacets_emitObj:
           sz = (int)objInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
-          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          t3 = fixedmult(matrix.m[6],sx);
           matrix.m[0] = t1;
           matrix.m[3] = t2;
+          matrix.m[6] = t3;
           t1 = fixedmult(matrix.m[1],sy);
           t2 = fixedmult(matrix.m[4],sy);
-          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          t3 = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
+          matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           objDef = Track_gObjDefs[objInstance->pad];
-          matrix.m[8] = fixedmult(matrix.m[8],sz);
+          t3 = fixedmult(matrix.m[8],sz);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
+          matrix.m[8] = t3;
           /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
            * through the SYM `short light` ($s1) variable.  The oracle proves the split:
            * the flags&1/type==9 arm loads `lhu $s1,0x1A($s4)` and pays a `sll 16;sra 16`
@@ -3129,21 +3134,23 @@ DrawWChunkFacets_emitObj:
         }
         case 9: {
         /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-        int t1, t2, sx, sy;
+        int t1, t2, t3, sx, sy;
 
         xformy(&matrix,(int)objInstance->qx);
         sx = (int)objInstance->qz << 8;
         sy = (int)objInstance->qy << 8;
         t1 = fixedmult(matrix.m[0],sx);
         t2 = fixedmult(matrix.m[3],sx);
-        matrix.m[6] = fixedmult(matrix.m[6],sx);
+        t3 = fixedmult(matrix.m[6],sx);
         matrix.m[0] = t1;
         matrix.m[3] = t2;
+        matrix.m[6] = t3;
         t1 = fixedmult(matrix.m[1],sy);
         t2 = fixedmult(matrix.m[4],sy);
-        matrix.m[7] = fixedmult(matrix.m[7],sy);
+        t3 = fixedmult(matrix.m[7],sy);
         matrix.m[1] = t1;
         matrix.m[4] = t2;
+        matrix.m[7] = t3;
         t1 = fixedmult(matrix.m[2],sx);
         t2 = fixedmult(matrix.m[5],sx);
         matrix.m[8] = fixedmult(matrix.m[8],sx);
@@ -3161,7 +3168,7 @@ DrawWChunkFacets_emitObj:
         anim = Object_GetAnim(simObjs + objInstance->simIndex);
         if (anim == (ObjectAnim *)0x0) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
-          int t1, t2, sx, sy, sz;
+          int t1, t2, t3, sx, sy, sz;
 
           Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
           sx = (int)objInstance->sx << 8;
@@ -3169,19 +3176,22 @@ DrawWChunkFacets_emitObj:
           sz = (int)objInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
-          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          t3 = fixedmult(matrix.m[6],sx);
           matrix.m[0] = t1;
           matrix.m[3] = t2;
+          matrix.m[6] = t3;
           t1 = fixedmult(matrix.m[1],sy);
           t2 = fixedmult(matrix.m[4],sy);
-          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          t3 = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
+          matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
-          matrix.m[8] = fixedmult(matrix.m[8],sz);
+          t3 = fixedmult(matrix.m[8],sz);
           matrix.m[5] = t2;
           matrix.m[2] = t1;
+          matrix.m[8] = t3;
           /* MATCH (w42-a2): case 5 passes its light INLINE as the literal -1 --
            * exactly the same cross-jump-DEPTH rule the case-2/case-9 notes above
            * document, and the reason `light` (SYM REG $s1) must NOT be live here.

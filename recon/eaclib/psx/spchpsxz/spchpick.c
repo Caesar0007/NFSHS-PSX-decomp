@@ -651,15 +651,29 @@ choose:
                      * DOES kill move_movables, and goto-loop + `!= -2` reaches EXACT 80/80 parity
                      * -- but at 34 diffs (the un-strength-reduced walker re-colors the whole body),
                      * so it is not kept.  What is still missing is a source form that keeps the
-                     * reduced loop AND leaves the `li -2` in the block. */
+                     * reduced loop AND leaves the `li -2` in the block.
+                     * 🏆 w47-a2 SEALED 1 -> PASS (80/80).  NEW ANGLE "PRE-SET THE DEFAULT BEFORE
+                     * THE TEST": the residual was NOT the eaclib never-merges-tails identity.  The
+                     * early-out arm (`if (mismatch) { result = 0; goto out; }`) is a BLOCK whose
+                     * body is byte-identical to the `fail:` block, so jump.c cross-jumps it away,
+                     * the bne then targets `fail:` -- and because that shared block re-sets s4,
+                     * reorg is free to fill the slot from the FALL-THROUGH (`li s4,-1`) instead.
+                     * Writing the default assignment BEFORE the test (`result = 0; if (match)
+                     * { result = -1; *outChoice = result; } goto out;`) leaves NO arm to merge: the
+                     * `result = 0` insn simply PRECEDES the branch, so fill_simple_delay_slots'
+                     * backward scan (which skips over -- but does not stop at -- the conflicting
+                     * `lh`/`li -2` compare feeders) moves it into the bne's delay slot and the
+                     * branch goes straight to the shared epilogue, +1 insn = retail's 80.
+                     * RULE: an oracle branch whose delay slot holds a store the fall-through
+                     * immediately overwrites is a DEFAULT ASSIGNED BEFORE THE TEST, never an
+                     * early-out arm. */
                     int mark = -2;
-                    if (*outChoice != (short)mark) {
-                        result = 0;
-                        goto out;
+                    result = 0;
+                    if (*outChoice == (short)mark) {
+                        mark = -1;
+                        result = mark;
+                        *outChoice = (short)result;
                     }
-                    mark = -1;
-                    result = mark;
-                    *outChoice = (short)result;
                     goto out;
                 }
                 r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);

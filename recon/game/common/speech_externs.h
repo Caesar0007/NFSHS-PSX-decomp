@@ -60,7 +60,7 @@ long SPCHNFS_S_C_SUPER_COP_CRITICISM(int = 0, ...);
 long SPCHNFS_W_D_RDBLK_PLC(int = 0, ...);
 long SPCHNFS_W_D_SPBLT_PLC(int = 0, ...);
 long SPCH_AddBank(int = 0, ...);
-long SPCH_ClearEventQueue(int = 0, ...);
+void SPCH_ClearEventQueue(void);
 long SPCH_Deinit(int = 0, ...);
 long SPCH_GetSampleDataRate(int = 0, ...);
 long SPCH_Init(int = 0, ...);

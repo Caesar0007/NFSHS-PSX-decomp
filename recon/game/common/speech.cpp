@@ -1198,37 +1198,38 @@ u_int * Speech_ct(u_int *param_1)
 void Reset__6Speech(void)
 
 {
-  MobileSpeaker *pThis;  /* folded receiver temp (SYM REG `this`) */
-  int i;
-  int *piVar1;
-  bool bVar2;
-  u_int uVar3;
-  u_int uVar4;
   int iVar5;
   int iVar6;
-  u_int uVar7;
   
   if (((int)Speech_fgSpeech) != 0) {
     iVar6 = 0;
     iVar5 = ((int)Speech_fgSpeech);
-    while (bVar2 = iVar6 < 4, iVar6 = iVar6 + 1, bVar2) {
-      piVar1 = (int *)(iVar5 + 0x390);
+    while (true) {
+      if (iVar6 >= 4) {
+        break;
+      }
+      iVar6 = iVar6 + 1;
+      *(u_int *)(*(int *)(iVar5 + 0x390) + 0x60) = 0;
       iVar5 = iVar5 + 4;
-      *(u_int *)(*piVar1 + 0x60) = 0;
     }
     SPCH_ClearEventQueue();
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     iSPCH_EACseedrandom((randtemp & 0xffff00) >> 8);
-    uVar3 = fastRandom * randSeed;
-    uVar4 = (uVar3 & 0xffff) * randSeed;
-    randtemp = (uVar4 & 0xffff) * randSeed;
-    uVar7 = (randtemp & 0xffff00) >> 8;
-    fastRandom = randtemp & 0xffff;
-    *(u_int *)(((int)Speech_fgSpeech) + 0x380) = ((uVar3 & 0xffff00) >> 8) % 9;
-    *(u_int *)(((int)Speech_fgSpeech) + 900) = ((uVar4 & 0xffff00) >> 8) % 6;
-    Activate__Q26Speech15DispatchSpeakeri(*(u_int *)(((int)Speech_fgSpeech) + 0x3a0),
-               uVar7 + (uVar7 / 7 + (uVar7 - uVar7 / 7 >> 1) >> 2) * -7);
+    Speech *speech = Speech_fgSpeech;
+    DispatchSpeaker *dispatch = speech->fDispatch;
+    speech->fCopCount =
+        (randtemp = fastRandom * randSeed,
+         fastRandom = randtemp & 0xffff,
+         (randtemp & 0xffff00) >> 8) % 9;
+    speech->fSuperCount =
+        (randtemp = fastRandom * randSeed,
+         fastRandom = randtemp & 0xffff,
+         (randtemp & 0xffff00) >> 8) % 6;
+    Activate__Q26Speech15DispatchSpeakeri((int)dispatch,
+        (randtemp = fastRandom * randSeed,
+         fastRandom = randtemp & 0xffff,
+         (randtemp & 0xffff00) >> 8) % 7);
   }
   return;
 }

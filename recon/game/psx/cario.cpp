@@ -313,6 +313,21 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
         *dest++ = (short)(n0 | n1 | n2 | n3);
         i = i - 1;
       }
+      /* w46-a9 (6 -> 4, count now EXACT 42/42): residual (b) above -- the two arms'
+       * identical `source += 12; j looptop` tails -- is NOT a per-obj cross_jump
+       * identity.  A zero-operand USE fence is an RTL insn that emits ZERO bytes, so
+       * it breaks the arms' equality for free and retail's duplicated tail returns.
+       * PLACEMENT is the whole dial and it is not the obvious one: the fence must sit
+       * in the ELSE arm BEFORE its `source += 12` (42 insns / 4 diffs).  Measured from
+       * this basin: fence AFTER the then-arm tail 43/7, after the else-arm tail 43/7
+       * (both de-merge but dbr then steals the loop-top `addiu t3,t3,-1` into the `j`
+       * delay slot instead of `addiu t2,t2,24`), before the then-arm tail 40/6 (still
+       * merged).  All 24 n0..n3 ASSIGNMENT orders were re-swept from the new basin
+       * (the w39/w41 sweeps were basin-relative): the original n1,n2,n0,n3 is still
+       * the unique optimum (next best 10, worst 18).  Eight in-loop fence placements
+       * aimed at residual (a) all cost +2 insns (44) -- the n0 sched2 placement needs
+       * a ZERO-insn dial, not a fence inside the loop body. */
+      __asm__ __volatile__("");
       source = source + 0xc;
     }
   }

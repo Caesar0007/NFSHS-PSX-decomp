@@ -385,9 +385,19 @@ void Weather_ChangeIntensityBasedOnTime(void)
 
 {
   if (Weather_gIntensityChangeFactor <= 0) goto WeatherIntensity_checkZero;
-  if (!((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState]))
-  goto WeatherIntensity_call;
+  /* w46-a9 (4 -> PASS): the w42 "STRONG" verdict above named the mechanism exactly
+   * right -- guard 1 in the ORACLE polarity makes its 3-insn tail byte-identical to
+   * guard 2's and our post-reload cross_jump merges them (58 insns) -- but its
+   * conclusion ("no equivalent C spelling makes the two tails differ") only held for
+   * spellings that EMIT code.  A zero-operand USE FENCE is a real RTL insn that
+   * emits ZERO bytes, so it breaks cross_jump's tail equality at no instruction
+   * cost: guard 1 keeps the oracle's `bnez -> velYUpdate` sense AND its own `j`.
+   * Placement is the dial -- the fence must sit at the END of guard 1's block
+   * (before the `goto ..._call`); before the guard = 58/6, in the other arm = 62/4. */
+  if ((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState])
   goto WeatherIntensity_velYUpdate;
+  __asm__ __volatile__("");
+  goto WeatherIntensity_call;
 WeatherIntensity_checkZero:
   if (Weather_gIntensityChangeFactor >= 0) goto WeatherIntensity_checkTime;
   if ((int)Weather_gSys.velocity.vy > Weather_gIntensityTbl[Weather_gIntensityGoalState])
@@ -994,10 +1004,24 @@ void Weather_CreateSnow(SVECTOR *pt)
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
   pal = (u_int *)RENDER_PALETTEPTR_ADDR;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-  RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;   /* MATCH: bump off the loaded prim, no re-read */
+  /* w46-a9 (10 -> PASS): residual (a) above is the SAME shape that cracked
+   * Weather_CreateSplat this wave -- the fused `PTR = prim + 0x28;` statement lets
+   * gcc hoist the `addiu` ABOVE the header-merge store, so the bump gets a fresh
+   * register instead of reusing the dying merge temp.  Three zero-instruction dials:
+   *  (1) a fence right after the header store pins the `addiu` below it;
+   *  (2) the bump is SPLIT into a value statement (`next`) and its store;
+   *  (3) the palette RMW is SPLIT (read `palw` first) and the cursor store is placed
+   *      INSIDE it, between the palette read and the addr24 mask -- retail's
+   *      `sw $v1,0($t1)` issues there and no whole-statement placement reaches it.
+   * Measured from this basin: fence-only 8, split-bump-only 8, split-RMW + store
+   * after the block 6, store at the END of the block 6, this form 2. */
+  __asm__ __volatile__("");
   {
+    u_char *next = (u_char *)prim + 0x28;   /* bump off the loaded prim, no re-read */
+    u_int palw = *pal;
+    RENDER_PACKETPTR_ADDR = next;
     u_int addr24 = (u_int)prim & 0xffffff;
-    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
+    *pal = palw & 0xff000000 | (addr24 & 0xffffff);
   }
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
@@ -1007,7 +1031,14 @@ void Weather_CreateSnow(SVECTOR *pt)
   gte_rtps();
   *(u_int *)&prim->r0 = 0x2e202020;                         /* r0=g0=b0=0x20, code=0x2e (textured FT4) */
   gte_stsxy(&prim->x3);
-  pmx = *(Draw_tPixMap **)((char *)gWeatherPixmap + ((int)pt & 4));
+  /* w46-a9: residual (b) -- the `(int)pt & 4` mask emitted BEFORE the `la` of
+   * gWeatherPixmap, retail after.  The cure is the HONEST INDEX FORM: the byte-offset
+   * cast is a Ghidra transcription of `gWeatherPixmap[bit]`, and writing the real
+   * array access lets gcc materialize the table address first and fold the scale.
+   * (`char *wp = ...;` hoisted base and a named `m` + hoisted base also PASS; a named
+   * `m` alone, the reversed `((int)pt&4) + (char*)tbl` addition, and a bare fence all
+   * stay at 2.) */
+  pmx = gWeatherPixmap[((int)pt & 4) >> 2];
   l0 = *(u_int *)pmx;
   l1 = *(u_int *)((char *)pmx + 4);
   l2 = *(u_int *)((char *)pmx + 8);
@@ -1030,7 +1061,26 @@ void Weather_CreateSnow(SVECTOR *pt)
  * the palette merge; sched1 hoists our `addiu` above the store into `$v0`, which also
  * flips the palette `or`'s destination (ours dest = the prim term, retail = the pal term).
  * MEASURED NEGATIVE: palette-write-back-before-bump (16, neutral); the pal-term-first
- * `or` spelling (52). */
+ * `or` spelling (52).
+ * w46-a9: the packet-emission recipe that took BOTH Weather_CreateSplat (6 -> PASS) and
+ * Weather_CreateSnow (10 -> PASS) this wave DOES NOT TRANSFER HERE, and the reason is
+ * named: those two are STRAIGHT-LINE emitters, this one emits the same header from TWO
+ * ARMS.  Measured (both arms edited together, count stays 113/113 throughout):
+ *   - split bump into `next` value + store, at all five in-block positions .... 16 (neutral)
+ *   - a zero-operand USE fence after the header store ....................... 104 (!)
+ *   - fence + split bump, 4 placements ................................. 32/32/104/104
+ *   - fence + split palette RMW (`palw` read first) ..................... 32/24/36/104
+ * The fence is CATASTROPHIC here where it was the key dial in the siblings: with two arms
+ * it lands inside a block whose `pal` pseudo is arm-local, and the barrier stops the two
+ * arms' header groups from being scheduled alike, so the arms diverge wholesale.
+ * 🔑 NEW NAMED ANGLE: fix the ARMS first, then the emission.  The two arms are
+ * byte-identical from the header store through `*(u_int*)&prim->r1 = 0x402020;` -- if the
+ * shared prologue is factored so ONE header group is emitted and reached from both arms
+ * (or, conversely, if the arms are deliberately DE-merged with per-arm data-label address
+ * forms, catalog w41 §D), the emission dials become single-site again and the
+ * CreateSplat/CreateSnow recipe applies unchanged.  Untried: hoisting the whole
+ * prim/pal/header/bump group ABOVE the `if (*wd)` (retail's `prim` is one pseudo across
+ * both arms per the register evidence: `$t2` throughout). */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;
@@ -1122,11 +1172,26 @@ void Weather_CreateSplat
   /* MATCH: the palette write-back BEFORE the cursor bump.  With the bump 2nd (the
    * Ghidra order) gcc issues `addiu/sw` ahead of the tag store (64 diffs); with it
    * 3rd the scheduler interleaves it into the palette merge exactly like retail. */
+  /* w46-a9 (6 -> PASS).  Three cooperating dials, all zero-instruction:
+   *  (1) SPLIT the cursor bump into a value statement (`next`) and its store, and
+   *      put the store INSIDE the palette RMW -- retail's `sw $v1,0($a3)` issues
+   *      between the addr24 mask and the palette merge, which no placement of a
+   *      fused `PTR = prim + 0x28;` statement can reach.
+   *  (2) SPLIT the palette read-modify-write itself (`palw` read, then the write)
+   *      -- the read must issue before the addr24 mask, exactly as the oracle's
+   *      `lw $v0,0($a1) / and $a0,$t0,$a0` pair shows (w43 SPLIT-RMW row).
+   *  (3) a zero-operand USE fence after the `next` value statement pins the
+   *      `addiu $v1,$t0,0x28` into the tag merge instead of letting it sink. */
   {
-    u_int addr24 = (u_int)prim & 0xffffff;
-    *(u_int *)tp3 = *(u_int *)tp3 & 0xff000000 | (addr24 & 0xffffff);
+    u_char *next = (u_char *)prim + 0x28;
+    __asm__ __volatile__("");
+    {
+      u_int palw = *(u_int *)tp3;
+      u_int addr24 = (u_int)prim & 0xffffff;
+      RENDER_PACKETPTR_ADDR = next;
+      *(u_int *)tp3 = palw & 0xff000000 | (addr24 & 0xffffff);
+    }
   }
-  RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;
   *((char *)prim + 3) = 9;
   prim->code = 0x2e;
   size = 0x12;
@@ -1134,8 +1199,16 @@ void Weather_CreateSplat
     size = 0xc;
   }
   splatTick = simGlobal.gameTicks - splat->startTick;
-  prim->r0 = prim->g0 = prim->b0 = (u_char)(-0x80 - splatTick * 4);
-  splatTick = splatTick >> 3;
+  /* w46-a9: retail issues `li $v0,-128 / subu $v0,$v0,$a0` BEFORE `sra $v1,$v1,3`
+   * (both are ready right after the `sll`, a sched2 ready-list tie).  Naming the
+   * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
+   * fence between the two ORIGINAL statements over-shoots (sra sinks too far). */
+  {
+    int col = -0x80 - splatTick * 4;
+    __asm__ __volatile__("");
+    splatTick = splatTick >> 3;
+    prim->r0 = prim->g0 = prim->b0 = (u_char)col;
+  }
   prim->x0 = vx - splatTick;
   prim->y0 = vy + splatTick - splatTick;
   prim->x1 = vx + size + splatTick;
@@ -1193,7 +1266,20 @@ void Weather_CreateSplat
  * callee-saved reg (s0-s5, frame 48) than our two combine_givs-merged walkers (s0-s4,
  * frame 40).  Trichotomy: NOT a cse double-evaluation copy (the copy DIES BEFORE its
  * source, so make_regs_eqv would propagate it away) and not a prototype artefact -- it is
- * the combine_givs merge, which no index spelling avoids. */
+ * the combine_givs merge, which no index spelling avoids.
+ * w46-a9 (re-gated 36, ours 111 / oracle 113 -- unchanged).  Three more falsifications
+ * from the w44/w45 kit, all aimed at forcing the missing 6th callee-saved register into
+ * existence: `int *pn = &gCurrentNumSplats;` held across the loop (§3.12 #16 hold-global-
+ * addr-across-call) = 59/118, a zero-insn USE fence on `num` after the loop init = 37/112,
+ * the same on `splats` = 41/112.  Every one ADDS instructions instead of adding a giv.
+ * 🔑 NEW NAMED ANGLE: attack combine_givs, not the register file.  The receipt above says
+ * our two walkers are a MERGE of retail's three, and `-dL` prints the giv combination
+ * decisions (`giv of insn N not worth while, W vs insn_count` / the combined-giv list) --
+ * the w43 GIV-WORTH BUDGET RAZOR row shows that list is readable and probeable, and that
+ * the dial is the loop's RTL insn count (often a 1-insn razor).  Dump -dL on this loop,
+ * read whether the pos.vy giv is *combined* or *declined*, then move the crossing point
+ * with a +1-RTL-insn faithful spelling (retail's own store-then-read-back of a just-
+ * stored field is the standard zero-byte way to add exactly one RTL insn). */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
@@ -1344,11 +1430,21 @@ void Weather_DoWeather(DRender_tView *Vi)
     /* MATCH: palette write-back BEFORE the cursor bump (same order lever as
      * Weather_CreateSplat) -- the scheduler then interleaves the bump into the
      * palette merge like retail. */
+    /* w46-a9 (46 -> 42): the CreateSplat/CreateSnow packet-emission recipe, partially.
+     * The cursor bump is SPLIT into a value statement and its store, the palette RMW is
+     * SPLIT (read first), and the cursor store is placed BETWEEN the palette read and the
+     * addr24 mask.  Measured here: this form 42 · with a leading zero-byte fence 48 ·
+     * fence + store after the mask 48 · fence + store last 52 · fence only 52 · split
+     * bump without the palette split 46/46.  Unlike the two sibling emitters a fence is
+     * NEGATIVE here (this tail sits at the end of a 197-insn function whose residual is a
+     * whole-function allocno permutation, so the barrier costs more than it buys). */
     {
-    u_int addr24 = (u_int)prim & 0xffffff;
-    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
-  }
-    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0xc;
+      u_char *next = (u_char *)prim + 0xc;
+      u_int palw = *pal;
+      RENDER_PACKETPTR_ADDR = next;
+      u_int addr24 = (u_int)prim & 0xffffff;
+      *pal = palw & 0xff000000 | (addr24 & 0xffffff);
+    }
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

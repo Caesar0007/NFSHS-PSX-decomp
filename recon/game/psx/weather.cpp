@@ -1004,10 +1004,24 @@ void Weather_CreateSnow(SVECTOR *pt)
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
   pal = (u_int *)RENDER_PALETTEPTR_ADDR;
   *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-  RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x28;   /* MATCH: bump off the loaded prim, no re-read */
+  /* w46-a9 (10 -> PASS): residual (a) above is the SAME shape that cracked
+   * Weather_CreateSplat this wave -- the fused `PTR = prim + 0x28;` statement lets
+   * gcc hoist the `addiu` ABOVE the header-merge store, so the bump gets a fresh
+   * register instead of reusing the dying merge temp.  Three zero-instruction dials:
+   *  (1) a fence right after the header store pins the `addiu` below it;
+   *  (2) the bump is SPLIT into a value statement (`next`) and its store;
+   *  (3) the palette RMW is SPLIT (read `palw` first) and the cursor store is placed
+   *      INSIDE it, between the palette read and the addr24 mask -- retail's
+   *      `sw $v1,0($t1)` issues there and no whole-statement placement reaches it.
+   * Measured from this basin: fence-only 8, split-bump-only 8, split-RMW + store
+   * after the block 6, store at the END of the block 6, this form 2. */
+  __asm__ __volatile__("");
   {
+    u_char *next = (u_char *)prim + 0x28;   /* bump off the loaded prim, no re-read */
+    u_int palw = *pal;
+    RENDER_PACKETPTR_ADDR = next;
     u_int addr24 = (u_int)prim & 0xffffff;
-    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
+    *pal = palw & 0xff000000 | (addr24 & 0xffffff);
   }
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
   gte_stsxy3(&prim->x0,&prim->x1,&prim->x2);
@@ -1017,7 +1031,14 @@ void Weather_CreateSnow(SVECTOR *pt)
   gte_rtps();
   *(u_int *)&prim->r0 = 0x2e202020;                         /* r0=g0=b0=0x20, code=0x2e (textured FT4) */
   gte_stsxy(&prim->x3);
-  pmx = *(Draw_tPixMap **)((char *)gWeatherPixmap + ((int)pt & 4));
+  /* w46-a9: residual (b) -- the `(int)pt & 4` mask emitted BEFORE the `la` of
+   * gWeatherPixmap, retail after.  The cure is the HONEST INDEX FORM: the byte-offset
+   * cast is a Ghidra transcription of `gWeatherPixmap[bit]`, and writing the real
+   * array access lets gcc materialize the table address first and fold the scale.
+   * (`char *wp = ...;` hoisted base and a named `m` + hoisted base also PASS; a named
+   * `m` alone, the reversed `((int)pt&4) + (char*)tbl` addition, and a bare fence all
+   * stay at 2.) */
+  pmx = gWeatherPixmap[((int)pt & 4) >> 2];
   l0 = *(u_int *)pmx;
   l1 = *(u_int *)((char *)pmx + 4);
   l2 = *(u_int *)((char *)pmx + 8);

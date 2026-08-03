@@ -1242,45 +1242,45 @@ void Camera_UpdateBTCopCam(int player)
 /* ---- Camera_Update__Fv  [@0x800833d8] ---- */
 void Camera_Update(void)
 {
-  Car_tObj*anchor;
-  int direction;
-  camera_flags*flagMode;
-  short sVar1;
-  bool bVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  u_int uVar6;
-  u_int uVar7;
-  u_int uVar8;
-  u_int uVar9;
-  u_int uVar10;
-  u_int uVar11;
-  u_int uVar12;
-  Camera_tInfo *pCVar13;
   int player;
-  BO_tNewtonObj *pBVar14;
   int *piVar15;
   Car_tObj **ppCVar16;
   int iVar17;
   
   player = 0;
-  pCVar13 = Camera_gInfo;
   iVar17 = 0;
   ppCVar16 = Cars_gHumanRaceCarList;
   piVar15 = Camera_gInfo[0].rotation.m + 6;
   do {
-    if ((int)(u_int)((u_char)((u_char *)&(Camera_gInfo[0]))[116] >> 7) < player) {
+    if (Camera_gInfo[0].splitscreen < player) {
       return;
     }
-    pBVar14 = pCVar13->anchor;
-    if ((*(u_int *)((char *)(pCVar13) + 0x74) >> 6 & 1) == 0) {
+    {
+    Car_tObj *anchor;
+
+    anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+    if (Camera_gInfo[player].checkcollisions != 0) {
+      if (Camera_gInfo[player].tumbling != 0) {
+        Camera_gInfo[player].tumbling--;
+        Camera_UpdateCollisionCam(player);
+        goto LAB_80083584;
+      }
+      if (anchor->N.orientationToGround.y < 0x8000) {
+        int direction;
+
+        direction = fixedmult(piVar15[0],anchor->N.roadMatrix.m[6]) +
+                    fixedmult(piVar15[1],anchor->N.roadMatrix.m[7]) +
+                    fixedmult(piVar15[2],anchor->N.roadMatrix.m[8]);
+        Camera_gInfo[player].direction = direction < 0;
+        Camera_gInfo[player].tumbling = 100;
+      }
+    }
 LAB_80083500:
-      if (((pBVar14[1].simRoadInfo.quadPts[1].y & 1U) != 0) && (pBVar14[1].roadMatrix.m[3] == 2)) {
+      if (((anchor->carFlags & 1U) != 0) && (anchor->stats.finishType == 2)) {
         Camera_UpdateFinishCam(player);
         goto LAB_80083584;
       }
-      if (0 < (int)pCVar13->forceFocus) {
+      if (0 < (int)Camera_gInfo[player].forceFocus) {
         Camera_UpdateBTCopCam(player);
         goto LAB_80083584;
       }
@@ -1288,31 +1288,23 @@ LAB_80083500:
         Camera_UpdatePulloverCam(player);
         goto LAB_80083584;
       }
-      if ((((char *)(pCVar13))[0x74] & 1) != 0) {
-        sVar1 = pCVar13->mode;
-        uVar12 = *(u_int *)((char *)(pCVar13) + 0x74);
-        uVar6 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 1) << 1;
-        *(u_int *)((char *)(pCVar13) + 0x74) = uVar12 & 0xfffffffd | uVar6;
-        uVar7 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 2) << 1;
-        *(u_int *)((char *)(pCVar13) + 0x74) = uVar12 & 0xfffffff9 | uVar6 | uVar7;
-        uVar8 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 4) << 1;
-        *(u_int *)((char *)(pCVar13) + 0x74) = uVar12 & 0xfffffff1 | uVar6 | uVar7 | uVar8;
-        uVar9 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 8) << 1;
-        *(u_int *)((char *)(pCVar13) + 0x74) = uVar12 & 0xffffffe1 | uVar6 | uVar7 | uVar8 | uVar9;
-        uVar10 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 0x10) << 1;
-        *(u_int *)((char *)(pCVar13) + 0x74) = uVar12 & 0xffffffc1 | uVar6 | uVar7 | uVar8 | uVar9 | uVar10
-        ;
-        uVar11 = (*(u_int *)((char *)&(Camera_gFlags[sVar1]) + 0xc) & 0x20) << 1;
-        *(u_int *)((char *)(pCVar13) + 0x74) =
-             uVar12 & 0xffffff81 | uVar6 | uVar7 | uVar8 | uVar9 | uVar10 | uVar11;
-        *(u_int *)((char *)(pCVar13) + 0x74) =
-             uVar12 & 0xf7ffff80 | uVar6 | uVar7 | uVar8 | uVar9 | uVar10 | uVar11 |
-             (u_int)(pCVar13->mode < 2) << 0x1b;
-        pCVar13->anchor = &(*ppCVar16)->N;
-        bVar2 = 1 < Replay_ReplayMode;
-        pCVar13->target = &(*ppCVar16)->N;
-        if ((bVar2) && (*(int *)((int)&Replay_ReplayCamera[0].cameraMode + iVar17) == 0x13)) {
-          Replay_ReplayFindClosestCamera(player,(int)(pCVar13->anchor->simRoadInfo).slice);
+      if (Camera_gInfo[player].modechange != 0) {
+        camera_flags *flagMode;
+
+        flagMode = &Camera_gFlags[Camera_gInfo[player].mode];
+        Camera_gInfo[player].pitch = flagMode->pitch;
+        Camera_gInfo[player].jostling = flagMode->jostling;
+        Camera_gInfo[player].tracking = flagMode->tracking;
+        Camera_gInfo[player].checkwalls = flagMode->checkwalls;
+        Camera_gInfo[player].noLookBack = flagMode->noLookBack;
+        Camera_gInfo[player].checkcollisions = flagMode->checkcollisions;
+        Camera_gInfo[player].inCar = Camera_gInfo[player].mode < 2;
+        Camera_gInfo[player].modechange = 0;
+        Camera_gInfo[player].anchor = &(*ppCVar16)->N;
+        Camera_gInfo[player].target = &(*ppCVar16)->N;
+        if ((1 < Replay_ReplayMode) &&
+            (*(int *)((int)&Replay_ReplayCamera[0].cameraMode + iVar17) == 0x13)) {
+          Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
         }
       }
       /* ============================================================================
@@ -1395,7 +1387,7 @@ LAB_80083500:
        * Input_gLookBehind-check + LookBack-call and does NOT correspond to any single PSX mode
        * value -- don't mistake it for a 4-way PSX enum split.
        * ============================================================================ */
-      switch(pCVar13->mode) {
+      switch(Camera_gInfo[player].mode) {
       case 0:
       case 1:
         Camera_UpdateBumperCam(player);
@@ -1445,28 +1437,12 @@ LAB_80083500:
       case 0x12:
         Camera_UpdateCopCam2(player);
       }
-    }
-    else {
-      if (pCVar13->tumbling == '\0') {
-        if ((pBVar14->orientationToGround).y < 0x8000) {
-          iVar3 = fixedmult(*piVar15,(pBVar14->roadMatrix).m[6]);
-          iVar4 = fixedmult(piVar15[1],(pCVar13->anchor->roadMatrix).m[7])
-          ;
-          iVar5 = fixedmult(piVar15[2],(pCVar13->anchor->roadMatrix).m[8])
-          ;
-          *(u_int *)((char *)(pCVar13) + 0x74) =
-               *(u_int *)((char *)(pCVar13) + 0x74) & 0xfeffffff |
-               (u_int)(iVar3 + iVar4 + iVar5 < 0) << 0x18;
-          pCVar13->tumbling = 'd';
-        }
-        goto LAB_80083500;
-      }
-      pCVar13->tumbling = pCVar13->tumbling + -1;
-      Camera_UpdateCollisionCam(player);
+    goto LAB_80083810;
 LAB_80083584:
-      *(u_int *)((char *)(pCVar13) + 0x74) = *(u_int *)((char *)(pCVar13) + 0x74) & 0xf7ffffff | 1;
+    Camera_gInfo[player].inCar = 0;
+    Camera_gInfo[player].modechange = 1;
     }
-    pCVar13 = pCVar13 + 1;
+LAB_80083810:
     iVar17 = iVar17 + 0x10;
     ppCVar16 = ppCVar16 + 1;
     piVar15 = piVar15 + 0x44;

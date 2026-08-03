@@ -3760,6 +3760,11 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      `sm`, REG $s2, PTR STRUCT size 688, block line 33) held constant across the
      inner loop, and `$t1`/`$t3` = per-segment cursors advanced by `addiu ,0x1C`
      with `$t7` the index.  OUR recon fuses all of them into the single invented
+     NOTE (a10 w46 law): every pseudo in the table above is a GLOBAL allocno --
+     all nine appear in the -dg `;; N regs to allocate:` list -- so the
+     `QTY_CMP_PRI` priority formula DOES arbitrate them; the w46-a10
+     `next_qty <= 3` hand-rolled-comparator quirk (local-alloc.c:1588) does
+     NOT apply here.
      `pt1_index` int, which is why p92 carries 17 refs where retail's `sm` carries
      fewer.  Materialize `Skidmark_Chunk *sm` with its real fields and give the
      inner loop its own cursor locals; that is the same "one fabricated iVarN

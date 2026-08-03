@@ -747,6 +747,27 @@ extern void iSPCH_RandomizeSentencePicks(int sentence)
  *   not: retail needs la-first AND base->$v0, and no spelling produces that pair.
  *   Local-alloc quantity-order tie (longest-live-first among two block-0 temps),
  *   permuter target -- do not re-enumerate spellings.
+ * w47-a2 QUANTIFIED (NEW NAMED ANGLE, still 4 -- do not re-enumerate spellings, attack the
+ *   number): entry-block local qtys are exactly TWO -- base{high r90, lo_sum r89} and the
+ *   mult chain {r93,r94,r95} (cc1 -dl, tools/rtl_dump_c.py).  next_qty==2 takes local-alloc's
+ *   hand-rolled case-2 branch, which IS a priority compare, so the winner (=$v0) is decided by
+ *   QTY_CMP_PRI = floor_log2(refs)*refs*size/(death-birth) with combine_regs SUMMING each qty's
+ *   member refs (w46 law).  Measured: base refs 2+2=4, mult refs 2+2+2=6.
+ *     la-LAST  (every anonymous spelling): base life ~4, mult life ~10 -> PRI 2.0 vs 1.2
+ *       -> base wins $v0, mult $v1 = RETAIL'S REGISTERS, but the la sits after the sll chain.
+ *     la-FIRST (every named-base spelling): base life ~10, mult life ~6 -> PRI 0.8 vs 2.0
+ *       -> mult wins $v0 = the 12-diff role swap.
+ *   So with the la emitted first the base CANNOT win at 4 refs: it needs PRI > 2.0, i.e. >= 8
+ *   refs (3*8/10=2.4) -- ~6 extra uses of the base -- or the mult qty must drop to <= 2 refs
+ *   (impossible: n*6 is a 3-insn sll/addu/sll chain).  => the reachable target is a form where
+ *   the MULT CHAIN IS NOT A BLOCK-LOCAL QTY AT ALL (it writes straight into `choice`'s global
+ *   pseudo, leaving the base as the block's ONLY local qty -> it takes $v0 unconditionally AND
+ *   the la is emitted first).  Falsified for that (w47-a2, mini-TU probe scratch/w47_a2_iterate.py,
+ *   15 spellings): choice_carries_mult `(short*)(n*12)` then `(char*)chBase + (int)choice`,
+ *   choice_mult_then_add via a null base, mutate `choice = ispch_gChoice; choice += n*6;`,
+ *   named (int, char pointer, row, deref, idx, reversed) bases, split decls, idx-first.  Flag axis CLOSED for
+ *   this fn: -fno-schedule-insns (24), -fno-schedule-insns2 (10), both (28), -mno-split-addresses
+ *   (15/43 insns), -G0, -G8, -fno-strength-reduce all >= the 8-probe baseline.
  * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
  * at the epilogue: $v0 = the "ran out" flag). */
 extern int iSPCH_IterateChoice(int sentence)

@@ -431,12 +431,10 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       vel_b.x = ((carObj->N).position.x + ((carObj->N).linearVel.x >> 5)) - BWorldSm_slices[slice].center[0];
       vel_b.y = ((carObj->N).position.y + ((carObj->N).linearVel.y >> 5)) - BWorldSm_slices[slice].center[1];
       vel_b.z = ((carObj->N).position.z + ((carObj->N).linearVel.z >> 5)) - BWorldSm_slices[slice].center[2];
-      x1 = vel_b.x;
-      x2 = vel_b.y;
-      x3 = vel_b.z;
-      x_relRoad = right.x / 0x100 * (x1 / 0x100) +
-                  right.y / 0x100 * (x2 / 0x100) +
-                  right.z / 0x100 * (x3 / 0x100);
+      x1 = right.x / 0x100 * (vel_b.x / 0x100);
+      x2 = right.y / 0x100 * (vel_b.y / 0x100);
+      x3 = right.z / 0x100 * (vel_b.z / 0x100);
+      x_relRoad = x1 + x2 + x3;
     }
     (carObj->N).xRelRoadCenter = x_relRoad;
     }
@@ -452,28 +450,28 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     r1 = (carObj->N).orientMat.m[6];
     r2 = (carObj->N).orientMat.m[7];
     r3 = (carObj->N).orientMat.m[8];
-    r1 = r1 / 0x100 * (right.x / 0x100) +
-         r2 / 0x100 * (right.y / 0x100) +
-         r3 / 0x100 * (right.z / 0x100);
-    carCollisionWidth = fixedmult((carObj->N).dimension.z,r1);
+    x1 = r1 / 0x100 * (right.x / 0x100);
+    x2 = r2 / 0x100 * (right.y / 0x100);
+    x3 = r3 / 0x100 * (right.z / 0x100);
+    carCollisionWidth = fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
     if (0 < carCollisionWidth) {
-      carCollisionWidth = fixedmult((carObj->N).dimension.z,r1);
+      carCollisionWidth = fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
     }
     else {
-      carCollisionWidth = -fixedmult((carObj->N).dimension.z,r1);
+      carCollisionWidth = -fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
     }
 
     r1 = (carObj->N).orientMat.m[0];
     r2 = (carObj->N).orientMat.m[1];
     r3 = (carObj->N).orientMat.m[2];
-    r1 = (carObj->N).dimension.x / 0x100 *
-         ((r1 / 0x100 * (right.x / 0x100) +
-           r2 / 0x100 * (right.y / 0x100) +
-           r3 / 0x100 * (right.z / 0x100)) / 0x100);
-    if (r1 < 0) {
-      r1 = -r1;
+    x1 = r1 / 0x100 * (right.x / 0x100);
+    x2 = r2 / 0x100 * (right.y / 0x100);
+    x3 = r3 / 0x100 * (right.z / 0x100);
+    x1 = (carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100);
+    if (x1 < 0) {
+      x1 = -x1;
     }
-    carCollisionWidth = carCollisionWidth + r1;
+    carCollisionWidth = carCollisionWidth + x1;
     r2 = carCollisionWidth - BWorldSm_slices[slice].leftDrive * 0x100;
     if (x_relRoad < r2 - carObj->extraWallCollisionAllowance) {
       collide = -1;
@@ -519,14 +517,13 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       }
       else {
         normal.x = -right.x;
-        normal.z = -right.z;
         normal.y = -right.y;
+        normal.z = -right.z;
       }
       Collide_TestWithPlane(&carObj->N,&normal,&(carObj->N).position);
       if ((carObj->N).collision.impulse != 0) {
-        wallType = currentWallType;
         (carObj->N).collision.otherObj = (BO_tNewtonObj *)0x0;
-        (carObj->N).collision.sfxType = wallType | 0x40000;
+        (carObj->N).collision.sfxType = currentWallType | 0x40000;
       }
     }
     else {

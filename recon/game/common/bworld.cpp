@@ -201,7 +201,7 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
 }
 
 /* ---- SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache  [@0x8007d940] ---- */
-/* NEAR-MISS 94 diffs (179/181 insns), reduced from a baseline of 147 diffs (170/181 insns).
+/* HISTORICAL ROUND: 94 diffs (179/181 insns), reduced from a baseline of 147 diffs (170/181 insns).
  * 🔴 THREE REAL BUGS FIXED (not just byte-match issues):
  * (1) `gNightMat.m[1]/[7]/[4] = 0` and the identical `gCopMat.m[1]/[7]/[4] = 0` were
  *     ZEROING these matrix elements, but the oracle NEGATES the existing value in
@@ -242,92 +242,122 @@ int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
  * gNightMat's m[1]/m[7]/m[4] negation (regressed to 152 diffs, reverted both). Same
  * floor class as BWorld_OpenContext/BWorld_CheckChunkVisible above. ACCEPT (with the
  * three real bugs fixed). */
+/* CURRENT: 16 diffs with exact 181/181 instruction parity (90 diffs at the
+ * start of this round).  The SLD trace recovers the retail scopes and names:
+ * tm@sp+16, rotY@sp+56, i=$a3, maxdist=$t1, theCar=$a2, plus the scoped
+ * campos/dx/dz/diff locals.  `__builtin_abs` is required for the oracle's two
+ * `bgez; nop; negu` sequences; hand-written abs lets GCC fill both delay slots.
+ * The only residual is the same scheduling/coloring tie repeated for gNightMat
+ * and gCopMat: ours processes m[4] before m[7], retail m[7] before m[4].  Direct
+ * assignments, reordered locals/definitions, aliasing and volatile-load probes
+ * were neutral; disabling sched2 regressed to 38 diffs. */
 void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  Car_tObj *pCVar4;
-  int iVar5;
-  Car_tObj **ppCVar6;
-  matrixtdef mStack_60;
-  matrixtdef mStack_38;
-
-
   if ((Vi->id == Draw_gPlayer1View) || (Vi->id == Draw_gPlayer2View)) {
-    iVar2 = Vi->player;
+    UpdateContext(Vi,Vi->player);
   }
   else {
-    iVar2 = 1;
+    UpdateContext(Vi,1);
   }
-  UpdateContext(Vi,iVar2);
-  iVar1 = (Vi->cview).mrotationInv.m[0];
-  iVar3 = (Vi->cview).mrotationInv.m[1];
-  iVar5 = (Vi->cview).mrotationInv.m[2];
-  gWorldMat.m[0] = iVar1;
-  gWorldMat.m[1] = -iVar3;
-  gWorldMat.m[2] = iVar5;
-  iVar1 = (Vi->cview).mrotationInv.m[3];
-  iVar3 = (Vi->cview).mrotationInv.m[4];
-  iVar5 = (Vi->cview).mrotationInv.m[5];
-  gWorldMat.m[3] = iVar1;
-  gWorldMat.m[4] = -iVar3;
-  gWorldMat.m[5] = iVar5;
-  iVar1 = (Vi->cview).mrotationInv.m[6];
-  iVar3 = (Vi->cview).mrotationInv.m[7];
-  iVar5 = (Vi->cview).mrotationInv.m[8];
-  gWorldMat.m[6] = iVar1;
-  gWorldMat.m[7] = -iVar3;
-  gWorldMat.m[8] = iVar5;
+  {
+    int t1;
+    int t2;
+    int t3;
+
+    t1 = (Vi->cview).mrotationInv.m[0];
+    t2 = (Vi->cview).mrotationInv.m[1];
+    t3 = (Vi->cview).mrotationInv.m[2];
+    gWorldMat.m[0] = t1;
+    gWorldMat.m[1] = -t2;
+    gWorldMat.m[2] = t3;
+    t1 = (Vi->cview).mrotationInv.m[3];
+    t2 = (Vi->cview).mrotationInv.m[4];
+    t3 = (Vi->cview).mrotationInv.m[5];
+    gWorldMat.m[3] = t1;
+    gWorldMat.m[4] = -t2;
+    gWorldMat.m[5] = t3;
+    t1 = (Vi->cview).mrotationInv.m[6];
+    t2 = (Vi->cview).mrotationInv.m[7];
+    t3 = (Vi->cview).mrotationInv.m[8];
+    gWorldMat.m[6] = t1;
+    gWorldMat.m[7] = -t2;
+    gWorldMat.m[8] = t3;
+  }
   if (gNight_renderNight != 0) {
+    matrixtdef tm;
+    int i;
+    int maxdist;
+
     transpose(&(Camera_gInfo[Vi->player].target)->orientMat,&gNightMat);
-    gNightMat.m[1] = -gNightMat.m[1];
-    gNightMat.m[7] = -gNightMat.m[7];
-    gNightMat.m[4] = -gNightMat.m[4];
+    {
+      int t1;
+      int t2;
+      int t3;
+
+      t1 = gNightMat.m[1];
+      t3 = gNightMat.m[7];
+      gNightMat.m[1] = -t1;
+      t2 = gNightMat.m[4];
+      gNightMat.m[7] = -t3;
+      gNightMat.m[4] = -t2;
+    }
     DrawW_WorldSetUpMatrix(&gNightMat,&sd->matNight);
     BW_gCopCarObj = (Car_tObj *)0x0;
-    iVar2 = 0xb40000;
+    maxdist = 0xb40000;
     if (GameSetup_gData.commMode != 1) {
-      ppCVar6 = Cars_gCopCarList - 1;
-      for (iVar5 = -1; iVar5 < Cars_gNumCopCars; iVar5 = iVar5 + 1) {
-        if (iVar5 < 0) {
-          pCVar4 = Cars_gList[0];
+      for (i = -1; i < Cars_gNumCopCars; i = i + 1) {
+        Car_tObj *theCar;
+
+        if (i < 0) {
+          theCar = Cars_gList[0];
         }
         else {
-          pCVar4 = *ppCVar6;
+          theCar = Cars_gCopCarList[i];
         }
-        if ((((pCVar4->N).active != '\0') && ((pCVar4->AIFlags & 2U) != 0)) &&
-           (((pCVar4->render).damageParts & 4U) == 0)) {
-          iVar3 = (pCVar4->N).position.x - (Vi->cview).translation.x;
-          iVar1 = (pCVar4->N).position.z - (Vi->cview).translation.z;
-          if (iVar3 < 0) {
-            iVar3 = -iVar3;
-          }
-          if (iVar1 < 0) {
-            iVar1 = -iVar1;
-          }
-          if (iVar1 < iVar3) {
-            iVar3 = iVar3 + (iVar1 >> 2);
+        if ((((theCar->N).active != '\0') && ((theCar->AIFlags & 2U) != 0)) &&
+           (((theCar->render).damageParts & 4U) == 0)) {
+          coorddef *campos = &(Vi->cview).translation;
+          int dx;
+          int dz;
+          int diff;
+
+          dx = (theCar->N).position.x - campos->x;
+          dz = (theCar->N).position.z - campos->z;
+          dx = __builtin_abs(dx);
+          dz = __builtin_abs(dz);
+          if (dz < dx) {
+            diff = dx + (dz >> 2);
           }
           else {
-            iVar3 = iVar1 + (iVar3 >> 2);
+            diff = dz + (dx >> 2);
           }
-          if (iVar3 < iVar2) {
-            iVar2 = iVar3;
-            BW_gCopCarObj = pCVar4;
+          if (diff < maxdist) {
+            maxdist = diff;
+            BW_gCopCarObj = theCar;
           }
         }
-        ppCVar6 = ppCVar6 + 1;
       }
       if (BW_gCopCarObj != (Car_tObj *)0x0) {
+        matrixtdef rotY;
+        static int cop_angle;
+
         Night_SetCopColor(BW_gCopCarObj->carInfo);
         gBWPrimPtr = (void *)((int)gBWPrimPtr + 0x40);
-        xformy(&mStack_38,gBWPrimPtr);
-        transpose(&(BW_gCopCarObj->N).orientMat,&mStack_60);
-        Math_fasttransmult(&mStack_60,&mStack_38,&gCopMat);
-        gCopMat.m[1] = -gCopMat.m[1];
-        gCopMat.m[7] = -gCopMat.m[7];
-        gCopMat.m[4] = -gCopMat.m[4];
+        xformy(&rotY,gBWPrimPtr);
+        transpose(&(BW_gCopCarObj->N).orientMat,&tm);
+        Math_fasttransmult(&tm,&rotY,&gCopMat);
+        {
+          int t1;
+          int t2;
+          int t3;
+
+          t1 = gCopMat.m[1];
+          t3 = gCopMat.m[7];
+          gCopMat.m[1] = -t1;
+          t2 = gCopMat.m[4];
+          gCopMat.m[7] = -t3;
+          gCopMat.m[4] = -t2;
+        }
         DrawW_WorldSetUpMatrix(&gCopMat,&sd->matCop);
       }
     }

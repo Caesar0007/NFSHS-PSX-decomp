@@ -215,8 +215,12 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
                 bestval = best;
+                /* MATCH (w47-a3): `c = 0` hoisted ABOVE the count guard so it is the LAST insn in
+                 * reorg's backward scan window -- fill_simple_delay_slots then steals IT into the
+                 * `beqz` slot (retail's exact slot) instead of `bestval = best`, which stays at the
+                 * loop head where retail has it. */
+                c = 0;
                 if (gs[0x11] != 0) {
-                    c = 0;
                     off = c;
                     do {
                         one = 1;
@@ -248,8 +252,8 @@ extern int iSNDallocchan(unsigned int priority, int numChannels, int a2, unsigne
                 gs = (unsigned char *)sndgs;
                 best = 0xffffffff;
                 bestv = best;
+                c = 0;                 /* MATCH (w47-a3): same delay-slot lever as pass 1 */
                 if (gs[0x11] != 0) {
-                    c = 0;
                     off = c;
                     do {
                         if ((priority & (1 << c)) != 0 &&

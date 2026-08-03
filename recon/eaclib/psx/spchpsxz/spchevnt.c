@@ -245,7 +245,21 @@ extern void iSPCH_InitEventQueue(void)
      * (`lui $v1; addiu $v0; addu $a3,$v0; addu $a0,$a3; addiu $t0,$a0; sw $zero,%lo($v1)`), we
      * materialize it twice (one `lui/addiu` per view) and keep no copies -- the per-obj
      * no-copy-prop identity (catalog SSG) crossed with the two-view requirement above.  Reverting
-     * to one symbol restores the single `lui` but costs the whole register assignment (31 diffs). */
+     * to one symbol restores the single `lui` but costs the whole register assignment (31 diffs).
+     * w47-a2 MECHANISM SHARPENED (still 12; NEW NAMED ANGLE for whoever takes it next): the two
+     * missing insns are NOT a copy-PROPAGATION difference, they are `delete_noop_moves`.  A
+     * `(set (reg d) (reg s))` whose source DIES there is tied by local-alloc's combine_regs into
+     * ONE quantity, both ends land in the same hard reg, and flow deletes the now-noop move -- which
+     * is exactly what happens to every copy-chain spelling.  Retail's `addu $a3,$v0,$zero` +
+     * `addu $a0,$a3,$zero` survive only because its allocator gave the two ends DIFFERENT hard regs,
+     * i.e. combine_regs did NOT tie them.  So the reachable lever is anything that BLOCKS the tie
+     * (source still live after the copy, or a qty conflict) -- not another spelling of the copy.
+     * Falsified this wave (mini-TU probe scratch/w47_a2_ieq.py, all 28 insns / 33 diffs, i.e. the
+     * copy deleted): addr->base->slot chains with the store through `addr`, with `end` off `slot`
+     * or off `base`, and with the chain rooted at either view.  Flag axis also swept and CLOSED
+     * (19 -f/-m options): only -fno-schedule-insns moves the count (29, but it trades the inner
+     * bound test `slti`->`slt`); -fno-delayed-branch 32 insns, -fno-omit-frame-pointer 35, every
+     * cse/loop/inline/defer-pop/function-cse/caller-saves/peephole switch is diff-neutral. */
     int argBase = 0;
     int base = (int)gVoxEvents;
     int slot = (int)gVoxEventQueue;
@@ -358,7 +372,19 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
  * "coalesce-with-dying-pseudo vs fresh reg" irreducible core, not a shape
  * error. PROTOTYPE AUDIT (w33-a10): 1 arg -- $a1..$a3 are never read before
  * being written; returns a literal 0 in $v0 at the single epilogue, so `int`
- * is correct, not void. */
+ * is correct, not void.
+ * w47-a2 MECHANISM SHARPENED (same class as iSPCH_InitEventQueue's prologue, see its note):
+ * the two missing insns are `delete_noop_moves`, not copy propagation.  Retail computes BOTH
+ * values into the SAME scratch ($v0) and then moves each to its home ($t0 base, $a1 off), i.e.
+ * the producing insn's dest is a separate BLOCK-LOCAL pseudo and the variable is a GLOBAL
+ * allocno; local-alloc's combine_regs REFUSES to tie a local qty to a global pseudo
+ * (`if (reg_qty[sreg] >= -1) return 0`), so the copy survives with two different hard regs.
+ * Ours produces the value straight into the variable's own pseudo, so there is no copy to keep.
+ * The reachable lever is therefore "make the PRODUCER's destination a distinct short-lived
+ * pseudo", which needs a second live use of that temp (cse/make_regs_eqv otherwise makes the
+ * long-lived variable canonical and the move becomes a noop).  No faithful source form found
+ * this wave; the falsified spelling list above stands and the flag axis is closed for the TU
+ * (-mno-split-addresses breaks 9 PASSes here). */
 extern int SPCH_AddEvent(unsigned int *table)
 {
     int voxEvent = iSPCH_FindEvent(*table);

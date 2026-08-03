@@ -148,6 +148,18 @@ what dbr finds nearest.
 anywhere (neutral). `-fno-delayed-branch` is excluded on principle here: this
 object's epilogue is `jr $ra; addiu $sp` (gcc-filled) so spchbank.obj is a
 delayed-branch-ON object, unlike pad.obj.
+**Two NEW spelling falsifications (this wave, basin = default flags, 33/33 parity):**
+`int *nb;` + sunk `nb = gNumBanks;` reproduces w34-a9's **16** exactly; and the
+never-tried **"no pointer locals at all"** spelling (`gVoxBanks[0] == 0` /
+`gNumBanks[0] = numBanks` / `numBanks = gNumBanks[0]`, no `vb`/`nb` variables) is
+ALSO **16** — i.e. it is not the C *variable* that pins the base register, it is
+where `-msplit-addresses` first materialises the address pseudo. Both reverted.
+**Priority arithmetic behind the wall (gcc-2.8 global.c, priority ∝
+log2(refs)·refs/live_length):** retail's two base pseudos have the SAME ref count
+(1 def + 2 refs each), so retail is a *tie* broken by allocno creation order —
+`gVoxBanks` first ⇒ `$s0`. Our top-init form ties the same way and colours
+CORRECTLY (that is why today's residual is 4 and not 16); the sunk form makes the
+`gNumBanks` pseudo strictly SHORTER, so it jumps the tie and steals `$s0`.
 **NEW NAMED ANGLE (unspent, for the next wave): "sink the lui, then re-lengthen".**
 The two known one-sided moves are (a) init at the top → lui hoisted above the
 branch (today's 4 diffs) and (b) init sunk into the `if` → lui lands where retail
@@ -157,6 +169,14 @@ has it BUT `nb` shortens and steals `$s0` (16 diffs, w34-a9). Nobody has tried
 to `nb` after the zero-fill loop so its live length exceeds `vb`'s again. That is
 a two-lever composition, and each lever alone is already measured, so the
 prediction is checkable before probing (qtyprio/allocsim on both allocnos).
+⚠️ The hard part is that the lengthening device must be **code-free** (33/33 parity
+is already exact, so any extra instruction is an automatic loss), and every
+obvious device — `vb = nb;`, `numBanks = (int)nb;` after the loop — assigns to a
+variable that is DEAD, so gcc deletes it before regalloc and the range never
+grows. The genuinely unexplored device is a *live* late consumer that costs
+nothing, e.g. re-reading the bound as `for (i = 0; i < gNumBanks[0]; i++)` and
+letting loop.c hoist the load back to the preheader (the base pseudo then stays
+live across the loop). Measure with qtyprio BEFORE spending a gate cycle.
 
 ## 4. FLAG-AXIS SUSPICIONS (for a7/a8/a9)
 

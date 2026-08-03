@@ -1061,7 +1061,26 @@ void Weather_CreateSnow(SVECTOR *pt)
  * the palette merge; sched1 hoists our `addiu` above the store into `$v0`, which also
  * flips the palette `or`'s destination (ours dest = the prim term, retail = the pal term).
  * MEASURED NEGATIVE: palette-write-back-before-bump (16, neutral); the pal-term-first
- * `or` spelling (52). */
+ * `or` spelling (52).
+ * w46-a9: the packet-emission recipe that took BOTH Weather_CreateSplat (6 -> PASS) and
+ * Weather_CreateSnow (10 -> PASS) this wave DOES NOT TRANSFER HERE, and the reason is
+ * named: those two are STRAIGHT-LINE emitters, this one emits the same header from TWO
+ * ARMS.  Measured (both arms edited together, count stays 113/113 throughout):
+ *   - split bump into `next` value + store, at all five in-block positions .... 16 (neutral)
+ *   - a zero-operand USE fence after the header store ....................... 104 (!)
+ *   - fence + split bump, 4 placements ................................. 32/32/104/104
+ *   - fence + split palette RMW (`palw` read first) ..................... 32/24/36/104
+ * The fence is CATASTROPHIC here where it was the key dial in the siblings: with two arms
+ * it lands inside a block whose `pal` pseudo is arm-local, and the barrier stops the two
+ * arms' header groups from being scheduled alike, so the arms diverge wholesale.
+ * 🔑 NEW NAMED ANGLE: fix the ARMS first, then the emission.  The two arms are
+ * byte-identical from the header store through `*(u_int*)&prim->r1 = 0x402020;` -- if the
+ * shared prologue is factored so ONE header group is emitted and reached from both arms
+ * (or, conversely, if the arms are deliberately DE-merged with per-arm data-label address
+ * forms, catalog w41 §D), the emission dials become single-site again and the
+ * CreateSplat/CreateSnow recipe applies unchanged.  Untried: hoisting the whole
+ * prim/pal/header/bump group ABOVE the `if (*wd)` (retail's `prim` is one pseudo across
+ * both arms per the register evidence: `$t2` throughout). */
 void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
 {
   LINE_G2 *prim;

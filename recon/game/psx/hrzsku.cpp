@@ -298,6 +298,31 @@ void Hrz_InitSkyColor(void)
  * k pri=4*19/100=0.76 vs sin 2*7/32=0.44, height 3*10/43=0.70 -- k allocates 5th, oracle
  * wants it LAST. Tried+failed: decl order, k=i copy, init hoist (41, reverted), k-before-i
  * (18), dummy pre-inits, role-name swap (all no-op or worse). Permuter candidate.
+ * w46-a9 (re-gated 16, count-exact 209/209).  Attacked the recorded razor with the
+ * w44/w45 zero-insn dials.  The -dg receipt above says k must go from pri 0.76 to BELOW
+ * sin's 0.44, i.e. either refs 19 -> <=14 (floor_log2 steps 4 -> 3) or live 100 -> >172.
+ *  - LIVE-LENGTHENING via a zero-insn USE fence on k after the last loop, before/after
+ *    Flare_InitLensFlare, x1 and x2, and at the label: ALL 16 (no effect -- flow.c does
+ *    not extend k's range for an asm use of a value that is already dead at that point).
+ *  - REF-SHEDDING in the depth-2 mesh loop: `SVECTOR *m = &gSkyMesh[k];` + three `m->`
+ *    stores (16 -- gcc folds the pointer back onto the giv, refs unchanged), `short *m`
+ *    + m[0..2] (22), shedding only the third store via `(&gSkyMesh[k].vx)[2]` (76, +6
+ *    insns).
+ *  - CONTROL, ref-ADDING fence on k in the loop: 25 -- confirms the dial reaches k and
+ *    that the direction is DOWN, as the receipt predicted.
+ *  - VARIABLE-IDENTITY split (own block-local counter for the second, cloud-index loop):
+ *    36 -- and for `j` likewise 78.  So the SYM's single fn-scope `k` is right, and BOTH
+ *    ref directions (+1 fence = 25, -5 by splitting = 36) are WORSE => 19 refs is already
+ *    a local optimum and the REF axis is closed at this live length.
+ * 🔑 NEW NAMED ANGLE (the axis that is left): LIVE LENGTH, and it must be moved by real
+ * dataflow, not by a trailing fence.  k needs live 100 -> >172 at 19 refs.  The whole
+ * function is 209 insns and k is born at the mesh loop's `k = 0`, roughly at insn 100 --
+ * so the ONLY way to reach 172 is to make k live from the PROLOGUE (birth in the sun/moon
+ * block) to its current death.  The w39 "init hoist" that measured 41 hoisted the init
+ * ALONE; the untried form is to hoist the init AND give k a use in the prologue region
+ * that cse folds to nothing (e.g. seed a value that the mesh loop overwrites), so the
+ * range spans without adding instructions.  Alternatively demote k by RAISING sin's and
+ * height's priorities (reqdelta --want on the -dg dump) rather than lowering k's.
  * w39-a8: re-certified against the now-wired per-TU C++ flags.  hrzsku.cpp whole-TU
  * baseline 15 PASS / 843 diffs vs no_split_addresses 7/1441, no_schedule_insns 7/1592,
  * no_schedule_insns2 2/1095, no_strength_reduce 12/1038 -- all worse, stock flags stand. */

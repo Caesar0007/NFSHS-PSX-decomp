@@ -56,12 +56,12 @@ int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 {
   int result;
 
-  /* MATCH 2026-08-03 (19->10): keep the two text-definition reads as
-     independent volatile row views.  GCC otherwise folds one scaled base
-     into the other; retail keeps separate pseudos for the [3] and [4]
-     loads.  The remaining ten are operand-order/allocation differences. */
-  result = CalcFadeVal(kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][3]],
-                       kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][4]],
+  /* MATCH 2026-08-03 (19->5): flattened volatile indexing keeps the two
+     text-definition reads independent while matching retail's operand
+     allocation and schedule.  The residual is one extra base increment and
+     the equivalent zero-offset loads it produces (29/28 instructions). */
+  result = CalcFadeVal(kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 3]],
+                       kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 4]],
                        (int)fSelFade,(int)fFade);
   return result;
 }

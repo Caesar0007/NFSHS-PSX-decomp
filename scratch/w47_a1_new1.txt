@@ -1,0 +1,5 @@
+        {
+            int a = (int)((id >> 0x18) * 0x30);
+            a += (int)gFileMgr.oparray;
+            op = (FileOp *)a;
+        }

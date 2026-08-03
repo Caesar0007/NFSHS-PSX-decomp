@@ -1,0 +1,79 @@
+[
+ [
+  "recon/eaclib/psx/sndpsxz/salloc.c",
+  "n=4 PASS=2 TOTAL=20",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/slib.c",
+  "n=5 PASS=3 TOTAL=71",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/sbdload.c",
+  "n=1 PASS=0 TOTAL=23",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/spktplay.c",
+  "n=13 PASS=11 TOTAL=6",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/sdpacket.c",
+  "n=13 PASS=11 TOTAL=16",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/ssysserv.c",
+  "n=3 PASS=2 TOTAL=3",
+  []
+ ],
+ [
+  "recon/eaclib/psx/eacpsxz/trnsmult.c",
+  "n=1 PASS=0 TOTAL=31",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/smemman.c",
+  "n=4 PASS=3 TOTAL=48",
+  [
+   [
+    "-fno-expensive-optimizations",
+    -7,
+    0
+   ]
+  ]
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/sdmemman.c",
+  "n=3 PASS=1 TOTAL=73",
+  []
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/sdma.c",
+  "n=6 PASS=5 TOTAL=4",
+  []
+ ],
+ [
+  "recon/eaclib/psx/spchpsxz/spchrule.c",
+  "n=9 PASS=7 TOTAL=57",
+  [
+   [
+    "G=0",
+    -3,
+    0
+   ],
+   [
+    "G=2",
+    -3,
+    0
+   ]
+  ]
+ ],
+ [
+  "recon/eaclib/psx/sndpsxz/sdresolv.c",
+  "n=2 PASS=1 TOTAL=3",
+  []
+ ]
+]

@@ -4743,3 +4743,7 @@ VoxSentence_GetNumPhrases = 0x8010B100; // type:func  (2026-08-03 name-fix: spch
 iSPCH_GetOffset8 = 0x8010B10C; // type:func  (2026-08-03 name-fix: spchrule static copy (canonical at 0x80100748))
 iSPCH_GetOffset16 = 0x8010B124; // type:func  (2026-08-03 name-fix: spchrule static copy)
 ___15AIHigh_BTC_Perp = 0x80061348; // type:func  (2026-08-03 name-fix: AIHigh_BTC_Perp deleting dtor (SYM _._15AIHigh_BTC_Perp))
+Execute__17AIState_NonActive_80072750 = 0x80072750; // type:func  (2026-08-03 name-fix: aistate same-TU vague-linkage dup, VA-suffixed)
+___17AIState_NonActive_80072758 = 0x80072758; // type:func  (2026-08-03 name-fix: aistate same-TU vague-linkage dup, VA-suffixed)
+TestForRelease__12AIState_Base_80072830 = 0x80072830; // type:func  (2026-08-03 name-fix: aistate same-TU vague-linkage dup, VA-suffixed)
+___12AIState_Base_80072838 = 0x80072838; // type:func  (2026-08-03 name-fix: aistate same-TU vague-linkage dup, VA-suffixed)

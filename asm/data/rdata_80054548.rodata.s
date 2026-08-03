@@ -1360,7 +1360,7 @@ dlabel _vt_14AIState_Cruise
     /* 45D10 80055510 00000000 */ .word 0x00000000
     /* 45D14 80055514 5C260780 */ .word ___14AIState_Cruise
     /* 45D18 80055518 00000000 */ .word 0x00000000
-    /* 45D1C 8005551C 30280780 */ .word func_80072830
+    /* 45D1C 8005551C 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_14AIState_Cruise
 
 nonmatching _vt_17AIState_GotoSlice
@@ -1373,7 +1373,7 @@ dlabel _vt_17AIState_GotoSlice
     /* 45D30 80055530 00000000 */ .word 0x00000000
     /* 45D34 80055534 90260780 */ .word ___17AIState_GotoSlice
     /* 45D38 80055538 00000000 */ .word 0x00000000
-    /* 45D3C 8005553C 30280780 */ .word func_80072830
+    /* 45D3C 8005553C 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_17AIState_GotoSlice
 
 nonmatching _vt_14AIState_Donuts
@@ -1386,7 +1386,7 @@ dlabel _vt_14AIState_Donuts
     /* 45D50 80055550 00000000 */ .word 0x00000000
     /* 45D54 80055554 0C1E0780 */ .word ___14AIState_Donuts
     /* 45D58 80055558 00000000 */ .word 0x00000000
-    /* 45D5C 8005555C 30280780 */ .word func_80072830
+    /* 45D5C 8005555C 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_14AIState_Donuts
 
 nonmatching _vt_21AIState_RovingTraffic
@@ -1421,11 +1421,11 @@ dlabel D_800555A0
     /* 45DA0 800555A0 00000000 */ .word 0x00000000
     /* 45DA4 800555A4 00000000 */ .word 0x00000000
     /* 45DA8 800555A8 00000000 */ .word 0x00000000
-    /* 45DAC 800555AC 50270780 */ .word func_80072750
+    /* 45DAC 800555AC 50270780 */ .word Execute__17AIState_NonActive_80072750
     /* 45DB0 800555B0 00000000 */ .word 0x00000000
-    /* 45DB4 800555B4 58270780 */ .word func_80072758
+    /* 45DB4 800555B4 58270780 */ .word ___17AIState_NonActive_80072758
     /* 45DB8 800555B8 00000000 */ .word 0x00000000
-    /* 45DBC 800555BC 30280780 */ .word func_80072830
+    /* 45DBC 800555BC 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel D_800555A0
 
 nonmatching _vt_15AIState_Offroad
@@ -1438,7 +1438,7 @@ dlabel _vt_15AIState_Offroad
     /* 45DD0 800555D0 00000000 */ .word 0x00000000
     /* 45DD4 800555D4 AC100780 */ .word ___15AIState_Offroad
     /* 45DD8 800555D8 00000000 */ .word 0x00000000
-    /* 45DDC 800555DC 30280780 */ .word func_80072830
+    /* 45DDC 800555DC 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_15AIState_Offroad
 
 nonmatching _vt_13AIState_Chase
@@ -1451,7 +1451,7 @@ dlabel _vt_13AIState_Chase
     /* 45DF0 800555F0 00000000 */ .word 0x00000000
     /* 45DF4 800555F4 04FD0680 */ .word ___13AIState_Chase
     /* 45DF8 800555F8 00000000 */ .word 0x00000000
-    /* 45DFC 800555FC 30280780 */ .word func_80072830
+    /* 45DFC 800555FC 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_13AIState_Chase
 
 nonmatching _vt_12AIState_Idle
@@ -1464,7 +1464,7 @@ dlabel _vt_12AIState_Idle
     /* 45E10 80055610 00000000 */ .word 0x00000000
     /* 45E14 80055614 A4270780 */ .word ___12AIState_Idle
     /* 45E18 80055618 00000000 */ .word 0x00000000
-    /* 45E1C 8005561C 30280780 */ .word func_80072830
+    /* 45E1C 8005561C 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_12AIState_Idle
 
 nonmatching _vt_14AIState_Normal
@@ -1477,7 +1477,7 @@ dlabel _vt_14AIState_Normal
     /* 45E30 80055630 00000000 */ .word 0x00000000
     /* 45E34 80055634 FC270780 */ .word ___14AIState_Normal
     /* 45E38 80055638 00000000 */ .word 0x00000000
-    /* 45E3C 8005563C 30280780 */ .word func_80072830
+    /* 45E3C 8005563C 30280780 */ .word TestForRelease__12AIState_Base_80072830
 enddlabel _vt_14AIState_Normal
 
 nonmatching D_80055640
@@ -1488,9 +1488,9 @@ dlabel D_80055640
     /* 45E48 80055648 00000000 */ .word 0x00000000
     /* 45E4C 8005564C 54430E80 */ .word __pure_virtual
     /* 45E50 80055650 00000000 */ .word 0x00000000
-    /* 45E54 80055654 38280780 */ .word func_80072838
+    /* 45E54 80055654 38280780 */ .word ___12AIState_Base_80072838
     /* 45E58 80055658 00000000 */ .word 0x00000000
-    /* 45E5C 8005565C 30280780 */ .word func_80072830
+    /* 45E5C 8005565C 30280780 */ .word TestForRelease__12AIState_Base_80072830
     /* 45E60 80055660 53696D70 */ .word 0x706D6953
     /* 45E64 80055664 6C654D65 */ .word 0x654D656C
     /* 45E68 80055668 6D000000 */ .word 0x0000006D

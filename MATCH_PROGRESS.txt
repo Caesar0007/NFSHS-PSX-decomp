@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2664 at 100% (76.2%)
+TOTAL: 3496 functions, 2669 at 100% (76.3%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -49,9 +49,9 @@ VA             %match  unit                     function
 0x80016AF0    100.00%  frontend/common/fecars   SaveCars__11tCarManagerR12tSaveCarInfo
 0x80016B68     95.73%  frontend/common/fecars   LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos
 0x80016C0C     95.68%  frontend/common/fecars   SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss
-0x80016D68     70.15%  frontend/common/fecars   SetClassAvailable__11tCarManager13tCarClassTypeb
+0x80016D68    100.00%  frontend/common/fecars   SetClassAvailable__11tCarManager13tCarClassTypeb
 0x80016DEC    100.00%  frontend/common/fecars   SetCarAvailable__11tCarManager10tCarModelsb
-0x80016E08     92.41%  frontend/common/fecars   SetClassViewable__11tCarManager13tCarClassTypeb
+0x80016E08    100.00%  frontend/common/fecars   SetClassViewable__11tCarManager13tCarClassTypeb
 0x80016E74    100.00%  frontend/common/fecars   SetCarViewable__11tCarManager10tCarModelsb
 0x80016E90    100.00%  frontend/common/fecars   GetStockCar__11tCarManagersR8tCarInfo
 0x80016F4C    100.00%  frontend/common/fecars   GetGarageCar__11tCarManagersR8tCarInfos
@@ -449,7 +449,7 @@ VA             %match  unit                     function
 0x80029E30     82.04%  frontend/common/front    Front_AppendCopData__FPiR9tFEStream
 0x8002A084    100.00%  frontend/common/front    Front_AppendPerpData__FPiR9tFEStream
 0x8002A31C    100.00%  frontend/common/front    Front_AppendTrafficData__FPiR9tFEStream
-0x8002A56C     90.81%  frontend/common/front    Front_AppendTrackData__FPiR9tFEStream
+0x8002A56C     97.31%  frontend/common/front    Front_AppendTrackData__FPiR9tFEStream
 0x8002A6AC    100.00%  frontend/common/front    Front_EnableLocalSpeech__Fv
 0x8002A738    100.00%  frontend/common/front    Front_BuildStream__FPi
 0x8002B6D8     82.59%  frontend/common/front    Front_GetInGameVars__Fv
@@ -487,7 +487,7 @@ VA             %match  unit                     function
 0x8002CDF4     79.29%  frontend/common/femenudefs MenuExtended_GoTo2PlayerRace__FR12tMenuCommand
 0x8002CF40     83.34%  frontend/common/femenudefs MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
 0x8002D0A8     86.51%  frontend/common/femenudefs MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand
-0x8002D214     91.20%  frontend/common/femenudefs MenuExtended_EnterUserName__FR12tMenuCommand
+0x8002D214     91.60%  frontend/common/femenudefs MenuExtended_EnterUserName__FR12tMenuCommand
 0x8002D278    100.00%  frontend/common/femenudefs MenuExtended_GoToShowroom__FR12tMenuCommand
 0x8002D2B8    100.00%  frontend/common/femenudefs MenuExtended_GoToDealerShowroom__FR12tMenuCommand
 0x8002D2F8    100.00%  frontend/common/femenudefs MenuExtended_SetHPSoloRace__FR12tMenuCommand
@@ -571,7 +571,7 @@ VA             %match  unit                     function
 0x80034318    100.00%  frontend/common/fememcard VerifySuccessfulRead__FP12tMemCardData
 0x800343F0    100.00%  frontend/common/fememcard MakeWayForMemoryCard__Fv
 0x80034414    100.00%  frontend/common/fememcard BringThatBeatBack__Fv
-0x80034438     93.85%  frontend/common/fememcard Confirm__Fii
+0x80034438    100.00%  frontend/common/fememcard Confirm__Fii
 0x800345EC    100.00%  frontend/common/fememcard OverwriteConfirm__Fv
 0x80034618    100.00%  frontend/common/fememcard OverwriteAlwaysYes__Fv
 0x80034620    100.00%  frontend/common/fememcard FormatConfirm__Fv
@@ -590,7 +590,7 @@ VA             %match  unit                     function
 0x80035BD8    100.00%  frontend/common/fecredits DeInit__14tCreditManager
 0x80035BE4    100.00%  frontend/common/fecredits RealDeInit__14tCreditManager
 0x80035C24     93.36%  frontend/common/fecredits Draw__14tCreditManagerb
-0x80035D68     99.94%  frontend/common/fecredits SetupCurrCredit__14tCreditManager
+0x80035D68    100.00%  frontend/common/fecredits SetupCurrCredit__14tCreditManager
 0x80036084     99.41%  frontend/common/fecredits DrawCurrCredit__14tCreditManager
 0x80036790    100.00%  frontend/common/fevideowall Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss
 0x80036840    100.00%  frontend/common/fevideowall UpdateImages__10tVideoWall
@@ -1307,8 +1307,12 @@ VA             %match  unit                     function
 0x80072690    100.00%  game/common/aistate      ___17AIState_GotoSlice
 0x800726C4    100.00%  game/common/aistate      TestForRelease__21AIState_RovingTraffic
 0x800726DC    100.00%  game/common/aistate      ___21AIState_RovingTraffic
+0x80072750    100.00%  game/common/aistate      Execute__17AIState_NonActive_80072750
+0x80072758    100.00%  game/common/aistate      ___17AIState_NonActive_80072758
 0x800727A4    100.00%  game/common/aistate      ___12AIState_Idle
 0x800727FC    100.00%  game/common/aistate      ___14AIState_Normal
+0x80072830    100.00%  game/common/aistate      TestForRelease__12AIState_Base_80072830
+0x80072838    100.00%  game/common/aistate      ___12AIState_Base_80072838
 0x8007286C    100.00%  game/common/aitriger     Init__24AITrigger_TriggerManagerPc
 0x80072948    100.00%  game/common/aitriger     InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb
 0x80072A44    100.00%  game/common/aitriger     GetNextTrigger__24AITrigger_TriggerManageri
@@ -1688,7 +1692,7 @@ VA             %match  unit                     function
 0x80094CD0     69.53%  game/common/speech       CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci
 0x80094E08     62.30%  game/common/speech       CheckMultiBank__6SpeechPciPQ26Speech11CarBankName
 0x80094FA8     62.72%  game/common/speech       CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3
-0x800951BC     69.95%  game/common/speech       LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell
+0x800951BC     88.25%  game/common/speech       LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell
 0x800955F4      0.00%  game/common/speech       __6Speech
 0x80095994     59.88%  game/common/speech       Reset__6Speech
 0x80095B30      0.00%  game/common/speech       ___6Speech
@@ -1876,7 +1880,7 @@ VA             %match  unit                     function
 0x800A2E24    100.00%  game/common/newton       Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi
 0x800A2E84     89.67%  game/common/newton       Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj
 0x800A35DC    100.00%  game/common/newton       Newton_LimitAngularVelocity__FP13BO_tNewtonObj
-0x800A3674     64.57%  game/common/newton       Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj
+0x800A3674    100.00%  game/common/newton       Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj
 0x800A3B60    100.00%  game/common/newton       Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef
 0x800A3C54    100.00%  game/common/newton       Newton_CalculateRoadPosition__FP13BO_tNewtonObj
 0x800A3D5C    100.00%  game/common/new          __builtin_new
@@ -2007,7 +2011,7 @@ VA             %match  unit                     function
 0x800AA6D8    100.00%  game/common/physics      Physics_StopCar__FP8Car_tObj
 0x800AA7B0    100.00%  game/common/physics      Physics_TestForBarrierCollision__FP8Car_tObj
 0x800AA808    100.00%  game/common/physics      Physics_CalculateRoadGripModifiers__FP8Car_tObj
-0x800AA984     89.82%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
+0x800AA984     91.58%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
 0x800AB49C     99.49%  game/common/physics      Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800AB698     97.51%  game/common/physics      Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800ABA3C     95.04%  game/common/physics      Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct
@@ -3487,10 +3491,6 @@ VA             %match  unit                     function
 0x8010CBB0    100.00%  syslib/psx/libcard/A76   StopCARD2
 0x8010CBC0    100.00%  syslib/psx/libcard/END   _ExitCard
 0x8010CC40    100.00%  eaclib/psx/sndpsxz/ssine iSNDsin
-    -         100.00%  game/common/aistate      func_80072750
-    -         100.00%  game/common/aistate      func_80072758
-    -         100.00%  game/common/aistate      func_80072830
-    -         100.00%  game/common/aistate      func_80072838
     -         100.00%  syslib/psx/2mbyte/2mbyte D_800E40D8
     -           0.00%  syslib/psx/libcard/A74   func_8010C9FC
     -           0.00%  syslib/psx/libcard/END   D_8010CC30

@@ -3282,10 +3282,15 @@ extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
    TestForRelease__12AIState_Base) is already claimed by a DIFFERENT VA
    (0x8005F624/0x8005F62C/0x8005B4C4 -- see configs/symbol_addrs.txt), so this instance keeps
    its func_<VA> identity (extern-C name can't collide) with the real identity in this comment.
+   [2026-08-03 NAME-FIX: the four same-TU duplicates now carry VA-SUFFIXED real names
+   (Execute__17AIState_NonActive_80072750 etc.) on BOTH sides -- unique at the symbol level
+   (one obj cannot hold two same-named globals; the canonicals live in THIS TU), real at the
+   display level; renamed in symbol_addrs + asm labels/refs/rodata vtable words + expected
+   obj (objcopy).  The four banners keep their historical func_ text.]
    PROOF: asm/data/rdata_80054548.rodata.s @0x800555AC (AIState_NonActive_vtable Execute slot,
    D_800555A0+0xC) holds the literal word `func_80072750`. */
 
-extern "C" void func_80072750(AIState_NonActive *pThis)
+extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *pThis)
 
 {
 
@@ -3306,7 +3311,7 @@ extern "C" void func_80072750(AIState_NonActive *pThis)
    are the exact VAs of AIState_NonActive_vtable and AIState_Base_vtable materialized in
    vtables_aistate.cpp. */
 
-extern "C" void func_80072758(AIState_NonActive *pThis,int __in_chrg)
+extern "C" void ___17AIState_NonActive_80072758(AIState_NonActive *pThis,int __in_chrg)
 
 
 
@@ -3338,7 +3343,7 @@ extern "C" void func_80072758(AIState_NonActive *pThis,int __in_chrg)
    _vt (@0x800555DC), AIState_Chase's _vt (@0x800555FC), AIState_Idle's _vt (@0x8005561C),
    AIState_Normal's _vt (@0x8005563C) AND AIState_Base_vtable itself (@0x8005565C). */
 
-extern "C" int func_80072830(AIState_Base *pThis)
+extern "C" int TestForRelease__12AIState_Base_80072830(AIState_Base *pThis)
 
 {
 
@@ -3361,7 +3366,7 @@ extern "C" int func_80072830(AIState_Base *pThis)
    PROOF: rdata_80054548.rodata.s @0x80055654 (AIState_Base_vtable's OWN dtor slot) holds the
    literal word `func_80072838`. */
 
-extern "C" void func_80072838(AIState_Base *pThis,int __in_chrg)
+extern "C" void ___12AIState_Base_80072838(AIState_Base *pThis,int __in_chrg)
 
 
 

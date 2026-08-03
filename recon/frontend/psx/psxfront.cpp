@@ -486,6 +486,12 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
+  u_char   vraw;    /* MATCH (2026-08-03, angle #C' LANDED, 21->20 count-EXACT 245/245):
+                     * retail's separate raw-shapey pseudo (`addu t4,v0,zero` +
+                     * `addiu t4,v0,-1` both off $v0).  vraw alone measures 0 (cse
+                     * copy-props `v = vraw`); the OUTLIVING SECOND CONSUMER is the
+                     * zero-insn USE fence after the if/else -- make_regs_eqv keeps
+                     * the copy because vraw now outlives v's birth on BOTH paths. */
   u_char   vb;      /* MATCH (w46-a1): retail gives `v` TWO homes -- $t4 for the
                      * prim[0xd]/prim[0x19] stores AND a byte slot 0x20(sp) reloaded
                      * into $t7 for the `vh + v` bottom row.  This second u_char copy
@@ -501,7 +507,8 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     y = y + height;
     height = -height;
   }
-  v = (byte)shp->shapey;
+  vraw = (byte)shp->shapey;
+  v = vraw;
   vh = shp->height;
   /* 2026-08-02 INLINE ADDENDA (angle #1 measured, 3 falsifications + 2 ORACLE FACTS):
    * retail's vh pair is PRE-loop: `lhu $t8,0x12($s4)` with the spill `sh $t8,0x18($sp)`
@@ -691,12 +698,13 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *   ratio the w45 trust rules predict.  The `prim[0x30] = prim[0x18];` read-back variant
    *   is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
   if ((flags & 2) != 0) {
-    v = (byte)shp->shapey - 1;
+    v = vraw - 1;
     vb = v;
   }
   else {
     vb = v;
   }
+  __asm__ volatile("" : : "r"(vraw));   /* vraw's outliving consumer (see decl note) */
   /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
    * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
    * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different

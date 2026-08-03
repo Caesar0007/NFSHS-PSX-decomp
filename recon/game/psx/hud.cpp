@@ -3748,6 +3748,20 @@ void BigBTCTime(int secs)
  *   identify the five spilled allocnos (disposition `--`), and apply the ref-step to the pair
  *   that must swap; do NOT chase the slot numbers directly (declaration order does not reach
  *   reload-created slots). */
+/* ===== w46-a5 FINAL: 88, UNCHANGED.  Two more angles falsified with mechanisms =====
+ * (e) the w46 storage-SPLIT lever has NO target here: every `pal` is already block-local and
+ *     single-assignment (palsplit.py reports 0 candidates over the whole function).
+ * (f) 🔴 the in-source SYM note "viewOff/tpageOff walkers ... are compiler givs -> index-form
+ *     [j]" is FALSIFIED BY MEASUREMENT: replacing both walkers with the index form
+ *     (`+ j * 4` / `+ j * 0x30`, dropping the two accumulators and their increments)
+ *     gives 88 -> 248 AND drops the count 606 -> 604.  The oracle really does carry the two
+ *     accumulator additions, i.e. retail's source has the WALKERS, not the index form -- this
+ *     is the exact inverse of methodology 3.12 #1 and the note should not be re-tried.
+ * ⇒ the residual remains the 5-cycle over the reload spill slots (96/100/104/108/112) plus the
+ *   `160 - (ww2+1)` fold; both angles above already recorded.  a10 RELAY: hud's Render*
+ *   traces were BLOCKED by a front-end ICE in the near-oracle cc1 at the Wingman definition,
+ *   so no qty table exists for this function -- the 15-min stub recipe is in a10 receipts
+ *   6.4 if the spill-slot cycle is attacked next wave. */
 void Hud_RenderHudView(void)
 {
   /* SYM-exact shape (8c @0x800d82d0): fn-scope sBuildOutput[64] AUTO -0x80, j REG $fp;

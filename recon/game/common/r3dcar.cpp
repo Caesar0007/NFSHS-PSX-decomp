@@ -2475,25 +2475,19 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
   Transformer_zOverlay *overlay;
   Draw_CarCache *sd;
 
+  lightAvg = light;
   carType = (int)(carObj->render).currentCarType;
   countryFlag = (u_char)(carObj->render).currentCountry >> 7;
-  overlay = &R3DCar_LoadedScenePointer[countryFlag][carType]->overlay[0];
   rightHandDrive = R3DCar_rightHandDrive;
-  lightAvg = light;
+  overlay = R3DCar_LoadedScenePointer[countryFlag][carType]->overlay;
+  sd = (Draw_CarCache *)&Render_gPalettePtr;
   if ((R3DCar_InMenu & 0x80U) != 0) {
     lightAvg = lightAvg >> 1;
   }
-  sd = (Draw_CarCache *)&Render_gPalettePtr;
-  sd->color = lightAvg * 0x10101;
+  sd->color = (lightAvg << 16) + (lightAvg << 8) + lightAvg;
   if (-1 < (carObj->render).detail) {
-    if (-1 < DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,sd)) {
-      int posOff;
-      int matOff;
-      char (*pacVar10) [6];
-
-      matOff = 0;
-      posOff = 0;
-      pacVar10 = R3DCar_ObjectInfo;
+    if (-1 < DrawC_PrimStart(&R3DCar_center,carObj,lightAvg,
+                             (Draw_CarCache *)0x1f800000)) {
       for (i = 0; i < 0x39; i = i + 1) {
         Transformer_zObj *obj;
         int visible;
@@ -2502,105 +2496,96 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
         visible = (u_char)R3DCar_ObjectVisible[i];
         if ((obj->numFacet != 0) && (visible != 0)) {
           int mirror;
-          u_int envmap;
-          int type;
-          int index;
-          int copIndex;
-          int cop_type;
-          bool mirrorFlip;
+          int envmap;
+          int offset;
 
-          envmap = (u_int)(*pacVar10)[1];
-          mirror = (int)(*pacVar10)[0];
-          mirrorFlip = false;
+          envmap = (signed char)R3DCar_ObjectInfo[i][1];
+          offset = (signed char)R3DCar_ObjectInfo[i][0];
+          mirror = 0;
           if ((carType < 0x1c) && ((i - 0x1cU < 2 && (R3DCar_RecessedLight[carType] != 0)))) {
-            mirror = -mirror;
+            offset = -offset;
           }
           if (((rightHandDrive != 0) && (0x22 < i)) && (i < 0x29)) {
-            mirrorFlip = true;
+            mirror = true;
             sd->head.mirror = sd->head.mirror ^ 1;
           }
-          type = visible - 0x11;
-          if (type >= 0) {
+          visible -= 0x11;
+          if (visible >= 0) {
             /* headlamp / cop-siren facet */
-            bool nearCar;
+            int type = visible;
+            int index = -1;
 
-            index = -1;
             if (carType < 0x1c) {
-              if (carType >= 0x16) {
-                copIndex = R3DCar_CopIndex[carType - 0x16][(carObj->render).currentCountry & 0x7f];
-                cop_type = R3DCar_FlareCopSirenType[copIndex][type];
+              if (0x15 < carType) {
+                int copIndex = R3DCar_CopIndex[carType - 0x16]
+                                                   [(carObj->render).currentCountry & 0x7f];
+                int cop_type = R3DCar_FlareCopSirenType[copIndex][type];
                 if (cop_type != 0) {
                   type = cop_type;
                 }
                 if (((envmap & 0x10) != 0) && ((R3DCar_InMenu & 0x80U) != 0)) {
-                  mirror = 0;
+                  offset = 0;
                 }
-                index = R3DCar_FlareOverlayIndex[visible - 0x11];
-                nearCar = false;
+                index = R3DCar_FlareOverlayIndex[visible];
               }
-              else {
-                nearCar = true;
-                if ((type == 4) && (R3DCar_SignalBrakeFlare[carType] != 0)) {
-                  type = 1;
-                }
+              else if ((type == 4) && (R3DCar_SignalBrakeFlare[carType] != 0)) {
+                type = 1;
               }
-              if ((!nearCar) && (type == 1)) {
+              if ((0x15 < carType) && (type == 1)) {
                 type = 0x601;
               }
             }
             if ((R3DCar_InMenu & 0x80U) != 0) {
               type |= 0x8080;
             }
-            sd->sub_otz = (carObj->render).sub_otz + mirror;
-            DrawC_PrimHalo((matrixtdef *)((int)R3DCar_orientMat + matOff),
-                       (coorddef *)((int)R3DCar_position + posOff),obj,
+            sd->sub_otz = (carObj->render).sub_otz + offset;
+            DrawC_PrimHalo((matrixtdef *)((int)R3DCar_orientMat + i * 0x24),
+                       (coorddef *)((int)R3DCar_position + i * 0xc),obj,
                        type,index,0,sd);
           }
           else {
             /* envmap-masked menu facet (mirror overlay) */
             u_int maskFlag;
+            int drawEnvmap = envmap;
 
             if (carType >= 0x1c) {
-              envmap &= 0x80;
+              drawEnvmap &= 0x80;
               if (carType == 0x1c) {
-                maskFlag = envmap & 0x80;
+                maskFlag = drawEnvmap & 0x80;
                 if (i == 0x23) {
-                  mirror = 4;
+                  offset = 4;
                 }
               }
               else {
                 goto R_ICFtMenuII_block43;
               }
             }
-            else if ((envmap & 0x10) != 0) {
-              maskFlag = envmap & 0x80;
+            else if ((drawEnvmap & 0x10) != 0) {
+              maskFlag = drawEnvmap & 0x80;
               if (carType >= 0x16) {
-                mirror = mirror + 0xc;
+                offset = offset + 0xc;
                 if ((R3DCar_InMenu & 0x80U) != 0) {
-                  mirror = -mirror;
+                  offset = -offset;
                 }
                 goto R_ICFtMenuII_block43;
               }
             }
             else {
 R_ICFtMenuII_block43:
-              maskFlag = envmap & 0x80;
+              maskFlag = drawEnvmap & 0x80;
             }
             if ((maskFlag != 0) && ((R3DCar_InMenu & 0x80U) != 0)) {
-              mirror = -mirror;
+              offset = -offset;
             }
-            sd->sub_otz = (carObj->render).sub_otz + mirror;
-            DrawC_PrimMenu((matrixtdef *)((int)R3DCar_orientMat + matOff),
-                       (coorddef *)((int)R3DCar_position + posOff),obj,overlay,envmap,
+            sd->sub_otz = (carObj->render).sub_otz + offset;
+            DrawC_PrimMenu((matrixtdef *)((int)R3DCar_orientMat + i * 0x24),
+                       (coorddef *)((int)R3DCar_position + i * 0xc),obj,overlay,drawEnvmap,
                        sd);
           }
-          if (mirrorFlip) {
+          if (mirror) {
             sd->head.mirror = sd->head.mirror ^ 1;
           }
         }
-        posOff = posOff + 0xc;
-        matOff = matOff + 0x24;
-        pacVar10 = pacVar10 + 1;
       }
       DrawC_PrimStop(carObj,sd);
       if ((R3DCar_InMenu & 0x80U) == 0) {

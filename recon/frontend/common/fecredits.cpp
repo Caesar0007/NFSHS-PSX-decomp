@@ -305,18 +305,15 @@ void tCreditManager::DrawCurrCredit()
      The 2026-08-03 follow-up makes the post-NEWLINE and post-ASTERISK
      tag reads volatile: this defeats GCC's inappropriate cross-join CSE
      and restores both of retail's fresh `lbu v1,0(s0)` instructions at
-     zero code-size cost. Residual 8-diff FLOOR: the rollthedice 25x-loop's
-     post-loop `y=y+8` stages the sum in a
-     temp (`addiu v1,s3,8; addu s3,v1,zero; addiu s3,v1,8`, 3 insns) where
-     the oracle does a direct `nop; addiu s3,s3,8` (1 insn) -- tried
-     do/for-loop shape, increment-before/after-call, increment-order
-     swap, an explicit old-y local, and increment-then-`y-8`; the latter
-     two recolor the whole function and add two instructions. Likely a
-     genuine loop-carried-value scheduling floor in gcc-2.8's non-SSA
-     allocator (§F class). */
+     zero code-size cost. The 2026-08-03 GCC-2.8.1 follow-up seals the final
+     8 diffs: `y` is an unsigned full-width carrier, with explicit 16-bit
+     source loads. This lets the scheduler advance `y += 8` before the render
+     call without a truncation temporary. Splitting the later `textY` test
+     from its unsigned value load reproduces retail's `lh`/`lhu` pair. PASS,
+     451/451 instructions. */
   int t16;
   tCredit *fShowCred;
-  short y;
+  uint y;
   int lineWidth;
   int ColTextTitle;
   int scrollY;
@@ -342,7 +339,7 @@ void tCreditManager::DrawCurrCredit()
   DrawShapeExtended((t16 - (t16 / 10) * 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
   fShowCred = this->CreditBuffer + this->fShowCreditNum;
   FETextRender_SetABR(1,true);
-  y = fShowCred->subTitleY;
+  y = (u_short)fShowCred->subTitleY;
   lineWidth = CalcFadeVal(0xbebe,this->fTextFade);
   ColTextTitle = CalcFadeVal(lineWidth,0x28);
   scrollY = CalcFadeVal(0xbebe,this->fTextFade);
@@ -379,8 +376,12 @@ void tCreditManager::DrawCurrCredit()
     FETextRender_FullTextRGB(pcVar3,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
                fShowCred->subTitleJustify);
   }
-  if (fShowCred->textY != 0) {
-    y = fShowCred->textY;
+  {
+    int textY = fShowCred->textY;
+    uint nextY = (u_short)fShowCred->textY;
+    if (textY != 0) {
+      y = nextY;
+    }
   }
   x = fShowCred->textX;
   width = fShowCred->subTitleWidth;

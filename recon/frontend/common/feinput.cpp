@@ -126,7 +126,6 @@ FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
 {
   bool bVar1;
   int iVar2;
-  tInputKeyType tVar3;
   u_short i;
   u_short uVar4;
   
@@ -142,28 +141,24 @@ FEInput_GetKeyFromPlayer(tPlayer player,long debounce)
     }
     if (bVar1) break;
     uVar4 = uVar4 + 1;
+    /* Retail clears the found pseudo in the loop back-edge delay slot. */
+    bVar1 = false;
     if (0xf < uVar4) {
-      iVar2 = FEInput_GetDebounceKey(0x4000,player);
-      tVar3 = kInput_KeyType_Cross;
-      if (iVar2 == 0) {
-        iVar2 = FEInput_GetDebounceKey(0x1000,player);
-        tVar3 = kInput_KeyType_Triangle;
-        if (iVar2 == 0) {
-          iVar2 = FEInput_GetDebounceKey(0x2000,player);
-          tVar3 = kInput_KeyType_Circle;
-          if (iVar2 == 0) {
-            iVar2 = FEInput_GetDebounceKey(0x8000,player);
-            if (iVar2 == 0) {
-              iVar2 = FEInput_GetDebounceKey(8,player);
-              tVar3 = (tInputKeyType)((u_int)(iVar2 != 0) << 0xd);
-            }
-            else {
-              tVar3 = kInput_KeyType_Square;
-            }
-          }
-        }
+      if (FEInput_GetDebounceKey(0x4000,player) != 0) {
+        return kInput_KeyType_Cross;
       }
-      return tVar3;
+      if (FEInput_GetDebounceKey(0x1000,player) != 0) {
+        return kInput_KeyType_Triangle;
+      }
+      if (FEInput_GetDebounceKey(0x2000,player) != 0) {
+        return kInput_KeyType_Circle;
+      }
+      /* Inverting only this final test preserves the bnez tail layout. */
+      if (FEInput_GetDebounceKey(0x8000,player) == 0) {
+        return (tInputKeyType)
+            ((u_int)(FEInput_GetDebounceKey(8,player) != 0) << 0xd);
+      }
+      return kInput_KeyType_Square;
     }
   }
   return (tInputKeyType)getKeyMappings[uVar4].FEKey;

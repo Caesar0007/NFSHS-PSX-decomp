@@ -93,9 +93,11 @@ void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFad
   int ColSelOff;
   
   amount = (int)fOnOffFade;
-  baseA = kRGBVals[(byte)textDefinitions[type][4]];
-  baseB = kRGBVals[(byte)textDefinitions[type][5]];
-  baseC = kRGBVals[(byte)textDefinitions[type][3]];
+  /* Separate volatile row views retain retail's three independently
+     scheduled row-address pseudos instead of GCC CSEing one shared base. */
+  baseA = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][4]];
+  baseB = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][5]];
+  baseC = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][3]];
   ColSelOn = CalcFadeVal(baseA,baseB,amount);
   ColSelOff = CalcFadeVal(baseB,baseA,amount);
   ColUnSelOn = CalcFadeVal(baseC,baseA,amount);

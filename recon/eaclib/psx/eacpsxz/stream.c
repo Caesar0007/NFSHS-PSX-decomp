@@ -654,6 +654,15 @@ extern int startnextrequest(int s, unsigned int prio)
  *      `room = roomRaw - 1;` inside the arm, instead of the shared `room = room - 1;`).  With one
  *      variable gcc coalesces both into `subu a1,v0,v1; addiu a1,a1,-1`; the oracle keeps the
  *      subtraction in a scratch (`subu v0,v0,v1; addiu a1,v0,-1`).  6 -> 2.
+ * ==== w47-a5: PASS 167/167.  The RESIDUAL 2 below fell to the w45 USE-FENCE FIXPOINT. ====
+ * The diagnosis was exactly right (a sched1 ready-list tie on the two initialising loads) and
+ * the conclusion 'fillptr's longer dependency chain wins the ready list regardless of source
+ * order' was right too -- which is WHY no source ORDER helps.  A zero-insn USE FENCE between
+ * the two loads is not an order hint, it is a scheduling BARRIER: insns before it cannot sink
+ * past it, so the readptr load must issue first no matter what the ready list prefers.  Cost 0
+ * instructions (the operand is already register-resident).  The decl-with-init pair had to
+ * become decl + assignment for C89, which is codegen-neutral here.
+ * ---- superseded w35-a5 note ----
  * RESIDUAL 2 = a sched1 ready-list tie on the two initialising loads: the oracle issues
  * `lw a2,0x40(s1)` (readptr) before `lw v1,0x48(s1)` (fillptr), ours the other way round; the
  * registers are already retail's, only the two loads are transposed.  Falsified for it: swapping
@@ -703,10 +712,13 @@ extern int restartstream(int s, unsigned int prio)
 
     /* compute the next contiguous fill region [fillptr .. readptr) */
     {
-        unsigned int uVar3 = MU(s, 0x40);        /* readptr */
-        unsigned int uVar5 = MU(s, 0x48);        /* fillptr */
+        unsigned int uVar3;
+        unsigned int uVar5;
         int room;
         int roomRaw;
+        uVar3 = MU(s, 0x40);                     /* readptr */
+        __asm__("" : : "r"(uVar3));              /* w47-a5 sched fixpoint: pin this load first */
+        uVar5 = MU(s, 0x48);                     /* fillptr */
         if (uVar3 > uVar5) {
             room = (uVar3 - uVar5) - 1;
             goto check_room;

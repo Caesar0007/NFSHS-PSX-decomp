@@ -1673,13 +1673,11 @@ void GenericMenuLoadGame(int player)
    BOTH `___12tDialogYesNo` (auto) AND `tScreen_dtor` (manual, same net effect) back to back.
    Dropped the manual call; ours now emits exactly ONE dtor call (`___12tDialogYesNo`, vs the
    oracle's direct `___7tScreen` -- irrelevant to the gate, `jal` targets normalize to `jal T`).
-   Residual = an 8-byte frame gap (oracle -0xC8 vs ours -0xC0, still unidentified -- tried
-   re-scoping every local and dropping the `dlgThis` pointer indirection [regresses hard, 13->25,
-   drops the s0 dialog-base register entirely], no better form found) PLUS one extra `addu
-   a0,s0,zero` gcc schedules into the `beqz sVar1,...` delay slot (redundant re-materialization of
-   &AreYouSure that the oracle's delay slot doesn't have -- oracle fills that slot with the
-   screenMemcard %hi load instead). Both are gcc scheduling/allocation floors on this shape; not
-   yet source-reachable. */
+   [2026-08-03, 13->1] SLD places the 168-byte AreYouSure at sp+16 but starts the save area at
+   sp+192, proving an otherwise invisible 8-byte stack-layout slot.  A volatile 64-bit carrier
+   restores that exact gcc-2.8 frame without emitting instructions.  The sole residual is one
+   redundant `addu a0,s0,zero` scheduled into the zero-result branch delay; the common cleanup
+   already rematerializes the same argument, and source-equivalent branch/cast forms are neutral. */
 
 extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1688,6 +1686,7 @@ extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
     short sVar1;
     tDialogYesNo *dlgThis;
     tDialogYesNo AreYouSure;
+    volatile long long framePadding;
     dlgThis = &AreYouSure;
     dlgThis->yesnowords[0] = 0x321;
     dlgThis->yesnowords[1] = 0x322;

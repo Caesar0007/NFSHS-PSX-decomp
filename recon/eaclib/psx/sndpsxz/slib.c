@@ -680,9 +680,16 @@ extern void iSNDserve(void)
                     (((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c)] == 0)) {
                 kon = kon | iSNDstartvoice(chan);                    /* arm newly-triggered voice */
             }
-            chan++;
             vt += 0x2c;
-        } while (chan < (int)(unsigned int)SUB(0x11));
+            /* MATCH (w47-a3): the counter increment lives INSIDE the condition, evaluated AFTER the
+             * bound load, so the loop-latch block STARTS with `lui %hi(sndgs+17)`.  A duplicable
+             * `lui` at the join is what lets gcc's reorg EAGER-STEAL it into the three forward
+             * guard branches' delay slots (retail has `lui v0,0` in all three; a leading
+             * `addiu chan,chan,1` can never be stolen -- it would increment twice -- so we got
+             * `nop`s).  Operand order `bound > ++chan` (not `++chan < bound`) puts the load first
+             * (catalog: compare-operand order IS evaluation/load order) and still emits
+             * `slt chan,bound`. */
+        } while ((int)(unsigned int)SUB(0x11) > ++chan);
     }
     if (koff != 0)
         iSNDpsxkeyoff((int)koff);

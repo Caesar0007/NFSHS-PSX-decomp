@@ -1947,39 +1947,34 @@ extern "C" int * Front_AppendTrackData__FPiR9tFEStream(int *stream,tFEStream *st
 
 {
   int valtopass;
-  int iVar1;
+  int speedMode;
   tTrackInformation trackInfo;
   
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              &trackInfo);
-  iVar1 = 0;
-  if (frontEnd.displaySpeed[0] != '\x01') {
-    /* MATCH: two SEPARATE equality/range compares with an identical body, NOT the
-       algebraically-equivalent single `||` expression -- the oracle emits BOTH a `slti ...<2`
-       AND a `bne ...!=2` (two branches into the shared table-read code) where a single
-       `(x<2)||(x!=2)` expression lets gcc simplify to one `!=2` test. Nested if/else-if with
-       duplicate bodies -- gcc tail-merges the two identical stores back into one, keeping the
-       two separate compares (§C tail-merge family). */
-    if ((byte)frontEnd.displaySpeed[0] < 2) {
-      /* CountryMeasurement is really `short[8]` (fetracks.cpp) but front_externs.h declares
-         it `extern int CountryMeasurement[16]` (a cross-TU type mismatch we can't fix here --
-         out of scope, only front.cpp is owned by this pass). Cast at the use site to the true
-         element type/stride so the load matches the oracle's `lh`+short-stride index. */
-      iVar1 = (int)((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
-    }
-    else if (frontEnd.displaySpeed[0] != '\x02') {
-      iVar1 = (int)((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
-    }
-    else {
-      iVar1 = 1;
-    }
-  }
+  valtopass = 0;
+  speedMode = frontEnd.displaySpeed[0];
+  if (speedMode == 1) goto track_value_ready;
+  /* MATCH: retail has three explicit tests and one shared measurement block. The gotos
+     preserve its `slti; bnez`, `bne`, and case-2 `j` CFG; the signed int pseudo is required
+     for GCC 2.8.1 to select `slti` rather than the unsigned-char `sltiu` form. */
+  if (speedMode < 2) goto use_country_measurement;
+  if (speedMode != 2) goto use_country_measurement;
+  valtopass = 1;
+  goto track_value_ready;
+use_country_measurement:
+  /* CountryMeasurement is really `short[8]` (fetracks.cpp) but front_externs.h declares
+     it `extern int CountryMeasurement[16]` (a cross-TU type mismatch we can't fix here --
+     out of scope, only front.cpp is owned by this pass). Cast at the use site to the true
+     element type/stride so the load matches the oracle's `lh`+short-stride index. */
+  valtopass = (int)((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
+track_value_ready:
   /* MATCH: pointer-increment stores (*stream++ = v;), not indexed stream[N]=v -- the oracle
      re-walks the stream cursor with `addiu s1,s1,4` after EVERY word (tag+value pairs),
      rematerializing the address each time rather than computing N fixed offsets from one
      unchanging base. Same family as the index-vs-pointer-walk lever, applied to a serializer. */
   *stream++ = 0x1a;
-  *stream++ = iVar1;
+  *stream++ = valtopass;
   *stream++ = 0x18;
   *stream++ = (uint)(streamData->track).fMirrored;
   *stream++ = 0x19;

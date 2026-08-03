@@ -1523,21 +1523,18 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 {
   bool bVar1;
   int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [31];
-  int iVar4;
   Car_tObj *pCVar5;
-  Speaker *pSVar6;
   SPCHNFSType_CONFIRM *pSVar7;
   SPCHNFSType_CONFIRM *reg_a1;
   SPCHNFSType_PERP_NAME *reg_a2;
   SPCHNFSType_CONFIRM *reg_a3;
   
   *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-  pSVar6 = (pThis->_base_Speaker).fSub;
   bVar1 = false;
-  if (((pSVar6 == (Speaker *)0x0) ||
-      (iVar2 = (*(*pSVar6->_vf)[0x1b].pfn)
-                         ((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0x1b].delta),
+  if ((((pThis->_base_Speaker).fSub == (Speaker *)0x0) ||
+      (iVar2 = (*(*(pThis->_base_Speaker).fSub->_vf)[0x1b].pfn)
+                         ((int)&((pThis->_base_Speaker).fSub->fPosition).flags +
+                          (int)(*(pThis->_base_Speaker).fSub->_vf)[0x1b].delta),
       iVar2 == 0)) || ((((pThis->_base_Speaker).fSub)->fBlockade).flags != 0)) {
     bVar1 = true;
   }
@@ -1546,67 +1543,67 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     SPCHNFS_D_A_CONFIRM(pSVar7);
   }
   else {
-    pSVar6 = (pThis->_base_Speaker).fSub;
-    if ((pSVar6->fArrest).flags == 0) {
-      if ((pSVar6->fUpdate).flags == 0) {
-        pSVar7 = &(pThis->_base_Speaker).fConfirm;
-        SPCHNFS_D_A_CONFIRM(pSVar7);
-        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        pSVar6 = (pThis->_base_Speaker).fSub;
-        pa_Var3 = pSVar6->_vf;
-        pCVar5 = (Car_tObj *)
-                 (*(*pa_Var3)[0x1b].pfn)
-                           ((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x1b].delta);
-        SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar5);
-        reg_a1 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
-        pSVar7 = (SPCHNFSType_CONFIRM *)&(pThis->_base_Speaker).fColour;
-        SPCHNFS_D_C_PERP_LOST_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1);
-      }
-      else {
-        pCVar5 = (Car_tObj *)
-                 (*(*pSVar6->_vf)[0x1b].pfn)
-                           ((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0x1b].delta);
-        SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar5);
-        pa_Var3 = (pThis->_base_Speaker)._vf;
-        iVar2 = (*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-        pSVar6 = (pThis->_base_Speaker).fSub;
-        pa_Var3 = pSVar6->_vf;
-        iVar4 = (*(*pa_Var3)[0x11].pfn)
-                          ((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x11].delta);
-        pSVar6 = (pThis->_base_Speaker).fSub;
-        (pThis->_base_Speaker).fTo = *(int *)(iVar2 + iVar4 * 4 + 8);
-        pa_Var3 = pSVar6->_vf;
-        iVar2 = (*(*pa_Var3)[0x18].pfn)
-                          ((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x18].delta);
-        pSVar7 = (SPCHNFSType_CONFIRM *)&(pThis->_base_Speaker).fColour;
-        if (iVar2 < 0x280000) {
-          reg_a3 = &(pThis->_base_Speaker).fConfirm;
-          reg_a1 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
-          reg_a2 = (SPCHNFSType_PERP_NAME *)(pThis->_base_Speaker).fTo;
-          SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1,(int)reg_a2,reg_a3,
-                     &(pThis->_base_Speaker).fPerpName);
-        }
-        else {
-          reg_a3 = &(pThis->_base_Speaker).fConfirm;
-          reg_a1 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
-          reg_a2 = (SPCHNFSType_PERP_NAME *)(pThis->_base_Speaker).fTo;
-          SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1,(int)reg_a2,reg_a3,
-                     &(pThis->_base_Speaker).fPerpName);
-        }
-      }
+    Speaker *sub = (pThis->_base_Speaker).fSub;
+
+    if ((sub->fArrest).flags != 0) {
+      int *bank = (int *)
+          ((int)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                     ((int)&(pThis->_base_Speaker).fPosition.flags +
+                      (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta) +
+           (*(*(pThis->_base_Speaker).fSub->_vf)[0x11].pfn)
+                     ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+                      (int)(*(pThis->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+      reg_a1 = &(pThis->_base_Speaker).fConfirm;
+      reg_a2 = &(pThis->_base_Speaker).fPerpName;
+      SPCHNFS_D_C_PERP_APPREHENSION_REPLY(
+          (pThis->_base_Speaker).fTo = bank[2],reg_a1,reg_a2);
+    }
+    else if ((sub->fUpdate).flags == 0) {
+      pSVar7 = &(pThis->_base_Speaker).fConfirm;
+      SPCHNFS_D_A_CONFIRM(pSVar7);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+      pCVar5 = (Car_tObj *)
+               (*(*(pThis->_base_Speaker).fSub->_vf)[0x1b].pfn)
+                         ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+                          (int)(*(pThis->_base_Speaker).fSub->_vf)[0x1b].delta);
+      SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar5);
+      reg_a1 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
+      pSVar7 = (SPCHNFSType_CONFIRM *)&(pThis->_base_Speaker).fColour;
+      SPCHNFS_D_C_PERP_LOST_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1);
     }
     else {
-      pa_Var3 = (pThis->_base_Speaker)._vf;
-      iVar2 = (*(*pa_Var3)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var3)[0x1e].delta + -0x5c);
-      pSVar6 = (pThis->_base_Speaker).fSub;
-      pa_Var3 = pSVar6->_vf;
-      iVar4 = (*(*pa_Var3)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pa_Var3)[0x11].delta)
-      ;
-      reg_a1 = &(pThis->_base_Speaker).fConfirm;
-      pSVar7 = *(SPCHNFSType_CONFIRM **)(iVar2 + iVar4 * 4 + 8);
-      reg_a2 = &(pThis->_base_Speaker).fPerpName;
-      (pThis->_base_Speaker).fTo = (int)pSVar7;
-      SPCHNFS_D_C_PERP_APPREHENSION_REPLY((int)pSVar7,reg_a1,reg_a2);
+      pCVar5 = (Car_tObj *)
+               (*(*sub->_vf)[0x1b].pfn)
+                         ((int)&(sub->fPosition).flags + (int)(*sub->_vf)[0x1b].delta);
+      SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar5);
+      {
+        int *bank = (int *)
+            ((int)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                       ((int)&(pThis->_base_Speaker).fPosition.flags +
+                        (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta) +
+             (*(*(pThis->_base_Speaker).fSub->_vf)[0x11].pfn)
+                       ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+                        (int)(*(pThis->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+        (pThis->_base_Speaker).fTo = bank[2];
+      }
+      iVar2 = (*(*(pThis->_base_Speaker).fSub->_vf)[0x18].pfn)
+                        ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+                         (int)(*(pThis->_base_Speaker).fSub->_vf)[0x18].delta);
+      pSVar7 = (SPCHNFSType_CONFIRM *)&(pThis->_base_Speaker).fColour;
+      if (iVar2 < 0x280000) {
+        reg_a3 = &(pThis->_base_Speaker).fConfirm;
+        reg_a1 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
+        reg_a2 = (SPCHNFSType_PERP_NAME *)(pThis->_base_Speaker).fTo;
+        SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1,(int)reg_a2,reg_a3,
+                   &(pThis->_base_Speaker).fPerpName);
+      }
+      else {
+        reg_a3 = &(pThis->_base_Speaker).fConfirm;
+        reg_a1 = (SPCHNFSType_CONFIRM *)(pThis->_base_Speaker).fCar;
+        reg_a2 = (SPCHNFSType_PERP_NAME *)(pThis->_base_Speaker).fTo;
+        SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1,(int)reg_a2,reg_a3,
+                   &(pThis->_base_Speaker).fPerpName);
+      }
     }
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */

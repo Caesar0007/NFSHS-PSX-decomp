@@ -74,11 +74,11 @@ long SPCH_ResolveData(int = 0, ...);
 /* ---- audio ---- */
 extern int AudioMus_PlaySong(int = 0, ...);
 extern int AudioMus_StopSong(int = 0, ...);
-extern int AudioMus_Threshold(int = 0, ...);
+extern int AudioMus_Threshold(void);
 
 /* ---- CopSpeak (sibling TU) ---- */
 extern int CopSpeak_DirectRequest(int = 0, ...);
-extern int CopSpeak_Flush(int = 0, ...);
+extern void CopSpeak_Flush(void);
 extern int CopSpeak_GenericBankRequest(int = 0, ...);
 extern int CopSpeak_gSpchHandle;
 

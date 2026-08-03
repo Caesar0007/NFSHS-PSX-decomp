@@ -3569,8 +3569,8 @@ void Purge__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   __vtbl_ptr_type (*pa_Var2) [31];
   int iVar3;
   MobileSpeaker *pMVar4;
-  MobileSpeaker *pMVar5;
   Speaker *Chain;
+  Speaker *next;
   
   if (pThis->fCarObj == (Car_tObj *)0x0) {
     return;
@@ -3578,70 +3578,80 @@ void Purge__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   pa_Var2 = (pThis->_base_Speaker)._vf;
   iVar3 = (*(*pa_Var2)[0x19].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x19].delta);
-  if ((*(u_int *)(iVar3 + 0x260) & 0x200) == 0) {
-    pThis->fCarObj = (Car_tObj *)0x0;
-    iVar3 = Dispatch__6Speech();
-    pMVar4 = (MobileSpeaker *)
-             (**(int (**)(...))(*(int *)(iVar3 + 0x4c) + 0xb4))
-                       (iVar3 + *(short *)(*(int *)(iVar3 + 0x4c) + 0xb0));
-    if (pMVar4 == pThis) {
-      iVar3 = Dispatch__6Speech();
-      (**(int (**)(...))(*(int *)(iVar3 + 0x4c) + 0xbc))
-                (iVar3 + *(short *)(*(int *)(iVar3 + 0x4c) + 0xb8));
-    }
-    pMVar4 = (MobileSpeaker *)Dispatch__6Speech();
-    do {
-      pMVar5 = (MobileSpeaker *)(pMVar4->_base_Speaker).fSub;
-      if (pMVar5 == pThis) {
-        (pMVar4->_base_Speaker).fSub = (pThis->_base_Speaker).fSub;
-        return;
+  if ((*(u_int *)(iVar3 + 0x260) & 0x200) != 0) {
+    CopSpeak_Flush();
+    if (CopSpeak_gSpchHandle != -1) {
+      if (stackSpeedUpEnbabledFlag != 0) {
+        gWSavePtr = SetSp(gWSavePtr);
+        stackSpeedUpEnbabledFlag = 0;
+        SNDstop(CopSpeak_gSpchHandle);
+        gWSavePtr = SetSp(gWSavePtr);
+        stackSpeedUpEnbabledFlag = 1;
       }
-      pMVar4 = pMVar5;
-    } while (pMVar5 != (MobileSpeaker *)0x0);
-    return;
-  }
-  CopSpeak_Flush();
-  if (CopSpeak_gSpchHandle != -1) {
-    if (stackSpeedUpEnbabledFlag == 0) {
-      SNDstop(CopSpeak_gSpchHandle);
+      else {
+        SNDstop(CopSpeak_gSpchHandle);
+      }
     }
-    else {
-      gWSavePtr = SetSp(gWSavePtr);
-      stackSpeedUpEnbabledFlag = 0;
-      SNDstop(CopSpeak_gSpchHandle);
-      gWSavePtr = SetSp(gWSavePtr);
-      stackSpeedUpEnbabledFlag = 1;
+    pa_Var2 = (pThis->_base_Speaker)._vf;
+    do {
+      bVar1 = false;
+    } while (0);
+    iVar3 = (*(*pa_Var2)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
+    if (iVar3 != 0) {
+      iVar3 = AudioMus_Threshold();
+      bVar1 = iVar3 != 0;
     }
-  }
-  pa_Var2 = (pThis->_base_Speaker)._vf;
-  bVar1 = false;
-  iVar3 = (*(*pa_Var2)[0x1b].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
-  if (iVar3 != 0) {
-    iVar3 = AudioMus_Threshold();
-    bVar1 = iVar3 != 0;
-  }
-  if (bVar1) {
-    if (stackSpeedUpEnbabledFlag != 0) {
-      gWSavePtr = SetSp(gWSavePtr);
-      stackSpeedUpEnbabledFlag = 0;
+    if (bVar1) {
+      if (stackSpeedUpEnbabledFlag != 0) {
+        gWSavePtr = SetSp(gWSavePtr);
+        stackSpeedUpEnbabledFlag = 0;
+        AudioMus_StopSong(500);
+        AudioMus_PlaySong((char *)0x0);
+        gWSavePtr = SetSp(gWSavePtr);
+        stackSpeedUpEnbabledFlag = 1;
+        (pThis->_base_Speaker).fBlockade.flags = 0;
+        goto Purge_resetSpeakerFields;
+      }
       AudioMus_StopSong(500);
       AudioMus_PlaySong((char *)0x0);
-      gWSavePtr = SetSp(gWSavePtr);
-      stackSpeedUpEnbabledFlag = 1;
-      (pThis->_base_Speaker).fBlockade.flags = 0;
-      goto Purge_resetSpeakerFields;
     }
-    AudioMus_StopSong(500);
-    AudioMus_PlaySong((char *)0x0);
-  }
-  (pThis->_base_Speaker).fBlockade.flags = 0;
+    (pThis->_base_Speaker).fBlockade.flags = 0;
 Purge_resetSpeakerFields:
-  (pThis->_base_Speaker).fArrest.flags = 0;
-  (pThis->_base_Speaker).fUpdate.flags = 0;
-  pThis->fPerp = (Car_tObj *)0x0;
-  (pThis->_base_Speaker).fSub = (Speaker *)0x0;
-  return;
+    (pThis->_base_Speaker).fArrest.flags = 0;
+    (pThis->_base_Speaker).fUpdate.flags = 0;
+    pThis->fPerp = (Car_tObj *)0x0;
+    (pThis->_base_Speaker).fSub = (Speaker *)0x0;
+    return;
+  }
+
+  pThis->fCarObj = (Car_tObj *)0x0;
+  {
+    DispatchSpeaker *dispatchStatus = (DispatchSpeaker *)Dispatch__6Speech();
+    pMVar4 = (MobileSpeaker *)
+             (*(*(dispatchStatus->_base_Speaker)._vf)[0x16].pfn)
+                       ((int)&(dispatchStatus->_base_Speaker).fPosition.flags +
+                        (int)(*(dispatchStatus->_base_Speaker)._vf)[0x16].delta);
+  }
+  if (pMVar4 == pThis) {
+    DispatchSpeaker *dispatchPurge = (DispatchSpeaker *)Dispatch__6Speech();
+    (*(*(dispatchPurge->_base_Speaker)._vf)[0x17].pfn)
+        ((int)&(dispatchPurge->_base_Speaker).fPosition.flags +
+         (int)(*(dispatchPurge->_base_Speaker)._vf)[0x17].delta);
+  }
+  Chain = (Speaker *)Dispatch__6Speech();
+Purge_findChain:
+  next = Chain->fSub;
+  if (next == (Speaker *)pThis) {
+    goto Purge_unlinkChain;
+  }
+  if (next == (Speaker *)0x0) {
+    return;
+  }
+  Chain = next;
+  goto Purge_findChain;
+Purge_unlinkChain:
+  Chain->fSub = (pThis->_base_Speaker).fSub;
 }
 
 /* ---- ReportBlockade__Q26Speech13MobileSpeaker  [SPEECH.CPP:2843-2861] SLD-VERIFIED ---- */

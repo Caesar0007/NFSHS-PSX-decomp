@@ -33,22 +33,24 @@ void tScreenControllerConfig::ClearActuators()
 void tScreenControllerConfig::SetActuators(int max)
 
 {
-  uchar curtime;
-  byte pulse;
-  uchar newtime;
-  
-  newtime = '@';
-  if (this->fResetShakeTimeOut == 0) {
-    curtime = (this->fShaker).time;
-    newtime = curtime + 0xff;
-    if (curtime == '\0') goto SetActuators_clearAndRet;
+  /* MATCH: direct member updates (rather than decompiler byte temporaries)
+     expose the common timer store and retail branch layout.  The full-width
+     pulse removes a redundant mask; tickValue orders the two independent
+     global-address pseudos exactly as retail. */
+  int tickValue;
+  uint pulse;
+
+  if (this->fResetShakeTimeOut != 0) {
+    this->fResetShakeTimeOut = 0;
+    (this->fShaker).time = 0x40;
   }
   else {
-    this->fResetShakeTimeOut = 0;
+    if ((this->fShaker).time == '\0') goto SetActuators_clearAndRet;
+    (this->fShaker).time = (this->fShaker).time - 1;
   }
-  (this->fShaker).time = newtime;
-  if ((this->fShaker).time != '\0') {
-    pulse = Force_rand_256[ticks >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
+  if (*(volatile uchar *)&(this->fShaker).time != '\0') {
+    tickValue = ticks;
+    pulse = Force_rand_256[tickValue >> 2 & 0xff];   /* @0x80043180 lbu Force_rand_256((ticks>>2)&0xff) */
     (this->fShaker).actuator[1] = (uchar)max;
     (this->fShaker).actuator[0] = (int)(uint)pulse < max;
     return;
@@ -434,8 +436,9 @@ SetCurCtrl_menuSetVertHelp:
 int tScreenControllerConfig::CalcAnimFrame(int frame)
 
 {
-  int bound;
-  
+  /* MATCH: SLD has no `bound` local.  Keeping the low/high reflections as
+     separate tails lets GCC cross-jump their subtraction and select $v0 for
+     the 0x16/0x38 constants, matching retail's 35-instruction CFG. */
   if (this->fCurrentController == '\x02') {
     if (((frame == 0) || (frame == 0x14)) || (frame == 0x28)) {
       frame = 1;
@@ -447,19 +450,22 @@ int tScreenControllerConfig::CalcAnimFrame(int frame)
       frame = frame + 2;
     }
     else {
-      bound = 0x16;
-      if ((frame < 0x14) || (bound = 0x38, 0x1e < frame)) {
-        frame = bound - frame;
+      if (frame < 0x14) goto CalcAnimFrame_low;
+      if (0x1e < frame) goto CalcAnimFrame_high;
+      frame = frame + -0x14;
+      if (9 < frame) {
+        frame = 9;
       }
-      else {
-        bound = frame + -0x14;
-        if (9 < bound) {
-          bound = 9;
-        }
-        frame = bound + 0x10;
-      }
+      frame = frame + 0x10;
+      goto CalcAnimFrame_done;
+CalcAnimFrame_low:
+      frame = 0x16 - frame;
+      goto CalcAnimFrame_done;
+CalcAnimFrame_high:
+      frame = 0x38 - frame;
     }
   }
+CalcAnimFrame_done:
   return frame;
 }
 

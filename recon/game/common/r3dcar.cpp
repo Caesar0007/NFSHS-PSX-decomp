@@ -267,24 +267,14 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
 
 {
   char * filestart;
-  void *src;
-  Transformer_zScene *dst;
-  u_int uVar1;
-  int iVar2;
-  int iVar3;
-  Transformer_zObj *pTVar4;
-  int iVar5;
   short nm_vx;
-  short sVar6;
   int in_a2;
   Transformer_zObj *Nobj;
   int iVar7;
   int offset;
-  int iVar8;
   int j;
   int iVar9;
   int i;
-  int iVar10;
   char *rawData;
   char (*pacVar11) [6];
   short tz;
@@ -304,98 +294,102 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
   
   strcpy(infilename,filename);
   strcat(infilename,".geo");
-  iVar8 = 0x24c;
+  offset = 0x24c;
+  i = 0;
   pVStack_38 = &vt;
   pSStack_34 = &nm;
   iStack_30 = 0x7e07e07f;
-  src = locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178); in_a2 was a bogus Ghidra incoming-reg artifact */
+  pacVar11 = R3DCar_ObjectInfo;
+  filestart = (char *)locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178); in_a2 was a bogus Ghidra incoming-reg artifact */
   locatebigentry(R3DCar_BigFile,infilename,0,(int *)0x0,(int)&filesize);
-  dst = reservememadr(infilename,filesize,0);
-  scene = dst;
-  blockmove(src,dst,filesize);
+  rawData = (char *)reservememadr(infilename,filesize,0);
+  scene = (Transformer_zScene *)rawData;
+  blockmove(filestart,rawData,filesize);
   carType = (int)(carObj->render).currentCarType;
   eScaleX = R3DCar_EnvMapInfo[carType].eScaleX;
   eScaleY = R3DCar_EnvMapInfo[carType].eScaleY;
   (carObj->render).rideHeight = R3DCar_EnvMapInfo[carType].rideHeight << 7;
-  pacVar11 = R3DCar_ObjectInfo;
   (carObj->render).upgradeHeight = R3DCar_EnvMapInfo[carType].upgradeHeight << 7;
-  for (iVar10 = 0; iVar10 < 0x39; iVar10 = iVar10 + 1) {
-    pTVar4 = (Transformer_zObj *)((int)dst->obj + iVar8);
-    iVar8 = iVar8 + 0x1c;
-    scene->obj[iVar10] = pTVar4;
-    if (iVar10 == 0x27) {
-      (pTVar4->translation).x = (pTVar4->translation).x + -0x7ae;
+  while (i < 0x39) {
+    scene->obj[i] = (Transformer_zObj *)((int)rawData + offset);
+    offset = offset + 0x1c;
+    Nobj = scene->obj[i];
+    if (i == 0x27) {
+      (Nobj->translation).x = (Nobj->translation).x + -0x7ae;
     }
-    if (iVar10 == 0x28) {
-      (pTVar4->translation).x = (pTVar4->translation).x + 0x7ae;
+    if (i == 0x28) {
+      (Nobj->translation).x = (Nobj->translation).x + 0x7ae;
     }
-    uVar1 = (u_int)pTVar4->numVertex;
-    if (uVar1 != 0) {
-      pTVar4->vertex = (COORD16 *)((int)dst->obj + iVar8);
-      iVar8 = iVar8 + uVar1 * 6;
-      if ((pTVar4->numVertex & 1) != 0) {
-        iVar8 = iVar8 + 2;
+    if (Nobj->numVertex != 0) {
+      Nobj->vertex = (COORD16 *)((int)rawData + offset);
+      offset = offset + (u_int)Nobj->numVertex * 6;
+      if ((Nobj->numVertex & 1) != 0) {
+        offset = offset + 2;
       }
-      if (((uVar1 != 0) && (((*pacVar11)[1] & 1U) != 0)) && (carType < 0x1c)) {
-        pTVar4->Nvertex = (COORD16 *)((int)dst->obj + iVar8);
-        iVar8 = iVar8 + (u_int)pTVar4->numVertex * 6;
-        if ((pTVar4->numVertex & 1) != 0) {
-          iVar8 = iVar8 + 2;
+      if (((Nobj->numVertex != 0) && (((*pacVar11)[1] & 1U) != 0)) && (carType < 0x1c)) {
+        Nobj->Nvertex = (COORD16 *)((int)rawData + offset);
+        offset = offset + (u_int)Nobj->numVertex * 6;
+        if ((Nobj->numVertex & 1) != 0) {
+          offset = offset + 2;
         }
-        tx = (short)((u_int)(pTVar4->translation).x >> 8);
-        iVar2 = (pTVar4->translation).y;
-        iVar5 = (pTVar4->translation).z;
-        iVar7 = 0;
-        for (iVar9 = 0; iVar9 < (int)(u_int)pTVar4->numVertex; iVar9 = iVar9 + 1) {
-          vt.vx = (int)*(short *)((int)&pTVar4->vertex->x + iVar7) + (int)tx;
-          vt.vy = (int)*(short *)((int)&pTVar4->vertex->y + iVar7) + (int)(short)((u_int)iVar2 >> 8);
-          vt.vz = (int)*(short *)((int)&pTVar4->vertex->z + iVar7) + (int)(short)((u_int)iVar5 >> 8)
+        tx = (short)((u_int)(Nobj->translation).x >> 8);
+        ty = (short)((u_int)(Nobj->translation).y >> 8);
+        tz = (short)((u_int)(Nobj->translation).z >> 8);
+        iVar9 = 0;
+        iVar7 = iVar9;
+R3DCar_vertex_loop:
+        if (iVar9 < (int)(u_int)Nobj->numVertex) {
+          vt.vx = (int)*(short *)(iVar7 + (int)&Nobj->vertex->x) + (int)tx;
+          vt.vy = (int)*(short *)(iVar7 + (int)&Nobj->vertex->y) + (int)ty;
+          vt.vz = (int)*(short *)(iVar7 + (int)&Nobj->vertex->z) + (int)tz
                   >> 2;
           VectorNormalS(pVStack_38,pSStack_34);
           if (((*pacVar11)[1] & 0x40U) != 0) {
-            vt.vx = (int)*(short *)((int)&pTVar4->Nvertex->x + iVar7) + (int)nm.vx;
-            vt.vy = (int)*(short *)((int)&pTVar4->Nvertex->y + iVar7) + (int)nm.vy;
-            vt.vz = (int)*(short *)((int)&pTVar4->Nvertex->z + iVar7) + (int)nm.vz;
+            vt.vx = (int)*(short *)(iVar7 + (int)&Nobj->Nvertex->x);
+            vt.vy = (int)*(short *)(iVar7 + (int)&Nobj->Nvertex->y);
+            vt.vz = (int)*(short *)(iVar7 + (int)&Nobj->Nvertex->z);
+            vt.vx = vt.vx + (int)nm.vx;
+            vt.vy = vt.vy + (int)nm.vy;
+            vt.vz = vt.vz + (int)nm.vz;
             VectorNormalS(pVStack_38,pSStack_34);
           }
-          iVar3 = (int)((u_int)(u_short)nm.vx << 0x10) >> 0x10;
-          sVar6 = (short)(iVar3 / eScaleX);
-          iVar3 = (int)((long long)iVar3 * (long long)iStack_30 >> 0x25) -
-                  ((int)((u_int)(u_short)nm.vx << 0x10) >> 0x1f);
-          uVar1 = ((int)nm.vy / eScaleY) * iVar3;
-          nm.vx = (short)iVar3;
-          nm.vz = (short)(int)((long long)(int)nm.vz * (long long)iStack_30 >> 0x25) - (nm.vz >> 0xf);
-          nm.vy = (short)uVar1;
-          if (((int)(uVar1 * 0x10000) < 0) && ((uVar1 & 0xff) != 0)) {
+          nm_vx = (short)((int)nm.vx / eScaleX);
+          nm.vx = (short)((int)nm.vx / 65);
+          nm.vy = (short)((int)nm.vy / eScaleY);
+          nm.vz = (short)((int)nm.vz / 65);
+          nm.vy = nm.vy * nm.vx;
+          if ((nm.vy < 0) && ((nm.vy & 0xff) != 0)) {
             nm.vy = nm.vy + 0x100;
           }
-          uVar1 = (u_int)(u_short)nm.vy;
-          nm.vy = (short)(char)((u_short)nm.vy >> 8);
-          if (sVar6 < -0x3f) {
-            sVar6 = -0x3f;
+          nm.vy = nm.vy >> 8;
+          if (nm_vx < -0x3f) {
+            nm_vx = -0x3f;
           }
-          if (0x3f < sVar6) {
-            sVar6 = 0x3f;
+          if (0x3f < nm_vx) {
+            nm_vx = 0x3f;
           }
-          if ((int)(uVar1 << 0x10) >> 0x18 < -0x3f) {
+          if (nm.vy < -0x3f) {
             nm.vy = -0x3f;
           }
           if (0x3f < nm.vy) {
             nm.vy = 0x3f;
           }
-          nm.vy = sVar6 - nm.vy;
-          *(short *)((int)&pTVar4->Nvertex->x + iVar7) = nm.vx;
-          *(short *)((int)&pTVar4->Nvertex->y + iVar7) = nm.vy;
-          *(short *)((int)&pTVar4->Nvertex->z + iVar7) = nm.vz;
+          nm.vy = nm_vx - nm.vy;
+          *(short *)(iVar7 + (int)&Nobj->Nvertex->x) = nm.vx;
+          *(short *)(iVar7 + (int)&Nobj->Nvertex->y) = nm.vy;
+          *(short *)(iVar7 + (int)&Nobj->Nvertex->z) = nm.vz;
+          iVar9 = iVar9 + 1;
           iVar7 = iVar7 + 6;
+          goto R3DCar_vertex_loop;
         }
       }
     }
-    if (pTVar4->numFacet != 0) {
-      pTVar4->facet = (Transformer_zFacet *)((int)dst->obj + iVar8);
-      iVar8 = iVar8 + (u_int)pTVar4->numFacet * 0xc;
+    if (Nobj->numFacet != 0) {
+      Nobj->facet = (Transformer_zFacet *)((int)rawData + offset);
+      offset = offset + (u_int)Nobj->numFacet * 0xc;
     }
     pacVar11 = pacVar11 + 1;
+    i = i + 1;
   }
   return scene;
 }

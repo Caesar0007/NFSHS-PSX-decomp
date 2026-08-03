@@ -1134,7 +1134,7 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
     time = 0;
   }
   temp2 = __builtin_abs(time);
-  temp1 = temp2 / 0x40;
+  temp1 = time / 0x40;
   min = (temp1 / 0x3c) % 0x3c;
   sec = temp1 % 0x3c;
   /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
@@ -1178,6 +1178,30 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
      the allocator-simulator lane as a COALESCING-DIRECTION delta (not a priority delta) --
      it is the only survivor in this fn and needs local-alloc qty ordering, not
      allocno_compare. */
+  /* w46-a4 LEVER (10 -> 6, count 99/99): DIVIDE THE CLAMPED PARAM, NOT THE ABS.
+     `temp1 = time / 0x40;` (was `temp2 / 0x40`).  Semantically identical -- time is
+     already clamped >= 0 -- but it splits the two roles onto two pseudos: the divide's
+     op0 becomes `time` (so expand_divmod's copy is NOT combine-folded any more: ours now
+     emits the oracle's IN-PLACE `addiu v0,v0,63`) and the abs value keeps its own
+     register for the `hun` numerator.  4 of the 10 diffs go; the `subu v1,a2,v1` /
+     `sra a1,v0,6` tail is byte-exact.
+     RESIDUAL 6 = the abs is computed FROM the divide's copy instead of from the param:
+       ours   `addu v0,a1,zero; bgez v0; addu a2,v0,zero; negu a2,a2; bgez v0; addiu v0,v0,63`
+       retail `bgez a1; addu v0,a1,zero; negu v0,v0; bgez v0; addu a2,v0,zero; addiu v0,v0,63`
+     i.e. retail's abs guard tests the PARAM and negates in place; ours tests the copy.
+     FALSIFIED IN THIS (NEW) BASIN -- the w44/w45 lists were basin-relative, these are
+     re-runs: temp1=abs;temp2=temp1;temp1/=64 (10); + hun off time (72); time=abs(time)
+     in place + temp2=time (10); divide-first-then-abs (19, +1 insn); hun off `time`
+     (14, 97 insns); ternary clamp (7, +1 insn); clamp+abs+divide inside a fresh block
+     scope on a local copy (6, identical); `temp2 += time - time` late-use fence (6,
+     identical); anon-abs-divide-then-named-abs (10); u_int survivor (10).
+     NEW NAMED ANGLE: the surviving 6 is an ORDER question, not a coalescing one -- both
+     builds now have the same three copies, retail just issues the abs block BEFORE the
+     divide's copy_to_mode_reg.  Attack it as a sched2 ready-list drain (the abs's `bgez`
+     and the divide's copy are both ready at the top of the entry block): walk a ZERO-INSN
+     USE FENCE between the clamp and the abs / between the abs and the divide (catalog w45
+     'the fence is a sched-issue-position fixpoint; POSITION is the dial'), and/or hand it
+     to the a10 lane as a -dR ready-list question for this one block. */
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;

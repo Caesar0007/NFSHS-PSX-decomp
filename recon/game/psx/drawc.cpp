@@ -3471,9 +3471,20 @@ gte_SetTransMatrix(((char *)sd + 0x14));
                       * addu t2,t2,s1 (a fused a*8+b stages through a fresh temp) */
     id0 = id0 + (int)sd;
     id1 = id1 * 8;
-    id1 = id1 + (int)sd;
-    id2 = id2 * 8;
-    id2 = id2 + (int)sd;
+    /* MATCH (w46-a3, allocsim required-delta): the id0/id1/id2 + overlayFlag
+     * 3-cycle (retail id0=$t2 id1=$t1 id2=$a2 overlayFlag=$a1) is decided by
+     * allocno_compare -- all three ids have refs 18 / live 91,98,101, so OUR
+     * order is id0,id1,id2 and retail's is id2,id1,id0.  The floor_log2
+     * REF-STEP dial (catalog w44/w45 sec.A0) reverses it at ZERO instructions:
+     * one do{}while(0) depth level doubles the wrapped refs (loop weight
+     * 2->4), so wrapping id1's `+= sd` gives refs 18->20 and wrapping BOTH of
+     * id2's in-place statements gives 18->22:
+     *     id0 4*18/ 91 = .7912   id1 4*20/ 98 = .8163   id2 4*22/101 = .8712
+     * -> allocation order id2,id1,id0 -> a2,t1,t2 = retail.  Verified against
+     * tools/allocsim.py (43/43 on this fn) AND in the real -dl dump. */
+    do { id1 = id1 + (int)sd; } while (0);
+    do { id2 = id2 * 8; } while (0);
+    do { id2 = id2 + (int)sd; } while (0);
     gte_ldVXY0m(*(u_int *)(id0 + 0xD0));
     gte_ldVZ0m(*(u_int *)(id0 + 0xD4));
     gte_ldVXY1m(*(u_int *)(id1 + 0xD0));
@@ -3567,25 +3578,40 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * bare addiu (u_char would inject an andi 0xff). */
         char u;
         u_char v;
-        u_char u0, v0;   /* ONE reused pair (retail's $t4/$t5): the v-load fills
-                          * the u-load's delay slot; a single temp costs a nop
-                          * per vertex, six per-vertex temps recolour the fn */
+        u_char u0;   /* w46-a3 MATCH: ONE merged byte temp, NOT the u0/v0 pair.
+             * The pair form gives TWO global allocnos (each has 3 deaths, so
+             * local_alloc skips them); the second one has pri 3*12/14 = 2.571,
+             * ranks ABOVE overlayFlag (1.8125) and takes $a1 -- which is the
+             * ONLY reason overlayFlag cannot reach retail's $a1 and the whole
+             * id 3-cycle stays rotated.  Merging u/v into one pseudo (refs 24,
+             * live 14) leaves $a1 free: allocsim then reproduces retail's
+             * handout EXACTLY (overlayFlag $a1, id2 $a2, id1 $t1, id0 $t2)
+             * and the gate drops 95 -> 58.
+             * COST: +6 load-delay nops (retail keeps 2 regs in flight, $t4/$t5,
+             * and pairs the two lbu's).  REQUIRED DELTA to recover them, from
+             * tools/reqdelta.py: a SECOND uv pseudo is admissible only if it is
+             * a global allocno with pri < .7578 (below id0) -- i.e. refs 12 and
+             * live >= 48, or refs <= 4 with the pair NOT becoming local qtys.
+             * FALSIFIED at this basin: 6 per-vertex temps (201/197), v-only
+             * split (240/244), in-place sums (95/97) -- every one of them makes
+             * the second value a LOCAL qty or a high-pri global, and it takes
+             * $a1 before overlayFlag can. */
 
         u = (sd->ePmx0).u0;
         v = (sd->ePmx0).v0;
         u = u + '@';   /* +0x40 AFTER both base lbu's (oracle order) */
         u0 = *(u_char *)(id0 + 0xD6);
-        v0 = *(u_char *)(id0 + 0xD7);
         prim->u0 = u0 + u;
-        prim->v0 = v0 + v;
+        u0 = *(u_char *)(id0 + 0xD7);
+        prim->v0 = u0 + v;
         u0 = *(u_char *)(id1 + 0xD6);
-        v0 = *(u_char *)(id1 + 0xD7);
         prim->u1 = u0 + u;
-        prim->v1 = v0 + v;
+        u0 = *(u_char *)(id1 + 0xD7);
+        prim->v1 = u0 + v;
         u0 = *(u_char *)(id2 + 0xD6);
-        v0 = *(u_char *)(id2 + 0xD7);
         prim->u2 = u0 + u;
-        prim->v2 = v0 + v;
+        u0 = *(u_char *)(id2 + 0xD7);
+        prim->v2 = u0 + v;
       }
     }
     if ((overlayFlag & 3) != 0) {   /* fall-through = the overlay arm (oracle beqz) */

@@ -385,9 +385,19 @@ void Weather_ChangeIntensityBasedOnTime(void)
 
 {
   if (Weather_gIntensityChangeFactor <= 0) goto WeatherIntensity_checkZero;
-  if (!((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState]))
-  goto WeatherIntensity_call;
+  /* w46-a9 (4 -> PASS): the w42 "STRONG" verdict above named the mechanism exactly
+   * right -- guard 1 in the ORACLE polarity makes its 3-insn tail byte-identical to
+   * guard 2's and our post-reload cross_jump merges them (58 insns) -- but its
+   * conclusion ("no equivalent C spelling makes the two tails differ") only held for
+   * spellings that EMIT code.  A zero-operand USE FENCE is a real RTL insn that
+   * emits ZERO bytes, so it breaks cross_jump's tail equality at no instruction
+   * cost: guard 1 keeps the oracle's `bnez -> velYUpdate` sense AND its own `j`.
+   * Placement is the dial -- the fence must sit at the END of guard 1's block
+   * (before the `goto ..._call`); before the guard = 58/6, in the other arm = 62/4. */
+  if ((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState])
   goto WeatherIntensity_velYUpdate;
+  __asm__ __volatile__("");
+  goto WeatherIntensity_call;
 WeatherIntensity_checkZero:
   if (Weather_gIntensityChangeFactor >= 0) goto WeatherIntensity_checkTime;
   if ((int)Weather_gSys.velocity.vy > Weather_gIntensityTbl[Weather_gIntensityGoalState])

@@ -2497,30 +2497,24 @@ void ReActivate__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 Speaker * FindMobile__6SpeechP8Car_tObj(Speech *pThis,Car_tObj *carObj)
 
 {
-  MobileSpeaker **ppMVar1;
-  int iVar2;
-  Speech *pSVar3;
-  int iVar4;
-  int i;
-  
-  pSVar3 = pThis;
-  for (iVar4 = 0; iVar2 = 0, iVar4 < 4; iVar4 = iVar4 + 1) {
-    ppMVar1 = pSVar3->fMobile;
-    pSVar3 = (Speech *)&(pSVar3->fCarBank).Mobile[0].fMake;
-    if (carObj == (*ppMVar1)->fCarObj) {
-      return &(*ppMVar1)->_base_Speaker;
+  for (int i = 0; i < 4; i++) {
+    MobileSpeaker *mobile = pThis->fMobile[i];
+
+    if (carObj == mobile->fCarObj) {
+      return &mobile->_base_Speaker;
     }
   }
-  while( true ) {
-    if (3 < iVar2) {
-      return Speech_fgUndefined;
+
+  for (int i = 0; i < 4; i++) {
+    MobileSpeaker *mobile = pThis->fMobile[i];
+
+    if (mobile->fCarObj == (Car_tObj *)0x0) {
+      Activate__Q26Speech13MobileSpeakerP8Car_tObj(mobile,carObj);
+      return &pThis->fMobile[i]->_base_Speaker;
     }
-    if (pThis->fMobile[0]->fCarObj == (Car_tObj *)0x0) break;
-    pThis = (Speech *)&(pThis->fCarBank).Mobile[0].fMake;
-    iVar2 = iVar2 + 1;
   }
-  Activate__Q26Speech13MobileSpeakerP8Car_tObj(pThis->fMobile[0],carObj);
-  return &pThis->fMobile[0]->_base_Speaker;
+
+  return Speech_fgUndefined;
 }
 
 /* ---- Mobile__6SpeechP8Car_tObj  [SPEECH.CPP:2244-2250] SLD-VERIFIED ---- */

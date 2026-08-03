@@ -690,11 +690,20 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
     }
     if (!carTypeOffRange) {
-      shadow_align_b = (sd->head).mirror;
-      if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
+      /* MATCH (w46-a3, 86 -> 70): VARIABLE IDENTITY -- the mirror index gets
+         its OWN block-local name.  `shadow_align_b` is a Ghidra fn-scope
+         invention reused for four unrelated values later in this function;
+         as one fn-scope pseudo it out-lived the address temp and lost the
+         a0/a1 order (ours {idx:$a1, &signalLight[idx]:$a0}, retail the
+         reverse).  A block-local qty born and dead inside this region wins
+         $a0 like retail.  Same lever family as ShowroomPrims 93->4.
+         (A SECOND name for the xored value measures 88 -- retail mutates
+         ONE pseudo in place, `xori a0,a0,1`.) */
+      u_int mir = (sd->head).mirror;
+      if (((carObj->render).signalLight[mir] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x40;
       }
-      if (((carObj->render).signalLight[shadow_align_b] & 8U) != 0) {
+      if (((carObj->render).signalLight[mir] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 1U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x80;
         }
@@ -715,11 +724,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
        * block-local name here (so its qty is born and dies inside this block
        * and out-lives the address temp), which is the same variable-identity
        * lever that took ShowroomPrims 93->4 this wave. */
-      shadow_align_b = shadow_align_b ^ 1;
-      if (((carObj->render).signalLight[shadow_align_b] & 0x80U) != 0) {
+      mir = mir ^ 1;
+      if (((carObj->render).signalLight[mir] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;
       }
-      if (((carObj->render).signalLight[shadow_align_b] & 8U) != 0) {
+      if (((carObj->render).signalLight[mir] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 0x100U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x8000;
         }

@@ -256,10 +256,13 @@ int InGame_GetPSXPadValue(int value,int player)
   int type;
 
   PAD_update();
-  if (gPadinfo.buf[player * 4].nopad == '\0') {
-    type = gPadinfo.buf[player * 4].ID;
-  }
-  else {
+  /* w46-a8 (279 -> 264, with the two de-merge fences below): the nopad trichotomy
+     RE-OPENED from the w45 `| 1`-on-the-return basin.  In the OLD 329 basin this
+     spelling measured 322 and was rejected; in the 279 basin it is the BEST of the
+     four (264 vs 271/271/271 for if/else, ternary and default-then-override) --
+     a textbook basin-relative falsification (catalog w45 LEVER-ORDER law). */
+  type = gPadinfo.buf[player * 4].ID;
+  if (gPadinfo.buf[player * 4].nopad != '\0') {
     type = 0;
   }
   switch (type) {
@@ -314,11 +317,22 @@ int InGame_GetPSXPadValue(int value,int player)
       newControl = player << 0x1e |
                    (0x80 - GameSetup_gData.controllerData.deadSpot[player]) * 0x10000 |
                    (0x80 - GameSetup_gData.controllerData.steeringRange[player]) * 0x100 ;
+      /* w46-a8 DE-MERGE FENCE (zero insns, §2b.5 -- NOT a register pin).  The w45 `| 1`-
+         on-the-return lever made gcc's jump2 cross-jump the case tails like retail, but it
+         OVER-merges: these two 0x23 arms had their range-cal loads and `sll s1,2` folded
+         into the shared tail as well, where retail merges only the final `ori v0,a0,1`.
+         An empty asm at the end of exactly these two arms makes their tails differ so
+         jump2 declines them while every other group stays merged.  MEASURED (each set is
+         the whole fence configuration, k1 nopad spelling): {8,9} 264 (kept), {9} 266,
+         {8} 268, {8,9,10} / {8,9,11} / all-four-0x23 268, {9,10} 270, none 272, {8,10} 272,
+         adding ANY 0x53/0x73 arm 267-280, all eight 0x53/0x73 arms 331. */
+      __asm__ volatile("" : : "r"(newControl));
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    (GameSetup_gData.controllerData.deadSpot[player] + 0x80) * 0x10000 |
                    (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100 ;
+      __asm__ volatile("" : : "r"(newControl));
       return newControl | 1;
     case 0x4000:
       newControl = player << 0x1e |

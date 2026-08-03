@@ -1399,6 +1399,44 @@ gte_swc2(0x8,&depthcue);
        * (the four `*(long*)&prim->xN` and four `*(u_int*)&prim->uN` stores are the
        * only compressible groups): at r=15 / live=151 the priority is
        * 3*15/151 = 0.298 < 0.3656 and sd wins.  Otherwise: permuter. */
+      /* w46-a7 RE-MEASUREMENT AT THE POST-LOAD-4/STORE-4 BASIN (7-diff base).
+       * if/else form re-probed here: gate 197 (was 282/204 at older basins) -- the
+       * trade SURVIVES the basin change, so it is the whole residual 7.
+       * tools/reqdelta.py --want "p141=s1,p80=s0" on THIS basin, all four dials:
+       *     p141(prim) refs  24 ->  13   |d| 11   floor_log2 4->3
+       *     p80 (sd)   refs  62 -> 119   |d| 57   floor_log2 5->6
+       *     p141(prim) live 114 -> 262   |d| 148
+       *     p80 (sd)   live 846 -> 368   |d| 478
+       * The default-then-override IS the p141-live dial already applied (defining
+       * prim at the top stretches its range past 262) -- that is why we hold the
+       * registers and pay only the misplaced `addiu`+`j`.
+       * FALSIFIED THIS WAVE (measured, basin = 7-diff post-load-4/store-4):
+       *  (a) the `long *px = (long *)((char *)prim + 8)` single-base ref-shed: it
+       *      DOES take prim from 24 refs to ~5, but px inherits ~20 refs over the
+       *      SAME 114-insn range (4*20/114 = 0.70 > sd's 0.3664) -- the rival is
+       *      merely RENAMED, and the addiu costs +1 insn.  Any pointer that covers
+       *      the prim region is the new $s0 claimant; splitting it into two shorter
+       *      bases makes TWO claimants (both still > 0.3664).  This kills the
+       *      briefing's "shed 11 prim refs" route as stated.
+       *  (b) the w44 do{}while(0) depth wrapper on THIS outer if-body: structurally
+       *      unavailable.  Counted here: the body holds ALL 24 prim refs but only 21
+       *      of sd's 62, so depth D gives prim 24D vs sd 41+21D and prim wins for
+       *      every D -- the w45 DEPTH-ASYMMETRY row ("loser and rival SHARE refs in
+       *      the wrapped span") in its pure form.
+       * NEW NAMED ANGLE (untried, the only depth placement that can work): the
+       * wrapper must cover a prim-FREE region, i.e. somewhere in the vertex-setup /
+       * backface span above (0 prim refs).  w45-a6 tried only the GTE vertex block
+       * (3 levels, +21 sd refs) and hit the LOOP_BEG scheduling barrier inside the
+       * rtps chain.  The BACKFACE-TEST region is the untried placement: it is pure
+       * loads + compares, no GTE op, no call, so a LOOP_BEG/END barrier there has
+       * nothing to reorder across.  Requirement is exact: +57 weighted sd refs, so
+       * depth = 1 + ceil(57 / <sd refs inside the wrapped braces>).
+       * SECOND NEW ANGLE: the honest twin of the same delta -- retail's sd carries
+       * ~2x our references, so the original read `sd->` directly where this recon
+       * caches (geomVertices, currentQuadMat, depth_avg, primPtr, save_pre_otz).
+       * Un-cache them ONE at a time and re-run tools/prio.py; a reload that cse
+       * folds is +1 ref at zero insns.  Both angles are gated by the same number:
+       * p80 must reach 119 refs (or p141 must fall to 13). */
 
       if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;

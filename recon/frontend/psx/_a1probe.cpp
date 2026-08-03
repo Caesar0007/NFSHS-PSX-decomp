@@ -486,8 +486,13 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
-  int      deadfrm[2];   /* w44-a1 SYM-fsize FILLER (frame 104; removing it = 192/frame-96
-                          * in the addPrim basin too).  See the vh/v-root receipt below. */
+  u_char   vb;      /* MATCH (w46-a1): retail gives `v` TWO homes -- $t4 for the
+                     * prim[0xd]/prim[0x19] stores AND a byte slot 0x20(sp) reloaded
+                     * into $t7 for the `vh + v` bottom row.  This second u_char copy
+                     * IS that spilled pseudo; it supplies the third stack slot the
+                     * retired `deadfrm[2]` filler used to fake (slots are now
+                     * width@16 / vh@24 / v@32, frame 104 == SYM fsize, natively).
+                     * u_char is load-bearing: `short` gates 37, `int` 38. */
 
   height = shp->height;
   width = shp->width;
@@ -612,7 +617,74 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    *   w40 uncoalesced-temp identity -- model it as a real local COPIED FROM (`vraw`), noting
    *   make_regs_eqv keeps the copy only when it OUTLIVES its source.  (Scripted probe skipped
    *   this wave: the `v = (byte)shp->shapey;` anchor is NOT unique in the TU -- slice the file
-   *   at this function's definition first.) */
+   *   at this function's definition first.)
+   * ==== w46-a1 RESULT: 83 -> 67 -> 37 -> 33 (ours 244 / oracle 245).  THE SLOT MAP AND THE
+   *      SYM-fsize FILLER QUESTION ARE BOTH CLOSED -- do not re-grind either. ====
+   * THREE levers landed, in order (each verified whole-TU, 22 PASS, zero regressions):
+   *  (1) 83->67  texX STATEMENT SPLIT: `ibp = (i * bpp) / 16; texX = shapex + ibp;`.
+   *      Retail issues the mult/mflo/bgez/addiu-15/sra-4 divide chain BEFORE the `lhu
+   *      0x18(s4)` shapex load (whose load-delay it then NOPs); the fused single expression
+   *      let gcc hoist the load and fill the bgez slot with the sll.  (w43 "independent-chain
+   *      issue order is fixed by STATEMENT SPLIT, not operand order" -- the bare operand swap
+   *      `(i*bpp)/16 + shapex` only reaches 69.)
+   *  (2) 67->37  FRESH-DEST `addwm1`: retail emits `addiu v1,a2,-1`, i.e. it keeps `addw`
+   *      alive in $a2 and puts addw-1 in a FRESH $v1; our in-place `addw = addw - 1;`
+   *      mutated $a1 and rotated the whole flags&4 arm's a-band down one register
+   *      (ours {w1=a0,addw=a1,u+w1=v0} vs retail {w1=a1,addw=a2,u+w1=v1}).  Writing the
+   *      decrement into a NEW local restores retail's entire a-band in one edit.
+   *  (3) 37->33  `vb` = a SECOND u_char copy of `v` feeding ONLY the `vh + v` bottom row,
+   *      + RETIREMENT of the `deadfrm[2]` SYM-fsize filler.  Retail gives `v` TWO homes --
+   *      the register $t4 (feeds prim[0xd]/prim[0x19]) AND a byte stack slot 0x20(sp)
+   *      reloaded into $t7 for `addu v0,t8,t7` -- so the "third memory-homed value" the
+   *      w45 receipt said the filler could only FAKE is a real second pseudo.  With `vb`
+   *      present the aggregate filler is unnecessary and the slot map is retail's NATIVELY:
+   *      width@16 (sh/lhu), vh@24 (sh in the flags&2 beqz DELAY SLOT, lhu reload), v@32
+   *      (sb/lbu), caller-save t1..t6 @40-60, frame 104 == SYM fsize.  `u_char` is
+   *      load-bearing (short vb = 37, int vb = 38).
+   * 🔴 BUG CAUGHT THIS WAVE (process, not code): the scripted `noflr` probe helper searched
+   *   for the next `;` AFTER the filler decl's trailing comment and deleted through it,
+   *   silently swallowing `height = shp->height;` -- an UNINITIALISED height read that the
+   *   byte gate cannot see (it scored BETTER, 34, than the correct 33 form).  Caught only by
+   *   reading `tools/ourdis.py` output against the oracle.  Scripted edits must delete an
+   *   EXACT decl+comment span; and every probe win must be read, not just gated.
+   * REMAINING 33 (re-measured, count 244 vs 245) -- FOUR named items:
+   *   a. $t4<->$t5 SWAP: p90(`v`) vs p84(`color`).  allocsim/reqdelta receipt (validated
+   *      29/29 on this basin): v refs=6 live=160 pri .0750 vs color refs=9 live=338 .0798;
+   *      the MINIMAL delta is `p90 refs 6 -> 7` (.0875, lands BETWEEN color .0798 and mask
+   *      .0915) or `p84 refs 9 -> 8` (.0710).  ⚠️ +2 is TOO MUCH: an extra IN-LOOP v use
+   *      carries loop weight 2 -> refs 8 -> .1500, which vaults v back over x/mask and
+   *      restores the old 3-cycle (that is exactly why dropping the prim[0x19] read-back
+   *      measures 47).  So the dial needs ONE **non-loop** reference.  FALSIFIED (all
+   *      re-gated from this basin, all 33 = exactly 0): `vb = v & 0xff` / `& 0xffff` /
+   *      `(u_char)v` re-mask inflators, `v = v - 1;` self-decrement in the flags&2 arm,
+   *      deliberate arm-duplication of `vb = v;`, moving `vb = v;` after the arm.  cse folds
+   *      each before flow.c counts it.  🎯 NEW NAMED ANGLE #D: the ref must be created where
+   *      cse CANNOT merge it -- try a second STORE of v (`prim[0xd] = v;` duplicated into
+   *      the flags&2 arm so cross-jump merges the code but flow.c counts both arms, the w43
+   *      "cross-jumped duplicate stores still cost REG_N_REFS" row applied OUTSIDE the loop),
+   *      or demote `color` instead by giving c3 a pre-loop latch.
+   *   b. the vraw copy `addu t4,v0,zero` (angle #C) is STILL missing: `vraw` as short /
+   *      u_char / byte all measure EXACTLY 0 (cse copy-props them); `int vraw` adds the insn
+   *      but costs 14 diffs.  make_regs_eqv keeps a copy only when it OUTLIVES its source --
+   *      here the source dies at the copy.  🎯 ANGLE #C': give `vraw` a SECOND consumer that
+   *      outlives v (e.g. the flags&2 arm reads vraw AND a later pre-loop statement does).
+   *   c. our extra `addu v1,t5,zero` before `sb v1,25(s0)`: the w45 prim[0x19] read-back
+   *      costs a real copy here where retail just stores $t4 twice.  It is still NET
+   *      POSITIVE (removing it = 47) because it is what holds v's refs at 6; it should
+   *      disappear for free once (a) lands.
+   *   d. one `nop` + `sh s7,10(s0)` ordering and `sll v0,s5,16` vs `sll v0,a1,16` (ours
+   *      tests `w`, retail `w1`).  `w1 = wsel` / dropping `w` = 168 (the two-variable
+   *      w/w1 pair is load-bearing); `(int)w1` cast = 0.
+   * PERMUTER (the wave's one job, -j 2, TWO rounds, both bisected per the trust rules):
+   *   round 1 seeded from the count-exact-245 `noflr + vbot-before-call` basin of angle #A'
+   *   (~2000 iters, base 1420 -> best 1000).  Its best candidate carried exactly TWO valid
+   *   mutations: `volatile int vbot;` and `prim - -0x10` (an encoding no-op).  Transplanted
+   *   and gated in the real tree: volatile vbot = 122/53/71/138 depending on placement --
+   *   REJECTED.  ⇒ angle #A' is now CLOSED: that basin is both worse AND permuter-spent.
+   *   round 2 re-seeded from the 37 basin (~1000 iters, base 485 -> best 475); its single
+   *   valid mutation `prim[0x30] = (prim[0x18] = u + w1);` gates 47 here (scorer/gate
+   *   disagreement again -- tools/PERMUTER.md).  The `prim[0x30] = prim[0x18];` read-back
+   *   variant is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
   if ((flags & 2) != 0) {
     v = (byte)shp->shapey - 1;
   }
@@ -622,14 +694,21 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * lvalue shape), each of which costs a real insn in the arm; measure vs the
    * missing-pair budget (+2) next pass.  Also PENDING: confirm p87==vh in the
    * lreg insn stream before further REG_EQUIV surgery. */
+  vb = v;   /* MUST sit AFTER the flags&2 arm: retail's 0x20(sp) byte holds the
+             * DECREMENTED v.  A `vb = v;` before the arm gates 34 -- and is a REAL BUG. */
   i = 0;
   while (i < shp->width) {
     int addw;
     int texX;
     int wsel;
     int c3;
+    int addwm1;
     int ibp;
 
+    /* MATCH (w46-a1, 83->67): the divide chain is its OWN statement, so it gets the
+     * lower luid and issues BEFORE the `lhu 0x18(s4)` shapex load whose load-delay
+     * retail then NOPs.  The fused one-expression form hoists that load instead and
+     * fills the bgez slot with the sll (83); the bare operand swap only reaches 69. */
     ibp = (i * bpp) / 16;
     texX = (uint)(ushort)shp->shapex + ibp;
     u = (i + ((int)((uint)(ushort)shp->shapex << 0x10) >> 0xc) / bpp) -
@@ -702,21 +781,25 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
     prim[0x19] = prim[0xd];
     prim[0x24] = u;
     prim[0x30] = u + w1;
-    prim[0x25] = vh + v;
-    prim[0x31] = vh + v;
+    prim[0x25] = vh + vb;
+    prim[0x31] = vh + vb;
     if (w1 <= 0) {
       w1 = 1;
     }
     if ((flags & 4) != 0) {
-      addw = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
+      /* MATCH (w46-a1, 67->37): a FRESH DEST, never an in-place `addw = addw - 1;`.
+       * Retail emits `addiu v1,a2,-1` -- addw stays live in $a2 -- whereas the in-place
+       * mutate rotated the whole flags&4 arm's a-band down one register
+       * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
+      addwm1 = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
                              reassociate the -1 out and re-add addw at each vertex (w42-a7) */
-      *(short *)(prim + 8) = ((width + x) - i) + addw;
+      *(short *)(prim + 8) = ((width + x) - i) + addwm1;
       *(short *)(prim + 10) = y;
-      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addw;
+      *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
       *(short *)(prim + 0x16) = y;
-      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addw;
+      *(short *)(prim + 0x20) = ((shp->width + x) - i) + addwm1;
       *(short *)(prim + 0x22) = y + height;
-      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addw;
+      *(short *)(prim + 0x2c) = ((shp->width + x) - (i + w1)) + addwm1;
       *(short *)(prim + 0x2e) = y + height;
     }
     else {
@@ -1289,7 +1372,6 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * SEMANTIC REVIEW per mutation, not just byte re-gate.) */
   *(u_long *)(prim + 4) = font_tint;
   *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  prim[3] = 9;
   prim[7] = 0x2c;
   *(ushort *)(prim + 0xe) = gFontClut;
   *(ushort *)(prim + 0x16) =
@@ -1298,7 +1380,8 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   prim[0xd] = dv;
   prim[0x15] = dv;
   prim[0x14] = u + width;
-  ytop = (ybase + 5) - hoff;
+  ybase = ybase + 5;
+  ytop = ybase - hoff;
   *(short *)(prim + 0x1a) = ytop;
   prim[0x1c] = u;
   prim[0x1d] = dv + height;
@@ -1307,6 +1390,7 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   *(short *)(prim + 8) = x;
   *(short *)(prim + 10) = ytop + height;
   *(short *)(prim + 0x10) = x + width;
+  prim[3] = 9;
   *(short *)(prim + 0x12) = ytop + height;
   *(short *)(prim + 0x18) = x;
   *(short *)(prim + 0x20) = x + width;

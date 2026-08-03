@@ -1339,7 +1339,52 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * while ours runs the dv chain first and emits both after it.  Ours also runs ONE HARD
    * REGISTER SHORT (15 vs 16 first-use registers): retail keeps ybase/ytop in a fresh $t8 and
    * (ybase+5) in $v1, ours folds the +5 into hoff and mutates the dying `y` REGPARM in place,
-   * which frees $a1 so the 2nd src+0xc read self-temps into $a2 instead of retail's $a1. */
+   * which frees $a1 so the 2nd src+0xc read self-temps into $a2 instead of retail's $a1.
+   * ==== w46-a1: 50 -> 48.  THE QTY LAYER IS NOW INSTRUMENTED -- read this before touching it.
+   * LANDED (the only mover): `ybase = ybase + 5;` as its OWN statement, mutating ybase in
+   *   place, then `ytop = ybase - hoff;`.  w45 §C says fold's constant reassociation
+   *   (`(A+5)-B -> A-(B-5)`) is STATEMENT-GRANULAR -- parentheses do nothing.  w43 had
+   *   measured "`ybase+5` as its own MODIFY_EXPR" NEGATIVE; that falsification was
+   *   BASIN-RELATIVE and is now retired (`ybase = y - yoff + 5` in two statements = 48 too;
+   *   a THIRD named local `ybase5` = 50; `ybase - (hoff - 5)` = 50).
+   * 🔬 THE QTY PRIORITY TABLE (new tool `tools/qtyprio.py`; this fn has ZERO global allocnos,
+   *   so §A0's `QTY_CMP_PRI == allocno_compare` governs everything).  50 quantities; the
+   *   contested ones, with `floor_log2(refs)*refs/live`:
+   *     p96  ytop        refs 4 live 25  .3200 -> $a1   (retail: $t8)
+   *     p94  ybase       refs 4 live 27  .2963 -> $a1
+   *     p128 2nd src+0xc refs 3 live 21  .1429 -> $a2   (retail: $a1)
+   *     p111 0xFF000000  refs 3 live 28  .1071 -> $t5
+   *     p106 0x00FF0000  refs 3 live 27  .1111 -> $t3
+   *     p87  prim        refs 26 live 69 1.5072 -> $t1  (== retail)
+   *     p84  ch (stack)  refs 2  live 74 .0270 -> $s0   (allocated LAST; the LOWEST priority
+   *                                                      qty takes the callee-saved reg --
+   *                                                      the §A0 proof, reproduced here)
+   *   ⇒ THE REQUIRED DELTA IS ONE STEP, EITHER SIDE OF ONE RAZOR:
+   *     (a) p128 refs 3 -> 4  (floor_log2 1->2: .1429 -> 2*4/21 = .3809) clears ytop's .3200,
+   *         so the 2nd src+0xc read is allocated first and takes $a1 = retail's `lw a1,0xC(a2)`,
+   *         forcing ybase/ytop off $a1; or
+   *     (b) p96 refs 4 -> 3  (.3200 -> 1*3/25 = .1200) or live 25 -> >56, dropping ytop below
+   *         p128 from the other side.
+   * FALSIFIED FROM THE 48 BASIN (all re-gated; the basin is stated per the w45 law):
+   *   - ONE variable carrying y-yoff -> +5 -> -hoff (a single long qty, which is what retail's
+   *     58-insn $t8 range looks like): 62 / 60 -- WORSE, the long qty does not sink far enough.
+   *   - ytop ref-DELETERS (the w45 store-read-back that cracked DrawGouraudShape):
+   *     `prim+0x22 <- prim+0x1a` and `prim+0x12 <- prim+10` each cost a REAL insn here
+   *     (83/84 insns, gate 109/101/110) -- cc1 forwards a just-stored BYTE, not a halfword.
+   *   - p128 inflators: naming the 2nd read in a local `src2` = 48 (exactly 0), `| (src2 & 0)`
+   *     = 48 (fold kills it), a triple re-mask = 58.
+   * 🎯 NEW NAMED ANGLE #E: the +1 ref on p128 must be created where cse/fold CANNOT merge it.
+   *   The one shape not yet tried is the w43/w44 CROSS-JUMPED DUPLICATE (`flow.c` counts both
+   *   arms while cross_jump merges the code): wrap the tpage word in a two-arm if/else whose
+   *   arms are textually identical apart from a term that re-reads `src+0xc`.  Second, cheaper
+   *   route: shorten p128's LIVE range instead of raising its refs (.1429 -> >.32 needs live
+   *   21 -> <=9), i.e. move the tpage word's two uses adjacent to the read.
+   * 🔬 POSITIONAL NEIGHBOURHOOD (tools/stmtclimb3.py, committed this wave): from the 50 basin
+   *   PHASE 1 gated ALL 625 def-use-valid single moves (every one = 50, confirming w45's
+   *   single-move optimum EXHAUSTIVELY rather than greedily) and PHASE 2 gated 825 COMPOUND
+   *   PAIR moves built from the 45 best singles -- best still 50.  ⇒ 50 was also a TWO-move
+   *   local optimum; position is EXHAUSTED as a lever from that basin, which is why the win
+   *   came from expression shape instead.  The climb was re-launched from the 48 basin. */
   u_char  *prim;
   u_char  *prevPrim;
   int      linkAddr;

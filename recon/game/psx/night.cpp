@@ -802,7 +802,22 @@ void Night_RestartNightDriving(void)
 /* NEAR-MISS 8 diffs, COUNT-EXACT 68/68 (w40-a9): a $v0/$v1 rotation on the
  * `Camera_gInfo[Vi->player].target` load -- ours `lw $v1,4($v0)` (separate temp) + `li
  * $v0,128`, retail `lw $v0,4($v0)` (SELF-temp, dest reuses the just-computed base) + `li
- * $v1,128`.  Falsified: hoisting `Night_gZNear = 0x80;` above the two shift assignments
+ * w46-a9 (re-gated 8, count-exact 68/68).  Ran the w44/w45 ALLOCNO-DIAL kit against it
+ * -- 14 further spellings, ALL >= 8: named `tgt` local (8) · zero-insn USE fence on tgt
+ * x1/x2, before/after the store (8/8/8) · tgt read before vs after the store (8/8) ·
+ * no-op re-mask `(u_char*)(u_int)tgt` (8) · naming the 0x80 constant in a local before
+ * the guard (8) or storing it after the guard (12) · `do{}while(0)` depth-1/-2 wrappers
+ * on the tgt read (10 / 12) · wrapper on the whole guard (7 but 69 insns) · wrapper on
+ * the gZNear store (7 / 69) · bare fence between store and guard (7 / 69).
+ * 🔑 NEW NAMED ANGLE (the signal in that data): the ref dial DOES reach these two
+ * quantities -- inflating the TARGET pointer's refs moved the output (8 -> 10/12) -- but
+ * in the WRONG direction, so the reachable side is the CONSTANT, not the pointer, and it
+ * needs an inflator that does NOT emit a NOTE_INSN_LOOP_BEG (every do{}while(0) here
+ * costs +1 insn because the barrier splits the store group).  Next instrument: run
+ * prio.py/-dl on this fn to read the two qty priorities, then reqdelta --want the swap;
+ * a zero-insn ref ADD on the 0x80 value (e.g. a second consumer of the same constant
+ * that cse folds) is the untried inflator class.
+ * Falsified earlier: hoisting `Night_gZNear = 0x80;` above the two shift assignments
  * (16, worse), and two other spellings of the target byte read (`((u_char*)t)[0x447]`,
  * `*(u_char*)((char*)t+0x447)`) -- both byte-identical at 8.  Sec.3.15 scratch-register
  * tie-break class. */

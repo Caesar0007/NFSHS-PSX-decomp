@@ -2329,14 +2329,77 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
           allocno holding 0x1F800000 whose priority lands LAST (it must take
           $fp, i.e. rank 9 of 9), pushing Vi from $fp up to $s7.  Everything
           else in the table is already the oracle's set. */
+  /* ================= RECEIPT (w46-a6) -- 130 -> 68, COUNT-EXACT 189/189 =======
+     THE w45 "sd is not an allocno" DIAGNOSIS IS NOW MOOT -- IT FIXED ITSELF.
+     `sd` DOES get $fp (`lui $s8,0x1f80` in our prologue, `sw $zero,40($s8)`,
+     `move $v0,$s8` at the SetTransMatrix arg) the moment the callee-saved pool
+     stopped being over-subscribed.  The 12 falsified levers above were all aimed
+     at the wrong target: the +4 insns were the MATERIALIZED BOOLEAN, not the
+     scratchpad constant.  Do NOT re-try the storage-shape/REG_EQUIV angle.
+
+     WHAT LANDED:
+       1. DIRECT-BRANCH GUARDS in animCase1 (the big one, 130->94 and count-exact).
+          The oracle materializes NO flag: `beqz $t0,.L800C7A24` @0x800C7A08 with
+          an ARG SETUP (`addu $a0,$s7,$zero`) in its delay slot, then
+          `bnez $v0,.L800C7B54`, `beq $s6,$t0,.L800C7A44`, `beqz $v0,.L800C7B54`.
+          Our `((A)||(B)) && ((C)||(D))` compound form built the flag in a
+          callee-saved reg (`move s2,zero` / `li s2,1` / `beqz s2`): +2 insns, one
+          stolen delay slot, one extra saved-reg consumer.  Rewritten as two
+          nested `if`s with `goto animNext`.
+       2. ACCUMULATE THE RETURN VALUE DIRECTLY (94->70): retail is
+          `jal DrawObjectSimple; j .L800C7B54; addu $s5,$s5,$v0` -- it never writes
+          the result back into `objectOffset` (SYM $s2 stays the INPUT arg,
+          `sw $s2,0x10($sp)`).  The round-trip cost that allocno 8 loop-weighted
+          refs (18 -> 10) and was the whole s0/s1/s2 3-cycle.
+       3. ZERO-COUNT ARM RETURNS (70->68) instead of assigning the accumulator.
+     posdiff's first-use order is now IDENTICAL to the oracle's; structural
+     residual 47 -> 34.
+
+     RESIDUAL = TWO INDEPENDENT ROTATIONS, allocsim-quantified (model reproduces
+     our handout 19/19 IDENTICAL):
+        pseudo  what              ours  RETAIL  refs/live   pri
+        p83     objInstance        s0     s0 OK  27/129     0.8372
+        p92     objectOffset       s1     s2     10/50      0.6000
+        p84     objDef             s2     s1      4/18      0.4444
+        p85     totalCount         s3     s5     11/131     0.2519
+        p142    &matrix (fp+72)    s4     s3      9/109     0.2477
+        p91     objectIndex        s5     s4      9/115     0.2347
+        p89     zClipSq            s6     s6 OK   9/122     0.2213
+        p80     Vi                 s7     s7 OK  13/262     0.1488
+        p82     sd = 0x1F800000    fp     fp OK  10/254     0.1181
+     REQUIRED DELTA -- verified as an EXACT allocsim `--what-if` pair that lands
+     ALL FIVE misses at once (`--what-if 92:live=68 --what-if 85:refs=10`):
+        (a) p92 (objectOffset) live 50 -> 68  (+18)   [or refs 10 -> 7]
+        (b) p85 (totalCount)   refs 11 -> 10  (-1)    [or live 131 -> 141]
+     reqdelta finds no SINGLE- or two-dial-on-one-pseudo answer; it is this
+     cross-pseudo pair.
+     FALSIFIED IN THIS BASIN: `animType = objInstance->type;` moved ahead of the
+     objectOffset computation (75, count 188 -- shortens p92 the WRONG way);
+     hoisting `objectOffset = offset;` out of the visList guard (72, count 187);
+     dropping the redundant `totalCount = 0;` in the zero arm (no-op, jump-opt
+     already merged it); all 8 storage-shape spellings of the `(sd->matB).t[0]`
+     store (int-index / byte-cast / literal Draw_DCache / literal int-index /
+     volatile / t0-first) -- every one gates identically.
+     NEW NAMED ANGLE: (a) wants objectOffset LIVE ~18 insns longer without new
+     refs -- the natural candidate is the SYM's own block structure (objectOffset
+     is declared in block line 25 together with `matrix`, i.e. AFTER the visList
+     guard but BEFORE the animType dispatch), so give it a def at the block head
+     and a last use after the Flare_Halo2 call; (b) is one ref off `totalCount`.
+     NOTE for a10's 3-qty law: these are GLOBAL allocnos (all present in
+     `;; N regs to allocate:`), so the priority formula does apply here.
+     ============================================================================ */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
   groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
+  /* MATCH (w46-a6): the zero-count arm RETURNS instead of assigning the
+   * accumulator -- one fewer REG_N_REF on `totalCount` drops its allocno
+   * below `objectIndex` (.2519 -> .2290 vs .2347), which is exactly the
+   * reqdelta the s3/s4/s5 3-cycle needs. */
   if (groupNumElements == 0) {
-    totalCount = 0;
+    return 0;
   }
-  else {
+  {
     offset = gObjInfo->offset;
     doFrustumClip = gObjInfo->doFrustumClip;
     zClipSq = gObjInfo->zClipSq;
@@ -2386,18 +2449,21 @@ gte_SetTransMatrix((void *)0x1f800014);
           distSq = xzsquaredist32((coorddef *)&objInstance->count,&(Vi->cview).translation);
           if (zClipSq <= distSq) goto animNext;
         }
-        objectOffset = DrawObjectSimple(Vi,sd,objDef,
+        /* MATCH (w46-a6): retail accumulates the RETURN VALUE directly --
+         * `jal DrawObjectSimple; j .L800C7B54; addu $s5,$s5,$v0` -- it never
+         * writes it back into `objectOffset` (SYM $s2, which stays the INPUT
+         * arg, `sw $s2,0x10($sp)`).  Round-tripping it through objectOffset
+         * added 2 loop-weighted refs per call site to that allocno. */
+        totalCount = totalCount + DrawObjectSimple(Vi,sd,objDef,
                            (coorddef *)&objInstance->count,objectOffset);
-        totalCount = totalCount + objectOffset;
         goto animNext;
       animCase37:
         Anim_GetRotPos(objInstance,1,DrawW_GetAnimationTime(objInstance),&cp,&matrix);
         if ((zClipSq == -1) ||
            (distSq = xzsquaredist32(&cp,&(Vi->cview).translation),
            distSq < zClipSq)) {
-          objectOffset = DrawObjectTransform(Vi,sd,&matrix,
+          totalCount = totalCount + DrawObjectTransform(Vi,sd,&matrix,
                              Track_gObjDefs[objInstance->pad],&cp,objectOffset,-1);
-          totalCount = totalCount + objectOffset;
           if ((objInstance->flags & 2) != 0) {
             pt2.x = cp.x + matrix.m[6] * -0x10;
             pt2.y = cp.y + matrix.m[7] * -0x10;

@@ -36,7 +36,7 @@ extern void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forcePark
 extern void Hud_Perp_OverlayOff(int player);
 extern void Hud_Perp_OverlayOn(int player,int level);
 extern void Stats_ExtrapolateOpponentTimes(int);
-int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
+int AIWorld_ApxSplineDistance(Car_tObj *carObj, int slice);
 /* AITrigger_TriggerManager::CheckForClosestTriggerOfType/GetTrigger now C++ members (aitriger.obj) -- flat externs removed */
 void  trap(int code);
 

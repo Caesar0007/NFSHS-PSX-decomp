@@ -243,9 +243,12 @@ void tVideoWall::Draw()
 void tVideoWall::TurnOff()
 
 {
+  extern int ticksA[];
+
   if (this->fTransitionDirection != -1) {
+    int tickCounter = ticksA[0];
     this->fTransitionDirection = -1;
-    this->fTVTicks = ticks;
+    this->fTVTicks = tickCounter;
   }
   return;
 }
@@ -275,9 +278,12 @@ void tVideoWall::TurnOffInstant()
 void tVideoWall::TurnOn()
 
 {
+  extern int ticksA[];
+
   if (this->fTransitionDirection != 1) {
+    int tickCounter = ticksA[0];
     this->fTransitionDirection = 1;
-    this->fTVTicks = ticks;
+    this->fTVTicks = tickCounter;
   }
   return;
 }

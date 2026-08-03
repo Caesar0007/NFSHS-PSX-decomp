@@ -584,7 +584,6 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
   if ((u_int)(int)carNumber >= this->fNumCars) {
     this->GetGarageCar(carNumber,carInfo,0);
-    carInfo.fCarIndex = (uchar)carNumber;
   }
   else {
     blockmove(this->fCars + carNumber,&carInfo,0xcc);
@@ -593,8 +592,8 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
     carInfo.fUpgrades = '\0';
     carInfo.fCountry = '\0';
     carInfo.fViewable = uVar1;
-    carInfo.fCarIndex = (uchar)carNumber;
   }
+  carInfo.fCarIndex = (uchar)carNumber;
   return;
 }
 
@@ -1418,7 +1417,10 @@ void tListIteratorCarColor::Decrement(tPlayer arg1)
   pbVar3 = (u_char *)(iVar1 + (int)(signed char)carInfo->fCarID + this->fValue);
   uVar2 = (u_int)*pbVar3;
   if (uVar2 == 0) {
-    uVar2 = (u_int)(u_char)carInfo->fNumDarkColors + (u_int)(u_char)carInfo->fNumLightColors;
+    /* Keep the two color-count reads distinct through GCC's scheduler. */
+    u_int darkColors = *(volatile u_char *)&carInfo->fNumDarkColors;
+    u_int lightColors = *(volatile u_char *)&carInfo->fNumLightColors;
+    uVar2 = darkColors + lightColors;
   }
   *pbVar3 = (u_char)(uVar2 - 1);
 }

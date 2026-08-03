@@ -56,6 +56,8 @@ def norm(t):
         a = ['T']
     elif op in ('beq', 'bne') and len(a) == 3:
         a[2] = 'T'
+        if a[1] == 'r0':
+            op, a = ('beqz' if op == 'beq' else 'bnez'), [a[0], 'T']
     elif op in ('beqz', 'bnez', 'blez', 'bgtz', 'bltz', 'bgez') and len(a) == 2:
         a[1] = 'T'
     if op == 'j' and a and re.match(r'^r\d+$', a[0]):

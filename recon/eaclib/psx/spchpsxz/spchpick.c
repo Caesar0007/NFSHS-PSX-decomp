@@ -495,15 +495,30 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
      * double-evaluation shape), the `p[0]` index form on BOTH reads, and moving
      * `j = j + 1` after the total accumulation.  The oracle's `addu a0,v0,zero` is a
      * genuine local-alloc rotation (retail {p:$a0, byte:$v1, addr:$v0} vs ours
-     * {p:$v0, byte:$a0, addr:$v1}), not a missing evaluation. */
+     * {p:$v0, byte:$a0, addr:$v1}), not a missing evaluation.
+     * 🏆 w47-a2 SEALED (9 -> PASS 83/83).  NEW ANGLE "ONE C89 FUNCTION-SCOPE CURSOR ACROSS
+     * BOTH LOOPS": every falsified lever above kept `p` declared INSIDE a loop body, so it
+     * is a BLOCK-LOCAL quantity -- and being a copy of the call's return value it carries a
+     * qty_phys_copy_sugg of $v0, which local_alloc honours in its FIRST (suggestion) pass;
+     * the block's other temps are then pushed onto $a0/$v1 and the copy retail emits has
+     * nowhere to come from (ours 1 insn shorter).  Declaring ONE `unsigned char *p;` at
+     * FUNCTION scope and assigning it in BOTH the phase-1 and the phase-3 loop makes the
+     * pseudo span two basic blocks => REG_BASIC_BLOCK == -1 => local_alloc ignores it
+     * entirely; the block temps take $v0/$v1 and global_alloc homes the cursor in $a0,
+     * materializing retail's `addu a0,v0,zero` and the whole 3-way rotation at once.
+     * (This is also the more faithful shape: C89 puts every declaration at the top of the
+     * function, and the two loops walk the same table.)  RULE: an "ours-1-shorter, oracle
+     * copies the call result into a fresh register" residual on a per-loop pointer = the
+     * original shared ONE function-scope variable with another loop -- check the sibling
+     * loops before filing a local-alloc rotation. */
     unsigned char  weights[104];
     unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
     int            total = 0;
     int            j = 0;
     int            i;
+    unsigned char *p;   /* MATCH: ONE function-scope cursor shared with phase 3 -- see below */
     if (n != 0) {
         do {
-            unsigned char *p;
             p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
             weights[j] = *p;
             j = j + 1;
@@ -542,8 +557,7 @@ extern void iSPCH_OrderSentences(int event, int outOrder)
     j = 0;
     if (n != 0) {
         do {
-            char *p;
-            p = (char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
             if (*p == '\0') {
                 *(char *)(outOrder + i) = (char)j;
                 i = i + 1;

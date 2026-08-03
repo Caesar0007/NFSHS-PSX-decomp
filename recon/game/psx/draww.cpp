@@ -95,7 +95,29 @@ void Night_NightCopCalc(VECTOR *v,short *idx);
  * asm("Night_gWeatherLightingTable")` leaves the diff byte-identical (still 2), so the
  * lbu-vs-lui order is NOT an address-materialization question either.  Remaining
  * angle: a pure sched1/sched2 ready-list tie -- read it off cc1 -dS/-dR for this fn
- * (both loads are ready at the same cycle and the tie is broken by luid). */
+ * (both loads are ready at the same cycle and the tie is broken by luid).
+ * w46-a7 RE-PROBED at this basin, still 2.  FALSIFIED here (all leave the 2-diff
+ * adjacent swap byte-identical, or regress): (a) a zero-insn USE FENCE on a
+ * separate `int lt = sd->night_LightningType;` -- the fence costs a REAL insn
+ * because `lt` is not yet reg-resident at that point (58 insns, 21 diffs);
+ * (b) `lt` as a plain separate statement (2, byte-identical -- copy-propagated);
+ * (c) CORRECT index-first pointer arithmetic `**(sd->night_LightningType +
+ *     Night_gWeatherLightingTable)` -- 2, byte-identical (the w45 note's 2->22
+ *     attempt was a WRONG shape, this one is type-exact and fold canonicalizes
+ *     the operand order back);  (d) the same with `lt` split out -- 2;
+ * (e) a `row` pointer temp for the first deref -- 4;  (f) reading `*idx` into a
+ *     temp first -- 4;  (g) storage-shape menu #4, a per-site VOLATILE view
+ *     `extern u_char (*volatile Night_gWLT_vol[2])[256] asm("...")` at file
+ *     scope -- 4 (and note a BLOCK-scope extern with an asm label does not
+ *     assemble: `Error: bad expression`).
+ * ⇒ the lbu-vs-lui order is neither an addressing-shape nor an expression-order
+ * question; both insns are ready in the same cycle and BOTH forms of the source
+ * produce the same RTL order.  NEW NAMED ANGLE: this is a sched2 ready-list DRAIN
+ * tie -- per the w45 grammar the only dial left is a zero-insn USE FENCE placed
+ * at the guard-block HEAD on a value that is ALREADY in a register there (sd is
+ * in $a2, znear in $t0, zfar in $t1, z in $a3) so the fence costs 0 insns; walk
+ * it one statement at a time through the arm.  (My probe used `lt`, which is NOT
+ * reg-resident -- that is why it cost an insn; retry with `"r"(sd)`.) */
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
 /* w45-a6 RECEIPT -- DrawQuad 100 -> 20 (count-exact 592/592).
  * LANDED: the addPrim P_TAG-bitfield idiom at BOTH OT-link sites (see below).
@@ -146,7 +168,10 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList);
 void DrawW_WorldSetUpMatrix(matrixtdef *m,MATRIX *mat);
 void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat);
 void DrawW_ResetAnimationTimer(void);
-/* w45-a6 RECEIPT -- residual 4 (ours 31 / oracle 33, ours SHORTER).
+/* w46-a7: SOLVED -- PASS 33/33.  The lever is the SYMMETRIC if/else result-funnel
+ * (see the in-body receipt); the w45 "ours is better-scheduled, permuter or accept"
+ * verdict below is RETIRED and kept only as the falsification list.
+ * ---- superseded w45-a6 RECEIPT -- residual 4 (ours 31 / oracle 33, ours SHORTER).
  * Oracle `lw v0,0(v0); nop; addu v1,v0,zero` = THREE pseudos (address, value,
  * result); we have two (the value pseudo IS the result pseudo, so the load lands
  * straight in $v1 and `mflo` fills its delay slot).
@@ -202,7 +227,34 @@ void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd);
  * (DivideShadowPrim 60 -> PASS) applies -- re-derive this fn's SYM 8c block first and
  * check whether the template's clobber list is evicting a parameter (a clobber that
  * grabs a callee-saved reg is a documented cause of exactly this whole-fn rotation),
- * then re-run posdiff before touching any coloring. */
+ * then re-run posdiff before touching any coloring.
+ * w46-a7 -- THE CLOBBER-EVICTION ANGLE IS FALSIFIED: this fn's template carries
+ * exactly the same clobber list as DrawQuad's and DoLines' sealed instances
+ * ("$12","$13","$14","memory"), so it is not evicting a parameter.
+ * QUANTIFIED INSTEAD (tools/rtl_dump.py -dg -dl + prio.py + reqdelta.py):
+ *     p80 geomVertices  16 refs / 278 live -> 0.2302   ours $fp   SYM $s3
+ *     p81 lineQuad      17 refs / 278 live -> 0.2446   ours $s5   SYM $s6
+ *     p85 the 0-counter 16 refs / 276 live -> 0.2319   ours $s7   SYM $fp
+ *     p288 = a COMPILER temp `geomVertices + 20` (insn 946, loop/cse-created),
+ *           29 refs / 266 live -> 0.4361, and it is what currently holds $s3.
+ * 🏆 reqdelta --want "p80=s3,p81=s6,p85=fp" returns ONE dial that fixes ALL THREE:
+ *     p80 refs 16 -> 31   (|d| = 15 weighted, i.e. ~7-8 in-loop source refs)
+ * NEW NAMED ANGLE: those 15 refs are sitting in p288.  The four vertex copies are
+ * written through cse-able base expressions `((int *)&geomVertices[N])[0/1]`, so
+ * gcc strength-reduces them into ONE `geomVertices+20` pseudo that outranks the
+ * parameter itself.  Re-spell the eight word loads as plain index expressions off
+ * the SAME base -- `((int *)geomVertices)[2*N]` / `[2*N+1]` -- (catalog par.A #1,
+ * index-form defeats the base hoist): every load then references geomVertices,
+ * p288 disappears, and p80 lands well past 31.  Do this BEFORE any coloring work;
+ * the whole 4-way rotation is downstream of it.
+ * ⚠️ FIRST ATTEMPT FALSIFIED (w46-a7): re-spelling the eight word loads as
+ * `((int *)geomVertices)[2N] / [2N+1]` instead of `((int *)&geomVertices[N])[0/1]`
+ * is BYTE-IDENTICAL (101) -- gcc folds both to the same address rtx, so the copy
+ * block is NOT where p288 comes from.  p288 is `geomVertices + 20`, i.e. offset 20
+ * inside CCOORD16[2] (element 2 + 4) -- find the OTHER site that reads at +20/+4
+ * within a vertex (a `.light` / second-word access on vt2/vt3) and un-CSE THAT.
+ * The required number is unchanged and is the thing to gate on: tools/prio.py must
+ * show p80 (geomVertices) at >= 31 refs. */
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd);
 void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans);
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);
@@ -229,7 +281,29 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);
  * (emitting fz, fy, fx) works because it changes the three qtys' LIVE LENGTHS, not
  * because it reverses births.  Clusters (2) and (3) are therefore also ref-step
  * targets: dump with tools/rtl_dump.py -dg -dl and drive
- * tools/reqdelta.py --want "<pseudo>=<reg>,..." for the minimal delta. */
+ * tools/reqdelta.py --want "<pseudo>=<reg>,..." for the minimal delta.
+ * w46-a7 RE-GATED 70 (count-exact 268/268).  Cluster (1) re-read precisely: the
+ * oracle does not merely reverse the emission order, it INTERLEAVES per axis and
+ * assigns the registers the other way round -- `lb s4,15; lb s3,16; sra s4;
+ * sh s4,368; lb s2,17; sra s3; sh s3,376; lb a1,18; sra s2; ...; sh s2,384` (so
+ * s4=fx, s3=fy, s2=fz), while we batch all three loads and then all three stores
+ * with s4=fz, s3=fy, s2=fx.
+ * FALSIFIED this wave: fx,fy,fz block order (76) · one shared block holding all
+ * three temps (70, i.e. neutral) · a 4th duplicate fx block to cross the 3-vs-4
+ * qty boundary (72) · a second net-zero `t2++;t2--;` pair on fz (76) · dropping
+ * the `tN++; tN--;` net-zero pairs entirely (207 -- they remain load-bearing).
+ * NEW NAMED ANGLE (a10 w46 LAW, unused here): a block with EXACTLY 3 quantities
+ * is NOT priority-ordered -- local-alloc.c:1588 hand-rolls next_qty <= 3 with a
+ * broken comparator -- so for THIS trio the dials are BIRTH ORDER and crossing
+ * the 3-vs-4 qty boundary, NOT the ref-step.  My 4th-temp probe crossed the
+ * boundary in the wrong direction (a duplicate fx, which also duplicates work);
+ * the right probe is a 4th qty that is NOT one of fx/fy/fz -- e.g. hoist the
+ * `BWorldSm_slices[slice].forward` base into its own block-local pointer so the
+ * block has {base,t0,t1,t2} = 4 qtys and the real comparator runs.  Use
+ * tools/qtytrace.py (branch w46-a10) to read the block's qty count FIRST.
+ * Cluster (3) is the cheapest independent win left (~10 of the 70): the two
+ * quad-row base pointers `lw t4,408(sp)` / `lw t3,456(sp)` are swapped against
+ * the oracle and drive six dependent loads. */
 
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd);
 void DepthCue_Init(void);
@@ -445,7 +519,26 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        n+1/n+2 computation, cascading a t8<->t9/t2<->t3/t1<->t2 rename through
        the 4 repeated GT3-prim-add blocks later in the fn) is a genuine
        allocator-internal floor, not reachable by a source-order lever;
-       permuter candidate (not run here -- fn is large/GTE-heavy, see the two
+       w46-a7 SUPERSEDES the 'allocator-internal floor' verdict below with numbers.
+       RE-GATED 35, ours 587 / oracle 588 (ours is ONE insn SHORT).  The residual
+       is the v4..v8 index chain: retail keeps `n` (after `n = n + 1`) in $a3 and
+       finally MUTATES it in place (`addiu a3,a3,3`), computing each `+1/+2/+3`
+       off $a3; we keep it in $v1.  Same insns, one register apart, plus a
+       one-slot add-before-shift ordering difference at the head of the chain.
+       🏆 THE COUNT-EXACT BASIN EXISTS (new): declaring ONE extra block-local
+       `int m;` and driving v5..v8 off `m = n` makes the function 588 == 588
+       insn-EXACT at 38 diffs -- i.e. the missing instruction is bought by
+       crossing the block's qty count, exactly the a10 w46 LAW (a block with
+       EXACTLY 3 quantities is NOT priority-ordered: local-alloc.c:1588 hand-rolls
+       next_qty <= 3 with a broken comparator, so birth order and the 3-vs-4
+       boundary are the dials, not the ref-step).  38 > 35 today, but 35 is
+       count-INEXACT and therefore cannot be a floor under the project bar --
+       WORK FROM THE 588/588 BASIN.  Falsified from it this wave: m assigned
+       before `n = n + 1` (41), m mutated for v8 (45), the copy+mutate form (169),
+       `n += 3` early (35, count-inexact), `n += 4` early (35, count-inexact).
+       NEXT: read the block's qty count + birth order with tools/qtytrace.py
+       (branch w46-a10) from the 588/588 basin and move the BIRTHS, not the refs.
+       ---- superseded: permuter candidate (not run here -- fn is large/GTE-heavy, see the two
        already-running permuter jobs on the smaller Night_* fns for the
        time-budget tradeoff). */
     v4 = &r_div->v[n];
@@ -1399,6 +1492,44 @@ gte_swc2(0x8,&depthcue);
        * (the four `*(long*)&prim->xN` and four `*(u_int*)&prim->uN` stores are the
        * only compressible groups): at r=15 / live=151 the priority is
        * 3*15/151 = 0.298 < 0.3656 and sd wins.  Otherwise: permuter. */
+      /* w46-a7 RE-MEASUREMENT AT THE POST-LOAD-4/STORE-4 BASIN (7-diff base).
+       * if/else form re-probed here: gate 197 (was 282/204 at older basins) -- the
+       * trade SURVIVES the basin change, so it is the whole residual 7.
+       * tools/reqdelta.py --want "p141=s1,p80=s0" on THIS basin, all four dials:
+       *     p141(prim) refs  24 ->  13   |d| 11   floor_log2 4->3
+       *     p80 (sd)   refs  62 -> 119   |d| 57   floor_log2 5->6
+       *     p141(prim) live 114 -> 262   |d| 148
+       *     p80 (sd)   live 846 -> 368   |d| 478
+       * The default-then-override IS the p141-live dial already applied (defining
+       * prim at the top stretches its range past 262) -- that is why we hold the
+       * registers and pay only the misplaced `addiu`+`j`.
+       * FALSIFIED THIS WAVE (measured, basin = 7-diff post-load-4/store-4):
+       *  (a) the `long *px = (long *)((char *)prim + 8)` single-base ref-shed: it
+       *      DOES take prim from 24 refs to ~5, but px inherits ~20 refs over the
+       *      SAME 114-insn range (4*20/114 = 0.70 > sd's 0.3664) -- the rival is
+       *      merely RENAMED, and the addiu costs +1 insn.  Any pointer that covers
+       *      the prim region is the new $s0 claimant; splitting it into two shorter
+       *      bases makes TWO claimants (both still > 0.3664).  This kills the
+       *      briefing's "shed 11 prim refs" route as stated.
+       *  (b) the w44 do{}while(0) depth wrapper on THIS outer if-body: structurally
+       *      unavailable.  Counted here: the body holds ALL 24 prim refs but only 21
+       *      of sd's 62, so depth D gives prim 24D vs sd 41+21D and prim wins for
+       *      every D -- the w45 DEPTH-ASYMMETRY row ("loser and rival SHARE refs in
+       *      the wrapped span") in its pure form.
+       * NEW NAMED ANGLE (untried, the only depth placement that can work): the
+       * wrapper must cover a prim-FREE region, i.e. somewhere in the vertex-setup /
+       * backface span above (0 prim refs).  w45-a6 tried only the GTE vertex block
+       * (3 levels, +21 sd refs) and hit the LOOP_BEG scheduling barrier inside the
+       * rtps chain.  The BACKFACE-TEST region is the untried placement: it is pure
+       * loads + compares, no GTE op, no call, so a LOOP_BEG/END barrier there has
+       * nothing to reorder across.  Requirement is exact: +57 weighted sd refs, so
+       * depth = 1 + ceil(57 / <sd refs inside the wrapped braces>).
+       * SECOND NEW ANGLE: the honest twin of the same delta -- retail's sd carries
+       * ~2x our references, so the original read `sd->` directly where this recon
+       * caches (geomVertices, currentQuadMat, depth_avg, primPtr, save_pre_otz).
+       * Un-cache them ONE at a time and re-run tools/prio.py; a reload that cse
+       * folds is +1 ref at zero insns.  Both angles are gated by the same number:
+       * p80 must reach 119 refs (or p141 must fall to 13). */
 
       if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
@@ -1431,18 +1562,26 @@ gte_swc2(0x8,&depthcue);
        * floor_log2 razor edge at 32, so it loses $s0 to `sd`; at 33 ours crossed it
        * and stole $s0, flipping the entire function's $s0/$s1 assignment. */
       {
-        /* MATCH (w40-a2): the oracle batches the three screen-XY reloads into THREE
-         * distinct scratch regs (`lw v1,68(sp); lw a0,76(sp); lw a1,72(sp)` then the
-         * three `sw`), so each load fills the previous one's delay slot; the plain
-         * four-statement form serialized them through ONE reg and paid 3 `nop`s
-         * (catalog par.B "load-3/store-3 grouped temps"). 230 -> 227, 596 -> 593. */
+        /* MATCH (w40-a2, CORRECTED w46-a7): the oracle batches FOUR screen-XY reloads
+         * into FOUR distinct scratch regs (`lw v0,64(sp); lw v1,68(sp); lw a0,76(sp);
+         * lw a1,72(sp)` then the four `sw`), so each load fills the previous one's
+         * delay slot; the plain four-statement form serialized them through ONE reg
+         * and paid 3 `nop`s (catalog par.B "load-N/store-N grouped temps", the same
+         * lever the sealed AddSubdividPrimGT3/GT4 siblings 40 lines above already use).
+         * w40-a2 read the oracle as load-3/store-3 and left dvxy0 stored DIRECTLY,
+         * which cost a `nop` (its lw could not fill a slot) AND shifted the whole
+         * group's registers down one (v0/v1/a0 vs the oracle's v1/a0/a1).  Adding the
+         * FOURTH temp `q0` is worth 13 of the 20 residual diffs: 20 -> 7, 592 -> 591.
+         * (The remaining 7 = the default-then-override / if-else trade only.) */
+        long q0;
         long q1;
         long q2;
         long q3;
-        *(long *)&prim->x0 = dvxy0;
+        q0 = dvxy0;
         q1 = dvxy1;
         q2 = dvxy2;
         q3 = dvxy3;
+        *(long *)&prim->x0 = q0;
         *(long *)&prim->x1 = q1;
         *(long *)&prim->x2 = q2;
         *(long *)&prim->x3 = q3;
@@ -2169,10 +2308,31 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
     return simGlobal.gameTicks;
   }
+  /* MATCH 100% (w46-a7): the missing insns were a THIRD pseudo + its copy -- oracle
+     `lw v0,0(v0); nop; addu v1,v0,zero` = a block-local load temp (`tick`, dies at
+     the copy, so local_alloc recycles the just-dead address register v0) feeding the
+     GLOBAL allocno that carries the result (`iVar2` -> v1).  Our single-variable form
+     made the load dest BE the result pseudo, so the load went straight to v1 and the
+     mflo filled its delay slot -- 31 insns, 2 SHORTER than retail.
+     THE DIAL IS THE ASSIGNMENT SHAPE, NOT THE VARIABLE COUNT: adding `tick` and
+     writing the default-then-override (`iVar2 = tick; if (maxTick <= tick/iVar2)
+     iVar2 = maxTick;`) is copy-propagated straight back to the 4-diff base (probed
+     both compare operands this wave), and the inverted default (`iVar2 = maxTick;
+     ... if (tick < maxTick) iVar2 = tick;`) regresses to 10.  Only the SYMMETRIC
+     if/else -- each arm assigning the result once -- keeps the copy alive: with two
+     assignments to iVar2 gcc has to materialize it as its own pseudo, and the
+     else-arm `iVar2 = tick` IS the oracle's `addu v1,v0,zero`, which cross-jump then
+     hoists above the compare.  (Catalog par.A "flat guard-chain / result-funnel"
+     family; the earlier receipt's "ours is objectively better-scheduled floor,
+     permuter candidate" verdict is retired.) */
+  int tick;
   maxTick = (animInst->count + -2) * (int)animInst->interval;
-  iVar2 = animation_timer[animInst->objectIndex - 1];
-  if (maxTick <= iVar2) {
+  tick = animation_timer[animInst->objectIndex - 1];
+  if (maxTick <= tick) {
     iVar2 = maxTick;
+  }
+  else {
+    iVar2 = tick;
   }
   return iVar2;
 }
@@ -2858,6 +3018,27 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
   Track_tMaterial *shapeDef_p;
   int drawResult;
 
+  /* w46-a7 RECEIPT -- 5 diffs, ours 190 / oracle 189 (the +1 is a load-delay `nop`).
+     PROLOGUE PARAM-COPY SINK (the same named class as DrawW_DoLines in this TU):
+     the 5th parameter `offset` arrives in the stack arg slot; retail loads it with
+     `lw s5,96(sp)` at insn 16, using it to FILL the load-delay slot after
+     `lbu v0,3(s4)`, and therefore leaves `sw s5,68(sp)` inside the normal save run
+     at 9.  We load it at insn 6, immediately after hoisting its save to insn 5, and
+     pay a `nop` where retail has the load.  Identical insn multiset otherwise --
+     chunkdiff: 3 runs, 4 insns.
+     FALSIFIED this wave (all 5, byte-identical): three statement positions for
+     `*(int *)&sd[1].head.clipW = offset;` (last in the group / after the mirror
+     store / first); zero-insn USE fences on shapeDef_p, drawResult and isCullable
+     placed inside the same statement group.  The copy/load is emitted by
+     assign_parms at function entry, BEFORE any body statement, so no source
+     position can reach it -- consistent with DoLines, where the same class also
+     ignored every statement move.
+     NEW NAMED ANGLE: the only reachable dial is the load's SCHED PRIORITY, i.e. the
+     depth of its dependence chain to the end of the entry block.  Its sole consumer
+     here is `sw s5,236(s0)`.  Lengthen that chain (make `offset` feed something with
+     a longer tail, or shorten the chain of whatever currently outranks it) and the
+     load sinks to the delay slot on its own.  Read the two candidates' priorities
+     off cc1 -dR (sched2) for this fn before touching source. */
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
   *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
   isCullable = objDef->vertexCount;
@@ -3054,7 +3235,66 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      order (m[0], m[3], m[6], the last riding the next jal's delay slot) is a
      scheduling consequence of the register assignment, not a source order.
      NB the SYM types objInstance `Trk_SimpleInst *` (size 20), not
-     Trk_CollideBoomInst -- EA declared the small record and byte-cast the rest. */
+     Trk_CollideBoomInst -- EA declared the small record and byte-cast the rest.
+     w46-a7 -- LANDED, 212 -> 144: objInstance now takes $s4 exactly as the SYM says.
+     The dial was NOT on objInstance at all.  tools/reqdelta.py --want "p88=s4,p234=s3"
+     ranked every reachable single-dial delta and the CHEAPEST is |d| = 1 on the RIVAL:
+         p234 (case 5's `t2`)  live 29 -> 28   <-- landed
+         p234                  refs 12 -> 13
+         p88  (objInstance)    refs 79 -> 77   (the w44 receipt's route; = ONE in-loop
+                                                source ref, since loop depth weights x2)
+         p88                   live 375 -> 382
+     SOURCE FORM: swap case 5's LAST TWO matrix stores to `matrix.m[5] = t2;
+     matrix.m[2] = t1;`.  That shortens t2's third live segment by exactly one insn
+     (29 -> 28, priority 3*12/28 = 1.2857) so it now outranks objInstance's 1.2640 by
+     the same razor that used to run the other way; t1 (p233) pays the +1 (38 -> 39)
+     and stays well below.  ZERO instruction cost, count stays 434/434.
+     NOTE the store-order swap is ONLY correct for case 5 -- the other three arms end
+     with `m[2] = t1; m[5] = t2;` and their t1/t2 pairs are already ranked where the
+     oracle wants them; do not "regularize" the four arms.
+     REMAINING 144 (new, quantified at the new basin): two further rotations --
+       (1) totalCount is $fp for us, $s7 for the oracle, and the reverse swap on the
+           `lb` source (`lb s7,0(v1)` ours vs `lb fp,0(v1)`); plus
+       (2) an $s5/$s6 pair swap on the two DrawObjectTransform arms that ALSO costs us
+           two extra spill stores (`sw s6,32/36(sp)` + `sw s3,44/48(sp)` where the
+           oracle has just `addu s5,v0,zero`) -- i.e. our $s6 claimant is call-crossing
+           where the oracle's is not.
+     w46-a7 CONTINUED, 144 -> 42.  All six SYM registers now match (objInstance $s4,
+     objDef $s6, totalCount $s7, objectOffset $fp, type $s0, light $s1).  Levers, in
+     the order they landed, all zero-insn (count stays 434/434 throughout):
+       2. objDef (p89) live 85 -> 89: hoist case 2's `objDef = Track_gObjDefs[...]`
+          above its m[8] RMW.  reqdelta wanted live > 86.7 so it falls under case 5's
+          t1 (p233, 0.9230) -> objDef takes $s6, t1 takes $s5.       [144 -> 120]
+       3. objectOffset (p91) refs 30 -> 14: write all four DrawObjectTransform arms in
+          case 1's own direct-add form `totalCount = totalCount + call(...)` instead of
+          storing the result back into objectOffset first.  The store-back was DEAD (the
+          next iteration re-loads objectOffset from goffsets[]) and cost 2 weighted refs
+          per arm; totalCount (22/377) then outranks it and the pair lands $s7 / $fp.
+                                                                      [120 -> 98]
+       4. the m[6]/m[7]/m[8] RMW STORE, not the call, is what retail defers: retail emits
+          `sw m[K]=t1; sw m[K+3]=t2; jal <next fixedmult>; [ds] sw m[K+6]=<result>`.
+          Moving the whole RMW statement after the two stores (the w44 falsification,
+          RE-TESTED here and still bad: 250 diffs, count collapses to 422) is the wrong
+          split.  The right one keeps the CALL third and moves only the STORE last:
+          `t3 = fixedmult(matrix.m[K+6],sX); ... matrix.m[K+6] = t3;`  [98 -> 50]
+       5. the two groups whose m[2]/m[5] stores are NOT adjacent to the RMW (the flags&1
+          type==9 arm and case 9) additionally want those stores moved UP, above the
+          light / offsubdivid / objDef statements.                     [50 -> 42]
+     RESIDUAL 42, two independent clusters:
+      (A) ~14 diffs: in case 2 the objDef load (`lh v0,6(s4) ... lw s6,0(v0)`) must issue
+          AFTER the last `jal fixedmult` and after the three matrix stores -- but lever 2
+          put it BEFORE the RMW, and that position is exactly what buys objDef its $s6.
+          The two requirements are currently coupled.  FALSIFIED this wave: objDef moved
+          back below the three stores (56, loses $s6); that PLUS hoisting the flags&1
+          arm's objDef above its `if (type == 9)` block to restore the live length (52,
+          and the count drops to 432).  NEW NAMED ANGLE: buy objDef's +4 live somewhere
+          that is NOT an emission-order change -- case 1 and case 5 also assign objDef,
+          and case 5's is already the arm's first statement, so the reachable dial is
+          case 1 (`objDef = ...; totalCount += DrawObjectSimple(...)`, currently the
+          shortest segment): lengthen THAT segment and restore case 2's oracle order.
+      (B) ~4 diffs: a $v0/$v1 swap on case 5's anim vtable dispatch (`lh a0,16(v1);
+          lw v1,20(v1); jalr v1` oracle vs `...v0...` ours) -- a two-pseudo local rotation
+          in the `(*(*anim->_vf)[2].pfn)(...)` expression. */
 
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;
@@ -3136,33 +3376,35 @@ gte_SetTransMatrix(&DW_WORLDMAT);
                               objInstance->z - (Vi->cview).translation.z));
         if (type == 9) {
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-          int t1, t2, sx, sy;
+          int t1, t2, t3, sx, sy;
 
           sx = (int)objInstance->qz << 8;
           sy = (int)objInstance->qy << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
-          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          t3 = fixedmult(matrix.m[6],sx);
           matrix.m[0] = t1;
           matrix.m[3] = t2;
+          matrix.m[6] = t3;
           t1 = fixedmult(matrix.m[1],sy);
           t2 = fixedmult(matrix.m[4],sy);
-          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          t3 = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
+          matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sx);
           t2 = fixedmult(matrix.m[5],sx);
-          matrix.m[8] = fixedmult(matrix.m[8],sx);
-          light = objInstance->qw;
-          DW_SCRATCH->offsubdivid = 0;
+          t3 = fixedmult(matrix.m[8],sx);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
+          matrix.m[8] = t3;
+          light = objInstance->qw;
+          DW_SCRATCH->offsubdivid = 0;
         }
         objDef = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
-        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+        totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,light);
-        totalCount = totalCount + objectOffset;
       }
       else {
         /* MATCH (2026-08-01): the oracle @0x800C8780 dispatches with gcc's
@@ -3182,7 +3424,7 @@ DrawWChunkFacets_emitObj:
           break;
         case 2: {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
-          int t1, t2, sx, sy, sz;
+          int t1, t2, t3, sx, sy, sz;
 
           Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
           sx = (int)objInstance->sx << 8;
@@ -3190,20 +3432,23 @@ DrawWChunkFacets_emitObj:
           sz = (int)objInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
-          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          t3 = fixedmult(matrix.m[6],sx);
           matrix.m[0] = t1;
           matrix.m[3] = t2;
+          matrix.m[6] = t3;
           t1 = fixedmult(matrix.m[1],sy);
           t2 = fixedmult(matrix.m[4],sy);
-          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          t3 = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
+          matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
-          matrix.m[8] = fixedmult(matrix.m[8],sz);
           objDef = Track_gObjDefs[objInstance->pad];
+          t3 = fixedmult(matrix.m[8],sz);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
+          matrix.m[8] = t3;
           /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
            * through the SYM `short light` ($s1) variable.  The oracle proves the split:
            * the flags&1/type==9 arm loads `lhu $s1,0x1A($s4)` and pays a `sll 16;sra 16`
@@ -3214,40 +3459,41 @@ DrawWChunkFacets_emitObj:
            * is the catalog's cross-jump-DEPTH-follows-the-variable rule; assigning
            * `light` in all three arms collapsed them to one depth AND turned both `lh`
            * sites into `lhu` (census lh 19v21 / lhu 3v1). */
-          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+          totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,
                               *(short *)&objInstance->simIndex);
-          totalCount = totalCount + objectOffset;
           break;
         }
         case 9: {
         /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-        int t1, t2, sx, sy;
+        int t1, t2, t3, sx, sy;
 
         xformy(&matrix,(int)objInstance->qx);
         sx = (int)objInstance->qz << 8;
         sy = (int)objInstance->qy << 8;
         t1 = fixedmult(matrix.m[0],sx);
         t2 = fixedmult(matrix.m[3],sx);
-        matrix.m[6] = fixedmult(matrix.m[6],sx);
+        t3 = fixedmult(matrix.m[6],sx);
         matrix.m[0] = t1;
         matrix.m[3] = t2;
+        matrix.m[6] = t3;
         t1 = fixedmult(matrix.m[1],sy);
         t2 = fixedmult(matrix.m[4],sy);
-        matrix.m[7] = fixedmult(matrix.m[7],sy);
+        t3 = fixedmult(matrix.m[7],sy);
         matrix.m[1] = t1;
         matrix.m[4] = t2;
+        matrix.m[7] = t3;
         t1 = fixedmult(matrix.m[2],sx);
         t2 = fixedmult(matrix.m[5],sx);
-        matrix.m[8] = fixedmult(matrix.m[8],sx);
-        DW_SCRATCH->offsubdivid = 0;
-        objDef = Track_gObjDefs[objInstance->pad];
+        t3 = fixedmult(matrix.m[8],sx);
         matrix.m[2] = t1;
         matrix.m[5] = t2;
+        matrix.m[8] = t3;
+        DW_SCRATCH->offsubdivid = 0;
+        objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w41-a2): inline light, see the case-2 note. */
-        objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+        totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,objInstance->qw);
-        totalCount = totalCount + objectOffset;
         break;
         }
         case 5: {
@@ -3255,7 +3501,7 @@ DrawWChunkFacets_emitObj:
         anim = Object_GetAnim(simObjs + objInstance->simIndex);
         if (anim == (ObjectAnim *)0x0) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
-          int t1, t2, sx, sy, sz;
+          int t1, t2, t3, sx, sy, sz;
 
           Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
           sx = (int)objInstance->sx << 8;
@@ -3263,19 +3509,22 @@ DrawWChunkFacets_emitObj:
           sz = (int)objInstance->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
-          matrix.m[6] = fixedmult(matrix.m[6],sx);
+          t3 = fixedmult(matrix.m[6],sx);
           matrix.m[0] = t1;
           matrix.m[3] = t2;
+          matrix.m[6] = t3;
           t1 = fixedmult(matrix.m[1],sy);
           t2 = fixedmult(matrix.m[4],sy);
-          matrix.m[7] = fixedmult(matrix.m[7],sy);
+          t3 = fixedmult(matrix.m[7],sy);
           matrix.m[1] = t1;
           matrix.m[4] = t2;
+          matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
-          matrix.m[8] = fixedmult(matrix.m[8],sz);
-          matrix.m[2] = t1;
+          t3 = fixedmult(matrix.m[8],sz);
           matrix.m[5] = t2;
+          matrix.m[2] = t1;
+          matrix.m[8] = t3;
           /* MATCH (w42-a2): case 5 passes its light INLINE as the literal -1 --
            * exactly the same cross-jump-DEPTH rule the case-2/case-9 notes above
            * document, and the reason `light` (SYM REG $s1) must NOT be live here.
@@ -3288,9 +3537,8 @@ DrawWChunkFacets_emitObj:
            * (`lh $s1,0x1E($s4); sll $s1,$s1,8`) -- so `light` got spilled to a
            * HImode stack slot, costing the phantom 8 frame bytes (136 vs SYM
            * fsize 128) and rotating totalCount off $s7 onto $fp. */
-          objectOffset = DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
+          totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,-1);
-          totalCount = totalCount + objectOffset;
           break;
           }
           anim = Object_GetAnim(simObjs + objInstance->simIndex);
@@ -3476,6 +3724,24 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
      accepted; this value feeds DrawW_BuildCustomObjectFacets via the scratchpad field. */
   *(short *)((char *)sd + 0x148) = 0x400;
   if (gPersistObjInst != (Group *)0x0) {
+    /* w46-a7 RECEIPT -- 30 diffs, count-EXACT 222/222, 4 tiny independent clusters
+       (chunkdiff: 10 insns total).  The one worth naming:
+         RANGE-CHAIN REMATERIALIZATION -- the shared `chunkM1` temp below is CSE'd
+         into a live register ($a0) that spans BOTH track-guard chains, so our second
+         chain reuses it (`sltiu v0,a0,53`); retail RECOMPUTES `addiu v0,s5,-1` at the
+         second site because it needs $a0 there for a `lui a0,0x1F80` (the scratchpad
+         cache pointer) that we materialize elsewhere.
+       FALSIFIED this wave: inlining `thisChunkInd - 1U` at BOTH sites (45, count 223)
+       · inlining at the SECOND site only (30, byte-identical -- cse folds it back)
+       · two separate named temps (45, count 223).
+       NEW NAMED ANGLE: the dial is NOT the temp, it is WHERE `0x1F800000` (the sd
+       scratchpad base) is materialized.  Retail's `lui a0,8064` lands inside the
+       second guard chain and is what evicts the CSE'd `chunkM1`.  Find the source
+       site that owns that constant (a `(Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr`
+       / `sd` use) and move it INTO the second chain's block; the remat follows for
+       free.  Remaining clusters: an early store-order pair (`sw a0,0(gp)` vs
+       `sw t0,24(sp)` + the `lw s5,136(v1)` position) and one `v1`-vs-`a1` operand on
+       an `xori ...,4`. */
     u_int chunkM1 = thisChunkInd - 1U;
     if (((GameSetup_gData.track != 4) ||
         (((0x27 < chunkM1 && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
@@ -4676,7 +4942,25 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
      Vi > buildList > sd = oracle's s0/s1/s2. -28 diffs. RESIDUAL 14 = prologue
      param-copy schedule (ours copies a1->s1 at top, oracle sinks it to the loop
      head) + a translation.x-vs-pChunkCp->x load-order sched tie in trans.x/y/z;
-     both pure sched2 tie-breaks; permuter candidates. */
+     both pure sched2 tie-breaks; permuter candidates.
+     w46-a7 RE-GATED 8 (count-exact 199/199).  The residual is now ONE named
+     class, shared with DrawObjectSimple in this same TU:
+       PROLOGUE PARAM-COPY SINK -- retail issues `addu s0,a0,zero` (Vi) at insn 2
+       but SINKS `addu s1,a1,zero` (buildList) all the way to insn 32, the loop
+       head, and consequently leaves `sw s1,68(sp)` inside the normal save run at
+       15 instead of hoisting it to the top.  Ours issues the a1 copy at insn 2
+       and hoists its save with it.  Identical insn multiset, one transposition.
+     FALSIFIED this wave (all 8, i.e. byte-identical): moving the `Vi++; Vi--;`
+     pair below `chunkCount = ...`; a second `Vi++; Vi--;` pair; a zero-insn USE
+     fence on buildList at the loop head.  A fence on Vi at the top REGRESSES to
+     14.  REMOVING either net-zero pair regresses to 42 -- both are still needed.
+     NEW NAMED ANGLE: the param copy is emitted by assign_parms at function entry,
+     so no statement-level source position can reach it -- the only reachable dial
+     is its sched priority (= its dependence-chain depth to the block end).  Give
+     buildList's FIRST use a shorter chain (or Vi's a longer one) and the copy
+     sinks; concretely, try making the loop's first buildList read (`geomRez =
+     (signed char)buildList->geomRez;`) the LAST link of a chain rather than the
+     first.  Same instrument applies to DrawObjectSimple's `lw s5,96(sp)`. */
   int chunkCount;
 
   Vi++; Vi--;  /* MATCH: net-zero pair -- lifts Vi's allocno priority above buildList (see above) */

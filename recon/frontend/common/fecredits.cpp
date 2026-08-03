@@ -170,7 +170,7 @@ void tCreditManager::Draw(bool selected)
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
 void tCreditManager::SetupCurrCredit()
 
-/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->2 diffs): SYM has only ONE named local for the whole
+/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->PASS): SYM has only ONE named local for the whole
    fn (function-static `lasttick`, i.e. FECredits_lastFadeTick) besides
    `this` -- everything else is compiler-transient. Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
@@ -183,9 +183,9 @@ void tCreditManager::SetupCurrCredit()
    order makes the ticks `%hi` issue before CREDFADETICKS like retail,
    while the final block-local volatile snapshot preserves retail's
    second ticks load and keeps it in $v1 across the two preceding stores.
-   Residual 2-diff floor: the same fCurrCredit/fNumCredits loads appear
-   adjacent in reverse scheduler order; direct increment, split locals,
-   declaration-order, and volatile-read variants all compile identically. */
+   The final two-diff load-order residual was source-shape: spelling the first
+   wrap test as `fCurrCredit >= fNumCredits` presents GCC with retail's operand
+   order while preserving the same comparison and branch. */
 {
   bool bVar1;
   int iVar2;
@@ -208,7 +208,7 @@ void tCreditManager::SetupCurrCredit()
       this->fCurrCredit = this->fShowCreditNum + 1;
       FECredits_lastFadeTick = ticks;
     }
-    if (this->fNumCredits <= this->fCurrCredit) {
+    if (this->fCurrCredit >= this->fNumCredits) {
       this->fCurrCredit = 0;
     }
     if (this->fCurrCredit < 0) {

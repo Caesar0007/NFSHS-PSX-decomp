@@ -1417,11 +1417,21 @@ void Weather_DoWeather(DRender_tView *Vi)
     /* MATCH: palette write-back BEFORE the cursor bump (same order lever as
      * Weather_CreateSplat) -- the scheduler then interleaves the bump into the
      * palette merge like retail. */
+    /* w46-a9 (46 -> 42): the CreateSplat/CreateSnow packet-emission recipe, partially.
+     * The cursor bump is SPLIT into a value statement and its store, the palette RMW is
+     * SPLIT (read first), and the cursor store is placed BETWEEN the palette read and the
+     * addr24 mask.  Measured here: this form 42 · with a leading zero-byte fence 48 ·
+     * fence + store after the mask 48 · fence + store last 52 · fence only 52 · split
+     * bump without the palette split 46/46.  Unlike the two sibling emitters a fence is
+     * NEGATIVE here (this tail sits at the end of a 197-insn function whose residual is a
+     * whole-function allocno permutation, so the barrier costs more than it buys). */
     {
-    u_int addr24 = (u_int)prim & 0xffffff;
-    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
-  }
-    RENDER_PACKETPTR_ADDR = (u_char *)prim + 0xc;
+      u_char *next = (u_char *)prim + 0xc;
+      u_int palw = *pal;
+      RENDER_PACKETPTR_ADDR = next;
+      u_int addr24 = (u_int)prim & 0xffffff;
+      *pal = palw & 0xff000000 | (addr24 & 0xffffff);
+    }
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
   }
 }

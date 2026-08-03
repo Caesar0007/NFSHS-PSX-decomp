@@ -342,11 +342,14 @@ void tScreenPinkSlipStandings::DrawBackground()
       wwwww = wwwww + 1;
   }
   i = 0;
+  /* MATCH (2026-08-03, 10->8): sharing this literal makes its live range
+     begin before `row`, reproducing retail's $s7/$s3 constant order. */
+  int one = 1;
   row = 0x313;
   do {
     FETextRender_FullTextFade(fade,PlayerName(i),(short)TextSys_WordX(0x2f8),
                (short)TextSys_WordY(row),type,state,0);
-    if (frontEnd.pinkSlipsWins[i] == '\x01') {
+    if (frontEnd.pinkSlipsWins[i] == one) {
       sprintf(sBuildOutput,TextSys_Word(799));
     }
     else {
@@ -354,7 +357,7 @@ void tScreenPinkSlipStandings::DrawBackground()
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
                (short)TextSys_WordY(row),type,
-               state,1);
+               state,one);
     i = i + 1;
     row = row + 1;
   } while (i < 2);

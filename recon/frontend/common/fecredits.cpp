@@ -170,7 +170,7 @@ void tCreditManager::Draw(bool selected)
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
 void tCreditManager::SetupCurrCredit()
 
-/* MATCH (w37-a2, 58->10 diffs): SYM has only ONE named local for the whole
+/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->2 diffs): SYM has only ONE named local for the whole
    fn (function-static `lasttick`, i.e. FECredits_lastFadeTick) besides
    `this` -- everything else is compiler-transient. Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
@@ -179,12 +179,13 @@ void tCreditManager::SetupCurrCredit()
    instead of drifting to $a1. (2) both `ticks` reads that feed a
    store-after-a-call (fLineTicks, fStartTicks) read `ticks` directly at
    the point of use (not via a cached `iVar2`) with the store-order
-   `fLineTicks=ticks; StartedLines=1;` / `StartedTextFade=1;
-   fTextFadeDir=-8; fStartTicks=ticks;` -- gcc reloads ticks fresh after
-   the intervening call/branch either way, and this order/direct-read
-   combo is what lands it in the oracle's register. Residual 10-diff
-   floor: one more ticks-reload register tie-break (v0 vs v1) at the
-   final fStartTicks store, no rephrasing tried moved it. */
+   `fLineTicks=ticks; StartedLines=1;`. The follow-up's compare-operand
+   order makes the ticks `%hi` issue before CREDFADETICKS like retail,
+   while the final block-local volatile snapshot preserves retail's
+   second ticks load and keeps it in $v1 across the two preceding stores.
+   Residual 2-diff floor: the same fCurrCredit/fNumCredits loads appear
+   adjacent in reverse scheduler order; direct increment, split locals,
+   declaration-order, and volatile-read variants all compile identically. */
 {
   bool bVar1;
   int iVar2;
@@ -214,7 +215,7 @@ void tCreditManager::SetupCurrCredit()
       this->fCurrCredit = this->fNumCredits + -1;
     }
   }
-  if ((this->fStartTicks != 0) && (CREDFADETICKS < ticks - this->fStartTicks)) {
+  if ((this->fStartTicks != 0) && (ticks - this->fStartTicks > CREDFADETICKS)) {
     iVar3 = this->fCurrCredit + 1;
     this->fCurrCredit = iVar3;
     if (this->fNumCredits <= iVar3) {
@@ -262,9 +263,10 @@ void tCreditManager::SetupCurrCredit()
   }
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
      (0x1e < ticks - this->fLineTicks)) {
+    int startTicks = *(volatile int *)&ticks;
     this->StartedTextFade = 1;
     this->fTextFadeDir = -8;
-    this->fStartTicks = ticks;
+    this->fStartTicks = startTicks;
   }
   return;
 }

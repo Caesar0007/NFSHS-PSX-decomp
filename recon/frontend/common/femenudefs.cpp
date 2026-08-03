@@ -2272,13 +2272,12 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
    local IS the oracle's hoisted `&AreYouSure` base (oracle materializes it ONCE via
    `addiu s0,sp,0x10` right after the ctor and reaches yesnowords/fDefault/string through it;
    our direct `AreYouSure.field` accesses were emitting raw sp-relative offsets instead).
-   Residual = the for/while player_00<2 loop lacks the oracle's PRE-loop guard test (oracle
-   computes `slti v0,s1,2` BOTH before the loop label AND again in the back-edge's delay slot
-   -- a rotated loop -- but with player_00 freshly set to the constant 0 this build proves the
-   first iteration always runs and drops the pre-check; the oracle's build didn't fold it).
-   Tried for-clause vs while-with-tail-increment vs short-typed counters -- none reproduce the
-   kept pre-check; loop-invariant constant-fold difference, not source-reachable without a
-   pin.
+   2026-08-03 GCC follow-up: the catalogued exit-in-the-middle loop shape
+   (`while(true) { if (2 <= player) break; ...; }`) prevents loop rotation and restores the
+   oracle's PRE-loop `slti/beqz` plus unconditional back-edge jump. This reduces 10->4 diffs
+   at exact 76/76 instruction parity. The remaining pair is only the FEApp address scratch
+   (`lui/lw a0` versus retail's `lui v0; lw a0`); a nested pointer and an explicit two-step
+   pointer increment compile identically, so this is the known materialization tie-break.
 
    [BUG FIX 2026-07-27, 13->10] Same DOUBLE-DESTRUCTION bug: dropped the manual
    `tScreen_dtor((tScreen*)&AreYouSure,2)` firing alongside AreYouSure's own auto-invoked
@@ -2306,7 +2305,8 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
   if (sVar3 != 0) {
     Init_Memcard(false,1);
     player_00 = 0;
-    while (player_00 < 2) {
+    while (true) {
+      if (2 <= player_00) break;
       fmt = TextSys_Word(0x297);
       pcVar4 = PlayerName(player_00);
       iVar5 = player_00 + 1;

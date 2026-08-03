@@ -1874,12 +1874,16 @@ extern "C" int * Front_AppendTrafficData__FPiR9tFEStream(int *stream,tFEStream *
 {
   tCarInfo *ptVar1;
   int density;
+  int traffic;
   short i;
 
   /* MATCH: use the SYM-implied `short i` loop counter directly (index the short array by it)
      instead of the decompiler's `int iVar2` + manual `(i<<0x10)>>0xf`/`*0x10000>>0x10`
      sign-extend-emulation byte-offset cast -- and pointer-increment stores (*stream++ = v;)
-     matching the oracle's per-word `addiu`, same idiom as the sibling Append* fns. */
+     matching the oracle's per-word `addiu`, same idiom as the sibling Append* fns.
+     GCC 2.8.1 also needs a distinct 32-bit `traffic` temporary and a ternary minimum clamp:
+     together they prevent a narrow-subreg sign-extension of the quotient and retain retail's
+     density result-copy allocation. */
   i = 0;
   if (0 < streamData->numTraffic) {
     do {
@@ -1921,9 +1925,10 @@ extern "C" int * Front_AppendTrafficData__FPiR9tFEStream(int *stream,tFEStream *
       streamData->currentCar = streamData->currentCar + 1;
     } while (i < streamData->numTraffic);
   }
-  density = streamData->numTraffic / 3;
-  if ((0 < streamData->numTraffic) && (density < 1)) {
-    density = 1;
+  traffic = streamData->numTraffic;
+  density = traffic / 3;
+  if (0 < streamData->numTraffic) {
+    density = (density < 1) ? 1 : density;
   }
   *stream++ = 0xd;
   *stream++ = density;

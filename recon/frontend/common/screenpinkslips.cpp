@@ -317,15 +317,20 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
 {
   uint uVar2;
   tTrackInformation trackInfo;
+  tGlobalMenuDefs *defs;
   
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-    uVar2 = (menuDefs->itemTraffic).fFlags &
+    /* Keep the first traffic-item base live across the short mode/traffic
+       test.  GCC 2.8.1 then retains it in $a0, as in the retail object,
+       instead of rematerializing menuDefs for the conditional store. */
+    defs = menuDefs;
+    uVar2 = (defs->itemTraffic).fFlags &
             0xfffffffe;
-    (menuDefs->itemTraffic).fFlags = uVar2;
+    (defs->itemTraffic).fFlags = uVar2;
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (menuDefs->itemTraffic).fFlags =
+      (defs->itemTraffic).fFlags =
            uVar2 | 1;
     }
     if (2 < trackInfo.fTrackDifficulty) {

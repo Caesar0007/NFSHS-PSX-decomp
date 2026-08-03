@@ -1111,7 +1111,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
 
    [ghidra-meta] section: front.text
 
-   [NEAR-MISS 2026-07-05, was 30 diffs, now 7] Three real fixes landed: (1) playerNameList
+   [NEAR-MISS 2026-07-05/2026-08-03, was 30 diffs, now 6] Three real fixes landed: (1) playerNameList
    is char[2][8] (8-byte rows) -- the old `frontEnd.playerNameList[bVar2*4]` byte-offset hack
    was WRONG indexing (should scale by 8, not 4); plain `playerNameList[bVar2]` row-index lets
    the compiler emit the correct sll-by-3. (2) dlgThis=&ptVar3->menuItemUserName hoisted once
@@ -1135,13 +1135,17 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
    candidate (internal score 100->95, the fCurrentRow/Column swap just mentioned) which verify_asm
    confirms is WORSE, not better -- the permuter's internal Levenshtein score does not reliably
    track verify_asm's diff-line count here (known caveat, [[reference_psx_cpp_reconstruction_methodology]]
-   "survey tools over-count vs verify_asm"). No path below 7 found; WALL, same v0/v1 %hi-scratch
-   tie-break family as GoToDealer/GoToSeller's residual. Do not pin. */
+   "survey tools over-count vs verify_asm").
+
+   [2026-08-03 GCC-2.8.1 follow-up, 7->6] Consume the first player value directly through a
+   volatile byte lvalue after caching the normal array-index value.  This preserves retail's two
+   `lbu` operations without the redundant `andi` produced when the volatile result is the array
+   index.  Instruction count is now exact (25/25); the residue is one adjacent-load scheduling
+   position plus the linked `%hi` scratch choice.  Do not pin. */
 
 extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  u_int bVar1;
   u_int bVar2;
   tGlobalMenuDefs *ptVar3;
   tScreenUserName *ptVar4;
@@ -1149,13 +1153,12 @@ extern "C" void MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand *comma
 
   ptVar3 = menuDefs[0];
   dlgThis = &ptVar3->menuItemUserName;
-  bVar1 = FEApp->fInputPlayer;
   bVar2 = FEApp->fInputPlayer;
+  dlgThis->fPlayer = *(volatile u_char *)&FEApp->fInputPlayer;
   dlgThis->fMaxStringLength = 7;
   ptVar4 = screenUserName;
   dlgThis->fCurrentRow = 0;
   dlgThis->fCurrentColumn = 0;
-  dlgThis->fPlayer = (ushort)bVar1;
   dlgThis->fData = frontEnd.playerNameList[bVar2];
   ptVar4->callingMenu = &ptVar3->menuUserName;
   command->type = kMenu_Command_GoToMenu;

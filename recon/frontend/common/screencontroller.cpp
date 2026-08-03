@@ -122,18 +122,16 @@ void tScreenControllerConfig::ShakeIt()
   
   padnum = this->player << 4;
   padState = PadGetState(padnum);
-  if (padState == 6) {
-    if ((this->fShaker).active == '\0') {
-      (this->fShaker).active = '\x01';
-      PadSetAct(padnum,(this->fShaker).actuator,2);
-      PadSetActAlign(padnum,"");
-    }
-  }
-  else {
+  if (padState != 6) {
     if (padState < 4) {
       (this->fShaker).active = '\0';
     }
     this->ClearActuators();
+  }
+  else if ((this->fShaker).active == '\0') {
+    (this->fShaker).active = '\x01';
+    PadSetAct(padnum,(this->fShaker).actuator,2);
+    PadSetActAlign(padnum,"");
   }
   return;
 }

@@ -802,26 +802,22 @@ void tMenuItemSlidingMenu::TransitionOn()
 void * tMenuItemSlidingMenu::TransitionIsFinished()
 
 {
-  short sVar1;
-  
-  if ((this->currMenu == (tInsideBoxMenu *)0x0) || (this->nextMenu == (tInsideBoxMenu *)0x0)) {
-    this->fFadeDir = 0;
-  }
-  else {
-    sVar1 = this->fFadeDir;
-    if (sVar1 != 0) {
-      if (sVar1 < 0) {
-        if (this->fFadeVal < 1) goto SlideMenuTrans_resetTrans;
-        sVar1 = this->fFadeDir;
-      }
-      if ((sVar1 < 1) || (this->fFadeVal < 0x80)) {
-        this->fInTransition = 1;
-        goto SlideMenuTrans_returnInv;
-      }
-    }
-  }
+  if (this->currMenu == (tInsideBoxMenu *)0x0) goto SlideMenuTrans_zeroFade;
+  if (this->nextMenu == (tInsideBoxMenu *)0x0) goto SlideMenuTrans_zeroFade;
+  goto SlideMenuTrans_test;
+SlideMenuTrans_zeroFade:
+  this->fFadeDir = 0;
 SlideMenuTrans_resetTrans:
   this->fInTransition = 0;
+  goto SlideMenuTrans_returnInv;
+SlideMenuTrans_test:
+  if (this->fFadeDir == 0) goto SlideMenuTrans_resetTrans;
+  if ((this->fFadeDir < 0) && (this->fFadeVal < 1)) goto SlideMenuTrans_resetTrans;
+  /* Force retail's post-negative-path reload at the control-flow join. */
+  if (*(volatile short *)&this->fFadeDir < 1) goto SlideMenuTrans_setTrans;
+  if (0x7f < this->fFadeVal) goto SlideMenuTrans_resetTrans;
+SlideMenuTrans_setTrans:
+  this->fInTransition = 1;
 SlideMenuTrans_returnInv:
   return (void *)(this->fInTransition ^ 1);
 }
@@ -1223,27 +1219,22 @@ void tMenuItemSlidingActivated::TransitionOn()
 void * tMenuItemSlidingActivated::TransitionIsFinished()
 
 {
-  short sVar1;
-  
-  if ((this->currMenu == (tInsideBoxMenu *)0x0) ||
-     (this->nextMenu == (tInsideBoxMenu *)0x0)) {
-    this->fFadeDir = 0;
-  }
-  else {
-    sVar1 = this->fFadeDir;
-    if (sVar1 != 0) {
-      if (sVar1 < 0) {
-        if (this->fFadeVal < 1) goto SlideActvTrans_resetTrans;
-        sVar1 = this->fFadeDir;
-      }
-      if ((sVar1 < 1) || (this->fFadeVal < 0x80)) {
-        this->fInTransition = 1;
-        goto SlideActvTrans_returnInv;
-      }
-    }
-  }
+  if (this->currMenu == (tInsideBoxMenu *)0x0) goto SlideActvTrans_zeroFade;
+  if (this->nextMenu == (tInsideBoxMenu *)0x0) goto SlideActvTrans_zeroFade;
+  goto SlideActvTrans_test;
+SlideActvTrans_zeroFade:
+  this->fFadeDir = 0;
 SlideActvTrans_resetTrans:
   this->fInTransition = 0;
+  goto SlideActvTrans_returnInv;
+SlideActvTrans_test:
+  if (this->fFadeDir == 0) goto SlideActvTrans_resetTrans;
+  if ((this->fFadeDir < 0) && (this->fFadeVal < 1)) goto SlideActvTrans_resetTrans;
+  /* Force retail's post-negative-path reload at the control-flow join. */
+  if (*(volatile short *)&this->fFadeDir < 1) goto SlideActvTrans_setTrans;
+  if (0x7f < this->fFadeVal) goto SlideActvTrans_resetTrans;
+SlideActvTrans_setTrans:
+  this->fInTransition = 1;
 SlideActvTrans_returnInv:
   return (void *)(this->fInTransition ^ 1);
 }

@@ -144,6 +144,22 @@ extern FileHandle *reservehandle(void)
             }
             i++;
             next = (FileHandle *)((char *)cur + 0x4C);  /* back-edge delay slot */
+            /* w47-a1 (17 -> 3, 43 -> 45 vs 44): the USE FENCE cracks the "no legal C can keep
+             * cur and next apart" verdict above.  Holding `cur` live PAST the advance makes the
+             * two pointers simultaneously live with DIFFERENT values, so cc1 can no longer
+             * copy-propagate them into one walker: retail's loop-head `addu v1,a1,zero` appears
+             * and the whole cur/next/count/sr web (v1/a1/a2/a3) lands exactly on retail's.
+             * Zero insns (cur is register-resident, w45 cost profile).
+             * RESIDUAL 3 = ours is ONE insn LONGER: the fence is a scheduling barrier, so
+             * reorg cannot do the SIMPLE fill of the `bnez` delay slot with the advance
+             * (retail's `addiu a1,v1,76`) and instead EAGER-STEALS the branch target's first
+             * insn -- a duplicate of the loop-head copy -- into the slot (w45 fence/reorg
+             * mechanism).  Moving the fence ABOVE the advance frees the simple fill and gets
+             * the count exact 44/44, but the copy then lands after the beqz and the whole a-band
+             * rotates (24 diffs).  NEXT ANGLE: a split-forcing device that is NOT a scheduling
+             * barrier (the pair is 44/44-reachable, so only the fence's barrier property is in
+             * the way). */
+            __asm__("" : : "r"(cur));
         } while (i < count);
     }
     FILE_CS_LEAVE(sr);

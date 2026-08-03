@@ -1243,8 +1243,14 @@ void Camera_UpdateBTCopCam(int player)
 void Camera_Update(void)
 {
   int player;
+  int *rotationRow;
 
-  for (player = 0; player <= Camera_gInfo[0].splitscreen; player++) {
+  player = 0;
+  rotationRow = &Camera_gInfo[0].rotation.m[6];
+  for (;;) {
+    if (player > Camera_gInfo[0].splitscreen) {
+      return;
+    }
     {
     Car_tObj *anchor;
 
@@ -1259,12 +1265,12 @@ void Camera_Update(void)
         int direction;
 
         direction =
-            fixedmult(Camera_gInfo[0].rotation.m[player * 68 + 6],
+            fixedmult(rotationRow[0],
                       anchor->N.roadMatrix.m[6]) +
-            fixedmult(Camera_gInfo[0].rotation.m[player * 68 + 7],
-                      anchor->N.roadMatrix.m[7]) +
-            fixedmult(Camera_gInfo[0].rotation.m[player * 68 + 8],
-                      anchor->N.roadMatrix.m[8]);
+            fixedmult(rotationRow[1],
+                      ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[7]) +
+            fixedmult(rotationRow[2],
+                      ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[8]);
         Camera_gInfo[player].direction = direction < 0;
         Camera_gInfo[player].tumbling = 100;
       }
@@ -1438,7 +1444,8 @@ LAB_80083584:
     goto LAB_80083810;
     }
 LAB_80083810:
-    ;
+    player++;
+    rotationRow += 68;
   }
 }
 

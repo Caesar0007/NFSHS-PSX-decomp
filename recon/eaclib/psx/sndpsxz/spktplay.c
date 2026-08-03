@@ -233,7 +233,19 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
          *           outranks `note`/`ppp` and takes $s1 (120 diffs).
          * So we spell the subtraction in place (matching the oracle's `addiu s3,v0,-0x40`) and fuse
          * the shift+mask, leaving a 2-insn `sll v0,s3,8 / andi s3,v0,0xffff` vs the oracle's in-place
-         * `sll s3,s3,8 / andi s3,s3,0xffff` -- the price of staying at 8 refs. */
+         * `sll s3,s3,8 / andi s3,s3,0xffff` -- the price of staying at 8 refs.
+         * W47-a3 (2026-08-03) re-measured in the current basin, both REVERTED:
+         *   - 3 statements (`gp = gp << 8; gp = gp & 0xffff;`): 60 diffs (the w35 note's 10-ref
+         *     prediction confirmed -- s1/s2/s3 rotate through the whole fn).
+         *   - mask-then-shift `gp = (gp & 0xff) << 8;` (algebraically identical, same ref count):
+         *     4 diffs, different shape (`andi v0,s3,255 / sll s3,v0,8`) -- the temp just moves to
+         *     the other operand.  NEW NAMED ANGLE: the in-place `sll s3,s3,8` REQUIRES an RTL
+         *     `(set gp (ashift gp 8))`, which expand_expr only produces when the assignment target
+         *     IS the shift's own operand and is its own statement (safe_from_p refuses the target
+         *     as a subexpression temp).  So the shape is structurally tied to the 3-statement form
+         *     and the fix must come from the OTHER side: a zero-insn ref DELETER on `gp` (w45
+         *     store-read-back family) or a zero-insn ref INFLATOR on its rivals (`note`/`ppp`) to
+         *     restore the 8-ref ranking with 10 real refs.  Not attempted -- both need reqdelta. */
         gp = MSB(params, 7) - 0x40;
         gp = (gp << 8) & 0xffff;
     }
@@ -425,7 +437,18 @@ leave:
  * value (worse, 19->25 in the old basin). The final reduction came from an explicit offset local,
  * volatile ordering on the pending-byte store and sequence reloads, and moving `j++` after the
  * source-pointer advance. Residual: only `src=frame` and `j=0` trade places across the channel-count
- * branch; reversing their source order swaps a1/v1 throughout the loop and is worse. */
+ * branch; reversing their source order swaps a1/v1 throughout the loop and is worse.
+ * W47-a3 (2026-08-03), 2-diff residual re-diagnosed + one more form falsified:
+ *   MECHANISM: both inits sit in the loop PREHEADER (the `beqz channels` fall-through) and reorg
+ *   EAGER-STEALS that block's FIRST insn into the guard's delay slot.  Retail's preheader starts
+ *   with `addu v1,zero,zero` (j = 0), ours with `addu a1,s1,zero` (src = frame) -- so the dial is
+ *   purely which init is emitted first.  But emission order is WELDED to first-use order, which
+ *   picks the a1/v1 assignment: hoisting `int j = 0;` above the guard (tested: 12 diffs) flips
+ *   src/counter to v1/a1 through the whole loop.
+ *   NEW NAMED ANGLE: we need a dial that separates EMISSION order from FIRST-USE order for two
+ *   independent register copies.  Untried: give `src` an earlier zero-insn first use (a use fence
+ *   on `frame` before the block -- w45 measured `"r"(reg-resident local)` at 0 insns) so src keeps
+ *   the lower pseudo while `j = 0;` is written first.  Fences were not swept here this wave. */
 
 /* SNDPKTPLAY_submitspace @0x80102E70 : free frame slots in the ring. */
 extern int SNDPKTPLAY_submitspace(int p)

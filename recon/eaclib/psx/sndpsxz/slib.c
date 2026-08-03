@@ -588,6 +588,35 @@ extern void iSNDserve(void)
      *   - state==3 arm `one <<= chan` in-place shift (matches retail's self-sllv + shared li in
      *     the bnez ds), with and without a trailing `one = 0` carrier: 73 both.
      *
+     * ★ W47-a3 2026-08-03 -- 69 -> 58, the LOOP-TAIL BLOCK IS NOW BYTE-EXACT.  NEW NAMED LEVER:
+     *   *** A LOOP LATCH THAT STARTS WITH THE COUNTER INCREMENT CANNOT BE EAGER-STOLEN FROM. ***
+     *   Retail parks `lui %hi(sndgs+17)` (the %hi half of the loop-bound load) in the delay slots of
+     *   all THREE forward guard branches that jump to the loop-continue point, and uses `chan++` as
+     *   the bound load's own load-delay filler.  That is reorg's EAGER fill: it duplicates the join
+     *   block's FIRST insn into each predecessor's slot and redirects the branch past it.  A `lui`
+     *   is safe to execute twice; an `addiu chan,chan,1` is NOT -- so as long as our latch began with
+     *   the increment (`chan++; vt += 0x2c;` then the `while` test) reorg had nothing to steal and we
+     *   paid three `nop`s plus a load-delay `nop`.
+     *   FIX: move the increment INSIDE the condition -- `} while ((int)(unsigned)SUB(0x11) > ++chan);`
+     *   -- so the latch starts with the bound load's `lui`.  Operand order is load order (catalog),
+     *   so writing `bound > ++chan` (not `++chan < bound`) evaluates the load first; it still emits
+     *   `slt chan,bound`.  4 diffs of nop-vs-lui + the load-delay nop disappear, and ours drops the
+     *   1 excess insn there (229 vs oracle 231 now; we are 2 SHORT overall, was 1).
+     *   FALSIFIED this wave at the 58 basin (all reverted, state the basin when re-testing):
+     *     - `kon = 0;` moved BEFORE the hook `if` (fact (i), to get retail's `slt v0,s3,v0` entry
+     *       guard + the zero in the hook's beqz delay slot): 74 diffs BUT insn count becomes EXACT
+     *       231/231.  posdiff says this is a mirage: structural residual 151/231 with `s5` displaced
+     *       to first-use position 1, vs residual 24/231 and an IDENTICAL first-use order for the 58
+     *       form.  The 58 form is structurally far closer; do not chase the count.
+     *     - cluster (c) fences: `__asm__("")` between the kon block and the +0 store (62 @231),
+     *       double fence around the kon block (70 @231), fence before/after `n--` (58/59).  The
+     *       fences DO pin issue order but the interleave retail wants (`lw 0x510(fp)` between the
+     *       sllv and the or) is destroyed by serializing.  `n--` before the call: 58 (unchanged,
+     *       sched1 canonicalizes, confirming the 2026-07-27 note).
+     *     - lever 7 re-test (`vp[0x1d] = 0;` moved BACK before the three vreg stores, which IS the
+     *       oracle's emission order): 72.  Lever 7 still holds in the new basin -- vreg's live-range
+     *       -1 is worth more than the 4 order diffs.
+     *
      * 2026-07-27 NFS2-PC AXIS CLOSED for this fn (user-requested check of VA 0x0048c0a8):
      *   nfs2-v1.txt names 0x48c0a8 `iSNDserve_` (FCN VOID) -- the twin EXISTS, but it is a
      *   complete Windows rewrite: the DirectSound ring-buffer pump (COM vtable calls through

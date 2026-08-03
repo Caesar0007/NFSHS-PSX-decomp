@@ -100,103 +100,78 @@ void Nfs2_ResetGame(void)
 void NFS4_LoadPerps(void)
 
 {
-  u_char bVar1;
-  int *addr;
-  u_int *addr_00;
-  int iVar2;
-  u_long numTiers;
-  u_int *puVar3;
-  u_long j;
-  u_int uVar4;
-  int *piVar5;
-  char *pcVar6;
-  u_char *pbVar7;
-  char *data;
-  u_char *pbVar8;
-  u_long numCars;
-  int numMissions;
-  u_int uVar9;
-  tCarInfo *carData;
-  u_int *puVar10;
-  GameSetup_tPerpData *perpInfo;
-  GameSetup_tPerpData *pGVar11;
-  short i;
-  int iVar12;
   char *buffer;
+  char *data;
   char *cars;
-  char filename [64];
-  
+  tCarInfo *carData;
+  char filename[64];
+  u_long numTiers;
+  u_long numMissions;
+  u_long numCars;
+  short i;
+  u_long j;
+  GameSetup_tPerpData *perpInfo;
+
   if (0 < GameSetup_gData.numPerps) {
-    if (GameSetup_gData.commMode == 1) {
-      pcVar6 = "zHPurs2.mis";
-    }
-    else {
-      pcVar6 = "zHPurs.mis";
-    }
-    addr = (int *)sprintf(filename,"%s%s",Paths_Paths[0x25],pcVar6);
-    loadfileadr(filename,0x10);
-    addr_00 = (u_int *)sprintf(filename,"%s%s",Paths_Paths[0x25],"fecars.car")
-    ;
-    loadfileadr(filename,0x10);
-    pGVar11 = GameSetup_gData.perpInfo;
-    iVar12 = 0;
-    uVar9 = *addr_00;
-    pbVar8 = (u_char *)(addr + *addr + (numMissions = addr[1]) * 5 + GameSetup_gData.stageOffset * 0xb + 3);
+    sprintf(filename,"%s%s",Paths_Paths[0x25],
+            GameSetup_gData.commMode != 1 ? "zHPurs.mis" : "zHPurs2.mis");
+    buffer = (char *)loadfileadr(filename,0x10);
+    sprintf(filename,"%s%s",Paths_Paths[0x25],"fecars.car");
+    cars = (char *)loadfileadr(filename,0x10);
+
+    numTiers = *(u_long *)buffer;
+    numMissions = *(u_long *)(buffer + 4);
+    numCars = *(u_long *)cars;
+    data = buffer + 12;
+    data += numTiers * 4;
+    data += numMissions * 20;
+    data += GameSetup_gData.stageOffset * 44;
+    perpInfo = GameSetup_gData.perpInfo;
+
+    i = 0;
     if (0 < GameSetup_gData.numPerps) {
-      puVar10 = addr_00 + 1;
-      piVar5 = &GameSetup_gData.perpInfo[0].HudColour;
-      pbVar7 = pbVar8 + 1;
+      carData = (tCarInfo *)(cars + 4);
       do {
-        uVar4 = 0;
-        if (uVar9 == 0) {
-NFS4LoadPerps_defaultZero:
-          uVar4 = 0;
-          iVar2 = 0;
+      for (j = 0; j < numCars; j++) {
+        if ((int)(signed char)carData[j].fCarID == (u_int)(u_char)data[0])
+          break;
+      }
+      if (j >= numCars)
+        j = 0;
+
+        perpInfo->CarType = carData[j].fSimNumber;
+        perpInfo->Colour = (u_char)data[1];
+        perpInfo->Personality = (u_char)data[2];
+        perpInfo->TimeLimit = *(short *)(data + 4);
+        if (GameSetup_gData.commMode != 1) {
+          perpInfo->WingmanTime = *(short *)(data + 6);
+          perpInfo->SpikeBeltTime = *(short *)(data + 8);
+          perpInfo->BlockadeCopTime = *(short *)(data + 10);
         }
         else {
-          puVar3 = puVar10;
-          do {
-            if ((int)(char)*puVar3 == (u_int)*pbVar8) break;
-            uVar4 = uVar4 + 1;
-            puVar3 = puVar3 + 0x33;
-          } while (uVar4 < uVar9);
-          iVar2 = uVar4 << 1;
-          if (uVar9 <= uVar4) goto NFS4LoadPerps_defaultZero;
+          perpInfo->WingmanTime = -1;
+          perpInfo->SpikeBeltTime = -1;
+          perpInfo->BlockadeCopTime = -1;
         }
-        pGVar11->CarType = (u_int)*(u_char *)((int)puVar10 + (iVar2 + uVar4) * 0x44 + 1);
-        piVar5[-2] = (u_int)*pbVar7;
-        piVar5[1] = (u_int)pbVar7[1];
-        piVar5[2] = (int)*(short *)(pbVar7 + 3);
-        if (GameSetup_gData.commMode == 1) {
-          piVar5[3] = -1;
-          piVar5[4] = -1;
-          piVar5[5] = -1;
-        }
-        else {
-          piVar5[3] = (int)*(short *)(pbVar7 + 5);
-          piVar5[4] = (int)*(short *)(pbVar7 + 7);
-          piVar5[5] = (int)*(short *)(pbVar7 + 9);
-        }
-        pbVar8 = pbVar8 + 0x2c;
-        pGVar11 = pGVar11 + 1;
-        piVar5[6] = (u_int)*(u_short *)(pbVar7 + 0xd);
-        iVar12 = iVar12 + 1;
-        piVar5[7] = *(int *)(pbVar7 + 0xf);
-        piVar5[8] = *(int *)(pbVar7 + 0x13);
-        piVar5[9] = *(int *)(pbVar7 + 0x17);
-        piVar5[-1] = (u_int)*(u_char *)((int)puVar10 + (u_int)*pbVar7 + uVar4 * 0xcc + 0x84);
-        bVar1 = *pbVar7;
-        pbVar7 = pbVar7 + 0x2c;
-        *piVar5 = (u_int)*(u_char *)((int)puVar10 + (u_int)bVar1 * 4 + uVar4 * 0xcc + 0x46) |
-                  puVar10[uVar4 * 0x33 + bVar1 + 0x11] & 0xff00 |
-                  (puVar10[uVar4 * 0x33 + bVar1 + 0x11] & 0xff) << 0x10;
-        piVar5 = piVar5 + 0xd;
-      } while (iVar12 * 0x10000 >> 0x10 < GameSetup_gData.numPerps);
+
+        perpInfo->Distance = *(u_short *)(data + 14);
+        perpInfo->SpeedFactor = *(int *)(data + 16);
+        perpInfo->WeightFactor = *(int *)(data + 20);
+        perpInfo->GlueFactor = *(int *)(data + 24);
+        perpInfo->SpeechColour = carData[j].fSpeechColors[(u_char)data[1]];
+        perpInfo->HudColour =
+            ((carData[j].fColorList[(u_char)data[1]] & 0xff0000) >> 16) |
+            (carData[j].fColorList[(u_char)data[1]] & 0xff00) |
+            ((carData[j].fColorList[(u_char)data[1]] & 0xff) << 16);
+
+        data += 44;
+        perpInfo++;
+        i++;
+      } while (i < GameSetup_gData.numPerps);
     }
-    purgememadr(addr);
-    purgememadr(addr_00);
+    purgememadr(buffer);
+    purgememadr(cars);
   }
-  return;
 }
 
 

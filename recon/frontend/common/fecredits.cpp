@@ -170,7 +170,7 @@ void tCreditManager::Draw(bool selected)
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
 void tCreditManager::SetupCurrCredit()
 
-/* MATCH (w37-a2, 58->10 diffs): SYM has only ONE named local for the whole
+/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->2 diffs): SYM has only ONE named local for the whole
    fn (function-static `lasttick`, i.e. FECredits_lastFadeTick) besides
    `this` -- everything else is compiler-transient. Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
@@ -179,12 +179,13 @@ void tCreditManager::SetupCurrCredit()
    instead of drifting to $a1. (2) both `ticks` reads that feed a
    store-after-a-call (fLineTicks, fStartTicks) read `ticks` directly at
    the point of use (not via a cached `iVar2`) with the store-order
-   `fLineTicks=ticks; StartedLines=1;` / `StartedTextFade=1;
-   fTextFadeDir=-8; fStartTicks=ticks;` -- gcc reloads ticks fresh after
-   the intervening call/branch either way, and this order/direct-read
-   combo is what lands it in the oracle's register. Residual 10-diff
-   floor: one more ticks-reload register tie-break (v0 vs v1) at the
-   final fStartTicks store, no rephrasing tried moved it. */
+   `fLineTicks=ticks; StartedLines=1;`. The follow-up's compare-operand
+   order makes the ticks `%hi` issue before CREDFADETICKS like retail,
+   while the final block-local volatile snapshot preserves retail's
+   second ticks load and keeps it in $v1 across the two preceding stores.
+   Residual 2-diff floor: the same fCurrCredit/fNumCredits loads appear
+   adjacent in reverse scheduler order; direct increment, split locals,
+   declaration-order, and volatile-read variants all compile identically. */
 {
   bool bVar1;
   int iVar2;
@@ -214,7 +215,7 @@ void tCreditManager::SetupCurrCredit()
       this->fCurrCredit = this->fNumCredits + -1;
     }
   }
-  if ((this->fStartTicks != 0) && (CREDFADETICKS < ticks - this->fStartTicks)) {
+  if ((this->fStartTicks != 0) && (ticks - this->fStartTicks > CREDFADETICKS)) {
     iVar3 = this->fCurrCredit + 1;
     this->fCurrCredit = iVar3;
     if (this->fNumCredits <= iVar3) {
@@ -262,9 +263,10 @@ void tCreditManager::SetupCurrCredit()
   }
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
      (0x1e < ticks - this->fLineTicks)) {
+    int startTicks = *(volatile int *)&ticks;
     this->StartedTextFade = 1;
     this->fTextFadeDir = -8;
-    this->fStartTicks = ticks;
+    this->fStartTicks = startTicks;
   }
   return;
 }
@@ -299,20 +301,19 @@ void tCreditManager::DrawCurrCredit()
      `CalcFadeVal(0x505050,0x40)` -- the oracle reloads `this->fTextFade`
      (offset 8) as the 2nd arg, not the literal 0x40 (0x40 IS correct for
      the two tail bright-line CalcFadeVal calls, which stayed literal).
-     Result: 610->12 verify_asm diffs, insn count now EXACT (451/451).
-     Residual 12-diff FLOOR (2 sites, tried multiple rephrasings, no
-     source-level lever moved either): (1) the tagByte reload after the
-     TAB-flag skip-loop compiles to a register copy (`addu v1,v0,zero`)
-     where the oracle emits a fresh `lbu v1,0(s0)` -- gcc-2.8 CSEs the
-     do-while's last failed byte-compare across the join even though the
-     \n-flag and ASTERISK-flag reloads (textually identical pattern) do
-     NOT get this treatment; a coloring coin-flip on carbon-copy source.
-     (2) the rollthedice 25x-loop's post-loop `y=y+8` stages the sum in a
+     Result: 610->8 verify_asm diffs, insn count now EXACT (451/451).
+     The 2026-08-03 follow-up makes the post-NEWLINE and post-ASTERISK
+     tag reads volatile: this defeats GCC's inappropriate cross-join CSE
+     and restores both of retail's fresh `lbu v1,0(s0)` instructions at
+     zero code-size cost. Residual 8-diff FLOOR: the rollthedice 25x-loop's
+     post-loop `y=y+8` stages the sum in a
      temp (`addiu v1,s3,8; addu s3,v1,zero; addiu s3,v1,8`, 3 insns) where
      the oracle does a direct `nop; addiu s3,s3,8` (1 insn) -- tried
      do/for-loop shape, increment-before/after-call, increment-order
-     swap; no rephrasing changed it. Likely a genuine loop-carried-value
-     scheduling floor in gcc-2.8's non-SSA allocator (§F class). */
+     swap, an explicit old-y local, and increment-then-`y-8`; the latter
+     two recolor the whole function and add two instructions. Likely a
+     genuine loop-carried-value scheduling floor in gcc-2.8's non-SSA
+     allocator (§F class). */
   int t16;
   tCredit *fShowCred;
   short y;
@@ -416,7 +417,7 @@ void tCreditManager::DrawCurrCredit()
       do {
         p = p + 1;
       } while (*p == tagByte);
-      tagByte = *p;
+      tagByte = *(volatile byte *)p;
     }
     if (tagByte == 9) {
       hidden = true;
@@ -430,7 +431,7 @@ void tCreditManager::DrawCurrCredit()
       do {
         p = p + 1;
       } while (*p == tagByte);
-      tagByte = *p;
+      tagByte = *(volatile byte *)p;
     }
     if (tagByte == 0x5e) {
       rollthedice = true;

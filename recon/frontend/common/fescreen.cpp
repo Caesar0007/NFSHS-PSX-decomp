@@ -633,9 +633,15 @@ void tScreen::UpdateTransition()
   int iVar2;
   int iVar3;
 
-  iVar2 = this->fInternalScreenFadeVal + 0xc;
-  if (this->fTransitionOff == 0) {
-    iVar2 = this->fInternalScreenFadeVal + -0xc;
+  /* MATCH (2026-08-03): the flag and selected result intentionally share
+     iVar2. Once the branch consumes the flag, gcc coalesces the result into
+     the same $v0 while iVar3 keeps the fade value in $v1. */
+  iVar2 = this->fTransitionOff;
+  iVar3 = this->fInternalScreenFadeVal;
+  if (iVar2 == 0) {
+    iVar2 = iVar3 + -0xc;
+  } else {
+    iVar2 = iVar3 + 0xc;
   }
   this->fInternalScreenFadeVal = iVar2;
   iVar3 = iVar2;

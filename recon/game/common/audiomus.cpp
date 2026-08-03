@@ -309,155 +309,137 @@ void AudioMus_SetCurrentSongInfo(void)
 /* ---- AudioMus_Server__Fii  [@0x8007a3d0] ---- */
 int AudioMus_Server(int mode,int ticks)
 {
-  int *piVar1;
-  AudioMus_tMusicGlobals *pAVar2;
-  int iVar3;
-  AudioMus_tMusicGlobals *pAVar4;
-  int iVar5;
-  void *pThis;
-  int iVar6;
-  int iVar7;
-  
-  if (AudioMus_g->bigfileheader != (char *)0x0) {
-    if ((AudioMus_g->bigfilename[0] == '.') ||
-       (iVar3 = CdDiskReady(1), pAVar4 = AudioMus_g, iVar3 != 0x10)) {
-      if (AudioMus_g->errorcode == -2) {
-        iVar3 = CdDiskReady(1);
-        pAVar2 = AudioMus_g;
-        if (iVar3 != 2) {
-          return 0;
-        }
-        piVar1 = &AudioMus_g->requestsong;
-        AudioMus_g->errorcode = -5;
-        if (*piVar1 < 0) {
-          return 0;
-        }
-        pAVar4 = (AudioMus_tMusicGlobals *)0x1;
-        pAVar2->newswitch = 1;
-        pAVar2->switchsong = 2;
+  int buffered;
+  int availableSongs;
+  int randomRange;
+  int randomValue;
+  int diskSong;
+  int diskReady;
+  int requestedSong;
+  int switchMode;
+  AudioMus_tMusicGlobals *randomMusic;
+
+  if (AudioMus_g->bigfileheader == (char *)0x0) goto done;
+  if (AudioMus_g->bigfilename[0] == '.') goto normal_server;
+  if (CdDiskReady(1) != 0x10) goto normal_server;
+
+  if (AudioMus_g->errorcode != 0) return 0;
+  diskSong = AudioMus_g->requestsong;
+  AudioMus_g->errorcode = -2;
+  AudioMus_g->newswitch = 1;
+  if (diskSong < 0) goto done;
+  buffered = AudioMus_Buffered();
+  SNDSTRM_autovol(AudioMus_g->streamhandle,buffered,0);
+  return 0;
+
+normal_server:
+  if (AudioMus_g->errorcode == -2) {
+    diskReady = CdDiskReady(1);
+    if (diskReady != 2) return 0;
+    AudioMus_g->errorcode = -5;
+    if (AudioMus_g->requestsong < 0) goto done;
+    AudioMus_g->newswitch = 1;
+    AudioMus_g->switchsong = diskReady;
+    goto update_failby;
+  }
+
+  AudioMus_RefreshStatus();
+  if ((AudioMus_Threshold() != 0) && (AudioMus_g->switchsong != 2)) {
+    buffered = AudioMus_Buffered();
+    if (buffered < 0x226) {
+      AudioMus_Fail(-5);
+    } else if (AudioMus_Buffered() < 0x5dc) {
+      if (AudioMus_g->greedy == 0) {
+        SNDSTRM_setgreedystate(AudioMus_g->streamhandle,1);
+        AudioMus_g->greedy = 1;
       }
-      else {
-        AudioMus_RefreshStatus();
-        iVar3 = AudioMus_Threshold();
-        if ((iVar3 != 0) && (AudioMus_g->switchsong != 2)) {
-          iVar3 = AudioMus_Buffered();
-          if (iVar3 < 0x226) {
-            AudioMus_Fail(-5);
-          }
-          else {
-            iVar3 = AudioMus_Buffered();
-            if (iVar3 < 0x5dc) {
-              if (AudioMus_g->greedy == 0) {
-                SNDSTRM_setgreedystate(AudioMus_g->streamhandle,1);
-                AudioMus_g->greedy = 1;
-              }
-            }
-            else {
-              iVar3 = AudioMus_Buffered();
-              if ((AudioMus_g->threshold <= iVar3) && (AudioMus_g->greedy != 0)) {
-                SNDSTRM_setgreedystate(AudioMus_g->streamhandle,0);
-                AudioMus_g->greedy = 0;
-              }
-            }
-          }
-        }
-        pAVar4 = AudioMus_g;
-        if (AudioMus_g->switchsong == 0) {
-          if ((AudioMus_g->streamstatus).outstandingrequests != 0) {
-            return 0;
-          }
-          iVar3 = AudioMus_g->requestsong;
-          if (iVar3 < 0) {
-            return 0;
-          }
-          iVar6 = AudioMus_g->availablesongs;
-          if (1 < iVar6) {
-            if (AudioMus_g->randomize == 0) {
-              AudioMus_g->requestsong = (iVar3 + 1) % iVar6;
-            }
-            else {
-              iVar7 = iVar6 + -1;
-              iVar5 = GetRCnt(0);
-              if (iVar5 < 1) {
-                iVar5 = GetRCnt(0);
-                iVar5 = -iVar5;
-              }
-              else {
-                iVar5 = GetRCnt(0);
-              }
-              iVar3 = iVar3 + 1 + iVar5 % iVar7;
-              pAVar4->requestsong = iVar3 % iVar6;
-            }
-          }
-          SNDSTRM_vol(AudioMus_g->streamhandle,0);
-          AudioMus_QueueRequestedSong();
-          pAVar4 = AudioMus_g;
-          AudioMus_g->newswitch = 1;
-          pAVar4->firstswitch = 1;
-          return 0;
-        }
-        if (AudioMus_g->switchsong == 2) {
-          if (AudioMus_g->streambuffer == (char *)0x0) {
-            AudioMus_Fail(-4);
-            return 0;
-          }
-          if (AudioMus_g->streamhandle < 0) {
-            AudioMus_Fail(-3);
-            return 0;
-          }
-          if ((AudioMus_g->streamstatus).outstandingrequests == 0) {
-            return 0;
-          }
-          if ((AudioMus_g->requeststatus).timebuffered <= AudioMus_g->threshold) {
-            return 0;
-          }
-          if (AudioMus_g->errorcode == -5) {
-            pThis = AudioMus_g->streamhandle;
-            iVar3 = AudioMus_g->volume;
-            AudioMus_g->errorcode = 0;
-          }
-          else {
-            AudioMus_SetCurrentSongInfo();
-            pThis = AudioMus_g->streamhandle;
-            iVar3 = AudioMus_g->volume;
-          }
-          SNDSTRM_autovol(pThis,2000,iVar3);
-          AudioMus_g->switchsong = 0;
-          return 0;
-        }
-        iVar3 = (AudioMus_g->streamstatus).outstandingrequests;
-        if ((iVar3 != 0) &&
-           (SNDSTRM_getvol(AudioMus_g->streamhandle), iVar3 != 0)) {
-          return 0;
-        }
-        if (-1 < AudioMus_g->streamhandle) {
-          SNDSTRM_purge(AudioMus_g->streamhandle);
-        }
-        pAVar4 = AudioMus_g;
-        piVar1 = &AudioMus_g->switchsong;
-        AudioMus_g->songname = (char *)0x0;
-        if (*piVar1 != 1) {
-          pAVar4->switchsong = 0;
-          return 0;
-        }
-        pAVar4->fadetime = 0;
-        AudioMus_QueueRequestedSong();
-        pAVar4 = AudioMus_g;
-        AudioMus_g->switchsong = 2;
-      }
-      gettick();
-      AudioMus_g->failby = (int)&pAVar4[1].current.info.date;
-    }
-    else if (AudioMus_g->errorcode == 0) {
-      iVar3 = AudioMus_g->requestsong;
-      AudioMus_g->errorcode = -2;
-      pAVar4->newswitch = 1;
-      if (-1 < iVar3) {
-        iVar3 = AudioMus_Buffered();
-        SNDSTRM_autovol(AudioMus_g->streamhandle,iVar3,0);
+    } else {
+      buffered = AudioMus_Buffered();
+      if ((buffered >= AudioMus_g->threshold) && (AudioMus_g->greedy != 0)) {
+        SNDSTRM_setgreedystate(AudioMus_g->streamhandle,0);
+        AudioMus_g->greedy = 0;
       }
     }
   }
+
+  switchMode = 2;
+  if (AudioMus_g->switchsong == 0) goto switchsong_zero;
+  if (AudioMus_g->switchsong != switchMode) goto switchsong_default;
+
+  if (AudioMus_g->streambuffer == (char *)0x0) {
+    AudioMus_Fail(-4);
+    return 0;
+  }
+  if (AudioMus_g->streamhandle < 0) {
+    AudioMus_Fail(-3);
+    return 0;
+  }
+  if (AudioMus_g->streamstatus.outstandingrequests == 0) return 0;
+  if (AudioMus_g->requeststatus.timebuffered <= AudioMus_g->threshold) goto done;
+  if (AudioMus_g->errorcode == -5) {
+    AudioMus_g->errorcode = 0;
+    SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
+  } else {
+    AudioMus_SetCurrentSongInfo();
+    SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
+  }
+  AudioMus_g->switchsong = 0;
+  goto done;
+
+switchsong_default:
+  if (AudioMus_g->streamstatus.outstandingrequests != 0) {
+    if (SNDSTRM_getvol(AudioMus_g->streamhandle) != 0) return 0;
+  }
+  if (AudioMus_g->streamhandle >= 0) {
+    SNDSTRM_purge(AudioMus_g->streamhandle);
+  }
+  AudioMus_g->songname = (char *)0x0;
+  if (AudioMus_g->switchsong != 1) {
+    goto clear_switchsong;
+  }
+  AudioMus_g->fadetime = 0;
+  AudioMus_QueueRequestedSong();
+  AudioMus_g->switchsong = switchMode;
+
+update_failby:
+  buffered = gettick();
+  AudioMus_g->failby = buffered + 0x280;
+  goto done;
+
+clear_switchsong:
+  AudioMus_g->switchsong = 0;
+  goto done;
+
+switchsong_zero:
+  if (AudioMus_g->streamstatus.outstandingrequests != 0) return 0;
+  requestedSong = AudioMus_g->requestsong;
+  if (requestedSong < 0) goto done;
+  availableSongs = AudioMus_g->availablesongs;
+  if (availableSongs > 1) {
+    if (AudioMus_g->randomize != 0) {
+      int randomNextSong;
+
+      randomMusic = AudioMus_g;
+      randomRange = availableSongs - 1;
+      randomNextSong = AudioMus_g->requestsong + 1;
+      randomValue = GetRCnt(0);
+      if (randomValue > 0) {
+        randomValue = GetRCnt(0);
+      } else {
+        randomValue = -GetRCnt(0);
+      }
+      randomValue = randomNextSong + randomValue % randomRange;
+      randomMusic->requestsong = randomValue % availableSongs;
+    } else {
+      AudioMus_g->requestsong = (requestedSong + 1) % availableSongs;
+    }
+  }
+  SNDSTRM_vol(AudioMus_g->streamhandle,0);
+  AudioMus_QueueRequestedSong();
+  AudioMus_g->newswitch = 1;
+  AudioMus_g->firstswitch = 1;
+
+done:
   return 0;
 }
 

@@ -246,7 +246,15 @@ void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd);
  * the SAME base -- `((int *)geomVertices)[2*N]` / `[2*N+1]` -- (catalog par.A #1,
  * index-form defeats the base hoist): every load then references geomVertices,
  * p288 disappears, and p80 lands well past 31.  Do this BEFORE any coloring work;
- * the whole 4-way rotation is downstream of it. */
+ * the whole 4-way rotation is downstream of it.
+ * ⚠️ FIRST ATTEMPT FALSIFIED (w46-a7): re-spelling the eight word loads as
+ * `((int *)geomVertices)[2N] / [2N+1]` instead of `((int *)&geomVertices[N])[0/1]`
+ * is BYTE-IDENTICAL (101) -- gcc folds both to the same address rtx, so the copy
+ * block is NOT where p288 comes from.  p288 is `geomVertices + 20`, i.e. offset 20
+ * inside CCOORD16[2] (element 2 + 4) -- find the OTHER site that reads at +20/+4
+ * within a vertex (a `.light` / second-word access on vt2/vt3) and un-CSE THAT.
+ * The required number is unchanged and is the thing to gate on: tools/prio.py must
+ * show p80 (geomVertices) at >= 31 refs. */
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd);
 void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShelbyMoreCache *sd,COORD16 *trans);
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd);

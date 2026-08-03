@@ -73,9 +73,11 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
 
 {
   int result;
-  
-  result = CalcFadeVal(kRGBVals[(byte)textDefinitions[type][4]],
-                            kRGBVals[(byte)textDefinitions[type][5]],(int)fSelFade);
+
+  /* MATCH 2026-08-03 (17->5): flattened volatile indexing preserves the
+     two retail address pseudos and exact color-load order. */
+  result = CalcFadeVal(kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 4]],
+                            kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 5]],(int)fSelFade);
   result = CalcFadeVal(result,0,(int)fFade);
   return result;
 }

@@ -157,22 +157,16 @@ void tTrackManager::SetTrackAvailable(short track,bool avail)
 void tTrackManager::SetClassAvailable(tTrackClassType trackClass,bool avail)
 
 {
-  char *pcVar1;
-  u_int uVar2;
+  /* MATCH: the source-level array-index loop lets GCC strength-reduce the
+     48-byte record stride while retaining `i` in its SLD register ($a3).
+     The track id is explicitly signed because this build defaults plain
+     char to unsigned, while retail uses `lb` for the availability index. */
   u_long i;
-  int iVar3;
   
-  uVar2 = 0;
-  if (this->fNumTracks != 0) {
-    iVar3 = 0;
-    do {
-      pcVar1 = this->fTracks->fShapeName + iVar3 + -8;
-      if ((u_char)pcVar1[2] == trackClass) {
-        this->fAvailableTracks[*pcVar1] = avail;
-      }
-      uVar2 = uVar2 + 1;
-      iVar3 = iVar3 + 0x30;
-    } while (uVar2 < this->fNumTracks);
+  for (i = 0; i < this->fNumTracks; i++) {
+    if (this->fTracks[i].fTrackDifficulty == trackClass) {
+      this->fAvailableTracks[(signed char)this->fTracks[i].fTrackID] = avail;
+    }
   }
   return;
 }

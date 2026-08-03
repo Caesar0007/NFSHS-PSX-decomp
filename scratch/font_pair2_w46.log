@@ -1,0 +1,41 @@
+PHASE 0: 35 statements, baseline 48 (ours 82)
+    0  width = ch->width;
+    1  prim = Render_gPacketPtr;
+    2  prim[0xc] = u;
+    3  prevPrim = Render_gPalettePtr;
+    4  height = ch->height;
+    5  yoff = *(signed char *)&ch->yoffset;
+    6  ybase = y - yoff;
+    7  hoff = height + yoff;
+    8  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
+    9  linkAddr = (uint)prim & 0xffffff;
+   10  Render_gPacketPtr = prim + 0x28;
+   11  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
+   12  /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that posit
+   13  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
+   14  prim[3] = 9;
+   15  prim[7] = 0x2c;
+   16  *(ushort *)(prim + 0xe) = gFontClut;
+   17  *(ushort *)(prim + 0x16) =        (*(byte *)src & 3) << 7 | (uint)*(int *)(
+   18  prim[0xd] = dv;
+   19  prim[0x15] = dv;
+   20  prim[0x14] = u + width;
+   21  ybase = ybase + 5;
+   22  ytop = ybase - hoff;
+   23  *(short *)(prim + 0x1a) = ytop;
+   24  prim[0x1c] = u;
+   25  prim[0x1d] = dv + height;
+   26  prim[0x24] = u + width;
+   27  prim[0x25] = dv + height;
+   28  *(short *)(prim + 8) = x;
+   29  *(short *)(prim + 10) = ytop + height;
+   30  *(short *)(prim + 0x10) = x + width;
+   31  *(short *)(prim + 0x12) = ytop + height;
+   32  *(short *)(prim + 0x18) = x;
+   33  *(short *)(prim + 0x20) = x + width;
+   34  *(short *)(prim + 0x22) = ytop;
+
+PHASE 1: 650 valid single moves; best [(48, 0, 1), (48, 0, 2), (48, 0, 3), (48, 1, 0), (48, 3, 4)]
+
+PHASE 2: 586 pairs gated; best 48
+BEST 48  (gates: 1192)  -> scratch\FontUpsideDownBlit__FiiPviiP12charactertbli.pair.cpp

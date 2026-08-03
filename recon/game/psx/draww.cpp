@@ -3063,11 +3063,12 @@ gte_SetTransMatrix(&DW_WORLDMAT);
           matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sx);
           t2 = fixedmult(matrix.m[5],sx);
-          matrix.m[8] = fixedmult(matrix.m[8],sx);
-          light = objInstance->qw;
-          DW_SCRATCH->offsubdivid = 0;
+          t3 = fixedmult(matrix.m[8],sx);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
+          matrix.m[8] = t3;
+          light = objInstance->qw;
+          DW_SCRATCH->offsubdivid = 0;
         }
         objDef = Track_gObjDefs[objInstance->pad];
 DrawWChunkFacets_emitObj:
@@ -3153,11 +3154,12 @@ DrawWChunkFacets_emitObj:
         matrix.m[7] = t3;
         t1 = fixedmult(matrix.m[2],sx);
         t2 = fixedmult(matrix.m[5],sx);
-        matrix.m[8] = fixedmult(matrix.m[8],sx);
-        DW_SCRATCH->offsubdivid = 0;
-        objDef = Track_gObjDefs[objInstance->pad];
+        t3 = fixedmult(matrix.m[8],sx);
         matrix.m[2] = t1;
         matrix.m[5] = t2;
+        matrix.m[8] = t3;
+        DW_SCRATCH->offsubdivid = 0;
+        objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w41-a2): inline light, see the case-2 note. */
         totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                             (coorddef *)&objInstance->x,objectOffset,objInstance->qw);

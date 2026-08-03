@@ -34,7 +34,7 @@ SOURCE OF TRUTH (gcc-2.8.1/local-alloc.c, read not guessed)
 INPUT = a trace from the instrumented cc1 (scratch/gccbuild*/cc1{,plus}.exe):
     GCC_TRACE_ALLOC=1 cc1plus -quiet -O2 -G4 -mgas -msplit-addresses \
         -funsigned-char [-fno-exceptions -fno-rtti] tu.i -o tu.s 2> trace.txt
-  ⚠️ VERIFY FIDELITY FIRST (scratch/instr/cmp_cc1.sh): the trace is a RECEIPT only
+  !! VERIFY FIDELITY FIRST (scratch/instr/cmp_cc1.sh): the trace is a RECEIPT only
      for functions the instrumented cc1 reproduces byte-identically vs CC1PSX.
 
 USAGE
@@ -184,13 +184,15 @@ def want(blocks, spec):
     tgt = {}
     for t in spec.split(','):
         q, r = t.split('=')
+        q = q.strip().lstrip('qQ')          # accept "q4=t7" as well as "4=t7"
+        r = r.strip().lstrip('$')
         tgt[int(q)] = int(r) if r.isdigit() else INV[r]
     for bi, b in enumerate(blocks):
         rows = b['order']
         if not rows or not (set(tgt) & {r['qty'] for r in rows}):
             continue
         by = {r['qty']: r for r in rows}
-        print('\n=== block %d — required-delta analysis ===' % bi)
+        print('\n=== block %d -- required-delta analysis ===' % bi)
         # which qty currently holds each wanted register?
         cur = {q: b['got'].get(q) for q in tgt}
         print('  now :', {('q%d' % q): rname(v) for q, v in cur.items()})
@@ -242,7 +244,7 @@ def want(blocks, spec):
                               % (rv['qty'], rv['life'], l, l - rv['life'],
                                  pri(rv['refs'], l) / 1e4))
                         break
-        print('\n  ⚠️ ORDER is necessary but not sufficient: find_free_reg hands out the '
+        print('\n  !! ORDER is necessary but not sufficient: find_free_reg hands out the '
               'lowest reg FREE OVER THAT QTY\'S OWN [born,dead) WINDOW, and each '
               'allocation marks its reg busy for later qtys (post_mark_life).  Re-run '
               'the instrumented cc1 after the source edit to confirm.')

@@ -51,18 +51,20 @@ void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 
 {
-  uint depth;
-  
-  depth = (uint)(ushort)gridpos;
-  if ((gridpos < 1) || (gridpos < 0x40)) {
-    if (gridpos < 0) {
-      depth = 0;
-    }
+  /* MATCH: SLD has no depth local.  Clamp the parameter itself and keep the
+     retail exit-in-the-middle CFG; this removes the unsigned depth masks. */
+  if (0 < gridpos) {
+    if (0x3f < gridpos) goto DrawVerticalLine_high;
   }
-  else {
-    depth = 0x40;
+  if (gridpos < 0) {
+    gridpos = 0;
   }
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,0xa2,1,(int)(depth << 0x10) >> 0xf,0);
+  goto DrawVerticalLine_draw;
+DrawVerticalLine_high:
+  gridpos = 0x40;
+DrawVerticalLine_draw:
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,0xa2,1,
+                       ((int)gridpos << 0x10) >> 0xf,0);
   return;
 }
 
@@ -70,18 +72,19 @@ void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 
 {
-  uint depth;
-  
-  depth = (uint)(ushort)gridpos;
-  if ((gridpos < 1) || (gridpos < 0x40)) {
-    if (gridpos < 0) {
-      depth = 0;
-    }
+  /* Same parameter-clamp source shape as DrawVerticalLine. */
+  if (0 < gridpos) {
+    if (0x3f < gridpos) goto DrawHorizontalLine_high;
   }
-  else {
-    depth = 0x40;
+  if (gridpos < 0) {
+    gridpos = 0;
   }
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,0xc0,1,2,(int)(depth << 0x10) >> 0xf,0xc);
+  goto DrawHorizontalLine_draw;
+DrawHorizontalLine_high:
+  gridpos = 0x40;
+DrawHorizontalLine_draw:
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,0xc0,1,2,
+                       ((int)gridpos << 0x10) >> 0xf,0xc);
   return;
 }
 

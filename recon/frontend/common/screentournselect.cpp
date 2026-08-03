@@ -388,15 +388,8 @@ void tScreenTournSelect::DrawBackground()
 void tScreenTournSelect::DrawForeground()
 
 {
-  short shapeY;
-  short y;
-  int DarkGreyCol;
-  int YellowCol;
-  char buffer [64];
-  RECT r;
-  uint movieRGB;
-  tDrawShapeExtended drawFlags;
-  
+  /* MATCH: SLD records no locals; the decompiler's unused buffer, RECT,
+     colors, and draw-flags aggregate inflated the frame from 48 to 144. */
   PSXDrawBrightEndLine(0x232323,0xa7,0x29,0x13c,1,3,(int)this->fScreenFadeVal,0x14);
   PSXDrawBrightEndLine(0x232323,0xa7,0x4a,0x13c,1,2,(int)this->fScreenFadeVal,0x14);
   return;

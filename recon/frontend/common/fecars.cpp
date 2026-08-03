@@ -738,7 +738,9 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 short tCarManager::GetNumTourneyCars(short playerNum)
 
 {
-  char cVar1;
+  /* MATCH: the retail loop uses lb/bltz for the slot ID, then reloads it with
+     lbu only after the empty-slot guard.  Keep the signed test carrier. */
+  signed char cVar1;
   tCarInfo *ptVar2;
   void *pvVar3;
   int iVar4;
@@ -751,8 +753,8 @@ short tCarManager::GetNumTourneyCars(short playerNum)
   iVar4 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
     cVar1 = *(signed char *)((char *)this + iVar4 + 8);
-    carInfo.fCarID = *(u_char *)((char *)this + iVar4 + 8);
     if (-1 < cVar1) {
+      carInfo.fCarID = *(u_char *)((char *)this + iVar4 + 8);
       carInfo.fUpgrades = *(u_char *)((char *)this + iVar4 + 9);
       ptVar2 = this->GetCarFromID((short)cVar1);
       carInfo.fCarClass = ptVar2->fCarClass;

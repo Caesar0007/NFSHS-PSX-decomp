@@ -100,10 +100,25 @@ void InGame_ResetPSXController(int player,int config)
   type = gPadinfo.buf[player * 4].ID;
   h = Input_gHandler;
   type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
+  /* w46-a8 (40 -> 21): the store is BACK at retail's position (after the controlType if)
+     and the w41 lever-(7) job -- making the `player*4` giv a GLOBAL allocno instead of a
+     block-local qty that steals $s0 pre-global-alloc -- is done by a ZERO-INSN USE FENCE
+     in the pre-branch block instead.  The fence gives the giv a def/use pair that straddles
+     the branch (catalog w41 §A: "move one statement so def/uses straddle a branch"), but
+     unlike the statement move it does NOT drag the controllerConfig store ahead of the
+     compare, which was ~12 of the 40 residual lines.  MEASURED (all with the store restored
+     after the if): `&hoff[player]` 21 @306 (kept -- cheapest, +1 insn), `&controllerConfig
+     [player]` 21 @308, +`h`/+`config`/+`type`/+`player` as extra operands 21 @306 (neutral),
+     `controllerConfig[player]` VALUE 27 @306, `&Cars_gHumanRaceCarList[player]` 33,
+     `hoff[player]` value 22, `h - hoff[player]` / `&h[-hoff[player]]` 32 @309,
+     `&frontEnd.controlType[player]` 263, `&gPadinfo.buf[player*4].ID` 265,
+     `&controllerConfig[0]` 243, `player` alone 241, no fence + store after the if 266.
+     Keeping the store where w41 put it and fencing there instead: 28/32/44/48/52. */
+  __asm__ volatile("" : : "r"(&hoff[player]));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
   }
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
   h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
   h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
   h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);

@@ -146,6 +146,17 @@ extern void setfont(int fontId)
      *     `jump_optimize(insns, 1, 1, 0)` runs cross-jumping on HARD registers, and all three
      *     `lui $v0,%hi(sjis); addiu $v0,$v0,%lo(sjis); j join` blocks are byte-identical there, so
      *     they always merge; there is no gcc-2.8 flag for it (-fno-crossjumping is gcc-3+).
+     * w47-a5 NEW ANGLE for (b) (still kept at 2, but the target is now ONE number): switching to
+     * retail's shape -- `CFI(cf, 0xa0) = decode;` before `cf2 = currentfont;` -- gates 74
+     * because it flips the fontId/currentfont allocno pair.  reqdelta on THAT variant says the
+     * minimal dials are p80(fontId) refs 17 -> 15 (floor_log2 4->3) or p81(cf) refs 19 -> 24.
+     * A depth-2 do{}while(0) on the three cf-ONLY constant stores (0x18/0xb0/0xac) delivers the
+     * +6 and DOES flip the pair: 74 -> 9 -- but costs +1 insn (101/100, a load-delay nop).
+     * Split +3/+2 over two spans: 14 @102.  The w45 store-read-back ref DELETER
+     * (`CFI(cf,0x28) = CFI(cf,0x24)`) removes the 2 fontId refs but ALSO 4 instructions
+     * (8 @96) -- retail genuinely re-loads and re-adds the +0x13/+0x12 pair.  So the cf-store
+     * route needs a ZERO-COST +5 on cf (or -2 on fontId) that the current inflator kit does not
+     * have; that is the whole remaining question, not a general allocno-delta.
      * (b) 2 = the 0xA0 store's base (`sw v0,0xA0($s0)` ours vs `$s1` retail) -- the unavoidable
      *     price of the live-range fix above; gcc must emit cf2's lui/addiu before a store through
      *     it, while retail stores through the still-live cf and materializes afterwards.

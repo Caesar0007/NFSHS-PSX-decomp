@@ -1266,7 +1266,20 @@ void Weather_CreateSplat
  * callee-saved reg (s0-s5, frame 48) than our two combine_givs-merged walkers (s0-s4,
  * frame 40).  Trichotomy: NOT a cse double-evaluation copy (the copy DIES BEFORE its
  * source, so make_regs_eqv would propagate it away) and not a prototype artefact -- it is
- * the combine_givs merge, which no index spelling avoids. */
+ * the combine_givs merge, which no index spelling avoids.
+ * w46-a9 (re-gated 36, ours 111 / oracle 113 -- unchanged).  Three more falsifications
+ * from the w44/w45 kit, all aimed at forcing the missing 6th callee-saved register into
+ * existence: `int *pn = &gCurrentNumSplats;` held across the loop (§3.12 #16 hold-global-
+ * addr-across-call) = 59/118, a zero-insn USE fence on `num` after the loop init = 37/112,
+ * the same on `splats` = 41/112.  Every one ADDS instructions instead of adding a giv.
+ * 🔑 NEW NAMED ANGLE: attack combine_givs, not the register file.  The receipt above says
+ * our two walkers are a MERGE of retail's three, and `-dL` prints the giv combination
+ * decisions (`giv of insn N not worth while, W vs insn_count` / the combined-giv list) --
+ * the w43 GIV-WORTH BUDGET RAZOR row shows that list is readable and probeable, and that
+ * the dial is the loop's RTL insn count (often a 1-insn razor).  Dump -dL on this loop,
+ * read whether the pos.vy giv is *combined* or *declined*, then move the crossing point
+ * with a +1-RTL-insn faithful spelling (retail's own store-then-read-back of a just-
+ * stored field is the standard zero-byte way to add exactly one RTL insn). */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 

@@ -1,0 +1,40 @@
+	.text
+	.ent	f
+f:
+	.frame	$sp,0,$31		# vars= 0, regs= 0/0, args= 0, extra= 0
+	.mask	0x00000000,0
+	.fmask	0x00000000,0
+	move	$3,$0
+	lw	$8,G
+	move	$7,$3
+	mult	$4,$5
+	mflo	$4
+$L5:
+	lw	$2,0($6)
+	#nop
+	mult	$2,$8
+	addu	$7,$7,1
+	mflo	$9
+	#nop
+	#nop
+	addu	$3,$3,$9
+	addu	$2,$3,$4
+	sw	$2,0($6)
+	slt	$2,$7,10
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L5
+	addu	$6,$6,4
+	.set	macro
+	.set	reorder
+
+	sw	$3,gsum
+	addu	$2,$3,$8
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$2,$2,$4
+	.set	macro
+	.set	reorder
+
+	.end	f

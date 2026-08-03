@@ -1,0 +1,2 @@
+C:\Temp\nfs4-wt46-a10\recon\frontend\psx\memcard.c:151: warning: conflicting types for built-in function `strcpy'
+C:\Temp\nfs4-wt46-a10\recon\frontend\psx\memcard.c:155: warning: conflicting types for built-in function `strcmp'

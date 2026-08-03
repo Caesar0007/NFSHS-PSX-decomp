@@ -1,0 +1,123 @@
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genattr \
+ genattr.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genattr ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-attr.h
+../gccsrc/gcc-2.8.1/move-if-change tmp-attr.h insn-attr.h
+insn-attr.h is unchanged
+touch s-attr
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o gencodes \
+ gencodes.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./gencodes ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-codes.h
+../gccsrc/gcc-2.8.1/move-if-change tmp-codes.h insn-codes.h
+insn-codes.h is unchanged
+touch s-codes
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genconfig \
+  genconfig.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genconfig ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-config.h
+../gccsrc/gcc-2.8.1/move-if-change tmp-config.h insn-config.h
+insn-config.h is unchanged
+touch s-config
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genflags \
+ genflags.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genflags ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-flags.h
+../gccsrc/gcc-2.8.1/move-if-change tmp-flags.h insn-flags.h
+insn-flags.h is unchanged
+touch s-flags
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o bi-opcode \
+ bi-opcode.o bi-parser.o bi-lexer.o bi-reverse.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./bi-opcode < ../gccsrc/gcc-2.8.1/bytecode.def >tmp-bcopcd.h
+(Number of opcodes is 232)
+../gccsrc/gcc-2.8.1/move-if-change tmp-bcopcd.h bc-opcode.h
+bc-opcode.h is unchanged
+touch s-bcopcode
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o bi-opname \
+ bi-opname.o bi-parser.o bi-lexer.o bi-reverse.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./bi-opname < ../gccsrc/gcc-2.8.1/bytecode.def >tmp-bcopnm.h
+../gccsrc/gcc-2.8.1/move-if-change tmp-bcopnm.h bc-opname.h
+bc-opname.h is unchanged
+touch s-bcopname
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genpeep \
+ genpeep.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genpeep ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-peep.c
+../gccsrc/gcc-2.8.1/move-if-change tmp-peep.c insn-peep.c
+insn-peep.c is unchanged
+touch s-peep
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genopinit \
+ genopinit.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genopinit ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-opinit.c
+../gccsrc/gcc-2.8.1/move-if-change tmp-opinit.c insn-opinit.c
+insn-opinit.c is unchanged
+touch s-opinit
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genrecog \
+ genrecog.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genrecog ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-recog.c
+../gccsrc/gcc-2.8.1/move-if-change tmp-recog.c insn-recog.c
+insn-recog.c is unchanged
+touch s-recog
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genextract \
+ genextract.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genextract ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-extract.c
+../gccsrc/gcc-2.8.1/move-if-change tmp-extract.c insn-extract.c
+insn-extract.c is unchanged
+touch s-extract
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genoutput \
+ genoutput.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genoutput ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-output.c
+../gccsrc/gcc-2.8.1/move-if-change tmp-output.c insn-output.c
+insn-output.c is unchanged
+touch s-output
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genemit \
+ genemit.o rtl.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./genemit ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-emit.c
+../gccsrc/gcc-2.8.1/move-if-change tmp-emit.c insn-emit.c
+insn-emit.c is unchanged
+touch s-emit
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o genattrtab \
+ genattrtab.o rtl.o print-rtl.o rtlanal.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+if cmp -s Makefile   ../gccsrc/gcc-2.8.1/config/mips/mips.md;	\
+then					\
+  echo Using ;	\
+  cp  tmp-attrtab.c;	\
+else					\
+  ./genattrtab ../gccsrc/gcc-2.8.1/config/mips/mips.md > tmp-attrtab.c;	\
+fi
+../gccsrc/gcc-2.8.1/move-if-change tmp-attrtab.c insn-attrtab.c
+insn-attrtab.c is unchanged
+touch s-attrtab
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89  -DHAVE_CONFIG_H  -o bi-arity \
+ bi-arity.o bi-parser.o bi-lexer.o bi-reverse.o ` case "obstack.o" in ?*) echo obstack.o ;; esac ` ` case "gcc -std=gnu89 -w"@"" in "cc"@?*) echo  ;; esac ` ` case "" in ?*) echo  ;; esac ` 
+./bi-arity < ../gccsrc/gcc-2.8.1/bytecode.def >tmp-bc-arity.h
+../gccsrc/gcc-2.8.1/move-if-change tmp-bc-arity.h bc-arity.h
+bc-arity.h is unchanged
+touch s-bcarity
+echo " toplev.o version.o tree.o print-tree.o stor-layout.o fold-const.o function.o stmt.o except.o expr.o calls.o expmed.o explow.o optabs.o varasm.o rtl.o print-rtl.o rtlanal.o emit-rtl.o real.o dbxout.o sdbout.o dwarfout.o dwarf2out.o xcoffout.o bitmap.o integrate.o jump.o cse.o loop.o unroll.o flow.o stupid.o combine.o regclass.o local-alloc.o global.o reload.o reload1.o caller-save.o insn-peep.o reorg.o sched.o final.o recog.o reg-stack.o insn-opinit.o insn-recog.o insn-extract.o insn-output.o insn-emit.o profile.o insn-attrtab.o mips.o getpwd.o convert.o  bc-emit.o bc-optab.o" | sed -e 's, \([a-z0-9]\), ../\1,g' -e 's/\.o/.o/g' >stamp-objlist
+cd cp; make "AR_FLAGS=rc" "AR_FOR_TARGET=./inst/mipsel-unknown-ecoff/bin/ar" "BISON=bison" "BISONFLAGS=" "CC=gcc -std=gnu89 -w" "CFLAGS=-O1 -w -std=gnu89" "CLIB=" "GCC_FOR_TARGET=./xgcc -B./" "LDFLAGS=" "LEX=flex" "LEXFLAGS=" "LN=ln -s" "MAKEINFO=makeinfo" "MAKEINFOFLAGS=" "RANLIB_FOR_TARGET=./inst/mipsel-unknown-ecoff/bin/ranlib" "RANLIB_TEST_FOR_TARGET=[ -f ./inst/mipsel-unknown-ecoff/bin/ranlib ]" "SHELL=C:/Program Files/Git/usr/bin/sh.exe" "STAGE_PREFIX=" "exeext=.exe" "objext=.o" "exec_prefix=./inst" "prefix=./inst" "tooldir=./inst/mipsel-unknown-ecoff" "bindir=./inst/bin" "libsubdir=./inst/lib/gcc-lib/mipsel-unknown-ecoff/2.8.1" "CXX_FOR_BUILD=" "CXXFLAGS=" "CXX_FOR_TARGET=" ../cc1plus
+make[1]: Entering directory 'C:/Temp/nfs4-wt46-a10/scratch/gccbuild-ecoff/cp'
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/call.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/decl.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/errfn.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/expr.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/pt.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/sig.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/typeck2.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/class.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/decl2.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/error.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/lex.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config  \
+  `echo ../../gccsrc/gcc-2.8.1/cp/parse.c | sed 's,^\./,,'`
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/ptree.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/rtti.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/spew.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/typeck.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/cvt.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/except.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/friend.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/init.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/method.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/search.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/tree.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/xref.c
+gcc -std=gnu89 -w -c -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89     -I. -I.. -I../../gccsrc/gcc-2.8.1/cp -I../../gccsrc/gcc-2.8.1/cp/.. -I../../gccsrc/gcc-2.8.1/cp/../config ../../gccsrc/gcc-2.8.1/cp/repo.c
+gcc -std=gnu89 -w -DCROSS_COMPILE -DIN_GCC    -O1 -w -std=gnu89   -o ../cc1plus \
+      call.o decl.o errfn.o expr.o pt.o sig.o typeck2.o class.o decl2.o error.o lex.o parse.o ptree.o rtti.o spew.o typeck.o cvt.o except.o friend.o init.o method.o search.o tree.o xref.o repo.o `cat ../stamp-objlist` ../c-common.o ../c-pragma.o `if [ xobstack.o != x ]; then echo ../obstack.o; else true; fi` `case "gcc -std=gnu89 -w" in "cc") if [ x != x ]; then echo ../; else true; fi ;; esac` `if [ x != x ]; then echo ../; else true; fi` 
+make[1]: Leaving directory 'C:/Temp/nfs4-wt46-a10/scratch/gccbuild-ecoff/cp'

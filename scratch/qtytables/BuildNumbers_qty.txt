@@ -1,0 +1,967 @@
+==============================================================================
+void Hud_BuildNumbers(int)
+
+--- block 3 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p86        v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p86     refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 5 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p87        v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p87     refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 9 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p96        v0       8    8     0   0/0        3.0000
+   1  q1    p92        v1       5    6     0   0/0        1.6666
+   2  q3    p97        v0       2    2     0   0/0        1.0000
+   3  q0    p88        a0       4   14     0   0/0        0.5714
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p96     refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p92     refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q3   p97     refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p88     refs 4   life 14   :   0.2142 |   0.5714 |   0.7142 |   1.7142
+
+--- block 10 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p98        v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p98     refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 11 : 3 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 108   (refs 3   calls 0) + qty 0   (head pseudo 109  )  ->  qty refs 5   calls 0
+    pseudo 111   (refs 2   calls 0) + qty 1   (head pseudo 107  )  ->  qty refs 4   calls 0
+    pseudo 112   (refs 2   calls 0) + qty 1   (head pseudo 111  )  ->  qty refs 6   calls 0
+    pseudo 120   (refs 2   calls 0) + qty 3   (head pseudo 116  )  ->  qty refs 4   calls 0
+    pseudo 121   (refs 2   calls 0) + qty 3   (head pseudo 120  )  ->  qty refs 6   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p100       v0       2    2     0   0/0        1.0000
+   1  q2    p102       v0       2    2     0   0/0        1.0000
+   2  q1    p101       v1       2    4     0   0/0        0.5000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p100    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q2   p102    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q1   p101    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+
+--- block 12 : 5 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 136   (refs 8   calls 0) + qty 0   (head pseudo 135  )  ->  qty refs 12  calls 0
+    pseudo 133   (refs 4   calls 0) + qty 1   (head pseudo 130  )  ->  qty refs 8   calls 0
+    pseudo 146   (refs 8   calls 0) + qty 3   (head pseudo 145  )  ->  qty refs 12  calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p112       v0       6    8     0   0/0        1.5000
+   1  q3    p121       v0       6    8     0   0/0        1.5000
+   2  q2    p113       v0       2    4     0   0/0        0.5000
+   3  q4    p122       v0       2    4     0   0/0        0.5000
+   4  q0    p108       v1       5   22     0   0/0        0.4545
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q1   p112    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q3   p121    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q2   p113    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+   q4   p122    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+   q0   p108    refs 5   life 22   :   0.3636 |   0.4545 |   0.5454 |   1.3636
+
+--- block 13 : 5 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p146       v0      12    8     0   0/0        4.5000
+   1  q1    p133       v0       8    6     0   0/0        4.0000
+   2  q4    p148       v0       4    2     0   0/0        4.0000
+   3  q0    p136       v1      12   10     0   0/0        3.6000
+   4  q2    p143       v1       4    8     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q3   p146    refs 12  life 8    :   4.1250 |   4.5000 |   4.8750 |  12.0000
+   q1   p133    refs 8   life 6    :   2.3333 |   4.0000 |   4.5000 |  10.6666
+   q4   p148    refs 4   life 2    :   1.5000 |   4.0000 |   5.0000 |  12.0000
+   q0   p136    refs 12  life 10   :   3.3000 |   3.6000 |   3.9000 |   9.6000
+   q2   p143    refs 4   life 8    :   0.3750 |   1.0000 |   1.2500 |   3.0000
+
+--- block 15 : 5 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 183   (refs 4   calls 0) + qty 2   (head pseudo 182  )  ->  qty refs 6   calls 0
+    pseudo 180   (refs 2   calls 0) + qty 3   (head pseudo 177  )  ->  qty refs 4   calls 0
+    pseudo 189   (refs 5   calls 0) + qty 4   (head pseudo 188  )  ->  qty refs 7   calls 0
+    pseudo 186   (refs 2   calls 0) + qty 5   (head pseudo 185  )  ->  qty refs 4   calls 0
+    pseudo 198   (refs 4   calls 0) + qty 6   (head pseudo 197  )  ->  qty refs 6   calls 0
+    pseudo 195   (refs 2   calls 0) + qty 4   (head pseudo 189  )  ->  qty refs 9   calls 0
+    pseudo 204   (refs 4   calls 0) + qty 7   (head pseudo 203  )  ->  qty refs 6   calls 0
+    pseudo 201   (refs 2   calls 0) + qty 8   (head pseudo 200  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p172       v0      12    8     0   0/0        4.5000
+   1  q1    p159       v0       8    6     0   0/0        4.0000
+   2  q4    p174       v0       4    2     0   0/0        4.0000
+   3  q0    p162       v1      12   10     0   0/0        3.6000
+   4  q2    p169       v1       4    8     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q3   p172    refs 12  life 8    :   4.1250 |   4.5000 |   4.8750 |  12.0000
+   q1   p159    refs 8   life 6    :   2.3333 |   4.0000 |   4.5000 |  10.6666
+   q4   p174    refs 4   life 2    :   1.5000 |   4.0000 |   5.0000 |  12.0000
+   q0   p162    refs 12  life 10   :   3.3000 |   3.6000 |   3.9000 |   9.6000
+   q2   p169    refs 4   life 8    :   0.3750 |   1.0000 |   1.2500 |   3.0000
+
+--- block 16 : 9 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 206   (refs 2   calls 0) + qty 0   (head pseudo 207  )  ->  qty refs 4   calls 0
+    pseudo 210   (refs 3   calls 0) + qty 1   (head pseudo 209  )  ->  qty refs 5   calls 0
+    pseudo 212   (refs 2   calls 0) + qty 2   (head pseudo 211  )  ->  qty refs 4   calls 0
+    pseudo 213   (refs 2   calls 0) + qty 2   (head pseudo 212  )  ->  qty refs 6   calls 0
+    pseudo 214   (refs 2   calls 0) + qty 2   (head pseudo 213  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q5    p186       v0       4    4     0   0/0        2.0000
+   1  q8    p201       v0       4    4     0   0/0        2.0000
+   2  q4    p195       v1       9   18     0   0/0        1.5000
+   3  q6    p198       v0       6    8     0   0/0        1.5000
+   4  q3    p180       v0       4    6     0   0/0        1.3333
+   5  q2    p183       v1       6   10     0   0/0        1.2000
+   6  q7    p204       v1       6   10     0   0/0        1.2000
+   7  q0    p179       a0       7   48     0   0/0        0.2916
+   8  q1    p184       a1       5   38     0   0/0        0.2631
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q5   p186    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q8   p201    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p195    refs 9   life 18   :   1.3333 |   1.5000 |   1.6666 |   4.0000
+   q6   p198    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q3   p180    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q2   p183    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q7   p204    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q0   p179    refs 7   life 48   :   0.2500 |   0.2916 |   0.5000 |   0.8750
+   q1   p184    refs 5   life 38   :   0.2105 |   0.2631 |   0.3157 |   0.7894
+
+--- block 17 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p214       v0       8    8     0   0/0        3.0000
+   1  q1    p210       v1       5    6     0   0/0        1.6666
+   2  q3    p215       v0       2    2     0   0/0        1.0000
+   3  q0    p206       a0       4   14     0   0/0        0.5714
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p214    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p210    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q3   p215    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p206    refs 4   life 14   :   0.2142 |   0.5714 |   0.7142 |   1.7142
+
+--- block 18 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 223   (refs 2   calls 0) + qty 0   (head pseudo 222  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p217       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p217    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 19 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p223       v0       4    4     0   0/0        2.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p223    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+
+--- block 20 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p224       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p224    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 21 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p225       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p225    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 22 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p229       v0       2    2     0   0/0        1.0000
+   1  q0    p228       v1       2    4     0   0/0        0.5000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q1   p229    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p228    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+
+--- block 23 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 238   (refs 2   calls 0) + qty 1   (head pseudo 237  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p234       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p234    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 24 : 2 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p238       v0       4    4     0   0/0        2.0000
+   1  q0    p235       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q1   p238    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q0   p235    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 27 : 5 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p265       v0      12    8     0   0/0        4.5000
+   1  q1    p252       v0       8    6     0   0/0        4.0000
+   2  q4    p267       v0       4    2     0   0/0        4.0000
+   3  q0    p255       v1      12   10     0   0/0        3.6000
+   4  q2    p262       v1       4    8     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q3   p265    refs 12  life 8    :   4.1250 |   4.5000 |   4.8750 |  12.0000
+   q1   p252    refs 8   life 6    :   2.3333 |   4.0000 |   4.5000 |  10.6666
+   q4   p267    refs 4   life 2    :   1.5000 |   4.0000 |   5.0000 |  12.0000
+   q0   p255    refs 12  life 10   :   3.3000 |   3.6000 |   3.9000 |   9.6000
+   q2   p262    refs 4   life 8    :   0.3750 |   1.0000 |   1.2500 |   3.0000
+
+--- block 29 : 5 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 302   (refs 4   calls 0) + qty 2   (head pseudo 301  )  ->  qty refs 6   calls 0
+    pseudo 299   (refs 2   calls 0) + qty 3   (head pseudo 296  )  ->  qty refs 4   calls 0
+    pseudo 308   (refs 5   calls 0) + qty 4   (head pseudo 307  )  ->  qty refs 7   calls 0
+    pseudo 305   (refs 2   calls 0) + qty 5   (head pseudo 304  )  ->  qty refs 4   calls 0
+    pseudo 317   (refs 4   calls 0) + qty 6   (head pseudo 316  )  ->  qty refs 6   calls 0
+    pseudo 314   (refs 2   calls 0) + qty 4   (head pseudo 308  )  ->  qty refs 9   calls 0
+    pseudo 323   (refs 4   calls 0) + qty 7   (head pseudo 322  )  ->  qty refs 6   calls 0
+    pseudo 320   (refs 2   calls 0) + qty 8   (head pseudo 319  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p291       v0      12    8     0   0/0        4.5000
+   1  q1    p278       v0       8    6     0   0/0        4.0000
+   2  q4    p293       v0       4    2     0   0/0        4.0000
+   3  q0    p281       v1      12   10     0   0/0        3.6000
+   4  q2    p288       v1       4    8     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q3   p291    refs 12  life 8    :   4.1250 |   4.5000 |   4.8750 |  12.0000
+   q1   p278    refs 8   life 6    :   2.3333 |   4.0000 |   4.5000 |  10.6666
+   q4   p293    refs 4   life 2    :   1.5000 |   4.0000 |   5.0000 |  12.0000
+   q0   p281    refs 12  life 10   :   3.3000 |   3.6000 |   3.9000 |   9.6000
+   q2   p288    refs 4   life 8    :   0.3750 |   1.0000 |   1.2500 |   3.0000
+
+--- block 30 : 9 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 325   (refs 2   calls 0) + qty 0   (head pseudo 326  )  ->  qty refs 4   calls 0
+    pseudo 329   (refs 3   calls 0) + qty 1   (head pseudo 328  )  ->  qty refs 5   calls 0
+    pseudo 331   (refs 2   calls 0) + qty 2   (head pseudo 330  )  ->  qty refs 4   calls 0
+    pseudo 332   (refs 2   calls 0) + qty 2   (head pseudo 331  )  ->  qty refs 6   calls 0
+    pseudo 333   (refs 2   calls 0) + qty 2   (head pseudo 332  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q5    p305       v0       4    4     0   0/0        2.0000
+   1  q8    p320       v0       4    4     0   0/0        2.0000
+   2  q4    p314       v1       9   18     0   0/0        1.5000
+   3  q6    p317       v0       6    8     0   0/0        1.5000
+   4  q3    p299       v0       4    6     0   0/0        1.3333
+   5  q2    p302       v1       6   10     0   0/0        1.2000
+   6  q7    p323       v1       6   10     0   0/0        1.2000
+   7  q0    p298       a0       7   48     0   0/0        0.2916
+   8  q1    p303       a1       5   38     0   0/0        0.2631
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q5   p305    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q8   p320    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p314    refs 9   life 18   :   1.3333 |   1.5000 |   1.6666 |   4.0000
+   q6   p317    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q3   p299    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q2   p302    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q7   p323    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q0   p298    refs 7   life 48   :   0.2500 |   0.2916 |   0.5000 |   0.8750
+   q1   p303    refs 5   life 38   :   0.2105 |   0.2631 |   0.3157 |   0.7894
+
+--- block 31 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p333       v0       8    8     0   0/0        3.0000
+   1  q1    p329       v1       5    6     0   0/0        1.6666
+   2  q3    p334       v0       2    2     0   0/0        1.0000
+   3  q0    p325       a0       4   14     0   0/0        0.5714
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p333    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p329    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q3   p334    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p325    refs 4   life 14   :   0.2142 |   0.5714 |   0.7142 |   1.7142
+
+--- block 32 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 339   (refs 2   calls 0) + qty 1   (head pseudo 338  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p335       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p335    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 33 : 2 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 346   (refs 2   calls 0) + qty 1   (head pseudo 344  )  ->  qty refs 4   calls 0
+    pseudo 347   (refs 7   calls 0) + qty 3   (head pseudo 348  )  ->  qty refs 9   calls 0
+    pseudo 357   (refs 3   calls 0) + qty 4   (head pseudo 356  )  ->  qty refs 5   calls 0
+    pseudo 360   (refs 2   calls 0) + qty 5   (head pseudo 359  )  ->  qty refs 4   calls 0
+    pseudo 361   (refs 2   calls 0) + qty 5   (head pseudo 360  )  ->  qty refs 6   calls 0
+    pseudo 362   (refs 2   calls 0) + qty 5   (head pseudo 361  )  ->  qty refs 8   calls 0
+    pseudo 351   (refs 2   calls 0) + qty 6   (head pseudo 349  )  ->  qty refs 4   calls 0
+    pseudo 364   (refs 2   calls 0) + qty 7   (head pseudo 363  )  ->  qty refs 4   calls 0
+    pseudo 367   (refs 2   calls 0) + qty 6   (head pseudo 351  )  ->  qty refs 6   calls 0
+    pseudo 375   (refs 2   calls 0) + qty 9   (head pseudo 374  )  ->  qty refs 4   calls 0
+    pseudo 376   (refs 2   calls 0) + qty 9   (head pseudo 375  )  ->  qty refs 6   calls 0
+    pseudo 377   (refs 2   calls 0) + qty 9   (head pseudo 376  )  ->  qty refs 8   calls 0
+    pseudo 384   (refs 3   calls 0) + qty 11  (head pseudo 383  )  ->  qty refs 5   calls 0
+    pseudo 387   (refs 2   calls 0) + qty 12  (head pseudo 386  )  ->  qty refs 4   calls 0
+    pseudo 388   (refs 2   calls 0) + qty 12  (head pseudo 387  )  ->  qty refs 6   calls 0
+    pseudo 389   (refs 2   calls 0) + qty 12  (head pseudo 388  )  ->  qty refs 8   calls 0
+    pseudo 398   (refs 2   calls 0) + qty 15  (head pseudo 397  )  ->  qty refs 4   calls 0
+    pseudo 399   (refs 2   calls 0) + qty 15  (head pseudo 398  )  ->  qty refs 6   calls 0
+    pseudo 400   (refs 2   calls 0) + qty 15  (head pseudo 399  )  ->  qty refs 8   calls 0
+    pseudo 407   (refs 3   calls 0) + qty 17  (head pseudo 406  )  ->  qty refs 5   calls 0
+    pseudo 410   (refs 2   calls 0) + qty 18  (head pseudo 409  )  ->  qty refs 4   calls 0
+    pseudo 411   (refs 2   calls 0) + qty 18  (head pseudo 410  )  ->  qty refs 6   calls 0
+    pseudo 412   (refs 2   calls 0) + qty 18  (head pseudo 411  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p339       v0       4    4     0   0/0        2.0000
+   1  q0    p337       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q1   p339    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q0   p337    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 34 : 20 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 427   (refs 8   calls 0) + qty 0   (head pseudo 426  )  ->  qty refs 12  calls 0
+    pseudo 424   (refs 4   calls 0) + qty 1   (head pseudo 421  )  ->  qty refs 8   calls 0
+    pseudo 437   (refs 8   calls 0) + qty 3   (head pseudo 436  )  ->  qty refs 12  calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q9    p377       v0       8    8     0   0/0        3.0000
+   1  q12   p389       v0       8    8     0   0/0        3.0000
+   2  q15   p400       v0       8    8     0   0/0        3.0000
+   3  q18   p412       v0       8    8     0   0/0        3.0000
+   4  q5    p362       v0       8   10     0   0/0        2.4000
+   5  q7    p364       v0       4    6     0   0/0        1.3333
+   6  q4    p357       v1       5    8     0   0/0        1.2500
+   7  q11   p384       v1       5    8     0   0/0        1.2500
+   8  q17   p407       v1       5    8     0   0/0        1.2500
+   9  q6    p367       v1       6   10     0   0/0        1.2000
+  10  q2    p345       v0       2    2     0   0/0        1.0000
+  11  q10   p378       v0       2    2     0   0/0        1.0000
+  12  q0    p342       v0       3    4     0   0/0        0.7500
+  13  q8    p370       v1       3    4     0   0/0        0.7500
+  14  q13   p390       v0       2    4     0   0/0        0.5000
+  15  q14   p393       v1       3    6     0   0/0        0.5000
+  16  q16   p401       v0       2    4     0   0/0        0.5000
+  17  q19   p413       v0       2    4     0   0/0        0.5000
+  18  q1    p346       a0       4   26     0   0/0        0.3076
+  19  q3    p347       a1       9   92     0   0/0        0.2934
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q9   p377    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q12  p389    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q15  p400    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q18  p412    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q5   p362    refs 8   life 10   :   1.4000 |   2.4000 |   2.7000 |   6.4000
+   q7   p364    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q4   p357    refs 5   life 8    :   1.0000 |   1.2500 |   1.5000 |   3.7500
+   q11  p384    refs 5   life 8    :   1.0000 |   1.2500 |   1.5000 |   3.7500
+   q17  p407    refs 5   life 8    :   1.0000 |   1.2500 |   1.5000 |   3.7500
+   q6   p367    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q2   p345    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q10  p378    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p342    refs 3   life 4    :   0.5000 |   0.7500 |   2.0000 |   3.0000
+   q8   p370    refs 3   life 4    :   0.5000 |   0.7500 |   2.0000 |   3.0000
+   q13  p390    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+   q14  p393    refs 3   life 6    :   0.3333 |   0.5000 |   1.3333 |   2.0000
+   q16  p401    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+   q19  p413    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+   q1   p346    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q3   p347    refs 9   life 92   :   0.2608 |   0.2934 |   0.3260 |   0.7826
+
+--- block 35 : 5 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 440   (refs 2   calls 0) + qty 0   (head pseudo 441  )  ->  qty refs 4   calls 0
+    pseudo 444   (refs 3   calls 0) + qty 1   (head pseudo 443  )  ->  qty refs 5   calls 0
+    pseudo 446   (refs 2   calls 0) + qty 2   (head pseudo 445  )  ->  qty refs 4   calls 0
+    pseudo 447   (refs 2   calls 0) + qty 2   (head pseudo 446  )  ->  qty refs 6   calls 0
+    pseudo 448   (refs 2   calls 0) + qty 2   (head pseudo 447  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p437       v0      12    8     0   0/0        4.5000
+   1  q1    p424       v0       8    6     0   0/0        4.0000
+   2  q4    p439       v0       4    2     0   0/0        4.0000
+   3  q0    p427       v1      12   10     0   0/0        3.6000
+   4  q2    p434       v1       4    8     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q3   p437    refs 12  life 8    :   4.1250 |   4.5000 |   4.8750 |  12.0000
+   q1   p424    refs 8   life 6    :   2.3333 |   4.0000 |   4.5000 |  10.6666
+   q4   p439    refs 4   life 2    :   1.5000 |   4.0000 |   5.0000 |  12.0000
+   q0   p427    refs 12  life 10   :   3.3000 |   3.6000 |   3.9000 |   9.6000
+   q2   p434    refs 4   life 8    :   0.3750 |   1.0000 |   1.2500 |   3.0000
+
+--- block 36 : 4 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 459   (refs 4   calls 0) + qty 3   (head pseudo 458  )  ->  qty refs 6   calls 0
+    pseudo 456   (refs 2   calls 0) + qty 4   (head pseudo 453  )  ->  qty refs 4   calls 0
+    pseudo 467   (refs 4   calls 0) + qty 5   (head pseudo 466  )  ->  qty refs 6   calls 0
+    pseudo 464   (refs 2   calls 0) + qty 6   (head pseudo 463  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p448       v0       8    8     0   0/0        3.0000
+   1  q1    p444       v1       5    6     0   0/0        1.6666
+   2  q3    p449       v0       2    2     0   0/0        1.0000
+   3  q0    p440       a0       4   14     0   0/0        0.5714
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p448    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p444    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q3   p449    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p440    refs 4   life 14   :   0.2142 |   0.5714 |   0.7142 |   1.7142
+
+--- block 37 : 7 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 469   (refs 2   calls 0) + qty 0   (head pseudo 470  )  ->  qty refs 4   calls 0
+    pseudo 473   (refs 3   calls 0) + qty 1   (head pseudo 472  )  ->  qty refs 5   calls 0
+    pseudo 475   (refs 2   calls 0) + qty 2   (head pseudo 474  )  ->  qty refs 4   calls 0
+    pseudo 476   (refs 2   calls 0) + qty 2   (head pseudo 475  )  ->  qty refs 6   calls 0
+    pseudo 477   (refs 2   calls 0) + qty 2   (head pseudo 476  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q6    p464       v0       4    4     0   0/0        2.0000
+   1  q4    p456       v0       4    6     0   0/0        1.3333
+   2  q3    p459       v1       6   10     0   0/0        1.2000
+   3  q5    p467       v1       6   12     0   0/0        1.0000
+   4  q2    p451       a1       4   26     0   0/0        0.3076
+   5  q0    p455       a2       4   28     0   0/0        0.2857
+   6  q1    p460       a3       3   20     0   0/0        0.1500
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q6   p464    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p456    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p459    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q5   p467    refs 6   life 12   :   0.8333 |   1.0000 |   1.1666 |   3.0000
+   q2   p451    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q0   p455    refs 4   life 28   :   0.1071 |   0.2857 |   0.3571 |   0.8571
+   q1   p460    refs 3   life 20   :   0.1000 |   0.1500 |   0.4000 |   0.6000
+
+--- block 38 : 4 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p477       v0       8    8     0   0/0        3.0000
+   1  q1    p473       v1       5    6     0   0/0        1.6666
+   2  q3    p478       v0       2    2     0   0/0        1.0000
+   3  q0    p469       a0       4   14     0   0/0        0.5714
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p477    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p473    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q3   p478    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p469    refs 4   life 14   :   0.2142 |   0.5714 |   0.7142 |   1.7142
+
+--- block 39 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p553       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p553    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 40 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p556       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p556    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 42 : 7 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 507   (refs 4   calls 0) + qty 3   (head pseudo 506  )  ->  qty refs 6   calls 0
+    pseudo 504   (refs 2   calls 0) + qty 4   (head pseudo 501  )  ->  qty refs 4   calls 0
+    pseudo 515   (refs 4   calls 0) + qty 5   (head pseudo 514  )  ->  qty refs 6   calls 0
+    pseudo 512   (refs 2   calls 0) + qty 6   (head pseudo 511  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q6    p493       v0       4    4     0   0/0        2.0000
+   1  q4    p485       v0       4    6     0   0/0        1.3333
+   2  q3    p488       v1       6   10     0   0/0        1.2000
+   3  q5    p496       v1       6   10     0   0/0        1.2000
+   4  q2    p480       a0       4   24     0   0/0        0.3333
+   5  q0    p484       a1       4   26     0   0/0        0.3076
+   6  q1    p489       a2       3   18     0   0/0        0.1666
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q6   p493    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p485    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p488    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q5   p496    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q2   p480    refs 4   life 24   :   0.1250 |   0.3333 |   0.4166 |   1.0000
+   q0   p484    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q1   p489    refs 3   life 18   :   0.1111 |   0.1666 |   0.4444 |   0.6666
+
+--- block 43 : 7 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 517   (refs 3   calls 0) + qty 1   (head pseudo 518  )  ->  qty refs 5   calls 0
+    pseudo 522   (refs 2   calls 0) + qty 3   (head pseudo 521  )  ->  qty refs 4   calls 0
+    pseudo 523   (refs 2   calls 0) + qty 3   (head pseudo 522  )  ->  qty refs 6   calls 0
+    pseudo 524   (refs 3   calls 0) + qty 3   (head pseudo 523  )  ->  qty refs 9   calls 0
+    pseudo 535   (refs 4   calls 0) + qty 6   (head pseudo 534  )  ->  qty refs 6   calls 0
+    pseudo 532   (refs 2   calls 0) + qty 7   (head pseudo 529  )  ->  qty refs 4   calls 0
+    pseudo 551   (refs 4   calls 0) + qty 8   (head pseudo 550  )  ->  qty refs 6   calls 0
+    pseudo 544   (refs 2   calls 0) + qty 10  (head pseudo 543  )  ->  qty refs 4   calls 0
+    pseudo 545   (refs 2   calls 0) + qty 10  (head pseudo 544  )  ->  qty refs 6   calls 0
+    pseudo 546   (refs 2   calls 0) + qty 10  (head pseudo 545  )  ->  qty refs 8   calls 0
+    pseudo 547   (refs 2   calls 0) + qty 10  (head pseudo 546  )  ->  qty refs 10  calls 0
+    pseudo 548   (refs 2   calls 0) + qty 10  (head pseudo 547  )  ->  qty refs 12  calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q6    p512       v0       4    4     0   0/0        2.0000
+   1  q4    p504       v0       4    6     0   0/0        1.3333
+   2  q3    p507       v1       6   10     0   0/0        1.2000
+   3  q5    p515       v1       6   10     0   0/0        1.2000
+   4  q2    p499       a0       4   24     0   0/0        0.3333
+   5  q0    p503       a1       4   26     0   0/0        0.3076
+   6  q1    p508       a2       3   18     0   0/0        0.1666
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q6   p512    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p504    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p507    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q5   p515    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q2   p499    refs 4   life 24   :   0.1250 |   0.3333 |   0.4166 |   1.0000
+   q0   p503    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q1   p508    refs 3   life 18   :   0.1111 |   0.1666 |   0.4444 |   0.6666
+
+--- block 44 : 11 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 557   (refs 2   calls 0) + qty 0   (head pseudo 558  )  ->  qty refs 4   calls 0
+    pseudo 561   (refs 3   calls 0) + qty 1   (head pseudo 560  )  ->  qty refs 5   calls 0
+    pseudo 563   (refs 2   calls 0) + qty 2   (head pseudo 562  )  ->  qty refs 4   calls 0
+    pseudo 564   (refs 2   calls 0) + qty 2   (head pseudo 563  )  ->  qty refs 6   calls 0
+    pseudo 565   (refs 2   calls 0) + qty 2   (head pseudo 564  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q10   p548       v0      12   12     0   0/0        3.0000
+   1  q7    p532       v0       4    6     0   0/0        1.3333
+   2  q3    p524       v1       9   22     0   0/0        1.2272
+   3  q6    p535       a0       6   10     0   0/0        1.2000
+   4  q8    p551       v1       6   20     0   0/0        0.6000
+   5  q2    p519       v0       3    6     0   0/0        0.5000
+   6  q9    p541       a0       3    6     0   0/0        0.5000
+   7  q1    p517       a1       5   34     0   0/0        0.2941
+   8  q5    p527       a2       4   34     0   0/0        0.2352
+   9  q0    p531       a3       4   50     0   0/0        0.1600
+  10  q4    p536       t0       3   20     0   0/0        0.1500
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q10  p548    refs 12  life 12   :   2.7500 |   3.0000 |   3.2500 |   8.0000
+   q7   p532    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p524    refs 9   life 22   :   1.0909 |   1.2272 |   1.3636 |   3.2727
+   q6   p535    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q8   p551    refs 6   life 20   :   0.5000 |   0.6000 |   0.7000 |   1.8000
+   q2   p519    refs 3   life 6    :   0.3333 |   0.5000 |   1.3333 |   2.0000
+   q9   p541    refs 3   life 6    :   0.3333 |   0.5000 |   1.3333 |   2.0000
+   q1   p517    refs 5   life 34   :   0.2352 |   0.2941 |   0.3529 |   0.8823
+   q5   p527    refs 4   life 34   :   0.0882 |   0.2352 |   0.2941 |   0.7058
+   q0   p531    refs 4   life 50   :   0.0600 |   0.1600 |   0.2000 |   0.4800
+   q4   p536    refs 3   life 20   :   0.1000 |   0.1500 |   0.4000 |   0.6000
+
+--- block 45 : 4 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 576   (refs 4   calls 0) + qty 3   (head pseudo 575  )  ->  qty refs 6   calls 0
+    pseudo 573   (refs 2   calls 0) + qty 4   (head pseudo 570  )  ->  qty refs 4   calls 0
+    pseudo 584   (refs 4   calls 0) + qty 5   (head pseudo 583  )  ->  qty refs 6   calls 0
+    pseudo 581   (refs 2   calls 0) + qty 6   (head pseudo 580  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p565       v0       8    8     0   0/0        3.0000
+   1  q1    p561       v1       5    6     0   0/0        1.6666
+   2  q3    p566       v0       2    2     0   0/0        1.0000
+   3  q0    p557       a0       4   14     0   0/0        0.5714
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p565    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p561    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q3   p566    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q0   p557    refs 4   life 14   :   0.2142 |   0.5714 |   0.7142 |   1.7142
+
+--- block 46 : 7 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 595   (refs 4   calls 0) + qty 3   (head pseudo 594  )  ->  qty refs 6   calls 0
+    pseudo 592   (refs 2   calls 0) + qty 4   (head pseudo 589  )  ->  qty refs 4   calls 0
+    pseudo 603   (refs 4   calls 0) + qty 5   (head pseudo 602  )  ->  qty refs 6   calls 0
+    pseudo 600   (refs 2   calls 0) + qty 6   (head pseudo 599  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q6    p581       v0       4    4     0   0/0        2.0000
+   1  q4    p573       v0       4    6     0   0/0        1.3333
+   2  q3    p576       v1       6   10     0   0/0        1.2000
+   3  q5    p584       v1       6   10     0   0/0        1.2000
+   4  q2    p568       a0       4   24     0   0/0        0.3333
+   5  q0    p572       a1       4   26     0   0/0        0.3076
+   6  q1    p577       a2       3   18     0   0/0        0.1666
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q6   p581    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p573    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p576    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q5   p584    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q2   p568    refs 4   life 24   :   0.1250 |   0.3333 |   0.4166 |   1.0000
+   q0   p572    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q1   p577    refs 3   life 18   :   0.1111 |   0.1666 |   0.4444 |   0.6666
+
+--- block 47 : 7 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 609   (refs 3   calls 0) + qty 1   (head pseudo 608  )  ->  qty refs 5   calls 0
+    pseudo 611   (refs 2   calls 0) + qty 2   (head pseudo 610  )  ->  qty refs 4   calls 0
+    pseudo 612   (refs 2   calls 0) + qty 2   (head pseudo 611  )  ->  qty refs 6   calls 0
+    pseudo 613   (refs 2   calls 0) + qty 2   (head pseudo 612  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q6    p600       v0       4    4     0   0/0        2.0000
+   1  q4    p592       v0       4    6     0   0/0        1.3333
+   2  q3    p595       v1       6   10     0   0/0        1.2000
+   3  q5    p603       v1       6   10     0   0/0        1.2000
+   4  q2    p587       a0       4   24     0   0/0        0.3333
+   5  q0    p591       a1       4   26     0   0/0        0.3076
+   6  q1    p596       a2       3   18     0   0/0        0.1666
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q6   p600    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q4   p592    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p595    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q5   p603    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q2   p587    refs 4   life 24   :   0.1250 |   0.3333 |   0.4166 |   1.0000
+   q0   p591    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q1   p596    refs 3   life 18   :   0.1111 |   0.1666 |   0.4444 |   0.6666
+
+--- block 48 : 4 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 631   (refs 3   calls 0) + qty 0   (head pseudo 630  )  ->  qty refs 5   calls 0
+    pseudo 633   (refs 2   calls 0) + qty 1   (head pseudo 632  )  ->  qty refs 4   calls 0
+    pseudo 634   (refs 2   calls 0) + qty 1   (head pseudo 633  )  ->  qty refs 6   calls 0
+    pseudo 635   (refs 2   calls 0) + qty 1   (head pseudo 634  )  ->  qty refs 8   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q2    p613       v0       8    8     0   0/0        3.0000
+   1  q1    p609       v1       5    6     0   0/0        1.6666
+   2  q0    p606       v0       2    2     0   0/0        1.0000
+   3  q3    p614       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q2   p613    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q1   p609    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q0   p606    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q3   p614    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 49 : 3 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p631       v0       5    6     0   0/0        1.6666
+   1  q1    p635       v1       8    8     0   0/0        3.0000
+   2  q2    p636       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p631    refs 5   life 6    :   1.3333 |   1.6666 |   2.0000 |   5.0000
+   q1   p635    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q2   p636    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 50 : 1 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 641   (refs 5   calls 0) + qty 5   (head pseudo 642  )  ->  qty refs 7   calls 0
+    pseudo 666   (refs 2   calls 0) + qty 8   (head pseudo 659  )  ->  qty refs 4   calls 0
+    pseudo 669   (refs 2   calls 0) + qty 10  (head pseudo 668  )  ->  qty refs 4   calls 0
+    pseudo 693   (refs 4   calls 0) + qty 13  (head pseudo 692  )  ->  qty refs 6   calls 0
+    pseudo 690   (refs 2   calls 0) + qty 14  (head pseudo 687  )  ->  qty refs 4   calls 0
+    pseudo 678   (refs 2   calls 0) + qty 18  (head pseudo 671  )  ->  qty refs 4   calls 0
+    pseudo 700   (refs 4   calls 0) + qty 22  (head pseudo 699  )  ->  qty refs 6   calls 0
+    pseudo 697   (refs 2   calls 0) + qty 1   (head pseudo 689  )  ->  qty refs 6   calls 0
+    pseudo 706   (refs 4   calls 0) + qty 24  (head pseudo 709  )  ->  qty refs 6   calls 0
+    pseudo 723   (refs 2   calls 0) + qty 25  (head pseudo 722  )  ->  qty refs 4   calls 0
+    pseudo 724   (refs 2   calls 0) + qty 25  (head pseudo 723  )  ->  qty refs 6   calls 0
+    pseudo 725   (refs 3   calls 0) + qty 15  (head pseudo 615  )  ->  qty refs 7   calls 0
+    pseudo 728   (refs 2   calls 0) + qty 28  (head pseudo 727  )  ->  qty refs 4   calls 0
+    pseudo 729   (refs 2   calls 0) + qty 28  (head pseudo 728  )  ->  qty refs 6   calls 0
+    pseudo 730   (refs 2   calls 0) + qty 5   (head pseudo 641  )  ->  qty refs 9   calls 0
+    pseudo 651   (refs 2   calls 0) + qty 16  (head pseudo 648  )  ->  qty refs 4   calls 0
+    pseudo 657   (refs 2   calls 0) + qty 17  (head pseudo 654  )  ->  qty refs 4   calls 0
+    pseudo 713   (refs 2   calls 0) + qty 30  (head pseudo 712  )  ->  qty refs 4   calls 0
+    pseudo 714   (refs 2   calls 0) + qty 30  (head pseudo 713  )  ->  qty refs 6   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p640       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p640    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 51 : 32 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q10   p669       v0       4    4     0   0/0        2.0000
+   1  q30   p714       v0       6    6     0   0/0        2.0000
+   2  q25   p724       v0       6    8     0   0/0        1.5000
+   3  q28   p729       a1       6    8     0   1/0        1.5000
+   4  q14   p690       v0       4    6     0   0/0        1.3333
+   5  q22   p700       v0       6   10     0   0/0        1.2000
+   6  q4    p683       v0       2    2     0   0/0        1.0000
+   7  q29   p704       v0       2    2     0   0/0        1.0000
+   8  q31   p733       v0       2    2     0   0/0        1.0000
+   9  q18   p678       v0       4   10     0   0/0        0.8000
+  10  q8    p666       v1       4   12     0   0/0        0.6666
+  11  q9    p663       v0       2    4     0   0/0        0.5000
+  12  q13   p693       v1       6   24     0   0/0        0.5000
+  13  q7    p643       a1       2    6     0   0/0        0.3333
+  14  q19   p675       a1       2    6     0   0/0        0.3333
+  15  q5    p730       t0       9   94     0   1/0        0.2872
+  16  q24   p706       v1       6   42     0   0/0        0.2857
+  17  q15   p725       t1       7   50     0   0/0        0.2800
+  18  q6    p658       a3       5   42     0   0/0        0.2380
+  19  q12   p685       t2       4   42     0   0/0        0.1904
+  20  q1    p697       t3       6   84     0   0/0        0.1428
+  21  q16   p651       t4       4   58     0   0/0        0.1379
+  22  q0    p679       v1       3   22     0   0/0        0.1363
+  23  q17   p657       t5       4   60     0   0/0        0.1333
+  24  q23   p705       t2       3   36     0   0/0        0.0833
+  25  q11   p694       t6       3   38     0   0/0        0.0789
+  26  q3    p708       t7       2   60     0   0/0        0.0333
+  27  q2    p703       s0       2   96     0   0/0        0.0208
+  28  q20   p?         lo       1    2     0   0/0        0.0000
+  29  q21   p?         hilo     1    2     0   0/0        0.0000
+  30  q26   p?         lo       1    2     0   0/0        0.0000
+  31  q27   p?         hilo     1    2     0   0/0        0.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q10  p669    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q30  p714    refs 6   life 6    :   1.6666 |   2.0000 |   2.3333 |   6.0000
+   q25  p724    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q28  p729    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q14  p690    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q22  p700    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q4   p683    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q29  p704    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q31  p733    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q18  p678    refs 4   life 10   :   0.3000 |   0.8000 |   1.0000 |   2.4000
+   q8   p666    refs 4   life 12   :   0.2500 |   0.6666 |   0.8333 |   2.0000
+   q9   p663    refs 2   life 4    :   0.0000 |   0.5000 |   0.7500 |   2.0000
+   q13  p693    refs 6   life 24   :   0.4166 |   0.5000 |   0.5833 |   1.5000
+   q7   p643    refs 2   life 6    :   0.0000 |   0.3333 |   0.5000 |   1.3333
+   q19  p675    refs 2   life 6    :   0.0000 |   0.3333 |   0.5000 |   1.3333
+   q5   p730    refs 9   life 94   :   0.2553 |   0.2872 |   0.3191 |   0.7659
+   q24  p706    refs 6   life 42   :   0.2380 |   0.2857 |   0.3333 |   0.8571
+   q15  p725    refs 7   life 50   :   0.2400 |   0.2800 |   0.4800 |   0.8400
+   q6   p658    refs 5   life 42   :   0.1904 |   0.2380 |   0.2857 |   0.7142
+   q12  p685    refs 4   life 42   :   0.0714 |   0.1904 |   0.2380 |   0.5714
+   q1   p697    refs 6   life 84   :   0.1190 |   0.1428 |   0.1666 |   0.4285
+   q16  p651    refs 4   life 58   :   0.0517 |   0.1379 |   0.1724 |   0.4137
+   q0   p679    refs 3   life 22   :   0.0909 |   0.1363 |   0.3636 |   0.5454
+   q17  p657    refs 4   life 60   :   0.0500 |   0.1333 |   0.1666 |   0.4000
+   q23  p705    refs 3   life 36   :   0.0555 |   0.0833 |   0.2222 |   0.3333
+   q11  p694    refs 3   life 38   :   0.0526 |   0.0789 |   0.2105 |   0.3157
+   q3   p708    refs 2   life 60   :   0.0000 |   0.0333 |   0.0500 |   0.1333
+   q2   p703    refs 2   life 96   :   0.0000 |   0.0208 |   0.0312 |   0.0833
+   q20  p-1     refs 1   life 2    :   0.0000 |   0.0000 |   1.0000 |   1.0000
+   q21  p-1     refs 1   life 2    :   0.0000 |   0.0000 |   1.0000 |   1.0000
+   q26  p-1     refs 1   life 2    :   0.0000 |   0.0000 |   1.0000 |   1.0000
+   q27  p-1     refs 1   life 2    :   0.0000 |   0.0000 |   1.0000 |   1.0000
+
+--- block 53 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p734       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p734    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 58 : 10 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q3    p762       a1       4    4     0   1/0        2.0000
+   1  q7    p746       v0       4    6     0   0/0        1.3333
+   2  q2    p761       v0       6   10     0   1/0        1.2000
+   3  q6    p749       v1       6   10     0   0/0        1.2000
+   4  q8    p756       v0       6   12     0   0/0        1.0000
+   5  q9    p739       v1       2    2     0   0/0        1.0000
+   6  q5    p741       t0       4   26     0   0/0        0.3076
+   7  q1    p753       t1       6   50     0   0/0        0.2400
+   8  q4    p750       t2       3   22     0   0/0        0.1363
+   9  q0    p735       t3       3   48     0   0/0        0.0625
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q3   p762    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q7   p746    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q2   p761    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q6   p749    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q8   p756    refs 6   life 12   :   0.8333 |   1.0000 |   1.1666 |   3.0000
+   q9   p739    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q5   p741    refs 4   life 26   :   0.1153 |   0.3076 |   0.3846 |   0.9230
+   q1   p753    refs 6   life 50   :   0.2000 |   0.2400 |   0.2800 |   0.7200
+   q4   p750    refs 3   life 22   :   0.0909 |   0.1363 |   0.3636 |   0.5454
+   q0   p735    refs 3   life 48   :   0.0416 |   0.0625 |   0.1666 |   0.2500
+
+--- block 59 : 1 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p765       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p765    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 62 : 14 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 808   (refs 2   calls 0) + qty 0   (head pseudo 809  )  ->  qty refs 4   calls 0
+    pseudo 812   (refs 2   calls 0) + qty 1   (head pseudo 811  )  ->  qty refs 4   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q11   p796       v0       8    8     0   0/0        3.0000
+   1  q3    p804       a1       6    8     0   1/0        1.5000
+   2  q8    p777       v0       4    6     0   0/0        1.3333
+   3  q7    p780       v1       6   10     0   0/0        1.2000
+   4  q9    p787       v0       6   10     0   0/0        1.2000
+   5  q4    p805       v0       2    2     0   1/0        1.0000
+   6  q13   p770       v0       2    2     0   0/0        1.0000
+   7  q12   p800       a2       4   10     0   1/0        0.8000
+   8  q10   p791       v1       3    4     0   0/0        0.7500
+   9  q6    p772       a2       4   24     0   0/0        0.3333
+  10  q1    p784       t0       6   46     0   0/0        0.2608
+  11  q2    p789       t1       5   54     0   0/0        0.1851
+  12  q5    p781       t2       3   20     0   0/0        0.1500
+  13  q0    p766       t3       3   68     0   0/0        0.0441
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q11  p796    refs 8   life 8    :   1.7500 |   3.0000 |   3.3750 |   8.0000
+   q3   p804    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q8   p777    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q7   p780    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q9   p787    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q4   p805    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q13  p770    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+   q12  p800    refs 4   life 10   :   0.3000 |   0.8000 |   1.0000 |   2.4000
+   q10  p791    refs 3   life 4    :   0.5000 |   0.7500 |   2.0000 |   3.0000
+   q6   p772    refs 4   life 24   :   0.1250 |   0.3333 |   0.4166 |   1.0000
+   q1   p784    refs 6   life 46   :   0.2173 |   0.2608 |   0.3043 |   0.7826
+   q2   p789    refs 5   life 54   :   0.1481 |   0.1851 |   0.2222 |   0.5555
+   q5   p781    refs 3   life 20   :   0.1000 |   0.1500 |   0.4000 |   0.6000
+   q0   p766    refs 3   life 68   :   0.0294 |   0.0441 |   0.1176 |   0.1764
+
+--- block 63 : 3 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 817   (refs 2   calls 0) + qty 1   (head pseudo 816  )  ->  qty refs 4   calls 0
+    pseudo 818   (refs 2   calls 0) + qty 1   (head pseudo 817  )  ->  qty refs 6   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q0    p808       v0       4    6     0   0/0        1.3333
+   1  q1    p812       v1       4    4     0   0/0        2.0000
+   2  q2    p813       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q0   p808    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q1   p812    refs 4   life 4    :   0.7500 |   2.0000 |   2.5000 |   6.0000
+   q2   p813    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 64 : 2 qtys ---
+  qty formation (combine_regs merges; a qty's refs = SUM):
+    pseudo 828   (refs 4   calls 0) + qty 3   (head pseudo 827  )  ->  qty refs 6   calls 0
+    pseudo 825   (refs 2   calls 0) + qty 4   (head pseudo 822  )  ->  qty refs 4   calls 0
+    pseudo 833   (refs 4   calls 0) + qty 5   (head pseudo 832  )  ->  qty refs 6   calls 0
+    pseudo 830   (refs 2   calls 0) + qty 0   (head pseudo 824  )  ->  qty refs 6   calls 0
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q1    p818       v0       6    6     0   0/0        2.0000
+   1  q0    p814       v0       2    2     0   0/0        1.0000
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q1   p818    refs 6   life 6    :   1.6666 |   2.0000 |   2.3333 |   6.0000
+   q0   p814    refs 2   life 2    :   0.0000 |   1.0000 |   1.5000 |   4.0000
+
+--- block 65 : 6 qtys ---
+   #  qty  head-pseudo  reg   refs life calls sugg/csugg     PRI
+   0  q5    p833       v0       6    8     0   0/0        1.5000
+   1  q4    p825       v0       4    6     0   0/0        1.3333
+   2  q3    p828       v1       6   10     0   0/0        1.2000
+   3  q0    p830       a0       6   26     0   0/0        0.4615
+   4  q2    p819       a1       4   22     0   0/0        0.3636
+   5  q1    p829       a2       3   18     0   0/0        0.1666
+
+   REF-STEP boundary math (pri at refs-1 / refs / refs+1 / 2*refs)
+   -- floor_log2 STEPS at every power of two; one reference can
+      out-rank a neighbour that no live-length dial reaches.
+   q5   p833    refs 6   life 8    :   1.2500 |   1.5000 |   1.7500 |   4.5000
+   q4   p825    refs 4   life 6    :   0.5000 |   1.3333 |   1.6666 |   4.0000
+   q3   p828    refs 6   life 10   :   1.0000 |   1.2000 |   1.4000 |   3.6000
+   q0   p830    refs 6   life 26   :   0.3846 |   0.4615 |   0.5384 |   1.3846
+   q2   p819    refs 4   life 22   :   0.1363 |   0.3636 |   0.4545 |   1.0909
+   q1   p829    refs 3   life 18   :   0.1111 |   0.1666 |   0.4444 |   0.6666

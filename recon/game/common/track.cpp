@@ -4,6 +4,7 @@
  */
 #include "../../nfs4_types.h"
 #include "track_externs.h"
+#include "new.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
@@ -856,7 +857,6 @@ void Track_Init(char *tempName)
   int instSubGrp;
   int perGroup;
   SerializedGroup *pSVar4;
-  int newChunk_p;
   short *visList;
   void *tp7;
   void *elemNext;
@@ -1004,8 +1004,7 @@ void Track_Init(char *tempName)
   CalcObjectBoundingSphere(gPersistObjDef,gPersistObjDefBoundingSpheres);
   ReduceObjectPrecision(gPersistMidgroundObjInst,gPersistObjDef,2);
   InvalidatePersistentCollideBoomObjects(gPersistObjInst,gPersistObjDef);
-  newChunk_p = (int)__builtin_new(sizeof(SaveSurface));
-  Track_gSaveSurface = SaveSurface_ct((SaveSurface *)newChunk_p,0x30);
+  Track_gSaveSurface = new SaveSurface(0x30);
   Track_LoadObjectKillData();
   return;
 }
@@ -1023,7 +1022,7 @@ void Track_DeInit(void)
     __builtin_delete(deleteMe);
   }
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
-    ___11SaveSurface(Track_gSaveSurface,3);
+    delete Track_gSaveSurface;
     Track_gSaveSurface = (SaveSurface *)0x0;
   }
   if (gInitialArt.shapeFile != (char *)0x0) {
@@ -1173,16 +1172,12 @@ void SaveSurface::Save(Trk_NewSimQuad *simQuad)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-SaveSurface * SaveSurface_ct(SaveSurface *pThis,int numEntries)
+SaveSurface::SaveSurface(int numEntries)
 
 {
-  tSaveSurface *ptVar1;
-  
-  pThis->fMaxCount = (short)numEntries;
-  pThis->fCount = 0;
-  ptVar1 = reservememadr("Surface Save",numEntries << 3,0);
-  pThis->fStack = ptVar1;
-  return pThis;
+  fMaxCount = (short)numEntries;
+  fCount = 0;
+  fStack = (tSaveSurface *)reservememadr("Surface Save",numEntries << 3,0);
 }
 
 /* ---- ~SaveSurface  [TRACK.CPP:1864-1865] SLD-VERIFIED ---- */
@@ -1203,15 +1198,10 @@ SaveSurface * SaveSurface_ct(SaveSurface *pThis,int numEntries)
    Build date: 1999-02-22.
    See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-extern "C" void ___11SaveSurface(SaveSurface *pThis,int __in_chrg)
+SaveSurface::~SaveSurface()
 
 {
-  
-  purgememadr(pThis->fStack);
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
+  purgememadr(fStack);
 }
 
 /* ---- RestoreAll  [TRACK.CPP:1871-1879] SLD-VERIFIED ---- */

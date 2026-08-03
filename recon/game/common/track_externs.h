@@ -67,8 +67,6 @@ extern int  *Track_gInViewCount;     /* = Alloc(...), indexed */
 extern int   gtrackNumber;
 extern int   wordFile_psh_snow;        /* (int)cast usage -- refine */
 
-extern SaveSurface *SaveSurface_ct(SaveSurface *, int);
-extern "C" void  ___11SaveSurface(SaveSurface *, int);
 extern void *Alloc(SimpleMem *, int, int);
 extern void  ResizeToFit(SimpleMem *);
 #endif

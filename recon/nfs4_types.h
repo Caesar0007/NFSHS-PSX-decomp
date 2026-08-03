@@ -4014,6 +4014,8 @@ struct TrackHeader {   /* 32 bytes */
 struct SaveSurface {   /* 8 bytes */
     short              fCount, fMaxCount;   /* +0x0 */
     tSaveSurface       *fStack;   /* +0x4 */
+    SaveSurface(int numEntries);
+    ~SaveSurface();
     /* methods (non-virtual -> no layout change; defs track.cpp). Oracle = method-form
        __11SaveSurface...; the ctor/dtor stay SaveSurface_ct/___11SaveSurface. (§3.23b) */
     void Save(Trk_NewSimQuad *simQuad);

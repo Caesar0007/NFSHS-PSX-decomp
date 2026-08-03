@@ -723,48 +723,34 @@ void * PinkSlipsPreSave(void)
   void *ret;
   tDialogYesNoTri *dlgThis;
 
-  /* NEAR-MISS (2026-07-11, 33->22). Dropped the REDUNDANT `tDialogYesNo_ctor(&YesNoDialog)`
-     manual call (tDialogYesNo's real ctor is already auto-invoked by the local's declaration --
-     see AskTheUserToSaveTheGame's note) and block-scoped YesNoDialog into the `if`; also fixed
-     `tDialogYesNoTri_vtable` to `&tDialogYesNoTri_vtable` (it's declared `extern int`, so the
-     bare name was a LOAD of the vtable's first word, not its address -- a real correctness bug).
-     Re-tried the oracle-suggested `^1` cheater idiom (`(is_cheater^1)!=0`) since the diff now shows
-     `xori v0,v0,1;beqz` wanted -- regressed 22->23 (gcc reuses s1 for `xor v0,v0,s1` instead of
-     `xori`), same coloring trap as before; kept the plain `!= 1` int test.
-
-     [BUG FIX 2026-07-27, 22->16] Same DOUBLE-DESTRUCTION bug as MenuExtended_LoadGame: both the
-     `sVar1==-1` early-return path AND the shared exit dropped through a manual
-     `tScreen_dtor((tScreen*)&YesNoDialog,2);` call in ADDITION to YesNoDialog's own real
-     `tDialogYesNoTri::~tDialogYesNoTri()` (fedialog.cpp, empty body -> base fallthrough) firing
-     automatically at scope exit -- objdump confirmed BOTH `tScreen_dtor` and `___15tDialogYesNoTri`
-     were being called back-to-back on EACH of the two exit paths (4 calls total for 2 logical
-     destructions). Dropped both manual calls, letting the block-scoped local's own destructor
-     fire once per path (matches the fememcard.cpp precedent: "manual tScreen_dtor calls ...
-     dropped too, oracle's two ___7tScreen calls right"). Residual = same pre-branch-scheduling
-     floor as before (gcc-2.7.2 hoists `this`/`ret` ahead of the cheater test; oracle computes them
-     after) PLUS an sp-relative-vs-s0-relative field-store addressing choice (same value, same
-     insn count contribution -- s0=sp+16 so `sw v0,112(sp)`==`sw v0,96(s0)`); not source-reachable,
-     no pin. */
+  /* MATCH: keep the default result outside the dialog's lifetime but assign it
+     before entering the nested scope. GCC then fills the cheater branch delay
+     with `li s1,1`, while the explicit dialog pointer retains retail's s0-based
+     field stores. The local's automatic destructor handles both exits. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
-  ret = (void *)0x1;
-  if (is_cheater != 1) {
-    tDialogYesNoTri YesNoDialog;
+  if ((is_cheater ^ 1) != 0) {
+    ret = (void *)0x1;
+    {
+      tDialogYesNoTri YesNoDialog;
 
-    *(void **)&(YesNoDialog._vf) = (void *)&tDialogYesNoTri_vtable;
-    YesNoDialog.string =
-         TextSys_Word(0x273);
-    YesNoDialog.yesnowords[0] = 0x321;
-    YesNoDialog.yesnowords[1] = 0x322;
-    YesNoDialog.fDefault = 0;
-    sVar1 = Run((tDialogInteractive *)&YesNoDialog);
-    if (sVar1 == 1) {
-      ret = GenericMenuSaveGame(1);
+      dlgThis = &YesNoDialog;
+      *(void **)&(dlgThis->_vf) = (void *)&tDialogYesNoTri_vtable;
+      dlgThis->string =
+           TextSys_Word(0x273);
+      dlgThis->yesnowords[0] = 0x321;
+      dlgThis->yesnowords[1] = 0x322;
+      dlgThis->fDefault = 0;
+      sVar1 = Run((tDialogInteractive *)dlgThis);
+      if (sVar1 == 1) {
+        ret = GenericMenuSaveGame(1);
+      }
+      else if (sVar1 == -1) {
+        return (void *)0x0;
+      }
     }
-    else if (sVar1 == -1) {
-      return (void *)0x0;
-    }
+    return ret;
   }
-  return ret;
+  return (void *)0x1;
 }
 
 

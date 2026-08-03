@@ -2938,7 +2938,32 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      order (m[0], m[3], m[6], the last riding the next jal's delay slot) is a
      scheduling consequence of the register assignment, not a source order.
      NB the SYM types objInstance `Trk_SimpleInst *` (size 20), not
-     Trk_CollideBoomInst -- EA declared the small record and byte-cast the rest. */
+     Trk_CollideBoomInst -- EA declared the small record and byte-cast the rest.
+     w46-a7 -- LANDED, 212 -> 144: objInstance now takes $s4 exactly as the SYM says.
+     The dial was NOT on objInstance at all.  tools/reqdelta.py --want "p88=s4,p234=s3"
+     ranked every reachable single-dial delta and the CHEAPEST is |d| = 1 on the RIVAL:
+         p234 (case 5's `t2`)  live 29 -> 28   <-- landed
+         p234                  refs 12 -> 13
+         p88  (objInstance)    refs 79 -> 77   (the w44 receipt's route; = ONE in-loop
+                                                source ref, since loop depth weights x2)
+         p88                   live 375 -> 382
+     SOURCE FORM: swap case 5's LAST TWO matrix stores to `matrix.m[5] = t2;
+     matrix.m[2] = t1;`.  That shortens t2's third live segment by exactly one insn
+     (29 -> 28, priority 3*12/28 = 1.2857) so it now outranks objInstance's 1.2640 by
+     the same razor that used to run the other way; t1 (p233) pays the +1 (38 -> 39)
+     and stays well below.  ZERO instruction cost, count stays 434/434.
+     NOTE the store-order swap is ONLY correct for case 5 -- the other three arms end
+     with `m[2] = t1; m[5] = t2;` and their t1/t2 pairs are already ranked where the
+     oracle wants them; do not "regularize" the four arms.
+     REMAINING 144 (new, quantified at the new basin): two further rotations --
+       (1) totalCount is $fp for us, $s7 for the oracle, and the reverse swap on the
+           `lb` source (`lb s7,0(v1)` ours vs `lb fp,0(v1)`); plus
+       (2) an $s5/$s6 pair swap on the two DrawObjectTransform arms that ALSO costs us
+           two extra spill stores (`sw s6,32/36(sp)` + `sw s3,44/48(sp)` where the
+           oracle has just `addu s5,v0,zero`) -- i.e. our $s6 claimant is call-crossing
+           where the oracle's is not.
+     NEXT: re-run tools/prio.py + tools/reqdelta.py --want on the NEW dispositions
+     (the razors have all moved; every earlier falsification here is basin-relative). */
 
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;
@@ -3158,8 +3183,8 @@ DrawWChunkFacets_emitObj:
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           matrix.m[8] = fixedmult(matrix.m[8],sz);
-          matrix.m[2] = t1;
           matrix.m[5] = t2;
+          matrix.m[2] = t1;
           /* MATCH (w42-a2): case 5 passes its light INLINE as the literal -1 --
            * exactly the same cross-jump-DEPTH rule the case-2/case-9 notes above
            * document, and the reason `light` (SYM REG $s1) must NOT be live here.

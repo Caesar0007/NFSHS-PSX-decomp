@@ -107,3 +107,51 @@ NEW MEASUREMENT (w47): honest `int cb` + an explicit one-insn asm copy
 42 diffs — the asm-output pseudo ALSO lands in $a0, so the parm preference is NOT the whole story;
 the rotation survives removing the copy preference.  => the w34 mechanism note is INCOMPLETE.
 Route: reqdelta/allocsim on {i, base, cb} rather than another spelling.
+
+## 6. FINAL LEDGER (full-TU re-gate, ZERO regressions — every previously-PASSing fn in all 7 TUs still PASSes)
+
+| fn | TU | re-gated baseline | final |
+|---|---|---|---|
+| iSND100hzserver | sserver.c | PASS (worklist row was stale) | PASS |
+| iSNDserverremove100hzclient | sserver.c | 3 | 3 |
+| iSNDserverremoveclient | ssysserv.c | 3 | 3 |
+| iSNDpsxmemconstrain | sdmemman.c | 14 @31/31 | 14 |
+| iSNDpsxmalloc | sdmemman.c | 59 @120/127 | 59 |
+| **iSNDplatformresolve** | sdresolv.c | 3 @126/127 | **PASS 127/127** |
+| iSNDmalloc | smemman.c | 48 @137/135 | 48 |
+| **iSNDdownloadbank** | sbdload.c | 23 @85/84 | **14 @86/84** |
+| iSNDdmcallback | sdma.c | 4 @111/111 | 4 |
+
+Whole-TU PASS counts after the wave: sserver 5/6 · ssysserv 2/3 · sdmemman 1/3 · **sdresolv 2/2** ·
+smemman 3/4 · sbdload 0/1 · sdma 5/6.
+
+## 7. 🔬 FLAG-AXIS REQUESTS (for a7/a8/a9)
+
+**HIGH VALUE — sndpsxz `no-copy-prop` / weaker-cse identity.**  Four of my nine rows reduce to ONE
+recorded per-object identity: *retail's cc1 keeps a redundant register-to-register copy where ours
+copy-propagates it away* (methodology §3.25-3d; catalog w33 §G "confirmed for sndpsxz allocators").
+Concretely:
+* `sdresolv.obj` — I now have a **PASS**, but only via a source-level identity fence standing in for
+  it.  A flag would let the fence be deleted.
+* `sdmemman.obj` iSNDpsxmalloc (59) — the whole residual is documented as retail's un-propagated
+  `addu v1,a2,zero` + the $v0/$v1 mirror it causes.
+* `smemman.obj` iSNDmalloc (48) — the SAME mirror in its post-scan tail (the two functions were shown
+  in w32 to share it, so it is an obj/lib property, not a per-fn source shape).
+* `ssysserv.obj`/`sserver.obj` twins (3+3) — retail's `addu a2,a0,zero` param copy that ours can only
+  reproduce as a stack spill.
+The sndpsxz notes list many tried flags (`-fno-schedule-insns{,2}`, `-fno-delayed-branch`,
+`-fno-cse-follow-jumps`, `-fno-expensive-optimizations`, `-fno-strength-reduce`, `-fno-function-cse`,
+`-fno-peephole`, `-fno-thread-jumps`, `-fcaller-saves`, `-fno-force-mem`, `-mno-split-addresses`).
+**`-fno-rerun-cse-after-loop` does NOT appear anywhere in the tried lists** — it is the obvious
+untried candidate for "cc1 kept a copy the second cse pass would have removed", and it is cheap.
+Please run it (and any other cse-scoped 2.8.0 switch a10's option list turns up) against:
+`sdmemman.c iSNDpsxmalloc`, `smemman.c iSNDmalloc`, `ssysserv.c iSNDserverremoveclient`
+(with `int cb`, honest form), `sdresolv.c iSNDplatformresolve` (with the identity fence DELETED).
+
+**NOT a flag lane — sbdload.obj.**  Confirmed again this wave: the clear loop needs strength
+reduction ON and the patch loop needs it OFF, *inside one function*.  No per-TU flag can express it;
+the current `no_strength_reduce` PER_TU entry is the better half of the trade (14 vs 42 without it).
+
+**-G axis:** no evidence of a -G mismatch in any of these seven TUs (every symbol access I looked at
+is base+displacement off an explicitly materialized `sndpd`/`sndgs`/`sndmm` base, matching the
+oracle; no gp-rel-vs-absolute divergence appears in any residual).

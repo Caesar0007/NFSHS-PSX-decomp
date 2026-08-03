@@ -1969,8 +1969,53 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         if (chunkDat->lorezstripBuf != (Group *)0x0) {
           sd->stripPtr = (Trk_NewStrip *)(chunkDat->lorezstripBuf + 1);
           sd->numStrips = (short)chunkDat->lorezstripBuf->m_num_elements;
-          sd->offset = 0x7d;
-          DrawW_StripDraw_High(sd);
+          /* RESTORED (w46-a6) -- the w40 receipt above says this inner
+           * `if (stripPtr != 0)` was "always true, not in the oracle, deleted".
+           * THAT DELETION WAS WRONG: the oracle has TWO beqz here --
+           * `beqz $v0,.L800C7418` on the buffer @0x800C73EC AND a second
+           * `beqz $v0,.L800C7418` on the ADVANCED pointer @0x800C7400 whose
+           * delay slot carries the numStrips store (`sh $v1,0x104($s0)`).
+           * tools/brcensus.py flagged it as `beqz 13v14` and a branch-sequence
+           * diff located it exactly here.  It IS a semantic no-op guard -- the
+           * catalog's own "semantically-no-op null guard" class -- but retail
+           * wrote it and it is worth 2 insns + the delay-slot fill. */
+     /* ============ RECEIPT (w46-a6) -- 88 -> 86, brcensus now CLEAN ==========
+        A RECORDED "FIX" IN THIS FILE WAS WRONG (floor-hygiene class): the w40
+        note above claims a "REDUNDANT `if (stripPtr != 0)` inner check after
+        `lorez+1` -- always true, not in the oracle, deleted".  The oracle HAS it:
+        two `beqz $v0,.L800C7418` (@0x800C73EC on the buffer, @0x800C7400 on the
+        ADVANCED pointer, the second one's delay slot carrying the numStrips store
+        `sh $v1,0x104($s0)`).  tools/brcensus.py said `beqz 13v14` and a
+        branch-SEQUENCE diff (align the two opcode streams with difflib and print
+        the non-equal opcodes) located the single missing branch exactly here.
+        Restored -> brcensus CLEAN, gate 88 -> 86, posdiff 81 -> 80.
+        REMAINING CENSUS at this basin: lw +2, nop +2, sw +1, addiu-class -2,
+        addu-class -1 (net +2; ours 361 / oracle 359).  The two extra lw are both
+        in THIS block -- ours re-reads `chunkDat->lorezstripBuf` (`lw v0,60(s1)`
+        twice) and re-reads `sd->stripPtr` for the guard, where the oracle keeps
+        both in $v0 from the addiu.
+        FALSIFIED IN THIS BASIN (all re-gated, all reverted): caching the buffer
+        in a `Group *lorez` local (108/361, posdiff 83); caching BOTH the buffer
+        and the advanced pointer in locals and testing the local (88/359 --
+        count-EXACT but posdiff 82 and gate worse, i.e. the two saved loads are
+        paid back as coloring); reading the element count into a `short n` first
+        (95/360).
+        NEW NAMED ANGLE: the whole residual is now ONE prologue emission-ORDER
+        item plus this block.  posdiff says the first-use orders differ by exactly
+        one adjacent pair: ours `s3 a0 s4 a1 fp s6 s5 s7 s0 ...` vs oracle
+        `s3 a0 fp s6 s5 s7 s4 a1 s0 ...` -- i.e. retail emits the `$s4 = $a1`
+        PARM COPY *after* the fp/s6/s5/s7 constant inits, we emit it second.  That
+        is a sched2 luid tie on the parm copies (catalog w43 NARROW-PARAM lever
+        family: a param copy's luid is what orders the prologue), so the dial is
+        either the parm's declared width or a statement that lengthens the first
+        init's chain -- NOT the init order itself (all 24 permutations of the
+        init statements were swept on Draw_kCtrlSkidmark this wave and moved
+        nothing; the same sweep is the first thing to try here).
+        ====================================================================== */
+          if (sd->stripPtr != (Trk_NewStrip *)0x0) {
+            sd->offset = 0x7d;
+            DrawW_StripDraw_High(sd);
+          }
         }
         sd->quadCount = chunkDat->quadCounts[0];
         if (sd->quadCount != 0) {
@@ -2559,6 +2604,73 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      flag/count assignment CALL-CROSSING by moving it above the first jal, which
      is the exact w40 ReadIn 344->186 device).  Gate on the appearance of
      `sw $a1,0x84($sp)` in tools/ourdis.py output, not on the LCS. */
+  /* ================= RECEIPT (w46-a6) -- PARKED at 120 (ours 192 / oracle 200),
+     BUT THE MISSING ALLOCNO IS NOW NAMED AND COUNTED. =========================
+     The w45 receipt was right that this is the w40 ARG-SPILL class; what it could
+     not say is WHICH pseudo retail has that we lack.  allocsim on our object
+     (model reproduces our handout 18/18 IDENTICAL) shows we use only EIGHT
+     callee-saved registers -- s0,s1,s3,s4,s5,s6,s7,fp, with s2 NEVER TOUCHED --
+     while the SYM's mask is $c0ff0000 = NINE (s0-s7 + fp).  `sd` (p81, the a1
+     param, carrying a REG_EQUIV note for its ARG home at `(mem (plus $0 4))`)
+     simply fills the vacancy at rank 7.  So it is not that sd outranks something:
+     WE ARE ONE REAL ALLOCNO SHORT, and the vacancy is exactly $s2.
+
+     THE SYM 8c BLOCK NAMES ALL NINE (@0x800C7B9C, fsize 128):
+        Vi   ARG @0x00   sd  ARG @0x04   simObjs ARG @0x08   zClipSq ARG @0x10
+        group REGPARM $7=a3                     offsets STAT ARY CHAR[8]
+        objInstance             REG $0x14 = s4  (Trk_SimpleInst *)
+        objDef                  REG $0x1e = fp  (Trk_ObjectDef *)
+        totalCount              AUTO -0x30      groupNumElements AUTO -0x2c
+        objectIndex             REG $0x17 = s7  (block line 16)
+        objectOffset            REG $0x16 = s6  (block line 20, with matrix AUTO -0x60)
+        objCollideBoomInstance  REG $0x12 = s2  (block line 28)  <-- THE VACANCY
+        quat AUTO -0x38 (block line 36)
+        t1 $0x15=s5  t2 $0x13=s3  sx $0x10=s0  sy $0x11=s1  sz $0x12=s2  (block line 50)
+     and the oracle confirms objCollideBoomInstance is a SECOND WALKER over the
+     same record: `addu $s2,$s4,$zero` @0x800C7C88 (in the Object_GetAnim jal's
+     DELAY SLOT -- i.e. it is the `objMat_p = (int)simObjs` comma-expression slot
+     in our source), then `lwl/lwr $t0,0x17/0x14($s2)`, `lh $s0,0x1C($s2)`,
+     `lh $s1,0x1E($s2)`, `lh $s2,0x20($s2)` (sz recycling the dead pointer's reg),
+     while `$s4` keeps the +2/+4/+6/+8/+0x22 accesses.  Our recon fuses BOTH into
+     the single fabricated `groupBase_p` int, and fuses t1/t2 into three invented
+     temps (iVar3/iVar11_emit/iVar4) -- so two SYM allocnos never exist.
+
+     MEASURED THIS WAVE (all reverted; the numbers ARE the receipt):
+        base                                       120  (192/200) posdiff 79
+        + objCollideBoomInstance walker (cbi)      248  (188/200) posdiff 165
+        + t1/t2/sx/sy/sz SYM names (t12)           245  (185/200) posdiff 165
+        + BOTH                                     229  (197/200) posdiff 120
+     i.e. the pair moves the COUNT from 8-short to 3-short (the monotone metric
+     the briefing says to judge on) but scrambles the LCS, because with the two
+     new allocnos in play the assignment rotates wholesale:
+        p154 groupBase_p+8   -> s0     p120 flag            -> s1
+        p102 fixedmult res   -> s3     p105 fixedmult res   -> s4
+        p104 groupBase_p     -> s5     p85  objCBI          -> s6
+        p81  sd              -> s7     p121 tc4 (offsets[]) -> fp
+     -- and `sd` STILL takes s7 because tc4/groupBase_p+8/the flag are occupying
+     ranks the SYM assigns to objectIndex/objectOffset/objDef.  In other words the
+     partial rewrite adds the right allocnos but leaves the WRONG ones alive.
+     `sw $a1,0x84($sp)` (the gate the briefing names) never appears in either
+     variant -- checked programmatically with tools/ourdis.py each time.
+
+     NEW NAMED ANGLE (this is a WHOLE-FUNCTION rule-8 job, not a dial, and it is
+     the same job that took DrawW_BuildObjectFacets 130->68 this wave):
+       1. Materialize the SYM's nine REG locals VERBATIM and DELETE the ~20
+          fabricated ones (objDef_00, pOVar5, iVar3/4/6/11_emit, objMat_p,
+          objDef_p, instData_p, buildResult, loc_20/24/28/68/6c/70, tu6, t2 as
+          used today, blend_x/y/z, groupBase_p) -- the catalog's
+          "SYM-empty-locals => DELETE invented temps" row is worth 100-500 diffs
+          on functions this size and it CHANGES WHICH REGISTER CLASS the params
+          land in.
+       2. Keep `objInstance` ($s4) as the ONLY loop walker and derive
+          `objCollideBoomInstance` from it in the Object_GetAnim delay slot.
+       3. `totalCount` and `groupNumElements` are AUTO in the SYM -- their DECL
+          POSITION is the frame layout (w41), and the oracle's `sw $zero,0x50($sp)`
+          / `sw $a3,0x54($sp)` fixes their slots.
+       4. Only then re-measure the ARG spill; per allocsim, sd loses its register
+          the moment a NINTH genuine allocno outranks it, which the SYM's own set
+          supplies ($s2 = objCollideBoomInstance).
+     ============================================================================ */
 
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;

@@ -1931,6 +1931,7 @@ struct ObjectAnim {   /* 4 bytes */
 
 struct ObjectFinishedMultiAnim {   /* 4 bytes */
     ObjectAnim         _base_ObjectAnim;   /* +0x0 */
+    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
 struct ObjectFinishedSignAnim {   /* 48 bytes */
@@ -1938,6 +1939,7 @@ struct ObjectFinishedSignAnim {   /* 48 bytes */
     matrixtdef         finalMatrix;   /* +0x4 */
     Trk_ObjectDef      *objDef;   /* +0x28 */
     Trk_CollideBoomInst *objCollideInstance;   /* +0x2C */
+    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
 struct AIDelayCar {   /* 60 bytes */
@@ -3840,6 +3842,7 @@ struct ObjectSignAnim {   /* 48 bytes */
     int                objectAngle, impactAngle;   /* +0x20 */
     AnimScript         *script;   /* +0x28 */
     ObjectFinishedSignAnim *finishedAnim;   /* +0x2C */
+    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
 struct Object_tIMassObjInfo {   /* 32 bytes */

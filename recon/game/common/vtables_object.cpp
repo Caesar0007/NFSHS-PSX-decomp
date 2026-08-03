@@ -1,12 +1,9 @@
 /* game/common/vtables_object.cpp -- #75: Object*Anim vtables (4). Real nfs4-f.exe bytes;
- * ObjectMultiAnim::Draw is a real method; the remaining reconstructed entries are flat helpers.
+ * Draw entries use their real methods; deleting destructors remain reconstructed flat helpers.
  * __vtbl_ptr_type; null-delimited size. @0xVA breadcrumbs. Self-contained + faithful + links. */
 #include "../../nfs4_types.h"
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
-/* flat fns defined in game/common/object.cpp: */
-int ObjectSignAnim_Draw(ObjectSignAnim*,DRender_tView*,Draw_DCache*,int);
-int ObjectFinishedMultiAnim_Draw(ObjectFinishedMultiAnim*,DRender_tView*,Draw_DCache*,int);
-int ObjectFinishedSignAnim_Draw(ObjectFinishedSignAnim*,DRender_tView*,Draw_DCache*,int);
+/* functions defined in game/common/object.cpp: */
 void ObjectAnim_dt(ObjectAnim*,int);
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim*,int);
 extern "C" void ___14ObjectSignAnim(ObjectSignAnim*,int);
@@ -26,15 +23,15 @@ __vtbl_ptr_type ObjectMultiAnim_vtable[3] = {   /* @0x800560b8 */
 __vtbl_ptr_type ObjectSignAnim_vtable[3] = {   /* @0x80056088 */
   {0, 0, (int (*)(...))0},                           /* @0x80056088  null */
   {0, 0, (int (*)(...))&___14ObjectSignAnim},          /* @0x80056090  _._14ObjectSignAnim */
-  {0, 0, (int (*)(...))&ObjectSignAnim_Draw},        /* @0x80056098  Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei */
+  {0, 0, (int (*)(...))&ObjectSignAnim::Draw},       /* @0x80056098  Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei */
 };
 __vtbl_ptr_type ObjectFinishedMultiAnim_vtable[3] = {   /* @0x800560d0 */
   {0, 0, (int (*)(...))0},                           /* @0x800560d0  null */
   {0, 0, (int (*)(...))&___23ObjectFinishedMultiAnim}, /* @0x800560d8  _._23ObjectFinishedMultiAnim */
-  {0, 0, (int (*)(...))&ObjectFinishedMultiAnim_Draw}, /* @0x800560e0  Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei */
+  {0, 0, (int (*)(...))&ObjectFinishedMultiAnim::Draw}, /* @0x800560e0  Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei */
 };
 __vtbl_ptr_type ObjectFinishedSignAnim_vtable[3] = {   /* @0x800560a0 */
   {0, 0, (int (*)(...))0},                           /* @0x800560a0  null */
   {0, 0, (int (*)(...))&___22ObjectFinishedSignAnim},  /* @0x800560a8  _._22ObjectFinishedSignAnim */
-  {0, 0, (int (*)(...))&ObjectFinishedSignAnim_Draw}, /* @0x800560b0  Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei */
+  {0, 0, (int (*)(...))&ObjectFinishedSignAnim::Draw}, /* @0x800560b0  Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei */
 };

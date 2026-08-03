@@ -43,11 +43,8 @@ void Object_DeInitIMassObjectInfo(void);
 int Object_GetNumIMassObjects(void);
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions);
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity);
-int ObjectFinishedMultiAnim_Draw(ObjectFinishedMultiAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 ObjectMultiAnim * ObjectMultiAnim_ct(ObjectMultiAnim *pThis,coorddef *impactVel,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, ObjectFinishedMultiAnim *finishedAnim);
-int ObjectFinishedSignAnim_Draw(ObjectFinishedSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int impactAngle,AnimDef *def, Trk_CollideBoomInst *objCollideInstance,Trk_ObjectDef *objDef,Trk_SimObject *simObj, coorddef *roadNormal,ObjectFinishedSignAnim *finishedAnim);
-int ObjectSignAnim_Draw(ObjectSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset);
 extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg);
 extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg);
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg);
@@ -945,7 +942,7 @@ void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orien
 
 /* ---- ObjectFinishedMultiAnim_Draw  [OBJECT.CPP:1160-1161] SLD-VERIFIED ---- */
 
-int ObjectFinishedMultiAnim_Draw(ObjectFinishedMultiAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset)
+int ObjectFinishedMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
   return 2;
@@ -1111,9 +1108,10 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 /* ---- ObjectFinishedSignAnim_Draw  [OBJECT.CPP:1302-1304] SLD-VERIFIED ---- */
 
-int ObjectFinishedSignAnim_Draw(ObjectFinishedSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset)
+int ObjectFinishedSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
+  ObjectFinishedSignAnim *pThis = this;
   
   DrawObjectTransform(Vi,sd,(matrixtdef *)((int)pThis + 4),*(Trk_ObjectDef **)((int)pThis + 0x28),
              (coorddef *)(*(int *)((int)pThis + 0x2c) + 8),offset,-1);
@@ -1221,10 +1219,11 @@ ObjectSignAnim * ObjectSignAnim_ct(ObjectSignAnim *pThis,coorddef *impactVel,int
 
 
 /* ---- ObjectSignAnim_Draw  [OBJECT.CPP:1360-1401] SLD-VERIFIED ---- */
-int ObjectSignAnim_Draw(ObjectSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,int offset)
+int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
-  short i;
+  ObjectSignAnim *pThis = this;
+  int i;
   int ret;
   __vtbl_ptr_type (*pa_Var3) [3];
   Trk_CollideBoomInst *pTVar4;
@@ -1249,16 +1248,17 @@ int ObjectSignAnim_Draw(ObjectSignAnim *pThis,DRender_tView *Vi,Draw_DCache *sd,
     gSimObjAnims[i] = &finishedAnim->_base_ObjectAnim;
     pa_Var3 = (finishedAnim->_base_ObjectAnim)._vf;
     ret = (*(*pa_Var3)[2].pfn)
-                    ((int)(finishedAnim->finalMatrix).m + (int)(*pa_Var3)[2].delta + -4,Vi,sd,offset);
+                    ((int)finishedAnim + (int)(*pa_Var3)[2].delta,Vi,sd,offset);
   }
   else {
     pObjDef = pThis->objDef;
     (pThis->script)->GetTimedAnimPosRot(0, &animcp, &matrix);
     (pThis->script)->GetAnimFrameInfo(&frame, &numFrames);
     pTVar4 = pThis->objCollideInstance;
-    cp.x = pTVar4->x + animcp.x;
-    cp.y = pTVar4->y + animcp.y;
-    cp.z = pTVar4->z + animcp.z;
+    cp = *(coorddef *)&pTVar4->x;
+    cp.x += animcp.x;
+    cp.y += animcp.y;
+    cp.z += animcp.z;
     BuildObjCollisionMatrix((frame << 0x10) / numFrames,pThis->objectAngle,pThis->impactAngle,&matrix);
     DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
     ret = 4;

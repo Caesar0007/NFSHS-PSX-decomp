@@ -1,0 +1,65 @@
+module                               fns  w/$at    $at   fns with $at
+syslib/psx/2mbyte/2mbyte               4      2      4   __SN_ENTRY_POINT:2 stup1:2
+syslib/psx/libapi/COUNTER              3      1      4   StartRCnt:4
+syslib/psx/libapi/FIRST                2      1      2   firstfile:2
+syslib/psx/libc/BSEARCH                1      0      0   
+syslib/psx/libc/MEMCMP                 1      0      0   
+syslib/psx/libc/MEMMOVE                1      0      0   
+syslib/psx/libc/QSORT                  2      0      0   
+syslib/psx/libc/SPRINTF                1      1      4   sprintf:4
+syslib/psx/libcard/CARDINIT            2      0      0   
+syslib/psx/libcd/TYPE                  2      0      0   
+syslib/psx/libcd/cdcont               19      6     24   CdSetDebug:2 CdSyncCallback:2 CdReadyCallback:2 CdControl:6 CdControlF:6 CdControlB:6
+syslib/psx/libcd/cdread                6      0      0   
+syslib/psx/libcd/cdread2               2      1      4   CdRead2:4
+syslib/psx/libcd/drv                  11      6     50   CD_sync:8 CD_ready:8 CD_cw:16 CD_initintr:8 CD_datasync:8 CD_set_test_parmnum:2
+syslib/psx/libcd/event                 5      1      8   CdInit:8
+syslib/psx/libcd/iso9660               5      3     22   CdSearchFile:2 CD_newmedia:14 CD_cachefile:6
+syslib/psx/libcd/stcdint               3      2     88   StCdInterrupt:84 _st_dma:4
+syslib/psx/libcd/stream                4      3     34   StSetStream:16 StClearRing:14 StSetRing:4
+syslib/psx/libcd/streamhelp            6      4     16   StGetNext:2 StFreeRing:2 data_ready_callback:6 StSetMask:6
+syslib/psx/libcd/toc                   2      0      0   
+syslib/psx/libds/DSCB                  2      0      0   
+syslib/psx/libetc/INTR                13      1      6   _intrhand:6
+syslib/psx/libetc/INTR_DMA             4      0      0   
+syslib/psx/libetc/INTR_VB              4      2      4   startIntrVSync:2 startIntrVSync_helper_1:2
+syslib/psx/libetc/VMODE                2      1      2   SetVideoMode:2
+syslib/psx/libetc/VSYNC                2      1      4   VSync:4
+syslib/psx/libgpu/FONT                 2      2     12   FntFlush:4 FntPrint:8
+syslib/psx/libgpu/P34                  1      0      0   
+syslib/psx/libgpu/SYS                 44      9     56   DrawOTag2:4 ResetGraph:4 PutDispEnv:4 _send_gp1:4 _gpu_que_push:20 _gpu_que_drain:4 _reset
+syslib/psx/libgte/COR_01               1      0      0   
+syslib/psx/libgte/COR_02               1      0      0   
+syslib/psx/libgte/COR_03               1      0      0   
+syslib/psx/libgte/FGO_01               1      0      0   
+syslib/psx/libgte/FGO_06               1      0      0   
+syslib/psx/libgte/FOG_01               1      1      4   SetFogNear:4
+syslib/psx/libgte/PATCHGTE             2      2      4   _patch_gte:2 _patch_gte_handler_1:2
+syslib/psx/libmath/ADDDF3              1      0      0   
+syslib/psx/libmath/DIVDF3              2      0      0   
+syslib/psx/libmath/DIVSF3              1      0      0   
+syslib/psx/libmath/EXTSFDF2            1      0      0   
+syslib/psx/libmath/FERR                1      1      4   _err_math:4
+syslib/psx/libmath/FIXDFSI             1      0      0   
+syslib/psx/libmath/FIXSFSI             1      0      0   
+syslib/psx/libmath/FLTSIDF             1      0      0   
+syslib/psx/libmath/FLTSISF             1      0      0   
+syslib/psx/libmath/GTDF2               1      0      0   
+syslib/psx/libmath/LTDF2               1      0      0   
+syslib/psx/libmath/MULDF3              2      0      0   
+syslib/psx/libmath/MULSF3              1      0      0   
+syslib/psx/libmath/TRUDFSF2            1      0      0   
+syslib/psx/libmcrd/BIOS               18     13     84   CD_get_intr:20 funcEvSpIOE:2 funcEvSpError:2 funcEvSpTimeout:2 funcEvSpNewcard:2 funcEvSpI
+syslib/psx/libmcrd/LIBMCRD            26     11     66   MemCardInit:4 MemCardExist_cb:12 MemCardCmd_cb:18 MemCardReadData_cb:4 MemCardWriteData_cb
+syslib/psx/libmcrd/USERFUNC            4      3     14   UserFuncInit:2 UserFuncOpen:6 UserFuncExecute:6
+syslib/psx/libpad/MCXMAIN              5      3     12   _padIntInit:2 _padIntRecvId:4 _padIntRecvData:6
+syslib/psx/libpad/PAD                  2      0      0   
+syslib/psx/libpad/PADCMD              19      1      2   _padLoadActInfo_rcv:2
+syslib/psx/libpad/PADENTRY             8      1      4   PadInfoAct:4
+syslib/psx/libpad/PADMAIN             11      5     26   _padStartCom:4 _padInitSioMode:4 _padSioRW:4 _padVbCallback0:8 _padSioMain:6
+syslib/psx/libpad/PADPORTD             8      3     30   PadInitDirect:22 _pad_failall:4 _pad_filter:4
+syslib/psx/libpad/PADSEQD              5      1      6   _padInitDirSeq:6
+syslib/psx/libpad/WAITRC2              2      1      4   setRC2wait:4
+syslib/psx/libpress/LIBPRESS          12      0      0   
+syslib/psx/libsn/READ                  1      0      0   
+syslib/psx/libsn/WRITE                 1      0      0   

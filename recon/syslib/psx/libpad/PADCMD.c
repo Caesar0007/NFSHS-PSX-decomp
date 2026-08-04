@@ -38,7 +38,7 @@ extern void _padLoadActInfo_rcv(unsigned char *info);
 extern void _padSetActAlign_snd(unsigned char *info);
 extern void _padSetActAlign_rcv(unsigned char *info);
 extern void _padSetMainMode_snd(unsigned char *info);
-extern void _padSetMainMode_rcv(unsigned char *info);
+extern int  _padSetMainMode_rcv(unsigned char *info);
 
 /* =====================  command-byte builders (one DualShock opcode each)  ===================== */
 
@@ -439,11 +439,14 @@ extern int _padSetMainMode(unsigned char *info, int offs, int lock)
 /* @0x80105DD8 : _padSetMainMode_snd.
  * MATCH: goto form → beq/beq/j pattern (not bne/bne fall-through).
  *        info[0x35]=st in case2 delay slot reuses cached v1=st(=2).
- * FLOOR (7 diffs): oracle shares ONE epilogue (`jr ra;nop` @.L80105E24) that the no-match
- * fallthrough and case2 both `j` to; our build TAIL-DUPLICATES a separate `jr ra;nop` at each
- * `goto end;` site instead of sharing the one case3 reaches by fallthrough. Same
- * duplicate-vs-share tail-merge class as chkRC2wait's residual (WAITRC2.c) -- a
- * cross-jump/epilogue-sharing compiler decision, not reachable from goto-based source shape. */
+ * w48-a3: PASS 21/21, refuting the w23-a8 "FLOOR (7 diffs)" note.  The residual was gcc-2.8
+ * jump.c replacing each `j end` with a DUPLICATED `jr ra`, because the `end:` label sat
+ * immediately in front of the return -- retail keeps ONE shared epilogue block (`jr ra; nop`
+ * @.L80105E24) that both the no-match fallthrough and case2 `j` to.  A ZERO-INSTRUCTION
+ * `__asm__ volatile ("")` AT the label makes end:'s block start with a non-return insn, so
+ * jump_optimize leaves both `j`s alone; the asm emits no bytes, so the object is retail's
+ * exactly.  (`"r"(info)` use-fence and a `"memory"` clobber measure identically -- the empty
+ * volatile form is the least invasive.)  Do not delete the asm statement. */
 extern void _padSetMainMode_snd(unsigned char *info)
 {
     int st = info[0x46];    /* lbu; int avoids andi 0xff promotion */
@@ -460,13 +463,26 @@ case3:
     *(unsigned char **)(info + 0x2c) = info + 0x5d;
     info[0x35] = 6;
 end: ;
+    __asm__ volatile ("");   /* MATCH: keeps the shared epilogue -- see header */
 }
 
-/* @0x80105E2C : _padSetMainMode_rcv. */
-extern void _padSetMainMode_rcv(unsigned char *info)
+/* @0x80105E2C : _padSetMainMode_rcv -- w48-a3: PASS 24/24 (was FAIL 19).
+ * TWO reconstruction errors, both read straight off the oracle (§3.2 + §D arm-order):
+ *   (a) it is NOT void -- the oracle stages `addiu $v0,$zero,1` / `addu $v0,$zero,$zero` into the
+ *       return register on the two paths (1 = "already in the requested mode", 0 = otherwise).
+ *       Declaring it void loses both, and costs the $v0 reservation that shapes the whole tail.
+ *   (b) the ARM ORDER was inverted: the oracle's `beqz $v0,.L80105E64` makes the ClrInfo call the
+ *       BRANCH TARGET and the `info[0x53] != 0` case the FALL-THROUGH, i.e. the != arm is the
+ *       if-BODY.  (The callback is still installed through a `void (*)(u_char *)` slot -- the
+ *       return value is simply ignored by the SIO pump, exactly as in retail.) */
+extern int _padSetMainMode_rcv(unsigned char *info)
 {
-    if (info[0x53] == 0)
-        _padFuncClrInfo(info);
-    else if (info[0x46] != 2)
+    if (info[0x53] != 0) {
+        if (info[0x46] == 2)
+            return 1;
         info[0x46] = 0xfe;
+        return 0;
+    }
+    _padFuncClrInfo(info);
+    return 0;
 }

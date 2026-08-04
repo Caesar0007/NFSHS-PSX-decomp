@@ -384,7 +384,7 @@ void _padSetActAlign_snd();   /* PADCMD */
 void _padSetActAlign_rcv();   /* PADCMD */
 void _padSetMainMode();   /* PADCMD */
 void _padSetMainMode_snd();   /* PADCMD */
-void _padSetMainMode_rcv();   /* PADCMD */
+int  _padSetMainMode_rcv();   /* PADCMD -- returns 1 if already in the requested mode, else 0 (w48-a3) */
 void _padCmdParaMode();   /* PADCMD */
 void _padCmdGetStatus();   /* PADCMD */
 void _padCmdSetMap();   /* PADCMD */

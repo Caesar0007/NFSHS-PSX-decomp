@@ -146,3 +146,103 @@ supports `-fno-delayed-branch`. **SPEC for a9/the consolidator: generalize `_app
 from a fixed flag to a per-function FLAG LIST** (`PER_FN_FLAGS = {tu: {fn: [flags]}}`); the
 machinery (dual compile, `.ent/.end` region extract, local-label uniquify) is already there and
 flag-agnostic. That would make the prologue-order dial reachable for the whole syslib class.
+
+---
+
+## 4. FALSIFICATIONS (numbers + basin; every one re-measured in THIS wave's basin)
+
+**F1 — CdDiskReady's speculative delay-slot fills (5 diffs, ours 78 / oracle 79).**
+Ours puts `li v0,5` and `li v0,2` in two branch delay slots where the oracle has `nop` + separate
+return blocks (reorg eager-steal). Basin = the post-w24 named-`ready` form. Falsified, TU-gated:
+current **5** · w45 use-fence before the tests **5** · fence after `ready=` **7** (80 insns) ·
+plain `if (cc != 0)` without the named temp **23** · single result-funnel `int r = 5; if (...) r = 2;`
+**8** (count-exact 79/79). ⇒ named-`ready` + literal returns is the local optimum; the residual is a
+`fill_simple_delay_slots` steal, next angle = the w46 backward-scan-window-TAIL positioning
+(a3/iSNDallocchan) or an independently-eligible candidate at the block head, NOT another spelling.
+
+**F2 — CD_flush's `Intr.sync = 2` store (17 diffs, ours 54 / oracle 53).**
+Oracle keeps `&Intr` in `$v1` and stores ALL THREE fields by displacement (`sb ...,0/1/2($v1)`);
+ours emits `lui $at; sb $v0,0($at)` for the offset-0 field only, and swaps the ready/sync store
+order. **Offset 0 folds back to the symbol no matter how it is spelled** — four source shapes are
+BYTE-IDENTICAL (`intr->sync=2` · byte-pointer view `b[0]=2` · volatile-cast store · statement
+reorder), all 17. The w47 opacity fence makes it strictly worse: fence on `intr` **21**, fence
+before the sync store **24** (55 insns), fence after the ready store **24**. ⇒ NEW NAMED RULE:
+*a hoisted `T *p = &G;` base survives for NON-ZERO field offsets but gcc-2.8 always re-folds the
+offset-0 access back to the `$at` symbol macro.* Next angle = make the base value not provably
+`&G` at the store (an opaque producer that is not a fence, e.g. a base computed from a
+different-spelled expression), or the allocator side.
+
+**F3 — `-fno-schedule-insns2` as a TU flag on libcd.** TYPE 59->69 · cdcont 281->323 with
+**PASS 10 -> 6** · toc 93->98 · event 64->58 · drv unchanged. Rejected TU-wide; it IS the correct
+per-FUNCTION dial for the prologue `sw ra` position (see §3 PER_FN_FLAGS spec).
+
+**F4 — `-msplit-addresses` / `-mgas` / `-mno-split-addresses` / `-mno-gpOPT` / `-G0` / `-O1` on
+cdcont.c**: `la $2,CD_pos` and `lw $2,CD_debug` are emitted as ASSEMBLER MACROS in all of them
+(byte-identical cc1 output). `-mno-gas` is not even a valid CC1PSX option. ⇒ the `$at`/macro form
+is not a cc1 dial; §1's assembler verdict stands.
+
+**F5 — CdInit branch polarity.** After the goto-loop lever (19 diffs) the residual is that retail
+lays the SUCCESS arm out as the loop's fall-through (`bne v0,v1,<decrement>`, `li v0,1` in the
+delay slot) while ours branches TO it. `if (...) goto fail;` with the fail block written LAST is
+**byte-identical** to the `== 1` form (19 both) — gcc-2.8's jump-opt canonicalization (catalog §F
+row). A shared-return-variable funnel is worse (36). Angle left: the block order is decided post-
+reload by `cross_jump`/`jump.c`, so it is an ALLOCATION-then-layout problem (w44 law: fix the
+rotation first), not a spelling problem.
+
+**F6 — cd_cw loop spelling sweep (basin: pre-sentinel).** `while(count--)` **281 TU** ·
+`for(count=3;count!=-1;count--)` literal **281** · named sentinel in three declaration positions
+(before `old`, after `old`, after `count`) all **271** — declaration ORDER is inert here, only the
+NAMING matters.
+
+---
+
+## 5. PER-FUNCTION LEDGER (27 fns; re-gated baseline -> landed; + open angle)
+
+| fn | TU | base | now | class / next angle |
+|---|---|---|---|---|
+| CD_getsector | drv | **PASS** | **PASS** | worklist said 99.92% — already PASS |
+| CdLastPos | cdcont | 3 | 3 | §1 AT-MACRO-SPLIT (no jal; splice is a proven no-op) |
+| CdSetDebug | cdcont | 3 | 3 | §1 AT-MACRO-SPLIT |
+| CdSyncCallback | cdcont | 3 | 3 | §1 AT-MACRO-SPLIT |
+| CdReadyCallback | cdcont | 3 | 3 | §1 AT-MACRO-SPLIT |
+| CD_set_test_parmnum | drv | 3 | 3 | §1 AT-MACRO-SPLIT |
+| CdDataCallback | cdcont | 6 | 6 | §1d epilogue — **5 with per-fn nodb (§3)** |
+| CdGetToc | toc | 6 | 6 | §1d epilogue — **5 with per-fn nodb (§3)** |
+| _cd_event_sync/_ready/_read | event | 6/6/6 | 6/6/6 | §1d — **5 each with per-fn nodb (§3)** |
+| _cd_event_init | event | 4 | 4 | §1d — **3 with per-fn nodb (§3)** |
+| CD_initintr | drv | 15 | 15 | L4 landed; **6 with per-fn nodb (§3)** |
+| CdDiskReady | TYPE | 5 | 5 | F1 reorg eager-steal; backward-scan-window angle |
+| CD_flush | drv | 17 | 17 | F2 offset-0 refold; opaque-base angle |
+| CdInit | event | 42 | **19** | L2+L3 landed; F5 layout-after-rotation |
+| _cd_intr_dispatch | drv | 25 | 25 | 53/54 — one missing insn + jtbl dispatch; unexamined |
+| CdGetDiskType | TYPE | 54 | 54 | frame 2088 vs 2096 + an EXTRA oracle saved reg (s1) and a `li s1,1` loop constant: same LICM/sentinel family as CdInit L1/L3 — **highest-value untried lever in my scope** |
+| CD_datasync | drv | 61 | 61 | 89/90; nodb REGRESSES (102) |
+| CdControl | cdcont | 62 | **60** | L1; residual = pure prologue register ROTATION (retail s1=param,s2=result,s4=com,s3=com&255,s5=old vs ours s4,s5,s2,s1,s3) — count-EXACT 79/79, allocsim/reqdelta territory |
+| CdControlF | cdcont | 67 | **63** | same rotation |
+| CdControlB | cdcont | 69 | **65** | same rotation |
+| CdIntToPos | cdcont | 65 | 65 | 64/65; magic-divide chain, retail stores second BEFORE minute and interleaves the two `mult`s differently |
+| CdGetToc2 | toc | 87 | 87 | 134/137; unexamined |
+| CD_sync | drv | 106 | 106 | count-EXACT 160/160 — full saved-reg rotation (retail s6=a0,s7=a1,fp/s4=addresses,s5=x+1,s3=2); nodb REGRESSES (148) |
+| CD_ready | drv | 131 | 131 | 175/178; same family; nodb REGRESSES (161) |
+| CD_cw | drv | 261 | 261 | 256/259; largest; unexamined |
+
+**NO-FLOORS accounting:** 0 of the 27 is filed as a terminal floor. 6 carry the newly-NAMED
+`AT-MACRO-SPLIT-ACROSS-BRANCH` assembler-identity class (§1, with the falsification receipts that
+retire the old catalog premise), 6 more carry the separable §1d epilogue class with a measured
+per-fn flag that improves each of them, and the rest carry named source/allocator angles.
+
+---
+
+## 6. FOR a9 / a10 (TU-wide signatures observed)
+- **a10:** §1 is a full real-ASPSX differential for the *macro* case and for the RETURN branch —
+  both new relative to 04C, and both NEGATIVE. Plus the positive: **GNU as DOES backward-fill
+  single-word insns in `.set reorder`**, which maspsx suppresses. The retail lib assembler is a
+  THIRD tool. Recommend a10 re-check `psq45/BIN/ASPSX.EXE` and any pre-2.5x SN assembler against
+  my 5 test inputs (kept at `%LOCALAPPDATA%\Temp\w48a5\t{1..9,a}.s`, CRLF — aspsx rejects LF with
+  *"Illegal character (10)"*).
+- **a9:** the libcd TU signature is NOT `-O`/`-G`/`char`-sign/`split-addresses`. It is
+  (a) the §1d epilogue+prologue TEXT-vs-RTL shape (my old-gcc hypothesis) and (b) per-function
+  delayed-branch. `-fno-schedule-insns2` reproduces retail's prologue order exactly but is a
+  net loss TU-wide (F3) => the deliverable a9 should push is the **PER_FN_FLAGS generalization**
+  of `_apply_fn_splice` (§3), not a TU flag.
+- No runtime/correctness bug found in these 27 (L4 is a faithfulness fix, not a behaviour bug).

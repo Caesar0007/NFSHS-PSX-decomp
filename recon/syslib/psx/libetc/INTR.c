@@ -231,15 +231,20 @@ extern IntrState *StopCallback(void)   /* @0x800F2D58 */
 
 extern int RestartCallback(void)       /* @0x800F2DF8 */
 {
-    if (g_intr.inited == 0) {
-        HookEntryInt(g_intr.jmpbuf);
-        g_intr.inited = 1;
-        I_MASK = g_intr.saved_imask;
-        DPCR   = g_intr.saved_dpcr;
-        ExitCriticalSection();
-        return (int)&g_intr;
-    }
-    return 0;
+    /* MATCH (w48-a7) branch POLARITY: the oracle skips AWAY on the already-running case
+     * (`bnez $v0,.L800F2E5C`) and falls straight through into the body, with the `return 0`
+     * block out-of-line just before the epilogue.  The `if (inited == 0) {body} return 0;`
+     * spelling inverts that (beqz to the body, `return 0` inline right after the test). */
+    if (g_intr.inited != 0)
+        return 0;
+    HookEntryInt(g_intr.jmpbuf);
+    g_intr.inited = 1;
+    I_MASK = g_intr.saved_imask;
+    /* MATCH (methodology 3.25-3c): this store sits in the `jal ExitCriticalSection` DELAY SLOT
+     * in the oracle; reorg will not slot-fill a volatile MEM, so the store side drops volatile. */
+    *(unsigned int *)g_dpcr_ptr = g_intr.saved_dpcr;
+    ExitCriticalSection();
+    return (int)&g_intr;
 }
 
  IntrState g_intr;   /* owning-TU def (BSS) -- at EOF for type visibility */

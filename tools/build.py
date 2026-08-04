@@ -157,6 +157,30 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # 2026-08-04G -G8 PROBE QUEUE (w47-a7 census S7, 20 objects gated inline):
+    # these 7 TUs meet the a8 wiring bar -- net diff improvement + ZERO PASS
+    # regressions + reproduced 2x -- under g_value 8 (= CC1PSX's DEFAULT when a
+    # makefile passes no -G at all, per w47-a10 H2).  Whole-TU gate deltas:
+    #   copspeak  24->27 PASS, 28->0 diffs (TU SEALED: RadioStaticInit/Active/Squelch)
+    #   audioeng   5->7  PASS, 62->50    (AudioEng_Pause + AudioEng_CleanUp)
+    #   input      4->6  PASS, 69->39    (Input_StartUp + Input_WingCommandMode)
+    #   hudpmx     21->5 diffs           nfs3 128->119   r3dcar 186->183   weather 106->104
+    # NOT wired from the same queue -- gate evidence AGAINST -G8 (PASS regressions):
+    # replay (+158 diffs, 4 regr), audiocmn (-61 but 1 regr), simqueue (1 conv/1 regr),
+    # draww (1 conv/2 regr); G5/G6/G7 ladder identical to G4 on all three mixed TUs
+    # (the sensitive symbols are exactly 8 bytes -- their oracles MIX gp-rel and
+    # absolute 8-byte refs, so no single -G value fits).  INERT (no gate delta, left
+    # at default): aih_play, dashhud, mpause, render, hrzsku, overlays,
+    # psxcontroller, textureprocess.  Receipts: scratch/w47_a7_census.md S7.
+    "recon/game/common/audioeng.cpp":       {"g_value": "8"},
+    "recon/game/common/copspeak.cpp":       {"g_value": "8"},
+    "recon/game/common/input.cpp":          {"g_value": "8"},
+    "recon/game/common/hudpmx.cpp":         {"g_value": "8"},
+    "recon/game/common/nfs3.cpp":           {"g_value": "8"},
+    "recon/game/psx/weather.cpp":           {"g_value": "8"},
+    # (r3dcar's g_value 8 lives on its existing jtbl_at_fusion entry below --
+    # PER_TU_FLAGS is a dict literal, a duplicate key would silently discard
+    # the earlier entry.)
     # screencontroller.obj addresses its three 4-byte flare-state objects with
     # full %hi/%lo sequences in retail, proving they were outside small data.
     # Whole-TU gate: DrawController 886->805, SetActuators 29->19,
@@ -255,7 +279,8 @@ PER_TU_FLAGS = {
     "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
-    "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True},  # R3DCar_InsertCarFacet
+    "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True,   # R3DCar_InsertCarFacet
+                                             "g_value": "8"},          # 2026-08-04G -G8 queue
     # NOTE (w38-a5): sfx.cpp does NOT want jtbl_at_fusion -- BOTH of its switch
     # dispatches (Sfx_BuildSouffleFacet@jtbl_8005699C, Sfx_Add@jtbl_800569D4)
     # use the SPLIT-address form in the oracle

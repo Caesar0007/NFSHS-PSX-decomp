@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2744 at 100% (78.5%)
+TOTAL: 3496 functions, 2751 at 100% (78.7%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ VA             %match  unit                     function
 0x80018520    100.00%  frontend/common/fecars   ___21tListIteratorCarColor
 0x80018548    100.00%  frontend/common/fecars   Value__21tListIteratorCarColor7tPlayer
 0x800185A8    100.00%  frontend/common/fecars   TextValue__21tListIteratorCarColor7tPlayer
-0x800185B0     81.00%  frontend/common/fecars   Increment__21tListIteratorCarColor7tPlayer
+0x800185B0     96.84%  frontend/common/fecars   Increment__21tListIteratorCarColor7tPlayer
 0x80018648    100.00%  frontend/common/fecars   Decrement__21tListIteratorCarColor7tPlayer
 0x800186C8    100.00%  frontend/common/fedialog ShouldTimeOut__11tDialogBase
 0x80018700    100.00%  frontend/common/fedialog InitializeClass__11tDialogBase
@@ -1455,15 +1455,15 @@ VA             %match  unit                     function
 0x8007B46C    100.00%  game/common/audiomus     AudioMus_AutoVolume__Fii
 0x8007B52C    100.00%  game/common/audedit      AudList_PurgeAudio__Fv
 0x8007B554    100.00%  game/common/audedit      AudList_LoadAudioFile__Fi
-0x8007B5A8     89.82%  game/common/audioeng     AudioEng_Set__Fiiiiiiii
-0x8007B824     98.05%  game/common/audioeng     AudioEng_Update__Fv
+0x8007B5A8     91.08%  game/common/audioeng     AudioEng_Set__Fiiiiiiii
+0x8007B824     98.60%  game/common/audioeng     AudioEng_Update__Fv
 0x8007BDDC    100.00%  game/common/audioeng     AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef
 0x8007BE54    100.00%  game/common/audioeng     AudioEng_StartUp__FiPc
 0x8007C434    100.00%  game/common/audioeng     AudioEng_StartServer__Fv
 0x8007C458    100.00%  game/common/audioeng     AudioEng_StopServer__Fv
-0x8007C47C     99.77%  game/common/audioeng     AudioEng_Pause__Fv
+0x8007C47C    100.00%  game/common/audioeng     AudioEng_Pause__Fv
 0x8007C52C    100.00%  game/common/audioeng     AudioEng_Resume__Fv
-0x8007C534     96.25%  game/common/audioeng     AudioEng_CleanUp__Fv
+0x8007C534    100.00%  game/common/audioeng     AudioEng_CleanUp__Fv
 0x8007C614    100.00%  game/common/audiotrk     AudioTrk_Reset__Fv
 0x8007C6F4    100.00%  game/common/audiotrk     AudioTrk_StartUp__Fv
 0x8007C750     98.31%  game/common/audiotrk     AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji
@@ -1616,7 +1616,7 @@ VA             %match  unit                     function
 0x80091FDC    100.00%  game/common/control      Control_AI__FP8Car_tObj
 0x80091FE4    100.00%  game/common/control      Control_Human__FP8Car_tObj
 0x80092464    100.00%  game/common/hudpmx       HudPmx_LoadShape__FPcP13HudPmx_tShape
-0x800924DC     98.92%  game/common/hudpmx       HudPmx_InitTextures__Fv
+0x800924DC     99.46%  game/common/hudpmx       HudPmx_InitTextures__Fv
 0x80092F30    100.00%  game/common/hudpmx       HudPmx_Kill__Fv
 0x80092F54    100.00%  game/common/spchevnt     SPCHNFS_C_A_CONFIRM
 0x80092FA8    100.00%  game/common/spchevnt     SPCHNFS_C_D_REQUEST_EMS
@@ -1773,9 +1773,9 @@ VA             %match  unit                     function
 0x800993C4    100.00%  game/common/speech       KnownPerp__Q26Speech7SpeakerP8Car_tObj
 0x800993CC    100.00%  game/common/speech       Unit__Q26Speech7Speaker
 0x800993D4    100.00%  game/common/speech       Status__Q26Speech7Speaker
-0x800993DC     99.33%  game/common/copspeak     CopSpeak_RadioStaticInit__Fv
-0x80099418     92.43%  game/common/copspeak     CopSpeak_RadioStaticActive__Fi
-0x80099588     91.92%  game/common/copspeak     CopSpeak_RadioStaticSquelch__Fv
+0x800993DC    100.00%  game/common/copspeak     CopSpeak_RadioStaticInit__Fv
+0x80099418    100.00%  game/common/copspeak     CopSpeak_RadioStaticActive__Fi
+0x80099588    100.00%  game/common/copspeak     CopSpeak_RadioStaticSquelch__Fv
 0x800995F0    100.00%  game/common/copspeak     CopSpeak_InitRequest__FP17CopSpeak_tRequest
 0x80099620    100.00%  game/common/copspeak     CopSpeak_SilenceCop__FP8Car_tObji
 0x80099684    100.00%  game/common/copspeak     CopSpeak_Alloc__FP17CopSpeak_tRequest
@@ -1817,10 +1817,10 @@ VA             %match  unit                     function
 0x8009C204    100.00%  game/common/group        LocateCreateGroupType__15SerializedGroupiP9SimpleMemi
 0x8009C27C    100.00%  game/common/group        CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem
 0x8009C2E4    100.00%  game/common/group        CreateLiteGroupDataSize__15SerializedGroupP15SerializedGroupP9SimpleMemi
-0x8009C344     99.80%  game/common/input        Input_StartUp__Fv
-0x8009C408     85.71%  game/common/input        Input_WingCommandMode__Fi
-0x8009C478     97.13%  game/common/input        Input_Update__Fv
-0x8009D208     70.86%  game/common/input        Input_Store__Fv
+0x8009C344    100.00%  game/common/input        Input_StartUp__Fv
+0x8009C408    100.00%  game/common/input        Input_WingCommandMode__Fi
+0x8009C478     97.63%  game/common/input        Input_Update__Fv
+0x8009D208     95.43%  game/common/input        Input_Store__Fv
 0x8009D294    100.00%  game/common/input        Input_Fetch__Fi
 0x8009D2BC    100.00%  game/common/input        Input_Gear__Fci
 0x8009D318    100.00%  game/common/input        Input_Interface__FUli
@@ -1891,7 +1891,7 @@ VA             %match  unit                     function
 0x800A454C    100.00%  game/common/nfs3         LoadOverlay__Fv
 0x800A45B8    100.00%  game/common/nfs3         NFS4_LoadingIcon__Fv
 0x800A46DC     43.10%  game/common/nfs3         NFS3_CheckForFileOperations__Fv
-0x800A4730     93.03%  game/common/nfs3         main
+0x800A4730     95.14%  game/common/nfs3         main
 0x800A4AE4    100.00%  game/common/object       CalcObjYawAngle__FP8CCOORD16
 0x800A4B1C    100.00%  game/common/object       CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat
 0x800A4BE8    100.00%  game/common/object       BuildObjCollisionMatrix__FiiiP10matrixtdef
@@ -2035,11 +2035,11 @@ VA             %match  unit                     function
 0x800AFAF4    100.00%  game/common/r3dcar       R3DCar_TurnHeadLightOn__FP8Car_tObji
 0x800AFB54    100.00%  game/common/r3dcar       R3DCar_TurnHeadLightOff__FP8Car_tObji
 0x800AFBA8    100.00%  game/common/r3dcar       R3DCar_MATRIX3DT_Copy__FPiT0
-0x800AFBD0     98.21%  game/common/r3dcar       R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView
+0x800AFBD0     98.38%  game/common/r3dcar       R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView
 0x800B0DB0    100.00%  game/common/r3dcar       R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii
 0x800B10FC     99.57%  game/common/r3dcar       R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView
 0x800B2174    100.00%  game/common/r3dcar       R3DCar_InsertCarFacetII__FP8Car_tObj
-0x800B2760     98.04%  game/common/r3dcar       R3DCar_InsertCarFacetMenuII__FP8Car_tObji
+0x800B2760     98.41%  game/common/r3dcar       R3DCar_InsertCarFacetMenuII__FP8Car_tObji
 0x800B2B88    100.00%  game/common/r3dcar       R3DCar_Showroom__FP13DRender_tView
 0x800B2BD8    100.00%  game/common/r3dcar       R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView
 0x800B2BF8    100.00%  game/common/r3dcar       R3DCar_InsertAllListFacet__FP13DRender_tView
@@ -2563,7 +2563,7 @@ VA             %match  unit                     function
 0x800E356C     88.94%  game/psx/weather         Weather_CreateRain__FP7SVECTORP7DVECTORPc
 0x800E3730    100.00%  game/psx/weather         Weather_CreateSplat__FP18Weather_tSplatInfo
 0x800E3858     96.84%  game/psx/weather         Weather_DoSplats__FiP18Weather_tSplatInfo
-0x800E3A1C     96.02%  game/psx/weather         Weather_DoWeather__FP13DRender_tView
+0x800E3A1C     97.03%  game/psx/weather         Weather_DoWeather__FP13DRender_tView
 0x800E3D30    100.00%  game/psx/weather         Weather_BuildWeather__FP13DRender_tView
 0x800E3D8C    100.00%  game/psx/textpix         textnpixels
 0x800E3E20    100.00%  game/psx/textpix         textpixels

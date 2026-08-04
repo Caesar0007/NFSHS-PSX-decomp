@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2776 at 100% (79.4%)
+TOTAL: 3496 functions, 2777 at 100% (79.4%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -1096,7 +1096,7 @@ VA             %match  unit                     function
 0x80065944     96.48%  game/common/aih_cop      CheckForNewTriggers__10AIHigh_Cop
 0x80065C6C    100.00%  game/common/aih_cop      ___10AIHigh_Cop
 0x80065C8C    100.00%  game/common/aih_traf     CheckForCops__14AIHigh_TrafficPi
-0x80065D60     98.43%  game/common/aih_traf     CopCheck__14AIHigh_TrafficPi
+0x80065D60    100.00%  game/common/aih_traf     CopCheck__14AIHigh_TrafficPi
 0x80065E6C    100.00%  game/common/aih_traf     HighExecute__14AIHigh_Traffic
 0x800666F8    100.00%  game/common/aih_traf     __14AIHigh_TrafficP8Car_tObj
 0x80066738    100.00%  game/common/aih_traf     CheckForNewTriggers__14AIHigh_Traffic

@@ -1376,26 +1376,14 @@ int tListIteratorCarColor::Increment(tPlayer arg1)
 void tListIteratorCarColor::Decrement(tPlayer arg1)
 
 {
-  int iVar1;
-  u_int uVar2;
-  u_char *pbVar3;
   tCarInfo *carInfo;
+  u_int fNumColors_offset;
+  u_int fNumColors;
 
-  iVar1 = (u_int)(u_char)*this->fPlayer * this->fIndexSize;
-  carInfo = this->fCarManager->fCars + (u_char)this->fPlayerCar[(u_char)*this->fPlayer];
-  pbVar3 = (u_char *)(iVar1 + (int)(signed char)carInfo->fCarID + this->fValue);
-  uVar2 = (u_int)*pbVar3;
-  if (uVar2 == 0) {
-    /* GCC weights the first load inside this phony loop, giving it retail's $v0. */
-    u_int lightColors;
-    do {
-      lightColors = *(volatile u_char *)&carInfo->fNumLightColors;
-    } while (0);
-    u_int darkColors = *(volatile u_char *)&carInfo->fNumDarkColors;
-    uVar2 = lightColors;
-    uVar2 += darkColors;
-  }
-  *pbVar3 = (u_char)(uVar2 - 1);
+  carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
+  fNumColors_offset = *fPlayer * fIndexSize + (signed char)carInfo->fCarID;
+  fNumColors = fValue[fNumColors_offset];
+  fValue[fNumColors_offset] = fNumColors == 0 ? carInfo->fNumLightColors + carInfo->fNumDarkColors - 1 : fNumColors - 1;
 }
 
 

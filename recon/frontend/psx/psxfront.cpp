@@ -1406,6 +1406,12 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   arms are textually identical apart from a term that re-reads `src+0xc`.  Second, cheaper
    *   route: shorten p128's LIVE range instead of raising its refs (.1429 -> >.32 needs live
    *   21 -> <=9), i.e. move the tpage word's two uses adjacent to the read.
+   *   2026-08-05 #E round 3: the w47 IDENTITY FENCE on a named src2 (the one cse-proof
+   *   +1-ref device the earlier probes predate) = 78@82 -- the mono-block bluntness
+   *   holds for ALL fence modes (use/opacity/identity) at every placement tried; the
+   *   fence family is EXHAUSTED on this fn.  Remaining route = the #E' instruments
+   *   ONLY: qtytrace --want p128=a1 solver, or the instrumented-cc1 [qty_order]/
+   *   [find_free_reg] traced run (Font is lab-byte-identical; its trace is a receipt).
    *   2026-08-03 ANGLE #E FALSIFIED AS SPELLED (48 basin, 4 probes): fence-before-tpage
    *   "r"(prim) 108 / "r"(src) 74 / fence-after 110 / cross-jump duplicate if(width) 143@81.
    *   MECHANISM: in a mono-block 50-qty function the fence is TOO BLUNT -- it pins every

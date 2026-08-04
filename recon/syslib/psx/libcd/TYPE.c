@@ -73,7 +73,11 @@ extern int CdGetDiskType(void)
     CdControl(1, 0, result);                        /* CdlNop -> status */
     if (result[0] & 0x10) return 16;
 
-    CdIntToPos(16, locp);                           /* position of sector 16 (ISO PVD) */
+    /* MATCH (w47 opacity/identity fence, ZERO insns): `locp` sits at sp+16 and the sector
+     * number is also 16, so cse forwards the live `li a0,16` into the address computation
+     * (`addu a1,sp,a0`) where retail rematerializes `addiu a1,sp,16`.  The fence makes the
+     * value opaque to cse at zero instruction cost.  5 -> 3 diffs. */
+    { int sec = 16; __asm__("" : "=r"(sec) : "0"(sec)); CdIntToPos(sec, locp); } /* sector 16 = ISO PVD */
     CdControl(27, locp, 0);                          /* CdlReadS from locp */
 
     /* w24-a10: explicit goto-retry (not a for-loop with a post-loop `if(rdy==1)` re-check) --

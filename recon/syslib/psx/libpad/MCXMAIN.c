@@ -49,11 +49,24 @@ static int _padMtapCount ST_BSS;                       /* @0x8013C308 */
 static int _padMtapDataReg ST_DATA = 0x1F801040;        /* @0x8013C30C : JOY_DATA mmio base (real image bytes) */
 static int _padMtapFlag ST_BSS;                         /* @0x8013C310 */
 
-/* @0x8010C0A8 : _padIntInit -- begin the exchange (issue 0x01 select). */
+/* @0x8010C0A8 : _padIntInit -- begin the exchange (issue 0x01 select).
+ * MATCH (w48-a4, 6 -> PASS 18/18): NAMED TEMPS + LOAD-BEFORE-STORE ORDER.  The oracle loads the
+ * rx pointer into $v1 (`lw $v1,0x3C($s0)`) and sets $a1 BEFORE storing the call's return value to
+ * _padMtapFlag, so $v0 still holds that return value when the store macro runs.  Writing the store
+ * as the first statement (`_padMtapFlag = _padFuncSendAuto(info);`) frees $v0 early and gcc then
+ * reloads the rx pointer INTO $v0 after the store -- same 18 instructions, wrong order and wrong
+ * register.  Splitting the call result and the deref into named locals and placing the deref
+ * BEFORE the global store reproduces the oracle exactly.  (Catalog: "load-before-store ordering
+ * steers the backward scan"; the `sb $zero,0($v1)` is the jal's delay slot on both sides.)
+ * Falsified: `*rx = 0;` before the flag store (5 diffs @19/18, an extra insn); rx as a bare local
+ * with the flag store still first (6). */
 extern int _padIntInit(unsigned char *info)
 {
-    _padMtapFlag = _padFuncSendAuto(info);
-    *(*(unsigned char **)(info + 0x3c)) = 0;
+    int flag = _padFuncSendAuto(info);
+    unsigned char *rx = *(unsigned char **)(info + 0x3c);
+
+    _padMtapFlag = flag;
+    *rx = 0;
     return (int)_padSioRW(info, 0xfffffffe);
 }
 

@@ -43,52 +43,80 @@ extern void _padInitDirSeq(void)
 }
 
 /* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
- * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction. */
-/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
- * FLOOR: lhu fixed (lever1). beq delay-slot has nop vs oracle addu v0,0,0 (5 diffs). Scheduling floor.
- * 4 levers used: ||, DeMorgan, if/else, ternary. */
+ * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction.
+ * MATCH (w48-a4): the "5-diff scheduling floor" note below was WRONG -- it was a STRUCTURE miss.
+ *   The old `if (A || B) return 1; return 0;` shape emits TWO `jr ra` blocks (12 insns); the oracle
+ *   has ONE shared epilogue reached from both arms, i.e. the source is the De-Morgan EARLY-OUT
+ *   `if (!A && !B) return 0; return 1;` (11/11 count-exact, 6 diffs).  MATCH: `int ff = 0xff;`
+ *   (catalog NAMED-ONE) then moves the byte load onto the oracle's $v1 (6 -> 4).
+ * RESIDUAL 4 (2 lines): ours `li a1,255 / beq v1,a1` vs oracle `li v0,255 / beq v1,v0`.
+ *   NOT a priority dial -- `-dg` shows the constant's allocno literally `81 conflicts: 80 81 2 3 29`,
+ *   i.e. a HARD-REG conflict with $v0(2) that no ref/live dial can move (reqdelta class:
+ *   conflict-set, w46 "a hard-reg conflict beats every allocno dial").  Falsified at this basin:
+ *   yoda-compare (6), nested-if block scope (6), (int) cast (6), byte-local (12), decl-after-guard
+ *   (12), word/const SHARED pseudo -- in-place reuse, all 3 spellings put the merged pseudo in $a1
+ *   (8), opacity fence on ff (5 @12 insns), fence in the nested-reuse form (8), pre-loaded byte
+ *   local (8 @9 insns).  NEXT ANGLE: find what puts hard $v0 in the constant's conflict set
+ *   (global.c record_conflicts around the two return-value sets) -- retail's constant IS $v0. */
 extern int _dirCheck(unsigned char *info)
 {
-    if (*(unsigned short *)(info + 0xe6) == 0 || info[0x46] != 0xff)
-        return 1;
-    return 0;
+    int ff = 0xff;
+    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == ff)
+        return 0;
+    return 1;
 }
 
-/* @0x8010A0E4 : _dirSendAuto (_padFuncSendAuto) -- emit the next request for the current state. */
+/* @0x8010A0E4 : _dirSendAuto (_padFuncSendAuto) -- emit the next request for the current state.
+ * MATCH (w48-a4, 32 -> PASS 64/64).  Two facts:
+ *  (1) the state dispatch is a REAL `switch (st)` over {0, 1, 0xfe, 0xff}.  The oracle's tree is
+ *      gcc-2.8 balance_case_nodes on 4 nodes: root `beq $v1,1` + bound test `slti $v1,2` in its
+ *      delay slot, left leaf `beqz $v1` (case 0), right pair `beq 0xFE` / `beq 0xFF`, every body
+ *      out-of-line, cases 0 and 0xff having NO body (straight to the shared `return 0`).  The
+ *      if/else-if cascade inverts three of those branches (32 diffs).  The `default: break;`
+ *      label and putting the `!= 0` fn-pointer arm FIRST are both load-bearing (8 diffs without).
+ *  (2) the `_padFuncClrInfo` call: retail emits a REDUNDANT `addu $a0,$s0,$zero` copy of `info`
+ *      into the jalr's delay slot even though $a0 still holds it; our cc1 copy-propagates the
+ *      copy away and leaves `nop` (the methodology 3.25-3b "old-gcc no-copy-prop" identity /
+ *      w47 delete_noop_moves law).  The w47 OPACITY FENCE `__asm__("" : "=r"(x) : "0"(x))` is
+ *      the zero-instruction modelling device for exactly this: the "0" constraint pins output to
+ *      input so NO code is emitted, but cse/copy-prop can no longer prove `info` == the incoming
+ *      $a0, so the copy survives.  DO NOT DELETE IT -- removing it costs the match (2 diffs).
+ *      A plain local copy (`p = info;`) does not work: it is propagated away (2 diffs). */
 extern int _dirSendAuto(unsigned char *info)
 {
     unsigned char st;
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
 
     if (rx[0] == (unsigned char)0xf3) {          /* controller present */
-        if (info[0xe8] == 0)                     /* unconfigured: shares the st==0xfe call site below */
+        if (info[0xe8] == 0)                     /* unconfigured: shares the st==0xfe call site */
             goto reenter_cfgmode;
-        if (info[0x49] == 2)
+        if (info[0x49] == 2) {
+            /* MATCH: keeps retail's redundant `addu $a0,$s0,$zero` in the jalr delay slot */
+            __asm__("" : "=r"(info) : "0"(info));
             _padFuncClrInfo(info);
-        /* fall through to the state dispatch */
+        }
     }
 
     st = info[0x46];
-    if (st == 1) {
+    switch (st) {
+    case 1:
         _padCmdParaMode(info, 1);
         return 0;
+    case 0:
+        return 0;
+    case 0xfe:
+    reenter_cfgmode:
+        _padCmdParaMode(info, 0);
+        return 0;
+    case 0xff:
+        return 0;
+    default:
+        break;
     }
-    if (st < 2) {
-        if (st == 0)
-            return 0;
-    } else {
-        if (st == 0xfe) {
-        reenter_cfgmode:
-            _padCmdParaMode(info, 0);
-            return 0;
-        }
-        if (st == 0xff)
-            return 0;
-    }
-    if (*(void **)(info + 0x14) == 0)
-        _padSendAtLoadInfo(info);
-    else
+    if (*(void **)(info + 0x14) != 0)
         (*(PadSnd *)(info + 0x14))(info);
+    else
+        _padSendAtLoadInfo(info);
     return 0;
 }
 
@@ -154,41 +182,64 @@ extern unsigned _dirRecvAuto(unsigned char *info)
     return r;
 }
 
-/* @0x8010A434 : _dirFailAuto -- a poll produced no usable reply; retry or give up. */
+/* @0x8010A434 : _dirFailAuto -- a poll produced no usable reply; retry or give up.
+ * MATCH (w48-a4, 65 -> 3 diffs @56/55).  Four structural facts read off the oracle:
+ *  (1) ARM ORDER / POLARITY: `beqz $v1,.L8010A4CC` sends st==0 to the reset block, which sits
+ *      OUT-OF-LINE at the END; the retry arms are the fall-through.  The old `if (st == 0)`-first
+ *      shape inlined the reset block and inverted three branches.
+ *  (2) `rx` IS READ AT ITS USE SITE, not at the top: the oracle loads `lw $v0,0x3C($s0)` inside
+ *      the reset block.  Hoisting it to a function-scope local made it live across the
+ *      _padFuncClrInfo call -> an extra callee-saved register and a 0x20 frame (retail: 0x18).
+ *  (3) `cnt = info[0x4a]` is loaded SEPARATELY IN EACH ARM (two `lbu $v1,0x4A($s0)` in the
+ *      oracle); one shared load before the if costs the match.  The two `sb $v0,0x4A($s0)`
+ *      + `j` tails then cross-jump-merge on their own = the oracle's shared .L8010A4A0.
+ *  (4) the padbuf stores RE-READ `*(info+0x30)` for the second store (the first `sb` may-alias
+ *      the pointer field), and the SECOND load's value is the return value.
+ * RESIDUAL 3 @56/55: in the st==1/cnt>1 arm retail materializes the two constants sequentially
+ * in ONE register (`li $v0,2; sb 0x49; li $v0,255; j; sb $v0,0x46` -- 255 doubles as the return
+ * value), while ours keeps 255 live across the 0x49 store and pays `addu $v1,$v0,$zero`.  The
+ * zero-insn use fence below already fixes the ORDER (7 -> 3); the surviving copy is the
+ * delete_noop_moves/coalescing direction.  Falsified here: SHARED-CONSTANT-RETURN hoist
+ * (`r = 0xff; info[0x46] = r; return r;`) 16 without the fence / 12 with it; `unsigned char v`
+ * carrier 7; store-order swap 7; volatile 0x49 store 7; a second fence after the 0x46 store 5;
+ * `return (unsigned char)0xff` and a trailing `r = 0xff; return r;` both 3 (identical). */
 extern int _dirFailAuto(unsigned char *info)
 {
-    unsigned char *rx = *(unsigned char **)(info + 0x3c);
+    unsigned char st;
+    unsigned cnt;
     int r;
+    unsigned char *padbuf;
 
     *(int *)(info + 0x4c) = *(int *)(info + 0x4c) + 1;
 
-    if (info[0x46] == 0) {
-fail_reset:
-        r = 0xf3;
-        if (rx[0] != (unsigned char)0xf3) {
-            unsigned char *padbuf = *(unsigned char **)(info + 0x30);
-            padbuf[0] = 0xff;
-            padbuf[1] = 0;
-            r = (int)(unsigned long)padbuf;
-            info[0xe8] = 0;
-        }
-    } else {
-        unsigned cnt = info[0x4a];
-        if (info[0x46] == 1) {
+    st = info[0x46];
+    if (st != 0) {
+        if (st == 1) {
+            cnt = info[0x4a];
             if (1 < cnt) {
                 info[0x49] = 2;
+                __asm__("" : : "r"(info));
                 info[0x46] = 0xff;
                 return 0xff;
             }
-        } else {
-            if (3 < cnt) {
-                if (info[0x49] != 0)
-                    _padFuncClrInfo(info);
-                goto fail_reset;
-            }
+            r = cnt + 1;
+            info[0x4a] = (unsigned char)r;
+            return r;
         }
-        r = cnt + 1;
-        info[0x4a] = (unsigned char)r;
+        cnt = info[0x4a];
+        if (cnt < 4) {
+            r = cnt + 1;
+            info[0x4a] = (unsigned char)r;
+            return r;
+        }
+        if (info[0x49] != 0)
+            _padFuncClrInfo(info);
     }
-    return r;
+    if ((*(unsigned char **)(info + 0x3c))[0] == (unsigned char)0xf3)
+        return 0xf3;
+    (*(unsigned char **)(info + 0x30))[0] = 0xff;
+    padbuf = *(unsigned char **)(info + 0x30);
+    padbuf[1] = 0;
+    info[0xe8] = 0;
+    return (int)padbuf;
 }

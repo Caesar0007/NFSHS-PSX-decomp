@@ -1,0 +1,7 @@
+extern int _dirCheck(unsigned char *info)
+{
+    int r = 0;
+    if (*(unsigned short *)(info + 0xe6) == 0 || info[0x46] != 0xff)
+        r = 1;
+    return r;
+}

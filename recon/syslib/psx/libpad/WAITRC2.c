@@ -43,16 +43,29 @@ extern void setRC2wait(int ticks)
 }
 
 /* @0x8010C008 : chkRC2wait -- 1 once `_waitTime` ticks have elapsed since setRC2wait, else 0.
- * w23-a8: 34->25 diffs. `cur` is kept live in $a0 across the T2_TARGET/T2_MODE blocks in the
- * oracle (a caller-saved scratch reg, unused as an arg here) -- reproduced by DUPLICATING the
- * final `return elapsed < _waitTime` into BOTH branches (matches the oracle's per-branch reload
- * of _startTime/_waitTime) instead of a single post-merge return; branch polarity flipped to
- * `!=0` first so the /8-prescale arm stays in the fallthrough slot the oracle's `bnez` expects.
- * RESIDUAL FLOOR (25): oracle DUPLICATES the trailing `addu a0,a0,v0` (T2_TARGET add) and the
- * `subu/srl` prescale tail into EACH arm via an explicit `j` (no cross-jump merge); our build
- * cross-jumps them into one shared instruction reached by fallthrough. Compiler
- * cross-jump/tail-merge decision, not reachable from this source shape (same family as the
- * catalog's "gcc block-merge of identical arms" floor). */
+ * w48-a3: rebuilt from the oracle's CFG.  COUNT-EXACT 40/40 and every basic block now matches the
+ * oracle 1:1 (the previous body was 41 insns with the wrong tail topology).  Three corrections:
+ *   (a) the T2_MODE arm order was inverted -- the oracle's `bnez ...,.L8010C088` makes the /8
+ *       (prescaled) arm the FALL-THROUGH, i.e. the `(T2_MODE & 0x200) == 0` case is the if-BODY;
+ *   (b) the elapsed/return pair is written ONCE after the if/else (a shared `sltu; jr; xori 1`
+ *       tail), not duplicated per arm -- the previous per-arm duplication never cross-jumped and
+ *       emitted two whole copies of the tail;
+ *   (c) both T2_TARGET reads stay (the oracle reads 0x1F801128 TWICE -- once for the `beqz`, once
+ *       for the add), and the 0x10000 constant lives in that `beqz`'s delay slot.
+ * 🔴 RESIDUAL (34 LCS diffs at EXACT 40/40 insns) = ONE 2-WAY REGISTER ROTATION, quantified:
+ *   the oracle keeps `cur` in $a0 and the 0x1F801128 pointer in $v1; ours has them swapped.
+ *   -dl/-dg receipts (this body): p80 = `cur`, 8 refs / 21 insns, `preferences: 3`, priority
+ *   floor_log2(8)*8/21 = 1.14 -> allocated FIRST -> takes $3; p86 = the pointer, 3 refs / 5 insns,
+ *   priority 1*3/5 = 0.60 -> allocated after, conflicts with p80's $3 -> takes $4.  REQUIRED DELTA
+ *   (either one flips it): the POINTER to >= 4 refs at live 5 (2*4/5 = 1.60 > 1.14), or `cur` down
+ *   to <= 4 refs at live 21 (2*4/21 = 0.38 < 0.60).  Zero-insn dials measured and FALSIFIED at this
+ *   basin: naming the pointer in a block-local (34), an opacity fence on the pointer (34), a fence
+ *   on `cur` (38, +2 insns), a block-local `tgt` temp (36), `cur = cur + x` vs `cur += x` (34),
+ *   `T2_TARGET != 0` arm swap (33 but 41 insns).  The LCS number is NON-MONOTONE here -- the old
+ *   25-diff body was structurally WRONG (41 insns, unmerged tails); do not "restore" it.  NEXT
+ *   ANGLE: an inflator that reaches the ANONYMOUS cse temp holding the 0x1F801128 constant (it has
+ *   no C name to hang refs on -- a second SOURCE-LEVEL use of the same address at a third site
+ *   would, e.g. spelling the two reads through one named block-local read TWICE). */
 extern int chkRC2wait(void)
 {
     unsigned cur = T2_VALUE & 0xffff;
@@ -64,11 +77,9 @@ extern int chkRC2wait(void)
         else
             cur += T2_TARGET;
     }
-    if ((T2_MODE & 0x200) != 0) {
-        elapsed = cur - (unsigned)_startTime;
-        return elapsed < (unsigned)_waitTime ? 0 : 1;
-    } else {
+    if ((T2_MODE & 0x200) == 0)
         elapsed = (cur - (unsigned)_startTime) >> 3;  /* /8 prescale */
-        return elapsed < (unsigned)_waitTime ? 0 : 1;
-    }
+    else
+        elapsed = cur - (unsigned)_startTime;
+    return elapsed < (unsigned)_waitTime ? 0 : 1;
 }

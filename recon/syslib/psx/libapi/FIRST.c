@@ -94,7 +94,7 @@ scan:
 /* @0x80109DC0 : firstfile */
 extern void *firstfile(char *name, void *dir)
 {
-    DCB  *e, *end;
+    DCB  *e, *end, *lim;
     char *p;
     signed char *scan;
     int   found;
@@ -106,27 +106,42 @@ extern void *firstfile(char *name, void *dir)
         *p++ = (unsigned char)*scan++;
     *p = '\0';
 
+    /* MATCH (w48-a7): both DCB searches use a GOTO back-edge (see _first_patch) so loop.c never
+     * hoists the `(high _first_devname)` half into a callee-saved reg, and `found` is assigned in
+     * the two EXIT paths (never before the loop) so it does not live across strcmp and stays in a
+     * caller-saved reg -- the oracle's `addu $v1,$zero,$zero` / `li $v1,1` / `bnez $v1`.  Both
+     * together take the frame 48 -> 40 and the saved set s0..s5 -> s0..s3. */
+
     /* pass 1: locate the device, remember its current first-file handler */
-    found = 0;
     e   = BIOS_DCB_BASE;
-    end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
-    for (; e < end; e++) {
+    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    if (e < lim) {
+        end = lim;
+scan1:
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             _first_save = (FirstFn)e->firstfile;
             found = 1;
-            break;
+            goto tested;
         }
+        e++;
+        if (e < end) goto scan1;
     }
+    found = 0;
+tested:
     if (!found)
         return 0;
 
     /* pass 2: install the self-removing patch into that device */
     e   = BIOS_DCB_BASE;
-    end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
-    for (; e < end; e++) {
+    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    if (e < lim) {
+        end = lim;
+scan2:
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             e->firstfile = (void *)_first_patch;
-            break;
+        } else {
+            e++;
+            if (e < end) goto scan2;
         }
     }
     return firstfile2(name, dir);

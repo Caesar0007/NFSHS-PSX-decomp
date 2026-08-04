@@ -87,7 +87,8 @@ extern int  _read_issue(int retry);
 /* @0x8010887C : sync-complete handler -- restore the saved sync cb and clear the busy flag. */
 extern void _read_sync(void)
 {
-    CdSyncCallback(_cdr.w28);    /* restore saved sync callback */
+    volatile int *saved = &_cdr.w28;
+    CdSyncCallback(*saved);      /* restore saved sync callback */
     _cdr.w24 = 0;                /* reading = 0 */
 }
 
@@ -168,10 +169,13 @@ extern void _read_data_int(void)
         CdDataCallback(_cdr.w30);
     CdSyncCallback((int)_read_sync);
     CdControlF(9, 0);           /* CdlPause */
-    if (CD_cbread != 0) {
-        _cdr.w24 = 1;
+    /* CORRECTNESS (w48-a6): the oracle's `sw $v0,0x24($s0)` sits in the `beqz $v1` DELAY SLOT,
+     * so `reading = 1` executes on BOTH paths -- it is NOT inside the CD_cbread guard.
+     * (Delay-slot placement is semantics, methodology 3.1 / w47 FILE_callbackop.) */
+    *(int *)&_cdr.w24 = 1;   /* MATCH: non-volatile cast -- reorg refuses to slot-fill a volatile
+                              * MEM, and this store IS the oracle's beqz delay slot (3.25-3c). */
+    if (CD_cbread != 0)
         ((CdlCB)CD_cbread)(2, _cdr.w34);
-    }
 }
 
 /* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode. */

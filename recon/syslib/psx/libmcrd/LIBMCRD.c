@@ -619,31 +619,30 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
 extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
     const char *fmt;
-    if (mc.cmd < 1) {
-        if (mc.fd < 0) {
-            if ((bytes & 0x7f) == 0) {
-                if ((ofs & 0x7f) == 0) {
-                    MemCardMakeDevname(chan, mc.devname);
-                    strcat(mc.devname, file);
-                    mc.cmd  = 3;
-                    mc.rslt = 0;
-                    mc.done = 0;
-                    mc.len  = bytes;
-                    mc.chan = chan;
-                    mc.ofs  = ofs;
-                    mc.adrs = adrs;
-                    UserFuncOpen((int)MemCardReadFile_cb);
-                    return 1;
-                }
-                fmt = "Access Denied. : invalid offset value align\n";
-            } else {
-                fmt = "Access Denied. : invalid data size align\n";
-            }
-        } else {
-            fmt = "Access Denied. : file already open.\n";
-        }
+    if (0 < mc.cmd) {
+        fmt = "Access Denied. : system busy
+";
+    } else if (0 <= mc.fd) {
+        fmt = "Access Denied. : file already open.
+";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align
+";
+    } else if ((ofs & 0x7f) == 0) {
+        MemCardMakeDevname(chan, mc.devname);
+        strcat(mc.devname, file);
+        mc.cmd  = 3;
+        mc.rslt = 0;
+        mc.done = 0;
+        mc.len  = bytes;
+        mc.chan = chan;
+        mc.ofs  = ofs;
+        mc.adrs = adrs;
+        UserFuncOpen((int)MemCardReadFile_cb);
+        return 1;
     } else {
-        fmt = "Access Denied. : system busy\n";
+        fmt = "Access Denied. : invalid offset value align
+";
     }
     printf(fmt);
     return 0;
@@ -653,31 +652,30 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
 extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
     const char *fmt;
-    if (mc.cmd < 1) {
-        if (mc.fd < 0) {
-            if ((bytes & 0x7f) == 0) {
-                if ((ofs & 0x7f) == 0) {
-                    MemCardMakeDevname(chan, mc.devname);
-                    strcat(mc.devname, file);
-                    mc.cmd  = 4;
-                    mc.rslt = 0;
-                    mc.done = 0;
-                    mc.len  = bytes;
-                    mc.chan = chan;
-                    mc.ofs  = ofs;
-                    mc.adrs = adrs;
-                    UserFuncOpen((int)MemCardWriteFile_cb);
-                    return 1;
-                }
-                fmt = "Access Denied. : invalid offset value align\n";
-            } else {
-                fmt = "Access Denied. : invalid data size align\n";
-            }
-        } else {
-            fmt = "Access Denied. : file already open.\n";
-        }
+    if (0 < mc.cmd) {
+        fmt = "Access Denied. : system busy
+";
+    } else if (0 <= mc.fd) {
+        fmt = "Access Denied. : file already open.
+";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align
+";
+    } else if ((ofs & 0x7f) == 0) {
+        MemCardMakeDevname(chan, mc.devname);
+        strcat(mc.devname, file);
+        mc.cmd  = 4;
+        mc.rslt = 0;
+        mc.done = 0;
+        mc.len  = bytes;
+        mc.chan = chan;
+        mc.ofs  = ofs;
+        mc.adrs = adrs;
+        UserFuncOpen((int)MemCardWriteFile_cb);
+        return 1;
     } else {
-        fmt = "Access Denied. : system busy\n";
+        fmt = "Access Denied. : invalid offset value align
+";
     }
     printf(fmt);
     return 0;

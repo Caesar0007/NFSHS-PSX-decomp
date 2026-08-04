@@ -1345,31 +1345,41 @@ int tListIteratorCarColor::TextValue(tPlayer arg1)
 
 
 
-/* ---- tListIteratorCarColor::Increment  [FECARS.CPP:1205-1214] SLD-VERIFIED ---- */
+/* ---- tListIteratorCarColor::Increment  [FECARS.CPP:1205-1214] SLD-VERIFIED ----  NATURAL-SOURCE REWRITE (2026-08-04, edgbla-style after the Decrement land): 42 -> 4 diffs,
+   count-exact 38/38.  ORACLE FACTS driving the shape: the index expression is evaluated
+   TWICE (the u_char store aliases fCarID/*fPlayer, blocking cse of the loads) but the
+   *fPlayer * fIndexSize PRODUCT is reused from mflo => the product is a NAMED local computed
+   once, with fCarID added INLINE in each expression; fCarID is read with lb = (signed char);
+   the compare is SIGNED slt (no u_int casts -- default-unsigned chars promote to int); the
+   named fNumColors value-load gives the slt its retail operand.  FALSIFIED: full re-eval
+   forms 43-48 (mult redone -- the product must be named), 1/0-early-returns 5@39 (retail
+   returns the slt result itself, no li 1/addu 0), V7-inline-value 14, dark+light sum swap 12,
+   embedded-assignment 4 (no change), early-return-var polarity 15@39.  RESIDUAL 4 = TWO
+   coalescing copies around the bnez: notWrapped's pseudo spans the if => GLOBAL allocno =>
+   combine_regs refuses the tie (w47-a2's delete_noop_moves law, seen from the KEEP side --
+   retail's slt dest and return pseudo are ONE).  ANGLE: instrumented-cc1 trace on this fn
+   (C++ lane; check Mode-A identity first) for the tie refusal; or a shape where the branch
+   provably tests the VARIABLE, not the slt temp.
+ */
 
 int tListIteratorCarColor::Increment(tPlayer arg1)
 
 {
-  int iVar1;
-  u_int uVar2;
-  char *pcVar3;
-  u_char *pbVar4;
   tCarInfo *carInfo;
-  
-  iVar1 = (u_int)(u_char)*this->fPlayer * this->fIndexSize;
-  carInfo = this->fCarManager->fCars + (u_char)this->fPlayerCar[(u_char)*this->fPlayer];
-  pcVar3 = this->fValue + iVar1 + carInfo->fCarID;
-  *pcVar3 = *pcVar3 + '\x01';
-  pbVar4 = (u_char *)(this->fValue + iVar1 + carInfo->fCarID);
-  uVar2 = (u_int)((u_int)*pbVar4 <
-                (u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors);
-  if (uVar2 == 0) {
-    *pbVar4 = 0;
+  u_int fNumColors_offset;
+  int notWrapped;
+  int fNumColors;
+
+  fNumColors_offset = *fPlayer * fIndexSize;
+  carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
+  fValue[fNumColors_offset + (signed char)carInfo->fCarID]++;
+  fNumColors = fValue[fNumColors_offset + (signed char)carInfo->fCarID];
+  notWrapped = fNumColors < carInfo->fNumLightColors + carInfo->fNumDarkColors;
+  if (notWrapped == 0) {
+    fValue[fNumColors_offset + (signed char)carInfo->fCarID] = 0;
   }
-  return uVar2;
+  return notWrapped;
 }
-
-
 
 /* ---- tListIteratorCarColor::Decrement  [FECARS.CPP:1218-1228] SLD-VERIFIED ---- */
 

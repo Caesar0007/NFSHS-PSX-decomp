@@ -108,3 +108,20 @@ MCXMAIN 320->431, PADENTRY 72->125 — uniformly catastrophic, concordant with a
   whole-TU clean): early-out inversion, volatile guard read, `p` assigned after the
   stores (13), store-the-tested-byte-first, `while` instead of `do/while`, opacity fence
   at the block head (13).
+
+## 5. LANDED (running ledger)
+| fn | baseline | now | lever |
+|---|---|---|---|
+| _dirCheck        | 5 (12/11) | **4 (11/11)** | De-Morgan early-out (one shared epilogue) + NAMED-ONE const |
+| _pad_port_to_slot| 18 (14/14)| **6 (14/14)** | do-while + separate `i=0` + PRE-SET-THE-DEFAULT found-arm + info-last |
+| _padIntInit      | 6 (18/18) | **PASS**      | named call-result/rx temps, deref BEFORE the global store |
+| _padIntQuery     | 8 (52/54) | **PASS**      | TWO cross-jump-merged calls (`!=0` arm first), not a ternary arg |
+| _padIntRecvId    | 13 (47/48)| **PASS**      | direct per-path returns (no funnel copy) + `<<1` folded into lo |
+| PadInfoMode      | 42 (58/62)| **PASS**      | real `switch(term)` (balance_case_nodes tree + out-of-line bodies) |
+| PadGetState      | 10 (50/48)| 10            | re-gated; splice trade-off quantified -> epilogue-swap lane |
+| _padIntRecvHdr   | 4 (35/35) | 4             | 9 spellings byte-identical -> reorg duplicate-placement class |
+| _pad_reset_state | 1 (25/26) | 1             | reorg fall-through steal; 2-slot discriminator for a10/a6 |
+| _padInitDirSeq   | 3 (14/13) | 3             | a6's macro-split-into-delay-slot class (maspsx blocker) |
+
+PADENTRY under the recommended `-mno-split-addresses` wiring is now **7/8 PASS**
+(only PadGetState left).  MCXMAIN is **3/5 PASS**.

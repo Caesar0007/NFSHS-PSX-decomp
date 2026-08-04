@@ -21,7 +21,25 @@
 #include <stddef.h>
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- char currentdir[64]; char *fsprefix1; char *fsprefix2; 
+ char currentdirectory[64];
+/* 04U: owned sbss pointers must be NAMED GLOBAL symbols (oracle relocs name
+ * D_8013DD34/D_8013DD40; a plain tentative def becomes a LOCAL .sbss symbol
+ * via maspsx's comm->lcomm conversion and objdiff sees `.sbss+addend`).
+ * Explicit .sbss section keeps the gp-rel form with a global name. */
+ char *D_8013DD34 __attribute__((section(".sbss")));  /* fsprefix1 */
+ char *D_8013DD40 __attribute__((section(".sbss")));  /* fsprefix2 */
+#define fsprefix1 D_8013DD34
+#define fsprefix2 D_8013DD40
+__asm__("	.globl	D_8013DD34");
+__asm__("	.globl	D_8013DD40");
+/* 04U RESIDUAL RECEIPT (objdiff 99.91 on gate-PASS openfile): after the renames the
+ * only remaining drift vs expected/src is BOOKKEEPING between object flavors -- the
+ * INCLUDE_ASM-side object keeps PC16 branch relocs against .L labels and a NAMED
+ * switch table (jtbl_80056FBC) where compiled output has resolved branches and an
+ * anonymous .rodata table.  Compiler-internal label; not source-reachable; bytes
+ * link-identical.  Also NOTE for 04Q-style comparisons: an expected/src object's
+ * displayed branch targets are UNRESOLVED PC16 placeholders -- compare via relocs. */
+
 
 /* ---- CD-ROM filesystem backend (fs 1) ---- */
 extern int CD_Close(int dev);                                 /* @0x800FA65C */
@@ -54,7 +72,7 @@ extern int   strlen(const char *s);                           /* @0x800E9F74 */
 extern void *memset(void *d, int c, int n);                   /* @0x800E4318 */
 extern char *fsprefix1;     /* @0x8013DD34 -> "cdrom:" (CD drive prefix, 6-char compare)  */
 extern char *fsprefix2;     /* @0x8013DD40 -> "sim:"   (PC-host prefix, 4-char compare)   */
-extern char  currentdir[];  /* @0x80140414 cwd, prepended to relative PC paths     */
+extern char  currentdirectory[];  /* @0x80140414 cwd, prepended to relative PC paths     */
 
 /* ---- fileroot globals (data-materialization pass owns the addresses) ---- */
 extern int disablecd;            /* nonzero == CD backend disabled                    */
@@ -126,15 +144,15 @@ extern void setdirectory(char *dir)
     }
     if (currentfilesystem != 2)                         /* only the PC host stores a cwd */
         return;
-    strcpy(currentdir, dir + prefixlen);
-    if (currentdir[63] != 0)                            /* path overflowed the 64-byte buffer */
+    strcpy(currentdirectory, dir + prefixlen);
+    if (currentdirectory[63] != 0)                            /* path overflowed the 64-byte buffer */
         return;
     {
-        int len = strlen(currentdir);
+        int len = strlen(currentdirectory);
         if (len <= 0)
             return;
-        if (currentdir[len] != '\\')                    /* (asm reads currentdir[len]) -> add a separator */
-            strcat(currentdir, "\\");
+        if (currentdirectory[len] != '\\')                    /* (asm reads currentdirectory[len]) -> add a separator */
+            strcat(currentdirectory, "\\");
     }
 }
 
@@ -176,7 +194,7 @@ extern int openfile(char *name, int flags, int *outp)
 
     /* fs == 2 : PC host -- prepend the cwd unless the path is absolute */
     if (name[0] != '\\' && name[0] != '/')
-        strcpy(namebuf, currentdir);
+        strcpy(namebuf, currentdirectory);
     strcat(namebuf, name);
 
     switch (flags & 7) {

@@ -60,8 +60,8 @@ static const u_long _mdec_idcttab[33] = {
 };
 
 /* forward decls (engine internals) */
-static int     MDEC_in_sync(int mode);
-static int     MDEC_out_sync(int mode);
+static int     MDEC_in_sync(void);
+static int     MDEC_out_sync(void);
 static int     MDEC_status(const char *who);
 static u_long *_MDEC_in_dma(u_long *buf, unsigned size);
 static u_long *_MDEC_out_dma(u_long buf, unsigned size);
@@ -99,7 +99,12 @@ extern int DecDCTinSync(int mode)
 {
     if (mode != 0)
         return ((unsigned)_MDEC_get_reg1() >> 0x1d) & 1;
-    return MDEC_in_sync(0);
+    /* w48-a8 (rule R3, args-vs-raw-oracle): MDEC_in_sync/MDEC_out_sync take NO argument.  Their
+     * OWN oracles never read $a0 (it is used only as a scratch for the -1 sentinel), and this
+     * call site's `jal MDEC_in_sync` has an EMPTY delay slot -- no $a0 setup at all.  The old
+     * `MDEC_in_sync(0)` cost a spurious `addu $a0,$zero,$zero` in that slot here, and the two
+     * _MDEC_*_dma call sites only matched by accident (their `buf` already sat in $a0). */
+    return MDEC_in_sync();
 }
 
 /* @0x800F8AD4 : install the MDECout (DMA channel 1) completion callback. */
@@ -152,7 +157,7 @@ static int MDEC_rest(u_long mode)
 /* @0x800F8BE8 : feed `buf` (cmd word + payload) to MDEC over DMA channel 0. */
 static u_long *_MDEC_in_dma(u_long *buf, unsigned size)
 {
-    MDEC_in_sync((int)(long)buf);
+    MDEC_in_sync();
     DPCR |= 0x88;
     D0_MADR = (u_long)(long)(buf + 1);
     D0_BCR  = ((size >> 5) << 16) | 0x20;
@@ -167,7 +172,7 @@ static u_long *_MDEC_in_dma(u_long *buf, unsigned size)
 /* @0x800F8C78 : read decoded output from MDEC into `buf` over DMA channel 1. */
 static u_long *_MDEC_out_dma(u_long buf, unsigned size)
 {
-    MDEC_out_sync((int)buf);
+    MDEC_out_sync();
     DPCR |= 0x88;
     D1_CHCR = 0;                              /* @0x800F8CB0-BC: stop ch1 before reprogramming MADR/BCR */
     D1_MADR = buf;
@@ -186,7 +191,7 @@ static u_long *_MDEC_out_dma(u_long buf, unsigned size)
 #define D1CHCR_POLL  (*(*(volatile u_long *volatile *)&D1_CHCR_ptr))
 
 /* @0x800F8D04 : spin until the MDEC input FIFO drains (busy bit 29), or time out. */
-static int MDEC_in_sync(int mode)
+static int MDEC_in_sync(void)
 {
     volatile int n = 0x100000;
     while ((MDEC1_POLL & 0x20000000) != 0) {
@@ -199,7 +204,7 @@ static int MDEC_in_sync(int mode)
 }
 
 /* @0x800F8D98 : spin until the MDECout DMA (ch1) finishes, or time out. */
-static int MDEC_out_sync(int mode)
+static int MDEC_out_sync(void)
 {
     volatile int n = 0x100000;
     while ((D1CHCR_POLL & 0x1000000) != 0) {
@@ -220,11 +225,20 @@ extern int _MDEC_get_reg1(void)
 /* @0x800F8E44 : report a timeout and force-reset the MDEC + DMA channels. */
 static int MDEC_status(const char *who)
 {
+    int r;
     printf("%s timeout:\n", who);
     MDEC1 = 0x80000000;
     D0_CHCR = 0;
     D1_CHCR = 0;
+    /* w48-a8: the oracle materializes the 0 return value HERE -- into the $v0 that the
+     * D1_CHCR store just freed -- not at the epilogue where sched2 floats ours to.  A plain
+     * named result local at this position is NOT enough (measured: still 2 diffs); the w45
+     * zero-insn USE FENCE (sched-issue-position fixpoint) pins it and the fn byte-matches
+     * 31/31.  Honest fallback if this device is ever rejected: drop the __asm__ and the fn
+     * is a 2-diff count-exact near-miss (pure sched2 constant-float position).
+     */
+    r = 0; __asm__("" : "=r"(r) : "0"(r));
     (void)D1_CHCR;         /* dead re-read of D1_CHCR (volatile, discarded) -- oracle bytes */
     MDEC1 = 0x60000000;
-    return 0;
+    return r;
 }

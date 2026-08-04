@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2750 at 100% (78.7%)
+TOTAL: 3496 functions, 2744 at 100% (78.5%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -987,11 +987,7 @@ VA             %match  unit                     function
 0x8005B468    100.00%  game/common/aihigh       ___11AIHigh_None
 0x8005B488    100.00%  game/common/aihigh       Execute__12AIState_None
 0x8005B490    100.00%  game/common/aihigh       ___12AIState_None
-0x8005B4C4    100.00%  game/common/aih_btccop   TestForRelease__12AIState_Base
-0x8005B4C4    100.00%  game/common/aih_btcperp  TestForRelease__12AIState_Base
 0x8005B4C4      0.00%  game/common/aihigh       TestForRelease__12AIState_Base
-0x8005B4CC    100.00%  game/common/aih_btccop   ___12AIState_Base
-0x8005B4CC    100.00%  game/common/aih_btcperp  ___12AIState_Base
 0x8005B4CC      0.00%  game/common/aihigh       ___12AIState_Base
 0x8005B500    100.00%  game/common/aih_basicperp CheckForCrimes__16AIHigh_BasicPerp
 0x8005B78C     97.99%  game/common/aih_basicperp CheckIfCaught__16AIHigh_BasicPerp
@@ -1048,9 +1044,7 @@ VA             %match  unit                     function
 0x8005F5E4    100.00%  game/common/aih_btccop   ___19AIHigh_BTC_HumanCop
 0x8005F604    100.00%  game/common/aih_btccop   ___14AIHigh_BTC_Cop
 0x8005F624    100.00%  game/common/aih_btccop   Execute__17AIState_NonActive
-0x8005F624    100.00%  game/common/aih_btcperp  Execute__17AIState_NonActive
 0x8005F62C    100.00%  game/common/aih_btccop   ___17AIState_NonActive
-0x8005F62C    100.00%  game/common/aih_btcperp  ___17AIState_NonActive
 0x8005F6B4    100.00%  game/common/aih_btcperp  ReleaseCops__15AIHigh_BTC_Perp
 0x8005F778    100.00%  game/common/aih_btcperp  HandleCops__15AIHigh_BTC_Perp
 0x8005F798     96.95%  game/common/aih_btcperp  IsFalseArrest__15AIHigh_BTC_Perp
@@ -3491,6 +3485,12 @@ VA             %match  unit                     function
 0x8010CBB0    100.00%  syslib/psx/libcard/A76   StopCARD2
 0x8010CBC0    100.00%  syslib/psx/libcard/END   _ExitCard
 0x8010CC40    100.00%  eaclib/psx/sndpsxz/ssine iSNDsin
+    -           0.00%  game/common/aih_btccop   func_8005F678
+    -           0.00%  game/common/aih_btccop   func_8005F680
+    -           0.00%  game/common/aih_btcperp  func_80061370
+    -           0.00%  game/common/aih_btcperp  func_80061378
+    -           0.00%  game/common/aih_btcperp  func_800613C4
+    -           0.00%  game/common/aih_btcperp  func_800613CC
     -         100.00%  syslib/psx/2mbyte/2mbyte D_800E40D8
     -           0.00%  syslib/psx/libcard/A74   func_8010C9FC
     -           0.00%  syslib/psx/libcard/END   D_8010CC30

@@ -21,7 +21,7 @@ INCLUDE_ASM("asm/nonmatchings/main", FindClosestCop__17AIHigh_BTC_AIPerp);
 INCLUDE_ASM("asm/nonmatchings/main", HighExecute__17AIHigh_BTC_AIPerp);
 INCLUDE_ASM("asm/nonmatchings/main", NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop);
 INCLUDE_ASM("asm/nonmatchings/main", ___20AIHigh_BTC_HumanPerp);
-INCLUDE_ASM("asm/nonmatchings/main", func_80061348);
+INCLUDE_ASM("asm/nonmatchings/main", ___15AIHigh_BTC_Perp_80061348);
 INCLUDE_ASM("asm/nonmatchings/main", func_80061370);
 INCLUDE_ASM("asm/nonmatchings/main", func_80061378);
 INCLUDE_ASM("asm/nonmatchings/main", func_800613C4);

@@ -182,41 +182,64 @@ extern unsigned _dirRecvAuto(unsigned char *info)
     return r;
 }
 
-/* @0x8010A434 : _dirFailAuto -- a poll produced no usable reply; retry or give up. */
+/* @0x8010A434 : _dirFailAuto -- a poll produced no usable reply; retry or give up.
+ * MATCH (w48-a4, 65 -> 3 diffs @56/55).  Four structural facts read off the oracle:
+ *  (1) ARM ORDER / POLARITY: `beqz $v1,.L8010A4CC` sends st==0 to the reset block, which sits
+ *      OUT-OF-LINE at the END; the retry arms are the fall-through.  The old `if (st == 0)`-first
+ *      shape inlined the reset block and inverted three branches.
+ *  (2) `rx` IS READ AT ITS USE SITE, not at the top: the oracle loads `lw $v0,0x3C($s0)` inside
+ *      the reset block.  Hoisting it to a function-scope local made it live across the
+ *      _padFuncClrInfo call -> an extra callee-saved register and a 0x20 frame (retail: 0x18).
+ *  (3) `cnt = info[0x4a]` is loaded SEPARATELY IN EACH ARM (two `lbu $v1,0x4A($s0)` in the
+ *      oracle); one shared load before the if costs the match.  The two `sb $v0,0x4A($s0)`
+ *      + `j` tails then cross-jump-merge on their own = the oracle's shared .L8010A4A0.
+ *  (4) the padbuf stores RE-READ `*(info+0x30)` for the second store (the first `sb` may-alias
+ *      the pointer field), and the SECOND load's value is the return value.
+ * RESIDUAL 3 @56/55: in the st==1/cnt>1 arm retail materializes the two constants sequentially
+ * in ONE register (`li $v0,2; sb 0x49; li $v0,255; j; sb $v0,0x46` -- 255 doubles as the return
+ * value), while ours keeps 255 live across the 0x49 store and pays `addu $v1,$v0,$zero`.  The
+ * zero-insn use fence below already fixes the ORDER (7 -> 3); the surviving copy is the
+ * delete_noop_moves/coalescing direction.  Falsified here: SHARED-CONSTANT-RETURN hoist
+ * (`r = 0xff; info[0x46] = r; return r;`) 16 without the fence / 12 with it; `unsigned char v`
+ * carrier 7; store-order swap 7; volatile 0x49 store 7; a second fence after the 0x46 store 5;
+ * `return (unsigned char)0xff` and a trailing `r = 0xff; return r;` both 3 (identical). */
 extern int _dirFailAuto(unsigned char *info)
 {
-    unsigned char *rx = *(unsigned char **)(info + 0x3c);
+    unsigned char st;
+    unsigned cnt;
     int r;
+    unsigned char *padbuf;
 
     *(int *)(info + 0x4c) = *(int *)(info + 0x4c) + 1;
 
-    if (info[0x46] == 0) {
-fail_reset:
-        r = 0xf3;
-        if (rx[0] != (unsigned char)0xf3) {
-            unsigned char *padbuf = *(unsigned char **)(info + 0x30);
-            padbuf[0] = 0xff;
-            padbuf[1] = 0;
-            r = (int)(unsigned long)padbuf;
-            info[0xe8] = 0;
-        }
-    } else {
-        unsigned cnt = info[0x4a];
-        if (info[0x46] == 1) {
+    st = info[0x46];
+    if (st != 0) {
+        if (st == 1) {
+            cnt = info[0x4a];
             if (1 < cnt) {
                 info[0x49] = 2;
+                __asm__("" : : "r"(info));
                 info[0x46] = 0xff;
                 return 0xff;
             }
-        } else {
-            if (3 < cnt) {
-                if (info[0x49] != 0)
-                    _padFuncClrInfo(info);
-                goto fail_reset;
-            }
+            r = cnt + 1;
+            info[0x4a] = (unsigned char)r;
+            return r;
         }
-        r = cnt + 1;
-        info[0x4a] = (unsigned char)r;
+        cnt = info[0x4a];
+        if (cnt < 4) {
+            r = cnt + 1;
+            info[0x4a] = (unsigned char)r;
+            return r;
+        }
+        if (info[0x49] != 0)
+            _padFuncClrInfo(info);
     }
-    return r;
+    if ((*(unsigned char **)(info + 0x3c))[0] == (unsigned char)0xf3)
+        return 0xf3;
+    (*(unsigned char **)(info + 0x30))[0] = 0xff;
+    padbuf = *(unsigned char **)(info + 0x30);
+    padbuf[1] = 0;
+    info[0xe8] = 0;
+    return (int)padbuf;
 }

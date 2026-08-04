@@ -192,3 +192,168 @@ the `-fno-delayed-branch` splice from §3.2), plus partial credit on StClearRing
 StGetNext / data_ready_callback.
 
 **Repro kit committed: `scratch/w48_a6_asmdiff.md` + the .s inputs.**
+
+## 5. LANDED EDIT — cdread.c `_read_data_int` 7 -> 4, COUNT-EXACT 52/52 (+ a runtime bug)
+
+**CORRECTNESS BUG (4th found by matching in 3 waves).** The oracle:
+
+```
+  lui   $v1, %hi(CD_cbread)
+  lw    $v1, %lo(CD_cbread)($v1)
+  addiu $v0, $zero, 0x1
+  beqz  $v1, .L80108BE4
+   sw   $v0, 0x24($s0)      <-- DELAY SLOT: executes on BOTH paths
+```
+
+`_cdr.w24 = 1` ("read in progress") is **UNCONDITIONAL**; the recon had it inside
+`if (CD_cbread != 0) { ... }`, so with no user CdReadCallback installed the flag was never set
+and CdReadSync would observe the wrong state. Delay-slot placement is semantics
+(methodology 3.1; same class as w47's FILE_callbackop fix).
+
+**MATCH LEVER on top of it (3.25-3c):** hoisting the store out of the guard alone left it at 7 —
+gcc's reorg refuses to slot-fill a **volatile** MEM (resource_conflicts_p), and `_cdr` is
+`extern volatile CdrEnv`. Casting volatile away on **that one store**
+(`*(int *)&_cdr.w24 = 1;`) restored the fill: **7 -> 4, ours 53 -> 52 = oracle-exact.**
+Whole-TU gate: every other cdread fn unchanged.
+
+Residual 4 = the prologue {high, lo_sum} pair: ours `lui $v0 / addiu $s0,$v0,0` (separate
+scratch, because sched2 placed the lui BEFORE the `sw $s0,16($sp)` save so $s0 was still live),
+oracle `lui $s0 / addiu $s0,$s0,0` (self-temp, placed after the save). Named class: combine_regs
+cannot tie a block-local `high` qty to a **global** allocno destination (w47-a2 `reg_qty[sreg] >= -1`
+refusal). Not attacked further this wave.
+
+### FALSIFIED on _read_data_int / _read_sync (basin: post-bug-fix tree)
+
+- `extern CdrEnv _cdr` (drop volatile TU-wide): _read_sync 4->7, _read_int 115->128,
+  _read_data_int 4->17, _read_issue 64->66, CdReadSync 31->30, CdRead 43->43. **Net much worse
+  — volatile stays.** It also did NOT change CdRead's base-anchor form, refuting my
+  "volatile defeats TARGET_SPLIT_ADDRESSES" hypothesis for that residual.
+- `_read_sync` 10-variant sweep (scratch/w48_a6_v_readsync.py): plain member / ptr-local /
+  split-load / struct-ptr-anchored-at-w28 / non-volatile ptr / two ptr locals / array-view —
+  **8 of 10 tie at 4**, ptr-reused-for-store = 7, `volatile int *volatile` = 16. The ptr-local
+  form (`volatile int *saved = &_cdr.w28;`) reproduces the oracle's STRUCTURE exactly (anchor at
+  &_cdr.w28, `addiu $s0,$s0,-40` re-base in the jal slot) but gcc folds the lo_sum into the load
+  and rematerializes the addiu in the delay slot. **Opacity fence `__asm__("":"=r"(p):"0"(p))`
+  REGRESSES it hard (4 -> 12+): it breaks cse's related_value derivation of &_cdr from
+  &_cdr.w28, so the second access re-materializes its own lui/addiu and the pointer drops out of
+  a callee-saved reg.** Left as the plain member form (equal count, simpler source).
+
+## 6. TU-WIDE FLAG SIGNATURES (report-only, for a9) — scratch/w48_a6_flagscreen.py
+
+Every cell = whole-TU gate, build.py patched-in-place and restored in a `finally`.
+
+| TU | fn | base | -fno-sched-insns2 | -fno-sched-insns | -fno-delayed-branch | -G0 | -mno-split-addr |
+|---|---|---|---|---|---|---|---|
+| stream | StClearRing | 5 | 8 | 5 | 5 | 35 | 5 |
+| stream | StSetRing | 9 | 9 | 9 | 9 | 12 | 9 |
+| stream | **StSetStream** | 18 | **8** | 18 | 18 | 36 | 18 |
+| streamhelp | StFreeRing | 35 | 35 | 45 | 45 | 48 | 35 |
+| streamhelp | StGetNext | 7 | 11 | 32 | 32 | 33 | 7 |
+| streamhelp | StSetMask | 3 | 3 | 3 | 3 | 12 | 3 |
+| streamhelp | StUnSetRing | 9 | 9 | 9 | 9 | 15 | 9 |
+| streamhelp | data_ready_callback | 21 | 24 | 46 | 46 | 43 | 21 |
+| streamhelp | init_ring_status | PASS | PASS | 4 | 4 | 4 | PASS |
+| cdread | CdRead | 43 | 54 | 57 | 76 | 43 | 39 |
+| cdread | CdReadSync | 31 | 41 | 35 | 54 | 31 | 33 |
+| cdread | _read_data_int | 4 | 6 | 24 | 19 | 8 | 27 |
+| cdread | _read_int | 115 | 115 | 113 | 148 | 122 | 107 |
+| cdread | _read_issue | 64 | 65 | 62 | 139 | 64 | 81 |
+| cdread | _read_sync | 4 | 4 | 6 | 6 | 4 | 4 |
+| iso9660 | CD_cachefile | 99 | 110 | 101 | 198 | 107 | **85** |
+| iso9660 | CD_newmedia | 146 | 148 | 148 | 187 | 153 | 149 |
+| iso9660 | CdSearchFile | 92 | 103 | 95 | 139 | 117 | 93 |
+| iso9660 | _cd_cmp_name | PASS | 3 | PASS | 6 | PASS | PASS |
+| iso9660 | **_cd_find_path** | 15 | 25 | 25 | 30 | 15 | **8** |
+| iso9660 | cd_read | 4 | 6 | 18 | 19 | 4 | 4 |
+| stcdint | StCdInterrupt | 214 | 242 | 366 | 366 | 799 | 214 |
+| stcdint | _st_dma | 143 | 143 | 146 | 146 | 151 | 146 |
+| cdread2 | CdRead2 | 5 | 11 | 5 | 5 | 12 | 11 |
+| cdread2 | _cdread2_ready | PASS | PASS | PASS | PASS | PASS | PASS |
+
+### 6.1 RECOMMEND WIRING: `iso9660.c` -> `{"no_split_addresses": True}`
+
+Reproduced **2x** (screen + dedicated re-run), identical both times:
+`_cd_find_path 15->8`, `CD_cachefile 99->85`, `CdSearchFile 92->93`, `CD_newmedia 146->149`,
+`cd_read 4->4`, `_cd_cmp_name PASS held`. **Net 356 -> 339 (-17), ZERO PASS regressions.**
+`+G0` on top changes only CD_cachefile 85->84 — below the noise bar, not recommended.
+Consistent with w33-a10's finding that `-mno-split-addresses` is genuinely PER-OBJECT.
+(This is a NUDGE by the w47 identity bar, not an identity — no FAIL->PASS conversion.)
+
+### 6.2 SIGNATURE: this cluster is NOT a `-G0` module
+
+`-G0` is catastrophic on every TU (StCdInterrupt 214->799, StClearRing 5->35, StSetStream 18->36,
+StSetMask 3->12, CdRead2 5->12, init_ring_status PASS->4). The libcd-B objects use the stock -G
+setting. Rules out the briefing's -G0 suspicion for THIS cluster (it was raised for libmcrd/a1).
+
+### 6.3 OPEN INFRA REQUEST (for the consolidator / a9)
+
+`StSetStream 18 -> 8` under `-fno-schedule-insns2` is the biggest single-flag delta in my scope,
+but it is per-FUNCTION (its TU-mate StClearRing goes 5 -> 8), and the tree's splice infrastructure
+(`PER_FN_NO_DELAYED_BRANCH` + `_apply_fn_splice`) only supports `-fno-delayed-branch`.
+**Extending the existing per-fn .ent/.end splice to an arbitrary flag set would immediately bank
+StSetStream 18->8.** The mechanism is already generic
+(`_apply_fn_splice(rel, s_file, i_file, CC1, cc1_flags)` recompiles with an extra flag and splices
+the region) — only the TABLE is flag-specific.
+
+## 7. STATUS AFTER MY WAVE (final re-gate on my tree, all 22 rows)
+
+| fn | baseline | final | note |
+|---|---|---|---|
+| _read_sync | 4 | 4 | 10 spellings tie; fence falsified |
+| _read_int | 115 | 115 | untouched |
+| **_read_data_int** | **7** | **4** | count-exact 52/52 + BUG FIXED |
+| _read_issue | 64 | 64 | untouched |
+| CdRead | 43 | 43 | per-region base-anchor rematerialization (analysed, S8) |
+| CdReadSync | 31 | 31 | untouched |
+| CdRead2 | 5 | 5 | 3 = assembler class, 2 = no-copy-prop identity (S8) |
+| StClearRing | 5 | 5 | epilogue-reload hoist + jr-slot |
+| StSetStream | 18 | 18 | -fno-sched-insns2 would give 8 (needs infra, S6.3) |
+| StSetRing | 9 | 9 | **3 with the recommended splice**; residual = assembler class |
+| StCdInterrupt | 214 | 214 | untouched |
+| _st_dma | 143 | 143 | untouched |
+| StUnSetRing | 9 | 9 | |
+| StGetNext | 7 | 7 | worklist said 0.00% (wrong) |
+| StFreeRing | 35 | 35 | |
+| data_ready_callback | 21 | 21 | **18 with the recommended splice** |
+| StSetMask | 3 | 3 | 100% assembler class (S4b) — PASSes with a maspsx reorder-fill |
+| CdSearchFile | 92 | 92 | |
+| CD_newmedia | 146 | 146 | |
+| _cd_find_path | 15 | 15 | **8 with the recommended -mno-split-addresses** |
+| CD_cachefile | 99 | 99 | **85 with the same** |
+| CD_Read | 0.00% | **PASS** | worklist mis-attribution (S1) |
+
+ZERO REGRESSIONS: every non-target row re-gated identical on the final tree; the three TU-mates
+outside my worklist (`_cdread2_ready`, `init_ring_status`, `_cd_cmp_name`) all still PASS.
+
+## 8. NAMED ANGLES for the next pass (NO-FLOORS: every open fn has one)
+
+- **CdRead (43, ours 94 / oracle 103 = 9 SHORT).** The oracle materializes a FRESH
+  `%hi/%lo(_cdr+field)` anchor PER REGION and derives siblings by displacement
+  (`lui $s0/addiu $s0` at `_cdr+0x24` with disp 0; a second `lui $a0/addiu $a0` at `&_cdr` for
+  disp 12/16; a third at `_cdr+0x28` then `addiu $s0,$s0,-40`). Ours hoists ONE `&_cdr` global
+  allocno and uses displacements everywhere. FALSIFIED: dropping volatile (no change, 43->43).
+  NEXT ANGLE: per-BLOCK base assignment (catalog "ASSIGN a base pointer PER-BLOCK to force
+  rematerialization into a shared tail") or splitting the accesses so cse's related_value chain
+  restarts per region.
+- **CdRead2 (5).** 3 diffs = the S4b assembler class (`lui $at; j; sw ...($at)`). 2 diffs =
+  `addu $a2,$a1,$zero` (ours, copy-prop of the shared 0) vs `addu $a2,$zero,$zero` (oracle) on
+  `CdControl(0x1B,0,0)` — the w47 "still-live-constant rematerialization / no-copy-prop"
+  identity. Ceiling without a maspsx fix = 2.
+- **_cd_find_path (15 -> 8 with -mno-split-addresses).** Oracle runs TWO induction variables: a
+  raw byte OFFSET $s1 (0, +44) consumed as `lui $v0,%hi(tbl+4); addu $v0,$v0,$s1; lw $v0,%lo(...)`
+  for `.parent`, and a separate walking POINTER $s2 (+44) for `.name`. Ours lets combine_givs
+  merge them onto one entry pointer (`lw $v0,4($s1)`, `$s2 = $s1+12`). ANGLE = the catalog's
+  "explicit pointer walkers are the only faithful shape" / multi-giv rows.
+- **StClearRing (5) / StSetStream (18) / StGetNext (7) / StUnSetRing (9).** Shared signature:
+  sched2 HOISTS the epilogue `lw $ra` / `lw $sN` reloads ABOVE the function's trailing store run
+  (to cover their load delays); the oracle emits all trailing stores first and keeps the epilogue
+  reloads contiguous. `-fno-schedule-insns2` reaches it on StSetStream (18->8) but not the others.
+  ANGLE = the w45 USE-FENCE as a sched-issue-position fixpoint placed at the head of the store run.
+- **StSetMask (3).** 100% S4b. PASSes the moment a maspsx reorder-fill exists — no source angle
+  exists (verified: cc1's `.s` for it is 4 lines, three macros + `j $31`).
+- **StCdInterrupt (214, ours 591/583) / _st_dma (143, ours 91/106 = 15 SHORT).** Not attacked.
+  `_st_dma` being 15 SHORT with an intact call skeleton is the classic "SYM-locals not wired /
+  collapsed inline math" signature (catalog: run the call-skeleton diff first).
+- **CdSearchFile (92, ours 166/182 = 16 SHORT), CD_cachefile (99), CD_newmedia (146).** Not
+  attacked. Wire S6.1 FIRST and re-baseline before any source work — falsifications are
+  basin-relative (w45 LAW).

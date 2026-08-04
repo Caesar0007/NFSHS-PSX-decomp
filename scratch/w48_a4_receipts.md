@@ -125,3 +125,82 @@ MCXMAIN 320->431, PADENTRY 72->125 — uniformly catastrophic, concordant with a
 
 PADENTRY under the recommended `-mno-split-addresses` wiring is now **7/8 PASS**
 (only PadGetState left).  MCXMAIN is **3/5 PASS**.
+
+## 6. FINAL LEDGER (re-gated on the final tree, base basin, 2026-08-04)
+| TU | fn | baseline | FINAL |
+|---|---|---|---|
+| PADPORTD | PadInitDirect      | 55 (85/88)   | 55 |
+| PADPORTD | _pad_reset_state   | 1  (25/26)   | 1 |
+| PADPORTD | _pad_failall       | 45 (58/61)   | **34 (59/61)** |
+| PADPORTD | _pad_getbyte       | 40 (47/47)   | **20 (51/47)** |
+| PADPORTD | _pad_filter        | 201 (164/159)| 201 |
+| PADPORTD | _pad_port_to_slot  | 18 (14/14)   | **6 (14/14)** |
+| PADSEQD  | _padInitDirSeq     | 3  (14/13)   | 3 |
+| PADSEQD  | _dirSendAuto       | 32 (62/64)   | **PASS (64)** |
+| PADSEQD  | _dirRecvAuto       | 103 (139/148)| 103 |
+| PADSEQD  | _dirFailAuto       | 65 (56/55)   | **3 (56/55)** |
+| PADSEQD  | _dirCheck          | 5  (12/11)   | **4 (11/11)** |
+| PADENTRY | PadGetState        | 10 (50/48)   | 10 |
+| PADENTRY | PadInfoMode        | 42 (58/62)   | **PASS (62)** |
+| PADENTRY | PadInfoAct         | 20 (53/53)   | 20 — **PASS under the recommended nosplit wiring** |
+| MCXMAIN  | _padIntInit        | 6  (18/18)   | **PASS (18)** |
+| MCXMAIN  | _padIntQuery       | 8  (52/54)   | **PASS (54)** |
+| MCXMAIN  | _padIntRecvId      | 13 (47/48)   | **PASS (48)** |
+| MCXMAIN  | _padIntRecvHdr     | 4  (35/35)   | 4 |
+| MCXMAIN  | _padIntRecvData    | 289 (232/223)| 289 |
+
+**In-scope totals: 960 -> 753 diffs (-207); +5 gate PASS (+6 = 733 once PADENTRY's
+`-mno-split-addresses` is wired).  ZERO regressions** — every TU whole-gated after every
+landed edit; the two already-PASSing PADPORTD fns (_pad_get_port, _pad_shift) and all five
+already-PASSing PADENTRY fns held throughout.  `tools/build.py` is byte-unchanged
+(`git diff HEAD -- tools/build.py` empty): every flag/splice measurement was patch-in-place
+with a finally-restore.
+
+### THE RECURRING LEVER OF THIS CLUSTER: libpad dispatches are REAL `switch`es
+Three of the five PASSes and the biggest diff cuts came from the same recognition — a
+byte/state dispatch reconstructed as an if/else-if cascade when the oracle shows gcc-2.8's
+`balance_case_nodes` fingerprint (median-pivot `beq` + a `slti` bound test in its delay slot,
+every case body OUT-OF-LINE in SOURCE order, unconditional `j default`):
+PadInfoMode {1,2,3,4,100} 42->PASS · _dirSendAuto {0,1,0xfe,0xff} 32->PASS ·
+_pad_getbyte {0,'M'} 40->20 (2-node linear chain, no bound test).
+An if/else-if inlines the first case as the fall-through and inverts its branch — a signature
+worth grepping for across the rest of libpad/libcd.
+
+### Other transferable levers landed here
+- **Load-before-store around a call's return value** (_padIntInit PASS): deref/arg loads BEFORE
+  storing the call result keeps the result in $v0 and the load in $v1.
+- **Value-select in a call argument = TWO cross-jump-merged calls** (_padIntQuery PASS), arm
+  order load-bearing.
+- **Direct per-path returns beat a result funnel** when the oracle's shared epilogue has no
+  return copy (_padIntRecvId PASS).
+- **PRE-SET THE DEFAULT BEFORE THE TEST** turns a found-arm into a single
+  `(set v0,K)(jump)` block that reorg eager-steals into the branch slot (_pad_port_to_slot).
+- **w47 opacity fence** reproducing retail's redundant param copy (_dirSendAuto PASS) and
+  fixing a two-constant materialization order (_dirFailAuto 7->3).
+- **NAME a loop-invariant literal** to get retail's callee-saved sentinel + frame size
+  (_pad_failall: frame 0x20->0x28, 4th saved reg, 45->34).
+- **Read a pointer at its USE SITE, not the top** — hoisting it made it live across a call and
+  cost a saved register + 8 frame bytes (_dirFailAuto).
+
+### Residual classes (named, with next angles)
+1. **combine_regs self-temp refusal** (`lui $v0; addiu $sN,$v0` vs retail `lui $sN; addiu
+   $sN,$sN`): _pad_port_to_slot (1 site) + _pad_failall (2 sites). The lo_sum's destination is a
+   loop-carried GLOBAL allocno, and combine_regs will not tie the {high, lo_sum} pair then
+   (w47 delete_noop_moves law). Same class, two functions — worth one shared attack.
+2. **Assembler/epilogue lane (a10/a6)**: _padInitDirSeq (3) = the macro-split-into-delay-slot
+   class a6 already spec'd `maspsx --aspsx-reorder-fill` for; _pad_reset_state (1) = a
+   2-slot discriminator that needs delayed-branch OFF *plus* a same-block backward fill;
+   PadGetState (10) = the same epilogue-swap shape, with the splice trade-off quantified.
+3. **reorg duplicate-placement** (_padIntRecvHdr 4): which of two branches gets the duplicated
+   return copy. Nine spellings byte-identical.
+4. **jump.c return-threading on a frameless leaf** (_pad_getbyte, +4 insns): every `return`
+   site gets its own threaded `jr ra; nop`; retail keeps one shared epilogue block.
+5. **Not attempted this wave** (re-gated baselines only): _pad_filter 201, _dirRecvAuto 103,
+   _padIntRecvData 289, PadInitDirect 55. For PadInitDirect the identified lever is the
+   catalog's BASE-ANCHOR class — retail walks `$a0 = info + 0x40` and reaches the struct with
+   NEGATIVE displacements (-0x34/-0x30/-0x10/-0x4/0) plus a second `$s0` walker; a first
+   attempt at that rewrite measured WORSE (88 @96/88) and was reverted, so the anchor needs to
+   be introduced together with the per-iteration rx/buf2 setup, not as pre-loop walkers.
+6. **_pad_failall next-angle FALSIFIED**: splitting the reassigned param into its own loop
+   variable (`int f = flag;`) does NOT produce retail's `addu $a1,$a0,$zero` param copy
+   (34 diffs, unchanged; with an added opacity fence 36).

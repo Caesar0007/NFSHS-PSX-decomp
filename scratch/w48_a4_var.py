@@ -34,9 +34,12 @@ def main():
     orig = p.read_text(newline="")
     nl = "\r\n" if orig.count("\r\n") > orig.count("\n") / 2 else "\n"
     assert orig.count(start) == 1, "start marker not unique: %d" % orig.count(start)
-    assert orig.count(end) == 1, "end marker not unique: %d" % orig.count(end)
     i = orig.index(start)
-    j = orig.index(end)
+    if end == "@EOF":
+        j = len(orig)
+    else:
+        assert orig.count(end) == 1, "end marker not unique"
+        j = orig.index(end)
     assert j > i
     body = Path(bodyfile).read_text().replace("\r\n", "\n").replace("\n", nl)
     try:

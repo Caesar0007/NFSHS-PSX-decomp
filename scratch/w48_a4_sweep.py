@@ -15,8 +15,9 @@ def main():
     p = ROOT / rel
     orig = p.read_text(newline="")
     nl = "\r\n" if orig.count("\r\n") > orig.count("\n") / 2 else "\n"
-    assert orig.count(start) == 1 and orig.count(end) == 1
-    i, j = orig.index(start), orig.index(end)
+    assert orig.count(start) == 1
+    i = orig.index(start)
+    j = len(orig) if end == "@EOF" else orig.index(end)
     try:
         for f in sorted(Path(vdir).glob("*.txt")):
             body = f.read_text().replace("\r\n", "\n").replace("\n", nl)

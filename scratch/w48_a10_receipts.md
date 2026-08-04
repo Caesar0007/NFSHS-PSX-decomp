@@ -32,11 +32,13 @@ broken" note is **retracted** — psq45/BIN/WIN/ASPSX.EXE assembles fine; see §
 | **1** | **BRANCH-SLOT `lui`/`lw` SPLIT** (catalog cont.51 "maspsx-reorder-branch-slot FLOOR") | 🟢 **COMPILER-SIDE — and the catalog row's premise is FALSIFIED twice over** | real ASPSX 2.77 **never** fills or splits anything in `.set reorder` (§2.1); and **CC1PSX itself emits `lui $r,%hi(sym)` into the `beq` delay slot** inside its own `.set noreorder/nomacro` block (§2.3) — retail's shape is gcc's, not the assembler's. Lever = the **declaration shape** that forces the HIGH/LO_SUM split. |
 | **2** | **`.lcomm` <=4B gp-rel vs absolute `lui $at;sw`** (catalog libmcrd `funcEvSp*`) | 🟢 **BUILD-SIDE, expressible today as `g_value: 0`** | ASPSX's **own `-G`** drives `.comm`/`.lcomm` promotion: `-G0` -> `lui $at; sw` (retail), `-G4/8/default` -> `sw $r,0($gp)`. At `-G0` **real ASPSX and maspsx+GNU-as are byte-identical** (§3.3). Hypotheses (a) "aspsx never gp-relativises" and (c) "different .comm handling" are FALSIFIED. |
 | **3** | **EPILOGUE SWAP** (`addiu sp; jr ra; nop` vs `jr ra; addiu sp`) | 🟢 **COMPILER-SIDE — confirmed, `-fno-delayed-branch`, exact recipe in §4** | ASPSX 2.77/2.79/2.81 emit `jr ra` + whatever the `.s` says and **never** move an `$sp` writer or reschedule an `lw $ra`; `CC1PSX -fno-delayed-branch` emits retail's `addiu $sp / j $31 / nop` verbatim (§4.2), and maspsx reproduces it byte-for-byte. |
-| **4** | *(new, found this wave)* **whole-of-syslib has ZERO `%gp_rel`** | 🟢 **-G0 CLASS CANDIDATE, same shape as a7's frontend rule** | 0 of 410 syslib nonmatching oracles contain `%gp_rel`, vs 493/1655 game and 27/508 eaclib; plus **263 positive `lui $at` absolute-4-byte-scalar sites** in syslib (CD_cbsync, _qin, _qout, Hcount, CD_debug, StCdIntrFlag …). §3.4 |
+| **4** | *(new)* **whole-of-syslib has ZERO `%gp_rel`** | 🟡 **NOT a class rule — gate per TU** | 0 of 410 syslib nonmatching oracles contain `%gp_rel` (vs 493/1655 game, 27/508 eaclib) + 263 absolute-4-byte-scalar `lui $at` sites (§3.4) — but the `-G0` gate probes SPLIT: cdcont +1 PASS / 0 regressions, **INTR.c REGRESSES (SetIntrMask PASS→FAIL)**. Root cause + the new census rule in §6.1. |
+| **5** | *(new, the wave's biggest find)* **macro-expansion BACKWARD-FILLED into a `jr` slot** (`CdSetDebug`/`CdSyncCallback`/`CdReadyCallback`, ours 6 / oracle 5) | 🔴 **IRRECONCILABLE UNDER ASPSX — but SOLVED by GNU as; exact maspsx spec in §5.4** | **No on-disk ASPSX can produce it** (5 falsifications, 18-option sweep, 2 versions — §5.2). `CC1PSX -O2 -G0 -mno-split-addresses` + plain `mipsel-none-elf-as -G0` reproduces retail's 5 words **byte-exact** (§5.3). ⇒ the retail syslib assembler was a REORDERING MIPS `as`, **not aspsx**. |
 
-**NOTHING in my three assigned classes is IRRECONCILABLE. No maspsx patch is specced,
-because none is needed** — on every shape tested, maspsx+GNU-as and real ASPSX agree
-once the *compiler* flags match. The floors were mis-attributed to the assembler.
+**Classes 1-3 (my assigned set) are ALL compiler/build-side — the floors were mis-attributed
+to the assembler, and no maspsx patch is needed for any of them.** The one genuine assembler
+wall is the NEW class 5, and it is specced (not implemented) in §5.4 — with the twist that
+the fix is to let GNU as do MORE, not to make maspsx emulate aspsx harder.
 
 ---
 
@@ -187,10 +189,12 @@ Plus **263 positive absolute-scalar sites** in syslib (`scratch/w48_a10_scan.py 
 `CD_cbsync`, `CD_cbready`, `CD_debug`, `_qin`, `_qout`, `Hcount`, `StCdIntrFlag`,
 `D_801237D4/D8/DC`, … all 4-byte statics reached as `lui $at,%hi(x); sw $r,%lo(x)($at)`.
 Under our `-G4` those are exactly the symbols maspsx promotes to sbss.
-⇒ **a1/a2/a5/a6/a9: `g_value: 0` is a one-gate-run probe on EVERY syslib TU**, and the
-census signature is the same one that yielded a7's +46 frontend flips. (Census discipline:
-this is a *positive* signature — symbols that WOULD be gp-rel in our build and are absolute
-in retail — not merely an absence.)
+⇒ **a1/a2/a5/a6/a9: `g_value: 0` is a one-gate-run probe on EVERY syslib TU.**
+🔴 **BUT NOT A CLASS RULE — see §6.1, where I gate-tested it and it split**: cdcont +1 PASS /
+0 regressions, INTR.c a clear regression. Unlike a7's frontend case, these TUs emit **0
+GPREL16 relocs at -G4 already**, so `-G0` here is an *address-form* lever (macro form ->
+compiler-split `lui %hi`/`lw %lo`), not a section lever, and its sign flips per TU.
+Read §6.1 before wiring anything.
 
 ---
 

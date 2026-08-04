@@ -27,7 +27,11 @@ double __floatsidf(int a1)   /* @0x800EB7E4 */
      * (`lw $a2,0x18($sp); lw $a3,0x1C($sp)`), it does not re-use the 0 / a1 registers. */
     _dbl_shift_us(sh, 1, sh[0], sh[1], 10);
     sh[1] = sh[1] & 0xFFEFFFFF;   /* oracle stores the masked hi BACK into sh[1] */
-    u.w[1] = sh[1] | sign | (exp << 20);
+    /* 04M: the oracle's first `or` writes $s1 directly -- u.w[1] IS the s1 home,
+     * so accumulate on u.w[1] itself (2.7.2-basin spelling; the 2.8-basin notes
+     * above are superseded for this lane). */
+    u.w[1] = sh[1] | sign;
+    u.w[1] |= (unsigned int)(exp << 20);
     u.w[0] = sh[0];
     return u.d;
 }

@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2773 at 100% (79.3%)
+TOTAL: 3496 functions, 2775 at 100% (79.4%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2774,7 +2774,7 @@ VA             %match  unit                     function
 0x800EB66C    100.00%  eaclib/psx/spchpsxz/spchinit SPCH_GetSampleDataRate
 0x800EB6F0    100.00%  eaclib/psx/spchpsxz/spchinit SPCH_InitBankMem
 0x800EB748     85.64%  eaclib/psx/spchpsxz/spchinit SPCH_Init
-0x800EB7E4     99.69%  syslib/psx/libmath/FLTSIDF __floatsidf
+0x800EB7E4    100.00%  syslib/psx/libmath/FLTSIDF __floatsidf
 0x800EB8E4     67.73%  syslib/psx/libmath/LTDF2 __ltdf2
 0x800EB9C4    100.00%  eaclib/psx/spchpsxz/spchrand iSPCH_EACrandom
 0x800EBAC4    100.00%  eaclib/psx/spchpsxz/spchrand iSPCH_EACseedrandom
@@ -2869,7 +2869,7 @@ VA             %match  unit                     function
 0x800F0234    100.00%  eaclib/psx/eacpsxz/matrix submatrix
 0x800F026C    100.00%  eaclib/psx/eacpsxz/matrix scalematrix
 0x800F02E4    100.00%  eaclib/psx/eacpsxz/matrix reorthogonalize
-0x800F0514     59.53%  syslib/psx/libmath/GTDF2 __gtdf2
+0x800F0514     64.62%  syslib/psx/libmath/GTDF2 __gtdf2
 0x800F05F4    100.00%  eaclib/psx/eacpsxz/primate initlinkmode
 0x800F06E0    100.00%  eaclib/psx/eacpsxz/primate waitdraw
 0x800F070C    100.00%  eaclib/psx/eacpsxz/primate settrans
@@ -2959,7 +2959,7 @@ VA             %match  unit                     function
 0x800F3670    100.00%  eaclib/psx/eacpsxz/fsincos fixedsincos
 0x800F3728     83.98%  syslib/psx/libgte/COR_02 ccos
 0x800F37F8     53.05%  syslib/psx/libgte/COR_03 csin
-0x800F3938     86.78%  syslib/psx/libmath/FIXSFSI __fixsfsi
+0x800F3938     89.44%  syslib/psx/libmath/FIXSFSI __fixsfsi
 0x800F39F8    100.00%  eaclib/psx/eacpsxz/joystkn initjoy
 0x800F3A34    100.00%  eaclib/psx/eacpsxz/fileroot initfileio
 0x800F3ACC    100.00%  eaclib/psx/eacpsxz/fileroot setdirectory
@@ -2987,9 +2987,9 @@ VA             %match  unit                     function
 0x800F52B8     96.22%  eaclib/psx/eacpsxz/unref unrefpack
 0x800F5530    100.00%  eaclib/psx/eacpsxz/unref chase
 0x800F55B4    100.00%  eaclib/psx/eacpsxz/unbtree unbtree
-0x800F57C4     82.10%  syslib/psx/libmath/EXTSFDF2 __extendsfdf2
+0x800F57C4     82.68%  syslib/psx/libmath/EXTSFDF2 __extendsfdf2
 0x800F5924     50.59%  syslib/psx/libmath/TRUDFSF2 __truncdfsf2
-0x800F5A54     50.48%  syslib/psx/libmath/ADDDF3 __adddf3
+0x800F5A54     56.09%  syslib/psx/libmath/ADDDF3 __adddf3
 0x800F5DD4     48.03%  syslib/psx/libmath/DIVDF3 __divdf3
 0x800F60B4    100.00%  syslib/psx/libmath/DIVDF3 _comp_mant
 0x800F6104    100.00%  syslib/psx/libc/C26      strncpy
@@ -2997,11 +2997,11 @@ VA             %match  unit                     function
 0x800F611C    100.00%  syslib/psx/libgpu/P11    SetShadeTex
 0x800F614C    100.00%  eaclib/psx/eacpsxz/crc   crc16
 0x800F6214    100.00%  syslib/psx/libc/C30      strchr
-0x800F6224     81.56%  syslib/psx/libmath/FLTSISF __floatsisf
-0x800F62E4     45.55%  syslib/psx/libmath/MULDF3 __muldf3
-0x800F65F8     40.41%  syslib/psx/libmath/MULDF3 _mul_mant_d
-0x800F66E4     64.48%  syslib/psx/libmath/DIVSF3 __divsf3
-0x800F6834     37.71%  syslib/psx/libmath/FIXDFSI __fixdfsi
+0x800F6224     88.78%  syslib/psx/libmath/FLTSISF __floatsisf
+0x800F62E4     45.45%  syslib/psx/libmath/MULDF3 __muldf3
+0x800F65F8     40.47%  syslib/psx/libmath/MULDF3 _mul_mant_d
+0x800F66E4     58.83%  syslib/psx/libmath/DIVSF3 __divsf3
+0x800F6834     52.41%  syslib/psx/libmath/FIXDFSI __fixdfsi
 0x800F6934    100.00%  eaclib/psx/eacpsxz/vramfxya checkrect
 0x800F6960    100.00%  eaclib/psx/eacpsxz/vramfxya vramimage
 0x800F69A8     94.55%  eaclib/psx/eacpsxz/vramfxya vramfxya
@@ -3332,7 +3332,7 @@ VA             %match  unit                     function
 0x801069AC    100.00%  eaclib/psx/eacpsxz/textcode decodeansi
 0x801069C4    100.00%  eaclib/psx/eacpsxz/isqrttbl remapshiftjiscode
 0x801069EC    100.00%  eaclib/psx/eacpsxz/isqrttbl decodeshiftjis
-0x80106A54     92.00%  syslib/psx/libmath/FERR  _err_math
+0x80106A54    100.00%  syslib/psx/libmath/FERR  _err_math
 0x80106AC4     80.68%  syslib/psx/libgte/COR_01 csincos
 0x80106BE4     94.21%  syslib/psx/libsn/READ    PCread
 0x80106CA4    100.00%  syslib/psx/libsn/OPEN    PCopen

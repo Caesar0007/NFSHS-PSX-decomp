@@ -39,6 +39,12 @@ LD = _env("NFS4_LD", MIPS / "mipsel-none-elf-ld.exe")
 OBJCOPY = _env("NFS4_OBJCOPY", MIPS / "mipsel-none-elf-objcopy.exe")
 MASPSX = _env("NFS4_MASPSX", r"C:/Temp/maspsx-master/maspsx.py")
 CC1PL = _env("NFS4_CC1PL", r"C:/Temp/psq43/COMPILER/CC1PLPSX.EXE")
+# 04M (2026-08-04): PsyQ 4.0's CC1PSX = GNU C 2.7.2.SN32.3.7 -- the compiler
+# Sony's PsyQ-4.3-era LIBRARY objects were actually built with (proven byte-
+# level on libmath _err_math; triple-confirmed by sotn/sozud/psyz which all
+# build Sony libs with gcc 2.6/2.7.2 at -G0).  Selected per-TU via the
+# "cc1_272" PER_TU_FLAGS key; see _compile_c_272 for the lane.
+CC1_272 = _env("NFS4_CC1_272", r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")
 PY = sys.executable
 RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained types
 
@@ -80,6 +86,11 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #
 # Recognised keys:
 #   "g_value"            -> override the global -G threshold for this TU.
+#   "cc1_272"            -> 04M lane: compile with PsyQ 4.0's CC1PSX (gcc
+#                           2.7.2.SN32) + DIRECT GNU as in reorder mode (no
+#                           maspsx) -- the proven toolchain of Sony's library
+#                           objects.  g_value defaults to "0" in this lane.
+#                           See _compile_c_272.
 #   "jtbl_at_fusion"     -> pass --jtbl-at-fusion to maspsx for this TU only
 #                           (see JTBL_AT_FUSION above).
 #   "no_split_addresses" -> pass -mno-split-addresses to cc1/cc1plus for this
@@ -312,6 +323,23 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libmcrd/USERFUNC.c":  {"no_split_addresses": True},  # 59->14, UserFuncExecute ce (a1)
     "recon/syslib/psx/libetc/INTR.c":       {"no_split_addresses": True},  # _initIntr+_intrhand count-exact (a7)
     "recon/syslib/psx/libcd/iso9660.c":     {"no_split_addresses": True},  # -17 (a6)
+    # 04M -- the gcc-2.7.2 lane (see "cc1_272" key above).  FERR/_err_math and
+    # FLTSIDF/__floatsidf sealed the lane (PASS); the rest of libmath probed
+    # TU-by-TU at consolidation, kept only where the gate net-improves with
+    # zero PASS regressions.
+    "recon/syslib/psx/libmath/FERR.c":      {"cc1_272": True},
+    "recon/syslib/psx/libmath/FLTSIDF.c":   {"cc1_272": True},
+    "recon/syslib/psx/libmath/ADDDF3.c":    {"cc1_272": True},  # 377->352
+    "recon/syslib/psx/libmath/MULDF3.c":    {"cc1_272": True},  # -2
+    "recon/syslib/psx/libmath/GTDF2.c":     {"cc1_272": True},  # 54->50
+    "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_272": True},  # -1
+    "recon/syslib/psx/libmath/EXTSFDF2.c":  {"cc1_272": True},  # 69->55
+    "recon/syslib/psx/libmath/FLTSISF.c":   {"cc1_272": True},  # 38->32
+    "recon/syslib/psx/libmath/FIXSFSI.c":   {"cc1_272": True},  # 12->8
+    "recon/syslib/psx/libmath/FIXDFSI.c":   {"cc1_272": True},  # 80->67
+    # NOT in the lane (gate-measured worse under 2.7.2 -- source shapes are
+    # 2.8-basin-tuned; retest after re-matching): DIVDF3 +1 (its _div_mant_d
+    # PASS survived the lane), TRUDFSF2 +4, LTDF2 +31, MULSF3 +7.
     # w48-a8: DSCB wants the triple (source shape already landed by a8);
     # DsReadyCallback 9->0 with it.
     "recon/syslib/psx/libds/DSCB.c":        {"g_value": "0",
@@ -707,6 +735,45 @@ def run(cmd, **kw):
     return r
 
 
+_MOVE_RE = re.compile(r"^(\tmove\t)(\$[a-z0-9]+),(\$[a-z0-9]+)[ \t]*$", re.M)
+
+
+def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
+                   obj: Path) -> Path:
+    """The 04M gcc-2.7.2 lane for Sony library TUs: PsyQ 4.0's CC1PSX +
+    DIRECT GNU as in its default reorder mode (no maspsx).
+
+    Why no maspsx: 2.7.2 has no -msplit-addresses -- it emits assembler
+    MACROS (`sw $r,sym`, `la`) before UNWRAPPED reorder-mode branches and
+    relies on a reordering assembler to backward-fill the delay slots
+    (splitting the macro: lui above the branch, the %lo half IN the slot --
+    the retail AT-MACRO-SPLIT shape no ASPSX-faithful pipeline can produce).
+    GNU as in .set-reorder default reproduces this byte-exactly (verified on
+    _err_math 25/25).  maspsx would inject .set noreorder per .ent and
+    destroy exactly that.  INCLUDE_ASM bodies carry their own .set noreorder
+    headers and assemble verbatim either way.
+
+    The one spelling fix: modern gas expands `move` to `or`; 2.7.2-era
+    toolchains (and retail) used `addu` -- rewritten textually before as.
+    """
+    tu_g_value = str(tu_flags.get("g_value", "0"))
+    cc1_flags = ["-quiet", "-O2", f"-G{tu_g_value}", "-mgas"]
+    if tu_flags.get("no_delayed_branch"):
+        cc1_flags.append("-fno-delayed-branch")
+    r = run([CC1_272, *cc1_flags, i_file, "-o", s_file])
+    if r.returncode:
+        sys.exit(f"[cc1-272] {rel}\n{r.stdout}{r.stderr}")
+    txt = s_file.read_text(errors="replace")
+    txt = _MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), txt)
+    s_file.write_text(txt)
+    r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
+             "-I", ROOT, "-o", obj, s_file])
+    if r.returncode or not obj.exists():
+        sys.exit(f"[as-272] {rel}\n{r.stdout}{r.stderr}")
+    import fix_symsizes; fix_symsizes.fix(str(obj))
+    return obj
+
+
 def compile_c(src: Path, skip_asm: bool) -> Path:
     """cpp -> cc1 -> maspsx -> as => build/src/<rel>.c.o"""
     rel = src.relative_to(ROOT)
@@ -723,6 +790,9 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     r = run(cpp)
     if r.returncode:
         sys.exit(f"[cpp] {rel}\n{r.stderr}")
+
+    if tu_flags.get("cc1_272"):
+        return _compile_c_272(rel, tu_flags, i_file, s_file, obj)
 
     # w47 fix: compile_c honoured only the global -G; the per-TU "g_value" key
     # (long wired in compile_cpp below) silently no-op'd for the entire C lane

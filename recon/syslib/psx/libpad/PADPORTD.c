@@ -159,27 +159,49 @@ extern unsigned _pad_shift(unsigned char *info)
 }
 
 /* @0x800FDFF4 : _pad_getbyte (_padFuncGetTxd) -- next byte to clock out for the current command.
- *   `align` (2nd dispatch arg) is unused in direct mode. */
+ *   `align` (2nd dispatch arg) is unused in direct mode.
+ * MATCH (w48-a4, 40 -> 20 diffs): the mode dispatch is a REAL 2-case `switch`, and the arm order
+ * is 0 / 'M' / default.  Proof in the oracle: `beqz $a1,<case0>` then `li $v0,77;
+ * beq $a1,$v0,<caseM>` then an UNCONDITIONAL `j <default>` -- a bare 2-node linear chain with no
+ * bound test and ALL THREE bodies out-of-line, which is gcc-2.8's 2-case switch lowering and is
+ * unreachable from an if/else-if cascade (that inlines case 0 as the fall-through and inverts the
+ * first test to `bnez`).  Two more facts landed with it: writing the guard byte as
+ * `*(info + idx + 0x57)` (base operand FIRST) gives the oracle's `addu $v0,$a0,$v1` where
+ * `info[0x57 + idx]` gives the reversed `addu $v0,$v1,$a0`; and the 'M' arm returns 0xff while
+ * the other two return 0, which is what lets cross_jump fold the 'M' arm's tail into case 0's
+ * shared `lbu $v0,0($v0)` (the oracle's `j .L800FE058`) while the default arm keeps its own copy.
+ * RESIDUAL 20 @51/47: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
+ * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
+ * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable
+ * from source: a single-`return` funnel with `goto out` threads identically (20 @51), and a
+ * per-fn -fno-delayed-branch splice is worse (28 @55).  Same family as the epilogue/slot lane
+ * (a10/a6).  Falsified at this basin: if/else-if with the corrected arm order (26 @47 -- count
+ * exact but the dispatch provably wrong), nested `if (idx < 6) { if (...) }` (26), `int mode`
+ * temp for the switch selector (22), default-arm via a `buf` local instead of a direct return
+ * (20, identical). */
 extern int _pad_getbyte(unsigned char *info, int align)
 {
     int idx = info[0x45] - 3;
     unsigned char *buf;
     (void)align;
 
-    if (info[0x36] == 0) {                       /* poll: stream the actuator data */
-        if (idx < 6 && info[0x57 + idx] == 0)
+    switch (info[0x36]) {
+    case 0:                                  /* poll: stream the actuator data */
+        if (idx < 6 && *(info + idx + 0x57) == 0)
             return 0;
         if (info[0x34] <= idx)
             return 0;
         buf = *(unsigned char **)(info + 0x28);
-    } else if (info[0x36] != 'M') {              /* fixed command param block */
-        if (info[0x35] <= idx)
-            return 0;
-        return (*(unsigned char **)(info + 0x2c))[idx];
-    } else {                                     /* 'M' (0x4D align): pad with 0xff */
+        break;
+    case 'M':                                /* 0x4D align: pad with 0xff */
         if (info[0x35] <= idx)
             return 0xff;
         buf = *(unsigned char **)(info + 0x2c);
+        break;
+    default:                                 /* fixed command param block */
+        if (info[0x35] <= idx)
+            return 0;
+        return (*(unsigned char **)(info + 0x2c))[idx];
     }
     return buf[idx];
 }

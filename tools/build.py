@@ -275,10 +275,12 @@ PER_TU_FLAGS = {
     # takes detailed SoundCar 176 -> 169 (526 -> 527 instructions) while the
     # whole 48-function TU gate remains 33 PASS / 6 near / 9 far.
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
-    "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True},  # FntPrint
+    "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True,   # FntPrint
+                                             "no_split_addresses": True},  # w48-a2: -34
     "recon/game/common/aih_cop.cpp":        {"jtbl_at_fusion": True},  # HighExecute__10AIHigh_Cop
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
-    "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True},  # PadInfoAct
+    "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True,   # PadInfoAct
+                                             "no_split_addresses": True},  # w48-a4 3x: PadInfoAct->PASS
     "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True,   # R3DCar_InsertCarFacet
                                              "g_value": "8"},          # 2026-08-04G -G8 queue
     # NOTE (w38-a5): sfx.cpp does NOT want jtbl_at_fusion -- BOTH of its switch
@@ -295,6 +297,26 @@ PER_TU_FLAGS = {
     # PAD_restore / PAD_state. Whole-TU sweep with the flag: 5/5 functions
     # improve or hold (see the per-fn table in recon/eaclib/psx/pad.c).
     "recon/eaclib/psx/pad.c":               {"no_split_addresses": True},
+    # w48 (2026-08-04) SYSLIB -mno-split-addresses IDENTITY -- found
+    # independently by five agents (a9's 512-run ladder, a2's oracle-side
+    # proof on libgpu, a1 libmcrd, a4 PADENTRY, a6 iso9660) and concordant
+    # with a10's toolchain hypothesis (Sony built PsyQ 4.3 with split
+    # addresses off + a reordering assembler).  Every entry gate-verified
+    # per-TU with zero PASS regressions, reproduced 2x+ by its agent and
+    # re-gated hookless at consolidation.  Deliberately NOT wired (mixed or
+    # worse, measured): LIBMCRD, INTR_VB, drv, cdread, cdcont, stcdint,
+    # PADPORTD, PADSEQD, MCXMAIN.  Receipts: scratch/w48_a*_receipts.md.
+    "recon/syslib/psx/libgpu/SYS.c":        {"no_split_addresses": True},  # -214, MoveImage->PASS (a2/a9)
+    "recon/syslib/psx/libpad/PADMAIN.c":    {"no_split_addresses": True},  # -51, _padSetVsyncParam basin (a9)
+    "recon/syslib/psx/libmcrd/BIOS.c":      {"no_split_addresses": True},  # 39->~20 (a1)
+    "recon/syslib/psx/libmcrd/USERFUNC.c":  {"no_split_addresses": True},  # 59->14, UserFuncExecute ce (a1)
+    "recon/syslib/psx/libetc/INTR.c":       {"no_split_addresses": True},  # _initIntr+_intrhand count-exact (a7)
+    "recon/syslib/psx/libcd/iso9660.c":     {"no_split_addresses": True},  # -17 (a6)
+    # w48-a8: DSCB wants the triple (source shape already landed by a8);
+    # DsReadyCallback 9->0 with it.
+    "recon/syslib/psx/libds/DSCB.c":        {"g_value": "0",
+                                             "no_split_addresses": True,
+                                             "no_schedule_insns2": True},
     # w34 follow-up (user call): sched1 OFF for movf.c -- movfxya 149 -> 88
     # diffs. Insn parity is knowingly conceded (225 vs oracle 221: the
     # CSE-hoisted `li 255` pseudo + its caller-save spill/reload + one
@@ -389,6 +411,7 @@ PER_FN_NO_DELAYED_BRANCH = {
     },
     "recon/syslib/psx/libcd/cdcont.c": {
         "CdSync", "CdReady", "CdFlush", "CdDataSync",
+        "CdDataCallback",  # w48-a5, measured zero-regression append
         # w25-a3 TRIED and REVERTED: CdLastPos/CdSetDebug/CdSyncCallback/
         # CdReadyCallback looked textbook pure-signature (single `jr ra;nop`
         # vs oracle's slot-filled `addiu %lo(...)`), but empirically the
@@ -428,14 +451,10 @@ PER_FN_NO_DELAYED_BRANCH = {
     "recon/syslib/psx/libpad/PADPORTD.c": {
         "_pad_get_port",
     },
-    # Tier-2: both have a jal-arg-setup section outside the epilogue (not
-    # pure single-jal shape) so neither reaches full PASS, but both are
-    # clean net-positives with zero collateral on PADMAIN.cpp's other 9
-    # functions under a whole-TU gate.
-    "recon/syslib/psx/libpad/PADMAIN.c": {
-        "_padStopCom",     # FAIL 10 -> FAIL 6
-        "_padClrIntSio0",  # FAIL 28 -> FAIL 24
-    },
+    # (w48-a3: PADMAIN's two w25 splice entries DROPPED -- superseded by the
+    # PER_FN_EPILOGUE_UNFILL mechanism below, which keeps dbr's body fills
+    # and un-fills only the return slot: _padStopCom same 6 diffs but now
+    # COUNT-EXACT 17/17, _padClrIntSio0 unchanged 24.)
     # Tier-2: all three carry a PADCMD-style command-dispatch case chain
     # (li/beq/j per case) whose ASPSX-unfilled delay-slot nops move each
     # closer to the oracle's per-case beq/nop/j/nop shape without reaching
@@ -443,7 +462,26 @@ PER_FN_NO_DELAYED_BRANCH = {
     "recon/syslib/psx/libpad/PADCMD.c": {
         "_padSendAtLoadInfo",  # FAIL 32 -> FAIL 30
         "_padLoadActInfo_snd", # FAIL 24 -> FAIL 22
-        "_padSetMainMode_rcv", # FAIL 24 -> FAIL 19
+        # w48-a3: _padSetMainMode_rcv DROPPED from the splice -- the
+        # EPILOGUE_UNFILL entry below takes it to PASS 24/24 instead.
+    },
+    # w48-a5: libcd Tier-1/Tier-2 splice additions, each measured in the
+    # final basin with zero whole-TU regressions.
+    "recon/syslib/psx/libcd/drv.c": {
+        "CD_initintr",         # FAIL 15 -> FAIL 6
+    },
+    "recon/syslib/psx/libcd/event.c": {
+        "_cd_event_init", "_cd_event_sync", "_cd_event_ready", "_cd_event_read",
+    },
+    "recon/syslib/psx/libcd/toc.c": {
+        "CdGetToc",            # FAIL 6 -> FAIL 5
+    },
+    # w48-a6: stream cluster.
+    "recon/syslib/psx/libcd/stream.c": {
+        "StSetRing",           # FAIL 9 -> FAIL 3
+    },
+    "recon/syslib/psx/libcd/streamhelp.c": {
+        "data_ready_callback", # FAIL 21 -> FAIL 18
     },
     "recon/syslib/psx/libcard/CARDINIT.c": {
         "StopCARD",   # StartCARD tried + reverted: multi-jal interior arg-slot filling
@@ -581,6 +619,51 @@ def _uniquify_local_labels(region: str, tag: str) -> str:
 _SPLICE_COUNTER = [0]
 
 
+# --- w48-a3: per-FUNCTION EPILOGUE-ONLY delay-slot UN-FILL ------------------
+# The "epilogue swap" residual (ours `jr ra; addiu sp` vs retail's
+# `addiu sp; jr ra; nop`) appears iff $ra is the LAST callee-saved register
+# restored: reorg steals the sp-adjust into the return slot and covers the
+# resulting lw-$ra load-delay hazard with its own nop.  The w25 whole-function
+# splice loses dbr's BODY fills; this instead post-processes the NORMAL
+# (delayed-branch ON) cc1 .s and un-fills ONLY the named function's return
+# slot -- textually what cc1 emits for that tail under -fno-delayed-branch,
+# so the result is still 100% real cc1 output.  MUST stay per-function: on a
+# function without the residual it costs +1 insn.  Proof + measurements:
+# scratch/w48_a3_receipts.md section 2.
+PER_FN_EPILOGUE_UNFILL = {
+    "recon/syslib/psx/libpad/PADMAIN.c": {
+        "_padVbCallback1",   # FAIL 4  -> PASS 26/26
+        "_padStopCom",       # FAIL 6 (19/17) -> FAIL 6 COUNT-EXACT 17/17
+        "_padClrIntSio0",    # unchanged 24; releases its w25 splice entry
+    },
+    "recon/syslib/psx/libpad/PADCMD.c": {
+        "_padSetMainMode_rcv",  # FAIL 11 -> PASS 24/24 (splice entry dropped)
+    },
+}
+
+_EPI_UNFILL_RE = re.compile(
+    r"\t\.set\tnoreorder\n\t\.set\tnomacro\n\tj\t\$31\n(\t[^\n]*\n)"
+    r"\t\.set\tmacro\n\t\.set\treorder\n")
+
+
+def _apply_epilogue_unfill(rel_posix: str, s_file: Path) -> None:
+    names = PER_FN_EPILOGUE_UNFILL.get(rel_posix)
+    if not names:
+        return
+    txt = s_file.read_text(errors="replace")
+    for name in names:
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else 0)
+        region = txt[m.start():end]
+        new = _EPI_UNFILL_RE.sub(lambda mm: mm.group(1) + "\tj\t$31\n", region)
+        if new != region:
+            txt = txt[:m.start()] + new + txt[end:]
+    s_file.write_text(txt)
+
+
 def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
                       cc1_bin: Path, cc1_flags: list) -> None:
     """If `rel_posix` has entries in PER_FN_NO_DELAYED_BRANCH: recompile
@@ -663,6 +746,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
 
     _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1, cc1_flags)
+    _apply_epilogue_unfill(rel.as_posix(), s_file)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -723,6 +807,7 @@ def compile_cpp(src: Path) -> Path:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
 
     _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1PL, cc1pl_flags)
+    _apply_epilogue_unfill(rel.as_posix(), s_file)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

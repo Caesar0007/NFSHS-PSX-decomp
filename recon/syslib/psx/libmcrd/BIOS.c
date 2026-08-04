@@ -94,6 +94,16 @@ extern void _clr_card_event(void)
     TestEvent(_card_evhandle7);
     _card_evflag0 = _card_evflag1 = _card_evflag2 = _card_evflag3 = 0;
     _card_evflag4 = _card_evflag5 = _card_evflag6 = _card_evflag7 = 0;
+    /* w48-a1 ZERO-INSN SCHED2 FENCE (catalog "USE FENCE IS A SCHED-ISSUE-POSITION
+     * FIXPOINT"): without it sched2 HOISTS the epilogue `lw ra,16(sp)` ~25 insns up into
+     * the flag-clear store chain to fill a load-delay slot, which then frees `addiu sp` to
+     * be dbr's filler for the `jr ra` slot -- ours 65 insns vs the oracle's 66.  A volatile
+     * asm here is a scheduling barrier that nothing after it may float above, so the
+     * restore stays at the tail and `addiu sp` goes back to covering the `lw ra`
+     * load-delay (count-EXACT 66/66).  The operand is an IMMEDIATE ("i"), not "r": an
+     * operand-LESS `asm("")` is deleted before reorg, an "r" operand would cost a real
+     * insn here (no value is reg-resident at this point), and "i"(0) emits NOTHING. */
+    __asm__("" : : "i"(0));
 }
 
 /* @0x80109620 : _card_start -- open + enable the eight card events.  Oracle fully unrolls both

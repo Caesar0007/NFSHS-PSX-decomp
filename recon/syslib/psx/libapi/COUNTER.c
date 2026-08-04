@@ -88,6 +88,9 @@ extern long GetRCnt(long spec)
 extern long StartRCnt(unsigned long spec)
 {
     long i = spec & 0xffff;
-    ((volatile unsigned long *)RCnt_ctrl)[1] |= RCnt_irq[i];
+    /* MATCH (w48-a7, methodology 3.25-3c): the oracle puts this store in the `jr ra` DELAY SLOT.
+     * gcc's reorg refuses to slot-fill a volatile MEM, so the volatile qualifier alone cost the
+     * fill -- cast it away here (the write is still a single word store to the same address). */
+    ((unsigned long *)RCnt_ctrl)[1] |= RCnt_irq[i];
     return i < 3;
 }

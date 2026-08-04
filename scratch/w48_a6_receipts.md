@@ -142,3 +142,53 @@ is dead and these are a compiler mystery.
 
 Affected in my scope: StSetMask (3, ALL of it), StSetRing (3 post-splice, ALL of it),
 StClearRing (part), StUnSetRing (part), data_ready_callback (part), StGetNext (part).
+
+## 4b. 🔴🔴 CORRECTION TO §4 — I TESTED IT AGAINST THE REAL ASPSX (per the 04C law). Result: my §4 attribution was WRONG, and the true mechanism is now PROVEN.
+
+Test corpus (`C:/Temp/w48a6/`, CRLF-converted `.s`, SN `-o<name>` syntax):
+
+Input = the EXACT cc1 output for `StSetMask`
+(`build/recon/syslib/psx/libcd/streamhelp.c.s`), which is:
+```
+	sw	$4,StSTART_FLAG
+	sw	$5,StStartFrame
+	sw	$6,StEndFrame
+	j	$31
+```
+(three one-line assembler MACROS, no `.set` directive, delay slot left to the assembler).
+
+| assembler | mode | .text size | words | shape |
+|---|---|---|---|---|
+| **ASPSX 2.77** (`psq43/PSSN`) | default | 0x20 | **8** | 3 macro pairs, `jr ra`, **`nop`** |
+| **ASPSX 2.77** (`psq43/PSSN43/pssn`) | default | 0x20 | **8** | identical |
+| **ASPSX 2.79** (`psq45/BIN`) | default | 0x20 | **8** | identical |
+| ASPSX 2.77, macro written INTO the slot, `.set reorder` | | 0x20 | 8 | macro pushed BACK out of the slot, `nop` inserted |
+| ASPSX 2.77, macro written INTO the slot, `.set noreorder` | | 0x1C | 7 | **`jr ra; lui $at; sw`** — only the `lui` in the slot (semantically dead store; NOT the oracle) |
+| **GNU as** `-EL -march=r3000 -G0`, `.set reorder` | | 0x1C | **7** | **`lui $at,%hi(EF); jr $ra; sw $a2,%lo(EF)($at)` = THE ORACLE, byte-for-byte** |
+
+### Verdict
+1. The "macro SPLIT into a delay slot" mechanism is **REAL and CONFIRMED** — but **ASPSX 2.77/2.79
+   DO NOT DO IT** (they insert `nop`, exactly like our maspsx pipeline). My §4 claim
+   "the assembler split it, test ASPSX" is therefore **half right / half wrong**: the split is
+   an assembler behavior, but *not this assembler's*.
+2. **GNU as in `.set reorder` reproduces the retail bytes EXACTLY** from our own unmodified cc1
+   output. So the retail bytes are NOT unreachable — they are one `.set` directive away.
+3. Our pipeline cannot get there because **maspsx forces `.set noreorder` on every function**
+   (build.py's own w25-a9 note), so GNU as's reorder-fill never runs. `maspsx.py --help` has NO
+   option for this (`--dont-force-G0`, `--expand-div`, `--macro-inc`, `--jtbl-at-fusion`, ...).
+4. Corollary that matters for the WHOLE wave: since ASPSX 2.77/2.79 provably cannot emit
+   retail's shape here, **the retail libcd objects were not produced by an ASPSX-2.77-class
+   reorder pass**. Either Sony assembled the PsyQ libraries with a MIPS/GNU-lineage `as`
+   (IDT Ch9 assembler = GAS's ancestor, methodology §3.17), or with an ASPSX build we do not
+   have. This is a *second*, independent data point next to 04C's "no backward jal fill".
+
+### maspsx fix SPEC (not implemented — out of an a1-a8 agent's scope)
+Add `--aspsx-reorder-fill` (opt-in, per-TU): when cc1's `.s` leaves a branch/jump delay slot
+empty in a region cc1 did NOT mark `.set noreorder`, emit `.set reorder` for that region instead
+of `noreorder`+`nop`, and let GNU as fill it. Gate: it must be OPT-IN per TU, because the same
+change would re-fill slots in TUs whose oracles genuinely carry `nop` there.
+Expected immediate yield in my scope alone: StSetMask 3->0 (PASS), StSetRing 3->0 (PASS, with
+the `-fno-delayed-branch` splice from §3.2), plus partial credit on StClearRing / StUnSetRing /
+StGetNext / data_ready_callback.
+
+**Repro kit committed: `scratch/w48_a6_asmdiff.md` + the .s inputs.**

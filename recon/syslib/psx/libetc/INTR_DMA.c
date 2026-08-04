@@ -47,7 +47,10 @@ static void _bzero_w(int *p, int n)   /* @0x80106924 */
 extern void *startIntrDMA(void)   /* @0x801066AC */
 {
     _bzero_w(dma_cb, 8);
-    DICR = 0;
+    /* MATCH (w48-a7, methodology 3.25-3c): the oracle puts this store in the
+     * `jal InterruptCallback` DELAY SLOT.  gcc's reorg refuses to slot-fill a volatile MEM, so
+     * the volatile qualifier alone cost the fill -- cast it away for this one store. */
+    *(unsigned int *)g_dicr_ptr = 0;
     InterruptCallback(3, _dma_isr);
     return (void *)_dma_set_callback;
 }

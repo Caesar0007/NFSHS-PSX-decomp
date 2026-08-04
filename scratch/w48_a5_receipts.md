@@ -215,7 +215,7 @@ NAMING matters.
 | CD_flush | drv | 17 | 17 | F2 offset-0 refold; opaque-base angle |
 | CdInit | event | 42 | **19** | L2+L3 landed; F5 layout-after-rotation |
 | _cd_intr_dispatch | drv | 25 | 25 | 53/54 — one missing insn + jtbl dispatch; unexamined |
-| CdGetDiskType | TYPE | 54 | 54 | frame 2088 vs 2096 + an EXTRA oracle saved reg (s1) and a `li s1,1` loop constant: same LICM/sentinel family as CdInit L1/L3 — **highest-value untried lever in my scope** |
+| CdGetDiskType | TYPE | 54 | **3** | CRACKED in �7 (L5-L8). Residual 3 = old-gcc no-copy-prop + 1 reorg steal. [orig note: frame 2088 vs 2096 + an EXTRA oracle saved reg (s1) and a `li s1,1` loop constant: same LICM/sentinel family as CdInit L1/L3 — **highest-value untried lever in my scope** -- CONFIRMED, it was] |
 | CD_datasync | drv | 61 | 61 | 89/90; nodb REGRESSES (102) |
 | CdControl | cdcont | 62 | **60** | L1; residual = pure prologue register ROTATION (retail s1=param,s2=result,s4=com,s3=com&255,s5=old vs ours s4,s5,s2,s1,s3) — count-EXACT 79/79, allocsim/reqdelta territory |
 | CdControlF | cdcont | 67 | **63** | same rotation |

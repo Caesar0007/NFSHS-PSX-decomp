@@ -46,12 +46,18 @@ typedef struct DCB {
 typedef int (*FirstFn)(int *state, int arg, int arg2);
 
 extern FirstFn _first_save;          /* @0x80148A7C : saved original device handler */
-extern char    _first_devname[16];   /* @0x80148A84 : device prefix extracted from `name` */
+/* MATCH (w48-a7): UNSIZED.  The oracle materializes this address INSIDE the DCB search loop, at
+ * the strcmp call site (`lui $a1,%hi; addiu $a1,$a1,%lo` = one `la` macro).  With the size known,
+ * -msplit-addresses gives gcc a separate `(high _first_devname)` pseudo that loop.c hoists out of
+ * the loop into a CALLEE-SAVED register -- costing a whole extra saved reg (7 vs the oracle's 6)
+ * and rotating every other saved-reg role.  IDT Ch9's rule (methodology 3.12 #5) both ways:
+ * omit the size, or give the correct one -- here the omission is what retail's codegen shows. */
+extern char    _first_devname[];     /* @0x80148A84 : device prefix extracted from `name` */
 
 /* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
 extern int _first_patch(int *state, int arg, int arg2)
 {
-    DCB *e, *end;
+    DCB *e, *end, *lim;
     unsigned int cnt;
     FirstFn saved;
 
@@ -59,12 +65,21 @@ extern int _first_patch(int *state, int arg, int arg2)
         *state = 1;
     cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     e    = BIOS_DCB_BASE;
-    end  = e + cnt;
+    /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
+     * the zero-trip guard, and only copies it into the callee-saved loop bound inside the guard
+     * (`addu $v1,$s0,$v0; sltu $v0,$s0,$v1; beqz $v0,..; addu $s1,$v1,$zero`).  The copy survives
+     * because the destination outlives its source (make_regs_eqv); computing straight into `end`
+     * coalesces it away. */
+    lim  = e + cnt;
     saved = _first_save;   /* loop-invariant: hoist the un-patch value (oracle materializes it before the search) */
-    for (; e < end; e++) {
+    if (e < lim) {
+        end = lim;
+scan:
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             e->firstfile = (void *)saved;   /* un-patch (one-shot) */
-            break;
+        } else {
+            e++;
+            if (e < end) goto scan;
         }
     }
     return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */

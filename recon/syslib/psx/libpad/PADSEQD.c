@@ -66,41 +66,57 @@ extern int _dirCheck(unsigned char *info)
     return 1;
 }
 
-/* @0x8010A0E4 : _dirSendAuto (_padFuncSendAuto) -- emit the next request for the current state. */
+/* @0x8010A0E4 : _dirSendAuto (_padFuncSendAuto) -- emit the next request for the current state.
+ * MATCH (w48-a4, 32 -> PASS 64/64).  Two facts:
+ *  (1) the state dispatch is a REAL `switch (st)` over {0, 1, 0xfe, 0xff}.  The oracle's tree is
+ *      gcc-2.8 balance_case_nodes on 4 nodes: root `beq $v1,1` + bound test `slti $v1,2` in its
+ *      delay slot, left leaf `beqz $v1` (case 0), right pair `beq 0xFE` / `beq 0xFF`, every body
+ *      out-of-line, cases 0 and 0xff having NO body (straight to the shared `return 0`).  The
+ *      if/else-if cascade inverts three of those branches (32 diffs).  The `default: break;`
+ *      label and putting the `!= 0` fn-pointer arm FIRST are both load-bearing (8 diffs without).
+ *  (2) the `_padFuncClrInfo` call: retail emits a REDUNDANT `addu $a0,$s0,$zero` copy of `info`
+ *      into the jalr's delay slot even though $a0 still holds it; our cc1 copy-propagates the
+ *      copy away and leaves `nop` (the methodology 3.25-3b "old-gcc no-copy-prop" identity /
+ *      w47 delete_noop_moves law).  The w47 OPACITY FENCE `__asm__("" : "=r"(x) : "0"(x))` is
+ *      the zero-instruction modelling device for exactly this: the "0" constraint pins output to
+ *      input so NO code is emitted, but cse/copy-prop can no longer prove `info` == the incoming
+ *      $a0, so the copy survives.  DO NOT DELETE IT -- removing it costs the match (2 diffs).
+ *      A plain local copy (`p = info;`) does not work: it is propagated away (2 diffs). */
 extern int _dirSendAuto(unsigned char *info)
 {
     unsigned char st;
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
 
     if (rx[0] == (unsigned char)0xf3) {          /* controller present */
-        if (info[0xe8] == 0)                     /* unconfigured: shares the st==0xfe call site below */
+        if (info[0xe8] == 0)                     /* unconfigured: shares the st==0xfe call site */
             goto reenter_cfgmode;
-        if (info[0x49] == 2)
+        if (info[0x49] == 2) {
+            /* MATCH: keeps retail's redundant `addu $a0,$s0,$zero` in the jalr delay slot */
+            __asm__("" : "=r"(info) : "0"(info));
             _padFuncClrInfo(info);
-        /* fall through to the state dispatch */
+        }
     }
 
     st = info[0x46];
-    if (st == 1) {
+    switch (st) {
+    case 1:
         _padCmdParaMode(info, 1);
         return 0;
+    case 0:
+        return 0;
+    case 0xfe:
+    reenter_cfgmode:
+        _padCmdParaMode(info, 0);
+        return 0;
+    case 0xff:
+        return 0;
+    default:
+        break;
     }
-    if (st < 2) {
-        if (st == 0)
-            return 0;
-    } else {
-        if (st == 0xfe) {
-        reenter_cfgmode:
-            _padCmdParaMode(info, 0);
-            return 0;
-        }
-        if (st == 0xff)
-            return 0;
-    }
-    if (*(void **)(info + 0x14) == 0)
-        _padSendAtLoadInfo(info);
-    else
+    if (*(void **)(info + 0x14) != 0)
         (*(PadSnd *)(info + 0x14))(info);
+    else
+        _padSendAtLoadInfo(info);
     return 0;
 }
 

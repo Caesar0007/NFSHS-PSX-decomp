@@ -35,6 +35,23 @@ extern int _bss_obj;              /* linker sym: BSS region start (SN "OBJEND"-s
 extern int __last_org;            /* linker sym: end of the linked image / BSS end */
 extern int _gp;                   /* linker sym: small-data anchor (0x8013C54C, nfs4.ld)     */
 
+/* @0x800E4024 (__main): GCC's global-constructor hook -- EMPTY in the SN runtime (`jr ra; nop`).
+ * w48-a7: was MISSING from this TU entirely (gate said NOT IN OBJECT, worklist read it as 0.00%).
+ * Emitted as file-scope asm, FIRST, so it lands physically before __SN_ENTRY_POINT like retail --
+ * and because this TU's asm blocks leave maspsx in `.set noreorder` state for the whole file, a
+ * C-level `void __main(void){}` here would lose its delay-slot nop (w45 file-scope-asm pitfall). */
+#if defined(__mips__)
+__asm__(
+    ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
+    ".globl __main\n__main:\n"
+    "\tjr         $ra\n"
+    "\tnop\n"
+    ".set pop\n"
+);
+#else
+extern void __main(void) { }
+#endif
+
 /* @0x800E402C (stup2 / __SN_ENTRY_POINT): zero the BSS region [_bss_obj, __last_org). */
 #if defined(__mips__)
 __asm__(
@@ -93,6 +110,10 @@ __asm__(
     "\taddi      $a0, $a0, %lo(D_80000004)\n"
     "\tlui        $ra, %hi(D_8013DE5C)\n"
     "\tlw         $ra, %lo(D_8013DE5C)($ra)\n"
+    /* w48-a7: stup1's SYM span is 0x78 = 30 insns and ENDS at the `lw $ra` -- the load-delay
+     * nop @0x800E40C8 is a PAD word between stup1 and stup0, not part of stup1.  Label it so the
+     * byte stays in the image (retail layout preserved) while the symbol block is 30 insns.     */
+    "D_800E40C8:\n"
     "\tnop\n"
     ".set pop\n"
 );

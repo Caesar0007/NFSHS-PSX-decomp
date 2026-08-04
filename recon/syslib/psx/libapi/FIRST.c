@@ -46,25 +46,46 @@ typedef struct DCB {
 typedef int (*FirstFn)(int *state, int arg, int arg2);
 
 extern FirstFn _first_save;          /* @0x80148A7C : saved original device handler */
-extern char    _first_devname[16];   /* @0x80148A84 : device prefix extracted from `name` */
+/* MATCH (w48-a7): UNSIZED.  The oracle materializes this address INSIDE the DCB search loop, at
+ * the strcmp call site (`lui $a1,%hi; addiu $a1,$a1,%lo` = one `la` macro).  With the size known,
+ * -msplit-addresses gives gcc a separate `(high _first_devname)` pseudo that loop.c hoists out of
+ * the loop into a CALLEE-SAVED register -- costing a whole extra saved reg (7 vs the oracle's 6)
+ * and rotating every other saved-reg role.  IDT Ch9's rule (methodology 3.12 #5) both ways:
+ * omit the size, or give the correct one -- here the omission is what retail's codegen shows. */
+extern char    _first_devname[];     /* @0x80148A84 : device prefix extracted from `name` */
 
 /* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
 extern int _first_patch(int *state, int arg, int arg2)
 {
-    DCB *e, *end;
+    DCB *e, *end, *lim;
     unsigned int cnt;
     FirstFn saved;
+
+    /* MATCH (w48-a7, allocsim priority dial): assigning `saved` FIRST -- before the *state
+     * update -- LENGTHENS its live range from 14 to ~26 insns, which DROPS its allocno
+     * priority (2 refs / live) below `state`'s (4 refs / 60), swapping them into the
+     * oracle's $s2 (state) / $s3 (saved).  Every other saved-reg role then lands exactly.
+     * Positions further down (after the div, after `e =`, after `lim =`) all measure 20. */
+    saved = _first_save;
 
     if (*state == 0)
         *state = 1;
     cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     e    = BIOS_DCB_BASE;
-    end  = e + cnt;
-    saved = _first_save;   /* loop-invariant: hoist the un-patch value (oracle materializes it before the search) */
-    for (; e < end; e++) {
+    /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
+     * the zero-trip guard, and only copies it into the callee-saved loop bound inside the guard
+     * (`addu $v1,$s0,$v0; sltu $v0,$s0,$v1; beqz $v0,..; addu $s1,$v1,$zero`).  The copy survives
+     * because the destination outlives its source (make_regs_eqv); computing straight into `end`
+     * coalesces it away. */
+    lim  = e + cnt;
+    if (e < lim) {
+        end = lim;
+scan:
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
             e->firstfile = (void *)saved;   /* un-patch (one-shot) */
-            break;
+        } else {
+            e++;
+            if (e < end) goto scan;
         }
     }
     return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
@@ -73,7 +94,7 @@ extern int _first_patch(int *state, int arg, int arg2)
 /* @0x80109DC0 : firstfile */
 extern void *firstfile(char *name, void *dir)
 {
-    DCB  *e, *end;
+    DCB  *e, *end, *lim;
     char *p;
     signed char *scan;
     int   found;
@@ -85,28 +106,48 @@ extern void *firstfile(char *name, void *dir)
         *p++ = (unsigned char)*scan++;
     *p = '\0';
 
+    /* MATCH (w48-a7): both DCB searches use a GOTO back-edge (see _first_patch) so loop.c never
+     * hoists the `(high _first_devname)` half into a callee-saved reg, and `found` is assigned in
+     * the two EXIT paths (never before the loop) so it does not live across strcmp and stays in a
+     * caller-saved reg -- the oracle's `addu $v1,$zero,$zero` / `li $v1,1` / `bnez $v1`.  Both
+     * together take the frame 48 -> 40 and the saved set s0..s5 -> s0..s3. */
+
     /* pass 1: locate the device, remember its current first-file handler */
-    found = 0;
     e   = BIOS_DCB_BASE;
-    end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
-    for (; e < end; e++) {
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
-            _first_save = (FirstFn)e->firstfile;
-            found = 1;
-            break;
-        }
+    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    if (e < lim) {
+        end = lim;
+scan1:
+        if (e->name != 0 && strcmp(e->name, _first_devname) == 0)
+            goto hit1;                     /* match handler is OUT OF LINE (oracle beqz target) */
+        e++;
+        if (e < end) goto scan1;
     }
+    found = 0;
+tested:
     if (!found)
         return 0;
+    goto pass2;
+hit1:
+    _first_save = (FirstFn)e->firstfile;
+    found = 1;
+    goto tested;
+pass2:
 
     /* pass 2: install the self-removing patch into that device */
     e   = BIOS_DCB_BASE;
-    end = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
-    for (; e < end; e++) {
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
-            e->firstfile = (void *)_first_patch;
-            break;
-        }
+    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    if (e < lim) {
+        end = lim;
+scan2:
+        if (e->name != 0 && strcmp(e->name, _first_devname) == 0)
+            goto hit2;                     /* match handler OUT OF LINE, as in pass 1 */
+        e++;
+        if (e < end) goto scan2;
     }
+    goto tail;
+hit2:
+    e->firstfile = (void *)_first_patch;
+tail:
     return firstfile2(name, dir);
 }

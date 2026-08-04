@@ -72,7 +72,20 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
 
 
-/* ---- CopCheck__14AIHigh_TrafficPi  AIHigh_Traffic::CopCheck  [AIH_TRAF.CPP:61-121] SLD-VERIFIED ---- */
+/* ---- CopCheck__14AIHigh_TrafficPi  AIHigh_Traffic::CopCheck  [AIH_TRAF.CPP:61-121] SLD-VERIFIED ----
+ * 04R RECEIPT (1 diff, ours 66 / oracle 67; objdiff 98.43): the oracle's closest==0 path exits
+ * PAST the v0=s0 tail (.L80065E58) with `addu v0,zero,zero` eager-stolen into the beqz slot --
+ * retail REMATERIALIZES the zero from $zero while a live $s0 also holds 0.  Six spellings
+ * falsified (numbers = gate diffs @insns): inline wrapper 1@66 (baseline, kept) - early
+ * `return 0` 1@66 (value-merged into the s0 tail) - `return closest` 1@66 (const-propped, same
+ * merge) - identity fence inside the if 6@69 (out-of-line block, polarity flip) - fence above
+ * the test 3@68 (zero materializes but as `addu v0,S0,zero` + empty slot: cse substitutes the
+ * live s0 zero AND the fence barrier blocks the slot sink) - end-goto return-null block 5@66
+ * (merged anyway).  CLASS = methodology 3.25-3b STILL-LIVE-CONSTANT no-copy-prop identity (the
+ * w47-a1 nfile fingerprint: retail rematerializes a constant that is live in a register; our
+ * cc1 copy-propagates) -- not source-reachable by any spelling tried; ANGLE = instrumented-cc1
+ * trace of the cse/jump decision on this site (Mode-A check first), same lane as nfile's three
+ * sites.  NOT a floor: the fence-above probe proves the SHAPE is one cse substitution away. */
 AIHigh_Cop *
 
 AIHigh_Traffic::CopCheck(int *blockade)

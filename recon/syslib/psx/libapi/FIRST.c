@@ -118,11 +118,8 @@ extern void *firstfile(char *name, void *dir)
     if (e < lim) {
         end = lim;
 scan1:
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
-            _first_save = (FirstFn)e->firstfile;
-            found = 1;
-            goto tested;
-        }
+        if (e->name != 0 && strcmp(e->name, _first_devname) == 0)
+            goto hit1;                     /* match handler is OUT OF LINE (oracle beqz target) */
         e++;
         if (e < end) goto scan1;
     }
@@ -130,6 +127,12 @@ scan1:
 tested:
     if (!found)
         return 0;
+    goto pass2;
+hit1:
+    _first_save = (FirstFn)e->firstfile;
+    found = 1;
+    goto tested;
+pass2:
 
     /* pass 2: install the self-removing patch into that device */
     e   = BIOS_DCB_BASE;
@@ -137,12 +140,14 @@ tested:
     if (e < lim) {
         end = lim;
 scan2:
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
-            e->firstfile = (void *)_first_patch;
-        } else {
-            e++;
-            if (e < end) goto scan2;
-        }
+        if (e->name != 0 && strcmp(e->name, _first_devname) == 0)
+            goto hit2;                     /* match handler OUT OF LINE, as in pass 1 */
+        e++;
+        if (e < end) goto scan2;
     }
+    goto tail;
+hit2:
+    e->firstfile = (void *)_first_patch;
+tail:
     return firstfile2(name, dir);
 }

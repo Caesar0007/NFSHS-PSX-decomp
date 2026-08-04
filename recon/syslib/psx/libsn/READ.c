@@ -28,7 +28,13 @@ int PCread(int fd, int buff, unsigned len)   /* @0x80106BE4 */
             if (n == -1) return -1;
             buff += n;
             len  -= n;
-            if (n < (int)chunk) break;
+            /* MATCH (w48-a7, allocsim/reqdelta receipt): the short-read exit is a DUPLICATE
+             * `return total;`, not a `break`.  jump.c cross-jumps the two copies back into ONE
+             * shared tail (insn count unchanged) while flow.c still counts both refs -- and the
+             * in-loop copy is loop-depth-weighted, so `total`'s REG_N_REFS goes 6 -> 8, crossing a
+             * floor_log2 step (pri .545 -> 1.043) and lifting it above `buff` into the oracle's
+             * $s2 (buff then takes $s3).  Predicted by tools/reqdelta.py before the edit. */
+            if (n < (int)chunk) return total;
         } while (len != 0);
     }
     return total;

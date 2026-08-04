@@ -94,6 +94,16 @@ extern void _clr_card_event(void)
     TestEvent(_card_evhandle7);
     _card_evflag0 = _card_evflag1 = _card_evflag2 = _card_evflag3 = 0;
     _card_evflag4 = _card_evflag5 = _card_evflag6 = _card_evflag7 = 0;
+    /* w48-a1 ZERO-INSN SCHED2 FENCE (catalog "USE FENCE IS A SCHED-ISSUE-POSITION
+     * FIXPOINT"): without it sched2 HOISTS the epilogue `lw ra,16(sp)` ~25 insns up into
+     * the flag-clear store chain to fill a load-delay slot, which then frees `addiu sp` to
+     * be dbr's filler for the `jr ra` slot -- ours 65 insns vs the oracle's 66.  A volatile
+     * asm here is a scheduling barrier that nothing after it may float above, so the
+     * restore stays at the tail and `addiu sp` goes back to covering the `lw ra`
+     * load-delay (count-EXACT 66/66).  The operand is an IMMEDIATE ("i"), not "r": an
+     * operand-LESS `asm("")` is deleted before reorg, an "r" operand would cost a real
+     * insn here (no value is reg-resident at this point), and "i"(0) emits NOTHING. */
+    __asm__("" : : "i"(0));
 }
 
 /* @0x80109620 : _card_start -- open + enable the eight card events.  Oracle fully unrolls both
@@ -156,8 +166,36 @@ extern int _get_card_event(void)
     TestEvent(_card_evhandle5);
     TestEvent(_card_evhandle6);
     TestEvent(_card_evhandle7);
-    _card_evflag0 = _card_evflag1 = _card_evflag2 = _card_evflag3 = 0;
-    return sum >> 1;
+    /* w48-a1: the flag-clear chain is spelled OUT (store 0, then each link RE-READS the slot
+     * it just wrote -- which is what gcc-2.8 does for a chained assignment through `volatile`
+     * lvalues, and what the oracle disasm shows) so two zero-instruction devices fit inside it:
+     *   (1) `r = sum >> 1` is computed BEFORE the last reload.  That makes r live ACROSS it, so
+     *       the reload cannot reuse $v0 and lands in $v1 -- the oracle's register pick.  Computed
+     *       after (the natural `return sum >> 1;` tail) the reload takes $v0 and the whole tail
+     *       rotates (measured: 8 diffs vs 2).
+     *   (2) a use fence after the reload and another before the return pin the schedule: without
+     *       them sched2 hoists the epilogue `lw ra`/`lw s0` ~10 insns up into the store chain to
+     *       cover load-delay slots, where the oracle keeps both at the tail (that alone was 4 of
+     *       the original 6 diffs).  Both fences take values already resident in registers, so
+     *       they emit NOTHING (count stays 54/54).
+     * RESIDUAL 2 diffs: the oracle schedules `sra $v0,$s0,1` into the LOAD-DELAY SLOT of the
+     * final reload; ours issues it at the top of the same block.  Pure sched2 ready-list pick at
+     * count parity -- and it is NOT reachable by moving the shift down in the source, because the
+     * source position that fixes the SCHEDULE (shift after the reload) destroys the ALLOCATION
+     * that gives the reload $v1 (measured 4 spellings: shift-after = 8 diffs).  The two
+     * requirements point in opposite directions -- a de-coupled pair, permuter/ready-list class. */
+    {
+        int r, t;
+        _card_evflag3 = 0;
+        _card_evflag2 = _card_evflag3;
+        _card_evflag1 = _card_evflag2;
+        r = sum >> 1;
+        t = _card_evflag1;
+        __asm__("" : : "r"(t));
+        _card_evflag0 = t;
+        __asm__("" : : "r"(r));
+        return r;
+    }
 }
 
 /* @0x80109AB0 : _get_card_event_x -- as above for the slot-1 bus. */
@@ -171,8 +209,36 @@ extern int _get_card_event_x(void)
     TestEvent(_card_evhandle1);
     TestEvent(_card_evhandle2);
     TestEvent(_card_evhandle3);
-    _card_evflag4 = _card_evflag5 = _card_evflag6 = _card_evflag7 = 0;
-    return sum >> 1;
+    /* w48-a1: the flag-clear chain is spelled OUT (store 0, then each link RE-READS the slot
+     * it just wrote -- which is what gcc-2.8 does for a chained assignment through `volatile`
+     * lvalues, and what the oracle disasm shows) so two zero-instruction devices fit inside it:
+     *   (1) `r = sum >> 1` is computed BEFORE the last reload.  That makes r live ACROSS it, so
+     *       the reload cannot reuse $v0 and lands in $v1 -- the oracle's register pick.  Computed
+     *       after (the natural `return sum >> 1;` tail) the reload takes $v0 and the whole tail
+     *       rotates (measured: 8 diffs vs 2).
+     *   (2) a use fence after the reload and another before the return pin the schedule: without
+     *       them sched2 hoists the epilogue `lw ra`/`lw s0` ~10 insns up into the store chain to
+     *       cover load-delay slots, where the oracle keeps both at the tail (that alone was 4 of
+     *       the original 6 diffs).  Both fences take values already resident in registers, so
+     *       they emit NOTHING (count stays 54/54).
+     * RESIDUAL 2 diffs: the oracle schedules `sra $v0,$s0,1` into the LOAD-DELAY SLOT of the
+     * final reload; ours issues it at the top of the same block.  Pure sched2 ready-list pick at
+     * count parity -- and it is NOT reachable by moving the shift down in the source, because the
+     * source position that fixes the SCHEDULE (shift after the reload) destroys the ALLOCATION
+     * that gives the reload $v1 (measured 4 spellings: shift-after = 8 diffs).  The two
+     * requirements point in opposite directions -- a de-coupled pair, permuter/ready-list class. */
+    {
+        int r, t;
+        _card_evflag7 = 0;
+        _card_evflag6 = _card_evflag7;
+        _card_evflag5 = _card_evflag6;
+        r = sum >> 1;
+        t = _card_evflag5;
+        __asm__("" : : "r"(t));
+        _card_evflag4 = t;
+        __asm__("" : : "r"(r));
+        return r;
+    }
 }
 
 /* @0x80109B88 : _chk_card_event -- non-blocking poll: combined slot-0 event flags (0 = none). */

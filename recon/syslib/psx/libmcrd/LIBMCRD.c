@@ -110,13 +110,25 @@ struct McState {
     int   _rsvd1;                           /* +0x5C @0x8014755C : UNREFERENCED anywhere in the obj --
                                                 real struct slot never exercised in retail, or a dead
                                                 planned field; layout-only, no semantics attested */
-    int   sync_cmd;                          /* +0x60 @0x80147560 : MemCardSync snapshot of cmd */
-    int   sync_rslt;                          /* +0x64 @0x80147564 : MemCardSync snapshot of rslt */
-    int   _rsvd2;                              /* +0x68 @0x80147568 : UNREFERENCED (same as _rsvd1) */
-    int (*save_cb)(int, int);                   /* +0x6C @0x8014756C : callback saved across nested sync */
 };
 typedef struct McState McState;
 static McState mc;                       /* @0x80147500 */
+
+/* w48-a1 SPLIT-STORAGE CORRECTION: 0x80147560/64/6C are NOT fields of the `mc` aggregate above.
+ * Every oracle reference to them materializes its OWN %hi/%lo pair (MemCardSync:
+ * `lui $v0,%hi(D_80147564); addiu; lw 0($v0)` while $v1 already holds &mc.cmd; MemCardCreateFile:
+ * `lui $at,%hi(D_8014756C); sw $v0,%lo(...)($at)`), and NO oracle in the obj reaches them as
+ * 0x48/0x4C/0x54 off the mc base -- grepped every MemCard*.s (the only 0x48/0x4C hits are $sp
+ * frame slots).  Modeling them as struct fields forced a base+displacement access the oracle
+ * never has.  (The TU header note above -- "the 19 globals are ONE aggregate" -- is therefore
+ * true only for the 0x00..0x5C span; corrected here rather than rewritten there.) */
+/* MEASURED (whole-TU, 4 consumers): as struct fields 271 diffs; as plain 4-byte statics 270
+ * (they land in sbss -> gp-relative, which the oracle never uses); forced to .bss = 248 (the
+ * adopted form); as ONE 8-byte `int[2]` pair = 253 (better for MemCardStart_cb, which does
+ * share a base across the two, but worse for MemCardSync, which materializes each separately). */
+static int   _mc_sync_cmd   __attribute__((section(".bss")));   /* @0x80147560 : snapshot of cmd  */
+static int   _mc_sync_rslt  __attribute__((section(".bss")));   /* @0x80147564 : snapshot of rslt */
+static int (*_mc_save_cb)(int, int) __attribute__((section(".bss")));  /* @0x8014756C : callback saved across a nested sync */
 
 static int   _mc_rd_retry;               /* @0x80136CB8 : MemCardReadData retry counter */
 static int   _mc_wr_retry;               /* @0x80136CBC : MemCardWriteData retry counter */
@@ -448,12 +460,12 @@ static void MemCardStart_cb(void)
 
     /* command finished this frame */
     mc.done      = 1;
-    mc.sync_cmd  = mc.cmd;
-    mc.sync_rslt = mc.rslt;
+    _mc_sync_cmd  = mc.cmd;
+    _mc_sync_rslt = mc.rslt;
     mc.cmd       = 0;
     if (mc.callback != 0) {
         mc.rslt = 0;
-        (*mc.callback)(mc.sync_cmd, mc.sync_rslt);
+        (*mc.callback)(_mc_sync_cmd, _mc_sync_rslt);
     }
 }
 
@@ -509,7 +521,15 @@ extern void MemCardStop(void)
      * value forever -- this word is mutated ASYNCHRONOUSLY by the VSync-driven MemCardStart_cb, so
      * that optimization is unsound. A `volatile` pointer fixes correctness but nets a WORSE diff
      * count (19/16) than the plain form below. Kept plain: correct and already insn-count-exact. */
-    while (mc.cmd != 0)
+    /* 🔴 w48-a1 RUNTIME BUG FIX (the note above was WRONG -- read the disasm, not the intent).
+     * The "plain" form compiled to `lui v0; lw v0; beqz v0,end; bnez v0,self` -- gcc hoisted the
+     * LOAD out of the empty loop exactly as the note feared, so a non-zero `cmd` spun forever on a
+     * stale register and MemCardStop could never return (mc.cmd is cleared ASYNCHRONOUSLY by the
+     * VSync pump MemCardStart_cb).  A volatile-qualified READ at the use site is the honest fix:
+     * the address stays loop-invariant (hoisted `lui/addiu` like the oracle) while the VALUE is
+     * re-fetched every pass.  It also removes gcc's zero-trip rotation guard, matching the
+     * oracle's bare `L: lw; bnez L` -- 12 diffs -> 0 (PASS 16/16). */
+    while (*(volatile int *)&mc.cmd != 0)
         ;
     VSyncCallbacks(7, 0);
     _card_stop();
@@ -564,24 +584,22 @@ extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
     __asm__ __volatile__("" : "+r"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
-    } else if (pfd[-4] < 1) {                          /* cmd */
-        if ((bytes & 0x7f) == 0) {
-            if ((ofs & 0x7f) == 0) {
-                pfd[-4] = 5;                            /* cmd  */
-                pfd[-3] = 0;                             /* rslt */
-                pfd[-2] = 0;                              /* done */
-                pfd[1]  = ofs;                             /* ofs  */
-                pfd[2]  = bytes;                            /* len  */
-                *(unsigned long **)&pfd[3] = adrs;           /* adrs */
-                UserFuncOpen((int)MemCardReadData_cb);
-                return 1;
-            }
-            fmt = "Access Denied. : invalid offset value align\n";
-        } else {
-            fmt = "Access Denied. : invalid data size align\n";
-        }
-    } else {
+    } else if (0 < pfd[-4]) {                          /* cmd */
         fmt = "Access Denied. : event multiple open\n";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align\n";
+    } else {
+        if ((ofs & 0x7f) == 0) {
+            pfd[-4] = 5;                            /* cmd  */
+            pfd[-3] = 0;                             /* rslt */
+            pfd[-2] = 0;                              /* done */
+            pfd[1]  = ofs;                             /* ofs  */
+            pfd[2]  = bytes;                            /* len  */
+            *(unsigned long **)&pfd[3] = adrs;           /* adrs */
+            UserFuncOpen((int)MemCardReadData_cb);
+            return 1;
+        }
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -596,24 +614,22 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
     __asm__ __volatile__("" : "+r"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
-    } else if (pfd[-4] < 1) {                          /* cmd */
-        if ((bytes & 0x7f) == 0) {
-            if ((ofs & 0x7f) == 0) {
-                pfd[-4] = 6;                            /* cmd  */
-                pfd[-3] = 0;                             /* rslt */
-                pfd[-2] = 0;                              /* done */
-                pfd[1]  = ofs;                             /* ofs  */
-                pfd[2]  = bytes;                            /* len  */
-                *(unsigned long **)&pfd[3] = adrs;           /* adrs */
-                UserFuncOpen((int)MemCardWriteData_cb);
-                return 1;
-            }
-            fmt = "Access Denied. : invalid offset value align\n";
-        } else {
-            fmt = "Access Denied. : invalid data size align\n";
-        }
-    } else {
+    } else if (0 < pfd[-4]) {                          /* cmd */
         fmt = "Access Denied. : event multiple open\n";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align\n";
+    } else {
+        if ((ofs & 0x7f) == 0) {
+            pfd[-4] = 6;                            /* cmd  */
+            pfd[-3] = 0;                             /* rslt */
+            pfd[-2] = 0;                              /* done */
+            pfd[1]  = ofs;                             /* ofs  */
+            pfd[2]  = bytes;                            /* len  */
+            *(unsigned long **)&pfd[3] = adrs;           /* adrs */
+            UserFuncOpen((int)MemCardWriteData_cb);
+            return 1;
+        }
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -623,31 +639,26 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
 extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
     const char *fmt;
-    if (mc.cmd < 1) {
-        if (mc.fd < 0) {
-            if ((bytes & 0x7f) == 0) {
-                if ((ofs & 0x7f) == 0) {
-                    MemCardMakeDevname(chan, mc.devname);
-                    strcat(mc.devname, file);
-                    mc.cmd  = 3;
-                    mc.rslt = 0;
-                    mc.done = 0;
-                    mc.len  = bytes;
-                    mc.chan = chan;
-                    mc.ofs  = ofs;
-                    mc.adrs = adrs;
-                    UserFuncOpen((int)MemCardReadFile_cb);
-                    return 1;
-                }
-                fmt = "Access Denied. : invalid offset value align\n";
-            } else {
-                fmt = "Access Denied. : invalid data size align\n";
-            }
-        } else {
-            fmt = "Access Denied. : file already open.\n";
-        }
-    } else {
+    if (0 < mc.cmd) {
         fmt = "Access Denied. : system busy\n";
+    } else if (0 <= mc.fd) {
+        fmt = "Access Denied. : file already open.\n";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align\n";
+    } else if ((ofs & 0x7f) == 0) {
+        MemCardMakeDevname(chan, mc.devname);
+        strcat(mc.devname, file);
+        mc.cmd  = 3;
+        mc.rslt = 0;
+        mc.done = 0;
+        mc.len  = bytes;
+        mc.chan = chan;
+        mc.ofs  = ofs;
+        mc.adrs = adrs;
+        UserFuncOpen((int)MemCardReadFile_cb);
+        return 1;
+    } else {
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -657,31 +668,26 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
 extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
     const char *fmt;
-    if (mc.cmd < 1) {
-        if (mc.fd < 0) {
-            if ((bytes & 0x7f) == 0) {
-                if ((ofs & 0x7f) == 0) {
-                    MemCardMakeDevname(chan, mc.devname);
-                    strcat(mc.devname, file);
-                    mc.cmd  = 4;
-                    mc.rslt = 0;
-                    mc.done = 0;
-                    mc.len  = bytes;
-                    mc.chan = chan;
-                    mc.ofs  = ofs;
-                    mc.adrs = adrs;
-                    UserFuncOpen((int)MemCardWriteFile_cb);
-                    return 1;
-                }
-                fmt = "Access Denied. : invalid offset value align\n";
-            } else {
-                fmt = "Access Denied. : invalid data size align\n";
-            }
-        } else {
-            fmt = "Access Denied. : file already open.\n";
-        }
-    } else {
+    if (0 < mc.cmd) {
         fmt = "Access Denied. : system busy\n";
+    } else if (0 <= mc.fd) {
+        fmt = "Access Denied. : file already open.\n";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align\n";
+    } else if ((ofs & 0x7f) == 0) {
+        MemCardMakeDevname(chan, mc.devname);
+        strcat(mc.devname, file);
+        mc.cmd  = 4;
+        mc.rslt = 0;
+        mc.done = 0;
+        mc.len  = bytes;
+        mc.chan = chan;
+        mc.ofs  = ofs;
+        mc.adrs = adrs;
+        UserFuncOpen((int)MemCardWriteFile_cb);
+        return 1;
+    } else {
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -726,7 +732,7 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                     fretry = fretry + 1;
                     if (fretry > 3) {
                         /* repeated failure: re-accept the card, then bail */
-                        mc.save_cb = (int (*)(int, int))MemCardCallback(0);
+                        _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
                         if (mc.cmd < 1) {
                             mc.cmd  = 2;
                             mc.rslt = 0;
@@ -737,7 +743,7 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                             printf("Access Denied. : event multiple open\n");
                         }
                         MemCardSync(0, 0, &err);
-                        MemCardCallback((int)mc.save_cb);
+                        MemCardCallback((int)_mc_save_cb);
                         return err;
                     }
                 }
@@ -783,17 +789,19 @@ extern long MemCardSync(long mode, int *cmds, int *result)
      * sync_rslt (0x560/0x564, cmd+0x48/+0x4C) likewise -- one shared base for the whole fn. */
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "+r"(base));
-    cmd = base[0];
-    rslt = base[1];
-
     if (base[0] == 0 && base[2] == 0)
         return -1;                          /* nothing in flight */
 
+    /* w48-a1: the snapshot reads come AFTER the guard -- the oracle emits
+     * `lw $t0,0($v1); lw $a3,4($v1)` at the .L800FBB24 join, not before the bnez. */
+    cmd = base[0];
+    rslt = base[1];
+
     if (mode == 0) {                        /* blocking */
-        while (base[2] == 0)
+        while (*(volatile int *)&base[2] == 0)   /* async: cleared by the VSync pump */
             ;
-        if (result != 0) *result = base[19];  /* sync_rslt */
-        if (cmds   != 0) *cmds   = base[18];  /* sync_cmd  */
+        if (result != 0) *result = _mc_sync_rslt;  /* sync_rslt */
+        if (cmds   != 0) *cmds   = _mc_sync_cmd;  /* sync_cmd  */
         base[2] = 0;                          /* done      */
         return 1;
     }
@@ -804,8 +812,8 @@ extern long MemCardSync(long mode, int *cmds, int *result)
         if (cmds   != 0) *cmds   = cmd;
         return 0;
     }
-    if (result != 0) *result = base[19];      /* sync_rslt */
-    if (cmds   != 0) *cmds   = base[18];      /* sync_cmd  */
+    if (result != 0) *result = _mc_sync_rslt;      /* sync_rslt */
+    if (cmds   != 0) *cmds   = _mc_sync_cmd;      /* sync_cmd  */
     base[2] = 0;                              /* done      */
     return 1;
 }
@@ -841,7 +849,7 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
             return 0;
         }
         /* create failed: re-accept card and inspect the result */
-        mc.save_cb = (int (*)(int, int))MemCardCallback(0);
+        _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
         if (mc.cmd < 1) {
             mc.cmd  = 2;
             mc.rslt = 0;
@@ -852,7 +860,7 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
             printf("Access Denied. : event multiple open\n");
         }
         MemCardSync(0, 0, &rslt);
-        MemCardCallback((int)mc.save_cb);
+        MemCardCallback((int)_mc_save_cb);
 
         if (rslt == 0)
             return 7;                            /* no card */
@@ -890,7 +898,7 @@ extern long MemCardDeleteFile(long chan, char *file)
         if (erase(devname) != 0)
             return 0;
         /* erase failed: re-accept card and inspect the result */
-        mc.save_cb = (int (*)(int, int))MemCardCallback(0);
+        _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
         if (mc.cmd < 1) {
             mc.cmd  = 2;
             mc.rslt = 0;
@@ -901,7 +909,7 @@ extern long MemCardDeleteFile(long chan, char *file)
             printf("Access Denied. : event multiple open\n");
         }
         MemCardSync(0, 0, &rslt);
-        MemCardCallback((int)mc.save_cb);
+        MemCardCallback((int)_mc_save_cb);
 
         if (rslt == 3)
             continue;

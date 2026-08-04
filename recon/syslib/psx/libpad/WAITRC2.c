@@ -14,17 +14,32 @@
 extern int _startTime;   /* RC2 count snapshot at the start of the wait */
 extern int _waitTime;    /* wait length, in (prescaled) ticks */
 
-/* @0x8010BFE8 : setRC2wait -- begin a wait of `ticks` and return the current counter value. */
-extern unsigned setRC2wait(int ticks)
+/* @0x8010BFE8 : setRC2wait -- begin a wait of `ticks` RC2 ticks.
+ * w48-a3: 4 -> 3 diffs, and the BODY is now byte-identical to the oracle; the entire residual is
+ * one assembler-side artifact (below).  Two corrections to the w23-a8 reconstruction:
+ *   (a) IT IS VOID.  The oracle has NO return-value materialization -- $v0 merely still holds the
+ *       `lhu` result because that is the value being stored.  Declaring it `unsigned` forces cc1 to
+ *       produce a full SImode VALUE from the volatile HImode read, and combine will not merge a
+ *       VOLATILE mem into the zero_extend, so it emits the extra `andi $v0,$v0,0xffff` the oracle
+ *       lacks.  (Every non-void spelling probed -- u_short/u_int/int local, u_short return, direct
+ *       `return _startTime` -- keeps the andi; void is the only shape that drops it.)  ⚠️ PADMAIN's
+ *       and MCXMAIN's `u = setRC2wait(...); ... if (u == 0)` call sites are therefore a
+ *       RECONSTRUCTION SUSPECT (they still carry their own `extern unsigned` decl, which links fine
+ *       under C linkage) -- re-derive them from those objs' oracles, not from this signature.
+ *   (b) no local is needed at all: the read feeds the store directly, as the oracle shows.
+ * 🔴 RESIDUAL (3 diffs) = the ASPSX STORE-MACRO SPLIT, assembler-side, NOT source-reachable:
+ *   cc1 emits the assembler MACRO `sw $2,_startTime` and cannot place a macro in a delay slot, so
+ *   its `.s` ends `sw $2,_startTime` + `j $31` with an EMPTY slot.  Retail's assembler expanded the
+ *   macro ACROSS the branch -- `lui $at,%hi(_startTime)` BEFORE the `jr $ra`, `sw $v0,%lo(...)($at)`
+ *   IN the delay slot; maspsx instead expands it entirely before the branch and nops the slot.  The
+ *   `$at` base is the proof it is a macro expansion (cc1 never allocates $at).  Probed and rejected:
+ *   the unsized asm-label view (`extern int _startTime_v[] asm("_startTime")`) DOES get the store
+ *   into the jr slot, but as cc1's own split with a normal register ($v1, not $at) -- same 3-4 diffs
+ *   here and 25 -> 40 on chkRC2wait.  HANDED TO THE w48-a10 REAL-ASPSX LANE as a named class. */
+extern void setRC2wait(int ticks)
 {
-    /* NEAR-MISS (4): oracle lhu carries the zero-extend implicitly -- cc1 2.8.0 keeps an
-     * explicit andi 0xffff after a VOLATILE HImode read (combine refuses volatile MEMs);
-     * non-volatile read kills the andi but un-folds the MMIO address (lui/ori->lui+disp,
-     * net worse). Compiler-era artifact + jr-slot store-macro split (maspsx floor). */
-    unsigned short now = T2_VALUE;
     _waitTime  = ticks;
-    _startTime = now;
-    return now;
+    _startTime = T2_VALUE;
 }
 
 /* @0x8010C008 : chkRC2wait -- 1 once `_waitTime` ticks have elapsed since setRC2wait, else 0.

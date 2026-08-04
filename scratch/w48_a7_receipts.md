@@ -34,6 +34,20 @@ Every number below is a GATE number, re-measured in this worktree.
 | libapi/FIRST | `firstfile` | 83.30% | FAIL 60 (103/103) | |
 | libapi/FIRST | `_first_patch` | 90.50% | FAIL 40 (64/64) | |
 
+## 0b. FINAL SCOREBOARD (whole-TU re-gate on the final tree, ZERO regressions)
+
+| | baseline | final |
+|---|---|---|
+| fns PASS in scope | 1 (`stup0`, mis-reported by the worklist) | **5** |
+| fns invisible to the gate | 4 (`__main`, `helper_1/2/3`) | 0 |
+| total gate diffs over the 20 measurable fns | 534 | **383** (-151, -28%) |
+
+New PASSes: `__main`, `stup1`, `startIntrVSync_helper_2`, `startIntrVSync_helper_3`.
+`2mbyte.obj` is now a COMPLETE object (4/4).
+Big movers: `firstfile` 60->16 (count now exact), `_first_patch` 40->9 (all saved-reg roles
+oracle-exact), `StopCallback` 47->22, `PCread`/`PCwrite` 39->23 each, `RestartCallback` 31->23,
+`startIntrDMA` 14->7, `StartRCnt` 10->7.
+
 ## 1. LANDED (commit-per-lever)
 
 ### 1a. `2mbyte.obj` -- COMPLETE, 4/4 PASS (`e1d146a6`)
@@ -86,6 +100,62 @@ write the short-read exit as a DUPLICATE `return total;` instead of `break` -- `
 merges the two tails back into ONE (insn count unchanged, 47) while `flow.c` counts both refs,
 and the in-loop copy is loop-depth-weighted, so refs land exactly on 8.  pri .545 -> 1.043;
 `total` takes `$s2`, `buff` drops to `$s3`.  **39 -> 23 on both twins.**
+
+### 1f. `INTR.StopCallback` 47 -> 22 (count 43 -> 42)
+Two independent source levers, whole-TU re-gated, zero regressions:
+1. **`I_STAT = I_MASK = 0;` (CHAINED)** -- the oracle stores 0 to I_MASK and then RE-READS it
+   (`sh $zero,0($v0); lhu $v0,0($v0); sh $v0,0($a0)`).  That re-read is exactly gcc's *volatile*
+   handling of `a = b = 0` (the inner assignment's value is fetched back from the volatile
+   lvalue); two separate `= 0` statements emit two independent stores.  **A NEW CATALOG ROW.**
+2. methodology 3.25-3c (3rd hit): the DPCR read-modify-WRITE store sits in the
+   `jal ResetEntryInt` delay slot; the volatile qualifier blocked reorg's fill.
+FALSIFIED: a single named base pointer `IntrState *ip = &g_intr;` used for every field -- exactly
+NEUTRAL (22), gcc folds it back.
+
+### 1g. `INTR.RestartCallback` 31 -> 23 (count 31 -> 29)
+1. **BRANCH POLARITY**: the oracle skips AWAY on the already-running case (`bnez $v0,.L800F2E5C`)
+   and falls straight through into the body, with the `return 0` block out-of-line before the
+   epilogue.  `if (inited == 0) { body } return 0;` inverts that; `if (inited != 0) return 0;` +
+   an inline body reproduces it.
+2. methodology 3.25-3c (4th hit): the saved-DPCR restore store belongs in the
+   `jal ExitCriticalSection` delay slot.
+
+### 1h. `FIRST._first_patch` 40 -> 9 -- ALL saved-reg roles now oracle-exact
+Three stacked levers, each measured:
+1. **GOTO BACK-EDGE on the DCB search loop** (hand-written zero-trip guard + else-arm advance +
+   `goto scan`): loop.c emits no LOOP notes, so it can no longer hoist the
+   `(high _first_devname)` half out of the loop into a CALLEE-SAVED register.  That hoist cost a
+   whole extra saved reg (ours s0..s6 vs the oracle's s0..s5) and rotated every other saved-reg
+   role.  **40 -> 26.**  (Declaring `_first_devname` UNSIZED was tried FIRST and is INERT here --
+   the array is >-G4 either way, so gcc splits the address regardless.  That is a useful negative:
+   the unsized-array lever does NOT reach a LICM hoist of the `high` half.)
+2. **UNCOALESCED BOUND COPY**: the oracle computes the table end into a caller-saved temp, tests
+   THAT in the zero-trip guard, and copies it into the callee-saved loop bound INSIDE the guard
+   (`addu $v1,$s0,$v0; sltu; beqz; addu $s1,$v1,$zero`).  Split `lim` (short-lived) from `end`
+   (outlives it) so `make_regs_eqv` keeps the copy.  **26 -> 20.**
+3. **LIVE-RANGE DEMOTE via statement POSITION** (allocsim dial, dumps read not guessed):
+   p80 (`state`) refs 4 / live 60 = pri .1333 vs p87 (`saved`) refs 2 / live 14 = .1428, so
+   `saved` was taking `$s2` and `state` `$s3` -- the oracle has them the other way.  Assigning
+   `saved = _first_save;` as the FIRST statement lengthens its live range past the flip point.
+   **20 -> 9**, and every saved-reg role (state $s2, saved $s3, args $s4/$s5, e $s0, end $s1)
+   matches.  Three later positions (after the div / after `e =` / after `lim =`) all measure 20 --
+   the dial is the statement POSITION, exactly as the w45 basin law predicts.
+Residual 9: a `sw $ra` prologue-save position, the `lui $s3/lw $s3` pair scheduled 6 insns early,
+and two oracle-only insns (a speculative `addu $a0,$s2,$zero` in the guard delay slot, later
+recomputed, + an unfilled nop after `beqz $a0`).
+
+### 1i. `FIRST.firstfile` 60 -> 16, count now EXACT 103/103
+1. **GOTO back-edges on BOTH DCB searches** + **`found` assigned in the two EXIT paths** (never
+   before the loop, so it never lives across `strcmp` and stays caller-saved -- the oracle's
+   `addu $v1,$zero,$zero` / `li $v1,1` / `bnez $v1`).  Frame 48 -> 40, saved set s0..s5 -> s0..s3,
+   both now oracle-exact.  **60 -> 35.**
+2. **OUT-OF-LINE MATCH HANDLERS**: the oracle branches TO the match handler
+   (`beqz $v0,<block after the loop>`) and falls through into the advance.  An inline if-body
+   inverts that.  Written `if (match) goto hitN;` + the handler block after the loop, both passes.
+   **35 -> 18 -> 16**, instruction count now oracle-exact.
+Residual 16: the `p = _first_devname` prologue address uses a separate `%hi` scratch
+(`lui $v0; addiu $a0,$v0,0`) where the oracle self-temps (`lui $a0; addiu $a0,$a0,0`) -- the
+canonical 3.15 HI-scratch class -- plus a 3-insn ordering difference inside the pass-2 hit block.
 
 ## 2. OPEN RESIDUALS -- named angle + receipts (NO FLOORS)
 
@@ -197,3 +267,48 @@ lifts `chunk` 8 -> 9 refs, jumping it above `len` (1.80 vs 1.714) and rotating `
 A zero-insn +1 ref on a *parameter* that is referenced only inside the loop is the open problem
 (the catalog's three inflators -- no-op re-mask, cross-jumped arm duplication, depth wrapper --
 all either need an arm/mask that does not exist here or over-lift the neighbours).
+
+### 2g. NOT ATTACKED this wave (budget) -- current gate numbers, no work done
+`_intrhand` 80 (112/116), `_set_intr_callback` 34 (80/82), `_initIntr` 41 (55/54),
+`VSync` 45 (95/94), `_dma_isr` 16 (94/96).  ALL FIVE carry the same `-msplit-addresses`
+{high, lo_sum} signature seen in StopCallback/RestartCallback (an extra callee-saved register
+holding the shared `(high g_intr)` half); `_initIntr` additionally shows the oracle REBASING its
+`g_intr` pointer to `g_intr+60` mid-function (`addiu $a0,$s0,-4` / `sw $v0,0($s0)` /
+`sh $v0,-60($s0)` / `addiu $s0,$s0,-60` at the end) -- i.e. the base anchor is
+`&g_intr.jmpbuf[1]`, a source-reachable pointer-anchor choice, not a floor.  These are the
+obvious next targets and they are exactly the TU the 2b table recommends for
+`-mno-split-addresses`.
+
+## 3. NEW CATALOG ROWS EARNED THIS WAVE (for the consolidator)
+
+1. **`a = b = 0` on VOLATILE lvalues emits a RE-READ** -- `sh $zero,0(p); lhu $v0,0(p);
+   sh $v0,0(q)`.  Symptom: the oracle stores a constant to one volatile and then *loads it back*
+   before storing to a second; two separate `= 0` statements can never produce it.
+   (INTR `StopCallback`, `I_STAT = I_MASK = 0`.)
+2. **methodology 3.25-3c generalizes hard**: "cast the volatile away on an MMIO STORE whose
+   oracle sits in a delay slot" hit FOUR times in one small cluster (StartRCnt/jr-slot,
+   startIntrDMA/jal-slot, StopCallback/jal-slot, RestartCallback/jal-slot).  Whenever a syslib
+   near-miss shows `store; jal/jr; nop` against an oracle `jal/jr; store`, check the store's
+   volatility FIRST -- it is the cheapest lever in the cluster.
+3. **A `goto` back-edge is the anti-LICM-address-hoist lever** (new use of the known goto-loop
+   row): when a call inside a loop takes a GLOBAL's address as an argument, `-msplit-addresses`
+   gives loop.c a `(high sym)` movable that it parks in a callee-saved register, costing a whole
+   saved reg and rotating the frame.  A goto back-edge emits no LOOP notes, so the address
+   materializes at the use site (`lui $aN; addiu $aN`) exactly like retail.
+   **The unsized-array declaration lever does NOT reach this** (falsified on `_first_devname`).
+4. **A boolean flag set BEFORE a loop and tested after it is a saved-register tax** -- assign it
+   in the loop's two EXIT paths instead so it never crosses the call (firstfile `found`,
+   -1 saved reg + frame -8).
+5. **`return VAL;` duplicated instead of `break` is a zero-insn REF INFLATOR** (4th member of the
+   w44 floor_log2 family, alongside the no-op re-mask / arm duplication / depth wrapper): the
+   in-loop copy is loop-depth-weighted, so it delivers +2 refs where the others deliver +1 or
+   over-lift the neighbours.  `cross_jump` merges the tails back, count unchanged.
+   (PCread/PCwrite, reqdelta-predicted.)
+6. **Symbol-span bookkeeping for hand-asm TUs**: when a SYM span ENDS before a trailing pad word,
+   LABEL the pad (`D_<addr>:`) instead of deleting it -- objdump attributes bytes to the preceding
+   symbol, so a label is the only way to keep the byte AND get the symbol length right.
+   (2mbyte `stup1`.)
+7. **A "0.00%" worklist row is most often a NAME PHANTOM, not a hard function.**  3 of the 4
+   0.00% rows in this scope were `NOT IN OBJECT` (two descriptive-name mismatches + one function
+   that did not exist in the TU at all); fixing them cost minutes and yielded 2 instant PASSes.
+   Grep every 0.00% row against `nm`/the oracle `.s` filename BEFORE planning any codegen work.

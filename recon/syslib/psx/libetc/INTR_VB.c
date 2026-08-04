@@ -15,11 +15,20 @@
  *   re-test with a1's per-fn splice mechanism.
  */
 
+/* w48-a7 PHANTOM FIX: the two helpers were reconstructed under DESCRIPTIVE names
+ * (trapIntrVSync / _vsync_setcb) while the project's symbol map + every oracle .s call them
+ * startIntrVSync_helper_1 / _2 -- so the gate reported NOT IN OBJECT for both, forever, and the
+ * worklist rendered that as "0.00%".  Renamed to the oracle names (descriptive role kept in the
+ * comments below).  A THIRD oracle symbol, startIntrVSync_helper_3, was missing entirely: it is
+ * INTR_VB.obj's OWN copy of the word-clear helper (byte-identical to INTR.obj's and
+ * INTR_DMA.obj's private _bzero_w), which startIntrVSync jal's -- the recon had been calling
+ * INTR.obj's copy across the object boundary instead. */
+
 /* owning-TU def (extern-declared, never defined; BSS) */
- int vsync_cb[8]; 
-extern void  _bzero_w(int *p, int nwords);                /* INTR */
+ int vsync_cb[8];
 extern void  InterruptCallback(int idx, void (*h)());     /* INTR */
-extern void  trapIntrVSync(void);
+extern void  startIntrVSync_helper_1(void);               /* the vblank trap handler */
+extern void  startIntrVSync_helper_3(int *p, int nwords); /* this obj's private word-clear */
 
 /* MATCH: both fns that touch Vcount reach it via lui/%hi+%lo ABSOLUTE addressing in the oracle
  * (never %gp_rel), so it must stay a bare `extern` decl here (no local definition/initializer) --
@@ -29,7 +38,17 @@ extern int Vcount;            /* @0x80137D10 */
 extern int vsync_cb[8];       /* @0x80137CF0 : 8 vblank callbacks */
 extern volatile unsigned int *g_rcnt_ptr;   /* @0x80137D14 : = 0x1F801114 (RCnt vblank-timing mode reg) */
 
-extern int _vsync_setcb(int idx, int cb)   /* @0x801065F8 (returned by startIntrVSync) */
+/* @0x80106624 -- INTR_VB.obj's private word-clear (the same routine INTR.obj/INTR_DMA.obj each
+ * carry as their own `_bzero_w`); only ever reached by the jal in startIntrVSync below. */
+extern void startIntrVSync_helper_3(int *p, int n)   /* @0x80106624 */
+{
+    int i = n - 1;
+    if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
+}
+
+/* @0x801065F8 -- the per-slot vblank-callback SETTER; the pointer startIntrVSync returns.
+ * (Ghidra named it "VSyncCallback", which collides with the INTR.obj public API.) */
+extern int startIntrVSync_helper_2(int idx, int cb)   /* @0x801065F8 */
 {
     int old = vsync_cb[idx];
     if (cb != old) vsync_cb[idx] = cb;
@@ -42,12 +61,13 @@ extern void *startIntrVSync(int priority)   /* @0x80106534 */
      * VALUE @0x80137D14), NOT a materialized literal MMIO constant. */
     *g_rcnt_ptr = 0x100;
     Vcount = 0;
-    _bzero_w(vsync_cb, 8);
-    InterruptCallback(0, trapIntrVSync);
-    return (void *)_vsync_setcb;
+    startIntrVSync_helper_3(vsync_cb, 8);
+    InterruptCallback(0, startIntrVSync_helper_1);
+    return (void *)startIntrVSync_helper_2;
 }
 
-extern void trapIntrVSync(void)   /* @0x8010658C */
+/* @0x8010658C -- the vblank TRAP handler: bump Vcount, fan out to the 8 registered callbacks. */
+extern void startIntrVSync_helper_1(void)   /* @0x8010658C */
 {
     int i = 0;
     void (**cb)();

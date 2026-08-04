@@ -54,3 +54,91 @@ GATE PROOF: `verify_asm recon/eaclib/psx/eacpsxz/cdfs.c CD_Read` -> **PASS (163 
 ## 2. LEVER LEDGER
 
 (appended per lever)
+
+## 3. FLAG AXIS — per-fn `-fno-delayed-branch` splice probe (build.py PATCHED-IN-PLACE, MEASURED, REVERTED)
+
+Mechanism = the existing `PER_FN_NO_DELAYED_BRANCH` table (w25 splice infra).
+Probe harness: `scratch/w48_a6_ndbprobe.py` (restores build.py in a `finally`).
+build.py is UNMODIFIED on my branch — these are WIRING RECOMMENDATIONS for the consolidator.
+
+### 3.1 Whole-TU sweep (splice = every epilogue-residual fn in the TU)
+
+| TU | fn | before | after |
+|---|---|---|---|
+| stream.c | StClearRing | 5 | 5 |
+| stream.c | **StSetRing** | 9 | **3** BETTER |
+| stream.c | StSetStream | 18 | 24 worse |
+| streamhelp.c | StUnSetRing | 9 | 15 worse |
+| streamhelp.c | StGetNext | 7 | 11 worse |
+| streamhelp.c | StFreeRing | 35 | 38 worse |
+| streamhelp.c | **data_ready_callback** | 21 | **18** BETTER |
+| streamhelp.c | StSetMask | 3 | 3 |
+| cdread.c | _read_sync | 4 | 6 worse |
+| cdread.c | _read_data_int | 7 | 20 worse |
+| cdread.c | CdRead | 43 | 76 worse |
+| cdread.c | CdReadSync | 31 | 54 worse |
+| iso9660.c | _cd_find_path | 15 | 30 worse |
+| iso9660.c | CD_cachefile | 99 | 198 worse |
+| iso9660.c | CD_newmedia | 146 | 187 worse |
+| iso9660.c | CdSearchFile | 92 | 139 worse |
+| cdread2.c | CdRead2 | 5 | 5 |
+| stcdint.c | _st_dma | 143 | 151 worse |
+| stcdint.c | StCdInterrupt | 214 | 335 worse |
+
+### 3.2 ISOLATED per-fn re-probe (each fn spliced ALONE, whole-TU gated)
+
+- `stream.c` splice `{StSetRing}`   -> StSetRing **9 -> 3**, StClearRing 5->5, StSetStream 18->18. ZERO collateral.
+- `streamhelp.c` splice `{data_ready_callback}` -> data_ready_callback **21 -> 18**; StUnSetRing/StGetNext/
+  StFreeRing/StSetMask/init_ring_status ALL unchanged. ZERO collateral.
+- `streamhelp.c` splice `{StSetMask}` -> no delta anywhere (the flag does not reach its class).
+
+**RECOMMEND WIRING (consolidator):**
+```python
+"recon/syslib/psx/libcd/stream.c":     {"StSetRing"},
+"recon/syslib/psx/libcd/streamhelp.c": {"data_ready_callback"},
+```
+Both reproduced twice (whole-TU sweep + isolated re-probe), both zero-regression.
+Per the w47 IDENTITY BAR these are NUDGES, not identities (neither converts FAIL->PASS on
+its own) -- but StSetRing's post-splice residual is a SINGLE named assembler class (below),
+i.e. it is one maspsx fix away from PASS.
+
+### 3.3 FOR a9/a10 — TU-wide flag signature of this cluster
+The libcd-B cluster is **NOT** a per-TU `-fno-delayed-branch` module: on every TU the flag is a
+net LOSS when applied TU-wide (iso9660 +122, stcdint +129, cdread +55). It is per-FUNCTION,
+and only on the two Tier-1 epilogue-only shapes above. This matches the w25-a1 taxonomy and is
+evidence AGAINST the "Sony built syslib with -fno-delayed-branch" module-level hypothesis for
+libcd -- at least for CDREAD/ISO9660/STCDINT/STREAM.
+
+## 4. ASSEMBLER CLASS FOR a10 — "macro SPLIT into a delay slot" (distinct from backward jal fill)
+
+Named here because it is the SOLE residual of StSetRing (post-splice) and StSetMask, and a
+component of StUnSetRing / StClearRing / data_ready_callback.
+
+The oracle repeatedly shows **half of a store MACRO before a branch and the other half IN the
+delay slot**:
+
+```
+StSetMask (oracle, 7 insns):        StSetRing (oracle, tail):
+  lui   $at, %hi(StEndFrame)          lui  $at, %hi(StRingSize)
+  jr    $ra                           jal  StClearRing
+   sw   $a2, %lo(StEndFrame)($at)      sw   $a1, %lo(StRingSize)($at)
+```
+
+`$at` is PROOF the compiler emitted the one-line assembler macro `sw $a2,StEndFrame`
+(cc1 never allocates `$at`). A macro cannot be scheduled by cc1 -- so the SPLIT was done by the
+ASSEMBLER, which moved the macro's second half into the slot and left the `lui` behind.
+
+Ours cannot reproduce it: maspsx forces `.set noreorder` on every function (build.py's own w25-a9
+note) and unconditionally appends `nop` after a branch in reorder mode, so GNU-as's reorder-fill
+never runs.
+
+**This is NOT the 04C-falsified "backward-fill a jal slot with a whole independent instruction"
+claim** -- it is macro SPLITTING, a different aspsx mechanism, and it is still UNTESTED against
+the real assembler. Concrete test for a10: assemble
+`lui $at,%hi(S) / sw $a2,S / jr $ra` ... actually just feed real ASPSX the cc1 `.s` for
+`StSetMask` (3 macro stores + `jr $ra`, `.set reorder`) and see whether it emits 7 or 8 words.
+If ASPSX emits 7 => assembler-side, spec a maspsx `--aspsx-macro-split` fix; if 8 => the premise
+is dead and these are a compiler mystery.
+
+Affected in my scope: StSetMask (3, ALL of it), StSetRing (3 post-splice, ALL of it),
+StClearRing (part), StUnSetRing (part), data_ready_callback (part), StGetNext (part).

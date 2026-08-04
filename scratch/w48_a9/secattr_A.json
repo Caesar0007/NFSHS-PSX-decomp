@@ -1,0 +1,530 @@
+{
+ "syslib/psx/libgpu/SYS": {
+  "A_attrs_G4": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    128,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    14,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    27,
+    45,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    19,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    73,
+    88,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    26,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    460,
+    282,
+    318
+   ],
+   "_image": [
+    62,
+    69,
+    71
+   ],
+   "_set_drawenv": [
+    179,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    205,
+    129,
+    140
+   ],
+   "_dws": [
+    99,
+    136,
+    143
+   ],
+   "_drs": [
+    102,
+    152,
+    160
+   ],
+   "_send_gp1": [
+    8,
+    9,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    150,
+    162,
+    172
+   ],
+   "_gpu_que_drain": [
+    85,
+    127,
+    152
+   ],
+   "_reset": [
+    61,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    42,
+    77,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  }
+ },
+ "syslib/psx/libmcrd/BIOS": {
+  "A_attrs_G4": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpError": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeout": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcard": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpIOEx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpErrorx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    0,
+    5,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    31,
+    120,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    0,
+    45,
+    45
+   ],
+   "_clr_card_event": [
+    5,
+    65,
+    66
+   ],
+   "_get_card_event": [
+    6,
+    54,
+    54
+   ],
+   "_get_card_event_x": [
+    6,
+    54,
+    54
+   ],
+   "_chk_card_event": [
+    0,
+    15,
+    15
+   ],
+   "_chk_card_event_x": [
+    0,
+    15,
+    15
+   ]
+  }
+ },
+ "syslib/psx/libpress/LIBPRESS": {
+  "A_attrs_G4": {
+   "DecDCTReset": [
+    0,
+    13,
+    13
+   ],
+   "DecDCTin": [
+    4,
+    31,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    6,
+    15,
+    15
+   ],
+   "DecDCToutCallback": [
+    6,
+    9,
+    9
+   ],
+   "MDEC_rest": [
+    28,
+    62,
+    60
+   ],
+   "_MDEC_in_dma": [
+    0,
+    36,
+    36
+   ],
+   "_MDEC_out_dma": [
+    0,
+    35,
+    35
+   ],
+   "MDEC_in_sync": [
+    18,
+    37,
+    37
+   ],
+   "MDEC_out_sync": [
+    18,
+    37,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    2,
+    31,
+    31
+   ]
+  }
+ },
+ "syslib/psx/libcd/stcdint": {
+  "A_attrs_G4": {
+   "StCdInterrupt": [
+    214,
+    591,
+    583
+   ],
+   "_st_copy_words": [
+    0,
+    11,
+    11
+   ],
+   "_st_dma": [
+    143,
+    91,
+    106
+   ]
+  }
+ },
+ "syslib/psx/libcd/stream": {
+  "A_attrs_G4": {
+   "StSetStream": [
+    18,
+    33,
+    33
+   ],
+   "StClearRing": [
+    5,
+    23,
+    24
+   ],
+   "StSetRing": [
+    9,
+    12,
+    11
+   ],
+   "func_800FC4E4": null
+  }
+ },
+ "syslib/psx/libcd/streamhelp": {
+  "A_attrs_G4": {
+   "StGetNext": [
+    7,
+    47,
+    46
+   ],
+   "StFreeRing": [
+    35,
+    42,
+    43
+   ],
+   "init_ring_status": [
+    0,
+    13,
+    13
+   ],
+   "data_ready_callback": [
+    21,
+    36,
+    35
+   ],
+   "StSetMask": [
+    3,
+    8,
+    7
+   ],
+   "StUnSetRing": [
+    9,
+    33,
+    32
+   ]
+  }
+ },
+ "syslib/psx/libmcrd/USERFUNC": {
+  "A_attrs_G4": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    33,
+    32,
+    31
+   ],
+   "UserFuncExecute": [
+    23,
+    28,
+    27
+   ],
+   "UserFuncComplete": [
+    0,
+    4,
+    4
+   ]
+  }
+ },
+ "syslib/psx/libpad/MCXMAIN": {
+  "A_attrs_G4": {
+   "_padIntInit": [
+    6,
+    18,
+    18
+   ],
+   "_padIntQuery": [
+    8,
+    52,
+    54
+   ],
+   "_padIntRecvId": [
+    13,
+    47,
+    48
+   ],
+   "_padIntRecvHdr": [
+    4,
+    35,
+    35
+   ],
+   "_padIntRecvData": [
+    289,
+    232,
+    223
+   ]
+  }
+ },
+ "syslib/psx/libds/DSCB": {
+  "A_attrs_G4": {
+   "DsReadyCallback": [
+    9,
+    6,
+    5
+   ],
+   "DsDataCallback": [
+    6,
+    9,
+    9
+   ]
+  }
+ },
+ "syslib/psx/libmath/FERR": {
+  "A_attrs_G4": {
+   "_err_math": [
+    2,
+    25,
+    25
+   ]
+  }
+ }
+}

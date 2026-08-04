@@ -1,0 +1,31 @@
+per-FN -fno-delayed-branch map over 293 gated syslib fns: 28 improve, 211 worsen, 54 inert
+
+fn                         module                             base  nodelay   dCNT
+CD_initintr                libcd/drv                        15(20/19)    7(22/19)    -8
+StSetRing                  libcd/stream                      9(12/11)    3(12/11)    -6
+startIntrDMA               libetc/INTR_DMA                  14(EXACT)   10(21/19)    -4
+_image                     libgpu/SYS                       62(69/71)   58(73/71)    -4
+data_ready_callback        libcd/streamhelp                 21(36/35)   18(37/35)    -3
+startIntrVSync             libetc/INTR_VB                   11(21/22)    8(24/22)    -3
+_install_drain_cb          libgpu/SYS                       10(EXACT)    7(11/10)    -3
+_clr_card_event            libmcrd/BIOS                      5(65/66)    2(EXACT)    -3
+MemCardInit                libmcrd/LIBMCRD                  12(EXACT)    9(12/11)    -3
+MemCardStart_cb            libmcrd/LIBMCRD                  29(28/33)   26(31/33)    -3
+MemCardStart               libmcrd/LIBMCRD                   8(EXACT)    6(22/20)    -2
+MemCardStop                libmcrd/LIBMCRD                  12(EXACT)   10(18/16)    -2
+DecDCTinSync               libpress/LIBPRESS                 6(EXACT)    4(17/15)    -2
+StartCARD                  libcard/CARDINIT                  4(EXACT)    3(15/14)    -1
+CdDataCallback             libcd/cdcont                      6(EXACT)    5(10/9 )    -1
+_cd_event_init             libcd/event                       4(EXACT)    3(16/15)    -1
+_cd_event_read             libcd/event                       6(EXACT)    5(11/10)    -1
+_cd_event_ready            libcd/event                       6(EXACT)    5(11/10)    -1
+_cd_event_sync             libcd/event                       6(EXACT)    5(11/10)    -1
+CdGetToc                   libcd/toc                         6(EXACT)    5(10/9 )    -1
+DsDataCallback             libds/DSCB                        6(EXACT)    5(10/9 )    -1
+_gpu_init_videomode        libgpu/SYS                       11(39/40)   10(42/40)    -1
+_que_ref                   libgpu/SYS                        6(EXACT)    5(10/9 )    -1
+RotMatrix                  libgte/FGO_01                   261(146/163)  260(151/163)    -1
+RotMatrixZ                 libgte/FGO_06                   166(90/102)  165(93/102)    -1
+SetFogNear                 libgte/FOG_01                     4(EXACT)    3(26/25)    -1
+UserFuncExecute            libmcrd/USERFUNC                 23(28/27)   22(29/27)    -1
+DecDCToutCallback          libpress/LIBPRESS                 6(EXACT)    5(10/9 )    -1

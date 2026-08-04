@@ -1,0 +1,11 @@
+module                              ident  total   divergent fns
+syslib/psx/libgpu/SYS                  43     44   _gpu_que_drain   [A' -- 20 section attrs stripped]
+syslib/psx/libmcrd/BIOS                17     17      [A' -- 16 section attrs stripped]
+syslib/psx/libpress/LIBPRESS           12     12      [A' -- 9 section attrs stripped]
+syslib/psx/libmcrd/USERFUNC             4      4      [A' -- 1 section attrs stripped]
+syslib/psx/libpad/MCXMAIN               5      5      [A' -- 3 section attrs stripped]
+syslib/psx/libcd/stcdint                3      3      [A' -- 11 section attrs stripped]
+syslib/psx/libcd/stream                 3      3      [A' -- 21 section attrs stripped]
+syslib/psx/libcd/streamhelp             6      6      [A' -- 5 section attrs stripped]
+syslib/psx/libds/DSCB                   2      2      [A' -- 1 section attrs stripped]
+syslib/psx/libmath/FERR                 1      1      [A' -- 2 section attrs stripped]

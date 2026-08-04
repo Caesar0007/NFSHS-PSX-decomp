@@ -1,0 +1,100 @@
+### syslib/psx/libgpu/SYS  (20 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libgpu/SYS              A_attrs_G4          13      44    1957      22
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libgpu/SYS              B_noattrs_G4         6      44    2293      10
+syslib/psx/libgpu/SYS              C_noattrs_G0         9      44    2420      22
+syslib/psx/libgpu/SYS              D_noattrs_G0_nosplit      14      44    1744      23
+syslib/psx/libgpu/SYS              E_noattrs_G4_nosplit       6      44    2115      10
+   [source restored: 52674 bytes]
+
+### syslib/psx/libmcrd/BIOS  (17 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libmcrd/BIOS            A_attrs_G4          13      17      48      15
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libmcrd/BIOS            B_noattrs_G4         2      17     333       2
+syslib/psx/libmcrd/BIOS            C_noattrs_G0         2      17     367      13
+syslib/psx/libmcrd/BIOS            D_noattrs_G0_nosplit      13      17      20      15
+syslib/psx/libmcrd/BIOS            E_noattrs_G4_nosplit       2      17     293       2
+   [source restored: 11095 bytes]
+
+### syslib/psx/libpress/LIBPRESS  (9 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libpress/LIBPRESS       A_attrs_G4           5      12      82      11
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libpress/LIBPRESS       B_noattrs_G4         2      12     153       5
+syslib/psx/libpress/LIBPRESS       C_noattrs_G0         3      12     152       7
+syslib/psx/libpress/LIBPRESS       D_noattrs_G0_nosplit       5      12      90       9
+syslib/psx/libpress/LIBPRESS       E_noattrs_G4_nosplit       2      12     149       5
+   [source restored: 11120 bytes]
+
+### syslib/psx/libcd/stcdint  (2 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libcd/stcdint           A_attrs_G4           1       3     357       1
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libcd/stcdint           B_noattrs_G4         1       3     459       1
+syslib/psx/libcd/stcdint           C_noattrs_G0         1       3     950       1
+syslib/psx/libcd/stcdint           D_noattrs_G0_nosplit       1       3     360       1
+syslib/psx/libcd/stcdint           E_noattrs_G4_nosplit       1       3     462       1
+   [source restored: 13628 bytes]
+
+### syslib/psx/libcd/stream  (1 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libcd/stream            A_attrs_G4           0       3      32       1
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libcd/stream            B_noattrs_G4         0       3      68       0
+syslib/psx/libcd/stream            C_noattrs_G0         0       3      83       2
+syslib/psx/libcd/stream            D_noattrs_G0_nosplit       0       3      32       1
+syslib/psx/libcd/stream            E_noattrs_G4_nosplit       0       3      68       0
+   [source restored: 5132 bytes]
+
+### syslib/psx/libcd/streamhelp  (3 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libcd/streamhelp        A_attrs_G4           1       6      75       1
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libcd/streamhelp        B_noattrs_G4         1       6      82       1
+syslib/psx/libcd/streamhelp        C_noattrs_G0         0       6     155       2
+syslib/psx/libcd/streamhelp        D_noattrs_G0_nosplit       1       6      75       1
+syslib/psx/libcd/streamhelp        E_noattrs_G4_nosplit       1       6      82       1
+   [source restored: 7752 bytes]
+
+### syslib/psx/libmcrd/USERFUNC  (1 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libmcrd/USERFUNC        A_attrs_G4           1       4      59       1
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libmcrd/USERFUNC        B_noattrs_G4         0       4      72       1
+syslib/psx/libmcrd/USERFUNC        C_noattrs_G0         1       4      77       3
+syslib/psx/libmcrd/USERFUNC        D_noattrs_G0_nosplit       1       4      14       2
+syslib/psx/libmcrd/USERFUNC        E_noattrs_G4_nosplit       0       4      33       1
+   [source restored: 2769 bytes]
+
+### syslib/psx/libpad/MCXMAIN  (2 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libpad/MCXMAIN          A_attrs_G4           0       5     320       2
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libpad/MCXMAIN          B_noattrs_G4         0       5     320       2
+syslib/psx/libpad/MCXMAIN          C_noattrs_G0         0       5     437       2
+syslib/psx/libpad/MCXMAIN          D_noattrs_G0_nosplit       0       5     322       2
+syslib/psx/libpad/MCXMAIN          E_noattrs_G4_nosplit       0       5     322       2
+   [source restored: 8994 bytes]
+
+### syslib/psx/libds/DSCB  (1 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libds/DSCB              A_attrs_G4           0       2      15       1
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libds/DSCB              B_noattrs_G4         0       2      13       1
+syslib/psx/libds/DSCB              C_noattrs_G0         0       2       7       1
+syslib/psx/libds/DSCB              D_noattrs_G0_nosplit       0       2      15       1
+syslib/psx/libds/DSCB              E_noattrs_G4_nosplit       0       2      13       1
+   [source restored: 2580 bytes]
+
+### syslib/psx/libmath/FERR  (3 section attributes)
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libmath/FERR            A_attrs_G4           0       1       2       1
+module                             config            PASS      of   DIFFS   CNTEX
+syslib/psx/libmath/FERR            B_noattrs_G4         0       1       6       0
+syslib/psx/libmath/FERR            C_noattrs_G0         0       1      10       1
+syslib/psx/libmath/FERR            D_noattrs_G0_nosplit       0       1       2       1
+syslib/psx/libmath/FERR            E_noattrs_G4_nosplit       0       1       6       0
+   [source restored: 2042 bytes]
+

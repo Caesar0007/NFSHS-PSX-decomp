@@ -15,6 +15,7 @@ the **hookless** `tools/verify_asm.py` with the flags actually wired into `tools
 |---|---|
 | **H1** | 🏆 **`-mno-split-addresses` is syslib's flag identity — the ONLY net-positive lever in a 64-TU × 8-config sweep.** Cluster totals vs BASE: **−480 diffs, 3 FAIL→PASS, ZERO PASS regressions.** Every other config is a net loss with regressions. |
 | **H2** | 🔴 **The methodology §3.25-3b hypothesis "syslib is the `-fno-delayed-branch` class" is FALSIFIED AT WHOLE-TU GRANULARITY** — cluster **+3333 diffs, 55 PASS regressions, −100 count-exact fns**. Not one syslib TU wants it. Per-FUNCTION it is near-closed too: of 293 gated fns, 28 improve on diffs but **27 of those 28 LOSE insn-count exactness** (naked nops). **Exactly one function improves on both**: `_clr_card_event`. |
+| **H0** | 🏆🏆 **THE LAW THAT RECONCILES a9 AND a10 (§9): `-G0` IS ONLY MEASURABLE TOGETHER WITH `-mno-split-addresses`.** Alone, `-G0` costs **+2726 diffs / 23 PASS regressions**; paired with `-mno-split-addresses` the SAME `-G0` gives **−493 diffs / 3 FAIL→PASS / ZERO regressions** (cluster 11411 → 10918). Split-addresses ON makes `-G0` force cc1 to pre-split EVERY address into schedulable/hoistable `lui;addiu` pairs — that, not the gp-vs-absolute choice, is what wrecks the score. **Any `-G` verdict taken at the tree's default `-msplit-addresses` is an artifact.** (Generalises w47-a8-A5's "a -G census is blind under nosplit" from *census* to *gate*.) |
 | **H3** | 🔴 **`-G` is CLOSED for syslib.** ZERO `%gp_rel` in the ENTIRE syslib oracle (64 objects, 300+ functions — census `scratch/w48_a9/gpcensus.txt`), yet `-G0` costs **+2726 diffs / 23 regressions** and `-G8` is inert (**+41 / 0 / 0**). Reason: 11 syslib TUs already emulate `-G0` **per symbol** with `__attribute__((section(".bss")))`, so a whole-TU `-G0` only strips gp-rel from symbols that legitimately keep it. **DECLARATION SHAPE MASKS -G, again** (catalog w47 §C) — this time via a section attribute. |
 | **H4** | 🔴 **`-O1` and both scheduler switches are dead for syslib**: `-O1` +3441/33 regr, `-fno-schedule-insns` +1310/16, `-fno-schedule-insns2` +723/31. The "Sony's -O2 prior is weak" premise is answered: **retail syslib is -O2 with schedulers ON.** |
 | **H5** | **STRUCTURAL (oracle-side) corroboration for H1**: `$at` is the *assembler's* address-macro scratch and cc1 never allocates it, so `$at` in a retail body ⇒ the compiler emitted a MACRO ⇒ split-addresses OFF. Syslib is DENSE in `$at` (31 of 64 objects; drv 50 sites, BIOS 84, LIBMCRD 66, SYS 56, stcdint 88) vs the SPLIT-addresses control corpus (smemman 0, spchrule 0, memcard 0, hud 1 fn, cario 2 fns). Census `scratch/w48_a9/atcensus.txt`. |
@@ -305,3 +306,77 @@ A diff cut bought with extra instructions is a nudge, not an identity.
   not `diff <(git show HEAD:...)`, to prove a revert.**
 * A per-TU `-G` census taken under `-mno-split-addresses` is structurally blind (§2b), and a
   `section(".bss")` attribute masks `-G` exactly like an unsized-array declaration (§4).
+
+---
+
+## 9. 🏆 RECONCILIATION WITH a10 (polled after §1-§8 were written; a10's receipts landed late)
+
+a10's class-4 finding — *"whole-of-syslib has ZERO `%gp_rel` (0 of 410 fns) + 263 positive
+absolute-4-byte-scalar `lui $at;sw` sites ⇒ syslib is a -G0 class, `g_value: 0` is a
+one-gate-run probe on EVERY syslib TU"* — independently reproduces my §H3 census and appears
+to CONTRADICT my ladder (`-G0` = +2726 diffs / 23 PASS regressions). It does not. Two probes,
+both run this wave, resolve it.
+
+### 9a. THE PAIRING LAW (whole cluster, 64 TUs — `scratch/w48_a9/g0split.{txt,json}`, `g0split_table.txt`)
+
+| config | cluster diffs | dDIFF | conv | regr |
+|---|---|---|---|---|
+| BASE (`-G4 -msplit-addresses`) | 11411 | — | — | — |
+| `-G0` alone | **14137** | **+2726** | 1 | **23** |
+| `-mno-split-addresses` alone | 10931 | −480 | 3 | 0 |
+| **`-G0 -mno-split-addresses`** | **10918** | **−493** | **3** | **0** |
+
+**`-G0` alone is catastrophic; `-G0` on top of `-mno-split-addresses` is a further small
+WIN and never a regression.** Mechanism: with split-addresses ON, `-G0` pushes every symbol
+above the threshold, so cc1 lowers each address ITSELF into a schedulable `lui %hi/addiu %lo`
+pair — which sched/LICM then hoist into callee-saved registers and delay slots. With
+split-addresses OFF cc1 emits the assembler macro instead, and `-G0` only decides gp-relative
+vs absolute — which is the choice a10 measured on the real ASPSX. **⇒ a10's `g_value: 0`
+probe recommendation is right, but it must be run as `g_value 0 + no_split_addresses`;
+run alone it FALSIFIES ITSELF.** Where the pair beats nosplit alone: INTR 186→**171**,
+libcd/event 63→**57**, drv 681→**663**, iso9660 339→338, SYS CNTEX 22→**23**.
+
+### 9b. THE SECTION-ATTRIBUTE RECONCILIATION (`scratch/w48_a9_secattr_probe.py`, `secattr_probe.txt`)
+11 syslib TUs emulate `-G0` **per symbol** with `__attribute__((section(".bss")))`. Measuring
+`-G0` on top of that hack answers the wrong question. Probe (source patched in THIS worktree,
+byte-restored + asserted after every variant): **A** = attrs kept @ tree -G4; **B** = attrs
+stripped @ -G4 (the hack's value); **D** = attrs stripped @ `-G0 -mno-split-addresses`.
+
+| TU | A (attrs, G4) | B (no attrs, G4) | **D (no attrs, G0+nosplit)** |
+|---|---|---|---|
+| libgpu/SYS | 13 P / 1957 / 22 cnt | 6 / 2293 / 10 | **14 P / 1744 / 23** ✅ beats A on all three |
+| libmcrd/BIOS | 13 / 48 / 15 | 2 / 333 / 2 | **13 / 20 / 15** ✅ |
+| libmcrd/USERFUNC | 1 / 59 / 1 | 0 / 72 / 1 | **1 / 14 / 2** ✅ |
+| libcd/stream | 0 / 32 / 1 | 0 / 68 / 0 | **0 / 32 / 1** = A |
+| libcd/streamhelp | 1 / 75 / 1 | 1 / 82 / 1 | **1 / 75 / 1** = A |
+| libds/DSCB | 0 / 15 / 1 | 0 / 13 / 1 | **0 / 15 / 1** = A |
+| libmath/FERR | 0 / 2 / 1 | 0 / 6 / 0 | **0 / 2 / 1** = A |
+| libcd/stcdint | 1 / 357 / 1 | 1 / 459 / 1 | 1 / 360 / 1 ≈ A |
+| libpad/MCXMAIN | 0 / 320 / 2 | 0 / 320 / 2 | 0 / 322 / 2 ≈ A |
+| libpress/LIBPRESS | 5 / 82 / 11 | 2 / 153 / 5 | 5 / 90 / 9 ✗ worse than A |
+
+⇒ **on 9 of 10 TUs the FLAG PAIR reproduces or beats the per-symbol section-attribute hack**,
+so those attributes are recon scaffolding for a build setting we can now state honestly.
+(Only LIBPRESS's 9 attrs — on `volatile u_long *` HW-register pointer cells — do something the
+flags don't.) This also settles a10 §3.3's request: **a1 can delete BIOS.c's 17 attributes**
+(13 PASS / 48 → 13 PASS / **20** diffs, count-exactness unchanged at 15) — but only with the
+PAIR, not with `g_value: 0` alone (BIOS at `-G0` alone = 367 diffs).
+
+### 9c. REVISED WIRING RECOMMENDATION (supersedes §6 TIER-1 flags; TIER-2/3 unchanged in rank)
+Both variants were **re-gated WIRED and hookless**, probe == wired per function, 0 regressions
+(`scratch/w48_a9/wired_gate.txt` and `wired_gate_G0.txt`); `PER_TU_FLAGS` duplicate-key
+counter-audit: 30 keys, 0 duplicates.
+
+| TU | recommended keys | wired result | vs nosplit-only |
+|---|---|---|---|
+| `recon/syslib/psx/libgpu/SYS.c` | `{"no_split_addresses": True, "g_value": "0"}` | 13→**14** PASS, 1957→**1744**, CNTEX 22→**23** | +1 diff, +1 count-exact |
+| `recon/syslib/psx/libpad/PADMAIN.c` | `{"no_split_addresses": True, "g_value": "0"}` | 1→**2** PASS, 667→**616**, CNTEX 3→**4** | +2 diffs, +1 count-exact |
+| `recon/syslib/psx/libpad/PADENTRY.c` | ⚠️ MERGE into the existing `{"jtbl_at_fusion": True}` entry: add `"no_split_addresses": True, "g_value": "0"` | 5→**6** PASS, 72→**52** | identical |
+
+**Consolidator's judgement call — CLASS vs PER-TU.** `no_split_addresses + g_value 0` applied
+to ALL 64 syslib TUs is SAFE (0 PASS regressions cluster-wide) and yields −493 diffs / +3 PASS,
+matching a10's census-derived class claim and a7's frontend precedent. But it is measurably
+WRONG on 11 objects (drv +44 net vs BASE, cdread +30, INTR_DMA +9, LIBPRESS +8, cdread2 +6,
+cdcont +5, FGO_01 +4, stcdint +3, MCXMAIN/FGO_06/TYPE +2, VMODE +1). **My recommendation is
+PER-TU for the 20 improving objects (TIER-1 first), not a blanket class rule** — the flag is a
+per-object identity (§2) and libcd/drv is a clear counterexample to the class.

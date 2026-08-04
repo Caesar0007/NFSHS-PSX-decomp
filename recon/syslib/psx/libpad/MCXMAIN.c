@@ -70,10 +70,20 @@ extern int _padIntInit(unsigned char *info)
     return (int)_padSioRW(info, 0xfffffffe);
 }
 
-/* @0x8010C0F0 : _padIntQuery -- send the command opcode (default 0x42 = poll). */
+/* @0x8010C0F0 : _padIntQuery -- send the command opcode (default 0x42 = poll).
+ * MATCH (w48-a4, 8 -> PASS 54/54): the opcode select is TWO FULL CALLS, not a ternary/if-else
+ * value-select feeding one call (catalog w41 "a value-select ternary in a CALL ARGUMENT should
+ * be TWO FULL CALLS cross-jump-merged").  The oracle's tail is `bnez $v0,L / addu $a0,$s0,$zero`
+ * then `j Lcall / li $a1,66` with the other arm's `lbu $a1,0x36($s0)` falling into a SHARED `jal`
+ * -- i.e. cross_jump merged two identical calls and the constant lives in the `j` delay slot.
+ * ARM ORDER is load-bearing: the `!= 0` arm must be written FIRST (the `== 0` arm first gives
+ * 7 diffs @55/54, one insn over).  A single call with a selected value can never reach it: the
+ * ternary and the if/else both CSE the second `info[0x36]` read into the tested register
+ * (`addu $a1,$v0,$zero`, 8 diffs @52/54, two insns SHORT), and forcing the re-read with a
+ * volatile view gets the load but adds an `andi $a1,$v0,255` promotion mask (10 @54/54);
+ * `op = info[0x36]; if (op == 0) op = 0x42;` is worse still (12). */
 extern unsigned _padIntQuery(unsigned char *info)
 {
-    unsigned op;
     if (_padSioChan == _padChanStart) {
         if (_padGunExec != 0) {
             _padFuncGetGunPos();
@@ -84,8 +94,9 @@ extern unsigned _padIntQuery(unsigned char *info)
         _padFuncSendAuto(*(unsigned char **)(info + 0xc));
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0xf0);
     }
-    op = (info[0x36] == 0) ? 0x42 : info[0x36];
-    return _padSioRW2(info, op);
+    if (info[0x36] != 0)
+        return _padSioRW2(info, info[0x36]);
+    return _padSioRW2(info, 0x42);
 }
 
 /* @0x8010C1C8 : _padIntRecvId -- read the device id; derive the multitap byte count. */
@@ -122,10 +133,18 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
         align = (info[0x36] == 0);
     tx = (unsigned)_padFuncGetTxd(info, align);
     r = _padSioRW2(info, tx & 0xff);
-    /* NEAR-MISS (4): oracle stages the `return r` copy in the FIRST branch's delay slot
-     * (beq slot=addu v0,v1; beqz slot=nop); our reorg fills the SECOND slot instead.
-     * Tried+reverted: flat early-return chain (folds return-0 on the ==0 path, worse),
-     * goto funnel (identical 4). reorg fill-order artifact. */
+    /* NEAR-MISS (4, count-exact 35/35): reorg DUPLICATES the shared tail's `addu $v0,$v1,$zero`
+     * return copy into a delay slot; the oracle puts the duplicate in the FIRST branch's slot
+     * (beq slot = addu, beqz slot = nop), ours in the SECOND (beq slot = nop, beqz slot = addu).
+     * Everything else is byte-identical.  w48-a4 re-swept the whole spelling space at this basin:
+     * `&&`-guard block (base), two flat early `return r`s, `||` early-out, goto-out funnel,
+     * fully nested ifs, 3-term `&&` with the sign test folded in, opacity fence on r before the
+     * chain, use fence BETWEEN the two tests, use fence after them -- ALL NINE compile to the
+     * BYTE-IDENTICAL 35 instructions.  jump.c canonicalizes the tail before reorg runs, so no
+     * source spelling reaches the fill ORDER; this is the reorg-duplicate-placement class, not a
+     * structural or coloring miss.  NEXT ANGLE: reorg processes branches in order and fills the
+     * second only after failing the first -- find why the first steal is rejected (`-dR`/reorg
+     * trace), or route to the permuter. */
     if (r != 0x5a && r != 0) {
         if ((int)r >= 0)
             return 0xfffffff7;

@@ -121,13 +121,33 @@ extern void _pad_reset_state(unsigned char *info)
     }
 }
 
-/* @0x800FDEF0 : _pad_failall (_padFuncNextPort) -- abandon the current port, advance to the next. */
+/* @0x800FDEF0 : _pad_failall (_padFuncNextPort) -- abandon the current port, advance to the next.
+ * MATCH (w48-a4, 45 -> 34): the `-9` sentinel is a NAMED LOOP-INVARIANT LOCAL, not a bare
+ * literal.  Retail hoists it into a CALLEE-SAVED register (`li $s3,-9` in the prologue,
+ * `beq $a1,$s3` inside the loop) and pays for it with a 4th saved reg and a 0x28 frame; a bare
+ * `flag != -9` literal is rematerialized in the loop and gives a 0x20 frame with only s0-s2
+ * (45 diffs).  Catalog: "a bare hoisted loop-invariant LITERAL is its own allocno -- NAMING it
+ * lengthens its range".  Frame, saved-reg set and the sentinel register now all match.
+ * RESIDUAL 34 @59/61, two named classes:
+ *  (a) the two hoisted global bases use a SEPARATE %hi scratch (`lui $v0; addiu $s1,$v0`) where
+ *      retail self-temps (`lui $s1; addiu $s1,$s1`).  Same combine_regs global-destination tie
+ *      refusal as _pad_port_to_slot's residual (w47 delete_noop_moves law) -- BOTH bases here,
+ *      so this one class accounts for 4 of the diff lines.  Second in-TU instance => a real
+ *      class, not a one-off.
+ *  (b) retail COPIES the incoming param (`addu $a1,$a0,$zero` at insn 1) and runs the whole loop
+ *      off $a1; ours keeps it in $a0.  The w47 opacity fence does NOT force it here (36 both as
+ *      an in/out fence and as a use fence) -- unlike _dirSendAuto, where the same fence worked.
+ *      NEXT ANGLE: the copy exists because `flag` is REASSIGNED (`flag = 0xffff`) at the loop
+ *      bottom, so retail's parm pseudo and the loop variable are distinct; try splitting them in
+ *      source (a separate loop variable initialised from the param). */
 extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;
+    int noport = -9;
+
     do {
         unsigned char *info = _pad_info + _padSioChan * 0xf0;
-        if (flag != -9) {
+        if (flag != noport) {
             if (flag == 0)
                 _padFixResult[_padSioChan] = 0;
             else {
@@ -139,14 +159,13 @@ extern unsigned char *_pad_failall(int flag)
         JOY_CTRL = 0;
         _padSioChan = _padSioChan + 1;
         ret = (unsigned char *)1;
-        if (_padSioChan <= _padChanStop)   /* oracle @0x800fdf94-98: call iff !(_padChanStop < _padSioChan) */
+        if (_padSioChan <= _padChanStop)
             ret = (unsigned char *)(unsigned long)
                   _padInitSioMode(_pad_info + _padSioChan * 0xf0);
         flag = 0xffff;
     } while (ret == 0);
     return ret;
 }
-
 /* @0x800FDFE4 : _pad_shift (_padFuncClrCmdNo) -- consume the queued command byte.
  * MATCH: b declared unsigned (not unsigned char) to suppress the andi 0xff mask on return;
  * lbu already zero-extends, so unsigned is semantically correct and oracle has no mask. */

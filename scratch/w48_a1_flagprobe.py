@@ -27,13 +27,25 @@ try:
             d[k] = (True if v == 'True' else (False if v == 'False' else v))
         txt = orig.decode('utf-8')
         nl = '\r\n' if '\r\n' in txt else '\n'
+        # raw=<flag>[,<flag>] -- append arbitrary flags to CC1_FLAGS (GLOBAL, all TUs; only
+        # meaningful when gating a single TU).  For axes build.py has no per-TU key for.
+        if 'raw' in d:
+            extra = ''.join(', "%s"' % f for f in str(d.pop('raw')).split('+'))
+            old = 'CC1_FLAGS = ["-quiet", "-O2", f"-G{G_VALUE}", "-g1", "-mgpOPT", "-fgnu-linker"]'
+            assert old in txt, 'CC1_FLAGS line moved'
+            txt = txt.replace(old, old[:-1] + extra + ']', 1)
+            if not d:
+                BUILD.write_bytes(txt.encode('utf-8'))
+                d = None
         # 04G DUPLICATE-KEY HAZARD: PER_TU_FLAGS is a dict LITERAL -- a second
         # entry for the same path is silently discarded by the LAST one.  So if
         # the TU already has an entry, MERGE into it instead of prepending.
         pat = re.compile(r'^([ \t]*)(["\'])' + re.escape(tu) + r'\2\s*:\s*\{(.*?)\},[ \t]*(#.*)?$',
                          re.M)
-        m = pat.search(txt)
-        if m:
+        m = pat.search(txt) if d else None
+        if d is None:
+            pass
+        elif m:
             merged = (m.group(3).strip().rstrip(',') + ', ' if m.group(3).strip() else '')
             merged += ', '.join('%r: %r' % (k, v) for k, v in d.items())
             txt = txt[:m.start()] + '%s%s%s%s: {%s},' % (m.group(1), m.group(2), tu, m.group(2), merged) + txt[m.end():]

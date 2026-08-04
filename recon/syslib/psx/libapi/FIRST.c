@@ -61,6 +61,13 @@ extern int _first_patch(int *state, int arg, int arg2)
     unsigned int cnt;
     FirstFn saved;
 
+    /* MATCH (w48-a7, allocsim priority dial): assigning `saved` FIRST -- before the *state
+     * update -- LENGTHENS its live range from 14 to ~26 insns, which DROPS its allocno
+     * priority (2 refs / live) below `state`'s (4 refs / 60), swapping them into the
+     * oracle's $s2 (state) / $s3 (saved).  Every other saved-reg role then lands exactly.
+     * Positions further down (after the div, after `e =`, after `lim =`) all measure 20. */
+    saved = _first_save;
+
     if (*state == 0)
         *state = 1;
     cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
@@ -71,7 +78,6 @@ extern int _first_patch(int *state, int arg, int arg2)
      * because the destination outlives its source (make_regs_eqv); computing straight into `end`
      * coalesces it away. */
     lim  = e + cnt;
-    saved = _first_save;   /* loop-invariant: hoist the un-patch value (oracle materializes it before the search) */
     if (e < lim) {
         end = lim;
 scan:

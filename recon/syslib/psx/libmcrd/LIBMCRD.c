@@ -632,14 +632,11 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
 {
     const char *fmt;
     if (0 < mc.cmd) {
-        fmt = "Access Denied. : system busy
-";
+        fmt = "Access Denied. : system busy\n";
     } else if (0 <= mc.fd) {
-        fmt = "Access Denied. : file already open.
-";
+        fmt = "Access Denied. : file already open.\n";
     } else if ((bytes & 0x7f) != 0) {
-        fmt = "Access Denied. : invalid data size align
-";
+        fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {
         MemCardMakeDevname(chan, mc.devname);
         strcat(mc.devname, file);
@@ -653,8 +650,7 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
         UserFuncOpen((int)MemCardReadFile_cb);
         return 1;
     } else {
-        fmt = "Access Denied. : invalid offset value align
-";
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -665,14 +661,11 @@ extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long of
 {
     const char *fmt;
     if (0 < mc.cmd) {
-        fmt = "Access Denied. : system busy
-";
+        fmt = "Access Denied. : system busy\n";
     } else if (0 <= mc.fd) {
-        fmt = "Access Denied. : file already open.
-";
+        fmt = "Access Denied. : file already open.\n";
     } else if ((bytes & 0x7f) != 0) {
-        fmt = "Access Denied. : invalid data size align
-";
+        fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {
         MemCardMakeDevname(chan, mc.devname);
         strcat(mc.devname, file);
@@ -686,8 +679,7 @@ extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long of
         UserFuncOpen((int)MemCardWriteFile_cb);
         return 1;
     } else {
-        fmt = "Access Denied. : invalid offset value align
-";
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;

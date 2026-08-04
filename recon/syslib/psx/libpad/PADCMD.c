@@ -312,16 +312,21 @@ tail:
 /* =====================  set-actuator-align command  =========================================== */
 
 /* @0x80105BF4 : _padSetActAlign -- queue the actuator-alignment command (returns 1 if accepted).
- * NEAR-MISS (2, WEAK floor): oracle materializes TWO separate `li 1`'s (v0=return, v1=the
- * 0x46 store) instead of copying the return value into the store reg (`addu v1,v0,zero`).
- * Tried+reverted: swapping decl order of the two "1" locals, a volatile byte store (defeats
- * store reordering, not value-CSE), and the `1^zero` runtime-zero device (forces AUTO stack
- * storage for `zero`, regressed 2->22 diffs -- wrong lever for a plain RTL constant-CSE, not
- * a coloring/scheduling residual). w23-a8: unresolved after 4 source-shape attempts. */
+ * w48-a3: PASS 26/26.  The w23-a8 "WEAK floor" (oracle materializes TWO separate `li 1`'s --
+ * $v0 for the return, $v1 for the 0x46 store -- where ours copy-substituted `addu v1,v0,zero`)
+ * is the §3.25-3b "old-gcc no-copy-prop" identity: retail's cc1 rematerializes a still-live
+ * constant, ours lets cse substitute the equal live value.  The reachable lever is the w47
+ * OPACITY/IDENTITY FENCE `__asm__("" : "=r"(x) : "0"(x))` -- a ZERO-INSTRUCTION value-numbering
+ * barrier (output tied to input by the "0" constraint, so no code is emitted) that stops cse
+ * proving `r == 1` at the store.  DIRECTION IS LOAD-BEARING: fencing the STORE's constant
+ * instead leaves both `li`s but in the WRONG ORDER (ours v1-then-v0 vs the oracle's v0-then-v1,
+ * still 2 diffs) -- fencing `r` also PINS the return constant's materialization first, which is
+ * exactly the oracle's order.  Do not "simplify" the asm away. */
 extern int _padSetActAlign(unsigned char *info, int data)
 {
     if (_padFuncChkEng(info) == 0) {
         int r = 1;
+        __asm__("" : "=r"(r) : "0"(r));   /* MATCH: opacity fence, 0 insns -- see header */
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetActAlign_snd;
         *(int *)(info + 0x20) = data;

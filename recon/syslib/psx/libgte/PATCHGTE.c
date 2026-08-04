@@ -43,11 +43,15 @@ extern void FlushCache(void);             /* libapi C68 */
 /* @0x80106500 : GTE exception-handler patch template (match-half + fix-half).
  * Must be an initialized .rodata/.data table so the loop bounds &[0]/&[6]/&[12] resolve;
  * the handwritten loops reference it as func_80106500 / D_80106518 / D_80106530. */
+#if defined(__mips__)
+extern const unsigned _gte_patch_text[13];   /* w48-a8: defined in the __asm__ block below */
+#else
 const unsigned _gte_patch_text[13] = {
     0xaf410004, 0xaf420008, 0xaf43000c, 0xaf5f007c, 0x40037000, 0x00000000,   /* [0..5] buggy pattern */
     0xaf410004, 0xaf420008, 0x40026800, 0xaf43000c, 0x40037000, 0xaf5f007c,   /* [6..11] fixed (mfc0 $2,$13) */
     0x00000000
 };
+#endif
 
 #if defined(__mips__)
 /* @0x8014898C : scratch word holding $ra across the helper calls (handwritten spill). */
@@ -112,6 +116,28 @@ __asm__(
     "\tnop\n"
     "\tjr    $ra\n"
     "\t nop\n"
+    /* --- @0x80106500 : the patch TEMPLATE table, emitted in .text immediately after
+     * _patch_gte (its real VA).  The oracle's symbol for it is `_patch_gte_handler_1`
+     * (0x30 bytes = words [0..11]); it is a §3.9b class-2 code-as-data PATCH TEMPLATE, not
+     * a function.  Emitting it as a C `const` array put the bytes in .rodata under a name
+     * the gate could not resolve -> `NOT IN OBJECT`.  `_gte_patch_text` is the same address
+     * under the recon's own name, via a GNU-as symbol assignment (gcc-2.8 SILENTLY IGNORES
+     * __attribute__((alias)) -- catalog §G).  D_80106518 / D_80106530 are splat's interior
+     * labels for &word[6] (the fix half) and &word[12]. --- */
+    "\t.globl _patch_gte_handler_1\n"
+    "_patch_gte_handler_1:\n"
+    "\t.globl _gte_patch_text\n"
+    "_gte_patch_text = _patch_gte_handler_1\n"
+    "\t.word 0xaf410004\n\t.word 0xaf420008\n\t.word 0xaf43000c\n"
+    "\t.word 0xaf5f007c\n\t.word 0x40037000\n\t.word 0x00000000\n"
+    /* (no interior label at &word[6]: objdump would end the _patch_gte_handler_1 block
+     *  there and the gate would only see the match-half.  The recon reaches the fix half
+     *  as `_gte_patch_text+24`.  D_80106530 DOES get a label -- it terminates the symbol
+     *  at the oracle's 0x30 size.) */
+    "\t.word 0xaf410004\n\t.word 0xaf420008\n\t.word 0x40026800\n"
+    "\t.word 0xaf43000c\n\t.word 0x40037000\n\t.word 0xaf5f007c\n"
+    "D_80106530:\n"
+    "\t.word 0x00000000\n"
     "\t.set	pop\n");
 #else
 /* @0x80106454 : _patch_gte -- host no-op (no BIOS, no GTE, no self-modifying code). */

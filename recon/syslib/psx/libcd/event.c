@@ -25,8 +25,13 @@ extern int CD_cbready;   /* @0x8013BF4C */
 
 /* ---- globals owned by this object ------------------------------------------------------------- */
 
-int CD_cbread = 0;        /* @0x8013C2D0 : user CdReadCallback (default = _cd_event_read) */
-int CD_read_dma_mode = 0; /* @0x8013C2D4 : bit0 = copy read sectors via DMA */
+/* MATCH (catalog I-addendum, section lever): retail addresses BOTH of this TU's owned
+ * 4-byte globals ABSOLUTELY (`lui $at,%hi; sw ...%lo($at)`), so they were NOT in .sdata.
+ * An initialised `= 0` definition lands them in .sdata under -G4 and maspsx emits the
+ * 1-insn gp-relative store instead.  section(".bss") forces them out (each is written
+ * exactly ONCE in CdInit -> the single-access precondition holds).  CdInit 42 -> 36. */
+int CD_cbread __attribute__((section(".bss")));        /* @0x8013C2D0 : user CdReadCallback */
+int CD_read_dma_mode __attribute__((section(".bss"))); /* @0x8013C2D4 : bit0 = DMA copy */
 
 
 /* @0x80109158 : default sync callback -- deliver the "command complete" CdRom event. */

@@ -52,3 +52,59 @@ FALSIFIED at this basin (all whole-TU gated, other 4 fns unchanged at 3/32/103/6
  12 · decl-after-guard 12 · shared word/const pseudo (3 spellings) 8 (merged pseudo -> $a1)
  · opacity fence on ff 5 @12 insns · fence in nested-reuse 8 · pre-loaded byte local 8 @9.
 Per-fn `-fno-delayed-branch` splice on _dirCheck: 5 -> 9 (REGRESSION, not adopted).
+
+## 3. FLAG-AXIS (report-only; build.py restored after every probe — `git status` clean)
+Harness `scratch/w48_a4_flag.py` (MERGES with any pre-existing PER_TU_FLAGS entry for
+the TU — the w47-04G duplicate-key hazard; PADENTRY already carries `jtbl_at_fusion`).
+
+### 🏆 PADENTRY.c wants `-mno-split-addresses` — IDENTITY (w47 bar: FAIL->PASS)
+Whole-TU, all 8 oracles, reproduced 3x (byte-identical output):
+| fn | BASE | nosplit |
+|---|---|---|
+| PadStartCom     | PASS | PASS |
+| PadStopCom      | PASS | PASS |
+| PadGetState     | FAIL 10 (50/48) | FAIL 10 (50/48) |
+| PadInfoMode     | FAIL 42 (58/62) | FAIL 42 (58/62) |
+| **PadInfoAct**  | **FAIL 20 (53/53)** | **PASS (53 insns)** |
+| PadSetActAlign  | PASS | PASS |
+| PadSetMainMode  | PASS | PASS |
+| PadSetAct       | PASS | PASS |
+=> 5 -> 6 PASS, 72 -> 52 diffs, ZERO regressions.  Coexists with the TU's existing
+`jtbl_at_fusion` (PadInfoAct is the jump-table fn and PASSes with BOTH keys set).
+Independently concordant with a9's 64-TU ladder (PADENTRY nosplit 6 PASS/52) and with
+a1 (libmcrd) + a2 (libgpu SYS/FONT) finding the same flag is the syslib identity.
+RECOMMEND WIRING: `"recon/syslib/psx/libpad/PADENTRY.c": {"jtbl_at_fusion": True,
+"no_split_addresses": True}` (ONE dict entry — do not add a second key line).
+
+### The other three TUs: NOT nosplit objects (per-fn receipts)
+- PADPORTD  360 -> 358: PadInitDirect 55->51 but _pad_failall 45->47 (56 vs 58 insns).
+  Mixed nudge, no conversion => below the identity bar. NOT recommended.
+- PADSEQD   208 -> 208: byte-identical on all 5 fns. Fully INERT.
+- MCXMAIN   320 -> 322: _padIntRecvData 289->291, rest identical. Slightly worse.
+Also inert/worse for my TUs per a9's ladder: -G0, -G8, -fno-schedule-insns{,2}, -O1.
+`-fno-delayed-branch` whole-TU: PADPORTD 360->417 (2->1 PASS), PADSEQD 208->276,
+MCXMAIN 320->431, PADENTRY 72->125 — uniformly catastrophic, concordant with a3's
+"splice EXHAUSTED on libpad-A" (0 wins / 20 worse / 9 PASS-regressions).
+
+## 4. ASSEMBLER-CLASS EXHIBITS FOR a10/a6 (do not grind from source)
+- **_padInitDirSeq (PADSEQD, 3 diffs @14/13)** is the minimal exhibit of a6's
+  macro-split-into-delay-slot class: oracle `lui $at,%hi(_padFuncRecvAuto); jr $ra;
+  sw $v0,%lo(_padFuncRecvAuto)($at)` — the assembler SPLIT the `sw $v0,sym` macro
+  ACROSS the `jr` and put the store in the slot.  cc1 can never do this (it sees one
+  macro insn), and maspsx forces `.set noreorder` so GNU as can't either.  a6's
+  real-ASPSX run (647e2e3d) already spec'd `maspsx --aspsx-reorder-fill` for exactly
+  this; this fn is a 13-instruction regression test for that patch.  NOT source-reachable:
+  the store-side `$at` lever (catalog w42 §E, `extern T G[]` + `G[0]=v`) moves us the
+  WRONG way here — retail's form IS the `$at` macro, only the slot differs.
+- **_pad_reset_state (PADPORTD, 1 diff @25/26)** is a clean 2-SLOT DISCRIMINATOR for
+  the same lane: the ONLY diff is that reorg steals the fall-through block's first insn
+  (`addiu v1,a0,93`) into the guard's `beqz` delay slot, where retail leaves `nop`.
+  Under a per-fn `-fno-delayed-branch` splice the guard slot matches EXACTLY (nop) and
+  the sole remaining diff becomes the do-while loop's own `addiu v1,v1,1` -> `bgez` slot
+  (3 diffs @27/26).  So this fn needs delayed-branch OFF *and* a same-block backward
+  fill — i.e. if real ASPSX fills from the immediately-preceding insn of the SAME block
+  (a6 tested the macro-split case, not this one), this fn goes to PASS.  a10/a6: please
+  test that specific behaviour.  Source-side falsifications at this basin (all 1 diff,
+  whole-TU clean): early-out inversion, volatile guard read, `p` assigned after the
+  stores (13), store-the-tested-byte-first, `while` instead of `do/while`, opacity fence
+  at the block head (13).

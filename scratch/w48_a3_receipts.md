@@ -260,9 +260,22 @@ expands it entirely before the branch and nops the slot. The **`$at` base is the
 macro expansion** (cc1 never allocates `$at`). Probed + rejected: the unsized asm-label view
 (`extern int _startTime_v[] asm("_startTime")`) DOES get the store into the jr slot, but as cc1's
 own split with a normal register ($v1, not $at) — same 3-4 diffs here and 25→40 on chkRC2wait.
-**a10: this is a DIFFERENT claim from the two 04C already falsified** (backward jal-slot fill /
-epilogue reschedule) — it is *store-macro expansion across a branch*. One assemble of
-`sw $2,sym` + `j $31` through the real ASPSX ladder settles it.
+✅ **CONFIRMED BY a10 (polled 2026-08-04, branch `w48-a10` @094e0cb0): this IS a10's new
+CLASS 5** — "macro-expansion BACKWARD-FILLED into a `jr` slot", same shape they found on
+`CdSetDebug`/`CdSyncCallback`/`CdReadyCallback` (`lui $at,%hi` hoisted ABOVE the branch, the
+`sw %lo($at)` in the slot), with the same `$at` proof. Their verdict: **no on-disk ASPSX can
+produce it** (5 falsifications, 18-option sweep, 2 versions), but `CC1PSX -O2 -G0
+-mno-split-addresses` + a plain reordering `mipsel-none-elf-as -G0` reproduces retail byte-exact —
+i.e. the retail syslib assembler was a REORDERING MIPS `as`, not aspsx; maspsx spec in their §5.4.
+`setRC2wait` is therefore a second syslib exhibit for that class, and its 3 diffs are gated on that
+spec, not on source.
+**My own compiler-side probe of the same recipe (numbers for a10):** on WAITRC2.c,
+`g_value=0` alone makes `setRC2wait` **COUNT-EXACT 8/8** and DOES put the `sw` in the `jr` delay
+slot — but as cc1's own split with normal registers (`lui $v0; sw $v1,%lo($v0)`), not retail's
+`$at` macro pair, and it re-orders the two stores → 14 diffs (chkRC2wait 34 → 44).
+`no_split_addresses` is INERT on this TU (3 / 34, identical to default), and the two combined are
+also 3 / 34. ⇒ the compiler-side half of a10's recipe is reachable here; the `$at` half needs their
+assembler/maspsx spec. **Do NOT wire `-G0` for WAITRC2.c on those numbers alone.**
 
 ---
 

@@ -1,0 +1,5922 @@
+{
+ "syslib/psx/libgpu/SYS": {
+  "BASE": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    128,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    14,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    27,
+    45,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    19,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    73,
+    88,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    26,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    460,
+    282,
+    318
+   ],
+   "_image": [
+    62,
+    69,
+    71
+   ],
+   "_set_drawenv": [
+    179,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    205,
+    129,
+    140
+   ],
+   "_dws": [
+    99,
+    136,
+    143
+   ],
+   "_drs": [
+    102,
+    152,
+    160
+   ],
+   "_send_gp1": [
+    8,
+    9,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    150,
+    162,
+    172
+   ],
+   "_gpu_que_drain": [
+    85,
+    127,
+    152
+   ],
+   "_reset": [
+    61,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    42,
+    77,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplit": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    120,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    8,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    0,
+    46,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    12,
+    55,
+    63
+   ],
+   "ResetGraph": [
+    44,
+    87,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    18,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    438,
+    282,
+    318
+   ],
+   "_image": [
+    46,
+    71,
+    71
+   ],
+   "_set_drawenv": [
+    165,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    29,
+    39,
+    38
+   ],
+   "_set_clip_br": [
+    29,
+    39,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    210,
+    132,
+    140
+   ],
+   "_dws": [
+    85,
+    138,
+    143
+   ],
+   "_drs": [
+    87,
+    153,
+    160
+   ],
+   "_send_gp1": [
+    3,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    6,
+    5,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    103,
+    165,
+    172
+   ],
+   "_gpu_que_drain": [
+    87,
+    129,
+    152
+   ],
+   "_reset": [
+    55,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    38,
+    75,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    6,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplitG0": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    120,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    8,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    0,
+    46,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    12,
+    55,
+    63
+   ],
+   "ResetGraph": [
+    44,
+    87,
+    93
+   ],
+   "ClearOTagR": [
+    26,
+    43,
+    43
+   ],
+   "PutDrawEnv": [
+    18,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    438,
+    282,
+    318
+   ],
+   "_image": [
+    46,
+    71,
+    71
+   ],
+   "_set_drawenv": [
+    165,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    29,
+    39,
+    38
+   ],
+   "_set_clip_br": [
+    29,
+    39,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    210,
+    132,
+    140
+   ],
+   "_dws": [
+    85,
+    138,
+    143
+   ],
+   "_drs": [
+    87,
+    153,
+    160
+   ],
+   "_send_gp1": [
+    3,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    6,
+    5,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    103,
+    165,
+    172
+   ],
+   "_gpu_que_drain": [
+    87,
+    129,
+    152
+   ],
+   "_reset": [
+    55,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    38,
+    75,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    6,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplitG8": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    120,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    8,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    0,
+    46,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    12,
+    55,
+    63
+   ],
+   "ResetGraph": [
+    44,
+    87,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    18,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    438,
+    282,
+    318
+   ],
+   "_image": [
+    46,
+    71,
+    71
+   ],
+   "_set_drawenv": [
+    165,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    29,
+    39,
+    38
+   ],
+   "_set_clip_br": [
+    29,
+    39,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    210,
+    132,
+    140
+   ],
+   "_dws": [
+    85,
+    138,
+    143
+   ],
+   "_drs": [
+    87,
+    153,
+    160
+   ],
+   "_send_gp1": [
+    3,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    6,
+    5,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    103,
+    165,
+    172
+   ],
+   "_gpu_que_drain": [
+    87,
+    129,
+    152
+   ],
+   "_reset": [
+    55,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    38,
+    75,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    6,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplit_nodelay": {
+   "SetTexWindow": [
+    6,
+    16,
+    14
+   ],
+   "SetDrawArea": [
+    6,
+    34,
+    32
+   ],
+   "SetDrawStp": [
+    9,
+    13,
+    10
+   ],
+   "SetDrawMode": [
+    9,
+    24,
+    21
+   ],
+   "SetDrawEnv": [
+    136,
+    134,
+    126
+   ],
+   "SetDispMask": [
+    28,
+    38,
+    38
+   ],
+   "DrawSync": [
+    14,
+    28,
+    26
+   ],
+   "ClearImage": [
+    16,
+    38,
+    36
+   ],
+   "LoadImage": [
+    10,
+    26,
+    24
+   ],
+   "StoreImage": [
+    10,
+    26,
+    24
+   ],
+   "MoveImage": [
+    18,
+    50,
+    46
+   ],
+   "DrawOTag": [
+    14,
+    30,
+    28
+   ],
+   "DrawOTag2": [
+    38,
+    61,
+    63
+   ],
+   "ResetGraph": [
+    62,
+    95,
+    93
+   ],
+   "ClearOTagR": [
+    39,
+    44,
+    43
+   ],
+   "PutDrawEnv": [
+    47,
+    51,
+    48
+   ],
+   "PutDispEnv": [
+    502,
+    316,
+    318
+   ],
+   "_image": [
+    50,
+    73,
+    71
+   ],
+   "_set_drawenv": [
+    186,
+    150,
+    156
+   ],
+   "_set_draw_mode": [
+    9,
+    11,
+    8
+   ],
+   "_set_clip_tl": [
+    38,
+    44,
+    38
+   ],
+   "_set_clip_br": [
+    38,
+    44,
+    38
+   ],
+   "_set_draw_offset": [
+    3,
+    8,
+    7
+   ],
+   "_get_tw": [
+    40,
+    26,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    38,
+    56,
+    56
+   ],
+   "_BlitClear": [
+    225,
+    149,
+    140
+   ],
+   "_dws": [
+    104,
+    149,
+    143
+   ],
+   "_drs": [
+    109,
+    167,
+    160
+   ],
+   "_send_gp1": [
+    3,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    6,
+    5,
+    5
+   ],
+   "_send_gp0": [
+    9,
+    19,
+    16
+   ],
+   "_gpu_dma_chain": [
+    3,
+    19,
+    18
+   ],
+   "_get_gpuinfo": [
+    3,
+    13,
+    12
+   ],
+   "_que_ref": [
+    5,
+    10,
+    9
+   ],
+   "_gpu_que_push": [
+    133,
+    179,
+    172
+   ],
+   "_gpu_que_drain": [
+    96,
+    136,
+    152
+   ],
+   "_reset": [
+    60,
+    86,
+    84
+   ],
+   "_sync": [
+    31,
+    86,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    14,
+    13
+   ],
+   "_gpu_check_timeout": [
+    44,
+    81,
+    81
+   ],
+   "_gpu_init_videomode": [
+    10,
+    42,
+    40
+   ],
+   "_install_drain_cb": [
+    5,
+    11,
+    10
+   ],
+   "_memset": [
+    6,
+    11,
+    9
+   ]
+  },
+  "nosplit_nosched2": {
+   "SetTexWindow": [
+    6,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    7,
+    33,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    12,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    125,
+    125,
+    126
+   ],
+   "SetDispMask": [
+    12,
+    34,
+    38
+   ],
+   "DrawSync": [
+    9,
+    27,
+    26
+   ],
+   "ClearImage": [
+    22,
+    36,
+    36
+   ],
+   "LoadImage": [
+    8,
+    24,
+    24
+   ],
+   "StoreImage": [
+    8,
+    24,
+    24
+   ],
+   "MoveImage": [
+    14,
+    46,
+    46
+   ],
+   "DrawOTag": [
+    15,
+    29,
+    28
+   ],
+   "DrawOTag2": [
+    21,
+    56,
+    63
+   ],
+   "ResetGraph": [
+    46,
+    87,
+    93
+   ],
+   "ClearOTagR": [
+    36,
+    43,
+    43
+   ],
+   "PutDrawEnv": [
+    24,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    442,
+    284,
+    318
+   ],
+   "_image": [
+    52,
+    73,
+    71
+   ],
+   "_set_drawenv": [
+    138,
+    136,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    29,
+    39,
+    38
+   ],
+   "_set_clip_br": [
+    29,
+    39,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    39,
+    25,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    37,
+    55,
+    56
+   ],
+   "_BlitClear": [
+    208,
+    136,
+    140
+   ],
+   "_dws": [
+    89,
+    140,
+    143
+   ],
+   "_drs": [
+    91,
+    155,
+    160
+   ],
+   "_send_gp1": [
+    3,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    6,
+    5,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    4,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    124,
+    166,
+    172
+   ],
+   "_gpu_que_drain": [
+    92,
+    132,
+    152
+   ],
+   "_reset": [
+    51,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    4,
+    13,
+    13
+   ],
+   "_gpu_check_timeout": [
+    42,
+    75,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    4,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  }
+ },
+ "syslib/psx/libpad/PADMAIN": {
+  "BASE": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    23,
+    52,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    227,
+    192,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    45,
+    53,
+    50
+   ]
+  },
+  "nosplit": {
+   "_padSetVsyncParam": [
+    0,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    22,
+    53,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    198,
+    195,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    38,
+    52,
+    50
+   ]
+  },
+  "nosplitG0": {
+   "_padSetVsyncParam": [
+    0,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    24,
+    55,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    198,
+    195,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    91,
+    91
+   ],
+   "_padSioMain": [
+    38,
+    52,
+    50
+   ]
+  },
+  "nosplitG8": {
+   "_padSetVsyncParam": [
+    0,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    22,
+    53,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    198,
+    195,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    38,
+    52,
+    50
+   ]
+  },
+  "nosplit_nodelay": {
+   "_padSetVsyncParam": [
+    3,
+    12,
+    11
+   ],
+   "_padStartCom": [
+    35,
+    56,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    254,
+    213,
+    205
+   ],
+   "_padSioRW": [
+    148,
+    118,
+    118
+   ],
+   "_padSioRW2": [
+    179,
+    145,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    7,
+    29,
+    26
+   ],
+   "_padVbCallback0": [
+    45,
+    92,
+    91
+   ],
+   "_padSioMain": [
+    42,
+    56,
+    50
+   ]
+  },
+  "nosplit_nosched2": {
+   "_padSetVsyncParam": [
+    0,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    16,
+    53,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    210,
+    197,
+    205
+   ],
+   "_padSioRW": [
+    141,
+    115,
+    118
+   ],
+   "_padSioRW2": [
+    155,
+    137,
+    142
+   ],
+   "_padClrIntSio0": [
+    26,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    9,
+    27,
+    26
+   ],
+   "_padVbCallback0": [
+    39,
+    88,
+    91
+   ],
+   "_padSioMain": [
+    37,
+    53,
+    50
+   ]
+  }
+ },
+ "syslib/psx/libpad/PADENTRY": {
+  "BASE": {
+   "PadStartCom": [
+    0,
+    8,
+    8
+   ],
+   "PadStopCom": [
+    0,
+    8,
+    8
+   ],
+   "PadGetState": [
+    10,
+    50,
+    48
+   ],
+   "PadInfoMode": [
+    42,
+    58,
+    62
+   ],
+   "PadInfoAct": [
+    20,
+    53,
+    53
+   ],
+   "PadSetActAlign": [
+    0,
+    14,
+    14
+   ],
+   "PadSetMainMode": [
+    0,
+    18,
+    18
+   ],
+   "PadSetAct": [
+    0,
+    18,
+    18
+   ]
+  },
+  "nosplit": {
+   "PadStartCom": [
+    0,
+    8,
+    8
+   ],
+   "PadStopCom": [
+    0,
+    8,
+    8
+   ],
+   "PadGetState": [
+    10,
+    50,
+    48
+   ],
+   "PadInfoMode": [
+    42,
+    58,
+    62
+   ],
+   "PadInfoAct": [
+    0,
+    53,
+    53
+   ],
+   "PadSetActAlign": [
+    0,
+    14,
+    14
+   ],
+   "PadSetMainMode": [
+    0,
+    18,
+    18
+   ],
+   "PadSetAct": [
+    0,
+    18,
+    18
+   ]
+  },
+  "nosplitG0": {
+   "PadStartCom": [
+    0,
+    8,
+    8
+   ],
+   "PadStopCom": [
+    0,
+    8,
+    8
+   ],
+   "PadGetState": [
+    10,
+    50,
+    48
+   ],
+   "PadInfoMode": [
+    42,
+    58,
+    62
+   ],
+   "PadInfoAct": [
+    0,
+    53,
+    53
+   ],
+   "PadSetActAlign": [
+    0,
+    14,
+    14
+   ],
+   "PadSetMainMode": [
+    0,
+    18,
+    18
+   ],
+   "PadSetAct": [
+    0,
+    18,
+    18
+   ]
+  },
+  "nosplitG8": {
+   "PadStartCom": [
+    0,
+    8,
+    8
+   ],
+   "PadStopCom": [
+    0,
+    8,
+    8
+   ],
+   "PadGetState": [
+    10,
+    50,
+    48
+   ],
+   "PadInfoMode": [
+    42,
+    58,
+    62
+   ],
+   "PadInfoAct": [
+    0,
+    53,
+    53
+   ],
+   "PadSetActAlign": [
+    0,
+    14,
+    14
+   ],
+   "PadSetMainMode": [
+    0,
+    18,
+    18
+   ],
+   "PadSetAct": [
+    0,
+    18,
+    18
+   ]
+  },
+  "nosplit_nodelay": {
+   "PadStartCom": [
+    0,
+    8,
+    8
+   ],
+   "PadStopCom": [
+    0,
+    8,
+    8
+   ],
+   "PadGetState": [
+    10,
+    50,
+    48
+   ],
+   "PadInfoMode": [
+    57,
+    67,
+    62
+   ],
+   "PadInfoAct": [
+    11,
+    58,
+    53
+   ],
+   "PadSetActAlign": [
+    9,
+    17,
+    14
+   ],
+   "PadSetMainMode": [
+    9,
+    21,
+    18
+   ],
+   "PadSetAct": [
+    9,
+    21,
+    18
+   ]
+  },
+  "nosplit_nosched2": {
+   "PadStartCom": [
+    0,
+    8,
+    8
+   ],
+   "PadStopCom": [
+    0,
+    8,
+    8
+   ],
+   "PadGetState": [
+    15,
+    51,
+    48
+   ],
+   "PadInfoMode": [
+    58,
+    60,
+    62
+   ],
+   "PadInfoAct": [
+    11,
+    54,
+    53
+   ],
+   "PadSetActAlign": [
+    7,
+    15,
+    14
+   ],
+   "PadSetMainMode": [
+    9,
+    19,
+    18
+   ],
+   "PadSetAct": [
+    9,
+    19,
+    18
+   ]
+  }
+ },
+ "syslib/psx/libmcrd/BIOS": {
+  "BASE": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpError": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeout": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcard": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpIOEx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpErrorx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    0,
+    5,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    31,
+    120,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    0,
+    45,
+    45
+   ],
+   "_clr_card_event": [
+    5,
+    65,
+    66
+   ],
+   "_get_card_event": [
+    6,
+    54,
+    54
+   ],
+   "_get_card_event_x": [
+    6,
+    54,
+    54
+   ],
+   "_chk_card_event": [
+    0,
+    15,
+    15
+   ],
+   "_chk_card_event_x": [
+    0,
+    15,
+    15
+   ]
+  },
+  "nosplit": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpError": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeout": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcard": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpIOEx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpErrorx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    0,
+    5,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    3,
+    120,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    0,
+    45,
+    45
+   ],
+   "_clr_card_event": [
+    5,
+    65,
+    66
+   ],
+   "_get_card_event": [
+    6,
+    54,
+    54
+   ],
+   "_get_card_event_x": [
+    6,
+    54,
+    54
+   ],
+   "_chk_card_event": [
+    0,
+    15,
+    15
+   ],
+   "_chk_card_event_x": [
+    0,
+    15,
+    15
+   ]
+  },
+  "nosplitG0": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpError": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeout": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcard": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpIOEx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpErrorx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    0,
+    5,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    3,
+    120,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    0,
+    45,
+    45
+   ],
+   "_clr_card_event": [
+    5,
+    65,
+    66
+   ],
+   "_get_card_event": [
+    6,
+    54,
+    54
+   ],
+   "_get_card_event_x": [
+    6,
+    54,
+    54
+   ],
+   "_chk_card_event": [
+    0,
+    15,
+    15
+   ],
+   "_chk_card_event_x": [
+    0,
+    15,
+    15
+   ]
+  },
+  "nosplitG8": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpError": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeout": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcard": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpIOEx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpErrorx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    0,
+    5,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    3,
+    120,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    0,
+    45,
+    45
+   ],
+   "_clr_card_event": [
+    5,
+    65,
+    66
+   ],
+   "_get_card_event": [
+    6,
+    54,
+    54
+   ],
+   "_get_card_event_x": [
+    6,
+    54,
+    54
+   ],
+   "_chk_card_event": [
+    0,
+    15,
+    15
+   ],
+   "_chk_card_event_x": [
+    0,
+    15,
+    15
+   ]
+  },
+  "nosplit_nodelay": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpError": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpTimeout": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpNewcard": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpIOEx": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpErrorx": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    3,
+    6,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    3,
+    6,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    33,
+    130,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    9,
+    48,
+    45
+   ],
+   "_clr_card_event": [
+    2,
+    66,
+    66
+   ],
+   "_get_card_event": [
+    9,
+    55,
+    54
+   ],
+   "_get_card_event_x": [
+    9,
+    55,
+    54
+   ],
+   "_chk_card_event": [
+    3,
+    16,
+    15
+   ],
+   "_chk_card_event_x": [
+    3,
+    16,
+    15
+   ]
+  },
+  "nosplit_nosched2": {
+   "CD_get_intr": null,
+   "CD_init": null,
+   "funcEvSpIOE": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpError": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeout": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcard": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpIOEx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpErrorx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpTimeoutx": [
+    0,
+    5,
+    5
+   ],
+   "funcEvSpNewcardx": [
+    0,
+    5,
+    5
+   ],
+   "_card_open": [
+    0,
+    12,
+    12
+   ],
+   "_card_start": [
+    3,
+    120,
+    119
+   ],
+   "_card_close": [
+    0,
+    8,
+    8
+   ],
+   "_card_stop": [
+    0,
+    45,
+    45
+   ],
+   "_clr_card_event": [
+    8,
+    66,
+    66
+   ],
+   "_get_card_event": [
+    3,
+    55,
+    54
+   ],
+   "_get_card_event_x": [
+    3,
+    55,
+    54
+   ],
+   "_chk_card_event": [
+    3,
+    16,
+    15
+   ],
+   "_chk_card_event_x": [
+    3,
+    16,
+    15
+   ]
+  }
+ },
+ "syslib/psx/libmcrd/LIBMCRD": {
+  "BASE": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    8,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    8,
+    26,
+    26
+   ],
+   "MemCardExist_cb": [
+    144,
+    95,
+    117
+   ],
+   "MemCardAccept": [
+    8,
+    26,
+    26
+   ],
+   "MemCardCmd_cb": [
+    137,
+    120,
+    141
+   ],
+   "MemCardReadData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardReadData_cb": [
+    72,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    77,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    57,
+    59,
+    66
+   ],
+   "MemCardWriteFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    57,
+    59,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    144,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    104,
+    102,
+    130
+   ],
+   "MemCardDeleteFile": [
+    96,
+    81,
+    111
+   ],
+   "MemCardFormat": [
+    28,
+    35,
+    35
+   ],
+   "MemCardUnformat": [
+    28,
+    41,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    29,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "nosplit": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    4,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    11,
+    27,
+    26
+   ],
+   "MemCardExist_cb": [
+    153,
+    98,
+    117
+   ],
+   "MemCardAccept": [
+    11,
+    27,
+    26
+   ],
+   "MemCardCmd_cb": [
+    138,
+    125,
+    141
+   ],
+   "MemCardReadData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardReadData_cb": [
+    58,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    83,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    42,
+    60,
+    66
+   ],
+   "MemCardWriteFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    42,
+    60,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    148,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    102,
+    106,
+    130
+   ],
+   "MemCardDeleteFile": [
+    102,
+    87,
+    111
+   ],
+   "MemCardFormat": [
+    29,
+    36,
+    35
+   ],
+   "MemCardUnformat": [
+    31,
+    42,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    25,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "nosplitG0": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    4,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    11,
+    27,
+    26
+   ],
+   "MemCardExist_cb": [
+    153,
+    98,
+    117
+   ],
+   "MemCardAccept": [
+    11,
+    27,
+    26
+   ],
+   "MemCardCmd_cb": [
+    138,
+    125,
+    141
+   ],
+   "MemCardReadData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardReadData_cb": [
+    61,
+    72,
+    79
+   ],
+   "MemCardWriteData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    86,
+    73,
+    79
+   ],
+   "MemCardReadFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    43,
+    61,
+    66
+   ],
+   "MemCardWriteFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    43,
+    61,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    148,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    102,
+    106,
+    130
+   ],
+   "MemCardDeleteFile": [
+    102,
+    87,
+    111
+   ],
+   "MemCardFormat": [
+    29,
+    36,
+    35
+   ],
+   "MemCardUnformat": [
+    31,
+    42,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    25,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "nosplitG8": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    4,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    11,
+    27,
+    26
+   ],
+   "MemCardExist_cb": [
+    153,
+    98,
+    117
+   ],
+   "MemCardAccept": [
+    11,
+    27,
+    26
+   ],
+   "MemCardCmd_cb": [
+    138,
+    125,
+    141
+   ],
+   "MemCardReadData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardReadData_cb": [
+    58,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    83,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    42,
+    60,
+    66
+   ],
+   "MemCardWriteFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    42,
+    60,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    148,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    102,
+    106,
+    130
+   ],
+   "MemCardDeleteFile": [
+    102,
+    87,
+    111
+   ],
+   "MemCardFormat": [
+    29,
+    36,
+    35
+   ],
+   "MemCardUnformat": [
+    31,
+    42,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    25,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "nosplit_nodelay": {
+   "MemCardInit": [
+    9,
+    12,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    6,
+    22,
+    20
+   ],
+   "MemCardStop": [
+    10,
+    18,
+    16
+   ],
+   "MemCardExist": [
+    14,
+    30,
+    26
+   ],
+   "MemCardExist_cb": [
+    186,
+    107,
+    117
+   ],
+   "MemCardAccept": [
+    14,
+    30,
+    26
+   ],
+   "MemCardCmd_cb": [
+    159,
+    142,
+    141
+   ],
+   "MemCardReadData": [
+    64,
+    54,
+    46
+   ],
+   "MemCardReadData_cb": [
+    75,
+    76,
+    79
+   ],
+   "MemCardWriteData": [
+    64,
+    54,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    91,
+    78,
+    79
+   ],
+   "MemCardReadFile": [
+    72,
+    80,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    75,
+    73,
+    66
+   ],
+   "MemCardWriteFile": [
+    72,
+    80,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    75,
+    73,
+    66
+   ],
+   "MemCardGetDirentry": [
+    216,
+    164,
+    152
+   ],
+   "MemCardCallback": [
+    3,
+    6,
+    5
+   ],
+   "MemCardSync": [
+    82,
+    63,
+    71
+   ],
+   "MemCardCreateFile": [
+    128,
+    124,
+    130
+   ],
+   "MemCardDeleteFile": [
+    119,
+    100,
+    111
+   ],
+   "MemCardFormat": [
+    31,
+    40,
+    35
+   ],
+   "MemCardUnformat": [
+    41,
+    52,
+    45
+   ],
+   "MemCardEventToRslt": [
+    24,
+    27,
+    21
+   ],
+   "MemCardStart_cb": [
+    24,
+    31,
+    33
+   ],
+   "MemCardMakeDevname": [
+    35,
+    20,
+    23
+   ]
+  },
+  "nosplit_nosched2": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    6,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    11,
+    17,
+    16
+   ],
+   "MemCardExist": [
+    13,
+    27,
+    26
+   ],
+   "MemCardExist_cb": [
+    155,
+    100,
+    117
+   ],
+   "MemCardAccept": [
+    13,
+    27,
+    26
+   ],
+   "MemCardCmd_cb": [
+    136,
+    125,
+    141
+   ],
+   "MemCardReadData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardReadData_cb": [
+    62,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    85,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    65,
+    71,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    46,
+    60,
+    66
+   ],
+   "MemCardWriteFile": [
+    65,
+    71,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    46,
+    60,
+    66
+   ],
+   "MemCardGetDirentry": [
+    184,
+    150,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    108,
+    106,
+    130
+   ],
+   "MemCardDeleteFile": [
+    100,
+    87,
+    111
+   ],
+   "MemCardFormat": [
+    31,
+    36,
+    35
+   ],
+   "MemCardUnformat": [
+    22,
+    43,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    25,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  }
+ },
+ "syslib/psx/libetc/INTR": {
+  "BASE": {
+   "ResetCallback": [
+    0,
+    12,
+    12
+   ],
+   "InterruptCallback": [
+    0,
+    12,
+    12
+   ],
+   "DMACallback": [
+    0,
+    12,
+    12
+   ],
+   "VSyncCallback": [
+    4,
+    13,
+    13
+   ],
+   "VSyncCallbacks": [
+    0,
+    12,
+    12
+   ],
+   "CheckCallback": [
+    0,
+    4,
+    4
+   ],
+   "SetIntrMask": [
+    0,
+    6,
+    6
+   ],
+   "_initIntr": [
+    41,
+    55,
+    54
+   ],
+   "_intrhand": [
+    80,
+    112,
+    116
+   ],
+   "_set_intr_callback": [
+    34,
+    80,
+    82
+   ],
+   "StopCallback": [
+    47,
+    43,
+    40
+   ],
+   "RestartCallback": [
+    31,
+    31,
+    30
+   ],
+   "_bzero_w": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplit": {
+   "ResetCallback": [
+    0,
+    12,
+    12
+   ],
+   "InterruptCallback": [
+    0,
+    12,
+    12
+   ],
+   "DMACallback": [
+    0,
+    12,
+    12
+   ],
+   "VSyncCallback": [
+    4,
+    13,
+    13
+   ],
+   "VSyncCallbacks": [
+    0,
+    12,
+    12
+   ],
+   "CheckCallback": [
+    0,
+    4,
+    4
+   ],
+   "SetIntrMask": [
+    0,
+    6,
+    6
+   ],
+   "_initIntr": [
+    6,
+    54,
+    54
+   ],
+   "_intrhand": [
+    110,
+    116,
+    116
+   ],
+   "_set_intr_callback": [
+    34,
+    80,
+    82
+   ],
+   "StopCallback": [
+    25,
+    41,
+    40
+   ],
+   "RestartCallback": [
+    7,
+    29,
+    30
+   ],
+   "_bzero_w": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplitG0": {
+   "ResetCallback": [
+    0,
+    12,
+    12
+   ],
+   "InterruptCallback": [
+    0,
+    12,
+    12
+   ],
+   "DMACallback": [
+    0,
+    12,
+    12
+   ],
+   "VSyncCallback": [
+    4,
+    13,
+    13
+   ],
+   "VSyncCallbacks": [
+    0,
+    12,
+    12
+   ],
+   "CheckCallback": [
+    0,
+    4,
+    4
+   ],
+   "SetIntrMask": [
+    0,
+    6,
+    6
+   ],
+   "_initIntr": [
+    6,
+    54,
+    54
+   ],
+   "_intrhand": [
+    95,
+    115,
+    116
+   ],
+   "_set_intr_callback": [
+    34,
+    80,
+    82
+   ],
+   "StopCallback": [
+    25,
+    41,
+    40
+   ],
+   "RestartCallback": [
+    7,
+    29,
+    30
+   ],
+   "_bzero_w": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplitG8": {
+   "ResetCallback": [
+    0,
+    12,
+    12
+   ],
+   "InterruptCallback": [
+    0,
+    12,
+    12
+   ],
+   "DMACallback": [
+    0,
+    12,
+    12
+   ],
+   "VSyncCallback": [
+    4,
+    13,
+    13
+   ],
+   "VSyncCallbacks": [
+    0,
+    12,
+    12
+   ],
+   "CheckCallback": [
+    0,
+    4,
+    4
+   ],
+   "SetIntrMask": [
+    0,
+    6,
+    6
+   ],
+   "_initIntr": [
+    6,
+    54,
+    54
+   ],
+   "_intrhand": [
+    110,
+    116,
+    116
+   ],
+   "_set_intr_callback": [
+    34,
+    80,
+    82
+   ],
+   "StopCallback": [
+    25,
+    41,
+    40
+   ],
+   "RestartCallback": [
+    7,
+    29,
+    30
+   ],
+   "_bzero_w": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplit_nodelay": {
+   "ResetCallback": [
+    0,
+    12,
+    12
+   ],
+   "InterruptCallback": [
+    0,
+    12,
+    12
+   ],
+   "DMACallback": [
+    0,
+    12,
+    12
+   ],
+   "VSyncCallback": [
+    4,
+    13,
+    13
+   ],
+   "VSyncCallbacks": [
+    0,
+    12,
+    12
+   ],
+   "CheckCallback": [
+    0,
+    4,
+    4
+   ],
+   "SetIntrMask": [
+    3,
+    7,
+    6
+   ],
+   "_initIntr": [
+    31,
+    67,
+    54
+   ],
+   "_intrhand": [
+    115,
+    121,
+    116
+   ],
+   "_set_intr_callback": [
+    61,
+    89,
+    82
+   ],
+   "StopCallback": [
+    33,
+    45,
+    40
+   ],
+   "RestartCallback": [
+    16,
+    34,
+    30
+   ],
+   "_bzero_w": [
+    6,
+    11,
+    9
+   ]
+  },
+  "nosplit_nosched2": {
+   "ResetCallback": [
+    5,
+    13,
+    12
+   ],
+   "InterruptCallback": [
+    5,
+    13,
+    12
+   ],
+   "DMACallback": [
+    5,
+    13,
+    12
+   ],
+   "VSyncCallback": [
+    9,
+    14,
+    13
+   ],
+   "VSyncCallbacks": [
+    5,
+    13,
+    12
+   ],
+   "CheckCallback": [
+    0,
+    4,
+    4
+   ],
+   "SetIntrMask": [
+    0,
+    6,
+    6
+   ],
+   "_initIntr": [
+    8,
+    54,
+    54
+   ],
+   "_intrhand": [
+    108,
+    116,
+    116
+   ],
+   "_set_intr_callback": [
+    39,
+    81,
+    82
+   ],
+   "StopCallback": [
+    27,
+    41,
+    40
+   ],
+   "RestartCallback": [
+    9,
+    29,
+    30
+   ],
+   "_bzero_w": [
+    0,
+    9,
+    9
+   ]
+  }
+ },
+ "syslib/psx/libmcrd/USERFUNC": {
+  "BASE": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    33,
+    32,
+    31
+   ],
+   "UserFuncExecute": [
+    23,
+    28,
+    27
+   ],
+   "UserFuncComplete": [
+    0,
+    4,
+    4
+   ]
+  },
+  "nosplit": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    7,
+    32,
+    31
+   ],
+   "UserFuncExecute": [
+    4,
+    27,
+    27
+   ],
+   "UserFuncComplete": [
+    0,
+    4,
+    4
+   ]
+  },
+  "nosplitG0": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    7,
+    32,
+    31
+   ],
+   "UserFuncExecute": [
+    4,
+    27,
+    27
+   ],
+   "UserFuncComplete": [
+    0,
+    4,
+    4
+   ]
+  },
+  "nosplitG8": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    7,
+    32,
+    31
+   ],
+   "UserFuncExecute": [
+    4,
+    27,
+    27
+   ],
+   "UserFuncComplete": [
+    0,
+    4,
+    4
+   ]
+  },
+  "nosplit_nodelay": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    9,
+    34,
+    31
+   ],
+   "UserFuncExecute": [
+    7,
+    28,
+    27
+   ],
+   "UserFuncComplete": [
+    4,
+    6,
+    4
+   ]
+  },
+  "nosplit_nosched2": {
+   "UserFuncInit": [
+    3,
+    5,
+    4
+   ],
+   "UserFuncOpen": [
+    16,
+    33,
+    31
+   ],
+   "UserFuncExecute": [
+    9,
+    28,
+    27
+   ],
+   "UserFuncComplete": [
+    0,
+    4,
+    4
+   ]
+  }
+ },
+ "syslib/psx/libgpu/FONT": {
+  "BASE": {
+   "FntFlush": [
+    272,
+    211,
+    199
+   ],
+   "FntPrint": [
+    92,
+    238,
+    240
+   ]
+  },
+  "nosplit": {
+   "FntFlush": [
+    250,
+    211,
+    199
+   ],
+   "FntPrint": [
+    80,
+    238,
+    240
+   ]
+  },
+  "nosplitG0": {
+   "FntFlush": [
+    250,
+    211,
+    199
+   ],
+   "FntPrint": [
+    80,
+    238,
+    240
+   ]
+  },
+  "nosplitG8": {
+   "FntFlush": [
+    250,
+    211,
+    199
+   ],
+   "FntPrint": [
+    80,
+    238,
+    240
+   ]
+  },
+  "nosplit_nodelay": {
+   "FntFlush": [
+    268,
+    229,
+    199
+   ],
+   "FntPrint": [
+    166,
+    260,
+    240
+   ]
+  },
+  "nosplit_nosched2": {
+   "FntFlush": [
+    256,
+    217,
+    199
+   ],
+   "FntPrint": [
+    82,
+    238,
+    240
+   ]
+  }
+ },
+ "syslib/psx/libapi/FIRST": {
+  "BASE": {
+   "firstfile": [
+    60,
+    103,
+    103
+   ],
+   "_first_patch": [
+    40,
+    64,
+    64
+   ]
+  },
+  "nosplit": {
+   "firstfile": [
+    50,
+    105,
+    103
+   ],
+   "_first_patch": [
+    28,
+    64,
+    64
+   ]
+  },
+  "nosplitG0": {
+   "firstfile": [
+    50,
+    105,
+    103
+   ],
+   "_first_patch": [
+    28,
+    64,
+    64
+   ]
+  },
+  "nosplitG8": {
+   "firstfile": [
+    50,
+    105,
+    103
+   ],
+   "_first_patch": [
+    28,
+    64,
+    64
+   ]
+  },
+  "nosplit_nodelay": {
+   "firstfile": [
+    126,
+    111,
+    103
+   ],
+   "_first_patch": [
+    40,
+    66,
+    64
+   ]
+  },
+  "nosplit_nosched2": {
+   "firstfile": [
+    46,
+    105,
+    103
+   ],
+   "_first_patch": [
+    30,
+    64,
+    64
+   ]
+  }
+ },
+ "syslib/psx/libpad/PADCMD": {
+  "BASE": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    37,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    21,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    175,
+    134,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplit": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    19,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    19,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    175,
+    134,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplitG0": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    19,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    19,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    177,
+    138,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplitG8": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    19,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    19,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    175,
+    134,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplit_nodelay": {
+   "_padSetAct": [
+    3,
+    4,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    3,
+    15,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    132,
+    89,
+    83
+   ],
+   "_padLoadActInfo": [
+    30,
+    57,
+    53
+   ],
+   "_padSetActAlign": [
+    13,
+    31,
+    26
+   ],
+   "_padSetMainMode": [
+    24,
+    40,
+    38
+   ],
+   "_padCmdGetStatus": [
+    3,
+    6,
+    5
+   ],
+   "_padCmdSetMap": [
+    3,
+    9,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    3,
+    9,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    3,
+    9,
+    8
+   ],
+   "_padCmd4B": [
+    3,
+    6,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    201,
+    144,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    3,
+    8,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    49,
+    55,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    9,
+    24,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    3,
+    9,
+    8
+   ]
+  },
+  "nosplit_nosched2": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    5,
+    15,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    110,
+    77,
+    83
+   ],
+   "_padLoadActInfo": [
+    29,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    9,
+    27,
+    26
+   ],
+   "_padSetMainMode": [
+    26,
+    36,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    2,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    2,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    2,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    190,
+    139,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    2,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    2,
+    8,
+    8
+   ]
+  }
+ },
+ "syslib/psx/libcd/iso9660": {
+  "BASE": {
+   "CdSearchFile": [
+    92,
+    166,
+    182
+   ],
+   "cd_read": [
+    4,
+    26,
+    26
+   ],
+   "_cd_cmp_name": [
+    0,
+    8,
+    8
+   ],
+   "_cd_find_path": [
+    15,
+    40,
+    41
+   ],
+   "CD_newmedia": [
+    146,
+    171,
+    177
+   ],
+   "CD_cachefile": [
+    99,
+    162,
+    167
+   ]
+  },
+  "nosplit": {
+   "CdSearchFile": [
+    93,
+    179,
+    182
+   ],
+   "cd_read": [
+    4,
+    26,
+    26
+   ],
+   "_cd_cmp_name": [
+    0,
+    8,
+    8
+   ],
+   "_cd_find_path": [
+    8,
+    41,
+    41
+   ],
+   "CD_newmedia": [
+    149,
+    182,
+    177
+   ],
+   "CD_cachefile": [
+    85,
+    170,
+    167
+   ]
+  },
+  "nosplitG0": {
+   "CdSearchFile": [
+    93,
+    179,
+    182
+   ],
+   "cd_read": [
+    4,
+    26,
+    26
+   ],
+   "_cd_cmp_name": [
+    0,
+    8,
+    8
+   ],
+   "_cd_find_path": [
+    8,
+    41,
+    41
+   ],
+   "CD_newmedia": [
+    149,
+    182,
+    177
+   ],
+   "CD_cachefile": [
+    84,
+    173,
+    167
+   ]
+  },
+  "nosplitG8": {
+   "CdSearchFile": [
+    93,
+    179,
+    182
+   ],
+   "cd_read": [
+    4,
+    26,
+    26
+   ],
+   "_cd_cmp_name": [
+    0,
+    8,
+    8
+   ],
+   "_cd_find_path": [
+    8,
+    41,
+    41
+   ],
+   "CD_newmedia": [
+    149,
+    182,
+    177
+   ],
+   "CD_cachefile": [
+    85,
+    170,
+    167
+   ]
+  },
+  "nosplit_nodelay": {
+   "CdSearchFile": [
+    135,
+    195,
+    182
+   ],
+   "cd_read": [
+    19,
+    31,
+    26
+   ],
+   "_cd_cmp_name": [
+    6,
+    10,
+    8
+   ],
+   "_cd_find_path": [
+    23,
+    46,
+    41
+   ],
+   "CD_newmedia": [
+    174,
+    195,
+    177
+   ],
+   "CD_cachefile": [
+    188,
+    185,
+    167
+   ]
+  },
+  "nosplit_nosched2": {
+   "CdSearchFile": [
+    104,
+    180,
+    182
+   ],
+   "cd_read": [
+    6,
+    26,
+    26
+   ],
+   "_cd_cmp_name": [
+    3,
+    9,
+    8
+   ],
+   "_cd_find_path": [
+    22,
+    41,
+    41
+   ],
+   "CD_newmedia": [
+    156,
+    183,
+    177
+   ],
+   "CD_cachefile": [
+    96,
+    171,
+    167
+   ]
+  }
+ },
+ "syslib/psx/libc/SPRINTF": {
+  "BASE": {
+   "sprintf": [
+    174,
+    547,
+    545
+   ]
+  },
+  "nosplit": {
+   "sprintf": [
+    159,
+    548,
+    545
+   ]
+  },
+  "nosplitG0": {
+   "sprintf": [
+    159,
+    548,
+    545
+   ]
+  },
+  "nosplitG8": {
+   "sprintf": [
+    159,
+    548,
+    545
+   ]
+  },
+  "nosplit_nodelay": {
+   "sprintf": [
+    381,
+    598,
+    545
+   ]
+  },
+  "nosplit_nosched2": {
+   "sprintf": [
+    173,
+    550,
+    545
+   ]
+  }
+ },
+ "syslib/psx/libapi/COUNTER": {
+  "BASE": {
+   "SetRCnt": [
+    2,
+    39,
+    39
+   ],
+   "GetRCnt": [
+    5,
+    13,
+    14
+   ],
+   "StartRCnt": [
+    10,
+    14,
+    12
+   ]
+  },
+  "nosplit": {
+   "SetRCnt": [
+    2,
+    39,
+    39
+   ],
+   "GetRCnt": [
+    5,
+    13,
+    14
+   ],
+   "StartRCnt": [
+    3,
+    13,
+    12
+   ]
+  },
+  "nosplitG0": {
+   "SetRCnt": [
+    2,
+    39,
+    39
+   ],
+   "GetRCnt": [
+    5,
+    13,
+    14
+   ],
+   "StartRCnt": [
+    3,
+    13,
+    12
+   ]
+  },
+  "nosplitG8": {
+   "SetRCnt": [
+    2,
+    39,
+    39
+   ],
+   "GetRCnt": [
+    5,
+    13,
+    14
+   ],
+   "StartRCnt": [
+    3,
+    13,
+    12
+   ]
+  },
+  "nosplit_nodelay": {
+   "SetRCnt": [
+    31,
+    46,
+    39
+   ],
+   "GetRCnt": [
+    6,
+    14,
+    14
+   ],
+   "StartRCnt": [
+    3,
+    13,
+    12
+   ]
+  },
+  "nosplit_nosched2": {
+   "SetRCnt": [
+    4,
+    39,
+    39
+   ],
+   "GetRCnt": [
+    5,
+    13,
+    14
+   ],
+   "StartRCnt": [
+    9,
+    13,
+    12
+   ]
+  }
+ },
+ "syslib/psx/libetc/INTR_VB": {
+  "BASE": {
+   "startIntrVSync": [
+    11,
+    21,
+    22
+   ],
+   "startIntrVSync_helper_1": null,
+   "startIntrVSync_helper_2": null,
+   "startIntrVSync_helper_3": null
+  },
+  "nosplit": {
+   "startIntrVSync": [
+    5,
+    21,
+    22
+   ],
+   "startIntrVSync_helper_1": null,
+   "startIntrVSync_helper_2": null,
+   "startIntrVSync_helper_3": null
+  },
+  "nosplitG0": {
+   "startIntrVSync": [
+    5,
+    21,
+    22
+   ],
+   "startIntrVSync_helper_1": null,
+   "startIntrVSync_helper_2": null,
+   "startIntrVSync_helper_3": null
+  },
+  "nosplitG8": {
+   "startIntrVSync": [
+    5,
+    21,
+    22
+   ],
+   "startIntrVSync_helper_1": null,
+   "startIntrVSync_helper_2": null,
+   "startIntrVSync_helper_3": null
+  },
+  "nosplit_nodelay": {
+   "startIntrVSync": [
+    8,
+    24,
+    22
+   ],
+   "startIntrVSync_helper_1": null,
+   "startIntrVSync_helper_2": null,
+   "startIntrVSync_helper_3": null
+  },
+  "nosplit_nosched2": {
+   "startIntrVSync": [
+    9,
+    23,
+    22
+   ],
+   "startIntrVSync_helper_1": null,
+   "startIntrVSync_helper_2": null,
+   "startIntrVSync_helper_3": null
+  }
+ },
+ "syslib/psx/libpress/LIBPRESS": {
+  "BASE": {
+   "DecDCTReset": [
+    0,
+    13,
+    13
+   ],
+   "DecDCTin": [
+    4,
+    31,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    6,
+    15,
+    15
+   ],
+   "DecDCToutCallback": [
+    6,
+    9,
+    9
+   ],
+   "MDEC_rest": [
+    28,
+    62,
+    60
+   ],
+   "_MDEC_in_dma": [
+    0,
+    36,
+    36
+   ],
+   "_MDEC_out_dma": [
+    0,
+    35,
+    35
+   ],
+   "MDEC_in_sync": [
+    18,
+    37,
+    37
+   ],
+   "MDEC_out_sync": [
+    18,
+    37,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    2,
+    31,
+    31
+   ]
+  },
+  "nosplit": {
+   "DecDCTReset": [
+    0,
+    13,
+    13
+   ],
+   "DecDCTin": [
+    4,
+    31,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    6,
+    15,
+    15
+   ],
+   "DecDCToutCallback": [
+    6,
+    9,
+    9
+   ],
+   "MDEC_rest": [
+    28,
+    64,
+    60
+   ],
+   "_MDEC_in_dma": [
+    0,
+    36,
+    36
+   ],
+   "_MDEC_out_dma": [
+    0,
+    35,
+    35
+   ],
+   "MDEC_in_sync": [
+    15,
+    38,
+    37
+   ],
+   "MDEC_out_sync": [
+    15,
+    38,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    2,
+    31,
+    31
+   ]
+  },
+  "nosplitG0": {
+   "DecDCTReset": [
+    0,
+    13,
+    13
+   ],
+   "DecDCTin": [
+    4,
+    31,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    6,
+    15,
+    15
+   ],
+   "DecDCToutCallback": [
+    6,
+    9,
+    9
+   ],
+   "MDEC_rest": [
+    28,
+    64,
+    60
+   ],
+   "_MDEC_in_dma": [
+    0,
+    36,
+    36
+   ],
+   "_MDEC_out_dma": [
+    0,
+    35,
+    35
+   ],
+   "MDEC_in_sync": [
+    22,
+    39,
+    37
+   ],
+   "MDEC_out_sync": [
+    22,
+    39,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    2,
+    31,
+    31
+   ]
+  },
+  "nosplitG8": {
+   "DecDCTReset": [
+    0,
+    13,
+    13
+   ],
+   "DecDCTin": [
+    4,
+    31,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    6,
+    15,
+    15
+   ],
+   "DecDCToutCallback": [
+    6,
+    9,
+    9
+   ],
+   "MDEC_rest": [
+    28,
+    64,
+    60
+   ],
+   "_MDEC_in_dma": [
+    0,
+    36,
+    36
+   ],
+   "_MDEC_out_dma": [
+    0,
+    35,
+    35
+   ],
+   "MDEC_in_sync": [
+    15,
+    38,
+    37
+   ],
+   "MDEC_out_sync": [
+    15,
+    38,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    2,
+    31,
+    31
+   ]
+  },
+  "nosplit_nodelay": {
+   "DecDCTReset": [
+    9,
+    16,
+    13
+   ],
+   "DecDCTin": [
+    12,
+    35,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    4,
+    17,
+    15
+   ],
+   "DecDCToutCallback": [
+    5,
+    10,
+    9
+   ],
+   "MDEC_rest": [
+    30,
+    66,
+    60
+   ],
+   "_MDEC_in_dma": [
+    6,
+    38,
+    36
+   ],
+   "_MDEC_out_dma": [
+    6,
+    37,
+    35
+   ],
+   "MDEC_in_sync": [
+    17,
+    40,
+    37
+   ],
+   "MDEC_out_sync": [
+    17,
+    40,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    2,
+    31,
+    31
+   ]
+  },
+  "nosplit_nosched2": {
+   "DecDCTReset": [
+    3,
+    14,
+    13
+   ],
+   "DecDCTin": [
+    4,
+    31,
+    31
+   ],
+   "DecDCTout": [
+    0,
+    8,
+    8
+   ],
+   "DecDCTinSync": [
+    6,
+    15,
+    15
+   ],
+   "DecDCToutCallback": [
+    4,
+    9,
+    9
+   ],
+   "MDEC_rest": [
+    26,
+    64,
+    60
+   ],
+   "_MDEC_in_dma": [
+    12,
+    38,
+    36
+   ],
+   "_MDEC_out_dma": [
+    16,
+    37,
+    35
+   ],
+   "MDEC_in_sync": [
+    16,
+    39,
+    37
+   ],
+   "MDEC_out_sync": [
+    16,
+    39,
+    37
+   ],
+   "_MDEC_get_reg1": [
+    0,
+    6,
+    6
+   ],
+   "MDEC_status": [
+    6,
+    31,
+    31
+   ]
+  }
+ },
+ "syslib/psx/libcd/toc": {
+  "BASE": {
+   "CdGetToc2": [
+    87,
+    134,
+    137
+   ],
+   "CdGetToc": [
+    6,
+    9,
+    9
+   ]
+  },
+  "nosplit": {
+   "CdGetToc2": [
+    83,
+    136,
+    137
+   ],
+   "CdGetToc": [
+    6,
+    9,
+    9
+   ]
+  },
+  "nosplitG0": {
+   "CdGetToc2": [
+    83,
+    136,
+    137
+   ],
+   "CdGetToc": [
+    6,
+    9,
+    9
+   ]
+  },
+  "nosplitG8": {
+   "CdGetToc2": [
+    83,
+    136,
+    137
+   ],
+   "CdGetToc": [
+    6,
+    9,
+    9
+   ]
+  },
+  "nosplit_nodelay": {
+   "CdGetToc2": [
+    116,
+    149,
+    137
+   ],
+   "CdGetToc": [
+    5,
+    10,
+    9
+   ]
+  },
+  "nosplit_nosched2": {
+   "CdGetToc2": [
+    90,
+    137,
+    137
+   ],
+   "CdGetToc": [
+    4,
+    9,
+    9
+   ]
+  }
+ },
+ "syslib/psx/libgte/COR_01": {
+  "BASE": {
+   "csincos": [
+    76,
+    73,
+    71
+   ]
+  },
+  "nosplit": {
+   "csincos": [
+    72,
+    73,
+    71
+   ]
+  },
+  "nosplitG0": {
+   "csincos": [
+    72,
+    73,
+    71
+   ]
+  },
+  "nosplitG8": {
+   "csincos": [
+    72,
+    73,
+    71
+   ]
+  },
+  "nosplit_nodelay": {
+   "csincos": [
+    74,
+    77,
+    71
+   ]
+  },
+  "nosplit_nosched2": {
+   "csincos": [
+    72,
+    73,
+    71
+   ]
+  }
+ },
+ "syslib/psx/libpad/PADPORTD": {
+  "BASE": {
+   "PadInitDirect": [
+    55,
+    85,
+    88
+   ],
+   "_pad_reset_state": [
+    1,
+    25,
+    26
+   ],
+   "_pad_failall": [
+    45,
+    58,
+    61
+   ],
+   "_pad_shift": [
+    0,
+    4,
+    4
+   ],
+   "_pad_getbyte": [
+    40,
+    47,
+    47
+   ],
+   "_pad_filter": [
+    201,
+    164,
+    159
+   ],
+   "_pad_port_to_slot": [
+    18,
+    14,
+    14
+   ],
+   "_pad_get_port": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplit": {
+   "PadInitDirect": [
+    51,
+    85,
+    88
+   ],
+   "_pad_reset_state": [
+    1,
+    25,
+    26
+   ],
+   "_pad_failall": [
+    47,
+    56,
+    61
+   ],
+   "_pad_shift": [
+    0,
+    4,
+    4
+   ],
+   "_pad_getbyte": [
+    40,
+    47,
+    47
+   ],
+   "_pad_filter": [
+    201,
+    164,
+    159
+   ],
+   "_pad_port_to_slot": [
+    18,
+    14,
+    14
+   ],
+   "_pad_get_port": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplitG0": {
+   "PadInitDirect": [
+    51,
+    85,
+    88
+   ],
+   "_pad_reset_state": [
+    1,
+    25,
+    26
+   ],
+   "_pad_failall": [
+    47,
+    56,
+    61
+   ],
+   "_pad_shift": [
+    0,
+    4,
+    4
+   ],
+   "_pad_getbyte": [
+    40,
+    47,
+    47
+   ],
+   "_pad_filter": [
+    201,
+    164,
+    159
+   ],
+   "_pad_port_to_slot": [
+    18,
+    14,
+    14
+   ],
+   "_pad_get_port": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplitG8": {
+   "PadInitDirect": [
+    51,
+    85,
+    88
+   ],
+   "_pad_reset_state": [
+    1,
+    25,
+    26
+   ],
+   "_pad_failall": [
+    47,
+    56,
+    61
+   ],
+   "_pad_shift": [
+    0,
+    4,
+    4
+   ],
+   "_pad_getbyte": [
+    40,
+    47,
+    47
+   ],
+   "_pad_filter": [
+    201,
+    164,
+    159
+   ],
+   "_pad_port_to_slot": [
+    18,
+    14,
+    14
+   ],
+   "_pad_get_port": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplit_nodelay": {
+   "PadInitDirect": [
+    64,
+    90,
+    88
+   ],
+   "_pad_reset_state": [
+    3,
+    27,
+    26
+   ],
+   "_pad_failall": [
+    56,
+    63,
+    61
+   ],
+   "_pad_shift": [
+    3,
+    5,
+    4
+   ],
+   "_pad_getbyte": [
+    45,
+    52,
+    47
+   ],
+   "_pad_filter": [
+    223,
+    172,
+    159
+   ],
+   "_pad_port_to_slot": [
+    18,
+    18,
+    14
+   ],
+   "_pad_get_port": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplit_nosched2": {
+   "PadInitDirect": [
+    55,
+    85,
+    88
+   ],
+   "_pad_reset_state": [
+    1,
+    25,
+    26
+   ],
+   "_pad_failall": [
+    47,
+    56,
+    61
+   ],
+   "_pad_shift": [
+    0,
+    4,
+    4
+   ],
+   "_pad_getbyte": [
+    40,
+    47,
+    47
+   ],
+   "_pad_filter": [
+    205,
+    164,
+    159
+   ],
+   "_pad_port_to_slot": [
+    18,
+    14,
+    14
+   ],
+   "_pad_get_port": [
+    0,
+    8,
+    8
+   ]
+  }
+ },
+ "syslib/psx/libcd/event": {
+  "BASE": {
+   "CdInit": [
+    42,
+    40,
+    36
+   ],
+   "_cd_event_sync": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_ready": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_read": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_init": [
+    4,
+    15,
+    15
+   ]
+  },
+  "nosplit": {
+   "CdInit": [
+    41,
+    39,
+    36
+   ],
+   "_cd_event_sync": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_ready": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_read": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_init": [
+    4,
+    15,
+    15
+   ]
+  },
+  "nosplitG0": {
+   "CdInit": [
+    35,
+    41,
+    36
+   ],
+   "_cd_event_sync": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_ready": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_read": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_init": [
+    4,
+    15,
+    15
+   ]
+  },
+  "nosplitG8": {
+   "CdInit": [
+    41,
+    39,
+    36
+   ],
+   "_cd_event_sync": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_ready": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_read": [
+    6,
+    10,
+    10
+   ],
+   "_cd_event_init": [
+    4,
+    15,
+    15
+   ]
+  },
+  "nosplit_nodelay": {
+   "CdInit": [
+    44,
+    42,
+    36
+   ],
+   "_cd_event_sync": [
+    5,
+    11,
+    10
+   ],
+   "_cd_event_ready": [
+    5,
+    11,
+    10
+   ],
+   "_cd_event_read": [
+    5,
+    11,
+    10
+   ],
+   "_cd_event_init": [
+    3,
+    16,
+    15
+   ]
+  },
+  "nosplit_nosched2": {
+   "CdInit": [
+    41,
+    39,
+    36
+   ],
+   "_cd_event_sync": [
+    4,
+    10,
+    10
+   ],
+   "_cd_event_ready": [
+    4,
+    10,
+    10
+   ],
+   "_cd_event_read": [
+    4,
+    10,
+    10
+   ],
+   "_cd_event_init": [
+    4,
+    15,
+    15
+   ]
+  }
+ },
+ "syslib/psx/libetc/VSYNC": {
+  "BASE": {
+   "VSync": [
+    45,
+    95,
+    94
+   ],
+   "_VSync_wait": [
+    8,
+    38,
+    38
+   ]
+  },
+  "nosplit": {
+   "VSync": [
+    45,
+    95,
+    94
+   ],
+   "_VSync_wait": [
+    7,
+    39,
+    38
+   ]
+  },
+  "nosplitG0": {
+   "VSync": [
+    45,
+    95,
+    94
+   ],
+   "_VSync_wait": [
+    7,
+    39,
+    38
+   ]
+  },
+  "nosplitG8": {
+   "VSync": [
+    45,
+    95,
+    94
+   ],
+   "_VSync_wait": [
+    7,
+    39,
+    38
+   ]
+  },
+  "nosplit_nodelay": {
+   "VSync": [
+    49,
+    103,
+    94
+   ],
+   "_VSync_wait": [
+    11,
+    41,
+    38
+   ]
+  },
+  "nosplit_nosched2": {
+   "VSync": [
+    55,
+    95,
+    94
+   ],
+   "_VSync_wait": [
+    10,
+    40,
+    38
+   ]
+  }
+ }
+}

@@ -1,0 +1,63 @@
+ORACLE sites where an assembler ADDRESS MACRO is SPLIT ACROSS a branch/jal delay slot
+(lui $at,%hi(S) ... <branch> ... <store/load> %lo(...)($at)) -- 60 sites
+
+libcd/cdcont                 CdSetDebug               CD_debug                between: jr         $ra
+libcd/cdcont                 CdSyncCallback           CD_cbsync               between: jr         $ra
+libcd/cdcont                 CdReadyCallback          CD_cbready              between: jr         $ra
+libcd/cdcont                 CdControlF               CD_cbsync               between: beq        $s2, $fp, .L800F7A84
+libcd/cdcont                 CdControlB               CD_cbsync               between: beq        $s3, $fp, .L800F7BB8
+libcd/cdread2                CdRead2                  StMode                  between: j          .L800F8F94
+libcd/drv                    CD_initintr              CD_status               between: jal        ResetCallback
+libcd/drv                    CD_datasync              D_801489B8              between: beqz       $v1, .L80108434
+libcd/drv                    CD_set_test_parmnum      D_8013C1F0              between: jr         $ra
+libcd/event                  CdInit                   CD_read_dma_mode        between: j          .L8010910C
+libcd/stcdint                StCdInterrupt            StCdIntrFlag            between: beqz       $v0, .L800F7EF0
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            StEmu_Idx               between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            StEmu_Idx               between: j          .L800F8224
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            StSTART_FLAG            between: beqz       $v1, .L800F83AC
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            StSTART_FLAG            between: beqz       $v1, .L800F8450
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            debug_cause             between: j          .L800F8784
+libcd/stcdint                StCdInterrupt            StEmu_Idx               between: j          .L800F868C
+libcd/stcdint                StCdInterrupt            CChannel                between: j          .L800F8728
+libcd/stcdint                StCdInterrupt            StEmu_Idx               between: j          .L800F8728
+libcd/stcdint                StCdInterrupt            StRingIdx1              between: beqz       $v1, .L800F8784
+libcd/stream                 StSetRing                StRingSize              between: jal        StClearRing
+libcd/streamhelp             StGetNext                StRingIdx3              between: beqz       $v0, .L800F9A6C
+libcd/streamhelp             data_ready_callback      StRingIdx2              between: beqz       $a0, .L8010880C
+libcd/streamhelp             StSetMask                StEndFrame              between: jr         $ra
+libetc/INTR                  _intrhand                D_80134AFA              between: jal        ReturnFromException
+libetc/VMODE                 SetVideoMode             D_80134838              between: jr         $ra
+libgpu/SYS                   _send_gp1                D_8013EAF8              between: addu       $at, $at, $v0 | jr         $ra
+libgpu/SYS                   _gpu_que_push            D_8013EC04              between: addu       $at, $at, $a0 | j          .L800EF560
+libgpu/SYS                   _gpu_que_push            _qin                    between: jal        SetIntrMask
+libgpu/SYS                   _gpu_que_drain           D_801237D0              between: beq        $a0, $v1, .L800EF7BC
+libmath/FERR                 _err_math                math_err_point          between: beq        $a0, $v0, .L80106A88
+libmcrd/BIOS                 _card_start              D_80148A08              between: jal        EnableEvent
+libmcrd/LIBMCRD              MemCardInit              D_80147558              between: jal        _card_open
+libmcrd/LIBMCRD              MemCardCmd_cb            D_80147508              between: jal        UserFuncOpen
+libmcrd/LIBMCRD              MemCardCmd_cb            D_80147514              between: jal        _clr_card_event
+libmcrd/LIBMCRD              MemCardReadFile_cb       D_80136CC0              between: jal        UserFuncOpen
+libmcrd/LIBMCRD              MemCardWriteFile_cb      D_80136CC4              between: jal        UserFuncOpen
+libmcrd/LIBMCRD              MemCardGetDirentry       D_80147524              between: jal        UserFuncOpen
+libmcrd/LIBMCRD              MemCardCreateFile        D_80147514              between: jal        open
+libmcrd/LIBMCRD              MemCardCreateFile        D_8014756C              between: blez       $v1, .L800FBD18
+libmcrd/LIBMCRD              MemCardCreateFile        D_80147524              between: jal        UserFuncOpen
+libmcrd/LIBMCRD              MemCardDeleteFile        D_8014756C              between: blez       $v1, .L800FBEE8
+libmcrd/LIBMCRD              MemCardDeleteFile        D_80147524              between: jal        UserFuncOpen
+libmcrd/LIBMCRD              MemCardFormat            D_80147514              between: jal        MemCardMakeDevname
+libmcrd/USERFUNC             UserFuncInit             D_8013C2E0              between: jr         $ra
+libpad/MCXMAIN               _padIntRecvData          D_8013C308              between: blez       $v0, .L8010C41C
+libpad/MCXMAIN               _padIntRecvData          D_8013C308              between: bgtz       $v0, .L8010C5C4
+libpad/PADMAIN               _padStartCom             _padIntExec             between: jal        EnterCriticalSection
+libpad/PADMAIN               _padVbCallback0          D_80137CE0              between: beqz       $v1, .L80104AF0
+libpad/PADMAIN               _padSioMain              _padSioState            between: j          .L80105118
+libpad/PADPORTD              _pad_filter              _padTotalCurr           between: j          .L800FE1D0
+libpad/PADPORTD              _pad_filter              _padTotalCurr           between: j          .L800FE31C
+libpad/PADSEQD               _padInitDirSeq           _padFuncRecvAuto        between: jr         $ra
+libpad/WAITRC2               setRC2wait               _startTime              between: jr         $ra

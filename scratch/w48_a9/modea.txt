@@ -1,0 +1,71 @@
+module                                     ident   total   divergent fns
+syslib/psx/2mbyte/2mbyte                       7       7   
+syslib/psx/libapi/COUNTER                      3       3   
+syslib/psx/libapi/FIRST                        2       2   
+syslib/psx/libc/BSEARCH                        1       1   
+syslib/psx/libc/MEMCMP                         1       1   
+syslib/psx/libc/MEMMOVE                        1       1   
+syslib/psx/libc/QSORT                          2       2   
+syslib/psx/libc/SPRINTF                  COMPILE FAILED 
+syslib/psx/libcard/CARDINIT                    2       2   
+syslib/psx/libcd/TYPE                          2       2   
+syslib/psx/libcd/cdcont                       16      19   CdControl,CdControlB,CdControlF
+syslib/psx/libcd/cdread                        6       6   
+syslib/psx/libcd/cdread2                       2       2   
+syslib/psx/libcd/drv                          11      13   CD_datasync,CD_ready
+syslib/psx/libcd/event                         5       5   
+syslib/psx/libcd/iso9660                       5       7   CD_cachefile,CdSearchFile
+syslib/psx/libcd/stcdint                 COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libcd\stcdint.c:27: section attributes are not supported for this target
+C:\Temp\n
+syslib/psx/libcd/stream                  COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libcd\stream.c:27: section attributes are not supported for this target
+C:\Temp\nf
+syslib/psx/libcd/streamhelp              COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libcd\streamhelp.c:38: section attributes are not supported for this target
+C:\Tem
+syslib/psx/libcd/toc                           1       2   CdGetToc2
+syslib/psx/libds/DSCB                    COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libds\DSCB.c:26: section attributes are not supported for this target
+syslib/psx/libetc/INTR                        13      13   
+syslib/psx/libetc/INTR_DMA                     4       4   
+syslib/psx/libetc/INTR_VB                      3       3   
+syslib/psx/libetc/VMODE                        2       2   
+syslib/psx/libetc/VSYNC                        2       2   
+syslib/psx/libgpu/FONT                   COMPILE FAILED 
+syslib/psx/libgpu/P34                          1       1   
+syslib/psx/libgpu/SYS                    COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libgpu\SYS.c:746: warning: `GPU_printf' initialized and declared `extern'
+syslib/psx/libgte/COR_01                       1       1   
+syslib/psx/libgte/COR_02                       1       1   
+syslib/psx/libgte/COR_03                       1       1   
+syslib/psx/libgte/FGO_01                       1       1   
+syslib/psx/libgte/FGO_06                       1       1   
+syslib/psx/libgte/FOG_01                       1       1   
+syslib/psx/libgte/PATCHGTE                     4       4   
+syslib/psx/libmath/ADDDF3                      0       1   __adddf3
+syslib/psx/libmath/DIVDF3                      0       1   __divdf3
+syslib/psx/libmath/DIVSF3                      1       1   
+syslib/psx/libmath/EXTSFDF2                    0       1   __extendsfdf2
+syslib/psx/libmath/FERR                  COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libmath\FERR.c:13: warning: `math_errno' initialized and declared `extern'
+C:\Temp
+syslib/psx/libmath/FIXDFSI                     1       1   
+syslib/psx/libmath/FIXSFSI                     1       1   
+syslib/psx/libmath/FLTSIDF                     0       1   __floatsidf
+syslib/psx/libmath/FLTSISF                     1       1   
+syslib/psx/libmath/GTDF2                       1       1   
+syslib/psx/libmath/LTDF2                       1       1   
+syslib/psx/libmath/MULDF3                      1       2   __muldf3
+syslib/psx/libmath/MULSF3                      1       1   
+syslib/psx/libmath/TRUDFSF2                    1       1   
+syslib/psx/libmcrd/BIOS                  COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libmcrd\BIOS.c:39: section attributes are not supported for this target
+C:\Temp\nf
+syslib/psx/libmcrd/LIBMCRD                    23      26   MemCardCreateFile,MemCardDeleteFile,MemCardGetDirentry
+syslib/psx/libmcrd/USERFUNC              COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libmcrd\USERFUNC.c:10: section attributes are not supported for this target
+syslib/psx/libpad/MCXMAIN                COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libpad\MCXMAIN.c:48: section attributes are not supported for this target
+C:\Temp\
+syslib/psx/libpad/PAD                         31      31   
+syslib/psx/libpad/PADCMD                      19      19   
+syslib/psx/libpad/PADENTRY                     8       8   
+syslib/psx/libpad/PADMAIN                     10      11   _padInitSioMode
+syslib/psx/libpad/PADPORTD               COMPILE FAILED 
+syslib/psx/libpad/PADSEQD                      5       5   
+syslib/psx/libpad/WAITRC2                      2       2   
+syslib/psx/libpress/LIBPRESS             COMPILE FAILED C:\Temp\nfs4-wt48-a9\recon\syslib\psx\libpress\LIBPRESS.c:17: section attributes are not supported for this target
+C:\Te
+syslib/psx/libsn/READ                          1       1   

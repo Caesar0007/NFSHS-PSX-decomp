@@ -1,0 +1,4582 @@
+{
+ "syslib/psx/libgpu/SYS": {
+  "BASE": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    128,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    14,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    27,
+    45,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    19,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    73,
+    88,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    26,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    460,
+    282,
+    318
+   ],
+   "_image": [
+    62,
+    69,
+    71
+   ],
+   "_set_drawenv": [
+    179,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    205,
+    129,
+    140
+   ],
+   "_dws": [
+    99,
+    136,
+    143
+   ],
+   "_drs": [
+    102,
+    152,
+    160
+   ],
+   "_send_gp1": [
+    8,
+    9,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    150,
+    162,
+    172
+   ],
+   "_gpu_que_drain": [
+    85,
+    127,
+    152
+   ],
+   "_reset": [
+    61,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    42,
+    77,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "O1": {
+   "SetTexWindow": [
+    6,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    10,
+    34,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    14,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    156,
+    134,
+    126
+   ],
+   "SetDispMask": [
+    29,
+    31,
+    38
+   ],
+   "DrawSync": [
+    14,
+    26,
+    26
+   ],
+   "ClearImage": [
+    26,
+    36,
+    36
+   ],
+   "LoadImage": [
+    16,
+    24,
+    24
+   ],
+   "StoreImage": [
+    16,
+    24,
+    24
+   ],
+   "MoveImage": [
+    39,
+    47,
+    46
+   ],
+   "DrawOTag": [
+    28,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    33,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    80,
+    89,
+    93
+   ],
+   "ClearOTagR": [
+    45,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    42,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    509,
+    305,
+    318
+   ],
+   "_image": [
+    60,
+    71,
+    71
+   ],
+   "_set_drawenv": [
+    197,
+    145,
+    156
+   ],
+   "_set_draw_mode": [
+    6,
+    10,
+    8
+   ],
+   "_set_clip_tl": [
+    26,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    26,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    37,
+    29,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    47,
+    55,
+    56
+   ],
+   "_BlitClear": [
+    203,
+    137,
+    140
+   ],
+   "_dws": [
+    153,
+    140,
+    143
+   ],
+   "_drs": [
+    141,
+    157,
+    160
+   ],
+   "_send_gp1": [
+    7,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    11,
+    17,
+    16
+   ],
+   "_gpu_dma_chain": [
+    21,
+    19,
+    18
+   ],
+   "_get_gpuinfo": [
+    11,
+    13,
+    12
+   ],
+   "_que_ref": [
+    4,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    149,
+    175,
+    172
+   ],
+   "_gpu_que_drain": [
+    174,
+    134,
+    152
+   ],
+   "_reset": [
+    61,
+    81,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    4,
+    13,
+    13
+   ],
+   "_gpu_check_timeout": [
+    52,
+    79,
+    81
+   ],
+   "_gpu_init_videomode": [
+    42,
+    42,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nodelay": {
+   "SetTexWindow": [
+    6,
+    16,
+    14
+   ],
+   "SetDrawArea": [
+    6,
+    34,
+    32
+   ],
+   "SetDrawStp": [
+    9,
+    13,
+    10
+   ],
+   "SetDrawMode": [
+    9,
+    24,
+    21
+   ],
+   "SetDrawEnv": [
+    140,
+    132,
+    126
+   ],
+   "SetDispMask": [
+    42,
+    38,
+    38
+   ],
+   "DrawSync": [
+    14,
+    28,
+    26
+   ],
+   "ClearImage": [
+    16,
+    38,
+    36
+   ],
+   "LoadImage": [
+    10,
+    26,
+    24
+   ],
+   "StoreImage": [
+    10,
+    26,
+    24
+   ],
+   "MoveImage": [
+    47,
+    49,
+    46
+   ],
+   "DrawOTag": [
+    14,
+    30,
+    28
+   ],
+   "DrawOTag2": [
+    38,
+    61,
+    63
+   ],
+   "ResetGraph": [
+    92,
+    99,
+    93
+   ],
+   "ClearOTagR": [
+    39,
+    44,
+    43
+   ],
+   "PutDrawEnv": [
+    53,
+    51,
+    48
+   ],
+   "PutDispEnv": [
+    561,
+    315,
+    318
+   ],
+   "_image": [
+    58,
+    73,
+    71
+   ],
+   "_set_drawenv": [
+    198,
+    148,
+    156
+   ],
+   "_set_draw_mode": [
+    9,
+    11,
+    8
+   ],
+   "_set_clip_tl": [
+    34,
+    44,
+    38
+   ],
+   "_set_clip_br": [
+    34,
+    44,
+    38
+   ],
+   "_set_draw_offset": [
+    3,
+    8,
+    7
+   ],
+   "_get_tw": [
+    40,
+    26,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    38,
+    56,
+    56
+   ],
+   "_BlitClear": [
+    229,
+    147,
+    140
+   ],
+   "_dws": [
+    114,
+    147,
+    143
+   ],
+   "_drs": [
+    119,
+    165,
+    160
+   ],
+   "_send_gp1": [
+    9,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    9,
+    19,
+    16
+   ],
+   "_gpu_dma_chain": [
+    3,
+    19,
+    18
+   ],
+   "_get_gpuinfo": [
+    3,
+    13,
+    12
+   ],
+   "_que_ref": [
+    5,
+    10,
+    9
+   ],
+   "_gpu_que_push": [
+    174,
+    178,
+    172
+   ],
+   "_gpu_que_drain": [
+    94,
+    136,
+    152
+   ],
+   "_reset": [
+    66,
+    86,
+    84
+   ],
+   "_sync": [
+    31,
+    86,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    14,
+    13
+   ],
+   "_gpu_check_timeout": [
+    44,
+    81,
+    81
+   ],
+   "_gpu_init_videomode": [
+    10,
+    42,
+    40
+   ],
+   "_install_drain_cb": [
+    7,
+    11,
+    10
+   ],
+   "_memset": [
+    6,
+    11,
+    9
+   ]
+  },
+  "nosched1": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    2,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    131,
+    117,
+    126
+   ],
+   "SetDispMask": [
+    17,
+    33,
+    38
+   ],
+   "DrawSync": [
+    3,
+    25,
+    26
+   ],
+   "ClearImage": [
+    17,
+    35,
+    36
+   ],
+   "LoadImage": [
+    9,
+    23,
+    24
+   ],
+   "StoreImage": [
+    9,
+    23,
+    24
+   ],
+   "MoveImage": [
+    30,
+    44,
+    46
+   ],
+   "DrawOTag": [
+    14,
+    26,
+    28
+   ],
+   "DrawOTag2": [
+    20,
+    53,
+    63
+   ],
+   "ResetGraph": [
+    82,
+    87,
+    93
+   ],
+   "ClearOTagR": [
+    30,
+    41,
+    43
+   ],
+   "PutDrawEnv": [
+    26,
+    46,
+    48
+   ],
+   "PutDispEnv": [
+    475,
+    285,
+    318
+   ],
+   "_image": [
+    56,
+    69,
+    71
+   ],
+   "_set_drawenv": [
+    183,
+    135,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    46,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    44,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    208,
+    134,
+    140
+   ],
+   "_dws": [
+    138,
+    139,
+    143
+   ],
+   "_drs": [
+    129,
+    155,
+    160
+   ],
+   "_send_gp1": [
+    8,
+    9,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    8,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    21,
+    19,
+    18
+   ],
+   "_get_gpuinfo": [
+    9,
+    13,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    144,
+    164,
+    172
+   ],
+   "_gpu_que_drain": [
+    167,
+    127,
+    152
+   ],
+   "_reset": [
+    61,
+    79,
+    84
+   ],
+   "_sync": [
+    8,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    50,
+    77,
+    81
+   ],
+   "_gpu_init_videomode": [
+    33,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosched2": {
+   "SetTexWindow": [
+    6,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    7,
+    33,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    12,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    135,
+    125,
+    126
+   ],
+   "SetDispMask": [
+    16,
+    34,
+    38
+   ],
+   "DrawSync": [
+    9,
+    27,
+    26
+   ],
+   "ClearImage": [
+    22,
+    36,
+    36
+   ],
+   "LoadImage": [
+    8,
+    24,
+    24
+   ],
+   "StoreImage": [
+    8,
+    24,
+    24
+   ],
+   "MoveImage": [
+    35,
+    45,
+    46
+   ],
+   "DrawOTag": [
+    15,
+    29,
+    28
+   ],
+   "DrawOTag2": [
+    28,
+    55,
+    63
+   ],
+   "ResetGraph": [
+    73,
+    88,
+    93
+   ],
+   "ClearOTagR": [
+    36,
+    43,
+    43
+   ],
+   "PutDrawEnv": [
+    28,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    462,
+    284,
+    318
+   ],
+   "_image": [
+    63,
+    70,
+    71
+   ],
+   "_set_drawenv": [
+    150,
+    136,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    39,
+    25,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    37,
+    55,
+    56
+   ],
+   "_BlitClear": [
+    191,
+    133,
+    140
+   ],
+   "_dws": [
+    103,
+    138,
+    143
+   ],
+   "_drs": [
+    106,
+    154,
+    160
+   ],
+   "_send_gp1": [
+    7,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    4,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    167,
+    163,
+    172
+   ],
+   "_gpu_que_drain": [
+    92,
+    130,
+    152
+   ],
+   "_reset": [
+    53,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    4,
+    13,
+    13
+   ],
+   "_gpu_check_timeout": [
+    44,
+    77,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    8,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosched12": {
+   "SetTexWindow": [
+    6,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    10,
+    34,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    14,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    156,
+    134,
+    126
+   ],
+   "SetDispMask": [
+    19,
+    33,
+    38
+   ],
+   "DrawSync": [
+    12,
+    26,
+    26
+   ],
+   "ClearImage": [
+    26,
+    36,
+    36
+   ],
+   "LoadImage": [
+    16,
+    24,
+    24
+   ],
+   "StoreImage": [
+    16,
+    24,
+    24
+   ],
+   "MoveImage": [
+    39,
+    47,
+    46
+   ],
+   "DrawOTag": [
+    26,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    29,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    88,
+    89,
+    93
+   ],
+   "ClearOTagR": [
+    45,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    29,
+    47,
+    48
+   ],
+   "PutDispEnv": [
+    487,
+    291,
+    318
+   ],
+   "_image": [
+    61,
+    70,
+    71
+   ],
+   "_set_drawenv": [
+    197,
+    145,
+    156
+   ],
+   "_set_draw_mode": [
+    6,
+    10,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    46,
+    28,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    47,
+    55,
+    56
+   ],
+   "_BlitClear": [
+    203,
+    137,
+    140
+   ],
+   "_dws": [
+    148,
+    139,
+    143
+   ],
+   "_drs": [
+    138,
+    156,
+    160
+   ],
+   "_send_gp1": [
+    7,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    11,
+    17,
+    16
+   ],
+   "_gpu_dma_chain": [
+    21,
+    19,
+    18
+   ],
+   "_get_gpuinfo": [
+    11,
+    13,
+    12
+   ],
+   "_que_ref": [
+    4,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    149,
+    171,
+    172
+   ],
+   "_gpu_que_drain": [
+    172,
+    132,
+    152
+   ],
+   "_reset": [
+    61,
+    81,
+    84
+   ],
+   "_sync": [
+    8,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    4,
+    13,
+    13
+   ],
+   "_gpu_check_timeout": [
+    54,
+    81,
+    81
+   ],
+   "_gpu_init_videomode": [
+    42,
+    42,
+    40
+   ],
+   "_install_drain_cb": [
+    8,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "G0": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    128,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    14,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    10,
+    36,
+    36
+   ],
+   "LoadImage": [
+    2,
+    24,
+    24
+   ],
+   "StoreImage": [
+    2,
+    24,
+    24
+   ],
+   "MoveImage": [
+    29,
+    45,
+    46
+   ],
+   "DrawOTag": [
+    4,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    25,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    84,
+    89,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    26,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    460,
+    282,
+    318
+   ],
+   "_image": [
+    87,
+    70,
+    71
+   ],
+   "_set_drawenv": [
+    179,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    57,
+    53,
+    56
+   ],
+   "_BlitClear": [
+    195,
+    129,
+    140
+   ],
+   "_dws": [
+    148,
+    135,
+    143
+   ],
+   "_drs": [
+    163,
+    149,
+    160
+   ],
+   "_send_gp1": [
+    8,
+    9,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    8,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    10,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    228,
+    172,
+    172
+   ],
+   "_gpu_que_drain": [
+    143,
+    125,
+    152
+   ],
+   "_reset": [
+    93,
+    77,
+    84
+   ],
+   "_sync": [
+    46,
+    83,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    17,
+    14,
+    13
+   ],
+   "_gpu_check_timeout": [
+    83,
+    76,
+    81
+   ],
+   "_gpu_init_videomode": [
+    32,
+    36,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "G8": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    128,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    14,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    27,
+    45,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    19,
+    54,
+    63
+   ],
+   "ResetGraph": [
+    73,
+    88,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    26,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    458,
+    280,
+    318
+   ],
+   "_image": [
+    62,
+    69,
+    71
+   ],
+   "_set_drawenv": [
+    179,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    24,
+    38,
+    38
+   ],
+   "_set_clip_br": [
+    24,
+    38,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    205,
+    129,
+    140
+   ],
+   "_dws": [
+    99,
+    136,
+    143
+   ],
+   "_drs": [
+    102,
+    152,
+    160
+   ],
+   "_send_gp1": [
+    8,
+    9,
+    9
+   ],
+   "_get_gp1": [
+    5,
+    6,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    150,
+    162,
+    172
+   ],
+   "_gpu_que_drain": [
+    85,
+    127,
+    152
+   ],
+   "_reset": [
+    61,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    42,
+    77,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    10,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  },
+  "nosplit": {
+   "SetTexWindow": [
+    0,
+    14,
+    14
+   ],
+   "SetDrawArea": [
+    0,
+    32,
+    32
+   ],
+   "SetDrawStp": [
+    0,
+    10,
+    10
+   ],
+   "SetDrawMode": [
+    0,
+    21,
+    21
+   ],
+   "SetDrawEnv": [
+    120,
+    116,
+    126
+   ],
+   "SetDispMask": [
+    8,
+    34,
+    38
+   ],
+   "DrawSync": [
+    0,
+    26,
+    26
+   ],
+   "ClearImage": [
+    8,
+    36,
+    36
+   ],
+   "LoadImage": [
+    0,
+    24,
+    24
+   ],
+   "StoreImage": [
+    0,
+    24,
+    24
+   ],
+   "MoveImage": [
+    0,
+    46,
+    46
+   ],
+   "DrawOTag": [
+    2,
+    28,
+    28
+   ],
+   "DrawOTag2": [
+    12,
+    55,
+    63
+   ],
+   "ResetGraph": [
+    44,
+    87,
+    93
+   ],
+   "ClearOTagR": [
+    25,
+    42,
+    43
+   ],
+   "PutDrawEnv": [
+    18,
+    48,
+    48
+   ],
+   "PutDispEnv": [
+    438,
+    282,
+    318
+   ],
+   "_image": [
+    46,
+    71,
+    71
+   ],
+   "_set_drawenv": [
+    165,
+    133,
+    156
+   ],
+   "_set_draw_mode": [
+    5,
+    9,
+    8
+   ],
+   "_set_clip_tl": [
+    29,
+    39,
+    38
+   ],
+   "_set_clip_br": [
+    29,
+    39,
+    38
+   ],
+   "_set_draw_offset": [
+    0,
+    7,
+    7
+   ],
+   "_get_tw": [
+    40,
+    24,
+    32
+   ],
+   "_get_status": [
+    0,
+    6,
+    6
+   ],
+   "_clearOTagR_dma": [
+    36,
+    54,
+    56
+   ],
+   "_BlitClear": [
+    210,
+    132,
+    140
+   ],
+   "_dws": [
+    85,
+    138,
+    143
+   ],
+   "_drs": [
+    87,
+    153,
+    160
+   ],
+   "_send_gp1": [
+    3,
+    10,
+    9
+   ],
+   "_get_gp1": [
+    6,
+    5,
+    5
+   ],
+   "_send_gp0": [
+    0,
+    16,
+    16
+   ],
+   "_gpu_dma_chain": [
+    0,
+    18,
+    18
+   ],
+   "_get_gpuinfo": [
+    0,
+    12,
+    12
+   ],
+   "_que_ref": [
+    6,
+    9,
+    9
+   ],
+   "_gpu_que_push": [
+    103,
+    165,
+    172
+   ],
+   "_gpu_que_drain": [
+    87,
+    129,
+    152
+   ],
+   "_reset": [
+    55,
+    79,
+    84
+   ],
+   "_sync": [
+    16,
+    79,
+    79
+   ],
+   "_gpu_arm_timeout": [
+    5,
+    12,
+    13
+   ],
+   "_gpu_check_timeout": [
+    38,
+    75,
+    81
+   ],
+   "_gpu_init_videomode": [
+    11,
+    39,
+    40
+   ],
+   "_install_drain_cb": [
+    6,
+    10,
+    10
+   ],
+   "_memset": [
+    0,
+    9,
+    9
+   ]
+  }
+ },
+ "syslib/psx/libmcrd/LIBMCRD": {
+  "BASE": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    8,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    8,
+    26,
+    26
+   ],
+   "MemCardExist_cb": [
+    144,
+    95,
+    117
+   ],
+   "MemCardAccept": [
+    8,
+    26,
+    26
+   ],
+   "MemCardCmd_cb": [
+    137,
+    120,
+    141
+   ],
+   "MemCardReadData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardReadData_cb": [
+    72,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    77,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    57,
+    59,
+    66
+   ],
+   "MemCardWriteFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    57,
+    59,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    144,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    104,
+    102,
+    130
+   ],
+   "MemCardDeleteFile": [
+    96,
+    81,
+    111
+   ],
+   "MemCardFormat": [
+    28,
+    35,
+    35
+   ],
+   "MemCardUnformat": [
+    28,
+    41,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    29,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "O1": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    12,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    14,
+    20,
+    16
+   ],
+   "MemCardExist": [
+    13,
+    25,
+    26
+   ],
+   "MemCardExist_cb": [
+    150,
+    103,
+    117
+   ],
+   "MemCardAccept": [
+    13,
+    25,
+    26
+   ],
+   "MemCardCmd_cb": [
+    172,
+    127,
+    141
+   ],
+   "MemCardReadData": [
+    52,
+    44,
+    46
+   ],
+   "MemCardReadData_cb": [
+    83,
+    70,
+    79
+   ],
+   "MemCardWriteData": [
+    52,
+    44,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    85,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    87,
+    67,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    88,
+    58,
+    66
+   ],
+   "MemCardWriteFile": [
+    87,
+    67,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    88,
+    58,
+    66
+   ],
+   "MemCardGetDirentry": [
+    183,
+    149,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    41,
+    58,
+    71
+   ],
+   "MemCardCreateFile": [
+    126,
+    112,
+    130
+   ],
+   "MemCardDeleteFile": [
+    107,
+    90,
+    111
+   ],
+   "MemCardFormat": [
+    26,
+    39,
+    35
+   ],
+   "MemCardUnformat": [
+    25,
+    44,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    37,
+    32,
+    33
+   ],
+   "MemCardMakeDevname": [
+    38,
+    19,
+    23
+   ]
+  },
+  "nodelay": {
+   "MemCardInit": [
+    9,
+    12,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    6,
+    22,
+    20
+   ],
+   "MemCardStop": [
+    10,
+    18,
+    16
+   ],
+   "MemCardExist": [
+    14,
+    30,
+    26
+   ],
+   "MemCardExist_cb": [
+    152,
+    103,
+    117
+   ],
+   "MemCardAccept": [
+    14,
+    30,
+    26
+   ],
+   "MemCardCmd_cb": [
+    155,
+    136,
+    141
+   ],
+   "MemCardReadData": [
+    62,
+    54,
+    46
+   ],
+   "MemCardReadData_cb": [
+    87,
+    76,
+    79
+   ],
+   "MemCardWriteData": [
+    62,
+    54,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    107,
+    78,
+    79
+   ],
+   "MemCardReadFile": [
+    88,
+    80,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    83,
+    73,
+    66
+   ],
+   "MemCardWriteFile": [
+    88,
+    80,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    83,
+    73,
+    66
+   ],
+   "MemCardGetDirentry": [
+    215,
+    163,
+    152
+   ],
+   "MemCardCallback": [
+    3,
+    6,
+    5
+   ],
+   "MemCardSync": [
+    82,
+    63,
+    71
+   ],
+   "MemCardCreateFile": [
+    130,
+    122,
+    130
+   ],
+   "MemCardDeleteFile": [
+    115,
+    96,
+    111
+   ],
+   "MemCardFormat": [
+    31,
+    40,
+    35
+   ],
+   "MemCardUnformat": [
+    41,
+    52,
+    45
+   ],
+   "MemCardEventToRslt": [
+    24,
+    27,
+    21
+   ],
+   "MemCardStart_cb": [
+    26,
+    31,
+    33
+   ],
+   "MemCardMakeDevname": [
+    35,
+    20,
+    23
+   ]
+  },
+  "nosched1": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    8,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    11,
+    25,
+    26
+   ],
+   "MemCardExist_cb": [
+    152,
+    95,
+    117
+   ],
+   "MemCardAccept": [
+    11,
+    25,
+    26
+   ],
+   "MemCardCmd_cb": [
+    160,
+    117,
+    141
+   ],
+   "MemCardReadData": [
+    50,
+    44,
+    46
+   ],
+   "MemCardReadData_cb": [
+    72,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    50,
+    44,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    77,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    76,
+    68,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    72,
+    58,
+    66
+   ],
+   "MemCardWriteFile": [
+    76,
+    68,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    72,
+    58,
+    66
+   ],
+   "MemCardGetDirentry": [
+    187,
+    145,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    110,
+    102,
+    130
+   ],
+   "MemCardDeleteFile": [
+    102,
+    81,
+    111
+   ],
+   "MemCardFormat": [
+    26,
+    39,
+    35
+   ],
+   "MemCardUnformat": [
+    28,
+    41,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    33,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    38,
+    19,
+    23
+   ]
+  },
+  "nosched2": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    10,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    11,
+    17,
+    16
+   ],
+   "MemCardExist": [
+    10,
+    26,
+    26
+   ],
+   "MemCardExist_cb": [
+    142,
+    97,
+    117
+   ],
+   "MemCardAccept": [
+    10,
+    26,
+    26
+   ],
+   "MemCardCmd_cb": [
+    135,
+    120,
+    141
+   ],
+   "MemCardReadData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardReadData_cb": [
+    76,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    79,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    76,
+    68,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    61,
+    59,
+    66
+   ],
+   "MemCardWriteFile": [
+    76,
+    68,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    61,
+    59,
+    66
+   ],
+   "MemCardGetDirentry": [
+    182,
+    144,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    110,
+    102,
+    130
+   ],
+   "MemCardDeleteFile": [
+    98,
+    81,
+    111
+   ],
+   "MemCardFormat": [
+    28,
+    35,
+    35
+   ],
+   "MemCardUnformat": [
+    19,
+    42,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    29,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "nosched12": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    10,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    11,
+    17,
+    16
+   ],
+   "MemCardExist": [
+    13,
+    25,
+    26
+   ],
+   "MemCardExist_cb": [
+    151,
+    100,
+    117
+   ],
+   "MemCardAccept": [
+    13,
+    25,
+    26
+   ],
+   "MemCardCmd_cb": [
+    161,
+    118,
+    141
+   ],
+   "MemCardReadData": [
+    52,
+    44,
+    46
+   ],
+   "MemCardReadData_cb": [
+    76,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    52,
+    44,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    79,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    81,
+    69,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    75,
+    57,
+    66
+   ],
+   "MemCardWriteFile": [
+    81,
+    69,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    75,
+    57,
+    66
+   ],
+   "MemCardGetDirentry": [
+    187,
+    147,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    116,
+    104,
+    130
+   ],
+   "MemCardDeleteFile": [
+    102,
+    83,
+    111
+   ],
+   "MemCardFormat": [
+    28,
+    39,
+    35
+   ],
+   "MemCardUnformat": [
+    19,
+    42,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    37,
+    32,
+    33
+   ],
+   "MemCardMakeDevname": [
+    38,
+    19,
+    23
+   ]
+  },
+  "G0": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    8,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    8,
+    26,
+    26
+   ],
+   "MemCardExist_cb": [
+    144,
+    95,
+    117
+   ],
+   "MemCardAccept": [
+    8,
+    26,
+    26
+   ],
+   "MemCardCmd_cb": [
+    137,
+    120,
+    141
+   ],
+   "MemCardReadData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardReadData_cb": [
+    75,
+    70,
+    79
+   ],
+   "MemCardWriteData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    83,
+    72,
+    79
+   ],
+   "MemCardReadFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    56,
+    60,
+    66
+   ],
+   "MemCardWriteFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    56,
+    60,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    144,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    104,
+    102,
+    130
+   ],
+   "MemCardDeleteFile": [
+    96,
+    81,
+    111
+   ],
+   "MemCardFormat": [
+    28,
+    35,
+    35
+   ],
+   "MemCardUnformat": [
+    28,
+    41,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    29,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "G8": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    8,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    8,
+    26,
+    26
+   ],
+   "MemCardExist_cb": [
+    144,
+    95,
+    117
+   ],
+   "MemCardAccept": [
+    8,
+    26,
+    26
+   ],
+   "MemCardCmd_cb": [
+    137,
+    120,
+    141
+   ],
+   "MemCardReadData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardReadData_cb": [
+    72,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    55,
+    45,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    77,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    57,
+    59,
+    66
+   ],
+   "MemCardWriteFile": [
+    70,
+    68,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    57,
+    59,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    144,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    104,
+    102,
+    130
+   ],
+   "MemCardDeleteFile": [
+    96,
+    81,
+    111
+   ],
+   "MemCardFormat": [
+    28,
+    35,
+    35
+   ],
+   "MemCardUnformat": [
+    28,
+    41,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    29,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  },
+  "nosplit": {
+   "MemCardInit": [
+    12,
+    11,
+    11
+   ],
+   "MemCardEnd": [
+    0,
+    8,
+    8
+   ],
+   "MemCardStart": [
+    4,
+    20,
+    20
+   ],
+   "MemCardStop": [
+    12,
+    16,
+    16
+   ],
+   "MemCardExist": [
+    11,
+    27,
+    26
+   ],
+   "MemCardExist_cb": [
+    153,
+    98,
+    117
+   ],
+   "MemCardAccept": [
+    11,
+    27,
+    26
+   ],
+   "MemCardCmd_cb": [
+    138,
+    125,
+    141
+   ],
+   "MemCardReadData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardReadData_cb": [
+    58,
+    69,
+    79
+   ],
+   "MemCardWriteData": [
+    51,
+    49,
+    46
+   ],
+   "MemCardWriteData_cb": [
+    83,
+    70,
+    79
+   ],
+   "MemCardReadFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardReadFile_cb": [
+    42,
+    60,
+    66
+   ],
+   "MemCardWriteFile": [
+    57,
+    71,
+    70
+   ],
+   "MemCardWriteFile_cb": [
+    42,
+    60,
+    66
+   ],
+   "MemCardGetDirentry": [
+    180,
+    148,
+    152
+   ],
+   "MemCardCallback": [
+    0,
+    5,
+    5
+   ],
+   "MemCardSync": [
+    42,
+    59,
+    71
+   ],
+   "MemCardCreateFile": [
+    102,
+    106,
+    130
+   ],
+   "MemCardDeleteFile": [
+    102,
+    87,
+    111
+   ],
+   "MemCardFormat": [
+    29,
+    36,
+    35
+   ],
+   "MemCardUnformat": [
+    31,
+    42,
+    45
+   ],
+   "MemCardEventToRslt": [
+    3,
+    20,
+    21
+   ],
+   "MemCardStart_cb": [
+    25,
+    28,
+    33
+   ],
+   "MemCardMakeDevname": [
+    33,
+    18,
+    23
+   ]
+  }
+ },
+ "syslib/psx/libpad/PADMAIN": {
+  "BASE": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    23,
+    52,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    227,
+    192,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    45,
+    53,
+    50
+   ]
+  },
+  "O1": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    32,
+    51,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    253,
+    198,
+    205
+   ],
+   "_padSioRW": [
+    140,
+    130,
+    118
+   ],
+   "_padSioRW2": [
+    162,
+    146,
+    142
+   ],
+   "_padClrIntSio0": [
+    26,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    9,
+    27,
+    26
+   ],
+   "_padVbCallback0": [
+    69,
+    90,
+    91
+   ],
+   "_padSioMain": [
+    44,
+    54,
+    50
+   ]
+  },
+  "nodelay": {
+   "_padSetVsyncParam": [
+    17,
+    12,
+    11
+   ],
+   "_padStartCom": [
+    35,
+    56,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    267,
+    208,
+    205
+   ],
+   "_padSioRW": [
+    148,
+    118,
+    118
+   ],
+   "_padSioRW2": [
+    179,
+    145,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    7,
+    29,
+    26
+   ],
+   "_padVbCallback0": [
+    45,
+    92,
+    91
+   ],
+   "_padSioMain": [
+    49,
+    57,
+    50
+   ]
+  },
+  "nosched1": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    28,
+    51,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    239,
+    194,
+    205
+   ],
+   "_padSioRW": [
+    123,
+    117,
+    118
+   ],
+   "_padSioRW2": [
+    164,
+    142,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    36,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    45,
+    53,
+    50
+   ]
+  },
+  "nosched2": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    17,
+    52,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    231,
+    194,
+    205
+   ],
+   "_padSioRW": [
+    141,
+    115,
+    118
+   ],
+   "_padSioRW2": [
+    155,
+    137,
+    142
+   ],
+   "_padClrIntSio0": [
+    26,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    9,
+    27,
+    26
+   ],
+   "_padVbCallback0": [
+    39,
+    88,
+    91
+   ],
+   "_padSioMain": [
+    45,
+    53,
+    50
+   ]
+  },
+  "nosched12": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    25,
+    52,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    250,
+    197,
+    205
+   ],
+   "_padSioRW": [
+    130,
+    122,
+    118
+   ],
+   "_padSioRW2": [
+    161,
+    145,
+    142
+   ],
+   "_padClrIntSio0": [
+    26,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    9,
+    27,
+    26
+   ],
+   "_padVbCallback0": [
+    55,
+    84,
+    91
+   ],
+   "_padSioMain": [
+    44,
+    54,
+    50
+   ]
+  },
+  "G0": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    49,
+    52,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    233,
+    192,
+    205
+   ],
+   "_padSioRW": [
+    154,
+    110,
+    118
+   ],
+   "_padSioRW2": [
+    201,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    37,
+    35,
+    36
+   ],
+   "_padWaitRXready": [
+    4,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    11,
+    27,
+    26
+   ],
+   "_padVbCallback0": [
+    88,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    72,
+    48,
+    50
+   ]
+  },
+  "G8": {
+   "_padSetVsyncParam": [
+    16,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    23,
+    52,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    194,
+    191,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    45,
+    53,
+    50
+   ]
+  },
+  "nosplit": {
+   "_padSetVsyncParam": [
+    0,
+    11,
+    11
+   ],
+   "_padStartCom": [
+    22,
+    53,
+    51
+   ],
+   "_padStopCom": [
+    6,
+    19,
+    17
+   ],
+   "_padInitSioMode": [
+    198,
+    195,
+    205
+   ],
+   "_padSioRW": [
+    137,
+    113,
+    118
+   ],
+   "_padSioRW2": [
+    157,
+    135,
+    142
+   ],
+   "_padClrIntSio0": [
+    24,
+    34,
+    36
+   ],
+   "_padWaitRXready": [
+    0,
+    10,
+    10
+   ],
+   "_padVbCallback1": [
+    4,
+    26,
+    26
+   ],
+   "_padVbCallback0": [
+    28,
+    87,
+    91
+   ],
+   "_padSioMain": [
+    38,
+    52,
+    50
+   ]
+  }
+ },
+ "syslib/psx/libpad/PADCMD": {
+  "BASE": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    37,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    21,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    175,
+    134,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "O1": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    31,
+    34,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    115,
+    80,
+    83
+   ],
+   "_padLoadActInfo": [
+    68,
+    55,
+    53
+   ],
+   "_padSetActAlign": [
+    21,
+    27,
+    26
+   ],
+   "_padSetMainMode": [
+    45,
+    37,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    36,
+    44,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    204,
+    147,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    4,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nodelay": {
+   "_padSetAct": [
+    3,
+    4,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    3,
+    15,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    132,
+    89,
+    83
+   ],
+   "_padLoadActInfo": [
+    48,
+    57,
+    53
+   ],
+   "_padSetActAlign": [
+    13,
+    31,
+    26
+   ],
+   "_padSetMainMode": [
+    26,
+    40,
+    38
+   ],
+   "_padCmdGetStatus": [
+    3,
+    6,
+    5
+   ],
+   "_padCmdSetMap": [
+    3,
+    9,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    3,
+    9,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    3,
+    9,
+    8
+   ],
+   "_padCmd4B": [
+    3,
+    6,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    201,
+    144,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    3,
+    8,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    49,
+    55,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    9,
+    24,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    3,
+    9,
+    8
+   ]
+  },
+  "nosched1": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    59,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    16,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    39,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    234,
+    137,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    4,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosched2": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    5,
+    15,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    110,
+    77,
+    83
+   ],
+   "_padLoadActInfo": [
+    45,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    9,
+    27,
+    26
+   ],
+   "_padSetMainMode": [
+    26,
+    36,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    2,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    2,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    2,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    190,
+    139,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    2,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    2,
+    8,
+    8
+   ]
+  },
+  "nosched12": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    115,
+    80,
+    83
+   ],
+   "_padLoadActInfo": [
+    68,
+    55,
+    53
+   ],
+   "_padSetActAlign": [
+    21,
+    27,
+    26
+   ],
+   "_padSetMainMode": [
+    45,
+    37,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    239,
+    146,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    4,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "G0": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    37,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    21,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    191,
+    136,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "G8": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    37,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    21,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    175,
+    134,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  },
+  "nosplit": {
+   "_padSetAct": [
+    0,
+    3,
+    3
+   ],
+   "_padSendAtLoadInfo": [
+    30,
+    31,
+    33
+   ],
+   "_padGetActSize": [
+    0,
+    14,
+    14
+   ],
+   "_padRecvAtLoadInfo": [
+    105,
+    76,
+    83
+   ],
+   "_padLoadActInfo": [
+    19,
+    54,
+    53
+   ],
+   "_padSetActAlign": [
+    2,
+    26,
+    26
+   ],
+   "_padSetMainMode": [
+    19,
+    35,
+    38
+   ],
+   "_padCmdGetStatus": [
+    0,
+    5,
+    5
+   ],
+   "_padCmdSetMap": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR0": [
+    0,
+    8,
+    8
+   ],
+   "_padCmdGetDescR1": [
+    0,
+    8,
+    8
+   ],
+   "_padCmd4B": [
+    0,
+    5,
+    5
+   ],
+   "_padLoadActInfo_snd": [
+    22,
+    40,
+    42
+   ],
+   "_padLoadActInfo_rcv": [
+    175,
+    134,
+    157
+   ],
+   "_padSetActAlign_snd": [
+    0,
+    7,
+    7
+   ],
+   "_padSetActAlign_rcv": [
+    32,
+    52,
+    50
+   ],
+   "_padSetMainMode_snd": [
+    7,
+    20,
+    21
+   ],
+   "_padSetMainMode_rcv": [
+    19,
+    23,
+    24
+   ],
+   "_padCmdParaMode": [
+    0,
+    8,
+    8
+   ]
+  }
+ }
+}

@@ -1,0 +1,11 @@
+syslib/psx/libcd/stcdint
+syslib/psx/libcd/stream
+syslib/psx/libcd/streamhelp
+syslib/psx/libds/DSCB
+syslib/psx/libgpu/SYS
+syslib/psx/libmath/FERR
+syslib/psx/libmcrd/BIOS
+syslib/psx/libmcrd/USERFUNC
+syslib/psx/libpad/MCXMAIN
+syslib/psx/libpress/LIBPRESS
+syslib/psx/libpress/VLC

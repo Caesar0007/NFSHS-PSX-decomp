@@ -1,0 +1,21 @@
+module                         BASE P/D/CNT       nosplit P/D/CNT       dD  conv  regr  repro
+libgpu/SYS                     13/1957/22 (of 44) 14/1743/22          -214     1     0  OK MoveImage
+libmcrd/LIBMCRD                2/1385/8 (of 26)   2/1329/5             -56     0     0  OK 
+libpad/PADMAIN                 1/667/3 (of 11)    2/614/3              -53     1     0  OK _padSetVsyncParam
+libetc/INTR                    7/237/8 (of 13)    7/186/10             -51     0     0  OK 
+libmcrd/USERFUNC               1/59/1 (of 4)      1/14/2               -45     0     0  OK 
+libgpu/FONT                    0/364/0 (of 2)     0/330/0              -34     0     0  OK 
+libmcrd/BIOS                   13/48/15 (of 17)   13/20/15             -28     0     0  OK 
+libapi/FIRST                   0/100/2 (of 2)     0/78/1               -22     0     0  OK 
+libpad/PADCMD                  9/450/10 (of 19)   9/430/10             -20     0     0  OK 
+libpad/PADENTRY                5/72/6 (of 8)      6/52/6               -20     1     0  OK PadInfoAct
+libcd/iso9660                  1/356/2 (of 6)     1/339/3              -17     0     0  OK 
+libc/SPRINTF                   0/174/0 (of 1)     0/159/0              -15     0     0  OK 
+libapi/COUNTER                 0/17/1 (of 3)      0/10/1                -7     0     0  OK 
+libetc/INTR_VB                 0/11/0 (of 1)      0/5/0                 -6     0     0  OK 
+libpress/LIBPRESS              5/82/11 (of 12)    5/76/9                -6     0     0  OK 
+libcd/toc                      0/93/1 (of 2)      0/89/1                -4     0     0  OK 
+libgte/COR_01                  0/76/0 (of 1)      0/72/0                -4     0     0  OK 
+libpad/PADPORTD                2/360/4 (of 8)     2/358/4               -2     0     0  OK 
+libcd/event                    0/64/4 (of 5)      0/63/4                -1     0     0  OK 
+libetc/VSYNC                   0/53/1 (of 2)      0/52/0                -1     0     0  OK 

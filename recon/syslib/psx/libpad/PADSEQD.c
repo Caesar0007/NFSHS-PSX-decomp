@@ -43,15 +43,27 @@ extern void _padInitDirSeq(void)
 }
 
 /* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
- * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction. */
-/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
- * FLOOR: lhu fixed (lever1). beq delay-slot has nop vs oracle addu v0,0,0 (5 diffs). Scheduling floor.
- * 4 levers used: ||, DeMorgan, if/else, ternary. */
+ * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction.
+ * MATCH (w48-a4): the "5-diff scheduling floor" note below was WRONG -- it was a STRUCTURE miss.
+ *   The old `if (A || B) return 1; return 0;` shape emits TWO `jr ra` blocks (12 insns); the oracle
+ *   has ONE shared epilogue reached from both arms, i.e. the source is the De-Morgan EARLY-OUT
+ *   `if (!A && !B) return 0; return 1;` (11/11 count-exact, 6 diffs).  MATCH: `int ff = 0xff;`
+ *   (catalog NAMED-ONE) then moves the byte load onto the oracle's $v1 (6 -> 4).
+ * RESIDUAL 4 (2 lines): ours `li a1,255 / beq v1,a1` vs oracle `li v0,255 / beq v1,v0`.
+ *   NOT a priority dial -- `-dg` shows the constant's allocno literally `81 conflicts: 80 81 2 3 29`,
+ *   i.e. a HARD-REG conflict with $v0(2) that no ref/live dial can move (reqdelta class:
+ *   conflict-set, w46 "a hard-reg conflict beats every allocno dial").  Falsified at this basin:
+ *   yoda-compare (6), nested-if block scope (6), (int) cast (6), byte-local (12), decl-after-guard
+ *   (12), word/const SHARED pseudo -- in-place reuse, all 3 spellings put the merged pseudo in $a1
+ *   (8), opacity fence on ff (5 @12 insns), fence in the nested-reuse form (8), pre-loaded byte
+ *   local (8 @9 insns).  NEXT ANGLE: find what puts hard $v0 in the constant's conflict set
+ *   (global.c record_conflicts around the two return-value sets) -- retail's constant IS $v0. */
 extern int _dirCheck(unsigned char *info)
 {
-    if (*(unsigned short *)(info + 0xe6) == 0 || info[0x46] != 0xff)
-        return 1;
-    return 0;
+    int ff = 0xff;
+    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == ff)
+        return 0;
+    return 1;
 }
 
 /* @0x8010A0E4 : _dirSendAuto (_padFuncSendAuto) -- emit the next request for the current state. */

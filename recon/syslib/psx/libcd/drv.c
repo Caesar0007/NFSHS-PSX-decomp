@@ -417,7 +417,8 @@ extern int CD_initintr(void)
     CD_status  = 0;
     ResetCallback();
     InterruptCallback(2, _cd_intr_dispatch);
-    return 0;
+    /* MATCH: NO `return 0;` -- the oracle sets up no $v0 at all (retail's return value is
+     * incidental); an explicit `return 0` adds `addu v0,zero,zero` (ours 20 vs oracle 19). */
 }
 
 /* @0x8013C228 : the CD_init bookkeeping struct (SOTN's CD_init_struct), only its address is used. */

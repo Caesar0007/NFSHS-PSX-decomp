@@ -97,9 +97,16 @@ extern int CdReadyCallback(int func)
 static inline int cd_cw(unsigned char com, unsigned char *param, unsigned char *result, int arg3)
 {
     int old = CD_cbsync;
-    int count = 4;
+    /* MATCH (up-front sentinel, catalog B-row inverse): retail materializes the loop's -1
+     * sentinel ONCE in a callee-saved reg ($fp) at entry (`li fp,-1` ... `bne s0,fp`) and
+     * still emits a FRESH `li s7,-1` for the exhaustion return.  A literal `-1` in the loop
+     * test lets gcc CSE the two into one caller-saved `li v0,-1` + `addu s7,v0,zero`
+     * (ours 77 vs oracle 79).  Naming the sentinel makes it own the materialization:
+     * CdControl 62->60 and COUNT-EXACT 79/79, CdControlF 67->63, CdControlB 69->65. */
+    int sentinel = -1;
+    int count;
 
-    while (count--) {
+    for (count = 3; count != sentinel; count--) {
         CD_cbsync = 0;
         if (com != 1 && (CD_status & 0x10))
             CD_cw(1, 0, 0, 0);

@@ -261,18 +261,49 @@ extern int _pad_filter(unsigned char *info)
     return r;
 }
 
-/* @0x800FE32C : _pad_port_to_slot (_padFuncPtr2Port) -- info block ptr -> slot id (0x10/0x20). */
+/* @0x800FE32C : _pad_port_to_slot (_padFuncPtr2Port) -- info block ptr -> slot id (0x10/0x20).
+ * MATCH (w48-a4, 18 -> 6 diffs, count-exact 14/14).  Three cooperating shape facts, read off
+ * the oracle:
+ *   (1) `i = 0;` is its OWN statement and the loop is a DO/WHILE -- the oracle's bottom test
+ *       (`slti $v0,$a1,2; bnez`) with no entry guard is gcc's rotated do-while, and the explicit
+ *       `addu $a1,$zero,$zero` at insn 0 is the separate init (a `for(i=0;i<2;i++)` header emits
+ *       the counter bump ahead of the compare and inverts the guard polarity: 18 diffs).
+ *   (2) the found-arm is `r = slot; goto out;` -- a DEFAULT ASSIGNED BEFORE THE TEST (catalog
+ *       w47 "PRE-SET THE DEFAULT BEFORE THE TEST"): its block is a single `(set v0,slot)(jump)`,
+ *       so reorg EAGER-STEALS it into the beq's delay slot and retargets the beq straight at the
+ *       shared epilogue = the oracle's `beq $a0,$v1 / addu $v0,$a2,$zero`.  A bare `return slot;`
+ *       inside the loop instead emits a SECOND `jr ra` block (q3 probe: 10 diffs).
+ *   (3) increment order slot, i, info -- info LAST so it lands in the bnez delay slot.
+ * RESIDUAL 6 (2 lines), both named gcc mechanisms, neither reachable at this basin:
+ *   (a) `lui $v0,%hi; addiu $v1,$v0,%lo` vs oracle's SELF-TEMP `lui $v1; addiu $v1,$v1` --
+ *       the {high, lo_sum} pair is one combined qty only when local-alloc's combine_regs may tie
+ *       them, and it REFUSES when the lo_sum's destination is a global allocno (w47
+ *       delete_noop_moves law); `info` is loop-carried, hence global, hence two registers.
+ *   (b) `addiu $a2,$v0,16` vs oracle `addiu $a2,$a2,16` -- cse's canonical-copy pick: `r` OUTLIVES
+ *       `slot` (it is read after the loop), so make_regs_eqv makes r's register canonical and the
+ *       increment reads it (w47 law, KEEP direction).  Retail's `slot` stays canonical.
+ * FALSIFIED at this basin (all whole-TU, other 7 fns unchanged): for-header/while-header (18/12),
+ *   `info == p` yoda (12), `&_pad_info[0]` (12), r-as-block-local (7 @15), break+`r=0xff` default
+ *   (15 @15), single-variable `slot` doubling as the result (11 @13), increment-order permutations
+ *   x3 (6), decl-order permutations x3 (6), opacity fence on r / on slot / after the increment
+ *   (16/20/20), `return 0xff;` before the label (5 diffs but 15/14 -- count NOT exact, rejected). */
 extern int _pad_port_to_slot(unsigned char *p)
 {
-    int i, slot = 0x10;
+    int i = 0;
+    int slot = 0x10;
+    int r;
     unsigned char *info = _pad_info;
-    for (i = 0; i < 2; i++) {
+    do {
+        r = slot;
         if (p == info)
-            return slot;
+            goto out;
         slot += 0x10;
+        i++;
         info += 0xf0;
-    }
-    return 0xff;
+    } while (i < 2);
+    r = 0xff;
+out:
+    return r;
 }
 
 /* @0x800FE364 : _pad_get_port (_padFuncPort2Info) -- slot id -> info block ptr.

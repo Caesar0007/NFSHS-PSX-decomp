@@ -10,6 +10,12 @@ name: progress-report
 #   The PsyQ cc1 is copyrighted, so it is not in this public repo. Build a zip
 #   of the Windows toolchain laid out as:
 #       toolchain/psyq/CC1PSX.EXE
+#       toolchain/psyq/CC1PSX272.EXE <- PsyQ 4.0's cc1 (gcc 2.7.2.SN32), the
+#                                       04M syslib lane; build.py auto-finds it
+#                                       BESIDE CC1PSX.EXE (no env var needed).
+#                                       Source: psyq400/COMPILER/CC1PSX.EXE,
+#                                       renamed. If absent, lane TUs fall back
+#                                       to the 2.8 pipeline with a warning.
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
 #       toolchain/maspsx/maspsx.py   <- apply tools/maspsx-lid-reg.patch first
 #                                       (completes the li.d $N register LUT; without

@@ -44,7 +44,27 @@ CC1PL = _env("NFS4_CC1PL", r"C:/Temp/psq43/COMPILER/CC1PLPSX.EXE")
 # level on libmath _err_math; triple-confirmed by sotn/sozud/psyz which all
 # build Sony libs with gcc 2.6/2.7.2 at -G0).  Selected per-TU via the
 # "cc1_272" PER_TU_FLAGS key; see _compile_c_272 for the lane.
-CC1_272 = _env("NFS4_CC1_272", r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")
+# Resolution order (first that EXISTS wins):
+#   1. env NFS4_CC1_272
+#   2. CC1PSX272.EXE next to the resolved CC1 (so CI needs only one extra
+#      file in the toolchain zip under toolchain/psyq/, no workflow change)
+#   3. the dev-box PsyQ 4.0 install
+# If NONE exists, the lane falls back to the normal 2.8 pipeline with a
+# warning (objects still build; the lane TUs just report their 2.8 numbers).
+def _resolve_cc1_272():
+    cands = []
+    if os.environ.get("NFS4_CC1_272"):
+        cands.append(Path(os.environ["NFS4_CC1_272"]))
+    cands.append(Path(CC1).parent / "CC1PSX272.EXE")
+    cands.append(Path(r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE"))
+    for c in cands:
+        if c.is_file():
+            return c
+    return None
+
+
+CC1_272 = _resolve_cc1_272()
+_warned_272 = False
 PY = sys.executable
 RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained types
 
@@ -792,7 +812,16 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         sys.exit(f"[cpp] {rel}\n{r.stderr}")
 
     if tu_flags.get("cc1_272"):
-        return _compile_c_272(rel, tu_flags, i_file, s_file, obj)
+        if CC1_272 is not None:
+            return _compile_c_272(rel, tu_flags, i_file, s_file, obj)
+        global _warned_272
+        if not _warned_272:
+            _warned_272 = True
+            print("WARNING: gcc-2.7.2 cc1 not found (env NFS4_CC1_272 / "
+                  "CC1PSX272.EXE beside CC1 / dev-box psyq400) -- cc1_272 "
+                  "lane TUs fall back to the 2.8 pipeline this run",
+                  file=sys.stderr)
+        # fall through to the normal 2.8 lane below
 
     # w47 fix: compile_c honoured only the global -G; the per-TU "g_value" key
     # (long wired in compile_cpp below) silently no-op'd for the entire C lane

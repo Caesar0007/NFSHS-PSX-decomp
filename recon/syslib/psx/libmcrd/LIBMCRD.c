@@ -564,24 +564,22 @@ extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
     __asm__ __volatile__("" : "+r"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
-    } else if (pfd[-4] < 1) {                          /* cmd */
-        if ((bytes & 0x7f) == 0) {
-            if ((ofs & 0x7f) == 0) {
-                pfd[-4] = 5;                            /* cmd  */
-                pfd[-3] = 0;                             /* rslt */
-                pfd[-2] = 0;                              /* done */
-                pfd[1]  = ofs;                             /* ofs  */
-                pfd[2]  = bytes;                            /* len  */
-                *(unsigned long **)&pfd[3] = adrs;           /* adrs */
-                UserFuncOpen((int)MemCardReadData_cb);
-                return 1;
-            }
-            fmt = "Access Denied. : invalid offset value align\n";
-        } else {
-            fmt = "Access Denied. : invalid data size align\n";
-        }
-    } else {
+    } else if (0 < pfd[-4]) {                          /* cmd */
         fmt = "Access Denied. : event multiple open\n";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align\n";
+    } else {
+        if ((ofs & 0x7f) == 0) {
+            pfd[-4] = 5;                            /* cmd  */
+            pfd[-3] = 0;                             /* rslt */
+            pfd[-2] = 0;                              /* done */
+            pfd[1]  = ofs;                             /* ofs  */
+            pfd[2]  = bytes;                            /* len  */
+            *(unsigned long **)&pfd[3] = adrs;           /* adrs */
+            UserFuncOpen((int)MemCardReadData_cb);
+            return 1;
+        }
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -596,24 +594,22 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
     __asm__ __volatile__("" : "+r"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
-    } else if (pfd[-4] < 1) {                          /* cmd */
-        if ((bytes & 0x7f) == 0) {
-            if ((ofs & 0x7f) == 0) {
-                pfd[-4] = 6;                            /* cmd  */
-                pfd[-3] = 0;                             /* rslt */
-                pfd[-2] = 0;                              /* done */
-                pfd[1]  = ofs;                             /* ofs  */
-                pfd[2]  = bytes;                            /* len  */
-                *(unsigned long **)&pfd[3] = adrs;           /* adrs */
-                UserFuncOpen((int)MemCardWriteData_cb);
-                return 1;
-            }
-            fmt = "Access Denied. : invalid offset value align\n";
-        } else {
-            fmt = "Access Denied. : invalid data size align\n";
-        }
-    } else {
+    } else if (0 < pfd[-4]) {                          /* cmd */
         fmt = "Access Denied. : event multiple open\n";
+    } else if ((bytes & 0x7f) != 0) {
+        fmt = "Access Denied. : invalid data size align\n";
+    } else {
+        if ((ofs & 0x7f) == 0) {
+            pfd[-4] = 6;                            /* cmd  */
+            pfd[-3] = 0;                             /* rslt */
+            pfd[-2] = 0;                              /* done */
+            pfd[1]  = ofs;                             /* ofs  */
+            pfd[2]  = bytes;                            /* len  */
+            *(unsigned long **)&pfd[3] = adrs;           /* adrs */
+            UserFuncOpen((int)MemCardWriteData_cb);
+            return 1;
+        }
+        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;

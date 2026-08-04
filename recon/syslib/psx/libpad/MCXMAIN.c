@@ -99,29 +99,36 @@ extern unsigned _padIntQuery(unsigned char *info)
     return _padSioRW2(info, 0x42);
 }
 
-/* @0x8010C1C8 : _padIntRecvId -- read the device id; derive the multitap byte count. */
+/* @0x8010C1C8 : _padIntRecvId -- read the device id; derive the multitap byte count.
+ * MATCH (w48-a4, 13 -> PASS 48/48): DIRECT RETURNS, not a result funnel.  The oracle writes the
+ * result straight into $v0 on every path (`li $v0,-9` in a `j` delay slot; `addu $v0,$zero,$zero`
+ * in the `bnez` delay slot; the r<0 path just falls out with the call's return still in $v0) and
+ * its shared epilogue carries NO return copy.  The old single-`r`-funnel form parked r in $v1 and
+ * paid `addu $v0,$v1,$zero` at the exit (13 diffs @47/48, one insn short and the whole tail
+ * rotated $v0<->$v1/$a0).  Also load-bearing: fold the `<< 1` INTO lo before the store
+ * (`lo = (r & 0xf) << 1; _padMtapCount = lo; if (lo != 0)`) -- the oracle tests the SHIFTED value
+ * that is already in the register (`sll $v0,$v0,1; sw; bnez $v0`); keeping lo unshifted and
+ * storing `lo << 1` costs the separate test (12 diffs @46/48). */
 extern int _padIntRecvId(unsigned char *info)
 {
-    unsigned r;
+    int r;
+    unsigned lo;
+
     if (_padMtapFlag != 0) {
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0x1e0);
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0x2d0);
     }
-    r = _padSioRW2(info, (info[0x36] == 0) ? _padModeMtap : 0);
-    if ((int)r >= 0) {
-        unsigned lo = r & 0xf;
-        if ((r & 0xf0) == 0) {
-            r = 0xfffffff7;
-        } else {
-            _padMtapCount = lo << 1;
-            r = 0;
-            if (lo == 0) {
-                _padMtapCount = 0x20;
-                r = 0;
-            }
-        }
-    }
-    return (int)r;
+    r = (int)_padSioRW2(info, (info[0x36] == 0) ? _padModeMtap : 0);
+    if (r < 0)
+        return r;
+    if ((r & 0xf0) == 0)
+        return 0xfffffff7;
+    lo = (unsigned)(r & 0xf) << 1;
+    _padMtapCount = lo;
+    if (lo != 0)
+        return 0;
+    _padMtapCount = 0x20;
+    return 0;
 }
 
 /* @0x8010C288 : _padIntRecvHdr -- read + validate the 0x5A acknowledge byte. */

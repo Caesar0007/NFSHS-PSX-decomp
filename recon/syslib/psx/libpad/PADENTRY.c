@@ -57,7 +57,20 @@ void PadStopCom(void) { _padStopCom(); }
  * flat guard-chain (if(s==2)return1;if(s==6)return4;) -- drops the oracle's `slti v0,s,4` (s<4)
  * test entirely, worse (17 diffs); explicit `return d->state;` duplicated into the s<4 arm --
  * also worse (26 diffs, breaks the delay-slot-shared slti). Kept the nested if/else-if shape
- * that reproduces the slti test faithfully. */
+ * that reproduces the slti test faithfully.
+ * w48-a4 RE-GATED + QUANTIFIED THE SPLICE TRADE-OFF (the note above predates it):
+ *   WITH the per-fn -fno-delayed-branch splice   = 10 diffs @50/48  (current, best)
+ *   WITHOUT it                                   = 16 diffs @44/48
+ * The two basins fail in OPPOSITE directions and no source shape bridges them: unspliced, cc1
+ * fills the two arm branches exactly like retail (`beq $v1,$v0 / li $v0,1`) but then swaps the
+ * epilogue (`lw ra; nop; jr ra; addiu sp` vs retail's `lw ra; addiu sp; jr ra; nop`) and drops
+ * the two `j default / nop` block terminators (44 vs 48); spliced, the epilogue is exact but the
+ * arm slots go `nop` and the polarity flips to `bne`+skip.  Retail therefore had delayed-branch
+ * ON *and* the epilogue shape our reorg will not produce -- i.e. this fn needs the SAME
+ * epilogue-swap fix as _padInitDirSeq/_pad_reset_state (w48 a10/a6 assembler lane), not a
+ * source change.  Falsified in BOTH basins (8 probes): `goto def;` after the s<4 arm, gotos in
+ * both arms, a single trailing `goto def;`, and the plain if/else-if -- all byte-identical
+ * (10 spliced / 16 unspliced). */
 int PadGetState(int port)
 {
     _PadDev *d = _padFuncPort2Info(port);

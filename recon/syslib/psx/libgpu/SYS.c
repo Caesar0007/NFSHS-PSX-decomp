@@ -139,13 +139,19 @@ extern u_long _set_draw_offset(int x, int y)
  * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
 extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
 {
-    /* NEAR-MISS (5): andi not in the dfe-beqz slot (+nop) + `or v0,v0,v1` operand order.
-     * Tried+reverted: hi-first statement order (right schedule, wrong coloring 8==8/10),
-     * decl-order swap (same), `return hi|lo` alone (recolors lo in-place into a2, 11).
-     * Coloring and or-operand order are coupled; this basin's 5 is the floor. */
-    u_long lo = (u_long)(tpage & 0x9ff);
+    /* MATCH (w48-a2, 5 -> 2, count-exact 8/8): the `lo = tpage & 0x9ff` statement must sit
+     * AFTER the dtd block, so the `andi` is the last insn before the dfe `beqz` and dbr's
+     * backward scan takes it as the delay-slot fill (ours previously hoisted it to the top and
+     * nop'd the slot).  The old note's "hi-first order = wrong coloring" reading was basin-stale.
+     * RESIDUAL 2 = the final `or $v0,$v1,$v0` OPERAND ORDER (ours `or $v0,$v0,$v1`).  Invariant
+     * across 11 spellings, all count-exact 8/8: lo|=hi, fresh result var, `dfe`-block reorder,
+     * decl-order lo-first, separate `hi=` assignment, `hi = dtd ? .. : ..` ternary, int-typed lo,
+     * int-typed lo+hi (all 2); `return hi|lo` in any decl order (10 -- recolors lo into $a2).
+     * = RTL commutative-operand canonicalization (w41 find_reg/cost-pass boundary class). */
     u_long hi = (u_long)0xe1000000u;
+    u_long lo;
     if (dtd) hi |= 0x200u;
+    lo = (u_long)(tpage & 0x9ff);
     if (dfe) lo |= 0x400u;
     return lo | hi;
 }

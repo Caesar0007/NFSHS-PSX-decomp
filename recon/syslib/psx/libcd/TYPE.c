@@ -68,7 +68,7 @@ extern int CdGetDiskType(void)
     unsigned char locp[8];                          /* sp+0x10  */
     unsigned char sector[2048];                     /* sp+0x18  */
     unsigned char result[8];                        /* sp+0x818 */
-    int rdy, i;
+    int rdy, i, one;
 
     CdControl(1, 0, result);                        /* CdlNop -> status */
     if (result[0] & 0x10) return 16;
@@ -81,10 +81,19 @@ extern int CdGetDiskType(void)
      * edge from the CdReady==1 branch OR by falling out of the retry-exhausted guard, never by
      * a genuinely separate re-test) and drops an unneeded persistent register the for-loop
      * shape forced (99->76 insns net, 61->54 diffs). */
+    /* MATCH (named loop sentinel, same lever as cd_cw's `sentinel`): retail keeps the loop's
+     * comparison constant 1 in a CALLEE-SAVED reg across the retry loop (`li s1,1` ... `beq v1,s1`,
+     * frame 0x830 with s1 saved) and still emits a FRESH `li v0,1` for the post-loop `rdy == 1`
+     * test.  A bare literal in the loop test gives one caller-saved `li v1,1` that the increment
+     * then reuses (`addu s0,s0,v1` instead of retail's `addiu s0,s0,1`), no s1, frame 0x828.
+     * 54 -> 39 diffs, ours 76 -> 81 vs oracle 82. */
+    /* MATCH (statement order): retail zeroes the retry counter BEFORE materializing the
+     * sentinel (`addu s0,zero,zero; li s1,1`); the reverse order emits them swapped. 39->37. */
     i = 0;
+    one = 1;
 retry:
     rdy = CdReady(0, result);
-    if (rdy != 1) {
+    if (rdy != one) {
         i++;
         if (i < 10) {
             CdControl(27, locp, 0);                  /* CdlReadS retry */
@@ -92,12 +101,11 @@ retry:
         }
     }
 
-    if (rdy == 1) {
-        CdControl(9, 0, 0);                          /* CdlPause */
-        CdGetSector(sector, 512);                    /* 512 words = 2048 bytes */
-        if (strncmp((char *)sector + 1, "CD001", 5) != 0) return 1;
-        return 2;                                    /* ISO9660 data disc */
-    }
+    /* MATCH (block order / branch polarity): retail reaches the ISO-check arm through the
+     * TAKEN edge of `beq v1,v0` and lays it OUT-OF-LINE after the audio/error tail, so the
+     * not-ready path is the fall-through.  Written as `if (rdy == 1) { ... }` the arm is inlined
+     * and the branch inverts to `bne`.  goto-ready: 37 -> 5 diffs. */
+    if (rdy == 1) goto ready;
 
     if (result[0] & 0x10) return 16;
     if ((result[0] & 1) && (result[1] & 0x40)) {
@@ -110,4 +118,10 @@ retry:
         int audio = result[0] & 2;
         return audio != 0;
     }
+ready:
+    CdControl(9, 0, 0);                          /* CdlPause */
+    CdGetSector(sector, 512);                    /* 512 words = 2048 bytes */
+    if (strncmp((char *)sector + 1, "CD001", 5) != 0) return 1;
+    return 2;                                    /* ISO9660 data disc */
 }
+

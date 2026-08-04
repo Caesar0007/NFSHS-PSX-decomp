@@ -90,34 +90,37 @@ int PadGetState(int port)
     return d->state;
 }
 
-/* @0x800EFF60 : PadInfoMode -- query a controller mode property. */
+/* @0x800EFF60 : PadInfoMode -- query a controller mode property.
+ * MATCH (w48-a4, 42 -> PASS 62/62): it is a REAL `switch (term)`, not an if/else-if cascade.
+ * The oracle's dispatch is gcc-2.8's balance_case_nodes fingerprint over the 5 case values
+ * {1,2,3,4,100}: median pivot `beq $s0,3` at the root, then the bound test `slti $v0,$s0,4`
+ * splitting into the {1,2} and {4,100} subtrees, each ending in the shared default -- and every
+ * case BODY laid out OUT-OF-LINE, in SOURCE order (1, 2, 3, 4, 100), each terminated by
+ * `j <shared epilogue>`.  The if/else-if form inlines the bodies at their tests and inverts the
+ * polarity to `bne`+skip (42 diffs, 4 insns short).  A `switch` with a result variable and
+ * `break`s is byte-identical to the direct-return form here; direct returns kept as the simpler
+ * source.  (Catalog: "collapsed-switch fingerprint", w42/w43.) */
 int PadInfoMode(int port, int term, int offs)
 {
     _PadDev *d = _padFuncPort2Info(port);
-    unsigned int r;
-    if (term == 3) {
-        r = d->mode3;
-    } else if (term < 4) {
-        if (term == 1) {
-            r = d->mode1;
-        } else {
-            r = 0;
-            if (term == 2)
-                r = d->modeword;
-        }
-    } else if (term == 4) {
+
+    switch (term) {
+    case 1:
+        return d->mode1;
+    case 2:
+        return d->modeword;
+    case 3:
+        return d->mode3;
+    case 4:
         if (offs < 0)
-            r = d->nmode;
-        else if (offs < (int)d->nmode)
-            r = d->mode_tbl[offs];
-        else
-            r = 0;
-    } else {
-        r = 0;
-        if (term == 100)
-            r = (unsigned int)d->term100;
+            return d->nmode;
+        if (offs < (int)d->nmode)
+            return d->mode_tbl[offs];
+        return 0;
+    case 100:
+        return d->term100;
     }
-    return r;
+    return 0;
 }
 
 /* @0x800F0058 : PadInfoAct -- query an actuator property (5-byte records). */

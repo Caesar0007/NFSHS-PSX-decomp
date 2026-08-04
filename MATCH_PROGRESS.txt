@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2777 at 100% (79.4%)
+TOTAL: 3496 functions, 2778 at 100% (79.5%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2963,7 +2963,7 @@ VA             %match  unit                     function
 0x800F39F8    100.00%  eaclib/psx/eacpsxz/joystkn initjoy
 0x800F3A34    100.00%  eaclib/psx/eacpsxz/fileroot initfileio
 0x800F3ACC    100.00%  eaclib/psx/eacpsxz/fileroot setdirectory
-0x800F3BE0     99.91%  eaclib/psx/eacpsxz/fileroot openfile
+0x800F3BE0    100.00%  eaclib/psx/eacpsxz/fileroot openfile
 0x800F3E84    100.00%  eaclib/psx/eacpsxz/fileroot closefile
 0x800F3EE0    100.00%  eaclib/psx/eacpsxz/fileroot readfile
 0x800F3F80    100.00%  eaclib/psx/eacpsxz/fileroot readfile_systask

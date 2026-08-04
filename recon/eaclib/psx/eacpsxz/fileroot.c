@@ -32,13 +32,15 @@
 #define fsprefix2 D_8013DD40
 __asm__("	.globl	D_8013DD34");
 __asm__("	.globl	D_8013DD40");
-/* 04U RESIDUAL RECEIPT (objdiff 99.91 on gate-PASS openfile): after the renames the
- * only remaining drift vs expected/src is BOOKKEEPING between object flavors -- the
- * INCLUDE_ASM-side object keeps PC16 branch relocs against .L labels and a NAMED
- * switch table (jtbl_80056FBC) where compiled output has resolved branches and an
- * anonymous .rodata table.  Compiler-internal label; not source-reachable; bytes
- * link-identical.  Also NOTE for 04Q-style comparisons: an expected/src object's
- * displayed branch targets are UNRESOLVED PC16 placeholders -- compare via relocs. */
+/* 04U FINAL (openfile 100.00): the 99.91 was NOT just bookkeeping -- THREE real
+ * semantic divergences hid behind the gate's branch-target masking: the two
+ * availablefilesystems guards and the CD_Open-failure path all wrote *outp = 0
+ * where RETAIL RETURNS 0 WITHOUT WRITING *outp (branches enter the shared
+ * failure tail PAST the sw zero).  Each cost only ~0.03%% in objdiff's fuzzy
+ * metric.  The jtbl_80056FBC-vs-.rodata reloc naming and the single PC16
+ * label reloc cost NOTHING (aih_traf scores 100.00 with the same patterns).
+ * 04Q-comparator caveat stands: expected/src branch words can be unresolved
+ * PC16 placeholders (addend -1) -- check reloc presence before trusting them. */
 
 
 /* ---- CD-ROM filesystem backend (fs 1) ---- */
@@ -169,10 +171,10 @@ extern int openfile(char *name, int flags, int *outp)
 
     if (strchr(name, ':') != 0) {                       /* a "drive:"/fs prefix is present */
         if (strncmp(name, fsprefix1, 6) == 0) {         /* CD prefix */
-            if ((availablefilesystems & 1) == 0) { *outp = 0; return 0; }
+            if ((availablefilesystems & 1) == 0) return 0;   /* 04U: retail does NOT write *outp here (branch enters the failure tail PAST the sw zero) */
             fs = 1; name += 6;
         } else if (strncmp(name, fsprefix2, 4) == 0) {  /* PC-host prefix */
-            if ((availablefilesystems & 2) == 0) { *outp = 0; return 0; }
+            if ((availablefilesystems & 2) == 0) return 0;   /* 04U: same -- *outp left unwritten */
             fs = 2; name += 4;
         } else if (currentfilesystem == 1 || name[1] != ':') {
             int idx;
@@ -185,7 +187,7 @@ extern int openfile(char *name, int flags, int *outp)
     }
 
     if (fs == 1) {                                      /* CD-ROM */
-        if (CD_Open(name, flags, outp) == 0) { *outp = 0; return 0; }
+        if (CD_Open(name, flags, outp) == 0) return 0;   /* 04U: retail leaves *outp as CD_Open left it */
         *outp |= 0x1000000;                             /* tag fs byte = 1 */
         return 1;
     }

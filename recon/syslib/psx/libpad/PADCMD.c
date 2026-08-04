@@ -392,25 +392,46 @@ extern void _padSetActAlign_rcv(unsigned char *info)
 /* =====================  set-main-mode command  ================================================= */
 
 /* @0x80105D40 : _padSetMainMode -- queue the main-mode switch (offs = mode index, lock = lock flag).
- * FLOOR (21 diffs): oracle allocates a 4th callee-saved reg (s3) to hold a SECOND copy of `offs`
- * materialized fresh in the ChkEng() call's delay slot (s3=s1), used only for the final
- * `(offs&0xff)==info[0xe4]` compare, while `offs`'s original copy (s1) is used only for the
- * `info[0x51]=offs` store; ours reuses one register for both uses (smaller 32B frame vs the
- * oracle's 40B). Tried+reverted: splitting into two named locals (offs/offs2) -- no effect,
- * gcc re-coalesced them. Same "reuse an already-live constant/value" family as the r=1-hoist
- * floor in _padSetActAlign above; also carries the sltu-vs-sltiu artifact (oracle's equality
- * compare uses an immediate `sltiu v1,v1,1`; ours reuses the register that already holds the
- * return-value constant 1 via `sltu v1,v1,v0`). */
+ * w48-a3: PASS 38/38, refuting the w23-a8 "FLOOR (21 diffs)" note.  FOUR cooperating parts, each
+ * measured (drop any one and it regresses: [] 21 / [r] 15 / [o] 14 / [l] 27 / [ro] 10 / [rl] 23 /
+ * [ol] 4 / [rol] 0):
+ *   (1) `int m = offs;` BEFORE the call.  Retail keeps `offs` in TWO callee-saved regs across the
+ *       ChkEng() call -- $s1 for the `info[0x51]` store and $s3 (copied in the jalr delay slot) for
+ *       the `(offs & 0xff)` compare.  Our cse copy-propagates the second home away, so the copy is
+ *       deleted (delete_noop_moves / the §3.25-3b "old-gcc no-copy-prop" identity).
+ *   (2) an OPACITY FENCE on `offs` (w47 §A, `__asm__("" : "=r"(x) : "0"(x))` = a ZERO-INSTRUCTION
+ *       value-numbering barrier) placed AFTER the call: it makes `m` and `offs` un-equatable at the
+ *       compare, so the copy survives -- and, being after the call, it does NOT block dbr from
+ *       sinking that copy into the jalr's delay slot (the same fence placed BEFORE the call keeps
+ *       the copy but pins it in the prologue and costs two nops: measured 20 diffs).
+ *   (3) a fence on `lock` as a pure ZERO-INSN REF INFLATOR (w44/w46 ref-step family).  Without it
+ *       `lock` (2 refs / 38 insns, pri .0526) loses the allocno race to `m` (2 refs / 21, pri .0952)
+ *       and the two land in the WRONG registers ($s3/$s2 instead of retail's $s2/$s3).  The asm insn
+ *       adds a def+use, taking `lock` to 4 refs -> floor_log2 steps 1->2 -> pri .2105 -> `lock` is
+ *       allocated first and takes $s2.  (Measured NEGATIVE first: `& 0xff` re-mask and do{}while(0)
+ *       depth-1/2/3 wrappers all left REG_N_REFS at 2 -- cse/loop.c strip them here.)
+ *   (4) `int cur = info[0xe4];` as a DECL-INITIALIZER at the top of the block -- this, and only this,
+ *       makes sched1 hoist the `lbu a0,0xe4(s0)` to retail's position right after the `li v0,1`.
+ *       The same read as a later ASSIGNMENT statement (any of 3 positions probed) does NOT hoist.
+ *   (5) the fence on `r` supplies the fresh `li v1,1` for the 0x46 store and the `sltiu v1,v1,1`
+ *       immediate compare -- same device/reason as _padSetActAlign above.
+ * Do not "simplify" any of the three asm statements away. */
 extern int _padSetMainMode(unsigned char *info, int offs, int lock)
 {
+    int m = offs;                                  /* MATCH: retail's 2nd callee-saved home for offs */
     if (_padFuncChkEng(info) == 0) {
+        int r = 1;
+        int cur = info[0xe4];                      /* MATCH: decl-init -> sched1 hoists the lbu */
+        __asm__("" : "=r"(r) : "0"(r));            /* MATCH: opacity fence, 0 insns -- see header */
+        __asm__("" : "=r"(offs) : "0"(offs));      /* MATCH: keeps m's copy alive (post-call) */
+        __asm__("" : "=r"(lock) : "0"(lock));      /* MATCH: ref inflator, wins $s2 for lock */
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetMainMode_snd;
         *(PadSndRcv *)(info + 0x18) = _padSetMainMode_rcv;
         info[0x51] = (unsigned char)offs;
         info[0x52] = (unsigned char)lock;
-        info[0x53] = (unsigned char)((offs & 0xff) == info[0xe4]);
-        return 1;
+        info[0x53] = (unsigned char)((m & 0xff) == cur);
+        return r;
     }
     return 0;
 }

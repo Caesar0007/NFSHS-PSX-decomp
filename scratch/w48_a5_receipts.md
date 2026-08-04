@@ -93,3 +93,56 @@ whose MIPS prologue/epilogue were emitted as TEXT by `function_prologue`/`functi
 the oracle's prologue order (`subu sp; sw ra` always adjacent at the top, before any body insn;
 ours lets sched2 float a body `move` between them — `-fno-schedule-insns2` reproduces exactly that
 order, probed).
+
+---
+
+## 2. LANDED LEVERS (source-side, all whole-TU gated, ZERO regressions)
+
+| # | lever | fn(s) | before -> after |
+|---|---|---|---|
+| L1 | **NAMED UP-FRONT `-1` SENTINEL** in the inlined `cd_cw` retry loop (`int sentinel = -1; for (count = 3; count != sentinel; count--)` instead of `int count = 4; while (count--)`). Retail materializes the loop sentinel ONCE in a callee-saved reg (`li fp,-1` ... `bne s0,fp`) AND still emits a FRESH `li s7,-1` for the exhaustion return; a bare literal lets gcc CSE both into one caller-saved `li v0,-1` + `addu s7,v0,zero`. | CdControl / CdControlF / CdControlB | 62 -> **60 (count-EXACT 79/79)**, 67 -> 63, 69 -> 65 |
+| L2 | **`__attribute__((section(".bss")))`** on event.c's two OWNED 4-byte globals `CD_cbread` / `CD_read_dma_mode` (catalog §I-addendum section lever; single-access precondition holds — each is written exactly once in CdInit). An initialised `= 0` definition puts them in `.sdata` under -G4 and maspsx emits the 1-insn gp-relative store; retail uses `lui $at,%hi; sw ...%lo($at)`. | CdInit | 42 -> 36 |
+| L3 | **LABEL-GOTO LOOP** in CdInit. Every natural loop form hoists the comparison constants `1`/`-1` and the printf string address into s1/s2/s3 (frame 0x28, 5 saved regs); retail rematerializes them per-iteration (frame 0x18, only s0+ra). Measured basin: do-while **36** / while-top **53** / for **53** / continue-arm **53** / **goto 19**. | CdInit | 36 -> **19** (ours 35 / oracle 36) |
+| L4 | **DROP the spurious `return 0;`** from CD_initintr — the oracle sets up no `$v0` at all (§3.2 read-$v0-at-the-epilogue). Diff-NEUTRAL (the `addu v0,zero,zero` was filling the `lw ra` load-delay slot, replaced by a nop) but it is the faithful reconstruction and it is what makes the -fno-delayed-branch splice below reach 6. | CD_initintr | 15 -> 15 (semantic fix) |
+
+**Whole-TU gate, landed tree (vs re-gated baseline):**
+| TU | PASS | DIFFSUM before -> after |
+|---|---|---|
+| TYPE.c   | 0  | 59 -> 59 |
+| cdcont.c | 10 | 281 -> **271** |
+| drv.c    | 3  | 673 -> 673 |
+| event.c  | 0  | 64 -> **41** |
+| toc.c    | 0  | 93 -> 93 |
+| **total**| 13 | 1170 -> **1137** (-33), 0 PASS regressions |
+
+---
+
+## 3. MEASURED FLAG RECOMMENDATIONS FOR THE CONSOLIDATOR (build.py is report-only for me)
+
+All four re-measured **in the final landed basin**, each probed in isolation with a whole-TU gate
+and `git checkout -- tools/build.py` in a `finally`. **Zero regressions in every case.**
+Add to `PER_FN_NO_DELAYED_BRANCH`:
+
+| TU | function(s) to add | fn delta | TU DIFFSUM delta |
+|---|---|---|---|
+| `recon/syslib/psx/libcd/drv.c` (NEW key) | `CD_initintr` | **15 -> 6** | 673 -> 664 |
+| `recon/syslib/psx/libcd/event.c` (NEW key) | `_cd_event_init`, `_cd_event_sync`, `_cd_event_ready`, `_cd_event_read` | 4->3, 6->5, 6->5, 6->5 | 41 -> 37 |
+| `recon/syslib/psx/libcd/toc.c` (NEW key) | `CdGetToc` | 6 -> 5 | 93 -> 92 |
+| `recon/syslib/psx/libcd/cdcont.c` (**APPEND to the EXISTING key** — do NOT add a second dict entry, 04G duplicate-key hazard) | `CdDataCallback` | 6 -> 5 | 271 -> 270 |
+
+Net if all four are wired: **-20 further diffs, 0 regressions** (tree 1137 -> 1117).
+⚠️ `CD_initintr` gains 9 only WITH lever L4 landed (they are coupled).
+⚠️ Do NOT splice the rest of drv.c: measured together they REGRESS badly — CD_sync 106->148,
+CD_ready 131->161, CD_datasync 61->102, `_cd_intr_dispatch` 25->33, CD_flush 17->18.
+⚠️ Do NOT splice `CdInit` (event.c): 19 -> 46.
+⚠️ w25-a3's note in build.py that CdLastPos/CdSetDebug/CdSyncCallback/CdReadyCallback are
+splice-no-ops is **re-confirmed** (§1 explains why: no jal, nothing for dbr to move).
+
+**`-fno-schedule-insns2` is NOT a TU flag for libcd** (probed TU-wide on all 5):
+TYPE 59->69, cdcont 281->323 and **PASS 10 -> 6**, toc 93->98, event 64->58, drv unchanged.
+It *is* the right per-FUNCTION dial for the prologue `sw ra` position (it reproduces retail's
+`subu sp; sw ra; move a1,a0` order exactly on CdDataCallback) — but the splice mechanism only
+supports `-fno-delayed-branch`. **SPEC for a9/the consolidator: generalize `_apply_fn_splice`
+from a fixed flag to a per-function FLAG LIST** (`PER_FN_FLAGS = {tu: {fn: [flags]}}`); the
+machinery (dual compile, `.ent/.end` region extract, local-label uniquify) is already there and
+flag-agnostic. That would make the prologue-order dial reachable for the whole syslib class.

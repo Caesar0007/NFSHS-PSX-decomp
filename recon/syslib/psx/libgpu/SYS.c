@@ -401,27 +401,41 @@ extern u_long _set_clip_br(int x, int y)
  *   or 0 when tw is null. */
 extern u_long _get_tw(void *tw)
 {
-    /* FLOOR (documented, not re-tried): oracle allocates a real 16-byte AUTO frame and
-     * spills m0/m2/w4/w6 to it (sw a1,0(sp)/a2,8(sp)/v0,4(sp)/v1,0xC(sp)) even though every
-     * value is ALSO consumed straight from the register in the same OR-chain -- classic
-     * cc1 allocator register-pressure spill, not a control-flow/CSE artifact. Tried+reverted:
-     * `volatile int` on all four locals (forces reload-from-mem too, not just one store ->
-     * 40->49 diffs, worse); collapsing to a single-exit `u_long ret; if/else; return ret;`
-     * (oracle's frame is allocated unconditionally either way, so this didn't help -> 40->42,
-     * worse). Register-pressure floors aren't reachable from source restructuring alone. */
+    /* MATCH (w48-a2, 40 diffs -> PASS; the old "register-pressure spill FLOOR" note here was
+     * WRONG on all three counts).  Three cooperating levers:
+     *  1. LOCAL ARRAY, not four scalars.  The oracle's four `sw` to 0/4/8/0xC(sp) are DEAD
+     *     stores that are never read back -- gcc-2.8 has no SRA, so an `int m[4]` is written
+     *     to its stack home on every element assignment while cse forwards the just-stored
+     *     value to the reader (store-then-read-back).  Four separate `int` scalars are pure
+     *     pseudos and the stores never appear (that was the missing 8 insns, ours 24/32).
+     *     Slot order proves the shape: 0=m[0] 4=m[1] 8=m[2] 0xC=m[3].
+     *  2. SINGLE-EXIT `ret` FUNNEL with the NULL case as the `if` BODY.  `if (tw == 0) ret=0;
+     *     else {...}` gives the oracle's `bnez $a0,body` + fall-through `j end; addu v0,0,0`
+     *     + shared `jr ra; addiu sp,0x10` epilogue.  An early `return 0;` inverts the
+     *     polarity and puts the zero block out of line.
+     *  3. OR-TERM ORDER: the m[1]<<15 term must come BEFORE m[0]<<10.  `|` is commutative so
+     *     this is semantically identical, but it decides which shifted value's register the
+     *     constant is folded into and therefore which pseudo becomes the accumulator
+     *     (oracle: a1 = m0<<10|C then v0 = m1<<15|a1).  Measured sweep of six term orders,
+     *     all count-exact 32/32: C,B,A,D,E = PASS; C,A,B,D,E = 10; C,A,B,E,D = 28;
+     *     A,C,B,E,D = 28; C,E,A,B,D = 39; A,B,D,E,C = 55 (33 insns). */
     u_char *b;
     short  *s;
-    int m0, m2, w4, w6;
-    if (tw == 0)
-        return 0;
-    b = (u_char *)tw;
-    s = (short *)tw;
-    m0 = b[0] >> 3;
-    m2 = b[2] >> 3;
-    w4 = (-s[2] & 0xff) >> 3;
-    w6 = (-s[3] & 0xff) >> 3;
-    return 0xe2000000u | ((u_long)m0 << 10) | ((u_long)m2 << 15)
-                       | ((u_long)w6 << 5)  | (u_long)w4;
+    int m[4];
+    u_long ret;
+    if (tw == 0) {
+        ret = 0;
+    } else {
+        b = (u_char *)tw;
+        s = (short *)tw;
+        m[0] = b[0] >> 3;
+        m[2] = (-s[2] & 0xff) >> 3;
+        m[1] = b[2] >> 3;
+        m[3] = (-s[3] & 0xff) >> 3;
+        ret = 0xe2000000u | ((u_long)m[1] << 15) | ((u_long)m[0] << 10)
+                          | ((u_long)m[3] << 5)  | (u_long)m[2];
+    }
+    return ret;
 }
 
 /* @0x800EE608 : populate the DR_ENV primitive `d` from the DRAWENV `e`. */

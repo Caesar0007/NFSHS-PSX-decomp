@@ -83,13 +83,25 @@ static int       _padFramesSinceStop;   /* @0x80148590 : VSync frames since stop
 extern void _padVbCallback0(void);
 extern int  _padVbCallback1(void);
 
-/* @0x80104A1C : _padSetVsyncParam -- point the IRP at our handler/verifier. */
+/* @0x80104A1C : _padSetVsyncParam -- point the IRP at our handler/verifier.
+ * w48-a3: PASS 11/11 (was FAIL 16, count-exact).  The residual was pure ADDRESS-ANCHOR shape:
+ * retail materializes ONE base = `&_padVbCb.handler` (i.e. the symbol + 4) and reaches all four
+ * words off it with displacements 0 / +4 / -4 / +8, INCLUDING the negative one for `.next`; our
+ * field-name form made cc1 keep the %hi half in one register (fused-%lo store for `.next`) and the
+ * full address in another -- 2 base materializations.  Writing the anchor as an explicit pointer
+ * local at the +4 field reproduces it (catalog w42 "SYM-declared-but-unused pointer local = the
+ * base anchor" / negative-displacement family), and the OPACITY FENCE completes the anchor's
+ * `addiu %lo` BEFORE the first store, where cc1 otherwise sinks it past the store (the last 2
+ * diffs).  A plain use-fence `__asm__("" : : "r"(p))` does NOT do it (16) -- the "=r"/"0" identity
+ * form is required; reordering the stores does not either.  The four stores keep retail's order. */
 extern void _padSetVsyncParam(void)
 {
-    _padVbCb.handler  = _padVbCallback0;
-    _padVbCb.verifier = (int (*)())_padVbCallback1;
-    _padVbCb.next     = 0;
-    _padVbCb._pad0c   = 0;
+    void (**p)() = &_padVbCb.handler;         /* MATCH: retail's +4 base anchor */
+    __asm__("" : "=r"(p) : "0"(p));           /* MATCH: 0 insns; completes the addiu %lo here */
+    p[0] = _padVbCallback0;                   /* +0x04 handler  */
+    p[1] = (void (*)())_padVbCallback1;       /* +0x08 verifier */
+    p[-1] = 0;                                /* +0x00 next     */
+    p[2] = 0;                                 /* +0x0c _pad0c   */
 }
 
 /* @0x80104A48 : _padVbCallback1 -- IRP verifier: only accept the VSync (bit 0) interrupt. */

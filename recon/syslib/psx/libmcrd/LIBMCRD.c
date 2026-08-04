@@ -521,7 +521,15 @@ extern void MemCardStop(void)
      * value forever -- this word is mutated ASYNCHRONOUSLY by the VSync-driven MemCardStart_cb, so
      * that optimization is unsound. A `volatile` pointer fixes correctness but nets a WORSE diff
      * count (19/16) than the plain form below. Kept plain: correct and already insn-count-exact. */
-    while (mc.cmd != 0)
+    /* 🔴 w48-a1 RUNTIME BUG FIX (the note above was WRONG -- read the disasm, not the intent).
+     * The "plain" form compiled to `lui v0; lw v0; beqz v0,end; bnez v0,self` -- gcc hoisted the
+     * LOAD out of the empty loop exactly as the note feared, so a non-zero `cmd` spun forever on a
+     * stale register and MemCardStop could never return (mc.cmd is cleared ASYNCHRONOUSLY by the
+     * VSync pump MemCardStart_cb).  A volatile-qualified READ at the use site is the honest fix:
+     * the address stays loop-invariant (hoisted `lui/addiu` like the oracle) while the VALUE is
+     * re-fetched every pass.  It also removes gcc's zero-trip rotation guard, matching the
+     * oracle's bare `L: lw; bnez L` -- 12 diffs -> 0 (PASS 16/16). */
+    while (*(volatile int *)&mc.cmd != 0)
         ;
     VSyncCallbacks(7, 0);
     _card_stop();
@@ -781,14 +789,16 @@ extern long MemCardSync(long mode, int *cmds, int *result)
      * sync_rslt (0x560/0x564, cmd+0x48/+0x4C) likewise -- one shared base for the whole fn. */
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "+r"(base));
-    cmd = base[0];
-    rslt = base[1];
-
     if (base[0] == 0 && base[2] == 0)
         return -1;                          /* nothing in flight */
 
+    /* w48-a1: the snapshot reads come AFTER the guard -- the oracle emits
+     * `lw $t0,0($v1); lw $a3,4($v1)` at the .L800FBB24 join, not before the bnez. */
+    cmd = base[0];
+    rslt = base[1];
+
     if (mode == 0) {                        /* blocking */
-        while (base[2] == 0)
+        while (*(volatile int *)&base[2] == 0)   /* async: cleared by the VSync pump */
             ;
         if (result != 0) *result = _mc_sync_rslt;  /* sync_rslt */
         if (cmds   != 0) *cmds   = _mc_sync_cmd;  /* sync_cmd  */

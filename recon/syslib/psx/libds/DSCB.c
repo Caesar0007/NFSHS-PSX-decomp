@@ -25,15 +25,19 @@ extern int DMACallback(int ch, int func);   /* libetc INTR.obj @0x800F28AC */
 #define ST_BSS __attribute__((section(".bss")))
 static DslCB ds_ready_cb ST_BSS;   /* @0x801489E4 : current data-ready callback */
 
-/* NEAR-MISS (5, WEAK floor): oracle materializes the &ds_ready_cb address ONCE (lui+addiu into
- * v1) and reuses it for both the load and the store; our build re-derives the address
- * independently per access (direct-load/direct-store macro idiom, dest-as-hi-scratch discards
- * the base after each). Tried+reverted: explicit `DslCB *p=&ds_ready_cb;` local -- no effect,
- * gcc still split the two accesses. */
+/* w48-a8: the old "aspsx shares one la base across consecutive same-symbol accesses" reading of
+ * this fn was FALSIFIED against the REAL ASPSX 2.77 (04C law): assembling `lw $2,sym / sw $4,sym`
+ * with C:/Temp/psq43/PSSN/ASPSX.EXE emits `lui $2;lw $2,%lo($2)` + `lui $at;sw $4,%lo($at)` --
+ * i.e. it expands each access INDEPENDENTLY, exactly like GNU-as/maspsx.  The oracle's single
+ * `lui v1; addiu v1,v1,%lo; lw 0(v1); sw 0(v1)` is therefore COMPILER output: gcc materializes
+ * the ADDRESS as a register value (the `la` macro) whenever (a) the address is written as a real
+ * pointer local and (b) TARGET_SPLIT_ADDRESSES is OFF (`-mno-split-addresses`) so the LO_SUM
+ * cannot be folded back into the two MEMs.  See PER_TU_FLAGS no_split_addresses for this TU. */
 extern DslCB DsReadyCallback(DslCB func)   /* @0x80108824 */
 {
-    DslCB old = ds_ready_cb;
-    ds_ready_cb = func;
+    DslCB *p = &ds_ready_cb;
+    DslCB old = *p;
+    *p = func;
     return old;
 }
 

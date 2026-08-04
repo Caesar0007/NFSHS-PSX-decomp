@@ -60,3 +60,49 @@ The floor was already fixed IN SOURCE (not by a flag) — `BIOS.c` gives every o
 the catalog row 132 + the briefing bullet should both be marked CLOSED.)
 Nothing in the remaining 31 FAILs is a gp-rel-vs-absolute diff (verified by inspecting each
 diff list: zero `N(gp)` vs `%lo` pairs).
+
+## 2. FLAG AXIS — `-mno-split-addresses` is the libmcrd cluster's identity (3× reproduced, incl. cross-agent)
+
+Probe harness: `scratch/w48_a1_flagprobe.py` (patches PER_TU_FLAGS in place, gates the WHOLE TU,
+restores build.py in `finally`). 🔴 It MERGES into an existing entry rather than prepending —
+see §2b.
+
+Whole-TU gate ledger (PASS / total diffs), all 3 TUs × 6 configs:
+
+| TU | BASE | nosplit | nosched2 | nosched1 | nodelay | -G0 | -G8 |
+|---|---|---|---|---|---|---|---|
+| BIOS.c (17 fns)    | 13 / 48   | **13 / 20**   | 11 / 51   | 11 / 132  | 2 / 92    | 2 / 367   | 13 / 48 |
+| USERFUNC.c (4)     | 1 / 59    | **1 / 14**    | 1 / 67    | 1 / 55    | 0 / 65    | 1 / 77    | 1 / 59 |
+| LIBMCRD.c (26)     | 2 / 1385  | **2 / 1329**  | 2 / 1413  | 2 / 1480  | 1 / 1722  | 2 / 1392  | 2 / 1385 |
+
+- `-mno-split-addresses` = the ONLY non-regressing config; −28 / −45 / −56 diffs, **0 PASS
+  regressions on all three TUs**, reproduced 2× locally and independently by **w48-a9's 64-TU
+  ladder** (identical BASE/nosplit numbers 48→20, 59→14, 1385→1329). a9 also censused the ORACLE:
+  BIOS 84 `$at` sites / LIBMCRD 66 / USERFUNC 14 — `$at` is the ASSEMBLER's macro scratch, i.e.
+  the oracle is FULL of `la`/`sym($reg)` macro expansions, which is the structural fingerprint of
+  a compiler that did NOT pre-split addresses. Same family as the already-wired
+  `SYS.c / INTR / FIRST / PAD` set (catalog §G "GENUINELY PER-OBJECT").
+- **PER-FN identity evidence beyond the diff totals** (the w47 bar's count leg):
+  `UserFuncExecute` 28/27 → **27/27 count-EXACT**; `_card_start` 31 diffs → **3** (120/119).
+- **RECOMMENDATION for the consolidator/a9: wire `{"no_split_addresses": True}` for
+  `recon/syslib/psx/libmcrd/{BIOS,USERFUNC,LIBMCRD}.c`.** ⚠️ LIBMCRD.c already has a
+  `{"jtbl_at_fusion": True}` entry — the key must be MERGED into it, never added as a second
+  dict entry (04G duplicate-key hazard).
+
+### 2a. -G axis is STRUCTURALLY BLIND here (w47-a8-A5 confirmed on a 3rd cluster)
+`g_value=0` alone on BIOS.c = catastrophic (48 → 367 diffs, 13→2 PASS). But
+`no_split_addresses + g_value=0` measures **exactly identical to `no_split_addresses` alone**
+(20 diffs, 13 PASS) — with split-addresses OFF, cc1 emits the assembler macro forms and the whole
+-G sensitivity disappears. a9's gp-census calls all three TUs "-G0 CANDIDATE" on 0 `%gp_rel` in
+the oracle; that signal is VACUOUS once nosplit is adopted. **Never census -G without pinning the
+split-addresses state first.**
+
+### 2b. 🔴 PROBE-HARNESS DEFECT FOUND AND FIXED (the 04G duplicate-key hazard, live)
+My first LIBMCRD.c sweep returned **`PASS=2 totaldiffs=1385` for ALL SIX configs** — a perfect
+"flag axis is inert" reading. It was a harness bug: LIBMCRD.c already owns a PER_TU_FLAGS entry
+(`jtbl_at_fusion`), and my probe PREPENDED a second entry for the same path. `PER_TU_FLAGS` is a
+python dict LITERAL, so the LATER (pre-existing) entry silently won and my flags never reached
+cc1. After teaching the harness to MERGE, LIBMCRD moved (nosplit 1329, nodelay 1722, ...).
+**Generalization: "this TU is inert to every flag" is a HARNESS SYMPTOM, not a result — any
+probe that prepends to a keyed dict literal is vacuous for the ~40 TUs that already have entries.**
+(w47 recorded this hazard for WIRING; it bites PROBING identically.)

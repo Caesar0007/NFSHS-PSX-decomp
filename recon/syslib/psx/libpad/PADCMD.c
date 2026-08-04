@@ -38,7 +38,7 @@ extern void _padLoadActInfo_rcv(unsigned char *info);
 extern void _padSetActAlign_snd(unsigned char *info);
 extern void _padSetActAlign_rcv(unsigned char *info);
 extern void _padSetMainMode_snd(unsigned char *info);
-extern void _padSetMainMode_rcv(unsigned char *info);
+extern int  _padSetMainMode_rcv(unsigned char *info);
 
 /* =====================  command-byte builders (one DualShock opcode each)  ===================== */
 
@@ -312,16 +312,21 @@ tail:
 /* =====================  set-actuator-align command  =========================================== */
 
 /* @0x80105BF4 : _padSetActAlign -- queue the actuator-alignment command (returns 1 if accepted).
- * NEAR-MISS (2, WEAK floor): oracle materializes TWO separate `li 1`'s (v0=return, v1=the
- * 0x46 store) instead of copying the return value into the store reg (`addu v1,v0,zero`).
- * Tried+reverted: swapping decl order of the two "1" locals, a volatile byte store (defeats
- * store reordering, not value-CSE), and the `1^zero` runtime-zero device (forces AUTO stack
- * storage for `zero`, regressed 2->22 diffs -- wrong lever for a plain RTL constant-CSE, not
- * a coloring/scheduling residual). w23-a8: unresolved after 4 source-shape attempts. */
+ * w48-a3: PASS 26/26.  The w23-a8 "WEAK floor" (oracle materializes TWO separate `li 1`'s --
+ * $v0 for the return, $v1 for the 0x46 store -- where ours copy-substituted `addu v1,v0,zero`)
+ * is the §3.25-3b "old-gcc no-copy-prop" identity: retail's cc1 rematerializes a still-live
+ * constant, ours lets cse substitute the equal live value.  The reachable lever is the w47
+ * OPACITY/IDENTITY FENCE `__asm__("" : "=r"(x) : "0"(x))` -- a ZERO-INSTRUCTION value-numbering
+ * barrier (output tied to input by the "0" constraint, so no code is emitted) that stops cse
+ * proving `r == 1` at the store.  DIRECTION IS LOAD-BEARING: fencing the STORE's constant
+ * instead leaves both `li`s but in the WRONG ORDER (ours v1-then-v0 vs the oracle's v0-then-v1,
+ * still 2 diffs) -- fencing `r` also PINS the return constant's materialization first, which is
+ * exactly the oracle's order.  Do not "simplify" the asm away. */
 extern int _padSetActAlign(unsigned char *info, int data)
 {
     if (_padFuncChkEng(info) == 0) {
         int r = 1;
+        __asm__("" : "=r"(r) : "0"(r));   /* MATCH: opacity fence, 0 insns -- see header */
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetActAlign_snd;
         *(int *)(info + 0x20) = data;
@@ -387,25 +392,46 @@ extern void _padSetActAlign_rcv(unsigned char *info)
 /* =====================  set-main-mode command  ================================================= */
 
 /* @0x80105D40 : _padSetMainMode -- queue the main-mode switch (offs = mode index, lock = lock flag).
- * FLOOR (21 diffs): oracle allocates a 4th callee-saved reg (s3) to hold a SECOND copy of `offs`
- * materialized fresh in the ChkEng() call's delay slot (s3=s1), used only for the final
- * `(offs&0xff)==info[0xe4]` compare, while `offs`'s original copy (s1) is used only for the
- * `info[0x51]=offs` store; ours reuses one register for both uses (smaller 32B frame vs the
- * oracle's 40B). Tried+reverted: splitting into two named locals (offs/offs2) -- no effect,
- * gcc re-coalesced them. Same "reuse an already-live constant/value" family as the r=1-hoist
- * floor in _padSetActAlign above; also carries the sltu-vs-sltiu artifact (oracle's equality
- * compare uses an immediate `sltiu v1,v1,1`; ours reuses the register that already holds the
- * return-value constant 1 via `sltu v1,v1,v0`). */
+ * w48-a3: PASS 38/38, refuting the w23-a8 "FLOOR (21 diffs)" note.  FOUR cooperating parts, each
+ * measured (drop any one and it regresses: [] 21 / [r] 15 / [o] 14 / [l] 27 / [ro] 10 / [rl] 23 /
+ * [ol] 4 / [rol] 0):
+ *   (1) `int m = offs;` BEFORE the call.  Retail keeps `offs` in TWO callee-saved regs across the
+ *       ChkEng() call -- $s1 for the `info[0x51]` store and $s3 (copied in the jalr delay slot) for
+ *       the `(offs & 0xff)` compare.  Our cse copy-propagates the second home away, so the copy is
+ *       deleted (delete_noop_moves / the §3.25-3b "old-gcc no-copy-prop" identity).
+ *   (2) an OPACITY FENCE on `offs` (w47 §A, `__asm__("" : "=r"(x) : "0"(x))` = a ZERO-INSTRUCTION
+ *       value-numbering barrier) placed AFTER the call: it makes `m` and `offs` un-equatable at the
+ *       compare, so the copy survives -- and, being after the call, it does NOT block dbr from
+ *       sinking that copy into the jalr's delay slot (the same fence placed BEFORE the call keeps
+ *       the copy but pins it in the prologue and costs two nops: measured 20 diffs).
+ *   (3) a fence on `lock` as a pure ZERO-INSN REF INFLATOR (w44/w46 ref-step family).  Without it
+ *       `lock` (2 refs / 38 insns, pri .0526) loses the allocno race to `m` (2 refs / 21, pri .0952)
+ *       and the two land in the WRONG registers ($s3/$s2 instead of retail's $s2/$s3).  The asm insn
+ *       adds a def+use, taking `lock` to 4 refs -> floor_log2 steps 1->2 -> pri .2105 -> `lock` is
+ *       allocated first and takes $s2.  (Measured NEGATIVE first: `& 0xff` re-mask and do{}while(0)
+ *       depth-1/2/3 wrappers all left REG_N_REFS at 2 -- cse/loop.c strip them here.)
+ *   (4) `int cur = info[0xe4];` as a DECL-INITIALIZER at the top of the block -- this, and only this,
+ *       makes sched1 hoist the `lbu a0,0xe4(s0)` to retail's position right after the `li v0,1`.
+ *       The same read as a later ASSIGNMENT statement (any of 3 positions probed) does NOT hoist.
+ *   (5) the fence on `r` supplies the fresh `li v1,1` for the 0x46 store and the `sltiu v1,v1,1`
+ *       immediate compare -- same device/reason as _padSetActAlign above.
+ * Do not "simplify" any of the three asm statements away. */
 extern int _padSetMainMode(unsigned char *info, int offs, int lock)
 {
+    int m = offs;                                  /* MATCH: retail's 2nd callee-saved home for offs */
     if (_padFuncChkEng(info) == 0) {
+        int r = 1;
+        int cur = info[0xe4];                      /* MATCH: decl-init -> sched1 hoists the lbu */
+        __asm__("" : "=r"(r) : "0"(r));            /* MATCH: opacity fence, 0 insns -- see header */
+        __asm__("" : "=r"(offs) : "0"(offs));      /* MATCH: keeps m's copy alive (post-call) */
+        __asm__("" : "=r"(lock) : "0"(lock));      /* MATCH: ref inflator, wins $s2 for lock */
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetMainMode_snd;
         *(PadSndRcv *)(info + 0x18) = _padSetMainMode_rcv;
         info[0x51] = (unsigned char)offs;
         info[0x52] = (unsigned char)lock;
-        info[0x53] = (unsigned char)((offs & 0xff) == info[0xe4]);
-        return 1;
+        info[0x53] = (unsigned char)((m & 0xff) == cur);
+        return r;
     }
     return 0;
 }
@@ -413,11 +439,14 @@ extern int _padSetMainMode(unsigned char *info, int offs, int lock)
 /* @0x80105DD8 : _padSetMainMode_snd.
  * MATCH: goto form → beq/beq/j pattern (not bne/bne fall-through).
  *        info[0x35]=st in case2 delay slot reuses cached v1=st(=2).
- * FLOOR (7 diffs): oracle shares ONE epilogue (`jr ra;nop` @.L80105E24) that the no-match
- * fallthrough and case2 both `j` to; our build TAIL-DUPLICATES a separate `jr ra;nop` at each
- * `goto end;` site instead of sharing the one case3 reaches by fallthrough. Same
- * duplicate-vs-share tail-merge class as chkRC2wait's residual (WAITRC2.c) -- a
- * cross-jump/epilogue-sharing compiler decision, not reachable from goto-based source shape. */
+ * w48-a3: PASS 21/21, refuting the w23-a8 "FLOOR (7 diffs)" note.  The residual was gcc-2.8
+ * jump.c replacing each `j end` with a DUPLICATED `jr ra`, because the `end:` label sat
+ * immediately in front of the return -- retail keeps ONE shared epilogue block (`jr ra; nop`
+ * @.L80105E24) that both the no-match fallthrough and case2 `j` to.  A ZERO-INSTRUCTION
+ * `__asm__ volatile ("")` AT the label makes end:'s block start with a non-return insn, so
+ * jump_optimize leaves both `j`s alone; the asm emits no bytes, so the object is retail's
+ * exactly.  (`"r"(info)` use-fence and a `"memory"` clobber measure identically -- the empty
+ * volatile form is the least invasive.)  Do not delete the asm statement. */
 extern void _padSetMainMode_snd(unsigned char *info)
 {
     int st = info[0x46];    /* lbu; int avoids andi 0xff promotion */
@@ -434,13 +463,26 @@ case3:
     *(unsigned char **)(info + 0x2c) = info + 0x5d;
     info[0x35] = 6;
 end: ;
+    __asm__ volatile ("");   /* MATCH: keeps the shared epilogue -- see header */
 }
 
-/* @0x80105E2C : _padSetMainMode_rcv. */
-extern void _padSetMainMode_rcv(unsigned char *info)
+/* @0x80105E2C : _padSetMainMode_rcv -- w48-a3: PASS 24/24 (was FAIL 19).
+ * TWO reconstruction errors, both read straight off the oracle (§3.2 + §D arm-order):
+ *   (a) it is NOT void -- the oracle stages `addiu $v0,$zero,1` / `addu $v0,$zero,$zero` into the
+ *       return register on the two paths (1 = "already in the requested mode", 0 = otherwise).
+ *       Declaring it void loses both, and costs the $v0 reservation that shapes the whole tail.
+ *   (b) the ARM ORDER was inverted: the oracle's `beqz $v0,.L80105E64` makes the ClrInfo call the
+ *       BRANCH TARGET and the `info[0x53] != 0` case the FALL-THROUGH, i.e. the != arm is the
+ *       if-BODY.  (The callback is still installed through a `void (*)(u_char *)` slot -- the
+ *       return value is simply ignored by the SIO pump, exactly as in retail.) */
+extern int _padSetMainMode_rcv(unsigned char *info)
 {
-    if (info[0x53] == 0)
-        _padFuncClrInfo(info);
-    else if (info[0x46] != 2)
+    if (info[0x53] != 0) {
+        if (info[0x46] == 2)
+            return 1;
         info[0x46] = 0xfe;
+        return 0;
+    }
+    _padFuncClrInfo(info);
+    return 0;
 }

@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2775 at 100% (79.4%)
+TOTAL: 3496 functions, 2776 at 100% (79.4%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -951,7 +951,7 @@ VA             %match  unit                     function
 0x800587EC    100.00%  game/common/ai           AI_HandleChangeInNumLanes__FP8Car_tObj
 0x8005895C    100.00%  game/common/ai           AI_HandleShouldersAndOffRoad__FP8Car_tObj
 0x80058D20    100.00%  game/common/ai           AI_CalculateLaneSpeeds__FP8Car_tObj
-0x800590B4     99.96%  game/common/ai           AI_CalcMeritsBasedOnSpeed__FP8Car_tObj
+0x800590B4    100.00%  game/common/ai           AI_CalcMeritsBasedOnSpeed__FP8Car_tObj
 0x80059434    100.00%  game/common/ai           AI_CheckForClearLanes__FP8Car_tObj
 0x800596A4    100.00%  game/common/ai           AI_CalcBestLineMerits__FP8Car_tObj
 0x8005972C    100.00%  game/common/ai           AI_AddCollidableObjects__FP8Car_tObjP5Group

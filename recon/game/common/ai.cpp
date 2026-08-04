@@ -851,28 +851,32 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     observationBase = observation;
     laneInfo = &AI_Info;
     do {
+      /* 04Q (objdiff 99.96 -> 100): the old `goto noLaneSpeedMerit` skip device
+       * FORCED a jump-threaded flow (blockingCars==0 skipping the dSpeed block
+       * entirely) that the oracle does NOT have -- retail re-enters the dSpeed
+       * block and re-tests.  verify_asm was blind to it (branch targets are
+       * normalized to T); objdiff caught the 2 target diffs.  The plain
+       * nested-if shape below (same as the direction==1 loop) is behaviorally
+       * identical and produces the oracle's un-threaded targets. */
       laneSpeed = laneInfo->laneSpeeds[lane];
       if (cSpeed <= laneSpeed) {
-        if (laneInfo->blockingCars[lane] == (Car_tObj *)0x0) {
-          goto noLaneSpeedMerit;
+        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
+          *observation =
+              *observation + fixedmult(laneSpeed - cSpeed,-0x14ccc);
         }
-        *observation =
-            *observation + fixedmult(laneSpeed - cSpeed,-0x14ccc);
-        laneSpeed = laneInfo->laneSpeeds[lane];
+        laneSpeed = laneInfo->laneSpeeds[lane];  /* reload OUTSIDE the inner if */
       }
       if ((dSpeed <= laneSpeed) &&
           (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) {
         *observation =
             *observation + fixedmult(laneSpeed - dSpeed,-0x8000);
       }
-noLaneSpeedMerit:
       laneSpeed = laneInfo->laneSpeedsAhead[lane];
       if (cSpeed <= laneSpeed) {
-        if (laneInfo->blockingCars[lane] == (Car_tObj *)0x0) {
-          goto noLaneSpeedAheadMerit;
+        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
+          *observation =
+              *observation + fixedmult(laneSpeed - cSpeed,-0x8000);
         }
-        *observation =
-            *observation + fixedmult(laneSpeed - cSpeed,-0x8000);
         laneSpeed = laneInfo->laneSpeedsAhead[lane];
       }
       if ((dSpeed <= laneSpeed) &&
@@ -880,7 +884,6 @@ noLaneSpeedMerit:
         *observation =
             *observation + fixedmult(laneSpeed - dSpeed,-0x1999);
       }
-noLaneSpeedAheadMerit:
       observation = observation + 1;
       laneInfo = (AI_tInfo *)(laneInfo->blockingCars + 1);
     } while ((int)observation < (int)(observationBase + 3));

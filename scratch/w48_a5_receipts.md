@@ -246,3 +246,51 @@ per-fn flag that improves each of them, and the rest carry named source/allocato
   net loss TU-wide (F3) => the deliverable a9 should push is the **PER_FN_FLAGS generalization**
   of `_apply_fn_splice` (§3), not a TU flag.
 - No runtime/correctness bug found in these 27 (L4 is a faithfulness fix, not a behaviour bug).
+
+---
+
+## 7. SECOND-HALF LANDINGS (CdGetDiskType 54 -> 3) and the RE-USABLE LEVER TRIO
+
+The three levers that cracked CdInit also cracked CdGetDiskType, in the same order. They are one
+family — **"retail keeps loop constants in callee-saved regs and lays the taken arm out of line"**:
+
+| # | lever | CdGetDiskType |
+|---|---|---|
+| L5 | **NAMED LOOP SENTINEL** `one = 1;` used ONLY in the retry test (`if (rdy != one)`). Retail keeps 1 in `$s1` across the loop (frame 0x830, s1 saved) and still emits a FRESH `li v0,1` for the post-loop `rdy == 1`. A bare literal gives one caller-saved `li v1,1` which the increment then reuses (`addu s0,s0,v1` vs retail `addiu s0,s0,1`), no s1, frame 0x828. | 54 -> **39** |
+| L6 | **STATEMENT ORDER `i = 0;` BEFORE `one = 1;`** — retail emits `addu s0,zero,zero; li s1,1`. | 39 -> **37** |
+| L7 | **GOTO OUT-OF-LINE ARM** `if (rdy == 1) goto ready;` with the ISO-check block written LAST. Retail reaches that arm through the TAKEN edge of `beq v1,v0` and puts the audio/error tail as the fall-through; an inline `if (rdy == 1) { ... }` inverts the branch to `bne` and inlines the arm. | 37 -> **5** |
+| L8 | **w47 OPACITY FENCE, ZERO INSNS** `{ int sec = 16; __asm__("" : "=r"(sec) : "0"(sec)); CdIntToPos(sec, locp); }`. `locp` lives at sp+16 and the sector number is also 16, so cse forwards the live `li a0,16` into the address (`addu a1,sp,a0`) where retail rematerializes `addiu a1,sp,16`. Falsified alternatives: plain `int sec = 16;` **5** (identical), `volatile int sec` **36** (spills). | 5 -> **3** |
+
+**CdGetDiskType residual = 3, fully characterized and both halves are named identity classes:**
+`addu a2,a1,zero` (ours copy-props the live 0 in `$a1`) vs retail `addu a2,zero,zero` = the
+methodology §3.25-3b **"old-gcc no-copy-prop / still-live-constant rematerialization"** identity
+(same fingerprint as nfile.obj, w47-a1); plus one `nop` retail leaves in a `beqz` slot that our
+reorg fills (eager-steal). Neither is a spelling problem.
+
+**F7 — CD_sync named-constant probe (rejected on the COUNT-EXACT rule).** Retail hoists FIVE
+values into callee-saved regs (`$fp=&CD_comstr`, `$s4=&CD_intstr`, `$s2=&Intr`, `$s5=&Intr+1`,
+`$s3=2`); ours hoists only `&Intr`. `int two = 2;` used at both the compare and the store takes
+106 -> **103 diffs but 160 -> 163 insns**; adding a `&intr->ready` pointer as well is identical
+(103/163); `two` only at the compare is 110/164. **All rejected — the count must stay exact.**
+The reachable form has to supply the extra saved-reg values at ZERO instruction cost (the w45
+fence-as-live-range device, or the address hoists w25-a11 already failed to thread through
+`get_alarm()`/`callback()`), so CD_sync/CD_ready/CD_cw remain allocsim/reqdelta jobs.
+
+---
+
+## 8. FINAL SCORECARD
+
+| TU | PASS | DIFFSUM baseline -> **final** |
+|---|---|---|
+| TYPE.c   | 0  | 59 -> **8** |
+| cdcont.c | 10 | 281 -> **271** |
+| drv.c    | 3  | 673 -> 673 |
+| event.c  | 0  | 64 -> **41** |
+| toc.c    | 0  | 93 -> 93 |
+| **total**| **13 (unchanged, 0 regressions)** | **1170 -> 1086 (-84, -7.2%)** |
+
+Per-fn: CdGetDiskType **54 -> 3** · CdInit **42 -> 19** · CdControlB **69 -> 65** ·
+CdControlF **67 -> 63** · CdControl **62 -> 60 (count-exact 79/79)**. CD_getsector was already
+PASS at baseline. Plus **-20 more** available for free from the four measured
+`PER_FN_NO_DELAYED_BRANCH` additions in §3 (consolidator wiring; build.py untouched by me —
+`git status` clean on tools/ at every checkpoint).

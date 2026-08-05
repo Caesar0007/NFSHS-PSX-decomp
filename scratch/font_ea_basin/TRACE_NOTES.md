@@ -53,3 +53,42 @@ e3/e4 stay the SYM/SLD-true reference bodies at 124@82 (gate), shipping 48-body 
 Next concrete step: local-alloc.c condition read + a targeted instrument print at the
 just_try_suggested rejection site, then re-run this exact lane (fidelity is proven, the
 loop is minutes per iteration).
+
+## ROUND 2 (2026-08-05, "next"): THE LOCAL-ALLOC.C CONDITION — FOUND AND NAMED
+Source read (gcc-2.8.1 tarball /c/Temp/gcc-2.8.1-src/gcc281.tar.gz: local-alloc.c + config/mips/mips.h):
+1. MIPS defines NO REG_ALLOC_ORDER => find_free_reg scans regnos SEQUENTIALLY 0..31
+   (v0,v1,a0..a3,t0..t7,s0..s7,t8,t9). s0(16) precedes t8(24).
+2. find_free_reg does NOT exclude callee-saved regs for no-call qtys (used = fixed_reg_set
+   + window liveness only). So a pass-2 local qty that fails 2..15 takes s0/s1 NEXT —
+   local-alloc can NEVER produce retail's ytop@t8-while-only-s0-is-saved.
+3. Eligibility (local-alloc.c:472): a pseudo is local-allocatable iff
+   REG_BASIC_BLOCK>=0 && REG_N_DEATHS==1. Otherwise it falls to GLOBAL.c — which DOES
+   prefer call-used regs (save/restore cost) => t8 before s1.
+🏆 => RETAIL'S ytop PSEUDO WAS ALLOCATED BY GLOBAL.C: its live range is SPLIT (2 deaths).
+And retail's asm shows the split explicitly: `addiu v1,t8,5` READS y (death #1, the
+unfolded +5 intermediate in v1), `subu t8,v1,t4` REBIRTHS y (death #2 at last sh).
+THE THREE SYMPTOMS ARE ONE MECHANISM: +5-unfold == live-range split == t8-not-a1.
+p128->a1 stays a plain local pass-2 outcome once ytop is out of the local pool.
+
+## ROUND-2 FALSIFICATIONS (all gated 132@82 == the folded E2 basin; e11 .s verified
+identical chain `subu $5,$5,$10` — no addiu+5 survives):
+- (int)/(long)/(unsigned) casts around (y+5)  [STRIP_NOPS]
+- (int)((char *)y + 5) pointer-arith barrier
+- GNU statement-expression ({ y + 5; })
+MECHANISM OF FLATTENING: tree-level fold reassociates statement-granular (w45 §C), and
+whatever expand splits, COMBINE re-merges single-use chains and simplify_plus_minus
+re-associates. An intermediate survives ONLY if fold can't see through it AND combine
+refuses the merge.
+
+## NEXT ROUND (focused, fresh context):
+1. Read fold-const.c reassociation (split_tree/associate) EXACT conditions for
+   MINUS(PLUS(y,5), B) — find the tree shape it skips.
+2. Read combine.c can_combine_p/subst — when is the (plus y 5) temp NOT merged
+   (hard-reg refs? multi-use? volatile? mode games?).
+3. Candidate probes after the read: SAVE_EXPR routes (a construct using (y+5) twice
+   that cse collapses back to one), C-vs-C++ frontend fold differences, forcing
+   REG_N_DEATHS=2 by any other legal shape (the death-split is the GOAL; the +5 temp
+   is just its visible footprint).
+4. Verify with GCC_TRACE_ALLOC: success == ytop qty ABSENT from local trace (global)
+   + y@t8 in .s; then re-gate (expect a collapse toward 0) and only then port the
+   spelling into the shipping body.

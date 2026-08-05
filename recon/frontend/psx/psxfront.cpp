@@ -1425,6 +1425,26 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   p96-refs-4->3 attempt; its neutrality PROVES the qty ref counts are cse's RTL
    *   counts, not source counts (src2=48 precedent generalized, 3 combos x 4 temps).
    *   => route (b) by source spelling is CLOSED; #E' instruments remain the ONLY route.
+   *   2026-08-05 #E round 4 (user: "fix the prologue -- wrong types/declarations?"; all
+   *   probes via the new tools/diffsrc.py attribution): PROLOGUE DIFFS ARE POSITION-ONLY
+   *   ECHOES -- every prologue insn (ori t3 pair-split, lui t5 drift, early lw t0, early
+   *   sb from our w44 prim[0xc] hoist) is byte-identical to retail's, just scheduled into
+   *   different slots downstream of the SAME $a1-vs-$t8 rotation; no type/declaration
+   *   mismatch exists (dv/width/height/yoff/v-copy/constant regs all verified identical).
+   *   FALSIFIED THIS ROUND: (a) ALT-BODY ADOPTION ranking -- ours 48 < m2c-verbatim 86 <
+   *   IDA 92 < Redec 144@80 < JEB(error); feeding cc1 RETAIL EMISSION ORDER is strongly
+   *   negative; (b) named-CSE-temps yh/du/ydv/xw all exactly 48 (neutral -- qty refs are
+   *   cse's RTL counts, not source counts; generalizes src2); (c) THE SYM-FAITHFUL BODY
+   *   (locals = ONLY prim/width/height/dv per SYM 8c block, retail-SLD statement order
+   *   1444->1466, and PARAM-MUTATION `y = y - yoff; y = y+5 - (height+yoff);` -- the one
+   *   spelling that would explain SYM annotating param y at $t8 AND the missing ybase/ytop
+   *   locals) = 105@83 / 3-stmt 105@83; (d) the mutation ATOM alone in the 48 basin = 62 /
+   *   60 (reproduces the falsified single-long-qty numbers) -- and diffsrc PROVES mutated y
+   *   STILL colors to $a1 (sh a1,26 vs retail sh t8,26): cc1 keeps a mutated param in its
+   *   arrival reg; retail's $t8 is an ALLOCATION-ORDER outcome, not a spelling; (e)
+   *   scheduling-flag identity: nosched1 124 / nosched2 83@83 / both 138@92 -- retail used
+   *   DEFAULT scheduling.  ⇒ the prologue snaps in only when the rotation does; route
+   *   unchanged: #E' instruments (instrumented-cc1 [qty_order]/[find_free_reg] trace).
    *   2026-08-03 ANGLE #E FALSIFIED AS SPELLED (48 basin, 4 probes): fence-before-tpage
    *   "r"(prim) 108 / "r"(src) 74 / fence-after 110 / cross-jump duplicate if(width) 143@81.
    *   MECHANISM: in a mono-block 50-qty function the fence is TOO BLUNT -- it pins every

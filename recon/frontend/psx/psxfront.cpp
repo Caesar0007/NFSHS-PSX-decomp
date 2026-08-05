@@ -1412,6 +1412,19 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   fence family is EXHAUSTED on this fn.  Remaining route = the #E' instruments
    *   ONLY: qtytrace --want p128=a1 solver, or the instrumented-cc1 [qty_order]/
    *   [find_free_reg] traced run (Font is lab-byte-identical; its trace is a receipt).
+   *   2026-08-05 #F ALT-BODY ADOPTION ROUND (user: five-view bodies at C:/Temp/nfs4-psx;
+   *   the "missing" scratchpad 0x1F800004 is NOT missing -- it IS our Render_gPacketPtr
+   *   macro, nfs4_types.h).  Verbatim adoptions, all re-gated: m2c retail-emission-order
+   *   transcription 86@82 / IDA 92@82 / Redec (-2*yoff algebraic fold) 144@80 (2 insns
+   *   SHORT -- the fold is not retail's shape) / JEB = decompilation error.  Feeding cc1
+   *   the retail EMISSION order is strongly NEGATIVE (+38/+44 vs our climbed order): the
+   *   48-basin order pre-compensates cc1's own scheduler; retail order does not survive it.
+   *   HYBRID ATOMS in the 48 basin: named temps for the CSE'd halfword pairs
+   *   (du=u+width / ydv=dv+height / yh=ytop+height / xw=x+width), probed as yh-only,
+   *   all-4, and 3-without-yh -- ALL exactly 48.  yh-only was the receipt's route (b)
+   *   p96-refs-4->3 attempt; its neutrality PROVES the qty ref counts are cse's RTL
+   *   counts, not source counts (src2=48 precedent generalized, 3 combos x 4 temps).
+   *   => route (b) by source spelling is CLOSED; #E' instruments remain the ONLY route.
    *   2026-08-03 ANGLE #E FALSIFIED AS SPELLED (48 basin, 4 probes): fence-before-tpage
    *   "r"(prim) 108 / "r"(src) 74 / fence-after 110 / cross-jump duplicate if(width) 143@81.
    *   MECHANISM: in a mono-block 50-qty function the fence is TOO BLUNT -- it pins every

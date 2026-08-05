@@ -1425,6 +1425,33 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   p96-refs-4->3 attempt; its neutrality PROVES the qty ref counts are cse's RTL
    *   counts, not source counts (src2=48 precedent generalized, 3 combos x 4 temps).
    *   => route (b) by source spelling is CLOSED; #E' instruments remain the ONLY route.
+   *   🏆 2026-08-05 #E round 5 -- THE EA-NATURAL CLEAN-ROOM RECONSTRUCTION (user order:
+   *   "reconstruct it like the EA programmer using only the symdump disasm oracle").
+   *   Bodies at scratch/font_ea_basin/ (e1..e5); the SYM-TRUE shape is e3/e4: locals
+   *   EXACTLY prim/width/height/dv (raw SYM 8c block: prim $t1, width $t7, height $t6,
+   *   dv $t0, v REG $s0, ch REG $v0, and param y REGPARM reg 24 = $T8), retail-SLD
+   *   statement order (1440 width / 1441 height / 1444 dv / 1446-1447 y-mutation /
+   *   1449 ONE-LINE prim-alloc+bump+addPrim macro / 1452 font_tint / 1455 codes / tpage
+   *   / UV / XY), y-chain carried by MUTATING PARAM y, and -- the discovery --
+   *   🔴 NEW LAW (gcc2.x cse struct-alias rule): a store through a SCALAR lvalue
+   *   (`*(uint *)prim = ...`) invalidates ALL memory equivalences incl. the scratchpad
+   *   cell reads => the 2nd `Render_gPalettePtr` cell read RELOADS (+1 insn, 83/82,
+   *   e1 = 105@83); spelling both link RMWs as P_TAG BITFIELD stores
+   *   (`((PSXFront_PTag*)p)->addr = ...`, MEM_IN_STRUCT_P) does NOT invalidate scalar
+   *   fixed-address MEMs, so the cell load stays SINGLE with NO local -- byte-structure
+   *   equal to retail (e2 = 132@82 count-EXACT).  This is how retail single-loads the
+   *   palette ptr with no prevPrim local, and it retires the old "bitfield falsified
+   *   144@84" verdict as BASIN-RELATIVE (it was measured with the prevPrim local).
+   *   e3 (+5 UNFOLDED as separate `y = y + 5;`) 132->124; e4 (-1 moved into UV args per
+   *   the SLD-1463 hint) neutral 124; e5 (fresh ytop var to break y's $a1 arg
+   *   suggestion) neutral 124 -- y stays $a1 at source level, so retail's y@$t8 is
+   *   pure allocation order (the same p128 razor: retail's 2nd src+0xc read owns $a1).
+   *   STATE: residual 124 = ONE GLOBAL REGISTER ROTATION (width/height/v already in
+   *   retail's regs; prim t0-vs-t1, dv v1-vs-t0, ch t2-vs-v0, pal t3-vs-t2, mask
+   *   t4-vs-t3, y a1-vs-t8), zero structural diffs.  The 48-body is a closer-scoring
+   *   LOOKALIKE in a SYM-false basin (extra locals); the E-basin is the TRUE source
+   *   shape.  => run the instrumented-cc1 [qty_order]/[find_free_reg] trace ON e3/e4,
+   *   not on the 48 body -- its qty-order diff vs retail is now meaningful 1:1.
    *   2026-08-05 #E round 4 (user: "fix the prologue -- wrong types/declarations?"; all
    *   probes via the new tools/diffsrc.py attribution): PROLOGUE DIFFS ARE POSITION-ONLY
    *   ECHOES -- every prologue insn (ori t3 pair-split, lui t5 drift, early lw t0, early

@@ -148,3 +148,27 @@ criterion per probe = dv@t0 in the local fill, then y-global lands t8 by constru
 Also still open: the SYM-LEGAL +5 carrier (arg6 has no ARG record in SYM = unnamed
 param in EA source; candidates: a named short-lived local the stabs might omit, a
 SAVE_EXPR construct, or an EA macro).
+
+## ROUND 5 (2026-08-05, "continue round 5"): 124 -> 82, FOURTEEN OF SIXTEEN REGISTERS RETAIL-EXACT
+Matrix (all on the e15 arg6-split base): V1 (-1-in-UV, old position) 132 · V2/V3 (dv stmt
+hoisted before prim) 110 · V4 (y-chain after addPrim) 116 · V5 (after font_tint) 120 ·
+🏆 V7 (FULL SLD ORDER: width, height, dv, y-chain, prim, bump, addPrim, tint, 9, 2c,
+clut, tpage, UV, XY) = 82@82 · V8 (V7 + -1-in-UV) = 82 identical asm.
+V7 REGISTER MAP vs retail: MATCHED = pktptr-addr v1 lui-pair, m1 0xFFFFFF @t3,
+m2 0xFF000000 @t5, ch @v0, yoff @t4, palette-value @t2, height @t6, width @t7, v @s0,
+x/src/u @a0/a2/a3, p128 @a1, +5 temp @v1, **y @t8** — the whole crown chain.
+REMAINING = ONE SWAP: prim@t0/dv@t1 (retail dv@t0/prim@t1); their ~36 refs touch nearly
+every insn = the whole 82.
+SWAP MECHANICS (from priorities + windows): prim (26 refs, pri ~7647) legitimately beats
+dv (~10-15 refs, pri ~5200) EVEN IN RETAIL — so retail's prim@t1 means t0 was blocked at
+prim's turn by one of the HIGHER-pri tiny temps (the 10000/8947-pri v0/v1 timesharers).
+In ours all five tiny temps take v0 and the 8947 mega-temp takes v1, leaving t0 for prim.
+In retail ONE tiny temp must sit on v1 (v0 blocked in its window by ch's [10,28) range or
+a neighbor), pushing the 8947 mega-temp (whose window overlaps hard-a1, src, u, x => 
+v0/v1/a0-a3 all blocked) onto T0 -> prim -> t1 -> dv -> t0 by cascade.
+NEXT (round 6): seed the tiny-temp v0/v1 split — dials: positions/order of the len=9 /
+code=0x2c / clut stores and the tint line (their li temps ARE the tiny qtys), the ch
+field-read grouping (ch's v0 window vs temp windows), addPrim-vs-tint order. Per-probe
+oracle: lab .s (prim moves to $9/t1 = success; then gate should collapse to ~0).
+STILL OPEN: SYM-legal +5 carrier (arg6 is unnamed in EA source per SYM).
+Files: font_v1..v8.cpp here; mine/psxfront_v7/v8.{i,s} in C:/Temp/nfs4-instr-cc1.

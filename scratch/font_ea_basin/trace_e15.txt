@@ -1,0 +1,1423 @@
+
+===== FUNCTION void Quick_DD(int, int, int) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+
+===== FUNCTION void PSXFront_AllocateDrawMemory() =====
+[qty_combine]      pseudo 83 (refs 3 calls 1) merged into qty 2 of pseudo 84 -> qty refs 5 calls 1
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/91:2/2/0/0/0=10000 2/83:5/16/1/0/0=6250 0/81:2/2/0/1/0=10000 1/86:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 81 class 1 calls 0 acc 0 sugg 1 win [4,6) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[find_free_reg]    qty 1 reg1 86 class 1 calls 0 acc 0 sugg 1 win [16,18) blocked: 0(fixed) 1(fixed) 2(live) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 4
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/81:2/2/0/1/0=10000 1/86:2/2/0/1/0=10000 3/91:2/2/0/0/0=10000 2/83:5/16/1/0/0=6250
+[find_free_reg]    qty 3 reg1 91 class 1 calls 0 acc 0 sugg 0 win [36,38) blocked: 0(fixed) 1(fixed) 2(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[find_free_reg]    qty 2 reg1 83 class 1 calls 1 acc 0 sugg 0 win [26,42) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 2 -> reg 16
+
+===== FUNCTION void PSXFront_FreeDrawMemory() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+
+===== FUNCTION void InitializeSpinningCars() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/83:2/2/0/0/0=10000 1/85:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/83:2/2/0/0/0=10000 1/85:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 83 class 1 calls 0 acc 0 sugg 0 win [2,4) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 85 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_combine]      pseudo 94 (refs 3 calls 0) merged into qty 4 of pseudo 95 -> qty refs 5 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/147:2/2/0/0/0=10000 4/94:5/10/0/0/0=10000 5/145:2/2/0/0/0=10000 0/87:2/4/0/0/0=5000 2/90:3/8/2/0/0=3750 1/88:3/10/2/0/0=3000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/147:2/2/0/0/0=10000 4/94:5/10/0/0/0=10000 5/145:2/2/0/0/0=10000 0/87:2/4/0/0/0=5000 2/90:3/8/2/0/0=3750 1/88:3/10/2/0/0=3000
+[find_free_reg]    qty 3 reg1 147 class 1 calls 0 acc 0 sugg 0 win [32,34) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 4 reg1 94 class 1 calls 0 acc 0 sugg 0 win [36,46) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 5 reg1 145 class 1 calls 0 acc 0 sugg 0 win [42,44) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 3
+[find_free_reg]    qty 0 reg1 87 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 90 class 1 calls 2 acc 0 sugg 0 win [12,20) blocked: 0(fixed) 1(fixed) 2(callused) 3(callused) 4(callused) 5(callused) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 2 -> reg 16
+[find_free_reg]    qty 1 reg1 88 class 1 calls 2 acc 0 sugg 0 win [4,14) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(callused) 5(callused) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 1 -> reg 17
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/96:4/2/0/0/0=40000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/96:4/2/0/0/0=40000
+[find_free_reg]    qty 0 reg1 96 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg]         qty 0 (pseudo 80) COPY-suggests hard reg 2
+[qty_combine]      pseudo 120 (refs 4 calls 0) merged into qty 3 of pseudo 119 -> qty refs 8 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 4/124:4/2/0/0/0=40000 1/116:4/4/0/0/0=20000 2/117:6/6/0/0/0=20000 0/80:18/44/3/1/2=16363 3/120:8/4/0/1/0=60000
+[find_free_reg]    qty 3 reg1 120 class 1 calls 0 acc 0 sugg 1 win [34,38) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/120:8/4/0/1/0=60000 4/124:4/2/0/0/0=40000 1/116:4/4/0/0/0=20000 2/117:6/6/0/0/0=20000 0/80:18/44/3/1/0=16363
+[find_free_reg]    qty 4 reg1 124 class 1 calls 0 acc 0 sugg 0 win [46,48) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 1 reg1 116 class 1 calls 0 acc 0 sugg 0 win [26,30) blocked: 0(fixed) 1(fixed) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 2 reg1 117 class 1 calls 0 acc 0 sugg 0 win [30,36) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 0 reg1 80 class 1 calls 3 acc 0 sugg 0 win [10,54) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 0 -> reg 16
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 2/126:2/2/0/0/0=10000 6/139:2/2/0/0/0=10000 7/141:2/2/0/0/0=10000 9/144:2/2/0/0/0=10000 5/134:3/4/0/0/0=7500 1/127:3/6/0/0/0=5000 4/132:2/4/0/0/0=5000 8/143:2/4/0/0/0=5000 3/133:3/8/0/0/0=3750 0/131:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 131 class 1 calls 0 acc 0 sugg 1 win [6,8) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/131:2/2/0/1/0=10000 2/126:2/2/0/0/0=10000 6/139:2/2/0/0/0=10000 7/141:2/2/0/0/0=10000 9/144:2/2/0/0/0=10000 5/134:3/4/0/0/0=7500 1/127:3/6/0/0/0=5000 4/132:2/4/0/0/0=5000 8/143:2/4/0/0/0=5000 3/133:3/8/0/0/0=3750
+[find_free_reg]    qty 2 reg1 126 class 1 calls 0 acc 0 sugg 0 win [14,16) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 6 reg1 139 class 1 calls 0 acc 0 sugg 0 win [32,34) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 7 reg1 141 class 1 calls 0 acc 0 sugg 0 win [36,38) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 9 reg1 144 class 1 calls 0 acc 0 sugg 0 win [42,44) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 2
+[find_free_reg]    qty 5 reg1 134 class 1 calls 0 acc 0 sugg 0 win [26,30) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[find_free_reg]    qty 1 reg1 127 class 1 calls 0 acc 0 sugg 0 win [12,18) blocked: 0(fixed) 1(fixed) 2(live) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 4 reg1 132 class 1 calls 0 acc 0 sugg 0 win [24,28) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 3
+[find_free_reg]    qty 8 reg1 143 class 1 calls 0 acc 0 sugg 0 win [40,44) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 3
+[find_free_reg]    qty 3 reg1 133 class 1 calls 0 acc 0 sugg 0 win [22,30) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 4
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 0/81:11/41/4/1=8048 4/149:9/34/4/1=7941 5/154:7/32/4/1=4375 2/114:5/78/4/1=1282 3/121:3/74/4/1=405 1/98:3/80/4/1=375
+[find_reg]         allocno 0 pseudo 81 refs 11 live 41 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 4 pseudo 149 refs 9 live 34 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 18
+[find_reg]         allocno 5 pseudo 154 refs 7 live 32 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 19
+[find_reg]         allocno 2 pseudo 114 refs 5 live 78 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 20
+[find_reg]         allocno 3 pseudo 121 refs 3 live 74 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 21
+[find_reg]         allocno 1 pseudo 98 refs 3 live 80 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 22
+
+===== FUNCTION void CleanupSpinningCars() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/83:2/2/0/0/0=10000 1/85:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/83:2/2/0/0/0=10000 1/85:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 83 class 1 calls 0 acc 0 sugg 0 win [2,4) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 85 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/118:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/118:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 118 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/86:4/2/0/0/0=40000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/86:4/2/0/0/0=40000
+[find_free_reg]    qty 0 reg1 86 class 1 calls 0 acc 0 sugg 0 win [16,18) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/99:2/2/0/0/0=10000 2/103:2/2/0/0/0=10000 4/106:2/2/0/0/0=10000 5/108:2/2/0/0/0=10000 7/111:2/2/0/0/0=10000 3/105:2/4/0/0/0=5000 0/98:3/10/2/0/0=3000 8/114:2/2/0/1/0=10000 6/110:2/6/0/1/0=3333
+[find_free_reg]    qty 8 reg1 114 class 1 calls 0 acc 0 sugg 1 win [48,50) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 5
+[find_free_reg]    qty 6 reg1 110 class 1 calls 0 acc 0 sugg 1 win [36,42) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/99:2/2/0/0/0=10000 2/103:2/2/0/0/0=10000 4/106:2/2/0/0/0=10000 5/108:2/2/0/0/0=10000 7/111:2/2/0/0/0=10000 8/114:2/2/0/1/0=10000 3/105:2/4/0/0/0=5000 6/110:2/6/0/1/0=3333 0/98:3/10/2/0/0=3000
+[find_free_reg]    qty 1 reg1 99 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 2 reg1 103 class 1 calls 0 acc 0 sugg 0 win [18,20) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 4 reg1 106 class 1 calls 0 acc 0 sugg 0 win [24,26) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 5 reg1 108 class 1 calls 0 acc 0 sugg 0 win [28,30) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[find_free_reg]    qty 7 reg1 111 class 1 calls 0 acc 0 sugg 0 win [38,40) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 3 reg1 105 class 1 calls 0 acc 0 sugg 0 win [22,26) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[find_free_reg]    qty 0 reg1 98 class 1 calls 2 acc 0 sugg 0 win [2,12) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(callused) 5(callused) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 0 -> reg 16
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 2/120:9/9/2/1=30000 1/81:7/11/2/1=12727 0/80:3/7/2/1=4285
+[find_reg]         allocno 2 pseudo 120 refs 9 live 9 calls 2 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 1 pseudo 81 refs 7 live 11 calls 2 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 0 pseudo 80 refs 3 live 7 calls 2 size 1 alt 0 ccl 0 retry 0 -> reg 16
+
+===== FUNCTION void CleanupSpinningCarsMenu() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/0/0=10000 1/86:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/0/0=10000 1/86:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 84 class 1 calls 0 acc 0 sugg 0 win [2,4) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 86 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/87:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/87:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 87 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/88:4/2/0/0/0=40000 0/80:4/6/0/0/1=13333
+[find_free_reg]    qty 0 reg1 80 class 1 calls 0 acc 0 sugg 1 win [4,10) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/88:4/2/0/0/0=40000 0/80:4/6/0/0/1=13333
+[find_free_reg]    qty 1 reg1 88 class 1 calls 0 acc 0 sugg 0 win [14,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 0/81:7/8/1/1=17500 1/82:7/10/1/1=14000
+[find_reg]         allocno 0 pseudo 81 refs 7 live 8 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 1 pseudo 82 refs 7 live 10 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 17
+
+===== FUNCTION void DoTitleScreen() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 84 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 2/89:2/2/0/0/0=10000 3/90:2/2/0/0/0=10000 4/98:2/2/0/0/0=10000 0/85:3/20/1/1/2=1500 1/87:2/2/0/1/0=10000
+[find_free_reg]    qty 1 reg1 87 class 1 calls 0 acc 0 sugg 1 win [6,8) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/87:2/2/0/1/0=10000 2/89:2/2/0/0/0=10000 3/90:2/2/0/0/0=10000 4/98:2/2/0/0/0=10000 0/85:3/20/1/1/0=1500
+[find_free_reg]    qty 2 reg1 89 class 1 calls 0 acc 0 sugg 0 win [14,16) blocked: 0(fixed) 1(fixed) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 3 reg1 90 class 1 calls 0 acc 0 sugg 0 win [18,20) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 4 reg1 98 class 1 calls 0 acc 0 sugg 0 win [38,40) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 0 reg1 85 class 1 calls 1 acc 0 sugg 0 win [2,22) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(live) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 0 -> reg 16
+[qty_sugg]         qty 1 (pseudo 80) COPY-suggests hard reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/109:2/2/0/0/0=10000 2/108:2/4/0/0/0=5000 1/80:2/8/2/0/2=2500 0/102:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 102 class 1 calls 0 acc 0 sugg 1 win [6,8) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/102:2/2/0/1/0=10000 3/109:2/2/0/0/0=10000 2/108:2/4/0/0/0=5000 1/80:2/8/2/0/2=2500
+[find_free_reg]    qty 3 reg1 109 class 1 calls 0 acc 0 sugg 0 win [54,56) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 2 reg1 108 class 1 calls 0 acc 0 sugg 0 win [52,56) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 3
+[find_free_reg]    qty 1 reg1 80 class 1 calls 2 acc 0 sugg 0 win [18,26) blocked: 0(fixed) 1(fixed) 2(callused) 3(callused) 4(live) 5(live) 6(live) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 1 -> reg 16
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 0/83:7/94/11/1=1489
+[find_reg]         allocno 0 pseudo 83 refs 7 live 94 calls 11 size 1 alt 0 ccl 0 retry 0 -> reg 17
+
+===== FUNCTION void DoLanguageScreen() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/81:2/2/0/0/0=10000 2/84:2/2/0/0/0=10000 1/83:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/81:2/2/0/0/0=10000 2/84:2/2/0/0/0=10000 1/83:2/4/0/0/0=5000
+[find_free_reg]    qty 0 reg1 81 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 84 class 1 calls 0 acc 0 sugg 0 win [10,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 83 class 1 calls 0 acc 0 sugg 0 win [8,12) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 0/80:3/10/0/1=3000
+[find_reg]         allocno 0 pseudo 80 refs 3 live 10 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+
+===== FUNCTION void PSXExitFrontend() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/81:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 81 class 1 calls 0 acc 0 sugg 1 win [4,6) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/81:2/2/0/1/0=10000
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/90:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/90:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 90 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 1/84:3/3/0/1=10000 0/83:3/12/1/1=2500
+[find_reg]         allocno 1 pseudo 84 refs 3 live 3 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 0 pseudo 83 refs 3 live 12 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 16
+
+===== FUNCTION void PSX_AllocShapes() =====
+[qty_sugg]         qty 2 (pseudo 84) COPY-suggests hard reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/83:2/2/0/1/0=10000 1/81:2/8/1/0/0=2500 2/84:3/4/0/0/2=7500
+[find_free_reg]    qty 0 reg1 83 class 1 calls 0 acc 0 sugg 1 win [2,4) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[find_free_reg]    qty 2 reg1 84 class 1 calls 0 acc 0 sugg 1 win [14,18) blocked: 0(fixed) 1(fixed) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/83:2/2/0/1/0=10000 2/84:3/4/0/0/2=7500 1/81:2/8/1/0/0=2500
+[find_free_reg]    qty 1 reg1 81 class 1 calls 1 acc 0 sugg 0 win [8,16) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(live) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 1 -> reg 16
+
+===== FUNCTION void Init_RenderingEnvironment() =====
+[qty_combine]      pseudo 80 (refs 3 calls 1) merged into qty 0 of pseudo 81 -> qty refs 5 calls 1
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/88:2/2/0/0/0=10000 4/89:2/2/0/0/0=10000 6/92:2/2/0/0/0=10000 9/102:2/2/0/0/0=10000 10/104:2/2/0/0/0=10000 11/107:2/2/0/0/0=10000 2/87:2/4/0/0/0=5000 8/95:3/6/1/0/0=5000 1/82:4/38/3/0/0=2105 5/91:3/34/3/0/0=882 0/80:5/18/1/1/1=5555 7/97:3/14/1/1/0=2142
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/88:2/2/0/0/0=10000 4/89:2/2/0/0/0=10000 6/92:2/2/0/0/0=10000 9/102:2/2/0/0/0=10000 10/104:2/2/0/0/0=10000 11/107:2/2/0/0/0=10000 0/80:5/18/1/1/0=5555 2/87:2/4/0/0/0=5000 8/95:3/6/1/0/0=5000 7/97:3/14/1/1/0=2142 1/82:4/38/3/0/0=2105 5/91:3/34/3/0/0=882
+[find_free_reg]    qty 3 reg1 88 class 1 calls 0 acc 0 sugg 0 win [44,46) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 4 reg1 89 class 1 calls 0 acc 0 sugg 0 win [48,50) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 6 reg1 92 class 1 calls 0 acc 0 sugg 0 win [60,62) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 9 reg1 102 class 1 calls 0 acc 0 sugg 0 win [78,80) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 2
+[find_free_reg]    qty 10 reg1 104 class 1 calls 0 acc 0 sugg 0 win [88,90) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 10 -> reg 2
+[find_free_reg]    qty 11 reg1 107 class 1 calls 0 acc 0 sugg 0 win [94,96) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 11 -> reg 2
+[find_free_reg]    qty 0 reg1 80 class 1 calls 1 acc 0 sugg 0 win [2,20) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(live) 7(live) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 0 -> reg 16
+[find_free_reg]    qty 2 reg1 87 class 1 calls 0 acc 0 sugg 0 win [42,46) blocked: 0(fixed) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 3
+[find_free_reg]    qty 8 reg1 95 class 1 calls 1 acc 0 sugg 0 win [72,78) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 8 -> reg 16
+[find_free_reg]    qty 7 reg1 97 class 1 calls 1 acc 0 sugg 0 win [66,80) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 7 -> reg 17
+[find_free_reg]    qty 1 reg1 82 class 1 calls 3 acc 0 sugg 0 win [14,52) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 1 -> reg 17
+[find_free_reg]    qty 5 reg1 91 class 1 calls 3 acc 0 sugg 0 win [56,90) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(live) 7(live) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 17(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 5 -> reg 18
+
+===== FUNCTION void Init_PSX_FrontEnd() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 2/82:2/2/0/0/0=10000 4/87:2/2/0/0/0=10000 6/92:2/2/0/0/0=10000 8/90:2/2/0/0/0=10000 1/81:2/4/0/0/0=5000 3/86:2/4/0/0/0=5000 7/93:2/6/0/0/0=3333 5/89:2/8/0/0/0=2500 0/84:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 84 class 1 calls 0 acc 0 sugg 1 win [2,4) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/1/0=10000 2/82:2/2/0/0/0=10000 4/87:2/2/0/0/0=10000 6/92:2/2/0/0/0=10000 8/90:2/2/0/0/0=10000 1/81:2/4/0/0/0=5000 3/86:2/4/0/0/0=5000 7/93:2/6/0/0/0=3333 5/89:2/8/0/0/0=2500
+[find_free_reg]    qty 2 reg1 82 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(fixed) 1(fixed) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 4 reg1 87 class 1 calls 0 acc 0 sugg 0 win [22,24) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 6 reg1 92 class 1 calls 0 acc 0 sugg 0 win [28,30) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 8 reg1 90 class 1 calls 0 acc 0 sugg 0 win [32,34) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 2
+[find_free_reg]    qty 1 reg1 81 class 1 calls 0 acc 0 sugg 0 win [6,10) blocked: 0(fixed) 1(fixed) 2(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 3 reg1 86 class 1 calls 0 acc 0 sugg 0 win [20,24) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[find_free_reg]    qty 7 reg1 93 class 1 calls 0 acc 0 sugg 0 win [30,36) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 3
+[find_free_reg]    qty 5 reg1 89 class 1 calls 0 acc 0 sugg 0 win [26,34) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 4
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/95:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/95:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 95 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/96:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/96:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 96 class 1 calls 0 acc 0 sugg 0 win [24,26) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/99:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/99:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 99 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/102:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/102:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 102 class 1 calls 0 acc 0 sugg 0 win [14,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+
+===== FUNCTION void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(struct tTexture_ShapeInfo *, int *, int *, int *, int, int *, struct tDrawShapeExtended *) =====
+[qty_combine]      pseudo 90 (refs 2 calls 0) merged into qty 0 of pseudo 89 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/90:4/10/0/0/0=8000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/90:4/10/0/0/0=8000
+[find_free_reg]    qty 0 reg1 90 class 1 calls 0 acc 0 sugg 0 win [10,20) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_combine]      pseudo 95 (refs 2 calls 0) merged into qty 1 of pseudo 94 -> qty refs 4 calls 0
+[qty_combine]      pseudo 100 (refs 2 calls 0) merged into qty 3 of pseudo 99 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/95:4/4/0/0/0=20000 3/100:4/4/0/0/0=20000 0/91:2/4/0/0/0=5000 2/96:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/95:4/4/0/0/0=20000 3/100:4/4/0/0/0=20000 0/91:2/4/0/0/0=5000 2/96:2/4/0/0/0=5000
+[find_free_reg]    qty 1 reg1 95 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 3 reg1 100 class 1 calls 0 acc 0 sugg 0 win [12,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 0 reg1 91 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[find_free_reg]    qty 2 reg1 96 class 1 calls 0 acc 0 sugg 0 win [10,14) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/101:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/101:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 101 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_combine]      pseudo 106 (refs 2 calls 0) merged into qty 1 of pseudo 105 -> qty refs 4 calls 0
+[qty_combine]      pseudo 111 (refs 2 calls 0) merged into qty 2 of pseudo 107 -> qty refs 4 calls 0
+[qty_combine]      pseudo 112 (refs 2 calls 0) merged into qty 2 of pseudo 111 -> qty refs 6 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/106:4/4/0/0/0=20000 2/112:6/8/0/0/0=15000 3/110:2/2/0/0/0=10000 0/102:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/106:4/4/0/0/0=20000 2/112:6/8/0/0/0=15000 3/110:2/2/0/0/0=10000 0/102:2/4/0/0/0=5000
+[find_free_reg]    qty 1 reg1 106 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 2 reg1 112 class 1 calls 0 acc 0 sugg 0 win [10,18) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 3 reg1 110 class 1 calls 0 acc 0 sugg 0 win [12,14) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[find_free_reg]    qty 0 reg1 102 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[qty_combine]      pseudo 114 (refs 2 calls 0) merged into qty 0 of pseudo 113 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/114:4/4/0/0/0=20000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/114:4/4/0/0/0=20000
+[find_free_reg]    qty 0 reg1 114 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_combine]      pseudo 116 (refs 2 calls 0) merged into qty 0 of pseudo 115 -> qty refs 4 calls 0
+[qty_combine]      pseudo 117 (refs 2 calls 0) merged into qty 0 of pseudo 116 -> qty refs 6 calls 0
+[qty_combine]      pseudo 119 (refs 2 calls 0) merged into qty 1 of pseudo 118 -> qty refs 4 calls 0
+[qty_combine]      pseudo 121 (refs 2 calls 0) merged into qty 2 of pseudo 120 -> qty refs 4 calls 0
+[qty_combine]      pseudo 122 (refs 2 calls 0) merged into qty 2 of pseudo 121 -> qty refs 6 calls 0
+[qty_combine]      pseudo 124 (refs 2 calls 0) merged into qty 3 of pseudo 123 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/117:6/8/0/0/0=15000 2/122:6/8/0/0/0=15000 1/119:4/6/0/0/0=13333 3/124:4/6/0/0/0=13333
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/117:6/8/0/0/0=15000 2/122:6/8/0/0/0=15000 1/119:4/6/0/0/0=13333 3/124:4/6/0/0/0=13333
+[find_free_reg]    qty 0 reg1 117 class 1 calls 0 acc 0 sugg 0 win [2,10) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 122 class 1 calls 0 acc 0 sugg 0 win [14,22) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 119 class 1 calls 0 acc 0 sugg 0 win [6,12) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 3 reg1 124 class 1 calls 0 acc 0 sugg 0 win [18,24) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[qty_combine]      pseudo 126 (refs 2 calls 0) merged into qty 0 of pseudo 125 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/126:4/4/0/0/0=20000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/126:4/4/0/0/0=20000
+[find_free_reg]    qty 0 reg1 126 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_combine]      pseudo 131 (refs 2 calls 0) merged into qty 0 of pseudo 127 -> qty refs 4 calls 0
+[qty_combine]      pseudo 136 (refs 2 calls 0) merged into qty 2 of pseudo 135 -> qty refs 4 calls 0
+[qty_combine]      pseudo 137 (refs 2 calls 0) merged into qty 0 of pseudo 131 -> qty refs 6 calls 0
+[qty_combine]      pseudo 138 (refs 2 calls 0) merged into qty 0 of pseudo 137 -> qty refs 8 calls 0
+[qty_combine]      pseudo 140 (refs 2 calls 0) merged into qty 3 of pseudo 139 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/140:4/4/0/0/0=20000 0/138:8/14/0/0/0=17142 2/136:4/6/0/0/0=13333 1/132:2/6/0/0/0=3333
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/140:4/4/0/0/0=20000 0/138:8/14/0/0/0=17142 2/136:4/6/0/0/0=13333 1/132:2/6/0/0/0=3333
+[find_free_reg]    qty 3 reg1 140 class 1 calls 0 acc 0 sugg 0 win [18,22) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 0 reg1 138 class 1 calls 0 acc 0 sugg 0 win [2,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 136 class 1 calls 0 acc 0 sugg 0 win [6,12) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 3
+[find_free_reg]    qty 1 reg1 132 class 1 calls 0 acc 0 sugg 0 win [4,10) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 4
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/142:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/142:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 142 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/145:2/2/0/0/0=10000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/145:2/2/0/0/0=10000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[find_free_reg]    qty 0 reg1 145 class 1 calls 0 acc 0 sugg 0 win [2,4) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [3,5) blocked:
+[find_free_reg]    qty 1 -> reg 64
+[find_free_reg]    qty 2 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [3,5) blocked:
+[find_free_reg]    qty 2 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 152 (refs 2 calls 0) merged into qty 0 of pseudo 151 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/152:4/4/0/0/0=20000 3/147:2/2/0/0/0=10000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/152:4/4/0/0/0=20000 3/147:2/2/0/0/0=10000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[find_free_reg]    qty 0 reg1 152 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 3 reg1 147 class 1 calls 0 acc 0 sugg 0 win [10,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 1 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [7,9) blocked:
+[find_free_reg]    qty 1 -> reg 64
+[find_free_reg]    qty 2 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [7,9) blocked:
+[find_free_reg]    qty 2 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 156 (refs 2 calls 0) merged into qty 3 of pseudo 154 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/156:4/4/0/0/0=20000 0/158:2/2/0/0/0=10000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/156:4/4/0/0/0=20000 0/158:2/2/0/0/0=10000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[find_free_reg]    qty 3 reg1 156 class 1 calls 0 acc 0 sugg 0 win [8,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 0 reg1 158 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [5,7) blocked:
+[find_free_reg]    qty 1 -> reg 64
+[find_free_reg]    qty 2 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [5,7) blocked:
+[find_free_reg]    qty 2 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 162 (refs 2 calls 0) merged into qty 0 of pseudo 160 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/162:4/4/0/0/0=20000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/162:4/4/0/0/0=20000
+[find_free_reg]    qty 0 reg1 162 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/164:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/164:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 164 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 172 (refs 6 calls 0) merged into qty 0 of pseudo 170 -> qty refs 10 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/181:4/2/0/0/0=40000 0/172:10/12/0/0/0=25000 2/-1:1/2/0/0/0=0 3/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/181:4/2/0/0/0=40000 0/172:10/12/0/0/0=25000 2/-1:1/2/0/0/0=0 3/-1:1/2/0/0/0=0
+[find_free_reg]    qty 1 reg1 181 class 1 calls 0 acc 0 sugg 0 win [10,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 172 class 1 calls 0 acc 0 sugg 0 win [4,16) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[find_free_reg]    qty 2 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [11,13) blocked:
+[find_free_reg]    qty 2 -> reg 64
+[find_free_reg]    qty 3 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [11,13) blocked:
+[find_free_reg]    qty 3 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 193 (refs 4 calls 0) merged into qty 0 of pseudo 192 -> qty refs 8 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/193:8/4/0/0/0=60000 3/183:4/2/0/0/0=40000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/193:8/4/0/0/0=60000 3/183:4/2/0/0/0=40000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[find_free_reg]    qty 0 reg1 193 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 3 reg1 183 class 1 calls 0 acc 0 sugg 0 win [10,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 1 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [7,9) blocked:
+[find_free_reg]    qty 1 -> reg 64
+[find_free_reg]    qty 2 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [7,9) blocked:
+[find_free_reg]    qty 2 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 197 (refs 4 calls 0) merged into qty 3 of pseudo 195 -> qty refs 8 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/197:8/4/0/0/0=60000 0/205:4/2/0/0/0=40000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/197:8/4/0/0/0=60000 0/205:4/2/0/0/0=40000 1/-1:1/2/0/0/0=0 2/-1:1/2/0/0/0=0
+[find_free_reg]    qty 3 reg1 197 class 1 calls 0 acc 0 sugg 0 win [8,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 0 reg1 205 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [5,7) blocked:
+[find_free_reg]    qty 1 -> reg 64
+[find_free_reg]    qty 2 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [5,7) blocked:
+[find_free_reg]    qty 2 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 209 (refs 4 calls 0) merged into qty 0 of pseudo 207 -> qty refs 8 calls 0
+[qty_combine]      pseudo 167 (refs 4 calls 0) merged into qty 1 of pseudo 210 -> qty refs 10 calls 0
+[qty_combine]      pseudo 166 (refs 4 calls 0) merged into qty 1 of pseudo 167 -> qty refs 14 calls 0
+[qty_combine]      pseudo 168 (refs 4 calls 0) merged into qty 1 of pseudo 166 -> qty refs 18 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/168:18/10/0/0/0=72000 0/209:8/4/0/0/0=60000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/168:18/10/0/0/0=72000 0/209:8/4/0/0/0=60000
+[find_free_reg]    qty 1 reg1 168 class 1 calls 0 acc 0 sugg 0 win [10,20) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 209 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/212:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/212:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 212 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/219:2/2/0/0/0=10000 1/221:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/219:2/2/0/0/0=10000 1/221:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 219 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 221 class 1 calls 0 acc 0 sugg 0 win [12,14) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 226 (refs 2 calls 0) merged into qty 0 of pseudo 224 -> qty refs 5 calls 0
+[qty_combine]      pseudo 225 (refs 2 calls 0) merged into qty 0 of pseudo 226 -> qty refs 7 calls 0
+[qty_combine]      pseudo 227 (refs 2 calls 0) merged into qty 0 of pseudo 225 -> qty refs 9 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/227:9/10/0/0/0=27000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/227:9/10/0/0/0=27000
+[find_free_reg]    qty 0 reg1 227 class 1 calls 0 acc 0 sugg 0 win [4,14) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 231 (refs 2 calls 0) merged into qty 0 of pseudo 230 -> qty refs 4 calls 0
+[qty_combine]      pseudo 232 (refs 2 calls 0) merged into qty 0 of pseudo 231 -> qty refs 6 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/232:6/6/0/0/0=20000 1/234:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/232:6/6/0/0/0=20000 1/234:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 232 class 1 calls 0 acc 0 sugg 0 win [4,10) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 234 class 1 calls 0 acc 0 sugg 0 win [14,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 239 (refs 2 calls 0) merged into qty 0 of pseudo 237 -> qty refs 5 calls 0
+[qty_combine]      pseudo 238 (refs 2 calls 0) merged into qty 0 of pseudo 239 -> qty refs 7 calls 0
+[qty_combine]      pseudo 240 (refs 2 calls 0) merged into qty 0 of pseudo 238 -> qty refs 9 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/240:9/10/0/0/0=27000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/240:9/10/0/0/0=27000
+[find_free_reg]    qty 0 reg1 240 class 1 calls 0 acc 0 sugg 0 win [4,14) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 241 (refs 2 calls 0) merged into qty 0 of pseudo 242 -> qty refs 4 calls 0
+[qty_combine]      pseudo 213 (refs 4 calls 0) merged into qty 0 of pseudo 241 -> qty refs 8 calls 0
+[qty_combine]      pseudo 249 (refs 2 calls 0) merged into qty 2 of pseudo 247 -> qty refs 4 calls 0
+[qty_combine]      pseudo 250 (refs 3 calls 0) merged into qty 2 of pseudo 249 -> qty refs 7 calls 0
+[qty_combine]      pseudo 244 (refs 2 calls 0) merged into qty 4 of pseudo 245 -> qty refs 4 calls 0
+[qty_combine]      pseudo 214 (refs 4 calls 0) merged into qty 1 of pseudo 243 -> qty refs 7 calls 0
+[qty_combine]      pseudo 257 (refs 2 calls 0) merged into qty 5 of pseudo 255 -> qty refs 4 calls 0
+[qty_combine]      pseudo 258 (refs 3 calls 0) merged into qty 5 of pseudo 257 -> qty refs 7 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 4/244:4/4/0/0/0=20000 0/213:8/14/0/0/0=17142 2/250:7/10/0/0/0=14000 5/258:7/10/0/0/0=14000 3/248:2/2/0/0/0=10000 6/256:2/2/0/0/0=10000 1/214:7/28/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 4/244:4/4/0/0/0=20000 0/213:8/14/0/0/0=17142 2/250:7/10/0/0/0=14000 5/258:7/10/0/0/0=14000 3/248:2/2/0/0/0=10000 6/256:2/2/0/0/0=10000 1/214:7/28/0/0/0=5000
+[find_free_reg]    qty 4 reg1 244 class 1 calls 0 acc 0 sugg 0 win [24,28) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 0 reg1 213 class 1 calls 0 acc 0 sugg 0 win [4,18) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 250 class 1 calls 0 acc 0 sugg 0 win [12,22) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 3
+[find_free_reg]    qty 5 reg1 258 class 1 calls 0 acc 0 sugg 0 win [30,40) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[find_free_reg]    qty 3 reg1 248 class 1 calls 0 acc 0 sugg 0 win [14,16) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 4
+[find_free_reg]    qty 6 reg1 256 class 1 calls 0 acc 0 sugg 0 win [32,34) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 3
+[find_free_reg]    qty 1 reg1 214 class 1 calls 0 acc 0 sugg 0 win [8,36) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 5
+[qty_combine]      pseudo 265 (refs 2 calls 0) merged into qty 0 of pseudo 263 -> qty refs 4 calls 0
+[qty_combine]      pseudo 266 (refs 2 calls 0) merged into qty 0 of pseudo 265 -> qty refs 6 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/266:6/8/0/0/0=15000 1/264:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/266:6/8/0/0/0=15000 1/264:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 266 class 1 calls 0 acc 0 sugg 0 win [4,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 264 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 24/208:10/7/0/1=42857 22/196:10/8/0/1=37500 19/179:6/4/0/1=30000 20/184:10/10/0/1=30000 23/198:4/5/0/1=16000 25/215:4/5/0/1=16000 26/216:4/5/0/1=16000 15/161:5/7/0/1=14285 9/141:4/6/0/1=13333 13/155:5/8/0/1=12500 11/148:5/9/0/1=11111 8/88:6/12/0/1=10000 21/185:4/8/0/1=10000 10/143:3/4/0/1=7500 18/178:6/16/0/1=7500 16/165:7/34/0/1=4117 14/157:2/5/0/1=4000 17/173:4/21/0/1=3809 7/87:6/37/0/1=3243 2/82:11/128/0/1=2578 12/149:2/8/0/1=2500 1/81:7/70/0/1=2000 28/218:3/16/0/1=1875 0/80:9/156/0/1=1730 4/84:13/226/0/1=1725 27/217:3/18/0/1=1666 3/83:7/112/0/1=1250 5/85:9/340/0/1=794 6/86:7/214/0/1=654
+[find_reg]         allocno 24 pseudo 208 refs 10 live 7 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 22 pseudo 196 refs 10 live 8 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 19 pseudo 179 refs 6 live 4 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 2
+[find_reg]         allocno 20 pseudo 184 refs 10 live 10 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 23 pseudo 198 refs 4 live 5 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 25 pseudo 215 refs 4 live 5 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 26 pseudo 216 refs 4 live 5 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 15 pseudo 161 refs 5 live 7 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 9 pseudo 141 refs 4 live 6 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 13 pseudo 155 refs 5 live 8 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 11 pseudo 148 refs 5 live 9 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 8 pseudo 88 refs 6 live 12 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 21 pseudo 185 refs 4 live 8 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 10 pseudo 143 refs 3 live 4 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 2
+[find_reg]         allocno 18 pseudo 178 refs 6 live 16 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 16 pseudo 165 refs 7 live 34 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 14 pseudo 157 refs 2 live 5 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 17 pseudo 173 refs 4 live 21 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 7 pseudo 87 refs 6 live 37 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 2 pseudo 82 refs 11 live 128 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 12 pseudo 149 refs 2 live 8 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 1 pseudo 81 refs 7 live 70 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 28 pseudo 218 refs 3 live 16 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 0 pseudo 80 refs 9 live 156 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 4 pseudo 84 refs 13 live 226 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 9
+[find_reg]         allocno 27 pseudo 217 refs 3 live 18 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 3 pseudo 83 refs 7 live 112 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 5 pseudo 85 refs 9 live 340 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 10
+[find_reg]         allocno 6 pseudo 86 refs 7 live 214 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 11
+
+===== FUNCTION void DrawGouraudShape(struct tTexture_ShapeInfo *, int, int, int, int *, int) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 99 (refs 2 calls 0) merged into qty 0 of pseudo 100 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/99:4/4/0/0/0=20000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/99:4/4/0/0/0=20000
+[find_free_reg]    qty 0 reg1 99 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 186 (refs 2 calls 0) merged into qty 0 of pseudo 184 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/186:4/4/0/0/0=20000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/186:4/4/0/0/0=20000
+[find_free_reg]    qty 0 reg1 186 class 1 calls 0 acc 0 sugg 0 win [20,24) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/110:4/2/0/0/0=40000 0/107:4/4/0/0/0=20000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/110:4/2/0/0/0=40000 0/107:4/4/0/0/0=20000
+[find_free_reg]    qty 1 reg1 110 class 1 calls 0 acc 0 sugg 0 win [10,12) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 107 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/-1:1/2/0/0/0=0 1/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/-1:1/2/0/0/0=0 1/-1:1/2/0/0/0=0
+[find_free_reg]    qty 0 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [1,3) blocked:
+[find_free_reg]    qty 0 -> reg 64
+[find_free_reg]    qty 1 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [1,3) blocked:
+[find_free_reg]    qty 1 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 126 (refs 6 calls 0) merged into qty 1 of pseudo 125 -> qty refs 10 calls 0
+[qty_combine]      pseudo 130 (refs 4 calls 0) merged into qty 1 of pseudo 126 -> qty refs 14 calls 0
+[qty_combine]      pseudo 134 (refs 4 calls 0) merged into qty 7 of pseudo 135 -> qty refs 8 calls 0
+[qty_combine]      pseudo 136 (refs 4 calls 0) merged into qty 7 of pseudo 134 -> qty refs 12 calls 0
+[qty_combine]      pseudo 137 (refs 6 calls 0) merged into qty 7 of pseudo 136 -> qty refs 18 calls 0
+[qty_combine]      pseudo 141 (refs 4 calls 0) merged into qty 7 of pseudo 137 -> qty refs 22 calls 0
+[qty_combine]      pseudo 133 (refs 4 calls 0) merged into qty 1 of pseudo 130 -> qty refs 18 calls 0
+[qty_combine]      pseudo 146 (refs 4 calls 0) merged into qty 12 of pseudo 147 -> qty refs 8 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 7/141:22/12/0/0/0=73333 6/116:4/2/0/0/0=40000 12/146:8/6/0/0/0=40000 13/148:4/2/0/0/0=40000 14/155:4/2/0/0/0=40000 1/133:18/22/0/0/0=32727 2/131:2/1/0/0/0=20000 8/142:2/1/0/0/0=20000 0/123:6/10/0/0/0=12000 3/-1:1/2/0/0/0=0 4/-1:1/2/0/0/0=0 5/-1:1/2/0/0/0=0 9/-1:1/2/0/0/0=0 10/-1:1/2/0/0/0=0 11/-1:1/2/0/0/0=0
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 7/141:22/12/0/0/0=73333 6/116:4/2/0/0/0=40000 12/146:8/6/0/0/0=40000 13/148:4/2/0/0/0=40000 14/155:4/2/0/0/0=40000 1/133:18/22/0/0/0=32727 2/131:2/1/0/0/0=20000 8/142:2/1/0/0/0=20000 0/123:6/10/0/0/0=12000 3/-1:1/2/0/0/0=0 4/-1:1/2/0/0/0=0 5/-1:1/2/0/0/0=0 9/-1:1/2/0/0/0=0 10/-1:1/2/0/0/0=0 11/-1:1/2/0/0/0=0
+[find_free_reg]    qty 7 reg1 141 class 1 calls 0 acc 0 sugg 0 win [16,28) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 6 reg1 116 class 1 calls 0 acc 0 sugg 0 win [12,14) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 12 reg1 146 class 1 calls 0 acc 0 sugg 0 win [32,38) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 12 -> reg 2
+[find_free_reg]    qty 13 reg1 148 class 1 calls 0 acc 0 sugg 0 win [36,38) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 13 -> reg 3
+[find_free_reg]    qty 14 reg1 155 class 1 calls 0 acc 0 sugg 0 win [42,44) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 14 -> reg 2
+[find_free_reg]    qty 1 reg1 133 class 1 calls 0 acc 0 sugg 0 win [6,28) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 2 reg1 131 class 1 calls 0 acc 0 sugg 0 win [10,11) blocked: 0(fixed) 1(fixed) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 8 reg1 142 class 1 calls 0 acc 0 sugg 0 win [24,25) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 4
+[find_free_reg]    qty 0 reg1 123 class 1 calls 0 acc 0 sugg 0 win [4,14) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[find_free_reg]    qty 3 reg1 -1 class 4 calls 0 acc 0 sugg 0 win [9,11) blocked:
+[find_free_reg]    qty 3 -> reg 65
+[find_free_reg]    qty 4 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [9,11) blocked:
+[find_free_reg]    qty 4 -> reg 64
+[find_free_reg]    qty 5 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [9,11) blocked:
+[find_free_reg]    qty 5 -> reg 66
+[find_free_reg]    qty 9 reg1 -1 class 4 calls 0 acc 0 sugg 0 win [23,25) blocked:
+[find_free_reg]    qty 9 -> reg 65
+[find_free_reg]    qty 10 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [23,25) blocked:
+[find_free_reg]    qty 10 -> reg 64
+[find_free_reg]    qty 11 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [23,25) blocked:
+[find_free_reg]    qty 11 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 174 (refs 8 calls 0) merged into qty 1 of pseudo 173 -> qty refs 12 calls 0
+[qty_combine]      pseudo 171 (refs 4 calls 0) merged into qty 2 of pseudo 168 -> qty refs 8 calls 0
+[qty_combine]      pseudo 179 (refs 8 calls 0) merged into qty 3 of pseudo 178 -> qty refs 12 calls 0
+[qty_combine]      pseudo 198 (refs 4 calls 0) merged into qty 13 of pseudo 196 -> qty refs 8 calls 0
+[qty_combine]      pseudo 200 (refs 4 calls 0) merged into qty 13 of pseudo 198 -> qty refs 12 calls 0
+[qty_combine]      pseudo 204 (refs 4 calls 0) merged into qty 14 of pseudo 202 -> qty refs 8 calls 0
+[qty_combine]      pseudo 207 (refs 4 calls 0) merged into qty 13 of pseudo 200 -> qty refs 16 calls 0
+[qty_combine]      pseudo 211 (refs 4 calls 0) merged into qty 16 of pseudo 209 -> qty refs 8 calls 0
+[qty_combine]      pseudo 212 (refs 4 calls 0) merged into qty 16 of pseudo 211 -> qty refs 12 calls 0
+[qty_combine]      pseudo 215 (refs 4 calls 0) merged into qty 13 of pseudo 207 -> qty refs 20 calls 0
+[qty_combine]      pseudo 217 (refs 4 calls 0) merged into qty 17 of pseudo 216 -> qty refs 8 calls 0
+[qty_combine]      pseudo 220 (refs 4 calls 0) merged into qty 13 of pseudo 215 -> qty refs 24 calls 0
+[qty_combine]      pseudo 222 (refs 4 calls 0) merged into qty 15 of pseudo 208 -> qty refs 10 calls 0
+[qty_combine]      pseudo 224 (refs 4 calls 0) merged into qty 15 of pseudo 222 -> qty refs 14 calls 0
+[qty_combine]      pseudo 227 (refs 4 calls 0) merged into qty 13 of pseudo 220 -> qty refs 28 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 16/212:12/6/0/0/0=60000 17/217:8/4/0/0/0=60000 2/171:8/6/0/0/0=40000 4/165:4/2/0/0/0=40000 5/176:4/2/0/0/0=40000 6/181:4/2/0/0/0=40000 7/182:4/2/0/0/0=40000 8/183:4/2/0/0/0=40000 10/189:4/2/0/0/0=40000 14/204:8/6/0/0/0=40000 18/228:4/2/0/0/0=40000 1/174:12/10/0/0/0=36000 13/227:28/36/0/0/0=31111 3/179:12/12/0/0/0=30000 15/224:14/22/0/0/0=19090 9/114:4/8/0/0/0=10000 0/161:8/26/0/0/0=9230 12/191:4/2/0/1/0=40000 11/190:6/8/0/1/0=15000
+[find_free_reg]    qty 12 reg1 191 class 1 calls 0 acc 0 sugg 1 win [60,62) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 12 -> reg 4
+[find_free_reg]    qty 11 reg1 190 class 1 calls 0 acc 0 sugg 1 win [56,64) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 11 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 16/212:12/6/0/0/0=60000 17/217:8/4/0/0/0=60000 2/171:8/6/0/0/0=40000 4/165:4/2/0/0/0=40000 5/176:4/2/0/0/0=40000 6/181:4/2/0/0/0=40000 7/182:4/2/0/0/0=40000 8/183:4/2/0/0/0=40000 10/189:4/2/0/0/0=40000 12/191:4/2/0/1/0=40000 14/204:8/6/0/0/0=40000 18/228:4/2/0/0/0=40000 1/174:12/10/0/0/0=36000 13/227:28/36/0/0/0=31111 3/179:12/12/0/0/0=30000 15/224:14/22/0/0/0=19090 11/190:6/8/0/1/0=15000 9/114:4/8/0/0/0=10000 0/161:8/26/0/0/0=9230
+[find_free_reg]    qty 16 reg1 212 class 1 calls 0 acc 0 sugg 0 win [86,92) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 16 -> reg 2
+[find_free_reg]    qty 17 reg1 217 class 1 calls 0 acc 0 sugg 0 win [94,98) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 17 -> reg 2
+[find_free_reg]    qty 2 reg1 171 class 1 calls 0 acc 0 sugg 0 win [10,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 4 reg1 165 class 1 calls 0 acc 0 sugg 0 win [22,24) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 5 reg1 176 class 1 calls 0 acc 0 sugg 0 win [28,30) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[find_free_reg]    qty 6 reg1 181 class 1 calls 0 acc 0 sugg 0 win [34,36) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 7 reg1 182 class 1 calls 0 acc 0 sugg 0 win [38,40) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 8 reg1 183 class 1 calls 0 acc 0 sugg 0 win [42,44) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 2
+[find_free_reg]    qty 10 reg1 189 class 1 calls 0 acc 0 sugg 0 win [50,52) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 10 -> reg 2
+[find_free_reg]    qty 14 reg1 204 class 1 calls 0 acc 0 sugg 0 win [78,84) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 14 -> reg 2
+[find_free_reg]    qty 18 reg1 228 class 1 calls 0 acc 0 sugg 0 win [108,110) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 18 -> reg 2
+[find_free_reg]    qty 1 reg1 174 class 1 calls 0 acc 0 sugg 0 win [8,18) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 13 reg1 227 class 1 calls 0 acc 0 sugg 0 win [70,106) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 13 -> reg 3
+[find_free_reg]    qty 3 reg1 179 class 1 calls 0 acc 0 sugg 0 win [20,32) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[find_free_reg]    qty 15 reg1 224 class 1 calls 0 acc 0 sugg 0 win [82,104) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 15 -> reg 4
+[find_free_reg]    qty 9 reg1 114 class 1 calls 0 acc 0 sugg 0 win [46,54) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 3
+[find_free_reg]    qty 0 reg1 161 class 1 calls 0 acc 0 sugg 0 win [6,32) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[qty_combine]      pseudo 232 (refs 4 calls 0) merged into qty 0 of pseudo 230 -> qty refs 8 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/232:8/4/0/0/0=60000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/232:8/4/0/0/0=60000
+[find_free_reg]    qty 0 reg1 232 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 2/246:4/2/0/0/0=40000 1/236:6/6/0/0/0=20000 0/237:4/14/0/0/0=5714
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 2/246:4/2/0/0/0=40000 1/236:6/6/0/0/0=20000 0/237:4/14/0/0/0=5714
+[find_free_reg]    qty 2 reg1 246 class 1 calls 0 acc 0 sugg 0 win [26,28) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 236 class 1 calls 0 acc 0 sugg 0 win [12,18) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 237 class 1 calls 0 acc 0 sugg 0 win [10,24) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/247:4/2/0/0/0=40000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/247:4/2/0/0/0=40000
+[find_free_reg]    qty 0 reg1 247 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_combine]      pseudo 251 (refs 4 calls 0) merged into qty 1 of pseudo 249 -> qty refs 8 calls 0
+[qty_combine]      pseudo 254 (refs 4 calls 0) merged into qty 1 of pseudo 251 -> qty refs 12 calls 0
+[qty_combine]      pseudo 257 (refs 4 calls 0) merged into qty 2 of pseudo 255 -> qty refs 8 calls 0
+[qty_combine]      pseudo 261 (refs 4 calls 0) merged into qty 2 of pseudo 257 -> qty refs 12 calls 0
+[qty_combine]      pseudo 264 (refs 4 calls 0) merged into qty 2 of pseudo 261 -> qty refs 16 calls 0
+[qty_combine]      pseudo 267 (refs 4 calls 0) merged into qty 4 of pseudo 265 -> qty refs 8 calls 0
+[qty_combine]      pseudo 269 (refs 4 calls 0) merged into qty 4 of pseudo 267 -> qty refs 12 calls 0
+[qty_combine]      pseudo 272 (refs 4 calls 0) merged into qty 4 of pseudo 269 -> qty refs 16 calls 0
+[qty_combine]      pseudo 277 (refs 4 calls 0) merged into qty 5 of pseudo 275 -> qty refs 8 calls 0
+[qty_combine]      pseudo 281 (refs 4 calls 0) merged into qty 5 of pseudo 277 -> qty refs 12 calls 0
+[qty_combine]      pseudo 284 (refs 4 calls 0) merged into qty 5 of pseudo 281 -> qty refs 16 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 4/272:16/10/0/0/0=64000 5/284:16/10/0/0/0=64000 1/254:12/6/0/0/0=60000 2/264:16/12/0/0/0=53333 0/115:10/46/0/0/0=6521 3/258:6/26/0/0/0=4615
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 4/272:16/10/0/0/0=64000 5/284:16/10/0/0/0=64000 1/254:12/6/0/0/0=60000 2/264:16/12/0/0/0=53333 0/115:10/46/0/0/0=6521 3/258:6/26/0/0/0=4615
+[find_free_reg]    qty 4 reg1 272 class 1 calls 0 acc 0 sugg 0 win [28,38) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 5 reg1 284 class 1 calls 0 acc 0 sugg 0 win [40,50) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[find_free_reg]    qty 1 reg1 254 class 1 calls 0 acc 0 sugg 0 win [4,10) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 2 reg1 264 class 1 calls 0 acc 0 sugg 0 win [14,26) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 0 reg1 115 class 1 calls 0 acc 0 sugg 0 win [2,48) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[find_free_reg]    qty 3 reg1 258 class 1 calls 0 acc 0 sugg 0 win [20,46) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 4
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/288:8/12/0/0/0=20000 1/292:6/10/0/0/0=12000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/288:8/12/0/0/0=20000 1/292:6/10/0/0/0=12000
+[find_free_reg]    qty 0 reg1 288 class 1 calls 0 acc 0 sugg 0 win [4,16) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 292 class 1 calls 0 acc 0 sugg 0 win [10,20) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 6/86:76/110/1/1=41454 25/122:10/8/0/1=37500 27/154:6/4/0/1=30000 19/106:8/25/0/1=9600 23/113:8/33/0/1=7272 15/95:12/53/0/1=6792 20/108:6/26/0/1=4615 13/93:17/155/1/1=4387 9/89:10/75/1/1=4000 26/145:8/68/1/1=3529 16/96:3/9/0/1=3333 8/88:5/32/0/1=3125 21/111:6/41/0/1=2926 0/80:24/350/1/1=2742 14/94:6/44/1/1=2727 18/98:3/14/0/1=2142 24/119:11/154/1/1=2142 3/83:12/175/1/1=2057 17/97:3/15/0/1=2000 22/112:6/63/1/1=1904 33/274:9/144/1/1=1875 12/92:2/17/0/1=1176 11/91:2/18/0/1=1111 2/82:11/350/1/1=942 29/170:7/151/1/1=927 10/90:7/163/1/1=858 4/84:9/346/1/1=780 32/242:5/145/1/1=689 28/163:5/153/1/1=653 1/81:7/350/1/1=400 30/175:5/298/1/1=335 31/188:3/146/1/1=205 7/87:3/171/1/1=175 5/85:3/344/1/1=87
+[find_reg]         allocno 6 pseudo 86 refs 76 live 110 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 25 pseudo 122 refs 10 live 8 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 27 pseudo 154 refs 6 live 4 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 19 pseudo 106 refs 8 live 25 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 23 pseudo 113 refs 8 live 33 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 15 pseudo 95 refs 12 live 53 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 20 pseudo 108 refs 6 live 26 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 13 pseudo 93 refs 17 live 155 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 9 pseudo 89 refs 10 live 75 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 18
+[find_reg]         allocno 26 pseudo 145 refs 8 live 68 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 19
+[find_reg]         allocno 16 pseudo 96 refs 3 live 9 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 2
+[find_reg]         allocno 8 pseudo 88 refs 5 live 32 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 21 pseudo 111 refs 6 live 41 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 0 pseudo 80 refs 24 live 350 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 20
+[find_reg]         allocno 14 pseudo 94 refs 6 live 44 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 21
+[find_reg]         allocno 18 pseudo 98 refs 3 live 14 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 24 pseudo 119 refs 11 live 154 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 22
+[find_reg]         allocno 3 pseudo 83 refs 12 live 175 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 23
+[find_reg]         allocno 17 pseudo 97 refs 3 live 15 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 22 pseudo 112 refs 6 live 63 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 30
+[caller-save]      pseudo 274 PROFITABLE (4*1 < 9) -> retry
+[find_reg]         allocno 33 pseudo 274 refs 9 live 144 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 9
+[find_reg]         allocno 12 pseudo 92 refs 2 live 17 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 11 pseudo 91 refs 2 live 18 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[caller-save]      pseudo 82 PROFITABLE (4*1 < 11) -> retry
+[find_reg]         allocno 2 pseudo 82 refs 11 live 350 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 10
+[caller-save]      pseudo 170 PROFITABLE (4*1 < 7) -> retry
+[find_reg]         allocno 29 pseudo 170 refs 7 live 151 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 11
+[caller-save]      pseudo 90 PROFITABLE (4*1 < 7) -> retry
+[find_reg]         allocno 10 pseudo 90 refs 7 live 163 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 12
+[caller-save]      pseudo 84 PROFITABLE (4*1 < 9) -> retry
+[find_reg]         allocno 4 pseudo 84 refs 9 live 346 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 13
+[caller-save]      pseudo 242 PROFITABLE (4*1 < 5) -> retry
+[find_reg]         allocno 32 pseudo 242 refs 5 live 145 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 14
+[caller-save]      pseudo 163 PROFITABLE (4*1 < 5) -> retry
+[find_reg]         allocno 28 pseudo 163 refs 5 live 153 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 15
+[caller-save]      pseudo 81 PROFITABLE (4*1 < 7) -> retry
+[find_reg]         allocno 1 pseudo 81 refs 7 live 350 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 24
+[caller-save]      pseudo 175 PROFITABLE (4*1 < 5) -> retry
+[find_reg]         allocno 30 pseudo 175 refs 5 live 298 calls 1 size 1 alt 0 ccl 1 retry 0 -> reg 25
+[find_reg]         allocno 31 pseudo 188 refs 3 live 146 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg -1
+[find_reg]         allocno 7 pseudo 87 refs 3 live 171 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg -1
+[find_reg]         allocno 5 pseudo 85 refs 3 live 344 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg -1
+[caller-save]      pseudo 242 PROFITABLE (4*1 < 5) -> retry
+[find_reg]         allocno 32 pseudo 242 refs 5 live 145 calls 1 size 1 alt 0 ccl 1 retry 1 -> reg -1
+[find_reg]         allocno 32 pseudo 242 refs 5 live 145 calls 1 size 1 alt 0 ccl 0 retry 1 -> reg -1
+[reload-rehome]    retry_global_alloc: pseudo 242 now in -1
+
+===== FUNCTION void DrawFlatShape(struct tTexture_ShapeInfo *, int, int, int, int *, int) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:6/12/0/0/0=10000 1/86:4/8/0/0/0=10000 2/85:2/10/0/0/0=2000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:6/12/0/0/0=10000 1/86:4/8/0/0/0=10000 2/85:2/10/0/0/0=2000
+[find_free_reg]    qty 0 reg1 84 class 1 calls 0 acc 0 sugg 0 win [2,14) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 86 class 1 calls 0 acc 0 sugg 0 win [4,12) blocked: 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 2 reg1 85 class 1 calls 0 acc 0 sugg 0 win [6,16) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 8
+
+===== FUNCTION void DrawShapeExtended(int, int, int, int, int, int, struct tDrawShapeExtended *) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/89:2/6/0/1/0=3333
+[find_free_reg]    qty 0 reg1 89 class 1 calls 0 acc 0 sugg 1 win [10,16) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/89:2/6/0/1/0=3333
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/91:2/2/0/0/0=10000 2/93:2/2/0/0/0=10000 1/94:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/91:2/2/0/0/0=10000 2/93:2/2/0/0/0=10000 1/94:2/4/0/0/0=5000
+[find_free_reg]    qty 0 reg1 91 class 1 calls 0 acc 0 sugg 0 win [2,4) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 93 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 94 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/96:2/2/0/0/0=10000 2/98:2/2/0/0/0=10000 1/99:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/96:2/2/0/0/0=10000 2/98:2/2/0/0/0=10000 1/99:2/4/0/0/0=5000
+[find_free_reg]    qty 0 reg1 96 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 98 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 99 class 1 calls 0 acc 0 sugg 0 win [6,10) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_combine]      pseudo 101 (refs 2 calls 0) merged into qty 1 of pseudo 109 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/100:2/6/0/0/0=3333 1/101:4/8/0/0/0=10000 2/84:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/100:2/6/0/0/0=3333 1/101:4/8/0/0/0=10000 2/84:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 100 class 1 calls 0 acc 0 sugg 0 win [4,10) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 101 class 1 calls 0 acc 0 sugg 0 win [6,14) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 2 reg1 84 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(live) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 4
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/103:2/2/0/0/0=10000 0/104:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/103:2/2/0/0/0=10000 0/104:2/4/0/0/0=5000
+[find_free_reg]    qty 1 reg1 103 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 104 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[qty_combine]      pseudo 115 (refs 2 calls 0) merged into qty 0 of pseudo 114 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/115:4/4/0/0/0=20000 1/117:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/115:4/4/0/0/0=20000 1/117:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 115 class 1 calls 0 acc 0 sugg 0 win [12,16) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 117 class 1 calls 0 acc 0 sugg 0 win [28,30) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/119:2/10/0/0/1=2000 1/120:2/10/0/0/1=2000
+[find_free_reg]    qty 0 reg1 119 class 1 calls 0 acc 0 sugg 1 win [4,14) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 6
+[find_free_reg]    qty 1 reg1 120 class 1 calls 0 acc 0 sugg 1 win [6,16) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 6(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 7
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/119:2/10/0/0/1=2000 1/120:2/10/0/0/1=2000
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/122:2/10/0/0/1=2000 1/123:2/10/0/0/1=2000
+[find_free_reg]    qty 0 reg1 122 class 1 calls 0 acc 0 sugg 1 win [6,16) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 6
+[find_free_reg]    qty 1 reg1 123 class 1 calls 0 acc 0 sugg 1 win [8,18) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 6(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 7
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/122:2/10/0/0/1=2000 1/123:2/10/0/0/1=2000
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 5/116:4/11/0/1=7272 3/87:6/25/1/1=4800 6/124:4/17/1/1=4705 0/80:4/42/0/1=1904 4/88:2/11/0/1=1818 2/86:3/58/0/1=517 1/85:3/92/1/1=326
+[find_reg]         allocno 5 pseudo 116 refs 4 live 11 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 3 pseudo 87 refs 6 live 25 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 6 pseudo 124 refs 4 live 17 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 0 pseudo 80 refs 4 live 42 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 4 pseudo 88 refs 2 live 11 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 9
+[find_reg]         allocno 2 pseudo 86 refs 3 live 58 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 10
+[find_reg]         allocno 1 pseudo 85 refs 3 live 92 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 18
+
+===== FUNCTION void ScaleGouraudShape(struct tTexture_ShapeInfo *, int, int, int, int, int, int *, int) =====
+[qty_combine]      pseudo 108 (refs 4 calls 0) merged into qty 4 of pseudo 107 -> qty refs 6 calls 0
+[qty_combine]      pseudo 105 (refs 2 calls 0) merged into qty 5 of pseudo 102 -> qty refs 4 calls 0
+[qty_combine]      pseudo 115 (refs 4 calls 0) merged into qty 8 of pseudo 114 -> qty refs 6 calls 0
+[qty_combine]      pseudo 112 (refs 2 calls 0) merged into qty 1 of pseudo 104 -> qty refs 6 calls 0
+[qty_combine]      pseudo 130 (refs 2 calls 0) merged into qty 16 of pseudo 128 -> qty refs 4 calls 0
+[qty_combine]      pseudo 132 (refs 2 calls 0) merged into qty 16 of pseudo 130 -> qty refs 6 calls 0
+[qty_combine]      pseudo 134 (refs 2 calls 0) merged into qty 7 of pseudo 87 -> qty refs 4 calls 3
+[qty_combine]      pseudo 136 (refs 2 calls 0) merged into qty 7 of pseudo 134 -> qty refs 6 calls 3
+[qty_combine]      pseudo 139 (refs 2 calls 0) merged into qty 16 of pseudo 132 -> qty refs 8 calls 0
+[qty_combine]      pseudo 143 (refs 2 calls 0) merged into qty 18 of pseudo 141 -> qty refs 4 calls 0
+[qty_combine]      pseudo 144 (refs 2 calls 0) merged into qty 18 of pseudo 143 -> qty refs 6 calls 0
+[qty_combine]      pseudo 147 (refs 2 calls 0) merged into qty 16 of pseudo 139 -> qty refs 10 calls 0
+[qty_combine]      pseudo 149 (refs 2 calls 0) merged into qty 19 of pseudo 148 -> qty refs 4 calls 0
+[qty_combine]      pseudo 152 (refs 2 calls 0) merged into qty 19 of pseudo 149 -> qty refs 6 calls 0
+[qty_combine]      pseudo 155 (refs 2 calls 0) merged into qty 16 of pseudo 147 -> qty refs 12 calls 0
+[qty_combine]      pseudo 157 (refs 2 calls 0) merged into qty 17 of pseudo 140 -> qty refs 5 calls 0
+[qty_combine]      pseudo 159 (refs 2 calls 0) merged into qty 17 of pseudo 157 -> qty refs 7 calls 0
+[qty_combine]      pseudo 162 (refs 2 calls 0) merged into qty 16 of pseudo 155 -> qty refs 14 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 18/144:6/8/0/0/0=15000 19/152:6/8/0/0/0=15000 16/162:14/36/0/0/0=11666 4/108:6/12/0/0/0=10000 5/105:4/8/0/0/0=10000 8/115:6/12/0/0/0=10000 9/111:2/2/0/0/0=10000 10/117:2/2/0/0/0=10000 11/118:2/2/0/0/0=10000 12/119:2/2/0/0/0=10000 17/159:7/24/0/0/0=5833 13/120:2/4/0/0/0=5000 6/86:5/30/0/0/0=3333 1/112:6/46/0/0/0=2608 3/98:4/36/0/0/0=2222 7/136:6/66/3/0/0=1818 2/109:3/34/0/0/0=882 0/99:3/44/0/0/0=681 15/123:2/2/0/1/0=10000 14/122:3/6/0/1/0=5000
+[find_free_reg]    qty 15 reg1 123 class 1 calls 0 acc 0 sugg 1 win [92,94) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 15 -> reg 4
+[find_free_reg]    qty 14 reg1 122 class 1 calls 0 acc 0 sugg 1 win [90,96) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 14 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 18/144:6/8/0/0/0=15000 19/152:6/8/0/0/0=15000 16/162:14/36/0/0/0=11666 4/108:6/12/0/0/0=10000 5/105:4/8/0/0/0=10000 8/115:6/12/0/0/0=10000 9/111:2/2/0/0/0=10000 10/117:2/2/0/0/0=10000 11/118:2/2/0/0/0=10000 12/119:2/2/0/0/0=10000 15/123:2/2/0/1/0=10000 17/159:7/24/0/0/0=5833 13/120:2/4/0/0/0=5000 14/122:3/6/0/1/0=5000 6/86:5/30/0/0/0=3333 1/112:6/46/0/0/0=2608 3/98:4/36/0/0/0=2222 7/136:6/66/3/0/0=1818 2/109:3/34/0/0/0=882 0/99:3/44/0/0/0=681
+[find_free_reg]    qty 18 reg1 144 class 1 calls 0 acc 0 sugg 0 win [116,124) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 18 -> reg 2
+[find_free_reg]    qty 19 reg1 152 class 1 calls 0 acc 0 sugg 0 win [122,130) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 19 -> reg 3
+[find_free_reg]    qty 16 reg1 162 class 1 calls 0 acc 0 sugg 0 win [102,138) blocked: 0(live) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 16 -> reg 4
+[find_free_reg]    qty 4 reg1 108 class 1 calls 0 acc 0 sugg 0 win [28,40) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 5 reg1 105 class 1 calls 0 acc 0 sugg 0 win [30,38) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 3
+[find_free_reg]    qty 8 reg1 115 class 1 calls 0 acc 0 sugg 0 win [50,62) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 2
+[find_free_reg]    qty 9 reg1 111 class 1 calls 0 acc 0 sugg 0 win [52,54) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 3
+[find_free_reg]    qty 10 reg1 117 class 1 calls 0 acc 0 sugg 0 win [64,66) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 10 -> reg 2
+[find_free_reg]    qty 11 reg1 118 class 1 calls 0 acc 0 sugg 0 win [68,70) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 11 -> reg 2
+[find_free_reg]    qty 12 reg1 119 class 1 calls 0 acc 0 sugg 0 win [72,74) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 12 -> reg 2
+[find_free_reg]    qty 17 reg1 159 class 1 calls 0 acc 0 sugg 0 win [112,136) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 17 -> reg 5
+[find_free_reg]    qty 13 reg1 120 class 1 calls 0 acc 0 sugg 0 win [76,80) blocked: 0(live) 1(fixed) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 13 -> reg 2
+[find_free_reg]    qty 6 reg1 86 class 1 calls 0 acc 0 sugg 0 win [46,76) blocked: 0(live) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 4
+[find_free_reg]    qty 1 reg1 112 class 1 calls 0 acc 0 sugg 0 win [14,60) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 5
+[find_free_reg]    qty 3 reg1 98 class 1 calls 0 acc 0 sugg 0 win [26,62) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 6
+[find_free_reg]    qty 7 reg1 136 class 1 calls 3 acc 0 sugg 0 win [48,114) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 7 -> reg 16
+[find_free_reg]    qty 2 reg1 109 class 1 calls 0 acc 0 sugg 0 win [22,56) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 16(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 7
+[find_free_reg]    qty 0 reg1 99 class 1 calls 0 acc 0 sugg 0 win [10,54) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 16(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 8
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/165:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 165 class 1 calls 0 acc 0 sugg 1 win [4,6) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/165:2/2/0/1/0=10000
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/170:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 170 class 1 calls 0 acc 0 sugg 1 win [4,6) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/170:2/2/0/1/0=10000
+[qty_combine]      pseudo 173 (refs 3 calls 2) merged into qty 0 of pseudo 174 -> qty refs 5 calls 2
+[qty_combine]      pseudo 182 (refs 3 calls 2) merged into qty 1 of pseudo 183 -> qty refs 5 calls 2
+[qty_combine]      pseudo 96 (refs 2 calls 0) merged into qty 2 of pseudo 178 -> qty refs 5 calls 2
+[qty_combine]      pseudo 201 (refs 2 calls 0) merged into qty 6 of pseudo 199 -> qty refs 4 calls 0
+[qty_combine]      pseudo 203 (refs 3 calls 0) merged into qty 6 of pseudo 201 -> qty refs 7 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 6/203:7/6/0/0/0=23333 2/96:5/28/2/0/0=3571 7/208:1/1/0/0/0=0 8/-1:1/2/0/0/0=0 9/-1:1/2/0/0/0=0 10/-1:1/2/0/0/0=0 1/182:5/30/2/1/1=3333 0/173:5/34/2/1/1=2941 3/181:2/2/0/1/0=10000 4/187:2/2/0/1/0=10000 5/196:2/2/0/1/0=10000
+[find_free_reg]    qty 3 reg1 181 class 1 calls 0 acc 0 sugg 1 win [28,30) blocked: 0(fixed) 1(fixed) 3(notsugg) 4(live) 5(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 4 reg1 187 class 1 calls 0 acc 0 sugg 1 win [42,44) blocked: 0(fixed) 1(fixed) 3(notsugg) 4(live) 5(live) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 5 reg1 196 class 1 calls 0 acc 0 sugg 1 win [58,60) blocked: 0(fixed) 1(fixed) 3(notsugg) 4(notsugg) 5(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 6/203:7/6/0/0/0=23333 3/181:2/2/0/1/0=10000 4/187:2/2/0/1/0=10000 5/196:2/2/0/1/0=10000 2/96:5/28/2/0/0=3571 1/182:5/30/2/1/0=3333 0/173:5/34/2/1/0=2941 7/208:1/1/0/0/0=0 8/-1:1/2/0/0/0=0 9/-1:1/2/0/0/0=0 10/-1:1/2/0/0/0=0
+[find_free_reg]    qty 6 reg1 203 class 1 calls 0 acc 0 sugg 0 win [62,68) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 2 reg1 96 class 1 calls 2 acc 0 sugg 0 win [26,54) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 2 -> reg 16
+[find_free_reg]    qty 1 reg1 182 class 1 calls 2 acc 0 sugg 0 win [20,50) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 1 -> reg 17
+[find_free_reg]    qty 0 reg1 173 class 1 calls 2 acc 0 sugg 0 win [6,40) blocked: 0(fixed) 1(fixed) 2(live) 3(callused) 4(live) 5(live) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 17(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 0 -> reg 18
+[find_free_reg]    qty 7 reg1 208 class 1 calls 0 acc 0 sugg 0 win [68,69) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 8 reg1 -1 class 4 calls 0 acc 0 sugg 0 win [67,69) blocked:
+[find_free_reg]    qty 8 -> reg 65
+[find_free_reg]    qty 9 reg1 -1 class 3 calls 0 acc 0 sugg 0 win [67,69) blocked:
+[find_free_reg]    qty 9 -> reg 64
+[find_free_reg]    qty 10 reg1 -1 class 5 calls 0 acc 0 sugg 0 win [67,69) blocked:
+[find_free_reg]    qty 10 -> reg 66
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/219:5/10/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/219:5/10/0/0/0=10000
+[find_free_reg]    qty 0 reg1 219 class 1 calls 0 acc 0 sugg 0 win [10,20) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 6/88:34/125/9/1=13600 11/93:6/13/0/1=9230 17/213:5/11/0/1=9090 10/92:6/14/0/1=8571 16/207:3/7/0/1=4285 14/197:2/5/0/1=4000 15/198:2/10/0/1=2000 0/80:12/236/9/1=1525 3/83:7/109/9/1=1284 7/89:5/79/5/1=1265 2/82:6/97/6/1=1237 8/90:5/85/6/1=1176 13/168:3/49/5/1=612 12/163:3/54/6/1=555 1/81:4/148/4/1=540 4/84:4/166/7/1=481 5/85:4/174/8/1=459 9/91:2/101/9/1=198
+[find_reg]         allocno 6 pseudo 88 refs 34 live 125 calls 9 size 1 alt 0 ccl 0 retry 0 -> reg 19
+[find_reg]         allocno 11 pseudo 93 refs 6 live 13 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 2
+[find_reg]         allocno 17 pseudo 213 refs 5 live 11 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 10 pseudo 92 refs 6 live 14 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 16 pseudo 207 refs 3 live 7 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 14 pseudo 197 refs 2 live 5 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 15 pseudo 198 refs 2 live 10 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 0 pseudo 80 refs 12 live 236 calls 9 size 1 alt 0 ccl 0 retry 0 -> reg 20
+[find_reg]         allocno 3 pseudo 83 refs 7 live 109 calls 9 size 1 alt 0 ccl 0 retry 0 -> reg 21
+[find_reg]         allocno 7 pseudo 89 refs 5 live 79 calls 5 size 1 alt 0 ccl 0 retry 0 -> reg 18
+[find_reg]         allocno 2 pseudo 82 refs 6 live 97 calls 6 size 1 alt 0 ccl 0 retry 0 -> reg 22
+[find_reg]         allocno 8 pseudo 90 refs 5 live 85 calls 6 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 13 pseudo 168 refs 3 live 49 calls 5 size 1 alt 0 ccl 0 retry 0 -> reg 23
+[find_reg]         allocno 12 pseudo 163 refs 3 live 54 calls 6 size 1 alt 0 ccl 0 retry 0 -> reg 30
+[find_reg]         allocno 1 pseudo 81 refs 4 live 148 calls 4 size 1 alt 0 ccl 0 retry 0 -> reg 23
+[find_reg]         allocno 4 pseudo 84 refs 4 live 166 calls 7 size 1 alt 0 ccl 0 retry 0 -> reg -1
+[find_reg]         allocno 5 pseudo 85 refs 4 live 174 calls 8 size 1 alt 0 ccl 0 retry 0 -> reg -1
+[find_reg]         allocno 9 pseudo 91 refs 2 live 101 calls 9 size 1 alt 0 ccl 0 retry 0 -> reg -1
+
+===== FUNCTION void ScaleFlatShape(struct tTexture_ShapeInfo *, int, int, int, int, int, int *, int) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/88:4/12/0/0/0=6666 0/86:6/20/0/0/0=6000 2/84:2/12/0/0/0=1666 3/85:2/12/0/0/0=1666 4/87:2/14/0/0/0=1428
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/88:4/12/0/0/0=6666 0/86:6/20/0/0/0=6000 2/84:2/12/0/0/0=1666 3/85:2/12/0/0/0=1666 4/87:2/14/0/0/0=1428
+[find_free_reg]    qty 1 reg1 88 class 1 calls 0 acc 0 sugg 0 win [4,16) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 86 class 1 calls 0 acc 0 sugg 0 win [2,22) blocked: 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[find_free_reg]    qty 2 reg1 84 class 1 calls 0 acc 0 sugg 0 win [6,18) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 8
+[find_free_reg]    qty 3 reg1 85 class 1 calls 0 acc 0 sugg 0 win [8,20) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 9
+[find_free_reg]    qty 4 reg1 87 class 1 calls 0 acc 0 sugg 0 win [10,24) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 10
+
+===== FUNCTION void ScaleShapeExtended(int, int, int, int, int, int, struct tDrawShapeExtended *) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/91:2/6/0/1/0=3333
+[find_free_reg]    qty 0 reg1 91 class 1 calls 0 acc 0 sugg 1 win [14,20) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 6(notsugg) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/91:2/6/0/1/0=3333
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/93:2/2/0/0/0=10000 2/95:2/2/0/0/0=10000 1/96:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/93:2/2/0/0/0=10000 2/95:2/2/0/0/0=10000 1/96:2/4/0/0/0=5000
+[find_free_reg]    qty 0 reg1 93 class 1 calls 0 acc 0 sugg 0 win [2,4) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 95 class 1 calls 0 acc 0 sugg 0 win [6,8) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 96 class 1 calls 0 acc 0 sugg 0 win [4,8) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/98:2/2/0/0/0=10000 2/100:2/2/0/0/0=10000 1/101:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/98:2/2/0/0/0=10000 2/100:2/2/0/0/0=10000 1/101:2/4/0/0/0=5000
+[find_free_reg]    qty 0 reg1 98 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 2 reg1 100 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 1 reg1 101 class 1 calls 0 acc 0 sugg 0 win [6,10) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[qty_combine]      pseudo 103 (refs 2 calls 0) merged into qty 1 of pseudo 111 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/102:2/6/0/0/0=3333 1/103:4/8/0/0/0=10000 2/84:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/102:2/6/0/0/0=3333 1/103:4/8/0/0/0=10000 2/84:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 102 class 1 calls 0 acc 0 sugg 0 win [4,10) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 103 class 1 calls 0 acc 0 sugg 0 win [6,14) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 2 reg1 84 class 1 calls 0 acc 0 sugg 0 win [8,10) blocked: 0(live) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 4
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 1/105:2/2/0/0/0=10000 0/106:2/4/0/0/0=5000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 1/105:2/2/0/0/0=10000 0/106:2/4/0/0/0=5000
+[find_free_reg]    qty 1 reg1 105 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[find_free_reg]    qty 0 reg1 106 class 1 calls 0 acc 0 sugg 0 win [2,6) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 3
+[qty_combine]      pseudo 117 (refs 2 calls 0) merged into qty 0 of pseudo 116 -> qty refs 4 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/117:4/4/0/0/0=20000 1/119:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/117:4/4/0/0/0=20000 1/119:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 117 class 1 calls 0 acc 0 sugg 0 win [12,16) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 119 class 1 calls 0 acc 0 sugg 0 win [28,30) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/121:2/14/0/0/1=1428 1/122:2/14/0/0/1=1428
+[find_free_reg]    qty 0 reg1 121 class 1 calls 0 acc 0 sugg 1 win [4,18) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 6
+[find_free_reg]    qty 1 reg1 122 class 1 calls 0 acc 0 sugg 1 win [6,20) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 6(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 7
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/121:2/14/0/0/1=1428 1/122:2/14/0/0/1=1428
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/124:2/14/0/0/1=1428 1/125:2/14/0/0/1=1428
+[find_free_reg]    qty 0 reg1 124 class 1 calls 0 acc 0 sugg 1 win [6,20) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 6
+[find_free_reg]    qty 1 reg1 125 class 1 calls 0 acc 0 sugg 1 win [8,22) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 6(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 7
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/124:2/14/0/0/1=1428 1/125:2/14/0/0/1=1428
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 7/118:4/11/0/1=7272 3/87:6/25/1/1=4800 8/126:4/21/1/1=3809 6/90:2/11/0/1=1818 0/80:4/46/0/1=1739 2/86:3/58/0/1=517 4/88:3/96/1/1=312 5/89:3/98/1/1=306 1/85:3/100/1/1=300
+[find_reg]         allocno 7 pseudo 118 refs 4 live 11 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 3 pseudo 87 refs 6 live 25 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 8 pseudo 126 refs 4 live 21 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 6 pseudo 90 refs 2 live 11 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 0 pseudo 80 refs 4 live 46 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 9
+[find_reg]         allocno 2 pseudo 86 refs 3 live 58 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 10
+[find_reg]         allocno 4 pseudo 88 refs 3 live 96 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 18
+[find_reg]         allocno 5 pseudo 89 refs 3 live 98 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 19
+[find_reg]         allocno 1 pseudo 85 refs 3 live 100 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 20
+
+===== FUNCTION void LoadAllHelpShapes() =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/86:2/2/0/0/0=10000 1/85:2/2/0/1/0=10000
+[find_free_reg]    qty 1 reg1 85 class 1 calls 0 acc 0 sugg 1 win [8,10) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 5
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/86:2/2/0/0/0=10000 1/85:2/2/0/1/0=10000
+[find_free_reg]    qty 0 reg1 86 class 1 calls 0 acc 0 sugg 0 win [4,6) blocked: 0(fixed) 1(fixed) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 2/94:4/2/0/0/0=40000 1/92:4/4/0/1/0=20000 0/91:4/6/0/1/0=13333
+[find_free_reg]    qty 1 reg1 92 class 1 calls 0 acc 0 sugg 1 win [10,14) blocked: 0(fixed) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(live) 7(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 6
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 2/94:4/2/0/0/0=40000 1/92:4/4/0/1/0=20000 0/91:4/6/0/1/0=13333
+[find_free_reg]    qty 2 reg1 94 class 1 calls 0 acc 0 sugg 0 win [18,20) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 2
+[find_free_reg]    qty 0 reg1 91 class 1 calls 0 acc 0 sugg 0 win [8,14) blocked: 0(fixed) 1(fixed) 4(live) 5(live) 6(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 1/82:11/11/1/1=30000 0/80:5/14/1/1=7142 2/89:3/20/1/1=1500
+[find_reg]         allocno 1 pseudo 82 refs 11 live 11 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 0 pseudo 80 refs 5 live 14 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 2 pseudo 89 refs 3 live 20 calls 1 size 1 alt 0 ccl 0 retry 0 -> reg 18
+
+===== FUNCTION void PSXDrawSquare(int, int, int, int, int) =====
+[qty_sugg]         qty 0 (pseudo 81) COPY-suggests hard reg 5
+[qty_sugg]         qty 1 (pseudo 82) COPY-suggests hard reg 6
+[qty_combine]      pseudo 89 (refs 2 calls 0) merged into qty 7 of pseudo 88 -> qty refs 4 calls 0
+[qty_combine]      pseudo 94 (refs 2 calls 0) merged into qty 8 of pseudo 93 -> qty refs 4 calls 0
+[qty_combine]      pseudo 96 (refs 2 calls 0) merged into qty 7 of pseudo 89 -> qty refs 6 calls 0
+[qty_combine]      pseudo 103 (refs 2 calls 0) merged into qty 10 of pseudo 86 -> qty refs 4 calls 0
+[qty_combine]      pseudo 105 (refs 2 calls 0) merged into qty 3 of pseudo 95 -> qty refs 5 calls 0
+[qty_combine]      pseudo 107 (refs 2 calls 0) merged into qty 10 of pseudo 103 -> qty refs 6 calls 0
+[qty_combine]      pseudo 115 (refs 3 calls 0) merged into qty 1 of pseudo 82 -> qty refs 7 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 8/94:4/6/0/0/0=13333 7/96:6/10/0/0/0=12000 5/85:16/60/0/0/0=10666 10/107:6/12/0/0/0=10000 11/100:2/2/0/0/0=10000 12/108:2/2/0/0/0=10000 13/109:2/2/0/0/0=10000 3/105:5/34/0/0/0=2941 6/92:4/28/0/0/0=2857 4/90:3/26/0/0/0=1153 2/87:3/32/0/0/0=937 9/84:2/38/0/0/0=526 1/115:7/72/0/0/1=1944 0/81:4/66/0/0/1=1212 14/112:3/10/0/1/0=3000
+[find_free_reg]    qty 1 reg1 115 class 1 calls 0 acc 0 sugg 1 win [4,76) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 5(notsugg) 7(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 6
+[find_free_reg]    qty 0 reg1 81 class 1 calls 0 acc 0 sugg 1 win [2,68) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(live) 6(live) 7(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[find_free_reg]    qty 14 reg1 112 class 1 calls 0 acc 0 sugg 1 win [64,74) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 5(live) 6(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 14 -> reg 7
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 8/94:4/6/0/0/0=13333 7/96:6/10/0/0/0=12000 5/85:16/60/0/0/0=10666 10/107:6/12/0/0/0=10000 11/100:2/2/0/0/0=10000 12/108:2/2/0/0/0=10000 13/109:2/2/0/0/0=10000 14/112:3/10/0/1/0=3000 3/105:5/34/0/0/0=2941 6/92:4/28/0/0/0=2857 1/115:7/72/0/0/1=1944 0/81:4/66/0/0/1=1212 4/90:3/26/0/0/0=1153 2/87:3/32/0/0/0=937 9/84:2/38/0/0/0=526
+[find_free_reg]    qty 8 reg1 94 class 1 calls 0 acc 0 sugg 0 win [22,28) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 2
+[find_free_reg]    qty 7 reg1 96 class 1 calls 0 acc 0 sugg 0 win [20,30) blocked: 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 3
+[find_free_reg]    qty 5 reg1 85 class 1 calls 0 acc 0 sugg 0 win [16,76) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 8
+[find_free_reg]    qty 10 reg1 107 class 1 calls 0 acc 0 sugg 0 win [34,46) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 10 -> reg 2
+[find_free_reg]    qty 11 reg1 100 class 1 calls 0 acc 0 sugg 0 win [36,38) blocked: 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 11 -> reg 3
+[find_free_reg]    qty 12 reg1 108 class 1 calls 0 acc 0 sugg 0 win [50,52) blocked: 0(live) 1(fixed) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 12 -> reg 2
+[find_free_reg]    qty 13 reg1 109 class 1 calls 0 acc 0 sugg 0 win [54,56) blocked: 0(live) 1(fixed) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 13 -> reg 2
+[find_free_reg]    qty 3 reg1 105 class 1 calls 0 acc 0 sugg 0 win [10,44) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 9
+[find_free_reg]    qty 6 reg1 92 class 1 calls 0 acc 0 sugg 0 win [18,46) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 10
+[find_free_reg]    qty 4 reg1 90 class 1 calls 0 acc 0 sugg 0 win [14,40) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 11
+[find_free_reg]    qty 2 reg1 87 class 1 calls 0 acc 0 sugg 0 win [6,38) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 12
+[find_free_reg]    qty 9 reg1 84 class 1 calls 0 acc 0 sugg 0 win [32,70) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 13
+
+===== FUNCTION void PSXDrawGouraudSquare(int, int, int, int, int, int, int, int) =====
+[qty_sugg]         qty 0 (pseudo 80) COPY-suggests hard reg 4
+[qty_sugg]         qty 1 (pseudo 81) COPY-suggests hard reg 5
+[qty_sugg]         qty 2 (pseudo 82) COPY-suggests hard reg 6
+[qty_sugg]         qty 3 (pseudo 83) COPY-suggests hard reg 7
+[qty_combine]      pseudo 94 (refs 2 calls 0) merged into qty 9 of pseudo 93 -> qty refs 4 calls 0
+[qty_combine]      pseudo 97 (refs 2 calls 0) merged into qty 10 of pseudo 96 -> qty refs 4 calls 0
+[qty_combine]      pseudo 99 (refs 2 calls 0) merged into qty 9 of pseudo 94 -> qty refs 6 calls 0
+[qty_combine]      pseudo 102 (refs 2 calls 0) merged into qty 15 of pseudo 88 -> qty refs 4 calls 0
+[qty_combine]      pseudo 104 (refs 2 calls 0) merged into qty 5 of pseudo 98 -> qty refs 5 calls 0
+[qty_combine]      pseudo 106 (refs 2 calls 0) merged into qty 15 of pseudo 102 -> qty refs 6 calls 0
+[qty_combine]      pseudo 109 (refs 3 calls 0) merged into qty 2 of pseudo 82 -> qty refs 5 calls 1
+[qty_combine]      pseudo 112 (refs 3 calls 0) merged into qty 1 of pseudo 81 -> qty refs 7 calls 1
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 10/97:4/6/0/0/0=13333 9/99:6/10/0/0/0=12000 15/106:6/12/0/0/0=10000 16/101:2/2/0/0/0=10000 5/104:5/40/0/0/0=2500 8/89:4/34/0/0/0=2352 6/95:3/32/0/0/0=937 11/84:2/22/0/0/0=909 12/85:2/22/0/0/0=909 13/86:2/22/0/0/0=909 14/87:2/22/0/0/0=909 4/91:3/38/0/0/0=789 7/90:18/68/1/0/1=10588 1/112:7/84/1/0/1=1666 2/109:5/80/1/0/1=1250 0/80:4/78/1/0/1=1025 3/83:2/74/1/0/1=270
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 10/97:4/6/0/0/0=13333 9/99:6/10/0/0/0=12000 7/90:18/68/1/0/1=10588 15/106:6/12/0/0/0=10000 16/101:2/2/0/0/0=10000 5/104:5/40/0/0/0=2500 8/89:4/34/0/0/0=2352 1/112:7/84/1/0/1=1666 2/109:5/80/1/0/1=1250 0/80:4/78/1/0/1=1025 6/95:3/32/0/0/0=937 11/84:2/22/0/0/0=909 12/85:2/22/0/0/0=909 13/86:2/22/0/0/0=909 14/87:2/22/0/0/0=909 4/91:3/38/0/0/0=789 3/83:2/74/1/0/1=270
+[find_free_reg]    qty 10 reg1 97 class 1 calls 0 acc 0 sugg 0 win [26,32) blocked: 0(live) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 10 -> reg 2
+[find_free_reg]    qty 9 reg1 99 class 1 calls 0 acc 0 sugg 0 win [24,34) blocked: 0(live) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 3
+[find_free_reg]    qty 7 reg1 90 class 1 calls 1 acc 0 sugg 0 win [20,88) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(callused) 6(callused) 7(callused) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 7 -> reg 16
+[find_free_reg]    qty 15 reg1 106 class 1 calls 0 acc 0 sugg 0 win [44,56) blocked: 0(live) 1(fixed) 16(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 15 -> reg 2
+[find_free_reg]    qty 16 reg1 101 class 1 calls 0 acc 0 sugg 0 win [46,48) blocked: 0(live) 1(fixed) 2(live) 16(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 16 -> reg 3
+[find_free_reg]    qty 5 reg1 104 class 1 calls 0 acc 0 sugg 0 win [14,54) blocked: 0(live) 1(fixed) 2(live) 3(live) 16(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 4
+[find_free_reg]    qty 8 reg1 89 class 1 calls 0 acc 0 sugg 0 win [22,56) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 16(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 5
+[find_free_reg]    qty 1 reg1 112 class 1 calls 1 acc 0 sugg 0 win [4,88) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 1 -> reg 17
+[find_free_reg]    qty 2 reg1 109 class 1 calls 1 acc 0 sugg 0 win [6,86) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(callused) 7(live) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 17(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 2 -> reg 18
+[find_free_reg]    qty 0 reg1 80 class 1 calls 1 acc 0 sugg 0 win [2,80) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(callused) 9(callused) 10(callused) 11(callused) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 17(live) 18(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 0 -> reg 19
+[find_free_reg]    qty 6 reg1 95 class 1 calls 0 acc 0 sugg 0 win [18,50) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 16(live) 17(live) 18(live) 19(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 6
+[find_free_reg]    qty 11 reg1 84 class 1 calls 0 acc 0 sugg 0 win [36,58) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 16(live) 17(live) 18(live) 19(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 11 -> reg 7
+[find_free_reg]    qty 12 reg1 85 class 1 calls 0 acc 0 sugg 0 win [38,60) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 16(live) 17(live) 18(live) 19(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 12 -> reg 8
+[find_free_reg]    qty 13 reg1 86 class 1 calls 0 acc 0 sugg 0 win [40,62) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 16(live) 17(live) 18(live) 19(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 13 -> reg 9
+[find_free_reg]    qty 14 reg1 87 class 1 calls 0 acc 0 sugg 0 win [42,64) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 16(live) 17(live) 18(live) 19(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 14 -> reg 10
+[find_free_reg]    qty 4 reg1 91 class 1 calls 0 acc 0 sugg 0 win [10,48) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 16(live) 17(live) 18(live) 19(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 11
+[find_free_reg]    qty 3 reg1 83 class 1 calls 1 acc 0 sugg 0 win [8,82) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(callused) 13(callused) 14(callused) 15(callused) 16(live) 17(live) 18(live) 19(live) 24(callused) 25(callused) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(live)
+[find_free_reg]    qty 3 -> reg 20
+
+===== FUNCTION void PSXDrawTransGouraudSquare(int, int, int, int, int, int, int, int, int) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_combine]      pseudo 112 (refs 3 calls 0) merged into qty 1 of pseudo 111 -> qty refs 5 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/109:3/12/0/0/0=2500 1/112:5/10/0/0/0=10000 2/115:3/4/0/0/0=7500
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/109:3/12/0/0/0=2500 1/112:5/10/0/0/0=10000 2/115:3/4/0/0/0=7500
+[find_free_reg]    qty 0 reg1 109 class 1 calls 0 acc 0 sugg 0 win [18,30) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[find_free_reg]    qty 1 reg1 112 class 1 calls 0 acc 0 sugg 0 win [22,32) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 2 reg1 115 class 1 calls 0 acc 0 sugg 0 win [28,32) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 4
+[qty_combine]      pseudo 98 (refs 8 calls 0) merged into qty 2 of pseudo 97 -> qty refs 12 calls 0
+[qty_combine]      pseudo 95 (refs 4 calls 0) merged into qty 3 of pseudo 94 -> qty refs 8 calls 0
+[qty_combine]      pseudo 105 (refs 8 calls 0) merged into qty 4 of pseudo 104 -> qty refs 12 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 3/95:8/6/0/0/0=40000 5/101:4/2/0/0/0=40000 6/102:4/2/0/0/0=40000 7/121:4/2/0/0/0=40000 2/98:12/10/0/0/0=36000 4/105:12/12/0/0/0=30000 0/91:30/48/0/0/0=25000 1/90:8/26/0/0/0=9230
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 3/95:8/6/0/0/0=40000 5/101:4/2/0/0/0=40000 6/102:4/2/0/0/0=40000 7/121:4/2/0/0/0=40000 2/98:12/10/0/0/0=36000 4/105:12/12/0/0/0=30000 0/91:30/48/0/0/0=25000 1/90:8/26/0/0/0=9230
+[find_free_reg]    qty 3 reg1 95 class 1 calls 0 acc 0 sugg 0 win [12,18) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 2
+[find_free_reg]    qty 5 reg1 101 class 1 calls 0 acc 0 sugg 0 win [24,26) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 2
+[find_free_reg]    qty 6 reg1 102 class 1 calls 0 acc 0 sugg 0 win [30,32) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 7 reg1 121 class 1 calls 0 acc 0 sugg 0 win [56,58) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 2 reg1 98 class 1 calls 0 acc 0 sugg 0 win [10,20) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 3
+[find_free_reg]    qty 4 reg1 105 class 1 calls 0 acc 0 sugg 0 win [22,34) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 3
+[find_free_reg]    qty 0 reg1 91 class 1 calls 0 acc 0 sugg 0 win [6,54) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[find_free_reg]    qty 1 reg1 90 class 1 calls 0 acc 0 sugg 0 win [8,34) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 5
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 9/89:7/51/0/1=2745 12/96:5/41/0/1=2439 10/92:5/44/0/1=2272 0/80:4/42/0/1=1904 13/99:5/78/0/1=1282 19/120:3/29/0/1=1034 18/116:3/30/0/1=1000 17/113:3/32/0/1=937 16/110:3/35/0/1=857 1/81:3/36/0/1=833 4/84:4/100/0/1=800 3/83:2/36/0/1=555 2/82:2/42/0/1=476 15/108:3/74/0/1=405 14/107:3/76/0/1=394 11/93:3/84/0/1=357 8/88:3/92/0/1=326 7/87:3/94/0/1=319 6/86:3/96/0/1=312 5/85:3/98/0/1=306
+[find_reg]         allocno 9 pseudo 89 refs 7 live 51 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 12 pseudo 96 refs 5 live 41 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 9
+[find_reg]         allocno 10 pseudo 92 refs 5 live 44 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 10
+[find_reg]         allocno 0 pseudo 80 refs 4 live 42 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 4
+[find_reg]         allocno 13 pseudo 99 refs 5 live 78 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 11
+[find_reg]         allocno 19 pseudo 120 refs 3 live 29 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 18 pseudo 116 refs 3 live 30 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 17 pseudo 113 refs 3 live 32 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 12
+[find_reg]         allocno 16 pseudo 110 refs 3 live 35 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 13
+[find_reg]         allocno 1 pseudo 81 refs 3 live 36 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 5
+[find_reg]         allocno 4 pseudo 84 refs 4 live 100 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 14
+[find_reg]         allocno 3 pseudo 83 refs 2 live 36 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 2 pseudo 82 refs 2 live 42 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 6
+[find_reg]         allocno 15 pseudo 108 refs 3 live 74 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 15
+[find_reg]         allocno 14 pseudo 107 refs 3 live 76 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 24
+[find_reg]         allocno 11 pseudo 93 refs 3 live 84 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 25
+[find_reg]         allocno 8 pseudo 88 refs 3 live 92 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 7 pseudo 87 refs 3 live 94 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 17
+[find_reg]         allocno 6 pseudo 86 refs 3 live 96 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 18
+[find_reg]         allocno 5 pseudo 85 refs 3 live 98 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 19
+
+===== FUNCTION void PSXDrawTransSquare(int, int, int, int, int, short int) =====
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/0/0=10000
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 0/84:2/2/0/0/0=10000
+[find_free_reg]    qty 0 reg1 84 class 1 calls 0 acc 0 sugg 0 win [20,22) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 2
+[qty_combine]      pseudo 102 (refs 8 calls 0) merged into qty 3 of pseudo 101 -> qty refs 12 calls 0
+[qty_combine]      pseudo 99 (refs 4 calls 0) merged into qty 4 of pseudo 96 -> qty refs 8 calls 0
+[qty_combine]      pseudo 109 (refs 8 calls 0) merged into qty 5 of pseudo 108 -> qty refs 12 calls 0
+[qty_combine]      pseudo 126 (refs 4 calls 0) merged into qty 0 of pseudo 94 -> qty refs 10 calls 0
+[qty_combine]      pseudo 125 (refs 4 calls 0) merged into qty 0 of pseudo 126 -> qty refs 14 calls 0
+[qty_combine]      pseudo 129 (refs 4 calls 0) merged into qty 0 of pseudo 125 -> qty refs 18 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 4/99:8/6/0/0/0=40000 6/105:4/2/0/0/0=40000 7/106:4/2/0/0/0=40000 3/102:12/10/0/0/0=36000 1/89:32/50/0/0/0=32000 5/109:12/12/0/0/0=30000 0/129:18/62/0/0/0=11612 2/88:8/26/0/0/0=9230
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 4/99:8/6/0/0/0=40000 6/105:4/2/0/0/0=40000 7/106:4/2/0/0/0=40000 3/102:12/10/0/0/0=36000 1/89:32/50/0/0/0=32000 5/109:12/12/0/0/0=30000 0/129:18/62/0/0/0=11612 2/88:8/26/0/0/0=9230
+[find_free_reg]    qty 4 reg1 99 class 1 calls 0 acc 0 sugg 0 win [14,20) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 2
+[find_free_reg]    qty 6 reg1 105 class 1 calls 0 acc 0 sugg 0 win [26,28) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 2
+[find_free_reg]    qty 7 reg1 106 class 1 calls 0 acc 0 sugg 0 win [32,34) blocked: 0(fixed) 1(fixed) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 2
+[find_free_reg]    qty 3 reg1 102 class 1 calls 0 acc 0 sugg 0 win [12,22) blocked: 0(fixed) 1(fixed) 2(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 3
+[find_free_reg]    qty 1 reg1 89 class 1 calls 0 acc 0 sugg 0 win [8,58) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 4
+[find_free_reg]    qty 5 reg1 109 class 1 calls 0 acc 0 sugg 0 win [24,36) blocked: 0(fixed) 1(fixed) 2(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 3
+[find_free_reg]    qty 0 reg1 129 class 1 calls 0 acc 0 sugg 0 win [4,66) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 5
+[find_free_reg]    qty 2 reg1 88 class 1 calls 0 acc 0 sugg 0 win [10,36) blocked: 0(fixed) 1(fixed) 2(live) 3(live) 4(live) 5(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 6
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri):
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 8/98:7/40/0/1=3500 13/118:5/34/0/1=2941 12/115:5/35/0/1=2857 6/92:5/43/0/1=2325 5/90:3/14/0/1=2142 4/87:5/47/0/1=2127 9/103:5/76/0/1=1315 1/81:6/94/0/1=1276 2/82:6/94/0/1=1276 14/127:3/33/0/1=909 3/83:2/26/0/1=769 11/112:3/72/0/1=416 10/111:3/74/0/1=405 7/93:3/82/0/1=365 0/80:3/94/0/1=319
+[find_reg]         allocno 8 pseudo 98 refs 7 live 40 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 8
+[find_reg]         allocno 13 pseudo 118 refs 5 live 34 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 9
+[find_reg]         allocno 12 pseudo 115 refs 5 live 35 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 6 pseudo 92 refs 5 live 43 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 10
+[find_reg]         allocno 5 pseudo 90 refs 3 live 14 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 3
+[find_reg]         allocno 4 pseudo 87 refs 5 live 47 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 11
+[find_reg]         allocno 9 pseudo 103 refs 5 live 76 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 12
+[find_reg]         allocno 1 pseudo 81 refs 6 live 94 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 13
+[find_reg]         allocno 2 pseudo 82 refs 6 live 94 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 14
+[find_reg]         allocno 14 pseudo 127 refs 3 live 33 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 15
+[find_reg]         allocno 3 pseudo 83 refs 2 live 26 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 7
+[find_reg]         allocno 11 pseudo 112 refs 3 live 72 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 24
+[find_reg]         allocno 10 pseudo 111 refs 3 live 74 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 25
+[find_reg]         allocno 7 pseudo 93 refs 3 live 82 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 16
+[find_reg]         allocno 0 pseudo 80 refs 3 live 94 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 17
+
+===== FUNCTION void FontUpsideDownBlit(int, int, void *, int, int, struct charactertbl *, int) =====
+[qty_sugg]         qty 0 (pseudo 80) COPY-suggests hard reg 4
+[qty_combine]      pseudo 115 (refs 4 calls 0) merged into qty 10 of pseudo 114 -> qty refs 6 calls 0
+[qty_sugg]         qty 13 (pseudo 82) COPY-suggests hard reg 6
+[qty_combine]      pseudo 112 (refs 2 calls 0) merged into qty 12 of pseudo 109 -> qty refs 4 calls 0
+[qty_combine]      pseudo 122 (refs 4 calls 0) merged into qty 16 of pseudo 121 -> qty refs 6 calls 0
+[qty_combine]      pseudo 119 (refs 2 calls 0) merged into qty 2 of pseudo 111 -> qty refs 6 calls 0
+[qty_combine]      pseudo 105 (refs 2 calls 0) merged into qty 15 of pseudo 99 -> qty refs 5 calls 0
+[qty_sugg]         qty 24 (pseudo 83) COPY-suggests hard reg 7
+[qty_combine]      pseudo 95 (refs 2 calls 0) merged into qty 14 of pseudo 94 -> qty refs 4 calls 0
+[qty_combine]      pseudo 96 (refs 2 calls 0) merged into qty 14 of pseudo 95 -> qty refs 6 calls 0
+[qty_combine]      pseudo 97 (refs 2 calls 0) merged into qty 14 of pseudo 96 -> qty refs 8 calls 0
+[qty_combine]      pseudo 98 (refs 2 calls 0) merged into qty 14 of pseudo 97 -> qty refs 10 calls 0
+[qty_combine]      pseudo 90 (refs 4 calls 0) merged into qty 14 of pseudo 98 -> qty refs 14 calls 0
+[qty_combine]      pseudo 150 (refs 3 calls 0) merged into qty 14 of pseudo 90 -> qty refs 17 calls 0
+[qty_combine]      pseudo 159 (refs 3 calls 0) merged into qty 7 of pseudo 89 -> qty refs 7 calls 0
+[qty_combine]      pseudo 129 (refs 2 calls 0) merged into qty 22 of pseudo 128 -> qty refs 4 calls 0
+[qty_combine]      pseudo 131 (refs 2 calls 0) merged into qty 22 of pseudo 129 -> qty refs 6 calls 0
+[qty_combine]      pseudo 135 (refs 2 calls 0) merged into qty 26 of pseudo 133 -> qty refs 4 calls 0
+[qty_combine]      pseudo 138 (refs 2 calls 0) merged into qty 22 of pseudo 131 -> qty refs 8 calls 0
+[qty_combine]      pseudo 140 (refs 2 calls 0) merged into qty 23 of pseudo 132 -> qty refs 5 calls 0
+[qty_combine]      pseudo 141 (refs 2 calls 0) merged into qty 23 of pseudo 140 -> qty refs 7 calls 0
+[qty_combine]      pseudo 144 (refs 2 calls 0) merged into qty 22 of pseudo 138 -> qty refs 10 calls 0
+[qty_combine]      pseudo 162 (refs 3 calls 0) merged into qty 5 of pseudo 88 -> qty refs 6 calls 0
+[qty_sugg_order] (qty/reg1:refs/life/calls/sg/csg=pri): 26/135:4/4/0/0/0=20000 8/93:2/2/0/0/0=10000 16/122:6/12/0/0/0=10000 18/125:2/2/0/0/0=10000 19/126:2/2/0/0/0=10000 14/150:17/76/0/0/0=8947 12/112:4/10/0/0/0=8000 6/87:26/136/0/0/0=7647 10/115:6/18/0/0/0=6666 22/144:10/58/0/0/0=5172 21/127:2/4/0/0/0=5000 17/124:2/6/0/0/0=3333 20/86:2/6/0/0/0=3333 15/105:5/36/0/0/0=2777 3/85:4/30/0/0/0=2666 11/107:4/30/0/0/0=2666 23/141:7/54/0/0/0=2592 25/147:3/12/0/0/0=2500 2/119:6/50/0/0/0=2400 1/91:3/20/0/0/0=1500 9/116:3/26/0/0/0=1153 7/159:7/126/0/0/0=1111 5/162:6/136/0/0/0=882 4/84:2/80/0/0/0=250 24/83:4/22/0/0/1=3636 13/82:4/48/0/0/1=1666 0/80:4/146/0/0/1=547
+[find_free_reg]    qty 24 reg1 83 class 1 calls 0 acc 0 sugg 1 win [86,108) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 5(notsugg) 6(notsugg) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 24 -> reg 7
+[find_free_reg]    qty 13 reg1 82 class 1 calls 0 acc 0 sugg 1 win [36,84) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 4(notsugg) 5(live) 7(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 13 -> reg 6
+[find_free_reg]    qty 0 reg1 80 class 1 calls 0 acc 0 sugg 1 win [2,148) blocked: 0(live) 1(fixed) 2(notsugg) 3(notsugg) 5(live) 6(live) 7(live) 8(notsugg) 9(notsugg) 10(notsugg) 11(notsugg) 12(notsugg) 13(notsugg) 14(notsugg) 15(notsugg) 16(notsugg) 17(notsugg) 18(notsugg) 19(notsugg) 20(notsugg) 21(notsugg) 22(notsugg) 23(notsugg) 24(notsugg) 25(notsugg) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 0 -> reg 4
+[qty_order     ] (qty/reg1:refs/life/calls/sg/csg=pri): 26/135:4/4/0/0/0=20000 8/93:2/2/0/0/0=10000 16/122:6/12/0/0/0=10000 18/125:2/2/0/0/0=10000 19/126:2/2/0/0/0=10000 14/150:17/76/0/0/0=8947 12/112:4/10/0/0/0=8000 6/87:26/136/0/0/0=7647 10/115:6/18/0/0/0=6666 22/144:10/58/0/0/0=5172 21/127:2/4/0/0/0=5000 24/83:4/22/0/0/1=3636 17/124:2/6/0/0/0=3333 20/86:2/6/0/0/0=3333 15/105:5/36/0/0/0=2777 3/85:4/30/0/0/0=2666 11/107:4/30/0/0/0=2666 23/141:7/54/0/0/0=2592 25/147:3/12/0/0/0=2500 2/119:6/50/0/0/0=2400 13/82:4/48/0/0/1=1666 1/91:3/20/0/0/0=1500 9/116:3/26/0/0/0=1153 7/159:7/126/0/0/0=1111 5/162:6/136/0/0/0=882 0/80:4/146/0/0/1=547 4/84:2/80/0/0/0=250
+[find_free_reg]    qty 26 reg1 135 class 1 calls 0 acc 0 sugg 0 win [128,132) blocked: 0(live) 1(fixed) 4(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 26 -> reg 2
+[find_free_reg]    qty 8 reg1 93 class 1 calls 0 acc 0 sugg 0 win [22,24) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 8 -> reg 2
+[find_free_reg]    qty 16 reg1 122 class 1 calls 0 acc 0 sugg 0 win [48,60) blocked: 0(live) 1(fixed) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 16 -> reg 2
+[find_free_reg]    qty 18 reg1 125 class 1 calls 0 acc 0 sugg 0 win [64,66) blocked: 0(live) 1(fixed) 4(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 18 -> reg 2
+[find_free_reg]    qty 19 reg1 126 class 1 calls 0 acc 0 sugg 0 win [68,70) blocked: 0(live) 1(fixed) 4(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 19 -> reg 2
+[find_free_reg]    qty 14 reg1 150 class 1 calls 0 acc 0 sugg 0 win [40,116) blocked: 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 14 -> reg 3
+[find_free_reg]    qty 12 reg1 112 class 1 calls 0 acc 0 sugg 0 win [34,44) blocked: 0(live) 1(fixed) 3(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 12 -> reg 2
+[find_free_reg]    qty 6 reg1 87 class 1 calls 0 acc 0 sugg 0 win [18,154) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 6 -> reg 8
+[find_free_reg]    qty 10 reg1 115 class 1 calls 0 acc 0 sugg 0 win [28,46) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 10 -> reg 9
+[find_free_reg]    qty 22 reg1 144 class 1 calls 0 acc 0 sugg 0 win [82,140) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 22 -> reg 5
+[find_free_reg]    qty 21 reg1 127 class 1 calls 0 acc 0 sugg 0 win [76,80) blocked: 0(live) 1(fixed) 3(live) 4(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 21 -> reg 2
+[find_free_reg]    qty 17 reg1 124 class 1 calls 0 acc 0 sugg 0 win [56,62) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 17 -> reg 5
+[find_free_reg]    qty 20 reg1 86 class 1 calls 0 acc 0 sugg 0 win [72,78) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 20 -> reg 5
+[find_free_reg]    qty 15 reg1 105 class 1 calls 0 acc 0 sugg 0 win [42,78) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 15 -> reg 10
+[find_free_reg]    qty 3 reg1 85 class 1 calls 0 acc 0 sugg 0 win [12,42) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 3 -> reg 10
+[find_free_reg]    qty 11 reg1 107 class 1 calls 0 acc 0 sugg 0 win [30,60) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 11 -> reg 11
+[find_free_reg]    qty 23 reg1 141 class 1 calls 0 acc 0 sugg 0 win [84,138) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 23 -> reg 6
+[find_free_reg]    qty 25 reg1 147 class 1 calls 0 acc 0 sugg 0 win [102,114) blocked: 0(live) 1(fixed) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 25 -> reg 2
+[find_free_reg]    qty 2 reg1 119 class 1 calls 0 acc 0 sugg 0 win [8,58) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 2 -> reg 12
+[find_free_reg]    qty 1 reg1 91 class 1 calls 0 acc 0 sugg 0 win [4,24) blocked: 0(live) 1(fixed) 2(live) 4(live) 5(live) 6(live) 7(live) 8(live) 10(live) 12(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 1 -> reg 3
+[find_free_reg]    qty 9 reg1 116 class 1 calls 0 acc 0 sugg 0 win [26,52) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 9 -> reg 13
+[find_free_reg]    qty 7 reg1 159 class 1 calls 0 acc 0 sugg 0 win [20,146) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 13(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 7 -> reg 14
+[find_free_reg]    qty 5 reg1 162 class 1 calls 0 acc 0 sugg 0 win [16,152) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 13(live) 14(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 5 -> reg 15
+[find_free_reg]    qty 4 reg1 84 class 1 calls 0 acc 0 sugg 0 win [14,94) blocked: 0(live) 1(fixed) 2(live) 3(live) 4(live) 5(live) 6(live) 7(live) 8(live) 9(live) 10(live) 11(live) 12(live) 13(live) 14(live) 15(live) 26(fixed) 27(fixed) 28(fixed) 29(live) 30(live) 31(fixed)
+[find_free_reg]    qty 4 -> reg 16
+[allocno_compare]  order (allocno/pseudo:refs/live/calls/size=pri): 0/81:8/51/0/1=4705
+[find_reg]         allocno 0 pseudo 81 refs 8 live 51 calls 0 size 1 alt 0 ccl 0 retry 0 -> reg 9

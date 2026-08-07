@@ -120,3 +120,31 @@ that window — NONE currently — or the SAVE_EXPR-generating construct, or acc
 the SYM omits a 5th short-lived REG local under some stabs condition and probe a named
 `ytop` variant e5+split = `ytop = y - yoff; ??? = ytop + 5; ...`).
 Files: mine/psxfront_e15.{i,s} in C:/Temp/nfs4-instr-cc1.
+
+## ROUND 4 (2026-08-05): GLOBAL.C CONFIRMED LIVE — [find_reg] allocno for the y-chain
+trace_e15.txt: `[find_reg] allocno 0 pseudo 81 refs 8 live 51 calls 0 ... -> reg 9` —
+the y-chain is a GLOBAL allocno in e15 (the arg6 split produced the 2-death pseudo;
+y's copy-sugg is gone from pass 1: only x/src/u remain). MECHANISM FULLY CONFIRMED:
+split -> 2 deaths -> global.c. It lands t1 (not t8) ONLY because our local fill leaves
+t1 open.
+E15 LOCAL FILL (decoded): tiny temps timeshare v0/v1; prim(7647)->t0; qty10(6666)->t1;
+dv-cluster qty22(10refs/58life,5172)->A1 (+arg6 +5 temp shares a1, disjoint windows);
+p128 qty23(2592)->a2; masks/etc t2..t7; v(250)->s0. Global y -> first free = t1.
+RETAIL FILL, NOW FULLY DERIVED: dv's BIRTH (lw @EFFC) PRECEDES the y-arrival read
+(subu @F004) => dv's window OVERLAPS the hard-a1 live range [0,subu) => a1 BLOCKED for
+dv => dv->t0 (v0=ch,v1=temps,a0=x also blocked); prim then ->t1, pal->t2, m1->t3,
+yoff->t4, m2->t5, height->t6, width->t7; p128 (late, 2592) -> a1 (free after hard range
+ends); v->s0; ch->v0; global y: t0..t7+v0/v1/a0..a3+s0 ALL conflict -> reg 24 = T8.
+EVERY RETAIL REGISTER IS NOW EXPLAINED by priority order + window overlaps.
+REMAINING DELTAS (ours-e15 vs retail), all fill-order artifacts:
+ (a) our dv window starts AFTER the hard-a1 death (sched1 placement) -> dv steals a1;
+     retail needs dv born BEFORE the subu (source order has it; our sched1 moved it);
+ (b) our 8 tiny temps all pile on v0 (retail leaves v0 for ch);
+ (c) prim t0-vs-t1 follows automatically from (a).
+NEXT (round 5 / focused session or wave): guided search over the small source dials
+(dv/tpage/clut statement positions, the -1-in-UV dial to reshape dv's qty, +5-carrier
+variants) x gate, reading each result's trace — the search is now DIRECTED: success
+criterion per probe = dv@t0 in the local fill, then y-global lands t8 by construction.
+Also still open: the SYM-LEGAL +5 carrier (arg6 has no ARG record in SYM = unnamed
+param in EA source; candidates: a named short-lived local the stabs might omit, a
+SAVE_EXPR construct, or an EA macro).

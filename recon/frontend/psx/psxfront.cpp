@@ -1508,61 +1508,52 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   -fno-rtti`; psxfront 22/25 byte-identical -- FontUpsideDownBlit is in the identical set,
    *   DrawGouraudShape is one of the 3 inline-GTE divergences, so use it for qty/allocno traces
    *   on Draw, never as a byte oracle). */
-  u_char  *prim;
-  u_char  *prevPrim;
-  int      linkAddr;
-  int      width;
-  int      height;
-  int      dv;
-  int      yoff;
-  int      ybase;
-  int      hoff;
-  int      ytop;
+  /* ==== 🏆 2026-08-05 ROUND 6 — THE BODY BELOW REPLACED THE 48-DIFF LOOKALIKE ====
+   * This is V10 of the EA-natural clean-room campaign (scratch/font_ea_basin/, rounds
+   * 1-6 in TRACE_NOTES.md): the SYM-true shape (locals EXACTLY prim/width/height/dv),
+   * retail-SLD statement order with font_tint BEFORE addPrim, the P_TAG-bitfield link
+   * RMWs (gcc2.x cse struct-alias law), and the y-chain LIVE-RANGE SPLIT via the dead
+   * 7th param (`arg6 = y + 5;` -- fold is statement-granular and cannot associate
+   * across a different variable; the 2-death y pseudo fails local-alloc's
+   * REG_N_DEATHS==1 gate and is allocated by GLOBAL.c, which prefers call-used regs).
+   * GATE: FAIL 44 (82/82) vs the old tuned body's 48 -- and STRUCTURALLY TRUE:
+   * dv@t0, prim@t1, pal@t2, m1@t3, yoff@t4, m2@t5, height@t6, width@t7, y@T8,
+   * +5-temp@v1, p128@a1, tint@v0, v@s0 ALL RETAIL-EXACT (14/16). Residual 44 = the
+   * 0x1F800004 addr-temp (ours t0-early vs retail v1) + ch (ours v1 vs retail v0)
+   * renames and their head-region position echoes; tail from `sh t6,10` byte-exact.
+   * ⚠ CAVEAT: SYM shows NO ARG record for the 7th param (unnamed in EA source), so
+   * `arg6 = y + 5` is a stand-in for EA's true +5 carrier (round-7 hunt). The OLD
+   * 48-body (SYM-false basin: extra locals ybase/hoff/ytop/linkAddr/prevPrim) is
+   * preserved in git history @79865d5a and its full receipt remains above. */
+  POLY_FT4 *prim;
+  int       width;
+  int       height;
+  int       dv;
 
   width = ch->width;
-  prim = Render_gPacketPtr;
-  prim[0xc] = u;
-  prevPrim = Render_gPalettePtr;
   height = ch->height;
-  yoff = *(signed char *)&ch->yoffset;
-  ybase = y - yoff;
-  hoff = height + yoff;
+  prim = (POLY_FT4 *)Render_gPacketPtr;
+  Render_gPacketPtr = (u_char *)prim + 0x28;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
-  linkAddr = (uint)prim & 0xffffff;
-  Render_gPacketPtr = prim + 0x28;
-  *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)prevPrim & 0xffffff;
-  /* MATCH: the font_tint store sits BETWEEN prim[3] and prim[7] -- that position puts its
-   * %hi materialization ahead of the *prim link store and gives the link chain retail's $v1.
-   * (2026-08-02: addPrim-bitfield RE-FALSIFIED under the new dial taxonomy too -- bitfield-read
-   * 144@84, plain-read 156@88 -- the mask+linkAddr form IS this fn's retail shape.)
-   * (permuter 535: split-RMW measured 52 ALONE -- its candidate gain rode on a
-   * SEMANTICALLY-INVALID co-mutation (hoff=yoff), rejected; permuter candidates need
-   * SEMANTIC REVIEW per mutation, not just byte re-gate.) */
-  *(u_long *)(prim + 4) = font_tint;
-  *(uint *)prevPrim = *(uint *)prevPrim & 0xff000000 | linkAddr;
-  prim[3] = 9;
-  prim[7] = 0x2c;
-  *(ushort *)(prim + 0xe) = gFontClut;
-  *(ushort *)(prim + 0x16) =
-       (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
-       (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
-  prim[0xd] = dv;
-  prim[0x15] = dv;
-  prim[0x14] = u + width;
-  ybase = ybase + 5;
-  ytop = ybase - hoff;
-  *(short *)(prim + 0x1a) = ytop;
-  prim[0x1c] = u;
-  prim[0x1d] = dv + height;
-  prim[0x24] = u + width;
-  prim[0x25] = dv + height;
-  *(short *)(prim + 8) = x;
-  *(short *)(prim + 10) = ytop + height;
-  *(short *)(prim + 0x10) = x + width;
-  *(short *)(prim + 0x12) = ytop + height;
-  *(short *)(prim + 0x18) = x;
-  *(short *)(prim + 0x20) = x + width;
-  *(short *)(prim + 0x22) = ytop;
+  y = y - *(signed char *)&ch->yoffset;
+  arg6 = y + 5;
+  y = arg6 - (height + *(signed char *)&ch->yoffset);
+  *(u_long *)&prim->r0 = font_tint;
+  ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr,
+  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+  ((u_char *)prim)[3] = 9;
+  prim->code = 0x2c;
+  prim->clut = gFontClut;
+  prim->tpage = (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
+                (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
+  prim->u0 = u, prim->v0 = dv,
+  prim->u1 = u + width, prim->v1 = dv,
+  prim->u2 = u, prim->v2 = dv + height,
+  prim->u3 = u + width, prim->v3 = dv + height;
+  prim->x0 = x, prim->y0 = y + height,
+  prim->x1 = x + width, prim->y1 = y + height,
+  prim->x2 = x, prim->y2 = y,
+  prim->x3 = x + width, prim->y3 = y;
   return;
 }
 

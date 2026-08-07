@@ -172,3 +172,24 @@ field-read grouping (ch's v0 window vs temp windows), addPrim-vs-tint order. Per
 oracle: lab .s (prim moves to $9/t1 = success; then gate should collapse to ~0).
 STILL OPEN: SYM-legal +5 carrier (arg6 is unnamed in EA source per SYM).
 Files: font_v1..v8.cpp here; mine/psxfront_v7/v8.{i,s} in C:/Temp/nfs4-instr-cc1.
+
+## ROUND 6 (2026-08-05, "continue round 6"): 82 -> 44 — V10 LANDED AS SHIPPING BODY
+V7 trace decoded the swap: dv=q8 (17refs/94life, pri 7234) vs prim=q9 (26/130, 8000) —
+prim wins t0 by 766. Retail's dv is born ~14 luids later (life ~78 -> pri ~8717),
+OUTRANKING prim -> t0 with v0/v1/a1 all blocked over its window. Global y reads
+`-> 24` (t8) directly in trace_v7. Dial = delay dv's birth (e15 position) while keeping
+a v1-blocker tiny temp in its window.
+Matrix: V10 (e15 order + TINT MOVED BEFORE ADDPRIM) = 🏆 44@82 — BEATS THE 48-BODY;
+V11 (tint after codes) 126; V12 (clut early) 88@78; V15 (y1 hoisted) 59@85; V16 (tint
+before dv) 140; V17 (bump after dv) 106.
+V10 REGISTER MAP: dv@T0 ✓ prim@T1 ✓ (the swap FLIPPED — tint-early put its value temp
+on v0 inside dv's window, reshaping the fill) + all of round-5's matches hold (y@t8,
++5@v1, p128@a1, pal@t2, masks t3/t5, yoff@t4, height/width/v, tint@v0) = 14/16.
+REMAINING 44 = HEAD ONLY (tail from `sh t6,10` byte-exact): (a) the 0x1F800004
+addr-temp ours t0-early vs retail v1; (b) ch ours v1 vs retail v0; + their position
+echoes (lb t4 placement, tag-lw/pal-lw order, li 9/44 order, tint-load position).
+LANDED: V10 replaced the 48-body in psxfront.cpp (banner + old receipts preserved;
+old body in git @79865d5a). Gate re-verified 44; sibling DrawFlatShape still PASS.
+ROUND 7: (1) flip addr-temp->v1 + ch->v0 (head statement dials: width/height read
+order vs prim line; masks materialization; maybe addPrim's operand eval order);
+(2) the SYM-legal +5 carrier to replace arg6.

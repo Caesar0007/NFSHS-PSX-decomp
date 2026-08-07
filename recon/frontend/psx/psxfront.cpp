@@ -1524,7 +1524,24 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * ⚠ CAVEAT: SYM shows NO ARG record for the 7th param (unnamed in EA source), so
    * `arg6 = y + 5` is a stand-in for EA's true +5 carrier (round-7 hunt). The OLD
    * 48-body (SYM-false basin: extra locals ybase/hoff/ytop/linkAddr/prevPrim) is
-   * preserved in git history @79865d5a and its full receipt remains above. */
+   * preserved in git history @79865d5a and its full receipt remains above.
+   * ==== 2026-08-08 ROUND 7 — 44 -> 28 (V21): the WHOLE y-chain (all 3 statements)
+   * moved BEFORE `prim = ...` (retail SLD order: 1446-1447 y-mutation precedes the
+   * 1449 alloc/link line). MECHANISM (diffsrc-proven): our `lb t4` (yoffset) had been
+   * emitting AFTER the packet-bump store, stretching ch's live window over the bump
+   * temp's v0 slot -> ch fell to v1 and the 0x1F800004 addr-temp to t0; grouping all
+   * three ch reads ahead of the bump lets ch die on V0 and the addr-temp take V1 --
+   * BOTH remaining register renames retail-exact in one move (16/16 now match).
+   * FALSIFIED same round (all re-gated): y-=yoff alone moved up (V20, 59@85 -- the
+   * chain must move TOGETHER or y's split degrades); tint after addPrim (V22, 112 --
+   * tint-early is still the fill seed); tint between the addPrim halves (V23, 116);
+   * tint before dv (V24, 122 -- tint's slot is exactly after dv).
+   * RESIDUAL 28 = pure emission-order echoes of ONE cluster: ours hoists the
+   * font_tint load (17-18) + sinks the palette-ptr load (26-27); retail hoists the
+   * palette-ptr load (16-17) + sinks the whole tint/li-9/li-44 group into the 2nd
+   * OT-link RMW (33-41), + the `sh t6,10` tail echo. Same statements, same regs,
+   * same count -- a sched1 hoist-choice identity; no source spelling reached it this
+   * round. Route: instrumented-cc1 sched trace (the #E' lane) or accept. */
   POLY_FT4 *prim;
   int       width;
   int       height;
@@ -1532,12 +1549,12 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
 
   width = ch->width;
   height = ch->height;
-  prim = (POLY_FT4 *)Render_gPacketPtr;
-  Render_gPacketPtr = (u_char *)prim + 0x28;
-  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
   y = y - *(signed char *)&ch->yoffset;
   arg6 = y + 5;
   y = arg6 - (height + *(signed char *)&ch->yoffset);
+  prim = (POLY_FT4 *)Render_gPacketPtr;
+  Render_gPacketPtr = (u_char *)prim + 0x28;
+  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
   *(u_long *)&prim->r0 = font_tint;
   ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr,
   ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;

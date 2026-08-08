@@ -450,6 +450,16 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
 }
 
 /* ---- AudioClc_SoundPlayersCar__Fi  [@0x80075508] ---- */
+/* MATCH: PASS 461/461 via the per-fn -fno-thread-jumps splice (build.py
+ * PER_FN_NO_THREAD_JUMPS, 2026-08-08).  The 4-diff residual was gcc's
+ * thread_jumps pass redirecting the `(type==5||type==3) && (channel>=0)`
+ * fail edge PAST the else-if chain's `bgez channel` re-test; the threaded
+ * entry label between the bgez and the commMode compare blocked the
+ * delay-slot fill (`bgez; nop; lw; li` vs retail's unthreaded
+ * `bgez; li(slot); lw; nop`).  Retail's compile did not thread this edge;
+ * no source spelling reaches that (both branch layouts are identical at
+ * the label level) -- same per-fn-flag precedent as
+ * PER_FN_NO_DELAYED_BRANCH. */
 void AudioClc_SoundPlayersCar(int playerIndex)
 {
   DRender_tCalcView *view;

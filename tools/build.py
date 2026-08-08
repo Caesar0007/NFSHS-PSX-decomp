@@ -605,6 +605,31 @@ def per_fn_no_delayed_branch(src: Path) -> set:
     return PER_FN_NO_DELAYED_BRANCH.get(src.relative_to(ROOT).as_posix(), set())
 
 
+# Per-FUNCTION -fno-thread-jumps splice (same dual-compile mechanism as
+# PER_FN_NO_DELAYED_BRANCH above; same key/label conventions).  Motivation
+# (2026-08-08, AudioClc_SoundPlayersCar 4->0): gcc's thread_jumps pass
+# redirects a cond-branch whose outcome decides a target block's cond-branch
+# (here: cond-1's `channel<0` fail edge threaded PAST the else-if chain's
+# `bgez channel` re-test, landing a CODE_LABEL between the bgez and the
+# commMode li/lw pair).  That label blocks the delay-slot fill, forcing
+# `bgez; nop; lw; li` where retail (unthreaded) emits `bgez; li(slot); lw;
+# nop` -- retail's compile did not thread this edge, so the flag reproduces
+# the retail shape byte-exactly for the affected function.  Whole-TU probe
+# receipts (real CC1PLPSX, label-normalized diff): flag touches 4 fns --
+# SoundPlayersCar (target), ResetClosest (PASS at stake), GetClosestCars,
+# SoundCars -- which is exactly why this is per-FUNCTION, not a TU flag.
+PER_FN_NO_THREAD_JUMPS = {
+    "recon/game/common/audioclc.cpp": {
+        "AudioClc_SoundPlayersCar__Fi",
+        # tried + reverted (2026-08-08, same probe session):
+        #   AudioClc_GetClosestCars__Fiii  FAIL 17 -> 20 (REGRESSED, count
+        #     266->263 further from oracle 267 -- retail's copy WAS threaded)
+        #   AudioClc_SoundCars__Fv         FAIL 2 -> 2 (no-op: its residual
+        #     is not a thread artifact)
+    },
+}
+
+
 _ENT_RE_TMPL = r'^\t\.ent\t{name}\b[^\n]*\n'
 _END_RE_TMPL = r'^\t\.end\t{name}[ \t]*$'
 
@@ -719,26 +744,29 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
     extract each named function's region from that second .s, uniquify its
     local labels, and substitute it for that function's region in s_file
     IN PLACE (both .s files stay cached in the build dir for debugging)."""
-    fn_names = PER_FN_NO_DELAYED_BRANCH.get(rel_posix)
-    if not fn_names:
-        return
-    nodb_flags = list(cc1_flags)
-    if "-fno-delayed-branch" not in nodb_flags:
-        nodb_flags.append("-fno-delayed-branch")
-    nodb_s = s_file.with_suffix(".nodb.s")
-    r = run([cc1_bin, *nodb_flags, i_file, "-o", nodb_s])
-    if r.returncode:
-        sys.exit(f"[cc1-nodb] {rel_posix}\n{r.stdout}{r.stderr}")
-    nodb_text = nodb_s.read_text()
-    normal_text = s_file.read_text()
-    for name in sorted(fn_names):
-        flagged_region = _extract_fn_region(nodb_text, name)
-        target_region = _extract_fn_region(normal_text, name)
-        _SPLICE_COUNTER[0] += 1
-        flagged_region = _uniquify_local_labels(
-            flagged_region, f"ndb{_SPLICE_COUNTER[0]}")
-        normal_text = normal_text.replace(target_region, flagged_region, 1)
-    s_file.write_text(normal_text)
+    for table, extra_flag, tag in (
+            (PER_FN_NO_DELAYED_BRANCH, "-fno-delayed-branch", "nodb"),
+            (PER_FN_NO_THREAD_JUMPS, "-fno-thread-jumps", "nthr")):
+        fn_names = table.get(rel_posix)
+        if not fn_names:
+            continue
+        flagged_flags = list(cc1_flags)
+        if extra_flag not in flagged_flags:
+            flagged_flags.append(extra_flag)
+        flagged_s = s_file.with_suffix(f".{tag}.s")
+        r = run([cc1_bin, *flagged_flags, i_file, "-o", flagged_s])
+        if r.returncode:
+            sys.exit(f"[cc1-{tag}] {rel_posix}\n{r.stdout}{r.stderr}")
+        flagged_text = flagged_s.read_text()
+        normal_text = s_file.read_text()
+        for name in sorted(fn_names):
+            flagged_region = _extract_fn_region(flagged_text, name)
+            target_region = _extract_fn_region(normal_text, name)
+            _SPLICE_COUNTER[0] += 1
+            flagged_region = _uniquify_local_labels(
+                flagged_region, f"{tag}{_SPLICE_COUNTER[0]}")
+            normal_text = normal_text.replace(target_region, flagged_region, 1)
+        s_file.write_text(normal_text)
 
 
 ASPSX_VERSION = "2.77"

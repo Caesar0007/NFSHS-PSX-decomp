@@ -757,6 +757,51 @@ def _apply_epilogue_unfill(rel_posix: str, s_file: Path) -> None:
     s_file.write_text(txt)
 
 
+# Per-FUNCTION $ra-save SINK (w50-a6, CV_ColorTracks): retail schedules the
+# prologue `sw $31,N($sp)` BELOW the first call's whole arg setup, immediately
+# before the jal; ours emits it with the other prologue saves.  No cc1 flag
+# reaches this shape (flag axis falsified: -fno-schedule-insns/-insns2,
+# -mno-split-addresses, -fno-delayed-branch) -- it is a pure textual relocation
+# on the .s, same lane family as PER_FN_EPILOGUE_UNFILL.
+PER_FN_RA_SINK = {
+    "recon/game/psx/textureprocess.cpp": {
+        "CV_ColorTracks__Fiii",   # FAIL 2 (130/130) -> PASS per the a6 receipt
+    },
+}
+
+
+def _apply_ra_sink(rel_posix: str, s_file: Path) -> None:
+    names = PER_FN_RA_SINK.get(rel_posix)
+    if not names:
+        return
+    txt = s_file.read_text(errors="replace")
+    for name in names:
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else 0)
+        region = txt[m.start():end]
+        save = re.search(r"^\tsw\t\$31,\d+\(\$sp\)\n", region, re.M)
+        if not save:
+            continue
+        # first jal after the save; insert before its .set noreorder block if
+        # present, else directly before the jal line.
+        tail = region[save.end():]
+        jal = re.search(r"^\tjal\t", tail, re.M)
+        if not jal:
+            continue
+        ins = jal.start()
+        block = tail[:ins]
+        nore = block.rfind("\t.set\tnoreorder\n")
+        if nore != -1 and "\tjal\t" not in block[nore:]:
+            ins = nore
+        new = (region[:save.start()] + region[save.end():save.end() + ins]
+               + save.group(0) + region[save.end() + ins:end - m.start()])
+        txt = txt[:m.start()] + new + txt[end:]
+    s_file.write_text(txt)
+
+
 def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
                       cc1_bin: Path, cc1_flags: list) -> None:
     """If `rel_posix` has entries in PER_FN_NO_DELAYED_BRANCH: recompile
@@ -895,6 +940,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
 
     _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1, cc1_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
+    _apply_ra_sink(rel.as_posix(), s_file)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -956,6 +1002,7 @@ def compile_cpp(src: Path) -> Path:
 
     _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1PL, cc1pl_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
+    _apply_ra_sink(rel.as_posix(), s_file)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

@@ -360,9 +360,27 @@ extern int FILE_opstatus(unsigned int id)
      * shape the oracle visually has) -- gcc picks $a3 for `result` + flips branch polarity
      * (bne) instead of adopting the oracle's exact form; 12 diffs, worse. No source lever
      * tried (now spanning 2 waves) moved it; accept as the same toolchain floor. */
+    /* MATCH (w50-a4, 2 -> PASS 22/22): the residual WAS the commutative-addu operand order
+     * (ours `addu a0,base,scaled`, retail `addu a0,scaled,base`) and it IS source-reachable --
+     * the earlier "int-arithmetic operand flip costs 18" receipt was a CASCADE, not the flip.
+     * Writing the sum integer-first (`(id>>0x18)*0x30 + (int)ops`) makes the index expression
+     * tree operand 0, which is exactly retail's order (C's pointer_int_sum normalises `ptr+int`
+     * to PLUS_EXPR(ptr,int) whatever you spell, so ONLY an int-typed sum can flip it).  Alone
+     * that also moves the base LOAD to operand 1, so it expands second, misses the early
+     * `lui a0,%hi` slot and self-temps (`lui v1; lw v1,0(v1)`) -- which then evicts the 0xFFFFF
+     * mask off retail's $a1 = the 18-diff cascade.  THE CASCADE FIX is to read the base into a
+     * local FIRST (`ops = gFileMgr.oparray;` as its own statement): it expands ahead of the index
+     * chain again, keeps retail's separate-scratch `lui a0,0` / `lw v1,0(a0)` pair, and the flip
+     * then costs nothing.  Same two-statement shape as reserveop's offset-first slot expressions
+     * (IDA sub_800ED0DC writes every slot access `*(_DWORD *)(off + dword_8013EAA0)`).
+     * Falsified at this basin: flip with an extra `+ 0` (18), flip with a named `idx` local (2 --
+     * the named index re-orders the tree back), `&((char*)oparray)[...]` subscript form (2),
+     * a use-fence on the base local (6). */
     FileOp *op;
+    FileOp *ops;
     if (id != 0) {
-        op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+        ops = gFileMgr.oparray;
+        op = (FileOp *)((id >> 0x18) * 0x30 + (int)ops);
         if ((id & 0xFFFFF) == (op->id & 0xFFFFF))   /* request id still matches -> not stale */
             goto success;
     }
@@ -424,13 +442,24 @@ extern int FILE_operror(unsigned int id)
      * uses, and no C spelling modifies it (the %hi that clobbers $a0 in retail is still a
      * pseudo at cse time).  NEW ANGLE (w47): this is now a PER-TU FLAG question, not a
      * spelling one -- the parm-copy survival differs between cc1 configurations. */
-    unsigned int idx = id >> 0x18;
-    __asm__("" : : "r"(id));
-    return ((FileOp *)((char *)gFileMgr.oparray + idx * 0x30))->error;
+    /* MATCH (w50-a4, 3 -> PASS 12/12): NOT a flag question -- the OPACITY FENCE supplies the
+     * missing parm copy at zero instructions.  `__asm__("" : "=r"(id) : "0"(id))` redefines `id`
+     * from an asm_operands, so cse can no longer prove the pseudo equals the incoming $a0 and
+     * copy-prop cannot fold the assign_parms copy away: retail's `addu v1,a0,zero` reappears and
+     * the shift becomes the in-place `srl v1,v1,24`.  (The "0" matching constraint ties output to
+     * input, so nothing is emitted -- w47 fence-mode 3.)
+     * 🔑 THE OTHER HALF IS STATEMENT COUNT: the w47 shift-SPLIT (`idx = id >> 0x18;` as its own
+     * statement) must be REVERTED.  With the split, the srl has a LOWER luid than the address
+     * chain's `lui %hi`, so rank_for_schedule's luid tie-break issues srl first and the lui lands
+     * after it (the count is exact but 2 insns are transposed).  In the ONE-EXPRESSION form the
+     * base is expand_expr operand 0, its `lui` is emitted first, and sched only sinks the `lw`
+     * down -- retail's exact order.  Measured at this basin: split+opacity 2 · split+opacity+
+     * base-local 2/6 · opacity-after-the-shift 11 (copy gone again) · one-expression+opacity PASS
+     * (also PASS via a separate `idc = id` copy carrying the fence, and with the base hoisted +
+     * the operand flip).  A use-fence on `id` AFTER the opacity fence costs 16 -- do not stack. */
+    __asm__("" : "=r"(id) : "0"(id));
     /* The volatile aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
-     * direct field return remains better than caching `op`. GCC still sinks the otherwise unused
-     * allocation to the tail instead of placing it at entry, and keeps `id` in a0 instead of
-     * copying it to v1; those scheduling/coloring differences are the remaining floor. */
+     * direct field return remains better than caching `op`. */
     return ((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->error;
 }
 

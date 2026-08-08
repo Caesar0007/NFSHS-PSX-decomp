@@ -738,33 +738,27 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 short tCarManager::GetNumTourneyCars(short playerNum)
 
 {
-  /* MATCH: the retail loop uses lb/bltz for the slot ID, then reloads it with
-     lbu only after the empty-slot guard.  Keep the signed test carrier. */
-  signed char cVar1;
-  tCarInfo *ptVar2;
-  void *pvVar3;
-  int iVar4;
+  /* MATCH: one signed slot-ID carrier preserves lb/bltz and the call argument;
+     natural array indexing lets gcc form the retail s0 strength-reduction walk. */
+  signed char carID;
   int i;
   short result;
   tCarInfo carInfo;
-  
+
   result = 0;
   i = 0;
-  iVar4 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
-    cVar1 = *(signed char *)((char *)this + iVar4 + 8);
-    if (-1 < cVar1) {
-      carInfo.fCarID = *(u_char *)((char *)this + iVar4 + 8);
-      carInfo.fUpgrades = *(u_char *)((char *)this + iVar4 + 9);
-      ptVar2 = this->GetCarFromID((short)cVar1);
-      carInfo.fCarClass = ptVar2->fCarClass;
-      pvVar3 = tournamentManager.ValidCar(carInfo);   /* ValidCar now takes tCarInfo& */
-      if (pvVar3 != (void *)0x0) {
+    carID = this->fCarGarage[playerNum][i].fCarID;
+    if (carID >= 0) {
+      carInfo.fCarID = this->fCarGarage[playerNum][i].fCarID;
+      carInfo.fUpgrades = this->fCarGarage[playerNum][i].fUpgrades;
+      carInfo.fCarClass =
+          this->GetCarFromID(carID)->fCarClass;
+      if (tournamentManager.ValidCar(carInfo)) {
         result = result + 1;
       }
     }
     i = i + 1;
-    iVar4 = iVar4 + 4;
   } while (i < 0x20);
   return result;
 }

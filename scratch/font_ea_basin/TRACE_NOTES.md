@@ -375,3 +375,73 @@ VALIDATED, AND READ. Gate stays 28; the causal chain is instrumented end-to-end.
    window, or dv global).  Loop cost = minutes/probe, all instruments hot.
 STATUS: shipping = V21 (28) untouched this round.  Instrument + parser
 committed; traces banked in the instr dir.
+
+================================================================================
+ROUND 12 (2026-08-08) -- 🏆🏆 THE +5 CARRIER SOLVED (SYM-legal, W2=28) + the
+STRUCT-READ anti-dep discovery (/s sinks dv-lw to retail pos 19) + y@t8+v1
+achieved WITH mutations (W10). Gate stays 28 (V21 shipping, verified).
+================================================================================
+1) 🏆 THE +5 CARRIER (arg6 caveat CLOSED): SLD f-block re-read: addiu+5
+   (F05C) AND subu2 (F06C) both line 1447; addu h+yo (F008) 1447; subu1
+   (F004) 1446 => stmt 1447 is ONE statement. fold-const.c READ (split_tree
+   @980, associate @4293): any flat (y+5)-(h+yo) FOLDS to y-((h+yo)-5)
+   (W1-proven: addu -5, y 1-qty a1, 70@82); casts are stripped (SImode);
+   BUT `y = 5 - (height+yoff) + y;` takes the varsign=-1 branch:
+   "EXPR is (CON-VAR)+ARG1 -> (CON+ARG1)-VAR" = (5+y)-(h+yo), and FOLD'S
+   OWN REWRITE OUTPUT IS NEVER RE-FOLDED => survives => addiu v1,y,5 /
+   subu, y dies into the temp (2-death global t8). W2 (V21 + this
+   spelling) = 28 == V21 EXACTLY. SYM-legal (no local, no arg6 use).
+2) 🏆 THE ANTI-DEP / STRUCT-READ LAW: our bump-store carries REG_DEP_ANTI
+   on the dv src+0xc load (greg receipt) => dv-lw PINNED above the bump;
+   retail emits dv-lw@19 AFTER bump-ST@15 => retail's RTL had NO such dep.
+   sched.c anti_dependence (line 878): canon_rtx rewrites the store's
+   address reg to its REG_EQUAL const (0x1F800004) => store = fixed+
+   non-struct; the MEM_IN_STRUCT clause then kills the dep IFF the LOAD is
+   mem/s (struct ref) + varying. INDIRECT_REF of a cast never gets /s or
+   /u (expr.c: RTX_UNCHANGING_P = READONLY & STATIC only; const* deref
+   useless - W7 = 82 unchanged). A COMPONENT_REF does: probe struct
+   PSXFontHdr { u_char flags; u_char pad[11]; int vramLoc; } and
+   ((PSXFontHdr*)src)->vramLoc gives mem/s => dep GONE, dv-lw sinks to
+   EXACTLY retail pos 19 (W8). => EA read the font header through a
+   STRUCT (edgbla's font[] instinct, as a real field).
+   ALSO READ: sched.c line-note save/restore (3546/4064) is PER-INSN
+   EXACT under -g => the SLD is true per-insn attribution of the
+   SCHEDULED stream; retail's -1 tagged 1463 but EMITTED at pos 28 =
+   a real `dv -= 1` statement at the UV line that sched1 HOISTED into
+   the pal1-lw latency slot.
+3) 🏆 MUTATIONS ARE REAL (r11 red-herring PARTIALLY retired): dv+height
+   is stored TWICE (v2+v3) yet retail reuses t0 in place - a 2-use
+   anonymous temp would get its own reg => retail spelled `dv += height`
+   (same proof: height=y+height 4-use in-place t6, width=x+width 2-use
+   t7). The r11 coalesce argument only covers 1-use temps.
+4) PROBE LADDER (all swap-gate-restore, baseline 28 re-verified):
+   W1 (flat y+5-(h+yo)) 70@82 fold-proof | W2 (5-(h+yo)+y carrier,
+   tint-early) 28 == V21 | W3 (W2+tint-late) 112 | W4 (+full SLD tail)
+   150@78 | W5 (SLD order+carrier+-1@UV) 90@78 | W6 (SLD order+carrier,
+   -1 in init) 82@82 ZIPPER BACK (p113 1.33 v0 / p116 1.2 v1 block dv
+   even tint-late; sole failure = dv/prim race: dv 17/94=.7234 < prim
+   26/130=.8000) | W7 (const*) 82 no-op | W8 (struct read) 112 - dv
+   SINKS (lw@19 retail-exact), dv 17/74=.9189 > prim ✓ BUT chain@43-47
+   re-serialized the zipper -> dv steals v1 | W9 (W8 + -1@UV) 90@78 |
+   W10 (W8 + -1@UV + MUTATIONS) 96@78 -- 🏆 y@T8 GLOBAL + +5@V1 + subu2
+   retail-placed WITH tint-late+mutations (r10's unreachable), but the
+   mutation-deepened dv chain hoists to the HEAD (dv@t1, v dies @9,
+   frame dead).
+5) STATE OF THE INVERSION (retail conditions, each achieved somewhere):
+   dv-lw@19 sunk (W8/W10 via /s) | dv>prim pri (W8) | zipper v0+v1
+   over dv window (W6, tint-late!) | y@t8+5@v1 (W10) | frame/v@s0
+   (W6/W2) | tint-late emission (W3+) | li9/li2c overlap (NONE yet -
+   the one condition never achieved; retail li9[39,42]xli2c[41,44]
+   via the li9-before-sw-tint transposition).
+   ROUND-13 DIALS: (a) chain-sink with mutations: the head picks take
+   the dv chain because its mutated path outranks the ch/prim loads -
+   find the pri/luid dial (the -1-vs-andi order, the `+ v` position,
+   or the tpage-read /s变化 changing the graph); (b) the li zipper:
+   ours picks each li right after its store (launch boost) - retail's
+   li9 waits one slot (li2c boosted-tie won by HIGHER LUID first);
+   probe: swap the 9/2c statement ORDER?? (SLD: 9=1455 2c=1456 FIXED)
+   -> no; the +5's luid sits between them in retail's group - the
+   carrier stmt POSITION (1447) is luid-low; retail +5@43 = boost-
+   placed. Read the exact pick in sched_w6/w10 vs the boost windows.
+   Files: font_w{1..10}.cpp + mine/psxfront_w{1,3,4,6,7,8,10}.{i,s} +
+   trace_w{1,3,4,6,8,10}.txt, sched_w8.txt (instr dir).

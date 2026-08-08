@@ -206,6 +206,8 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
      * and sinks `sw allocOut,0(ppp)` to the bottom; the oracle keeps the written order and leaves
      * that delay slot unfilled.  Making ONLY the first or only the two end stores volatile is not
      * enough (132 / 119) -- the run has to be ordered as a whole. */
+    do {                             /* MATCH: w44 depth wrapper = zero-insn REF INFLATOR on
+                                      * `ppp`, restoring its rank over the now-10-ref `gp`. */
     *(volatile int *)(ppp + 0)      = allocOut;
     *(volatile short *)(ppp + 0xa)  = 0;
     *(volatile short *)(ppp + 0xe)  = 0;
@@ -213,8 +215,13 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
     *(volatile int *)(ppp + 4)      = 0;
     *(volatile int *)(ppp + 0x14)   = 0;
     *(volatile short *)(ppp + 0xc)  = (short)0xffff;
+    } while (0);
+    dur = note * 100;                             /* MATCH: the note*100 chain must ISSUE
+                                                   * BEFORE the lwl/lwr pair (retail); once the
+                                                   * note fences below lengthen note's range,
+                                                   * sched1 no longer hoists it on its own. */
     *(Unal4 *)(ppp + 0x24) = *(Unal4 *)rate;      /* unaligned rate-word copy: lwl/lwr + swl/swr */
-    ch = *(int *)(gp + 0x94) + note * 100;        /* MATCH: AFTER the unaligned copy -- the oracle's
+    ch = *(int *)(gp + 0x94) + dur;        /* MATCH: AFTER the unaligned copy -- the oracle's
                                                     * `lw v1,0x94(s3)` sits between the swl/swr pair
                                                     * and the params[0xb] test, with the pool-base
                                                     * add filling the test's beqz delay slot (sched1
@@ -247,7 +254,11 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
          *     store-read-back family) or a zero-insn ref INFLATOR on its rivals (`note`/`ppp`) to
          *     restore the 8-ref ranking with 10 real refs.  Not attempted -- both need reqdelta. */
         gp = MSB(params, 7) - 0x40;
-        gp = (gp << 8) & 0xffff;
+        gp = gp << 8;                 /* MATCH: THREE statements, in place -- see the w50-a8
+                                       * receipt at the fn tail; the 3-statement form is the
+                                       * only one that emits retail's in-place shift/mask, and
+                                       * its +2 gp refs are paid for by the ppp/note inflators. */
+        gp = gp & 0xffff;
     }
 
     MSB(ch, 0xa)  = -1;              /* li -1 (signed char), not li 255 */
@@ -298,6 +309,11 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
         iSNDleaveaudio();
         return r;
     }
+    __asm__("" : : "r"(note));       /* MATCH: two zero-insn w45 USE FENCES = REF INFLATOR on
+                                      * `note` (see the tail receipt).  They emit nothing; they
+                                      * exist only to move note's REG_N_REFS across the
+                                      * floor_log2 step so it out-ranks the 3-statement `gp`. */
+    __asm__("" : : "r"(note));
     iSNDleaveaudio();
     return MI(ppp, 0);
 }
@@ -369,7 +385,29 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
  *     three still 60 on the 3-statement base.
  *   - LIVE-RANGE demotion of gp is a no-op: a w45 use fence `__asm__("" : : "r"(gp))` at the tail
  *     (or just before the `r < 0` test) measures exactly 4 / 60 -- gp already lives to the
- *     iSNDplatformpacketplay arg, so there is no range left to lengthen. */
+ *     iSNDplatformpacketplay arg, so there is no range left to lengthen. 
+ * w50-a8 2026-08-09 -- SOLVED, PASS 187/187.  The w49 note above had the mechanism right and
+ * only lacked a ZERO-COST note inflator.  It is the w45 USE FENCE: `__asm__("" : : "r"(note))`
+ * costs 0 instructions on a register-resident local but IS counted by flow.c, so two of them at
+ * the tail push `note` over the floor_log2 step.  The PASS is a FOUR-DIAL composition and every
+ * dial is load-bearing (measured, all 187/187):
+ *     2-stmt else arm (kept base) ................................  4
+ *     3-stmt in-place else arm alone ............................. 60
+ *     + ppp depth wrapper ........................................ 42
+ *     + 1 note fence ............................................. 42   (2 fences: 10)
+ *     + 2 note fences ............................................ 10
+ *     + `dur = note * 100;` split above the unaligned copy ....... PASS
+ *   Drop any one: 3-stmt+dur 60 | 3-stmt+pppw+dur 38 | 3-stmt+pppw+1fence+dur 38 |
+ *   3-stmt+2fence+dur 60 | 2-stmt+dur 4.
+ *   The dur split is needed because the fences lengthen note's live range, after which sched1
+ *   stops hoisting the note*100 chain above the lwl/lwr rate copy on its own (the last 10 diffs
+ *   were exactly those 5 insns, moved).  `dur` was an already-declared unused local, so the
+ *   declaration list -- which is itself load-bearing here -- is unchanged.
+ *   FALSIFIED this wave: the calcpitch/calcvol depth wrapper as the note inflator (17 diffs but
+ *   188/187 -- parity lost, the w49 note's finding reproduced); a wrapper on only one of the two
+ *   calls (44-45); a wrapper on `iSNDfreechan(note)` (inert, 42/60); 3 and 4 tail fences (10, the
+ *   step is already crossed at 2); fences in the note<0 guard block or in the r<0 arm (identical
+ *   to tail placement at every count) -- placement is irrelevant, only the COUNT matters. */
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */

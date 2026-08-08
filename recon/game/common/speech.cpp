@@ -167,6 +167,16 @@ void              *gSpeechBankPool;
    NFS4.EXE). Read in StartUp via switch(GameSetup_gData.languageSpeech) -> "%szzzz%s.viv". */
 static char        gSpeechLangSuffix[4][4] = { "fre", "ger", "brt", "eng" };
 
+static inline int Speech_ReadBE32(char *p)
+{
+  int a = (u_char)p[0];
+  int b = (u_char)p[1];
+  int c = (u_char)p[2];
+  int d = (u_char)p[3];
+
+  return (((a << 8 | b) << 8 | c) << 8 | d);
+}
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 extern "C" {
 void Speech_AllocateRAM__FlPc(int numBytes,char *message);
@@ -182,7 +192,7 @@ void * FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki(Speech *pThis,Loc
 void FindLocation__Q26Speech7SpeakerP8Car_tObj(Speaker *pThis,Car_tObj *car);
 bool CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(u_int param_1,u_int *bank,char *name,u_int id);
 u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u_int id,u_int bn);
-int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(int param_1,void *header,u_int bn,int *hoffset,int *hsize);
+int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(Speech *pThis,char *header,CarBankName *bn,long *hoffset,long *hsize);
 void LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell(Speech *pThis,char *header,CarBankName *bn,long hoffset,long hsize);
 void Reset__6Speech(void);
 u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car);
@@ -776,86 +786,67 @@ u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u
 }
 
 /* ---- CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3  [SPEECH.CPP:931-984] SLD-VERIFIED ---- */
-int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(int param_1,void *header,u_int bn,int *hoffset,int *hsize)
+int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(Speech *pThis,char *header,CarBankName *bn,long *hoffset,long *hsize)
 
 {
-  Speech *pThis;  /* folded receiver temp (SYM REG `this`) */
   int bcount;
   int bsize;
   long offset;
   long size;
-  int filecount;
-  char * c;
-  char * p;
-  int b;
-  int a;
-  int i;
-  char * name;
-  u_char uVar1;
-  u_char uVar2;
-  u_char uVar3;
-  u_char uVar4;
-  char cVar5;
-  bool bVar6;
-  void *pvVar7;
-  int iVar8;
-  char *pcVar9;
-  char *pcVar10;
-  char *pcVar11;
-  char *pcVar12;
-  int iVar13;
-  int iVar14;
-  int iVar15;
-  int local_30;
-  int local_2c;
-  
-  iVar13 = 0;
-  pvVar7 = locatebigentry(header,"j:eventdat\\event.dat",0,&local_30,(int)&local_2c);
-  pcVar11 = (char *)((int)header + 0x10);
-  if (pvVar7 == (void *)0x0) {
-    iVar15 = 0;
-  }
-  else {
-    pcVar9 = (char *)((int)header + 0xf);
-    uVar1 = *(u_char *)((int)header + 8);
-    uVar2 = *(u_char *)((int)header + 9);
-    uVar3 = *(u_char *)((int)header + 10);
-    uVar4 = *(u_char *)((int)header + 0xb);
-    iVar15 = local_2c;
-    for (iVar14 = 0; iVar14 < ((u_int)(((u_int)(((u_int)(uVar1) << 8 | (u_char)(uVar2))) << 8 | (u_char)(uVar3))) << 8 | (u_char)(uVar4));
-        iVar14 = iVar14 + 1) {
-      pcVar12 = pcVar11 + 8;
-      local_30 = ((u_int)(((u_int)(((u_int)(*pcVar11) << 8 | (u_char)(pcVar9[2]))) << 8 | (u_char)(pcVar9[3]))) << 8 | (u_char)(pcVar9[4]));
-      pcVar10 = pcVar9 + 8;
-      local_2c = ((u_int)(((u_int)(((u_int)(pcVar9[5]) << 8 | (u_char)(pcVar9[6]))) << 8 | (u_char)(pcVar9[7]))) << 8 | (u_char)(pcVar9[8]));
-      cVar5 = *pcVar12;
-      pcVar11 = pcVar12;
-      while (cVar5 != '\0') {
-        pcVar11 = pcVar11 + 1;
-        pcVar10 = pcVar10 + 1;
-        cVar5 = *pcVar11;
+
+  bcount = 0;
+  bsize = 0;
+  if (locatebigentry(header,"j:eventdat\\event.dat",0,&offset,(int)&size) != 0) {
+    int filecount;
+    char *c;
+    int i;
+    int period;
+
+    c = header + 0x10;
+    bsize = size;
+    filecount = Speech_ReadBE32(header + 8);
+    i = 0;
+    period = '.';
+    while (i < filecount) {
+      char *name;
+      bool extension;
+
+      offset = Speech_ReadBE32(c);
+      size = Speech_ReadBE32(c + 4);
+      name = c + 8;
+      c = name;
+      while (*c != '\0') {
+        c++;
       }
-      bVar6 = false;
-      if (((pcVar10[-3] == '.') && (pcVar10[-2] == 'h')) && (pcVar10[-1] == 'd')) {
-        bVar6 = *pcVar10 == 'r';
+      extension = false;
+      {
+        int h = 'h';
+        int hd = 'd';
+        int a = (u_char)c[-4];
+        int b = (u_char)c[-3];
+        int cc = (u_char)c[-2];
+        int d = (u_char)c[-1];
+
+        if (((a == period) && (b == h)) && (cc == hd)) {
+          extension = d == 'r';
+        }
       }
-      if (bVar6) {
+      if (extension) {
         if (*hoffset == 0) {
-          *hoffset = local_30;
+          *hoffset = offset;
         }
-        *hsize = (local_30 + local_2c) - *hoffset;
-        iVar8 = CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(param_1,pcVar12,iVar13,bn);
-        if (iVar8 != 0) {
-          iVar13 = iVar13 + 1;
-          iVar15 = iVar15 + local_2c;
+        *hsize = offset + size - *hoffset;
+        if (CheckMultiBank__6SpeechPciPQ26Speech11CarBankName((int)pThis,name,bcount,(u_int)bn)) {
+          bcount++;
+          bsize += size;
         }
       }
-      pcVar9 = pcVar10 + 1;
-      pcVar11 = pcVar11 + 1;
+      c++;
+      i++;
     }
   }
-  *(int *)(param_1 + 0x370) = iVar13;
-  return iVar15;
+  pThis->fBankCount = bcount;
+  return bsize;
 }
 
 /* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell  [SPEECH.CPP:990-1102] SLD-VERIFIED ---- */
@@ -1076,7 +1067,7 @@ Speech::Speech()
   hsize = 0;
   if (header)
     banksize = CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(
-        (int)this, header, (u_int)bn, (int *)&hoffset, (int *)&hsize);
+        this, header, bn, &hoffset, &hsize);
   if (banksize > 0)
     fBankOffset = (long *)reservememadr("spch index", fBankCount * 4 + banksize, 0);
   if (fBankOffset) {

@@ -28,34 +28,42 @@ void tScreenPinkSlips::DrawBackground()
   tMenuTextState textState;
   tTrackInformation trackInfo;
   short shapeY;
-
   i = 0;
   r.x = 0x15b;
   r.y = 0x8f;
   r.w = 0x90;
   r.h = 0xe;
   while (i < (short)(byte)frontEnd.pinkSlipsNumTracks) {
-    int flare_intensity = (int)(short)this->fMenu->fCurrentItem;
-    BOOL selected = false;
+    BOOL selected;
 
     textState = textState_Selected;
-    if ((i == flare_intensity - 1) || ((i == 0) && (flare_intensity == 0))) {
+    selected = false;
+    if ((i == (short)this->fMenu->fCurrentItem - 1) ||
+        ((i == 0) && ((short)this->fMenu->fCurrentItem == 0))) {
       selected = true;
     }
     if (selected) {
+      int pulse;
+      int flare_intensity;
+
       flareextra_248 = flareextra_248 + 1;
       if (0x3c < flareextra_248) {
         flareextra_248 = 0;
       }
-      flare_intensity = flareextra_248;
-      if (0x1e < flare_intensity) {
-        flare_intensity = 0x3c - flare_intensity;
+      pulse = flareextra_248;
+      if (0x1e < pulse) {
+        pulse = 0x3c - pulse;
       }
-      flare_intensity = (flare_intensity / 2 + 0x14) * (0x80 - this->fScreenFadeVal);
+      flare_intensity = pulse / 2;
+      flare_intensity += 0x14;
+      flare_intensity *= 0x80 - this->fScreenFadeVal;
       if (0 < flare_intensity) {
-        Flare_2DHalo(r.x + -0xf,r.y + 6,flare_intensity / 2,
+        short rx = r.x;
+        short ry = r.y;
+
+        Flare_2DHalo(rx + -0xf,ry + 6,flare_intensity / 2,
                     (flare_intensity * 2) / 3,0x17);
-        DrawShapeExtended(0x38,0,r.x + -0x12,r.y,
+        DrawShapeExtended(0x38,0,rx + -0x12,ry,
                    (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
       }
       textState = textState_Hilighted;
@@ -71,8 +79,9 @@ void tScreenPinkSlips::DrawBackground()
   }
   {
     u_short currentItem = (u_short)this->fMenu->fCurrentItem;
+    char trackIndex = (char)currentItem;
 
-    frontEnd.pinkSlipsTrackIndex = (char)currentItem;
+    frontEnd.pinkSlipsTrackIndex = trackIndex;
     if ((currentItem & 0xff) != 0) {
       frontEnd.pinkSlipsTrackIndex = (char)(currentItem - 1);
     }
@@ -90,26 +99,25 @@ void tScreenPinkSlips::DrawBackground()
   this->DrawVideoWall();
   shapeY = (ushort)((this->fFrame & 1U) == 0) << 7;
   if (VIDEO_state(this->hVideo) != 0) {
-    i = VIDEO_updateframexy(this->hVideo,0x200,shapeY);
-    tv = 0;
-    if (i != 0) {
+    if (VIDEO_updateframexy(this->hVideo,0x200,shapeY) != 0) {
       this->fFrame = this->fFrame + 1;
       shapeY = (ushort)((this->fFrame & 1U) == 0) << 7;
     }
+    tv = 0;
     i = 0;
     do {
       j = 0;
       do {
-        this->fTrackTVs[tv].x = (short)j * 0x50 + 0xa0;
+        this->fTrackTVs[tv].x = j * 0x50 + 0xa0;
         this->fTrackTVs[tv].y = i * 0x40 + 0x19;
         this->fTrackTVs[tv].w = 0x50;
         this->fTrackTVs[tv].h = 0x40;
-        this->fTrackTVs[tv].u = (char)j * '(';
-        this->fTrackTVs[tv].v = (char)(i * 0x40) + (char)shapeY;
+        this->fTrackTVs[tv].u = j * '(';
+        this->fTrackTVs[tv].v = i * 0x40 + (char)shapeY;
         this->fTrackTVs[tv].uw = '(';
         this->fTrackTVs[tv].vh = '@';
         if (i == 1) {
-          this->fTrackTVs[tv].vh = '?';
+          this->fTrackTVs[tv].vh--;
         }
         this->fTrackTVs[tv].tpage = GetTPage(2,0,0x200,(int)shapeY);
         j = j + 1;

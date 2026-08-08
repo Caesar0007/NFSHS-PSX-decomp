@@ -98,7 +98,14 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  * the branch-polarity rewrite `if (initialized != 0) goto initok; return -10;` is canonicalized
  * away (13 alone, 12 with the fence = identical to the fence alone).
  * ==> residual re-stated for the next wave: with the barrier, 12 = the `sw s3`/`addu s3,a1` save
- * position + the guard's branch polarity + the `i = 0` slot.  Hunt a NATURAL barrier, not order. */
+ * position + the guard's branch polarity + the `i = 0` slot.  Hunt a NATURAL barrier, not order.
+ * w50-a8 2026-08-09: barrier LANDED (the honest-count rule is satisfied: 13 -> 10 AND count-exact
+ * 81/81) together with the positive-test body wrap.  The NATURAL-barrier hunt came up empty --
+ * every natural rearrangement at that position (guard on sndgs directly, dest/base assigned after
+ * the guard, goto-polarity, else-arm) is 12-13 or loses the count.  Also re-run and unchanged in
+ * the new basin: the `i = 0` position sweep (36/36/36/32/28/20/10, optimum still LAST) and
+ * hoisting `i = 0` above the count guard (36 -- `i` loses $v1; a do{}while(0) ref inflator on the
+ * hoisted init restores the rank and returns to exactly 10, so the hoist is a no-op, not a win). */
 extern int SNDbankheadercopy(void *dst, int bankId)
 {
     unsigned char *dest = (unsigned char *)dst;
@@ -106,8 +113,27 @@ extern int SNDbankheadercopy(void *dst, int bankId)
     int size;
     unsigned char *bankData;
 
-    if (base->initialized == 0)
-        return -10;
+    /* MATCH (w50-a8, 13 -> 10, and count-exact 81/81): TWO cooperating dials.
+     *  (1) the w45 ZERO-INSN BARRIER immediately before the guard (w49-a8 found this; it is the
+     *      sched-position fixpoint that recovers the missing instruction and lands retail's
+     *      `sw s1 / addu s1,a0` prologue pair).  Operand-independent: void / dest / bankId /
+     *      base all gate the same at this position.
+     *  (2) the POSITIVE-TEST BODY WRAP (this `if (initialized != 0) { ... } return -10;`), which
+     *      is also the more natural 1998 spelling.  It is worth -2 ONLY on top of the barrier
+     *      (alone it is 17); the barrier alone is 12.
+     * Falsified this wave at the guard: reading sndgs.initialized directly (13); assigning
+     * `dest`/`base` after the guard (12 @ 83/81 -- count lost); the goto-form `if (init != 0)
+     * goto ok;` (13 alone / 12 with the barrier = barrier only); an else-arm `{ ... } else {
+     * return -10; }` (identical 10); a fence inside the -10 arm (13 alone / 10 @ 83 with the
+     * pre-guard one).  RESIDUAL 10, one cause: retail does NOT jump-thread the -10 return --
+     * it keeps a `bnez v0,body` (with the `bankId = $a1` parm copy eager-stolen into its slot)
+     * falling through to an out-of-line `j epilogue / li v0,-10` TRAMPOLINE, and defers
+     * `sw s3,28(sp)` past `sw ra`; ours threads the -10 straight into the `beqz` and pays a nop
+     * in the later `lw s0,0(s0)` load-delay slot where retail spends `i = 0`.  All 10 diffs are
+     * that one un-merged trampoline plus its cascade -- the w47 else-arm fence mode (the
+     * documented de-merger) does NOT reach it here. */
+    __asm__("" : : "i"(0));
+    if (base->initialized != 0) {
     size = SNDbankheadersize(bankId);
     if (size < 0)
         return size;
@@ -150,4 +176,6 @@ extern int SNDbankheadercopy(void *dst, int bankId)
     }
     *(int *)(bankId * 0xc + sndgs.bank_table) = (int)dest;
     return 0;
+    }
+    return -10;
 }

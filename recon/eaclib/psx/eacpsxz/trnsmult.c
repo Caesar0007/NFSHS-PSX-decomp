@@ -95,6 +95,36 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
      * (reachable, above) PLUS an allocno rotation that has to be solved at the same time.  The
      * next attack is reqdelta/allocsim on the 81/81 fence basin -- solve the band there, not here;
      * do NOT restart the 20-form spelling sweep, which was run against the 78-insn basin.
+     * w50-a8 2026-08-09 -- THE 81/81 FENCE BASIN'S BAND IS NOT DIALABLE; ITS ROTATION IS
+     * STRUCTURAL, so that hand-off is closed.  Reading the two basins side by side settles it:
+     * retail's `a` pseudo gets NO hard register (it is spilled to its param home 0x68(sp) and
+     * RELOADED twice per row) while a SEPARATE giv walks `a[i]` (`addiu s6,s6,12` in the outer
+     * back-edge slot).  An opacity fence whose operand IS `a` forces `a` into a hard register by
+     * construction ("=r"), which (a) kills that giv -- ours then spends `sll v0,s5,2; addu s7,v0,s6`
+     * per row -- and (b) evicts i2 to $a3 plus a stack spill, growing the frame to 112 vs retail's
+     * 104.  Adding an explicit `aw` walker for `a[i]` does NOT recover it (100, byte-identical to
+     * the plain fence).  So the fence basin cannot host retail's allocation at all.
+     * TWO NEW BASINS, both with the ENTIRE register band byte-correct (prologue 0-17 identical,
+     * s0=acc s1=j s2=b s3=j1 s4=j2 s5=i s6=a-walker s7=i1 fp=i2 -- i.e. strictly better SHAPE than
+     * the 100-diff fence basin), neither landed because neither beats the kept 31:
+     *   W2 = a named `va = *pa[k];` value temp + a w45 USE FENCE on it, per inner call:
+     *        32 diffs at COUNT-EXACT 81/81.  Residual = the reload-register round-robin
+     *        (ours `lw a3,0x6C(sp)`, retail `lw v1,0x6C(sp)`) + the acc-accumulate position.
+     *   Z1 = an `ap` CARRIER opacity-fenced (the fence redefines the CARRIER, never `a`, so the
+     *        giv survives): `ap = a; asm("":"=r"(ap):"0"(ap)); ap += i1; pa[0] = ap;` twice.
+     *        34 at 81/81, and it reproduces retail's DOUBLE `lw ...,0x68(sp)` with the in-place
+     *        `addu v1,v1,s7` -- i.e. the reload-inheritance half IS source-reachable.
+     *        Its cost is the fence's BARRIER: retail fills the two load-delay slots with the inner
+     *        `li s4,24 / li s3,12` inits, and no insn may cross the fence, so we pay 2 nops.
+     * ==> the two halves are mutually exclusive under any barrier-carrying device.  NAMED NEXT
+     * LEVER (same gap w47-a1's reservehandle receipt names): a copy-prop/cse-defeating device for
+     * a spilled pointer param that is NOT a scheduling barrier.
+     * Also falsified this wave (all vs 31): plain use fence between the pa[] stores 32 (79/81) |
+     * opacity fence on i2 58 | `pt = a` carrier without a fence 31 (copy-prop folds it) | operand
+     * swap `(int *)(i1 + (char *)a)` 31 | explicit `aw` walker alone 41 | `__asm__("":: "m"(a))`
+     * memory fence 47, with W2 46, as an "=m" pair 49, after both stores 48 | W2 + any of the
+     * above header fences 33-99 | carrier + W2 34-35 | the inner inits moved between the two pa
+     * computations 32 | a single carried read (first or second only) 32-33.
      * Shape levers that DID land the 107->31: flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE
      * byte-offset walkers i1/i2 (a row elems, step 12) + j1/j2 (b column walk, step 4) =
      * independent variables so no combine_givs base-fold; the two a-element pointers live in

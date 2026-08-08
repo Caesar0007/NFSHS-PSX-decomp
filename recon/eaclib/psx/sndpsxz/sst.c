@@ -409,7 +409,30 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * the fence's fresh def is of the DESTINATION, so copy-prop simply forwards `flatBase` into the
  * asm's input and the copy dies anyway.  (trnsmult's fence works because there the fence redefines
  * the SOURCE, `a`, between its two consumers.)  There is no second consumer of `flatBase` here to
- * fence between, so that route is structurally unavailable.  Cluster (1) stays a STRONG floor. */
+ * fence between, so that route is structurally unavailable.  Cluster (1) stays a STRONG floor.
+ * w50-a8 2026-08-09 -- CLUSTER (1)'s STRONG FLOOR IS REFUTED (not landed: the new basin is 14 vs
+ * the kept 13, so the honest-count rule forbids it -- but the mechanism verdict above is WRONG and
+ * must not be re-quoted).  A SECOND CONSUMER IS NOT REQUIRED: it is enough for the opacity fence to
+ * redefine the SOURCE *after* the copy, which blocks copy-prop from forwarding it into the copy's
+ * later uses.  On the walking-pointer seed form:
+ *     int ptr;  ...  int *dp = desc;
+ *     ptr = flatBase;
+ *     __asm__("" : "=r"(flatBase) : "0"(flatBase));   <-- redefines the SOURCE, 0 insns
+ *     do { dp[3] = ptr; ptr += step; dp++; } while (...);
+ * gates 14 at COUNT-EXACT 97/97 (the kept form is 13 at 98/97, one insn LONG) and reproduces
+ * retail's `addiu a3,a1,0x10 / addu <seed>,a3,zero / sw <seed>,0xC(<dp>) / addu <seed>,<seed>,t1`
+ * flat loop instruction-for-instruction.  The fence MUST sit immediately after the seed copy;
+ * before it (P2) or as a plain use fence (P3) leaves 23 @ 96/97, i.e. the copy still dies.
+ * THE WHOLE REMAINING 14 IS ONE PAIR SWAP: retail colours seed=$a2 / dp=$v1, ours seed=$v1 /
+ * dp=$a2 (plus one cascaded `lw ?,28(sp)` at the tail).  Falsified against it, all 97/97:
+ * emitting the seed BEFORE `dp = desc` (14 -- the order changes, the colours do NOT, so this is a
+ * qty-PRIORITY tie, not the emission-order/born-first rule that cracked SNDPKTPLAY_submit); the
+ * fence between the two inits (40); a `ptr` declared inside the guard block (40); do{}while(0) ref
+ * inflators on `dp++` (30), on `ptr += step` (36), on the store (34) -- all in-loop wrappers pay
+ * their sched barrier; a wrapper on `dp = desc` itself (14, inert); one or two zero-insn use
+ * fences on `dp` in the preheader (34); and both in-loop statement orders (14 each).
+ * ==> next lever must raise `dp`'s qty priority (or lower the seed's) with a device that is NOT a
+ * scheduling barrier inside the loop body. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)

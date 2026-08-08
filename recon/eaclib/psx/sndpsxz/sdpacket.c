@@ -354,7 +354,19 @@ success:
          *   w34-a5 showed that placement makes copy-prop delete the copy.  The untried escape is
          *   the w45 two-role/variable-identity device: give `pbase` a SECOND role inside the loop
          *   (redefined after its last use) so make_regs_eqv cannot propagate it away, then it
-         *   survives as a movable and hoists second. */
+         *   survives as a movable and hoists second.
+         * w50-a8 2026-08-09: that angle was EXECUTED and is NEGATIVE -- the copy cannot be kept alive
+         * inside the loop.  `pbase = base;` moved into the loop body gates 5 at 55/56 (copy-prop deletes
+         * it -> one insn SHORT), and the w47 OPACITY FENCE does not save it either (9 @ 55/56): the
+         * fence's `"0"` constraint ties output to input, so local-alloc's combine_regs still merges the
+         * two ends into one quantity and delete_noop_moves drops the move.  A second in-loop role
+         * (`pbase = base;` re-assigned at the loop tail) gates 8 @ 56/56, with the opacity fence 21 @
+         * 57/56.  Also falsified: the copy hoisted ABOVE the `sndpd[1]` guard (5 @ 55/56; fenced 10 @
+         * 56/56), an explicit invariant `int *sp = sndpp;` before the copy (2, inert), a use fence on
+         * the copy (2, inert), an extra in-loop use of `base` (5 @ 55/56).  The 2-diff residual is
+         * unchanged and the mechanism (loop.c APPENDS hoisted movables after the straight-line
+         * preheader) stands; what is now also known is that the copy CANNOT be turned into a movable
+         * from C on this compiler. */
         *(volatile short *)(SNDPD_CTRLREG + 0x1a4) = (short)(*(int *)pp + 8 >> 3);
         InterruptCallback(9, iSNDpacketirqcallback);   /* re-arm: 9 == SPU IRQ index, handler = self */
         iSNDpsxenablespuirq();
@@ -512,7 +524,19 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
      * `avail = A; avail -= B;` + opacity fence 16 (310/308) | a plain extra `lim` temp (the
      * w46 3-qty-law boundary crossing) 14.  The two that add instructions do so because the
      * fence pins `avail` into its own register instead of the return register -- the exact
-     * opposite of what is needed.  Pair-tie verdict unchanged. */
+     * opposite of what is needed.  Pair-tie verdict unchanged.
+     * w50-a8 2026-08-09: the w46 3-QTY-LAW route was executed properly this wave and is also
+     * NEGATIVE.  The block is exactly {A, B, lim} = 3 local qtys, so it takes gcc-2.8's hand-rolled
+     * next_qty<=3 path and no ref/live dial applies -- the escape is a REAL 4th qty, and the w49
+     * note's 'plain extra lim temp' never created one (cse folds it).  Genuine 4th-qty candidates,
+     * all measured at 308/308: hoisting the following guard's `*(u16*)(pp+0x36)` load into the block
+     * as a named temp 14 (cse leaves the load where it was, so still 3 qtys) | the 0x38 load 20 |
+     * both 26 | the 0x36 temp declared AFTER `avail` 14.  Ref inflators: a do{}while(0) wrapper on
+     * the `avail` statement 14 @ 310/308 | on the guard+return 16 @ 310/308 (both lose parity).
+     * Retail colours A=$v0 (the RETURN register, so `return avail` needs no move and the branch slot
+     * is a nop) / B=$a0 / lim=$v1; the reachable lever is anything that gets `avail` ALLOCATED FIRST
+     * so local_alloc honours its $v0 qty_phys_copy_sugg -- i.e. a 4th qty that actually reaches
+     * find_reg, or a same-block value the following guard cannot cse away. */
     /* MATCH: materialize the bare &sndpd ONCE (oracle: a0) and reach BOTH DAT_80147e10[p] (via
      * base+p*4, +0x4F8 as the LOAD DISPLACEMENT -- the `(&DAT_80147e10)[p]` macro instead folds
      * 0x4F8 into the pointer chain before the index, forcing displacement-0) and the voice-table

@@ -11,23 +11,18 @@ static const char *MOD = "ScreenUserName.obj globals: menu_kUserNameRows/MENUUSE
 void tScreenUserName::Initialize()
 
 {
-  char *rowLabel;
-  int n_rows;
-  int idx;
-  int i;
+  /* MATCH: SLD records only the short loop index; the decompiler's rowLabel,
+     n_rows, and fixed-point idx temporaries distort the retail induction chain. */
+  short i;
   
   i = 0;
-  n_rows = (int)menu_kUserNameRows;
   this->fTextFade = 0x80;
-  MENUUSERNAME_STARTY = 0x82 - (short)(n_rows * 0xf >> 1);
-  if (0 < n_rows) {
-    idx = 0;
+  MENUUSERNAME_STARTY = 0x82 - (short)(menu_kUserNameRows * 0xf >> 1);
+  if (0 < menu_kUserNameRows) {
     do {
-      rowLabel = TextSys_Word((idx >> 0x10) + 0x1fb);
-      sprintf(this->fRowList[0] + (idx >> 0x10) * 9,rowLabel);
+      sprintf(this->fRowList[i],TextSys_Word(i + 0x1fb));
       i = i + 1;
-      idx = i * 0x10000;
-    } while (i * 0x10000 >> 0x10 < (int)menu_kUserNameRows);
+    } while (i < menu_kUserNameRows);
   }
   this->Initialize();
   return;

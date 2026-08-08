@@ -182,7 +182,7 @@ void tScreenTrackSelect::Initialize()
   DrawSync(0);
   this->Initialize();
   sprintf
-            (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)trackInfo.fTrackID);
+            (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)(signed char)trackInfo.fTrackID);
   iVar1 = VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10);
   this->hVideo = iVar1;
   VIDEO_spoolfile(iVar1,moviename);
@@ -196,10 +196,10 @@ void tScreenTrackSelect::Initialize()
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
   TurnOn(this_00);
-  iVar1 = ticks[0];
+  /* MATCH: retail computes the dependent tick value before publishing fTicksSet. */
+  this->fVideoTicks = ticks[0] - 0x100;
   this->fTicksSet = 1;
-  this->fVideoTicks = iVar1 - 0x100;
-  this->fMovieTrack = (short)trackInfo.fTrackID;
+  this->fMovieTrack = (short)(signed char)trackInfo.fTrackID;
   return;
 }
 

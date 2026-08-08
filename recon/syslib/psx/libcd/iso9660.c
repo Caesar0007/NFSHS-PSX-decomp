@@ -122,27 +122,28 @@ extern int CD_newmedia(void)
     buf = (u_char *)_cd_secbuf;
     r = cd_read(1, 0x10, (char *)buf);                       /* read PVD at LBA 0x10 */
     if (r != 1) {
-        if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)
-");
+        if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)\n");
         return 0;
     }
     if (strncmp((char *)buf + 1, "CD001", 5) != 0) {         /* standard identifier */
-        if (CD_debug > 0) printf("CD_newmedia: Disc format error in cd_read(PVD)
-");
+        if (CD_debug > 0) printf("CD_newmedia: Disc format error in cd_read(PVD)\n");
         return 0;
     }
 
+    /* w51-a4 OPEN (39 diffs): the oracle reads this off the SAME base register as every other
+     * buf reference (`lwl 143(s0)/lwr 140(s0)`); gcc-2.7.2 const-folds `buf` back to the symbol
+     * for the unaligned load and emits its own `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)`.
+     * FALSIFIED: `(LBA*)(buf+140)`, `((LBA*)buf)[35]`, decl reorder, -fforce-addr, -fforce-mem,
+     * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base). */
     pt_lba.i = ((LBA *)buf)[140 / 4].i;                      /* type-L path table LBA (misaligned;
                                                               * indexed off buf so the +140 folds into
                                                               * the lwl/lwr displacement, oracle
                                                               * `lwl 143(s0)/lwr 140(s0)`) */
     if (cd_read(1, pt_lba.addr, (char *)buf) != r) {
-        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)
-", pt_lba.addr);
+        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", pt_lba.addr);
         return 0;
     }
-    if (CD_debug > 1) printf("CD_newmedia: sarching dir..
-");
+    if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");
 
     idx = 0;
     rec = buf;
@@ -154,11 +155,10 @@ extern int CD_newmedia(void)
         _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
         _cd_pathtbl[idx].index  = idx + 1;
         memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
-        _cd_pathtbl[idx].name[rec[0]] = ' ';
+        _cd_pathtbl[idx].name[rec[0]] = '\0';
         rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
         if (CD_debug > 1)
-            printf("	%08x,%04x,%04x,%s
-", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
+            printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
                    _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
         if (++idx >= 0x80)
             break;
@@ -167,8 +167,7 @@ extern int CD_newmedia(void)
         _cd_pathtbl[idx].parent = 0;                    /* sentinel: no more entries */
 
     _cd_cached_dir = 0;
-    if (CD_debug > 1) printf("CD_newmedia: %d dir entries found
-", idx);
+    if (CD_debug > 1) printf("CD_newmedia: %d dir entries found\n", idx);
     return 1;
 }
 
@@ -234,6 +233,14 @@ extern int CD_cachefile(int dir)
     return 1;
 }
 
+/* w51-a4 FALSIFIED on CdSearchFile (75 diffs, cc1_272 lane) -- do NOT retry either form:
+ *  - the FULL Rage Racer DsSearchFile transplant (C:/Temp/rage-racer-decomp/src/main/PAL/lib/
+ *    libds/search_file.c: `while (n < 8)` path split walking `*p` directly + two-pointer final
+ *    scan) -> 75 -> 112.  Rage Racer's libds wrapper is NOT the same function shape as NFS4's
+ *    ISO9660.OBJ CdSearchFile;
+ *  - the two-pointer final scan ALONE (`nm = _cd_dir[0].name; rec = (CdlFILE*)(nm-8); rec++;
+ *    nm += 24;`) grafted onto the existing body -> 75 -> 108.
+ * The existing `_cd_dir[i]`-indexed scan + cached-`ch` split loop is the better basin. */
 /* @0x800F9088 : resolve an absolute "\\dir\\file" path to its CdlFILE. */
 extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {

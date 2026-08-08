@@ -106,8 +106,7 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr,
     i = 0;
     while (*(volatile int *)(0x1F801088 + (ch << 4)) & 0x01000000) {
         if (i == 0x10000) {
-            printf("StCdInterrupt: DMA ch busy %08x
-",
+            printf("StCdInterrupt: DMA ch busy %08x\n",
                    *(volatile int *)(0x1F801088 + (ch << 4)));
             break;
         }

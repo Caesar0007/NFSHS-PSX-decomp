@@ -332,6 +332,14 @@ PER_TU_FLAGS = {
     # chkRC2wait unchanged; zero regressions). PADCMD/PADSEQD have conversion
     # evidence but net-regress -- receipted for a 272-basin re-match pass.
     "recon/syslib/psx/libpad/WAITRC2.c":    {"cc1_272": True},
+    # w51-a4: libcd-B -- all six TUs lane-verified (17/29 assigned fns -> PASS;
+    # zero PASS->FAIL both lanes). iso9660 drops no_split_addresses (no such
+    # 2.7.2 flag); drv keeps jtbl key inert-but-harmless.
+    "recon/syslib/psx/libcd/drv.c":        {"cc1_272": True},
+    "recon/syslib/psx/libcd/event.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/stream.c":     {"cc1_272": True},
+    "recon/syslib/psx/libcd/streamhelp.c": {"cc1_272": True},
+    "recon/syslib/psx/libcd/stcdint.c":    {"cc1_272": True},
     # w51-a2: libmcrd cluster = cc1_272 lane (04M law). jtbl_at_fusion is inert in
     # this lane (no maspsx); kept out. LIBMCRD 2->8 PASS under the lane.
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},
@@ -378,7 +386,7 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libmcrd/USERFUNC.c":  {"cc1_272": True},
     # w51-a7: INTR.c -> cc1_272 (8 PASS incl. VSyncCallback; _intrhand 110->49).
     "recon/syslib/psx/libetc/INTR.c":       {"cc1_272": True},
-    "recon/syslib/psx/libcd/iso9660.c":     {"no_split_addresses": True},  # -17 (a6)
+    "recon/syslib/psx/libcd/iso9660.c":    {"cc1_272": True},  # w51-a4 (drops no_split)
     # 04M -- the gcc-2.7.2 lane (see "cc1_272" key above).  FERR/_err_math and
     # FLTSIDF/__floatsidf sealed the lane (PASS); the rest of libmath probed
     # TU-by-TU at consolidation, kept only where the gate net-improves with
@@ -539,20 +547,20 @@ PER_FN_NO_DELAYED_BRANCH = {
     # w48-a5: libcd Tier-1/Tier-2 splice additions, each measured in the
     # final basin with zero whole-TU regressions.
     "recon/syslib/psx/libcd/drv.c": {
-        "CD_initintr",         # FAIL 15 -> FAIL 6
+        # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
     },
     "recon/syslib/psx/libcd/event.c": {
-        "_cd_event_init", "_cd_event_sync", "_cd_event_ready", "_cd_event_read",
+        # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
     },
     "recon/syslib/psx/libcd/toc.c": {
         "CdGetToc",            # FAIL 6 -> FAIL 5
     },
     # w48-a6: stream cluster.
     "recon/syslib/psx/libcd/stream.c": {
-        "StSetRing",           # FAIL 9 -> FAIL 3
+        # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
     },
     "recon/syslib/psx/libcd/streamhelp.c": {
-        "data_ready_callback", # FAIL 21 -> FAIL 18
+        # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
     },
     "recon/syslib/psx/libcard/CARDINIT.c": {
         "StopCARD",   # StartCARD tried + reverted: multi-jal interior arg-slot filling

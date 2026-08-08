@@ -221,6 +221,34 @@ extern unsigned int iSNDmemrestore(void)
  *   rotate one slot.  Falsified in this basin: fence AFTER the sum `b` (27 @136), fence at arm end
  *   (26), opacity fence on `pv` (20, no change), fence on `entry` as well (16, no change),
  *   base-first operand order (26), `available`-before-`block` (40 in the post-scan basin).
+ *
+ * *** W50-A7 (2026-08-09): 16 -> 6 diffs, still count-EXACT 135/135.  TWO levers, both one line:
+ *   (7) THIRD USE FENCE, in the POST-SCAN tail: `__asm__("" : : "r"(j))` placed AFTER the
+ *       `p2 = j + pb` add -- the exact twin of lever (6) one block up.  Keeping the offset live past
+ *       the add makes the sum take retail's FRESH `$a2` (`addu $a2,$v0,$v1`) instead of mutating the
+ *       offset register in place (`addu $a2,$a2,$v1`).  16 -> 8.  AND IT PAID TWICE: with the
+ *       post-scan add no longer eating the offset register, the WHOLE `j` global moved off `$a2` and
+ *       onto retail's `$v0`, fixing both `sll` sites (loop head + loop back-edge) as a side effect --
+ *       so the two-wave `sll $a2` vs `sll $v0` residual was never its own defect.  Fencing `p2`
+ *       instead of `j` is 30, and fencing both is 30: it is the OFFSET that must survive, not the sum.
+ *   (8) LOAD-BEFORE-STORE in the `i == 0` arm (8 -> 6): retail emits `lhu $v0,0($a1)` and only then
+ *       `sw $zero,0x10($sp)`; our `block = 0; available = *entry;` order put the store first.  Note
+ *       this is the OPPOSITE of the note in the `i != 0` arm -- there the store must come last
+ *       because it may-aliases the following load; here nothing aliases and the load simply leads.
+ *   RESIDUAL 6 = ONE register: `pv` (the prev-entry address) is `$v1` where retail has `$a2`, so its
+ *   two `lhu`s differ too.  Ours lets `pv` die at `lhu $a0,2(pv)` and REUSES $v1 for the entry value
+ *   on the very next insn; retail keeps them in separate registers ($a2 / $v1).  Same instruction
+ *   sequence, same order, one home.  FALSIFIED IN THIS BASIN (all exactly 6, byte-identical): named
+ *   entry-value temp before OR after the sum; split `p0`/`p1` temps; an extra `q` temp; interleaving
+ *   the entry load between pv[0] and pv[1]; operand-order swap on the pv add; `unsigned char *`
+ *   base; dead-set carriers on `pv` and on `entry`.  WORSE: a use fence on `pv` after the entry read
+ *   (28 -- the barrier moves the whole arm), a depth wrapper on the sum (27 @136).
+ *   NEXT ANGLE: this is a local_alloc ALLOCATION-ORDER question (which of `pv` and the entry-value
+ *   qty is handed a register first), not a live-range or ref question -- every ref/live dial above
+ *   measures zero.  Read the block's `-dl` qty table (tools/rtl_dump_c.py + qtyprio.py) and check
+ *   the 3-QTY LAW first: if the arm has <= 3 qtys it is hand-rolled, not priority-ordered, and the
+ *   dial is crossing the 3<->4 boundary with a DISTINCT temp (the `q`/split probes above added
+ *   temps that cse folded, so they never crossed it).
  *   Next angle: a zero-insn dial that lowers whatever pseudo currently occupies $v0 in that block
  *   rather than lengthening `j` (i.e. reach the fresh dest without paying for j's live range). */
 extern int iSNDmalloc(int size)
@@ -265,8 +293,12 @@ extern int iSNDmalloc(int size)
             j = i << 2;
             entry = (unsigned short *)(j + (int)tab);
             if (i == 0) {
-                block = 0;
+                /* MATCH (w50-a7): LOAD BEFORE STORE in this arm (the opposite of the note in the
+                 * `i != 0` arm below, which is about a may-aliasing store).  Retail emits
+                 * `lhu $v0,0($a1); sw $zero,0x10($sp)`; writing `block = 0;` first put the store
+                 * ahead of the load.  8 -> 6. */
                 available = *entry;
+                block = 0;
             } else {
                 /* MATCH: compute BOTH values into plain register temps and only then write the
                  * two address-taken frame slots.  Writing `block` first makes gcc treat the
@@ -322,6 +354,11 @@ extern int iSNDmalloc(int size)
         pb = (unsigned short *)(sndmm_b + 8);
         __asm__("" : : "r"(pb));
         p2 = (unsigned short *)(j + (int)pb);
+        /* MATCH (w50-a7): THIRD use fence, the same lever as the loop's `pv` add one block up --
+         * keep `j` live PAST the add so the sum takes retail's FRESH `$a2` (`addu $a2,$v0,$v1`)
+         * instead of mutating the offset register in place (`addu $a2,$a2,$v1`).  16 -> 8.
+         * Fencing `p2` instead of `j` (or both) is 30 -- it is the OFFSET that must survive. */
+        __asm__("" : : "r"(j));
         block = (int)p2[0] + (int)p2[1];
         available = (int)pb[-1] - block;
     }

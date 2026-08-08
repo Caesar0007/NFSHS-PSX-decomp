@@ -3885,6 +3885,10 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
             return;
           }
           facet = obj->facet + i;
+          /* W50-A3 ALLOCNO DIAL: +1 zero-insn ref on `facet` right after its def
+             raises its allocno priority above `real_type` so facet takes $s1 and
+             real_type $s3 (retail).  Without it the two swap (26 diffs, count-exact). */
+          __asm__("" : : "r"(facet));
           /* ALLOCNO DIAL (w39-a3): retail emits `andi $s3,type,0xffbf` AFTER the
              sub_otSize gate, but computing it there gives real_type a SHORTER
              live range than `facet` and it wins retail's $s1 (facet's home),
@@ -3909,7 +3913,6 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
              statement so loop.c's savings budget declines the load) rather than
              moving the andi.  The other 2 residual insns are the sched1 tie
              already documented at the DrawC_gOverlay block below. */
-          real_type = ((u_int)type) & 0xffbf;
           id0 = facet->vertexId0;
           id1 = facet->vertexId1;
           id2 = facet->vertexId2;
@@ -3962,6 +3965,15 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
         if (iVar6 < 0) continue;
         if (sd->sub_otSize < iVar6) continue;
         }
+      /* 🏆 w50-A3 (the last 7 diffs -> PASS): the `andi $s3,type,0xFFBF` block belongs
+         HERE, after all three `continue` gates (retail @800C3CF4, right before the
+         `index < 0` test), NOT at the loop head.  w39/w44/w45 all measured this move as
+         a regression (48 / 26 diffs) because the late definition SHORTENS real_type's
+         live range, RAISES its allocno priority above `facet`, and the two swap homes
+         ($s1 <-> $s3) -- a clean 13-line rotation with the count already exact.  The
+         cure is the counter-dial at facet's definition (a +1 zero-insn ref, see there),
+         not moving the block back.  Together: count-exact 298/298 and byte-identical. */
+      real_type = ((u_int)type) & 0xffbf;
       if (index < 0) goto DrawCHalo_emitFlare;
       /* MATCH (w39-a3): the overlay word is loaded ONCE and only the SHIFT is
          branch-dependent (oracle: `lhu v0,0(v0); sll a0,v0,16; lh v0,0(s1);
@@ -4033,25 +4045,54 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
            - do{}while(0) loop-depth wrapper around the shift+branch block (w44
              inflator variant 3): site 1 = 37, site 2 = 37, both = 45.  The
              NOTE_INSN_LOOP_BEG barrier costs more than the ref weighting gains --
-             the w44 "NEGATIVE on straight-line call-free blocks" caveat, exactly. */
+             the w44 "NEGATIVE on straight-line call-free blocks" caveat, exactly.
+         ==== 🏆 w50-A3: SOLVED, 29 -> PASS 298/298.  FOUR cooperating edits, in this
+         order (each one enabled the next -- textbook lever-order/basin law; three of
+         them were FALSIFIED in earlier waves at the PRE-FENCE basin and are listed
+         above as negatives.  Those receipts were basin-relative, not wrong-then):
+          (1) a zero-insn USE FENCE `__asm__("" : : "r"(ovs))` immediately after the
+              shift at BOTH sites.  It is the sched ISSUE-POSITION FIXPOINT (w45): the
+              `sll` can no longer sink into the bgez delay slot and the `lh facet->flag`
+              can no longer float up into the `lhu`'s load-delay slot, so retail's TWO
+              missing `nop`s materialise.  295 -> 297 insns, gate 29 -> 31 (the LCS rose
+              while the STRUCTURE converged -- judge by insn count, never the LCS).
+          (2) the FRESH SHIFT TEMP `int ovs = (int)(ov << 0x10);` (w46 measured this at
+              38/33/38 pre-fence).  Post-fence it lands retail's `lhu v0,0(v0)` (the
+              halfword in the address's own dying register) + `sll a0,v0,16`: 31 -> 23.
+          (3) a SECOND zero-insn use fence on `ovs` AFTER the if/else join.  This is the
+              INVERSE (demote) live-length dial: it stretches ovs's range past the join,
+              dropping its allocno priority below overlayFlag's, so overlayFlag takes
+              $v1 first and ovs falls through the numeric scan to retail's $a0: 23 -> 15.
+          (4) IN-PLACE MASK in the else arm (`overlayFlag = ovs >> 0x10;` then
+              `overlayFlag = overlayFlag & 0xff;`).  Two statements make the shift's dest
+              coalesce with overlayFlag (`sra v1,a0,16; andi v1,v1,255`) where the fused
+              expression needed a separate temp (`sra v0,a0,16; andi v1,v0,255`): 15 -> 7.
+         The last 7 (the `real_type` block position) fell to the move-after-the-gate +
+         the facet ref dial -- see the note at the `real_type` assignment. */
         u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
-        ov = ov << 0x10;
+        int ovs = (int)(ov << 0x10);
+        __asm__("" : : "r"(ovs));
         if (facet->flag < 0) {
-          overlayFlag = (int)ov >> 0x18;
+          overlayFlag = ovs >> 0x18;
         }
         else {
-          overlayFlag = (int)ov >> 0x10 & 0xff;
+          overlayFlag = ovs >> 0x10;
+          overlayFlag = overlayFlag & 0xff;
         }
+        __asm__("" : : "r"(ovs));
       }
       if (((((u_int)type) & 0x40) != 0) && ((overlayFlag & 0x40) == 0)) {
         u_int ov = (u_int)(u_short)DrawC_gOverlay[0x18];
-        ov = ov << 0x10;
+        int ovs = (int)(ov << 0x10);
+        __asm__("" : : "r"(ovs));
         if (facet->flag < 0) {
-          overlayFlag = (int)ov >> 0x18;
+          overlayFlag = ovs >> 0x18;
         }
         else {
-          overlayFlag = (int)ov >> 0x10 & 0xff;
+          overlayFlag = ovs >> 0x10;
+          overlayFlag = overlayFlag & 0xff;
         }
+        __asm__("" : : "r"(ovs));
       }
       if ((overlayFlag & 0x81) == 0) continue;
     }

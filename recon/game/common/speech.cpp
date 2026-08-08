@@ -739,62 +739,40 @@ bool CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(u_int param_1,u_int *
 u_int CheckMultiBank__6SpeechPciPQ26Speech11CarBankName(int param_1,char *name,u_int id,u_int bn)
 
 {
-  int iVar1;
-  u_int uVar2;
-  
-  iVar1 = strncmp(name,"j:id\\",5);
-  if (iVar1 == 0) {
-    iVar1 = param_1 + 0x31c;
-    name = name + 5;
-CheckMBank_callSign:
-    uVar2 = CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(param_1,iVar1,name,id);
+  if (strncmp(name,"j:id\\",5) == 0) {
+    return CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(
+        param_1,param_1 + 0x31c,name + 5,id);
+  }
+  if (strncmp(name,"j:cars\\",7) == 0) {
+    return CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName(
+        param_1,param_1 + 0x6c,name + 7,id,bn);
+  }
+  if (strncmp(name,"j:location\\",0xb) == 0) {
+    return CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(
+        param_1,param_1 + 0x1d8,name + 0xb,id);
+  }
+  if (strncmp(name,"j:cid\\",6) == 0) {
+    return CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(
+        param_1,param_1 + 0x2d8,name + 6,id);
+  }
+  if (strncmp(name,"j:ccars\\",8) == 0) {
+    return CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName(
+        param_1,param_1,name + 8,id,bn);
+  }
+  if (strncmp(name,"j:clocaton\\",0xb) == 0) {
+    return CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(
+        param_1,param_1 + 0xd8,name + 0xb,id);
+  }
+  if (strncmp(name,"j:clip.",7) == 0) {
+    *(u_int *)(param_1 + 0x374) = id;
   }
   else {
-    iVar1 = strncmp(name,"j:cars\\",7);
-    if (iVar1 == 0) {
-      name = name + 7;
-      iVar1 = param_1 + 0x6c;
-CheckMBank_carBank:
-      uVar2 = CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName(param_1,iVar1,name,id,bn);
-      return uVar2;
+    if (strncmp(name,"j:silenc.",9) != 0) {
+      return 1;
     }
-    iVar1 = strncmp(name,"j:location\\",0xb);
-    if (iVar1 == 0) {
-      iVar1 = param_1 + 0x1d8;
-    }
-    else {
-      iVar1 = strncmp(name,"j:cid\\",6);
-      if (iVar1 == 0) {
-        iVar1 = param_1 + 0x2d8;
-        name = name + 6;
-        goto CheckMBank_callSign;
-      }
-      iVar1 = strncmp(name,"j:ccars\\",8);
-      if (iVar1 == 0) {
-        name = name + 8;
-        iVar1 = param_1;
-        goto CheckMBank_carBank;
-      }
-      iVar1 = strncmp(name,"j:clocaton\\",0xb);
-      if (iVar1 != 0) {
-        iVar1 = strncmp(name,"j:clip.",7);
-        if (iVar1 == 0) {
-          *(u_int *)(param_1 + 0x374) = id;
-        }
-        else {
-          iVar1 = strncmp(name,"j:silenc.",9);
-          if (iVar1 != 0) {
-            return 1;
-          }
-          *(u_int *)(param_1 + 0x378) = id;
-        }
-        return 1;
-      }
-      iVar1 = param_1 + 0xd8;
-    }
-    uVar2 = CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(param_1,iVar1,name + 0xb,id);
+    *(u_int *)(param_1 + 0x378) = id;
   }
-  return uVar2;
+  return 1;
 }
 
 /* ---- CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3  [SPEECH.CPP:931-984] SLD-VERIFIED ---- */

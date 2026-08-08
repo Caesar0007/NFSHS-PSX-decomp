@@ -885,7 +885,19 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
      * that supplies a reg-reg copy elsewhere) 33 @143.  Keeping the volatile store + a named
      * read-back local is diff-neutral (4).  => the copy is an allocation artifact (the read-back
      * pseudo must land in a DIFFERENT hard reg than `base` while `base` is still live), not a
-     * cse-shape question. */
+     * cse-shape question.
+     * w50-a4: 4 -> 2 by putting the read-back FIRST in the ring-base sum (see that statement).
+     * RESIDUAL 2 = the reload-vs-copy alone, and it is now bounded: a plain store lands 1 SHORT
+     * (143) in EVERY spelling measured, because the surviving copy needs a SECOND live consumer
+     * that retail's source does not have (contrast the three cursor read-backs below, whose three
+     * simultaneously-live copies is exactly why THOSE survive copy-prop).  Falsified this wave on
+     * top of the earlier list, all at the reversed operand order: plain store + `memory` clobber
+     * (8 @144), plain + opacity fence on base (8 @144), plain + void-tail fence (28 @142), plain +
+     * use fence (28 @142), volatile + void-tail fence (8 @144), volatile read-back (2, identical),
+     * an opacity-fenced COPY of `base` instead of the read-back (28 @142 / 21 @143), a plain
+     * `cbase = base` copy (19 @143), `base` used directly (19 @143), and an opacity fence on a
+     * read-back local (21-23 @143).  => the missing insn is cse's copy under a NON-volatile store,
+     * and every device that restores the copy also un-pins the store. */
     *(volatile int *)(objbuf + 0x18) = base;                   /* consumerArray */
     {
         /* MATCH (w33-a2): the oracle's THREE `addu <reg>,v0,zero` copies of the ring base are NOT a
@@ -896,7 +908,15 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
          * initialised from one expression do NOT work (gcc copy-propagates them into one register,
          * verified) -- the read-back is what makes it three evaluations.  This also frees $v0 for
          * the late `li 50` and takes the function from 142 to the oracle's 144 instructions. */
-        MI(objbuf, 0x20) = numConsumers * 0x10 + MI(objbuf, 0x18);  /* bufBase */
+        /* MATCH (w50-a4, 4 -> 2, still 144/144): with the VOLATILE store above the read-back is a
+         * real `lw`, and gcc expands operand 0 FIRST -- so the READ-BACK must be operand 0 to land
+         * in retail's $v0 (and push the `sll numConsumers,4` onto $v1).  The w34-a2 #3 receipt
+         * ("shift term FIRST") was measured in the PLAIN-store basin where the read-back was a
+         * free cse copy; once the store went volatile the operand order inverted with it and the
+         * receipt went stale.  RESIDUAL 2 = the load itself (`lw v0,24(s0)` vs retail's cse copy
+         * `addu v0,v1,zero`): the volatile store is what makes the read-back a real memory
+         * reference, and every non-volatile route is worse (see the store's note). */
+        MI(objbuf, 0x20) = MI(objbuf, 0x18) + numConsumers * 0x10;  /* bufBase */
         MI(objbuf, 0x30) = 0x32;
         MI(objbuf, 0x40) = MI(objbuf, 0x20);
         MI(objbuf, 0x44) = MI(objbuf, 0x20);

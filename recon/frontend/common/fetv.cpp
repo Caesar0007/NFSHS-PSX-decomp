@@ -191,11 +191,11 @@ void DrawTV(tTVConfig &tv)
       SetShadeTex(texture,0);
       texture->x0 = videoX;
       texture->y0 = videoY;
+      texture->x1 = videoX + videoWidth;
       texture->y1 = videoY;
       texture->x2 = videoX;
-      texture->x1 = videoX + videoWidth;
-      texture->x3 = videoX + videoWidth;
       texture->y2 = videoY + videoHeight;
+      texture->x3 = videoX + videoWidth;
       texture->y3 = videoY + videoHeight;
       texture->u0 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                     (int)noise->depth;
@@ -252,12 +252,12 @@ void DrawTV(tTVConfig &tv)
         reflection->code = 0x3e;
         ((u_char *)reflection)[3] = 0xc;
         reflection->x0 = videoX;
-        reflection->x1 = videoX + videoWidth;
         reflection->y0 = tv.flip_axis * 2 - videoY;
-        reflection->x2 = videoX;
+        reflection->x1 = videoX + videoWidth;
         reflection->y1 = tv.flip_axis * 2 - videoY;
-        reflection->x3 = videoX + videoWidth;
+        reflection->x2 = videoX;
         reflection->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        reflection->x3 = videoX + videoWidth;
         reflection->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
         reflection->u0 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                          (int)noise->depth;
@@ -298,8 +298,8 @@ void DrawTV(tTVConfig &tv)
       texture->x1 = videoX + videoWidth;
       texture->y1 = videoY;
       texture->x2 = videoX;
-      texture->x3 = videoX + videoWidth;
       texture->y2 = videoY + videoHeight;
+      texture->x3 = videoX + videoWidth;
       texture->y3 = videoY + videoHeight;
       texture->u0 = tv.u;
       texture->v0 = tv.v;
@@ -345,12 +345,12 @@ void DrawTV(tTVConfig &tv)
              ((tint & 0xff) * (0x80 - fadeBottom) >> 7);
         ((POLY_GT4 *)texture)->code = 0x3c;
         ((POLY_GT4 *)texture)->x0 = videoX;
-        ((POLY_GT4 *)texture)->x1 = videoX + videoWidth;
         ((POLY_GT4 *)texture)->y0 = tv.flip_axis * 2 - videoY;
-        ((POLY_GT4 *)texture)->x2 = videoX;
+        ((POLY_GT4 *)texture)->x1 = videoX + videoWidth;
         ((POLY_GT4 *)texture)->y1 = tv.flip_axis * 2 - videoY;
-        ((POLY_GT4 *)texture)->x3 = videoX + videoWidth;
+        ((POLY_GT4 *)texture)->x2 = videoX;
         ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
+        ((POLY_GT4 *)texture)->x3 = videoX + videoWidth;
         ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
         ((POLY_GT4 *)texture)->u0 = tv.u;
         ((POLY_GT4 *)texture)->v0 = tv.v - 1;

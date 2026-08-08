@@ -373,7 +373,31 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */
-/* NEAR-MISS 2 diffs (93/93): the oracle emits `addu v1,zero,zero` (j = 0) BEFORE `addu a1,s1,zero`
+/* MATCH (w50-a8 2026-08-09): SNDPKTPLAY_submit is PASS 93/93.  The 2-diff residual below (the
+ * oracle emits `addu v1,zero,zero` (j = 0) into the `beqz channels` delay slot, ours emitted
+ * `addu a1,s1,zero` (src = frame)) is CRACKED by a TWO-DIAL composition, neither half of which
+ * works alone -- this retires the w49-a8 'floor RE-CONFIRMED' verdict kept below:
+ *   (1) EMISSION ORDER: `j = 0;` written FIRST, so reorg's eager steal takes IT out of the
+ *       fall-through block's head (that alone = 12 diffs -- it also swaps j/src's colours);
+ *   (2) REF INFLATION on `j` (the w44 do{}while(0) depth wrapper on the init) to UNDO that
+ *       colour swap.  MECHANISM (allocno_compare): src and j are GLOBAL allocnos with equal
+ *       refs; whoever is BORN FIRST has the longer live range, hence the LOWER priority, hence
+ *       is allocated SECOND and takes the higher-numbered free reg ($a1=5 vs $v1=3).  Writing
+ *       `j = 0;` first therefore hands j $a1 -- wrong.  One extra ref on j crosses the
+ *       floor_log2 step (3->4 refs: prio 3 -> 8) so j out-ranks src DESPITE being born first,
+ *       and the whole loop re-colours to retail's j=$v1 / src=$a1.
+ *   The wrapper must sit on the INIT, not on the in-loop `j++`: a wrapper inside the loop is a
+ *   sched2 barrier that pins `addiu v1,v1,1` after the `sw` (measured: in-loop wrapper = 2 diffs,
+ *   the SAME count, different insn).  Depth 2 also passes; depth 1 kept.  An equivalent PASS with
+ *   an extra value temp + in-loop wrapper was also found and rejected as heavier.
+ *   Falsified this wave (all 93/93): de-coupling decl order from assignment order (`int src, j;
+ *   j = 0; src = frame;` = 12 -- the colour is welded to EMISSION order, not decl order, which
+ *   corrects the w47-a3 'welded to first-use order' wording); hoisting j's init above the
+ *   `if (channels)` guard (12); a use fence on `frame` before the guard (2, inert); a use fence
+ *   on `src` at the block head (12); block-local value temps to cross the 3-qty boundary (they
+ *   are optimised away, so no qty is created: 12/2 unchanged).
+ * ---- historical (w28-31 .. w49-a8) ----
+ * NEAR-MISS 2 diffs (93/93): the oracle emits `addu v1,zero,zero` (j = 0) BEFORE `addu a1,s1,zero`
  * (src = frame) in the channel-pointer loop's preheader; ours emits them the other way round.
  * 🔴 w49-a8 2026-08-08 -- floor RE-CONFIRMED with a NEW evidence class (the w45/w47 fence family,
  * which the w28-31 note predates).  The catalog's mechanism holds exactly: gcc-2.8 pseudo
@@ -417,7 +441,12 @@ room:
         MI(slot, 4) = *(int *)(frame + 4);                /* size */
         MI(slot, 0) = MI(ppp, 4);                         /* sequence */
         if (MB(ppp, 0x26) != 0) {                         /* copy the per-channel pointers */
-            int src = frame, j = 0;
+            int j, src;
+            do { j = 0; } while (0);              /* MATCH: zero-insn REF INFLATOR on j (see
+                                                     * the header receipt) -- j must be born
+                                                     * FIRST for reorg's delay-slot steal AND
+                                                     * still out-rank src in allocno_compare. */
+            src = frame;
             do {                                          /* MATCH: walks `slot` itself in place
                                                              * (lever #14) -- `frame` stays intact
                                                              * (re-read below), `slot`/a0 is dead

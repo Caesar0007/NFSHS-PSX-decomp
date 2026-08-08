@@ -1225,15 +1225,15 @@ Phy_CalcAcc_clearWheelSpinExit:
         if (rpmRise < -diffFlywheelRpm) {
           rpmRise = -diffFlywheelRpm;
         }
-        wheelRpm = carObj->flywheelRpm + rpmRise;
+        temp = carObj->flywheelRpm + rpmRise;
       }
       else {
-        wheelRpm = carObj->flywheelRpm + rpmRise;
+        temp = carObj->flywheelRpm + rpmRise;
         if (-diffFlywheelRpm <= rpmRise) {
-          wheelRpm = carObj->flywheelRpm - diffFlywheelRpm;
+          temp = carObj->flywheelRpm - diffFlywheelRpm;
         }
       }
-      carObj->flywheelRpm = wheelRpm;
+      carObj->flywheelRpm = temp;
       if (exceedRedline == 0) {
         carObj->flywheelRpm =
             ((carObj->flywheelRpm > desiredRpm) ? carObj->flywheelRpm : desiredRpm);

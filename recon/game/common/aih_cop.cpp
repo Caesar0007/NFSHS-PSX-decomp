@@ -273,13 +273,7 @@ void AIHigh_Cop::HighExecute()
 
           int distanceMeters;
 
-          distanceMeters = AIWorld_ApxSplineDistance(Cars_gHumanRaceCarList[0],Cars_gHumanRaceCarList[1]);
-
-          if (distanceMeters < 0) {
-
-            distanceMeters = -distanceMeters;
-
-          }
+          distanceMeters = __builtin_abs(AIWorld_ApxSplineDistance(Cars_gHumanRaceCarList[0],Cars_gHumanRaceCarList[1]));
 
           if (distanceMeters < 0x12c0000) {
 
@@ -640,7 +634,7 @@ void AIHigh_Cop::HighExecute()
 
       needy = 0;
 
-      if (chaseState->slowDownEndTime_ <= simGlobal.gameTicks) {
+      if (simGlobal.gameTicks >= chaseState->slowDownEndTime_) {
 
         needy = this->CheckForNeedyPlayers() != -1;
 
@@ -694,23 +688,11 @@ void AIHigh_Cop::HighExecute()
 
         int meters;
 
-        meters = chaseState->latMetersBetween_;
-
-        if (meters < 0) {
-
-          meters = -meters;
-
-        }
+        meters = __builtin_abs(chaseState->latMetersBetween_);
 
         if (meters < minLatMetersDistance) {
 
-          meters = chaseState->longMetersBetween_;
-
-          if (meters < 0) {
-
-            meters = -meters;
-
-          }
+          meters = __builtin_abs(chaseState->longMetersBetween_);
 
           murder = meters < minLongMetersDistance;
 
@@ -768,9 +750,9 @@ void AIHigh_Cop::HighExecute()
 
       if ((mode == 1) || (mode == 4)) {
 
-        int direction;
-
         Car_tObj *carObj;
+
+        int direction;
 
         direction = 1;
 
@@ -987,9 +969,9 @@ LAB_80064a0c:
         AIHigh_tDriveAwayMode driveAway;
 
         {
-          int direction;
-
           Car_tObj *carObj;
+
+          int direction;
 
           direction = 1;
 
@@ -1123,13 +1105,7 @@ LAB_80064a0c:
 
       if (this->blockade_.flags != 0) {
 
-        if (stackSpeedUpEnbabledFlag == 0) {
-
-          this->SetupBlockadeElements(&this->blockade_);
-
-        }
-
-        else {
+        if (stackSpeedUpEnbabledFlag != 0) {
 
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 0;
@@ -1138,6 +1114,12 @@ LAB_80064a0c:
 
           gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
           stackSpeedUpEnbabledFlag = 1;
+
+        }
+
+        else {
+
+          this->SetupBlockadeElements(&this->blockade_);
 
         }
 
@@ -1177,19 +1159,19 @@ LAB_80064a0c:
 
           factor = 0x13333;
 
-LAB_80064d28:
-
-          chaseInfo->engagementPercentIncreasePerTick_ = fixedmult(perTick,factor);
-
         }
 
-        else {
+        else if (GameSetup_gData.numLaps == 4) {
 
           factor = 0xa8f5;
 
-          if (GameSetup_gData.numLaps == 4) goto LAB_80064d28;
-
         }
+
+        else goto LAB_80064d34;
+
+        chaseInfo->engagementPercentIncreasePerTick_ = fixedmult(perTick,factor);
+
+LAB_80064d34:;
       }
 
       this->GetCheckChasePosition(&newPos);
@@ -1257,9 +1239,9 @@ LAB_80064d28:
 
       this->requestSpikeBeltAtSlice_ = -1;
 
-      if (this->blockade_.chaseLevel ==
+      if ((this->perpTarget_->perpChaseInfo_).chaseLevelIndex_ ==
 
-          (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_) {
+          this->blockade_.chaseLevel) {
 
         (this->perpTarget_->perpChaseInfo_).engagementTime_ = 0;
 
@@ -1403,8 +1385,6 @@ LAB_80064d28:
 
   case 5:
     {
-    Car_tObj **ppCar;
-
     int hLoop;
 
     {
@@ -1429,8 +1409,6 @@ LAB_80064d28:
 
     hLoop = 0;
 
-    ppCar = Cars_gRaceCarList;
-
     while (true) {
 
       if (Cars_gNumRaceCars <= hLoop) break;
@@ -1438,7 +1416,7 @@ LAB_80064d28:
       {
         Car_tObj *thisPlayerObj;
 
-        thisPlayerObj = *ppCar;
+        thisPlayerObj = Cars_gRaceCarList[hLoop];
 
         if (highLevelAIObjs[thisPlayerObj->carIndex][5].carObj_ != (Car_tObj *)0x0) {
 
@@ -1446,8 +1424,6 @@ LAB_80064d28:
 
         }
       }
-
-      ppCar = ppCar + 1;
 
       hLoop = hLoop + 1;
 

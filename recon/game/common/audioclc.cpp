@@ -677,8 +677,6 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
   Car_tObj **car;
   AudioClc_tSource *closest;
   AudioClc_tCLCache cl[numclosest];
-  int searchdist;
-  int patch;
 
   closest = AudioClc_gClosest + closestIndex;
   for (i = 0; i < numclosest; i++) {
@@ -699,6 +697,8 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
     }
 
     if ((*car)->N.active != 0) {
+        int searchdist;
+
         searchdist = 0x12c0000;
         if (((*car)->carFlags & 0x10U) != 0) {
           searchdist = 0x320000;
@@ -719,6 +719,8 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
         }
 
         if (distance < 0x1900000) {
+          int patch;
+
           patch = CopSpeak_GetEnginePatch((*car)->carInfo->carType,0);
           if (patch >= 0) {
             AudioCmn_GetAsyncSfx(1,patch,(void *)0);

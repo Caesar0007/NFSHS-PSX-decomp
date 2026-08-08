@@ -3112,124 +3112,101 @@ void Accident__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int slice)
 void Catch__Q26Speech13MobileSpeakeri(MobileSpeaker *pThis,int ticket)
 
 {
-  int Arrest;
-  Car_tObj *carObj;
   __vtbl_ptr_type (*pa_Var1) [31];
   int iVar2;
   Car_tObj *pCVar3;
-  u_long uVar4;
-  SPCHNFSType_VOICE *pSVar5;
-  SPCHNFSType_VOICE *pSVar6;
-  MobileSpeaker *pMVar7;
-  SPCHNFSType_AMBULANCE *AMBULANCE;
-  SPCHNFSType_ARREST *ARREST;
-  int reg_a2;
-  int iVar8;
-  int reg_a3;
-  SPCHNFSType_REVINTRO *pSVar9;
-  SPCHNFSType_DISTANCE *COLOUR;
-  
+
   pa_Var1 = (pThis->_base_Speaker)._vf;
   iVar2 = (*(*pa_Var1)[0x1b].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-  if (iVar2 == 0) {
-    return;
-  }
-  *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
-  pa_Var1 = (pThis->_base_Speaker)._vf;
-  iVar2 = (*(*pa_Var1)[0x1b].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-  if (*(int *)(iVar2 + 300) < 0) {
-    pa_Var1 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var1)[0x1e].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
-    pSVar5 = &pThis->fVoice;
-    iVar2 = *(int *)(iVar2 + 4);
-    iVar8 = (pThis->_base_Speaker).fFrom;
-    pSVar9 = &(pThis->_base_Speaker).fReverse;
-    (pThis->_base_Speaker).fTo = iVar2;
-    pSVar6 = pSVar5;
-    SPCHNFS_C_A_INTRO(pSVar5,iVar2,iVar8,pSVar9);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    pa_Var1 = (pThis->_base_Speaker)._vf;
-    pCVar3 = (Car_tObj *)
-             (*(*pa_Var1)[0x1b].pfn)
-                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-    FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
-    COLOUR = &(pThis->_base_Speaker).fDistance;
-    iVar2 = (pThis->_base_Speaker).fLocation;
-    pMVar7 = pThis;
-    SPCHNFS_C_D_PERP_CRASH_ROLL(pSVar5,(SPCHNFSType_POSITION *)pThis,iVar2,COLOUR,&(pThis->_base_Speaker).fPerpName);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    uVar4 = 4;
-  }
-  else {
+  if (iVar2 != 0) {
+    *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
     pa_Var1 = (pThis->_base_Speaker)._vf;
     iVar2 = (*(*pa_Var1)[0x1b].pfn)
                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-    if (*(int *)(iVar2 + 0x78c) == 0) {
-      (pThis->_base_Speaker).fArrest.flags = ticket;
-      if (ticket == 1) {
-        pSVar6 = &pThis->fVoice;
-        ARREST = &(pThis->_base_Speaker).fArrest;
-        SPCHNFS_C_P_ARRESTED(pSVar6,ARREST);
-      }
-      else {
-        pSVar6 = &pThis->fVoice;
-        if (ticket == 2) {
-          ARREST = &(pThis->_base_Speaker).fArrest;
-          SPCHNFS_C_P_WARNING(pSVar6,ARREST);
-        }
-        else {
-          ARREST = &(pThis->_base_Speaker).fArrest;
-          SPCHNFS_C_P_TICKET(pSVar6,ARREST);
-        }
+    if (*(int *)(iVar2 + 300) < 0) {
+      pa_Var1 = (pThis->_base_Speaker)._vf;
+      iVar2 = (*(*pa_Var1)[0x1e].pfn)
+                        ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
+      (pThis->_base_Speaker).fTo = *(int *)(iVar2 + 4);
+      SPCHNFS_C_A_INTRO(&pThis->fVoice,(pThis->_base_Speaker).fTo,
+                        (pThis->_base_Speaker).fFrom,&(pThis->_base_Speaker).fReverse);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+      pa_Var1 = (pThis->_base_Speaker)._vf;
+      pCVar3 = (Car_tObj *)(*(*pa_Var1)[0x1b].pfn)
+                         ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
+      FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
+      {
+        SPCHNFSType_DISTANCE *distance = &(pThis->_base_Speaker).fDistance;
+        iVar2 = (pThis->_base_Speaker).fLocation;
+        SPCHNFS_C_D_PERP_CRASH_ROLL(&pThis->fVoice,(SPCHNFSType_POSITION *)pThis,
+                   iVar2,distance,&(pThis->_base_Speaker).fPerpName);
       }
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      if (ticket == 1) {
-        SetDelayedStatus__6SpeechPQ26Speech7Speakeri((Speech *)((int)Speech_fgSpeech),&pThis->_base_Speaker,0x60);
-      }
+      (pThis->_base_Speaker).fAmbulance.flags = 4;
+      SPCHNFS_C_D_REQUEST_EMS(&pThis->fVoice,&(pThis->_base_Speaker).fAmbulance);
+      SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       goto Catch_dispatchCallback;
     }
-    pa_Var1 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var1)[0x1e].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
-    pSVar5 = &pThis->fVoice;
-    iVar2 = *(int *)(iVar2 + 4);
-    iVar8 = (pThis->_base_Speaker).fFrom;
-    pSVar9 = &(pThis->_base_Speaker).fReverse;
-    (pThis->_base_Speaker).fTo = iVar2;
-    pSVar6 = pSVar5;
-    SPCHNFS_C_A_INTRO(pSVar5,iVar2,iVar8,pSVar9);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    pa_Var1 = (pThis->_base_Speaker)._vf;
-    pCVar3 = (Car_tObj *)
-             (*(*pa_Var1)[0x1b].pfn)
-                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-    SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
-    pa_Var1 = (pThis->_base_Speaker)._vf;
-    pCVar3 = (Car_tObj *)
-             (*(*pa_Var1)[0x1b].pfn)
-                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-    FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
-    COLOUR = (SPCHNFSType_DISTANCE *)&(pThis->_base_Speaker).fColour;
-    iVar2 = (pThis->_base_Speaker).fLocation;
-    pMVar7 = pThis;
-    SPCHNFS_C_D_PERP_CRASH_GEN(pSVar5,(SPCHNFSType_POSITION *)pThis,iVar2,(SPCHNFSType_COLOUR *)COLOUR,
-               (pThis->_base_Speaker).fCar,&(pThis->_base_Speaker).fDistance,&(pThis->_base_Speaker).fPerpName);
-    SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    uVar4 = 0x20;
-  }
-  pSVar6 = &pThis->fVoice;
-  AMBULANCE = &(pThis->_base_Speaker).fAmbulance;
-  (pThis->_base_Speaker).fAmbulance.flags = uVar4;
-  SPCHNFS_C_D_REQUEST_EMS(pSVar6,AMBULANCE);
-  SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+    else {
+      pa_Var1 = (pThis->_base_Speaker)._vf;
+      iVar2 = (*(*pa_Var1)[0x1b].pfn)
+                        ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
+      if (*(int *)(iVar2 + 0x78c) != 0) {
+        pa_Var1 = (pThis->_base_Speaker)._vf;
+        iVar2 = (*(*pa_Var1)[0x1e].pfn)
+                          ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
+        (pThis->_base_Speaker).fTo = *(int *)(iVar2 + 4);
+        SPCHNFS_C_A_INTRO(&pThis->fVoice,(pThis->_base_Speaker).fTo,
+                          (pThis->_base_Speaker).fFrom,&(pThis->_base_Speaker).fReverse);
+        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+        pa_Var1 = (pThis->_base_Speaker)._vf;
+        pCVar3 = (Car_tObj *)(*(*pa_Var1)[0x1b].pfn)
+                           ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
+        SetCar__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
+        pa_Var1 = (pThis->_base_Speaker)._vf;
+        pCVar3 = (Car_tObj *)(*(*pa_Var1)[0x1b].pfn)
+                           ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
+        FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,pCVar3);
+        {
+          SPCHNFSType_DISTANCE *colour = (SPCHNFSType_DISTANCE *)&(pThis->_base_Speaker).fColour;
+          iVar2 = (pThis->_base_Speaker).fLocation;
+          SPCHNFS_C_D_PERP_CRASH_GEN(&pThis->fVoice,(SPCHNFSType_POSITION *)pThis,
+                   iVar2,(SPCHNFSType_COLOUR *)colour,(pThis->_base_Speaker).fCar,
+                   &(pThis->_base_Speaker).fDistance,&(pThis->_base_Speaker).fPerpName);
+        }
+        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+        (pThis->_base_Speaker).fAmbulance.flags = 0x20;
+        SPCHNFS_C_D_REQUEST_EMS(&pThis->fVoice,&(pThis->_base_Speaker).fAmbulance);
+        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+        goto Catch_dispatchCallback;
+      }
+      else {
+        (pThis->_base_Speaker).fArrest.flags = ticket;
+        if (ticket == 1) {
+          SPCHNFS_C_P_ARRESTED(&pThis->fVoice,&(pThis->_base_Speaker).fArrest);
+        }
+        else if (ticket == 2) {
+          SPCHNFS_C_P_WARNING(&pThis->fVoice,&(pThis->_base_Speaker).fArrest);
+        }
+        else {
+          SPCHNFS_C_P_TICKET(&pThis->fVoice,&(pThis->_base_Speaker).fArrest);
+        }
+        SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
+        if (ticket == 1) {
+          SetDelayedStatus__6SpeechPQ26Speech7Speakeri((Speech *)((int)Speech_fgSpeech),&pThis->_base_Speaker,0x60);
+        }
+        goto Catch_dispatchCallback;
+      }
+    }
 Catch_dispatchCallback:
-  iVar2 = Dispatch__6Speech();
-  (**(int (**)(...))(*(int *)(iVar2 + 0x4c) + 0x9c))
-            (iVar2 + *(short *)(*(int *)(iVar2 + 0x4c) + 0x98),pThis->fPerp);
-  return;
+    {
+      int *dispatchThis = (int *)Dispatch__6Speech();
+      int dispatchVf = dispatchThis[0x13];
+      (**(int (**)(...))(dispatchVf + 0x9c))
+                ((int)dispatchThis + *(short *)(dispatchVf + 0x98),pThis->fPerp);
+    }
+  }
 }
 
 /* ---- RoadBlock__Q26Speech13MobileSpeaker  [SPEECH.CPP:2627-2648] SLD-VERIFIED ---- */

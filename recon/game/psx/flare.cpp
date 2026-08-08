@@ -1848,7 +1848,31 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
    *   compute their QTY_CMP_PRI from a `-dl` dump of THIS basin and use the ref/live dials,
    *   which is the one instrument never applied to this function.  The untried tail halves
    *   (`pal = Render_gPalettePtr;` split out at the 7 OT sites) remain open and are
-   *   independent of the head cluster. */
+   *   independent of the head cluster.
+   * ---- w50-A3: 34 @407 -> 30 @409 COUNT-EXACT, and the fenced basin IS NOW LANDED
+   * (the w45 note's own recommendation, which w45/w46 both left un-adopted because the
+   * bare fenced base gates 36).  TWO edits:
+   *  (1) the w45 fenced split-temp head (vx0/vy0 + zero-insn USE fence) -- retail's two
+   *      `addu fp,v0,zero` / `addu s7,v1,zero` copies materialize, count 407 -> 409;
+   *  (2) NEW: THE `col` CONSTANT MOVED TO ITS USE SITE (`*(u_long*)&col = 0xffffff;`
+   *      written just before the Flare_QuadNotTransparent call instead of at the top of
+   *      the block): 36 -> 30.  Lengthening the 0xFFFFFF constant's live range DEMOTES
+   *      its qty out of $v0 into retail's $a3, and $a3 is then reused for `sx-2` exactly
+   *      like retail (`sw a3,48(sp); addiu a3,fp,-2; sh a3,32(sp)`).
+   * RE-SWEPT IN THE NEW BASIN (current, not stale): all 24 pt-group orderings (the kept
+   * 0,1,2,3 is joint-best at 30; retail's STORE order 1,2,3,0 = 44), four DISTINCT
+   * per-group temps (30, no change), `col` named in a local (36), a fence on the col
+   * word after the stores (47 @410).
+   * RESIDUAL 30 = ONE head cluster: retail RELOADS screenPos from its ARG home
+   * (`lw t7,184(sp); lh v0,0(t7)`) because its scheduler issues the two call-arg address
+   * setups (`addiu a0,sp,32` / `addiu a1,sp,48`) BEFORE the two `lh`s, so $a0 is already
+   * clobbered and reload cannot inherit it; ours issues the `lh`s first and reads straight
+   * through the live $a0.  => the dial is NOT a handle on the pointer (w46 closed that
+   * list) -- it is WHERE the two arg-address materializations issue.  NEW NAMED ANGLE:
+   * give the two call-arg addresses real pointer locals defined at the TOP of the pt block
+   * (`DVECTOR *pp = pt; CVECTOR *cp = &col;`) and pass those, so their addiu's are born
+   * before the reads; a bare `"r"(pt)` fence operand does NOT compile under cc1plus 2.8
+   * ("inconsistent operand constraints") -- use the locals. */
   int dx;
   int dy;
   DVECTOR pxy;
@@ -1865,13 +1889,13 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
   otz = 0;
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
-    sx = screenPos->vx;
-    sy = screenPos->vy;
+    { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
+      __asm__ volatile("" : : "r"(vx0), "r"(vy0));
+      sx = vx0;  sy = vy0; }
     {
       DVECTOR pt [4];
       CVECTOR col;
 
-      *(u_long *)&col = 0xffffff;
       /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
        * with each chain written HI = LO = v (stores ascending).  Moving the
        * sx-2 group last (= the oracle's STORE order) costs 14 diffs: it flips
@@ -1880,6 +1904,7 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       pt[1].vy = pt[0].vy = (short)(sy + -2);
       pt[3].vx = pt[1].vx = (short)(sx + 3);
       pt[3].vy = pt[2].vy = (short)(sy + 3);
+      *(u_long *)&col = 0xffffff;
       Flare_QuadNotTransparent((long *)pt,&col,Draw_gViewOtSize + -2);
     }
     angleZ = (sx + sy) * 8;

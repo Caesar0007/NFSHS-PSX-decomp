@@ -110,14 +110,30 @@ def norm_ins(t):
     if m: return f"{m.group(1)} T"
     return t
 
+def _oracle_alabels(fn):
+    # Interior `alabel` names inside fn's oracle .s: the expected build exports them as
+    # GLOBAL symbols (splat alternate labels), so our object must define them too (objdiff
+    # 3.8.0 pairing), which makes objdump SPLIT our disasm block at each one.  ours() must
+    # therefore continue through them -- the oracle's own span is the block authority.
+    p = _find_oracle_path(fn)
+    if p is None:
+        return set()
+    txt = p.read_text()
+    m = re.search(r'^endlabel', txt, re.M)   # alabels AFTER endlabel are outside the fn
+    if m:
+        txt = txt[:m.start()]
+    return set(re.findall(r'^\s*alabel\s+(\S+)', txt, re.M))
+
 def ours(fn):
     # Collect the function's raw objdump lines (instructions + the reloc lines that
     # objdump -r interleaves AFTER each relocated instruction).
+    interior = _oracle_alabels(fn)
     fn = _resolve(fn)                 # follow aliases to the block objdump actually labeled
     lines=[]; inb=False
     for ln in dis.splitlines():
         m=re.match(r'^[0-9a-f]{8} <(.+)>:',ln)
         if m:
+            if inb and m.group(1) in interior: continue   # oracle alabel: same block
             if inb: break
             inb=(m.group(1)==fn); continue
         if inb: lines.append(ln)

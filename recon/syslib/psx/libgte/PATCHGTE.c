@@ -130,12 +130,17 @@ __asm__(
     "_gte_patch_text = _patch_gte_handler_1\n"
     "\t.word 0xaf410004\n\t.word 0xaf420008\n\t.word 0xaf43000c\n"
     "\t.word 0xaf5f007c\n\t.word 0x40037000\n\t.word 0x00000000\n"
-    /* (no interior label at &word[6]: objdump would end the _patch_gte_handler_1 block
-     *  there and the gate would only see the match-half.  The recon reaches the fix half
-     *  as `_gte_patch_text+24`.  D_80106530 DOES get a label -- it terminates the symbol
-     *  at the oracle's 0x30 size.) */
+    /* w50 CI fix: objdiff 3.8.0 requires every left-side (expected) GLOBAL to pair --
+     * the expected object exports splat's alabels D_80106518 (&word[6], the fix half)
+     * and D_80106530 (&word[12]) as globals, so the recon must define them too.  The
+     * old "no interior label" receipt (objdump block-split fear) re-tested with the
+     * labels present: verify_asm still gates both fns PASS.  The recon still reaches
+     * the fix half as `_gte_patch_text+24`. */
+    "\t.globl D_80106518\n"
+    "D_80106518:\n"
     "\t.word 0xaf410004\n\t.word 0xaf420008\n\t.word 0x40026800\n"
     "\t.word 0xaf43000c\n\t.word 0x40037000\n\t.word 0xaf5f007c\n"
+    "\t.globl D_80106530\n"
     "D_80106530:\n"
     "\t.word 0x00000000\n"
     "\t.set	pop\n");

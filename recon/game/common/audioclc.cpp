@@ -809,8 +809,6 @@ void AudioCmn_UpdateThunder(void);
  *  Pursuit "busted" block re-primes perp engine SFX. */
 void AudioClc_SoundCars(void)
 {
-  int i, patch;
-  GameSetup_tData *gs;
 
   AudioClc_SoundSpeech();
   AudioCmn_UpdateThunder();
@@ -819,22 +817,21 @@ void AudioClc_SoundCars(void)
       ((Cars_gHumanRaceCarList[0]->carFlags & 0x200) ||
        (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) &&
       HudBustedOverlay != 0) {
-    if (0 < GameSetup_gData.numPerps) {
-      /* w30-a6 FLOOR: residual is a single addu s0,X,zero source-reg tie-break
-         (oracle chains s0<-s2<-a1; ours materializes s0<-a1 directly) -- both
-         forms of the CarType access (global-indexed vs gs->) and both
-         statement orders (gs-then-i vs i-then-gs) reproduce it identically,
-         and a 505-iter permuter run (base score 35, never below) did not
-         crack it either. Pure allocator artifact, not source-reachable. */
-      gs = &GameSetup_gData;
-      i = 0;
-      do {
-        patch = CopSpeak_GetEnginePatch(gs->perpInfo[i].CarType, 0);
-        AudioCmn_GetAsyncSfx(1, patch, (void *)0);
-        patch = CopSpeak_GetEnginePatch(gs->perpInfo[i].CarType, 1);
-        AudioCmn_GetAsyncSfx(1, patch, (void *)0);
-        i++;
-      } while (i < gs->numPerps);
+    /* MATCH: PASS 176/176 (2026-08-08, was FAIL 2 under a w30-a6 "pure
+     * allocator artifact" floor verdict + 505-iter permuter).  Three SYM
+     * truths cracked it together: NO `gs`/`patch` locals (SYM block lists
+     * only `i` -- the calls are NESTED, v0->a1 directly), `i` block-scoped,
+     * and the loop written as a plain `for` (its rotated guard makes
+     * loop.c's strength-reduction giv-init source the HOISTED base pseudo
+     * -> `addu s0,s2` chain; the old explicit if+do-while sourced the
+     * address temp -> `addu s0,a1` = the whole 2-diff residual). */
+    {
+      int i;
+
+      for (i = 0; i < GameSetup_gData.numPerps; i++) {
+        AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 0), (void *)0);
+        AudioCmn_GetAsyncSfx(1, CopSpeak_GetEnginePatch(GameSetup_gData.perpInfo[i].CarType, 1), (void *)0);
+      }
     }
   }
 

@@ -391,6 +391,21 @@ void Hrz_InitSky(void)
     }
     j = 0;
     do {
+      /* MATCH (w50-a5, the seal): ZERO-INSN READ-ONLY REF FENCE at the HEAD of the
+         inner-loop body.  Residual was the recorded k<->radius $s4/$s6 allocno tie.
+         -dg/allocsim: p82(k) 19refs/100live pri .7600 > p84(height) 10/43 .6977 >
+         p85(radius) 7/32 .4375, but retail wants radius=$s4, height=$s5, k=$s6 -- a
+         FULL reversal, so BOTH rivals must be lifted above k (reqdelta 2-pseudo search:
+         p84 refs->11/12 AND p85 refs->9 is the cheapest handout-exact delta; k's own
+         refs/live dials were already falsified in w39/w46).  flow.c weights REG_N_REFS
+         by loop_depth, so one read-only asm use at depth 3 buys +3 refs per operand at
+         ZERO instructions: radius 7->10 (.9375), height 10->13 (.9070), both now above
+         k (.7600) and still under i's .9411 so $s3 is unchanged.  POSITION is
+         load-bearing (the fence is also a sched/reorg barrier -- w45): walking it
+         statement-by-statement through this body measures 3/6/4/4/8/15/11/5 diffs at
+         positions 1..8 and 0 HERE -- at the body head it precedes every schedulable
+         insn, so it steals nothing.  Do NOT move, merge, or "simplify" it away. */
+      __asm__ ("" : : "r"(height), "r"(radius));
       angle = j * 0x1000;
       j = j + 1;
       angle = angle - Sky_gTrackSpec->sunAngleInSky;

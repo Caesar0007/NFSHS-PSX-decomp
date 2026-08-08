@@ -1316,7 +1316,13 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
    *   seal cracked with a fence WALK.  The existing dual-param fence is a fixpoint AFTER the
    *   pt2 stores; walk a SECOND zero-insn fence through the entry block one statement at a
    *   time (before `sd =`, between the two pt2 stores, after the guard) -- position is the
-   *   dial and this fn has never had more than one fence position tested. */
+   *   dial and this fn has never had more than one fence position tested.
+   *   ---- w49-a4: THE SECOND-FENCE WALK IS NOW RUN (three positions, all count-exact
+   *   247/247): before `sd =` 8 (worse) . between the two pt2 stores 6 (no move) .
+   *   after `sd =` / before the pt2 stores 6 (no move).  So a second zero-insn fence does
+   *   NOT move the `sw s3,92(sp)` prologue save -- residual (A) survives the w46 note's
+   *   own recommendation.  Both residuals unchanged; the untried instrument is still the
+   *   -dl/-dg qty table for this entry block. */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;

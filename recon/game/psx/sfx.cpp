@@ -6,6 +6,12 @@
 #include "../../nfs4_types.h"
 #include "sfx_externs.h"
 
+/* MATCH (w49-a4): PsyQ P_TAG-style OT word -- a 24-bit BITFIELD store IS the oracle's
+ * `lw; and 0xff000000; and val,0xffffff; or; sw` (libgpu setaddr()), and the redundant
+ * `& 0xffffff` on the VALUE side is the zero-insn ref inflator (cse folds the AND, flow.c
+ * still counts the ref).  Same type/idiom as drawc.cpp's DrawC_tTag.  See Sfx_AdditivePrim. */
+typedef struct { u_long addr : 24; u_long len : 8; } Sfx_tTag;
+
 
 /* ---- Sfx_Transform__FP8coorddefP7SVECTORT0  [SFX.CPP:40-75] SLD-VERIFIED ---- */
 void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
@@ -221,7 +227,15 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
         ChangeTPage(&tpage,1);
       }
       prim->tpage = tpage;
-      prim->tag = prim->tag & 0xff000000 |
+      /* MATCH (w49-a4, 38 -> 26, count-exact 126/126): P_TAG bitfield store at THIS site
+         ONLY.  Measured at this basin: site-1 bitfield 26 . site-2 bitfield 36 . BOTH 36 .
+         both-without-the-value-remask 36 . site-1 with the value read as a bitfield too 26
+         (tie, kept the plain masked read) . site-1 with NO value remask 44 . site-1 plus
+         a redundant `l0 & 0xffffff` on the site-2 value 38.  So the dial is ASYMMETRIC --
+         exactly the w44 "P_TAG two-setting REF dial ... the two siblings need OPPOSITE
+         settings" row.  This retires the STRONG-FLOOR claim in the header comment (the
+         cited PrimStop/SpotPrims family was itself cracked by this same lever in w44). */
+      ((Sfx_tTag *)&prim->tag)->addr =
                   *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
       l0 = (u_int)Render_gPacketPtr & 0xffffff;
       Render_gPacketPtr = Render_gPacketPtr + 0x28;
@@ -523,6 +537,19 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  * (the oracle's `j T` targets .L800DE0E0/.L800DE100/.L800DE114/.L800DE11C/.L800DE120 -- map
  * which of OUR arms should reach which merge entry, rather than assuming a 1:1 tail set).
  * NOTE cases 1/2/3, 6, 7, 9, 11 byte-match; preserve them verbatim.
+ * ===== w49-a4: the P_TAG BITFIELD form of the two OT stores was run at both tails and
+ * lands squarely on the SAME cross-jump collapse band the w44 note describes -- record it
+ * so the lever is not re-run as if it were new:
+ *   ribbon tag-store bitfield (R1) 106 @940 . ribbon OT-word bitfield (R2) 86 @918 .
+ *   case-13/14 tag-store (S1) 112 @940 . case-13/14 OT-word (S2) 111 @919 .
+ *   R1+R2 86 @918 . S1+S2 111 @919 . R2+S2 81 @919 . R1+S1 100 @940 . all four 81 @919.
+ * Every OT-word conversion lands in the 918-921 band = the ~17-20-insn cross-jump swallow
+ * (identical to the "struct view = 86@918" row above); the LCS improvement is the fuzzy-
+ * alignment trap, not a real gain.  The tag-store conversions are +2 insns each and do not
+ * merge -- they are the honest half, but they cost diffs on their own.  CONCLUSION UNCHANGED:
+ * the de-merge (distinct per-arm link/OT variable identity) has to come FIRST; the P_TAG
+ * rewrite is then the natural spelling for the split-RMW step.  (The same lever DID pay on
+ * this TU's Sfx_AdditivePrim, 38 -> 26 -- there the tail is single-instance so nothing merges.)
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 

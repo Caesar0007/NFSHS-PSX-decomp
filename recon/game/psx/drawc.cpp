@@ -319,7 +319,21 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        fence.  NEXT ANGLE: this is a ready-list DRAIN tie -- per w46-a10 the
        block's qty COUNT is the dial when it is small (local-alloc.c:1588
        hand-rolls next_qty<=3); count the qtys in this block from -dl and
-       try crossing the 3-to-4 boundary with one extra/removed block-local. */
+       try crossing the 3-to-4 boundary with one extra/removed block-local. 
+       ---- w49-a4: THREE MORE FALSIFICATIONS at this basin (all count-exact 107/107,
+       all 4 diffs or worse), narrowing the residual to a pure sched2 ready-list pick:
+         - lp[0] hoisted into its OWN block-local statement before the sum (the w43
+           "own statement = lower luid = issues first" lever): 36 (much worse).
+         - UNSIZED asm-label view of the weather table (`extern long
+           Night_gWeatherColor_v[] asm("Night_gWeatherColor");` + `[type]`), i.e. the
+           w42/w44 storage-shape menu form (2): byte-identical, 4 -- the `la`-macro
+           direction does NOT reach the address form here.
+         - splitting the base out of the index (`wcb = (u_char*)Night_gWeatherColor;
+           wc = wcb + type*4;`) so the base gets its own lower luid: byte-identical, 4.
+       ⇒ the wc base's %lo (`addiu v0,v0,0`) and lp[0] (`lbu a0,104(sp)`) are BOTH ready
+       when `lw v1` (the lightning-type load) needs its delay-slot filler; the emitted
+       insn STREAM is identical and only the pick differs, so no address/luid spelling
+       reaches it.  The -dl/-dg qty pass named above is still the one untried instrument. */
     __asm__("" : : );
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);
@@ -4007,7 +4021,19 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
          this block), NOT the shift spelling.  FALSIFIED this wave: explicit
          fresh shift temp `int ovs = (int)(ov << 0x10)` both sites 38, site-1
          only 33, fully inlined 38 -- every one makes us SHORTER still.
-         Do the -dg pass first (see scratch/w46_a3_receipts.md sec.5). */
+         Do the -dg pass first (see scratch/w46_a3_receipts.md sec.5).
+         ---- w49-a4: the w45 note's TWO named ref-step dials are now BOTH RUN and
+         FALSIFIED, so the ref/live family is closed for this block and only the
+         allocation-side (-dg/-dl) instrument is left:
+           - zero-insn re-mask on the overlay word (`ov = ov & 0xffff0000;` right
+             after the shift -- a genuine no-op since ov = (u_short)x << 16, the
+             w44 inflator variant 1): EXACTLY 29 @295 at site 1, at site 2, and at
+             both.  cc1 folds the AND before flow.c, so it does NOT mint the ref
+             here (unlike the OT-link addr24 sites where the operand is a pseudo).
+           - do{}while(0) loop-depth wrapper around the shift+branch block (w44
+             inflator variant 3): site 1 = 37, site 2 = 37, both = 45.  The
+             NOTE_INSN_LOOP_BEG barrier costs more than the ref weighting gains --
+             the w44 "NEGATIVE on straight-line call-free blocks" caveat, exactly. */
         u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
         ov = ov << 0x10;
         if (facet->flag < 0) {

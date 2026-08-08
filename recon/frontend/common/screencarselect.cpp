@@ -6,6 +6,11 @@
 
 extern tFEApplication *FEAppB[] asm("FEApp");
 
+typedef struct tPsyQPrimTag {
+  unsigned int addr : 24;
+  unsigned int len : 8;
+} tPsyQPrimTag;
+
 
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0). Mangled R =
@@ -1899,36 +1904,37 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   __vtbl_ptr_type (*vtbl) [10];
   int pkt_addr24;
   int pkt_addr24_2;
+  int brightness;
+  int elapsed;
   short carY_2;
   short sVar3;
   short ts3;
-  tCarInfo *carInfoPtr;
   short carY;
   short ts10;
   DRAWENV *drenv;
   RECT r;
-  tCarInfo carInfo;
+  union {
+    tCarInfo carInfo;
+    signed char signedCarID;
+  };
   RECT temp;
   u_char *cur_pkt;
-  u_char *daprim;
+  DR_AREA *daprim;
   u_char *cur_pkt_2;
-  byte bVar1;
+  BOOL bVar1;
   
   ts10 = 0x4f;
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
-  daprim = Render_gPacketPtr;
+  daprim = (DR_AREA *)Render_gPacketPtr;
   cur_pkt = Render_gPalettePtr;
   temp.x = 0;
   temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
-  carInfoPtr = (tCarInfo *)0xff000000;
   temp.h = (short)screenheight;
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(uint *)cur_pkt = *(uint *)cur_pkt & 0xff000000 | pkt_addr24;
-  SetDrawArea((DR_AREA *)daprim,&temp);
+  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)cur_pkt)->addr;
+  Render_gPacketPtr = (u_char *)daprim + 0xc;
+  ((tPsyQPrimTag *)cur_pkt)->addr = (u_int)daprim;
+  SetDrawArea(daprim,&temp);
   r.x = 0x122;
   r.y = 0x19;
   if (FEAppB[0]->fPlayer == '\x01') {
@@ -1938,62 +1944,66 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   r.h = 0xc;
   screenVtbl = (int)this->_vf;
   ti7 = (**(code **)(screenVtbl + 0x6c))
-                  (this->fPermShapes.fFilename +
-                   *(short *)(screenVtbl + 0x68) + -0x14,&carInfo);
-  if (ti7 == 0) {
-    carInfo.fCarID = -1;
-    vtbl = this->_vf;
-    (*vtbl[1][2].pfn)
-              (this->fPermShapes.fFilename + vtbl[1][2].delta + -0x14,
-               &carInfo);
-    showRoomFlag = 0;
-    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
-               this->fCameraRotation,(tPlayer)(byte)FEAppB[0]->fPlayer);
-    vtbl = this->_vf;
-    (*vtbl[1][6].pfn)
-              (this->fPermShapes.fFilename + vtbl[1][6].delta + -0x14)
-    ;
-  }
-  else {
+                  (*(short *)(screenVtbl + 0x68) + -0x14 +
+                   this->fPermShapes.fFilename,&carInfo);
+  if (ti7 != 0) {
     r.y = 0x14;
     if (FEAppB[0]->fPlayer == '\x01') {
       ts10 = 0xb8;
       r.y = 0x80;
     }
     this->fCameraRotation = this->fCameraRotation + 3;
-    DrawShape_NFS4RoundRectangle(carInfo.fCarID + 0x121,&r,0);
+    DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,&r,0);
     screenVtbl2 = (int)this->_vf;
     (**(code **)(screenVtbl2 + 100))
-              (this->fPermShapes.fFilename +
-               *(short *)(screenVtbl2 + 0x60) + -0x14,&carInfo);
+              (*(short *)(screenVtbl2 + 0x60) + -0x14 +
+               this->fPermShapes.fFilename,&carInfo);
     if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle != 0) {
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = ticks[0];
     }
-    if ((((gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) &&
-         (sVar3 = this->fBrightness[0],
-         sVar3 == this->fDestBrightness[0])) && (sVar3 == 0)) &&
-       (0x80 < ticks[0] - this->fFadeTicks[0])) {
-      carY_2 = 0x20;
-      if (carInfo.fAvailable != '\0') {
-        carY_2 = 0x80;
+    if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) {
+      sVar3 = this->fBrightness[0];
+      if (((sVar3 == this->fDestBrightness[0]) && (sVar3 == 0)) &&
+          (0x80 < ticks[0] - this->fFadeTicks[0])) {
+        carY_2 = 0x20;
+        if (carInfo.fAvailable != '\0') {
+          carY_2 = 0x80;
+        }
+        this->SetBrightness(carY_2,0);
+        TurnOn(this->fVideoWall);
       }
-      this->SetBrightness(carY_2,0);
-      TurnOn(this->fVideoWall);
     }
     this->UpdateBrightness(0);
     showRoomFlag = 0;
-    DrawCar__FR8tCarInfossffcbUl7tPlayer(carInfoPtr,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
-               this->fCameraRotation,(tPlayer)(byte)FEAppB[0]->fPlayer);
+    tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
+    DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
+               this->fCameraRotation,player);
+  }
+  else {
+    signedCarID = -1;
+    vtbl = this->_vf;
+    (*vtbl[1][2].pfn)
+              (vtbl[1][2].delta + -0x14 + this->fPermShapes.fFilename,
+               &carInfo);
+    showRoomFlag = 0;
+    tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
+    DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
+               this->fCameraRotation,player);
+    vtbl = this->_vf;
+    (*vtbl[1][6].pfn)
+              (vtbl[1][6].delta + -0x14 + this->fPermShapes.fFilename)
+    ;
   }
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   bVar1 = false;
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
-      (this->fVideoWall[0].fTransitionDirection != -1)) &&
+     (this->fVideoWall[0].fTransitionDirection != -1)) &&
      (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0)) {
-    bVar1 = 0x80 < ticks[0] - this->fFadeTicks[0];
+    elapsed = ticks[0] - this->fFadeTicks[0];
+    bVar1 = 0x80 < elapsed;
   }
-  if ((bool)bVar1) {
+  if (bVar1) {
     ts3 = 0;
     if (FEAppB[0]->fPlayer == '\x01') {
       ts3 = 0x41;
@@ -2001,11 +2011,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     ::UploadShapes((tScreen *)this,&this->fSwapShapes,0,ts3,5,0);
     TurnOn(this->fVideoWall);
     if (this->fDestBrightness[0] == this->fBrightness[0]) {
-      sVar3 = 0x20;
+      brightness = 0x20;
       if (carInfo.fAvailable != '\0') {
-        sVar3 = 0x80;
+        brightness = 0x80;
       }
-      this->SetBrightness(sVar3,0);
+      this->SetBrightness(brightness,0);
     }
   }
   r.y = 0;
@@ -2014,13 +2024,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   }
   vtbl = this->_vf;
   (*vtbl[1][0].pfn)
-            (this->fPermShapes.fFilename + vtbl[1][0].delta + -0x14,
+            (vtbl[1][0].delta + -0x14 + this->fPermShapes.fFilename,
              r.y);
   vtbl = this->_vf;
   (*vtbl[1][7].pfn)
-            (this->fPermShapes.fFilename + vtbl[1][7].delta + -0x14);
-  daprim = Render_gPacketPtr;
-  cur_pkt_2 = Render_gPalettePtr;
+            (vtbl[1][7].delta + -0x14 + this->fPermShapes.fFilename);
   temp.x = 0;
   temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
@@ -2028,12 +2036,12 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   if (FEAppB[0]->fPlayer == '\x01') {
     temp.y = temp.y + temp.h;
   }
-  *(uint *)Render_gPacketPtr =
-       *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24_2 = (uint)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(uint *)cur_pkt_2 = *(uint *)cur_pkt_2 & 0xff000000 | pkt_addr24_2;
-  SetDrawArea((DR_AREA *)daprim,&temp);
+  daprim = (DR_AREA *)Render_gPacketPtr;
+  cur_pkt_2 = Render_gPalettePtr;
+  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)cur_pkt_2)->addr;
+  Render_gPacketPtr = (u_char *)daprim + 0xc;
+  ((tPsyQPrimTag *)cur_pkt_2)->addr = (u_int)daprim;
+  SetDrawArea(daprim,&temp);
   return;
 }
 

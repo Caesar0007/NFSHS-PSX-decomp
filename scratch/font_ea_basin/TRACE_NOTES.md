@@ -248,3 +248,45 @@ lists + per-insn priorities + the full post-sched RTL. V21 fidelity re-proven
    Variants banked: font_v37.cpp (SLD order + mutations, the true-basin seed).
 STATUS: shipping body = V21 (28) UNCHANGED; V37 banked. Files: mine/psxfront_
 v{21,22r,26,35,37}.{i,s}, trace_v{21,22r,26,37}.txt, *.sched (instr dir).
+
+================================================================================
+ROUND 9 (2026-08-08) — rank_for_schedule read + SLD −1 correction; retail-order
+basin 130→96; the weave is source-order-INVARIANT; gate stays 28.
+================================================================================
+1) 🏆 THE TIE RULE (gcc-2.8.1 sched.c:2415 rank_for_schedule, read not guessed):
+   backward list scheduler; ready-list sort = (a) INSN_PRIORITY desc; (b) class
+   vs last_scheduled_insn: 3 (independent OR latency-1) > 2 (anti/output-dep)
+   > 1 (data-dep w/ latency>1) — this is the LOAD-LATENCY SLOT-FILLER: the insn
+   placed directly before a load's consumer is chosen from independents; (c)
+   INSN_LUID (original RTL order — stability, "minimize movement"). So on a
+   pure tie EMISSION ORDER == SOURCE ORDER, and retail's tag@15-before-dv@18
+   requires either a pri delta or a class-rule fire that our RTL doesn't give.
+2) 🏆 SLD CORRECTION (re-read of the f020 record): retail's `addiu t0,t0,-1`
+   (pos 27) is tagged line 1463 = THE UV LINE, not 1444 ⇒ retail dv decl-init
+   (1444) has NO -1; the -1 is an IN-PLACE `dv -= 1` (or --dv) AT the UV site,
+   sitting beside the `dv += height` mutation. Corrected source model:
+     int dv = ((*(int*)((int)src+0xc) << 4) >> 0x14) + v & 0xff;   // 1444
+     ... link, tint, 9, 2c, clut, tpage ...
+     dv -= 1;  UV stores;  dv += height;  UV stores;               // 1463
+     height = y + height;  width = x + width;  XY stores;          // 1466
+3) PROBE LADDER round 9 (corrected model): V38 (dv after bump) 150 ·
+   V39/V40/V41/V42 (dv first / after w+h / after y1 / after y2) ALL 96 ·
+   V43 (after bump) 150.  96 = best retail-order gate so far (was 130).
+4) 🔴 THE WEAVE IS SOURCE-ORDER-INVARIANT: in every variant sched1 packs the
+   dv init chain (incl. the -1, hoisted!) immediately after its load at the
+   head (V39 lab: chain at 5-13), while retail interleaves ch/bump/tag/pal
+   loads first (10-17) and sinks the dv chain to 18-27. Consequence: v's
+   window stays short -> v misses s0 (numeric-scan law, round 8) -> frame gone
+   -> ALL retail-order variants count 78 vs 82. No statement position reaches
+   the retail weave; the divergence lives in RTL DETAIL, not statement order.
+5) ROUND-10 ENTRY POINTS (ranked): (a) instrument sched.c — add a
+   rank_for_schedule decision trace (print winner/loser/reason at each pick;
+   scratch/instr/apply_traces.py + build_cc1.sh, ~6 min rebuild) and read WHY
+   retail's weave needs which pri/class relations, then solve backward to the
+   RTL shape; (b) the +5 CARRIER: arg6 (7th-param mutation) is BOTH SYM-illegal
+   AND an RTL divergence candidate — enumerate legal carriers (named local is
+   SYM-false too; check gcc's own temp from a paren/sequence form) with the
+   trace as oracle; (c) yoffset lb: retail lb tagged 1446 (loaded AT the y
+   statement); ours emits it in the ch-block — probe separating the lb.
+STATUS: shipping = V21 (28) verified intact. Best-of-round banked:
+mine/v39.cpp + psxfront_v39.{i,s} + trace_v39.txt.

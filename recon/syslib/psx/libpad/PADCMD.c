@@ -22,7 +22,12 @@ typedef void (*PadSndRcv)(unsigned char *info);
 extern int  (*_padFuncChkEng)(unsigned char *info);            /* dispatch slot: engine-busy? (0 = free) */
 extern void (*_padFuncClrInfo)(unsigned char *info);
 
-static unsigned char *_actcur;   /* @0x8014859C : actuator-descriptor write cursor */
+static unsigned char *_actcur __attribute__((section(".bss")));
+                                 /* @0x8014859C : actuator-descriptor write cursor.
+                                  * MATCH (w51-a5): the oracle reaches it ABSOLUTE (`lui $at,%hi;
+                                  * sw %lo($at)`), not gp-relative -- this 4-byte static would land
+                                  * in .sbss under -G4.  Same per-symbol -G0 emulation the other 11
+                                  * syslib TUs use (w48-a9). */
 
 /* ---- forward declarations (mutually recursive) ----------------------------------------------- */
 extern int _padCmdParaMode(unsigned char *info, int para);
@@ -34,9 +39,9 @@ extern int _padCmd4B(unsigned char *info);
 extern int _padGetActSize(unsigned char *info);
 extern int _padLoadActInfo(unsigned char *info, unsigned char *buf);
 extern void _padLoadActInfo_snd(unsigned char *info);
-extern void _padLoadActInfo_rcv(unsigned char *info);
+extern int  _padLoadActInfo_rcv(unsigned char *info);
 extern void _padSetActAlign_snd(unsigned char *info);
-extern void _padSetActAlign_rcv(unsigned char *info);
+extern int  _padSetActAlign_rcv(unsigned char *info);
 extern void _padSetMainMode_snd(unsigned char *info);
 extern int  _padSetMainMode_rcv(unsigned char *info);
 
@@ -124,23 +129,25 @@ extern int _padCmd4B(unsigned char *info)
 /* =====================  load-info (actuator/mode descriptor) command sequence  ================= */
 
 /* @0x801055FC : _padSendAtLoadInfo -- pick the send command for the current load-info phase. */
-extern int _padSendAtLoadInfo(unsigned char *info)
+extern void _padSendAtLoadInfo(unsigned char *info)
 {
-    int st;
-    int r;
-    st = info[0x46];
-    if (st == 3) {
-        r = _padCmdSetMap(info, info[0xe4]);
-    } else if (st < 4) {
-        r = 2;
-        if (st == 2)
-            r = _padCmdGetStatus(info);
-    } else {
-        r = 4;
-        if (st == 4)
-            r = _padCmdGetDescR1(info, info[0x47]);
+    switch (info[0x46]) {                            /* MATCH (w51-a5): a real `switch` -- the
+                                                      * oracle carries gcc-2.8's balance_case_nodes
+                                                      * fingerprint (median-pivot `beq` on 3 with
+                                                      * `slti ,4` in its delay slot, case bodies
+                                                      * out-of-line in SOURCE order 2/3/4, `j`
+                                                      * default).  Also VOID: no $v0 is staged at
+                                                      * any exit. */
+    case 2:
+        _padCmdGetStatus(info);
+        break;
+    case 3:
+        _padCmdSetMap(info, info[0xe4]);
+        break;
+    case 4:
+        _padCmdGetDescR1(info, info[0x47]);
+        break;
     }
-    return r;
 }
 
 /* @0x801057CC : _padGetActSize -- size of the actuator-info block being assembled. */
@@ -154,51 +161,56 @@ extern int _padGetActSize(unsigned char *info)
     return a + b + accum;
 }
 
-/* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake. */
+/* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake.
+ * w51-a5: 105 -> 70 diffs, now COUNT-EXACT 83/83.  Three oracle-read corrections:
+ *   (a) a real `switch (info[0x46])` with cases in SOURCE order 2/3/4 -- gcc-2.8's
+ *       balance_case_nodes fingerprint (median-pivot `beq ,3` with `slti ,4` in its delay slot,
+ *       out-of-line case bodies, `j` default).  The if/else-if cascade laid the arms out wrong.
+ *   (b) the rx pointer (+0x3c) is spelled INLINE at every use -- case 2's oracle has FOUR
+ *       separate `lw $v0,0x3C($s0)` because each `sb` may-alias the pointer field.
+ *   (c) `accum + 8` is its own term (a single `a + 8 + ((n+3)&0x1fc)` expression reassociates
+ *       the +8 onto the masked term), and the size guard is `>= 0x81` so the `slti 0x81; bnez`
+ *       arm order matches.
+ * RESIDUAL 70 @83/83: register rotation (v0/v1/a0) in the case-2 byte shuffle + the shared
+ * return-0 block (.L8010576C) that jump.c duplicates here. */
 extern int _padRecvAtLoadInfo(unsigned char *info)
 {
-    unsigned char *rx = *(unsigned char **)(info + 0x3c);
-    int st = info[0x46];
-
-    if (st == 3) {
-        unsigned char hi;
-        unsigned char lo;
-        hi = rx[4];
-        lo = rx[5];
-        info[0x47] = 0;
-        *(unsigned short *)(info + 0xe6) = (unsigned short)lo + (unsigned short)hi * 0x100;
+    switch (info[0x46]) {
+    case 2:
+        info[0xe3] = (*(unsigned char **)(info + 0x3c))[3];
+        info[0xe4] = (*(unsigned char **)(info + 0x3c))[4];
+        *(unsigned short *)(info + 0xe6) = 0;
+        info[0xe9] = (*(unsigned char **)(info + 0x3c))[5];
+        info[0xea] = (*(unsigned char **)(info + 0x3c))[6];
+        *(int *)(info + 0xec) = 0;
         return 1;
-    }
-    if (st > 3) {
-        unsigned char nb;
-        unsigned char idx;
-        if (st != 4)
-            return 1;
-        idx = info[0x47] + 1;
-        nb = rx[4];
+    case 3:
+        info[0x47] = 0;
+        *(unsigned short *)(info + 0xe6) =
+            (unsigned short)(*(unsigned char **)(info + 0x3c))[5] +
+            (unsigned short)(*(unsigned char **)(info + 0x3c))[4] * 0x100;
+        return 1;
+    case 4: {
+        unsigned char idx = info[0x47] + 1;
+        int acc = *(int *)(info + 0xec) + 8;     /* MATCH: `accum + 8` FIRST -- one expression
+                                                  * reassociates the +8 onto the masked term */
         info[0x47] = idx;
-        *(int *)(info + 0xec) = *(int *)(info + 0xec) + 8 + ((nb + 3) & 0x1fc);
-        if (info[0xea] <= idx) {
-            int sz = _padGetActSize(info);
-            if (sz < 0x81) {
-                info[0x46] = 0xff;
-                _padLoadActInfo(info, info + 0x63);
-                info[0x46] = 2;
-            } else {
-                info[0x46] = 0xfe;
-                info[0x49] = 2;
-            }
+        acc += (((*(unsigned char **)(info + 0x3c))[4] + 3) & 0x1fc);
+        *(int *)(info + 0xec) = acc;
+        if (idx < info[0xea])
+            return 0;
+        if (_padGetActSize(info) >= 0x81) {       /* MATCH: oracle `slti 0x81; bnez` -- the
+                                                   * >= arm is the FALL-THROUGH */
+            info[0x46] = 0xfe;
+            info[0x49] = 2;
+            return 0;
         }
+        info[0x46] = 0xff;
+        _padLoadActInfo(info, info + 0x63);
+        info[0x46] = 2;
         return 0;
     }
-    if (st != 2)
-        return 1;
-    info[0xe3] = rx[3];
-    info[0xe4] = rx[4];
-    *(unsigned short *)(info + 0xe6) = 0;
-    info[0xe9] = rx[5];
-    info[0xea] = rx[6];
-    *(int *)(info + 0xec) = 0;
+    }
     return 1;
 }
 
@@ -206,107 +218,169 @@ extern int _padRecvAtLoadInfo(unsigned char *info)
  *   and install the descriptor send/recv pump.  `buf` is that buffer (aligned up to 4). */
 extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
 {
-    if (buf != 0 && *(int *)(info + 4) == 0 && _padFuncChkEng(info) == 0) {
-        unsigned char *a = (unsigned char *)(((unsigned long)buf + 3) & ~3UL);
-        info[0x49] = 4;
-        info[0x46] = 1;
-        *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
-        *(PadSndRcv *)(info + 0x18) = _padLoadActInfo_rcv;
-        *(unsigned char **)(info + 0) = a;
-        info[0x47] = 0;
-        a += ((info[0xe3] + 1) >> 1) * 4;
-        *(unsigned char **)(info + 4) = a;
-        *(unsigned char **)(info + 8) = a + (((unsigned)info[0xe9] * 5 + 3) & 0xffc);
-        return 1;
-    }
-    return 0;
+    int aw;
+    unsigned char *a;
+
+    if (buf == 0)
+        return 0;
+    if (*(int *)(info + 4) != 0)
+        return 0;
+    if (_padFuncChkEng(info) != 0)
+        return 0;
+    aw = ((int)buf + 3) >> 2;                /* MATCH (w51-a5): the oracle rounds up with a SIGNED
+                                              * `addiu ,3 / sra ,2` ... `sll ,2` PAIR (word index
+                                              * materialized early, scaled back late), not the
+                                              * `& ~3` mask a single expression emits */
+    info[0x49] = 4;
+    info[0x46] = 1;
+    *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
+    *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padLoadActInfo_rcv;
+    a = (unsigned char *)(aw << 2);
+    *(unsigned char **)(info + 0) = a;
+    info[0x47] = 0;
+    a += ((info[0xe3] + 1) >> 1) << 2;
+    *(unsigned char **)(info + 4) = a;
+    *(unsigned char **)(info + 8) = a + ((info[0xe9] * 5 + 3) & 0xffc);
+    return 1;
 }
 
 /* @0x801058D8 : _padLoadActInfo_snd -- emit the right descriptor request for the current sub-phase. */
 extern void _padLoadActInfo_snd(unsigned char *info)
 {
-    int st = info[0x46];
-    if (st == 3) {
+    switch (info[0x46]) {                            /* MATCH (w51-a5): balance_case_nodes switch */
+    case 2:
+        _padCmdSetMap(info, info[0x47]);
+        break;
+    case 3:
         _padCmdGetDescR0(info, info[0x47]);
-    } else if (st < 4) {
-        if (st == 2)
-            _padCmdSetMap(info, info[0x47]);
-    } else if (st == 4) {
+        break;
+    case 4:
         if (info[0x48] == 0)
             _padCmdGetDescR1(info, info[0x47]);
         else
             _padCmd4B(info);
+        break;
     }
 }
 
-/* @0x80105980 : _padLoadActInfo_rcv -- parse a descriptor response into the mode/act tables. */
-extern void _padLoadActInfo_rcv(unsigned char *info)
+/* @0x80105980 : _padLoadActInfo_rcv -- parse a descriptor response into the mode/act tables.
+ * w51-a5 rebuild from the oracle: 175 diffs @134/157 -> 40 @155/157.  FIVE corrections:
+ *   (a) IT IS NOT void (§3.2).  Every exit stages $v0: `.L80105BE8: addiu $v0,$zero,1` is a
+ *       dedicated block in front of the shared `jr $ra`, and `addu $v0,$zero,$zero` sits in three
+ *       branch delay slots.  1 = "sub-phase index wrapped / state not handled", 0 = "more to come".
+ *   (b) THE RX POINTER IS RE-READ AT EVERY USE, not cached in a local.  In the st==3 arm the
+ *       oracle has FIVE `lw $v0,0x3C($a1)` (each followed by the load-delay nop) because the
+ *       intervening `sb` into the descriptor may-alias the +0x3c pointer field and kills cse's
+ *       copy; the st==2 arm has NO store between its two byte reads, so the same inline spelling
+ *       still CSEs down to one `lw` there -- exactly what the oracle shows.  A cached
+ *       `unsigned char *rx` local is the 23-instruction shortfall.
+ *   (b2) the state dispatch is a real `switch`, not an if/else-if cascade -- gcc-2.8's
+ *       balance_case_nodes fingerprint (median pivot `beq ,3` with `slti ,4` in its delay slot,
+ *       case bodies OUT-OF-LINE in SOURCE order 2/3/4, `j` default).  The cascade inlined the
+ *       st==3 arm and mis-ordered the whole block layout.
+ *   (c) the sub-index guard reuses the INCREMENTED byte (`addiu; sb; andi 0xFF; sltu`), it does
+ *       NOT re-load info[0x47]: hence the `unsigned char n` carrier.
+ *   (d) the R1 payload loop counts the REAL byte counts 3 (rx[5..7]) and 6 (rx[2..7]) with a
+ *       pre-decrementing guard `while (--cnt != -1)`; the oracle's `li 3 / addiu -1` and
+ *       `li 6 / addiu -1` preheader pairs are that peeled first decrement (the old `cnt = 2/5`
+ *       spelling folded them into a single `li`).
+ * RESIDUAL 40 @155/157, all named: (i) the two `return 1` wrap sites keep their own `li $v0,1`
+ *   plus a duplicated `jr $ra` where retail shares one `.L80105BE8` block (jump.c return
+ *   duplication -- the `__asm__ volatile("")`-at-the-label device COSTS more here, it blocks
+ *   reorg's steal of the two DEFAULT `li $v0,1`s into the dispatch beq slots: measured worse);
+ *   (ii) `srl` vs the oracle's `sra` on `rx[5] >> 7` -- our cc1-2.8 combine proves the `lbu`
+ *   value non-negative and demotes the arithmetic shift; a COMPILER-VERSION artifact (04M
+ *   gcc-2.7.2 law), not source-reachable while the load stays `lbu`; (iii) $v0/$v1 coloring on
+ *   the `base+woff` store pair; (iv) the `la $a3,_actcur` preheader anchor lands 2 insns early
+ *   and `t0 = -1` is a copy instead of a fresh `li` (the no-copy-prop identity -- both close
+ *   under the cc1_272 lane, where this fn is COUNT-EXACT 157/157 @38). */
+extern int _padLoadActInfo_rcv(unsigned char *info)
 {
-    unsigned char *rx = *(unsigned char **)(info + 0x3c);
-    int st = info[0x46];
-
-    if (st == 3) {                                   /* mode descriptor R0 */
+    switch (info[0x46]) {
+    case 2: {                                        /* mode-id list (set-map) */
+        unsigned char n;
+        *(unsigned short *)(*(unsigned char **)(info + 0) + info[0x47] * 2) =
+            (unsigned short)(*(unsigned char **)(info + 0x3c))[5] +
+            (unsigned short)(*(unsigned char **)(info + 0x3c))[4] * 0x100;
+        n = info[0x47] + 1;
+        info[0x47] = n;
+        if (n < info[0xe3])
+            return 0;
+        info[0x47] = 0;
+        return 1;
+    }
+    case 3: {                                        /* mode descriptor R0 */
         unsigned char *d = *(unsigned char **)(info + 4) + info[0x47] * 5;
-        d[0] = rx[4];
-        d[1] = rx[5] & 0x7f;
-        d[2] = rx[6];
-        d[3] = rx[7];
-        d[4] = (unsigned char)((unsigned)rx[5] >> 7);
-        info[0x47] = info[0x47] + 1;
-        if (info[0xe9] <= info[0x47]) { info[0x47] = 0; info[0x48] = 0; }
-    } else if (st < 4) {                             /* mode-id list (set-map) */
-        if (st == 2) {
-            *(unsigned short *)(*(unsigned char **)(info + 0) + info[0x47] * 2) =
-                (unsigned short)rx[5] + (unsigned short)rx[4] * 0x100;
-            info[0x47] = info[0x47] + 1;
-            if (info[0xe3] <= info[0x47]) info[0x47] = 0;
-        }
-    } else if (st == 4) {                            /* actuator descriptor R1 (variable length) */
+        unsigned char n;
+        d[0] = (*(unsigned char **)(info + 0x3c))[4];
+        d[1] = (*(unsigned char **)(info + 0x3c))[5] & 0x7f;
+        d[2] = (*(unsigned char **)(info + 0x3c))[6];
+        d[3] = (*(unsigned char **)(info + 0x3c))[7];
+        d[4] = (unsigned char)((*(unsigned char **)(info + 0x3c))[5] >> 7);
+        n = info[0x47] + 1;
+        info[0x47] = n;
+        if (n < info[0xe9])
+            return 0;
+        info[0x47] = 0;
+        info[0x48] = 0;
+        return 1;
+    }
+    case 4: {                                        /* actuator descriptor R1 (variable length) */
         unsigned char *d = *(unsigned char **)(info + 8) + info[0x47] * 8;
         unsigned char *src;
+        unsigned char **ac;
+        unsigned char n;
         int cnt;
         if (info[0x48] == 0) {
-            unsigned char v = rx[4];
+            unsigned char v = (*(unsigned char **)(info + 0x3c))[4];
+            unsigned char *base;
+            unsigned woff;
+            unsigned char *cur;
+            cnt = 3;
+            __asm__("" : "=r"(cnt) : "0"(cnt));  /* MATCH: opacity fence, 0 insns -- keeps cse from
+                                                  * folding the live `3` into the woff `sll ,3`
+                                                  * (retail rematerializes: `sllv` is the tell) */
             info[0x48] = v;
             d[0] = v;
-            src = rx + 5;
-            {
-                unsigned char *base;
-                unsigned woff;
-                if (info[0x47] == 0) {
-                    base = *(unsigned char **)(info + 8);
-                    woff = (unsigned)info[0xea] << 3;
-                } else {
-                    base = *(unsigned char **)(d - 4);
-                    woff = (d[-8] + 3) & 0x1fc;
-                }
-                _actcur = base + woff;
+            src = (*(unsigned char **)(info + 0x3c)) + 5;
+            if (info[0x47] == 0) {
+                base = *(unsigned char **)(info + 8);
+                woff = (unsigned)info[0xea] << 3;
+            } else {
+                base = *(unsigned char **)(d - 4);
+                woff = (d[-8] + 3) & 0x1fc;
             }
-            *(unsigned char **)(d + 4) = _actcur;
-            cnt = 2;
+            cur = base + woff;
+            *(unsigned char **)(d + 4) = cur;
+            _actcur = cur;
         } else {
-            src = rx + 2;
-            cnt = 5;
+            src = (*(unsigned char **)(info + 0x3c)) + 2;
+            cnt = 6;
         }
-        while (cnt != -1) {
-            cnt = cnt - 1;
+        ac = &_actcur;                           /* MATCH: pointer local -- the oracle keeps
+                                                  * `la $a3,_actcur` live across the loop and the
+                                                  * body does ONE `lw 0($a3)` / `sw 0($a3)` per
+                                                  * iteration (a direct `_actcur` re-reads twice) */
+        while (--cnt != -1) {
             if (info[0x48] == 0) goto tail;
-            *_actcur = *src;
-            src++;
-            _actcur++;
+            *(*ac)++ = *src++;
             info[0x48] = info[0x48] - 1;
         }
-        if (info[0x48] == 0) {
+        if (info[0x48] == 0) goto tail;
+        return 0;
 tail:
-            info[0x47] = info[0x47] + 1;
-            if (info[0x47] < info[0xea]) {
-                info[0x48] = 0;
-            } else {
-                info[0x49] = 6;
-                info[0x46] = 0xfe;
-            }
+        n = info[0x47] + 1;
+        info[0x47] = n;
+        if (n >= info[0xea]) {
+            info[0x49] = 6;
+            info[0x46] = 0xfe;
+            return 0;
         }
+        info[0x48] = 0;
+        return 0;
     }
+    }
+    return 1;
 }
 
 /* =====================  set-actuator-align command  =========================================== */
@@ -330,7 +404,7 @@ extern int _padSetActAlign(unsigned char *info, int data)
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetActAlign_snd;
         *(int *)(info + 0x20) = data;
-        *(PadSndRcv *)(info + 0x18) = _padSetActAlign_rcv;
+        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetActAlign_rcv;
         return r;
     }
     return 0;
@@ -344,8 +418,10 @@ extern void _padSetActAlign_snd(unsigned char *info)
     *(int *)(info + 0x2c) = *(int *)(info + 0x20);
 }
 
-/* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request. */
-extern void _padSetActAlign_rcv(unsigned char *info)
+/* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request.
+ * MATCH (w51-a5): it is NOT void -- the oracle's epilogue is `jr $ra / addu $v0,$zero,$zero`
+ * (§3.2 void-return bug); the `return 0;` reserves $v0 and re-shapes the tail. */
+extern int _padSetActAlign_rcv(unsigned char *info)
 {
     unsigned mode = 0;
     if (info[0xe9] != 0) {
@@ -387,6 +463,7 @@ extern void _padSetActAlign_rcv(unsigned char *info)
         } while ((int)mode < (int)info[0xe9]);
     }
     info[0x46] = 0xfe;
+    return 0;
 }
 
 /* =====================  set-main-mode command  ================================================= */
@@ -427,7 +504,7 @@ extern int _padSetMainMode(unsigned char *info, int offs, int lock)
         __asm__("" : "=r"(lock) : "0"(lock));      /* MATCH: ref inflator, wins $s2 for lock */
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetMainMode_snd;
-        *(PadSndRcv *)(info + 0x18) = _padSetMainMode_rcv;
+        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetMainMode_rcv;
         info[0x51] = (unsigned char)offs;
         info[0x52] = (unsigned char)lock;
         info[0x53] = (unsigned char)((m & 0xff) == cur);

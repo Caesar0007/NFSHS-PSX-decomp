@@ -328,6 +328,10 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libc/QSORT.c":        {"cc1_272": True, "no_strength_reduce": True},  # 70 -> PASS 84/84
     "recon/syslib/psx/libsn/READ.c":        {"cc1_272": True},  # + UNFILL_272 -> PASS
     "recon/syslib/psx/libsn/WRITE.c":       {"cc1_272": True},  # + UNFILL_272 -> PASS
+    # w51-a5: WAITRC2 lane win (setRC2wait 3->PASS 8/8, AT-MACRO-SPLIT class;
+    # chkRC2wait unchanged; zero regressions). PADCMD/PADSEQD have conversion
+    # evidence but net-regress -- receipted for a 272-basin re-match pass.
+    "recon/syslib/psx/libpad/WAITRC2.c":    {"cc1_272": True},
     # w51-a2: libmcrd cluster = cc1_272 lane (04M law). jtbl_at_fusion is inert in
     # this lane (no maspsx); kept out. LIBMCRD 2->8 PASS under the lane.
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},

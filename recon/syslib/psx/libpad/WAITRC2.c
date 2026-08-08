@@ -35,7 +35,13 @@ extern int _waitTime;    /* wait length, in (prescaled) ticks */
  *   `$at` base is the proof it is a macro expansion (cc1 never allocates $at).  Probed and rejected:
  *   the unsized asm-label view (`extern int _startTime_v[] asm("_startTime")`) DOES get the store
  *   into the jr slot, but as cc1's own split with a normal register ($v1, not $at) -- same 3-4 diffs
- *   here and 25 -> 40 on chkRC2wait.  HANDED TO THE w48-a10 REAL-ASPSX LANE as a named class. */
+ *   here and 25 -> 40 on chkRC2wait.  HANDED TO THE w48-a10 REAL-ASPSX LANE as a named class.
+ * >>> w51-a5 RESOLUTION -- THE cc1_272 LANE REACHES IT.  With `{"cc1_272": True}` on this TU
+ *   (PsyQ 4.0 CC1PSX + direct GNU as in .set-reorder mode, the 04M law) setRC2wait is
+ *   PASS 8/8 -- gas splits the store macro across the `jr` exactly as retail's assembler did.
+ *   WHOLE-TU A/B, gate-measured, ZERO regressions: base 37 diffs / 0 PASS -> 272 lane 34 diffs
+ *   / 1 PASS (chkRC2wait unchanged at 34).  WAITRC2.c is a wired-lane CANDIDATE (needs the
+ *   build.py PER_TU_FLAGS entry; deliberately not wired by this agent). */
 extern void setRC2wait(int ticks)
 {
     _waitTime  = ticks;

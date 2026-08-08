@@ -76,11 +76,17 @@ struct _PadIntRP {
 };
 typedef struct _PadIntRP _PadIntRP;
 static _PadIntRP _padVbCb;              /* @0x8014857C */
-static int       _padFramesSinceStart;  /* @0x8014858C : VSync frames since start (clamped 150) */
-static int       _padFramesSinceStop;   /* @0x80148590 : VSync frames since stop  (clamped 150) */
+/* MATCH (w51-a5): ONE 2-int ARRAY, not two scalars.  _padStartCom's oracle clears both through a
+ * SINGLE base (`lui $v0; addiu $v0,%lo; sw $zero,4($v0); sw $zero,0($v0)`) -- only an array gives
+ * that anchor; two independent statics emit two `lui $at; sw` macro pairs.  The 8-byte size also
+ * keeps it out of .sdata under -G4, matching the oracle's absolute addressing (two 4-byte scalars
+ * would be gp-relative).  [0] = frames since start @0x8014858C, [1] = since stop @0x80148590. */
+static int       _padFrames[2];
+#define _padFramesSinceStart _padFrames[0]
+#define _padFramesSinceStop  _padFrames[1]
 
 /* prototypes for the handler/verifier installed into the IRP */
-extern void _padVbCallback0(void);
+extern int  _padVbCallback0(void);
 extern int  _padVbCallback1(void);
 
 /* @0x80104A1C : _padSetVsyncParam -- point the IRP at our handler/verifier.
@@ -98,7 +104,7 @@ extern void _padSetVsyncParam(void)
 {
     void (**p)() = &_padVbCb.handler;         /* MATCH: retail's +4 base anchor */
     __asm__("" : "=r"(p) : "0"(p));           /* MATCH: 0 insns; completes the addiu %lo here */
-    p[0] = _padVbCallback0;                   /* +0x04 handler  */
+    p[0] = (void (*)())_padVbCallback0;       /* +0x04 handler  */
     p[1] = (void (*)())_padVbCallback1;       /* +0x08 verifier */
     p[-1] = 0;                                /* +0x00 next     */
     p[2] = 0;                                 /* +0x0c _pad0c   */
@@ -117,16 +123,24 @@ extern int _padVbCallback1(void)
 
 /* @0x80104AB0 : _padVbCallback0 -- IRP handler: once armed, pump the SIO engine across the
  *   active channel range every VSync frame. */
-extern void _padVbCallback0(void)
+extern int _padVbCallback0(void)
 {
+    _padVbExec = 1;                              /* MATCH (w51-a5): the oracle's store sits in the
+                                                  * `beqz $v1,.L80104AF0` DELAY SLOT, so it is
+                                                  * UNCONDITIONAL -- it was wrongly inside the
+                                                  * `if` (a real runtime bug: the verifier flag
+                                                  * never set when _padChanStart == 0). */
     if (_padChanStart != 0) {
-        _padVbExec = 1;
-        if (_padFramesSinceStart < 0x96)
-            _padFramesSinceStart = _padFramesSinceStart + 1;
+        int *n = &_padFramesSinceStart;      /* MATCH: retail holds the counter's ADDRESS in one
+                                              * reg (`lui;addiu` then `lw 0(a0)`/`sw 0(a0)`); a
+                                              * bare global gives two fused `lui;lw`/`lui;sw` */
+        if (*n < 0x96)
+            *n = *n + 1;
     }
     if (_padChanStop == 0) {
-        if (_padFramesSinceStop < 0x96)
-            _padFramesSinceStop = _padFramesSinceStop + 1;
+        int *n = &_padFramesSinceStop;
+        if (*n < 0x96)
+            *n = *n + 1;
     }
     if (_padIntExec != 0 && _padChanStop >= _padChanStart) {
         _padSioState = 0;
@@ -138,6 +152,8 @@ extern void _padVbCallback0(void)
             _padSioMain(_padInfoDir + _padSioChan * 0xf0);
         JOY_BAUD = 0x88;
     }
+    return 0;                                    /* MATCH: the oracle stages `addu $v0,$zero,$zero`
+                                                  * in the epilogue -- it is an int IRP handler */
 }
 
 /* @0x80104C1C : _padStartCom -- arm the engine: chain in the VSync IRP, enable RCnt, clear info. */

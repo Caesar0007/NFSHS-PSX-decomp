@@ -17,7 +17,7 @@ extern void (*_padFuncClrInfo)(unsigned char *info);         /* dispatch slot: r
                                                                   _pad_reset_state -- must be called
                                                                   indirectly, not as a direct fn) */
 extern int  _padCmdParaMode(unsigned char *info, int para);  /* PADCMD */
-extern int  _padSendAtLoadInfo(unsigned char *info);         /* PADCMD */
+extern void _padSendAtLoadInfo(unsigned char *info);        /* PADCMD */
 extern int  _padRecvAtLoadInfo(unsigned char *info);         /* PADCMD */
 
 /* auto-mode dispatch slots installed by _padInitDirSeq (defined in PAD.OBJ data) */
@@ -33,8 +33,16 @@ extern int      _dirCheck(unsigned char *info);
 
 /* @0x8010A0B0 : _padInitDirSeq -- wire the auto-mode send/check/recv handlers.
  * MATCH: r = _dirRecvAuto hoisted so its addr is live before jr ra delay slot can consume store. */
-/* FLOOR: sw v0,%lo(_padFuncRecvAuto)($at) delay-slot fill — compiler scheduling.
- * Tried: original order, hoisted r=_dirRecvAuto temp, order swap, r=_dirRecvAuto var. 4 levers. */
+/* The residual (3 @14/13) is NOT a scheduling floor -- it is the AT-MACRO-SPLIT class: retail's
+ * assembler expanded `sw $v0,_padFuncRecvAuto` ACROSS the `jr $ra` (lui above, the `%lo($at)` half
+ * IN the slot); maspsx expands it entirely before the branch and nops the slot.  w51-a5 proved it
+ * source-unreachable and LANE-reachable: under `{"cc1_272": True}` (PsyQ 4.0 CC1PSX + direct GNU as
+ * in .set-reorder mode) _padInitDirSeq is PASS 13/13.  BUT the rest of PADSEQD is 2.8-basin-tuned,
+ * so the lane is a NET LOSS here (whole-TU A/B: base 44 diffs / 1 PASS vs 272 lane 146 / 1 PASS,
+ * _dirSendAuto PASS -> 3).  Do NOT wire PADSEQD.c to the lane; re-test once the other four fns
+ * are re-matched in the 272 basin.
+ * Falsified in-basin earlier: original order, hoisted r=_dirRecvAuto temp, order swap,
+ * r=_dirRecvAuto var. */
 extern void _padInitDirSeq(void)
 {
     _padFuncSendAuto = _dirSendAuto;
@@ -124,24 +132,26 @@ extern int _dirSendAuto(unsigned char *info)
 extern unsigned _dirRecvAuto(unsigned char *info)
 {
     char           prev_e8 = info[0xe8];
-    unsigned char *rx      = *(unsigned char **)(info + 0x3c);
-    unsigned char *padbuf  = *(unsigned char **)(info + 0x30);
-    unsigned char  mode    = rx[0] >> 4;
-    unsigned char  st;
+    unsigned char  mode    = (*(unsigned char **)(info + 0x3c))[0] >> 4;
+    int            st;   /* MATCH: signed -- the oracle's bound test is `slti ,2`, not sltiu */
     unsigned       r;
 
+    /* MATCH (w51-a5): the rx (+0x3c) and padbuf (+0x30) pointers are RE-READ AT EVERY USE --
+     * the oracle reloads BOTH inside the copy loop, once per iteration (the `sb` into padbuf
+     * may-alias the pointer fields, so cse cannot keep them).  Caching them in locals was the
+     * 9-instruction shortfall. */
     info[0xe8] = mode;
     if (mode == 0xf) {
         info[0xe8] = (unsigned char)prev_e8;     /* no controller: keep last type */
     } else {
         int i;
-        padbuf[0] = 0;
-        padbuf[1] = rx[0];
+        (*(unsigned char **)(info + 0x30))[0] = 0;
+        (*(unsigned char **)(info + 0x30))[1] = (*(unsigned char **)(info + 0x3c))[0];
         for (i = 2; i < (int)info[0x44]; i++)
-            padbuf[i] = rx[i];
+            (*(unsigned char **)(info + 0x30))[i] = (*(unsigned char **)(info + 0x3c))[i];
     }
 
-    if ((rx[1] == 0 &&
+    if (((*(unsigned char **)(info + 0x3c))[1] == 0 &&
          ((info[0x46] != 1 || *(int *)(info + 0x14) != 0) && info[0x50] == 0)) ||
         (_dirCheck(info) == 0 && info[0x37] == 0 && info[0x4a] == 0 &&
          info[0xe8] != (unsigned char)prev_e8)) {
@@ -151,7 +161,8 @@ extern unsigned _dirRecvAuto(unsigned char *info)
 
     if (info[0x46] == 0xff)
         return 0xff;
-    if ((unsigned char)(info[0x46] - 2) < 0xfc && rx[0] != (unsigned char)0xf3)
+    if ((unsigned char)(info[0x46] - 2) < 0xfc &&
+        (*(unsigned char **)(info + 0x3c))[0] != (unsigned char)0xf3)
         _padFuncClrInfo(info);
     if (info[0x46] != 0 && info[0x36] == 0)
         return 0;
@@ -159,20 +170,23 @@ extern unsigned _dirRecvAuto(unsigned char *info)
     st = info[0x46];
     if (st == 1) {
         info[0x47] = 0;
-        r = (unsigned)st + 1;
+        r = info[0x46] + 1;                      /* MATCH: the oracle RE-READS +0x46 for the bump
+                                                  * (`lbu; addiu ,1; sb`) in both arms, sharing one
+                                                  * increment block -- not `st + 1` */
         info[0x46] = (unsigned char)r;
         return r;
     }
     if (st < 2) {
         if (st == 0) {
             info[0x49] = 1;
-            r = (unsigned)st + 1;
+            r = info[0x46] + 1;
             info[0x46] = (unsigned char)r;
             return r;
         }
     } else if (st == 0xfe) {
-        info[0x46] = 0xff;
-        return 0xff;
+        r = 0xff;
+        info[0x46] = (unsigned char)r;
+        return r;
     }
     if (*(void **)(info + 0x18) == 0)
         r = _padRecvAtLoadInfo(info);

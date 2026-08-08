@@ -550,14 +550,21 @@ void AudioCmn_CheckState(Car_tObj *car)
     carspeed = -carspeed;
   }
   if (((car->stats).lap < GameSetup_gData.numLaps) &&
-     (carspeed = fixedmult(carspeed,0x50000),
-     ((car->stats).lap + 1) * gNumSlices < (car->stats).sliceTotal + carspeed / 0x60000)) {
-    if ((recordLapTime == 0) || (simGlobal.gameTicks - gtotallaptimes[(u_char)carnum] < recordLapTime)) {
+     ((car->stats).sliceTotal + fixedmult(carspeed,0x50000) / 0x60000 >
+      ((car->stats).lap + 1) * gNumSlices)) {
+    if ((recordLapTime == 0) ||
+       (simGlobal.gameTicks -
+        *(int *)(((u_char)carnum << 2) + (int)gtotallaptimes) < recordLapTime)) {
       AudioCmn_GetAsyncSfx(2,1,false);
     }
-    if (((car->stats).lap != 0) &&
-       (simGlobal.gameTicks - gtotallaptimes[(u_char)carnum] < bestLapTime[(u_char)carnum])) {
-      AudioCmn_GetAsyncSfx(2,0,false);
+    if ((car->stats).lap != 0) {
+      Sim_tSimGlobalVar *sim = &simGlobal;
+
+      if (*(int *)(((u_char)carnum << 2) + (int)bestLapTime) >
+          sim->gameTicks -
+          *(int *)(((u_char)carnum << 2) + (int)gtotallaptimes)) {
+        AudioCmn_GetAsyncSfx(2,0,false);
+      }
     }
     {
       int opponents;
@@ -581,21 +588,20 @@ void AudioCmn_CheckState(Car_tObj *car)
         AudioCmn_GetAsyncSfx(2,position,false);
       }
     }
-    carspeed = (car->stats).lap;
-    if (carspeed < GameSetup_gData.numLaps + -1) {
-      if (carspeed < GameSetup_gData.numLaps + -2) {
-        carspeed = carspeed + 5;
+    if ((car->stats).lap < GameSetup_gData.numLaps + -1) {
+      if ((car->stats).lap < GameSetup_gData.numLaps + -2) {
+        AudioCmn_GetAsyncSfx(2,(car->stats).lap + 5,false);
       }
       else {
-        carspeed = 2;
+        AudioCmn_GetAsyncSfx(2,2,false);
       }
-      AudioCmn_GetAsyncSfx(2,carspeed,false);
     }
   }
   if (car->lap == (u_int)(u_char)currentLap[(u_char)carnum]) {
     return;
   }
-  if (AudioCmn_gPlayerArrested[(u_char)carnum] != 0) {
+  if (*(int *)(((u_char)carnum << 2) +
+               (int)AudioCmn_gPlayerArrested) != 0) {
     return;
   }
   {
@@ -611,81 +617,97 @@ void AudioCmn_CheckState(Car_tObj *car)
       saidplayer = true;
     }
     if ((recordLapTime == 0) ||
-       (carspeed = (car->stats).time[(car->stats).lap + -1], carspeed < recordLapTime)) {
+       (carspeed = (car->stats).time[(car->stats).lap + -1],
+        carspeed < recordLapTime)) {
       r.phrase = 1;
-      recordLapTime = (car->stats).time[(car->stats).lap + -1];
-      bestLapTime[car->carIndex] = recordLapTime;
+      recordLapTime = bestLapTime[car->carIndex] =
+          (car->stats).time[(car->stats).lap + -1];
+      CopSpeak_Request(&r);
     }
     else {
       if (bestLapTime[car->carIndex] <= carspeed) goto LAB_800774e0;
       r.phrase = 0;
       bestLapTime[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
+      CopSpeak_Request(&r);
     }
-    CopSpeak_Request(&r);
 LAB_800774e0:
-    carspeed = Stats_GetNumOpponents();
-    if (1 < carspeed) {
+    {
+      int opponents;
+
+      opponents = Stats_GetNumOpponents();
+      if (1 < opponents) {
       int position;
       position = Stats_GetPosition(car);
       if (car->lap < GameSetup_gData.numLaps) {
         int phrase;
-        if ((carspeed < 3) && ((car->stats).checkpointDisplay != 0)) {
+        if ((opponents >= 3) || ((car->stats).checkpointDisplay == 0)) {
+          if (position == opponents) {
+            r.phrase = 0x57;
+          }
+          else {
+            r.phrase = position + 0x4e;
+          }
+        }
+        else {
           phrase = AudioCmn_GetTimePhrase(-(car->stats).checkpointDifference);
-          r.phrase = phrase;
           if (((GameSetup_gData.commMode == 1) && (!saidplayer)) &&
              ((phrase - 0x3bU < 3 || (phrase - 0x3fU < 0xf)))) {
             r.phrase = (u_char)carnum + 0x33;
             CopSpeak_Request(&r);
             saidplayer = true;
-            r.phrase = phrase;
           }
-        }
-        else {
-          r.phrase = position + 0x4e;
-          if (position == carspeed) {
-            r.phrase = 0x57;
-          }
+          r.phrase = phrase;
         }
         if ((GameSetup_gData.commMode == 1) && (!saidplayer)) {
           r.phrase = r.phrase + ((u_char)carnum + 1) * 0x23;
         }
       }
-      else if ((GameSetup_gData.commMode != 1) || (saidplayer)) {
-        r.phrase = position + 10;
-        if ((position == carspeed) && (r.phrase = position + 10, 2 < position)) {
-          r.phrase = 0x12;
+      else if ((GameSetup_gData.commMode == 1) && (!saidplayer)) {
+        if ((position == opponents) && (2 < position)) {
+          if ((u_char)carnum == 0) {
+            r.phrase = 0x1a;
+          }
+          else {
+            r.phrase = 0x22;
+          }
         }
-      }
-      else if ((position == carspeed) && (2 < position)) {
-        r.phrase = 0x22;
-        if ((u_char)carnum == 0) {
-          r.phrase = 0x1a;
+        else {
+          if ((u_char)carnum == 0) {
+            r.phrase = position + 0x12;
+          }
+          else {
+            r.phrase = position + 0x1a;
+          }
         }
       }
       else {
-        r.phrase = position + 0x1a;
-        if ((u_char)carnum == 0) {
-          r.phrase = position + 0x12;
+        if ((position == opponents) && (2 < position)) {
+          r.phrase = 0x12;
+        }
+        else {
+          r.phrase = position + 10;
         }
       }
       CopSpeak_Request(&r);
+      }
     }
-    carspeed = (car->stats).lap;
-    if (carspeed < GameSetup_gData.numLaps) {
-      r.phrase = carspeed + 4;
-      if (GameSetup_gData.numLaps + -1 <= carspeed) {
+    if ((car->stats).lap < GameSetup_gData.numLaps) {
+      if ((car->stats).lap < GameSetup_gData.numLaps + -1) {
+        r.phrase = (car->stats).lap + 4;
+      }
+      else {
         r.phrase = 2;
       }
       CopSpeak_Request(&r);
     }
   }
   if (currentLap[(u_char)carnum] == '\0') {
-    bestLapTime[(u_char)carnum] = simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
+    bestLapTime[(u_char)carnum] =
+        simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
   }
   currentLap[(u_char)carnum] = (char)car->lap;
   gtotallaptimes[(u_char)carnum] = (car->stats).lapTime;
-  falseLapCounter = car->lap;
-  intensityFalseLapCounter = car->lap;
+  intensityFalseLapCounter = falseLapCounter = car->lap;
   return;
 }
 

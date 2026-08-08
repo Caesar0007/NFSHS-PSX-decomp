@@ -322,7 +322,31 @@ void RaceSummary(void)
  * exactly what tools/allocsim.py + reqdelta.py are for -- dump this basin (-dg/-dl), ask
  * `--want "p<one>=s2,p<cx>=s7"`, and apply the ref/live delta it prints.  The three
  * constants are fn-scope locals, so they are GLOBAL allocnos and find_reg DOES reach them
- * (unlike the local-qty cases elsewhere in this wave). */
+ * (unlike the local-qty cases elsewhere in this wave).
+ * ---- 🔴 w50-a10 EXECUTED THAT ANGLE AND IT IS FALSIFIED AT THE MODEL LEVEL -- 94 KEPT.
+ * The t1 basin was reproduced exactly (scratch/p_rst3.py V=t1 -> 100 diffs @ 475/475
+ * count-exact, RaceSummary/Hud_RenderStatsView/OptionsBarThing all still PASS), dumped with
+ * `CC1PLPSX -O2 -G4 -dg -dl`, and run through tools/allocsim.py: the model reports
+ * **MATCH 50/50 (order-vs-dump: IDENTICAL)**, so the dump is trustworthy.  What it says
+ * kills the premise: the three fenced constants are the allocnos p84 / p85 (`preferences:
+ * 17`) / p86 / p87 (`preferences: 18`), they sit at the BOTTOM of the priority list
+ * (refs=2 live=351..389 crossing 43-45 calls, pri 0.0052-0.0308) and global_alloc gives
+ * them **NO HARD REGISTER AT ALL** (`--`) -- in BOTH the sim and the real dump.  The
+ * `li $18,160` / `li $17,1` in our asm are therefore RELOAD REMATERIALIZATIONS into the
+ * consumer pseudos, not a callee-saved allocation of the constants.
+ *   => the w46 "pure allocno-RANK problem, ask reqdelta for p<one>=s2,p<cx>=s7" framing is
+ *      WRONG: you cannot dial the rank of an allocno that never wins a register.
+ *      Confirmed empirically: `reqdelta --want p85=s2,p87=s7` finds NO single-dial delta in
+ *      +-40 on refs/live/calls AND no two-dial (refs+live) pair -- it is unreachable by
+ *      construction, not by budget.
+ *   NEW NAMED ANGLE (replaces it): the dial is which CONSUMER pseudo reload remats each
+ *   constant into, i.e. the copy-PREFERENCE edges (`;; 85 preferences: 17`, `;; 87
+ *   preferences: 18` in the .greg) -- retail wants 160 in $s7 and 1 in $s2 with `li a1,150`
+ *   at insn 4.  Instruments: (1) reqdelta on the CONSUMERS that actually hold s2/s1 in the
+ *   t1 basin (p259 s2 refs=8 live=68, p81 s1 refs=17 live=69, p80 s7 refs=13 live=295)
+ *   rather than on the constants; (2) an opacity fence placed on a CONSUMER (the "0"
+ *   constraint kills a copy-preference outright -- catalog w49 row) to redirect the
+ *   preference edge.  Repro kit: scratch/w50_a10/rst.py (applies V=t1, gates, restores). */
 void RaceStatistics(void)
 
 {
@@ -607,7 +631,28 @@ void RaceStatistics(void)
  *  and for cluster (b) the fold is now proven unreachable from the addend side, so attack it
  *  from the MINUEND side as the showtimeleft bar was (algebraic re-sign of the col-loop
  *  height so the ternary sits on the minuend) -- w44 measured the two subtracted terms
- *  swapped (36) but never the full re-sign that sealed the sibling expression. */
+ *  swapped (36) but never the full re-sign that sealed the sibling expression.
+ * ---- w50-a10: 24 KEPT (473/473).  The residual is now exactly THREE clusters, read off
+ * side_by_side (indices are ours):
+ *  (b) 216-232, the col-loop height.  Retail computes the SHARED `s1 = yoff` once (SIZE_H in
+ *      a dying TEMP $v0, not a saved reg) and spends 2 insns in the postgame arm
+ *      (`addiu v0,s1,8; subu v0,s2,v0`); ours keeps SIZE_H in a saved reg and spends 3
+ *      (`addiu v0,s2,-8; subu v0,s0,v0; subu v0,s1,v0`) -- i.e. our current spelling sinks
+ *      the +8 into POS_Y, the w45 spelling sank it into SIZE_H, and retail sinks it into
+ *      NEITHER.  FALSIFIED THIS WAVE (7 more spellings, none < 24): `SIZE_H - (yoff + t)`
+ *      with yoff spelled inline (27 @472), the same with a named fn-scope `int yoff` (33
+ *      @474), named yoff + zero-insn opacity fence on yoff (35 @474), a fenced `int inset =
+ *      yoff + t` inside the loop (59 @472), a per-arm ternary of two full subtractions (37
+ *      @474 -- re-confirms the w42 measurement in the new basin), `(SIZE_H - yoff) - t` right
+ *      association (33 @472), and addend-first `SIZE_H - (t + yoff)` (27 @472).
+ *  (d) 304-306, the StatsTimer base: retail SELF-temps the address into its dest
+ *      (`lui v1; addiu v1; addu v1,s2,v1`), ours picks a separate `t0`.  FALSIFIED: a SIZED
+ *      `extern int StatsTimer_a2[2] asm("StatsTimer")` view at the variable-index site (24,
+ *      neutral) and at both variable-index sites (24, neutral) -- so the §3.12 #5
+ *      sized-vs-unsized declaration axis does NOT reach this scratch pick; it is a reload
+ *      tie, and the two SIBLING sites in the same fn already match with `t0`.
+ *  (e) 387-389, a one-slot nop/lhu/lui rotation around a beqz delay slot (ours fills the
+ *      slot with the `lui`, retail nops it and issues the `lhu` first). */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

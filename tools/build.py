@@ -629,6 +629,19 @@ PER_FN_NO_THREAD_JUMPS = {
 }
 
 
+# Per-FUNCTION -fforce-addr splice (same dual-compile mechanism).  w50-a10:
+# Weather_Init is a flag identity -- -fforce-addr keeps the %hi in its own
+# pseudo so the .type load stays a second lo_sum off the shared high instead
+# of cse find_best_addr folding it onto the computed pointer, freeing $v0 for
+# the li-1 in the beqz slot.  Whole-TU -fforce-addr is NOT the identity
+# (breaks ProcessParticles/QuickReOrthogonalize) -- per-fn only.
+PER_FN_FORCE_ADDR = {
+    "recon/game/psx/weather.cpp": {
+        "Weather_Init__Fv",   # FAIL 12 (211/211) -> PASS, byte-exact
+    },
+}
+
+
 _ENT_RE_TMPL = r'^\t\.ent\t{name}\b[^\n]*\n'
 _END_RE_TMPL = r'^\t\.end\t{name}[ \t]*$'
 
@@ -753,7 +766,8 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
     IN PLACE (both .s files stay cached in the build dir for debugging)."""
     for table, extra_flag, tag in (
             (PER_FN_NO_DELAYED_BRANCH, "-fno-delayed-branch", "nodb"),
-            (PER_FN_NO_THREAD_JUMPS, "-fno-thread-jumps", "nthr")):
+            (PER_FN_NO_THREAD_JUMPS, "-fno-thread-jumps", "nthr"),
+            (PER_FN_FORCE_ADDR, "-fforce-addr", "faddr")):
         fn_names = table.get(rel_posix)
         if not fn_names:
             continue

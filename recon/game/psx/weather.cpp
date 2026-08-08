@@ -526,7 +526,25 @@ void Weather_Init(void)
    * (86 -- it breaks the CSE but also kills the shared high, giving a fresh 2-insn `la`);
    * reading the guard through `Weather_gType` instead of re-reading .type (12, no change);
    * a block-scope `int i;` at the top of the if-body per the SYM (12, no change).
-   * Next instruments: cc1plus -dg/-dl on the head, or an ADDRESS_COST read of gcc-2.8. */
+   * 🏆 w50-a10 SOLVED -- IT IS A PER-FN FLAG IDENTITY, NOT A SOURCE SHAPE: compiling THIS
+   * FUNCTION with `-fforce-addr` reproduces retail EXACTLY (12 -> PASS, 211/211).  Measured
+   * on the real CC1PLPSX: `-fforce-addr` emits `lui $4,%hi(spec)` into its OWN pseudo (not
+   * the self-temp `lui $2 ... addiu $2,$2` we get), so the `.type` load keeps a SECOND
+   * lo_sum off that shared high (`lw $3,%lo(spec)($4)`) instead of cse's find_best_addr
+   * folding it onto the already-computed pointer -- and $2 is then free for the `li 1` that
+   * reorg puts in the beqz delay slot.  The guard load's separate-temp (`lui $2; lw $3,..($2)`)
+   * comes along for free.  Whole-TU `-fforce-addr` is NOT the identity (22->21 PASS: it
+   * REGRESSES Weather_ProcessParticles PASS->22 and Weather_QuickReOrthogonalize PASS->57,
+   * DoWeather 36->42), so the wiring must be PER-FN: add a `PER_FN_FORCE_ADDR` table + the
+   * tuple `(PER_FN_FORCE_ADDR, "-fforce-addr", "faddr")` to build.py's `_apply_fn_splice`
+   * loop (same 3-line precedent as PER_FN_NO_DELAYED_BRANCH / PER_FN_NO_THREAD_JUMPS).
+   * GATE-CONFIRMED through that splice lane: whole weather.cpp 22 -> 23 PASS, zero
+   * regressions.  Source-level falsifications at the 12 base (all re-run this wave): a
+   * `volatile int` cast on the .type read (15 @212), reading it as `Weather_gTrackSpec->type`
+   * (15 @212), a volatile cast on the `GameSetup_gData.Weather` guard (12, neutral).
+   * Diagnostic sweep that isolated the flag: -fno-cse-follow-jumps / -fno-gcse /
+   * -fno-cse-skip-blocks all leave the fold in place; -mno-split-addresses changes the whole
+   * address form (la + 1-insn guard load), only -fforce-addr lands retail's shape. */
   Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
   if (GameSetup_gData.Weather != 0) {
     Weather_gType = TrackSpec_gSpec.weatherspec.type;
@@ -1310,6 +1328,29 @@ void Weather_CreateSplat
  * read whether the pos.vy giv is *combined* or *declined*, then move the crossing point
  * with a +1-RTL-insn faithful spelling (retail's own store-then-read-back of a just-
  * stored field is the standard zero-byte way to add exactly one RTL insn). */
+/* ---- w50-a10: 36 STAYS (111/113).  THE -dL DUMP WAS READ (the w46 named angle executed);
+ * it NAMES the giv but offers no razor.  In `weather.cpp.i.loop` this loop's giv block is:
+ *     Insn 46/48   giv reg 88/89  mult 8 add 0 / add (reg/v:SI 81)  lifetime 1/98  replaceable
+ *     Insn 109/111 giv reg 110/111 mult 8 add 0 / add (reg/v:SI 81) lifetime 1/42
+ *                                  <- 111 is the ONLY giv WITHOUT `replaceable`, and it is
+ *                                     the one carrying "Final giv value for 111, giv dead
+ *                                     after loop exit" = the pos.vy store's address
+ *     Insn 201/203 giv reg 151/152 mult 8 add 0 / add (reg/v:SI 81) lifetime 1/14 replaceable
+ *   decisions: `giv at 125/111/48 combined with giv at 203` and `109/46 combined with 201`
+ *   -> everything collapses into reg 175 (+ reg 176), i.e. our TWO walkers.  There is NO
+ *   "not worth while" line for this loop at all, so the w46 "GIV-WORTH BUDGET RAZOR" dial
+ *   (loop RTL insn count) is NOT the crossing point here -- combine_givs merges 111
+ *   unconditionally because its (mult_val, add_val) is IDENTICAL to 203's.  A budget/+1-RTL
+ *   spelling therefore cannot separate them; only a giv whose add_val DIFFERS can.
+ * FALSIFIED THIS WAVE (all four aimed at minting retail's 3rd giv / its `addu s2,s0,zero`):
+ *   a plain `Weather_tSplatInfo *sp = &splats[i];` used only for the two pos.vy stores,
+ *   declared at the top of the else-arm (67 @110) or in an inner block around just those
+ *   stores (67 @110) -- BOTH go one insn SHORTER, the pointer folds into a single giv;
+ *   the same two with a zero-insn opacity fence on `sp` -- top-of-arm 96 @119 (+6, the
+ *   fence's own reload survives), inner block 47 @112 (the CLOSEST count yet, 1 short,
+ *   but the fence's pseudo re-colors the s-band).  NEXT: the separation must come from an
+ *   add_val difference (e.g. a giv anchored on a DIFFERENT field of splats[i]), not from a
+ *   second pointer, since combine_givs merges identical add_vals unconditionally. */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
@@ -1375,7 +1416,22 @@ void Weather_DoSplats
  *  -G8 IDENTITY PROBE: -G8 gives 58 (2 better) with zero regressions across the TU, but
  *  every %gp_rel symbol in the weather oracles is <=4 bytes (the >4-byte server arrays are
  *  modelled as per-element split storage and their RUNTIME-index sites use an absolute
- *  base), so there is no positive -G8 discriminator -- NOT adopted. */
+ *  base), so there is no positive -G8 discriminator -- NOT adopted.
+ * ---- w50-a10: 40 -> 36, count still EXACT 197/197, zero TU regressions.  LANDED: the
+ * zero-insn OPACITY FENCE on `ab` (see the MATCH comment at its assignment) -- it fixes
+ * tie (3)'s ORDER half: retail loads Input_gLookBehind[player] BEFORE building the
+ * prevLookBehind[] address, ours built the address first; the fence is the value-numbering
+ * barrier that stops cse from hoisting the address computation over the load.  The residual
+ * is now TWO clusters, both pure 2-register rotations at exact count:
+ *   (A) head a0<->a1: retail index=$a0 / &Weather_gPServerA=$a1, ours mirrored (8 lines).
+ *   (B) 54-76: retail keeps `ab` AND then `mode` in $a1 (with a real `addu a1,v0,zero` copy
+ *       of the Camera_GetMode result filling the jal delay slot where ours nops), ours keeps
+ *       them in $v1/$v0 with no copy -- the delete_noop_moves "retail keeps a copy" identity.
+ * FALSIFIED THIS WAVE at the 40 base: fence on `mode` (49 @198 -- it DOES mint the copy but
+ * as an extra insn, not in the slot), fence on `ab`+`mode` together (45 @198), fence on
+ * `player` (50), do{}while(0) depth wrapper on the three server-array reads (50), the same
+ * wrapper on just the first read (50), reversing the three reads to wd/wprevpt/wpt (36,
+ * neutral -- re-confirms the w41 measurement in the new basin), fence on `wpt` (56). */
 void Weather_DoWeather(DRender_tView *Vi)
 {
   SVECTOR *wpt;
@@ -1404,6 +1460,11 @@ void Weather_DoWeather(DRender_tView *Vi)
   if (Weather_gSys.num[0] != 0) {
     /* force a wasDrawn-clear when the look-behind state or the camera mode just changed */
     ab = Input_gLookBehind[player];
+    /* MATCH (w50-a10): OPACITY FENCE -- retail keeps `ab` in a caller-saved arg
+     * reg ($a1) whose value cse/copy-prop would otherwise fold into the compare,
+     * and loads it BEFORE building the prevLookBehind[] address.  The zero-insn
+     * identity fence blocks the value-numbering that reorders the two.  40->36. */
+    __asm__("" : "=r"(ab) : "0"(ab));
     clean_up = 0;
     if (ab != prevLookBehind[player]) {
       clean_up = ab == 1;

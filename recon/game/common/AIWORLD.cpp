@@ -35,6 +35,11 @@ void AIWorld_CalcSpeed(Car_tObj *carObj);
 int AIWorld_CalcLateralVelocity(Car_tObj *carObj);
 void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *goodPosition);
 
+static inline int AIWorld_FIX8(int x)
+{
+  return x / 0x100;
+}
+
 
 /* ---- AIWorld_ZSplineDistance__FP8Car_tObjT0  [@0x80072f90] ---- */
 int AIWorld_ZSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
@@ -395,64 +400,32 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
 }
 
 /* ---- AIWorld_CalcRoadBend__FP8Car_tObji  [@0x800736e0] ---- */
-/* REMAINING NEAR-MISS (74 diffs, insn-count-exact 55/55): the front-half `iVar2+lookAhead`
- * clamp is written identically in both the `lookAhead<0` and `lookAhead>=0` arms (matches the
- * SYM's single `nextSlice` REG local across the whole function). cc1plus recognizes the two
- * copies as the SAME redundant computation and hoists ONE shared `addu` into the very first
- * branch's delay slot, reused by BOTH arms (verified in objdump: the taken-path block has no
- * own addu, it reads the delay-slot value). The oracle does NOT share it -- each arm computes
- * `thisSlice+lookAhead` separately (own reg, own insn). Tried: fresh-named temp per arm (no
- * effect -- gcc's RTL-level value numbering isn't source-name-sensitive), if/else branch-order
- * swap (flips branch polarity to bltz matching oracle, but breaks insn-count-exact 55->56,
- * net worse), negation-based rewrite (56->58, worse). GENUINE GCC GCSE-across-branches floor;
- * accept. The road-angle fields ARE real `Trk_NewSlice.forward[3]`/`.right[3]` (plain `char`
- * arrays, nfs4_types.h:3089) -- migrated from raw `*(char*)(base+off)` casts to real
- * `BWorldSm_slices[idx].forward[0]`/`.right[0]` etc. field access, WITH an explicit
- * `(signed char)` cast at each use (oracle emits `lb`; a bare `char` read on this build emits
- * `lbu` -- verified empirically, matches the catalog's char-field rule). Diff count unchanged
- * (still 74, the GCSE floor above dominates) but this is the byte-faithful, SYM/type-correct
- * reconstruction. */
+/* The SYM SLD maps the four fixed-point terms to one source statement.  Keeping each
+ * signed /256 operation behind the inline helper prevents premature reassociation, while
+ * the named first product preserves retail's evaluation order and register lifetimes. */
 int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 {
   int thisSlice;
   int nextSlice;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
+  int bend;
 
-  iVar2 = (int)(carObj->N).simRoadInfo.slice;
-  if (lookAhead < 0) {
-    iVar1 = iVar2 + lookAhead;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + gNumSlices;
+  thisSlice = (int)(carObj->N).simRoadInfo.slice;
+  if (lookAhead >= 0) {
+    nextSlice = thisSlice + lookAhead;
+    if (gNumSlices <= nextSlice) {
+      nextSlice = nextSlice - gNumSlices;
     }
   }
   else {
-    iVar1 = iVar2 + lookAhead;
-    if (gNumSlices <= iVar1) {
-      iVar1 = iVar1 - gNumSlices;
+    nextSlice = thisSlice + lookAhead;
+    if (nextSlice < 0) {
+      nextSlice = nextSlice + gNumSlices;
     }
   }
-  iVar4 = iVar1 * 0x20 + (int)BWorldSm_slices;
-  iVar1 = (int)(signed char)BWorldSm_slices[iVar1].forward[0] * 0x200;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 0xff;
-  }
-  iVar3 = iVar2 * 0x20 + (int)BWorldSm_slices;
-  iVar2 = (int)(signed char)BWorldSm_slices[iVar2].right[0] * 0x200;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xff;
-  }
-  iVar4 = (int)(signed char)((Trk_NewSlice *)iVar4)->forward[2] * 0x200;
-  if (iVar4 < 0) {
-    iVar4 = iVar4 + 0xff;
-  }
-  iVar3 = (int)(signed char)((Trk_NewSlice *)iVar3)->right[2] * 0x200;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0xff;
-  }
-  return (iVar1 >> 8) * (iVar2 >> 8) + (iVar4 >> 8) * (iVar3 >> 8);
+  bend = AIWorld_FIX8((int)(signed char)BWorldSm_slices[nextSlice].forward[0] << 9) *
+         AIWorld_FIX8((int)(signed char)BWorldSm_slices[thisSlice].right[0] << 9);
+  return bend + AIWorld_FIX8((int)(signed char)BWorldSm_slices[nextSlice].forward[2] << 9) *
+         AIWorld_FIX8((int)(signed char)BWorldSm_slices[thisSlice].right[2] << 9);
 }
 
 /* ---- AIWorld_CalcFutureLateralVel__FP8Car_tObji  [@0x800737bc] ---- */

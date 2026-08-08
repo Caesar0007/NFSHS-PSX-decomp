@@ -419,97 +419,92 @@ extern "C" void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tM
 extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  tFEApplication *ptVar1;
-  ushort uVar2;
-  char *pcVar3;
-  tMenu *ptVar4;
-  tFEApplication *dlgThis;
-  tScreenCarSelectDuel *this_00;
-  tListIteratorCar *this_01;
+  tDialogMessageString *dialog = &FEApp->messagePopup;
+  tMenu *nextMenu;
+  tScreenCarSelect *screen;
   uint state;
-  tDialogMessageString *this_02;
   tTrackInformation trackInfo;
   
-  ptVar1 = FEApp;
-  this_02 = &FEApp->messagePopup;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              &trackInfo);
   if (trackInfo.fAvailable == '\0') {
-    pcVar3 = TextSys_Word(0xeb);
-    (ptVar1->messagePopup).string = pcVar3;
-    Display((tDialogBase *)this_02);
+    dialog->string = TextSys_Word(0xeb);
+    Display((tDialogBase *)dialog);
     return;
   }
   if (frontEnd.gameMode == '\x01') {
     command->type = kMenu_Command_GoToMenuTwoPlayer;
-    if (frontEnd.raceType == '\x06') {
-      command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOnePinkSlipCarSelect;
-    }
-    else if (frontEnd.carListType == '\0') {
-      command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOneCarSelect;
+    if (frontEnd.raceType != '\x06') {
+      if (frontEnd.carListType == '\0') {
+        command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOneCarSelect;
+      }
+      else {
+        command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOneGarage;
+      }
     }
     else {
-      command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOneGarage;
+      command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOnePinkSlipCarSelect;
     }
   }
   else {
     if (frontEnd.oppNumber == '\x01') {
       command->type = kMenu_Command_GoToMenu;
       if (frontEnd.raceType == '\x01') {
-        ptVar4 = (tMenu*)&menuDefs[0]->menuHPDuelCarSelect;
+        command->nextMenu = (tMenu*)&menuDefs[0]->menuHPDuelCarSelect;
       }
       else {
-        ptVar4 = (tMenu*)&menuDefs[0]->menuDuelCarSelect;
+        command->nextMenu = (tMenu*)&menuDefs[0]->menuDuelCarSelect;
       }
-      command->nextMenu = ptVar4;
-      state = 7;
-      this_00 = screenCarSelectDuel;
+      SetState((tScreenCarSelect *)screenCarSelectDuel,7);
     }
     else {
       command->type = kMenu_Command_GoToMenu;
-      this_00 = (tScreenCarSelectDuel *)screenCarSelect[0];
-      if (frontEnd.carListType != '\0') {
-        ptVar4 = (tMenu*)&menuDefs[0]->menuCarGarage;
+      if (frontEnd.carListType == '\0') {
+        state = 0;
+        nextMenu = (tMenu*)&menuDefs[0]->menuSingleCarSelect;
+        screen = screenCarSelect[0];
       }
       else {
-        ptVar4 = (tMenu*)&menuDefs[0]->menuSingleCarSelect;
+        state = 1;
+        nextMenu = (tMenu*)&menuDefs[0]->menuCarGarage;
+        screen = screenCarSelect[0];
       }
-      state = (uint)(frontEnd.carListType != '\0');
-      command->nextMenu = ptVar4;
+      command->nextMenu = nextMenu;
+      SetState(screen,state);
     }
-    SetState((tScreenCarSelect *)this_00,state);
   }
-  if (frontEnd.raceType == '\x01') {
+  switch (frontEnd.raceType) {
+  case '\x01':
     if ((frontEnd.oppNumber == '\0') || (frontEnd.gameMode == '\x01')) {
       (menuDefs[0]->iteratorCar1).fCarListFilter = 9;
     }
     else {
       (menuDefs[0]->iteratorCar1).fCarListFilter = 1;
     }
-  }
-  else if (frontEnd.raceType == '\x06') {
+    break;
+  case '\x06':
     (menuDefs[0]->iteratorPinkSlipsCar).fCarListFilter = 0x20;
-  }
-  else if (frontEnd.carListType == '\0') {
-    (menuDefs[0]->iteratorCar1).fCarListFilter = 1;
-  }
-  else if (frontEnd.raceType == '\x02') {
-    (menuDefs[0]->iteratorGarageCar).fCarListFilter = 0x40;
-  }
-  else {
-    (menuDefs[0]->iteratorGarageCar).fCarListFilter = 2;
+    break;
+  default:
+    if (frontEnd.carListType == '\0') {
+      (menuDefs[0]->iteratorCar1).fCarListFilter = 1;
+    }
+    else if (frontEnd.raceType == '\x02') {
+      (menuDefs[0]->iteratorGarageCar).fCarListFilter = 0x40;
+    }
+    else {
+      (menuDefs[0]->iteratorGarageCar).fCarListFilter = 2;
+    }
+    break;
   }
   if (frontEnd.carListType == '\0') {
     Decrement(&menuDefs[0]->iteratorCar1,kPlayerOne);
     Increment(&menuDefs[0]->iteratorCar1,kPlayerOne);
     Decrement(&menuDefs[0]->iteratorCar1,kPlayerTwo);
-    this_01 = &menuDefs[0]->iteratorCar1;
-MX_GoToCar_iteratorIncP2:
-    Increment(this_01,kPlayerTwo);
+    Increment(&menuDefs[0]->iteratorCar1,kPlayerTwo);
   }
   else {
-    uVar2 = GetNumOwnedCars(&carManager, 0);
-    if ((int)((uint)uVar2 << 0x10) < 1) {
+    if ((int)((uint)GetNumOwnedCars(&carManager, 0) << 0x10) < 1) {
       if (frontEnd.raceType == '\x01') {
         if (frontEnd.oppNumber == '\x01') goto MX_GoToCar_oppFilterSetup;
         goto MX_GoToCar_garageIter;
@@ -521,8 +516,7 @@ MX_GoToCar_garageIter:
       Increment(&menuDefs[0]->iteratorGarageCar,kPlayerOne);
       if (frontEnd.gameMode == '\x01') {
         Decrement(&menuDefs[0]->iteratorGarageCar,kPlayerTwo);
-        this_01 = &menuDefs[0]->iteratorGarageCar;
-        goto MX_GoToCar_iteratorIncP2;
+        Increment(&menuDefs[0]->iteratorGarageCar,kPlayerTwo);
       }
     }
   }

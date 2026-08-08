@@ -110,6 +110,16 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * qtys and dial the pair with the standard birth/live/ref levers -- do NOT go back to
      * spelling the subscript.  The 2-diff baseline is kept because 24 > 2, not because the
      * fence form is wrong.
+     * 🔴 w49-a8 2026-08-08: the w47-a5 NEXT step ("dial the two pointer qtys") was run with the
+     * source-level dials before reaching for qtytrace, and they do NOT move the pair -- every
+     * variant reproduces w47-a5's 24 at 48/48, or loses the copy again:
+     *   pt/qt as published 24 | loads swapped (`t0 = qt[0]; t1 = pt[1]`) 24 | fence on `pt`
+     *   instead of `qt` 25 (47/48 -- copy eliminated again) | fence + a trailing use fence on
+     *   `qt` 24 | same on `pt` 26.
+     * So the sum/copy pair really is decided inside local_alloc (QTY_CMP_PRI), not by which
+     * pointer the source names or how many times it is referenced at C level.  The 2-diff
+     * baseline is kept (24 > 2); the next attack is the instrumented qtytrace/-dl route named
+     * by w47-a5, NOT another spelling of the subscript or the fence.
      * SLD could not have helped:
      * eaclib .lib C members are debug-stripped (0 SLD records anywhere above 0x800E0000). */
 

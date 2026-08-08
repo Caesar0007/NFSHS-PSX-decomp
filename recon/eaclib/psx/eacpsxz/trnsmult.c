@@ -76,6 +76,25 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
      * gap stays exactly 3 = the one un-inherited `lw v1,0x68(sp)` plus its two load-delay nops.
      * VERDICT: STRONG floor (>=20 alternate source forms byte-identical or worse, mechanism named,
      * A/B-proven). Reopen only with a reload-level toolchain lever.
+     * 🔴 w49-a8 2026-08-08 -- THE COUNT HALF OF THAT VERDICT IS REFUTED; THE COLORING HALF STANDS.
+     * The w47 OPACITY FENCE (`__asm__("" : "=r"(x) : "0"(x))`, a ZERO-INSN value-numbering
+     * barrier) placed BETWEEN the two pa[] computations DOES break reload inheritance:
+     *     pa[0] = (int *)((char *)a + i1);
+     *     __asm__("" : "=r"(a) : "0"(a));
+     *     pa[1] = (int *)((char *)a + i2);
+     * gates INSTRUCTION-EXACT 81/81 -- i.e. the three 'not source-addressable' instructions (the
+     * un-inherited `lw v1,0x68(sp)` + its two load-delay nops) ARE recoverable from C, because the
+     * fence gives `a` a fresh def that choose_reload_regs cannot inherit across.  What it does NOT
+     * fix is the register ROLES: the whole callee-saved band rotates and it gates 100.  Variants
+     * measured the same session (none better than the kept 31): fence BEFORE both pa[] stores 112
+     * (81/81), fence AFTER both 100 (81/81), a separate `int *a2 = a;` carrier + fence 33 (80/81),
+     * carrier fence FIRST 32 (79/81), reversed pa store order + fence 101 (82/81), operand-swapped
+     * `i2 + (char *)a` + fence 100 (81/81), and the plain w48 void fence `__asm__("" : : "i"(0))`
+     * between them 32 (79/81 -- barrier only, no value-numbering effect, so no extra insn).
+     * ==> RE-CLASSIFIED: this is NOT 'reload inheritance is unreachable'.  It is reload inheritance
+     * (reachable, above) PLUS an allocno rotation that has to be solved at the same time.  The
+     * next attack is reqdelta/allocsim on the 81/81 fence basin -- solve the band there, not here;
+     * do NOT restart the 20-form spelling sweep, which was run against the 78-insn basin.
      * Shape levers that DID land the 107->31: flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE
      * byte-offset walkers i1/i2 (a row elems, step 12) + j1/j2 (b column walk, step 4) =
      * independent variables so no combine_givs base-fold; the two a-element pointers live in

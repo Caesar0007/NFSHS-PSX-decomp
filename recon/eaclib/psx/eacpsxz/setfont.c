@@ -157,10 +157,25 @@ extern void setfont(int fontId)
      * (8 @96) -- retail genuinely re-loads and re-adds the +0x13/+0x12 pair.  So the cf-store
      * route needs a ZERO-COST +5 on cf (or -2 on fontId) that the current inflator kit does not
      * have; that is the whole remaining question, not a general allocno-delta.
-     * (b) 2 = the 0xA0 store's base (`sw v0,0xA0($s0)` ours vs `$s1` retail) -- the unavoidable
-     *     price of the live-range fix above; gcc must emit cf2's lui/addiu before a store through
-     *     it, while retail stores through the still-live cf and materializes afterwards.
-     *     Net trade: -70 diffs for +2.  Do not "fix" this back.
+     * 🏆 w49-a8 2026-08-08: CLUSTER (b) SOLVED -- setfont is a byte-exact PASS (100/100).
+     *     The w47-a5 bar above ("the cf-store route needs a ZERO-COST +5 on cf that the current
+     *     inflator kit does not have") is met by the w44 inflator #2, DELIBERATE ARM DUPLICATION,
+     *     which the w47 note had not tried here (it only tried the do{}while(0) depth wrapper and
+     *     the store-read-back deleter, both of which cost instructions):
+     *       1. switch to retail's shape -- `CFFN(cf, 0xa0) = decode;` through the STILL-LIVE cf,
+     *          with `cf2 = currentfont;` materialized AFTER it (alone this gates 74, because it
+     *          flips the fontId/cf allocno pair exactly as w47-a5 measured);
+     *       2. write that same store in ALL FOUR decoder arms instead of once at the `decoded:`
+     *          join.  post-reload cross_jump merges the four byte-identical `sw $v0,0xA0($s1)`
+     *          tails back into ONE instruction (count stays EXACTLY 100), but flow.c counts every
+     *          arm's `cf` reference -- the +refs that lift p81(cf) over p80(fontId) at zero cost.
+     *     Both halves are required: retail-shape alone = 74, arm-duplication alone is meaningless
+     *     (the join store is not through cf).  The `decode` temp is KEPT (the w34-a4 NFS2-shaped
+     *     "store the field directly, no temp" variant is a different, worse form at 56/98 insns).
+     *     ---- superseded (b) note, kept for the record ----
+     * (b) 2 = the 0xA0 store's base (`sw v0,0xA0($s0)` ours vs `$s1` retail) -- was described as the
+     *     unavoidable price of the live-range fix above; gcc must emit cf2's lui/addiu before a store
+     *     through it, while retail stores through the still-live cf and materializes afterwards.
      * ---- w32 note (still accurate for the residual) -------------------------------------------
      * The 4-instruction gap is ONE thing: retail emits THREE separate
      * `lui/addiu %hi/%lo(decodeshiftjis)` materializations (one per arm, each `lui` in its branch's
@@ -177,26 +192,35 @@ extern void setfont(int fontId)
      * the swap was an independent live-range effect and is now fixed.) */
     {
         int flags = *(short *)(fontId + 0xe);
+        /* MATCH (w49-a8): the `CFFN(cf, 0xa0) = decode;` store is written in EVERY arm, not once
+         * at the `decoded:` join.  post-reload cross_jump merges the four byte-identical
+         * `sw $v0,0xA0($s1)` tails into ONE instruction (count unchanged, 100/100), while flow.c
+         * counts each arm's `cf` reference -- the zero-cost ref inflator that lifts cf's allocno
+         * over fontId's and lands retail's whole register map.  Do NOT "simplify" back to a single
+         * store at the join: that is the 74-diff form.  See the header note. */
         if ((flags & 3) != 2)
             goto notsjis;
         decode = decodeshiftjis;                                  /* explicit Shift-JIS flag */
+        CFFN(cf, 0xa0) = decode;
         goto decoded;
 
     notsjis:
         if (CFI(cf, 0x74) >= 0x100) {
             decode = decodeshiftjis2;                             /* large table => multi-byte */
+            CFFN(cf, 0xa0) = decode;
             goto decoded;
         }
         /* small glyph table: probe the encoded stream -- ANSI if the first code is < 0x100 */
         if (geti((void *)(fontId + 0x20), 2) >= 0x100) {
             decode = decodeshiftjis3;
+            CFFN(cf, 0xa0) = decode;
             goto decoded;
         }
         decode = decodeansi;
+        CFFN(cf, 0xa0) = decode;
     }
 decoded:
     cf2 = currentfont;
-    CFFN(cf2, 0xa0) = decode;
 
     /* MATCH: the oracle RE-MATERIALIZES `&currentfont` into a fresh reg here instead of reusing
      * the still-live `cf` -- a 2nd local pointer reproduces that separate lui/addiu.

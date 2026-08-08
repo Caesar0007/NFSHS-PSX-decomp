@@ -399,7 +399,17 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * flat arm 20 (95/97).  All three trichotomy branches are now closed, so cluster (1) is a STRONG
  * no-copy-prop identity floor.  Cluster (2) re-confirmed unchanged: the oracle sinks the
  * `lw desc[3]` reload into the `mult`/`mfhi` latency window (oracle index 48) where ours issues it
- * after the quotient store (index 58) -- a list-scheduler decision, source-order-immune. */
+ * after the quotient store (index 58) -- a list-scheduler decision, source-order-immune.
+ * 🔴 w49-a8 2026-08-08: cluster (1)'s STRONG no-copy-prop verdict SURVIVES the w47 opacity fence,
+ * which is the lever that was invented for exactly this symptom ("keep a retail reg-reg copy alive
+ * that coalescing would delete") and which cracked trnsmult's sibling residual the same session.
+ * Measured on the walking-pointer seed form (`int ptr = flatBase; dp[3] = ptr; ptr += step;`):
+ * no fence 23 (96/97) | opacity fence on `ptr` after the seed 41 (96/97) | use fence 23 (96/97)
+ * | void barrier 23 (96/97).  All still 96 insns, i.e. the seed copy is STILL deleted -- because
+ * the fence's fresh def is of the DESTINATION, so copy-prop simply forwards `flatBase` into the
+ * asm's input and the copy dies anyway.  (trnsmult's fence works because there the fence redefines
+ * the SOURCE, `a`, between its two consumers.)  There is no second consumer of `flatBase` here to
+ * fence between, so that route is structurally unavailable.  Cluster (1) stays a STRONG floor. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)

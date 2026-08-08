@@ -352,10 +352,38 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
  * 0xffff;`, and the `& 0xff` variant) costs gp 2 more REG_N_REFS, which lifts it over note/ppp and
  * takes $s1 -> 60 diffs.  `(unsigned short)(gp << 8)` is byte-identical to the current form.  So
  * the in-place shape is only reachable if gp's refs are simultaneously cut by 2 elsewhere (the two
- * candidates are the 0x3c guard and the 0x94 pool-base read, both currently through gp). */
+ * candidates are the 0x3c guard and the 0x94 pool-base read, both currently through gp).
+ * 🔴 w49-a8 2026-08-08 -- BOTH SIDES OF THAT BAR PROBED; the 4-diff base stands, but the RIVAL
+ * side is now known to be a WORKING dial (the deleter side is not).  Working from the 3-statement
+ * in-place form (60 diffs, 187/187, gp at 10 refs taking $s1):
+ *   - RIVAL INFLATION with the w44 do{}while(0) depth wrapper MOVES IT: wrapping the 7-store
+ *     volatile ppp header run gives 60 -> 42 (187/187, ppp regains its rank); adding a wrapper on
+ *     the `iSNDcalcpitch(note); iSNDcalcvol(note);` pair gives 42 -> 17, but that one costs an
+ *     instruction (188/187) so parity is lost.  Depth 3 measures identical to depth 2 on both.
+ *     ==> gp's 10-ref rank IS beatable from the rivals' side; the open number is a note-inflator
+ *     that does not add an instruction.  (The ppp wrapper alone on the KEPT 2-statement base is
+ *     14, so it must only ever be applied together with the 3-statement form.)
+ *   - REF DELETION on gp is dead: spelling the 0x3c guard and/or the 0x94 pool read directly off
+ *     `sndgs` instead of `gp` does not remove a gp reference (cse substitutes gp straight back)
+ *     and each costs +2 diffs -- guard-direct 6, pool-direct 6, both 8 on the kept base, and all
+ *     three still 60 on the 3-statement base.
+ *   - LIVE-RANGE demotion of gp is a no-op: a w45 use fence `__asm__("" : : "r"(gp))` at the tail
+ *     (or just before the `r < 0` test) measures exactly 4 / 60 -- gp already lives to the
+ *     iSNDplatformpacketplay arg, so there is no range left to lengthen. */
 
 /* SNDPKTPLAY_submit @0x80102CFC : append a frame (descriptor `frame`) to the player's ring.  Returns the
  *   submit sequence number, or -0xD if the ring is full. */
+/* NEAR-MISS 2 diffs (93/93): the oracle emits `addu v1,zero,zero` (j = 0) BEFORE `addu a1,s1,zero`
+ * (src = frame) in the channel-pointer loop's preheader; ours emits them the other way round.
+ * 🔴 w49-a8 2026-08-08 -- floor RE-CONFIRMED with a NEW evidence class (the w45/w47 fence family,
+ * which the w28-31 note predates).  The catalog's mechanism holds exactly: gcc-2.8 pseudo
+ * numbering couples EVAL ORDER to both register colour and delay-slot-fill priority, so writing
+ * the oracle's emission order in source makes it WORSE, and a barrier cannot decouple them --
+ *   `int j = 0, src = frame;` 12 | split decls, j first 12 | split decls, src first 2 (== kept)
+ *   | void fence before the loop 2 | void fence BETWEEN the two inits 12 | fence after src 2
+ *   | opacity fence on j 2   (all 93/93).
+ * i.e. every form that puts j's evaluation first pays 12, and no fence position buys the order
+ * without the colour.  Do not re-run the order sweep. */
 extern int SNDPKTPLAY_submit(int p, int frame)
 {
     int ppp, slot;

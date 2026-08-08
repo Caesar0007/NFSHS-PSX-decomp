@@ -90,6 +90,22 @@ extern void chase(unsigned int code);                                           
  *    free here: after the add 82 (156/158), immediately before the call 39 (155/158).  So it buys
  *    2 of the 3 missing instructions at a cost of 22 extra diffs -- rejected on the catalog's
  *    permuter-trust rule (a match held up by scaffolding nobody would write is not a match).
+ * 🔴 w49-a8 2026-08-08 -- (b) IS BLOCKABLE AT ZERO INSNS; the w33/w34 'every spelling still folds'
+ * verdict was about SPELLINGS, and it is correct as far as it goes -- but the w47 OPACITY FENCE
+ * (`__asm__("" : "=r"(x) : "0"(x))`, a value-numbering barrier that emits nothing) is not a
+ * spelling, and it stops combine merging the srl/sll/andi chain:
+ *     hi = op >> 8;
+ *     __asm__("" : "=r"(hi) : "0"(hi));
+ *     hi = hi << 8;
+ *     hi = hi & 0x3f00;
+ * gates 12 (156/158) vs the kept 17 (153/158) -- it restores retail's 3-insn chain AND takes
+ * three of the five missing instructions.  NOT LANDED: it is scaffolding on a fn that still is
+ * not a match (catalog permuter-trust rule -- prefer the honest higher count), and the residual
+ * (a) is untouched.  Also measured this session, all WORSE: the same opacity fence applied to (a)
+ * (before each of the three `refcpy` arg copies, to break combine's i2->i3 fold of `out += reverse`)
+ * = 108 diffs at 158/158 EXACT parity, arm-1 only 83 (155/158), and (a)+(b) together 110 (160/158).
+ * ==> both (a) and (b) reach the oracle's INSTRUCTION COUNT under the fence; what neither reaches
+ * is the register assignment.  Next attack = reqdelta/allocsim on the 158/158 (a)-fence basin.
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)

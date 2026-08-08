@@ -77,7 +77,28 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  * no statement position anywhere in the preheader recovers the missing instruction -- the oracle's
  * choice to spend the `lw s0,0(s0)` load-delay slot on `i = 0` (and only then eager-steal `origin`
  * into the `beqz` slot) is a scheduler decision that no source order reaches.  Floor CONFIRMED, and
- * the sweep is exhaustive over statement order, so do not re-run it. */
+ * the sweep is exhaustive over statement order, so do not re-run it.
+ *
+ * 🔴 w49-a8 2026-08-08 -- THE MISSING INSTRUCTION IS RECOVERABLE (statement ORDER was the wrong
+ * dial; the w45 fence-as-sched-position-fixpoint is the right one).  A ZERO-INSN barrier placed
+ * immediately BEFORE the `base->initialized` guard --
+ *     __asm__("" : : "i"(0));
+ *     if (base->initialized == 0) return -10;
+ * -- gates 12 at COUNT-EXACT 81/81 (vs the kept 13 at 82/81): it recovers residual (b)'s
+ * instruction and lands retail's `sw s1/addu s1,a0` prologue pair (residual (a) SOLVED).  The
+ * effect is the BARRIER POSITION, not the operand: dest / bankId / both / base / opacity-dest /
+ * void all gate 12 at that position (opacity-dest 16, opacity-bankId 48 are the two exceptions).
+ * Position sweep (10 slots): pre-guard 12@81 | pre-size= 13@82 | pre-memcpy 14@83 | pre-bankData
+ * 13@82 | pre-if(count) 13@82 | preheader top 12@83 | after type4 12@83 | pre-i=0 17@82 | pre-do
+ * 17@82 | pre-tail-store 13@82.  The w35 `i = 0` position sweep was RE-RUN inside the new fence
+ * basin (lever-order-dependence law) and is unchanged: 36/36/36/32/28/20/12, optimum still last.
+ * NOT LANDED: -1 diff does not justify a bare barrier a 1998 programmer would not write, and no
+ * NATURAL source form reproduces it -- a volatile read of `base->initialized` (the semantically
+ * plausible candidate, the flag is set by another module) gates 15 (82/81) in both spellings, and
+ * the branch-polarity rewrite `if (initialized != 0) goto initok; return -10;` is canonicalized
+ * away (13 alone, 12 with the fence = identical to the fence alone).
+ * ==> residual re-stated for the next wave: with the barrier, 12 = the `sw s3`/`addu s3,a1` save
+ * position + the guard's branch polarity + the `i = 0` slot.  Hunt a NATURAL barrier, not order. */
 extern int SNDbankheadercopy(void *dst, int bankId)
 {
     unsigned char *dest = (unsigned char *)dst;

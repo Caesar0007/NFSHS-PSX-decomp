@@ -504,7 +504,15 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
      * `unsigned lim`, function-scope `avail`, and the `^ runtime-zero` device (317/308, far worse).
      * Only `avail = -B + A` reaches 14, but it does so by INVERTING the oracle's load order
      * (`lw 0x18` before `lw 0x14`) -- a count-only win on a provably wrong shape, so rejected.
-     * This is a genuine local-alloc pair tie-break; permuter/RTL-allocno territory. */
+     * This is a genuine local-alloc pair tie-break; permuter/RTL-allocno territory.
+     * 🔴 w49-a8 2026-08-08: re-attacked with the w45/w47 FENCE family (the one lever class the
+     * w33/w34/w35 sweeps predate).  All NEGATIVE, none better than the kept 14 (308/308):
+     * opacity fence on `avail` 16 (310/308) | use fence on `avail` 16 (310/308) | void barrier
+     * before the subtraction 14 | a named `lim` local + opacity fence on it 14 | split
+     * `avail = A; avail -= B;` + opacity fence 16 (310/308) | a plain extra `lim` temp (the
+     * w46 3-qty-law boundary crossing) 14.  The two that add instructions do so because the
+     * fence pins `avail` into its own register instead of the return register -- the exact
+     * opposite of what is needed.  Pair-tie verdict unchanged. */
     /* MATCH: materialize the bare &sndpd ONCE (oracle: a0) and reach BOTH DAT_80147e10[p] (via
      * base+p*4, +0x4F8 as the LOAD DISPLACEMENT -- the `(&DAT_80147e10)[p]` macro instead folds
      * 0x4F8 into the pointer chain before the index, forcing displacement-0) and the voice-table

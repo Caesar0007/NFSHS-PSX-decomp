@@ -221,6 +221,22 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * floor.  Also re-measured (not adopted): -mno-split-addresses 67 diffs but 164/165 insns (loses
      * the exact parity), -fno-expensive-optimizations 88, -fno-schedule-insns 152,
      * -fno-schedule-insns2 89 (+10 on vramimage), -fno-delayed-branch 106 (+9 on vramimage).  */
+    /* 🔴 w49-a8 2026-08-08 -- TEMPLATE-FAMILY VERDICT (asked for explicitly; methodology 3.25 axis 2):
+     * vramfxya is NOT in the movfxya/DMPSX EA-expander template family.  Census of its oracle
+     * (asm/nonmatchings/main/vramfxya.s): ZERO fixed-scratch `$t4-$t7` references and ZERO
+     * lwl/lwr/swl/swr -- neither DETECT signature (a) fixed-scratch-register census nor the lone
+     * 24-bit unaligned OT-link sequence is present.  The residual is ordinary compiler C: a
+     * count-EXACT 165/165 four-way rotation of the param home registers (ours a1->s2/a2->s5/a3->s3,
+     * retail a1->s7/a2->fp/a3->s5), i.e. the allocno_compare delta already proven below.  So there
+     * is nothing here to transcribe as `__asm__`; do not reopen this as a template question.
+     * Also FALSIFIED this session (the one w44 zero-insn ref inflator the notes had not tried --
+     * the do{}while(0) wrapper and the dead-set carrier were tried, inflator #1 was not):
+     * the SEMANTIC NO-OP RE-MASK on the CLUT-tail uses, `(clutXm & 0xfffu)` / `(clutYm &
+     * 0x0fff0000u)` / both / doubled -- ALL gate exactly 34 at 165/165.  Mechanism: both operands
+     * are already provably masked, so fold() removes the AND at TREE level and flow.c never sees a
+     * reference; inflator #1 only fires when the AND survives as a real RTL insn for cse to merge.
+     * ==> the constraint-(ii) bar in the proof below (clutYm needs refs 3 -> 4 at zero cost) is
+     * still unmet by the whole inflator kit; that single number remains the open target. */
     int ix = imgX;                          /* +2 weighted refs -> priority dial only, see above  */
     int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */

@@ -144,6 +144,15 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      *  RE-TESTED IN THE NEW BASIN (lever-order-dependence law): walker clear loop 31 (was 50),
      *  bound-load-before-`i++` via a named `nents` local 14 (diff-neutral, reverted -- sched1
      *  re-floats the lhu below the increment regardless of statement position).
+     *  🔴 w49-a8 2026-08-08: the named target above ("a zero-cost +1 i-ref") was attacked with the
+     *  full w44/w46 inflator kit in the CURRENT (w47) basin -- ALL NEGATIVE, every variant gating
+     *  exactly 31 at 85/84: descending `int *p` walker in three spellings (`&scratch[0x1fe]`,
+     *  `scratch + 0x1fe`, decrement-in-condition), walker + do{}while(0) wrapper on the store,
+     *  walker + zero-trip guard, and four attempts to spend `i` in the walker's own initialiser
+     *  (`&scratch[i * 2]`, `scratch + i * 2`, `&scratch[i + i]`, plus an `i--`-last body).  The
+     *  initialiser forms cannot dial: i is 0xff at that point, so the address constant-folds
+     *  before flow.c ever counts a reference, and the do{}while(0) note is stripped as a phony
+     *  loop.  The 14-diff indexed form therefore still beats every walker form by 17.
      *  REMAINING 14 = the clear loop's -fno-strength-reduce degradation (`sll s0,3; addu` + a
      *  separate `li -1` vs retail's `sw v1,0(v0); addiu v0,v0,-8` descending walker, +1 insn), the
      *  `addu fp,s4,zero` delay-slot occupant that follows from it, and the loop-tail `lhu`/`addiu`

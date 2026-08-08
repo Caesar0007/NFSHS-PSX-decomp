@@ -1363,6 +1363,14 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  * (ii) the t1/t2/t3 rotation on the three scratchpad/packet bases is caller-saved =
  *      local_alloc qty territory (`-dl` birth order), same class as BuildReplay's residual. */
 /* ---- Hud_BuildTach__Fi  [HUD.CPP:1376-1442] SLD-VERIFIED ----
+ * w49-a1 RE-GATED 43 (ours 268 / oracle 269, posdiff structural 22).  FALSIFIED this pass:
+ *   inverting the `clut |= (x + 0x75/0x1d)` if/else arms to put the 0x1d arm physically first
+ *   (retail emits `addiu v1,s7,29` BEFORE `addiu v0,s7,117`) -> 45, WORSE; the two addiu's are
+ *   emitted in the oracle's order but the `or s0,s0,v1` then mis-schedules.  So the 0x1d/0x75
+ *   ordering is NOT an arm-order question -- it is downstream of the same 4-way rotation the
+ *   receipt below describes.  Also noted (untouched): the two `fixedmult(sin/cos,0x20)` call
+ *   sites are a pure reorg dial -- retail emits `li a1,32; lw a0,24(sp); ...; jal` while ours
+ *   emits `lw a0,24(sp); jal; li a1,32` (the li stolen into the jal's delay slot); 4 of the 43.
  * RESIDUAL 163 (ours 268 / oracle 269, posdiff structural 65).  w44-a5 read the SYM 8c block
  * @0x800d3e94 (fsize 88, mask 0xc0ff0000) for the FIRST time; it is the ground truth here:
  *   player REGPARM $s1 | fangle $fp | sin/cos AUTO -0x40/-0x3c | rpm $v0 | gSprt1 AUTO -0x38 |
@@ -1569,7 +1577,30 @@ extern HudPmx_tShape D_801119E0[];
  * the count the right way (205 -> 211 of 215) but the freed register re-permutes the whole
  * PARAM s-assignment (y $s6->$s7, color $s7->$fp, justwidth $s5->$s6) and the gate
  * REGRESSES 118 -> 204.  Banked: it needs to land together with a fix for the str/'#'
- * allocno swap ($s2/$s3, the other standing residual), not on its own. */
+ * allocno swap ($s2/$s3, the other standing residual), not on its own.
+ * ===== w49-a1 RE-GATED 52 (ours 215 / oracle 215, posdiff structural 14) and QUANTIFIED =====
+ * posdiff first-use order differs in EXACTLY one adjacent pair (ours s0 s3 a0 ... s2, retail
+ * s0 s2 a0 ... s3) => the whole residual is ONE allocno swap.  allocsim/prio table (from
+ * tools/rtl_dump.py -dg -dl + tools/prio.py):
+ *     p108 -> s2  refs=17 live=298 calls=5 pri=.2281   <- the hoisted `'#'` (0x23) literal
+ *     p80  -> s3  refs=8  live=159 calls=7 pri=.1509   <- `str` (the $a0 parm copy)
+ * RETAIL WANTS p80=$s2, p108=$s3 (the SYM says str is REGPARM $s2).  tools/reqdelta.py gives
+ * exactly TWO single dials, both on REF COUNT:
+ *     p108 refs 17 -> 14   (floor_log2 step 4->3)   |  p80 refs 8 -> 13
+ * The literal is referenced at 8 sites, ALL inside the loop (weighted x2) + 1 preheader def =
+ * 17, and the ORACLE has the same 8 `bne/beq $v0,$s3` sites, so the ref counts are equal on
+ * both sides -- the divergence must be a live-length/luid difference we cannot read off the
+ * ROM.  FALSIFIED w49-a1: the w45 "name the hoisted literal to lengthen its range and demote
+ * it" lever (`int padHash; padHash = 0x23;` as the first statement, all 8 sites compared
+ * against it) -> 54 diffs, WORSE: cse const-propagates it straight back into every compare so
+ * the pseudo is unchanged, and the named local costs 2 more diffs.
+ * NEW NAMED ANGLE: p80 refs 8 -> 13 is the reachable half (the literal cannot lose refs
+ * without dropping a real compare).  `str` is referenced 8 times: def, the strlen arg copy,
+ * two in-loop `lbu 0(str)` and the in-loop `str = str + 1`.  Find a FAITHFUL shape with 2-3
+ * more in-loop references of `str` itself (not of `*str`, which cse merges into the two
+ * existing lbu's) -- e.g. a spelling where the per-character dispatch indexes off `str`
+ * rather than a cse'd byte.  The `shp` deletion banked above should be re-tested immediately
+ * after, per the catalog's blocking-register-cascade rule. */
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
 
 {
@@ -3217,7 +3248,23 @@ int Hud_BuildRadar(int player)
  *       link region and the 0x38/gTPage region)                   81 -> 41
  * (b) was the NEW NAMED ANGLE recorded in (a)'s receipt, executed.  Both are zero-insn.
  * RESIDUAL 41 -- re-census; the caller-saved rotation described in the 81-basin receipt above
- * is partly consumed by (b) and its remaining half must be re-read from the new sbs. */
+ * is partly consumed by (b) and its remaining half must be re-read from the new sbs.
+ * ===== w49-a1 RE-CENSUS of the 41 (ours 190 / oracle 191, posdiff structural 21) =====
+ * The whole residual is ONE caller-saved band shift in the link region + the missing copy:
+ *     ours   0xFFFFFF=$a2  0xFF000000=$a3  pal=$a1(lui;lw, 2 insns)  walker=$t0
+ *     retail 0xFFFFFF=$a1  0xFF000000=$a2  pal=$t0 (lui $v0; lw $v0; addu $t0,$v0,$zero!)
+ * i.e. retail's `pal` allocno ranks BELOW both masks (it lands in the high caller-saved $t0)
+ * and is reached through an extra reg-reg COPY -- that copy IS the one insn we are short.
+ * FALSIFIED w49-a1: the w40 "model the extra register as a real local COPIED FROM (the copy
+ * must outlive its source)" spelling -- `u_char *pal0 = Render_gPalettePtr;` used for the
+ * first deref, then `u_char *pal = pal0;` for the rest: EXACTLY neutral (41 / 190).  cse
+ * copy-propagates pal0 into pal before local-alloc ever sees two pseudos.
+ * NEW NAMED ANGLE: per w47 `combine_regs` REFUSES to tie a copy whose DESTINATION is a GLOBAL
+ * allocno -- so the surviving copy needs pal to be global while its SOURCE is a short-lived
+ * BLOCK-LOCAL qty.  Our `pal` is already live across the loop (global); the missing half is a
+ * genuinely block-local producer.  Check `-dl` for whether our pal is really tagged global in
+ * this region, and if it is, the target is the SOURCE side (make the scratchpad load's dest a
+ * pseudo that dies in the entry block). */
 void Hud_BuildReplay(void)
 
 {
@@ -3660,10 +3707,38 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
  * per the briefing rule, judge on posdiff + insn count together, and posdiff says the
  * base-0 form is the closer body.  So the +1 insn is NOT the thing to chase first; the
  * open item stays the ARG-HOME reload / y-liveness angle above. */
+  /* MATCH (w49-a1): 37 -> 13 (ours 112 / oracle 111, posdiff structural 18 -> 6).
+   * LEVER LANDED -- STORAGE-SCOPE SPLIT of `by` (w46 §A0 law): one fn-scope `by` assigned in
+   *   BOTH loops is ONE global allocno whose merged conflict set out-ranked the loop-1 giv;
+   *   giving loop 2 its own `by2` splits it into two short allocnos and lands retail's band
+   *   EXACTLY -- i(outer)=$s3, giv=$s4, by=$s5, matching the SYM (`by` REG $0x15 = $s5).
+   *   The whole documented s3/s4/s5 3-cycle in the w42/w44/w45 receipts above was this.
+   *   Zero insn change; the +1 insn (the per-outer-iteration `lw y,76(sp)` ARG-HOME reload)
+   *   is untouched and is now the ONLY structural item left.
+   * MEASURED ALTERNATIVE, NOT LANDED (w49-a1) -- the w45-shelved TWO-LEVEL WALKER, re-tested
+   *   in this new basin because the catalog's lever-order law says falsifications are
+   *   basin-relative: `byw = y;` in the outer preheader, `by = byw;` at the outer-body head,
+   *   `byw = byw + 9;` at the outer bottom (retail's `addu s4,a1,zero / addu s5,s4,zero /
+   *   addiu s4,s4,9`).  It DOES kill the ARG-HOME reload -> count becomes EXACT 111/111, and
+   *   w45's 76-78-diff verdict on the same shape is thereby REFUTED -- but the gate goes
+   *   13 -> 16 and posdiff 6 -> 8 because `byw`(p90, refs 7/live 29, pri .4828) and `by`
+   *   (p89, refs 5/live 19, .5263) come out SWAPPED (retail wants byw=$s4, by=$s5).
+   *   reqdelta on that basin gives three single dials to fix it: p89 refs 5->4, p89 live
+   *   19->21, p90 live 29->26.  FALSIFIED there: `by = byw;` before `j = 0;` (16, no change)
+   *   and hoisting the `byw += 9` bump to just after the copy (29 / 112 insns).  `by` has
+   *   exactly ONE use so the refs dial has no source form; the open one is a +2 live-length
+   *   stretch on `by` that moves no instruction.  Landing that would give a count-exact,
+   *   near-PASS body -- it is the single best next move on this function.
+   * REMAINING 13 = the ARG-HOME reload (blocks 1-3, see the w44/w45 analysis above) plus
+   *   3 diffs where `index` lands in $a0 (coalesced into the `ori a0,a0,60` call-arg) while
+   *   the SYM/retail keep it in $v1.  `index` is a BLOCK-LOCAL qty carrying the $a0
+   *   copy-preference local_alloc honours; making it span two basic blocks (a global allocno,
+   *   e.g. by also driving loop 1's `Hud_Character[num] & 1<<k` test) is the named angle. */
   int i;
   int j;
   int k;
   int by;
+  int by2;
   int index;
 
   if (flare_intensity != 0) {
@@ -3688,10 +3763,10 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
   i = 0;
   do {
     j = 0;
-    by = y + i * 9 + 1;
+    by2 = y + i * 9 + 1;
     do {
       index = (Hud_Character[num] & 1 << k) != 0;
-      Hud_FBuildSprite(index | 0x3c,x + j * 10 + 1,by,0x808080,0);
+      Hud_FBuildSprite(index | 0x3c,x + j * 10 + 1,by2,0x808080,0);
       j = j + 1;
       k = k + 1;
     } while (j < 5);
@@ -4446,7 +4521,6 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
   
   StatsTimer[player] = 0;
   if (Replay_ReplayMode < 2) {
-    psVar3 = Hud_NextPerp + player;
     FinalBTC_Countdown = BTC_Countdown;
     /* w46-a4 LEVER (19 -> 10, count now EXACT 110/110): the sprintf index is a FRESH
      * `Hud_NextPerp[player]` array read, NOT `*psVar3`.  With `*psVar3` the load is tied
@@ -4467,12 +4541,19 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
      * allocno_compare`, so read the -dl qty table for this block and apply the ref-step /
      * live-length dial to the sign-extended `player` pseudo so it ranks where retail's does
      * (retail's dies 2 insns earlier).  A source shape that makes the *5 the FIRST consumer
-     * of `player` without moving the sprintf is the direct route. */
+     * of `player` without moving the sprintf is the direct route.
+     * MATCH (w49-a1): SYM-EMPTY-LOCALS PURGE, 10 -> 0 PASS 110/110.  The SYM 8c block
+     * @0x800d962c lists exactly ONE named local (`i`, REG $18, inside the else-loop block)
+     * -- `psVar3` was FABRICATED in the head.  Deleting the head `psVar3 = Hud_NextPerp +
+     * player;` and reading `Hud_NextPerp[player]` freshly at all three caught-branch sites
+     * lets gcc build the *5 row offset as the in-place mutation of the *4 StatsTimer index
+     * (`sll a2,v1,2; addu a2,a2,v1; sll v1,v1,1`) and sign-extend `player` into $v1 (dying
+     * at the *2) instead of $a0 -- the whole residual was downstream of the invented local. */
     sprintf(BTCPerpInfo[player][Hud_NextPerp[player]].name,name);
     if (caught != 0) {
-      BTCPerpInfo[player][*psVar3].caught = 1;
-      BTCPerpInfo[player][*psVar3].time = time;
-      *psVar3 = *psVar3 + 1;
+      BTCPerpInfo[player][Hud_NextPerp[player]].caught = 1;
+      BTCPerpInfo[player][Hud_NextPerp[player]].time = time;
+      Hud_NextPerp[player] = Hud_NextPerp[player] + 1;
     }
     else {
       i = 0;

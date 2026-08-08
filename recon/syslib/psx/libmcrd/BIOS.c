@@ -3,7 +3,17 @@
  *   The card's BIOS reports completion via four event specs (I/O-end, error, timeout, new-card)
  *   on each of the two card buses (class 0xF4000001 = slot 0, 0xF0000011 = slot 1).  _card_start
  *   opens+enables those eight events with the funcEvSp* callbacks (which raise the matching flag
- *   in _card_evflag); the _get/_clr/_chk helpers poll and acknowledge them. */
+ *   in _card_evflag); the _get/_clr/_chk helpers poll and acknowledge them.
+ *
+ * TOOLCHAIN IDENTITY (w51-a2, 2026-08-09): this object is a **gcc-2.7.2** module --
+ *   PER_TU_FLAGS "cc1_272": True (PsyQ 4.0 CC1PSX + direct GNU as in reorder mode, -G0),
+ *   per the 04M law.  Whole-TU verify_asm A/B over all 17 reconstructed functions:
+ *       2.8  lane : 13/17 PASS  (_card_start 3, _clr_card_event 4, _get_card_event 6, _x 6)
+ *       2.7.2 lane: 17/17 PASS  <-- the whole object byte-matches
+ *   The old per-fn "no_split_addresses" entry becomes moot in this lane (2.7.2 has no
+ *   -msplit-addresses at all -- it emits assembler macros, which is exactly what the retail
+ *   bytes show).  Every match lever below is tuned in the 2.7.2 basin; earlier-wave 2.8
+ *   receipts in this file are basin-stale by construction. */
 
 extern int  OpenEvent(unsigned cls, int spec, int mode, void *func);  /* BIOS A0:08 */
 extern int  CloseEvent(int ev);                                       /* BIOS A0:09 */
@@ -166,35 +176,21 @@ extern int _get_card_event(void)
     TestEvent(_card_evhandle5);
     TestEvent(_card_evhandle6);
     TestEvent(_card_evhandle7);
-    /* w48-a1: the flag-clear chain is spelled OUT (store 0, then each link RE-READS the slot
-     * it just wrote -- which is what gcc-2.8 does for a chained assignment through `volatile`
-     * lvalues, and what the oracle disasm shows) so two zero-instruction devices fit inside it:
-     *   (1) `r = sum >> 1` is computed BEFORE the last reload.  That makes r live ACROSS it, so
-     *       the reload cannot reuse $v0 and lands in $v1 -- the oracle's register pick.  Computed
-     *       after (the natural `return sum >> 1;` tail) the reload takes $v0 and the whole tail
-     *       rotates (measured: 8 diffs vs 2).
-     *   (2) a use fence after the reload and another before the return pin the schedule: without
-     *       them sched2 hoists the epilogue `lw ra`/`lw s0` ~10 insns up into the store chain to
-     *       cover load-delay slots, where the oracle keeps both at the tail (that alone was 4 of
-     *       the original 6 diffs).  Both fences take values already resident in registers, so
-     *       they emit NOTHING (count stays 54/54).
-     * RESIDUAL 2 diffs: the oracle schedules `sra $v0,$s0,1` into the LOAD-DELAY SLOT of the
-     * final reload; ours issues it at the top of the same block.  Pure sched2 ready-list pick at
-     * count parity -- and it is NOT reachable by moving the shift down in the source, because the
-     * source position that fixes the SCHEDULE (shift after the reload) destroys the ALLOCATION
-     * that gives the reload $v1 (measured 4 spellings: shift-after = 8 diffs).  The two
-     * requirements point in opposite directions -- a de-coupled pair, permuter/ready-list class. */
+    /* MATCH (w51-a2): the flag-clear chain is the NATURAL chained-assignment shape -- store 0
+     * into the top slot, then each link reads back the slot it just wrote (these are
+     * `volatile int`, so every link really reloads; the oracle disasm shows exactly that) --
+     * and the tail is the plain `return sum >> 1;`.  PASS 54/54.
+     *   The w48-a1 receipt that stood here (split `r = sum>>1` hoisted BEFORE the last reload
+     *   + two zero-insn use fences, residual 2) was tuned in the gcc-2.8 basin and is FALSIFIED
+     *   for this object: under this TU's real toolchain (gcc-2.7.2, PER_TU_FLAGS "cc1_272")
+     *   that spelling scores 16 and the natural one scores 0.  Falsifications are BASIN-
+     *   RELATIVE -- do not re-add the devices. */
     {
-        int r, t;
         _card_evflag3 = 0;
         _card_evflag2 = _card_evflag3;
         _card_evflag1 = _card_evflag2;
-        r = sum >> 1;
-        t = _card_evflag1;
-        __asm__("" : : "r"(t));
-        _card_evflag0 = t;
-        __asm__("" : : "r"(r));
-        return r;
+        _card_evflag0 = _card_evflag1;
+        return sum >> 1;
     }
 }
 
@@ -209,35 +205,15 @@ extern int _get_card_event_x(void)
     TestEvent(_card_evhandle1);
     TestEvent(_card_evhandle2);
     TestEvent(_card_evhandle3);
-    /* w48-a1: the flag-clear chain is spelled OUT (store 0, then each link RE-READS the slot
-     * it just wrote -- which is what gcc-2.8 does for a chained assignment through `volatile`
-     * lvalues, and what the oracle disasm shows) so two zero-instruction devices fit inside it:
-     *   (1) `r = sum >> 1` is computed BEFORE the last reload.  That makes r live ACROSS it, so
-     *       the reload cannot reuse $v0 and lands in $v1 -- the oracle's register pick.  Computed
-     *       after (the natural `return sum >> 1;` tail) the reload takes $v0 and the whole tail
-     *       rotates (measured: 8 diffs vs 2).
-     *   (2) a use fence after the reload and another before the return pin the schedule: without
-     *       them sched2 hoists the epilogue `lw ra`/`lw s0` ~10 insns up into the store chain to
-     *       cover load-delay slots, where the oracle keeps both at the tail (that alone was 4 of
-     *       the original 6 diffs).  Both fences take values already resident in registers, so
-     *       they emit NOTHING (count stays 54/54).
-     * RESIDUAL 2 diffs: the oracle schedules `sra $v0,$s0,1` into the LOAD-DELAY SLOT of the
-     * final reload; ours issues it at the top of the same block.  Pure sched2 ready-list pick at
-     * count parity -- and it is NOT reachable by moving the shift down in the source, because the
-     * source position that fixes the SCHEDULE (shift after the reload) destroys the ALLOCATION
-     * that gives the reload $v1 (measured 4 spellings: shift-after = 8 diffs).  The two
-     * requirements point in opposite directions -- a de-coupled pair, permuter/ready-list class. */
+    /* MATCH (w51-a2): natural chained assignment + plain `return sum >> 1;` -- see the
+     * _get_card_event twin above for the full receipt (the w48-a1 split-temp + fence devices
+     * are 2.8-basin artifacts; PASS 54/54 under the cc1_272 lane). */
     {
-        int r, t;
         _card_evflag7 = 0;
         _card_evflag6 = _card_evflag7;
         _card_evflag5 = _card_evflag6;
-        r = sum >> 1;
-        t = _card_evflag5;
-        __asm__("" : : "r"(t));
-        _card_evflag4 = t;
-        __asm__("" : : "r"(r));
-        return r;
+        _card_evflag4 = _card_evflag5;
+        return sum >> 1;
     }
 }
 

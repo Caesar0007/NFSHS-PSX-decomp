@@ -12,7 +12,22 @@
  *   USERFUNC argument block) is the FSM state.
  *
  *   The low-level card and file primitives (open/read/write/_card_clear/...) live in libcard.lib;
- *   the event layer (_card_open/_clr_card_event/_get_card_event/...) is BIOS.OBJ in this library. */
+ *   the event layer (_card_open/_clr_card_event/_get_card_event/...) is BIOS.OBJ in this library.
+ *
+ * TOOLCHAIN IDENTITY (w51-a2, 2026-08-09): like its sibling objects BIOS.OBJ and USERFUNC.OBJ,
+ *   this is a **gcc-2.7.2** module -- PER_TU_FLAGS "cc1_272": True (PsyQ 4.0 CC1PSX + direct
+ *   GNU as in reorder mode, -G0), per the 04M law.  Whole-TU verify_asm A/B over all 26 fns
+ *   (measured 2026-08-09; "before" = the state at the head of wave 51):
+ *       before, 2.8 lane :  2 PASS / 1302 total diffs
+ *       after,  2.8 lane :  2 PASS / 1116 total diffs   (the structural levers help both basins)
+ *       after,  2.7.2    :  8 PASS /  718 total diffs   <-- the lane to wire
+ *   -G4 and -G8 in the 2.7.2 lane measured IDENTICAL to each other (no symbol in the 5..8-byte
+ *   band) and a wash vs -G0; keep the lane default -G0.
+ *   Consequences already applied below: (a) the opacity fences must use the gcc-2.7.2-legal
+ *   `"=r"(x) : "0"(x)` spelling -- 2.7.2 rejects a "+" constraint ("output operand constraint
+ *   contains `+'"); this rewrite is codegen-NEUTRAL in the 2.8 basin.  (b) the "jtbl_at_fusion"
+ *   PER_TU entry is inert in this lane (no maspsx in the 2.7.2 pipeline).
+ *   Every lever below is tuned in the 2.7.2 basin; earlier-wave 2.8 receipts are basin-stale. */
 
 typedef unsigned int uint;
 
@@ -49,6 +64,7 @@ extern int  VSyncCallbacks(int idx, int func);   /* @0x800F2910 */
 
 /* ---- libcard.lib low-level file / card primitives -------------------------------------------- */
 extern int  open(const char *name, int flag);            /* @0x80109D70 */
+extern char *strcpy(char *dst, const char *src);           /* libc */
 extern int  close(int fd);                               /* @0x80109D80 */
 extern int  lseek(int fd, int ofs, int whence);          /* @0x80109D90 */
 extern int  read(int fd, void *buf, int n);              /* @0x80109DA0 */
@@ -96,7 +112,7 @@ struct McState {
     int   retry;                 /* +0x08 @0x80147508 : MemCardAccept retry counter */
     int   evrslt;                /* +0x0C @0x8014750C : MemCardAccept event scratch */
     int   cleared;                /* +0x10 @0x80147510 : card-was-cleared flag */
-    int   present;                /* +0x14 @0x80147514 : per-channel card-present bitmask */
+    int   _rsvd_present;          /* +0x14 @0x80147514 : SPLIT OUT -> _mc_present below */
     int   cmd;                     /* +0x18 @0x80147518 : current command code (0 = idle) */
     int   rslt;                    /* +0x1C @0x8014751C : command result */
     int   done;                     /* +0x20 @0x80147520 : command-complete flag */
@@ -129,6 +145,12 @@ static McState mc;                       /* @0x80147500 */
 static int   _mc_sync_cmd   __attribute__((section(".bss")));   /* @0x80147560 : snapshot of cmd  */
 static int   _mc_sync_rslt  __attribute__((section(".bss")));   /* @0x80147564 : snapshot of rslt */
 static int (*_mc_save_cb)(int, int) __attribute__((section(".bss")));  /* @0x8014756C : callback saved across a nested sync */
+
+/* MATCH (w51-a2): SPLIT-STORAGE -- every oracle access to 0x80147514 materializes its OWN
+ * %hi/%lo pair (read `lui v1; lw %lo(D_80147514)(v1)`, write `lui at; sw %lo(...)(at)`)
+ * even where a struct base for cmd/chan is ALREADY live in a register, so this word is a
+ * standalone static in retail, not a member of the mc aggregate. */
+static int   _mc_present __attribute__((section(".bss")));  /* @0x80147514 : per-channel card-present bitmask */
 
 static int   _mc_rd_retry;               /* @0x80136CB8 : MemCardReadData retry counter */
 static int   _mc_wr_retry;               /* @0x80136CBC : MemCardWriteData retry counter */
@@ -189,18 +211,16 @@ static uint MemCardMakeDevname(int chan, char *str)
 {
     int q;
     int lo;
-    int t = chan;
 
-    if (chan < 0)
-        t = chan + 0xf;                 /* signed divide-by-16 round-toward-zero */
-    q  = t >> 4;
+    /* MATCH: the oracle opens with an INLINE 6-byte copy of the rodata literal "bu00:"
+     * (`lwl/lwr 3/0($a1)` + `lb 4/5` -> `swl/swr` + `sb`) -- that is gcc's builtin strcpy
+     * expansion for a constant source of known length into an unknown-alignment char*,
+     * NOT six per-character stores.  The two digits are then OVERWRITTEN in place. */
+    strcpy(str, "bu00:");
+    q  = chan / 0x10;                   /* signed /16: bgez; addiu 0xF; sra 4 */
     lo = chan - q * 0x10 + 0x30;
-    str[0] = 'b';
-    str[1] = 'u';
-    str[2] = (char)q + '0';
+    str[2] = (char)(q + 0x30);
     str[3] = (char)lo;
-    str[4] = ':';
-    str[5] = '\0';
     return (uint)lo;
 }
 
@@ -213,41 +233,56 @@ static int MemCardExist_cb(void *pv)
     int state = st[0];
     int ev;
 
-    if (state != 0 && state != 10) {
-        if (state < 0)    return 0;
-        if (state != 0xb) return 0;
+    /* MATCH (w51-a2): NOT a switch here -- the oracle's dispatch is an if/else-if CASCADE
+     * (`beqz`(0) -> `bltz`(<0 default) -> `beq 10` -> `beq 0xb`), no slti bound test, so
+     * balance_case_nodes never ran.  The block layout is dispatch / case-0 body / shared
+     * "reissue" tail / case-0xb body, and the case-0 body FALLS INTO the tail -- reproduced
+     * with explicit gotos (§5.0c goto-to-shared-tail; EA/Sony-era C used goto freely).
+     * 152 -> 111 diffs.  Ours is still ~19 insns SHORT: named angle in the ev<3 node below. */
+    if (state == 0) {                   /* first entry */
+        mc.exrslt = 0;
+        mc.exretry = 0;
+        st[0] = 10;
+        goto reissue;
+    }
+    if (state < 0)     return 0;
+    if (state == 10)   goto reissue;
+    if (state != 0xb)  return 0;
+    goto evcheck;
+reissue:
+    /* states 0 and 10 share the (re)issue-info tail */
+    _clr_card_event();
+    _card_info(mc.chan);
+    st[0] = st[0] + 1;                  /* -> 0xb */
+    return 0;
+evcheck:
+    {
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
         mc.exrslt = ev;
         if (ev < 3) {
-            if (ev == 0) {              /* ev == 0 : I/O complete (oracle if(v1==0) goto done @0x800facac) */
+            if (ev == 0) {              /* ev == 0 : I/O complete */
                 mc.exrslt = 0;
-                if ((mc.present & (1 << (mc.chan & 0x1f))) == 0)
+                if ((_mc_present & (1 << mc.chan)) == 0)
                     mc.exrslt = 4;     /* never seen -> "no card" */
                 mc.rslt = MemCardEventToRslt(mc.exrslt);
                 return 1;
             }
+            /* MATCH/ANGLE: the oracle's `ev < 3` node is a 3-WAY split -- `bgtz` (retry),
+             * `beqz` (I/O complete), else (`ev < 0`) straight to the common tail. `ev` is
+             * `_get_card_event()`'s `sum >> 1`, so the negative arm is unreachable; spelling
+             * the 3rd path explicitly measured WORSE (113 vs 111, 272 lane).  Named angle:
+             * the missing ~19 insns are in this node + the &mc.cmd-anchored rslt stores. */
             mc.exretry = mc.exretry + 1;
             if (mc.exretry < 5) { st[0] = 10; return 0; }
         } else if (ev == 4) {           /* new card */
             mc.rslt = MemCardEventToRslt(4);
             return 1;
         }
-        mc.present &= ~(1 << (mc.chan & 0x1f));
+        _mc_present &= ~(1 << mc.chan);
         mc.rslt = MemCardEventToRslt(ev);
         return 1;
     }
-
-    if (state == 0) {                   /* first entry */
-        mc.exrslt = 0;
-        mc.exretry = 0;
-        st[0] = 10;
-    }
-    /* states 0 and 10 share the (re)issue-info tail */
-    _clr_card_event();
-    _card_info(mc.chan);
-    st[0] = st[0] + 1;                  /* -> 0xb */
-    return 0;
 }
 
 /* @0x800FAE2C : MemCardAccept command step (probe -> clear -> load). */
@@ -273,7 +308,7 @@ static int MemCardCmd_cb(void *pv)
         if (mc.rslt != 0) {
             if (mc.rslt == 3) {        /* new card -> (re)clear it */
                 mc.cleared = 1;
-                mc.present |= 1 << (mc.chan & 0x1f);
+                _mc_present |= 1 << mc.chan;   /* MATCH: no `& 0x1f` -- the shift-count mask is a Ghidra transcription artifact (sllv masks in HW); writing it emits a real andi the oracle lacks */
                 _clr_card_event();
                 _card_clear(mc.chan);
                 st[0] = 0x15;
@@ -332,27 +367,33 @@ static int MemCardReadData_cb(void *pv)
     int state = st[0];
 
 
-    if (state != 10) {
-        if (state > 10) {
-            if (state != 0x1e) return 0;
-            if (_chk_card_event() == 0) return 0;
-            ev = _get_card_event();
-            if (ev != 0) {
-                _mc_rd_retry = _mc_rd_retry + 1;
-                if (_mc_rd_retry < 4) { st[0] = 10; return 0; }
-            }
-            mc.rslt = MemCardEventToRslt(ev);
-            return 1;
-        }
-        if (state != 0) return 0;
+    /* MATCH (w51-a2): real `switch` (balance_case_nodes: `beq $v1,$s0(=10)` pivot + `slti
+     * $v0,$v1,0xB` in the delay slot).  Case order 0, 10, 0x1e, and case 0 FALLS THROUGH into
+     * case 10 (the oracle's case-0 block ends `sw $s0,0($s1)` with no `j`, landing on the
+     * case-10 label).  61 -> 15 diffs, count 78/79. */
+    switch (state) {
+    case 0:
         _mc_rd_retry = 0;
         st[0] = 10;
+        /* FALLTHROUGH */
+    case 10:
+        do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
+        _clr_card_event();
+        do { r = read(mc.fd, mc.adrs, mc.len); } while (r != 0);
+        st[0] = 0x1e;
+        return 0;
+    case 0x1e:
+        if (_chk_card_event() == 0) return 0;
+        ev = _get_card_event();
+        if (ev != 0) {
+            _mc_rd_retry = _mc_rd_retry + 1;
+            if (_mc_rd_retry < 4) { st[0] = 10; return 0; }
+        }
+        mc.rslt = MemCardEventToRslt(ev);
+        return 1;
+    default:
+        return 0;
     }
-    do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
-    _clr_card_event();
-    do { r = read(mc.fd, mc.adrs, mc.len); } while (r != 0);
-    st[0] = 0x1e;
-    return 0;
 }
 
 /* @0x800FB30C : MemCardWriteData transfer step. */
@@ -364,29 +405,33 @@ static int MemCardWriteData_cb(void *pv)
     int state = st[0];
 
 
-    if (state == 10) {
+    /* MATCH (w51-a2): real `switch` -- but note the ASYMMETRY vs the ReadData twin, read off
+     * the oracle: here case 0 does NOT fall through (its block ends `j` to the shared return-0)
+     * and the SOURCE case order is 0, 0x1e, 10 (that is the order the bodies are emitted in).
+     * 87 -> 9 diffs, count 78/79. */
+    switch (state) {
+    case 0:
+        _mc_wr_retry = 0;
+        st[0] = 10;
+        return 0;
+    case 0x1e:
+        if (_chk_card_event() == 0) return 0;
+        ev = _get_card_event();
+        if (ev != 0) {
+            _mc_wr_retry = _mc_wr_retry + 1;
+            if (_mc_wr_retry < 4) { st[0] = 10; return 0; }
+        }
+        mc.rslt = MemCardEventToRslt(ev);
+        return 1;
+    case 10:
         do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
         _clr_card_event();
         do { r = write(mc.fd, mc.adrs, mc.len); } while (r != 0);
         st[0] = 0x1e;
         return 0;
-    }
-    if (state < 0xb) {
-        if (state == 0) {
-            _mc_wr_retry = 0;
-            st[0] = 10;
-        }
+    default:
         return 0;
     }
-    if (state != 0x1e) return 0;
-    if (_chk_card_event() == 0) return 0;
-    ev = _get_card_event();
-    if (ev != 0) {
-        _mc_wr_retry = _mc_wr_retry + 1;
-        if (_mc_wr_retry < 4) { st[0] = 10; return 0; }
-    }
-    mc.rslt = MemCardEventToRslt(ev);
-    return 1;
 }
 
 /* @0x800FB560 : MemCardReadFile step (exist -> open -> read -> close). */
@@ -395,28 +440,42 @@ static int MemCardReadFile_cb(void *pv)
     int *st = (int *)pv;
     int state = st[0];
 
-    if (state == 10) {
+    /* MATCH (w51-a2): the state dispatch is a REAL `switch`, not an if/else-if cascade -- the
+     * oracle carries gcc's balance_case_nodes fingerprint (`beq $v1,$s0(=10)` median pivot with
+     * the `slti $v0,$v1,0xB` bound test in its DELAY SLOT, case bodies emitted out-of-line in
+     * SOURCE order, unconditional `j default`).  Two facts read straight off the block layout:
+     *   (1) case order in the source is 0, 10, 0xb, 0x14 (the oracle emits the bodies in that
+     *       order after the dispatch);
+     *   (2) case 10 FALLS THROUGH into case 0xb -- retail's shared "issue the data phase" tail
+     *       sits immediately after the case-10 body, before the case-0x14 body, which only a
+     *       fallthrough (not a `break` to code after the switch) reproduces.
+     * 46 -> 22 (switch) -> 12 diffs, count EXACT 66/66.  Same lever on the WriteFile/ReadData/
+     * WriteData twins: 46->12, 61->15, 87->9.  RESIDUAL 12: the `beqz` bound-test delay slot
+     * (oracle fills it with the next `li v0,11`, ours nops) and the case-10 arm's field stores,
+     * where the oracle anchors $s0 at &mc.rslt and reaches fd by displacement (`sw v0,12(s0)`)
+     * plus rslt via a rematerialized `addiu v1,s0,-4` &mc.cmd base. */
+    switch (state) {
+    case 0:
+        _mc_rf_retry = 0;
+        UserFuncOpen((int)MemCardExist_cb);
+        st[0] = 10;
+        return 0;
+    case 10:
         if (mc.rslt != 0) return 1;                /* card not present -> abort */
         mc.fd = open(mc.devname, 0x8001);
         if (mc.fd < 0) { mc.rslt = 5; return 1; } /* open failed */
-    } else {
-        if (state < 0xb) {
-            if (state != 0) return 0;
-            _mc_rf_retry = 0;
-            UserFuncOpen((int)MemCardExist_cb);
-            st[0] = 10;
-            return 0;
-        }
-        if (state != 0xb) {
-            if (state != 0x14) return 0;
-            close(mc.fd);
-            mc.fd = -1;
-            return 1;
-        }
+        /* FALLTHROUGH */
+    case 0xb:
+        st[0] = 0x14;
+        UserFuncOpen((int)MemCardReadData_cb);
+        return 0;
+    case 0x14:
+        close(mc.fd);
+        mc.fd = -1;
+        return 1;
+    default:
+        return 0;
     }
-    st[0] = 0x14;
-    UserFuncOpen((int)MemCardReadData_cb);
-    return 0;
 }
 
 /* @0x800FB780 : MemCardWriteFile step (exist -> open -> write -> close). */
@@ -425,28 +484,30 @@ static int MemCardWriteFile_cb(void *pv)
     int *st = (int *)pv;
     int state = st[0];
 
-    if (state == 10) {
+    /* MATCH (w51-a2): real `switch` + case-10-falls-into-case-0xb, same as the ReadFile twin
+     * (balance_case_nodes fingerprint in the oracle).  46 -> 12 diffs, count exact 66/66. */
+    switch (state) {
+    case 0:
+        _mc_wf_retry = 0;
+        UserFuncOpen((int)MemCardExist_cb);
+        st[0] = 10;
+        return 0;
+    case 10:
         if (mc.rslt != 0) return 1;
         mc.fd = open(mc.devname, 0x8001);
         if (mc.fd < 0) { mc.rslt = 5; return 1; }
-    } else {
-        if (state < 0xb) {
-            if (state != 0) return 0;
-            _mc_wf_retry = 0;
-            UserFuncOpen((int)MemCardExist_cb);
-            st[0] = 10;
-            return 0;
-        }
-        if (state != 0xb) {
-            if (state != 0x14) return 0;
-            close(mc.fd);
-            mc.fd = -1;
-            return 1;
-        }
+        /* FALLTHROUGH */
+    case 0xb:
+        st[0] = 0x14;
+        UserFuncOpen((int)MemCardWriteData_cb);
+        return 0;
+    case 0x14:
+        close(mc.fd);
+        mc.fd = -1;
+        return 1;
+    default:
+        return 0;
     }
-    st[0] = 0x14;
-    UserFuncOpen((int)MemCardWriteData_cb);
-    return 0;
 }
 
 /* @0x800FC170 : VSync pump -- step the queued FSM; on drain, latch result + fire user callback. */
@@ -483,7 +544,7 @@ extern void MemCardInit(int val)
      * volatile-qualified pointer) re-introduced an extra ADDIU the oracle's plain `sw $zero,...`
      * idiom doesn't need (a bare zero-store needs no completed pointer value, just lui+sw) --
      * net-negative. Left as the natural/cheapest form; same instruction count as the oracle. */
-    mc.present  = 0;
+    _mc_present  = 0;
     mc.callback = 0;
     _card_open(val);
 }
@@ -500,7 +561,7 @@ extern void MemCardStart(void)
     int * base;
     UserFuncInit();
     base = &mc.cmd;
-    __asm__ __volatile__("" : "+r"(base));
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     base[0] = 0;    /* cmd  */
     base[1] = 0;    /* rslt */
     base[2] = 0;    /* done */
@@ -542,7 +603,7 @@ extern void MemCardStop(void)
 extern long MemCardExist(long chan)
 {
     int *base = &mc.cmd;
-    __asm__ __volatile__("" : "+r"(base));
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     if (base[0] > 0) {
         printf("Access Denied. : event multiple open\n");
         return 0;
@@ -560,7 +621,7 @@ extern long MemCardExist(long chan)
 extern long MemCardAccept(long chan)
 {
     int *base = &mc.cmd;
-    __asm__ __volatile__("" : "+r"(base));
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     if (base[0] > 0) {
         printf("Access Denied. : event multiple open\n");
         return 0;
@@ -581,7 +642,7 @@ extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
      * fd sits in the middle of the field cluster this fn touches. */
     const char *fmt;
     int *pfd = &mc.fd;
-    __asm__ __volatile__("" : "+r"(pfd));
+    __asm__ __volatile__("" : "=r"(pfd) : "0"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
     } else if (0 < pfd[-4]) {                          /* cmd */
@@ -611,7 +672,7 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
     /* MATCH shape: see MemCardReadData above (same anchor-on-&_mc_fd pattern). */
     const char *fmt;
     int *pfd = &mc.fd;
-    __asm__ __volatile__("" : "+r"(pfd));
+    __asm__ __volatile__("" : "=r"(pfd) : "0"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
     } else if (0 < pfd[-4]) {                          /* cmd */
@@ -716,7 +777,7 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     idx     = 0;
     stored  = 0;
     fretry  = 0;
-    mc.present |= 1 << (mc.chan);
+    _mc_present |= 1 << (mc.chan);
 
     if (ofs + max > 0) {
         do {
@@ -774,7 +835,7 @@ extern int MemCardCallback(int func)
     int prev;
     typedef int (*CbT)(int, int);
     CbT *p = &mc.callback;
-    __asm__ __volatile__("" : "+r"(p));
+    __asm__ __volatile__("" : "=r"(p) : "0"(p));
     prev = (int)p[0];
     p[0] = (CbT)func;
     return prev;
@@ -788,7 +849,7 @@ extern long MemCardSync(long mode, int *cmds, int *result)
     /* MATCH: anchor = &_mc_cmd; cmd/rslt/done all reached by offset from it, and sync_cmd/
      * sync_rslt (0x560/0x564, cmd+0x48/+0x4C) likewise -- one shared base for the whole fn. */
     int *base = &mc.cmd;
-    __asm__ __volatile__("" : "+r"(base));
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     if (base[0] == 0 && base[2] == 0)
         return -1;                          /* nothing in flight */
 
@@ -834,7 +895,7 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
-    mc.present |= 1 << (mc.chan);
+    _mc_present |= 1 << (mc.chan);
 
     fd = open(devname, 1);                       /* probe: does it already exist? */
     if (fd >= 0) {
@@ -892,7 +953,7 @@ extern long MemCardDeleteFile(long chan, char *file)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
-    mc.present |= 1 << (mc.chan);
+    _mc_present |= 1 << (mc.chan);
 
     while (1) {
         if (erase(devname) != 0)
@@ -930,14 +991,14 @@ extern long MemCardFormat(long chan)
     char devname[64];
     int  ev;
     int *base = &mc.cmd;
-    __asm__ __volatile__("" : "+r"(base));
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
 
     if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
 
-    mc.present |= 1 << (base[3]);      /* chan = cmd+0xC */
+    _mc_present |= 1 << (base[3]);      /* chan = cmd+0xC */
     MemCardMakeDevname(chan, devname);
     _clr_card_event();
     format(devname);

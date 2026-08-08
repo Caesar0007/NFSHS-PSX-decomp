@@ -308,7 +308,9 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True,   # FntPrint
                                              "no_split_addresses": True},  # w48-a2: -34
-    "recon/syslib/psx/libmcrd/LIBMCRD.c": {"jtbl_at_fusion": True},  # MemCardCmd_cb
+    # w51-a2: libmcrd cluster = cc1_272 lane (04M law). jtbl_at_fusion is inert in
+    # this lane (no maspsx); kept out. LIBMCRD 2->8 PASS under the lane.
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True,   # PadInfoAct
                                              "no_split_addresses": True},  # w48-a4 3x: PadInfoAct->PASS
     "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True,   # R3DCar_InsertCarFacet
@@ -345,8 +347,11 @@ PER_TU_FLAGS = {
     # commit (see its /* MATCH: */ receipt).
     "recon/syslib/psx/libgpu/SYS.c":        {"cc1_272": True},
     "recon/syslib/psx/libpad/PADMAIN.c":    {"no_split_addresses": True},  # -51, _padSetVsyncParam basin (a9)
-    "recon/syslib/psx/libmcrd/BIOS.c":      {"no_split_addresses": True},  # 39->~20 (a1)
-    "recon/syslib/psx/libmcrd/USERFUNC.c":  {"no_split_addresses": True},  # 59->14, UserFuncExecute ce (a1)
+    # w51-a2: BIOS.c 13->17/17 PASS -- WHOLE OBJECT byte-matches under cc1_272.
+    "recon/syslib/psx/libmcrd/BIOS.c":      {"cc1_272": True},
+    # w51-a2: USERFUNC.c 1->4/4 PASS under cc1_272 with ZERO source change (the
+    # w48 "needs maspsx ASPSX fill" note on UserFuncInit = wrong-compiler artifact).
+    "recon/syslib/psx/libmcrd/USERFUNC.c":  {"cc1_272": True},
     "recon/syslib/psx/libetc/INTR.c":       {"no_split_addresses": True},  # _initIntr+_intrhand count-exact (a7)
     "recon/syslib/psx/libcd/iso9660.c":     {"no_split_addresses": True},  # -17 (a6)
     # 04M -- the gcc-2.7.2 lane (see "cc1_272" key above).  FERR/_err_math and

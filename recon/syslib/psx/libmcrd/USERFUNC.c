@@ -1,7 +1,17 @@
 /* syslib/psx/libmcrd/USERFUNC.c -- RECONSTRUCTED from nfs4-f.exe (Ghidra).
  *   obj libmcrd.lib(USERFUNC.OBJ): a tiny 4-deep stack of pending user callbacks that the card
  *   state machine pumps -- UserFuncOpen pushes a step, UserFuncExecute runs the top one and pops
- *   it when it reports completion (non-zero), each step carrying a 4-word argument scratch block. */
+ *   it when it reports completion (non-zero), each step carrying a 4-word argument scratch block.
+ *
+ * TOOLCHAIN IDENTITY (w51-a2, 2026-08-09): this object is a **gcc-2.7.2** module --
+ *   PER_TU_FLAGS "cc1_272": True (PsyQ 4.0 CC1PSX + direct GNU as in reorder mode, -G0),
+ *   per the 04M law.  Whole-TU verify_asm A/B, SOURCE UNCHANGED:
+ *       2.8  lane : 1/4 PASS (UserFuncInit 3, UserFuncOpen 7, UserFuncExecute 4)
+ *       2.7.2 lane: 4/4 PASS  <-- the whole object byte-matches
+ *   This retires the w48 note (build.py, libmcrd block) that UserFuncInit's 3-diff residual
+ *   needed maspsx-side ASPSX-style slot filling: it was a WRONG-COMPILER artifact, not an
+ *   assembler-fill class.  Likewise the `.data` section-attribute on _uf_top is only needed
+ *   in the -G4 2.8 lane (the 2.7.2 lane is -G0, so nothing is gp-eligible anyway). */
 
 extern int printf(const char *fmt, ...);   /* libc C63 */
 

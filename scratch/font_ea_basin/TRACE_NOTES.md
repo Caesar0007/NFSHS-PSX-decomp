@@ -290,3 +290,42 @@ basin 130→96; the weave is source-order-INVARIANT; gate stays 28.
    statement); ours emits it in the ch-block — probe separating the lb.
 STATUS: shipping = V21 (28) verified intact. Best-of-round banked:
 mine/v39.cpp + psxfront_v39.{i,s} + trace_v39.txt.
+
+================================================================================
+ROUND 10 (2026-08-08) — sched1-vs-sched2 conflation corrected; mutation-tail
+combos gated; 🏆 the A1-HARD-REG-LIFETIME law found. Gate stays 28.
+================================================================================
+0) CORRECTION to rounds 8-9 reasoning: the emission being matched is
+   POST-SCHED2 (after RA; frame present); -dS = sched1 (pre-RA). V39's
+   post-sched1 RTL confirms our sched1 already packs dv early PRE-RA.
+   Crucially V21's post-sched1 layout yields BOTH the 16/16 retail RA AND
+   retail-matching dv-chain emission -> the SLD-order rotations of rounds 8-9
+   were over-rotated; the search moved back to the V21 head.
+1) NEW COMBO GATES (all count-78 = frame lost): V44 (V21 head + tint-late +
+   mutation tail) 130 · V45 (V21 + mutation tail only, tint-early) 118 ·
+   V46 (V45 + split dv-=1) 128.  THE MUTATION TAIL KILLS THE FRAME IN EVERY
+   BASIN: absorbing the anonymous y+height/x+width/dv+height temps into
+   height/width/dv changes the graph, sched hoists the y1-subu to pos 15
+   (V21: 24, retail: 20) and the fill rotates.
+2) 🏆 NEW LAW — A1-HARD-REG-LIFETIME steers the pal-cell landing: the hard
+   $a1 (y param) stays live until the y1-subu READS it; find_free_reg's scan
+   visits a1(5) BEFORE t2(10), so pal-cell [40,68) lands on a1 whenever the
+   y1-subu emits early (a1 dead -> hole), t2 only when the subu emits late
+   enough to block a1 across pal's window (V21 subu@24 luid48 ✓, V45 subu@15
+   luid30 ✗ -> pal→a1 -> yoff→t2 -> m2→t4 -> width→t5 -> v→t7 -> NO FRAME).
+   Same scan-hole family as round-8's dv→v1; the hard-reg lifetimes are part
+   of the fill inputs, steered by SCHED1 emission of the param-consuming insns.
+3) SOLVER BOUNDARIES banked (qtytrace --want on V45, full retail map):
+   dv beats prim with +1 ref (0.7826>0.7647) · pal beats yoff for t2 with
+   +1 ref · width takes t7 iff m2 blocks t5 first · v→s0 iff t7 blocked.
+   All deltas small; each fix rotates the next (N-body) — gate-only probing
+   is exhausted as a method for this fn.
+4) ROUND-11 ROUTE (the instruments-only path): (a) build the
+   rank_for_schedule DECISION TRACE into the lab cc1plus (apply_traces.py +
+   build_cc1.sh, ~6min) — per-pick winner/loser/rule readout for BOTH sched1
+   and sched2; (b) drive a directed source search with per-probe LAB feedback
+   (fills + weave + a1-lifetime), success = V21's 16/16 fill PLUS the
+   retail cluster order; the solver boundaries above are the acceptance
+   tests per probe. (c) fallback = accept 28 (park with Draw-20ce).
+STATUS: shipping = V21 (28) restored + verified. New traces: trace_v45.txt
+(+ v44/v46 gates), mine/psxfront_v45.{i,s}.

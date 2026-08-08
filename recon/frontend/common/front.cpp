@@ -993,6 +993,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     BOOL usePlayerUpgrades;
     tTourneyInfo *tourn;
 
+    usePlayerUpgrades = 0;
     if (frontEnd.raceType == '\x02') {
       opponentClass = (tCarClassType)tournamentManager.fDefinition->fTournaments
               [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
@@ -1001,17 +1002,16 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     else {
       opponentClass = cct_OpenClass;
     }
-    if (opponentClass != cct_OpenClass) {
-      usePlayerUpgrades = 0;
-      tourn = &tournamentManager.fDefinition->fTournaments
-              [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-               tournamentManager.fTournament];
-    }
-    else {
+    if (opponentClass == cct_OpenClass) {
       usePlayerUpgrades = 1;
       tourn = &tournamentManager.fDefinition->fTournaments
               [(uint)tournamentManager.fDefinition->fTiers[2].fTournOffset +
                (uint)(byte)streamData->playerCars[0].fCarID];
+    }
+    else {
+      tourn = &tournamentManager.fDefinition->fTournaments
+              [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+               tournamentManager.fTournament];
     }
     numOpponents = 5;
     if (frontEnd.raceType == '\x02') {
@@ -1054,9 +1054,10 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     if (frontEnd.raceType == '\x02') {
       UpdateCarLineup(&tournamentManager);
       streamData->numOpponents = (short)tournamentManager.fNumRacers + -1;
+      carLineup = tournamentManager.fCarLineup;
       for (i = 0; i < numOpponents + 1; i = i + 1) {
-        streamData->carLineup[i].personality = tournamentManager.fCarLineup[i].personality;
-        streamData->carLineup[i].position = tournamentManager.fCarLineup[i].position;
+        streamData->carLineup[i].personality = carLineup[i].personality;
+        streamData->carLineup[i].position = carLineup[i].position;
       }
     }
     else {
@@ -1086,24 +1087,20 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
         FindSimilarCar(&carManager, &carModel,&carColor,3,modelList);
       }
     }
-    numOpponents = streamData->numOpponents;
-    byte uVar6 = streamData->playerCars[0].fUpgrades;
+    streamData->numOpponents = streamData->numOpponents + 1;
     carLineup[1].isPlayerCar = 0;
     carLineup[1].personality = kPersonalityNemesis;
-    streamData->numOpponents = numOpponents + 1;
-    numOpponents = streamData->numOpponents;
-    carLineup[1].position = '\x01';
-    carLineup[1].carUpgrades = uVar6;
     carLineup[1].carModel = carModel;
     carLineup[1].carColor = carColor;
-    carLineup[0].position = (char)numOpponents + '\x01';
+    carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;
+    carLineup[1].position = '\x01';
+    carLineup[0].position = (char)streamData->numOpponents + '\x01';
     AddCarToIngameList(&carManager, &carModel,&carColor);
     streamData->totalCars = streamData->totalCars + 2;
   }
   else {
-    carLineup = streamData->carLineup;
-    carLineup[0].position = '\x01';
-    carLineup[1].position = '\x02';
+    streamData->carLineup[0].position = '\x01';
+    streamData->carLineup[1].position = '\x02';
   }
   return;
 }

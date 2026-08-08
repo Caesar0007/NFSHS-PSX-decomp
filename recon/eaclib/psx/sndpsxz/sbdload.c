@@ -12,7 +12,28 @@ extern int iSNDresolvetaggedpatch(int bank, int patch_idx, int scratch);   /* st
 extern int iSNDdownloadbank(int bankData, int patchData);   /* @0x8010266C */
 
 /* iSNDdownloadbank @0x8010266C : rebase + resolve all patches of the bank at `bankData`.  Returns 7 (all
- *   ok) or 8 (a patch failed). */
+ *   ok) or 8 (a patch failed).
+ *
+ * *** W50-A7 (2026-08-09): 14 -> PASS 84/84.  Four levers, in the order they landed; every one of
+ *     them was previously filed FALSIFIED, which is the whole lesson (falsifications are
+ *     BASIN-RELATIVE -- re-test after every landing):
+ *   (1) WALKER + DEPTH-WRAPPER REF DIAL (14 -> 9).  The explicit descending `int *p` walker for the
+ *       scratch-clear loop was rejected over three waves at 31 diffs because `i` loses its index
+ *       reference and the callee-saved frame re-colors.  Restoring the ref count with a zero-insn
+ *       `do { i--; } while (0)` depth wrapper (loop.c strips the phony loop, flow.c still weights
+ *       the refs inside it) keeps the walker's correct SHAPE *and* the indexed form's ref count.
+ *       IMPORTANT CONSEQUENCE: this TU carries `no_strength_reduce` in PER_TU_FLAGS (the patch
+ *       loop's identity, w33-a6).  The note below records that the CLEAR loop paid for that flag
+ *       (+1 insn, indexed sll/addu instead of retail's -8 walker) and calls the conflict a genuine
+ *       per-object identity.  The walker+wrapper form removes the clear loop's DEPENDENCE on
+ *       strength reduction altogether, so the flag now costs nothing -- the 'wants SR ON here and
+ *       OFF there' tension is dissolved from the SOURCE side, with the flag left exactly as wired.
+ *   (2) NAMED `-1` CONSTANT ASSIGNED FIRST, then `i`, then the walker base (9 -> 5): retail's
+ *       prologue materializes them in the order `li $s6,7 / li $v1,-1 / li $s0,255 / addiu $v0,sp`.
+ *   (3) VOID-TAIL FENCE between the anchor copy and the entry guard (5 -> 3) -- see the site.
+ *   (4) `i++` moved to the END of the increment run (3 -> PASS) -- see the site.
+ *   The residual notes below are kept for their measurement history but their CONCLUSIONS are now
+ *   superseded: the function matches under the tree's normal flags. */
 extern int iSNDdownloadbank(int bankData, int patchData)
 {
     /* SHAPE (from the IDA per-variable register annotations of sub_8010266C, w32):
@@ -33,18 +54,40 @@ extern int iSNDdownloadbank(int bankData, int patchData)
      * and mis-colors four callee-saved registers; measured 46 diffs vs 42 here.) */
     int scratch[512];
     int i;
+    int *p;
+    int neg;
     int ret = 7;
     int anchor, type4, off2, off4;
     int cur2, cur4;
     int off, abs;
 
+    /* MATCH (w50-a7): WALKER + DEPTH-WRAPPER REF DIAL, 14 -> 9.  Retail's clear loop is a
+     * strength-reduced descending walker (`sw $v1,0($v0); addiu $v0,$v0,-8` with the -1 and the
+     * initial cursor hoisted to the prologue); the indexed `scratch[i*2]` form never gets the giv
+     * and pays a per-iteration `sll`+`addu` (+1 insn).  An explicit walker fixes the SHAPE but was
+     * filed over three waves as strictly worse (31 diffs) because `i` loses its index reference:
+     * its REG_N_REFS drops below the cursors' and the whole callee-saved frame re-colors
+     * (i -> $s2, cur2 -> $s0).  The cure is the zero-insn ref inflator: wrap the decrement in a
+     * `do { } while (0)` depth wrapper -- loop.c strips the phony loop, but flow.c weights the refs
+     * inside it by loop depth, restoring `i`'s count without emitting anything.  Wrapping the whole
+     * body works identically (9); wrapping only the STORE does not (that was the w47 probe). */
+    neg = -1;
     i = 0xff;
+    p = &scratch[0x1fe];
     do {
-        scratch[i * 2] = -1;
-        i--;
+        *p = neg;
+        p -= 2;
+        do { i--; } while (0);
     } while (i >= 0);
 
     anchor = bankData;
+    /* MATCH (w50-a7): VOID-TAIL FENCE `__asm__("" : : "i"(0))` (w48-a1's zero-operand form) between
+     * the anchor copy and the guard.  Retail issues `addu $fp,$s4,$zero` BEFORE `lhu $v0,6($s4)`;
+     * sched1 sinks ours into the `beqz` delay slot (which retail fills with `addu $s0,$zero,$zero`).
+     * The fence is a pure position barrier -- an operand-carrying `"r"(anchor)`/`"r"(bankData)` fence
+     * is much WORSE here (23/27) because it also lengthens a live range; the operand-less form and an
+     * opacity fence on `anchor` both land 5 -> 3. */
+    __asm__("" : : "i"(0));
     if (*(unsigned short *)(bankData + 6) != 0) {
         i = 0;
         type4 = 4;
@@ -71,8 +114,14 @@ extern int iSNDdownloadbank(int bankData, int patchData)
             off2 += 4;
             cur2 += 4;
             off4 += 4;
-            i++;
+            /* MATCH (w50-a7): `i++` LAST.  With the counter bumped before `cur4`, the bound reload
+             * `lhu $v0,6($s4)` lands AFTER the increment and eats a load-delay `nop`; retail issues
+             * the reload first and fills its delay slot with `addiu $s0,$s0,1`, then puts
+             * `addiu $s1,$s1,4` (cur4) in the branch slot.  Moving the counter to the end of the
+             * increment run reproduces both slots exactly.  3 -> PASS 84/84.  A named bound temp, a
+             * void fence before the increment, and a void fence after it all measure 3. */
             cur4 += 4;
+            i++;
         } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
     }
     /* RESIDUAL 42 diffs, 84/84 insns.  All nine callee-saved assignments now match the oracle;

@@ -782,6 +782,20 @@ extern void iSPCH_RandomizeSentencePicks(int sentence)
  *   named (int, char pointer, row, deref, idx, reversed) bases, split decls, idx-first.  Flag axis CLOSED for
  *   this fn: -fno-schedule-insns (24), -fno-schedule-insns2 (10), both (28), -mno-split-addresses
  *   (15/43 insns), -G0, -G8, -fno-strength-reduce all >= the 8-probe baseline.
+ * w49-a9 MATCH (4 -> PASS 44/44) -- w47-a2's OWN NUMBER, paid with the w47-a1/a4/a5 OPACITY FENCE.
+ *   a2 quantified the tie exactly right and only lacked the dial: with the `la` emitted FIRST (every
+ *   NAMED-base spelling) the base qty cannot win $v0 at 4 refs -- "it needs PRI > 2.0, i.e. >= 8 refs".
+ *   `__asm__("" : "=r"(x) : "0"(x))` is a ZERO-INSTRUCTION value-numbering barrier that costs exactly
+ *   +2 REG_N_REFS (one def + one use, output tied to input so nothing is emitted), so it is the dial
+ *   a2 asked for.  Measured (cc1 -dl on the landed form, tools/rtl_dump_c.py): base lo_sum r89 =
+ *   8 refs / 7 insns in block 0 => QTY_CMP_PRI floor_log2(8)*8/7 = 3.43, mult chain r93/r94/r95 =
+ *   2 refs / 2 insns each (combine_regs sums: 6 refs / ~6) = 2.00 -> base takes $v0, mult $v1, and the
+ *   named base keeps the `la` ahead of the sll/addu/sll chain = retail exactly.
+ *   BASIN (all measured this pass, same named-base form): 0 fences 12, 1 fence 12, 2 fences 12,
+ *   3 fences PASS, 4 fences PASS -- i.e. the step is between 6 and 8 refs, exactly as predicted.
+ *   NOT USED (works, but this worker is barred from do/while devices): a nested `do{}while(0)` depth
+ *   wrapper on the base def also PASSes (depth 1 alone = 12, depth 2 = PASS) -- the w44 ref-step dial.
+ *   The 15 spellings + the flag axis a2 falsified are NOT re-enumerated; none of them touched refs.
  * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
  * at the epilogue: $v0 = the "ran out" flag). */
 extern int iSPCH_IterateChoice(int sentence)
@@ -789,7 +803,14 @@ extern int iSPCH_IterateChoice(int sentence)
     int exhausted = 0;
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
     int count, pbase, limit, loopDone, cur;
-    short *choice = ((short (*)[6])ispch_gChoice)[n];
+    /* MATCH: named base => the `la` is emitted before the n*6 chain; the three zero-insn opacity
+     * fences lift its qty to 8 refs so it wins $v0.  Do NOT "simplify" them away (see note above). */
+    int chBase = (int)ispch_gChoice;
+    short *choice;
+    __asm__("" : "=r"(chBase) : "0"(chBase));
+    __asm__("" : "=r"(chBase) : "0"(chBase));
+    __asm__("" : "=r"(chBase) : "0"(chBase));
+    choice = (short *)(n * 12 + chBase);
     count = choice[2];
     pbase = choice[3];
     limit = pbase + count;
@@ -980,7 +1001,24 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                          * also breaks the function's ENTRY gate, which retail loads
                          * with the SCALAR self-temp `lui v0; lw v0,0(v0)`), and an
                          * `extern ... gSentenceRuleSet_v[] asm("gSentenceRuleSet")`
-                         * array VIEW used only at the call site (18 diffs). */
+                         * array VIEW used only at the call site (18 diffs).
+                         * w49-a9 (still 10; the FENCE family does NOT reach it -- 8 more forms
+                         * falsified, all measured):  a named callee local `SentenceRuleSetFn f =
+                         * gSentenceRuleSet; f(...)` is diff-NEUTRAL (10) -- it does not move the
+                         * `lui`.  A w45 USE fence on that local (`__asm__("" : : "r"(f))`) and 1/2/3
+                         * w47 OPACITY fences on it all cost 30: the fence turns `f` into a
+                         * cross-block allocno and rotates the two loop counters s0<->s1, which is
+                         * strictly worse than the 2-register residual.  A named cycle-byte pointer
+                         * `unsigned char *cyc = (unsigned char *)tmp + 0xc;` with 1 opacity fence =
+                         * 11 at 84 insns (it splits `addu v0,sp,s1` into `addiu v0,sp,28; addu
+                         * v0,v0,s1`), with 2 = 25.  MECHANISM RESTATED so the next pass attacks the
+                         * right number: this is a LOCAL-ALLOC qty question, not a scheduling one --
+                         * the `lui` is a register BIRTH (sched1 LAUNCH_PRIORITY pins it directly
+                         * above its `lw`), so it can only float up in sched2, and it cannot because
+                         * the tmp-byte address temp still owns $v0 until the `lbu` (anti-dep).
+                         * Retail has THREE live qtys there (high $v0 / addr $v1 / one $a3); we have
+                         * two plus a reuse.  The reachable target is therefore "get the addr temp
+                         * OFF $v0" (QTY_CMP_PRI on the block-0 qtys), NOT "move the lui". */
                         if (r != 0)
                             gSentenceRuleSet(
                                 (int)(unsigned int)*(unsigned short *)sentence, (int)rid,

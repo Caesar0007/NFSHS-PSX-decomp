@@ -79,7 +79,16 @@ void PAD_update(void);
  * start` block with fsize=24, mask=$80010000 (ra+s0), maskoffs=-4 and NO
  * locals and NO REGPARM records -- so the `void padinit(void)` signature,
  * the return type and the arity are all confirmed correct, and the 3
- * residual diffs are exclusively the epilogue delay-slot fill. */
+ * residual diffs are exclusively the epilogue delay-slot fill.
+ * w49-a9 CLASSIFIED (re-gated 3, ours 27 / oracle 28): this one IS the pure w48
+ * EPILOGUE-SWAP class -- retail's return slot is EMPTY (`lw ra; lw s0; addiu sp;
+ * jr ra; nop`) and ours steals `addiu sp` into it (`lw ra; lw s0; jr ra; addiu
+ * sp`); un-filling the return slot adds exactly the missing 28th insn and fixes
+ * all three diffs.  The mechanism is build.py's PER_FN_EPILOGUE_UNFILL table
+ * (per-fn, textual, still 100% real cc1 output) -- NOT the -fno-delayed-branch
+ * splice, which this TU's note above already measures as a net loss here.
+ * This worker was barred from editing build.py; wiring `padinit` (and
+ * PAD_update) into PER_FN_EPILOGUE_UNFILL is the outstanding action. */
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
@@ -138,7 +147,19 @@ void PAD_restore(void)
  * $a0 home) and fsize=24 / mask=$80000000 (ra only) / maskoffs=-8 -- the
  * u_short return, the one int parameter and the leaf frame all match what
  * this reconstruction emits, so nothing about the declaration is left to
- * reopen; the 4 diffs are purely `addiu sp; jr ra; nop` vs `jr ra; addiu sp`. */
+ * reopen; the 4 diffs are purely `addiu sp; jr ra; nop` vs `jr ra; addiu sp`.
+ * w49-a9 CLASS CORRECTION (re-gated 4, 20/20): this is NOT the w48
+ * PER_FN_EPILOGUE_UNFILL class -- un-filling our return slot would emit
+ * `lw ra; nop; addiu sp; jr ra; nop` = 21 insns, one MORE than the oracle's 20.
+ * Retail has NO load-delay nop after `lw ra` because its `addiu sp` covers the
+ * hazard; that is the `#nop` PLACEHOLDER class (see spchinit.c SPCH_Init's note):
+ * mips.c emits the epilogue as TEXT after `.set reorder` with a `#nop` comment,
+ * maspsx resolves it by INSERTING a nop, a reorder-mode assembler resolves it by
+ * SCHEDULING the sp-adjust into the gap.  ⚠ that note's "ASPSX 2.77 schedules it"
+ * attribution is FALSIFIED by w47-a6/w48-a10's real-ASPSX differential (real
+ * ASPSX does NO delay-slot filling at all, any version); per w48-04K the shape
+ * IS reproduced by GNU as in `.set reorder` mode, so the owner is the pending
+ * maspsx "stop injecting .set noreorder" option, not ASPSX and not any source form. */
 u_short PAD_state(int padID)
 {
   uint buttons;
@@ -231,7 +252,22 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
         independent because retail's `btnOff` is a GIV whose preheader init is
         emitted after the $a0/$a2 giv inits, with no live 0 to reuse.
      3. (3) the epilogue-fill identity (`addiu sp; jr ra; nop`), same class as
-        padinit / PAD_state; the -fno-delayed-branch splice costs 10 more. */
+        padinit / PAD_state; the -fno-delayed-branch splice costs 10 more.
+   w49-a9 re-gate 9 (65/66) confirmed; three more source forms falsified for
+   items 1+2 (the biv-elimination lead), each measured:
+     - loop 1 as `for (i = 0; i < 2; i++)` with i*8 / i*32 / i*32+8 offsets (to
+       hand loop.c a biv it WOULD eliminate): 46 diffs, frame 40 -- `i` stays a
+       real biv in $s2 and buys a 4th callee-saved reg;
+     - explicit source walkers `pb`/`pb8` initialised before the `for` (to force
+       the two giv inits ahead of the counter init): 30 diffs at frame 40 with
+       pb8 declared first, 32 with pb first -- the walkers become their own
+       saved regs instead of loop.c givs;
+     - both loop rewrites together: 57.
+   Item 3 is the w48 EPILOGUE-SWAP class in its pure form (retail's return slot
+   is EMPTY, ours steals `addiu sp`) => the mechanism is build.py's
+   PER_FN_EPILOGUE_UNFILL table, not a source lever.  This worker is barred from
+   editing build.py; padinit and PAD_update are the two candidates here
+   (PAD_state is NOT -- see its own note). */
 void PAD_update(void)
 {
   int i;

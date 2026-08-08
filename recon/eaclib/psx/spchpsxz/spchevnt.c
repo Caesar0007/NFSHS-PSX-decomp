@@ -1,7 +1,8 @@
-/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 14/16 PASS ***
+/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 15/16 PASS ***
  *   Indexed queue walks now match SPCH_ClearEventQueue exactly and cut iSPCH_InitEventQueue from 42 to
  *   17 diffs; reconstructing gReparm as one-word callback storage made SPCH_ChooseSpeech PASS.
- *   Remaining FAILs are iSPCH_InitEventQueue(17), SPCH_AddEvent(18), and iSPCH_ChooseEvent(58).
+ *   w49-a9: iSPCH_InitEventQueue 12 -> PASS and SPCH_AddEvent 16 -> 3 (opacity/use fences, see notes).
+ *   The only remaining FAIL is SPCH_AddEvent(3 = one preheader reg-reg copy).
  *   Source obj : nfs4\eaclib\psx\spchevnt.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   16 fns @[0x800E6E88 .. 0x800E7684].  The speech EVENT QUEUE -- 16 slots (gVoxEvents, base 0x80148060,
  *   stride 0x3c) selected by priority/age/subtick; events are looked up in the bound gEventDats[] blobs.
@@ -260,10 +261,34 @@ extern void iSPCH_InitEventQueue(void)
      * (19 -f/-m options): only -fno-schedule-insns moves the count (29, but it trades the inner
      * bound test `slti`->`slt`); -fno-delayed-branch 32 insns, -fno-omit-frame-pointer 35, every
      * cse/loop/inline/defer-pop/function-cse/caller-saves/peephole switch is diff-neutral. */
+    /* MATCH (w49-a9, 12 -> PASS 29/29): the w47-a2 "delete_noop_moves / combine_regs tie" angle,
+     * landed with the w47-a1/a4/a5 OPACITY FENCE (`__asm__("" : "=r"(x) : "0"(x))` = a zero-insn
+     * value-numbering barrier).  Retail materializes the address ONCE and keeps TWO reg-reg copies
+     * (`lui $v1,%hi; addiu $v0,$v1,%lo; addu $a3,$v0; addu $a0,$a3; addiu $t0,$a0,0x3C0`).  The old
+     * two-view form (gVoxEvents + gVoxEventQueue) got every REGISTER right but materialized the
+     * address TWICE (the 12-diff prologue).  A plain single-symbol addr->base->slot chain loses the
+     * copies (combine_regs ties a copy whose SOURCE DIES, then flow deletes the noop move) -- which
+     * is what every w47-a2 probe measured.  The fences block exactly that tie at zero instructions:
+     *   fence(addr)  keeps `addu $a3,$v0,$zero` alive (addr would otherwise die into base),
+     *   fence(slot)  keeps `addu $a0,$a3,$zero` alive (slot is a pure copy of base at that point).
+     * With the chain single-symbol, `end = slot + 0x3c0` is now the RIGHT source (retail's
+     * `addiu $t0,$a0,0x3C0`): the w35-a4 note that `end` had to come from `base` was BASIN-RELATIVE
+     * (it was shedding slot's 16th weighted ref in the two-view form; with the fenced chain slot no
+     * longer needs the diet).  Falsified on the way, all at exact 29 or 30 insns: fence on `base`
+     * instead of `slot` (+1 insn, a third copy, 3), fence(addr) alone (2 -- `sw zero,4()` goes
+     * through $a0), fence(addr)+fence(slot) with `end = base + 0x3c0` (2 -- `addiu $t0,$a3`),
+     * hoisting the `base+4` store above `slot = base` (2), and the whole-chain fence variants
+     * without the `addr` step (30, register rotation: slot 19 refs -> $v1 ahead of off's 8/11). */
     int argBase = 0;
-    int base = (int)gVoxEvents;
-    int slot = (int)gVoxEventQueue;
-    int end  = base + 0x3c0;
+    int addr = (int)gVoxEvents;
+    int base;
+    int slot;
+    int end;
+    __asm__("" : "=r"(addr) : "0"(addr));
+    base = addr;
+    slot = base;
+    __asm__("" : "=r"(slot) : "0"(slot));
+    end  = slot + 0x3c0;
     gVoxEvents[0]   = 0;
     *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */
     do {
@@ -399,16 +424,51 @@ extern int SPCH_AddEvent(unsigned int *table)
                 int            base;
                 int            off;
                 unsigned int  *p;
+                int            baseTmp;
+                int            offTmp;
+                int            tailOff;
+                /* MATCH (w49-a9, 16 -> 3, insns 80 -> 81/82).  Three independent fixes, all from the
+                 * w45/w47 fence + expression-shape rows; the old note's "no source form found" was
+                 * BASIN-RELATIVE:
+                 *  (a) OFF's preheader copy (`sll $v0,..; addu $a1,$v0,$zero`) is recovered by the
+                 *      w47-a1/a4/a5 OPACITY FENCE on a distinct producer temp -- `offTmp` is a
+                 *      short-lived pseudo, the fence stops cse/make_regs_eqv making it canonical, so
+                 *      `off = offTmp` survives as a real copy instead of the `sll` writing $a1 direct.
+                 *  (b) the gLastSubTick READ is scheduled AFTER the gLastTick store in retail; our
+                 *      `sub = ...` sat before `j = 0` and got hoisted with its own %hi.  Moving the
+                 *      assignment below `gLastTick[0] = tick;` puts it in retail's slot (-5 diffs).
+                 *  (c) the TAIL `sh 1,8()` store: retail mutates the OFFSET register
+                 *      (`addu $v0,$v0,$v1`), ours mutated the base (`addu $v1,$v1,$v0`).  The w45
+                 *      EXPRESSION-vs-MUTATION sharpening applies -- a spelling change to the single
+                 *      expression is canonicalized away (verified again), but writing the add as an
+                 *      in-place mutation OF THE OFFSET temp reproduces it exactly (-6 diffs).
+                 * RESIDUAL 3 = BASE's preheader copy only (`lui $v0; addiu $v0,$v0,%lo; addu $t0,$v0`
+                 * vs our 2-insn `lui $v0; addiu $t0,$v0,%lo`): the split-address lo_sum is generated
+                 * straight into base's own pseudo.  The `__asm__("" : : "r"(baseTmp))` USE fence below
+                 * keeps baseTmp live past the copy (that is what pins the `lui` to $v0 and holds the
+                 * rest of the fn at 3) but cc1 still lowers the lo_sum into base.  Falsified this pass,
+                 * each measured: opacity fence on baseTmp (17 -- adds 2 refs, rotates base/tick $t0<->
+                 * $a3), opacity fence on `base` after the copy (17), opacity+use fence together (17),
+                 * no fence at all (5).  The base/tick rotation those forms cause IS dialable -- a
+                 * zero-insn `__asm__("" : : "r"(tick))` after the tick store takes 17 -> 5 (allocno
+                 * receipt: base 4 refs/22 = .3636 vs tick 4/23 = .3478, one tick ref flips it) -- but
+                 * the copy itself never appears.  Named angle for the next pass: force the lo_sum into
+                 * a pseudo distinct from `base` (a cse DOUBLE-EVALUATION of the address, w45 row),
+                 * not another spelling of the copy. */
                 if (tick == gLastTick[0])
                     gLastSubTick[0] = gLastSubTick[0] + 1;
                 else
                     gLastSubTick[0] = 0;
-                sub  = (short)gLastSubTick[0];
                 j    = 0;
-                base = (int)gVoxEvents;
+                baseTmp = (int)gVoxEvents;
+                base = baseTmp;
+                __asm__("" : : "r"(baseTmp));
                 p    = table;
-                off  = slot * 0x3c;
+                offTmp = slot * 0x3c;
+                __asm__("" : "=r"(offTmp) : "0"(offTmp));
+                off  = offTmp;
                 gLastTick[0] = tick;
+                sub  = (short)gLastSubTick[0];
                 *(int *)(off + base + 0x10)  = voxEvent;
                 *(int *)(off + base + 0xc)   = tick;
                 *(short *)(off + base + 0xa) = sub;
@@ -419,7 +479,9 @@ extern int SPCH_AddEvent(unsigned int *table)
                     j   = j + 1;
                 } while (j < 0xc);
                 gVoxEvents[0] = gVoxEvents[0] + 1;
-                *(short *)((unsigned char *)gVoxEvents + slot * 0x3c + 8) = 1;
+                tailOff = slot * 0x3c;
+                tailOff = tailOff + (int)gVoxEvents;   /* MATCH (c): mutate the OFFSET, not the base */
+                *(short *)(tailOff + 8) = 1;
             }
         }
     }

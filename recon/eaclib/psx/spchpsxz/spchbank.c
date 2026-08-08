@@ -74,7 +74,19 @@ extern void iSPCH_DisposeBanks(void)
  * the branch, so `sw $s1,0x14($sp)` is the last insn before it and dbr takes THAT for the
  * delay slot; ours materialises the address before the branch, so `sw $ra` is the nearest
  * fillable insn.  Any spelling that sinks the lui also shortens nb's live range and hands
- * it $s0.  Unchanged verdict: 4 diffs at exact 33/33 parity. */
+ * it $s0.  Unchanged verdict: 4 diffs at exact 33/33 parity.
+ * w49-a9: the w47 OPACITY FENCE was aimed straight at w34-a9's mechanism ("sink
+ * the lui WITHOUT shortening nb's live range") -- FALSIFIED, all measured:
+ *   - `int *nb;` at top + `nb = gNumBanks;` inside the `if` (the lui sinks, as
+ *     designed) + N zero-insn opacity fences on `nb` to buy back its allocno
+ *     priority: N=0 -> 16 (the known $s0<->$s1 flip), N=1..4 -> 17 at 34 insns
+ *     (the fence forces a real copy on a cross-block allocno, +1 insn);
+ *   - same sunk-lui form with the fences on `vb` instead (dial the RIVAL, w46
+ *     RAZOR-ON-THE-RIVAL): N=1..3 -> 7 diffs BUT 36 insns -- the fence splits
+ *     the `lui/lw` self-temp into `lui; addiu; lw` (+3).  Lower diff count,
+ *     LOST insn parity => rejected under the floor bar (count must stay exact).
+ * So the fence family reaches the flip but never at parity; the tie stays a
+ * dbr "two ready callee-saves competing for one slot". */
 extern int iSPCH_BankMemAlloc(int numBanks)
 {
     int *vb = gVoxBanks;

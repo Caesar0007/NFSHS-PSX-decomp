@@ -219,13 +219,29 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                 unsigned int packed;
                 unsigned int paramIdx;
                 unsigned int ruleType;
-                ruleByteStore = rd[0];
-                ruleByte = rd[0];
+                unsigned int byteTmp;
+                /* MATCH (w49-a9, 14 -> 2): the note above named the blocker exactly -- "the
+                 * producer's dest must be a distinct short-lived pseudo, which a single named
+                 * assignment can never give".  The w47-a1/a4/a5 OPACITY FENCE is that device:
+                 * `byteTmp` is the short-lived caller-saved temp, the zero-insn fence stops
+                 * cse/make_regs_eqv from making it canonical, so `ruleByte = byteTmp` survives as
+                 * retail's `addu $s3,$a0,$zero` copy instead of our second `lbu`.  With one load
+                 * the ruleType temp's $a0/$a1 knock-on disappears too. */
+                byteTmp = rd[0];
+                __asm__("" : "=r"(byteTmp) : "0"(byteTmp));
+                ruleByteStore = byteTmp;
+                ruleByte = byteTmp;
                 packed = *(volatile unsigned char *)(rd + 1);
                 paramStore = packed & 0xf;
                 paramIdx = packed & 0xf;
                 ruleType = (unsigned int)*(volatile unsigned char *)(rd + 1) >> 4;
-                ruleTypeStore = ruleType;
+                /* MATCH (w49-a9, 2 -> PASS): methodology 3.25-3c -- gcc's reorg REFUSES to slot-fill
+                 * a volatile MEM, so the volatile-qualified store could never reach retail's
+                 * `beqz` delay slot (`sw $a1,0x18($sp)` sits IN the slot).  Storing through a
+                 * NON-volatile cast keeps the slot addressable (the store still survives DSE) while
+                 * letting fill_simple_delay_slots take it.  Equivalent form measured: a block-local
+                 * `unsigned int *keep = (unsigned int *)&ruleTypeStore; *keep = ruleType;` (also PASS). */
+                *(unsigned int *)&ruleTypeStore = ruleType;
                 switch (ruleType) {
                 case 0:
                 case 3:
@@ -330,7 +346,18 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * 0x50(sp) separately and pseudo-121 stops parking in $a3) FALSIFIED both ways: volatile on arg4
  * 59, volatile on arg1 59 (each drops an insn to 111/112 but rotates the web).  Also this date:
  * the whole-TU PsyQ-4.0 cc1 probe (gcc 2.7.2.SN32.3.7) is decisively wrong here too -- 92 diffs
- * at 102/112 insns (10 SHORT) -- confirming the 2.8.0 identity for spchpsxz. */
+ * at 102/112 insns (10 SHORT) -- confirming the 2.8.0 identity for spchpsxz.
+ * w49-a9 re-gated at 40 (count-exact 112/112) and probed the two named leads with the OPACITY
+ * FENCE (the device that cracked iSPCH_RuleSet, iSPCH_InitEventQueue and iSPCH_IterateChoice this
+ * wave) -- BOTH FALSIFIED, the $t0-vs-$a3 reload core does not move:
+ *   - splitting the shared `*sentSlot` pseudo with an opacity fence on the ARG-4 value (the w34-a10
+ *     "stop pseudo 121 becoming an allocated pseudo" lead, cse-proof this time): 57 at 111/112;
+ *   - moving `hit = 0;` below the type dispatch (to kill the `addu $a2,$s3,$zero`-vs-retail's fresh
+ *     `addu $a2,$zero,$zero` cse copy): 67 at 113/112;  both together: 84.
+ * This is consistent with the w34-a10 mechanism being in reload1's `order_regs_for_reload`
+ * (hard_reg_n_uses tie-break), which no cse/value-numbering barrier can reach -- the fence family
+ * operates on pseudos, the tie is over HARD regs after allocation.  Next angle stays a3-side:
+ * make some OTHER pseudo prefer $a3 less, or give $t0 a nonzero hard_reg_n_uses. */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);

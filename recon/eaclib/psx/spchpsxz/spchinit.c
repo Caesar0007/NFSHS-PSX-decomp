@@ -145,7 +145,22 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  * maspsx-vs-aspsx reorder-mode difference on a gcc `#nop` placeholder, unreachable
  * from C and unreachable from any cc1 flag.  Generalisation worth a catalog row: a
  * lone trailing `nop` between the epilogue's `lw $ra` and `jr $ra` in an otherwise
- * byte-identical function is ALWAYS this, never a source shape. */
+ * byte-identical function is ALWAYS this, never a source shape.
+ * 🔴 w49-a9 ATTRIBUTION CORRECTION (the diagnosis stands, the CULPRIT does not):
+ * "ASPSX 2.77 resolves the `#nop` by SCHEDULING" is FALSIFIED -- w47-a6's emulator
+ * was overfit to retail bytes, and w48-a10/a5/a6/a8 ran the REAL assembler ladder
+ * (2.56/2.67/2.77/2.79, all byte-identical, 18-option sweep): real ASPSX does NO
+ * delay-slot filling and NO epilogue reschedule, ever.  Per w48-04K the retail
+ * shape IS reproduced by our own GNU as in `.set reorder` mode (a DIRECTIVE, gas's
+ * default), so the owner is the pending maspsx option to stop injecting `.set
+ * noreorder` -- an infra item, still unreachable from C and from any cc1 flag.
+ * Same class as pad.c's PAD_state (see its note); distinct from the w48
+ * PER_FN_EPILOGUE_UNFILL class (which applies when retail's return slot is EMPTY
+ * and ours is filled -- here BOTH fill `jr ra` with `addiu sp`).
+ * w49-a9 probes, both neutral: a zero-insn `__asm__("" : : "i"(0))` void-tail fence
+ * before the sentinel store (3, unchanged); the scalar-vs-unsized-array storage
+ * shape for gSPCH_Initialized could not be isolated (the symbol is read by two
+ * other fns in this TU, so the decl change is TU-wide, not per-site). */
 extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
     gSampleRequest[0]    = sampleRequestCb;

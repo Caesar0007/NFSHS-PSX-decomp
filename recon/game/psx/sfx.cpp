@@ -235,12 +235,39 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
          exactly the w44 "P_TAG two-setting REF dial ... the two siblings need OPPOSITE
          settings" row.  This retires the STRONG-FLOOR claim in the header comment (the
          cited PrimStop/SpotPrims family was itself cracked by this same lever in w44). */
+      /* MATCH (w50-A3): retail RE-READS the packet cursor into `prim` ($s0) HERE --
+         `lw s0,0(t0)` -- and then uses that ONE pointer for all three jobs (tag RMW,
+         cursor bump, addr24), exactly like this TU's Sfx_BuildRibbonFacet tail.  The
+         w41 note recorded the re-read as "38 -> 42, does not transfer here"; that was
+         the PRE-P_TAG basin.  In the w49 P_TAG basin the re-read gates the SAME 26 but
+         is STRUCTURALLY EXACT: side_by_side shows ZERO position diffs (the old form had
+         two: the `lui t0` pair and the tag load), i.e. every one of the 26 is now a pure
+         REGISTER name.  The `u_int *ot2` pointer local for the second OT access is
+         required with it (without it the site-2 address folds and costs +16).
+         RESIDUAL 26 = the four-constant rotation, now QUANTIFIED as a clean +1 SHIFT of
+         every constant along the numeric scan:
+             ours   cursor-addr $a3 . 0xffffff $a1 . palette $a0 . 0xff000000 $a2
+             retail cursor-addr $t0 . 0xffffff $a1 . palette $a2 . 0xff000000 $a3
+         plus the 2nd otz chain ours $v0 / retail $a0.  RELATIVE order is identical in
+         both -- retail simply has ONE MORE simultaneously-live pseudo in this block
+         (7 regs v0,v1,a0,a1,a2,a3,t0 vs our 6), which pushes every constant one slot
+         later.  ⇒ the dial is NOT a constant-spelling one: MINT ONE MORE live short
+         pseudo in the tail (retail keeps the palette base ALIVE across both OT accesses
+         -- `addu a0,a0,a2` computes into a fresh reg -- while ours mutates the palette
+         base in place at the second access, `addu a0,a0,v0`, killing it one pseudo early).
+         FALSIFIED at this basin (all count-exact 126/126): distinct otz temps at one or
+         both sites (42/42), split-RMW with the cursor store between the OT read and the
+         OT write in 3 orderings (26), a `pal` pointer local (26), the zero-insn
+         `l0 & 0xffffff` re-mask (26), P_TAG bitfield at site 2 as well (26), a
+         do{}while(0) depth wrapper (31 @127), index-first addu operand order at site 2
+         or both (42), a use fence on l0 (46 @128) or on prim (32). */
+      prim = (POLY_FT4 *)Render_gPacketPtr;
       ((Sfx_tTag *)&prim->tag)->addr =
                   *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-      l0 = (u_int)Render_gPacketPtr & 0xffffff;
-      Render_gPacketPtr = Render_gPacketPtr + 0x28;
-      *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-           *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | l0;
+      l0 = (u_int)prim & 0xffffff;
+      Render_gPacketPtr = (u_char *)prim + 0x28;
+      { u_int *ot2 = (u_int *)(Render_gPalettePtr + sd->otz * 4);
+      *ot2 = *ot2 & 0xff000000 | l0; }
     }
   }
   return;

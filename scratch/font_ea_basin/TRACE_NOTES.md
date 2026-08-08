@@ -445,3 +445,23 @@ achieved WITH mutations (W10). Gate stays 28 (V21 shipping, verified).
    placed. Read the exact pick in sched_w6/w10 vs the boost windows.
    Files: font_w{1..10}.cpp + mine/psxfront_w{1,3,4,6,7,8,10}.{i,s} +
    trace_w{1,3,4,6,8,10}.txt, sched_w8.txt (instr dir).
+6) 🏆 THE BOOST RULE, EXACT (sched.c adjust_priority@2551 + birthing_insn_p +
+   schedule_insn@2604, read not guessed): when an insn's LAST consumer is
+   scheduled, adjust_priority runs with n_deaths=0 ALWAYS (REG_DEAD notes are
+   already stripped - the >>3/>>2/>>1 kill-deferral cases are DEAD CODE) =>
+   case 0: the insn is raised to max_priority (= 0x7f000001 during the
+   consumer's schedule_insn) IFF birthing_insn_p: (set (reg N) ...) with
+   **REG_N_SETS(N)==1** (single-set pseudo). COROLLARIES: (a) MUTATED
+   variables (dv with -1/+height = 3 sets; y = 2 sets; height/width = 2 sets)
+   NEVER get the launch boost - their defining insns place by static
+   pri/class/luid only; single-use temps and the li/load births DO boost.
+   This asymmetry is the mechanism behind BOTH the chain-hoist (mutations
+   kill dv's boosts -> the chain drifts to head/tail by static rank) and the
+   li-serialization. (b) LOADS readied by their consumer are QUEUED with
+   cost>1 (insn_queue), entering ready 2 clocks later - the intervening
+   pick is the latency-slot filler (the class-3 rule's real face; the
+   backward zipper = load-latency queuing). ROUND-13 = simulate the
+   boost-aware backward pick game per candidate body (all inputs now known:
+   static pri from -dS, REG_N_SETS from source spelling, boost+queue rules)
+   and pick the spelling whose group weave puts li9 3 slots before ST3 /
+   li2c on v1; then the chain-sink follows the same table.

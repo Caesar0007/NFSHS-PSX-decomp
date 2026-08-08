@@ -1322,7 +1322,20 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
    *   after `sd =` / before the pt2 stores 6 (no move).  So a second zero-insn fence does
    *   NOT move the `sw s3,92(sp)` prologue save -- residual (A) survives the w46 note's
    *   own recommendation.  Both residuals unchanged; the untried instrument is still the
-   *   -dl/-dg qty table for this entry block. */
+   *   -dl/-dg qty table for this entry block.
+   *   ---- w50-A3: FOUR MORE FALSIFICATIONS, all count-exact 247/247 unless noted.
+   *   Residual (B), the colour-copy register: two temps 10 . two temps + a USE fence
+   *   between them 20 . one temp + a USE fence between the two copies 20.  (The w45
+   *   "two temps = 10" receipt therefore REPRODUCES in this basin -- it is not stale --
+   *   and adding a fence makes it strictly worse, so the serial-schedule/register trade
+   *   is real and the ONE-temp form stays.)
+   *   Residual (A), the `sw s3,92(sp)` save: naming x and y as extra operands of the
+   *   existing dual-param fence 6 (no move) . a USE fence on `sd` right after its
+   *   assignment 6 (no move) . a USE fence on `sd` as the FIRST statement inside the
+   *   guard 7 @248 (costs an insn) . hoisting `pt = &pt2;` above the guard AND naming
+   *   `pt` in the entry fence 8.  ⇒ every entry-block fence position and operand set has
+   *   now been swept; the save's position is not fence-reachable.  The -dl/-dg qty table
+   *   remains the only untried instrument, exactly as the w49 note says. */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;

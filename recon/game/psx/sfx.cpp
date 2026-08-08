@@ -577,6 +577,25 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  * the de-merge (distinct per-arm link/OT variable identity) has to come FIRST; the P_TAG
  * rewrite is then the natural spelling for the split-RMW step.  (The same lever DID pay on
  * this TU's Sfx_AdditivePrim, 38 -> 26 -- there the tail is single-instance so nothing merges.)
+ * ===== w50-A3: THE ZERO-INSN FENCE DOES *NOT* DE-MERGE THESE TAILS (the w44/w46 "fence as
+ * cross-jump DE-MERGER" job, applied here and falsified -- this closes the cheapest of the
+ * two named angles).  Measured at the case-13/14 tail, all against the 116 @938 baseline:
+ *   - AdditivePrim's now-sealed shape ported verbatim (re-read `prim` from the cursor +
+ *     P_TAG bitfield tag store + a `u_int *ot2` pointer local): 134 @918 -- the documented
+ *     ~20-insn cross-jump swallow, unchanged;
+ *   - the same + a trailing zero-insn `__asm__("" : : "r"(link))` INSIDE that tail: still
+ *     134 @918 (the trailing asm does not differentiate the tails for cross_jump);
+ *   - the same + a LEADING fence on `prim`: 137 @919 (costs an insn, still merges);
+ *   - the tail LEFT UNCHANGED and only a trailing fence added: 116 @918 -- i.e. the fence
+ *     ALONE already triggers the collapse.  That last row is the real finding: the merge is
+ *     NOT caused by the OT-word rewrite at all, it is latent, and ANY perturbation of this
+ *     tail's RTL releases it.  ⇒ per the w44 law (post-reload cross_jump compares RENUMBERED
+ *     regs) the de-merge has to come from the ALLOCATION side, not from source-level tail
+ *     differentiation: the arms merge because their pseudos get the SAME hard regs.  The
+ *     remaining angle is therefore the w44 "rotation before tail-shape" ordering -- fix the
+ *     register assignment of one arm first (AdditivePrim's receipt above quantifies exactly
+ *     which permutation retail wants for this same tail shape), THEN re-try the split-RMW.
+ *     The "accept the merge and re-derive from the MERGED oracle block" angle is untouched.
  * ===================================================================================== */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 

@@ -333,7 +333,25 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        ⇒ the wc base's %lo (`addiu v0,v0,0`) and lp[0] (`lbu a0,104(sp)`) are BOTH ready
        when `lw v1` (the lightning-type load) needs its delay-slot filler; the emitted
        insn STREAM is identical and only the pick differs, so no address/luid spelling
-       reaches it.  The -dl/-dg qty pass named above is still the one untried instrument. */
+       reaches it.  The -dl/-dg qty pass named above is still the one untried instrument.
+       ---- w50-A3: THE UNSPLIT-ADDRESS HYPOTHESIS IS NOW MEASURED AND FALSIFIED.
+       Retail's pair is ADJACENT (`lui v0,%hi; addiu v0,%lo` back-to-back = the `la`
+       assembler-macro shape) while ours is split apart by the scheduler, so the obvious
+       reading is that this obj was built -mno-split-addresses (w48's syslib identity).
+       PROBED WHOLE-TU (a temporary build.py PER_TU_FLAGS entry, then restored):
+       drawc.cpp under -mno-split-addresses is CATASTROPHIC -- 6 PASS -> FAIL
+       (MenuColorData 0->12, ReadLightingData 0->8, ShadowPrim 0->6, ShadowPrimClip 0->6,
+       ShowroomPrims 0->83, SpotPrims 0->37) and THIS fn goes 4 -> 51.  drawc.cpp is
+       definitively a SPLIT-ADDRESS object; do not re-open the flag axis for it.
+       ALSO FALSIFIED w50-A3 at this basin: splitting the weather base out of the index
+       with an OPACITY fence between them (`wcb = (u_char*)Night_gWeatherColor;
+       __asm__("" : "=r"(wcb) : "0"(wcb)); wc = wcb + type*4;`) = 37 @108; the same split
+       with a plain USE fence (`__asm__("" : : "r"(wcb))`) = 3 @108.  That USE-fence run is
+       the informative one: the fence DOES pin the `addiu` adjacent to its `lui` exactly
+       like retail (that diff disappears), but it is also a scheduling BARRIER, so `lbu a0`
+       can no longer float up into the `lw`'s load-delay slot and a `nop` takes the place we
+       were trying to fill.  ⇒ the two requirements (pin the pair / let the lbu rise) are in
+       direct conflict for every fence form; the device needed is a NON-BARRIER pin. */
     __asm__("" : : );
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);

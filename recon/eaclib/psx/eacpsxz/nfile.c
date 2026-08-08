@@ -309,7 +309,22 @@ extern FileHandle *reservehandle(void)
  * but it then carries hard-3/4 conflicts and takes $a1 itself); all four mask constants assigned
  * INSIDE the loop so loop.c hoists them after the base pair (46 -- fixes the preheader ORDER,
  * base-pair-before-constants like retail, but `off=0` then lands before the pair and the a-band
- * rotates). */
+ * rotates).
+ * w50-a4 -- THE NAMED "NEXT ANGLE" (dial the free-slot block's local qtys across the 3<->4
+ * boundary, w46 3-QTY LAW) IS NOW EXECUTED, AND IT IS NEGATIVE.  Nothing that keeps the count at
+ * 71 moves the 40; the block simply has no reachable 4th DISTINCT quantity.  All 40 @71/71:
+ * naming the byte3 value (`unsigned char b3 = (unsigned char)i;`), naming the masked seq
+ * (`sv = seq & seqMask`), naming the kept-type half (`kv = slot->id & keepType`), merging the
+ * last two slot recomputes into one block-local `s2`, moving the `seq` read below the type-nibble
+ * store, and both alternative orderings of the four mask constants (seqMask first / keepType
+ * before seqMask).  Every one of those "new temps" is folded by cse into an EXISTING quantity --
+ * exactly the same negative as FILE_cancelop's RMW block, and for the same reason.  The shapes
+ * that DO perturb the block all cost instructions and are therefore rejected: swapping the two
+ * id stores (37 @74), an opacity-fenced copy of `off` for the byte3 slot (70 @73), and swapping
+ * `off += 0x30` with `i++` at the loop bottom (41 @72).  => the w47 verdict stands and is now
+ * doubly-sourced: the blocker is a LOCAL-ALLOC hard-reg-5 conflict on `off`, and the only dial
+ * that could clear it (which hard reg the block-local recompute pair gets) is not reachable from
+ * C in this block.  Do not re-run the qty-boundary family here. */
 extern FileOp *reserveop(void)
 {
     int i, sr, off;

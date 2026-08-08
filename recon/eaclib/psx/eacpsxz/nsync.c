@@ -345,7 +345,25 @@ purgefail:
      * on MIPS -O2 an arg is precomputed only when its rtx is not already a REG and
      * rtx_cost > 2), i.e. retail's 5th arg was an EXPRESSION whose cse temp is the shared rm1 --
      * reproducing that needs cse to build the temp AND survive, which is the same
-     * old-gcc-cse identity the C-lane flag axis (w47 a7-a9) is chartered to test. */
+     * old-gcc-cse identity the C-lane flag axis (w47 a7-a9) is chartered to test.
+     * w50-a4 CONFIRMS THE ARG-PRECOMPUTE READING EXPERIMENTALLY AND BOUNDS THE TRADE.
+     * Writing the 5th arg as the bare EXPRESSION (`FILE_readsync(handle,0,buf,0xA90,retry-1)`)
+     * makes THIS block BYTE-IDENTICAL to retail -- `li a3,2704 ; lw a0,24(sp) ; addiu s3,s4,-1 ;
+     * jal ; sw s3,16(sp)` -- because calls.c does not precompute an arg whose rtx_cost is 1, so
+     * the addiu is emitted INSIDE the arg group.  A pre-computed variable can NEVER land there:
+     * the arg-setup insns are SCHED_GROUP_P-chained to the CALL_INSN, so no scheduler may insert
+     * `rm1`'s def into the group, and no fence/luid dial can either.  THE COST: with the bare
+     * expression the purge close loses the shared temp and cross-jumps its whole arg setup into
+     * `closefail` (retail merges only the `jal FILE_closesync` tail, entering it AFTER its own
+     * `lw a0,24(sp) ; addu a1,s3,zero`) -- 8 diffs at 79/81, i.e. 2 insns SHORT.  So the two
+     * halves are mutually exclusive under this cse exactly as the w34 note says, and the residual
+     * 4 is the better half.  Falsified this wave on top of the earlier list: bare 5th arg with
+     * `rm1 = retry-1` re-assigned after the call (38 @85) / before typeofbigfile (39 @84);
+     * bare everywhere + a void-tail fence in the purge block (8 @79, the merge is NOT what the
+     * fence blocks) or at `closefail` (8 @79); bare everywhere + an opacity fence on `retry`
+     * before the success close (30 @79); and the assignment folded into the arg LIST via a comma
+     * on arg1/arg3/arg4 (all 4 @81 -- a comma's assignment still expands ahead of the arg group,
+     * so it is not a route into it). */
     __asm__("" : "=r"(rm1) : "0"(rm1));
     FILE_closesync(handle, retry - 1);
     return buf;

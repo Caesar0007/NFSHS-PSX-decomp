@@ -883,7 +883,33 @@ void Hrz_LightningFlicker(int on)
  * loads to $t0-$t2; ours is the reverse) -- same live-length tie-break direction as the
  * flare.cpp two-mask rotation (see flare.cpp's w42-a6 block).  Gate ledger keeps the
  * 3-block form because 62 < 72, but the 56/56 single-block form is the better STRUCTURAL
- * base for a future permuter run. */
+ * base for a future permuter run.
+ * w50-a5 -- THE MECHANISM, read off -dg/-dl for the count-exact 56/56 base; it is NOT an
+ * allocno_compare razor at all.  The three t-pseudos are this fn's ONLY GLOBAL allocnos
+ * (`;; 3 regs to allocate: 82 81 83`); `m` and all NINE r-values are decided by
+ * LOCAL_ALLOC, which runs FIRST.  Our local qtys burn exactly FOUR hard regs (m=$a0, the
+ * r-triples recycling $v0/$v1/$a1 because each triple dies before the next is born), so
+ * the greg conflict line reads `81/82/83 conflicts: ... 2 3 4 5 29` and global.c's numeric
+ * scan hands the t-triple the next free regs $a2/$a3/$t0.  RETAIL's r-values span SIX regs
+ * (the SYM's per-row triples {$v1,$a0,$v0} {$a1,$v0,$v1} {$a2,$a3,$v0}), which blocks
+ * $a2/$a3 too and pushes the raw loads down to $t0/$t1/$t2 = the SYM's t-triple.
+ * ⇒ the reachable lever is NOT a t-side dial, and NOT the "lengthen the t-triple"
+ * direction the w40 note suggests: with the CORRECTED QTY_CMP_PRI numerator
+ * `floor_log2(refs)*refs - size`, a 2-ref 4-byte r-value is NEGATIVE (-2/live) while the
+ * 6-ref t is POSITIVE (+8/live), so NO live-length dial can put an r above a t (r would
+ * need >=4 refs just to go positive).  The lever is to make LOCAL_ALLOC burn SIX registers
+ * on the r-values.  FALSIFIED this wave from the 56/56 base (all re-gated): read-only
+ * fence on the r-triple before the stores 82 - after the stores 76 - split load from shift
+ * 72 (neutral) - nine fn-scope r locals, shifts-then-stores 76 - rows 0+1 both computed
+ * before either is stored (6 values nominally live) 72 (the scheduler serializes them).
+ * From the 3-BLOCK base the same overlap shapes gate 62 (neutral) and 60 (nested blocks +
+ * a fence keeping row-0's triple live through row-1) -- 60 beats the ledger's 62 but at
+ * 52/56 insns, i.e. count-INEXACT pure scaffolding, so NOT taken.
+ * NAMED NEXT ANGLE: instrument local_alloc itself (qtytrace.py / the [qty_compare] +
+ * [find_free_reg] traces) to see WHY the three r-triples recycle instead of conflicting;
+ * that decides whether a source shape exists at all or this is a sched1 ordering fixpoint
+ * (in which case the w45 use-fence walked statement-by-statement is the instrument -- it
+ * is what sealed Hrz_InitSky this wave). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1076,6 +1102,7 @@ void Hrz_BuildSky(void)
      (retail $t3/$s0/$t2/$t6/$t7/$t9/$t8/$t5 vs ours $t2/$t7/$t1/$t5/$t6/$t8/$s0/$t4).
      ⇒ the next dial is whatever retail parks in $t0 ahead of `temp`, NOT the invariants. */
   Draw_tPixMap **hp;
+  CSkySpec *spec;
 
   otz_old = 0x78;
   if (GameSetup_gData.commMode == 1) {
@@ -1163,6 +1190,17 @@ void Hrz_BuildSky(void)
     Flare_Sun(SUNPOS,(Draw_FlareCache *)sd);
     sd->otz = pshift;
   }
+  /* MATCH (w49-a5 follow-up landed by w50-a5, 377 -> 374 AND the count back to EXACT
+     458/458): the LOOP-INVARIANT Sky_gTrackSpec pointer materialized ONCE here.  The
+     recorded next dial was "find whatever retail parks in $t0 ahead of temp" -- the
+     oracle answers it literally at 800D0E60: `lw $t0,%gp_rel(Sky_gTrackSpec)($gp)`, held
+     across 800D0E68..800D0FF0 for ->type, ->flags and ->frontcolors[0].  Ours re-derived
+     it per use, so $t0 was free when `temp` was handed out (retail's temp = SYM REG $9 =
+     $t1) and every hoisted invariant shifted one slot.  POSITION is the dial: before the
+     i-loop 374 @458 exact; after the dither guard 405 @459; decl-with-init 411 @459.
+     (Dropping the `hp` scaffolding local on top gates 371 but at 459 -- count-inexact,
+     so not taken; that pair is the next thing to re-probe together.) */
+  spec = Sky_gTrackSpec;
   i = 0;
   while (true) {
     if (!(i < 0x40)) break;
@@ -1184,8 +1222,8 @@ void Hrz_BuildSky(void)
                 (pSkyMesh[temp].vy      <= (short)*(u_short *)((char *)sd + 0x12))) &&
                ((-1 < pSkyMesh[temp + 17].vy) || (-1 < pSkyMesh[temp + 18].vy) ||
                 (-1 < pSkyMesh[temp + 1].vy)  || (-1 < pSkyMesh[temp].vy)))) {
-            if (Sky_gTrackSpec->type == 1) {
-              if ((Sky_gTrackSpec->flags & 0x20U) != 0) {
+            if (spec->type == 1) {
+              if ((spec->flags & 0x20U) != 0) {
                 POLY_GT4 *prim;
                 Draw_tPixMap *pmx;
 
@@ -1224,7 +1262,7 @@ void Hrz_BuildSky(void)
                 tag = slot[-2];
                 Render_gPacketPtr = (u_char *)prim + 0x28;
                 slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
-                *(u_long *)&prim->r0 = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
+                *(u_long *)&prim->r0 = *(u_long *)&spec->frontcolors[0];
                 *((u_char *)prim + 3) = 9;
                 prim->code = 0x2c;
                 *(u_long *)&prim->u0 = *(u_long *)pmx;

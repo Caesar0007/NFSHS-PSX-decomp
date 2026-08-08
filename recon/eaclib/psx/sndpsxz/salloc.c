@@ -43,7 +43,15 @@ extern int           DAT_80136dec[];             /* rolling allocation id counte
                                                   (lui/lw; sec 3.12 #6 caveat: no %gp_rel oracles). */
 extern int  SNDstop(unsigned int tag);                          /* sstop  */
 extern int  SNDover(unsigned int tag);                          /* sover  */
-extern int  DAT_801478f4;                                      /* channel-pool pointer (sndgs + 0x94) */
+extern int  DAT_801478f4;
+/* DISTINCT UNSIZED VIEW of the same word (w50-a7).  Reading the scalar generates the `(high sym)`
+ * AT the load, after the partner*100 scale chain; retail emits the `lui %hi` at the JOIN-BLOCK HEAD
+ * (reorg then eager-steals it into the `bne t0,v1` delay slot and leaves the .L800FED5C duplicate).
+ * The unsized view + an ARRAY-DECAY pointer local (`int *dp = DAT_801478f4_v;`) gives the address
+ * its own early pseudo while cse still folds the lo_sum into the load -- zero insns, 6 -> 2.
+ * (`&scalar`, the scalar `[0]` index, and a plain pointer-to-scalar all fold back: catalog
+ * "ARRAY DECAY != &scalar".) */
+extern int  DAT_801478f4_v[] __asm__("DAT_801478f4");                                      /* channel-pool pointer (sndgs + 0x94) */
 
 extern int iSNDischanreserved(int chan, int count);             /* @0x800FE724 */
 
@@ -452,6 +460,39 @@ done:
    NFS2 PC-beta contributes nothing to this function: its salloc.obj `_iSNDfreechan` is a
  *   THREE-LINE ungrouped release (`chan[i].state = 0;`) with no linked-group protocol at all, so
  *   the whole group/partner CFG is NFS3/NFS4-era and has no named-source ancestor to copy. */
+/* *** W50-A7 (2026-08-09) -- iSNDfreechan 16 -> 2 diffs, COUNT EXACT 110/110.  Four zero-insn
+   opacity fences, each with its own named mechanism; per-site notes are in the body below.
+   1. THE volatile->FENCE SWAP KILLED THE 2-WAVE `lb`-vs-`lbu` FLOOR ("unreachable via spellings").
+      It was never a declaration/type problem -- the read was already `signed char`, and there is
+      no struct/header decl involved (raw cast in this TU), so NO header change is needed.
+      ROOT CAUSE NAMED: a VOLATILE QImode MEM cannot be combined with its sign_extend (combine
+      refuses to touch volatile mems), so cc1 falls back to the plain movqi mem->reg pattern,
+      which on MIPS is `lbu`; `lb` exists only as the fused extendqisi2.  The volatile was there
+      for a DIFFERENT job -- stopping loop.c re-anchoring the four address givs onto the LAST one
+      (which turned retail's single positive-displacement walker into addiu+negative offsets).
+      An opacity fence on the walker does that job with no volatile, so `lb` appears for free.
+      GENERALIZES: any `*(volatile signed char*)x != 0` near-missing on lb/lbu is this.
+   2. cse re-folds symbol+offset back into one %hi(sym+off)/%lo pair even through a pointer local;
+      a fence on the pointer keeps retail's base + 0x44 displacement (14 -> 9).
+   3. A fence on `partner` between its two users restores retail's SECOND `partner*100` scale
+      chain that cse had merged away (9 -> 6, and the count reaches parity).
+   4. UNSIZED VIEW + ARRAY-DECAY POINTER (`int *dp = DAT_801478f4_v;`) moves the (high sym) to the
+      join-block head where reorg eager-steals it into the `bne` delay slot and leaves the
+      .L800FED5C duplicate (6 -> 2).  `&scalar`, `view[0]` and a plain pointer-to-scalar all fold
+      back (catalog: ARRAY DECAY != &scalar).
+   RESIDUAL 2 = ONE instruction's sched1 issue POSITION: retail interleaves `lw $v1,0x94($t1)`
+   INTO the chan*100 scale chain (sll,addu,sll,addu | lw | sll | addu) while ours issues it first.
+   Byte-identical instruction, different slot -- and the IDENTICAL shape 60 insns earlier (block 1,
+   FEC18..FEC30) DOES match, so it is a ready-list priority tie local to this block.
+   FALSIFIED IN THIS BASIN (all 2 or worse; basin = post-4-fence): operand swap chan*100+poolv (4),
+   inline-load form (2), `slot=chan*100` split temp (7 @111), nested block-scope decl with
+   initializer + dummy filler mirroring block 1's `partner=-1` (2), fences on slot / poolv / gs /
+   chan (2), sndgs_v as the base (2).  ALSO FALSIFIED (whole-loop level): goto-loop shapes (50-52),
+   index form (50), dropping the volatiles WITHOUT the fence (62-93 -- the giv re-anchor returns),
+   fence placed AFTER the increment instead of at the body head (17 @109).
+   NEXT ANGLE: no statement boundary exists between the scale chain and the load, so a fence has
+   no position to occupy -- this wants an allocsim/qtytrace read of the block's ready list or a
+   +/-1 RTL-insn dial, not another spelling. */
 extern void iSNDfreechan(int chan)
 {
     unsigned int group;
@@ -481,10 +522,24 @@ extern void iSNDfreechan(int chan)
             limit = base[0x11];
             scan = (unsigned char *)pool;
             do {
-                if (*(volatile unsigned char *)(scan + 0x37) == group &&
-                    0 <= *(volatile int *)scan &&
-                    *(volatile signed char *)(scan + 0xb) != 0 &&
-                    (count++, *(volatile unsigned char *)(scan + 0x36) != 0))
+                /* MATCH (w50-a7): OPACITY FENCE REPLACES THE volatile SCAN READS.  The four reads
+                 * used to be `volatile` purely to stop loop.c re-anchoring the address givs onto the
+                 * LAST one (scan+0x36), which turned retail's single positive-displacement walker
+                 * into `addiu a2,v1,54` + `lb v0,-43(a2)`.  But a volatile QImode MEM also blocks
+                 * combine from fusing the load with its sign_extend, so `*(volatile signed char*)`
+                 * emitted the movqi pattern `lbu` where retail has `lb` -- the +0xB diff that stood
+                 * for two waves and was filed "unreachable via spellings".  A zero-insn opacity
+                 * fence on the walker at the TOP of the body does the anti-anchor job WITHOUT the
+                 * volatile: `scan` is opaque to loop.c (no biv/giv classification) so every access
+                 * keeps its own positive displacement off the one walker, and the plain
+                 * `signed char` read fuses into `lb`.  Whole scan loop is now byte-exact (16->14).
+                 * Falsified in this basin: goto-loop (50), index form (50), all-volatile-dropped
+                 * without the fence (62-93, giv re-anchor returns), fence AFTER the increment (17). */
+                __asm__("" : "=r"(scan) : "0"(scan));
+                if (*(unsigned char *)(scan + 0x37) == group &&
+                    0 <= *(int *)scan &&
+                    *(signed char *)(scan + 0xb) != 0 &&
+                    (count++, *(unsigned char *)(scan + 0x36) != 0))
                     partner = slot;
                 slot++;
                 scan += 100;
@@ -516,15 +571,33 @@ extern void iSNDfreechan(int chan)
             }
 
             {
-                int partnerSlot = partner * 100 + DAT_801478f4;
+                /* MATCH (w50-a7): retail RECOMPUTES `partner * 100` here (FED60 sll/addu/sll/addu)
+                 * instead of reusing the count==2 arm's `partnerOffset`; cse merges the two unless
+                 * `partner` is made opaque between them.  Zero-insn opacity fence => the second
+                 * scale chain reappears AND the `lui %hi(D_801478F4)` gets duplicated into the
+                 * `bne t0,v1` delay slot + the .L800FED5C join like retail.  9 -> 6, count EXACT. */
+                int *dp = DAT_801478f4_v;
+                int partnerSlot;
+                __asm__("" : "=r"(partner) : "0"(partner));
+                partnerSlot = partner * 100 + *dp;
                 if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
                     *(unsigned char *)(partnerSlot + 0xb) = 2;
                     return;
                 }
             }
 
-            *(unsigned char *)(slot + 0xb) = 0;
-            *(int *)(slot + 0x10) = *(int *)(sndgs_v + 0x44);
+            {
+                /* MATCH (w50-a7): retail materializes a FRESH `&sndgs` for this tail as a SPLIT
+                 * `lui` (stolen into the `bne v1,v0` delay slot) + a `%lo` addiu DUPLICATED on both
+                 * incoming paths, then `lw 0x44(v0)`.  A bare `sndgs_v + 0x44` folds symbol+offset
+                 * into one `lui %hi(sndgs+0x44); lw %lo(...)` pair; a plain pointer local alone
+                 * still folds (T1/T4 = no-op).  The opacity fence makes the base opaque so cse
+                 * cannot re-fold it into the load's %lo and the 0x44 stays a displacement. 14->9. */
+                unsigned char *gv = sndgs_v;
+                __asm__("" : "=r"(gv) : "0"(gv));
+                *(unsigned char *)(slot + 0xb) = 0;
+                *(int *)(slot + 0x10) = *(int *)(gv + 0x44);
+            }
             return;
         }
     }

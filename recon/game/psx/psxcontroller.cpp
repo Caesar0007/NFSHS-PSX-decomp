@@ -113,8 +113,14 @@ void InGame_ResetPSXController(int player,int config)
      `hoff[player]` value 22, `h - hoff[player]` / `&h[-hoff[player]]` 32 @309,
      `&frontEnd.controlType[player]` 263, `&gPadinfo.buf[player*4].ID` 265,
      `&controllerConfig[0]` 243, `player` alone 241, no fence + store after the if 266.
-     Keeping the store where w41 put it and fencing there instead: 28/32/44/48/52. */
-  __asm__ volatile("" : : "r"(&hoff[player]));
+     Keeping the store where w41 put it and fencing there instead: 28/32/44/48/52.
+     w49-a6 (21 -> 15): the fence OPERAND was over-specified.  `&hoff[player]` forces the
+     whole ADDRESS (`sll; lui; addiu; addu`) into the pre-branch block, where retail
+     materializes only the `sll s5,s2,2` giv there and builds `s1 = s5 + %hi/%lo` AFTER the
+     first jal.  Fencing the GIV ITSELF -- `player * 4` -- still straddles the branch (same
+     global-allocno effect) but leaves the address materialization at its use.  `player << 2`
+     identical; extra operands (type/h) neutral; a do{}while(0) wrapper round it 157. */
+  __asm__ volatile("" : : "r"(player * 4));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
   }
@@ -485,7 +491,15 @@ int InGame_GetDevice(int control)
  * so neither copy is a life-2 movable on its own.  Alternatively confirm T empirically by
  * SHRINKING the loop (a scratch cc1try harness with the guards deleted) until the
  * savings-1/life-1 movables flip to "moved" -- that pins T from above and settles whether
- * any insn_count is reachable at all. */
+ * any insn_count is reachable at all.
+ * ---- w49-a6: 13 STAYS.  The w46 "give &hoff a SECOND, differently-spelled in-loop
+ * materialization" angle is FALSIFIED: `hp = (int *)((char *)hoff + (i << 2))` for two
+ * sites + `hoff[i]` for the third 17; `hp = hoff + i` kept but ONE site respelled
+ * `hoff[i]` 13 (exactly neutral -- cse re-merges the two spellings into one movable, so
+ * there never are two); `hp` moved after the three ramp stores 17 (the w41 measurement,
+ * re-confirmed from this basin); a zero-insn USE fence on `hp` 20 @100.  Both address
+ * spellings collapse to the same RTL movable, so "two movables" is not source-reachable;
+ * the loop.c cost-model verdict stands. */
 void InGame_SetRamp(void)
 
 {

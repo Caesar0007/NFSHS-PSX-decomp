@@ -168,6 +168,14 @@ int TrackSpec_gPrevSpec;
  *   fence.  So: TWO fences bracketing the `li a3,23` drain point (one before the weather
  *   read, one after the horizonstate/skystate stores), so the 1 is released inside the
  *   middle region while 0x17 still cannot drain past the first.  Untried.
+ * ---- w49-a6: 4 STAYS.  The w46 "TWO FENCES bracketing the `li a3,23` drain point"
+ * angle is FALSIFIED in all three spellings: fence before the weather read + the existing
+ * one + one after skystate (three regions) 8; the bracketing PAIR alone (existing fence
+ * REMOVED, one before the weather read, one after skystate) 8; the existing fence + one
+ * after skystate 6.  Every added region boundary moves `li $v1,1` the WRONG way.  Residual
+ * is unchanged and is exactly two position moves (`li v1,1`, `sb v1,240(a1)`), both the
+ * ready-list DRAIN class; the remaining dial is +-1 RTL insn released late in block 0
+ * (giv-worth razor family) or the permuter -- fences are now exhausted on this fn.
  * FLOOR-BAR NOTE: prototype re-audited (1 pointer arg, void return, SYM REGPARM $05,
  * fsize 0 / mask $00000000 leaf, no $v0 at the single `jr $ra`); the w40 per-TU flag
  * probes still stand (g_value 8 no-op, all four -f keys negative).

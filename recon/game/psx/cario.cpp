@@ -277,7 +277,14 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
    * separate dial from their assignment order, so all 24 declaration permutations were
    * swept -- every one measures 6.  Assignment order (24, w39) and `|` operand order
    * were already swept.  Both remaining items are therefore post-source (sched2
-   * placement + cross-jump depth); STRONG floor at the source level. */
+   * placement + cross-jump depth); STRONG floor at the source level.
+   * w49-a6 re-probe of residual (a) from the 4 basin with the two ZERO-INSN dials that
+   * postdate the receipt above -- the w44 do{}while(0) REF-STEP wrapper and the w45 USE
+   * FENCE: `do{n0=...}while(0)` 9 @43, `do{n1;n2}while(0)` 9 @43 (the wrapper's
+   * LOOP_BEG/END note costs a real insn inside this loop -- the catalog's "NEGATIVE on
+   * straight-line call-free blocks" boundary), fence before n0 18 @44, after n0 12 @44,
+   * n0-first + fence 22 @44.  Every one breaks the exact 42/42 count, so (a) still has
+   * no zero-insn dial.  STRONG floor stands. */
   int h;
 
   h = 0x16;

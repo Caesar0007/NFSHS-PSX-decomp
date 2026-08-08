@@ -190,6 +190,32 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   *(int *)&sprt->x0 = y << 0x10 | x;
   *(u_long *)&sprt->r0 = font_tint;
   *(u_int *)&sprt->w = height << 0x10 | width;
+  /* MATCH (w49-a6, 42 -> 38, count still exact 55/55): ZERO-INSN SCHED FENCE.
+   * sched1 was issuing the WHOLE `dv + v` chain (incl. the `lw $t3,40(sp)` stack-arg
+   * load for `v`) immediately after the `dv` shift at insn ~12, where retail issues it
+   * at ~29-41; the chain's critical-path priority dominates its LUID, so five statement
+   * positions for this line all measured 42 (w41-a6).  A use fence is a sched
+   * issue-position FIXPOINT (catalog w45/w46): insns AFTER it cannot float ABOVE it, so
+   * the chain is pinned below.  Operand must be register-resident (0 insns): sprt/width/
+   * dv all give 38, `height` 42; the fence one statement earlier 40, two earlier 72.
+   * RESIDUAL 38 (still 55/55): the `lw $t3,40(sp)` load for `v` ITSELF is still issued at
+   * insn ~13 (retail ~29) -- the fence pins the addu/andi/sll chain but not the load,
+   * which confirms the w45 finding that the load's position comes from RTL GENERATION,
+   * not sched1.  Plus the ours-late / retail-early `addu a0,t1,zero` (the SetSemiTrans
+   * arg copy) and the {v,pal,mask} -> {t3,t4,t6} vs retail {t6,t3,t4} rotation.
+   * FALSIFIED from the 38 basin (all re-gated, all 55/55 unless noted): `"r"(v)` as a
+   * second fence operand 44, `*(volatile int *)&v` 38, an IDENTITY fence on `v` 58 / on
+   * `dv` 38, splitting `dv+v` into two statements 50, inlining the whole expression at
+   * the u0 store 87 @56; fence operand `pal` 44 (the w46-a8 "lengthen pal past v's
+   * window" angle -- it lengthens pal but rotates the head), `sprt`+`pal` 44, a tail
+   * fence on `pal` after the u0 store 50; the psxfront-V21 P_TAG BITFIELD spelling of
+   * both OT-link RMWs 48 (with the `pal` local), 48 (WITHOUT it, i.e. reading
+   * Render_gPalettePtr directly per the V21 cse struct-alias law), 48 with the cursor
+   * bump moved after both RMWs -- so Font_Blit's link is confirmed NOT the addPrim shape
+   * in this basin either; moving the `*pal` RMW below the u0 store 70 / below the w/h
+   * store 75 @56.  Inlining the `addr24` temp (SYM-truer, it names no such local) is
+   * exactly 38 -- kept as-is to avoid churn. */
+  __asm__ volatile("" : : "r"(sprt));
   dv = (dv + v & 0xffU) << 8;
   *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv | u;
   SetSemiTrans(sprt,1);

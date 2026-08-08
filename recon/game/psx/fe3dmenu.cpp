@@ -86,12 +86,25 @@ void Fe3D_InitShowroom(void)
     if (0x20 <= i) break;
     angle_sin = fastintsin(angle) >> 3;
     angle_cos = fastintcos(angle) >> 3;
-    iPlus = sVar4;
+    /* MATCH (w49-a6, 14 -> 6, count now EXACT 107/107): retail computes the index
+     * sign-extend as ONE shared `sll v1,s3,16`, COPIES it (`addu a2,v1,zero`) and gives
+     * each consumer its own `sra ,16`; our build CSE'd the whole sll+sra pair into one
+     * value (2 insns short).  Every "make a second copy" spelling the w46 receipt tried
+     * was copy-propagated away.  The w47 IDENTITY FENCE (`"=r"(x) : "0"(x)`) is the
+     * value-numbering barrier that survives: it emits ZERO bytes but cse can no longer
+     * prove `iPlus == sh`, so the second consumer keeps its own `sra` off a copy of the
+     * shared `sll`.  POSITION is the dial -- the fence must sit at iPlus's DEF (right
+     * after `iPlus = sh`), not before the .z store (16) or on both (8); a plain recompute
+     * (identity fence on the (short) cast form) is 28.  The explicit `sh = sVar4 << 16`
+     * split is what shares the `sll`; without it the fence has nothing to split. */
+    int sh = sVar4 << 16;
+    iPlus = sh;
+    __asm__("" : "=r"(iPlus) : "0"(iPlus));
     angle = angle + 0x20;
     i = i + 1;
-    Fe3D_lightsVertex[sVar4].x = (short)((u_int)(angle_sin * 3) >> 5);
-    Fe3D_lightsVertex[sVar4].y = 0;
-    Fe3D_lightsVertex[(short)iPlus].z = (short)((u_int)(angle_cos * 3) >> 5);
+    Fe3D_lightsVertex[sh >> 16].x = (short)((u_int)(angle_sin * 3) >> 5);
+    Fe3D_lightsVertex[sh >> 16].y = 0;
+    Fe3D_lightsVertex[iPlus >> 16].z = (short)((u_int)(angle_cos * 3) >> 5);
     sVar4 = sVar4 + 1;
     Fe3D_lightsVertex[sVar4].x = (short)(angle_sin * 0x15 >> 8);
     Fe3D_lightsVertex[sVar4].y = 0;

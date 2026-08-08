@@ -625,7 +625,18 @@ void CV_ColorTracks(int track,int weather,int night)
    * the constant 1 in the three `bne $s3,$s1` night tests -- which requires
    * testing `night` BEFORE `weather` and so contradicts the oracle's
    * track/weather/night compare order at every arm.  FLOOR (STRONG). */
-  contrast = 0;
+  /* MATCH (w49-a6, 72 -> 2, count still EXACT 130/130): the STRONG-floor receipt above
+   * quantified the whole 72-diff residual as ONE allocno_compare razor -- weather
+   * (14 refs / 114) .36842 vs contrast (11 refs / 90) .36666 -- and named the exact bar:
+   * contrast needs refs >= 12 (3*12/90 = .400) at ZERO instructions.  Every zero-cost dial
+   * it tried was a VALUE copy, which cc1 folds before life analysis.  The w44 REF-STEP
+   * inflator #3 -- a `do { } while (0)` DEPTH WRAPPER -- is not a value dial at all: flow.c
+   * weights refs by loop depth, and loop.c later strips the phony loop, so the extra ref is
+   * free.  Wrapping the `contrast = 0;` init alone clears the bar and the $s0/$s1 pair lands
+   * retail's way.  (Two nested wrappers measure the same 2; the wrapper must sit on a
+   * contrast REF, and this one is outside every call-crossing region so its LOOP_BEG/END
+   * note costs no scheduling.) */
+  do { contrast = 0; } while (0);
   memset(&color,0,4);
   brightness = 0;
   if (GameSetup_gData.commMode == 1) {

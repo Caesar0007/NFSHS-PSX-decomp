@@ -1034,7 +1034,20 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
   znear = (int)sd->night_ZNear;
   zfar = znear + (1 << (sd->night_ZDistShift + 6));
   if (sd->night_DrawLightning != '\0') {
-    *idx = (u_short)(*Night_gWeatherLightingTable[sd->night_LightningType])[*idx];
+    /* MATCH (w50-a2): the lui/addiu that materializes &Night_gWeatherLightingTable
+       must issue AFTER the `lbu $v0,269($a2)` index load, not before it (the same
+       lui-vs-load ready-list tie as DrawW_BuildObjectFacets` goffsets[] site in
+       this TU).  Splitting the index into its own statement is NOT enough (still
+       2 diffs, byte-identical) -- it is the w47 OPACITY FENCE on the split temp
+       that pins the issue order (w45: the fence is a sched-issue-position
+       FIXPOINT -- insns before it cannot sink past, insns after cannot float
+       above; here the address materialization is "after").  Zero insns: lt is
+       already register-resident.  FALSIFIED: split with no fence (2), split with
+       a USE-only fence `: : "r"(lt)` (21, count 58 -- it forces a real copy), a
+       void `: : "i"(0)` fence before the statement (2, byte-identical). */
+    int lt = sd->night_LightningType;
+    __asm__("" : "=r"(lt) : "0"(lt));
+    *idx = (u_short)(*Night_gWeatherLightingTable[lt])[*idx];
   }
   if (znear < z) {
     if (z < zfar) {
@@ -1557,6 +1570,37 @@ gte_swc2(0x8,&depthcue);
        * Un-cache them ONE at a time and re-run tools/prio.py; a reload that cse
        * folds is +1 ref at zero insns.  Both angles are gated by the same number:
        * p80 must reach 119 refs (or p141 must fall to 13). */
+      /* w50-a2 RE-PROBE (basin = 7-diff, count 591 vs 592 = ONE SHORT).  The
+       * missing instruction is the else-arm's `j` ITSELF: the oracle's
+       *     beqz $s5,.L..A ; addiu $v0,$s0,0x94   |   j .L..B ; addiu $s1,$s0,0x110
+       * pair only exists when `prim = &sd->GT4Prim` IS a real else ARM (a separate
+       * block has to jump over the OT arm).  Our default-then-override lays the OT
+       * arm out as a `bnez`-skip with NO `j`, and the addiu migrates to the
+       * prologue.  So the residual 7 is NOT reachable while the default is in
+       * place; it is the if/else form + the p141/p80 allocno fix, as recorded.
+       * MEASURED THIS WAVE (all reverted):
+       *   else arm added on top of the default                       197
+       *   same + the w47 OPACITY FENCE on prim at the top (a value-numbering
+       *     barrier, so the else assignment is a genuine recompute)  197
+       *   opacity fence on prim at the top, no else arm              7 (NO-OP:
+       *     zero insns, prim is already register-resident -- which CONFIRMS the
+       *     fence is FREE here, i.e. available as a ref dial on this fn)
+       * The 197 in both else variants is the same $s0/$s1 flip: with a real else
+       * arm the top default is dead-store-eliminated, prim's live length collapses
+       * to 114 and it out-ranks sd.  NAMED ANGLE for the next pass (same target,
+       * new tooling): keep the if/else and pay the required delta with the
+       * ZERO-INSN inflators -- p80(sd) needs +57 weighted refs, i.e. a
+       * do{}while(0) DEPTH wrapper over a prim-FREE region (the backface-test span
+       * is still the only untried placement), optionally topped up by opacity
+       * fences on sd (+2 refs each, zero insns, proven free above).  NOTE the ref
+       * weighting is ADDITIVE in loop_depth (flow.c: REG_N_REFS += loop_depth,
+       * depth 1 outside any loop) -- one extra do{}while(0) level is +1 per
+       * in-span ref, NOT x2, so the wrapper depth needed is
+       * 1 + ceil(57 / <sd refs inside the braces>).  Measured proof of the model
+       * this wave on DrawW_BuildObjectFacets: an in-loop opacity fence moved that
+       * fn's objInstance 27 -> 31 (+2 refs x depth 2) and an out-of-loop one
+       * 31 -> 33 (+2 x depth 1).  Run tools/reqdelta.py on the IF/ELSE dump to
+       * re-price the delta before writing any code. */
 
       if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
@@ -2665,9 +2709,55 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
            FALSIFIED here: per-site unsized `asm("goffsets")` view, sized `[8]`
            view (storage-shape menu #2/#3, both byte-identical), and an index
            split temp (27, count 188).
+
+     ---- w50-a2 (2026-08-09): 22 -> 6, count-EXACT 189/189.  RESIDUAL CLASS (A)
+     IS CLOSED -- the SLD-true inside-the-guard `objDef` now lands.  The named
+     angle from w49 ("p83 refs 27->32 at zero insns") was CORRECT and the dial is
+     the OPACITY FENCE `__asm__("" : "=r"(objInstance) : "0"(objInstance))`:
+       (1) move `objDef = Track_gObjDefs[objInstance->pad];` INSIDE the zClipSq
+           guard (SLD line 2015) -- alone this is 40 (objDef live 24 -> pri 1.0000
+           steals $s0 from objInstance's 0.8307), exactly as w49 measured;
+       (2) convert the loop-tail void fence into an OPACITY fence on objInstance
+           (+2 refs, and the loop weight doubles them: 27 -> 31, pri 0.9538 --
+           still short of objDef's 1.0000, gate still 40);
+       (3) add a SECOND opacity fence on objInstance right after its init, i.e.
+           OUTSIDE the loop, so its +2 refs are UNweighted: 31 -> 33, pri 1.2692
+           > 1.0000.  Gate 40 -> 6 in one edit.
+     reqdelta (tools/reqdelta.py on the inside-guard dump) predicted this exactly:
+     `p83 refs 27->32` was one of four minimal single dials, and allocsim
+     --what-if 83:refs=33 reproduces the whole retail handout 17/19 with only the
+     intended p83/p84 swap.  The lesson for the TU: an ODD required ref delta
+     needs an OUT-OF-LOOP inflator (in-loop fences move refs in steps of 2*depth).
+     RESIDUAL 6 = class (B) only, the goffsets address scratch: ours
+     `lui t0/addiu t0/addu v0,v0,t0`, oracle `lui v1/addiu v1/addu v0,v0,v1`
+     (v0 = the index, correct on both sides; only the ADDRESS qty's home differs,
+     t0 = hard reg 8 means regs 2..7 were all blocked over its window in ours).
+     FALSIFIED IN THIS BASIN (all gated, all reverted): array-decay pointer local
+     `signed char *g8 = goffsets;` (6, no change), void fence before the statement
+     (6), opacity fence on objInstance before the statement (6), split index temp
+     `int zo` (11, count 188 -- one SHORT), `int zo` + one opacity fence (10,
+     count exact: this one FIXES the schedule -- oracle order lbu/lui/addiu/addu --
+     but swaps v0<->v1 between the index and address qtys), same with a second
+     fence (10, no further move), `u_char zo` + fence (8, count 191).
+     NEXT ANGLE (named): the 10-diff `int zo`+fence basin is count-exact with the
+     RIGHT schedule and only the two block-7 qtys' v0/v1 swapped -- block 7 holds
+     4 pseudos (114 index, 116 high, 115 lo_sum, 117 sum) which combine_regs ties
+     into 2-3 qtys, i.e. the w46 3-QTY LAW's hand-rolled `EXCHANGE` range.  Two
+     more fences on the index (refs 12 -> 16 weighted) did NOT move it, so the
+     order is NOT priority-driven there: probe the 3<->4 qty boundary (add/remove
+     one DISTINCT block-local pseudo) rather than any further ref/live dial.
+     w50-a2 ADDENDUM -- the 3<->4 qty-boundary probes are also falsified: in the
+     `int zo`+fence basin, adding a distinct `signed char *g8 = goffsets;` pointer
+     local collapses BACK to the 6-diff base shape (6), while `int zb = zo + 0;`,
+     `*(goffsets + zo)` and a `u_int zo` index all stay at 10.  Two stacked
+     opacity fences + the pointer local: 6.  So the block's qty count is not the
+     dial either; what remains is the find_free_reg WINDOW (why regs 2..7 are
+     blocked for the address qty in the 6-diff shape) -- read it off an
+     instrumented-cc1 [find_free_reg] trace, not from source spellings.
      ============================================================================ */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
+  __asm__("" : "=r"(objInstance) : "0"(objInstance));
   groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   /* MATCH (w46-a6): the zero-count arm RETURNS instead of assigning the
@@ -2753,10 +2843,10 @@ gte_SetTransMatrix((void *)0x1f800014);
            retail's copy INSIDE the guard (line 2015), but that shortens objDef's live
            range to 24 and it then outranks objInstance for $s0 (40 diffs vs 22 here) --
            see the head receipt, residual class (A). */
-        objDef = Track_gObjDefs[objInstance->pad];
         if ((zClipSq == -1) ||
            (distSq = xzsquaredist32(&cp,&(Vi->cview).translation),
            distSq < zClipSq)) {
+          objDef = Track_gObjDefs[objInstance->pad];
           totalCount = totalCount + DrawObjectTransform(Vi,sd,&matrix,
                              objDef,&cp,objectOffset,-1);
           if ((objInstance->flags & 2) != 0) {
@@ -2777,7 +2867,7 @@ gte_SetTransMatrix((void *)0x1f800014);
          w48 void-tail fence keeps the increment below the advance (count exact).
          Falsified first: inc-before-advance, char*-advance, split-temp advance --
          all byte-identical (sched2 refills the slot every time). */
-      __asm__("" : : "i"(0));
+      __asm__("" : "=r"(objInstance) : "0"(objInstance));
       objectIndex = objectIndex + 1;
     }
   }
@@ -3233,7 +3323,33 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      target->position pointer-chase split (DrawW_DoLines lever) still overshoots
      the insn count (189->193 before this fix, 187->191 after) rather than
      landing exact -- reverted both times, same as DrawObjectTransform.
-     RESIDUAL 68 = the pointer-chase deficit + sra/srl tie + coloring cascade. */
+     RESIDUAL 68 = the pointer-chase deficit + sra/srl tie + coloring cascade.
+     w50-a2 RE-GATE: 5 diffs, ours 190 / oracle 189 = ONE LONG.  The residual is
+     the 5th (STACK) argument `offset`: assign_parms reloads it at entry
+     (`sw s5,68(sp); lw s5,96(sp)` as insns 6-7) and the resulting load-delay
+     `nop` is the extra instruction, whereas retail SINKS the reload to fill the
+     `lbu $v0,3($s4)` load-delay slot 11 insns later.  Same family as
+     DrawW_DoLines' param-copy residual -- but the DoLines cure (index-form giv
+     init) has no analogue here: `offset` is a plain value, not a walk base.
+     FALSIFIED THIS WAVE (all reverted; the w47 fence toolkit in full):
+       parameter renamed to `offsetArg` + `int offset = offsetArg;` alias
+         at the decl block / before `shapeDef_p =` : 5 (byte-identical)
+         before `drawResult = gNight_renderNight;` : 8 at count-EXACT 189
+         before the clipW store                    : 8 at count-EXACT 189
+       w47 OPACITY fence on offset at the decl block / before shapeDef_p : 45
+       same before `drawResult =`                                       : 39
+       same after `*(u_char*)(...matB.t+2) = 0;`                        : 38 @189
+       w45 USE fence `__asm__("" : : "r"(offset))` before `drawResult =`: 8 @189
+       same before shapeDef_p                                           : 17
+     The two count-EXACT 8-diff forms are the interesting ones: they DO kill the
+     nop, but they pull `addu s2,a0,zero` / `addu s3,a3,zero` (the Vi and pCp
+     parm copies) out of retail's order in exchange -- i.e. the reload and the
+     three parm copies are ONE ready-list ordering problem, not two.  NEXT ANGLE:
+     price it with tools/allocsim.py/-dS on the entry block rather than probing
+     spellings (the LAUNCH-BOOST/luid tie that solved DoLines step 2 is the model
+     to apply -- there, deleting a net-zero pair restored a copy's birthing_insn_p
+     boost; here look for whatever costs `offset` its boost or gives the Vi/pCp
+     copies theirs). */
   coorddef tmp;
   coorddef tmp2;
   int isCullable;
@@ -3770,6 +3886,16 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
      the oracle's $a1.  That uniform ours-earlier signature is the sched2
      ready-list DRAIN class, not a source order -- next instrument is a
      zero-insn fence WALK (w45 grammar) or -dR. */
+  /* w50-a2: THE FENCE WALK IS FALSIFIED for the entry block.  A zero-insn void
+     fence `__asm__("" : : "i"(0))` was walked through all six statement slots of
+     the prologue (before/after gVi=Vi, sd=, chunkCount=, thisChunkInd=,
+     &gInitialArt store, and at the loop block head): 60 / 62 / 62 / 90 / 60 / 60
+     -- every placement REGRESSES, none is neutral, so the barrier is strictly
+     harmful here (it splits the entry block's ready list, which is precisely the
+     resource the drain is consuming).  The remaining named angles are unchanged:
+     (a) the RANGE-CHAIN rematerialization at the second track guard (the dial is
+     WHERE 0x1F800000 is materialized, not the chunkM1 temp -- see below), and
+     (b) -dR (sched2) traces to read the drain order directly. */
   chunkCount = BWorld_gChunkCount;
   thisChunkInd = gCurrContext->currentChunk;
   *(Track_tArtresource **)((char *)sd + 0xfc) = &gInitialArt;
@@ -5065,16 +5191,42 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
      pair below `chunkCount = ...`; a second `Vi++; Vi--;` pair; a zero-insn USE
      fence on buildList at the loop head.  A fence on Vi at the top REGRESSES to
      14.  REMOVING either net-zero pair regresses to 42 -- both are still needed.
-     NEW NAMED ANGLE: the param copy is emitted by assign_parms at function entry,
-     so no statement-level source position can reach it -- the only reachable dial
-     is its sched priority (= its dependence-chain depth to the block end).  Give
-     buildList's FIRST use a shorter chain (or Vi's a longer one) and the copy
-     sinks; concretely, try making the loop's first buildList read (`geomRez =
-     (signed char)buildList->geomRez;`) the LAST link of a chain rather than the
-     first.  Same instrument applies to DrawObjectSimple's `lw s5,96(sp)`. */
+     *** w50-a2 (2026-08-09): PASS 199/199.  THE PROLOGUE PARAM-COPY SINK WAS
+     NOT A SINK AT ALL -- it was the LOOP-POINTER INIT, and the fix is the
+     INDEX FORM. ***  The oracle's `addu $s1,$a1,$zero` is emitted at the END of
+     the loop preheader, AFTER all of loop.c's own hoists (`addu s6,zero,zero`,
+     the lui/addiu global, `addiu s7,sp,24`, `addiu s3,sp,40`) -- that placement
+     is the signature of a giv INIT that loop.c appends to the preheader, not of
+     an assign_parms copy.  Writing the walk as `buildList[buildInd].field` (and
+     deleting the explicit `buildList = buildList + 1;`) makes gcc strength-reduce
+     the index into exactly that walking pointer, so the init lands where retail
+     has it and the whole body is byte-identical.  Three levers, in order:
+       (1) 8 -> 6: alias the parameter into a block-local at the loop head
+           (`tBuildEntry *buildList = buildListArg;`) -- this alone sinks the
+           a1->s1 copy out of the entry block (the w46 "no source position can
+           reach assign_parms" verdict is thereby RETIRED: you cannot move the
+           parm copy, but you CAN make the s-register's def be a different insn).
+       (2) 6 -> 2: DELETE the `Vi++; Vi--;` net-zero pair.  It had been keeping
+           Vi's allocno above buildList's, but with the alias in place it only
+           cost Vi its LAUNCH BOOST (adjust_priority raises a readied insn to
+           0x7f000001 only if birthing_insn_p, i.e. REG_N_SETS(reg)==1; a
+           net-zero pair makes 3 sets), so the a2/sd copy won cycle 0 and Vi's
+           copy sank 6 slots.  Textbook w45 LEVER-ORDER DEPENDENCE: the pair was
+           load-bearing in the old basin and harmful in this one.
+       (3) 2 -> PASS: the index form above (the alias and the explicit increment
+           both disappear with it).
+     FALSIFIED at the 8-diff basin (all byte-identical, all reverted): the w47
+     OPACITY fence `__asm__("" : "=r"(buildList) : "0"(buildList))` at the loop
+     head / before the net-zero pair / after it / replacing it; the same fence on
+     Vi at the top REGRESSED to 14 (as the older use-fence did).  At the 2-diff
+     basin: a net-zero pair on the ALIAS regressed to 44 (it defeats the giv), two
+     stacked opacity fences likewise 44, a single opacity fence was a no-op.
+     NOTE the w11 receipt above says "index-form buildList[buildInd] regressed to
+     54" -- true in ITS basin (both net-zero pairs, no alias); the index form only
+     wins once the pairs are gone.  The same instrument still applies to
+     DrawObjectSimple's `lw s5,96(sp)`. */
   int chunkCount;
 
-  Vi++; Vi--;  /* MATCH: net-zero pair -- lifts Vi's allocno priority above buildList (see above) */
   chunkCount = BWorld_gChunkCount;
   sd->doublelayer = 0;
   {
@@ -5086,15 +5238,14 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
   }
   {
     int buildInd;
-    buildList++; buildList--;  /* MATCH: net-zero pair -- buildList wins s1 over sd (see above) */
     for (buildInd = 0; buildInd < chunkCount; buildInd = buildInd + 1) {
       Chunk *chunkDat;
       int geomRez;
-      geomRez = (signed char)buildList->geomRez;
+      geomRez = (signed char)buildList[buildInd].geomRez;
       if (geomRez == 4) {
-        chunkDat = Track_chunkList + buildList->chunkInd;
+        chunkDat = Track_chunkList + buildList[buildInd].chunkInd;
         Group *group = chunkDat->lineBuf;
-        if ((group != (Group *)0x0) && ((buildList->enableBits & 4U) != 0)) {
+        if ((group != (Group *)0x0) && ((buildList[buildInd].enableBits & 4U) != 0)) {
           COORD16 trans;
           if (gNight_renderNight != 0) {
             coorddef tmp;
@@ -5145,7 +5296,7 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
           }
           {
             coorddef *pChunkCp;
-            pChunkCp = Chunk_chunkCenters + buildList->chunkInd;
+            pChunkCp = Chunk_chunkCenters + buildList[buildInd].chunkInd;
             {
               int tx = (Vi->cview).translation.x;
               trans.x = (short)(pChunkCp->x - tx >> 10);
@@ -5162,7 +5313,6 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
           }
         }
       }
-      buildList = buildList + 1;
     }
   }
   return;

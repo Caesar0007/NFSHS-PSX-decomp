@@ -1,11 +1,11 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2797 at 100% (80.0%)
+TOTAL: 3496 functions, 2812 at 100% (80.4%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
 0x800128F0    100.00%  game/common/minfront     MinFront_ParseOptions__Fv
-0x80012938     95.87%  game/psx/fe3dmenu        Fe3D_InitShowroom__Fv
+0x80012938    100.00%  game/psx/fe3dmenu        Fe3D_InitShowroom__Fv
 0x80012AE4    100.00%  game/psx/fe3dmenu        CameraLookAt__FP10matrixtdefP8coorddef
 0x80012BF8    100.00%  game/psx/fe3dmenu        Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii
 0x80012FA0     80.99%  frontend/common/feapp    __14tFEApplication
@@ -2193,11 +2193,11 @@ VA             %match  unit                     function
 0x800BBFA4    100.00%  game/psx/cario           CarIO_ReStart__Fv
 0x800BBFF0    100.00%  game/psx/cario           CarIO_CopyFromShape__FPsT0iiii
 0x800BC1B4     89.48%  game/psx/cario           CarIO_CopyToShape__FPsT0i
-0x800BC25C     88.22%  game/psx/cario           CarIO_CreateLicense__FPcii
+0x800BC25C     95.48%  game/psx/cario           CarIO_CreateLicense__FPcii
 0x800BC5F0    100.00%  game/psx/cario           CarIO_CleanUpLicense__Fi
 0x800BC668    100.00%  game/psx/cario           CarIO_LicenseCheck__FiPiT1P8Car_tObji
-0x800BC704     99.04%  game/psx/cario           CarIO_ReadInCarTextureData__FPcP8Car_tObjii
-0x800BCEB0     97.04%  game/psx/cario           CarIO_UpdateCarTextureData__FPcP8Car_tObji
+0x800BC704     99.09%  game/psx/cario           CarIO_ReadInCarTextureData__FPcP8Car_tObjii
+0x800BCEB0    100.00%  game/psx/cario           CarIO_UpdateCarTextureData__FPcP8Car_tObji
 0x800BD358    100.00%  game/psx/cario           CarIO_ReleaseCarCluts__FP8Car_tObj
 0x800BD3C0    100.00%  game/psx/device          Device_VerifyType__Fi
 0x800BD468    100.00%  game/psx/device          Device_Fail__Fi
@@ -2248,7 +2248,7 @@ VA             %match  unit                     function
 0x800C12F8    100.00%  game/psx/drawc           DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache
 0x800C155C     92.68%  game/psx/drawc           DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache
 0x800C32B0     96.41%  game/psx/drawc           DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache
-0x800C3A30     95.80%  game/psx/drawc           DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache
+0x800C3A30    100.00%  game/psx/drawc           DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache
 0x800C3ED8    100.00%  game/psx/drawc           DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache
 0x800C40DC    100.00%  game/psx/drawc           DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache
 0x800C42C4    100.00%  game/psx/drawc           DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache
@@ -2262,7 +2262,7 @@ VA             %match  unit                     function
 0x800C5BB4    100.00%  game/psx/draww           DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR
 0x800C5BE0    100.00%  game/psx/draww           DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache
 0x800C5F18    100.00%  game/psx/draww           Night_NightCopCalc__FP6VECTORPs
-0x800C5FB8     96.49%  game/psx/draww           Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache
+0x800C5FB8    100.00%  game/psx/draww           Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache
 0x800C609C    100.00%  game/psx/draww           DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32
 0x800C64F8     99.31%  game/psx/draww           DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad
 0x800C6E38    100.00%  game/psx/draww           DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache
@@ -2274,7 +2274,7 @@ VA             %match  unit                     function
 0x800C7644    100.00%  game/psx/draww           DrawW_GetAnimationTime__FP15Trk_AnimateInst
 0x800C76C8    100.00%  game/psx/draww           DrawW_SetAnimationTime__FP15Trk_AnimateInstPii
 0x800C7808    100.00%  game/psx/draww           DrawW_DoObjectAnimations__Fv
-0x800C78A8     92.06%  game/psx/draww           DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
+0x800C78A8     98.86%  game/psx/draww           DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
 0x800C7B9C     89.42%  game/psx/draww           DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi
 0x800C7EBC    100.00%  game/psx/draww           DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis
 0x800C8214     98.06%  game/psx/draww           DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
@@ -2286,7 +2286,7 @@ VA             %match  unit                     function
 0x800C9620    100.00%  game/psx/draww           DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache
 0x800C98B8     98.36%  game/psx/draww           DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache
 0x800CA0A4    100.00%  game/psx/draww           DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16
-0x800CA204     98.67%  game/psx/draww           DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache
+0x800CA204    100.00%  game/psx/draww           DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache
 0x800CA520     95.87%  game/psx/draww           DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache
 0x800CA950    100.00%  game/psx/draww           DepthCue_Init__Fv
 0x800CA998    100.00%  game/psx/force           Force_Vbl__Fv
@@ -2337,14 +2337,14 @@ VA             %match  unit                     function
 0x800CE8B0    100.00%  game/psx/flare           Flare_SingleColorOct__FP7DVECTORP7CVECTORiii
 0x800CE988    100.00%  game/psx/flare           Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii
 0x800CEB44    100.00%  game/psx/flare           Flare_InitLensFlare__Fv
-0x800CEB6C     95.66%  game/psx/flare           Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+0x800CEB6C     95.06%  game/psx/flare           Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
 0x800CF1D0    100.00%  game/psx/flare           Flare_Sun__FP7SVECTORP15Draw_FlareCache
 0x800CF4BC    100.00%  game/psx/flare           Flare_Moon__FP7SVECTORP15Draw_FlareCache
 0x800CF574    100.00%  game/psx/hrzsku          Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii
 0x800CF6B4    100.00%  game/psx/hrzsku          Sky_InitStars__Fv
 0x800CF89C    100.00%  game/psx/hrzsku          Sky_KillStars__Fv
 0x800CF8E0    100.00%  game/psx/hrzsku          Hrz_InitSkyColor__Fv
-0x800CFA3C     99.76%  game/psx/hrzsku          Hrz_InitSky__Fv
+0x800CFA3C    100.00%  game/psx/hrzsku          Hrz_InitSky__Fv
 0x800CFD80    100.00%  game/psx/hrzsku          Hrz_Init2DRing__Fv
 0x800D0064    100.00%  game/psx/hrzsku          Hrz_GetHorizonPixMap__FP12Draw_tPixMap
 0x800D0118    100.00%  game/psx/hrzsku          Hrz_InitHorizon__Fv
@@ -2359,9 +2359,9 @@ VA             %match  unit                     function
 0x800D091C    100.00%  game/psx/hrzsku          HrzSetPsxTranslation__FP8coorddef
 0x800D096C    100.00%  game/psx/hrzsku          Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR
 0x800D09B0    100.00%  game/psx/hrzsku          Hrz_SetDitheringPrim__Fii
-0x800D0A38     92.92%  game/psx/hrzsku          Hrz_BuildSky__Fv
+0x800D0A38     92.66%  game/psx/hrzsku          Hrz_BuildSky__Fv
 0x800D1160    100.00%  game/psx/hrzsku          Sky_RenderStars__FP13Draw_SkyCachei
-0x800D131C     92.15%  game/psx/hrzsku          Hrz_BuildHorizon__FP13DRender_tView
+0x800D131C     94.97%  game/psx/hrzsku          Hrz_BuildHorizon__FP13DRender_tView
 0x800D1A80    100.00%  game/psx/hud             Hud_CreateHudViews__Fv
 0x800D1D6C    100.00%  game/psx/hud             Hud_GoTpage__Fi
 0x800D1DFC    100.00%  game/psx/hud             Hud_DebugInfo__Fv
@@ -2392,25 +2392,25 @@ VA             %match  unit                     function
 0x800D3BA4    100.00%  game/psx/hud             Hud_BuildDistanceString__FP4SPRTi
 0x800D3D44    100.00%  game/psx/hud             Hud_BuildTimeString__FP4SPRTi
 0x800D3E94     88.03%  game/psx/hud             Hud_BuildTach__Fi
-0x800D42C8     96.59%  game/psx/hud             Hud_BuildString__FPciiiib
+0x800D42C8     95.08%  game/psx/hud             Hud_BuildString__FPciiiib
 0x800D4624     97.72%  game/psx/hud             Hud_BuildNumbers0__Fi
 0x800D4E70     93.36%  game/psx/hud             Hud_BuildNumbers__Fi
 0x800D5A48    100.00%  game/psx/hud             Hud_InitMap__Fv
 0x800D5AE8     88.62%  game/psx/hud             Hud_BuildMapMarkers__Fi
 0x800D5FB8    100.00%  game/psx/hud             Hud_WingmanFlash__Fii
-0x800D606C     98.62%  game/psx/hud             Hud_BuildWingmanInterface__Fi
+0x800D606C     99.05%  game/psx/hud             Hud_BuildWingmanInterface__Fi
 0x800D63B8    100.00%  game/psx/hud             Hud_InitCdPlayer__Fv
-0x800D63DC     95.65%  game/psx/hud             Hud_BuildCdPlayer__Fii
+0x800D63DC     96.36%  game/psx/hud             Hud_BuildCdPlayer__Fii
 0x800D6B48     99.08%  game/psx/hud             Hud_BuildRadar__Fi
-0x800D7250     96.73%  game/psx/hud             Hud_BuildReplay__Fv
+0x800D7250     98.95%  game/psx/hud             Hud_BuildReplay__Fv
 0x800D754C    100.00%  game/psx/hud             Hud_NextPlayer__Fi
 0x800D76B0    100.00%  game/psx/hud             Hud_NextPlayerNameOrCarOrTime__Fi
 0x800D7838    100.00%  game/psx/hud             Hud_RenderMapView__Fv
 0x800D7ABC    100.00%  game/psx/hud             Hud_BlackThinBox__Fiiii
-0x800D7CA8     98.56%  game/psx/hud             Hud_Draw321Num__Fiiiiii
+0x800D7CA8     97.79%  game/psx/hud             Hud_Draw321Num__Fiiiiii
 0x800D7E64    100.00%  game/psx/hud             Hud_Render321Go__Fv
 0x800D7FB0    100.00%  game/psx/hud             BigBTCTime__Fi
-0x800D82D0     99.25%  game/psx/hud             Hud_RenderHudView__Fv
+0x800D82D0     99.61%  game/psx/hud             Hud_RenderHudView__Fv
 0x800D8C48     88.25%  game/psx/hud             Hud_RenderTacView__Fv
 0x800D8D64    100.00%  game/psx/hud             Hud_ParseTime__FiPc
 0x800D8ED0    100.00%  game/psx/hud             Hud_RenderPauseBox__Fiiii
@@ -2433,7 +2433,7 @@ VA             %match  unit                     function
 0x800DB200    100.00%  game/psx/loading         Loading_UpdateLoadingScreen__Fi
 0x800DB2F8    100.00%  game/psx/loading         Loading_GetInitialMemory__Fv
 0x800DB318    100.00%  game/psx/night           Night_FindClosestColor__FG7CVECTORPi
-0x800DB3E0     91.11%  game/psx/night           Night_CreateNightTableElement__FiliPUc
+0x800DB3E0     95.04%  game/psx/night           Night_CreateNightTableElement__FiliPUc
 0x800DB5A4    100.00%  game/psx/night           Night_CreateNightTable__FiliPA256_A16_Uc
 0x800DB5CC    100.00%  game/psx/night           Night_GenerateNextLightningEvent__Fv
 0x800DB640    100.00%  game/psx/night           Night_PauseLightningEffect__Fi
@@ -2470,7 +2470,7 @@ VA             %match  unit                     function
 0x800DD1A4    100.00%  game/psx/sfx             Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap
 0x800DD370    100.00%  game/psx/sfx             Sfx_ThickenXZ__FP7SVECTORP8coorddefN21
 0x800DD528    100.00%  game/psx/sfx             Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2
-0x800DD598     95.91%  game/psx/sfx             Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache
+0x800DD598     97.82%  game/psx/sfx             Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache
 0x800DD790     98.09%  game/psx/sfx             Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle
 0x800DE638    100.00%  game/psx/sfx             Sfx_Add__FP17Souffle_tISouffle
 0x800DE6F4    100.00%  game/psx/skidmark        CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i
@@ -2522,7 +2522,7 @@ VA             %match  unit                     function
 0x800E1110    100.00%  game/psx/textureprocess  Fog_DeInitFogTriggers__Fv
 0x800E1134    100.00%  game/psx/textureprocess  TextureProcess_Init__Fv
 0x800E1148    100.00%  game/psx/textureprocess  CV_ProcessWorldColors_FINAL__FiP7CVECTORs
-0x800E1308     98.42%  game/psx/textureprocess  CV_ColorTracks__Fiii
+0x800E1308    100.00%  game/psx/textureprocess  CV_ColorTracks__Fiii
 0x800E1510    100.00%  game/psx/textureprocess  CV_InitColorVertices__Fv
 0x800E1544     97.10%  game/psx/trackspec       TrackSpec_SetDefault__FP10CTrackSpec
 0x800E177C    100.00%  game/psx/trackspec       TrackSpec_SetUp__Fv
@@ -2553,7 +2553,7 @@ VA             %match  unit                     function
 0x800E22F0    100.00%  game/psx/weather         Weather_ChangeIntensityBasedOnTime__Fv
 0x800E23E8    100.00%  game/psx/weather         Weather_InitStateControls__Fv
 0x800E24B4    100.00%  game/psx/weather         Weather_Restart__Fv
-0x800E2530     98.01%  game/psx/weather         Weather_Init__Fv
+0x800E2530    100.00%  game/psx/weather         Weather_Init__Fv
 0x800E287C    100.00%  game/psx/weather         Weather_DeInit__Fv
 0x800E2910    100.00%  game/psx/weather         Weather_TransformVertex__FP10matrixtdefiP7SVECTOR
 0x800E29D4    100.00%  game/psx/weather         Weather_CheckAndResetParticles__FP7SVECTOR
@@ -2563,7 +2563,7 @@ VA             %match  unit                     function
 0x800E356C    100.00%  game/psx/weather         Weather_CreateRain__FP7SVECTORP7DVECTORPc
 0x800E3730    100.00%  game/psx/weather         Weather_CreateSplat__FP18Weather_tSplatInfo
 0x800E3858     96.84%  game/psx/weather         Weather_DoSplats__FiP18Weather_tSplatInfo
-0x800E3A1C     97.03%  game/psx/weather         Weather_DoWeather__FP13DRender_tView
+0x800E3A1C     98.15%  game/psx/weather         Weather_DoWeather__FP13DRender_tView
 0x800E3D30    100.00%  game/psx/weather         Weather_BuildWeather__FP13DRender_tView
 0x800E3D8C    100.00%  game/psx/textpix         textnpixels
 0x800E3E20    100.00%  game/psx/textpix         textpixels
@@ -2582,7 +2582,7 @@ VA             %match  unit                     function
 0x800E4158    100.00%  eaclib/psx/pad           PAD_restore
 0x800E41AC     94.00%  eaclib/psx/pad           PAD_state
 0x800E41FC      0.00%  syslib/psx/libpad/PAD    PAD_convert
-0x800E4210     88.24%  eaclib/psx/pad           PAD_update
+0x800E4210     90.67%  eaclib/psx/pad           PAD_update
 0x800E4318    100.00%  syslib/psx/libc/C43      memset
 0x800E4328    100.00%  eaclib/psx/eacpsxz/fixdmult fixedmult
 0x800E4354    100.00%  syslib/psx/libsn/PUREV   __pure_virtual
@@ -2671,7 +2671,7 @@ VA             %match  unit                     function
 0x800E7A68    100.00%  eaclib/psx/sndpsxz/splay cSNDplay
 0x800E7B14    100.00%  eaclib/psx/sndpsxz/sover SNDover
 0x800E7B64    100.00%  eaclib/psx/sndpsxz/sbhdrsze SNDbankheadersize
-0x800E7BA8     97.44%  eaclib/psx/sndpsxz/sbhdrcpy SNDbankheadercopy
+0x800E7BA8     90.84%  eaclib/psx/sndpsxz/sbhdrcpy SNDbankheadercopy
 0x800E7CEC    100.00%  eaclib/psx/sndpsxz/sdmemlu SNDmemlargestunused
 0x800E7DEC    100.00%  eaclib/psx/sndpsxz/sbadd SNDbankadd
 0x800E7E80    100.00%  eaclib/psx/sndpsxz/sstop SNDstop
@@ -2761,7 +2761,7 @@ VA             %match  unit                     function
 0x800EB1D0    100.00%  syslib/psx/libc/C24      strncmp
 0x800EB1E0    100.00%  eaclib/psx/spchpsxz/spchbank iSPCH_InitBanks
 0x800EB1F4    100.00%  eaclib/psx/spchpsxz/spchbank iSPCH_DisposeBanks
-0x800EB234     93.58%  eaclib/psx/spchpsxz/spchbank iSPCH_BankMemAlloc
+0x800EB234    100.00%  eaclib/psx/spchpsxz/spchbank iSPCH_BankMemAlloc
 0x800EB2B8    100.00%  eaclib/psx/spchpsxz/spchbank iSPCH_GetFreeBank
 0x800EB310    100.00%  eaclib/psx/spchpsxz/spchbank iSPCH_FindBank
 0x800EB37C    100.00%  eaclib/psx/spchpsxz/spchbank iSPCH_TestSubBankBounds
@@ -2784,8 +2784,8 @@ VA             %match  unit                     function
 0x800EBBF4    100.00%  eaclib/psx/eacpsxz/nfile FILE_init
 0x800EBC78    100.00%  eaclib/psx/eacpsxz/nfile FILE_initwithmem
 0x800EBD74    100.00%  eaclib/psx/eacpsxz/nfile FILE_overhead
-0x800EBDC4     99.55%  eaclib/psx/eacpsxz/nfile FILE_opstatus
-0x800EBE1C     86.67%  eaclib/psx/eacpsxz/nfile FILE_operror
+0x800EBDC4    100.00%  eaclib/psx/eacpsxz/nfile FILE_opstatus
+0x800EBE1C    100.00%  eaclib/psx/eacpsxz/nfile FILE_operror
 0x800EBE4C    100.00%  eaclib/psx/eacpsxz/nfile FILE_callbackop
 0x800EBECC    100.00%  eaclib/psx/eacpsxz/nfile FILE_priorityop
 0x800EC008     98.39%  eaclib/psx/eacpsxz/nfile FILE_cancelop
@@ -3117,7 +3117,7 @@ VA             %match  unit                     function
 0x800FC9B4    100.00%  eaclib/psx/eacpsxz/stream startnextrequest
 0x800FCB44    100.00%  eaclib/psx/eacpsxz/stream restartstream
 0x800FCDE0    100.00%  eaclib/psx/eacpsxz/stream STREAM_overhead
-0x800FCE14     99.55%  eaclib/psx/eacpsxz/stream STREAM_create
+0x800FCE14     99.58%  eaclib/psx/eacpsxz/stream STREAM_create
 0x800FD054    100.00%  eaclib/psx/eacpsxz/stream STREAM_setfilter
 0x800FD144    100.00%  eaclib/psx/eacpsxz/stream STREAM_destroy
 0x800FD1F8    100.00%  eaclib/psx/eacpsxz/stream STREAM_setpriority
@@ -3125,7 +3125,7 @@ VA             %match  unit                     function
 0x800FD2B4    100.00%  eaclib/psx/eacpsxz/stream STREAM_setgreedystate
 0x800FD314    100.00%  eaclib/psx/eacpsxz/stream STREAM_queuefile
 0x800FD428    100.00%  eaclib/psx/eacpsxz/stream STREAM_queuemem
-0x800FD554     99.62%  eaclib/psx/eacpsxz/stream STREAM_cancelrequest
+0x800FD554     99.97%  eaclib/psx/eacpsxz/stream STREAM_cancelrequest
 0x800FD808    100.00%  eaclib/psx/eacpsxz/stream STREAM_kill
 0x800FD9AC    100.00%  eaclib/psx/eacpsxz/stream STREAM_get
 0x800FDAD0    100.00%  eaclib/psx/eacpsxz/stream STREAM_release
@@ -3157,7 +3157,7 @@ VA             %match  unit                     function
 0x800FE6BC    100.00%  eaclib/psx/sndpsxz/sbvalid iSNDvalidbank
 0x800FE724    100.00%  eaclib/psx/sndpsxz/salloc iSNDischanreserved
 0x800FE764    100.00%  eaclib/psx/sndpsxz/salloc iSNDallocchan
-0x800FEC0C     91.00%  eaclib/psx/sndpsxz/salloc iSNDfreechan
+0x800FEC0C     98.18%  eaclib/psx/sndpsxz/salloc iSNDfreechan
 0x800FEDC4    100.00%  eaclib/psx/sndpsxz/salloc iSNDgetchan
 0x800FEE30    100.00%  eaclib/psx/sndpsxz/s3dpos iSNDplatform3dpos
 0x800FEF4C    100.00%  eaclib/psx/sndpsxz/spatkey iSNDpatchkey
@@ -3230,15 +3230,15 @@ VA             %match  unit                     function
 0x8010218C    100.00%  eaclib/psx/sndpsxz/stagpat iSNDplaytaggedpatch
 0x801024EC    100.00%  eaclib/psx/sndpsxz/stagpat iSNDresolvetaggedpatch
 0x801025C0    100.00%  eaclib/psx/sndpsxz/stagpat iSNDremovetaggedpatch
-0x8010266C     89.83%  eaclib/psx/sndpsxz/sbdload iSNDdownloadbank
+0x8010266C    100.00%  eaclib/psx/sndpsxz/sbdload iSNDdownloadbank
 0x801027BC    100.00%  eaclib/psx/sndpsxz/sballoc iSNDbankalloc
 0x80102810    100.00%  eaclib/psx/sndpsxz/sgetvol SNDgetvol
 0x801028AC    100.00%  syslib/psx/libc/C63      printf
 0x801028BC    100.00%  eaclib/psx/sndpsxz/spktplay iSNDpacketplayoverhead
 0x801028D0    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_overhead
 0x801028FC    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_create
-0x80102A10     99.95%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_start
-0x80102CFC     99.78%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_submit
+0x80102A10    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_start
+0x80102CFC    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_submit
 0x80102E70    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_submitspace
 0x80102EC4    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_unsafeframesoutstanding
 0x80102EEC    100.00%  eaclib/psx/sndpsxz/spktplay SNDPKTPLAY_framesoutstanding
@@ -3309,7 +3309,7 @@ VA             %match  unit                     function
 0x801061A8    100.00%  eaclib/psx/sndpsxz/smemman iSNDmemconstrain
 0x801061D4    100.00%  eaclib/psx/sndpsxz/smemman iSNDmeminit
 0x801061F4    100.00%  eaclib/psx/sndpsxz/smemman iSNDmemrestore
-0x80106238     96.78%  eaclib/psx/sndpsxz/smemman iSNDmalloc
+0x80106238     99.89%  eaclib/psx/sndpsxz/smemman iSNDmalloc
 0x80106454    100.00%  syslib/psx/libgte/PATCHGTE _patch_gte
 0x80106500    100.00%  syslib/psx/libgte/PATCHGTE _patch_gte_handler_1
 0x80106534     73.41%  syslib/psx/libetc/INTR_VB startIntrVSync
@@ -3429,7 +3429,7 @@ VA             %match  unit                     function
 0x8010A5CC     79.20%  eaclib/psx/sndpsxz/sdmemman iSNDpsxmalloc
 0x8010A7C8    100.00%  eaclib/psx/sndpsxz/sdmemman iSNDpsxfree
 0x8010A880    100.00%  eaclib/psx/sndpsxz/sdma  iSNDdmtransfer
-0x8010AA64     99.91%  eaclib/psx/sndpsxz/sdma  iSNDdmcallback
+0x8010AA64    100.00%  eaclib/psx/sndpsxz/sdma  iSNDdmcallback
 0x8010AC20    100.00%  eaclib/psx/sndpsxz/sdma  iSNDdmservice
 0x8010ACA0    100.00%  eaclib/psx/sndpsxz/sdma  iSNDdmqueue
 0x8010AD94    100.00%  eaclib/psx/sndpsxz/sdma  iSNDdmqueuesplit

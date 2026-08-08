@@ -94,59 +94,63 @@ void tScreenUserName::DrawBackground()
   int gray;
   short fade;
   char output[2];
-  volatile short fadebox;
+  short fadebox;
   short gridpos;
   short row;
   short col;
-  int screenFade;
-  int temp;
+  short *colp;
 
-  screenFade = this->callingMenu->fScreenFade;
-  temp = ((short)screenFade >> 1) - 0x80;
-  if (temp <= 0) {
-    temp = 0;
+  fade = *(volatile int *)&this->callingMenu->fScreenFade;
+  if ((short)((fade >> 1) - 0x80) < 0x80) {
+    if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero;
   }
-  else if (temp >= 0x81) {
-    temp = 0x80;
+  if ((short)((fade >> 1) - 0x80) < 0x81) goto DrawBgUser_fadeboxNormal;
+  fadebox = 0x80;
+  goto DrawBgUser_fadeboxDone;
+DrawBgUser_fadeboxZero:
+  fadebox = 0;
+  goto DrawBgUser_fadeboxDone;
+DrawBgUser_fadeboxNormal:
+  fadebox = (fade >> 1) - 0x80;
+DrawBgUser_fadeboxDone:
+  if ((short)(fade >> 2) < 0x80) {
+    if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposZero;
   }
-  fadebox = temp;
-  temp = (short)screenFade >> 2;
-  if (temp <= 0) {
-    temp = 0;
-  }
-  else if (temp >= 0x81) {
-    temp = 0x80;
-  }
-  gridpos = temp;
-  fade = screenFade;
+  if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposNormal;
+  gridpos = 0x80;
+  goto DrawBgUser_gridposDone;
+DrawBgUser_gridposZero:
+  gridpos = 0;
+  goto DrawBgUser_gridposDone;
+DrawBgUser_gridposNormal:
+  gridpos = fade >> 2;
+DrawBgUser_gridposDone:
   if (fade < 0x80) {
-    if (fade < 1) {
-      this->fTextFade = 0;
-    }
-    else {
-      this->fTextFade = fade;
-    }
+    if (fade <= 0) goto DrawBgUser_textFadeZero;
   }
-  else {
-    if (fade >= 0x81) {
-      this->fTextFade = 0x80;
-    }
-    else {
-      this->fTextFade = fade;
-    }
-  }
+  if (fade < 0x81) goto DrawBgUser_textFadeNormal;
+  this->fTextFade = 0x80;
+  goto DrawBgUser_textFadeDone;
+DrawBgUser_textFadeZero:
+  this->fTextFade = 0;
+  goto DrawBgUser_textFadeDone;
+DrawBgUser_textFadeNormal:
+  this->fTextFade = fade;
+DrawBgUser_textFadeDone:
   gray = 0x80808;
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
   y = MENUUSERNAME_STARTY;
   row = 0;
+  colp = &col;
   strcpy(output," ");
   while (row < menu_kUserNameRows) {
     x = 0x102;
-    col = 0;
-    while ((output[0] = this->fRowList[0][col + row * 9]) != '\0') {
+    *colp = 0;
+    while (this->fRowList[0][*colp + row * 9] != '\0') {
       int colText;
 
+      output[0] = this->fRowList[0][*colp + row * 9];
       colText = CalcFadeVal(0xb54200,this->fTextFade);
       switch(output[0]) {
       case '@':
@@ -192,7 +196,7 @@ DrawBg4b1ac_emitText:
         break;
       }
       x = x + 0x1c;
-      col = col + 1;
+      *colp = *colp + 1;
     }
     y = y + 0xf;
     row++;

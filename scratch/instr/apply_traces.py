@@ -383,6 +383,72 @@ def patch_reload1(root):
     print("  reload1.c  patched (%d re-home trace sites)" % n)
 
 
+def patch_sched(root):
+    """[sched_pick] -- per-pick decision trace at schedule_block's ready[0]
+    selection (round-11): pass (0=sched1/1=sched2), clock, the PREVIOUS
+    last_scheduled insn, and for each ready insn (pri, rank-class vs last,
+    LUID).  Gated on env GCC_TRACE_SCHED (separate from GCC_TRACE_ALLOC)."""
+    p = os.path.join(root, 'sched.c')
+    s = rd(p)
+    if 'nfs4_sched_trace' in s:
+        print("  sched.c    already patched"); return
+    backup(p)
+
+    anchor = "static int insn_cost\t\t\tPROTO((rtx, rtx, rtx));"
+    helper = anchor + '''
+
+extern char *getenv ();
+static int nfs4_sched_trace PROTO((void));
+
+static int
+nfs4_sched_trace ()
+{
+  static int t = -1;
+  if (t < 0)
+    {
+      char *e = getenv ("GCC_TRACE_SCHED");
+      t = (e && *e && *e != '0') ? 1 : 0;
+    }
+  return t;
+}
+'''
+    s = sub1(s, anchor, helper, 'sched helper')
+
+    pick_anchor = ("      n_ready = new_ready;\n"
+                   "      last_scheduled_insn = insn = ready[0];")
+    trace = ("      n_ready = new_ready;\n"
+             "      if (nfs4_sched_trace () && n_ready > 0)\n"
+             "\t{\n"
+             "\t  int nfs4_i;\n"
+             "\t  fprintf (stderr, \"[sched_pick] pass=%d clk=%d last=%d ::\",\n"
+             "\t\t   reload_completed, clock,\n"
+             "\t\t   last_scheduled_insn ? INSN_UID (last_scheduled_insn) : -1);\n"
+             "\t  for (nfs4_i = 0; nfs4_i < n_ready && nfs4_i < 10; nfs4_i++)\n"
+             "\t    {\n"
+             "\t      rtx nfs4_t = ready[nfs4_i];\n"
+             "\t      rtx nfs4_l;\n"
+             "\t      int nfs4_cls = 3;\n"
+             "\t      if (last_scheduled_insn)\n"
+             "\t\t{\n"
+             "\t\t  nfs4_l = find_insn_list (nfs4_t, LOG_LINKS (last_scheduled_insn));\n"
+             "\t\t  if (nfs4_l == 0 || insn_cost (nfs4_t, nfs4_l, last_scheduled_insn) == 1)\n"
+             "\t\t    nfs4_cls = 3;\n"
+             "\t\t  else if (REG_NOTE_KIND (nfs4_l) == 0)\n"
+             "\t\t    nfs4_cls = 1;\n"
+             "\t\t  else\n"
+             "\t\t    nfs4_cls = 2;\n"
+             "\t\t}\n"
+             "\t      fprintf (stderr, \" %d(p%d,c%d,l%d)\", INSN_UID (nfs4_t),\n"
+             "\t\t       INSN_PRIORITY (nfs4_t), nfs4_cls, INSN_LUID (nfs4_t));\n"
+             "\t    }\n"
+             "\t  fprintf (stderr, \"\\n\");\n"
+             "\t}\n"
+             "      last_scheduled_insn = insn = ready[0];")
+    s = sub1(s, pick_anchor, trace, 'sched pick site')
+    wr(p, s)
+    print("  sched.c    patched (pick-site decision trace)")
+
+
 # =========================================================================
 if __name__ == '__main__':
     root = sys.argv[1] if len(sys.argv) > 1 else '.'
@@ -391,4 +457,5 @@ if __name__ == '__main__':
     patch_global(root)
     patch_local_alloc(root)
     patch_reload1(root)
+    patch_sched(root)
     print("DONE")

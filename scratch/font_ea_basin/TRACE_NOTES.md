@@ -329,3 +329,49 @@ combos gated; 🏆 the A1-HARD-REG-LIFETIME law found. Gate stays 28.
    tests per probe. (c) fallback = accept 28 (park with Draw-20ce).
 STATUS: shipping = V21 (28) restored + verified. New traces: trace_v45.txt
 (+ v44/v46 gates), mine/psxfront_v45.{i,s}.
+
+================================================================================
+ROUND 11 (2026-08-08) — 🏆 THE SCHED DECISION-TRACE INSTRUMENT IS BUILT,
+VALIDATED, AND READ. Gate stays 28; the causal chain is instrumented end-to-end.
+================================================================================
+1) INSTRUMENT: apply_traces.py gains patch_sched() -- [sched_pick] at
+   schedule_block's ready[0] selection: pass (0=sched1/1=sched2), clock, the
+   PREVIOUS last_scheduled, and per ready insn (INSN_PRIORITY, rank-class vs
+   last, INSN_LUID).  Env GCC_TRACE_SCHED.  Rebuilt from tarball via
+   build_cc1.sh ecoff + LANGUAGES="c c++" cc1plus (the w46 build trees had
+   died with the pruned worktree; ~8 min).  New binary:
+   C:/Temp/nfs4-instr-cc1/cc1plus-r11.exe.
+   🏆 FIDELITY: traces-off output on psxfront_v21.i is BYTE-IDENTICAL to the
+   proven lab cc1plus -> every pick line is a receipt.
+2) PARSER: scratch/font_ea_basin/pickparse.py -- aligns [sched_pick] with the
+   -dS RTL, labels insns (TINT/PAL*/CLUT/...), and names the DECIDING RULE per
+   pick (pri | class | luid | only).  Traces: sched_v21.txt / sched_v45.txt,
+   parsed picks_v21/45.txt (877/880 picks).
+3) 🏆 READINGS: (a) a hidden layer -- many insns carry priority 0x7F000001 =
+   the LAUNCH BOOST ("reg-killing insns launched into latency slots"), which
+   dominates the pri rule; the static-priority reasoning of rounds 9-10 was
+   incomplete.  (b) THE V21/V45 FIRST DIVERGENCE is at the forward HEAD (last
+   backward picks): v45 picks the v-load (rule=pri) ahead of the height/width
+   lbus -- the tail mutations deepen dv's chain, shift the head loads' static
+   priorities, and rotate the ch-block = round-10's measured fill rotation.
+   Causal chain now fully instrumented: source tail -> head-load priorities ->
+   sched1 weave -> hard-reg lifetimes + windows -> RA fill -> sched2 emission.
+   (c) V21's backward pick log confirms the LUID rule live (dv-vs-tint pick
+   864/865, tag-slot filling) exactly as the round-9 source read predicted.
+4) MUTATION RED HERRING (shape-wise): V21's ANONYMOUS `dv + height` ALREADY
+   emits the in-place `addu $8,$8,$14` (combine merges the dying temp), so the
+   oracle's in-place addus do NOT prove source mutations; they only perturb
+   priorities (and killed the frame in every r10 probe).  Blocks 7/8 of the 28
+   = pure sched2 position echoes, not a shape gap.
+5) OPEN CONTRADICTION TO RESOLVE (round 12, fresh context): retail source =
+   tint-after-link (SLD+emission, mem-locked in BOTH sched passes) => retail's
+   post-sched1 should have the V22r v1-hole at dv's fill -- yet retail dv@t0.
+   My retail window estimates are emission-derived (post-sched2) and hence
+   unreliable for fills; ROUTE: reverse-fit retail's post-sched1 luid layout
+   from the KNOWN retail fill (16 regs + s0 + t8) under the fill rules
+   (allocsim-style inversion), constrained by the mem-lock + pick rules; then
+   drive tint-late source variants with the pick-trace per probe, hunting the
+   layout that closes the v1-hole (two >dv-pri tinies on v0+v1 inside dv's
+   window, or dv global).  Loop cost = minutes/probe, all instruments hot.
+STATUS: shipping = V21 (28) untouched this round.  Instrument + parser
+committed; traces banked in the instr dir.

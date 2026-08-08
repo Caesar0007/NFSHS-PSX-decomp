@@ -1003,7 +1003,25 @@ extern void FILE_cancelop(unsigned int id)
      *      LOCAL (`int *st = &gFileMgr.state; *st = *st - 1;` in its own block -- the w43
      *      "pointer local defeats true_dependence" / %hi-anchor device) gates 37 @110/109.  It
      *      does add a qty but also turns the ARRAY_REF into a plain indirect MEM, which frees the
-     *      scheduler and re-colors the whole arm. */
+     *      scheduler and re-colors the whole arm.
+     *      w50-a4 -- 13 MORE falsifications, and the 3-QTY verdict now has a much stronger base.
+     *      (b) the RMW block: NOTHING that leaves the count exact moves it.  All 14 @109/109:
+     *      a named `-1` local, a named state temp + a named `-1`, `--gFileMgr.state`,
+     *      `gFileMgr.state += -1`, a `do{}while(0)` wrapper on the whole RMW, a store-read-back
+     *      `action = 1 - op->status` (semantically 2, folded free), a bare `{ }` block around the
+     *      RMW, a void-tail fence ahead of it, and an OPACITY FENCE on the loaded state value
+     *      (register-resident, so zero-insn -- it does NOT mint a 4th qty; cse had already
+     *      collapsed the named temps into the same quantity).  The only shapes that DO add a qty
+     *      cost instructions: an opacity fence on the `-1` (12 @111) or on both (12 @111) -- the
+     *      w46 non-register-resident-CONSTANT fence cost -- and on the `2` (17 @110) or on the
+     *      pre-decremented value (15 @110).  => crossing the 3<->4 boundary needs a 4th qty that
+     *      is neither a constant nor a copy of an existing one, and this block has no such value.
+     *      (a) the shared `1`: a NAMED `one` local (the §3.12 #17 shared-constant-hoist, the one
+     *      shape the w33 note had not tried) makes it WORSE in every placement -- used by both the
+     *      cancelreq store and the status compare (27 @110), by the store only (27), by the
+     *      compare only (27), or assigned as its own statement just before the test (39 @110).
+     *      The constant must stay an anonymous literal at BOTH sites; the missing insn is purely
+     *      cse's choice to copy-propagate rather than rematerialize (class (a) above). */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
@@ -1352,7 +1370,18 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  * arg to re-materialize -- gates 21 @291/290.  Reason = the w46 fence cost profile: a fence on a
  * NON-REGISTER-RESIDENT CONSTANT costs instructions (the constant gets its own pseudo + the asm
  * blocks the compare's own materialization), so the +1 insn plus the extra allocno re-colors the
- * block.  A zero-insn constant-opacity device is still the missing piece here. */
+ * block.  A zero-insn constant-opacity device is still the missing piece here.
+ * w50-a4 -- the OTHER cluster (`sll v1,v1,2` vs the jump-table `lui/addiu`) IS reachable, but not
+ * for free.  A VOID-TAIL FENCE `__asm__("" : : "i"(0));` as the last statement before
+ * `switch (type)` gates 7 @291/290: it fixes the sll/lui issue order AND drops the `li a1,124`
+ * cluster to a single line -- but it costs +1 insn (the fence denies reorg the `beqz`'s delay-slot
+ * fill, so retail's `lui v0,0` in the slot becomes a nop).  NOT ADOPTED (the count must stay
+ * exact); it is banked as PROOF that the sll-vs-base tie here is a schedule-position question,
+ * not the §3.12 "not reachable by any source reshape" floor.  The fence needs to sit AFTER the
+ * switch's range check to be free, and C offers no statement position there.  Also falsified this
+ * wave: a USE fence on `type` before the switch (11 @291), an OPACITY fence on `type` (18 @294),
+ * an opacity fence on `bar` before the second strchr (13 @291), and a void fence between the
+ * `!= '|'` compare and that strchr (compile error -- a declaration follows it in C89). */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)

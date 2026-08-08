@@ -1,3 +1,22 @@
+/* MATCH (w51-a8, 2026-08-09) -- the "NAMED NEXT LEVER" below (a cse/copy-prop
+ * defeater for a spilled pointer param that is NOT a scheduling barrier) was hunted
+ * again and is still UNFOUND; recording what was ruled out so it is not re-derived:
+ *   - The residual is NOT the reload itself.  Our build ALREADY emits retail's
+ *     `lw <r>,0x68(sp)` param-home reload at both sites; the diff is (a) WHICH
+ *     register the reload lands in (ours $a3, retail $v1) and (b) that retail then
+ *     mutates it IN PLACE (`addu v1,v1,s7; sw v1,0x38(sp)`) while ours writes a fresh
+ *     dest (`addu v0,a3,s7`).  That is reload-register INHERITANCE (choose_reload_regs),
+ *     downstream of allocation -- the same verdict the w47 flag sweep reached
+ *     (`-fno-schedule-insns2` buys exact 81/81 parity but leaves the reload shape).
+ *   - The in-place-dead-pointer-mutate lever (methodology 3.12 #14) cannot reach it:
+ *     the value being mutated is a RELOAD temp with no source-level name; the only
+ *     names available (`a`, an `ap` carrier) are exactly the two forms already
+ *     falsified below (carrier without a fence copy-props away; with a fence the
+ *     barrier costs the two load-delay fills).
+ * ==> no new device; kept at 31.  A genuine non-barrier value-numbering breaker would
+ * have to be a new `asm` flavour (an operand-less UNSPEC-like marker cc1-2.8 does not
+ * have) or a maspsx/cc1-side change.
+ */
 /* eaclib/psx/eacpsxz/trnsmult.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   Source obj : nfs4\eaclib\psx\trnsmult.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   1 fn @0x80105F40 (0x140 bytes): transmult -- 3x3 fixed-point (16.16) matrix multiply C = A * B.

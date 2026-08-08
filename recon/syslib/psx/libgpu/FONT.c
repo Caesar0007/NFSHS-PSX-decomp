@@ -81,6 +81,26 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  * re-trying (1)/(2). NOTE: `boty` is a dead end for the $s2-pressure theory -- it's
  * stack-cached in BOTH builds (never register-resident in the oracle either), so
  * eliminating its local won't free a register. */
+/* MATCH (w51-a8, 2026-08-09): FntFlush's loop body is TRANSPLANTED from the
+ * byte-matched PsyQ sibling `C:\Temp\psyz\decomp\src\libgpuont.c` (Xeeynamo's
+ * psyz, PsyQ 4.7 / gcc-2.7.2 -- a MATCHED, non-INCLUDE_ASM FntFlush).  The vendor
+ * shape differs from the earlier hand reconstruction in four load-bearing ways and
+ * takes the fn 250 -> 184 diffs, 211 -> 203 insns (oracle 199):
+ *   (1) loop control = `c = *text; while (c) { if (!remain) break; ... c = *++text;
+ *       if (!c) break; remain--; }` -- the char is held in a fn-scope int, the
+ *       capacity countdown happens at the very END of the body (after the second
+ *       exit test), NOT in a `for`-increment;
+ *   (2) the dispatch is `c2 = c & 0xFF` + `c2 != ' '` / `c2 <= ' '` with a real
+ *       `switch` on TAB/LF and goto-labels do_tab / do_char / check_x /
+ *       set_linebreak -- one shared wrap-flag block reached from three edges;
+ *   (3) the `~c<r><g><b>` escape WALKS the cursor in place (`*++text`) instead of
+ *       computing a `next = text + 4` and indexing off it;
+ *   (4) the glyph index uses the vendor's `%16`/`/16` pair on a plain int
+ *       (`u = (c2 % 16) * 8; v = (c2 / 16) * 8;`) rather than a hand-decoded
+ *       shift/multiply chain.
+ * Residual 184 @203-vs-199: still 4 insns long and the callee-saved band is
+ * rotated (frame 88 vs the oracle's 80); the w24-a5 `remain`-in-$fp / `p`-in-$s2
+ * analysis below still describes it. */
 extern u_long *FntFlush(int id)
 {
     FntStream *fs;
@@ -97,6 +117,8 @@ extern u_long *FntFlush(int id)
     int   remain;
     int   autoupd;
     int   rightx;
+    int   c, c2, wrap;
+    u_char u, v;
 
     if (!(id >= 0 && id < _fnt_count)) {
         FntStream *act = &_fnt[_fnt_active];
@@ -117,40 +139,36 @@ extern u_long *FntFlush(int id)
     rightx  = fs->x + fs->w;
 
     TermPrim(ot);
-    for (; *text != 0; remain--) {
-        u_char  c;
-        int     wrap = 0;
-        u_char *next;
-        if (remain == 0) break;
-        c    = *text;
-        next = text;
-        if (c == 0x20) {                              /* space */
-            curx += 8;
-            if (curx >= rightx && autoupd == 0) wrap = 1;
-        } else if (c < '!') {
-            if (c == 9) {                             /* tab */
-                curx += 0x20;
-                if (curx >= rightx && autoupd == 0) wrap = 1;
-            } else if (c == 10) {                     /* newline */
-                wrap = 1;
+    c = *text;
+    while (c) {
+        if (!remain) break;
+        wrap = 0;
+        c2 = c & 0xFF;
+        if (c2 != ' ') {
+            if (c2 <= ' ') {
+                switch (c2) {
+                case 9:  goto do_tab;
+                case 10: goto set_linebreak;
+                }
+                goto do_char;
+            } else if (c2 == '~') {
+                if (*++text == 'c') {
+                    r = 16 * (*++text - 48);
+                    g = 16 * (*++text - 48);
+                    b = 16 * (*++text - 48);
+                }
             } else {
-                goto render;
-            }
-        } else if (c == 0x7e) {                       /* '~c<r><g><b>' colour escape: r/g/b are
-                                                         * ASCII DIGITS ('0'-'9'), not raw bytes. */
-            if (text[1] == 'c') {
-                next = text + 4;
-                r = (text[2] - 0x30) << 4;
-                g = (text[3] - 0x30) << 4;
-                b = (text[4] - 0x30) << 4;
-            }
-        } else {
-render:
-            {
-                int idx = ((unsigned)(c - 0x61) < 0x1A) ? (int)(signed char)c - 0x40 : (int)(char)c - 0x20;
-                int q   = (idx < 0) ? idx + 0xf : idx;
-                p[0xc] = (u_char)((idx - (q >> 4) * 0x10) * 8);   /* u */
-                p[0xd] = (u_char)((q >> 4) << 3);                 /* v */
+                goto do_char;
+            do_tab:
+                curx += 0x20;
+                goto check_x;
+            do_char:
+                c2 = *text;
+                if (c2 >= 'a' && c2 <= 'z') c2 -= 0x40; else c2 -= 0x20;
+                u = (c2 % 16) * 8;
+                v = (c2 / 16) * 8;
+                p[0xc] = u;
+                p[0xd] = v;
                 *(short *)(p + 8)  = (short)curx;
                 *(short *)(p + 10) = (short)cury;
                 p[4] = (u_char)r;
@@ -158,17 +176,26 @@ render:
                 p[6] = (u_char)b;
                 AddPrim(ot, p);
                 p += 0x10;
+                curx += 8;
+            check_x:
+                if (curx >= rightx && !autoupd) {
+                set_linebreak:
+                    wrap = 1;
+                }
             }
+        } else {
             curx += 8;
-            if (curx >= rightx && autoupd == 0) wrap = 1;
+            if (curx >= rightx && !autoupd) wrap = 1;
         }
         if (wrap) {
             if (maxx < curx) maxx = curx;
             cury += 8;
             curx = fs->x;
-            if (boty <= cury) break;
+            if (cury >= boty) break;
         }
-        text = next + 1;
+        c = *++text;
+        if (!c) break;
+        remain--;
     }
     if (fs->code != 0) {                              /* draw the background box */
         AddPrim(ot, fs);

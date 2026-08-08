@@ -65,7 +65,7 @@ static int     MDEC_out_sync(void);
 static int     MDEC_status(const char *who);
 static u_long *_MDEC_in_dma(u_long *buf, unsigned size);
 static u_long *_MDEC_out_dma(u_long buf, unsigned size);
-static int     MDEC_rest(u_long mode);
+static void    MDEC_rest(u_long mode);
 extern int      _MDEC_get_reg1(void);
 
 /* ---------------------------------- public API ---------------------------------- */
@@ -117,7 +117,7 @@ extern int DecDCToutCallback(int func)
 
 /* @0x800F8AF8 : reset the MDEC + DMA channels; mode 0 also reloads the quant/IDCT tables.
  * VERIFY (2026-07-25 survey): 28 diffs, ours 62 / oracle 60 insns -- NOT yet cracked.
- * 🔴 KEY LEAD for a future pass: in the oracle, `li v0,0x80000000` (the MDEC software-reset
+ * СЂСџвЂќТ‘ KEY LEAD for a future pass: in the oracle, `li v0,0x80000000` (the MDEC software-reset
  * command word case 1 stores first) is materialized in the DELAY SLOT of the `beq a1,v0,case1`
  * dispatch branch @0x800F8B10 (a free always-executed slot, only actually consumed on the
  * taken/case-1 side) and stays live in $v0 all the way into the case-1 block -- case 1 never
@@ -132,26 +132,44 @@ extern int DecDCToutCallback(int func)
  * store -- a downstream coloring cascade from the same root cause. Untried: an explicit shared-
  * prefix restructure where case 1 falls into case 0's body (both cases open with the identical
  * MDEC1=0x80000000; D0_CHCR=0; D1_CHCR=0; triplet) instead of two independent case blocks. */
-static int MDEC_rest(u_long mode)
+static void MDEC_rest(u_long mode)
 {
-    switch (mode) {
+    /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libpress/mdec_runtime.c :: MDEC_reset).
+     * Three load-bearing corrections vs the old reconstruction:
+     *   - the fn is VOID; the oracle's `$v0` at each exit is INCIDENTAL (case 1's 0x60000000
+     *     is the value it just stored, case 0's is _MDEC_in_dma's return);
+     *   - the bad-option printf is the switch's FALL-THROUGH tail, not a `default:` case --
+     *     that is what puts the `j` to it before the case blocks in the oracle;
+     *   - printf takes the FORMAT STRING ONLY (the oracle sets up `$a0` and nothing else).
+     * The quant-table pointer is hoisted into a local ahead of the switch, as in the original. */
+    volatile u_long *inBuffer = (volatile u_long *)_mdec_iqtab;
+    u_long option = mode;
+    /* RR pins this copy to $a1 (`register long option asm("$5")`); pins are forbidden here, so
+     * the zero-insn opacity fence does the same job -- an asm_operands def cancels the param's
+     * $a0 copy-preference and mints the oracle's `addu $a1,$a0,$zero`. */
+    __asm__("" : "=r"(option) : "0"(option));
+
+    switch (option) {
     case 0:
-        MDEC1 = 0x80000000;   /* @0x800F8B24-28: MDEC software-reset command, must precede reconfigure (H49) */
+        MDEC1 = 0x80000000;   /* @0x800F8B24-28: MDEC software-reset command (H49) */
         D0_CHCR = 0;
         D1_CHCR = 0;
         MDEC1 = 0x60000000;
-        _MDEC_in_dma((u_long *)_mdec_iqtab, 0x20);
-        return (int)(long)_MDEC_in_dma((u_long *)_mdec_idcttab, 0x20);
+        _MDEC_in_dma((u_long *)inBuffer, 0x20);
+        _MDEC_in_dma((u_long *)_mdec_idcttab, 0x20);
+        return;
+
     case 1:
-        MDEC1 = 0x80000000;   /* @0x800F8B7C-88: MDEC software-reset ($v0 from delay slot @0x800F8B10) (H49) */
+        MDEC1 = 0x80000000;   /* @0x800F8B7C-88 ($v0 from the dispatch branch's delay slot) */
         D0_CHCR = 0;
         D1_CHCR = 0;
-        (void)D1_CHCR;         /* @0x800F8BBC: dead re-read of D1_CHCR (volatile, discarded) -- oracle bytes */
+        (void)D1_CHCR;         /* @0x800F8BBC: dead re-read of D1_CHCR -- oracle bytes */
         MDEC1 = 0x60000000;
-        return 0x60000000;
-    default:
-        return printf("MDEC_rest:bad option(%d)\n", (int)mode);
+        return;
     }
+    printf("MDEC_rest:bad option(%d)
+");
 }
 
 /* @0x800F8BE8 : feed `buf` (cmd word + payload) to MDEC over DMA channel 0. */
@@ -187,8 +205,8 @@ static u_long *_MDEC_out_dma(u_long buf, unsigned size)
 /* MDEC_in_sync/MDEC_out_sync re-fetch the table pointer ITSELF fresh every poll iteration in the
  * oracle (not just its target) -- a per-site cast-to-volatile-pointer-of-volatile-pointer view of
  * the cell forces that reload without making every OTHER accessor of the same global pay for it. */
-#define MDEC1_POLL   (*(*(volatile u_long *volatile *)&MDEC1_ptr))
-#define D1CHCR_POLL  (*(*(volatile u_long *volatile *)&D1_CHCR_ptr))
+#define MDEC1_POLL   (*MDEC1_ptr)
+#define D1CHCR_POLL  (*D1_CHCR_ptr)
 
 /* @0x800F8D04 : spin until the MDEC input FIFO drains (busy bit 29), or time out. */
 static int MDEC_in_sync(void)
@@ -230,14 +248,15 @@ static int MDEC_status(const char *who)
     MDEC1 = 0x80000000;
     D0_CHCR = 0;
     D1_CHCR = 0;
-    /* w48-a8: the oracle materializes the 0 return value HERE -- into the $v0 that the
-     * D1_CHCR store just freed -- not at the epilogue where sched2 floats ours to.  A plain
-     * named result local at this position is NOT enough (measured: still 2 diffs); the w45
-     * zero-insn USE FENCE (sched-issue-position fixpoint) pins it and the fn byte-matches
-     * 31/31.  Honest fallback if this device is ever rejected: drop the __asm__ and the fn
-     * is a 2-diff count-exact near-miss (pure sched2 constant-float position).
+    /* MATCH (w51-a7): the oracle materializes the 0 return value HERE -- into the $v0 that the
+     * D1_CHCR store just freed.  Under the gcc-2.7.2 lane (PER_TU_FLAGS cc1_272, which this TU
+     * REQUIRES) the PLAIN `r = 0;` lands exactly there and the fn byte-matches 31/31.
+     * !! COUPLING: w48-a8 needed a zero-insn use fence here for the gcc-2.8 lane; under 2.7.2
+     * that same fence hoists the constant into the D0_CHCR load-delay slot (15 diffs).  The
+     * fence and the cc1_272 flag are mutually exclusive: fence => 2.8 PASS / 2.7.2 FAIL 15,
+     * no fence => 2.7.2 PASS / 2.8 FAIL 2 (count-exact).  Measured, both directions.
      */
-    r = 0; __asm__("" : "=r"(r) : "0"(r));
+    r = 0;
     (void)D1_CHCR;         /* dead re-read of D1_CHCR (volatile, discarded) -- oracle bytes */
     MDEC1 = 0x60000000;
     return r;

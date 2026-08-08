@@ -1,3 +1,17 @@
+/* MATCH (w51-a8, 2026-08-09) -- BEST-KNOWN IS NOW THE 2.7.2 LANE, but it is only a
+ * partial win so nothing was landed: cc1_272 + `-fno-schedule-insns` gates 24 diffs
+ * (vs 26 in the 2.8 lane), count-exact 48/48, and it CLOSES the {w,cmp} half of the
+ * two-pair transposition described below (w -> $s4, cmp -> $s7 exactly as retail).
+ * What is left there is {key,base} and {n,lo} swapped.  It needs both a PER_TU_FLAGS
+ * `cc1_272` entry AND `_compile_c_272` learning the `no_schedule_insns` key (see the
+ * QSORT.c receipt), so it is reported as a candidate rather than landed at 24.
+ * FALSIFIED (all gated): plain cc1_272 32 | +(-fno-strength-reduce) 32 |
+ * +(-fno-expensive-optimizations) 32; 2.8 lane -fno-strength-reduce 26,
+ * -fno-schedule-insns2 38.  Priority dials (a local copy of a param = +2 weighted
+ * refs at 0 insns; a read-only fence on a local = +1) in BOTH lanes: 2.8 copyW 28 |
+ * copyC 26 | copyWC 38 | fence-lo 38 | combinations 32-40; 2.7.2+nosched copyKey 24 |
+ * copyBase 28 | copyBoth 26 | fence-lo 28 | fence-n 36 | combinations 30-40.
+ */
 /* syslib/psx/libc/BSEARCH.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   obj nfs4\syslib\psx\BSEARCH.obj ; libc.lib.  1 fn bsearch @0x801091DC (192 B) -- REAL code (in EXE).
  *   Ghidra nfs4-f.exe.c.  Binary search over `n` elements of width `w`; cmp is called as cmp(element, key).

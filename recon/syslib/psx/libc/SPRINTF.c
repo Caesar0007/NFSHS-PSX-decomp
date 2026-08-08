@@ -1,3 +1,28 @@
+/* MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
+ * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
+ * Reference: C:\Tempage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full
+ * byte-matched PsyQ libc sprintf, gcc-2.6.3 -O2 -G0 -funsigned-char).  Findings:
+ *  - CONFIRMED IDENTICAL by construction (RR arrives at the same code we already emit):
+ *    the 3-word struct copy of the default spec; the spec living just ABOVE the 0x200
+ *    number buffer so the digits are written backwards from &spec; `args` forced into a
+ *    frame slot by taking &format (hence the per-iteration reload/increment/store of the
+ *    format pointer); `(u32)(c - '0') < 10` digit tests (we already emit the oracle's
+ *    `sltiu ...,0xA`); `hash = '#'` materialised INSIDE the per-conversion block (we
+ *    already emit `li v1,35` there); '-','+',' ','0' as function-wide register constants
+ *    ($s7,$s6,$s5,$s3 -- our build assigns the SAME four registers).
+ *  - DIVERGENT, and OUR form is right: RR reads the format with a plain `const char *`
+ *    (`lbu`); this oracle uses `lb $a1,0($a1)`, so the `signed char *f` here is correct.
+ *  - GATED AND REJECTED: (a) the whole RR body transplanted onto our globals: 449 diffs
+ *    at 530-vs-545 and a 584-byte frame (ours already matches the oracle's 0x250 frame
+ *    and its entire prologue slot map).  (b) RR's `zeroFlag = '0'` assigned inside the
+ *    loop instead of our function-scope `register int flagZero = '0'` (the intent was to
+ *    fix the flag-constant EMISSION ORDER -- ours emits `li s3,48` first, retail last):
+ *    303 diffs, frame shrinks to 584.  (c) RR's `do { ... } while (format++, (c=*format)
+ *    != 0)` loop head/tail: 179 at 548-vs-545 (worse than the kept 174).
+ * ==> the residual really is the broad callee-saved coloring cascade the note below
+ * describes, not a missing vendor idiom.  The one un-tried structural item left is RR's
+ * `u8 *argState[2]` pointer-ARRAY spelling of the va_list cursor (memory by construction).
+ */
 /* syslib/psx/libc/SPRINTF.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  * Source obj: nfs4\syslib\psx\SPRINTF.obj; libc.lib(SPRINTF.OBJ).
  *

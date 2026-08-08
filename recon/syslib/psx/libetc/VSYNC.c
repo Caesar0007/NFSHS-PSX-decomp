@@ -26,7 +26,9 @@ extern volatile int Vcount;                    /* INTR_VB @0x80137D10 */
 
 extern volatile unsigned int *g_vsync_gp1_ptr; /* @0x80134A88 : = 0x1F801814 */
 extern volatile unsigned int *g_vsync_t1_ptr;  /* @0x80134A8C : = 0x1F801110 */
-extern int Hcount;                /* @0x80134A90 */
+extern volatile int Hcount;       /* @0x80134A90 -- volatile: the oracle STORES then RE-READS it
+                                   * from memory in the closing settle loop (`sw`; `lui;lw`), which a
+                                   * plain int lets gcc keep in a register (w51-a7). */
 extern int vsync_lastcount;       /* @0x80134A94 : Vcount at the previous VSync */
 
 #define T1_VALUE (*g_vsync_t1_ptr)
@@ -59,6 +61,8 @@ extern int VSync(int mode)   /* @0x800F231C */
     unsigned int ret;
     int target;
     int timeout;
+    int one;
+    volatile unsigned int *timer;
 
     do {
         hcount = T1_VALUE;
@@ -69,21 +73,27 @@ extern int VSync(int mode)   /* @0x800F231C */
     if (mode == 1)
         return ret;
 
-    if (mode > 0)
-        target = vsync_lastcount - 1 + mode;
-    else
-        target = vsync_lastcount;
-    timeout = 0;
-    if (mode > 0)
-        timeout = mode - 1;
+    /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libetc/vertical_sync.c :: VSync).  The
+     * load-bearing detail is the HOISTED `one` VARIABLE: with a literal, gcc reassociates
+     * `lastcount - 1 + mode` into `(mode - 1) + lastcount` (`addiu v0,a0,-1` first); with the
+     * variable the association survives and the oracle's `lw; addiu v0,v0,-1; addu v0,v0,a0`
+     * order is reproduced.  Both selects are ternaries, as in the original. */
+    one = 1;
+    target  = mode > 0 ? vsync_lastcount - one + mode : vsync_lastcount;
+    timeout = mode > 0 ? mode - one : 0;
     _VSync_wait(target, timeout);
 
     gp = GP1;
     _VSync_wait(Vcount + 1, 1);
     if ((gp & 0x400000) != 0) {
-        if ((int)(gp ^ GP1) >= 0) {
-            while (((gp ^ GP1) & 0x80000000) == 0)
-                ;
+        /* MATCH (w51-a7, Rage Racer vertical_sync.c :: VSync): a guard + DO-WHILE, not a
+         * `while` -- gcc-2.8's jump.c duplicate_loop_exit_test copies a `while`'s entry test
+         * ahead of the body, emitting the xor/bltz pair TWICE (ours was +5 insns). */
+        timer = g_vsync_gp1_ptr;
+        if (!((int)(gp ^ *timer) < 0)) {
+            do {
+            } while (((gp ^ *timer) & 0x80000000) == 0);
         }
     }
     vsync_lastcount = Vcount;

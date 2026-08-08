@@ -171,7 +171,16 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    hi    = ((op >> 8) & 0x3f) << 8;
+                    /* MATCH (w51-a8, residual class (b) CLOSED, 17 -> 12 diffs): our cc1
+                     * folds `((op>>8) & 0x3f) << 8` (and every algebraic respelling of it)
+                     * into one `andi 0x3f00`; retail's weaker combine keeps the oracle's
+                     * `srl 8 / sll 8 / andi 0x3f00` triple.  A zero-insn OPACITY fence
+                     * between the two shifts is the fold-rewrite escape: combine can no
+                     * longer prove the shifted value equals its source, so both shifts
+                     * survive.  (Catalog W47/W49 opacity-fence family.) */
+                    hi    = op >> 8;
+                    __asm__("" : "=r"(hi) : "0"(hi));
+                    hi    = (hi << 8) & 0x3f00;
                     lo    = ((op >> 16) & 0xff) + 1;
                     count = hi + lo;
                     len   = (int)(op & 0x3f) + 4;

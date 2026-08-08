@@ -1,3 +1,11 @@
+/* MATCH (w51-a8, 2026-08-09) -- *** cc1_272 LANE CANDIDATE: THIS TU PASSES BYTE-EXACT ***
+ * memcmp = 19/19 when built through build.py's 04M gcc-2.7.2 lane, i.e. with
+ *     PER_TU_FLAGS["recon/syslib/psx/libc/MEMCMP.c"] = {"cc1_272": True}
+ * (PsyQ 4.0 CC1PSX + direct GNU as in reorder mode, -G0).  Under the 2.8 lane the
+ * SAME source is a 6-diff near-miss at 17-vs-19 insns.  Source unchanged; lane only.
+ * -G is inert here (G0/G4/G8 identical).  Measured with scratch/w51_a8/vf.py, an
+ * out-of-band PER_TU_FLAGS injector (this agent was not permitted to edit build.py).
+ */
 /* syslib/psx/libc/MEMCMP.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   obj nfs4\syslib\psx\MEMCMP.obj ; libc.lib.  1 fn memcmp @0x80103734 (76 B) -- REAL code (in EXE).
  *   Faithful to disasm-v3 (byte-compare loop; the PsyQ memcmp reads >=1 byte even for n==0).

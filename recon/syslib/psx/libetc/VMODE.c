@@ -5,26 +5,25 @@
  *
  *   g_videomode sits at offset 0 of a 36-byte BSS block (D_80134838, 9 words). The block exceeds the
  *   -G4 small-data threshold (>4 bytes total) so the oracle uses absolute lui/lw, not gp-relative.
- *   MATCH: declare as int[9] to force absolute addressing; g_videomode[0] is the actual videomode field.
+ *   MATCH: declare as int[9] to force absolute addressing; g_videomode is the actual videomode field.
  */
-extern int g_videomode[9];     /* BSS block @0x80134838 -- 9 words, forces out of sdata */
+extern int g_videomode;        /* @0x80134838 (offset 0 of a 9-word BSS block) */
 
 extern int SetVideoMode(int mode)   /* @0x800F1770 */
 {
-    int old = g_videomode[0];
-    g_videomode[0] = mode;
-    /* residual: oracle materializes &g_videomode TWICE independently (dest-as-scratch v0 for
-     * the load, separate $at for the store) where we CSE one base (v1) for both -- tried
-     * volatile (regressed: blocks the sw-in-delay-slot fold too) and a byte-cast store (no
-     * effect, backend CSEs past the syntax). Accept as floor.
-     * w25-a2 SURVEY (-fno-delayed-branch splice project): re-confirmed UNRELATED to the
-     * methodology sec 3.25.3b delayed-branch identity -- no epilogue/jal-arg-slot lines in the
-     * diff at all (no branches/calls in this leaf fn), and whole-TU `-fno-delayed-branch` test
-     * (reverted) made it WORSE (7->8 diffs), not better. Not a splice candidate. */
+    int old = g_videomode;
+    g_videomode = mode;
+    /* MATCH (w51-a7): the oracle materializes &g_videomode TWICE INDEPENDENTLY -- dest-as-scratch
+     * `lui $v0` for the load, `$at` for the store -- which is exactly what gas emits for the two
+     * plain symbol MACROS `lw $v0,sym` / `sw $a0,sym`.  The old `int g_videomode[9]` shape (added
+     * to force absolute addressing at -G4) let gcc CSE ONE `la $v1,sym` base for both accesses;
+     * declaring the SCALAR restores the macro form.  Safe because this TU is in the gcc-2.7.2
+     * lane, which compiles at -G0 -- there is no small-data/gp-rel risk to guard against.
+     * (The prior "accept as floor" verdict was measured only in the 2.8/-G4 basin.) */
     return old;
 }
 
 extern int GetVideoMode(void)   /* @0x800F1784 */
 {
-    return g_videomode[0];
+    return g_videomode;
 }

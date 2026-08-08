@@ -138,28 +138,55 @@ extern int SetIntrMask(int mask)   /* @0x800F2950 */
 
 extern void _intrhand(void)            /* @0x800F2A40 */
 {
-    unsigned short pending;
-    if (g_intr.inited == 0) {
+    /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libapi/interrupt_dispatch.c :: intrDispatch).
+     * The oracle IS that source: a `u_short *state` base parked in $s1, `one`/`base` hoisted
+     * ABOVE the outer do/while, a redundant `if (s0 != 0)` guard in front of the inner
+     * `while ((s0 != 0) && (i < 0xB))`, a POINTER WALK `p++` over the callback slots (not
+     * `cb[i]` indexing), and the stuck-counter read-then-store
+     * `c = t; t = c + 1; if (c >= 0x801)`.  $s1 gets reused as the counter `i` exactly because
+     * `state` dies at `base = &state[2]`. */
+    unsigned short *state;
+    unsigned short s0;
+    long i;
+    long c;
+    long one;
+    int *p;
+    int *base;
+
+    state = (unsigned short *)&g_intr;
+    __asm__("" : "=r"(state) : "0"(state));  /* zero-insn opacity fence: keep the base a REGISTER */
+    if (state[0] == 0) {
         printf("unexpected interrupt(%04x)\n", I_STAT);
         ReturnFromException();
     }
-    g_intr.in_handler = 1;
-    pending = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
-    while (pending != 0) {
-        int i;
-        for (i = 0; pending != 0 && i < 11; ++i, pending >>= 1) {
-            if (pending & 1) {
-                I_STAT = (unsigned short)~(1 << i);
-                if (g_intr.cb[i] != 0) {
-                    ((void (*)())g_intr.cb[i])();
+    state[1] = 1;
+    s0 = (unsigned short)((state[0x18] & I_STAT) & I_MASK);
+    if (s0 != 0) {
+        one = 1;
+        base = (int *)&state[2];
+        do {
+            i = 0;
+            if (s0 != 0) {
+                p = base;
+                while ((s0 != 0) && (i < 0xB)) {
+                    if (s0 & 1) {
+                        I_STAT = (unsigned short)~(one << i);
+                        if (*p != 0)
+                            ((void (*)())*p)();
+                    }
+                    p++;
+                    s0 >>= 1;
+                    i++;
                 }
             }
-        }
-        pending = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
+            s0 = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
+        } while (s0 != 0);
     }
-
-    if (I_STAT & I_MASK) {
-        if (g_intr_timeout++ > 0x800) {
+    if ((I_STAT & I_MASK) != 0) {
+        c = g_intr_timeout;
+        g_intr_timeout = c + 1;
+        if (c >= 0x801) {
             printf("intr timeout(%04x:%04x)\n", I_STAT, I_MASK);
             g_intr_timeout = 0;
             I_STAT = 0;
@@ -173,49 +200,110 @@ extern void _intrhand(void)            /* @0x800F2A40 */
 
 extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 {
-    /* MATCH ATTEMPT (w24-a7): oracle copies BOTH params to callee-saved regs (s1=idx,
-     * s2=handler) back-to-back at function entry, BEFORE any address arithmetic -- freeing
-     * the now-dead a0/a1 to be reused as scratch for the cb[]-slot computation. Force the
-     * same evaluation order from C. */
-    int hv = handler;
-    unsigned int ix = idx;
-    int *cb = g_intr.cb;
-    int *slot = &cb[ix];
-    int old = *slot;
-    if ((hv != old) && (g_intr.inited != 0)) {
-        unsigned short imask = I_MASK;
-        I_MASK = 0;
-        if (hv != 0) {
-            unsigned short bit;
-            *slot = hv;
-            bit = (unsigned short)(1 << (ix));
-            imask = imask | bit;
-            g_intr.enabled = g_intr.enabled | bit;
+    /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libapi/interrupt_callbacks.c ::
+     * SetKernelInterruptCallback).  Load-bearing details taken from there:
+     *   - the slot address is built INDEX-FIRST (`offset + (long)base`) -> `addu rd,offset,base`;
+     *   - the `inited` test is spelled off the callback-array base (`*((u_short *)base - 2)`)
+     *     with an EMPTY then-arm, i.e. the whole body is the `else` (branch polarity);
+     *   - the enable arm updates the mask word through `base + 11` (== &g_intr.enabled) while
+     *     the disable arm goes through the GLOBAL -- an asymmetry that is in the original;
+     *   - `bit` is a u_long, and the running mask is `pendingValue & 0xFFFF`.
+     * RR's `register ... asm("$N")` pins are NOT copied (project hard rule); the zero-insn
+     * opacity fences it also carries are kept, since they are the pin-free device. */
+    long index;
+    int callback;
+    int *base;
+    long offset;
+    int *slot;
+    int oldCallback;
+    unsigned long pendingValue;
+    unsigned long pendingMask;
+    long disabled;
+    unsigned short *st;
+    volatile unsigned short *maskPtr;
+
+    index = (long)idx;
+    __asm__("" : "=r"(index) : "0"(index));
+    callback = handler;
+    __asm__("" : "=r"(callback) : "0"(callback));
+    base = g_intr.cb;
+    __asm__("" : "=r"(base) : "0"(base));
+    offset = index << 2;
+    slot = (int *)(offset + (long)base);
+    oldCallback = *slot;
+
+    if (callback == oldCallback)
+        return oldCallback;
+
+    if (*((unsigned short *)base - 2) == 0) {
+    } else {
+        st = (unsigned short *)base - 2;
+        __asm__("" : "=r"(st) : "0"(st));
+        maskPtr = (volatile unsigned short *)g_imask_ptr;
+        pendingValue = *maskPtr;
+        __asm__("" : "=r"(pendingValue) : "0"(pendingValue));
+        *maskPtr = 0;
+        pendingMask = pendingValue & 0xFFFF;
+
+        if (callback != 0) {
+            unsigned long bit;
+
+            bit = 1 << index;
+            __asm__("" : "=r"(bit) : "0"(bit));
+            pendingMask |= bit;
+            *slot = callback;
+            {
+                unsigned long value;
+
+                value = st[0x18];
+                value |= bit;
+                st[0x18] = (unsigned short)value;
+            }
         } else {
-            unsigned short bit = ~(unsigned short)(1 << (ix));
-            *slot = 0;
-            imask = imask & bit;
-            g_intr.enabled = g_intr.enabled & bit;
+            unsigned long bit;
+
+            bit = 1 << index;
+            bit = ~bit;
+            *slot = callback;
+            pendingValue = *(unsigned short *)(base + 11);
+            pendingMask &= bit;
+            pendingValue &= bit;
+            *(unsigned short *)(base + 11) = (unsigned short)pendingValue;
         }
+
         /* @0x800F2CC0-D20: ChangeClearRCnt(<per-IRQ root-counter index>, handler==0). $a0 = the timer
          * id (idx0->RCnt3, idx4->0, idx5->1, idx6->2), $a1 = $s0 = (handler<1) = (handler==0) = the
-         * clear flag. Reconstruction passed (0,0) to all four -- wrong timer + ignored handler (H48). */
-        if (ix == 0) { ChangeClearPAD(hv == 0); ChangeClearRCnt(3, hv == 0); }
-        if (ix == 4)   ChangeClearRCnt(0, hv == 0);
-        if (ix == 5)   ChangeClearRCnt(1, hv == 0);
-        if (ix == 6)   ChangeClearRCnt(2, hv == 0);
-        I_MASK = imask;
+         * clear flag. */
+        if (index == 0) {
+            disabled = callback == 0;
+            ChangeClearPAD(disabled);
+            ChangeClearRCnt(3, disabled);
+        }
+        if (index == 4) ChangeClearRCnt(0, callback == 0);
+        if (index == 5) ChangeClearRCnt(1, callback == 0);
+        if (index == 6) ChangeClearRCnt(2, callback == 0);
+
+        I_MASK = (unsigned short)pendingMask;
     }
-    return old;
+    return oldCallback;
 }
 
 extern IntrState *StopCallback(void)   /* @0x800F2D58 */
 {
-    if (g_intr.inited == 0)
+    /* MATCH (w51-a7, methodology 3.12 #16 HOLD-GLOBAL-ADDR-ACROSS-CALL): the oracle keeps
+     * &g_intr in the callee-saved $s0 for the WHOLE function (`lui/addiu $s0` in the prologue,
+     * `lhu 0($s0)`, `sh 0x32($s0)`, `sw 0x34($s0)`, and the return `addu $v0,$s0,$zero`).  Under
+     * the gcc-2.7.2 lane a bare `g_intr.field` rematerializes the address per access
+     * (`lui $at; sh 0($at)`); a named pointer local live across EnterCriticalSection forces the
+     * $s0 hoist. */
+    IntrState *cb = &g_intr;
+    __asm__("" : "=r"(cb) : "0"(cb));   /* zero-insn opacity fence (W49): keep cb a REGISTER base */
+    if (cb->inited == 0)
         return 0;
     EnterCriticalSection();
-    g_intr.saved_imask = I_MASK;
-    g_intr.saved_dpcr  = DPCR;
+    cb->saved_imask = I_MASK;
+    cb->saved_dpcr  = DPCR;
     /* MATCH (w48-a7): CHAINED assignment -- the oracle stores 0 to I_MASK and then RE-READS it
      * (`sh $zero,0($v0); lhu $v0,0($v0); sh $v0,0($a0)`).  That re-read is exactly gcc's
      * volatile handling of `a = b = 0` (the value of the inner assignment is fetched back from
@@ -225,8 +313,8 @@ extern IntrState *StopCallback(void)   /* @0x800F2D58 */
      * SLOT; gcc's reorg will not slot-fill a volatile MEM, so the store side drops volatile. */
     *(unsigned int *)g_dpcr_ptr = DPCR & 0x77777777;
     ResetEntryInt();
-    g_intr.inited = 0;
-    return &g_intr;
+    cb->inited = 0;
+    return cb;
 }
 
 extern int RestartCallback(void)       /* @0x800F2DF8 */
@@ -235,16 +323,22 @@ extern int RestartCallback(void)       /* @0x800F2DF8 */
      * (`bnez $v0,.L800F2E5C`) and falls straight through into the body, with the `return 0`
      * block out-of-line just before the epilogue.  The `if (inited == 0) {body} return 0;`
      * spelling inverts that (beqz to the body, `return 0` inline right after the test). */
-    if (g_intr.inited != 0)
+    /* MATCH (w51-a7, 3.12 #16 + the W49 opacity fence): &g_intr lives in $s0 for the whole fn
+     * (`addiu $a0,$s0,0x38` for the jmpbuf arg, `lhu 0x32($s0)`, `lw 0x34($s0)`, and the tail
+     * `addu $v0,$s0,$zero`).  Under the gcc-2.7.2 lane a plain `&g_intr` is const-folded back
+     * into per-access `sym`-macros (`lui $at; ...`); the fence keeps cb a register base. */
+    IntrState *cb = &g_intr;
+    __asm__("" : "=r"(cb) : "0"(cb));
+    if (cb->inited != 0)
         return 0;
-    HookEntryInt(g_intr.jmpbuf);
-    g_intr.inited = 1;
-    I_MASK = g_intr.saved_imask;
+    HookEntryInt(cb->jmpbuf);
+    cb->inited = 1;
+    I_MASK = cb->saved_imask;
     /* MATCH (methodology 3.25-3c): this store sits in the `jal ExitCriticalSection` DELAY SLOT
      * in the oracle; reorg will not slot-fill a volatile MEM, so the store side drops volatile. */
-    *(unsigned int *)g_dpcr_ptr = g_intr.saved_dpcr;
+    *(unsigned int *)g_dpcr_ptr = cb->saved_dpcr;
     ExitCriticalSection();
-    return (int)&g_intr;
+    return (int)cb;
 }
 
  IntrState g_intr;   /* owning-TU def (BSS) -- at EOF for type visibility */

@@ -313,6 +313,21 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libcd/cdcont.c":      {"cc1_272": True},  # 77->19, +5 conv, CdReset PASS->3
     "recon/syslib/psx/libcd/toc.c":         {"cc1_272": True},  # 76->64, CdGetToc->PASS
     "recon/syslib/psx/libcd/TYPE.c":        {"cc1_272": True},  # 8->6, CdGetDiskType->PASS
+    # w51-a7 lane wins (all zero-PASS-regression, whole-TU gated):
+    "recon/syslib/psx/libapi/COUNTER.c":    {"cc1_272": True},  # 3/3 PASS
+    "recon/syslib/psx/libetc/INTR_DMA.c":   {"cc1_272": True},  # 3/3 PASS
+    "recon/syslib/psx/libetc/INTR_VB.c":    {"cc1_272": True},  # 4/4 PASS
+    "recon/syslib/psx/libetc/VSYNC.c":      {"cc1_272": True},  # 2/2 PASS
+    "recon/syslib/psx/libetc/VMODE.c":      {"cc1_272": True},  # 2/2 PASS
+    "recon/syslib/psx/libcard/CARDINIT.c":  {"cc1_272": True},  # 2/2 PASS
+    # w51-a7: COUPLED with the LIBPRESS.c source (MDEC_status fence removed --
+    # 2.8-only device); without this entry LIBPRESS loses 1 PASS.
+    "recon/syslib/psx/libpress/LIBPRESS.c": {"cc1_272": True},  # 6->11/12 PASS
+    # w51-a8 lane wins:
+    "recon/syslib/psx/libc/MEMCMP.c":       {"cc1_272": True},  # 6 -> PASS 19/19
+    "recon/syslib/psx/libc/QSORT.c":        {"cc1_272": True, "no_strength_reduce": True},  # 70 -> PASS 84/84
+    "recon/syslib/psx/libsn/READ.c":        {"cc1_272": True},  # + UNFILL_272 -> PASS
+    "recon/syslib/psx/libsn/WRITE.c":       {"cc1_272": True},  # + UNFILL_272 -> PASS
     # w51-a2: libmcrd cluster = cc1_272 lane (04M law). jtbl_at_fusion is inert in
     # this lane (no maspsx); kept out. LIBMCRD 2->8 PASS under the lane.
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},
@@ -357,7 +372,8 @@ PER_TU_FLAGS = {
     # w51-a2: USERFUNC.c 1->4/4 PASS under cc1_272 with ZERO source change (the
     # w48 "needs maspsx ASPSX fill" note on UserFuncInit = wrong-compiler artifact).
     "recon/syslib/psx/libmcrd/USERFUNC.c":  {"cc1_272": True},
-    "recon/syslib/psx/libetc/INTR.c":       {"no_split_addresses": True},  # _initIntr+_intrhand count-exact (a7)
+    # w51-a7: INTR.c -> cc1_272 (8 PASS incl. VSyncCallback; _intrhand 110->49).
+    "recon/syslib/psx/libetc/INTR.c":       {"cc1_272": True},
     "recon/syslib/psx/libcd/iso9660.c":     {"no_split_addresses": True},  # -17 (a6)
     # 04M -- the gcc-2.7.2 lane (see "cc1_272" key above).  FERR/_err_math and
     # FLTSIDF/__floatsidf sealed the lane (PASS); the rest of libmath probed
@@ -378,9 +394,8 @@ PER_TU_FLAGS = {
     # PASS survived the lane), TRUDFSF2 +4, LTDF2 +31, MULSF3 +7.
     # w48-a8: DSCB wants the triple (source shape already landed by a8);
     # DsReadyCallback 9->0 with it.
-    "recon/syslib/psx/libds/DSCB.c":        {"g_value": "0",
-                                             "no_split_addresses": True,
-                                             "no_schedule_insns2": True},
+    # w51-a7: DSCB triple superseded -- cc1_272 alone = 2/2 PASS (DsDataCallback 4->P).
+    "recon/syslib/psx/libds/DSCB.c":        {"cc1_272": True},
     # w34 follow-up (user call): sched1 OFF for movf.c -- movfxya 149 -> 88
     # diffs. Insn parity is knowingly conceded (225 vs oracle 221: the
     # CSE-hoisted `li 255` pseudo + its caller-save spill/reload + one
@@ -720,6 +735,36 @@ _SPLICE_COUNTER = [0]
 # so the result is still 100% real cc1 output.  MUST stay per-function: on a
 # function without the residual it costs +1 insn.  Proof + measurements:
 # scratch/w48_a3_receipts.md section 2.
+# 272-lane twin of PER_FN_EPILOGUE_UNFILL (see _compile_c_272): gas-reorder
+# backward-fills the return slot with the sp-adjust; retail leaves it empty
+# for these fns.  Applied on the .s text BEFORE `as` (the 2.8-lane unfill
+# regex can't match -- 2.7.2 never emits the cc1-side noreorder/j block).
+PER_FN_EPILOGUE_UNFILL_272 = {
+    "recon/syslib/psx/libsn/READ.c":  {"PCread"},   # w51-a8: 23 -> PASS 48/48
+    "recon/syslib/psx/libsn/WRITE.c": {"PCwrite"},  # w51-a8: 23 -> PASS 48/48
+}
+
+
+def _apply_epilogue_unfill_272(rel_posix, txt):
+    names = PER_FN_EPILOGUE_UNFILL_272.get(rel_posix)
+    if not names:
+        return txt
+    for name in names:
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else len(txt) - m.end())
+        region = txt[m.start():end]
+        new = re.sub(r"\n(\t(?:addu|addiu)\t\$sp,\$sp,\d+\n)\tj\t\$31\n",
+                     lambda mm: ("\n\t.set\tnoreorder\n" + mm.group(1)
+                                 + "\tj\t$31\n\tnop\n\t.set\treorder\n"),
+                     region)
+        if new != region:
+            txt = txt[:m.start()] + new + txt[end:]
+    return txt
+
+
 PER_FN_EPILOGUE_UNFILL = {
     # w49-a9 (orchestrator-wired): padinit FAIL 3 (27/28) -> PASS 28/28 — pure
     # epilogue-swap class (retail's return slot empty, ours steals the addiu sp);
@@ -877,13 +922,26 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     """
     tu_g_value = str(tu_flags.get("g_value", "0"))
     cc1_flags = ["-quiet", "-O2", f"-G{tu_g_value}", "-mgas"]
+    # w51-a8 defect fix: forward ALL cc1-relevant PER_TU keys, not just
+    # no_delayed_branch (the rest silently no-op'd inside this lane -- same
+    # class as the w47 compile_c g_value no-op).  QSORT's identity needs
+    # no_strength_reduce here.
     if tu_flags.get("no_delayed_branch"):
         cc1_flags.append("-fno-delayed-branch")
+    if tu_flags.get("no_strength_reduce"):
+        cc1_flags.append("-fno-strength-reduce")
+    if tu_flags.get("no_schedule_insns"):
+        cc1_flags.append("-fno-schedule-insns")
+    if tu_flags.get("no_schedule_insns2"):
+        cc1_flags.append("-fno-schedule-insns2")
+    if tu_flags.get("no_builtin"):
+        cc1_flags.append("-fno-builtin")
     r = run([CC1_272, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1-272] {rel}\n{r.stdout}{r.stderr}")
     txt = s_file.read_text(errors="replace")
     txt = _MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), txt)
+    txt = _apply_epilogue_unfill_272(rel.as_posix(), txt)
     s_file.write_text(txt)
     r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
              "-I", ROOT, "-o", obj, s_file])

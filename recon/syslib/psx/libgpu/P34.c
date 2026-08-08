@@ -13,7 +13,15 @@ extern void SetDrawMove(void *p, void *rect, int x, int y)   /* @0x8010C698 */
 {
     int           *w = (int *)p;
     short         *r = (short *)rect;
-    int len = 5;
+    int len;
+    /* MATCH (w51-a8): a zero-insn READ FENCE on the packet base forces cc1 to
+     * emit retail's `addu $t0,$a0,$zero` param copy as the FIRST insn (instead
+     * of coalescing p into $a0 and materializing len first) -- 13 -> 11 diffs.
+     * Residual: retail parks len in the freed $a0 and bases the byte store on
+     * $t0; ours keeps p live in $a0 for the byte store, so len takes $t1 and the
+     * `lw v0,0(a1)` load-delay slot stays a nop (25 vs 24 insns). */
+    __asm__("" : : "r"(w));
+    len = 5;
     if (r[2] == 0 || r[3] == 0) len = 0;            /* r[2]=w, r[3]=h */
     w[1] = 0x01000000;
     w[2] = (int)0x80000000;

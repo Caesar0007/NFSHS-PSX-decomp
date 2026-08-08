@@ -1,3 +1,19 @@
+/* MATCH (w51-a8, 2026-08-09) -- *** cc1_272 LANE CANDIDATE: PCread PASSES BYTE-EXACT ***
+ * PCread = 48/48 with PER_TU_FLAGS["recon/syslib/psx/libsn/READ.c"] = {"cc1_272": True}
+ * PLUS one NEW build.py mechanism: a 272-lane EPILOGUE UNFILL.  The 2.7.2 lane
+ * assembles with GNU as in .set-reorder mode and gas BACKWARD-FILLS the return delay
+ * slot with the `addu $sp,$sp,N` frame release; retail leaves that slot empty
+ * (`addiu sp,sp,0x30; jr ra; nop`).  Wrapping just this function's epilogue in
+ * `.set noreorder` + an explicit nop on the .s before `as` reproduces retail exactly --
+ * the 272-lane twin of build.py's PER_FN_EPILOGUE_UNFILL, which only runs in the 2.8
+ * lanes and pattern-matches a cc1-emitted `.set noreorder/nomacro; j $31` block that
+ * 2.7.2 never writes.  Probe implementation: scratch/w51_a8/patch272.py
+ * (env W51_EPI_UNFILL=PCread).
+ * Ladder: 2.8 lane 23 diffs @47-vs-48 | plain cc1_272 3 diffs @47-vs-48 | cc1_272 +
+ * epilogue-unfill PASS 48/48.  Source unchanged.  The "irreducible callee-saved
+ * COLORING ROTATION" recorded below is a 2.8-LANE artifact -- under 2.7.2 the whole
+ * s-reg map is already exact.
+ */
 /* syslib/psx/libsn/READ.cpp -- RECONSTRUCTED from nfs4-f.exe (disasm-v3 + m2c-verified structure).
  *   obj READ.obj ; libsn.lib.  PCread @0x80106BE4 (192 B) -- SN devkit host-PC file read: reads `len`
  *   bytes in <=0x8000 chunks via _SN_read, returns total read (or -1 on error; stops short on a

@@ -1,3 +1,20 @@
+/* MATCH (w51-a8, 2026-08-09) -- FALSIFIED, do NOT retry (all gated vs the kept 34):
+ * (1) The "parm-a0-preference fence-kill" row (catalog W49 opacity/identity fence
+ *     `__asm__("" : "=r"(x) : "0"(x))`) applied to the coordinate PARAMS, all 8
+ *     probed subsets: imgX 42 | imgY 52 | clutX 42 | clutY 58 | imgX,imgY 52 |
+ *     imgY,clutX 52 | clutX,clutY 58 | all four 58.  Count parity held 165/165 in
+ *     EVERY case, so the fence IS a pure zero-insn priority dial here -- it simply
+ *     moves the band the WRONG way.  The params already sit in the low-priority
+ *     high-numbered slots retail wants; killing their copy-preference promotes them.
+ * (2) The receipt below names "clutYm refs 3 -> 4 at zero cost" as the single open
+ *     target of the whole inflator kit.  The FENCE reaches it and it still loses:
+ *     read-only fence `__asm__("" : : "r"(v))` on clutXm 54 | clutYm 54 | both 52
+ *     (all count-EXACT 165/165, i.e. the +1 ref really was free); identity fence
+ *     clutXm 51 (166/165) | clutYm 52 | both 61 (166/165).
+ * ==> the STRONG allocno_compare floor at 34 survives the complete w45-w49 fence kit
+ * as well as the earlier re-mask / do-while(0) / dead-set inflators.  Route to the
+ * toolchain-identity investigation, not to more source shapes.
+ */
 /* eaclib/psx/eacpsxz/vramfxya.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
  *   obj nfs4\eaclib\psx\vramfxya.obj ; EACPSXZ.LIB (xlsx col12 / SYM v3 FILE record line 360607).
  *   3 fns: checkrect @0x800F6934 (44 B), vramimage @0x800F6960 (72 B), vramfxya @0x800F69A8 (660 B).

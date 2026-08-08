@@ -703,6 +703,12 @@ _SPLICE_COUNTER = [0]
 # function without the residual it costs +1 insn.  Proof + measurements:
 # scratch/w48_a3_receipts.md section 2.
 PER_FN_EPILOGUE_UNFILL = {
+    # w49-a9 (orchestrator-wired): padinit FAIL 3 (27/28) -> PASS 28/28 — pure
+    # epilogue-swap class (retail's return slot empty, ours steals the addiu sp);
+    # measured on the A9 receipts, whole-TU pad.c gate zero-regression.
+    "recon/eaclib/psx/pad.c": {
+        "padinit",
+    },
     "recon/syslib/psx/libpad/PADMAIN.c": {
         "_padVbCallback1",   # FAIL 4  -> PASS 26/26
         "_padStopCom",       # FAIL 6 (19/17) -> FAIL 6 COUNT-EXACT 17/17

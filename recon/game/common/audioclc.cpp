@@ -664,6 +664,25 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
 }
 
 /* ---- AudioClc_GetClosestCars__Fiii  [@0x80075d04] ---- */
+/* MATCH: FAIL 3 (268/267), was 17 -- 2026-08-08 round: three SYM/source
+ * truths landed: (1) `__builtin_abs` for the x/y/z folds (17->5; same
+ * spelling as the PASSing CalcDistance -- the if(x<0)x=-x form rotated the
+ * whole abs region); (2) C++ MIXED-DECL order per the SYM symbol list:
+ * `closest` DECL-WITH-INIT *before* the `cl[numclosest]` VLA decl (5->3;
+ * the alloca's sp-sub is prologue-hoisted but the s6=sp+16 base BIND stays
+ * at the decl point, after the closest computation = retail order);
+ * (3) searchdist/patch block-scoped per SYM.  RESIDUAL 3 = ONE extra lui:
+ * our translation.x (offset 0) folds to (mem (lo_sum high sym)) with its
+ * own high-pseudo, while y/z (+4/+8, not lo_sum-offsettable) force the
+ * full address -> loop.c hoists it (p149, REG_EQUIV) -> reload remats as
+ * the `la t1`; retail routes the x-load through that shared base too
+ * (`lw v0,0(t1)`), ours keeps TWO identical (high sym) pseudos un-merged
+ * (expand-created vs loop-created -- never in one cse scope; loop.c
+ * combine_movables didn't merge them).  FALSIFIED: y,z,x / z-first orders
+ * (120/30 diffs @count-EXACT 267 -- base-reuse works but defs rotate),
+ * operand swaps, split stmt, cast-ptr (FE folds back), abs interleave,
+ * whole-TU no_split_addresses (9 PASSes break), -fforce-addr (same double
+ * lui).  Route: instrument loop.c combine_movables (r11-style) or accept. */
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 {
   int i;
@@ -675,10 +694,9 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
   int distance;
   int distance1;
   Car_tObj **car;
-  AudioClc_tSource *closest;
+  AudioClc_tSource *closest = AudioClc_gClosest + closestIndex;
   AudioClc_tCLCache cl[numclosest];
 
-  closest = AudioClc_gClosest + closestIndex;
   for (i = 0; i < numclosest; i++) {
     cl[i].ptr = 0;
     cl[i].dst = 0x12c0000;
@@ -707,9 +725,9 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
         x = (*car)->N.position.x - AudioClc_gRenderView.translation.x;
         y = (*car)->N.position.y - AudioClc_gRenderView.translation.y;
         z = (*car)->N.position.z - AudioClc_gRenderView.translation.z;
-        if (x < 0) x = -x;
-        if (y < 0) y = -y;
-        if (z < 0) z = -z;
+        x = __builtin_abs(x);
+        y = __builtin_abs(y);
+        z = __builtin_abs(z);
 
         if (z < x) {
           distance = x + (z >> 2);

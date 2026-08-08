@@ -428,16 +428,13 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     r1 = (carObj->N).orientMat.m[6];
     r2 = (carObj->N).orientMat.m[7];
     r3 = (carObj->N).orientMat.m[8];
-    x1 = r1 / 0x100 * (right.x / 0x100);
-    x2 = r2 / 0x100 * (right.y / 0x100);
-    x3 = r3 / 0x100 * (right.z / 0x100);
-    carCollisionWidth = fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
-    if (0 < carCollisionWidth) {
-      carCollisionWidth = fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
-    }
-    else {
-      carCollisionWidth = -fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
-    }
+    x1 = right.x / 0x100 * (r1 / 0x100);
+    x2 = right.y / 0x100 * (r2 / 0x100);
+    x3 = right.z / 0x100 * (r3 / 0x100);
+    carCollisionWidth =
+      (0 < fixedmult((carObj->N).dimension.z,x1 + x2 + x3)) ?
+      fixedmult((carObj->N).dimension.z,x1 + x2 + x3) :
+      -fixedmult((carObj->N).dimension.z,x1 + x2 + x3);
 
     r1 = (carObj->N).orientMat.m[0];
     r2 = (carObj->N).orientMat.m[1];
@@ -445,11 +442,10 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     x1 = r1 / 0x100 * (right.x / 0x100);
     x2 = r2 / 0x100 * (right.y / 0x100);
     x3 = r3 / 0x100 * (right.z / 0x100);
-    x1 = (carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100);
-    if (x1 < 0) {
-      x1 = -x1;
-    }
-    carCollisionWidth = carCollisionWidth + x1;
+    carCollisionWidth +=
+      (0 < ((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100))) ?
+      ((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100)) :
+      -((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100));
     r2 = carCollisionWidth - BWorldSm_slices[slice].leftDrive * 0x100;
     if (x_relRoad < r2 - carObj->extraWallCollisionAllowance) {
       collide = -1;

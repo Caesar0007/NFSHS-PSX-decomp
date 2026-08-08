@@ -770,6 +770,10 @@ def _apply_epilogue_unfill_272(rel_posix, txt):
 
 
 PER_FN_EPILOGUE_UNFILL = {
+    # w51-a6: single-fn TUs, no in-TU regression possible.
+    "recon/syslib/psx/libgte/FOG_01.c": {"SetFogNear"},  # 4 -> PASS 25/25
+    "recon/syslib/psx/libgte/COR_02.c": {"ccos"},        # 4 -> PASS 49/49
+
     # w49-a9 (orchestrator-wired): padinit FAIL 3 (27/28) -> PASS 28/28 — pure
     # epilogue-swap class (retail's return slot empty, ours steals the addiu sp);
     # measured on the A9 receipts, whole-TU pad.c gate zero-regression.

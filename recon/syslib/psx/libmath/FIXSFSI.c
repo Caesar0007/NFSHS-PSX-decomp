@@ -25,16 +25,27 @@ extern unsigned int __fixsfsi(unsigned int arg1)   /* @0x800F3938 */
         } else {
             unsigned int mant     = (arg1 & 0x7fffff) | 0x800000;
             unsigned int shifted  = mant << 7;
+            /* MATCH (W51-A6, 8 diffs -> PASS 45/45, gcc-2.7.2 lane).  Three cooperating shapes:
+             *  (1) the zero case is an early `return 0;` in the ELSE arm, NOT a result-funnel
+             *      assignment -- that is what lays the zero block PHYSICALLY BETWEEN the srav and
+             *      the sign-fix (oracle `j .L800F39D0; srav $v1,$v1,$v0` then
+             *      `.L800F39C8: j END; addu $v0,$zero,$zero`);
+             *  (2) `shifted` stays a SEPARATE live variable across that join, so the shift lands in
+             *      $v1 instead of being coalesced into the return register;
+             *  (3) the sign fix negates the RESULT variable, not `shifted` in place -- that is what
+             *      puts the oracle's `addu $v0,$v1,$zero` copy in the bgez DELAY SLOT (unconditional)
+             *      with `negu $v0,$v0` on the fall-through.  `shifted = -shifted; return shifted;`
+             *      inverts the pair (negu $v1,$v1 then the copy) = the residual-3 near-miss. */
             if ((exp - 0x7e < 0x20) && (shifted != 0)) {
-                unsigned int t = (int)shifted >> (-e);
-                if ((int)arg1 < 0) {
-                    result = -t;
-                } else {
-                    result = t;
-                }
+                shifted = (int)shifted >> (-e);
             } else {
-                result = 0;
+                return 0;
             }
+            result = shifted;
+            if ((int)arg1 < 0) {
+                result = -result;
+            }
+            return result;
         }
     }
     return result;

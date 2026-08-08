@@ -1326,7 +1326,24 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
        is either copy-propagated (no fence) or register-tied (with one).  ⇒ NEXT is the w47
        `combine_regs`/`make_regs_eqv` lever: a PRODUCER whose destination is a distinct
        short-lived pseudo -- i.e. one more real 1-insn computation between the abs and the
-       divide -- not another spelling of the copy. */
+       divide -- not another spelling of the copy.
+       ===== w51-a9: the named PRODUCER angle EXECUTED and NEGATIVE.  STILL 6 (99/99) =====
+       A real 1-insn producer between the abs and the divide (`sec = time;` then
+       `temp1 = sec / 0x40;`) does NOT split the roles -- 73 @100: the extra pseudo is
+       copy-propagated into the divide and costs an insn instead of surviving.  Re-runs in
+       THIS basin, all worse or equal: `time = abs(time); temp2 = time; temp1 = time/0x40`
+       (10) · `temp2 = abs(time); temp1 = temp2/0x40` i.e. the pre-w46 divide-the-abs form
+       (10) · anon-abs-divide-then-named-abs (10) · an un-foldable negate chain feeding the
+       divide (`(-time < 0 ? time : -(-time)) / 0x40`, 6 = neutral).
+       STATE OF THE ANGLE: retail's `addu a2,v0,zero` is a copy whose DEST outlives and
+       whose SOURCE (the abs pseudo) DIES at the divide.  gcc-2.8 will not produce it from
+       C: with no fence cse copy-propagates the survivor; with an identity fence the "0"
+       constraint ties both ends to one register; an extra real producer is copy-propagated
+       too.  What is left is not a source spelling at all -- it is a local-alloc
+       `combine_regs` refusal (w47 row: combine_regs will not tie a copy whose DESTINATION
+       is a GLOBAL allocno).  Route: make temp2 a GLOBAL allocno (live across a basic-block
+       boundary) while the abs stays block-local -- e.g. by moving temp2's only consumer
+       (`hun`) behind a real branch.  Not attempted here (it changes control flow). */
   hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
@@ -1683,6 +1700,7 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   numch = strlen(str);
   i = 0;
   while (true) {
+    __asm__("" : "=r"(str) : "0"(str));   /* w51-a9: ABOVE the exit test -- see (c) */
     if (numch <= i) break;    /* exit-in-the-middle: top test + `j` back-edge, tail out-of-line */
     /* MATCH (w50-a1): 52 -> 26, count EXACT 215/215.  This fence PAIR is the w49 reqdelta
      * dial "p80 (`str`) refs 8 -> 13" made real: an OPACITY/IDENTITY fence costs ZERO
@@ -1695,8 +1713,37 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
      * Read-only `"r"` fences are NOT enough here (+2 refs each: use_top 54, use_top_tail
      * 54) -- the def side of the identity fence is what buys the step.
      * RESIDUAL 26 = standing residual (2) below (the HudPmx_gShapes index/base a0<->v1 role
-     * swap after Hud_FBuildSprite) + the `lui a0`/`sw zero,16(sp)` slot order beside it. */
-    __asm__("" : "=r"(str) : "0"(str));
+     * swap after Hud_FBuildSprite) + the `lui a0`/`sw zero,16(sp)` slot order beside it.
+     * ===== w51-a9: 26 -> 2, count EXACT 215/215.  THREE cooperating edits =====
+     *  (a) NAMED INDEX TEMP for the width lookup (`int as = alphShape;` then
+     *      `HudPmx_gShapes[as].width`) -- 26 -> 9 @214.  This IS standing residual (2):
+     *      gcc expands the ARRAY_REF base-first, so `&HudPmx_gShapes` won $a0 (the register
+     *      the call argument had just freed) and the masked index was pushed to $v1; naming
+     *      the index makes ITS pseudo the one born first, so it inherits $a0 exactly like
+     *      retail (`andi a0,s0,255; lui v1; addiu v1; sll v0,a0,2; ...; addu v0,v0,v1`) and
+     *      the dead `lui a0` that reorg had stolen into the `bnez s5` delay slot disappears.
+     *      Equivalent forms all measure the same 9 @214: `u_int as = (u_char)alphShape`, the
+     *      byte-base cast `((HudPmx_tShape *)(alphShape*20 + (int)HudPmx_gShapes))->width`,
+     *      and the pointer form `(HudPmx_gShapes + alphShape)->width`.  ⚠️ do NOT also route
+     *      the CALL argument through `as` (63 @214) -- retail recomputes the mask.
+     *  (b) the 0xE5 arm RE-READS `*str` (retail `lbu v1,0(s2); li v0,229; bne; addiu
+     *      s0,v1,67`); ours reused the cse'd byte from the `- 0x30` range test.  A third
+     *      identity fence on `str` at the head of that arm restores the re-read and puts the
+     *      count back to EXACT 215 -- 9 -> 6.  (`char c2 = *(volatile char *)str;` reaches
+     *      the identical 6 @215; the fence is preferred as the house device.)
+     *  (c) 🔴 THE FENCE-BARRIER COST, and its fix: fence #1 sat BELOW the `numch <= i` exit
+     *      test, so its scheduling barrier stopped the space literal (`li v0,32`) from being
+     *      stolen into that branch's delay slot -- ours emitted `beqz v0; nop; lbu; li v0,32`
+     *      where retail has `beqz v0; li v0,32; lbu; nop`.  MOVING fence #1 ABOVE the exit
+     *      test keeps its two loop-weighted refs (the w50 flr2 step is untouched: same loop
+     *      depth, same insn count) and frees the slot: 6 -> 2.  GENERAL RULE for the ref-step
+     *      fence: place it where its BARRIER costs nothing -- the ref dial only needs the
+     *      fence somewhere at the right loop depth, so prefer a position with no schedulable
+     *      insn crossing it.
+     * RESIDUAL 2 = `li s0,103` (alphShape=0x67) vs `li a2,-1` (offy=-1) issue order in the
+     *      0xE5 arm.  Swapping the two statements, or adding a `goto HudBuildStr_haveShape`
+     *      after them, drops to 4 diffs @213 (two insns cross-jump away); a void fence
+     *      between them is exactly neutral.  Pure sched2 ready-list order on two `li`s. */
     if (*str == ' ') {
       ix = ix + 3;
     }
@@ -1780,6 +1827,10 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
                * the compare was provably false and gcc DELETED this whole arm (oracle
                * @800D4574 has `lbu v1,0(s2); li v0,0xE5; bne` + the 0x67/-1 block).  Compare
                * the raw byte value instead. */
+              /* MATCH (w51-a9 b): third identity fence -- forces the 0xE5 arm's OWN
+               * `lbu v1,0(s2)` re-read (retail's `addiu s0,v1,67`); without it cse reuses
+               * the byte loaded for the `- 0x30` range test and we run 1 insn short. */
+              __asm__("" : "=r"(str) : "0"(str));
               alphShape = *str + 0x43;
               if ((u_char)*str == 0xe5) {
                 offy = -1;
@@ -1794,7 +1845,13 @@ HudBuildStr_haveShape:
         Hud_FBuildSprite((u_int)alphShape,ix,y + offy,color,0);
       }
       iw5 = ix + 1;
-      ix = iw5 + HudPmx_gShapes[alphShape].width;
+      {
+      /* MATCH (w51-a9 a): NAMING the index makes its pseudo born before the array base, so
+       * it inherits the $a0 the call argument just freed (retail's `andi a0,s0,255; lui v1`)
+       * instead of the base taking $a0 and the index $v1. */
+      int as = alphShape;
+      ix = iw5 + HudPmx_gShapes[as].width;
+      }
     }
 HudBuildStr_next:
     __asm__("" : "=r"(str) : "0"(str));   /* second half of the w50-a1 ref-step pair */
@@ -2780,15 +2837,30 @@ void Hud_BuildWingmanInterface(int player)
      * call 97, identity fence at the head 49, before the `if` 12.
      * RESIDUAL 2 = the position of the icon row's `addiu a3,a3,2`; every other grouping of
      * that argument is worse (`y + 2 + i*9` 2, `y + (i*9+2)` 6, `(i*9+2) + y` 7 @212,
-     * `(y + i*9) + 2` 6, `(y + two) + i*9` 6, a block-scoped `iy = y + 2` temp 6). */
+     * `(y + i*9) + 2` 6, `(y + two) + i*9` 6, a block-scoped `iy = y + 2` temp 6).
+     * ===== w51-a9: 2 -> PASS 211/211 =====
+     * MATCH: the residual `addiu a3,a3,2` was NOT the i*9 LOOP row (all the w50 spellings
+     * above re-group that one) -- it is the FLASH-ICON row right below.  Retail computes
+     * `(icon+1)*9 + 2` into ONE value and adds `y` LAST (`sll a3,v1,3; addu a3,a3,v1;
+     * addiu a3,a3,2; addu a3,s4,a3`); every in-argument grouping of `y + (icon+1)*9 + 2`
+     * lets fold hoist the +2 outside the base add (`addu a3,s4,a3; addiu a3,a3,2`), because
+     * fold's constant reassociation is STATEMENT-granular and parentheses do nothing.
+     * A separate STATEMENT for the row offset is the only form that stops it -- `iconRow`
+     * below.  Sweep in this basin: named row temp PASS; `(E*9+2) + y` 6; `y + (E*9+2)` 6;
+     * `y + ((E*9) + 2)` 6; `y + E*9 + two` (the NAMED-ONE 2) 2.
+     * NOTE `iconRow` is an invented local (the SYM's line-19 block declares none, same as
+     * the pre-existing `fc`/`pal` here) -- it is the row-offset a 1998 HUD programmer would
+     * have written for a 9-pixel icon pitch. */
     int fc = (flashTicks % 0x14) * 10;
     u_char *pal = Render_gPalettePtr;
     poly = (POLY_F4 *)Render_gPacketPtr;
     ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = (u_char *)poly + 0x18;
     ((Hud_PTag *)pal)->addr = (u_int)poly;
-    Hud_BuildF4(poly,0,x - 0x10,y + ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2,0x3f,8,
-               fc);
+    {
+      int iconRow = ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2;
+      Hud_BuildF4(poly,0,x - 0x10,y + iconRow,0x3f,8,fc);
+    }
   }
   {
     int i;
@@ -2842,6 +2914,18 @@ void Hud_InitCdPlayer(void)
  *   loop's shared tail -- write both arms in full and let cross-jump merge (w38 row);
  *   (3) only then look at the `addiu a3,s1,63` / `addiu t0,s1,63` role swap, which is
  *   downstream of (1).
+ * ===== w51-a9: still 58 (count EXACT 475/475).  ONE new named cluster, probed NEGATIVE =====
+ * A FOLD-REASSOCIATION cluster at the two scroll-title `Hud_BuildString` calls:
+ *   ours   `addu v0,s7,s3` (x + dx) ... `addiu a1,a1,-86`   [and -98 at the 2nd site]
+ *   retail `addiu v0,s3,10` (dx + 10) `addu v0,s7,v0` ... `addiu a1,a1,-76` [both sites]
+ * i.e. fold hoists our `+ 10` / `+ 0x16` out of the x term and onto the `- 0x4c` constant
+ * (`(x+dx+K) - (scroll-0x4c)` == `(x+dx) - (scroll-0x4c-K)`), while retail keeps `dx + K`
+ * as its own term with a shared `-0x4c` at both sites.  fold is STATEMENT-granular, so the
+ * cure is a separate statement -- but the split temp REGRESSES: `int dxk = dx + K;` at the
+ * first site only 62, second only 64, both 68 (all count-exact 475).  Parenthesising
+ * (`x + (dx + K)`) is worse still (109 @476).  ⇒ the shape is right and the extra pseudo is
+ * what costs; the reachable form is one where `dx + K` already exists for another reason
+ * (e.g. the same term feeding the artist/`x + 0xa` call) -- untried.
  *   The w44-a10 zero-insn redundant-mask lever has no target here (all OT/palette RMW sites
  *   in this TU already carry both masks explicitly).
  * w39-a1: 433 -> 77 diffs, insn count 474/475.  SYM-driven purge of 8 invented locals +
@@ -3071,7 +3155,8 @@ HudCdPlay_scrollTick:
          * per-arm local does NOT hold it (cse unifies); the volatile cast is the fence.
          * Semantically identical -- `p` is not advanced between the two arms.
          * Measured: volatile on the else arm only 75, on the if arm only 73, on BOTH 61
-         * (+2 insns), on the digit TEST 78 (+3). */
+         * (+2 insns), on the digit TEST 78 (+3).
+         * w51-a9 NOTE: these per-arm re-reads are LOAD-BEARING -- do not "clean" them. */
         if ((u_int)(*p - 0x30) < 10) {
           w = *(volatile u_char *)p + 0x6e;
         }
@@ -3164,7 +3249,20 @@ HudCdPlay_buildOutString:
  * the entry block and find which insn retail releases late; the dial is one RTL insn issued
  * at the tail of that block, not any statement position (proved above).  Alternatively hand
  * it to the permuter: it is a 4-diff count-exact residual, the cheapest permuter target in
- * this TU. */
+ * this TU.
+ * ===== w51-a9: still 4 (count EXACT 450/450) -- the fence axis is now CLOSED too =====
+ * The w46 sweep used the OPERAND-CARRYING use fence; this wave ran the w48 zero-insn
+ * VOID-TAIL fence `__asm__("" : : "i"(0))` at every statement boundary of the head
+ * (after `car =` 141 @449, after `visible =` 50, after `mapx =` 46, after `mapz =` 49) --
+ * all far worse, so the sched-fixpoint device cannot hold this pair either.  Also swept and
+ * neutral/worse: six head statement ORDERS (vis/mapx/mapz/car permutations -- 4, 4, 4, 8,
+ * 8, 8) and hoisting the loop counter init out of the `for` (`i = 0;` as its own statement
+ * then `for (; i < n; i++)` = 4; `while` form = 157 @441).
+ * DIRECTION NOTE (w50 fence law): a fence can only PIN, never PUSH -- ours issues the pair
+ * EARLIER than retail, so no fence placement can move it down; the reachable dial is the
+ * sched2 PRIORITY of `addu s6,s0,zero` (its critical-path length to the end of the entry
+ * block), not its position.  Retail's address chain out-prioritises the pair; ours does not.
+ * That is a `-dR` reading job, or the permuter -- unchanged verdict. */
 /* ---- Hud_BuildRadar__Fi ---- */
 int Hud_BuildRadar(int player)
 
@@ -3436,7 +3534,6 @@ void Hud_BuildReplay(void)
   else {
     *(u_int *)&gSprite0[0x39].r0 = 0x66808080;
   }
-  i = 0x33;
   tSs1_2 = gSprite0;
   {
   /* MATCH (w50-a1): 41 -> 2, count now EXACT 191/191 (was 190, one insn SHORT).  TWO
@@ -3454,11 +3551,21 @@ void Hud_BuildReplay(void)
    *      is always copy-propagated (re-confirmed here: 38 with an identity fence on either
    *      end, 41 plain).  An equivalent form -- named read first + an anonymous re-read for
    *      the head store -- also gates 2/191.
-   * RESIDUAL 2 = the position of `li t1,51` (the `i = 0x33` init); every position measured
-   * identical (before/after `tSs1_2 =`, inside the block) => sched2 ready-list drain tie. */
+   * RESIDUAL 2 = the position of `li t1,51` (the `i = 0x33` init).
+   * ===== w51-a9: 2 -> PASS 191/191 =====
+   * MATCH: `i = 0x33;` belongs BELOW the 0x39 head-store statements, immediately above the
+   * link loop -- NOT at the top of the region.  The w50 receipt swept three positions
+   * (before/after `tSs1_2 =`, inside the block) and called the residual a sched2 drain tie;
+   * all three sit ABOVE the head store, which is why they measured identical.  Retail's
+   * preheader run is `lui a1,255; ori a1` (the head store's 0xFFFFFF) THEN `li t1,51` THEN
+   * the loop's own hoisted `lui t2,255; ori t2; lui t3,65280` -- i.e. the counter init is
+   * generated AFTER the head store's constants and BEFORE the loop's movables, which is
+   * exactly RTL-generation order for a `i = 0x33;` written here.  Position was the dial;
+   * the swept range simply never crossed the head store. */
   u_char *pal = Render_gPalettePtr;
   ((Hud_PTag *)&tSs1_2[0x39])->addr = ((Hud_PTag *)pal)->addr;
   ((Hud_PTag *)pal)->addr = (u_int)&tSs1_2[0x39];
+  i = 0x33;
   {
   u_char *palL = Render_gPalettePtr;
   do {
@@ -3888,7 +3995,17 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
       j = 0;
       by = byw;
       do {
-        if ((Hud_Character[num] & 1 << k) != 0) {
+        /* MATCH (w51-a9): 10 -> 2.  `index` is ONE fn-scope variable driving BOTH loops'
+         * bit tests -- exactly the named angle in the w49 receipt below ("make it span two
+         * basic blocks").  Written only in loop 2 it is a BLOCK-LOCAL qty carrying the $a0
+         * copy-preference local_alloc honours, so it coalesces into the call argument
+         * (`ori a0,a0,60`); driving loop 1's test as well makes it a GLOBAL allocno and it
+         * lands in retail's/the SYM's $v1 (`and v1,v1,v0; sltu v1,zero,v1; ori a0,v1,60`).
+         * Zero insn change, and it is the natural spelling -- one "is this pixel lit" flag
+         * reused by the halo pass and the sprite pass.  (`index = raw & 1<<k` without the
+         * `!= 0`, and the assign-inside-the-if form, both measure the same 2.) */
+        index = (Hud_Character[num] & 1 << k) != 0;
+        if (index != 0) {
           Flare_2DHalo(x + j * 10 + 4,by + 4,flare_intensity,flare_intensity,6);
         }
         j = j + 1;
@@ -3914,7 +4031,30 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
    * uninitialised-path read has no runtime effect, and inside the guard the range is
    * one insn too short.)  RESIDUAL 10 = the `index` a0-vs-v1 chain documented below;
    * FALSIFIED for it in THIS basin: identity fence on `index` (21 / 110 insns, index
-   * moves to $v0 and an insn is lost) and a read-only fence on `index` (21 / 110). */
+   * moves to $v0 and an insn is lost) and a read-only fence on `index` (21 / 110).
+   * ===== w51-a9: 10 -> 2 (count EXACT 111/111) =====
+   * The `index` a0-vs-v1 chain is CLOSED -- see the MATCH note at loop 1's bit test.
+   * RESIDUAL 2 = the POSITION of `addu s4,a1,zero` (the `byw = y` walker seed): ours emits
+   * it BEFORE the LICM-hoisted `&Hud_Character[num]` address chain (lui/addiu/sll/addu s7),
+   * retail AFTER it.  That is NOT a statement dial: loop.c's `move_movables` inserts hoisted
+   * invariants immediately before loop_start -- after EVERY source insn of the preheader --
+   * and `strength_reduce` appends the giv inits after those.  So retail's copy sits where a
+   * loop.c-GENERATED giv init sits, not where any source statement can be placed.
+   * FALSIFIED in THIS basin (the w44/w45 verdicts re-measured and confirmed):
+   *   statement position of `byw = y` (top / after k=0 / after i=0) -- all 2, no movement;
+   *   the single-expression giv `by = y + i*9` (also `i*9 + y`, `y + 9*i`) -- 5 @112: the
+   *     giv init DOES land at retail's position but with base 0 (`addu s4,s2,zero`) plus a
+   *     per-outer-iteration `lw t0,76(sp)` ARG-HOME reload -- loop.c will not take the
+   *     spilled parm pseudo as the giv's add_val;
+   *   seeding the giv from an invariant local (`byw = y; by = byw + i*9`, `i*9 + byw`, and
+   *     the split `by = byw; by = by + i*9`) -- 20 / 20 / 42 @115 (the extra pseudo spills);
+   *   an explicit `u_long *chr = &Hud_Character[num];` statement placed before / between /
+   *     after the counter inits, to make the address a SOURCE insn (which would put it ahead
+   *     of the copy instead of behind it) -- 29 / 25 / 27 @114, the pointer local costs 3.
+   * NEXT ANGLE (unchanged, still untried): the only shape that can put a REGISTER-based copy
+   * after the hoists is a giv whose add_val is a zero-cost register invariant -- i.e. get
+   * `y` out of its ARG home across loop 1 without adding a pseudo (the w44 "share the `y-2`
+   * term with the following Hud_BlackThinBox call so cse keeps y live" idea). */
   __asm__ volatile("" : : "r"(by));
   k = 0;
   i = 0;
@@ -4113,7 +4253,25 @@ void BigBTCTime(int secs)
  *   `160 - (ww2+1)` fold; both angles above already recorded.  a10 RELAY: hud's Render*
  *   traces were BLOCKED by a front-end ICE in the near-oracle cc1 at the Wingman definition,
  *   so no qty table exists for this function -- the 15-min stub recipe is in a10 receipts
- *   6.4 if the spill-slot cycle is attacked next wave. */
+ *   6.4 if the spill-slot cycle is attacked next wave.
+ * ===== w51-a9: still 78 (count EXACT 606/606).  Two more angles closed =====
+ * (g) THE SLOT CYCLE IS A ROTATION BY TWO, and it is NOT statement-order reachable.
+ *     Ours' spill-slot address order is [A,B,C,D,E]; retail's is [C,D,E,A,B] -- i.e. the two
+ *     quantities we allocate FIRST (the two `sw zero,96/100(sp)` at insns 16-17, the walkers'
+ *     initial zeros) are the ones retail allocates LAST.  Re-confirming the w46 claim by
+ *     measurement: swapping `viewOff = 0;`/`tpageOff = 0;`, and moving `j = 0;` ahead of or
+ *     between them, are ALL exactly neutral (78 each) -- reload hands out slots in spilled-
+ *     ALLOCNO order, which no source position touches.  The open dial is unchanged: a
+ *     ref-step on whichever pair must swap (needs allocsim; the near-oracle cc1 still ICEs on
+ *     this TU, so the qty table does not exist).
+ * (h) the `Hud_BuildCdPlayer` show-flag select (ours `beqz`+`nop` then `li a0,1` last; retail
+ *     `beqz v0,DONE; li a0,1` with the 1 PRE-SET in the delay slot and `addu a0,zero,zero`
+ *     as the fall-through) -- the catalog PRE-SET-THE-DEFAULT shape written out explicitly
+ *     (`int cdshow = 0; if (0x23f < ticks) { cdshow = 1; if (countdown < 4 && !BeTheCop)
+ *     cdshow = 0; }`) gives 72 diffs but the count DROPS to 604 (two insns cross-jump away),
+ *     so it is not the retail shape.  De Morgan (`!((u_char)countdown < 4 && BeTheCop == 0)`)
+ *     and the `>= 4` spelling are both exactly neutral (78).  The select is ~6 of the 78;
+ *     the slot cycle is the rest. */
 void Hud_RenderHudView(void)
 {
   /* SYM-exact shape (8c @0x800d82d0): fn-scope sBuildOutput[64] AUTO -0x80, j REG $fp;

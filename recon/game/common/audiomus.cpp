@@ -738,94 +738,61 @@ void AudioMus_BuildPattern(char *pattern)
 /* ---- AudioMus_PlaySong__FPc  [@0x8007b030] ---- */
 int AudioMus_PlaySong(char *pattern)
 {
-  char title[128];
-  int newsong;
-  int *piVar1;
-  AudioMus_tMusicGlobals *pAVar2;
-  u_int uVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  char acStack_98 [128];
-  
-  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
-    iVar4 = 0;
-  }
-  else {
-    if (((pattern != (char *)0x0) &&
-        (AudioMus_BuildPattern(pattern), AudioMus_g->availablesongs == 0)) &&
-       (uVar3 = strlen(pattern), uVar3 < 0x3d)) {
-      sprintf(acStack_98,"*-%s",pattern);
-      AudioMus_BuildPattern(acStack_98);
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    if (pattern != (char *)0x0) {
+      AudioMus_BuildPattern(pattern);
+      if ((AudioMus_g->availablesongs == 0) && (strlen(pattern) < 0x3d)) {
+        char title[128];
+        sprintf(title,"*-%s",pattern);
+        AudioMus_BuildPattern(title);
+      }
     }
-    pAVar2 = AudioMus_g;
-    iVar4 = 0;
+
     if (AudioMus_g->volume != 0) {
-      iVar4 = AudioMus_g->availablesongs;
-      if (iVar4 != 0) {
+      if (AudioMus_g->availablesongs != 0) {
+        int newsong;
+        newsong = AudioMus_g->availablesongs;
         AudioMus_g->randomize = 1;
-        if (iVar4 == 1) {
-          iVar6 = 0;
+        if (newsong == 1) {
+          newsong = 0;
         }
-        else if (pattern == (char *)0x0) {
-          iVar5 = pAVar2->requestsong;
-          iVar7 = iVar4 + -1;
-          iVar6 = GetRCnt(0);
-          if (iVar6 < 1) {
-            iVar6 = GetRCnt(0);
-            iVar6 = -iVar6;
-          }
-          else {
-            iVar6 = GetRCnt(0);
-          }
-          iVar5 = iVar5 + 1 + iVar6 % iVar7;
-          iVar6 = iVar5 % iVar4;
+        else if (pattern != (char *)0x0) {
+          newsong = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % newsong;
         }
         else {
-          iVar5 = GetRCnt(0);
-          if (iVar5 < 1) {
-            iVar5 = GetRCnt(0);
-            iVar5 = -iVar5;
-          }
-          else {
-            iVar5 = GetRCnt(0);
-          }
-          iVar6 = iVar5 % iVar4;
+          newsong = (AudioMus_g->requestsong + 1 +
+                      ((GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) %
+                       (newsong - 1))) % newsong;
         }
-        pAVar2 = AudioMus_g;
-        if (AudioMus_g->switchsong == 0) {
-          if (AudioMus_g->requestsong < 0) {
-            piVar1 = &AudioMus_g->streamhandle;
-            AudioMus_g->fadetime = 0;
-            SNDSTRM_vol(*piVar1,0);
-            AudioMus_g->requestsong = iVar6;
-            AudioMus_QueueRequestedSong();
-          }
-          else {
-            SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
-            pAVar2 = AudioMus_g;
-            AudioMus_g->fadetime = 2000;
-            pAVar2->switchsong = 1;
-            pAVar2->requestsong = iVar6;
-            pAVar2->songname = (char *)0x0;
-          }
-        }
-        else {
+
+        if (AudioMus_g->switchsong != 0) {
           AudioMus_g->switchsong = 1;
-          pAVar2->requestsong = iVar6;
+          AudioMus_g->requestsong = newsong;
         }
-        pAVar2 = AudioMus_g;
+        else if (AudioMus_g->requestsong >= 0) {
+          SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
+          AudioMus_g->fadetime = 2000;
+          AudioMus_g->switchsong = 1;
+          AudioMus_g->requestsong = newsong;
+          AudioMus_g->songname = (char *)0x0;
+        }
+        else {
+          AudioMus_g->fadetime = 0;
+          SNDSTRM_vol(AudioMus_g->streamhandle,0);
+          AudioMus_g->requestsong = newsong;
+          AudioMus_QueueRequestedSong();
+        }
+
         AudioMus_g->firstswitch = 1;
-        pAVar2->errorcode = 0;
+        AudioMus_g->errorcode = 0;
         if (pattern != (char *)0x0) {
-          pAVar2->newswitch = 1;
+          AudioMus_g->newswitch = 1;
         }
       }
-      iVar4 = AudioMus_g->availablesongs;
+      return AudioMus_g->availablesongs;
     }
   }
-  return iVar4;
+  return 0;
 }
 
 /* ---- AudioMus_Volume__Fi  [@0x8007b2b0] ---- */

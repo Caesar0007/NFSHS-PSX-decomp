@@ -333,7 +333,14 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
        * (the w39/w41 sweeps were basin-relative): the original n1,n2,n0,n3 is still
        * the unique optimum (next best 10, worst 18).  Eight in-loop fence placements
        * aimed at residual (a) all cost +2 insns (44) -- the n0 sched2 placement needs
-       * a ZERO-insn dial, not a fence inside the loop body. */
+       * a ZERO-insn dial, not a fence inside the loop body.
+       * w50-a6: the one instrument the receipts had NOT tried on residual (a) is the w47
+       * OPACITY/IDENTITY fence (`"=r"(x) : "0"(x)`), a value-numbering barrier and a
+       * different device from the plain use fence swept above.  It is NOT zero-insn here
+       * (each operand is a loop-body value that must be materialized into its own pseudo):
+       * opq(pixel3) 13 @45, opq(n0) 8 @44, opq(n1) 24 @44, opq(n3) 24 @44, opq(n1)+opq(n2)
+       * 24 @44, n0-first + opq(n1) 24 @44.  Every one breaks the exact 42/42 count.
+       * STRONG floor re-confirmed at 4 with the current kit. */
       __asm__ __volatile__("");
       source = source + 0xc;
     }
@@ -445,6 +452,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   shapetbl *clutPlate1;
   shapetbl *clutPlate2;
   short *thePlate;
+  shapetbl *q1;
+  shapetbl *q2;
   int i;
 
   /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
@@ -463,12 +472,28 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     thePlate = (short *)reservememadr("theplate",0x210,0x10);
     shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,"blnk");
     clutptr = (shapetbl *)((int)shape + (*(int *)shape >> 8));
+    /* MATCH (w50-a6, 104 -> 78, count stays EXACT 229/229): MAY-ALIAS SERIALIZATION.
+     * Retail issues the TWO `CarIO_PlateN[player]` pointer loads BACK-TO-BACK, then both
+     * address adds, then both stores (`lw v0,0(s1); lw a0,0(s0); addu; addu; sw; sw`).
+     * Ours read plate1, stored through it, and only then read plate2 -- because the store
+     * `*(int *)((char *)Plate1[player] + i*4)` MAY ALIAS the `CarIO_Plate2[]` slot, so
+     * sched_analyze chains the second load behind it and no scheduling lever can reach it
+     * (catalog w46 ALIAS-CHECK rule).  Hoisting both reads into locals removes the chain
+     * and the batch appears.  The STORE order is then a second, independent dial: retail
+     * stores plate2 first (its `sw a1,0(v0)` goes to the s1 = &Plate2 address).  Measured
+     * 2x2: reads12/stores12 86, reads12/stores21 82 (kept), reads21/stores12 100,
+     * reads21/stores21 104 -- i.e. the READ order must stay source order and only the
+     * stores flip.  A bare store swap without the temps is 122 (it swaps the reads too). */
     do {
       int hdr;
+      shapetbl *p1;
+      shapetbl *p2;
 
       hdr = ((int *)shape)[i];
-      *(int *)((char *)(CarIO_Plate1[player]) + i * 4) = hdr;
-      *(int *)((char *)(CarIO_Plate2[player]) + i * 4) = hdr;
+      p1 = CarIO_Plate1[player];
+      p2 = CarIO_Plate2[player];
+      *(int *)((char *)p2 + i * 4) = hdr;
+      *(int *)((char *)p1 + i * 4) = hdr;
       i = i + 1;
     } while (i < 4);
     i = 0;
@@ -480,8 +505,16 @@ void CarIO_CreateLicense(char *text,int carType,int player)
       ((int *)clutPlate1)[i] = tu3;
       i = i + 1;
     } while (i < 0xc);
-    *(u_int *)(CarIO_Plate1[player]) = *(u_char *)(CarIO_Plate1[player]) | 0x11800;
-    *(u_int *)(CarIO_Plate2[player]) = *(u_char *)(CarIO_Plate2[player]) | 0x11800;
+    /* MATCH (w50-a6, 82 -> 78): the SAME may-alias serialization one block later --
+     * retail loads both plate pointers (`lw t3,0(t1)` / `lw t2,0(t0)`) before either
+     * flag RMW stores, and again does plate2's RMW first.  Same 2x2 sweep from the 82
+     * basin: reads12/stores12 82, reads21/stores12 82, reads12/stores21 78 (kept).
+     * The two `->width = 0x18` stores below deliberately KEEP their re-reads of
+     * CarIO_PlateN[player] -- retail re-loads both there too (`lw t0,0(t0)`/`lw v1,0(t1)`). */
+    q1 = CarIO_Plate1[player];
+    q2 = CarIO_Plate2[player];
+    *(u_int *)q2 = *(u_char *)q2 | 0x11800;
+    *(u_int *)q1 = *(u_char *)q1 | 0x11800;
     CarIO_Plate2[player]->width = 0x18;
     CarIO_Plate1[player]->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
@@ -750,8 +783,14 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
     int palShare;
     int palette;
 
-    palette = 1;
+    /* MATCH (w50-a6, 186 -> 184): the sibling UpdateCarTextureData's flag-store lever --
+     * writing `palette = 1;` AFTER the locateshapez call lets dbr use the flag store as
+     * the `jal`'s delay-slot filler instead of emitting it ahead of the arg setup.  It
+     * transfers only partially here (the sibling went 7 -> PASS); the comma-order swap
+     * that cracked the sibling's tail is NEGATIVE on this fn (188), so the two loops'
+     * residuals are NOT the same cluster despite the identical source shape. */
     shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
+    palette = 1;
     palShare = CarIO_textureName[i].palShare;
     if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
       palette = 0;
@@ -935,13 +974,27 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
   }
   Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
   Texture_ResetPaletteSharing();
-  for (i = 0; i < 0x33; i = i + 1, carPixMapCount = carPixMapCount + 1) {
+  /* MATCH (w50-a6, 25 -> 7, ours 301 -> 299 vs oracle 298): the two spilled counters'
+   * TAIL ORDER is set by the comma-expression order.  Retail updates carPixMapCount
+   * (44(sp)) FIRST and the palCopyNum giv (60(sp)) last, with `addiu t0,t0,2` in the
+   * back-`j` delay slot; our `i` -first order emitted the 60(sp) group first and left the
+   * 44(sp) store as the `j` filler.  Swapping the two comma operands is semantically
+   * identical (neither reads the other) and also lets dbr fill the guard `beqz` slot,
+   * which is what removed the two nops.  (Falsified from this basin: an explicit while
+   * form with both bumps at the bottom 372 @290; a `(short *)palCopyNum` pointer view 25.) */
+  for (i = 0; i < 0x33; carPixMapCount = carPixMapCount + 1, i = i + 1) {
     shapetbl *shape;
     int palShare;
     int palette;
 
-    palette = 1;
+    /* MATCH (w50-a6, 7 -> PASS 298/298): retail sets up locateshapez's two args BEFORE
+     * materializing the `palette` flag and fills the `jal`'s delay slot with the
+     * `sw t0,52(sp)` flag store.  Written before the call, the store is already emitted
+     * when dbr scans back and the slot gets a nop; written AFTER the call statement it
+     * becomes the slot filler.  (Any of the three post-call positions -- after the call,
+     * after the palShare read, immediately before the guard -- gates PASS.) */
     shape = (shapetbl *)locateshapez(shpfile,CarIO_textureName[i].pal);
+    palette = 1;
     palShare = CarIO_textureName[i].palShare;
     if ((shape == (shapetbl *)0x0) && (palShare == 0)) {
       palette = 0;

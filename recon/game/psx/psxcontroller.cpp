@@ -268,7 +268,19 @@ void InGame_ResetPSXController(int player,int config)
  * `s0 a0 s1 a1` vs `s1 a1 s0 a0`).
  * Measured this session on the 329 base: `| 1` at the return 279 (adopted), `c = value;
  * switch (c)` 374, direct `return <expr>` per case (no newControl local) = compile error
- * (the local is referenced by the outer-switch fallthrough path). */
+ * (the local is referenced by the outer-switch fallthrough path).
+ * ---- w50-a6 BRANCH CENSUS (tools/brcensus.py, the cheap structural check the de-merge
+ * plan should be driven by).  Re-gated 264 diffs, ours 209 / oracle 233 (= 24 short):
+ *     beqz 2 v 1 . bnez 4 v 5 . j 18 v 20
+ * Reading: (a) `j` 18-vs-20 says the over-merge is exactly TWO un-taken arm tails -- the
+ * de-merge target is 2 tails, not a diffuse 24 insns, so instrument (1) above should be
+ * applied to precisely two arms and gated after each; (b) beqz/bnez 2/4 vs 1/5 at an equal
+ * TOTAL of 6 is a single GUARD POLARITY flip (catalog: "beqz<->bnez swap at equal totals =
+ * an arm-order flip"), and it is a separate, cheaper defect than the merge -- find the one
+ * guard whose arms are inverted and fix it FIRST, since a polarity flip changes which tail
+ * is the fall-through and therefore which tails jump2 is even offered.
+ * No spellings were attempted this wave (budget went to the cario/fe3dmenu conversions);
+ * the census is the deliverable and it makes the next pass a 2-arm search, not a 24-insn one. */
 int InGame_GetPSXPadValue(int value,int player)
 
 {
@@ -499,7 +511,14 @@ int InGame_GetDevice(int control)
  * there never are two); `hp` moved after the three ramp stores 17 (the w41 measurement,
  * re-confirmed from this basin); a zero-insn USE fence on `hp` 20 @100.  Both address
  * spellings collapse to the same RTL movable, so "two movables" is not source-reachable;
- * the loop.c cost-model verdict stands. */
+ * the loop.c cost-model verdict stands.
+ * ---- w50-a6: 13 STAYS, re-gated (99/98).  Time went to the cario/fe3dmenu conversions;
+ * the remaining named angle for this fn is unchanged and is the ARM-DUPLICATION inflator
+ * (a cross-jumped duplicate of the `hp = hoff + i;` materialization in two sibling blocks,
+ * so cse1 cannot re-merge them into ONE life-2 movable the way it re-merged the two
+ * SPELLINGS w49 tried).  The loop body has no natural if/else pair to host it, so it needs
+ * the three `InGame_GetDevice(...)` guards restructured first -- a bigger edit than this
+ * wave's budget, and it must be gated against the two sibling near-misses in this TU. */
 void InGame_SetRamp(void)
 
 {

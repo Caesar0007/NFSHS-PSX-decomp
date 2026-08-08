@@ -219,7 +219,27 @@ int TrackSpec_gPrevSpec;
  *                  there is no 5..8-byte owned object, so the -G8 discriminator is
  *                  silent AND the measurement is identical); no_strength_reduce 222,
  *                  no_split_addresses 222, no_schedule_insns 217 (+ breaks SetUp and
- *                  Read), no_schedule_insns2 193 (+ breaks Load) -- all NEGATIVE. */
+ *                  Read), no_schedule_insns2 193 (+ breaks Load) -- all NEGATIVE.
+ * w50-a6 RE-GATE: the briefing's "8/6" was STALE -- this fn is at **4** diffs, count-exact
+ * 142/142, and the residual is TWO independent ready-list DRAIN positions in the one big
+ * straight-line store block:
+ *   (i)  `li v1,1` (the constant feeding horizonstate/skystate/depthcuestate/mirror):
+ *        retail issues it at slot 4, BEFORE `sh zero,0(a1)`; ours at slot 7.
+ *   (ii) `sb v1,240(a1)` (depthcuespec.color.r): retail issues it at slot 130, grouped with
+ *        .g/.b; ours at 125.
+ * Both are the same class as the already-solved `li a3,23` hoist, but neither responds to
+ * the same instrument.  FALSIFIED this wave (all count-exact 142/142 unless noted):
+ *   store position for (ii): dc.r before dc.g 6, before nightcolor.r 8, before yoffset 8,
+ *     dc.r/distance swapped 8;
+ *   tail fences for (ii): void-tail `"i"(0)` at dc.g / nightcolor.r / yoffset / haloB /
+ *     moonAngle 8 each, at clearcolor.b 6; a `"r"(i)` use fence at dc.g / nightcolor.r /
+ *     yoffset 42 each;
+ *   head levers for (i): horizonstate hoisted above the fogstate store 6, horizonstate +
+ *     skystate above it 186, fogstate sunk below the existing fence 6, the weather read
+ *     hoisted above fogstate 8, an extra void fence before fogstate 4 (neutral), the
+ *     existing fence moved before the weather read 8.
+ * Every lever that moves either insn drags the other block with it.  FLOOR (STRONG) stands
+ * at 4; the next instrument would be a -dl qty dump on the store block, not more spellings. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 
 {

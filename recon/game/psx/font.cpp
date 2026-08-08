@@ -214,7 +214,26 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
    * bump moved after both RMWs -- so Font_Blit's link is confirmed NOT the addPrim shape
    * in this basin either; moving the `*pal` RMW below the u0 store 70 / below the w/h
    * store 75 @56.  Inlining the `addr24` temp (SYM-truer, it names no such local) is
-   * exactly 38 -- kept as-is to avoid churn. */
+   * exactly 38 -- kept as-is to avoid churn.
+   * w50-a6: the two named angles left open by w46-a8/w49-a6 are now BOTH FALSIFIED, so the
+   * 38 is a genuine floor at the source level (all count-exact 55/55):
+   *  (1) PIN THE `v` STACK-PARM LOAD.  A use fence carrying `v` was swept through the whole
+   *      body: replacing the sprt fence with a v fence 44, sprt fence + v fence after it 44,
+   *      v fence then sprt fence 44, and a v fence (sprt fence kept) at the +3 byte store 64,
+   *      at the x0 store 64, at the r0 store 46, at the w/h store 71 @56, at the cursor bump
+   *      84.  The `lw $t6,40(sp)` never moves -- confirming the w49 reading that its position
+   *      comes from RTL GENERATION (assign_parms), not from sched1, so no fence reaches it.
+   *      That also pins the {v,pal,mask} -> {t3,t4,t6} vs retail {t6,t3,t4} rotation, since
+   *      the rotation is downstream of where v's value first becomes live.
+   *  (2) LENGTHEN THE 0xff000000 MASK PAST v's WINDOW (the w46-a8 live-extent direction, the
+   *      half that had only been tried via a fence on `pal`).  Giving the mask a real named
+   *      local `u_int hi = 0xff000000;` used by BOTH OT-link RMWs is exactly neutral (38),
+   *      and every extension of its range costs: a use fence on `hi` after the u0 store 50,
+   *      before the u0 store 50, and with the first RMW's operands flipped 52.  The flipped
+   *      RMW1 alone (to chase retail's v0/v1 load swap) is 46.
+   *  Remaining residual is therefore: v's RTL-generation load position + the register
+   *  rotation it forces + the early `addu a0,t1,zero` SetSemiTrans arg copy.  Next
+   *  instrument is an allocsim/-dg pass on the parm, not another spelling. */
   __asm__ volatile("" : : "r"(sprt));
   dv = (dv + v & 0xffU) << 8;
   *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv | u;

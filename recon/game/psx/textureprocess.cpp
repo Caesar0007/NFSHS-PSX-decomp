@@ -636,6 +636,23 @@ void CV_ColorTracks(int track,int weather,int night)
    * retail's way.  (Two nested wrappers measure the same 2; the wrapper must sit on a
    * contrast REF, and this one is outside every call-crossing region so its LOOP_BEG/END
    * note costs no scheduling.) */
+  /* PER_FN_PROLOGUE_UNSINK CANDIDATE (w50-a6).  The residual is now exactly 2 diffs at a
+   * COUNT-EXACT 130/130, and both are the SAME instruction in two places -- `sw ra,40(sp)`:
+   *   ours   ... sw s3,36; addu s3,a2; [sw ra,40]; sw s0,24; addu s0,zero; addiu a0,sp,16;
+   *              addu a1,s0; jal memset
+   *   retail ... sw s3,36; addu s3,a2;  sw s0,24; addu s0,zero; addiu a0,sp,16;
+   *              addu a1,s0; [sw ra,40]; jal memset
+   * i.e. retail SINKS the $ra save four slots, below the whole memset arg setup, while our
+   * cc1 issues it inside the callee-save block.  Every other byte of the function matches.
+   * Same family as the w48 PER_FN_EPILOGUE_UNFILL class (a per-function prologue save
+   * POSITION no whole-fn switch reaches) and the same class A3 proposed as
+   * PER_FN_PROLOGUE_UNSINK on FILE_completeop -- here in the SINK direction (ours too early).
+   * FLAG AXIS FALSIFIED for this fn (scratch/w50_a6/flagprobe.py, cc1 on the built .i;
+   * relative counts, not gate-exact): baseline 18, -fno-schedule-insns 18,
+   * -fno-schedule-insns2 35, -mno-split-addresses 18, -fno-delayed-branch 128 @150 insns.
+   * No flag moves the save, and the w49 receipt already banks 8 falsified fence placements.
+   * A textual per-fn splice moving the `sw $31,0x28($sp)` line down to just before the `jal`
+   * would land PASS; nothing else is left.  REPORTED, not wired (build.py off-limits). */
   do { contrast = 0; } while (0);
   memset(&color,0,4);
   brightness = 0;

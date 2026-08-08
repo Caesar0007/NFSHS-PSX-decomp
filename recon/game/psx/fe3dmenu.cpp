@@ -85,8 +85,26 @@ void Fe3D_InitShowroom(void)
   while (1) {
     if (0x20 <= i) break;
     angle_sin = fastintsin(angle) >> 3;
-    angle_cos = fastintcos(angle) >> 3;
-    /* MATCH (w49-a6, 14 -> 6, count now EXACT 107/107): retail computes the index
+    int cos_raw = fastintcos(angle);
+    /* MATCH (w50-a6, 6 -> PASS 107/107): the w49 residual was THREE insns issued in the
+     * wrong sched2 slots, and all three are STATEMENT-POSITION dials (the fence itself is
+     * already at its optimum -- re-swept in the new basin, every other fence position is
+     * 4/20/28):
+     *  (a) retail issues the cos `sra v0,v0,3` FOURTEEN slots later, right after the .x
+     *      value's `srl v1,v1,5`.  Splitting the call from its shift (`cos_raw` + a later
+     *      `angle_cos = cos_raw >> 3;`) puts the shift where retail issues it (6 -> 4);
+     *      any of the three store-anchored positions measures the same.
+     *  (b) `angle`/`i` are bumped at the BOTTOM of the loop body, not the top -- that is
+     *      what lets the two index increments float above them (4 -> 2).
+     *  (c) the first `sVar4 = sVar4 + 1;` is hoisted ABOVE `iPlus = sh;` so retail's
+     *      `addiu a1,s3,1` issues between the shared `sll` and the `addu a2,v1,zero`
+     *      copy (2 -> 0).  Semantically free: the .x/.y/.z stores of the first vertex
+     *      index off `sh`/`iPlus` (already captured), never off `sVar4`.
+     * FALSIFIED in this basin: explicit `idx2` temps carrying both increments (10-20),
+     * hoisting inc1 above `int sh` (22), sinking `iPlus`+fence to the .z store (20),
+     * an extra void-tail fence at the .y/.z stores (10).
+     *
+     * MATCH (w49-a6, 14 -> 6, count now EXACT 107/107): retail computes the index
      * sign-extend as ONE shared `sll v1,s3,16`, COPIES it (`addu a2,v1,zero`) and gives
      * each consumer its own `sra ,16`; our build CSE'd the whole sll+sra pair into one
      * value (2 insns short).  Every "make a second copy" spelling the w46 receipt tried
@@ -98,18 +116,19 @@ void Fe3D_InitShowroom(void)
      * (identity fence on the (short) cast form) is 28.  The explicit `sh = sVar4 << 16`
      * split is what shares the `sll`; without it the fence has nothing to split. */
     int sh = sVar4 << 16;
+    sVar4 = sVar4 + 1;
     iPlus = sh;
     __asm__("" : "=r"(iPlus) : "0"(iPlus));
-    angle = angle + 0x20;
-    i = i + 1;
+    angle_cos = cos_raw >> 3;
     Fe3D_lightsVertex[sh >> 16].x = (short)((u_int)(angle_sin * 3) >> 5);
     Fe3D_lightsVertex[sh >> 16].y = 0;
     Fe3D_lightsVertex[iPlus >> 16].z = (short)((u_int)(angle_cos * 3) >> 5);
-    sVar4 = sVar4 + 1;
     Fe3D_lightsVertex[sVar4].x = (short)(angle_sin * 0x15 >> 8);
     Fe3D_lightsVertex[sVar4].y = 0;
     Fe3D_lightsVertex[sVar4].z = (short)(angle_cos * 0x15 >> 8);
     sVar4 = sVar4 + 1;
+    angle = angle + 0x20;
+    i = i + 1;
   }
   return;
 }

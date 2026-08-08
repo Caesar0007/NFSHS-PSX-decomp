@@ -406,9 +406,9 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       int x2;
       int x3;
 
-      vel_b.x = ((carObj->N).position.x + ((carObj->N).linearVel.x >> 5)) - BWorldSm_slices[slice].center[0];
-      vel_b.y = ((carObj->N).position.y + ((carObj->N).linearVel.y >> 5)) - BWorldSm_slices[slice].center[1];
-      vel_b.z = ((carObj->N).position.z + ((carObj->N).linearVel.z >> 5)) - BWorldSm_slices[slice].center[2];
+      vel_b.x = (((carObj->N).linearVel.x >> 5) + (carObj->N).position.x) - BWorldSm_slices[slice].center[0];
+      vel_b.y = (((carObj->N).linearVel.y >> 5) + (carObj->N).position.y) - BWorldSm_slices[slice].center[1];
+      vel_b.z = (((carObj->N).linearVel.z >> 5) + (carObj->N).position.z) - BWorldSm_slices[slice].center[2];
       x1 = right.x / 0x100 * (vel_b.x / 0x100);
       x2 = right.y / 0x100 * (vel_b.y / 0x100);
       x3 = right.z / 0x100 * (vel_b.z / 0x100);

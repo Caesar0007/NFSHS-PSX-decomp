@@ -144,7 +144,27 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   retail param->$s1 copy->$s2 -- an allocno priority swap; retail's numbers are refs 11/live 44
  *   for `c` vs 13/59 for `t`, pri .75 vs .66) and (b) the c->chunk read not filling the offset
  *   load's delay slot (the rest).  Both are ref/live dials away; see the wrapper row above for
- *   the proof that (a) IS reachable. */
+ *   the proof that (a) IS reachable.
+ *   w50-a4 -- the "zero-insn +refs on `c`" hunt, with numbers.  The CHEAPEST wrapper is a
+ *   ONE-STATEMENT depth wrapper on a single advance accumulate (`do { *(volatile int *)&c->buf +=
+ *   done; } while (0);` -- or the same on `c->done`): 19 -> 14 diffs and the WHOLE BODY register
+ *   map becomes retail-exact (advance on $s1, re-issue on $s2, every body insn identical); the
+ *   residual 14 is then only (i) the PROLOGUE pair -- ours saves/copies param->$s2, copy->$s1,
+ *   retail param->$s1, copy->$s2 -- and (ii) TWO delay-slot fills the LOOP_BEG/END notes cost
+ *   (`sw c->offset` no longer lands in the short-transfer `beqz` slot, and the re-issue `sw
+ *   t->chunk` no longer lands in the `j` slot), i.e. 73 insns vs 71.  NOT ADOPTED: it buys the
+ *   map with +2 real instructions, so the honest 72/71 baseline is kept; the wrapper's value is
+ *   as PROOF that the whole residual is ONE allocno dial plus two scheduling slots.
+ *   ARM-DUPLICATION (the zero-insn alternative the briefing named) does NOT reach it here: there
+ *   is no cross-jumpable identical TAIL that references `c` -- the only shared tail is
+ *   `t->remain = 0;` (wrong pointer: duplicating it measures 19 @72, unchanged), and hoisting
+ *   `c->op = 0;` into both arms of `if (type == 1)` is a HEAD, not a tail, so cross_jump cannot
+ *   merge it (24 @73).  Also falsified this wave, all at 72/71: moving refs from `t` to `c` (they
+ *   alias, so it is a pure ref dial) at the remain guard (21), the clamp (23), the guard+clamp
+ *   (25), all five iofn args (31), the fd arg alone (53), and the tail (61); wrapping `c->op = 0`
+ *   (19) or the `c->remain -= done` else-arm (19) -- both outside the advance chain, no effect;
+ *   wrapping two accumulates (14 @73) or nesting the wrapper twice (14 @73) -- no extra depth
+ *   gain, the flr2 step is already crossed by depth 1. */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
     SyncCtrl *t;

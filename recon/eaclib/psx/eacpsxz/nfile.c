@@ -168,7 +168,22 @@ extern FileHandle *reservehandle(void)
              * next = cur + 0x4C; if (cur->inuse == 0) ...`) DOES split the pair with NO device
              * at all, but then the advance sinks into the `beqz`'s delay slot (evicting retail's
              * `li v0,1`) and the loop-head copy is still duplicated into the `bnez` slot -- 7
-             * @45/44, both with and without the fence. */
+             * @45/44, both with and without the fence.
+             * w50-a4 hunted the "non-asm split device" and came back EMPTY, with a sharper
+             * statement of why: EVERY non-asm shape measured lands at 43 insns (the copy
+             * propagated away, 1 SHORT) -- the advance moved into the `while` condition as a
+             * comma expression (33 @43), the advance as a plain statement with no device at all
+             * (33 @43), and three GLOBAL-ALLOCNO shapes aimed at w48-a2's `combine_regs` refusal
+             * (cur declared at function scope and additionally assigned in the break arm / before
+             * the guard / left live past the loop -- all 33 @43).  The global-allocno lever cannot
+             * apply here because cse.c substitutes `next` for `cur` at every use BEFORE allocation
+             * ever runs, so the copy is DEAD, not merely tied: `cur` and `next` hold the same
+             * value at every point where both are live, and no C spelling changes that.  What is
+             * needed is a VALUE-NUMBERING barrier that is not an `asm_noperands` (reorg's
+             * fill_simple_delay_slots refuses to scan past those, which is the whole +1) -- no
+             * such construct exists in this compiler's C surface.  Also falsified: a `&&`-guarded
+             * comma advance (25 @45) and an advance-first form with a `cur != next` loop
+             * condition (35 @45). */
             __asm__("" : : "r"(cur));
         } while (i < count);
     }

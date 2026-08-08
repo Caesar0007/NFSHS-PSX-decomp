@@ -1179,18 +1179,12 @@ void tListIteratorCar::Decrement(tPlayer atIndex)
 void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
 
 {
-  char cVar1;
-  u_char bVar2;
   short i;
-  u_short uVar4;
-  tCarInfo *ptVar5;
-  void *pvVar6;
-  short carID;
-  tCarInfo *carInfo;
-  tCarManager *this_00;
+  short k;
   void *result;
-  u_int uVar10;
-  tPlayer k;
+  short carID;
+  int carClass;
+  tCarInfo *carInfo;
   tCarInfo garageCar;
   tTrackInformation trackInfo;
 
@@ -1198,93 +1192,111 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   if (atIndex != kPlayerBoth) {
     i = (short)atIndex;
   }
-  result = (void *)0x0;
-  k = (tPlayer)i;
-  if ((i == 1) &&
-     (uVar4 = this->fCarManager->GetNumOwnedCars(1), (int)((u_int)uVar4 << 0x10) < 1)
-     ) {
-    k = kPlayerOne;
+  result = (void *)0;
+  k = i;
+  if ((i == 1) && (this->fCarManager->GetNumOwnedCars(1) <= 0)) {
+    k = 0;
   }
-  this_00 = this->fCarManager;
-  if (this_00->fNumCars <= (u_int)(u_char)carNumber) {
-    uVar10 = (u_int)(u_char)carNumber - (u_int)(u_char)this_00->fNumCars;
+  if (this->fCarManager->fNumCars <= (u_int)(u_char)carNumber) {
+    carNumber -= (u_char)this->fCarManager->fNumCars;
     if ((this->fCarListFilter & 0x20U) != 0) {
-      if ((&this_00->fPinkSlipsCars[0][uVar10 & 0xff].fCarID)[((int)i << 0x10) >> 9] < '\0') {
-        return (void *)0x0;
+      if ((signed char)this->fCarManager->fPinkSlipsCars[i][(u_char)carNumber].fCarID >= 0) {
+        result = (void *)1;
       }
-      return (void *)0x1;
+      return result;
     }
     if ((this->fCarListFilter & 0x42U) == 0) {
-      return (void *)0x0;
+      goto ValidCar_returnResult;
     }
-    cVar1 = (&this_00->fCarGarage[0][uVar10 & 0xff].fCarID)[(k << 0x10) >> 9];
-    result = (void *)(u_int)(-1 < cVar1);
-    ptVar5 = (this_00)->GetCarFromID((short)cVar1);
-    if ((frontEnd.raceType == '\x01') && (ptVar5->fPursuitAvailable == '\0')) {
-      return (void *)0x0;
+    carID = (signed char)this->fCarManager->fCarGarage[k][(u_char)carNumber].fCarID;
+    if (carID >= 0) {
+      result = (void *)1;
     }
-    if (result == (void *)0x0) {
-      return (void *)0x0;
+    carInfo = this->fCarManager->GetCarFromID(carID);
+    if ((frontEnd.raceType == 1) && (carInfo->fPursuitAvailable == 0)) {
+      return (void *)0;
+    }
+    if (!result) {
+      goto ValidCar_returnResult;
     }
     if ((this->fCarListFilter & 0x40U) == 0) {
       return result;
     }
-    (this->fCarManager)->GetGarageCar((short)(((uVar10 & 0xff) + (u_int)(u_short)this->fCarManager->fNumCars) * 0x10000 >>
-                      0x10),garageCar,0);
-    ptVar5 = &garageCar;
-    goto ValidCar_tournValidate;
+    this->fCarManager->GetGarageCar((short)((u_char)carNumber +
+                                            (u_short)this->fCarManager->fNumCars),garageCar,0);
+    result = tournamentManager.ValidCar(garageCar);
+    /* MATCH: the common result tail lets gcc cross-jump this call with the
+       stock-car tournament call below. */
+    goto ValidCar_returnResult;
   }
-  cVar1 = this_00->fCars[(u_char)carNumber].fCarID;
-  carID = (short)(signed char)cVar1;
+  carID = (signed char)this->fCarManager->fCars[(u_char)carNumber].fCarID;
   if (carID < 0) {
-    return (void *)0x0;
+    goto ValidCar_returnResult;
   }
-  if (this_00->fViewableCars[carID] == '\0') {
-    return (void *)0x0;
+  if (this->fCarManager->fViewableCars[carID] == 0) {
+    goto ValidCar_returnResult;
   }
-  if ((frontEnd.raceType == '\x01') && (this_00->fCars[(u_char)carNumber].fPursuitAvailable == '\0'))
-  {
-    return (void *)0x0;
+  if ((frontEnd.raceType == 1) &&
+      (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
+    return (void *)0;
   }
-  ptVar5 = this->fCarManager->fCars;
-  bVar2 = ptVar5[(u_char)carNumber].fCarClass;
-  if (bVar2 == 7) {
+  /* MATCH: retail re-derives the base-car address here and lowers the three
+     class arms as an out-of-line dispatch; caching carInfo keeps the wrong CFG. */
+  carClass = this->fCarManager->fCars[(u_char)carNumber].fCarClass;
+  if (carClass == 7) {
+    goto ValidCar_classCop;
+  }
+  if (carClass < 8) {
+    goto ValidCar_classNormal;
+  }
+  if (carClass == 8) {
+    goto ValidCar_classTraffic;
+  }
+  goto ValidCar_classDone;
+
+ValidCar_classNormal:
+  if (carClass >= 0) {
+    if ((this->fCarListFilter & 0x81U) != 0) {
+      result = (void *)1;
+    }
+    if ((carID == 0x1c) &&
+       ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
+        (frontEnd.raceType != 0))) {
+      result = (void *)0;
+    }
+  }
+  goto ValidCar_classDone;
+
+ValidCar_classCop:
     if ((this->fCarListFilter & 0xcU) != 0) {
-      if (((int)(u_int)ptVar5[(u_char)carNumber].fCountries >>
+      if ((this->fCarManager->fCars[(u_char)carNumber].fCountries >>
            (signed char)frontEnd.carCountry[i][carID] & 1U) != 0) {
         trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
-        pvVar6 = FECheat_IsCheatEnabled(cheat_AllCops);
-        if (pvVar6 != (void *)0x0) goto ValidCar_filter10Path;
-        if ((u_int)(u_char)trackInfo.fCountry == (int)(signed char)frontEnd.carCountry[i][carID]) {
-          result = (void *)0x1;
+        if (FECheat_IsCheatEnabled(cheat_AllCops)) goto ValidCar_setValid;
+        if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
+          result = (void *)1;
         }
       }
     }
+  goto ValidCar_classDone;
+
+ValidCar_classTraffic:
+  if ((this->fCarListFilter & 0x10U) != 0) {
+ValidCar_setValid:
+    result = (void *)1;
   }
-  else if ((signed char)bVar2 < 8) {
-    result = (void *)(u_int)((this->fCarListFilter & 0x81U) != 0);
-    if ((carID == 0x1c) &&
-       (((frontEnd.carListType == '\x01' || (frontEnd.gameMode == '\x01')) ||
-        (frontEnd.raceType != '\0')))) {
-      result = (void *)0x0;
-    }
-  }
-  else if ((bVar2 == 8) && ((this->fCarListFilter & 0x10U) != 0)) {
-ValidCar_filter10Path:
-    result = (void *)0x1;
-  }
-  if (result == (void *)0x0) {
-    return (void *)0x0;
+ValidCar_classDone:
+  if (!result) {
+    goto ValidCar_returnResult;
   }
   if ((this->fCarListFilter & 1U) == 0) {
     return result;
   }
-  if (frontEnd.raceType != '\x02') {
+  if (frontEnd.raceType != 2) {
     return result;
   }
-  ptVar5 = this->fCarManager->fCars + (u_char)carNumber;
-ValidCar_tournValidate:
-  result = tournamentManager.ValidCar(*ptVar5);   /* ValidCar now takes tCarInfo& */
+  result = tournamentManager.ValidCar(this->fCarManager->fCars[(u_char)carNumber]);
+ValidCar_returnResult:
   return result;
 }
 

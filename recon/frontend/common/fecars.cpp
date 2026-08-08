@@ -1032,8 +1032,8 @@ void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
   }
   carInfo = (tCarInfo *)0x0;
   oldValue = this->fValue[i];
-  if ((u_char)oldValue < this->fCarManager->fNumCars) {
-    carInfo = this->fCarManager->fCars + (u_char)oldValue;
+  if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+    carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
     oldCountry = frontEnd.carCountry[i][(signed char)carInfo->fCarID];
   }
   else {
@@ -1094,35 +1094,36 @@ void tListIteratorCar::AdjustPosition(tPlayer atIndex,short direction)
           }
         }
         else {
-          if ((direction << 16) > 0) {
-            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
-          }
-          else {
-            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
-          }
+          frontEnd.carCountry[i][(signed char)carInfo->fCarID] =
+              ((direction << 16) > 0) ? 0 : 4;
           this->fValue[i] += direction;
           if ((direction << 16) > 0) {
             if ((signed char)this->fValue[i] < lastCar) {
               carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
               frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
+              goto adjusted_country;
             }
           }
-          else if ((direction << 16) < 0) {
+          if ((direction << 16) < 0) {
             if ((signed char)this->fValue[i] >= firstCar) {
               carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
               frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 4;
             }
           }
+adjusted_country:;
         }
       }
       else {
         this->fValue[i] += direction;
       }
-      if ((signed char)this->fValue[i] >= lastCar) {
-        this->fValue[i] = firstCar;
-        if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
-          carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
-          frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
+      {
+        char *value = this->fValue + i;
+        if ((signed char)*value >= lastCar) {
+          *value = firstCar;
+          if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+            carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
+          }
         }
       }
       if ((signed char)this->fValue[i] < firstCar) {

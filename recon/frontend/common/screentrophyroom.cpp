@@ -220,7 +220,7 @@ void tScreenTrophyRoom::DrawBackground()
 {
   tDrawShapeExtended drawFlags3;
   int fModNumber;
-  int TROPHY_LEFTOFFSET = 0x114;
+  int TROPHY_LEFTOFFSET;
   tDrawShapeExtended drawFlags;
   tDrawShapeExtended *pDrawFlags;
   short i;
@@ -228,14 +228,15 @@ void tScreenTrophyRoom::DrawBackground()
   short y;
   int texttoshow;
   char *sMenuText;
-  int amount;
   
   drawFlags3.tint[0] = 0xcec844;
-  DrawShapeExtended(ticks >> 0x1f,0x410,0x10,0x10,0,0,&drawFlags3);
+  DrawShapeExtended((ticks >> 4) % 10 + 0x1c,
+                    0x410,0x10,0x10,0,0,&drawFlags3);
   fModNumber = 3;
   if (frontEnd.tier != '\0') {
     fModNumber = 4;
   }
+  TROPHY_LEFTOFFSET = 0x114 - (fModNumber * 0x5f >> 1);
   ::DrawBackgroundImage((tScreen *)this,0,0x18,gCurrentShapes,0);
   PSXDrawBrightEndLine(0x232323,0x6a,0x39,300,1,3,(int)this->fScreenFadeVal,0x1e);
   this->LoadTrophy();
@@ -245,11 +246,10 @@ void tScreenTrophyRoom::DrawBackground()
     this->startTicks = ticks;
   }
   FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
-             (tournamentManager.fDefinition)->fTournaments
+             (signed char)(tournamentManager.fDefinition)->fTournaments
              [(uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-              (uint)(byte)this->fRealCurrentTourn[this->tier]].fTournamentID + 0x354,0x100,0x2f,2,
+               (uint)(byte)this->fRealCurrentTourn[this->tier]].fTournamentID + 0x354,0x100,0x2f,2,
              textState_Hilighted,textType_ScreenInfo);
-  amount = 0x23;
   texttoshow = 0x3de;
   if (((gPadinfo.buf[0].ID == '#') &&
       ((gPadinfo.buf[4].ID == '#' || (gPadinfo.buf[4].nopad != '\0')))) ||
@@ -261,11 +261,10 @@ void tScreenTrophyRoom::DrawBackground()
     texttoshow = 0x3e0;
   }
   sMenuText = TextSys_Word(texttoshow);
-  texttoshow = CalcFadeVal(0x505050,amount);
+  pDrawFlags = &drawFlags;
+  texttoshow = CalcFadeVal(0x505050,this->fScreenFadeVal);
   FETextRender_FullTextRGB(sMenuText,0x100,200,texttoshow,'\0',2);
   i = 0;
-  pDrawFlags = &drawFlags;
-  TROPHY_LEFTOFFSET = TROPHY_LEFTOFFSET - (fModNumber * 0x5f >> 1);
   while (true) {
     texttoshow = (int)i;
     if (this->fNumTrophies <= texttoshow) break;
@@ -273,11 +272,11 @@ void tScreenTrophyRoom::DrawBackground()
     y = (texttoshow / fModNumber) * 45 + 70;
     if ((texttoshow == this->fRealCurrentTourn[this->tier]) &&
        ((this->fSwapShapes.fFlags & 1) != 0)) {
-      pDrawFlags->custom_shapes = this->fSwapShapes.fShapes;
-      texttoshow = ((ticks - this->startTicks) / 6) % 32;
+      drawFlags.custom_shapes = this->fSwapShapes.fShapes;
+      texttoshow = ((ticks - this->startTicks) / 12) % 32;
     }
     else {
-      pDrawFlags->custom_shapes = (this->fTrophyShapes).fShapes;
+      drawFlags.custom_shapes = (this->fTrophyShapes).fShapes;
     }
     ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
     i = i + 1;

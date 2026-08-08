@@ -98,7 +98,7 @@ void tScreenUserName::DrawBackground()
   short gridpos;
   short row;
   short col;
-  short *colp;
+  volatile char framePad[8];
 
   fade = *(volatile int *)&this->callingMenu->fScreenFade;
   if ((short)((fade >> 1) - 0x80) < 0x80) {
@@ -142,15 +142,14 @@ DrawBgUser_textFadeDone:
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
   y = MENUUSERNAME_STARTY;
   row = 0;
-  colp = &col;
   strcpy(output," ");
   while (row < menu_kUserNameRows) {
     x = 0x102;
-    *colp = 0;
-    while (this->fRowList[0][*colp + row * 9] != '\0') {
+    col = 0;
+    while (this->fRowList[0][col + row * 9] != '\0') {
       int colText;
 
-      output[0] = this->fRowList[0][*colp + row * 9];
+      output[0] = this->fRowList[0][col + row * 9];
       colText = CalcFadeVal(0xb54200,this->fTextFade);
       switch(output[0]) {
       case '@':
@@ -196,7 +195,7 @@ DrawBg4b1ac_emitText:
         break;
       }
       x = x + 0x1c;
-      *colp = *colp + 1;
+      col++;
     }
     y = y + 0xf;
     row++;

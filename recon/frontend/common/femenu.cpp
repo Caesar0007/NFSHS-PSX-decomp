@@ -839,7 +839,8 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
    individual semantic naming. */
 
 void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,short fHeight,
-               short rectwidth,short rectspace,bool reverse,bool shadow,short fSelFade,
+               short rectwidth,short rectspace,bool reverse,bool shadow,
+               volatile short fSelFade,
                short fFadeVal)
 
 {

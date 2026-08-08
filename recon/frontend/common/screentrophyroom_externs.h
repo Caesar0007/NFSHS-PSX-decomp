@@ -39,7 +39,7 @@ void  FETexture_LoadPmxAtOffset(char *file, int off, tTexture_ShapeInfo *shapes,
 void  DrawShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  ScaleShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  PSXDrawBrightEndLine(int a, int b, int c, int d, int e, int f, int g, int h);
-void  FETextRender_MenuTextPositionedJustifyFade(int fade, int index, short x, short y, short j, tMenuTextState st, tMenuTextType tt);
+void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x, short y, short j, tMenuTextState st, tMenuTextType tt);
 char *TextSys_Word(int id);
 int   CalcFadeVal(int rgb, int amount);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);

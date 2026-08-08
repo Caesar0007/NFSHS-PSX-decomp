@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2778 at 100% (79.5%)
+TOTAL: 3496 functions, 2786 at 100% (79.7%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ VA             %match  unit                     function
 0x80017134     65.87%  frontend/common/fecars   LoadDescription__11tCarManager
 0x800172F4    100.00%  frontend/common/fecars   ReleaseDescription__11tCarManager
 0x80017334    100.00%  frontend/common/fecars   GetNumOwnedCars__11tCarManagers
-0x80017378     89.64%  frontend/common/fecars   GetNumTourneyCars__11tCarManagers
+0x80017378    100.00%  frontend/common/fecars   GetNumTourneyCars__11tCarManagers
 0x80017420    100.00%  frontend/common/fecars   GetNumPinkSlipsCars__11tCarManagers
 0x80017464     92.46%  frontend/common/fecars   GetClassList__11tCarManager13tCarClassTypesP10tCarModels
 0x80017578    100.00%  frontend/common/fecars   InitializeIngameCarList__11tCarManager
@@ -70,10 +70,10 @@ VA             %match  unit                     function
 0x80017928    100.00%  frontend/common/fecars   ___16tListIteratorCar
 0x80017950    100.00%  frontend/common/fecars   Value__16tListIteratorCar7tPlayer
 0x8001797C    100.00%  frontend/common/fecars   TextValue__16tListIteratorCar7tPlayer
-0x80017A9C     93.93%  frontend/common/fecars   AdjustPosition__16tListIteratorCar7tPlayers
+0x80017A9C    100.00%  frontend/common/fecars   AdjustPosition__16tListIteratorCar7tPlayers
 0x80018094    100.00%  frontend/common/fecars   Increment__16tListIteratorCar7tPlayer
 0x800180B4    100.00%  frontend/common/fecars   Decrement__16tListIteratorCar7tPlayer
-0x800180D4     45.95%  frontend/common/fecars   ValidCar__16tListIteratorCar7tPlayerc
+0x800180D4    100.00%  frontend/common/fecars   ValidCar__16tListIteratorCar7tPlayerc
 0x800184A0    100.00%  frontend/common/fecars   __21tListIteratorCarColorPcN21iP11tCarManager
 0x80018520    100.00%  frontend/common/fecars   ___21tListIteratorCarColor
 0x80018548    100.00%  frontend/common/fecars   Value__21tListIteratorCarColor7tPlayer
@@ -418,7 +418,7 @@ VA             %match  unit                     function
 0x80026BA8    100.00%  frontend/common/fetools  FeTools_init__Fv
 0x80026C90    100.00%  frontend/common/fetools  FeTools_deinit__Fv
 0x80026CE0     70.57%  frontend/common/fetools  FeTools_FormatMoney__FPcl
-0x80026E58     95.90%  frontend/common/front    Front_ConstructAll__Fv
+0x80026E58    100.00%  frontend/common/front    Front_ConstructAll__Fv
 0x80026FE8    100.00%  frontend/common/front    Front_DeleteAll__Fv
 0x8002704C    100.00%  frontend/common/front    Front_ResetSettingsForCar__Fii
 0x8002709C    100.00%  frontend/common/front    Front_ResetSettingsMenu__Fi
@@ -720,7 +720,7 @@ VA             %match  unit                     function
 0x800415E0    100.00%  frontend/common/screentrophyinfo ___17tScreenTrophyInfo
 0x80041600     82.20%  frontend/common/screentracks DrawBackground__18tScreenTrackSelect
 0x80041AAC    100.00%  frontend/common/screentracks GetShapeInfo__18tScreenTrackSelectRsT1PPcT3
-0x80041B6C     97.48%  frontend/common/screentracks Initialize__18tScreenTrackSelect
+0x80041B6C    100.00%  frontend/common/screentracks Initialize__18tScreenTrackSelect
 0x80041D28    100.00%  frontend/common/screentracks Cleanup__18tScreenTrackSelect
 0x80041D68    100.00%  frontend/common/screentracks SetBrightness__18tScreenTrackSelects
 0x80041D98     78.17%  frontend/common/screentracks UpdateBrightness__18tScreenTrackSelectR17tTrackInformation
@@ -832,7 +832,7 @@ VA             %match  unit                     function
 0x8004AE60    100.00%  frontend/common/stattool Stattool_ReturnRecordLapTime__Fs
 0x8004AEC4     76.62%  frontend/common/stattool Stattool_CheckForHumanCar__FP10Car_tStats
 0x8004AF4C    100.00%  frontend/common/stattool Stattool_GetAINameFromPersonality__F14tPersonalities
-0x8004AF88     92.71%  frontend/common/screenusername Initialize__15tScreenUserName
+0x8004AF88    100.00%  frontend/common/screenusername Initialize__15tScreenUserName
 0x8004B048    100.00%  frontend/common/screenusername GetShapeInfo__15tScreenUserNameRsT1PPcT3
 0x8004B0A8     95.47%  frontend/common/screenusername DrawVerticalLine__15tScreenUserNamesss
 0x8004B128     95.61%  frontend/common/screenusername DrawHorizontalLine__15tScreenUserNamesss
@@ -892,7 +892,7 @@ VA             %match  unit                     function
 0x8004ECDC    100.00%  frontend/psx/psxfront    PSXDrawGouraudSquare__Fiiiiiiii
 0x8004EDCC    100.00%  frontend/psx/psxfront    PSXDrawTransGouraudSquare__Fiiiiiiiii
 0x8004EED0    100.00%  frontend/psx/psxfront    PSXDrawTransSquare__Fiiiiis
-0x8004EFB4     80.70%  frontend/psx/psxfront    FontUpsideDownBlit__FiiPviiP12charactertbli
+0x8004EFB4     83.96%  frontend/psx/psxfront    FontUpsideDownBlit__FiiPviiP12charactertbli
 0x8004F100    100.00%  frontend/psx/fetexture   FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii
 0x8004F3B8    100.00%  frontend/psx/fetexture   FETexture_LoadPmx__FPciP18tTexture_ShapeInfo
 0x8004F3E0    100.00%  frontend/psx/memcard     MCRD_init
@@ -1377,11 +1377,11 @@ VA             %match  unit                     function
 0x80074F5C    100.00%  game/common/audioclc     AudioClc_SoundOpponentHorn__Fiiii
 0x80075008    100.00%  game/common/audioclc     AudioClc_SilenceOpponentHorn__Fi
 0x80075028    100.00%  game/common/audioclc     AudioClc_SoundCloseCar__Fii
-0x80075508     99.12%  game/common/audioclc     AudioClc_SoundPlayersCar__Fi
+0x80075508    100.00%  game/common/audioclc     AudioClc_SoundPlayersCar__Fi
 0x80075C3C    100.00%  game/common/audioclc     AudioClc_ResetClosest__FiP8Car_tObji
-0x80075D04     96.31%  game/common/audioclc     AudioClc_GetClosestCars__Fiii
+0x80075D04     99.59%  game/common/audioclc     AudioClc_GetClosestCars__Fiii
 0x80076130    100.00%  game/common/audioclc     AudioClc_SoundSpeech__Fv
-0x80076160     99.83%  game/common/audioclc     AudioClc_SoundCars__Fv
+0x80076160    100.00%  game/common/audioclc     AudioClc_SoundCars__Fv
 0x80076420    100.00%  game/common/audiocmn     AudioCmn_MusicLevel__Fi
 0x80076480    100.00%  game/common/audiocmn     AudioCmn_GetTrackRecordLapTime__Fv
 0x80076490    100.00%  game/common/audiocmn     AudioCmn_InitThunder__Fv

@@ -1033,6 +1033,34 @@ void Hrz_BuildSky(void)
   int otz_old;
   int pshift;
   Draw_DCache *sd;
+  /* MATCH (w49-a5, 390 -> 377): CALL-CROSSING BASE HOIST.  The oracle's mask is
+     $801f0000 (ra + s0..s4 = SIX saves, SYM fsize 72) but our build only ever needed FIVE
+     (mask $800f0000): retail parks the loop-invariant `&gHorizonPixmap` in $s3, we put it
+     in the caller-saved $t9 because the sky loop contains no calls, so global.c's numeric
+     scan finds a free t-reg first.  Assigning the base into a local BEFORE the Flare_Sun
+     guard makes the pseudo CALL-CROSSING, which forces it into a callee-saved reg -- and
+     that one decision lands the whole prologue byte-exact (s1/s4/s2 scratchpad literals in
+     retail's registers) and moves posdiff's structural residual 275 -> 177 / alpha-LCS
+     183 -> 281.  Position sweep (all re-gated): before Flare_Sun 377 · decl-with-init 380
+     (460 insns) · before the dither guard 381 · at the scratchpad init 388 (460) · just
+     before the i-loop 390 (458, no s-reg at all).
+     ⚠️ HONEST CAVEAT -- this local is NOT in the SYM (@40ed4b lists exactly pSkyMesh,
+     pSkyZ, i, otz_old, pshift, sd at fn scope), so retail's $s3 is a COMPILER temp
+     hoisted by loop.c into the preheader, not a source variable.  The price is the +1
+     insn: ours materializes `lui %hi` before the guard and sinks the `addiu %lo` into its
+     delay slot (459 vs 458), where retail emits both in the loop preheader.  NAMED
+     FOLLOW-UP: find the SYM-faithful dial that exhausts the caller-saved pool at the
+     preheader (our loop body is 2 insns richer than retail's, which is what leaves a
+     t-reg free) and then DELETE this local.
+     STATE FROM THE NEW BASIN (read off the dumps; SUPERSEDES the stale "ours emits the
+     0x1F800004 pair BEFORE the gSkyColor %lo add" line in the block comment above -- both
+     preheaders now emit their invariants in the SAME order): the residual is a pure
+     REGISTER PERMUTATION over the 9 hoisted invariants, and its root sits one rung lower --
+     retail's `temp` is SYM REG $9 = $t1, ours lands in $t0, so retail has $t1 already
+     occupied when the invariants are handed out and every one of them shifts up a slot
+     (retail $t3/$s0/$t2/$t6/$t7/$t9/$t8/$t5 vs ours $t2/$t7/$t1/$t5/$t6/$t8/$s0/$t4).
+     ⇒ the next dial is whatever retail parks in $t0 ahead of `temp`, NOT the invariants. */
+  Draw_tPixMap **hp;
 
   otz_old = 0x78;
   if (GameSetup_gData.commMode == 1) {
@@ -1114,6 +1142,7 @@ void Hrz_BuildSky(void)
   if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
     Hrz_SetDitheringPrim(0,Draw_gViewOtSize + -2);
   }
+  hp = gHorizonPixmap;
   if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
     pshift = sd->otz;                       /* save (scratchpad +0x94) around the flare */
     Flare_Sun(SUNPOS,(Draw_FlareCache *)sd);
@@ -1146,7 +1175,7 @@ void Hrz_BuildSky(void)
                 Draw_tPixMap *pmx;
 
                 u_int *slot;
-                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                pmx = hp[gSkyPixmapIndex[i]];
                 prim = (POLY_GT4 *)Render_gPacketPtr;
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
                 prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
@@ -1174,7 +1203,7 @@ void Hrz_BuildSky(void)
                 u_int *slot;
                 u_int tag;
                 prim = (POLY_FT4 *)Render_gPacketPtr;
-                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                pmx = hp[gSkyPixmapIndex[i]];
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
                 prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
                 tag = slot[-2];

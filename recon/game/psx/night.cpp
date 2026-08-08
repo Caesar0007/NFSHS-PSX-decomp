@@ -54,6 +54,15 @@ u_char       (*Night_gCurrentNightColor)[256][16];   /* @0x8013da48  (bss(zero))
    KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
 u_char       (*Night_gCopColor)[256][8];   /* @0x8013da4c  = [0] (bss(zero)) */
 u_char       (*D_8013DA50)[256][8];   /* @0x8013da50  = [1] retail per-element gp-rel alias (bss(zero)) */
+/* MATCH: SIZED[2] ARRAY VIEW over the same two .comm words.  Night_SetCopColor stores BOTH
+   elements through it (retail source: `Night_gCopColor[0]=..; Night_gCopColor[1]=..;`).  The
+   sized view keeps the per-element %gp_rel addressing of the two scalars AND makes each store an
+   ARRAY_REF => MEM_IN_STRUCT_P, which stops gcc-2.8's fixed_scalar_and_varying_struct_p from
+   declaring the varying-address stack-array READ independent of the fixed-address global STORE.
+   Without it the col2 `lw` hoists above the store, the two table `lbu`s batch, and one load-delay
+   nop disappears (36 vs 37 insns).  Catalog w44 §E storage-shape menu form (3) + w46 "MEM_IN_STRUCT_P
+   works from the STORE side".  Sizing is load-bearing: unsized [] loses the gp-rel form. */
+extern u_char (*Night_gCopColor_v[2])[256][8] asm("Night_gCopColor");
 CVECTOR      Night_gNightAmbientColor;   /* @0x8013da54  (bss(zero)) */
 CVECTOR      Night_gColor[2];   /* @0x8013da58  (bss(zero)) */
 int          Night_gTotalLights;   /* @0x8013da60  (bss(zero)) */
@@ -421,24 +430,22 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
      *      slot with `sw a0,0(gp)` -- 36 insns, one SHORT of retail.  The volatile
      *      MEM cannot be reordered, so the `sw` issues first and the oracle's
      *      load-delay `nop` reappears (37/37).
-     * RESIDUAL 2 = the commutative operand order of the index `addu` alone: ours
-     * `addu v0,v0,sp`, retail `addu v0,sp,v0`.  Falsified from THIS basin (all
-     * count-exact, all the same 2 diffs): `(char*)copColors + col2*4`,
-     * `col2*4 + (char*)copColors`, `&((char*)copColors)[col2*4]`, `(int)copColors +
-     * col2*4`, `col2*4 + (int)copColors`, `(char*)&copColors[0] + col2*4`,
-     * `(long long)` cast, `(char*)&copColors[col2]`; the non-volatile `&copColors
-     * [col2]` and `&copColors[0] + col2` spellings fold back to the ARRAY_REF (36
-     * insns).  NEW NAMED ANGLE: the operand order is set when expand builds the
-     * address rtx -- the sp-first form only appears for a genuine ARRAY_REF whose
-     * base is the frame; reaching it while keeping the volatile MEM needs the
-     * volatility on the DECL (e.g. a `volatile`-qualified local array view), not on
-     * the access cast.  Untried: declaring `copColors` itself through a volatile
-     * union/second view so the ARRAY_REF survives. */
+     * MATCH (w49-a5): SEALED 37/37 PASS.  The volatile-cast deref above was the WRONG
+     * cure: it pinned the load but destroyed the sp-first `addu` operand order (only a
+     * genuine ARRAY_REF on the frame DECL emits `addu v0,sp,v0`; every address-of /
+     * cast spelling gets fold-canonicalized to index-first `addu v0,v0,sp`).  The right
+     * cure is on the STORE side -- see the Night_gCopColor_v[2] view at file scope: with
+     * both stores made ARRAY_REFs (MEM_IN_STRUCT_P) the plain `copColors[col2]` read can
+     * no longer hoist above them, so the read keeps its ARRAY_REF form AND its position.
+     * Falsified on the way (all re-gated from this basin): `volatile`-qualified copColors
+     * DECL (forces a memcpy call, 41 insns); volatile array-ptr / elem-ptr views over
+     * copColors (35 insns); one reused `col` variable (36); a `u_char *pair` local for the
+     * two table bytes (35); store-before-col2 (38); both-cols-first (35). */
     col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
     carTable = copColors[col1];
     col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-    Night_gCopColor = carTable;
-    D_8013DA50 = *(u_char (*volatile*)[256][8])&copColors[col2];
+    Night_gCopColor_v[0] = carTable;
+    Night_gCopColor_v[1] = copColors[col2];
   }
   return;
 }
@@ -820,7 +827,26 @@ void Night_RestartNightDriving(void)
  * Falsified earlier: hoisting `Night_gZNear = 0x80;` above the two shift assignments
  * (16, worse), and two other spellings of the target byte read (`((u_char*)t)[0x447]`,
  * `*(u_char*)((char*)t+0x447)`) -- both byte-identical at 8.  Sec.3.15 scratch-register
- * tie-break class. */
+ * tie-break class.
+ * w49-a5 -- MECHANISM READ OFF THE -dl DUMP, and it is a LOCAL-ALLOC (qty) tie, not a
+ * global allocno one.  Block 4 carries ~13 qtys (so the 3-QTY hand-rolled path does NOT
+ * apply -- it is the qsort/QTY_CMP_PRI path).  The two rivals are:
+ *    reg 105 = the `.target` pointer   : "used 2 times across 4 insns in block 4"
+ *    reg  96 = the 0x80 constant       : "used 2 times across 4 insns in block 4"
+ * QTY_CMP_PRI = (floor_log2(refs)*refs - size) / (death-birth) = (1*2 - 4)/4 = -0.5 for
+ * BOTH -> an exact tie, resolved by qty NUMBER.  NOTE THE SIGN: with 2 refs the numerator
+ * is NEGATIVE, so for this pair a LONGER live range RAISES priority and MORE refs raises
+ * it a lot (3 refs -> -1/4; 4 refs -> +4/4).  The only reachable wins are therefore
+ * (a) a ZERO-INSN third reference on the pointer, or (b) shortening the CONSTANT's live
+ * range below the pointer's.  Falsified this wave (all re-gated, all byte-identical 8 at
+ * 68/68 unless noted): the `tgt` local hoisted to the top of the store group / after the
+ * gXDistShift store / immediately before the gZNear store (sched1 canonicalizes the load's
+ * position, so none of them actually lengthen the live range); a second `tgt[0x447]` read
+ * inside the if-arm (12 -- a real extra insn, not a free ref); Night_gZNear stored through
+ * a sized `[1]` asm-label view (12) and through an unsized `[]` view (13, +1 insn).
+ * OPEN, NAMED: a zero-insn ref inflator for a POINTER pseudo (the w44 re-mask trick has no
+ * pointer form that survives tree-level folding, and every do{}while(0) wrapper here costs
+ * the +1 insn its NOTE_INSN_LOOP_BEG barrier splits out of the store group). */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -882,7 +908,21 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * both in-place (75), and hoisting `x` to the outer block (77).
  * The open route is making `z`'s allocno outrank `x`'s (shorten z's live range below 10
  * insns or lengthen x's past 16) WITHOUT adding instructions -- everything tried so far
- * moves refs, which moves priority the wrong way. */
+ * moves refs, which moves priority the wrong way.
+ * w49-a5: FORMULA CORRECTION for anyone re-deriving the above -- allocno_compare's
+ * numerator is `floor_log2(refs)*refs - SIZE`, not `floor_log2(refs)*refs`.  With size 4
+ * that gives x 4/10 = 0.40, xdist 4/11 = 0.36, z 4/16 = 0.25, znear 4/17 = 0.235,
+ * zfar (2 refs) = -2/4 = -0.50, color 10/120 = 0.083 -- same ORDER as the receipt above,
+ * but note zfar's numerator is NEGATIVE (2 refs, size 4), so for any 2-ref pseudo in this
+ * fn a LONGER live range RAISES priority.  Attacked the "lengthen x past 16" route
+ * directly (all re-gated): `x` hoisted to fn scope and read right after z (80 / 66 insns),
+ * before z (80 / 66), after zfar (80 / 66) -- each ADDS an insn because the vx load then
+ * runs on the z-guard's failing path too.  `x` AND `xdist` both hoisted to fn scope and
+ * computed before the znear/zfar chain is COUNT-EXACT 64/64 for the first time (80 LCS
+ * diffs) but structurally wrong: the oracle computes the whole zfar chain and takes the z
+ * guard BEFORE touching v->vx, so the early-x form re-orders the entire head (posdiff
+ * alpha-LCS 7/64).  ⇒ x's live range cannot be lengthened from the front without moving
+ * the load; the remaining route is SHORTENING z's (16 -> <10) from the back. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

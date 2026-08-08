@@ -106,41 +106,63 @@ extern void _read_int(int intr, int code)
     if ((intr & 0xFF) == 1) {                       /* CdlDataReady */
         if (_cdr.w14 > 0) {                          /* still sectors to read */
             if (_cdr.w10 == 0x200) {                 /* 2048-byte mode: verify the MSF header */
-                CdlLOC hdr;
+                /* MATCH: a 16-byte scratch (Rage Racer read_callbacks.c spells it
+                 * `long buf[4];`), not a 4-byte CdlLOC -- the oracle reserves 16
+                 * bytes at sp+0x10 for it (frame 0x30, first save at 0x20). */
+                long hdr[4];
                 if (CD_read_dma_mode & 1) {
                     CdDataCallback(0);
-                    CdGetSector2(&hdr, 3);
+                    CdGetSector2(hdr, 3);
                     CdDataSync(0);
                     CdDataCallback((int)_read_data_int);
                 } else {
-                    CdGetSector(&hdr, 3);
+                    CdGetSector(hdr, 3);
                 }
-                if (CdPosToInt(&hdr) != _cdr.w20) { /* read landed on the wrong sector */
+                if (CdPosToInt((CdlLOC *)hdr) != _cdr.w20) { /* read landed on the wrong sector */
                     puts("CdRead: sector error\n");
                     _cdr.w14 = -1;
                 }
             }
-            /* copy the sector body */
+            /* copy the sector body.
+             * MATCH (per-region field anchor, w47-a5 "Per-region %hi/%lo anchor";
+             * the same device Rage Racer uses throughout read_callbacks.c): the
+             * oracle materializes a FRESH `%hi/%lo(_cdr+8)` anchor for this block
+             * and reaches w10 by +8 off it, then derives `&_cdr` as `anchor-8`
+             * for the three read-modify-writes.  A plain `_cdr.field` recon
+             * rematerializes `%hi/%lo(_cdr)` per access instead. */
             if (CD_read_dma_mode & 1) {
-                CdGetSector2(_cdr.w08, _cdr.w10);   /* DMA: advance deferred to _read_data_int */
+                volatile int *cur = (volatile int *)&_cdr.w08;
+                CdGetSector2((u_char *)cur[0], cur[2]); /* DMA: advance deferred to _read_data_int */
             } else {
-                CdGetSector(_cdr.w08, _cdr.w10);
-                _cdr.w08 += _cdr.w10 * 4;           /* cursor += sector bytes */
-                _cdr.w14--;                          /* one fewer remaining */
-                _cdr.w20++;                          /* next expected sector */
+                volatile int *cur = (volatile int *)&_cdr.w08;
+                CdGetSector((u_char *)cur[0], cur[2]);
+                {   /* the `&_cdr` view is derived AFTER the call so it lands in a
+                     * CALLER-saved temp (oracle `addiu $a0,$s0,-8`); computing it
+                     * before the call forces a second callee-saved register. */
+                    volatile CdrEnv *g = (volatile CdrEnv *)(cur - 2);
+                    g->w08 = (u_char *)(cur[0] + cur[2] * 4);  /* cursor += sector bytes */
+                    g->w14--;                                   /* one fewer remaining */
+                    g->w20++;                                   /* next expected sector */
+                }
             }
         }
     } else {
-        _cdr.w14 = 1;                                /* @80108A14 : non-DataReady intr */
+        /* CORRECTNESS (w51-a3): the oracle sets `$v0 = -1` in the `bne $a0,$v0`
+         * DELAY SLOT and this arm is `sw $v0,0x14($v1)` -- the value stored is
+         * -1 (error), NOT 1.  The old recon stored 1, which made a non-DataReady
+         * interrupt look like "one sector still to go" instead of tripping the
+         * error path that re-issues the read.  (methodology 3.1: the delay slot
+         * runs before the branch lands, so its constant belongs to BOTH arms.) */
+        _cdr.w14 = -1;                               /* @80108A14 : non-DataReady intr */
     }
 
     /* ---- common tail @80108A18 ---------------------------------------------------------------- */
     _cdr.w18 = VSync(-1);
     if (_cdr.w14 < 0)                                /* error -> re-issue the read */
         _read_issue(1);
-    if (_cdr.w1c + 0x4B0 < VSync(-1))                /* overall watchdog (1200 frames) */
+    if (VSync(-1) > _cdr.w1c + 0x4B0)                /* overall watchdog (1200 frames) */
         _cdr.w14 = -1;
-    if (_cdr.w14 != 0 && !(_cdr.w1c + 0x4B0 < VSync(-1)))
+    if (_cdr.w14 != 0 && !(VSync(-1) > _cdr.w1c + 0x4B0))
         return;                                      /* still busy, not timed out -> wait */
 
     /* ---- read finished (or timed out) @80108A98 ---------------------------------------------- */
@@ -151,7 +173,7 @@ extern void _read_int(int intr, int code)
     CdControlF(9, 0);                               /* CdlPause */
     if (CD_cbread != 0) {
         _cdr.w24 = 1;
-        ((CdlCB)CD_cbread)(_cdr.w14 != 0 ? 5 : 2, code);
+        ((CdlCB)CD_cbread)(_cdr.w14 == 0 ? 2 : 5, code);
     }
 }
 
@@ -227,14 +249,18 @@ error:
     return _cdr.w14;
 }
 
-/* @0x80108DDC : CdRead -- start an asynchronous N-sector read into `buf`. Returns >0 on success. */
+/* @0x80108DDC : CdRead -- start an asynchronous N-sector read into `buf`. Returns >0 on success.
+ *
+ * NOTE (unlike _read_int/_read_data_int above): here a cached struct-base local scores best.
+ * FALSIFIED in this basin (w51-a3, measured -- do not retry): the w47-a5 "CdRead angle"
+ * PER-REGION field anchor.  The oracle really does mint a fresh `%hi/%lo(_cdr+field)` base per
+ * region ($s0=&_cdr.w24 busy-wait, $s0=&_cdr.w28 then -0x28 in the timeout arm, $a0=&_cdr for
+ * the call-free switch, $v1=&_cdr for its default arm, $s0=&_cdr across the whole tail), and
+ * spelling those anchors out DOES close the 9-instruction gap (94 -> 97 -> 105 vs oracle 103),
+ * but each anchor re-rotates the s-register handout: 43 -> 54 (busy anchor) -> 70 (full region
+ * split).  Kept at the cached-base form; direct `_cdr.field` access also regressed (43 -> 61). */
 extern int CdRead(int sectors, u_long *buf, int mode)
 {
-    /* NOTE (unlike _read_int/_read_data_int/_read_issue above): here the oracle DOES anchor one
-     * base pointer register (initially &_cdr.w24) and reuses/rebases it across the whole function
-     * -- a cached-pointer local scores fewer diffs for THIS fn's access pattern (verified: direct
-     * `_cdr.field` access regressed 43->61). Kept as `g` deliberately; do not "clean up" to match
-     * the sibling functions' style. */
     volatile CdrEnv *g = &_cdr;
 
     if (g->w24 != 0) {                              /* a previous read is still active */
@@ -267,33 +293,58 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     return _read_issue(0) > 0;
 }
 
-/* @0x80108F78 : CdReadSync -- poll (mode!=0) or block (mode==0) until the read completes. */
+/* @0x80108F78 : CdReadSync -- poll (mode!=0) or block (mode==0) until the read completes.
+ *
+ * MATCH: FIELD-ANCHOR base pointers, transplanted from the byte-exact Rage Racer
+ * decomp (C:\Temp\rage-racer-decomp\src\main\PAL\lib\libcd\read.c, CdReadSync:
+ * `volatile long *state = &g_CdReadStartVSync;` then `state[0]`, `state[-1]`,
+ * `state[-2]`, `state[-7]`).  This RETIRES the methodology's "GENUINE FLOOR --
+ * BASE-POINTER-ANCHOR granularity" verdict that was filed against exactly this
+ * function: the oracle anchors `$s1 = &_cdr.w1c` (D_8013C2AC) and `$s2 = $s1+8`
+ * and reaches every other field by a SIGNED displacement off them; a struct-base
+ * `_cdr.field` recon can never emit that, but NEGATIVE-INDEXED pointers into the
+ * middle of the block can.
+ *
+ * CORRECTNESS (same pass): the oracle DISCARDS CdReady's return -- `lw $v0,0($s2)`
+ * overwrites it, and the two return paths are `v0 = s0` (delay slot) and `v0 = 1`.
+ * The old recon returned CdReady's result whenever `w24 == 0`. */
 extern int CdReadSync(int mode, u_char *result)
 {
+    volatile int *state = (volatile int *)&_cdr.w1c;   /* $s1 : issue-VSync stamp   */
+    volatile int *busy  = state + 2;                   /* $s2 : &_cdr.w24           */
     int s0;
 
     for (;;) {
         s0 = -1;
-        if (VSync(-1) > _cdr.w1c + 0x4B0)           /* overall watchdog tripped -> leave s0 = -1 */
+        if (VSync(-1) > state[0] + 0x4B0)              /* overall watchdog tripped  */
             goto check;
-        if (_cdr.w14 < 0 || VSync(-1) > _cdr.w18 + 0x3C) {
-            _read_issue(1);                         /* stalled -> re-issue */
-            s0 = _cdr.w00;
-        } else {
-            s0 = _cdr.w14;                          /* still progressing */
-        }
+        if (state[-2] < 0)                             /* _cdr.w14 : error          */
+            goto reissue;
+        if (!(VSync(-1) > state[-1] + 0x3C))           /* _cdr.w18 : per-intr stall */
+            goto still;
+    reissue:
+        /* MATCH (block order / branch polarity): the oracle reaches the "still
+         * progressing" load through the TAKEN edge of `beqz` and lays it
+         * OUT-OF-LINE after the re-issue block, so re-issue is the fall-through.
+         * Written as an inline `if (...) { s0 = state[-2]; goto check; }` the arm
+         * is inlined and the branch inverts to `bnez`. */
+        _read_issue(1);
+        s0 = state[-7];                                /* _cdr.w00 : sectors        */
+        goto check;
+    still:
+        s0 = state[-2];                                /* still progressing         */
     check:
-
         if (mode != 0) break;
-        if (_cdr.w24 != 0 && s0 == 0) continue;     /* still draining */
-        if (s0 > 0) continue;                       /* sectors left */
+        if (busy[0] != 0 && s0 == 0) continue;         /* still draining            */
+        if (s0 > 0) continue;                          /* sectors left              */
         break;
     }
 
-    {
-        int r = CdReady(1, result);
-        if (_cdr.w24 == 0) return r;
-        if (s0 != 0) return s0;
-        return 1;
-    }
+    CdReady(1, result);
+    /* MATCH: the "drained" answer is assigned back INTO s0 (`li s0,1` lands in the
+     * `bnez s0` delay slot, then the shared `addu v0,s0,zero` tail); a literal
+     * `return 1;` materializes it straight into $v0 and loses the funnel. */
+    if (busy[0] == 0) return s0;
+    if (s0 == 0) s0 = 1;
+    return s0;
 }

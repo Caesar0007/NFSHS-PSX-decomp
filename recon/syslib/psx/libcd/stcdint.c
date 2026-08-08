@@ -54,53 +54,94 @@ extern short Stsector_offset;
 /* ---- peer libcd objects ----------------------------------------------------------------------- */
 extern int  CdReady(int mode, u_char *result);          /* @0x800F786C (DRV) */
 extern void init_ring_status(int base, unsigned count); /* C_008 @0x80108758 */
-extern int  data_ready_callback(void);                  /* C_004 @0x80108798 */
+extern void data_ready_callback(void);                 /* C_004 @0x80108798 */
 extern int  printf(const char *, ...);                  /* libc C63 @0x801028AC */
 
 /* @0x800F8794 : copy `num` 32-bit words src -> dst.  (4th arg present in the original signature
  *   but unused -- callers pass a trailing 0 / 1; reproduced so the call-site stack layout matches.) */
 extern void _st_copy_words(int *dst, int *src, unsigned num, int arg3)
 {
-    unsigned i;
+    /* MATCH (w51-a4, cc1_272 lane): a counted `for (i = 0; i < num; i++)` makes gcc-2.7.2
+     * reserve an 8-byte `vars` frame on every such loop (`.frame $sp,8` -> subu/addu $sp),
+     * where the oracle is frameless.  Guard-then-goto is frameless and reproduces the
+     * oracle byte-for-byte (`beqz num` with `i=0` in the slot; bottom `sltu`/`bnez` with
+     * `addiu a0,a0,4` in ITS slot).  Lane-neutral: still PASSes on the 2.8 lane. */
+    unsigned i = 0;
     (void)arg3;
-    for (i = 0; i < num; i++)
-        *dst++ = *src++;
+    if (num == 0)
+        return;
+loop:
+    *dst++ = *src++;
+    i++;
+    if (i < num)
+        goto loop;
 }
 
 /* @0x800F87C0 : program DMA channel `ch` (madr, blocks x blocksize, chcr); waits for the channel
  *   idle first and gates the kick on CDREG0 bit 0x40.  `enable_irq` toggles the channel DICR bit.
+ * MATCH (w51-a4): shape TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
+ * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/dma_start.c :: CD_dmastart.  What it recovered
+ * that the earlier reconstruction was MISSING (ours 91 insns vs oracle 106):
+ *   (a) TWO discarded `volatile` read-backs the original keeps (`sw $v0,0x10($sp)` twice in the
+ *       oracle = one stack `dummy` slot): the DICR word re-read after the byte-mask store, and the
+ *       CHCR read-back after the kick -- both are real PSX DMA write-posting flushes;
+ *   (b) the DICR bit is read into a TEMP then stored (`bv = dptr[2]; dptr[2] = bv | (1<<ch);`)
+ *       through a NON-volatile `u_char *`, not a `|=` on a volatile lvalue;
+ *   (c) the 6th argument is a `u_char` (oracle `lbu $s1,0x44($sp)`), not an int;
+ *   (d) the busy-wait is a plain rotated `while (busy) { if (i == 0x10000) {printf; break;} i++; }`.
  *   (7th arg present in the original signature but unused; reproduced for the call-site layout.) */
-extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr, int enable_irq, int arg6)
+extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr,
+                    u_char enable_irq, int arg6)
 {
-    volatile int *chcr_reg = (volatile int *)(0x1F801088 + ch * 0x10);
-    volatile int *base     = (volatile int *)(0x1F801080 + ch * 0x10);
-    int i;
+    volatile int  dummy;
+    int           i;
+    volatile int *p;
+    u_char       *dptr;
+    volatile int *dp;
+    int           bv;
+    int           mode;
     (void)arg6;
 
-    /* oracle shape: an OUTER "is it busy at all" test, THEN (only if so) a counting loop that
-     * checks the timeout limit BEFORE re-testing CHCR each pass -- NOT a plain `while(busy){...}`
-     * with the counter check folded into the body (that reorders the two tests and cost 16 insns
-     * -- see asm/nonmatchings/main/_st_dma.s .L800F8814/.L800F8838/.L800F8860). */
-    if (*chcr_reg & 0x1000000) {
-        for (i = 0; ; i++) {
-            if (i == 0x10000) {
-                printf("StCdInterrupt: DMA ch busy %08x\n", *chcr_reg);
-                break;
-            }
-            if ((*chcr_reg & 0x1000000) == 0)
-                break;
+    mode = enable_irq;
+    i = 0;
+    while (*(volatile int *)(0x1F801088 + (ch << 4)) & 0x01000000) {
+        if (i == 0x10000) {
+            printf("StCdInterrupt: DMA ch busy %08x
+",
+                   *(volatile int *)(0x1F801088 + (ch << 4)));
+            break;
         }
+        i++;
     }
 
-    if (enable_irq == 1) _dicr[2] |= (u_char)(1 << ch);
-    else                 _dicr[2] &= (u_char)~(1 << ch);
+    if (mode == 1) {
+        dptr = (u_char *)_dicr;
+        bv = dptr[2];
+        dptr[2] = bv | (1 << ch);
+    } else {
+        dptr = (u_char *)_dicr;
+        bv = dptr[2];
+        dptr[2] = bv & ~(1 << ch);
+    }
 
-    *_dpcr |= (1 << (ch * 4 + 3));                  /* enable the channel in DPCR */
-    base[0] = madr;                                 /* MADR */
-    base[1] = (blocks << 16) | blocksize;           /* BCR  */
-    while ((*_cd_idx & 0x40) == 0)                  /* wait until the CD is ready to DMA */
-        ;
-    base[2] = chcr;                                 /* CHCR -- kick the transfer */
+    dummy = *(volatile int *)_dicr;
+    {
+        int dv;
+        int bit;
+
+        dv  = ch * 4;
+        bit = 1 << (dv + 3);
+        p   = (volatile int *)(0x1F801080 + (ch << 4));
+        dp  = _dpcr;
+        dv  = *dp;
+        *dp = dv | bit;
+        *p++ = madr;                                /* MADR */
+        *p++ = (blocks << 16) | blocksize;          /* BCR  */
+        while ((*_cd_idx & 0x40) == 0)              /* wait until the CD is ready to DMA */
+            ;
+        *p = chcr;                                  /* CHCR -- kick the transfer */
+        dummy = *p;
+    }
 }
 
 /* @0x800F7E78 : the CD-streaming sector interrupt handler. */

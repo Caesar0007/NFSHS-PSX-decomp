@@ -308,6 +308,11 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True,   # FntPrint
                                              "no_split_addresses": True},  # w48-a2: -34
+    # w51-a3: libcd lane verdicts (measured per-TU; cdread.c = NO, 169->289):
+    "recon/syslib/psx/libcd/cdread2.c":     {"cc1_272": True},  # 5->0, 2/2 PASS
+    "recon/syslib/psx/libcd/cdcont.c":      {"cc1_272": True},  # 77->19, +5 conv, CdReset PASS->3
+    "recon/syslib/psx/libcd/toc.c":         {"cc1_272": True},  # 76->64, CdGetToc->PASS
+    "recon/syslib/psx/libcd/TYPE.c":        {"cc1_272": True},  # 8->6, CdGetDiskType->PASS
     # w51-a2: libmcrd cluster = cc1_272 lane (04M law). jtbl_at_fusion is inert in
     # this lane (no maspsx); kept out. LIBMCRD 2->8 PASS under the lane.
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},
@@ -469,24 +474,12 @@ PER_FN_NO_DELAYED_BRANCH = {
         "ResetCallback", "InterruptCallback", "DMACallback", "VSyncCallbacks",
     },
     "recon/syslib/psx/libcd/cdcont.c": {
-        "CdSync", "CdReady", "CdFlush", "CdDataSync",
-        "CdDataCallback",  # w48-a5, measured zero-regression append
-        # w25-a3 TRIED and REVERTED: CdLastPos/CdSetDebug/CdSyncCallback/
-        # CdReadyCallback looked textbook pure-signature (single `jr ra;nop`
-        # vs oracle's slot-filled `addiu %lo(...)`), but empirically the
-        # splice is a NO-OP for them: the .nodb.s (-fno-delayed-branch)
-        # region is BYTE-IDENTICAL to the normal region at the cc1 level
-        # (`la $2,SYM; j $31`, nothing after the jump either way) -- the
-        # trailing nop is inserted downstream by maspsx/GNU-as, not by
-        # gcc's delayed-branch filler, so this per-function cc1 FLAG cannot
-        # reach this bug class at all (would need a maspsx-side fix, same
-        # family as the methodology's documented "aspsx slot-filling"
-        # follow-up work). FAIL 3 before, FAIL 3 after, 0 net change.
-        # Same outcome class as a1's CdDataCallback revert. See
-        # scratch/w25a3_state.md for full detail.
+        # w51-a3: EMPTIED -- the whole CdSync/CdReady/CdFlush/CdDataSync/
+        # CdDataCallback set PASSes unspliced under the cc1_272 lane; the splice
+        # class was compiler-version, not assembler (w48-a10 class-5 solved).
     },
     "recon/syslib/psx/libcd/cdread2.c": {
-        "_cdread2_ready",
+        # w51-a3: EMPTIED -- _cdread2_ready superseded by the cc1_272 lane.
     },
     # w25-a5: libpad Tier-1 (single-jal, epilogue-only shape, canonical per
     # the w25-a1 taxonomy above) -- confirmed byte-PASS by an independent

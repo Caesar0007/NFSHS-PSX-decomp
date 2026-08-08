@@ -92,52 +92,193 @@ extern int CdReadyCallback(int func)
     return prev;
 }
 
-/* inlined into CdControl/CdControlF/CdControlB: issue `com` (optionally a setloc sub-command first),
- * retrying up to 4 times; returns 0 on success, -1 on exhaustion. */
-static inline int cd_cw(unsigned char com, unsigned char *param, unsigned char *result, int arg3)
-{
-    int old = CD_cbsync;
-    /* MATCH (up-front sentinel, catalog B-row inverse): retail materializes the loop's -1
-     * sentinel ONCE in a callee-saved reg ($fp) at entry (`li fp,-1` ... `bne s0,fp`) and
-     * still emits a FRESH `li s7,-1` for the exhaustion return.  A literal `-1` in the loop
-     * test lets gcc CSE the two into one caller-saved `li v0,-1` + `addu s7,v0,zero`
-     * (ours 77 vs oracle 79).  Naming the sentinel makes it own the materialization:
-     * CdControl 62->60 and COUNT-EXACT 79/79, CdControlF 67->63, CdControlB 69->65. */
-    int sentinel = -1;
-    int count;
-
-    for (count = 3; count != sentinel; count--) {
-        CD_cbsync = 0;
-        if (com != 1 && (CD_status & 0x10))
-            CD_cw(1, 0, 0, 0);
-        if (param == 0 || _cd_param_count[com] == 0 || !CD_cw(2, param, result, 0)) {
-            CD_cbsync = old;
-            if (!CD_cw(com, param, result, arg3))
-                return 0;
-        }
-    }
-    CD_cbsync = old;
-    return -1;
-}
+/* MATCH: the three CdControl* bodies are transplanted from the byte-exact Rage
+ * Racer decomp (C:\Temp\rage-racer-decomp\src\main\PAL\lib\libcd\
+ * command_control.c) -- the SAME PsyQ libcd TU, matched in plain C.  Load-bearing
+ * pieces of that shape:
+ *   - they are THREE SEPARATE FUNCTIONS, not one shared `static inline` helper:
+ *     CdControlF has no `resultReg` local at all (it passes a literal 0) and
+ *     CdControlB carries two extra ones, so the three have DIFFERENT local sets
+ *     and therefore different s-register handouts.  A shared inline forces one
+ *     handout on all three and cannot match more than one of them.
+ *   - the locals are assigned ONE PER STATEMENT in exactly this order; the
+ *     oracle's prologue emits each callee-saved save paired with that local's
+ *     first def, so the statement order IS the s-register handout
+ *     (s1=arg s2=resultReg s4=cmd s0=retries s3=command s5=savedMode
+ *      s6=commandState s7=status), and the loop sentinel comes LAST ($fp).
+ *   - `retries = 3;` + `do { ... } while (--retries != sentinel);` -- the
+ *     PRE-decrement do-while.  `for (i=3;i!=-1;i--)` and `while (count--)` both
+ *     CSE the loop sentinel with the exhaustion `-1` and run 2 insns short.
+ *   - the setloc-failure path is a `continue` (branch straight to the
+ *     decrement), NOT a fall-through around an else.
+ *   - `status` is a real variable set 0/-1 and the return is `status + 1`
+ *     (oracle: `addu s7,zero,zero` / `li s7,-1` + `addiu v0,s7,1`).
+ * Rage Racer additionally needs `register long cmd asm("$20")` pins and
+ * zero-insn opacity fences; asm register pins are FORBIDDEN here
+ * (methodology 3.13), so they are dropped and the residual is left honest. */
 
 /* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times. */
 extern int CdControl(unsigned char com, unsigned char *param, unsigned char *result)
 {
-    return cd_cw(com, param, result, 0) == 0;
+    unsigned char *arg;
+    unsigned char *resultReg;
+    int cmd;
+    int retries;
+    int command;
+    const int *base;
+    int savedMode;
+    int offset;
+    const int *commandState;
+    int status;
+    int sentinel;
+
+    arg = param;
+    resultReg = result;
+    cmd = com;
+    retries = 3;
+    command = (unsigned char)cmd;
+    base = _cd_param_count;
+    savedMode = CD_cbsync;
+    offset = command * 4;
+    commandState = (const int *)(offset + (int)base);
+    status = 0;
+    sentinel = -1;
+
+    do {
+        CD_cbsync = 0;
+        if (command != 1) {
+            if (CD_status & 0x10)
+                CD_cw(1, 0, 0, 0);
+        }
+        if (arg != 0 && *commandState != 0) {
+            if (CD_cw(2, arg, resultReg, 0) != 0)
+                continue;
+        }
+        CD_cbsync = savedMode;
+        if (CD_cw((unsigned char)cmd, arg, resultReg, 0) == 0)
+            goto done;
+    } while (--retries != sentinel);
+
+    CD_cbsync = savedMode;
+    status = -1;
+done:
+    return status + 1;
 }
 
 /* @0x800F79F0 : CdControlF -- fire-and-forget command (no result, fast). */
 extern int CdControlF(unsigned char com, unsigned char *param)
 {
-    return cd_cw(com, param, 0, 1) == 0;
+    unsigned char *arg;
+    int cmd;
+    int retries;
+    int one;
+    int command;
+    int savedMode;
+    const int *base;
+    int offset;
+    const int *commandState;
+    int status;
+    int sentinel;
+
+    arg = param;
+    cmd = com;
+    retries = 3;
+    /* MATCH: the `1` of the `command != 1` test is a NAMED loop invariant here
+     * (CdControlF/CdControlB only) -- their oracles hoist it into a callee-saved
+     * reg in the preheader (`li fp,1` ... `beq s3,fp`), while CdControl's oracle
+     * rematerializes it in a caller-saved temp inside the loop (`li t0,1`), so
+     * CdControl keeps the literal.  272-lane: F 15->4, B 15->4, both COUNT-EXACT. */
+    one = 1;
+    command = (unsigned char)cmd;
+    base = _cd_param_count;
+    savedMode = CD_cbsync;
+    offset = command * 4;
+    commandState = (const int *)(offset + (int)base);
+    status = 0;
+    sentinel = -1;
+
+    do {
+        CD_cbsync = 0;
+        if (command != one) {
+            if (CD_status & 0x10)
+                CD_cw(1, 0, 0, 0);
+        }
+        if (arg != 0 && *commandState != 0) {
+            if (CD_cw(2, arg, 0, 0) != 0)
+                continue;
+        }
+        CD_cbsync = savedMode;
+        if (CD_cw((unsigned char)cmd, arg, 0, 1) == 0)
+            goto done;
+    } while (--retries != sentinel);
+
+    CD_cbsync = savedMode;
+    status = -1;
+done:
+    return status + 1;
 }
 
 /* @0x800F7B24 : CdControlB -- blocking command: issue then CD_sync(0) to completion. */
 extern int CdControlB(unsigned char com, unsigned char *param, unsigned char *result)
 {
-    if (cd_cw(com, param, result, 0))
-        return 0;
-    return CD_sync(0, result) == 2;
+    unsigned char *arg;
+    unsigned char *resultReg;
+    int cmd;
+    int retries;
+    int one;
+    int command;
+    int savedMode;
+    const int *base;
+    int offset;
+    const int *commandState;
+    int status;
+    int sentinel;
+    int zero;
+
+    arg = param;
+    resultReg = result;
+    cmd = com;
+    retries = 3;
+    /* MATCH: the `1` of the `command != 1` test is a NAMED loop invariant here
+     * (CdControlF/CdControlB only) -- their oracles hoist it into a callee-saved
+     * reg in the preheader (`li fp,1` ... `beq s3,fp`), while CdControl's oracle
+     * rematerializes it in a caller-saved temp inside the loop (`li t0,1`), so
+     * CdControl keeps the literal.  272-lane: F 15->4, B 15->4, both COUNT-EXACT. */
+    one = 1;
+    command = (unsigned char)cmd;
+    base = _cd_param_count;
+    savedMode = CD_cbsync;
+    offset = command * 4;
+    commandState = (const int *)(offset + (int)base);
+    status = 0;
+    sentinel = -1;
+
+    do {
+        CD_cbsync = 0;
+        if (command != one) {
+            if (CD_status & 0x10)
+                CD_cw(1, 0, 0, 0);
+        }
+        if (arg != 0 && *commandState != 0) {
+            if (CD_cw(2, arg, resultReg, 0) != 0)
+                continue;
+        }
+        CD_cbsync = savedMode;
+        if (CD_cw((unsigned char)cmd, arg, resultReg, 0) == 0) {
+            status = 0;
+            goto done;
+        }
+    } while (--retries != sentinel);
+
+    CD_cbsync = savedMode;
+    status = -1;
+done:
+    zero = 0;
+    if (status == 0)
+        status = CD_sync(zero, resultReg) == 2;
+    else
+        status = 0;
+    return status;
 }
 
 /* @0x800F7C70 : CdGetSector -- copy `size` words of the last-read sector to `madr` (1 = ok). */
@@ -157,12 +298,21 @@ extern int CdDataSync(int mode) { return CD_datasync(mode); }
 #define ENCODE_BCD(n) (((n) / 10 << 4) + (n) % 10)
 extern void *CdIntToPos(int i, CdlLOC *p)
 {
-    int t;
+    /* MATCH: the minute quotient must be its OWN named local, with `second`
+     * DERIVED from it (`t - m*60`), not spelled `t % 60` beside `t / 60`.
+     * The `%`/`/` pair makes gcc emit the (i%75)/10 magic-multiply FIRST and
+     * the t/60 one late (ours 64 vs oracle 65 insns, every insn shifted:
+     * 65 diffs); naming `m` forces the t/60 mult up to the oracle's position
+     * right after the i/75 mult, and `t - m*60` reuses it.  PASS 65/65 under
+     * BOTH the 2.8.0 and the gcc-2.7.2 lane.  (psyz's `i/75%60`+`i/75/60`
+     * form -- no temp at all -- is WORSE: 87 diffs at 66 insns.) */
+    int t, m;
     i += 150;
     t = i / 75;
+    m = t / 60;
     p->sector = (unsigned char)ENCODE_BCD(i % 75);
-    p->second = (unsigned char)ENCODE_BCD(t % 60);
-    p->minute = (unsigned char)ENCODE_BCD(t / 60);
+    p->second = (unsigned char)ENCODE_BCD(t - m * 60);
+    p->minute = (unsigned char)ENCODE_BCD(m);
     return p;
 }
 

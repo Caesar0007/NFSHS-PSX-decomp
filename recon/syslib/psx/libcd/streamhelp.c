@@ -47,7 +47,7 @@ int _ds_ready_cb ST_BSS;  /* @0x801489E4 : DsReadyCallback slot             */
 static volatile u_char *_un_cd_idx  __attribute__((section(".data"))) = (volatile u_char *)0x1F801800;  /* @0x80136C48 CDREG0 */
 static volatile u_char *_un_cd_reg3 __attribute__((section(".data"))) = (volatile u_char *)0x1F801803;  /* @0x80136C54 CDREG3 */
 
-extern int  data_ready_callback(void);
+extern void data_ready_callback(void);
 extern int  DsReadyCallback(int func);
 extern int  DsDataCallback(int func);
 
@@ -72,22 +72,44 @@ extern u_long StGetNext(u_long **addr, u_long **header)
     return 0;
 }
 
-/* @0x800FA994 (C_007) : release the frame that `base` points into; advance the read index past it. */
+/* @0x800FA994 (C_007) : release the frame that `base` points into; advance the read index past it.
+ * MATCH (w51-a4): shape TRANSPLANTED from the byte-exact Rage Racer libpress decomp,
+ * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libpress/stream_ring.c :: StFreeRing.  Levers:
+ *  (1) the index is a POINTER DIFFERENCE in u_long units divided by 504 -- the oracle's
+ *      `sra v0,a0,2; mult v0,a1; ... sra v0,v0,8` is the magic divide for /504 AFTER the
+ *      pointer-difference >>2, not a single /0x7E0 magic divide (which gives `sra ...,10`);
+ *  (2) the frame STATE is read SIGNED (`lh`) while nSectors is read unsigned (`lhu`) into a
+ *      `short` local, so the loop guard sign-extends (`sll;sra;blez`) like the oracle;
+ *  (3) the loop counter is incremented INSIDE the body and the tail uses the COUNTER
+ *      (`i + slot`), not `nsectors + slot`.
+ *  (4) the loop is spelled GUARDED-do/while (the rotated shape the oracle has): a counted
+ *      `for`/`while` makes gcc-2.7.2 reserve a spurious 8-byte `vars` frame (subu/addu $sp
+ *      + an epilogue on the early-return path, which also flips the guard's bne->beq) --
+ *      35 -> 6 with the transplant, 6 -> PASS with the guarded do/while.  A guard+goto
+ *      spelling is frameless too but re-colors the loop body (23 diffs) -- falsified. */
 extern u_long StFreeRing(u_long *base)
 {
-    int       data_start = StRingAddr + (StRingSize << 5);   /* start of the frame-data area */
-    int       idx        = ((int)base - data_start) / 0x7E0; /* 0x7E0 = 0x3F sectors * 0x20 */
-    u_short  *slot       = (u_short *)(StRingAddr + (idx << 5));
-    int       nframes    = slot[3];
+    int       slot;
+    int       i;
+    short     nsectors;
+    u_short  *frame;
+    u_short  *sector;
 
-    if (slot[0] != 4)                          /* not claimed by a StGetNext caller */
+    slot     = (base - (u_long *)(StRingAddr + (StRingSize << 5))) / 504;
+    frame    = (u_short *)(StRingAddr + (slot << 5));
+    nsectors = frame[3];
+    if (*(short *)frame != 4)                  /* not claimed by a StGetNext caller */
         return 1;
-    if ((short)nframes > 0) {
-        int k;
-        for (k = 0; k < nframes; k++)
-            *(u_short *)(StRingAddr + ((idx + k) << 5)) = 0;
-    }
-    StRingIdx3 = idx + nframes;
+    /* guard-then-goto, NOT a counted `for`: gcc-2.7.2 gives every counted for-loop a spurious
+     * 8-byte `vars` frame (subu/addu $sp + an epilogue on the early-return path, which also
+     * flips the `bne`/`beq` polarity above).  Same lever as init_ring_status below. */
+    i = 0;
+    if (nsectors > 0) do {
+        sector = (u_short *)(StRingAddr + ((i + slot) << 5));
+        i++;
+        *sector = 0;
+    } while (i < nsectors);
+    StRingIdx3 = i + slot;
     return 0;
 }
 
@@ -95,11 +117,24 @@ extern u_long StFreeRing(u_long *base)
  * Oracle ends `jr ra; nop` with NO $v0 set -> the original returns void (the loop's
  * last $v0 scratch is left dead). A `return 0` would emit `addu v0,zero,zero` in the
  * delay slot (1 extra diff). Declared void here; the callers discard the result. */
+/* MATCH (w51-a4, cc1_272 lane): the natural `for (i = 0; i < count; i++)` makes gcc-2.7.2
+ * reserve an 8-byte `vars` frame (`.frame $sp,8` -> subu/addu $sp pair) on EVERY counted
+ * for-loop, even with no memory locals -- the oracle is frameless.  Falsified: `for` with
+ * int/unsigned counter, `for` with a hoisted `int *p`, and `while (i != count)` (frameless
+ * but emits `bne i,count` instead of the oracle's `sltu`+`bnez`).  The guard-then-goto form
+ * below is frameless AND reproduces the oracle byte-for-byte (entry `beqz count` with `i=0`
+ * in the delay slot, bottom `sltu v0,i,count; bnez` with the `sw` in ITS slot).  It also
+ * still PASSes on the 2.8 lane, so the spelling is lane-neutral. */
 extern void init_ring_status(int base, unsigned count)
 {
-    unsigned i;
-    for (i = 0; i < count; i++)
-        *(int *)(StRingAddr + ((i + base) << 5)) = 0;   /* oracle adds i+base (addu v0,a2,a0) */
+    unsigned i = 0;
+    if (count == 0)
+        return;
+loop:
+    *(int *)(StRingAddr + ((i + base) << 5)) = 0;   /* oracle adds i+base (addu v0,a2,a0) */
+    i++;
+    if (i < count)
+        goto loop;
 }
 
 /* a 2-byte-aligned 4-byte payload: forces gcc to emit unaligned word ops (lwl/lwr, swl/swr)
@@ -108,18 +143,18 @@ extern void init_ring_status(int base, unsigned count)
 struct _ds_loc { short lo, hi; };
 
 /* @0x80108798 (C_004) : a sector finished decoding -- mark its slot ready and notify StFunc1. */
-extern int data_ready_callback(void)
+extern void data_ready_callback(void)
 {
     u_short *slot = (u_short *)(StRingAddr + (StRingIdx2 << 5));
+    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;
 
     slot[0]  = 2;                               /* status = decoded/ready */
-    *(struct _ds_loc *)&_ds_word0 = *(struct _ds_loc *)(slot + 14);  /* unaligned sub-header copy (slot+0x1C) */
+    *dst = *(struct _ds_loc *)(slot + 14);      /* unaligned sub-header copy (slot+0x1C) */
     _ds_word1 = *(int *)(slot + 4);             /* aligned (slot+8) */
     StRingIdx2 = StRingIdx1;                     /* oracle: unconditional (beqz delay slot) */
     if (StFunc1 != 0)
         ((void (*)())StFunc1)();
     StFinalSector = 0;
-    return 0;
 }
 
 /* @0x8010885C (C_010) : configure the start gate. */

@@ -59,19 +59,26 @@ extern int CdInit(void)
      * comparison constants 1 / -1 REMATERIALIZED inside the loop (frame 0x18, only s0+ra saved).
      * Every natural loop form (do-while / while-top / for / continue-arm) instead hoists 1, -1
      * and the printf string address into s1/s2/s3 (frame 0x28) and inverts the branch:
-     *   do-while 36 diffs - while-top 53 - for 53 - continue-arm 53 - GOTO 19.  */
+     *   do-while 36 diffs - while-top 53 - for 53 - continue-arm 53 - GOTO 19.
+     * MATCH (w51-a4, cc1_272 lane): BRANCH POLARITY -- writing the FAILURE arm as the `if` body
+     * (`if (_cd_event_init() != 1) { retry--; ... }`) and the callback installs as the
+     * fall-through puts the fail block out of line after the success block, exactly like the
+     * oracle; the success-arm-as-if-body spelling made gcc invert and emit the fail block first.
+     * 20 -> 6, count-exact 36/36.  Residual = which instruction the delay-slot filler picks
+     * (oracle: `li v0,1` in the bne slot + `sw zero` in the `j` slot; ours: the `retry--`
+     * speculated into the bne slot).  FALSIFIED: hoisting the shared constant into an `ok`
+     * local (`!= ok` / `return ok`) -- 6 -> 20, ours 38 insns. */
     int retry = 4;
 loop:
-    if (_cd_event_init() == 1) {
-        CD_cbsync        = (int)_cd_event_sync;
-        CD_cbready       = (int)_cd_event_ready;
-        CD_cbread        = (int)_cd_event_read;
-        CD_read_dma_mode = 0;
-        return 1;
+    if (_cd_event_init() != 1) {
+        retry--;
+        if (retry != -1) goto loop;
+        printf("CdInit: Init failed\n");
+        return 0;
     }
-    retry--;
-    if (retry != -1) goto loop;
-
-    printf("CdInit: Init failed\n");
-    return 0;
+    CD_cbsync        = (int)_cd_event_sync;
+    CD_cbready       = (int)_cd_event_ready;
+    CD_cbread        = (int)_cd_event_read;
+    CD_read_dma_mode = 0;
+    return 1;
 }

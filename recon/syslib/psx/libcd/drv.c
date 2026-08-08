@@ -65,30 +65,16 @@ extern int           CD_nopen;    /* lid-open event counter */
 /* The 3-byte interrupt-state struct {sync, ready, c} @0x8013C224. */
 struct CD_intr { unsigned char sync, ready, c; };
 typedef struct CD_intr CD_intr;
-extern CD_intr D_8013C224;            /* = Intr (in asm/data .bss-ish region).
-                                            * DO NOT mark this `volatile` (w24-a1 tried it: shaved
-                                            * 1 diff off CD_flush but REGRESSED CD_sync/CD_ready/
-                                            * CD_cw/CD_datasync/_cd_intr_dispatch -- reverted, net
-                                            * loss). w25-a11: CD_flush's ONE genuine reload
-                                            * (`Intr.ready=Intr.c` does NOT const-propagate on the
-                                            * oracle) is instead modeled LOCALLY inside CD_flush via
-                                            * a targeted `*(volatile unsigned char*)&intr->c` read
-                                            * through a hoisted `CD_intr *intr=&Intr;` -- 20->17
-                                            * diffs, verified NOT to touch any other fn's codegen
-                                            * (this global stays plain, non-volatile). See CD_flush.
-                                            * CD_sync/CD_ready/CD_cw/CD_datasync ALSO want the same
-                                            * &Intr/&CD_comstr/&CD_intstr hoist per their oracles
-                                            * (CD_sync.s/CD_ready.s/CD_cw.s/CD_datasync.s each pin
-                                            * it into a distinct callee-saved reg across the whole
-                                            * fn), but w25-a11 tried both (a) threading them as
-                                            * params through the shared get_alarm()/callback()
-                                            * helpers and (b) hand-flattening get_alarm() per call
-                                            * site -- BOTH increased the diff count on every one of
-                                            * those 4 fns (verify_asm-confirmed, reverted). Adding
-                                            * the hoist changes gcc-2.8's whole-function register
-                                            * priority ordering in a way that does not converge on
-                                            * the oracle's specific register numbers; likely needs
-                                            * permuter-level search, not hand shaping. Un-fixed. */
+extern volatile CD_intr D_8013C224;   /* = Intr (in asm/data .bss-ish region).
+ * MATCH (w51-a4): `volatile` is CORRECT and is the retail shape -- the byte-exact Rage Racer
+ * libcd decomp declares the same struct `extern volatile CdIntr g_CdSyncStatus;`
+ * (C:\Tempage-racer-decomp\include\psyq\cd_internal.h:54); it is mutated by the CD IRQ
+ * behind the compiler's back (methodology §3.12 #13).  The earlier "DO NOT mark volatile"
+ * receipt (w24-a1) measured it on the gcc-2.8/cc1plpsx lane, where it IS a mild net loss.
+ * On the gcc-2.7.2 lane (`cc1_272`, the proven Sony-library toolchain) it is a large NET WIN:
+ *   CD_sync 95->91, CD_ready 126->102, CD_cw 225->199, CD_datasync 60->42,
+ *   _cd_intr_dispatch 26->PASS, CD_init 31->24 (count-exact 120/120); CD_flush unchanged 13.
+ * Zero PASS->FAIL on EITHER lane.  Keep it paired with the cc1_272 lane recommendation. */
 #define Intr D_8013C224
 
 /* Per-command 8-byte response buffers (this TU OWNS these in BSS @0x8014899C..). */
@@ -352,6 +338,14 @@ extern int CD_cw(int com, unsigned char *param, unsigned char *result, int arg3)
 /* @0x80107F30 : CD_flush -- abort and reset the controller interrupt state. */
 extern void CD_flush(void)
 {
+    /* MATCH (w51-a4): shape TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
+     * C:\Temp\rage-racer-decomp\src\main\PAL\lib\libcd\drive_initialization.c :: CD_flush.
+     * Two levers carried over: (1) the tail takes a real `volatile u_char *` to the .ready
+     * field, which is what forces the oracle's ONE `lui/addiu` base register reused by
+     * displacement (`sb 2(v1) / lbu 2(v1) / sb 1(v1) / sb 0(v1)`); a bare `Intr.field = ...`
+     * or a plain `CD_intr *` local both compile to per-field `sb $0,SYM+N` assembler macros
+     * on the gcc-2.7.2 lane.  (2) the poll loop is the guarded do/while the oracle rotates to.
+     * The `% 8` spelling is Rage Racer's; `& 7` is identical here (u_char). */
     CD_intr *intr;
     unsigned char c;
     CDREG0 = 1;
@@ -360,14 +354,7 @@ extern void CD_flush(void)
         CDREG3 = 7;
         CDREG2 = 7;
     }
-    /* MATCH lever (EARLY BASE-POINTER HOIST): the oracle materializes &Intr ONCE here (lui/addiu
-     * into $v1) and reuses it via `sb/lbu N($v1)` for all three field accesses below, instead of
-     * rematerializing a fresh `lui $at,%hi(D_8013C224)` macro-store per field (which is what a
-     * bare `Intr.field = ...;` -- no local pointer -- compiles to under gcc-2.8.0/cc1plpsx: it
-     * does NOT auto-CSE a repeated global's address across statements without a real local
-     * holding it). 20->17 diffs verified; residual is a scheduling floor (CDREG0's address load
-     * lands in a different delay slot -- unaffected by source statement order, see below). */
-    intr = &Intr;
+    intr = (CD_intr *)&Intr;
     intr->c = 0;
     c = *(volatile unsigned char *)&intr->c;   /* oracle genuinely RELOADS .c (no const-propagate) */
     intr->ready = c;

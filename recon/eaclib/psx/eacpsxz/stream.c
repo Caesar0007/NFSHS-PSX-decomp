@@ -1302,6 +1302,26 @@ reclaim:
                                 p = (int *)((int)p + len);
                             }
                         }
+                        /* MATCH (w50-a4, 2 -> PASS 173/173): the back-edge polarity above is a
+                         * JUMP-FORWARDING artifact of THIS arm's tail, not of the loop.
+                         * gcc rotates the `while` the same way in both builds and emits
+                         * `beq p,s6,Lexit ; j Lhead` at the bottom.  jump.c then inverts that pair
+                         * into retail's `bne p,s6,Lhead` -- but ONLY when `Lexit:` is the label
+                         * immediately after the `j Lhead` (jump.c's "conditional jump around an
+                         * unconditional jump" rule).  In retail `Lexit:` is followed by this arm's
+                         * own `j <join>` (the jump over the else-arm), so it IS adjacent and the
+                         * inversion fires.  Our build forwards the loop-exit edge straight to the
+                         * join FIRST -- the `Lexit: j <join>` block disappears, the precondition is
+                         * gone, and the un-inverted `beq exit ; j head` survives.
+                         * The zero-insn VOID-TAIL FENCE (w48) at the end of the arm re-materializes
+                         * that block: an asm_operands insn between `Lexit:` and the `j` stops the
+                         * forwarding, the inversion fires, and the arm's `j <join>` is retail's.
+                         * Falsified at this basin (all 2 diffs, exact 173/173, 16 spellings across
+                         * three waves): for/while/do-while/while(1)+break/!(p==s6)/if-guard+do-while/
+                         * `for(p=s4;p!=s6;)`/goto-label loop/`continue` in the wrap arm/an explicit
+                         * `goto` past the else arm -- the loop's own spelling is NOT the dial.
+                         * A use fence on `s6` here costs 34 (it lengthens s6 past the arm). */
+                        __asm__("" : : "i"(0));
                     } else {                         /* consumer head is before this request -> drain it */
                         unsigned int pos = MU(out[1], 0xc);
                         if (inbetween((unsigned int)s4, (unsigned int)s6, pos) != 0) {

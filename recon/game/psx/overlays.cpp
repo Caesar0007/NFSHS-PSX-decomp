@@ -359,6 +359,15 @@ void RaceStatistics(void)
      the insn count 457->462 of 475, but costs LCS 296->311 and contradicts the SYM local
      list -- not adopted.  Falsified as multiplier forms: operand swap, decimal spelling,
      statement order vs POS_X. */
+  /* w49-a10: RE-FALSIFIED on the current basin (94 diffs, ours 471 / oracle 475).  The
+     `int pitch = 0x96;` block-local still produces the real mult but scores 139 (worse
+     than 94), so it stays rejected.  ALSO NEW: the retail SLD line order is POS_X (174),
+     SIZE_W (175), SIZE_H (176), `if (numLaps == 1)` (177), SIZE_H (178) -- i.e. retail
+     assigns POS_X BEFORE SIZE_W and SIZE_H, the reverse of this file.  All five
+     permutations of the three statements were gated: CBA/BCA/BAC = 126 (and 8 insns
+     short), CAB/ACB = 94 (identical to the current ABC).  Statement order is therefore
+     NOT the lever for the synth-mult-vs-mult split; the shift chain for 0x4b is shared
+     into 0x96 regardless of which statement expands first. */
   HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * 0x96;
   HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
@@ -687,9 +696,16 @@ void Hud_BTCStats(short player,bool postgame)
      SIZE_H minus the bar inset, not a flat SIZE_H-8: oracle @0x800DAAAC picks
      `s2 - (s1 + 8)` under postgame vs `s2 - s1`, then `-0x10` under showtimeleft, with
      s2 = (int)SIZE_H and s1 = y - POS_Y. */
+  /* MATCH (w49-a10, 27 -> 24 diffs and count-EXACT 473/473): the postgame inset is
+   * added to `startY + 0xf` INSIDE the parenthesis, before POS_Y is subtracted --
+   * `SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - POS_Y)`.  Adding it to the
+   * already-hoisted yoff instead (`SIZE_H - (yoff + (postgame ? 8 : 0))`) lets combine
+   * reassociate the postgame arm into `(SIZE_H - 8) - yoff` (`addiu v0,s1,-8` vs
+   * retail's `addiu v0,s1,8; subu v0,s2,v0`), which also SWAPS the s1/s2 homes of
+   * SIZE_H and yoff and leaves the function one instruction short. */
   for (i = 1; i < 4; i = i + 1) {
     Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
-                 HUD_STATS_SIZE_H - ((startY + 0xf - HUD_STATS_POS_Y) + (postgame ? 8 : 0)) -
+                 HUD_STATS_SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - HUD_STATS_POS_Y) -
                  (showtimeleft ? 0x10 : 0),0,'\0','\0');
   }
   if (showtimeleft) {

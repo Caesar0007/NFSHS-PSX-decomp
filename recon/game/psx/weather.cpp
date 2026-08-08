@@ -513,6 +513,20 @@ void Weather_Init(void)
   SVECTOR *sv;
   SVECTOR *pSVar10;
   
+  /* w49-a10 NAMED ANGLE (12 diffs, count-EXACT 211/211, all in insns 1-14): the residual
+   * is ONE address-materialization decision.  Retail keeps %hi(TrackSpec_gSpec.weatherspec)
+   * in $a0 and uses it TWICE -- `addiu $v0,$a0,%lo(..)` for the pointer store AND
+   * `lw $v1,%lo(..)($a0)` for the .type read -- so $v0 is free for the `li $v0,1` that
+   * retail schedules into the beqz delay slot.  Ours CSEs the whole lo_sum: the .type
+   * load reuses the computed POINTER (`lw $v1,0($v0)`, no reloc), which pins $v0 and
+   * pushes the `li` after the load.  cse.c's find_best_addr replaces a (lo_sum high sym)
+   * MEM address with a register holding the same value when ADDRESS_COST says the plain
+   * reg is cheaper -- retail's cse did not have that register available at the load.
+   * FALSIFIED here: `__asm__("" : "=r"(ts) : "0"(ts))` opacity fence on the pointer
+   * (86 -- it breaks the CSE but also kills the shared high, giving a fresh 2-insn `la`);
+   * reading the guard through `Weather_gType` instead of re-reading .type (12, no change);
+   * a block-scope `int i;` at the top of the if-body per the SYM (12, no change).
+   * Next instruments: cc1plus -dg/-dl on the head, or an ADDRESS_COST read of gcc-2.8. */
   Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
   if (GameSetup_gData.Weather != 0) {
     Weather_gType = TrackSpec_gSpec.weatherspec.type;
@@ -1099,13 +1113,21 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     {
       u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR;
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-      RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
-      /* MATCH: `(prim & 0xffffff) | (*pal & 0xff000000)` -- the 0xffffff term FIRST.
-       * The reversed spelling costs the 0xffffff constant its allocno rank and rotates
-       * a0<->a1 (the pal pointer) through both arms (52 -> 16). */
+      /* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
+       * recipe, minus the fence.  The palette RMW is SPLIT (read `palw` FIRST) and
+       * the packet-cursor store is placed BETWEEN the palette read and the addr24
+       * mask -- that is where retail issues `sw $v1,0($a3)`, and it also frees the
+       * dying merge temp ($v1) for the bump instead of taking a fresh register.
+       * The final `or` must be spelled palw-term FIRST (`palw & 0xff000000 |
+       * (addr24 & 0xffffff)`) to land the result in retail's $v0.  NOTE: adding
+       * CreateSnow's `__asm__ __volatile__("")` fence and/or its split `next`
+       * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
+       * the header store, where retail hoists it above the whole group. */
       {
+        u_int palw = *pal;
+        RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;
         u_int addr24 = (u_int)prim & 0xffffff;
-        *pal = (addr24 & 0xffffff) | *pal & 0xff000000;
+        *pal = palw & 0xff000000 | (addr24 & 0xffffff);
       }
     }
     *((char *)prim + 3) = 4;                       /* OT tag length (4 words) */
@@ -1123,13 +1145,21 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     {
       u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR;
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
-      RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;   /* MATCH: bump off the loaded prim, no re-read */
-      /* MATCH: `(prim & 0xffffff) | (*pal & 0xff000000)` -- the 0xffffff term FIRST.
-       * The reversed spelling costs the 0xffffff constant its allocno rank and rotates
-       * a0<->a1 (the pal pointer) through both arms (52 -> 16). */
+      /* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
+       * recipe, minus the fence.  The palette RMW is SPLIT (read `palw` FIRST) and
+       * the packet-cursor store is placed BETWEEN the palette read and the addr24
+       * mask -- that is where retail issues `sw $v1,0($a3)`, and it also frees the
+       * dying merge temp ($v1) for the bump instead of taking a fresh register.
+       * The final `or` must be spelled palw-term FIRST (`palw & 0xff000000 |
+       * (addr24 & 0xffffff)`) to land the result in retail's $v0.  NOTE: adding
+       * CreateSnow's `__asm__ __volatile__("")` fence and/or its split `next`
+       * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
+       * the header store, where retail hoists it above the whole group. */
       {
+        u_int palw = *pal;
+        RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;
         u_int addr24 = (u_int)prim & 0xffffff;
-        *pal = (addr24 & 0xffffff) | *pal & 0xff000000;
+        *pal = palw & 0xff000000 | (addr24 & 0xffffff);
       }
     }
     *((char *)prim + 3) = 4;

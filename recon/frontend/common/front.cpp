@@ -38,6 +38,8 @@ void Front_ConstructAll(void)
   
   dlgThis = __builtin_new(0x3bd8);
   gAllScreens[0] = tAllScreens_ctor(dlgThis);
+  /* MATCH: retail publishes screenMain before the remaining sub-screen pointers. */
+  screenMain = &gAllScreens[0]->screenMain;
   screenCarSelect = &gAllScreens[0]->screenCarSelect;
   screenCarSelectDuel = &gAllScreens[0]->screenCarSelectDuel;
   screenCarSelectTwoPlayer = &gAllScreens[0]->screenCarSelectTwoPlayer;
@@ -64,7 +66,6 @@ void Front_ConstructAll(void)
   size = 0x3b18;
   screenBeTheCopCongrats = &gAllScreens[0]->screenBeTheCopCongrats;
   screenTournamentCongrats = &gAllScreens[0]->screenTournamentCongrats;
-  screenMain = &gAllScreens[0]->screenMain;
   this_00 = __builtin_new(0x380);
   FEApp[0] = tFEApplication_ctor(this_00);
   this_01 = __builtin_new(size);

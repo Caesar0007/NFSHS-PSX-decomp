@@ -874,7 +874,18 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     MI(objbuf, 0x10) = base;                                   /* filterArray */
     base = base + numFilters * 0xc;
     /* MATCH (w34-a2 #4): volatile keeps the following read-back a real memory reference, which
-     * frees $v1 and therefore pins this store ahead of the ring-base `sll` (see the header note). */
+     * frees $v1 and therefore pins this store ahead of the ring-base `sll` (see the header note).
+     * w49-a3 RESIDUAL 4 = ours re-READS the field (`lw v1,24(s0)`) where retail keeps a register
+     * COPY of the just-stored value (`addu v0,v1,zero`), plus the paired `sll` destination.  The
+     * volatile IS what forces the real reload -- but every non-volatile route measured WORSE, so
+     * it stays: plain `MI(objbuf,0x18) = base;` 17 @143/144 (cse fully propagates the read-back,
+     * so we land 1 SHORT -- exactly the missing copy); + a named `rb` read-back local 17 @143;
+     * + an OPACITY FENCE on `base` after the store 10 @144 (keeps the count but reorders the
+     * memset arg block); anonymous store + named read-back (the w45 cse double-evaluation recipe
+     * that supplies a reg-reg copy elsewhere) 33 @143.  Keeping the volatile store + a named
+     * read-back local is diff-neutral (4).  => the copy is an allocation artifact (the read-back
+     * pseudo must land in a DIFFERENT hard reg than `base` while `base` is still live), not a
+     * cse-shape question. */
     *(volatile int *)(objbuf + 0x18) = base;                   /* consumerArray */
     {
         /* MATCH (w33-a2): the oracle's THREE `addu <reg>,v0,zero` copies of the ring base are NOT a
@@ -1265,7 +1276,16 @@ reclaim:
                          * destroys the "target is the label right after the jump" precondition).
                          * TRIED and all identical-or-worse: guard + do-while (2), `continue` in
                          * the wrap arm (2), empty one-shot boundary after the loop (2), full
-                         * label+goto loop (59 -- also de-hoists the -1 marker). */
+                         * label+goto loop (59 -- also de-hoists the -1 marker).
+                         * w49-a3 FALSIFIES the jump-threading attribution above: a direct A/B on
+                         * the REAL cc1 (cpp'd TU -> CC1PSX -O2 -G4 -g1 -mgpOPT -fgnu-linker,
+                         * with and without -fno-thread-jumps, tools/cc1try.py) is BYTE-IDENTICAL
+                         * for this whole function -- `beq $16,$22,$L248 ; nop ; j $L252 ; nop`
+                         * either way.  thread_jumps is NOT the mechanism, so the per-fn
+                         * PER_FN_NO_THREAD_JUMPS splice lane cannot help here; the polarity comes
+                         * out of RTL generation / expand_end_loop's rotation, and retail's form
+                         * (`bne back ; j exit`) is what a rotated do-while emits.  Count is exact
+                         * 173/173, so the remaining lever is the loop's BLOCK LAYOUT, not a flag. */
                         while (p != s6) {
                             if (p[0] == -1) {
                                 p = *(int **)(out[0] + 0x20);   /* wrap */

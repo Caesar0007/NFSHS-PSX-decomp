@@ -158,7 +158,17 @@ extern FileHandle *reservehandle(void)
              * the count exact 44/44, but the copy then lands after the beqz and the whole a-band
              * rotates (24 diffs).  NEXT ANGLE: a split-forcing device that is NOT a scheduling
              * barrier (the pair is 44/44-reachable, so only the fence's barrier property is in
-             * the way). */
+             * the way).
+             * w49-a3 NARROWS THAT ANGLE: the barrier is NOT the asm's VOLATILE-ness.  A
+             * non-volatile, output-carrying split device that holds `cur` live past the advance
+             * -- `__asm__("" : "=r"(i) : "r"(cur), "0"(i));` -- gates IDENTICALLY (3 @45/44),
+             * because reorg's fill_simple_delay_slots refuses to move OR scan past ANY
+             * asm_noperands insn, volatile or not.  So the device must not be an `__asm__` at
+             * all.  Also falsified this wave: hoisting the advance ABOVE the test (`cur = next;
+             * next = cur + 0x4C; if (cur->inuse == 0) ...`) DOES split the pair with NO device
+             * at all, but then the advance sinks into the `beqz`'s delay slot (evicting retail's
+             * `li v0,1`) and the loop-head copy is still duplicated into the `bnez` slot -- 7
+             * @45/44, both with and without the fence. */
             __asm__("" : : "r"(cur));
         } while (i < count);
     }
@@ -174,6 +184,11 @@ extern FileHandle *reservehandle(void)
 /* the oracle re-derives the slot address FRESH from gFileMgr.oparray (a real memory reload, not a
  * cached pointer) at each of the id-field mutation sites below -- only the VERY FIRST combine
  * (the type-nibble set) reuses the address+value already computed for the free-check condition;
+ * [w49-a3] FALSIFIED for the "retail materializes the gFileMgr base pair FIRST, before the four
+ * mask constants" reading: deleting the four preheader mask LOCALS and writing the literals in the
+ * loop body (so loop.c hoists them itself, in body order, after the address movable) gates 46
+ * @71/71 -- worse than the 40 baseline.  The preheader order is not the dial; the 4-way
+ * {i,off,base-copy,mask} rotation is the w47-a1 hard-reg-conflict floor.
  * the byte3 store and the seq-combine store each redo `oparray + off` from scratch (2 extra
  * lui/lw/addu-shaped reloads the oracle has that a single persistent `op` local doesn't produce).
  * A persistent manager base plus fresh `mgr->oparray + off` expressions preserves those reloads.
@@ -480,7 +495,27 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  * the cse-double-evaluation route (the lever that cracked FILE_cancelop) OUT for this fn on
  * structural grounds, not by trial.  Also falsified w34: a `FileOp *dead = op; freeop(dead);`
  * temp (coalesced, identical 28).  The `srl a0` half is the FILE_priorityop local-alloc tie
- * (see there); the op->$a0-vs-$a1 half is the $a0 copy preference w32 measured. */
+ * (see there); the op->$a0-vs-$a1 half is the $a0 copy preference w32 measured.
+ * [state, re-gated w49-a3] the in-body `__asm__("" : : "r"(id))` USE FENCE (w47-a1) already took
+ * this fn 28 -> 2 @47/47; the notes above predate it.  RESIDUAL 2 = the PROLOGUE SAVE ORDER only:
+ * retail emits `sw $s0,0x20($sp)` immediately after the sp-adjust and lets sched2 sink
+ * `sw $ra,0x24($sp)` eight slots down into the address chain's load-delay gap; ours sinks BOTH.
+ * w49-a3 probes (all 2 or worse -- the fence POSITION only chooses WHICH save is misplaced,
+ * never both): a void-tail fence `__asm__("" : : "i"(0))` as the FIRST statement pins both saves
+ * at the top -> the diff moves onto `sw ra` (still 2 @47); the same fence after the `op = ...`
+ * statement restores the original `sw s0` symptom (2 @47); `int result = 0;` up front + an
+ * inverted guard (giving $s0 an early def so its save cannot sink) = 3 @48.  A fence BETWEEN the
+ * two saves is not expressible from C -- both are emitted by expand_function_start before any
+ * statement RTL -- so this is a sched2 ready-list tie at the block head (retail picks the
+ * zero-successor `sw s0` over the high-priority address chain; ours picks the chain).
+ * FLAG A/B (cc1try on the cpp'd TU, w49-a3): `-fno-schedule-insns2` pins BOTH saves at the top
+ * (`subu sp; sw $31,36; sw $16,32; lui ...`), plain flags sink BOTH (`subu sp; lui; srl; sll;
+ * addu; lw; sll; sw $31,36; sw $16,32`), and `-fno-schedule-insns` / `-fno-strength-reduce` are
+ * no-ops here.  Retail's shape is MIXED (s0 un-sunk, ra sunk), so NO whole-function flag reaches
+ * it -- but it IS mechanically a one-line post-process on the normal `.s` (hoist just
+ * `sw $16,32($sp)` to immediately after the `subu $sp`), exactly the shape of build.py's
+ * PER_FN_EPILOGUE_UNFILL splice.  => candidate for a PER_FN_PROLOGUE_UNSINK lane (build.py owner
+ * decision; not wired by this agent). */
 extern int FILE_completeop(unsigned int id)
 {
     volatile int frame[4];
@@ -516,7 +551,16 @@ extern int FILE_completeop(unsigned int id)
  * the coloring, not a lever (contrast reserveop, where it is one).  callbackop: the lone diff is
  * the SCHEDULE POSITION of `addu a3,a1,zero` (retail insn #2, ours one slot later) -- a reorg
  * tie with no source handle.  SLD could not re-verdict either: nfile.obj is a debug-stripped
- * eacpsxz.lib member and the SYM carries ZERO line records for it (see reservehandle). */
+ * eacpsxz.lib member and the SYM carries ZERO line records for it (see reservehandle).
+ * w49-a3 SHARPENS the opstatus row: the `addu a0,v0,v1` operand order is reachable ONLY through
+ * INTEGER arithmetic.  `(char *)gFileMgr.oparray + (id>>0x18)*0x30` and `(id>>0x18)*0x30 +
+ * (char *)gFileMgr.oparray` are BYTE-IDENTICAL (2 diffs) because C's pointer_int_sum always
+ * rebuilds the tree ptr-first, so expand sees PLUS(ptr,int) either way -- no pointer spelling can
+ * move it.  Both int spellings DO flip it (`(id>>0x18)*0x30 + (int)oparray` and
+ * `(char *)((id>>0x18)*0x30) + (int)oparray`, verified: ours becomes `addu ...,v0,v1`) but both
+ * cost 18: the 0xFFFFF mask moves $a1->$a0 and the oparray load flips separate-temp->self-temp.
+ * So the residual is the mask/base coloring cascade, not the operand order -- an allocno job, and
+ * the operand order is now PROVEN source-reachable (contra "no source lever"). */
 /* MATCH work: the real callback ABI is (id,status,param), and the four-word pad recovers the
  * oracle's 40-byte frame; together these cut 28->2 diffs. Only the equivalent `callback`->a3 copy
  * scheduling remains (oracle places it at entry, ours in the status branch delay slot).
@@ -910,7 +954,12 @@ extern void FILE_cancelop(unsigned int id)
      *      temp in that block.  Falsified this wave (all 14, 109/109): `nq = state; state = nq-1;`
      *      split RMW, `state = state - 1;` double-eval, a `FileMgr *m` base local, and the
      *      `action = 2;`-before-RMW reorder;  `op->status = -1;` moved ahead of the RMW reaches 12
-     *      but at 111/109 (two insns long) => rejected. */
+     *      but at 111/109 (two insns long) => rejected.
+     *      w49-a3 adds one more 3<->4-boundary falsification: routing the RMW through a POINTER
+     *      LOCAL (`int *st = &gFileMgr.state; *st = *st - 1;` in its own block -- the w43
+     *      "pointer local defeats true_dependence" / %hi-anchor device) gates 37 @110/109.  It
+     *      does add a qty but also turns the ARRAY_REF into a plain indirect MEM, which frees the
+     *      scheduler and re-colors the whole arm. */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
@@ -1252,7 +1301,14 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  * nfile.obj fingerprint.  The other cluster here (`sll v1,v1,2` scheduled before vs after the
  * jump-table `lui/addiu`) is the classic sll-index-vs-base sched1 tie and would be the target for
  * a zero-insn fence walked between the switch discriminant and the switch (untried: the fence
- * would have to sit inside the case dispatch, where C gives no statement position). */
+ * would have to sit inside the case dispatch, where C gives no statement position).
+ * w49-a3 FALSIFIES the obvious fence route for the `li a1,124` half: routing the `!= '|'` compare
+ * through an OPACITY-FENCED carrier (`int pipe = '|'; __asm__("" : "=r"(pipe) : "0"(pipe));
+ * if (NAME(cmd)[0] != pipe)`) -- which SHOULD hide `pipe == 124` from cse and force the strchr
+ * arg to re-materialize -- gates 21 @291/290.  Reason = the w46 fence cost profile: a fence on a
+ * NON-REGISTER-RESIDENT CONSTANT costs instructions (the constant gets its own pseudo + the asm
+ * blocks the compare's own materialization), so the +1 insn plus the extra allocno re-colors the
+ * block.  A zero-insn constant-opacity device is still the missing piece here. */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)

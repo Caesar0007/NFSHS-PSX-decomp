@@ -118,12 +118,40 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoF
  *   (ii) Re-tested the (b) verdict with a TAIL-ONLY second pointer (`SyncCtrl *t;` assigned
  *   AFTER the completeop call, whole re-issue phase + the shared remain=0 rewritten on t): cc1
  *   copy-propagates it away and the extra allocno reshuffles s0/s1 -- 70 diffs, still 69 insns.
- *   The s1/s2 split remains a no-copy-prop identity artifact. */
+ *   The s1/s2 split remains a no-copy-prop identity artifact.
+ *   w49-a3 (21 -> 19, 72/71): TWO cooperating zero-insn devices, both catalog-grammar.
+ *   (1) the OPACITY/IDENTITY FENCE `__asm__("" : "=r"(t) : "0"(t))` (catalog w47 3rd fence
+ *       mode) placed right AFTER the completeop call stops cse's make_regs_eqv from proving
+ *       t == c, so the copy survives as a genuinely distinct pseudo and the phase split below
+ *       (advance on the param, re-issue + tail on the copy) is honoured instead of being
+ *       collapsed onto whichever pointer outlives the other;
+ *   (2) `t = c;` is hoisted ABOVE the completeop call (live-range LENGTHENING = the demote
+ *       direction of the allocno dial) -- the copy then loses the priority race it used to win.
+ *   MEASURED MATRIX this wave (fence x t=c-position x which-phase-on-t):
+ *       fence + before-call + re-issue-on-t ............ 19  @72  <- KEPT
+ *       fence + before-call + tail-only-t ...............43  @72
+ *       fence + before-call + re-issue-on-t + fence-before-call .. 18 @73 (count worse, rejected)
+ *       fence + after-call  + re-issue-on-t ............ 63  @72
+ *       fence + after-call  + re-issue-on-t + do{}while(0) on the 3 advance accumulates .. 22 @75
+ *           (the wrapper's ref dial DOES flip s1/s2 to the oracle's exact assignment and the
+ *            whole prologue matches -- but its NOTE_INSN_LOOP_BEG barrier costs +4 insns:
+ *            `done` lands in $v1 not $a0 and the c->chunk read can no longer fill the offset
+ *            load's delay slot.  A zero-insn inflator delivering the same +refs on `c` would
+ *            land the prologue; a 2-statement wrapper is not enough (60 @73).)
+ *       fence-on-c instead of t ........................ 75  @70
+ *       no fence + before-call + re-issue-on-t ......... 46  @69
+ *   RESIDUAL 19 = (a) the copy DIRECTION/prologue-save order (4: ours param->$s2 copy->$s1,
+ *   retail param->$s1 copy->$s2 -- an allocno priority swap; retail's numbers are refs 11/live 44
+ *   for `c` vs 13/59 for `t`, pri .75 vs .66) and (b) the c->chunk read not filling the offset
+ *   load's delay slot (the rest).  Both are ref/live dials away; see the wrapper row above for
+ *   the proof that (a) IS reachable. */
 extern void synccallback(int op, int type, SyncCtrl *c)
 {
     SyncCtrl *t;
-    unsigned int done = FILE_completeop((unsigned int)op);
+    unsigned int done;
     t = c;
+    done = FILE_completeop((unsigned int)op);
+    __asm__("" : "=r"(t) : "0"(t));
     c->op = 0;
     if (type == 1) {
         *(volatile int *)&c->buf    += done;
@@ -134,14 +162,14 @@ extern void synccallback(int op, int type, SyncCtrl *c)
         } else {
             c->remain -= done;
         }
-        if (0 < *(volatile int *)&c->remain) {
+        if (0 < *(volatile int *)&t->remain) {
             int r;
-            if (*(volatile int *)&c->remain < 0x2001)   /* if/else, slti polarity: beqz -> 0x2000 arm */
-                c->chunk = *(volatile int *)&c->remain;
+            if (*(volatile int *)&t->remain < 0x2001)   /* if/else, slti polarity: beqz -> 0x2000 arm */
+                t->chunk = *(volatile int *)&t->remain;
             else
-                c->chunk = 0x2000;
-            r = c->iofn(c->fd, c->buf, c->offset, c->chunk, c->cbarg, c);
-            c->op = r;                              /* sw in the jalr-test branch delay slot */
+                t->chunk = 0x2000;
+            r = t->iofn(t->fd, t->buf, t->offset, t->chunk, t->cbarg, t);
+            t->op = r;                              /* sw in the jalr-test branch delay slot */
             if (r != 0) {
                 FILE_callbackop((unsigned int)r, (void *)synccallback);
                 return;

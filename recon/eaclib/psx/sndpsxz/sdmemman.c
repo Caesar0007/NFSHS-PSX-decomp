@@ -267,7 +267,34 @@ extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC
  *   which is what lets reorg eager-steal it into the `beqz` slot.  A fence pinning the subu at the
  *   block head DOES win the order but blocks the steal itself (32 insns / 31 diffs -- the w45
  *   documented fence boundary).  Remaining angle: a spelling that SHORTENS the store's chain
- *   without removing the `s = *size` reload the oracle shows.  Floor stands at 14. */
+ *   without removing the `s = *size` reload the oracle shows.  Floor stands at 14.
+ *
+ *   ð´ W50-a7 -- THE W49 ROOT-CAUSE NOTE ABOVE IS FALSIFIED (floor-hygiene: recorded diagnoses are
+ *   falsifiable too).  W49 named the 20-basin cause as "sched1 ranks `sw *size` above `subu diff`
+ *   because *size and *avail may alias, giving the store a 5-long dependence chain".  Both halves
+ *   were tested directly and neither holds:
+ *     (a) READ `*avail` INTO A LOCAL BEFORE the `*size` store, so no store->load chain can exist at
+ *         all (`int a = *avail; diff = lo - s; *size = lo; *avail = a - diff; s = *size;`): STILL 20,
+ *         and the emitted block-1 order is unchanged (lw avail, sw size, subu diff, subu, sw, lw).
+ *     (b) BREAK THE ALIAS with real COMPONENT_REFs -- two distinct one-member struct views, one per
+ *         pointer, so both MEMs are MEM_IN_STRUCT_P of different types: STILL 20.
+ *   Also measured at exactly 20, byte-identical: diff as a BLOCK-SCOPE declaration-with-initializer;
+ *   `lo` typed int; the store routed through `s` first (`s = lo; *size = s;`); a dead `diff - diff`
+ *   term added to the stored value (folded); the W49 load-order use fence combined with a block-1
+ *   diff.  Worse: avail-store-before-size-store 21 @30, reload-before-avail-update 23 @30, an
+ *   opacity fence on the *avail pointer 23 @32, a fence on diff 31 @32.
+ *   â THE 20-BASIN IS A SINGLE POINT, NOT A FAMILY: 13 structurally different block-1 spellings all
+ *   emit the SAME object.  So the placement is not decided by the dependence graph the source can
+ *   shape, and no alias/ordering spelling reaches it.  What the basin DOES show (new, from the raw
+ *   objects): the branch delay slot is EMPTY in every 20-variant -- reorg neither simple-fills
+ *   (block 0 has no movable candidate once `diff` leaves it) nor eager-steals block 1's head insn.
+ *   Retail's steal works only because its block-1 head IS the `subu` whose dest $v0 is redefined on
+ *   the taken path.  So the requirement is exact: `subu diff` must be the FIRST insn sched1 emits in
+ *   block 1, and the only lever that pins it there (a fence) is also the thing that blocks the steal.
+ *   NEXT INSTRUMENT (named, not tried here -- out of budget): `-dS` on this TU to read block 1's
+ *   ready list and luid/priority numbers directly, or the LAUNCH_BOOST route (`birthing_insn_p`
+ *   needs REG_N_SETS==1) -- e.g. make the *avail temp MUTATED (2+ sets) so it can never boost above
+ *   the subu.  Floor stands at 14; the mechanism note above is corrected, not the number. */
 extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     unsigned char *pd = sndpd;
@@ -327,7 +354,32 @@ extern int iSNDpsxmalloc(int size)
      * the `idx != 0` arm fenced on `idx` 59, fenced on `previous`+`idx` 59.  Reason: iSNDmalloc was
      * 2 insns OVER the oracle and its residual really was a scheduling/fresh-dest question, whereas
      * this function is 7 insns SHORT and its gap is the un-merged `iSNDpsxmemconstrain` arms above --
-     * a cross-jump-depth problem, not a schedule one.  Attack the arm merge first. */
+     * a cross-jump-depth problem, not a schedule one.  Attack the arm merge first.
+     *
+     * W50-a7 ARM-MERGE PASS (the brief's assignment; no keep, but the mechanism is now NAMED and the
+     * split basin is re-measured with the w47/w49 fence instruments):
+     *   RE-MEASURED: split 76@121 | split+dbl 60@123 | split+dbl with per-arm temps 60@123 |
+     *   split+dbl with a literal `return 0` tail instead of `goto fail` 62@123 | label-moved-to-just-
+     *   before-the-call with per-arm stores 77@122 | fenced double-read of 0x51A (a value-numbering
+     *   barrier so copy-prop cannot fold the second evaluation) 67@122 | commit-block index-offset
+     *   hoisted + fenced 59@120 (exact no-op, 3rd independent confirmation that sched1 re-floats that
+     *   `sll`) | prev-address respellings: offset-first 63, shared fenced `off` temp 63, plain shared
+     *   `off` 59.
+     *   ð´ THE REAL OBSTACLE IS NOT MERGE DEPTH, IT IS MERGE DIRECTION (new, from the raw objects).
+     *   gcc's cross_jump keeps the copy that contains the LABEL and truncates the arm that ends in a
+     *   JUMP (jump.c do_cross_jump redirects `insn` to `newlpos`).  Retail's tail arm is the jump side
+     *   (`j .L8010A634` at A770) so the shared block sits AFTER THE EMPTY ARM.  Our split basin merges
+     *   the other way round: the empty arm becomes the jump side and the shared block lands after the
+     *   TAIL arm -- the instruction CONTENT of the split basin is right (the empty arm is byte-exact
+     *   for its first 24 insns) but the two blocks are transposed, which is most of the 60.  Meanwhile
+     *   the 59-diff baseline has the CORRECT block order and shares too much (5 of retail's 8 per-arm
+     *   insns).  So the two available basins each hold one half of the answer.
+     *   NEXT ANGLE (named, untried): get the split basin's merge to keep the EMPTY arm's copy -- i.e.
+     *   make the empty arm's post-call tail the fall-through and the scan_done arm the one ending in
+     *   a jump.  That is a block-ORDER question (catalog w42 "PHYSICAL BLOCK ORDER dominates"), not a
+     *   fence question; the lever family is the arrangement of the `fail`/`return 0` tails, not the
+     *   constrain call itself.  Do NOT re-spend budget on prev-address spellings or on the double
+     *   read in isolation -- both are now falsified twice. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

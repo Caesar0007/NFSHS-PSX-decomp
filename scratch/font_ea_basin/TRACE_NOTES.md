@@ -193,3 +193,58 @@ old body in git @79865d5a). Gate re-verified 44; sibling DrawFlatShape still PAS
 ROUND 7: (1) flip addr-temp->v1 + ch->v0 (head statement dials: width/height read
 order vs prim line; masks materialization; maybe addPrim's operand eval order);
 (2) the SYM-legal +5 carrier to replace arg6.
+
+================================================================================
+ROUND 8 (2026-08-08) — the residual-28 adjudicated: WRONG SOURCE-ORDER BASIN,
+retail order + mutations derived; blocked on ONE sched1 tie-break. Gate stays 28.
+================================================================================
+INSTRUMENT UPGRADE: -dS (sched1 dump) WORKS on the lab cc1plus and prints ready
+lists + per-insn priorities + the full post-sched RTL. V21 fidelity re-proven
+79/79 (mine/psxfront_v21.i.sched = a receipt).
+
+1) THE 28 IS SOURCE-ORDER-LOCKED, NOT SCHEDULER NOISE. gcc 2.8 sched cannot
+   reorder ambiguous memory ops (store prim->r0 vs loads of 0x1F800000-based
+   cells = true_dependence): insns 90/92 carry (insn_list 84) deps. Emission
+   order of the tint/pal cluster == SOURCE statement order. Retail's cluster
+   (pal early / tint group sunk into the 2nd OT-link RMW) is UNREACHABLE from
+   the V21 tint-before-link body. The V21 28-body = a lookalike basin.
+2) RETAIL SOURCE ORDER PROVEN (full per-insn SLD pulled from nfs4-f-v3.txt,
+   VA efb4..f0fc): decls 1434 · width 1440 · height 1441 · dv 1444 · y 1446/47
+   · ALLOC+BUMP+LINK all line 1449 · tint 1452 · len=9 1455 · code 1456 ·
+   clut 1460 · tpage 1461 · UV 1463 · XY 1466. Independently CONFIRMED by
+   edgbla's community draft (addPrim -> setRGB0_EA -> setPolyFT4).
+3) 🏆 THREE IN-PLACE MUTATIONS READ OFF THE ORACLE TAIL (new source facts):
+   pos53 addu t0,t0,t6 = dv += height   (SLD 1463, inside the UV line)
+   pos54 addu t6,t8,t6 = height = y + height (SLD 1466 head)
+   pos55 addu t7,a0,t7 = width  = x + width  (SLD 1466 head)
+   These are 1-death in-place qty extensions (NOT y-style splits: a set that
+   uses its own reg emits no REG_DEAD -> stays local-alloc). They also explain
+   diff blocks 7/8 (the sh t6,10 tail echo: y0-store must wait for the mutation).
+4) v@s0 MECHANISM: find_free_reg's NUMERIC scan visits s0(16) BEFORE t8(24);
+   v -> s0 (and the 8-byte frame) iff v0..t7 are ALL blocked over v's window at
+   v's (last) fill turn. Any basin that computes dv early shortens v's window,
+   drops the frame, and goes count-SHORT 78 (V35/V37).
+5) PROBE LADDER (all re-gated, receipts in traces): V22r (tint after link,
+   =old V22) 112 — dv falls to v1 (v1 scan-hole; the V21 12000-pri tag-merge
+   blocker p115+p116 splits into 4+4-ref low-pri qtys) · V26 (full-SLD order,
+   dv early) 82 — retail-shaped EMISSION, but dv born luid 22 pri 7234 < prim
+   8000 -> prim steals t0 (dv/prim swap = whole 82) · V27-V31 dv-position scan:
+   82/82/82/82/130 (sched1 normalizes all pre-link dv slots; dv-after-link 130)
+   · V32-34 link spellings (named lk / named pal / two stmts) all 112 =
+   RTL-neutral · V35/V37 (SLD order + THE MUTATIONS) 130 @ count 78 — cluster
+   emission == retail, mutations present as in-place addus, but frame gone (see
+   4) + head fill cascade (width/height/yoff t6/t4/t1 vs retail t7/t6/t4).
+   qtytrace --want receipt (V22r): dv already OUT-RANKS prim; its v1-landing is
+   a scan-hole, not an ordering problem.
+6) 🔴 THE ONE REMAINING UNKNOWN: sched1's tie-break between the dv-load
+   (insn 71, pri 2) and the tag-read (insn 94, pri 2). Ours emits dv first
+   (dv@14, tag@21); retail emits tag@15/pal@16-17 BEFORE dv@18 — that single
+   transposition sets dv's birth luid ~36 (pri ~8500 > prim) AND stretches v's
+   window (frame+s0) AND cascades the whole 16-reg map. NEXT = read gcc-2.8.1
+   sched.c rank_for_schedule (tarball C:/Temp/gcc-2.8.1-src/gcc281.tar.gz) for
+   the exact tie rule (luid direction? ref_count?), then pick the source dial
+   that flips ONLY this tie (candidate: dv expression shape / the head decl
+   that changes insn luid parity; NOT position — position is sched-invariant).
+   Variants banked: font_v37.cpp (SLD order + mutations, the true-basin seed).
+STATUS: shipping body = V21 (28) UNCHANGED; V37 banked. Files: mine/psxfront_
+v{21,22r,26,35,37}.{i,s}, trace_v{21,22r,26,37}.txt, *.sched (instr dir).

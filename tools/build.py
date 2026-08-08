@@ -708,6 +708,8 @@ PER_FN_EPILOGUE_UNFILL = {
     # measured on the A9 receipts, whole-TU pad.c gate zero-regression.
     "recon/eaclib/psx/pad.c": {
         "padinit",
+        "PAD_update",   # w50-a9: item-3 of its 9 diffs = the w48 epilogue-swap
+                        # class (return slot); measured below by the orchestrator.
     },
     "recon/syslib/psx/libpad/PADMAIN.c": {
         "_padVbCallback1",   # FAIL 4  -> PASS 26/26

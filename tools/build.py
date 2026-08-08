@@ -336,7 +336,14 @@ PER_TU_FLAGS = {
     # re-gated hookless at consolidation.  Deliberately NOT wired (mixed or
     # worse, measured): LIBMCRD, INTR_VB, drv, cdread, cdcont, stcdint,
     # PADPORTD, PADSEQD, MCXMAIN.  Receipts: scratch/w48_a*_receipts.md.
-    "recon/syslib/psx/libgpu/SYS.c":        {"no_split_addresses": True},  # -214, MoveImage->PASS (a2/a9)
+    # w51-a1: SYS.c = cc1_272 LANE IDENTITY (7 count-exact FAIL->PASS conversions:
+    # DrawOTag/_send_gp1/_get_gp1/_que_ref/_gpu_arm_timeout/_gpu_init_videomode/
+    # _install_drain_cb; -G0 default is load-bearing -- 2.7.2 ignores the
+    # section(".bss") attributes and -G0 does that job; adding g_value 4 or
+    # no_delayed_branch collapses the win).  Replaces the old 2.8-basin
+    # no_split_addresses entry; MoveImage re-anchored for the lane in the same
+    # commit (see its /* MATCH: */ receipt).
+    "recon/syslib/psx/libgpu/SYS.c":        {"cc1_272": True},
     "recon/syslib/psx/libpad/PADMAIN.c":    {"no_split_addresses": True},  # -51, _padSetVsyncParam basin (a9)
     "recon/syslib/psx/libmcrd/BIOS.c":      {"no_split_addresses": True},  # 39->~20 (a1)
     "recon/syslib/psx/libmcrd/USERFUNC.c":  {"no_split_addresses": True},  # 59->14, UserFuncExecute ce (a1)

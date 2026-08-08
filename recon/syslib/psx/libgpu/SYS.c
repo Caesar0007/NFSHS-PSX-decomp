@@ -181,8 +181,14 @@ static GpuQue _que[64];              /* @0x8013EC00 : the request ring */
  * addresses every one of these via lui %hi;lw/sw %lo, never gp-relative. Without the section
  * force these 4-byte statics default into .sbss under -G4 (single gp-relative lw/sw), a
  * systematic divergence that cascades through _gpu_que_drain/_gpu_que_push/_reset/ResetGraph. */
-static int    _qin               __attribute__((section(".bss")));  /* @0x801237C4 : producer index (mod 64) */
-static int    _qout              __attribute__((section(".bss")));  /* @0x8013xxxx : consumer index (mod 64) */
+/* MATCH: _qin/_qout are VOLATILE.  The producer index is bumped by _gpu_que_push on the main
+ * thread while the consumer index is bumped by _gpu_que_drain running from the channel-2 DMA
+ * interrupt, so each genuinely changes behind the compiler's back -- and the oracle shows it:
+ * every single test and every `_que[_qout]` field fetch RE-LOADS the index from memory
+ * (three independent `lui/lw _qout` + *96 chains inside one dispatch block).  Plain ints let
+ * gcc CSE all of them into one register, running _gpu_que_drain 16 instructions short. */
+static volatile int _qin         __attribute__((section(".bss")));  /* @0x801237C4 : producer index (mod 64) */
+static volatile int _qout        __attribute__((section(".bss")));  /* @0x8013xxxx : consumer index (mod 64) */
 static int    _q_saved_mask      __attribute__((section(".bss")));  /* @0x801237CC : imask saved across the push critical section */
 static int    _drain_saved_mask  __attribute__((section(".bss")));  /* @0x801237D0 : imask saved across the drain critical section */
 static int    _q_reset_mask      __attribute__((section(".bss")));  /* @0x801237D4 : imask saved across timeout/reset */
@@ -211,7 +217,7 @@ typedef struct GEnvT {
 } GEnvT;                                                          /* total 0x80 bytes, matches the oracle's clear */
 static GEnvT GEnv __attribute__((section(".bss")));   /* @0x8012369C */
 
-extern void _gpu_que_drain(void);    /* @0x800EF60C (fwd) */
+extern int _gpu_que_drain(void);     /* @0x800EF60C (fwd) */
 
 /* @0x800EFAF8 : arm the GPU watchdog against the current VSync hsync count. */
 extern void _gpu_arm_timeout(void)
@@ -247,10 +253,10 @@ extern int _gpu_check_timeout(void)
 /* @0x800EF60C : dequeue-and-dispatch.  Called inline after a push and from the channel-2
  *   DMA-complete interrupt.  Runs queued requests until the queue empties or a request
  *   kicks off a DMA (CHCR busy), then fires the idle callback if the queue is fully drained. */
-extern void _gpu_que_drain(void)
+extern int _gpu_que_drain(void)
 {
     if ((*D2_CHCR & 0x01000000) != 0)
-        return;                                  /* a DMA is still running */
+        return 1;                                /* a DMA is still running */
     _drain_saved_mask = SetIntrMask(0);
     if (_qin != _qout && (*D2_CHCR & 0x01000000) == 0) {
         for (;;) {
@@ -277,6 +283,7 @@ extern void _gpu_que_drain(void)
         GEnv.busy = 0;
         GEnv.idle_cb(0, 0);
     }
+    return (_qin - _qout) & 0x3f;
 }
 
 /* @0x800EF35C : enqueue a GPU request func(arg,extra).  If the GPU is idle the request is
@@ -362,6 +369,21 @@ extern void _clearOTagR_dma(u_long *ot, int n)
  *   offset-relative coordinates otherwise).  Screen size lives in GEnv.screenW/GEnv.screenH. */
 
 /* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
+/* W51-A1 RECEIPT (29 diffs 2.8 / 36 diffs 272, ours 39 vs oracle 38).  Two residual classes:
+ * (1) ADDRESS CSE -- ours hoists one `la $a3,GEnv+4` and does `lh 0($a3)`/`lhu 0($a3)`; the
+ *     oracle emits the two assembler MACROS `lh $r,GEnv+4` / `lhu $r,GEnv+4` (self-temp
+ *     lui+load each).  Same insn count, different registers/form.
+ * (2) the X clamp funnels through $v0 (`addu v0,a0,zero` + `addu a0,v0,zero`) and pre-sets its
+ *     default in the bltz DELAY SLOT, so it spends 2 insns where ours spends a `j` (+1 net).
+ *     The Y clamp already matches ours (no funnel).
+ * FALSIFIED (both basins, each gate-measured): Rage-Racer `Gpu_BuildDrawAreaTopLeftCmd`
+ * funnel shape verbatim (52), same non-volatile (44), RR + mutate-param (54), volatile casts
+ * on both loads (33), volatile on the signed load only (33), volatile + x funnel temp (33),
+ * plain x funnel temp (29, copy-propagated = identical to base), default-first + funnel (45),
+ * both halves funnelled (47).  `volatile` is the WRONG direction here: it defeats
+ * TARGET_SPLIT_ADDRESSES and forces a register-base address (+4 insns).  The funnel temp is
+ * copy-propagated away.  Next angle: an address FORM that blocks the cse of the two loads'
+ * shared symbol (unsized asm-label view per access), not a volatile. */
 extern u_long _set_clip_tl(int x, int y)
 {
     int sx = (short)x, cx;
@@ -783,7 +805,7 @@ typedef struct GpuTbl {                          /* @0x80123654 */
     void (*dma_chain)(u_long *);                 /* +24 _gpu_dma_chain */
     QueFunc drs;                                 /* +28 _drs */
     QueFunc dws;                                 /* +32 _dws */
-    void (*que_drain)(void);                     /* +36 _gpu_que_drain */
+    int  (*que_drain)(void);                     /* +36 _gpu_que_drain */
     int  (*get_gp1)(int);                        /* +40 _get_gp1 */
     void (*clear_otag)(u_long *, int);           /* +44 _clearOTagR_dma */
     int  (*get_gpuinfo)(u_long);                 /* +48 _get_gpuinfo */
@@ -881,7 +903,11 @@ extern void SetDispMask(int mask)
         GPU_printf("SetDispMask(%d)...\n", mask);   /* @0x80056DA0 (oracle @0x800ed7fc-824) */
     if (mask == 0)
         _memset(GEnv.dispenv, -1, 0x14);
-    _send_gp1(mask ? 0x03000000u : 0x03000001u);
+    /* MATCH: the oracle dispatches through the DRIVER TABLE (`lw v0,GEnv_drv; lw v0,0x10(v0);
+     * jalr v0` = GpuTbl.send_gp1 at +16), not a direct `jal _send_gp1` -- 4 insns.
+     * Shape confirmed against the Rage-Racer matched libgpu (graph_control.c uses
+     * g_GpuFuncs->... for the same call class). */
+    GEnv_drv->send_gp1(mask ? 0x03000000u : 0x03000001u);
 }
 
 /* @0x800ED87C : DrawSync */
@@ -895,6 +921,13 @@ extern int DrawSync(int mode)
 /* @0x800EDA00 : ClearImage(RECT*, r, g, b) */
 extern int ClearImage(void *rect, int r, int g, int b)
 {
+    /* W51-A1 RECEIPT (8 diffs, count-EXACT 36/36 in both basins): pure PROLOGUE PARAM-COPY
+     * SINK -- the oracle interleaves the `la` + `addu a1,s3,zero` call-arg setup between the
+     * s-reg saves and sinks `addu s0,a3,zero` (the `b` param) into the `jal _image` delay slot;
+     * ours emits all four parm copies up front.  FALSIFIED: hoisting the label to a local (8),
+     * opacity fence on `b` after the call (8), fence on `b` before the call (10 / 8).
+     * = the w46 assign_parms park class (emitted before any statement; only sched dependence
+     * depth reaches it).  Same class as _image's count-exact 46. */
     int color;
     _image("ClearImage", rect);                  /* @0x80056dec */
     color = ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
@@ -919,13 +952,29 @@ extern int StoreImage(void *rect, u_long *data)
 extern int MoveImage(void *rect, int x, int y)
 {
     short *r = (short *)rect;
+    u_long *p;
     _image("MoveImage", rect);                   /* @0x80056e1c */
     if (r[2] == 0 || r[3] == 0)
         return -1;
-    _move_prim[2] = *(u_long *)rect;             /* src xy */
-    _move_prim[3] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
-    _move_prim[4] = *((u_long *)rect + 1);       /* wh */
-    return GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, _move_prim, 0x14, 0);
+    /* MATCH: PAYLOAD-ANCHOR POINTER (w51-a1, landed WITH the cc1_272 lane wiring).
+     * The oracle materializes ONE base for the payload words -- `la $v1,_move_prim+8`
+     * (= &_move_prim[2]) -- stores the three words as 0/4/8($v1) displacements, and
+     * derives the call argument by `addiu $a1,$v1,-8`.  Direct `_move_prim[2] = ...`
+     * writes compile to the assembler macro `sw $r,sym` (one `lui $at` per store)
+     * under the gcc-2.7.2 lane, which has no -msplit-addresses to pre-split the
+     * address.  The explicit payload pointer restores the anchor+displacement shape.
+     * (Under the OLD 2.8 lane this form regressed the then-PASS to 35 -- lane-paired.) */
+    p = &_move_prim[2];
+    __asm__("" : "=r"(p) : "0"(p));              /* zero-insn opacity fence: keeps cse from
+                                                  * folding p back to the bare symbol address
+                                                  * (which re-emits `sw $r,sym` $at macros). */
+    /* FALSIFIED (272 basin, w51): dst-xy store FIRST rotates the payload base off
+     * $v1 onto $a2 and costs +16 (17 -> 33); the oracle's `sw 4 / sw 0 / sw 8`
+     * emission order is a scheduling product, not the source statement order. */
+    p[0] = *(u_long *)rect;                      /* src xy */
+    p[1] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
+    p[2] = *((u_long *)rect + 1);                /* wh */
+    return GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, p - 2, 0x14, 0);
 }
 
 /* @0x800EDCB4 : DrawOTag -- queue an ordering-table for DMA.
@@ -946,7 +995,12 @@ extern int DrawOTag2(u_long *p)
 {
     if (GEnv.debug >= 2)
         GPU_printf("DrawOTag(%08x)...\n", p);    /* @0x80056e58 */
-    _gpu_arm_timeout();
+    /* MATCH: the oracle ARMS THE WATCHDOG INLINE here -- `jal VSync` with $a0=-1 in the slot,
+     * then `_gpu_timeout_target = v0 + 0xF0` and `_gpu_timeout_count = 0` as two direct stores.
+     * A `jal _gpu_arm_timeout` (the helper call we had) is one instruction where the oracle
+     * spends seven; the jal-count census flagged it (oracle VSync x1, ours _gpu_arm_timeout x1). */
+    _gpu_timeout_target = VSync(-1) + 0xF0;
+    _gpu_timeout_count = 0;
     while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
         if (_gpu_check_timeout() != 0)
             return -1;
@@ -1083,7 +1137,7 @@ extern void *PutDispEnv(void *env)
     if (GEnv.debug >= 2)
         GPU_printf("PutDispEnv(%08x)...\n", env);   /* @0x80056EA0 (was entirely missing) */
     u10 = 0x8000000;
-    _send_gp1(((u_long)(EU(1) & 0x3ff) << 10) | (EU(0) & 0x3ff) | 0x5000000u);
+    GEnv_drv->send_gp1(((u_long)(EU(1) & 0x3ff) << 10) | (EU(0) & 0x3ff) | 0x5000000u);
     /* MATCH (bug fix): gate is a CACHE COMPARE against GEnv.dispenv (disp.x/y/w/h + the
      * isinter/isrgb24/pad word at +0x10), not a check against literal zero -- the whole point
      * of caching the last-committed DISPENV. `GEnv.dispenv` bytes: disp at +0, screen at +8,
@@ -1111,7 +1165,7 @@ extern void *PutDispEnv(void *env)
             if (eb[0x12] == 0) b2 = (ES(3) < 0x101);
             if (!b2) u10 |= 0x24;
         }
-        _send_gp1(u10);
+        GEnv_drv->send_gp1(u10);
         eb[0x12] = 8;
     }
     /* MATCH (bug fix): same class -- gate on GEnv.dispenv.screen (+8/+10/+12/+14) vs env's
@@ -1161,8 +1215,8 @@ extern void *PutDispEnv(void *env)
               u3 = u6 + 2;
               if ((int)(u6 + 2) <= (int)u10) { u3 = 0x131; if (b2) u3 = u10; } }
         }
-        _send_gp1(((u7 & 0xfff) << 12) | (u8 & 0xfff) | 0x6000000u);
-        _send_gp1(((u3 & 0x3ff) << 10) | (u6 & 0x3ff) | 0x7000000u);
+        GEnv_drv->send_gp1(((u7 & 0xfff) << 12) | (u8 & 0xfff) | 0x6000000u);
+        GEnv_drv->send_gp1(((u3 & 0x3ff) << 10) | (u6 & 0x3ff) | 0x7000000u);
     }
 done:
     _memcpy(GEnv.dispenv, env, 0x14);

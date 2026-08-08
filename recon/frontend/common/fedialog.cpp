@@ -384,104 +384,77 @@ CalcDim_helpArrFetch:
 void tDialogHelp::Draw()
 
 {
-  short sVar1;
-  short sVar2;
   __vtbl_ptr_type (*pa_Var3) [10];
-  u_int numLetters;
-  int iVar5;
-  u_char padType;
-  long ticks;
-  char *sMenuText;
+  short i;
   short j;
-  int iVar6;
-  int control;
-  int x;
-  tMenuTextType textType;
-  u_int i;
-  short y;
-  char acStackY_8070 [32760];
   char buffer [80];
+  short y;
+  long ticks;
+  int numLetters;
   
   pa_Var3 = this->_vf;
-  ticks = (long)pa_Var3[1][0].delta;
-  (*pa_Var3[1][0].pfn)(this->fPermShapes.fFilename + ticks + -0x14);
-  iVar6 = this->startTicks;
-  if (iVar6 + 0x32 <= ticks) {
-    iVar6 = ((ticks - iVar6) + -0x32) / 3;
-    i = 0;
-    iVar5 = 0;
-    while (iVar5 >> 0x10 < (int)this->numItems) {
-      if (iVar5 >> 0x10 == 0) {
+  (*pa_Var3[1][0].pfn)((char *)this + pa_Var3[1][0].delta);
+  ticks = ::ticks[0];
+  if (this->startTicks + 0x32 <= ticks) {
+    numLetters = (ticks - this->startTicks - 0x32) / 3;
+    for (i = 0; i < this->numItems; i++) {
+      if (i == 0) {
         y = this->top + 4;
       }
       else {
-        y = this->top + ((short)((u_int)iVar5 >> 0x10) + -1) * 0xf + 0x13;
+        y = this->top + (i - 1) * 0xf + 0x13;
       }
-      sVar2 = (short)i;
-      iVar5 = (int)sVar2;
-      if (0 < iVar5) {
-        sVar1 = this->helpcontrollers;
-        control = this->cont[iVar5];
-        if (sVar1 == 2) {
-          padType = 0x23;
-          iVar5 = iVar5 + -1;
-DialogHelpDraw_setupTextPos:
-          x = this->left + 0x14;
-          iVar5 = iVar5 * 0xf + (int)this->top + 0x13;
-        }
-        else {
-          if ((sVar1 < 3) || (sVar1 != 3)) {
-            padType = 0x41;
-            iVar5 = iVar5 + -1;
-            goto DialogHelpDraw_setupTextPos;
-          }
-          if (((control == 0xa0) || (control == 0x50)) || (control == 0x40)) {
-            padType = 0x41;
-            iVar5 = sVar2 + -1;
-            goto DialogHelpDraw_setupTextPos;
-          }
-          iVar5 = (iVar5 + -1) * 0xf + 0xf;
+      if (i > 0) {
+        int control = this->cont[i];
+        u_char padType;
+        if (this->helpcontrollers == 2) goto DialogHelpDraw_pad35;
+        if (this->helpcontrollers < 3) goto DialogHelpDraw_pad65;
+        if (this->helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
+DialogHelpDraw_pad65:
+        padType = 0x41;
+        goto DialogHelpDraw_drawButton;
+DialogHelpDraw_pad35:
+        padType = 0x23;
+        goto DialogHelpDraw_drawButton;
+DialogHelpDraw_specialButtons:
+        if ((control == 0xa0) || (control == 0x50) || (control == 0x40))
+          goto DialogHelpDraw_pad65Special;
+        {
+          int buttonY = (i - 1) * 0xf + 0xf;
           FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
-                     this->top + iVar5 + 4);
-          padType = 0x23;
-          x = this->left + 0x28;
-          iVar5 = this->top + iVar5 + 4;
+                     this->top + buttonY + 4);
+          FeTools_DrawPSXButton(0x23,(u_short)control,this->left + 0x28,
+                     this->top + buttonY + 4);
+          goto DialogHelpDraw_buttonsDone;
         }
-        FeTools_DrawPSXButton(padType,(u_short)control,x,iVar5);
+DialogHelpDraw_pad65Special:
+        padType = 0x41;
+DialogHelpDraw_drawButton:
+        FeTools_DrawPSXButton(padType,(u_short)control,this->left + 0x14,
+                   this->top + (i - 1) * 0xf + 0x13);
+DialogHelpDraw_buttonsDone:;
       }
-      iVar5 = (int)sVar2;
-      numLetters = strlen(this->text[iVar5]);
-      textType = textType_PopUpText;
-      if (iVar6 < (int)numLetters) {
+      if (numLetters < (int)strlen(this->text[i])) {
         j = 0;
-        if (0 < iVar6) {
+        if (numLetters > 0) {
           do {
-            sVar2 = (short)j;
+            buffer[j] = this->text[i][j];
             j = j + 1;
-            buffer[sVar2] = this->text[iVar5][sVar2];
-          } while (j * 0x10000 >> 0x10 < iVar6);
+          } while (j < numLetters);
         }
-        buffer[iVar6] = '\0';
-        sVar2 = this->left + this->lefttext;
-        textType = textType_PopUpText;
-        sMenuText = buffer;
-        if ((i & 0xffff) == 0) {
-          textType = textType_PopUpTitle;
-        }
+        buffer[numLetters] = '\0';
+        FETextRender_FullText(buffer,this->left + this->lefttext,y,
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+                             textState_Selected,0);
       }
       else {
-        sVar2 = this->left + this->lefttext;
-        if (iVar5 == 0) {
-          textType = textType_PopUpTitle;
-        }
-        sMenuText = this->text[iVar5];
+        FETextRender_FullText(this->text[i],this->left + this->lefttext,y,
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+                             textState_Selected,0);
       }
-      i = i + 1;
-      FETextRender_FullText(sMenuText,sVar2,y,textType,textState_Selected,0);
-      iVar5 = i * 0x10000;
     }
   }
-  this->Draw();
+  tDialogBase::Draw();
   return;
 }
 

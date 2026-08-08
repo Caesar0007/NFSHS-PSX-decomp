@@ -687,13 +687,9 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   short i;
   int demoLoopLastInputTick;
   char string [80];
-  tMenuCommand command [2];
-  tInputKeyType keyVal [2];
   int dialog;
   PinkSlipsErrorCode err;
   int player;
-  tCarInfo carInfo;
-  u_long ticks_l351;
   int iVar10;
   __vtbl_ptr_type (*pa_Var11) [11];
   tMenu *this_tMenu_l92;
@@ -723,10 +719,12 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
     this->fPlayer = this->fPlayer + 1;
   } while ((u_char)this->fPlayer < 2);
   this->SetMenu(0,newMenu);
-  tMenuCommand *commandBase;
-  tInputKeyType *keyValBase = keyVal;
+  {
+  tMenuCommand command [2];
+  tInputKeyType keyVal [2];
+  tCarInfo carInfo;
+  u_long ticks_l351;
   do {
-    commandBase = command;
     tick = ticks;
     doRedraw = true;
     this->fPlayer = '\0';
@@ -878,45 +876,45 @@ MainLoop_perPlayerFlagCheck:
 i = inputStartPlayer;
           MainLoop_perPlayerInputTop:
           if (inputEndPlayer < i) goto MainLoop_nextPlayer;
-          commandBase[i].type = kMenu_Command_None;
-          keyValBase[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
-          if (keyValBase[i] != kInput_KeyType_NoKey) {
+          command[i].type = kMenu_Command_None;
+          keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
+          if (keyVal[i] != kInput_KeyType_NoKey) {
             this->fInputPlayer = (char)i;
           }
           if ((0xf < ticks - ticksAtLastInput[i]) ||
-             ((debounce & keyValBase[i]) == kInput_KeyType_NoKey)) {
-            this->fLastKeyPressed[i] = keyValBase[i];
+             ((debounce & keyVal[i]) == kInput_KeyType_NoKey)) {
+            this->fLastKeyPressed[i] = keyVal[i];
           }
-          if (keyValBase[i] != kInput_KeyType_NoKey) {
+          if (keyVal[i] != kInput_KeyType_NoKey) {
             dialog = tDialogBase::GetTopMostDialog();
             demoLoopLastInputTick = tick;
             ticksAtLastInput[i] = tick;
             this_tDialogBase_l181 = (tDialogBase *)&this->helpPopup;
-            if ((keyValBase[i] == 4) && (this_tDialogBase_l181->currentlyOn != 0)) {
-              keyValBase[i] = kInput_KeyType_AlreadyProcessed;
+            if ((keyVal[i] == 4) && (this_tDialogBase_l181->currentlyOn != 0)) {
+              keyVal[i] = kInput_KeyType_AlreadyProcessed;
               this_tDialogBase_l181->Hide();
             }
             if (dialog != 0) {
-              if (keyValBase[i] != kInput_KeyType_Circle) {
+              if (keyVal[i] != kInput_KeyType_Circle) {
                 (**(int (**)(...))(*(int *)(dialog + 0x60) + 0x4c))
-                          (dialog + *(short *)(*(int *)(dialog + 0x60) + 0x48),i,keyValBase + i,
-                           commandBase + i);
+                          (dialog + *(short *)(*(int *)(dialog + 0x60) + 0x48),i,keyVal + i,
+                           command + i);
               }
             }
             tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
             if (ptVar18 != (tScreen *)0x0) {
               (*(*ptVar18->_vf)[9].pfn)
                         ((char *)ptVar18 + (*ptVar18->_vf)[9].delta,i,
-                         keyValBase + i,commandBase + i);
+                         keyVal + i,command + i);
             }
-            if (keyValBase[i] != kInput_KeyType_AlreadyProcessed) {
+            if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
               pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
               (*(*pa_Var11)[3].pfn)
                         ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                         (*pa_Var11)[3].delta,i,keyValBase + i,commandBase + i);
+                         (*pa_Var11)[3].delta,i,keyVal + i,command + i);
             }
           }
-          iVar10 = commandBase[i].type;
+          iVar10 = command[i].type;
           if (iVar10 == 0) goto MainLoop_commandSwitchDefault;
           switch(iVar10) {
           case 1:
@@ -930,7 +928,7 @@ i = inputStartPlayer;
             this->backDepth[(u_char)this->fPlayer] = 0;
 MainLoop_setMenuAndNext:
             this->SetMenu((u_short)(u_char)this->fPlayer,
-                    commandBase[i].nextMenu);
+                    command[i].nextMenu);
             i = i + kPlayerTwo;
             goto MainLoop_perPlayerInputTop;
           case 3:
@@ -941,7 +939,7 @@ MainLoop_setMenuAndNext:
             this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             stackBackupPin = (short)this->backDepth[(u_char)this->fPlayer];
             this->SetMenu((u_short)(u_char)this->fPlayer,
-                    commandBase[i].nextMenu);
+                    command[i].nextMenu);
             this->backDepth[1] = 0;
             break;
           case 4:
@@ -1107,6 +1105,7 @@ MainLoop_nextPlayer:
       demoLoopLastInputTick = ticks;
     }
   } while( true );
+  }
 }
 
 

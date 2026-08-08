@@ -117,7 +117,23 @@ void Night_NightCopCalc(VECTOR *v,short *idx);
  * at the guard-block HEAD on a value that is ALREADY in a register there (sd is
  * in $a2, znear in $t0, zfar in $t1, z in $a3) so the fence costs 0 insns; walk
  * it one statement at a time through the arm.  (My probe used `lt`, which is NOT
- * reg-resident -- that is why it cost an insn; retry with `"r"(sd)`.) */
+ * reg-resident -- that is why it cost an insn; retry with `"r"(sd)`.)
+ * w49-a2 EXECUTED that angle -- STILL 2, and the fence route is now CLOSED:
+ *   (a) `index = sd->night_LightningType;` through the SYM's outer `index` local:
+ *       2, byte-identical (copy-propagated, re-confirming the w45/w46 probe);
+ *   (b) the SAME split + a zero-insn fence `__asm__("" : : "r"(sd))` between the
+ *       two statements: the lbu DOES move above the lui (the order is reachable!)
+ *       but the barrier costs 21 diffs / 58 insns -- with the fence present gcc
+ *       loads `*idx` into $a0 (`lh a0,0(a1)`), killing `v` there, so the entry
+ *       needs a defensive `addu t3,a0,zero`;
+ *   (c) the w48 VOID-tail fence `__asm__("" : : "i"(0))` -- identical 21/58;
+ *   (d) the dual/triple-input fence `"r"(sd),"r"(v),"r"(idx)` (meant to keep `v`
+ *       alive over the barrier) -- 27/58, the a0 copy survives.
+ * => the ORDER is reachable, the COST is not: any barrier at that point pushes
+ * `*idx`'s load onto $a0.  NEXT ANGLE: leave the fence out and make the *idx load
+ * take $v1 by construction (it is the only value that must NOT be in $a0), e.g.
+ * order the table expression so `*idx` is evaluated LAST, or split it into its own
+ * statement AFTER the table-base materialization. */
 void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
 /* w45-a6 RECEIPT -- DrawQuad 100 -> 20 (count-exact 592/592).
  * LANDED: the addPrim P_TAG-bitfield idiom at BOTH OT-link sites (see below).
@@ -159,7 +175,18 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd);
  * MEASURED after landing: all FOUR P_TAG dial combinations -- {bitfield-read,
  * plain-word-read} x {bump BETWEEN, bump BEFORE} -- gate identically at 20, i.e.
  * the mask rotation is fully resolved and the remaining 20 is the prim/sd $s0/$s1
- * trade + the dvxy store scheduling only. */
+ * trade + the dvxy store scheduling only.
+ * w49-a2 RE-TEST AT THE 7-DIFF BASIN (lever-order law: falsifications are basin-
+ * relative, so the 204 figure above was re-measured): retail's if/else shape --
+ * `prim = &sd->GT4Prim;` deleted from the top and written as the `else` arm of
+ * `if (doSubdivision == 0)`, with and without a surviving top init -- gates 197
+ * (both spellings identical), still the whole-fn $s0 rotation.  The dvxy fix took
+ * prim to 29 refs but the else-arm form ALSO shortens its live range, so it keeps
+ * out-ranking sd.  The residual 7 is: `sw s1,108(sp)`+`addiu s1,s0,272` hoisted to
+ * our prologue vs the oracle's `j T; addiu s1,s0,272` else-arm delay slot, plus the
+ * matching bnez/beqz polarity -- i.e. ONE placement, the same trade, now costing 7
+ * instead of 174.  Next dial stays the reqdelta above (sd >= 119 refs, or prim's
+ * live > 263 IN THE ELSE-ARM FORM). */
 
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad);
 void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd);
@@ -2592,6 +2619,52 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      and a last use after the Flare_Halo2 call; (b) is one ref off `totalCount`.
      NOTE for a10's 3-qty law: these are GLOBAL allocnos (all present in
      `;; N regs to allocate:`), so the priority formula does apply here.
+
+     ---- w49-a2 (2026-08-08): 68 -> 22, count-EXACT 189/189.  THE WHOLE 5-WAY
+     SAVED-REG ROTATION IS GONE (s0..s7 now oracle-exact); three landed levers, in
+     the order they were found -- and note the FIRST one is STRUCTURAL, which is
+     why every earlier wave's allocno arithmetic kept missing:
+       (1) LOOP SHAPE (68 -> 34).  The oracle's object loop is UN-ROTATED: the test
+           sits at the loop TOP (.L800C7954) and the back-edge is an unconditional
+           `j` with `addiu s4,s4,1` in its delay slot.  `for(i=0;i<n;i++)` always
+           rotates (zero-trip guard + bottom test) -- the exit-in-the-middle
+           `while(1){ if(!(i<n)) break; ...; i++; }` reproduces it.  This ALONE
+           fixed the s3/s4/s5 3-cycle (it moves totalCount/objectIndex/&matrix
+           live ranges), i.e. the reqdelta pair (a)+(b) recorded above was an
+           artifact of the rotated shape, not a real allocno problem.
+       (2) objDef REUSED in the anim-3/7 arm (34 -> 27).  SYM declares `objDef` in
+           the FUNCTION-scope block (REG $0x11 = $s1), and the oracle loads the
+           DrawObjectTransform shape argument into that same $s1
+           (`lw s1,0(v0)` @800C7AC8) instead of an anonymous temp -- so the arm
+           reads `objDef = Track_gObjDefs[objInstance->pad];` and passes `objDef`.
+           That is +4 weighted refs on p84 and it flips the objectOffset/objDef
+           s1<->s2 swap.
+       (3) LOOP-TAIL void fence (27 -> 22, count 188 -> EXACT 189).  Oracle tail =
+           `lh v0,0(s0); nop; addu s0,s0,v0; j .Ltop; addiu s4,s4,1`: it PAYS the
+           lh load-delay nop and spends the `j` slot on the counter increment.
+           Ours hoisted the increment into the lh's delay slot and then had only
+           the pointer advance left for the `j` slot = 1 insn SHORT.  The w48
+           void-tail fence `__asm__("" : : "i"(0))` between the advance and the
+           increment holds the order at zero insns.  Falsified first (all
+           byte-identical): inc-before-advance, `char*` advance, split-temp
+           advance -- sched2 refills the slot every time.
+     RESIDUAL 22 = exactly TWO classes, both count-neutral:
+       (A) the `objDef` STATEMENT POSITION in the anim-3/7 arm (12 of the 22).
+           We place it BEFORE the zClipSq guard; the SLD says retail's is INSIDE
+           the guard (line 2015, interleaved with the call at 2017).  Measured at
+           this basin: before-guard 22, inside-guard 40 -- inside-guard shortens
+           p84 (objDef) to live=24 which lifts it to pri 1.0000, ABOVE objInstance
+           p83 (27 refs / 129 live = 0.8372), so it steals $s0.  reqdelta on the
+           inside-guard dump: p84 refs 8->7 (impossible, all refs are loop-doubled
+           = even), p84 live 24->29 (+5), or p83 refs 27->32 (+5).  A zero-insn +5
+           on objInstance's refs, or +5 live on objDef inside the guard, lands the
+           SLD-true form -- that is the named angle for the next pass.
+       (B) the `goffsets[]` address scratch (the rest): ours `lui t0/addiu t0`
+           hoisted ABOVE the index `lbu`, oracle `lbu` first then `lui v1/addiu v1`
+           -- the same lui-vs-load ready-list tie as Night_NightCalc in this TU.
+           FALSIFIED here: per-site unsized `asm("goffsets")` view, sized `[8]`
+           view (storage-shape menu #2/#3, both byte-identical), and an index
+           split temp (27, count 188).
      ============================================================================ */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
@@ -2619,7 +2692,17 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     ((MATRIX *)0x1f800014)->t[1] = 0;
     (sd->matB).t[0] = 0;
 gte_SetTransMatrix((void *)0x1f800014);
-    for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+    /* MATCH (w49-a2, 68 -> 34): the oracle's loop is UN-ROTATED -- the test sits at
+       the loop TOP (.L800C7954 `lw t0,0x68(sp); slt v0,s4,t0; beqz v0,exit`) and the
+       back-edge is an unconditional `j` whose DELAY SLOT carries `addiu s4,s4,1`.
+       A `for (i=0;i<n;i++)` rotates (zero-trip guard + bottom test) and can never
+       produce that; the exit-in-the-middle `while(1){ if(!(i<n)) break; ... i++; }`
+       does (catalog par.B -- the same lever DrawW_StripDraw_High in this TU uses).
+       SLD confirms the increment is its OWN trailing statement: the objInstance
+       advance is line 2045 and the `j`+`addiu s4,s4,1` pair is line 2046. */
+    objectIndex = 0;
+    while (1) {
+      if (!(objectIndex < groupNumElements)) break;
       if ((visList == (short *)0x0) || ((((u_short)visList[objectIndex] >> 0xc ^ 1) & 1) == 0)) {
         objectOffset = offset;
         if (offset == 0) {
@@ -2664,11 +2747,18 @@ gte_SetTransMatrix((void *)0x1f800014);
         goto animNext;
       animCase37:
         Anim_GetRotPos(objInstance,1,DrawW_GetAnimationTime(objInstance),&cp,&matrix);
+        /* MATCH (w49-a2): the SYM's fn-scope `objDef` ($s1) is REUSED here -- the
+           oracle loads the shape argument into that same $s1 (`lw s1,0(v0)`), not an
+           anonymous temp.  Placed BEFORE the zClipSq guard on purpose: the SLD puts
+           retail's copy INSIDE the guard (line 2015), but that shortens objDef's live
+           range to 24 and it then outranks objInstance for $s0 (40 diffs vs 22 here) --
+           see the head receipt, residual class (A). */
+        objDef = Track_gObjDefs[objInstance->pad];
         if ((zClipSq == -1) ||
            (distSq = xzsquaredist32(&cp,&(Vi->cview).translation),
            distSq < zClipSq)) {
           totalCount = totalCount + DrawObjectTransform(Vi,sd,&matrix,
-                             Track_gObjDefs[objInstance->pad],&cp,objectOffset,-1);
+                             objDef,&cp,objectOffset,-1);
           if ((objInstance->flags & 2) != 0) {
             pt2.x = cp.x + matrix.m[6] * -0x10;
             pt2.y = cp.y + matrix.m[7] * -0x10;
@@ -2679,6 +2769,16 @@ gte_SetTransMatrix((void *)0x1f800014);
       animNext:;
       }
       objInstance = (Trk_AnimateInst *)((int)&objInstance->size + (int)objInstance->size);
+      /* MATCH (w49-a2): zero-insn scheduling fence.  The oracle's loop tail is
+         `lh v0,0(s0); nop; addu s0,s0,v0; j .Ltop; addiu s4,s4,1` -- it PAYS the
+         lh load-delay nop and spends the `j` slot on the counter increment.  Ours
+         hoisted the increment into the lh's delay slot and then had to put the
+         pointer advance in the `j` slot, landing 1 insn SHORT (188 vs 189).  The
+         w48 void-tail fence keeps the increment below the advance (count exact).
+         Falsified first: inc-before-advance, char*-advance, split-temp advance --
+         all byte-identical (sched2 refills the slot every time). */
+      __asm__("" : : "i"(0));
+      objectIndex = objectIndex + 1;
     }
   }
   return totalCount;
@@ -3659,6 +3759,17 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
   int chunkCount;
   gVi = Vi;
   sd = (Draw_DCache *)&Render_gPalettePtr;
+  /* w49-a2 FALSIFIED (residual 30, count-exact 222/222): all four statement
+     orders of {chunkCount, thisChunkInd, the &gInitialArt store} gate
+     BYTE-IDENTICALLY -- sched2 re-orders them freely.  The SLD says retail's
+     source order is thisChunkInd(2721), chunkCount(2722), gInitialArt(2730),
+     which is what we have modulo the first two; the residual is SIX separate
+     1-3 slot transpositions spread over the whole body, every one of them
+     ours-EARLIER than the oracle (lui %hi, the two entry stores, `li v0,1`,
+     `sw s3,0(s7)`, `lw a0,0(gp)`, `sh zero,218(s6)`), plus geomRez in $v1 vs
+     the oracle's $a1.  That uniform ours-earlier signature is the sched2
+     ready-list DRAIN class, not a source order -- next instrument is a
+     zero-insn fence WALK (w45 grammar) or -dR. */
   chunkCount = BWorld_gChunkCount;
   thisChunkInd = gCurrContext->currentChunk;
   *(Track_tArtresource **)((char *)sd + 0xfc) = &gInitialArt;
@@ -5102,6 +5213,14 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      lbu+sll24+sra25 on cc1plus 2.8.0 (proven invariant across 8 source shapes,
      scratchpad/lbtest*.cpp); an int temp with a net-zero ++/-- pair blocks the
      merge and folds away completely (0 extra insns). */
+  /* w49-a2 FALSIFIED (residual 70, count-exact 268/268): the oracle evaluates
+     forward[0] FIRST (`lb s4,15(v1)` SLD 3711 -> `sh s4,368(sp)`), so the SLD
+     statement order really is fx,fy,fz -- but REORDERING these three blocks to
+     fx,fy,fz (or fx,fz,fy) gates WORSE (76): the stack slots already agree
+     (fx@368/fz@384 both sides) and the real residual is an s4<->s2 assignment
+     swap (ours s4=fz/s2=fx, oracle s4=fx/s2=fz) that statement order does not
+     reach.  Treat it as a local-alloc qty question (birth order / QTY_CMP_PRI),
+     not an evaluation-order one. */
   { int t2 = (signed char)BWorldSm_slices[slice].forward[2]; t2++; t2--; fz = (u_short)(t2 >> 1); }
   { int t1 = (signed char)BWorldSm_slices[slice].forward[1]; t1++; t1--; fy = (u_short)(t1 >> 1); }
   { int t0 = (signed char)BWorldSm_slices[slice].forward[0]; t0++; t0--; fx = (u_short)(t0 >> 1); }

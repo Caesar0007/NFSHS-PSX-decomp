@@ -198,20 +198,36 @@ extern void iSNDdmcallback(void)
      * `mult` and `i` must be volatile to force the store/reload each pass. */
     for (i = 0; i < 0x2ee; i++)
         mult = mult * 13;
-    wait = (int)sndpd;
-    ctrl = *(volatile int *)(wait + 0x514);
-    *(volatile unsigned short *)(ctrl + 0x1aa) =
-        *(volatile unsigned short *)(ctrl + 0x1aa) & 0xffcf;
-    ctrl = *(volatile int *)(wait + 0x514);
+    /* MATCH (w50-a8, 4 -> PASS): the sndpd base must be a BLOCK-LOCAL `base`, not the fn-scope
+     * two-role `wait`.  w49-a8 named the mechanism: local-alloc's combine_regs REFUSES to tie
+     * the address's %hi pseudo into a GLOBAL allocno (`if (reg_qty[sreg] >= -1) return 0`), so a
+     * fn-scope `wait` can never produce retail's IN-PLACE `lui v1 / addiu v1,v1` -- it emits
+     * `lui v0 / addiu v1,v0`.  A block-local base does tie, but with only THREE local qtys the
+     * block hits gcc-2.8's hand-rolled next_qty<=3 path (local-alloc.c:1588 -- not a priority
+     * sort at all) and loses the v0/v1 order: 14 diffs.  THE ESCAPE IS A 4TH QTY, and the
+     * natural one is a block-local `c` for the FIRST SPUCNT pointer read (the second read is a
+     * genuinely separate volatile load that stays in the fn-scope `ctrl`).  With next_qty == 4
+     * the block takes the qsort/priority path and lands retail's handout exactly.
+     * Falsified at 14 (all 111/111): block-local base alone; + a do{}while(0) wrapper on the
+     * masked store; + a named mask temp.  Wrapping the whole block collapses it (106/111, 21). */
+    {
+        int base = (int)sndpd;
+        int c;                       /* the 4th qty -- see above; do not fold back into ctrl */
+        c = *(volatile int *)(base + 0x514);
+        *(volatile unsigned short *)(c + 0x1aa) =
+            *(volatile unsigned short *)(c + 0x1aa) & 0xffcf;
+        ctrl = *(volatile int *)(base + 0x514);
+    }
     wait = 0;
     while ((*(volatile unsigned short *)(ctrl + 0x1aa) & 0x30) != 0) {
         wait++;
         if (4000 < wait)
             break;
     }
-    /* MATCH: `wait` first carries the sndpd base through both SPUCNT accesses, then becomes the
-     * settle-loop counter.  That non-overlapping lifetime gives the base/counter the oracle's shared
-     * v1 allocation.  A signed-char slot local preserves each oracle lbu/sll24/sra24 chain in one
+    /* NOTE (superseded by the w50-a8 block above): `wait` used to carry the sndpd base through both
+     * SPUCNT accesses before becoming the settle-loop counter; the base is now a block-local so the
+     * %hi can be tied in place, and `wait` is the counter only.
+     * A signed-char slot local preserves each oracle lbu/sll24/sra24 chain in one
      * register instead of introducing a separate integer-conversion temporary.
      *
      * The active-entry VALUE is loaded BEFORE the critical section is entered (mfc0 -- the

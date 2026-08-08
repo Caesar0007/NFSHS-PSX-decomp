@@ -1015,7 +1015,24 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
   return;
 }
 
-/* ---- DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:1772-2543] SLD-VERIFIED ---- */
+/* ---- DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:1772-2543] SLD-VERIFIED ----
+ * w50-A3 TRIAGE (census-first, no code change).  BOTH monsters are clean on the
+ * missing-logic test and share ONE dominant, already-diagnosed cluster:
+ *  - tools/brcensus.py: Prim and PrimClip have ZERO branch/jal/j deltas => no dropped
+ *    call, no missing arm, no polarity flip anywhere in either function.  The 746/857
+ *    are expression + coloring, not structure.
+ *  - tools/rove_op.py opcode deltas (ours v oracle): Prim `sll 84v82, lh 6v4`;
+ *    PrimClip `sll 83v81, lh 92v90, lhu 96v95`.  Both carry exactly TWO EXCESS
+ *    short-sign-extension pairs (the w40 census row read in the EXCESS direction),
+ *    i.e. two sites where a value is spelled `short` that retail keeps wider.
+ *  - tools/chunkdiff.py localises the biggest run to the per-vertex UV TINT block:
+ *    retail runs it on FOUR temps ($t6/$t7 = the base u/v pair held across all three
+ *    vertices, $t4/$t5 = the per-vertex pair, loads batched so each fills the other's
+ *    load-delay slot); ours serialises everything through $v0/$v1/$a0/$a1 with nops.
+ *    That is the SAME block, with the same allocno bar, as DrawC_PrimMenu's -- see the
+ *    long `u0` receipt there (reqdelta: a second uv pseudo is admissible only as a
+ *    GLOBAL allocno with pri < .7578).  ⇒ CRACK PrimMenu's uv pair FIRST; the lever
+ *    then transfers to Prim and PrimClip unchanged (three fns, one dial). */
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
 

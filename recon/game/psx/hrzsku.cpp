@@ -1401,6 +1401,28 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * next pass: stop letting gcc CSE `(int)hsd + 0x58` and the Render_gPacketPtr literal into
  * their own long-lived pseudos (all displacements in the prim loop are then hsd-relative,
  * which is also why the oracle's loads read 292/159/227 where ours read 204/71/139). */
+/* w50-a5: 214 -> 166 diffs, 477 -> 471 insns (was +4 OVER the oracle, now 2 under).
+ * diffsrc attributed the whole +4 to the OT-link RMW block: our source re-read the
+ * 0x1F800004 scratchpad literal and recomputed the palette slot at each of four sites,
+ * where the oracle loads the cursor ONCE (`lw s0,0(a2)` off a materialized &cursor) and
+ * computes the slot ONCE.  Landed = cursor-off-`p` + one shared `pal` slot pointer (see
+ * the MATCH note at the RMW).  NAMED ANGLES still open, in priority order:
+ *  (1) THE MASK-vs-ADDRESS HOIST SWAP (the w42-a6 root cause above, now sharpened by
+ *      block-14 of the diffsrc): retail's loop preheader is `lui s7,255; ori s7,s7,65535`
+ *      (the 0xFFFFFF OT mask in a saved reg) + `addu s3,s6,zero; addu s2,s4,zero; li s5,4`;
+ *      OURS hoists `fp = 0x1F800004` instead and materializes the mask INSIDE the loop.
+ *      MEASURED: a named `u_int m24 = 0xffffff;` local makes the count EXACT 473/473 but
+ *      gates 172 (decl-init) / 194 (assigned before the loop) / 194 (m24+m8 both named) --
+ *      i.e. naming the mask alone rotates the saved-reg band without freeing $s7, because
+ *      our LICM hoist of the Render_gPacketPtr ADDRESS still owns a callee-saved reg.
+ *      => the two halves must land TOGETHER: kill the address hoist FIRST (catalog: give
+ *      each loop a DISTINCT address rtx for a scratchpad literal / goto back-edge as the
+ *      anti-LICM lever), THEN re-probe the named mask from that basin.
+ *  (2) hsd-relative anchoring: retail forms every scratchpad address as `ori rD,s6,OFF`
+ *      off the single hsd base; ours keeps `hsd+0x58` in its own pseudo (loads read
+ *      204/71/139 vs the oracle's 292/159/227).
+ *  (3) block 6/7: the oracle's `nop; sw v0,60(sp)` pair sits 8 insns earlier than ours --
+ *      a sched1 position tie on the temp2d[1] word copy. */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -1541,7 +1563,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       DVECTOR right;
       POLY_GT4 *prim;
       Draw_tPixMap *pmx;
-      u_int *puVar1, *puVar14;
+      u_int *puVar1, *puVar14, *pal;
       u_char *p;
       int iVar18, iVar16, iVar15, iVar6;
       (void)pmx;
@@ -1580,14 +1602,20 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
               prim = (POLY_GT4 *)p;
               puVar14 = *(u_int **)((int)gpPmx + iVar15);
               if (Hrz_gTrackSpec->ringPMX[iVar17] != '\x10') {
-                *(u_int *)Render_gPacketPtr =
-                     *(u_int *)Render_gPacketPtr & 0xff000000 |
-                     *(u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8) & 0xffffff;
-                *(u_int *)(Render_gPalettePtr + iVar6 * 4 + -8) =
-                     *(u_int *)(Render_gPalettePtr + iVar6 * 4 + -8) & 0xff000000 |
-                     (u_int)Render_gPacketPtr & 0xffffff;
-                puVar1 = (u_int *)(Render_gPacketPtr + 4);
-                Render_gPacketPtr = Render_gPacketPtr + 0x34;
+                /* MATCH (w50-a5): the OT-link RMW pair runs off the ALREADY-LOADED
+                   cursor `p` and ONE shared palette-slot pointer `pal`, never a fresh
+                   scratchpad re-read (catalog w40 packet-emission (a) + the shared-base
+                   row).  The oracle materializes &Render_gPacketPtr ONCE (`lui a2,8064;
+                   ori a2,a2,4`), loads the cursor into a saved reg (`lw s0,0(a2)`),
+                   computes the OT slot ONCE (`sll a0,a0,2; addu a0,a0,v0`) and reuses
+                   both for read, write-back and the +0x34 bump; our old form re-read the
+                   0x1F800004 literal and recomputed the slot at each of the four sites
+                   (+6 insns in this block alone).  214 -> 166 diffs, 477 -> 471 insns. */
+                pal = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8);
+                *(u_int *)p = *(u_int *)p & 0xff000000 | *pal & 0xffffff;
+                *pal = *pal & 0xff000000 | (u_int)p & 0xffffff;
+                puVar1 = (u_int *)(p + 4);
+                Render_gPacketPtr = p + 0x34;
                 *puVar1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
                 *(u_int *)(p + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
                 *(u_int *)(p + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + iVar15);

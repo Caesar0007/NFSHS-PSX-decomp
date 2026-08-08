@@ -194,7 +194,35 @@ extern unsigned int iSNDmemrestore(void)
  * recompute its own `sll $v0,$s0,2`.  Statement-order levers do not reach it: `int off = i << 2;`
  * as the block's first statement is diff-WORSE here (50 vs 48) because it also moves the post-scan
  * base off retail's $v1, and the `j`-live-out unification -- RE-TESTED a third time now that the
- * registers finally agree -- is still worse (63 diffs @136). */
+ * registers finally agree -- is still worse (63 diffs @136).
+ *
+ * 🟢🟢 W49-a7 (2026-08-08): 48 -> 16 diffs, and the insn count is now EXACT 135/135.  The
+ *   "statement-order levers do not reach the LAUNCH_PRIORITY float" verdict above is RETIRED -- the
+ *   instrument is not statement order, it is the w45 USE FENCE (`__asm__("" : : "r"(x))`, zero
+ *   insns on a register-resident value) used as a SCHED-ISSUE-POSITION FIXPOINT.  Three placements,
+ *   all load-bearing, each measured on top of the previous one:
+ *     (5) POST-SCAN, fence the OFFSET then the BASE (48 -> 24): reuse the dead loop offset `j`
+ *         (`j = i << 2;`), fence it, materialize `pb`, fence `pb`, THEN form `p2`.  The first fence
+ *         pins the `sll` at the block head so the LAUNCH_PRIORITY-boosted `addiu $a0,$sp,0x10`
+ *         can no longer float above it (reorg's steal of the block-head insn into both predecessor
+ *         delay slots is what retail shows); the second stops the `%hi/%lo` pair from sinking past
+ *         the offset.  Fencing only ONE of the two is worth just 48->40/41.  Reusing `j` instead of
+ *         a fresh `off2` local is what lands the exact 135 count (dead-var repurpose, catalog §A).
+ *     (6) `i != 0` ARM, fence `j` AFTER the pv add (20 -> 16): retail forms the entry-table address
+ *         with a FRESH dest (`addu $a2,$v0,$s3`) while ours mutated the offset register in place
+ *         (`addu $v0,$v0,$s3`) -- local-alloc's combine_regs ties the sum's dest to the offset
+ *         pseudo because the offset DIES at the add.  A use fence one statement later keeps it live
+ *         past the add, combine refuses, and the fresh dest appears.  (This is the general cure for
+ *         the "oracle uses a fresh dest, ours mutates the index reg" class; the array-index spellings
+ *         `prev + i*2` / `&prev[i*2]` / byte-cast all measure 26, i.e. the w43 ascii2sjis lever's
+ *         index form does NOT transfer here.)
+ *   RESIDUAL 16, ONE remaining cause: with the fence in place the offset `j` is homed in $a2 where
+ *   retail keeps it in $v0 (the extra live range costs it the lowest free reg), so `pv`/`entry`
+ *   rotate one slot.  Falsified in this basin: fence AFTER the sum `b` (27 @136), fence at arm end
+ *   (26), opacity fence on `pv` (20, no change), fence on `entry` as well (16, no change),
+ *   base-first operand order (26), `available`-before-`block` (40 in the post-scan basin).
+ *   Next angle: a zero-insn dial that lowers whatever pseudo currently occupies $v0 in that block
+ *   rather than lengthening `j` (i.e. reach the fresh dest without paying for j's live range). */
 extern int iSNDmalloc(int size)
 {
     /* MATCH (w31-a2, from the raw oracle -- same shape family as iSNDpsxmalloc but with THREE
@@ -247,6 +275,10 @@ extern int iSNDmalloc(int size)
                  * have.  The oracle issues all three lhu's up front, then addu/subu, then the
                  * two sw's (catalog sec-F load-before-compute). */
                 pv = (unsigned short *)(j + (int)prev);
+                /* MATCH (w49-a7): USE FENCE on `j` AFTER the pv add -- keeps the offset live past the
+                 * add so combine_regs cannot tie the sum's dest to the dying offset pseudo; the add
+                 * takes retail's FRESH dest ($a2) instead of mutating the offset reg in place. */
+                __asm__("" : : "r"(j));
                 {
                     int b = (int)pv[0] + (int)pv[1];
                     int a = (int)*entry - b;
@@ -277,9 +309,19 @@ extern int iSNDmalloc(int size)
     }
     {
         /* post-loop tail: fresh block-locals re-materialize the FUSED sndmm+8 symbol (oracle
-         * D_80148788); poolWords is read as pb[-1] (offset -2 off it). */
-        unsigned short *pb = (unsigned short *)(sndmm_b + 8);
-        unsigned short *p2 = (unsigned short *)((i << 2) + (int)pb);
+         * D_80148788); poolWords is read as pb[-1] (offset -2 off it).
+         * MATCH (w49-a7, lever 5): the offset REUSES the now-dead loop variable `j` and both it and
+         * the base carry a zero-insn USE FENCE, so (a) the `sll` stays at the block head where reorg
+         * steals it into both predecessors' delay slots -- the LAUNCH_PRIORITY-boosted call-arg
+         * `addiu $a0,$sp,0x10` can no longer float above it -- and (b) the `%hi/%lo` pair cannot sink
+         * past the offset.  Both fences are required (one alone = 40/41 vs 24). */
+        unsigned short *pb;
+        unsigned short *p2;
+        j = i << 2;
+        __asm__("" : : "r"(j));
+        pb = (unsigned short *)(sndmm_b + 8);
+        __asm__("" : : "r"(pb));
+        p2 = (unsigned short *)(j + (int)pb);
         block = (int)p2[0] + (int)p2[1];
         available = (int)pb[-1] - block;
     }

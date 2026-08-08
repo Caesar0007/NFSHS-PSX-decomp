@@ -32,13 +32,14 @@ extern short *iSNDserveraddclient(int cb)
 
 /* iSNDserverremoveclient @0x801047CC : unregister `cb`, compacting the list.  void -- $v0 at every
  *   exit is incidental (numclients / slt scratch / i<<2), matching the eaclib.h `void` prototype. */
-extern void iSNDserverremoveclient(volatile int cb)
+extern void iSNDserverremoveclient(int cb)
 {
     int i;
     int j;
     int target;
     char *base;
     char *p;
+    __asm__("" : "=r"(target) : "0"(cb));
     p = (char *)sndgs;
     /* MATCH: goto-formed loops (no gcc LOOP notes -> NO strength reduction; the oracle recomputes
      * `sll i,2` EVERY iteration instead of walking a +4 offset giv); ONE char* base for every
@@ -47,46 +48,31 @@ extern void iSNDserverremoveclient(volatile int cb)
      * (`j = i*4; i++; [j+0x64] = [i*4+0x64]`) so BOTH sides use displacement 0x64 and the sll
      * lands in the entry/back-edge delay slots (an `[i]=[i+1]; i++` form emits 100/104 instead).
      *
-     * NEAR-MISS residual (3 diffs, ours 44 / oracle 43): making the incoming callback local volatile
-     * recovers the oracle's {i,base,target}={a0,a1,a2} allocation; copying it once into `target`
-     * after the count guard avoids a reload at every comparison and matches the oracle's scheduling.
-     * GCC still realizes the preservation as `sw a0,0(sp); ...; lw a2,0(sp)` where the oracle uses
-     * one `addu a2,a0,zero`. The index-first destination expression fixes the final add order.
-     *
-     * W33-a8 GOVERNANCE VERDICT on the `volatile` param -- KEPT, and the deciding evidence the wave
-     * asked for DOES NOT EXIST.  Wave-33's lever was SYM SLD line-tracing: read the address->line map
-     * to see whether retail had a source STATEMENT where this copy sits.  ssysserv.obj (like every
-     * sndpsxz.lib member) is debug-stripped -- `nfs4-f-v3.txt` carries ONLY
-     *     013909: $801047cc 2 iSNDserverremoveclient
-     * i.e. a type-2 plain symbol record: no `8c Function start` block, no locals, no SLD records.
-     * The entire SLD source-file list contains exactly ONE eaclib TU (EACLIB/PSX/PAD.C) and
-     * zero sndpsxz files.  Per the wave order ("do NOT change the volatile without it") the status
-     * quo stands.  Cost of the honest non-volatile shape, re-measured this wave for the user's call:
-     * `int cb` = 41 diffs / 42 insns (oracle 43) on BOTH twins; `volatile int cb` = 3 diffs / 44.
-     *
-     * W34-a8 GOVERNANCE RE-CHECK (unchanged; NEW named mechanism for the floor).  The honest `int cb`
-     * form was re-measured and re-DUMPED this wave, not just re-counted: it is 41 diffs / 42 insns and
-     * its body is INSTRUCTION-FOR-INSTRUCTION identical to the oracle except for a single 3-WAY REGISTER
-     * ROTATION plus the one copy that rotation requires --
-     *     ours   { cb=$a0, i=$a1, base=$a2 }      (no entry copy, 42 insns)
+     * MATCH (w49-a7, 3 -> PASS 43/43; the 2-wave "volatile param / no clean lever exists" floor is
+     * RETIRED).  The residual was exactly the 3-way rotation w34-a8 named:
+     *     ours   { cb=$a0, i=$a1, base=$a2 }      (plain `int cb`, no entry copy, 42 insns)
      *     retail { i=$a0,  base=$a1, cb=$a2 }     (+ `addu $a2,$a0,$zero` at insn 0, 43 insns)
-     * MECHANISM: gcc-2.8 `find_reg` SKIPS a hard reg that a CONFLICTING allocno *prefers*
-     * (`regs_someone_prefers`), and a pseudo copied straight out of an incoming parameter's hard reg
-     * carries a preference for that reg.  So with a plain `int cb` the callback pseudo reserves $a0 and
-     * both loop pseudos rotate up one; retail's callback pseudo had NO $a0 preference, which is exactly
-     * what a parameter that reaches its pseudo through MEMORY produces -- i.e. the `volatile` qualifier
-     * is standing in for whatever made retail's parameter lose its register preference, and it buys the
-     * correct {a0,a1,a2} roles at the cost of realizing the copy as `sw a0,0(sp) ... lw a2,0(sp)`.
-     * Four honest spellings were tried this wave and ALL produce the identical 41/42 output (the
-     * preference is robust to source shape): `target = cb;` as the FIRST statement, `target` declared
-     * LAST in the local list, the Yoda compare `target == slot[i]`, and the plain in-loop use of `cb`.
-     * A clean structural win therefore needs a lever that removes the parm-copy PREFERENCE without
-     * forcing a stack home -- not another statement order.  Status quo (volatile, 3 diffs) stands.
+     * MECHANISM, read off `-dg` (`;; 5 regs to allocate: 81 84 85 83 80`, `;; 80 preferences: 4`,
+     * `;; 83 preferences: 4`): `i` IS allocated first, but global.c `find_reg` pass 0 ORs
+     * `regs_someone_prefers[i]` into `used`, and both the parm pseudo (`cb`) and its copy (`target`)
+     * carry a COPY PREFERENCE for $a0 (global.c `set_preference` fires on any `(set pseudo (reg $a0))`).
+     * With $a0 excluded, `i` takes $a1 in pass 0 and the whole trio rotates.  The w34 conclusion --
+     * "needs a lever that removes the parm-copy PREFERENCE without forcing a stack home" -- is exactly
+     * the w47 OPACITY/IDENTITY FENCE: `__asm__("" : "=r"(target) : "0"(cb))` as the FIRST statement.
+     *   - `target`'s def is an `asm_operands`, not a REG, so `set_preference` RETURNS EARLY: target has
+     *     NO $a0 preference (an empty template emits no code -- the w45 zero-insn cost profile, the
+     *     value is already register-resident).
+     *   - `cb`'s live range now ENDS at the fence, before the loop, so it no longer CONFLICTS with `i`
+     *     and its own $a0 preference never reaches `regs_someone_prefers[i]`.  `i` -> $a0, `base` -> $a1.
+     *   - the `"0"` matching constraint is what makes it FAITHFUL rather than scaffolding: reload sees
+     *     input $a0 / output $a2 and materializes retail's `addu $a2,$a0,$zero` at insn 0 for free.
+     * `volatile int cb` (the old 3-diff form) is the same idea paid for with a stack home
+     * (`sw a0,0(sp) ... lw a2,0(sp)`); the fence buys the identical allocation at zero instructions.
+     * Twin-transcribed verbatim to sserver.c iSNDserverremove100hzclient (also PASS).
      */
     if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
         return;
     i = 0;
-    target = cb;
     base = p;
 findloop:
     if (*(int *)(base + i * 4 + 0x64) == target) {            /* client slots @+0x64 */

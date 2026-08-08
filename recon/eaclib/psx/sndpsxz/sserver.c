@@ -261,18 +261,16 @@ extern short *iSNDserveradd100hzclient(int cb)
 }
 
 /* iSNDserverremove100hzclient @0x800EA620 : unregister a 100 Hz callback, compacting the client list.
- * The volatile incoming local plus one nonvolatile `target` copy recovers the oracle's callback/base/
- * index register rotation. The remaining 3-diff floor is the same stack store/load versus direct
- * register-copy choice as iSNDserverremoveclient (ours 44 / oracle 43).
  *
- * W33-a8: the `volatile` param is KEPT -- the wave's SLD line-tracing evidence does not exist for
- * sndpsxz (sserver.obj has only a type-2 symbol record; no SLD, no function-start block).  Full
- * verdict + the re-measured cost of the honest shape (41 diffs) is in ssysserv.c on the twin.
- * W34-a8: re-checked, unchanged.  The honest form's residual is a 3-way {cb,i,base} register
- * rotation caused by gcc-2.8 `find_reg` skipping a hard reg a conflicting allocno PREFERS --
- * the parm-copy preference on $a0.  Four honest spellings all compile byte-identically; the
- * full mechanism write-up and the experiment list live on the twin in ssysserv.c. */
-extern void iSNDserverremove100hzclient(volatile int cb)
+ * MATCH (w49-a7, 3 -> PASS 43/43): the twin of ssysserv.c iSNDserverremoveclient, cracked by the same
+ * single lever -- the w47 OPACITY/IDENTITY FENCE `__asm__("" : "=r"(target) : "0"(cb))` as the FIRST
+ * statement, with the parameter back to an honest plain `int cb`.  `target`'s def is an asm_operands
+ * (not a REG) so global.c `set_preference` never gives it the $a0 copy preference, and `cb` now dies
+ * at the fence so it stops conflicting with the loop index -- `regs_someone_prefers[i]` loses $a0 and
+ * the {i,base,cb} = {$a0,$a1,$a2} rotation lands; the `"0"` matching constraint makes reload emit
+ * retail's `addu $a2,$a0,$zero` at insn 0 at zero cost.  Full mechanism + the -dg receipt is on the
+ * twin in ssysserv.c.  (Retires the w33/w34 `volatile`-param 3-diff floor on BOTH twins.) */
+extern void iSNDserverremove100hzclient(int cb)
 {
     int i;
     int j;
@@ -280,11 +278,11 @@ extern void iSNDserverremove100hzclient(volatile int cb)
     char *base;
     char *p;
 
+    __asm__("" : "=r"(target) : "0"(cb));
     p = (char *)sndgs;
     if (*(signed char *)(p + 0x40) <= 0)
         return;
     i = 0;
-    target = cb;
     base = p;
 findloop:
     if (*(int *)(base + i * 4 + 0x4c) == target) {

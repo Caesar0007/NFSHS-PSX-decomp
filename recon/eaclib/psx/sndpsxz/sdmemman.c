@@ -250,7 +250,24 @@ extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC
  *   head" concern does not apply to THIS body, only to the 20-diff variants.
  *   Today's two new dials do not reach it either: both IN-LOOP-DEF REF doubling and the DEAD-SET
  *   carrier are loop.c-mediated (REG_N_REFS is loop-depth-weighted only inside a
- *   NOTE_INSN_LOOP_BEG/END pair) and this function contains no loop. */
+ *   NOTE_INSN_LOOP_BEG/END pair) and this function contains no loop.
+ *
+ *   🟡 W49-a7 -- FACT (i) IS NOW REACHABLE; only fact (ii) survives.  The w45 USE FENCE
+ *   (sched-issue-position fixpoint, `__asm__("" : : "r"(lo))` between the `lhu` and `s = *size`,
+ *   with `lo` retyped `unsigned int` so no `andi 0xffff` re-mask appears) FIXES the load order:
+ *   the object becomes `lhu; lw; nop; slt; beqz; subu(delay)` -- retail's exact sequence -- and the
+ *   residual is EXACTLY the 3-way rotation (lo $v1<-$a3, diff $a3<-$v0, block-1 temp $v0<-$v1),
+ *   still 14 @31/31.  NOT LANDED: same gate count, and it buys the alignment with a device.
+ *   Re-tested IN THAT NEW BASIN (the w45 "falsifications are basin-relative" law), the block-1
+ *   spellings still miss the same way: diff-in-if 20, diff-inline 20, diff-fn-scope-in-if 20,
+ *   store-after 21, re-read-*size 20, `-=` 20, volatile-*size 20, `s`-mutated 30.  ROOT CAUSE of
+ *   the 20-basin, now named: inside the `if`, sched1 ranks `sw *size` ABOVE `subu diff` because
+ *   `*size` and `*avail` may alias, so `sw *size -> lw *avail -> subu -> sw *avail -> lw s` is a
+ *   5-long dependence chain while `subu diff` heads a 2-long one; retail issued the subu first,
+ *   which is what lets reorg eager-steal it into the `beqz` slot.  A fence pinning the subu at the
+ *   block head DOES win the order but blocks the steal itself (32 insns / 31 diffs -- the w45
+ *   documented fence boundary).  Remaining angle: a spelling that SHORTENS the store's chain
+ *   without removing the `s = *size` reload the oracle shows.  Floor stands at 14. */
 extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     unsigned char *pd = sndpd;
@@ -301,7 +318,16 @@ extern int iSNDpsxmalloc(int size)
      *      the whole function shifts: 59 -> 77 alone, 59 -> 87 combined with (a).
      * Both confirm the standing diagnosis: our two constrain arms merge deeper than retail's because
      * they END in the same hard registers, and that hard-register choice is upstream of any source
-     * shape available here (same $v0/$v1 mirror as smemman.c iSNDmalloc's post-scan tail). */
+     * shape available here (same $v0/$v1 mirror as smemman.c iSNDmalloc's post-scan tail).
+     *
+     * W49-a7 NEGATIVE (transfer test): the USE-FENCE recipe that took the twin smemman.c iSNDmalloc
+     * from 48 to 16 @135/135 (fence the block-offset + the base before forming the entry pointer, and
+     * fence the offset again AFTER the add so combine_regs cannot tie the sum's dest to the dying
+     * offset) does NOT transfer here -- scan_done fenced 61 @122, scan_done fenced on the OLD base 59,
+     * the `idx != 0` arm fenced on `idx` 59, fenced on `previous`+`idx` 59.  Reason: iSNDmalloc was
+     * 2 insns OVER the oracle and its residual really was a scheduling/fresh-dest question, whereas
+     * this function is 7 insns SHORT and its gap is the un-merged `iSNDpsxmemconstrain` arms above --
+     * a cross-jump-depth problem, not a schedule one.  Attack the arm merge first. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

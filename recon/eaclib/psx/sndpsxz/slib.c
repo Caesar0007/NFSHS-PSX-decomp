@@ -399,9 +399,19 @@ extern int iSNDrestore(void)
     base = sndpd;
     do {
         quiet = 1;
-        vp = (struct RestoreVoice *)base;
         chan = 0;
-        if (gp[0x11] != 0) {
+        /* MATCH (w49-a7, 2 -> PASS 85/85): TWO cooperating facts, both read off the oracle's block
+         * layout.  (1) `vp = base` belongs INSIDE the guard -- the oracle emits `addu s1,s5,zero`
+         * AFTER the beqz's delay slot, i.e. in the loop-preheader block, not in the test block
+         * (moving it alone gets the position right but rotates chan/vp s0<->s1).  (2) the guard is
+         * the ZERO-TRIP form on the counter itself (`chan < count`), not `count != 0`: the extra
+         * loop-weighted reference to `chan` lifts its allocno above `vp`'s so chan takes $s0 and
+         * vp $s1 like retail (allocno_compare = floor_log2(refs)*refs/live).  The in-tree zero-insn
+         * USE fence `__asm__("" : : "r"(chan))` after the vp store reaches the identical object,
+         * confirming the mechanism is the chan REF COUNT -- but the guard is the honest spelling,
+         * so the fence is not used here. */
+        if (chan < (int)(unsigned)gp[0x11]) {
+            vp = (struct RestoreVoice *)base;
             do {
                 if (*(volatile unsigned char *)((unsigned char *)vp + 0xf5) != 0) { /* voice still active */
                     if (deadline < *(unsigned int *)(gp + 0x44)) {

@@ -9,23 +9,17 @@ tScreenAudio *screenAudio;   /* global instance pointer owned by this TU (SYM EX
 void tScreenAudio::PlaySound()
 
 {
-  byte volByte;
-  short testMode;
-  int RepresentativeSound;
-  short item;
-  int azimuth;
-  int vol;
-  SNDSYSOPTS opts;
-  
   if (((menuDefs[0]->itemSlidingPlayList).fActive != 0) &&
      (this->fPrevSelectedSong != this->fSelectedSong)) {
     AudioMus_StopSong(10);
-    AudioMus_PlaySong((char *)this->songlist[this->fSelectedSong * 8 + 1].numsongs);
+    AudioMus_PlaySong(this->songlist->song[this->fSelectedSong].filename);
     this->fPrevSelectedSong = this->fSelectedSong;
   }
   AudioMus_Volume((int)((uint)(byte)frontEnd.musicVolume * 0x23) >> 6);
   gMasterFENarrationLevel = (int)(byte)frontEnd.narrationVolume;
   if (frontEnd.audioMode != this->prevAudioMode) {
+    SNDSYSOPTS opts;
+
     gStereoMode = 1;
     Audio_direct3davail = 0;
     this->audioTest = 1;
@@ -45,99 +39,84 @@ void tScreenAudio::PlaySound()
     SNDSYS_setopts(&opts);
     this->prevAudioMode = frontEnd.audioMode;
   }
-  item = (short)(menuDefs[0]->menuAudio).fCurrentItem;
-  if (item < 1 || 5 < item) {
-    if (this->audioTest == 0) {
-      return;
-    }
-    gMasterSFXLevel = (int)(byte)frontEnd.sfxVolume;
-    SNDstop(this->audioTestHandle);
-    this->audioTest = 0;
-    return;
+  int item = (short)(menuDefs[0]->menuAudio).fCurrentItem;
+  int validItem = 0;
+  if (item > 0) {
+    validItem = item < 6;
   }
-  azimuth = 1;
-  volByte = frontEnd.engineVolume;
-  if (item == 2) {
-PlaySnd_engineRand:
-    vol = (uint)volByte;
-    RepresentativeSound = rand();
-    RepresentativeSound = RepresentativeSound % 6 + 0x29;
-  }
-  else {
-    volByte = frontEnd.sfxVolume;
-    if (item < 3) {
-      if (item != 1) goto PlaySnd_engineRand;
+  if (validItem != 0) {
+    int sndover;
+    int vol;
+    int RepresentativeSound;
+
+    sndover = 1;
+    switch (item) {
+    case 1:
       vol = (uint)(byte)frontEnd.sfxVolume;
       RepresentativeSound = 0x1f;
-    }
-    else if (item == 3) {
+      break;
+    case 2:
+      vol = (uint)(byte)frontEnd.engineVolume;
+      RepresentativeSound = rand() % 6 + 0x29;
+      break;
+    case 3:
       vol = (uint)(byte)frontEnd.narrationVolume;
       RepresentativeSound = -1;
-    }
-    else {
-      if (item != 4) goto PlaySnd_engineRand;
+      break;
+    case 4:
       vol = (uint)(byte)frontEnd.ambientVolume;
       RepresentativeSound = 0x1e;
+      break;
+    default:
+      vol = (uint)(byte)frontEnd.sfxVolume;
+      RepresentativeSound = rand() % 6 + 0x29;
+      break;
     }
-  }
-  gMasterSFXLevel = vol;
-  if (this->audioTest == 0) {
-    item = 1;
-    if (frontEnd.audioMode == '\x01') {
-      item = 2;
-    }
-    this->audioTest = item;
-  }
-  else {
-    azimuth = SNDover(this->audioTestHandle);
-  }
-  if (((azimuth == 0) || ((*(short *)((char *)&ginfo + 0x16)) != 0)) || (item = 1, RepresentativeSound == 0)) goto PlaySnd_setMasterLevel;
-  testMode = this->audioTest;
-  azimuth = 0;
-  if (testMode == 1) {
-    azimuth = 0xc000;
-    item = 3;
-    if (frontEnd.audioMode == '\x02') {
-      item = 2;
-    }
-PlaySnd_setAudioTest:
-    this->audioTest = item;
-  }
-  else {
-    if (testMode == 2) {
-      item = 3;
-      if (frontEnd.audioMode == '\x01') {
-        item = 2;
-      }
+    gMasterSFXLevel = vol;
+    if (this->audioTest == 0) {
+      this->audioTest = (frontEnd.audioMode == '\x01') ? 2 : 1;
     }
     else {
-      if (testMode != 3) {
-        if (testMode == 4) {
-          azimuth = 0x8000;
-          goto PlaySnd_setAudioTest;
-        }
-        goto PlaySnd_asyncSpeech;
+      sndover = SNDover(this->audioTestHandle);
+    }
+    if ((sndover != 0) && (*(unsigned short *)((char *)&ginfo + 0x16) == 0) &&
+        (RepresentativeSound != 0)) {
+      int azimuth = 0;
+      short testMode = this->audioTest;
+
+      if (testMode == 1) {
+        azimuth = 0xc000;
+        this->audioTest = (frontEnd.audioMode == '\x02') ? 2 : 3;
       }
-      azimuth = 0x3fff;
-      item = 1;
-      if (frontEnd.audioMode == '\x02') {
-        item = 4;
+      else if (testMode == 2) {
+        this->audioTest = (frontEnd.audioMode == '\x01') ? 2 : 3;
+      }
+      else if (testMode == 3) {
+        azimuth = 0x3fff;
+        this->audioTest = (frontEnd.audioMode == '\x02') ? 4 : 1;
+      }
+      else if (testMode == 4) {
+        azimuth = 0x8000;
+        this->audioTest = 1;
+      }
+      if (RepresentativeSound == -1) {
+        FeAudio_AsyncPlaySpeech(2,3);
+        this->audioTestHandle = 0;
+      }
+      else {
+        this->audioTestHandle = AudioCmn_PlaySound
+                    (gSndBnk[0].bnkID,RepresentativeSound,azimuth,vol,0x40);
       }
     }
-    this->audioTest = item;
-  }
-PlaySnd_asyncSpeech:
-  if (RepresentativeSound == -1) {
-    FeAudio_AsyncPlaySpeech(2,3);
-    this->audioTestHandle = 0;
+    gMasterSFXLevel = (uint)(byte)frontEnd.sfxVolume;
   }
   else {
-    azimuth = AudioCmn_PlaySound
-                      (gSndBnk[0].bnkID,RepresentativeSound,azimuth,vol,0x40);
-    this->audioTestHandle = azimuth;
+    if (this->audioTest != 0) {
+      gMasterSFXLevel = (int)(byte)frontEnd.sfxVolume;
+      SNDstop(this->audioTestHandle);
+      this->audioTest = 0;
+    }
   }
-PlaySnd_setMasterLevel:
-  gMasterSFXLevel = (uint)(byte)frontEnd.sfxVolume;
   return;
 }
 

@@ -658,72 +658,78 @@ ProcInpFE_keyUpItemZero:
 
 /* ---- tInsideBoxMenu::Draw  [FEMENUOPTIONS.CPP:558-605] SLD-VERIFIED ---- */
 
-int tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
+void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
 
 {
-  short sVar1;
-  u_short uVar2;
-  __vtbl_ptr_type (*pa_Var3) [11];
-  int i;
-  int j;
+  __vtbl_ptr_type *entry;
+  short i;
+  short j;
   tMenuItem *ptVar6;
-  bool bVar7;
+  char *adjusted;
+  bool selected1;
+  bool selected2;
+  int drawSlide;
+  int drawX;
+  int drawY;
+  int drawW;
   
-  i = this->fCurrentItem;
-  if (i != this->fPrevItem) {
-    if (this->fPrevItem < i) {
+  if (this->fCurrentItem != this->fPrevItem) {
+    if (this->fPrevItem < this->fCurrentItem) {
       this->fMoving = 0x18;
-      sVar1 = -4;
+      this->fMovingDir = -4;
     }
     else {
       this->fMoving = -0x18;
-      sVar1 = 4;
+      this->fMovingDir = 4;
     }
-    this->fMovingDir = sVar1;
     this->fPrevItem = (short)this->fCurrentItem;
   }
   if (this->fMoving != 0) {
-    uVar2 = this->fMoving + this->fMovingDir;
-    this->fMoving = uVar2;
-    if ((this->fMovingDir < 0) && ((int)((u_int)uVar2 << 0x10) < 0)) {
+    this->fMoving = this->fMoving + this->fMovingDir;
+    if ((this->fMovingDir < 0) && (this->fMoving < 0)) {
       this->fMoving = 0;
     }
     if ((0 < this->fMovingDir) && (0 < this->fMoving)) {
       this->fMoving = 0;
     }
   }
-  i = 0;
+  j = 0;
+  drawSlide = slideOffset;
+  drawX = x;
+  drawY = y;
+  drawW = w;
   do {
-    j = (u_int)(u_short)this->fCurrentItem + i + -2;
-    if ((3 < (short)i) &&
-       (*(int *)((int)this->fItemList + (j * 0x10000 >> 0xe) + -4) == 0)) {
-      return 0;
+    i = (short)((u_short)this->fCurrentItem + (j - 2));
+    if ((3 < j) && (this->fItemList[i - 1] == (tMenuItem *)0x0)) {
+      return;
     }
-    j = j * 0x10000 >> 0x10;
-    if ((-1 < j) && (ptVar6 = this->fItemList[j], ptVar6 != (tMenuItem *)0x0)) {
+    if ((-1 < i) && (ptVar6 = this->fItemList[i], ptVar6 != (tMenuItem *)0x0)) {
+      entry = &(*ptVar6->_vf)[10];
+      adjusted = (char *)ptVar6 + (int)entry->delta;
       if (this->fMoving == 0) {
-        bVar7 = j == this->fCurrentItem;
+        selected1 = i == this->fCurrentItem;
       }
       else {
-        bVar7 = false;
+        selected1 = false;
       }
-      (*(*ptVar6->_vf)[10].pfn)((char *)ptVar6 + (int)(*ptVar6->_vf)[10].delta,bVar7);
-      ptVar6 = this->fItemList[(short)j];
-      pa_Var3 = ptVar6->_vf;
+      (*entry->pfn)(adjusted,selected1);
+      ptVar6 = this->fItemList[(short)i];
+      entry = &(*ptVar6->_vf)[6];
+      adjusted = (char *)ptVar6 + (int)entry->delta;
       if (this->fMoving == 0) {
-        bVar7 = (int)(short)j == this->fCurrentItem;
+        selected2 = (int)(short)i == this->fCurrentItem;
       }
       else {
-        bVar7 = false;
+        selected2 = false;
       }
-      (*(*pa_Var3)[6].pfn)
-                ((char *)ptVar6 + (int)(*pa_Var3)[6].delta,(int)x,
-                 (int)this->fMoving + (int)y + (int)slideOffset + ((short)i + -1) * 0x18 + 5,
-                 (int)w,bVar7);
+      (*entry->pfn)
+                (adjusted,drawX,
+                 (int)this->fMoving + drawY + drawSlide + ((short)j + -1) * 0x18 + 5,
+                 drawW,selected2);
     }
-    i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 5);
-  return 0;
+    j = j + 1;
+  } while (j * 0x10000 >> 0x10 < 5);
+  return;
 }
 
 

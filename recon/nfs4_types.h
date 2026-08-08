@@ -4688,7 +4688,7 @@ struct tInsideBoxMenu : public tMenu {   /* 116 bytes */
     tInsideBoxMenu(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, tMenuItem *, ...);
     ~tInsideBoxMenu();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int Draw(short, short, short, short, short);
+    void Draw(short, short, short, short, short);
 
 };
 

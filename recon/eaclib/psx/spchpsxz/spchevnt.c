@@ -454,7 +454,35 @@ extern int SPCH_AddEvent(unsigned int *table)
                  * receipt: base 4 refs/22 = .3636 vs tick 4/23 = .3478, one tick ref flips it) -- but
                  * the copy itself never appears.  Named angle for the next pass: force the lo_sum into
                  * a pseudo distinct from `base` (a cse DOUBLE-EVALUATION of the address, w45 row),
-                 * not another spelling of the copy. */
+                 * not another spelling of the copy.
+                 * 🔴 w50-a9 2026-08-09: that named angle is FALSIFIED, together with the whole
+                 * "give baseTmp a second live use" family.  Measured, all at ours 81 / oracle 82
+                 * unless noted -- i.e. the copy NEVER appears:
+                 *   - baseTmp given a REAL second use (the three pre-loop stores at +0x10/+0xc/+0xa
+                 *     rewritten off baseTmp instead of base) = 5;  same with only the in-loop store
+                 *     off baseTmp = 5;  either + an opacity fence on baseTmp = 17;
+                 *   - opacity fence on baseTmp alone = 17, + a use fence = 17, + the receipted
+                 *     `__asm__("" : : "r"(tick))` rotation dial = 5 (ours `lui $t0; addiu $t0,$t0`
+                 *     -- the whole `la` still lands in base's own home register);
+                 *   - ZERO-COST REF INFLATORS on the copy statement (catalog w44, the family that
+                 *     cracked spchbank this wave): depth-2 `do{}while(0)` wrapper on
+                 *     `base = baseTmp;` = 3 (neutral); arm-dup `base = baseTmp; base = baseTmp;`
+                 *     = 3 (neutral).  Inflators steer WHICH register a pseudo wins; they cannot
+                 *     mint a pseudo that does not exist -- and here the copy does not exist.
+                 *   - DISTINCT SYMBOL VIEWS of the same storage (this TU already carries the
+                 *     gVoxEventQueue / gVoxQueue asm-label views): baseTmp off the byte view = 3
+                 *     (cse merges the symbol_refs anyway); base off a DIFFERENT view than baseTmp
+                 *     = 5 at 83 insns -- two full materializations, i.e. +2, the wrong extra insn;
+                 *   - `(int)&gVoxEvents[0]` and a pointer-typed `unsigned char *bp` intermediate = 3.
+                 * MECHANISM SHARPENED: the `off` half of this very preheader IS fence-fixable
+                 * (fix (a) above) because `slot * 0x3c` is a COMPUTED value with no REG_EQUIV; an
+                 * ADDRESS carries one, so cse/update_equiv_regs rewrites `base = <addr>` and the
+                 * lo_sum is generated straight into base's pseudo -- there is no copy insn for
+                 * local-alloc's combine_regs (or the w47-a2 global-allocno refusal) to preserve.
+                 * Any C form cse can prove equal collapses to ONE `la` into `base`; any form it
+                 * cannot costs a second `lui/addiu` PAIR instead of retail's one-insn copy.
+                 * NEXT: an instrumented -dl/-dg read to confirm the copy is absent from RTL before
+                 * local-alloc (=> an update_equiv_regs question, not a combine_regs one). */
                 if (tick == gLastTick[0])
                     gLastSubTick[0] = gLastSubTick[0] + 1;
                 else

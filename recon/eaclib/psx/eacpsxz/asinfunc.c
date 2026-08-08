@@ -120,6 +120,36 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * pointer the source names or how many times it is referenced at C level.  The 2-diff
      * baseline is kept (24 > 2); the next attack is the instrumented qtytrace/-dl route named
      * by w47-a5, NOT another spelling of the subscript or the fence.
+     * 🆕 w50-a9 2026-08-09 -- the FENCE BASIN IS 24 -> 6 AT COUNT-EXACT 48/48, and the residual is
+     * now a DIFFERENT (and much smaller) question than w47/w49 recorded.  The w49 verdict "the
+     * sum/copy pair is decided inside local_alloc and no source dial moves it" was measured only
+     * with fence/spelling dials; the catalog w44 ZERO-COST REF INFLATOR family was never tried
+     * here.  A depth-2 `do{}while(0)` wrapper on the qt load, on top of the w47-a5 fence pair --
+     *     const unsigned char *pt = &kArcsinTable[idx];
+     *     const unsigned char *qt = pt;
+     *     __asm__("" : "=r"(qt) : "0"(qt));
+     *     t0 = pt[0];
+     *     do { do { t1 = qt[1]; } while (0); } while (0);
+     * -- flips the pair to retail's assignment and gates 6 at 48/48.  The ONLY residual left is the
+     * table-base materialization REGISTER: ours `lui $v1; addiu $v1,$v1,%lo; addu $v1,$a1,$v1`
+     * (dest-as-%hi-scratch, self-temp) vs retail `lui $v0; addiu $v0,$v0,%lo; addu $v1,$a1,$v0`
+     * (separate scratch that then dies and is reused by the copy).  The SUM lands in $v1 on BOTH
+     * sides -- this is the pure §3.15 self-temp-vs-separate-temp tie-break on an ADD, one register
+     * name, three insns.  Depth 1/3/4 = 24/6/6; wrapping BOTH loads or the pt load instead = 24;
+     * loads swapped inside the wrapper = 8.
+     * Falsified against the base-register question itself (all in the depth-2 basin, all 6/48/48):
+     * a named `base = kArcsinTable` temp; `base` declared in the outer block; an opacity fence on
+     * `base` before or after the sum; the int-cast operand swap `(idx + (int)kArcsinTable)`;
+     * `&kArcsinTable[0] + idx`; recomputing `&kArcsinTable[idx]` for qt; a duplicated `t0 = pt[0]`
+     * arm-dup inflator; and the §3.12 #5 UNSIZED-ARRAY ASM-LABEL VIEW
+     * (`extern const unsigned char kArcsinTable_v[] asm("kArcsinTable")`, used in the steep block
+     * only and TU-wide) -- the view is inert here because the address is ALREADY a separate la
+     * pseudo; the question is only which caller-saved reg it wins.  Worse: a USE fence on `base`
+     * (28), `base` spanning both arms of the 0x1FF test (21 at 47), `if (idx != 0x1FF)` inverted
+     * (32).  The 2-diff baseline is KEPT (2 < 6, honest-count rule) -- but the 6-diff form is the
+     * structurally-correct one (it carries retail's copy) and is the right base for the next pass.
+     * NEXT: qtytrace/-dl the base-address qty vs the sum qty in the depth-2 basin (the two are
+     * tied+coalesced in ours, distinct in retail); do NOT re-run the fence or subscript spellings.
      * SLD could not have helped:
      * eaclib .lib C members are debug-stripped (0 SLD records anywhere above 0x800E0000). */
 

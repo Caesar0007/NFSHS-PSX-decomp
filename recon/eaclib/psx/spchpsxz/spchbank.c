@@ -86,16 +86,40 @@ extern void iSPCH_DisposeBanks(void)
  *     the `lui/lw` self-temp into `lui; addiu; lw` (+3).  Lower diff count,
  *     LOST insn parity => rejected under the floor bar (count must stay exact).
  * So the fence family reaches the flip but never at parity; the tie stays a
- * dbr "two ready callee-saves competing for one slot". */
+ * dbr "two ready callee-saves competing for one slot".
+ * ✅ w50-a9 2026-08-09: SOLVED -- PASS 33/33, and the whole floor above is retired.  The w49 note
+ * had the mechanism exactly right and only the INSTRUMENT wrong: it needed a priority buy-back on
+ * the RIVAL that costs ZERO instructions, and the fence family cannot do that (every fence form
+ * either mints a copy on a cross-block allocno, +1 insn, or splits a lui/lw self-temp, +3).  The
+ * catalog w44 inflator #3 -- the `do{}while(0)` DEPTH WRAPPER -- is exactly that instrument:
+ *   1. split `nb`'s declaration from its initialiser so the `lui %hi(gNumBanks)` sinks BELOW the
+ *      branch (w34-a9's mechanism; alone this is the known 16-diff $s0<->$s1 whole-fn flip), and
+ *   2. wrap the RIVAL `vb`'s store `do { *vb = allocated; } while (0);` -- zero insns, but the
+ *      loop-depth weighting lifts vb's refs back over nb's and the pair lands retail's way.
+ * Depths 1, 2 and 3 all PASS (33 insns each); depth 1 is kept as the minimal form.  Falsified on
+ * the way (all at 33/33): the same wrapper on nb's uses at depth 1/2/3 = 16 (it lifts the LOSER),
+ * and `return vb[0];` as a cheap vb-ref inflator = 10 diffs at 35 insns (it also removes retail's
+ * epilogue re-load of gVoxBanks).  LESSON for the sibling floors in this cluster: when a receipt
+ * says "the fence reaches the goal but never at parity", the missing piece is a ZERO-COST ref
+ * inflator, and the rival is usually the right side to dial. */
 extern int iSPCH_BankMemAlloc(int numBanks)
 {
     int *vb = gVoxBanks;
-    int *nb = gNumBanks;
+    int *nb;
     if (*vb == 0) {
         int allocated;
+        /* MATCH (w50-a9): nb's `lui %hi(gNumBanks)` must sink BELOW the branch so `sw $s1`
+         * is dbr's nearest fillable insn (w34-a9's mechanism) -- hence the SPLIT declaration
+         * (init here, at nb's first use).  On its own that flips $s0<->$s1 across the whole
+         * function (16 diffs); the zero-insn do{}while(0) DEPTH WRAPPER on the RIVAL `vb`'s
+         * store (catalog w44 inflator #3, w46 razor-on-the-rival) buys vb back its allocno
+         * priority at ZERO instructions -- where the w49 opacity fences reached 7 diffs but
+         * cost +3 insns (lui/addiu/lw split) and lost parity.  Depth 1/2/3 all PASS; depth 1
+         * kept as the minimal form.  DO NOT delete the wrapper or re-fuse the declaration. */
+        nb = gNumBanks;
         *nb = numBanks;
         allocated = iSPCH_MemAlloc(numBanks << 2, "spch banks");
-        *vb = allocated;   /* MATCH: unconditional store -> beqz delay slot (runs both paths) */
+        do { *vb = allocated; } while (0);   /* MATCH: unconditional store -> beqz delay slot */
         if (allocated != 0) {
             int i = 0;
             numBanks = *nb;   /* MATCH: reload reuses the dead param reg ($a0) */

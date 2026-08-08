@@ -267,7 +267,36 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    is EMPTY, ours steals `addiu sp`) => the mechanism is build.py's
    PER_FN_EPILOGUE_UNFILL table, not a source lever.  This worker is barred from
    editing build.py; padinit and PAD_update are the two candidates here
-   (PAD_state is NOT -- see its own note). */
+   (PAD_state is NOT -- see its own note).
+
+   w50-a9 2026-08-09 re-gate 9 (65/66) confirmed again; SIX more forms falsified,
+   which closes the biv-elimination lead (item 1) for the FOURTH time and adds a
+   first falsification round for item 2:
+     item 1 (prologue giv-init order) -- hand loop.c a biv it should eliminate by
+       assigning the byte offset IN-BODY as a giv of a 0..1 counter:
+         `for (i = 0; i < 2; i++) { off = i << 3; ... }`  24 diffs / 66 insns
+         `for (i = 0; i < 2; i++) { off = i * 8;  ... }`  28 diffs / 66 insns
+         same two with a SEPARATE counter `n` (so loop 2 keeps the SYM's `i`):
+                                                          26 and 30 / 66 insns
+       In every one cc1 KEEPS the counter as a real biv and adds a per-iteration
+       `sll $v1,$s0,3` (that is the extra insn, not the epilogue nop) -- the byte
+       offset never becomes the exit-test giv.  A depth-1 `do{}while(0)` wrapper
+       on loop 1's body is diff-NEUTRAL (9), so the zero-cost ref-inflator family
+       does not reach a loop.c *elimination* decision either.
+     item 2 (`addu $a3,$t0,$zero` vs retail `addu $a3,$zero,$zero`) -- cse reusing
+       `i`'s just-materialised 0 for `btnOff`:
+         init order swapped in the comma header                       17
+         `btnOff` init hoisted above loop 1                           27 / 67 (frame 40)
+         opacity fence on btnOff's 0 (fence AFTER the plain init)      9 (neutral)
+         opaque zero source `int z=0; fence(z); btnOff = z`           10 / 66 -- it
+           DOES make the two zeros independent, but the z materialisation is a REAL
+           extra insn, so it buys parity with the wrong instruction;
+         the same opaque-zero on `i` instead                          28 / 70
+         depth-2 wrapper on loop 2's body                             29
+     Verdict unchanged: 9 = item 1 (4, loop.c biv elimination our cc1 will not do)
+     + item 2 (2, cse zero-reuse) + item 3 (3, the w48 EPILOGUE-SWAP class, whose
+     only instrument is build.py's PER_FN_EPILOGUE_UNFILL table -- still the single
+     highest-value action on this function and still outside a worker's remit). */
 void PAD_update(void)
 {
   int i;

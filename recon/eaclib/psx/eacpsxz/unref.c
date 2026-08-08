@@ -106,6 +106,23 @@ extern void chase(unsigned int code);                                           
  * = 108 diffs at 158/158 EXACT parity, arm-1 only 83 (155/158), and (a)+(b) together 110 (160/158).
  * ==> both (a) and (b) reach the oracle's INSTRUCTION COUNT under the fence; what neither reaches
  * is the register assignment.  Next attack = reqdelta/allocsim on the 158/158 (a)-fence basin.
+ * w50-a9 2026-08-09: the w49 basins were REPRODUCED exactly (108 @ 158/158 for the (a)-side three
+ * fences placed immediately before each `out = refcpy(...)`; 12 @ 156/158 for the (b) fence; 110 @
+ * 160/158 for both), which validates them as a base for the named next attack -- and two NEW facts:
+ *   - FENCE PLACEMENT inside (a) is load-bearing: the same three opacity fences placed one statement
+ *     earlier (right after `out += reverse`, before `src += reverse`) give 124 @ 156/158 -- they stop
+ *     restoring the third add.  Only the immediately-before-the-call position reaches 158/158.
+ *   - a 2-of-3 subset (arms 2+3 only) gates 38 @ 156/158, i.e. the diff cost of the fence family is
+ *     strongly super-linear in how much of the arm web it perturbs; the arm-1 fence is the expensive
+ *     one (w35 measured it alone at 83 @ 155/158).
+ * Also falsified this pass (both diff-NEUTRAL at 17 / 153): `src += reverse` moved AHEAD of
+ * `out += reverse` in arm 1, and the index spelling `out = &out[reverse];` in all three arms (the
+ * §3.12 #1 index-vs-walk lever) -- combine folds the add into the arg copy identically either way.
+ * KEPT: the honest 17 @ 153/158.  Everything that reaches the oracle's COUNT costs 6x the diffs, and
+ * per the standing rule nothing that SHORTENS the function further is landable.  The next attack is
+ * unchanged and is an INSTRUMENT job, not a spelling job: reqdelta/allocsim on the 108 @ 158/158
+ * basin (the register assignment is the whole residual there; the instruction stream is already
+ * retail's length).
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)

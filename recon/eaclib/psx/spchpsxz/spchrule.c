@@ -357,7 +357,16 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * This is consistent with the w34-a10 mechanism being in reload1's `order_regs_for_reload`
  * (hard_reg_n_uses tie-break), which no cse/value-numbering barrier can reach -- the fence family
  * operates on pseudos, the tie is over HARD regs after allocation.  Next angle stays a3-side:
- * make some OTHER pseudo prefer $a3 less, or give $t0 a nonzero hard_reg_n_uses. */
+ * make some OTHER pseudo prefer $a3 less, or give $t0 a nonzero hard_reg_n_uses.
+ * w50-a9 2026-08-09 re-gated at 40 (count-exact 112/112) and PARKED per the wave brief: the
+ * residual is a post-allocation HARD-REG tie in reload1's order_regs_for_reload, and this wave's
+ * two productive instruments both operate on PSEUDOS -- the opacity fence (value numbering) and the
+ * zero-cost do{}while(0) ref inflator (allocno/qty priority) -- so neither can reach it by
+ * construction.  That boundary is now receipted from BOTH sides: the inflator family cracked
+ * iSPCH_BankMemAlloc (a local-alloc qty tie) in this same cluster on the same day, and is inert
+ * here.  One structural probe run and falsified: passing arg 1 as `*sentence` while arg 4 stays
+ * `(int)*sentSlot` (to stop the two sharing pseudo 121, cse-proof) = 40, unchanged.
+ * The angle stays as stated: a3-side, and it needs the -dl/-dg hard_reg_n_uses table, not C. */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);

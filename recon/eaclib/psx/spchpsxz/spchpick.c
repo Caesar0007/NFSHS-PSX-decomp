@@ -1018,7 +1018,26 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                          * the tmp-byte address temp still owns $v0 until the `lbu` (anti-dep).
                          * Retail has THREE live qtys there (high $v0 / addr $v1 / one $a3); we have
                          * two plus a reuse.  The reachable target is therefore "get the addr temp
-                         * OFF $v0" (QTY_CMP_PRI on the block-0 qtys), NOT "move the lui". */
+                         * OFF $v0" (QTY_CMP_PRI on the block-0 qtys), NOT "move the lui".
+                         * w50-a9 2026-08-09: the QTY_CMP_PRI target was attacked with the ZERO-COST
+                         * REF INFLATORS (catalog w44 #2/#3 -- the family that cracked
+                         * iSPCH_BankMemAlloc this wave), on the theory that lifting the CALLEE
+                         * address pseudo's weighted refs would make it win $v0 and push the addr
+                         * temp to $v1 (retail's assignment).  FALSIFIED, all at 83/83:
+                         *   `do{}while(0)` wrapper on the gSentenceRuleSet call statement, depth 1
+                         *   and depth 2 = 24;  with the shift byte hoisted OUT of the wrapper into
+                         *   its own named local (so only the callee address is lifted), depth 2 and
+                         *   depth 3 = 24.  The wrapper's NOTE_INSN_LOOP_BEG is a sched2 barrier
+                         *   (w45) and it re-orders the whole arm long before the qty ranking
+                         *   matters -- on a single call statement the inflator is never free.
+                         * Diff-NEUTRAL (10, recorded so they are not re-run): hoisting the shift
+                         * byte into a named `sh` local on its own; an opacity fence on `r` (the
+                         * iSPCH_UnPackSample return) placed before the `if (r != 0)` test, aimed at
+                         * killing r's $v0 copy preference so the addr temp cannot inherit the reg.
+                         * The addr temp's $v0 is therefore NOT inherited from the call's return
+                         * preference; it is a plain first-free-register pick, and the only untried
+                         * instrument left is the -dl qty table itself (qtytrace) -- not another
+                         * source shape. */
                         if (r != 0)
                             gSentenceRuleSet(
                                 (int)(unsigned int)*(unsigned short *)sentence, (int)rid,

@@ -113,7 +113,7 @@ int   GetAwardInformation(...);
 int   PSXDrawBrightEndLine(...);
 int   PlayerRanking(...);
 char *Stattool_GetAINameFromPersonality(...);
-int   TournPointTotal(...);
+short TournPointTotal(...);
 int   textpixels(...);
 int   tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &);
 extern tTexture_ShapeInfo *gCurrentShapes[];

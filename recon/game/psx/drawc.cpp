@@ -46,6 +46,53 @@ typedef struct {
 /* split form: prim pre-loaded by COMPILER code (retail interleaves that lw with
  * neighbouring reg math, e.g. the overlay pTVar23 compute -- an atomic 14-insn
  * asm can't reproduce that); the asm does the remaining 13-insn link tail. */
+/* EA EXPANDER TEMPLATE -- PER-VERTEX UV TINT (w51-a10, 2026-08-09).
+ * NOT compiler codegen: the same 21-insn block, with the SAME FOUR FIXED
+ * SCRATCH REGISTERS ($t4/$t5 = the per-vertex u/v pair, $t6/$t7 = the tint
+ * base pair), appears at NINE sites across THREE functions -- census
+ * `grep -nE 'lbu +\$t6, 0x[67]4\(' asm/nonmatchings/main/DrawC_Prim*.s`:
+ *   ID variant (bias 0x64/0x65, +0x40, vertex uv 0xD6/0xD7 off the morphed
+ *     idN):  PrimMenu @800C37C8 . Prim @800C07EC/@800C10C4 .
+ *            PrimClip @800C24CC/@800C306C
+ *   VT variant (bias 0x74/0x75 + the 0x84 v-bias, vertex uv 0xAE/0xB0,
+ *     0xB6/0xB8, 0xBE/0xC0 off sd):  Prim @800C0710/@800C0FBC .
+ *            PrimClip @800C23F0/@800C2F64
+ * -- with completely different surrounding allocations (prim $a3 vs $a1,
+ * vertex bases $t1/$t2/$a2 vs $s1-relative constants).  DECISIVE: $v0/$v1 are
+ * provably DEAD immediately before the block at every site (the preceding
+ * lhu/sh pair kills them) and our own cc1 uses them there -- retail never
+ * does.  Zero load-delay nops in a rigid 6-insn-per-vertex shape is the
+ * hand-scheduled signature.  Same reserved $t4-$t7 window as the already-
+ * proven DRAWC_OTLINK_* templates in this TU (methodology sec.3.25-2,
+ * catalog row 136).  A `%%0/%%1` sum displacement would make the assembler
+ * expand the $at address macro, so every displacement is pre-folded DECIMAL
+ * (maspsx parses mem displacements base-10).
+ * EFFECT (all 9 sites landed, ZERO regressions on the whole-TU gate):
+ *   PrimMenu  58 -> 11   (486  -> 481  insns, oracle 480)
+ *   Prim     746 -> 360  (1403 -> 1395 insns, oracle 1389)
+ *   PrimClip 857 -> 626  (1892 -> 1883 insns, oracle 1877)
+ * It kills BOTH halves of the "u0-pair" trade the w46/w49/w50 PrimMenu
+ * receipts below call irreconcilable: the 6 load-delay nops go (the template
+ * is nop-free) AND the u/v pseudos leave the allocator entirely, so $a1 stays
+ * free for overlayFlag and the id 3-cycle holds.  The single-`u0` merged temp
+ * and every 2-pseudo/fence variant those receipts enumerate were all attacking
+ * a block gcc never emitted.  It also closes the w44-a8 / w40-a3 "tint-band"
+ * receipts in DrawC_Prim below: their own measurement -- the pair form is
+ * COUNT- and OFFSET-EXACT against the oracle and differs ONLY in the register
+ * class ($a0-$a2/$v0/$v1 vs retail's $t4-$t7) -- is exactly the fixed-reg
+ * template signature, and the SYM's SILENCE about u/v locals at every one of
+ * these blocks is the second tell (an expander leaves no source-level locals).
+ * Do NOT re-run the clobber-list / "=&r"-output / do{}while(0) experiments
+ * those receipts enumerate: they were aimed at a compiler that never ran. */
+#define DRAWC_UVTINT_ID(sd_, prim_, i0_, i1_, i2_) __asm__ volatile( \
+    "lbu\t$t6,100(%0)\n\tlbu\t$t7,101(%0)\n\taddiu\t$t6,$t6,64\n\tlbu\t$t4,214(%2)\n\tlbu\t$t5,215(%2)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,12(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,13(%1)\n\tlbu\t$t4,214(%3)\n\tlbu\t$t5,215(%3)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,20(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,21(%1)\n\tlbu\t$t4,214(%4)\n\tlbu\t$t5,215(%4)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,28(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,29(%1)" \
+    : : "r"(sd_), "r"(prim_), "r"(i0_), "r"(i1_), "r"(i2_) : "$12", "$13", "$14", "$15", "memory")
+/* EA expander template, VT variant (bias ePmx1.u0+0x40 / ePmx1.v0+eAddZ,
+ * vertex uv read sd-relative).  4 oracle sites: Prim @800C0710/@800C0FBC,
+ * PrimClip @800C23F0/@800C2F64 -- see the DRAWC_UVTINT_ID receipt. */
+#define DRAWC_UVTINT_VT(sd_, prim_) __asm__ volatile( \
+    "lbu\t$t6,116(%0)\n\tlbu\t$t7,117(%0)\n\tlbu\t$t5,132(%0)\n\taddiu\t$t6,$t6,64\n\taddu\t$t7,$t7,$t5\n\tlbu\t$t4,174(%0)\n\tlbu\t$t5,176(%0)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,12(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,13(%1)\n\tlbu\t$t4,182(%0)\n\tlbu\t$t5,184(%0)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,20(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,21(%1)\n\tlbu\t$t4,190(%0)\n\tlbu\t$t5,192(%0)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,28(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,29(%1)" \
+    : : "r"(sd_), "r"(prim_) : "$12", "$13", "$14", "$15", "memory")
 #define DRAWC_OTLINK_FT3B(sd_, prim_) __asm__ volatile( \
     "lw\t$t4,60(%1)\n\tlw\t$t5,56(%1)\n\taddiu\t$t6,%0,32\n\tsll\t$t4,$t4,2\n\taddu\t$t5,$t5,$t4\n\tsw\t$t6,4(%1)\n\tlwl\t$t6,2($t5)\n\tlui\t$t4,0x0700\n\tsrl\t$t6,$t6,8\n\tor\t$t6,$t6,$t4\n\tsll\t$t4,%0,8\n\tsw\t$t6,0(%0)\n\tswl\t$t4,2($t5)" \
     : : "r"(prim_), "r"(sd_) : "$12", "$13", "$14", "memory")
@@ -1527,16 +1574,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           *(u_short *)((int)prim + 0xe) = clut;
           *(u_short *)((int)prim + 0x16) = tpage;
         }
-        {
-          u_char u = (sd->ePmx1).u0 + 0x40;
-          u_char v = (sd->ePmx1).v0 + (char)sd->eAddZ;
-          *(u_char *)(prim + 3) = (char)(sd->vt0).y + u;
-          *(u_char *)((int)prim + 0xd) = (char)(sd->vt0).z + v;
-          *(u_char *)(prim + 5) = (char)(sd->vt1).y + u;
-          *(u_char *)((int)prim + 0x15) = (char)(sd->vt1).z + v;
-          *(u_char *)(prim + 7) = (char)(sd->vt2).y + u;
-          *(u_char *)((int)prim + 0x1d) = (char)(sd->vt2).z + v;
-        }
+        DRAWC_UVTINT_VT(sd, prim);
       }
       if (*(int *)&sd->ePmx0 != 0) {
         DRAWC_OTLINK_FT3(sd, prim);
@@ -1673,24 +1711,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
                    exact prologue, PrimClip 80/80), so the old "needs the frame fix
                    first" note is STALE -- what is left is the $a/$v-vs-$t class. */
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          {
-            u_char cu0 = *(u_char *)(id0 + 0xd6);
-            u_char cv0 = *(u_char *)(id0 + 0xd7);
-            *(u_char *)(prim + 3) = cu0 + u;
-            *(u_char *)((int)prim + 0xd) = cv0 + v;
-          }
-          {
-            u_char cu1 = *(u_char *)(id1 + 0xd6);
-            u_char cv1 = *(u_char *)(id1 + 0xd7);
-            *(u_char *)(prim + 5) = cu1 + u;
-            *(u_char *)((int)prim + 0x15) = cv1 + v;
-          }
-          {
-            u_char cu2 = *(u_char *)(id2 + 0xd6);
-            u_char cv2 = *(u_char *)(id2 + 0xd7);
-            *(u_char *)(prim + 7) = cu2 + u;
-            *(u_char *)((int)prim + 0x1d) = cv2 + v;
-          }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
         }
       }
       DRAWC_OTLINK_FT3(sd, prim);
@@ -2028,16 +2049,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           *(u_short *)((int)prim + 0xe) = clut;
           *(u_short *)((int)prim + 0x16) = tpage;
         }
-        {
-          u_char u = (sd->ePmx1).u0 + 0x40;
-          u_char v = (sd->ePmx1).v0 + (char)sd->eAddZ;
-          *(u_char *)(prim + 3) = (char)(sd->vt0).y + u;
-          *(u_char *)((int)prim + 0xd) = (char)(sd->vt0).z + v;
-          *(u_char *)(prim + 5) = (char)(sd->vt1).y + u;
-          *(u_char *)((int)prim + 0x15) = (char)(sd->vt1).z + v;
-          *(u_char *)(prim + 7) = (char)(sd->vt2).y + u;
-          *(u_char *)((int)prim + 0x1d) = (char)(sd->vt2).z + v;
-        }
+        DRAWC_UVTINT_VT(sd, prim);
       }
       if (*(int *)&sd->ePmx0 != 0) {
         DRAWC_OTLINK_FT3(sd, prim);
@@ -2069,24 +2081,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          {
-            u_char cu0 = *(u_char *)(id0 + 0xd6);
-            u_char cv0 = *(u_char *)(id0 + 0xd7);
-            *(u_char *)(prim + 3) = cu0 + u;
-            *(u_char *)((int)prim + 0xd) = cv0 + v;
-          }
-          {
-            u_char cu1 = *(u_char *)(id1 + 0xd6);
-            u_char cv1 = *(u_char *)(id1 + 0xd7);
-            *(u_char *)(prim + 5) = cu1 + u;
-            *(u_char *)((int)prim + 0x15) = cv1 + v;
-          }
-          {
-            u_char cu2 = *(u_char *)(id2 + 0xd6);
-            u_char cv2 = *(u_char *)(id2 + 0xd7);
-            *(u_char *)(prim + 7) = cu2 + u;
-            *(u_char *)((int)prim + 0x1d) = cv2 + v;
-          }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
         }
       }
       if ((overlayFlag & 3) != 0) {
@@ -2784,16 +2779,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           *(u_short *)((int)prim + 0xe) = clut;
           *(u_short *)((int)prim + 0x16) = tpage;
         }
-        {
-          u_char u = (sd->ePmx1).u0 + 0x40;
-          u_char v = (sd->ePmx1).v0 + (char)sd->eAddZ;
-          *(u_char *)(prim + 3) = (char)(sd->vt0).y + u;
-          *(u_char *)((int)prim + 0xd) = (char)(sd->vt0).z + v;
-          *(u_char *)(prim + 5) = (char)(sd->vt1).y + u;
-          *(u_char *)((int)prim + 0x15) = (char)(sd->vt1).z + v;
-          *(u_char *)(prim + 7) = (char)(sd->vt2).y + u;
-          *(u_char *)((int)prim + 0x1d) = (char)(sd->vt2).z + v;
-        }
+        DRAWC_UVTINT_VT(sd, prim);
       }
       if (*(int *)&sd->ePmx0 != 0) {
         DRAWC_OTLINK_FT3(sd, prim);
@@ -2817,24 +2803,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          {
-            u_char cu0 = *(u_char *)(id0 + 0xd6);
-            u_char cv0 = *(u_char *)(id0 + 0xd7);
-            *(u_char *)(prim + 3) = cu0 + u;
-            *(u_char *)((int)prim + 0xd) = cv0 + v;
-          }
-          {
-            u_char cu1 = *(u_char *)(id1 + 0xd6);
-            u_char cv1 = *(u_char *)(id1 + 0xd7);
-            *(u_char *)(prim + 5) = cu1 + u;
-            *(u_char *)((int)prim + 0x15) = cv1 + v;
-          }
-          {
-            u_char cu2 = *(u_char *)(id2 + 0xd6);
-            u_char cv2 = *(u_char *)(id2 + 0xd7);
-            *(u_char *)(prim + 7) = cu2 + u;
-            *(u_char *)((int)prim + 0x1d) = cv2 + v;
-          }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
         }
       }
       DRAWC_OTLINK_FT3(sd, prim);
@@ -3227,16 +3196,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           *(u_short *)((int)prim + 0xe) = clut;
           *(u_short *)((int)prim + 0x16) = tpage;
         }
-        {
-          u_char u = (sd->ePmx1).u0 + 0x40;
-          u_char v = (sd->ePmx1).v0 + (char)sd->eAddZ;
-          *(u_char *)(prim + 3) = (char)(sd->vt0).y + u;
-          *(u_char *)((int)prim + 0xd) = (char)(sd->vt0).z + v;
-          *(u_char *)(prim + 5) = (char)(sd->vt1).y + u;
-          *(u_char *)((int)prim + 0x15) = (char)(sd->vt1).z + v;
-          *(u_char *)(prim + 7) = (char)(sd->vt2).y + u;
-          *(u_char *)((int)prim + 0x1d) = (char)(sd->vt2).z + v;
-        }
+        DRAWC_UVTINT_VT(sd, prim);
       }
       if (*(int *)&sd->ePmx0 != 0) {
         DRAWC_OTLINK_FT3(sd, prim);
@@ -3268,24 +3228,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           u_char u = (sd->ePmx0).u0 + 0x40;
           u_char v = (sd->ePmx0).v0;
           /* idN are morphed addresses: tV[id].u/v = 0xd6/0xd7(idN) (oracle t9/t8/t3) */
-          {
-            u_char cu0 = *(u_char *)(id0 + 0xd6);
-            u_char cv0 = *(u_char *)(id0 + 0xd7);
-            *(u_char *)(prim + 3) = cu0 + u;
-            *(u_char *)((int)prim + 0xd) = cv0 + v;
-          }
-          {
-            u_char cu1 = *(u_char *)(id1 + 0xd6);
-            u_char cv1 = *(u_char *)(id1 + 0xd7);
-            *(u_char *)(prim + 5) = cu1 + u;
-            *(u_char *)((int)prim + 0x15) = cv1 + v;
-          }
-          {
-            u_char cu2 = *(u_char *)(id2 + 0xd6);
-            u_char cv2 = *(u_char *)(id2 + 0xd7);
-            *(u_char *)(prim + 7) = cu2 + u;
-            *(u_char *)((int)prim + 0x1d) = cv2 + v;
-          }
+          DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
         }
       }
       if ((overlayFlag & 3) != 0) {
@@ -3657,54 +3600,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * (measured: +9 insns, 6 redundant lbu + 3 addiu), so the base pair
          * has to be two real temps.  `u` keeps char type so `u + '@'` is a
          * bare addiu (u_char would inject an andi 0xff). */
-        char u;
-        u_char v;
-        u_char u0;   /* w46-a3 MATCH: ONE merged byte temp, NOT the u0/v0 pair.
-             * The pair form gives TWO global allocnos (each has 3 deaths, so
-             * local_alloc skips them); the second one has pri 3*12/14 = 2.571,
-             * ranks ABOVE overlayFlag (1.8125) and takes $a1 -- which is the
-             * ONLY reason overlayFlag cannot reach retail's $a1 and the whole
-             * id 3-cycle stays rotated.  Merging u/v into one pseudo (refs 24,
-             * live 14) leaves $a1 free: allocsim then reproduces retail's
-             * handout EXACTLY (overlayFlag $a1, id2 $a2, id1 $t1, id0 $t2)
-             * and the gate drops 95 -> 58.
-             * COST: +6 load-delay nops (retail keeps 2 regs in flight, $t4/$t5,
-             * and pairs the two lbu's).  REQUIRED DELTA to recover them, from
-             * tools/reqdelta.py: a SECOND uv pseudo is admissible only if it is
-             * a global allocno with pri < .7578 (below id0) -- i.e. refs 12 and
-             * live >= 48, or refs <= 4 with the pair NOT becoming local qtys.
-             * FALSIFIED at this basin: 6 per-vertex temps (201/197), v-only
-             * split (240/244), in-place sums (95/97) -- every one of them makes
-             * the second value a LOCAL qty or a high-pri global, and it takes
-             * $a1 before overlayFlag can.
-             * FALSIFIED post-w46 (inline, 58-basin) -- the fence route does NOT
-             * deliver the live>=48 bar: v0t pair NO fence 97 @481 (5 of 6 nops
-             * recovered, allocation broken -- the schedule-vs-allocation trade
-             * in pure form), + join fence 141 @483, + else-arm deep fence 140
-             * @484, + dual deep 141 @485 (cross-arm liveness conflicts rotate
-             * OTHER pseudos -- worse than no fence), vertex-2-only refs<=4 +
-             * join fence 132 @486 (no nops recovered, still rotates).  ANGLE:
-             * the pri math alone is insufficient -- the fence's conflict set is
-             * the killer; needs the instrumented cc1 [find_free_reg] trace on
-             * the pair basin (C:/Temp/nfs4-instr-cc1, ICE-stub recipe in
-             * scratch/w45_a10_receipts.md sec.6.4) to see WHO evicts whom, or a
-             * live-stretch consumer INSIDE the envmap arm (an OT-tail use). */
-
-        u = (sd->ePmx0).u0;
-        v = (sd->ePmx0).v0;
-        u = u + '@';   /* +0x40 AFTER both base lbu's (oracle order) */
-        u0 = *(u_char *)(id0 + 0xD6);
-        prim->u0 = u0 + u;
-        u0 = *(u_char *)(id0 + 0xD7);
-        prim->v0 = u0 + v;
-        u0 = *(u_char *)(id1 + 0xD6);
-        prim->u1 = u0 + u;
-        u0 = *(u_char *)(id1 + 0xD7);
-        prim->v1 = u0 + v;
-        u0 = *(u_char *)(id2 + 0xD6);
-        prim->u2 = u0 + u;
-        u0 = *(u_char *)(id2 + 0xD7);
-        prim->v2 = u0 + v;
+        /* EA expander template (see DRAWC_UVTINT_ID receipt at the top of this TU) */
+        DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
       }
     }
     if ((overlayFlag & 3) != 0) {   /* fall-through = the overlay arm (oracle beqz) */

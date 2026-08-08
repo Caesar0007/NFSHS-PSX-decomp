@@ -842,6 +842,21 @@ void Night_RestartNightDriving(void)
  * Falsified earlier: hoisting `Night_gZNear = 0x80;` above the two shift assignments
  * (16, worse), and two other spellings of the target byte read (`((u_char*)t)[0x447]`,
  * `*(u_char*)((char*)t+0x447)`) -- both byte-identical at 8.  Sec.3.15 scratch-register
+ * ---- w51-a10 (2026-08-09): 8 STAYS, count-exact 68/68; 8 MORE falsifications, and
+ * the w50 "NON-BARRIER qty-order device" requirement is now MEASURED AND MET WITHOUT
+ * MOVING THE TIE.  The w47 OPACITY fence `__asm__("" : "=r"(tgt) : "0"(tgt))` on a
+ * named `tgt` local, placed BEFORE the Night_gZNear store, is confirmed ZERO-INSN and
+ * NON-BARRIER here (68 insns preserved, unlike every do{}while(0) wrapper) -- but the
+ * gate is 8, byte-identical to the plain `tgt` local control.  So its +2 refs do NOT
+ * reach this pair's local-alloc QTY priority.  Placed AFTER the store it reproduces
+ * the w50 fence result exactly (5 @69: the tie moves, the barrier buys the nop).
+ * Two stacked opacity fences before the store: 8.  Also falsified, all 8 @68: the
+ * guard operand order `(4 & byte)` . the guard flag hoisted into its own u_int temp .
+ * a volatile-cast Night_gZNear store.  And 20 @68 for routing BOTH gZNear stores
+ * through one `mode` variable (the "make the constant a cross-block global allocno"
+ * angle -- the second store sits after a call, so the pseudo re-colors the fn).
+ * => the reachable dial is still a zero-insn ref/live change on the POINTER qty that
+ * survives cse; the instrumented-cc1 [qty_compare] trace is the next instrument.
  * tie-break class.
  * w49-a5 -- MECHANISM READ OFF THE -dl DUMP, and it is a LOCAL-ALLOC (qty) tie, not a
  * global allocno one.  Block 4 carries ~13 qtys (so the 3-QTY hand-rolled path does NOT

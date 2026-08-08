@@ -239,6 +239,18 @@ int TrackSpec_gPrevSpec;
  *     hoisted above fogstate 8, an extra void fence before fogstate 4 (neutral), the
  *     existing fence moved before the weather read 8.
  * Every lever that moves either insn drags the other block with it.  FLOOR (STRONG) stands
+ * ---- w51-a10 (2026-08-09): 4 STAYS, count-exact 142/142; 11 MORE falsifications,
+ * all byte-identical to the base 4 unless noted.  FENCE/DEVICE axis: the existing
+ * fence respelled as the w48 void-tail form (skipped, 2 anchors) . an EXTRA void-tail
+ * fence at the very TOP of the fn 4 (and the residual is the IDENTICAL two lines --
+ * this settles the w46 "a different 4?" question: it is the SAME 4) . a void fence
+ * after skystate 6.  STORE/ORDER axis: swap horizonstate/skystate 6 . depthcuestate
+ * hoisted to just after skystate (post-fence) 18 . horizonspec.mirror hoisted there
+ * 192 . fogstate sunk to after skystate 6 . `i = 0` sunk below the fogstate store 4 .
+ * `i = 0` folded into the ring `for` header 6 . the weather read hoisted above the
+ * fogstate store 8 . depthcuestate hoisted above the fogspec.contrast store 20.
+ * => the two ready-list DRAIN positions are unmoved by every remaining zero-insn
+ * device; the +-1-RTL-insn / permuter route named by w49-a6 stands unchanged.
  * at 4; the next instrument would be a -dl qty dump on the store block, not more spellings. */
 void TrackSpec_SetDefault(CTrackSpec *spec)
 

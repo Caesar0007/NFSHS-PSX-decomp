@@ -2754,6 +2754,14 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      dial either; what remains is the find_free_reg WINDOW (why regs 2..7 are
      blocked for the address qty in the 6-diff shape) -- read it off an
      instrumented-cc1 [find_free_reg] trace, not from source spellings.
+     ---- w51-a10 (2026-08-09): 6 STAYS, count-exact 189/189.  Three more probes in
+     the named `int zo`+opacity-fence basin (which is count-exact with the ORACLE
+     SCHEDULE -- lbu first, then lui/addiu/addu -- and only the two block-7 qtys
+     v0/v1 swapped): a per-site UNSIZED `asm("goffsets")` array view 10, a SIZED [8]
+     view 10 (both byte-identical to the plain form, so the storage-shape menu does
+     not touch this qty pair either).  Confirms the w50 addendum: the block qty COUNT
+     and every ref/live dial are exhausted; what is left is the find_free_reg WINDOW
+     (why regs 2..7 are blocked for the address qty in the 6-diff shape).
      ============================================================================ */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
@@ -3349,7 +3357,29 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      spellings (the LAUNCH-BOOST/luid tie that solved DoLines step 2 is the model
      to apply -- there, deleting a net-zero pair restored a copy's birthing_insn_p
      boost; here look for whatever costs `offset` its boost or gives the Vi/pCp
-     copies theirs). */
+     copies theirs).
+     ---- w51-a10 (2026-08-09): 5 STAYS.  The w50 alias basin RE-MEASURED and its
+     residual PINNED EXACTLY: `int offset = offsetArg;` at either the `drawResult =`
+     or the clipW-store position is count-EXACT 189/189 at 8 diffs, and side_by_side
+     shows those 8 are a pure 3-insn ENTRY-BLOCK ROTATION plus one store move --
+     ours `addu s2,a0,zero . addu s3,a3,zero . lw s5,96(sp)` vs retail
+     `lw s5,96(sp) . addu s2,a0,zero . addu s3,a3,zero`, with `sw s5,236(s0)` one
+     slot late.  The un-aliased base (5 @190) instead keeps `sw s5,68(sp);
+     lw s5,96(sp)` at insns 6-7 and pays a nop where retail FILLS the
+     `lbu v0,3(s4)` load-delay slot at insn 17: retail saves s0,s4,ra,s5,s3,s2,s1
+     and we save s0,s4,s5,ra,s3,s2,s1.  FALSIFIED this wave -- at the alias basin,
+     repositioning the clipW store after the mirror store 10 and before the guard 10;
+     at the base basin, a zero-insn USE fence naming Vi and/or pCp walked to four
+     entry positions (top / after cprim / after isCullable / after the matB.t byte
+     store) = 18 @191, 18 @191, 9 @190, 9 @190, plus a void-tail fence at the top
+     18 @191.  EVERY fence COSTS instructions here, so the class is not
+     fence-reachable.  => this is the PROLOGUE PARAM-COPY SINK class in pure form
+     (assign_parms emits the parm copies and the stack-arg reload before any body
+     statement, so no source position can reach them) and the reachable mechanism is
+     a PER_FN textual splice on the .s -- the PER_FN_RA_SINK / PROLOGUE_UNSINK family
+     already wired in tools/build.py.  NAMED LANE CANDIDATE: sink `sw s5,68(sp)` to
+     retail insn 11 and `lw s5,96(sp)` into the lbu load-delay slot at 17, which also
+     deletes the nop and lands the count. */
   coorddef tmp;
   coorddef tmp2;
   int isCullable;

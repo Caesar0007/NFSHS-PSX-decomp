@@ -260,7 +260,17 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
          OT write in 3 orderings (26), a `pal` pointer local (26), the zero-insn
          `l0 & 0xffffff` re-mask (26), P_TAG bitfield at site 2 as well (26), a
          do{}while(0) depth wrapper (31 @127), index-first addu operand order at site 2
-         or both (42), a use fence on l0 (46 @128) or on prim (32). */
+         or both (42), a use fence on l0 (46 @128) or on prim (32).
+ * ---- w51-a10 (2026-08-09): 26 STAYS, count-exact 126/126.  The named "mint a 7th
+ * live pseudo / keep the palette base alive across both OT accesses" angle is
+ * FALSIFIED in five spellings: a `pal` byte-pointer local feeding BOTH accesses
+ * plus per-access `ot1`/`ot2` locals 26 . `pal` + `ot2` only 26 . `ot1` only 26 .
+ * a `u_int *pal` INDEX form `pal[sd->otz]` at both accesses 42 . `pal` + a zero-insn
+ * USE fence on it between the two accesses 46 @128 (+2 insns).  cc1 folds every
+ * pointer local back onto the single CSE'd scratchpad read, so the base still dies
+ * at the second addu and the 6-vs-7 live-pseudo count is unchanged.  The remaining
+ * route is a 7th pseudo carrying a DIFFERENT value (not a re-spelling of the palette
+ * base), or the find_free_reg window trace. */
       prim = (POLY_FT4 *)Render_gPacketPtr;
       ((Sfx_tTag *)&prim->tag)->addr =
                   *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;

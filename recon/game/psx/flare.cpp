@@ -1335,7 +1335,21 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
    *   guard 7 @248 (costs an insn) . hoisting `pt = &pt2;` above the guard AND naming
    *   `pt` in the entry fence 8.  ⇒ every entry-block fence position and operand set has
    *   now been swept; the save's position is not fence-reachable.  The -dl/-dg qty table
-   *   remains the only untried instrument, exactly as the w49 note says. */
+   *   remains the only untried instrument, exactly as the w49 note says.
+ *   ---- w51-a10 (2026-08-09): 6 STAYS, count-exact 247/247; 10 MORE falsifications.
+ *   Residual (B), the second colour copy's register: reusing the DEAD `flare_type`
+ *   pseudo as the second carrier (the catalog variable-identity/two-roles lever) 20 .
+ *   a do{}while(0) depth wrapper on the second copy 25 @248 . a w47 OPACITY fence
+ *   between the two copies 20 . swapping the READ ORDER (cbeam first) 8 . and the
+ *   TWO-TEMP family re-measured in this basin with four serialization devices, all
+ *   10: plain two temps . volatile on the SECOND read 30 @249 . volatile on the
+ *   FIRST store 10 . a read-back data dependence through gfrgb 10 . c2 block-scoped
+ *   10.  => retail genuinely holds the two colours in TWO pseudos ($v1 then $v0) AND
+ *   keeps them serial; no C device reaches both at once.  Residual (A) untouched:
+ *   the `sw s3,92(sp)` prologue save is now a named PER_FN prologue-save-order
+ *   SPLICE candidate (same family as PER_FN_EPILOGUE_UNFILL / PER_FN_RA_SINK in
+ *   build.py) -- the flag axis and every fence position/operand set are receipted
+ *   dead across w45/w46/w49/w50 and now w51. */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;

@@ -243,9 +243,24 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
-  newColor.r = (u_char)(newR & ~7);
-  newColor.g = (u_char)(newG & ~7);
+  /* MATCH (w50-a5, 56 -> 38 diffs, count still EXACT 113/113): TWO cooperating pieces,
+     NEITHER of which moves the gate alone.  (1) the three masked stores in REVERSE
+     component order, so newColor.r is stored LAST; (2) a zero-insn STORE-READ-BACK of
+     that last store (`newR = newColor.r;` -- cc1 forwards the just-stored value, so no
+     instruction is emitted, the count stays 113).  This is aimed straight at the
+     mechanism the w41-a7 -dg/-dl receipt below already named: our hard-$a0 conflict comes
+     from the cse-created reload of the just-stored newColor.g byte, and retail avoids it
+     because retail ALSO store-forwards a byte instead of reloading it.  Making the LAST
+     store the forwarded one reproduces that.  MEASURED (all count-exact 113/113): store
+     order alone rbg 56 / grb 58 / gbr 54 / brg 54 / bgr 54; read-back alone (rgb order)
+     r/g/b all 56; r-stored-LAST + read-back-of-r 38 in EVERY combination (bgr, brg, gbr,
+     and plain g,b,r), and adding further read-backs changes nothing.  ⚠️ do NOT also route
+     the else-arm's gTableCache stores through newR/newG/newB -- that costs 7 real insns
+     (141 @120).  Reverse store order is the load-bearing half; keep both. */
   newColor.b = (u_char)(newB & ~7);
+  newColor.g = (u_char)(newG & ~7);
+  newColor.r = (u_char)(newR & ~7);
+  newR = newColor.r;
   /* newColor.cd is deliberately NOT initialised: the oracle builds the by-value CVECTOR
      argument by re-reading all four bytes back off the stack (`lbu $v0,0x13($sp)` for
      .cd) with no preceding store, so retail leaves it whatever was in the slot.  Harmless
@@ -846,7 +861,20 @@ void Night_RestartNightDriving(void)
  * a sized `[1]` asm-label view (12) and through an unsized `[]` view (13, +1 insn).
  * OPEN, NAMED: a zero-insn ref inflator for a POINTER pseudo (the w44 re-mask trick has no
  * pointer form that survives tree-level folding, and every do{}while(0) wrapper here costs
- * the +1 insn its NOTE_INSN_LOOP_BEG barrier splits out of the store group). */
+ * the +1 insn its NOTE_INSN_LOOP_BEG barrier splits out of the store group).
+ * w50-a5 -- the w45 USE-FENCE WALK (the instrument that sealed Hrz_InitSky this wave) run
+ * over this fn: a named `tgt` local + a zero-insn `__asm__("" : : "r"(tgt))` walked
+ * statement-by-statement through all 13 positions of the body.  Results (diffs @insns):
+ *   p1 20@68 - p2 12@68 - p3 8@68 - p4 5@69 - p5 9@69 - p6 8@68 - p7 8@68 - p8 8@68 -
+ *   p9 31@71 - p10 31@71 - p11 32@70 - p12 34@70 - p13 22@70   (control: tgt local = 8@68)
+ * BEST = position 4 (between the `Night_gZNear = 0x80;` store and the camera-flag guard):
+ * 5 diffs, and the residual there is ONLY `sw v0,0(gp); li v0,128; nop` vs the oracle's
+ * `li v1,128; sw v1,0(gp)` -- i.e. the tie IS reachable, but the fence's own scheduling
+ * barrier splits the store group and buys a `nop`, so the count goes 68 -> 69.  ⇒ the
+ * requirement is now sharp: a device that changes the two qtys' ORDER *without* being a
+ * sched barrier.  Also falsified this wave, all byte-identical 8@68: all SIX permutations
+ * of the three-store group (XZN 8 - XNZ 10 - ZXN 16 - ZNX 16 - NXZ 16 - NZX 14, so the
+ * shipped XZN order is already optimal), and a named `p_ = Vi->player;` index local. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -922,7 +950,26 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * diffs) but structurally wrong: the oracle computes the whole zfar chain and takes the z
  * guard BEFORE touching v->vx, so the early-x form re-orders the entire head (posdiff
  * alpha-LCS 7/64).  ⇒ x's live range cannot be lengthened from the front without moving
- * the load; the remaining route is SHORTENING z's (16 -> <10) from the back. */
+ * the load; the remaining route is SHORTENING z's (16 -> <10) from the back.
+ * w50-a5 -- BOTH remaining routes attacked and CLOSED at zero insns; all 19 probes below
+ * re-gate to exactly 71 @65/64 (byte-identical output unless noted):
+ *  (a) SHORTEN z FROM THE BACK: re-reading `v->vz` for the index term instead of holding
+ *      `z` (so z would die at the guard) is a no-op -- cse re-CSEs the second load back
+ *      onto the first, live length unchanged.  Same with znear/zfar-before-z (71),
+ *      z-between-them (71), `(z > znear) && (zfar > z)` (71), and zfirst+reread (71).
+ *      NOTE these three shapes were falsified at 77 in the w39 basin; re-tested here
+ *      because falsifications are basin-relative -- they are still falsified at 71.
+ *  (b) PROMOTE z BY REFS: with the corrected numerator `floor_log2(refs)*refs - size`,
+ *      z (4 refs/16 live) = 0.25 must pass x (4/10) = 0.40, i.e. z needs 6 refs (8/16 =
+ *      0.50).  A zero-insn read-only fence on z, walked through all 7 statement positions
+ *      and with ONE and TWO z operands (14 probes), moves NOTHING at positions 3/4 (71)
+ *      and only worsens elsewhere (75/72/75/76, three of them +1 insn) -- and the 1-operand
+ *      and 2-operand forms are byte-identical everywhere, so a duplicate asm operand does
+ *      NOT buy a second REG_N_REF here.  ⇒ the ref dial does not reach z in this fn.
+ * REMAINING NAMED ROUTE (untried, and the only one the model leaves): DEMOTE x by shedding
+ * one of its 4 refs -- (1*3-4)/10 = -0.10 falls below z's 0.25 in one step, because 3 refs
+ * put x's numerator NEGATIVE.  Needs a zero-insn ref DELETER for x (the w45 store-read-back
+ * class; it is what took Night_CreateNightTableElement 56 -> 38 this same wave). */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

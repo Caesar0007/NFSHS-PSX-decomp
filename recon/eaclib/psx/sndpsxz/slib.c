@@ -627,7 +627,26 @@ extern void iSNDserve(void)
      *       oracle's emission order): 72.  Lever 7 still holds in the new basin -- vreg's live-range
      *       -1 is worth more than the 4 order diffs.
      *
-     * 2026-07-27 NFS2-PC AXIS CLOSED for this fn (user-requested check of VA 0x0048c0a8):
+     * W50-a7 2026-08-09 -- HONEST NEW-TOOLKIT PASS at the 58 basin: 9 probes, NOTHING BIT; parked.
+ *   The pass targeted the two clusters this note names as source-reachable, with the zero-insn
+ *   dials that were NOT yet available when 58 was set (w44 ref-step inflators + the w47 opacity
+ *   fence).  All measured at 229/231 unless noted:
+ *   Cluster (a) -- 'the clean fix would be ONE more depth-1 REG_N_REF on kon':
+ *     `do { kon = 0; } while (0);` depth wrapper 58 (no change) · nested depth-2 wrapper 58 ·
+ *     ARM-DUPLICATED `kon = 0;` in both hook arms (w44 inflator #2 -- cross-jump merges the code,
+ *     flow counts both refs) 75 @230 · arm-dup + depth wrapper 75 @230 · a `koff = koff;` self-
+ *     assignment carrier 58.  ==> the depth wrapper is INERT here: this statement is at loop depth
+ *     0 in a function whose competing refs are depth-1/2 weighted, so a x2 on ONE outside-the-loop
+ *     ref cannot cross kon's flr2 step.  The 'one more depth-1 ref' the note asks for has no
+ *     zero-insn generator at this site -- the only forms that add the ref (arm duplication) also
+ *     add the insn.  Treat cluster (a) as needing a reqdelta/allocsim-priced dial, not a spelling.
+ *   Cluster (b) -- the `vreg0` split-temp's extra `addu $s4,$a0,$zero`:
+ *     dropping vreg0 for a plain assignment 83 @228 · plain + an OPACITY fence on `vreg` 83 @228
+ *     (the fence does NOT substitute for the split temp's live-range -1) · split temp + opacity
+ *     fence on vreg0 58 (exactly inert) · computing vreg0 BEFORE `vp` 90.  The 2-diff price of
+ *     vreg0 is still much cheaper than any alternative; the note's reading stands.
+ *
+ * 2026-07-27 NFS2-PC AXIS CLOSED for this fn (user-requested check of VA 0x0048c0a8):
      *   nfs2-v1.txt names 0x48c0a8 `iSNDserve_` (FCN VOID) -- the twin EXISTS, but it is a
      *   complete Windows rewrite: the DirectSound ring-buffer pump (COM vtable calls through
      *   DAT_004e18bc -- GetCurrentPosition/Lock/Unlock at +0x24/+0x2c/+0x4c -- play-cursor

@@ -161,20 +161,19 @@ void tScreenMemcard::LoadIcon(int filenum)
 {
   bool done;
   int i;
-  int idx;
   shapetbl *iconShape;
-  CARDINFO_def *cardInfo;
   char *shape_data;
   int byteOff;
-  short x_scale;
+  int x_scale;
   int clutx;
   int cluty;
   int fileOff8;
+  CARDINFO_def *cardInfo;
   
-  i = AudioMus_Buffered();
-  idx = AudioMus_Threshold();
-  if (idx <= i) {
-    CURRENTLYUSINGMEMCARD = 1;
+  if (AudioMus_Buffered() < AudioMus_Threshold()) {
+    return;
+  }
+  CURRENTLYUSINGMEMCARD = 1;
     this->numicon[filenum] = '\0';
     this->numblock[filenum] = '\0';
     if (filenum < this->pCI->numfiles) {
@@ -189,28 +188,18 @@ void tScreenMemcard::LoadIcon(int filenum)
       do {
         i = MCRD_handlecardevents(this->card);
       } while (i != 0x16);
-      done = false;
       MCRD_loadfile(this->card,this->fMemFile + filenum,1);
+      done = false;
       fileOff8 = filenum << 3;
-      while (!done) {
-        cardInfo = MCRD_getcard(this->card);
-        if (cardInfo->status == -1) {
+      while (1) {
+        if (done) {
+          break;
+        }
+        if (MCRD_getcard(this->card)->status == -1) {
           this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
         }
         i = MCRD_handlecardevents(this->card);
         switch(i) {
-        case 2:
-        case 3:
-        case 7:
-        case 10:
-        case 0xb:
-        case 0x10:
-        case 0x13:
-        case 0x17:
-          done = true;
-          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
-          this->goticon[filenum] = '\0';
-          break;
         case 0xf:
           done = true;
           if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
@@ -235,25 +224,36 @@ void tScreenMemcard::LoadIcon(int filenum)
           if (this->numicon[filenum] != '\0') {
             x_scale = 900;
             byteOff = 0;
-            idx = fileOff8 + filenum;
             do {
-              shape_data = (*fMemIcon[0])[0][0] + byteOff + idx * 0x40;
+              shape_data = (*fMemIcon[0])[0][0] + byteOff + (fileOff8 + filenum) * 0x40;
               if ((*shape_data & 0xf7U) == 0x40) {
-                vramfxya(shape_data,x_scale,(short)filenum * 0x11,(short)clutx,cluty);
+                vramfxya(shape_data,x_scale,filenum * 0x11,clutx,cluty);
               }
               x_scale = x_scale + 0x11;
-              i = i + 1;
               byteOff = byteOff + 0xc0;
+              i = i + 1;
             } while (i < (int)(uint)this->numicon[filenum]);
           }
           this->fFadeIcon[filenum] = 0x80;
           this->goticon[filenum] = '\x01';
+          break;
+        case 2:
+        case 3:
+        case 7:
+        case 10:
+        case 0xb:
+        case 0x10:
+        case 0x13:
+        case 0x17:
+          done = true;
+          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
+          this->goticon[filenum] = '\0';
+          break;
         }
       }
     }
 LoadIcon_clearCardFlag:
-    CURRENTLYUSINGMEMCARD = 0;
-  }
+  CURRENTLYUSINGMEMCARD = 0;
   return;
 }
 

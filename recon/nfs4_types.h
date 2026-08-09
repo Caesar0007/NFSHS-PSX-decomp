@@ -4467,6 +4467,9 @@ struct tDialogHelp : public tDialogBase {   /* 212 bytes */
     char               *text[7];   /* +0x94 */
     int                cont[7];   /* +0xB0 */
     short              numItems, helpcontrollers, lefttext;   /* +0xCC */
+#ifdef FEAPP_DEFINE_DIALOG_CTORS
+    tDialogHelp();
+#endif
     /* FEDialog methods */
     void AddItem(short textID,short controllerID);
     void CalculateDimensions();
@@ -4476,10 +4479,16 @@ struct tDialogHelp : public tDialogBase {   /* 212 bytes */
 };
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {   /* 152 bytes */
+#ifdef FEAPP_DEFINE_DIALOG_CTORS
+    tDialogMessageStringWithTimeout();
+#endif
     ~tDialogMessageStringWithTimeout();   /* @0x80015760 -- vtable slot 4 (M10) */
 };
 
 struct tDialogNoInputMessage : public tDialogMessageString {   /* 152 bytes */
+#ifdef FEAPP_DEFINE_DIALOG_CTORS
+    tDialogNoInputMessage();
+#endif
     /* FEDialog methods */
     void ProcessInput(tPlayer atPlayer,tInputKeyType &keyval, tMenuCommand &command);
     ~tDialogNoInputMessage();

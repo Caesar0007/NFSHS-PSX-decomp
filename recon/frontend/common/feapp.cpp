@@ -2,6 +2,7 @@
  *   14 fns: tFEApplication ctor/dtor + dialog setup, FE main loop, video/movie cycling.
  *   Member defs; base ctors via init-lists; manual _vf vtable init.
  */
+#define FEAPP_DEFINE_DIALOG_CTORS
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
@@ -17,123 +18,64 @@ int             gLargestUnused[1];   /* @0x800514b8  largest unused heap block (
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
 extern int Draw_gDoVSync_arr[] asm("Draw_gDoVSync");
 
+inline tDialogBase::tDialogBase()
+{
+  *(void **)&_vf = (void *)tDialogBase_vtable;
+  currentlyOn = 0;
+  reservedheight = 0;
+  MaxH = 0;
+  OffsetY = 0;
+  OffsetX = 0;
+  height = 0;
+  width = 0;
+  top = 0;
+  left = 0;
+  MaxW = 0x120;
+  specificPlayer = -1;
+  fDefault = 0;
+  timeOutTicks = 0;
+}
+
+inline tDialogMessageString::tDialogMessageString()
+{
+  *(void **)&_vf = (void *)tDialogMessageString_vtable;
+  Centerit = 0;
+  fFullyOpen = 0;
+  timeOutTicks = 0;
+  fFadeText = 0x80;
+}
+
+inline tDialogHelp::tDialogHelp()
+{
+  *(void **)&_vf = (void *)tDialogHelp_vtable;
+  variant = -1;
+  timeOutTicks = 0x578;
+}
+
+inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
+{
+  *(void **)&_vf = (void *)tDialogMessageStringWithTimeout_vtable;
+  timeOutTicks = 0x480;
+}
+
+inline tDialogNoInputMessage::tDialogNoInputMessage()
+{
+  *(void **)&_vf = (void *)tDialogNoInputMessage_vtable;
+}
+
 
 /* ---- tFEApplication::ctor  [FEAPP.CPP:89-95] SLD-VERIFIED ---- */
 
 tFEApplication::tFEApplication()
 
 {
-  tFEApplication *ptVar1;
   int i;
-  tDialogMessageString *this_tDialogMessageString;
-  tDialogMessageStringWithTimeout *this_tDialogMessageStringWithTimeout;
-  tDialogHelp *this_tDialogHelp;
-  tDialogNoInputMessage *this_tDialogNoInputMessage;
-  
-  this_tDialogMessageString = &this->messagePopup;
-  this_tDialogHelp = &this->helpPopup;
-  /* MATCH: each tDialog* member is a REAL tScreen-derived subobject; the flattened field-init
-   * below (Ghidra-decompiled from the fully-inlined tDialogBase/tDialogMessageString/etc ctors)
-   * is missing the ONE non-inlined base call every level shares: tScreen::tScreen() (sets
-   * fPermShapes/fSwapShapes/fScreenFadeVal + an initial _vf=tScreen_vtable that every
-   * subsequent store here overwrites). Oracle calls `jal __7tScreen` once per subobject before
-   * touching any of its fields -- reproduce via placement-new onto the tScreen slice. */
-  new ((tScreen *)&this->messagePopup) tScreen();
-  *(void **)&((this->messagePopup)._vf) = (void *)tDialogBase_vtable;
-  (this->messagePopup).currentlyOn = 0;
-  (this->messagePopup).reservedheight = 0;
-  (this->messagePopup).MaxH = 0;
-  (this->messagePopup).OffsetY = 0;
-  (this->messagePopup).OffsetX = 0;
-  (this->messagePopup).height = 0;
-  (this->messagePopup).width = 0;
-  (this->messagePopup).top = 0;
-  (this->messagePopup).left = 0;
-  (this->messagePopup).MaxW = 0x120;
-  (this->messagePopup).specificPlayer = -1;
-  (this->messagePopup).fDefault = 0;
-  (this->messagePopup).timeOutTicks = 0;
-  *(void **)&((this->messagePopup)._vf) = (void *)tDialogMessageString_vtable;
-  (this->messagePopup).Centerit = 0;
-  (this->messagePopup).fFullyOpen = 0;
-  (this->messagePopup).timeOutTicks = 0;
-  (this->messagePopup).fFadeText = 0x80;
-  this_tDialogMessageStringWithTimeout = &this->MemCardDialog;
-  new ((tScreen *)&this->helpPopup) tScreen();
-  *(void **)&((this->helpPopup)._vf) = (void *)tDialogBase_vtable;
-  *(void **)&((this->helpPopup)._vf) = (void *)tDialogHelp_vtable;
-  (this->helpPopup).currentlyOn = 0;
-  (this->helpPopup).reservedheight = 0;
-  (this->helpPopup).MaxH = 0;
-  (this->helpPopup).OffsetY = 0;
-  (this->helpPopup).OffsetX = 0;
-  (this->helpPopup).height = 0;
-  (this->helpPopup).width = 0;
-  (this->helpPopup).top = 0;
-  (this->helpPopup).left = 0;
-  (this->helpPopup).MaxW = 0x120;
-  (this->helpPopup).specificPlayer = -1;
-  (this->helpPopup).fDefault = 0;
-  (this->helpPopup).timeOutTicks = 0;
-  (this->helpPopup).variant = -1;
-  (this->helpPopup).timeOutTicks = 0x578;
-  this_tDialogNoInputMessage = &this->NoInputMemCardDialog;
-  /* @0x800130B8/BC/C0: three _vf stores to MemCardDialog (this+0x238): tDialogBase, tDialogMessageString,
-   * then the FINAL = tDialogMessageStringWithTimeout vtable @0x80010098. The recon mis-decoded the absolute
-   * VA 0x80010098 (0x80010000+0x98) as a runtime `bigBuf + 0x98` pointer, leaving _vf pointing at garbage
-   * (wrong virtual dispatch). Adversarially verified: the 0x80010550 the audit suggested was helpPopup's
-   * tDialogHelp vtable, mis-attributed (M10). */
-  new ((tScreen *)&this->MemCardDialog) tScreen();
-  *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogBase_vtable;
-  *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogMessageString_vtable;
-  *(void **)&((this->MemCardDialog)._vf) = (void *)tDialogMessageStringWithTimeout_vtable;
-  (this->MemCardDialog).currentlyOn = 0;
-  (this->MemCardDialog).reservedheight = 0;
-  (this->MemCardDialog).MaxH = 0;
-  (this->MemCardDialog).OffsetY = 0;
-  (this->MemCardDialog).OffsetX = 0;
-  (this->MemCardDialog).height = 0;
-  (this->MemCardDialog).width = 0;
-  (this->MemCardDialog).top = 0;
-  (this->MemCardDialog).left = 0;
-  (this->MemCardDialog).MaxW = 0x120;
-  (this->MemCardDialog).specificPlayer = -1;
-  (this->MemCardDialog).fDefault = 0;
-  (this->MemCardDialog).timeOutTicks = 0;
-  (this->MemCardDialog).Centerit = 0;
-  (this->MemCardDialog).fFullyOpen = 0;
-  (this->MemCardDialog).timeOutTicks = 0;
-  (this->MemCardDialog).fFadeText = 0x80;
-  (this->MemCardDialog).timeOutTicks = 0x480;
   i = 0;
-  new ((tScreen *)&this->NoInputMemCardDialog) tScreen();
-  *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogBase_vtable;
-  (this->NoInputMemCardDialog).currentlyOn = 0;
-  (this->NoInputMemCardDialog).reservedheight = 0;
-  (this->NoInputMemCardDialog).MaxH = 0;
-  (this->NoInputMemCardDialog).OffsetY = 0;
-  (this->NoInputMemCardDialog).OffsetX = 0;
-  (this->NoInputMemCardDialog).height = 0;
-  (this->NoInputMemCardDialog).width = 0;
-  (this->NoInputMemCardDialog).top = 0;
-  (this->NoInputMemCardDialog).left = 0;
-  (this->NoInputMemCardDialog).MaxW = 0x120;
-  (this->NoInputMemCardDialog).specificPlayer = -1;
-  (this->NoInputMemCardDialog).fDefault = 0;
-  (this->NoInputMemCardDialog).timeOutTicks = 0;
-  *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogMessageString_vtable;
-  (this->NoInputMemCardDialog).Centerit = 0;
-  (this->NoInputMemCardDialog).fFullyOpen = 0;
-  (this->NoInputMemCardDialog).timeOutTicks = 0;
-  (this->NoInputMemCardDialog).fFadeText = 0x80;
-  *(void **)&((this->NoInputMemCardDialog)._vf) = (void *)tDialogNoInputMessage_vtable;
-  ptVar1 = this;
   do {
-    ptVar1->gotName[0] = 0;
-    ptVar1->needName[0] = 0;
-    ptVar1->speechToPlay[0] = -1;
+    this->gotName[i] = 0;
+    this->needName[i] = 0;
+    this->speechToPlay[i] = -1;
     i = i + 1;
-    ptVar1 = (tFEApplication *)ptVar1->fCurrentMenu;
   } while (i < 2);
   return;
 }

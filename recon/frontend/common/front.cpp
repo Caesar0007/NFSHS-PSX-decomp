@@ -222,8 +222,8 @@ int GetPSXPadValue(int value,int player)
     case 0x100000:
       newControl = player << 0x1e |
                    ((0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 | 0x1000000) |
-                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
-      return newControl | 1;
+                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100 | 1;
+      return newControl;
     case 0x400000:
       newControl = player << 0x1e |
                    (((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 | 0x1000000) |
@@ -232,8 +232,8 @@ int GetPSXPadValue(int value,int player)
     case -0x80000000:
       newControl = player << 0x1e |
                    ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x2000000) |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-      return newControl | 1;
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
+      return newControl;
     case 0x20000000:
       newControl = player << 0x1e |
                    (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x2000000) |
@@ -242,8 +242,8 @@ int GetPSXPadValue(int value,int player)
     case 0x10000000:
       newControl = player << 0x1e |
                    ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x3000000) |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-      return newControl | 1;
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
+      return newControl;
     case 0x40000000:
       newControl = player << 0x1e |
                    (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x3000000) |

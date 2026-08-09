@@ -77,7 +77,10 @@ extern int   CdReady(int mode, u_char *result);                    /* @0x800F786
 extern int   CdSyncCallback(int func);                             /* @0x800F788C */
 extern int   CdReadyCallback(int func);                            /* @0x800F78A0 */
 extern int   CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
-extern int   CdControlF(u_char com, u_char *param);                /* @0x800F79F0 */
+extern int   CdControlF(int com, u_char *param);                   /* @0x800F79F0 -- INT com
+                                     * (w53-a9): the definition's oracle copies the parameter RAW
+                                     * and re-masks per use; a u_char parameter masks once at
+                                     * entry and cannot match.  All call sites pass literals. */
 extern int   CdControlB(u_char com, u_char *param, u_char *result);/* @0x800F7B24 */
 extern int   CdGetSector(void *madr, int size);                    /* @0x800F7C70 */
 extern int   CdGetSector2(void *madr, int size);                   /* @0x800F7C90 */

@@ -20,10 +20,14 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
          callee-saved home ($s0) instead of the caller-saved $t0 a post-call init lands in;
        * the explicit `if (nNumber != 1)` wrapper -- the oracle really does test `beq $s1,1`
          ahead of the ordinary `slt` zero-trip guard, and no `for` spelling emits it.
-     108 -> 2 diffs, count-exact 77/77.  RESIDUAL (1 insn): ours `addu $s0,$v0,$zero` copies
-     the guard's live `li $v0,1` into i where retail re-materializes `li $s0,1` -- the
-     still-live-constant / delete_noop_moves identity (methodology 3.25-3b).  Falsified at
-     this basin: i=1 hoisted above the guard, i=1 inside the guard, guard spelled against i. */
+     108 -> 2 diffs, count-exact 77/77.
+     W57-A7 SEAL (2 -> PASS 77/77): the last residual was ours `addu $s0,$v0,$zero` copying
+     the guard's live `li $v0,1` into i where retail re-materializes `li $s0,1` in the beq
+     delay slot.  It was NOT the 3.25-3b no-copy-prop identity -- it is plain cse constant
+     sharing, and the OPACITY/IDENTITY FENCE (catalog 04-a4/a5, zero insns) breaks it: with
+     `one` laundered, cse can no longer prove the compare's register holds 1, so `i = 1`
+     re-materializes.  Falsified at this basin BEFORE the fence: i=1 hoisted above the guard,
+     i=1 inside the guard, guard spelled against i. */
   int i;
   int j;
   int nADummy;
@@ -37,7 +41,10 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
     nTemp[i] = nInput[i];
     i++;
   }
-  if (nNumber != 1) {
+  {
+  int one = 1;
+  __asm__ ("" : "=r" (one) : "0" (one));
+  if (nNumber != one) {
   for (i = 1; i < nNumber; i++) {
     nADummy = nTemp[i];
     nBDummy = nIndex[i];
@@ -47,6 +54,7 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
     }
     nTemp[j + 1] = nADummy;
     nIndex[j + 1] = (short)nBDummy;
+  }
   }
   }
   purgememadr(nTemp);

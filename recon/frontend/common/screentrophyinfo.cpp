@@ -24,20 +24,44 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      emission/statement-position dial that still needs a named angle.  (W55-A15)
      W56-A10 (27 -> 17): STAGING the index sum into one `uint idx` local (evaluated
      BEFORE `tourn = fTournaments + idx`) forces the screenTrophyRoom->tier load to
-     emit first -- count-free (75/75, idx is a dying temp).  RESIDUAL (17): the two
-     byte loads (screenTrophyRoom->tier @2 vs frontEnd.tier @212) still emit in the
-     opposite order + downstream v0/v1 coloring; a pure emission-position dial
-     (§4.5 PER_FN_TEXT_MOVES candidate -- source hoist cannot reach past cse/sched1). */
+     emit first -- count-free (75/75, idx is a dying temp).
+     W57-A7 (17 -> 6, now COUNT-EXACT 76/76) -- three independent defects:
+       (a) fBestPlacement[] is a SIGNED byte (`lb 0x1F0`) -> per-use (signed char) view;
+       (b) `placement` is a SHORT, not an int (retail's kBannerColors index is
+           `sll 16; sra 14` = (short)placement * 4; an int local emits a bare `sll 2`);
+       (c) the frontEnd.tier byte read in its OWN statement emits its lui/lbu pair FIRST,
+           ahead of the tournamentManager address (statement-position/emission dial, 05A).
+     RESIDUAL 6: retail emits `lw a1,0x18(a2)` (fDefinition) one slot EARLIER and defers the
+     fRealCurrentTourn `lbu` to AFTER the fTournOffset `lbu`; ours does the reverse.  The
+     address chain (screenTrophyRoom + tier*2) is already in retail's position, so this is a
+     pure LOAD-emission-position dial.  Falsified at this basin: swapping the two addends
+     (20-25), naming `def = tournamentManager.fDefinition` (14) and def+swap (20), staging
+     the whole fTournOffset chain into a local (25), naming screenTrophyRoom->tier (19).
+     NEXT ANGLE: PER_FN_TEXT_MOVES (4.5) or a void-tail fence between the two loads. */
   tTourneyInfo *tourn;
-  int placement;
+  short placement;   /* MATCH (W57-A7, 9 -> 6, count-exact 76/76): retail sign-extends the
+                        placement from 16 bits at the kBannerColors index (`sll 16; sra 14`
+                        = (short)p * 4); an `int` local emits a bare `sll 2`. */
   uint idx;
 
-  idx = (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier] +
-        (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset;
+  /* MATCH (W57-A7, 15 -> 9): naming the frontEnd.tier byte read in its OWN statement makes
+     its `lui %hi / lbu %lo` pair emit FIRST (retail's order), ahead of the tournamentManager
+     address materialisation -- pure statement-position/emission-order dial (05A family).
+     Falsified here: swapping the two addends of the sum (25-27), staging the whole
+     fTournOffset chain into a local (25), naming screenTrophyRoom->tier (19). */
+  {
+    uint feTier = (uint)(byte)frontEnd.tier;
+
+    idx = (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier] +
+          (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset;
+  }
   tourn = (tournamentManager.fDefinition)->fTournaments + idx;
   placement = 0;
-  if ((u_int)(tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID] - 1) < 3) {
-    placement = tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID];
+  /* MATCH (W57-A7, 17 -> 15): fBestPlacement[] is a SIGNED byte in retail (`lb $v1,0x1F0`);
+     the shared-header plain `char` is unsigned on this build, so the per-use (signed char)
+     view is needed at BOTH reads (the oracle CSEs them into one `lb`). */
+  if ((u_int)((signed char)tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID] - 1) < 3) {
+    placement = (signed char)tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID];
   }
   this->BannerCol = kBannerColors[placement];
   GetTrophyName(&tournamentManager,tourn,ts_Large,gSwapFileNameTI,-1);

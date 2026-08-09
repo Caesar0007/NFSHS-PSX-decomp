@@ -218,8 +218,9 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
    24 missing instructions.  Same 5 levers; see the RemoveFromPinkSlipsList receipt above.
    W55-A10 (2026-08-09) 50 -> 8, still count-exact 96/96: the RemoveFromPinkSlipsList
    ADDRESS-MUTATION + nc-REF-DIAL recipe ported verbatim (see that receipt for the mechanism).
-   RESIDUAL 8 (both twins, identical): the `this + playerNum*128` commutative `addu` operand
-   order at the slot-31 store, and the new-selection byte in $a1 where retail uses $v0. */
+   W57-A7 (2026-08-09) 8 -> 6: the slot-31 named-`playerNum*128` statement ported from the twin.
+   RESIDUAL 6 (both twins, identical): the new-selection byte in $a1 where retail uses $v0 --
+   full mechanism + falsification list in the RemoveFromPinkSlipsList receipt below. */
 
 long tCarManager::SellCar(short garageNumber,short playerNum)
 
@@ -246,7 +247,12 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
     prevSlot = prevSlot + playerNum * 128;
     *(signed char *)(prevSlot + (char *)this + 8) = -1;
   }
-  *(signed char *)(playerNum * 128 + (char *)this + 0x84) = -1;
+  { /* MATCH (W57-A7, 8 -> 6): see the RemoveFromPinkSlipsList twin -- naming `playerNum*128`
+       makes `this` the addu's operand 0 (retail `addu v0,s3,a1`). */
+    int slot31 = playerNum * 128;
+
+    *(signed char *)(slot31 + (char *)this + 0x84) = -1;
+  }
   {
   u_long nc;
   int chk = ((u_int)(u_char)frontEnd.garageCar[playerNum] - (nc = this->fNumCars)) * 4;
@@ -333,12 +339,26 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
        position -- a plain `int nc = this->fNumCars;` statement HOISTS it above the garageCar
        load) plus a 05C read-only fence listing `nc` TWICE (each asm operand = +1 REG_N_REF).
        refs 3 -> 4 was measured and is NOT enough (16 diffs); 3 -> 5 lands the pair (16 -> 8).
-   RESIDUAL 8: (i) `addu v0,a1,t1` vs retail `addu v0,t1,a1` at the slot-31 store -- both
-   operands are fresh registers, so RTL canonicalization owns the order (spelling the source as
-   `(char*)this + playerNum*128 + K` measured IDENTICAL); (ii) the new-selection byte lands in
-   $a1 where retail uses $v0 (block-local qty; block-scoping the variable and dropping the
-   fn-scope `char cVar1` both measured inert).  Next instrument = qtytrace/qtyprio on the tail
-   block (these are local-alloc QTYs, outside allocsim's global table). */
+   W57-A7 (2026-08-09) 8 -> 6, count-exact 82/82: residual (i) SOLVED -- the slot-31 store's
+   `addu` operand order is a STATEMENT-GRANULARITY dial, not RTL canonicalization.  Written flat
+   (`playerNum*128 + (char*)this + K`) gcc builds the whole sum in a fresh pseudo and picks OUR
+   operand order; naming `playerNum*128` in its own statement (the same shape the three other
+   address sites already use) makes `this` operand 0 = retail's `addu v0,t1,a1`.  The w41
+   int-typed-sum spelling `(int)this + playerNum*128 + K` measured IDENTICAL to flat, confirming
+   the dial is statement granularity.
+   RESIDUAL 6 (both twins, identical): the new-selection byte lands in $a1 where retail uses
+   $v0.  MECHANISM NAMED (W57-A7): retail's `addiu $v0,$a2,-1` sits in the `bnez $v0` DELAY SLOT
+   while also WRITING the branch's condition register.  reorg's backward scan can NEVER do that
+   (`insn_sets_resource_p(trial,&needed)` rejects any candidate that sets a resource the branch
+   reads), so retail's slot insn came from `fill_slots_from_thread` -- i.e. in retail's RTL the
+   `gc-1` computation lives AFTER the branch, in a THREAD, and was stolen forward (safe because
+   the opposite thread immediately overwrites the reg).  Ours is the default-then-override shape,
+   whose `addiu` is emitted BEFORE the branch, so it can only be back-filled -- and only into a
+   register the branch does not read, hence $a1.  Falsified at this basin: both if/else arm
+   orders (87 insns -- the if/else also desynchronises the (B) nc REF DIAL, so the two levers are
+   COUPLED and would have to be re-tuned together), newSel typed int / u_char (inert) / short
+   (83).  NEXT ANGLE: re-derive the tail as if/else AND re-run reqdelta for the nc/garageCar pair
+   from that new basin (the fence operand count is basin-relative, 04Z). */
 
 void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 
@@ -366,7 +386,16 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
     prevSlot = prevSlot + playerNum * 128;
     *(signed char *)(prevSlot + (char *)this + 0x108) = -1;
   }
-  *(signed char *)(playerNum * 128 + (char *)this + 0x184) = -1;
+  { /* MATCH (W57-A7, 8 -> 6): the slot-31 store's `addu` operand order is decided by whether
+       `playerNum*128` is an EXPRESSION or a real INPUT OPERAND.  Written flat, gcc builds the
+       whole sum fresh and emits `addu v0,<pn128>,this`; naming it (exactly as the three other
+       address sites already do) makes `this` operand 0 -> retail's `addu v0,t1,a1`.  The w41
+       "int-typed sum flips addu operand 0" spelling `(int)this + playerNum*128 + K` measured
+       IDENTICAL to the flat form -- statement granularity, not operand spelling, is the dial. */
+    int slot31 = playerNum * 128;
+
+    *(signed char *)(slot31 + (char *)this + 0x184) = -1;
+  }
   {
   u_long nc;
   int chk = ((u_int)(u_char)frontEnd.garageCar[playerNum] - (nc = this->fNumCars)) * 4;

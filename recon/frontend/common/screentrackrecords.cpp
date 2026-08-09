@@ -210,7 +210,15 @@ void tScreenTrackRecords::DrawBackground()
   FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x255),ColTextBright,0,2);
   PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x255),textpixels(string),9);
   shape = &gCurrentShapes[0][0x26];
-  lbx = (((short)shape->width >> 1) - shape->centerx) - 2;
+  /* MATCH (W57-A7, 28 -> 24): fold's constant reassociation is STATEMENT-granular --
+     written flat, `((w>>1) - cx) - 2` folds to `subu; addiu -2`; retail has
+     `addiu v0,v0,-2; subu s3,v0,a0`, i.e. the -2 is applied to the half-width FIRST.
+     Only a separate statement stops fold from re-associating it back. */
+  {
+    short half = ((short)shape->width >> 1) - 2;
+
+    lbx = half - shape->centerx;
+  }
   tt = ticks[0] % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
@@ -232,8 +240,21 @@ void tScreenTrackRecords::DrawBackground()
   FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249),
                            (short)(midy + 3),ColTextSel,0,0);
   PSXDrawBrightEndLine(Col,boxx,(short)boxy + 3,boxw,-1,2,linefadeval,0x23);
-  PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
-                       ((short)midy - 0xc) - (short)boxy,1,linefadeval,0);
+  /* MATCH (W57-A7, 24 -> 6): the SECOND instance of the statement-granular
+     constant-reassociation -- inline, fold rewrites `(midy-0xc) - boxy` into
+     `midy - (boxy+0xc)` (ours emitted `addiu s0,s0,12; subu v0,v0,s0`), and the
+     resulting extra pseudo also flipped the two short temps' $s0/$s1 homes.
+     Naming the `midy - 0xc` half in its own statement fixes both at once.
+     RESIDUAL 6: ours narrows AFTER subtracting (`addiu v0,t0,-12; sll; sra`),
+     retail narrows FIRST (`sll; sra; addiu v0,v0,-12`).  Falsified: `int liney`
+     (52 -- rotates the whole mult/mfhi band), in-place `liney = liney - 0xc`,
+     a separate `short m = (short)midy` (both 6). */
+  {
+    short liney = (short)midy - 0xc;
+
+    PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
+                         liney - (short)boxy,1,linefadeval,0);
+  }
   if (8 < maxitem) {
     PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
   }

@@ -26,6 +26,26 @@ void FEInput_VerifyControllerValues(int controller)
 
 
 /* ---- FEInput_GetNoDebounceKey  [FEINPUT.CPP:44-142] SLD-VERIFIED ---- */
+/* RESIDUAL 38 (ours 147 / oracle 159) -- W57-A7 ROOT-CAUSED as ONE class, the
+   BOOLEAN-RETURN NORMALISATION.  Every `return <comparison>;` in this fn reaches the
+   epilogue through one of TWO shared normaliser blocks that retail's gcc emitted and
+   ours folds away:
+     .L80023AE0  `bnez v0,end [slot: li v0,1]; j end [slot: addu v0,zero,zero]`  = return v0
+     .L80023B08  `beqz v0,L50 [slot: addu v0,zero,zero]; j end`, L50: `li v0,1`   = return !v0
+   So retail returns `x < 0x40` as `sltiu` + a BRANCH pair, and `x >= 0xc1` as
+   `sltiu ...,0xc1` + the INVERTING branch pair -- never our `xori v0,v0,1` and never a
+   bare sltiu return.  That is 12 extra instructions across ~12 return sites, which is
+   exactly our shortfall.
+   Falsified (all measured this basin): rewriting every site as `if (cond) return 1;
+   return 0;` (38, byte-identical -- gcc's jump.c store-flag fold canonicalises it back),
+   `return (bool)(expr)` (38), returning the RAW masked value (37 @152), declaring the
+   function `bool` (38, return type is not mangled so this was free to test).
+   THE KNOWN BREAKER WORKS: a void-tail fence inside the return-1 arm
+   (`if (c) { __asm__("" : : "i"(0)); return 1; } return 0;`) defeats the store-flag fold
+   -- ONE site took 147 -> 155 insns and 38 -> 36 diffs.  NOT LANDED: it would need ~12
+   fences, which is scaffolding nobody would write (PERMUTER-TRUST rule).  The real
+   question is what SOURCE form made retail's gcc skip the fold at every site; until that
+   is found this is a documented near-miss, not a floor. */
 
 int FEInput_GetNoDebounceKey(int key,int controller)
 

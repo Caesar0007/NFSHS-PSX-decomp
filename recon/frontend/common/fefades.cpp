@@ -57,7 +57,27 @@ int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 {
   /* SYM 8c block: NO locals (3 REGPARM only) -> single direct-return statement.
      MATCH: volatile-deref views keep the two row reads independent (retail has two
-     separate `addu base` computations); residual = displacement-vs-folded-offset. */
+     separate `addu base` computations); residual = displacement-vs-folded-offset.
+     W57-A7 ROOT-CAUSE (shared by all three fefades near-misses; measured, not landed):
+     retail computes the textDefinitions ROW BASE ONCE PER ACCESS -- 2 identical
+     `addu vN,idx,base` here, THREE in CalcOnOffFade -- and keeps the column (3/4/5) as
+     the `lbu` DISPLACEMENT.  The two properties are ANTI-CORRELATED under our cc1:
+       * PLAIN `textDefinitions[type][K]` gives the right DISPLACEMENT (`lbu v1,3(v0)`)
+         but cse merges the identical `plus(idx,sym)` into ONE base -> 27 vs oracle 28;
+       * the volatile view keeps the bases SEPARATE but forces the whole address into a
+         register (offset 0) with the column folded into `%lo(td)+K` (the current 5-diff
+         form; volatile MEMs bypass mips_check_split, w44 law).
+     Falsified probes (all in this basin): `((volatile char*)textDefinitions[type])[K]`
+     (5), a volatile row-pointer local (29), mixed plain/volatile per column (3 and 10),
+     an UNSIZED `extern char textDefinitions[][6]` (19, cse unchanged), an identity fence
+     on a named `idx` (30-38 -- the fence mints a real copy because idx and idx2 are
+     simultaneously live), an `asm()`-label ALIAS extern for the 2nd column (30 -- it
+     duplicates the SYMBOL materialisation too, +2 insns).
+     NAMED ANGLE: we need "two identical address plus'es NOT cse'd" at zero instruction
+     cost -- i.e. an anti-cse device for a REGISTER expression (the opacity fence only
+     launders a VALUE, it cannot stop cse recording the `plus`).  Candidate: a per-access
+     laundered INDEX where the laundered pseudo REPLACES the original in place (the same
+     variable, so no second live range).  Same root cause fixes 5+5+12 = 22 diffs. */
   return CalcFadeVal(kRGBVals[(byte)*(volatile char *)&textDefinitions[type][3]],
                      kRGBVals[(byte)*(volatile char *)&textDefinitions[type][4]],
                      (int)fSelFade,(int)fFade);

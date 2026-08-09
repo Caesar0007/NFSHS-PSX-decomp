@@ -185,13 +185,9 @@ void FeTools_deinit(void)
    is NEVER reassigned -- retail keeps it in $a1 (dies before the first call) and
    works the absolute value in a SEPARATE $s0.  (W56-A10: 68->64; the old body
    reassigned `amount = -amount`, forcing it into $s0 and losing the a1 identity.)
-   RESIDUAL (64, ours 79 / oracle 93): oracle tests `bgez $a1` TWICE (abs guard +
-   sign guard) and holds amount in caller-saved $a1; ours coalesces `absnum=amount`
-   so amount is promoted into $s0 and gcc jump-threads the two `if(amount<0)` into a
-   single `bgez $s0`.  NAMED ANGLE: defeat the absnum<-amount copy-coalesce so amount
-   stays $a1 (06E non-propagated-copy class + jump-thread-merge; needs qtytrace/an
-   uncoalesce dial).  Falsified this basin: two split ifs (merged anyway), single
-   combined if, `-amount` vs `-absnum` (both 64/68). */
+   W57-A7 (2026-08-09) 64 -> PASS 93/93: TWO independent defects -- (1) the >= 1e6 arm was
+   missing a whole numeric field (real bug, see the in-body receipt), (2) the abs was
+   hand-rolled instead of `abs()`.  See the in-body MATCH blocks. */
 
 void FeTools_FormatMoney(char *string,long amount)
 
@@ -202,28 +198,39 @@ void FeTools_FormatMoney(char *string,long amount)
   long absnum;
   char neg;
 
+  /* MATCH (W57-A7, 5 -> PASS): the first block IS gcc's INLINE ABS idiom
+     (`bgez a1,L; addu s0,a1,zero [slot]; negu s0,s0; L:`) -- so the source was
+     `absnum = abs(amount);`, NOT a hand-rolled `if (amount<0) absnum = -absnum;`.
+     Written by hand, the two `amount < 0` tests are one condition to jump.c and get
+     merged into a single `bgez $s0` (every split-if / fence spelling still merged:
+     two ifs 5, +identity fence on amount 6, on absnum 6-7, read-only fence 6, order
+     swap 8).  `__builtin_abs` is opaque to the merge AND keeps `amount` in its
+     REGPARM $a1 exactly as the SYM says, so the sign test stays a second `bgez $a1`. */
   neg = 0x20;
-  absnum = amount;
+  absnum = __builtin_abs(amount);
   if (amount < 0) {
-    absnum = -absnum;
     neg = 0x2d;
   }
+  /* 🔴 REAL BUG FIXED (W57-A7, 64 -> 5 diffs, ours 92 / oracle 93): the >= 1,000,000 arm
+     passes THREE numeric fields, not two -- `sprintf(s,fmt,neg, n/1000000, (n%1000000)/1000,
+     n%1000)`.  The old body shared ONE `sprintf(...,neg,hi,lo)` across both big arms, so a
+     money value >= 1,000,000 lost its last group and read a 6th argument off uninitialised
+     stack.  The oracle proves it: the >=1e6 arm runs THREE magic multiplies (0x431BDE83
+     for /1000000 and 0x10624DD3 TWICE) and stores 0x10(sp) AND 0x14(sp), while the middle
+     arm stores only 0x10(sp) -- the two arms then cross-jump-merge on the shared
+     `sw v0,0x10(sp); jal sprintf` tail, which is exactly what per-arm sprintf calls emit.
+     (The census tell was `mult 3v4 / mfhi 3v4` = one whole divide missing.) */
   if (absnum < 1000) {
     format = TextSys_Word(0x83);
     sprintf(string,format,neg,absnum);
   }
+  else if (absnum < 1000000) {
+    format = TextSys_Word(0x84);
+    sprintf(string,format,neg,absnum / 1000,absnum % 1000);
+  }
   else {
-    if (absnum < 1000000) {
-      format = TextSys_Word(0x84);
-      hi = absnum / 1000;
-      lo = absnum % 1000;
-    }
-    else {
-      format = TextSys_Word(0x85);
-      hi = absnum / 1000000;
-      lo = (absnum % 1000000) / 1000;
-    }
-    sprintf(string,format,neg,hi,lo);
+    format = TextSys_Word(0x85);
+    sprintf(string,format,neg,absnum / 1000000,(absnum % 1000000) / 1000,absnum % 1000);
   }
   return;
 }

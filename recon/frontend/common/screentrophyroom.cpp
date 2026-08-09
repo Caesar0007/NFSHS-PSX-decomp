@@ -163,7 +163,14 @@ void tScreenTrophyRoom::Initialize()
      126 tier / 127 fNumTrophies (a ONE-line select) / 128 fClearScreen /
      130 the `short i` for-loop / 132..138 ONE placement read + select /
      140 the texture load / 144..152 the tail.  No <<16 fixed-point counter,
-     no `numT` temp, and the placement is read ONCE (the if-body reuses it). */
+     no `numT` temp, and the placement is read ONCE (the if-body reuses it).
+     RESIDUAL 18 (count-exact 118/118) -- W57-A7: a clean TWO-PSEUDO HOME SWAP, the
+     `&frontEnd` base and the 6/8 trophy-count constant trade $a0 and $v1 (retail
+     base=$v1, const=$a0; ours base=$a0, const=$v1), which then drags the `addu s3,..`
+     copy with it.  Nothing structural: falsified this basin -- if/else instead of the
+     ternary (27, +1 insn), Yoda `'\0' != frontEnd.tier` (18), a named `short numT` temp
+     (18), swapping the `this->tier` / `fNumTrophies` statement order (21, 117 insns),
+     `(byte)frontEnd.tier != 0` (18).  Local-alloc QTY class (4.6 instrument gap). */
   int loaded;
   int curIdx;
   short i;

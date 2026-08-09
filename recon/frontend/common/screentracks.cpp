@@ -233,7 +233,17 @@ void tScreenTrackSelect::SetBrightness(short bright)
 
 
 
-/* ---- tScreenTrackSelect::UpdateBrightness ---- */
+/* ---- tScreenTrackSelect::UpdateBrightness ----
+   RESIDUAL 43 (ours 57 / oracle 60) -- W57-A7 analysis: the three missing insns are all
+   NOPS the oracle leaves in branch delay slots that OUR build fills (`bgez v0,T; nop` +
+   `sra v0,v0,7` after, vs ours `bgez a0,T; sra v0,a0,7` in the slot; likewise the two
+   guards).  Ours is strictly better-scheduled -- the "ours 1 (here 3) shorter, oracle
+   nop-filled" class.  The register letters (a0 vs v1 for `elapsed`) follow from it.
+   Falsified: arm-order swap `if (0x7f < elapsed) {fDest} else if (elapsed<0) {0} else
+   {lerp}` (43 -> 41, same 57/60).  Retail also reads fDestBrightness and fStartBrightness
+   TWICE each (lh for the arithmetic, lhu for the copy/add) -- ours already does.
+   NEXT ANGLE: this is the reorg-fill class; a void-tail fence at the guard heads is the
+   documented breaker but must be priced (3 sites). */
 void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
 
 {

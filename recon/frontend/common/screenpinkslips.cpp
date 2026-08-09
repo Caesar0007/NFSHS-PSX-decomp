@@ -251,10 +251,17 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
      an `lb` -- the oracle reads `lbu` then `sll 24 / sra 24`.  Per the volatile-QImode law
      a volatile QImode MEM cannot be combined with its sign_extend, so the volatile u_char
      view + explicit shift chain reproduces it (a plain `(signed char)` cast folds to `lb`).
-     RESIDUAL (1 insn): retail keeps trackID in $v0 and COPIES it to the sprintf arg
+     RESIDUAL 9 (1 insn): retail keeps trackID in $v0 and COPIES it to the sprintf arg
      (`addu $a2,$v0,$zero` in the jal delay slot); ours coalesces trackID straight into
-     $a2 so no copy is minted.  Falsified here: an identity fence on trackID (count-exact
-     43/43 but 16 diffs), a two-statement shift split, and Yoda compare order. */
+     $a2 so no copy is minted.  W57-A7 SHARPENED: the real swap is that retail's SHIFT
+     TEMP owns $a2 (`sll a2,v0,24`) and the sign-extended value goes BACK into the lbu's
+     $v0 (`sra v0,a2,24`); ours does the reverse (`sll v0,v0,24; sra a2,v0,24`), which is
+     why the arg copy never has to be minted.  So it is a two-pseudo home swap at the
+     local-alloc QTY layer (the 06E instrument gap), NOT a copy-preference problem.
+     Falsified here: an identity fence on trackID at the definition (count-exact 43/43,
+     16 diffs), the same fence just before the sprintf and a read-only fence inside the
+     `if` (both 43/43 @10 -- they mint the copy but leave the sll/sra pair swapped and
+     cost the beq delay-slot fill), a two-statement shift split (9), Yoda compare order. */
   int trackID = ((int)(*(volatile u_char *)&trackInfo.fTrackID) << 24) >> 24;
 
   if (trackID != this->fPreviousTrack) {

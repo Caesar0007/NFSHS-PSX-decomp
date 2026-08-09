@@ -27,7 +27,47 @@
  *   `"=r"(x) : "0"(x)` spelling -- 2.7.2 rejects a "+" constraint ("output operand constraint
  *   contains `+'"); this rewrite is codegen-NEUTRAL in the 2.8 basin.  (b) the "jtbl_at_fusion"
  *   PER_TU entry is inert in this lane (no maspsx in the 2.7.2 pipeline).
- *   Every lever below is tuned in the 2.7.2 basin; earlier-wave 2.8 receipts are basin-stale. */
+ *   Every lever below is tuned in the 2.7.2 basin; earlier-wave 2.8 receipts are basin-stale.
+ *
+ * 🏆 w53-a7 (2026-08-09): 8 PASS / 663 diffs -> 12 PASS / 389 diffs, ZERO regressions.
+ *   +4 PASS: MemCardReadData, MemCardWriteData, MemCardReadFile, MemCardWriteFile.
+ *   Per-fn: Exist_cb 121->47 · Cmd_cb 107->55 · CreateFile 68 · DeleteFile 58->57 ·
+ *   GetDirentry 91 · Start_cb 33->22 · ReadData_cb 15->10 · WriteData_cb 9->4 ·
+ *   Read/WriteFile_cb 12->9 · Exist/Accept/Format 4 · Unformat 5.
+ *
+ *   THREE TU-WIDE LAWS, each read off a census of every MemCard*.s (they generalize -- check
+ *   them first on any sibling libmcrd/libcard object):
+ *   (1) 🔴 STORAGE SPLIT: the six words @0x80147500-0x80147514 are SEPARATE statics, not the
+ *       head of the `mc` aggregate.  All 30+ oracle accesses are fresh `lui %hi + lw/sw %lo`
+ *       pairs, never a displacement off a live base -- even where &_mc_cmd/&_mc_chan IS already
+ *       in a register two insns earlier.  As struct fields, gcc CSE'd ONE address across the
+ *       function (`lui $a0;addiu $a0` then `addiu $s0,$a0,32` to reach _mc_chan from it), a shape
+ *       the oracle never has.  The aggregate starts at _mc_cmd.  (Conversely 0x560/0x564 ARE one
+ *       8-byte object -- MemCardStart_cb reaches both by displacement off one base.)
+ *   (2) 🏆 THE BASE-ANCHOR LAW: every function that touches 2+ aggregate fields reaches them
+ *       through ONE opacity-fenced `int *p = &mc.<field>;` local, indexed by displacement --
+ *       and the anchor FIELD differs per function (ReadData/WriteData: &_mc_fd + a DERIVED
+ *       `addiu $v1,$a3,-16` &_mc_cmd for the store block; Read/WriteFile: &_mc_cmd, which also
+ *       supplies the devname address as `addiu $s0,$s1,32`; the *_cb steps: &_mc_rslt, with
+ *       _mc_fd at +0xC, _mc_devname at +28 and a derived `$s0-4` &_mc_cmd for the error code).
+ *       The natural `mc.field = x` form emits a `lui $at; sw %lo(sym)($at)` MACRO PER STORE
+ *       (+1 insn each) even with the base already live -- that macro pile was the entire
+ *       76-vs-70 count gap in Read/WriteFile.  A base materialized AFTER an intervening call
+ *       lands in a caller-saved reg (write it as `r = f(...); p = &mc.cmd; fence; p[1] = r;`);
+ *       one materialized BEFORE a call takes a callee-saved reg + a frame save.
+ *   (3) FENCE FLAVOUR IS LOAD-BEARING: `__asm__ __volatile__` is a SCHEDULING BARRIER, plain
+ *       `__asm__` is not.  Read/WriteFile only PASS with the NON-volatile spelling (the volatile
+ *       one pins the 5th stack parm's load to the top of the prologue instead of letting the
+ *       scheduler drop it into the `lw $v0,0($s1)` load-delay gap: 5 diffs vs 0).  MemCardStart_cb
+ *       measured the other way (volatile 24, non-volatile 22), and CreateFile keeps volatile (68)
+ *       vs non-volatile (70) vs none (81) -- always A/B both spellings.
+ *
+ *   OPEN ANGLE shared by all four `*_cb` dispatches (2-3 diffs each): retail's gcc reorg hoists
+ *   the NEXT case-compare constant (`li $v0,0xB` / `li $v0,0x1E`) out of the branch-target block
+ *   into the bound test's `beqz $v0` DELAY SLOT and retargets the branch; ours leaves a `nop`
+ *   there and emits the `li` in the block.  The same trick DOES fire for us when the constant is
+ *   the block's first insn AND is not fenced (MemCardStart_cb's `one`, MemCardExist_cb's `mask`);
+ *   an `asm` anywhere in the block freezes reorg, which is why the fenced spellings lose it. */
 
 typedef unsigned int uint;
 
@@ -106,29 +146,38 @@ extern char *strcat(char *dst, const char *src);         /* libc C21 @0x800E78E8
  * struct slots in retail, not a misread offset. All surrounding fields are naturally 4-byte aligned
  * ints/pointers, so this isn't ABI padding either; modeled as unnamed reserved ints to preserve the
  * byte-exact layout without inventing semantics no code exercises. */
+/* 🔴 w53-a7 SPLIT-STORAGE CORRECTION #2 (the same finding as _mc_present, extended): the SIX words
+ * @0x80147500-0x80147514 are SEPARATE statics, NOT the head of the `mc` aggregate.  Census over
+ * every MemCard*.s: EVERY access to 0x500/0x504/0x508/0x50C/0x510/0x514 -- 30+ sites -- is a fresh
+ * `lui %hi(D_x)` + `lw/sw %lo(D_x)` pair, and NOT ONE reaches them by displacement off a live base,
+ * even in functions where the &_mc_cmd/&_mc_chan base register IS already live (MemCardExist_cb
+ * holds $s0=&_mc_chan and STILL emits `lui $at,%hi(D_80147504); sw ...` two insns later).  Keeping
+ * them as struct fields let gcc CSE ONE address across the function (`lui $a0;addiu $a0` for
+ * _mc_exrslt, then `addiu $s0,$a0,32` to reach _mc_chan from it) -- a shape the oracle never has.
+ * The aggregate therefore STARTS at _mc_cmd (0x518) and runs to 0x5C. */
+static int   _mc_exretry __attribute__((section(".bss")));  /* @0x80147500 : Exist retry counter  */
+static int   _mc_exrslt  __attribute__((section(".bss")));  /* @0x80147504 : Exist event scratch  */
+static int   _mc_retry   __attribute__((section(".bss")));  /* @0x80147508 : Accept retry counter */
+static int   _mc_evrslt  __attribute__((section(".bss")));  /* @0x8014750C : Accept event scratch */
+static int   _mc_cleared __attribute__((section(".bss")));  /* @0x80147510 : card-was-cleared     */
+
 struct McState {
-    int   exretry;               /* +0x00 @0x80147500 : MemCardExist retry counter */
-    int   exrslt;                /* +0x04 @0x80147504 : MemCardExist event scratch */
-    int   retry;                 /* +0x08 @0x80147508 : MemCardAccept retry counter */
-    int   evrslt;                /* +0x0C @0x8014750C : MemCardAccept event scratch */
-    int   cleared;                /* +0x10 @0x80147510 : card-was-cleared flag */
-    int   _rsvd_present;          /* +0x14 @0x80147514 : SPLIT OUT -> _mc_present below */
-    int   cmd;                     /* +0x18 @0x80147518 : current command code (0 = idle) */
-    int   rslt;                    /* +0x1C @0x8014751C : command result */
-    int   done;                     /* +0x20 @0x80147520 : command-complete flag */
-    int   chan;                      /* +0x24 @0x80147524 : active channel */
-    int   fd;                         /* +0x28 @0x80147528 : open file descriptor (-1 = closed) */
-    int   ofs;                         /* +0x2C @0x8014752C : transfer offset */
-    int   len;                          /* +0x30 @0x80147530 : transfer length */
-    void *adrs;                          /* +0x34 @0x80147534 : transfer buffer */
-    char  devname[32];                    /* +0x38 @0x80147538 : "buNN:filename" device path */
-    int (*callback)(int, int);             /* +0x58 @0x80147558 : user MemCardCallback */
-    int   _rsvd1;                           /* +0x5C @0x8014755C : UNREFERENCED anywhere in the obj --
+    int   cmd;                     /* +0x00 @0x80147518 : current command code (0 = idle) */
+    int   rslt;                    /* +0x04 @0x8014751C : command result */
+    int   done;                     /* +0x08 @0x80147520 : command-complete flag */
+    int   chan;                      /* +0x0C @0x80147524 : active channel */
+    int   fd;                         /* +0x10 @0x80147528 : open file descriptor (-1 = closed) */
+    int   ofs;                         /* +0x14 @0x8014752C : transfer offset */
+    int   len;                          /* +0x18 @0x80147530 : transfer length */
+    void *adrs;                          /* +0x1C @0x80147534 : transfer buffer */
+    char  devname[32];                    /* +0x20 @0x80147538 : "buNN:filename" device path */
+    int (*callback)(int, int);             /* +0x40 @0x80147558 : user MemCardCallback */
+    int   _rsvd1;                           /* +0x44 @0x8014755C : UNREFERENCED anywhere in the obj --
                                                 real struct slot never exercised in retail, or a dead
                                                 planned field; layout-only, no semantics attested */
 };
 typedef struct McState McState;
-static McState mc;                       /* @0x80147500 */
+static McState mc;                       /* @0x80147518 */
 
 /* w48-a1 SPLIT-STORAGE CORRECTION: 0x80147560/64/6C are NOT fields of the `mc` aggregate above.
  * Every oracle reference to them materializes its OWN %hi/%lo pair (MemCardSync:
@@ -142,8 +191,14 @@ static McState mc;                       /* @0x80147500 */
  * (they land in sbss -> gp-relative, which the oracle never uses); forced to .bss = 248 (the
  * adopted form); as ONE 8-byte `int[2]` pair = 253 (better for MemCardStart_cb, which does
  * share a base across the two, but worse for MemCardSync, which materializes each separately). */
-static int   _mc_sync_cmd   __attribute__((section(".bss")));   /* @0x80147560 : snapshot of cmd  */
-static int   _mc_sync_rslt  __attribute__((section(".bss")));   /* @0x80147564 : snapshot of rslt */
+/* w53-a7 RE-MEASURE: the two snapshot words ARE one 8-byte object after all -- MemCardStart_cb's
+ * oracle materializes ONE base and reaches both by displacement (`sw v0,0(a1)`, `sw v0,4(a1)`,
+ * then `lw a0,0(a1)`, `lw a1,4(a1)` for the callback args), which two independent statics can
+ * never produce (no compile-time distance between separate symbols).  MemCardSync still gets its
+ * per-site full-address materialization from the fenced pointer locals there. */
+static int   _mc_sync[2]    __attribute__((section(".bss")));   /* @0x80147560/64: cmd/rslt snap */
+#define _mc_sync_cmd  _mc_sync[0]
+#define _mc_sync_rslt _mc_sync[1]
 static int (*_mc_save_cb)(int, int) __attribute__((section(".bss")));  /* @0x8014756C : callback saved across a nested sync */
 
 /* MATCH (w51-a2): SPLIT-STORAGE -- every oracle access to 0x80147514 materializes its OWN
@@ -230,58 +285,123 @@ static uint MemCardMakeDevname(int chan, char *str)
 static int MemCardExist_cb(void *pv)
 {
     int *st = (int *)pv;
-    int state = st[0];
-    int ev;
+    int  ev;
+    int  mask;
+    int  c;
+    int  pres;
+    int *pchan;
+    int *pc;
 
-    /* MATCH (w51-a2): NOT a switch here -- the oracle's dispatch is an if/else-if CASCADE
-     * (`beqz`(0) -> `bltz`(<0 default) -> `beq 10` -> `beq 0xb`), no slti bound test, so
-     * balance_case_nodes never ran.  The block layout is dispatch / case-0 body / shared
-     * "reissue" tail / case-0xb body, and the case-0 body FALLS INTO the tail -- reproduced
-     * with explicit gotos (§5.0c goto-to-shared-tail; EA/Sony-era C used goto freely).
-     * 152 -> 111 diffs.  Ours is still ~19 insns SHORT: named angle in the ev<3 node below. */
-    if (state == 0) {                   /* first entry */
-        mc.exrslt = 0;
-        mc.exretry = 0;
+    /* MATCH (w53-a7 -- SUPERSEDES the w51-a2 "not a switch" reading): the dispatch IS a real
+     * `switch` on cases 0 / 10 / 0xB.  gcc-2.7.2 expands a 3-case set whose lowest case is 0 as a
+     * LINEAR (unbalanced) case tree -- `beqz`(case 0) -> `bltz`(below the range -> default) ->
+     * `beq 10` -> `beq 0xB` -> `j default` -- which is exactly the oracle's chain; the absence of
+     * an `slti` bound test is what a linear tree looks like, NOT evidence against a switch.  The
+     * decisive tell is the BLOCK LAYOUT: every case body is emitted OUT-OF-LINE after the whole
+     * dispatch (an if/else cascade inlines the first body right after its test) and the case-0
+     * body FALLS INTO the case-10 body (`.L800FAC34` runs straight on into `.L800FAC48`).
+     *
+     * MATCH: every `_mc_rslt` write goes through a &_mc_cmd-BASED pointer at [1], never a direct
+     * `sw %lo(_mc_rslt)($at)` -- twice derived from the live &_mc_chan pointer (`addiu $v1,$s0,-0xC`
+     * / the in-place `addiu $s0,$s0,-0xC` in a jal delay slot, §3.12 #14) and once materialized
+     * fresh (`lui $v1,%hi(D_80147518); addiu; sw $v0,0x4($v1)`).  _mc_exrslt / _mc_exretry /
+     * _mc_present keep their own `$at` store macros = plain field/static access.
+     * 121 -> 47, count 116/117.  Landed, in order: the switch + case-0-falls-into-case-10 (->97),
+     * the storage split of 0x500-0x514 (->97 but +5 insns of real body), the ORACLE BLOCK ORDER
+     * (ev==4 / ev==0 / retry / common, all three arms of the `ev<3` node branching away) (->66),
+     * post-call &_mc_cmd materialization in the ev==4 arm (->56), the `li 1;sllv` mask fence +
+     * the chan/present load order (->47).
+     * NAMED ANGLE (the 47): every `return 1` tail is 1 insn shorter than retail's -- retail
+     * materializes the return constant BEFORE the store, forcing a redundant `addu $a0,$v0,$zero`
+     * / `addu $v1,$v0,$zero` copy of the result out of $v0; an opacity-fenced `long ret = 1;`
+     * reproduces the copy but parks the constant in a SAVED reg ($s0/$a1) instead of $v0
+     * (iodone 47->49, common 47->52), so the crack is a de-merger that is not a fence. */
+    switch (st[0]) {
+    case 0:                             /* first entry */
+        _mc_exrslt  = 0;
+        _mc_exretry = 0;
         st[0] = 10;
-        goto reissue;
-    }
-    if (state < 0)     return 0;
-    if (state == 10)   goto reissue;
-    if (state != 0xb)  return 0;
-    goto evcheck;
-reissue:
-    /* states 0 and 10 share the (re)issue-info tail */
-    _clr_card_event();
-    _card_info(mc.chan);
-    st[0] = st[0] + 1;                  /* -> 0xb */
-    return 0;
-evcheck:
-    {
+        /* FALLTHROUGH -- retail's case-0 block runs straight into the (re)issue block */
+    case 10:
+        _clr_card_event();
+        _card_info(mc.chan);
+        st[0] = st[0] + 1;              /* -> 0xb */
+        return 0;
+
+    case 0xb:
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
-        mc.exrslt = ev;
+        _mc_exrslt = ev;
+        /* BLOCK ORDER, read off the oracle: the `ev<3` node is a 3-WAY split whose arms ALL
+         * branch away (`bgtz`->retry, `beqz`->iodone, `j`->common), and the bodies are emitted
+         * in SOURCE order ev==4 / ev==0 / retry / common -- so the retry arm must NOT be the
+         * fall-through (an `if (ev>0){...}` body inline gives `blez` + the wrong layout). */
         if (ev < 3) {
-            if (ev == 0) {              /* ev == 0 : I/O complete */
-                mc.exrslt = 0;
-                if ((_mc_present & (1 << mc.chan)) == 0)
-                    mc.exrslt = 4;     /* never seen -> "no card" */
-                mc.rslt = MemCardEventToRslt(mc.exrslt);
-                return 1;
-            }
-            /* MATCH/ANGLE: the oracle's `ev < 3` node is a 3-WAY split -- `bgtz` (retry),
-             * `beqz` (I/O complete), else (`ev < 0`) straight to the common tail. `ev` is
-             * `_get_card_event()`'s `sum >> 1`, so the negative arm is unreachable; spelling
-             * the 3rd path explicitly measured WORSE (113 vs 111, 272 lane).  Named angle:
-             * the missing ~19 insns are in this node + the &mc.cmd-anchored rslt stores. */
-            mc.exretry = mc.exretry + 1;
-            if (mc.exretry < 5) { st[0] = 10; return 0; }
-        } else if (ev == 4) {           /* new card */
-            mc.rslt = MemCardEventToRslt(4);
+            if (ev > 0)  goto retry;    /* ev == 1 or 2 : retryable */
+            if (ev == 0) goto iodone;
+            goto common;                /* ev < 0 (unreachable: ev is `sum >> 1`) */
+        }
+        if (ev != 4) goto common;
+        {                               /* new card */
+            /* the &_mc_cmd base is materialized AFTER the call, into a CALLER-saved reg
+             * (`jal; li a0,4; lui v1; addiu v1; sw v0,4(v1)`) -- computing it before the
+             * call would force a callee-saved home + a frame save (catalog: post-call
+             * address materialization) */
+            int r = MemCardEventToRslt(4);
+            pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
             return 1;
         }
-        _mc_present &= ~(1 << mc.chan);
-        mc.rslt = MemCardEventToRslt(ev);
+iodone:                                 /* ev == 0 : I/O complete */
+        /* the shift constant is this block's FIRST insn -- reorg then hoists it into the
+         * `beqz $v1` delay slot and retargets the branch (oracle: `beqz $v1,.L800FACE4;
+         * addiu $v0,$zero,0x1`), which is where our missing insn went */
+        mask = 1;
+        /* the fence keeps the mask a real `sllv` value: without it gcc canonicalizes
+         * `(present & (1<<chan)) == 0` into `(present >> chan) & 1` (srav+andi), which the
+         * oracle never has -- it computes `li 1; sllv; and; bnez` */
+        __asm__("" : "=r"(mask) : "0"(mask));
+        pchan = &mc.chan;
+        __asm__("" : "=r"(pchan) : "0"(pchan));
+        c    = *pchan;                  /* lw $a0,0($s0)   */
+        pres = _mc_present;             /* lui $v1; lw $v1 -- fills the chan load's delay */
+        mask = mask << c;
+        if ((pres & mask) == 0)
+            _mc_exrslt = 4;             /* never seen -> "no card" */
+        {   /* &_mc_cmd is derived AFTER the call here, into its OWN caller-saved temp; the
+             * return constant is materialized BEFORE the store, which is what forces retail's
+             * otherwise-redundant `addu $a0,$v0,$zero` copy of the result out of $v0
+             * (`addu a0,v0,zero; li v0,1; addiu v1,s0,-0xC; j; sw a0,4(v1)`) */
+            int r = MemCardEventToRslt(_mc_exrslt);
+            pc = pchan - 3;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
+            return 1;
+        }
+retry:
+        _mc_exretry = _mc_exretry + 1;
+        if (_mc_exretry < 5) { st[0] = 10; return 0; }
+        /* FALLTHROUGH to the common tail */
+common:
+        pchan = &mc.chan;
+        __asm__("" : "=r"(pchan) : "0"(pchan));
+        _mc_present &= ~(1 << *pchan);
+        pchan = pchan - 3;              /* ... but MUTATED IN PLACE here (`addiu $s0,$s0,-0xC`
+                                         * in the jal delay slot) -- the two tails are otherwise
+                                         * identical and gcc cross-jump-MERGES them */
+        __asm__("" : "=r"(pchan) : "0"(pchan));
+        /* ANGLE (both tails, 2 of the 47): retail materializes the return constant BEFORE the
+         * store, forcing a redundant `addu $v1,$v0,$zero` copy of the result out of $v0
+         * (`addu v1,v0,zero; li v0,1; j; sw v1,4(s0)`); ours stores straight from $v0 and puts
+         * the `li` in the `j` slot = 1 insn shorter per tail.  FALSIFIED here: an opacity-fenced
+         * `long ret = 1;` before the store (iodone 47->49, common 47->52 -- the fenced constant
+         * takes a SAVED reg, $s0/$a1, instead of $v0). */
+        pchan[1] = MemCardEventToRslt(_mc_exrslt);
         return 1;
+
+    default:
+        return 0;
     }
 }
 
@@ -289,71 +409,132 @@ evcheck:
 static int MemCardCmd_cb(void *pv)
 {
     int *st = (int *)pv;
-    uint state = (uint)st[0];
-    uint ev;
+    int  ev;
+    int  rslt;
+    int  e;
+    int  one;
+    int *pc;
+    int *prslt;
 
-    if (state > 0x1f)
-        return 0;
-
-    switch (state) {
+    /* MATCH (w53-a7): a real jump-table `switch` (oracle `sltiu $v0,$v1,0x20; sll $v0,$v1,2;
+     * lw %lo(jtbl_80057398)`), so NO hand-written `if (state > 0x1f) return 0;` guard -- the
+     * table's own range test IS that guard.
+     * 🔴 TWO CORRECTNESS FIXES read off the oracle (the old body had both wrong):
+     *   (1) case 10 with `rslt != 0 && rslt != 3` RETURNS 1 (`bne $v1,$v0,.L800FB04C` with
+     *       `addiu $v0,$zero,0x1` in the delay slot = the epilogue with $v0=1), i.e. the command
+     *       COMPLETES carrying the probe's error result.  The old body returned 0, so a failed
+     *       MemCardAccept would have stayed queued in the USERFUNC stack forever.
+     *   (2) the `ev >= 3` arm branches to the RETRY path when `ev == 4` (`beq $v1,$v0,.L800FAFD4`)
+     *       and to the result tail otherwise; the old body had the ev==4 case inverted into a
+     *       result store and did the retry accounting for the wrong events. */
+    /* 107 -> 55.  LEVERS THAT LANDED: the jump-table switch (no manual range guard) · the two
+     * correctness fixes above · a SHARED `ret0:` block for every `st[0]=N; return 0;` site (69->59,
+     * retail's jlabel .L800FB048 = the switch default, which all of them `j` to) · an explicit
+     * `set1e:` label so case 10's `rslt==0` path and the retry path share ONE `st[0]=0x1e` block
+     * placed after the retry arm (77->69) · an opacity fence INSIDE one arm of the cleared-select
+     * to block gcc's branchless if-conversion (`sltu;negu;andi 3`) (89->79, polarity flip ->77) ·
+     * a SEPARATE local for the tail's re-read of _mc_evrslt (reusing `ev` extends its web onto the
+     * $a0 call-arg and re-colors the whole dispatch) (57).
+     * NAMED ANGLE (the 55 residual): (a) a straight $s0<->$s1 swap -- retail puts the `pv` param
+     * in $s0 and the case-10 &_mc_rslt anchor in $s1, ours the reverse (decl-order swap tested:
+     * inert), and it cascades through every `0($sN)` state access; (b) each `return 1` site
+     * materializes its own `li $v0,1` in the `j` delay slot in retail while ours cross-jump-merges
+     * them into one shared block. */
+    switch (st[0]) {
     case 0:
-        mc.cleared = 0;
-        mc.evrslt  = 0;
-        mc.retry   = 0;
+        _mc_cleared = 0;
+        _mc_evrslt  = 0;
+        _mc_retry   = 0;
         UserFuncOpen((int)MemCardExist_cb);
         st[0] = 10;
-        return 0;
+        goto ret0;
 
     case 10:
-        if (mc.rslt != 0) {
-            if (mc.rslt == 3) {        /* new card -> (re)clear it */
-                mc.cleared = 1;
-                _mc_present |= 1 << mc.chan;   /* MATCH: no `& 0x1f` -- the shift-count mask is a Ghidra transcription artifact (sllv masks in HW); writing it emits a real andi the oracle lacks */
-                _clr_card_event();
-                _card_clear(mc.chan);
-                st[0] = 0x15;
-            }
-            return 0;
-        }
-        st[0] = 0x1e;                   /* card already known -> straight to load */
-        return 0;
+        /* anchor: retail materializes &_mc_rslt ($s1) and reaches _mc_chan as `0x8($s1)` */
+        prslt = &mc.rslt;
+        __asm__("" : "=r"(prslt) : "0"(prslt));
+        if (prslt[0] == 0) goto set1e;  /* known card -> straight to load (SHARED block) */
+        if (prslt[0] != 3) return 1;                    /* error result -> command complete */
+        /* new card -> (re)clear it.  MATCH: ONE `li $v1,1` serves BOTH the _mc_cleared store
+         * and the `1 << chan` shift (shared-constant); and no `& 0x1f` on the shift count --
+         * the mask is a Ghidra transcription artifact (sllv masks in HW) that emits a real andi */
+        one = 1;
+        _mc_cleared  = one;
+        _mc_present |= one << prslt[2];
+        _clr_card_event();
+        _card_clear(prslt[2]);
+        st[0] = 0x15;
+        goto ret0;
 
     case 0x15:
         if (_chk_card_event_x() == 0) return 0;
         _get_card_event_x();
         st[0] = 0x1e;
-        /* fall through */
+        /* FALLTHROUGH */
     case 0x1e:
         _clr_card_event();
         _card_load(mc.chan);
         st[0] = st[0] + 1;              /* 0x1e -> 0x1f */
-        return 0;
+        goto ret0;
 
     case 0x1f:
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
-        mc.evrslt = ev;
+        _mc_evrslt = ev;
         if (ev < 3) {
-            if (ev == 0) {              /* ev == 0 : done (oracle if(v1==0) goto done @0x800faf84) */
-                if (mc.cleared != 0) { mc.rslt = 3; return 1; }
-                mc.rslt = 0;
-                return 1;
-            }
-            /* ev == 1 or 2 : retryable */
-        } else if (ev != 4) {           /* unexpected -> error result */
-            mc.rslt = MemCardEventToRslt(ev);
+            if (ev > 0)  goto cretry;
+            if (ev == 0) goto cdone;
+            goto ctail;                 /* ev < 0 (unreachable) */
+        }
+        if (ev == 4) goto cretry;
+        goto ctail;
+cdone:                                  /* ev == 0 : the accept sequence completed */
+        /* MATCH: retail BRANCHES here (`beqz $v0,.L800FAFC0; addu $v1,$zero,$zero` -- the 0 in
+         * the delay slot, the 3 on the fall-through).  Writing the select as `rslt = 0; if
+         * (cleared) rslt = 3;` lets gcc-2.7.2 go BRANCHLESS (`sltu;negu;andi 3`), so the two
+         * arms must both assign (§5.0c clamp-as-if/else). */
+        if (_mc_cleared == 0) {
+            rslt = 0;
+        } else {
+            rslt = 3;                   /* 3 = "new card, was cleared" */
+            /* the fence is what BLOCKS the branchless if-conversion: gcc-2.7.2 turns BOTH
+             * `rslt=0; if(c) rslt=3;` and a bare two-arm if/else into `sltu;negu;andi 3`, and an
+             * asm inside an arm is the only thing that keeps the arm a real basic block */
+            __asm__("" : "=r"(rslt) : "0"(rslt));
+        }
+        pc = &mc.cmd;
+        __asm__("" : "=r"(pc) : "0"(pc));
+        pc[1] = rslt;
+        return 1;
+cretry:
+        _mc_retry = _mc_retry + 1;
+        /* the `st[0]=0x1e` block is the FALL-THROUGH here and the result tail is the branch
+         * target (retail: `slti $v0,$v0,5; beqz $v0,.L800FB004` -> falls into `.L800FAFF8`),
+         * and case 10's `rslt == 0` path cross-jumps INTO that same block */
+        if (_mc_retry >= 5) goto ctail;
+set1e:
+        st[0] = 0x1e;
+        goto ret0;
+ctail:
+        ev = _mc_evrslt;                /* re-read: retail loads it into $a0 for the call/store */
+        if (ev == 4) {
+            pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = e;                  /* stores the LOADED 4, not a fresh `li` */
             return 1;
         }
-        mc.retry = mc.retry + 1;
-        if (mc.retry > 4) {
-            if (ev != 4) { mc.rslt = MemCardEventToRslt(ev); return 1; }
-            mc.rslt = 4;
+        {
+            int r = MemCardEventToRslt(e);
+            pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
             return 1;
         }
-        st[0] = 0x1e;                   /* retry the load */
-        return 0;
 
     default:
+ret0:                                   /* the SHARED `addu $v0,$zero,$zero` block --
+                                         * every `st[0] = N; return 0;` site jumps here
+                                         * (retail jlabel .L800FB048 = the switch default) */
         return 0;
     }
 }
@@ -389,8 +570,15 @@ static int MemCardReadData_cb(void *pv)
             _mc_rd_retry = _mc_rd_retry + 1;
             if (_mc_rd_retry < 4) { st[0] = 10; return 0; }
         }
-        mc.rslt = MemCardEventToRslt(ev);
-        return 1;
+        {   /* MATCH (w53-a7): the &_mc_cmd base is materialized AFTER the call, into a
+             * caller-saved reg (`jal; nop; lui $v1; addiu $v1; sw $v0,0x4($v1)`); the natural
+             * `mc.rslt = ...` field store emits a `lui $at; sw %lo(...)($at)` macro instead. */
+            int  r  = MemCardEventToRslt(ev);
+            int *pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
+            return 1;
+        }
     default:
         return 0;
     }
@@ -421,8 +609,15 @@ static int MemCardWriteData_cb(void *pv)
             _mc_wr_retry = _mc_wr_retry + 1;
             if (_mc_wr_retry < 4) { st[0] = 10; return 0; }
         }
-        mc.rslt = MemCardEventToRslt(ev);
-        return 1;
+        {   /* MATCH (w53-a7): the &_mc_cmd base is materialized AFTER the call, into a
+             * caller-saved reg (`jal; nop; lui $v1; addiu $v1; sw $v0,0x4($v1)`); the natural
+             * `mc.rslt = ...` field store emits a `lui $at; sw %lo(...)($at)` macro instead. */
+            int  r  = MemCardEventToRslt(ev);
+            int *pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
+            return 1;
+        }
     case 10:
         do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
         _clr_card_event();
@@ -459,21 +654,36 @@ static int MemCardReadFile_cb(void *pv)
         _mc_rf_retry = 0;
         UserFuncOpen((int)MemCardExist_cb);
         st[0] = 10;
-        return 0;
-    case 10:
-        if (mc.rslt != 0) return 1;                /* card not present -> abort */
-        mc.fd = open(mc.devname, 0x8001);
-        if (mc.fd < 0) { mc.rslt = 5; return 1; } /* open failed */
+        goto ret0;                                 /* SHARED `addu $v0,$zero,$zero` block */
+    case 10: {
+        /* MATCH (w53-a7): retail anchors on &_mc_rslt ($s0) and reaches _mc_fd by displacement
+         * (`sw $v0,0xC($s0)`) and the error code through a DERIVED &_mc_cmd base
+         * (`addiu $v1,$s0,-4; sw $v0,0x4($v1)`); the natural field stores emit `$at` macros.
+         * The fd store is UNCONDITIONAL -- it sits in the `bgez` delay slot. */
+        int *prslt = &mc.rslt;
+        int  fd;
+        __asm__("" : "=r"(prslt) : "0"(prslt));
+        if (prslt[0] != 0) return 1;               /* card not present -> abort */
+        fd = open((char *)&prslt[7], 0x8001);   /* _mc_devname = `addiu $a0,$s0,28` */
+        prslt[3] = fd;                             /* _mc_fd */
+        if (fd < 0) {                              /* open failed */
+            int *pc = prslt - 1;                   /* &_mc_cmd */
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = 5;
+            return 1;
+        }
+        }
         /* FALLTHROUGH */
     case 0xb:
         st[0] = 0x14;
         UserFuncOpen((int)MemCardReadData_cb);
-        return 0;
+        goto ret0;
     case 0x14:
         close(mc.fd);
         mc.fd = -1;
         return 1;
     default:
+ret0:
         return 0;
     }
 }
@@ -491,21 +701,35 @@ static int MemCardWriteFile_cb(void *pv)
         _mc_wf_retry = 0;
         UserFuncOpen((int)MemCardExist_cb);
         st[0] = 10;
-        return 0;
-    case 10:
-        if (mc.rslt != 0) return 1;
-        mc.fd = open(mc.devname, 0x8001);
-        if (mc.fd < 0) { mc.rslt = 5; return 1; }
+        goto ret0;                                 /* SHARED `addu $v0,$zero,$zero` block */
+    case 10: {
+        /* MATCH (w53-a7): same &_mc_rslt anchor as the ReadFile twin -- _mc_fd by displacement
+         * (`sw $v0,0xC($s0)`, UNCONDITIONAL: it is the `bgez` delay slot), _mc_devname as
+         * `addiu $a0,$s0,28`, and the error code through a derived &_mc_cmd base. */
+        int *prslt = &mc.rslt;
+        int  fd;
+        __asm__("" : "=r"(prslt) : "0"(prslt));
+        if (prslt[0] != 0) return 1;
+        fd = open((char *)&prslt[7], 0x8001);      /* _mc_devname */
+        prslt[3] = fd;                             /* _mc_fd */
+        if (fd < 0) {
+            int *pc = prslt - 1;                   /* &_mc_cmd */
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = 5;
+            return 1;
+        }
+        }
         /* FALLTHROUGH */
     case 0xb:
         st[0] = 0x14;
         UserFuncOpen((int)MemCardWriteData_cb);
-        return 0;
+        goto ret0;
     case 0x14:
         close(mc.fd);
         mc.fd = -1;
         return 1;
     default:
+ret0:
         return 0;
     }
 }
@@ -513,21 +737,46 @@ static int MemCardWriteFile_cb(void *pv)
 /* @0x800FC170 : VSync pump -- step the queued FSM; on drain, latch result + fire user callback. */
 static void MemCardStart_cb(void)
 {
+    int *base;
+    int *snap;
+    int  one;
+    int (*cb)(int, int);
+
     if (UserFuncComplete() != 0)        /* stack already empty -> nothing pending */
         return;
     UserFuncExecute();
     if (UserFuncComplete() == 0)        /* still busy -> wait for the next frame */
         return;
 
-    /* command finished this frame */
-    mc.done      = 1;
-    _mc_sync_cmd  = mc.cmd;
-    _mc_sync_rslt = mc.rslt;
-    mc.cmd       = 0;
-    if (mc.callback != 0) {
-        mc.rslt = 0;
-        (*mc.callback)(_mc_sync_cmd, _mc_sync_rslt);
-    }
+    /* command finished this frame.
+     * MATCH (w53-a7): ONE anchor at &_mc_cmd ($v1) reaches done(+8), cmd(+0), rslt(+4) AND the
+     * user callback (+64 = _mc_callback), and ONE anchor at &_mc_sync ($a1) reaches both snapshot
+     * words (+0/+4).  🔴 The `rslt = 0` store is UNCONDITIONAL in retail -- it sits in the
+     * `beqz $a2` DELAY SLOT (§3.1), so it executes whether or not a user callback is installed;
+     * the old recon had it inside the `if`, leaving a stale result behind on the no-callback path.
+     * 33 -> 22 diffs, count now EXACT 33/33; the `one` opacity temp lands the constant AS THE
+     * BLOCK'S FIRST INSN (GNU-as then eager-steals it into the `beqz` slot, killing our +1 nop).
+     * NAMED ANGLE (the whole 22 residual = ONE v0<->v1 swap): retail has base=$v1 / value-temps=$v0,
+     * ours base=$v0 / temps=$v1,$a0.  base outranks `one` in local_alloc (8 refs vs 2) and so takes
+     * $v0 first whichever order they are born in; in retail the base must therefore be a GLOBAL
+     * allocno (local_alloc hands the block-local constant $v0, global_alloc then gives base $v1 --
+     * the same local-vs-global race documented on MemCardExist below).  Falsified: fence order swap
+     * (base-first = 23), volatile fences (24, +1 insn), no-fence (at-macro stores, far worse).
+     * The crack is whatever makes `base` span TWO blocks without crossing a call. */
+    one = 1;
+    __asm__("" : "=r"(one) : "0"(one));
+    base = &mc.cmd;
+    __asm__("" : "=r"(base) : "0"(base));
+    base[2] = one;                     /* done = 1 */
+    snap = &_mc_sync[0];
+    __asm__("" : "=r"(snap) : "0"(snap));
+    snap[0] = base[0];                 /* sync_cmd  = cmd  */
+    cb      = (int (*)(int, int))base[16];   /* _mc_callback */
+    snap[1] = base[1];                 /* sync_rslt = rslt */
+    base[0] = 0;                       /* cmd  = 0 */
+    base[1] = 0;                       /* rslt = 0 (unconditional: retail's beqz delay slot) */
+    if (cb != 0)
+        (*cb)(snap[0], snap[1]);
 }
 
    /* extern "C" */
@@ -673,30 +922,48 @@ extern long MemCardAccept(long chan)
 /* @0x800FB060 : MemCardReadData -- async read into adrs (offset/length must be 128-byte aligned). */
 extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
 {
-    /* MATCH: the oracle anchors on &_mc_fd ($a3) and reaches cmd/rslt/done via NEGATIVE offsets
-     * (-0x10/-0xc/-0x8) and ofs/len/adrs via POSITIVE ones (+4/+8/+0xc) from that SAME base --
-     * fd sits in the middle of the field cluster this fn touches. */
+    /* 🏆 PASS (w53-a7, 26 -> 0).  FOUR cooperating details, all read off the oracle:
+     *  (1) TWO bases: the guard reads go through &_mc_fd ($a3, `lw 0($a3)` / `lw -16($a3)`) and
+     *      the store block through a DERIVED &_mc_cmd (`addiu $v1,$a3,-16`) indexed +4/+8/+20/
+     *      +24/+28.  The derived pointer needs its OWN opacity fence or gcc folds it back into
+     *      negative displacements off $a3 (one base, 5 diffs worse).
+     *  (2) _mc_cmd is read AND written through the $a3 anchor (`pfd[-4]`), NOT the derived base
+     *      -- that is what keeps $a3 live past the derivation instead of gcc mutating it in place.
+     *  (3) the pc definition sits AFTER the cmd guard, so it is emitted in that block and GNU-as
+     *      backward-fills it into the `blez` delay slot (defining it earlier lands it in the
+     *      `bgez` slot instead).
+     *  (4) a fenced copy of the `adrs` parm at the HEAD of the fd-guard's else block: retail's
+     *      `addu $t0,$a0,$zero` is the `bgez` delay-slot filler, not a prologue parm copy.
+     *  Store ORDER is cmd, rslt, done, ofs, adrs, len (the LEN store is the one as backward-fills
+     *  into the `jal` delay slot). */
     const char *fmt;
     int *pfd = &mc.fd;
     __asm__ __volatile__("" : "=r"(pfd) : "0"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
-    } else if (0 < pfd[-4]) {                          /* cmd */
-        fmt = "Access Denied. : event multiple open\n";
-    } else if ((bytes & 0x7f) != 0) {
-        fmt = "Access Denied. : invalid data size align\n";
     } else {
-        if ((ofs & 0x7f) == 0) {
-            pfd[-4] = 5;                            /* cmd  */
-            pfd[-3] = 0;                             /* rslt */
-            pfd[-2] = 0;                              /* done */
-            pfd[1]  = ofs;                             /* ofs  */
-            pfd[2]  = bytes;                            /* len  */
-            *(unsigned long **)&pfd[3] = adrs;           /* adrs */
-            UserFuncOpen((int)MemCardReadData_cb);
-            return 1;
+        unsigned long *ad = adrs;                   /* parm copy at the BLOCK head (bgez slot) */
+        __asm__ __volatile__("" : "=r"(ad) : "0"(ad));
+        if (0 < pfd[-4]) {                             /* cmd */
+            fmt = "Access Denied. : event multiple open\n";
+        } else {
+            int *pc = pfd - 4;                      /* &mc.cmd, derived (addiu v1,a3,-16) */
+            __asm__ __volatile__("" : "=r"(pc) : "0"(pc));
+            if ((bytes & 0x7f) != 0) {
+                fmt = "Access Denied. : invalid data size align\n";
+            } else if ((ofs & 0x7f) == 0) {
+                pfd[-4] = 5;                            /* cmd  */
+                pc[1] = 0;                               /* rslt */
+                pc[2] = 0;                                /* done */
+                pc[5] = ofs;                               /* ofs  */
+                *(unsigned long **)&pc[7] = ad;             /* adrs */
+                pc[6] = bytes;                               /* len  */
+                UserFuncOpen((int)MemCardReadData_cb);
+                return 1;
+            } else {
+                fmt = "Access Denied. : invalid offset value align\n";
+            }
         }
-        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -711,22 +978,29 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
     __asm__ __volatile__("" : "=r"(pfd) : "0"(pfd));
     if (*pfd < 0) {
         fmt = "Access Denied. : file not open.\n";
-    } else if (0 < pfd[-4]) {                          /* cmd */
-        fmt = "Access Denied. : event multiple open\n";
-    } else if ((bytes & 0x7f) != 0) {
-        fmt = "Access Denied. : invalid data size align\n";
     } else {
-        if ((ofs & 0x7f) == 0) {
-            pfd[-4] = 6;                            /* cmd  */
-            pfd[-3] = 0;                             /* rslt */
-            pfd[-2] = 0;                              /* done */
-            pfd[1]  = ofs;                             /* ofs  */
-            pfd[2]  = bytes;                            /* len  */
-            *(unsigned long **)&pfd[3] = adrs;           /* adrs */
-            UserFuncOpen((int)MemCardWriteData_cb);
-            return 1;
+        unsigned long *ad = adrs;                   /* parm copy at the BLOCK head (bgez slot) */
+        __asm__ __volatile__("" : "=r"(ad) : "0"(ad));
+        if (0 < pfd[-4]) {                             /* cmd */
+            fmt = "Access Denied. : event multiple open\n";
+        } else {
+            int *pc = pfd - 4;                      /* &mc.cmd, derived (addiu v1,a3,-16) */
+            __asm__ __volatile__("" : "=r"(pc) : "0"(pc));
+            if ((bytes & 0x7f) != 0) {
+                fmt = "Access Denied. : invalid data size align\n";
+            } else if ((ofs & 0x7f) == 0) {
+                pfd[-4] = 6;                            /* cmd  */
+                pc[1] = 0;                               /* rslt */
+                pc[2] = 0;                                /* done */
+                pc[5] = ofs;                               /* ofs  */
+                *(unsigned long **)&pc[7] = ad;             /* adrs */
+                pc[6] = bytes;                               /* len  */
+                UserFuncOpen((int)MemCardWriteData_cb);
+                return 1;
+            } else {
+                fmt = "Access Denied. : invalid offset value align\n";
+            }
         }
-        fmt = "Access Denied. : invalid offset value align\n";
     }
     printf(fmt);
     return 0;
@@ -735,23 +1009,35 @@ extern long MemCardWriteData(unsigned long *adrs, long ofs, long bytes)
 /* @0x800FB448 : MemCardReadFile -- async open+read of a named card file. */
 extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
+    /* MATCH (w53-a7): ONE fenced anchor at &_mc_cmd ($s1 in retail) serves the guard READS
+     * (cmd @0, fd @16), the devname address (`addiu $s0,$s1,32`) and ALL SEVEN field stores by
+     * displacement.  The natural `mc.field = x` store form emits a `lui $at; sw %lo(sym)($at)`
+     * assembler macro PER STORE (+6 insns) even with the base already live -- that macro pair
+     * was the entire 76-vs-70 count gap.  Store ORDER is read off the oracle: cmd, rslt, done,
+     * ofs, adrs, len, chan (the chan store is the one GNU-as backward-fills into the `jal`
+     * delay slot).  🏆 PASS (w53-a7, 34 -> 0) -- and the LAST 5 diffs were the fence FLAVOUR:
+     * with `__asm__ __volatile__` the barrier pins the 5th (stack) parm's `lw $s6,0x40($sp)` to
+     * the top of the prologue, where retail's scheduler instead drops it into the `lw $v0,0($s1)`
+     * load-delay gap.  Plain `__asm__` (schedulable) = PASS. */
     const char *fmt;
-    if (0 < mc.cmd) {
+    int *base = &mc.cmd;
+    __asm__("" : "=r"(base) : "0"(base));
+    if (0 < base[0]) {
         fmt = "Access Denied. : system busy\n";
-    } else if (0 <= mc.fd) {
+    } else if (0 <= base[4]) {                     /* fd */
         fmt = "Access Denied. : file already open.\n";
     } else if ((bytes & 0x7f) != 0) {
         fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {
-        MemCardMakeDevname(chan, mc.devname);
-        strcat(mc.devname, file);
-        mc.cmd  = 3;
-        mc.rslt = 0;
-        mc.done = 0;
-        mc.len  = bytes;
-        mc.chan = chan;
-        mc.ofs  = ofs;
-        mc.adrs = adrs;
+        MemCardMakeDevname(chan, (char *)&base[8]);
+        strcat((char *)&base[8], file);
+        base[0] = 3;                               /* cmd  */
+        base[1] = 0;                               /* rslt */
+        base[2] = 0;                               /* done */
+        base[5] = ofs;                             /* ofs  */
+        *(unsigned long **)&base[7] = adrs;        /* adrs */
+        base[6] = bytes;                           /* len  */
+        base[3] = chan;                            /* chan */
         UserFuncOpen((int)MemCardReadFile_cb);
         return 1;
     } else {
@@ -764,23 +1050,27 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
 /* @0x800FB668 : MemCardWriteFile -- async open+write of a named card file. */
 extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes)
 {
+    /* MATCH (w53-a7): identical shape to the MemCardReadFile twin -- ONE NON-volatile-fenced
+     * anchor at &_mc_cmd ($s1) for the guard reads, the devname address and all seven stores. */
     const char *fmt;
-    if (0 < mc.cmd) {
+    int *base = &mc.cmd;
+    __asm__("" : "=r"(base) : "0"(base));
+    if (0 < base[0]) {
         fmt = "Access Denied. : system busy\n";
-    } else if (0 <= mc.fd) {
+    } else if (0 <= base[4]) {                     /* fd */
         fmt = "Access Denied. : file already open.\n";
     } else if ((bytes & 0x7f) != 0) {
         fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {
-        MemCardMakeDevname(chan, mc.devname);
-        strcat(mc.devname, file);
-        mc.cmd  = 4;
-        mc.rslt = 0;
-        mc.done = 0;
-        mc.len  = bytes;
-        mc.chan = chan;
-        mc.ofs  = ofs;
-        mc.adrs = adrs;
+        MemCardMakeDevname(chan, (char *)&base[8]);
+        strcat((char *)&base[8], file);
+        base[0] = 4;                               /* cmd  */
+        base[1] = 0;                               /* rslt */
+        base[2] = 0;                               /* done */
+        base[5] = ofs;                             /* ofs  */
+        *(unsigned long **)&base[7] = adrs;        /* adrs */
+        base[6] = bytes;                           /* len  */
+        base[3] = chan;                            /* chan */
         UserFuncOpen((int)MemCardWriteFile_cb);
         return 1;
     } else {
@@ -802,6 +1092,13 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     int      fretry;
     int      err;
 
+    /* FALSIFIED (w53-a7): the TU-wide base-anchor law does NOT pay here.  Retail does reach
+     * _mc_chan as `lw $a0,0xC($s3)` off a &_mc_cmd anchor, but adding the fenced base local
+     * (which this fn needs a 9th saved reg for) rotates the whole $s0-$s7/$fp band: 91 -> 121
+     * (no fence) / 123 (plain) / 124 (volatile), even though the count becomes EXACT 152/152.
+     * NAMED ANGLE: the residual is that saved-reg band -- retail chan=$s7, name=$s0, dir=$s6,
+     * base=$s3, ofs=$fp(!), max=$t0, and it spills `&ent` to 0x60($sp) as a real pointer local
+     * (`addiu $t0,$sp,80; sw $t0,0x60($sp)`), which we never materialize. */
     if (mc.cmd != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
@@ -1014,10 +1311,14 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
          * the command-latch block is the out-of-line branch target, i.e. the test is written the
          * other way round from the natural `if (cmd < 1)`.  The latch reaches cmd/rslt/done through
          * a SECOND anchor ($s0, a copy of the base) while _mc_chan keeps its own `lui $at` macro.
-         * MEASURED: retail also keeps the command code 2 in a register that the `rslt != 2` test
-         * below re-uses (`bne $v1,$s2`), but spelling that as a named `cmdCode` local is WORSE
-         * here (CreateFile 68->84, DeleteFile 58->64, +2 insns each) -- cse already shares the
-         * literal, and the named local adds a pseudo that rotates the saved-reg band. */
+         * MEASURED (w52-a6 AND RE-MEASURED w53-a7 in the post-split-storage basin -- same verdict):
+         * retail also keeps the command code 2 in a register that the `rslt != 2` test below
+         * re-uses (`addu $s0,$s3,$zero; li $s3,2` -- the base HANDS OVER to another saved reg so
+         * $s3 can hold the 2), but spelling that as a named `cmdCode` local is WORSE
+         * (w52: CreateFile 68->84, DeleteFile 58->64; w53 re-measure: DeleteFile 57->63, +2
+         * insns) -- cse already shares the literal and the named local rotates the saved-reg
+         * band the wrong way.  NAMED ANGLE: the residual on both fns is exactly that saved-reg
+         * rotation (retail chan=$s2/file=$s0/base=$s3->$s0; ours chan=$s3/file=$s2/base=$s0). */
         if (base[0] > 0) {
             printf("Access Denied. : event multiple open\n");
         } else {
@@ -1051,10 +1352,14 @@ extern long MemCardDeleteFile(long chan, char *file)
     char devname[32];
     int  retry;
     int  rslt;
+    /* w53-a7: NO fence on this base here (unlike CreateFile).  The fence makes the pointer
+     * opaque, so gcc can no longer prove it equals the &_mc_cmd the INLINED MemCardSync
+     * materializes below -- retail shares ONE register ($s0) across the caller's field stores
+     * AND the whole inlined sync body (`lw $v1,0($s0)` ... `lw $v0,8($s0)`), which only happens
+     * when the caller's base is a plain address expression.  Measured: no fence 57 / non-volatile
+     * 57 / volatile 60.  (CreateFile measures the opposite way -- volatile 68 / plain 70 / none
+     * 81 -- so A/B per function.) */
     int *base = &mc.cmd;
-    /* the fence keeps the count EXACT at 111/111 (dropping it gives 110 and 57 diffs --
-     * one fewer diff but an inexact count, the worse base for a future crack) */
-    __asm__ __volatile__("" : "=r"(base) : "0"(base));
 
     if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
@@ -1067,7 +1372,10 @@ extern long MemCardDeleteFile(long chan, char *file)
     _mc_present |= 1 << (base[3]);
 
     while (1) {
-        if (erase(devname) != 0)
+        rslt = erase(devname);          /* retail stores the result in the `rslt` stack slot
+                                         * (`bnez $v0,...; sw $v0,0x30($sp)` -- the store is the
+                                         * branch's delay slot, so it is unconditional) */
+        if (rslt != 0)
             return 0;
         /* erase failed: re-accept card and inspect the result */
         _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
@@ -1075,10 +1383,14 @@ extern long MemCardDeleteFile(long chan, char *file)
          * the command-latch block is the out-of-line branch target, i.e. the test is written the
          * other way round from the natural `if (cmd < 1)`.  The latch reaches cmd/rslt/done through
          * a SECOND anchor ($s0, a copy of the base) while _mc_chan keeps its own `lui $at` macro.
-         * MEASURED: retail also keeps the command code 2 in a register that the `rslt != 2` test
-         * below re-uses (`bne $v1,$s2`), but spelling that as a named `cmdCode` local is WORSE
-         * here (CreateFile 68->84, DeleteFile 58->64, +2 insns each) -- cse already shares the
-         * literal, and the named local adds a pseudo that rotates the saved-reg band. */
+         * MEASURED (w52-a6 AND RE-MEASURED w53-a7 in the post-split-storage basin -- same verdict):
+         * retail also keeps the command code 2 in a register that the `rslt != 2` test below
+         * re-uses (`addu $s0,$s3,$zero; li $s3,2` -- the base HANDS OVER to another saved reg so
+         * $s3 can hold the 2), but spelling that as a named `cmdCode` local is WORSE
+         * (w52: CreateFile 68->84, DeleteFile 58->64; w53 re-measure: DeleteFile 57->63, +2
+         * insns) -- cse already shares the literal and the named local rotates the saved-reg
+         * band the wrong way.  NAMED ANGLE: the residual on both fns is exactly that saved-reg
+         * rotation (retail chan=$s2/file=$s0/base=$s3->$s0; ours chan=$s3/file=$s2/base=$s0). */
         if (base[0] > 0) {
             printf("Access Denied. : event multiple open\n");
         } else {

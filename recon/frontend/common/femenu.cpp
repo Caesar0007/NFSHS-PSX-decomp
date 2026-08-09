@@ -817,11 +817,12 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
   default:
     return 0x1000;
   }
-  keyval = kInput_KeyType_AlreadyProcessed;
-  /* NEAR-MISS(7): retail emits the two arg li's BEFORE this store, so dbr fills
-     the jal slot with the store; ours emits store-then-args (dbr takes li a1).
-     Writing the store AFTER the call gates 2/42 but is NOT retail's order. */
+  /* MATCH (W57-A5): the keyval store is written AFTER the call -- reorg then steals it
+     forward into the jal delay slot, which is exactly retail's byte order (the slot
+     executes before the callee, so the two source orders are observationally identical;
+     store-first makes dbr take `li a1` instead and costs 5 extra diffs). */
   AudioCmn_PlayFESFXVol(0x15,0x40);
+  keyval = kInput_KeyType_AlreadyProcessed;
   /* MATCH: retail falls off the end (no return-value materialization). */
 }
 
@@ -951,23 +952,22 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 
 
 /* ---- tMenuItemLeftRightSlider::Draw  [FEMENU.CPP:853-864] SLD-VERIFIED ---- */
-/* NAMED ANGLE (W56-A9, 79 diffs, NOT cracked): allocsim MATCH 2/2 -- the two
-   global allocnos are p80=`this`(refs=15)->s2 and p81->s0; the SYM 8c wants
-   `this`->$11=s1, `selected`->$12=s2. reqdelta --want p80=s1 finds NO single- OR
-   two-dial (refs/live) delta -- the s1-vs-s2 choice is a register-PREFERENCE/
-   conflict-graph tie-break, NOT an allocno-priority dial (outside allocsim/
-   reqdelta's global model; the s4.6 qtytrace gap). Secondary: a larger prim-
-   builder scheduling divergence in the DrawShapeExtended tail. Do NOT spend
-   spelling-sweep budget here until qtytrace exists. */
+/* MATCH 100% (W57-A5, was 79). The W56-A9 "allocator tie-break" verdict was WRONG:
+   the s1/s2 rotation was a SYMPTOM of two source-shape defects, both now fixed --
+   (1) the fSelFade select was a local if/else, which gcc folded into `(selected!=0)<<7`
+       reusing the text-state bool (one pseudo doing two jobs); retail writes the select
+       INLINE as the 12th argument so each arm stores 0x80 / 0 straight into 44(sp);
+   (2) the vtable result local was `u_short` + `& 0xff` at the use site, which sank the
+       `andi` past the lbu chain and cost a `move`; retail's local is `u_char` (mask at
+       the assignment, right after the jalr). */
 
 void tMenuItemLeftRightSlider::Draw(bool selected)
 
 {
-  u_short uVar1;
+  u_char uVar1;
   int iVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
   u_int wordnum;
-  short fSelFade;
   
   if (this->fX == 0 && this->fY == 0) {
     iVar2 = TextSys_WordX(this->fTextDescription);
@@ -981,14 +981,12 @@ void tMenuItemLeftRightSlider::Draw(bool selected)
   pa_Var3 = this->fData->_vf;
   uVar1 = (*(*pa_Var3)[2].pfn)
                     ((char *)this->fData + (int)(*pa_Var3)[2].delta,0xffffffff);
-  if (selected == 0) {
-    fSelFade = 0;
-  }
-  else {
-    fSelFade = 0x80;
-  }
-  DrawSlider(uVar1 & 0xff,(u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
-             this->fX + 0x73,this->fY + 4,this->fWidth,this->fHeight,6,4,false,0,fSelFade,0);
+  /* MATCH (W57-A5): the fSelFade select is written INLINE as the 12th argument -- retail
+     branches and stores 0x80 / 0 straight into the outgoing 44(sp) arg slot; routing it
+     through a local makes gcc fold it to `(selected!=0) << 7` off the text-state bool. */
+  DrawSlider(uVar1,(u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
+             this->fX + 0x73,this->fY + 4,this->fWidth,this->fHeight,6,4,false,0,
+             selected ? 0x80 : 0,0);
   return;
 }
 

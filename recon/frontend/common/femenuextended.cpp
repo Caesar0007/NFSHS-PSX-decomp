@@ -307,6 +307,19 @@ tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice()
 
 
 /* ---- tMenuItemNFS4LeftRightChoice::Draw  [FEMENUEXTENDED.CPP:262-302] SLD-VERIFIED ---- */
+/* MATCH 100% (W57-A5, was 117). Five stacked levers, in the order they landed:
+   117->95 guard/step/clamp shape copied VERBATIM from the already-PASSing sibling
+          tMenuItemGoToMenuNFS4Button::Draw (arm order + field-direct fOffset step);
+    95->88 dropped the Ghidra `int iVar5 = selected` copy (a fabricated pseudo costs a
+          callee-saved reg + 4 frame bytes);
+    88->65 `rect.w = 0x73` stored FIRST then multiplied by the FIELD rect.w (real
+          `li v1,115; mult`) -- multiplying by the literal strength-reduces to a
+          6-insn shift/add chain (catalog 06D multiply-by-the-VARIABLE);
+    65->30 same treatment for the mirrored (fFlags & 0x200) block;
+    30->12 the drawArrows flag computed INSIDE the argument list;
+    12-> 0 comparison operand order = LOAD order (`enabled > transVal` loads 38 before
+          34) + multiply operand order `sVar4 * rect.w` (moves `li 115` after the
+          sign-extend, which frees the beqz slot for the oracle's `sll v0,a0,16`). */
 
 void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
 
@@ -317,11 +330,16 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
   int iVar2;
   bool bVar3;
   short sVar4;
-  int iVar5;
   RECT rect;
   
-  iVar5 = selected;
-  if ((iVar5 != 0) || (dist = 0xe, 1 < this->fOffset + -0xe)) {
+  /* MATCH (W57-A5): shape taken VERBATIM from the PASSing sibling
+     tMenuItemGoToMenuNFS4Button::Draw -- guard arm order (selected==0 && offset-14<2),
+     field-direct offset step (`lh`+`lhu` re-read pair), and the field-direct
+     fEnabledTransitionVal step+clamp. */
+  if ((selected == 0) && (this->fOffset + -0xe < 2)) {
+    this->fOffset = 0xe;
+  }
+  else {
     FETextRender_SetFont(0);
     string = TextSys_Word(this->fTextDescription);
     iVar2 = textpixels(string);
@@ -331,67 +349,56 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
     }
     sVar1 = this->fOffset;
     this->fOffset = sVar1 + -2;
-    if (iVar5 == 0) {
+    if (selected == 0) {
       this->fOffset = sVar1 + -4;
     }
-    dist = this->fOffset + dist;
-    if (-1 < this->fOffset) goto Draw_LRChoiceTransVal;
+    if (this->fOffset < 0) {
+      this->fOffset = (u_short)this->fOffset + dist;
+    }
   }
-  this->fOffset = dist;
-Draw_LRChoiceTransVal:
-  if (((this->fFlags ^ 1) & 1) == 0) {
-    sVar4 = this->fEnabledTransitionVal + -0xc;
+  if (((this->fFlags ^ 1) & 1) != 0) {
+    this->fEnabledTransitionVal = this->fEnabledTransitionVal + 0xc;
   }
   else {
-    sVar4 = this->fEnabledTransitionVal + 0xc;
+    this->fEnabledTransitionVal = this->fEnabledTransitionVal - 0xc;
   }
-  this->fEnabledTransitionVal = sVar4;
   if (this->fEnabledTransitionVal < 0) {
     this->fEnabledTransitionVal = 0;
   }
   else if (0x80 < this->fEnabledTransitionVal) {
     this->fEnabledTransitionVal = 0x80;
   }
-  rect.h = 0xb;
-  sVar4 = this->fEnabledTransitionVal;
-  if (this->fTransitionVal < this->fEnabledTransitionVal) {
-    sVar4 = this->fTransitionVal;
-  }
-  iVar2 = sVar4 * 0x73;
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0x7f;
-  }
-  rect.w = (short)(iVar2 >> 7);
-  bVar3 = false;
-  if ((iVar5 != 0) || (this->fOffset != 0xe)) {
-    bVar3 = true;
-  }
+  /* MATCH (W57-A5): rect.w = 0x73 STORED first, then multiplied by the FIELD
+     (`li v1,115; mult` -- 06D multiply-by-the-VARIABLE) instead of by the literal
+     (which strength-reduces to a 6-insn shift/add chain); field order per oracle. */
   rect.x = (short)x;
   rect.y = (short)y;
+  rect.w = 0x73;
+  rect.h = 0xb;
+  sVar4 = this->fEnabledTransitionVal;
+  if (this->fEnabledTransitionVal > this->fTransitionVal) {
+    sVar4 = this->fTransitionVal;
+  }
+  rect.w = (short)(sVar4 * rect.w / 0x80);
+  /* MATCH (W57-A5): the drawArrows flag is computed INSIDE the argument list --
+     retail emits the a3/16(sp) arg loads BEFORE the flag's branch. */
   MenuNFS4_DrawTextBox(this->fTextDescription,rect,
              0x8c,this->fOffset,
-             this->fSelFade,bVar3,0);
+             this->fSelFade,(selected != 0) || (this->fOffset != 0xe),0);
   if ((this->fFlags & 0x200) != 0) {
     Font_SetBlitter(FontUpsideDownBlit);
+    rect.x = (short)x;
     rect.y = 0x118 - (short)y;
+    rect.w = 0x73;
     rect.h = 0xb;
     sVar4 = this->fTransitionVal;
-    if (this->fEnabledTransitionVal < this->fTransitionVal) {
+    if (this->fTransitionVal > this->fEnabledTransitionVal) {
       sVar4 = this->fEnabledTransitionVal;
     }
-    iVar2 = sVar4 * 0x73;
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0x7f;
-    }
-    rect.w = (short)(iVar2 >> 7);
-    bVar3 = false;
-    if ((iVar5 != 0) || (this->fOffset != 0xe)) {
-      bVar3 = true;
-    }
-    rect.x = (short)x;
+    rect.w = (short)(sVar4 * rect.w / 0x80);
     MenuNFS4_DrawTextBox(this->fTextDescription,
                rect,0x8c,this->fOffset,
-               this->fSelFade,bVar3,1);
+               this->fSelFade,(selected != 0) || (this->fOffset != 0xe),1);
     Font_ReSetBlitter();
   }
   return;
@@ -457,6 +464,13 @@ UpdTrans_callBaseLRChoice:
 
 
 /* ---- tMenuItemOptionsLeftRightChoice::Draw  [FEMENUEXTENDED.CPP:346-374] SLD-VERIFIED ---- */
+/* MATCH 100% (W57-A5, was 72). ONE lever: the DrawShapeExtended highlight flag is a
+   COND_EXPR `selected ? 0 : 1` written INLINE as the stack argument, NOT the boolean
+   `(u_int)(selected == 0)`.  The comparison form emits a single `sltu`/`sltiu` that gcc
+   CSEs across both call sites (and drags the &drawFlags / y+6 addresses into callee-saved
+   regs with it); the COND_EXPR expands per site with the outgoing 20(sp) arg slot as the
+   target, so each arm STORES its constant into the slot (`beqz;sw zero;j;sw s7`) and the
+   shared `1` is cse'd out of the earlier FullTextRGB call into s7 -- exactly retail. */
 
 void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 
@@ -486,9 +500,9 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
                   (int)this->fSelFade);
-  DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(selected == 0),
+  DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,selected ? 0 : 1,
              &drawFlags);
-  DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,(u_int)(selected == 0),
+  DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,selected ? 0 : 1,
              &drawFlags);
   r.x = (short)x;
   r.y = (short)y;
@@ -521,6 +535,16 @@ void tMenuItemOptionsTwoItemChoice::TransitionOn()
 
 
 /* ---- tMenuItemOptionsTwoItemChoice::Draw  [FEMENUEXTENDED.CPP:383-428] SLD-VERIFIED ---- */
+/* MATCH 100% (W57-A5, was 87): 87->84 fOnOffFade step arm ORDER (retail's fall-through
+   arm is the `!= 0` one); 84->80 the fOnOffFade step written on the FIELD (`lhu;addiu`
+   per arm, cross-jumped store) instead of through a short local; 80->59 `left =
+   &gHelpShapes[0x29]` placed BEFORE the fData vtable call (its `addiu s3,v1,1312` is
+   the jalr delay-slot filler); 59->37 the DrawShapeExtended flag as `selected ? 0 : 1`
+   (see OptionsLeftRightChoice) -- note `iVar8 ? 0 : 1` does NOT work, the int copy
+   canonicalizes back to a setcc; 37->21 dropped the `int iVar8 = selected` copy;
+   21->0 the clamp as a flat nested if/else-if reading the FIELD at each test (the
+   Ghidra comma/&& form materializes a real boolean; a short local lets cse remat the
+   value in-register instead of retail's `lh`+`lhu` reload pair). */
 
 void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
 
@@ -533,31 +557,37 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   char *pcVar5;
   short sVar6;
   __vtbl_ptr_type (*pa_Var7) [6];
-  int iVar8;
   RECT r;
   tDrawShapeExtended drawFlags;
   int ColTextOn;
   int ColTextOff;
   
-  left = &gHelpShapes[0x29];
-  iVar8 = selected;
   ptVar4 = this->fData;
   pa_Var7 = ptVar4->_vf;
+  left = &gHelpShapes[0x29];
   cVar2 = (*(*pa_Var7)[2].pfn)((char *)ptVar4 + (int)(*pa_Var7)[2].delta,0xffffffff);
-  if (cVar2 == '\0') {
-    sVar6 = this->fOnOffFade + -0x40;
+  if (cVar2 != '\0') {
+    this->fOnOffFade = this->fOnOffFade + 0x40;
   }
   else {
-    sVar6 = this->fOnOffFade + 0x40;
+    this->fOnOffFade = this->fOnOffFade + -0x40;
   }
-  this->fOnOffFade = sVar6;
-  sVar6 = this->fOnOffFade;
-  if (((sVar6 < 1) || (sVar3 = 0x80, sVar6 < 0x80)) && (sVar3 = this->fOnOffFade, sVar6 < 0)) {
+  /* MATCH (W57-A5): the clamp re-reads the FIELD (oracle `lh`+`lhu` pair) -- routing the
+     stepped value through a short local instead lets cse remat it in-register (sll/sra). */
+  if (this->fOnOffFade < 1) {
     sVar3 = 0;
   }
-  sVar6 = this->fSelFade;
+  else if (this->fOnOffFade < 0x80) {
+    sVar3 = this->fOnOffFade;
+    if (this->fOnOffFade < 0) {
+      sVar3 = 0;
+    }
+  }
+  else {
+    sVar3 = 0x80;
+  }
   this->fOnOffFade = sVar3;
-  Col = CalcTextFadeSelToHi(textType_Options,sVar6,0);
+  Col = CalcTextFadeSelToHi(textType_Options,this->fSelFade,0);
   CalcOnOffFade(textType_Options,this->fOnOffFade,
              this->fSelFade,0,&ColTextOn,
              &ColTextOff);
@@ -572,15 +602,15 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
                   (int)this->fSelFade);
-  DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(iVar8 == 0),
+  DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,selected ? 0 : 1,
              &drawFlags);
-  DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,(u_int)(iVar8 == 0),
+  DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,selected ? 0 : 1,
              &drawFlags);
   r.x = (short)x;
   r.y = (short)y;
   r.w = 0x129;
   r.h = left->height;
-  DrawShape_NFS4RoundRectangle(-1,&r,(short)iVar8);
+  DrawShape_NFS4RoundRectangle(-1,&r,(short)selected);
   return;
 }
 

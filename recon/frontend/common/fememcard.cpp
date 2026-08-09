@@ -391,6 +391,34 @@ extern "C" void Init_MemcardFile__FR12MCRDFILE_defsb(MCRDFILE_def *memCardFile,s
 
 
 /* ---- SaveGame  [FEMEMCARD.CPP:395-583] ---- */
+/* NEAR-MISS 34, count EXACT 292/292.  RECEIPT (W57-A5, allocsim + reqdelta):
+   allocsim MATCH 24/24 (order-vs-dump IDENTICAL), so the model is valid here.
+   The whole residual is ONE 3-cycle s5/s6/s7 rotation:
+       ours  p111=shapeFile->s5  p80=player->s6   p114=returnvalue->s7
+       retail(SYM)               player=s5        returnvalue=s6  shapeFile=s7
+   The three allocnos are within 2 priority units of each other:
+       p111 refs=3  live=64  pri=468   (3/64*10000)
+       p80  refs=5  live=214 pri=467   (10/214*10000)
+       p114 refs=4  live=171 pri=467   (8/171*10000)  <- p80 wins the tie on index
+   `reqdelta --want p80=s5,p114=s6,p111=s7` returns exactly ONE minimal single dial:
+       p111 (shapeFile) LIVE 64 -> 65      (|d|=1)
+   i.e. demote shapeFile below the 467 tie and the other two fall into place.  No refs
+   dial can do it (refs 3->4 crosses a floor_log2 step and OVERSHOOTS to 1250; refs 2 is
+   not spellable -- def + 2 real uses).  So the fix needs +1 RTL insn strictly INSIDE
+   shapeFile's live range (def = the `loadshapeadr` return copy; last use = the
+   `purgememadr(shapeFile)` arg, ~70 asm insns later) WITHOUT changing the final insn
+   count -- i.e. an insn that lands in one of the two delay-slot `nop`s already inside
+   that range.  Everything between def and last use is already in the range, so no
+   statement move can add one.  NOT an "allocator coin flip": it is a priced, 1-unit
+   receipt waiting for an RTL-level device.
+   Second, independent residual (~3 of the 34): the `tScreen` base-ctor call.  Retail
+   materializes `addiu s0,sp,0x15C0` BEFORE the `jal __7tScreen` and passes
+   `addu a0,s0,zero` (the address is live across the call -> callee-saved s0); ours
+   emits `addiu a0,sp,0x15C0` in the jal delay slot and rematerializes s0 afterwards.
+   Lever #16 (hold-global-addr-across-call) cannot be spelled here: the address pseudo
+   must be the SAME one the implicit ctor call uses, and C++ runs the ctor at the
+   declaration -- `wd = &WarningDialog` can only be written AFTER it, by which time the
+   call has already clobbered the a0 copy so cse cannot unify the two. */
 
 void * SaveGame(short player)
 

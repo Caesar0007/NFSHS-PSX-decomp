@@ -792,6 +792,24 @@ tDialogYesNo::tDialogYesNo()
 
 
 /* ---- tDialogYesNo::Draw  [FEDIALOG.CPP:773-815] SLD-VERIFIED ---- */
+/* MATCH: 78 -> 16 (W57-A5), and the count is now EXACT 98/98 (was 104/98).
+   THE LEVER: the two Ghidra locals `sVar1 = this->top; sVar2 = this->height;` were
+   fabricated -- they held two field values in TWO callee-saved regs across the
+   FETextRender_SetABR call (forcing an extra saved reg, `fp`, + its save/restore, and
+   `lhu`+late-extend instead of `lh`).  Reading the fields INLINE in the `y` expression
+   makes gcc load-and-add them in one reg pair exactly like retail.  Also moved
+   `ptVar8 = this;` after the `x` init (preheader statement order).
+   REMAINING 16, two clusters, both position-only:
+   (a) 6: the preheader emits `addu s5,s2,zero` (ptVar8=this) BEFORE the two LICM-hoisted
+       global-address materializations; retail emits it after (and uses v0, not v1, as the
+       second %hi scratch).  Source statement order does NOT move it -- the two `lui`s are
+       loop-invariant addresses hoisted by LICM, so their position is set by the loop pass,
+       not by the preheader statement list.
+   (b) 10: retail computes `y` (lh 104 + lh 108, and the `col` capture) INSIDE the
+       SetABR(1,true) arg-setup window, with `addiu s0,s0,-11` filling the jal slot; ours
+       computes it after the call.  Writing the `y` statement BEFORE the SetABR call was
+       tried and is WORSE (99 insns / 13 diffs -- it costs an extra insn), so the hoist is
+       a scheduler decision, not a statement-order one: this is the 06E/07E sched1 gap. */
 
 void tDialogYesNo::Draw()
 
@@ -814,10 +832,10 @@ void tDialogYesNo::Draw()
   }
   i = 0;
   if (0x31 < ticks[0] - this->startTicks) {
-    ptVar8 = this;
     x = (int)this->left +
             ((int)((u_int)(u_short)this->width
                   << 0x10) >> 0x12);
+    ptVar8 = this;
     while( true ) {
       if (2 <= i) break;
       idx = 2;
@@ -825,10 +843,8 @@ void tDialogYesNo::Draw()
         idx = 1;
       }
       col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][idx + 3]],(int)this->fFadeText);
-      sVar1 = this->top;
-      sVar2 = this->height;
       FETextRender_SetABR(1,true);
-      y = ((int)sVar1 + (int)sVar2 + -0xb) * 0x10000;
+      y = ((int)this->top + (int)this->height + -0xb) * 0x10000;
       sMenuText = TextSys_Word(ptVar8->yesnowords[0]);
       FETextRender_FullTextRGB(sMenuText,(short)x,(short)((u_int)y >> 0x10),col,'\0',2);
       FETextRender_SetABR(0,false);

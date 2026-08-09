@@ -28,6 +28,10 @@ void tScreenPinkSlips::DrawBackground()
   tMenuTextState textState;
   tTrackInformation trackInfo;
   short shapeY;
+  /* MATCH: the tpage x is a SHORT local (oracle rematerializes it as
+     `li $t2,0x200` then sign-extends `sll/sra` into $a2); an int/cast literal
+     folds to a bare `li $a2,512`.  14 -> 10 diffs, count-exact 364/364. */
+  short movieVramX = 0x200;
   i = 0;
   r.x = 0x15b;
   r.y = 0x8f;
@@ -51,10 +55,10 @@ void tScreenPinkSlips::DrawBackground()
         flareextra_248 = 0;
       }
       pulse = flareextra_248;
-      if (0x1e < pulse) {
-        pulse = 0x3c - pulse;
-      }
-      flare_intensity = pulse / 2;
+      /* MATCH: ONE statement (oracle SLD groups the subu+srl on one line) and
+         the arms in THIS order - the reversed test picks the oracle's commutative
+         `addu $v0,$v1,$v0` in the signed /2 idiom. */
+      flare_intensity = (0x1e >= pulse ? pulse : 0x3c - pulse) / 2;
       flare_intensity += 0x14;
       flare_intensity *= 0x80 - this->fScreenFadeVal;
       if (0 < flare_intensity) {
@@ -82,7 +86,10 @@ void tScreenPinkSlips::DrawBackground()
     char trackIndex = (char)currentItem;
 
     frontEnd.pinkSlipsTrackIndex = trackIndex;
-    if ((currentItem & 0xff) != 0) {
+    /* MATCH: the guard tests the CHAR local (unsigned char on this build),
+       not a fresh `currentItem & 0xff` - that is what makes the `andi` read
+       currentItem's copy ($a0) instead of the raw load ($v0). */
+    if (trackIndex != 0) {
       frontEnd.pinkSlipsTrackIndex = (char)(currentItem - 1);
     }
   }
@@ -119,12 +126,12 @@ void tScreenPinkSlips::DrawBackground()
         if (i == 1) {
           this->fTrackTVs[tv].vh--;
         }
-        this->fTrackTVs[tv].tpage = GetTPage(2,0,0x200,(int)shapeY);
-        j = j + 1;
+        this->fTrackTVs[tv].tpage = GetTPage(2,0,movieVramX,(int)shapeY);
         this->fTrackTVs[tv].clut = 0;
+        this->fTrackTVs[tv].state = tv_StateOn;
         this->fTrackTVs[tv].flags = 0x20;
         this->fTrackTVs[tv].tint = 0x808080;
-        this->fTrackTVs[tv].state = tv_StateOn;
+        j = j + 1;
         tv = tv + 1;
       } while (j < 4);
       i = i + 1;
@@ -235,16 +242,22 @@ void tScreenPinkSlips::Cleanup()
 void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
 
 {
-  int iVar1;
-  
-  if ((short)trackInfo.fTrackID != this->fPreviousTrack) {
-    sprintf(gSwapFileName,"TR%02dPS",*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
+  /* MATCH: fTrackID is a SIGNED byte (this build's plain `char` is unsigned, so
+     every read needs the explicit signed-char view -> lbu + sll/sra 24); the
+     ONE sign-extended value feeds both the compare and the sprintf arg (oracle
+     `addu $a2,$v0,$zero`), while the fPreviousTrack store RE-READS the field
+     (the two calls may alias).  fPreviousTrack is a signed short -> `lh`. */
+  int trackID = (signed char)trackInfo.fTrackID;
+
+  if (trackID != this->fPreviousTrack) {
+    sprintf(gSwapFileName,"TR%02dPS",trackID);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
-    this->fPreviousTrack = (short)trackInfo.fTrackID;
-    iVar1 = ticks;
-    if (-1 < this->fTransitionDirection) {
-      this->fTransitionDirection = -1;
+    this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
+    if (-1 < *(signed char *)&this->fTransitionDirection) {
+      int iVar1 = ticks;
+
+      *(signed char *)&this->fTransitionDirection = -1;
       this->fTVTicks = iVar1;
     }
     VIDEO_abortplayback(this->hVideo);

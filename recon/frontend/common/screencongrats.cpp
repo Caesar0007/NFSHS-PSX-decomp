@@ -314,18 +314,20 @@ void tScreenCongrats::DrawForeground()
 void tScreenCongrats::CalculatePrizes()
 
 {
-  this->trophy = kTrophyNone;
-  this->CashAwarded = -1;
-  this->fCarX = 0x116;
+  /* MATCH: retail's init block runs in FIELD-OFFSET order (oracle SLD 367..376),
+     with fCarX/fCarY on one source line and fCarCX/fCarCY on the next.  Any other
+     statement order makes gcc hoist the 4.0 `lui` into $a0 and evict `this`
+     to $a1 (an extra `addu a1,a0,zero`).
+     @0x80048A04: fCarCX=4.0 is a branch DELAY-SLOT store (oracle
+     `bne v1,v0,.L; sw a1,0x17C(a0)`) -- it runs unconditionally. */
   this->congratsMessage = kScreenCongrats_Congrats;
-  this->fCarY = 0x3f;
-  this->fCarCY = -7.4;
+  this->trophy = kTrophyNone;
   this->smallSpinningThing = kSpinningNone;
   this->fCarPlayer = 0;
   this->TotalCash = 0;
-  /* @0x80048A04: fCarCX=4.0 is a JAL-independent branch's DELAY-SLOT store (oracle `bne v1,v0,.L; sw a1,0x17C(a0)`)
-   * -- it runs UNCONDITIONALLY regardless of the compare result (MIPS delay slot semantics, always executes). */
-  this->fCarCX = 4.0;
+  this->CashAwarded = -1;
+  this->fCarX = 0x116; this->fCarY = 0x3f;
+  this->fCarCY = -7.4; this->fCarCX = 4.0;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
     this->fCarX = 0x120;
     this->fCarY = 0x49;
@@ -462,27 +464,27 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   __vtbl_ptr_type (*vtbl)[10];
   int player;
   tCarInfo carinfo;
-  int winner;
 
-  /* @0x80048CFC: oracle `lh s1,0x184(s3)` reads fWinner into a NAMED local (held live, callee-saved s1,
-   * past the two library calls below) as the FIRST body instruction, right after the prologue's
-   * register-save block -- source it first so gcc groups the sw-prologue before any field store. */
-  winner = this->fWinner;
-  this->smallSpinningThing = kSpinningMemCard;
+  /* MATCH (W54-A7, from the SYM SLD line map of 0x80048CDC..0x80048DEC):
+     retail's statement order is EXACTLY 464 TotalCash / 465 CashAwarded /
+     466 congratsMessage / 467 trophy / 468 smallSpinningThing /
+     469 fCarPlayer / 471 player.  There is NO `winner` local: line 469 and
+     line 471 each RE-READ this->fWinner (two `lh 0x184` + two `subu`). */
   this->TotalCash = 0;
   this->CashAwarded = -1;
   this->congratsMessage = kScreenCongrats_Congrats;
-  player = 1 - winner;
-  /* @0x80048D24-34: `fCarPlayer`'s `1-fWinner` is a SEPARATE re-read+recompute (oracle 2nd `lh` + 2nd
-   * `subu`), not a reuse of `player` -- keep it its own un-shared expression (delay-slot store of the jal). */
-  this->fCarPlayer = 1 - this->fWinner;
   this->trophy = kTrophyCar;
+  this->smallSpinningThing = kSpinningMemCard;
+  this->fCarPlayer = 1 - this->fWinner;
+
+  player = 1 - this->fWinner;
   CarIO_CleanUpLicense(player);
   CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
   vtbl = this->_vf;
   (*vtbl[1][2].pfn)
-            (this->fPermShapes.fFilename +
-             vtbl[1][2].delta + -0x14,&carinfo);
+            /* MATCH: explicit int-cast with the BASE first -> oracle `addu $a0,$s3,$a0`
+               (the natural `p + delta` form emits the operands the other way round). */
+            ((char *)((int)this->fPermShapes.fFilename + (vtbl[1][2].delta + -0x14)),&carinfo);
   /* @0x80048D74: oracle `lb v1,0xD1(sp)` reads fSpeechCarID as SIGNED (matches its use in a real
    * `==-1` compare below); tCarInfo::fSpeechCarID is a shared-header plain `char` (platform default
    * unsigned on this toolchain, hence a stray `lbu` -- cast to `signed char` here, in-TU only).
@@ -491,7 +493,9 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   if ((signed char)carinfo.fSpeechCarID != -1) {
     /* @0x80048D84-8C: oracle adds 0x13 to fWinner FIRST (`lh v0,388;addiu v0,19`), THEN adds the
      * doubled speech-car-id (`addu v1,v1,v0`) -- explicit grouping to match that addition order. */
-    this->fSpeechToPlay = (signed char)carinfo.fSpeechCarID * 2 + (this->fWinner + 0x13);
+    int base = this->fWinner + 0x13;
+
+    this->fSpeechToPlay = base + (signed char)carinfo.fSpeechCarID * 2;
   }
   else {
     this->fSpeechToPlay = this->fWinner + 0x17;

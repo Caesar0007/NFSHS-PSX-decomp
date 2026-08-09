@@ -37,15 +37,29 @@ void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  
+  /* MATCH (S3.12 #16): retail holds gSwapFileName's ADDRESS in a callee-saved
+     reg ($s0) ACROSS the GetTrophyName call and reuses it for *swapFileName
+     (oracle `addu $a3,$s0,$zero` ... `sw $s0,0($s2)`); materializing the
+     address twice costs an extra lui/addiu pair. */
+  char *swapName = gSwapFileName;
+
   numPermShapes = 0x26;
   numSwapShapes = 0x20;
-  GetTrophyName(&tournamentManager,
-             (tournamentManager.fDefinition)->fTournaments +
-             (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-             (uint)(byte)this->fRealCurrentTourn[(byte)frontEnd.tier],ts_Small,gSwapFileName,-1);
+  /* MATCH: the SLD splits this in two - line 60 computes the tournament INDEX
+     (both lbu's + the shared tier*2), line 61 is the call.  As one expression
+     gcc scales each index term separately (two x84 chains) and hands
+     &tournamentManager a non-$a0 scratch. */
+  {
+    /* the THIS-dependent read must be its own statement FIRST: it frees $a0
+       for &tournamentManager (oracle `addu $a1,$a0,$v0` then `lui $a0`). */
+    uint cur = (uint)(byte)this->fRealCurrentTourn[(byte)frontEnd.tier];
+    uint tourn = (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset + cur;
+
+    GetTrophyName(&tournamentManager,
+               (tournamentManager.fDefinition)->fTournaments + tourn,ts_Small,swapName,-1);
+  }
   *permFileName = "zTrophy";
-  *swapFileName = gSwapFileName;
+  *swapFileName = swapName;
   return;
 }
 
@@ -144,52 +158,44 @@ void tScreenTrophyRoom::PreLoad()
 void tScreenTrophyRoom::Initialize()
 
 {
-  short numT;
-  void *loaded;
-  int i_int;
-  short n_trophies;
+  /* MATCH (W54-A7, from the SYM SLD map 0x80040910..0x80040AE4): retail's
+     statements are 119 base-Initialize / 124 systemtask / 125 the load poll /
+     126 tier / 127 fNumTrophies (a ONE-line select) / 128 fClearScreen /
+     130 the `short i` for-loop / 132..138 ONE placement read + select /
+     140 the texture load / 144..152 the tail.  No <<16 fixed-point counter,
+     no `numT` temp, and the placement is read ONCE (the if-body reuses it). */
+  int loaded;
   int curIdx;
-  int place;
   short i;
-  uint tour_idx;
-  
+
   this->Initialize();
   do {
     systemtask(0);
-    loaded = ::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
-  } while (loaded != (void *)0x1);
+    loaded = (int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
+  } while ((loaded ^ 1) != 0);
   this->tier = (uint)(byte)frontEnd.tier;
-  n_trophies = 6;
-  if (frontEnd.tier != '\0') {
-    n_trophies = 8;
-  }
-  tour_idx = 0;
-  this->fNumTrophies = n_trophies;
+  this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
-  i_int = 0;
-  while( true ) {
-    i = i_int >> 0x10;
-    if (this->fNumTrophies <= i) break;
+
+  for (i = 0; i < this->fNumTrophies; i = i + 1) {
+    int placement;
+    short place;
+
     this->fTrophyList[i] = 1;
-    place = 0;
-    if ((int)tournamentManager.fBestPlacement
-             [(tournamentManager.fDefinition)->fTournaments
+    placement = (signed char)tournamentManager.fBestPlacement
+             [(signed char)(tournamentManager.fDefinition)->fTournaments
               [(uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-               (tour_idx & 0xff)].fTournamentID] - 1U < 3) {
-      place = (int)tournamentManager.fBestPlacement
-                   [(tournamentManager.fDefinition)->fTournaments
-                    [(uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset
-                     + (tour_idx & 0xff)].fTournamentID];
+               (uint)(byte)i].fTournamentID];
+    place = 0;
+    if ((u_int)(placement - 1) < 3) {
+      place = placement;
     }
-    tour_idx = tour_idx + 1;
-    FETexture_LoadPmxAtOffset((this->fTrophyShapes).fFile,i * 4 + (int)(short)place,
+    FETexture_LoadPmxAtOffset((this->fTrophyShapes).fFile,i * 4 + place,
                (this->fTrophyShapes).fShapes + i,0,0);
-    i_int = tour_idx * 0x10000;
   }
   purgememadr((this->fTrophyShapes).fFile);
-  numT = this->fNumTrophies;
   (this->fTrophyShapes).fFile = (char *)0x0;
-  this->fTrophyList[numT] = 0;
+  this->fTrophyList[this->fNumTrophies] = 0;
   curIdx = this->fNumTrophies + -1;
   if (this->fRealCurrentTourn[this->tier] < curIdx) {
     curIdx = (int)this->fRealCurrentTourn[this->tier];
@@ -290,21 +296,20 @@ void tScreenTrophyRoom::DrawBackground()
 void tScreenTrophyRoom::LoadTrophy()
 
 {
-  short x;
-  char *fileName;
-  short y;
-  int fModNumber;
-  int TROPHY_LEFTOFFSET;
-  tDrawShapeExtended drawFlags3;
-  tDrawShapeExtended drawFlags;
-  
   if (this->fRealCurrentTourn[this->tier] != (ushort)(byte)this->fPreviousTrophy) {
-    fileName = (char *)0x0;
+    /* MATCH: same shape as GetShapeInfo -- the THIS-dependent index read is
+       its own statement, the two index terms are GROUPED (one x84 chain), and
+       gSwapFileName's address is held in a local across both calls ($s0). */
+    /* the frontEnd.tier read is its OWN local so its %hi lands in the beq
+       delay slot (retail's eager steal) instead of tournamentManager's. */
+    uint tierIdx = (uint)(byte)frontEnd.tier;
+    char *swapName = gSwapFileName;
+    uint cur = (uint)(byte)this->fRealCurrentTourn[this->tier];
+    uint tourn = (uint)(tournamentManager.fDefinition)->fTiers[tierIdx].fTournOffset + cur;
+
     GetTrophyName(&tournamentManager,
-               (tournamentManager.fDefinition)->fTournaments +
-               (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-               (uint)(byte)this->fRealCurrentTourn[this->tier],ts_Small,gSwapFileName,-1);
-    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
+               (tournamentManager.fDefinition)->fTournaments + tourn,ts_Small,swapName,-1);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,swapName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }
   return;

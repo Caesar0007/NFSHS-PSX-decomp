@@ -46,12 +46,28 @@ void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 
 {
-  /* MATCH: SLD has no depth local.  Clamp the parameter itself and keep the
-     retail exit-in-the-middle CFG; this removes the unsigned depth masks. */
-  if (0 < gridpos) {
-    if (0x3f < gridpos) goto DrawVerticalLine_high;
+  /* MATCH: retail sign-extends the short param ONCE into a separate int
+     (oracle sll $v0,$a3,16 / sra $v1,$v0,16) and TESTS that int, while the
+     clamp STORES back into the short param register $a3.  One variable for
+     both roles makes gcc clamp+test in the same reg + an extra copy. */
+  int depth;
+
+  /* MATCH (W54-A7): retail keeps the SHORT param in its home $a3 for the whole
+     clamp and sign-extends ONCE into a separate int ($v0->$v1) for the three
+     tests.  gcc-2.8 instead spills the param to $v1 (the parm copy survives -
+     global-allocno tie refusal) and lets the sign_extend eat $a3.  The identity
+     fence right after the parm copy re-pins gridpos to $a3: 17 diffs -> 2,
+     count-exact 32/32.  DO NOT "simplify" it away.
+     KNOWN RESIDUAL: reorg's stop_search_p() stops the backward delay-slot scan
+     at ANY asm, so the prologue `sw $ra` can no longer be stolen into the blez
+     slot (retail has it there).  A non-asm allocno-promotion device would
+     finish this fn; see the W54-A7 report. */
+  __asm__("" : "=r"(gridpos) : "0"(gridpos));
+  depth = gridpos;
+  if (0 < depth) {
+    if (0x3f < depth) goto DrawVerticalLine_high;
   }
-  if (gridpos < 0) {
+  if (depth < 0) {
     gridpos = 0;
   }
   goto DrawVerticalLine_draw;
@@ -67,11 +83,15 @@ DrawVerticalLine_draw:
 void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 
 {
-  /* Same parameter-clamp source shape as DrawVerticalLine. */
-  if (0 < gridpos) {
-    if (0x3f < gridpos) goto DrawHorizontalLine_high;
+  /* Same parameter-clamp source shape as DrawVerticalLine (same fence receipt). */
+  int depth;
+
+  __asm__("" : "=r"(gridpos) : "0"(gridpos));
+  depth = gridpos;
+  if (0 < depth) {
+    if (0x3f < depth) goto DrawHorizontalLine_high;
   }
-  if (gridpos < 0) {
+  if (depth < 0) {
     gridpos = 0;
   }
   goto DrawHorizontalLine_draw;

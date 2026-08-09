@@ -830,6 +830,15 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 
 /* ---- DrawSlider  [FEMENU.CPP:665-761] SLD-VERIFIED ---- */
 
+/* MATCH W59: 203 -> 169 diffs.  The natural non-volatile fSelFade parameter
+   restores retail's direct incoming-slot loads; a reverse-arm value identity
+   plus one read-only fence corrects the opening local-alloc handout (260 ->
+   187), and keeping myDarkBlue live at the join fixes the s6/s7 tail (->169).
+   Both asm templates are empty and name no hard register.  Measured rejects:
+   non-volatile alone 260; identity fence 267; a second read-only fence 192;
+   loop placement 244; forward volatile local 282; OR term/order shapes 293+.
+   qtytrace is not authoritative here: instrumented cc1plus differs by d311. */
+
 /* WARNING: Unable to use type for symbol pkt2 */
 /* WARNING: Unable to use type for symbol pkt */
 /* WARNING: Unable to use type for symbol tp3 */
@@ -853,7 +862,7 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 
 void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,short fHeight,
                short rectwidth,short rectspace,bool reverse,bool shadow,
-               volatile short fSelFade,
+               short fSelFade,
                short fFadeVal)
 
 {
@@ -908,7 +917,11 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
     }
   }
   else {
+    short reverseSelFade;
+
+    reverseSelFade = fSelFade;
     x1 = fX + fWidth - 1;
+    __asm__("" : : "r"(reverseSelFade));
     while (fX <= x1) {
       prim = (POLY_F4 *)Render_gPacketPtr;
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
@@ -926,11 +939,11 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       if (!shadow) {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 >= fX + fWidth - width) {
-          if (fSelFade) {
+          if (reverseSelFade) {
             Col = CalcFadeVal(myDarkBlue,
                 (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
                 (((((fX + fWidth - x1) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
-                ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
+                ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,reverseSelFade);
           }
           else {
             Col = myDarkBlue;
@@ -947,6 +960,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       x1 -= rectwidth + rectspace;
     }
   }
+  __asm__("" : : "r"(myDarkBlue));
 }
 
 

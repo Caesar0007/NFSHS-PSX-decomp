@@ -264,7 +264,13 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * (Block start line=1 .. Block end line=188) => k/nCar/nCheckTotalTime are
  * each ONE real C variable reused sequentially across the function's
  * several small loops (classic C89 "declare once at top, reuse" style),
- * matching the sibling StatChk_IsTopTime in this same file. */
+ * matching the sibling StatChk_IsTopTime in this same file.
+ *
+ * MATCH W60 (2026-08-10): the zero-insn read/write fence keeps the record
+ * size as a real value at its first use, recovering part of retail's
+ * 20*8/20*18 construction and reducing the authoritative residual 200->199.
+ * Declaration initializers, split size locals, and equivalent conditional
+ * rewrites all measured neutral or worse and were reverted. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -294,6 +300,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   }
 
   uRecSz = sizeof(tRecordBuffer);
+  __asm__("" : "+r"(uRecSz));
   RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",uRecSz * 18,0x10);
   nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
   nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);

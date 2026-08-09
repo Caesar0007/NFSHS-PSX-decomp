@@ -3,6 +3,11 @@
  */
 #include "screenmemcard.h"
 
+typedef struct {
+  u_int addr : 24;
+  u_int len : 8;
+} tMemcardPrimTag;
+
 /* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
    ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
    delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
@@ -81,78 +86,47 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
                short fFade)
 
 {
-  int n;
-  byte iconType;
-  short srcW;
-  short srcH;
-  int destBright;
-  int pkt_addr24;
-  int tc1;
-  int destBrightLow;
-  int v0;
-  int v1;
-  short loop_or_color;
-  uint pktAddr;
-  byte *iconData;
-  u_char *cur_pkt;
-  u_char *prev_pkt;
-  byte u0;
-  short ts4;
-  short ts8;
+  POLY_FT4 *prim;
+  int stype = icon->type;
+  long sposx = icon->shapex;
+  long sposy = icon->shapey;
+  long width = icon->width;
+  long height = icon->height;
+  int bpp = 4;
+  int u = ((sposx & 0x3f) << bpp) / bpp;
+  int v = sposy % 0x100;
 
-  /* MATCH: the div-by-4 (and the shift-by-4 feeding it) reach the oracle as a
-     runtime `div`+overflow/zero guard and a variable-shift `sllv`, not a
-     folded `<<2` -- both operands trace to ONE non-literal local materialised
-     in the prologue (before any icon field is even read). */
-  iconData = (byte *)icon;
-  n = 4;
-  iconType = *iconData;
-  srcW = *(short *)(iconData + 4);
-  srcH = *(short *)(iconData + 6);
-  destBright = (*(int *)(iconData + 0xc) << 4) >> 0x14;
-  pkt_addr24 = (*(int *)(iconData + 0xc) << 0x14) >> 0x14;
-  tc1 = ((pkt_addr24 & 0x3f) << n) / n;
-  destBrightLow = destBright % 256;
+  prim = (POLY_FT4 *)Render_gPacketPtr;
+  ((tMemcardPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
+  Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
+  ((tMemcardPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  prim->code = 0x2e;
+  ((u_char *)prim)[3] = 9;
+  prim->r0 = -0x80 - fFade;
+  prim->g0 = -0x80 - fFade;
+  prim->b0 = -0x80 - fFade;
+  prim->clut = shapetoclutid((u_char *)icon);
+  prim->tpage = (stype & 3) << 7 |
+                (sposy & 0x100) >> 4 |
+                (sposx & 0x3ff) >> 6 |
+                (sposy & 0x200) << 2;
 
-  prev_pkt = Render_gPacketPtr;
-  cur_pkt = Render_gPalettePtr;
-  *(uint *)prev_pkt =
-       *(uint *)prev_pkt & 0xff000000 | *(uint *)cur_pkt & 0xffffff;
-  pktAddr = (uint)prev_pkt & 0xffffff;
-  Render_gPacketPtr = prev_pkt + 0x28;
-  *(uint *)cur_pkt = *(uint *)cur_pkt & 0xff000000 | pktAddr;
-  prev_pkt[7] = 0x2e;
-  prev_pkt[3] = 9;
-  u0 = -0x80 - fFade;
-  prev_pkt[4] = u0;
-  prev_pkt[5] = u0;
-  loop_or_color = shapetoclutid(iconData);
-  prev_pkt[6] = u0;
-  *(short *)(prev_pkt + 0xe) = loop_or_color;
-  *(ushort *)(prev_pkt + 0x16) =
-       (iconType & 3) << 7 | (ushort)((int)(destBright & 0x100U) >> 4) |
-       (ushort)((int)(pkt_addr24 & 0x3ffU) >> 6) | (ushort)((destBright & 0x200U) << 2);
-  v1 = tc1 + srcW;
-  prev_pkt[0xc] = tc1;
-  prev_pkt[0xd] = destBrightLow;
-  prev_pkt[0x14] = v1;
-  prev_pkt[0x15] = destBrightLow;
-  prev_pkt[0x1c] = tc1;
-  v0 = destBrightLow + srcH;
-  prev_pkt[0x1d] = v0;
-  prev_pkt[0x24] = v1;
-  prev_pkt[0x25] = v0;
-  *(short *)(prev_pkt + 8) = (short)x;
-  *(short *)(prev_pkt + 10) = (short)y;
-  *(short *)(prev_pkt + 0x12) = (short)y;
-  *(short *)(prev_pkt + 0x18) = (short)x;
-  ts8 = (short)(x + destwidth);
-  *(short *)(prev_pkt + 0x10) = ts8;
-  *(short *)(prev_pkt + 0x20) = ts8;
-  ts4 = (short)(y + destheight);
-  *(short *)(prev_pkt + 0x1a) = ts4;
-  *(short *)(prev_pkt + 0x22) = ts4;
-  return;
+  prim->u0 = u;
+  prim->v0 = v;
+  prim->u1 = u + width;
+  prim->v1 = v;
+  prim->u2 = u;
+  prim->v2 = v + height;
+  prim->u3 = u + width;
+  prim->v3 = v + height;
+  prim->x0 = x;
+  prim->y0 = y;
+  prim->x1 = x + destwidth;
+  prim->y1 = y;
+  prim->x2 = x;
+  prim->y2 = y + destheight;
+  prim->x3 = x + destwidth;
+  prim->y3 = y + destheight;
 }
 
 /* ---- tScreenMemcard::LoadIcon  (screenmemcard.cpp:145) ---- */

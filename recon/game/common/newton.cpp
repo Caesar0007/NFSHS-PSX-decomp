@@ -1949,6 +1949,18 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
 }
 
 /* ---- Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj  [NEWTON.CPP:2161-2361] SLD-VERIFIED ---- */
+/* RECEIPT (w57-a9): 113 -> 75.  The two `temp.x/.y/.z = BWorldSm_slices[..].center[k]`
+   triples are a STRUCT COPY in retail (oracle loads all 3 into t1/t2/t3 THEN stores
+   all 3 -- the gcc block-move shape), not field-by-field (ours interleaved
+   lw/nop/sw x3).  Written as `temp = *(coorddef *)....center;`.
+   RESIDUAL 75 = (a) `temp = testSimRoadInfo.quadPts[j]` -- retail STRENGTH-REDUCES to
+   an incrementing pointer (`addiu a2,a2,12` + a separate `addiu a3,a3,1` counter,
+   loads at 0/4/8(a2)); ours emits the index form (`sll v0,v0,2; addu v0,v0,s3`).
+   (b) the pBVar13+0x28c coorddef copy.  FALSIFIED: converting the two
+   `label: if (j<4) {...goto label;}` loops to `while (j < 4) {...}` -- 73 -> 163,
+   gcc rotates and re-colors the whole body.  The goto shape IS retail's; the
+   pointer-walk must come from the SOURCE (a real `coorddef *` cursor), not from
+   letting gcc's loop optimizer see a structured loop. */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {
@@ -2067,9 +2079,7 @@ NewtonTestUndrv_loop1:
                     temp = testSimRoadInfo.quadPts[j];
                   }
                   else {
-                    temp.x = BWorldSm_slices[testSimRoadInfo.slice].center[0];
-                    temp.y = BWorldSm_slices[testSimRoadInfo.slice].center[1];
-                    temp.z = BWorldSm_slices[testSimRoadInfo.slice].center[2];
+                    temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
                   }
                   undrivableCenter.x = undrivableCenter.x + temp.x;
                   undrivableCenter.y = undrivableCenter.y + temp.y;
@@ -2098,9 +2108,7 @@ NewtonTestUndrv_loop2:
                   temp = testSimRoadInfo.quadPts[j];
                 }
                 else {
-                  temp.x = BWorldSm_slices[testSimRoadInfo.slice].center[0];
-                  temp.y = BWorldSm_slices[testSimRoadInfo.slice].center[1];
-                  temp.z = BWorldSm_slices[testSimRoadInfo.slice].center[2];
+                  temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
                 }
                 undrivableCenter.x = undrivableCenter.x + temp.x;
                 undrivableCenter.y = undrivableCenter.y + temp.y;

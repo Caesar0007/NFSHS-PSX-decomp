@@ -5,6 +5,15 @@
 #include "../../nfs4_types.h"
 #include "physics_externs.h"
 
+/* EA-era MIN/MAX clamp macros.  The oracle proves retail used the TERNARY form
+   (a COND_EXPR whose result lands in a fresh temp reg, then one store) for the
+   rpm clamps, NOT the `if (a < b) a = b;` override form -- see the
+   CalculateCarAcceleration receipt.  Locally named so nothing in the shared
+   headers can collide (an UNDEFINED `MAX(...)` makes cc1 emit an implicit
+   variadic `jal MAX` = a phantom link symbol, catalog 08B). */
+#define PHY_MIN(a,b) ((a) < (b) ? (a) : (b))
+#define PHY_MAX(a,b) ((a) > (b) ? (a) : (b))
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle);
 void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj);
@@ -872,7 +881,13 @@ RampCtrl_earlyBrake:
 void Physics_FixEngineRpm(Car_tObj *carObj)
 
 {
-  int iVar4;
+  int iVar4;   /* RECEIPT (w57-a9): the SYM 8c block lists NO locals for this fn,
+                  so this hoist is a Ghidra invention -- BUT the SYM-faithful
+                  shape (read collision.collided inline at SLD 1306) measures
+                  WORSE, 35 vs 28: dropping the local frees $a2 and re-colors the
+                  mflo temps a2<->a3.  Residual class = local-alloc QTY handout
+                  (catalog 06E).  Kept the 28 basin; do NOT "fix" without a
+                  measurement. */
 
   iVar4 = (carObj->N).collision.collided;
   (carObj->linearVel_ch).x =
@@ -1056,6 +1071,31 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
    confirm p88's retail reg from the oracle, then a zero-insn read-only fence on
    p84's last use.  The cfLbl1 `goto` is load-bearing (skips flywheelRpm=desiredRpm)
    -- do NOT inline the clamp. */
+/* RECEIPT (w57-a9): 222 -> 140.  FOUR landings, in order:
+   (1) STRUCTURE, not coloring -- retail wrote the rpm clamps as MIN/MAX TERNARIES
+       whose result lands in a fresh temp reg (oracle `addu v1,<arm>,zero; slt; b*;
+       addu v1,<other>,zero` then ONE store), not as `if (a<b) a=b;` overrides.
+       Four sites converted (PHY_MIN/PHY_MAX above).  The cfLbl1 GOTO DIRECTION was
+       also backwards: retail's label sits on the shared >=0 clamp inside the
+       downshift else-arm (SLD 1541) and the DAMAGE arm jumps INTO it (oracle
+       j @800aad14 -> .L800aae34); ours had it the other way round.  Also the
+       `gear<4` ARM SWAP: retail's -200 arm is the FALL-THROUGH.  And wheelRpm's
+       pre-shift value is the SYM local `temp`(v1), not wheelRpm itself.
+   (2) SYM 8c IS THE REGISTER MAP: desiredRpm=$10=s0, diffFlywheelRpm=$13=s3,
+       driveAcc=$14=s4, wheelRpm=$15=s5, drag=$16=s6, damage=$17=s7, specs=$12=s2,
+       carObj=$11=s1, temp/ratio=$3=v1, rpmDrop=$4=a0, rpmRise=$3=v1.  Ours was a
+       3-cycle off (s4/s0/s3).
+   (3) reqdelta/allocsim RE-LADDERED after the structural landing (04Z -- the w56
+       rung table was stale: it priced p84 21->26, the real dial is 16->20).
+       allocsim MATCH 39/40; minimal ADDITIVE dial = p84 refs +4 AND p86 refs +1,
+       landed as the two read-only fences below (+1 insn total, 210 then 130).
+   (4) RESIDUAL 140 = (a) 06E non-propagated reg-reg copy class (retail keeps a
+       separate `addu v1,vN,zero` before each compare; ours copy-propagates) x4;
+       (b) local-alloc QTY handout for `temp` (retail v1, ours a0/a1);
+       (c) randtemp/fastRandom store ORDER + the damage-arm fall-through.
+   FALSIFIED (do NOT re-try): flywheelRpm as the COND_EXPR TARGET (store lands in
+   BOTH arms, +8 insns, 241); `temp = <ternary>; flywheelRpm = temp;` for the
+   rpmDrop subtract (247); plain two-arm if/else subtract (241). */
 int Physics_CalculateCarAcceleration(Car_tObj *carObj)
 
 {
@@ -1133,32 +1173,20 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
     else {
       temp = specs->redline + -400;
     }
-    if (temp < desiredRpm) {
-      desiredRpm = temp;
-    }
+    desiredRpm = PHY_MIN(temp,desiredRpm);
     carObj->revLimit = carObj->revLimit + -1;
   }
   if ((((carObj->control).gear == '\x01') || ((carObj->control).gearShiftTimer != '\0')) ||
      (powerControl == 0)) {
     if (damage) {
       carObj->flywheelRpm = carObj->flywheelRpm + -100;
-cfLbl1:   /* @0x800aae38  (-f-build goto label) */
-      /* MATCH (w56-a12): clamp flywheelRpm>=0 inlined -- retail emits
-         `lw; bgez; addu zero; j T (slot sw)`, NOT a `jal MAX`.  The prior
-         `MAX(...)` spelling had no macro in scope => cc1 emitted an implicit
-         variadic `jal MAX` (phantom link symbol + wrong bytes). */
-      if (carObj->flywheelRpm < 0) {
-        carObj->flywheelRpm = 0;
-      }
+      goto cfLbl1;   /* retail: j into the shared >=0 clamp @0x800aae34 */
     }
     else {
       if ((carObj->flywheelRpm < desiredRpm) &&
           ((carObj->control).gearShiftTimer == '\0')) {
-        temp = carObj->flywheelRpm + 0xfa;
-        carObj->flywheelRpm = temp;
-        if (temp <= desiredRpm) {
-          desiredRpm = temp;
-        }
+        carObj->flywheelRpm = carObj->flywheelRpm + 0xfa;
+        carObj->flywheelRpm = PHY_MIN(desiredRpm,carObj->flywheelRpm);
       }
       else if (((carObj->control).gearShiftTimer != '\0') &&
                ((carObj->control).lastGear != '\x01')) {
@@ -1171,29 +1199,25 @@ cfLbl1:   /* @0x800aae38  (-f-build goto label) */
             carObj->flywheelRpm =
                 carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
           }
-          desiredRpm = specs->redline;
-          if (carObj->flywheelRpm <= specs->redline) {
-            desiredRpm = carObj->flywheelRpm;
-          }
+          carObj->flywheelRpm = PHY_MIN(specs->redline,carObj->flywheelRpm);
         }
         else {
-          if ((u_char)(carObj->control).gear < 4) {
-            carObj->flywheelRpm = carObj->flywheelRpm + -100;
-          }
-          else {
+          if (4 <= (u_char)(carObj->control).gear) {
             carObj->flywheelRpm = carObj->flywheelRpm + -200;
           }
-          goto cfLbl1;
+          else {
+            carObj->flywheelRpm = carObj->flywheelRpm + -100;
+          }
+cfLbl1:   /* @0x800aae34  (retail's shared clamp; the damage arm jumps here) */
+          carObj->flywheelRpm =
+              (carObj->flywheelRpm < 0) ? 0 : carObj->flywheelRpm;
         }
       }
       else {
         if (carObj->flywheelRpm < desiredRpm) goto Phy_CalcAcc_clearWheelSpinExit;
         carObj->flywheelRpm = carObj->flywheelRpm + -200;
-        if (desiredRpm < carObj->flywheelRpm) {
-          desiredRpm = carObj->flywheelRpm;
-        }
+        carObj->flywheelRpm = PHY_MAX(carObj->flywheelRpm,desiredRpm);
       }
-      carObj->flywheelRpm = desiredRpm;
     }
 Phy_CalcAcc_clearWheelSpinExit:
     carObj->frontWheelSpin = 0;
@@ -1204,17 +1228,17 @@ Phy_CalcAcc_clearWheelSpinExit:
     Physics_AutoShift(carObj);
   }
   if (((carObj->control).gearShiftTimer != '\0') && ((carObj->control).downShifting == '\0')) {
-    wheelRpm = fixedmult((carObj->linearVel_ch).z,
-                         specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
+    temp = fixedmult((carObj->linearVel_ch).z,
+                     specs->velToRpmRatio[(u_char)(carObj->control).lastGear]);
   }
   else {
-    wheelRpm = fixedmult((carObj->linearVel_ch).z,
-                         specs->velToRpmRatio[(u_char)(carObj->control).gear]);
+    temp = fixedmult((carObj->linearVel_ch).z,
+                     specs->velToRpmRatio[(u_char)(carObj->control).gear]);
   }
-  if (wheelRpm < 0) {
-    wheelRpm = wheelRpm + 0xffff;
+  if (temp < 0) {
+    temp = temp + 0xffff;
   }
-  wheelRpm = wheelRpm >> 0x10;
+  wheelRpm = temp >> 0x10;
   if ((exceedRedline != 0) || (0 < carObj->revLimit)) {
     driveAcc = fixedmult(specs->torqueCurve[specs->redline / 0x100],
                          specs->gearAccCoeff[(u_char)(carObj->control).gear]) << 1;
@@ -1272,14 +1296,15 @@ Phy_CalcAcc_clearWheelSpinExit:
           rpmRise = -diffFlywheelRpm;
         }
         temp = carObj->flywheelRpm + rpmRise;
+        carObj->flywheelRpm = temp;
       }
       else {
         temp = carObj->flywheelRpm + rpmRise;
         if (-diffFlywheelRpm <= rpmRise) {
           temp = carObj->flywheelRpm - diffFlywheelRpm;
         }
+        carObj->flywheelRpm = temp;
       }
-      carObj->flywheelRpm = temp;
       if (exceedRedline == 0) {
         carObj->flywheelRpm =
             ((carObj->flywheelRpm > desiredRpm) ? carObj->flywheelRpm : desiredRpm);
@@ -1304,6 +1329,7 @@ Phy_CalcAcc_clearWheelSpinExit:
         else {
           carObj->flywheelRpm = wheelRpm;
         }
+        __asm__("" : : "r"(diffFlywheelRpm));
         driveAcc = fixedmult(driveAcc,gGasRatio);
       }
       temp = desiredRpm;
@@ -1311,6 +1337,7 @@ Phy_CalcAcc_clearWheelSpinExit:
         temp = carObj->flywheelRpm;
       }
       carObj->flywheelRpm = temp;
+      __asm__("" : : "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm));
       temp = 0x10000;
       ratio = carObj->slide;
       if (ratio < 0) {
@@ -1419,6 +1446,15 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 }
 
 /* ---- Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1731-1810] SLD-VERIFIED ---- */
+/* RECEIPT (w57-a9): 41 -> 17.  The gripLoss/roadGrip MIN ternary had its OPERANDS
+   REVERSED: retail evaluates roadGrip/gripLossDivider FIRST (its `div zero,s1,a1`
+   + div-guard precedes the other divide) and compares `slt q1,q2` -- i.e.
+   `(roadGrip/d < gripLoss/d) ? roadGrip/d : gripLoss/d`.  MIN is symmetric so the
+   swap is behaviour-neutral; it fixes the DIVIDE ORDER, which was the whole
+   24-insn block.  SYM 8c: carObj=$13=s3, wheel=$10=s0, totalAcc=$14=s4,
+   ratio=$12=s2, gripLoss=$3=v1, roadGrip=$4=a0, gripLossDivider=$5=a1 (all match).
+   RESIDUAL 17 = the 06E non-propagated copy class + one mflo v0/v1.
+   FALSIFIED: swapping the tireType if/else arms (19, +1 insn). */
 void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
@@ -1471,8 +1507,8 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
     }
     else {
       ratio = rdiv(roadGrip -
-                   ((gripLoss / gripLossDivider < roadGrip / gripLossDivider) ?
-                    gripLoss / gripLossDivider : roadGrip / gripLossDivider),
+                   ((roadGrip / gripLossDivider < gripLoss / gripLossDivider) ?
+                    roadGrip / gripLossDivider : gripLoss / gripLossDivider),
                    totalAcc);
       if (carObj->carInfo->TireType == 2) {
         wheel_reg->skid = (wheel_reg->skid * 0xf + gripLoss) / 16;

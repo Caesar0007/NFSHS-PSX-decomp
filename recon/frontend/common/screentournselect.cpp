@@ -306,9 +306,9 @@ void tScreenTournSelect::DrawBackground()
       this->tvConfigs[tvIdx].x = j * 0x50 + 0xa5;
       this->tvConfigs[tvIdx].w = 0x50;
       this->tvConfigs[tvIdx].h = 0x30;
-      this->tvConfigs[tvIdx].uw = 0x14;
       this->tvConfigs[tvIdx].y = i * 0x30 + 0x29;
       this->tvConfigs[tvIdx].u = j * 0x14;
+      this->tvConfigs[tvIdx].uw = 0x14;
       this->tvConfigs[tvIdx].v = i * 0x28;
       this->tvConfigs[tvIdx].vh = 0x28;
       this->tvConfigs[tvIdx].tpage = GetTPage(2,0,shapeX,shapeY);

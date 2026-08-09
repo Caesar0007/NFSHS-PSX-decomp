@@ -1285,6 +1285,48 @@ void Weather_CreateSplat
 }
 
 /* ---- Weather_DoSplats__FiP18Weather_tSplatInfo  [WEATHER.CPP:1039-1064] SLD-VERIFIED ---- */
+/* ---- w53-a5 (2026-08-09): 36 STAYS @ 111/113 (re-gated; the worklist row 96.84% is
+ * stale as usual).  THE 2-INSN GAP IS NOW NAMED EXACTLY, with the oracle read off:
+ * retail uses SIX callee-saved regs (frame 0x30, s0..s5) where we use FIVE (frame 0x28,
+ * s0..s4).  The 6th holds a SURVIVING REG-REG COPY of the splat walker:
+ *     .L800E38F4:  jal random
+ *                   addu $s2,$s0,$zero        <- the copy, in the jal delay slot
+ *     ...           sh   $v0,0x2($s2)         <- ONLY use: the .pos.vy store
+ * s0 = walker over splats (addiu $s0,$s0,8 at both back edges), s1 = i, s3 = &simGlobal,
+ * s4 = num, s5 = &GameSetup_gData.  Every other field access goes through $s0
+ * (`lw $v1,4($s0)` read, `sh $v0,0($s0)` vx, `sw $a0,4($s0)` startTick, `addu $a0,$s0,
+ * $zero` for the CreateSplat arg) -- so `.pos.vy` ALONE lives on a second pseudo holding
+ * the SAME address.  2 insns = the copy (which also fills the `nop` we emit there) + the
+ * s5 save/restore pair; the residual 36 is then the s2..s5 rename cascade that rides on it.
+ * ⇒ THE WHOLE FUNCTION REDUCES TO ONE QUESTION: what C shape yields a reg-reg copy of the
+ * walker that gcc-2.8 does NOT copy-propagate away?  EIGHT spellings measured this wave,
+ * all re-gated, NONE produces it:
+ *   explicit walker `p` + block-local `q = p` for vy .... 53 @114 (2 walkers, s2=p and
+ *       s0=p+4: gcc builds a SECOND giv at +4 for startTick instead of retail's +0 copy)
+ *   explicit walker `p` alone ......................... 50 @115
+ *   index form + block-local `q = &splats[i]` before vx  67 @110 (q BECOMES the giv, -1 insn)
+ *   index form + `q` assigned AFTER the vx store ...... 67 @110 (the catalog cse
+ *       double-evaluation generator does NOT fire on an ADDRESS giv here)
+ *   index form + fn-scope `q` ......................... 36 @111 (copy-propagated away,
+ *       byte-identical to the shipped form)
+ *   index form + `q` assigned in BOTH commMode arms ... 36 @111 (ditto -- two defs of the
+ *       same value are still forwarded)
+ *   index form + `q` also used for the CreateSplat arm  79 @118
+ *   index form + w47 OPACITY fence on `q` ............. 96 @119 (the fence's barrier
+ *       wrecks the loop; it is NOT the right device for an in-loop address pseudo)
+ *   loop rewritten as `for (i = 0; i < gCurrentNumSplats; i++)` .. 36 @111 (NEUTRAL --
+ *       the shipped while-form already produces the oracle's blez zero-trip guard +
+ *       rotated back-edge, so the loop SHAPE is settled; do not re-sweep it)
+ * NEW NAMED ANGLES for the next taker, in priority order: (1) this is a combine_givs
+ * question, not a copy-prop one -- retail kept TWO address givs with the SAME +0 offset
+ * while every index/pointer spelling here merges them; the catalog's "explicit pointer
+ * walkers are the only faithful shape" (sbhdrcpy) predicts TWO explicit walkers both
+ * advanced by 8, one used ONLY for `.pos.vy` -- untried (variant 1 above advanced only
+ * one and let gcc invent the +4 giv).  (2) read `-dL`'s giv table for this loop and check
+ * whether the vy giv is being merged onto the +4 anchor; the dial would then be the
+ * body-order of the vy store (combine_givs anchors on the LAST giv in body order).
+ * (3) the `%` chains all go through `mfhi $a3` in retail vs `$a2` in ours -- that is
+ * downstream of the same rename, do not chase it separately. */
 /* w39-a6: 117 -> 62 diffs, count EXACT 113/113.  Levers:
  *  - no `new_count` funnel: Ghidra routed every arm through a shared
  *    `gCurrentNumSplats = new_count;` store; the oracle only stores in the retire arm

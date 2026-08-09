@@ -828,6 +828,27 @@ void Hrz_LightningFlicker(int on)
 }
 
 /* ---- HrzSetPsxMatrix__FP10matrixtdef  [HRZSKU.CPP:982-1017] SLD-VERIFIED ----
+ * ---- w53-a5 (2026-08-09): 62 @52/56 re-gated on the SHIPPED 3-block form; the
+ * single-{t1,t2,t3}-block form re-measured at 72 @56/56 (COUNT-EXACT), so the w42-a6
+ * ledger note reproduces exactly and is NOT stale.  ONE new falsification from the
+ * count-exact base: a `do{}while(0)` DEPTH WRAPPER on the first r-block (the w44 ref-step
+ * inflator, aimed at lifting the r-values' QTY priority) = 80 @56/56, i.e. the wrapper
+ * moves the handout the WRONG way.  MECHANISM RE-READ (agrees with w50-a5 and sharpens
+ * it): the reachable target is not a PRIORITY dial at all -- retail's r-values occupy SIX
+ * distinct hard regs ($v0,$v1,$a0,$a1,$a2,$a3; per-mpsx-row triples {v1,a0,v0} {a1,v0,v1}
+ * {a2,a3,v0}) because they are SIMULTANEOUSLY LIVE, which is a LIVENESS question, and
+ * liveness here is set by sched1: retail hoists the two cse-emitted reloads of the block's
+ * non-negated temps (`lw $v1,0x20($sp)` / `lw $a2,0x28($sp)` for row 0, `lw $a0,0x2C` /
+ * `lw $a3,0x34` for row 1) ABOVE the following row's temp stores, so 6 r-values are live
+ * at once; ours emits each reload immediately before its own shift+store, so at most 2
+ * are.  Since QTY_CMP_PRI only orders the handout and cannot create overlap, EVERY
+ * ref/live dial tried across w40/w41/w42/w50/w53 is off-target by construction.
+ * ⇒ NEXT INSTRUMENT (named): the w45 USE-FENCE WALK is the only device that moves sched1
+ * issue position at zero insns -- walk `__asm__("" : : "r"(r0))` statement-by-statement
+ * through the r-block region of the 56/56 base (w50 tried only two positions, before and
+ * after the stores of ONE block, 82/76).  Alternatively read `-dS` (sched1, pre-reload)
+ * on both builds and diff the ready-list pick that hoists the reloads.
+ * ---- (original receipt stack follows) ----
  * NEAR-MISS 72 diffs (52/56, ours 4 insns SHORTER). The tail gte_SetRotMatrix() macro
  * expansion (last 12 insns) is byte-IDENTICAL once realigned -- all divergence is in the
  * temp/mpsx field-fill. SYM (`nfs4-f-v3.txt` @40e91f) shows the source used per-row
@@ -1038,6 +1059,23 @@ void Hrz_SetDitheringPrim(int dither,int otz)
 }
 
 /* ---- Hrz_BuildSky__Fv  [HRZSKU.CPP:1060-1277] SLD-VERIFIED ----
+ * ---- w53-a5 (2026-08-09) TRIAGE, no lever landed: re-gated 374 @458/458 (count EXACT).
+ * posdiff: alpha-renamed LCS 272/458, structural residual 186; first-use orders agree for
+ * the first TWELVE registers (s0 v0 v1 s4 s3 s2 s1 a0 a1 a2 a3 t0) and then differ by a
+ * single 7-CYCLE over the caller-saved pool: ours (t7 t3 t2 t1 t5 t6 t9 t8 t4) vs oracle
+ * (t4 t3 t2 t6 t7 t9 t8 t5 t1), i.e. t7->t4->t1->t6->t9->t8->t5->t7 with t3/t2 fixed.
+ * ⚠️ chunkdiff's two big "replace" runs (ours[300:304] vs oracle[311:409] = 98, and
+ * ours[338:433] vs oracle[432:433] = 95) are LCS ALIGNMENT ARTIFACTS of the three
+ * near-identical prim templates, NOT a block-order defect: the physical block order is
+ * ALREADY correct -- GT4 (li 0xC / 0x3C) at oracle insn ~337, FT4 (0x9 / 0x2C) at ~391,
+ * G4 (0x8 / 0x38) at ~443, matching our if(type==1){if(flags&0x20){GT4}else{FT4}}else{G4}
+ * layout.  So do NOT spend a wave on a switch/block-order rewrite here (the w42 "PHYSICAL
+ * BLOCK ORDER dominates far-miss monsters" lever does not apply to this fn).
+ * ⇒ the whole residual really is the 7-cycle the w50-a5 note names, and its root is one
+ * rung below the invariants (retail's `temp` = SYM REG $9 = $t1, ours $t0).  NEXT: run
+ * allocsim/reqdelta --want "temp=$t1" on this loop rather than any further source
+ * reshaping -- predict-before-probe, per the w45 instrument-stack rule.
+ * ---- (original wave-13 receipt follows) ----
  * wave-13 FULL rewrite from SYM @40ed4b + oracle. SYM fn-scope: pSkyMesh=$s1, pSkyZ=$s4,
  * i=$t4 (CALLER-saved -- the mesh loop has NO calls once the exit-dither moves AFTER the
  * loop), otz_old=$s0, pshift=$s0 (SAME reg, disjoint -- pshift is the sd->otz SAVE var

@@ -742,6 +742,9 @@ void Camera_UpdateTVCam(int player)
    * static base. Keeping the byte index explicit preserves that allocation/schedule. */
   iVar2 = player * (int)sizeof(int);
   if (*(int *)((char *)lastX + iVar2) != Camera_gInfo[player].position.x) {
+    /* MATCH: void fence at the arm HEAD -- defeats reorg's eager-steal of the lastY
+     * %hi into the beq's delay slot (retail leaves that slot a nop). 0 insns. */
+    __asm__("" : : "i"(0));
     *(int *)((char *)lastX + iVar2) = Camera_gInfo[player].position.x;
     *(int *)((char *)lastY + iVar2) = Camera_gInfo[player].position.y;
   }
@@ -1135,6 +1138,10 @@ void Camera_UpdatePulloverCam(int player)
     }
     newarm.y = 0x60000;
     Camera_TunnelLimit(player,&newarm.y);
+    /* MATCH: retail RE-DERIVES the &Camera_gInfo[player] index chain for the tail even though
+     * the hoisted address is still live (no-copy-prop rematerialization).  An opacity fence on
+     * the index (0 insns, schedulable) reproduces it. */
+    __asm__("" : "=r"(player) : "0"(player));
     newarm.x = sCenter.x + sRight.x;
     newarm.y = newarm.y + (sCenter.y + sRight.y);
     newarm.z = sCenter.z + sRight.z;

@@ -45,25 +45,20 @@ char * Replay_Compress(char *uncompressed_data)
   int count;
   register int c_pointer;
   char begin_byte;
-  char marker;
-  char *end;
-  char *innerEnd;
+  int u;   /* eliminated biv: loop.c strength-reduces it away, hence no SYM record */
 
   done = 0;
+  u = 0;
   c_pointer = 1;
-  marker = (char)0xff;
-  end = uncompressed_data + 0x20;
-  innerEnd = end;
   do {
-    begin_byte = *uncompressed_data;
+    begin_byte = uncompressed_data[u];
     count = 0;
     do {
-      uncompressed_data = uncompressed_data + 1;
+      u = u + 1;
       count = count + 1;
-    } while ((*uncompressed_data == begin_byte) &&
-             ((int)uncompressed_data < (int)innerEnd));
+    } while ((uncompressed_data[u] == begin_byte) && (u < 0x20));
     if (count >= 3) {
-      compressed_data[c_pointer] = marker;
+      compressed_data[c_pointer] = (char)0xff;
       compressed_data[c_pointer + 1] = (char)count;
       compressed_data[c_pointer + 2] = begin_byte;
       c_pointer = c_pointer + 3;
@@ -78,7 +73,7 @@ char * Replay_Compress(char *uncompressed_data)
         } while (i < count);
       }
     }
-    if ((int)end <= (int)uncompressed_data) {
+    if (0x20 <= u) {
       done = 1;
     }
   } while (!done);
@@ -100,12 +95,12 @@ char * Replay_Decompress(char *compressed_data)
   char current_byte;
   int c_pointer;
   int data_size;
-  char *pcVar4;
+  int u_pointer;
 
   data_size = (int)(u_char)*compressed_data;
   c_pointer = 1;
+  u_pointer = 0;
   if (c_pointer < data_size) {
-    pcVar4 = uncompressed_data;
     do {
       current_byte = compressed_data[c_pointer];
       /* char is UNSIGNED on this build (lbu even for plain char): the RLE marker byte is 0xFF,
@@ -117,15 +112,15 @@ char * Replay_Decompress(char *compressed_data)
         if (count != 0) {
           do {
             i = i + 1;
-            *pcVar4 = compressed_data[c_pointer + 2];
-            pcVar4 = pcVar4 + 1;
+            uncompressed_data[u_pointer] = compressed_data[c_pointer + 2];
+            u_pointer = u_pointer + 1;
           } while (i < count);
         }
         c_pointer = c_pointer + 3;
       }
       else {
-        *pcVar4 = current_byte;
-        pcVar4 = pcVar4 + 1;
+        uncompressed_data[u_pointer] = current_byte;
+        u_pointer = u_pointer + 1;
         c_pointer = c_pointer + 1;
       }
     } while (c_pointer < data_size);

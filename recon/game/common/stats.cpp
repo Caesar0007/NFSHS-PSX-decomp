@@ -438,6 +438,9 @@ void Stats_ExtrapolateOpponentTimes(int type)
                 Cars_gRaceCarList[y]->stats.finalTotalTime) &&
                (y < x))) {
             position++;
+            /* MATCH (reqdelta receipt): p772(position) refs 10->16 flips the
+             * a2/a3 handout vs the y-walk giv p839. Two depth-3 refs, 0 insns. */
+            __asm__("" : : "r"(position), "r"(position));
           }
         }
       }

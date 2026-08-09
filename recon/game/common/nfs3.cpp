@@ -2,9 +2,8 @@
 #include "../../nfs4_types.h"
 #include "nfs3_externs.h"
 #include "new.h"
+#include "../../lib/nfile.h"   /* FileMgr @0x8013EA88 == the `gFileDevice` symbol */
 
-/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-int *gFileMem; int *gFileHandleTable;
 
 /* ---- nfs3.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
@@ -373,12 +372,21 @@ void NFS4_LoadingIcon(void)
 void NFS3_CheckForFileOperations(void)
 
 {
-  int *p;
+  /* MATCH: retail walks the eaclib FileMgr's op-slot array (+0x18) up to the handle array
+   * (+0x1C) through ONE %hi/%lo(gFileDevice) base -- a base-anchor pointer local, not two
+   * separate small globals (the invented gFileMem/gFileHandleTable were gp-rel scalars). */
+  FileMgr *mgr = &gFileMgr;
   int *piVar1;
 
-  for (piVar1 = (int *)gFileMem; piVar1 < (u_int)gFileHandleTable; piVar1 = piVar1 + 1) {
+  for (piVar1 = (int *)mgr->oparray; piVar1 < (int *)mgr->handlearray; piVar1 = piVar1 + 1) {
     if (*piVar1 != 0) {
-      trap(0x666);
+#if defined(__mips__)
+      /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
+       * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
+      __asm__ __volatile__("break 0x666" : : "r"(0), "r"(0));
+#else
+      trap(0x666);   /* host build: no MIPS break */
+#endif
     }
   }
   return;
@@ -444,7 +452,12 @@ int main(void)
       if ((GameSetup_gData.replayMode < 2) || (GameSetup_gData.instantReplay != 0)) {
         if ((simVar.restartGame == 0) || (GameSetup_gData.instantReplay != 0)) {
           GameSetup_gData.replayMode = 2;
-          if (GameSetup_gData.instantReplay == 0) {
+          /* MATCH: retail lays the instantReplay!=0 arm as the FALL-THROUGH (its
+           * statsScreen=0 store rides the `j` delay slot) and branches to the ==0 body. */
+          if (GameSetup_gData.instantReplay != 0) {
+            Replay_ReplayInterface.statsScreen = 0;
+          }
+          else {
             Replay_ReplayInterface.statsScreen = 1;
             iVar2 = Stats_GetNumOpponents();
             if ((1 < iVar2) &&
@@ -460,9 +473,6 @@ int main(void)
               }
               AudioMus_PlaySong(pattern);
             }
-          }
-          else {
-            Replay_ReplayInterface.statsScreen = 0;
           }
           Replay_ReplayMode = 2;
           simVar.restartGame = 1;

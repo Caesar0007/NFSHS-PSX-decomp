@@ -916,7 +916,9 @@ void Track_Init(char *tempName)
   loadBuf = reservememadr("Track_mem",chunkCount,0);
   this_00->heap = loadBuf;
   this_00->freeMem = loadBuf;
-  if (loadBuf == (void *)0x0) {
+  /* MATCH: retail re-READS the just-stored heap field; cse turns the load into a register
+   * copy of the stored value (addu v1,v0,zero) and the freeMem store rides the branch slot. */
+  if (this_00->heap == (void *)0x0) {
     chunkCount = 0;
   }
   this_00->freeMemSize = chunkCount;

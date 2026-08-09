@@ -21,7 +21,6 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cp
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) */
 // [owned->defined in nfs3.cpp] extern int Cars_gNumHumanRaceCars, gUseFrontend, quitType;
 extern int Cars_gNumHumanRaceCars, quitType;
-extern int *gFileMem, *gFileHandleTable;
 extern tReplayInterface Replay_ReplayInterface;
 extern int Replay_ReplayMode, ComingIntoTheFrontEndTheVeryFirstTime, CF_DVLC;
 // [owned->defined in nfs3.cpp] extern tCarManager carManager; extern tTrackManager trackManager;

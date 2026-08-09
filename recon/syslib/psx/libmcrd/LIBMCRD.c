@@ -616,8 +616,44 @@ extern long MemCardExist(long chan)
     return 1;
 }
 
+/* MATCH-ANGLE (w52-a6, 4-diff residual on BOTH twins, count-exact 26/26): the ONLY residual is
+ * WHICH insn fills the guard's `bgtz` delay slot -- retail puts the `chan` parm copy
+ * (`addu $a1,$a0,$zero`) there and emits `li $v0,1` after the callback-address `addiu`; ours emits
+ * the copy as a PROLOGUE parm copy (above `sw $ra`, where reorg's backward scan cannot reach it)
+ * and eager-steals `li $v0,1` from the fall-through block instead.  Measured this wave (272 lane):
+ *   fence on `chan` BEFORE the guard ............................  4 (no change)
+ *   fence on `chan` AFTER  the guard ............................  3 (`li $v0,1` lands correctly
+ *                                                                    but the slot becomes `nop` --
+ *                                                                    the fence blocks the steal)
+ *   `c = chan;` + opacity fence at the BLOCK HEAD ............... 16 (the copy DOES sink into the
+ *                                                                    block = retail's position, but
+ *                                                                    `c` is then a BLOCK-LOCAL qty
+ *                                                                    and local_alloc -- which runs
+ *                                                                    before global_alloc -- hands
+ *                                                                    it $v1, evicting the global
+ *                                                                    `base` allocno to $a1; retail
+ *                                                                    has base=$v1, c=$a1)
+ *   ...same + `do{}while(0)` ref inflator on the 3 const stores . 16 (a priority dial cannot flip a
+ *                                                                    local-vs-global race)
+ *   `c = chan;` + fence AFTER the three const stores .............  8 (position EXACT; `c` homes in
+ *                                                                    $v0 because the `li $v0,1` qty
+ *                                                                    already died -- retail's copy
+ *                                                                    PRECEDES the `li`, so $v0
+ *                                                                    conflicts and `c` takes $a1)
+ *   natural `mc.cmd/.rslt/.done/.chan` field form ................  9 (coloring EXACTLY retail --
+ *                                                                    base=$v1, copy=$a1, correct
+ *                                                                    slot -- but the three non-zero
+ *                                                                    offset stores go out as
+ *                                                                    `lui $at; sw %lo(sym+N)`
+ *                                                                    assembler macros, +3 insns)
+ * NAMED ANGLE: the natural-field form has retail's exact REGISTERS and delay slot; the pointer form
+ * has retail's exact ADDRESSING.  The crack is whatever makes `c` a GLOBAL allocno (so global_alloc
+ * orders base-then-c by priority -> $v1/$a1) while keeping the copy at the block head -- a second-
+ * block def/use of the copy, or the natural-field form plus a store-side base anchor that is not a
+ * fenced block-local pointer. */
+
 /* @0x800FADC4 : MemCardAccept -- begin an async "accept/clear the card on chan". Same base-reuse
- * shape as MemCardExist above. */
+ * shape as MemCardExist above (and the same 4-diff delay-slot residual -- see the angle above). */
 extern long MemCardAccept(long chan)
 {
     int *base = &mc.cmd;
@@ -841,8 +877,17 @@ extern int MemCardCallback(int func)
     return prev;
 }
 
-/* @0x800FBAFC : MemCardSync -- poll (mode!=0) or block (mode==0) for command completion. */
-extern long MemCardSync(long mode, int *cmds, int *result)
+/* @0x800FBAFC : MemCardSync -- poll (mode!=0) or block (mode==0) for command completion.
+ *
+ * 🏆 MATCH (w52-a6): `__inline__` (GNU C89 semantics: plain `inline` on a non-static function still
+ * emits the out-of-line copy, so the exported @0x800FBAFC symbol survives AND still PASSes) -- the
+ * oracle INLINES this function into MemCardCreateFile / MemCardDeleteFile.  Proof in the oracle:
+ * both callers have NO `jal MemCardSync` (jal census was ours 12 / retail 11) and instead carry
+ * this body verbatim at .L800FBD38 -- including the two DEAD snapshot loads (`lw $v0,0($s0)`,
+ * `lw $v0,4($s0)`, results unused because `cmds` is the constant 0 at those call sites), which no
+ * hand-written copy of the logic would ever contain.  That expansion was the whole 22-24-insn
+ * shortfall in both callers (CreateFile 108 -> 132 of 130, DeleteFile 87 -> 111 of 111 EXACT). */
+__inline__ long MemCardSync(long mode, int *cmds, int *result)
 {
     int rslt;
     int cmd;
@@ -859,12 +904,49 @@ extern long MemCardSync(long mode, int *cmds, int *result)
     rslt = base[1];
 
     if (mode == 0) {                        /* blocking */
-        while (*(volatile int *)&base[2] == 0)   /* async: cleared by the VSync pump */
-            ;
-        if (result != 0) *result = _mc_sync_rslt;  /* sync_rslt */
-        if (cmds   != 0) *cmds   = _mc_sync_cmd;  /* sync_cmd  */
-        base[2] = 0;                          /* done      */
-        return 1;
+        /* MATCH (w52-a6, 26 -> 7 diffs): the oracle spins on a REBASED anchor -- it zero-trip-
+         * guards on `lw $v0,8($v1)`, then `addiu $v1,$v1,8` mutates the shared base IN PLACE
+         * (§3.12 #14: `base` is dead in this arm, so gcc reuses its register) and the loop body
+         * reads `lw $v0,0($v1)`.  That mutation is ALSO what keeps this arm's tail DISTINCT from
+         * the non-blocking `done != 0` tail (which still reaches `done` as `8($v1)`): with a
+         * shared `base[2] = 0;` the two byte-identical tails cross-jump-MERGE and the whole
+         * blocking arm collapses -- that single statement was 24 of the 26 missing insns. */
+        if (base[2] == 0) {                  /* explicit zero-trip guard, as retail wrote it */
+            volatile int *pdone = (volatile int *)&base[2];
+            /* the guard is EXPLICIT + the loop is bottom-tested: a plain `while` makes gcc add
+             * its OWN rotation copy of the test on top of ours (double guard, +3 insns).
+             * `volatile` is the same honest fix as MemCardStop's: `done` is cleared
+             * ASYNCHRONOUSLY by the VSync pump, so a plain read gets hoisted and spins forever. */
+            do {
+                /* nothing -- wait for MemCardStart_cb to set done */
+            } while (*pdone == 0);
+        }
+        /* MATCH: the oracle materializes each snapshot's FULL address into a register
+         * (`lui; addiu; lw 0($v0)`) instead of the lane's 2-insn self-temp macro expansion
+         * (`lui; lw %lo($v0)`) -- a fenced pointer local per read site is what reaches it. */
+        if (result != 0) {
+            int *psr = &_mc_sync_rslt;
+            __asm__ __volatile__("" : "=r"(psr) : "0"(psr));
+            *result = *psr;                   /* sync_rslt */
+        }
+        if (cmds != 0) {
+            int *psc = &_mc_sync_cmd;
+            __asm__ __volatile__("" : "=r"(psc) : "0"(psc));
+            *cmds = *psc;                     /* sync_cmd  */
+        }
+        {   /* re-anchor: the oracle re-materializes &_mc_cmd here (its $v1 was consumed by the
+             * spin-loop rebase above) and stores through the fresh base at +8 */
+            int *reanchor = &mc.cmd;
+            __asm__ __volatile__("" : "=r"(reanchor) : "0"(reanchor));
+            reanchor[2] = 0;                  /* done      */
+        }
+        {   /* CROSS-JUMP DE-MERGER: without this the `li $v0,1` return-value setup is a common
+             * suffix with the non-blocking `done != 0` tail, so gcc merges it away and this arm's
+             * `j` steals the `sw zero,8($v0)` for its delay slot instead of the oracle's `li`. */
+            long r = 1;
+            __asm__ __volatile__("" : "=r"(r) : "0"(r));
+            return r;
+        }
     }
 
     /* non-blocking */
@@ -873,8 +955,17 @@ extern long MemCardSync(long mode, int *cmds, int *result)
         if (cmds   != 0) *cmds   = cmd;
         return 0;
     }
-    if (result != 0) *result = _mc_sync_rslt;      /* sync_rslt */
-    if (cmds   != 0) *cmds   = _mc_sync_cmd;      /* sync_cmd  */
+    /* same full-address materialization as the blocking arm above */
+    if (result != 0) {
+        int *psr = &_mc_sync_rslt;
+        __asm__ __volatile__("" : "=r"(psr) : "0"(psr));
+        *result = *psr;                       /* sync_rslt */
+    }
+    if (cmds != 0) {
+        int *psc = &_mc_sync_cmd;
+        __asm__ __volatile__("" : "=r"(psc) : "0"(psc));
+        *cmds = *psc;                         /* sync_cmd  */
+    }
     base[2] = 0;                              /* done      */
     return 1;
 }
@@ -886,8 +977,12 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     int  fd;
     int  retry;
     int  rslt;
+    /* MATCH (w52-a6): ONE anchor at &_mc_cmd ($s2 in retail) serves cmd/rslt/done/chan --
+     * the oracle reaches _mc_chan as `lw $a2,0xC($s2)`, not with its own %hi/%lo pair. */
+    int *base = &mc.cmd;
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
 
-    if (mc.cmd != 0) {
+    if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
@@ -895,7 +990,7 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
-    _mc_present |= 1 << (mc.chan);
+    _mc_present |= 1 << (base[3]);
 
     fd = open(devname, 1);                       /* probe: does it already exist? */
     if (fd >= 0) {
@@ -903,22 +998,34 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
         return 6;                                /* already present */
     }
 
+    /* MATCH: retail shifts the block count IN PLACE once (`sll $s4,$s4,16`) before the loop and
+     * re-uses it every iteration (`ori $a1,$s4,0x200`); recomputing `blocks << 16` inside the
+     * call argument emits a fresh `sll` per pass. */
+    blocks = blocks << 16;
     while (1) {
-        fd = open(devname, (int)(blocks << 16) | 0x200);   /* create */
+        fd = open(devname, (int)blocks | 0x200);   /* create */
         if (fd >= 0) {
             close(fd);
             return 0;
         }
         /* create failed: re-accept card and inspect the result */
         _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
-        if (mc.cmd < 1) {
-            mc.cmd  = 2;
-            mc.rslt = 0;
-            mc.done = 0;
+        /* MATCH (w52-a6): retail's guard is `blez $v1` -- the PRINTF is the FALL-THROUGH arm and
+         * the command-latch block is the out-of-line branch target, i.e. the test is written the
+         * other way round from the natural `if (cmd < 1)`.  The latch reaches cmd/rslt/done through
+         * a SECOND anchor ($s0, a copy of the base) while _mc_chan keeps its own `lui $at` macro.
+         * MEASURED: retail also keeps the command code 2 in a register that the `rslt != 2` test
+         * below re-uses (`bne $v1,$s2`), but spelling that as a named `cmdCode` local is WORSE
+         * here (CreateFile 68->84, DeleteFile 58->64, +2 insns each) -- cse already shares the
+         * literal, and the named local adds a pseudo that rotates the saved-reg band. */
+        if (base[0] > 0) {
+            printf("Access Denied. : event multiple open\n");
+        } else {
+            base[0] = 2;
+            base[1] = 0;
+            base[2] = 0;
             mc.chan = chan;
             UserFuncOpen((int)MemCardCmd_cb);
-        } else {
-            printf("Access Denied. : event multiple open\n");
         }
         MemCardSync(0, 0, &rslt);
         MemCardCallback((int)_mc_save_cb);
@@ -944,8 +1051,12 @@ extern long MemCardDeleteFile(long chan, char *file)
     char devname[32];
     int  retry;
     int  rslt;
+    int *base = &mc.cmd;
+    /* the fence keeps the count EXACT at 111/111 (dropping it gives 110 and 57 diffs --
+     * one fewer diff but an inexact count, the worse base for a future crack) */
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
 
-    if (mc.cmd != 0) {
+    if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
@@ -953,21 +1064,29 @@ extern long MemCardDeleteFile(long chan, char *file)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
-    _mc_present |= 1 << (mc.chan);
+    _mc_present |= 1 << (base[3]);
 
     while (1) {
         if (erase(devname) != 0)
             return 0;
         /* erase failed: re-accept card and inspect the result */
         _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
-        if (mc.cmd < 1) {
-            mc.cmd  = 2;
-            mc.rslt = 0;
-            mc.done = 0;
+        /* MATCH (w52-a6): retail's guard is `blez $v1` -- the PRINTF is the FALL-THROUGH arm and
+         * the command-latch block is the out-of-line branch target, i.e. the test is written the
+         * other way round from the natural `if (cmd < 1)`.  The latch reaches cmd/rslt/done through
+         * a SECOND anchor ($s0, a copy of the base) while _mc_chan keeps its own `lui $at` macro.
+         * MEASURED: retail also keeps the command code 2 in a register that the `rslt != 2` test
+         * below re-uses (`bne $v1,$s2`), but spelling that as a named `cmdCode` local is WORSE
+         * here (CreateFile 68->84, DeleteFile 58->64, +2 insns each) -- cse already shares the
+         * literal, and the named local adds a pseudo that rotates the saved-reg band. */
+        if (base[0] > 0) {
+            printf("Access Denied. : event multiple open\n");
+        } else {
+            base[0] = 2;
+            base[1] = 0;
+            base[2] = 0;
             mc.chan = chan;
             UserFuncOpen((int)MemCardCmd_cb);
-        } else {
-            printf("Access Denied. : event multiple open\n");
         }
         MemCardSync(0, 0, &rslt);
         MemCardCallback((int)_mc_save_cb);
@@ -998,6 +1117,19 @@ extern long MemCardFormat(long chan)
         return -1;
     }
 
+    /* MATCH-ANGLE (w52-a6, 4-diff residual, count-exact 35/35): the sole residual is WHICH insn
+     * GNU-as backward-fills into the `jal MemCardMakeDevname` delay slot.  Retail's cc1 emitted the
+     * arg pointer `addiu $a1,$sp,0x10` BEFORE the `_mc_present` store macro, so as split the macro
+     * across the branch (`lui $at,%hi` before the jal, `sw $v1,%lo($at)` in the slot) -- the
+     * AT-MACRO-SPLIT identity of the 2.7.2 lane.  Ours emits the store macro first and the arg
+     * `addiu` last, so as fills with the `addiu` instead.  Falsified this wave (2.7.2 lane):
+     *   precomputed named pointer `char *dn = devname;` .......... 34 (forces $s0 + a frame save --
+     *                                                                 SCHED_GROUP'd out too far)
+     *   split RMW + read-only fence `"r"(devname)` between ....... 22 (materializes &devname into
+     *                                                                 its own saved reg, +4 insns)
+     * NAMED ANGLE: what is needed is a ZERO-INSN way to make the arg `addiu` issue before the store
+     * macro (a sched-position fixpoint fence placed between them, or a statement whose value the
+     * arg address CSEs with) -- not a named pointer, which changes the arg's register class. */
     _mc_present |= 1 << (base[3]);      /* chan = cmd+0xC */
     MemCardMakeDevname(chan, devname);
     _clr_card_event();
@@ -1009,25 +1141,51 @@ extern long MemCardFormat(long chan)
 /* @0x800FC068 : MemCardUnformat -- low-level "unformat" by writing 0xFF blocks 0..14. */
 extern long MemCardUnformat(long chan)
 {
-    unsigned char buf[128];
+    signed char buf[128];
     int  blk;
-    int  i;
+    long c;
+    int *base = &mc.cmd;
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
 
-    if (mc.cmd != 0) {
+    if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
 
-    for (i = 0; i < 128; i++)
-        buf[i] = 0xff;
+    /* 🔴 w52-a6 CORRECTNESS FIX (read the oracle, not the intent): the failure test is on
+     * `_get_card_event_x()`, NOT on `_card_write()` -- the oracle IGNORES _card_write's $v0 and
+     * branches on the event returned by the following `jal _get_card_event_x` (`bnez $v0` ->
+     * `return 0`), with `blk++` in that branch's DELAY SLOT (i.e. unconditional, §3.1).  The old
+     * body tested the wrong call and discarded the event, so an unformat that failed mid-way
+     * reported success and a write that merely queued was treated as fatal.
+     * MATCH: the fill loop counts DOWN (`addiu $s0,$s0,-1; bgez` off a walking `addiu $v0,$v0,-1`
+     * pointer seeded at `&buf[127]` = `$sp+0x8F`) and stores the byte as -1, not 0xFF
+     * (`addiu $v1,$zero,-1`; a 0xFF constant on this unsigned-char build emits `li 255`). */
+    /* the parm copy is retail's beqz DELAY-SLOT filler (eager steal of the guard target's
+     * first insn), not a prologue copy -- an opacity-fenced copy at the block head sinks it */
+    c = chan;
+    __asm__ __volatile__("" : "=r"(c) : "0"(c));
+
+    /* ONE counter serves both loops (retail keeps both in $s0) -- a separate `i` gets its own
+     * caller-saved pseudo and the fill loop then runs in $v1 instead. */
+    for (blk = 127; blk >= 0; blk--)
+        buf[blk] = -1;
 
     blk = 0;
     do {
         _clr_card_event();
         _new_card();
-        if (_card_write(chan, blk, buf) != 0)
+        _card_write(c, blk, buf);
+        /* MATCH-ANGLE (w52-a6, 5-diff residual, ours 44 / oracle 45): retail branches to an
+         * OUT-OF-LINE `j epilogue; addu $v0,$zero,$zero` block and fills the `bnez` slot with
+         * the unconditional `blk++`; ours eager-steals the return-0 constant into the slot and
+         * branches straight to the epilogue (1 insn shorter).  Falsified this wave:
+         *   opacity-fenced `long r = 0; return r;` ....... 7 (block materializes but the
+         *                                                    fence barrier nops the j slot)
+         *   increment written BEFORE the test ............ 8 (43 insns, loses 2 elsewhere)
+         * NAMED ANGLE: a zero-insn de-merger that is NOT a scheduling barrier. */
+        if (_get_card_event_x() != 0)
             return 0;
-        _get_card_event_x();
         blk = blk + 1;
     } while (blk < 0xf);
     return 1;

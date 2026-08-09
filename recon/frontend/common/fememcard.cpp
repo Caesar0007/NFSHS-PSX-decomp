@@ -580,6 +580,11 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
   CURRENTLYUSINGMEMCARD_arr[0] = 1;
   tDialogNoInputMessage WarningDialog;
   MCRDFILE_def memCardFile;
+  /* PARTIAL (2026-08-09, 183 -> 147): the retail inline-constructor allocation
+     keeps this narrow field subset behind one dialog-base pseudo.  That restores
+     the incoming player/finished coalescing in s1 without extending the alias
+     through the card-event loop. */
+  tDialogNoInputMessage *warning = &WarningDialog;
   /* manual _vf init chain (EA manual-vtable doctrine), field order per oracle.
      (NEGATIVE: routing ALL inits through a `wd` base pointer regresses 252->260 -- the
      oracle's s0-based subset (MaxW/specificPlayer/fFadeText) is gcc's own partial CSE of
@@ -594,8 +599,8 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
   WarningDialog.width = 0;
   WarningDialog.top = 0;
   WarningDialog.left = 0;
-  WarningDialog.MaxW = 0x120;
-  WarningDialog.specificPlayer = -1;
+  warning->MaxW = 0x120;
+  warning->specificPlayer = -1;
   /* inline tDialogMessageString ctor */
   WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogMessageString_vtable;
   WarningDialog.fDefault = 0;
@@ -605,7 +610,7 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
   /* MATCH: adjacent identical double store survives via volatile (catalog F(c); fedialog
      tDialogYesNo ctor precedent) */
   *(volatile long *)&WarningDialog.timeOutTicks = 0;
-  WarningDialog.fFadeText = 0x80;
+  warning->fFadeText = 0x80;
   /* inline tDialogNoInputMessage ctor */
   WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
   if ((WithDialogs != 0) || (PinkSlips != 0)) {

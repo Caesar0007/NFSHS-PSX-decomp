@@ -197,12 +197,22 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
        which is a USER decision (the `fPadNumRacers` sibling suggests the split was invented).
    (2) BRANCH POLARITY of the two `i == 0` selects: retail's guards are `beqz`, i.e. the i!=0
        arm is the FALL-THROUGH and the i==0 arm is out-of-line -- write them as `if (i != 0)`.
-   RESIDUAL 20: the i==0 arms re-anchor their stores on `this` (`sw zero,280(s3)` /
-   `sb v0,294(s3)`) where retail reuses the arm-shared `&fCompetitors[i]` base (`280(v1)` /
-   `294(a0)`); gcc const-folds `i` to 0 inside that arm, so `fCompetitors[i]` and
-   `fCompetitors[0]` spellings are IDENTICAL (measured) -- the base has to be forced live
-   across both arms (a shared pointer local / fence is the next angle), and the `beqz`-vs-`sll`
-   issue order + the v0/v1 naming follow from it. */
+   W57-A4 (2026-08-09) 20 -> 0, SEALED.  Two more:
+   (3) 🏆 TERNARY-FOR-A-TWO-ARM STORE TO ONE ADDRESS: both `i==0` selects are written as
+       ONE assignment with a COND_EXPR value (`fCompetitors[i].fX = (i != 0) ? A : B;`), not
+       as if/else with a store in each arm.  gcc materializes `&fCompetitors[i]` ONCE before
+       the branch and both arms store through that register; the if/else form re-derives the
+       address inside the i==0 arm, where cse then const-folds `i`->0 and re-anchors on
+       `this` (`280(s3)`/`294(s3)` instead of retail's `280(v1)`/`294(a0)`).  The emitted
+       code is still two stores + a `j` (gcc duplicates the store per arm), so this is a
+       CSE-scope lever, not a shape change.  NOTE: this does NOT contradict catalog 08E
+       ("COND_EXPR arm-order is jump.c-canonicalized") -- the arm ORDER is invariant, the
+       ADDRESS-CSE SCOPE is not.
+   (4) split accumulation `iVar5 = tourn->fTrackOffset; iVar5 = iVar5 + i;` (not the fused
+       `= fTrackOffset + i`) so the loaded value and the sum share one pseudo -> retail's
+       `lbu v1,2(s4); addu v1,v1,a0` instead of `lbu v0; addu v1,v0,a0`.  (07A reuse-an-
+       existing-pseudo.)  `fNumRacers` is now a real `int` in nfs4_types.h (W56-A2), so the
+       `*(int *)&` casts are gone. */
 
 void tTournamentManager::StartNewTournament(byte tier,byte tournament)
 
@@ -241,28 +251,17 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
       /* MATCH (W55-A10): retail's guards are `beqz` -- the i!=0 arm is the FALL-THROUGH and
          the i==0 arm sits OUT-OF-LINE.  Writing the tests as `i != 0` (not `i == 0`) picks
          that polarity/block order. */
-      if (i != 0) {
-        this->fCompetitors[i].fPersonality = (uint)tourn->fPersonalities[i + -1];
-      }
-      else {
-        /* MATCH: retail indexes BOTH arms by `i` (it reuses the SAME computed
-           &fCompetitors[i] base); an `fCompetitors[0]` spelling re-anchors on `this`. */
-        this->fCompetitors[i].fPersonality = kPersonalityNemesis;
-      }
-      if (i != 0) {
-        this->fCompetitors[i].fPosition = (uchar)i;
-      }
-      else {
-        /* MATCH: fNumRacers is a WORD field in retail (`lw v1,16(s3)`) -- see the store. */
-        this->fCompetitors[i].fPosition = (uchar)*(int *)&this->fNumRacers;
-      }
+      this->fCompetitors[i].fPersonality =
+          (i != 0) ? (uint)tourn->fPersonalities[i + -1] : (uint)kPersonalityNemesis;
+      this->fCompetitors[i].fPosition = (i != 0) ? (uchar)i : (uchar)this->fNumRacers;
       i = i + 1;
     } while (i < *(int *)&this->fNumRacers);
   }
   i = 0;
   if (tourn->fNumTracks != '\0') {
     do {
-      iVar5 = (uint)tourn->fTrackOffset + i;
+      iVar5 = (uint)tourn->fTrackOffset;
+      iVar5 = iVar5 + i;
       ptVar6 = this->fDefinition;
       track = ptVar6->fTracks + iVar5;
       bVar1 = track->fDirection;
@@ -473,6 +472,22 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
  * &this->fTier+1 = offset 0x5, so target 0x232+iStep+0x5 walks exactly
  * fRanking's 6 bytes) -- an identity-permutation init before qsort sorts it
  * by tournPointsCompare. */
+/* W57-A4 (2026-08-09) 76 -> 70.  Landed: ONE fn-scope `Car_tStats *stats = &dummyCars[k]`
+   anchor for all four element reads (retail reuses `v1` for the trailing `lbu 132(v1)`;
+   four separate `dummyCars[k].` spellings let gcc rematerialize the *160 index chain after
+   the if/else join = 6 extra insns).  ⚠️ the anchor MUST be FUNCTION-scope: as a block-local
+   inside the `if` it also UN-ROTATED the knockout loop (lost the `blez` zero-trip guard) --
+   §3.12 #15's declaration-scope gotcha, second confirmation.
+   RESIDUAL 70 (ours 132 / oracle 134): almost entirely a 3-way REGISTER RENAME against the
+   SYM map -- SYM says k=$7(a3) numCompetitors=$8(t0) dummyCars=$9(t1); we get k=t0,
+   numCompetitors=t1, dummyCars=a1.  dummyCars' `la` is SELF-temp for us (`lui a1;addiu a1`)
+   vs retail's SEPARATE temp (`lui v1;addiu t1`) even though Cars_gNewCarStatsList is already
+   declared unsized (§3.12 #5 does NOT apply -- it's an address-of, not a value load).
+   FALSIFIED: moving `k = 0;` above the GetNumCompetitors() call makes numCompetitors land in
+   t0 correctly BUT parks k in a callee-saved s1 across the call (+8 frame, 76 diffs).
+   Remaining 2-insn shortfall = the `for (i=5; -1<i; i--) fRanking[i]=i` loop (retail
+   decrements the ADDRESS, `addiu v0,v0,-1`; ours recomputes `addu v0,s0,a0`) and the final
+   do-while's `i+1` temp+copy.  Next angle = allocno ref-count dial, not spelling. */
 void tTournamentManager::UpdateTrackFinishPoints()
 
 {
@@ -480,6 +495,7 @@ void tTournamentManager::UpdateTrackFinishPoints()
   short k;
   Car_tStats *dummyCars;
   short numCompetitors;
+  Car_tStats *stats;
   tCompetitor *comp;
   u_char rankVal;
 
@@ -489,18 +505,21 @@ void tTournamentManager::UpdateTrackFinishPoints()
   if (this->fDefinition->fTournaments
       [(uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament].fKnockout
       != '\0') {
-    k = 0;
     for (i = 0; i < numCompetitors; i = i + 1) {
       if (this->fCompetitors[i].fEliminated == 0) {
-        if ((dummyCars[k].finalPosition - 1U < 6) &&
-           (dummyCars[k].finalFinishType == 2)) {
-          if (dummyCars[k].finalPosition >= *(long *)&this->fNumRacers) {
+        /* MATCH: ONE &dummyCars[k] address, held live across the eliminated/points arms --
+           retail reuses `v1` for the trailing `lbu 132(v1)` fPosition read; four separate
+           `dummyCars[k].` spellings let gcc rematerialize the *160 index chain after the
+           if/else join (6 extra insns). */
+        stats = &dummyCars[k];
+        if ((stats->finalPosition - 1U < 6) && (stats->finalFinishType == 2)) {
+          if (stats->finalPosition >= this->fNumRacers) {
             this->fCompetitors[i].fEliminated = 1;
           }
           else {
             this->fCompetitors[i].fPoints = this->fCompetitors[i].fPoints + 1;
           }
-          this->fCompetitors[i].fPosition = (uchar)dummyCars[k].finalPosition;
+          this->fCompetitors[i].fPosition = (uchar)stats->finalPosition;
         }
         k = k + 1;
       }

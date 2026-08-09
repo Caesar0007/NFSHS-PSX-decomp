@@ -295,30 +295,38 @@ int GetPSXPadValue(int value,int player)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+/* W57-A4 (2026-08-09) 37 -> 0, SEALED.  Three source-shape fixes, all SYM-driven:
+   (1) the Ghidra-invented `int *pTicks = &ticks[0]` local is NOT in the SYM -- reading
+       `ticks[0]` directly lets gcc LICM only the %hi into fp and ride the %lo in the load
+       displacement (`lui fp,%hi; lw s0,%lo(fp)`), vs our extra `addiu fp,v0,%lo`.
+   (2) the Ghidra-invented `tfrontEnd *ptVar7` pointer-walk is likewise absent from the SYM;
+       `frontEnd.AnalogOn[j]` index form gives the SAME strength-reduced $s7 GIV but places
+       its init AFTER the LICM hoist (retail's prologue order).
+   (3) 🏆 LOOP UN-ROTATION on the PadInfoMode scan: `i = 0; while (1) { if (i >= numoffsets)
+       break; ...; i++; }` reproduces retail's head test + unconditional `j` back-edge; a
+       plain `for (i=0;i<numoffsets;i++)` rotates to a `blez` zero-trip guard + bottom test.
+       This ALSO fixed the whole 3-way {pad,gotone,theanalogoffset} s1/s3/s4 rotation for
+       free -- the loop shape was driving the allocation, not the other way round. */
 void SetPads(void)
 
 {
   int j;
   int pad;
-  tfrontEnd *ptVar7;
-  int *pTicks;
 
-  pTicks = &ticks[0];
-  ptVar7 = &frontEnd;
   j = 0;
   while (j < 2) {
     int LookingFor;
     int starttick;
     LookingFor = 4;
     pad = j << 4;
-    if (ptVar7->AnalogOn[0] != 0) {
+    if (frontEnd.AnalogOn[j] != 0) {
       LookingFor = 7;
     }
-    starttick = *pTicks;
+    starttick = ticks[0];
     bool waiting;
     do {
       waiting = false;
-      if (*pTicks - starttick < 0x80) {
+      if (ticks[0] - starttick < 0x80) {
         waiting = PadGetState(pad) != 6;
       }
     } while (waiting);
@@ -330,17 +338,19 @@ void SetPads(void)
       theanalogoffset = 0;
       gotone = false;
       numoffsets = PadInfoMode(pad,4,-1);
-      for (i = 0; i < numoffsets; i++) {
+      i = 0;
+      while (1) {
+        if (i >= numoffsets) break;
         if (PadInfoMode(pad,4,i) == LookingFor) {
           gotone = true;
           theanalogoffset = i;
         }
+        i++;
       }
       if (gotone) {
         PadSetMainMode(pad,theanalogoffset,0);
       }
     }
-    ptVar7 = (tfrontEnd *)&ptVar7->raceType;
     j++;
   }
   return;
@@ -831,8 +841,16 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
   char carColor;
   
   streamData->numPlayers = 0;
+  /* MATCH: EACH arm carries its OWN `carInfo->fColor = fColorOrder[fColor]; numPlayers++`
+     tail (retail's 1998 shape), NOT one shared fall-through tail.  gcc then CROSS-JUMPS the
+     raceType==2 tail into the pinkslips arm's SECOND tail (the `j` at the end of the
+     tournament arm targets it), while a shared fall-through tail instead makes the pinkslips
+     arm jump AWAY and drops its own copy -- an 18-insn block the oracle has and we lacked. */
   if (frontEnd.raceType == '\x02') {
     GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],streamData->playerCars,0);
+    carInfo = &streamData->playerCars[streamData->numPlayers];
+    carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
+    streamData->numPlayers = streamData->numPlayers + 1;
   }
   /* MATCH: the PINK-SLIPS arm is the FALL-THROUGH and the stock/garage do-loop is
      laid out out-of-line (oracle `bne raceType,6 -> .L800281DC`, with `i = 0` stolen
@@ -849,6 +867,9 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
     sVar2 = streamData->numPlayers + 1;
     streamData->numPlayers = sVar2;
     GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
+    carInfo = &streamData->playerCars[streamData->numPlayers];
+    carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
+    streamData->numPlayers = streamData->numPlayers + 1;
   }
   else {
     i = 0;
@@ -858,7 +879,10 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
           GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[i],
                      streamData->playerCars + streamData->numPlayers);
           carInfo = &streamData->playerCars[streamData->numPlayers];
-          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[i * 0x18][carInfo->fCarID] - 8)
+          /* MATCH: `carColors[i]`, NOT the Ghidra `carColors[i * 0x18]` -- carColors is
+             char[2][48], so Ghidra's flattened byte index multiplied the row stride twice
+             (ours i*24*48=1152, retail i*48). Same for carCountry below. */
+          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[i][carInfo->fCarID] - 8)
           ;
         }
         else {
@@ -868,21 +892,23 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
           pcVar3 = carInfo->fShapeName + (carInfo->fColor - 8);
         }
         carInfo->fColor = pcVar3[0xaf];
+        /* MATCH: retail leaves the load-delay `nop` after the fColorOrder read and stores
+           BEFORE reading fCarClass; our sched1 hoists the fCarClass load over the fColor
+           store (it disambiguates the two char fields). The barrier restores the order. */
+        __asm__ __volatile__("" : : "i"(0));
         if (carInfo->fCarClass == '\a') {
-          uVar1 = frontEnd.carCountry[streamData->numPlayers * 0x18][carInfo->fCarID];
+          uVar1 = frontEnd.carCountry[streamData->numPlayers][carInfo->fCarID];
           carInfo->fColor = '\0';
           carInfo->fCountry = uVar1;
         }
         streamData->numPlayers = streamData->numPlayers + 1;
-        i = i + 1;
-      } while ((frontEnd.gameMode == '\x01') && (i < 2));
-      goto FrontInitPlayers_playerLoop;
+        /* MATCH: the increment lives IN the condition, AFTER the gameMode test (retail
+           tests gameMode first, then `addu v0,s2,v0` reusing the `li v0,1` the gameMode
+           compare just materialized). A body-level `i = i + 1` precomputes i+1 into the
+           bne's delay slot and needs its own constant. */
+      } while ((frontEnd.gameMode == '\x01') && (++i < 2));
     }
   }
-  carInfo = &streamData->playerCars[streamData->numPlayers];
-  carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
-  streamData->numPlayers = streamData->numPlayers + 1;
-FrontInitPlayers_playerLoop:
   i = 0;
   /* MATCH: EXIT-IN-THE-MIDDLE (top test + unconditional `j` back-edge, no
      rotation) -- same shape as InitPerps/InitTraffic; a for/while gets rotated. */
@@ -890,7 +916,9 @@ FrontInitPlayers_playerLoop:
     tCarModels carModel;   /* SYM: block AUTOs at sp+0x10 / sp+0x14 */
     char carColor;
 
-    if (streamData->numPlayers <= (int)i) break;
+    /* MATCH: `i >= numPlayers` (i FIRST) -- operand order decides which side gcc
+       sign-extends first; `numPlayers <= (int)i` loads the field before the sll/sra. */
+    if ((int)i >= streamData->numPlayers) break;
     /* MATCH: fCarID is signed here -- the oracle reads it with `lb`, and plain
        `char` is UNSIGNED on this build. */
     carModel = (tCarModels)(signed char)streamData->playerCars[i].fCarID;
@@ -920,22 +948,24 @@ FrontInitPlayers_playerLoop:
 extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
 
 {
-  byte bVar1;
-  tTournamentDefinition *ptVar2;
-  short sVar3;
-  void *pvVar4;
-  int iVar5;
   short i;
-  int iVar6;
+  short maxTraffic;
+  tTourneyInfo *tourn;
   tCarModels carModel;
   char carColor;
-  
-  ptVar2 = tournamentManager.fDefinition;
-  iVar6 = tournamentManager.fTournament;
+
+  maxTraffic = 3;
   carColor = '\0';
-  bVar1 = (tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset;
+  /* MATCH (SLD/oracle): retail materializes the &fTournaments[idx] POINTER BEFORE the
+     raceType test -- the whole index chain sits above the `bne raceType,2` guard and the
+     traffic flag is read as `tourn->fTraffic` (one `lbu 4(a1)`), not as a fresh
+     fTournaments[(uint)tournOffset + tournament] expression inside the `&&` (which
+     re-masks the byte offset with `andi 0xff` and re-does the *84 chain below the test). */
+  tourn = tournamentManager.fDefinition->fTournaments +
+          (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+           tournamentManager.fTournament);
   streamData->numTraffic = 0;
-  if ((frontEnd.raceType == '\x02') && (ptVar2->fTournaments[(uint)bVar1 + iVar6].fTraffic != '\0'))
+  if ((frontEnd.raceType == '\x02') && (tourn->fTraffic != '\0'))
   {
     /* MATCH: same shape as Front_InitTraffic -- SYM has ONE short `i` (REG $17),
        the postfix `fTrafficCars[i++]` gives the oracle's old-i copy + increment
@@ -951,9 +981,8 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
         AddCarToIngameList(&carManager, &carModel,&carColor);
       }
       streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-      streamData->numTraffic = streamData->numTraffic + 1;
       streamData->totalCars = streamData->totalCars + 1;
-    } while (streamData->numTraffic < 3);
+    } while (++streamData->numTraffic < maxTraffic);
   }
   return;
 }
@@ -974,6 +1003,18 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
    preserves type info; these are minor secondary-effect register temps that did not warrant
    individual semantic naming. */
 
+/* W57-A4 (2026-08-09) 129 -> 127.  Landed: an `int` temp forces the WORD load of
+   tournamentManager.fNumRacers (retail `lw`; assigning straight into the `short`
+   numOpponents narrows it to `lhu`).  A SECOND `lhu v0,16(s0)` vs `lw` site remains in the
+   raceType==2 fixup block (`numOpponents = (short)fNumRacers - 1`) -- same fix applies.
+   RESIDUAL 127 is diffuse and needs an SLD-first rewrite, not spot levers.  Named angles:
+   (1) `lbu v1,4(a0)` off a materialized `&frontEnd` vs retail's FUSED `lui %hi(frontEnd+4);
+       lbu %lo(...)` + a SEPARATE later `la fp,frontEnd` -- something in this body takes the
+       address of frontEnd once and reuses it; retail re-materializes per use.
+   (2) a systematic s0<->s1 swap in the opponent loop and an s3/s4/s5 rotation in the
+       carLineup copy block (SYM: i $17=s1, carLineup $16=s0, numOpponents $23=s7).
+   (3) ordering around the `sw a1,248(sp)` / `lhu a1,248(sp)` carModel spill: retail stores
+       the byte straight from the load into the jal delay slot, we round-trip via memory. */
 extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 
 {
@@ -1013,7 +1054,10 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     }
     numOpponents = 5;
     if (frontEnd.raceType == '\x02') {
-      numOpponents = tournamentManager.fNumRacers + -1;
+      /* MATCH: an `int` temp forces the WORD load of fNumRacers (retail `lw`); assigning
+         the expression straight into the `short` lets gcc narrow it to `lhu`. */
+      int numRacers = tournamentManager.fNumRacers;
+      numOpponents = numRacers + -1;
     }
     i = 0;
     if (0 < numOpponents) {
@@ -1504,10 +1548,24 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
      rewrote both ABS/Traction if-blocks as the De-Morgan complement with arms swapped so the
      store-1 arm is the fall-through/`j` and store-0 is the `bne fCarID` target (retail's
      `beqz ABS; bnez fABSAvail; bne fCarID` layout). 86->69 diffs.
-     NEAR-SEAL FLOOR (~69, register-alloc/operand-canonicalization, §4.6 qtytrace gap): the
-     fColorList[fColor] color block colors fColor to v0/word to v1 (oracle swaps them) and emits
-     `addu idx,base` where retail emits `addu base,idx`; the fCarClass iVar1 lands in a2 vs v0.
-     All local-alloc/canonical-order outcomes outside allocsim/reqdelta -- receipted. */
+     W57-A4 (2026-08-09) 69 -> 0, SEALED.  Three fixes, all source-shape:
+     (a) the two 2-arm value selects (fCarClass 0x41/1, fUpgrades tires) put the `*stream++`
+         store INSIDE each arm instead of using a shared iVar1/uVar2 temp -- gcc cross-jumps
+         the identical tail store back to ONE insn while the differing `li v0,K` stays
+         per-arm, so the constant lands in $v0 (a shared temp merges BOTH stores and parks
+         the value in $a2).  The tires test also flips to `!= 0` polarity (retail `beqz`),
+         which keeps the `2` arm-local -> `andi v0,v0,2` instead of a CSE'd `li v1,2; and`.
+     (b) the fColorList byte-2 term spelled `word >> 0x10 & 0xff` (the same array element as
+         the other two terms; gcc narrows it to the `lbu +2` itself), NOT
+         `*(byte*)((int)fColorList + fColor*4 + 2)` -- the cast spelling builds a SECOND
+         address expression and flips the whole v0/v1 coloring plus the `addu` operand
+         order.  This is exactly the sibling Front_AppendOpponentData's (matching) spelling.
+     (c) a top-of-function void fence pins the a0->a3 cursor parm copy at prologue insn #1;
+         without it sched2 sinks it and reorg steals it into the blez delay slot. */
+  __asm__ __volatile__("" : : "i"(0));   /* MATCH: pins the a0->a3 cursor parm copy at the
+        top of the prologue (retail insn #1); without it sched2 sinks the copy to just
+        before the numPlayers guard and reorg then steals it into the blez delay slot,
+        displacing retail's `addu s1,zero,zero`. */
   if (0 < streamData->numPlayers) {
     i = 0;
     do {
@@ -1563,7 +1621,12 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
       *stream++ = 0;
       *stream++ = 0x122;
       *stream++ = (int)streamData->currentCar;
-      *stream++ = (uint)*(byte *)((int)carInfo->fColorList + (uint)carInfo->fColor * 4 + 2) |
+      /* MATCH: all three terms spelled as the SAME array element (retail's byte-2 read is
+         `word >> 16 & 0xff`, which gcc narrows to the `lbu +2` itself) -- identical to the
+         sibling Front_AppendOpponentData, which byte-matches.  The `(byte*)(int)base+idx*4+2`
+         cast spelling makes a SECOND address expression and flips the v0/v1 coloring plus the
+         `addu` operand order. */
+      *stream++ = carInfo->fColorList[carInfo->fColor] >> 0x10 & 0xff |
                     carInfo->fColorList[carInfo->fColor] & 0xff00 |
                     (carInfo->fColorList[carInfo->fColor] & 0xff) << 0x10;
       *stream++ = 0x123;
@@ -1575,26 +1638,31 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
       *stream++ = 0x125;
       *stream++ = (int)streamData->currentCar;
       *stream++ = (uint)carInfo->fCountry;
+      /* MATCH: the value store lives INSIDE each arm (no shared iVar1 temp) -- gcc
+         cross-jump-merges the common tail `*stream++` back into ONE store while the
+         differing `li v0,K` stays per-arm, so the constant lands in $v0 (retail).  A
+         shared temp instead merges BOTH stores and parks the value in $a2. */
       if (carInfo->fCarClass == '\a') {
         *stream++ = 0x105;
         *stream++ = (int)streamData->currentCar;
-        iVar1 = 0x41;
+        *stream++ = 0x41;
       }
       else {
         *stream++ = 0x105;
         *stream++ = (int)streamData->currentCar;
-        iVar1 = 1;
+        *stream++ = 1;
       }
-      *stream++ = iVar1;
       *stream++ = 0x113;
       *stream++ = (int)streamData->currentCar;
-      if ((carInfo->fUpgrades & 2) == 0) {
-        uVar2 = (uint)carInfo->fDefaultTires;
+      /* MATCH: `!= 0` polarity (retail `beqz`: the ==0/fDefaultTires arm is OUT-OF-LINE,
+         the `2` arm falls through) + per-arm store, which also keeps the `2` arm-local so
+         the flag test emits `andi v0,v0,2` instead of a CSE'd `li v1,2; and`. */
+      if ((carInfo->fUpgrades & 2) != 0) {
+        *stream++ = 2;
       }
       else {
-        uVar2 = 2;
+        *stream++ = (uint)carInfo->fDefaultTires;
       }
-      *stream++ = uVar2;
       *stream++ = 0x107;
       iVar1 = (int)i;
       *stream++ = (int)streamData->currentCar;
@@ -1760,10 +1828,13 @@ extern "C" int * Front_AppendCopData__FPiR9tFEStream(int *stream,tFEStream *stre
     *stream++ = 1;
     *stream++ = 0x105;
     *stream++ = (int)streamData->currentCar;
-    if (i < streamData->numSuperCops) {
-      iVar2 = 0x10;
+    {
+      int *slot = stream++;
+      if (i < streamData->numSuperCops) {
+        iVar2 = 0x10;
+      }
+      *slot = iVar2;
     }
-    *stream++ = iVar2;
     *stream++ = 0x118;
     *stream++ = (int)streamData->currentCar;
     *stream++ = (byte)frontEnd.skillLevel + 5;

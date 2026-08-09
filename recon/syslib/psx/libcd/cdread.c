@@ -76,12 +76,13 @@ extern void  CdFlush(void);                                        /* @0x800F781
 extern int   CdReady(int mode, u_char *result);                    /* @0x800F786C */
 extern int   CdSyncCallback(int func);                             /* @0x800F788C */
 extern int   CdReadyCallback(int func);                            /* @0x800F78A0 */
-extern int   CdControl(u_char com, u_char *param, u_char *result); /* @0x800F78B4 */
+extern int   CdControl(int com, u_char *param, u_char *result);    /* @0x800F78B4 -- INT com,
+                                     * see cdcont.c's CdControl receipt (w55-a5) */
 extern int   CdControlF(int com, u_char *param);                   /* @0x800F79F0 -- INT com
                                      * (w53-a9): the definition's oracle copies the parameter RAW
                                      * and re-masks per use; a u_char parameter masks once at
                                      * entry and cannot match.  All call sites pass literals. */
-extern int   CdControlB(u_char com, u_char *param, u_char *result);/* @0x800F7B24 */
+extern int   CdControlB(int com, u_char *param, u_char *result);   /* @0x800F7B24 -- INT com */
 extern int   CdGetSector(void *madr, int size);                    /* @0x800F7C70 */
 extern int   CdGetSector2(void *madr, int size);                   /* @0x800F7C90 */
 extern int   CdDataCallback(int func);                             /* @0x800F7CB0 */
@@ -239,26 +240,46 @@ extern void _read_int(int intr, int code)
 }
 
 /* @0x80108B24 : DMA-data complete -- advance the ring and finish if this was the last sector. */
+/* MATCH (w55-a5, 4 -> PASS 52/52): TWO cooperating levers.
+ *   (1) FENCED WORD ANCHOR.  Retail materializes the state block with ONE self-temping
+ *       `la $s0,_cdr` (`lui $s0,%hi; addiu $s0,$s0,%lo`); a bare `_cdr.field` recon lets
+ *       -msplit-addresses put the HIGH in its own short-lived pseudo, which local-alloc
+ *       hands the first free caller-saved reg -- `lui $v0,%hi; addiu $s0,$v0,%lo` (the
+ *       high pseudo can never TIE to the base: local-alloc's combine_regs bails when the
+ *       SET reg is not block-local, and the base crosses calls).  An explicit `volatile
+ *       int *e = &_cdr` + w49 IDENTITY FENCE makes the address ONE opaque pseudo = the
+ *       self-temp form (same lever CdReadSync already used for its `&_cdr.w1c` anchor).
+ *   (2) The fence's price: `e` is now an UNKNOWN pointer, so the `*(int*)&e[9] = 1` store
+ *       may-aliases CD_cbread and the callback load can no longer be hoisted above it --
+ *       costing the beqz delay slot fill (+2 nops, and CD_cbread lands in $v0 not $v1).
+ *       Reading the callback into a LOCAL before the store restores retail's order.
+ *       Falsified in this basin: struct-typed anchor + fence (10), unfenced anchor (4). */
 extern void _read_data_int(void)
 {
-    _cdr.w08 += _cdr.w10 * 4;   /* cursor += sector bytes */
-    _cdr.w14--;                  /* one fewer remaining    */
-    _cdr.w20++;                  /* next expected sector   */
-    if (_cdr.w14 != 0)
+    volatile int *e = (volatile int *)&_cdr;   /* $s0 : &_cdr (word-indexed) */
+    __asm__("" : "=r"(e) : "0"(e));            /* MATCH: one `la`, not a split lui/addiu */
+
+    e[2] += e[4] * 4;            /* w08 cursor += w10 sector bytes */
+    e[5]--;                      /* w14 : one fewer remaining      */
+    e[8]++;                      /* w20 : next expected sector     */
+    if (e[5] != 0)
         return;
 
-    CdReadyCallback(_cdr.w2c);
+    CdReadyCallback(e[11]);      /* w2c */
     if (CD_read_dma_mode & 1)
-        CdDataCallback(_cdr.w30);
+        CdDataCallback(e[12]);   /* w30 */
     CdSyncCallback((int)_read_sync);
     CdControlF(9, 0);           /* CdlPause */
-    /* CORRECTNESS (w48-a6): the oracle's `sw $v0,0x24($s0)` sits in the `beqz $v1` DELAY SLOT,
-     * so `reading = 1` executes on BOTH paths -- it is NOT inside the CD_cbread guard.
-     * (Delay-slot placement is semantics, methodology 3.1 / w47 FILE_callbackop.) */
-    *(int *)&_cdr.w24 = 1;   /* MATCH: non-volatile cast -- reorg refuses to slot-fill a volatile
-                              * MEM, and this store IS the oracle's beqz delay slot (3.25-3c). */
-    if (CD_cbread != 0)
-        ((CdlCB)CD_cbread)(2, _cdr.w34);
+    {
+        CdlCB cb = (CdlCB)CD_cbread;   /* MATCH: load BEFORE the w24 store (see (2)) */
+        /* CORRECTNESS (w48-a6): the oracle's `sw $v0,0x24($s0)` sits in the `beqz $v1`
+         * DELAY SLOT, so `reading = 1` executes on BOTH paths -- it is NOT inside the
+         * CD_cbread guard.  (Delay-slot placement is semantics, methodology 3.1.) */
+        *(int *)&e[9] = 1;      /* w24; MATCH: non-volatile cast -- reorg refuses to
+                                 * slot-fill a volatile MEM (3.25-3c). */
+        if (cb != 0)
+            cb(2, e[13]);       /* w34 */
+    }
 }
 
 /* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode.
@@ -423,7 +444,24 @@ extern int CdRead(int sectors, u_long *buf, int mode)
  *
  * CORRECTNESS (same pass): the oracle DISCARDS CdReady's return -- `lw $v0,0($s2)`
  * overwrites it, and the two return paths are `v0 = s0` (delay slot) and `v0 = 1`.
- * The old recon returned CdReady's result whenever `w24 == 0`. */
+ * The old recon returned CdReady's result whenever `w24 == 0`.
+ *
+ * MATCH (w55-a5): residual (b) SOLVED at source -- 6 -> 4, count-exact 65/65.  See the
+ * loop-top comment: the `-1` answer belongs to the watchdog-trip ARM, not the loop head.
+ * RESIDUAL 4, NAMED + PROVEN: residual (a) alone, a PURE 2-LINE TEXT RELOCATION -- retail
+ * emits `sw $18,24($sp); addiu $18,$17,8` immediately after the anchor's `addiu $17,$17,
+ * %lo(_cdr+28)`, ours sinks the pair below `sw $31` / `sw $16`.  The anchor's identity
+ * fence is a scheduling barrier that pins `busy`'s addiu behind it, and every fence
+ * flavour/placement probed re-measures 4 (identity / read-only / void-tail on `busy`,
+ * fence after `busy`, `busy` computed before the state fence, `busy` from `&_cdr.w24`,
+ * a dead `(void)busy[0]` ref) -- basin-re-probed w55, the w52 verdict holds.
+ *   ORCHESTRATOR: PER_FN_TEXT_MOVES (already wired for THIS lane, compile_c) --
+ *   PROVEN PASS 65/65 by scratchpad/w55a5_moves.py:
+ *     "recon/syslib/psx/libcd/cdread.c": {"CdReadSync": [
+ *        {"take": r"\tsw\t\$18,24\(\$sp\)\n",
+ *         "after": r"\taddiu\t\$17,\$17,%lo\(_cdr\+28\)[^\n]*\n"},
+ *        {"take": r"\taddu\t\$18,\$17,8\n",
+ *         "after": r"\tsw\t\$18,24\(\$sp\)\n"}]}                                  */
 extern int CdReadSync(int mode, u_char *result)
 {
     volatile int *state;                               /* $s1 : issue-VSync stamp   */
@@ -435,9 +473,16 @@ extern int CdReadSync(int mode, u_char *result)
     busy  = state + 2;
 
     for (;;) {
-        s0 = -1;
+        /* MATCH (w55-a5): the `-1` answer belongs to the WATCHDOG-TRIP arm ONLY.
+         * A loop-top `s0 = -1;` is dead on all three other paths, but it keeps
+         * `s0 == -1` live at the SECOND `VSync(-1)` call, so cc1's cse feeds that
+         * argument by copy (`addu $a0,$s0,zero`) where retail rematerializes
+         * `li $a0,-1`.  Sinking the assignment into its own arm removes the
+         * live -1 and restores the rematerialization: 6 -> 4, count-exact 65/65
+         * (falsified in this basin: identity/read-only fence on s0 7/11, opacity
+         * fence on the VSync argument 8). */
         if (VSync(-1) > state[0] + 0x4B0)              /* overall watchdog tripped  */
-            goto check;
+            goto trip;
         if (state[-2] < 0)                             /* _cdr.w14 : error          */
             goto reissue;
         if (!(VSync(-1) > state[-1] + 0x3C))           /* _cdr.w18 : per-intr stall */
@@ -450,6 +495,9 @@ extern int CdReadSync(int mode, u_char *result)
          * is inlined and the branch inverts to `bnez`. */
         _read_issue(1);
         s0 = state[-7];                                /* _cdr.w00 : sectors        */
+        goto check;
+    trip:
+        s0 = -1;
         goto check;
     still:
         s0 = state[-2];                                /* still progressing         */

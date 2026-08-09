@@ -921,6 +921,9 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # _BlitClear: rung 2.8.0 = 20 count-exact vs wired 2.8.1's 39; whole-TU
     # rung flip is net-negative (MoveImage 9->35) => per-fn.
     "recon/syslib/psx/libgpu/SYS.c": {"2.8.0": {"_BlitClear"}},
+    # w55-a5 (probe-verified): CdReset -> PASS 27/27 on 2.8.0; whole-TU flip
+    # catastrophic (CdControlF PASS->51) => per-fn.
+    "recon/syslib/psx/libcd/cdcont.c": {"2.8.0": {"CdReset"}},
 }
 
 
@@ -1084,6 +1087,22 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
+    "recon/syslib/psx/libcd/cdread.c": {
+        "CdReadSync": [
+            {"take": "\\tsw\\t\\$18,24\\(\\$sp\\)\\n",
+             "after": "\\taddiu\\t\\$17,\\$17,%lo\\(_cdr\\+28\\)[^\\n]*\\n"},
+            {"take": "\\taddu\\t\\$18,\\$17,8\\n",
+             "after": "\\tsw\\t\\$18,24\\(\\$sp\\)\\n"},
+        ],
+    },
+    # w55-a5 (probe-verified): CdControlB 4 -> PASS 83/83 (272 lane).
+    "recon/syslib/psx/libcd/cdcont.c": {
+        "CdControlB": [
+            {"take": "\\tsw\\t\\$20,32\\(\\$sp\\)\\n\\taddu\\t\\$20,\\$4,\\$0\\n",
+             "after": "\\taddu\\t\\$18,\\$6,\\$0\\n"},
+        ],
+    },
     # w55-a12 (probe-verified): AudioEng_Set prologue param-copy sink, 22->16.
     "recon/game/common/audioeng.cpp": {
         "AudioEng_Set__Fiiiiiiii": [
@@ -1330,6 +1349,8 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
                                  s_file)
     txt = _apply_epilogue_unfill_alt28(rel.as_posix(), txt)
     s_file.write_text(txt)
+    # w55-a5: the 272 lane never called the TEXT_MOVES mechanism.
+    _apply_text_moves(rel.as_posix(), s_file)
     r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
              "-I", ROOT, "-o", obj, s_file])
     if r.returncode or not obj.exists():

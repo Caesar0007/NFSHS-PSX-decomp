@@ -145,6 +145,20 @@ struct _ds_loc { short lo, hi; };
 /* @0x80108798 (C_004) : a sector finished decoding -- mark its slot ready and notify StFunc1. */
 extern void data_ready_callback(void)
 {
+    /* RESIDUAL 9 (ours 34 / oracle 35, 1 SHORT) -- CLASSIFIED w55-a5, NOT landed.
+     * Retail reaches the 3-byte unaligned sub-header destination through ONE anchor
+     * (`lui $a2; addiu $a2,$a2,%lo(D_801489D0); swl $v0,3($a2); swr $v0,0($a2)`);
+     * ours const-folds `dst` straight back to the symbol and emits two `$at`
+     * assembler macros (`lui $at; swl $v0,%lo`, twice) = 1 insn short.  A W49
+     * IDENTITY FENCE on `dst` DOES restore the anchor -- count becomes EXACT 35/35
+     * and the whole body lines up -- but the residual is then 10: the anchor lands
+     * in $a0 (numeric first-free) where retail has $a2, and its `lui/addiu` pair is
+     * scheduled at the TOP of the block instead of after the `sh $v0,0($v1)`.
+     * 10 > 9, so the gate says keep the un-anchored form; the fenced form is the
+     * structurally correct BASIN for a future coloring dial.  Measured: identity
+     * fence before or after the status store 10 (count-exact), read-only fence 26,
+     * fence + `dst` assigned after the status store 10, same in a nested block 10,
+     * `dst` assigned late WITHOUT a fence 9 (identical to the current form). */
     u_short *slot = (u_short *)(StRingAddr + (StRingIdx2 << 5));
     struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;
 

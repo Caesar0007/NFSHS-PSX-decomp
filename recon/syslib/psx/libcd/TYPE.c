@@ -39,8 +39,16 @@ extern int CdDiskReady(int mode)
                                                         * placement swaps, scheduler-only) */
         if (result[0] != 2) return 5;
         ready = cc != 0;
-        if (ready) return 2;
-        return 5;
+        /* MATCH (w55-a5): ARM ORDER = branch polarity, 6 -> PASS 79/79.  Retail
+         * branches AWAY on the ready case (`bnez $a0; nop; j <ret>; li $v0,5`),
+         * i.e. `return 2;` is the OUT-OF-LINE arm and `return 5;` the shared
+         * fall-through tail -- so the SKIP TARGET must be spelled as the guard.
+         * `if (ready) return 2; return 5;` gives the mirror `beqz` layout.
+         * (Equivalent winners: `if (ready == 0) return 5; return 2;` on a plain
+         * `ready = cc`, and the `goto ok` form.  A ternary and a bare `ready = cc`
+         * with `if (ready != 0) return 2;` both stay at 6.) */
+        if (!ready) return 5;
+        return 2;
     }
 
     for (i = 0; i < 10; i++) {

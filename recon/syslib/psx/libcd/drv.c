@@ -55,7 +55,36 @@
  *   qty, which is what currently owns $a0 at allocation time -- the fence route is measured
  *   NEGATIVE here (+1 insn) and the ref-step re-mask inflator is measured NEUTRAL.
  * W53-A9 also: CD_cw 90 -> 84 (STORE-FLAG BREAKER on the return, see the tail) and the CdControlF
- *   PASS in cdcont.c (int command parameter + the RR identity fences). */
+ *   PASS in cdcont.c (int command parameter + the RR identity fences).
+ *
+ * W55-A5 RECEIPT (2026-08-09) -- the 8x3 residual is now MECHANISM-EXPLAINED (RTL-evidenced,
+ *   `-dg -dl` dumps of the wired 2.7.2 lane via scratchpad/w55a5_rtl.py):
+ *     the whole printf arg block IS one basic block, so every value in it is a LOCAL-ALLOC qty
+ *     assigned by find_free_reg's NUMERIC first-free scan (MIPS defines no REG_ALLOC_ORDER).
+ *     `used` = fixed_regs | every hard reg live over [qty_birth, qty_death).  Our sync-chain
+ *     qtys are p106 (`sll`, insns 114-116) and p107 (`addu`, 116-126); over BOTH ranges $v0 is
+ *     held by the CD_com chain (p104, 111-124) and $v1 by readyName (p90, 98-118), so the scan
+ *     falls through to... $a0 -- EXCEPT that sched1 hoisted `(set (reg:SI 4 a0) (symbol_ref
+ *     "*$LC5"))` (the FORMAT-STRING arg) from its emission point (RTL insn 120, after the whole
+ *     chain) up to between insns 106 and 118.  That makes $a0 live across 114-126, the scan skips
+ *     $a0/$a1/$a2 and lands on $a3.  Retail's local-alloc saw the $LC5 set still LATE, so $a0 was
+ *     free and the chain got it; sched2/reorg then re-sank the `lui $a0` in BOTH builds, which is
+ *     why the FINAL instruction ORDER is byte-identical and only the register differs.
+ *     ==> THE DIAL IS NOT the chain qty and NOT a fence -- it is the sched1 POSITION of the
+ *     $LC5 a0-set.  allocsim/reqdelta do NOT model this (they read the GLOBAL allocno table out
+ *     of `.greg`; this decision is entirely local-alloc + sched1, the 06E "local-alloc QTY
+ *     handouts outside allocsim's model" gap).  FALSIFIED this wave (all still 8, or worse):
+ *     naming the format string as a local (8) / naming it first (8) / + an identity fence on it
+ *     (47) / `unsigned char syncIdx` (8) / identity fence on syncIdx (17) / naming
+ *     `comstr[CD_com]` (22) / a `syncSlot` pointer (12).  Per-fn `-fno-schedule-insns` splice
+ *     PROVEN (scratchpad/w55a5_splice.py) = 14, `-fno-schedule-insns2` 37, `-fno-delayed-branch`
+ *     17 -- sched1-off does move the a0-set back but re-orders the rest.  gcc LADDER re-run and
+ *     CLOSED for this TU: 2.7.2 == WIRED on all 7 fns; 2.6.0/2.6.3 equal-or-worse; every 2.8+
+ *     rung is catastrophic (CD_datasync 77, CD_get_intr 271).  NEXT ANGLE (named, unmeasured):
+ *     an insn-level sched1 instrument -- a PER_FN_TEXT_MOVES-style pass cannot help (the final
+ *     text already matches), so this needs either a cc1 `-dS`/sched-dump-driven priority dial or
+ *     acceptance.  Same one-register residual x3 (CD_datasync 8, CD_sync 22, CD_ready 22 -- the
+ *     latter two carry two/three MORE independent clusters, see their own notes). */
 
 typedef int (*CdlCB)(int intr, unsigned char *result);
 
@@ -575,8 +604,25 @@ extern void CD_flush(void)
      * displacement (`sb 2(v1) / lbu 2(v1) / sb 1(v1) / sb 0(v1)`); a bare `Intr.field = ...`
      * or a plain `CD_intr *` local both compile to per-field `sb $0,SYM+N` assembler macros
      * on the gcc-2.7.2 lane.  (2) the poll loop is the guarded do/while the oracle rotates to.
-     * The `% 8` spelling is Rage Racer's; `& 7` is identical here (u_char). */
-    CD_intr *intr;
+     * The `% 8` spelling is Rage Racer's; `& 7` is identical here (u_char).
+     *
+     * MATCH (w55-a5): 13 (54/53, count WRONG) -> PASS 53/53.  THREE cooperating pieces --
+     *  (1) the anchor must be OPAQUE.  A plain `state = &Intr.sync` is const-folded straight
+     *      back to the symbol at every subscript, so `state[2]`/`state[1]` still come out as
+     *      `sb $0,Intr+2` ASSEMBLER MACROS (`lui $at; sb $0,%lo`) -- only `state[0]` survived
+     *      as a displacement.  The W49 IDENTITY FENCE makes the address one un-foldable pseudo
+     *      and the whole `sb 2 / lbu 2 / sb 1 / sb 0` displacement block appears.
+     *  (2) `reg = D_8013C20C;` as its own local (Rage Racer's `reg`) hoists the CDREG0 pointer
+     *      load into the middle of that block, exactly where the oracle has it.
+     *  (3) the residual was then a UNIFORM $v0<->$v1 swap (anchor $v0 / byte $v1, oracle the
+     *      reverse) at count-EXACT 53/53.  An IDENTITY FENCE on the reloaded byte `c` (+2 refs,
+     *      the W50 ref-step PROMOTE dial) lifts its local-alloc qty above the anchor's, so `c`
+     *      takes $v0 and the anchor drops to $v1 = retail.  FALSIFIED in this basin: decl-order
+     *      swap (14), double fence on the anchor (14), read-only fence on the anchor (18),
+     *      anchoring at `&Intr` instead of `&Intr.sync` (14), hoisting the anchor above the
+     *      poll loop (23), unfenced anchor (14). */
+    volatile unsigned char *state;   /* $v1 : &Intr, reached by displacement 0/1/2 */
+    volatile unsigned char *reg;     /* $a0 : CDREG0 pointer                       */
     unsigned char c;
     CDREG0 = 1;
     while (CDREG3 & 7) {
@@ -584,12 +630,15 @@ extern void CD_flush(void)
         CDREG3 = 7;
         CDREG2 = 7;
     }
-    intr = (CD_intr *)&Intr;
-    intr->c = 0;
-    c = *(volatile unsigned char *)&intr->c;   /* oracle genuinely RELOADS .c (no const-propagate) */
-    intr->ready = c;
-    intr->sync = 2;
-    CDREG0 = 0;
+    state = &Intr.sync;
+    __asm__("" : "=r"(state) : "0"(state));   /* (1) keep the anchor un-foldable */
+    state[2] = 0;                             /* Intr.c     = 0 */
+    c = state[2];                             /* oracle genuinely RELOADS .c (volatile) */
+    __asm__("" : "=r"(c) : "0"(c));           /* (3) ref-step PROMOTE: c -> $v0 */
+    state[1] = c;                             /* Intr.ready = Intr.c */
+    reg = D_8013C20C;                         /* (2) CDREG0 pointer hoist */
+    state[0] = 2;                             /* Intr.sync  = 2 */
+    *reg = 0;
     CDREG3 = 0;
     *D_8013C21C = 0x1325;
 }
@@ -653,6 +702,22 @@ extern int D_8013C228;
  * what closes it.  Oracle: asm/nonmatchings/main/CD_init_80108140.s. */
 extern int CD_init_80108140(void)
 {
+    /* MATCH (w55-a5): the Intr reset block is the SAME fenced byte anchor + `reg`
+     * local recipe that took CD_flush to PASS (see its receipt) -- 24 diffs at
+     * 120/120 -> 15 at 117/120.  The remaining 3-instruction shortfall is all in
+     * the tail: retail BRANCHES on the CD_sync result (`addu $a0,$v0,$zero;
+     * li $v1,2; bne $a0,$v1; li $v0,-1; j; addu $v0,$zero,$zero; li $v0,-1` --
+     * note the duplicated -1 and the un-propagated result copy, same 06E class as
+     * CdReset above), where ours store-flag-folds it to `xori;sltu;negu`.
+     * FALSIFIED in the PRE-anchor basin (all 24, gcc canonicalized them to the
+     * identical stream): `== 2` first, a named result temp with/without an
+     * identity fence, a named `two = 2` compare constant.  RE-PROBE THEM IN THIS
+     * BASIN -- the 3-insn gap is exactly the store-flag fold, and CD_cw's tail
+     * (drv.c:560) already shows a zero-insn void-tail fence is the breaker for
+     * jump.c's `-(cond)` fold when the guarded block is single-set. */
+    volatile unsigned char *state;
+    volatile unsigned char *reg;
+    unsigned char c;
     puts("CD_init:");
     printf("addr=%08x\n", &D_8013C228);
     CD_com     = 0;
@@ -670,10 +735,15 @@ extern int CD_init_80108140(void)
         CDREG3 = 7;
         CDREG2 = 7;
     }
-    Intr.c = 0;
-    Intr.ready = Intr.c;
-    Intr.sync = 2;
-    CDREG0 = 0;
+    state = &Intr.sync;
+    __asm__("" : "=r"(state) : "0"(state));   /* keep the anchor un-foldable (see CD_flush) */
+    state[2] = 0;                             /* Intr.c     = 0 */
+    c = state[2];                             /* volatile RELOAD */
+    __asm__("" : "=r"(c) : "0"(c));           /* ref-step PROMOTE: c -> $v0 */
+    state[1] = c;                             /* Intr.ready = Intr.c */
+    reg = D_8013C20C;
+    state[0] = 2;                             /* Intr.sync  = 2 */
+    *reg = 0;
     CDREG3 = 0;
     *D_8013C21C = 0x1325;
 
@@ -684,8 +754,17 @@ extern int CD_init_80108140(void)
         return -1;
     if (CD_cw(0xc, 0, 0, 0))                 /* CdlDemute */
         return -1;
-    if (CD_sync(0, 0) != 2)
+    /* MATCH (w55-a5): STORE-FLAG BREAKER, the CD_cw device (drv.c:560) applied to
+     * both arms.  jump.c's `-(cond)` fold turns this guard into `xori;sltu;negu`
+     * (3 insns, no branch) unless each arm is more than a single set; a zero-insn
+     * void-tail fence in BOTH arms restores retail's real `li $v1,2; bne; li -1;
+     * j; addu $v0,$zero,$zero; li -1` branch + duplicated-constant tail.
+     * 15 (117/120) -> 10 at count-EXACT 120/120.  One fence only = 10 @118/120. */
+    if (CD_sync(0, 0) != 2) {
+        __asm__("" : : "i"(0));
         return -1;
+    }
+    __asm__("" : : "i"(0));
     return 0;
 }
 

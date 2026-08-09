@@ -45,7 +45,25 @@ extern int CdMode(void) { return (unsigned)CD_mode; }
 /* @0x800F77A0 : CdLastPos */
 extern void *CdLastPos(void) { return &CD_pos; }
 
-/* @0x800F77AC : CdReset -- bring the CD subsystem up (mode 0 = drive, 1 = +volume, 2 = intr only). */
+/* @0x800F77AC : CdReset -- bring the CD subsystem up (mode 0 = drive, 1 = +volume, 2 = intr only).
+ *
+ * RESIDUAL 3 (ours 26 / oracle 27, ours 1 SHORT) -- CLASSIFIED + SOLVED, w55-a5.
+ * Retail copies the second call's result into a fresh reg before testing it
+ * (`addu $v1,$v0,$zero; bnez $v1,END; addu $v0,$zero,$zero`) so the return-0 can
+ * fill the branch slot; our cc1-2.7.2 slot-fills straight over the tested $v0
+ * (legal on MIPS -- the condition is read before the slot executes) and needs no
+ * copy.  This is the 06E "non-propagated reg-reg copy" class and it is a
+ * COMPILER-VERSION property, not a source one: FALSIFIED here -- RR's split
+ * `if (mode != 1) return 1; if (CD_initvol() != 0) return 0;` form (3, or 5 with
+ * its trailing `asm("")`), a named result temp (3), an identity fence on it (3),
+ * a `volatile` temp (18), a zero-valued `return zero;` variable (3), a nested
+ * `if (mode == 1) { if (...) return 0; }` (3), a single-exit funnel (31).
+ *   ORCHESTRATOR: per-fn cc1 VERSION splice -- PROVEN PASS 27/27 under rungs
+ *   2.7.2-970404, 2.8.0 AND 2.8.1 (scratchpad/w55a5_splice.py --cc1 <ver>), while
+ *   a whole-TU rung flip is catastrophic here (CdControl 8->50, CdControlF
+ *   PASS->51+, CdControlB 4->44).  W55-A8 is landing exactly this mechanism as
+ *   PER_FN_CC1_VER_SPLICE_272 in tools/build.py; the entry wanted is
+ *     "recon/syslib/psx/libcd/cdcont.c": {"2.8.0": {"CdReset"}}   # 3 -> PASS 27 */
 extern int CdReset(int mode)
 {
     if (mode == 2) {
@@ -115,10 +133,41 @@ extern int CdReadyCallback(int func)
  *     (oracle: `addu s7,zero,zero` / `li s7,-1` + `addiu v0,s7,1`).
  * Rage Racer additionally needs `register long cmd asm("$20")` pins and
  * zero-insn opacity fences; asm register pins are FORBIDDEN here
- * (methodology 3.13), so they are dropped and the residual is left honest. */
+ * (methodology 3.13), so they are dropped and the residual is left honest.
+ *
+ * MATCH (w55-a5): CdControl / CdControlB take an **INT** command parameter, like
+ * Rage Racer's `long com` and like the already-PASSing CdControlF.  Their oracles
+ * copy the parameter RAW (`addu $s4,$a0,$zero`) and re-mask per use; a `u_char`
+ * parameter masks ONCE at entry (`andi $s4,$a0,255`) and can never match (the
+ * w53-a9 CdControlF law).  All call sites tree-wide pass LITERAL command codes,
+ * so the prototype widening is codegen-neutral at every one of them.
+ * ⚠️ UNLIKE CdControlF, neither of these wants the identity fence on `cmd`: with
+ * the fence the parm-copy is PROMOTED past `resultReg` and the whole s-handout
+ * rotates (B 4 -> 22, measured).  Plain `int com`, no fence.
+ * RESIDUAL, both fns, NAMED + PROVEN: a PURE 2-LINE TEXT RELOCATION -- retail
+ * emits `sw $20,32($sp); addu $20,$4,$0` immediately after `addu $18,$6,$0`
+ * (i.e. cmd's parm copy is the 3rd first-def), ours sinks it below `li $16,3`
+ * and `li $fp,1`.  No source lever reaches it (falsified in this basin: void /
+ * volatile / bare `__asm__("")` fences at the copy, top-of-fn fence, decl-order
+ * swap, an early `cmd`-use, hoisting `command` -- 4 or worse every time).
+ *   ORCHESTRATOR: PER_FN_TEXT_MOVES spec, PROVEN PASS 83/83 for CdControlB by
+ *   scratchpad/w55a5_moves.py:
+ *     "recon/syslib/psx/libcd/cdcont.c": {"CdControlB": [
+ *        {"take": r"\tsw\t\$20,32\(\$sp\)\n\taddu\t\$20,\$4,\$0\n",
+ *         "after": r"\taddu\t\$18,\$6,\$0\n"}]}
+ *   BLOCKER: `_apply_text_moves` is called only from compile_c / compile_cpp;
+ *   `_compile_c_272` (this TU's lane) never calls it -- one line to add.
+ *   CdControl carries the SAME move plus one more residual (see its own note). */
 
-/* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times. */
-extern int CdControl(unsigned char com, unsigned char *param, unsigned char *result)
+/* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times.
+ * RESIDUAL 8 = the shared 2-line parm-copy relocation (see the block note above,
+ * 4 diffs) + a local-alloc handout: the loop-head `command != 1` literal goes to
+ * `$v0` here, retail to `$t0` -- i.e. retail's numeric first-free scan found
+ * $v0..$a3 all in use over that 2-insn qty's range and ours did not.  FALSIFIED
+ * (all byte-identical, gcc canonicalizes the guard): Yoda `1 != command`,
+ * `(command - 1) != 0`, `command < 1 || 1 < command`, a block-scoped `one = 1;`
+ * re-materialized inside the loop. */
+extern int CdControl(int com, unsigned char *param, unsigned char *result)
 {
     unsigned char *arg;
     unsigned char *resultReg;
@@ -230,7 +279,7 @@ done:
 }
 
 /* @0x800F7B24 : CdControlB -- blocking command: issue then CD_sync(0) to completion. */
-extern int CdControlB(unsigned char com, unsigned char *param, unsigned char *result)
+extern int CdControlB(int com, unsigned char *param, unsigned char *result)
 {
     unsigned char *arg;
     unsigned char *resultReg;
@@ -249,6 +298,9 @@ extern int CdControlB(unsigned char com, unsigned char *param, unsigned char *re
     arg = param;
     resultReg = result;
     cmd = com;
+    /* MATCH (w55-a5): same recipe as CdControlF -- the command parameter is an
+     * INT, copied RAW (`addu s4,a0,zero`) and re-masked per use; a u_char param
+     * masks ONCE at entry (`andi s4,a0,255`) and can never match. */
     retries = 3;
     /* MATCH: the `1` of the `command != 1` test is a NAMED loop invariant here
      * (CdControlF/CdControlB only) -- their oracles hoist it into a callee-saved

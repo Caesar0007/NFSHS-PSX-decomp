@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-char *Platform_GetDCTBuffer(...); void Platform_ResetDCTBuffer();
+char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
 extern Group              *gPersistObjInst;          /* track.obj */
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern void  Quatern_QuatToMat(tQuat *q, matrixtdef *m);     /* quatern.obj */

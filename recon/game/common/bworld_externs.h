@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-char *Platform_GetDCTBuffer(...); void Platform_ResetDCTBuffer();
+char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
 extern CVECTOR * Chunk_lightTable;
 extern Car_tObj           *Cars_gList[];             /* 0x8010f9dc */
 extern Car_tObj           *Cars_gTrafficCarList[];

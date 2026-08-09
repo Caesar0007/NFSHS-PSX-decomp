@@ -26,13 +26,13 @@ extern tTexture_ShapeInfo *gHelpShapes;  extern tPlayer gMenu_SubMenuPlayer;
 void  FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void  FETextRender_Title(short);
 void  FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
-int   CalcTextFadeSelToHi(...);  int CalcTextFadeUnselToSel(...);
+int   CalcTextFadeSelToHi(tMenuTextType, short, short);  int CalcTextFadeUnselToSel(tMenuTextType, short, short);
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
 /* FEDialog-specific helpers */
-void  DrawShape_SubtractNFS4RectEdges(...);  void DrawShape_NFS4RoundRectangle(...);
-void  FETextRender_SetFont(int);  int textpixels(char*);  void s_upper(char*);
+void  DrawShape_SubtractNFS4RectEdges(RECT &);  void DrawShape_NFS4RoundRectangle(...);
+void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_upper(char*);
 /* TRUE prototypes (2026-08-02, user-approved): the old variadic `(...)` decls mangled as
  * phantom symbols wherever FontUpsideDownBlit's address is taken -- byte-neutral fix,
  * reloc symbols now match font.cpp/psxfront.cpp definitions. */
@@ -45,9 +45,9 @@ extern tDialogBase *DialogVisibilityList[8];
 void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void FETextRender_SetABR(int,bool);
 void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);
-int  FETextRender_WordWrapHeight(...);
+int  FETextRender_WordWrapHeight(short, char *);
 void FETextRender_WordWrapTextRGB(char*, RECT&, int);
-int  FEInput_GetKeyFromPlayer(...);
+int  FEInput_GetKeyFromPlayer(tPlayer, long);
 extern int CURRENTPLAYER;
-int MCRD_handlecardevents(...);  int MCRD_getcard(...);
+extern "C" int MCRD_handlecardevents(int);  extern "C" CARDINFO_def *MCRD_getcard(int);
 #endif

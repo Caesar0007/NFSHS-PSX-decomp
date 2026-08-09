@@ -27,7 +27,7 @@ extern Trk_NewSlice  *BWorldSm_slices;
 extern int            gNumSlices;
 
 /* ---- Collide ---- */
-extern int   Collide_TestWithPlane(void *n, coorddef *normal, coorddef *pos);
+extern void  Collide_TestWithPlane(BO_tNewtonObj *n, coorddef *normal, coorddef *pos);
 
 /* ---- Physics (physics.obj) ---- */
 extern int   Physics_AttenuateVelocity(Car_tObj *car, int impulse, matrixtdef *m);
@@ -50,7 +50,7 @@ extern void  Force_HitWall(int impulse);
 extern int   Force_IsForceOn(Car_tObj *car);
 
 /* ---- Scheduler ---- */
-extern int   Sched_ExecuteCheck(int a, int b, int c, int d, int *e, int *f, char *g, int h);
+extern int   Sched_ExecuteCheck(int a, int b, int c, int d, int *e, int *f, int *g, int h);
 
 /* ---- globals ---- */
 extern GameSetup_tData     GameSetup_gData;

@@ -22,7 +22,7 @@ extern u_int              fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG
 /* ---- cross-TU functions ---- */
 extern void  Math_NormalizeVector(coorddef *v);
 extern void  Math_ResolveRotatedVector(int x, int z, int angle, int *outx, int *outz);
-extern int   Collide_TestWithPlane(void *n, coorddef *normal, coorddef *pos);
+extern void  Collide_TestWithPlane(BO_tNewtonObj *n, coorddef *normal, coorddef *pos);
 extern void  Force_HitWall(int impulse);
 extern int   Force_IsForceOn(Car_tObj *car);
 extern int   AIWorld_IsDriveableLane(int slice, int lane);

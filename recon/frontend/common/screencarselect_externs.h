@@ -22,11 +22,11 @@ extern int gMenuRotate[2];
 extern u_long             gCameraRotation;
 extern int *gCView;
 extern Car_tObj *gCarObj[2];
-char *PlayerName(...);
+char *PlayerName(int);
 extern char               CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
-void DrawC_MenuColorData(...);
+void DrawC_MenuColorData(int, Car_tObj *, int);
 extern int DrawC_gMenuLights, DrawC_gMenuLightsDirection;
 
 /* ===== statics owned by ScreenCarSelect.obj ===== */
@@ -104,35 +104,35 @@ void Initialize(tVideoWall*, tTVConfig*, tTexture_ShapeInfo*, short, short, shor
 int   CalcFadeVal(int, int);
 char *TextSys_Word(int); int TextSys_WordX(int); int TextSys_WordY(int); int TextSys_WordFlags(int);
 short TextValue(void*, tPlayer); void Decrement(void*, tPlayer); void Increment(void*, tPlayer);
-void  DrawMoney(...);
-void  DrawShapeExtended(...);
+void  DrawMoney(int, int, int, long, int, int);
+void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
 void  DrawShape_NFS4Rectangle(...); void DrawShape_NFS4RoundRectangle(int, RECT*, short);
-void  DrawSlider(...);
+void  DrawSlider(short, short, short, short, short, short, short, short, short, bool, bool, short, short);
 void  PSXDrawSquare(int,int,int,int,int);
-void  FETextRender_FullTextRGB(...);
+void  FETextRender_FullTextRGB(char *, short, short, int, char, short);
 void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
 void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
                            tMenuTextType textType);
-void  FeAudio_AsyncPlaySpeech(...);
+void  FeAudio_AsyncPlaySpeech(int, int);
 void *FECheat_IsCheatEnabled(...);
 int  GetNumPinkSlipsCars(...);
 void*  GetStockCar(...); void GetTrack(tTrackManager*, unsigned short, void*);
 tTrackInformation *GetTrackByID(tTrackManager*, short); void GetTrackToRace(tTournamentManager*, void*);
-int   LoadGame(...);
-void  MCRD_handlecardevents(...);
-char *Platform_GetDCTBuffer(...); void Platform_ResetDCTBuffer();
-void  Draw_MenuRenderingView(...); extern void *Draw_gPlayer1View;   /* int def in render.cpp */
+int   LoadGame(short, bool, bool);
+extern "C" int MCRD_handlecardevents(int);
+char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
+void  Draw_MenuRenderingView(...); extern void *Draw_gPlayer1View;   /* int def in render.cpp */ /* W56-A1: real Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii; caller screencarselect.cpp:75 passes int** (gCView mistyped) -> needs caller fix; reported */
 void  SetOffset(...);
 void  SetValid(...); void Hide(void*); void Display(void*); void Redraw(void*);
 
 
 /* re-added (varargs; one per line to avoid shared-line breakage) */
-void  AudioMus_StopSong(...); void  CleanupSpinningCarsMenu(...); void  DeInit_Memcard(...);
-void  DrawShape_NFS4TransRectangle(...); void  FETextRender_MenuTextPositioned(...); void  Init_Memcard(...);
- void  SetLicensePlate(...); void  TransformVector(...); void  UploadSwapShapes(...);
+void  AudioMus_StopSong(int); void  CleanupSpinningCarsMenu(void); void  DeInit_Memcard(void);
+void  DrawShape_NFS4TransRectangle(...); void  FETextRender_MenuTextPositioned(...); void  Init_Memcard(bool, bool);
+ void  SetLicensePlate(void); void  TransformVector(...); void  UploadSwapShapes(...);
 int CalcUsedPrice(...); long CheapestCarStockPrice(...); int GetNumOwnedCars(...); int GetNumTourneyCars(...);
-CARDINFO_def *MCRD_getcard(...);
-void *Draw_GetDRAWENV(...); void *GetGarageCar(...); void *GetPinkSlipsCar(...); void *GetStockCar(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
+void *Draw_GetDRAWENV(int, int); void *GetGarageCar(...); void *GetPinkSlipsCar(...); void *GetStockCar(...);
 
 void PreLoad(tScreen*);
 #endif

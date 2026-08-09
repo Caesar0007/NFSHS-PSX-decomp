@@ -2191,7 +2191,7 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *ne
   modifiedGravity = 0x4800;
   if (newtonObj->active &&
       Sched_ExecuteCheck(1,3,newtonObj->distToPlayer,newtonObj->objID,
-                         &timeCount,&elapsedTime,(char *)&iTimeCount,
+                         &timeCount,&elapsedTime,&iTimeCount,
                          ((Car_tObj *)newtonObj)->forceNoSimOptz)) {
     if (newtonObj->simOptz >= 2) {
       newtonObj->linearVel.y = 0;

@@ -22,7 +22,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NM = "C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm"
 
-objs = sorted(ROOT.joinpath("build").rglob("*.o"))
+# build/diffsrc/ holds the -g SLD-instrument objects (05A lane) -- rebuilt
+# lazily, never linked; scanning them reports stale phantoms.  Link objects only.
+objs = sorted(o for o in ROOT.joinpath("build").rglob("*.o")
+              if "diffsrc" not in o.parts)
 if not objs:
     sys.exit("no build objects -- run tools/build.py first")
 

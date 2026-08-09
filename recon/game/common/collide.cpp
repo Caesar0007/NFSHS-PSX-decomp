@@ -664,6 +664,14 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
   int numerator;
   coorddef deltaV;
   coorddef damageVector;
+  /* MATCH: zero-insn PARM-SPILL PIN.  It must sit BEFORE the first source
+     statement (i.e. ahead of the object1 initializer): assign_parms' arg
+     stores are emitted ahead of it, so `sw a3,196(sp)` (normal's ARG home)
+     stays in the prologue group instead of being sunk 27 insns by sched2,
+     and the un-coalesced parm copy `addu t0,a3,zero` reappears.  One
+     statement LATER it also pins `addu fp,a1,zero`, which retail schedules
+     into a load-delay slot (5 diffs).  2nd operand => 203 diffs (05C). */
+  __asm__("" : : "i"(0));
   BO_tNewtonObj *object1 = o1;
 #define o1 object1
 
@@ -712,6 +720,11 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
     }
     impulse = fixedmult(scaleFactor,impulse);
   }
+  /* MATCH: zero-insn USE FENCE (sched-issue-position fixpoint).  Without it the
+     `addu s6,v0,zero` that lands the scaled impulse sinks into the load-delay
+     slot of the following `lw t0,196(sp)`; retail issues it straight after the
+     jal's delay slot and nops the load shadow. */
+  __asm__("" : : "i"(0));
   impulseV.x = fixedmult(impulse,normal->x);
   impulseV.y = fixedmult(impulse,normal->y);
   impulseV.z = fixedmult(impulse,normal->z);

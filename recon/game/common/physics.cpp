@@ -345,6 +345,12 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
     diffX = fixedmult(barrierVec.x,(carObj->N).shadowMat.m[0]) +
             fixedmult(barrierVec.y,(carObj->N).shadowMat.m[1]) +
             fixedmult(barrierVec.z,(carObj->N).shadowMat.m[2]);
+    /* MATCH: zero-insn USE FENCE (sched-issue-position fixpoint, catalog 05C/w45).
+       Without it sched2 sinks the two closing `addu s0,s0,*` of the diffX sum
+       BELOW the abs(diffZ) block; retail completes the sum in place (SLD 696
+       before 697).  Operand-less/void form only -- adding a 2nd operand
+       ("r"(diffX),"r"(diffZ)) costs 42 diffs (fence-operand selectivity). */
+    __asm__("" : : "i"(0));
     result = __builtin_abs(diffZ);
     if (__builtin_abs(diffX) < result) {
       result = __builtin_abs(diffX) >> 1;
@@ -640,13 +646,17 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     }
     diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
     if (diff >= 0) {
-      (carObj->control).gasLevel +=
-          (diff < (u_char)inc) ? diff : (u_char)inc;
+      /* MATCH: explicit min-clamp into `diff` then a plain += (14->10).  The
+         `+= (cond ? diff : inc)` ternary makes gcc funnel the selected value
+         through inc's register (extra `addu a0,v1,zero`); clamping diff in
+         place lets both jump-opt arms add their own register like retail. */
+      if (diff >= (u_char)inc) { diff = (u_char)inc; }
+      (carObj->control).gasLevel += diff;
     }
     else {
       diff = -diff;
-      (carObj->control).gasLevel -=
-          (diff < (u_char)inc) ? diff : (u_char)inc;
+      if (diff >= (u_char)inc) { diff = (u_char)inc; }
+      (carObj->control).gasLevel -= diff;
     }
   }
   if (carObj->carInfo->RampBrake != 0) {
@@ -822,11 +832,12 @@ RampCtrl_earlyBrake:
     iVar5 = 0x10000;
   }
   gBrakeRatio = iVar5;
-  iVar5 = (carObj->control).steering;
-  if (iVar5 < 0) {
-    iVar5 = -iVar5;
-  }
-  gSteerRatio = iVar5 << 9;
+  /* MATCH: __builtin_abs INLINE in the shift expression (27->14).  The hand-rolled
+     `if (x<0) x = -x;` lets gcc speculate the `sll` into the bgez delay slot AND
+     re-emit it after the negu (two slls); the builtin's bgez/negu/sll idiom is
+     retail's.  Routing it through iVar5 first only reaches 22/26 -- the operand
+     must be the field read itself (methodology 5.0c __builtin_abs lever). */
+  gSteerRatio = __builtin_abs((carObj->control).steering) << 9;
   if (((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) &&
       ((carObj->control).gear == '\0')) && ((carObj->control).hanno == 1)) {
     iVar5 = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;

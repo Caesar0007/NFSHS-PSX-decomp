@@ -807,14 +807,14 @@ void Camera_UpdateAnimCam(int player)
           return;
         }
         Camera_SetMode(player,0xb);
-        Camera_gInfo[player].splineMode = '';
+        Camera_gInfo[player].splineMode = '\x03';
         return;
       }
       Camera_SetMode(player,GameSetup_gData.carInfo[player].Camera[0]);
       return;
     }
   }
-  /* BUGFIX (H-class): Ghidra rendered gAnimMode[track] as the string "" (mis-render trap);
+  /* BUGFIX (H-class): Ghidra rendered gAnimMode[track] as the string "\x02" (mis-render trap);
    * also dropped the Ghidra-ism & 0x1f shift-count mask */
   /* MATCH: direct-copy arm FIRST in VA order (beqz jumps to the transform arm) */
   if ((gAnimMode[GameSetup_gData.track] >> (signed char)Camera_gInfo[player].animNum & 1U) != 0) {

@@ -423,7 +423,7 @@ void Hrz_InitSky(void)
     do {
       j = 0;
       do {
-        gSkyPixmapIndex[k] = Sky_gTrackSpec->cloudIndices[i][j % 4] + '';
+        gSkyPixmapIndex[k] = Sky_gTrackSpec->cloudIndices[i][j % 4] + 8;
         j = j + 1;
         k = k + 1;
       } while (j < 0x10);

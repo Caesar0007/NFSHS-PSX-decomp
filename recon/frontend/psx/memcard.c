@@ -526,7 +526,7 @@ int MCRD_savefile(int card,MCRDFILE_def *pFILE)
       if (nIcons == 0) {
         return -1;
       }
-      pMFI->header.type = (char)nIcons + '';
+      pMFI->header.type = (char)nIcons + 16;
       /* MATCH: a plain signed divide - retail's bgez/addiu 0x3FFF/sra 13 is gcc's
        * own /0x2000 guard, not a hand-written rounding branch. */
       pMFI->header.nslots = (uchar)((pFILE->size + 0x2000) / 0x2000);

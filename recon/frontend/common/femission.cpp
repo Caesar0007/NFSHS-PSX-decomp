@@ -31,7 +31,7 @@ void tMissionManager::LoadDescription(bool LoadHotPursuit)
   char filename [80];
   
   sprintf(filename,"%s%s",Paths_Paths[0x25],
-          frontEnd.gameMode != '' ? "zHPurs.mis" : "zHPurs2.mis");
+          frontEnd.gameMode != '\x01' ? "zHPurs.mis" : "zHPurs2.mis");
   data = (char *)loadfileadr(filename,0x10);
   this->fNumTiers = *data;
   numMissions = *(int *)(data + 4);

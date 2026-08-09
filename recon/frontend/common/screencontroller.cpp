@@ -199,7 +199,7 @@ void tScreenControllerConfig::CheckConfigs()
     if (this->fAnim != 0) {
       return;
     }
-    if (this->fCurrentController == ' ') {
+    if (this->fCurrentController == '\0') {
       if (this->fAnimFade != 0) {
         return;
       }
@@ -208,7 +208,7 @@ void tScreenControllerConfig::CheckConfigs()
       this->fPrevController = this->fCurrentController;
       return;
     }
-    if (this->fPrevController == ' ') {
+    if (this->fPrevController == '\0') {
       if (this->fAnimFade != 0) {
         return;
       }
@@ -242,15 +242,15 @@ void tScreenControllerConfig::CheckConfigs()
     if (!arrowDim) {
       this->fTextController = this->fCurrentController;
     }
-    if (this->fTextController == '') {
-      this->fTextController = '';
+    if (this->fTextController == 6) {
+      this->fTextController = 5;
     }
     this->fPrevController = this->fCurrentController;
     return;
 ChkConfigs_swapIn:
     this->fFadeTextOut = 1;
-    if (((this->fPrevController == '') || (this->fPrevController == '')) &&
-       ((this->fCurrentController == '' || (this->fCurrentController == '')))) {
+    if (((this->fPrevController == 5) || (this->fPrevController == 3)) &&
+       ((this->fCurrentController == 4 || (this->fCurrentController == 6)))) {
       this->SwapInController();
     }
     this->fPrevController = this->fCurrentController;

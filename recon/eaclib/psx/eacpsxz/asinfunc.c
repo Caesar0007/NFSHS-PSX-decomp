@@ -21,7 +21,7 @@
  *   intarcsin      def 2 | 2.6.0 39 | 2.6.3 39 | 2.7.2-970404 2 | 2.7.2 35 | 2.8.1 2 | 2.91.66 6 | 2.95.2 6
  */
 /* eaclib/psx/eacpsxz/asinfunc.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
- *   Source obj : nfs4\eaclib\psxsinfunc.obj ; archive C:
+ *   Source obj : nfs4\eaclib\psx/asinfunc.obj ; archive C:
 fs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
  *   2 fns @ [0x800EACD8, 0x800EADBC): intarcsin, intarccos -- integer inverse trig.
  *   FULL reconstruction of the actual code (disasm-v3 MIPS); NOT stubs/thunks. C-linkage XDEFs.

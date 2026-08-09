@@ -732,7 +732,7 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   this->SetState(state);
   goto done;
 gamemode:
-  if (frontEnd.gameMode == '') {
+  if (frontEnd.gameMode == '\x01') {
     return 1;
   }
   state = 1;
@@ -1761,7 +1761,7 @@ int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
   currentplayer = FEApp->fPlayer;
   garageNumber = currentplayer;
-  if (frontEnd.carListType == ' ') {
+  if (frontEnd.carListType == '\0') {
     carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[currentplayer],carInfo);
     color = frontEnd.carColors[currentplayer][(signed char)carInfo.fCarID];
   }

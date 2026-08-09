@@ -1416,12 +1416,12 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
 
   carColor = '\0';
   maxTraffic = 6;
-  if (frontEnd.gameMode == '') {
+  if (frontEnd.gameMode == '\x01') {
     maxTraffic = 3;
   }
-  if (frontEnd.raceType == '') {
+  if (frontEnd.raceType == '\x01') {
     maxTraffic = 2;
-    if ((streamData->track).fTimeOfDay == '') {
+    if ((streamData->track).fTimeOfDay == '\x01') {
       maxTraffic = 1;
     }
   }
@@ -1437,7 +1437,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
     if ((frontEnd.carListType == '\0') && (frontEnd.raceType == '\0')) {
       bTraffic = true;
     }
-    else if (frontEnd.raceType == '') {
+    else if (frontEnd.raceType == '\x01') {
       bTraffic = frontEnd.traffic[0] != '\0';
     }
     if (2 < (streamData->trackInfo).fTrackDifficulty) {
@@ -1446,12 +1446,12 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
     if ((streamData->trackInfo).fIsEgg != '\0') {
       bTraffic = false;
     }
-    if (frontEnd.gameMode == '') {
-      if (frontEnd.raceType == '') {
+    if (frontEnd.gameMode == '\x01') {
+      if (frontEnd.raceType == '\x01') {
         bTraffic = false;
       }
     }
-    else if (frontEnd.oppNumber == '') {
+    else if (frontEnd.oppNumber == '\x02') {
       bTraffic = false;
     }
     break;

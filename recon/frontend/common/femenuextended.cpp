@@ -15,6 +15,18 @@ typedef struct tPsyQPrimTag {
 
 
 /* ---- MenuNFS4_DrawTextBox  [FEMENUEXTENDED.CPP:66-137] SLD-VERIFIED ---- */
+/* MATCH: 6 diffs (W56-A9). Removed the fabricated `int maxw` local (NOT in the
+   SYM 8c block -- locals are helpText/r/initialWidth/drawOffset/fSelFade/
+   drawArrows/reflected/drenv/daprim/temp/textpix/dist($15=s5)/drawFlags/buffer/
+   shape/col/ypos); `dist=(max)+0x19` inline is codegen-neutral (293->293) but
+   SYM-faithful. REMAINING 6 = two independent reorg delay-slot-fill tie-breaks
+   (NOT source-dialable; catalog F "permuter or accept"):
+   (a) `lui v0,0` for the Draw_gPlayer1View load scheduled before vs after
+       `sw s3,140(sp);addu s3,a1,zero`;
+   (b) `addiu s5,v1,25` (dist=max+25) -- oracle fills the CalcTextFadeSelToHi
+       jal delay slot with it, ours fills the slot with `addu a2,zero,zero`
+       (the 3rd arg 0) and computes dist before the call. Both are reorg
+       fill-candidate choices; explicit-if max form regressed 6->28. */
 
 void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset,short fSelFade,
                bool drawArrows,bool reflected)
@@ -52,10 +64,7 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     sprintf(buffer,"%s",TextSys_Word(helpText));
     s_upper(buffer);
     textpix = textpixels(buffer) - strlen(buffer);
-    {
-      int maxw = textpix >= dist ? textpix : dist;
-      dist = maxw + 0x19;
-    }
+    dist = (textpix >= dist ? textpix : dist) + 0x19;
     {
       int col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
       if (reflected != 0) {

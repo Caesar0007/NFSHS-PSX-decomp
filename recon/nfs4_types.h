@@ -2690,7 +2690,8 @@ struct tTexture_ShapeInfo {   /* 32 bytes */
     char               depth;   /* +0x8 */
     u_long             type : 8;   /* +0x9 bit 0 */
     long               next : 24;   /* +0xC bit 0 */
-    short              width, height, centerx, centery, shapex, shapey;   /* +0x10 */
+    signed short       width, height;   /* +0x10 (oracle reads lh -- signed) */
+    short              centerx, centery, shapex, shapey;   /* +0x14 */
     u_short            tpage, clut;   /* +0x1C */
 };
 

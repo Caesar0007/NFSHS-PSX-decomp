@@ -387,6 +387,21 @@ CalcDim_helpArrFetch:
 
 
 /* ---- tDialogHelp::Draw  [FEDIALOG.CPP:459-546] SLD-VERIFIED ---- */
+/* MATCH: 16->10 (W56-A9). The DialogHelpDraw_drawButton 4th arg is written
+   `(i-1)*0xf + this->top + 0x13` (mul-first reassociation) so the multiply
+   lands in the dest reg like the oracle (was `this->top + (i-1)*0xf + 0x13`
+   -> field-first, a3<->v1 swap). REMAINING 10 = two hard floors, both
+   receipted, NOT source-dialable:
+   (a) ticks load (SYM $04=a0): oracle `lui v0;lw v0,0(v0);addu a0,v0,zero`
+       (load into %hi-scratch v0 then move to a0) vs ours `lw a0,0(v0)`
+       (direct into a0) -- the s3.15 reload-into-scratch-vs-target RTL
+       coalescing tie-break (catalog E register-materialization floor), 2 diffs.
+   (b) goto delay-slot fill: oracle fills each `j drawButton` slot with
+       `addiu v0,a3,-1` (i-1, the 4th-arg first step); ours fills with
+       `andi a1,a1,65535` ((u_short)control, the 2nd arg). Pure reorg
+       delay-slot candidate tie-break (catalog F "permuter or accept"), ~8 diffs.
+   NOTE: `int buttonY` (specialButtons path) is NOT in the SYM but is
+   load-bearing -- inlining it regressed 10->21, so it stays. */
 
 void tDialogHelp::Draw()
 
@@ -438,7 +453,7 @@ DialogHelpDraw_pad65Special:
         padType = 0x41;
 DialogHelpDraw_drawButton:
         FeTools_DrawPSXButton(padType,(u_short)control,this->left + 0x14,
-                   this->top + (i - 1) * 0xf + 0x13);
+                   (i - 1) * 0xf + this->top + 0x13);
 DialogHelpDraw_buttonsDone:;
       }
       if (numLetters < (int)strlen(this->text[i])) {
@@ -468,6 +483,20 @@ DialogHelpDraw_buttonsDone:;
 
 
 /* ---- tDialogMessageString::CalculateDimensions  [FEDIALOG.CPP:551-600] SLD-VERIFIED ---- */
+/* MATCH: 115->94 (W56-A9) + CORRECTNESS FIX. Was reading an UNINITIALIZED local
+   `int ticks;` (shadowed the global `extern int ticks[]`); replaced with the
+   global element `ticks[0]` at each use. SYM 8c: fsize=24, mask=$80010000
+   (only s0+ra), `ticks`=REG $08=t0 (caller-saved). The cached-local form forced
+   ticks into callee-saved s1 (+8 frame -> fsize 32); `ticks[0]` inline lets gcc
+   reload it (caller-saved) -> frame now matches (-24). REMAINING 94, two floors:
+   (a) ticks lands in v0 (reloaded late) vs the SYM's t0 (loaded early) -> a
+       register-coloring cascade through the whole body (allocno reg-choice, the
+       s4.6 de-prioritized class; not reqdelta-priceable).
+   (b) A2-OWNED TYPE: `gHelpShapes[].width`/`.height` (tTexture_ShapeInfo in
+       nfs4_types.h) read `lhu`+sll/sra sign-extend (3 insns) where the oracle
+       uses `lh` (1 insn) -> the field should be signed `short`. A `*(short*)&`
+       cast at the site is codegen-NEUTRAL (gcc rematerializes the field by its
+       declared type); the fix must be in nfs4_types.h (A2). REPORTED. */
 
 void tDialogMessageString::CalculateDimensions()
 
@@ -477,10 +506,9 @@ void tDialogMessageString::CalculateDimensions()
   int fade_or_h;
   int iVar2;
   int tick_age;
-  int ticks;
   short h;
   
-  fade_or_h = 0x80 - (((ticks + -0x32) - this->startTicks) * 0x80) / 100;
+  fade_or_h = 0x80 - (((ticks[0] + -0x32) - this->startTicks) * 0x80) / 100;
   this->fFadeText = fade_or_h;
   if (0x80 < fade_or_h) {
     fade_or_h = 0x80;
@@ -510,11 +538,11 @@ void tDialogMessageString::CalculateDimensions()
     this->Centerit = 0;
   }
   this->height = w;
-  iVar2 = ticks - this->startTicks;
+  iVar2 = ticks[0] - this->startTicks;
   if (iVar2 < 0x32) {
     sVar1 = gHelpShapes[0x2a].width;
     h = gHelpShapes[0x2a].height;
-    tick_age = ticks - this->startTicks;
+    tick_age = ticks[0] - this->startTicks;
     this->fFullyOpen = 0;
     this->width =
          sVar1 * 2 +
@@ -606,6 +634,15 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 
 
 /* ---- tDialogInteractive::Run  [FEDIALOG.CPP:684-742] SLD-VERIFIED ---- */
+/* NAMED ANGLE (W56-A9, 110 diffs, NOT yet cracked): the residual is (1) a
+   MISSING callee-saved s7 -- SYM 8c mask=$80ff0000 (ra+s0..s7), fsize=72; ours
+   saves only s0..s6 (fsize 64). The oracle hoists a stack out-param address
+   `addiu s7,sp,16` (the &keyType/&command buffer passed to ProcessInput every
+   loop iter) into s7 across the loop; ours rematerializes it. Getting a stack
+   local's address to live in a callee-saved reg across the call-loop is the
+   catalog lever #16 family but not source-dialable here (LICM/allocator choice).
+   (2) A cascading this->s3(oracle) vs s4(ours) callee-saved assignment-order
+   swap. Both are the s4.6 de-prioritized register-choice class. */
 
 short tDialogInteractive::Run()
 

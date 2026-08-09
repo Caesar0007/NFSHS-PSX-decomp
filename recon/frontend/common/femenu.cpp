@@ -951,6 +951,14 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 
 
 /* ---- tMenuItemLeftRightSlider::Draw  [FEMENU.CPP:853-864] SLD-VERIFIED ---- */
+/* NAMED ANGLE (W56-A9, 79 diffs, NOT cracked): allocsim MATCH 2/2 -- the two
+   global allocnos are p80=`this`(refs=15)->s2 and p81->s0; the SYM 8c wants
+   `this`->$11=s1, `selected`->$12=s2. reqdelta --want p80=s1 finds NO single- OR
+   two-dial (refs/live) delta -- the s1-vs-s2 choice is a register-PREFERENCE/
+   conflict-graph tie-break, NOT an allocno-priority dial (outside allocsim/
+   reqdelta's global model; the s4.6 qtytrace gap). Secondary: a larger prim-
+   builder scheduling divergence in the DrawShapeExtended tail. Do NOT spend
+   spelling-sweep budget here until qtytrace exists. */
 
 void tMenuItemLeftRightSlider::Draw(bool selected)
 

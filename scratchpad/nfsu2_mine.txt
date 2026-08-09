@@ -1,0 +1,153 @@
+53 EA-band functions reference strings
+
+sub_4CB3E9:
+    Unimpemented func
+sub_4CB542:
+    Unimpemented func
+sub_4CB554:
+    Unimpemented func
+sub_4CB5B0:
+    Unimpemented func
+sub_4CB5D6:
+    Unimpemented func
+sub_4D0FD8:
+    dist=%d
+sub_4D1A9A:
+    core\\ai_prsonal.bin
+    core\\ai_scripts.bin
+    core\\ai_hglue.bin
+    core\\ai_glue.bin
+sub_4D655A:
+    core\\ai_tuning.bin
+sub_4DBB3C:
+    SFXHDR
+sub_4DD240:
+    Engine Audio
+    *.bnk
+    *.ltb
+    *.ctb
+    Out of memory loading '%s'\n
+    Engine Tables
+sub_4DE3C1:
+    Loading track sounds...
+    FAILED\n
+sub_4DEF12:
+    bworld
+sub_4DF0E7:
+    _anim.viv
+    ...done Init BWorld.\n
+sub_4DF2E2:
+    BWorld_DeInit...
+    done.\n
+sub_4DF3D0:
+    Opened track sim file and found %d slices.\n
+sub_4EA39E:
+    ( (!followCar_) || (followCar_ && frame) )
+    C:\\Jez\\Dev\\nfs4\\Game\\Common\\CARS.cpp
+    frame required, but NULL
+sub_4EC2EA:
+    Car_tObj
+sub_4ED865:
+    Invalid SimObj index: %d\n
+sub_4F5B17:
+    Vol: %d Bend: %d Pan: %d Bankhandle: %d\n
+sub_4F5EC4:
+    Bank ID '
+    ' is not valid\n
+    Bank Version 
+    Async Failed - Retrying
+    OpError
+sub_4FC837:
+    VertInt8
+sub_5001E0:
+    length24sq != 0
+    \\Jez\\Dev\\iwgeom\\IwGeomVec.h
+    CIwVec2 overflow
+    IsNormalised()
+sub_500430:
+    test>>63==test>>31
+    \\Jez\\Dev\\iwgeom\\IwGeomVec.h
+    CIwVec2 overflow
+sub_500686:
+    Memory left after gamestartup = %d\n
+sub_500A7B:
+    Sim De-init 
+    Done\n
+sub_50179A:
+    Custom Objects
+    Custom SimObjects
+sub_501BAC:
+    ID warning objInd %d, id:%d, ind with that id:%d\n
+    Object_AddCustomObject - error finding proper DEF! - %d\n
+    ------- objInd %d, id:%d, ind with that id:%d\n
+sub_502092:
+    IMObj info
+sub_50B430:
+    m_pParticleSystemManager
+    \\Jez\\Dev\\nfs4\\IwNfs\\IwParticleManager.h
+    m_pParticleSystemManager NULL
+sub_50BAAC:
+    DEFAULTFLYIN
+sub_50D39E:
+    KNOCKED OUT!
+    !GameSetup_gData.reverseTrack
+    C:\\Jez\\Dev\\nfs4\\Game\\Common\\STATS.cpp
+sub_50FE76:
+    Unimpemented func
+    TrackInit: about to load persistant group!\n
+    gPersistObjInst(%x)\n
+    gPersistObjDef(%x) elements(%d)\n
+    simsimslice\n
+    gPersistMidgroundObjInst(%x)\n
+sub_5100E9:
+    Track_mem
+    TrackInit: about to load chunk group!\n
+    BWorld Init: '%s'.\n
+    NumChunks:%d\n
+sub_5105B0:
+    Reading KILL file: '%s'\n
+sub_510815:
+    Surface Save
+sub_5109C0:
+    udffhandle
+sub_5110C5:
+    NFSU2
+    false
+    C:\\Jez\\Dev\\nfs4\\Game\\Common\\aidatarecord.cpp
+    Unable to load AI Data Record
+sub_523873:
+    Perfect Shift
+    Long Shift
+    Short Shift
+sub_52653C:
+    TOTAL FRONT END MEMORY AVAILABLE = %d bytes\n
+sub_526716:
+    Init Memory %08x - %08x\n
+sub_526810:
+    pshare 4
+    pshare 8
+    pal 4bit
+    pal 8bit
+sub_527DF8:
+    ptr(%p)\n
+    Adding fog key(%d) slice(%d) dist(%d)\n
+    ...after slice(%d)\n
+    Adding duplicate fog trigger slice(%d)\n
+    Adding first key slice(%d) dist(%d)\n
+sub_528091:
+    S.fog
+    N.fog
+    W.fog
+    Add Key slice(%d) dist(%d)\n
+    Fog File not loaded - bad fog value!\n
+    Fog File not loaded - no file found(%s)!\n
+sub_52872C:
+    FOUND TRACK SPEC FILE WITH %d SPECS!\n
+    REQUEST FOR SPEC FILE %d WHEN ONLY %d EXIST\n
+    CREATING DEFAULT TRACK SPEC FILE!\n
+sub_5289CE:
+    Retired
+    D.N.F.
+    Crash
+    Too Slow
+    Burnt Out

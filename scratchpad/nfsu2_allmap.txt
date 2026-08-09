@@ -1,0 +1,138 @@
+
+=== ai.cpp (41 fns, 7 anchors) ===
+  0x4cbe00  AI_DoReactions                               score=25 distinct=1
+  0x4cc295  AI_OpponentBlockPlayer                       score=21 distinct=1
+  0x4cc488  AI_CheckForBarriers                          score=22 distinct=1
+  0x4ccb98  AI_HandleShouldersAndOffRoad                 score=34 distinct=2
+  0x4cd025  AI_CalculateLaneSpeeds                       score=54 distinct=6
+  0x4cd42c  AI_CalcMeritsBasedOnSpeed                    score=29 distinct=2
+  0x4ce783  AI_CalculateAdjustedDesiredSpeed             score=32 distinct=3
+
+=== aih_basiccop.cpp (9 fns, 1 anchors) ===
+  0x4fa169  ShouldIPerformCutOffBlock                    score=26 distinct=3
+
+=== aih_basicperp.cpp (9 fns, 2 anchors) ===
+  0x512040  CheckForCrimes                               score=21 distinct=2
+  0x512337  CheckIfCaught                                score=32 distinct=4
+
+=== aih_btccop.cpp (42 fns, 6 anchors) ===
+  0x51317e  AIHigh_BTC_HumanCop                          score=37 distinct=5
+  0x5136c5  FreezeAndEndChase                            score=26 distinct=4
+  0x51398f  NewStage                                     score=28 distinct=2
+  0x514455  HighExecute                                  score=60 distinct=3
+  0x514455  HighExecute                                  score=60 distinct=3
+  0x515466  SetupBlockader                               score=41 distinct=4
+
+=== aih_btcperp.cpp (28 fns, 3 anchors) ===
+  0x51631d  IsFalseArrest                                score=27 distinct=3
+  0x516e2a  AvoidCops                                    score=24 distinct=3
+  0x51785c  NewStage                                     score=77 distinct=10
+
+=== aih_cop.cpp (9 fns, 1 anchors) ===
+  0x5180a6  HighExecute                                  score=71 distinct=6
+
+=== aih_opp.cpp (6 fns, 1 anchors) ===
+  0x51aa8d  DoRearEnder                                  score=21 distinct=2
+
+=== aih_play.cpp (11 fns, 4 anchors) ===
+  0x51a5a0  AIHigh_Player                                score=21 distinct=2
+  0x51a5a0  CheckForNewLevel                             score=21 distinct=2
+  0x51a5a0  HandlePullOver                               score=21 distinct=2
+  0x51b5b2  SetupBlockade                                score=29 distinct=4
+
+=== ailife.cpp (20 fns, 1 anchors) ===
+  0x4cfef9  AILife_RCPickSliceAndDirection               score=35 distinct=4
+
+=== aiperson.cpp (8 fns, 1 anchors) ===
+  0x4d1983  AIPerson_LoadGlue                            score=27 distinct=3
+
+=== aiphysic.cpp (39 fns, 7 anchors) ===
+  0x4d1db3  AIPhysic_HandleShifting                      score=20 distinct=2
+  0x4d20ef  AIPhysic_CalcAcceleration                    score=27 distinct=3
+  0x4d251d  AIPhysic_Main                                score=75 distinct=9
+  0x4d29bc  AIPhysic_SimplePhysics                       score=27 distinct=3
+  0x4d3a2e  AIPhysic_GetDesiredVector                    score=61 distinct=6
+  0x4d42e5  AIPhysic_OutOfControlPhysics                 score=39 distinct=3
+  0x4d4bb6  AIPhysic_InControlPhysics                    score=65 distinct=7
+
+=== aispeeds.cpp (30 fns, 7 anchors) ===
+  0x4d3a2e  AISpeeds_SetTrafficSpeedRandomFactor         score=26 distinct=3
+  0x4d68e0  AISpeeds_CalcOpponentTopSpeed                score=30 distinct=4
+  0x4d6fb4  AISpeeds_BTCGetGlueFactor                    score=23 distinct=2
+  0x4d7201  AISpeeds_GetCaravanFactor                    score=81 distinct=8
+  0x4d75bb  AISpeeds_GetGlueFactor                       score=25 distinct=1
+  0x4d7989  AISpeeds_LimitGlueMultiplier                 score=21 distinct=2
+  0x4d7e96  AISpeeds_CalculateOncomingCarSpeed           score=77 distinct=8
+
+=== aistate.cpp (54 fns, 4 anchors) ===
+  0x51f820  CalculateCloseTargettingAheadSlowDownFactor  score=46 distinct=4
+  0x51f8b4  CloseTargeting                               score=61 distinct=4
+  0x5213bd  Execute                                      score=20 distinct=3
+  0x521749  Execute                                      score=42 distinct=2
+
+=== audioclc.cpp (18 fns, 1 anchors) ===
+  0x507fb4  AudioClc_SoundPlayersCar                     score=24 distinct=2
+
+=== audiocmn.cpp (49 fns, 2 anchors) ===
+  0x507fb4  AudioCmn_SFX                                 score=25 distinct=1
+  0x507fb4  AudioCmn_SoundCar                            score=24 distinct=2
+
+=== audioeng.cpp (9 fns, 1 anchors) ===
+  0x507fb4  AudioEng_Set                                 score=22 distinct=2
+
+=== audiotrk.cpp (6 fns, 1 anchors) ===
+  0x4ddca0  AudioTrk_AddCustomObject                     score=23 distinct=2
+
+=== bworld.cpp (21 fns, 1 anchors) ===
+  0x4defab  BWorld_OpenContext                           score=32 distinct=4
+
+=== camera.cpp (38 fns, 6 anchors) ===
+  0x4e2db1  Camera_UpdateHeliCam                         score=57 distinct=6
+  0x4e2db1  Camera_UpdateTailCam                         score=35 distinct=4
+  0x4e3be2  Camera_UpdateCircleCam                       score=37 distinct=2
+  0x4e3e38  SetCameraZoom                                score=21 distinct=3
+  0x4e6e60  Camera_AcquireTarget                         score=26 distinct=3
+  0x4e71d2  Camera_OpponentLookBehind                    score=33 distinct=4
+
+=== cars.cpp (33 fns, 5 anchors) ===
+  0x4e9473  Cars_ResetCollidedCars                       score=20 distinct=2
+  0x4e9add  Cars_DoExtraCarCollisionProcessing           score=71 distinct=6
+  0x4ec2ea  Cars_StartUp                                 score=22 distinct=1
+  0x507fb4  Car_TireSkiddingStuff                        score=23 distinct=2
+  0x507fb4  Cars_InitializeCarTablesFlagsAndCounters     score=25 distinct=3
+
+=== collide.cpp (14 fns, 5 anchors) ===
+  0x4eed92  Collide_DoObjectFixedObjectCollision         score=37 distinct=4
+  0x4efde5  Collide_TestWithPlane                        score=50 distinct=5
+  0x4f0a4a  Collide_DoObjectObjectCollision              score=39 distinct=4
+  0x4f2b83  Collide_TestObjectVertices                   score=39 distinct=4
+  0x4f44b1  Collide_CheckMeForCollisions                 score=69 distinct=5
+
+=== copspeak.cpp (27 fns, 2 anchors) ===
+  0x4f5ec4  CopSpeak_ReadyNextRequest                    score=22 distinct=2
+  0x4f6af3  CopSpeak_LoadNextRequest                     score=22 distinct=2
+
+=== fastrand.cpp (2 fns, 1 anchors) ===
+  0x4f7425  FastRandom_StartUp                           score=23 distinct=3
+
+=== newton.cpp (33 fns, 5 anchors) ===
+  0x4f8610  Newton_AddDamageZone                         score=63 distinct=4
+  0x4fa169  Newton_FindGroundElevationAndNormal          score=105 distinct=12
+  0x4ff8e2  Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj score=80 distinct=8
+  0x5037ea  Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi score=37 distinct=7
+  0x53b19f  Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef score=21 distinct=4
+
+=== physics.cpp (22 fns, 7 anchors) ===
+  0x5037ea  Physics_CalculateDerivedCarSpecs             score=86 distinct=10
+  0x5044ed  Physics_CorrectPostCollisionYaw              score=24 distinct=1
+  0x504ddf  Physics_AutoShift                            score=20 distinct=2
+  0x5051ac  Physics_RampCarControlValues                 score=28 distinct=3
+  0x506248  Physics_CalculateCarAcceleration             score=58 distinct=6
+  0x507671  Physics_CalculateTireForces                  score=35 distinct=1
+  0x507fb4  Physics_Real                                 score=148 distinct=17
+
+=== r3dcar.cpp (27 fns, 1 anchors) ===
+  0x52ac36  R3DCar_InsertCarFacet                        score=33 distinct=1
+
+=== stats.cpp (7 fns, 1 anchors) ===
+  0x50d110  Stats_DoPlayerGlue                           score=43 distinct=4

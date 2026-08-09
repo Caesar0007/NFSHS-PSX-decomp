@@ -19,40 +19,29 @@ static int  gFEData_8001165c = 0x42534757;   /* "WGSB" (LE) trophy-file magic */
 void tTournamentManager::Initialize()
 
 {
-  int iVar1;
   short i;
-  int iVar2;
-  
-  iVar2 = 0;
+
   this->fMoney = 20000;
   this->fCurrentTrack = 0;
   this->fNumTiers = '\0';
   this->fDefinition = (tTournamentDefinition *)0x0;
   this->fTournamentList[0] = 0;
   this->fTrackList[0] = 0;
-  iVar1 = 0;
-  do {
-    this->fRanking[iVar1 >> 0x10] = '\0';
-    iVar2 = iVar2 + 1;
-    iVar1 = iVar2 * 0x10000;
-  } while (iVar2 * 0x10000 >> 0x10 < 6);
-  iVar2 = 0;
-  iVar1 = 0;
-  do {
-    this->fBestPlacement[iVar1 >> 0x10] = '\a';
-    iVar2 = iVar2 + 1;
-    iVar1 = iVar2 * 0x10000;
-  } while (iVar2 * 0x10000 >> 0x10 < 0x40);
-  iVar1 = 0;
-  do {
-    iVar2 = iVar1 << 0x10;
-    iVar1 = iVar1 + 1;
-    iVar2 = iVar2 >> 0xf;
-    *(u_short *)((int)this->fTierFinishPrize + iVar2) = 6;
-    *(u_short *)((int)this->fTierFinishPrizeChange + iVar2) = 0;
-  } while (iVar1 * 0x10000 >> 0x10 < 3);
-  frontEnd.garageCar[0] = (signed char)carManager.fNumCars + -1;
-  frontEnd.garageCar[1] = frontEnd.garageCar[0];
+  for (i = 0; i < 6; i++) {
+    this->fRanking[i] = '\0';
+  }
+  for (i = 0; i < 0x40; i++) {
+    this->fBestPlacement[i] = '\a';
+  }
+  for (i = 0; i < 3; i++) {
+    this->fTierFinishPrize[i] = 6;
+    this->fTierFinishPrizeChange[i] = 0;
+  }
+  { /* MATCH: a `long` temp forces the WORD load of fNumCars -- assigning the expression
+       straight into the char slot lets gcc narrow the load to `lbu` (retail has `lw`). */
+    long numCars = carManager.fNumCars;
+    frontEnd.garageCar[0] = numCars - 1;
+    frontEnd.garageCar[1] = frontEnd.garageCar[0]; }
   return;
 }
 
@@ -316,22 +305,28 @@ ret0:
 int tournPointsCompare(char *p1,char *p2)
 
 {
-  byte bVar1;
-  byte bVar2;
+  u_char bVar1;
+  u_char bVar2;
+  tTournamentManager *tm;
+  tCompetitor *comps;
+  tCompetitor *c1;
+  tCompetitor *c2;
+  Car_tStats *cars;
   int result;
-  int iVar3;
-  Car_tStats *dummyCars;
-  
+
+  tm = &tournamentManager;
+  comps = tm->fCompetitors;
+  cars = Cars_gNewCarStatsList;
   bVar1 = *p2;
   bVar2 = *p1;
-  iVar3 = (uint)tournamentManager.fCompetitors[bVar1].fPoints -
-          (uint)tournamentManager.fCompetitors[bVar2].fPoints;
-  if ((iVar3 == 0) &&
-     (iVar3 = (int)tournamentManager.fCompetitors[bVar1].fIsPlayerCar -
-              (int)tournamentManager.fCompetitors[bVar2].fIsPlayerCar, iVar3 == 0)) {
-    iVar3 = Cars_gNewCarStatsList[bVar2].finalPosition - Cars_gNewCarStatsList[bVar1].finalPosition;
+  c1 = comps + bVar1;
+  c2 = comps + bVar2;
+  result = (u_int)c1->fPoints - (u_int)c2->fPoints;
+  if ((result == 0) &&
+     (result = (int)c1->fIsPlayerCar - (int)c2->fIsPlayerCar, result == 0)) {
+    result = cars[bVar2].finalPosition - cars[bVar1].finalPosition;
   }
-  return iVar3;
+  return result;
 }
 
 
@@ -341,34 +336,27 @@ int tournPointsCompare(char *p1,char *p2)
 void tTournamentManager::UpdateTournFinishMoney()
 
 {
-  long lVar1;
-  byte i;
-  byte bVar2;
-  uint uVar3;
+  long prize;
+  u_char i;
   tTourneyInfo *tourn;
-  tTourneyInfo *ptVar4;
-  
-  ptVar4 = this->fDefinition->fTournaments +
-           (uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament;
-  this->fPrevBestPlacement = this->fBestPlacement[ptVar4->fTournamentID];
-  if (ptVar4->fKnockout == '\0') {
-    bVar2 = 0;
-    uVar3 = 0;
-    do {
-      if (this->fRanking[uVar3] == '\0') {
-        lVar1 = this->GetTournamentFinishPrize((ushort)bVar2);
-        (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + lVar1;
-        if ((int)uVar3 < (int)this->fBestPlacement[ptVar4->fTournamentID]) {
-          this->fBestPlacement[ptVar4->fTournamentID] = bVar2 + 1;
-        }
-      }
-      bVar2 = bVar2 + 1;
-      uVar3 = (uint)bVar2;
-    } while (bVar2 < 6);
+
+  tourn = &this->fDefinition->fTournaments
+      [(u_int)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
+  this->fPrevBestPlacement = this->fBestPlacement[(signed char)tourn->fTournamentID];
+  if (tourn->fKnockout != '\0') {
+    prize = this->GetTournamentFinishPrize(this->fCompetitors[0].fPosition - 1);
+    (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + prize;
   }
   else {
-    lVar1 = this->GetTournamentFinishPrize(this->fCompetitors[0].fPosition - 1);
-    (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + lVar1;
+    for (i = 0; i < 6; i++) {
+      if (this->fRanking[i] == '\0') {
+        prize = this->GetTournamentFinishPrize((u_short)i);
+        (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + prize;
+        if ((int)i < (int)(signed char)this->fBestPlacement[(signed char)tourn->fTournamentID]) {
+          this->fBestPlacement[(signed char)tourn->fTournamentID] = i + 1;
+        }
+      }
+    }
   }
   return;
 }
@@ -399,41 +387,36 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
 {
   long *bill = &bill_r; long *bonus = &bonus_r;   /* R-ref params; alias keeps body codegen-identical */
   int i;
-  uint uVar1;
-  int iVar2;
+  short mask;
   long totalcarprice;
   int damage;
-  Car_tStats *dummyCars;
+  Car_tStats *cars;
   tCarInfo carInfo;
-  
+
   if (recalculate != 0) {
+    cars = Cars_gNewCarStatsList;
     GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
-    uVar1 = 0;
-    iVar2 = 4;
-    do {
-      if ((ushort)((ushort)carInfo.fUpgrades & (ushort)(1 << (uVar1))) != 0) {
-        carInfo.fPrices[0] = carInfo.fPrices[0] + *(int *)((int)carInfo.fPrices + iVar2);
+    totalcarprice = carInfo.fPrices[0];
+    for (i = 0; i < 2; i++) {
+      mask = 1 << i;
+      if ((carInfo.fUpgrades & mask) != 0) {
+        totalcarprice = totalcarprice + carInfo.fPrices[i + 1];
       }
-      uVar1 = uVar1 + 1;
-      iVar2 = iVar2 + 4;
-    } while ((int)uVar1 < 2);
-    iVar2 = Cars_gNewCarStatsList[0].finalDamage;
-    if (Cars_gNewCarStatsList[0].finalDamage < 0) {
-      iVar2 = Cars_gNewCarStatsList[0].finalDamage + 0xffff;
     }
-    if ((iVar2 >> 0x10 == 0) && (Cars_gNewCarStatsList[0].finalPosition < 4)) {
+    damage = cars->finalDamage / 0x10000;
+    if ((damage == 0) && (cars->finalPosition < 4)) {
       gTrackFinishBill = 0;
-      gTrackFinishBonus = carInfo.fPrices[0] / 0x14;
-      if (Cars_gNewCarStatsList[0].finalPosition == 2) {
-        gTrackFinishBonus = (carInfo.fPrices[0] * 3) / 100;
+      gTrackFinishBonus = totalcarprice / 0x14;
+      if (cars->finalPosition == 2) {
+        gTrackFinishBonus = (totalcarprice * 3) / 100;
       }
-      else if (Cars_gNewCarStatsList[0].finalPosition == 3) {
-        gTrackFinishBonus = carInfo.fPrices[0] / 100;
+      else if (cars->finalPosition == 3) {
+        gTrackFinishBonus = totalcarprice / 100;
       }
     }
     else {
       gTrackFinishBonus = 0;
-      gTrackFinishBill = (carInfo.fPrices[0] * (iVar2 >> 0x10) * 3) / 10000;
+      gTrackFinishBill = (totalcarprice * damage * 3) / 10000;
     }
   }
   *bill = gTrackFinishBill;
@@ -443,7 +426,24 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
 
 
 
-/* ---- tTournamentManager::UpdateTrackFinishPoints  [FETOURN.CPP:481-553] ---- */
+/* ---- tTournamentManager::UpdateTrackFinishPoints  [FETOURN.CPP:481-553] ----
+   W54-A3 (2026-08-09) 103 -> 76 diffs (ours 138 / oracle 134).  Landed corrections:
+   (1) the hand-written `if (0 < numCompetitors)` zero-trip guards DUPLICATED the for-loop's
+       own guard (two `blez` in a row) -- delete them, the top-tested `for` guards itself;
+   (2) INDEX FORM `this->fCompetitors[i]` (not a `comp` pointer walk): retail's giv is anchored
+       on `this` with displacement 288/292/294 (fCompetitors at +280), ours anchored at
+       `this+294` with NEGATIVE displacements;
+   (3) `fNumRacers` is accessed as a WORD by retail (`lw`/`sw`), but nfs4_types.h declares it
+       `short` -> `*(long *)&this->fNumRacers` (the header is out of this TU's scope to change);
+   (4) branch-polarity: retail's arms are {eliminated=1 = FALL-THROUGH, points++ = branch
+       target} -> spell it `if (finalPosition >= fNumRacers) eliminated = 1; else points++;`.
+   RESIDUAL 76 (+4 insns): (a) the tournament-address `addu` operand order -- retail
+   `addu v0,v0,a1` (offset first, definition second), ours `addu a0,a0,v0`; (b) the
+   `for (i=5; -1<i; i--) fRanking[i]=i` loop -- retail strength-reduces the address into a
+   giv decremented by 1, ours rematerializes `this+i`; (c) the final ranking loop wants the
+   increment-into-a-fresh-pseudo + copy-back shape (`addiu v1,a0,1; addu a0,v1,zero`).
+   NEXT ANGLE: flat byte-offset spelling for the knockout read, pointer-walk for the fRanking
+   fill, and a `for`-shaped final loop. */
 
 /* REWRITE (w36-a10): SYM 8c gives fsize=24, mask=$80010000 (ra + s0 only --
  * `this` REGPARM lives permanently in s0, EVERY other local is a
@@ -470,43 +470,34 @@ void tTournamentManager::UpdateTrackFinishPoints()
 
   numCompetitors = this->GetNumCompetitors();
   k = 0;
-  i = this->fTier;
   dummyCars = Cars_gNewCarStatsList;
   if (this->fDefinition->fTournaments
-      [(uint)this->fDefinition->fTiers[i].fTournOffset + this->fTournament].fKnockout != '\0') {
+      [(uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament].fKnockout
+      != '\0') {
     k = 0;
-    if (0 < numCompetitors) {
-      comp = this->fCompetitors;
-      for (i = 0; i < numCompetitors; i = i + 1) {
-        if (comp->fEliminated == 0) {
-          if ((dummyCars[k].finalPosition - 1U < 6) &&
-             (dummyCars[k].finalFinishType == 2)) {
-            if (dummyCars[k].finalPosition < this->fNumRacers) {
-              comp->fPoints = comp->fPoints + 1;
-            }
-            else {
-              comp->fEliminated = 1;
-            }
-            comp->fPosition = (uchar)dummyCars[k].finalPosition;
+    for (i = 0; i < numCompetitors; i = i + 1) {
+      if (this->fCompetitors[i].fEliminated == 0) {
+        if ((dummyCars[k].finalPosition - 1U < 6) &&
+           (dummyCars[k].finalFinishType == 2)) {
+          if (dummyCars[k].finalPosition >= *(long *)&this->fNumRacers) {
+            this->fCompetitors[i].fEliminated = 1;
           }
-          k = k + 1;
+          else {
+            this->fCompetitors[i].fPoints = this->fCompetitors[i].fPoints + 1;
+          }
+          this->fCompetitors[i].fPosition = (uchar)dummyCars[k].finalPosition;
         }
-        comp = comp + 1;
+        k = k + 1;
       }
     }
-    this->fNumRacers = this->fNumRacers + -1;
+    *(long *)&this->fNumRacers = *(long *)&this->fNumRacers + -1;
   }
   else {
-    if (0 < numCompetitors) {
-      comp = this->fCompetitors;
-      for (i = 0; i < numCompetitors; i = i + 1) {
-        if ((dummyCars->finalPosition - 1U < 6) && (dummyCars->finalFinishType == 2)) {
-          comp->fPoints =
-               comp->fPoints +
-               (ushort)this->fFinishPoints[dummyCars->finalPosition + -1];
-        }
-        dummyCars = dummyCars + 1;
-        comp = comp + 1;
+    for (i = 0; i < numCompetitors; i = i + 1) {
+      if ((dummyCars[i].finalPosition - 1U < 6) && (dummyCars[i].finalFinishType == 2)) {
+        this->fCompetitors[i].fPoints =
+             this->fCompetitors[i].fPoints +
+             (ushort)this->fFinishPoints[dummyCars[i].finalPosition + -1];
       }
     }
     for (i = 5; -1 < i; i = i - 1) {
@@ -866,25 +857,16 @@ short tTournamentManager::TournPointTotal(short *p)
 short tTournamentManager::PlayerRanking(short pos)
 
 {
-  int _i;
   short i;
-  short sVar1;
-  int iVar2;
-  
-  sVar1 = this->GetNumCompetitors();
-  _i = 0;
-  if (0 < sVar1) {
-    iVar2 = 0;
-    do {
-      iVar2 = iVar2 >> 0x10;
-      _i = _i + 1;
-      if ((ushort)this->fCompetitors[iVar2].fPosition == pos) goto PlayerRank_returnRank;
-      iVar2 = _i * 0x10000;
-    } while (_i * 0x10000 >> 0x10 < (int)sVar1);
+  short numCompetitors;
+
+  numCompetitors = this->GetNumCompetitors();
+  for (i = 0; i < numCompetitors; i++) {
+    if ((u_short)this->fCompetitors[i].fPosition == pos) {
+      return i;
+    }
   }
-  iVar2 = 0;
-PlayerRank_returnRank:
-  return (short)iVar2;
+  return 0;
 }
 
 
@@ -945,59 +927,52 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
 void * tTournamentManager::ValidCar(tCarInfo &carInfo_r)
 
 {
-  tCarInfo *carInfo = &carInfo_r;   /* R-ref param; alias keeps body codegen-identical */
-  uchar uVar1;
-  byte bVar2;
-  void *pvVar3;
-  int iVar4;
-  tTournamentDefinition *ptVar5;
-  byte result;
-  void *pvVar6;
+  u_char oppClass;
+  tTournamentDefinition *definition;
   tTourneyInfo *tourney;
-  
-  ptVar5 = this->fDefinition;
-  iVar4 = (uint)ptVar5->fTiers[this->fTier].fTournOffset + this->fTournament;
-  uVar1 = ptVar5->fTournaments[iVar4].fOpponentCarClass;
-  pvVar6 = (void *)0x1;
-  if (uVar1 != '\n') {
-    pvVar6 = (void *)(uint)(carInfo->fCarClass == uVar1);
-    pvVar3 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
-    if ((pvVar3 != (void *)0x0) && (this->fTier == 0)) {
-      pvVar6 = (void *)0x1;
+  void *result;
+
+  definition = this->fDefinition;
+  tourney = &definition->fTournaments
+      [(u_int)definition->fTiers[this->fTier].fTournOffset + this->fTournament];
+  oppClass = tourney->fOpponentCarClass;
+  result = (void *)0x1;
+  if (oppClass != '\n') {
+    result = (void *)(u_int)(carInfo_r.fCarClass == oppClass);
+    if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) && (this->fTier == 0)) {
+      result = (void *)0x1;
     }
   }
-  if ((ptVar5->fTournaments[iVar4].fRequiredFlags & 4) == 0) {
-    return pvVar6;
-  }
-  if ((int)carInfo->fCarID == (uint)ptVar5->fTournaments[iVar4].fRequiredCar) {
-    bVar2 = ptVar5->fTournaments[iVar4].fRequiredUpgrades;
-    if (bVar2 == 1) {
-      return pvVar6;
-    }
-    if (bVar2 < 2) {
-      if (bVar2 != 0) {
-        return pvVar6;
+  if ((tourney->fRequiredFlags & 4) != 0) {
+    if ((int)(signed char)carInfo_r.fCarID == (int)tourney->fRequiredCar) {
+      switch (tourney->fRequiredUpgrades) {
+      case 0:
+        if (carInfo_r.fUpgrades != '\0') {
+          result = (void *)0x0;
+        }
+        break;
+      case 1:
+        break;
+      case 2:
+        if (carInfo_r.fUpgrades == '\0') {
+          result = (void *)0x0;
+        }
+        break;
+      case 3:
+        if ((carInfo_r.fUpgrades & tourney->fSpecificUpgrades) !=
+            tourney->fSpecificUpgrades) {
+          result = (void *)0x0;
+        }
+        break;
+      default:
+        break;
       }
-      if (carInfo->fUpgrades == '\0') {
-        return pvVar6;
-      }
-      return (void *)0x0;
     }
-    if (bVar2 == 2) {
-      if (carInfo->fUpgrades != '\0') {
-        return pvVar6;
-      }
-      return (void *)0x0;
-    }
-    if (bVar2 != 3) {
-      return pvVar6;
-    }
-    bVar2 = ptVar5->fTournaments[iVar4].fSpecificUpgrades;
-    if ((carInfo->fUpgrades & bVar2) == bVar2) {
-      return pvVar6;
+    else {
+      result = (void *)0x0;
     }
   }
-  return (void *)0x0;
+  return result;
 }
 
 
@@ -1112,34 +1087,27 @@ void tListIteratorTournament::Decrement(tPlayer arg1)
 void * tListIteratorTournament::ValidTournament(char tourn)
 
 {
-  ushort uVar1;
-  tTierInfo *currentTier;
-  byte result;
-  int iVar2;
-  void *pvVar3;
-  tTournamentDefinition *ptVar4;
+  u_short flags;
   tTourneyInfo *currentTourn;
-  short trackOffset;
-  tTournamentManager *ptVar5;
-  short numTracks;
-  char *data;
-  char filename [80];
-  char *input;
-  
-  ptVar5 = this->fTournamentManager;
-  ptVar4 = ptVar5->fDefinition;
-  iVar2 = (uint)ptVar4->fTiers[(byte)frontEnd.tier].fTournOffset + (uint)(byte)tourn;
-  uVar1 = ptVar4->fTournaments[iVar2].fRequiredFlags;
-  pvVar3 = (void *)0x1;
-  if ((uVar1 & 1) != 0) {
-    pvVar3 = (void *)(uint)(ptVar5->fBestPlacement
-                            [ptVar4->fTournaments[iVar2].fRequiredTournamentID] < '\x04');
+  tTournamentDefinition *definition;
+  tTournamentManager *tournamentManager;
+  void *result;
+
+  tournamentManager = this->fTournamentManager;
+  definition = tournamentManager->fDefinition;
+  currentTourn = &definition->fTournaments
+      [(u_int)definition->fTiers[(u_char)frontEnd.tier].fTournOffset + (u_int)(u_char)tourn];
+  flags = currentTourn->fRequiredFlags;
+  result = (void *)0x1;
+  if ((flags & 1) != 0) {
+    result = (void *)(u_int)
+        ((signed char)tournamentManager->fBestPlacement[currentTourn->fRequiredTournamentID] < '\x04');
   }
-  if (((uVar1 & 2) != 0) &&
-     ('\x01' < ptVar5->fBestPlacement[ptVar4->fTournaments[iVar2].fRequiredTournamentID])) {
-    pvVar3 = (void *)0x0;
+  if (((flags & 2) != 0) &&
+     ('\x01' < (signed char)tournamentManager->fBestPlacement[currentTourn->fRequiredTournamentID])) {
+    result = (void *)0x0;
   }
-  return pvVar3;
+  return result;
 }
 
 

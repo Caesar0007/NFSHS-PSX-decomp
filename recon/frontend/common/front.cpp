@@ -713,63 +713,62 @@ FrontMenu_runFrontEndCleanup:
 extern "C" int * OutputDisplaySettings__FPiiiR17tTrackInformation(int *d,int c,int player,tTrackInformation *trackInfo)
 
 {
-  byte bVar1;
-  int iVar2;
-  int valtopass;
-  
-  bVar1 = frontEnd.displaySpeed[player];
-  iVar2 = 0;
-  if (bVar1 != 1) {
-    if (bVar1 < 2) {
-      iVar2 = 2;
-      if (bVar1 == 0) {
-        iVar2 = (int)CountryMeasurement[trackInfo->fSpeedoCountry];
-      }
-    }
-    else {
-      iVar2 = 2;
-      if (bVar1 == 2) {
-        iVar2 = 1;
-      }
-    }
+  /* W64 (2026-08-10): 159 diffs -> PASS (134/134).  SYM's lone local is the
+     initialized switch result; the output is the original post-incrementing
+     word stream.  CountryMeasurement is a short table despite its extern
+     declaration, and cameraType is indexed by the player row. */
+  int valtopass = 0;
+
+  switch (frontEnd.displaySpeed[player]) {
+  case 0:
+    valtopass = ((short *)CountryMeasurement)[trackInfo->fSpeedoCountry];
+    break;
+  case 1:
+    break;
+  case 2:
+    valtopass = 1;
+    break;
+  default:
+    valtopass = 2;
+    break;
   }
-  *d = 0x11a;
-  d[1] = c;
-  d[2] = iVar2;
-  d[3] = 0x11b;
-  d[4] = c;
-  d[5] = (uint)(frontEnd.displaySpeed[player] != '\x03');
-  d[6] = 0x11c;
-  d[7] = c;
-  d[8] = (uint)(byte)frontEnd.displayMap[player];
-  d[9] = 0x11d;
-  d[10] = c;
-  d[0xb] = (uint)(byte)frontEnd.displayOpponentID[player];
-  d[0xc] = 0x11e;
-  d[0xd] = c;
-  d[0xe] = (uint)(byte)frontEnd.displayTime[player];
-  d[0xf] = 0x11f;
-  d[0x10] = c;
-  d[0x11] = (uint)(byte)frontEnd.displayLapNumber[player];
-  d[0x12] = 0x120;
-  d[0x13] = c;
-  d[0x14] = (uint)(byte)frontEnd.displayPosition[player];
-  d[0x15] = 0x121;
-  d[0x16] = c;
-  d[0x17] = (uint)(byte)frontEnd.displayMirror[player];
-  d[0x18] = 0x126;
-  d[0x19] = c;
-  d[0x1a] = (uint)(byte)frontEnd.cameraType[player * 2][0];
-  d[0x1b] = 0x127;
-  d[0x1c] = c;
-  d[0x1d] = (uint)(byte)frontEnd.cameraType[player * 2][1];
-  d[0x1e] = 0x128;
-  d[0x1f] = c;
-  d[0x20] = (uint)(byte)frontEnd.cameraType[player * 2 + 1][0];
-  d[0x21] = 0x129;
-  d[0x22] = c;
-  d[0x23] = (uint)(byte)frontEnd.cameraType[player * 2 + 1][1];
-  return d + 0x24;
+  *d++ = 0x11a;
+  *d++ = c;
+  *d++ = valtopass;
+  *d++ = 0x11b;
+  *d++ = c;
+  *d++ = (uint)(frontEnd.displaySpeed[player] != '\x03');
+  *d++ = 0x11c;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.displayMap[player];
+  *d++ = 0x11d;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.displayOpponentID[player];
+  *d++ = 0x11e;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.displayTime[player];
+  *d++ = 0x11f;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.displayLapNumber[player];
+  *d++ = 0x120;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.displayPosition[player];
+  *d++ = 0x121;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.displayMirror[player];
+  *d++ = 0x126;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.cameraType[player][0];
+  *d++ = 0x127;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.cameraType[player][1];
+  *d++ = 0x128;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.cameraType[player][2];
+  *d++ = 0x129;
+  *d++ = c;
+  *d++ = (uint)(byte)frontEnd.cameraType[player][3];
+  return d;
 }
 
 

@@ -280,10 +280,16 @@ void Sim_CheckForPause(int checkInput)
  * with the `speed == one` compare. `int one;` assigned `one = 1;` at the START
  * of the else{} block (its materialization position = oracle's `li s0,1`) is the
  * dial (function-scope `int one = 1;` hoists to prologue -> +2 regress).
- * RESIDUAL 31 = the oracle splits the two Sim_ProcessSimSchedules() calls across
- * the else{} block (block-layout: jal#1; j; [else]; jal#2) which our cross-jump
- * keeps together, cascading a lastRealTick/lastGoalTick s5/s6 -> s6/s7 rotation.
- * Block-order/permuter floor; polarity already matches (bne speed!=3). */
+ * RESIDUAL 11 (was 31; W57-A12 fixed the s-band rotation with the replaySetup fence below).
+ * What is left is TWO independent 4-5 insn classes:
+ *  (1) the oracle splits the two Sim_ProcessSimSchedules() calls across the else{} block
+ *      (jal#1; j .Lshared; [else: InBetween=one; Camera_Update; j out]; .Lshared: jal#2) --
+ *      our cross_jump merges them and saves the `j`+`nop` (ours 320 vs oracle 321).
+ *      De-Morgan + arm-swap measured WORSE (33). Block-layout/permuter.
+ *  (2) the `gameSetup = &GameSetup_gData` la is emitted BEFORE the `i != 0` guard in ours
+ *      (leaving the bnez slot a nop) but AFTER it in retail (the `lui %hi` IS the slot filler).
+ *      Moving the assignment below the guard in source does fix the placement but flips
+ *      s2<->s3 for the whole gameSetup web (33); a void-tail fence before it is inert. */
 void Sim_MainGameLoop(void)
 
 {
@@ -318,6 +324,16 @@ void Sim_MainGameLoop(void)
       simGlobal.time32Hz = Input_gTime;
     }
     replaySetup = &GameSetup_gData;
+    /* MATCH (W57-A12, 31->11): a 1-operand READ-ONLY fence on replaySetup, placed at its
+       narrowest scope (immediately after the assignment, 06B). replaySetup is NOT in the SYM
+       8c list -- only lastRealTick (REG $0x16=$s6) and lastGoalTick (REG $0x17=$s7) are -- yet
+       the oracle DOES park &GameSetup_gData in a callee-saved reg ($s5), i.e. it is a gcc CSE
+       temp, not a source local. Without the fence our band came out one slot LOW
+       (lastRealTick=$s5, lastGoalTick=$s6, replaySetup=$s7); the +1 ref DEMOTES the two SYM
+       locals past the address temp so the whole 3-way rotation lands on the SYM map. Measured
+       alternatives, all worse: dropping the local entirely (45, ours 4 insns short), fencing
+       lastRealTick/lastGoalTick instead at decl (67) or before-consumer (44). */
+    __asm__ ("" : : "r"(replaySetup));
     while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
       if ((Replay_ReplayMode == 2) && (simVar.pauseSim == 0)) {
         Replay_GetInterfaceKey();

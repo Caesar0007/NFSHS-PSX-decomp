@@ -465,12 +465,29 @@ void Render_InitBlurMode(void)
 void Render_InsertDepthOfField(void)
 
 {
-  POLY_F4 *prim;
-  DR_STP *stp_prim;
-  DR_MODE *dr_mode;
-  u_int *pal_link;
-  short tpage;
-
+  /* MATCH/SYM(8c @800b3a6c, W57-A12 05A+rule-8 pass): the SYM lists EXACTLY three locals --
+     prim (REG $6 = $a2), stp_prim (REG $4 = $a0), dr_mode (REG $0x10 = $s0) -- each in its OWN
+     block scope (three 90/92 Block start/end pairs, all at $800b3ac8). Applied here: (a) the
+     Ghidra `tpage` local is NOT in the SYM -> GetTPage feeds SetDrawMode inline; (b) the OT-slot
+     pointer is a PER-BLOCK temp (fresh pseudo per block) -> reproduces the oracle's a0/a2/t0
+     rotation instead of one function-scope $t0; (c) SLD 819 groups all EIGHT halfword stores as
+     ONE statement (setXY4 order x0,y0,x1,y1,x2,y2,x3,y3), SLD 820 the setRGB0 triple after it
+     (Ghidra had emitted r0/g0/b0 in the middle of the XY chain).
+     RESULT: blocks 2 and 3 now carry the oracle's exact register map (stp_prim=$a0/ot=$a2;
+     dr_mode=$s0/ot=$t0). RESIDUAL = block 1 only, a pure $a0<->$a2 swap (prim=$a0 ours vs $a2
+     retail) with the instruction COUNT exact (120/120).
+     NAMED ANGLE (blocked-window receipt, for the sched1/local-alloc instrument lane): the whole
+     if-body is ONE basic block, so prim/ot/stp_prim/dr_mode are all local_alloc QTYs. stp_prim and
+     dr_mode are GROUP-1 (copy-suggested $a0 from SetDrawStp/SetDrawMode arg 1); dr_mode crosses the
+     GetTPage call so it is pushed to a callee-saved $s0. In GROUP 2 prim has the top QTY_CMP_PRI and
+     takes the first free reg by numeric scan: $v0/$v1 live, $a1 pinned by the hoisted `li a1,1`
+     (SetDrawStp arg 2), so the ONLY thing that can push prim off $a0 is stp_prim's $a0 window
+     OVERLAPPING prim's. In retail sched1 hoisted stp_prim's `lw $a0,0($s3)` up INTO prim's setXY4
+     chain (oracle idx 61, before prim's last use at 65) -> windows overlap -> prim = $a2. Our sched1
+     hoists the OT-slot `lw $v0,0($gp)` there instead and emits stp_prim's load at idx 67, 2 insns
+     after prim dies -> no overlap -> prim = $a0. All 8 statement-order permutations of the three
+     blocks were measured: byte-identical output (92) -- sched1's ready-list tie-break is
+     source-invariant here. => the 06E/07E LOCAL-ALLOC/SCHED1 instrument gap, not a source shape. */
   if ((Render_gBlurEffectMode & 1U) != 0) {
     if ((Render_gBlurEffectMode & 8U) != 0) {
       StampImage(1,Render_gBlurEffectDepth1);
@@ -478,39 +495,53 @@ void Render_InsertDepthOfField(void)
     if ((Render_gBlurEffectMode & 0x10U) != 0) {
       StampImage(2,Render_gBlurEffectDepth2);
     }
-    prim = (POLY_F4 *)Render_gPacketPtr;
-    pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-    *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal_link & 0xffffff;
-    Render_gPacketPtr = (u_char *)prim + 0x18;
-    *pal_link = *pal_link & 0xff000000 | (u_int)prim & 0xffffff;
-    ((u_char *)prim)[3] = 5;
-    prim->code = 0x2a;
-    prim->x0 = 0;
-    prim->y0 = 0;
-    prim->x1 = 0x140;
-    prim->y1 = 0;
-    prim->x2 = 0;
-    prim->r0 = 0;
-    prim->g0 = 0;
-    prim->b0 = 0;
-    prim->y2 = 0xf0;
-    prim->x3 = 0x140;
-    prim->y3 = 0xf0;
+    {
+      u_int *pal_link;
+      POLY_F4 *prim;
 
-    stp_prim = (DR_STP *)Render_gPacketPtr;
-    pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-    *(u_int *)stp_prim = *(u_int *)stp_prim & 0xff000000 | *pal_link & 0xffffff;
-    Render_gPacketPtr = (u_char *)stp_prim + 0xc;
-    *pal_link = *pal_link & 0xff000000 | (u_int)stp_prim & 0xffffff;
-    SetDrawStp(stp_prim,1);
+      prim = (POLY_F4 *)Render_gPacketPtr;
+      pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
+      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal_link & 0xffffff;
+      Render_gPacketPtr = (u_char *)prim + 0x18;
+      *pal_link = *pal_link & 0xff000000 | (u_int)prim & 0xffffff;
+      ((u_char *)prim)[3] = 5;
+      prim->code = 0x2a;
+      /* setXY4(prim,0,0,0x140,0,0,0xf0,0x140,0xf0) -- ONE retail statement (SLD 819) */
+      prim->x0 = 0;
+      prim->y0 = 0;
+      prim->x1 = 0x140;
+      prim->y1 = 0;
+      prim->x2 = 0;
+      prim->y2 = 0xf0;
+      prim->x3 = 0x140;
+      prim->y3 = 0xf0;
+      /* setRGB0(prim,0,0,0) -- SLD 820 */
+      prim->r0 = 0;
+      prim->g0 = 0;
+      prim->b0 = 0;
+    }
+    {
+      DR_STP *stp_prim;
+      u_int *pal_link;
 
-    dr_mode = (DR_MODE *)Render_gPacketPtr;
-    pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-    *(u_int *)dr_mode = *(u_int *)dr_mode & 0xff000000 | *pal_link & 0xffffff;
-    Render_gPacketPtr = (u_char *)dr_mode + 0xc;
-    *pal_link = *pal_link & 0xff000000 | (u_int)dr_mode & 0xffffff;
-    tpage = GetTPage(2,1,0,0x100);
-    SetDrawMode(dr_mode,0,0,(u_int)(u_short)tpage,(RECT *)0x0);
+      stp_prim = (DR_STP *)Render_gPacketPtr;
+      pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
+      *(u_int *)stp_prim = *(u_int *)stp_prim & 0xff000000 | *pal_link & 0xffffff;
+      Render_gPacketPtr = (u_char *)stp_prim + 0xc;
+      *pal_link = *pal_link & 0xff000000 | (u_int)stp_prim & 0xffffff;
+      SetDrawStp(stp_prim,1);
+    }
+    {
+      DR_MODE *dr_mode;
+      u_int *pal_link;
+
+      dr_mode = (DR_MODE *)Render_gPacketPtr;
+      pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
+      *(u_int *)dr_mode = *(u_int *)dr_mode & 0xff000000 | *pal_link & 0xffffff;
+      Render_gPacketPtr = (u_char *)dr_mode + 0xc;
+      *pal_link = *pal_link & 0xff000000 | (u_int)dr_mode & 0xffffff;
+      SetDrawMode(dr_mode,0,0,(u_int)(u_short)GetTPage(2,1,0,0x100),(RECT *)0x0);
+    }
   }
   return;
 }

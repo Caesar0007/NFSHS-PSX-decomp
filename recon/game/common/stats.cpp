@@ -450,7 +450,29 @@ void Stats_ExtrapolateOpponentTimes(int type)
   }
 }
 
-/* ---- Stats_TrackEndGame__Fv  [STATS.CPP:470-550] SLD-VERIFIED ---- */
+/* ---- Stats_TrackEndGame__Fv  [STATS.CPP:470-550] SLD-VERIFIED ----
+   W57-A12 05A(SLD)+rule-8(SYM 8c) pass: 113 -> 80 diffs (231 -> 226 insns / oracle 232).
+   SYM 8c @800b8db8 (fsize 72, mask $c0ff0000 = s0-s7+fp+ra) local list, block by block:
+     fn scope : i (REG $6=$a2), Stats_PlayersFinishedRace (AUTO -0x38 = 16(sp))
+     line 11  : trackSlices (REG $5=$a1)
+     line 14  : PlayerSlice (AUTO -0x34 = 20(sp)), PlayerPosition (REG $0x15=$s5),
+                DesiredComparison (REG $0x12=$s2), DesiredSlice (REG $0x17=$s7),
+                DesiredSpeed (REG $0x14=$s4)
+     line 31  : j (REG $0x11=$s1)
+   Applied: (a) the invented `Car_tObj **raceCar` walk local is NOT in the SYM -> dropped; the
+   oracle's `addiu s0,s0,4` is gcc's own GIV off `Cars_gRaceCarList[j]`, and the SURVIVING
+   `sll s6,s1,2` index proves the source used the INDEX form (06A eliminated-biv tell).
+   (b) SLD 492-497 is a three-arm if/else-if/else (`li s2,1` carries its own line 495), not
+   default+override. (c) SLD 485 and 505 are each ONE statement = a MIN ternary (the oracle
+   assigns the result in BOTH arms from a temp). (d) SLD 507 is ONE statement = abs()>>16 over
+   the index form -> __builtin_abs. (e) SLD 500/512 = TOP test + UNCONDITIONAL `j` back-edge ->
+   exit-in-the-middle while(1)/break (a `for` lets gcc prove entry and rotate; measured 97 vs 80).
+   RESIDUAL (named angle): retail SPILLS PlayerSlice to 20(sp) (`sw a1,20(sp)`/`sw v1,20(sp)` in
+   the MIN's two arms, `lw t5,20(sp)` at the use) while ours keeps it in $fp; that one spill is
+   what rotates the whole s-band (ours s3=DesiredSlice/s4=base/s6=DesiredSpeed vs retail
+   s7/s3/s4 + $s6 as the j*4 index temp). The union-with-array frame-slot device (07A) does NOT
+   reach it (measured 86, ours got 2 insns SHORTER, no spill) -- this is an allocator SPILL
+   choice, i.e. the 06E/07E local-alloc instrument lane, not a source shape. */
 void Stats_TrackEndGame(void)
 
 {
@@ -470,53 +492,53 @@ void Stats_TrackEndGame(void)
         int DesiredSlice;
         int DesiredSpeed;
 
-        PlayerSlice = trackSlices;
-        if (Cars_gHumanRaceCarList[i]->stats.sliceTotal <= trackSlices) {
-          PlayerSlice = Cars_gHumanRaceCarList[i]->stats.sliceTotal;
-        }
+        /* SLD 485: ONE statement -- a MIN (both arms assign, oracle stores each to the slot). */
+        PlayerSlice = trackSlices < Cars_gHumanRaceCarList[i]->stats.sliceTotal ?
+                      trackSlices : Cars_gHumanRaceCarList[i]->stats.sliceTotal;
 
         PlayerPosition = Stats_GetPosition(Cars_gHumanRaceCarList[i]);
         DesiredSlice = 0;
         DesiredSpeed = 0;
 
+        /* MATCH/SLD 492-497: a three-arm if/else-if/else (the `li s2,1` carries SLD 495 = its
+           OWN source line), NOT `DesiredComparison = 1;` + an override test. */
         if (PlayerPosition == 1) {
           DesiredComparison = 2;
         }
-        else {
+        else if (GameSetup_gData.checkpointType == 1) {
           DesiredComparison = 1;
-          if (GameSetup_gData.checkpointType != 1) {
-            DesiredComparison = PlayerPosition - 1;
-          }
+        }
+        else {
+          DesiredComparison = PlayerPosition - 1;
         }
 
-        int j = 0;
-        Car_tObj **raceCar = Cars_gRaceCarList;
-        while (1) {
-          if (j >= Cars_gNumRaceCars) {
-            break;
-          }
-          if (Stats_GetPosition(*raceCar) == DesiredComparison) {
-            DesiredSlice = (*raceCar)->stats.sliceTotal;
-            if (trackSlices < DesiredSlice) {
-              DesiredSlice = trackSlices;
-            }
+        {
+          int j;
 
-            if (PlayerPosition == 1) {
-              DesiredSpeed =
-                  Cars_gRaceCarList[j]->linearVel_ch.z;
-              if (DesiredSpeed < 0) {
-                DesiredSpeed = -DesiredSpeed;
+          /* SLD 500/512: TOP test + UNCONDITIONAL `j` back-edge -> exit-in-the-middle
+             (a `for` lets gcc prove entry and ROTATE to a bottom test). */
+          j = 0;
+          while (1) {
+            if (j >= Cars_gNumRaceCars) {
+              break;
+            }
+            if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {
+              /* SLD 505: ONE statement -- a MIN, so both arms assign from a temp. */
+              DesiredSlice = trackSlices < Cars_gRaceCarList[j]->stats.sliceTotal ?
+                             trackSlices : Cars_gRaceCarList[j]->stats.sliceTotal;
+
+              if (PlayerPosition == 1) {
+                /* SLD 507: ONE statement -- abs()>>16 over the INDEX form. */
+                DesiredSpeed = __builtin_abs(Cars_gRaceCarList[j]->linearVel_ch.z) >> 16;
               }
-              DesiredSpeed >>= 16;
+              else {
+                DesiredSpeed =
+                    *(short *)((char *)&Cars_gHumanRaceCarList[i]->linearVel_ch.z + 2);
+              }
+              break;
             }
-            else {
-              DesiredSpeed =
-                  *(short *)((char *)&Cars_gHumanRaceCarList[i]->linearVel_ch.z + 2);
-            }
-            break;
+            j++;
           }
-          j++;
-          raceCar++;
         }
 
         Cars_gHumanRaceCarList[i]->stats.checkpointUpdate =

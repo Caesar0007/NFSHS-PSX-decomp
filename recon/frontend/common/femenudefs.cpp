@@ -953,7 +953,18 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
      real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
      note) and block-scoped popUp to exactly where the oracle's `jal __12tDialogYesNo` sits: AFTER
      the insufficient-funds early-return, not at the outer `if`'s top (oracle disasm confirms the
-     ctor call is inside the can-afford fallthrough, not before the money check). */
+     ctor call is inside the can-afford fallthrough, not before the money check).
+     [W56-A3 2026-08-09 NAMED ANGLE, kept at baseline 50] SYM (8c @0x8002cf40: fsize=208
+     mask=0x800f0000 -> ra+s0..s3, 4 s-regs) declares `tourn` REG PTR tTourneyInfo(84), two `this`
+     REG ptrs (tFEApplication + tDialogMessageString), `amount` REG LONG. The oracle materializes
+     tourn=&fTournaments[iVar6] into its OWN saved reg (s2, `addu s2,a1,zero`), forcing `command`
+     into s3 -- a 4th s-reg we don't allocate (ours = 3 s-regs, tourn folded into s0, +84 disp).
+     The faithful anchor set (tourn ptr + messagePopup this_00 + lazy FEApp) each verified against
+     the oracle, but applied piecemeal they ROTATE the register band and REGRESS (tourn-alone 61,
+     +messagePopup 64->53) because the 4-s-reg allocation is not reached. The twin
+     GoToSpecialEventTrackInfo took the SAME edits to 54->45. This one needs tourn+this_00+popUp-
+     mixed-anchor landed TOGETHER with allocsim/qtytrace pricing the s2/s3 handout (methodology
+     4.6) -- not a floor, a priced multi-dial. Reverted to the folded baseline pending that pass. */
   ptVar3 = tournamentManager.fDefinition;
   ptVar1 = FEApp;
   frontEnd.tier = '\0';
@@ -1026,18 +1037,27 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
      `tScreen_dtor((tScreen*)&popUp,2)` manually IN ADDITION to popUp's own auto-invoked
      `tDialogYesNo::~tDialogYesNo()`. Dropped both manual calls. Residual struct-offset mismatch
      (84 vs 48 for the fEntranceFee/fTournOffset-style field -- see GoToTournTrackInfo's matching
-     note) is pre-existing and untouched here. */
+     note) is pre-existing and untouched here.
+     [W56-A3 2026-08-09, 54->45] Applied the SYM-declared anchor set: `tourn = &ptVar3->
+     fTournaments[iVar6]` (SYM: REG PTR tTourneyInfo -- gives the oracle's +36/+48 split instead
+     of the folded +84) for both the fEntranceFee read and the fMoney subtraction; messagePopup
+     anchored via the SYM `this` pointer (`this_00 = &ptVar1->messagePopup`, FEApp loaded LAZILY
+     in the insufficient-funds branch, not eagerly at fn top -- oracle reloads FEApp there). Same
+     edits REGRESSED the twin GoToTournTrackInfo (50->53) which needs its 4th saved-reg (s3) first,
+     so they were kept here only. RESIDUAL 45 = the frontEnd base register + the 4-s-reg coloring
+     (SYM fsize=208 mask=0x800f0000) -- do tourn+anchors+popUp together with allocsim. */
   ptVar3 = tournamentManager.fDefinition;
-  ptVar1 = FEApp;
   frontEnd.tier = '\x01';
   iVar6 = (uint)(tournamentManager.fDefinition)->fTiers[1].fTournOffset +
           (uint)(byte)frontEnd.specialevent;
-  iVar7 = (tournamentManager.fDefinition)->fTournaments[iVar6].fEntranceFee;
+  tourn = &ptVar3->fTournaments[iVar6];
+  iVar7 = tourn->fEntranceFee;
   if (0 < iVar7) {
     if (tournamentManager.fMoney < iVar7) {
-      this_00 = &FEApp->messagePopup;
+      ptVar1 = FEApp;
+      this_00 = &ptVar1->messagePopup;
       pcVar5 = TextSys_Word(0xf6);
-      (ptVar1->messagePopup).string = pcVar5;
+      this_00->string = pcVar5;
       Display((tDialogBase *)this_00);
       return;
     }
@@ -1054,7 +1074,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
+      tournamentManager.fMoney = tournamentManager.fMoney - tourn->fEntranceFee;
     }
   }
   StartNewTournament(&tournamentManager,1,frontEnd.specialevent);
@@ -1293,7 +1313,13 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
      popUp into the `if (bVar1)` (see AskTheUserToSaveTheGame's note for why).
      [BUG FIX 2026-07-27, 56->53] Same DOUBLE-DESTRUCTION bug as the other tDialogYesNo/
      tDialogYesNoTri locals in this file: dropped the manual `tScreen_dtor((tScreen*)&popUp,2)`
-     that was firing alongside popUp's own auto-invoked destructor. */
+     that was firing alongside popUp's own auto-invoked destructor.
+     [W56-A3 2026-08-09, 53->32] messagePopup anchor: routed `(ptVar2->messagePopup).string` store
+     through the `this_00 = &FEApp->messagePopup` anchor (reused for the Display arg), + `pp=&popUp`
+     mixed anchor on the yesnowords stores. RESIDUAL 32 = the `(1<sVar3) || (lVar5 <= sum)` OR
+     materializes the `<=` as `slt;xori 1;beqz` where the oracle branches directly (`slt;bnez`,
+     the w43 (x^1)/boolean-branch class), + a saved-reg-count/frame delta (ours 208/4-sreg vs
+     oracle 200/3-sreg) -- coloring, allocsim/qtytrace class. */
   lVar6 = tournamentManager.fMoney;
   bVar1 = false;
   lVar4 = CalcUsedPrice(&carManager, (ushort)(byte)frontEnd.garageCar[0]);
@@ -1305,11 +1331,12 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
   ptVar2 = FEApp;
   if (bVar1) {
     tDialogYesNo popUp;
+    tDialogYesNo *pp = &popUp;
 
     popUp.string =
          TextSys_Word(0xa5);
-    popUp.yesnowords[0] = 0x321;
-    popUp.yesnowords[1] = 0x322;
+    pp->yesnowords[0] = 0x321;
+    pp->yesnowords[1] = 0x322;
     popUp.fDefault = 0;
     sVar3 = Run((tDialogInteractive *)&popUp);
     if (sVar3 != 0) {
@@ -1323,7 +1350,7 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
   else {
     this_00 = &FEApp->messagePopup;
     pcVar7 = TextSys_Word(0xa9);
-    (ptVar2->messagePopup).string = pcVar7;
+    this_00->string = pcVar7;
     Display((tDialogBase *)this_00);
   }
   return;
@@ -1360,7 +1387,15 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&yesNo)` manual call and block-scoped
      yesNo into the inner `if` (see AskTheUserToSaveTheGame's note for why).
      [BUG FIX 2026-07-27, 44->41] Same DOUBLE-DESTRUCTION bug: dropped the manual
-     `tScreen_dtor((tScreen*)&yesNo,2)` firing alongside yesNo's own auto-invoked destructor. */
+     `tScreen_dtor((tScreen*)&yesNo,2)` firing alongside yesNo's own auto-invoked destructor.
+     [W56-A3 2026-08-09, 41->14] messagePopup ANCHOR bug + popUp mixed-anchor: both message
+     stores went through `(ptVar1->messagePopup).string` (recomputing FEApp+44 each time) while
+     `this_00 = &FEApp->messagePopup` was computed-but-underused; routing both stores through
+     this_00 (reused for the two paths + the shared Display) reproduces the oracle's held +44
+     anchor (w42). Plus `pp=&yesNo` on the two yesnowords stores only (the PurchaseUpgrade mixed
+     popUp anchor). RESIDUAL 14 = oracle keeps this_00 in TWO callee-saved regs (`addu s1,s0,zero`)
+     across the yesNo Run, using s1 for the message-path stores, + the two independent compare
+     loads (fMoney 20 / price) issued in swapped order -- the coloring/sched-tie class (4.6). */
   ptVar1 = FEApp;
   this_00 = &FEApp->messagePopup;
   GetStockCar(&carManager, (ushort)(byte)frontEnd.dealerCar,&carInfo);
@@ -1368,11 +1403,12 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   if (sVar2 < 0x20) {
     if (carInfo.fPrices[0] <= tournamentManager.fMoney) {
       tDialogYesNo yesNo;
+      tDialogYesNo *pp = &yesNo;
 
       yesNo.string =
            TextSys_Word(0xa4);
-      yesNo.yesnowords[0] = 0x321;
-      yesNo.yesnowords[1] = 0x322;
+      pp->yesnowords[0] = 0x321;
+      pp->yesnowords[1] = 0x322;
       yesNo.fDefault = 0;
       sVar2 = Run((tDialogInteractive *)&yesNo);
       if (sVar2 != 0) {
@@ -1385,11 +1421,11 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
     }
     AudioCmn_PlayFESFX(10);
     pcVar4 = TextSys_Word(0xa7);
-    (ptVar1->messagePopup).string = pcVar4;
+    this_00->string = pcVar4;
   }
   else {
     pcVar4 = TextSys_Word(0x4b);
-    (ptVar1->messagePopup).string = pcVar4;
+    this_00->string = pcVar4;
   }
   Display((tDialogBase *)this_00);
   return;
@@ -1436,23 +1472,35 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      allocation (branch polarity flip beqz<->bnez, s0/a0-vs-v0/sp addressing) rather than a clean
      3-insn drop like the sibling fns. Kept per the correctness-exception clause: a real
      double-destruction bug outweighs a 1-line diff delta, and insn count is closer to the oracle
-     than before. */
+     than before.
+
+     [W56-A3 2026-08-09, 27->2 diffs, count-exact 80/80] The prior "branch polarity flip"
+     was NOT reg-alloc noise -- it was ARM ORDER. Oracle lays the yes/no (else) block as the
+     FALL-THROUGH and the insufficient-funds message popup at the branch target (bnez, not beqz;
+     w42 physical-block-order). Fix = keep `fPrices <= fMoney` semantics but write the arms
+     swapped (yesno first / message in else). Then three anchor+sched levers: (a) messagePopup
+     anchored via the SYM `this` pointer local -- `dlgThis = &ptVar1->messagePopup` reused for
+     the .string store AND the Display arg (w42 anchor, +44/+144 split); (b) MIXED popUp anchor
+     -- `pp=&popUp` used ONLY for the two yesnowords stores (oracle anchors those in s0 but keeps
+     .string/.fDefault sp-relative; anchoring all or none is each 8 diffs, the split is 4);
+     (c) compute `dlgThis` BEFORE the TextSys_Word(0xa8) call so reorg fills that jal's delay slot
+     with `addiu s0,s0,44` instead of the arg li. RESIDUAL 2 diffs = the two independent compare
+     loads (fMoney 20(s1) / fPrices 48(v1)) issued in swapped order: oracle computes BOTH
+     addresses then loads fMoney-first while ours loads fPrices-first. Operand-flip to `fMoney>=`
+     fixes the load order but swaps the ADDRESS order (6 diffs); a `long money=` split forces
+     fMoney into a reg early (4 diffs). Pure sched1 ready-list pick on two independent loads --
+     the qtytrace/sched-instrument class (methodology 4.6), not reachable by operand/split here. */
   uVar5 = 1 << (upgradeNumber);
   GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
   if ((carInfo.fUpgrades & uVar5) == 0) {
-    if (tournamentManager.fMoney < carInfo.fPrices[upgradeNumber + 1]) {
-      ptVar1 = FEApp;
-      pcVar4 = TextSys_Word(0xa8);
-      (ptVar1->messagePopup).string = pcVar4;
-      Display((tDialogBase *)&(ptVar1->messagePopup));
-    }
-    else {
+    if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.fMoney) {
       tDialogYesNo popUp;
+      tDialogYesNo *pp = &popUp;
 
       popUp.string =
            TextSys_Word(0xa6);
-      popUp.yesnowords[0] = 0x321;
-      popUp.yesnowords[1] = 0x322;
+      pp->yesnowords[0] = 0x321;
+      pp->yesnowords[1] = 0x322;
       popUp.fDefault = 0;
       sVar2 = Run((tDialogInteractive *)&popUp);
       if (sVar2 != 0) {
@@ -1460,6 +1508,13 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
         tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
         AudioCmn_PlayFESFX(0x1a);
       }
+    }
+    else {
+      ptVar1 = FEApp;
+      dlgThis = &ptVar1->messagePopup;
+      pcVar4 = TextSys_Word(0xa8);
+      dlgThis->string = pcVar4;
+      Display((tDialogBase *)dlgThis);
     }
   }
   return;

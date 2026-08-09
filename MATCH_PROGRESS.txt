@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 3033 at 100% (86.8%)
+TOTAL: 3496 functions, 3042 at 100% (87.0%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -834,8 +834,8 @@ VA             %match  unit                     function
 0x8004AF4C    100.00%  frontend/common/stattool Stattool_GetAINameFromPersonality__F14tPersonalities
 0x8004AF88    100.00%  frontend/common/screenusername Initialize__15tScreenUserName
 0x8004B048    100.00%  frontend/common/screenusername GetShapeInfo__15tScreenUserNameRsT1PPcT3
-0x8004B0A8     93.75%  frontend/common/screenusername DrawVerticalLine__15tScreenUserNamesss
-0x8004B128     93.94%  frontend/common/screenusername DrawHorizontalLine__15tScreenUserNamesss
+0x8004B0A8    100.00%  frontend/common/screenusername DrawVerticalLine__15tScreenUserNamesss
+0x8004B128    100.00%  frontend/common/screenusername DrawHorizontalLine__15tScreenUserNamesss
 0x8004B1AC     85.27%  frontend/common/screenusername DrawBackground__15tScreenUserName
 0x8004B7D4    100.00%  frontend/common/screenusername ___15tScreenUserName
 0x8004B7F8    100.00%  frontend/common/fefades  CalcFadeVal__Fiii
@@ -1045,6 +1045,8 @@ VA             %match  unit                     function
 0x8005F604    100.00%  game/common/aih_btccop   ___14AIHigh_BTC_Cop
 0x8005F624    100.00%  game/common/aih_btccop   Execute__17AIState_NonActive
 0x8005F62C    100.00%  game/common/aih_btccop   ___17AIState_NonActive
+0x8005F678    100.00%  game/common/aih_btccop   TestForRelease__12AIState_Base_8005F678
+0x8005F680    100.00%  game/common/aih_btccop   ___12AIState_Base_8005F680
 0x8005F6B4    100.00%  game/common/aih_btcperp  ReleaseCops__15AIHigh_BTC_Perp
 0x8005F778    100.00%  game/common/aih_btcperp  HandleCops__15AIHigh_BTC_Perp
 0x8005F798    100.00%  game/common/aih_btcperp  IsFalseArrest__15AIHigh_BTC_Perp
@@ -1066,6 +1068,10 @@ VA             %match  unit                     function
 0x800608B4    100.00%  game/common/aih_btcperp  HighExecute__17AIHigh_BTC_AIPerp
 0x80060D74     81.27%  game/common/aih_btcperp  NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop
 0x80061320    100.00%  game/common/aih_btcperp  ___20AIHigh_BTC_HumanPerp
+0x80061370    100.00%  game/common/aih_btcperp  Execute__17AIState_NonActive_80061370
+0x80061378    100.00%  game/common/aih_btcperp  ___17AIState_NonActive_80061378
+0x800613C4    100.00%  game/common/aih_btcperp  TestForRelease__12AIState_Base_800613C4
+0x800613CC    100.00%  game/common/aih_btcperp  ___12AIState_Base_800613CC
 0x80061400    100.00%  game/common/aih_play     CheckIfABlockadeCanBeSetup__13AIHigh_Player
 0x80061784     99.46%  game/common/aih_play     SetupBlockade__13AIHigh_Player
 0x8006220C     84.40%  game/common/aih_play     CheckForNewLevel__13AIHigh_Playeri
@@ -2277,7 +2283,7 @@ VA             %match  unit                     function
 0x800C78A8     98.86%  game/psx/draww           DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
 0x800C7B9C     89.44%  game/psx/draww           DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi
 0x800C7EBC    100.00%  game/psx/draww           DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis
-0x800C8214     98.06%  game/psx/draww           DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
+0x800C8214    100.00%  game/psx/draww           DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
 0x800C8508     96.12%  game/psx/draww           DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
 0x800C8BD0    100.00%  game/psx/draww           ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache
 0x800C8CC4     92.79%  game/psx/draww           DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry
@@ -3486,12 +3492,6 @@ VA             %match  unit                     function
 0x8010CBC0    100.00%  syslib/psx/libcard/END   _ExitCard
 0x8010CC40    100.00%  eaclib/psx/sndpsxz/ssine iSNDsin
     -         100.00%  eaclib/psx/eacpsxz/stream func_800FC4E4
-    -           0.00%  game/common/aih_btccop   func_8005F678
-    -           0.00%  game/common/aih_btccop   func_8005F680
-    -           0.00%  game/common/aih_btcperp  func_80061370
-    -           0.00%  game/common/aih_btcperp  func_80061378
-    -           0.00%  game/common/aih_btcperp  func_800613C4
-    -           0.00%  game/common/aih_btcperp  func_800613CC
     -         100.00%  syslib/psx/2mbyte/2mbyte D_800E40D8
     -         100.00%  syslib/psx/libcard/A74   func_8010C9FC
     -         100.00%  syslib/psx/libcard/END   D_8010CC30

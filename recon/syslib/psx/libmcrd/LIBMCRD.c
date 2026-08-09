@@ -62,6 +62,50 @@
  *       measured the other way (volatile 24, non-volatile 22), and CreateFile keeps volatile (68)
  *       vs non-volatile (70) vs none (81) -- always A/B both spellings.
  *
+ * 🏆 w55-a7 (2026-08-09): 12 PASS / 389 -> 15 PASS / 347 diffs, ZERO regressions.
+ *   +3 PASS: MemCardExist, MemCardAccept (both 4 -> 0, count was already exact 26/26),
+ *            MemCardStart_cb (22 -> 0, count was already exact 33/33).
+ *   MemCardReadFile_cb / MemCardWriteFile_cb 9 -> 3 each (both twins, same edit);
+ *   MemCardReadData_cb 10 -> 4 (parm-spill pin, now at parity with its WriteData twin).
+ *   The four *_cb dispatches are now ALL down to the single shared OPEN ANGLE below (3/4 diffs).
+ *
+ *   🔴 SECOND TU-WIDE LEVER -- THE QTY-LAYER REF-STEP ON A BARE CONSTANT (see the full receipt
+ *   at the `pc[1] = five;` block in Read/WriteFile_cb): when a small block's ONLY residual is an
+ *   address-vs-constant register swap, the constant is an anonymous qty with the SAME ref count
+ *   as the address but a SHORTER live range, so `QTY_CMP_PRI` hands the address the lower reg.
+ *   NAME the constant, ASSIGN it (never a decl-with-init -- that is emitted at block head and
+ *   fixes the wrong emission order), and hang THREE identity fences on it to cross the
+ *   floor_log2 ref step (4 -> 8 refs, zero insns).  Both halves are required.  Landed TWICE this
+ *   wave: Read/WriteFile_cb's `five` (9 -> 3 each) and MemCardStart_cb's `one` (22 -> 6, then
+ *   PASS with the barrier below).  ⚠️ ONE fence is NOT enough and TWO is not either -- the dial
+ *   is the flr2 STEP at 8 refs, so count the fences, don't sprinkle them.
+ *
+ *   🔴 THIRD TU-WIDE LEVER -- THE ZERO-INSN VOID-TAIL BARRIER `__asm__ __volatile__("" : : "i"(0))`
+ *   AS A LOAD-HOIST BLOCKER.  When a base+2-offsets block reads a field the same base just STORED
+ *   to, our sched hoists the load above the store (it uses the store to fill the load's own delay
+ *   slot); that keeps two values live at once and burns a register the oracle does not spend.
+ *   Placing the barrier AFTER the load statement (with the load broken out into its own named
+ *   temp) restores retail's store->load order AND pins the next address materialization below the
+ *   load so it fills the load-delay slot.  Position is the entire dial -- before the load costs a
+ *   `nop`, after it does not.  (MemCardStart_cb; do NOT confuse with the opacity fence, whose job
+ *   is addressing/refs -- this one is purely a scheduling wall and takes no operand.)
+ *
+ *   🔴🔴 NEW TU-WIDE LAW -- THE FENCE-vs-PROLOGUE-PARM-COPY CONFLICT (generalizes; check it on
+ *   every fn in this library family whose residual is a GUARD's delay slot):
+ *       assign_parms emits an incoming parameter's copy (`addu $sN,$a0,$zero`) as the FIRST RTL
+ *       insn of the function.  reorg's `fill_simple_delay_slots` finds a slot filler by scanning
+ *       BACKWARD from the branch -- and `stop_search_p` returns 1 for ANY insn with
+ *       `asm_noperands (PATTERN) >= 0`.  So an opacity fence placed ABOVE an early-exit guard
+ *       WALLS THE PARM COPY OFF from that guard's delay slot, and reorg falls back to an eager
+ *       steal of the guard target's first insn (our spurious `li $v0,1` / `nop` pairs).
+ *       CURE: the base-anchor fence is only needed for the STORE block's addressing, so put it
+ *       BELOW the guard.  Zero insns, and the parm copy walks straight into the slot.
+ *       SCOPE (measured, do NOT apply blind): MemCardExist 4->PASS, MemCardAccept 4->PASS;
+ *       MemCardCreateFile 68->70 and MemCardFormat 4->5 both REGRESS (their residual is not the
+ *       guard slot, and their guard READ wants the register base too).  Gate per fn.
+ *       This is the w54-06B "any asm stops reorg's backward scan" boundary seen from the other
+ *       side: there the fence PINNED a prologue store; here it STARVED a delay slot.
+ *
  *   OPEN ANGLE shared by all four `*_cb` dispatches (2-3 diffs each): retail's gcc reorg hoists
  *   the NEXT case-compare constant (`li $v0,0xB` / `li $v0,0x1E`) out of the branch-target block
  *   into the bound test's `beqz $v0` DELAY SLOT and retargets the branch; ours leaves a `nop`
@@ -545,7 +589,17 @@ static int MemCardReadData_cb(void *pv)
     int ev;
     int r;
     int *st = (int *)pv;
-    int state = st[0];
+    int state;
+    /* 🏆 MATCH (w55-a7, 10 -> 4 = parity with the WriteData twin): the PARM-SPILL PIN (w54 06B).
+     * Retail copies the incoming `pv` into $s1 at the TOP (`sw $s1,0x14($sp); addu $s1,$a0,$zero`)
+     * and reads the state through it (`lw $v1,0($s1)`); ours read `lw $v1,0($a0)` directly and let
+     * reorg sink the copy into the case-10 `beq`'s delay slot.  An opacity fence on `st` placed
+     * BEFORE its first use pins assign_parms' copy at retail's prologue position.  The twin
+     * MemCardWriteData_cb does not need it (its case 0 returns instead of falling through, so the
+     * copy is not a slot candidate there).  Measured INERT on MemCardExist_cb (47, unchanged) --
+     * per-fn, not a sweep. */
+    __asm__("" : "=r"(st) : "0"(st));
+    state = st[0];
 
 
     /* MATCH (w51-a2): real `switch` (balance_case_nodes: `beq $v1,$s0(=10)` pivot + `slti
@@ -596,7 +650,31 @@ static int MemCardWriteData_cb(void *pv)
     /* MATCH (w51-a2): real `switch` -- but note the ASYMMETRY vs the ReadData twin, read off
      * the oracle: here case 0 does NOT fall through (its block ends `j` to the shared return-0)
      * and the SOURCE case order is 0, 0x1e, 10 (that is the order the bodies are emitted in).
-     * 87 -> 9 diffs, count 78/79. */
+     * 87 -> 9 diffs, count 78/79.
+     * w55-a7 -- the 4-diff residual is TWO independent items, both now named:
+     *  (1) `beqz $v0` bound-test delay slot: retail holds `li $v0,0x1E` there (the NEXT case
+     *      compare's constant, hoisted out of `.L800FB348`), ours leaves `nop` and emits the `li`
+     *      as that block's first insn.  The w53 rule ("fires when the constant is the block's
+     *      FIRST insn AND unfenced") is FALSIFIED here: it IS first and there is no fence in that
+     *      block, and it still does not fire.  Mechanism note: gcc-2.7.2 `mostly_true_jump`
+     *      predicts a FORWARD conditional branch NOT-taken, so `fill_eager_delay_slots` never
+     *      considers the target thread; retail's fill must therefore come from cc1 having emitted
+     *      the `li` BEFORE the branch (a sched/`-dS` question), not from a reorg steal.
+     *  (2) `.L800FB3B8: addu $a0,$zero,$zero` falling into the shared `jal MemCardEventToRslt`:
+     *      that is a SECOND, cross-jump-merged call site on the ev==0 edge (cse's
+     *      record_jump_equiv substitutes the known 0 into that arm's arg).  A single shared call
+     *      under `if (ev != 0)` cannot produce it -- the ev==0 edge lands directly on the join, so
+     *      the arm has no block to hold its own arg setup.  FALSIFIED attempts (all 2.7.2 lane):
+     *        two calls, shared `r`/`pc` tail ................ 10 diffs, 81 insns (r becomes a phi
+     *                                                          -> `addu $v1,$v0,$zero` copy)
+     *        two calls, FULLY duplicated tail incl. fence ... 10 diffs, 85 insns (cross_jump will
+     *                                                          NOT merge across the `__asm__`)
+     *        `else { ev = 0; }` ............................  4 (copy deleted by copy-prop)
+     *        `else { ev = 0; identity-fence }` .............  4 (delete_noop_moves ties it)
+     *        separate `evarg` phi local ....................  10 (evarg homes in $v0)
+     *      NAMED ANGLE: the duplicated tail is right but the fence blocks the merge -- needs a
+     *      non-asm way to hold the &_mc_cmd anchor in a register (sized asm-label view?) so the
+     *      two tails become rtx-identical for post-reload cross_jump. */
     switch (state) {
     case 0:
         _mc_wr_retry = 0;
@@ -605,15 +683,23 @@ static int MemCardWriteData_cb(void *pv)
     case 0x1e:
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
-        if (ev != 0) {
-            _mc_wr_retry = _mc_wr_retry + 1;
-            if (_mc_wr_retry < 4) { st[0] = 10; return 0; }
-        }
         {   /* MATCH (w53-a7): the &_mc_cmd base is materialized AFTER the call, into a
              * caller-saved reg (`jal; nop; lui $v1; addiu $v1; sw $v0,0x4($v1)`); the natural
-             * `mc.rslt = ...` field store emits a `lui $at; sw %lo(...)($at)` macro instead. */
-            int  r  = MemCardEventToRslt(ev);
-            int *pc = &mc.cmd;
+             * `mc.rslt = ...` field store emits a `lui $at; sw %lo(...)($at)` macro instead.
+             * MATCH (w55-a7): the completion is written TWICE -- once per arm -- and gcc
+             * cross-jumps the two `jal MemCardEventToRslt` tails back into ONE shared call
+             * (`.L800FB3B8: addu $a0,$zero,$zero` falls into `.L800FB3BC: jal ...`).  A single
+             * shared call with the `if (ev != 0)` guard above it cannot produce that block: the
+             * ev==0 edge lands straight on the join, so there is nowhere for the arm's own
+             * `$a0 = 0` arg setup to live. */
+            int  r;
+            int *pc;
+            if (ev != 0) {
+                _mc_wr_retry = _mc_wr_retry + 1;
+                if (_mc_wr_retry < 4) { st[0] = 10; return 0; }
+            }
+            r = MemCardEventToRslt(ev);
+            pc = &mc.cmd;
             __asm__("" : "=r"(pc) : "0"(pc));
             pc[1] = r;
             return 1;
@@ -667,9 +753,39 @@ static int MemCardReadFile_cb(void *pv)
         fd = open((char *)&prslt[7], 0x8001);   /* _mc_devname = `addiu $a0,$s0,28` */
         prslt[3] = fd;                             /* _mc_fd */
         if (fd < 0) {                              /* open failed */
+            /* 🏆 MATCH (w55-a7, 9 -> 3 on BOTH twins): this 2-qty block is a pure local_alloc
+             * rotation -- retail addr=$v1 / const=$v0, ours was addr=$v0 / const=$v1.  Per the
+             * w45 §A0 law `QTY_CMP_PRI == allocno_compare` (= floor_log2(refs)*refs*size/live),
+             * the address qty out-ranked the bare constant (equal refs, but live 1 vs 2), so it
+             * took the lower reg.  CURE = the floor_log2 REF-STEP dial applied at the QTY layer:
+             * name the constant and give it THREE identity fences (each = +2 refs at ZERO insns),
+             * lifting it 4 -> 8 refs = one flr2 step, so it is allocated first and takes $v0.
+             * BOTH ingredients are load-bearing and were found in this order:
+             *   bare `pc[1] = 5;` ............................................ 9
+             *   named `five` DECLARED-with-init before pc (birth order only) . 9  (emission order
+             *                                                                  flipped, registers
+             *                                                                  did NOT -- birth
+             *                                                                  order is not the
+             *                                                                  dial here)
+             *   + 3 identity fences on `five`, still declared-with-init ...... 5  (registers now
+             *                                                                  retail's; only the
+             *                                                                  li/addiu EMISSION
+             *                                                                  order wrong)
+             *   + `int five;` uninitialised, ASSIGNED after pc's fence ....... 3  (a decl-with-init
+             *                                                                  is emitted at block
+             *                                                                  head no matter what;
+             *                                                                  the separate
+             *                                                                  assignment is what
+             *                                                                  puts `addiu` first)
+             * Residual 3 = the shared *_cb bound-test delay slot (see the TU header OPEN ANGLE). */
+            int  five;
             int *pc = prslt - 1;                   /* &_mc_cmd */
             __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = 5;
+            five = 5;
+            __asm__("" : "=r"(five) : "0"(five));
+            __asm__("" : "=r"(five) : "0"(five));
+            __asm__("" : "=r"(five) : "0"(five));
+            pc[1] = five;
             return 1;
         }
         }
@@ -713,9 +829,39 @@ static int MemCardWriteFile_cb(void *pv)
         fd = open((char *)&prslt[7], 0x8001);      /* _mc_devname */
         prslt[3] = fd;                             /* _mc_fd */
         if (fd < 0) {
+            /* 🏆 MATCH (w55-a7, 9 -> 3 on BOTH twins): this 2-qty block is a pure local_alloc
+             * rotation -- retail addr=$v1 / const=$v0, ours was addr=$v0 / const=$v1.  Per the
+             * w45 §A0 law `QTY_CMP_PRI == allocno_compare` (= floor_log2(refs)*refs*size/live),
+             * the address qty out-ranked the bare constant (equal refs, but live 1 vs 2), so it
+             * took the lower reg.  CURE = the floor_log2 REF-STEP dial applied at the QTY layer:
+             * name the constant and give it THREE identity fences (each = +2 refs at ZERO insns),
+             * lifting it 4 -> 8 refs = one flr2 step, so it is allocated first and takes $v0.
+             * BOTH ingredients are load-bearing and were found in this order:
+             *   bare `pc[1] = 5;` ............................................ 9
+             *   named `five` DECLARED-with-init before pc (birth order only) . 9  (emission order
+             *                                                                  flipped, registers
+             *                                                                  did NOT -- birth
+             *                                                                  order is not the
+             *                                                                  dial here)
+             *   + 3 identity fences on `five`, still declared-with-init ...... 5  (registers now
+             *                                                                  retail's; only the
+             *                                                                  li/addiu EMISSION
+             *                                                                  order wrong)
+             *   + `int five;` uninitialised, ASSIGNED after pc's fence ....... 3  (a decl-with-init
+             *                                                                  is emitted at block
+             *                                                                  head no matter what;
+             *                                                                  the separate
+             *                                                                  assignment is what
+             *                                                                  puts `addiu` first)
+             * Residual 3 = the shared *_cb bound-test delay slot (see the TU header OPEN ANGLE). */
+            int  five;
             int *pc = prslt - 1;                   /* &_mc_cmd */
             __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = 5;
+            five = 5;
+            __asm__("" : "=r"(five) : "0"(five));
+            __asm__("" : "=r"(five) : "0"(five));
+            __asm__("" : "=r"(five) : "0"(five));
+            pc[1] = five;
             return 1;
         }
         }
@@ -740,6 +886,7 @@ static void MemCardStart_cb(void)
     int *base;
     int *snap;
     int  one;
+    int  cmdv;
     int (*cb)(int, int);
 
     if (UserFuncComplete() != 0)        /* stack already empty -> nothing pending */
@@ -756,21 +903,49 @@ static void MemCardStart_cb(void)
      * the old recon had it inside the `if`, leaving a stale result behind on the no-callback path.
      * 33 -> 22 diffs, count now EXACT 33/33; the `one` opacity temp lands the constant AS THE
      * BLOCK'S FIRST INSN (GNU-as then eager-steals it into the `beqz` slot, killing our +1 nop).
-     * NAMED ANGLE (the whole 22 residual = ONE v0<->v1 swap): retail has base=$v1 / value-temps=$v0,
-     * ours base=$v0 / temps=$v1,$a0.  base outranks `one` in local_alloc (8 refs vs 2) and so takes
-     * $v0 first whichever order they are born in; in retail the base must therefore be a GLOBAL
-     * allocno (local_alloc hands the block-local constant $v0, global_alloc then gives base $v1 --
-     * the same local-vs-global race documented on MemCardExist below).  Falsified: fence order swap
-     * (base-first = 23), volatile fences (24, +1 insn), no-fence (at-macro stores, far worse).
-     * The crack is whatever makes `base` span TWO blocks without crossing a call. */
+     * 🏆 w55-a7 SEALED: 22 -> PASS 33/33.  The w52/w53 "make `base` a GLOBAL allocno" angle filed
+     * here was WRONG -- it was executed properly and does not crack it (receipts below).  The 22
+     * were ONE v0<->v1 swap (retail base=$v1 / value-temps=$v0; ours base=$v0 / temps=$v1,$a0) and
+     * the swap was DOWNSTREAM of a scheduling defect that cost a second value register:
+     *   retail emits `sw $v0,8($v1)` (done=1) BEFORE `lw $v0,0($v1)` (cmd), so the `one` qty dies
+     *   at the store and the cmd load REUSES $v0 -- retail needs exactly ONE value register,
+     *   leaving $v1 for base.  Our sched hoisted the cmd load ABOVE the done store (using the
+     *   store to fill the load's own delay slot), so `one` and cmd were simultaneously live and
+     *   burned $v1 + $a0, pushing base to $v0.
+     * THE THREE-PART CURE (all zero-insn, each one measured necessary):
+     *   (1) THREE identity fences on `one` (4 -> 8 refs = one floor_log2 REF step) so the constant
+     *       qty outranks the base qty in `QTY_CMP_PRI` and takes $v0.  With ONE fence: 22.
+     *       With three: 6.  (Same QTY-layer ref-step dial as the Read/WriteFile_cb `five` block.)
+     *   (2) a named `cmdv = base[0];` temp, so the cmd load is its own statement, plus
+     *   (3) a zero-insn VOID-TAIL BARRIER `__asm__ __volatile__("" : : "i"(0));` placed AFTER that
+     *       load and BEFORE the snap block.  Barrier position is the whole dial: BEFORE the load
+     *       it fixes the store/load order but the load-delay slot goes `nop` (3 diffs, 34 insns,
+     *       because the snap `lui/addiu` -- retail's filler for that slot -- stays hoisted above
+     *       the load); AFTER the load it also pins the snap address BELOW the load, which both
+     *       fills the slot and drops the nop.  A barrier in BOTH places is equivalent (measured
+     *       PASS either way); the one after the load is the load-bearing one.
+     * FALSIFIED (kept so nobody re-fights them):
+     *   05D GLOBAL-ALLOCNO PROMOTION of `base`, done properly -- define it in the SECOND guard
+     *   block AFTER that block's last `jal` (`busy = UserFuncComplete(); base = &mc.cmd; fence;
+     *   if (busy == 0) return;`): zero insns, no call crossed, `base` really does become a global
+     *   allocno -- and it moves $v0 -> $a0, still 22.  local_alloc had ALREADY taken BOTH $v0 and
+     *   $v1 for block-local qtys, so global.c's numeric scan can only offer $a0.  LAW: promotion
+     *   cannot reach a register that local_alloc has already handed out; fix the LOCAL qty
+     *   population first (that is what (1)+(3) do).  Also falsified: fence order swap
+     *   (base-first = 23), volatile opacity fences (24, +1 insn), no fence at all (at-macro
+     *   stores, far worse), a 2nd fence alone on `one` (22). */
     one = 1;
+    __asm__("" : "=r"(one) : "0"(one));
+    __asm__("" : "=r"(one) : "0"(one));
     __asm__("" : "=r"(one) : "0"(one));
     base = &mc.cmd;
     __asm__("" : "=r"(base) : "0"(base));
     base[2] = one;                     /* done = 1 */
+    cmdv = base[0];
+    __asm__ __volatile__("" : : "i"(0));
     snap = &_mc_sync[0];
     __asm__("" : "=r"(snap) : "0"(snap));
-    snap[0] = base[0];                 /* sync_cmd  = cmd  */
+    snap[0] = cmdv;                    /* sync_cmd  = cmd  */
     cb      = (int (*)(int, int))base[16];   /* _mc_callback */
     snap[1] = base[1];                 /* sync_rslt = rslt */
     base[0] = 0;                       /* cmd  = 0 */
@@ -852,11 +1027,11 @@ extern void MemCardStop(void)
 extern long MemCardExist(long chan)
 {
     int *base = &mc.cmd;
-    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     if (base[0] > 0) {
         printf("Access Denied. : event multiple open\n");
         return 0;
     }
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     base[0] = 1;      /* cmd  */
     base[1] = 0;      /* rslt */
     base[2] = 0;      /* done */
@@ -865,11 +1040,18 @@ extern long MemCardExist(long chan)
     return 1;
 }
 
-/* MATCH-ANGLE (w52-a6, 4-diff residual on BOTH twins, count-exact 26/26): the ONLY residual is
- * WHICH insn fills the guard's `bgtz` delay slot -- retail puts the `chan` parm copy
- * (`addu $a1,$a0,$zero`) there and emits `li $v0,1` after the callback-address `addiu`; ours emits
- * the copy as a PROLOGUE parm copy (above `sw $ra`, where reorg's backward scan cannot reach it)
- * and eager-steals `li $v0,1` from the fall-through block instead.  Measured this wave (272 lane):
+/* 🏆 w55-a7 -- BOTH TWINS SEALED (4 -> PASS 26/26) BY MOVING THE FENCE ONE STATEMENT DOWN.
+ * See the FENCE-vs-PARM-COPY law in the TU header.  The residual was WHICH insn fills the guard's
+ * `bgtz` delay slot: retail puts the `chan` parm copy (`addu $a1,$a0,$zero`) there, ours left a
+ * prologue-position copy and eager-stole `li $v0,1` from the fall-through block instead.  The
+ * `base` opacity fence sat between assign_parms' copy and the guard branch, and reorg's
+ * `stop_search_p` halts the backward delay-slot scan at ANY asm -- so the copy was unreachable.
+ * The fence is only needed for the STORE block's addressing (without it the three non-zero-offset
+ * stores go out as `lui $at; sw %lo(sym+N)($at)` macros, +3 insns -- measured 9), so moving it
+ * BELOW the guard costs nothing and hands the copy straight to reorg.
+ *
+ * HISTORICAL (w52-a6) falsification table -- every one of these was fighting the fence, not the
+ * allocator; kept as the record of what the wrong diagnosis cost.  Measured then (272 lane):
  *   fence on `chan` BEFORE the guard ............................  4 (no change)
  *   fence on `chan` AFTER  the guard ............................  3 (`li $v0,1` lands correctly
  *                                                                    but the slot becomes `nop` --
@@ -895,22 +1077,20 @@ extern long MemCardExist(long chan)
  *                                                                    offset stores go out as
  *                                                                    `lui $at; sw %lo(sym+N)`
  *                                                                    assembler macros, +3 insns)
- * NAMED ANGLE: the natural-field form has retail's exact REGISTERS and delay slot; the pointer form
- * has retail's exact ADDRESSING.  The crack is whatever makes `c` a GLOBAL allocno (so global_alloc
- * orders base-then-c by priority -> $v1/$a1) while keeping the copy at the block head -- a second-
- * block def/use of the copy, or the natural-field form plus a store-side base anchor that is not a
- * fenced block-local pointer. */
+ * (The w52 "NAMED ANGLE" filed here -- "make `c` a GLOBAL allocno" -- was a WRONG diagnosis: the
+ * registers were already retail's; only the fence position was wrong.  Floor-hygiene: a receipt
+ * that names an allocator mechanism is still falsifiable.) */
 
 /* @0x800FADC4 : MemCardAccept -- begin an async "accept/clear the card on chan". Same base-reuse
  * shape as MemCardExist above (and the same 4-diff delay-slot residual -- see the angle above). */
 extern long MemCardAccept(long chan)
 {
     int *base = &mc.cmd;
-    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     if (base[0] > 0) {
         printf("Access Denied. : event multiple open\n");
         return 0;
     }
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
     base[0] = 2;      /* cmd  */
     base[1] = 0;      /* rslt */
     base[2] = 0;      /* done */
@@ -1441,7 +1621,14 @@ extern long MemCardFormat(long chan)
      *                                                                 its own saved reg, +4 insns)
      * NAMED ANGLE: what is needed is a ZERO-INSN way to make the arg `addiu` issue before the store
      * macro (a sched-position fixpoint fence placed between them, or a statement whose value the
-     * arg address CSEs with) -- not a named pointer, which changes the arg's register class. */
+     * arg address CSEs with) -- not a named pointer, which changes the arg's register class.
+     * w55-a7 additional falsifications (2.7.2 lane): named `char *dn = devname;` assigned right
+     * before the RMW = 34 (dn takes $s0 + a frame save); the same with an identity fence on `dn`
+     * = 21/36 (dn materializes into $a2, whole head recolors); moving the `base` opacity fence
+     * BELOW the guard (the lever that sealed Exist/Accept) = 5/36 -- here the guard READ wants the
+     * register base too, so the fence must stay above.  Per w46, the arg is not precomputed
+     * because `(plus (reg sp) (const_int 16))` has rtx_cost <= 2, so it is SCHED_GROUP'd onto the
+     * CALL_INSN and can only be displaced by making the STORE the later insn. */
     _mc_present |= 1 << (base[3]);      /* chan = cmd+0xC */
     MemCardMakeDevname(chan, devname);
     _clr_card_event();

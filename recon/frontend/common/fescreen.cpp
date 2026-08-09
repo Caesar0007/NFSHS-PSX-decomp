@@ -26,34 +26,33 @@ extern int A__7tScreen_fSuppressLoadingText[] __asm__("_7tScreen_fSuppressLoadin
 void tScreen::DisplayLoadingText()
 
 {
-  u_char oldIsBg;
-  char *string;
-  int iVar2;
-  int i;
-  
-  iVar2 = Draw_gPlayer1View;
-  if (_7tScreen_fSuppressLoadingText == 0) {
-    i = 0;
-    oldIsBg = Draw_gView[Draw_gPlayer1View].drawenv[0].isbg;
-    Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = '\0';
-    Draw_gView[iVar2].drawenv[0].isbg = '\0';
-    do {
-      Draw_StartFrameRender();
-      Draw_StartRenderingView(Draw_gPlayer1View);
-      FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo);
-      string = TextSys_Word(0x27d);
-      iVar2 = textpixels(string);
-      PSXDrawSquare(0,0x1e0,0xdc,-5 - iVar2,7);
-      Draw_StopRenderingView(Draw_gPlayer1View);
-      Draw_StopFrameRender();
-      iVar2 = Draw_gPlayer1View;
-      i = i + 1;
-    } while (i * 0x10000 >> 0x10 < 2);
-    Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = oldIsBg;
-    Draw_gView[iVar2].drawenv[0].isbg = oldIsBg;
+  /* SYM 8c: exactly TWO locals -- oldIsBg (class REG $12 = $s2, type INT) and
+     i (class REG $10 = $s0, type SHORT); no `string`/`iVar2` temporaries.
+     SLD statements: 37 / 40 / 43 47 48 / 51 53 59 60 63 64 65 / 66 67.
+     Line 47 and line 66 are each ONE chained assignment (drawenv[0].isbg =
+     drawenv[1].isbg = V), which is why retail computes the view address once
+     and emits the two `sb`s back to back, [1] before [0].  Line 60 is one
+     statement: the two calls nest inside PSXDrawSquare's 4th argument. */
+  int oldIsBg;
+  short i;
+
+  if (_7tScreen_fSuppressLoadingText != 0) {                              /* 37 */
+    _7tScreen_fSuppressLoadingText = 0;                                   /* 40 */
   }
   else {
-    _7tScreen_fSuppressLoadingText = 0;
+    oldIsBg = Draw_gView[Draw_gPlayer1View].drawenv[0].isbg;              /* 43 */
+    Draw_gView[Draw_gPlayer1View].drawenv[0].isbg =
+      Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = '\0';               /* 47 */
+    for (i = 0; i < 2; i = i + 1) {                                       /* 48 */
+      Draw_StartFrameRender();                                            /* 51 */
+      Draw_StartRenderingView(Draw_gPlayer1View);                         /* 53 */
+      FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo); /* 59 */
+      PSXDrawSquare(0,0x1e0,0xdc,-textpixels(TextSys_Word(0x27d)) - 5,7); /* 60 */
+      Draw_StopRenderingView(Draw_gPlayer1View);                          /* 63 */
+      Draw_StopFrameRender();                                             /* 64 */
+    }
+    Draw_gView[Draw_gPlayer1View].drawenv[0].isbg =
+      Draw_gView[Draw_gPlayer1View].drawenv[1].isbg = (u_char)oldIsBg;    /* 66 */
   }
   return;
 }
@@ -126,17 +125,15 @@ void tScreen::DrawBackgroundImage(int startShape,int numShapes,tTexture_ShapeInf
   int i;
   tDrawShapeExtended drawFlags;
   
+  /* SLD statements: 189 flip_axis / 190 custom_shapes (UNCONDITIONAL, before the
+     loop) / 192 the `for` head / 194 / 195 / 196 / 197 back-edge. */
   drawFlags.flip_axis = (short)flip_axis;
-  if (startShape < startShape + numShapes) {
-    i = startShape;
-    drawFlags.custom_shapes = shapes;
-    do {
-      DrawShapeExtended(i,0x200,0,0,(int)this->fScreenFadeVal,0,&drawFlags);
-      if (0 < flip_axis) {
-        DrawShapeExtended(i,0x260,0,0,(int)this->fScreenFadeVal,0,&drawFlags);
-      }
-      i = i + 1;
-    } while (i < startShape + numShapes);
+  drawFlags.custom_shapes = shapes;
+  for (i = startShape; i < startShape + numShapes; i = i + 1) {
+    DrawShapeExtended(i,0x200,0,0,(int)this->fScreenFadeVal,0,&drawFlags);
+    if (0 < flip_axis) {
+      DrawShapeExtended(i,0x260,0,0,(int)this->fScreenFadeVal,0,&drawFlags);
+    }
   }
   return;
 }
@@ -316,13 +313,20 @@ tScreen::~tScreen()
 void tScreen::Initialize()
 
 {
-  bool bVar1;
-  void *pvVar2;
+  /* SYM 8c: the ONLY local is `shapesLoaded` (class REG $10 = $s0, type BOOL);
+     `this` is REGPARM $11 = $s1 and the frame carries just $s0/$s1/$ra
+     (mask $80030000, fsize 56).  So there is NO separate pvVar2 -- ONE variable
+     holds both the perm-file result and the &&-combined flag, which is why gcc
+     reuses $s0.  It is spelled `int` here (not `bool`) so the direct assignment
+     from tScreen::IsShapeFileLoaded's declared `void *` return is a plain move,
+     exactly as retail (whose IsShapeFileLoaded returns the BOOL); the shared
+     nfs4_types.h signature cannot be corrected from this TU. */
+  int shapesLoaded;
   short numPermShapes;
   short numSwapShapes;
   char *permFileName;
   char *swapFileName;
-  
+
   this->DisplayLoadingText();
   (*(*this->_vf)[5].pfn)((char *)this + (*this->_vf)[5].delta);
   (*(*this->_vf)[1].pfn)
@@ -330,19 +334,17 @@ void tScreen::Initialize()
              &numSwapShapes,&permFileName,&swapFileName);
   do {
     FeAudio_systemtask(0);
-    pvVar2 = this->IsShapeFileLoaded(this->fPermShapes);
-    if ((this->fPermShapes).fFile != (char *)0x0) {
-      this->UploadPermanentShapes((int)numPermShapes);
+    shapesLoaded = (int)this->IsShapeFileLoaded(this->fPermShapes);   /* 363 */
+    if ((this->fPermShapes).fFile != (char *)0x0) {                   /* 364 */
+      this->UploadPermanentShapes((int)numPermShapes);                /* 365 */
     }
-    bVar1 = false;
-    if (pvVar2 != (void *)0x0) {
-      pvVar2 = this->IsShapeFileLoaded(this->fSwapShapes);
-      bVar1 = pvVar2 != (void *)0x0;
+    /* SLD line 367 is ONE statement -- retail's `&&` funnel ($v1 default 0, the
+       call, sltu into $v1) whose result is copied back into $s0 at 368. */
+    shapesLoaded = shapesLoaded && this->IsShapeFileLoaded(this->fSwapShapes) != (void *)0x0;
+    if ((this->fSwapShapes).fFile != (char *)0x0) {                   /* 368 */
+      this->UploadSwapShapes((int)numSwapShapes);                     /* 369 */
     }
-    if ((this->fSwapShapes).fFile != (char *)0x0) {
-      this->UploadSwapShapes((int)numSwapShapes);
-    }
-  } while (!bVar1);
+  } while (!shapesLoaded);
   (this->fPermShapes).fNumShapes = numPermShapes;
   (this->fSwapShapes).fNumShapes = numSwapShapes;
   this->GoNonInterlaced();
@@ -545,39 +547,31 @@ void tScreen::FreeShapes(tShapeInformation &data)
 void tScreen::UploadShapes(tShapeInformation &data,short x,short y,short numShapes,short index)
 
 {
-  int iVar1;
-  int iVar2;
-  
-  if (data.fFile != (char *)0x0) {
-    if (numShapes == 0) {
-      numShapes = data.fNumShapes;
+  /* SYM 8c: the ONLY local is `i` (class REG $10 = $s0) -- ONE counter shared by
+     BOTH loops, indexed as [i + index]; the two-variable iVar1/iVar2 walk cost a
+     second induction pseudo.  SLD statements: 563 571 572 / 576 578 580 581 583 /
+     585 / 588 589 / 591 594 595 596 597. */
+  int i;
+
+  if (data.fFile != (char *)0x0) {                                       /* 563 */
+    if (numShapes == 0) {                                                /* 571 */
+      numShapes = data.fNumShapes;                                       /* 572 */
     }
-    iVar2 = 0;
-    if (0 < numShapes) {
-      iVar1 = (int)index;
-      do {
-        if (data.fShapes[iVar1].clutID != 0) {
-          Texture_MenuReleaseClutId((short)data.fShapes[iVar1].clutID);
-          data.fShapes[iVar1].clutID = 0;
-        }
-        iVar2 = iVar2 + 1;
-        iVar1 = iVar2 + index;
-      } while (iVar2 < numShapes);
+    for (i = 0; i < numShapes; i = i + 1) {                              /* 576 */
+      if (data.fShapes[i + index].clutID != 0) {                         /* 578 */
+        Texture_MenuReleaseClutId((short)data.fShapes[i + index].clutID); /* 580 */
+        data.fShapes[i + index].clutID = 0;                              /* 581 */
+      }
     }
-    data.fFlags = data.fFlags & 0xfffe;
-    if (0 < numShapes) {
-      iVar2 = 0;
-      do {
-        iVar1 = iVar2 + 1;
-        FETexture_LoadPmxAtOffset(data.fFile,iVar2,data.fShapes + iVar2 + index,(int)y,(int)x);
-        iVar2 = iVar1;
-      } while (iVar1 < numShapes);
+    data.fFlags = data.fFlags & 0xfffe;                                   /* 585 */
+    for (i = 0; i < numShapes; i = i + 1) {                               /* 588 */
+      FETexture_LoadPmxAtOffset(data.fFile,i,&data.fShapes[i + index],(int)y,(int)x); /* 589 */
     }
-    data.fFlags = data.fFlags | 1;
-    if (data.fDestFile == (char *)0x0) {
-      purgememadr(data.fFile);
+    data.fFlags = data.fFlags | 1;                                        /* 591 */
+    if (data.fDestFile == (char *)0x0) {                                  /* 594 */
+      purgememadr(data.fFile);                                            /* 595 */
     }
-    data.fFile = (char *)0x0;
+    data.fFile = (char *)0x0;                                             /* 596 */
   }
   return;
 }

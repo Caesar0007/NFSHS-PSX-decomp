@@ -8,19 +8,20 @@
 /* lines 1-20: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- CalcFadeVal3  (fefades.cpp:21, code lines 21-30) ---- */
+/* SYM 8c: locals r($04) g($03) b($02) only -- NO `inv` local (0x80-amount is a CSE).
+   SLD statement order = 26 (r, the LOW byte) / 27 (g) / 28 (b, the HIGH byte) / 30
+   (the packed return).  The channel packing is PSX BGR: 0xBBGGRR. */
 int CalcFadeVal(int col1,int col2,int amount)
 
 {
-  int b;
-  int g;
-  int inv;
   int r;
-  
-  inv = 0x80 - amount;
-  r = (int)(inv * (col1 >> 0x10 & 0xffU) + amount * (col2 >> 0x10 & 0xffU)) >> 7;
-  g = (int)(inv * (col1 >> 8 & 0xffU) + amount * (col2 >> 8 & 0xffU)) >> 7;
-  b = (int)(inv * (col1 & 0xffU) + amount * (col2 & 0xffU)) >> 7;
-  return r << 0x10 | g << 8 | b;
+  int g;
+  int b;
+
+  r = (int)((0x80 - amount) * (col1 & 0xffU) + amount * (col2 & 0xffU)) >> 7;
+  g = (int)((0x80 - amount) * (col1 >> 8 & 0xffU) + amount * (col2 >> 8 & 0xffU)) >> 7;
+  b = (int)((0x80 - amount) * (col1 >> 0x10 & 0xffU) + amount * (col2 >> 0x10 & 0xffU)) >> 7;
+  return b << 0x10 | g << 8 | r;
 }
 
 /* lines 31-33: (static data / macros / comments - no emitted code) */
@@ -54,16 +55,12 @@ int CalcFadeVal(int col1,int col2,int amount,int fFade)
 int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 
 {
-  int result;
-
-  /* MATCH 2026-08-03 (19->5): flattened volatile indexing keeps the two
-     text-definition reads independent while matching retail's operand
-     allocation and schedule.  The residual is one extra base increment and
-     the equivalent zero-offset loads it produces (29/28 instructions). */
-  result = CalcFadeVal(kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 3]],
-                       kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 4]],
-                       (int)fSelFade,(int)fFade);
-  return result;
+  /* SYM 8c block: NO locals (3 REGPARM only) -> single direct-return statement.
+     MATCH: volatile-deref views keep the two row reads independent (retail has two
+     separate `addu base` computations); residual = displacement-vs-folded-offset. */
+  return CalcFadeVal(kRGBVals[(byte)*(volatile char *)&textDefinitions[type][3]],
+                     kRGBVals[(byte)*(volatile char *)&textDefinitions[type][4]],
+                     (int)fSelFade,(int)fFade);
 }
 
 /* lines 50-52: (static data / macros / comments - no emitted code) */
@@ -85,35 +82,36 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
 /* lines 60-64: (static data / macros / comments - no emitted code) */
 
 /* ---- CalcOnOffFade  (fefades.cpp:65, code lines 65-79) ---- */
+/* SYM 8c: the named REG locals are ColSelOn($12=$s2) / ColSelOff($16=$s6) /
+   ColUnSelOn+ColUnSelOff (both $10=$s0) plus the two int& REGPARM->REG copies
+   ($17, $1e); baseA/baseB/baseC below are compiler temps in retail (the three
+   kRGBVals lookups are hoisted by CSE ahead of the first call).  SLD statements:
+   72 / 73 / 75 / 76 / 78 / 79 -- the order kept here.
+   RESIDUAL (12 diffs, 88/88): retail materialises the textDefinitions row base
+   THREE times (`addu vN,idx,base`) and folds 3/4/5 into the lbu displacement; the
+   volatile row view reproduces the three independent bases but bakes the offset
+   into the address instead (loads at 0/+1/-1).  Named angle, see the report. */
 void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFade,int &OnColor,
                int &OffColor)
 
 {
+  int ColSelOn;
+  int ColSelOff;
+  int ColUnSelOn;
+  int ColUnSelOff;
   int baseA;
   int baseB;
   int baseC;
-  int ColUnSelOn;
-  int result;
-  int ColUnSelOff;
-  int amount;
-  int ColSelOn;
-  int ColSelOff;
-  
-  amount = (int)fOnOffFade;
-  /* Separate volatile row views retain retail's three independently
-     scheduled row-address pseudos instead of GCC CSEing one shared base. */
+
   baseA = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][4]];
   baseB = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][5]];
   baseC = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][3]];
-  ColSelOn = CalcFadeVal(baseA,baseB,amount);
-  ColSelOff = CalcFadeVal(baseB,baseA,amount);
-  ColUnSelOn = CalcFadeVal(baseC,baseA,amount);
-  ColUnSelOff = CalcFadeVal(baseA,baseC,amount);
-  result = CalcFadeVal(ColUnSelOn,ColSelOn,(int)fSelFade,(int)fFade);
-  OnColor = result;
-  result = CalcFadeVal(ColUnSelOff,ColSelOff,(int)fSelFade,(int)fFade);
-  OffColor = result;
-  return;
+  ColSelOn = CalcFadeVal(baseA,baseB,(int)fOnOffFade);
+  ColSelOff = CalcFadeVal(baseB,baseA,(int)fOnOffFade);
+  ColUnSelOn = CalcFadeVal(baseC,baseA,(int)fOnOffFade);
+  ColUnSelOff = CalcFadeVal(baseA,baseC,(int)fOnOffFade);
+  OnColor = CalcFadeVal(ColUnSelOn,ColSelOn,(int)fSelFade,(int)fFade);
+  OffColor = CalcFadeVal(ColUnSelOff,ColSelOff,(int)fSelFade,(int)fFade);
 }
 
 /* end of fefades.cpp */

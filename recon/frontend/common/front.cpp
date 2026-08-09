@@ -1117,46 +1117,48 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
 
 {
-  char cVar1;
+  int cVar1;
   char cVar2;
   char cVar3;
   short i;
   int iVar4;
-  char cVar5;
+  int cVar5;
   tCarModels fBestCar;
   char oldTier;
   char oldMission;
   
   streamData->pMission = (tMissionInfo *)0x0;
   streamData->pStages = (tStageInfo *)0x0;
-  cVar3 = frontEnd.policeMission;
-  cVar2 = frontEnd.policeTier;
   cVar5 = '\0';
   if (frontEnd.raceType == '\x01') {
-    _i = 0;
-    if (0 < streamData->numPlayers) {
-      iVar4 = 0;
-      do {
-        if (streamData->playerCars[iVar4 >> 0x10].fCarClass != '\a') {
-          return;
-        }
-        cVar1 = streamData->playerCars[iVar4 >> 0x10].fCarID;
-        _i = _i + 1;
-        if (cVar5 < cVar1) {
-          cVar5 = cVar1;
-        }
-        iVar4 = _i * 0x10000;
-      } while (_i * 0x10000 >> 0x10 < (int)streamData->numPlayers);
+    /* MATCH: a plain short-counter `for` -- retail's zero-trip guard is
+       `slt i,numPlayers` (i's initial 0 shares the register with cVar5's 0), NOT
+       the `blez numPlayers` a literal `0 < numPlayers` if-guard produces, and the
+       bound is LICM-hoisted because the body has no aliasing store. */
+    for (i = 0; i < streamData->numPlayers; i = i + 1) {            /* 1552 */
+      if (streamData->playerCars[i].fCarClass != '\a') {               /* 1557 */
+        return;                                                          /* 1559 */
+      }
+      cVar1 = *(signed char *)&streamData->playerCars[i].fCarID;                        /* 1561 */
+      if (cVar5 < cVar1) {                                              /* 1562 */
+        cVar5 = cVar1;                                                  /* 1563 */
+      }
     }
-    frontEnd.policeTier = cVar5 + -0x16;
-    frontEnd.policeMission = '\0';
-    LoadDescription(&missionManager,true);
-    GetMissionToRace(&missionManager,&streamData->pMission);
+    /* SLD statements 1567/1568 then 1576/1577: the policeTier/policeMission
+       save AND restore both live INSIDE the raceType==1 arm, which is why retail
+       holds &frontEnd in a callee-saved reg ($s0) across the three calls instead
+       of rematerialising %hi/%lo for the restores. */
+    cVar2 = frontEnd.policeTier;                                        /* 1567 */
+    cVar3 = frontEnd.policeMission;                                     /* 1568 */
+    frontEnd.policeTier = cVar5 + -0x16;                                /* 1569 */
+    frontEnd.policeMission = '\0';                                      /* 1570 */
+    LoadDescription(&missionManager,true);                              /* 1572 */
+    GetMissionToRace(&missionManager,&streamData->pMission);            /* 1573 */
     GetMissionStages(&missionManager,(ushort)(byte)frontEnd.policeTier,
-               (ushort)(byte)frontEnd.policeMission,&streamData->pStages);
+               (ushort)(byte)frontEnd.policeMission,&streamData->pStages); /* 1574 */
+    frontEnd.policeTier = cVar2;                                        /* 1576 */
+    frontEnd.policeMission = cVar3;                                     /* 1577 */
   }
-  frontEnd.policeTier = cVar2;
-  frontEnd.policeMission = cVar3;
   return;
 }
 
@@ -1630,10 +1632,9 @@ extern "C" int * Front_AppendOpponentData__FPiR9tFEStream(int *stream,tFEStream 
   short i;
 
   /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
-     (*p++ = v;), same idiom as the sibling Append* fns. Materialize p=stream FIRST (before
+     (*stream++ = v;), same idiom as the sibling Append* fns. Materialize p=stream FIRST (before
      the if), like Front_AppendPerpData -- the oracle copies the incoming arg into its
      callee-saved cursor reg immediately, not just when the branch is taken. */
-  int *p = stream;
   if (0 < streamData->numOpponents) {
     i = 0;
     do {
@@ -1645,62 +1646,61 @@ extern "C" int * Front_AppendOpponentData__FPiR9tFEStream(int *stream,tFEStream 
          access. */
       carLineup = &streamData->carLineup[iVar2];
       ptVar3 = GetCarFromID(&carManager, (short)carLineup->carModel);
-      *p++ = 0x119;
-      *p++ = (int)streamData->currentCar;
-      *p++ = (int)(signed char)carLineup->position;
-      *p++ = 0x104;
-      *p++ = (int)streamData->currentCar;
-      *p++ = (uint)ptVar3->fSimNumber;
-      *p++ = 0x106;
-      *p++ = (int)streamData->currentCar;
-      *p++ = 1;
-      *p++ = 0x105;
-      *p++ = (int)streamData->currentCar;
-      *p++ = 2;
-      *p++ = 0x114;
-      *p++ = (int)streamData->currentCar;
-      *p++ = carLineup->personality;
-      *p++ = 0x118;
-      *p++ = (int)streamData->currentCar;
-      *p++ = carLineup->personality;
-      *p++ = 0x10a;
-      *p++ = (int)streamData->currentCar;
-      *p++ = (uint)(byte)carLineup->carColor;
-      *p++ = 0x10b;
-      *p++ = (int)streamData->currentCar;
-      *p++ = 0;
-      *p++ = 0x110;
-      *p++ = (int)streamData->currentCar;
-      *p++ = (byte)carLineup->carUpgrades & 1;
-      *p++ = 0x112;
-      *p++ = (int)streamData->currentCar;
-      *p++ = (byte)carLineup->carUpgrades >> 1 & 1;
-      *p++ = 0x10d;
-      *p++ = (int)streamData->currentCar;
-      *p++ = (byte)carLineup->carUpgrades >> 2 & 1;
-      *p++ = 0x10c;
-      *p++ = (int)streamData->currentCar;
-      *p++ = 0;
-      *p++ = 0x125;
-      *p++ = (int)streamData->currentCar;
-      *p++ = 0;
-      *p++ = 0x122;
-      *p++ = (int)streamData->currentCar;
+      *stream++ = 0x119;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = (int)(signed char)carLineup->position;
+      *stream++ = 0x104;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = (uint)ptVar3->fSimNumber;
+      *stream++ = 0x106;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = 1;
+      *stream++ = 0x105;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = 2;
+      *stream++ = 0x114;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = carLineup->personality;
+      *stream++ = 0x118;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = carLineup->personality;
+      *stream++ = 0x10a;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = (uint)(byte)carLineup->carColor;
+      *stream++ = 0x10b;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = 0;
+      *stream++ = 0x110;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = (byte)carLineup->carUpgrades & 1;
+      *stream++ = 0x112;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = (byte)carLineup->carUpgrades >> 1 & 1;
+      *stream++ = 0x10d;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = (byte)carLineup->carUpgrades >> 2 & 1;
+      *stream++ = 0x10c;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = 0;
+      *stream++ = 0x125;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = 0;
+      *stream++ = 0x122;
+      *stream++ = (int)streamData->currentCar;
       bVar1 = carLineup->carColor;
-      *p++ = (uint)*(byte *)((int)ptVar3->fColorList + (uint)bVar1 * 4 + 2) |
-                     ptVar3->fColorList[bVar1] & 0xff00 | (ptVar3->fColorList[bVar1] & 0xff) << 0x10
-      ;
-      *p++ = 0x123;
-      *p++ = (int)streamData->currentCar;
-      *p++ = ptVar3->fHudColor[(streamData->track).fTimeOfDay];
-      *p++ = 0x124;
-      *p++ = (int)streamData->currentCar;
+      *stream++ = ptVar3->fColorList[bVar1] >> 0x10 & 0xff | ptVar3->fColorList[bVar1] & 0xff00 |
+             (ptVar3->fColorList[bVar1] & 0xff) << 0x10;
+      *stream++ = 0x123;
+      *stream++ = (int)streamData->currentCar;
+      *stream++ = ptVar3->fHudColor[(streamData->track).fTimeOfDay];
+      *stream++ = 0x124;
+      *stream++ = (int)streamData->currentCar;
       i = i + 1;
-      *p++ = (uint)ptVar3->fSpeechColors[(byte)carLineup->carColor];
+      *stream++ = (uint)ptVar3->fSpeechColors[(byte)carLineup->carColor];
       streamData->currentCar = streamData->currentCar + 1;
     } while (i < streamData->numOpponents);
   }
-  return p;
+  return stream;
 }
 
 
@@ -1727,7 +1727,13 @@ extern "C" int * Front_AppendCopData__FPiR9tFEStream(int *stream,tFEStream *stre
      re-walks the stream cursor with `addiu s0,s0,4` after EVERY word (tag+value pairs),
      rematerializing the address each time rather than computing fixed offsets from an
      unchanging base. Same idiom as Front_AppendTrackData. */
-  for (i = 0; i < (int)streamData->numCops + (int)streamData->numSuperCops; i = i + 1) {
+  /* MATCH (LAW 05A/lever #15a): retail's loop is NOT rotated -- the bound is
+     re-loaded and the counter re-sign-extended at the loop HEAD each pass and the
+     back edge is an unconditional `j`.  An exit-in-the-middle while(1) reproduces
+     that; a `for`/`while` condition gets loop-rotated to a bottom test. */
+  i = 0;
+  while (1) {
+    if ((int)streamData->numCops + (int)streamData->numSuperCops <= i) break;
     ptVar1 = GetCarFromID(&carManager, (short)streamData->copCars[i]);
     *stream++ = 0x104;
     iVar2 = 8;

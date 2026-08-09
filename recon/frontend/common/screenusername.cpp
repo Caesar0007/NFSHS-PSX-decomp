@@ -98,7 +98,6 @@ void tScreenUserName::DrawBackground()
   short gridpos;
   short row;
   short col;
-  volatile char framePad[8];
 
   fade = *(volatile int *)&this->callingMenu->fScreenFade;
   if ((short)((fade >> 1) - 0x80) < 0x80) {
@@ -152,41 +151,35 @@ DrawBgUser_textFadeDone:
       output[0] = this->fRowList[0][col + row * 9];
       colText = CalcFadeVal(0xb54200,this->fTextFade);
       switch(output[0]) {
+      case '!':
+        FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x16,y - 1,colText,1,2);
+        PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
+        break;
       case '@':
         FETextRender_FullTextRGB(TextSys_Word(0x205),x + 0x24,y - 1,colText,1,2);
-        k = 1;
-        do {
+        for (k = 1; k < 3; k++) {
           PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-          k++;
-        } while (k < 3);
+        }
         break;
       case '#':
-        i = 0x206;
-        goto DrawBg4b1ac_emitText;
+        FETextRender_FullTextRGB(TextSys_Word(0x206),x + 0x16,y - 1,colText,1,2);
+        PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
+        break;
       case '$':
         FETextRender_FullTextRGB(TextSys_Word(0x206),x + 0x24,y - 1,colText,1,2);
-        k = 1;
-        do {
+        for (k = 1; k < 3; k++) {
           PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-          k++;
-        } while (k < 3);
+        }
         break;
       case '&':
-        i = 0x207;
-        goto DrawBg4b1ac_emitText;
-      case '!':
-        i = 0x205;
-DrawBg4b1ac_emitText:
-        FETextRender_FullTextRGB(TextSys_Word(i),x + 0x16,y - 1,colText,1,2);
+        FETextRender_FullTextRGB(TextSys_Word(0x207),x + 0x16,y - 1,colText,1,2);
         PSXDrawSquare(0,x + 0x16,y - 2,2,0xe);
         break;
       case '^':
         FETextRender_FullTextRGB(TextSys_Word(0x207),x + 0x4e,y - 1,colText,1,2);
-        k = 1;
-        do {
+        for (k = 1; k < 6; k++) {
           PSXDrawSquare(0,x + k * 0x1c - 6,y - 2,2,0xe);
-          k++;
-        } while (k < 6);
+        }
         break;
       default:
         FETextRender_FullTextRGB(output,x + 8,y - 1,colText,1,2);

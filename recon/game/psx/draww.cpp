@@ -568,6 +568,27 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        ---- superseded: permuter candidate (not run here -- fn is large/GTE-heavy, see the two
        already-running permuter jobs on the smaller Night_* fns for the
        time-budget tradeoff). */
+    /* w53-a1 RE-GATE + 5 MORE FALSIFICATIONS FROM THE 588/588 BASIN.  Base re-gated
+       35 @587 (ONE SHORT); the w49 `{ int m = n; ... }` block-local basin re-
+       measured at exactly 38 @588/588, so both numbers are current, not stale.
+       In that basin the residual is now TWO clusters only:
+         (a) the whole v5..v8 pivot chain in `$v1` where retail keeps it in `$a3`
+             and mutates it in place (`addiu a3,a3,3`), plus one lowering variant
+             (ours `sra v1,16; sll v0,4`, retail `sll v0,16; sra v0,12` -- the same
+             value, a combine tie); and
+         (b) the OT-link prim pointer: ours `lw a0,4(s2)`, retail `lw s3,4(s2)`
+             with an extra `addu a0,s3,zero` -- a CALLEE-saved home for the prim.
+       NEW FALSIFICATIONS (all from the 588/588 basin, all reverted):
+         + a 2nd distinct block-local `int k` carrying the +2 index      : 38
+         + v5 driven off `n` while v6..v8 use `m`                        : 38
+         + the +1 index precomputed into `int i1` before v5              : 38
+         + `m` MUTATED in place for v8 (`m = m + 3; v8 = &v[(short)m];`) : 163 @587
+       => the 3<->4 qty-boundary dial does NOT move this block (three separate
+       spellings of "add one more distinct pseudo" are byte-identical), so the
+       remaining dial really is the BIRTH ORDER inside the hand-rolled next_qty<=3
+       comparator -- qtytrace.py from the 588/588 basin, as w49 said.  Cluster (b)
+       is independent and is the same prim-in-a-callee-saved-reg question as
+       DrawW_DrawQuad's p141; crack it there first, it is a smaller function. */
     v4 = &r_div->v[n];
     n = n + 1;
     v5 = &r_div->v[n];
@@ -1325,6 +1346,84 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
    * The `addiu $s1,$s0,0x110` that the oracle issues in the else-arm's `j` delay
    * slot therefore moves into our prologue -- one instruction placed differently,
    * paid for by 174 diff lines. Semantically identical (default-then-override). */
+  /* ================= RECEIPT (w53-a1) -- **THE 7 IS NOW A SOLVED PROBLEM WITH A
+     PRICED DELTA**: the retail if/else form + a then-arm void fence reaches
+     **PASS 592/592** the moment `sd` carries 128 references.  Everything below is
+     measured at this basin (base 7 diffs, ours 591 / oracle 592 = ONE SHORT).
+  
+     THE THREE-PART MECHANISM (each part measured on its own):
+       1. RETAIL ARM ORDER + NO TOP DEFAULT --
+            if (doSubdivision != 0) { prim = &sd->GT4Prim; }
+            else { prim = cprim.PrimPtr; <OT-link asm> }
+          alone this is the long-known 197 (the p141/p80 $s0<->$s1 flip).
+       2. VOID FENCE AT THE THEN-ARM HEAD -- `__asm__("" : : "i"(0));` as the
+          FIRST statement of the `prim = &sd->GT4Prim;` arm.  Without it reorg
+          EAGER-STEALS the arm's single `addiu $s1,$s0,0x110` into the guard's
+          delay slot and jump.c then deletes the now-empty arm's `j` -- which is
+          EXACTLY the missing instruction.  With the fence the arm is 2 RTL insns,
+          the steal is impossible, and the oracle's
+              beqz $s5,OT ; [ds] addiu $v0,$s0,0x94 ; j CONT ; [ds] addiu $s1,$s0,0x110
+          appears verbatim.  Placement matters: head-of-then = the win; head-of-else
+          = no-op (11); tail-of-then = +1 insn (593/11); both arms = 593/9; the
+          `eq` arm order with the same fence = 593/13.
+       3. THE ALLOCNO RAZOR, PRICED EXACTLY.  With (1)+(2) the ONLY blocker is
+          p141(prim) 24 refs / 114 live = pri .8421 out-ranking p80(sd) 62/846 =
+          .3664, so prim takes $s0.  Sweeping ZERO-INSN read fences `__asm__("" : :
+          "r"(sd))` at the function tail (each = +1 REG_N_REF, 0 bytes emitted,
+          verified against tools/prio.py: 24 fences -> refs 62->86 exactly):
+              +64 refs (126) : 194      +65 (127) : 194
+              +66 refs (128) : **PASS 592/592**   +67/68/69/70/80/100/140 : PASS
+          The step is at **128 = 2^7**: floor_log2 goes 6->7 and sd's priority
+          jumps .74 -> .87 past prim's .8421.  This is the w44 REF-STEP LAW in its
+          purest measured form (one reference either side of a power of two).
+  
+     SO THE REQUIRED DELTA IS: **p80(sd) REG_N_REFS 62 -> 128 at zero insns**
+     (or, equivalently, prim's refs 24 -> 13, or prim's live 114 -> >273).
+     NOT LANDED because 66 fences is scaffolding, not source.  The honest
+     inflators were priced and all fall short -- recorded so nobody re-derives:
+       * un-caching every sd-> read the recon caches (geomVertices,
+         currentQuadMat, primPtr, depth_avg, save_pre_otz) is worth ~+6 refs;
+         the whole function only contains 68 `sd` source tokens.
+       * the do{}while(0) DEPTH wrapper over the prim-FREE mid span (`primPtr =
+         sd->artInfo->pPmx;` .. the sd->offset if/else, ~12 sd refs) MEASURED:
+         D=2 204, D=3 204, D=4..7 234 -- it lifts every OTHER pseudo in the span
+         too (the w45 DEPTH-ASYMMETRY trap), so it moves AWAY from the razor.
+       * prim's live cannot be stretched instead: an early (uninitialised) read
+         fence at the function head is a NO-OP (194 at 1/2/3 fences), and fences
+         placed just before the `if (doSubdivision != 0)` block add ZERO live
+         length (prim's natural death is already there).  Fences at the function
+         TAIL do work (live 114 -> 192, prio.py-verified) and with sd at 87 refs
+         that basin gates **6 count-EXACT 592/592** -- residual = ONLY
+         `lbu s3,263(s0)` vs `lbu s1,263(s0)` (zeroTransFlag), because holding
+         prim live to the end is exactly what denies $s1 to zeroTransFlag.  So the
+         live-length route and the register it needs are MUTUALLY EXCLUSIVE; the
+         ref route is the only one that can reach 0.
+     NEXT ANGLE (named): a ZERO-INSN prim REF-SHED to <=13.  The 24 refs are 4
+     `&prim->xN` + 4 `&prim->uN` + 8 colour (4 per exclusive arm) + tag + code +
+     2 clut + the NightColorCalc arg + the asm operand + 2 defs.  Group bases
+     (`long *px = &prim->x0; px[0]/px[3]/px[6]/px[9]`) each shed 3 refs but cost
+     an `addiu`; a base that costs NOTHING (one already materialised in the block,
+     or a bases pair that cross-jump-merges) is the missing piece.  Alternatively
+     route it through the permuter from the 6-diff count-exact basin.
+   RAGE-RACER CROSS-CHECK (w53-a1; C:/Temp/rage-racer-decomp, 100% byte-exact,
+   gcc-2.6.3 PsyQ-3.x -- shapes transfer, registers do not).  Its matched
+   render code (src/main/PAL/main/track/draw_terrain_cells.c DrawSkyBackground,
+   src/main/PAL/main/render/draw_prims.c SetDrawClipRect) confirms the shape
+   this receipt is asking for: ONE scratchpad STRUCT POINTER local
+   (`SkyRenderScratchpad *scratch = (SkyRenderScratchpad *)SCRATCHPAD_ADDR;`)
+   reached as `scratch->field` at EVERY use -- Namco never caches a scratchpad
+   field into a second local, so that one pointer legitimately carries a very
+   high reference count, which is exactly the p80(sd) >= 128 this function
+   needs.  RR also declares its packet cursor MID-declaration-list with an
+   initializer (`u8 *packetCursor = scratch->packetCursor;` sitting between
+   two plain s32 decls) -- decl POSITION as frame layout, w41 -- and uses the
+   `oldPrim = prim; prim += N; AddPrim(ot, oldPrim); *cursor = prim;` emission
+   order.  So the honest +66 is 'stop caching sd-> reads': `tx/ty/tz` (3 refs
+   today, 12 uses), `geomVertices` (1 vs 4), `currentQuadMat`, `primPtr`,
+   `depth_avg`, `save_pre_otz`, `workPmx` -- worth ~+20 by inspection, so it
+   is a DIRECTION, not yet the whole delta.  ⚠️ RR pins registers
+   (`register s32 clutReg asm("$16")`, `register u8 *stackPointer asm("$29")`)
+   -- DROPPED, this project is pin-free. */
   prim = &sd->GT4Prim;
   {
     int t1;
@@ -2227,6 +2326,24 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
             DrawW_StripDraw_High(sd);
           }
         }
+        /* w53-a1 TRIAGE (86 diffs, ours 361 / oracle 359 = TWO over; posdiff LCS
+           279/359).  chunkdiff localises the whole residual to THREE runs / 15 insns,
+           and the biggest is a repeated per-arm shape worth naming: every
+           `sd->quads = <load>; sd->offset = K; sd->zeroGTETransFlag; sd->light;
+           <call>(sd)` block wants the QUADS STORE IN THE CALL'S DELAY SLOT with the
+           loaded pointer in $v1 and the K constant in $v0 -- retail is uniformly
+               lw $v1,OFF($s1) ; li $v0,K ; sw $v0,236($s0) ; sb/sh ... ; jal ; sw $v1,232($s0)
+           Ours gets that EXACTLY RIGHT in two of the arms but in the 0x1e arm (the one
+           carrying the `DrawWTrough_setStateCallHigh` label) it emits the quads store
+           EARLY and pays TWO nops -- which is the entire +2 count excess.  Cause: the
+           quads store sits BEFORE the label (it must, the goto jumps past it), so it
+           cannot sink into the jal slot; retail's copy is AFTER the join, i.e. retail's
+           goto source also assigns quads.  NAMED ANGLE: find what the `goto
+           DrawWTrough_setStateCallHigh` arm assigns and make the quads store part of
+           the SHARED tail (both predecessors setting it) so it can reach the slot.
+           Note the register roles follow for free once that lands: with the load no
+           longer pinned early, $v0 is free for the `li 125/30` (ours currently burns
+           $t0/$t1/$t2 on it in three separate arms = the rest of the diff). */
         sd->quadCount = chunkDat->quadCounts[0];
         if (sd->quadCount != 0) {
           sd->quads = chunkDat->renderQuads[0];
@@ -3039,7 +3156,6 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int iVar4;
   ObjectAnim *pOVar5;
   Group *pThis;
-  int iVar6;
   int objMat_p;
   int sx;
   int blend_x;
@@ -3073,9 +3189,21 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
 
+  /* w53-a1 LANDED (120 -> 110, still ours 192 / oracle 200): the element
+     count was carried by a FABRICATED `iVar6` while the SYM's own AUTO
+     `groupNumElements` sat DECLARED-BUT-UNUSED right after `totalCount`.
+     Deleting the fake decl and renaming every use to the SYM local fixes the
+     FRAME LAYOUT: reload slots the two AUTOs in pseudo order, so ours now
+     emits `sw zero,80(sp)` (totalCount) / `sw a3,84(sp)` (groupNumElements) --
+     the oracle's slots; before, they were swapped (84/80) and every
+     displacement in the head block differed.  Falsified in the same basin:
+     swapping the two INIT STATEMENTS (120, no-op -- the dial is the decl set,
+     not the statement order) and merely MOVING the `int iVar6;` decl next to
+     `totalCount` while keeping the fake name (120).  The remaining 10-insn
+     head gap is unchanged and is still the w46-a6 ARG-SPILL vacancy below. */
   groupBase_p = (int)(group + 1);
   totalCount = 0;
-  iVar6 = group->m_num_elements;
+  groupNumElements = group->m_num_elements;
   /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
    * group as the FALL-THROUGH `j <epilogue>; [ds] addu $v0,$zero,$zero` -- the
    * non-empty case is the branch TARGET, not the else arm. */
@@ -3090,7 +3218,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
    * (`lw $t0,0x84($sp); addiu $v0,$t0,0x14`) for the matB zeroing, while ours keeps
    * sd live in $s5 -- the same ARG-SPILL-pressure gap as Draw_kCtrlSkidmark.  The
    * polarity is downstream of that, not an independent arm-order choice. */
-  if (iVar6 == 0) {
+  if (groupNumElements == 0) {
     return 0;
   }
   {
@@ -3104,7 +3232,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
     (sd->matB).t[1] = 0;
     (sd->matB).t[0] = 0;
 gte_SetTransMatrix((MATRIX *)&sd->matB);
-    for (facetCount = 0; facetCount < iVar6; facetCount = facetCount + 1) {
+    for (facetCount = 0; facetCount < groupNumElements; facetCount = facetCount + 1) {
       tc5 = *(u_char *)(groupBase_p + 2);
       tc4 = offsets[*(u_char *)(groupBase_p + 4)];
       if ((tc5 == 5) || (tc5 == 2)) {
@@ -3380,6 +3508,22 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      already wired in tools/build.py.  NAMED LANE CANDIDATE: sink `sw s5,68(sp)` to
      retail insn 11 and `lw s5,96(sp)` into the lbu load-delay slot at 17, which also
      deletes the nop and lands the count. */
+  /* w53-a1 RE-GATE: 5 diffs, ours 190 / oracle 189, UNCHANGED.  The w51-a10
+     diagnosis is re-confirmed against the current object: the only residual is
+     the 5th (STACK) argument's assign_parms reload -- ours emits
+     `sw s5,68(sp); lw s5,96(sp)` as insns 5-6 and pays a `nop` at insn 17,
+     retail saves s0,s4,ra,s5,... and SINKS `lw s5,96(sp)` into the
+     `lbu $v0,3($s4)` load-delay slot at insn 16.  Nothing in the source can
+     reach assign_parms (proven again by this wave's DrawQuad work: every fence
+     form COSTS instructions when the target is a prologue copy).
+     >>> ORCHESTRATOR ACTION: this is a PER_FN textual-splice lane exactly like
+     the already-wired PER_FN_RA_SINK / PER_FN_EPILOGUE_UNFILL in tools/build.py.
+     The splice is 2 moves inside the `.ent` region:
+         (a) move `sw $21,68($sp)`  to just after `sw $31,72($sp)`
+         (b) move `lw $21,96($sp)`  to just after `lbu $2,3($20)` (deleting the
+             `nop` that follows it)
+     -> count 189 == 189 and the fn PASSes.  I am not permitted to edit
+     tools/*.py, so this stays a named lane, not a landing. */
   coorddef tmp;
   coorddef tmp2;
   int isCullable;
@@ -4009,6 +4153,25 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        free.  Remaining clusters: an early store-order pair (`sw a0,0(gp)` vs
        `sw t0,24(sp)` + the `lw s5,136(v1)` position) and one `v1`-vs-`a1` operand on
        an `xori ...,4`. */
+    /* w53-a1 RE-GATE + FALSIFICATIONS (30 diffs, count-EXACT 222/222; posdiff
+       first-use order is ORACLE-IDENTICAL, structural residual 15).  The w46-a7
+       "NEW NAMED ANGLE" (move the 0x1F800000 materialisation into the second
+       guard chain) was attacked from the OTHER side -- free `$a0` by killing the
+       CSE that keeps `chunkM1` live across both chains -- and every form COSTS an
+       instruction, which is why the class survives:
+         nested-if split of the `&&` (chain1 { chain2 { body } }), chain 2 written
+           with the inline `(u_int)(thisChunkInd - 1U)`      : 30, BYTE-IDENTICAL
+           (so the `&&` -> nested-if rewrite is free here and can carry a fence)
+         + w47 OPACITY fence on `thisChunkInd` between the chains : 57 @223 (+1)
+         + fenced COPY `u_int ind2 = thisChunkInd;` used by chain 2 only : 68 @224
+         + the same fence but chain 2 still reading thisChunkInd  : 55 @223
+       READ: the fence DOES force retail's `addiu $v0,$s5,-1` remat, but it also
+       materialises a copy -- the recompute must come from cse being unable to
+       reach across a BLOCK, not from a barrier.  Since the nested-if form is
+       byte-free, the next probe is to put a STATEMENT (not a fence) between the
+       chains that legitimately clobbers `$a0` -- e.g. hoisting the `SetSp`
+       argument's own address local into that position, which is the very value
+       retail's `lui $a0,0x1F80` is computing. */
     u_int chunkM1 = thisChunkInd - 1U;
     if (((GameSetup_gData.track != 4) ||
         (((0x27 < chunkM1 && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
@@ -4305,6 +4468,18 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      SetupBlockader (424->345), and it moves p92's ref count directly.
      ============================================================================ */
 
+  /* w53-a1 RE-GATE: 303 diffs, ours 354 / oracle 353 (ONE over) -- the w46-a6
+     numbers stand unchanged at this HEAD, so the 4-step reqdelta chain and the
+     `Skidmark_Chunk *sm` rule-8 angle are both still CURRENT (not basin-stale).
+     posdiff re-run: LCS 128/353, first-use order still the same 6-way callee-
+     saved rotation.  chunkdiff localises the mass to FIVE runs / 52 insns, and
+     the biggest one is a PARALLEL-CHAIN shape, not coloring: retail issues
+         lw $v1,0($s4); lw $a0,12($s4); lw $a1,24($s4); sra x3; sh 20/22/24($s1)
+     (three independent load->shift->store chains batched, each load filling the
+     previous one's delay slot) where ours serialises them through two regs and
+     permutes which source offset lands in which destination half-word.  That is
+     the catalog's "N named value-temps / parallel chains" row and it is worth
+     attacking BEFORE the rotation -- it is a source shape, the rotation is not. */
   int skidChunk_p;
   int vert_count;
   int smBase;
@@ -5401,9 +5576,23 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      swap (ours s4=fz/s2=fx, oracle s4=fx/s2=fz) that statement order does not
      reach.  Treat it as a local-alloc qty question (birth order / QTY_CMP_PRI),
      not an evaluation-order one. */
-  { int t2 = (signed char)BWorldSm_slices[slice].forward[2]; t2++; t2--; fz = (u_short)(t2 >> 1); }
-  { int t1 = (signed char)BWorldSm_slices[slice].forward[1]; t1++; t1--; fy = (u_short)(t1 >> 1); }
-  { int t0 = (signed char)BWorldSm_slices[slice].forward[0]; t0++; t0--; fx = (u_short)(t0 >> 1); }
+  /* w53-a1 LANDED (70 -> 66, count-exact 268/268): ONE reused block temp `t`
+     in ONE block, statements in the SLD's fx,fy,fz order.  Three separate
+     `{int tN;}` blocks (any permutation) gate 72-78; the same-identifier
+     redeclaration form gates 76; a named slice pointer 76.  Merging the three
+     temps into ONE pseudo is what moves it -- fewer block qtys, and with the
+     SLD order the lb sequence becomes the oracle's 15/16/17.  RESIDUAL 66 is
+     now three named clusters, all local-alloc qty NUMBERING (2- and 3-qty
+     blocks, w46 3-QTY LAW territory, NOT priority): (a) fx/fz still s2<->s4
+     swapped with the sra/sh interleave one slot late; (b) the two copy-loop
+     givs a2<->a3 swapped in BOTH the 72/80 and 144/152 loops (init ORDER is
+     already src-then-dst on both sides, so it is the qty handout, not the
+     source order); (c) the tail t4/t3 pair 408/456(sp) swapped.  All three are
+     the SAME 2-way handout question -- crack one, transcribe. */
+  { int t;
+    t = (signed char)BWorldSm_slices[slice].forward[0]; t++; t--; fx = (u_short)(t >> 1);
+    t = (signed char)BWorldSm_slices[slice].forward[1]; t++; t--; fy = (u_short)(t >> 1);
+    t = (signed char)BWorldSm_slices[slice].forward[2]; t++; t--; fz = (u_short)(t >> 1); }
   sx = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[0] << 9) >> 10);
   sy = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[1] << 9) >> 10);
   sz = (short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[2] << 9) >> 10);

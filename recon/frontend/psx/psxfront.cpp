@@ -1565,7 +1565,21 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * ALSO FALSIFIED this round: the font_tint STORAGE SHAPE is not the dial -- the
    * w44 menu (sized [1] MEM_IN_STRUCT_P aliasing view, sized [4], unsized [] view,
    * volatile read) measured EXACTLY neutral in both the 28 and 24 basins (5 shapes
-   * x 2 basins), so the hoist is not an alias/schedulability question. */
+   * x 2 basins), so the hoist is not an alias/schedulability question.
+   * ==== 2026-08-10 EDGBLA CROSS-CHECK (FontUpsideDownBlit.txt, user session file) ====
+   * edgbla's independent recon CONVERGES on the same two EA-custom macro shapes this
+   * body already carries: setRGB0_EA (whole-word rgbc store) and getTPage_EA
+   * ((uint)pos>>0x14&0x10 y-math, no stock-PsyQ (y&0x100)>>4|(y&0x200)<<2) -- two
+   * independent derivations = the EA-custom-macro-header theory is CORROBORATED.
+   * His two shapes we had NOT tried, both FALSIFIED from the 24 basin (re-gated):
+   * (a) `dv` split into two statements (dv=...; dv-=1;) = 92 @ 78/82 (4 SHORT -- the
+   *     fold merges the -1 into the & differently; single-expression form is retail);
+   * (b) typed FontShape member reads (tp@0/pos@0xc COMPONENT_REF) for the src derefs,
+   *     with AND without a font pointer local = 106 both -- the member access path
+   *     lets cse merge the two pos reads the oracle keeps separate; the scalar
+   *     cast-int derefs are LOAD-BEARING here (inverse of the 05H struct-field law:
+   *     for a REUSED anonymous word, the cast-int spelling is the un-merge device).
+   * His macro ORDER (tint after addPrim) = our falsified V22 (112). Residual stays 24. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

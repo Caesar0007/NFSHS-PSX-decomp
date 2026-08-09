@@ -974,7 +974,8 @@ MainLoop_noBack:
             Init_Memcard(false,1);
             err = PinkSlipsNoError;
             player = 0;
-            while ((player < 2) && (err == PinkSlipsNoError)) {
+            do {
+              if ((2 <= player) || (err != PinkSlipsNoError)) break;
               this_tDialogMessageString_l311 =
                    (tDialogMessageString *)&FEApp->NoInputMemCardDialog;
               this_tDialogMessageString_l311->string = TextSys_Word(player + 0x295);
@@ -991,7 +992,7 @@ MainLoop_noBack:
               }
               player = player + 1;
               ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-            }
+            } while (true);
             DeInit_Memcard();
             if (err == PinkSlipsNoError) goto MainLoop_carInfoPinkSlips;
             this->UpdateMusic();

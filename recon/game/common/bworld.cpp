@@ -294,12 +294,15 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
       int t2;
       int t3;
 
+      /* MATCH: retail negates m[7] through the FIRST temp and m[4] through the second
+         (oracle 8007DA44 `lw v1,28` before `lw v0,16`); the 4-then-7 order emits the
+         loads/stores the other way round. */
       t1 = gNightMat.m[1];
-      t3 = gNightMat.m[7];
+      t3 = gNightMat.m[4];
       gNightMat.m[1] = -t1;
-      t2 = gNightMat.m[4];
-      gNightMat.m[7] = -t3;
-      gNightMat.m[4] = -t2;
+      t2 = gNightMat.m[7];
+      gNightMat.m[4] = -t3;
+      gNightMat.m[7] = -t2;
     }
     DrawW_WorldSetUpMatrix(&gNightMat,&sd->matNight);
     BW_gCopCarObj = (Car_tObj *)0x0;
@@ -351,12 +354,15 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
           int t2;
           int t3;
 
+          /* MATCH: retail negates m[7] through the FIRST temp and m[4] through the second
+             (oracle 8007DA44 `lw v1,28` before `lw v0,16`); the 4-then-7 order emits the
+             loads/stores the other way round. */
           t1 = gCopMat.m[1];
-          t3 = gCopMat.m[7];
+          t3 = gCopMat.m[4];
           gCopMat.m[1] = -t1;
-          t2 = gCopMat.m[4];
-          gCopMat.m[7] = -t3;
-          gCopMat.m[4] = -t2;
+          t2 = gCopMat.m[7];
+          gCopMat.m[4] = -t3;
+          gCopMat.m[7] = -t2;
         }
         DrawW_WorldSetUpMatrix(&gCopMat,&sd->matCop);
       }
@@ -608,6 +614,11 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
   fogDist = *(u_short *)&ts->fogspec.dist2base;
   fogState = (u_char)ts->fogstate;
   time = GameSetup_gData.Time;
+  /* MATCH: 0-insn void-tail fence pins the flag store BELOW the four fog/time
+     loads -- sched2 otherwise hoists it up to fill their load-delay slots
+     (oracle 8007E1A4 sits after `lw a1,0x54(s0)`). Statement reorder alone is
+     inert here (3 positions probed, all 4 diffs). */
+  __asm__("" : : "i"(0));
   stackSpeedUpEnbabledFlag = 0;
   ((Draw_tGiveShelbyMoreCache *)sd)->startfog = fogStart;
   ((Draw_tGiveShelbyMoreCache *)sd)->distfog  = fogDist;

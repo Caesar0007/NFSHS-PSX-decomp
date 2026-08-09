@@ -24,12 +24,19 @@ void Clock_MasterInterruptHandler(void)
 {
   long gp;
   u_int local_10 [2];
-  
+  int even128;
+
   savegp(local_10);
   if (stopClock == 0) {
     clock_realTime.time128Hz = clock_realTime.time128Hz + 1;
+    /* MATCH: the 128Hz parity is read into a temp BEFORE the generic128HzClock store
+       so the `andi v1,v1,1` issues ahead of the gp-rel store (oracle 8008B970/74). */
+    even128 = clock_realTime.time128Hz & 1U;
     generic128HzClock = generic128HzClock + 1;
-    if (!(clock_realTime.time128Hz & 1U)) {
+    /* MATCH: 0-insn void fence stops reorg stealing the `addiu a0,a0,%lo(clock_realTime)`
+       base materialization into the bnez delay slot (oracle 8008B97C is a nop). */
+    __asm__("" : : "i"(0));
+    if (!even128) {
       clock_realTime.time64Hz = clock_realTime.time64Hz + 1;
       if (!(clock_realTime.time64Hz & 1U)) {
         clock_realTime.time32Hz = clock_realTime.time32Hz + 1;

@@ -152,11 +152,17 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
       if (*lastTrigger == this->numTriggers_ + -1) break;
       this->GetNextTrigger(car);
     }
-  } else if ((slice < this->triggers_[*lastTrigger]->any.slice) &&
-             (1 < this->numTriggers_)) {
-    while (slice < this->triggers_[*lastTrigger]->any.slice) {
-      if (*lastTrigger == 0) break;
-      this->GetPrevTrigger(car);
+  } else {
+    /* MATCH: retail RE-READS *lastTrigger at the else-arm head (oracle 80072BE4);
+       the 0-insn (implicitly volatile) asm is a cse memory barrier so the value from
+       the first condition is not carried across. */
+    __asm__("" : : "i"(0));
+    if ((slice < this->triggers_[*lastTrigger]->any.slice) &&
+        (1 < this->numTriggers_)) {
+      while (slice < this->triggers_[*lastTrigger]->any.slice) {
+        if (*lastTrigger == 0) break;
+        this->GetPrevTrigger(car);
+      }
     }
   }
   if (((this->triggers_[*lastTrigger]->any.slice == slice) &&

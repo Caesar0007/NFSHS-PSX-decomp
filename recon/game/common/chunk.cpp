@@ -72,6 +72,12 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
       int numElements = simGroup->m_num_elements;
       Trk_SimpleInst *inst = (Trk_SimpleInst *)(simGroup + 1);
       for (; i < numElements; i = i + 1) {
+        /* MATCH (reqdelta receipt, allocsim 27/27 on this fn): retail puts the counter
+           `i` in $a2 and the inner while-loop's -1 sentinel in $a3; we had them swapped
+           because p115(i) pri .7741 < p136(-1) pri 1.0.  reqdelta's minimal single dial
+           is refs(i) 8 -> 11, and flow.c weights a ref by loop depth (+2 in-loop, +1
+           outside): these two 0-insn use fences deliver exactly +3.  Count stays 329. */
+        __asm__("" : : "r"(i));
         if (((volatile Trk_SimObject *)inst)[i].instIndex != 0x7f) {
           int index = (int)((Trk_SimObject *)inst)[i].instIndex;
           SerializedGroup *probe = instGroup + 1;
@@ -84,6 +90,7 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
               (*(char *)((int)&probe[2].m_type + 3) != '\0')) break;
         }
       }
+      __asm__("" : : "r"(i));
       numElements = i;
       if (numElements == 0) {
         goto InstanceGroup_noSimObjects;

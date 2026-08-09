@@ -374,15 +374,18 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
   int gnLess1;
   int numSlices;
 
-  /* Reading the invariant before the flag test gives retail's carObj=$v1 allocation and
-     lowers the authoritative residual from 16 to 15; the remaining difference is load
-     scheduling/register choice (ours hoists this read, retail sinks it into the taken arm). */
-  numSlices = gNumSlices;
   delta = 0;
   if ((carObj->carFlags & 8U) != 0) {
+    /* MATCH: the SLD puts the whole slice/gNumSlices/clamp chain on ONE retail line
+       (all of 8007367C..8007369C is SLD:492), and retail SINKS the gNumSlices read into
+       the taken arm right after the slice load -- that read order is what gives
+       slice=$a2 / numSlices=$a1.  The 0-insn void fence then stops sched from pulling
+       the `lw s0,0x178(v1)` roadYaw load past the +1 (oracle 80073688/8C order). */
     iVar2 = (int)(carObj->N).simRoadInfo.slice;
+    numSlices = gNumSlices;
     yaw0 = (carObj->N).roadYaw;
     nextSlice = iVar2 + 1;
+    __asm__("" : : "i"(0));
     if (numSlices <= nextSlice) {
       gnLess1 = numSlices - 1;
       nextSlice = iVar2 - gnLess1;

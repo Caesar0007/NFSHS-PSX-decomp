@@ -137,6 +137,10 @@ AudioTrk_find_channel:
       for (i = 0; (c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10); i++) {
         if (AudioTrk_g->chan[i].se == (AudioElem *)0x0) {
           c = AudioTrk_g->chan + i;
+          /* MATCH: identity fence (0 insns) stops cse substituting `c` for the freshly
+             computed `&chan[i]`; retail stores through the ORIGINAL address pseudo
+             ($v1) while `c` is the surviving copy ($s2) -- oracle 8007C890/894. */
+          __asm__("" : "=r"(c) : "0"(c));
           AudioTrk_g->chan[i].se = se;
           c->slice = -1;
           n = i;
@@ -301,9 +305,18 @@ AudioTrk_fade_volume:
 AudioTrk_volume_done:
           ;
         }
-        dop = ((dop > 0xa0000 ? 0xa0000 : dop) > 1)
-                  ? (dop > 0xa0000 ? 0xa0000 : dop)
-                  : 1;
+        /* MATCH: retail evaluates min(0xA0000,dop) TWICE (8007CD34 and 8007CD40 share
+           the one `slt a0` but each select gets its own arm pair), assigns the clamp
+           unconditionally and only overrides it with 1 on the <=0 arm -- the ternary
+           `((min)>1)?(min):1` form CSEs the pair and inverts the branch polarity.
+           `(dop < K) ? dop : K` (not `(dop > K) ? K : dop`) picks retail's arm order. */
+        {
+          int dopClamped = (dop < 0xa0000) ? dop : 0xa0000;
+          if (((dop > 0xa0000) ? 0xa0000 : dop) <= 0) {
+            dopClamped = 1;
+          }
+          dop = dopClamped;
+        }
         if ((PAD_state(4) & 0x400) == 0) {
           c->handle =
               AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,
@@ -331,7 +344,13 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
           int vz = AudioClc_gRenderView.translation.z;
           coorddef v;
           int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
-          int end = numelems < start + quater ? numelems : start + quater;
+          /* MATCH: retail PRE-SETS the default (end = numelems, `addu fp,a3,zero`
+             at 8007CE94) and only overrides it on the `<=` arm -- the min ternary
+             emits the compare with the operands the other way round. */
+          int end = numelems;
+          if (start + quater <= numelems) {
+            end = start + quater;
+          }
           se += start;
           for (int i = start; i < end; se++, i++) {
             int tck;
@@ -398,7 +417,11 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
                     if (fadeOut + 128 < cur) {
                       fade = 0;
                     } else if (fadeOut < cur) {
-                      fade = fadeOut - (cur - 128);
+                      /* MATCH: a separate temp stops fold reassociating
+                         `fadeOut - (cur-128)` into `(fadeOut+128) - cur` (which reuses
+                         the guard's temp); oracle 8007D118/11C keep `cur-128` distinct. */
+                      int curBack = cur - 128;
+                      fade = fadeOut - curBack;
                     }
                   }
 

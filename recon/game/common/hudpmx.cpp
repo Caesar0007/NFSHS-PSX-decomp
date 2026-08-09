@@ -86,13 +86,13 @@ void HudPmx_InitTextures(void)
   gHudFont = loadfileadrz(name,0);
   Font_LoadFont(gHudFont,0x80,0x80,1);
   {
-    int u;
-    int v;
-    int w;
-    int h;
-    int yo;
-
     while (i < 10) {
+      int u;
+      int v;
+      int w;
+      int h;
+      int yo;
+
       Font_GetUVWH((char)(i + '0'),&u,&v,&w,&h,&yo);
       HudPmx_gHudNumberUV[i].u0 = (u_char)u;
       HudPmx_gHudNumberUV[i].v0 = (u_char)v;

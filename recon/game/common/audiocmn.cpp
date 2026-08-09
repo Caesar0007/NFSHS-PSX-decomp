@@ -427,7 +427,11 @@ void AudioCmn_Init(void)
     if ((temptrack & 0x10) != 0) {
       temptrack = (temptrack & 0xf) + 5;
     }
-    if (audioBackwardsDirection == 0) {
+    /* 05E VOLATILE-ON-THE-TEST-READ: retail RE-READS audioBackwardsDirection here
+       (`lw v0,0(gp); nop; bnez`) -- gcc otherwise keeps the just-stored value live in
+       the reverseTrack temp and emits no load at all.  Volatile only on the TEST read
+       (the store above stays ordinary).  48->45. */
+    if (*(volatile int *)&audioBackwardsDirection == 0) {
       paiVar1 = falseLapTrigNumsForward;
     }
     else {
@@ -560,13 +564,13 @@ void AudioCmn_CheckState(Car_tObj *car)
     if ((car->stats).lap != 0) {
       Sim_tSimGlobalVar *sim = &simGlobal;
 
-      /* W55-A10 FALSIFIED (15 -> 27): retail loads the gtotallaptimes side FIRST (`lw a0,0(a0)`
-         before `lw v1,0(v1)`, subu on a0) and ours the bestLapTime side; but writing the
-         comparison difference-first swaps BOTH address blocks and costs 12 more.  The load
-         order here is an ADDRESS-block ordering question, not a compare-operand one. */
-      if (*(int *)(((u_char)carnum << 2) + (int)bestLapTime) >
-          sim->gameTicks -
-          *(int *)(((u_char)carnum << 2) + (int)gtotallaptimes)) {
+      /* W57-A10 (supersedes the W55-A10 "difference-first FALSIFIED" note): retail
+         materializes &gtotallaptimes[carnum] FIRST (`lui a0,%hi(gtotallaptimes)` before
+         bestLapTime) and subtracts through it.  Difference-first ALONE regresses (27) --
+         it only works together with REAL ARRAY INDEXING; the *(int*)(idx<<2 + (int)arr)
+         cast form pins the old address-block order.  15 -> 13. */
+      if (sim->gameTicks - gtotallaptimes[(u_char)carnum] <
+          bestLapTime[(u_char)carnum]) {
         AudioCmn_GetAsyncSfx(2,0,false);
       }
     }
@@ -1444,6 +1448,11 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (freq < 0) {
     freq = 0;
   }
+  /* SYM-ORDERED PRIORITY FENCE (08D).  `freq` is SYM `class REG $0x16` = $s6, but our
+     build hands it $s7 and rotates every later s-reg.  One read-only operand = +1 ref =
+     the allocno-priority bump that restores the SYM order; ZERO insns emitted (527 both
+     sides).  Two operands over-raise (171).  Do NOT "simplify" this away. */
+  __asm__("" : : "r"(freq));
   /* SYM: roadSurface is REG $s5, spans from here through the switch dispatch below
      (blowout override + case-7 check) -- split from iVar12 which is reused for 3
      unrelated short-lived values later in the function. */
@@ -1580,11 +1589,10 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   {
   uVar7 = (u_int)iAmpIn;
 
-  amplitude = (int)uVar7 * (freq + 0x28);
-  if (amplitude < 0) {
-    amplitude = amplitude + 0x7f;
-  }
-  amplitude = amplitude >> 7;
+  /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
+     gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
+     exactly like retail (151->145). */
+  amplitude = (int)uVar7 * (freq + 0x28) / 128;
   if (amplitude < (int)uVar7) {
     amplitude = (int)uVar7;
   }
@@ -2087,66 +2095,55 @@ void AudioCmn_Reset(void)
 
   AudioCmn_Init();
 
+  /* W57-A10 SYM-FIRST REWRITE (126 -> 66).  Three findings from the 8c block:
+     (1) `ticks` = REG $s6 holds gettick()+0x280 = the DEADLINE computed ONCE
+         (`addiu s6,v0,640` in the preheader), not t0 re-added per iteration;
+     (2) the wait loop is UN-ROTATED -- retail keeps both head tests at the loop top
+         with a `j` back-edge (`bnez s1` on goodtogo BEFORE the gettick call); the
+         `while (!ready && ...)` form lets gcc prove entry and rotate (row 52);
+     (3) SYM BLOCK SCOPES: `i` is re-declared per block -- fn-scope $s1 (channel loop),
+         block line 52 $s0 (the 4-phrase loop), block line 60 $s2 (the numCars loop).
+         One shared fn-scope `i` pins all three to the same register.  `goodtogo` is
+         $s1 (our `ready`), which only frees up once the inner i's move out. */
   if (0 < gMasterAmbientLevel) {
-
     ready = false;
-
-    t0 = gettick();
-
-    while (!ready && (t = gettick(), t < t0 + 0x280)) {
-
+    t0 = gettick() + 0x280;
+    while (1) {
+      if (ready) break;
+      if (gettick() >= t0) break;
       ready = true;
-
       CopSpeak_Server();
-
       systemtask(0);
-
       if (0x8000 < SNDmemlargestunused(unused)) {
-
         if (GameSetup_gData.raceType == 1) {
-
+          int i;
           for (i = 0; i < 4; i++) {
-
             if (AudioCmn_GetAsyncSfx(2, i + 0x2f, false) == -1)
-
               ready = false;
-
           }
-
         }
-
         if (GameSetup_gData.Weather == 1 &&
-
             AudioCmn_GetAsyncSfx(1, 0, false) == -1)
-
           ready = false;
-
-        for (i = 0; i < GameSetup_gData.numCars; i++) {
-
-          if (GameSetup_gData.carInfo[i].carClass == 2) {
-
-            patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 0);
-
-            if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
-
-              ready = false;
-
-            patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 1);
-
-            if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
-
-              ready = false;
-
+        {
+          int i;
+          i = 0;
+          while (1) {
+            if (i >= GameSetup_gData.numCars) break;
+            if (GameSetup_gData.carInfo[i].carClass == 2) {
+              patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 0);
+              if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
+                ready = false;
+              patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 1);
+              if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
+                ready = false;
+            }
+            i++;
           }
-
         }
-
       }
-
     }
-
   }
-
   AudioTrk_PreLoad();
 
   if (gMasterMusicLevel == 0)

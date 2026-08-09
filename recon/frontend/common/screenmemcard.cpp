@@ -313,26 +313,30 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 }
 
 /* ---- tScreenMemcard::PlaceIcons  (screenmemcard.cpp:282) ---- */
-void tScreenMemcard::PlaceIcons(int i,int fadeval)
+void tScreenMemcard::PlaceIcons(register int i,int fadeval)
 
 {
-  int fade;
-  int yy;
+  short yy;
   shapetbl *icon;
   short xx;
   int j;
+  char *indexedThis = (char *)this + (i << 1);
   int animFrame;
   tDrawShapeExtended fFlags;
 
-  for (j = 0; j < (int)(uint)this->numblock[i]; j = j + 1) {
-    yy = (int)this->cursorPosition;
-    if ((yy / 3 & 1U) == 0) {
-      yy = (yy % 3) * 0x10000 >> 0x10;
+  j = 0;
+  while (1) {
+    if (j >= (int)(uint)this->numblock[i]) {
+      break;
+    }
+    if ((((int)this->cursorPosition / 3) & 1U) == 0) {
+      xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
+           MEMCARD_DELTAX * (((int)this->cursorPosition % 3) * 0x10000 >> 0x10);
     }
     else {
-      yy = 2 - ((yy % 3) * 0x10000 >> 0x10);
+      xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
+           MEMCARD_DELTAX * (2 - (((int)this->cursorPosition % 3) * 0x10000 >> 0x10));
     }
-    xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX + MEMCARD_DELTAX * yy;
     yy = (uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (((int)this->cursorPosition / 3) * 0x10000 >> 0x10)) * MEMCARD_DELTAY;
     /* MATCH: `ticks>>4` divided by numicon[i] is a genuine RUNTIME div (the
@@ -342,20 +346,16 @@ void tScreenMemcard::PlaceIcons(int i,int fadeval)
     animFrame = (ticks >> 4) % this->numicon[i];
     if (i == this->theNFS4icon) {
       fFlags.tint[0] = 0xb55623;
-      fade = fadeval + this->fFadeIcon[i];
-      if (0x80 < fade) {
-        fade = 0x80;
-      }
-      DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,fade,1,
+      DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,
+                 0x80 < fadeval + *(short *)(indexedThis + 0x532) ? 0x80 :
+                 fadeval + *(short *)(indexedThis + 0x532),1,
                  &fFlags);
     }
     else {
       icon = (shapetbl *)(*fMemIcon[0])[i][animFrame];
-      fade = fadeval + this->fFadeIcon[i];
-      if (0x80 < fade) {
-        fade = 0x80;
-      }
-      this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,(short)fade);
+      this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,
+                 (short)(0x80 < fadeval + *(short *)(indexedThis + 0x532) ? 0x80 :
+                         fadeval + *(short *)(indexedThis + 0x532)));
     }
     if (((this->theNFS4icon == i) && (fadeval == 0)) && (this->fGetNewIcons == 0)) {
       xx = xx * 0x10000 >> 0x10;
@@ -367,6 +367,7 @@ void tScreenMemcard::PlaceIcons(int i,int fadeval)
                  MEMCARD_DELTAY + 1);
     }
     this->cursorPosition = this->cursorPosition + 1;
+    j = j + 1;
   }
   return;
 }

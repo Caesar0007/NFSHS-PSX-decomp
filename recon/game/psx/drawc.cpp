@@ -505,7 +505,23 @@ void DrawC_MenuColorData(int color,Car_tObj *carObj,int player)
   return;
 }
 
-/* ---- DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache  [DRAWC.CPP:1148-1531] SLD-VERIFIED ---- */
+/* ===== w55-a9: 60 -> 54, count stays EXACT 976/976 =====
+ * LEVER: `shadow_align_b = shadow_align_b - 1;` written as its OWN statement
+ * (instead of fused inside `iVar3 = (int)((shadow_align_b - 1) * 0x10000) >> 0x10;`).
+ * The oracle computes both `-1`s in BRANCH DELAY SLOTS -- `addiu $v1,$a2,-0x1`
+ * @800BF8E8 rides the shadow-sign `bgez`, and `addiu $a1,$a1,-0x1` @800BF918 rides
+ * the `(short)(uVar5-1) >= 0` `bgez` -- which reorg can only do when the decrement
+ * is a standalone insn ahead of the test, not part of the tested expression.
+ * MEASURED at this basin: shadow-only split = 54 @976 (LANDED, count-exact);
+ * BOTH split (uVar5 too, hoisted above the shadow-sign `if`) = 53 but 975 insns
+ * (one short) -- rejected on the count rule; both split with uVar5's decrement
+ * between the two `if`s = 54 @976; uVar5-only = 59 @975.
+ * RESIDUAL 54 = 3 runs / 13 insns, all scheduling: (1) `sra a2,fp,1` stolen into
+ * the `lbu` load-delay slot the oracle leaves as `nop` (oracle keeps only
+ * `sra a2,fp,2` there and multiplies out of $a2); (2) the tw.x/tw.y `lbu`/`sh`
+ * interleave in the SetDrawMode RECT build; (3) the split-address `lui`/`addiu`
+ * pair for R3DCar_InMenu.  All ready-list ties.
+ * ---- DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache  [DRAWC.CPP:1148-1531] SLD-VERIFIED ---- */
 int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarCache *sd)
 
 {
@@ -978,6 +994,7 @@ DrawCPrimStart_camRotMatrix:
       shadow_align_b = shadow_align_b - 10;
       nabr_blend = 1;
     }
+    shadow_align_b = shadow_align_b - 1;   /* MATCH w55-a9: own statement -> reorg steals it into the (short)(uVar5-1) bgez delay slot (oracle addiu a1,a1,-1 @800BF918) */
     iVar3 = (int)((uVar5 - 1) * 0x10000) >> 0x10;
     if (iVar3 < 0) {
       *(u_int *)&sd->ePmx0 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
@@ -989,7 +1006,7 @@ DrawCPrimStart_camRotMatrix:
        * was a Ghidra decompile artifact, not the true source shape. */
       sd->ePmx0 = Track_gReflectionMaps[iVar3];
     }
-    iVar3 = (int)((shadow_align_b - 1) * 0x10000) >> 0x10;
+    iVar3 = (int)(shadow_align_b * 0x10000) >> 0x10;
     if (iVar3 < 0) {
       *(u_int *)&sd->ePmx1 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
     }
@@ -1350,7 +1367,14 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
         /* SYM 3.8b: id0-2 morph index->address IN PLACE (one pseudo each);
          * oracle scales the id regs themselves (sll aN,aN,3; addu aN,aN,s1)
-         * and keeps tV's 0xD0 in the lwc2 displacement. */
+         * and keeps tV's 0xD0 in the lwc2 displacement.
+         * w55-a9 NEGATIVE (Prim only -- the same edit is a -74 WIN on PrimClip,
+         * see its header): splitting the fused morph into `idN = idN * 8;
+         * idN = idN + (int)sd;` regresses Prim 338 -> 426..450 at EVERY one of the
+         * 36 load x morph statement permutations, and with the FUSED form the morph
+         * order is a strict no-op (all 6 permutations gate 338) while the load order
+         * is already optimal at L(0,1,2) (L210 350, L102 368, ...).  Prim's id block
+         * is at its own optimum; do not port the PrimClip lever here. */
         id0 = id0 * 8 + (int)sd;
         id1 = id1 * 8 + (int)sd;
         id2 = id2 * 8 + (int)sd;
@@ -2337,7 +2361,35 @@ gte_ldv3(vt0,vt1,vt2);
   return;
 }
 
-/* ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
+/* ===== w55-a9: 626 -> 552 (count unchanged 1883 / oracle 1877) =====
+ * LEVER: the id0/id1/id2 index->address MORPH at all FOUR clip-loop sites.
+ *  (a) SPLIT the fused `idN = idN * 8 + (int)sd;` into TWO statements
+ *      `idN = idN * 8; idN = idN + (int)sd;`.  The fused form makes cc1plus
+ *      born a separate shift temp that all three morphs share ($v0) --
+ *      `sll v0,aN,3; addu aN,v0,s1` -- while the oracle mutates the id
+ *      register IN PLACE (`sll aN,aN,3; addu aN,aN,s1`).  The split form
+ *      emits the oracle's in-place pair.  626 -> 594, count unchanged.
+ *  (b) STATEMENT ORDER: with the split landed the three id qtys are handed
+ *      registers by birth order, so the ORDER of the three index `lbu`s AND
+ *      of the three morph statements is a live dial.  Full 36-permutation
+ *      sweep (loads x morph, tools-free, ~6 s each) -- best is
+ *      L(2,0,1)/M(2,0,1) = id2, id0, id1 in BOTH groups: 594 -> 552.
+ *      Sweep table (top rows): L201M201 552 | L201M012 560 | L201M021 560 |
+ *      L021M201 570 | L120M210 574 | L210M210 574 | L102M* 576 | L012M012 594
+ *      (the old baseline) | L012M210 602.
+ *  ⚠️ SITE-SCOPED: the SAME edit REGRESSES DrawC_Prim (338 -> 444..450 for
+ *      every one of the 36 permutations), and in Prim the morph ORDER is a
+ *      pure no-op (all 6 permutations identical) -- Prim's id block is
+ *      already at its own optimum with the fused single-statement form and
+ *      the natural L012 order.  Measured, do not port.
+ * RESIDUAL 552: chunkdiff finds NO mismatched run >= 10 -- what is left is the
+ * whole-function callee-saved ROTATION visible in the prologue (ours
+ * `addu s2,a1,zero`, oracle `addu s4,a1,zero`) plus its caller-saved fallout,
+ * and a residual id0<->id2 register swap inside the morph block (ours
+ * {id0:a1,id1:a0,id2:a2}, oracle {id0:a2,id1:a1,id2:a0} -- no load/morph
+ * permutation reaches it; the reachable map set is only the two the sweep
+ * found).  NEXT: allocsim/reqdelta on the s-pool rotation.
+ * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
 
@@ -2486,14 +2538,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
             return;
           }
           facet = (int)obj->facet + iVar11;
+          id2 = *(u_char *)(facet + 5);
           id0 = *(u_char *)(facet + 3);
           id1 = *(u_char *)(facet + 4);
-          id2 = *(u_char *)(facet + 5);
           if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
           /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-          id0 = id0 * 8 + (int)sd;
-          id1 = id1 * 8 + (int)sd;
-          id2 = id2 * 8 + (int)sd;
+          id2 = id2 * 8; id2 = id2 + (int)sd;
+          id0 = id0 * 8; id0 = id0 + (int)sd;
+          id1 = id1 * 8; id1 = id1 + (int)sd;
           gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
           gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
           gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -2741,14 +2793,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         return;
       }
       facet = (int)obj->facet + iVar11;
+      id2 = *(u_char *)(facet + 5);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
-      id2 = *(u_char *)(facet + 5);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id0 = id0 * 8 + (int)sd;
-      id1 = id1 * 8 + (int)sd;
-      id2 = id2 * 8 + (int)sd;
+      id2 = id2 * 8; id2 = id2 + (int)sd;
+      id0 = id0 * 8; id0 = id0 + (int)sd;
+      id1 = id1 * 8; id1 = id1 + (int)sd;
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -2918,14 +2970,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         return;
       }
       facet = (int)obj->facet + iVar11;
+      id2 = *(u_char *)(facet + 5);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
-      id2 = *(u_char *)(facet + 5);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id0 = id0 * 8 + (int)sd;
-      id1 = id1 * 8 + (int)sd;
-      id2 = id2 * 8 + (int)sd;
+      id2 = id2 * 8; id2 = id2 + (int)sd;
+      id0 = id0 * 8; id0 = id0 + (int)sd;
+      id1 = id1 * 8; id1 = id1 + (int)sd;
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -3122,14 +3174,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         return;
       }
       facet = (int)obj->facet + iVar11;
+      id2 = *(u_char *)(facet + 5);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
-      id2 = *(u_char *)(facet + 5);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id0 = id0 * 8 + (int)sd;
-      id1 = id1 * 8 + (int)sd;
-      id2 = id2 * 8 + (int)sd;
+      id2 = id2 * 8; id2 = id2 + (int)sd;
+      id0 = id0 * 8; id0 = id0 + (int)sd;
+      id1 = id1 * 8; id1 = id1 + (int)sd;
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));

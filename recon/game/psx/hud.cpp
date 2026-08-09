@@ -1505,6 +1505,22 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  *   (7 qtys, qsort path) names q0/p140 (2 refs / 10 life = .2000) as the low-priority
  *   straggler: refs 2->4 gives .4000, 2->8 gives 2.4000.  ⚠️ that table is for the w46 BASE
  *   source; re-dump after the pal2 split before using the numbers. */
+/* ===== w55-a9: 41 -> 40, count now EXACT 269/269 =====
+ * The w46 "walk a zero-insn fence through the tail one statement at a time" angle was
+ * EXECUTED mechanically (scratchpad/w55a9_fencesweep.py: insert the w48 VOID fence
+ * `__asm__("" : : "i"(0))` before every statement of lines 1520-1639, gate each).  Exactly
+ * ONE position moves it: the EXIT of the `else` arm of the `player != 0` clut-x select
+ * (W54 06B "inner-arm-exit" placement) -- see the in-body comment.  41 -> 40 AND the count
+ * goes 268 -> 269 = oracle-exact, i.e. the fence restores the missing insn as well as the
+ * order.  All four fence FLAVOURS at that position measure identically (void / __volatile__
+ * void / `"r"(clut)` / `"r"(x)`), so it is a pure barrier effect with no ref dial; the plain
+ * void form is kept as the house device.  Falsified at the same spot: the same fence at the
+ * `if`-arm exit (43 @270), both arms (43 @270), just after the select (41 @268).
+ * A SECOND sweep over the whole tail (1580-1644) on top of the landed fence finds nothing
+ * below 40 -- the void-fence axis is now CLOSED for this function.
+ * RESIDUAL 40 = the same three scheduling runs the w46 receipt lists (the `lw t4,40(sp)` /
+ * `lui v0,16896` group issuing 2 slots late, the prim2 `+2` tail re-read batching, and the
+ * two `lw a0,24(sp); jal; li a1,32` groups), now with an EXACT instruction count. */
 void Hud_BuildTach(int player)
 
 {
@@ -1572,6 +1588,11 @@ void Hud_BuildTach(int player)
   }
   else {
     clut = clut | (x + 0x1d);
+    /* MATCH (w55-a9): zero-insn sched fence at the ELSE-ARM EXIT (W54 06B
+     * inner-arm-exit placement) -- restores the oracle's `sh s6,14(t0)` /
+     * `lw t4,40(sp)` issue order in the tach-needle tail and makes the count
+     * EXACT 269/269.  41 -> 40. */
+    __asm__("" : : "i"(0));
   }
   *(u_int *)&gSprt1[2].u0 = clut;   /* word-fused u0/v0/clut store */
   cos1 = fixedmult(cos,10) + 0xe;
@@ -2947,6 +2968,12 @@ void Hud_InitCdPlayer(void)
   return;
 }
 
+/* w55-a9 NEGATIVE (void-fence axis swept, nothing landed): the w48 zero-insn VOID fence
+ * `__asm__("" : : "i"(0))` was inserted before EVERY statement of the whole body
+ * (scratchpad/w55a9_fencesweep.py, ~230 positions, each gated).  Best results are 57 diffs
+ * at 474 insns (one SHORT) and 57 at 476 (one OVER); no position reaches <=57 at the
+ * count-exact 475.  Baseline 58 @475 therefore stands and the sched-fixpoint device is
+ * CLOSED for this function -- the residual is not a scheduling barrier problem. */
 /* ---- Hud_BuildCdPlayer__Fii  [HUD.CPP:2225-2487] SLD-VERIFIED ----
  * w44-a6 RE-GATED baseline: 73 diffs (ours 474 / oracle 475), posdiff structural residual 33,
  * first-use order ALREADY oracle-exact.  Not worked this wave (budget); census + named angle:
@@ -4626,7 +4653,22 @@ void Hud_RenderHudView(void)
  *   and pays a `nop`; (b) our `dh` costs one preheader `addiu $a0,$v0,0` where retail computes
  *   the lo_sum INSIDE the loop (`addiu $v0,$v1,0` in the HudTach `beqz` delay slot) and puts
  *   `addiu $s3,$s3,180` in the exit `beqz` slot instead of our `addiu $a0,$v1,0`; (c) the
- *   `lui $s5,0xff000000` mask is materialized one slot early. */
+ *   `lui $s5,0xff000000` mask is materialized one slot early.
+ * ===== w55-a9: STILL 18 (73/71).  Five more falsifications, all aimed at item (b) -- the
+ * TAIL `dh = (int *)&DashHUD_gInfo;` costs a lo_sum (`addiu $a0,$v1,0`) that occupies the exit
+ * `beqz` delay slot, which in turn pushes `addiu $s3,$s3,180` out and leaves the tail `lw`'s
+ * load-delay unfilled (retail fills it with `addiu $s1,$s1,1`).  BOTH surplus insns are that
+ * one lo_sum, so the target is "keep dh non-invariant at ZERO insns":
+ *   - entry test spelled natural `DashHUD_gInfo.splitscreen` (dh still assigned): 18, bit-identical;
+ *   - body read spelled natural `DashHUD_gInfo.showhud[j]` (dh kept for the tests): 36 @75;
+ *   - fully natural, no `dh` at all (the w45 shape re-measured in the post-fence basin): 36 @75;
+ *   - tail `dh = ...` replaced by an IDENTITY fence `__asm__("" : "=r"(dh) : "0"(dh));`
+ *     (the zero-insn way to make dh non-invariant): 43 @74, and 40 @75 with the exit test
+ *     also spelled natural -- the fence's +2 refs re-rank dh against the j/walker pair that
+ *     w53's lever 2 tuned, so the invariance-kill and the ref-dial cannot come from one device;
+ *   - preheader `dh = ...` moved INSIDE the guard, entry test natural: 45 @74.
+ * ⇒ the w53 pairing (source assignment at the TAIL + read-only fence on `j`) is a local
+ * optimum; what is still missing is a NON-REF-BEARING way to redefine a pointer. */
 void Hud_RenderTacView(void)
 
 {

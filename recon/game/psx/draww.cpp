@@ -3586,6 +3586,10 @@ gte_SetTransMatrix(m);
   return (u_int)objDef->quadCount;
 }
 
+/* w55-a9 NEGATIVE: the w48 zero-insn VOID fence `__asm__("" : : "i"(0))` was swept over
+ * EVERY statement of the body (scratchpad/w55a9_fencesweep.py, each position gated).  No
+ * position beats the 42 @434/434 baseline (best alternatives 46 @436).  The sched-fixpoint
+ * device is CLOSED here; the residual is coloring, not a barrier problem. */
 /* ---- DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo  [DRAWW.CPP:2346-2649] SLD-VERIFIED ---- */
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
@@ -4024,6 +4028,17 @@ void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMor
   return pvVar3;
 }
 
+/* w55-a9 TRIAGE + NEGATIVE.  Re-gated 30 @222/222 (count EXACT).  chunkdiff localises the
+ * whole residual to TWO runs / 6 insns, both pure emission order:
+ *   (1) entry block -- retail SPLITS the `lui $v0,%hi(sym)` from its `addiu $v0,$v0,%lo`
+ *       with `sw $t0,24(sp)` + `lw $s5,136($v1)` between them; ours emits the pair adjacent
+ *       and pushes those two stores/loads after it;
+ *   (2) the `sltiu $v0,...,53` guard -- retail computes `addiu $v0,$s5,-1` and the
+ *       `lui $a0,0x1F80` right there; ours has the -1 in $a0 from earlier.
+ * The w48 VOID fence was swept over every statement of the body -- NOTHING below 30.
+ * ⇒ the barrier axis is closed; item (1) is the split-address ready-list tie (same class as
+ * DrawC_NightHeadlight's residual 4) and item (2) wants the `-1` as its own late statement
+ * (the lever that took DrawC_PrimStart 60 -> 54 this wave) -- untried here. */
 /* ---- DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry  [DRAWW.CPP:2717-2864] SLD-VERIFIED ---- */
 void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 

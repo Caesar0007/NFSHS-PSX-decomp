@@ -18,93 +18,84 @@ void PSXDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade,int 
 /* lines 26-29: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXTransDrawBrightEndLine  (felines.cpp:30, code lines 30-116) ---- */
+/* W65 (2026-08-10): 163 diffs -> PASS (161/161).  SYM identifies only ww,
+   hh, BrightCol, and endbit as retail locals.  Direct branch-local Gouraud
+   calls preserve the four color orders, while keeping ww/hh separate from
+   w/h restores the saved-register allocation and final-dimension lifetime. */
 void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade,int darksides,int opacity)
 
 {
   int BrightCol;
   int scaled;
-  int capW;
-  int ga;
-  int gb;
   int endbit;
   int hh;
   int ww;
-  int gc;
-  int gd;
   
   if (fade == 0x80) {
     return;
   }
   BrightCol = CalcFadeVal(col,0xffffff,0x40);
-  if (fade == 0) goto TransBrightEnd_darksidesProcess;
-  if ((uint)side < 2) {
-    scaled = h * (0x80 - fade);
-    if (scaled < 0) {
-      scaled = scaled + 0x7f;
+  if (fade != 0) {
+    if ((uint)side < 2) {
+      scaled = h * (0x80 - fade);
+      if (scaled < 0) {
+        scaled = scaled + 0x7f;
+      }
+      hh = scaled >> 7;
+      endbit = scaled >> 10;
+      ww = w;
+      if (8 < endbit) {
+        endbit = 8;
+      }
+      if (side == 1) {
+        PSXDrawGouraudSquare(x,(y + hh) - endbit,ww,endbit,
+                             col,col,BrightCol,BrightCol);
+      }
+      else {
+        y = (y + h) - hh;
+        PSXDrawGouraudSquare(x,y,ww,endbit,
+                             BrightCol,BrightCol,col,col);
+      }
     }
-    hh = scaled >> 7;
-    endbit = scaled >> 10;
-    if (8 < endbit) {
-      endbit = 8;
+    else {
+      scaled = w * (0x80 - fade);
+      if (scaled < 0) {
+        scaled = scaled + 0x7f;
+      }
+      ww = scaled >> 7;
+      endbit = scaled >> 10;
+      hh = h;
+      if (8 < endbit) {
+        endbit = 8;
+      }
+      if (side == 2) {
+        x = (x + w) - ww;
+        PSXDrawGouraudSquare(x,y,endbit,hh,
+                             BrightCol,col,BrightCol,col);
+      }
+      else {
+        PSXDrawGouraudSquare((x + ww) - endbit,y,endbit,hh,
+                             col,BrightCol,col,BrightCol);
+      }
     }
-    capW = w;
-    ww = w;
-    if (side != 1) {
-      y = (y + h) - hh;
-      h = endbit;
-      ga = BrightCol;
-      gb = col;
-TransBrightEnd_gouraudEmit:
-      PSXDrawGouraudSquare(x,y,capW,h,BrightCol,ga,gb,col);
-      h = hh;
-      w = ww;
-      goto TransBrightEnd_darksidesProcess;
-    }
-    ga = x;
-    gb = (y + hh) - endbit;
-    h = endbit;
-    gc = col;
-    gd = BrightCol;
   }
   else {
-    scaled = w * (0x80 - fade);
-    if (scaled < 0) {
-      scaled = scaled + 0x7f;
-    }
-    ww = scaled >> 7;
-    capW = scaled >> 10;
-    if (8 < capW) {
-      capW = 8;
-    }
+    ww = w;
     hh = h;
-    if (side == 2) {
-      x = (x + w) - ww;
-      ga = col;
-      gb = BrightCol;
-      goto TransBrightEnd_gouraudEmit;
-    }
-    ga = (x + ww) - capW;
-    gb = y;
-    gc = BrightCol;
-    gd = col;
   }
-  PSXDrawGouraudSquare(ga,gb,capW,h,col,gc,gd,BrightCol);
-  h = hh;
-  w = ww;
-TransBrightEnd_darksidesProcess:
   if (darksides != 0) {
     if ((side == 2) || (fade == 0)) {
-      PSXDrawGouraudSquare((x + w) - darksides,y,darksides,h,col,0,col,0);
+      PSXDrawGouraudSquare((x + ww) - darksides,y,darksides,hh,col,0,col,0);
     }
     if ((side == 3) || (fade == 0)) {
-      PSXDrawGouraudSquare(x,y,darksides,h,0,col,0,col);
+      PSXDrawGouraudSquare(x,y,darksides,hh,0,col,0,col);
     }
   }
   if (opacity == 0) {
-    PSXDrawSquare(col,x,y,w,h);
+    PSXDrawSquare(col,x,y,ww,hh);
   }
   else {
-    PSXDrawTransSquare(col,x,y,w,h,1);   /* H12: was tx,ty (uninitialized; Ghidra lost the x/y reads) -- oracle 0x8004BDB0 $a1=$s2=x, $a2=$s4=y */
+    PSXDrawTransSquare(col,x,y,ww,hh,1);   /* H12: was tx,ty (uninitialized; Ghidra lost the x/y reads) -- oracle 0x8004BDB0 $a1=$s2=x, $a2=$s4=y */
   }
   return;
 }

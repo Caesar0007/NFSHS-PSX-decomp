@@ -498,14 +498,21 @@ u_int CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(int param_1,int *loc
       lVar3 = strlen((u_long)pSVar6->name);
       iVar4 = strncmp(name,pSVar6->name,lVar3);
       if (iVar4 == 0) {
-        sVar1 = psVar7[-1];
-        sVar2 = *psVar7;
-        pcVar5 = pSVar6->name;
+        /* MATCH: store the halfwords DIRECTLY -- the `short sVar1/sVar2` temps
+           made gcc keep them in HImode pseudos and widen with `lhu; sll 16; sra
+           16` (oracle: a single `lh`); and `locationbank[0]` (not `*locationbank`)
+           keeps ONE induction pointer instead of a 2nd strength-reduced giv. */
+        /* MATCH: grouped int temps -> oracle's 3 batched loads then 4 stores
+           (`lh v0; lh v1; lw a0; li s4,1; sw...`); interleaved load/store pairs
+           each eat a load-delay nop. [catalog load-3/store-3] */
+        int t0 = psVar7[-1];
+        int t1 = *psVar7;
+        int t2 = (int)pSVar6->name;
         uVar9 = 1;
         locationbank[2] = id;
-        *locationbank = (int)sVar1;
-        locationbank[1] = (int)sVar2;
-        locationbank[3] = (int)pcVar5;
+        locationbank[0] = t0;
+        locationbank[1] = t1;
+        locationbank[3] = t2;
       }
       psVar7 = psVar7 + 4;
       pSVar6 = pSVar6 + 1;
@@ -723,19 +730,26 @@ bool CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(u_int param_1,u_int *
   
   lVar1 = strlen((u_long)Speech_gCallSignDescription[0].AllUnits);
   pSVar6 = Speech_gCallSignDescription;
+  /* MATCH: retail sets the match flag INSIDE each branch (`li s3,1` per arm),
+     it does NOT build a combined `a==0 || b==0` boolean -- the combined form
+     keeps both strncmp results live to the join and rotates the whole s-map.
+     80 -> 35 diffs. */
+  bVar5 = false;
   iVar2 = strncmp(name,Speech_gCallSignDescription[0].AllUnits,lVar1);
   if (iVar2 == 0) {
     *bank = id;
+    bVar5 = true;
   }
   iVar3 = GameSetup_gData.track % 5;
   lVar1 = strlen((u_long)Speech_gCallSignDescription[0].Dispatch[iVar3]);
   iVar3 = strncmp(name,Speech_gCallSignDescription[0].Dispatch[iVar3],lVar1);
-  iVar4 = 0;
   if (iVar3 == 0) {
     bank[1] = id;
+    bVar5 = true;
   }
-  bVar5 = iVar3 == 0 || iVar2 == 0;
-  for (; iVar4 < 0xf; iVar4 = iVar4 + 1) {
+  /* MATCH: `i` is born in the for-init, not before the 2nd guard (oracle sets it
+     in the `bnez` delay slot AFTER the guard).  35 -> 34, count now exact. */
+  for (iVar4 = 0; iVar4 < 0xf; iVar4 = iVar4 + 1) {
     lVar1 = strlen((u_long)pSVar6->Mobile[0]);
     iVar2 = strncmp(name,pSVar6->Mobile[0],lVar1);
     if (iVar2 == 0) {
@@ -1176,11 +1190,18 @@ int SubmitRequest__6Speechlll(int bank,int localoffset,u_int size)
     patch = BankPatch__6SpeechlP8Car_tObj((int)Speech_fgSpeech,bank,(int)car);
     {
       Speech *pThis = Speech_fgSpeech;
+      /* MATCH: per-arm BLOCK-SCOPED temps -- each is a single-block pseudo
+         (local qty -> caller-saved $v0), then copied into the fn-scope `offset`
+         ($s0): oracle `lw v0,0(v0); addu s0,v0,zero` / `addu v0,zero,zero;
+         addu s0,v0,zero`.  One shared temp (or a direct `offset = ...`) is ONE
+         global pseudo and gcc writes $s0 directly (1 insn short). [05D LEVER] */
       if ((bank >= 0) && (bank < pThis->fBankCount)) {
-        offset = pThis->fBankOffset[bank];
+        long tmp = pThis->fBankOffset[bank];
+        offset = tmp;
       }
       else {
-        offset = 0;
+        long tmp = 0;
+        offset = tmp;
       }
     }
     if (patch >= 0) {
@@ -2130,18 +2151,15 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
   
   bVar1 = false;
   *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-  pa_Var2 = (pThis->_base_Speaker)._vf;
-  iVar3 = (*(*pa_Var2)[0x12].pfn)((int)pThis->fPerp + (*pa_Var2)[0x12].delta + -0x5c);
+  iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x12].pfn)((int)pThis->fPerp + (*(pThis->_base_Speaker)._vf)[0x12].delta + -0x5c);
   if (iVar3 != 0) {
     bVar1 = (pThis->_base_Speaker).fSub != (Speaker *)0x0;
   }
   if (bVar1) {
     if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
-      pa_Var2 = (pThis->_base_Speaker)._vf;
-      iVar3 = (*(*pa_Var2)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var2)[0x1e].delta + -0x5c);
+      iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)((int)pThis->fPerp + (*(pThis->_base_Speaker)._vf)[0x1e].delta + -0x5c);
       pSVar6 = (pThis->_base_Speaker).fSub;
-      pa_Var2 = pSVar6->_vf;
-      iVar4 = (*(*pa_Var2)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pa_Var2)[0x11].delta)
+      iVar4 = (*(*pSVar6->_vf)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0x11].delta)
       ;
       iVar3 = *(int *)(iVar3 + iVar4 * 4 + 8);
       CONFIRM = &(pThis->_base_Speaker).fConfirm;
@@ -2152,8 +2170,7 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
   }
   else {
     if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
-      pa_Var2 = (pThis->_base_Speaker)._vf;
-      piVar5 = (int *)(*(*pa_Var2)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var2)[0x1e].delta + -0x5c);
+      piVar5 = (int *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)((int)pThis->fPerp + (*(pThis->_base_Speaker)._vf)[0x1e].delta + -0x5c);
       ctx = (void *)*piVar5;
       iVar3 = (pThis->_base_Speaker).fFrom;
       REVINTRO = &(pThis->_base_Speaker).fReverse;
@@ -2197,24 +2214,40 @@ void Deny__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
   
   if ((pThis->_base_Speaker).fSub != (Speaker *)0x0) {
     *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-    pa_Var1 = (pThis->_base_Speaker)._vf;
-    iVar2 = (*(*pa_Var1)[0x1e].pfn)((int)pThis->fPerp + (*pa_Var1)[0x1e].delta + -0x5c);
-    pSVar4 = (pThis->_base_Speaker).fSub;
-    pa_Var1 = pSVar4->_vf;
-    iVar3 = (*(*pa_Var1)[0x11].pfn)((int)&(pSVar4->fPosition).flags + (int)(*pa_Var1)[0x11].delta);
-    ctx = *(void **)(iVar2 + iVar3 * 4 + 8);
+    /* MATCH: retail SLD line 2060 owns BOTH vtable calls AND the index scale +
+       load (one fused statement); line 2061 owns only the INTRO_CALL args, with
+       `fTo = ctx` written as the arg-0 assignment (oracle `sw a0,60(s1)` in the
+       jal delay slot).  Splitting the calls into iVar2/iVar3 statements and
+       storing fTo separately cost 21 diffs. [05A LAW: SLD = statement order]
+       The arg-0 term order also matters: base FIRST (`addu a0,s1,a0`). */
+    {
+      /* MATCH: the computed base needs its OWN (block-scoped) variable -- gcc then
+         coalesces `bank` with the 1st call's result pseudo and mutates it IN PLACE
+         (oracle `addu s0,s0,v0; lw a0,8(s0)`).  As an anonymous sub-expression
+         (`*(void**)(A + B*4 + 8)`) the address lands in the scaled temp instead
+         (`addu v0,v0,s0`).  Same shape the PASSing sibling Roger uses. [3.12 #14] */
+      int *bank = (int *)((int)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                   ((int)&(pThis->_base_Speaker).fPosition.flags +
+                    (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta) +
+         (*(*(pThis->_base_Speaker).fSub->_vf)[0x11].pfn)
+                   ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+                    (int)(*(pThis->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+      ctx = (void *)bank[2];
+    }
     iVar2 = (pThis->_base_Speaker).fFrom;
     REVINTRO = &(pThis->_base_Speaker).fReverse;
-    (pThis->_base_Speaker).fTo = (int)ctx;
-    SPCHNFS_D_C_INTRO_CALL((int)ctx,iVar2,REVINTRO);
+    SPCHNFS_D_C_INTRO_CALL((pThis->_base_Speaker).fTo = (int)ctx,iVar2,REVINTRO);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pSVar4 = (pThis->_base_Speaker).fSub;
     vs_RDBLK_SSTRP = &pSVar4->fBlockade;
-    if ((pSVar4->fBlockade).flags == 0) {
-      SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY();
+    /* MATCH: retail's FALL-THROUGH arm is the RDBLK one (oracle `beqz v1` +
+       `addiu a0,v0,20` in the slot); the `flags == 0` spelling puts
+       DENIED_REPLY first and flips the branch polarity. */
+    if ((pSVar4->fBlockade).flags != 0) {
+      SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(vs_RDBLK_SSTRP);
     }
     else {
-      SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(vs_RDBLK_SSTRP);
+      SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY();
     }
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     (((pThis->_base_Speaker).fSub)->fBlockade).flags = 0;
@@ -2484,51 +2517,39 @@ int DistToPerp__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   int x;
   int iVar6;
   
-  pa_Var2 = (pThis->_base_Speaker)._vf;
-  iVar3 = (*(*pa_Var2)[0x19].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x19].delta);
-  pa_Var2 = (pThis->_base_Speaker)._vf;
-  iVar4 = (*(*pa_Var2)[0x1b].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
+  iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
+  iVar4 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
   if (*(int *)(iVar3 + 0xa0) - *(int *)(iVar4 + 0xa0) < 1) {
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    iVar3 = (*(*pa_Var2)[0x1b].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    sVar1 = (*pa_Var2)[0x19].delta;
-    pcVar5 = (*pa_Var2)[0x19].pfn;
+    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
+    sVar1 = (*(pThis->_base_Speaker)._vf)[0x19].delta;
+    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x19].pfn;
   }
   else {
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    iVar3 = (*(*pa_Var2)[0x19].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x19].delta);
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    sVar1 = (*pa_Var2)[0x1b].delta;
-    pcVar5 = (*pa_Var2)[0x1b].pfn;
+    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
+    sVar1 = (*(pThis->_base_Speaker)._vf)[0x1b].delta;
+    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x1b].pfn;
   }
   iVar4 = (*pcVar5)((int)&(pThis->_base_Speaker).fPosition.flags + (int)sVar1);
   iVar6 = *(int *)(iVar3 + 0xa0) - *(int *)(iVar4 + 0xa0);
-  pa_Var2 = (pThis->_base_Speaker)._vf;
-  iVar3 = (*(*pa_Var2)[0x19].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x19].delta);
-  pa_Var2 = (pThis->_base_Speaker)._vf;
-  iVar4 = (*(*pa_Var2)[0x1b].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
+  iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
+  iVar4 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
   if (*(int *)(iVar3 + 0xa8) - *(int *)(iVar4 + 0xa8) < 1) {
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    iVar3 = (*(*pa_Var2)[0x1b].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    sVar1 = (*pa_Var2)[0x19].delta;
-    pcVar5 = (*pa_Var2)[0x19].pfn;
+    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
+    sVar1 = (*(pThis->_base_Speaker)._vf)[0x19].delta;
+    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x19].pfn;
   }
   else {
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    iVar3 = (*(*pa_Var2)[0x19].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x19].delta);
-    pa_Var2 = (pThis->_base_Speaker)._vf;
-    sVar1 = (*pa_Var2)[0x1b].delta;
-    pcVar5 = (*pa_Var2)[0x1b].pfn;
+    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
+    sVar1 = (*(pThis->_base_Speaker)._vf)[0x1b].delta;
+    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x1b].pfn;
   }
   iVar4 = (*pcVar5)((int)&(pThis->_base_Speaker).fPosition.flags + (int)sVar1);
   iVar3 = *(int *)(iVar3 + 0xa8) - *(int *)(iVar4 + 0xa8);
@@ -2971,11 +2992,19 @@ void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     if (bVar1) {
       iVar3 = Dispatch__6Speech();
       Leader = *(Speaker **)(iVar3 + 0x48);
-      Sub = (Speaker *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
-                        ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta);
-      iVar4 = (**(int (**)(...))(*(int *)((int)Leader + 0x4c) + 0x8c))
-                        ((int)Leader + *(short *)(*(int *)((int)Leader + 0x4c) + 0x88));
-      (pThis->_base_Speaker).fTo = *(int *)((int)Sub + iVar4 * 4 + 8);
+      {
+        /* MATCH: retail SLD line 2479 owns BOTH calls + the scale + the load +
+           the fTo store = ONE fused statement, and the computed base needs its
+           own block-scoped variable so gcc mutates it in place (oracle
+           `addu s0,s0,v0; lw v0,8(s0)`). [05A LAW + 3.12 #14]  7 -> 3. */
+        int *bank = (int *)
+            ((int)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                       ((int)&(pThis->_base_Speaker).fPosition.flags +
+                        (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta) +
+             (**(int (**)(...))(*(int *)((int)Leader + 0x4c) + 0x8c))
+                       ((int)Leader + *(short *)(*(int *)((int)Leader + 0x4c) + 0x88)) * 4);
+        (pThis->_base_Speaker).fTo = bank[2];
+      }
     }
     else {
       Sub = (Speaker *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
@@ -3525,17 +3554,26 @@ void ReportBlockade__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   SPCHNFSType_DISTANCE *DISTANCE;
   
   *(Car_tObj **)(((int)Speech_fgSpeech) + 0x38c) = pThis->fCarObj;
-  pa_Var1 = (pThis->_base_Speaker)._vf;
-  iVar2 = (*(*pa_Var1)[0x1e].pfn)
-                    ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
-  pa_Var1 = (pThis->_base_Speaker)._vf;
+  /* MATCH: re-read `_vf` INLINE at every use (the sibling PASSing fns' idiom).
+     A hoisted `pa_Var1 = _vf;` local is a Ghidra artifact: it becomes its own
+     pseudo ($v1) so the pfn load can't reuse the vtable base reg -- oracle
+     `lw v0,76(s1); lh a0,240(v0); lw v0,244(v0)` (self-temp). 6 -> 0. */
+  iVar2 = (*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+                    ((int)&(pThis->_base_Speaker).fPosition.flags +
+                     (int)(*(pThis->_base_Speaker)._vf)[0x1e].delta);
   (pThis->_base_Speaker).fTo = *(int *)(iVar2 + 4);
   car = (Car_tObj *)
-        (*(*pa_Var1)[0x19].pfn)((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x19].delta)
-  ;
+        (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
+                  ((int)&(pThis->_base_Speaker).fPosition.flags +
+                   (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
   FindLocation__Q26Speech7SpeakerP8Car_tObj(&pThis->_base_Speaker,car);
   (pThis->_base_Speaker).fSpikeSide.flags = 4;
-  VOICE = &pThis->fVoice;
+  /* MATCH: NO pre-branch `VOICE = &pThis->fVoice;` -- hoisting it above the
+     `if` made VOICE a pre-branch pseudo (`addiu s1,s0,80` in the bne delay
+     slot) and flipped the WHOLE s0<->s1 map (pThis<->VOICE).  Retail keeps
+     VOICE local to the taken arm and rematerializes `&pThis->fVoice` straight
+     into $a0 for the else arm (reorg then steals that `addiu a0,s1,80` into
+     the bne delay slot).  46 -> 6 diffs. */
   if ((pThis->_base_Speaker).fBlockade.flags == 2) {
     VOICE = &pThis->fVoice;
     iVar2 = (pThis->_base_Speaker).fTo;
@@ -3551,7 +3589,7 @@ void ReportBlockade__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   else {
     SPIKE_BELT_SIDE = &(pThis->_base_Speaker).fSpikeSide;
     DISTANCE = (SPCHNFSType_DISTANCE *)(pThis->_base_Speaker).fFrom;
-    SPCHNFS_W_D_SPBLT_PLC(VOICE,(SPCHNFSType_POSITION *)pThis,SPIKE_BELT_SIDE,(int)DISTANCE,
+    SPCHNFS_W_D_SPBLT_PLC(&pThis->fVoice,(SPCHNFSType_POSITION *)pThis,SPIKE_BELT_SIDE,(int)DISTANCE,
                (pThis->_base_Speaker).fLocation,&(pThis->_base_Speaker).fDistance);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */

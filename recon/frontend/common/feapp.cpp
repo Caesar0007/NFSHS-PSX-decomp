@@ -615,6 +615,11 @@ void tFEApplication::RunDemoVideo()
  * from the `this` register swap, working outward. Function too large (1123 oracle insns,
  * ~4.5x DrawHelpIcons) to safely hand-derive further without regression risk in this pass. */
 
+/* PARTIAL (2026-08-09): restoring the per-player input pass as its structured
+ * for-loop, and testing player two by truth value, reduces 404 -> 354 diffs.
+ * The frame remains the retail 408 bytes and the command-array base now receives
+ * retail $s7; the two-instruction size residual is still allocator/source shape. */
+
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 {
@@ -728,7 +733,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
         demoLoopLastInputTick = ticks;
       }
 MainLoop_subMenuDetect:
-      if ((u_char)this->fPlayer == 1) {
+      if ((u_char)this->fPlayer != 0) {
         ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
         if ((((ptVar17 != (tMenu *)0x0) &&
              (iVar10 = (*(*ptVar17->_vf)[7].pfn)
@@ -815,9 +820,7 @@ MainLoop_perPlayerFlagCheck:
           debounce = (*(*pa_Var11)[4].pfn)
                                   ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
                                    (*pa_Var11)[4].delta);
-i = inputStartPlayer;
-          MainLoop_perPlayerInputTop:
-          if (inputEndPlayer < i) goto MainLoop_nextPlayer;
+          for (i = inputStartPlayer; i <= inputEndPlayer; i++) {
           command[i].type = kMenu_Command_None;
           keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
           if (keyVal[i] != kInput_KeyType_NoKey) {
@@ -871,8 +874,7 @@ i = inputStartPlayer;
 MainLoop_setMenuAndNext:
             this->SetMenu((u_short)(u_char)this->fPlayer,
                     command[i].nextMenu);
-            i = i + kPlayerTwo;
-            goto MainLoop_perPlayerInputTop;
+            continue;
           case 3:
             AudioCmn_PlayFESFX(0);
             this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] =
@@ -959,8 +961,7 @@ MainLoop_doBack:
 MainLoop_noBack:
             if ((u_char)this->fPlayer != 1) break;
             AudioCmn_PlayFESFX(1);
-            i = i + kPlayerTwo;
-            goto MainLoop_perPlayerInputTop;
+            continue;
           case 6:
             iVar10 = 1 - (u_int)(u_char)this->fPlayer;
             if (this->waitingForOtherPlayer[iVar10] == 0) {
@@ -995,8 +996,7 @@ MainLoop_noBack:
             if (err == PinkSlipsNoError) goto MainLoop_carInfoPinkSlips;
             this->UpdateMusic();
             AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
-            i = i + kPlayerTwo;
-            goto MainLoop_perPlayerInputTop;
+            continue;
           case 5:
           case 7:
 MainLoop_carInfoPinkSlips:
@@ -1032,8 +1032,8 @@ MainLoop_carInfoApplied:
             return kApp_Command_StartReplay;
           }
 MainLoop_commandSwitchDefault:
-          i = i + kPlayerTwo;
-          goto MainLoop_perPlayerInputTop;
+          ;
+          }
         }
       }
 MainLoop_nextPlayer:

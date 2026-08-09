@@ -266,23 +266,20 @@ void tMenuItemLeftRightFade::TransitionOn()
 void * tMenuItemLeftRightFade::TransitionIsFinished()
 
 {
-  short sVar1;
-
-  sVar1 = this->fFadeDir;
-  if (sVar1 != 0) {
-    if (sVar1 < 0) {
-      if (this->fFadeVal < 1) goto LRFadeTrans_resetTrans;
-      /* This redundant reset invalidates GCC's cached structure-field load. */
-      this->fInTransition = 0;
-      if ((this->fFadeDir < 1) || (this->fFadeVal < 0x80)) goto LRFadeTrans_setTrans;
-    } else if ((sVar1 < 1) || (this->fFadeVal < 0x80)) goto LRFadeTrans_setTrans;
+  /* MATCH: plain if/else-if chain of &&-guards.  The `fFadeDir` reload the oracle
+     emits at 8001C3F8 is NOT a cache-invalidation trick — it falls out for free:
+     the first `&&` clobbers $v0 with fFadeVal, so the second guard's re-read of
+     fFadeDir must reload on THAT path only, while the `fFadeDir >= 0` edge jumps
+     straight to the shared blez (gcc places the reload inside the outer if). */
+  if (this->fFadeDir == 0) {
+    this->fInTransition = 0;
+  } else if ((this->fFadeDir < 0) && (this->fFadeVal <= 0)) {
+    this->fInTransition = 0;
+  } else if ((this->fFadeDir > 0) && (this->fFadeVal >= 0x80)) {
+    this->fInTransition = 0;
+  } else {
+    this->fInTransition = 1;
   }
-LRFadeTrans_resetTrans:
-  this->fInTransition = 0;
-  goto LRFadeTrans_returnInv;
-LRFadeTrans_setTrans:
-  this->fInTransition = 1;
-LRFadeTrans_returnInv:
   return (void *)(this->fInTransition ^ 1);
 }
 
@@ -366,21 +363,16 @@ long tOptionsMenu::DebounceKeys()
 void tOptionsMenu::TransitionOff()
 
 {
-  int iVar1;
-  tMenuItem *ptVar2;
-  int iVar3;
-  int i;
-  
-  i = 0;
-  ptVar2 = this->fItemList[0];
+  /* MATCH: SYM says the only local is `short i`; `fItemList[i]` on a SHORT counter
+     gives the oracle's per-use `sll 16; sra 14` rematerialization (the hand-rolled
+     `(i<<16)>>14` on an `int` made gcc strength-reduce i to a 0x10000 stride). */
+  short i;
+
   this->fTransitionDirection = '(';
   this->fScreenFade = 0;
-  while (ptVar2 != (tMenuItem *)0x0) {
-    iVar3 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
-    iVar1 = *(int *)(iVar3 + 0x18);
-    (**(int (**)(...))(iVar1 + 0x3c))(iVar3 + *(short *)(iVar1 + 0x38));
-    i = i + 1;
-    ptVar2 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+    (*(*this->fItemList[i]->_vf)[7].pfn)
+      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[7].delta);
   }
   this->fInMenuTransition = 1;
   return;
@@ -393,22 +385,17 @@ void tOptionsMenu::TransitionOff()
 void tOptionsMenu::TransitionOn()
 
 {
-  int iVar1;
-  tMenuItem *ptVar2;
-  int iVar3;
-  int i;
-  
-  i = 0;
-  ptVar2 = this->fItemList[0];
-  this->fTransitionDirection = -0x28;
+  /* MATCH: see TransitionOff — `short i` + `fItemList[i]`. */
+  short i;
+
+  /* MATCH: plain `char` is UNSIGNED here -> `= -0x28` emits `li 216`; the signed
+     view restores the oracle's `li -40`. */
+  *(signed char *)&this->fTransitionDirection = -0x28;
   this->fInMenuTransition = 1;
   this->fScreenFade = 0x228;
-  while (ptVar2 != (tMenuItem *)0x0) {
-    iVar3 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
-    iVar1 = *(int *)(iVar3 + 0x18);
-    (**(int (**)(...))(iVar1 + 0x44))(iVar3 + *(short *)(iVar1 + 0x40));
-    i = i + 1;
-    ptVar2 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+    (*(*this->fItemList[i]->_vf)[8].pfn)
+      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[8].delta);
   }
   return;
 }
@@ -420,38 +407,39 @@ void tOptionsMenu::TransitionOn()
 void * tOptionsMenu::TransitionIsFinished()
 
 {
-  tMenuItem *ptVar1;
-  int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [10];
-  int iVar4;
-  int i;
-  
-  if (((this->fScreenFade < 0x228) || (this->fTransitionDirection < '\x01')) &&
-     ((0 < this->fScreenFade || (-1 < this->fTransitionDirection)))) {
-    this->fInMenuTransition = 1;
-  }
-  else {
+  /* SYM 8c block: the ONLY local is `short i` (REG $s0); the fn returns BOOL.  The
+     nested `Block start line=24` carrying a `tFEApplication *this` is an INLINED
+     tFEApplication accessor — i.e. the tail reads FEApp->fCurrentScreen inline. */
+  short i;
+
+  /* MATCH: if/else-if chain of &&-guards (the oracle reloads fScreenFade for the
+     2nd guard because the 1st guard's `lb` clobbered $v0).  fTransitionDirection
+     is a SIGNED byte in retail — this build's plain `char` is UNSIGNED, so the
+     (signed char) casts are what produce the oracle's `lb`/`bgtz`/`bgez`. */
+  if ((0x228 <= this->fScreenFade) && (0 < (signed char)this->fTransitionDirection)) {
     this->fInMenuTransition = 0;
   }
+  else if ((this->fScreenFade <= 0) && ((signed char)this->fTransitionDirection < 0)) {
+    this->fInMenuTransition = 0;
+  }
+  else {
+    this->fInMenuTransition = 1;
+  }
+  /* MATCH: the virtual returns `bool`, so `!ret` is gcc's bool-negate `xori v0,v0,1`
+     (an `int` compare would emit li+bne instead) -> cast the vtable pfn to a
+     bool-returning fn-ptr at the call site.  `short i` + `fItemList[i]` gives the
+     oracle's per-use `sll 16; sra 14` index rematerialization. */
   if (this->fInMenuTransition == 0) {
-    i = 0;
-    ptVar1 = this->fItemList[0];
-    while (ptVar1 != (tMenuItem *)0x0) {
-      iVar4 = *(int *)((int)this->fItemList + ((i << 0x10) >> 0xe));
-      iVar2 = *(int *)(iVar4 + 0x18);
-      iVar2 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
-      i = i + 1;
-      if (iVar2 != 1) {
+    for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+      if (!(*(bool (*)(...))(*this->fItemList[i]->_vf)[9].pfn)
+             ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta)) {
         this->fInMenuTransition = 1;
       }
-      ptVar1 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
     }
   }
-  pa_Var3 = FEApp->fCurrentScreen[0]->_vf;
-  i = (*(*pa_Var3)[8].pfn)
-                    ((FEApp->fCurrentScreen[0]->fPermShapes).fFilename + (*pa_Var3)[8].delta + -0x14
-                    );
-  if (i != 1) {
+  if (!(*(bool (*)(...))(*FEApp->fCurrentScreen[0]->_vf)[8].pfn)
+         ((char *)FEApp->fCurrentScreen[0] +
+          (int)(*FEApp->fCurrentScreen[0]->_vf)[8].delta)) {
     this->fInMenuTransition = 1;
   }
   return (void *)(this->fInMenuTransition ^ 1);
@@ -472,6 +460,9 @@ void tOptionsMenu::UpdateTransition()
      403-405 shared call / 407-411 fade-in clamp / 418-419 the not-transitioning
      item loop / 422 the menu's own vtable[7] call. */
   short i;
+  tMenuItem *item;
+  __vtbl_ptr_type *entry;
+  char *adjusted;
 
   if (this->fInMenuTransition != 0) {
     /* MATCH: `char` is UNSIGNED on this build -> a plain `< 0` folds to false and
@@ -518,9 +509,13 @@ feo_callUpdate:
     }
   }
   else {
+    /* MATCH: g++ old-ABI virtual-call spelling — ENTRY pointer for the pfn fetch
+       (`lw 4(a3)`), delta off the vtable base as a displacement (`lh 80(v0)`). */
     for (i = 0; this->fItemList[i] != 0; i++) {
-      (*(*this->fItemList[i]->_vf)[10].pfn)
-        ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[10].delta,
+      item = this->fItemList[i];
+      entry = &(*item->_vf)[10];
+      adjusted = (char *)item + (int)entry->delta;
+      (*entry->pfn)(adjusted,
          this->fInMenuTransition == 0 && (int)i == this->fCurrentItem);
     }
   }
@@ -536,41 +531,60 @@ feo_done:
 void tOptionsMenu::Draw()
 
 {
+  /* SYM 8c block: locals are `short i` (REG $s1) + the AUTO `tDrawShapeExtended
+     drawFlags`; the nested `tMenuItem *this` blocks are INLINED accessors. */
   tMenuItem *ptVar1;
   __vtbl_ptr_type (*pa_Var2) [11];
-  int i;
+  __vtbl_ptr_type *entry;
+  char *adjusted;
+  short i;
   bool bVar4;
   tDrawShapeExtended drawFlags;
-  
+
   CalcPulsateYellow();
-  ptVar1 = this->fItemList[this->fCurrentItem];
-  if ((ptVar1 == (tMenuItem *)0x0) || ((ptVar1->fFlags & 1) != 0)) {
+  /* MATCH: no local for the head test either — the oracle reuses $v0 for both the
+     null test and the flags load (a named ptVar1 parks it in $v1). */
+  if ((this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) ||
+      ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
     this->fCurrentItem = 0;
   }
-  while ((i = this->fCurrentItem, (this->fItemList[i]->fFlags & 1) != 0 &&
-         (this->fItemList[i + 1] != (tMenuItem *)0x0))) {
-    this->fCurrentItem = i + 1;
+  /* MATCH: the skip-disabled scans walk `fCurrentItem` (an int field) DIRECTLY —
+     no local.  The comma-expression `(i = fCurrentItem, A && B)` form both narrowed
+     the load to `lh` (i is short) and forced the `&&` to be materialized as a VALUE
+     (`addu v1,zero,zero; sltu/slt; beqz`) instead of the oracle's plain branch;
+     it also inflated `i`'s ref count, stealing $s0 from `this`. */
+  /* MATCH: EXIT-IN-THE-MIDDLE keeps the oracle's TOP-TEST + unconditional `j`
+     back-edge (a plain `while (A && B)` gets loop-ROTATED: peeled entry test +
+     bottom-test back-edge, +7 insns). */
+  while (1) {
+    if ((this->fItemList[this->fCurrentItem]->fFlags & 1) == 0) break;
+    if (this->fItemList[this->fCurrentItem + 1] == (tMenuItem *)0x0) break;
+    this->fCurrentItem = this->fCurrentItem + 1;
   }
-  while ((i = this->fCurrentItem, (this->fItemList[i]->fFlags & 1) != 0 &&
-         (0 < i))) {
-    this->fCurrentItem = i + -1;
+  while (1) {
+    if ((this->fItemList[this->fCurrentItem]->fFlags & 1) == 0) break;
+    if (this->fCurrentItem <= 0) break;
+    this->fCurrentItem = this->fCurrentItem + -1;
   }
   if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames)) {
     drawFlags.tint[0] = 0xcec844;
     DrawShapeExtended(this->fFirstFrame + ((int)(ticks[0] >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
   }
-  i = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    ptVar1 = this->fItemList[(short)i];
-    pa_Var2 = ptVar1->_vf;
+  /* MATCH: `short i` + `fItemList[i]` (per-use sll16/sra14 remat). */
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+    /* MATCH: the dispatch is spelled the way g++'s own old-ABI virtual call is —
+       an ENTRY POINTER for the pfn fetch (`lw 4(t0)`), the delta read off the
+       vtable base as a displacement (`lh 40(v0)`), and the this-adjust MUTATING
+       the (now dead) receiver register in place (`addu a0,a0,v0`).  Same spelling
+       as tMenuItemSlidingMenu::Draw's matched dispatches. */
+    ptVar1 = this->fItemList[i];
+    entry = &(*ptVar1->_vf)[5];
+    adjusted = (char *)ptVar1 + (int)entry->delta;
     bVar4 = false;
     if (this->fInMenuTransition == 0) {
-      bVar4 = (int)(short)i == this->fCurrentItem;
+      bVar4 = (int)i == this->fCurrentItem;
     }
-    (*(*pa_Var2)[5].pfn)((char *)ptVar1 + (int)(*pa_Var2)[5].delta,0,0,bVar4);
-    i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
+    (*entry->pfn)(adjusted,0,0,bVar4);
   }
   return;
 }
@@ -739,21 +753,20 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
           short diffy,bool fillback)
   : tMenuItem(textDescription)
 {
-  u_int uVar1;
-  
-  uVar1 = this->fFlags;
+  /* MATCH (LAW 05A — the SLD IS the statement order): retail's body is
+     614 fFlags|=0x80 / 615 currMenu / 616 nextMenu / 617 fWidth / 618 fHeight /
+     619 fDiffX / 620 fDiffY / 621 fFillback / 622 fSelFade — ONE fFlags OR (the
+     recon had it twice), and a TYPED vtable store so gcc can schedule the `sw`. */
+  this->fFlags = this->fFlags | 0x80;
   this->currMenu = (tInsideBoxMenu *)0x0;
   this->nextMenu = (tInsideBoxMenu *)0x0;
   this->fWidth = width;
   this->fHeight = height;
-  this->fSelFade = 0;
-  this->fFlags = uVar1 | 0x80;
-  uVar1 = this->fFlags;
-  *(void **)&(this->_vf) = (void *)tMenuItemSlidingMenu_vtable;
   this->fDiffX = diffx;
   this->fDiffY = diffy;
   this->fFillback = fillback;
-  this->fFlags = uVar1 | 0x80;
+  this->fSelFade = 0;
+  this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
   return;
 }
 
@@ -808,23 +821,21 @@ void tMenuItemSlidingMenu::TransitionOn()
 void * tMenuItemSlidingMenu::TransitionIsFinished()
 
 {
-  if (this->currMenu == (tInsideBoxMenu *)0x0) goto SlideMenuTrans_zeroFade;
-  if (this->nextMenu == (tInsideBoxMenu *)0x0) goto SlideMenuTrans_zeroFade;
-  goto SlideMenuTrans_test;
-SlideMenuTrans_zeroFade:
-  this->fFadeDir = 0;
-SlideMenuTrans_resetTrans:
-  this->fInTransition = 0;
-  goto SlideMenuTrans_returnInv;
-SlideMenuTrans_test:
-  if (this->fFadeDir == 0) goto SlideMenuTrans_resetTrans;
-  if ((this->fFadeDir < 0) && (this->fFadeVal < 1)) goto SlideMenuTrans_resetTrans;
-  /* Force retail's post-negative-path reload at the control-flow join. */
-  if (*(volatile short *)&this->fFadeDir < 1) goto SlideMenuTrans_setTrans;
-  if (0x7f < this->fFadeVal) goto SlideMenuTrans_resetTrans;
-SlideMenuTrans_setTrans:
-  this->fInTransition = 1;
-SlideMenuTrans_returnInv:
+  /* MATCH: plain if/else-if chain (same shape as tMenuItemLeftRightFade's).  The
+     fFadeDir reload at 8001D2E8 is free: the preceding `&&` clobbered $v0 with
+     fFadeVal, so only that path reloads while the bgez edge enters mid-block. */
+  if ((this->currMenu == (tInsideBoxMenu *)0x0) || (this->nextMenu == (tInsideBoxMenu *)0x0)) {
+    this->fFadeDir = 0;
+    this->fInTransition = 0;
+  } else if (this->fFadeDir == 0) {
+    this->fInTransition = 0;
+  } else if ((this->fFadeDir < 0) && (this->fFadeVal <= 0)) {
+    this->fInTransition = 0;
+  } else if ((this->fFadeDir > 0) && (this->fFadeVal >= 0x80)) {
+    this->fInTransition = 0;
+  } else {
+    this->fInTransition = 1;
+  }
   return (void *)(this->fInTransition ^ 1);
 }
 
@@ -1156,21 +1167,24 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
 
 {
-  short sVar1;
-  int iVar2;
   u_int uVar3;
+  int iVar2;
   int iVar4;
-  
+
+  /* MATCH: store IN each branch (gcc cross-jump-merges the two `sh`s back into
+     the oracle's single join store); a shared `sVar1` temp costs an extra reg
+     + copy. */
   if (this->fActive != 0) {
-    sVar1 = this->fSlideOffset + -3;
+    this->fSlideOffset = this->fSlideOffset + -3;
   }
   else {
-    sVar1 = this->fSlideOffset + 3;
+    this->fSlideOffset = this->fSlideOffset + 3;
   }
-  this->fSlideOffset = sVar1;
-  iVar4 = (int)this->fSlideOffset;
+  /* MATCH: the fHeight limit is computed BEFORE the fSlideOffset read (oracle
+     `lhu 0x26` then `lh 0x2A`) — the reversed order swaps their registers. */
   iVar2 = (u_int)(u_short)this->fHeight << 0x10;
   iVar2 = (iVar2 >> 0x10) + (iVar2 >> 0x11);
+  iVar4 = (int)this->fSlideOffset;
   uVar3 = (u_int)(iVar4 < iVar2);
   if (uVar3 != 0) {
     iVar2 = iVar4;
@@ -1225,23 +1239,19 @@ void tMenuItemSlidingActivated::TransitionOn()
 void * tMenuItemSlidingActivated::TransitionIsFinished()
 
 {
-  if (this->currMenu == (tInsideBoxMenu *)0x0) goto SlideActvTrans_zeroFade;
-  if (this->nextMenu == (tInsideBoxMenu *)0x0) goto SlideActvTrans_zeroFade;
-  goto SlideActvTrans_test;
-SlideActvTrans_zeroFade:
-  this->fFadeDir = 0;
-SlideActvTrans_resetTrans:
-  this->fInTransition = 0;
-  goto SlideActvTrans_returnInv;
-SlideActvTrans_test:
-  if (this->fFadeDir == 0) goto SlideActvTrans_resetTrans;
-  if ((this->fFadeDir < 0) && (this->fFadeVal < 1)) goto SlideActvTrans_resetTrans;
-  /* Force retail's post-negative-path reload at the control-flow join. */
-  if (*(volatile short *)&this->fFadeDir < 1) goto SlideActvTrans_setTrans;
-  if (0x7f < this->fFadeVal) goto SlideActvTrans_resetTrans;
-SlideActvTrans_setTrans:
-  this->fInTransition = 1;
-SlideActvTrans_returnInv:
+  /* MATCH: same if/else-if chain as tMenuItemSlidingMenu::TransitionIsFinished. */
+  if ((this->currMenu == (tInsideBoxMenu *)0x0) || (this->nextMenu == (tInsideBoxMenu *)0x0)) {
+    this->fFadeDir = 0;
+    this->fInTransition = 0;
+  } else if (this->fFadeDir == 0) {
+    this->fInTransition = 0;
+  } else if ((this->fFadeDir < 0) && (this->fFadeVal <= 0)) {
+    this->fInTransition = 0;
+  } else if ((this->fFadeDir > 0) && (this->fFadeVal >= 0x80)) {
+    this->fInTransition = 0;
+  } else {
+    this->fInTransition = 1;
+  }
   return (void *)(this->fInTransition ^ 1);
 }
 
@@ -1365,33 +1375,32 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
 int tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
 
 {
+  /* SYM 8c block: params this($s3)/offx($s0)/offy($s2) and the ONE named local
+     `int ColText` ($s2, reusing offy's reg); x/y are compiler temps.
+     MATCH: NO return funnel — retail drops the result ($v0 is the shared `li 2`
+     stack arg, and on the fade==0x80 early-out it is the compare's `li 0x80`);
+     x stays an int narrowed PER USE, y's narrowing CSEs into its own reg. */
   short sVar1;
-  int iVar2;
-  int iVar3;
   int ColText;
   char *sMenuText;
   __vtbl_ptr_type (*pa_Var4) [6];
   tListIterator *ptVar5;
-  int iVar6;
-  
-  iVar2 = 0x80;
+  int x;
+  int y;
+
   if (this->fFadeVal != 0x80) {
-    iVar3 = TextSys_WordX(this->fTextDescription);
-    iVar2 = TextSys_WordY(this->fTextDescription);
+    x = TextSys_WordX(this->fTextDescription) + offx;
+    y = TextSys_WordY(this->fTextDescription) + offy;
     ColText = CalcTextFadeSelToHi(textType_Options,
                      this->fSelFade,this->fFadeVal);
-    iVar6 = (iVar2 + offy) * 0x10000;
-    this->MyLeftRightDraw((iVar3 + offx) * 0x10000 >> 0x10,iVar6 >> 0x10);
+    this->MyLeftRightDraw((short)x,(short)y);
     ptVar5 = this->fData;
     pa_Var4 = ptVar5->_vf;
     sVar1 = (*(*pa_Var4)[3].pfn)
                       ((char *)ptVar5 + (int)(*pa_Var4)[3].delta,gMenu_SubMenuPlayer);
     sMenuText = TextSys_Word((int)sVar1);
-    iVar2 = 2;
-    FETextRender_FullTextRGB(sMenuText,(short)((u_int)((iVar3 + offx + 0x73) * 0x10000) >> 0x10),
-               (short)((u_int)iVar6 >> 0x10),ColText,'\0',2);
+    FETextRender_FullTextRGB(sMenuText,(short)(x + 0x73),(short)y,ColText,'\0',2);
   }
-  return iVar2;
 }
 
 
@@ -1422,50 +1431,44 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
 int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
 
 {
+  /* MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
+     funnel, in-branch fOnFade stores, x/y plain ints narrowed PER USE, and the
+     TextSys_Word results consumed straight into $a0. */
   char cVar1;
-  char *pcVar2;
   __vtbl_ptr_type (*pa_Var3) [6];
-  int iVar4;
-  int iVar5;
+  int x;
+  int y;
   tListIterator *ptVar6;
-  short sVar7;
   int ColTextOn;
   int ColTextOff;
-  
-  pcVar2 = (char *)0x80;
+
   if (this->fFadeVal != 0x80) {
     ptVar6 = this->fData;
     pa_Var3 = ptVar6->_vf;
     cVar1 = (*(*pa_Var3)[2].pfn)
                       ((char *)ptVar6 + (int)(*pa_Var3)[2].delta,0xffffffff,offy,
                        selected);
-    if (cVar1 == '\0') {
-      sVar7 = this->fOnFade + -0x20;
+    /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
+    if (cVar1 != '\0') {
+      this->fOnFade = this->fOnFade + 0x20;
     }
     else {
-      sVar7 = this->fOnFade + 0x20;
+      this->fOnFade = this->fOnFade + -0x20;
     }
-    this->fOnFade = sVar7;
     if (0x80 < this->fOnFade) {
       this->fOnFade = 0x80;
     }
     if (this->fOnFade < 0) {
       this->fOnFade = 0;
     }
-    iVar4 = TextSys_WordX(this->fTextDescription);
-    iVar4 = iVar4 + offx;
-    iVar5 = TextSys_WordY(this->fTextDescription);
+    x = TextSys_WordX(this->fTextDescription) + offx;
+    y = TextSys_WordY(this->fTextDescription) + offy;
     CalcOnOffFade(textType_Options,this->fOnFade,
                this->fSelFade,this->fFadeVal,&ColTextOn,&ColTextOff);
-    iVar5 = (iVar5 + offy) * 0x10000;
-    this->MyLeftRightDraw(iVar4 * 0x10000 >> 0x10,iVar5 >> 0x10);
-    pcVar2 = TextSys_Word(0x66);
-    sVar7 = (short)((u_int)iVar5 >> 0x10);
-    FETextRender_FullTextRGB(pcVar2,(short)((u_int)((iVar4 + 0x37) * 0x10000) >> 0x10),sVar7,ColTextOn,'\0',0);
-    pcVar2 = TextSys_Word(0x67);
-    FETextRender_FullTextRGB(pcVar2,(short)((u_int)((iVar4 + 0x9e) * 0x10000) >> 0x10),sVar7,ColTextOff,'\0',0);
+    this->MyLeftRightDraw((short)x,(short)y);
+    FETextRender_FullTextRGB(TextSys_Word(0x66),(short)(x + 0x37),(short)y,ColTextOn,'\0',0);
+    FETextRender_FullTextRGB(TextSys_Word(0x67),(short)(x + 0x9e),(short)y,ColTextOff,'\0',0);
   }
-  return (int)pcVar2;
 }
 
 
@@ -1510,13 +1513,17 @@ int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
   int iVar6;
   tDrawShapeExtended tCol;
   
+  /* MATCH: `textDefinitions` is 6 bytes per row in retail (index scaling
+     `sll 1; addu` = *3, then *2) — the externs header now carries the true
+     [14][6] shape (it used to say [6][14] -> stride 14 -> `sll 3; subu` = *7,
+     a real OOB addressing bug).
+     Also: read (short)fTextDescription straight off the field (`lh 4(s3)`) —
+     the `u_int uVar5` cache forced an `lw` + `sll/sra` pair. */
   coltext = TextSys_WordX(this->fTextDescription);
-  uVar5 = this->fTextDescription;
   this->fX = (short)coltext + (short)ox;
-  coltext = TextSys_WordY(uVar5);
-  uVar5 = this->fTextDescription;
+  coltext = TextSys_WordY(this->fTextDescription);
   this->fY = (short)coltext + (short)oy;
-  coltext = TextSys_WordFlags((int)(short)uVar5);
+  coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
   iVar6 = kRGBVals[(u_char)textDefinitions[coltext][5]];
   coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
   coltext = kRGBVals[(u_char)textDefinitions[coltext][4]];
@@ -1526,7 +1533,8 @@ int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
   coltext = CalcFadeVal(coltext,iVar6,
                      (int)this->fSelFade,
                      (int)this->fFadeVal);
-  iVar6 = 0x80;
+  /* MATCH: no return funnel ($v0 incidental) and the fData reload lives INSIDE
+     the DrawSlider argument list. */
   if (this->fFadeVal != 0x80) {
     sMenuText = TextSys_Word(this->fTextDescription);
     FETextRender_FullTextRGB(sMenuText,this->fX,this->fY,
@@ -1540,15 +1548,13 @@ int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
     pa_Var3 = ptVar4->_vf;
     uVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar4 + (int)(*pa_Var3)[2].delta,0xffffffff)
     ;
-    ptVar4 = this->fData;
-    iVar6 = (int)this->fFadeVal;
-    DrawSlider(uVar1 & 0xff,(u_short)(u_char)ptVar4->fMinValue,(u_short)(u_char)ptVar4->fMaxValue,
+    DrawSlider(uVar1 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+               (u_short)(u_char)this->fData->fMaxValue,
                this->fX + 0x14,this->fY + 1,
                this->fWidth,this->fHeight,4,4,
                false,0,this->fSelFade,
                this->fFadeVal);
   }
-  return iVar6;
 }
 
 
@@ -1899,49 +1905,53 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
 
 {
+  /* MATCH: (a) BASE-ANCHOR — retail holds `&gHelpShapes[0x1e]` in one saved reg
+     ($s5: `lui;lw;addiu +960`), not the array base re-indexed per use;
+     (b) ONE tDrawShapeExtended AUTO (the 2nd cost 32 frame bytes);
+     (c) no return funnel — $v0 is the last stack arg, incidental;
+     (d) `y` is an int MUTATED in place by -3 (`addiu s0,s0,-3`) and reused. */
   tTexture_ShapeInfo *shape;
   short sVar2;
-  int iVar3;
-  int iVar4;
+  int x;
+  int y;
   int Col;
   int ColText;
+  int w;
   char *pcVar6;
   __vtbl_ptr_type (*pa_Var7) [6];
-  short y;
   tListIterator *ptVar8;
-  tDrawShapeExtended tCol;
   tDrawShapeExtended drawFlags;
-  
-  iVar3 = TextSys_WordX(this->fTextDescription);
-  iVar3 = iVar3 + ox;
-  iVar4 = TextSys_WordY(this->fTextDescription);
-  shape = gHelpShapes;
+
+  x = TextSys_WordX(this->fTextDescription) + ox;
+  y = TextSys_WordY(this->fTextDescription) + oy;
+  shape = &gHelpShapes[0x1e];
   Col = CalcFadeVal(0xc83c1e,0xbebe,
                      (int)this->fSelFade,
                      (int)this->fFadeVal);
   ColText = CalcTextFadeSelToHi(textType_Options,
                    this->fSelFade,this->fFadeVal);
   if (this->fFadeVal != 0x80) {
-    tCol.tint[0] = Col;
+    drawFlags.tint[0] = Col;
     pcVar6 = TextSys_Word(this->fTextDescription);
-    y = (short)((u_int)((iVar4 + oy) * 0x10000) >> 0x10);
-    FETextRender_FullTextRGB(pcVar6,(short)((u_int)(iVar3 * 0x10000) >> 0x10),y,ColText,'\0',0);
+    FETextRender_FullTextRGB(pcVar6,(short)x,(short)y,ColText,'\0',0);
     ptVar8 = this->fData;
     pa_Var7 = ptVar8->_vf;
     sVar2 = (*(*pa_Var7)[3].pfn)
                       ((char *)ptVar8 + (int)(*pa_Var7)[3].delta,gMenu_SubMenuPlayer);
     pcVar6 = TextSys_Word((int)sVar2);
-    FETextRender_FullTextRGB(pcVar6,(short)((u_int)((iVar3 + 0x97) * 0x10000) >> 0x10),y,ColText,'\0',2);
+    FETextRender_FullTextRGB(pcVar6,(short)(x + 0x97),(short)y,ColText,'\0',2);
   }
   drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,
                             (int)this->fFadeVal);
-  DrawShapeExtended(0xa,0x18,iVar3 + 0x83,(int)y,0,1,&drawFlags);
-  DrawShapeExtended(0xb,0x18,iVar3 + 0xa1,(int)y,0,1,&drawFlags);
-  DrawShapeExtended(0x1e,8,iVar3 - ((int)shape[0x1e].width - 0xb0),(int)y - 3,(int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
-  Col = (int)shape[0x1e].height;
-  PSXDrawSquare(0,iVar3 * 0x10000 >> 0x10,((iVar4 + oy) * 0x10000 >> 0x10) + -3,
-             0xb0 - shape[0x1e].width,Col);
-  return Col;
+  DrawShapeExtended(0xa,0x18,(short)x + 0x83,(short)y,0,1,&drawFlags);
+  DrawShapeExtended(0xb,0x18,(short)x + 0xa1,(short)y,0,1,&drawFlags);
+  /* MATCH: keep the subtraction UN-reassociated — inline, gcc rewrites
+     `x - (w - 0xb0)` into `(x + 0xb0) - w`; a temp pins the oracle's
+     `addiu a2,a2,-176; subu a2,s1,a2`. */
+  w = (int)shape->width - 0xb0;
+  DrawShapeExtended(0x1e,8,(short)x - w,(short)y - 3,
+             (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
+  PSXDrawSquare(0,(short)x,(short)y - 3,0xb0 - shape->width,(int)shape->height);
 }
 
 
@@ -1975,10 +1985,13 @@ tInsideBoxLeftRightSlider::~tInsideBoxLeftRightSlider()
 int tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
 
 {
-  short fSelFade;
+  /* MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
+     ($v0 is DrawSlider's, incidental), so the `lh 8(s0)` for the fSelFade arg is
+     emitted LATE at the call instead of being hoisted into a saved reg.  Decl
+     order coltext-before-col is the s3/s4 assignment. */
   u_short uVar1;
-  int col;
   int coltext;
+  int col;
   char *sMenuText;
   __vtbl_ptr_type (*pa_Var3) [6];
   tListIterator *ptVar4;
@@ -1999,14 +2012,13 @@ int tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
   ptVar4 = this->fData;
   pa_Var3 = ptVar4->_vf;
   uVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar4 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  ptVar4 = this->fData;
-  fSelFade = this->fSelFade;
-  col = (int)fSelFade;
-  DrawSlider(uVar1 & 0xff,(u_short)(u_char)ptVar4->fMinValue,(u_short)(u_char)ptVar4->fMaxValue,
+  /* MATCH: the fData reload belongs INSIDE the argument list (a preceding
+     `ptVar4 = this->fData;` statement schedules it between the fX and fY reads). */
+  DrawSlider(uVar1 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+             (u_short)(u_char)this->fData->fMaxValue,
              this->fX + 4,this->fY + 2,
              (short)((u_int)((w + -8) * 0x10000) >> 0x10),this->fHeight,4,
-             4,false,0,fSelFade,0);
-  return col;
+             4,false,0,this->fSelFade,0);
 }
 
 
@@ -2043,33 +2055,30 @@ int tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyva
               tMenuCommand &command)
 
 {
-  tInputKeyType tVar1;
-  
-  tVar1 = keyval;
-  if (tVar1 == kInput_KeyType_Cross) {
+  /* MATCH: plain straight-line ifs reading the `keyval` REFERENCE directly — no
+     tVar1 cache, no volatile, no goto.  gcc reloads keyval at the end of the
+     Cross body all by itself (partial redundancy across the two `if (keyval==K)`
+     statements), and jump-threads the `!fActive` R1 exit straight into the
+     Left/Right test.  The tVar1 cache was also what stole $s0 from `keyval`. */
+  if (keyval == kInput_KeyType_Cross) {
     AudioCmn_PlayFESFX(0);
     this->fActive = 1;
     keyval = kInput_KeyType_AlreadyProcessed;
-    tVar1 = *(volatile tInputKeyType *)&keyval;
   }
-  if (tVar1 == kInput_KeyType_R1) {
-    tVar1 = kInput_KeyType_R1;
+  if (keyval == kInput_KeyType_R1) {
     if (this->fActive != 0) {
       AudioCmn_PlayFESFX(1);
       this->fActive = 0;
       keyval = kInput_KeyType_AlreadyProcessed;
-      goto IBTwoWaySlide_activeCheck;
     }
   }
-  else {
-IBTwoWaySlide_activeCheck:
-    if (this->fActive != 0) goto IBTwoWaySlide_processed;
-    tVar1 = keyval;
+  if (this->fActive != 0) {
+    keyval = kInput_KeyType_AlreadyProcessed;
+    return 1;
   }
-  if ((tVar1 != kInput_KeyType_Left) && (tVar1 != kInput_KeyType_Right)) {
+  if ((keyval != kInput_KeyType_Left) && (keyval != kInput_KeyType_Right)) {
     return 0x1000;
   }
-IBTwoWaySlide_processed:
   keyval = kInput_KeyType_AlreadyProcessed;
   return 1;
 }
@@ -2089,21 +2098,25 @@ int tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
   char *sMenuText;
   __vtbl_ptr_type (*pa_Var4) [6];
   tListIterator *ptVar5;
-  int ww;
   short fWidth;
-  
+  int ww;
+
   if (this->fActive != 0) {
     this->Calibrate();
   }
-  sVar1 = this->fSelFade;
+  /* MATCH (LAW 05A — the SLD IS the statement order): retail computes `ww` at
+     line 1553, BEFORE the 1555 fX/fY + CalcFadeVal group; hoisting it here is
+     what puts the `w` param in $s2 and `y` in $s1 like the oracle.
+     Also: read fSelFade AT the call — a `short sVar1` copy makes gcc stage it
+     `lhu; sll 16; sra 16` (+2) where the oracle has a bare `lh`. */
+  ww = (w >> 1) + -4;
   this->fX = (short)x;
   this->fY = (short)y;
-  col2 = CalcFadeVal(0x551e00,0xc83c1e,(int)sVar1);
+  col2 = CalcFadeVal(0x551e00,0xc83c1e,(int)this->fSelFade);
   col = CalcFadeVal(0x551e00,0xbebe,
                    (int)this->fSelFade);
   coltext = CalcTextFadeUnselToSel(textType_Options,
                       this->fSelFade,0);
-  ww = (w >> 1) + -4;
   PSXDrawSquare(col2,(int)this->fX,(int)this->fY
              ,ww,1);
   PSXDrawSquare(col2,this->fX + ww + 8,
@@ -2120,77 +2133,79 @@ int tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
   ptVar5 = this->fData;
   pa_Var4 = ptVar5->_vf;
   uVar2 = (*(*pa_Var4)[2].pfn)((char *)ptVar5 + (int)(*pa_Var4)[2].delta,0xffffffff);
-  ptVar5 = this->fData;
+  /* MATCH (see tInsideBoxLeftRightSlider::Draw): the fData reload belongs INSIDE
+     the argument list, and retail drops the result ($v0 = DrawSlider's). */
   fWidth = (short)((u_int)(((w >> 1) + -8) * 0x10000) >> 0x10);
-  DrawSlider(uVar2 & 0xff,(u_short)(u_char)ptVar5->fMinValue,(u_short)(u_char)ptVar5->fMaxValue,
+  DrawSlider(uVar2 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+             (u_short)(u_char)this->fData->fMaxValue,
              this->fX + 1,this->fY + 2,fWidth,
              this->fHeight,4,4,true,0,
              this->fSelFade,0);
   ptVar5 = this->fData;
   pa_Var4 = ptVar5->_vf;
   uVar2 = (*(*pa_Var4)[2].pfn)((char *)ptVar5 + (int)(*pa_Var4)[2].delta,0xffffffff);
-  ptVar5 = this->fData;
-  sVar1 = this->fSelFade;
-  col2 = (int)sVar1;
-  DrawSlider(uVar2 & 0xff,(u_short)(u_char)ptVar5->fMinValue,(u_short)(u_char)ptVar5->fMaxValue,
+  DrawSlider(uVar2 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+             (u_short)(u_char)this->fData->fMaxValue,
              (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >>
                     0x10),this->fY + 2,fWidth,
-             this->fHeight,4,4,false,0,sVar1,0);
-  return col2;
+             this->fHeight,4,4,false,0,this->fSelFade,0);
 }
 
 
 
 /* ---- GetCurrentStickRange  [FEMENUOPTIONS.CPP:1578-1582] SLD-VERIFIED ---- */
 
-char GetCurrentStickRange(int player)
+/* MATCH: 5-line retail body — a two-armed TERNARY per axis (the arms funnel into
+   the result pseudo via `addu v1,v0,zero`, which an if/else form computes in
+   place instead), and an INT return (the `char` return added the oracle-absent
+   `andi v0,v0,255`). */
+int GetCurrentStickRange(int player)
 
 {
-  u_int uVar1;
-  int range2;
   int range1;
+  int range2;
 
-  uVar1 = (u_int)gPadinfo.buf[player * 4].data.negcon.twist;
-  range1 = 0x80 - uVar1;
+  range1 = 0x80 - (int)gPadinfo.buf[player * 4].data.negcon.twist;
   if (range1 < 1) {
-    range1 = uVar1 - 0x80;
+    range1 = (int)gPadinfo.buf[player * 4].data.negcon.twist - 0x80;
   }
-  uVar1 = (u_int)gPadinfo.buf[player * 4].data.negcon.buttonI;
-  range2 = 0x80 - uVar1;
+  range2 = 0x80 - (int)gPadinfo.buf[player * 4].data.negcon.buttonI;
   if (range2 < 1) {
-    range2 = uVar1 - 0x80;
+    range2 = (int)gPadinfo.buf[player * 4].data.negcon.buttonI - 0x80;
   }
   if (range2 < range1) {
     range2 = range1;
   }
-  return (char)range2;
+  return range2;
 }
 
 
 
 /* ---- GetCurrentStickRange2  [FEMENUOPTIONS.CPP:1586-1590] SLD-VERIFIED ---- */
 
-char GetCurrentStickRange2(int player)
+/* MATCH: see GetCurrentStickRange — INT return (the `char` return emitted an
+   oracle-absent `andi v0,v0,255`) and the field re-read per arm.
+   NEAR-MISS 17: residual is a v0/v1 qty-numbering swap (ours loads the axis byte
+   into $v1 + the shared `li 128` into $v0; oracle the reverse) plus the one
+   funnel copy `addu v1,v0,zero` gcc coalesces away for us. */
+int GetCurrentStickRange2(int player)
 
 {
-  u_int uVar1;
-  int range2;
   int range1;
-  
-  uVar1 = (u_int)gPadinfo.buf[player * 4].data.negcon.buttonII;
-  range1 = 0x80 - uVar1;
+  int range2;
+
+  range1 = 0x80 - (int)gPadinfo.buf[player * 4].data.negcon.buttonII;
   if (range1 < 1) {
-    range1 = uVar1 - 0x80;
+    range1 = (int)gPadinfo.buf[player * 4].data.negcon.buttonII - 0x80;
   }
-  uVar1 = (u_int)gPadinfo.buf[player * 4].data.negcon.leftshift;
-  range2 = 0x80 - uVar1;
+  range2 = 0x80 - (int)gPadinfo.buf[player * 4].data.negcon.leftshift;
   if (range2 < 1) {
-    range2 = uVar1 - 0x80;
+    range2 = (int)gPadinfo.buf[player * 4].data.negcon.leftshift - 0x80;
   }
   if (range2 < range1) {
     range2 = range1;
   }
-  return (char)range2;
+  return range2;
 }
 
 
@@ -2213,6 +2228,9 @@ void tInsideBoxTwoWaySlider::Calibrate()
      FEApp symbol-address scratch remains a v1-vs-v0 allocation tie. */
   screen = *(tScreenControllerConfig * volatile *)&screenControllerConfig[0];
   app = *(tFEApplication * volatile *)&FEApp;
+  /* MATCH: GetCurrentStickRange{,2} return INT (their oracles carry no mask) and
+     the CALLER narrows — `range = (u_char)GetCurrentStickRange(...)` is the
+     oracle's `andi a1,v0,255` right after each jal. */
   padBase = &gPadinfo;
   player = (u_char)app->fInputPlayer;
   padInfo = (tPadModuleState *)((char *)padBase + player * 0x20);
@@ -2228,7 +2246,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
       frontEnd.steeringRange[player] = (char)range;
     }
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
-      range = GetCurrentStickRange(player);
+      range = (u_char)GetCurrentStickRange(player);
       if (range < (u_char)frontEnd.J1MIN[player] + 10) {
         range = (u_char)frontEnd.J1MIN[player] + 10;
       }
@@ -2253,7 +2271,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
       char value;
 
-      range = GetCurrentStickRange(player);
+      range = (u_char)GetCurrentStickRange(player);
       if ((u_char)frontEnd.J1MAX[player] - 10 < range) {
         range = (u_char)frontEnd.J1MAX[player] - 10;
       }
@@ -2278,7 +2296,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
       char value;
 
-      range = GetCurrentStickRange2(player);
+      range = (u_char)GetCurrentStickRange2(player);
       if (range < (u_char)frontEnd.J2MIN[player] + 10) {
         range = (u_char)frontEnd.J2MIN[player] + 10;
       }
@@ -2307,7 +2325,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
     else if ((padInfo->buf[0].ID == 'S') || (padInfo->buf[0].ID == 's')) {
       char value;
 
-      range = GetCurrentStickRange2(player);
+      range = (u_char)GetCurrentStickRange2(player);
       if ((u_char)frontEnd.J2MAX[player] - 10 < range) {
         range = (u_char)frontEnd.J2MAX[player] - 10;
       }

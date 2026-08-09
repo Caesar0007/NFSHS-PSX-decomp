@@ -1698,7 +1698,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   Speaker *pSVar6;
 
-  u_int uVar7;
+  /* W57-A11: SIGNED -- retail's `uVar7 / 6` is `mult 0x2AAAAAAB` + sra, ours emitted
+     `multu 0xAAAAAAAB` + srl. */
+  int uVar7;
 
   AIState_Base *pAVar8;
 
@@ -1788,7 +1790,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   iVar11 = -1;
 
-  if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 0x14d) {
+  /* W57-A11: retail compares SIGNED (`slti`), ours emitted `sltiu` -- the unsigned
+     shift result must be cast back to int for the comparison. */
+  if ((int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) < 0x14d) {
 
     bVar1 = false;
 
@@ -1798,19 +1802,20 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     chaserCop->requestedDesiredSpeed_ = 0xd5555;
 
-    if (iVar9 == 0) {
+    /* W57-A11: retail's `beqz v1` falls through to the !=0 arm -- the != spelling. */
+    if (iVar9 != 0) {
 
-      this->escapeDuration_ = 0x180;
+      this->escapeDuration_ = 0x280;
 
-      uVar7 = 400;
+      uVar7 = 0xe1;
 
     }
 
     else {
 
-      this->escapeDuration_ = 0x280;
+      this->escapeDuration_ = 0x180;
 
-      uVar7 = 0xe1;
+      uVar7 = 400;
 
     }
 
@@ -1856,15 +1861,16 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   pCVar12 = this->carObj_;
 
-  if (iVar9 < 0) {
+  /* W57-A11: retail branches `bltz` (the >= 0 arm is the fall-through). */
+  if (iVar9 >= 0) {
 
     sVar2 = (carObj->N).simRoadInfo.slice;
 
     sVar10 = sVar2 + (short)iVar9;
 
-    if (sVar2 + iVar9 < 0) {
+    if (gNumSlices <= sVar2 + iVar9) {
 
-      sVar10 = (short)gNumSlices + sVar10;
+      sVar10 = sVar10 - (short)gNumSlices;
 
     }
 
@@ -1878,9 +1884,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     sVar10 = sVar2 + (short)iVar9;
 
-    if (gNumSlices <= sVar2 + iVar9) {
+    if (sVar2 + iVar9 < 0) {
 
-      sVar10 = sVar10 - (short)gNumSlices;
+      sVar10 = (short)gNumSlices + sVar10;
 
     }
 

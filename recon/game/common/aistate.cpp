@@ -2404,36 +2404,17 @@ void AIState_RovingTraffic::Execute()
 
   pCVar4 = this->carObj_;
 
-  /* load-3/store-3 grouped temps (catalog §A row 38/§54): oracle batches the 3 loads through
-     t0/t1/t2 THEN the 3 stores, not per-field load+store -- avoids a load-delay nop per field. */
-
-  iVar5 = (ptVar1->position).x;
-
-  iVar6 = (ptVar1->position).y;
-
-  iVar7 = (ptVar1->position).z;
-
-  (pCVar4->targetPos).x = iVar5;
-
-  (pCVar4->targetPos).y = iVar6;
-
-  (pCVar4->targetPos).z = iVar7;
+    /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
+     uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
+     statements (catalog 3d(a)). */
+  pCVar4->targetPos = ptVar1->position;
 
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
   iVar3 = (int)BWorldSm_slices + ((this->carObj_)->N).simRoadInfo.slice * 0x20;
 
-  iVar5 = ((Trk_NewSlice *)iVar3)->center[0];
-
-  iVar6 = ((Trk_NewSlice *)iVar3)->center[1];
-
-  iVar7 = ((Trk_NewSlice *)iVar3)->center[2];
-
-  centerBack.x = iVar5;
-
-  centerBack.y = iVar6;
-
-  centerBack.z = iVar7;
+  /* W57-A11: SLD line 1183 = one struct assignment (movstrsi t0/t1/t2). */
+  centerBack = *(coorddef *)((Trk_NewSlice *)iVar3)->center;
 
   pCVar4 = this->carObj_;
 

@@ -549,87 +549,70 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
 void AIHigh_Player::CheckForNewLevel(int force)
 
-
-
 {
   int chaseLevel;
   int oldChaseLevel;
-  int level;
 
   __vtbl_ptr_type (*pa_Var1) [3];
 
-  copLevel_t *pcVar2;
-
-  int iVar3;
-
-  int iVar4;
-
-  int iVar5;
-
-  int a;
-
-  AICop_PerpChaseInfo *pInfo;
 
 
+  /* W57-A11: SLD/SYM-shaped rewrite.  The retail SYM 8c block lists exactly TWO
+     int locals (chaseLevel $10=s0, oldChaseLevel $13=s3) plus a chain of INLINED
+     AICop_PerpChaseInfo methods, each contributing its own block-scoped `this`
+     pseudo ($3=v1, $10=s0, $4=a0, $11=s1) and one `level` parameter ($10=s0).
+     The former single fn-scope `pInfo` pointer was ONE global allocno spanning
+     the whole body (w46 STORAGE-SCOPE LAW) -- split per region below.
+     SLD map: 434 prologue | 438 init+finishType test | 439 the whole first
+     inlined SetChaseLevel chunk | 443 crime_=0 + return | 475 vf call |
+     476 crime test | 490 force/engagementTime gate | 491-493 level bump |
+     494 the second inlined SetChaseLevel chunk | 503 index compare |
+     504-505 newTriggerProb_ | 511 close.  */
 
-  pInfo = &this->perpChaseInfo_;
+  AICop_PerpChaseInfo *pci = &this->perpChaseInfo_;
 
-  iVar4 = pInfo->chaseLevelIndex_;
+  oldChaseLevel = pci->chaseLevelIndex_;
+
+  chaseLevel = oldChaseLevel;
 
   if (1 < ((this->carObj_)->stats).finishType) {
 
-    pInfo->chaseLevelIndex_ = 0;
+    AICop_PerpChaseInfo *p = pci;
 
-    if (pInfo->bestChaseLevelIndex_ < 0) {
+    int lapTicks;
 
-      pInfo->bestChaseLevelIndex_ = 0;
+    p->chaseLevelIndex_ = 0;
 
-    }
+    if (p->bestChaseLevelIndex_ < 0) {
 
-    pcVar2 = (pInfo->copGameInfo_)->levels + pInfo->chaseLevelIndex_
-
-    ;
-
-    pInfo->chaseLevel_ = pcVar2;
-
-    iVar4 = pcVar2->engagementLapFraction * AITune_gRoughLapTime;
-
-    if (iVar4 < 0) {
-
-      iVar4 = iVar4 + 0xffff;
+      p->bestChaseLevelIndex_ = 0;
 
     }
 
-    iVar3 = (iVar4 >> 0x10) << 5;
+    p->chaseLevel_ = (p->copGameInfo_)->levels + p->chaseLevelIndex_;
 
-    iVar5 = 0x10000 / iVar3;
+    lapTicks = ((p->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
+               / 0x10000;
 
+    p->engagementTime_ = lapTicks << 0x15;
 
-    pInfo->engagementTime_ = (iVar4 >> 0x10) << 0x15;
-
-    pInfo->engagementPercentIncreasePerTick_ = iVar5;
+    p->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
 
     if (GameSetup_gData.numLaps == 2) {
 
-      iVar4 = 0x13333;
+      p->engagementPercentIncreasePerTick_ =
+          fixedmult(p->engagementPercentIncreasePerTick_,0x13333);
 
     }
 
-    else {
+    else if (GameSetup_gData.numLaps == 4) {
 
-      iVar4 = 0xa8f5;
-
-      if (GameSetup_gData.numLaps != 4) goto LAB_80062328;
+      p->engagementPercentIncreasePerTick_ =
+          fixedmult(p->engagementPercentIncreasePerTick_,0xa8f5);
 
     }
 
-    iVar4 = fixedmult(iVar5,iVar4);
-
-    pInfo->engagementPercentIncreasePerTick_ = iVar4;
-
-LAB_80062328:
-
-    pInfo->blockadeDone_ = 0;
+    p->blockadeDone_ = 0;
 
     this->basicPerpInfo_.crime_ = 0;
 
@@ -643,94 +626,100 @@ LAB_80062328:
 
             ((int)this + *(short *)((char *)pa_Var1 + 24));
 
-  if (this->basicPerpInfo_.crime_ == 0) goto LAB_8006249c;
+  if (this->basicPerpInfo_.crime_ != 0) {
 
-  if (force == 0) {
+    if (force == 0) {
 
-    iVar3 = pInfo->engagementTime_;
+      int doIt = 0;
 
-    if (iVar3 < 0) {
+      if (this->perpChaseInfo_.engagementTime_ / 0x10000 <= 0) {
 
-      iVar3 = iVar3 + 0xffff;
+        doIt = 1;
+
+      }
+
+      if (doIt == 0) goto LAB_8006249c;
 
     }
 
-    if (0 < iVar3 >> 0x10) goto LAB_8006249c;
+    {
+
+      AICop_PerpChaseInfo *pi = &this->perpChaseInfo_;
+
+      int numLevels;
+
+      numLevels = (pi->copGameInfo_)->numLevels;
+
+      chaseLevel = chaseLevel + 1;
+
+      if (numLevels <= chaseLevel) {
+
+        chaseLevel = numLevels + -2;
+
+      }
+
+      {
+
+        AICop_PerpChaseInfo *p = pi;
+
+        int lapTicks;
+
+        p->chaseLevelIndex_ = chaseLevel;
+
+        if (p->bestChaseLevelIndex_ < chaseLevel) {
+
+          p->bestChaseLevelIndex_ = chaseLevel;
+
+        }
+
+        p->chaseLevel_ = (p->copGameInfo_)->levels + p->chaseLevelIndex_;
+
+        lapTicks = ((p->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
+                   / 0x10000;
+
+        p->engagementTime_ = lapTicks << 0x15;
+
+        p->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
+
+        if (GameSetup_gData.numLaps == 2) {
+
+          p->engagementPercentIncreasePerTick_ =
+              fixedmult(p->engagementPercentIncreasePerTick_,0x13333);
+
+        }
+
+        else if (GameSetup_gData.numLaps == 4) {
+
+          p->engagementPercentIncreasePerTick_ =
+              fixedmult(p->engagementPercentIncreasePerTick_,0xa8f5);
+
+        }
+
+        p->blockadeDone_ = 0;
+
+      }
+
+    }
 
   }
-
-  iVar3 = (pInfo->copGameInfo_)->numLevels;
-
-  iVar5 = iVar4 + 1;
-
-  if (iVar3 <= iVar5) {
-
-    iVar5 = iVar3 + -2;
-
-  }
-
-  pInfo->chaseLevelIndex_ = iVar5;
-
-  if (pInfo->bestChaseLevelIndex_ < iVar5) {
-
-    pInfo->bestChaseLevelIndex_ = iVar5;
-
-  }
-
-  pcVar2 = (pInfo->copGameInfo_)->levels + pInfo->chaseLevelIndex_;
-
-  pInfo->chaseLevel_ = pcVar2;
-
-  iVar3 = pcVar2->engagementLapFraction * AITune_gRoughLapTime;
-
-  if (iVar3 < 0) {
-
-    iVar3 = iVar3 + 0xffff;
-
-  }
-
-  iVar5 = (iVar3 >> 0x10) << 5;
-
-  a = 0x10000 / iVar5;
-
-
-  pInfo->engagementTime_ = (iVar3 >> 0x10) << 0x15;
-
-  pInfo->engagementPercentIncreasePerTick_ = a;
-
-  if (GameSetup_gData.numLaps == 2) {
-
-    iVar3 = 0x13333;
-
-LAB_80062488:
-
-    iVar3 = fixedmult(a,iVar3);
-
-    pInfo->engagementPercentIncreasePerTick_ = iVar3;
-
-  }
-
-  else {
-
-    iVar3 = 0xa8f5;
-
-    if (GameSetup_gData.numLaps == 4) goto LAB_80062488;
-
-  }
-
-  pInfo->blockadeDone_ = 0;
 
 LAB_8006249c:
+  {
 
-  if (iVar4 == pInfo->chaseLevelIndex_) {
+    AICop_PerpChaseInfo *pt = &this->perpChaseInfo_;
 
-    return;
+    if (oldChaseLevel == pt->chaseLevelIndex_) {
+
+      return;
+
+    }
+
+    this->newTriggerProb_ =
+
+         triggerManagerCops->invNumTriggers_ *
+         (pt->chaseLevel_)->copsPerLap;
 
   }
-
-  this->newTriggerProb_ =
-
-       triggerManagerCops->invNumTriggers_ * (pInfo->chaseLevel_)->copsPerLap;
 
   return;
 
@@ -1032,6 +1021,15 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   pInfo->chaseLevel_ = copGameInfo->levels + pInfo->chaseLevelIndex_;
 
+  /* W57-A11 RECEIPT: the residual 33 here is a 1-insn-shorter base<->value coloring swap
+     -- retail moves copGameInfo to a 2nd reg (`addu v0,v1,zero`) so $v1 can take the
+     chaseLevelIndex_ reload; ours keeps copGameInfo in $v1 and puts the index in $a0.
+     FALSIFIED (all measured 33/33, no movement): static-inline helper with a pointer
+     PARAMETER (cse copy-props the param copy away), array-index form
+     `&cg->levels[idx]`, a split `int idx` temp, a store-then-read-back of
+     copGameInfo_, and passing the address expression directly at the call.
+     Next lens: allocsim/reqdelta on which pseudo must win $v1. */
+
   this->numWarnings_ = 0;
 
   this->numBusts_ = 0;
@@ -1065,48 +1063,42 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   }
 
-  pcVar3 = (pInfo2->copGameInfo_)->levels + pInfo2->chaseLevelIndex_;
+  {
 
-  pInfo2->chaseLevel_ = pcVar3;
+    /* W57-A11: same inlined AICop_PerpChaseInfo::SetChaseLevel chunk as
+       CheckForNewLevel -- the /0x10000 form gives retail's SINGLE in-place
+       `sra v1,v1,16` (a named `iVar1>>16` used twice duplicates the shift into
+       the branch delay slot), and DUPLICATING the fixedmult call in both arms
+       lets cross_jump merge them while each arm materializes its constant
+       straight into $a1 (a shared temp goes through a callee-saved reg). */
+    int lapTicks;
 
-  iVar1 = pcVar3->engagementLapFraction * AITune_gRoughLapTime;
+    pInfo2->chaseLevel_ = (pInfo2->copGameInfo_)->levels + pInfo2->chaseLevelIndex_;
 
-  if (iVar1 < 0) {
+    lapTicks = ((pInfo2->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
+               / 0x10000;
 
-    iVar1 = iVar1 + 0xffff;
+    pInfo2->engagementTime_ = lapTicks << 0x15;
+
+    pInfo2->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
+
+    if (GameSetup_gData.numLaps == 2) {
+
+      pInfo2->engagementPercentIncreasePerTick_ =
+          fixedmult(pInfo2->engagementPercentIncreasePerTick_,0x13333);
+
+    }
+
+    else if (GameSetup_gData.numLaps == 4) {
+
+      pInfo2->engagementPercentIncreasePerTick_ =
+          fixedmult(pInfo2->engagementPercentIncreasePerTick_,0xa8f5);
+
+    }
+
+    pInfo2->blockadeDone_ = 0;
 
   }
-
-  iVar4 = (iVar1 >> 0x10) << 5;
-
-  a = 0x10000 / iVar4;
-
-
-  pInfo2->engagementTime_ = (iVar1 >> 0x10) << 0x15;
-
-  pInfo2->engagementPercentIncreasePerTick_ = a;
-
-  if (GameSetup_gData.numLaps == 2) {
-
-    iVar1 = 0x13333;
-
-  }
-
-  else {
-
-    iVar1 = 0xa8f5;
-
-    if (GameSetup_gData.numLaps != 4) goto LAB_80062aa8;
-
-  }
-
-  iVar1 = fixedmult(a,iVar1);
-
-  pInfo2->engagementPercentIncreasePerTick_ = iVar1;
-
-LAB_80062aa8:
-
-  pInfo2->blockadeDone_ = 0;
 
   return;
   }

@@ -844,23 +844,16 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
 
 {
+  /* W57-A11: SYM 8c fn-scope REG locals are ONLY nextStageTime ($10) plus the two AUTOs;
+     rightPos/leftPos are BLOCK-scoped in the third arm and iVar3/uVar4/iVar5/iVar6 are
+     Ghidra inventions (an unlisted local costs a callee-saved reg + frame bytes). */
   int nextStageTime;
   int initialDirection;
   int initialMovement;
-  int rightPos;
-  int leftPos;
 
   Car_tObj *pCVar1;
 
   int iVar2;
-
-  int iVar3;
-
-  u_int uVar4;
-
-  int iVar5;
-
-  int iVar6;
 
   int newLatPos;
 
@@ -906,135 +899,149 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&newLatPos,&throwAway);
 
-  iVar2 = throwAway;
-
+  /* W57-A11: the oracle sets up the AILife_PlaceCarAtLocation ARGS inside EACH arm
+     (per-arm `lw a2,0x1C(sp)` + `sw ..,0x10/0x14(sp)` stack args, SLD 542/551) and only
+     cross-jump-merges the `lw a0; jal; addu a3` triple at .L8005D8CC -- the single shared
+     call + goto form hoisted the last two args into callee-saved regs and lost 7 insns. */
   if (AIHigh_CopGameType == 4) {
 
-    iVar5 = 0;
-
-    iVar6 = 0;
-
-    goto LAB_8005d8cc;
+    AILife_PlaceCarAtLocation(this->carObj_,copSlice,throwAway,direction,0,0);
 
   }
 
-  if (movement != 0) {
+  else if (movement != 0) {
 
-    iVar5 = direction * 0xd5555;
-
-    iVar6 = 0;
-
-    goto LAB_8005d8cc;
+    AILife_PlaceCarAtLocation(this->carObj_,copSlice,throwAway,direction,
+               direction * 0xd5555,0);
 
   }
 
-  iVar3 = copSlice * 0x20 + (int)BWorldSm_slices;
+  else {
 
-  iVar6 = (u_int)*(u_char *)(iVar3 + 0x1f) * 0x8000 * (*(u_char *)(iVar3 + 0x1d) & 0xf);
+  /* W57-A11: SYM 8c -- this arm's REAL locals are BLOCK-SCOPED `rightPos` ($11=s1) and
+     `leftPos` ($10=s0); iVar3/uVar4/the IsDriveableLane results are anonymous temps. */
+  int rightPos;
 
-  uVar4 = (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4);
+  int leftPos;
 
-  iVar5 = (u_int)*(u_char *)(iVar3 + 0x1e) * 0x8000 * uVar4;
+  int slice;
 
-  iVar2 = *(short *)(iVar3 + 0x1a) * 0x100 + -0x8000;
+  u_int laneBits;
 
-  if (iVar6 < iVar2) {
+  slice = copSlice * 0x20 + (int)BWorldSm_slices;
 
-    iVar2 = iVar6;
+  rightPos = (u_int)*(u_char *)(slice + 0x1f) * 0x8000 * (*(u_char *)(slice + 0x1d) & 0xf);
 
-  }
+  laneBits = (u_int)(*(u_char *)(slice + 0x1d) >> 4);
 
-  iVar6 = *(short *)(iVar3 + 0x18) * 0x100 + -0x8000;
+  leftPos = (u_int)*(u_char *)(slice + 0x1e) * 0x8000 * laneBits;
 
-  if (iVar5 < iVar6) {
+  {
 
-    iVar6 = iVar5;
+    /* W57-A11: retail holds each MIN's limit in its OWN caller-saved temp (a1 / v1) and
+       copies into rightPos/leftPos at the end; one shared temp merges the two ranges. */
+    int limitR = *(short *)(slice + 0x1a) * 0x100 + -0x8000;
 
-  }
+    if (rightPos < limitR) {
 
-  iVar5 = AIWorld_IsDriveableLane(copSlice,6 - uVar4);
+      limitR = rightPos;
 
-  if (iVar5 == 0) {
+    }
 
-    iVar6 = iVar6 + -0x20000;
-
-  }
-
-  iVar5 = AIWorld_IsDriveableLane(copSlice,(*(u_char *)(copSlice * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf) + 7);
-
-  if (iVar5 == 0) {
-
-    iVar2 = iVar2 + -0x20000;
+    rightPos = limitR;
 
   }
 
+  {
+
+    int limitL = *(short *)(slice + 0x18) * 0x100 + -0x8000;
+
+    if (leftPos < limitL) {
+
+      limitL = leftPos;
+
+    }
+
+    leftPos = limitL;
+
+  }
+
+  if (AIWorld_IsDriveableLane(copSlice,6 - laneBits) == 0) {
+
+    leftPos = leftPos + -0x20000;
+
+  }
+
+  if (AIWorld_IsDriveableLane(copSlice,(*(u_char *)(copSlice * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf) + 7) == 0) {
+
+    rightPos = rightPos + -0x20000;
+
+  }
+
+  /* W57-A11: retail branches on the POSITIVE test into the shared A block
+     (`beq driveSide,1 -> .L8005D8A0` / `bne driveSide,-1 -> .L8005D8B4`) and carries a
+     SEPARATE call in each arm (three `addu a1,s3,zero` copSlice setups survive). */
   if (this->copIndex_ == 0) {
 
-    if (AITune_driveSide != 1) goto LAB_8005d8b8;
+    if (AITune_driveSide == 1) goto LAB_8005d8a0;
+
+    goto LAB_8005d8b8;
+
+  }
+
+  if (AITune_driveSide != -1) goto LAB_8005d8b8;
 
 LAB_8005d8a0:
 
-    iVar6 = direction * 0x100;
+  AILife_PlaceCarAtLocation(this->carObj_,copSlice,rightPos,direction,0,
+             direction * 0x100 + 0x200);
 
-  }
-
-  else {
-
-    if (AITune_driveSide == -1) goto LAB_8005d8a0;
+  goto LAB_8005d8d8;
 
 LAB_8005d8b8:
 
-    iVar2 = -iVar6;
+  AILife_PlaceCarAtLocation(this->carObj_,copSlice,-leftPos,direction,0,
+             0x200 - direction * 0x100);
 
-    iVar6 = direction * -0x100;
+LAB_8005d8d8:
+
+  ;
 
   }
 
-  iVar6 = iVar6 + 0x200;
-
-  iVar5 = 0;
-
-LAB_8005d8cc:
-
-  AILife_PlaceCarAtLocation(this->carObj_,copSlice,iVar2,direction,
-
-             iVar5,iVar6);
-
   if (AIHigh_CopGameType == 4) {
 
-    iVar2 = AIH_BTC_Cop_1HC1HP_StageTimes[this->currentStage_];
+    /* W57-A11: the `<< 5` lives in EACH arm (oracle `sll s0,v0,5` twice) -- a shared
+       post-if shift makes the load land directly in nextStageTime's reg. */
+    nextStageTime = AIH_BTC_Cop_1HC1HP_StageTimes[this->currentStage_] << 5;
 
   }
 
   else {
 
-    iVar2 = GameSetup_gData.perpInfo[this->currentStage_].TimeLimit;
+    nextStageTime = GameSetup_gData.perpInfo[this->currentStage_].TimeLimit << 5;
 
   }
 
-  iVar2 = iVar2 << 5;
+  if (nextStageTime < 0) {
 
-  if (iVar2 < 0) {
-
-    iVar2 = 0;
+    nextStageTime = 0;
 
   }
 
-  iVar2 = iVar2 * this->stageTimeMultiplier_;
 
-  if (iVar2 < 0) {
-
-    iVar2 = iVar2 + 0xffff;
-
-  }
+  /* W57-A11: the /0x10000 form keeps retail's SINGLE in-place `sra s0,a0,16`. */
+  iVar2 = (nextStageTime * this->stageTimeMultiplier_) / 0x10000;
 
   if (this->copIndex_ == 0) {
 
-    Hud_BTC_BonusTime((iVar2 >> 0x10) << 1);
+    Hud_BTC_BonusTime(iVar2 << 1);
 
   }
 
-  iVar6 = this->timeLeft_;
+  {
+
+  int oldTimeLeft = this->timeLeft_;
 
   this->needPerp_ = 1;
 
@@ -1044,7 +1051,9 @@ LAB_8005d8cc:
 
   this->freezeMode_ = 1;
 
-  this->timeLeft_ = iVar6 + (iVar2 >> 0x10);
+  this->timeLeft_ = oldTimeLeft + iVar2;
+
+  }
 
   TrgSfx_RestartTrgSfx();
 

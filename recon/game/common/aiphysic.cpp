@@ -636,8 +636,9 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
       acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[GameSetup_gData.skill] / 256);
     }
     acceleration = AIPhysic_ModifyAccelerationAccordingToScript(carObj,acceleration);
-    speedUpAcc = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj);
-    if (speedUpAcc != 0x10000) {
+    /* W54-A15 / LAW 05A: retail SLD puts the CALL and the `!= 0x10000` test on ONE line (394)
+     * -- the assignment lives inside the if condition (diff-neutral, shape-faithful). */
+    if ((speedUpAcc = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj)) != 0x10000) {
       acceleration = fixedmult(acceleration,speedUpAcc);
     }
   }
@@ -1160,6 +1161,12 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
     {
       int lat = (carObj->linearVel_ch).x;
       int spd = carObj->speed;
+      /* W54-A15 / LAW 05A: retail's SLD block order is `... bnez [v0=0 in slot]` (1312),
+       * `j EPI; li v0,1` (1325), `addu v0,zero,zero` (1333, LAST) -- i.e. the two return-0
+       * sites share ONE tail block placed AFTER the return-1 block, and reorg eager-steals
+       * its `v0=0` into the bnez slot.  Writing the inner return-0 as a flat if/return pair
+       * lets jump.c fold `if(X)return 0; return 1;` into `xori v0,v0,1` + one `j` instead
+       * (the whole 6-diff residual).  goto-to-shared-tail is the idiom this TU already uses. */
       if (__builtin_abs(lat) > spd / 256 * 0x66) {
         if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
           return 0;

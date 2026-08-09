@@ -437,6 +437,10 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
      * blocks @0x8006e0d8/0x8006e0e4/0x8006e118), not function-scope -- reproduced as nested
      * declarations (SYM block scopes are load-bearing for gcc-2.8 pseudo-numbering). */
     int humanLoop;
+    /* W54-A15: opacity/identity fence (0 insns) -- otherwise cse proves closestHumanCarObj==0
+     * and rewrites `humanLoop = 0` into a COPY of its register (`addu s3,s4,zero`); retail
+     * rematerializes the zero (`addu s3,zero,zero`). */
+    __asm__("" : "=r"(closestHumanCarObj) : "0"(closestHumanCarObj));
     humanLoop = 0;
     while (humanLoop < Cars_gNumHumanRaceCars) {
       Car_tObj *copCar;
@@ -790,8 +794,14 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
     iVar1 = carObj->damageMult;
     iVar2 = 0x48;
   }
-  iVar1 = fixedmult(iVar1,iVar2);
-  carObj->damageMult = iVar1;
+  /* W54-A15 / LAW 05A: the SYM SLD puts the call AND the store in ONE retail statement
+   * (SLD 1131 = `lw a0,damageMult; li a1,72; jal fixedmult; nop; sw v0,damageMult`), so the
+   * store is the call's own assignment, not a following statement -- fusing it gives the
+   * store the priority that emits it BEFORE the hoisted `li a0,0x8000` (SLD 1138). */
+  carObj->damageMult = fixedmult(iVar1,iVar2);
+  __asm__ __volatile__("" : : "i"(0));   /* W54-A15: 0-insn void-tail fence -- sched2 otherwise
+                                          * hoists the clamp default `li a0,0x8000` (SLD 1138)
+                                          * ABOVE this store; retail emits the store first. */
   /* H45b: `volatile` CODEGEN DEVICE (cf. H40) -- oracle genuinely reloads damageMult from memory
    * here (`sw`, then a fresh `lw`) instead of reusing the just-stored fixedmult result register;
    * a plain field re-read gets CSE'd back to iVar1 with no intervening call/aliasing hazard. */
@@ -835,6 +845,10 @@ int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
       if (f_final < 0x9999) {
         f_final = 0x9999;
       }
+      /* W54-A15 REF-STEP: the duplicated `return f_final;` (cross-jump merges it back,
+       * 0 insns) lifts f_final's REG_N_REFS 7->8 = the floor_log2 2->3 step that reqdelta
+       * proves is the MINIMAL dial putting f_final in $s2 and bestDistance in $s3 (SYM). */
+      return f_final;
     }
   }
   return f_final;

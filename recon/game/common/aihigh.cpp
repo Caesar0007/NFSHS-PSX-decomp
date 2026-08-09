@@ -55,10 +55,11 @@ void AIHigh_StartUp(void)
       u_int carFlags;
 
       carObj = Cars_gList[carLoop];
-      /* The remaining 8 detailed diffs are only this commutative address
-         calculation's v0/v1 choice; the resulting slot address is identical. */
-      slot = &highLevelAIObjs[carLoop];
       carFlags = carObj->carFlags;
+      /* W54-A15: `slot` is the §3.12 #16 hold-a-global-address-across-a-call device; its
+         STATEMENT POSITION decides the local-alloc birth order of the la-base qty vs the
+         loop's scaled-index qty (retail: la->$v0, sll->$v1). */
+      slot = &highLevelAIObjs[carLoop];
       if ((carFlags & 0x200U) != 0) {
         AIHigh_BTC_HumanCop *p = operator new(0x8c);
         newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_HumanCop(carObj,copCounter++);
@@ -530,6 +531,52 @@ extern "C" void ___12AIState_None(AIState_None *pThis, int __in_chrg)
 
 
 
+
+
+/* ---- TestForRelease__12AIState_Base  AIState_Base::TestForRelease  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+
+int AIState_Base::TestForRelease()
+
+
+
+{
+
+  return 0;
+
+}
+
+
+
+
+
+
+
+
+/* ---- _._12AIState_Base  AIState_Base::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+
+AIState_Base::~AIState_Base()
+{
+  this->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Base_vtable + 8);
+  return;
+}
+
+
+
+
+
+
+
+/* ---- _._15AIHigh_BTC_Perp  AIHigh_BTC_Perp::dtor  [@0x8005B438, AIHIGH.OBJ instance] ----
+   W54-A15: cfront vague-linkage duplicate.  configs/symbol_addrs.txt gives the CANONICAL
+   ___15AIHigh_BTC_Perp to the AIHIGH object (0x8005B438; aih_btcperp owns the VA-suffixed
+   copy at 0x80061348), and src/game/common/aihigh.c INCLUDE_ASMs it -- but no aihigh TU
+   emitted it (0.00% NOT-IN-OBJECT).  Same cross-TU duplicate model the tree already uses for
+   TestForRelease__12AIState_Base (defined in aistate/aih_btccop/aih_btcperp alike). */
+AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
+{
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  return;
+}
 
 
 /* end of aihigh.cpp */

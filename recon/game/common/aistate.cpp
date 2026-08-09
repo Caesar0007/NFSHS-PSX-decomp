@@ -2049,15 +2049,23 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
 
   }
 
-  iVar2 = Cars_gNumCars + -1;
-
-  ppCVar3 = Cars_gSortedList + iVar2;
-
   pCVar4 = pThis->carObj_;
 
   pCVar4->direction = 1;
 
   pCVar4->desiredDirection = 1;
+
+  /* W54-A15 / LAW 05A: the SLD puts the whole loop header (index init, the sortedList base
+   * materialization, the scaled-index add and the `bltz` test) on retail line 1034 -- i.e.
+   * AFTER the line-1031 direction/desiredDirection stores; our loop-init statements sat
+   * BEFORE them, which flipped the sll-vs-la ready-list order.  The read-only fence is a
+   * 0-insn +1 ref on iVar2 (5->6 = the floor_log2 step), the MINIMAL reqdelta dial that
+   * swaps iVar2/ppCVar3 onto retail's $a0/$a2 (ours had them reversed). */
+  iVar2 = Cars_gNumCars + -1;
+
+  ppCVar3 = Cars_gSortedList + iVar2;
+
+  __asm__("" : : "r"(iVar2));
 
 LOOP_800716DC:
 
@@ -2262,6 +2270,11 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
   if (carObj == otherCarObj) goto LAB_STATUS2;
 
   if ((otherCarObj->N).active == '\0') goto LAB_STATUS2;
+
+  /* W54-A15: identity/opacity fence (0 insns) -- gcc otherwise proves the incoming $a1 still
+   * holds otherCarObj at the first SplineDistance call and DELETES the arg copy, leaving a
+   * nop in the jal slot; retail rematerializes `addu a1,s0,zero` there. */
+  __asm__("" : "=r"(otherCarObj) : "0"(otherCarObj));
 
   distance = AIWorld_SplineDistance(carObj,otherCarObj);
 
@@ -2659,10 +2672,13 @@ void AIState_Donuts::Execute()
     if (0 <= forwardDot)
 
     {
-      const int candidateSlice = slice + 3;
-
+      int candidateSlice = slice + 3;
+      /* W54-A15: identity/opacity fence (0 insns) -- otherwise local-alloc TIES candidateSlice
+       * to forwardSlice, the then-arm becomes EMPTY and gcc inverts the branch (ours 317 vs
+       * retail 319: retail keeps `addu v0,v1,zero; j` as a real arm and branches `beqz`). */
       if (candidateSlice < gNumSlices) {
         forwardSlice = candidateSlice;
+        __asm__("" : : "r"(candidateSlice));
       }
       else {
         numSlicesLess3 = gNumSlices - 3;
@@ -2879,18 +2895,35 @@ void AIState_GotoSlice::Execute()
 
     }
 
-    /* IDA gold keeps carObj_ cached in v1 and computes the signed clamp into a
-       separate a2 result before one merged store.  Keeping the two signed arms
-       as field assignments restores that allocation (20 -> 10 diffs). */
+    /* W54-A15: retail's two signed arms each build a LIMIT (a2) and a boolean (v0) and then
+       share ONE tail `if (inRange) limit = speed; carObj->desiredSpeed = limit;` -- the
+       cross-jumped shape (oracle: `bltz a3,Lneg [a2=cap]` / `j Ltest [slt v0,a3,a2]` /
+       `negu a2,a0; slt v0,a2,a3` / `beqz v0; nop; addu a2,a3,zero; sw a2`).  The previous
+       per-arm field-assignment form duplicated the tail (74 vs 70 insns). */
     {
       Car_tObj *carObj = this->carObj_;
-      if (carObj->desiredSpeed >= 0) {
-        carObj->desiredSpeed =
-            (carObj->desiredSpeed < cap) ? carObj->desiredSpeed : cap;
+      int desiredSpeed = carObj->desiredSpeed;
+      /* W54-A15 REF-STEP (reqdelta): +1 ref on carObj (3->4 = the floor_log2 1->2 step) is the
+         MINIMAL dial that moves the speed CAP off $a3 onto retail's $a0 (and desiredSpeed
+         a2->a3); 0 insns. */
+      __asm__("" : : "r"(carObj));
+      int limit;
+      int inRange;
+
+      if (desiredSpeed >= 0) {
+        limit = cap;
+        inRange = desiredSpeed < limit;
       } else {
-        carObj->desiredSpeed =
-            (-cap < carObj->desiredSpeed) ? carObj->desiredSpeed : -cap;
+        limit = -cap;
+        inRange = limit < desiredSpeed;
       }
+      /* W54-A15 REF-STEP #2 (reqdelta): +1 ref on inRange (3->4 floor_log2 step) rotates the
+         desiredSpeed/limit/inRange trio onto retail's $a3/$a2/$v0; 0 insns. */
+      __asm__("" : : "r"(inRange));
+      if (inRange) {
+        limit = desiredSpeed;
+      }
+      carObj->desiredSpeed = limit;
     }
 
   }
@@ -3390,37 +3423,10 @@ extern "C" void ___12AIState_Base_80072838(AIState_Base *pThis,int __in_chrg)
 
 
 
-/* ---- TestForRelease__12AIState_Base  AIState_Base::TestForRelease  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-int AIState_Base::TestForRelease()
-
-
-
-{
-
-  return 0;
-
-}
-
-
-
-
-
-
-
-
-/* ---- _._12AIState_Base  AIState_Base::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-AIState_Base::~AIState_Base()
-{
-  this->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Base_vtable + 8);
-  return;
-}
-
-
-
-
-
-
+/* W54-A15: the CANONICAL-mangled AIState_Base::TestForRelease / ~AIState_Base bodies
+ * (TestForRelease__12AIState_Base @0x8005B4C4, ___12AIState_Base @0x8005B4CC) belong to
+ * the AIHIGH object per configs/symbol_addrs.txt -- MOVED to aihigh.cpp so that unit
+ * emits them (they were 0.00% NOT-IN-OBJECT there).  aistate keeps only its own
+ * VA-suffixed vague-linkage duplicates at 0x80072830 / 0x80072838 (above). */
 
 /* end of aistate.cpp */

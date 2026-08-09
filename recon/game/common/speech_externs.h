@@ -72,14 +72,22 @@ long SPCH_ResolveData(int = 0, ...);
 /* ---- SPCH_ speech-runtime API ---- */  /* (declared above; variadic) */
 
 /* ---- audio ---- */
-extern int AudioMus_PlaySong(int = 0, ...);
-extern int AudioMus_StopSong(int = 0, ...);
+/* W55-A2 BUGFIX (class-3, synthetic default-args): these four were placeholder
+   `int f(int = 0, ...)` decls.  Under C++ linkage a variadic decl mangles to `__Fie`, so
+   speech.o emitted `U AudioMus_PlaySong__Fie` / `AudioMus_StopSong__Fie` /
+   `CopSpeak_DirectRequest__Fie` / `CopSpeak_GenericBankRequest__Fie` -- four PHANTOM
+   symbols that can never link (verify_asm's reloc-name leniency hid them).  The true
+   signatures come from the definitions (audiomus.cpp / copspeak.cpp) and are confirmed by
+   configs/symbol_addrs.txt: AudioMus_StopSong__Fi, AudioMus_PlaySong__FPc,
+   CopSpeak_DirectRequest__FillP8Car_tObjPc, CopSpeak_GenericBankRequest__FiP8Car_tObj. */
+extern int AudioMus_PlaySong(char *pattern);
+extern void AudioMus_StopSong(int fadeticks);
 extern int AudioMus_Threshold(void);
 
 /* ---- CopSpeak (sibling TU) ---- */
-extern int CopSpeak_DirectRequest(int = 0, ...);
+extern void CopSpeak_DirectRequest(int filehandle, long offset, long size, Car_tObj *car, char *name);
 extern void CopSpeak_Flush(void);
-extern int CopSpeak_GenericBankRequest(int = 0, ...);
+extern void CopSpeak_GenericBankRequest(int patch, Car_tObj *car);
 extern int CopSpeak_gSpchHandle;
 
 /* ---- eaclib / PsyQ / file I/O ---- */

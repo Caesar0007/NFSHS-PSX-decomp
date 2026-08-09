@@ -4,7 +4,6 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 typedef int code(...);   /* Ghidra fn-ptr type for vtable dispatch */
-extern int _i, _reflection;   /* DrawCar Ghidra phantom locals */
 
 /* ===== globals ===== */
 extern tfrontEnd          frontEnd;

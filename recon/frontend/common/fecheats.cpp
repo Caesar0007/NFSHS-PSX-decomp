@@ -51,12 +51,8 @@ static tCheat bonusList[3] = {   /* @0x800516a0, byte-exact from retail binary *
 void FECheat_HandleActivation(tCheatCode cheat)
 
 {
-  int i;
-  int iVar1;
-  short num;
-  short sVar2;
-  int iVar3;
-  
+  short i;
+
   switch(cheat) {
   case cheat_Roadster:
   case cheat_Pony:
@@ -69,13 +65,11 @@ void FECheat_HandleActivation(tCheatCode cheat)
     carManager.SetClassAvailable((tCarClassType)cheat,true);
     break;
   case cheat_AllCars:
-    iVar3 = 0;
-    iVar1 = 0;
+    i = 0;
     do {
-      FECheat_HandleActivation((tCheatCode)(iVar1 >> 0x10));
-      iVar3 = iVar3 + 1;
-      iVar1 = iVar3 * 0x10000;
-    } while (iVar3 * 0x10000 >> 0x10 < 7);
+      FECheat_HandleActivation((tCheatCode)i);
+      i = i + 1;
+    } while (i < 7);
     break;
   case cheat_AllTracks:
     trackManager.SetClassAvailable(tct_Beginner,true);
@@ -90,15 +84,13 @@ void FECheat_HandleActivation(tCheatCode cheat)
     break;
   case cheat_AllCheats:
     gFECheats = 0xffffffff;
-    iVar3 = 0;
     i = 0;
     do {
-      if (i >> 0x10 != cheat_AllCheats) {
-        FECheat_HandleActivation((tCheatCode)(i >> 0x10));
+      if (i != cheat_AllCheats) {
+        FECheat_HandleActivation((tCheatCode)i);
       }
-      iVar3 = iVar3 + 1;
-      i = iVar3 * 0x10000;
-    } while (iVar3 * 0x10000 >> 0x10 < 0x1f);
+      i = i + 1;
+    } while (i < 0x1f);
     break;
   case cheat_NFSTeamRecords:
     Stattool_GetAllDefaultRecords(Stats_gTrackRecords,true);
@@ -110,8 +102,8 @@ void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_AllGold:
   case cheat_AllSilver:
   case cheat_AllBronze:
-    for (sVar2 = 0; sVar2 < 0x40; sVar2 = sVar2 + 1) {
-      tournamentManager.fBestPlacement[sVar2] = (char)cheat + -0x1b;
+    for (i = 0; i < 0x40; i = i + 1) {
+      tournamentManager.fBestPlacement[i] = (char)cheat + -0x1b;
     }
   }
   return;

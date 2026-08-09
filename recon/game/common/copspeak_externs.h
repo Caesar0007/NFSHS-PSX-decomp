@@ -6,7 +6,12 @@
 #define COPSPEAK_EXTERNS_H
 
 /* ---- audio (audiocmn/audioclc/audiomus.obj) ---- */
-extern void  AudioClc_SndError(int code = 0);   /* Ghidra dropped the arg at one site */
+extern void  AudioClc_SndError(int code);   /* W55-A2 (class-3): dropped the synthetic
+                                            * `= 0` default -- the true definition
+                                            * (audioclc.cpp, AudioClc_SndError__Fi) takes
+                                            * a required arg and the only call site passes
+                                            * one; a default silently licenses a 0-arg call
+                                            * that would emit a bogus `li a0,0`. */
 extern int   AudioCmn_GetAsyncSfx(int a, int b, bool c);
 extern int   AudioCmn_LoadAsyncSfx(int a, int b, void *buf, int n);
 extern int   AudioMus_Buffered(void);

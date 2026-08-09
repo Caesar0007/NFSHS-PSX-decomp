@@ -201,19 +201,23 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
    of fPinkSlipsCars +0x108/+0x184).  Same 🔴 REAL BUG fixed: the shift-loop break test read
    fCarID through a plain (unsigned) `char`, so `< 0` folded FALSE and gcc DELETED the guard --
    24 missing instructions.  Same 5 levers; see the RemoveFromPinkSlipsList receipt above.
-   RESIDUAL 50 = the same register rotation + index/base `addu` operand order.  Attack both
-   twins together. */
+   W55-A10 (2026-08-09) 50 -> 8, still count-exact 96/96: the RemoveFromPinkSlipsList
+   ADDRESS-MUTATION + nc-REF-DIAL recipe ported verbatim (see that receipt for the mechanism).
+   RESIDUAL 8 (both twins, identical): the `this + playerNum*128` commutative `addu` operand
+   order at the slot-31 store, and the new-selection byte in $a1 where retail uses $v0. */
 
 long tCarManager::SellCar(short garageNumber,short playerNum)
 
 {
-  char cVar1;
   long result;
   short i;
 
   result = this->CalcUsedPrice(garageNumber);
-  *(signed char *)(((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128
-                   + (char *)this + 8) = -1;
+  {
+    int slot = ((int)garageNumber - (int)this->fNumCars) * 4;
+    slot = slot + playerNum * 128;
+    *(signed char *)(slot + (char *)this + 8) = -1;
+  }
   for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
        loads the byte TWICE (lb for the test, lbu for the copy). */
@@ -224,16 +228,22 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
   }
   { /* own statement: keeps fold from merging the -4 into the +8 displacement */
     int prevSlot = i * 4 - 4;
-    *(signed char *)(prevSlot + playerNum * 128 + (char *)this + 8) = -1;
+    prevSlot = prevSlot + playerNum * 128;
+    *(signed char *)(prevSlot + (char *)this + 8) = -1;
   }
   *(signed char *)(playerNum * 128 + (char *)this + 0x84) = -1;
-  if (*(signed char *)(((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4
-                       + playerNum * 128 + (char *)this + 8) < 0) {
-    cVar1 = frontEnd.garageCar[playerNum] - 1;
-    if ((u_int)(u_char)frontEnd.garageCar[playerNum] <= this->fNumCars) {
-      cVar1 = '\0';
+  {
+  u_long nc;
+  int chk = ((u_int)(u_char)frontEnd.garageCar[playerNum] - (nc = this->fNumCars)) * 4;
+  chk = chk + playerNum * 128;
+  if (*(signed char *)(chk + (char *)this + 8) < 0) {
+    char newSel = frontEnd.garageCar[playerNum] - 1;
+    if ((u_int)(u_char)frontEnd.garageCar[playerNum] <= nc) {
+      newSel = '\0';
     }
-    frontEnd.garageCar[playerNum] = cVar1;
+    frontEnd.garageCar[playerNum] = newSel;
+  }
+  __asm__("" : : "r"(nc), "r"(nc));
   }
   return result;
 }
@@ -288,23 +298,45 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
        separate (`addu v0,v0,a0; addu v0,t1,v0`).
    (5) `int prevSlot = i * 4 - 4;` as its OWN statement -- otherwise fold merges the -4 into
        the 0x108 displacement (`sb v1,260(v0)`), while retail has an explicit `addiu v0,v0,-4`.
-   RESIDUAL 44 = a whole-function register rotation plus the two index/base `addu` operand
-   orders (ours puts playerNum*128 first, retail the index).  FALSIFIED: swapping the source
-   term order in the flat expressions (46 / 44 / compile error) -- the operand order is
-   canonicalized, so it is an evaluation-ORDER consequence, not a spelling one.
-   NEXT ANGLE: the SellCar twin shares this exact body shape -- port the recipe there first,
-   then re-attack the rotation with allocsim/qtyprio. */
+   W55-A10 (2026-08-09) 44 -> 8, count-exact 82/82.  The "whole-function rotation" was TWO
+   independent defects, both solved with the allocsim/reqdelta instrument (SellCar took the
+   identical recipe 50 -> 8, confirming the twins are one problem):
+   (A) ADDRESS-MUTATION SPELLING (w41 composite-RMW row, applied to address arithmetic).
+       A flat `idx*4 + playerNum*128 + (char*)this + K` expression makes gcc build the sum in a
+       FRESH pseudo, so the commutative `addu` picks OUR operand order and the `*4` sinks below
+       the playerNum*128 chain.  Writing each address as TWO statements --
+           int slot = <index expr> * 4;      // own statement -> lower luid -> issues first
+           slot = slot + playerNum * 128;    // slot is a real input operand -> lands first
+       reproduces retail's `sll v0,v0,2` position AND `addu v0,v0,<pn128>` operand order at all
+       three sites (-1 store, prevSlot store, and the final guard index).  That alone was 44->16.
+   (B) THE fNumCars REF DIAL (w44 floor_log2 REF-STEP).  The tail's two loads -- garageCar
+       (`lbu ..291`) and fNumCars (`lw 0(this)`) -- were a priority TIE (both refs=3 live=10,
+       pri 0.3000), broken by allocno NUMBER, so the earlier-born garageCar took $v1 and pushed
+       fNumCars to $a2; retail has them the other way round.  reqdelta says the ONLY 1-dial fix
+       is `fNumCars refs 3 -> 5`.  Delivered at ZERO instructions by naming the load with an
+       EMBEDDED assignment (`... - (nc = this->fNumCars)`, which keeps the load at its retail
+       position -- a plain `int nc = this->fNumCars;` statement HOISTS it above the garageCar
+       load) plus a 05C read-only fence listing `nc` TWICE (each asm operand = +1 REG_N_REF).
+       refs 3 -> 4 was measured and is NOT enough (16 diffs); 3 -> 5 lands the pair (16 -> 8).
+   RESIDUAL 8: (i) `addu v0,a1,t1` vs retail `addu v0,t1,a1` at the slot-31 store -- both
+   operands are fresh registers, so RTL canonicalization owns the order (spelling the source as
+   `(char*)this + playerNum*128 + K` measured IDENTICAL); (ii) the new-selection byte lands in
+   $a1 where retail uses $v0 (block-local qty; block-scoping the variable and dropping the
+   fn-scope `char cVar1` both measured inert).  Next instrument = qtytrace/qtyprio on the tail
+   block (these are local-alloc QTYs, outside allocsim's global table). */
 
 void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 
 {
-  char cVar1;
   short i;
 
   /* INDEX-FIRST spelling: retail keeps `playerNum*128` and `this` SEPARATE
      (`addu v0,v0,a0; addu v0,t1,v0`); the natural member form hoists `this + playerNum*128`. */
-  *(signed char *)(((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128
-                   + (char *)this + 0x108) = -1;
+  {
+    int slot = ((int)garageNumber - (int)this->fNumCars) * 4;
+    slot = slot + playerNum * 128;
+    *(signed char *)(slot + (char *)this + 0x108) = -1;
+  }
   for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
        loads the byte TWICE (lb for the test, lbu for the copy). */
@@ -316,16 +348,22 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
   { /* own statement: keeps fold from merging the -4 into the 0x108 displacement
        (retail has an explicit `addiu v0,v0,-4` on the index chain) */
     int prevSlot = i * 4 - 4;
-    *(signed char *)(prevSlot + playerNum * 128 + (char *)this + 0x108) = -1;
+    prevSlot = prevSlot + playerNum * 128;
+    *(signed char *)(prevSlot + (char *)this + 0x108) = -1;
   }
   *(signed char *)(playerNum * 128 + (char *)this + 0x184) = -1;
-  if (*(signed char *)(((u_int)(u_char)frontEnd.garageCar[playerNum] - this->fNumCars) * 4
-                       + playerNum * 128 + (char *)this + 0x108) < 0) {
-    cVar1 = frontEnd.garageCar[playerNum] - 1;
-    if ((u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= this->fNumCars) {
-      cVar1 = '\0';
+  {
+  u_long nc;
+  int chk = ((u_int)(u_char)frontEnd.garageCar[playerNum] - (nc = this->fNumCars)) * 4;
+  chk = chk + playerNum * 128;
+  if (*(signed char *)(chk + (char *)this + 0x108) < 0) {
+    char newSel = frontEnd.garageCar[playerNum] - 1;
+    if ((u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= nc) {
+      newSel = '\0';
     }
-    frontEnd.pinkSlipsCar[playerNum] = cVar1;
+    frontEnd.pinkSlipsCar[playerNum] = newSel;
+  }
+  __asm__("" : : "r"(nc), "r"(nc));
   }
   return;
 }
@@ -657,20 +695,18 @@ void tCarManager::LoadDescription()
 {
   u_long *input;
   tCarInfo *ptVar1;
-  int iVar2;
   tCarInfo *ptVar3;
   u_long uVar4;
-  char *data;
-  int iVar5;
-  int j;
-  int i;
+  short j;
+  short i;
   char filename [80];
-  
-  data = filename;
-  input = (u_long *)sprintf(data,(char *)(bigBuf + 0x1b4),Paths_Paths[0x25],"fecars.car"
-                            );
+
+  /* W55-A3 BUGFIX (06C class-5, sprintf-return-as-pointer): Ghidra attributed the
+     sprintf `$v0` to `input`; the oracle (80017174 jal loadfileadr / 80017184
+     addu $s1,$v0) shows `input` is loadfileadr's return -- sprintf's is discarded. */
+  sprintf(filename,(char *)(bigBuf + 0x1b4),Paths_Paths[0x25],"fecars.car");
   this->ReleaseDescription();
-  loadfileadr(filename,0x10);
+  input = (u_long *)loadfileadr(filename,0x10);
   uVar4 = *input;
   this->fNumCars = uVar4;
   ptVar1 = reservememadr((char *)(bigBuf + 0x1c8),uVar4 * 0xcc,0);
@@ -678,15 +714,13 @@ void tCarManager::LoadDescription()
   blockmove(input + 1,ptVar1,this->fNumCars * 0xcc);
   i = 0;
   if (this->fNumCars != 0) {
-    iVar2 = 0;
     do {
-      iVar2 = iVar2 >> 0x10;
       j = 0;
-      if (this->fCars[iVar2].fAvailable != '\0') {
-        this->fAvailableCars[this->fCars[iVar2].fCarID] = '\x01';
-        this->fViewableCars[this->fCars[iVar2].fCarID] = '\x01';
+      if (this->fCars[i].fAvailable != '\0') {
+        this->fAvailableCars[this->fCars[i].fCarID] = '\x01';
+        this->fViewableCars[this->fCars[i].fCarID] = '\x01';
       }
-      ptVar3 = this->fCars + iVar2;
+      ptVar3 = this->fCars + i;
       ptVar1 = ptVar3;
       if ((u_int)(u_char)ptVar3->fNumLightColors + (u_int)(u_char)ptVar3->fNumDarkColors != 0) {
         do {
@@ -694,16 +728,14 @@ void tCarManager::LoadDescription()
             ptVar1->fDefaultColor = (uchar)j;
             break;
           }
-          ptVar1 = this->fCars + iVar2;
-          iVar5 = (j + 1) * 0x10000 >> 0x10;
-          ptVar3 = (tCarInfo *)(ptVar1->fShapeName + iVar5 + -8);
+          ptVar1 = this->fCars + i;
           j = j + 1;
-        } while (iVar5 < (int)((u_int)(u_char)ptVar1->fNumLightColors +
+          ptVar3 = (tCarInfo *)(ptVar1->fShapeName + j + -8);
+        } while (j < (int)((u_int)(u_char)ptVar1->fNumLightColors +
                               (u_int)(u_char)ptVar1->fNumDarkColors));
       }
       i = i + 1;
-      iVar2 = i * 0x10000;
-    } while ((u_int)(i * 0x10000 >> 0x10) < this->fNumCars);
+    } while ((u_int)i < this->fNumCars);
   }
   purgememadr(input);
   return;
@@ -901,46 +933,45 @@ int tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarMod
 {
   u_char bVar1;
   tCarInfo *carInfo;
-  u_int colorScheme;
-  int numColors;
+  short colorScheme;
+  short numColors;
   int iVar5;
-  u_int carColor;
+  char carColor;
   u_int uVar7;
-  int iVar8;
-  int j;
-  int i;
-  
+  short j;
+  short i;
+
   carInfo = this->GetCarFromID((short)model);
-  colorScheme = (u_int)carInfo->fColorOrder[(u_char)color];
-  if ((int)colorScheme < 0) {
-    colorScheme = colorScheme + 7;
-  }
-  colorScheme = colorScheme >> 3;
+  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): tCarInfo::fColorOrder is a shared-header
+     plain `char[16]` (+0xAF) and plain `char` is UNSIGNED on this build, so the `< 0` half of the
+     signed `/8` rounding below folded to constant FALSE and gcc DELETED it -- colours >= 0x80
+     rounded the WRONG way.  Oracle 80017744/8001774C: `lb $v0,0xAF($v1); bgez $v0,.L8001775C`.
+     Forced signed per-use (shared-header type change is a user decision). */
+  colorScheme = *(signed char *)&carInfo->fColorOrder[(u_char)color] / 8;
   i = 0;
-  numColors = (u_int)(u_char)carInfo->fNumLightColors + (u_int)(u_char)carInfo->fNumDarkColors;
+  numColors = (short)((u_int)(u_char)carInfo->fNumLightColors +
+                      (u_int)(u_char)carInfo->fNumDarkColors);
   do {
     j = 0;
     if (numColors != 0) {
       do {
-        iVar8 = numColors * 0x10000 >> 0x10;
-        iVar5 = (int)(short)j + (u_int)(u_char)color;
-        carColor = (u_int)((u_char)carInfo->fColorOrder[iVar5 % iVar8] >> 3);
-        if (carColor == (int)(short)colorScheme) {
+        iVar5 = (int)j + (u_int)(u_char)color;
+        carColor = (char)((u_char)carInfo->fColorOrder[iVar5 % numColors] >> 3);
+        if (carColor == colorScheme) {
           bVar1 = gCarSelected[carColor][model];
-          uVar7 = (u_char)carInfo->fColorOrder[iVar5 % iVar8] & 7;
+          uVar7 = (u_char)carInfo->fColorOrder[iVar5 % numColors] & 7;
           if (((int)(u_int)bVar1 >> uVar7 & 1U) == 0) {
             gCarSelected[carColor][model] = bVar1 | (u_char)(1 << uVar7);
-            i = (int)(short)j + (u_int)(u_char)color;
-            color = (char)(i % iVar8);
+            color = (char)(((int)j + (u_int)(u_char)color) % numColors);
             return 1;
           }
         }
         j = j + 1;
-      } while (j * 0x10000 >> 0x10 < numColors);
+      } while (j < numColors);
     }
     colorScheme = 1 - colorScheme;
     i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 2);
+  } while (i < 2);
   return 1;
 }
 

@@ -789,7 +789,31 @@ int AudioMus_PlaySong(char *pattern)
           newsong = 0;
         }
         else if (pattern != (char *)0x0) {
-          newsong = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % newsong;
+          /* MATCH (W55-A10, sealed 160/160 PASS; was 15 diffs @171 insns).
+             TWO cooperating facts, both about THIS arm only:
+             (1) COUNT.  `newsong = <ternary> % newsong;` written inline makes RTL expand the
+                 divmod INSIDE BOTH ternary arms; here (unlike the else-arm, whose two copies
+                 have long identical tails and cross-jump back together) the copies do NOT
+                 merge -> a whole spare 11-insn div+guard block (171 vs 160).  Naming the
+                 modulo RESULT (`pick`) gives the COND_EXPR a single join pseudo, so there is
+                 exactly ONE div, after the join, exactly like the oracle at .L8007B118.
+             (2) THE COPY.  The oracle ends this arm `mfhi $v1 ; j .L8007B1E8 ; addu $s0,$v1,$0`
+                 -- the modulo lands in a caller-saved temp and is COPIED into newsong, and
+                 reorg steals that copy into the `j` delay slot.  Writing `newsong = pick;`
+                 alone is not enough: combine folds the copy back into the divmod (mfhi $s0
+                 direct, nothing left for the slot).  The 05C read-only operand fence gives
+                 `pick` its second use so the copy survives -- and it is a ZERO-INSN device
+                 (pick is register-resident), the copy still being reorg-eligible because the
+                 fence sits BEFORE it.
+             Falsified on the way (do NOT retry): a separate `rnd` temp for the ternary alone
+             (160 exact but flips the newsong/newsong-1 pair s0<->s1: reqdelta says p92 needs
+             refs 15->16); the same with a `+1`-ref fence on newsong (4 diffs, mfhi-direct);
+             the identity fence `"=r"(pick):"0"(pick)` (barrier -> +2 insns, slot unfilled);
+             `rnd = rnd % newsong; newsong = rnd;` and a bare `pick` temp (both copy-propped);
+             giving the ELSE arm a `rnd` temp too (reorders the requestsong load, 144 insns). */
+          int pick = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % newsong;
+          __asm__("" : : "r"(pick));
+          newsong = pick;
         }
         else {
           newsong = (AudioMus_g->requestsong + 1 +

@@ -768,14 +768,26 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
   int traffic;
   int sfxDelay;
 
-  smoking = Cars_kSmokingSurface[roadSurface & 0xf];
+  objID = carObj->N.objID;
   sfxType = Cars_kConvertFromRoadToSfxType[roadSurface & 0xf];
   stateBit = 1 << wheel;
-  objID = carObj->N.objID;
+  smoking = Cars_kSmokingSurface[roadSurface & 0xf];
   if (surfaceType == 3) {
     smoking = 0;
   }
-  /* W54-A13 RECEIPT -- the retail SHAPE of this block is PROVEN but not yet landable.
+  /* MATCH (W55-A10, sealed 272/272 PASS) -- the W54-A13 retail SHAPE + the REF-STEP fix.
+     W54-A13 proved the SLD statement order below makes the instruction stream EXACT but left
+     a 5-way callee-saved permutation (98 diffs) because `sfxDelay` carried NINE refs where
+     retail's carries SEVEN (floor_log2 REF-STEP 3->2, reqdelta receipt).  THE MISSING 2 REFS
+     were the DUPLICATED tail call in each arm: the source wrote
+        if (smoking-cond) { AddCarWheelSfx(..,sfxDelay); return; }
+        if (skid > 0x40000) { AddCarWheelSfx(..,sfxDelay); }
+     = 2 sfxDelay refs per arm.  Since both blocks END the function, they are semantically ONE
+     guarded call -- merging them into `if (smoking-cond || skid > 0x40000) { AddCarWheelSfx(); }`
+     emits the IDENTICAL code (gcc cross-jumps the duplicate anyway, count stays 272) but
+     flow.c now counts ONE ref per arm => 9 -> 7 => the whole permutation lands.
+     (Catalog: cross-jumped duplicates still cost REG_N_REFS -- used here in the DELETE
+     direction; do NOT re-split these two ifs.)
      SLD (nfs4-f-v3, VA 0x800874FC..) says retail is:
         1169  traffic  = 0;
         1170  sfxDelay = gTAddCarWheelDelay;
@@ -786,20 +798,20 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
         1176  if (... == 0x1c) return;
      and the head statement order is objID(1160) / sfxType(1162) / stateBit(1164) /
      smoking(1166) / `if (surfaceType==3) smoking=0` (1167).  Transcribing all of that makes
-     the INSTRUCTION STREAM EXACT (272/272, every mnemonic+operand-shape aligned) but leaves a
-     5-way callee-saved PERMUTATION -- ours {sfxDelay s3, skidpt s4, stateBit s5, smoking s6,
+     the INSTRUCTION STREAM EXACT (272/272, every mnemonic+operand-shape aligned); the 5-way
+     callee-saved PERMUTATION it left (ours {sfxDelay s3, skidpt s4, stateBit s5, smoking s6,
      sfxType s7} vs retail {skidpt s3, stateBit s4, sfxDelay s5, smoking s6, sfxType s7} = 98
-     gate diffs, i.e. WORSE than this (structurally wrong but better-coloured) 39-diff form,
-     so the retail shape is NOT landed here.  reqdelta receipt on the retail-shaped build:
-     the whole permutation needs `p91(sfxDelay) refs 9 -> 7` (REF-STEP floor_log2 3->2) --
-     retail's sfxDelay is referenced SEVEN times, ours NINE (1 def + 2 for `<<=` + 6 call
-     args).  Find the source form with 2 fewer sfxDelay refs (a merged/duplicated call tail?)
-     and the retail shape lands outright.  Falsified on the way: every branch-free spelling of
+     gate diffs) is exactly what the ref-step edit above dissolves.  Falsified on the way:
+     every branch-free spelling of
      `traffic` (`x>0x1c`, `?:`, default+override, if/else-both-assign) folds to slti+xori --
      only the `traffic=1` INSIDE the if survives; `traffic=0` must sit BEFORE
      `sfxDelay = gTAddCarWheelDelay;` (it is the bnez delay slot). */
-  traffic = carObj->render.currentCarType > 0x1c;
-  sfxDelay = gTAddCarWheelDelay << traffic;
+  traffic = 0;
+  sfxDelay = gTAddCarWheelDelay;
+  if (carObj->render.currentCarType > 0x1c) {
+    traffic = 1;
+    sfxDelay <<= traffic;
+  }
   if (carObj->render.currentCarType == 0x1c) {
     return;
   }
@@ -834,11 +846,8 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
           sfxDelay,carObj->N.speedXZ);
       return;
     }
-    if ((smoking < carObj->N.speedXZ) && (smoking > 0)) {
-      TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
-      return;
-    }
-    if (carObj->rearSkid > 0x40000) {
+    if (((smoking < carObj->N.speedXZ) && (smoking > 0)) ||
+        (carObj->rearSkid > 0x40000)) {
       TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
     }
   }
@@ -873,11 +882,8 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
           sfxDelay,carObj->N.speedXZ);
       return;
     }
-    if ((smoking < carObj->N.speedXZ) && (smoking > 0)) {
-      TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
-      return;
-    }
-    if (carObj->frontSkid > 0x40000) {
+    if (((smoking < carObj->N.speedXZ) && (smoking > 0)) ||
+        (carObj->frontSkid > 0x40000)) {
       TrgSfx_AddCarWheelSfx(objID,wheel,skidpt,sfxType,&carObj->N.linearVel,sfxDelay);
     }
   }

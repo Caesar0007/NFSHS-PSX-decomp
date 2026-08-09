@@ -75,41 +75,37 @@ void tTournamentManager::LoadDescription()
   blockmove(src,this->fFinishPoints,6);
   this->fNumTiers = *(char *)((int)src + 6);
   ptVar2 = reservememadr("Tourney",0x2924,0);
-  iVar8 = 0;
+  tier = 0;
   this->fDefinition = ptVar2;
   src_00 = (void *)((int)src + 7);
   if (this->fNumTiers != '\0') {
     do {
-      sVar1 = (short)iVar8;
-      blockmove(src_00,this->fDefinition->fTiers + sVar1,0xc);
+      blockmove(src_00,this->fDefinition->fTiers + tier,0xc);
       ptVar2 = this->fDefinition;
-      uVar7 = (uint)ptVar2->fTiers[sVar1].fTournOffset;
+      uVar7 = (uint)ptVar2->fTiers[tier].fTournOffset;
       src_00 = (void *)((int)src_00 + 0xc);
-      uVar3 = uVar7;
-      if (uVar7 < uVar7 + ptVar2->fTiers[sVar1].fNumTournaments) {
+      tourney = (short)uVar7;
+      if (uVar7 < uVar7 + ptVar2->fTiers[tier].fNumTournaments) {
         do {
-          sVar4 = (short)uVar3;
-          blockmove(src_00,ptVar2->fTournaments + sVar4,0x54);
+          blockmove(src_00,ptVar2->fTournaments + tourney,0x54);
           ptVar2 = this->fDefinition;
-          uVar6 = (uint)ptVar2->fTournaments[sVar4].fTrackOffset;
+          uVar6 = (uint)ptVar2->fTournaments[tourney].fTrackOffset;
           src_00 = (void *)((int)src_00 + 0x54);
-          uVar5 = uVar6;
-          if (uVar6 < uVar6 + ptVar2->fTournaments[sVar4].fNumTracks) {
+          track = (short)uVar6;
+          if (uVar6 < uVar6 + ptVar2->fTournaments[tourney].fNumTracks) {
             do {
-              blockmove(src_00,ptVar2->fTracks + (short)uVar5,0x28);
-              uVar5 = uVar5 + 1;
+              blockmove(src_00,ptVar2->fTracks + track,0x28);
+              track = track + 1;
               ptVar2 = this->fDefinition;
               src_00 = (void *)((int)src_00 + 0x28);
-            } while ((int)(uVar5 * 0x10000) >> 0x10 <
-                     (int)(uVar6 + ptVar2->fTournaments[sVar4].fNumTracks));
+            } while (track < (int)(uVar6 + ptVar2->fTournaments[tourney].fNumTracks));
           }
-          uVar3 = uVar3 + 1;
+          tourney = tourney + 1;
           ptVar2 = this->fDefinition;
-        } while ((int)(uVar3 * 0x10000) >> 0x10 <
-                 (int)(uVar7 + ptVar2->fTiers[sVar1].fNumTournaments));
+        } while (tourney < (int)(uVar7 + ptVar2->fTiers[tier].fNumTournaments));
       }
-      iVar8 = iVar8 + 1;
-    } while (iVar8 * 0x10000 >> 0x10 < (int)(uint)(byte)this->fNumTiers);
+      tier = tier + 1;
+    } while (tier < (int)(uint)(byte)this->fNumTiers);
   }
   purgememadr(src);
   return;
@@ -192,7 +188,21 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
 
 
 
-/* ---- tTournamentManager::StartNewTournament  [FETOURN.CPP:264-324] ---- */
+/* ---- tTournamentManager::StartNewTournament  [FETOURN.CPP:264-324] ----
+   W55-A10 (2026-08-09) 39 -> 20 diffs, now COUNT-EXACT 142/142 (was 141/142).  Three fixes:
+   (1) 🔴 SHARED-HEADER SHAPE: `fNumRacers` is a 4-BYTE field in retail -- every access here is
+       a word (`sll 16; sra 16; sw v0,16(s3)` for the store, `lw v1,16(s3)` for the loop bound),
+       but nfs4_types.h models +0x10 as `short fNumRacers, fPadNumRacers;`.  Forced per-use with
+       `*(int *)&this->fNumRacers` (store + loop bound); the real fix is a header type change,
+       which is a USER decision (the `fPadNumRacers` sibling suggests the split was invented).
+   (2) BRANCH POLARITY of the two `i == 0` selects: retail's guards are `beqz`, i.e. the i!=0
+       arm is the FALL-THROUGH and the i==0 arm is out-of-line -- write them as `if (i != 0)`.
+   RESIDUAL 20: the i==0 arms re-anchor their stores on `this` (`sw zero,280(s3)` /
+   `sb v0,294(s3)`) where retail reuses the arm-shared `&fCompetitors[i]` base (`280(v1)` /
+   `294(a0)`); gcc const-folds `i` to 0 inside that arm, so `fCompetitors[i]` and
+   `fCompetitors[0]` spellings are IDENTICAL (measured) -- the base has to be forced live
+   across both arms (a shared pointer local / fence is the next angle), and the `beqz`-vs-`sll`
+   issue order + the v0/v1 naming follow from it. */
 
 void tTournamentManager::StartNewTournament(byte tier,byte tournament)
 
@@ -215,67 +225,72 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
   this->fCurrentTrack = 0;
   sVar2 = this->GetNumCompetitors();
   ptVar8 = this->fDefinition;
-  this->fNumRacers = (int)sVar2;
-  iVar9 = 0;
+  /* MATCH (W55-A10): retail stores a FULL WORD here (`sll 16; sra 16; sw v0,16(s3)`), i.e.
+     fNumRacers is a 4-byte field in the original -- our shared header models it as
+     `short fNumRacers, fPadNumRacers;` (a USER-owned nfs4_types.h change), so force the
+     word store per-use.  The sign-extend comes from `(int)sVar2` for free. */
+  *(int *)&this->fNumRacers = (int)sVar2;
+  i = 0;
   iVar7 = (uint)ptVar8->fTiers[this->fTier].fTournOffset + this->fTournament;
+  tourn = ptVar8->fTournaments + iVar7;
   if (0 < sVar2) {
-    iVar3 = 0;
     do {
-      iVar3 = iVar3 >> 0x10;
-      this->fCompetitors[iVar3].fPoints = 0;
-      this->fCompetitors[iVar3].fEliminated = 0;
-      this->fCompetitors[iVar3].fIsPlayerCar = '\0';
-      if (iVar3 == 0) {
-        this->fCompetitors[0].fPersonality = kPersonalityNemesis;
+      this->fCompetitors[i].fPoints = 0;
+      this->fCompetitors[i].fEliminated = 0;
+      this->fCompetitors[i].fIsPlayerCar = '\0';
+      /* MATCH (W55-A10): retail's guards are `beqz` -- the i!=0 arm is the FALL-THROUGH and
+         the i==0 arm sits OUT-OF-LINE.  Writing the tests as `i != 0` (not `i == 0`) picks
+         that polarity/block order. */
+      if (i != 0) {
+        this->fCompetitors[i].fPersonality = (uint)tourn->fPersonalities[i + -1];
       }
       else {
-        this->fCompetitors[iVar3].fPersonality =
-             (uint)ptVar8->fTournaments[iVar7].fPersonalities[iVar3 + -1];
+        /* MATCH: retail indexes BOTH arms by `i` (it reuses the SAME computed
+           &fCompetitors[i] base); an `fCompetitors[0]` spelling re-anchors on `this`. */
+        this->fCompetitors[i].fPersonality = kPersonalityNemesis;
       }
-      if ((short)iVar9 == 0) {
-        this->fCompetitors[0].fPosition = (uchar)this->fNumRacers;
+      if (i != 0) {
+        this->fCompetitors[i].fPosition = (uchar)i;
       }
       else {
-        this->fCompetitors[(short)iVar9].fPosition = (uchar)iVar9;
+        /* MATCH: fNumRacers is a WORD field in retail (`lw v1,16(s3)`) -- see the store. */
+        this->fCompetitors[i].fPosition = (uchar)*(int *)&this->fNumRacers;
       }
-      iVar9 = iVar9 + 1;
-      iVar3 = iVar9 * 0x10000;
-    } while (iVar9 * 0x10000 >> 0x10 < this->fNumRacers);
+      i = i + 1;
+    } while (i < *(int *)&this->fNumRacers);
   }
-  iVar9 = 0;
-  if (ptVar8->fTournaments[iVar7].fNumTracks != '\0') {
-    iVar3 = 0;
+  i = 0;
+  if (tourn->fNumTracks != '\0') {
     do {
-      iVar3 = iVar3 >> 0x10;
-      iVar5 = (uint)ptVar8->fTournaments[iVar7].fTrackOffset + iVar3;
+      iVar5 = (uint)tourn->fTrackOffset + i;
       ptVar6 = this->fDefinition;
-      bVar1 = ptVar6->fTracks[iVar5].fDirection;
-      this->fDirection[iVar3] = bVar1;
+      track = ptVar6->fTracks + iVar5;
+      bVar1 = track->fDirection;
+      this->fDirection[i] = bVar1;
       if (1 < bVar1) {
         iVar4 = rand();
-        this->fDirection[iVar3] = (byte)iVar4 & 1;
+        this->fDirection[i] = (byte)iVar4 & 1;
       }
-      bVar1 = ptVar6->fTracks[iVar5].fMirrored;
-      this->fMirror[iVar3] = bVar1;
+      bVar1 = track->fMirrored;
+      this->fMirror[i] = bVar1;
       if (1 < bVar1) {
         iVar4 = rand();
-        this->fMirror[iVar3] = (byte)iVar4 & 1;
+        this->fMirror[i] = (byte)iVar4 & 1;
       }
-      bVar1 = ptVar6->fTracks[iVar5].fTimeOfDay;
-      this->fTimeOfDay[iVar3] = bVar1;
+      bVar1 = track->fTimeOfDay;
+      this->fTimeOfDay[i] = bVar1;
       if (1 < bVar1) {
         iVar4 = rand();
-        this->fTimeOfDay[iVar3] = (byte)iVar4 & 1;
+        this->fTimeOfDay[i] = (byte)iVar4 & 1;
       }
-      bVar1 = ptVar6->fTracks[iVar5].fWeather;
-      this->fWeather[iVar3] = bVar1;
+      bVar1 = track->fWeather;
+      this->fWeather[i] = bVar1;
       if (1 < bVar1) {
         iVar5 = rand();
-        this->fWeather[iVar3] = (byte)iVar5 & 1;
+        this->fWeather[i] = (byte)iVar5 & 1;
       }
-      iVar9 = iVar9 + 1;
-      iVar3 = iVar9 * 0x10000;
-    } while (iVar9 * 0x10000 >> 0x10 < (int)(uint)ptVar8->fTournaments[iVar7].fNumTracks);
+      i = i + 1;
+    } while (i < (int)(uint)tourn->fNumTracks);
   }
   this->fCompetitors[0].fIsPlayerCar = '\x01';
   return;
@@ -603,18 +618,16 @@ short tTournamentManager::AdvanceToNextTrack()
           (this->fAwards).fCompletedTier = 1;
           ptVar7 = this->fDefinition;
           ptVar8 = ptVar7->fTiers + iVar3;
-          iVar3 = 0;
+          i = 0;
           if (ptVar8->fNumTournaments != '\0') {
-            iVar6 = 0;
             do {
-              iVar3 = iVar3 + 1;
               if (this->fBestPlacement
-                  [ptVar7->fTournaments[(uint)ptVar8->fTournOffset + (iVar6 >> 0x10)].fTournamentID]
+                  [ptVar7->fTournaments[(uint)ptVar8->fTournOffset + i].fTournamentID]
                   != '\x01') {
                 (this->fAwards).fCompletedTier = 0;
               }
-              iVar6 = iVar3 * 0x10000;
-            } while (iVar3 * 0x10000 >> 0x10 < (int)(uint)ptVar8->fNumTournaments);
+              i = i + 1;
+            } while (i < (int)(uint)ptVar8->fNumTournaments);
           }
           if ((this->fAwards).fCompletedTier != 0) {
             sVar2 = GetNumOwnedCars(&carManager, 0);
@@ -1114,5 +1127,9 @@ void * tListIteratorTournament::ValidTournament(char tourn)
 
 /* end of fetourn.cpp */
 
-/* owning-TU def (extern-declared, never defined; link-harness) */
-int _i;
+/* W55-A2 (class-2): the `int _i;` link-harness definition is GONE.  `_i` was a Ghidra
+   PHANTOM LOCAL that the import turned into a real global; its last consumer
+   (CalcSplinePosition in screencarselect.cpp) is now a proper function local, so both the
+   definition here and the `extern int _i;` decls in front/fetourn/screencarselect/screenpost
+   _externs.h have been deleted.  A phantom global loop counter is a real runtime bug
+   (cross-TU aliasing) AND it defeats constant propagation. */

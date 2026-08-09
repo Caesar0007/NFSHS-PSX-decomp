@@ -237,7 +237,7 @@ void Nfs2_CleanUpGameModule(void)
   Car_tStats *pCVar3;
   Car_tObj **ppCVar4;
   int iVar5;
-  int k;
+  short k;
   int iVar7;
   int iVar8;
   
@@ -245,15 +245,14 @@ void Nfs2_CleanUpGameModule(void)
   Render_KillPauseMenu();
   k = 0;
   if (0 < GameSetup_gData.numCars) {
-    iVar5 = 0;
     do {
-      ppCVar4 = Cars_gList + (iVar5 >> 0x10);
+      ppCVar4 = Cars_gList + k;
       ((*ppCVar4)->stats).carType = (*ppCVar4)->carInfo->carType;
       ((*ppCVar4)->stats).carClass = (*ppCVar4)->carInfo->carClass;
       ((*ppCVar4)->stats).carNameIndex = (*ppCVar4)->carInfo->carNameIndex;
       ((*ppCVar4)->stats).carFlags = (*ppCVar4)->carFlags;
       pCVar1 = *ppCVar4;
-      pCVar3 = Cars_gNewCarStatsList + (iVar5 >> 0x10);
+      pCVar3 = Cars_gNewCarStatsList + k;
       pCVar2 = &pCVar1->stats;
       do {
         iVar5 = pCVar2->sliceTotal;
@@ -267,8 +266,7 @@ void Nfs2_CleanUpGameModule(void)
         pCVar3 = (Car_tStats *)&pCVar3->lastSlice;
       } while (pCVar2 != (Car_tStats *)&pCVar1->crash);
       k = k + 1;
-      iVar5 = k * 0x10000;
-    } while (k * 0x10000 >> 0x10 < GameSetup_gData.numCars);
+    } while (k < GameSetup_gData.numCars);
   }
   Replay_StoringReplay();
   AudioCmn_DeInit();

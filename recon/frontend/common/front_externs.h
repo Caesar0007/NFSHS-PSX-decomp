@@ -98,7 +98,6 @@ extern GameSetup_tData GameSetup_gData;
 extern int MEMCARDFRONTENDISINITTED[];
 extern int Stats_gTrackRecords;
 extern int _7tScreen_fSuppressLoadingText;
-extern int _i;
 extern int _usePlayerUpgrades;
 extern int colourChosen[8];
 extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines it char (1B) packed

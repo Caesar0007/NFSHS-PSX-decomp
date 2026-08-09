@@ -12,7 +12,6 @@ extern tTournamentManager tournamentManager;
 extern tCarManager  carManager;
 extern Car_tStats  Cars_gNewCarStatsList[];
 extern tTrackManager trackManager;
-extern int          _i;            /* Ghidra phantom local */
 extern int          gFEData_8001165c;       /* trophy-letter pack (unresolved data global) */
 extern char         gFEData_80011658, gFEData_80011659, gFEData_8001165a;
 extern long         gTrackFinishBill, gTrackFinishBonus;

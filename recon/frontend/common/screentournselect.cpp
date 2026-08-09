@@ -74,9 +74,8 @@ void tScreenTournSelect::Initialize()
   byte useSpecial;
   ushort flags;
   int tvIdx;
-  short js;
-  short j;
   short i;
+  short j;
   RECT r;
   char moviename [80];
   
@@ -101,19 +100,18 @@ void tScreenTournSelect::Initialize()
   do {
     j = 0;
     do {
-      js = (short)j;
-      tvIdx = (short)i * 2 + (int)js;
+      tvIdx = i * 2 + j;
       InitTV(this->trophyTV + tvIdx,this->fPermShapes.fShapes,0);
+      this->trophyTV[tvIdx].y = j * 0x25 + 0x8e;
       j = j + 1;
-      this->trophyTV[tvIdx].y = js * 0x25 + 0x8e;
       this->trophyTV[tvIdx].w = 0x4c;
       flags = this->trophyTV[tvIdx].flags;
-      this->trophyTV[tvIdx].x = (short)i * 0x4c + 0xa5;
+      this->trophyTV[tvIdx].x = i * 0x4c + 0xa5;
       this->trophyTV[tvIdx].h = 0x25;
       this->trophyTV[tvIdx].flags = flags | 0x30;
-    } while (j * 0x10000 >> 0x10 < 2);
+    } while (j < 2);
     i = i + 1;
-  } while (i * 0x10000 >> 0x10 < 2);
+  } while (i < 2);
   useSpecial = frontEnd.tournament;
   if (frontEnd.tier != '\0') {
     useSpecial = frontEnd.specialevent;
@@ -173,24 +171,27 @@ void tScreenTournSelect::DrawVideoWall()
   int abr;
   long j;
   long i;
-  int transX = 0, transY = 0;   /* PSXDrawTransSquare x/y (reg, lost by decompiler) */
   uint transCount;
   tDrawShapeExtended drawFlags;
-  
+
   i = 0xf4;
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   ::DrawBackgroundImage((tScreen *)this,0,0x22,this->fPermShapes.fShapes,0);
+  /* W55-A2 BUGFIX: the x/y args were transcribed as phantom `transX/transY` zeros and the
+     loop counter `i` was never passed. Oracle 8003FC18: a1=$s1(=i), a2=0x29. */
   do {
-    PSXDrawTransSquare(0x202020,transX,transY,2,0x61,1);
+    PSXDrawTransSquare(0x202020,i,0x29,2,0x61,1);
     i = i + 0x50;
   } while (i < 0x1e5);
   i = 0x59;
+  /* Oracle 8003FC50: a1=0xA5, a2=$s1(=i). */
   do {
-    abr = 0xa5;
-    PSXDrawTransSquare(0x141414,transX,transY,0x141,1,1);
+    PSXDrawTransSquare(0x141414,0xa5,i,0x141,1,1);
     i = i + 0x30;
   } while (i < 0x89);
-  FeDraw_SetABRMode(abr);
+  /* W55-A2 BUGFIX: retail passes literal 2 (oracle 8003FC7C delay slot `addiu a0,zero,2`);
+     the recon passed the stale coordinate 0xA5 via a phantom `abr`. */
+  FeDraw_SetABRMode(2);
   transCount = ticks - this->fTVTicks >> 2;
   if (this->fTransitionDirection < 1) {
     i = 0;
@@ -223,10 +224,11 @@ void tScreenTournSelect::DrawVideoWall()
       } while (i < (int)transCount);
     }
   }
-  PSXDrawTransSquare(0x303030,transX,transY,2,0x4a,1);
-  i = 0xa5;
-  PSXDrawTransSquare(0x202020,transX,transY,0x98,1,1);
-  FeDraw_SetABRMode(i);
+  /* Oracle 8003FD84 / 8003FDAC: the two closing squares' x/y are literals, not phantom zeros. */
+  PSXDrawTransSquare(0x303030,0xf1,0x8e,2,0x4a,1);
+  PSXDrawTransSquare(0x202020,0xa5,0xb3,0x98,1,1);
+  /* W55-A2 BUGFIX: retail passes literal 2 (oracle 8003FDCC delay slot); recon passed 0xA5. */
+  FeDraw_SetABRMode(2);
   abr = 0;
   i = 0x1ec;
   do {
@@ -234,7 +236,8 @@ void tScreenTournSelect::DrawVideoWall()
     abr = abr + 1;
     i = i + 0x30;
   } while (abr < 4);
-  ScaleShapeExtended(transX,transY,0,0,0,0,&drawFlags);
+  /* Oracle 8003FDF4-8003FE34: a0 = (ticks >> 4) % 0x20, then 0x600,0xB6,0x93,0,0,&drawFlags. */
+  ScaleShapeExtended(((int)ticks >> 4) % 0x20,0x600,0xb6,0x93,0,0,&drawFlags);
   return;
 }
 

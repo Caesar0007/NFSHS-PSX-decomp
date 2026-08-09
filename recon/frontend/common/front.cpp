@@ -824,7 +824,6 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
   short sVar2;
   char *pcVar3;
   void *pvVar4;
-  int iVar5;
   tCarInfo *carInfo;
   tCarInfo *ptVar6;
   short i;
@@ -852,20 +851,19 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
     GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
   }
   else {
-    iVar5 = 0;
+    i = 0;
     {
       do {
-        sVar2 = (short)iVar5;
         if (frontEnd.carListType == '\0') {
-          GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[sVar2],
+          GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[i],
                      streamData->playerCars + streamData->numPlayers);
           carInfo = &streamData->playerCars[streamData->numPlayers];
-          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[sVar2 * 0x18][carInfo->fCarID] - 8)
+          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[i * 0x18][carInfo->fCarID] - 8)
           ;
         }
         else {
-          GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[sVar2],
-                     streamData->playerCars + streamData->numPlayers,sVar2);
+          GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[i],
+                     streamData->playerCars + streamData->numPlayers,i);
           carInfo = &streamData->playerCars[streamData->numPlayers];
           pcVar3 = carInfo->fShapeName + (carInfo->fColor - 8);
         }
@@ -876,8 +874,8 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
           carInfo->fCountry = uVar1;
         }
         streamData->numPlayers = streamData->numPlayers + 1;
-        iVar5 = iVar5 + 1;
-      } while ((frontEnd.gameMode == '\x01') && (iVar5 * 0x10000 >> 0x10 < 2));
+        i = i + 1;
+      } while ((frontEnd.gameMode == '\x01') && (i < 2));
       goto FrontInitPlayers_playerLoop;
     }
   }

@@ -560,6 +560,10 @@ void AudioCmn_CheckState(Car_tObj *car)
     if ((car->stats).lap != 0) {
       Sim_tSimGlobalVar *sim = &simGlobal;
 
+      /* W55-A10 FALSIFIED (15 -> 27): retail loads the gtotallaptimes side FIRST (`lw a0,0(a0)`
+         before `lw v1,0(v1)`, subu on a0) and ours the bestLapTime side; but writing the
+         comparison difference-first swaps BOTH address blocks and costs 12 more.  The load
+         order here is an ADDRESS-block ordering question, not a compare-operand one. */
       if (*(int *)(((u_char)carnum << 2) + (int)bestLapTime) >
           sim->gameTicks -
           *(int *)(((u_char)carnum << 2) + (int)gtotallaptimes)) {
@@ -1264,6 +1268,10 @@ GOTBANK:
       slot->Partial = -1;
       slot->SFXnum = -1;
     }
+    /* W55-A10 FALSIFIED: retail computes the `PatchBank == -3` flag (li -3 / xor / sltiu 1)
+       BEFORE the `PatchBank < -1` guard, ours after -- but hoisting it into a named local
+       (declared above the `goto NEWSOUND` to satisfy C++) costs a pseudo and re-colours the
+       whole fn: 20 -> 94.  The speculative issue order must come from somewhere cheaper. */
     if ((PatchBank < -1) &&
        (AudioCmn_GetAsyncSfx(PatchBank == -3,iSFXnum,false) == -1)) {
       slot->Partial = -1;
@@ -1958,7 +1966,15 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
        gaChannel[sirennum + 0x2b].Partial; gcc CSEs it into s0 by itself and hoists the
        shared %hi(gaChannel) above the 3dpos/stereo branch (it lands in that beqz's
        delay slot), which is exactly the `addiu v1,v1,0` the pan arm reuses. */
-    SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,(0x7f < iFreq) ? 0x7f : iFreq);
+    /* MATCH (W55-A10, sealed 129/129 PASS; was 10 diffs, count-exact).  The whole residual
+       was ARG-EVALUATION ORDER at this one call: retail expands the CLAMP first and only then
+       materializes the channel-slot address (`lui/addiu %hi/%lo(gaChannel)` + `addiu v0,s1,43`
+       + `sll 3` + `addu s0`), so the 5-insn address block sits AFTER the slti/beqz/li-127 pair
+       -- ours expanded the address first (and got the v0/v1 pair the other way round as a
+       consequence).  Giving the clamp its own statement (a block-scoped temp, so it does not
+       join the SYM's named-local budget) fixes the issue order; the register naming follows. */
+    { int bend = (0x7f < iFreq) ? 0x7f : iFreq;
+      SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,bend); }
     /* MATCH: 0x25/0x2f written as (amp*9)*4+amp / (amp*3)*0x10-amp -- the inner +/-
        node blocks gcc's multiply-chain regrouping of the constant onto the LEVEL
        (same lever as PlayDoppleredSound's (vol*0x41)<<1). */

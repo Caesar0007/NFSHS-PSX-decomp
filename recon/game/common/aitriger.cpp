@@ -149,7 +149,17 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
   lastTrigger = &this->lastTriggerChecked_[car];
   if ((this->triggers_[*lastTrigger]->any.slice < slice) && (1 < this->numTriggers_)) {
     while (this->triggers_[*lastTrigger]->any.slice < slice) {
-      if (*lastTrigger == this->numTriggers_ + -1) break;
+      /* MATCH (w55-a12, 16 -> PASS 109/109): retail RE-READS *lastTrigger for
+       * this break test (oracle 80072B78 `lw v1,0(s1)` fills the
+       * numTriggers_ load-delay slot); ours carried the value cached in $v1
+       * from the enclosing if-condition's read and nop'd the slot.  A plain
+       * re-deref is CSE'd back; the 0-insn `__asm__("" : : "i"(0))` barrier
+       * used in the else-arm below does NOT reach it (no "memory" clobber).
+       * The volatile view on the TEST read (05E) forces the fresh load AND
+       * shortens *lastTrigger's live range, which un-rotates the whole
+       * {numTriggers_ $a0->$v1, *lastTrigger $v1->$v0} 3-way web -- all 16
+       * diffs, one edit.  Do NOT drop the volatile. */
+      if (*(volatile int *)lastTrigger == this->numTriggers_ + -1) break;
       this->GetNextTrigger(car);
     }
   } else {

@@ -1084,6 +1084,14 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w55-a12 (probe-verified): AudioEng_Set prologue param-copy sink, 22->16.
+    "recon/game/common/audioeng.cpp": {
+        "AudioEng_Set__Fiiiiiiii": [
+            {"take": "\\tsw\\t\\$23,44\\(\\$sp\\)\\n", "after": "\\tsubu\\t\\$sp,\\$sp,56\\n"},
+            {"take": "\\tmove\\t\\$23,\\$5\\n", "after": "\\tsw\\t\\$23,44\\(\\$sp\\)\\n"},
+            {"take": "\\tlw\\t\\$5,76\\(\\$sp\\)\\n", "after": "\\tlw\\t\\$21,72\\(\\$sp\\)\\n"},
+        ],
+    },
     "recon/game/psx/draww.cpp": {
         "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi": [
             {"take": r"\tsw\t\$21,68\(\$sp\)\n", "after": r"\tsw\t\$31,72\(\$sp\)\n"},

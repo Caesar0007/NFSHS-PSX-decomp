@@ -176,8 +176,16 @@ void AudioEng_Update(void)
       u_short rightazim;
 
       n = 0;
-      for (;;) {
-        if (n >= 16) {
+      /* MATCH (w55-a12, 28 -> 26 and count 364 -> EXACT 366/366): retail's
+       * second channel loop is UN-rotated -- `slti;beqz;nop` at the loop head
+       * and an unconditional `j` back-edge with the increment in its slot.
+       * `for (;;) { if (n >= 16) break; ... }` lets gcc-2.8 prove n==0 on
+       * entry, peel the first test and rotate the loop (test at the bottom,
+       * 2 insns short).  The `while (1) { if (!(n < 16)) break; ... }`
+       * spelling reproduces retail's top-test + j back-edge.  Residual 26 =
+       * a pure s5<->s6 swap (counter vs the +4 giv). */
+      while (1) {
+        if (!(n < 16)) {
           break;
         }
         if ((signed char)g->chan[n].patchnum >= 0) {

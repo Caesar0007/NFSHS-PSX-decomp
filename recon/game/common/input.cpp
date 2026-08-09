@@ -184,8 +184,15 @@ void Input_Update(void)
       }
 
       j = 0;
-      for (;;) {
-        if (j >= 17) {
+      /* MATCH (w55-a12, 36 -> 28): retail's first held-key scan is UN-rotated
+       * (`slti;beqz;nop` at the loop head, `addiu s1,s1,4; j T` back-edge).
+       * `for (;;) { if (j >= 17) break; ... }` lets gcc-2.8 prove j==0 on
+       * entry, peel the head test and rotate; the `while (1) { if (!(j < 17))
+       * break; ... }` spelling keeps the top test + unconditional back-edge.
+       * (The SECOND, near-identical scan below is NOT affected -- probed, no
+       * gate delta -- so leave its `for (;;)` alone.) */
+      while (1) {
+        if (!(j < 17)) {
           break;
         }
       {

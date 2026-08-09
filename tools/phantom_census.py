@@ -51,8 +51,28 @@ for mangled in sorted(undef):
                     if re.match(re.escape(base) + r"__\d", s))
     free = sorted(s for s in sym_names
                   if re.match(re.escape(base) + r"__F(?!e)", s))
-    cls = "MEMBER" if member else ("FREE" if free else "UNKNOWN")
-    real = (member or free or ["-"])[0]
+    # EXTC: the real symbol is the unmangled base itself (EA C code declared
+    # in C++ without extern "C" -- MCRD_*/textpixels class, SYM class EXT FCN)
+    extc = [base] if base in sym_names else []
+    # CTOR_ALIAS: recon-invented tClass_ctor/_dtor C names; the real symbol is
+    # the mangled ctor  __<len>tClass  (dtor: ___<len>tClass)
+    ctor = []
+    m = re.match(r"(t\w+?)_(ctor|dtor)$", base)
+    if m:
+        cls_name = m.group(1)
+        pre = "___" if m.group(2) == "dtor" else "__"
+        want = f"{pre}{len(cls_name)}{cls_name}"
+        ctor = sorted(s for s in sym_names if s.startswith(want))
+    if extc:
+        cls, real = "EXTC", extc[0]
+    elif ctor:
+        cls, real = "CTOR_ALIAS", ctor[0]
+    elif member:
+        cls, real = "MEMBER", member[0]
+    elif free:
+        cls, real = "FREE", free[0]
+    else:
+        cls, real = "UNKNOWN", "-"
     rows.append((cls, base, mangled, real, sorted(undef[mangled])))
 
 out = ROOT / "scratchpad" / "member_phantoms.txt"

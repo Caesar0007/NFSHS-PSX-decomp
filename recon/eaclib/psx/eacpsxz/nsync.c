@@ -1,3 +1,37 @@
+/* W52-A7 GCC-LADDER RECEIPT (2026-08-09) -- THE COMPILER-VERSION AXIS IS CLOSED FOR eacpsxz.
+ * Every residual in this TU was A/B'd across the FULL windows-gcc-psx ladder on UNCHANGED
+ * source, on BOTH axes:
+ *   (a) ladder lane  NFS4_FORCE_CC1_ALT=<ver>  (272 recipe: macro cc1 + direct GNU-as reorder,
+ *       NO maspsx) -- changes compiler AND assembler route at once; and
+ *   (b) VERSION-ONLY axis  NFS4_CC1=<ladder>/cc1.exe  (normal compile_c, maspsx KEPT) -- the
+ *       clean single-variable experiment.  Use (b) to read a version verdict; (a) confounds.
+ * WHOLE-CLUSTER TOTALS, 68 TUs / 244 fns, version-only axis:
+ *   default(psq43 CC1PSX)  232 PASS / 173 diffs   <-- the wired lane, WINS
+ *   ladder 2.8.0           232 PASS / 173 diffs   <-- BIT-IDENTICAL to psq43 CC1PSX on all 244
+ *   ladder 2.8.1           232 PASS / 172 diffs   (+1 F->P nsync, -1 P->F nfile FILE_operror)
+ *   2.7.2-970404            61 PASS / 2422        2.7.2  51 / 5855   (SN 2.7.2 == FSF 2.7.2,
+ *   2.6.0 / 2.6.3           50 PASS / ~4925        verified via the ladder lane)
+ *   2.91.66 92 / 6832       2.95.2 95 / 6881
+ * ==> eacpsxz's compiler IS gcc 2.8.0 -- the rung already wired.  NO rung beats it.  Any
+ * residual in this file that a prior wave routed to "the toolchain-identity / old-gcc-cse /
+ * allocno_compare-delta investigation" is hereby FALSIFIED on the VERSION axis: it is not a
+ * gcc-version question.  Remaining candidate axes: per-obj FLAGS (3.25-3d), the assembler
+ * route, or source.  Do NOT re-run the ladder on this TU.
+ * PER-FN LADDER NUMBERS (version-only axis; 'P' = PASS):
+ *   loadbigfileheaderatomic  def 4 | 2.6.0 17 | 2.6.3 17 | 2.7.2-970404 22 | 2.7.2 22 | 2.8.1 PASS | 2.91.66 45 | 2.95.2 40
+ *   *** THIS TU IS THE ONE LADDER WIN IN THE WHOLE CLUSTER. ***
+ *   Under NFS4_CC1=<ladder>/gcc-2.8.1-psx/cc1.exe with the NORMAL maspsx route, nsync.c gates
+ *   10/10 PASS on UNCHANGED source (loadbigfileheaderatomic 4 -> PASS, loadfileadratomic stays
+ *   PASS).  This is exactly the prediction the w47/w50 receipts below made -- 'reproducing that
+ *   needs cse to build the temp AND survive, which is the same old-gcc-cse identity the C-lane
+ *   axis is chartered to test' -- now CONFIRMED experimentally: 2.8.1's cse/calls.c arg-precompute
+ *   emits retail's `li a3,2704 ; lw a0,24(sp) ; addiu s3,s4,-1 ; jal ; sw s3,16(sp)` arg group.
+ *   The residual 4 is therefore NOT a floor; it is a 2.8.0-vs-2.8.1 compiler identity.
+ *   ORCHESTRATOR ACTION: this needs a build.py lane key that swaps ONLY the cc1 and KEEPS maspsx
+ *   (e.g. {"cc1_ver": "2.8.1"}).  The EXISTING {"cc1_alt": "2.8.1"} key is the WRONG vehicle --
+ *   it routes through the 272 recipe (no maspsx), which costs loadfileadratomic (PASS -> 28) and
+ *   42 PASS across the cluster.  Until that key exists the 4-diff source below is kept as-is.
+ */
 /* eaclib/psx/eacpsxz/nsync.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   Source obj : nfs4\eaclib\psx\nsync.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
  *   10 fns @ [0x800E5608, 0x800E5AC4) -- EA "nsync" SYNCHRONOUS file-load layer.

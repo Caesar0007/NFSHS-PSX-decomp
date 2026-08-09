@@ -1,3 +1,26 @@
+/* W52-A7 GCC-LADDER RECEIPT (2026-08-09) -- THE COMPILER-VERSION AXIS IS CLOSED FOR eacpsxz.
+ * Every residual in this TU was A/B'd across the FULL windows-gcc-psx ladder on UNCHANGED
+ * source, on BOTH axes:
+ *   (a) ladder lane  NFS4_FORCE_CC1_ALT=<ver>  (272 recipe: macro cc1 + direct GNU-as reorder,
+ *       NO maspsx) -- changes compiler AND assembler route at once; and
+ *   (b) VERSION-ONLY axis  NFS4_CC1=<ladder>/cc1.exe  (normal compile_c, maspsx KEPT) -- the
+ *       clean single-variable experiment.  Use (b) to read a version verdict; (a) confounds.
+ * WHOLE-CLUSTER TOTALS, 68 TUs / 244 fns, version-only axis:
+ *   default(psq43 CC1PSX)  232 PASS / 173 diffs   <-- the wired lane, WINS
+ *   ladder 2.8.0           232 PASS / 173 diffs   <-- BIT-IDENTICAL to psq43 CC1PSX on all 244
+ *   ladder 2.8.1           232 PASS / 172 diffs   (+1 F->P nsync, -1 P->F nfile FILE_operror)
+ *   2.7.2-970404            61 PASS / 2422        2.7.2  51 / 5855   (SN 2.7.2 == FSF 2.7.2,
+ *   2.6.0 / 2.6.3           50 PASS / ~4925        verified via the ladder lane)
+ *   2.91.66 92 / 6832       2.95.2 95 / 6881
+ * ==> eacpsxz's compiler IS gcc 2.8.0 -- the rung already wired.  NO rung beats it.  Any
+ * residual in this file that a prior wave routed to "the toolchain-identity / old-gcc-cse /
+ * allocno_compare-delta investigation" is hereby FALSIFIED on the VERSION axis: it is not a
+ * gcc-version question.  Remaining candidate axes: per-obj FLAGS (3.25-3d), the assembler
+ * route, or source.  Do NOT re-run the ladder on this TU.
+ * PER-FN LADDER NUMBERS (version-only axis; 'P' = PASS):
+ *   STREAM_create        def 2 | 2.6.0 57 | 2.6.3 57 | 2.7.2-970404 10 | 2.7.2 36 | 2.8.1 2 | 2.91.66 143 | 2.95.2 203
+ *   STREAM_cancelrequest def P | 2.6.0 57 | 2.6.3 57 | 2.7.2-970404 12 | 2.7.2 57 | 2.8.1 P | 2.91.66 138 | 2.95.2 115
+ */
 /* eaclib/psx/eacpsxz/stream.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 32/32 ***
  *   Source obj : nfs4\eaclib\psx\stream.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   32 fns @[0x800FC2F8 .. 0x800FDCE0].  EA STREAMING ring-buffer manager, layered directly on the

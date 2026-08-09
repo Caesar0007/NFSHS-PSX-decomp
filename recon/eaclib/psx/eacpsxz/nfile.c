@@ -1,3 +1,30 @@
+/* W52-A7 GCC-LADDER RECEIPT (2026-08-09) -- THE COMPILER-VERSION AXIS IS CLOSED FOR eacpsxz.
+ * Every residual in this TU was A/B'd across the FULL windows-gcc-psx ladder on UNCHANGED
+ * source, on BOTH axes:
+ *   (a) ladder lane  NFS4_FORCE_CC1_ALT=<ver>  (272 recipe: macro cc1 + direct GNU-as reorder,
+ *       NO maspsx) -- changes compiler AND assembler route at once; and
+ *   (b) VERSION-ONLY axis  NFS4_CC1=<ladder>/cc1.exe  (normal compile_c, maspsx KEPT) -- the
+ *       clean single-variable experiment.  Use (b) to read a version verdict; (a) confounds.
+ * WHOLE-CLUSTER TOTALS, 68 TUs / 244 fns, version-only axis:
+ *   default(psq43 CC1PSX)  232 PASS / 173 diffs   <-- the wired lane, WINS
+ *   ladder 2.8.0           232 PASS / 173 diffs   <-- BIT-IDENTICAL to psq43 CC1PSX on all 244
+ *   ladder 2.8.1           232 PASS / 172 diffs   (+1 F->P nsync, -1 P->F nfile FILE_operror)
+ *   2.7.2-970404            61 PASS / 2422        2.7.2  51 / 5855   (SN 2.7.2 == FSF 2.7.2,
+ *   2.6.0 / 2.6.3           50 PASS / ~4925        verified via the ladder lane)
+ *   2.91.66 92 / 6832       2.95.2 95 / 6881
+ * ==> eacpsxz's compiler IS gcc 2.8.0 -- the rung already wired.  NO rung beats it.  Any
+ * residual in this file that a prior wave routed to "the toolchain-identity / old-gcc-cse /
+ * allocno_compare-delta investigation" is hereby FALSIFIED on the VERSION axis: it is not a
+ * gcc-version question.  Remaining candidate axes: per-obj FLAGS (3.25-3d), the assembler
+ * route, or source.  Do NOT re-run the ladder on this TU.
+ * PER-FN LADDER NUMBERS (version-only axis; 'P' = PASS):
+ *   FILE_completeop   def  2 | 2.6.0 42 | 2.6.3 42 | 2.7.2-970404 34 | 2.7.2 43 | 2.8.1  2 | 2.91.66  39 | 2.95.2  39
+ *   reservehandle     def  3 | 2.6.0 26 | 2.6.3 26 | 2.7.2-970404  8 | 2.7.2 24 | 2.8.1  3 | 2.91.66  41 | 2.95.2  36
+ *   iFILE_ExecCommand def 10 | 2.6.0 76 | 2.6.3 76 | 2.7.2-970404 25 | 2.7.2 80 | 2.8.1 10 | 2.91.66 285 | 2.95.2 245
+ *   FILE_cancelop     def 14 | 2.6.0 50 | 2.6.3 50 | 2.7.2-970404 18 | 2.7.2 51 | 2.8.1 14 | 2.91.66  94 | 2.95.2 118
+ *   reserveop         def 40 | 2.6.0 79 | 2.6.3 79 | 2.7.2-970404 45 | 2.7.2 77 | 2.8.1 40 | 2.91.66  91 | 2.95.2  69
+ *   NOTE: 2.8.1 REGRESSES this TU (FILE_operror PASS -> FAIL) -- do NOT wire nfile.c to 2.8.1.
+ */
 /* eaclib/psx/eacpsxz/nfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** WIP ***
  *   Source obj : nfs4\eaclib\psx\nfile.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   27 fns @[0x800EBBF4 .. 0x800ED334].  EA async file-operation layer (op queue + handle table).

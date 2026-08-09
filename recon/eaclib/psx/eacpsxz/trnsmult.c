@@ -1,3 +1,25 @@
+/* W52-A7 GCC-LADDER RECEIPT (2026-08-09) -- THE COMPILER-VERSION AXIS IS CLOSED FOR eacpsxz.
+ * Every residual in this TU was A/B'd across the FULL windows-gcc-psx ladder on UNCHANGED
+ * source, on BOTH axes:
+ *   (a) ladder lane  NFS4_FORCE_CC1_ALT=<ver>  (272 recipe: macro cc1 + direct GNU-as reorder,
+ *       NO maspsx) -- changes compiler AND assembler route at once; and
+ *   (b) VERSION-ONLY axis  NFS4_CC1=<ladder>/cc1.exe  (normal compile_c, maspsx KEPT) -- the
+ *       clean single-variable experiment.  Use (b) to read a version verdict; (a) confounds.
+ * WHOLE-CLUSTER TOTALS, 68 TUs / 244 fns, version-only axis:
+ *   default(psq43 CC1PSX)  232 PASS / 173 diffs   <-- the wired lane, WINS
+ *   ladder 2.8.0           232 PASS / 173 diffs   <-- BIT-IDENTICAL to psq43 CC1PSX on all 244
+ *   ladder 2.8.1           232 PASS / 172 diffs   (+1 F->P nsync, -1 P->F nfile FILE_operror)
+ *   2.7.2-970404            61 PASS / 2422        2.7.2  51 / 5855   (SN 2.7.2 == FSF 2.7.2,
+ *   2.6.0 / 2.6.3           50 PASS / ~4925        verified via the ladder lane)
+ *   2.91.66 92 / 6832       2.95.2 95 / 6881
+ * ==> eacpsxz's compiler IS gcc 2.8.0 -- the rung already wired.  NO rung beats it.  Any
+ * residual in this file that a prior wave routed to "the toolchain-identity / old-gcc-cse /
+ * allocno_compare-delta investigation" is hereby FALSIFIED on the VERSION axis: it is not a
+ * gcc-version question.  Remaining candidate axes: per-obj FLAGS (3.25-3d), the assembler
+ * route, or source.  Do NOT re-run the ladder on this TU.
+ * PER-FN LADDER NUMBERS (version-only axis; 'P' = PASS):
+ *   transmult      def 31 | 2.6.0 104 | 2.6.3 104 | 2.7.2-970404 45 | 2.7.2 93 | 2.8.1 31 | 2.91.66 101 | 2.95.2 138
+ */
 /* MATCH (w51-a8, 2026-08-09) -- the "NAMED NEXT LEVER" below (a cse/copy-prop
  * defeater for a spilled pointer param that is NOT a scheduling barrier) was hunted
  * again and is still UNFOUND; recording what was ruled out so it is not re-derived:

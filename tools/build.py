@@ -393,7 +393,14 @@ PER_TU_FLAGS = {
     # no_split_addresses entry; MoveImage re-anchored for the lane in the same
     # commit (see its /* MATCH: */ receipt).
     "recon/syslib/psx/libgpu/SYS.c":        {"cc1_272": True},
-    "recon/syslib/psx/libpad/PADMAIN.c":    {"no_split_addresses": True},  # -51, _padSetVsyncParam basin (a9)
+    # w52-a5: PADMAIN onto the 2.7.2 rung (replaces no_split_addresses, which
+    # the 272 recipe ignores): whole-TU 249->205 on the post-rewrite source,
+    # zero PASS regressions (all 4 PASSes hold).
+    "recon/syslib/psx/libpad/PADMAIN.c":    {"cc1_alt": "2.7.2"},
+    # w52-a5: PADCMD onto the 970404 snapshot rung: TU 181->168, net +1 PASS
+    # (+_padSendAtLoadInfo +_padLoadActInfo_snd -_padSetMainMode) and the 4
+    # store-swap blockers dissolve with their PASSes intact.
+    "recon/syslib/psx/libpad/PADCMD.c":     {"cc1_alt": "2.7.2-970404"},
     # w51-a2: BIOS.c 13->17/17 PASS -- WHOLE OBJECT byte-matches under cc1_272.
     "recon/syslib/psx/libmcrd/BIOS.c":      {"cc1_272": True},
     # w51-a2: USERFUNC.c 1->4/4 PASS under cc1_272 with ZERO source change (the
@@ -422,6 +429,10 @@ PER_TU_FLAGS = {
     # w52-a7: nsync = gcc 2.8.1 through the NORMAL maspsx pipeline (cc1_ver
     # swaps only the binary): loadbigfileheaderatomic 4 -> PASS 81/81, TU 10/10.
     "recon/eaclib/psx/eacpsxz/nsync.c":     {"cc1_ver": "2.8.1"},
+    # w52-a9: csincos -> PASS 71/71 under 2.7.2 + -fno-strength-reduce (with SR
+    # on, cc1 promotes the z address to a 6th induction var: the 73-vs-71 gap
+    # no source shape closes). Single-fn TU.
+    "recon/syslib/psx/libgte/COR_01.c":     {"cc1_272": True, "no_strength_reduce": True},
     "recon/syslib/psx/libmath/FLTSISF.c":   {"cc1_272": True},  # 38->32
     "recon/syslib/psx/libmath/FIXSFSI.c":   {"cc1_272": True},  # 12->8
     "recon/syslib/psx/libmath/FIXDFSI.c":   {"cc1_272": True},  # 80->67
@@ -805,6 +816,7 @@ PER_FN_EPILOGUE_UNFILL = {
     # w51-a6: single-fn TUs, no in-TU regression possible.
     "recon/syslib/psx/libgte/FOG_01.c": {"SetFogNear"},  # 4 -> PASS 25/25
     "recon/syslib/psx/libgte/COR_02.c": {"ccos"},        # 4 -> PASS 49/49
+    "recon/syslib/psx/libgte/COR_03.c": {"csin"},        # w52-a9: 4 -> PASS 78/78
 
     # w49-a9 (orchestrator-wired): padinit FAIL 3 (27/28) -> PASS 28/28 — pure
     # epilogue-swap class (retail's return slot empty, ours steals the addiu sp);

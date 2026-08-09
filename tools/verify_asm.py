@@ -81,11 +81,17 @@ def norm_ins(t):
         addr = int(digits, 16)
         return addr, len(digits) < 8 or not (0x80000000 <= addr < 0xA0000000)
     def _dlabel_lo(m):
+        # w52-a9 gate fix (proposal b): objdump renders %lo SIGNED.
         addr, is_literal = _literal_dlabel(m)
-        return str(addr & 0xFFFF) if is_literal else '0'
+        if not is_literal: return '0'
+        lo = addr & 0xFFFF
+        return str(lo - 0x10000 if lo >= 0x8000 else lo)
     def _dlabel_hi(m):
+        # w52-a9 gate fix (proposal b): the assembler applies the %hi CARRY
+        # when %lo bit 15 is set (IDT Ch9 signed-pair rule).
         addr, is_literal = _literal_dlabel(m)
-        return str(addr >> 16) if is_literal else '0'
+        if not is_literal: return '0'
+        return str(((addr + 0x8000) >> 16) & 0xFFFF)
     t = re.sub(r'%lo\(D_([0-9A-Fa-f]{1,8})\)', _dlabel_lo, t)
     t = re.sub(r'%hi\(D_([0-9A-Fa-f]{1,8})\)', _dlabel_hi, t)
     t = re.sub(r'%hi\([^)]*\)', '0', t)            # %hi(SYM) -> 0 (objdump shows lui r,0)
@@ -147,6 +153,12 @@ def ours(fn):
         # Match by the RAW 32-bit instruction word (byte-identical) instead of the rendering.
         if re.match(r'c(?:op)?2\b', insn):
             out.append('cop2 '+word); continue
+        # w52-a9 gate fix (proposal a): data .word inside a fn span (interior
+        # alabel data) -- count it by its raw word, symmetric with the oracle
+        # side below (closes the stup0-class alabel asymmetry: ours counted
+        # the words, oracle dropped them as dot-directives).
+        if insn.lstrip().startswith('.word'):
+            out.append('dword ' + word.lower().zfill(8)); continue
         # A R_MIPS_LO16 (or R_MIPS_GPREL16) reloc on this instruction means the
         # displacement/immediate is a relocation ADDEND (our object is UNLINKED). The oracle
         # is LINKED + re-split by splat, which folds that addend into a per-address symbol ->
@@ -246,6 +258,11 @@ def oracle(fn):
         mw = re.match(r'\.word\s+0x([0-9a-fA-F]+)\b', s)
         if mw and (int(mw.group(1),16) >> 26) == 0x12:
             out.append('cop2 ' + mw.group(1).lower()); continue
+        # w52-a9 gate fix (proposal a): non-cop2 data .word in the fn span --
+        # keep it as `dword <raw>` (was silently dropped by the dot-skip below
+        # while ours() counted the same words -> vacuous diffs on alabel data).
+        if mw:
+            out.append('dword ' + mw.group(1).lower().zfill(8)); continue
         if not s or s.startswith(('.','glabel','nonmatching','dlabel','jlabel','alabel')) or s.startswith('.L') or s.endswith(':'):
             continue
         out.append(norm_ins(s))

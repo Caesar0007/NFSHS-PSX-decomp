@@ -2909,7 +2909,7 @@ int tMemoryCardMenuItem::Draw(bool selected)
      reads: a volatile MEM also blocks combine, so a `volatile signed short` READ
      degrades to lhu + sll/sra (and the u_short read to lhu + andi 0xffff). */
   *(volatile short *)&this->fEnableVal = sVar2;
-  sv = *(signed short *)&this->fEnableVal;
+  sv = this->fEnableVal;
   v = *(u_short *)&this->fEnableVal;
   /* NESTED, not `&&`: gcc's fold_truthop merges `(sv<0x100) && (sv<1)` into the
      single `sv<1` test and the oracle's `slti 256` branch disappears. */

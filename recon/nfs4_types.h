@@ -2796,7 +2796,7 @@ struct tCarInfo {   /* 204 bytes */
     u_char             fCountries;   /* +0xAE */
     char               fColorOrder[16];   /* +0xAF */
     u_char             fPursuitAvailable, fEnginePatch;   /* +0xBF */
-    char               fSpeechCarID;   /* +0xC1 */
+    signed char        fSpeechCarID;   /* +0xC1  MATCH W57: oracle `lb` + ==-1 compares (08C class, A7 receipt) */
     u_char             fTractionAvailable, fExoticCar, fUpgrades, fColor, fViewable, fCountry, fCarIndex;   /* +0xC2 */
     u_char             fReserved[3];   /* +0xC9 */
 };
@@ -3664,7 +3664,7 @@ struct tTournamentManager {   /* 644 bytes */
     char               fDirection[16], fMirror[16], fTimeOfDay[16], fWeather[16];   /* +0xD8 */
     tCompetitor        fCompetitors[6];   /* +0x118 */
     tCarLineup         fCarLineup[6];   /* +0x178 */
-    char               fBestPlacement[64];   /* +0x1F0 */
+    signed char        fBestPlacement[64];   /* +0x1F0  MATCH W57: oracle `lb 0x1F0` (08C class, A7 receipt) */
     char               fPrevBestPlacement;   /* +0x230 */
     u_char             fFinishPoints[6], fRanking[6];   /* +0x231 */
     tAwardInformation  fAwards;   /* +0x240 */
@@ -4860,7 +4860,7 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 by
     tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *mn, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButton(t, mn, f) {}   /* inline fwd ctor */
     short              fFadeVal, fFadeDir;   /* +0x20 */
     BOOL               fInTransition;   /* +0x24 */
-    short              fEnableVal;   /* +0x28 */
+    signed short       fEnableVal;   /* +0x28  MATCH W57: oracle reads `lh` (08C signed-short class, A3 receipt) */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     void TransitionOff();

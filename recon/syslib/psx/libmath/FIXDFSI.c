@@ -2,6 +2,21 @@
  *   obj FIXDFSI.obj ; libmath.lib.  __fixdfsi @0x800F6834 (252 B) -- double -> signed int (truncate toward 0).
  *   Soft-float ABI: a1=lo word, a2=hi word.  Uses _dbl_shift; overflow -> _err_math(34,17), INT_MAX/MIN.
  */
+/* W52-A4 CLUSTER IDENTITY (applies to every TU in this directory):
+ * retail's libmath is NOT an EA rebuild -- it is Sony's PREBUILT vendor object.
+ * Each function's retail bytes appear VERBATIM inside the shipped PsyQ
+ * PSX/LIB/LIBMATH.LIB of psq43 / psq44 / psq45 / psq47(Lib43,44,45) AND inside
+ * psq43/COFF/LIB/LIBMATH.A (ECOFF magic 0x0162; members named adddf3.o,
+ * muldf3.o, ... with symbols `<name>.c` + `gcc2_compiled.` + `__gnu_compiled_c`).
+ * Verified 10/10 fns: EXACT where the fn has no relocs, HI16-masked where it
+ * has jal/%hi (scratchpad/w52a4_libscan.py).  Identical in every SDK drop from
+ * 4.0 to 4.7 => Sony compiled it ONCE with a mid-90s gcc-2.x mips-ecoff and
+ * shipped that binary unchanged for years.  CONSEQUENCE: the search axis for
+ * this cluster is the COMPILER LADDER (04U), not our 2.8 flag space, and no
+ * public source exists for it (Sony's own soft-float: _dbl_shift/_add_mant_d/
+ * _mainasu/_comp_mant/_mul_mant_d are NOT FSF libgcc2/fp-bit names; searched
+ * rage-racer-decomp + psyz + the whole disk -- nothing).  Full ladder tables and
+ * the cracked levers are in GTDF2.c / LTDF2.c / MULSF3.c. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 

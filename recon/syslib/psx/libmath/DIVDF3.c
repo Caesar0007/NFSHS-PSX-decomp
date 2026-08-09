@@ -23,6 +23,21 @@
  *   session's stack-homing-only experiment on this fn was independently recorded net-neutral, consistent
  *   with this conclusion. STRONG floor (>=4 corroborating fns, exact insn-count divergence, exhaustive
  *   flag sweep) -> transcribed VERBATIM as file-scope __asm__; portable C fallback kept for the host. */
+/* W52-A4 CLUSTER IDENTITY (applies to every TU in this directory):
+ * retail's libmath is NOT an EA rebuild -- it is Sony's PREBUILT vendor object.
+ * Each function's retail bytes appear VERBATIM inside the shipped PsyQ
+ * PSX/LIB/LIBMATH.LIB of psq43 / psq44 / psq45 / psq47(Lib43,44,45) AND inside
+ * psq43/COFF/LIB/LIBMATH.A (ECOFF magic 0x0162; members named adddf3.o,
+ * muldf3.o, ... with symbols `<name>.c` + `gcc2_compiled.` + `__gnu_compiled_c`).
+ * Verified 10/10 fns: EXACT where the fn has no relocs, HI16-masked where it
+ * has jal/%hi (scratchpad/w52a4_libscan.py).  Identical in every SDK drop from
+ * 4.0 to 4.7 => Sony compiled it ONCE with a mid-90s gcc-2.x mips-ecoff and
+ * shipped that binary unchanged for years.  CONSEQUENCE: the search axis for
+ * this cluster is the COMPILER LADDER (04U), not our 2.8 flag space, and no
+ * public source exists for it (Sony's own soft-float: _dbl_shift/_add_mant_d/
+ * _mainasu/_comp_mant/_mul_mant_d are NOT FSF libgcc2/fp-bit names; searched
+ * rage-racer-decomp + psyz + the whole disk -- nothing).  Full ladder tables and
+ * the cracked levers are in GTDF2.c / LTDF2.c / MULSF3.c. */
 int _comp_mant(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4);   /* fwd decl for __divdf3 below */
 
 #if defined(__mips__)

@@ -2131,15 +2131,20 @@ AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
  * aistate.cpp instances (100%-proven spellings). */
 extern __vtbl_ptr_type AIState_NonActive_vtable[], AIState_Base_vtable[];
 
-/* ---- Execute__17AIState_NonActive @0x80061370 : empty per-frame body (real method --
+/* ---- Execute__17AIState_NonActive_80061370 @0x80061370 : empty per-frame body (real method --
  * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
+extern "C" void Execute__17AIState_NonActive_80061370(AIState_NonActive *pThis)
+{
+  return;
+}
+
 void AIState_NonActive::Execute()
 {
   return;
 }
 
-/* ---- ___17AIState_NonActive @0x80061378 : deleting dtor (SYM _._17AIState_NonActive) ---- */
-extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
+/* ---- ___17AIState_NonActive_80061378 @0x80061378 : deleting dtor (SYM _._17AIState_NonActive) ---- */
+extern "C" void ___17AIState_NonActive_80061378(AIState_NonActive *pThis,int __in_chrg)
 {
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
   ((pThis->carObj_)->N).active = '\x01';
@@ -2150,14 +2155,19 @@ extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
   return;
 }
 
-/* ---- TestForRelease__12AIState_Base @0x800613C4 : shared default impl (real method) ---- */
+/* ---- TestForRelease__12AIState_Base_800613C4 @0x800613C4 : shared default impl (real method) ---- */
+extern "C" int TestForRelease__12AIState_Base_800613C4(AIState_Base *pThis)
+{
+  return 0;
+}
+
 int AIState_Base::TestForRelease()
 {
   return 0;
 }
 
-/* ---- ___12AIState_Base @0x800613CC : deleting dtor (SYM _._12AIState_Base) ---- */
-extern "C" void ___12AIState_Base(AIState_Base *pThis,int __in_chrg)
+/* ---- ___12AIState_Base_800613CC @0x800613CC : deleting dtor (SYM _._12AIState_Base) ---- */
+extern "C" void ___12AIState_Base_800613CC(AIState_Base *pThis,int __in_chrg)
 {
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
   if ((__in_chrg & 1U) != 0) {

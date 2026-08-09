@@ -1016,6 +1016,78 @@ PER_FN_RA_SINK = {
 }
 
 
+# w54 wave-close: PER_FN_TEXT_MOVES -- generic post-cc1 instruction
+# relocation for the maspsx lane (the PROLOGUE_FILL family: A1's
+# DrawObjectSimple 2-move spec, A7's sw-$ra-into-branch-slot).  Each move:
+# {"take": regex-of-line-to-move, "after": regex-of-anchor-line,
+#  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
+#  "drop_nop": True deletes one #nop/nop line following the anchor}.
+PER_FN_TEXT_MOVES = {
+    "recon/game/psx/draww.cpp": {
+        "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi": [
+            {"take": r"\tsw\t\$21,68\(\$sp\)\n", "after": r"\tsw\t\$31,72\(\$sp\)\n"},
+            {"take": r"\tlw\t\$21,96\(\$sp\)\n", "after": r"\tlbu\t\$2,3\(\$20\)\n",
+             "drop_nop": True},
+        ],
+    },
+    # Flare_2DHalo probed and REMOVED (w54 close): the s3 save-order move
+    # applies but the diff count holds at 6 -- the oracle interleaves the
+    # Flare_gType lui INSIDE the save run (sched1), and 4 of the 6 are a
+    # separate v0/v1 web (w53-a5 exhaustive receipts). Not this mechanism.
+    "recon/frontend/common/screenusername.cpp": {
+        "DrawVerticalLine__15tScreenUserNamesss": [
+            {"take": r"\tsw\t\$31,\d+\(\$sp\)\n",
+             "after": r"\t(?:beq|bne|bgez|bltz|blez|bgtz)[^\n]*\n", "slot": True},
+        ],
+        "DrawHorizontalLine__15tScreenUserNamesss": [
+            {"take": r"\tsw\t\$31,\d+\(\$sp\)\n",
+             "after": r"\t(?:beq|bne|bgez|bltz|blez|bgtz)[^\n]*\n", "slot": True},
+        ],
+    },
+}
+
+
+def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
+    table = PER_FN_TEXT_MOVES.get(rel_posix)
+    if not table:
+        return
+    txt = s_file.read_text(errors="replace")
+    changed = False
+    for name, moves in table.items():
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else 0)
+        region = txt[m.start():end]
+        for mv in moves:
+            tk = re.search(mv["take"], region)
+            if not tk:
+                continue
+            line = tk.group(0)
+            region2 = region[:tk.start()] + region[tk.end():]
+            an = re.search(mv["after"], region2)
+            if not an:
+                continue
+            ins = an.end()
+            if mv.get("drop_nop"):
+                np = re.match(r"\t#?nop\n", region2[ins:])
+                if np:
+                    region2 = region2[:ins] + region2[ins + np.end():]
+            if mv.get("slot"):
+                new = (region2[:an.start()] + "\t.set\tnoreorder\n"
+                       + an.group(0) + line + "\t.set\treorder\n"
+                       + region2[an.end():])
+            else:
+                new = region2[:ins] + line + region2[ins:]
+            region = new
+        if region != txt[m.start():end]:
+            txt = txt[:m.start()] + region + txt[end:]
+            changed = True
+    if changed:
+        s_file.write_text(txt)
+
+
 # w53-a10: PROLOGUE UNSINK -- sched2 sinks a callee-saved save (zero
 # dependents => lowest priority) below the first body insns; retail sank only
 # $ra.  Move the named regs' `sw $R,N($sp)` back up to right after the
@@ -1281,6 +1353,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)
     _apply_prologue_unsink(rel.as_posix(), s_file)
+    _apply_text_moves(rel.as_posix(), s_file)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -1344,6 +1417,7 @@ def compile_cpp(src: Path) -> Path:
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)
     _apply_prologue_unsink(rel.as_posix(), s_file)
+    _apply_text_moves(rel.as_posix(), s_file)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

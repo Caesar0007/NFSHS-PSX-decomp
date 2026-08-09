@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80061378, 0x4C
+nonmatching ___17AIState_NonActive_80061378, 0x4C
 
-glabel func_80061378
+glabel ___17AIState_NonActive_80061378
     /* 51B78 80061378 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 51B7C 8006137C 0580023C */  lui        $v0, %hi(D_80055000)
     /* 51B80 80061380 00504224 */  addiu      $v0, $v0, %lo(D_80055000)
@@ -24,4 +24,4 @@ glabel func_80061378
     /* 51BB8 800613B8 00000000 */  nop
     /* 51BBC 800613BC 0800E003 */  jr         $ra
     /* 51BC0 800613C0 1800BD27 */   addiu     $sp, $sp, 0x18
-endlabel func_80061378
+endlabel ___17AIState_NonActive_80061378

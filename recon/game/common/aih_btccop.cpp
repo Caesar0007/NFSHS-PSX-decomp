@@ -3729,14 +3729,19 @@ extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
   return;
 }
 
-/* ---- TestForRelease__12AIState_Base @0x8005F678 : shared default impl (real method) ---- */
+/* ---- TestForRelease__12AIState_Base_8005F678 @0x8005F678 : shared default impl (real method) ---- */
+extern "C" int TestForRelease__12AIState_Base_8005F678(AIState_Base *pThis)
+{
+  return 0;
+}
+
 int AIState_Base::TestForRelease()
 {
   return 0;
 }
 
-/* ---- ___12AIState_Base @0x8005F680 : deleting dtor (SYM _._12AIState_Base) ---- */
-extern "C" void ___12AIState_Base(AIState_Base *pThis,int __in_chrg)
+/* ---- ___12AIState_Base_8005F680 @0x8005F680 : deleting dtor (SYM _._12AIState_Base) ---- */
+extern "C" void ___12AIState_Base_8005F680(AIState_Base *pThis,int __in_chrg)
 {
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
   if ((__in_chrg & 1U) != 0) {

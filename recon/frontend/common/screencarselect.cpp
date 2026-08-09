@@ -1697,58 +1697,58 @@ void tScreenCarSelectDuel::DrawBackground()
 
 
 /* ---- tScreenCarSelectDuel::DrawForeground  [SCREENCARSELECT.CPP:1613-1635] ---- */
+/* MATCH: 106 -> 12 diffs.  Rebuilding from the SYM local set removes the
+   fabricated integer loop state and fixes the upgrade-row indexing.  A
+   separate zero-insn identity-fenced sliderResult breaks gcc's hard-$a0 copy
+   suggestion, giving retail's $a0=fUpgrades/$v1=result allocation.  The 12
+   remaining differences are the post-fence join/sign-extension schedule. */
 void tScreenCarSelectDuel::DrawForeground()
 
 {
-  tCarInfo *carInfo;
   __vtbl_ptr_type (*vtbl) [10];
-  int iVar2;
-  int iVar3;
-  short result;
-  ushort carStat;
-  tCarStatType tVar4;
-  short j;
-  short sVar5;
-  short y;
-  short fY;
+  tCarInfo carInfo;
   short i;
-  int iVar6;
-  byte validCar;
-  tCarInfo tStack_f8;
+  short j;
+  short y;
+  BOOL validCar;
   
-  fY = 0x2d;
-  iVar6 = 0;
+  y = 0x2d;
   vtbl = this->_vf;
-  iVar2 = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename +
-                     vtbl[1][3].delta + -0x14,&tStack_f8);
-  iVar3 = 0;
-  while (sVar5 = 0, iVar3 >> 0x10 < 2) {
-    for (; iVar3 = (int)sVar5, iVar3 < 5; sVar5 = sVar5 + 1) {
-      FETextRender_MenuTextPositionedJustify(text2PVals[iVar3],500,fY + 4,1,textState_Unselected,textType_ScreenInfo);
-      if (iVar2 == 0) {
-        carStat = 0;
+  validCar = (*vtbl[1][3].pfn)
+                    ((char *)this + vtbl[1][3].delta,&carInfo);
+  i = 0;
+  while (i < 2) {
+    j = 0;
+    while (j < 5) {
+      short sliderResult;
+      short result;
+      FETextRender_MenuTextPositionedJustify(text2PVals[j],500,y + 4,1,
+          textState_Unselected,textType_ScreenInfo);
+      if (validCar != 0) {
+        tCarStatType carStat = remap[j];
+        tCarInfo *ci = &carInfo;
+        result = (short)ci->fStats[0][carStat];
+        if ((ci->fUpgrades & 1) != 0) {
+          result = result + ci->fStats[1][carStat];
+        }
+        if ((ci->fUpgrades & 2) != 0) {
+          result = result + ci->fStats[2][carStat];
+        }
+        if ((ci->fUpgrades & 4) != 0) {
+          result = result + ci->fStats[3][carStat];
+        }
       }
       else {
-        tVar4 = remap[iVar3];
-        carStat = (ushort)tStack_f8.fStats[0][tVar4];
-        if ((tStack_f8.fUpgrades & 1) != 0) {
-          carStat = carStat + tStack_f8.fStats[1][tVar4 + cst_Brake];
-        }
-        if ((tStack_f8.fUpgrades & 2) != 0) {
-          carStat = carStat + tStack_f8.fStats[2][tVar4 + cst_Speed];
-        }
-        if ((tStack_f8.fUpgrades & 4) != 0) {
-          carStat = carStat + tStack_f8.fStats[3][tVar4 + cst_Handling];
-        }
+        result = 0;
       }
-      DrawSlider(carStat,0,0xb,0x1a1,fY,0x49,3,4,3,true,0,0x80,0);
-      fY = fY + 0xf;
+      __asm__("" : "=r"(sliderResult) : "0"(result));
+      DrawSlider(sliderResult,0,0xb,0x1a1,y,0x49,3,4,3,true,0,0x80,0);
+      y = y + 0xf;
+      j = j + 1;
     }
-    fY = 0x96;
-    iVar6 = iVar6 + 1;
-    carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,tStack_f8);
-    iVar3 = iVar6 * 0x10000;
+    y = 0x96;
+    carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
+    i = i + 1;
   }
   return;
 }

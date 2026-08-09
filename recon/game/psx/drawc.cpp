@@ -398,8 +398,22 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        like retail (that diff disappears), but it is also a scheduling BARRIER, so `lbu a0`
        can no longer float up into the `lw`'s load-delay slot and a `nop` takes the place we
        were trying to fill.  ⇒ the two requirements (pin the pair / let the lbu rise) are in
-       direct conflict for every fence form; the device needed is a NON-BARRIER pin. */
-    __asm__("" : : );
+       direct conflict for every fence form; the device needed is a NON-BARRIER pin.
+       ---- w53-a2 (2026-08-09): 4 STAYS, count-exact 107/107.  Three more falsifications,
+       the first two aimed at the w52-a2 FENCE-DIAL law (a fence OPERAND is also a REF,
+       so it moves the operand's allocno priority -- the dial that cracked
+       DrawC_PrimMenu 9 -> 2 this same session):
+         - `__asm__("" : : "r"(wc))` in place of the operand-less fence: 4, bit-identical.
+         - `__asm__("" : : "r"(lp))`: 4, bit-identical.  (Both promote a pseudo that is
+           ALREADY winning its register, so the dial has no travel here -- unlike PrimMenu,
+           where the promotion had to be WITHHELD from the competing pseudo.)
+         - the wcb-split + USE-fence basin (the "3 @108" run above) with `lp[0]` given its
+           own statement right after the fence, to hand the `lw`'s load-delay slot the
+           `lbu` retail puts there: 48 @103 (the split kills 4 real insns).
+       ⇒ the NON-BARRIER-pin verdict stands; also note this fn is NOT reachable by the
+       -G lever: whole-TU g_value 8 takes it 4 -> 57 (drawc.obj is a -G4 object, as the
+       TU header's flag receipts already record for -mno-split-addresses). */
+    __asm__("" : : "r"(wc));
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);
     newB = (short)((int)lp[2] + (int)wc[2]);
@@ -911,19 +925,44 @@ DrawCPrimStart_camRotMatrix:
     eIndexShadow = (carObj->N).eIndexShadow;
     /* quad = SIGNED byte (oracle lb 124); each .extra read ONCE as lhu into a
      * temp -- the &0xff and <<16>>24 both derive from the SAME halfword value */
-    iVar3 = (signed char)(carObj->N).simRoadInfo.quad;
+    /* MATCH (w53-a2, 70 -> 60, count-exact 976/976).  Two independent edits:
+       (a) `nabr_blend = 2;` moved from BEFORE the envExtra `if` to BETWEEN the two
+           `if`s.  With it in front, reorg back-steals `li s5,2` into the
+           Draw_GetDRAWENV `jal` slot (retail steals `li s6,3` = shadowAbsOffs there);
+           moving it one statement down frees the jal slot for shadowAbsOffs and the
+           jal delay slot becomes retail-exact.  (Swapping the shadowAbsOffs
+           assignment to AFTER the call instead is a NO-OP -- gcc reschedules it back.)
+       (b) 🔑 the quad byte moved OUT of the fn-scope `iVar3` scratch into a
+           BLOCK-LOCAL `quadB`.  `iVar3` is re-assigned twice later in this fn, so as
+           one fn-scope pseudo its live range spans the whole envmap/shadow section
+           and it takes a CALLEE-SAVED home ($s0); retail keeps the quad in $a3
+           (caller-saved, dies at the second `slt`).  Splitting the range moves all
+           three `slt v0,a3,v0` uses onto retail's register at zero instruction cost.
+           (Same family as this fn's existing eColor/eColor2 "NOT the fn-scope iVar3
+           scratch" receipt, and as methodology 3.12 #15's decl-scope rule.)
+       RESIDUAL 60, in 8 clusters, all count-exact and all reorg/sched-class:
+        - 2x `lw ...,64(s3)` scheduled one slot early (ours) vs into the following
+          load-delay slot (retail);
+        - `li s5,2` lands in the SECOND `beqz` delay slot, retail's in the FIRST
+          (retail steals the post-join insn, ours steals the if-body's first insn);
+        - the two `-1` decrements (`addiu v1,a2,-1` / `addiu a1,a1,-1`): retail
+          hoists them into `bgez` delay slots, ours computes them at use;
+        - the RECT `tw` block: retail stores tw.x IMMEDIATELY after its lbu and fills
+          that lbu's load-delay with the SetDrawMode `0` arg (`addu a2,zero,zero`),
+          ours sinks the tw.x store behind the w/h constant stores. */
     {
       u_int envExtra;
       u_int shadExtra;
+      int quadB = (signed char)(carObj->N).simRoadInfo.quad;
       uVar5 = (u_int)(u_short)DrawC_gEnvMap[eIndexEnvMap].tex;
       envExtra = (u_short)DrawC_gEnvMap[eIndexEnvMap].extra;
       shadow_align_b = (u_int)(u_short)DrawC_gShadow[eIndexShadow].tex;
       shadExtra = (u_short)DrawC_gShadow[eIndexShadow].extra;
-      nabr_blend = 2;
-      if (iVar3 < (int)(envExtra & 0xff)) {
+      if (quadB < (int)(envExtra & 0xff)) {
         uVar5 = (int)(envExtra << 0x10) >> 0x18;
       }
-      if (iVar3 < (int)(shadExtra & 0xff)) {
+      nabr_blend = 2;
+      if (quadB < (int)(shadExtra & 0xff)) {
         shadow_align_b = (int)(shadExtra << 0x10) >> 0x18;
       }
     }
@@ -1149,11 +1188,9 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   int tV_dst;
   int facet_p_v3;
   short facetFlag;
-  int remVerts;
   int vertCounter;
   u_int facetIdx;
   int loopDoneTag;
-  short ts9;
   short ts10;
   u_char tu1;
   u_char tu4;
@@ -1162,8 +1199,6 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   short tu12;
   short tu14;
   short tu15;
-  short ts6;
-  short *vert_yz_iter;
   char tc6;
   short ts7;
   u_short tu21;
@@ -1174,21 +1209,47 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   if ((*(u_int *)&sd->ePmx0 == 0) && (*(u_int *)&sd->ePmx1 == 0)) {
     envmap = envmap & 0xbe;
   }
+  /* MATCH (w53-a2, 360 -> 338): the envmap-UV loop rebuilt to DrawC_PrimMenu's
+     PROVEN loop-1 shape (PrimMenu's loop-1 is byte-exact).  Three parts:
+      (a) ONE `COORD16 *vt` cursor + a block-local e1/e2/e3 x,y,z triple, instead of
+          the Ghidra two-cursor form (`psVar6` for x + `vert_yz_iter` for y/z read at
+          [-1]/[0]).  Strength reduction then MINTS the y/z cursor itself as a giv
+          (`addiu a1,s3,4`), and a giv is emitted AFTER the LICM movables in the loop
+          preheader -- exactly where retail has it (the source-assigned
+          `vert_yz_iter` was emitted BEFORE the `li -1`/`addiu 172`/`addiu 156`
+          hoists).  It also lands `vt` on retail's $a3.
+      (b) `vt = Nvertice;` hoisted ABOVE the two gte_Set*Matrix macros (the same edit
+          that took PrimMenu 11 -> 9).
+      (c) loop-1 and loop-2 SHARE one fn-scope counter (`vertCounter`; the dead
+          `remVerts`/`ts9`/`ts6`/`vert_yz_iter` decls deleted), exactly as PrimMenu's
+          SYM-verified single fn-scope `i` does.  -8 on its own.
+     RESIDUAL in this block = a 3-way {counter,172-addr,156-addr} rotation: ours
+     counter=$t0 172=$t2 156=$t1, retail counter=$t2 172=$t1 156=$t0 -- retail
+     allocates the two LICM-hoisted gte addresses BEFORE the counter, ours after, so
+     the counter needs LOWER allocno priority (longer live length or fewer refs).
+     FALSIFIED: initialising the counter above the gte macros (drags the `lhu` above
+     the ctc2 block, no gain).
+     ⚠️ MEASURED NO-OP on DrawC_PrimClip -- the identical (a)+(b)+(c) port there is
+     626 -> 626 with the same 28 diffs in the first 130 rows, so it was NOT landed;
+     PrimClip keeps its two-cursor loop-1. */
   if ((envmap & 1U) != 0) {
-    psVar6 = (short *)Nvertice;
+    vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
-    remVerts = (int)obj->numVertex;
+    vertCounter = (int)obj->numVertex;
     envmapUV_dst = &sd->tV[0].v;
-    vert_yz_iter = &Nvertice->z;
     while( true ) {
-      remVerts = remVerts - 1;
-      if (remVerts == -1) break;
-      ts9 = vert_yz_iter[-1];
-      ts6 = *vert_yz_iter;
-      (sd->vt0).x = *psVar6;
-      (sd->vt0).y = ts9;
-      (sd->vt0).z = ts6;
+      vertCounter = vertCounter - 1;
+      if (vertCounter == -1) break;
+      {
+        short e1, e2, e3;
+        e1 = vt->x;
+        e2 = vt->y;
+        e3 = vt->z;
+        (sd->vt0).x = e1;
+        (sd->vt0).y = e2;
+        (sd->vt0).z = e3;
+      }
 gte_ldv0((char *)sd + 0xac);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
@@ -1197,8 +1258,7 @@ gte_stlvnl((char *)sd + 0x9c);
       if (absZ < 0) {
         absZ = -absZ;
       }
-      vert_yz_iter = vert_yz_iter + 3;
-      psVar6 = psVar6 + 3;
+      vt = vt + 1;
       envmapUV_dst[-1] = (char)tvx;
       *envmapUV_dst = (char)absZ;
       envmapUV_dst = envmapUV_dst + 8;
@@ -3359,10 +3419,10 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
     COORD16 *vt;
     char *tVc;   /* anonymous giv in retail too: &sd->tV[n].v, stride 8 */
 
+    vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     i = (u_int)obj->numVertex;   /* SYM: ONE fn-scope `i` (t8) counts ALL 3 loops */
-    vt = Nvertice;
     tVc = &sd->tV[0].v;
     /* exit-in-the-middle: keeps the top dec+test + unconditional j back (no rotation),
      * and the after-join reg-reg compare beats the nor/~x const-fold */
@@ -3536,8 +3596,41 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       if (bfct < 0) continue;
       if (sd->sub_otSize < bfct) continue;
     }
-    rawFlag = facet->flag;         /* the flag lhu fills the tex lbu's load-delay slot */
-    overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x10;
+    /* MATCH (w53-a2, 11 -> 2, count-exact 480/480).  THREE cooperating edits, in
+       this order; the 3rd is the one that closes it and it is REF-COUNT sensitive:
+        (a) `vt = Nvertice;` hoisted ABOVE the two gte_Set*Matrix macros in the
+            envmap pre-loop (retail emits `addu a3,v1,zero` as the FIRST insn of the
+            envmap arm, ours emitted it after the whole ctc2 block).  11 -> 9.
+        (b) a block-local `tex` temp so the textureIndex lbu and the flag lhu are
+            two adjacent loads of the SAME base (facet) -- alone: NO-OP (9).
+        (c) 🔑 a ZERO-INSN USE FENCE on `tex` ONLY, between the two loads and the
+            gOverlay index chain.  An operand-less `__asm__` is implicitly volatile
+            = a sched barrier, so the flag lhu can no longer SINK past the
+            gOverlay chain (retail: `lbu v0,2(t0); lhu a0,0(t0); sll v0,v0,1`,
+            ours had `lbu; sll; addu; lhu(gOverlay); sll; lhu(flag)`).  9 -> 2.
+       ⚠️ THE FENCE MUST NOT LIST rawFlag.  `__asm__("" : : "r"(tex), "r"(rawFlag))`
+       fixes the SCHEDULE identically (count-exact 480/480) but the extra REF on
+       rawFlag lifts its allocno priority (floor_log2(4)*4 vs floor_log2(3)*3) so it
+       takes $v1 and the gOverlay shift temp is pushed to $a0 -- retail is the other
+       way round -> 14 diffs.  Fencing `tex` alone leaves rawFlag at 3 refs and the
+       whole v1/a0 pair lands retail-exact.  (Fence-dial law, catalog w49/w50/w52-a2:
+       a read-only fence DEMOTES; here we want NO promotion at all on rawFlag.)
+       RESIDUAL 2 = the loop-1 preheader EMISSION-ORDER tie on `addiu a2,s1,215`
+       (tVc): ours emits it with the source statements (before the LICM movables
+       `li -1`/`addiu 172`/`addiu 156`), retail emits it AFTER them and before the
+       `addiu a1,a3,4` giv -- i.e. retail's tVc cursor was created by STRENGTH
+       REDUCTION (givs are appended after LICM movables), not written as a
+       preheader assignment.  FALSIFIED at this basin: index form `sd->tV[n].u/.v`
+       + `n++` (6 -- the giv DOES land in retail's slot but with base sd+0 and
+       displacements 214/215 instead of retail's base sd+215 / -1,0); the same
+       index form with an in-loop `char *tVc = &sd->tV[n].v;` (29).  NEXT ANGLE:
+       an index form whose giv address is the `.v` field (write `.v` before `.u`,
+       or index a `char*` view based at &sd->tV[0].v) so SR bases the giv at
+       sd+215 -- that is the only remaining shape difference. */
+    { int tex = facet->textureIndex;
+      rawFlag = facet->flag;
+      __asm__("" : : "r"(tex));   /* tex ONLY -- see the ref-count warning above */
+      overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[tex] << 0x10) >> 0x10; }
     facetFlag = rawFlag & 0xfff;
     /* SYM truth: NO `which` at this scope -- the decode MUTATES overlayFlag in
      * place (one pseudo, oracle a1 throughout); `which` is an overlay-arm local.

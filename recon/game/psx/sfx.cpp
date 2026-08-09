@@ -270,7 +270,25 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
  * pointer local back onto the single CSE'd scratchpad read, so the base still dies
  * at the second addu and the 6-vs-7 live-pseudo count is unchanged.  The remaining
  * route is a 7th pseudo carrying a DIFFERENT value (not a re-spelling of the palette
- * base), or the find_free_reg window trace. */
+ * base), or the find_free_reg window trace.
+ * ---- w53-a2 (2026-08-09): 26 STAYS, count-exact 126/126.  Three MORE falsifications,
+ * two of them RAGE-RACER-sourced (RR is the same-era matched corpus for this exact
+ * job -- its `src/main/PAL/lib/libgpu/ordering_tables.c` DrawOTagEnv writes the OT link
+ * as `u32 word = (*(u32*)tag & 0xFF000000) | ((u32)src & 0xFFFFFF);` inside a nested
+ * block with NAMED locals for the mask/size/callback, i.e. the "mint more pseudos"
+ * shape):
+ *   (a) a named `u_int word` local for the site-2 OR result (RR's exact spelling): 26,
+ *       bit-identical -- cc1 CSEs the temp straight back out.
+ *   (b) the same with `l0` INLINED into it (`(*ot2 & 0xff000000) | ((u_int)prim &
+ *       0xffffff)`, RR's single-expression form): 26, bit-identical.
+ *   (c) the site-2 address as an in-place INT MORPH (`ot2 = sd->otz; ot2 = ot2*4;
+ *       ot2 = ot2 + (int)Render_gPalettePtr;` -- the drawc.cpp id0/id1/id2 idiom that
+ *       makes the index register survive and the base die, which IS retail's
+ *       `addu a0,a0,a2` direction): 42.  This is the same verdict the "index-first addu
+ *       operand order" row above records, now with the morph spelling too.
+ *   ⇒ every SOURCE spelling of the 7th-pseudo angle is exhausted; the RR corpus offers
+ *   no new shape (its OT tails are single-instance and don't carry this tie).  The one
+ *   untried instrument remains the -dl/-dg allocno dump on this block. */
       prim = (POLY_FT4 *)Render_gPacketPtr;
       ((Sfx_tTag *)&prim->tag)->addr =
                   *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
@@ -420,7 +438,28 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
            0xFFFFFF`.  Keeping the ORIGINAL `prim` live instead and taking the cursor
            from a fresh `Render_gPacketPtr` read costs a second base register AND leaves
            the `and`/`or` pair un-cross-jumped in this arm (+2 `and` +2 `or` on the
-           opcode census, i.e. the whole 942-vs-938 overage). */
+           opcode census, i.e. the whole 942-vs-938 overage).
+           ---- w53-a2 (2026-08-09) 🔴 THIS TAIL IS CROSS-JUMP-FROZEN: BuildRibbonFacet
+           is inlined TWICE (mode 1 and mode 2) and the two copies of these last ~20
+           insns are held APART only by their current exact spelling.  ANY reshape here
+           makes them identical and gcc cross-jumps them away: measured 938 -> 918 insns
+           (= exactly one 20-insn tail deleted) and 116 -> 102 diffs for BOTH
+              (i) the AdditivePrim basin shape (P_TAG bitfield + `link` temp + `ot2`
+                  pointer local), and
+              (ii) a plain "hoist the OT READ above the cursor store" block
+                  (`u_int *ot2 = ...; u_int w = *ot2; Render_gPacketPtr = prim+0x28;
+                   *ot2 = w & 0xff000000 | (u_int)prim & 0xffffff;`),
+           which is the STRUCTURAL half of this fn's residual (retail computes the
+           site-2 OT address and its `lw` BEFORE `sw v1,4(at)`; ours stores first).
+           Retail keeps its two copies apart naturally because their registers differ
+           ($s0 vs $t0 / at vs $t1) -- a post-RA property we cannot spell in C.
+           ⇒ the site-2 ordering angle CANNOT be attacked from this call site; it needs
+           either a de-inline (one out-of-line helper, changes the whole frame map) or
+           a cross-jumping-off probe.  ALSO falsified at the SECOND (leaf, case-13/14)
+           tail: adding retail's `prim = (POLY_FT4*)Render_gPacketPtr;` RE-READ in front
+           of its tag RMW (retail `lw t0,0(t1)` @row 909, one pointer for tag+bump+link)
+           = 116 -> 150 @942 -- it breaks the cross-jump that currently holds the count
+           exact, i.e. the w41-a9 "+2 and +2 or" overage returns. */
         prim = (POLY_FT4 *)Render_gPacketPtr;
         prim->tag = prim->tag & 0xff000000 |
                     *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;

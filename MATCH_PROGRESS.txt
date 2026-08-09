@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2893 at 100% (82.8%)
+TOTAL: 3496 functions, 2912 at 100% (83.3%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -294,7 +294,7 @@ VA             %match  unit                     function
 0x80021EC0    100.00%  frontend/common/fetracks Decrement__18tListIteratorTrack7tPlayer
 0x80021F50     58.43%  frontend/common/fetracks ValidTrack__18tListIteratorTrackc
 0x80021FF8     79.03%  frontend/common/fetv     DrawTVLines__FR9tTVConfig
-0x8002234C     90.36%  frontend/common/fetv     DrawTV__FR9tTVConfig
+0x8002234C     93.02%  frontend/common/fetv     DrawTV__FR9tTVConfig
 0x80023008    100.00%  frontend/common/fetv     InitTV__FR9tTVConfigP18tTexture_ShapeInfos
 0x80023218    100.00%  frontend/common/fetv     TurnOffTV__FR9tTVConfig
 0x80023228    100.00%  frontend/common/fetv     TurnOnTV__FR9tTVConfig
@@ -438,7 +438,7 @@ VA             %match  unit                     function
 0x80028068    100.00%  frontend/common/front    Front_InitStream__FR9tFEStream
 0x80028098     78.91%  frontend/common/front    Front_InitPlayerCars__FR9tFEStream
 0x8002845C     70.47%  frontend/common/front    Front_InitTourneyTraffic__FR9tFEStream
-0x800285D0     86.52%  frontend/common/front    Front_InitOpponentCars__FR9tFEStream
+0x800285D0     91.90%  frontend/common/front    Front_InitOpponentCars__FR9tFEStream
 0x80028B64     70.47%  frontend/common/front    Front_InitMissions__FR9tFEStream
 0x80028C94    100.00%  frontend/common/front    Front_InitCopCars__FR9tFEStream
 0x80029054    100.00%  frontend/common/front    Front_InitPerps__FR9tFEStream
@@ -474,7 +474,7 @@ VA             %match  unit                     function
 0x8002C41C    100.00%  frontend/common/femenudefs AskTheUserToSaveTheGame__Fv
 0x8002C494    100.00%  frontend/common/femenudefs MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand
 0x8002C4B0    100.00%  frontend/common/femenudefs MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand
-0x8002C4FC     77.00%  frontend/common/femenudefs MenuExtended_GoToCarSelect__FR12tMenuCommand
+0x8002C4FC    100.00%  frontend/common/femenudefs MenuExtended_GoToCarSelect__FR12tMenuCommand
 0x8002C890     98.85%  frontend/common/femenudefs MenuExtended_GoToDealer__FR12tMenuCommand
 0x8002C8F8     98.85%  frontend/common/femenudefs MenuExtended_GoToSeller__FR12tMenuCommand
 0x8002C960    100.00%  frontend/common/femenudefs MenuExtended_GoToUpgrades__FR12tMenuCommand
@@ -487,7 +487,7 @@ VA             %match  unit                     function
 0x8002CDF4     82.06%  frontend/common/femenudefs MenuExtended_GoTo2PlayerRace__FR12tMenuCommand
 0x8002CF40     83.79%  frontend/common/femenudefs MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
 0x8002D0A8     86.82%  frontend/common/femenudefs MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand
-0x8002D214     99.60%  frontend/common/femenudefs MenuExtended_EnterUserName__FR12tMenuCommand
+0x8002D214    100.00%  frontend/common/femenudefs MenuExtended_EnterUserName__FR12tMenuCommand
 0x8002D278    100.00%  frontend/common/femenudefs MenuExtended_GoToShowroom__FR12tMenuCommand
 0x8002D2B8    100.00%  frontend/common/femenudefs MenuExtended_GoToDealerShowroom__FR12tMenuCommand
 0x8002D2F8    100.00%  frontend/common/femenudefs MenuExtended_SetHPSoloRace__FR12tMenuCommand
@@ -632,7 +632,7 @@ VA             %match  unit                     function
 0x80039B0C    100.00%  frontend/common/screenpost GetShapeInfo__26tScreenTournamentStandingsRsT1PPcT3
 0x80039B30    100.00%  frontend/common/screenpost GetShapeInfo__31tScreenTournamentStandings3itemRsT1PPcT3
 0x80039B54    100.00%  frontend/common/screenpost ProcessInput__26tScreenTournamentStandings7tPlayerR13tInputKeyTypeR12tMenuCommand
-0x80039B84     85.20%  frontend/common/screenpost DrawBackground__26tScreenTournamentStandings
+0x80039B84     93.26%  frontend/common/screenpost DrawBackground__26tScreenTournamentStandings
 0x8003A448     98.41%  frontend/common/screenpost DrawBackground__24tScreenPinkSlipStandings
 0x8003A86C    100.00%  frontend/common/screenpost ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x8003A88C    100.00%  frontend/common/screenpost ___24tScreenPinkSlipStandings
@@ -678,7 +678,7 @@ VA             %match  unit                     function
 0x8003E330    100.00%  frontend/common/screencarselect GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3
 0x8003E3C8    100.00%  frontend/common/screencarselect UpdateVideoWall__25tScreenCarSelectTwoPlayerR8tCarInfo
 0x8003E49C    100.00%  frontend/common/screencarselect TurnOffVideoWall__25tScreenCarSelectTwoPlayer
-0x8003E4BC     41.96%  frontend/common/screencarselect DrawBackground__25tScreenCarSelectTwoPlayer
+0x8003E4BC     99.81%  frontend/common/screencarselect DrawBackground__25tScreenCarSelectTwoPlayer
 0x8003EA14     96.43%  frontend/common/screencarselect DrawForeground__25tScreenCarSelectTwoPlayer
 0x8003EC50     72.98%  frontend/common/screencarselect SetDialog__25tScreenCarSelectTwoPlayer
 0x8003ED10    100.00%  frontend/common/screencarselect AllocateAsyncBuffer__25tScreenCarSelectTwoPlayer
@@ -704,7 +704,7 @@ VA             %match  unit                     function
 0x8003FAE8    100.00%  frontend/common/screentournselect Cleanup__18tScreenTournSelect
 0x8003FB28    100.00%  frontend/common/screentournselect UpdateVideoWall__18tScreenTournSelectP12tTourneyInfo
 0x8003FBCC     43.45%  frontend/common/screentournselect DrawVideoWall__18tScreenTournSelect
-0x8003FE5C     99.52%  frontend/common/screentournselect DrawBackground__18tScreenTournSelect
+0x8003FE5C    100.00%  frontend/common/screentournselect DrawBackground__18tScreenTournSelect
 0x800404D8    100.00%  frontend/common/screentournselect DrawForeground__18tScreenTournSelect
 0x80040570    100.00%  frontend/common/screentrophyroom __17tScreenTrophyRoom
 0x800405B0    100.00%  frontend/common/screentrophyroom ___17tScreenTrophyRoom
@@ -775,7 +775,7 @@ VA             %match  unit                     function
 0x800462FC    100.00%  frontend/common/screenaudio ___12tScreenAudio
 0x80046320    100.00%  frontend/common/screenmemcard GetShapeInfo__14tScreenMemcardRsT1PPcT3
 0x80046344     74.16%  frontend/common/screenmemcard DrawIcon__14tScreenMemcardP8shapetbliiiis
-0x8004653C     84.31%  frontend/common/screenmemcard LoadIcon__14tScreenMemcardi
+0x8004653C     97.21%  frontend/common/screenmemcard LoadIcon__14tScreenMemcardi
 0x80046898     81.56%  frontend/common/screenmemcard DrawVerticalLine__14tScreenMemcardssss
 0x8004694C     39.60%  frontend/common/screenmemcard DrawHorizontalLine__14tScreenMemcardssss
 0x80046A0C     64.80%  frontend/common/screenmemcard PlaceIcons__14tScreenMemcardii
@@ -1466,7 +1466,7 @@ VA             %match  unit                     function
 0x8007C534    100.00%  game/common/audioeng     AudioEng_CleanUp__Fv
 0x8007C614    100.00%  game/common/audiotrk     AudioTrk_Reset__Fv
 0x8007C6F4    100.00%  game/common/audiotrk     AudioTrk_StartUp__Fv
-0x8007C750     98.31%  game/common/audiotrk     AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji
+0x8007C750     98.68%  game/common/audiotrk     AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji
 0x8007CDC4     98.63%  game/common/audiotrk     AudioTrk_SoundTrack__FP8Car_tObji
 0x8007D35C    100.00%  game/common/audiotrk     AudioTrk_PreLoad__Fv
 0x8007D52C    100.00%  game/common/audiotrk     AudioTrk_CleanUp__Fv
@@ -1805,7 +1805,7 @@ VA             %match  unit                     function
 0x8009B010    100.00%  game/common/dashhud      DashHUD_ResetHUD__Fv
 0x8009B074    100.00%  game/common/dashhud      DashHUD_ToggleHud__Fi
 0x8009B098    100.00%  game/common/dashhud      DashHUD_CheckWrongWay__Fi
-0x8009B108     99.38%  game/common/dashhud      DashHUD_HUDCalc__Fi
+0x8009B108    100.00%  game/common/dashhud      DashHUD_HUDCalc__Fi
 0x8009B3C8    100.00%  game/common/fastrand     FastRandom_CleanUp__Fv
 0x8009B3D0    100.00%  game/common/fastrand     FastRandom_StartUp__FUi
 0x8009B458    100.00%  game/common/genericpmx   GenericPMX_LoadTexture__Fv
@@ -2005,7 +2005,7 @@ VA             %match  unit                     function
 0x800AA6D8    100.00%  game/common/physics      Physics_StopCar__FP8Car_tObj
 0x800AA7B0    100.00%  game/common/physics      Physics_TestForBarrierCollision__FP8Car_tObj
 0x800AA808    100.00%  game/common/physics      Physics_CalculateRoadGripModifiers__FP8Car_tObj
-0x800AA984     93.52%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
+0x800AA984     93.51%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
 0x800AB49C     99.49%  game/common/physics      Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800AB698     97.51%  game/common/physics      Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800ABA3C     95.04%  game/common/physics      Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct
@@ -2580,7 +2580,7 @@ VA             %match  unit                     function
 0x800E40CC     42.86%  syslib/psx/2mbyte/2mbyte stup0
 0x800E40E8    100.00%  eaclib/psx/pad           padinit
 0x800E4158    100.00%  eaclib/psx/pad           PAD_restore
-0x800E41AC     94.00%  eaclib/psx/pad           PAD_state
+0x800E41AC    100.00%  eaclib/psx/pad           PAD_state
 0x800E41FC      0.00%  syslib/psx/libpad/PAD    PAD_convert
 0x800E4210     90.67%  eaclib/psx/pad           PAD_update
 0x800E4318    100.00%  syslib/psx/libc/C43      memset
@@ -2611,7 +2611,7 @@ VA             %match  unit                     function
 0x800E5830    100.00%  eaclib/psx/eacpsxz/nsync loadfileatadratomic
 0x800E58B0    100.00%  eaclib/psx/eacpsxz/nsync loadfileatadrz
 0x800E58F0    100.00%  eaclib/psx/eacpsxz/nsync loadfileatadr
-0x800E5938     97.40%  eaclib/psx/eacpsxz/nsync loadbigfileheaderatomic
+0x800E5938    100.00%  eaclib/psx/eacpsxz/nsync loadbigfileheaderatomic
 0x800E5A7C    100.00%  eaclib/psx/eacpsxz/nsync loadbigfileheader
 0x800E5AC4    100.00%  eaclib/psx/eacpsxz/xform xformy
 0x800E5B28    100.00%  syslib/psx/libc/C25      strcpy
@@ -2775,7 +2775,7 @@ VA             %match  unit                     function
 0x800EB6F0    100.00%  eaclib/psx/spchpsxz/spchinit SPCH_InitBankMem
 0x800EB748     85.64%  eaclib/psx/spchpsxz/spchinit SPCH_Init
 0x800EB7E4    100.00%  syslib/psx/libmath/FLTSIDF __floatsidf
-0x800EB8E4     82.18%  syslib/psx/libmath/LTDF2 __ltdf2
+0x800EB8E4     97.55%  syslib/psx/libmath/LTDF2 __ltdf2
 0x800EB9C4    100.00%  eaclib/psx/spchpsxz/spchrand iSPCH_EACrandom
 0x800EBAC4    100.00%  eaclib/psx/spchpsxz/spchrand iSPCH_EACseedrandom
 0x800EBB30    100.00%  eaclib/psx/spchpsxz/spchrand iSPCH_Rand
@@ -2813,43 +2813,43 @@ VA             %match  unit                     function
 0x800ED424    100.00%  eaclib/psx/eacpsxz/fixdsin fixedsin
 0x800ED4A4    100.00%  eaclib/psx/eacpsxz/fixdsin fixedcos
 0x800ED528    100.00%  eaclib/psx/eacpsxz/fixdatan fixedatan
-0x800ED670     71.99%  syslib/psx/libgpu/SYS    ResetGraph
+0x800ED670     87.78%  syslib/psx/libgpu/SYS    ResetGraph
 0x800ED7E4    100.00%  syslib/psx/libgpu/SYS    SetDispMask
 0x800ED87C    100.00%  syslib/psx/libgpu/SYS    DrawSync
-0x800ED8E4     76.82%  syslib/psx/libgpu/SYS    _image
+0x800ED8E4     91.48%  syslib/psx/libgpu/SYS    _image
 0x800EDA00     86.22%  syslib/psx/libgpu/SYS    ClearImage
 0x800EDA90    100.00%  syslib/psx/libgpu/SYS    LoadImage
 0x800EDAF0    100.00%  syslib/psx/libgpu/SYS    StoreImage
 0x800EDB50     65.72%  syslib/psx/libgpu/SYS    MoveImage
-0x800EDC08     83.72%  syslib/psx/libgpu/SYS    ClearOTagR
+0x800EDC08     86.98%  syslib/psx/libgpu/SYS    ClearOTagR
 0x800EDCB4    100.00%  syslib/psx/libgpu/SYS    DrawOTag
 0x800EDD24     85.62%  syslib/psx/libgpu/SYS    PutDrawEnv
-0x800EDDE4     75.14%  syslib/psx/libgpu/SYS    PutDispEnv
+0x800EDDE4     79.07%  syslib/psx/libgpu/SYS    PutDispEnv
 0x800EE2DC    100.00%  syslib/psx/libgpu/SYS    SetTexWindow
 0x800EE314    100.00%  syslib/psx/libgpu/SYS    SetDrawArea
 0x800EE394    100.00%  syslib/psx/libgpu/SYS    SetDrawStp
 0x800EE3BC    100.00%  syslib/psx/libgpu/SYS    SetDrawMode
-0x800EE410     57.00%  syslib/psx/libgpu/SYS    SetDrawEnv
-0x800EE608     66.25%  syslib/psx/libgpu/SYS    _set_drawenv
+0x800EE410     82.99%  syslib/psx/libgpu/SYS    SetDrawEnv
+0x800EE608     86.20%  syslib/psx/libgpu/SYS    _set_drawenv
 0x800EE878     98.75%  syslib/psx/libgpu/SYS    _set_draw_mode
-0x800EE898     74.58%  syslib/psx/libgpu/SYS    _set_clip_tl
-0x800EE930     74.58%  syslib/psx/libgpu/SYS    _set_clip_br
+0x800EE898     69.21%  syslib/psx/libgpu/SYS    _set_clip_tl
+0x800EE930     69.21%  syslib/psx/libgpu/SYS    _set_clip_br
 0x800EE9C8    100.00%  syslib/psx/libgpu/SYS    _set_draw_offset
 0x800EE9E4    100.00%  syslib/psx/libgpu/SYS    _get_tw
 0x800EEA64    100.00%  syslib/psx/libgpu/SYS    _get_status
-0x800EEA7C     77.18%  syslib/psx/libgpu/SYS    _clearOTagR_dma
-0x800EEB5C     17.53%  syslib/psx/libgpu/SYS    _BlitClear
-0x800EED8C     71.14%  syslib/psx/libgpu/SYS    _dws
-0x800EEFC8     78.09%  syslib/psx/libgpu/SYS    _drs
+0x800EEA7C    100.00%  syslib/psx/libgpu/SYS    _clearOTagR_dma
+0x800EEB5C     85.77%  syslib/psx/libgpu/SYS    _BlitClear
+0x800EED8C     94.57%  syslib/psx/libgpu/SYS    _dws
+0x800EEFC8     95.16%  syslib/psx/libgpu/SYS    _drs
 0x800EF248    100.00%  syslib/psx/libgpu/SYS    _send_gp1
 0x800EF26C    100.00%  syslib/psx/libgpu/SYS    _get_gp1
 0x800EF280    100.00%  syslib/psx/libgpu/SYS    _send_gp0
 0x800EF2C0    100.00%  syslib/psx/libgpu/SYS    _gpu_dma_chain
 0x800EF308    100.00%  syslib/psx/libgpu/SYS    _get_gpuinfo
 0x800EF338    100.00%  syslib/psx/libgpu/SYS    _que_ref
-0x800EF35C     62.87%  syslib/psx/libgpu/SYS    _gpu_que_push
-0x800EF60C     85.48%  syslib/psx/libgpu/SYS    _gpu_que_drain
-0x800EF86C     73.30%  syslib/psx/libgpu/SYS    _reset
+0x800EF35C     68.74%  syslib/psx/libgpu/SYS    _gpu_que_push
+0x800EF60C     83.93%  syslib/psx/libgpu/SYS    _gpu_que_drain
+0x800EF86C     98.10%  syslib/psx/libgpu/SYS    _reset
 0x800EF9BC     96.71%  syslib/psx/libgpu/SYS    _sync
 0x800EFAF8    100.00%  syslib/psx/libgpu/SYS    _gpu_arm_timeout
 0x800EFB2C     78.70%  syslib/psx/libgpu/SYS    _gpu_check_timeout
@@ -2869,7 +2869,7 @@ VA             %match  unit                     function
 0x800F0234    100.00%  eaclib/psx/eacpsxz/matrix submatrix
 0x800F026C    100.00%  eaclib/psx/eacpsxz/matrix scalematrix
 0x800F02E4    100.00%  eaclib/psx/eacpsxz/matrix reorthogonalize
-0x800F0514     68.30%  syslib/psx/libmath/GTDF2 __gtdf2
+0x800F0514     97.17%  syslib/psx/libmath/GTDF2 __gtdf2
 0x800F05F4    100.00%  eaclib/psx/eacpsxz/primate initlinkmode
 0x800F06E0    100.00%  eaclib/psx/eacpsxz/primate waitdraw
 0x800F070C    100.00%  eaclib/psx/eacpsxz/primate settrans
@@ -2951,14 +2951,14 @@ VA             %match  unit                     function
 0x800F312C    100.00%  syslib/psx/libgte/FGO_06 RotMatrixZ
 0x800F32CC    100.00%  eaclib/psx/eacpsxz/isqrt isqrt
 0x800F3490    100.00%  syslib/psx/libgpu/P19    SetPolyGT4
-0x800F34B0     81.60%  syslib/psx/libmath/MULSF3 __mulsf3
+0x800F34B0     61.00%  syslib/psx/libmath/MULSF3 __mulsf3
 0x800F35F0    100.00%  syslib/psx/libgpu/P12    SetPolyF3
 0x800F3610    100.00%  syslib/psx/libgpu/P16    SetPolyF4
 0x800F3630    100.00%  syslib/psx/libgpu/P18    SetPolyG4
 0x800F3650    100.00%  syslib/psx/libgpu/P17    SetPolyFT4
 0x800F3670    100.00%  eaclib/psx/eacpsxz/fsincos fixedsincos
 0x800F3728     99.90%  syslib/psx/libgte/COR_02 ccos
-0x800F37F8     53.05%  syslib/psx/libgte/COR_03 csin
+0x800F37F8    100.00%  syslib/psx/libgte/COR_03 csin
 0x800F3938    100.00%  syslib/psx/libmath/FIXSFSI __fixsfsi
 0x800F39F8    100.00%  eaclib/psx/eacpsxz/joystkn initjoy
 0x800F3A34    100.00%  eaclib/psx/eacpsxz/fileroot initfileio
@@ -2989,8 +2989,8 @@ VA             %match  unit                     function
 0x800F55B4    100.00%  eaclib/psx/eacpsxz/unbtree unbtree
 0x800F57C4     82.68%  syslib/psx/libmath/EXTSFDF2 __extendsfdf2
 0x800F5924     50.59%  syslib/psx/libmath/TRUDFSF2 __truncdfsf2
-0x800F5A54     56.09%  syslib/psx/libmath/ADDDF3 __adddf3
-0x800F5DD4     48.03%  syslib/psx/libmath/DIVDF3 __divdf3
+0x800F5A54     57.95%  syslib/psx/libmath/ADDDF3 __adddf3
+0x800F5DD4     36.29%  syslib/psx/libmath/DIVDF3 __divdf3
 0x800F60B4    100.00%  syslib/psx/libmath/DIVDF3 _comp_mant
 0x800F6104    100.00%  syslib/psx/libc/C26      strncpy
 0x800F6114    100.00%  eaclib/psx/eacpsxz/nullfunc setclipwindow
@@ -2999,8 +2999,8 @@ VA             %match  unit                     function
 0x800F6214    100.00%  syslib/psx/libc/C30      strchr
 0x800F6224     88.78%  syslib/psx/libmath/FLTSISF __floatsisf
 0x800F62E4     45.45%  syslib/psx/libmath/MULDF3 __muldf3
-0x800F65F8     40.47%  syslib/psx/libmath/MULDF3 _mul_mant_d
-0x800F66E4     58.83%  syslib/psx/libmath/DIVSF3 __divsf3
+0x800F65F8     48.03%  syslib/psx/libmath/MULDF3 _mul_mant_d
+0x800F66E4     65.90%  syslib/psx/libmath/DIVSF3 __divsf3
 0x800F6834     52.41%  syslib/psx/libmath/FIXDFSI __fixdfsi
 0x800F6934    100.00%  eaclib/psx/eacpsxz/vramfxya checkrect
 0x800F6960    100.00%  eaclib/psx/eacpsxz/vramfxya vramimage
@@ -3030,9 +3030,9 @@ VA             %match  unit                     function
 0x800F7CD4    100.00%  syslib/psx/libcd/cdcont  CdDataSync
 0x800F7CF4    100.00%  syslib/psx/libcd/cdcont  CdIntToPos
 0x800F7DF8    100.00%  syslib/psx/libcd/cdcont  CdPosToInt
-0x800F7E78     95.74%  syslib/psx/libcd/stcdint StCdInterrupt
+0x800F7E78     97.10%  syslib/psx/libcd/stcdint StCdInterrupt
 0x800F8794    100.00%  syslib/psx/libcd/stcdint _st_copy_words
-0x800F87C0     71.11%  syslib/psx/libcd/stcdint _st_dma
+0x800F87C0     92.74%  syslib/psx/libcd/stcdint _st_dma
 0x800F8968    100.00%  syslib/psx/libcd/stream  StClearRing
 0x800F89C8    100.00%  syslib/psx/libpress/LIBPRESS DecDCTReset
 0x800F89FC    100.00%  syslib/psx/libpress/LIBPRESS DecDCTin
@@ -3092,11 +3092,11 @@ VA             %match  unit                     function
 0x800FB780     86.80%  syslib/psx/libmcrd/LIBMCRD MemCardWriteFile_cb
 0x800FB888     83.24%  syslib/psx/libmcrd/LIBMCRD MemCardGetDirentry
 0x800FBAE8    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardCallback
-0x800FBAFC     65.35%  syslib/psx/libmcrd/LIBMCRD MemCardSync
-0x800FBC18     62.67%  syslib/psx/libmcrd/LIBMCRD MemCardCreateFile
-0x800FBE20     66.70%  syslib/psx/libmcrd/LIBMCRD MemCardDeleteFile
+0x800FBAFC    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardSync
+0x800FBC18     78.75%  syslib/psx/libmcrd/LIBMCRD MemCardCreateFile
+0x800FBE20     82.69%  syslib/psx/libmcrd/LIBMCRD MemCardDeleteFile
 0x800FBFDC     92.57%  syslib/psx/libmcrd/LIBMCRD MemCardFormat
-0x800FC068     70.71%  syslib/psx/libmcrd/LIBMCRD MemCardUnformat
+0x800FC068     92.96%  syslib/psx/libmcrd/LIBMCRD MemCardUnformat
 0x800FC11C    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardEventToRslt
 0x800FC170     61.21%  syslib/psx/libmcrd/LIBMCRD MemCardStart_cb
 0x800FC1F4    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardMakeDevname
@@ -3139,7 +3139,7 @@ VA             %match  unit                     function
 0x800FDEF0     71.77%  syslib/psx/libpad/PADPORTD _pad_failall
 0x800FDFE4    100.00%  syslib/psx/libpad/PADPORTD _pad_shift
 0x800FDFF4     74.77%  syslib/psx/libpad/PADPORTD _pad_getbyte
-0x800FE0B0      1.87%  syslib/psx/libpad/PADPORTD _pad_filter
+0x800FE0B0     92.28%  syslib/psx/libpad/PADPORTD _pad_filter
 0x800FE32C     98.93%  syslib/psx/libpad/PADPORTD _pad_port_to_slot
 0x800FE364    100.00%  syslib/psx/libpad/PADPORTD _pad_get_port
 0x800FE388    100.00%  syslib/psx/libc/C46      memchr
@@ -3275,26 +3275,26 @@ VA             %match  unit                     function
 0x80104A0C    100.00%  syslib/psx/libapi/C73    GPU_cw
 0x80104A1C    100.00%  syslib/psx/libpad/PADMAIN _padSetVsyncParam
 0x80104A48    100.00%  syslib/psx/libpad/PADMAIN _padVbCallback1
-0x80104AB0     96.81%  syslib/psx/libpad/PADMAIN _padVbCallback0
-0x80104C1C     78.00%  syslib/psx/libpad/PADMAIN _padStartCom
+0x80104AB0     99.67%  syslib/psx/libpad/PADMAIN _padVbCallback0
+0x80104C1C     83.78%  syslib/psx/libpad/PADMAIN _padStartCom
 0x80104CE8    100.00%  syslib/psx/libpad/PADMAIN _padStopCom
-0x80104D2C     60.18%  syslib/psx/libpad/PADMAIN _padInitSioMode
-0x80105060     56.98%  syslib/psx/libpad/PADMAIN _padSioMain
-0x80105128     42.25%  syslib/psx/libpad/PADMAIN _padSioRW
-0x80105300     26.63%  syslib/psx/libpad/PADMAIN _padSioRW2
-0x80105538     24.86%  syslib/psx/libpad/PADMAIN _padClrIntSio0
-0x801055C8     99.50%  syslib/psx/libpad/PADMAIN _padWaitRXready
+0x80104D2C     95.03%  syslib/psx/libpad/PADMAIN _padInitSioMode
+0x80105060     61.50%  syslib/psx/libpad/PADMAIN _padSioMain
+0x80105128     79.24%  syslib/psx/libpad/PADMAIN _padSioRW
+0x80105300     91.11%  syslib/psx/libpad/PADMAIN _padSioRW2
+0x80105538     77.78%  syslib/psx/libpad/PADMAIN _padClrIntSio0
+0x801055C8    100.00%  syslib/psx/libpad/PADMAIN _padWaitRXready
 0x801055F0    100.00%  syslib/psx/libpad/PADCMD _padSetAct
-0x801055FC     93.94%  syslib/psx/libpad/PADCMD _padSendAtLoadInfo
+0x801055FC    100.00%  syslib/psx/libpad/PADCMD _padSendAtLoadInfo
 0x80105680     81.42%  syslib/psx/libpad/PADCMD _padRecvAtLoadInfo
 0x801057CC    100.00%  syslib/psx/libpad/PADCMD _padGetActSize
-0x80105804     63.91%  syslib/psx/libpad/PADCMD _padLoadActInfo
-0x801058D8     95.24%  syslib/psx/libpad/PADCMD _padLoadActInfo_snd
-0x80105980     86.11%  syslib/psx/libpad/PADCMD _padLoadActInfo_rcv
+0x80105804     68.57%  syslib/psx/libpad/PADCMD _padLoadActInfo
+0x801058D8    100.00%  syslib/psx/libpad/PADCMD _padLoadActInfo_snd
+0x80105980     89.68%  syslib/psx/libpad/PADCMD _padLoadActInfo_rcv
 0x80105BF4    100.00%  syslib/psx/libpad/PADCMD _padSetActAlign
 0x80105C5C    100.00%  syslib/psx/libpad/PADCMD _padSetActAlign_snd
 0x80105C78     86.16%  syslib/psx/libpad/PADCMD _padSetActAlign_rcv
-0x80105D40    100.00%  syslib/psx/libpad/PADCMD _padSetMainMode
+0x80105D40     68.29%  syslib/psx/libpad/PADCMD _padSetMainMode
 0x80105DD8    100.00%  syslib/psx/libpad/PADCMD _padSetMainMode_snd
 0x80105E2C    100.00%  syslib/psx/libpad/PADCMD _padSetMainMode_rcv
 0x80105E8C    100.00%  syslib/psx/libpad/PADCMD _padCmdParaMode
@@ -3310,7 +3310,7 @@ VA             %match  unit                     function
 0x801061F4    100.00%  eaclib/psx/sndpsxz/smemman iSNDmemrestore
 0x80106238     99.89%  eaclib/psx/sndpsxz/smemman iSNDmalloc
 0x80106454    100.00%  syslib/psx/libgte/PATCHGTE _patch_gte
-0x80106500     50.00%  syslib/psx/libgte/PATCHGTE _patch_gte_handler_1
+0x80106500    100.00%  syslib/psx/libgte/PATCHGTE _patch_gte_handler_1
 0x80106534    100.00%  syslib/psx/libetc/INTR_VB startIntrVSync
 0x8010658C    100.00%  syslib/psx/libetc/INTR_VB startIntrVSync_helper_1
 0x801065F8    100.00%  syslib/psx/libetc/INTR_VB startIntrVSync_helper_2
@@ -3332,7 +3332,7 @@ VA             %match  unit                     function
 0x801069C4    100.00%  eaclib/psx/eacpsxz/isqrttbl remapshiftjiscode
 0x801069EC    100.00%  eaclib/psx/eacpsxz/isqrttbl decodeshiftjis
 0x80106A54    100.00%  syslib/psx/libmath/FERR  _err_math
-0x80106AC4     80.68%  syslib/psx/libgte/COR_01 csincos
+0x80106AC4    100.00%  syslib/psx/libgte/COR_01 csincos
 0x80106BE4    100.00%  syslib/psx/libsn/READ    PCread
 0x80106CA4    100.00%  syslib/psx/libsn/OPEN    PCopen
 0x80106CC4    100.00%  syslib/psx/libsn/FSINIT  PCinit
@@ -3349,15 +3349,15 @@ VA             %match  unit                     function
 0x80106F70    100.00%  syslib/psx/libmath/ADDMANT _add_mant_d
 0x80107020    100.00%  syslib/psx/libgpu/P09    TermPrim
 0x80107040    100.00%  syslib/psx/libgpu/P06    AddPrim
-0x80107080     66.13%  syslib/psx/libcd/drv     CD_get_intr
-0x801075DC     80.92%  syslib/psx/libcd/drv     CD_sync
-0x8010785C     82.35%  syslib/psx/libcd/drv     CD_ready
-0x80107B24     77.13%  syslib/psx/libcd/drv     CD_cw
+0x80107080     93.69%  syslib/psx/libcd/drv     CD_get_intr
+0x801075DC     95.53%  syslib/psx/libcd/drv     CD_sync
+0x8010785C     95.66%  syslib/psx/libcd/drv     CD_ready
+0x80107B24     91.52%  syslib/psx/libcd/drv     CD_cw
 0x80107F30     86.32%  syslib/psx/libcd/drv     CD_flush
 0x80108004    100.00%  syslib/psx/libcd/drv     CD_initvol
 0x801080F4    100.00%  syslib/psx/libcd/drv     CD_initintr
 0x80108140     86.67%  syslib/psx/libcd/drv     CD_init_80108140
-0x80108320     80.52%  syslib/psx/libcd/drv     CD_datasync
+0x80108320     92.50%  syslib/psx/libcd/drv     CD_datasync
 0x80108488    100.00%  syslib/psx/libcd/drv     CD_getsector
 0x80108588    100.00%  syslib/psx/libcd/drv     CD_getsector2
 0x80108674    100.00%  syslib/psx/libcd/drv     CD_set_test_parmnum
@@ -3367,14 +3367,14 @@ VA             %match  unit                     function
 0x80108824    100.00%  syslib/psx/libds/DSCB    DsReadyCallback
 0x80108838    100.00%  syslib/psx/libds/DSCB    DsDataCallback
 0x8010885C    100.00%  syslib/psx/libcd/streamhelp StSetMask
-0x8010887C     69.23%  syslib/psx/libcd/cdread  _read_sync
-0x801088B0     93.41%  syslib/psx/libcd/cdread  _read_int
+0x8010887C    100.00%  syslib/psx/libcd/cdread  _read_sync
+0x801088B0     94.14%  syslib/psx/libcd/cdread  _read_int
 0x80108B24     96.06%  syslib/psx/libcd/cdread  _read_data_int
-0x80108BF4     76.07%  syslib/psx/libcd/cdread  _read_issue
+0x80108BF4     87.05%  syslib/psx/libcd/cdread  _read_issue
 0x80108DDC     69.95%  syslib/psx/libcd/cdread  CdRead
-0x80108F78     95.85%  syslib/psx/libcd/cdread  CdReadSync
+0x80108F78     95.82%  syslib/psx/libcd/cdread  CdReadSync
 0x8010907C    100.00%  syslib/psx/libc/C37      toupper
-0x8010908C     93.69%  syslib/psx/libcd/event   CdInit
+0x8010908C    100.00%  syslib/psx/libcd/event   CdInit
 0x8010911C    100.00%  syslib/psx/libcd/event   _cd_event_init
 0x80109158    100.00%  syslib/psx/libcd/event   _cd_event_sync
 0x80109180    100.00%  syslib/psx/libcd/event   _cd_event_ready
@@ -3461,7 +3461,7 @@ VA             %match  unit                     function
 0x8010C0F0    100.00%  syslib/psx/libpad/MCXMAIN _padIntQuery
 0x8010C1C8    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvId
 0x8010C288     96.43%  syslib/psx/libpad/MCXMAIN _padIntRecvHdr
-0x8010C314     54.07%  syslib/psx/libpad/MCXMAIN _padIntRecvData
+0x8010C314     57.08%  syslib/psx/libpad/MCXMAIN _padIntRecvData
 0x8010C698    100.00%  syslib/psx/libgpu/P34    SetDrawMove
 0x8010C6F8    100.00%  syslib/psx/libapi/A07    DeliverEvent
 0x8010C708    100.00%  syslib/psx/libsn/SNREAD  _SN_read
@@ -3485,6 +3485,7 @@ VA             %match  unit                     function
 0x8010CBB0    100.00%  syslib/psx/libcard/A76   StopCARD2
 0x8010CBC0    100.00%  syslib/psx/libcard/END   _ExitCard
 0x8010CC40    100.00%  eaclib/psx/sndpsxz/ssine iSNDsin
+    -         100.00%  eaclib/psx/eacpsxz/stream func_800FC4E4
     -           0.00%  game/common/aih_btccop   func_8005F678
     -           0.00%  game/common/aih_btccop   func_8005F680
     -           0.00%  game/common/aih_btcperp  func_80061370
@@ -3492,11 +3493,10 @@ VA             %match  unit                     function
     -           0.00%  game/common/aih_btcperp  func_800613C4
     -           0.00%  game/common/aih_btcperp  func_800613CC
     -         100.00%  syslib/psx/2mbyte/2mbyte D_800E40D8
-    -           0.00%  syslib/psx/libcard/A74   func_8010C9FC
-    -           0.00%  syslib/psx/libcard/END   D_8010CC30
-    -           0.00%  syslib/psx/libcard/END   D_8010CC3C
-    -           0.00%  syslib/psx/libcard/PATCH func_8010CA40
-    -           0.00%  syslib/psx/libcd/stream  func_800FC4E4
-    -           0.00%  syslib/psx/libetc/INTR_DMA func_80106878
+    -         100.00%  syslib/psx/libcard/A74   func_8010C9FC
+    -         100.00%  syslib/psx/libcard/END   D_8010CC30
+    -         100.00%  syslib/psx/libcard/END   D_8010CC3C
+    -          97.78%  syslib/psx/libcard/PATCH func_8010CA40
+    -          58.02%  syslib/psx/libetc/INTR_DMA func_80106878
     -         100.00%  syslib/psx/libgte/PATCHGTE D_80106518
     -         100.00%  syslib/psx/libgte/PATCHGTE D_80106530

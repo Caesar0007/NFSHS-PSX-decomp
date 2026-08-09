@@ -166,7 +166,16 @@ done:
 }
 
 /* @0x800F79F0 : CdControlF -- fire-and-forget command (no result, fast). */
-extern int CdControlF(unsigned char com, unsigned char *param)
+/* MATCH (w53-a9): PASS 77/77 with the byte-exact Rage Racer shape
+ * (rage-racer-decomp/.../libcd/command_control.c :: CdControlF), its register-asm
+ * pin dropped: (a) the command parameter is an INT, not a u_char -- the oracle
+ * copies it RAW (`addu s3,a0,zero`) and re-masks per use (`andi s2,s3,0xFF`,
+ * `andi a0,s3,0xFF`), which a u_char parameter cannot produce (it masks ONCE at
+ * entry); (b) the two zero-insn identity fences on `cmd` and `command` keep those
+ * copies alive (cse/coalescing otherwise proves cmd == command == the parameter
+ * and deletes them).  Callers pass literal command codes, so the prototype change
+ * is codegen-neutral at every call site.  (a) alone REGRESSES 4->20; both = PASS. */
+extern int CdControlF(int com, unsigned char *param)
 {
     unsigned char *arg;
     int cmd;
@@ -182,6 +191,7 @@ extern int CdControlF(unsigned char com, unsigned char *param)
 
     arg = param;
     cmd = com;
+    __asm__("" : "=r"(cmd) : "0"(cmd));
     retries = 3;
     /* MATCH: the `1` of the `command != 1` test is a NAMED loop invariant here
      * (CdControlF/CdControlB only) -- their oracles hoist it into a callee-saved
@@ -190,6 +200,7 @@ extern int CdControlF(unsigned char com, unsigned char *param)
      * CdControl keeps the literal.  272-lane: F 15->4, B 15->4, both COUNT-EXACT. */
     one = 1;
     command = (unsigned char)cmd;
+    __asm__("" : "=r"(command) : "0"(command));
     base = _cd_param_count;
     savedMode = CD_cbsync;
     offset = command * 4;

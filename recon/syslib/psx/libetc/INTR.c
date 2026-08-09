@@ -339,6 +339,17 @@ extern int RestartCallback(void)       /* @0x800F2DF8 */
     *(unsigned int *)g_dpcr_ptr = cb->saved_dpcr;
     ExitCriticalSection();
     return (int)cb;
+    /* RESIDUAL 1 (w53-a9) -- MECHANISM SOLVED, NEEDS A BUILD-SIDE WIRING, NOT A SOURCE CHANGE.
+     * The single diff is a `nop` the oracle carries between `lw $2,52($s0)` and the
+     * `jal ExitCriticalSection`.  Root cause: OUR cc1 fills the jal's delay slot ITSELF
+     * (it emits the `.set noreorder/nomacro; jal; sw $2,0($3)` block), so gas never sees a
+     * load-use hazard.  Retail's cc1 left the slot to the assembler: with `-fno-delayed-branch`
+     * this exact cc1 emits `lw $2,52($16); #nop; sw $2,0($3); jal ...` in reorder mode -- gas
+     * then inserts the load-use nop AND hoists the `sw` into the jal slot, reproducing the
+     * oracle's `lw; nop; jal; sw` verbatim (A/B'd on the wired 2.7.2 lane, 2026-08-09).
+     * ORCHESTRATOR ACTION: probe a per-fn no-delayed-branch splice (or whole-TU
+     * `no_delayed_branch` measured across all 11 INTR.c fns) for RestartCallback.
+     * No C spelling reaches it -- the slot is filled before the assembler runs. */
 }
 
  IntrState g_intr;   /* owning-TU def (BSS) -- at EOF for type visibility */

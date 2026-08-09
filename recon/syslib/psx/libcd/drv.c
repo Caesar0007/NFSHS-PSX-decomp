@@ -36,11 +36,26 @@
  *   CD_cw 134 -> 90, every other function bit-identical, all 6 PASSes held.  RECOMMENDED for
  *   wiring; no_builtin is inert, no_delayed_branch / no_schedule_insns / no_schedule_insns2
  *   all regress.  (Once wired, the walker-vs-index residual in CD_cw's two param loops goes.)
- * OPEN, NAMED (the single biggest shared residual, ~22 diffs in EACH of CD_sync / CD_ready /
- *   CD_datasync / CD_cw): in the timeout printf the oracle finishes the `intstr[ready]` chain
- *   into a FRESH register before starting the `CD_com` load (`lw v1,0(v0); lui v0; lbu v0,0(v0)`)
- *   while ours issues all three byte loads up front and self-temps the intstr load.  Pure sched1
- *   issue order; a named temp for the ready string (probed) makes it worse (22 -> 61). */
+ * W53-A9 RECEIPT (2026-08-09) -- the w52 "OPEN, NAMED" timeout-printf sched1 block is CRACKED.
+ *   THE LEVER (asymmetric arg splitting; see the block comment in CD_datasync): the READY status
+ *   name as a whole named local, and the SYNC arg's INDEX BYTE ONLY as another -- the sync STRING
+ *   stays inline so its load lands last, exactly as the oracle has it.  That gives the RTL the
+ *   oracle's evaluation order and sched1 then reproduces the whole block.  Measured on
+ *   CD_datasync (gate, count-exact 90/90 throughout): inline 22 | both strings 12 | sync string
+ *   12 | ready string 20 | both index bytes 22 | &intstr[i] slot 12 | READY-string + SYNC-index
+ *   >>> 8 <<< | + syncSlot ptr 12 | + identity/read-only fence on syncIdx 17 (+1 insn) | syncIdx
+ *   hoisted above puts() 53 | ready-assigned-first 20.  Applied to CD_sync (36 -> 22), CD_ready
+ *   (36 -> 22), CD_datasync (22 -> 8).  It does NOT transfer to the shared get_alarm() copy that
+ *   CD_cw inlines (90 -> 93, and 84 -> 87 after the store-flag breaker below) -- different basin.
+ *   RESIDUAL 8 x3, NAMED: one register.  The oracle runs the sync index chain in a SEPARATE
+ *   scratch ($a0: `lbu a0; sll a0; addu a0,a0,s0; lw a3,0(a0)`) while ours self-temps it in the
+ *   arg register ($a3 throughout).  Everything else in the block is byte-identical.  Next angle =
+ *   the local-alloc QTY layer (the whole arg block is ONE basic block, so these are block-local
+ *   qtys, not global allocnos): allocsim/reqdelta on the chain qty vs the $LC5 (format-string)
+ *   qty, which is what currently owns $a0 at allocation time -- the fence route is measured
+ *   NEGATIVE here (+1 insn) and the ref-step re-mask inflator is measured NEUTRAL.
+ * W53-A9 also: CD_cw 90 -> 84 (STORE-FLAG BREAKER on the return, see the tail) and the CdControlF
+ *   PASS in cdcont.c (int command parameter + the RR identity fences). */
 
 typedef int (*CdlCB)(int intr, unsigned char *result);
 
@@ -299,6 +314,10 @@ static inline int _spin_bump(void)
 static inline int get_alarm(void)
 {
     if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+        /* w53-a9 FALSIFIED HERE (90->93, +1 insn): the CD_datasync/CD_sync
+         * split-local lever does NOT transfer to this shared get_alarm() copy
+         * -- CD_cw's inlined instance is 4 insns SHORT of its oracle, i.e. a
+         * different (structural) basin.  Re-probe after CD_cw's count is exact. */
         puts("CD timeout: ");
         printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
                CD_comstr[CD_com], CD_intstr[Intr.sync], CD_intstr[Intr.ready]);
@@ -359,9 +378,17 @@ extern int CD_sync(int mode, unsigned char *result)
     for (;;) {
         int alarm;
         if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            /* MATCH (w53-a9): see CD_datasync -- the "ready" string as a named
+             * local + the "sync" INDEX BYTE as a named local reproduce the
+             * oracle's arg-block schedule (late CD_com lbu, sync string load
+             * last). */
+            int syncIdx;
+            char *readyName;
             puts("CD timeout: ");
+            syncIdx   = intr->sync;
+            readyName = statusNames[intr->ready];
             printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
-                   cmdNames[CD_com], statusNames[intr->sync], statusNames[intr->ready]);
+                   cmdNames[CD_com], statusNames[syncIdx], readyName);
             CD_flush();
             alarm = -1;
         } else {
@@ -427,9 +454,14 @@ extern int CD_ready(int mode, unsigned char *result)
     for (;;) {
         int alarm;
         if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            /* MATCH (w53-a9): see CD_datasync. */
+            int syncIdx;
+            char *readyName;
             puts("CD timeout: ");
+            syncIdx   = intr->sync;
+            readyName = statusNames[intr->ready];
             printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
-                   cmdNames[CD_com], statusNames[intr->sync], statusNames[intr->ready]);
+                   cmdNames[CD_com], statusNames[syncIdx], readyName);
             CD_flush();
             alarm = -1;
         } else {
@@ -468,6 +500,7 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
 {
     volatile CD_intr *ip;
     int i;
+    int ret;
 
     if (CD_debug > 1)
         printf("%s...\n", CD_comstr[com]);
@@ -509,11 +542,27 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
             callback();
     }
     _memcpy8(result, D_8014899C);
-    /* MATCH (w52-a1): the oracle picks the return value with a real BRANCH and a shared
-     * `addu v0,a0,zero` funnel (`li v0,5; bne v1,v0; addu v0,a0,zero; li a0,-1; addu
-     * v0,a0,zero`), i.e. default-then-override -- an arithmetic `-(sync == 5)` compiles
-     * to the branchless `xori; sltiu; negu` triple instead. */
-    return -(Intr.sync == 5);
+    /* MATCH (w52-a1 diagnosed / w53-a9 APPLIED): the oracle picks the return value with a
+     * real BRANCH and a shared `addu v0,a0,zero` funnel (`addu a0,zero,zero; ...; li v0,5;
+     * bne v1,v0; addu v0,a0,zero; li a0,-1; addu v0,a0,zero`), i.e. default-then-override
+     * through a named result var -- an arithmetic `-(sync == 5)` compiles to the
+     * branchless `xori; sltiu; negu` triple instead.
+     * w53-a9 FALSIFICATION: this default-then-override spelling is DIFF-NEUTRAL (90 -> 90) --
+     * so are `if (sync == 5) return -1; return 0;`, the inverted `ret = -1; if (sync != 5)
+     * ret = 0;` and the early-return form: cc1-2.7.2 canonicalizes ALL FOUR back to the
+     * store-flag triple (jump.c folds a single-set guarded block).  Keeping the branched
+     * spelling because it is what the oracle's `li v0,5; bne v1,v0; addu v0,a0,zero` shows;
+     * the STORE-FLAG BREAKER (make the guarded block 2 insns, e.g. a zero-insn fence beside
+     * the store -- catalog w46 fence grammar mode 2) is the named next angle. */
+    ret = 0;
+    if (Intr.sync == 5) {
+        ret = -1;
+        __asm__("" : : "i"(0));   /* STORE-FLAG BREAKER: jump.c's `-(cond)` fold only matches
+                                   * a SINGLE-set guarded block; the zero-insn void-tail fence
+                                   * makes it two, so the oracle's real `li v0,5; bne v1,v0`
+                                   * branch + `addu v0,a0,zero` funnel come back (90 -> 84). */
+    }
+    return ret;
 }
 
 /* @0x80107F30 : CD_flush -- abort and reset the controller interrupt state. */
@@ -669,9 +718,27 @@ extern int CD_datasync(int mode)
     do {
         int status;
         if (VSync(-1) > D_801489B4 || _spin_bump() > spinmax) {
+            /* MATCH (w53-a9): the oracle's arg block issues
+             *   lbu sync; lbu ready; lw name; <ready index+load>; <sync sll>;
+             *   lbu CD_com; <com index+load>; sw ready,16(sp); lw sync-value
+             * i.e. the CD_com byte load comes LATE (after the ready STRING is
+             * already in a register) and the sync STRING load is the very last
+             * insn before the call.  With all four args spelled inline, cc1's
+             * sched1 hoists the CD_com lbu to the head of the load group (all
+             * three byte loads back-to-back) -- 22 diffs.  Splitting the two
+             * "ready" arg into a NAMED local, and the "sync" arg's INDEX BYTE
+             * (only the index -- the string load stays inline so it lands last)
+             * into another, gives the RTL the oracle's evaluation order and
+             * sched1 reproduces the block exactly.  Hoisting the sync STRING
+             * instead (or both strings) pulls its load forward = 12; hoisting
+             * only the ready string = 20; hoisting both index bytes = 22. */
+            int syncIdx;
+            char *readyName;
             puts("CD timeout: ");
+            syncIdx   = intr[0];
+            readyName = intstr[intr[1]];
             printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
-                   comstr[CD_com], intstr[intr[0]], intstr[intr[1]]);
+                   comstr[CD_com], intstr[syncIdx], readyName);
             CD_flush();
             status = -1;
         } else {

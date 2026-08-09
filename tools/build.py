@@ -880,6 +880,11 @@ PER_FN_FLAG_SPLICE_272 = {
         "-fno-schedule-insns2": {"_que_ref", "_install_drain_cb",
                                  "_gpu_arm_timeout"},
     },
+    # w53-a9: cc1 self-fills the jal slot hiding the load-use hazard; with
+    # -fno-delayed-branch gas sees it and emits the oracle's nop verbatim.
+    "recon/syslib/psx/libetc/INTR.c": {
+        "-fno-delayed-branch": {"RestartCallback"},  # 1 -> PASS (a9 cc1-level A/B)
+    },
 }
 
 

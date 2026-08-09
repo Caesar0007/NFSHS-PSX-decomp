@@ -507,6 +507,22 @@ extern int SPCH_AddEvent(unsigned int *table)
                  * cannot costs a second `lui/addiu` PAIR instead of retail's one-insn copy.
                  * NEXT: an instrumented -dl/-dg read to confirm the copy is absent from RTL before
                  * local-alloc (=> an update_equiv_regs question, not a combine_regs one). */
+                /* *** SOLVED w53-a11 (2026-08-09): 3 -> PASS 82/82 with `-fforce-addr`, via the
+                 * EXISTING per-fn dual-compile splice mechanism (build.py PER_FN_FORCE_ADDR).
+                 * WIRING (orchestrator, this worker is barred from tools/):
+                 *     PER_FN_FORCE_ADDR["recon/eaclib/psx/spchpsxz/spchevnt.c"] = {"SPCH_AddEvent"}
+                 * Whole-TU gate under the splice: 15/16 -> 16/16, totaldiffs 3 -> 0, ZERO
+                 * regressions (the splice only rewrites this fn's .ent/.end region).
+                 * MECHANISM -- it is exactly the mechanism the note above named and could not
+                 * reach from C: -fforce-addr makes cc1 force an address into a REGISTER before
+                 * use, so the `la gVoxEvents` lo_sum is generated into its OWN pseudo instead of
+                 * straight into `base`'s (update_equiv_regs never rewrites `base = <addr>`), and
+                 * the `addu $t0,$v0,$zero` copy survives -- retail's missing 82nd instruction.
+                 * The `__asm__("" : : "r"(baseTmp))` use fence above is STILL REQUIRED (dropping
+                 * it under the splice is 5 @81/82); the two cooperate.
+                 * Also probed w53-a11 and NEGATIVE on this fn: PER_FN_NO_THREAD_JUMPS (3, inert).
+                 * Flag axis for the whole TU stays closed (g_value 0/8, -mno-split-addresses,
+                 * cc1_ver 2.8.1 all inert-or-worse, w53-a11 matrix). */
                 if (tick == gLastTick[0])
                     gLastSubTick[0] = gLastSubTick[0] + 1;
                 else

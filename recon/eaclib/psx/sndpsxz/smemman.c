@@ -18,7 +18,7 @@
  * The 6-diff residual (a $v1 -> $a2 swap on the 3-insn `addu/lhu/lhu` address chain at
  * idx 45-47, count-exact) stands as an allocator-coalescing residual.
  */
-/* eaclib/psx/sndpsxz/smemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/4 PASS ***
+/* eaclib/psx/sndpsxz/smemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 4/4 PASS (TU SEALED w53-a11) ***
  *   Source obj : nfs4\eaclib\psx\smemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x801061A8 .. 0x80106238].  The sound system's main-RAM sub-allocator (the `sndmm` pool the
  *   game hands SNDSYS_init) -- a sorted first-fit free-list of up to 128 {block,size} word entries.
@@ -368,18 +368,33 @@ extern int iSNDmalloc(int size)
          * `addiu $a0,$sp,0x10` can no longer float above it -- and (b) the `%hi/%lo` pair cannot sink
          * past the offset.  Both fences are required (one alone = 40/41 vs 24). */
         unsigned short *pb;
-        unsigned short *p2;
+        /* *** MATCH (w53-a11, 2026-08-09): 6 -> PASS 135/135.  THE ENTRY POINTER IS ONE
+         * FUNCTION-SCOPE VARIABLE SHARED BY THE LOOP ARM AND THIS TAIL -- the tail's own
+         * `unsigned short *p2` block-local was the last defect.  MECHANISM (new, generalizes):
+         * a pointer used in exactly ONE basic block is a LOCAL quantity, so local_alloc hands
+         * it the first free hard reg by the numeric scan ($v1 here) and lets the next,
+         * non-overlapping value in the same block REUSE that register.  Writing BOTH sites
+         * through the same `pv` makes the pseudo live in TWO blocks => it is a GLOBAL allocno,
+         * assigned by global.c AFTER local_alloc has taken $v0/$v1, which lands retail's $a2 --
+         * and the `lhu $v0,0($a2)` / `lhu $a0,2($a2)` pair falls out with it.  Cost: zero
+         * instructions (both blocks already had the pointer).  The w50-a7 note's "this is a
+         * local_alloc ALLOCATION-ORDER question, read the -dl qty table" was right about the
+         * pass and wrong about the dial: the fix is not to reorder local_alloc but to LEAVE
+         * ITS SCOPE -- promote the pseudo to global by giving it a second block.  Falsified on
+         * the way (all 6 or worse, in this basin): opacity fence on `j` before the pv add (6),
+         * a distinct opaque 4th qty `q` from `"=r"(q):"0"(j)` (26 -- the 3-QTY-LAW probe), an
+         * unused entry-value temp (6).  DO NOT re-split `pv` into a tail-local. */
         j = i << 2;
         __asm__("" : : "r"(j));
         pb = (unsigned short *)(sndmm_b + 8);
         __asm__("" : : "r"(pb));
-        p2 = (unsigned short *)(j + (int)pb);
+        pv = (unsigned short *)(j + (int)pb);
         /* MATCH (w50-a7): THIRD use fence, the same lever as the loop's `pv` add one block up --
          * keep `j` live PAST the add so the sum takes retail's FRESH `$a2` (`addu $a2,$v0,$v1`)
          * instead of mutating the offset register in place (`addu $a2,$a2,$v1`).  16 -> 8.
-         * Fencing `p2` instead of `j` (or both) is 30 -- it is the OFFSET that must survive. */
+         * Fencing the SUM instead of `j` (or both) is 30 -- it is the OFFSET that must survive. */
         __asm__("" : : "r"(j));
-        block = (int)p2[0] + (int)p2[1];
+        block = (int)pv[0] + (int)pv[1];
         available = (int)pb[-1] - block;
     }
     iSNDmemconstrain(&block, &available);

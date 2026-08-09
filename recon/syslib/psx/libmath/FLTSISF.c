@@ -4,7 +4,15 @@
  *   Ghidra nfs4-f.exe.c, transcribed verbatim.  Round-to-nearest via the +0x40 bias.  Verified vs original
  *   MIPS via Unicorn oracle.  (The neighbouring SetLineF4 @0x800F62D8 is a DIFFERENT obj, not part of FLTSISF.)
  */
-/* MATCH (W53-A12): 32 -> 4 diffs, count EXACT 45/45.  Lane: cc1_272 (unchanged).
+/* MATCH: PASS 45/45 (W55-A4).  Lane: cc1_272 (unchanged).
+ * W55-A4 closed the last 4 by writing the sign+exponent accumulation INTO `exp`
+ * (`exp = sign | exp << 0x17;`) instead of into `sign`.  W53-A12's named angle
+ * was right that the fix had to avoid minting a new pseudo -- the answer was to
+ * reuse an EXISTING one whose register is the target ($v1 = exp).  Measured at
+ * this basin: into-exp = PASS * into-exp with the mantissa first = 2 * split
+ * shift-then-or = 4 * masking mant first = 8 * (W53) into-sign = 4.
+ * ---- W53-A12 history (the 32 -> 4 pass) ----
+ * 32 -> 4 diffs, count EXACT 45/45.
  * The whole 32 was ONE allocno rotation: `exp` sits in $v1 in retail but ours
  * put it in $a1 while the two hoisted loop-bound constants (0xFFFFFF and
  * 0x3FFFFFFF) took $v1.  It is NOT a priority question -- the -dg dump shows
@@ -42,6 +50,11 @@ extern int __floatsisf(int arg1)   /* @0x800F6224 */
     mant = arg1 + 0x40;
     if ((int)mant < 0) { exp = exp + 1; mant = mant >> 8; }
     else               {                mant = mant >> 7; }
-    sign = sign | exp << 0x17;
-    return (int)(sign | (mant & 0xff7fffff));
+    /* W55-A4 SEAL: accumulate the sign+exponent into `exp` ITSELF -- retail's
+     * `or $v1,$a2,$v0` writes exp's own (just-freed) register.  Reusing the exp
+     * pseudo as the destination gets that register WITHOUT minting a new pseudo
+     * (which W53-A12 proved fatal: any fresh result pseudo re-colors the head
+     * and snaps back to 32). */
+    exp = (int)(sign | exp << 0x17);
+    return (int)((unsigned int)exp | (mant & 0xff7fffff));
 }

@@ -472,7 +472,10 @@ PER_TU_FLAGS = {
     # 2.6.0/2.6.3=31 * 2.7.2=10 * 2.8.0/2.8.1=8 * 2.91.66=98 * 2.95.2=90 (the
     # OLD wiring, now the second-worst rung).  84 -> 8.
     "recon/syslib/psx/libmath/MULSF3.c":    {"cc1_alt": "2.8.0"},  # 84->8
-    "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_alt": "2.95.2"},  # 106->96
+    # w55-a4: RE-LADDERED after the in-place-mantissa + branch-polarity landing
+    # (04Z).  New table: 2.6.3=42 * 2.7.2=38 * 2.7.2-970404/2.8.0/2.8.1=49-51 *
+    # 2.95.2=67 (the OLD wiring).  96 -> 38.
+    "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_alt": "2.7.2"},  # 96->38
     # w55-a4: RE-LADDERED after the 05B union/oracle-shape landing (04Z: rung
     # tables are basin-relative).  New table on the landed source: 2.6.0/2.6.3=30
     # * 2.7.2-970404/2.7.2=27 * 2.8.0/2.8.1=28 (count-EXACT 184/184) * 2.91.66=171

@@ -23,69 +23,185 @@ unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1,
 int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
 int           _err_math(int errnum, int code);
 
-/* _mul_mant_d @0x800F65F8 : 32x32->64 unsigned multiply of (a2,a3) via 16-bit lanes -> out[0:1]. */
-int *_mul_mant_d(int *out, unsigned int a2, unsigned int a3)
+/* _mul_mant_d @0x800F65F8 : 32x32->64 unsigned multiply of (x,y) via 16-bit lanes -> out[0:1].
+ * MATCH (W55-A4): 84 -> 18 diffs, count EXACT 59/59 (default lane; 14 on the 2.6.3/2.7.2 rungs,
+ * but those cost __muldf3 +132 so the TU stays on the default).  REWRITE off the oracle -- the
+ * old body was an IDA-verbatim `unsigned long long` transcription emitting 67 insns.
+ * RESIDUAL (18): the VALUE-RELOAD class at both calls (`addu a3,v0,zero` vs retail's
+ * `lw a3,0x20(sp)`, 4), the `sw ra` / `addiu a0,sp,0x18` scheduling picks (4), and the tail's
+ * load/store interleave -- ours hoists `lw sh[0]` above the `mflo`, pushing the product into
+ * $t1 and making the second store use $v0 as base.  FALSIFIED on the tail: a named product
+ * temp (30), swapped store order (15 but 58 insns), `sh[1] = sh[1] + x*y` (18), block-local
+ * lo/hi (23), and five fence placements (13-35, ALL +1 insn -- the void fence at the tail head
+ * scores 13 but breaks count-exactness, so ctrl is kept).
+ * Oracle tells (frame 0x40):
+ *  - locals in address order: 0x18 sh[2] (the running 64-bit sum) | 0x20 add[2] (the shifted
+ *    partial product handed to _add_mant_d, a REAL two-word array: `sw v1,0x24; sw v0,0x20`
+ *    then `lw a3,0x20`), so the addend is NOT an expression at the call.
+ *  - BOTH multiplicands are shifted IN PLACE ($s1 = x, `srl s1,s1,16`; $s0 = y, `srl s0,s0,16`
+ *    in the first jal's delay slot).  Separate hi/lo locals would burn two more callee-saved
+ *    regs; the in-place form is what puts xlo alone in $s2.
+ *  - the low half `x & 0xFFFF` is a NAMED value live across both calls ($s2), the low half of
+ *    y is an anonymous caller-saved temp ($v0) -- i.e. ylo is used twice in a row and dies. */
+int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
 {
-    int          v3 = (unsigned short)a2;
-    unsigned int v4 = (a2 >> 16) & 0xffff;
-    unsigned int v6 = (a3 >> 16) & 0xffff;
-    unsigned long long v11;
-    int sh[2];
+    int sh[2];       /* 0x18 */
+    int add[2];      /* 0x20 */
+    unsigned int xlo, ylo, p;
+
+    xlo = x & 0xFFFF;
+    ylo = y & 0xFFFF;
     sh[1] = 0;
-    sh[0] = (int)((unsigned short)a2 * (unsigned short)a3);
-    v11 = (unsigned long long)(((a2 >> 16) & 0xffff) * (unsigned short)a3) << 16;
-    _add_mant_d(sh, sh[0], 0, (((a2 >> 16) & 0xffff) * (unsigned short)a3) << 16, (int)(unsigned int)(v11 >> 32));
-    v11 = (unsigned long long)((unsigned int)(v3 * v6)) << 16;
-    _add_mant_d(sh, sh[0], sh[1], (unsigned int)(v3 * v6) << 16, (int)(unsigned int)(v11 >> 32));
-    sh[1] += v4 * v6;
+    sh[0] = xlo * ylo;
+    x >>= 16;
+    p = x * ylo;
+    add[1] = p >> 16;
+    add[0] = p << 16;
+    _add_mant_d(sh, sh[0], sh[1], add[0], add[1]);
+    y >>= 16;
+    p = xlo * y;
+    add[1] = p >> 16;
+    add[0] = p << 16;
+    _add_mant_d(sh, sh[0], sh[1], add[0], add[1]);
+    sh[1] += x * y;
     out[0] = sh[0];
     out[1] = sh[1];
     return out;
 }
 
-double __muldf3(int a1, int a2, int a3, int a4)   /* @0x800F62E4 */
+/* MATCH (W55-A4): __muldf3 326 -> 22 diffs, ours 195 / oracle 197.
+ * Lane UNWIRED (was {"cc1_alt": "2.6.3"}).  04Z re-ladder on the landed basin,
+ * whole-TU totals: DEFAULT (CC1PSX+maspsx) = 95+22 = 117 * cc1_alt 2.8.0/2.8.1
+ * byte-identical to default * cc1_272/2.7.2 = 93+154 * 2.6.3 (old wiring) =
+ * 84+154 * 2.91.66 = 106+168 * 2.95.2 = 102+196.  Default wins the TU by 121.
+ *
+ * LANDINGS (each gated): 326 -> 158 the 05B `double` params + `double_long`
+ * union + the whole oracle re-derivation below; 158 -> 153 the final
+ * `_dbl_shift_us` written INSIDE each of the three arms (retail cross-jumps
+ * only the shared `jal`, keeping three copies of the arg setup -- a single
+ * post-join call merges them and loses 5 insns); 153 -> 22 a 05C REF-FENCE
+ * `__asm__("" : : "r"(exp), "r"(sign))` right after `exp = e - 1022`.
+ * The fence's OPERAND SET is the whole dial (measured on 2.8.0):
+ *   none=189 * "r"(e)=98 * "r"(sign)=42 * "r"(e),"r"(sign)=39 *
+ *   "r"(exp),"r"(sign)=22 * adding a third operand=99.
+ * Retail parks `sign` in $fp and `exp` in $s7 and SPILLS the exponent SUM to
+ * 0x50; every under-dialed fence set gives the mirror (e in a reg, exp or sign
+ * spilled).  Falsified on the way: fence at the top of the fn (189), a doubled
+ * e-fence (98), no_schedule_insns / _2 / both / no_strength_reduce /
+ * no_delayed_branch (151/150/134/145/184), and 6 decl/assignment orders for
+ * the tp/up pointer pair.
+ *
+ * RESIDUAL (22, ours 2 insns short):
+ *  (a) VALUE-RELOAD class (6): retail re-LOADS an array element it just stored
+ *      (`lw a2,0x28(sp)` / `lw a3,0x20(sp)`), our cse forwards the live reg
+ *      (`addu a2,t0,zero`).  Identical class to DIVDF3's t[0] and TRUDFSF2's
+ *      residual.  On the 2.6.x/2.7.2 rungs cc1 DOES emit the reload -- it is a
+ *      cse-of-stack-slot version behaviour -- but those rungs cost 130+ diffs
+ *      elsewhere.  NAMED ANGLE: an opacity device that stops cse recording the
+ *      store WITHOUT deleting it (a volatile view on the READ, 05E) -- not
+ *      applied here because a whole-fn measurement of the volatile family was
+ *      out of this wave's budget.
+ *  (b) inner sign test (3): retail `lui s0,0x8000; and; beqz`, ours folds
+ *      `(acc[1] & 0x80000000)` to `bgez`.  FALSIFIED: a shared `signbit`
+ *      variable (31), `== 0x80000000` (22), `(unsigned)x >= 0x80000000u` (22),
+ *      `((unsigned)x & 0x80000000u) != 0u` (22).
+ *  (c) arg4-load ORDER at the two loop `_add_mant_d` sites (4) and two
+ *      reorg delay-slot picks -- same classes as DIVDF3's residual.
+ *
+ * Oracle tells specific to __muldf3 (frame 0x80):
+ *  - entry copies ONLY `a` (`addu $t0,$a0; addu $t1,$a1`) -- `b` keeps its
+ *    $a2:$a3 preference.  That is exactly the __gtdf2 asymmetry (GTDF2.c).
+ *  - the two zero exits are ONE `||` condition, not two ifs: the oracle's
+ *    `bnez v0,<b-test>` / `beqz t0,<zero>` / `bnez v0,<main>` / `bnez a2,<main>`
+ *    chain with the zero block as the FALL-THROUGH is the `&&`-inside-`||`
+ *    short-circuit layout.
+ *  - frame local map == declaration order:
+ *      0x18 acc[2] | 0x20 add[2] | 0x28 am[2] | 0x30 bm[2] | 0x38 t[2] | 0x40 u[2]
+ *    then the COMPILER's own slots: 0x48 = the spilled DFmode result union
+ *    (`sw fp,0x4C; sw zero,0x48` ... `lw v0,0x48; lw v1,0x4C` = a spilled reg
+ *    PAIR loaded into the return pair), 0x50 = the spilled exponent SUM.
+ *  - `t` and `u` are reached through POINTER LOCALS ($s4/$s5: `addu $a0,$s4,$zero`
+ *    at four sites) while `acc` is materialized fresh (`addiu $a0,$sp,0x18`).
+ *  - the two acc-sign tests are spelled DIFFERENTLY: the outer is `acc[1] < 0`
+ *    (`bgez`), the inner is `acc[1] & 0x80000000` (`and`+`beqz`).
+ *  - the rounding addend is the two-word `add[2]` array (`sw zero,0x24;
+ *    sw v0,0x20` then `lw a3,0x20`), never the literals.
+ *  - store order is hi-then-lo per operand (am[1],am[0],bm[1],bm[0]).
+ */
+typedef union {
+    double d;
+    struct { unsigned int lo; int hi; } w;
+} double_long;
+
+double __muldf3(double a, double b)   /* @0x800F62E4 */
 {
-    union { double d; unsigned int w[2]; } u;
-    unsigned int v4 = a2 & 0x80000000 ^ a4 & 0x80000000;
-    int v5;
-    if ((a2 & 0x7FFFFFFF) == 0 && !a1) { u.w[1] = a2 & 0x80000000 ^ a4 & 0x80000000; u.w[0] = 0; return u.d; }
-    if ((a4 & 0x7FFFFFFF) != 0) {
-        v5 = (a2 >> 20) & 0x7FF;
+    double_long ua, ub, ur;
+    int acc[2];   /* 0x18 */
+    int add[2];   /* 0x20 */
+    int am[2];    /* 0x28 */
+    int bm[2];    /* 0x30 */
+    int t[2];     /* 0x38 */
+    int u[2];     /* 0x40 */
+    int *tp, *up;
+    int e, exp;
+    int sign;
+    int ah, bh, al, bl;
+
+    ua.d = a;
+    ub.d = b;
+    sign = (ua.w.hi & 0x80000000) ^ (ub.w.hi & 0x80000000);
+    if (((ua.w.hi & 0x7FFFFFFF) == 0 && ua.w.lo == 0) ||
+        ((ub.w.hi & 0x7FFFFFFF) == 0 && ub.w.lo == 0)) {
+        ur.w.hi = sign;
+        ur.w.lo = 0;
     } else {
-        v5 = (a2 >> 20) & 0x7FF;
-        if (!a3) { u.w[1] = a2 & 0x80000000 ^ a4 & 0x80000000; u.w[0] = 0; return u.d; }
+        e = ((ua.w.hi >> 20) & 0x7FF) + ((ub.w.hi >> 20) & 0x7FF);
+        exp = e - 1022;
+        __asm__("" : : "r"(exp), "r"(sign));   /* 05C ref-fence: see receipt */
+        tp = t;
+        am[1] = (ua.w.hi & 0xFFFFF) | 0x100000;
+        am[0] = ua.w.lo;
+        bm[1] = (ub.w.hi & 0xFFFFF) | 0x100000;
+        bm[0] = ub.w.lo;
+        _dbl_shift_us((unsigned int *)tp, 1, am[0], am[1], 21);
+        ah = t[0];
+        _dbl_shift_us((unsigned int *)tp, 1, bm[0], bm[1], 21);
+        bh = t[0];
+        al = am[0] & 0x1FFFFF;
+        bl = bm[0] & 0x1FFFFF;
+        _mul_mant_d(acc, ah, bh);
+        up = u;
+        _mul_mant_d(up, al, bh);
+        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);
+        _add_mant_d(acc, acc[0], acc[1], t[0], t[1]);
+        _mul_mant_d(up, bl, ah);
+        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);
+        _add_mant_d(acc, acc[0], acc[1], t[0], t[1]);
+        if (acc[1] < 0) {
+            add[1] = 0;
+            add[0] = 0x400;
+            _add_mant_d(acc, acc[0], acc[1], add[0], add[1]);
+            _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
+        } else {
+            add[1] = 0;
+            add[0] = 0x200;
+            _add_mant_d(acc, acc[0], acc[1], add[0], add[1]);
+            if (acc[1] & 0x80000000) {
+                _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
+            } else {
+                exp = e - 1023;
+                _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 10);
+            }
+        }
+        acc[1] &= 0xFFEFFFFF;
+        if (exp >= 2047) {
+            _err_math(34, 13);
+            ur.w.hi = sign ? 0xFFF00000 : 0x7FF00000;
+            ur.w.lo = 0;
+        } else {
+            ur.w.hi = sign | (exp << 20) | acc[1];
+            ur.w.lo = acc[0];
+        }
     }
-    {
-    int v6  = v5 + ((a4 >> 20) & 0x7FF);
-    int v7  = v6 - 1022;
-    int v28 = v6;
-    int v20 = a2 & 0xFFFFF | 0x100000, v19 = a1;
-    int v22 = a4 & 0xFFFFF | 0x100000, v21 = a3;
-    int t1[2], t2[2], acc[2];
-    int v8, v9, v10, v11;
-    unsigned int v12;
-    _dbl_shift_us((unsigned int *)t1, 1, a1, v20, 21);  v8 = t1[0];
-    _dbl_shift_us((unsigned int *)t1, 1, v21, v22, 21); v9 = t1[0];
-    v10 = v19 & 0x1FFFFF;
-    v11 = v21 & 0x1FFFFF;
-    _mul_mant_d(acc, v8, v9);
-    _mul_mant_d(t2, v10, v9);
-    _dbl_shift_us((unsigned int *)t1, 1, t2[0], t2[1], 21);
-    _add_mant_d(acc, acc[0], acc[1], t1[0], t1[1]);
-    _mul_mant_d(t2, v11, v8);
-    _dbl_shift_us((unsigned int *)t1, 1, t2[0], t2[1], 21);
-    _add_mant_d(acc, acc[0], acc[1], t1[0], t1[1]);
-    if (acc[1] >= 0) {
-        _add_mant_d(acc, acc[0], acc[1], 512, 0);
-        if (acc[1] < 0) { _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11); }
-        else            { v7 = v28 - 1023; _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 10); }
-    } else {
-        _add_mant_d(acc, acc[0], acc[1], 1024, 0);
-        _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
-    }
-    v12 = acc[1] & 0xFFEFFFFF;
-    if (v7 < 2047) { u.w[1] = v4 | (v7 << 20) | v12; u.w[0] = acc[0]; }
-    else { int v13; _err_math(34, 13); v13 = 2146435072; if (v4) v13 = -1048576; u.w[1] = v13; u.w[0] = 0; }
-    }
-    return u.d;
+    return ur.d;
 }

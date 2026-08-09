@@ -57,28 +57,51 @@ int _err_math(int errnum, int code);
  * NAMED NEXT ANGLE: the in-place-param spelling above is semantically what retail did but
  * loses on this rung; the productive instrument is now the -dg dump + allocsim on the
  * three-mult block (which allocno owns $t0/$t1 there), not more source permutation. */
+/* MATCH (W55-A4): 84 -> 8 diffs, ours 78 / oracle 80.  Lane RE-WIRED
+ * {"cc1_alt": "2.8.0"} (was 2.95.2 = now the second-worst rung).  04Z table on
+ * the landed basin: 2.6.0/2.6.3=31 * 2.7.2=10 * 2.8.0/2.8.1=8 * 2.91.66=98 *
+ * 2.95.2=90.
+ * LANDINGS: 84 -> 12 the IN-PLACE mantissa rebuild (extract each exponent with
+ * `x >> 23` FIRST, then overwrite the SAME parameter variable with its mantissa
+ * -- retail's `sra $a2,$t0,23` ... `or $t0,$v1,$a0`; the 8-bit exponent masks
+ * land only at the sum, between the mults); 12 -> 8 splitting the fused
+ * `prod = (prod + 0x80) >> 8` into `prod += 0x80; prod >>= 8;` (the TRUDFSF2
+ * compound-assignment lever -- the fused form parks prod+0x80 in its own pseudo).
+ * RESIDUAL (8, ours 2 short): the RESULT FUNNEL -- retail keeps `result` in a
+ * separate pseudo ($t0) with a copy in from the err arm and a copy out to $v0,
+ * ours coalesces both away.  FALSIFIED: accumulating into `sign`, a ternary err
+ * arm, a read-only fence on result, accumulating into `prod` (all 8 or worse).
+ * Same class as DIVSF3's residual and FLTSISF's old one -- there the cure was to
+ * reuse an EXISTING pseudo as the destination; no such candidate exists here. */
 unsigned int __mulsf3(int a1, int a2)   /* @0x800F34B0 */
 {
     unsigned int sign;
     unsigned int result;
     unsigned int prod;
-    int ma, mb, ha, hb;
+    int ha, hb, ea, eb;
     int e, exp;
 
     sign = a1 & 0x80000000 ^ a2 & 0x80000000;
     if ((a1 & 0x7FFFFFFF) == 0 || (a2 & 0x7FFFFFFF) == 0)
         return sign;
-    ma = a1 & 0x7FFFFF | 0x800000;
-    mb = a2 & 0x7FFFFF | 0x800000;
-    ha = ma >> 8;
-    hb = mb >> 8;
-    e = (unsigned char)(a1 >> 23) + (unsigned char)(a2 >> 23);
+    /* W55-A4: retail extracts each exponent (`sra $a2,$t0,23`) BEFORE
+     * overwriting the SAME variable with its mantissa (`or $t0,$v1,$a0` --
+     * an IN-PLACE rebuild of the incoming parameter register), and the
+     * 8-bit masks land only when the exponents are summed. */
+    ea = a1 >> 23;
+    a1 = a1 & 0x7FFFFF | 0x800000;
+    eb = a2 >> 23;
+    a2 = a2 & 0x7FFFFF | 0x800000;
+    ha = a1 >> 8;
+    hb = a2 >> 8;
     prod = ha * hb;
-    prod += ((ma & 0xFF) * hb) >> 8;
-    prod += ((mb & 0xFF) * ha) >> 8;
+    e = (ea & 0xFF) + (eb & 0xFF);
+    prod += ((a1 & 0xFF) * hb) >> 8;
+    prod += ((a2 & 0xFF) * ha) >> 8;
     exp = e - 126;
     if ((prod & 0x80000000) != 0) {
-        prod = (prod + 0x80) >> 8;
+        prod += 0x80;
+        prod >>= 8;
     } else {
         prod += 0x40;
         if ((prod & 0x80000000) != 0) {

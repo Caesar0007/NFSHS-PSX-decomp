@@ -24,73 +24,124 @@ int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, in
 int          *_mainasu(int *out, int a2, int a3);
 int           _err_math(int errnum, int code);
 
-typedef union I64 { double d; long long ll; unsigned long long ull; int w[2]; unsigned int uw[2]; } I64;
+/* MATCH (W55-A4): 347 -> 126 diffs, count EXACT 221/221.  Lane UNCHANGED
+ * {"cc1_alt": "2.7.2-970404"}.  04Z re-ladder on the landed basin: 2.6.0/2.6.3
+ * = 128 * 2.7.2-970404 = 126 (count-exact) * 2.7.2 = 125 (222 insns) *
+ * 2.8.0/2.8.1 = 126 (count-exact) * 2.91.66 = 269 * 2.95.2 = 233.  The wired
+ * 970404 rung stays: it is count-exact and within 1 of the best.
+ *
+ * LANDINGS: 347 -> 138 the 05B `double` params + `double_long` unions + the
+ * 32-bit normalisation tests (the old body compared the 64-bit `union I64`
+ * with `long long` operators -- retail only ever ANDs A[1], the HIGH word);
+ * 138 -> 126 (a) the zero-double spelled as a union with an ARRAY member so
+ * gcc forces it to the frame (retail `sw zero,0x30/0x34` ... `lw v0,0x30;
+ * lw v1,0x34`; the struct form kept it in two registers = 3 wasted insns),
+ * and (b) the SECOND early `return b` spelled `return ub.d` so it uses the
+ * $s0:$s1 copy the way retail does (the FIRST one legitimately still uses the
+ * live $a2:$a3).
+ *
+ * RESIDUAL (126, count exact -- ALL coloring/scheduling): the whole callee-saved
+ * map is rotated one seat (ours {be=$s5, sign=$fp}, retail {be=$s6, sign=$s7,
+ * $s5 = the 0x80000000 constant}), plus the two early-return block placements
+ * (retail keeps `return b` as the FALL-THROUGH of both zero tests) and the
+ * arg4-load order class shared with DIVDF3/MULDF3.  FALSIFIED: seven 05C fence
+ * operand sets at the mantissa-build anchor (sign / be / ae and every pair and
+ * the triple) -- ALL cost +1 insn and +5 diffs on every rung, i.e. this basin
+ * has no slack there.  NAMED NEXT ANGLE: the rotation is one allocation seat,
+ * so the dial is a ref-count change that does NOT add an insn -- a duplicated
+ * `return` var or a loop-depth-weighted extra use (06B "no-asm alternatives"),
+ * not a fence.  Not a floor.
+ * ---- shape notes ----
+ * Same 05B soft-float PAIR shape + oracle re-derivation as DIVDF3.c/MULDF3.c.
+ * Oracle tells (frame 0x60): a -> $s2:$s3, b -> $s0:$s1 (BOTH DFmode pairs land
+ * in EVEN-ALIGNED CALLEE-SAVED pairs because both live across calls); the RESULT
+ * reuses a's pair (`addu v0,s2; addu v1,s3`), i.e. the result union IS `ua`.
+ * Frame local map == declaration order: 0x18 A[2] | 0x20 B[2] | 0x28 rnd[2],
+ * then the spilled zero-double at 0x30.  `B` is reached through a POINTER LOCAL
+ * ($s1 = sp+0x20, `addu a0,s1,zero`) at two sites.  The normalisation tests are
+ * 32-bit on A[1] ONLY (`and v0,v0,0xE0000000`), NOT the 64-bit `long long`
+ * compares the old IDA transcription used -- that alone was worth ~10 insns.
+ * Sign tests are spelled ASYMMETRICALLY, exactly as retail: `ua.w.hi < 0`
+ * (`bgez $s3`) for a, `ub.w.hi & 0x80000000` (`and`+`beqz` against the $s5
+ * constant) for b. */
+typedef union {
+    double d;
+    struct { unsigned int lo; int hi; } w;
+} double_long;
 
-double __adddf3(int a1lo, int a1hi, int a2lo, int a2hi)   /* @0x800F5A54 */
+double __adddf3(double a, double b)   /* @0x800F5A54 */
 {
-    I64 a2, v3, v12, v17;
-    unsigned int v2 = 0;
-    int v4, v6, v7, v8, v10, v11;
-    int vb[2];
-    unsigned int v9;
-    a2.w[0] = a2lo; a2.w[1] = a2hi;
-    v3.w[0] = a1lo; v3.w[1] = a1hi;        /* v3 = a1 */
-    v17.ll = 0;
-    v4 = a2hi;
-    if ((a1hi & 0x7FFFFFFF) == 0 && a1lo == 0) return a2.d;
-    if ((a2hi & 0x7FFFFFFF) != 0 || a2lo) {
-        v6 = (a1hi >> 20) & 0x7FF;
-        v7 = (a2hi >> 20) & 0x7FF;
-        if (v7 + 54 >= v6) {
-            if (v6 + 54 < v7) return a2.d;
-            v12.w[1] = a1hi & 0xFFFFF | 0x100000;
-            v12.w[0] = a1lo;
-            vb[1] = a2hi & 0xFFFFF | 0x100000;
-            vb[0] = a2lo;
-            if (a1hi < 0) _mainasu(v12.w, v12.w[0], v12.w[1]);
-            if (v4 < 0)   _mainasu(vb, vb[0], vb[1]);
-            _dbl_shift(v12.uw, 0, v12.uw[0], v12.w[1], 9);
-            _dbl_shift((unsigned int *)vb, 0, vb[0], vb[1], 9);
-            if (v7 >= v6) {
-                v11 = v7 - v6;
-                v6 = v7;
-                _dbl_shift(v12.uw, 1, v12.uw[0], v12.w[1], v11);
-            } else {
-                _dbl_shift((unsigned int *)vb, 1, vb[0], vb[1], v6 - v7);
-            }
-            _add_mant_d(v12.w, v12.uw[0], v12.w[1], vb[0], vb[1]);
-            if (v12.ll < 0) {
-                v2 = 0x80000000;
-                _mainasu(v12.w, v12.w[0], v12.w[1]);
-            } else if (v12.ll <= 0) {
-                return v17.d;
-            }
-            for (; (v12.ull & 0xE000000000000000ULL) == 0; --v6)
-                _dbl_shift(v12.uw, 0, v12.uw[0], v12.w[1], 1);
-            if ((v12.ull & 0x4000000000000000ULL) != 0) {
-                ++v6;
-                _dbl_shift(v12.uw, 1, v12.uw[0], v12.w[1], 1);
-            }
-            v8 = 255;
-            if ((v12.w[0] & 0x200) != 0) v8 = 256;
-            _add_mant_d(v12.w, v12.uw[0], v12.w[1], v8, 0);
-            if ((v12.ull & 0x4000000000000000ULL) != 0) {
-                ++v6;
-                _dbl_shift(v12.uw, 1, v12.uw[0], v12.w[1], 1);
-            }
-            _dbl_shift(v12.uw, 1, v12.uw[0], v12.w[1], 9);
-            v9 = v12.w[1] & 0xFFEFFFFF;
-            if (v6 < 2047) {
-                v3.w[1] = v2 | (v6 << 20) | v9;
-                v3.w[0] = v12.w[0];
-            } else {
-                _err_math(34, 11);
-                v10 = 2146435072;
-                if (v2) v10 = -1048576;
-                v3.w[1] = v10;
-                v3.w[0] = 0;
-            }
-        }
+    double_long ua, ub;
+    union { double d; int w[2]; } uz;   /* ARRAY member -> gcc forces it to the
+                                         * frame, which is what retail's
+                                         * `sw zero,0x30/0x34` + `lw v0,0x30;
+                                         * lw v1,0x34` return path shows. */
+    int A[2];     /* 0x18 */
+    int B[2];     /* 0x20 */
+    int rnd[2];   /* 0x28 */
+    int *bp;
+    int ae, be, k;
+    int sign;
+
+    uz.w[0] = 0;
+    uz.w[1] = 0;
+    sign = 0;
+    ua.d = a;
+    ub.d = b;
+    if ((ua.w.hi & 0x7FFFFFFF) == 0 && ua.w.lo == 0) return b;
+    if ((ub.w.hi & 0x7FFFFFFF) == 0 && ub.w.lo == 0) return ua.d;
+    ae = (ua.w.hi >> 20) & 0x7FF;
+    be = (ub.w.hi >> 20) & 0x7FF;
+    if (be + 54 < ae) return ua.d;
+    if (ae + 54 < be) return ub.d;
+    A[1] = (ua.w.hi & 0xFFFFF) | 0x100000;
+    A[0] = ua.w.lo;
+    B[1] = (ub.w.hi & 0xFFFFF) | 0x100000;
+    B[0] = ub.w.lo;
+    if (ua.w.hi < 0) _mainasu(A, A[0], A[1]);
+    if (ub.w.hi & 0x80000000) _mainasu(B, B[0], B[1]);
+    _dbl_shift((unsigned int *)A, 0, A[0], A[1], 9);
+    bp = B;
+    _dbl_shift((unsigned int *)bp, 0, B[0], B[1], 9);
+    if (be < ae) {
+        _dbl_shift((unsigned int *)bp, 1, B[0], B[1], ae - be);
+    } else {
+        _dbl_shift((unsigned int *)A, 1, A[0], A[1], be - ae);
+        ae = be;
     }
-    return v3.d;
+    _add_mant_d(A, A[0], A[1], B[0], B[1]);
+    if (A[1] < 0) {
+        sign = 0x80000000;
+        _mainasu(A, A[0], A[1]);
+    } else if (A[1] == 0 && A[0] == 0) {
+        return uz.d;
+    }
+    while ((A[1] & 0xE0000000) == 0) {
+        _dbl_shift((unsigned int *)A, 0, A[0], A[1], 1);
+        ae -= 1;
+    }
+    if (A[1] & 0x40000000) {
+        ae += 1;
+        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
+    }
+    k = 255;
+    if ((A[0] & 0x200) != 0) k = 256;
+    rnd[1] = 0;
+    rnd[0] = k;
+    _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);
+    if (A[1] & 0x40000000) {
+        ae += 1;
+        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
+    }
+    _dbl_shift((unsigned int *)A, 1, A[0], A[1], 9);
+    A[1] &= 0xFFEFFFFF;
+    if (ae >= 2047) {
+        _err_math(34, 11);
+        ua.w.hi = sign ? 0xFFF00000 : 0x7FF00000;
+        ua.w.lo = 0;
+    } else {
+        ua.w.hi = sign | (ae << 20) | A[1];
+        ua.w.lo = A[0];
+    }
+    return ua.d;
 }

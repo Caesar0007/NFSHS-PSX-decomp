@@ -1919,12 +1919,12 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
     iVar4 = (*(*pa_Var3)[0x1e].pfn)
                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
     pSVar10 = &pThis->fVoice;
-    iVar4 = *(int *)(iVar4 + 4);
-    vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(pThis->_base_Speaker).fFrom;
-    pMVar12 = (MobileSpeaker *)&(pThis->_base_Speaker).fReverse;
-    (pThis->_base_Speaker).fTo = iVar4;
     pSVar9 = pSVar10;
-    SPCHNFS_C_A_INTRO(pSVar10,iVar4,(int)vs_KMH_MPH,(SPCHNFSType_REVINTRO *)pMVar12);
+    /* MATCH: fold `fTo = *(iVar4+4)` INTO the a1 arg so the store lands in the
+       jal delay slot (`sw a1,60(s1)`) and a1 loads direct; keep a2(fFrom)/a3(fReverse)
+       inline so gcc loads a1,a2,a3 in order -- the split temp+store form forced a
+       `lw a2/t0 then move a2->a1,t0->a2` arg shuffle. [W55-A16 idiom] */
+    SPCHNFS_C_A_INTRO(pSVar10,(pThis->_base_Speaker).fTo = *(int *)(iVar4 + 4),(int)(pThis->_base_Speaker).fFrom,(SPCHNFSType_REVINTRO *)&(pThis->_base_Speaker).fReverse);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fPerpName;
     SPCHNFS_C_D_PERP_APPREHENSION(pSVar10,(SPCHNFSType_PERP_NAME *)pCVar5);
@@ -1943,12 +1943,9 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       iVar4 = (*(*pa_Var3)[0x1e].pfn)
                         ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
       pSVar10 = &pThis->fVoice;
-      iVar4 = *(int *)(iVar4 + 4);
-      iVar11 = (pThis->_base_Speaker).fFrom;
-      REVINTRO = &(pThis->_base_Speaker).fReverse;
-      (pThis->_base_Speaker).fTo = iVar4;
       pSVar9 = pSVar10;
-      SPCHNFS_C_A_INTRO(pSVar10,iVar4,iVar11,REVINTRO);
+      /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
+      SPCHNFS_C_A_INTRO(pSVar10,(pThis->_base_Speaker).fTo = *(int *)(iVar4 + 4),(pThis->_base_Speaker).fFrom,&(pThis->_base_Speaker).fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       pa_Var3 = (pThis->_base_Speaker)._vf;
       pCVar5 = (Car_tObj *)
@@ -1989,11 +1986,9 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
                          ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
       pSVar10 = &pThis->fVoice;
       pCVar5 = (Car_tObj *)*puVar6;
-      vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(pThis->_base_Speaker).fFrom;
-      pMVar12 = (MobileSpeaker *)&(pThis->_base_Speaker).fReverse;
-      (pThis->_base_Speaker).fTo = (int)pCVar5;
       pSVar9 = pSVar10;
-      SPCHNFS_C_A_INTRO(pSVar10,(int)pCVar5,(int)vs_KMH_MPH,(SPCHNFSType_REVINTRO *)pMVar12);
+      /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
+      SPCHNFS_C_A_INTRO(pSVar10,(pThis->_base_Speaker).fTo = (int)pCVar5,(int)(pThis->_base_Speaker).fFrom,(SPCHNFSType_REVINTRO *)&(pThis->_base_Speaker).fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_S_C_SUPER_COP_CRITICISM(pSVar10);
     }
@@ -2015,12 +2010,9 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       iVar4 = (*(*pa_Var3)[0x1e].pfn)
                         ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
       pSVar10 = &pThis->fVoice;
-      iVar4 = *(int *)(iVar4 + 4);
-      vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(pThis->_base_Speaker).fFrom;
-      pMVar12 = (MobileSpeaker *)&(pThis->_base_Speaker).fReverse;
-      (pThis->_base_Speaker).fTo = iVar4;
       pSVar9 = pSVar10;
-      SPCHNFS_C_A_INTRO(pSVar10,iVar4,(int)vs_KMH_MPH,(SPCHNFSType_REVINTRO *)pMVar12);
+      /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
+      SPCHNFS_C_A_INTRO(pSVar10,(pThis->_base_Speaker).fTo = *(int *)(iVar4 + 4),(int)(pThis->_base_Speaker).fFrom,(SPCHNFSType_REVINTRO *)&(pThis->_base_Speaker).fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       pa_Var3 = (pThis->_base_Speaker)._vf;
       pCVar5 = (Car_tObj *)

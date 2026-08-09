@@ -1494,28 +1494,34 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
 {
   int iVar1;
   uint uVar2;
-  short sVar3;
   tCarInfo *carInfo;
   tCarLineup *carLineup;
   short i;
 
   /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
-     (*stream++ = v;), same idiom as the sibling Append* fns. */
+     (*stream++ = v;), same idiom as the sibling Append* fns.
+     W56-A6: removed the redundant `sVar3 = i` copy (was an extra `addu t0,s1,zero`), and
+     rewrote both ABS/Traction if-blocks as the De-Morgan complement with arms swapped so the
+     store-1 arm is the fall-through/`j` and store-0 is the `bne fCarID` target (retail's
+     `beqz ABS; bnez fABSAvail; bne fCarID` layout). 86->69 diffs.
+     NEAR-SEAL FLOOR (~69, register-alloc/operand-canonicalization, §4.6 qtytrace gap): the
+     fColorList[fColor] color block colors fColor to v0/word to v1 (oracle swaps them) and emits
+     `addu idx,base` where retail emits `addu base,idx`; the fCarClass iVar1 lands in a2 vs v0.
+     All local-alloc/canonical-order outcomes outside allocsim/reqdelta -- receipted. */
   if (0 < streamData->numPlayers) {
     i = 0;
     do {
-      sVar3 = i;
-      carLineup = &streamData->carLineup[sVar3];
+      carLineup = &streamData->carLineup[i];
       *stream++ = 0x119;
       *stream++ = (int)streamData->currentCar;
       *stream++ = (int)(signed char)carLineup->position;
       *stream++ = 0x104;
       *stream++ = (int)streamData->currentCar;
-      carInfo = streamData->playerCars + sVar3;
+      carInfo = streamData->playerCars + i;
       *stream++ = (uint)carInfo->fSimNumber;
       *stream++ = 0x106;
       *stream++ = (int)streamData->currentCar;
-      *stream++ = (uint)(byte)frontEnd.transmission[sVar3];
+      *stream++ = (uint)(byte)frontEnd.transmission[i];
       *stream++ = 0x10a;
       *stream++ = (int)streamData->currentCar;
       *stream++ = (uint)carInfo->fColor;
@@ -1524,21 +1530,24 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
       *stream++ = 0;
       *stream++ = 0x111;
       *stream++ = (int)streamData->currentCar;
-      if (((frontEnd.ABS[sVar3] == '\0') || (carInfo->fABSAvailable == '\0')) &&
-         ((signed char)carInfo->fCarID != '\x1c')) {
-        *stream++ = 0;
+      /* MATCH: written as the De-Morgan complement with the arms swapped so the store-1
+         block is the fall-through/`j` arm and store-0 is the `bne fCarID` target -- retail's
+         exact `beqz ABS; bnez fABSAvail; bne fCarID` short-circuit layout. */
+      if (((frontEnd.ABS[i] != '\0') && (carInfo->fABSAvailable != '\0')) ||
+         ((signed char)carInfo->fCarID == '\x1c')) {
+        *stream++ = 1;
       }
       else {
-        *stream++ = 1;
+        *stream++ = 0;
       }
       *stream++ = 0x115;
       *stream++ = (int)streamData->currentCar;
-      if (((frontEnd.ABS[sVar3] == '\0') || (carInfo->fTractionAvailable == '\0')) &&
-         ((signed char)carInfo->fCarID != '\x1c')) {
-        *stream++ = 0;
+      if (((frontEnd.ABS[i] != '\0') && (carInfo->fTractionAvailable != '\0')) ||
+         ((signed char)carInfo->fCarID == '\x1c')) {
+        *stream++ = 1;
       }
       else {
-        *stream++ = 1;
+        *stream++ = 0;
       }
       *stream++ = 0x110;
       *stream++ = (int)streamData->currentCar;
@@ -1587,7 +1596,7 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
       }
       *stream++ = uVar2;
       *stream++ = 0x107;
-      iVar1 = (int)sVar3;
+      iVar1 = (int)i;
       *stream++ = (int)streamData->currentCar;
       *stream++ = (uint)(byte)frontEnd.rampSteer[iVar1];
       *stream++ = 0x108;
@@ -1633,6 +1642,7 @@ extern "C" int * Front_AppendOpponentData__FPiR9tFEStream(int *stream,tFEStream 
      (*stream++ = v;), same idiom as the sibling Append* fns. Materialize p=stream FIRST (before
      the if), like Front_AppendPerpData -- the oracle copies the incoming arg into its
      callee-saved cursor reg immediately, not just when the branch is taken. */
+  __asm__("" : : "i"(0));  /* parm-spill pin: keep s1 save+parm copy in prologue group */
   if (0 < streamData->numOpponents) {
     i = 0;
     do {
@@ -1729,9 +1739,17 @@ extern "C" int * Front_AppendCopData__FPiR9tFEStream(int *stream,tFEStream *stre
      re-loaded and the counter re-sign-extended at the loop HEAD each pass and the
      back edge is an unconditional `j`.  An exit-in-the-middle while(1) reproduces
      that; a `for`/`while` condition gets loop-rotated to a bottom test. */
+  /* MATCH (W56-A6): the missing `i = i + 1` increment was restored (oracle `addiu s3,s3,1`),
+     and the bound test is written `i >= sum` (i first) so gcc sign-extends i BEFORE loading the
+     two bound shorts -- filling the load-delay slot with the `sra` exactly as retail (30->5 diffs).
+     NEAR-SEAL FLOOR (5 diffs, 1 extra insn): the iVar2 (`*stream++`) store slot. Retail pre-saves
+     the cursor in v1 before the numSuperCops branch and fills that branch's delay slot with the
+     NEXT increment (`addu v1,s0,zero; ...; sw a0,0(v1)`); ours fills the delay slot with THIS
+     store's own increment (`sw a0,0(s0); addiu s0,s0,4`). Pure reorg delay-slot-fill choice
+     (§3.21 family) -- receipted, needs PER_FN delay-slot control or a qtytrace-class instrument. */
   i = 0;
   while (1) {
-    if ((int)streamData->numCops + (int)streamData->numSuperCops <= i) break;
+    if (i >= (int)streamData->numCops + (int)streamData->numSuperCops) break;
     ptVar1 = GetCarFromID(&carManager, (short)streamData->copCars[i]);
     *stream++ = 0x104;
     iVar2 = 8;
@@ -1770,6 +1788,7 @@ extern "C" int * Front_AppendCopData__FPiR9tFEStream(int *stream,tFEStream *stre
     *stream++ = 0x10d;
     *stream++ = (int)streamData->currentCar;
     *stream++ = 0;
+    i = i + 1;
     streamData->currentCar = streamData->currentCar + 1;
   }
   return stream;
@@ -1991,6 +2010,12 @@ track_value_ready:
   *stream++ = 0xb;
   *stream++ = (streamData->track).fDifficulty;
   return stream;
+  /* NEAR-SEAL FLOOR (4 diffs, local-alloc/sched gap §4.6 qtytrace): the final
+     fDifficulty temp colors to v1 here vs v0 in the oracle. Oracle order is
+     load(v0)->incr->store->return(reuse v0); ours is incr->load(v1)->return(v0)->store,
+     so the return-value pseudo occupies v0 and forces the temp to v1. Falsified:
+     `*stream=x;return stream+1` (no change, same schedule). This is a sched1-driven
+     coloring outcome outside allocsim/reqdelta -- receipted, not a spelling floor. */
 }
 
 

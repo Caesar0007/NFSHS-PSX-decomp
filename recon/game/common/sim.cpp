@@ -275,11 +275,21 @@ void Sim_CheckForPause(int checkInput)
 }
 
 /* ---- Sim_MainGameLoop__Fv  [SIM.CPP:554-826] SLD-VERIFIED ---- */
+/* MATCH (W56-A15, 45->31): retail stores the NAMED-ONE constant for InBetween
+ * (InBetween==0 here so `InBetween = one` == `InBetween++`), sharing the `1`
+ * with the `speed == one` compare. `int one;` assigned `one = 1;` at the START
+ * of the else{} block (its materialization position = oracle's `li s0,1`) is the
+ * dial (function-scope `int one = 1;` hoists to prologue -> +2 regress).
+ * RESIDUAL 31 = the oracle splits the two Sim_ProcessSimSchedules() calls across
+ * the else{} block (block-layout: jal#1; j; [else]; jal#2) which our cross-jump
+ * keeps together, cascading a lastRealTick/lastGoalTick s5/s6 -> s6/s7 rotation.
+ * Block-order/permuter floor; polarity already matches (bne speed!=3). */
 void Sim_MainGameLoop(void)
 
 {
   int lastRealTick;
   int lastGoalTick;
+  int one;
   GameSetup_tData *replaySetup;
 
   quitType = 1;
@@ -385,6 +395,7 @@ SimMainLoop_inputDone:
         skipRender = 1;
       }
       else {
+        one = 1;
         do {
           if ((simVar.currentClockTicks & 1U) == 0) {
             SimQueue_SetCurrentInput(simVar.currentClockTicks >> 1);
@@ -392,7 +403,7 @@ SimMainLoop_inputDone:
           InBetween = 0;
           if ((Replay_ReplayMode != 2) ||
               (Replay_ReplayInterface.speed == 2) ||
-              ((Replay_ReplayInterface.speed == 1) &&
+              ((Replay_ReplayInterface.speed == one) &&
                ((simVar.currentClockTicks & 1U) == 0)) ||
               ((Replay_ReplayInterface.speed == 0) &&
                ((simVar.currentClockTicks & 3U) == 0))) {
@@ -404,7 +415,7 @@ SimMainLoop_inputDone:
               Sim_ProcessSimSchedules();
             }
             else {
-              InBetween++;
+              InBetween = one;
               Camera_Update();
             }
           }

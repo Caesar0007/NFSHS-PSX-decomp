@@ -930,6 +930,12 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
     maxMid = maxMid * zoom;
     maxMid = maxMid * 2;
   }
+  /* MATCH: read-only fence raises maxMax+carObj allocno refs so priority order matches SYM
+     (maxMax=s0, carObj=s1, maxMid=s4). Without it gcc colored carObj=s4/maxMid=s1 (60-84 diffs);
+     this single fence took the whole cascade 60->2. Residual = inCarCam=1 rematerialize-vs-copyprop
+     (oracle fresh `li s5,1` in the beqz delay slot; ours copies the shared const-1 from v1 -- catalog F
+     delay-slot reg-reuse class, permuter-reachable, not source-shapable). W56-A14. */
+  __asm__ ("" : : "r"(maxMax), "r"(carObj));
   car.x = (carObj->N).position.x - (Vi->cview).translation.x;
   car.y = (carObj->N).position.y - (Vi->cview).translation.y;
   car.z = (carObj->N).position.z - (Vi->cview).translation.z;
@@ -979,7 +985,6 @@ R3DVis_setNoDetailReturn:
       return -0x80000000;
     }
   }
-  carObj++; carObj--; /* net-zero pair: raises carObj allocno refs (catalog A; best position found, s4->s0) */
   if (inCarCam != 0) {
     (carObj->render).detail = 3;
   }
@@ -1867,6 +1872,10 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   subOtStart = R3DCar_subOtStart;
   uVar20 = R3DCar_InMenu & 0x80;
   iVar9 = uVar20 != 0;
+  /* NEAR-MISS (W56-A14): subOtRow[iVar9]+iVar11 -- oracle sums both scaled indices
+     (gFlip*8 + iVar9*4) THEN adds the R3DCar_subOtStart base LAST (%lo addend materialized
+     late); ours adds base into subOtRow first. FALSIFIED: inlining subOtStart[gFlip][iVar9]
+     -> 14 (worse). Address-materialization-order residual, permuter-class. */
   u_long **subOtRow = subOtStart[gFlip];
   iVar11 = ((carObj->N).objID & 0xfU) * 0x200;
   (carObj->render).sub_ot =
@@ -2031,6 +2040,9 @@ R_ICFtMenu_bigFileCheck:
 R_ICFtMenu_sceneCounterJoin:
   carType = (int)(carObj->render).currentCarType;
   countryFlag = (int)((u_char)(carObj->render).currentCountry >> 7);
+  /* NEAR-MISS (W56-A14): oracle `addiu v1,s3,-22; sltiu s4,v1,6` keeps carType-22 in a
+     caller-saved temp; ours reuses s4(cop_flag) as scratch. FALSIFIED: named `iVar8=carType-0x16`
+     here -> 18 (cascades). Don't-reuse-dest coloring residual, permuter-class. */
   cop_flag = carType - 0x16U < 6;
   if (((R3DCar_InMenu & 0x80U) == 0) && (carType < 0)) {
     (carObj->render).detail = -1;

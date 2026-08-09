@@ -2421,6 +2421,14 @@ stateExecuteAndReturn:
 }
 #endif
 
+/* NEAR-MISS 4 diffs (675/675): two of the three `Newton_SetInitial...` arms
+   reuse memset's return (v0=&trafficOffset) as arg a2 where retail
+   rematerializes `addiu a2,sp,N`.  W56-A16 FALSIFIED: changing arms 2/3 to pass
+   `&trafficOffset` (matching arm 1 which PASSES) regresses frame -104->-112
+   (489 diffs) -- the `offset=memset(...)` capture is frame-layout load-bearing.
+   The remat-vs-reuse is coupled to where `carObj->carIndex*0xa0000`'s multiply
+   result lands (clobber of v0 forces remat in arm 1); coloring, -fno-builtin
+   inert. */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

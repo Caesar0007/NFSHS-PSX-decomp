@@ -24,6 +24,21 @@ void AudioEng_CleanUp(void);
 
 
 /* ---- AudioEng_Set__Fiiiiiiii  [@0x8007b5a8] ---- */
+/* MATCH: FAIL 16 (159/159) -- W56-A13 re-gate.  RESIDUAL = the carType `?:`
+ * arm ORDER + a coupled gas>>6 schedule slip.  Retail lays the
+ * `(esp>>2)+0xc000` arm FIRST (fall-through, ending `j T` w/ addu in the
+ * delay slot) and `esp+0x3333` out-of-line; ours mirrors them (cheap addiu
+ * arm as fall-through).  SOURCE-INVARIANT: `!=`<->`==` ternary flip is
+ * gate-NEUTRAL (gcc fold/jump_optimize canonicalizes COND_EXPR arm
+ * placement independent of spelling), and rewriting as an explicit
+ * if/else STATEMENT with a temp is ALSO neutral (SYM lists NO ternary-temp
+ * local anyway -- players/vol/esp/gas/cam/dop/azi/dir + g/a/s only).
+ * FALSIFIED per-fn flag mechanisms (probed on a build.py copy):
+ * -fno-thread-jumps = no-op (not a thread artifact); -fno-delayed-branch +
+ * -fforce-addr (combined) REGRESS to 22.  Named angle: the arm swap is
+ * gcc's invert_jump/COND_EXPR canonicalization -- needs a jump.c-level
+ * instrument (which-arm-falls-through) or a not-yet-identified cc1 flag;
+ * same family as the 06E local-alloc gap, receipted not floored. */
 void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir)
 {
   AudioEng_t *g;

@@ -58,7 +58,11 @@ void AIHigh_StartUp(void)
       carFlags = carObj->carFlags;
       /* W54-A15: `slot` is the §3.12 #16 hold-a-global-address-across-a-call device; its
          STATEMENT POSITION decides the local-alloc birth order of the la-base qty vs the
-         loop's scaled-index qty (retail: la->$v0, sll->$v1). */
+         loop's scaled-index qty (retail: la->$v0, sll->$v1).
+         RESIDUAL 8 diffs (234/234): base(la) and sll swap v0<->v1 in the held
+         slot-addr computation.  W56-A16 FALSIFIED: moving this stmt to loop-top
+         (before carObj/carFlags) regresses to 28 diffs + count change; current
+         position is the best.  Local-alloc birth-order tie, §4.6 qtytrace gap. */
       slot = &highLevelAIObjs[carLoop];
       if ((carFlags & 0x200U) != 0) {
         AIHigh_BTC_HumanCop *p = operator new(0x8c);

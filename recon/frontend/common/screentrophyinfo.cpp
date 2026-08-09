@@ -21,13 +21,20 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      71 -> 27 diffs, 75/76 insns.  RESIDUAL: retail materializes the screenTrophyRoom
      chain (lui/lw + `->tier` scale) BEFORE the frontEnd.tier/fDefinition chain; swapping
      the two addends of the index sum was measured WORSE (37), so the load order is an
-     emission/statement-position dial that still needs a named angle.  (W55-A15) */
+     emission/statement-position dial that still needs a named angle.  (W55-A15)
+     W56-A10 (27 -> 17): STAGING the index sum into one `uint idx` local (evaluated
+     BEFORE `tourn = fTournaments + idx`) forces the screenTrophyRoom->tier load to
+     emit first -- count-free (75/75, idx is a dying temp).  RESIDUAL (17): the two
+     byte loads (screenTrophyRoom->tier @2 vs frontEnd.tier @212) still emit in the
+     opposite order + downstream v0/v1 coloring; a pure emission-position dial
+     (§4.5 PER_FN_TEXT_MOVES candidate -- source hoist cannot reach past cse/sched1). */
   tTourneyInfo *tourn;
   int placement;
+  uint idx;
 
-  tourn = (tournamentManager.fDefinition)->fTournaments +
-          ((uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-           (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier]);
+  idx = (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier] +
+        (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset;
+  tourn = (tournamentManager.fDefinition)->fTournaments + idx;
   placement = 0;
   if ((u_int)(tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID] - 1) < 3) {
     placement = tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID];

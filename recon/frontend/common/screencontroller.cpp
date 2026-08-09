@@ -64,46 +64,48 @@ SetActuators_clearAndRet:
 void Controller_SetRamp(void)
 
 {
-  int device;
-  int devType;
-  int config;
-  int type_idx;
+  /* MATCH (06A, SYM 8c @0x80043250): the only named locals are `i` (SHORT, loop
+     counter, REG s2), `type` (INT), `config` (INT). device/devType/ctrl_type were
+     Ghidra-fabricated -- inlined so the store constant 1 stays a fresh `li v0,1`
+     (shared by the 3 top-of-body stores) while the comparison constant 1 is the
+     ONE held callee-saved reg (s3) across the calls, exactly as retail. */
   short i;
-  short p;
-  short ctrl_type;
-  uint config_idx;   /* MATCH: byte re-masks (andi 0xff) on every use */
-  
+  int type;
+  int config;
+
   /* MATCH (SLD 794): the oracle re-tests at the TOP of every iteration
      (sll/sra/slti/beqz before the body) -- a plain `for` gets loop-rotated and
      fuses the sign-extend into the address (sra ..,15). */
-  p = 0;
+  i = 0;
   while (1) {
-    if (p >= 2) break;
-    ctrl_type = frontEnd.controlType[p];
+    if (i >= 2) break;
     /* MATCH (SLD 797 = ONE source line): a nested ternary -- the if/else-if
        chain lays the `0` arm out inline, the oracle has it LAST. */
-    type_idx = ctrl_type == 0x23 ? 0 :
-               ((ctrl_type == 0x53 || ctrl_type == 0x73) ? 1 : 2);
-    config_idx = frontEnd.controlConfig[p];
-    frontEnd.rampGas[p] = '\x01';
-    frontEnd.rampBrake[p] = '\x01';
-    frontEnd.rampSteer[p] = '\x01';
-    device = GetPSXPadValue(mappings[config_idx][0][type_idx],0);
-    devType = InGame_GetDevice(device);
-    if (devType == 1) {
-      frontEnd.rampSteer[p] = '\0';
+    type = frontEnd.controlType[i] == 0x23 ? 0 :
+           ((frontEnd.controlType[i] == 0x53 || frontEnd.controlType[i] == 0x73) ? 1 : 2);
+    config = frontEnd.controlConfig[i];
+    /* RECEIPT (W56-A7): residual 26 diffs = gcc LICM hoists the STORE constant 1
+       into a callee-saved reg (s4) as a 3rd loop-invariant, forcing a 7th saved
+       reg (s6); retail hoists ONLY the comparison-1 (s3, used across the 3 calls)
+       and keeps `li v0,1` INSIDE the loop for these 3 stores (v0 local, dies
+       before the first call). Same source shape now matches the SYM 8c local set
+       (i/type/config) but gcc's move_movables cost model hoists one more invariant
+       than retail -- a LICM-selectivity/register-pressure gap (needs the LICM/
+       qtytrace instrument). Falsified: int-vs-char store literal (no change);
+       06A local-set alignment (neutral, still 26). */
+    frontEnd.rampGas[i] = '\x01';
+    frontEnd.rampBrake[i] = '\x01';
+    frontEnd.rampSteer[i] = '\x01';
+    if (InGame_GetDevice(GetPSXPadValue(mappings[config][0][type],0)) == 1) {
+      frontEnd.rampSteer[i] = '\0';
     }
-    devType = GetPSXPadValue(mappings[config_idx][2][type_idx],0);
-    devType = InGame_GetDevice(devType);
-    if (devType == 1) {
-      frontEnd.rampGas[p] = '\0';
+    if (InGame_GetDevice(GetPSXPadValue(mappings[config][2][type],0)) == 1) {
+      frontEnd.rampGas[i] = '\0';
     }
-    devType = GetPSXPadValue(mappings[config_idx][3][type_idx],0);
-    devType = InGame_GetDevice(devType);
-    if (devType == 1) {
-      frontEnd.rampBrake[p] = '\0';
+    if (InGame_GetDevice(GetPSXPadValue(mappings[config][3][type],0)) == 1) {
+      frontEnd.rampBrake[i] = '\0';
     }
-    p = p + 1;
+    i = i + 1;
   }
   return;
 }
@@ -176,7 +178,13 @@ void tScreenControllerConfig::CheckConfigs()
 {
   int arrowDim;   /* MATCH: (fArrowFade < 0x80) computed PER ARM (oracle has an
                      slti in each fade arm sharing ONE bnez at .L80043544) --
-                     a `short animVal` local instead forces lhu + sll/sra. */
+                     a `short animVal` local instead forces lhu + sll/sra.
+     RECEIPT (W56-A7): residual 18 diffs = arrowDim(global allocno, spans arm->
+     shared .L80043544 tail) colored to v0 in ours but v1 in retail; swapCur/
+     ctrlCur then land v1 vs retail's a1/a0. Pure global.c-vs-local_alloc handout
+     (06E gap). Falsified: fFadeController[0]/[1] store-order flip (185!=187 insns,
+     cross-jump over-merges); local decl-order permute (no effect, C++ lane has no
+     version axis). Needs qtytrace (global_alloc QTY_CMP_PRI on arrowDim). */
   int ctrlCur;
   int swapPrev;
   int swapCur;

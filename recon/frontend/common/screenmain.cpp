@@ -300,7 +300,10 @@ void tScreenMain::InitDynamicImages()
           iVar12 = iVar12 + 1;
         } while (iVar12 < (int)(uint)(byte)video2->tileWidth);
       }
-      i = i + 1;
+      /* BUGFIX (W56-A7): the outer video-index counter is iVar7 (indexed at
+         `videos[iVar7]`, tested below) -- the Ghidra output incremented an
+         uninitialised `i` instead, leaving iVar7 stuck at 0 (dead loop). */
+      iVar7 = iVar7 + 1;
     } while (iVar7 < videoWallConfigs[iVar4].numVideos);
   }
   return;

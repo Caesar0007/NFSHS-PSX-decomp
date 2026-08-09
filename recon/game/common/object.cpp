@@ -772,7 +772,11 @@ traffic_object:
          back (both pseudos are provably 0) and the diff count is UNCHANGED at 11.
          The copy therefore is NOT a source-level second variable holding a known
          zero; whatever feeds retail's guard pseudo is not constant-0 to cse.
-         Remaining 2 diffs are the carObj base ($a0 vs $v0) at :779/:780. */
+         Remaining 2 diffs are the carObj base ($a0 vs $v0) at :779/:780.
+         FALSIFIED (W56-A14): inner-shadow `int i;` inside the if-block DOES add the
+         missing copy (count 212->213 exact) but colors the inner loop counter off $a1
+         (32 diffs) -- oracle keeps i in $a1 throughout with ONLY the guard using the a0
+         copy; a scheduling/coloring split, permuter-class re-seed (not spelling). */
       i = 0;
       if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
           (i < Cars_gNumTrafficCars)) {

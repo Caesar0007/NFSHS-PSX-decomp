@@ -2134,7 +2134,13 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
        the fUpgrades test byte in $a0; ours swaps them ($a0 accumulator / $v1 test) --
        a uniform a0<->v1 register-coloring tie-break (§3.15 family). Tried: call
        duplication per branch (worse, 56 diffs -- reverted), ci/carStat declaration
-       reorder (already applied above, helped elsewhere but doesn't move this pair). */
+       reorder (already applied above, helped elsewhere but doesn't move this pair).
+       W56-A4 FALSIFIED: caching `int up = ci->fUpgrades;` (live-range-lengthen to
+       push fUpgrades onto $a0) recolors the head, 27 -> 55 (reverted). The SYM
+       confirms `result` is REG $v1; the off-by-1 (oracle's speculative `sll v0,v1,16`
+       sign-extend in the last `beqz` slot) is a direct consequence of the swap --
+       fix the swap and the slot fills. Needs the QTY-layer instrument, not a spelling
+       sweep. */
     if (gotcar != 0) {
       tCarStatType carStat = remap[j];
       tCarInfo *ci = &carInfo;
@@ -2165,26 +2171,37 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 void tScreenCarSelectTwoPlayer::SetDialog()
 
 {
-  /* MATCH (06A): the SYM 8c block lists exactly ONE named local -- `player`
-     (class REG $16 = $s0, type INT) -- plus the inlined accessors' `this`
-     pseudos.  dlg / sVar2 / fmt / str were Ghidra inventions.  `this` is
-     REGPARM $17 = $s1 and the oracle ADVANCES THAT SAME REGISTER IN PLACE
-     (`addiu s1,s1,928`) to reach the dialog sub-object, which only happens when
-     every access is spelled `this->CarDialog...` -- a `dlg` pointer local gets its
-     own pseudo and leaves `this` un-copied in $a0.  The guard reads fPlayer
-     ANONYMOUSLY and `player` is a second, named read, so cse emits the oracle's
-     `lbu a0,556(v0)` + `addu s0,a0,zero` copy (the copy landing in the beqz
-     delay slot) instead of loading straight into $s0. */
+  /* MATCH (W56-A4): the oracle ADVANCES `this` ($s1) IN PLACE (`addiu s1,s1,928`)
+     to reach the CarDialog sub-object (+0x3A0) and reaches every header field by
+     small displacement (124/126/100) + passes the base to Display.  The BASE-POINTER
+     HOIST is reproduced by a block-local `dlg = &this->CarDialog;` declared AFTER the
+     y_off select (same source position as PinkSlips SetDialog) and used for EVERY
+     access incl. Display -- gcc coalesces dlg with `this` (which is dead after) so it
+     advances in place.  This took the fn 28 -> 11 (the whole store/Display half now
+     byte-matches). RESIDUAL 11 (off-by-1, §3.15 CSE tie, NOT reachable): the guard
+     reads fPlayer ANONYMOUSLY (oracle keeps it transient in $a0, `sll v1,a0,2`) and
+     `player` is a second named read that cse turns into a COPY `addu s0,a0,zero` in
+     the beqz delay slot; our build cse's harder and loads fPlayer straight into $s0,
+     which also lets `this->s1` fill the beqz slot instead of the oracle's early
+     prologue copy.  The a0/s0-vs-s0/slot split is one coupled allocno/CSE decision
+     (guard-index register choice); prior wave already predicted it. */
   int player;
 
   if (FEApp->waitingForOtherPlayer[FEApp->fPlayer] != 0) {
+    short y_off;
+    tDialogBackUpOnly *dlg;
     player = FEApp->fPlayer;
-    this->CarDialog.OffsetX = 0;
-    this->CarDialog.OffsetY = (player == 0) ? -0x3c : 0x3c;
-    this->CarDialog.specificPlayer = (ushort)player;
+    y_off = 0x3c;
+    if (player == 0) {
+      y_off = -0x3c;
+    }
+    dlg = &this->CarDialog;
+    dlg->OffsetX = 0;
+    dlg->OffsetY = y_off;
+    dlg->specificPlayer = (ushort)player;
     sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
-    this->CarDialog.string = "";
-    Display((tDialogBase *)&this->CarDialog);
+    dlg->string = "";
+    Display((tDialogBase *)dlg);
   }
   else {
     Hide((tDialogBase *)&this->CarDialog);

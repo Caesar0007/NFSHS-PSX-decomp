@@ -180,6 +180,18 @@ void FeTools_deinit(void)
 
 
 /* ---- FeTools_FormatMoney  [FETOOLS.CPP:369-377] SLD-VERIFIED ---- */
+/* SYM 8c @0x80026ce0: locals are EXACTLY absnum(REG LONG $10=$s0) + neg(REG CHAR
+   $11=$s1); string REGPARM $12=$s2, amount REGPARM $05=$a1.  So the param `amount`
+   is NEVER reassigned -- retail keeps it in $a1 (dies before the first call) and
+   works the absolute value in a SEPARATE $s0.  (W56-A10: 68->64; the old body
+   reassigned `amount = -amount`, forcing it into $s0 and losing the a1 identity.)
+   RESIDUAL (64, ours 79 / oracle 93): oracle tests `bgez $a1` TWICE (abs guard +
+   sign guard) and holds amount in caller-saved $a1; ours coalesces `absnum=amount`
+   so amount is promoted into $s0 and gcc jump-threads the two `if(amount<0)` into a
+   single `bgez $s0`.  NAMED ANGLE: defeat the absnum<-amount copy-coalesce so amount
+   stays $a1 (06E non-propagated-copy class + jump-thread-merge; needs qtytrace/an
+   uncoalesce dial).  Falsified this basin: two split ifs (merged anyway), single
+   combined if, `-amount` vs `-absnum` (both 64/68). */
 
 void FeTools_FormatMoney(char *string,long amount)
 
@@ -187,29 +199,31 @@ void FeTools_FormatMoney(char *string,long amount)
   char *format;
   int lo;
   int hi;
-  int sign;
-  
-  sign = 0x20;
+  long absnum;
+  char neg;
+
+  neg = 0x20;
+  absnum = amount;
   if (amount < 0) {
-    amount = -amount;
-    sign = 0x2d;
+    absnum = -absnum;
+    neg = 0x2d;
   }
-  if (amount < 1000) {
+  if (absnum < 1000) {
     format = TextSys_Word(0x83);
-    sprintf(string,format,sign,amount);
+    sprintf(string,format,neg,absnum);
   }
   else {
-    if (amount < 1000000) {
+    if (absnum < 1000000) {
       format = TextSys_Word(0x84);
-      hi = amount / 1000;
-      lo = amount % 1000;
+      hi = absnum / 1000;
+      lo = absnum % 1000;
     }
     else {
       format = TextSys_Word(0x85);
-      hi = amount / 1000000;
-      lo = (amount % 1000000) / 1000;
+      hi = absnum / 1000000;
+      lo = (absnum % 1000000) / 1000;
     }
-    sprintf(string,format,sign,hi,lo);
+    sprintf(string,format,neg,hi,lo);
   }
   return;
 }

@@ -52,26 +52,37 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
   int flare_intensity;
   int glintFade;
   
+  /* MATCH: write through the reference directly (oracle keeps the value in $v0:
+     `lw v0; addiu v0,v0,1|5; sw v0`), no held temp -- the `+5` store is gated on
+     `flareextra != 0` exactly as the oracle's `beqz v0,skip-the-store`. */
   if (fSelFade == 0x80) {
-    iVar2 = flareextra + 1;
+    flareextra = flareextra + 1;
   }
-  else {
-    iVar2 = flareextra + 5;
-    if (flareextra == 0) goto DrawLeftFlare_clampFlareExtra;
+  else if (flareextra != 0) {
+    flareextra = flareextra + 5;
   }
-  flareextra = iVar2;
-DrawLeftFlare_clampFlareExtra:
   if (0x3c < flareextra) {
     flareextra = 0;
   }
-  iVar2 = flareextra;
-  if (iVar2 < 0x1f) {
-    iVar2 = iVar2 - (iVar2 >> 0x1f);
+  /* NEAR-MISS 26 (was 74; length now EXACT 87/87).  W56-A5 landed FOUR fixes:
+     (1) the triangle-clamp arms do a SIGNED /2 each (`srl;addu;sra`) laid out as
+     an if/else with the constant-on-left test `0x1e < flareextra` -> the oracle's
+     `slti;bnez` polarity (else=flareextra/2 out-of-line, 0x3c-flareextra inline);
+     (2) DrawShapeExtended arg5/6 are `glintFade` + `(glintFade!=0)` (REAL bug: the
+     old code passed flare_intensity + (flare_intensity!=0) and left glintFade dead
+     -> `sw s3,0x10(sp)`, unsigned `sltu`); (3) the Flare arg3 half is
+     `(flare_intensity + ((u_int)iVar2>>31))>>1` (`srl;addu` not `sra;subu`);
+     (4) the increment writes through the reference directly (oracle keeps it in
+     $v0).  RESIDUAL = a pure local-alloc numbering/coalescing swap in the multiply
+     chain: retail chains /2->+20->product1 IN PLACE in $s1 then product2->$s2,
+     flare_intensity->$s1; ours splits $s1/v0/t1/$s1/$s2.  §4.6 qtytrace gap. */
+  if (0x1e < flareextra) {
+    iVar2 = (0x3c - flareextra) / 2;
   }
   else {
-    iVar2 = (0x3c - iVar2) - (0x3c - iVar2 >> 0x1f);
+    iVar2 = flareextra / 2;
   }
-  iVar2 = ((iVar2 >> 1) + 0x14) * fSelFade * (0x80 - fFadeVal);
+  iVar2 = (iVar2 + 0x14) * fSelFade * (0x80 - fFadeVal);
   if (iVar2 < 0) {
     iVar2 = iVar2 + 0x7f;
   }
@@ -84,8 +95,8 @@ DrawLeftFlare_clampFlareExtra:
     x = TextSys_WordX(0x1de);
     iVar1 = (flare_intensity << 1) >> 0x1f;
     index = (flare_intensity << 1) / 3 + iVar1;
-    Flare_2DHalo(x,y + 5,flare_intensity - (iVar2 >> 0x1f) >> 1,index - iVar1,0x17);
-    DrawShapeExtended(0,0,x - 3,y - 1,flare_intensity,(u_int)(flare_intensity != 0),(tDrawShapeExtended *)0x0);
+    Flare_2DHalo(x,y + 5,(flare_intensity + ((u_int)iVar2 >> 0x1f)) >> 1,index - iVar1,0x17);
+    DrawShapeExtended(0,0,x - 3,y - 1,glintFade,(u_int)(glintFade != 0),(tDrawShapeExtended *)0x0);
   }
   return;
 }
@@ -2775,8 +2786,9 @@ void tUserNameMenuItem::TransitionOn()
 
   {
     short NumberOfRows [6] = { 7, 9, 9, 9, 8, 9 };   /* @0x80010A00 */
+    short *dst = menu_kUserNameRowsA;   /* MATCH: hoist the store-addr lui before the frontEnd.language lbu */
 
-    menu_kUserNameRowsA[0] = NumberOfRows[(u_char)frontEnd.language];
+    dst[0] = NumberOfRows[(u_char)frontEnd.language];
   }
 
   this->fCurrentRow = 0;
@@ -2882,15 +2894,20 @@ int tMemoryCardMenuItem::Draw(bool selected)
   /* SYM AUTO local optimizer-ELIMINATED (disasm: draw passes NULL, slot sp+0x20 unused) */
   tDrawShapeExtended tCol;
   
-  if ((this->fFlags & 1) == 0) {
-    sVar2 = this->fEnableVal + 8;
-  }
-  else {
+  /* MATCH: test `(fFlags & 1) != 0` -> oracle `andi;beqz` (branch-when-clear to the
+     +8 arm, -8 in the fall-through), not the `== 0` -> `bnez` polarity. */
+  if ((this->fFlags & 1) != 0) {
     sVar2 = this->fEnableVal + -8;
   }
+  else {
+    sVar2 = this->fEnableVal + 8;
+  }
   this->fEnableVal = sVar2;
-  sVar2 = this->fEnableVal;
-  fEnableSlide = this->fEnableVal;
+  /* MATCH (05E volatile-test-read): the oracle RE-READS fEnableVal from memory for
+     the clamp (`lhu v1` pass-through default + `lh a0` for the compares) rather than
+     store-forwarding the just-written value (which emits sll/sra sign-extend). */
+  fEnableSlide = *(volatile u_short *)&this->fEnableVal;
+  sVar2 = *(volatile short *)&this->fEnableVal;
   if ((sVar2 < 0x100) && (sVar2 < 1)) {
     fEnableSlide = 0;
   }
@@ -3006,6 +3023,14 @@ void ___31tMenuItemDisplayLeftRightChoice(void *thisp) { ___24tMenuItemLeftRight
 extern "C" {
 void ___20tMenuItemSlidingMenu(void *);
 void ___25tMenuItemSlidingActivated(void *thisp) { ___20tMenuItemSlidingMenu(thisp); }
+}
+
+/* tMemoryCardMenuItem dtor is a delegating thunk to ___23tMenuItemGoToMenuButton
+ * (oracle @0x80020BD8: jal ___23tMenuItemGoToMenuButton) -- was missing entirely
+ * (gate "NOT IN OBJECT").  Same form as ___27tMenuItemGoToMenuButtonFade. */
+extern "C" {
+void ___23tMenuItemGoToMenuButton(void *);
+void ___19tMemoryCardMenuItem(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
 }
 
 extern "C" {

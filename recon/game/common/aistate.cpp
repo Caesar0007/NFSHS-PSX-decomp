@@ -2060,7 +2060,13 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * AFTER the line-1031 direction/desiredDirection stores; our loop-init statements sat
    * BEFORE them, which flipped the sll-vs-la ready-list order.  The read-only fence is a
    * 0-insn +1 ref on iVar2 (5->6 = the floor_log2 step), the MINIMAL reqdelta dial that
-   * swaps iVar2/ppCVar3 onto retail's $a0/$a2 (ours had them reversed). */
+   * swaps iVar2/ppCVar3 onto retail's $a0/$a2 (ours had them reversed).
+   * RESIDUAL 2 diffs (72/72): the `sll v1,a0,2` schedules before the
+   * &Cars_gSortedList base (lui/addiu) in ours, after it in retail -- a pure
+   * sched1 ready-list tie.  W56-A16 FALSIFIED: `&Cars_gSortedList[iVar2]`
+   * index-form is BYTE-IDENTICAL to the `+iVar2` pointer-form (no change);
+   * moving the fence above the ppCVar3 assign regresses (19 diffs).  §4.6
+   * qtytrace gap -- not source-reachable. */
   iVar2 = Cars_gNumCars + -1;
 
   ppCVar3 = Cars_gSortedList + iVar2;

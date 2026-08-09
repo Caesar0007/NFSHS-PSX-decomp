@@ -1041,6 +1041,21 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
 }
 
 /* ---- Physics_CalculateCarAcceleration__FP8Car_tObj  [PHYSICS.CPP:1447-1672] SLD-VERIFIED ---- */
+/* RECEIPT (w56-a12): fixed a real LINK BUG -- the `MAX(flywheelRpm,0)` clamp at
+   cfLbl1 had no macro in scope, so cc1 emitted an implicit variadic `jal MAX`
+   (unresolved symbol; final link would fail) instead of the inline `bgez`
+   clamp.  Replaced with `if (flywheelRpm < 0) flywheelRpm = 0;` (correct bytes).
+   Note: raw diff count moved 217->222 -- the buggy `jal MAX` block boundary
+   happened to align the downstream coloring better (the w46 "broken body scores
+   lower" artifact); 222 is the CORRECT-CODE count.  RESIDUAL (coloring basin):
+   dominant diff = a pervasive s3-vs-s0 global-allocno swap (ours p84=s3 /
+   retail wants it in s0) + the non-propagated reg-reg copy class.  allocsim
+   MATCHES 34/35 (model valid); reqdelta prices the s0 dial as p84 refs 21->26
+   OR p88 refs 11->9 -- NOT landed: retail's FULL handout (that p88 lands s3) is
+   unconfirmed, so a fence risks fixing p84 while breaking p88.  NEXT ANGLE:
+   confirm p88's retail reg from the oracle, then a zero-insn read-only fence on
+   p84's last use.  The cfLbl1 `goto` is load-bearing (skips flywheelRpm=desiredRpm)
+   -- do NOT inline the clamp. */
 int Physics_CalculateCarAcceleration(Car_tObj *carObj)
 
 {
@@ -1128,7 +1143,13 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
     if (damage) {
       carObj->flywheelRpm = carObj->flywheelRpm + -100;
 cfLbl1:   /* @0x800aae38  (-f-build goto label) */
-      carObj->flywheelRpm = MAX(carObj->flywheelRpm,0);
+      /* MATCH (w56-a12): clamp flywheelRpm>=0 inlined -- retail emits
+         `lw; bgez; addu zero; j T (slot sw)`, NOT a `jal MAX`.  The prior
+         `MAX(...)` spelling had no macro in scope => cc1 emitted an implicit
+         variadic `jal MAX` (phantom link symbol + wrong bytes). */
+      if (carObj->flywheelRpm < 0) {
+        carObj->flywheelRpm = 0;
+      }
     }
     else {
       if ((carObj->flywheelRpm < desiredRpm) &&

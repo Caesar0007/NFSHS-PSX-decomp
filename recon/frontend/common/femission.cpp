@@ -19,27 +19,32 @@ void tMissionManager::Initialize()
 
 
 /* ---- tMissionManager::LoadDescription  [FEMISSION.CPP:79-133] ---- */
+/* SYM 8c @0x8003407c: 4 REG locals data(s1) input(s2) numMissions(s5 ULONG)
+   numStages(s3 ULONG) + filename AUTO; mask $803f0000 = 6 saved regs (s0/s4 are
+   the blockmove address temps).  W56-A10: numMissions/numStages typed ULONG per
+   SYM; ptVar2 Ghidra temp inlined (count unchanged).  RESIDUAL (24, count-exact
+   79/79): pure global-allocator priority rotation -- numMissions wants $s5 (lowest
+   priority s-reg) but ours hands it $s0, cascading input/base regs.  §4.6
+   local-alloc/global-QTY class: de-prioritized until the qtytrace lane exists. */
 void tMissionManager::LoadDescription(bool LoadHotPursuit)
 
 {
   byte bVar1;
-  tAcademyDefinition *ptVar2;
   char *data;
   char *input;
-  int numStages;
-  int numMissions;
+  unsigned long numStages;
+  unsigned long numMissions;
   char filename [80];
-  
+
   sprintf(filename,"%s%s",Paths_Paths[0x25],
           frontEnd.gameMode != '\x01' ? "zHPurs.mis" : "zHPurs2.mis");
   data = (char *)loadfileadr(filename,0x10);
   this->fNumTiers = *data;
-  numMissions = *(int *)(data + 4);
-  numStages = *(int *)(data + 8);
+  numMissions = *(unsigned long *)(data + 4);
+  numStages = *(unsigned long *)(data + 8);
   input = data + 0xc;
   if (this->fDefinition == (tAcademyDefinition *)0x0) {
-    ptVar2 = reservememadr("Missions",0x3120,0);
-    this->fDefinition = ptVar2;
+    this->fDefinition = (tAcademyDefinition *)reservememadr("Missions",0x3120,0);
   }
   blockmove(input,this->fDefinition,(uint)(byte)this->fNumTiers << 2);
   bVar1 = this->fNumTiers;

@@ -338,6 +338,15 @@ void AudioMus_SetCurrentSongInfo(void)
 }
 
 /* ---- AudioMus_Server__Fii  [@0x8007a3d0] ---- */
+/* MATCH: FAIL 10 (300/300) -- W56-A13 re-gate.  RESIDUAL = a pure v0<->v1
+ * LOCAL-alloc swap on the random-song modulo chain (`mfhi vN; addu vN,s2,vN;
+ * div zero,vN,s0; bne vN,at,T`): retail keeps it in v1, ours in v0.  Both
+ * are caller-saved temps = LOCAL allocnos, outside allocsim's global model
+ * (allocsim MATCHes 17/17 on the global handout -- validated, the swap is
+ * not there).  06E qtytrace-blocked: gcc-2.8 local-alloc.c QTY birth/death
+ * ordering is the only thing that picks v0 vs v1 here and no source spelling
+ * reaches it.  DE-PRIORITIZED per AGENT_GUIDE 4.6 until the qtytrace lane
+ * exists; receipted, not floored. */
 int AudioMus_Server(int mode,int ticks)
 {
   int buffered;

@@ -541,6 +541,15 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
 
       nextCarIndex = this->positionVSCopList_[pos + -1].carIndex;
 
+      /* NEAR-MISS 2 diffs (85/87): retail keeps a defensive `blez s0` (this
+         `if(pos<1)break;`, the 2nd of 3 pos<=0 guards) that our build's
+         cse/jump.c deletes -- it proves pos>0 from the outer `if(0<pos)` +
+         `while(0<pos)`.  W56-A16 FALSIFIED: identity-fence `("":"=r"(pos):
+         "0"(pos))` here forces a real copy on the cross-block pseudo pos
+         (regress 2->34, +6 callee-saved shuffle); per-fn -fno-thread-jumps
+         splice is INERT (probed via monkeypatched build.py: still 85/87) --
+         the deletion is a cse/redundant-branch pass, not thread_jumps.  Needs
+         a value-range-opaque cse-invalidation the fence toolkit lacks. */
       if (pos < 1) break;
 
       if (nextCopIndex != -1) {

@@ -404,44 +404,35 @@ tScreenCongrats::~tScreenCongrats()
 void tScreenPinkSlipCongrats::DrawCongratsMessage()
 
 {
-  char *fmt;
-  char *name1;
-  char *word;
-  char *name2;
+  /* SYM 8c @0x80048B48: the ONLY locals are `RECT r` (AUTO -0x120) and
+     `char buffer[250]` (AUTO -0x118); `this` is REGPARM $13 = $s3.  The four
+     char* temps the earlier recon carried (fmt/name1/word/name2) are Ghidra
+     fictions -- retail spells the four helper calls INLINE in the sprintf
+     argument list, so their results live in whatever callee-saved regs the
+     allocator hands out ($s2/$s1/$s0), and `this` keeps $s3.  (W55-A15) */
   RECT r;
   char buffer [250];
 
-  /* @0x80048B54-70: oracle materializes a real RECT{x=0x29,y=0x3C,w=0x1A4,h=0xC8} local (same idiom
-   * as the sibling DrawCongratsMessage fns) -- the prior recon's `RECT *r = (RECT*)(int)this->fWinner`
-   * was a bogus reuse of an int-scratch cast, dropping the real RECT init AND corrupting the
-   * `1-fWinner` PlayerName arg (computed as `1-(int)r` through the fake pointer). */
+  /* @0x80048B54-70: oracle materializes a real RECT{x=0x29,y=0x3C,w=0x1A4,h=0xC8} local. */
   r.x = 0x29;
   r.y = 0x3c;
   r.w = 0x1a4;
   r.h = 200;
-  /* @0x80048B88-90: oracle's compare is `sltiu` (unsigned), not `slti` (signed) -- the classic
-   * range-check idiom `(unsigned)(x-lo) < (hi-lo+1)` forces an unsigned subtract+compare. */
+  /* @0x80048B88-90: oracle's compare is `sltiu` (unsigned) -- the range-check idiom. */
   if ((uint)((byte)frontEnd.language - 2) < 2) {
-    fmt = TextSys_Word(0x275);
-    name1 = PlayerName((int)this->fWinner);
-    /* fCarID is a shared-header plain `char` (unsigned by platform default); oracle reads it
-     * SIGNED (`lb`) here. */
-    word = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
-    name2 = PlayerName(1 - this->fWinner);
+    sprintf(buffer,TextSys_Word(0x275),PlayerName((int)this->fWinner),
+               TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121),
+               PlayerName(1 - this->fWinner),this->fWinner + 1);
   }
   else {
-    fmt = TextSys_Word(0x275);
-    name1 = PlayerName((int)this->fWinner);
-    word = PlayerName(1 - this->fWinner);
-    name2 = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
+    sprintf(buffer,TextSys_Word(0x275),PlayerName((int)this->fWinner),
+               PlayerName(1 - this->fWinner),
+               TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121),
+               this->fWinner + 1);
   }
-  fmt = (char *)sprintf
-                             (buffer,fmt,name1,word,name2,this->fWinner + 1);
-  /* oracle's 3rd arg is a LITERAL `li a2,1` (=textState_Selected) materialized right at the call,
-   * not an early-assigned `fade` local kept live across the if/else (that shared-liveness forced
-   * the same register to also serve the branches' `1-fWinner` literal, an oracle mismatch). */
-  FETextRender_WordWrapText
-            (fmt,r,textState_Selected,textType_PostGame);
+  /* @0x80048C34: WordWrapText's 1st arg is `addiu a0,sp,0x20` = BUFFER, not sprintf's
+     return value (the old `fmt = (char *)sprintf(...)` funnel was a transcription bug). */
+  FETextRender_WordWrapText(buffer,r,textState_Selected,textType_PostGame);
   return;
 }
 
@@ -493,9 +484,21 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   if ((signed char)carinfo.fSpeechCarID != -1) {
     /* @0x80048D84-8C: oracle adds 0x13 to fWinner FIRST (`lh v0,388;addiu v0,19`), THEN adds the
      * doubled speech-car-id (`addu v1,v1,v0`) -- explicit grouping to match that addition order. */
+    /* MATCH (W55-A15): accumulate IN PLACE into the doubled-speech-id local so the sum's
+       destination is that dying register (oracle `addu v1,v1,v0`).  That also stops
+       cross_jump from merging the two arms' `sw ...,372` stores (post-reload merge needs
+       both arms in the SAME hard reg), reproducing the oracle's per-arm store -- the
+       arm-1 copy lands in the `j` delay slot. */
     int base = this->fWinner + 0x13;
 
     this->fSpeechToPlay = base + (signed char)carinfo.fSpeechCarID * 2;
+    /* W55-A15 residual 3: the oracle DUPLICATES the `sw ...,0x174` store per arm (arm-1's copy
+       rides the `j` delay slot) because arm-1's sum lands in $v1 (dest = the dying doubled-id
+       reg) while the else arm's lands in $v0; ours coalesces both to $v0 so post-reload
+       cross_jump merges the stores (-1 insn).  Falsified at this basin: <<1 vs *2, both operand
+       orders, flat 3-term forms, a named product temp, a named speech accumulator (12-14), and
+       void-tail fences in/after the else arm (13/14).  Per w44 this is the "cross-jump merge is
+       an ALLOCATION artifact" class -- unreachable until the $v0/$v1 rotation is dialled. */
   }
   else {
     this->fSpeechToPlay = this->fWinner + 0x17;

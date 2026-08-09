@@ -530,8 +530,7 @@ void tDialogMessageString::Draw()
   int idx;
   RECT r;
   
-  pa_Var1 = this->_vf;
-  (*pa_Var1[1][0].pfn)((int)this + pa_Var1[1][0].delta);
+  (*(this->_vf)[1][0].pfn)((int)this + (this->_vf)[1][0].delta);
   if (ticks[0] < this->startTicks + 0x32) {
     this->fFullyOpen = 0;
   }
@@ -549,9 +548,10 @@ void tDialogMessageString::Draw()
     }
     FETextRender_SetABR(1,true);
     if (this->Centerit != 0) {
+      int halfw = (int)((u_int)(u_short)this->width << 0x10) >> 0x11;
+
       FETextRender_FullTextRGB(this->string,
-                 (short)(((u_int)(u_short)this->left +
-                         ((int)((u_int)(u_short)this->width << 0x10) >> 0x11)) * 0x10000
+                 (short)(((u_int)(u_short)this->left + halfw) * 0x10000
                         >> 0x10),this->top + 8,col,'\0',2);
     }
     else {
@@ -671,20 +671,24 @@ short tDialogInteractive::Run()
 void tDialogYesNo::CalculateDimensions()
 
 {
-  short sVar1;
-  int iVar2;
   
+  int iVar2;
+
+  /* MATCH (W55-A15, 20->PASS): retail mutates the FIELD in place in BOTH arms
+     (`lhu v0,108(s0); addiu v0,v0,15; sh v0,108(s0)`), so the height read's own
+     register is the sum's destination and post-reload cross_jump merges the two
+     arms' identical stores into the oracle's single `sh`.  Routing the result
+     through a `short sVar1` funnel + one trailing store gives the sum a FRESH
+     destination and rotates the whole magic-divide block ($v0/$v1/$a0). */
   ((tDialogMessageString *)this)->CalculateDimensions();
   if (this->MaxH == 0) {
     iVar2 = ticks[0] - this->startTicks;
     if (iVar2 < 0x32) {
-      sVar1 = this->height +
-              (short)((iVar2 * 0xf) / 0x32);
+      this->height = this->height + (short)((iVar2 * 0xf) / 0x32);
     }
     else {
-      sVar1 = this->height + 0xf;
+      this->height = this->height + 0xf;
     }
-    this->height = sVar1;
     this->reservedheight = 0xf;
     this->top =
          this->OffsetY +

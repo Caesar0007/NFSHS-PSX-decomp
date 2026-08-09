@@ -11,55 +11,43 @@ char secChar[6] = { '.',':','.','.','.','.' };   /* centisecond seps */
 void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 
 {
-  short curIdx;
-  int *nTemp;
-  int j;
-  short *pIdx;
-  int *pValScan;
+  /* SYM 8c @0x8004A868: nNumber REGPARM $11=$s1, nInput $13=$s3, nIndex $12=$s2;
+     locals are EXACTLY i($06) j($10) nADummy($08) nBDummy($0b) nTemp($04) -- the
+     walking pointers in the Ghidra body (pIdx/pVal/pIdxScan/pValScan) are compiler
+     GIVs, not source variables, so this is the index-form insertion sort.  (W55-A15)
+     Two further levers were needed for the SYM's 4-saved-reg mask ($800f0000, fsize 40):
+       * `i = 0;` BEFORE the reservememadr call -- that makes i CALL-CROSSING, so it gets a
+         callee-saved home ($s0) instead of the caller-saved $t0 a post-call init lands in;
+       * the explicit `if (nNumber != 1)` wrapper -- the oracle really does test `beq $s1,1`
+         ahead of the ordinary `slt` zero-trip guard, and no `for` spelling emits it.
+     108 -> 2 diffs, count-exact 77/77.  RESIDUAL (1 insn): ours `addu $s0,$v0,$zero` copies
+     the guard's live `li $v0,1` into i where retail re-materializes `li $s0,1` -- the
+     still-live-constant / delete_noop_moves identity (methodology 3.25-3b).  Falsified at
+     this basin: i=1 hoisted above the guard, i=1 inside the guard, guard spelled against i. */
   int i;
-  int *pVal;
-  short *pIdxScan;
-  int cur;
-  
-  nTemp = (int *)reservememadr("TempSort",(nNumber + 1) * 4,0x10);
+  int j;
+  int nADummy;
+  int nBDummy;
+  int *nTemp;
+
   i = 0;
-  pIdx = nIndex;
-  pVal = nTemp;
-  if (0 < nNumber) {
-    do {
-      *pIdx = (short)i;
-      j = *nInput;
-      nInput = nInput + 1;
-      i = i + 1;
-      *pVal = j;
-      pIdx = pIdx + 1;
-      pVal = pVal + 1;
-    } while (i < nNumber);
+  nTemp = (int *)reservememadr("TempSort",(nNumber + 1) * 4,0x10);
+  while (i < nNumber) {
+    nIndex[i] = (short)i;
+    nTemp[i] = nInput[i];
+    i++;
   }
-  i = 1;
-  if ((nNumber != 1) && (pVal = nTemp, pIdx = nIndex, 1 < nNumber)) {
-    do {
-      j = i + -1;
-      cur = pVal[1];
-      curIdx = pIdx[1];
-      if (-1 < j) {
-        pIdxScan = nIndex + j;
-        pValScan = nTemp + j;
-        do {
-          if (*pValScan <= cur) break;
-          pValScan[1] = *pValScan;
-          pValScan = pValScan + -1;
-          j = j + -1;
-          pIdxScan[1] = *pIdxScan;
-          pIdxScan = pIdxScan + -1;
-        } while (-1 < j);
-      }
-      i = i + 1;
-      nTemp[j + 1] = cur;
-      nIndex[j + 1] = curIdx;
-      pVal = pVal + 1;
-      pIdx = pIdx + 1;
-    } while (i < nNumber);
+  if (nNumber != 1) {
+  for (i = 1; i < nNumber; i++) {
+    nADummy = nTemp[i];
+    nBDummy = nIndex[i];
+    for (j = i - 1; j >= 0 && nADummy < nTemp[j]; j--) {
+      nTemp[j + 1] = nTemp[j];
+      nIndex[j + 1] = nIndex[j];
+    }
+    nTemp[j + 1] = nADummy;
+    nIndex[j + 1] = (short)nBDummy;
+  }
   }
   purgememadr(nTemp);
   return;
@@ -69,15 +57,23 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 void Stattool_ParseTime(int nTime,char *sLapTime)
 
 {
+  /* MATCH (W55-A15, 56 -> PASS): retail keeps the SECOND remainder as its own
+     statement before the sprintf -- the oracle's "subu $t2,$t2,$v1" lands BEFORE
+     the two minChar/secChar lbu loads, mutating the nTime REGPARM in place.
+     Folding it into the last sprintf argument sinks the whole sec*100 multiply
+     chain past those loads and pushes nTime off its SYM-declared home
+     (8c block @0x8004A99C: nTime REGPARM $0a = $t2, sLapTime REGPARM $10 = $s0,
+     and ZERO declared locals -- min/sec are compiler temps). */
   short min;
   short sec;
-  
+
   nTime = (int)((float)nTime / 0.64f);
   min = nTime / 6000;
   nTime = nTime - min * 6000;
   sec = nTime / 100;
+  nTime = nTime - sec * 100;
   sprintf(sLapTime,"%02d%c%02d%c%02d",min,(uint)(byte)minChar[(byte)frontEnd.language],sec,
-             (uint)(byte)secChar[(byte)frontEnd.language],(short)(nTime - sec * 100));
+             (uint)(byte)secChar[(byte)frontEnd.language],(short)nTime);
   return;
 }
 

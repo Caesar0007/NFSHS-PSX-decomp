@@ -247,7 +247,15 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
      ONE sign-extended value feeds both the compare and the sprintf arg (oracle
      `addu $a2,$v0,$zero`), while the fPreviousTrack store RE-READS the field
      (the two calls may alias).  fPreviousTrack is a signed short -> `lh`. */
-  int trackID = (signed char)trackInfo.fTrackID;
+  /* MATCH (W55-A15, 12 -> 9, count 42/43): retail does NOT fuse the sign-extension into
+     an `lb` -- the oracle reads `lbu` then `sll 24 / sra 24`.  Per the volatile-QImode law
+     a volatile QImode MEM cannot be combined with its sign_extend, so the volatile u_char
+     view + explicit shift chain reproduces it (a plain `(signed char)` cast folds to `lb`).
+     RESIDUAL (1 insn): retail keeps trackID in $v0 and COPIES it to the sprintf arg
+     (`addu $a2,$v0,$zero` in the jal delay slot); ours coalesces trackID straight into
+     $a2 so no copy is minted.  Falsified here: an identity fence on trackID (count-exact
+     43/43 but 16 diffs), a two-statement shift split, and Yoda compare order. */
+  int trackID = ((int)(*(volatile u_char *)&trackInfo.fTrackID) << 24) >> 24;
 
   if (trackID != this->fPreviousTrack) {
     sprintf(gSwapFileName,"TR%02dPS",trackID);

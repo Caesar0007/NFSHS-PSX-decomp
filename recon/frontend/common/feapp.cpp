@@ -525,14 +525,12 @@ void tFEApplication::RunDemoVideo()
   if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs[0]->menuMain) {
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);
-    pa_Var2 = this->fCurrentMenu[0]->_vf;
-    (*(*pa_Var2)[5].pfn)((int)this->fCurrentMenu[0]->fItemList + (*pa_Var2)[5].delta + -0x10);
+    (*(*this->fCurrentMenu[0]->_vf)[5].pfn)((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[5].delta + -0x10);
     (this->fCurrentScreen[0])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     while( true ) {
-      pa_Var2 = this->fCurrentMenu[0]->_vf;
       bVar1 = false;
-      iVar3 = (*(*pa_Var2)[7].pfn)
-                        ((int)this->fCurrentMenu[0]->fItemList + (*pa_Var2)[7].delta + -0x10);
+      iVar3 = (*(*this->fCurrentMenu[0]->_vf)[7].pfn)
+                        ((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[7].delta + -0x10);
       if ((iVar3 == 0) ||
          (pa_Var4 = this->fCurrentScreen[0]->_vf,
          iVar3 = (*(*pa_Var4)[8].pfn)
@@ -544,9 +542,8 @@ void tFEApplication::RunDemoVideo()
       this->Redraw();
       FeAudio_systemtask(0);
     }
-    pa_Var4 = this->fCurrentScreen[0]->_vf;
-    (*(*pa_Var4)[7].pfn)
-              ((this->fCurrentScreen[0]->fPermShapes).fFilename + (*pa_Var4)[7].delta + -0x14);
+    (*(*this->fCurrentScreen[0]->_vf)[7].pfn)
+              ((this->fCurrentScreen[0]->fPermShapes).fFilename + (*this->fCurrentScreen[0]->_vf)[7].delta + -0x14);
     Audio_FECleanUp();
     Audio_DeInitDriver();
     PSXFront_FreeDrawMemory();
@@ -565,13 +562,10 @@ void tFEApplication::RunDemoVideo()
     this->UpdateMusic();
     AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
     gLargestUnused[0] = largestunused();
-    pa_Var2 = this->fCurrentMenu[0]->_vf;
-    (*(*pa_Var2)[2].pfn)((int)this->fCurrentMenu[0]->fItemList + (*pa_Var2)[2].delta + -0x10);
-    pa_Var4 = this->fCurrentScreen[0]->_vf;
-    (*(*pa_Var4)[6].pfn)
-              ((this->fCurrentScreen[0]->fPermShapes).fFilename + (*pa_Var4)[6].delta + -0x14);
-    pa_Var2 = this->fCurrentMenu[0]->_vf;
-    (*(*pa_Var2)[6].pfn)((int)this->fCurrentMenu[0]->fItemList + (*pa_Var2)[6].delta + -0x10);
+    (*(*this->fCurrentMenu[0]->_vf)[2].pfn)((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[2].delta + -0x10);
+    (*(*this->fCurrentScreen[0]->_vf)[6].pfn)
+              ((this->fCurrentScreen[0]->fPermShapes).fFilename + (*this->fCurrentScreen[0]->_vf)[6].delta + -0x14);
+    (*(*this->fCurrentMenu[0]->_vf)[6].pfn)((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[6].delta + -0x10);
     (this->fCurrentScreen[0])->TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     currentVideo = (currentVideo + 1) % 3;
   }

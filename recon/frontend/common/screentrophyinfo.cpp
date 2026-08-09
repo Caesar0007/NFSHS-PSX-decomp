@@ -10,30 +10,36 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  byte tournOffset;
+  /* SYM 8c @0x80041008: the ONLY declared local is `tTourneyInfo *tourn` (REG $05); the
+     tournOffset/curTourn/placement temps in the Ghidra body are compiler temps.  Crucially
+     `tourn` is the ELEMENT pointer, not the array base -- the oracle folds the whole
+     `fTournaments + idx*84` (plus the +0x24 field offset of fTournaments inside the
+     definition) into ONE address and reuses it for both the fTournamentID load and the
+     GetTrophyName argument; indexing an array-base `tourn[off+cur]` duplicates the
+     index math (ours was 87 insns vs the oracle's 76).  fTournamentID is read SIGNED
+     (`lb`) -- the shared-header plain `char` is unsigned on this build, hence the cast.
+     71 -> 27 diffs, 75/76 insns.  RESIDUAL: retail materializes the screenTrophyRoom
+     chain (lui/lw + `->tier` scale) BEFORE the frontEnd.tier/fDefinition chain; swapping
+     the two addends of the index sum was measured WORSE (37), so the load order is an
+     emission/statement-position dial that still needs a named angle.  (W55-A15) */
   tTourneyInfo *tourn;
-  short curTourn;
   int placement;
-  
-  tournOffset = (tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset;
-  curTourn = screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier];
-  tourn = (tournamentManager.fDefinition)->fTournaments;
+
+  tourn = (tournamentManager.fDefinition)->fTournaments +
+          ((uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
+           (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier]);
   placement = 0;
-  if ((int)tournamentManager.fBestPlacement[tourn[(uint)tournOffset + (uint)(byte)curTourn].fTournamentID] -
-      1U < 3) {
-    placement = (int)tournamentManager.fBestPlacement
-                 [tourn[(uint)tournOffset + (uint)(byte)curTourn].fTournamentID];
+  if ((u_int)(tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID] - 1) < 3) {
+    placement = tournamentManager.fBestPlacement[(signed char)tourn->fTournamentID];
   }
   this->BannerCol = kBannerColors[placement];
-  GetTrophyName(&tournamentManager,tourn + (uint)tournOffset + (uint)(byte)curTourn,ts_Large,gSwapFileNameTI,-1);
+  GetTrophyName(&tournamentManager,tourn,ts_Large,gSwapFileNameTI,-1);
   numSwapShapes = 0x20;
   *swapFileName = gSwapFileNameTI;
   *permFileName = "zSTI";
   numPermShapes = 0xb;
   return;
 }
-
-
 
 /* ---- tScreenTrophyInfo::DrawBackground  [SCREENTROPHYINFO.CPP:64-153 (body @67)] ---- */
 void tScreenTrophyInfo::DrawBackground()

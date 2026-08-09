@@ -468,7 +468,10 @@ PER_TU_FLAGS = {
     # retired.  __muldf3 alone: 326 -> 22 (see MULDF3.c receipt).
     "recon/syslib/psx/libmath/GTDF2.c":     {"cc1_alt": "2.7.2-970404"},  # 33->21
     "recon/syslib/psx/libmath/LTDF2.c":     {"cc1_alt": "2.7.2-970404"},  # 21->15
-    "recon/syslib/psx/libmath/MULSF3.c":    {"cc1_alt": "2.95.2"},  # 93->88
+    # w55-a4: RE-LADDERED after the in-place-mantissa landing (04Z).  New table:
+    # 2.6.0/2.6.3=31 * 2.7.2=10 * 2.8.0/2.8.1=8 * 2.91.66=98 * 2.95.2=90 (the
+    # OLD wiring, now the second-worst rung).  84 -> 8.
+    "recon/syslib/psx/libmath/MULSF3.c":    {"cc1_alt": "2.8.0"},  # 84->8
     "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_alt": "2.95.2"},  # 106->96
     # w55-a4: RE-LADDERED after the 05B union/oracle-shape landing (04Z: rung
     # tables are basin-relative).  New table on the landed source: 2.6.0/2.6.3=30
@@ -606,7 +609,9 @@ PER_FN_NO_DELAYED_BRANCH = {
         # but it is a clean net-positive (FAIL 16 -> FAIL 10, diff pattern
         # moves closer to the oracle's shared-tail shape) with zero
         # collateral on the TU's other 7 functions under a whole-TU gate.
-        "PadGetState",
+        # w55-a6: PadGetState DROPPED from this splice -- with the new
+        # 3-node-switch source + EPILOGUE_UNFILL it reaches PASS 48/48
+        # (splice-on was 12; the two edits must land together).
     },
     # _pad_get_port has one small interior `if` (not the pure epilogue-only
     # shape) but empirically flips FAIL-3->PASS with no naked-nop
@@ -1004,6 +1009,9 @@ def _apply_epilogue_unfill_272(rel_posix, txt):
 
 
 PER_FN_EPILOGUE_UNFILL = {
+    # w55-a6: with the 3-node switch + splice-off, the residual 4 = pure
+    # epilogue swap -> PASS 48/48, whole-TU 8/8.
+    "recon/syslib/psx/libpad/PADENTRY.c": {"PadGetState"},
     # w51-a6: single-fn TUs, no in-TU regression possible.
     "recon/syslib/psx/libgte/FOG_01.c": {"SetFogNear"},  # 4 -> PASS 25/25
     "recon/syslib/psx/libgte/COR_02.c": {"ccos"},        # 4 -> PASS 49/49

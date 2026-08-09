@@ -77,7 +77,17 @@ extern void setRC2wait(int ticks)
  *   `if (T2_TARGET != 0)` (33 but @41, one insn OVER -- not an improvement), a two-read
  *   `t0`/`t1` split inside the wrap block (34 @40, identical), a use fence on `cur` before
  *   the wrap test (38 @42).  RUNG-INVARIANT: the ladder was A/B'd in w51 and the 272 lane
- *   (now wired) leaves chkRC2wait at 34. */
+ *   (now wired) leaves chkRC2wait at 34.
+ *   w55-a6: the w44 REF-STEP INFLATOR FAMILY is FALSIFIED here too -- a `do{}while(0)` DEPTH
+ *   WRAPPER around the whole wrap-adjust `if/else` (the only construct that touches both the
+ *   pointer's and `cur`'s in-block refs) is INERT at depth 2 AND depth 3 (34 @40/40, byte-
+ *   identical output both times).  Combined with the w48/w53 receipts that means every zero-insn
+ *   ref/live dial available in C has now been tried on this pair.  The pointer is an ANONYMOUS
+ *   cse temp with NO C name and only TWO possible loads (both T2_TARGET reads are `volatile`, so
+ *   a third source-level read is NOT free -- it emits a real `lhu`), which closes the "second
+ *   source-level use" angle named above: there is no zero-cost way to give it a 4th ref.
+ *   => STRUCTURALLY BOUNDED: reqdelta's required delta is unreachable from C at this basin.
+ *   Remaining routes: the permuter (length-perturbing class), or an allocator-side instrument. */
 extern int chkRC2wait(void)
 {
     unsigned cur = T2_VALUE & 0xffff;

@@ -50,6 +50,38 @@ void PadStartCom(void) { _padStartCom(); }
 void PadStopCom(void) { _padStopCom(); }
 
 /* @0x800EFEA0 : PadGetState -- map the raw controller state to the public PadState* code.
+ *
+ * 🔴 W55-A6 -- THIS BODY IS PASS-READY BUT NEEDS AN ORCHESTRATOR WIRING FLIP IN tools/build.py.
+ *   MEASURED (scratch_w55a6/build_probe.py + verify_probe.py = untouched-tools copies of
+ *   build.py/verify_asm.py with only the two table edits below):
+ *     current wiring (PER_FN_NO_DELAYED_BRANCH splice ON)          : FAIL 12 @54/48
+ *     splice entry REMOVED                                          : FAIL  4 @48/48  <- count-exact,
+ *                                                                     residual = the pure epilogue
+ *                                                                     swap (`jr ra; addiu sp` ours
+ *                                                                     vs `addiu sp; jr ra; nop`)
+ *     splice REMOVED + PER_FN_EPILOGUE_UNFILL entry ADDED           : PASS 48/48
+ *   Whole-TU gate under the proposed wiring: 8/8 PASS (PadStartCom, PadStopCom, PadGetState,
+ *   PadInfoMode, PadInfoAct, PadSetActAlign, PadSetMainMode, PadSetAct) -- ZERO collateral.
+ *   SPEC (two one-line table edits, exactly the w48-a3 _padSetMainMode_rcv precedent):
+ *     (1) PER_FN_NO_DELAYED_BRANCH["recon/syslib/psx/libpad/PADENTRY.c"]: DROP "PadGetState"
+ *         (keep "PadStartCom", "PadStopCom").
+ *     (2) PER_FN_EPILOGUE_UNFILL: ADD "recon/syslib/psx/libpad/PADENTRY.c": {"PadGetState"}.
+ *   Do NOT land one without the other: the splice and the source shape fail in opposite
+ *   directions (the splice nops the two case-arm delay slots the switch fills).
+ *
+ * MATCH (w55-a6, source side): the dispatch is a REAL `switch` with THREE SEPARATE case nodes.
+ *   The oracle's tree is the gcc-2.8 balance_case_nodes fingerprint -- root `beq $v1,3`, the
+ *   bound test `slti $v0,$v1,4` in its delay slot, left leaf `beq $v1,2`, right leaf
+ *   `beq $v1,6`, every body out-of-line, each terminated by `j <default>` (catalog w43
+ *   "balance_case_nodes fingerprint PROVES a real switch"; sibling PadInfoMode is the same).
+ *   ⚠️ `case 2: case 3: return 1;` does NOT work -- group_case_nodes MERGES adjacent nodes that
+ *   share a label into the range 2..3, leaving only 2 nodes, which is a LINEAR chain with a
+ *   `slti $v0,$v1,2` range test (20 spliced / 17 @41 unspliced).  The two `return 1;` statements
+ *   must be written SEPARATELY so each case gets its own label => 3 nodes => the tree.  cross_jump
+ *   then merges the two bodies and reorg steals `li $v0,1` into the case-2 `beq` delay slot while
+ *   case 3 keeps the full `j <ret>; li $v0,1` block -- exactly the oracle's .L800EFF44.
+ *
+ * OLD NOTES (kept for the falsification record; the "FLOOR" verdict is now RETIRED):
  * FLOOR (16 diffs): same duplicate-vs-share tail-merge / branch-polarity class seen throughout
  * this wave (chkRC2wait, _padSetMainMode_snd) -- oracle emits `beq state,K,RETURN_SITE` (jump
  * TO each return literal's own `li v0,K;j common_tail` block) for both the s==2 and s==6 arms,
@@ -77,14 +109,15 @@ int PadGetState(int port)
     if ((d->status & 0xffff0000) != 0 ||
         (d != d->self && d->connected != 0) ||
         *d->flag_ptr != 0) {
-        int s = d->state;
-        if (s == 3)
+        switch (d->state) {
+        case 2:
             return 1;
-        if (s < 4) {
-            if (s == 2)
-                return 1;
-        } else if (s == 6) {
+        case 3:
+            return 1;
+        case 6:
             return 4;
+        default:
+            break;
         }
     }
     return d->state;

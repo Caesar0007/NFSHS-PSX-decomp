@@ -97,7 +97,23 @@ extern void PadInitDirect(unsigned char *pad1, unsigned char *pad2)
 
 /* @0x800FDE88 : _pad_reset_state (_padFuncClrInfo) -- wipe a port's transient state.
  * Oracle: addiu v1,a0,93; addiu a1,zero,255; addiu v0,zero,5 (ptr/fill/counter order).
- * Loop: sb a1,0(v1); addiu v0,v0,-1; bgez v0; addiu v1,v1,1 (delay). 6 iters total. */
+ * Loop: sb a1,0(v1); addiu v0,v0,-1; bgez v0; addiu v1,v1,1 (delay). 6 iters total.
+ * RESIDUAL 2 @26/26 (w55-a6, count-exact, registers ALL correct): the ONLY diff is the emission
+ * POSITION of `li $a1,255` -- ours emits it AFTER `li $v0,5`, retail before.  MECHANISM (probed):
+ * the fill constant is const-propagated into the loop store and REMATERIALIZED near its use, so
+ * its `li` is NOT tied to the declaration -- swapping the `fill`/`n` declaration order changes
+ * NOTHING (measured twice), which is the tell.  The zero-insn opacity fence
+ * `__asm__("" : "=r"(fill) : "0"(fill))` DOES fix the order (it defeats the propagation) but
+ * costs the whole 3-register rotation (p/fill/n a1/v0/v1 vs retail v1/a1/v0) because it splits
+ * `fill` into two pseudos: 14 @26/26, and identical whether the fence sits after the decls or
+ * immediately before the loop.  Adding a post-loop read-only fence `__asm__("" : : "r"(fill))`
+ * to lengthen fill's range fixes the rotation (p=v1, fill=a1, n=v0 all correct) and lands 6
+ * @26/26 -- residual there = the cross-block opacity fence materialising a REAL copy
+ * (`addu $a2,$a1,$zero`, store reads $a2) plus reorg stealing `li $a1,255` into the entry beqz's
+ * delay slot where retail has a nop.  NEXT ANGLE: a propagation blocker that does not split the
+ * pseudo (the copy is the w49 "fence fails on cross-block pseudos" boundary).
+ * FALSIFIED (w55-a6): decl-order swap fill<->n (2, no change); read-only fence before the loop
+ * (3 @27/26 -- keeps the decl `li` AND still hoists a second one). */
 extern void _pad_reset_state(unsigned char *info)
 {
     if (info[0x49] != 0) {
@@ -189,7 +205,22 @@ extern unsigned _pad_shift(unsigned char *info)
  * `info[0x57 + idx]` gives the reversed `addu $v0,$v1,$a0`; and the 'M' arm returns 0xff while
  * the other two return 0, which is what lets cross_jump fold the 'M' arm's tail into case 0's
  * shared `lbu $v0,0($v0)` (the oracle's `j .L800FE058`) while the default arm keeps its own copy.
- * RESIDUAL 20 @51/47: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
+ * RESIDUAL 10 @43/47 (w55-a6 re-gate at the cc1_alt 2.7.2 basin -- the 20 @51/47 figure below is
+ * the STALE 2.8-basin number; the sign flipped, ours is now 4 instructions SHORT).  The class is
+ * CROSS-JUMP DIRECTION, not threading: retail's shared `lbu $v0,0($v0)` (.L800FE058) is the TAIL
+ * OF CASE 0 -- case 0 falls through into it and the 'M' arm jumps INTO it
+ * (`j .L800FE058 / addu $v0,$v0,$v1` in the slot) -- while OURS keeps the copy in the 'M'/shared
+ * block and makes CASE 0 do the `j`.  do_cross_jump kept the wrong copy (w45 "merge DIRECTION,
+ * not depth"), and the 'M' guard's polarity inverts with it (ours `bnez`, retail `beqz` with
+ * `li $v0,255` in the slot).  FALSIFIED at this basin (w55-a6) -- all THREE compile to the
+ * BYTE-IDENTICAL 43 instructions, i.e. gcc canonicalizes the whole family: case 0 ending in a
+ * direct `return (*(u_char **)(info+0x28))[idx];` instead of `break`; the 'M' guard written with
+ * the buf path as the if-BODY (`if (idx < info[0x35]) { buf = ...; break; } return 0xff;`);
+ * an explicit `common:` label INSIDE case 0 with the 'M' arm doing `goto common;` (retail's exact
+ * CFG spelled out).  ⇒ the merge direction is not source-reachable here; next angle is the
+ * do_cross_jump input (which block ENDS in a jump at cross-jump time), i.e. an allocation/label
+ * question, or the permuter.
+ * OLD (stale, 2.8 basin) note: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
  * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
  * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable
  * from source: a single-`return` funnel with `goto out` threads identically (20 @51), and a
@@ -267,6 +298,17 @@ extern int _pad_getbyte(unsigned char *info, int align)
  *       (27), identity fence on info inside the guard (21), explicit if/else (27), redundant cast
  *       (24), `(signed char)` test (37).
  * PER-BASIN TU LEDGER after these three: default 139 (unchanged), gcc-2.7.2 rung 109.
+ * MATCH (w55-a6, 18 -> 16 @159/159): COMMUTATIVE `and` OPERAND ORDER -- write the scan test as
+ *   `(mask & *dat) != 0`, MASK FIRST.  The oracle emits `and $v0,$v0,$a3` (loaded byte first,
+ *   mask second as operand 1... i.e. the mask is the SECOND source), which is what the
+ *   mask-first C spelling produces; `(*dat & mask)` gives the reversed `and $v0,$a3,$v0`.  Pure
+ *   2-diff win, count unchanged, no collateral (catalog w42/w43 commutative-operand family --
+ *   reachable here because both operands are plain loads, not a mutation).
+ * FALSIFIED (w55-a6) on the FIRST search loop, re-confirming the (1) receipt above at the wired
+ *   2.7.2 basin: `while (i < nmask)` (18 @161/159 -- gcc adds the zero-trip guard retail lacks);
+ *   UNGUARDED `do { ... } while (i < nmask);` (56 @161/159 -- rotates the whole $a2/$a3 band).
+ *   The residual `bne $v1,$t1` vs oracle `slt $v0,$v1,$t1; bnez` therefore stays the documented
+ *   guard-fold class, not a comparison-operator miss.
  * => the rung is the TU's home; see the wiring note in the report. */
 extern void _pad_filter(unsigned char *info)
 {
@@ -289,7 +331,7 @@ extern void _pad_filter(unsigned char *info)
                 dat = *(unsigned char **)(info + 0x28);
                 i = 0;
                 while (i != nmask) {
-                    if (*map == mode && (*dat & mask) != 0) { matched = 1; break; }
+                    if (*map == mode && (mask & *dat) != 0) { matched = 1; break; }
                     map++; dat++;
                     i++;
                 }
@@ -346,35 +388,42 @@ extern void _pad_filter(unsigned char *info)
  *       (`slti $v0,$a1,2; bnez`) with no entry guard is gcc's rotated do-while, and the explicit
  *       `addu $a1,$zero,$zero` at insn 0 is the separate init (a `for(i=0;i<2;i++)` header emits
  *       the counter bump ahead of the compare and inverts the guard polarity: 18 diffs).
- *   (2) the found-arm is `r = slot; goto out;` -- a DEFAULT ASSIGNED BEFORE THE TEST (catalog
- *       w47 "PRE-SET THE DEFAULT BEFORE THE TEST"): its block is a single `(set v0,slot)(jump)`,
- *       so reorg EAGER-STEALS it into the beq's delay slot and retargets the beq straight at the
- *       shared epilogue = the oracle's `beq $a0,$v1 / addu $v0,$a2,$zero`.  A bare `return slot;`
- *       inside the loop instead emits a SECOND `jr ra` block (q3 probe: 10 diffs).
+ *   (2) the found-arm's block is a single `(set v0,slot)(jump)`, so reorg EAGER-STEALS it into
+ *       the beq's delay slot and retargets the beq straight at the shared epilogue = the oracle's
+ *       `beq $a0,$v1 / addu $v0,$a2,$zero`.  A bare `return slot;` inside the loop instead emits a
+ *       SECOND `jr ra` block (q3 probe: 10 diffs; re-measured w55 at the 2.7.2 basin: 5 @15/14).
  *   (3) increment order slot, i, info -- info LAST so it lands in the bnez delay slot.
- * RESIDUAL 6 (2 lines), both named gcc mechanisms, neither reachable at this basin:
- *   (a) `lui $v0,%hi; addiu $v1,$v0,%lo` vs oracle's SELF-TEMP `lui $v1; addiu $v1,$v1` --
- *       the {high, lo_sum} pair is one combined qty only when local-alloc's combine_regs may tie
- *       them, and it REFUSES when the lo_sum's destination is a global allocno (w47
- *       delete_noop_moves law); `info` is loop-carried, hence global, hence two registers.
- *   (b) `addiu $a2,$v0,16` vs oracle `addiu $a2,$a2,16` -- cse's canonical-copy pick: `r` OUTLIVES
- *       `slot` (it is read after the loop), so make_regs_eqv makes r's register canonical and the
- *       increment reads it (w47 law, KEEP direction).  Retail's `slot` stays canonical.
- * FALSIFIED at this basin (all whole-TU, other 7 fns unchanged): for-header/while-header (18/12),
- *   `info == p` yoda (12), `&_pad_info[0]` (12), r-as-block-local (7 @15), break+`r=0xff` default
- *   (15 @15), single-variable `slot` doubling as the result (11 @13), increment-order permutations
- *   x3 (6), decl-order permutations x3 (6), opacity fence on r / on slot / after the increment
- *   (16/20/20), `return 0xff;` before the label (5 diffs but 15/14 -- count NOT exact, rejected). */
+ * MATCH (w55-a6, 2 -> PASS 14/14): the copy `r = slot` belongs INSIDE THE FOUND-ARM BLOCK, not
+ * before the test.  With `r = slot;` at the top of the loop body the copy sits in the SAME
+ * extended basic block as `slot += 0x10`, so cse's make_regs_eqv makes `r`'s register canonical
+ * (r outlives slot -- it is read after the loop) and the increment reads it: `addiu $a2,$v0,16`
+ * vs the oracle's `addiu $a2,$a2,16` (the last 2 diffs, w48's named residual (b)).  Moving the
+ * copy into `if (p == info) { r = slot; goto out; }` confines the equivalence to the ARM path,
+ * so the fall-through increment can only read `slot`'s own register -- and the arm block is still
+ * the single `(set v0,slot)(jump)` reorg needs for the eager steal, so (2) is preserved.
+ * Zero collateral (other 7 PADPORTD fns unchanged).  The old residual (a) (`lui $v0; addiu $v1`
+ * vs the self-temp) had already dissolved when the TU moved onto the cc1_alt 2.7.2 rung.
+ * FALSIFIED at the 2.7.2 basin (w55-a6): identity fence on `slot` (20), identity fence on `r`
+ *   (12 -- it DOES break the cse pick but rotates a1<->a2), fence-on-r + swapped decl order
+ *   (2, position-only), split decls with i assigned first (12), `do{i++;}while(0)` depth wrapper
+ *   (14), single-variable `slot` as the result with `return slot` (5 @15/14) or with
+ *   `goto out; slot=0xff; out: return slot;` (6 @14/14 -- structure exact, but the result lives
+ *   in $a2 so both the beq slot and the jr slot come out wrong).
+ * FALSIFIED at the earlier w48 basin: for-header/while-header (18/12), `info == p` yoda (12),
+ *   `&_pad_info[0]` (12), r-as-block-local (7 @15), break+`r=0xff` default (15 @15),
+ *   increment-order permutations x3 (6), decl-order permutations x3 (6). */
 extern int _pad_port_to_slot(unsigned char *p)
 {
     int i = 0;
     int slot = 0x10;
     int r;
     unsigned char *info = _pad_info;
+
     do {
-        r = slot;
-        if (p == info)
+        if (p == info) {
+            r = slot;
             goto out;
+        }
         slot += 0x10;
         i++;
         info += 0xf0;

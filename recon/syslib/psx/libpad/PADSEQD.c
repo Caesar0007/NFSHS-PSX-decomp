@@ -221,7 +221,16 @@ extern unsigned _dirRecvAuto(unsigned char *info)
  * delete_noop_moves/coalescing direction.  Falsified here: SHARED-CONSTANT-RETURN hoist
  * (`r = 0xff; info[0x46] = r; return r;`) 16 without the fence / 12 with it; `unsigned char v`
  * carrier 7; store-order swap 7; volatile 0x49 store 7; a second fence after the 0x46 store 5;
- * `return (unsigned char)0xff` and a trailing `r = 0xff; return r;` both 3 (identical). */
+ * `return (unsigned char)0xff` and a trailing `r = 0xff; return r;` both 3 (identical).
+ * w55-a6 (cc1 `.s` READ, mechanism now exact): the copy is emitted by CC1 ITSELF, not by maspsx
+ * or reorg -- the raw `.s` carries `li $2,255 / move $3,$2 / .set noreorder / j $L53 / sb $3,70($16)`.
+ * So the store's pseudo and the shared-return-block pseudo are two DISTINCT pseudos that
+ * local_alloc homed in $3 and $2; delete_noop_moves cannot merge them.  Retail has ONE pseudo in
+ * $2 serving both.  Further falsified at this basin: block-local `int ff = 0xff;` carrier (5 --
+ * copy direction merely reverses), `return (info[0x46] = 0xff);` assignment-as-expression (3,
+ * identical output), ONE mutated carrier for BOTH constants `int v = 2; ... v = 0xff;` (9 -- the
+ * merged pseudo takes $v1 and the whole arm rotates).  The reachable angle is the store pseudo
+ * winning $2, i.e. a local-alloc qty question, not a spelling one. */
 extern int _dirFailAuto(unsigned char *info)
 {
     unsigned char st;

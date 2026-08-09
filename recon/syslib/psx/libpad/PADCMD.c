@@ -225,23 +225,39 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
         return 0;
     if (*(int *)(info + 4) != 0)
         return 0;
+    /* RESIDUAL 38 @53/53 count-exact (w55-a6 re-read of the oracle -- the block LAYOUT is the
+     * root, not coloring).  Retail places the SHARED `return 0` block (.L8010584C:
+     * `j <epilogue>; addu $v0,$zero,$zero`) BETWEEN the ChkEng test and the body, because the
+     * `buf == 0` guard branches to it -- so the ChkEng guard has to SKIP OVER it
+     * (`beqz $v0,.L80105854` = branch to the BODY, with `addiu $v0,$zero,1` -- the eventual
+     * `return 1` -- pre-set in its delay slot).  Ours emits `bnez $v0,<ret0>` with ret0 placed
+     * elsewhere.  🔑 And retail's `buf == 0` branch carries `sw $ra,0x18($sp)` IN ITS DELAY SLOT
+     * -- a PROLOGUE STORE, i.e. the w54-06B PER_FN_PROLOGUE_FILL class (reorg's backward scan
+     * reaching into the prologue), where ours fills that slot with `addu $v0,$zero,$zero`.
+     * FALSIFIED (w55-a6): hoisting the whole body into `if (_padFuncChkEng(info) == 0) { ... }
+     * return 0;` -- it flips the ChkEng polarity the right way but ALSO flips the info+4 guard
+     * (which already matched) and adds an insn: 43 @54/53.  The two guards' polarities are
+     * coupled through the shared ret0 block; the reachable lever is its PLACEMENT. */
     if (_padFuncChkEng(info) != 0)
         return 0;
-    aw = ((int)buf + 3) >> 2;                /* MATCH (w51-a5): the oracle rounds up with a SIGNED
+    {
+        aw = ((int)buf + 3) >> 2;            /* MATCH (w51-a5): the oracle rounds up with a SIGNED
                                               * `addiu ,3 / sra ,2` ... `sll ,2` PAIR (word index
                                               * materialized early, scaled back late), not the
                                               * `& ~3` mask a single expression emits */
-    info[0x49] = 4;
-    info[0x46] = 1;
-    *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
-    *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padLoadActInfo_rcv;
-    a = (unsigned char *)(aw << 2);
-    *(unsigned char **)(info + 0) = a;
-    info[0x47] = 0;
-    a += ((info[0xe3] + 1) >> 1) << 2;
-    *(unsigned char **)(info + 4) = a;
-    *(unsigned char **)(info + 8) = a + ((info[0xe9] * 5 + 3) & 0xffc);
-    return 1;
+        info[0x49] = 4;
+        info[0x46] = 1;
+        *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
+        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padLoadActInfo_rcv;
+        a = (unsigned char *)(aw << 2);
+        *(unsigned char **)(info + 0) = a;
+        info[0x47] = 0;
+        a += ((info[0xe3] + 1) >> 1) << 2;
+        *(unsigned char **)(info + 4) = a;
+        *(unsigned char **)(info + 8) = a + ((info[0xe9] * 5 + 3) & 0xffc);
+        return 1;
+    }
+    return 0;
 }
 
 /* @0x801058D8 : _padLoadActInfo_snd -- emit the right descriptor request for the current sub-phase. */

@@ -150,7 +150,17 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
         align = (info[0x36] == 0);
     tx = (unsigned)_padFuncGetTxd(info, align);
     r = _padSioRW2(info, tx & 0xff);
-    /* NEAR-MISS (4, count-exact 35/35): reorg DUPLICATES the shared tail's `addu $v0,$v1,$zero`
+    /* MATCH (w55-a6, 6 @37/35 -> 2 @35/35): the INNER test's POLARITY is `< 0`, not `>= 0`.
+     * Under the 2.7.2 rung the `if ((int)r >= 0) return 0xfffffff7; return r;` spelling emits
+     * `bltz` + an extra `j` + a `nop` (two instructions over) because the `return r` arm becomes
+     * the branch target; writing it as `if ((int)r < 0) return r; return 0xfffffff7;` makes the
+     * -9 arm the taken/merged one, so reorg puts `li $v0,-9` in the `bgez` delay slot and the
+     * `addu $v0,$v1,$zero` falls through -- the oracle's exact tail.  (The old note below was
+     * measured in the 2.8 basin; the TU moved to cc1_alt 2.7.2 in w53-a8, which re-opened it.)
+     * Falsified at the 2.7.2 basin (w55-a6): 3-term `&&` with the sign test folded in (14 diffs,
+     * count-exact but the whole compare web rotates to $a0/$v1); flat 4-way `if (r == K) return r;`
+     * chain (10 @37/35); `res = r;` pre-set default before the tests (2, byte-identical).
+     * RESIDUAL 2 (1 line, count-exact 35/35): reorg DUPLICATES the shared tail's `addu $v0,$v1,$zero`
      * return copy into a delay slot; the oracle puts the duplicate in the FIRST branch's slot
      * (beq slot = addu, beqz slot = nop), ours in the SECOND (beq slot = nop, beqz slot = addu).
      * Everything else is byte-identical.  w48-a4 re-swept the whole spelling space at this basin:
@@ -163,9 +173,9 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
      * second only after failing the first -- find why the first steal is rejected (`-dR`/reorg
      * trace), or route to the permuter. */
     if (r != 0x5a && r != 0) {
-        if ((int)r >= 0)
-            return 0xfffffff7;
-        return r;
+        if ((int)r < 0)
+            return r;
+        return 0xfffffff7;
     }
     return r;
 }

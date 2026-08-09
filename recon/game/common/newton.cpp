@@ -951,6 +951,17 @@ nextWheel:;
                  ((Car_tObj *)newtonObj)->wheel[3].wheelAcc -
                  (((Car_tObj *)newtonObj)->wheel[0].wheelAcc +
                   ((Car_tObj *)newtonObj)->wheel[1].wheelAcc)) >> 2;
+        /* RECEIPT (w55-a11): this fn is at 10 diffs / ours 903 vs oracle 905, and BOTH
+           missing insns are the same NON-PROPAGATED REG-REG COPY: oracle loads the cap
+           into $v0 and then `addu v1,v0,zero` into the clamp variable (here and again
+           at the rollAngularVelCap site, 800A0B30 / 800A0BA8); ours loads straight into
+           the clamp variable.  FALSIFIED IN THIS BASIN (each gated, all 10 except where
+           noted): separate `cap` local copied into `limit`; opacity fence
+           `asm("":"=r"(limit):"0"(limit))`; read-only fence `asm("":: "r"(limit))`;
+           `limit` hoisted to the enclosing block so it spans both arms (05D global-
+           allocno promotion); same with the `pitch = limit` tail hoisted out; ternary
+           clamp (18, worse).  Same class as Physics_CalcWheelLockAcc/RampCarControlValues
+           -- see the 06E "non-propagated reg-reg copy" instrument gap. */
         if (pitch > 0) {
           int limit = ((Car_tObj *)newtonObj)->specs->pitchAngularVelCap;
           if (limit >= pitch) {
@@ -1118,114 +1129,92 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
 void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
 
 {
-  int x;
-  static coorddef dummy;
   int dist;
-  u_char bVar1;
-  u_long uVar2;
+  int x;
   int z;
-  int iVar3;
-  int oldOptz;
-  int iVar4;
-  int iVar5;
-  int iVar6;
   int whichPlayer;
   int forcedSimOptz;
-  
+
   whichPlayer = 0;
-  iVar4 = (n->position).x;
-  iVar3 = (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.x;
-  oldOptz = iVar4 - iVar3;
-  if (oldOptz < 1) {
-    oldOptz = iVar3 - iVar4;
-  }
-  iVar5 = (n->position).z;
-  iVar3 = (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.z;
-  iVar4 = iVar5 - iVar3;
-  if (iVar4 < 1) {
-    iVar4 = iVar3 - iVar5;
-  }
-  if (iVar4 < oldOptz) {
-    iVar4 = oldOptz + (iVar4 >> 2);
+  forcedSimOptz = 0;
+  x = (n->position).x - (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.x;
+  if (x < 1) { x = (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.x - (n->position).x; }
+  z = (n->position).z - (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.z;
+  if (z < 1) { z = (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.z - (n->position).z; }
+  if (z < x) {
+    n->distToPlayer = x + (z >> 2);
   }
   else {
-    iVar4 = iVar4 + (oldOptz >> 2);
+    n->distToPlayer = z + (x >> 2);
   }
-  n->distToPlayer = iVar4;
   if (Cars_gNumHumanRaceCars == 2) {
-    iVar5 = (n->position).x;
-    iVar3 = (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.x;
-    iVar4 = iVar5 - iVar3;
-    if (iVar4 < 1) {
-      iVar4 = iVar3 - iVar5;
-    }
-    iVar6 = (n->position).z;
-    iVar3 = (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.z;
-    iVar5 = iVar6 - iVar3;
-    if (iVar5 < 1) {
-      iVar5 = iVar3 - iVar6;
-    }
-    if (iVar5 < iVar4) {
-      iVar4 = iVar4 + (iVar5 >> 2);
+    x = (n->position).x - (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.x;
+    if (x < 1) { x = (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.x - (n->position).x; }
+    z = (n->position).z - (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.z;
+    if (z < 1) { z = (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.z - (n->position).z; }
+    if (z < x) {
+      dist = x + (z >> 2);
     }
     else {
-      iVar4 = iVar5 + (iVar4 >> 2);
+      dist = z + (x >> 2);
     }
-    if (iVar4 < n->distToPlayer) {
+    if (dist < n->distToPlayer) {
       whichPlayer = 1;
-      n->distToPlayer = iVar4;
+      n->distToPlayer = dist;
     }
   }
   if (n->distToPlayer < 0x600001) {
-    iVar3 = BWorld_CheckChunkVisible(&(Cars_gHumanRaceCarList[whichPlayer]->N).simRoadInfo,&n->simRoadInfo);
-    if ((n->distToPlayer < 0x600001) && (iVar3 != 0)) goto NewtonClosestPlr_simOptz;
-  }
-  if ((n[3].lastUpdated == 0) || (simGlobal.gameTicks < 3)) {
-    if (n->simOptz != '\x02') {
-      n->groundSurfaceType = 1;
-      n->driveSurfaceType = 1;
+    if (BWorld_CheckChunkVisible(&(Cars_gHumanRaceCarList[whichPlayer]->N).simRoadInfo,&n->simRoadInfo)
+        == 0) {
+      forcedSimOptz = 1;
     }
-    n->simOptz = '\x02';
-    (n->angularVel).x = 0;
-    (n->angularVel).z = 0;
-    return;
   }
-NewtonClosestPlr_simOptz:
-  bVar1 = n->simOptz;
-  if (((n[1].simRoadInfo.quadPts[1].y & 0x30U) == 0) &&
-     (((n[3].lastUpdated == 0 || (simGlobal.gameTicks < 3)) && (0x480000 < n->distToPlayer)))) {
-    n->simOptz = '\x01';
+  if ((0x600000 < n->distToPlayer) || (forcedSimOptz != 0)) {
+    if ((n[3].lastUpdated == 0) || (simGlobal.gameTicks < 3)) {
+      if (n->simOptz != '\x02') {
+        n->groundSurfaceType = 1;
+        n->driveSurfaceType = 1;
+      }
+      n->simOptz = '\x02';
+      (n->angularVel).x = 0;
+      (n->angularVel).z = 0;
+      return;
+    }
   }
-  else {
-    n->simOptz = '\0';
-  }
-  if (1 < bVar1) {
-    Cars_SetCarUpForHiRezSim((Car_tObj *)n);
-    Newton_FindClosestQuad(n);
-    Newton_UpdateRoadGeometry(n);
-    Newton_LimitCarsToDrivableDist(n);
-    if (stackSpeedUpEnbabledFlag == 0) {
-      iVar3 = Newton_FindGroundElevationAndNormal(n,&dummy_124);
-      n->groundElevation = iVar3;
+  {
+    int oldOptz;
+
+    oldOptz = n->simOptz;
+    if (((n[1].simRoadInfo.quadPts[1].y & 0x30U) == 0) &&
+       (((n[3].lastUpdated == 0 || (simGlobal.gameTicks < 3)) && (0x480000 < n->distToPlayer)))) {
+      n->simOptz = '\x01';
     }
     else {
-      gWSavePtr = SetSp(gWSavePtr);
-      stackSpeedUpEnbabledFlag = 0;
-      iVar3 = Newton_FindGroundElevationAndNormal(n,&dummy_124);
-      uVar2 = gWSavePtr;
-      n->groundElevation = iVar3;
-      gWSavePtr = SetSp(uVar2);
-      stackSpeedUpEnbabledFlag = 1;
+      n->simOptz = '\0';
     }
-    iVar3 = n->groundElevation;
-    iVar4 = (n->dimension).y;
-    n->groundSurfaceType = 1;
-    n->driveSurfaceType = 1;
-    n->groundVel = 0;
-    (n->collision).impulse = 0;
-    (n->collision).otherObj = (BO_tNewtonObj *)0x0;
-    n->objAltitude = 0;
-    (n->position).y = iVar3 + iVar4;
+    if (1 < oldOptz) {
+      Cars_SetCarUpForHiRezSim((Car_tObj *)n);
+      Newton_FindClosestQuad(n);
+      Newton_UpdateRoadGeometry(n);
+      Newton_LimitCarsToDrivableDist(n);
+      if (stackSpeedUpEnbabledFlag != 0) {
+        gWSavePtr = SetSp(gWSavePtr);
+        stackSpeedUpEnbabledFlag = 0;
+        n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_124);
+        gWSavePtr = SetSp(gWSavePtr);
+        stackSpeedUpEnbabledFlag = 1;
+      }
+      else {
+        n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_124);
+      }
+      n->groundSurfaceType = 1;
+      n->driveSurfaceType = 1;
+      n->groundVel = 0;
+      (n->collision).impulse = 0;
+      (n->collision).otherObj = (BO_tNewtonObj *)0x0;
+      n->objAltitude = 0;
+      (n->position).y = n->groundElevation + (n->dimension).y;
+    }
   }
   return;
 }
@@ -1654,126 +1643,87 @@ extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj)
 extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(int newtonObj,int *normal,int orientToGround)
 
 {
-  int r1;
-  int r2;
-  int r3;
-  u_int *puVar1;
-  int iVar2;
-  int iVar3;
-  u_int *puVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  coorddef *v;
-  u_int uVar9;
-  u_int uVar10;
-  u_int uVar11;
-  
-  if (((*(u_int *)(newtonObj + 0x260) & 4) == 0) &&
-     (puVar4 = (u_int *)(newtonObj + 0x1c4), 0xe666 < orientToGround)) {
-    puVar1 = (u_int *)(newtonObj + 0xf0);
-    do {
-      uVar9 = puVar1[1];
-      uVar10 = puVar1[2];
-      uVar11 = puVar1[3];
-      *puVar4 = *puVar1;
-      puVar4[1] = uVar9;
-      puVar4[2] = uVar10;
-      puVar4[3] = uVar11;
-      puVar1 = puVar1 + 4;
-      puVar4 = puVar4 + 4;
-    } while (puVar1 != (u_int *)(newtonObj + 0x110));
-    *puVar4 = *puVar1;
-    iVar5 = normal[1];
-    iVar8 = normal[2];
-    *(int *)(newtonObj + 0x1d0) = *normal;
-    *(int *)(newtonObj + 0x1d4) = iVar5;
-    *(int *)(newtonObj + 0x1d8) = iVar8;
+  if (((*(u_int *)(newtonObj + 0x260) & 4) == 0) && (0xe666 < orientToGround)) {
+    *(matrixtdef *)(newtonObj + 0x1c4) = *(matrixtdef *)(newtonObj + 0xf0);
+    {
+      int r1;
+      int r2;
+      int r3;
+
+      r1 = *normal;
+      r2 = normal[1];
+      r3 = normal[2];
+      *(int *)(newtonObj + 0x1d0) = r1;
+      *(int *)(newtonObj + 0x1d4) = r2;
+      *(int *)(newtonObj + 0x1d8) = r3;
+    }
     return;
   }
-  iVar5 = normal[1];
-  iVar8 = normal[2];
-  *(int *)(newtonObj + 0x1d0) = *normal;
-  *(int *)(newtonObj + 0x1d4) = iVar5;
-  *(int *)(newtonObj + 0x1d8) = iVar8;
+  {
+    int r1;
+    int r2;
+    int r3;
+
+    r1 = *normal;
+    r2 = normal[1];
+    r3 = normal[2];
+    *(int *)(newtonObj + 0x1d0) = r1;
+    *(int *)(newtonObj + 0x1d4) = r2;
+    *(int *)(newtonObj + 0x1d8) = r3;
+  }
   if (orientToGround < 0x8000) {
-    iVar5 = *(int *)(newtonObj + 0xf0);
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xff;
+    int dot;
+
+    dot = *(int *)(newtonObj + 0xf0) / 256 * (*normal / 256) +
+          *(int *)(newtonObj + 0xf4) / 256 * (normal[1] / 256) +
+          *(int *)(newtonObj + 0xf8) / 256 * (normal[2] / 256);
+    if (dot < 0) {
+      dot = -dot;
     }
-    iVar8 = *normal;
-    if (iVar8 < 0) {
-      iVar8 = iVar8 + 0xff;
-    }
-    iVar6 = *(int *)(newtonObj + 0xf4);
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xff;
-    }
-    iVar2 = normal[1];
-    if (iVar2 < 0) {
-      iVar2 = iVar2 + 0xff;
-    }
-    iVar7 = *(int *)(newtonObj + 0xf8);
-    if (iVar7 < 0) {
-      iVar7 = iVar7 + 0xff;
-    }
-    iVar3 = normal[2];
-    iVar7 = iVar7 >> 8;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xff;
-    }
-    iVar3 = iVar3 >> 8;
-    iVar5 = (iVar5 >> 8) * (iVar8 >> 8) + (iVar6 >> 8) * (iVar2 >> 8) + iVar7 * iVar3;
-    if (iVar5 < 0) {
-      iVar5 = -iVar5;
-    }
-    if (0.5 < (double)iVar5) {
-      iVar5 = fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x110));
-      iVar8 = fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x10c));
-      *(int *)(newtonObj + 0x1c4) = iVar5 - iVar8;
-      iVar5 = fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x108));
-      iVar8 = fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x110));
-      *(int *)(newtonObj + 0x1c8) = iVar5 - iVar8;
-      iVar5 = fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x10c));
-      iVar8 = fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x108));
-      *(int *)(newtonObj + 0x1cc) = iVar5 - iVar8;
+    if (0.5 < (double)dot) {
+      *(int *)(newtonObj + 0x1c4) =
+           fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x110)) -
+           fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x10c));
+      *(int *)(newtonObj + 0x1c8) =
+           fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x108)) -
+           fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x110));
+      *(int *)(newtonObj + 0x1cc) =
+           fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x10c)) -
+           fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x108));
       Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1c4));
-      iVar5 = fixedmult(*(int *)(newtonObj + 0x1c8),*(int *)(newtonObj + 0x1d8));
-      iVar8 = fixedmult(*(int *)(newtonObj + 0x1cc),*(int *)(newtonObj + 0x1d4));
-      *(int *)(newtonObj + 0x1dc) = iVar5 - iVar8;
-      iVar5 = fixedmult(*(int *)(newtonObj + 0x1cc),*(int *)(newtonObj + 0x1d0));
-      iVar8 = fixedmult(*(int *)(newtonObj + 0x1c4),*(int *)(newtonObj + 0x1d8));
-      *(int *)(newtonObj + 0x1e0) = iVar5 - iVar8;
-      iVar5 = fixedmult(*(int *)(newtonObj + 0x1c4),*(int *)(newtonObj + 0x1d4));
-      iVar8 = fixedmult(*(int *)(newtonObj + 0x1c8),*(int *)(newtonObj + 0x1d0));
-      v = (coorddef *)(newtonObj + 0x1dc);
-      *(int *)(newtonObj + 0x1e4) = iVar5 - iVar8;
-      goto NewtonGroundShadow_normalizeV;
+      *(int *)(newtonObj + 0x1dc) =
+           fixedmult(*(int *)(newtonObj + 0x1c8),*(int *)(newtonObj + 0x1d8)) -
+           fixedmult(*(int *)(newtonObj + 0x1cc),*(int *)(newtonObj + 0x1d4));
+      *(int *)(newtonObj + 0x1e0) =
+           fixedmult(*(int *)(newtonObj + 0x1cc),*(int *)(newtonObj + 0x1d0)) -
+           fixedmult(*(int *)(newtonObj + 0x1c4),*(int *)(newtonObj + 0x1d8));
+      *(int *)(newtonObj + 0x1e4) =
+           fixedmult(*(int *)(newtonObj + 0x1c4),*(int *)(newtonObj + 0x1d4)) -
+           fixedmult(*(int *)(newtonObj + 0x1c8),*(int *)(newtonObj + 0x1d0));
+      Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1dc));
+      return;
     }
   }
-  iVar5 = fixedmult(*(int *)(newtonObj + 0xf4),*(int *)(newtonObj + 0x1d8));
-  iVar8 = fixedmult(*(int *)(newtonObj + 0xf8),*(int *)(newtonObj + 0x1d4));
-  *(int *)(newtonObj + 0x1dc) = iVar5 - iVar8;
-  iVar5 = fixedmult(*(int *)(newtonObj + 0xf8),*(int *)(newtonObj + 0x1d0));
-  iVar8 = fixedmult(*(int *)(newtonObj + 0xf0),*(int *)(newtonObj + 0x1d8));
-  *(int *)(newtonObj + 0x1e0) = iVar5 - iVar8;
-  iVar5 = fixedmult(*(int *)(newtonObj + 0xf0),*(int *)(newtonObj + 0x1d4));
-  iVar8 = fixedmult(*(int *)(newtonObj + 0xf4),*(int *)(newtonObj + 0x1d0));
-  *(int *)(newtonObj + 0x1e4) = iVar5 - iVar8;
+  *(int *)(newtonObj + 0x1dc) =
+       fixedmult(*(int *)(newtonObj + 0xf4),*(int *)(newtonObj + 0x1d8)) -
+       fixedmult(*(int *)(newtonObj + 0xf8),*(int *)(newtonObj + 0x1d4));
+  *(int *)(newtonObj + 0x1e0) =
+       fixedmult(*(int *)(newtonObj + 0xf8),*(int *)(newtonObj + 0x1d0)) -
+       fixedmult(*(int *)(newtonObj + 0xf0),*(int *)(newtonObj + 0x1d8));
+  *(int *)(newtonObj + 0x1e4) =
+       fixedmult(*(int *)(newtonObj + 0xf0),*(int *)(newtonObj + 0x1d4)) -
+       fixedmult(*(int *)(newtonObj + 0xf4),*(int *)(newtonObj + 0x1d0));
   Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1dc));
-  iVar5 = fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x1e4));
-  iVar8 = fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x1e0));
-  *(int *)(newtonObj + 0x1c4) = iVar5 - iVar8;
-  iVar5 = fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x1dc));
-  iVar8 = fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x1e4));
-  *(int *)(newtonObj + 0x1c8) = iVar5 - iVar8;
-  iVar5 = fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x1e0));
-  iVar8 = fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x1dc));
-  v = (coorddef *)(newtonObj + 0x1c4);
-  *(int *)(newtonObj + 0x1cc) = iVar5 - iVar8;
-NewtonGroundShadow_normalizeV:
-  Math_NormalizeShortVector(v);
+  *(int *)(newtonObj + 0x1c4) =
+       fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x1e4)) -
+       fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x1e0));
+  *(int *)(newtonObj + 0x1c8) =
+       fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x1dc)) -
+       fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x1e4));
+  *(int *)(newtonObj + 0x1cc) =
+       fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x1e0)) -
+       fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x1dc));
+  Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1c4));
   return;
 }
 
@@ -1898,20 +1848,32 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
   barrierVec.x = -(normal.z / 0x100 * 0x100);
   barrierVec.y = 0;
   barrierVec.z = normal.x / 0x100 * 0x100;
-  distRetreat = (normal.x / 0x100) * (newtonObj->linearVel.x / 0x100) +
-                (normal.y / 0x100) * (newtonObj->linearVel.y / 0x100) +
-                (normal.z / 0x100) * (newtonObj->linearVel.z / 0x100);
+  distRetreat = normal.x / 0x100 * (newtonObj->linearVel.x / 0x100) +
+                normal.y / 0x100 * (newtonObj->linearVel.y / 0x100) +
+                normal.z / 0x100 * (newtonObj->linearVel.z / 0x100);
   if (distRetreat < 0) {
     distRetreat = -distRetreat;
   }
-  distRetreat = -distRetreat;
-  if (distRetreat < 0) {
-    distRetreat = distRetreat + 0xf;
-  }
-  distRetreat = distRetreat >> 4;
+  /* MATCH (w55-a11): plain `/0x10` replaces a hand-written `if(x<0)x+=0xf; x>>=4`
+     guard -- that guard IS gcc's own signed power-of-2 divide (83->81, and a
+     semantic correction: the hand form was a transcription of the codegen). */
+  distRetreat = -distRetreat / 0x10;
   if (-0x7ad <= distRetreat) {
     distRetreat = -0x7ae;
   }
+  /* RECEIPT (w55-a11): residual 81, ours 101 vs oracle 106 -- the 5-insn gap is the
+     PARM-SPILL + non-propagated-copy pair.  SYM decode (VA 800A2AF0): the by-value
+     coorddef param has NO SYM record; AUTO -0x58 = the local `barrierVec` @sp+0x18,
+     upVec -0x48 @sp+0x28, islandMatrix -0x38 @sp+0x38, impactVel REG $16,
+     distRetreat REG $3; the incoming struct is spilled by assign_parms to
+     0x74/0x78/0x7C(sp) and RE-LOADED for normal.z (0x7C) inside the dot product,
+     while normal.x is kept live in $a3 (`addu a3,a1,zero`) all the way to
+     islandMatrix.m[0].  Every /256 in the oracle carries the extra
+     `addu vN,src,zero` copy because its dividend stays live; ours mutates in place.
+     MEASURED: div16+clamp-if 81 | div16+clamp-ternary 81 | neg-as-own-statement 83
+     (both clamp forms).  NEXT ANGLES (untried): 06B parm-spill fence placed BEFORE
+     the first statement to pin the assign_parms stores; and forcing normal.x to
+     outlive its divide (it must reach islandMatrix.m[0] in a register, not a reload). */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;

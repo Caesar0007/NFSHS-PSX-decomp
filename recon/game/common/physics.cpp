@@ -658,6 +658,20 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
       if (diff >= (u_char)inc) { diff = (u_char)inc; }
       (carObj->control).gasLevel -= diff;
     }
+    /* RECEIPT (w55-a11): the 8-diff residual here is the non-propagated reg-reg copy
+       class -- oracle `addu v0,a1,a0` (adds the masked inc register straight in),
+       ours inserts `addu v1,a0,zero` first, so we run 2 LONGER (504 vs 502).
+       Oracle shape decoded at 800A9E18-800A9E44: the two arms are value-selects
+       feeding ONE cross-jump-merged `sb v0,0x43F(s1)`, polarity `slt v0,diff,inc;
+       bnez -> use diff`.  MEASURED BASINS: base 10 @504 | yoda 10 @504 |
+       u_char step local 10 @504 | tern `(diff<inc)?diff:inc` 14 @504 |
+       tern via explicit `gasLevel = gasLevel +/- (...)` 14 @504 |
+       if/else per-arm += 31 @499 | mutate-inc (`if(diff<inc) inc=diff;`) 20 @502
+       COUNT-EXACT | tern `>=` polarity 32 @502 COUNT-EXACT.  => two COUNT-EXACT
+       basins exist (mutate-inc, tern-ge); per the floor bar the count-exact basin is
+       the structurally right one, so the next agent should grind coloring FROM
+       mutate-inc (20) rather than from the lower-scoring 10, and re-probe the
+       falsified spellings there (falsifications are basin-relative, w45 05I). */
   }
   if (carObj->carInfo->RampBrake != 0) {
     diff = (carObj->control).desiredBrakeLevel - (carObj->control).brakeLevel;
@@ -1356,6 +1370,21 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
   if (carObj->carInfo->TireType == 2) {
     roadGrip = 0x80000;
   }
+  /* RECEIPT (w55-a11): residual 4 diffs, count-EXACT 127/127, SYM-exact locals
+     (totalAcc $a1 / optVar1 $a3 / optVar2 $a0 / roadGrip $a2 all confirmed vs the
+     8c block).  Sole residual = the NON-PROPAGATED REG-REG COPY class: oracle emits
+     `addu v0,a2,zero; slt v0,v0,v1` (the copy also fills the lw's load-delay slot);
+     ours coalesces it to `nop; slt v0,a2,v1`.  SLD 1719 covers the whole compare
+     AND the assignment => retail wrote this clamp on ONE source line, so the shape
+     is already right.  FALSIFIED IN THIS BASIN (12 spellings, each gated):
+     one-line-if, ternary-min (10), ternary-yoda (38), min-dbl-eval (10), <=-form,
+     !(<)-form, store-readback (10), skid-through-optVar1 (46), volatile skid read (8),
+     opacity fence on roadGrip, read-only fence, __volatile__ fence, tern-select on
+     the TireType pick.  NEXT ANGLE (not tried): allocsim/reqdelta on the block's
+     qtys -- the copy's dest is a block-local qty, so per w47 delete_noop_moves the
+     lever is to stop combine_regs tying it (make the copy's DEST a global allocno,
+     05D) which needs a sibling block writing the same variable; no such sibling
+     exists in this fn, so the reachable dial is the 3-QTY LAW boundary (w46). */
   if (roadGrip >= wheel->skid) {
     roadGrip = wheel->skid;
   }

@@ -1364,7 +1364,18 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
             /* residual 15-diff cluster lives HERE: oracle batches the rp.x/rp.z loads into
                a0/a2 and runs the /256 idioms on COPIES (multi-ref pseudo shape, reload/CSE
                granularity - split-accumulation form regresses 15->25; not source-reachable
-               by any tried shape; see w13-a1 report) */
+               by any tried shape; see w13-a1 report)
+               W55-A11 UPDATE (SLD evidence + 2 more falsifications): diffsrc shows the
+               oracle's two loads `lw a0,0x30(sp); lw a2,0x38(sp)` carry SLD line 1149
+               while the whole divide-and-square chain carries 1151 -- i.e. retail DID read the two
+               components on a separate source statement.  But naming them does NOT
+               reproduce it: `{int rpx=..., rpz=...; maxrp=(rpx/256)*(rpx/256)+...}` gates
+               22 @1162 (one insn SHORTER -- the locals copy-propagate away), and the
+               one-line multi-declarator form is identical.  The single extra oracle insn
+               is `addu v0,a0,zero` = the same non-propagated reg-reg copy class as
+               newton FindGroundElevationAndNormal / physics CalcWheelLockAcc; the load
+               batching is a CONSEQUENCE of that copy freeing the load-delay slot, not an
+               independent lever.  Attack the copy class first, then re-probe batching. */
             maxrp = (relativePosition.x / 256) * (relativePosition.x / 256) +
                     (relativePosition.z / 256) * (relativePosition.z / 256);
             if (maxrp < 0xCCC) {

@@ -26,13 +26,18 @@ void  FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void  FETextRender_Title(short);
 void  FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
 int   CalcTextFadeSelToHi(...);  int CalcTextFadeUnselToSel(...);
-extern char textDefinitions[6][14];  extern int kRGBVals[];  extern int screenheight;
+extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
 /* FEMenuExtended-specific helpers */
 void  DrawShape_SubtractNFS4RectEdges(...);  void DrawShape_NFS4RoundRectangle(...);
 void  FETextRender_SetFont(int);  int textpixels(char*);  void s_upper(char*);
-void  Font_SetBlitter(...);  void Font_ReSetBlitter();  void FontUpsideDownBlit(...);
+/* TRUE prototypes (2026-08-02, user-approved): the old variadic `(...)` decls mangled as
+ * phantom symbols at the Font_SetBlitter(FontUpsideDownBlit) address-take sites -- byte-
+ * neutral fix, reloc symbols now match font.cpp/psxfront.cpp definitions. */
+void  Font_SetBlitter(void (*)(int,int,void *,int,int,charactertbl *,int));
+void  Font_ReSetBlitter();
+void  FontUpsideDownBlit(int,int,void *,int,int,charactertbl *,int);
 void  MenuNFS4_SetHelpPos(...);  int CalcOnOffFade(...);  extern int screenwidth;
 void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextState,tMenuTextType);
 #endif

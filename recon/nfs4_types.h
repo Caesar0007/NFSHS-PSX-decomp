@@ -4561,13 +4561,18 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {   /* 40 
 
 };
 
+extern __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[], tMenuItemOptionsTwoItemChoice_vtable[], tBlankMenuItemGoToMenuNFS4Button_vtable[], tMenuItemDisplayLeftRightChoice_vtable[], tMenuItemSlidingActivated_vtable[], tMenuItemOnOffLeftRightChoice_vtable[], tMenuItemControllerLeftRightChoice_vtable[], tMemoryCardMenuItem_vtable[], tBlankMenuItemNFS4LeftRightChoice_vtable[];   /* manual vtables for fwd-ctor stores */
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
+    tBlankMenuItemNFS4LeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
+    tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf) : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemNFS4LeftRightChoice_vtable; }   /* inline fwd ctor */
     void *TransitionIsFinished();
     void Draw(int, int, char);
     ~tBlankMenuItemNFS4LeftRightChoice();
 };
 
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 32 bytes */
+    tMenuItemOptionsLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
+    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { *(void **)&_vf = (void *)&tMenuItemOptionsLeftRightChoice_vtable; }   /* inline fwd ctor (tGlobalMenuDefs init-list) */
     /* FEMenuExtended methods */
     void Draw(int x,int y,bool selected);
     ~tMenuItemOptionsLeftRightChoice();
@@ -4575,6 +4580,8 @@ struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 
 };
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {   /* 36 bytes */
+    tMenuItemOptionsTwoItemChoice() {}   /* default ctor (members not init-listed elsewhere) */
+    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { *(void **)&_vf = (void *)&tMenuItemOptionsTwoItemChoice_vtable; fOnOffFade = 0x80; }   /* inline fwd ctor */
     short              fOnOffFade;   /* +0x20 */
     /* FEMenuExtended methods */
     void TransitionOn();
@@ -4726,6 +4733,8 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
 };
 
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {   /* 72 bytes */
+    tMenuItemSlidingActivated() {}   /* default ctor (members not init-listed elsewhere) */
+    tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f) : tMenuItemSlidingMenu(a, b, c, d, e, f) { *(void **)&_vf = (void *)&tMenuItemSlidingActivated_vtable; }   /* inline fwd ctor */
     BOOL               fActive;   /* +0x44 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4739,6 +4748,8 @@ struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {   /* 72 bytes *
 };
 
 struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {   /* 44 bytes */
+    tMenuItemDisplayLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
+    tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemDisplayLeftRightChoice_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     int Draw(int, int, bool);
@@ -4746,6 +4757,8 @@ struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {   /* 44
 };
 
 struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {   /* 48 bytes */
+    tMenuItemOnOffLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
+    tMenuItemOnOffLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemOnOffLeftRightChoice_vtable; }   /* inline fwd ctor */
     short              fOnFade;   /* +0x2C */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4788,6 +4801,8 @@ struct tInsideBoxSongMenu : public tInsideBoxMenu {   /* 136 bytes */
 };
 
 struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {   /* 44 bytes */
+    tMenuItemControllerLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
+    tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemControllerLeftRightChoice_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     int Draw(int, int, bool);
@@ -4838,6 +4853,8 @@ struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
 };
 
 struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 bytes */
+    tMenuItemGoToMenuButtonFade() {}   /* default ctor */
+    tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *mn, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButton(t, mn, f) {}   /* inline fwd ctor */
     short              fFadeVal, fFadeDir;   /* +0x20 */
     BOOL               fInTransition;   /* +0x24 */
     short              fEnableVal;   /* +0x28 */
@@ -4851,6 +4868,8 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 by
 };
 
 struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {   /* 44 bytes */
+    tMemoryCardMenuItem() {}   /* default ctor (members not init-listed elsewhere) */
+    tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButtonFade(t, m, f) { *(void **)&_vf = (void *)&tMemoryCardMenuItem_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     int Draw(bool);
@@ -4858,6 +4877,8 @@ struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {   /* 44 bytes 
 };
 
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {   /* 44 bytes */
+    tBlankMenuItemGoToMenuNFS4Button() {}   /* default ctor (members not init-listed elsewhere) */
+    tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m, void (*f)(tMenuCommand&), int ff, int nf) : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemGoToMenuNFS4Button_vtable; }   /* inline fwd ctor */
     void *TransitionIsFinished();
     void Draw(int, int, char);
     void Draw(int);
@@ -4865,6 +4886,8 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {  
 };
 
 struct tInsideBoxControllerLeftRightSlider {   /* 40 bytes */
+    tInsideBoxControllerLeftRightSlider() {}   /* default ctor (members not init-listed elsewhere) */
+    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d) : _base_tInsideBoxLeftRightSlider(t, d) {}   /* inline fwd ctor (composition) */
     tInsideBoxLeftRightSlider _base_tInsideBoxLeftRightSlider;   /* +0x0 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */

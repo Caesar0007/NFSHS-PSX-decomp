@@ -220,87 +220,53 @@ void tScreenMain::SetState(tScreenMainState state)
 
 
 /* ---- tScreenMain::InitDynamicImages  [SCREENMAIN.CPP:348-402] ---- */
+/* MATCH W61 (2026-08-10): PASS, 170 -> 0 diffs.  Replaced the Ghidra
+   temporary graph with the SYM's exact 12 locals and original nested-loop
+   roles.  IDA's retail allocation (video=$s1, config=$fp, x/y=$s2/$s3,
+   i/j/k=$t2/$s6/$s4) then falls out naturally; SLD lines 394-396 establish
+   the final tint/state/bright statement order. */
 void tScreenMain::InitDynamicImages()
 
 {
-  byte bVar1;
-  byte bVar2;
-  ushort uVar3;
-  int index;
-  int iVar4;
-  int iVar5;
-  int xOffset, yOffset;
-  uint uVar6;
-  int startX;
-  int i;
-  int iVar7;
-  int startY;
   tVideo *video;
-  tVideo *video2;
-  int x;
-  int iVar9;
-  int y;
-  int iVar10;
-  int k;
-  int iVar11;
-  int j;
-  int iVar12;
   int videoWallConfig;
-  
-  iVar4 = rand();
-  iVar4 = iVar4 % 0x18;
-  iVar7 = 0;
-  if (0 < videoWallConfigs[iVar4].numVideos) {
-    do {
-      video2 = videoWallConfigs[iVar4].videos[iVar7];
-      bVar1 = video2->x;
-      bVar2 = video2->y;
-      iVar12 = 0;
-      if (video2->tileWidth != '\0') {
-        do {
-          iVar11 = 0;
-          if (video2->tileHeight != '\0') {
-            do {
-              iVar10 = 0;
-              if (video2->height != '\0') {
-                do {
-                  uVar6 = (uint)(byte)video2->width;
-                  iVar9 = 0;
-                  if (uVar6 != 0) {
-                    do {
-                      iVar5 = (iVar10 + (uint)bVar2 + iVar11 * (uint)(byte)video2->height) * 4 +
-                              iVar9 + (uint)bVar1 + iVar12 * uVar6;
-                      this->tvTransitions[iVar5].u = (char)iVar9 * (char)(0x50 / uVar6);
-                      this->tvTransitions[iVar5].v =
-                           (char)iVar10 * (char)(0x50 / (byte)video2->height);
-                      this->tvTransitions[iVar5].uw = (char)(0x50 / (byte)video2->width) + 0xff;
-                      this->tvTransitions[iVar5].vh = (uchar)(0x50 / (byte)video2->height);
-                      uVar3 = GetTPage(2,0,0x200,0);
-                      this->tvTransitions[iVar5].tpage = uVar3;
-                      this->tvTransitions[iVar5].clut = 0;
-                      this->tvTransitions[iVar5].flags = 0x22;
-                      iVar9 = iVar9 + 1;
-                      uVar6 = tintColors[this->fCurrentBG[this->fCurrentSlot]];
-                      this->tvTransitions[iVar5].state = kScreenMain_DynamicImage;
-                      this->tvTransitions[iVar5].bright = 0x80;
-                      this->tvTransitions[iVar5].tint = uVar6;
-                      uVar6 = (uint)(byte)video2->width;
-                    } while (iVar9 < (int)uVar6);
-                  }
-                  iVar10 = iVar10 + 1;
-                } while (iVar10 < (int)(uint)(byte)video2->height);
-              }
-              iVar11 = iVar11 + 1;
-            } while (iVar11 < (int)(uint)(byte)video2->tileHeight);
+  int startX;
+  int startY;
+  int x;
+  int y;
+  int xOffset;
+  int yOffset;
+  int i;
+  int j;
+  int k;
+  int index;
+
+  videoWallConfig = rand() % 24;
+  for (i = 0; i < videoWallConfigs[videoWallConfig].numVideos; i++) {
+    video = videoWallConfigs[videoWallConfig].videos[i];
+    startX = video->x;
+    startY = video->y;
+    for (j = 0; j < video->tileWidth; j++) {
+      for (k = 0; k < video->tileHeight; k++) {
+        for (y = 0; y < video->height; y++) {
+          for (x = 0; x < video->width; x++) {
+            xOffset = x + startX + j * video->width;
+            yOffset = y + startY + k * video->height;
+            index = yOffset * 4 + xOffset;
+            this->tvTransitions[index].u = x * (80 / video->width);
+            this->tvTransitions[index].v = y * (80 / video->height);
+            this->tvTransitions[index].uw = (80 / video->width) - 1;
+            this->tvTransitions[index].vh = 80 / video->height;
+            this->tvTransitions[index].tpage = GetTPage(2,0,0x200,0);
+            this->tvTransitions[index].clut = 0;
+            this->tvTransitions[index].flags = 0x22;
+            this->tvTransitions[index].tint = tintColors[this->fCurrentBG[this->fCurrentSlot]];
+            this->tvTransitions[index].state = kScreenMain_DynamicImage;
+            this->tvTransitions[index].bright = 0x80;
           }
-          iVar12 = iVar12 + 1;
-        } while (iVar12 < (int)(uint)(byte)video2->tileWidth);
+        }
       }
-      /* BUGFIX (W56-A7): the outer video-index counter is iVar7 (indexed at
-         `videos[iVar7]`, tested below) -- the Ghidra output incremented an
-         uninitialised `i` instead, leaving iVar7 stuck at 0 (dead loop). */
-      iVar7 = iVar7 + 1;
-    } while (iVar7 < videoWallConfigs[iVar4].numVideos);
+    }
   }
   return;
 }

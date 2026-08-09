@@ -130,10 +130,10 @@ void tCreditManager::Draw(bool selected)
   if (iVar1 < 0) {
     iVar2 = 0;
   }
-  doTextFade = iVar2 < 0x5c;
   if (0x5c < iVar2) {
     iVar2 = 0x5c;
   }
+  doTextFade = iVar2 < 0x5c;
   this->fTVFade = iVar2;
   if (doTextFade) {
     iVar1 = 0x80 - iVar2;

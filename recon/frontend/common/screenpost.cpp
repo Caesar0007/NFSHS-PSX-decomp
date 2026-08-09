@@ -324,7 +324,6 @@ void tScreenPinkSlipStandings::DrawBackground()
 
   fade = (int)this->fScreenFadeVal;
   type = textType_TrackRecords;
-  wwwww = 0x2fe;
   for (i = 0; state = textState_Hilighted,
       i < (int)(byte)frontEnd.pinkSlipsNumTracks; i = i + 1) {
       tTrackInformation trackInfo;
@@ -336,7 +335,7 @@ void tScreenPinkSlipStandings::DrawBackground()
       GetTrack(&trackManager,(byte)frontEnd.track[i],&trackInfo);
       FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
                  (short)((signed char)trackInfo.fTrackID + 0xd5),
-                 (short)TextSys_WordX(0x2f7),(short)TextSys_WordY(wwwww),0,state,
+                 (short)TextSys_WordX(0x2f7),(short)TextSys_WordY(0x2fe + i),0,state,
                  type);
       if (frontEnd.pinkSlipsWinner[i] == -1) {
         sprintf(string,TextSys_Word(0x30d));
@@ -345,8 +344,7 @@ void tScreenPinkSlipStandings::DrawBackground()
         sprintf(string,PlayerName((int)frontEnd.pinkSlipsWinner[i]));
       }
       FETextRender_FullTextFade(fade,string,(short)TextSys_WordX(0x2fb),
-                 (short)TextSys_WordY(wwwww),type,state,1);
-      wwwww = wwwww + 1;
+                 (short)TextSys_WordY(0x2fe + i),type,state,1);
   }
   i = 0;
   /* MATCH (2026-08-03, 10->8): sharing this literal makes its live range

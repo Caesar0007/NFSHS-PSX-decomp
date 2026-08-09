@@ -9,7 +9,7 @@ extern LUMPYHEAD  *speechfileHeader[];    /* 0x8005150c  PTR STRUCT -- unsized-a
                                              separate v0 scratch for value-load into arg reg */
 extern char       *allLanguages[6];       /* 0x800514d0  ARY PTR CHAR dims 6 */
 extern int         commentaryActualLevel; /* 0x80051538  INT */
-extern char        gCurrentVIV;           /* 0x800514cc  CHAR */
+extern signed char gCurrentVIV;           /* 0x800514cc  CHAR */
 extern char        bigBuf[];              /* 0x80010000  shared big buffer */
 extern char       *Paths_Paths[];
 extern int         gMasterFENarrationLevel, gMasterMusicLevel, gStopCommentaryNow;

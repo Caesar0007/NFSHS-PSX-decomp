@@ -295,11 +295,15 @@ void tScreenAudio::Cleanup()
   gMasterFENarrationLevel = (int)(byte)frontEnd.narrationVolume;
   gMasterEngineLevel = (int)(byte)frontEnd.engineVolume;
   gMasterAmbientLevel = (int)(byte)frontEnd.ambientVolume;
-  AudioMus_Volume(gMasterMusicLevel * 0x23 >> 6);
+  AudioMus_Volume((int)(byte)frontEnd.musicVolume * 0x23 >> 6);
   this->Cleanup();
-  while ((*(short *)((char *)&ginfo + 0x16)) != 0) {
+  SPEECHINFO *info = &ginfo;
+L_wait:
+  if ((*(u_short *)&info->areLoading) != 0) {
     FeAudio_systemtask(0);
+    goto L_wait;
   }
+  return;
   return;
 }
 

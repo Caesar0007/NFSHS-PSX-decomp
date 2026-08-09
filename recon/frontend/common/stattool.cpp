@@ -69,21 +69,15 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 void Stattool_ParseTime(int nTime,char *sLapTime)
 
 {
-  int centi;
-  int min;
-  int sec;
-  int remCenti;
-  float fTime;
-  float fDiv;
+  short min;
+  short sec;
   
-  __floatsisf(nTime);
-  __divsf3(fTime,fDiv);
-  centi = __fixsfsi(fTime);
-  min = (centi / 6000) * 0x10000 >> 0x10;
-  remCenti = centi + min * -6000;
-  sec = (remCenti / 100) * 0x10000 >> 0x10;
+  nTime = (int)((float)nTime / 0.64f);
+  min = nTime / 6000;
+  nTime = nTime - min * 6000;
+  sec = nTime / 100;
   sprintf(sLapTime,"%02d%c%02d%c%02d",min,(uint)(byte)minChar[(byte)frontEnd.language],sec,
-             (uint)(byte)secChar[(byte)frontEnd.language],(remCenti + sec * -100) * 0x10000 >> 0x10);
+             (uint)(byte)secChar[(byte)frontEnd.language],(short)(nTime - sec * 100));
   return;
 }
 
@@ -285,25 +279,25 @@ int Stattool_ReturnRecordLapTime(short nTrack)
 short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
 
 {
-  int kIdx;
   int numCars;
   short k;
   short bHumanFlag;
   
   bHumanFlag = 0;
-  numCars = (int)(((uint)(ushort)GameSetup_gData.numPlayerRaceCars +
-                (uint)(ushort)GameSetup_gData.numOpponentRaceCars) * 0x10000) >> 0x10;
+  numCars = (short)((ushort)GameSetup_gData.numPlayerRaceCars +
+                (ushort)GameSetup_gData.numOpponentRaceCars);
   k = 0;
   if (0 < numCars) {
-    kIdx = 0;
-    bHumanFlag = 0;
+    int one = 1;
+    int bound = numCars;
     do {
-      k = k + 1;
-      if ((dummyCars[kIdx >> 0x10].carFlags & 4U) != 0) {
+      if ((dummyCars[k].carFlags & 4U) != 0) {
         bHumanFlag = 1;
       }
-    } while ((bHumanFlag != 1) && (kIdx = k * 0x10000, k * 0x10000 >> 0x10 < numCars));
+      k = k + 1;
+    } while ((bHumanFlag != one) && (k < bound));
   }
+  return bHumanFlag;
   return bHumanFlag;
 }
 

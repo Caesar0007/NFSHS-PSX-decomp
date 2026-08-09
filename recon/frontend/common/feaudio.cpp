@@ -5,7 +5,7 @@
 
 /* ---- Feaudio.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes / .bss zero) ---- */
 int          gStopCommentaryNow;   /* @0x800514c8  (bss(zero)) */
-char         gCurrentVIV = -1;   /* @0x800514cc */
+signed char  gCurrentVIV = -1;   /* @0x800514cc */
 char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"};   /* @0x800514d0 .rodata prefixes */
 SPEECHINFO   ginfo;   /* @0x800514e8  (bss(zero)) */
 /* speechfileHeader declared (unsized-array form) in feaudio_externs.h; accessed [0] so the value-load
@@ -111,10 +111,8 @@ void FeAudio_systemtask(int x)
   
   systemtask(x);
   if ((ginfo.areLoading != '\0') &&
-     (rd_status = getasyncreadstatus(ginfo.vivHandle), tu1 = (*(u_int*)((char*)&ginfo + 16)),
-     rd_status != 0)) {
-    (*(u_short*)((char*)&ginfo + 16)) = (*(u_short*)((char*)&ginfo + 16)) & 0xff00;
-    (*(u_char*)((char*)&ginfo + 19)) = (u_char)((tu1) >> 24);
+     (rd_status = getasyncreadstatus(ginfo.vivHandle), rd_status != 0)) {
+    ginfo.areLoading = '\0';
     ginfo.playNextOne = '\x01';
   }
   if ((ginfo.soundIsPlaying != '\0') &&
@@ -134,7 +132,6 @@ void FeAudio_systemtask(int x)
         systemtask(0);
       }
       ginfo.areLoading = '\0';
-      ginfo.soundIsPlaying = '\0';
       ginfo.playNextOne = '\x01';
     }
     ginfo.soundIsPlaying = '\0';
@@ -167,8 +164,10 @@ void FeAudio_systemtask(int x)
       purgememadr(ginfo.pBankHeader);
       ginfo.pBankHeader = (char *)0x0;
     }
-    (*(u_int*)((char*)&ginfo + 16)) = (*(u_int*)((char*)&ginfo + 16)) & 0xff000000;
+    ginfo.soundIsPlaying = '\0';
+    ginfo.playNextOne = '\0';
     gStopCommentaryNow = 0;
+    ginfo.areLoading = '\0';
   }
   if ((ginfo.playNextOne != '\0') && ((*(u_short*)((char*)&ginfo + 16)) == 0)) {
     Feaudio_StartPatch(&ginfo);
@@ -193,6 +192,7 @@ short FeAudio_AsyncPlayCommentary(char *name)
   strncpy(ginfo.name,name,4);
   ginfo.nHandle = 0;
   ginfo.nSoundHandle = 0;
+  ginfo.multiplay = (int)(*name != 'c');
   ginfo.areLoading = '\0';
   ginfo.soundIsPlaying = '\0';
   ginfo.playNextOne = '\0';
@@ -201,7 +201,6 @@ short FeAudio_AsyncPlayCommentary(char *name)
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
   gCurrentVIV = -1;
-  ginfo.multiplay = (int)(*name != 'c');
   ok = FEAudio_StartLoadPatch(&ginfo);
   if (ok != 0) {
     AudioMus_Volume(gMasterMusicLevel * 0x23 >> 7);
@@ -216,28 +215,18 @@ short FeAudio_AsyncPlayCommentary(char *name)
 short FeAudio_AsyncPlaySpeech(int type,int index)
 
 {
-  short sVar1;
-  u_char *fmt;
-  int iVar2;
   char vivname [5];
   
   if (type == 2) {
-    fmt = bigBuf + 0x110;
-    iVar2 = 99;
+    sprintf(vivname,(char *)(bigBuf + 0x110),99,index);
   }
   else if (type == 0) {
-    fmt = bigBuf + 0x118;
-    iVar2 = 0x61;
-    index = index + 0x61;
+    sprintf(vivname,(char *)(bigBuf + 0x118),0x61,index + 0x61);
   }
   else {
-    fmt = bigBuf + 0x118;
-    iVar2 = type + 0x61;
-    index = index + 0x30;
+    sprintf(vivname,(char *)(bigBuf + 0x118),type + 0x61,index + 0x30);
   }
-  sprintf(vivname,(char *)fmt,iVar2,index);
-  sVar1 = FeAudio_AsyncPlayCommentary(vivname);
-  return sVar1;
+  return FeAudio_AsyncPlayCommentary(vivname);
 }
 
 

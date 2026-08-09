@@ -93,10 +93,9 @@ void tTrackManager::LoadDescription()
   char *input;
   char filename [80];
   
-  data = filename;
-  addr = (u_long *)sprintf(data,"%s%s",Paths_Paths[0x25],"fetrk.trk");
+  sprintf(filename,"%s%s",Paths_Paths[0x25],"fetrk.trk");
   this->ReleaseDescription();
-  loadfileadr(filename,0x10);
+  addr = (u_long *)loadfileadr(filename,0x10);
   uVar1 = *addr;
   this->fNumTracks = uVar1;
   dst = (tTrackInformation *)reservememadr("Track List",uVar1 * 0x30,0);
@@ -104,18 +103,19 @@ void tTrackManager::LoadDescription()
   blockmove(addr + 1,dst,this->fNumTracks * 0x30);
   uVar4 = 0;
   if (this->fNumTracks != 0) {
+    int one = 1;
     iVar3 = 0;
     do {
-      pcVar2 = this->fTracks->fShapeName + iVar3 + -8;
+      pcVar2 = (char *)(iVar3 + (int)this->fTracks);
       if (pcVar2[3] != '\0') {
-        this->fAvailableTracks[*pcVar2] = 1;
+        this->fAvailableTracks[*(signed char *)pcVar2] = one;
       }
-      pcVar2 = this->fTracks->fShapeName + iVar3 + -8;
+      pcVar2 = (char *)(iVar3 + (int)this->fTracks);
       if (pcVar2[4] == '\0') {
-        this->fViewableTracks[*pcVar2] = 1;
+        this->fViewableTracks[*(signed char *)pcVar2] = one;
       }
-      uVar4 = uVar4 + 1;
       iVar3 = iVar3 + 0x30;
+      uVar4 = uVar4 + 1;
     } while (uVar4 < this->fNumTracks);
   }
   purgememadr(addr);
@@ -286,32 +286,30 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
 void * tListIteratorTrack::ValidTrack(char track)
 
 {
-  char cVar1;
-  tTrackInformation *trackInfo;
+  signed char cVar1;
   tTrackInformation *ptVar2;
   tTrackManager *ptVar3;
-  u_char result;
-  void *pvVar4;
-  char *input;
-  char filename [80];
+  int avail;
   
   ptVar3 = this->fTrackManager;
   ptVar2 = ptVar3->fTracks + (u_char)track;
-  cVar1 = ptVar2->fTrackID;
-  pvVar4 = (void *)ptVar3->fAvailableTracks[cVar1];
-  if (frontEnd.raceType == '\0') {
-    pvVar4 = (void *)(u_int)(pvVar4 != (void *)0x0 || ptVar3->fViewableTracks[cVar1] != 0);
-  }
-  else if (frontEnd.raceType == '\x01') {
-    pvVar4 = (void *)(u_int)(pvVar4 != (void *)0x0 || ptVar3->fViewableTracks[cVar1] != 0);
+  cVar1 = (signed char)ptVar2->fTrackID;
+  avail = ptVar3->fAvailableTracks[cVar1];
+  switch (frontEnd.raceType) {
+  case 0:
+    avail = (avail | ptVar3->fViewableTracks[cVar1]) != 0;
+    break;
+  case 1:
+    avail = (avail | ptVar3->fViewableTracks[cVar1]) != 0;
     if (ptVar2->fIsEgg != '\0') {
-      pvVar4 = (void *)0x0;
+      avail = 0;
     }
     if (2 < ptVar2->fTrackDifficulty) {
-      pvVar4 = (void *)0x0;
+      avail = 0;
     }
+    break;
   }
-  return pvVar4;
+  return (void *)avail;
 }
 
 

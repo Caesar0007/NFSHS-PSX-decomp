@@ -35,9 +35,16 @@ void FETextRender_SetFont(int size)
   
   if (currentSize != size) {
     currentSize = (short)size;
-    f1 = font12[0];
-    if ((currentSize != 0) && (f1 = fontTitle[0], currentSize != 3)) {
+    switch (currentSize) {
+    case 0:
+      f1 = font12[0];
+      break;
+    case 3:
+      f1 = fontTitle[0];
+      break;
+    default:
       f1 = font18[0];
+      break;
     }
     Font_SwitchFont(f1);
   }
@@ -51,38 +58,37 @@ void FETextRender_SetFont(int size)
 void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,short justify)
 
 {
-  short sVar1;
+  short xx;
+  char *str;
   char buffer [128];
   int iVar2;
   
+  xx = x;
+  str = sMenuText;
   FETextRender_SetFont((u_int)(u_char)size);
   if ((u_char)size == 0) {
-    sprintf(buffer,"%s",sMenuText);
+    sprintf(buffer,"%s",str);
     s_lower(buffer);
-    sMenuText = buffer;
+    str = buffer;
   }
   if (((justify == 1) || (justify == 4)) || (justify == 6)) {
-    iVar2 = textpixels(sMenuText);
-    sVar1 = (short)iVar2;
+    xx = xx - (short)textpixels(str);
   }
-  else {
-    if ((justify != 2) && (justify != 5)) goto FETextFullRGB_setSemiTrans;
-    iVar2 = textpixels(sMenuText);
-    sVar1 = (short)(iVar2 / 2);
+  else if ((justify == 2) || (justify == 5)) {
+    xx = x - (short)(textpixels(str) / 2);
   }
-  x = x - sVar1;
-FETextFullRGB_setSemiTrans:
   iVar2 = 1;
   if (gSemiTransText_arr[0] != 0) {
     iVar2 = 0xf;
   }
   Font_TextColor(iVar2);
   Font_TextTint(col);
-  Font_TextXY(sMenuText,(int)x,(int)y);
+  Font_TextXY(str,(int)xx,(int)y);
   if ((u_short)(justify - 3U) < 3) {
     Font_TextTint(0);
-    Font_TextXY(sMenuText,x + 2,y + 1);
+    Font_TextXY(str,xx + 2,y + 1);
   }
+  return;
   return;
 }
 
@@ -94,9 +100,8 @@ void FETextRender_FullText(char *sMenuText,short x,short y,tMenuTextType textTyp
 
 {
   
-  FETextRender_FullTextRGB(sMenuText,x,y,
-             kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],
-             textDefinitions[textType][0],justify);
+  int col = kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]];
+  FETextRender_FullTextRGB(sMenuText,x,y,col,textDefinitions[textType][0],justify);
   return;
 }
 
@@ -110,7 +115,7 @@ void FETextRender_FullTextFade(int fade,char *sMenuText,short x,short y,tMenuTex
   int col;
   
   col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],
-                   (int)x);
+                   fade);
   FETextRender_FullTextRGB(sMenuText,x,y,col,textDefinitions[textType][0],justify);
   return;
 }
@@ -373,6 +378,7 @@ void FETextRender_Title(short index)
   int iVar1;
   u_short uVar2;
   char upstr [80];
+  short box [4];
   
   uVar2 = 0;
   if (FEApp->fPlayer == '\x01') {
@@ -382,9 +388,12 @@ void FETextRender_Title(short index)
   strcpy(upstr,src);
   s_lower(upstr);
   FETextRender_FullText(upstr,0x30,uVar2 | 0x10,textType_Title,textState_Selected,0);
+  box[0] = 0x2b;
+  box[1] = uVar2 + 0x12;
   iVar1 = textpixels(upstr);
-  
-  PSXDrawTransSquare(0,0x2b,(int)(short)(uVar2 + 0x12),(iVar1 + 10) * 0x10000 >> 0x10,0xc,2);
+  box[2] = iVar1 + 10;
+  box[3] = 0xc;
+  PSXDrawTransSquare(0,box[0],box[1],box[2],box[3],2);
   FeDraw_SetABRMode(0);
   return;
 }

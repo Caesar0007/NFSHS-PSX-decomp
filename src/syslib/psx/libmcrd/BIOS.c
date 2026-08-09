@@ -1,6 +1,5 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/main", CD_init);
 INCLUDE_ASM("asm/nonmatchings/main", funcEvSpIOE);
 INCLUDE_ASM("asm/nonmatchings/main", funcEvSpError);
 INCLUDE_ASM("asm/nonmatchings/main", funcEvSpTimeout);

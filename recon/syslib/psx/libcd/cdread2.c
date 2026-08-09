@@ -15,7 +15,12 @@ extern int CdReadyCallback(int func);                            /* @0x800F78A0 
 
 /* ---- streaming subsystem (libcd C_011 / C_004) ------------------------------------------------ */
 extern void StCdInterrupt(void);        /* @0x800F7E78 (C_011) */
-extern int  data_ready_callback(void);  /* @0x80108798 (C_004) */
+/* @0x80108798 (C_004) -- DEFINED in recon/syslib/psx/libcd/streamhelp.c:146 as `void`.
+ * W52-A10: this decl said `int`; the sibling decl in stcdint.c already said `void`.  Only its
+ * ADDRESS is used here (CdDataCallback takes the handler as an int), so the wrong return type
+ * was codegen-inert -- but it was a genuine declaration/definition mismatch (methodology
+ * gotcha #15 declaration drift), invisible to the per-TU compile gate. */
+extern void data_ready_callback(void);
 extern int  StMode;                     /* @0x801489CC : streaming RGB24/mode flag */
 
 /* @0x800F8FCC : ready callback for a streaming read -- pump the stream interrupt handler. */

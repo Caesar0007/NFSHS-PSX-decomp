@@ -1,32 +1,56 @@
 /* syslib/psx/libgpu/P34.c -- RECONSTRUCTED from nfs4-f.exe (disasm-v3).
  *   obj libgpu.lib(P34.OBJ): SetDrawMove @0x8010C698.  Builds a DR_MOVE (frame-buffer
  *   block copy) primitive: copies rect (src x/y, w/h) to dest (x,y).  Length byte = 5 only
- *   when both w and h are non-zero (a degenerate rect produces a 0-length no-op).  RECT is
- *   {short x,y,w,h}: w/h are the shorts at +4/+6.
- * NEAR-MISS (verify_asm 13/25 vs 24): oracle moves p into t0 as its very first instruction
- * (freeing a0 to double as the len(0/5) scratch), then spills the byte-store base through t0;
- * ours keeps p live in a0 and allocates a separate reg (t1) for len. Tried: rebasing the byte
- * store off `w` instead of `p` (worse, 20 diffs -- collapses len onto the same reg as the base
- * entirely); a ternary for len (worse, 15 diffs, also flips the beqz/bnez polarity). Allocator
- * coloring tie, not a semantic gap. */
-extern void SetDrawMove(void *p, void *rect, int x, int y)   /* @0x8010C698 */
+ *   when both w and h are non-zero (a degenerate rect produces a 0-length no-op).
+ *
+ * MATCH (W52-A10, 2026-08-09): PASS 24/24, pin-free and fence-free.
+ *   The whole 11-diff residual was a RECONSTRUCTION-SHAPE artifact, not an allocator tie.
+ *   The prior body hand-rolled the packet as `int *w = (int *)p` + byte-offset casts
+ *   (`((u_char *)p)[3] = len`, `w[1] = ...`) plus a zero-insn read fence to manufacture
+ *   retail's `addu $t0,$a0,$zero` parm copy.  Writing what a 1998 Sony library programmer
+ *   actually wrote -- the REAL PsyQ types (`DR_MOVE {u_long tag; u_long code[5];}`,
+ *   `RECT {short x,y,w,h}`, `P_TAG {unsigned addr:24; unsigned len:8; ...}`) and the REAL
+ *   `setlen()` macro from libgpu.h -- reproduces every register role for free:
+ *     - `setlen(p,len)` = the P_TAG `len:8` BITFIELD store, which cc1 lowers to the
+ *       oracle's single `sb $a0,0x3($t0)` (a byte-offset cast forced the base to stay in
+ *       $a0, which is exactly what pinned `len` off $a0 and cost the extra insn);
+ *     - one `p` pseudo (no `w` alias) frees $a0 for `len` and lets the parm copy into $t0
+ *       survive on its own -- the fence is no longer needed and was removed;
+ *     - `p->code[k]` array-element stores schedule the `lw $a0,0($a1)` into the load-delay
+ *       slot that our `nop` used to occupy (25 -> 24 insns).
+ *   Cross-checked against the byte-matched PsyQ sibling C:\Temp\psyz\decomp\src\libgpu\prim.c
+ *   (Xeeynamo's psyz -- a MATCHED, non-INCLUDE_ASM SetDrawMove); the body below is that
+ *   shape with PsyQ 4.3's own header types.  Ladder A/B on the OLD source was flat
+ *   (2.6.0/2.6.3/2.7.2-970404/2.7.2/2.8.0/2.8.1 all 11 diffs, 2.91.66 9, 2.95.2 27), which
+ *   correctly said "not a compiler-version identity" -- it was the source. */
+
+typedef unsigned char  u_char;
+typedef unsigned long  u_long;
+
+typedef struct {                /* primitive tag: 24-bit OT link + 8-bit word length */
+    unsigned addr:24;
+    unsigned len:8;
+    u_char   r0, g0, b0, code;
+} P_TAG;
+
+typedef struct { short x, y; short w, h; } RECT;
+
+typedef struct {                /* MoveImage */
+    u_long tag;
+    u_long code[5];
+} DR_MOVE;
+
+#define setlen(p, _len) (((P_TAG *)(p))->len = (u_char)(_len))
+
+extern void SetDrawMove(DR_MOVE *p, RECT *rect, int x, int y)   /* @0x8010C698 */
 {
-    int           *w = (int *)p;
-    short         *r = (short *)rect;
-    int len;
-    /* MATCH (w51-a8): a zero-insn READ FENCE on the packet base forces cc1 to
-     * emit retail's `addu $t0,$a0,$zero` param copy as the FIRST insn (instead
-     * of coalescing p into $a0 and materializing len first) -- 13 -> 11 diffs.
-     * Residual: retail parks len in the freed $a0 and bases the byte store on
-     * $t0; ours keeps p live in $a0 for the byte store, so len takes $t1 and the
-     * `lw v0,0(a1)` load-delay slot stays a nop (25 vs 24 insns). */
-    __asm__("" : : "r"(w));
-    len = 5;
-    if (r[2] == 0 || r[3] == 0) len = 0;            /* r[2]=w, r[3]=h */
-    w[1] = 0x01000000;
-    w[2] = (int)0x80000000;
-    ((unsigned char *)p)[3] = (unsigned char)len;
-    w[4] = (y << 16) | (x & 0xffff);
-    w[3] = ((int *)rect)[0];                        /* src x|y */
-    w[5] = ((int *)rect)[1];                        /* src w|h */
+    int len = 5;
+    if (!rect->w || !rect->h)
+        len = 0;
+    setlen(p, len);
+    p->code[0] = 0x01000000;                    /* GPU cmd: VRAM->VRAM blit */
+    p->code[1] = 0x80000000;
+    p->code[2] = *(int *)&rect->x;              /* source x|y */
+    p->code[3] = (y << 16) | (x & 0xffff);      /* dest   x|y */
+    p->code[4] = *(int *)&rect->w;              /* w|h */
 }

@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 2891 at 100% (82.7%)
+TOTAL: 3496 functions, 2893 at 100% (82.8%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -3007,7 +3007,7 @@ VA             %match  unit                     function
 0x800F69A8     94.55%  eaclib/psx/eacpsxz/vramfxya vramfxya
 0x800F6C3C    100.00%  eaclib/psx/eacpsxz/shpclut getshapeclut
 0x800F6C94    100.00%  eaclib/psx/eacpsxz/shpclut shapetoclutid
-0x800F6D18     80.83%  syslib/psx/libgpu/FONT   FntFlush
+0x800F6D18     98.60%  syslib/psx/libgpu/FONT   FntFlush
 0x800F7034     92.10%  syslib/psx/libgpu/FONT   FntPrint
 0x800F7400    100.00%  syslib/psx/libpress/VLC  DecDCTvlcSize
 0x800F7430    100.00%  syslib/psx/libpress/VLC  DecDCTvlc
@@ -3055,6 +3055,7 @@ VA             %match  unit                     function
 0x800F9380     94.13%  syslib/psx/libcd/iso9660 CD_newmedia
 0x800F9644    100.00%  syslib/psx/libcd/iso9660 _cd_find_path
 0x800F96E8    100.00%  syslib/psx/libcd/iso9660 CD_cachefile
+0x800F9984    100.00%  syslib/psx/libcd/iso9660 cd_read
 0x800F99F8    100.00%  syslib/psx/libcd/stream  StSetRing
 0x800F9A28     99.89%  syslib/psx/libcd/streamhelp StGetNext
 0x800F9AE8    100.00%  eaclib/psx/eacpsxz/cdfs  CD_systaskfunc
@@ -3065,12 +3066,10 @@ VA             %match  unit                     function
 0x800FA344    100.00%  eaclib/psx/eacpsxz/cdfs  dircompare
 0x800FA364    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Restore
 0x800FA394    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Init
-0x800FA394      0.00%  syslib/psx/libmcrd/BIOS  CD_Init
 0x800FA4A8    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Restart
 0x800FA554    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Open
 0x800FA65C    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Close
 0x800FA678    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Read
-0x800FA678      0.00%  syslib/psx/libcd/iso9660 CD_Read
 0x800FA904    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Stopread
 0x800FA920    100.00%  eaclib/psx/eacpsxz/cdfs  CD_Getinfo
 0x800FA994    100.00%  syslib/psx/libcd/streamhelp StFreeRing
@@ -3357,6 +3356,7 @@ VA             %match  unit                     function
 0x80107F30     86.32%  syslib/psx/libcd/drv     CD_flush
 0x80108004    100.00%  syslib/psx/libcd/drv     CD_initvol
 0x801080F4    100.00%  syslib/psx/libcd/drv     CD_initintr
+0x80108140     86.67%  syslib/psx/libcd/drv     CD_init_80108140
 0x80108320     80.52%  syslib/psx/libcd/drv     CD_datasync
 0x80108488    100.00%  syslib/psx/libcd/drv     CD_getsector
 0x80108588    100.00%  syslib/psx/libcd/drv     CD_getsector2
@@ -3462,7 +3462,7 @@ VA             %match  unit                     function
 0x8010C1C8    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvId
 0x8010C288     96.43%  syslib/psx/libpad/MCXMAIN _padIntRecvHdr
 0x8010C314     54.07%  syslib/psx/libpad/MCXMAIN _padIntRecvData
-0x8010C698     83.75%  syslib/psx/libgpu/P34    SetDrawMove
+0x8010C698    100.00%  syslib/psx/libgpu/P34    SetDrawMove
 0x8010C6F8    100.00%  syslib/psx/libapi/A07    DeliverEvent
 0x8010C708    100.00%  syslib/psx/libsn/SNREAD  _SN_read
 0x8010C720    100.00%  syslib/psx/libsn/SNWRITE _SN_write

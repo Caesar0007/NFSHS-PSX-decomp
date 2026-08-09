@@ -1,16 +1,15 @@
 /* syslib/psx/libgpu/FONT.c -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3; Ghidra
  *   mangled the id-bounds checks).  obj libgpu.lib(FONT.OBJ): the PsyQ debug-font printer.
  *
- *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) measured
- *   strictly better per-fn diff counts than cc1 (C) on this TU -- FntFlush 252->350 (w26-a1
- *   dual-compile audit). Migrated anyway for source-uniformity across syslib/eaclib. Do NOT revert
- *   to .cpp without a user decision; see recon/syslib/psx/libcd/cdread.c,
- *   recon/syslib/psx/libcd/iso9660.c and recon/eaclib/psx/eacpsxz/cdfs.c for the sibling KEEP-CPP-
- *   turned-uniform TUs (same ruling, same date). C89 dialect fix note: `bool wrap` -> `int wrap`
- *   (no bool keyword in C89) and FntFlush's post-`if` locals (ot/text/p/curx/cury/boty/remain/
- *   autoupd/rightx) hoisted to plain declarations at function top with their computation moved to
- *   separate assignment statements after `fs = &_fnt[id];` (C89 forbids declarations after
- *   statements in the same block; the original interspersed decl+init form is C++-only).
+ *   COMPILED AS C by USER RULING (2026-07-25, uniformity over diff count): cc1plus (C++) then
+ *   measured strictly better per-fn diff counts than cc1 (C) on this TU. Do NOT revert to .cpp
+ *   without a user decision; see recon/syslib/psx/libcd/cdread.c, recon/syslib/psx/libcd/iso9660.c
+ *   and recon/eaclib/psx/eacpsxz/cdfs.c for the sibling KEEP-CPP-turned-uniform TUs (same ruling,
+ *   same date).  [W52-A10: that C-vs-C++ penalty is now MOOT for FntFlush -- the C lane reaches
+ *   6 diffs at an EXACT 199/199 instruction count once the reconstruction uses the real PsyQ
+ *   types; the old gap was shape, not language.]  C89 dialect note: `bool wrap` -> `int wrap`
+ *   and FntFlush's locals are plain declarations at function top with their computation in
+ *   separate assignment statements (C89 forbids declarations after statements in a block).
  *
  *   A FntStream (0x30 B, array @0x80135E58, count @0x80135FD8, active id @0x80135FDC) is a
  *   self-describing text overlay: its first 16 bytes double as a TILE background-box primitive
@@ -35,18 +34,34 @@ extern void  AddPrim(void *ot, void *p); /* libgpu P06 @0x80107040 */
 extern void  DrawOTag(u_long *ot);       /* libgpu SYS @0x800EDCB4 */
 extern unsigned strlen(const char *s);   /* libc C27 (returns int in the original) */
 
+typedef struct {                /* TILE (libgpu.h) : the bg-box primitive, 0x10 bytes */
+    u_long tag;
+    u_char r0, g0, b0, code;
+    short  x0, y0;
+    short  w,  h;
+} TILE;
+
+typedef struct {                /* DR_MODE (libgpu.h) : 0x0C bytes */
+    u_long tag;
+    u_long code[2];
+} DR_MODE;
+
+typedef struct {                /* SPRT_8 (libgpu.h) : one 8x8 glyph, 0x10 bytes */
+    u_long  tag;
+    u_char  r0, g0, b0, code;
+    short   x0, y0;
+    u_char  u0, v0;
+    u_short clut;
+} SPRT_8;
+
 struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
-    u_long tag;                 /* +0x00 : TILE bg-box tag */
-    u_char r, g, b, code;       /* +0x04 : bg-box colour + GPU code (code != 0 => draw box) */
-    short  x, y;                /* +0x08 : clip / box origin */
-    short  w, h;                /* +0x0C : clip / box size */
-    u_long ot;                  /* +0x10 : sprite OT head ('this') */
-    int    _u14, _u18;          /* +0x14, +0x18 */
-    int    maxchars;            /* +0x1C : text capacity */
-    void  *primbuf;             /* +0x20 : per-character sprite buffer */
-    char  *textbuf;             /* +0x24 : accumulated text */
-    int    textlen;             /* +0x28 : current text length */
-    int    autoupd;             /* +0x2C : auto-fit the clip box to the text */
+    TILE     tile;              /* +0x00 : bg-box primitive (code != 0 => draw box) */
+    DR_MODE  draw_mode;         /* +0x10 : sprite OT head ('this') + tpage/clip words */
+    int      maxchars;          /* +0x1C : text capacity */
+    SPRT_8  *primbuf;           /* +0x20 : per-character sprite buffer */
+    char    *textbuf;           /* +0x24 : accumulated text */
+    int      textlen;           /* +0x28 : current text length */
+    int      autoupd;           /* +0x2C : auto-fit the clip box to the text */
 };
 typedef struct FntStream FntStream;
 
@@ -58,67 +73,77 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
 /* @0x800F6D18 : convert a stream's accumulated text into font sprites and draw the OT.
  * An out-of-range id falls back to the active stream; if THAT stream has no text buffer
  * (never opened) the call is a no-op returning NULL.
- * NEAR-MISS (verify_asm 252/209 vs 199, improved from 258 this wave -- w24-a5): structurally
- * correct (entry bounds check, r/g/b digit-escape decode, do-while loop shape and the &fs->ot
- * address-escape spill all confirmed against the raw and present) but the register roles
- * cascade differently past the entry block -- allocator coloring, not semantics. Left as a
- * (weak) floor: real headroom likely remains, this is not exhausted.
- * w24-a5 PINPOINTED the concrete allocator delta: the oracle keeps `remain` (fs->maxchars
- * countdown) resident in $fp for the whole function and fills $s2 with `p` (fs->primbuf) right
- * in the entry block; our build instead put `rightx` (fs->x+fs->w) in $fp, left $s2 UNUSED in
- * the entry block, and shuttled `remain` through a caller-saved temp straight to a NEW stack
- * slot (frame 96B vs the oracle's 80B). Also: the oracle materializes the r/g glyph-colour
- * defaults (sw a2,0x1C/0x20(sp)) BEFORE the callee-save push block; ours does all three r/g/b
- * AFTER it (unresolved, see below).
- * TRIED THIS WAVE: (1) reordering `remain/curx/cury/boty/p/autoupd/rightx` local declarations
- * with `remain` alone moved later -- ZERO effect (not a simple declaration-order-only lever).
- * (2) `for`->`while`-with-trailing-decrement desugar of the main loop -- zero effect (gcc
- * lowers both identically here). (3) **moving `u_char *p` to be declared 2nd (right after
- * `text`, before `remain`) -- WORKED, 258->252, applied below.** It still doesn't get `p` into
- * $s2 (oracle's slot) or free a register for `remain` (both still off), but it measurably
- * changes downstream coloring for the better with zero regressions -- keep building on this
- * lever (try moving `p` even earlier / paired with `curx`,`cury` reordering next) rather than
- * re-trying (1)/(2). NOTE: `boty` is a dead end for the $s2-pressure theory -- it's
- * stack-cached in BOTH builds (never register-resident in the oracle either), so
- * eliminating its local won't free a register. */
-/* MATCH (w51-a8, 2026-08-09): FntFlush's loop body is TRANSPLANTED from the
- * byte-matched PsyQ sibling `C:\Temp\psyz\decomp\src\libgpuont.c` (Xeeynamo's
- * psyz, PsyQ 4.7 / gcc-2.7.2 -- a MATCHED, non-INCLUDE_ASM FntFlush).  The vendor
- * shape differs from the earlier hand reconstruction in four load-bearing ways and
- * takes the fn 250 -> 184 diffs, 211 -> 203 insns (oracle 199):
- *   (1) loop control = `c = *text; while (c) { if (!remain) break; ... c = *++text;
- *       if (!c) break; remain--; }` -- the char is held in a fn-scope int, the
- *       capacity countdown happens at the very END of the body (after the second
- *       exit test), NOT in a `for`-increment;
- *   (2) the dispatch is `c2 = c & 0xFF` + `c2 != ' '` / `c2 <= ' '` with a real
- *       `switch` on TAB/LF and goto-labels do_tab / do_char / check_x /
- *       set_linebreak -- one shared wrap-flag block reached from three edges;
- *   (3) the `~c<r><g><b>` escape WALKS the cursor in place (`*++text`) instead of
- *       computing a `next = text + 4` and indexing off it;
- *   (4) the glyph index uses the vendor's `%16`/`/16` pair on a plain int
- *       (`u = (c2 % 16) * 8; v = (c2 / 16) * 8;`) rather than a hand-decoded
- *       shift/multiply chain.
- * Residual 184 @203-vs-199: still 4 insns long and the callee-saved band is
- * rotated (frame 88 vs the oracle's 80); the w24-a5 `remain`-in-$fp / `p`-in-$s2
- * analysis below still describes it. */
+ *
+ * MATCH (W52-A10, 2026-08-09): 184 -> 6 diffs, instruction count now EXACT 199/199 and the
+ * frame EXACT (0x50, every stack slot at the oracle's offset: dr@0x10 maxx@0x14 boty@0x18
+ * r@0x1C g@0x20 b@0x24).  Four independent shape corrections, each gate-measured; the whole
+ * previous "allocator coloring cascade / weak floor" diagnosis below was WRONG -- it was
+ * RECONSTRUCTION SHAPE all the way down (same lesson as P34/SetDrawMove this wave).
+ *
+ *   (1) REAL PsyQ TYPES instead of byte-offset casts (the big one, 184 -> 36).  FntStream is
+ *       a TILE (0x00) + DR_MODE (0x10) + fields, and the glyph cursor is an `SPRT_8 *`, not a
+ *       `u_char *` walked with `p += 0x10`.  Writing `p->u0/v0/x0/y0/r0/g0/b0` + `AddPrim(dr,
+ *       p++)` and `AddPrim(dr, &fs->tile)` gives the oracle's addressing for free; the old
+ *       hand-rolled `*(short *)(p + 8)` form cost registers and a bigger frame.  Declaration
+ *       order is psyz's (dr, fs, curx/cury, maxx, boty, p, rightx, autoupd, remain, wrap,
+ *       text, c2, c, u/v, r/g/b) -- that IS the oracle's stack-slot order.
+ *   (2) SPLIT LOAD FROM ADD for rightx (methodology 3.12 #15b): `rightx = fs->tile.w;
+ *       rightx = curx + (short)rightx;` loads `w` into its own temp early and lets gcc
+ *       schedule the `addu $s7,$s1,$v0` into the TermPrim jal's delay slot, exactly as retail.
+ *   (3) SIGNED-CHAR TYPING of the text cursor (36 -> 13).  `signed char *text` + `signed char
+ *       c` (NOT `u_char *` / `int`): the escape-digit reads `16 * (*++text - 48)` then emit
+ *       the oracle's sign-extending `lb`, the loop-carried char is a QImode pseudo loaded with
+ *       `lbu` and sign-extended per use (`sll 24; sra 24` -- the oracle's shared-delay-slot
+ *       pair in the a-z/else arms of do_char), and `c2 = c;` replaces the wrong `c2 = c &
+ *       0xFF` (which emitted an `andi` retail does not have).  cc1 defaults `char` to
+ *       UNSIGNED on this toolchain (04M/w47-a10), so the `signed` keyword is load-bearing.
+ *   (4) LOOP TAIL ORDER `++text; remain--; c = *text; if (!c) break;` (13 -> 6, and the count
+ *       became exact).  Retail's test block is `addiu $s0,1; addiu $fp,-1; lb; lbu; bnez`,
+ *       i.e. the capacity countdown sits BEFORE the reload where it fills the load-delay slot
+ *       (psyz's `c = *++text; if (!c) break; remain--;` put it in the branch delay slot
+ *       instead, costing a nop AND blocking the entry-test cross-jump).  With this order gcc
+ *       cross-jumps the peeled entry test into the bottom block, reproducing retail's single
+ *       `j` loop entry.  `remain` is dead after the loop, so the extra decrement on the
+ *       final iteration is semantically free.
+ *
+ * LADDER (04U, re-run on the NEW source -- the verdict changed with the shape, so re-ladder
+ * after any large rewrite): wired lane (2.8 + maspsx + no_split_addresses + jtbl_at_fusion)
+ * 6 diffs; ladder lane 2.6.0 108 / 2.6.3 104 / 2.7.2-970404 39 / 2.7.2 91 / 2.8.0 39 /
+ * 2.8.1 39 / 2.91.66 213 / 2.95.2 170.  KEEP THE WIRED LANE.
+ *
+ * RESIDUAL 6, two classes, both count-neutral:
+ *   (a) 4 diffs -- retail floats `sw $a2,0x1C(sp)` / `sw $a2,0x20(sp)` (the r/g defaults)
+ *       ABOVE the ten callee-save stores; ours emits them after.  Pure sched2 ready-list
+ *       ordering inside the prologue block.  FALSIFIED: all six init-order permutations of
+ *       `maxx/r/g/b` (m,r,g,b = 6 -- best; r,m,g,b 6; r,g,m,b 6; m,b,g,r 8; r,g,b,m 10;
+ *       b,g,r,m 10) -- the two stores never move across the save block.
+ *   (b) 2 diffs -- the TermPrim argument: retail RELOADS `dr` from its stack slot
+ *       (`sw $a2,0x10(sp); lw $a0,0x10(sp)`) while ours keeps it live in $a2 and copies
+ *       (`addu $a0,$a2,$zero`).  This is reload INHERITANCE (retail's dr pseudo had no hard
+ *       reg at the call, so the arg setup became a load that sched hoisted to the top).
+ *       FALSIFIED: assigning `dr` immediately before the call, and calling
+ *       `TermPrim(&fs->draw_mode)` directly -- both still 6.  Known no-source-lever class
+ *       (catalog: choose_reload_regs / reload-inheritance identity). */
 extern u_long *FntFlush(int id)
 {
+    DR_MODE  *dr;
     FntStream *fs;
-    int r = 0x80, g = 0x80, b = 0x80;   /* default glyph colour */
-    int   maxx = 0;
-    u_long *ot;                /* address escapes across the AddPrim/DrawOTag calls below --
-                                 * high register pressure spills it to the stack (reloaded at
-                                 * each use), rather than the cheaper fs+0x10 rematerialization. */
-    u_char *text;
-    u_char *p;
-    int   curx;
-    int   cury;
-    int   boty;
-    int   remain;
-    int   autoupd;
-    int   rightx;
-    int   c, c2, wrap;
+    int    curx, cury;
+    int    maxx;
+    int    boty;
+    SPRT_8 *p;
+    int    rightx;
+    int    autoupd;
+    int    remain;
+    int    wrap;
+    signed char *text;
+    int    c2;
+    signed char c;
     u_char u, v;
+    int    r, g, b;
+
+    maxx = 0;
+    r = 0x80; g = 0x80; b = 0x80;       /* default glyph colour */
 
     if (!(id >= 0 && id < _fnt_count)) {
         FntStream *act = &_fnt[_fnt_active];
@@ -127,23 +152,24 @@ extern u_long *FntFlush(int id)
         id = _fnt_active;
     }
     fs = &_fnt[id];
-    ot = &fs->ot;
+    dr = &fs->draw_mode;
 
-    text    = (u_char *)fs->textbuf;
-    p       = (u_char *)fs->primbuf;
-    curx    = fs->x;
-    cury    = fs->y;
-    boty    = cury + fs->h;
-    remain  = fs->maxchars;
+    p       = fs->primbuf;
     autoupd = fs->autoupd;
-    rightx  = fs->x + fs->w;
+    text    = (signed char *)fs->textbuf;
+    remain  = fs->maxchars;
+    curx    = fs->tile.x0;
+    cury    = fs->tile.y0;
+    rightx  = fs->tile.w;
+    rightx  = curx + (short)rightx;     /* split load from add: w lands in its own temp */
+    boty    = cury + fs->tile.h;
 
-    TermPrim(ot);
+    TermPrim(dr);
     c = *text;
     while (c) {
         if (!remain) break;
         wrap = 0;
-        c2 = c & 0xFF;
+        c2 = c;
         if (c2 != ' ') {
             if (c2 <= ' ') {
                 switch (c2) {
@@ -163,19 +189,18 @@ extern u_long *FntFlush(int id)
                 curx += 0x20;
                 goto check_x;
             do_char:
-                c2 = *text;
-                if (c2 >= 'a' && c2 <= 'z') c2 -= 0x40; else c2 -= 0x20;
+                c = *text;
+                if (c >= 'a' && c <= 'z') c2 = c - 0x40; else c2 = c - 0x20;
                 u = (c2 % 16) * 8;
                 v = (c2 / 16) * 8;
-                p[0xc] = u;
-                p[0xd] = v;
-                *(short *)(p + 8)  = (short)curx;
-                *(short *)(p + 10) = (short)cury;
-                p[4] = (u_char)r;
-                p[5] = (u_char)g;
-                p[6] = (u_char)b;
-                AddPrim(ot, p);
-                p += 0x10;
+                p->u0 = u;
+                p->v0 = v;
+                p->x0 = curx;
+                p->y0 = cury;
+                p->r0 = r;
+                p->g0 = g;
+                p->b0 = b;
+                AddPrim(dr, p++);
                 curx += 8;
             check_x:
                 if (curx >= rightx && !autoupd) {
@@ -190,24 +215,26 @@ extern u_long *FntFlush(int id)
         if (wrap) {
             if (maxx < curx) maxx = curx;
             cury += 8;
-            curx = fs->x;
+            curx = fs->tile.x0;
             if (cury >= boty) break;
         }
-        c = *++text;
-        if (!c) break;
+        ++text;
         remain--;
+        c = *text;
+        if (!c) break;
     }
-    if (fs->code != 0) {                              /* draw the background box */
-        AddPrim(ot, fs);
-        if (autoupd != 0) {
-            fs->w = (short)(maxx - fs->x);
-            fs->h = (short)(cury - (fs->y - 8));
+    if (fs->tile.code) {                              /* draw the background box */
+        AddPrim(dr, &fs->tile);
+        if (autoupd) {
+            autoupd = maxx;
+            fs->tile.w = autoupd - fs->tile.x0;
+            fs->tile.h = cury - ((u_short)fs->tile.y0 - 8);
         }
     }
-    DrawOTag(ot);
+    DrawOTag((u_long *)dr);
     fs->textlen = 0;
-    fs->textbuf[0] = 0;
-    return ot;
+    *fs->textbuf = 0;
+    return (u_long *)dr;
 }
 
 /* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width).

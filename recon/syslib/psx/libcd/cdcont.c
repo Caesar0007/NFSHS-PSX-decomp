@@ -13,7 +13,7 @@ struct CdlLOC { unsigned char minute, second, sector, track; };
 typedef struct CdlLOC CdlLOC;  /* BCD MSF position */
 
 /* ---- low-level driver (DRV.OBJ / BIOS) ------------------------------------------------------- */
-extern int  CD_init(void);                                          /* @0x80108140 */
+extern int  CD_init_80108140(void);   /* @0x80108140 (VA-suffixed: CD_init/CD_Init case-collide) */
 extern int  CD_initintr(void);                                      /* @0x801080F4 */
 extern int  CD_initvol(void);                                       /* @0x80108004 */
 extern void CD_flush(void);                                         /* @0x80107F30 */
@@ -52,7 +52,7 @@ extern int CdReset(int mode)
         CD_initintr();
         return 1;
     }
-    if (CD_init())
+    if (CD_init_80108140())
         return 0;
     if (mode == 1 && CD_initvol())
         return 0;

@@ -3350,7 +3350,7 @@ VA             %match  unit                     function
 0x80106F70    100.00%  syslib/psx/libmath/ADDMANT _add_mant_d
 0x80107020    100.00%  syslib/psx/libgpu/P09    TermPrim
 0x80107040    100.00%  syslib/psx/libgpu/P06    AddPrim
-0x80107080      0.00%  syslib/psx/libmcrd/BIOS  CD_get_intr
+0x80107080     66.13%  syslib/psx/libcd/drv     CD_get_intr
 0x801075DC     80.92%  syslib/psx/libcd/drv     CD_sync
 0x8010785C     82.35%  syslib/psx/libcd/drv     CD_ready
 0x80107B24     77.13%  syslib/psx/libcd/drv     CD_cw

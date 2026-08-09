@@ -3060,7 +3060,7 @@
       "target_path": "expected/src/syslib/psx/libcd/drv.c.o",
       "base_path": "build/recon/syslib/psx/libcd/drv.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/drv.cpp"
+        "source_path": "recon/syslib/psx/libcd/drv.c"
       }
     },
     {

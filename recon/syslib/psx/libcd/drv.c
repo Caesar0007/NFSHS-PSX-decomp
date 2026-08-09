@@ -118,7 +118,7 @@ static inline void _memcpy8(unsigned char *dst, unsigned char *src)
         dst[i] = src[i];
 }
 
-extern int _cd_get_intr(void)
+extern int CD_get_intr(void)
 {
     int i;
     int j;
@@ -230,7 +230,7 @@ static inline void callback(void)
 
     restore = CDREG0 & 3;
     for (;;) {
-        interrupt = _cd_get_intr();
+        interrupt = CD_get_intr();
         if (interrupt == 0)
             break;
         if ((interrupt & 4) && CD_cbready != 0)

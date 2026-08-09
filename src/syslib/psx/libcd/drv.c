@@ -1,5 +1,6 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/main", CD_get_intr);
 INCLUDE_ASM("asm/nonmatchings/main", CD_sync);
 INCLUDE_ASM("asm/nonmatchings/main", CD_ready);
 INCLUDE_ASM("asm/nonmatchings/main", CD_cw);

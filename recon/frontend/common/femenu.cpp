@@ -1169,16 +1169,17 @@ void tMenu::Initialize()
 
 
 /* ---- tMenu::ProcessInput  [FEMENU.CPP:1047-1177] SLD-VERIFIED ---- */
+/* MATCH W62 (2026-08-10): PASS, 169 -> 0 diffs.  The retail body is a
+   switch ordered Up/Down/Cross/Start/Circle/Square/Triangle and has only
+   the SYM local `lastItem`.  Keeping the virtual dispatch as one expression
+   gives IDA's item=$v1, delta=$a0 allocation and leaves lastItem=$a0 for the
+   two navigation cases. */
 
 void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  int iVar1;
-  tMenuCommandType tVar2;
   tMenuItem *ptVar3;
-  tInputKeyType tVar4;
   int lastItem;
-  int iVar5;
   
   if (((this->fFlags & 4) != 0) && (keyval == kInput_KeyType_Start)) {
     keyval = kInput_KeyType_Cross;
@@ -1188,99 +1189,82 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
   }
   ptVar3 = this->fItemList[this->fCurrentItem];
   if (ptVar3 != (tMenuItem *)0x0) {
-    lastItem = (int)(*ptVar3->_vf)[3].delta;
-    (*(*ptVar3->_vf)[3].pfn)((char *)ptVar3 + lastItem,fromPlayer,&keyval,&command);
+    (*(*ptVar3->_vf)[3].pfn)
+        ((char *)ptVar3 + (int)(*ptVar3->_vf)[3].delta,fromPlayer,&keyval,&command);
   }
-  tVar4 = keyval;
-  if (tVar4 == kInput_KeyType_Triangle) {
-    tVar2 = kMenu_Command_BackupMenu;
-  }
-  else {
-    if ((int)tVar4 < 0x11) {
-      if (tVar4 == kInput_KeyType_Circle) {
-        DisplayHelp(FEApp,0);
-        return;
-      }
-      if ((int)tVar4 < 5) {
-        if (tVar4 != kInput_KeyType_Cross) {
-          return;
+  switch (keyval) {
+    case kInput_KeyType_Up:
+      lastItem = this->fCurrentItem;
+      do {
+        if (this->fCurrentItem > 0) {
+          this->fCurrentItem--;
         }
-        if (this->fNextMenu == (tMenu *)0x0) {
-          return;
+        else {
+          while (this->fItemList[this->fCurrentItem + 1] != (tMenuItem *)0x0) {
+            this->fCurrentItem++;
+          }
         }
-        command.type = kMenu_Command_GoToMenu;
-        command.nextMenu = this->fNextMenu;
-      }
-      else {
-        if (tVar4 != kInput_KeyType_Square) {
-          return;
-        }
-        if (this->fOptionsMenu == (tMenu *)0x0) {
-          return;
-        }
-        command.type = kMenu_Command_GoToMenu;
-        command.nextMenu = this->fOptionsMenu;
+      } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
+      if (this->fCurrentItem != lastItem) {
+        AudioCmn_PlayFESFX(3);
       }
       keyval = kInput_KeyType_AlreadyProcessed;
-      return;
-    }
-    if (tVar4 == kInput_KeyType_Down) {
-      iVar5 = this->fCurrentItem;
+      break;
+
+    case kInput_KeyType_Down:
+      lastItem = this->fCurrentItem;
       do {
-        iVar1 = this->fCurrentItem;
-        this->fCurrentItem = iVar1 + 1;
-        if (this->fItemList[iVar1 + 1] == (tMenuItem *)0x0) {
+        this->fCurrentItem++;
+        if (this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) {
           this->fCurrentItem = 0;
         }
       } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
-      if (this->fCurrentItem != iVar5) {
+      if (this->fCurrentItem != lastItem) {
         AudioCmn_PlayFESFX(4);
       }
-      goto MItemProcInp_setProcessed;
-    }
-    if ((int)tVar4 < 0x401) {
-      if (tVar4 != kInput_KeyType_Up) {
-        return;
+      keyval = kInput_KeyType_AlreadyProcessed;
+      break;
+
+    case kInput_KeyType_Cross:
+      if (this->fNextMenu != (tMenu *)0x0) {
+        command.type = kMenu_Command_GoToMenu;
+        command.nextMenu = this->fNextMenu;
+        keyval = kInput_KeyType_AlreadyProcessed;
       }
-      iVar5 = this->fCurrentItem;
-      do {
-        iVar1 = this->fCurrentItem;
-        if (iVar1 < 1) {
-          ptVar3 = this->fItemList[iVar1 + 1];
-          while (ptVar3 != (tMenuItem *)0x0) {
-            iVar1 = this->fCurrentItem;
-            this->fCurrentItem = iVar1 + 1;
-            ptVar3 = this->fItemList[iVar1 + 2];
-          }
-        }
-        else {
-          this->fCurrentItem = iVar1 + -1;
-        }
-      } while ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0);
-      if (this->fCurrentItem != iVar5) {
-        AudioCmn_PlayFESFX(3);
+      break;
+
+    case kInput_KeyType_Start:
+      if (this->fOnButtonPress != (void *)0x0) {
+        ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
+        keyval = kInput_KeyType_AlreadyProcessed;
       }
-      goto MItemProcInp_setProcessed;
-    }
-    if (tVar4 != kInput_KeyType_Start) {
-      return;
-    }
-    if (this->fOnButtonPress != (void *)0x0) {
-      ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
-      goto MItemProcInp_setProcessed;
-    }
-    tVar2 = kMenu_Command_StartRace;
-    if ((this->fFlags & 1) == 0) {
-      if ((this->fFlags & 2) == 0) {
-        return;
+      else if ((this->fFlags & 1) != 0) {
+        command.type = kMenu_Command_StartRace;
+        keyval = kInput_KeyType_AlreadyProcessed;
       }
-      command.type = kMenu_Command_Start2PlayerRace;
-      goto MItemProcInp_setProcessed;
-    }
+      else if ((this->fFlags & 2) != 0) {
+        command.type = kMenu_Command_Start2PlayerRace;
+        keyval = kInput_KeyType_AlreadyProcessed;
+      }
+      break;
+
+    case kInput_KeyType_Circle:
+      DisplayHelp(FEApp,0);
+      break;
+
+    case kInput_KeyType_Square:
+      if (this->fOptionsMenu != (tMenu *)0x0) {
+        command.type = kMenu_Command_GoToMenu;
+        command.nextMenu = this->fOptionsMenu;
+        keyval = kInput_KeyType_AlreadyProcessed;
+      }
+      break;
+
+    case kInput_KeyType_Triangle:
+      command.type = kMenu_Command_BackupMenu;
+      keyval = kInput_KeyType_AlreadyProcessed;
+      break;
   }
-  command.type = tVar2;
-MItemProcInp_setProcessed:
-  keyval = kInput_KeyType_AlreadyProcessed;
   return;
 }
 

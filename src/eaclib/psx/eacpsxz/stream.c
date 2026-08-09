@@ -23,6 +23,10 @@ INCLUDE_ASM("asm/nonmatchings/main", inbetween);
 INCLUDE_ASM("asm/nonmatchings/main", decbufferusage);
 INCLUDE_ASM("asm/nonmatchings/main", getfreerequest);
 INCLUDE_ASM("asm/nonmatchings/main", queuerequest);
+/* w52-a2 re-attribution: locaterequest's 2nd linked copy @0x800FC4E4 -- an
+ * eacpsxz STREAM fn (callers queuerequest/STREAM_cancelrequest), was stray-
+ * scaffolded in syslib libcd/stream.c. */
+INCLUDE_ASM("asm/nonmatchings/main", func_800FC4E4);
 INCLUDE_ASM("asm/nonmatchings/main", freerequest);
 INCLUDE_ASM("asm/nonmatchings/main", filterchunk);
 INCLUDE_ASM("asm/nonmatchings/main", parsechunks);

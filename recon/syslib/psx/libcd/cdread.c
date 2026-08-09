@@ -20,6 +20,17 @@
  *                                          install callbacks and fire CdlReadN.
  *       CdRead           (@0x80108DDC), CdReadSync (@0x80108F78) -- public API.
  *
+ *   W52-A2 TOOLCHAIN A/B (UNCHANGED source, whole-TU diff totals; gate = tools/verify_asm.py):
+ *     gcc LADDER (NFS4_FORCE_CC1_ALT, 272 recipe)   base(2.8.0+maspsx) 169 | 2.6.0 303 |
+ *       2.6.3 303 | 2.7.2-970404 173 | 2.7.2 289 | 2.8.0 175 | 2.8.1 175 | 2.91.66 303 |
+ *       2.95.2 286.   ==> NO ladder rung beats the wired lane; cdread.c stays OFF cc1_272
+ *       (w51-a3's 169->289 verdict reproduced exactly).  Per-fn the rungs disagree wildly
+ *       (CdReadSync is 3 on 2.6.0/2.6.3/2.7.2 vs 6 on the lane; _read_issue 58 on
+ *       2.7.2-970404/2.8.0 vs 64 then), so the TU is a genuine mixed basin.
+ *     PER-TU FLAGS: no_split_addresses 199 (mixed: CdReadSync 6->2, CdRead 43->39, but
+ *       _read_data_int 4->27 and _read_issue 64->81) | no_strength_reduce 169 (inert) |
+ *       no_schedule_insns 222 | no_delayed_branch 363.  ==> keep the TU's default flags.
+ *
  *   All five share one private state block @0x8013C290 (CDREAD.OBJ .bss).  Its fields are referenced
  *   purely by byte offset in the original; reproduced here as a struct with offset-named members and
  *   a semantic note for each.  Several stores land in JAL delay slots and therefore capture the value
@@ -85,11 +96,33 @@ extern void _read_data_int(void);
 extern int  _read_issue(int retry);
 
 /* @0x8010887C : sync-complete handler -- restore the saved sync cb and clear the busy flag. */
+/* MATCH (w52-a2, DOUBLE OPACITY FENCE -- the split-addresses ORDER swap, 4 -> PASS 13/13):
+ * count and instruction MULTISET already matched; the only divergence was WHERE the
+ * `addiu s0,s0,%lo` landed.  Retail: `lui; addiu %lo; sw ra; lw a0,0(s0); jal; addiu s0,-40`
+ * (the address completed UP FRONT, so the jal slot could only be filled from AFTER the call).
+ * Ours: cc1's split-address lowering folds the lo_sum into the load (`lw a0,%lo(s0)`) and
+ * leaves the standalone `addiu %lo` as the nearest stealable insn BEFORE the jal -- reorg
+ * takes it and the post-call `addiu -40` stays put.  FIX = two zero-instruction W49 IDENTITY
+ * fences: the first pins the FULL address of `&_cdr.w28` in a register (kills the lo_sum
+ * fold, so the load must use the completed pointer), the second pins the derived block base
+ * `saved - 10` == `&_cdr` as its own `addiu -40` (without it gcc folds -40+0x24 into a single
+ * `sw zero,-4(s0)`, 12 insns).  reorg then steals that post-call addiu into the jal slot =
+ * retail.  FALSIFIED on the way: plain direct `_cdr.w28`/`_cdr.w24` access (anchors on
+ * `&_cdr`+40/36 displacements, nop in the jal slot, 4); read-only fence `: : "r"(saved)`
+ * (right ORDER but splits high/full into v0/s0, 6); first fence alone (14 insns -- `saved`
+ * loses its REG_EQUIV so `_cdr.w24` rematerializes its own lui); second fence alone (4, the
+ * original order swap).  TU-level `no_split_addresses` also does NOT fix it (still 4) and is
+ * net-worse for the TU (169 -> 199) -- see the ladder/flag table in the w52-a2 report. */
 extern void _read_sync(void)
 {
     volatile int *saved = &_cdr.w28;
+    __asm__("" : "=r"(saved) : "0"(saved));
     CdSyncCallback(*saved);      /* restore saved sync callback */
-    _cdr.w24 = 0;                /* reading = 0 */
+    {
+        volatile CdrEnv *g = (volatile CdrEnv *)(saved - 10);
+        __asm__("" : "=r"(g) : "0"(g));
+        g->w24 = 0;              /* reading = 0 */
+    }
 }
 
 /* @0x801088B0 : ready interrupt -- one DataReady per sector.
@@ -98,7 +131,23 @@ extern void _read_sync(void)
  * available callee-saved register on the incoming `code` ARGUMENT (which survives several `jal`s
  * and can't be cheaply rematerialized).  A persistent `g` pointer local pins the allocator's
  * saved-reg budget on the wrong value (methodology catalog: "eager-cache" / "don't cache derived
- * pointers across calls" class). */
+ * pointers across calls" class).
+ *
+ * MATCH (w52-a2): 48 -> 21 diffs, count EXACT-then-+1 (159/157 -> 158/157).  ONE device does
+ * almost all of it -- the W49 IDENTITY FENCE `__asm__("" : "=r"(p) : "0"(p))` on each
+ * per-region FIELD ANCHOR.  cc1's default -msplit-addresses lowers `&_cdr.wNN` into a (high)
+ * pseudo plus a lo_sum, and the two halves get DIFFERENT registers (`lui $v1,%hi; addiu
+ * $s0,$v1,%lo`) while retail emits one `la` into a single register (`lui $s0; addiu $s0,$s0`).
+ * The identity fence forces the completed address into one register -- the anchors themselves
+ * were already correct, only their materialization was split.  Fences on the two `cur`
+ * anchors + the derived `g` view: 48 -> 24 with count EXACT 157/157.  A further anchor on
+ * `&_cdr.w20` for the sector-check region (retail: `lw $v1,0($s0)` + `addiu $v1,$s0,-32`)
+ * took 24 -> 21 (+1 insn).  FALSIFIED (measured, do NOT retry in this basin): fencing the
+ * derived `&_cdr` view inside the sector-error arm (26); an anchor+fence for the head
+ * `_cdr.w34 = code` store (27, +3 insns); an anchor+fence for the common tail (60, +4).
+ * RESIDUAL 21 = the head store's split `lui $v0/addiu $v1` and the tail's `lui $v1/addiu $s0`
+ * (same split-address class, but both fence attempts overshoot), plus three delay-slot
+ * placement diffs. */
 extern void _read_int(int intr, int code)
 {
     _cdr.w34 = code;                                /* remember intr arg for the user cb */
@@ -118,9 +167,15 @@ extern void _read_int(int intr, int code)
                 } else {
                     CdGetSector(hdr, 3);
                 }
-                if (CdPosToInt((CdlLOC *)hdr) != _cdr.w20) { /* read landed on the wrong sector */
-                    puts("CdRead: sector error\n");
-                    _cdr.w14 = -1;
+                {   /* MATCH: retail anchors this region on `&_cdr.w20` ($s0, offset 0) and
+                     * derives `&_cdr` from it as `addiu $v1,$s0,-32` for the w14 store. */
+                    volatile int *exp = &_cdr.w20;
+                    __asm__("" : "=r"(exp) : "0"(exp));
+                    if (CdPosToInt((CdlLOC *)hdr) != *exp) {
+                        volatile CdrEnv *e = (volatile CdrEnv *)(exp - 8);
+                        puts("CdRead: sector error\n");
+                        e->w14 = -1;
+                    }
                 }
             }
             /* copy the sector body.
@@ -132,14 +187,17 @@ extern void _read_int(int intr, int code)
              * rematerializes `%hi/%lo(_cdr)` per access instead. */
             if (CD_read_dma_mode & 1) {
                 volatile int *cur = (volatile int *)&_cdr.w08;
+                __asm__("" : "=r"(cur) : "0"(cur));
                 CdGetSector2((u_char *)cur[0], cur[2]); /* DMA: advance deferred to _read_data_int */
             } else {
                 volatile int *cur = (volatile int *)&_cdr.w08;
+                __asm__("" : "=r"(cur) : "0"(cur));
                 CdGetSector((u_char *)cur[0], cur[2]);
                 {   /* the `&_cdr` view is derived AFTER the call so it lands in a
                      * CALLER-saved temp (oracle `addiu $a0,$s0,-8`); computing it
                      * before the call forces a second callee-saved register. */
                     volatile CdrEnv *g = (volatile CdrEnv *)(cur - 2);
+                    __asm__("" : "=r"(g) : "0"(g));
                     g->w08 = (u_char *)(cur[0] + cur[2] * 4);  /* cursor += sector bytes */
                     g->w14--;                                   /* one fewer remaining */
                     g->w20++;                                   /* next expected sector */
@@ -200,9 +258,32 @@ extern void _read_data_int(void)
         ((CdlCB)CD_cbread)(2, _cdr.w34);
 }
 
-/* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode. */
+/* @0x80108BF4 : (re)issue the read.  retry!=0 re-seeks to CdLastPos and re-sends mode.
+ *
+ * MATCH (w52-a2): 64 -> 23 diffs, 120 -> 121 insns vs oracle 122.  Three levers:
+ *  (1) ERROR-TAIL PLACEMENT.  Retail's `_cdr.w14 = -1; return _cdr.w14;` tail sits INLINE in
+ *      the CdlSetmode arm (`bnez $v0` skips it) and the CdlSetloc failure JUMPS INTO it;
+ *      our trailing `error:` block made gcc cross-jump and invert the branch to `beqz`.
+ *      FIX = write the body inline in the Setmode arm and put the `error:` label ON it, so
+ *      the earlier site's `goto` targets the inline copy.  64 -> 50, and dropping the now-
+ *      dead trailing block took 126 -> 120 insns.  (Inlining BOTH sites = 62/126: retail has
+ *      exactly ONE copy, reached from two places.)
+ *  (2) FIELD ANCHOR + IDENTITY FENCE for the mode region: retail keeps `&_cdr.w0c` in a
+ *      register ($s1) and reads the field ONCE (`lw $s0,0($s1)`), reusing that value for
+ *      both the `modeb` byte store and the `& 0xFF` compare; ours emitted two loads off a
+ *      `&_cdr`+12 base.  50 -> 46 (-2 insns).
+ *  (3) EXTEND THE ANCHOR'S LIVE RANGE past CdMode with a read-only fence.  Without it the
+ *      anchor dies at its own load and `retry` takes $s1; retail spends a THIRD callee-saved
+ *      register, keeping the anchor in $s1 and `retry` in $s2 (extra `sw $s2,32($sp)` +
+ *      restore).  45 -> 23.  (The same fence placed INSIDE the if-body instead: 28.)
+ *  Also landed here: a tail anchor `g = &_cdr` + identity fence (46 -> 45) so the whole tail
+ *  runs off one `la` like retail's $s0.
+ * RESIDUAL 23 = delay-slot fills where retail has `nop`, one `addu $a2,$a1,zero` copy where
+ * retail rematerializes zero (the old-gcc no-copy-prop class), and the tail anchor being
+ * materialized ~9 insns earlier than retail's. */
 extern int _read_issue(int retry)
 {
+    volatile CdrEnv *g;
     CdSyncCallback(0);
     CdReadyCallback(0);
     if (CD_read_dma_mode & 1)
@@ -226,27 +307,35 @@ extern int _read_issue(int retry)
 
     CdFlush();
     {
-        u_char modeb = (u_char)_cdr.w0c;
-        if ((_cdr.w0c & 0xFF) != CdMode() || retry != 0) {
-            if (CdControl(0xE, &modeb, 0) == 0)              /* CdlSetmode */
-                goto error;
+        volatile int *mp = &_cdr.w0c;   /* MATCH: FIELD ANCHOR ($s1) held across CdMode() */
+        int    m;
+        u_char modeb;
+        __asm__("" : "=r"(mp) : "0"(mp));
+        m     = *mp;                    /* MATCH: ONE load of w0c ($s0), reused for both uses */
+        modeb = (u_char)m;
+        if ((m & 0xFF) != CdMode() || retry != 0) {
+            if (CdControl(0xE, &modeb, 0) == 0) {            /* CdlSetmode */
+            error:
+                _cdr.w14 = -1;      /* MATCH: retail keeps this error tail INLINE (bnez skips it); */
+                return _cdr.w14;    /* sharing it via `goto error` cross-jumps + inverts polarity */
+            }
         }
+        __asm__("" : : "r"(mp));  /* MATCH: keep the anchor live PAST CdMode -> $s1,
+                                    * which pushes `retry` onto retail's $s2 */
     }
 
     /* delay-slot capture: w20 receives CdPosToInt()'s result (computed before CdReadyCallback). */
-    _cdr.w20 = CdPosToInt((CdlLOC *)CdLastPos());           /* start sector */
+    g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */
+    __asm__("" : "=r"(g) : "0"(g));
+    g->w20 = CdPosToInt((CdlLOC *)CdLastPos());             /* start sector */
     CdReadyCallback((int)_read_int);
     if (CD_read_dma_mode & 1)
         CdDataCallback((int)_read_data_int);
     CdControlF(6, 0);                                        /* CdlReadN */
-    _cdr.w08 = _cdr.w04;                                    /* cursor = buffer */
-    _cdr.w14 = _cdr.w00;                                    /* remaining = sectors */
-    _cdr.w18 = VSync(-1);
-    return _cdr.w14;
-
-error:
-    _cdr.w14 = -1;
-    return _cdr.w14;
+    g->w08 = g->w04;                                        /* cursor = buffer */
+    g->w14 = g->w00;                                        /* remaining = sectors */
+    g->w18 = VSync(-1);
+    return g->w14;
 }
 
 /* @0x80108DDC : CdRead -- start an asynchronous N-sector read into `buf`. Returns >0 on success.
@@ -258,7 +347,21 @@ error:
  * the call-free switch, $v1=&_cdr for its default arm, $s0=&_cdr across the whole tail), and
  * spelling those anchors out DOES close the 9-instruction gap (94 -> 97 -> 105 vs oracle 103),
  * but each anchor re-rotates the s-register handout: 43 -> 54 (busy anchor) -> 70 (full region
- * split).  Kept at the cached-base form; direct `_cdr.field` access also regressed (43 -> 61). */
+ * split).  Kept at the cached-base form; direct `_cdr.field` access also regressed (43 -> 61).
+ *
+ * w52-a2 RE-PROBE (basin-relative, per the catalog's "falsifications are basin-relative" META):
+ * the w51 anchor attempt was made WITHOUT the W49 identity fence, so every anchor still came
+ * out split (`lui $vX,%hi; addiu $sY,$vX,%lo`).  Re-run with a fence on each of the four
+ * regions (busy = &_cdr.w24, the timeout arm = &_cdr.w28 then -0x28 -- the exact _read_sync
+ * recipe -- the mode/sector-size switch = &_cdr, and the tail = &_cdr): **53 diffs at
+ * 108/103 insns**, i.e. better than w51's 70@105 but still worse than the cached-base 43@94.
+ * The anchors DO close the 9-instruction shortfall (94 -> 108) and the switch/timeout blocks
+ * line up; what is left is the anchor REGISTER handout ($v1 where retail has $a0 for the
+ * switch region, and a copy instead of an in-place `addiu $s0,$s0,-40` in the timeout arm).
+ * Extra promote/demote fences on the region anchors moved nothing (53 x3).  NAMED ANGLE:
+ * land the fenced-anchor form and then dial the four anchors' allocno priorities the way
+ * _st_dma's bit/dp/bv were dialled -- the shape is right, only the coloring is not.
+ * (Reverted for now: the gate is the authority and 53 > 43.) */
 extern int CdRead(int sectors, u_long *buf, int mode)
 {
     volatile CdrEnv *g = &_cdr;
@@ -305,14 +408,28 @@ extern int CdRead(int sectors, u_long *buf, int mode)
  * `_cdr.field` recon can never emit that, but NEGATIVE-INDEXED pointers into the
  * middle of the block can.
  *
+ * MATCH (w52-a2): the anchor's own materialization was SPLIT (`lui $v0,%hi; addiu $s1,$v0,%lo`)
+ * where retail emits a single `la $s1`.  Splitting the declaration from the assignment and
+ * pinning it with a W49 IDENTITY FENCE gives retail's one-register form; the diff count stays
+ * 6 but the residual is now only (a) WHERE the `sw $s2,24($sp)` / `addiu $s2,$s1,8` pair is
+ * scheduled in the prologue and (b) one `addu $a0,$s0,zero` copy where retail rematerializes
+ * `li $a0,-1` (the old-gcc no-copy-prop class: `s0 = -1` is still live at the second
+ * `VSync(-1)` call, so our cc1 reuses it).  FALSIFIED: read-only and identity fences on
+ * `busy` to pull its `addiu` forward (6 both).  The ladder answers (a)+(b) -- rungs 2.6.0 /
+ * 2.6.3 / 2.7.2 all score CdReadSync at 3 -- but they cost the TU as a whole (see the header).
+ *
  * CORRECTNESS (same pass): the oracle DISCARDS CdReady's return -- `lw $v0,0($s2)`
  * overwrites it, and the two return paths are `v0 = s0` (delay slot) and `v0 = 1`.
  * The old recon returned CdReady's result whenever `w24 == 0`. */
 extern int CdReadSync(int mode, u_char *result)
 {
-    volatile int *state = (volatile int *)&_cdr.w1c;   /* $s1 : issue-VSync stamp   */
-    volatile int *busy  = state + 2;                   /* $s2 : &_cdr.w24           */
+    volatile int *state;                               /* $s1 : issue-VSync stamp   */
+    volatile int *busy;                                /* $s2 : &_cdr.w24           */
     int s0;
+
+    state = (volatile int *)&_cdr.w1c;
+    __asm__("" : "=r"(state) : "0"(state));  /* MATCH: one `la`, not a split lui/addiu */
+    busy  = state + 2;
 
     for (;;) {
         s0 = -1;

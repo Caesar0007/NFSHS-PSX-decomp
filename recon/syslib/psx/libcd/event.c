@@ -67,10 +67,21 @@ extern int CdInit(void)
      * 20 -> 6, count-exact 36/36.  Residual = which instruction the delay-slot filler picks
      * (oracle: `li v0,1` in the bne slot + `sw zero` in the `j` slot; ours: the `retry--`
      * speculated into the bne slot).  FALSIFIED: hoisting the shared constant into an `ok`
-     * local (`!= ok` / `return ok`) -- 6 -> 20, ours 38 insns. */
+     * local (`!= ok` / `return ok`) -- 6 -> 20, ours 38 insns.
+     * MATCH (w52-a2, VOID-TAIL FENCE): the last 6 diffs were reorg's EAGER-STEAL choosing the
+     * WRONG thread for the `bne` delay slot -- it took the fail block's first insn
+     * (`addiu s0,s0,-1`, safe to speculate because retry is dead on the success path) where
+     * retail takes the fall-through thread's return-value setup (`li v0,1`), leaving the
+     * success block's LAST store (`sw zero`) for the `j` slot.  A zero-instruction VOID-TAIL
+     * fence `__asm__("" : : "i"(0))` at the HEAD of the fail block makes that thread
+     * unstealable, so reorg falls back to the fall-through thread = the oracle's shape.
+     * 6 -> PASS 36/36.  FALSIFIED first: pre-set-the-default `int ok = 1;` before the loop
+     * and `ok = 1;` as the first success-block statement (both const-propped away, 6 diffs
+     * unchanged) -- the choice is made in reorg, after every value-level lever. */
     int retry = 4;
 loop:
     if (_cd_event_init() != 1) {
+        __asm__("" : : "i"(0));  /* MATCH: void-tail fence -- keeps `retry--` OUT of the bne delay slot */
         retry--;
         if (retry != -1) goto loop;
         printf("CdInit: Init failed\n");

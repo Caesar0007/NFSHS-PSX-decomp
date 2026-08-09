@@ -90,7 +90,40 @@ loop:
  *   (c) the 6th argument is a `u_char` (oracle `lbu $s1,0x44($sp)`), not an int;
  *   (d) the busy-wait is a plain rotated `while (busy) { if (i == 0x10000) {printf; break;} i++; }`.
  *   (7th arg present in the original signature but unused; reproduced for the call-site layout.) */
-extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr,
+/* MATCH (w52-a2): 95 -> 25 diffs, frame 56 -> 48 (= retail).  Four levers, in the order they
+ * landed -- each one gated individually:
+ *  (1) `volatile int chcr` PARAM.  Retail reads the 5th (stack-passed) argument at its POINT
+ *      OF USE (`lw $v0,0x40($sp)` right before the CHCR store).  Ours copied it into a 6th
+ *      callee-saved register ($s5) in the prologue, which grew the frame by 8 and shifted
+ *      EVERY incoming stack-arg displacement (arg6 read at 0x4C instead of 0x44).  Marking the
+ *      parameter `volatile` keeps it in its incoming home and loads it once, at the store.
+ *      95 -> 67, frame exact.
+ *  (2) The two `__asm__ __volatile__("")` SCHEDULING BARRIERS -- transplanted verbatim from the
+ *      byte-exact Rage Racer decomp's identical routine (C:/Temp/rage-racer-decomp/src/main/
+ *      PAL/lib/libcd/dma_start.c, CD_dmastart: one after the DICR read-back, one after
+ *      `bit = 1 << (dv+3)`).  Without them sched1 interleaves the DPCR/bit/p computation into
+ *      the DICR read-back's two load-delay gaps; retail keeps that read-back SERIAL
+ *      (`lui; lw; nop; lw; nop; sw`).  67 -> 65 and the whole DICR region became byte-exact.
+ *  (3) READ-ONLY FENCE on `bv` after the if/else (allocno DEMOTE dial, W49 fence-direction
+ *      law): lengthening bv's live range drops its priority so `dptr` wins the lower register
+ *      -- retail has dptr=$v1 / bv=$a0, ours had them swapped.  65 -> 47.
+ *  (4) IDENTITY FENCES (PROMOTE dial, +2 refs each) on `bit` (x2) and `dp` (x1): retail's
+ *      fill order is bit($v1) > dp($a0) > p($a1) > dv($a2); ours was dv > p > bit > dp.  The
+ *      `bit` pseudo has only 2 refs, so its allocno numerator floor_log2(refs)*refs - SIZE is
+ *      NEGATIVE -- one fence was not enough, two were.  47 -> 39 -> 31 -> 25.
+ * Rage Racer needed `register long bv asm("$4")` / `register long dv asm("$6")` for the same
+ * two registers; the fences reach $a0 and $v1 pin-free.
+ * RESIDUAL 25 = (a) `dv` colors $v0 where retail has $a2, and (b) ONE extra `li $v0,1` reorg
+ * speculates into the busy-wait entry branch's delay slot.  NAMED ANGLE for (a) (numeric-scan
+ * law): retail's $v0 is occupied across dv's whole window by the BCR value
+ * (`sll $v0,$s3,16` scheduled UP into the DPCR load's delay gap), so $v0 is not free when dv
+ * fills; ours computes BCR after dv dies.  FALSIFIED so far: hoisting BCR into a named local
+ * before `dp = _dpcr` / before `dv = *dp` (sched1 sinks it straight back, 25), the same with a
+ * read-only fence pinning it (25), read-only/identity/volatile fences on `p` (31, +2 insns),
+ * read-only fences on dv at either def (25/33), a 3rd `bit` fence (25), and a void-tail fence
+ * before the mode test for (b) (27).  Next dial: make the BCR value's live range genuinely
+ * span dv (a second consumer), or an out-of-loop ref-step on dv. */
+extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
                     u_char enable_irq, int arg6)
 {
     volatile int  dummy;
@@ -123,15 +156,21 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr,
         dptr[2] = bv & ~(1 << ch);
     }
 
+    __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
     dummy = *(volatile int *)_dicr;
+    __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
     {
         int dv;
         int bit;
 
         dv  = ch * 4;
         bit = 1 << (dv + 3);
+        __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier */
+        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */
+        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */
         p   = (volatile int *)(0x1F801080 + (ch << 4));
         dp  = _dpcr;
+        __asm__("" : "=r"(dp) : "0"(dp));  /* MATCH: PROMOTE dp -> $a0 (p then takes $a1) */
         dv  = *dp;
         *dp = dv | bit;
         *p++ = madr;                                /* MADR */
@@ -143,7 +182,50 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, int chcr,
     }
 }
 
-/* @0x800F7E78 : the CD-streaming sector interrupt handler. */
+/* @0x800F7E78 : the CD-streaming sector interrupt handler.
+ *
+ * MATCH (w52-a2): 89 -> 81 diffs on the WIRED lane, and 89 -> 36 once the TU also carries
+ * `no_strength_reduce` (see the RECOMMENDED-FLAG note below).  Three source levers, each
+ * gated in BOTH configurations:
+ *  (1) SUB-HEADER LOOP -> INDEX FORM.  Retail recomputes the element address every iteration
+ *      (`addu $v1,$a1,$a0` off a loop-invariant `addiu $a1,$sp,40`) and tests the COUNTER
+ *      against an immediate (`sltiu $v0,$a0,4`); our pointer-walk `do { *p++ = ...; } while
+ *      (p < end);` tested against an end POINTER (`sltu $v0,$v1,$a0`).  Written as
+ *      `for (i = 0; i < 4; i++) p[i] = *_cd_reg2;` the shape is right BUT gcc's
+ *      strength-reduction converts it straight back -- the index form only takes effect
+ *      together with `-fno-strength-reduce` (89 -> 52 combined; the flag ALONE is inert at
+ *      89, and the source edit alone is diff-neutral, so BOTH halves are needed).
+ *  (2) DROP the `(u_short)` cast on CChannel and the `(short)` cast on `_st_slot[2]`:
+ *      retail reads CChannel as a full word (`lw`) and the slot half-word unsigned (`lhu`);
+ *      the casts were emitting `lhu`/`lh` respectively.  52 -> 48 (85 unflagged).
+ *  (3) DECLARATION ORDER of the header-relocate loop's two pointers: retail's FIRST-loaded
+ *      global ($a1) is the DESTINATION (StRingAddr) and the second ($v1) the SOURCE
+ *      (_st_slot); ours had them the other way round, swapping the whole loop.  48 -> 36
+ *      (81 unflagged).
+ * RESIDUAL 36 (flagged) = four named clusters:
+ *   (A) 1-insn order at the sub-header loop's entry;
+ *   (B) the `_st_slot[0x1C] = loc[0]` store: retail emits an UNALIGNED movstrsi block move
+ *       (`lwl/lwr` + `swl/swr`, +3 insns of our 8-insn shortfall).  A `struct {char b[4];}`
+ *       cast-assign DOES reproduce that exact sequence -- verified twice -- but the
+ *       surrounding coloring then costs more than it gains (36 -> 43, 48 -> 59 in the
+ *       earlier basin), because retail also materializes the following 0x20843 CDROM_DELAY
+ *       constant into $a0 BEFORE the copy so the copy temp lands in $a1.  FALSIFIED for the
+ *       constant: hoisting it into a named local before the copy.  NEXT DIAL: get the
+ *       constant materialized first, then re-land the Pack4 aggregate;
+ *   (C) the channel-mismatch tail: retail RE-READS `_st_slot` from its global into $v1 for
+ *       the `_st_slot[0] = 0` store (plus a dead `lhu $v0,0($a0)` on the StEmu_Addr==0 edge)
+ *       instead of reusing the cached $a0 -- the SELECTIVE-CACHING class;
+ *   (D) one `andi $v0,0xFFFF` retail keeps on `Stframe_no = _st_slot[4] & 0xFFFF` that our
+ *       cc1 folds away (the `lhu` already proves the range).
+ *
+ * RECOMMENDED PER-TU FLAG (orchestrator action, w52-a2): add `"no_strength_reduce": True`
+ * beside this TU's existing `cc1_272` entry.  Whole-TU gate, measured both ways:
+ *      _st_copy_words  PASS      -> PASS
+ *      _st_dma         25 diffs  -> 25 diffs   (inert)
+ *      StCdInterrupt   81 diffs  -> 36 diffs
+ * i.e. -45 diffs, zero PASS regressions.  (`no_schedule_insns` / `no_schedule_insns2` /
+ * `no_delayed_branch` / `no_split_addresses` were all probed on this TU and are worse or
+ * inert -- see the w52-a2 report table.) */
 extern void StCdInterrupt(void)
 {
     volatile short hdr[4];   /* status/sub-header scratch (sp+0x20); stages result[0..1] at [1]/[2] */
@@ -191,7 +273,7 @@ extern void StCdInterrupt(void)
     *_com_delay   = 0x1323;
     if (StMode == 0) {
         p = (u_char *)&loc[0];                      /* &hdr[4] == loc -> 4 raw sub-header bytes */
-        do { *p++ = *_cd_reg2; } while (p < (u_char *)&loc[0] + 4);
+        for (i = 0; i < 4; i++) p[i] = *_cd_reg2;   /* MATCH: INDEX form (oracle `addu v1,a1,a0`) */
         for (i = 0; i < 8; i++) (void)*_cd_reg2;    /* drain */
     }
 
@@ -221,7 +303,7 @@ extern void StCdInterrupt(void)
     }
 
     /* ---- submode / channel filter ----------------------------------------------------------- */
-    if (_st_slot[0] != 0x160 || ((_st_slot[1] >> 10) & 0x1F) != (u_short)CChannel) {
+    if (_st_slot[0] != 0x160 || ((_st_slot[1] >> 10) & 0x1F) != CChannel) {
         if (StEmu_Addr != 0) StEmu_Idx = 0;
         debug_cause = 5;
         _st_slot[0] = 0;
@@ -229,7 +311,7 @@ extern void StCdInterrupt(void)
     }
 
     /* ---- sector-offset / frame-number sync check -------------------------------------------- */
-    if (Stsector_offset != (short)_st_slot[2] ||
+    if (Stsector_offset != _st_slot[2] ||
         (Stframe_no != 0 && Stframe_no != _st_slot[4])) {
         Stframe_no      = 0;
         Stsector_offset = 0;
@@ -277,8 +359,9 @@ extern void StCdInterrupt(void)
             }
             _st_slot[0] = 1;
             {
+                int *dst = (int *)StRingAddr;   /* MATCH: dst declared FIRST -- retail's first-
+                                                 * loaded global ($a1) is the DESTINATION */
                 int *src = (int *)_st_slot;
-                int *dst = (int *)StRingAddr;
                 StRingIdx1 = 0;
                 for (i = 0; i < 8; i++) *dst++ = *src++;   /* copy header down to slot 0 */
                 _st_slot = (u_short *)StRingAddr;

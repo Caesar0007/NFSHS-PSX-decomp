@@ -175,6 +175,36 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * SLD could not have helped:
      * eaclib .lib C members are debug-stripped (0 SLD records anywhere above 0x800E0000). */
 
+    /* w53-a10 2026-08-09 -- TWO FRESH AXES MEASURED, BOTH DEAD; the 2-diff baseline is KEPT.
+     * (1) PER-OBJ FLAG AXIS (the 3.25-3d axis the W52 header receipt named as still open for
+     *     eacpsxz) is now CLOSED for asinfunc.c.  21 cc1 flags x the whole TU, measured in BOTH
+     *     basins (the kept 2-diff form AND the w50-a9 depth-2 fence basin) through a scratchpad
+     *     verify_asm copy that injects raw cc1 flags (tools/ untouched):
+     *       control 2 | -fno-peephole 2 | -fno-schedule-insns 2 | -fno-strength-reduce 2 |
+     *       -fno-cse-follow-jumps 2 | -fno-cse-skip-blocks 2 | -fno-rerun-cse-after-loop 2 |
+     *       -fno-thread-jumps 2 | -fno-force-mem 2 | -fno-caller-saves 2 | -fno-function-cse 2 |
+     *       -fno-defer-pop 2 | -fno-inline 2 | -fomit-frame-pointer 2 | -funsigned-char 2 |
+     *       -fno-schedule-insns2 2 (but it costs intarccos 0 -> 3) | -fno-expensive-optimizations
+     *       6 | -fno-delayed-branch 23 | -mno-split-addresses 35.  (-fno-regmove is not a 2.8.0
+     *       flag.)  In the 6-diff fence basin every flag is 6 or worse.  NO flag reaches the
+     *       la-scratch register question.  Do NOT re-run the flag ladder on this TU.
+     * (2) The w50-a9 residual was attacked from the source side once more (the qtytrace/-dl route
+     *     it named is still the open instrument).  In the depth-2 basin the ONLY residual is
+     *     `lui/addiu/addu` landing in $v1 (dest-as-%hi-scratch) vs retail $v0 (separate scratch).
+     *     Falsified, all 6 @48/48 unless noted: a 2nd and 3rd identity fence on `qt`; an identity
+     *     fence on `pt` as well (24); a `base` temp identity-fenced then `pt = base + idx` (6, the
+     *     add's operand order flips only); a VOID-TAIL fence `__asm__("" : : "i"(0))` at the block
+     *     head (6); the int-cast `(const unsigned char *)((int)kArcsinTable + idx)` (6); the
+     *     depth-2 do-while wrapped around the `pt` load as well (24).
+     *     NEW SHAPE, recorded because it is the exact MIRROR of retail and therefore the closest
+     *     structural neighbour found so far:
+     *       qt = kArcsinTable; pt = qt + idx; qt = pt; <identity fence on qt>;
+     *       t0 = pt[0]; do { do { t1 = qt[1]; } while (0); } while (0);
+     *     gates 16 @48/48 emitting `addiu v1,v0,0 / addu v0,a1,v1 / addu v1,v0,zero` -- i.e. la ->
+     *     $v1, sum -> $v0, copy -> $v1: retail's three-pseudo shape with the two members SWAPPED.
+     *     So the single QTY_CMP_PRI question is now reachable from BOTH sides (6 = right pair,
+     *     wrong split; 16 = right split, swapped pair) -- that pair of basins is the material for
+     *     the qtytrace pass, not another subscript spelling. */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;

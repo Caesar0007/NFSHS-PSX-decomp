@@ -147,6 +147,29 @@ extern void chase(unsigned int code);                                           
  * retail's length).
  * Raw nfs4-f.exe E5AB8..E5D2F SHA-256:
  * eae786e8d18c199bea647b339f069508f7294319d4855358b59db0bf234b749b. */
+/* w53-a10 2026-08-09 -- unrefpack residual NAMED (12 diffs, ours 156 vs oracle 158 = 2 SHORT),
+ * plus two axes closed.
+ *   THE RESIDUAL IS ONE CLASS AT TWO SITES: retail advances the output pointer IN PLACE and then
+ *   COPIES it into the call's arg register --
+ *      addu s3,s3,s0   (out += reverse)      addu a0,s3,zero   (refcpy arg)
+ *   -- while ours FOLDS the two into `addu a0,s3,s0`, because `out` is provably dead at the call
+ *   (`out = refcpy(out, ...)` redefines it), so gcc-2.8's flow/combine kills the in-place update.
+ *   Retail's weaker pass leaves both.  Note the SPLIT: there are FOUR `addu s3,s3,s0` sites in the
+ *   oracle and ours reproduces two of them, so this is not a blanket per-obj DCE identity -- only
+ *   the two arms whose advance is immediately consumed by the shared refcpy tail fold.
+ *   FALSIFIED this wave (all still 12 @156/158 unless noted): naming the call receiver at all
+ *   three refcpy sites (`{unsigned char *ap = out; out = refcpy(ap, count, len);}`); writing the
+ *   advance explicitly as `out = out + reverse;` instead of `out += reverse;`; advancing `src`
+ *   before `out` (14).  An OPACITY fence on `out` right after the advance DOES split it (+1 insn,
+ *   157) but rotates the whole s-band -- 77 diffs.
+ *   PER-OBJ FLAG AXIS CLOSED for unref.c (21 cc1 flags x unrefpack+chase): control 12 and
+ *   FIFTEEN flags inert at 12 (-fno-peephole, -fno-strength-reduce, -fno-cse-follow-jumps,
+ *   -fno-cse-skip-blocks, -fno-rerun-cse-after-loop, -fno-thread-jumps, -fno-force-mem,
+ *   -fno-caller-saves, -fno-function-cse, -fno-defer-pop, -fno-inline, -fomit-frame-pointer,
+ *   -funsigned-char, -mno-split-addresses); the rest strictly worse (-fno-schedule-insns 24,
+ *   -fno-schedule-insns2 26 + chase 0 -> 6, both 46, -fno-expensive-optimizations 44,
+ *   -fno-delayed-branch 92).  Notably -fno-expensive-optimizations does NOT restore the in-place
+ *   mutate, so the fold is not the "expensive" pass.  Do NOT re-run the flag ladder here. */
 extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
 {
     unsigned char *src = comp;

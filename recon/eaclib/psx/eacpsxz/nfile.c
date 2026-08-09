@@ -155,6 +155,39 @@ extern void freehandle(FileHandle *h)
  * the SYM for anything in eaclib except the 16 C:\LIB\PSX\*.ASM members and EACLIB\PSX\PAD.C.
  * => still a floor, but now for a NAMED compiler reason (loop.c SR at non-power-of-2 stride),
  * not the blanket "per-obj no-copy-prop identity". */
+/* w53-a10 2026-08-09 -- reservehandle: the w49/w50 "non-asm split device" hunt was extended to
+ * FENCE PLACEMENT (the w52 fence-dial family), and to the w52 VOID-TAIL-FENCE-AT-A-BRANCH-TARGET
+ * reorg lever that cracked CdInit.  All falsified; the 3-diff baseline is KEPT.
+ *   The residual is unchanged: ours 45 vs 44, the fence blocks fill_simple_delay_slots' SIMPLE
+ *   backward fill of the `bnez` slot (retail: `addiu a1,v1,0x4C`), so reorg instead EAGER-STEALS
+ *   the branch target's first insn (a duplicate of the loop-head copy) and retargets the branch.
+ *   Measured this wave (all with `cur` moved to block/function scope as noted):
+ *     use fence moved AFTER the loop (cur block-scope)               36 @46/44
+ *     use fence inside the loop AND after the loop                   36 @46/44
+ *     cur function-scope, fence outside the `if` block               35 @47/44
+ *     VOID-TAIL fence `__asm__("" : : "i"(0))` at the loop HEAD
+ *       (the branch target) + the existing use fence                 35 @45/44
+ *     use fence + a VOID-TAIL fence directly after it                34 @44/44  <- count-exact
+ *   The last row is notable: it recovers retail's EXACT instruction count (44/44, the count the
+ *   w47 receipt said was only reachable by moving the fence above the advance) but rotates the
+ *   whole a-band, so it is worse than the kept 3.  The w52 void-tail lever therefore does NOT
+ *   kill the eager steal here -- it only changes which insn reorg picks.  The NAMED NEXT LEVER is
+ *   unchanged: a value-numbering barrier that is not an asm_noperands.
+ *   WHOLE-TU FLAG AXIS FOR nfile.c IS CLOSED (21 cc1 flags x 27 gate-visible fns, scratchpad
+ *   verify_asm with raw flag injection; totals = sum of per-fn diffs / PASS count):
+ *     control                          69 / 22 PASS   <- the wired lane WINS
+ *     -fno-peephole                    69 / 22        -fno-strength-reduce      69 / 22
+ *     -fno-caller-saves                69 / 22        -fno-function-cse         69 / 22
+ *     -fno-defer-pop                   69 / 22        -fno-inline               69 / 22
+ *     -fomit-frame-pointer             69 / 22        -funsigned-char           69 / 22
+ *     -fno-thread-jumps                71 / 21        -fno-force-mem           105 / 17
+ *     -fno-cse-follow-jumps           113 / 21        -fno-rerun-cse-after-loop 134 / 20
+ *     -fno-cse-skip-blocks            177 / 19        -fno-expensive-optimizations 243 / 12
+ *     -fno-schedule-insns2            336 /  7        -mno-split-addresses      460 /  9
+ *     -fno-schedule-insns             555 /  7        -fno-delayed-branch       623 /  1
+ *     -fno-schedule-insns + -insns2   855 /  4        (-fno-regmove: not a 2.8.0 flag)
+ *   No flag improves ANY of the five non-PASS fns; reservehandle is 3 under every inert flag and
+ *   20-25 under the rest.  Do NOT re-run the flag ladder on this TU. */
 extern FileHandle *reservehandle(void)
 {
     int i, sr;
@@ -536,6 +569,33 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
     return 0;
 }
 
+/* w53-a10 2026-08-09 -- FILE_completeop: MECHANISM IDENTIFIED AND PROVEN TO PASS; ORCHESTRATOR
+ * ACTION REQUESTED (a one-line tools/build.py table entry -- this agent's scope forbids editing
+ * tools/, so the source stays as-is and the wiring is proposed with whole-TU evidence).
+ *   RESIDUAL (2 diffs, count-exact 47/47): retail's prologue is
+ *      addiu sp,sp,-0x28 / sw s0,0x20(sp) / lui a1 / srl / sll / addu / lw / sll /
+ *      sw ra,0x24(sp) / addu a1,v1,v0 ...
+ *   i.e. the $s0 save sits at slot 2, directly after the frame allocation, and only the $ra save
+ *   is sunk into the body.  Ours emits BOTH saves together at slots 8-9 (`sw ra` then `sw s0`).
+ *   MECHANISM: cc1 emits both saves at the top (verified: -fno-schedule-insns2 leaves them at
+ *   slots 2-3) and SCHED2 sinks them -- both stores have zero dependents, so they are lowest
+ *   priority and go last.  Retail sank only one.  This is exactly the catalog's PER_FN_RA_SINK /
+ *   PROLOGUE_UNSINK textual-splice class (row: "retail's prologue $ra/$sN save is displaced ...
+ *   relocate the one save line on the .s post-cc1", CV_ColorTracks 2 -> PASS, e82d802f, which
+ *   already names FILE_completeop as the candidate).
+ *   PROOF: a scratchpad post-cc1 splice that hoists `sw $16,32($sp)` back to sit directly after
+ *   the `subu $sp,$sp,40` line -- the exact mirror of _apply_ra_sink -- gates
+ *     FILE_completeop: PASS (47 insns)
+ *   and the WHOLE TU goes 22 -> 23 PASS with ZERO regressions (the other four non-PASS fns --
+ *   reservehandle 3, reserveop 40, iFILE_ExecCommand 10, FILE_cancelop 14 -- are unchanged).
+ *   PROPOSED WIRING: a PER_FN_PROLOGUE_UNSINK table beside PER_FN_RA_SINK, entry
+ *     "recon/eaclib/psx/eacpsxz/nfile.c": {"FILE_completeop": ["16"]}
+ *   applied after _apply_ra_sink: delete the `	sw	$16,N($sp)
+` line from the fn region and
+ *   re-insert it immediately after the `subu|addu|addiu $sp,$sp,-N` line.
+ *   FLAG AXIS IS DEAD FOR THIS FUNCTION -- see the whole-TU flag table on reservehandle below;
+ *   in particular -fno-schedule-insns and -fno-schedule-insns2 both leave it at 2 (the first
+ *   because sched1 is not what sinks the saves, the second because it un-sinks BOTH). */
 /* FILE_completeop @0x800EC2B0 : harvest a finished op's result (by op type), then free the op slot.
  *   Returns 0 unless the op's status is 1 (complete).  Result field is per op-type nibble (2..10):
  *     2,9 -> result24 (open handle)   3,7,10 -> status   4,5 -> result1C (read)   6,8 -> result18 (size)

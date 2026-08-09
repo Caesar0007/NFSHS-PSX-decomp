@@ -53,6 +53,18 @@
  *                  inner k=0..2 (column), three fixedmult+accumulate, store scratch[3*i+k].
  */
 
+/* w53-a10 2026-08-09 -- THE RAGE-RACER MINING ANGLE IS FALSIFIED (recorded so it is not re-tried).
+ * The W53 briefing named C:/Temp/rage-racer-decomp/src/main/PAL/lib/libgte as carrying "matched
+ * MulMatrix-family C" to compare this function's loop/temp structure against.  It does not: every
+ * matrix routine there is INCLUDE_ASM / HANDWRITTEN_ASM and explicitly excluded from RR's progress
+ * -- multiply_matrix.c (MulMatrix), multiply_matrix_2.c (MulMatrix2), matrix_stack.c
+ * (CompMatrix/MulMatrix0/MulRotMatrix/SetMulMatrix/...), rotation_matrix.c and scale_matrix.c are
+ * all one-line INCLUDE_ASM stubs carrying a "gcc 2.6.3 cannot reproduce this from C" note.  The
+ * matched C in that directory (apply_matrix, geometry_math, geo_00, register_access, set_matrices,
+ * leading_zero_count) is GTE/COP2 macro code with no fixedmult-style scalar accumulate loop.  So
+ * there is no sibling body to mine for this function -- and in any case the residual here is not
+ * loop/temp SHAPE (the shape has already been byte-exact at 81/81 in two separate basins); it is
+ * reload-register round-robin, which no source corpus can supply.  Kept at 31. */
 extern int  fixedmult(int a, int b);                       /* eacpsxz @0x800E4328 (lbl_D4328) */
 extern void blockmove(void *src, void *dst, int n);        /* eacpsxz @0x800E62DC (lbl_D62DC) */
 

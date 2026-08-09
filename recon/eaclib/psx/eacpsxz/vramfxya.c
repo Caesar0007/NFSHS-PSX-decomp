@@ -279,6 +279,25 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * reference; inflator #1 only fires when the AND survives as a real RTL insn for cse to merge.
      * ==> the constraint-(ii) bar in the proof below (clutYm needs refs 3 -> 4 at zero cost) is
      * still unmet by the whole inflator kit; that single number remains the open target. */
+    /* w53-a10 2026-08-09 -- THE W52 FENCE-DIAL LAW IS NOW MEASURED HERE AND DOES NOT REACH THE
+     * BAND.  The law (read-only fence = allocno DEMOTE; identity fence = PROMOTE, i.e. +2
+     * REG_N_REFS at ZERO instructions) is precisely the instrument the "clutYm needs refs 3 -> 4
+     * at zero cost" target above was hunting and that the w34/w35 inflator kit lacked, so it was
+     * worth a pass.  13 placements, none better than 34 (ours/oracle noted where parity broke):
+     *   IDENTITY fence `__asm__("" : "=r"(x) : "0"(x))` on clutYm before its CLUT-tail use 59
+     *   (164/165) | on clutXm 49 (166/165) | on both 68 (165/165) | on clutYm AFTER its use 67
+     *   (166/165).  READ-ONLY fence `__asm__("" : : "r"(x))` on clutYm 54 | on both 52.
+     *   Both identity fences + a read-only demote on ix 84 (167/165), on imgY 70 (167/165).
+     *   Demote-the-params direction, all placed at the walker-loop end: ro-fence ix 42 | imgY 42 |
+     *   both 50 | one dual-input fence `"r"(ix),"r"(imgY)` 50 | all four coords 58 | identity
+     *   fences on ix+imgY 50.  (Several stay count-EXACT 165/165, confirming the zero-insn cost.)
+     *   The identity fence DOES fire as a ref dial here -- it changes the assignment every time --
+     *   it simply never lands retail's permutation, which is exactly what the two unsatisfiable
+     *   allocno_compare constraints proven below predict.
+     * PER-OBJ FLAG AXIS also closed for this TU: 21 cc1 flags over checkrect+vramimage+vramfxya,
+     * control 34 and every flag 34 or worse (-fno-force-mem 42, -mno-split-addresses 43,
+     * -fno-schedule-insns2 55 + vramimage 0 -> 10, -fno-delayed-branch 80, -fno-schedule-insns
+     * 154; the other 15 flags all inert at 34).  STRONG floor stands; route unchanged. */
     int ix = imgX;                          /* +2 weighted refs -> priority dial only, see above  */
     int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
     unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */

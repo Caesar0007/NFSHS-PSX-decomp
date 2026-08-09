@@ -862,6 +862,18 @@ extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
  *   (same 4), read-back into a named local, in-place `cbase = cbase + n*0x10` mutation, `base` used
  *   directly, an empty `__asm__("" : : "r"(base))` fence (23).  Needs a non-volatile way to keep
  *   cse's copy alive = the "old-gcc no-copy-prop" toolchain-identity class. */
+/* w53-a10 2026-08-09 -- STREAM_create kept at 2 @144/144; nothing new landed, one axis closed.
+ * The residual is unchanged and fully described in the consumerArray note below: ours re-READS
+ * the just-stored field (`lw v0,24(s0)`) where retail keeps cse's register COPY
+ * (`addu v0,v1,zero`), because the VOLATILE store that pins the store's position also makes the
+ * read-back a real memory reference, and every non-volatile spelling measured lands 1 insn SHORT
+ * (143) with the copy propagated away.  This wave added no new spelling -- the w49/w50 list
+ * already covers ~15 -- and instead recorded the mechanism cleanly: retail's copy survives only
+ * because the shift `sll v1,s3,4` immediately CLOBBERS $v1 while the stored value is still needed,
+ * i.e. the copy is a register-pressure artifact of retail's schedule, not a source shape.  The
+ * missing device is the same one named on nfile.c reservehandle and trnsmult.c: a zero-insn,
+ * NON-BARRIER value-numbering breaker.  (The `volatile` here is a pre-existing matching device
+ * from w34-a2, not introduced by this wave; every attempt to remove it is worse.) */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
 {
     int over, base, i, off;

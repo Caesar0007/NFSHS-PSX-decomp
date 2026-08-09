@@ -194,6 +194,31 @@ extern void synccallback(int op, int type, SyncCtrl *c)
     t = c;
     done = FILE_completeop((unsigned int)op);
     __asm__("" : "=r"(t) : "0"(t));
+    /* MATCH (w53-a10, 19 -> 17 at the same 72/71): the W52 FENCE-DIAL LAW supplies the
+     * "zero-insn +refs on `c`" instrument the w50-a4 receipt above was hunting.  An IDENTITY
+     * fence is a def+use pair, i.e. +2 REG_N_REFS at zero instructions -- the do{}while(0)
+     * wrapper's ref effect WITHOUT its NOTE_INSN_LOOP_BEG barrier (which cost +2 insns).
+     * Placement is load-bearing: AFTER the `t` fence = 17 @72/71 (kept); BEFORE it = 75 @70
+     * (the `t` copy is eliminated again); at the type==1 head = 17 @72/71 (equivalent);
+     * after the three advance accumulates = 28 @75.  A 2nd/3rd identity fence on `c` adds
+     * nothing (17, flat) -- one crossing of the flr2 step is all the dial has.
+     * RESIDUAL 17 is the SAME two items the w50-a4 note isolated: (a) the prologue pair (ours
+     * param -> $s2, copy -> $s1; retail param -> $s1, copy -> $s2) and (b) two delay-slot fills.
+     * Falsified on top of the c-fence, all 17 @72/71: a read-only DEMOTE fence on `t` at the tail
+     * or right after its own fence; a 2nd/3rd identity fence on `c`; an identity fence on `c` at
+     * the type==1 head or before the remain guard.  The w50 do{}while(0) wrapper still STACKS with
+     * it -- c-fence + a wrapper on the buf (or done) accumulate gates 12 @73/71, i.e. 2 better than
+     * the wrapper alone -- but it still costs the same +2 real instructions, so the count-exact
+     * 72/71 baseline is kept per the standing decision in that note.
+     * PER-OBJ FLAG AXIS CLOSED for syncfile.c (21 cc1 flags x all 8 fns): control 17 total / 7
+     * PASS and thirteen flags inert; every other flag is worse in TU total (-fno-force-mem 21,
+     * -mno-split-addresses 27, -fno-schedule-insns 51, -fno-schedule-insns2 70, both 104,
+     * -fno-delayed-branch 121).  ONE PER-FUNCTION OPPORTUNITY worth recording:
+     * -fno-schedule-insns2 takes synccallback ALONE 17 -> 16 while costing the other seven fns
+     * 7 PASS, so it is reachable only through a PER-FUNCTION dual-compile splice (build.py's
+     * _apply_fn_splice family, which currently wires only -fno-delayed-branch / -fno-thread-jumps
+     * / -fforce-addr).  1 diff for a new table -- recorded, not requested. */
+    __asm__("" : "=r"(c) : "0"(c));
     c->op = 0;
     if (type == 1) {
         *(volatile int *)&c->buf    += done;

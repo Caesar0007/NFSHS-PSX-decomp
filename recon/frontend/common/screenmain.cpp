@@ -167,39 +167,37 @@ void tScreenMain::SetState(tScreenMainState state)
       DeInit(&CreditManager);
     }
     iVar4 = ticks;
-    iVar7 = 0;
+    i = 0;
     this->fState = state;
     this->fStartTicks = iVar4;
     do {
-      sVar3 = (short)iVar7;
       shape = this->fVideoShapes[this->fCurrentSlot].fShapes;
-      this->tvTransitions[sVar3].state = kScreenMain_StaticImage;
-      uVar2 = (uint)(byte)shape[sVar3].depth;
-      iVar4 = ((int)shape[sVar3].shapex - (int)(short)(shape[sVar3].shapex & 0xffc0)) * 0x10;
-      this->tvTransitions[sVar3].u = (uchar)(iVar4 / (int)uVar2);
-      this->tvTransitions[sVar3].v = (uchar)shape[sVar3].shapey;
-      this->tvTransitions[sVar3].uw = (uchar)shape[sVar3].width;
-      this->tvTransitions[sVar3].vh = (uchar)shape[sVar3].height;
-      this->tvTransitions[sVar3].tpage =
-           ((u_char)*((u_char*)&shape[sVar3] + 9) & 3) << 7 | (short)(shape[sVar3].shapey & 0x100U) >> 4 |
-           (ushort)(((ushort)shape[sVar3].shapex & 0x3c0) >> 6) |
-           (shape[sVar3].shapey & 0x200U) << 2;
-      uVar1 = GetClut((shape[sVar3].clutID & 0x3fU) << 4,shape[sVar3].clutID >> 6);
-      iVar7 = iVar7 + 1;
-      this->tvTransitions[sVar3].clut = uVar1;
-      this->tvTransitions[sVar3].flags = 0;
-      this->tvTransitions[sVar3].tint = 0x808080;
-      this->tvTransitions[sVar3].bright = 0x80;
-    } while (iVar7 * 0x10000 >> 0x10 < 0x10);
+      this->tvTransitions[i].state = kScreenMain_StaticImage;
+      uVar2 = (uint)(byte)shape[i].depth;
+      iVar4 = ((int)shape[i].shapex - (int)(short)(shape[i].shapex & 0xffc0)) * 0x10;
+      this->tvTransitions[i].u = (uchar)(iVar4 / (int)uVar2);
+      this->tvTransitions[i].v = (uchar)shape[i].shapey;
+      this->tvTransitions[i].uw = (uchar)shape[i].width;
+      this->tvTransitions[i].vh = (uchar)shape[i].height;
+      this->tvTransitions[i].tpage =
+           ((u_char)*((u_char*)&shape[i] + 9) & 3) << 7 | (short)(shape[i].shapey & 0x100U) >> 4 |
+           (ushort)(((ushort)shape[i].shapex & 0x3c0) >> 6) |
+           (shape[i].shapey & 0x200U) << 2;
+      uVar1 = GetClut((shape[i].clutID & 0x3fU) << 4,shape[i].clutID >> 6);
+      this->tvTransitions[i].clut = uVar1;
+      this->tvTransitions[i].flags = 0;
+      this->tvTransitions[i].tint = 0x808080;
+      this->tvTransitions[i].bright = 0x80;
+      i = i + 1;
+    } while (i < 0x10);
     tVar5 = this->fState;
     if (tVar5 == kScreenMain_WarningImage) {
-      iVar4 = 4;
+      i = 4;
       do {
-        sVar3 = (short)iVar4;
-        iVar4 = iVar4 + 1;
-        this->tvTransitions[sVar3].bright = 0x80;
-        this->tvTransitions[sVar3].state = kScreenMain_WarningImage;
-      } while (iVar4 * 0x10000 >> 0x10 < 0xc);
+        this->tvTransitions[i].bright = 0x80;
+        this->tvTransitions[i].state = kScreenMain_WarningImage;
+        i = i + 1;
+      } while (i < 0xc);
       this->tvTransitions[6].bright = 0x80;
       this->tvTransitions[5].bright = 0x80;
     }
@@ -209,14 +207,13 @@ void tScreenMain::SetState(tScreenMainState state)
       }
     }
     else {
-      iVar4 = 0;
+      i = 0;
       if (tVar5 == kScreenMain_Credits) {
         do {
-          sVar3 = (short)iVar4;
-          iVar4 = iVar4 + 1;
-          this->tvTransitions[sVar3].bright = 0x80;
-          this->tvTransitions[sVar3].state = kScreenMain_Credits;
-        } while (iVar4 * 0x10000 >> 0x10 < 0x10);
+          this->tvTransitions[i].bright = 0x80;
+          this->tvTransitions[i].state = kScreenMain_Credits;
+          i = i + 1;
+        } while (i < 0x10);
         Init(&CreditManager,this->fStartTicks);
       }
     }
@@ -702,67 +699,66 @@ void tScreenMain::PreLoad()
 void tScreenMain::Initialize()
 
 {
-  void *loaded;
-  void *pv;
-  int i;
-  int iVar2;
-  byte shapesLoaded;
-  int scratch;
-  short n;
-  int iVar3;
-  bool all_loaded;
-  
+  /* MATCH (06A): the SYM 8c block lists exactly TWO named locals -- `i` (class
+     REG $16 = $s0, SHORT) and `shapesLoaded` (class REG $16 = $s0, BOOL), sharing
+     one register over disjoint ranges; mask $800f0000 = ra + s0..s3, i.e. FOUR
+     saved regs.  loaded / pv / all_loaded / iVar2 / scratch / iVar3 were Ghidra
+     inventions and bought a fifth saved register ($s4). */
+  /* SYM types it BOOL, which in this codebase is a 4-byte int -- the oracle's
+     first assignment is a RAW COPY (`addu s0,v0,zero`), not a normalization, so
+     it is an int taking the pointer; only the `&&` below normalizes (`sltu`). */
+  int shapesLoaded;
+  short i;
+
   this->Initialize();
   do {
     FeAudio_systemtask(0);
-    loaded = ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
+    shapesLoaded = (int)::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
     if (this->fVideoShapes[0].fFile != (char *)0x0) {
       ::UploadShapes((tScreen *)this,this->fVideoShapes,0,0,0x10,0);
     }
-    all_loaded = false;
-    if (loaded != (void *)0x0) {
-      pv = ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1);
-      all_loaded = pv != (void *)0x0;
-    }
+    /* MATCH: ONE `&&` expression re-assigned to the SAME named flag -- gcc builds
+       the value in an anonymous temp ($v1 in both arms) and emits a single
+       `addu s0,v1,zero` copy into `shapesLoaded`; the `flag = false; if (...)
+       flag = ...;` form writes $s0 directly in both arms (no phi copy). */
+    shapesLoaded = shapesLoaded &&
+                   (::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != (void *)0x0);
     if (this->fVideoShapes[1].fFile != (char *)0x0) {
       ::UploadShapes((tScreen *)this,this->fVideoShapes + 1,0xa6,0,0x10,0);
     }
-  } while (!all_loaded);
+  } while (!shapesLoaded);
   this->fPreviousMovie = -1;
   this->fFrame = 0;
-  i = VIDEO_create(0x50,0x50,0xf0000,0x20000,0x10);
-  scratch = 0;
-  this->hVideo = i;
-  iVar2 = ticks;
+  this->hVideo = VIDEO_create(0x50,0x50,0xf0000,0x20000,0x10);
+  this->fStartTicks = ticks;
   this->bVideoAborted = 0;
   this->fTransitionDirection = '\x01';
   this->fAnimationUploaded = 0;
   this->fWarningFade = 0;
   this->fNumTVsInTransition = 0;
   this->fCurrentSlot = 0;
-  this->fStartTicks = iVar2;
-  this->fAnimTicks = iVar2 - 800;
+  this->fAnimTicks = ticks - 800;
   /* MATCH: ONE fn-scope `short n` serves all THREE loops -- the decompiler's
      `iVarN * 0x10000 >> 0x10` pre-shift idiom costs an extra pseudo per loop
      (and a whole extra saved register); a plain short counter reproduces the
      oracle's per-use sll/sra + `addiu v0,n,1; addu n,v0,zero` bump. */
-  n = 0;
+  i = 0;
   do {
-    InitTV(this->tvConfigs + n,this->fVideoShapes[this->fCurrentSlot].fShapes,n);
-    n = n + 1;
-  } while (n < 0x10);
+    InitTV(this->tvConfigs + i,this->fVideoShapes[this->fCurrentSlot].fShapes,i);
+    i = i + 1;
+  } while (i < 0x10);
   this->fState = kScreenMain_Off;
   this->SetState(kScreenMain_StaticImage);
-  n = 0;
+  i = 0;
   do {
-    *(u_int *)((int)this->tvStates + n * 4) = 0;
-    n = n + 1;
-  } while (n < 0x10);
-  n = 0;
+    *(u_int *)((int)this->tvStates + i * 4) = 0;
+    i = i + 1;
+  } while (i < 0x10);
+  i = 0;
   do {
-    numberValues[n] = (char)rand();
-    n = n + 1;
-  } while (n < 0x19);
+    numberValues[i] = (char)rand();
+    i = i + 1;
+  } while (i < 0x19);
   return;
 }
 

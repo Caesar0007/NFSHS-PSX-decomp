@@ -57,7 +57,11 @@ extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,s
   }
   DrawC_gMenuLights = 0;
   DrawC_gMenuLightsDirection = (int)(0x3ff < (uint)(::ticks[0] + (iVar2 >> 0xb) * -0x800));
-  if (-1 < *carBytes) {
+  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): plain `char` is UNSIGNED on this
+     build, so `-1 < *carBytes` folded to constant TRUE and gcc DELETED the whole guard --
+     an EMPTY car slot (fCarID == -1) would still be drawn.  Oracle 8003AA58/8003AA60 has
+     `lb $v0,0($t0); bltz $v0,.L8003AB5C`; force the signed load per-use. */
+  if (-1 < *(signed char *)carBytes) {
     ppCVar3 = gCarObj + player;
     bVar1 = carBytes[0xc5];
     (*ppCVar3)->carInfo->carType = (uint)(byte)carBytes[1];
@@ -329,43 +333,43 @@ DrawOvl_transitionPos:
 void tScreenCarSelect::SetState(int state)
 
 {
-  char cVar1;
-  short state2;
-  short sVar3;
-  int iVar4;
+  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): this build's plain `char` is
+     UNSIGNED (__CHAR_UNSIGNED__), so `-1 < cVar1` below folded to a constant TRUE and gcc
+     DELETED the guard -- every empty overlay slot would be treated as a valid overlay index.
+     gStateOverlays is `signed char[8][4]` and the oracle guards with `lb $v1; bltz $v1`
+     (8003B654/8003B65C), so the local must be SIGNED. */
+  signed char cVar1;
   tOverlay *ovl;
   short i;
-  int iVar6;
   short fPreviousState;
   
-  state2 = this->fState;
+  fPreviousState = this->fState;
   if (state != this->fState) {
     this->fState = (short)state;
-    if ((ushort)(state2 - 2U) < 2) {
+    if ((ushort)(fPreviousState - 2U) < 2) {
       TurnOff(this->fVideoWall);
       this->SetBrightness(0,0);
       this->fPreviousCar = -1;
       this->fPreviousCarID = -1;
     }
-    iVar6 = 0;
-    iVar4 = 0;
+    i = 0;
     do {
-      iVar4 = iVar4 >> 0x10;
-      ovl = this->fCurrentOverlays[iVar4];
-      if (ovl == (tOverlay *)0x0) {
-        cVar1 = gStateOverlays[state][iVar4];
-        if (-1 < cVar1) {
-          this->fCurrentOverlays[iVar4] = this->fOverlays + cVar1;
-          this->fOverlays[cVar1].transition = 0;
-          this->fCurrentOverlays[iVar4]->direction = 1;
+      ovl = this->fCurrentOverlays[i];
+      if (ovl != (tOverlay *)0x0) {
+        if ((int)ovl->ID != (int)gStateOverlays[state][i]) {
+          ovl->direction = -1;
         }
       }
-      else if ((int)ovl->ID != (int)gStateOverlays[state][iVar4]) {
-        ovl->direction = -1;
+      else {
+        cVar1 = gStateOverlays[state][i];
+        if (-1 < cVar1) {
+          this->fCurrentOverlays[i] = this->fOverlays + cVar1;
+          this->fCurrentOverlays[i]->transition = 0;
+          this->fCurrentOverlays[i]->direction = 1;
+        }
       }
-      iVar6 = iVar6 + 1;
-      iVar4 = iVar6 * 0x10000;
-    } while (iVar6 * 0x10000 >> 0x10 < 4);
+      i = i + 1;
+    } while (i < 4);
   }
   if (state != 2) {
     if (state < 3) {
@@ -383,40 +387,36 @@ void tScreenCarSelect::SetState(int state)
     }
   }
   this->fInShowroom = (uint)(state - 5U < 2);
-  iVar4 = ticks[0];
   gStopCommentaryNow = 1;
   this->fSpeechPlayed = 0;
-  this->fSpeechTicks = iVar4;
-  this->fShowroomTicks = iVar4;
-  if (this->fInShowroom == 0) {
-    iVar4 = 0;
-    do {
-      sVar3 = (short)iVar4;
-      iVar4 = iVar4 + 1;
-      this->tvConfigs[sVar3].state = tv_StateOff;
-      this->tvConfigs[sVar3].transition = 0;
-    } while (iVar4 * 0x10000 >> 0x10 < 10);
-    if (state2 != 1) {
-      ::TransitionOn((tScreen *)this,kScreen_TransitionTypeScreen,(tMenu *)0x0);
-    }
-    TurnOn(this->fVideoWall);
-  }
-  else {
+  this->fSpeechTicks = ticks[0];
+  this->fShowroomTicks = ticks[0];
+  if (this->fInShowroom != 0) {
     AudioMus_StopSong(1000);
-    iVar4 = 0;
+    i = 0;
     this->fSplineInterval = 0;
     gKnots[1][4] = this->fCameraRotation & 0x3ff;
     do {
-      iVar6 = (iVar4 << 0x10) >> 0xe;
-      iVar4 = iVar4 + 1;
-      *(int *)((int)gKnots[0] + iVar6) =
-           *(int *)((int)gKnots[1] + iVar6) * 2 - *(int *)((int)gKnots[2] + iVar6);
-    } while (iVar4 * 0x10000 >> 0x10 < 5);
+      gKnots[0][i] = gKnots[1][i] - (gKnots[2][i] - gKnots[1][i]);
+      i = i + 1;
+    } while (i < 5);
     gRotateOffset[3] = 0x10000;
     gRotateOffset[2] = 0x10000;
     gRotateOffset[1] = 0x10000;
     gRotateOffset[0] = 0x10000;
     ::TransitionOff((tScreen *)this,kScreen_TransitionTypeScreen,(tMenu *)0x0);
+  }
+  else {
+    i = 0;
+    do {
+      this->tvConfigs[i].state = tv_StateOff;
+      this->tvConfigs[i].transition = 0;
+      i = i + 1;
+    } while (i < 10);
+    if (fPreviousState != 1) {
+      ::TransitionOn((tScreen *)this,kScreen_TransitionTypeScreen,(tMenu *)0x0);
+    }
+    TurnOn(this->fVideoWall);
   }
   return;
 }
@@ -429,7 +429,6 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
 
 {
   int _i;
-  int iVar1;
   short i;
   int T [4];
   int G [4] [4];
@@ -439,25 +438,24 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
   T[2] = fixeddiv(elapsed << 0x10,0x2580000);
   T[1] = fixedmult(T[2],T[2]);
   T[0] = fixedmult(T[1],T[2]);
-  _i = 0;
+  i = 0;
   T[3] = 0x10000;
   do {
-    iVar1 = (_i << 0x10) >> 0xe;
-    *(u_int *)((int)G[0] + iVar1) = *(u_int *)((int)gKnots[knot1] + iVar1);
-    *(u_int *)((int)G[1] + iVar1) = *(u_int *)((int)gKnots[knot2] + iVar1);
-    *(u_int *)((int)G[2] + iVar1) = *(u_int *)((int)gKnots[knot3] + iVar1);
-    _i = _i + 1;
-    *(u_int *)((int)G[3] + iVar1) = *(u_int *)((int)gKnots[knot4] + iVar1);
-  } while (_i * 0x10000 >> 0x10 < 4);
+    G[0][i] = gKnots[knot1][i];
+    G[1][i] = gKnots[knot2][i];
+    G[2][i] = gKnots[knot3][i];
+    G[3][i] = gKnots[knot4][i];
+    i = i + 1;
+  } while (i < 4);
   TransformVector(&T,&gCatmullRom,&Result1);
   TransformVector(&Result1,(int (*) [4] [4])G,&Result2);
   camY = Result2[0] >> 1;
   camZ = Result2[1] >> 1;
-  _i = Result2[2] >> 0x11;
-  if (Result2[2] >> 1 < 0) {
-    _i = (Result2[2] >> 1) + 0xffff >> 0x10;
+  _i = Result2[2] >> 1;
+  if (_i < 0) {
+    _i = _i + 0xffff;
   }
-  screenX = _i;
+  screenX = _i >> 0x10;
   _i = Result2[3] >> 1;
   if (_i < 0) {
     _i = _i + 0xffff;
@@ -640,18 +638,17 @@ void tScreenCarSelect::Initialize()
   this->fFadeTicks[1] = valid;
   this->fFadeTicks[0] = valid;
   (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + vtbl[1][1].delta + -0x14);
-  valid = 0;
+  i = 0;
   do {
-    sVar2 = (short)valid;
-    valid = valid + 1;
-    this->fOverlays[sVar2].transition = 0;
-    this->fOverlays[sVar2].direction = 0;
-  } while (valid * 0x10000 >> 0x10 < 7);
-  valid = 0;
+    this->fOverlays[i].transition = 0;
+    this->fOverlays[i].direction = 0;
+    i = i + 1;
+  } while (i < 7);
+  i = 0;
   do {
-    *(u_int *)((int)this->fCurrentOverlays + ((valid << 0x10) >> 0xe)) = 0;
-    valid = valid + 1;
-  } while (valid * 0x10000 >> 0x10 < 4);
+    this->fCurrentOverlays[i] = (tOverlay *)0x0;
+    i = i + 1;
+  } while (i < 4);
   return;
 }
 
@@ -669,7 +666,6 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   byte validCar;
   tMenuItem *item;
   tMenuItemOptionsLeftRightChoice *lrItem;
-  int state;
   tCarInfo carInfo;
   
   tVar4 = key_input;
@@ -714,29 +710,37 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
      state2<2 arm falls off the end of the function entirely (retail UB, $v0 = the
      scheduler's leftover).  `if/else if` spellings put the gameMode block in the
      middle; the explicit labels reproduce the oracle's stub-then-tail layout. */
-  if (state2 != 5) {
-    if (state2 < 6) {
-      if (state2 < 2) {
-        goto done;
-      }
-      goto gamemode;
-    }
-    if (state2 != 6) {
-      return 6;
-    }
-    state = 2;
-    this->SetState(state);
-    goto done;
-  }
-  state = 0;
-  this->SetState(state);
+  /* MATCH (06A): the SYM 8c block lists ONLY carInfo/validCar/item -- there is no
+     `state` and no `state2`.  A `state` local costs its own `li a1,N` in the
+     gameMode arm, where the oracle re-uses the compare's constant register
+     (`addiu v0,1; beq v1,v0; addu a1,v0,zero`).  Blocks are written in the
+     oracle's physical VA order (dispatch / >=6 sub-dispatch / ==5 / ==6 /
+     gameMode / shared jal), which also fixes the ==6 branch polarity. */
+  if (state2 == 5) goto st5;
+  if (5 < state2) goto ge6;
+  if (state2 < 2) goto done;
+  goto gamemode;
+ge6:
+  if (state2 == 6) goto st6;
+  return 6;
+st5:
+  this->SetState(0);
+  goto done;
+st6:
+  this->SetState(2);
   goto done;
 gamemode:
   if (frontEnd.gameMode == '\x01') {
     return 1;
   }
-  state = 1;
-  this->SetState(state);
+  /* RESIDUAL 6 (count-exact 98/98), two independent 1998-unreachable ties:
+     (a) the oracle stages the SetState arg as `addu a1,v0,zero` (re-using the
+         compare's constant register) where cc1plus const-props a fresh `li a1,1`
+         -- FALSIFIED here: named `int cmd = 1` before the compare, after the
+         compare, and shared across compare+return+arg all const-prop back;
+     (b) reorg fills the `bnez` slot with the gameMode block's head `lui` and nops
+         the `j`, while ours fills the `j` -- a fill_simple_delay_slots tie. */
+  this->SetState(1);
 done:
   ;
 }
@@ -823,12 +827,16 @@ int tScreenCarSelect::GetCar(tCarInfo &carInfo)
         return 0;
       }
     }
-    if (frontEnd.carListType != 0) {
-      garageNum = frontEnd.garageCar[0];
+    /* MATCH (06A): the SYM 8c block for GetCar names NO locals -- a `garageNum`
+       byte local costs an `addu a1,v0,zero` copy where the oracle loads the byte
+       STRAIGHT into the call's $a1 in each arm.  Duplicating the call lets gcc
+       cross-jump-merge the two `jal`s back into one, and putting the `== 0`
+       (playerCar) arm first gives the oracle's `bnez` -> garage-arm polarity. */
+    if (frontEnd.carListType == 0) {
+      carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
     } else {
-      garageNum = frontEnd.playerCar[0];
+      carManager.GetStockCar((ushort)(byte)frontEnd.garageCar[0],carInfo);
     }
-    carManager.GetStockCar((ushort)garageNum,carInfo);
     if (frontEnd.carListType == 0) {
       carInfo.fColor = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     }
@@ -2157,32 +2165,26 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 void tScreenCarSelectTwoPlayer::SetDialog()
 
 {
-  tDialogBackUpOnly *dlg;
-  u_int player2;
-  short sVar2;
-  char *fmt;
-  char *str;
+  /* MATCH (06A): the SYM 8c block lists exactly ONE named local -- `player`
+     (class REG $16 = $s0, type INT) -- plus the inlined accessors' `this`
+     pseudos.  dlg / sVar2 / fmt / str were Ghidra inventions.  `this` is
+     REGPARM $17 = $s1 and the oracle ADVANCES THAT SAME REGISTER IN PLACE
+     (`addiu s1,s1,928`) to reach the dialog sub-object, which only happens when
+     every access is spelled `this->CarDialog...` -- a `dlg` pointer local gets its
+     own pseudo and leaves `this` un-copied in $a0.  The guard reads fPlayer
+     ANONYMOUSLY and `player` is a second, named read, so cse emits the oracle's
+     `lbu a0,556(v0)` + `addu s0,a0,zero` copy (the copy landing in the beqz
+     delay slot) instead of loading straight into $s0. */
+  int player;
 
-  player2 = FEApp->fPlayer;
-  /* MATCH: the Display arm is the FALL-THROUGH (oracle `beqz waiting,.Lhide`) and
-     the Hide arm sits OUT OF LINE at the end; `dlg` is materialized INSIDE each arm
-     (oracle `addiu s1,s1,928` in the display arm, `addiu a0,s1,928` in Hide's jal
-     delay slot) -- a function-scope `dlg = &this->CarDialog;` before the test hoists
-     it into the branch delay slot instead. */
-  if (FEApp->waitingForOtherPlayer[player2] != 0) {
-    dlg = &this->CarDialog;
-    sVar2 = 0x3c;
-    if (player2 == 0) {
-      sVar2 = -0x3c;
-    }
-    dlg->OffsetX = 0;
-    dlg->OffsetY = sVar2;
-    dlg->specificPlayer = (ushort)player2;
-    fmt = TextSys_Word(0x2a8);
-    str = PlayerName(1 - player2);
-    sprintf("",fmt,str);
-    dlg->string = "";
-    Display((tDialogBase *)dlg);
+  if (FEApp->waitingForOtherPlayer[FEApp->fPlayer] != 0) {
+    player = FEApp->fPlayer;
+    this->CarDialog.OffsetX = 0;
+    this->CarDialog.OffsetY = (player == 0) ? -0x3c : 0x3c;
+    this->CarDialog.specificPlayer = (ushort)player;
+    sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
+    this->CarDialog.string = "";
+    Display((tDialogBase *)&this->CarDialog);
   }
   else {
     Hide((tDialogBase *)&this->CarDialog);

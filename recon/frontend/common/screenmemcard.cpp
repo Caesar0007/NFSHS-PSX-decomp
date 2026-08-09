@@ -268,6 +268,21 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
   /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT
      OF LINE (oracle `beqz` branches forward past the =0 block, which ends with
      its own `j`), so it is a goto target, not the fall-through. */
+  /* RESIDUAL 16 (count-exact 48/48) -- PARAM-COPY-QTY-ABSORBS-SIGN-EXTEND, the
+     06E named-gap class, shared with DrawVerticalLine (26 @ 47/45).  SYM:
+     gridpos is REGPARM $8 ($t0) here / $7 ($a3) in DrawVerticalLine.  Retail
+     sign-extends into a FRESH pair (`sll v0,a3,16; sra v1,v0,16`) and keeps
+     gridpos live in its incoming HImode arg home for the clamp writes + the post-
+     clamp copy; our cc1plus emits the assign_parms copy at ENTRY, which kills
+     $a3 so the extend reuses it in place and the clamp targets the copy instead.
+     FALSIFIED here (W55-A14): an explicit `int g = gridpos;` chain-source local
+     for the three tests -- gcc coalesces `g` straight back into $a3, byte-
+     identical output.  The reachable dial is the parm-copy POSITION (w46 park
+     class / w47-a1 fence probe), not a source spelling of the compare operand. */
+  /* MATCH: the tests read a SEPARATE sign-extended value (`sll v0,a3,16;
+     sra v1,v0,16` into fresh pseudos) while `gridpos` itself stays live in its
+     HImode arg home ($a3) for the post-clamp copy -- so the extend chain must
+     SOURCE gridpos, not overwrite it. */
   if (0 < gridpos) {
     if (0x40 <= gridpos) goto HL_clampHi;
   }
@@ -542,31 +557,27 @@ DrawMC_statusCheckFinal:
 void tScreenMemcard::SetEnablings()
 
 {
+  /* MATCH (06A SYM-first): the SYM 8c block lists exactly TWO locals --
+     `DontChangeEnablings` (class REG $5 = $a1) in the outer block and `i`
+     (class REG $3 = $v1) in a NESTED block that closes with the loop, i.e. a
+     C++ `for (int i = ...)` scope.  numfiles/walk/status/cheater were Ghidra
+     inventions; each cost a pseudo and rotated $a1<->$a2.  The loop bound and
+     the walking `fFadeIcon` pointer are compiler artifacts (LICM + giv). */
   bool DontChangeEnablings;
-  int status;
-  void *cheater;
-  int i;
-  tScreenMemcard *walk;
-  int numfiles;
 
   this->pCI = MCRD_getcard(this->card);
-  i = 0;
-  numfiles = this->pCI->numfiles;
   DontChangeEnablings = false;
-  walk = this;
-  if (0 < numfiles) {
-    do {
-      if ((this->goticon[i] == '\0') || (0 < walk->fFadeIcon[0])) {
-        status = this->pCI->status;
-        if (status != -1) {
-          if (status != -2) {
-            DontChangeEnablings = true;
-          }
+  for (int i = 0; i < this->pCI->numfiles; i++) {
+    if ((this->goticon[i] == '\0') || (0 < this->fFadeIcon[i])) {
+      /* MATCH: NESTED ifs, not `&&` -- the `&&` form lets gcc range-fold the two
+         adjacent constants into `(u)(s+2) < 2`; nested tests keep the oracle's two
+         separate `beq` against hoisted `li -1` / `li -2`. */
+      if (this->pCI->status != -1) {
+        if (this->pCI->status != -2) {
+          DontChangeEnablings = true;
         }
       }
-      i = i + 1;
-      walk = (tScreenMemcard *)((int)&(walk)->fPermShapes.fShapes + 2);
-    } while (i < numfiles);
+    }
   }
   if (CURRENTLYUSINGMEMCARD != 0) {
     DontChangeEnablings = true;
@@ -582,8 +593,8 @@ void tScreenMemcard::SetEnablings()
       (menuDefs[0]->itemLoadGame).fFlags =
            (menuDefs[0]->itemLoadGame).fFlags | 1;
     }
-    i = this->pCI->status;
-    if ((((i == 0) || (i == -2)) || ((i == -3 && (this->theNFS4icon != -1)))) &&
+    if ((((this->pCI->status == 0) || (this->pCI->status == -2)) ||
+        ((this->pCI->status == -3 && (this->theNFS4icon != -1)))) &&
        (this->player == 0)) {
       (menuDefs[0]->itemSaveGame).fFlags =
            (menuDefs[0]->itemSaveGame).fFlags & 0xfffffffe;
@@ -593,8 +604,7 @@ void tScreenMemcard::SetEnablings()
            (menuDefs[0]->itemSaveGame).fFlags | 1;
     }
   }
-  cheater = FECheat_IsTheUserACryBabyCheater();
-  if (cheater != (void *)0x0) {
+  if (FECheat_IsTheUserACryBabyCheater() != (void *)0x0) {
     (menuDefs[0]->itemSaveGame).fFlags =
          (menuDefs[0]->itemSaveGame).fFlags | 1;
   }

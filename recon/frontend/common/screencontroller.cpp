@@ -959,9 +959,12 @@ void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
 void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
 
 {
+  /* MATCH (06A): the SYM 8c block for this fn declares NO locals at all (only the
+     `this`/`ArrowLoc` REGPARMs), so every intermediate is the FIELD itself --
+     `this->mult` is stored and then READ BACK (cse forwards the stored register,
+     giving the oracle's `sh` before the `sll/bgez` sign test instead of our
+     sunk-into-the-delay-slot store off a separate `fadeCalc` int). */
   short clampVal;
-  int fadeCalc;
-  short m;
   int hi;
   this->mult = 0;
   settrans(1);
@@ -970,9 +973,8 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
   FeDraw_SetABRMode(0);
   if (*ArrowLoc != 0) {
     if (this->fArrowFadeDir < 0) {
-      fadeCalc = 0x40 - (uint)(ushort)this->fArrowFade;
-      this->mult = (short)fadeCalc;
-      if (fadeCalc * 0x10000 < 0) {
+      this->mult = (short)(0x40 - (uint)(ushort)this->fArrowFade);
+      if (this->mult < 0) {
         this->mult = 0;
       }
     }
@@ -982,21 +984,20 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
     this->HorzVertLine(ArrowLoc,true);
   }
   if (this->fArrowFadeDir < 0) {
-    fadeCalc = 0x80 - (uint)(ushort)this->fArrowFade;
-    hi = fadeCalc * 0x10000 >> 0x10;
-    m = (short)fadeCalc;
-    this->mult = m;
+    this->mult = (short)(0x80 - (uint)(ushort)this->fArrowFade);
+    hi = this->mult;
     /* MATCH (SLD 1593 = ONE source line): the >=0x40 arm is OUT OF LINE (oracle
        `beqz` jumps straight to the store with 0x40 in its delay slot) and the
-       low clamp is a plain if/else whose `clampVal = m` rides the `bgez` slot. */
+       low clamp is a plain if/else whose `clampVal = this->mult` rides the
+       `bgez` slot (oracle `addu v0,v1,zero` = a copy of the just-stored value). */
     if (0 < hi) {
       if (0x40 <= hi) { clampVal = 0x40; goto DA_store; }
     }
-    if (hi < 0) {
-      clampVal = 0;
+    if (0 <= hi) {
+      clampVal = this->mult;
     }
     else {
-      clampVal = m;
+      clampVal = 0;
     }
   }
   else {

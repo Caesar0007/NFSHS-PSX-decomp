@@ -148,34 +148,33 @@ DLB_ret0:
 void tScreenMain::SetState(tScreenMainState state)
 
 {
-  ushort uVar1;
-  uint uVar2;
-  short sVar3;
-  int iVar4;
-  tScreenMainState tVar5;
+  /* MATCH (W57, 99->55): the SYM 8c block lists ONLY `shape` and `i` -- every
+     uVarN/iVarN/tVarN was a Ghidra temp.  And the state dispatch carries the
+     gcc-2.8 balance_case_nodes fingerprint (median-pivot `beq $v1,3` with the
+     `slti $v1,4` bound test in its DELAY SLOT, case bodies out of line in
+     source order) => it was a `switch`, not an if/else-if cascade. */
   tTexture_ShapeInfo *shape;
   short i;
-  int iVar7;
-  tScreenMainState tVar8;
   
   if (state != this->fState) {
     VIDEO_abortplayback(this->hVideo);
-    iVar4 = ticks;
     this->bVideoAborted = 1;
-    this->fMovieTicks = iVar4;
+    this->fMovieTicks = ticks;
     if ((state != kScreenMain_Credits) && (CreditManager.fCreditsInitialized == 1)) {
       DeInit(&CreditManager);
     }
-    iVar4 = ticks;
     i = 0;
     this->fState = state;
-    this->fStartTicks = iVar4;
+    this->fStartTicks = ticks;
     do {
       shape = this->fVideoShapes[this->fCurrentSlot].fShapes;
+      this->tvTransitions[i].u =
+           (uchar)((((int)shape[i].shapex - (int)(short)(shape[i].shapex & 0xffc0)) * 0x10) /
+                   (int)(uint)(byte)shape[i].depth);
+      /* MATCH (55->32): the `.state` store is scheduled AFTER the u chain --
+         emitting it first (Ghidra's order) computes the tvTransitions[i]
+         address 6 insns early.  Positions after v/uw/vh measure 37. */
       this->tvTransitions[i].state = kScreenMain_StaticImage;
-      uVar2 = (uint)(byte)shape[i].depth;
-      iVar4 = ((int)shape[i].shapex - (int)(short)(shape[i].shapex & 0xffc0)) * 0x10;
-      this->tvTransitions[i].u = (uchar)(iVar4 / (int)uVar2);
       this->tvTransitions[i].v = (uchar)shape[i].shapey;
       this->tvTransitions[i].uw = (uchar)shape[i].width;
       this->tvTransitions[i].vh = (uchar)shape[i].height;
@@ -183,15 +182,15 @@ void tScreenMain::SetState(tScreenMainState state)
            ((u_char)*((u_char*)&shape[i] + 9) & 3) << 7 | (short)(shape[i].shapey & 0x100U) >> 4 |
            (ushort)(((ushort)shape[i].shapex & 0x3c0) >> 6) |
            (shape[i].shapey & 0x200U) << 2;
-      uVar1 = GetClut((shape[i].clutID & 0x3fU) << 4,shape[i].clutID >> 6);
-      this->tvTransitions[i].clut = uVar1;
+      this->tvTransitions[i].clut =
+           GetClut((shape[i].clutID & 0x3fU) << 4,shape[i].clutID >> 6);
       this->tvTransitions[i].flags = 0;
       this->tvTransitions[i].tint = 0x808080;
       this->tvTransitions[i].bright = 0x80;
       i = i + 1;
     } while (i < 0x10);
-    tVar5 = this->fState;
-    if (tVar5 == kScreenMain_WarningImage) {
+    switch (this->fState) {
+    case kScreenMain_WarningImage:
       i = 4;
       do {
         this->tvTransitions[i].bright = 0x80;
@@ -200,22 +199,19 @@ void tScreenMain::SetState(tScreenMainState state)
       } while (i < 0xc);
       this->tvTransitions[6].bright = 0x80;
       this->tvTransitions[5].bright = 0x80;
-    }
-    else if ((int)tVar5 < 4) {
-      if (tVar5 == kScreenMain_DynamicImage) {
-        this->InitDynamicImages();
-      }
-    }
-    else {
+      break;
+    case kScreenMain_DynamicImage:
+      this->InitDynamicImages();
+      break;
+    case kScreenMain_Credits:
       i = 0;
-      if (tVar5 == kScreenMain_Credits) {
-        do {
-          this->tvTransitions[i].bright = 0x80;
-          this->tvTransitions[i].state = kScreenMain_Credits;
-          i = i + 1;
-        } while (i < 0x10);
-        Init(&CreditManager,this->fStartTicks);
-      }
+      do {
+        this->tvTransitions[i].bright = 0x80;
+        this->tvTransitions[i].state = kScreenMain_Credits;
+        i = i + 1;
+      } while (i < 0x10);
+      Init(&CreditManager,this->fStartTicks);
+      break;
     }
   }
   return;
@@ -332,21 +328,26 @@ void tScreenMain::DrawDropShadow()
 
 {
   int addr_24;
-  int src_walk;
   int i;
   u_char *pal_link;
   void *tp1;
   u_char *prim;
   
   i = 0;
-  src_walk = (int)dropShadow;
   do {
     prim = Render_gPacketPtr;
     pal_link = Render_gPalettePtr;
-    *(uint *)Render_gPacketPtr =
-         *(uint *)Render_gPacketPtr & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
-    addr_24 = (uint)Render_gPacketPtr & 0xffffff;
-    Render_gPacketPtr = Render_gPacketPtr + 0x24;
+    /* MATCH (28 @71 insns -> 32 @69 EXACT): re-reading the fixed-address
+       Render_gPacketPtr macro after the aliasing tag store forces a redundant
+       `lw v1,0(a3)` reload; the oracle reuses the already-loaded `prim` ($a0).
+       Residual 32 = a pure 3-way caller-saved rotation of the loop counter and
+       the two hoisted constants (oracle i->$t0, 0xFFFFFF->$a3, 0x808080->$t1;
+       ours a3/t1/t0) -- no structural runs.  Decl-order permute and dropping
+       the unused `tp1` measured neutral; next = local-alloc QTY ref/live dial
+       (qtytrace / 3-QTY law). */
+    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)pal_link & 0xffffff;
+    addr_24 = (uint)prim & 0xffffff;
+    Render_gPacketPtr = prim + 0x24;
     *(uint *)pal_link = *(uint *)pal_link & 0xff000000 | addr_24;
     *(u_int *)(prim + 4) = 0x808080;
     prim[7] = 0x3a;
@@ -354,16 +355,20 @@ void tScreenMain::DrawDropShadow()
     *(u_int *)(prim + 0x1c) = 0;
     *(u_int *)(prim + 0x14) = 0;
     prim[3] = 8;
-    *(u_short *)(prim + 8) = *(u_short *)src_walk;
-    *(u_short *)(prim + 10) = *(u_short *)(src_walk + 2);
-    *(u_short *)(prim + 0x10) = *(u_short *)(src_walk + 4);
-    *(u_short *)(prim + 0x12) = *(u_short *)(src_walk + 6);
-    *(u_short *)(prim + 0x18) = *(u_short *)(src_walk + 8);
-    *(u_short *)(prim + 0x1a) = *(u_short *)(src_walk + 10);
+    /* MATCH (W57, 69->28): the SYM 8c block lists ONLY `i` and `prim` --
+       `src_walk` was a Ghidra-invented walk pointer, and gcc strength-reduced
+       it into a SECOND induction giv (`addiu a3,v0,0` + `addiu a2,a3,14`)
+       where the oracle carries one.  dropShadow is `tVertex[4][4]`, so retail
+       indexed it by the loop counter (3.12 #1 index-form). */
+    *(u_short *)(prim + 8) = dropShadow[i][0].x;
+    *(u_short *)(prim + 10) = dropShadow[i][0].y;
+    *(u_short *)(prim + 0x10) = dropShadow[i][1].x;
+    *(u_short *)(prim + 0x12) = dropShadow[i][1].y;
+    *(u_short *)(prim + 0x18) = dropShadow[i][2].x;
+    *(u_short *)(prim + 0x1a) = dropShadow[i][2].y;
+    *(u_short *)(prim + 0x20) = dropShadow[i][3].x;
+    *(u_short *)(prim + 0x22) = dropShadow[i][3].y;
     i = i + 1;
-    *(u_short *)(prim + 0x20) = *(u_short *)(src_walk + 0xc);
-    *(u_short *)(prim + 0x22) = *(u_short *)(src_walk + 0xe);
-    src_walk = src_walk + 0x10;
   } while (i < 4);
   FeDraw_SetABRMode(2);
   return;

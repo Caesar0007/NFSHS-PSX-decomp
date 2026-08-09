@@ -494,43 +494,35 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
    * art!=1&&frame==0) that both feed the SAME cross-jump-merged
    * DrawShapeExtended call, then a shared art==2 check that either emits the
    * arrow/fade block or falls through to the final generic-shape draw. */
-  unsigned char (*offTbl)[2];
+  /* MATCH (80->40): `offTbl` was invented -- hoisting `Offset` into a local
+     materializes `lui/addiu` in the ENTRY block; retail builds the %hi/%lo
+     base inside the arm that uses it. */
   tDrawShapeExtended drawFlags;
 
   if (this->CurrentlyLoadedArt == 0) {
     return;
   }
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-  offTbl = Offset;
+  /* MATCH (W57, 138 @180 insns -> 80 @154 EXACT): all four "0x600 vs 0x601"
+     if/else pairs are ONE call with a SELECT on the flags argument -- the
+     oracle emits `addiu $a1,$zero,0x600; beqz $s3,L; <ds>; addiu $a1,$zero,
+     0x601; L:` and then ONE shared arg setup (w48-a4 value-select-in-a-call-
+     arg).  Also `frame + 1` is UNCONDITIONAL: retail's `addiu $a0,$a0,0x1`
+     sits in that select branch's DELAY SLOT, so it runs on both paths (the
+     Ghidra body had it only in the fadelevelmain!=0 arm -- a real bug). */
   if ((frame != 0) || (this->CurrentlyLoadedArt == 1)) {
-    if (fadelevelmain == 0) {
-      ScaleShapeExtended(frame,0x600,offTbl[this->CurrentlyLoadedArt][0],
-                 offTbl[this->CurrentlyLoadedArt][1],fadelevelmain,0,&drawFlags);
-    }
-    else {
-      frame = frame + 1;
-      ScaleShapeExtended(frame,0x601,offTbl[this->CurrentlyLoadedArt][0],
-                 offTbl[this->CurrentlyLoadedArt][1],fadelevelmain,0,&drawFlags);
-    }
+    frame = frame + 1;
+    ScaleShapeExtended(frame,fadelevelmain == 0 ? 0x600 : 0x601,
+               Offset[this->CurrentlyLoadedArt][0],
+               Offset[this->CurrentlyLoadedArt][1],fadelevelmain,0,&drawFlags);
     if (this->CurrentlyLoadedArt != 2) goto ActDrawCtrl_emitShape;
-    if (fadelevelmain == 0) {
-      DrawShapeExtended(0,0x600,offTbl[2][0] + shakex,offTbl[2][1] + shakey,
-                 fadelevelmain,0,&drawFlags);
-    }
-    else {
-      DrawShapeExtended(0,0x601,offTbl[2][0] + shakex,offTbl[2][1] + shakey,
-                 fadelevelmain,0,&drawFlags);
-    }
+    DrawShapeExtended(0,fadelevelmain == 0 ? 0x600 : 0x601,
+               Offset[2][0] + shakex,Offset[2][1] + shakey,fadelevelmain,0,&drawFlags);
   }
   else {
-    if (fadelevelmain == 0) {
-      DrawShapeExtended(1,0x600,offTbl[this->CurrentlyLoadedArt][0] + shakex,
-                 offTbl[this->CurrentlyLoadedArt][1] + shakey,fadelevelmain,0,&drawFlags);
-    }
-    else {
-      DrawShapeExtended(1,0x601,offTbl[this->CurrentlyLoadedArt][0] + shakex,
-                 offTbl[this->CurrentlyLoadedArt][1] + shakey,fadelevelmain,0,&drawFlags);
-    }
+    DrawShapeExtended(1,fadelevelmain == 0 ? 0x600 : 0x601,
+               Offset[this->CurrentlyLoadedArt][0] + shakex,
+               Offset[this->CurrentlyLoadedArt][1] + shakey,fadelevelmain,0,&drawFlags);
   }
   if (this->CurrentlyLoadedArt == 2) {
     tDrawShapeExtended drawFlags;
@@ -549,12 +541,7 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
     return;
   }
 ActDrawCtrl_emitShape:
-  if (fadeleveltop == 0) {
-    DrawShapeExtended(0,0x200,0,0,fadeleveltop,0,&drawFlags);
-  }
-  else {
-    DrawShapeExtended(0,0x201,0,0,fadeleveltop,0,&drawFlags);
-  }
+  DrawShapeExtended(0,fadeleveltop == 0 ? 0x200 : 0x201,0,0,fadeleveltop,0,&drawFlags);
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
@@ -997,10 +984,20 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
     if (0 < hi) {
       if (0x40 <= hi) { clampVal = 0x40; goto DA_store; }
     }
-    if (0 <= hi) {
-      clampVal = this->mult;
-    }
-    else {
+    /* MATCH (W57, 12->10): PRE-SET THE DEFAULT BEFORE THE TEST (w47) -- the
+       oracle's `bgez $a0,.L..E08` carries `addu $v0,$v1,$zero` in its delay
+       slot with `addu $v0,$zero,$zero` as the FALL-THROUGH, i.e. the copy is
+       the default assigned before the guard, not an if/else arm (the if/else
+       form emits the inverted `bltz`).  RESIDUAL 10 = the two `0x40` arms
+       cross-jump-merge into ONE pseudo (oracle rematerializes `addiu
+       $v0,$zero,0x40` in BOTH branch delay slots), which lengthens the
+       constant's live range past the `slti` result and costs it $v0 -> $a1.
+       De-merge attempts (void fence in either arm, &&-nogoto, nested-nogoto,
+       int clampVal, decl-order swap, clampVal=(short)hi) all measured WORSE
+       (14/24/20/25/10/28) -- next angle = reorg dual-slot duplication
+       (w44 compare-operand-order row) or qtytrace. */
+    clampVal = this->mult;
+    if (hi < 0) {
       clampVal = 0;
     }
   }
@@ -1021,46 +1018,47 @@ DA_store:
 void tScreenControllerConfig::DrawBackground()
 
 {
+  /* MATCH (W57, 58->36, count 145->137 EXACT): the SYM 8c block lists only
+     `fade` ($s1), an inlined tOptionsMenu `this` ($a0) and `i` ($s0) -- every
+     other local here was a Ghidra invention costing a callee-saved reg + frame
+     bytes (06A).  animStart/animStop/transDone/trans2 inlined; and the loop's
+     scaleIdx/shapeFlags/shapeX/shapeY were UNINITIALISED READS (real bug) --
+     the oracle's `addiu $a0,$s0,0xA` + three `addu ?,$zero,$zero` shows the
+     call is ScaleShapeExtended(i + 10, 0, 0, 0, fade, 0, NULL). */
   short fade;
-  short animStart;
-  short animStop;
-  void *transDone;
-  void *trans2;
-  int scaleIdx;
   int i;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
-  
-  fade = (short)((menuDefs[0]->menuControllerConfig).fScreenFade >> 1);
+
+  /* MATCH (36->27): the SYM's inlined tOptionsMenu `this` ($a0) is a real
+     pointer -- the oracle materializes `addiu $a0,$v0,11116` and then reads
+     fScreenFade by DISPLACEMENT `lw $v0,116($a0)`; the folded
+     `menuDefs[0]->menuControllerConfig.fScreenFade` form emits one fused load.
+     Only the fade read goes through it (routing the two TransitionIsFinished
+     calls through `om` too measured 48 @135 insns). */
+  tOptionsMenu *om = &menuDefs[0]->menuControllerConfig;
+  fade = (short)(om->fScreenFade >> 1);
   if (0x80 < fade) {
     fade = 0x80;
   }
   if ((this->fTransitionedIn == 0) &&
-     (transDone = ::TransitionIsFinished(&menuDefs[0]->menuControllerConfig),
-     transDone != (void *)0x0)) {
+     (::TransitionIsFinished(&menuDefs[0]->menuControllerConfig) != (void *)0x0)) {
     this->fTransitionedIn = 1;
   }
   if (((fade < 0x81) && (this->fTransitioningIn == 0)) && (this->fCurrentController != '\0')
      ) {
     this->fAnimFade = 1;
-    animStart = this->AnimKeyPoints(true,1);
-    this->fAnimFadeStart = animStart;
-    animStop = this->AnimKeyPoints(true,0);
-    this->fAnimFadeStop = animStop;
+    this->fAnimFadeStart = this->AnimKeyPoints(true,1);
+    this->fAnimFadeStop = this->AnimKeyPoints(true,0);
     this->fTransitioningIn = 1;
     this->fAnimFadeFrame = this->fAnimFadeStart;
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
   }
-  trans2 = ::TransitionIsFinished(&menuDefs[0]->menuControllerConfig);
-  if ((trans2 != (void *)0x1) && (this->fTransitionedIn != 0)) {
+  if ((::TransitionIsFinished(&menuDefs[0]->menuControllerConfig) != (void *)0x1) &&
+      (this->fTransitionedIn != 0)) {
     if (this->fTransitioningOut != 0) goto ForceVbl_drawCtrlCheck;
     if (this->fCurrentController != '\0') {
       this->fAnimFade = -1;
-      animStop = this->AnimKeyPoints(false,1);
-      this->fAnimFadeStart = animStop;
-      animStop = this->AnimKeyPoints(false,0);
-      this->fAnimFadeStop = animStop;
+      this->fAnimFadeStart = this->AnimKeyPoints(false,1);
+      this->fAnimFadeStop = this->AnimKeyPoints(false,0);
       this->fTransitioningOut = 1;
       this->SuperFastFadeOut = 1;
       this->fAnimFadeFrame = this->fAnimFadeStart;
@@ -1077,8 +1075,7 @@ ForceVbl_drawCtrlCheck:
   }
   i = 0;
   do {
-    ScaleShapeExtended(scaleIdx,shapeFlags,shapeX,shapeY,(int)fade,0,
-               (tDrawShapeExtended *)0x0);
+    ScaleShapeExtended(i + 10,0,0,0,(int)fade,0,(tDrawShapeExtended *)0x0);
     i = i + 1;
   } while (i < 0xc);
   return;

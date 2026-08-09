@@ -352,24 +352,26 @@ void tScreenPinkSlipStandings::DrawBackground()
                  (short)TextSys_WordY(0x2fe + i),type,state,1);
   }
   i = 0;
-  /* MATCH (2026-08-03, 10->8): sharing this literal makes its live range
-     begin before `row`, reproducing retail's $s7/$s3 constant order. */
-  int one = 1;
-  row = 0x313;
+  /* MATCH (W57, 26->PASS): `row` was a Ghidra-invented biv -- the SYM 8c list
+     has no such local.  Retail spells the second loop exactly like the first
+     (`0x2fe + i`), i.e. TextSys_WordY(0x313 + i): the giv's preheader init
+     `addiu $s3,$zero,0x313` is emitted AFTER loop.c's hoist of the shared
+     literal 1 (`addiu $s7,$zero,1`), which is retail's constant order.  A real
+     `row` variable inverts that order, and naming the 1 (`int one`) rotates
+     $s7<->$fp off the SYM's REGPARM this=$0x1e.  Plain literals + the giv. */
   do {
     FETextRender_FullTextFade(fade,PlayerName(i),(short)TextSys_WordX(0x2f8),
-               (short)TextSys_WordY(row),type,state,0);
-    if (frontEnd.pinkSlipsWins[i] == one) {
+               (short)TextSys_WordY(0x313 + i),type,state,0);
+    if (frontEnd.pinkSlipsWins[i] == 1) {
       sprintf(sBuildOutput,TextSys_Word(799));
     }
     else {
       sprintf(sBuildOutput,TextSys_Word(0x31e),(uint)(byte)frontEnd.pinkSlipsWins[i]);
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
-               (short)TextSys_WordY(row),type,
-               state,one);
+               (short)TextSys_WordY(0x313 + i),type,
+               state,1);
     i = i + 1;
-    row = row + 1;
   } while (i < 2);
   FETextRender_MenuTextPositionedJustifyFade(fade,0x2c1,(short)TextSys_WordX(0x2f6),
                (short)TextSys_WordY(0x2fc),2,textState_Hilighted,type);

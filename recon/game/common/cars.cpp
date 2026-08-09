@@ -896,8 +896,8 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       } while (0);
     } while (0);
   }
-  front = 0;
   if (visible != 0) {
+    front = 0;
     position.x = (carObj->N).position.x;
     position.y = (carObj->N).position.y;
     position.z = (carObj->N).position.z;
@@ -908,11 +908,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
             (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
         int skidVelocity;
         front = cappedFront;
-        do {
-          do {
-            originalFront = front;
-          } while (0);
-        } while (0);
+        originalFront = front;
         skidVelocity = (carObj->linearVel_ch).z;
         carObj->frontSkid = front;
         if (__builtin_abs(skidVelocity) > 0x140000) {
@@ -936,6 +932,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     }
   }
   else {
+    front = 0;
     skidFront = front;
     rear = front;
     originalFront = 0;

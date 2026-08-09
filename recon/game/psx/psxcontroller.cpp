@@ -119,7 +119,20 @@ void InGame_ResetPSXController(int player,int config)
      materializes only the `sll s5,s2,2` giv there and builds `s1 = s5 + %hi/%lo` AFTER the
      first jal.  Fencing the GIV ITSELF -- `player * 4` -- still straddles the branch (same
      global-allocno effect) but leaves the address materialization at its use.  `player << 2`
-     identical; extra operands (type/h) neutral; a do{}while(0) wrapper round it 157. */
+     identical; extra operands (type/h) neutral; a do{}while(0) wrapper round it 157.
+     w53-a4: the residual 15 is now known to be the fence's own POSITION, and the position
+     is CLOSED.  The 15 diffs are entirely the emission slot of the three `sll rN,s2,2` giv
+     copies (retail materializes them AFTER the controlType compare's `beq`, ours before it)
+     plus the one insn the fence costs (306 vs 305).  The fence was swept through the whole
+     pre-loop region: pre-branch (kept) 15 @306; AFTER the if-block 266 @305; after the
+     controllerConfig store 270 @305; INSIDE the if body 267 @306; pre AND post 15 @306;
+     no fence at all 266 @305.  Everything except the pre-branch slot collapses to the
+     no-fence baseline -- i.e. the fence only does its global-allocno job (the 251-diff win)
+     from the pre-branch block, and from there the sll cannot be pushed past the compare.
+     Also neutral this pass: a named `int p4 = player * 4;` local fenced instead of the
+     expression, with the gPadinfo reads indexed off it (15 @306); a doubled operand list
+     `"r"(player*4),"r"(player*4)` (15); the if-block written without braces (15); fencing
+     `hoff[player]`'s VALUE instead 22 @307. */
   __asm__ volatile("" : : "r"(player * 4));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
@@ -280,7 +293,33 @@ void InGame_ResetPSXController(int player,int config)
  * guard whose arms are inverted and fix it FIRST, since a polarity flip changes which tail
  * is the fall-through and therefore which tails jump2 is even offered.
  * No spellings were attempted this wave (budget went to the cario/fe3dmenu conversions);
- * the census is the deliverable and it makes the next pass a 2-arm search, not a 24-insn one. */
+ * the census is the deliverable and it makes the next pass a 2-arm search, not a 24-insn one.
+ * ---- w53-a4 (still 264, ours 209 / oracle 233): the census's TWO named leads, executed.
+ *  (a) THE GUARD-POLARITY LEAD IS DEAD AS A SPELLING.  diffsrc's oracle SLD proves what the
+ *      polarity actually is: retail emits `lbu nopad; nop; bnez v0,L` [SLD 206] with the
+ *      `lbu ID` on the FALL-THROUGH and `j` over it [207], i.e. the ID load lives INSIDE the
+ *      not-taken arm; ours loads the ID unconditionally before a `beqz`.  Every C form of
+ *      that if/else was gated FROM THIS BASIN and all five are +1 insn and worse: `if(nopad
+ *      ==0) type=ID; else type=0;` 271@210, `if(nopad!=0) type=0; else type=ID;` 271@210,
+ *      ternary 271@210, `type=0; if(nopad==0) type=ID;` 271@210, the `== 0` (int) spelling
+ *      271@210.  gcc-2.8's jump-opt canonicalizes all of them to the unconditional-load
+ *      layout; the default-then-override form (kept) is still the unique optimum at 264.
+ *      => the beqz/bnez census delta is NOT a source-shape defect on this guard.
+ *  (b) THE PER-GROUP `| 1` DIAL (the w45 receipt's untried "instrument (2)") IS WORSE, and
+ *      posdiff is the reason to believe it: putting `| 1` back INLINE in the eight
+ *      0x53/0x73 arms lands the INSTRUCTION COUNT almost exactly (235 vs retail 233, vs our
+ *      209) -- which looks like the 24-insn de-merge the census asked for -- but the
+ *      ALPHA-RENAMED structural residual gets WORSE, 138 -> 154 (posdiff LCS 95 -> 79), and
+ *      the gate goes 264 -> 294.  So the count shortfall is NOT the same defect as the
+ *      structural residual: the merged 209-insn body is structurally CLOSER to retail than
+ *      the un-merged 235-insn one.  Do not chase the count.  (Fences on/off re-measured
+ *      alongside: cur+fences 264 is still the optimum, cur-nofences 272@211.)
+ *  NEXT INSTRUMENT (unchanged, and now better motivated): posdiff's first-use line is the
+ *  one clean structural fact left -- ours `s0 a0 s1 a1 ...`, retail `s1 a1 s0 a0 ...`, i.e.
+ *  retail's PLAYER parm copy is emitted before VALUE's (retail: `sw s1,20(sp); addu s1,a1`
+ *  in the prologue with `addu s0,a0` deferred into the jal delay slot; ours the mirror).
+ *  That is an assign_parms emission-order question (catalog: NARROW-PARAM lever / parm-copy
+ *  sink), not a switch-shape one, and every case body's register roles hang off it. */
 int InGame_GetPSXPadValue(int value,int player)
 
 {

@@ -443,7 +443,24 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  * 6 args -- two go on the stack via `sw zero,16(sp)/20(sp)`, which is exactly the case
  * where gcc pre-evaluates register args to avoid clobbering while pushing).
  * w44-a9 also falsified locally: swapping the two `width = 0x18` stores to Plate1-first
- * (104 -> 106); the Plate2-first order stays. */
+ * (104 -> 106); the Plate2-first order stays.
+ * ===== w53-a4: THE PRECOMPUTE-ARG LANE IS CLOSED AT THE SOURCE LEVEL (still 78, 229/229).
+ * w44-a9 (above) named it and w46 solved the trigger from calls.c: on MIPS -O2 expand_call
+ * precomputes a register arg iff its rtx is NOT already a REG and rtx_cost > 2 (i.e. more
+ * than one instruction), and the hard-reg `move $aN,...` loads ALWAYS hug the CALL_INSN.
+ * All four of this call's register args are cost<=1 (an addiu, a REG, two `li`s), so nothing
+ * is precomputed and no source shape can request it.  MEASURED (every variant re-gated,
+ * all EXACTLY 78 @ 229/229 unless noted): named locals for the two pointer args; for all
+ * four args; all four + a named `flags = 0x11800`; the mask local alone; all five assigned
+ * at the top of the block.  cse/copy-prop folds every one of them straight back onto the
+ * call (catalog: "N named locals initialized from one expression are copy-propagated to one
+ * register").  The w47 OPACITY/IDENTITY FENCE -- the one device that DEFEATS that fold --
+ * was then applied to make the pseudos survive: fence on csrc / on cdst / on both = 78
+ * (still folded through the fence's own copy), on all four = 77 but 230 insns, i.e. it buys
+ * one diff by ADDING an instruction, which fails the count-exact bar.  ⇒ the "18-insn early
+ * arg block" is a compiler-side (expand_call) identity, not a statement-shape defect; it
+ * belongs with trackspec's TrackSpec_SetDefault exhibit in the per-object identity file,
+ * and this note closes the source lane on it. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -700,7 +717,18 @@ void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *car
  *  (b) 3 one-insn scheduling slots (the CarIO_carPixMapCount/textureStartIndex
  *      block's reload order, the locateshapez a0/a1 arg-load order, the
  *      recolor_flag reload in the palIndex block).
- *  (c) the Plate2 arm's `li s0,1` sinking (see above). */
+ *  (c) the Plate2 arm's `li s0,1` sinking (see above).
+ * w53-a4 re-gate + independent triage (184 diffs, count EXACT 491/491): the "no structural
+ * defect left" reading is confirmed by two instruments the receipt above predates.
+ * tools/chunkdiff.py reports **0 mismatched runs >= 6** -- there is no block-sized
+ * divergence anywhere in 491 insns -- and tools/diffsrc.py spreads the residual over ~50
+ * source statements with a MAXIMUM of 5 diff insns on any one of them (top: the two
+ * `i == CarIO_licensePlate[carType][0]` guards 5/4, the palCopyNum copy 4, recolor_flag 3).
+ * posdiff: first-use register order IDENTICAL to retail through all 17 registers, alpha-
+ * renamed LCS 416/491.  A defect that is diffuse, count-exact, and register-order-identical
+ * is the reload spill-pool identity named in (a), not a set of 50 statement-level misses --
+ * do not open this function statement-by-statement; the only live route is reducing the
+ * whole-body $v0 population (or the permuter). */
 void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int player)
 
 {

@@ -1541,11 +1541,36 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * palette-ptr load (16-17) + sinks the whole tint/li-9/li-44 group into the 2nd
    * OT-link RMW (33-41), + the `sh t6,10` tail echo. Same statements, same regs,
    * same count -- a sched1 hoist-choice identity; no source spelling reached it this
-   * round. Route: instrumented-cc1 sched trace (the #E' lane) or accept. */
-  POLY_FT4 *prim;
-  int       width;
-  int       height;
-  int       dv;
+   * round. Route: instrumented-cc1 sched trace (the #E' lane) or accept.
+   * ==== W53-A4 (2026-08-09) ROUND 8 — 28 -> 24 (still 82/82) ====
+   * LANDED: a `pal` pointer local for the OT head, assigned in its OWN statement
+   * right after the cursor bump (the addPrim(ot,p) house shape).  That moves the
+   * `lui t2,8064; lw t2,0(t2)` scratchpad-cell load from slots 26-27 to retail's
+   * 16-17 -- w52's "no prevPrim local" law is about the CELL RELOAD (which the
+   * P_TAG bitfield form already prevents), NOT about the pointer local, and the
+   * two are independent.  Positions measured (all 82/82): pal after the bump /
+   * before prim / between prim and bump = 24; pal after dv = 26; pal after tint
+   * = 28 (= no-local baseline); no local = 28.
+   * SIBLING CROSS-CHECK (Font_Blit sealed PASS this wave from its SLD order): its
+   * recipe does NOT transfer wholesale here.  Retail's SLD for THIS fn (VA map
+   * 8004efb4..: 1434 decl, 1440 width, 1441 height, 1444 dv, 1446/1447 y-chain,
+   * 1449 alloc+bump+addPrim, 1452 tint, 1455 code9, 1456 code2c, 1460 clut,
+   * 1461 tpage, 1463 UV, 1466 XY) says dv precedes the y-chain and tint FOLLOWS
+   * the link -- and both moves are catastrophic here: dv-before-y 102, and EVERY
+   * tint-after-link spelling 108-134 (after link / after code9 / after code0x2c /
+   * between the two RMWs / with and without the pal local, 11 variants).  So the
+   * 24-basin keeps tint early; the residual is exactly that one hoist (ours emits
+   * `lui v0,%hi(font_tint); lw v0` at 19-20, retail at 31/34 interleaved into the
+   * 2nd RMW) plus the `sh t6,10(t1)` tail echo (ours 63, retail 72).
+   * ALSO FALSIFIED this round: the font_tint STORAGE SHAPE is not the dial -- the
+   * w44 menu (sized [1] MEM_IN_STRUCT_P aliasing view, sized [4], unsized [] view,
+   * volatile read) measured EXACTLY neutral in both the 28 and 24 basins (5 shapes
+   * x 2 basins), so the hoist is not an alias/schedulability question. */
+  POLY_FT4      *prim;
+  PSXFront_PTag *pal;
+  int            width;
+  int            height;
+  int            dv;
 
   width = ch->width;
   height = ch->height;
@@ -1554,10 +1579,11 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   y = arg6 - (height + *(signed char *)&ch->yoffset);
   prim = (POLY_FT4 *)Render_gPacketPtr;
   Render_gPacketPtr = (u_char *)prim + 0x28;
+  pal = (PSXFront_PTag *)Render_gPalettePtr;
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
   *(u_long *)&prim->r0 = font_tint;
-  ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr,
-  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+  ((PSXFront_PTag *)prim)->addr = pal->addr,
+  pal->addr = (uint)prim;
   ((u_char *)prim)[3] = 9;
   prim->code = 0x2c;
   prim->clut = gFontClut;

@@ -87,85 +87,29 @@ void Font_SetABR(int abr)
  * list) -- keep it in the signature so the indirect call type matches.
  * width/height are INT locals per the SYM: u_char locals would re-mask every use
  * (andi 0xff) that the oracle does not have. */
-/* w40-a6: 48 -> 42, count EXACT 55/55.  The w39 "FLOOR" note was WRONG about the dv
- * position: the SYM puts `dv` in REG $06 = $a2 = the `src` PARAM's own register, i.e. dv
- * is computed FIRST and reuses src's dying reg in place (oracle `lw a2,12(a2); sll a2,a2,4;
- * sra a2,a2,20` as the first three insns).  What made the earlier attempts cost +1 insn was
- * moving the WHOLE `(dv + v & 0xff) << 8` expression up with it; splitting it -- `dv` alone
- * at the top, the `+v`/mask/shift as its own statement at the u0 site -- keeps 55/55.
- * RESIDUAL 42: sched1 hoists our `(dv + v & 0xff) << 8` (and with it the `v` stack-arg
- * load, t3-vs-t6) above the header merge, where retail interleaves it after the palette
- * store; that in turn rotates v0<->v1 through the merge.  Variants measured: split into
- * 3 statements 72, `dv | clut | u` order 44, `u | dv | clut` 62, whole expr at top 87 (+1
- * insn), palette-before-bump 87 (+1 insn).
- * w41-a6 (still 42, count EXACT 55/55) -- ROOT-CAUSED to a SINGLE sched1 decision.  The
- * five-view matrix (IDA FUN_800cb2ac) confirms the shape is right: same statement order,
- * same `((u8)(dv+v) << 8) | u` composition, same width/height byte reads before the merge.
- * The ONLY divergence is that sched1 issues the `lw $t3,40(sp)` stack-arg load for `v`
- * (plus its addu/andi/sll chain) at insn 12 where retail issues it at ~30: that one hoist
- * takes `$t3` for `v`, pushing the 0xff000000 mask to `$t6` and the palette base to `$t4`,
- * which IS the entire 42-diff register rotation.  MEASURED NEGATIVE (all exactly 42 unless
- * noted): five statement POSITIONS for the `dv = (dv+v & 0xff) << 8;` line (sched1 ignores
- * the LUID here -- the chain's critical-path priority dominates), `v + dv` operand order,
- * an explicit `(u_int)` cast, a `vv = v;` copy-through local, inlining the whole expression
- * at the u0 store (87, +1 insn), dropping the `pal` CSE local (43, +1 insn), and moving the
- * width/height reads after the merge (62).  -G8 probe: no change.
- * w45-a3 (still 42, 55/55; posdiff structural residual 23/55).  TWO RECEIPTS OVERTURNED
- * and one NEW ANGLE:
- *  (1) THE OLD ROOT-CAUSE CLAIM IS REFUTED.  `*(volatile int *)&v` gates 42 with a
- *      BYTE-IDENTICAL body.  A volatile MEM cannot be moved by sched1, so the early
- *      position of the `lw t3,40(sp)` is NOT a scheduling hoist -- it is where RTL
- *      generation puts it.  Stop attacking it as a scheduler tie.
- *  (2) The P_TAG addPrim idiom (arsenal 2b.1) that took the SIBLING Font_TextXY 8 -> PASS
- *      REGRESSES here: 42 -> 48 gate AND 23 -> 39 posdiff, i.e. genuinely worse, not LCS
- *      noise.  All 14 combinations (bitfield/raw len x 3 bump positions x dv/wh positions)
- *      measured 48-80.  So Font_Blit's link is NOT the addPrim shape even though its
- *      sibling twelve lines away is.
- *  NEW NAMED ANGLE (untried, mechanism-derived).  The SYM says v lives in $t6, and $t6 is
- *  the HIGHEST of the three rotating registers -- so retail's `v` allocno must have the
- *  LOWEST priority of {pal, mask, v}.  With priority = floor_log2(refs)*refs/live_length
- *  and v at refs 2 / live 2 it is currently the HIGHEST (1.00) and therefore takes the
- *  lowest free t-reg.  Ours: v 1.00 -> t3, pal .32 -> t4, mask .107 -> t6.  Retail's order
- *  (pal t3 < mask t4 < v t6) is exactly what a LONGER v live range would produce.
- *  FALSIFIED so far as ways to lengthen it: a `vloc = v` copy local (42, copy-propagated
- *  away -- gcc re-sinks the stack load), `v + 0` (42), a volatile read (42), and an empty
- *  USE fence on v (74 -- the fence pins it too hard and recolors the head).  The angle that
- *  remains is the OTHER direction: do not lengthen v, but RAISE pal's and mask's refs past
- *  the floor_log2 step boundaries (w44 REF-STEP family) so that v is demoted relatively --
- *  mask is at 3 refs, one zero-insn re-mask puts it at 4 and doubles its floor_log2 factor
- *  (.107 -> .285), which alone reorders mask ahead of pal.  Needs a -dl/-dg dump
- *  (tools/rtl_dump.py) to confirm the real refs/live before spelling it.
- * ---- w46-a8: THE DUMP WAS TAKEN.  THE w45 REF/LIVE FIGURES ABOVE ARE GUESSES AND WRONG,
- * and the ref-step angle they motivate is FALSIFIED.  Receipts (tools/rtl_dump.py -dg -dl):
- *  - `;; 1 regs to allocate: 90` -- Font_Blit has exactly ONE global allocno.  pal/mask/v
- *    are all `in block 0` LOCAL-ALLOC QTYs, so `allocsim`/`reqdelta`/find_reg cannot reach
- *    them; only QTY_CMP_PRI (same formula, §A0) applies.
- *  - REAL numbers from the .lreg, with the dispositions: pseudo 91 = `pal`, 4 refs / 21
- *    live -> pri 2*4/21 = .190 -> $t4(12); pseudo 98 = the 0xff000000 mask, 3 refs / 40
- *    -> 1*3/40 = .075 -> $t6(14); pseudo 84 = `v` (the 40(sp) stack arg), 2 refs / 54
- *    -> 1*2/54 = .037 -> $t3(11).  So OUR priority order is already pal > mask > v --
- *    the w45 note's "v 1.00 / pal .32 / mask .107" ordering never existed.
- *  - Consequently the ref-step dial pushes the WRONG allocno.  MEASURED, all at 55/55:
- *    a fold-collapsed re-mask (`(x & 0xff000000) & 0xff000000`) on the header store, on the
- *    pal store, on both, an `(addr24 & 0xffffff) & 0xffffff`, an `& (0xff000000|0xffffff)`
- *    on the OR result, and a cse-folded extra `*pal` read = ALL EXACTLY 42 (gcc's tree-level
- *    fold() removes an adjacent double mask before RTL, so there is no extra REF at all --
- *    the w44 inflator needs the two masks SEPARATED BY A STATEMENT, as in its `pkt24 |
- *    (addr24 & 0xffffff)` original).  The statement-separated forms DO create the ref and
- *    they REGRESS: header 48, pal store 48, both 54, pal+addr24 48/54.
- *  - Also measured and negative: the w46 MEM_IN_STRUCT_P store view (Font_SwitchFont's seal
- *    lever, 12 lines up) applied to this fn's two OT stores -- header 72, pal 62, both 48,
- *    pal-store-only-on-the-dest 42.
- * NEW NAMED ANGLE (mechanism-derived from the real numbers).  v is allocated LAST here (it
- * has the LOWEST priority) yet still takes $t3, which means $t3 is free across v's whole
- * 54-insn window; retail's v lands in $t6, i.e. in retail $t3/$t4/$t5 were OCCUPIED over
- * that window.  So the dial is not v's priority at all -- it is the LIVE EXTENT of pal and
- * mask: they must SPAN v's window (insn ~13 to the end) so local_alloc's find_free_reg
- * cannot offer $t3/$t4 to v.  Concretely: give the 0xff000000 mask a use after the `u0`
- * store (its range currently ends at the pal store, 40 insns), and/or move the addr24/pal
- * OT-link block BELOW the `sprt->u0` composition so pal's 21-insn range covers the tail.
- * That is a live-length edit, not a ref edit, and it is the one direction w45 never tried
- * (it tried to LENGTHEN v, which is the mirror image and was correctly falsified). */
+/* ==== 🏆 W53-A4 (2026-08-09): SEALED, PASS 55/55 -- from 38 diffs in ONE edit ====
+ * MECHANISM (the sibling FontUpsideDownBlit's clean-room recipe, applied here):
+ *  (1) THE SLD IS THE STATEMENT ORDER.  tools/diffsrc.py + the SYM SLD stream give
+ *      retail's per-insn line map; grouping by line recovers FONT.CPP's real body:
+ *        129 width   130 height   136 dv   137 alloc+bump+addPrim (ONE line)
+ *        140 setlen4 143 font_tint 146 x0y0 148 uv/clut 150 w/h 152 SetSemiTrans
+ *      Two of those differed from the hill-climbed body: font_tint BEFORE x0y0, and
+ *      uv BEFORE w/h.  (Every prior wave climbed positions inside the WRONG basin.)
+ *  (2) `dv` IS ONE STATEMENT (line 136 owns `lw a2,12(a2); sll; sra` AND the late-
+ *      emitted `addu a2,a2,t6; andi a2,a2,255`): dv = ((src[3]<<4)>>20) + v & 0xff.
+ *      Only the `<<8` belongs to the u0 statement (line 148).  The old body split it
+ *      the other way and needed a sched fence to hold the chain down; both are gone.
+ *  (3) THE LINK IS THE P_TAG BITFIELD addPrim (Font_PTag ->addr), NOT hand-rolled word
+ *      RMWs, and there is NO `pal`/`addr24` local (SYM lists only width/height/sprt/dv).
+ *      The bitfield write IS the oracle's second `lw v0,0(t3)` read-modify-write, and
+ *      MEM_IN_STRUCT_P keeps the 0x1F800000 cell load single (w52 cse struct-alias law).
+ *      ⚠ The w45/w46/w49 "P_TAG REGRESSES here 42->48" verdicts were BASIN-RELATIVE --
+ *      they were measured with the pal local + the split dv + the wrong statement order.
+ *  Everything the pre-seal receipt chased (the {v,pal,mask} -> t3/t4/t6 rotation, the
+ *  early `lw v,40(sp)`, the late `addu a0,t1,zero`) dissolved with the correct body:
+ *  all were echoes of the wrong basin, not allocator floors.  The full grind receipt
+ *  (w39-w50: qty tables, ref-step probes, fence sweeps, stmtclimb runs) is in git
+ *  history @ the parent of this commit -- do not re-derive it, the fn is byte-exact. */
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
@@ -173,71 +117,20 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   int height;
   SPRT *sprt;
   int dv;
-  u_int *pal;
 
-  dv = (*(int *)((u_char *)src + 0xc) << 4) >> 0x14;
-  sprt = (SPRT *)Render_gPacketPtr;
-  pal = (u_int *)Render_gPalettePtr;
-  width = ch->width;
-  height = ch->height;
-  *(u_int *)sprt = *(u_int *)sprt & 0xff000000 | *pal & 0xffffff;
+  width = ch->width;                                                  /* SLD 129 */
+  height = ch->height;                                                /* SLD 130 */
+  dv = ((*(int *)((u_char *)src + 0xc) << 4) >> 0x14) + v & 0xff;     /* SLD 136 */
+  sprt = (SPRT *)Render_gPacketPtr;                                   /* SLD 137 */
   Render_gPacketPtr = (u_char *)sprt + 0x14;
-  {
-    u_int addr24 = (u_int)sprt & 0xffffff;
-    *pal = *pal & 0xff000000 | (addr24 & 0xffffff);
-  }
-  *((u_char *)sprt + 3) = 4;
-  *(int *)&sprt->x0 = y << 0x10 | x;
-  *(u_long *)&sprt->r0 = font_tint;
-  *(u_int *)&sprt->w = height << 0x10 | width;
-  /* MATCH (w49-a6, 42 -> 38, count still exact 55/55): ZERO-INSN SCHED FENCE.
-   * sched1 was issuing the WHOLE `dv + v` chain (incl. the `lw $t3,40(sp)` stack-arg
-   * load for `v`) immediately after the `dv` shift at insn ~12, where retail issues it
-   * at ~29-41; the chain's critical-path priority dominates its LUID, so five statement
-   * positions for this line all measured 42 (w41-a6).  A use fence is a sched
-   * issue-position FIXPOINT (catalog w45/w46): insns AFTER it cannot float ABOVE it, so
-   * the chain is pinned below.  Operand must be register-resident (0 insns): sprt/width/
-   * dv all give 38, `height` 42; the fence one statement earlier 40, two earlier 72.
-   * RESIDUAL 38 (still 55/55): the `lw $t3,40(sp)` load for `v` ITSELF is still issued at
-   * insn ~13 (retail ~29) -- the fence pins the addu/andi/sll chain but not the load,
-   * which confirms the w45 finding that the load's position comes from RTL GENERATION,
-   * not sched1.  Plus the ours-late / retail-early `addu a0,t1,zero` (the SetSemiTrans
-   * arg copy) and the {v,pal,mask} -> {t3,t4,t6} vs retail {t6,t3,t4} rotation.
-   * FALSIFIED from the 38 basin (all re-gated, all 55/55 unless noted): `"r"(v)` as a
-   * second fence operand 44, `*(volatile int *)&v` 38, an IDENTITY fence on `v` 58 / on
-   * `dv` 38, splitting `dv+v` into two statements 50, inlining the whole expression at
-   * the u0 store 87 @56; fence operand `pal` 44 (the w46-a8 "lengthen pal past v's
-   * window" angle -- it lengthens pal but rotates the head), `sprt`+`pal` 44, a tail
-   * fence on `pal` after the u0 store 50; the psxfront-V21 P_TAG BITFIELD spelling of
-   * both OT-link RMWs 48 (with the `pal` local), 48 (WITHOUT it, i.e. reading
-   * Render_gPalettePtr directly per the V21 cse struct-alias law), 48 with the cursor
-   * bump moved after both RMWs -- so Font_Blit's link is confirmed NOT the addPrim shape
-   * in this basin either; moving the `*pal` RMW below the u0 store 70 / below the w/h
-   * store 75 @56.  Inlining the `addr24` temp (SYM-truer, it names no such local) is
-   * exactly 38 -- kept as-is to avoid churn.
-   * w50-a6: the two named angles left open by w46-a8/w49-a6 are now BOTH FALSIFIED, so the
-   * 38 is a genuine floor at the source level (all count-exact 55/55):
-   *  (1) PIN THE `v` STACK-PARM LOAD.  A use fence carrying `v` was swept through the whole
-   *      body: replacing the sprt fence with a v fence 44, sprt fence + v fence after it 44,
-   *      v fence then sprt fence 44, and a v fence (sprt fence kept) at the +3 byte store 64,
-   *      at the x0 store 64, at the r0 store 46, at the w/h store 71 @56, at the cursor bump
-   *      84.  The `lw $t6,40(sp)` never moves -- confirming the w49 reading that its position
-   *      comes from RTL GENERATION (assign_parms), not from sched1, so no fence reaches it.
-   *      That also pins the {v,pal,mask} -> {t3,t4,t6} vs retail {t6,t3,t4} rotation, since
-   *      the rotation is downstream of where v's value first becomes live.
-   *  (2) LENGTHEN THE 0xff000000 MASK PAST v's WINDOW (the w46-a8 live-extent direction, the
-   *      half that had only been tried via a fence on `pal`).  Giving the mask a real named
-   *      local `u_int hi = 0xff000000;` used by BOTH OT-link RMWs is exactly neutral (38),
-   *      and every extension of its range costs: a use fence on `hi` after the u0 store 50,
-   *      before the u0 store 50, and with the first RMW's operands flipped 52.  The flipped
-   *      RMW1 alone (to chase retail's v0/v1 load swap) is 46.
-   *  Remaining residual is therefore: v's RTL-generation load position + the register
-   *  rotation it forces + the early `addu a0,t1,zero` SetSemiTrans arg copy.  Next
-   *  instrument is an allocsim/-dg pass on the parm, not another spelling. */
-  __asm__ volatile("" : : "r"(sprt));
-  dv = (dv + v & 0xffU) << 8;
-  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv | u;
-  SetSemiTrans(sprt,1);
+  ((Font_PTag *)sprt)->addr = ((Font_PTag *)Render_gPalettePtr)->addr;
+  ((Font_PTag *)Render_gPalettePtr)->addr = (u_int)sprt;
+  *((u_char *)sprt + 3) = 4;                                          /* SLD 140 */
+  *(u_long *)&sprt->r0 = font_tint;                                   /* SLD 143 */
+  *(int *)&sprt->x0 = y << 0x10 | x;                                  /* SLD 146 */
+  *(u_int *)&sprt->u0 = (u_int)gFontClut << 0x10 | dv << 8 | u;       /* SLD 148 */
+  *(u_int *)&sprt->w = height << 0x10 | width;                        /* SLD 150 */
+  SetSemiTrans(sprt,1);                                               /* SLD 152 */
   return;   /* Font_Blit is void per disasm-v3 (Ghidra void-return mis-infer) */
 }
 /* ---- Font_ComputeColors__Fiiic  [FONT.CPP:168-255] SLD-VERIFIED ----

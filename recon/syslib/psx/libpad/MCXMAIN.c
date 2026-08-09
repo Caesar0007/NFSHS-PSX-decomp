@@ -81,7 +81,17 @@ extern int _padIntInit(unsigned char *info)
  * ternary and the if/else both CSE the second `info[0x36]` read into the tested register
  * (`addu $a1,$v0,$zero`, 8 diffs @52/54, two insns SHORT), and forcing the re-read with a
  * volatile view gets the load but adds an `andi $a1,$v0,255` promotion mask (10 @54/54);
- * `op = info[0x36]; if (op == 0) op = 0x42;` is worse still (12). */
+ * `op = info[0x36]; if (op == 0) op = 0x42;` is worse still (12).
+ * MATCH (w53-a8, the MCXMAIN LANE ENABLER -- PASS in BOTH basins): the volatile view belongs on
+ * the *TEST* read, NOT on the re-read.  cse never records a volatile MEM, so the plain
+ * `info[0x36]` in the arm is a genuinely fresh `lbu $a1,54($s0)` with no promotion mask -- exactly
+ * the oracle.  Under the gcc-2.7.2 rung the old plain-test form loses the second load entirely
+ * (10 diffs @52/54) and the mirrored spelling (volatile on the RE-READ) leaves cc1-2.7.2 emitting
+ * a DUPLICATE `addu $a0,$s0,$zero` in the taken arm on top of the one reorg puts in the `bne`
+ * delay slot (1 diff @55/54; robust across 14 spellings: both-volatile, cast-narrowed,
+ * arm-swapped, one-call funnel, ternary, `dev` copy local, identity fence on `dev`, explicit
+ * `else`, use fence before/inside the arm, void-tail fence, block-scoped `op`).
+ * This edit is what makes the whole TU legal on the 2.7.2 rung (231 -> 178, 3 PASSes held). */
 extern unsigned _padIntQuery(unsigned char *info)
 {
     if (_padSioChan == _padChanStart) {
@@ -94,7 +104,7 @@ extern unsigned _padIntQuery(unsigned char *info)
         _padFuncSendAuto(*(unsigned char **)(info + 0xc));
         _padFuncSendAuto(*(unsigned char **)(info + 0xc) + 0xf0);
     }
-    if (info[0x36] != 0)
+    if (*(volatile unsigned char *)(info + 0x36) != 0)
         return _padSioRW2(info, info[0x36]);
     return _padSioRW2(info, 0x42);
 }

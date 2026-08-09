@@ -71,7 +71,13 @@ extern void setRC2wait(int ticks)
  *   25-diff body was structurally WRONG (41 insns, unmerged tails); do not "restore" it.  NEXT
  *   ANGLE: an inflator that reaches the ANONYMOUS cse temp holding the 0x1F801128 constant (it has
  *   no C name to hang refs on -- a second SOURCE-LEVEL use of the same address at a third site
- *   would, e.g. spelling the two reads through one named block-local read TWICE). */
+ *   would, e.g. spelling the two reads through one named block-local read TWICE).
+ *   w53-a8: four more falsified at this basin -- a named `volatile u_short *tgt` block-local
+ *   PLUS a named `wrap` constant (38 @42, +2 insns), the T2_TARGET arm swap
+ *   `if (T2_TARGET != 0)` (33 but @41, one insn OVER -- not an improvement), a two-read
+ *   `t0`/`t1` split inside the wrap block (34 @40, identical), a use fence on `cur` before
+ *   the wrap test (38 @42).  RUNG-INVARIANT: the ladder was A/B'd in w51 and the 272 lane
+ *   (now wired) leaves chkRC2wait at 34. */
 extern int chkRC2wait(void)
 {
     unsigned cur = T2_VALUE & 0xffff;

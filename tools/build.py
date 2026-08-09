@@ -437,6 +437,10 @@ PER_TU_FLAGS = {
     # (+_padSendAtLoadInfo +_padLoadActInfo_snd -_padSetMainMode) and the 4
     # store-swap blockers dissolve with their PASSes intact.
     "recon/syslib/psx/libpad/PADCMD.c":     {"cc1_alt": "2.7.2-970404"},
+    # w53-a8: both round-2 lane flips -- volatile-on-the-TEST-read family
+    # lever resolved each TU's blocker; full ladders in the TU receipts.
+    "recon/syslib/psx/libpad/MCXMAIN.c":    {"cc1_alt": "2.7.2"},  # 231->178, 0 P->F
+    "recon/syslib/psx/libpad/PADPORTD.c":   {"cc1_alt": "2.7.2"},  # 139->109, _pad_filter 18 count-exact
     # w51-a2: BIOS.c 13->17/17 PASS -- WHOLE OBJECT byte-matches under cc1_272.
     "recon/syslib/psx/libmcrd/BIOS.c":      {"cc1_272": True},
     # w51-a2: USERFUNC.c 1->4/4 PASS under cc1_272 with ZERO source change (the

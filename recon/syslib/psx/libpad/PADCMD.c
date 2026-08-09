@@ -437,7 +437,10 @@ extern int _padSetActAlign_rcv(unsigned char *info)
             matchcount = 0;
             j = 5;
             do {
-                unsigned char v = *p++;
+                unsigned v = *p++;   /* MATCH (w53-a8): BASIN-RELATIVE -- this same widening
+                                      * measured 40 BEFORE the second loop's local was widened
+                                      * and 28 -> 27 after it (w45 lever-order law).  Re-probe
+                                      * parked spellings after every landing. */
                 if (v == mode) matchcount++;
                 j--;
             } while (j > -1);
@@ -449,7 +452,11 @@ extern int _padSetActAlign_rcv(unsigned char *info)
                 k = 0;
                 if (thresh == 0) thresh = 1;
                 do {
-                    unsigned char v = *p++;
+                    unsigned v = *p++;   /* MATCH (w53-a8): `unsigned`, not `unsigned char` --
+                                          * the byte-typed local re-masks with `andi $v0,$v0,255`
+                                          * on every use; `lbu` already zero-extends (29 -> 28,
+                                          * -1 insn).  The SAME change on the match-count loop
+                                          * above regresses (40) -- per-site, measure both. */
                     if (v == mode) {
                         if (matchcount < (int)thresh) { slot[0x5d] = 0xff; matchcount--; }
                         else                          slot[0x5d] = (unsigned char)mode;
@@ -502,6 +509,13 @@ extern int _padSetMainMode(unsigned char *info, int offs, int lock)
         __asm__("" : "=r"(r) : "0"(r));            /* MATCH: opacity fence, 0 insns -- see header */
         __asm__("" : "=r"(offs) : "0"(offs));      /* MATCH: keeps m's copy alive (post-call) */
         __asm__("" : "=r"(lock) : "0"(lock));      /* MATCH: ref inflator, wins $s2 for lock */
+        /* MATCH (w53-a8, 2 -> PASS 38/38): USE FENCE ON `cur` = a sched1 issue-position fixpoint.
+         * The only residual was POSITION: retail issues `lbu $a0,228($s0)` immediately after the
+         * `li $v0,1`, ours let sched1 sink it 5 slots down into the second address-materialize's
+         * latency gap.  A zero-insn read-only fence on cur pins it (insns before a fence cannot
+         * sink past it -- w45 law).  Falsified at this basin: splitting the decl-init into
+         * decl + assignment (2, identical). */
+        __asm__("" : : "r"(cur));
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padSetMainMode_snd;
         *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetMainMode_rcv;

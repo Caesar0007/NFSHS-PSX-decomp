@@ -142,7 +142,12 @@ extern int _padVbCallback0(void)
         if (*n < 0x96)
             *n = *n + 1;
     }
-    if (_padIntExec != 0 && _padChanStop >= _padChanStart) {
+    /* MATCH (w53-a8, 4 -> PASS 91/91): COMPARE-OPERAND ORDER IS LOAD ORDER.  The oracle loads
+     * `_padChanStart` into $v1 BEFORE `_padChanStop` into $v0 and then tests `slt $v0,$v0,$v1`;
+     * writing the guard as `_padChanStop >= _padChanStart` emits the two macro loads in the
+     * opposite order (4 diffs, count-exact).  `!(_padChanStop < _padChanStart)` is canonicalized
+     * back to the wrong order (4) -- only the left-operand spelling reaches it. */
+    if (_padIntExec != 0 && _padChanStart <= _padChanStop) {
         _padSioState = 0;
         _padSioChan  = _padChanStart;
         if (_padInitSioMode(_padInfoDir + _padChanStart * 0xf0) == 0)
@@ -156,21 +161,37 @@ extern int _padVbCallback0(void)
                                                   * in the epilogue -- it is an int IRP handler */
 }
 
-/* @0x80104C1C : _padStartCom -- arm the engine: chain in the VSync IRP, enable RCnt, clear info. */
+/* @0x80104C1C : _padStartCom -- arm the engine: chain in the VSync IRP, enable RCnt, clear info.
+ * MATCH (w53-a8, 12 @53/51 -> PASS 51/51).  TWO BASE ANCHORS, both read off the oracle:
+ *  (1) `_padIntRegs` is ONE local base serving BOTH the I_STAT store and the I_MASK RMW -- retail
+ *      materializes `lui $v1; lw $v1` once and then does `sw $v0,0($v1) / lw $v0,4($v1) /
+ *      sw $v0,4($v1)`.  The bare macros reload the pointer for the I_MASK access (+2 insns).
+ *  (2) the two frame counters are cleared through an EXPLICIT, FENCED pointer into `_padFrames`
+ *      (`lui $v0; addiu $v0,%lo; sw $zero,4($v0); sw $zero,0($v0)`), stop ([1]) before start ([0]).
+ *      A plain `int *f = _padFrames;` decl-init is copy-propagated straight back into two
+ *      `lui $at; sw $zero,0($at)` assembler macros (8 diffs, count-exact); the zero-insn opacity
+ *      fence makes the address a real pseudo -- and it must sit AT THE USE SITE: the same fence on
+ *      a top-of-function decl-init costs 20 (the address then lives across all five calls). */
 extern void _padStartCom(void)
 {
+    unsigned char *ir;
+    int *f;
+
     _padIntExec = 0;
     EnterCriticalSection();
     SysDeqIntRP(2, &_padVbCb);
     SysEnqIntRP(2, &_padVbCb);
-    I_STAT = 0xfffffffe;
-    I_MASK = I_MASK | 1;
+    ir = _padIntRegs;
+    *(volatile unsigned int *)(ir + 0x00) = 0xfffffffe;
+    *(volatile unsigned int *)(ir + 0x04) = *(volatile unsigned int *)(ir + 0x04) | 1;
     ChangeClearRCnt(3, 0);
     ExitCriticalSection();
     _padFuncClrInfo(_padInfoDir);
     _padFuncClrInfo(_padInfoDir + 0xf0);
-    _padFramesSinceStop  = 0;
-    _padFramesSinceStart = 0;
+    f = _padFrames;
+    __asm__("" : "=r"(f) : "0"(f));
+    f[1] = 0;                                /* _padFramesSinceStop  */
+    f[0] = 0;                                /* _padFramesSinceStart */
     _padIntExec = 1;
 }
 
@@ -276,17 +297,36 @@ extern int _padInitSioMode(unsigned char *info)
 }
 
 /* @0x80105060 : _padSioMain -- run the next SIO state function; advance / retire on its result. */
+/* MATCH (w53-a8, 34 -> 14, COUNT-EXACT 50/50).  Two facts:
+ *  (1) ARM POLARITY: the oracle's `bltz $a0,<tail>` sends the r<0 case OUT-OF-LINE and falls
+ *      through into the success path -- so the source tests `r >= 0` with the `_padFuncNextPort(r)`
+ *      call as the `else`.  Writing `if (r < 0)` first inlines the error arm and inverts the
+ *      branch (34 diffs).  Worth 15 on its own.
+ *  (2) `_padSioState` is reached through ONE ANCHOR POINTER and its increment is a NAMED local
+ *      stored back BEFORE the call, so the store lands in the `jalr` delay slot exactly like
+ *      retail (`lw $v1,0($a1) / sll / lw fn / addiu $v1,$v1,1 / jalr $v0 / sw $v1,0($a1)`).
+ *      Falsified: storing `*st` AFTER the call (27), an opacity fence on the anchor (27 there /
+ *      14 here, identical), the named-`s` form without the anchor pointer (19 @49/50, one short).
+ *  (3) the last 14 (a clean $v0<->$v1 swap on the dispatch head: retail keeps the STATE in $v1 and
+ *      the FN POINTER in $v0, ours the reverse) is a local-alloc QTY-PRIORITY tie -- `fn` has 2
+ *      refs, `s` has 3, so ours allocates `s` first and MIPS' numeric find_free_reg scan hands it
+ *      $v0.  A ZERO-INSN read-only fence on `fn` buys the +1 ref that crosses the floor_log2 step
+ *      and flips the pair (w49/w52 fence-dial law: read-only fence = +1 ref).  The identity fence
+ *      also works; a fence on `s` (the demote direction) does NOT (14), nor does re-ordering the
+ *      first uses so `fn` is born first (14). */
 extern void _padSioMain(unsigned char *info)
 {
     int (*fn)(unsigned char *);
     int r;
+    int *st = &_padSioState;
+    int s;
 
-    fn = (int (*)(unsigned char *))padIntFunc[_padSioState];
-    _padSioState = _padSioState + 1;
+    s = *st;
+    fn = (int (*)(unsigned char *))padIntFunc[s];
+    __asm__("" : : "r"(fn));                     /* ref dial -- see (3) above */
+    *st = s + 1;
     r = fn(info);
-    if (r < 0) {
-        _padFuncNextPort(r);
-    } else {
+    if (r >= 0) {
         if (_padSioState != 0) {
             setRC2wait(0x3c);
             if (_padClrIntSio0() == 0)
@@ -294,6 +334,8 @@ extern void _padSioMain(unsigned char *info)
         }
         if (_padSioState > 4)
             _padSioState = _padSioState - 1;
+    } else {
+        _padFuncNextPort(r);
     }
 }
 
@@ -405,12 +447,31 @@ extern int _padSioRW2(unsigned char *dev, int tx)
  * PLAIN TOP-TESTED `while`, not a do/while with an in-body early return: gcc-2.8's jump.c
  * duplicate_loop_exit_test emits retail's second copy of the STAT test (the `.L8010559C`
  * reload+`bnez` back-edge).  Both call sites (MCXMAIN/_padSioMain) discard the result. */
+/* MATCH (w53-a8, 8 @30/36 -> PASS 36/36).  Two cooperating facts, both read off the oracle:
+ *  (1) THE WAIT IS A ZERO-TRIP-GUARDED do/while, not a plain `while`.  Retail tests SIO0 STAT
+ *      ONCE before the loop (`lhu $v0,4($a0); andi 128; beqz`) and AGAIN at the back edge, with
+ *      the two tests reaching the register base DIFFERENTLY (the entry test off the hoisted $a0,
+ *      the back-edge test off a fresh `lui/lw`).  That is a guard + rotated do/while written in
+ *      source: a plain `while` gives the entry `j <test>` shape (6 insns short), and the guard
+ *      written around a plain `while` is JUMP-THREADED back into the loop test by gcc's jump.c
+ *      (byte-identical to the bare `while`; a zero-insn `__asm__("" : : "i"(0))` at the loop head
+ *      blocks the thread and lands 7 @37/36 -- the do/while needs no device at all).
+ *  (2) BOTH register-block bases are DECL-INIT LOCALS, `_padIntRegs` FIRST.  The macros reach the
+ *      globals directly, so cc1 emits `_padSioRegs`'s macro load ahead of `_padIntRegs`'s (4 diffs,
+ *      count-exact) and the entry test pays a load-delay `nop`; two named locals in the oracle's
+ *      materialization order fix both.  Falsified: `sio` alone as a decl-init (4), `sio` assigned
+ *      after the I_STAT store (8 @30 -- the guard collapses again), non-volatile STAT read (8). */
 extern int _padClrIntSio0(void)
 {
-    I_STAT = 0xffffff7f;
-    while ((JOY_STAT & 0x80) != 0) {
-        if (chkRC2wait() != 0)
-            return 0;
+    unsigned char *ir = _padIntRegs;
+    unsigned char *sio = _padSioRegs;
+
+    *(volatile unsigned int *)(ir + 0x00) = 0xffffff7f;
+    if ((*(volatile unsigned short *)(sio + 0x04) & 0x80) != 0) {
+        do {
+            if (chkRC2wait() != 0)
+                return 0;
+        } while ((JOY_STAT & 0x80) != 0);
     }
     JOY_CTRL = JOY_CTRL | 0x10;
     return 1;

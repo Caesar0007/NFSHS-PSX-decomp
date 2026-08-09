@@ -65,7 +65,12 @@ extern void _padInitDirSeq(void)
  *   (12), word/const SHARED pseudo -- in-place reuse, all 3 spellings put the merged pseudo in $a1
  *   (8), opacity fence on ff (5 @12 insns), fence in the nested-reuse form (8), pre-loaded byte
  *   local (8 @9 insns).  NEXT ANGLE: find what puts hard $v0 in the constant's conflict set
- *   (global.c record_conflicts around the two return-value sets) -- retail's constant IS $v0. */
+ *   (global.c record_conflicts around the two return-value sets) -- retail's constant IS $v0.
+ *   w53-a8 added 8 more falsifications at this basin (all 4 or worse, none reaches the conflict
+ *   set): result-funnel `int r = 1; if (...) r = 0; return r;` (11 @10 insns), `return !(A && B)`
+ *   (13 @12), inner-arm early-return nest (12 @11), `unsigned ff` (4), a 4th block qty `int busy
+ *   = 0; return busy;` (4 -- the w46 3-QTY-boundary dial does NOT fire here), a named `mw` word
+ *   temp (4), a use fence on ff inside the guard (4), bare literal instead of `ff` (6). */
 extern int _dirCheck(unsigned char *info)
 {
     int ff = 0xff;

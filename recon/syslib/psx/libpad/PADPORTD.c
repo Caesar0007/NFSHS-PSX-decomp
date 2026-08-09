@@ -249,13 +249,31 @@ extern int _pad_getbyte(unsigned char *info, int align)
  * `sw $vN,%lo(_padTotalCurr)($at)` store -- the maspsx reorder-branch-slot class (both sites
  * DISSOLVE under the cc1_272/GNU-as-reorder lane, verified); (d) the 6-byte tail fill loop is
  * strength-reduced by retail to a walking `info+i` base -- 3 walking-pointer spellings probed,
- * all 31 (worse), so this one is source-resistant at this basin. */
+ * all 31 (worse), so this one is source-resistant at this basin.
+ * MATCH (w53-a8, the PADPORTD DUAL-BASIN RESOLUTION -- 23 def / 36 alt -> 23 def / 18 alt,
+ * COUNT-EXACT 159/159 on the gcc-2.7.2 rung; the TU's lane-decider, 127 -> 109):
+ *   (1) FIRST search loop `i = 0; while (i != nmask)` -- the `!=` bound removes the `slt` entry
+ *       guard retail folds away (residual class (b) above), -2 insns.  Guarded do-while forms of
+ *       the SAME loop are catastrophic (61/62); the `!=` while is the only shape that lands.
+ *   (2) SECOND search loop `k = 0; if (nmask != 0) do { ... k++; } while (k < nmask);` -- 26 -> 24
+ *       on the rung, EXACTLY NEUTRAL in the default basin.  (`while (k != nmask)` = 27/26, the
+ *       w52-a5 candidate; exit-in-the-middle 44, index-form 36, down-count 42, goto-loop 45.)
+ *   (3) nmask's ternary TEST read is the volatile view, the VALUE read plain -- retail LOADS
+ *       `info[0x34]` TWICE (`lbu $v0,52($s0)` for the `sltiu ,7` and `lbu $t1,52($s0)` for the
+ *       value) where cse gives us one load + `addu $t1,$v1,$zero`.  Same lever/direction as the
+ *       w53-a8 MCXMAIN `_padIntQuery` crack: cse never records a volatile MEM, so the plain read
+ *       after it is a genuinely fresh load.  24 -> 18 on the rung, neutral (23) in the default
+ *       basin.  Volatile-FREE spellings of the same double-read all falsified: use fence on info
+ *       (27), identity fence on info inside the guard (21), explicit if/else (27), redundant cast
+ *       (24), `(signed char)` test (37).
+ * PER-BASIN TU LEDGER after these three: default 139 (unchanged), gcc-2.7.2 rung 109.
+ * => the rung is the TU's home; see the wiring note in the report. */
 extern void _pad_filter(unsigned char *info)
 {
     bzero(info + 0x57, 6);
 
     if (*(unsigned short *)(info + 0xe6) != 0 && *(int *)(info + 0x28) != 0) {
-        int nmask = info[0x34] < 7 ? info[0x34] : 6;
+        int nmask = *(volatile unsigned char *)(info + 0x34) < 7 ? info[0x34] : 6;
         int mode = 0;
         if (info[0xe9] != 0) {
             int row = 0;
@@ -269,9 +287,11 @@ extern void _pad_filter(unsigned char *info)
                     mask = 0xff;
                 map = info + 0x5d;
                 dat = *(unsigned char **)(info + 0x28);
-                for (i = 0; i < nmask; i++) {
+                i = 0;
+                while (i != nmask) {
                     if (*map == mode && (*dat & mask) != 0) { matched = 1; break; }
                     map++; dat++;
+                    i++;
                 }
                 if (matched) {
                     int t = _padTotalCurr + *(unsigned char *)(row + *(int *)(info + 4) + 3);
@@ -284,9 +304,13 @@ extern void _pad_filter(unsigned char *info)
                     unsigned char *m2 = info + 0x5d;
                     unsigned char *flag = info + 0x57;
                     int k;
-                    for (k = 0; k < nmask; k++) {
-                        if (*m2 == mode) *flag = 1;
-                        m2++; flag++;
+                    k = 0;
+                    if (nmask != 0) {
+                        do {
+                            if (*m2 == mode) *flag = 1;
+                            m2++; flag++;
+                            k++;
+                        } while (k < nmask);
                     }
                 }
                 row += 5;

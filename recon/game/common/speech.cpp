@@ -626,7 +626,10 @@ void FindLocation__Q26Speech7SpeakerP8Car_tObj(Speaker *pThis,Car_tObj *car)
   if (location == (LocationBank *)0x0) {
     (pThis->fDistance).flags = 0;
     (pThis->fPosition).flags = 0;
-    pThis->fLocation = location->fBankId;
+    /* Retail preserves the null LocationBank::fBankId read at address 8.  A
+       one-word aggregate copy prevents C++ null-dereference folding. */
+    struct SpeechLocationWord { int value; };
+    *(SpeechLocationWord *)&pThis->fLocation = *(SpeechLocationWord *)8;
   }
   else {
     int actual = Distance__Q26Speech12LocationBanki(location,(int)car->N.simRoadInfo.slice);

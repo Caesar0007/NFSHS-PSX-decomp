@@ -2845,7 +2845,7 @@ struct tCarManager {   /* 908 bytes */
     short GetNumPinkSlipsCars(short playerNum);
     short GetClassList(tCarClassType carClass,short numElements,tCarModels *models);
     void InitializeIngameCarList();
-    void * IsCarAnAddedModel(tCarModels &model,char &color);
+    bool IsCarAnAddedModel(tCarModels &model,char &color);   /* W58-A1: `void*` was a recon artifact -- the body returns 0/1 and every front.cpp caller's oracle tests it as a bool (xori 1; beqz) */
     void AddCarToIngameList(tCarModels &model,char &color);
     int FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4);
 

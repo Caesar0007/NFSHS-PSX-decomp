@@ -25,46 +25,31 @@ extern short SelectListSplitDisplay[3], SelectListUpgrades[4], SelectListControl
 
 
 /* ===== auto-generated stubs ===== */
-int AddToPinkSlipsList(...);
-int AddUpgradesToPinkSlipsList(...);
+/* W58-A1 (08A phantom fix): the entry points below were free `int f(...)` decls, which
+ * mangle EVERY call site to `f__Fe` -- a symbol the link can never resolve.  They are
+ * MEMBERS of tCarManager / tTournamentManager / tTrackManager / tScreenMain /
+ * tScreenCarSelect / tDialogBase / tDialogInteractive / tFEApplication / tListIteratorCar /
+ * tMenuItemLeftRightSlider (decls in nfs4_types.h); the call sites now use the
+ * obj->Method(...) form.  Byte-neutral: `this` rides $a0 like the old explicit receiver.
+ * Removed: AddToPinkSlipsList, AddUpgradesToPinkSlipsList, CalcUsedPrice,
+ * CheapestCarStockPrice, Decrement, Display, GetAwardInformation, GetCarFromID,
+ * GetGarageCar, GetNumOwnedCars, GetNumTourneyCars, GetPinkSlipsCar, GetStockCar,
+ * GetTrack, Hide, Increment, IsTournamentFinished, PurchaseCar, PurchaseUpgrade,
+ * Redraw, Run, SellCar, SetCarAvailable, SetDimensions, SetState, StartNewTournament,
+ * SwapBackground. */
 int AudioCmn_PlayFESFX(int);
-int CalcUsedPrice(...);
-int CheapestCarStockPrice(...);
 int DeInit_Memcard(void);
-int Decrement(...);
-int Display(...);
 int FECheat_IsTheUserACryBabyCheater(void);
-int GetAwardInformation(...);
-int GetCarFromID(...);
-int GetGarageCar(...);
-int GetNumOwnedCars(...);
-int GetNumTourneyCars(...);
-int GetPinkSlipsCar(...);
-int GetStockCar(...);
-int GetTrack(...);
-int Hide(...);
-int Increment(...);
 int Init_Memcard(bool, bool);
-int IsTournamentFinished(...);
 int LoadGame(short, bool, bool);
 int PlayerName(int);
-int PurchaseCar(...);
-int PurchaseUpgrade(...);
-int Redraw(...);
-int Run(...);
 int SaveGame(short);
 int SavePinkSlipsCarsWithErrorDialogs(short, short, short);
-int SellCar(...);
-int SetCarAvailable(...);
-int SetDimensions(...);
-int SetState(...);
-int StartNewTournament(...);
 int StatChk_ClearNewRecords(void);
 int StatChk_IsRecordLapTime(Car_tStats *, short, short *);
 int StatChk_IsTopTime(Car_tStats *, short);
 int StatChk_SaveRecordLapTime(Car_tStats *, short, short);
 int StatChk_SaveTopTime(Car_tStats *, short);
-int SwapBackground(...);
 int TextSys_Word(int);
 int __builtin_delete(...);
 tDialogYesNo *tDialogYesNo_ctor(...);

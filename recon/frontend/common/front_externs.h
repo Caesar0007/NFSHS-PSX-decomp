@@ -14,8 +14,17 @@ extern tTrackManager trackManager;
 extern tAllScreens *gAllScreens[];
 
 /* ===== auto-generated stubs ===== */
-int AddCarToIngameList(...);
-int AdvanceToNextTrack(...);
+/* W58-A1 (08A phantom fix): the entry points below were free `Type f(...)` decls,
+ * which mangle EVERY call site to `f__Fe` -- a symbol that never links.  They are
+ * MEMBERS of tCarManager / tTournamentManager / tTrackManager / tMissionManager /
+ * tFEApplication / tCreditManager (member decls live in nfs4_types.h); the call
+ * sites now use obj.Method(...) / obj->Method(...).  Byte-neutral: `this` rides $a0
+ * exactly like the old explicit receiver pointer.  Removed: AddCarToIngameList,
+ * AdvanceToNextTrack, CheapestCarStockPrice, FindSimilarCar, GetCarFromID,
+ * GetClassList, GetGarageCar, GetLastTrackRaced, GetMissionStages, GetMissionToRace,
+ * GetNumOwnedCars, GetPinkSlipsCar, GetStockCar, GetTrack, GetTrackByID,
+ * GetTrackToRace, InitializeIngameCarList, IsCarAnAddedModel, LoadDescription,
+ * RunFrontEnd, RunPostGame, Setup, UpdateAwardInformation, UpdateCarLineup. */
 int AudioMus_GetSongList(char *, int);
 int AudioMus_SysCleanUp(void);
 int AudioMus_SysStartUp(int, int, char *);
@@ -23,50 +32,28 @@ int AudioMus_Volume(int);
 int Audio_FECleanUp(void);
 int CarIO_CleanUpLicense(int);
 int CarIO_CreateLicense(char *, int, int);
-int CheapestCarStockPrice(...);
 int Controller_SetRamp(void);
 int DeInit_Memcard(void);
-int FECheat_IsCheatEnabled(...);
+int FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: FECheat_IsCheatEnabled__F10tCheatCode (was `(...)` -> __Fe phantom) */
 int FeAudio_DeInitCommentary(void);
 int FeAudio_InitCommentary(int, int);
 int FeTools_deinit(void);
-int FindSimilarCar(...);
-int GetCarFromID(...);
-int GetClassList(...);
-int GetGarageCar(...);
-int GetLastTrackRaced(...);
-int GetMissionStages(...);
-int GetMissionToRace(...);
-int GetNumOwnedCars(...);
-int GetPinkSlipsCar(...);
-int GetStockCar(...);
-int GetTrack(...);
-int GetTrackByID(...);
-int GetTrackToRace(...);
 int Init_Memcard(bool, bool);
 int Init_PSX_FrontEnd(void);
-int InitializeIngameCarList(...);
 int InitializeSpinningCars(void);
 /* MATCH: returns bool -- the oracle tests it with `xori v0,v0,1; beqz` at all 7
    call sites, which is cc1plus's `if (!b)` codegen for a C++ bool. An int return
    gives `li v1,1; beq` instead. Do NOT widen back to int. */
-bool IsCarAnAddedModel(...);
-int LoadDescription(...);
 int LoadGame(short, bool, bool);
-int MenuExtended_TransitionFromPostGameToMainMenu(...);
+int MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &);  /* W58-A1: ..__FR12tMenuCommand (was `(...)` -> __Fe phantom) */
 int PSXExitFrontend(void);
 int Platform_ResetDCTBuffer(void);
 char * PlayerName(int);
-int RunFrontEnd(...);
-int RunPostGame(...);
-int Setup(...);
 int StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *);
 int Stattool_GetAllDefaultRecords(tRecordBuffer *, bool);
 int Stattool_ReturnRecordLapTime(short);
 int TextSys_UnloadWords(void);
 int TextSys_Word(int);
-int UpdateAwardInformation(...);
-int UpdateCarLineup(...);
 int __builtin_new(...);
 int s_lower(char *);
 extern "C" tAllScreens *tAllScreens_ctor(...) __asm__("__11tAllScreens");        /* real ctor symbol (was tAllScreens_ctor phantom) */
@@ -93,7 +80,7 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cp
                                      pointer decl would load the array's own first bytes (real struct
                                      data) as a bogus pointer VALUE and dereference it */
 extern int CountryMeasurement[16];
-extern int CreditManager;
+extern tCreditManager CreditManager;   /* W58-A1: real type -- Setup__14tCreditManager */
 extern GameSetup_tData GameSetup_gData;
 extern int MEMCARDFRONTENDISINITTED[];
 extern int Stats_gTrackRecords;
@@ -115,7 +102,7 @@ extern tPadModuleState gPadinfo;
 extern int gUseFrontend;
 extern int mappings[3][13][3];
 extern int memCardReadOK[];
-extern int missionManager;
+extern tMissionManager missionManager;   /* W58-A1: real type -- ..__15tMissionManager */
 extern tCarModels regularCopModels[7][5];
 extern tScreenAudio *screenAudio;
 extern tScreenBeTheCopCongrats *screenBeTheCopCongrats;

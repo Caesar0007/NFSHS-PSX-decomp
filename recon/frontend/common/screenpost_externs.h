@@ -80,7 +80,7 @@ void FETextRender_WordWrap(...);
 void  FeAudio_AsyncPlaySpeech(int, int);
 void *FECheat_IsCheatEnabled(...);
 int  GetNumPinkSlipsCars(...);
-void*  GetStockCar(...); void GetTrack(tTrackManager*, short, void*);
+void*  GetStockCar(...);   /* W58-A1: GetTrack is a tTrackManager member (free decl mangled to the unlinkable GetTrack__FP13tTrackManagersPv) */
 tTrackInformation *GetTrackByID(tTrackManager*, short); void GetTrackToRace(tTournamentManager*, void*);
 int   LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);
@@ -104,15 +104,15 @@ void PreLoad(tScreen*);
 int   FeTools_FormatMoney(char *out, long amount);
 int   FETextRender_FullTextRGB(char *s, short x, short y, int col, char a, int b);
 int   FETextRender_FullTextFade(int, char *, short, short, tMenuTextType, tMenuTextState, short);
-int   FETextRender_MenuTextPositionedJustifyFade(...);
+/* W58-A1 (08A phantom fix): FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType. */
+int   FETextRender_MenuTextPositionedJustifyFade(int, short, short, short, short, tMenuTextState, tMenuTextType);
 int   AudioCmn_PlayFESFX(int);
-int   CalcTrackFinishDamageBill(...);
+/* W58-A1 (08A phantom fix): CalcTrackFinishDamageBill / GetAwardInformation /
+ * PlayerRanking / TournPointTotal are tTournamentManager MEMBERS -- free `(...)`
+ * decls dropped; call sites now use tournamentManager./tm-> member form. */
 int   Front_GetTrackRaced(void);
-int   GetAwardInformation(...);
 int   PSXDrawBrightEndLine(int, int, int, int, int, int, int, int);
-int   PlayerRanking(...);
 char *Stattool_GetAINameFromPersonality(tPersonalities);
-short TournPointTotal(...);
 extern "C" int textpixels(char *);
 int   tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &);
 extern tTexture_ShapeInfo *gCurrentShapes[];

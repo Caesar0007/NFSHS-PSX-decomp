@@ -1540,7 +1540,7 @@ int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
     x = TextSys_WordX(this->fTextDescription) + offx;
     y = TextSys_WordY(this->fTextDescription) + offy;
     CalcOnOffFade(textType_Options,this->fOnFade,
-               this->fSelFade,this->fFadeVal,&ColTextOn,&ColTextOff);
+               this->fSelFade,this->fFadeVal,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
     this->MyLeftRightDraw((short)x,(short)y);
     FETextRender_FullTextRGB(TextSys_Word(0x66),(short)(x + 0x37),(short)y,ColTextOn,'\0',0);
     FETextRender_FullTextRGB(TextSys_Word(0x67),(short)(x + 0x9e),(short)y,ColTextOff,'\0',0);
@@ -1880,7 +1880,7 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
   int ColTextOff;
 
   Col = CalcFadeVal(0x551e00,0x28);   /* H13: 2nd arg is the literal 0x28 (oracle 0x8001EC84 $a1=0x28), not x */
-  CalcOnOffFade(textType_Options,fOnOffFade,fSelFade,0,&ColTextOn,&ColTextOff);
+  CalcOnOffFade(textType_Options,fOnOffFade,fSelFade,0,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
   ColText = CalcTextFadeSelToHi(textType_Options,fSelFade,0);
   FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[1].currentsong +
              ((int)((u_int)(u_short)songnum << 0x10) >> 10)),

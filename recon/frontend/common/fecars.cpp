@@ -934,7 +934,9 @@ void tCarManager::InitializeIngameCarList()
 
 /* ---- tCarManager::IsCarAnAddedModel  [FECARS.CPP:827-832] SLD-VERIFIED ---- */
 
-void * tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
+/* W58-A1: return type `void*` was a recon artifact -- the body yields 0/1 and every
+   front.cpp caller's oracle tests it as a bool (`xori v0,v0,1; beqz`).  bool it is. */
+bool tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 
 {
   tCarInfo *ptVar1;
@@ -949,7 +951,7 @@ void * tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
     iVar2 = iVar2 + 7;
   }
   index = (u_int)model + (iVar2 >> 3) * 50;
-  return (void *)(u_int)(base[index] != '\0');
+  return (base[index] != '\0');
 }
 
 

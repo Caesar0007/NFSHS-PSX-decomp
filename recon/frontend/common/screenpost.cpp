@@ -61,7 +61,7 @@ void tScreenTournamentStandings::Initialize()
   tAwardInformation tInfo;
   
   this->Initialize();
-  GetAwardInformation(&tournamentManager,&tInfo);
+  tournamentManager.GetAwardInformation(tInfo);
   this->gotmoney = 0;
   this->gotbonus = 0;
   this->gotbilled = 0;
@@ -75,7 +75,7 @@ void tScreenTournamentStandings::Initialize()
       this->moneyFinal = iVar1 - tInfo.fCompletedBonusMoney;
     }
     this->moneyAwarded = tInfo.fMoney;
-    CalcTrackFinishDamageBill(&tournamentManager,false,&this->moneyDamage,&this->moneyBonus);
+    tournamentManager.CalcTrackFinishDamageBill(false,this->moneyDamage,this->moneyBonus);
     if (0 < this->moneyBonus) {
       this->gotbonus = 1;
     }
@@ -203,7 +203,7 @@ void tScreenTournamentStandings::DrawBackground()
     if (i >= numRacers) {
       break;
     }
-    j = (short)PlayerRanking(tm,(short)(i + 1));
+    j = (short)tm->PlayerRanking((short)(i + 1));
     state = textState_Selected;
     if (j == 0) {
       state = textState_Hilighted;
@@ -229,14 +229,14 @@ void tScreenTournamentStandings::DrawBackground()
       sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
     }
     else {
-      sprintf(sBuildOutput,"%d %s",(int)TournPointTotal(tm,&p),TextSys_Word(0x31d));
+      sprintf(sBuildOutput,"%d %s",(int)tm->TournPointTotal(&p),TextSys_Word(0x31d));
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
                              (short)TextSys_WordY(line),textType_TrackRecords,state,1);
     line++;
     i++;
   }
-  GetTrack(&trackManager,(short)Front_GetTrackRaced(),&trackInfo);
+  trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
                            (short)TextSys_WordY(0x2fd),textType_TrackRecords,textState_Hilighted,2);
   i = (short)TextValue(frontEnd.tier != '\0' ? &menuDefs->iteratorSpecialEvent :
@@ -337,7 +337,7 @@ void tScreenPinkSlipStandings::DrawBackground()
       if (i != (byte)frontEnd.pinkSlipsTrackIndex) {
         state = (tMenuTextState)(i < (int)(byte)frontEnd.pinkSlipsTrackIndex);
       }
-      GetTrack(&trackManager,(byte)frontEnd.track[i],&trackInfo);
+      trackManager.GetTrack((byte)frontEnd.track[i],trackInfo);
       FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
                  (short)((signed char)trackInfo.fTrackID + 0xd5),
                  (short)TextSys_WordX(0x2f7),(short)TextSys_WordY(0x2fe + i),0,state,

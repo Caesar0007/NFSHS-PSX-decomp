@@ -20,7 +20,7 @@ extern int                screenheight, showRoomFlag, gFlip, gStopCommentaryNow;
 extern int                gShowroomLights[];   /* store-[] lever: cc1 materialises addr in a genreg (sw $0,%lo($v0)) not $at */
 extern int gMenuRotate[2];
 extern u_long             gCameraRotation;
-extern int *gCView;
+extern DRender_tView gCView;   /* W58-A1: real type (render.cpp @0x80116F7C); was mistyped int* */
 extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
 extern char               CURRENTLYUSINGMEMCARD;
@@ -86,27 +86,35 @@ void tScreenCarSelectDuel_dtor(tScreenCarSelectDuel*); void tScreenPinkSlipsCarS
 /* ===== tScreen helpers (free-fn form) ===== */
 void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int);
 void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
-void  UploadShapes(...);
+/* W58-A1 (08A phantom fix): the tScreen / tCarManager / tTrackManager / tVideoWall /
+ * tDialogBase / tFEApplication entry points below were free `(...)`- or `(void*)`-typed
+ * decls that mangled every call site to a symbol the link can never resolve
+ * (`..__Fe` / `..__FPv`).  They are MEMBERS -- decls live in nfs4_types.h and the call
+ * sites now use obj->Method(...) / obj.Method(...).  Byte-neutral (`this` rides $a0).
+ * Removed here: UploadShapes, UploadSwapShapes, TransitionOff, TransitionOn,
+ * SetAvailableIcon, SetOffset, SetValid, GetStockCar, GetNumPinkSlipsCars,
+ * CalcUsedPrice, CheapestCarStockPrice, GetTrack, Hide, Display, Redraw. */
 void  FreeShapes(tScreen*, tShapeInformation*);
 void  InitializeShapes(tScreen*, tShapeInformation*, int);
 void  AsyncLoadSwapShapeFile(tScreen*, char*);
 void  AsyncLoadShapeFile(tScreen*, char*, tShapeInformation*);
-void TransitionOff(...); void TransitionOn(...);
 
 /* ===== tVideoWall methods (free-fn form) ===== */
 void TurnOn(tVideoWall*); void TurnOff(tVideoWall*); void TurnOffInstant(tVideoWall*);
 void UpdateImages(tVideoWall*); void UpdateTransition(tVideoWall*); void Draw(tVideoWall*);
 void SetAvailable(tVideoWall*, unsigned short); void SetAvailableText(tVideoWall*, short, short, short);
-void  SetAvailableIcon(...);
 void Initialize(tVideoWall*, tTVConfig*, tTexture_ShapeInfo*, short, short, short*, short);
 
 /* ===== FE / game / PsyQ helpers ===== */
 int   CalcFadeVal(int, int);
 char *TextSys_Word(int); int TextSys_WordX(int); int TextSys_WordY(int); int TextSys_WordFlags(int);
-short TextValue(void*, tPlayer); void Decrement(void*, tPlayer); void Increment(void*, tPlayer);
+/* W58-A1: TextValue/Decrement/Increment are tListIteratorCar members (the free
+ * `(void*,tPlayer)` decls mangled to ..__FPv7tPlayer -- an unlinkable phantom). */
 void  DrawMoney(int, int, int, long, int, int);
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
-void  DrawShape_NFS4Rectangle(...); void DrawShape_NFS4RoundRectangle(int, RECT*, short);
+/* W58-A1 (08A phantom fix): true prototypes from configs/symbol_addrs.txt --
+ * DrawShape_NFS4Rectangle__FR4RECT, DrawShape_NFS4RoundRectangle__FiR4RECTs. */
+void  DrawShape_NFS4Rectangle(RECT &); void DrawShape_NFS4RoundRectangle(int, RECT &, short);
 void  DrawSlider(short, short, short, short, short, short, short, short, short, bool, bool, short, short);
 void  PSXDrawSquare(int,int,int,int,int);
 void  FETextRender_FullTextRGB(char *, short, short, int, char, short);
@@ -114,25 +122,28 @@ void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTe
 void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
                            tMenuTextType textType);
 void  FeAudio_AsyncPlaySpeech(int, int);
-void *FECheat_IsCheatEnabled(...);
-int  GetNumPinkSlipsCars(...);
-void*  GetStockCar(...); void GetTrack(tTrackManager*, unsigned short, void*);
-tTrackInformation *GetTrackByID(tTrackManager*, short); void GetTrackToRace(tTournamentManager*, void*);
+void *FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: FECheat_IsCheatEnabled__F10tCheatCode */
+/* W58-A1: GetTrackByID / GetTrackToRace are tTrackManager / tTournamentManager members. */
 int   LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);
 char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
-void  Draw_MenuRenderingView(...); extern void *Draw_gPlayer1View;   /* int def in render.cpp */ /* W56-A1: real Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii; caller screencarselect.cpp:75 passes int** (gCView mistyped) -> needs caller fix; reported */
-void  SetOffset(...);
-void  SetValid(...); void Hide(void*); void Display(void*); void Redraw(void*);
+/* W58-A1 (08A phantom fix): Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii.
+ * The old `(...)` decl also default-promoted the two float args to double at the call
+ * site; the typed form keeps them float.  gCView is a real DRender_tView (render.cpp),
+ * not an int* -- the W56-A1 "caller passes int**" note is fixed here at the decl. */
+void  Draw_MenuRenderingView(Car_tObj *, DRender_tView *, int, int, int, unsigned long, int, float, float, int, int);
+extern void *Draw_gPlayer1View;   /* int def in render.cpp */
 
 
 /* re-added (varargs; one per line to avoid shared-line breakage) */
 void  AudioMus_StopSong(int); void  CleanupSpinningCarsMenu(void); void  DeInit_Memcard(void);
-void  DrawShape_NFS4TransRectangle(...); void  FETextRender_MenuTextPositioned(...); void  Init_Memcard(bool, bool);
- void  SetLicensePlate(void); void  TransformVector(...); void  UploadSwapShapes(...);
-int CalcUsedPrice(...); long CheapestCarStockPrice(...); int GetNumOwnedCars(...); int GetNumTourneyCars(...);
+/* W58-A1 (08A phantom fix): DrawShape_NFS4TransRectangle__FR4RECTs,
+ * FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType. */
+void  DrawShape_NFS4TransRectangle(RECT &, short); void  FETextRender_MenuTextPositioned(short, short, short, tMenuTextState, tMenuTextType); void  Init_Memcard(bool, bool);
+ void  SetLicensePlate(void); void  TransformVector(...);
+int GetNumOwnedCars(...); int GetNumTourneyCars(...);
 extern "C" CARDINFO_def *MCRD_getcard(int);
-void *Draw_GetDRAWENV(int, int); void *GetGarageCar(...); void *GetPinkSlipsCar(...); void *GetStockCar(...);
+void *Draw_GetDRAWENV(int, int); void *GetGarageCar(...); void *GetPinkSlipsCar(...);
 
 void PreLoad(tScreen*);
 #endif

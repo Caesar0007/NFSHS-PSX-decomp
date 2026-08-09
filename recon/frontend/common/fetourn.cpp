@@ -409,7 +409,7 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
 
   if (recalculate != 0) {
     cars = Cars_gNewCarStatsList;
-    GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
+    carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
     totalcarprice = carInfo.fPrices[0];
     for (i = 0; i < 2; i++) {
       mask = 1 << i;
@@ -613,12 +613,12 @@ short tTournamentManager::AdvanceToNextTrack()
       }
       if (this->fCompetitors[0].fPosition < 2) {
         if (ptVar9->fAwardCar != '\0') {
-          ptVar4 = GetCarFromID(&carManager, (ushort)ptVar9->fAwardCarModel);
+          ptVar4 = carManager.GetCarFromID((ushort)ptVar9->fAwardCarModel);
           (this->fAwards).fAwardCar = 1;
           (this->fAwards).fAwardCarModel = (uint)ptVar9->fAwardCarModel;
           (this->fAwards).fAwardCarColor = ptVar4->fDefaultColor;
           (this->fAwards).fAwardCarUpgrades = ptVar9->fAwardCarUpgrades;
-          sVar2 = GetNumOwnedCars(&carManager, 0);
+          sVar2 = carManager.GetNumOwnedCars(0);
           if (0x1f < sVar2) {
             (this->fAwards).fAwardCarGarageFull = 1;
             (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + ptVar4->fPrices[0];
@@ -649,18 +649,18 @@ short tTournamentManager::AdvanceToNextTrack()
             } while (i < (int)(uint)ptVar8->fNumTournaments);
           }
           if ((this->fAwards).fCompletedTier != 0) {
-            sVar2 = GetNumOwnedCars(&carManager, 0);
+            sVar2 = carManager.GetNumOwnedCars(0);
             iVar3 = (int)sVar2;
             if ((this->fAwards).fAwardCar != 0) {
               iVar3 = iVar3 + 1;
             }
             FECheat_ActivateBonus(this->fTier + cheat_FinishedTournament);
             (this->fAwards).fCompletedCar = this->fTier + cm_BonusCar1;
-            ptVar4 = GetCarFromID(&carManager, (short)(this->fAwards).fCompletedCar);
-            SetCarAvailable(&carManager, (this->fAwards).fCompletedCar,true);
-            SetCarViewable(&carManager, (this->fAwards).fCompletedCar,true);
+            ptVar4 = carManager.GetCarFromID((short)(this->fAwards).fCompletedCar);
+            carManager.SetCarAvailable((tCarModels)(this->fAwards).fCompletedCar,true);
+            carManager.SetCarViewable((tCarModels)(this->fAwards).fCompletedCar,true);
             if (iVar3 < 0x20) {
-              PurchaseCar(&carManager, (short)(this->fAwards).fCompletedCar,
+              carManager.PurchaseCar((short)(this->fAwards).fCompletedCar,
                          (ushort)ptVar4->fDefaultColor,0);
             }
             else {
@@ -785,7 +785,7 @@ long tTournamentManager::GetTrackFinishPrize(short position)
     currentTourney = &this->fDefinition->fTournaments[
         this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
     if ((currentTourney->fOpponentCarClass == '\n') &&
-       (GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0),
+       (carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0),
        carInfo.fCarClass < 7)) {
       carPrice = carInfo.fPrices[0];
       if ((carInfo.fUpgrades & 1) != 0) {
@@ -851,22 +851,22 @@ void tTournamentManager::UpdateAwardInformation()
     FECheat_ActivateBonus((this->fAwards).fActivateCarClass);
   }
   if (((this->fAwards).fActivateFlags & 4) != 0) {
-    SetCarAvailable(&carManager, (this->fAwards).fActivateCar,true);
+    carManager.SetCarAvailable((tCarModels)(this->fAwards).fActivateCar,true);
   }
   if (((this->fAwards).fActivateFlags & 1) != 0) {
-    SetTrackAvailable(&trackManager,(ushort)(byte)(this->fAwards).fActivateTrack,true);
+    trackManager.SetTrackAvailable((ushort)(byte)(this->fAwards).fActivateTrack,true);
   }
   if (((this->fAwards).fActivateFlags & 8) != 0) {
-    SetClassAvailable(&trackManager,(this->fAwards).fActivateTrackClass,true);
+    trackManager.SetClassAvailable((tTrackClassType)(this->fAwards).fActivateTrackClass,true);
   }
   if (((this->fAwards).fActivateFlags & 0x10) != 0) {
     FECheat_ActivateBonus((this->fAwards).fActivateCheat);
   }
   if (((this->fAwards).fAwardCar != 0) && ((this->fAwards).fAwardCarGarageFull == 0)) {
-    ptVar3 = GetCarFromID(&carManager, (short)(this->fAwards).fAwardCarModel);
-    PurchaseCar(&carManager, (short)(this->fAwards).fAwardCarModel,
+    ptVar3 = carManager.GetCarFromID((short)(this->fAwards).fAwardCarModel);
+    carManager.PurchaseCar((short)(this->fAwards).fAwardCarModel,
                (short)(signed char)ptVar3->fColorOrder[(byte)(this->fAwards).fAwardCarColor],0);
-    PurchaseUpgrade(&carManager, (ushort)(byte)frontEnd.garageCar[0],
+    carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],
                (ushort)(byte)(this->fAwards).fAwardCarUpgrades,0);
   }
   return;

@@ -49,7 +49,7 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
   if (reflected != 0) {
     drawFlags.tint[0] = CalcFadeVal(0,drawFlags.tint[0],0xe0 - rect->y);
   }
-  DrawShape_SubtractNFS4RectEdges(rect);
+  DrawShape_SubtractNFS4RectEdges(*rect);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
   if (-1 < helpText) {
     daprim = Render_gPacketPtr;
     temp.x = 0;
@@ -508,7 +508,7 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
   r.y = (short)y;
   r.w = 0x129;
   r.h = left->height;
-  DrawShape_NFS4RoundRectangle(-1,&r,(short)selected);
+  DrawShape_NFS4RoundRectangle(-1,r,(short)selected);
   return;
 }
 
@@ -589,8 +589,8 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   this->fOnOffFade = sVar3;
   Col = CalcTextFadeSelToHi(textType_Options,this->fSelFade,0);
   CalcOnOffFade(textType_Options,this->fOnOffFade,
-             this->fSelFade,0,&ColTextOn,
-             &ColTextOff);
+             this->fSelFade,0,ColTextOn,
+             ColTextOff);   /* W58-A1: decl is int& (was `(...)`) -- same $a4/$a5 addresses */
   pcVar5 = TextSys_Word(this->fTextDescription);
   sVar6 = (short)((u_int)((y + 3) * 0x10000) >> 0x10);
   FETextRender_FullTextRGB(pcVar5,(short)((u_int)((x + 0x94) * 0x10000) >> 0x10),sVar6,Col,'\0',1);
@@ -610,7 +610,7 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   r.y = (short)y;
   r.w = 0x129;
   r.h = left->height;
-  DrawShape_NFS4RoundRectangle(-1,&r,(short)selected);
+  DrawShape_NFS4RoundRectangle(-1,r,(short)selected);
   return;
 }
 

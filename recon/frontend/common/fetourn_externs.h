@@ -28,18 +28,16 @@ void tListIterator_ctor(tListIterator*, short*, char*);
 
 /* ===== eaclib / syslib / game helpers ===== */
 char *TextSys_Word(int);
-void  GetGarageCar(tCarManager*, unsigned short, tCarInfo*, int);
-void  GetStockCar(tCarManager*, unsigned short, tCarInfo*, int);
+/* W58-A1: GetGarageCar / GetCarFromID / GetStockCar are tCarManager members -- the free
+ * decls mangled to ..__FP11tCarManager.. phantoms that the link can never resolve. */
 void  tListIterator_dtor(tListIterator*);
-void *GetCarFromID(tCarManager*, int);
 void  FECheat_ActivateBonus(int);
 int   FECheat_IsCheatEnabled(tCheatCode);
-void  SetCarAvailable(...);
-void  SetTrackAvailable(...);
-void  SetClassAvailable(...);
-void  SetCarViewable(...);
-void  PurchaseCar(...);
-void  PurchaseUpgrade(...);
-int   GetNumOwnedCars(...);
+/* W58-A1 (08A phantom fix): SetCarAvailable / SetTrackAvailable / SetClassAvailable /
+ * SetCarViewable / PurchaseCar / PurchaseUpgrade / GetNumOwnedCars are tCarManager /
+ * tTrackManager MEMBERS (real symbols ..__11tCarManager.. / ..__13tTrackManager..).
+ * The free `(...)` decls mangled every call site as `..__Fe`, which never links.
+ * Call sites now use carManager./trackManager. member form; the member decls live in
+ * nfs4_types.h.  Byte-neutral: `this` rides $a0 exactly like the old explicit ptr. */
 
 #endif

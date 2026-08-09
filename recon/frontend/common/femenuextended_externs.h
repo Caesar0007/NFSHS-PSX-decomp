@@ -30,7 +30,11 @@ extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenhe
 extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
 /* FEMenuExtended-specific helpers */
-void  DrawShape_SubtractNFS4RectEdges(...);  void DrawShape_NFS4RoundRectangle(...); /* W56-A1: ref-decl DrawShape_SubtractNFS4RectEdges(RECT&) needs caller femenuextended.cpp:40 rect->*rect; reported */
+/* W58-A1 (08A phantom fix): TRUE prototypes from configs/symbol_addrs.txt --
+ * DrawShape_SubtractNFS4RectEdges__FR4RECT, DrawShape_NFS4RoundRectangle__FiR4RECTs.
+ * The old `(...)` decls mangled every call site as `..__Fe` (never links). Byte-
+ * neutral: a RECT& arg passes the same address in $a0 as the old RECT* did. */
+void  DrawShape_SubtractNFS4RectEdges(RECT &);  void DrawShape_NFS4RoundRectangle(int, RECT &, short);
 void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_upper(char*);
 /* TRUE prototypes (2026-08-02, user-approved): the old variadic `(...)` decls mangled as
  * phantom symbols at the Font_SetBlitter(FontUpsideDownBlit) address-take sites -- byte-
@@ -38,6 +42,9 @@ void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_uppe
 void  Font_SetBlitter(void (*)(int,int,void *,int,int,charactertbl *,int));
 void  Font_ReSetBlitter();
 void  FontUpsideDownBlit(int,int,void *,int,int,charactertbl *,int);
-void  MenuNFS4_SetHelpPos(...);  int CalcOnOffFade(...);  extern int screenwidth;
+void  MenuNFS4_SetHelpPos(...);  extern int screenwidth;
+/* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
+ * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&. */
+int   CalcOnOffFade(tMenuTextType, short, short, short, int &, int &);
 void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextState,tMenuTextType);
 #endif

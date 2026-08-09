@@ -53,5 +53,9 @@ int  TextSys_WordFlags(int);
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char*);
 extern short _UNK_80010a02,_UNK_80010a06,_UNK_80010a0a;
 void FeMenuOptions_drawLeftFlareOut(int,int,int);  void FeAudio_AsyncPlaySpeech(int, int);
-int  FECheat_ActivateBonusByCode(char*);  int CalcOnOffFade(...);
+int  FECheat_ActivateBonusByCode(char*);
+/* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
+ * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&.  The old
+ * `(...)` decl mangled both call sites as CalcOnOffFade__Fe (never links). */
+int  CalcOnOffFade(tMenuTextType, short, short, short, int &, int &);
 #endif

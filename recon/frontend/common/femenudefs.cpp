@@ -40,7 +40,7 @@ extern "C" void MenuExtended_SetOnePlayer__FR12tMenuCommand(tMenuCommand *comman
   }
   else {
     frontEnd.gameMode = '\0';
-    SwapBackground(screenMain[0],-1);
+    screenMain[0]->SwapBackground(-1);
   }
   return;
 }
@@ -64,7 +64,7 @@ extern "C" void MenuExtended_SetTwoPlayer__FR12tMenuCommand(tMenuCommand *comman
   else {
     frontEnd.gameMode = '\x01';
     frontEnd.oppNumber = '\0';
-    SwapBackground(screenMain[0],-1);
+    screenMain[0]->SwapBackground(-1);
   }
   return;
 }
@@ -118,7 +118,7 @@ extern "C" void MenuExtended_SetSingleRace__FR12tMenuCommand(tMenuCommand *comma
   frontEnd.carListType = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\0';
-  SwapBackground(screenMain[0],-1);
+  screenMain[0]->SwapBackground(-1);
   return;
 }
 
@@ -145,7 +145,7 @@ extern "C" void MenuExtended_SetTournament__FR12tMenuCommand(tMenuCommand *comma
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.tier = '\0';
   frontEnd.raceType = '\x02';
-  SwapBackground(screenMain[0],-1);
+  screenMain[0]->SwapBackground(-1);
   return;
 }
 
@@ -172,7 +172,7 @@ extern "C" void MenuExtended_SetSpecialEvent__FR12tMenuCommand(tMenuCommand *com
   frontEnd.tier = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\x02';
-  SwapBackground(screenMain[0],-1);
+  screenMain[0]->SwapBackground(-1);
   return;
 }
 
@@ -244,23 +244,23 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
 
   dlgThis = &YesNoDialog;
   *(void **)&(dlgThis->_vf) = (void *)&tDialogYesNoTri_vtable;
-  uVar2 = GetNumOwnedCars(&carManager, 0);
+  uVar2 = carManager.GetNumOwnedCars(0);
   if ((int)((uint)uVar2 << 0x10) < 1) {
     dlgThis->string =
          TextSys_Word(0x42);
     dlgThis->yesnowords[0] = 0x321;
     dlgThis->yesnowords[1] = 0x322;
     dlgThis->fDefault = 0;
-    sVar3 = Run((tDialogInteractive *)dlgThis);
+    sVar3 = ((tDialogInteractive *)dlgThis)->Run();
     if (sVar3 == 1) {
       ptVar1 = menuDefs[0];
       frontEnd.raceType = '\0';
       command->type = kMenu_Command_GoToMenu;
-      Decrement(&ptVar1->iteratorDealerCar,kPlayerBoth);
-      Increment(&menuDefs[0]->iteratorDealerCar,kPlayerBoth);
+      ptVar1->iteratorDealerCar.Decrement(kPlayerBoth);
+      menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
       this_00 = screenCarSelect[0];
       command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
-      SetState(this_00,2);
+      this_00->SetState(2);
     }
   }
   else {
@@ -296,7 +296,7 @@ extern "C" void MenuExtended_SetDuelRace__FR12tMenuCommand(tMenuCommand *command
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\x01';
-  SwapBackground(screenMain[0],-1);
+  screenMain[0]->SwapBackground(-1);
   return;
 }
 
@@ -322,7 +322,7 @@ extern "C" void MenuExtended_SetFullGrid__FR12tMenuCommand(tMenuCommand *command
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\x02';
-  SwapBackground(screenMain[0],-1);
+  screenMain[0]->SwapBackground(-1);
   return;
 }
 
@@ -360,7 +360,7 @@ int AskTheUserToSaveTheGame(void)
     ((tDialogYesNo *)dlgThis)->yesnowords[0] = 0x321;
     ((tDialogYesNo *)dlgThis)->yesnowords[1] = 0x322;
     ((tDialogYesNo *)dlgThis)->fDefault = 0;
-    answer = (short)Run((tDialogInteractive *)dlgThis);
+    answer = (short)((tDialogInteractive *)dlgThis)->Run();
     return answer;
   }
   return 0;
@@ -437,11 +437,11 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
   uint state;
   tTrackInformation trackInfo;
   
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-             &trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+             trackInfo);
   if (trackInfo.fAvailable == '\0') {
     dialog->string = TextSys_Word(0xeb);
-    Display((tDialogBase *)dialog);
+    ((tDialogBase *)dialog)->Display();
     return;
   }
   if (frontEnd.gameMode == '\x01') {
@@ -467,7 +467,7 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
       else {
         command->nextMenu = (tMenu*)&menuDefs[0]->menuDuelCarSelect;
       }
-      SetState((tScreenCarSelect *)screenCarSelectDuel,7);
+      ((tScreenCarSelect *)screenCarSelectDuel)->SetState(7);
     }
     else {
       command->type = kMenu_Command_GoToMenu;
@@ -482,7 +482,7 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
         screen = screenCarSelect[0];
       }
       command->nextMenu = nextMenu;
-      SetState(screen,state);
+      screen->SetState(state);
     }
   }
   switch (frontEnd.raceType) {
@@ -510,13 +510,13 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
     break;
   }
   if (frontEnd.carListType == '\0') {
-    Decrement(&menuDefs[0]->iteratorCar1,kPlayerOne);
-    Increment(&menuDefs[0]->iteratorCar1,kPlayerOne);
-    Decrement(&menuDefs[0]->iteratorCar1,kPlayerTwo);
-    Increment(&menuDefs[0]->iteratorCar1,kPlayerTwo);
+    menuDefs[0]->iteratorCar1.Decrement(kPlayerOne);
+    menuDefs[0]->iteratorCar1.Increment(kPlayerOne);
+    menuDefs[0]->iteratorCar1.Decrement(kPlayerTwo);
+    menuDefs[0]->iteratorCar1.Increment(kPlayerTwo);
   }
   else {
-    if ((int)((uint)GetNumOwnedCars(&carManager, 0) << 0x10) < 1) {
+    if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) {
       if (frontEnd.raceType == '\x01') {
         if (frontEnd.oppNumber == '\x01') goto MX_GoToCar_oppFilterSetup;
         goto MX_GoToCar_garageIter;
@@ -524,11 +524,11 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
     }
     else {
 MX_GoToCar_garageIter:
-      Decrement(&menuDefs[0]->iteratorGarageCar,kPlayerOne);
-      Increment(&menuDefs[0]->iteratorGarageCar,kPlayerOne);
+      menuDefs[0]->iteratorGarageCar.Decrement(kPlayerOne);
+      menuDefs[0]->iteratorGarageCar.Increment(kPlayerOne);
       if (frontEnd.gameMode == '\x01') {
-        Decrement(&menuDefs[0]->iteratorGarageCar,kPlayerTwo);
-        Increment(&menuDefs[0]->iteratorGarageCar,kPlayerTwo);
+        menuDefs[0]->iteratorGarageCar.Decrement(kPlayerTwo);
+        menuDefs[0]->iteratorGarageCar.Increment(kPlayerTwo);
       }
     }
   }
@@ -537,8 +537,8 @@ MX_GoToCar_garageIter:
   }
 MX_GoToCar_oppFilterSetup:
   if (frontEnd.raceType != '\x02') {
-    Decrement(&menuDefs[0]->iteratorOpponentCar,kPlayerBoth);
-    Increment(&menuDefs[0]->iteratorOpponentCar,kPlayerBoth);
+    menuDefs[0]->iteratorOpponentCar.Decrement(kPlayerBoth);
+    menuDefs[0]->iteratorOpponentCar.Increment(kPlayerBoth);
     (menuDefs[0]->iteratorOpponentCar).fCarListFilter = 1;
   }
   return;
@@ -595,9 +595,9 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
   ptVar1 = menuDefs[0];
   command->type = cmdType;
   command->nextMenu = (tMenu *)&ptVar1->menuCarDealer;
-  SetState(dlgThis,2);
-  Decrement(&menuDefs[0]->iteratorDealerCar,kPlayerBoth);
-  Increment(&menuDefs[0]->iteratorDealerCar,kPlayerBoth);
+  dlgThis->SetState(2);
+  menuDefs[0]->iteratorDealerCar.Decrement(kPlayerBoth);
+  menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
   return;
 }
 
@@ -634,9 +634,9 @@ extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
   ptVar1 = menuDefs[0];
   command->type = cmdType;
   command->nextMenu = (tMenu *)&ptVar1->menuCarSeller;
-  SetState(dlgThis,3);
-  Decrement(&menuDefs[0]->iteratorSellerCar,kPlayerBoth);
-  Increment(&menuDefs[0]->iteratorSellerCar,kPlayerBoth);
+  dlgThis->SetState(3);
+  menuDefs[0]->iteratorSellerCar.Decrement(kPlayerBoth);
+  menuDefs[0]->iteratorSellerCar.Increment(kPlayerBoth);
   return;
 }
 
@@ -658,7 +658,7 @@ extern "C" void MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand *comman
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
   command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuCarUpgrades;
-  SetState(screenCarSelect[0],4);
+  screenCarSelect[0]->SetState(4);
   return;
 }
 
@@ -676,7 +676,7 @@ extern "C" void MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand *comman
    for the string store while the Display arg stays a FRESH `&FEApp->NoInputMemCardDialog` read
    (oracle: `addiu s0,s0,720` held + a separate `lw a0,0(s1); addiu a0,a0,720` for the call);
    (2) EXIT-IN-THE-MIDDLE loop `while(1){ app = FEApp; if((app->...fFullyOpen ^ 1)==0) break;
-   Redraw(app); }` + the post-loop `Redraw(app)` REUSING the loop's last-loaded app -- that kills
+   app->Redraw(); }` + the post-loop `Redraw(app)` REUSING the loop's last-loaded app -- that kills
    gcc's duplicate_loop_exit_test rotation (ours had the guard AND a bottom re-test = 6 extra
    insns) and reproduces the oracle's a0-reuse after the loop. */
 
@@ -700,20 +700,20 @@ void * GenericMenuSaveGame(int showdialog)
      GenericMenuLoadGame (3.15) -- not source-reachable. The `app` cache reuses one saved reg in
      the Display block (58 vs the pure-literal 59). */
   screenMemcard->message = 0x27e;
-  Redraw(FEApp);
+  FEApp->Redraw();
   successful = false;
   if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
     tDialogNoInputMessage *noInput = &FEApp->NoInputMemCardDialog;
 
     pcVar4 = TextSys_Word(0x282);
     noInput->string = pcVar4;
-    Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
+    ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (1) {
       app = FEApp;
       if (((app->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
-      Redraw(app);
+      app->Redraw();
     }
-    Redraw(app);
+    app->Redraw();
     if (MEMCARD_INITIALIZED == 0) {
       successful = true;
       Init_Memcard(true,0);
@@ -724,7 +724,7 @@ void * GenericMenuSaveGame(int showdialog)
   if (successful) {
     DeInit_Memcard();
   }
-  Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+  ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   return pvVar5;
 }
 
@@ -761,7 +761,7 @@ void * PinkSlipsPreSave(void)
       dlgThis->yesnowords[0] = 0x321;
       dlgThis->yesnowords[1] = 0x322;
       dlgThis->fDefault = 0;
-      sVar1 = Run((tDialogInteractive *)dlgThis);
+      sVar1 = ((tDialogInteractive *)dlgThis)->Run();
       if (sVar1 == 1) {
         ret = GenericMenuSaveGame(1);
       }
@@ -896,41 +896,41 @@ extern "C" void MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand *command)
   command->type = kMenu_Command_StartRace;
   popUp = &ptVar1->messagePopup;
   if (((frontEnd.carListType == '\x01') &&
-      (uVar2 = GetNumOwnedCars(&carManager, 0), (int)((uint)uVar2 << 0x10) <= 0)) &&
+      (uVar2 = carManager.GetNumOwnedCars(0), (int)((uint)uVar2 << 0x10) <= 0)) &&
      ((frontEnd.raceType != '\x01') && (frontEnd.raceType != '\x06'))) {
     pcVar3 = TextSys_Word(0xaa);
     popUp->string = pcVar3;
-    Display((tDialogBase *)popUp);
+    ((tDialogBase *)popUp)->Display();
     command->type = kMenu_Command_None;
     return;
   }
   if ((frontEnd.raceType == '\x02') &&
-     (uVar2 = GetNumTourneyCars(&carManager, 0), (int)((uint)uVar2 << 0x10) < 1)) {
+     (uVar2 = carManager.GetNumTourneyCars(0), (int)((uint)uVar2 << 0x10) < 1)) {
     pcVar3 = TextSys_Word(0xf1);
     popUp->string = pcVar3;
-    Display((tDialogBase *)popUp);
+    ((tDialogBase *)popUp)->Display();
     command->type = kMenu_Command_None;
     return;
   }
   if ((frontEnd.raceType == '\x01') &&
-     (GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo),
+     (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo),
       carInfo.fPursuitAvailable == '\x00')) {
     pcVar3 = TextSys_Word(0xf2);
     popUp->string = pcVar3;
-    Display((tDialogBase *)popUp);
+    ((tDialogBase *)popUp)->Display();
     command->type = kMenu_Command_None;
     return;
   }
   if (frontEnd.carListType != '\x00') {
     return;
   }
-  GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo);
+  carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
   if (carInfo.fAvailable != '\x00') {
     return;
   }
   pcVar3 = TextSys_Word(0xf3);
   popUp->string = pcVar3;
-  Display((tDialogBase *)popUp);
+  ((tDialogBase *)popUp)->Display();
   command->type = kMenu_Command_None;
   return;
 }
@@ -968,33 +968,33 @@ extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *com
     return;
   }
   if (((frontEnd.carListType == '\x01') &&
-      (uVar2 = GetNumOwnedCars(&carManager, 0), (int)((uint)uVar2 << 0x10) <= 0)) &&
+      (uVar2 = carManager.GetNumOwnedCars(0), (int)((uint)uVar2 << 0x10) <= 0)) &&
      (frontEnd.raceType != '\x01')) {
     pcVar3 = TextSys_Word(0xaa);
     popUp->string = pcVar3;
-    Display((tDialogBase *)popUp);
+    ((tDialogBase *)popUp)->Display();
     command->type = kMenu_Command_None;
     return;
   }
   if ((frontEnd.carListType == '\x00') &&
-     (GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],&carInfo),
+     (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],carInfo),
       carInfo.fAvailable == '\x00')) {
     pcVar3 = TextSys_Word(0xf3);
     popUp->string = pcVar3;
-    Display((tDialogBase *)popUp);
+    ((tDialogBase *)popUp)->Display();
     command->type = kMenu_Command_None;
     return;
   }
   if (frontEnd.raceType != '\x01') {
     return;
   }
-  GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],&carInfo);
+  carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],carInfo);
   if (carInfo.fPursuitAvailable != '\x00') {
     return;
   }
   pcVar3 = TextSys_Word(0xf2);
   popUp->string = pcVar3;
-  Display((tDialogBase *)popUp);
+  ((tDialogBase *)popUp)->Display();
   command->type = kMenu_Command_None;
   return;
 }
@@ -1066,7 +1066,7 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
       this_00 = &ptVar1->messagePopup;
       pcVar5 = TextSys_Word(0xf6);
       this_00->string = pcVar5;
-      Display((tDialogBase *)this_00);
+      ((tDialogBase *)this_00)->Display();
       return;
     }
     {
@@ -1078,7 +1078,7 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
       pp->yesnowords[0] = 0x322;
       pp->yesnowords[1] = 0x321;
       pp->fDefault = 0;
-      sVar4 = Run((tDialogInteractive *)pp);
+      sVar4 = ((tDialogInteractive *)pp)->Run();
       if (sVar4 == 0) {
         return;
       }
@@ -1086,7 +1086,7 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
       tournamentManager.fMoney = tournamentManager.fMoney - tsaved->fEntranceFee;
     }
   }
-  StartNewTournament(&tournamentManager,0,frontEnd.tournament);
+  tournamentManager.StartNewTournament(0,frontEnd.tournament);
   ptVar2 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
   command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuTrackInfo;
@@ -1158,7 +1158,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
       this_00 = &ptVar1->messagePopup;
       pcVar5 = TextSys_Word(0xf6);
       this_00->string = pcVar5;
-      Display((tDialogBase *)this_00);
+      ((tDialogBase *)this_00)->Display();
       return;
     }
     {
@@ -1170,7 +1170,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
       pp->yesnowords[0] = 0x321;
       pp->yesnowords[1] = 0x322;
       pp->fDefault = 0;
-      sVar4 = Run((tDialogInteractive *)pp);
+      sVar4 = ((tDialogInteractive *)pp)->Run();
       if (sVar4 == 0) {
         return;
       }
@@ -1178,7 +1178,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
       tournamentManager.fMoney = tournamentManager.fMoney - tsaved->fEntranceFee;
     }
   }
-  StartNewTournament(&tournamentManager,1,frontEnd.specialevent);
+  tournamentManager.StartNewTournament(1,frontEnd.specialevent);
   ptVar2 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
   command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuTrackInfo;
@@ -1269,7 +1269,7 @@ extern "C" void MenuExtended_GoToShowroom__FR12tMenuCommand(tMenuCommand *comman
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
   command->nextMenu = (tMenu *)&ptVar1->menuShowroom;
-  SetState(screenCarSelect[0],5);
+  screenCarSelect[0]->SetState(5);
   return;
 }
 
@@ -1291,7 +1291,7 @@ extern "C" void MenuExtended_GoToDealerShowroom__FR12tMenuCommand(tMenuCommand *
   ptVar1 = menuDefs[0];
   command->type = kMenu_Command_GoToMenu;
   command->nextMenu = (tMenu *)&ptVar1->menuShowroom;
-  SetState(screenCarSelect[0],6);
+  screenCarSelect[0]->SetState(6);
   return;
 }
 
@@ -1433,11 +1433,11 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
      the w43 (x^1)/boolean-branch class), + a saved-reg-count/frame delta (ours 208/4-sreg vs
      oracle 200/3-sreg) -- coloring, allocsim/qtytrace class. */
   money = tournamentManager.fMoney;
-  money = money + CalcUsedPrice(&carManager, (ushort)(byte)frontEnd.garageCar[0]);
+  money = money + carManager.CalcUsedPrice((ushort)(byte)frontEnd.garageCar[0]);
   bVar1 = false;
-  sVar3 = GetNumOwnedCars(&carManager, 0);
+  sVar3 = carManager.GetNumOwnedCars(0);
   if ((1 < sVar3) ||
-     (CheapestCarStockPrice(&carManager) <= money)) {
+     (carManager.CheapestCarStockPrice() <= money)) {
     bVar1 = true;
   }
   ptVar2 = FEApp;
@@ -1450,12 +1450,12 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
     pp->yesnowords[0] = 0x321;
     pp->yesnowords[1] = 0x322;
     pp->fDefault = 0;
-    sVar3 = Run((tDialogInteractive *)&popUp);
+    sVar3 = ((tDialogInteractive *)&popUp)->Run();
     if (sVar3 != 0) {
-      lVar6 = SellCar(&carManager, (ushort)(byte)frontEnd.sellerCar,0);
+      lVar6 = carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0);
       tournamentManager.fMoney = tournamentManager.fMoney + lVar6;
-      Decrement(&menuDefs[0]->iteratorSellerCar,kPlayerOne);
-      Increment(&menuDefs[0]->iteratorSellerCar,kPlayerOne);
+      menuDefs[0]->iteratorSellerCar.Decrement(kPlayerOne);
+      menuDefs[0]->iteratorSellerCar.Increment(kPlayerOne);
       AudioCmn_PlayFESFX(0x1a);
     }
   }
@@ -1463,7 +1463,7 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
     this_00 = &FEApp->messagePopup;
     pcVar7 = TextSys_Word(0xa9);
     this_00->string = pcVar7;
-    Display((tDialogBase *)this_00);
+    ((tDialogBase *)this_00)->Display();
   }
   return;
 }
@@ -1522,8 +1522,8 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
      loads (fMoney 20 / price) issued in swapped order -- the coloring/sched-tie class (4.6). */
   ptVar1 = FEApp;
   this_00 = &FEApp->messagePopup;
-  GetStockCar(&carManager, (ushort)(byte)frontEnd.dealerCar,&carInfo);
-  sVar2 = GetNumOwnedCars(&carManager, 0);
+  carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
+  sVar2 = carManager.GetNumOwnedCars(0);
   popUp = this_00;
   __asm__("" : "+r" (popUp));
   if (sVar2 < 0x20) {
@@ -1536,9 +1536,9 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
       pp->yesnowords[0] = 0x321;
       pp->yesnowords[1] = 0x322;
       yesNo.fDefault = 0;
-      sVar2 = Run((tDialogInteractive *)&yesNo);
+      sVar2 = ((tDialogInteractive *)&yesNo)->Run();
       if (sVar2 != 0) {
-        lVar3 = PurchaseCar(&carManager, (short)carInfo.fCarID,
+        lVar3 = carManager.PurchaseCar((short)carInfo.fCarID,
                            (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0);
         tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
         AudioCmn_PlayFESFX(0x1a);
@@ -1552,10 +1552,10 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   else {
     pcVar4 = TextSys_Word(0x4b);
     popUp->string = pcVar4;
-    Display((tDialogBase *)popUp);
+    ((tDialogBase *)popUp)->Display();
     return;
   }
-  Display((tDialogBase *)this_00);
+  ((tDialogBase *)this_00)->Display();
   return;
 }
 
@@ -1619,7 +1619,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      fMoney into a reg early (4 diffs). Pure sched1 ready-list pick on two independent loads --
      the qtytrace/sched-instrument class (methodology 4.6), not reachable by operand/split here. */
   uVar5 = 1 << (upgradeNumber);
-  GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
+  carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
   if ((carInfo.fUpgrades & uVar5) == 0) {
     if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.fMoney) {
       tDialogYesNo popUp;
@@ -1630,9 +1630,9 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
       pp->yesnowords[0] = 0x321;
       pp->yesnowords[1] = 0x322;
       popUp.fDefault = 0;
-      sVar2 = Run((tDialogInteractive *)&popUp);
+      sVar2 = ((tDialogInteractive *)&popUp)->Run();
       if (sVar2 != 0) {
-        lVar3 = PurchaseUpgrade(&carManager, (ushort)(byte)frontEnd.garageCar[0],(short)uVar5,0);
+        lVar3 = carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],(short)uVar5,0);
         tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
         AudioCmn_PlayFESFX(0x1a);
       }
@@ -1642,7 +1642,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
       dlgThis = &ptVar1->messagePopup;
       pcVar4 = TextSys_Word(0xa8);
       dlgThis->string = pcVar4;
-      Display((tDialogBase *)dlgThis);
+      ((tDialogBase *)dlgThis)->Display();
     }
   }
   return;
@@ -1783,12 +1783,12 @@ void GenericMenuLoadGame(int player)
      3.15 reload tie-break verdict above. WALL, accept. */
   if (CURRENTLYUSINGMEMCARD == 0) {
     (*(tScreenMemcard *volatile *)&screenMemcard)->message = 0x27d;
-    Redraw(*(tFEApplication *volatile *)&FEApp);
+    (*(tFEApplication *volatile *)&FEApp)->Redraw();
     LoadGame((short)player,false,1);
     (*(tScreenMemcard *volatile *)&screenMemcard)->message = -1;
-    Hide((tDialogBase *)&(*(tFEApplication *volatile *)&FEApp)->NoInputMemCardDialog);
+    ((tDialogBase *)&(*(tFEApplication *volatile *)&FEApp)->NoInputMemCardDialog)->Hide();
   }
-  Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+  ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   return;
 }
 
@@ -1844,7 +1844,7 @@ extern "C" void MenuExtended_LoadGame__FR12tMenuCommand(tMenuCommand *command)
     dlgThis->yesnowords[1] = 0x322;
     dlgThis->fDefault = 0;
     dlgThis->string = TextSys_Word(0x2c0);
-    sVar1 = Run((tDialogInteractive *)dlgThis);
+    sVar1 = ((tDialogInteractive *)dlgThis)->Run();
     if (sVar1 != 0) {
       GenericMenuLoadGame((int)screenMemcard->player);
     }
@@ -1874,7 +1874,7 @@ extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *comman
   tAwardInformation award;
   
   command->type = kMenu_Command_GoToMenuOneWay;
-  GetAwardInformation(&tournamentManager,&award);
+  tournamentManager.GetAwardInformation(award);
   if (award.fCompletedTier != 0) {
     ptVar2 = (tMenu *)&menuDefs[0]->menuTierCompleteCongrats;
   }
@@ -1933,16 +1933,16 @@ int MenuExtended_DidUserWinBeTheCop(void)
      guard chain (04T `return VARIABLE;` keeps DISTINCT return sites -> the oracle's
      `addu v0,s3,zero` in each guard's delay slot) reproduces the 4-saved-reg frame. */
   result = 0;
-  GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo);
+  carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
   if (carInfo.fCarClass == '\a') {
     if (frontEnd.raceType == '\x01') {
       if (frontEnd.gameMode != '\x01') {
         if (GameSetup_gData.finalPerpArrests > GameSetup_gData.numPerps) {
-          activateCar = GetCarFromID(&carManager,
+          activateCar = carManager.GetCarFromID(
                                      (short)gCarActivation[(signed char)carInfo.fCarID + -0x16]
                                          [(signed char)frontEnd.carCountry[0][(signed char)carInfo.fCarID]]);
           if (activateCar->fAvailable == '\0') {
-            SetCarAvailable(&carManager, (int)activateCar->fCarID,true);
+            carManager.SetCarAvailable((tCarModels)activateCar->fCarID,true);
             frontEnd.congratsCopCar = activateCar->fCarID;
             frontEnd.congratsCopCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
             result = 1;
@@ -1985,7 +1985,7 @@ extern "C" void MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand *comman
   command->type = kMenu_Command_GoToMenuOneWay;
   switch (frontEnd.raceType) {
   case 2:
-    sVar1 = IsTournamentFinished(&tournamentManager);
+    sVar1 = tournamentManager.IsTournamentFinished();
     if (sVar1 != 0) {
       command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentFinished;
       dlgThis = screenTournamentStandings;
@@ -2149,7 +2149,7 @@ extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *comman
 {
   short i;
 
-  SwapBackground(screenMain[0],-1);
+  screenMain[0]->SwapBackground(-1);
   frontEnd.raceType = '\x06';
   frontEnd.gameMode = '\x01';
   frontEnd.oppNumber = '\0';
@@ -2180,7 +2180,7 @@ extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *comman
 
 /* [W57-A1 2026-08-09, 91->10] Five levers: (1) `dlgThis2 = &RetryCancelDialog` anchor for the
    yesnowords/fDefault stores; (2) BOTH fFullyOpen spin loops rewritten exit-in-the-middle
-   (`while(1){ ptVar2 = FEApp; if((...fFullyOpen ^ 1)==0) break; Redraw(ptVar2);} Redraw(ptVar2);`)
+   (`while(1){ ptVar2 = FEApp; if((...fFullyOpen ^ 1)==0) break; ptVar2->Redraw();} ptVar2->Redraw();`)
    -- kills duplicate_loop_exit_test's rotation and reuses the last-loaded a0 for the post-loop
    Redraw, exactly like GenericMenuSaveGame; (3) the two NoInputMemCardDialog anchors made SEPARATE
    locals (one shared local forced a callee-saved pseudo + an extra `addu a0,sN,zero`; the first
@@ -2231,36 +2231,36 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   sprintf(string,pcVar4,pcVar5,player + 1);
   dlgThis3 = &FEApp->NoInputMemCardDialog;
   dlgThis3->string = string;
-  Display((tDialogBase *)dlgThis3);
+  ((tDialogBase *)dlgThis3)->Display();
   while (1) {
     ptVar2 = FEApp;
     if (((ptVar2->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
-    Redraw(ptVar2);
+    ptVar2->Redraw();
   }
-  Redraw(ptVar2);
+  ptVar2->Redraw();
   Init_Memcard(false,1);
-  GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1 - player],&carInfo,
+  carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1 - player],carInfo,
              (short)(1 - player));
-  AddToPinkSlipsList(&carManager, (short)carInfo.fCarID,(ushort)carInfo.fColor,playerNum);
-  AddUpgradesToPinkSlipsList(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[player],(ushort)carInfo.fUpgrades,
+  carManager.AddToPinkSlipsList((short)carInfo.fCarID,(ushort)carInfo.fColor,playerNum);
+  carManager.AddUpgradesToPinkSlipsList((ushort)(byte)frontEnd.pinkSlipsCar[player],(ushort)carInfo.fUpgrades,
              playerNum);
   SavePinkSlipsCarsWithErrorDialogs(playerNum,2,-1);
-  Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+  ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   command->type = kMenu_Command_GoToMenuOneWay;
   command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuMain;
   this_00 = &FEApp->NoInputMemCardDialog;
   pcVar4 = TextSys_Word(0x274);
   this_00->string = pcVar4;
-  Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
+  ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
   while (1) {
     ptVar2 = FEApp;
     if (((ptVar2->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
-    Redraw(ptVar2);
+    ptVar2->Redraw();
   }
-  Redraw(ptVar2);
+  ptVar2->Redraw();
   GenericMenuLoadGame(0);
   DeInit_Memcard();
-  Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+  ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   ptVar3 = menuDefs[0];
   command->type = kMenu_Command_GoToMenuOneWay;
   command->nextMenu = (tMenu *)(tMenu*)&ptVar3->menuMain;
@@ -2297,8 +2297,8 @@ extern "C" void MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand *command)
   frontEnd.carListType = '\x01';
   this_00 = &menuDefs[0]->iteratorGarageCar;
   this_00->fCarListFilter = 0x40;
-  Decrement(this_00,kPlayerBoth);
-  Increment(&menuDefs[0]->iteratorGarageCar,kPlayerBoth);
+  this_00->Decrement(kPlayerBoth);
+  menuDefs[0]->iteratorGarageCar.Increment(kPlayerBoth);
   command->type = kMenu_Command_GoToMenu;
   if (tournamentManager.fCurrentTrack == 0) {
     ptVar1 = (tMenu*)&menuDefs[0]->menuCarGarage;
@@ -2307,7 +2307,7 @@ extern "C" void MenuExtended_GoToGarage__FR12tMenuCommand(tMenuCommand *command)
     ptVar1 = (tMenu*)&menuDefs[0]->menuPostCarGarage;
   }
   command->nextMenu = ptVar1;
-  SetState(screenCarSelect[0],1);
+  screenCarSelect[0]->SetState(1);
   return;
 }
 
@@ -2468,7 +2468,7 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
   dlgThis->fDefault = 0;
   dlgThis->string =
        TextSys_Word(0x9d);
-  sVar2 = Run((tDialogInteractive *)dlgThis);
+  sVar2 = ((tDialogInteractive *)dlgThis)->Run();
   if (sVar2 != 0) {
     ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenuOneWay;
@@ -2531,7 +2531,7 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
   dlgThis->yesnowords[1] = 0x322;
   dlgThis->fDefault = 0;
   dlgThis->string = TextSys_Word(0x9d);
-  sVar3 = Run((tDialogInteractive *)dlgThis);
+  sVar3 = ((tDialogInteractive *)dlgThis)->Run();
   if (sVar3 != 0) {
     Init_Memcard(false,1);
     player_00 = 0;
@@ -2548,7 +2548,7 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
       goto nextPlayer;
     }
     DeInit_Memcard();
-    Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+    ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
     ptVar2 = menuDefs[0];
     command->type = kMenu_Command_GoToMenuOneWay;
     command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuMain;
@@ -2857,11 +2857,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   (menuPlayerOneCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoCarSelect;
   (menuPlayerOneGarage).fChildMenu = (tMenu *)&menuPlayerTwoGarage;
   (menuPlayerOnePinkSlipCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
-  SetDimensions((tMenuItemLeftRightSlider *)&itemMusicVolume,0,0,0x78,5);
-  SetDimensions((tMenuItemLeftRightSlider *)&itemSoundEffectsVolume,0,0,0x78,5);
-  SetDimensions((tMenuItemLeftRightSlider *)&itemEngineVolume,0,0,0x78,5);
-  SetDimensions((tMenuItemLeftRightSlider *)&itemSpeechVolume,0,0,0x78,5);
-  SetDimensions((tMenuItemLeftRightSlider *)&itemAmbientVolume,0,0,0x78,5);
+  ((tMenuItemLeftRightSlider *)&itemMusicVolume)->SetDimensions(0,0,0x78,5);
+  ((tMenuItemLeftRightSlider *)&itemSoundEffectsVolume)->SetDimensions(0,0,0x78,5);
+  ((tMenuItemLeftRightSlider *)&itemEngineVolume)->SetDimensions(0,0,0x78,5);
+  ((tMenuItemLeftRightSlider *)&itemSpeechVolume)->SetDimensions(0,0,0x78,5);
+  ((tMenuItemLeftRightSlider *)&itemAmbientVolume)->SetDimensions(0,0,0x78,5);
   (iteratorPinkSlipsCar).fCarListFilter = 0x20;
   (iteratorGarageCar).fCarListFilter = 2;
   (iteratorDealerCar).fCarListFilter = 1;

@@ -443,7 +443,7 @@ void InitFrontEndStructure(void)
     frontEnd.rampGas[i] = '\x01';
     frontEnd.rampBrake[i] = '\x01';
     for (j = 0; j < 0x30; j++) {
-      frontEnd.carColors[i][j] = ((tCarInfo *)GetCarFromID(&carManager,(short)j))->fDefaultColor;
+      frontEnd.carColors[i][j] = ((tCarInfo *)carManager.GetCarFromID((short)j))->fDefaultColor;
     }
     frontEnd.controlType[i] = 0x41;
     frontEnd.controlConfig[i] = '\0';
@@ -475,7 +475,7 @@ void InitFrontEndStructure(void)
   gMasterAmbientLevel[0] = 0x55;
   frontEnd.sensitivity = '\0';
   frontEnd.GotAPlayList = 0;
-  Setup(&CreditManager);
+  CreditManager.Setup();
   return;
 }
 
@@ -644,9 +644,9 @@ int Front_Menu(tFront_ProcessingType role)
   FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
   InitializeSpinningCars();
   Front_ConstructAll();
-  uVar1 = GetNumOwnedCars(&carManager, 0);
+  uVar1 = carManager.GetNumOwnedCars(0);
   if ((int)((uint)uVar1 << 0x10) < 1 && tournamentManager.fMoney < 1) {
-    extraMoney = CheapestCarStockPrice(&carManager);
+    extraMoney = carManager.CheapestCarStockPrice();
     tournamentManager.fMoney = tournamentManager.fMoney + extraMoney + 1;
   }
   if (role != kFront_QuitToGameSetup) {
@@ -654,8 +654,8 @@ int Front_Menu(tFront_ProcessingType role)
       if (role == kFront_QuitToPostGame) {
         gCalculateVictory = '\x01';
         if ((frontEnd.raceType == '\x02') && (GameSetup_gData.replayMode == 0)) {
-          AdvanceToNextTrack(&tournamentManager);
-          UpdateAwardInformation(&tournamentManager);
+          tournamentManager.AdvanceToNextTrack();
+          tournamentManager.UpdateAwardInformation();
         }
         else if ((frontEnd.raceType == '\x06') && (GameSetup_gData.replayMode == 0)) {
           if (((Cars_gNewCarStatsList[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
@@ -668,7 +668,7 @@ int Front_Menu(tFront_ProcessingType role)
             frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
           }
         }
-        tVar3 = RunPostGame(FEApp[0]);
+        tVar3 = FEApp[0]->RunPostGame();
       }
       goto FrontMenu_runFrontEndCleanup;
     }
@@ -676,8 +676,8 @@ int Front_Menu(tFront_ProcessingType role)
     LoadConfig();
   }
   if (gUseFrontend != 0) {
-    MenuExtended_TransitionFromPostGameToMainMenu(&tempCommand);
-    tVar3 = RunFrontEnd(FEApp[0]);
+    MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);  /* W58-A1: tMenuCommand& decl */
+    tVar3 = FEApp[0]->RunFrontEnd();
   }
 FrontMenu_runFrontEndCleanup:
   Front_DeleteAll();
@@ -813,7 +813,7 @@ extern "C" void Front_InitStream__FR9tFEStream(tFEStream *streamData)
   streamData->totalCars = 0;
   streamData->totalModels = 0;
   streamData->currentCar = 0;
-  InitializeIngameCarList(&carManager);
+  carManager.InitializeIngameCarList();
   return;
 }
 
@@ -847,7 +847,7 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
      tournament arm targets it), while a shared fall-through tail instead makes the pinkslips
      arm jump AWAY and drops its own copy -- an 18-insn block the oracle has and we lacked. */
   if (frontEnd.raceType == '\x02') {
-    GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],streamData->playerCars,0);
+    carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],*streamData->playerCars,0);
     carInfo = &streamData->playerCars[streamData->numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
     streamData->numPlayers = streamData->numPlayers + 1;
@@ -857,7 +857,7 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
      into that branch's delay slot).  Writing it as `if (!=6) {loop} pinkslips;`
      inverts the layout. */
   else if (frontEnd.raceType == '\x06') {
-    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[0],streamData->playerCars,0);
+    carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[0],*streamData->playerCars,0);
     /* MATCH: SYM local `carInfo` REG $5 (a1) -- a real tCarInfo* local forces the
        playerCars member offset (+8) INTO the pointer (`addiu v0,v0,8; addu a1,s1,v0`);
        an inline `streamData->playerCars[n].field` folds the +8 into every field
@@ -866,7 +866,7 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
     sVar2 = streamData->numPlayers + 1;
     streamData->numPlayers = sVar2;
-    GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1],streamData->playerCars + sVar2,1);
+    carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1],*(streamData->playerCars + sVar2),1);
     carInfo = &streamData->playerCars[streamData->numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
     streamData->numPlayers = streamData->numPlayers + 1;
@@ -876,8 +876,8 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
     {
       do {
         if (frontEnd.carListType == '\0') {
-          GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[i],
-                     streamData->playerCars + streamData->numPlayers);
+          carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[i],
+                     *(streamData->playerCars + streamData->numPlayers));
           carInfo = &streamData->playerCars[streamData->numPlayers];
           /* MATCH: `carColors[i]`, NOT the Ghidra `carColors[i * 0x18]` -- carColors is
              char[2][48], so Ghidra's flattened byte index multiplied the row stride twice
@@ -886,8 +886,8 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
           ;
         }
         else {
-          GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[i],
-                     streamData->playerCars + streamData->numPlayers,i);
+          carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[i],
+                     *(streamData->playerCars + streamData->numPlayers),i);
           carInfo = &streamData->playerCars[streamData->numPlayers];
           pcVar3 = carInfo->fShapeName + (carInfo->fColor - 8);
         }
@@ -923,10 +923,10 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
        `char` is UNSIGNED on this build. */
     carModel = (tCarModels)(signed char)streamData->playerCars[i].fCarID;
     carColor = streamData->playerCars[i].fColor;
-    if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0xd)) {
+    if (!carManager.IsCarAnAddedModel(carModel,carColor) && (streamData->totalModels < 0xd)) {
       streamData->totalModels = streamData->totalModels + 6;
     }
-    AddCarToIngameList(&carManager, &carModel,&carColor);
+    carManager.AddCarToIngameList(carModel,carColor);
     streamData->totalCars = streamData->totalCars + 2;
     streamData->carLineup[i].isPlayerCar = 1;
     streamData->carLineup[i].carModel = carModel;
@@ -976,9 +976,9 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
       if (5 < (int)i) {
         i = 0;
       }
-      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
+      if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
         streamData->totalModels = streamData->totalModels + 1;
-        AddCarToIngameList(&carManager, &carModel,&carColor);
+        carManager.AddCarToIngameList(carModel,carColor);
       }
       streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
       streamData->totalCars = streamData->totalCars + 1;
@@ -1063,13 +1063,13 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     if (0 < numOpponents) {
       do {
       carModel = (tCarModels)tourn->fOpponentCar[i];
-      carInfo = GetCarFromID(&carManager, (ushort)carModel);
+      carInfo = carManager.GetCarFromID((ushort)carModel);
       carColor = carInfo->fDefaultColor;
-      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor) && (streamData->totalModels < 0x10)) {
+      if (!carManager.IsCarAnAddedModel(carModel,carColor) && (streamData->totalModels < 0x10)) {
         streamData->totalModels = streamData->totalModels + 3;
       }
-      FindSimilarCar(&carManager, &carModel,&carColor,0,(tCarModels *)0x0);
-      AddCarToIngameList(&carManager, &carModel,&carColor);
+      carManager.FindSimilarCar(carModel,carColor,0,(tCarModels *)0x0);
+      carManager.AddCarToIngameList(carModel,carColor);
       streamData->carLineup[i + 1].isPlayerCar = 0;
       streamData->carLineup[i + 1].carModel = carModel;
       streamData->carLineup[i + 1].carColor = carInfo->fColorOrder[(byte)carColor];
@@ -1094,7 +1094,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
       } while (i < numOpponents);
     }
     if (frontEnd.raceType == '\x02') {
-      UpdateCarLineup(&tournamentManager);
+      tournamentManager.UpdateCarLineup();
       /* MATCH: same int-temp WORD-load fix as the raceType==2 block above (retail `lw`). */
       int numRacers2 = tournamentManager.fNumRacers;
       streamData->numOpponents = numRacers2 + -1;
@@ -1119,16 +1119,16 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     tCarModels modelList [3];
 
     carLineup = streamData->carLineup;
-    GetStockCar(&carManager, (ushort)(byte)frontEnd.oppCar,&carInfo);
+    carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
     carModel = (tCarModels)(int)*(signed char *)&carInfo.fCarID;
     carColor = carInfo.fColorOrder[carInfo.fDefaultColor];
-    if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
+    if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
       if (streamData->totalModels < 0x10) {
         streamData->totalModels = streamData->totalModels + 3;
       }
       else {
-        GetClassList(&carManager, (uint)carInfo.fCarClass,3,modelList);
-        FindSimilarCar(&carManager, &carModel,&carColor,3,modelList);
+        carManager.GetClassList((tCarClassType)carInfo.fCarClass,3,modelList);
+        carManager.FindSimilarCar(carModel,carColor,3,modelList);
       }
     }
     streamData->numOpponents = streamData->numOpponents + 1;
@@ -1139,7 +1139,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;
     carLineup[1].position = '\x01';
     carLineup[0].position = (char)streamData->numOpponents + '\x01';
-    AddCarToIngameList(&carManager, &carModel,&carColor);
+    carManager.AddCarToIngameList(carModel,carColor);
     streamData->totalCars = streamData->totalCars + 2;
   }
   else {
@@ -1196,9 +1196,9 @@ extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
     cVar3 = frontEnd.policeMission;                                     /* 1568 */
     frontEnd.policeTier = cVar5 + -0x16;                                /* 1569 */
     frontEnd.policeMission = '\0';                                      /* 1570 */
-    LoadDescription(&missionManager,true);                              /* 1572 */
-    GetMissionToRace(&missionManager,&streamData->pMission);            /* 1573 */
-    GetMissionStages(&missionManager,(ushort)(byte)frontEnd.policeTier,
+    missionManager.LoadDescription(true);                              /* 1572 */
+    missionManager.GetMissionToRace(&streamData->pMission);            /* 1573 */
+    missionManager.GetMissionStages((ushort)(byte)frontEnd.policeTier,
                (ushort)(byte)frontEnd.policeMission,&streamData->pStages); /* 1574 */
     frontEnd.policeTier = cVar2;                                        /* 1576 */
     frontEnd.policeMission = cVar3;                                     /* 1577 */
@@ -1295,9 +1295,9 @@ extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
       else {
         copModel = regularCopModels[fBestClass][(byte)(streamData->trackInfo).fCountry];
       }
-      if (!IsCarAnAddedModel(&carManager, &copModel,&copColor)) {
+      if (!carManager.IsCarAnAddedModel(copModel,copColor)) {
         streamData->totalModels = streamData->totalModels + 3;
-        AddCarToIngameList(&carManager, &copModel,&copColor);
+        carManager.AddCarToIngameList(copModel,copColor);
       }
       streamData->copCars[i] = copModel;
       streamData->totalCars = streamData->totalCars + 2;
@@ -1346,7 +1346,7 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
       if ((int)(uint)streamData->pMission->fNumStages <= (int)i) break;
       carModel = (tCarModels)streamData->pStages[i].fCarModel;
       carColor = streamData->pStages[i].fColor;
-      carInfo = GetCarFromID(&carManager, carModel);
+      carInfo = carManager.GetCarFromID(carModel);
       j = 0;
       /* MATCH: `fColorOrder` is declared plain `char` in the shared header, which is
          UNSIGNED on this build (lbu); the oracle reads it with `lb` -> signed cast. */
@@ -1356,11 +1356,11 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
         if (0x10 <= (int)j) break;
       }
       carColor = (char)j;
-      if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
+      if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
         if (streamData->totalModels < 0x10) {
           streamData->totalModels = streamData->totalModels + 6;
         }
-        AddCarToIngameList(&carManager, &carModel,&carColor);
+        carManager.AddCarToIngameList(carModel,carColor);
         streamData->totalCars = streamData->totalCars + 2;
         streamData->perps[streamData->numPerpObjects].carModel = carModel;
         streamData->perps[streamData->numPerpObjects].carColor = streamData->pStages[i].fColor;
@@ -1390,13 +1390,13 @@ extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
   tTrackInfo *tournTrack;
   
   if (frontEnd.raceType == '\x02') {
-    GetTrackToRace(&tournamentManager,&streamData->track);
-    src = GetTrackByID(&trackManager,(short)(signed char)(streamData->track).fTrackNumber);
+    tournamentManager.GetTrackToRace(streamData->track);
+    src = trackManager.GetTrackByID((short)(signed char)(streamData->track).fTrackNumber);
     blockmove(src,&streamData->trackInfo,0x30);
   }
   else {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-               &streamData->trackInfo);
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+               streamData->trackInfo);
     (streamData->track).fTrackNumber = (streamData->trackInfo).fTrackID;
     /* MATCH: local pointer to &streamData->track materialized ONCE before the branch
        (in the branch's delay slot in the oracle) and reused by BOTH arms -- reproduces
@@ -1514,8 +1514,8 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
         if (5 < (int)i) {
           i = 0;
         }
-        if (!IsCarAnAddedModel(&carManager, &carModel,&carColor)) {
-          AddCarToIngameList(&carManager, &carModel,&carColor);
+        if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
+          carManager.AddCarToIngameList(carModel,carColor);
         }
         streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
         streamData->numTraffic = streamData->numTraffic + 1;
@@ -1723,7 +1723,7 @@ extern "C" int * Front_AppendOpponentData__FPiR9tFEStream(int *stream,tFEStream 
          rather than re-deriving `&carLineup[iVar2].field` (base+0x1A4+fieldOff) at every
          access. */
       carLineup = &streamData->carLineup[iVar2];
-      ptVar3 = GetCarFromID(&carManager, (short)carLineup->carModel);
+      ptVar3 = carManager.GetCarFromID((short)carLineup->carModel);
       *stream++ = 0x119;
       *stream++ = (int)streamData->currentCar;
       *stream++ = (int)(signed char)carLineup->position;
@@ -1820,7 +1820,7 @@ extern "C" int * Front_AppendCopData__FPiR9tFEStream(int *stream,tFEStream *stre
   i = 0;
   while (1) {
     if (i >= (int)streamData->numCops + (int)streamData->numSuperCops) break;
-    ptVar1 = GetCarFromID(&carManager, (short)streamData->copCars[i]);
+    ptVar1 = carManager.GetCarFromID((short)streamData->copCars[i]);
     *stream++ = 0x104;
     iVar2 = 8;
     *stream++ = (int)streamData->currentCar;
@@ -1913,7 +1913,7 @@ extern "C" int * Front_AppendPerpData__FPiR9tFEStream(int *stream,tFEStream *str
     do {
       carManagerPtr = &carManager;
       iVar2 = (int)streamData + ((i << 0x10) >> 0xd);
-      ptVar1 = GetCarFromID(carManagerPtr, *(short *)(iVar2 + 608));
+      ptVar1 = carManagerPtr->GetCarFromID(*(short *)(iVar2 + 608));
       *piVar3++ = 0x104;
       i = i + 1;
       *piVar3++ = (int)streamData->currentCar;
@@ -1982,7 +1982,7 @@ extern "C" int * Front_AppendTrafficData__FPiR9tFEStream(int *stream,tFEStream *
   i = 0;
   if (0 < streamData->numTraffic) {
     do {
-      ptVar1 = GetCarFromID(&carManager, streamData->trafficCars[i]);
+      ptVar1 = carManager.GetCarFromID(streamData->trafficCars[i]);
       *stream++ = 0x104;
       i = i + 1;
       *stream++ = (int)streamData->currentCar;
@@ -2045,8 +2045,8 @@ extern "C" int * Front_AppendTrackData__FPiR9tFEStream(int *stream,tFEStream *st
   int speedMode;
   tTrackInformation trackInfo;
   
-  GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-             &trackInfo);
+  trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+             trackInfo);
   valtopass = 0;
   speedMode = frontEnd.displaySpeed[0];
   if (speedMode == 1) goto track_value_ready;
@@ -2118,8 +2118,8 @@ void * Front_EnableLocalSpeech(void)
 
   ret = (void *)0x0;
   if (frontEnd.raceType == '\x01') {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-               &trackInfo);
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+               trackInfo);
     lang = (byte)trackInfo.fLanguage;
     if ((lang != (byte)frontEnd.language) && (0 <= lang) && (lang < 3 || lang == 6)) {
       ret = (void *)0x1;
@@ -2653,11 +2653,11 @@ short Front_GetTrackRaced(void)
   tTrackInformation trackInfo;
   
   if (frontEnd.raceType == '\x02') {
-    sVar1 = GetLastTrackRaced(&tournamentManager);
+    sVar1 = tournamentManager.GetLastTrackRaced();
   }
   else {
-    GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-               &trackInfo);
+    trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
+               trackInfo);
     sVar1 = (short)(signed char)trackInfo.fTrackID;
   }
   return sVar1;

@@ -320,7 +320,9 @@ PER_TU_FLAGS = {
     # the explicit five-instruction table-base form. Removing the stale override
     # takes detailed SoundCar 176 -> 169 (526 -> 527 instructions) while the
     # whole 48-function TU gate remains 33 PASS / 6 near / 9 far.
-    "recon/syslib/psx/libcd/drv.c":       {"jtbl_at_fusion": True},  # CD_get_intr
+    # w52-a1 dup-key fix: drv.c's jtbl_at_fusion entry here was silently
+    # discarded by the cc1_272 entry below (later key wins) AND is inert in
+    # the 272 lane (no maspsx) -- removed rather than merged.
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True,   # FntPrint
                                              "no_split_addresses": True},  # w48-a2: -34
     # w51-a3: libcd lane verdicts (measured per-TU; cdread.c = NO, 169->289):
@@ -350,11 +352,15 @@ PER_TU_FLAGS = {
     # w51-a4: libcd-B -- all six TUs lane-verified (17/29 assigned fns -> PASS;
     # zero PASS->FAIL both lanes). iso9660 drops no_split_addresses (no such
     # 2.7.2 flag); drv keeps jtbl key inert-but-harmless.
-    "recon/syslib/psx/libcd/drv.c":        {"cc1_272": True},
+    # w52-a1: +no_strength_reduce (CD_get_intr 74->61, CD_cw 134->90,
+    # all else bit-identical, 6 PASSes held; other flags regress or inert).
+    "recon/syslib/psx/libcd/drv.c":        {"cc1_272": True, "no_strength_reduce": True},
     "recon/syslib/psx/libcd/event.c":      {"cc1_272": True},
     "recon/syslib/psx/libcd/stream.c":     {"cc1_272": True},
     "recon/syslib/psx/libcd/streamhelp.c": {"cc1_272": True},
-    "recon/syslib/psx/libcd/stcdint.c":    {"cc1_272": True},
+    # w52-a2: +no_strength_reduce -- COMBINATION lever with the index-form
+    # source edit (each alone inert): StCdInterrupt 81->36, rest bit-identical.
+    "recon/syslib/psx/libcd/stcdint.c":    {"cc1_272": True, "no_strength_reduce": True},
     # w51-a2: libmcrd cluster = cc1_272 lane (04M law). jtbl_at_fusion is inert in
     # this lane (no maspsx); kept out. LIBMCRD 2->8 PASS under the lane.
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},
@@ -392,6 +398,14 @@ PER_TU_FLAGS = {
     # no_delayed_branch collapses the win).  Replaces the old 2.8-basin
     # no_split_addresses entry; MoveImage re-anchored for the lane in the same
     # commit (see its /* MATCH: */ receipt).
+    # w52-a3: SYS.c clamp-family identity evidence = 2.8.x + -mno-split-
+    # addresses (oracle's two-width lh+lhu clamps; 2.7.2 CSEs them + phantom
+    # frame). Orchestrator-measured whole-TU: {"cc1_alt": "2.8.1",
+    # "no_split_addresses": True} = 22 PASS/813 diffs vs 24/1002 here -- a
+    # NET -2 PASS today (4 flip up: _set_clip_tl/br/_reset/_image; 4 flip
+    # down: _que_ref/_install_drain_cb/_gpu_arm_timeout epilogue class +
+    # _clearOTagR_dma s0<->s1). STAYS 2.7.2 until the epilogue-fill mechanism
+    # for the alt lane exists; then re-measure (BlitClear 20 count-exact there).
     "recon/syslib/psx/libgpu/SYS.c":        {"cc1_272": True},
     # w52-a5: PADMAIN onto the 2.7.2 rung (replaces no_split_addresses, which
     # the 272 recipe ignores): whole-TU 249->205 on the post-rewrite source,
@@ -991,6 +1005,12 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
         cc1_flags.append("-fno-schedule-insns2")
     if tu_flags.get("no_builtin"):
         cc1_flags.append("-fno-builtin")
+    # w52-a3: forward the split-addresses key too (2.8.x rungs via cc1_alt
+    # need -mno-split-addresses to express the SYS.c clamp identity; 2.7.2
+    # itself has no such option and would reject it -- only append when the
+    # TU asks for it, which per-TU wiring guarantees is a 2.8.x rung).
+    if tu_flags.get("no_split_addresses"):
+        cc1_flags.append("-mno-split-addresses")
     cc1 = cc1_path if cc1_path is not None else CC1_272
     r = run([cc1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:

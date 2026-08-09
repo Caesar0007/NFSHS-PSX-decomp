@@ -197,7 +197,7 @@ void tScreenTournamentStandings::DrawBackground()
   line = 0x2fe;
   tourneyInfo = &tm->fDefinition->fTournaments[
       tm->fDefinition->fTiers[tm->fTier].fTournOffset + tm->fTournament];
-  numRacers = (short)(tm->fNumRacers + (tourneyInfo->fKnockout != 0));
+  numRacers = (short)((short)tm->fNumRacers + (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {
     if (i >= numRacers) {

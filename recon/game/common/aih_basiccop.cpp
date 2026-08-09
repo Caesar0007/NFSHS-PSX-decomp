@@ -623,4 +623,26 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
 
 
+/* ---- ___15AIHigh_BasicCop  AIHigh_BasicCop::dtor  [AIH_BASICCOP.CPP:?] SLD-FLAG:NO_SLD ----
+   W56-A2 (2026-08-09): NOT-IN-OBJECT dtor landed. §3.23 base-forward: empty body -> the
+   compiler emits the implicit AIHigh_Base::~ base-dtor call (jal ___11AIHigh_Base), matching
+   the 8-insn oracle exactly. Mirrors AIHigh_BTC_Cop::~AIHigh_BTC_Cop() at aih_btccop.cpp. */
+
+AIHigh_BasicCop::~AIHigh_BasicCop()
+
+
+
+{
+
+
+  return;
+
+}
+
+
+
+
+
+
+
 /* end of aih_basiccop.cpp */

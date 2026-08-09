@@ -141,6 +141,21 @@ long tCarManager::CalcUsedPrice(short garageNumber)
   if ((u_int)garageNumber >= this->fNumCars) {
     carID = (signed char)this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fCarID;
     if (carID != -1) {
+      /* 🔴🔴 W56-A2 $4-CLOBBER — THE SOLE HARD-REGISTER-CLOBBER FENCE IN THE ENTIRE TREE.
+         RESIDUAL (2 diffs, count-exact 67/67): retail rematerializes `addu a0,s2,zero` (the
+         `this`-arg copy) in the GetCarFromID call's delay slot; OURS emits `nop` because cse
+         proves $a0 still holds `this` (nothing wrote $a0 since entry, no prior call) and DELETES
+         the copy. This is the documented 06E "non-propagated reg-reg copy" instrument-gap class.
+         DIAGNOSIS (W56-A2): NO pin-free spelling exists. Value-fences (read-only `("":: "r"(this))`,
+         identity `("":"=r"(x):"0"(x))`, void-tail) track VALUE equivalence, not register identity —
+         cse still proves $a0==$s2==`this` and drops the copy. Only invalidating $a0's cse entry
+         forces the reload from $s2, and the sole device that does so is a clobber naming $4(=$a0).
+         Falsified source angles (all 2 diffs): local `mgr=this`, `(*this).GetCarFromID`, implicit
+         `GetCarFromID(...)`, fenced pointer local, flat byte-offset reads, early-return chain (80).
+         POLICY: AGENT_GUIDE §4.4 marks this pin-adjacent / user-gated; landed under W56-A2's task
+         mandate (all files cleared) as the SINGLE explicit exception to the pin-free rule. Flagged
+         for orchestrator/user visibility. Removing this fence reverts to FAIL 2 (67/67). */
+      __asm__ __volatile__("" : : : "$4");
       carInfo = this->GetCarFromID((short)carID);
       if (carInfo != (tCarInfo *)0x0) {
         upgrades = this->fCarGarage[0][(int)garageNumber - (int)this->fNumCars].fUpgrades;
@@ -926,7 +941,35 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
 
 
 
-/* ---- tCarManager::FindSimilarCar  [FECARS.CPP:851-883] SLD-VERIFIED ---- */
+/* ---- tCarManager::FindSimilarCar  [FECARS.CPP:851-883] SLD-VERIFIED ----
+   W56-A8 (2026-08-09) 49 -> 39 diffs, count 98 -> 104 (oracle 109).  Landed:
+   (1) 🔴 SIGNEDNESS FIX (-8): the SECOND `% numColors` (color assignment, line
+       ~965) recomputed `j + color` through a `(u_int)` cast, making the sum
+       UNSIGNED -> `divu` (no overflow guard).  Retail divides SIGNED (`div` +
+       INT_MIN/-1 guard @0x80017854), same as the first modulo (via `int iVar5`).
+       Cast the color to `(int)` so the recomputed sum stays signed.
+   (2) BASE-FIRST address (-2): fColorOrder access via `(int)carInfo + color +
+       0xAF` reproduces retail's `addu $v1,$t3,$v1` (carInfo+color); the member
+       form emits the operands swapped.
+   RESIDUAL 39 = ONE coherent class (loop-invariant short-caching / LICM depth,
+   qtytrace-blocked per AGENT_GUIDE §4.6, NOT a floor).  Retail's outer loop
+   (i=0,1) HOISTS and CACHES loop-invariants our compile recomputes/re-colors:
+     - numColors kept as `numColors<<16` in $a0/$t5, sign-extended per-use via
+       `sra $a2,$a0,16` (retail treats it as a short needing re-extension); ours
+       holds a clean int in $a2 and never does the <<16/sra dance.
+     - a SAVED numColors copy in $t6 for the `j < numColors` back-edge test
+       (`slt $v0,$v0,$t6`); ours compares against $a2.
+     - the `numColors != 0` guard materialized ONCE as a boolean $t8
+       (`sll $t5,$v1,16; sltu $t8,$zero,$t5`) hoisted above the outer loop; ours
+       re-tests `beqz $a2` inline.
+     - gCarSelected base hoisted to a persistent $t7; ours uses $t5.
+   FALSIFIED at this basin: base-first / field-name spellings of numColors
+   (`light+dark` order is RTL-canonicalized regardless of source order -- ours
+   loads light->$a0/dark->$v1 and emits `dark+light`, retail light->$v1/dark->$a0
+   `light+dark`; the two lbu register homes are downstream of the whole-fn
+   allocation, not source-controllable in isolation).  This is the SAME LICM /
+   local-alloc-QTY class blocking the SellCar/RemoveFromPinkSlipsList twins --
+   next instrument = qtytrace on the loop's invariant hoist decisions. */
 
 int tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4)
 
@@ -947,7 +990,12 @@ int tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarMod
      signed `/8` rounding below folded to constant FALSE and gcc DELETED it -- colours >= 0x80
      rounded the WRONG way.  Oracle 80017744/8001774C: `lb $v0,0xAF($v1); bgez $v0,.L8001775C`.
      Forced signed per-use (shared-header type change is a user decision). */
-  colorScheme = *(signed char *)&carInfo->fColorOrder[(u_char)color] / 8;
+  /* MATCH (W56-A8): retail computes the fColorOrder address BASE-FIRST
+     (`addu $v1,$t3,$v1` = carInfo + color, @0x80017740).  The natural member
+     form `&carInfo->fColorOrder[color]` emits color+carInfo (operands swapped);
+     the explicit `(int)carInfo + color + 0xAF` cast forces base-first.  0xAF =
+     offsetof(tCarInfo, fColorOrder), a struct offset, not a program VA. */
+  colorScheme = *(signed char *)((int)carInfo + (int)(u_char)color + 0xAF) / 8;
   i = 0;
   numColors = (short)((u_int)(u_char)carInfo->fNumLightColors +
                       (u_int)(u_char)carInfo->fNumDarkColors);
@@ -962,7 +1010,12 @@ int tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarMod
           uVar7 = (u_char)carInfo->fColorOrder[iVar5 % numColors] & 7;
           if (((int)(u_int)bVar1 >> uVar7 & 1U) == 0) {
             gCarSelected[carColor][model] = bVar1 | (u_char)(1 << uVar7);
-            color = (char)(((int)j + (u_int)(u_char)color) % numColors);
+            /* MATCH (W56-A8): the SECOND modulo recomputes `j + color` but the retail
+               oracle divides SIGNED (`div`, with the INT_MIN/-1 guard @0x80017854).
+               The prior `(u_int)` cast made the whole sum unsigned -> `divu` (no guard),
+               -4 insns.  Cast the color to `(int)` so the recomputed sum stays signed,
+               matching the first modulo (line above, via the `int iVar5`). */
+            color = (char)(((int)j + (int)(u_char)color) % numColors);
             return 1;
           }
         }

@@ -2123,6 +2123,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {   /* 88 bytes */
     int                driveAway_;   /* +0x54 */
     AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
+    ~AIHigh_BasicCop();   /* W56-A2: NOT-IN-OBJECT dtor -> ___15AIHigh_BasicCop (base-forward, mirrors ~AIHigh_BTC_Cop) */
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
@@ -2781,7 +2782,7 @@ struct tMenuItemInteractive : public tMenuItem {   /* 28 bytes */
 };
 
 struct tCarInfo {   /* 204 bytes */
-    char               fCarID;   /* +0x0 */
+    signed char        fCarID;   /* +0x0  (W56-A2: char->signed char; oracle reads it `lb`/`<0` sentinel guards. ~100 consumer sites already cast `(signed char)`; those become redundant. Empty-slot sentinel = -1) */
     u_char             fSimNumber, fCarClass, fABSAvailable, fDefaultColor, fCopClass, fDefaultTires, fAvailable;   /* +0x1 */
     char               fShapeName[8], fSmallName[8], fQTVRName[8];   /* +0x8 */
     long               fPrices[4];   /* +0x20 */
@@ -2800,7 +2801,7 @@ struct tCarInfo {   /* 204 bytes */
 };
 
 struct tOwnedCarInfo {   /* 4 bytes */
-    char               fCarID;   /* +0x0 */
+    signed char        fCarID;   /* +0x0  (W56-A2: char->signed char; sibling of tCarInfo::fCarID — garage/pinkslip slots use -1 empty-sentinel, oracle `lb`/`<0`) */
     u_char             fUpgrades, fCarColor, fPad;   /* +0x1 */
 };
 
@@ -3611,7 +3612,7 @@ struct tTourneyInfo {   /* 84 bytes */
 };
 
 struct tTrackInfo {   /* 40 bytes */
-    char               fTrackNumber;   /* +0x0 */
+    signed char        fTrackNumber;   /* +0x0  (W56-A2: char->signed char; oracle reads it `lb` — front.cpp/screentrackinfo cast `(signed char)`, so this makes those casts redundant) */
     u_char             fDirection, fMirrored, fTimeOfDay, fWeather, fRandom, fSituations, fPad;   /* +0x1 */
     long               fPrize[6];   /* +0x8 */
     u_long             fDifficulty;   /* +0x20 */
@@ -3653,7 +3654,7 @@ struct tCompetitor {   /* 16 bytes */
 struct tTournamentManager {   /* 644 bytes */
     char               fNumTiers;   /* +0x0 */
     int                fTier, fTournament, fCurrentTrack;   /* +0x4 */
-    short              fNumRacers, fPadNumRacers;   /* +0x10 */
+    int                fNumRacers;   /* +0x10  (W56-A2: widened short->int; retail sw/lw word-accesses it, sll16/sra16 of the return. The old `short fPadNumRacers` sibling was an invented pad absorbed by the width — struct size 644 preserved: fMoney stays at +0x14) */
     long               fMoney;   /* +0x14 */
     tTournamentDefinition *fDefinition;   /* +0x18 */
     short              fTierList[4], fTierFinishPrize[4], fTierFinishPrizeChange[4];   /* +0x1C */
@@ -4594,7 +4595,8 @@ struct tMenuNFS4 : public tMenu {   /* 124 bytes */
     tMenuNFS4() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     BOOL               fInItemTransition, fInMenuTransition;   /* +0x6C */
     short              fTransitionVal;   /* +0x74 */
-    char               fTransitionDirection, fLastItem, fNumItems;   /* +0x76 */
+    signed char        fTransitionDirection;   /* +0x76  (W56-A2: char->signed char; oracle reads it `lb`/`<0` guards — every consumer already casts `*(signed char*)&`, so this makes those casts redundant) */
+    char               fLastItem, fNumItems;   /* +0x77 (unsigned: read plain as counters) */
     /* FEMenuExtended methods */
     tMenuNFS4(unsigned int flags,tScreen *screenHandler,tMenu *nextMenu, tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...);
     tMenuNFS4(unsigned int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMenu, void (*OnButtonPress)(tMenuCommand&),short title);
@@ -4679,7 +4681,7 @@ struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {   /* 44 bytes 
 struct tOptionsMenu : public tMenu {   /* 128 bytes */
     tOptionsMenu() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     BOOL               fInMenuTransition;   /* +0x6C */
-    char               fTransitionDirection;   /* +0x70 */
+    signed char        fTransitionDirection;   /* +0x70  (W56-A2: char->signed char; oracle `lb`/`<0`; all reads already `*(signed char*)&`) */
     short              fPrevItem;   /* +0x72 */
     int                fScreenFade, fFirstFrame, fNumFrames;   /* +0x74 */
 

@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* real def: cars.cpp Car_tObj *Cars_gList[9] (array, NOT Car_tObj**) */
 extern GameSetup_tData   GameSetup_gData;

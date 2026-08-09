@@ -69,12 +69,12 @@ int UpdateAwardInformation(...);
 int UpdateCarLineup(...);
 int __builtin_new(...);
 int s_lower(char *);
-tAllScreens *tAllScreens_ctor(...);
-tAllScreens *tAllScreens_dtor(...);
-tFEApplication *tFEApplication_ctor(...);
-tFEApplication *tFEApplication_dtor(...);
-tGlobalMenuDefs *tGlobalMenuDefs_ctor(...);
-tGlobalMenuDefs *tGlobalMenuDefs_dtor(...);
+extern "C" tAllScreens *tAllScreens_ctor(...) __asm__("__11tAllScreens");        /* real ctor symbol (was tAllScreens_ctor phantom) */
+extern "C" tAllScreens *tAllScreens_dtor(...) __asm__("___11tAllScreens");       /* real dtor symbol */
+extern "C" tFEApplication *tFEApplication_ctor(...) __asm__("__14tFEApplication");  /* real ctor symbol */
+extern "C" tFEApplication *tFEApplication_dtor(...) __asm__("___14tFEApplication"); /* real dtor symbol */
+extern "C" tGlobalMenuDefs *tGlobalMenuDefs_ctor(...) __asm__("__15tGlobalMenuDefs");  /* real ctor symbol */
+extern "C" tGlobalMenuDefs *tGlobalMenuDefs_dtor(...) __asm__("___15tGlobalMenuDefs"); /* real dtor symbol */
 tScreenAudio *tScreenAudio_ctor(...);
 tScreenCarSelect *tScreenCarSelect_ctor(...);
 tScreenCarSelect *tScreenCarSelect_dtor(...);

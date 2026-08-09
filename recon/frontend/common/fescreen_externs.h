@@ -29,7 +29,7 @@ void  PSXDrawSquare(int, int, int, int, int);
 /* ===== text ===== */
 void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
 char *TextSys_Word(int);
-int   textpixels(char*);
+extern "C" int textpixels(char*);
 
 /* ===== async shape I/O (eaclib) ===== */
 

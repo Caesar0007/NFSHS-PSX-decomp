@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 char *TextSys_Word(int id);
 extern Draw_tPixMap *gLeafPixmap;      /* 0x8013d218 */
 extern GameSetup_tData   GameSetup_gData;

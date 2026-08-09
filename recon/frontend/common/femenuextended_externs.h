@@ -31,7 +31,7 @@ extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
 /* FEMenuExtended-specific helpers */
 void  DrawShape_SubtractNFS4RectEdges(...);  void DrawShape_NFS4RoundRectangle(...); /* W56-A1: ref-decl DrawShape_SubtractNFS4RectEdges(RECT&) needs caller femenuextended.cpp:40 rect->*rect; reported */
-void  FETextRender_SetFont(int);  int textpixels(char*);  void s_upper(char*);
+void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_upper(char*);
 /* TRUE prototypes (2026-08-02, user-approved): the old variadic `(...)` decls mangled as
  * phantom symbols at the Font_SetBlitter(FontUpsideDownBlit) address-take sites -- byte-
  * neutral fix, reloc symbols now match font.cpp/psxfront.cpp definitions. */

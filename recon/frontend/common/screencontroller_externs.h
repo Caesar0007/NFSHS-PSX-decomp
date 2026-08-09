@@ -14,7 +14,7 @@ extern __vtbl_ptr_type tScreenControllerConfig_vtable[10];   /* @0x80012078 (vta
 int CalcFadeVal(int col1, int amount);            /* 2-arg overload */
 int CalcFadeVal(int col1, int col2, int f1, int f2);  /* 4-arg overload */
 void trap(int code);
-int  textpixels(char *str);
+extern "C" int textpixels(char *str);
 extern tFEApplication *FEApp;
 extern tPadModuleState gPadinfo;        /* pad-info (84B, SYM anon .63fake tag = tPadModuleState) */
 extern int  mappings[3][13][3];         /* PSX->FE key mappings */

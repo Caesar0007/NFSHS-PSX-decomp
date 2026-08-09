@@ -20,7 +20,7 @@ int   FETextRender_WordWrapTextRGBJustify(char *str, RECT &r, int col, int justi
 /* engine */
 void  Font_SwitchFont(char *f);  void Font_TextColor(int c);  void Font_TextTint(int t);
 void  Font_TextXY(char *s, int x, int y);  void Font_SetABR(int abr);
-int   textpixels(char *s);  char *TextSys_Word(int id);  int TextSys_WordFlags(int id);
+extern "C" int textpixels(char *s);  char *TextSys_Word(int id);  int TextSys_WordFlags(int id);
 void  s_lower(char *s);
 void  PSXDrawTransSquare(int color, int x, int y, int w, int h, short abe);
 void  FeDraw_SetABRMode(int abr);

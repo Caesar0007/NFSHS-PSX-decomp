@@ -9,7 +9,7 @@
 extern __vtbl_ptr_type AIHigh_BTC_Cop_vtable[], AIHigh_BTC_HumanCop_vtable[], AIHigh_BTC_Wingman_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
 extern __vtbl_ptr_type D_80054F24[];
 
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 int Speech_Dispatch(void);             /* speech.obj flat (was Dispatch__6Speech; cast result to Speaker*) */
 int Speech_Mobile(Car_tObj *carObj);   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AICop_spikeBelt_t AICop_spikeBelt;

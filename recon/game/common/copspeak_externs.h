@@ -21,7 +21,7 @@ extern int   AudioMus_Threshold(void);
 extern char *Platform_GetDCTBuffer(int size, char *name);   /* platform.obj */
 extern void  Hud_FBuildF4(int t, int x, int y, int w, int h, u_long col, char c0, char c1);  /* hud.obj */
 extern void  Font_TextXY(char *s, int x, int y);            /* font.obj */
-extern int   textpixels(char *s);                           /* textpix.obj */
+extern "C" int textpixels(char *s);                           /* textpix.obj */
 
 /* ---- sndpsxz (SND*) ---- */
 

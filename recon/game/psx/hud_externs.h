@@ -93,7 +93,7 @@ extern int   Font_Getcharacter(int c);
 extern void  Font_TextColor(int idx);
 extern void  Font_TextXY(char *s, int x, int y);
 extern char *TextSys_Word(int id);
-extern int   textpixels(char *s);
+extern "C" int textpixels(char *s);
 
 /* ---- draw / view ---- */
 extern int   Draw_SetView(int a, int b, int c, int d, int e, int f, int g, int h, int i);

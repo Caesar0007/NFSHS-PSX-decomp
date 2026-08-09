@@ -16,7 +16,7 @@ extern SndBnk_t gSndBnk[7];
 extern SPEECHINFO ginfo;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
-int  textpixels(char *str);
+extern "C" int textpixels(char *str);
 void SetMenu(tMenuItemSlidingMenu *thisobj, short i, void *menu);   /* sliding-menu method; menu is tMenu-derived */
 void *TransitionIsFinished(tOptionsMenu *thisobj);   /* method on the options menu */
 int CalcFadeVal(int col1, int amount);            /* 2-arg overload */

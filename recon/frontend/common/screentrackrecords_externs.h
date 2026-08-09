@@ -12,7 +12,7 @@ extern tTexture_ShapeInfo *gCurrentShapes[];
 extern bool NewRecords[8];
 extern bool NewBestLap;
 void trap(int code);
-int  textpixels(char *str);
+extern "C" int textpixels(char *str);
 int  CalcFadeVal(int col1, int amount);   /* 2-arg overload */
 
 /* called game/FE/audio/PsyQ functions (Ghidra-dumped signatures) */

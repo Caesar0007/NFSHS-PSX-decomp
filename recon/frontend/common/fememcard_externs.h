@@ -43,10 +43,10 @@ void Redraw(tFEApplication*);
 void UpdateMusic(tFEApplication*);
 
 /* ===== memcard (PSX::memcard) ===== */
-int   MCRD_handlecardevents(int);
+extern "C" int MCRD_handlecardevents(int);
 void  MCRD_savefile(int, MCRDFILE_def*);
 void  MCRD_loadfile(int, MCRDFILE_def*, int);
-CARDINFO_def *MCRD_getcard(int);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 void  MCRD_init(int);
 void  MCRD_restore();
 void  MCRD_getopts(MCRDOPTS_def*);

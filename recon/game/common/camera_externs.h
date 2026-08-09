@@ -6,7 +6,7 @@
 #include "../../lib/libfns.h"
 
 AnimScript *Anim_GetAnim(int handle);
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* real ARRAY @0x8010F9DC (asm/data), NOT ptr-to-ptr - la form */
 extern GameSetup_tData   GameSetup_gData;

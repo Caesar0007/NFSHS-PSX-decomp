@@ -26,7 +26,7 @@ void  PSXDrawSquare(int,int,int,int,int);  void PSXDrawTransSquare(int,int,int,i
 void  FeDraw_SetABRMode(int);  void Flare_2DHalo(int,int,int,int,int);
 void  FETextRender_MenuTextPositioned(short,short,short,tMenuTextState,tMenuTextType);
 void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextState,tMenuTextType);
-int   TextSys_WordX(int);  int TextSys_WordY(int);  char *TextSys_Word(int);  int textpixels(char*);
+int   TextSys_WordX(int);  int TextSys_WordY(int);  char *TextSys_Word(int);  extern "C" int textpixels(char*);
 void  AudioCmn_PlayFESFX(int);  void AudioCmn_PlayFESFXVol(int,int);
 /* batch externs */
 extern tScreenAudio *screenAudio;  extern tScreenControllerConfig *screenControllerConfig[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch */

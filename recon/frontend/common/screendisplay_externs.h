@@ -17,7 +17,7 @@ extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 int  CalcFadeVal(int col1, int col2, int amount);   /* 3-arg overload */
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended *extra);
-int  textpixels(char *str);
+extern "C" int textpixels(char *str);
 void SetMenu(tMenuItemSlidingMenu *thisobj, short i, void *menu);   /* sliding-menu method; menu is tMenu-derived */
 void *TransitionIsFinished(tOptionsMenu *thisobj);   /* method on the options menu */
 int CalcFadeVal(int col1, int amount);            /* 2-arg overload */

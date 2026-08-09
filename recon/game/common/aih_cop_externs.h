@@ -8,7 +8,7 @@
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 extern __vtbl_ptr_type AIHigh_Cop_vtable[], AIState_Idle_vtable[];
 
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 int Speech_Mobile(Car_tObj *carObj);   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern AIHigh_Base *highLevelAIObjs[];

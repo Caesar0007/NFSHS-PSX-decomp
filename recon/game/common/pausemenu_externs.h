@@ -14,7 +14,7 @@ extern GameSetup_tData  GameSetup_gData;              /* gamesetup.obj */
 extern HudPmx_tShape    HudPmx_gShapes[];             /* hud.obj */
 
 /* ---- cross-TU functions (demangled) ---- */
-extern int   textpixels(char *s);                                 /* textpix.obj */
+extern "C" int textpixels(char *s);                                 /* textpix.obj */
 extern void  Font_TextColor(int c);                               /* font.obj */
 extern void  Font_TextXY(char *s, int x, int y);                  /* font.obj */
 extern int   TextSys_WordFlags(int id);                           /* textsys.obj */

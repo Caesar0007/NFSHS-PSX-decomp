@@ -68,7 +68,7 @@ int SwapBackground(...);
 int TextSys_Word(int);
 int __builtin_delete(...);
 tDialogYesNo *tDialogYesNo_ctor(...);
-tInsideBoxLeftRightSlider *tInsideBoxLeftRightSlider_ctor(...);
+extern "C" tInsideBoxLeftRightSlider *tInsideBoxLeftRightSlider_ctor(...) __asm__("__25tInsideBoxLeftRightSliderUiP13tListIterator");  /* real ctor symbol */
 tInsideBoxLeftRightSlider *tInsideBoxLeftRightSlider_dtor(...);
 tInsideBoxMenu *tInsideBoxMenu_ctor(...);
 tInsideBoxMenu *tInsideBoxMenu_dtor(...);
@@ -76,21 +76,21 @@ tInsideBoxSongMenu *tInsideBoxSongMenu_ctor(...);
 tInsideBoxSongMenu *tInsideBoxSongMenu_dtor(...);
 tInsideBoxTwoWaySlider *tInsideBoxTwoWaySlider_ctor(...);
 tInsideBoxTwoWaySlider *tInsideBoxTwoWaySlider_dtor(...);
-tListIteratorCarColor *tListIteratorCarColor_ctor(...);
+extern "C" tListIteratorCarColor *tListIteratorCarColor_ctor(...) __asm__("__21tListIteratorCarColorPcN21iP11tCarManager");  /* real ctor symbol */
 tListIteratorCarColor *tListIteratorCarColor_dtor(...);
-tListIteratorCar *tListIteratorCar_ctor(...);
+extern "C" tListIteratorCar *tListIteratorCar_ctor(...) __asm__("__16tListIteratorCarPcP11tCarManager");  /* real ctor symbol */
 tListIteratorCar *tListIteratorCar_dtor(...);
-tListIteratorIndexed *tListIteratorIndexed_ctor(...);
+extern "C" tListIteratorIndexed *tListIteratorIndexed_ctor(...) __asm__("__20tListIteratorIndexedPsPcT2");  /* real ctor symbol */
 tListIteratorIndexed *tListIteratorIndexed_dtor(...);
-tListIteratorRangeIndexed *tListIteratorRangeIndexed_ctor(...);
+extern "C" tListIteratorRangeIndexed *tListIteratorRangeIndexed_ctor(...) __asm__("__25tListIteratorRangeIndexedccPcT3");  /* real ctor symbol */
 tListIteratorRangeIndexed *tListIteratorRangeIndexed_dtor(...);
-tListIteratorRange *tListIteratorRange_ctor(...);
+extern "C" tListIteratorRange *tListIteratorRange_ctor(...) __asm__("__18tListIteratorRangeccPc");  /* real ctor symbol */
 tListIteratorRange *tListIteratorRange_dtor(...);
-tListIteratorTournament *tListIteratorTournament_ctor(...);
+extern "C" tListIteratorTournament *tListIteratorTournament_ctor(...) __asm__("__23tListIteratorTournamentPcP18tTournamentManager");  /* real ctor symbol */
 tListIteratorTournament *tListIteratorTournament_dtor(...);
-tListIteratorTrack *tListIteratorTrack_ctor(...);
+extern "C" tListIteratorTrack *tListIteratorTrack_ctor(...) __asm__("__18tListIteratorTrackPcT1P13tTrackManager");  /* real ctor symbol */
 tListIteratorTrack *tListIteratorTrack_dtor(...);
-tListIterator *tListIterator_ctor(...);
+extern "C" tListIterator *tListIterator_ctor(...) __asm__("__13tListIteratorPsPc");  /* real ctor symbol */
 tListIterator *tListIterator_dtor(...);
 tMenuBlank *tMenuBlank_ctor(...);
 tMenuBlank *tMenuBlank_dtor(...);

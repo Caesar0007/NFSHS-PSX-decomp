@@ -8,7 +8,7 @@
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 extern __vtbl_ptr_type AIHigh_BTC_Perp_vtable[], AIHigh_BTC_HumanPerp_vtable[], AIHigh_BTC_AIPerp_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
 
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 int Speech_Dispatch(void);                /* speech.obj flat (was Dispatch__6Speech; Speech::Dispatch is static->flat) */
 int Speech_Mobile(Car_tObj *carObj);      /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AIHigh_Base *highLevelAIObjs[];

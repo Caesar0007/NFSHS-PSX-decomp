@@ -42,8 +42,8 @@ void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tD
 void Texture_GetClutId(int bpp, int * xclut, int * yclut);
 void * FECheat_IsTheUserACryBabyCheater(void);
 int MCRD_fileexists(int card, char * name);
-int MCRD_handlecardevents(int card);
-CARDINFO_def * MCRD_getcard(int card);
+extern "C" int MCRD_handlecardevents(int card);
+extern "C" CARDINFO_def *MCRD_getcard(int card);
 int AudioMus_Threshold(void);
 void PSXDrawBrightEndLine(int col, int x, int y, int w, int h, int side, int fade, int darksides);
 void Texture_MenuReleaseClutId(short id);

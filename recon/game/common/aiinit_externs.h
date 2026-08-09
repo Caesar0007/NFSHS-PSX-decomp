@@ -6,7 +6,7 @@
 #include "../../lib/libfns.h"
 
 /* AIDataRecord_AccTable_t / _CurveSpeedTable_t ctors now via `new Class(...)` (aidatarecord.obj) -- flat ctor externs removed */
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 extern AIPhysic_Config_t AIPhysicConfig;
 extern AISpeeds_tLeaderBoard leaderBoard;
 extern AITrigger_TriggerManager *triggerManagerTraffic;

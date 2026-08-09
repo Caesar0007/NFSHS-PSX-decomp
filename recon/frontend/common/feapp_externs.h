@@ -45,7 +45,7 @@ void  PSXFront_FreeDrawMemory(void);
 void FETextRender_FullText(char *, short, short, tMenuTextType, tMenuTextState, short);
 void FETextRender_FullTextRGB(char *, short, short, int, char, short);
 void FETextRender_SetABR(int, bool);
-int  textpixels(char *);
+extern "C" int textpixels(char *);
 char *TextSys_Word(int id);
 void FeTools_init(void);
 int  FeTools_deinit(void);

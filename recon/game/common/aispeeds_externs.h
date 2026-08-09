@@ -5,7 +5,7 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
-CARDINFO_def *MCRD_getcard(...);
+extern "C" CARDINFO_def *MCRD_getcard(int);
 extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;   /* was stale array-of-value shape; owner
                                                      (aidatarecord.cpp) defines it as a POINTER --
                                                      consumers call AIDataRecord_TrackCurve->Get(...),

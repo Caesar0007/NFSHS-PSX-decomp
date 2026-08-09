@@ -65,6 +65,21 @@ def _resolve_cc1_272():
 
 CC1_272 = _resolve_cc1_272()
 _warned_272 = False
+
+# W52: the FULL gcc ladder (fork C:/Temp/windows-gcc-psx; rungs 2.6.0, 2.6.3,
+# 2.7.2-970404, 2.7.2, 2.8.0, 2.8.1, 2.91.66, 2.95.2) as a generic lane.
+# PER_TU key `cc1_alt: "<ver>"` routes the TU through the SAME recipe as
+# _compile_c_272 (macro-emitting cc1 + direct GNU as reorder mode, no maspsx)
+# but with the named rung's cc1.exe.  Env NFS4_FORCE_CC1_ALT=<ver> overrides
+# the lane for EVERY C TU compiled in the process -- PROBE-ONLY (single-TU
+# verify_asm A/B runs); NEVER set it for a tree build.  Probe winners get
+# wired as PER_TU `cc1_alt` entries by the orchestrator.
+GCC_LADDER = Path(_env("NFS4_GCC_LADDER", r"C:/Temp/windows-gcc-psx"))
+
+
+def _resolve_cc1_alt(ver: str):
+    c = GCC_LADDER / f"gcc-{ver}-psx" / "cc1.exe"
+    return c if c.is_file() else None
 PY = sys.executable
 RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained types
 
@@ -789,6 +804,9 @@ PER_FN_EPILOGUE_UNFILL = {
         "padinit",
         "PAD_update",   # w50-a9: item-3 of its 9 diffs = the w48 epilogue-swap
                         # class (return slot); measured below by the orchestrator.
+        "PAD_state",    # w52-a8: FAIL 4 -> PASS 20/20. The w49 exclusion was a
+                        # PREDICTED 21-insn verdict; measured, the unfilled
+                        # addiu sp itself covers the lw-ra hazard (no #nop).
     },
     "recon/syslib/psx/libpad/PADMAIN.c": {
         "_padVbCallback1",   # FAIL 4  -> PASS 26/26
@@ -919,7 +937,7 @@ _MOVE_RE = re.compile(r"^(\tmove\t)(\$[a-z0-9]+),(\$[a-z0-9]+)[ \t]*$", re.M)
 
 
 def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
-                   obj: Path) -> Path:
+                   obj: Path, cc1_path: Path = None) -> Path:
     """The 04M gcc-2.7.2 lane for Sony library TUs: PsyQ 4.0's CC1PSX +
     DIRECT GNU as in its default reorder mode (no maspsx).
 
@@ -952,9 +970,10 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
         cc1_flags.append("-fno-schedule-insns2")
     if tu_flags.get("no_builtin"):
         cc1_flags.append("-fno-builtin")
-    r = run([CC1_272, *cc1_flags, i_file, "-o", s_file])
+    cc1 = cc1_path if cc1_path is not None else CC1_272
+    r = run([cc1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
-        sys.exit(f"[cc1-272] {rel}\n{r.stdout}{r.stderr}")
+        sys.exit(f"[cc1-272/alt {cc1}] {rel}\n{r.stdout}{r.stderr}")
     txt = s_file.read_text(errors="replace")
     txt = _MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), txt)
     txt = _apply_epilogue_unfill_272(rel.as_posix(), txt)
@@ -983,6 +1002,17 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     r = run(cpp)
     if r.returncode:
         sys.exit(f"[cpp] {rel}\n{r.stderr}")
+
+    # W52 ladder lane: env force (probe-only) wins over everything, then the
+    # per-TU cc1_alt wiring.  Both reuse the 272 recipe with a swapped cc1.
+    alt_ver = os.environ.get("NFS4_FORCE_CC1_ALT") or tu_flags.get("cc1_alt")
+    if alt_ver:
+        cc1_alt = _resolve_cc1_alt(str(alt_ver))
+        if cc1_alt is None:
+            sys.exit(f"[cc1-alt] {rel}: ladder rung {alt_ver!r} not found "
+                     f"under {GCC_LADDER}")
+        return _compile_c_272(rel, tu_flags, i_file, s_file, obj,
+                              cc1_path=cc1_alt)
 
     if tu_flags.get("cc1_272"):
         if CC1_272 is not None:

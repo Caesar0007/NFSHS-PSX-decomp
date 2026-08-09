@@ -953,56 +953,61 @@ LAB_80077cec:
 }
 
 /* ---- AudioCmn_SFX__Fi6s_typeT1iii  [@0x80077d50] ---- */
+/* SYM rule-8 REWRITE (w54-a11).  Local map from the SYM `8c Function start` block:
+   iSFXnumber = REG $17 (s1), amplitude = REG $19 (s3), frequency = REG $20 (s4) at
+   function scope; tempAmp = REG $16 (s0) in the block starting 0x80077E18; c (PTR
+   Car_tObj) = REG $16 (s0) in the block starting 0x80077FB0.  sndPlayer = s5,
+   tweakedForce = s0, Distsq = ARG copied to v1, azimuth = ARG copied to s6.
+   Everything else the old recon declared (iVar1..iVar4, pCVar5, uVar6, vol) was
+   fabricated.  BUG FIX: the retail entry guard on AudioCmn_kAudioOn (SLD 1485,
+   0x80077D58/0x80077D84) was missing entirely. */
 void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq,
                int azimuth)
 {
   int iSFXnumber;
   int amplitude;
   int frequency;
-  int tempAmp;
-  Car_tObj*c;
-  int iVar1;
-  int iVar2;
   int iVar3;
   int iVar4;
-  Car_tObj *pCVar5;
   u_int uVar6;
-  int vol;
-  
+
+  if (AudioCmn_kAudioOn == 0) {
+    return;
+  }
   if (Distsq < 0x1324) {
-    vol = ((0x1324 - Distsq) * 0x7f) / 0x1324;
+    amplitude = ((0x1324 - Distsq) * 0x7f) / 0x1324;
   }
   else {
-    vol = 0;
+    amplitude = 0;
   }
   if (sndPlayer < 0) {
-    iVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    iVar2 = 0x7f;
-    if (iVar1 < 0x80) {
-      iVar2 = iVar1;
+    /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
+       cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
+       late because it stores tempAmp instead of amplitude into 0x10(sp). */
+    int tempAmp;
+
+    tempAmp = (tweakedForce * 0x7f) / 0xa0000;
+    if (0x7f < tempAmp) {
+      tempAmp = 0x7f;
     }
-    iVar1 = ChooseImpactSample(iVar2,surface1,surface2);
-    if (iVar1 == 0x1f) {
-      iVar4 = ((vol * iVar2) / 0x7f) * 2;
-      if (0x7f < iVar4) {
-        iVar4 = 0x7f;
+    iSFXnumber = ChooseImpactSample(tempAmp,surface1,surface2);
+    if (iSFXnumber == 0x1f) {
+      tempAmp = ((amplitude * tempAmp) / 0x7f) * 2;
+      if (0x7f < tempAmp) {
+        tempAmp = 0x7f;
       }
-      AudioCmn_PlaySFX(0x31,0x1f,0x40,0x10000,vol,azimuth);
-      sndPlayer = 0x31;
-      iVar1 = 0x23;
-      iVar2 = 0x40;
-      vol = iVar4;
+      AudioCmn_PlaySFX(0x31,0x1f,0x40,0x10000,amplitude,azimuth);
+      AudioCmn_PlaySFX(0x31,0x23,0x40,0x10000,tempAmp,azimuth);
+      return;
     }
-    else {
-      sndPlayer = 0x31;
-      if (iVar1 == 0x12) {
-        AudioCmn_PlaySound(gSndBnk[3].bnkID,0x12,azimuth,0x7f,0x40);
-        AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,azimuth,0x7f,0x40);
-        AudioCmn_PlaySound(gSndBnk[3].bnkID,0x23,azimuth,vol,0x40);
-        return;
-      }
-      iVar2 = 0x40;
+    sndPlayer = 0x31;
+    if (iSFXnumber == 0x12) {
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x12,azimuth,0x7f,0x40);
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,azimuth,0x7f,0x40);
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,0x23,azimuth,amplitude,0x40);
+      return;
     }
+    frequency = 0x40;
   }
   else {
     if (tweakedForce < 1) {
@@ -1014,8 +1019,8 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
       Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0;
       return;
     }
-    iVar1 = ChooseLoopedSample(surface1,surface2);
-    iVar2 = scaleFrequency(sndPlayer,iVar1,tweakedForce);
+    iSFXnumber = ChooseLoopedSample(surface1,surface2);
+    frequency = scaleFrequency(sndPlayer,iSFXnumber,tweakedForce);
     uVar6 = sndPlayer - 0x12;
     if (uVar6 < 2) {
       iVar4 = (tweakedForce * 0x7f) / 0xa0000;
@@ -1023,26 +1028,28 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
       if (iVar4 < 0x80) {
         iVar3 = iVar4;
       }
-      vol = vol * iVar3 >> 7;
-      if (vol < 0x1f) {
+      amplitude = amplitude * iVar3 >> 7;
+      if (amplitude < 0x1f) {
         freeVoiceChannel(sndPlayer + 4);
         Cars_gList[uVar6]->audioDamageScrape = 0;
       }
       else {
-        pCVar5 = Cars_gList[uVar6];
-        if ((pCVar5->carInfo->carType < 0x1c) &&
-           (((iVar4 = (pCVar5->render).currentRoll, 0 < iVar4 && (0x1e0000 < (pCVar5->N).damage[7]))
-            || ((iVar4 < 0 && (0x1e0000 < (pCVar5->N).damage[3])))))) {
-          AudioCmn_PlaySFX(sndPlayer + 4,0x28,iVar2 + 10,0x10000,vol * 3,azimuth);
-          pCVar5->audioDamageScrape = vol;
+        Car_tObj*c;
+
+        c = Cars_gList[uVar6];
+        if ((c->carInfo->carType < 0x1c) &&
+           (((iVar4 = (c->render).currentRoll, 0 < iVar4 && (0x1e0000 < (c->N).damage[7]))
+            || ((iVar4 < 0 && (0x1e0000 < (c->N).damage[3])))))) {
+          AudioCmn_PlaySFX(sndPlayer + 4,0x28,frequency + 10,0x10000,amplitude * 3,azimuth);
+          c->audioDamageScrape = amplitude;
         }
       }
     }
-    if ((iVar1 == 0x2c) && (iVar2 = iVar2 + -0x3c, iVar2 < 0)) {
-      iVar2 = 0;
+    if ((iSFXnumber == 0x2c) && (frequency = frequency + -0x3c, frequency < 0)) {
+      frequency = 0;
     }
   }
-  AudioCmn_PlaySFX(sndPlayer,iVar1,iVar2,0x10000,vol,azimuth);
+  AudioCmn_PlaySFX(sndPlayer,iSFXnumber,frequency,0x10000,amplitude,azimuth);
   return;
 }
 
@@ -1946,24 +1953,20 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
     quickSirenTimeCount[sirennum] = quickSirenTimeCount[sirennum] + 1;
     iFreq = dop / 0x400;
     iFreq = (iFreq < 0) ? 0 : iFreq;
-    {
-      int chidx = sirennum + 0x2b;   /* opaque index temp: stops gcc distributing the
-                                        +0x2b into %lo(gaChannel+344); oracle keeps (s1+43)<<3 */
-      Channels_t *ch;
-      /* MATCH: address assignment EMBEDDED in the call -- places the [addiu s1,43;sll;
-         lui/addiu;addu s0] materialization after the bend select like the oracle
-         (a preceding ch=... statement schedules it before the slti). */
-      SNDpitchbend((ch = &gaChannel[chidx])->Partial,(0x7f < iFreq) ? 0x7f : iFreq);
-      /* MATCH: 0x25/0x2f written as (amp*9)*4+amp / (amp*3)*0x10-amp -- the inner +/-
-         node blocks gcc's multiply-chain regrouping of the constant onto the LEVEL
-         (same lever as PlayDoppleredSound's (vol*0x41)<<1); emits the oracle's exact
-         synth-mult shapes on amp with per-arm inline calls cross-jumped into one jal. */
-      if (sirenCount[sirennum] == -1) {
-        SNDvol(ch->Partial,gMasterAmbientLevel * ((amp * 9) * 4 + amp) >> 0xe);
-      }
-      else {
-        SNDvol(ch->Partial,gMasterAmbientLevel * ((amp * 3) * 0x10 - amp) >> 0xe);
-      }
+    /* SYM rule-8: the ONLY named local in retail is iFreq -- ch/chidx/c2/c2i/pan were
+       all fabricated.  Every channel-slot reference is the FULL expression
+       gaChannel[sirennum + 0x2b].Partial; gcc CSEs it into s0 by itself and hoists the
+       shared %hi(gaChannel) above the 3dpos/stereo branch (it lands in that beqz's
+       delay slot), which is exactly the `addiu v1,v1,0` the pan arm reuses. */
+    SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,(0x7f < iFreq) ? 0x7f : iFreq);
+    /* MATCH: 0x25/0x2f written as (amp*9)*4+amp / (amp*3)*0x10-amp -- the inner +/-
+       node blocks gcc's multiply-chain regrouping of the constant onto the LEVEL
+       (same lever as PlayDoppleredSound's (vol*0x41)<<1). */
+    if (sirenCount[sirennum] == -1) {
+      SNDvol(gaChannel[sirennum + 0x2b].Partial,gMasterAmbientLevel * ((amp * 9) * 4 + amp) >> 0xe);
+    }
+    else {
+      SNDvol(gaChannel[sirennum + 0x2b].Partial,gMasterAmbientLevel * ((amp * 3) * 0x10 - amp) >> 0xe);
     }
     /* MATCH: arm order -- 3dpos is the fall-through (if-body), stereo pan out-of-line. */
     if (Audio_direct3davail != 0) {
@@ -1971,22 +1974,9 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
     }
     else {
       if (gStereoMode != 0) {
-        /* MATCH: slot address hoisted into a local (a0) BEFORE the pan select; Partial
-           loaded at the call (lw a0,0(a0)); pan funnels through v0 into sra a1. */
-        int c2i = sirennum + 0x2b;   /* opaque index temp (stops the +344 reloc fold) */
-        /* MATCH: best-found form (15 diffs total fn): base+index via the int-cast
-           commutative shape; residual = base la split-vs-self + emission order
-           (scheduling floor, banked). */
-        Channels_t *c2 = gaChannel;
-        c2 = (Channels_t *)((c2i << 3) + (int)c2);
-        u_int pan;
-        if (azimuth - 0x4000U < 0x8000) {
-          pan = 0xbfff - azimuth;
-        }
-        else {
-          pan = azimuth + 0x4000U & 0xffff;
-        }
-        SNDpan(c2->Partial,(int)pan >> 8);
+        SNDpan(gaChannel[sirennum + 0x2b].Partial,
+               (int)((azimuth - 0x4000U < 0x8000) ? 0xbfff - azimuth
+                                                  : (azimuth + 0x4000U & 0xffff)) >> 8);
       }
     }
   }

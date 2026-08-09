@@ -116,6 +116,27 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
     iVar2 = AudioMus_g->requestsong + 1;
   }
   curr->index = iVar2;
+  /* MATCH (w54-a11) -- CSE RE-ASSOCIATION LAUNDER (zero insns, 47/47 byte-exact).
+     Retail forms &curr->info as an IN-PLACE bump of the now-dead curr register,
+     `addiu a0,a0,12`, and reorg then takes THAT insn for the first beq's delay slot
+     (SLD line 211 owns it).  Ours instead re-associated `curr + 12` through curr's
+     cse equivalence `AudioMus_g + 268` into `addiu a0,v1,280`; because that form
+     READS v1, it carries an anti-dependence against the `lw v1,32(v0)` errorcode
+     load, so sched2 is forced to hoist it above the gp reload -- where it lands in
+     that load's delay slot, leaving reorg to steal the case's `lui` instead (the
+     ours-1-shorter cascade).  The empty asm with a tied in/out operand makes curr's
+     value OPAQUE to cse without naming a register, emitting nothing, so `curr + 12`
+     stays curr-based.  NOT a register pin (no asm("$N") anywhere) -- same family as
+     the 05C operand fence, one step stronger.
+     FALSIFIED pure-C alternatives (all re-measured this session, do not retry):
+       curr->info.title = ... (no info local)        26 diffs
+       curr->info.title = ... (info decl kept)       26 diffs
+       info = (AudioMus_tSongEntry*)((char*)curr+12)  5 diffs (folds identically)
+       info = (AudioMus_tSongEntry*)(curr + 1)        5 diffs
+       info assigned inside each case arm            26 diffs
+       curr = (AudioMus_tCurrentSong*)info; then cast 5 diffs
+       plain operand fence on curr / on info      5 / 4 diffs (position only) */
+  __asm__("" : "=r"(curr) : "0"(curr));
   info = &curr->info;
   switch ((*(AudioMus_tMusicGlobals *volatile *)&AudioMus_g)->errorcode) {
     case -4:
@@ -247,23 +268,33 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
   int iVar3;
   char *pcVar4;
 
-  pcVar4 = info->filename;
-  iVar3 = 0;  /* FLOOR (w30-a7, 2026-07-26): 2-diff residual is a single `addu a1,zero,zero`
-                 (iVar3=0) SCHEDULING position tie-break -- oracle hoists it here (right after
-                 the a2 load, before the 4 field-zero stores); our cc1 defers it to right before
-                 first use (after the beqz test, filling that branch's delay slot). Declaration-
-                 order/statement-order edits don't move it (gcc reorders independent constant
-                 loads by register pressure, not source position). One time-boxed permuter job
-                 (-j 2, ~600 iters, stop-on-zero) plateaued at score 20, never reached 0 -- not a
-                 quick permuter win either. Proven allocator/scheduler tie-break; not re-fighting. */
+  /* MATCH (w54-a11) -- SEALED; retires the w30-a7 "proven scheduler floor" receipt.
+   * Two edits, both read straight off retail's SLD (LAW 05A):
+   *  (1) STATEMENT ORDER.  SLD: 346 artist=0 · 347 label=0 · 348 date=0 · 349 notes=0 ·
+   *      351 iVar3=0 (an explicit `Set SLD linenum to 351` record at 0x8007a30c -- i.e.
+   *      a SCHEDULER-MOVED insn, its own statement) · 354 owns the filename load AND the
+   *      loop guard.  So the four zero-stores come first and the filename load belongs
+   *      to the loop statement (the lw only LOOKS leading because sched hoists it for
+   *      load latency).
+   *  (2) REORG DELAY-SLOT COMPETITION (the actual crack).  bVar2's init must live
+   *      OUTSIDE the rotated `if`, in the loop PREHEADER.  With it inside, the only
+   *      fill candidate for the `beqz` slot is `addu a1,zero,zero` (iVar3=0), so reorg
+   *      sinks it there and the a1 init never reaches its scheduled slot 1.  Hoisted
+   *      out, `addu a3,a1,zero` becomes the nearest independent insn before the branch,
+   *      reorg takes THAT (= retail's slot), and a1=0 stays at slot 1.  Zero insn cost.
+   * Generalization: an "unmovable constant in the delay slot" is a reorg CANDIDATE-SET
+   * problem, not a scheduler floor -- give reorg a better candidate. */
   info->artist = (char *)0x0;
   info->label = (char *)0x0;
   info->date = (char *)0x0;
   info->notes = (char *)0x0;
+  iVar3 = 0;
+  bVar2 = false;
+  pcVar4 = info->filename;
   cVar1 = *pcVar4;
   if (cVar1 != '\0') {   /* loop-rotated: oracle tests the FIRST char once up-front, then the */
-    bVar2 = false;       /* back-edge test is the ONLY other '\0' check (matches the rotated */
-    do {                 /* while-loop gcc emits for a plain `while` — see methodology §3.12#15a) */
+                         /* back-edge test is the ONLY other '\0' check (matches the rotated */
+    do {               /* while-loop gcc emits for a plain `while` — see methodology §3.12#15a) */
       if (cVar1 == '-') {
         if (!bVar2) {
           bVar2 = true;
@@ -444,66 +475,67 @@ done:
 }
 
 /* ---- AudioMus_GetSongList__FPci  [@0x8007a880] ---- */
+/* SYM rule-8 REWRITE (w54-a11).  SYM local map: list = REG $17 (s1), song = REG $20 (s4),
+   numsongs = REG $17 (s1, same reg -- its live range ends where list's begins), the two
+   loop counters are SEPARATE block-scope `i`s in DIFFERENT regs (s0 for the counting
+   loop, s2 for the fill loop -- s2 = memtype's reg, reused after memtype dies), size =
+   AUTO -0x28, songname = REG $16 (s0).  Everything else in the old recon (pAVar1/pbVar2/
+   iVar3/pAVar4/iVar5/iVar6/piVar7/info) was fabricated.  Two structural corrections the
+   SLD forces: (a) the AudioMus_g==NULL arm is the OUT-OF-LINE arm (SLD 589-593, at the
+   very END of the function) -- so the test is `if (g != NULL) {...} else {...}`, not the
+   inverted form the old recon used; (b) the counting loop's induction variable starts
+   from numsongs (retail CSEs the shared 0: `addu s0,s1,zero` in the guard's delay slot). */
 AudioMus_tSongList *
 AudioMus_GetSongList(char *pattern,int memtype)
 {
   AudioMus_tSongList*list;
   AudioMus_tSongEntry*song;
   int numsongs;
-  int i;
-  long size;
-  char*songname;
-  AudioMus_tMusicGlobals *pAVar1;
-  u_char *pbVar2;
-  int iVar3;
-  AudioMus_tSongList *pAVar4;
-  int iVar5;
-  int iVar6;
-  int *piVar7;
-  AudioMus_tSongEntry *info;
 
-  iVar6 = 0;
-  if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
-    pAVar4 = reservememadr("Song List",8,memtype);
-    pAVar4->numsongs = 0;
-    pAVar4->currentsong = -1;
-  }
-  else {
-    iVar5 = 0;
-    if (0 < AudioMus_g->totalsongs) {
-      do {
-        pbVar2 = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,iVar5,(long *)0x0,(long *)0x0);   /* oracle 0x6a8d8: a2=i a3=NULL stk=NULL */
-        iVar3 = wildcard(pbVar2,pattern);
-        if (iVar3 != 0) {
-          iVar6 = iVar6 + 1;
+  numsongs = 0;
+  if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
+    {
+      int i;
+
+      for (i = numsongs; i < AudioMus_g->totalsongs; i = i + 1) {
+        if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(long *)0x0,(long *)0x0),
+                     pattern) != 0) {
+          numsongs = numsongs + 1;
         }
-        iVar5 = iVar5 + 1;
-      } while (iVar5 < AudioMus_g->totalsongs);
+      }
     }
-    pAVar4 = reservememadr("Song List",iVar6 << 6 | 8,memtype);
-    info = (AudioMus_tSongEntry *)(pAVar4 + 1);
-    piVar7 = &pAVar4[4].currentsong;
-    pAVar4->numsongs = 0;
-    pAVar4->currentsong = -1;
-    for (iVar6 = 0; iVar6 < AudioMus_g->totalsongs; iVar6 = iVar6 + 1) {
-      pbVar2 = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,iVar6,(long *)0x0,&size);   /* oracle 0x6a974: a2=i a3=NULL stk=&size */
-      iVar5 = wildcard(pbVar2,pattern);
-      if (iVar5 != 0) {
-        info->filename = (char *)pbVar2;
-        AudioMus_SetEntry(info);
-        *piVar7 = iVar6;
-        pAVar1 = AudioMus_g;
-        ((AudioMus_tSongList *)(piVar7 + -1))->numsongs = (size * 10) / 0xfc;   /* size from locatebigentry (was phantom local_28) */
-        if (pbVar2 == (u_char *)pAVar1->songname) {
-          pAVar4->currentsong = iVar6;
+    list = reservememadr("Song List",numsongs << 6 | 8,memtype);
+    song = list->song;
+    list->numsongs = 0;
+    list->currentsong = -1;
+    {
+      int i;
+
+      for (i = 0; i < AudioMus_g->totalsongs; i = i + 1) {
+        long size;
+        char *songname;
+
+        songname = (char *)locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,(long *)0x0,&size);
+        if (wildcard((u_char *)songname,pattern) != 0) {
+          song->filename = songname;
+          AudioMus_SetEntry(song);
+          song->length = (size * 10) / 0xfc;
+          song->index = i;
+          if (songname == AudioMus_g->songname) {
+            list->currentsong = i;
+          }
+          song = song + 1;
+          list->numsongs = list->numsongs + 1;
         }
-        piVar7 = piVar7 + 0x10;
-        info = info + 1;
-        pAVar4->numsongs = pAVar4->numsongs + 1;
       }
     }
   }
-  return pAVar4;
+  else {
+    list = reservememadr("Song List",8,memtype);
+    list->numsongs = 0;
+    list->currentsong = -1;
+  }
+  return list;
 }
 
 /* ---- AudioMus_InitGlobals__Fv  [@0x8007aa54] ---- */
@@ -796,37 +828,38 @@ int AudioMus_PlaySong(char *pattern)
 }
 
 /* ---- AudioMus_Volume__Fi  [@0x8007b2b0] ---- */
+/* SYM rule-8 REWRITE (w54-a11): the SYM says this fn has exactly TWO named locals --
+   ticksleft (REG $16 = s0) and curvol (REG $4 = a0, declared in a block whose code
+   starts at 0x8007b318 = the SNDSTRM_getvol call).  The old recon had five fabricated
+   temps, DISCARDED SNDSTRM_getvol's return (retail tests it: `blez a0` at 0x8007b324),
+   passed a literal 0 to StopSong where retail passes ticksleft (`addu a0,s0,zero` in
+   the jal's delay slot), and had the two fade arms in the WRONG ORDER (retail's SLD
+   runs 984 ticksleft!=0 as the FALL-THROUGH, 989 as the out-of-line arm). */
 void AudioMus_Volume(int volume)
 {
-  int ticksleft;
-  int curvol;
-  int iVar1;
-  int iVar2;
-  int s;
-
   if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->volume != volume)) {
-    s = 0;
+    int ticksleft = 0;
+
     if (volume == 0) {
       AudioMus_g->volume = 0;
-      AudioMus_StopSong(0);
+      AudioMus_StopSong(ticksleft);
     }
     else {
-      iVar1 = AudioMus_g->fadetime;
-      if ((((iVar1 != 0) && (-1 < AudioMus_g->streamhandle)) &&
-          (SNDSTRM_getvol(AudioMus_g->streamhandle), 0 < iVar1)) &&
-         (iVar2 = AudioMus_g->volume, 0 < iVar2)) {
-        iVar1 = AudioMus_g->fadetime * iVar1;
-        s = iVar1 / iVar2;
+      if ((AudioMus_g->fadetime != 0) && (-1 < AudioMus_g->streamhandle)) {
+        int curvol = SNDSTRM_getvol(AudioMus_g->streamhandle);
+
+        if ((0 < curvol) && (0 < AudioMus_g->volume)) {
+          ticksleft = AudioMus_g->fadetime * curvol / AudioMus_g->volume;
+        }
       }
-      if (s == 0) {
+      if (ticksleft != 0) {
+        SNDSTRM_vol(AudioMus_g->streamhandle,(volume * ticksleft) / AudioMus_g->fadetime);
+        SNDSTRM_autovol(AudioMus_g->streamhandle,ticksleft,0);
+      }
+      else {
         if ((-1 < AudioMus_g->streamhandle) && (AudioMus_g->switchsong != 2)) {
           SNDSTRM_vol(AudioMus_g->streamhandle,volume);
         }
-      }
-      else {
-        iVar1 = AudioMus_g->fadetime;
-        SNDSTRM_vol(AudioMus_g->streamhandle,(volume * s) / iVar1);
-        SNDSTRM_autovol(AudioMus_g->streamhandle,s,0);
       }
       if (AudioMus_g->volume == 0) {
         AudioMus_g->volume = volume;

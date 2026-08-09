@@ -861,14 +861,14 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
-      *(short *)((u_char *)prim + 8) = x1;
-      *(short *)((u_char *)prim + 10) = fY;
-      *(short *)((u_char *)prim + 12) = x1 + rectwidth;
-      *(short *)((u_char *)prim + 14) = fY;
-      *(short *)((u_char *)prim + 16) = x1;
-      *(short *)((u_char *)prim + 20) = x1 + rectwidth;
-      *(short *)((u_char *)prim + 18) = fY + fHeight;
-      *(short *)((u_char *)prim + 22) = fY + fHeight;
+      prim->x0 = x1;
+      prim->y0 = fY;
+      prim->x1 = x1 + rectwidth;
+      prim->y1 = fY;
+      prim->x2 = x1;
+      prim->y2 = fY + fHeight;
+      prim->x3 = x1 + rectwidth;
+      prim->y3 = fY + fHeight;
       Col = 0;
       if (!shadow) {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
@@ -901,14 +901,14 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
-      *(short *)((u_char *)prim + 8) = x1;
-      *(short *)((u_char *)prim + 10) = fY;
-      *(short *)((u_char *)prim + 12) = x1 + rectwidth;
-      *(short *)((u_char *)prim + 14) = fY;
-      *(short *)((u_char *)prim + 16) = x1;
-      *(short *)((u_char *)prim + 20) = x1 + rectwidth;
-      *(short *)((u_char *)prim + 18) = fY + fHeight;
-      *(short *)((u_char *)prim + 22) = fY + fHeight;
+      prim->x0 = x1;
+      prim->y0 = fY;
+      prim->x1 = x1 + rectwidth;
+      prim->y1 = fY;
+      prim->x2 = x1;
+      prim->y2 = fY + fHeight;
+      prim->x3 = x1 + rectwidth;
+      prim->y3 = fY + fHeight;
       Col = 0;
       if (!shadow) {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */

@@ -228,6 +228,13 @@ void tScreenTrophyRoom::Cleanup()
 
 
 /* ---- tScreenTrophyRoom::DrawBackground  [SCREENTROPHYROOM.CPP:161-234] ---- */
+/* W66 (2026-08-10): 158 -> 108 diffs (257/261 insns).  Three guide-sanctioned
+   empty-template fences preserve retail lifetimes without emitting instructions
+   or pinning registers: pDrawFlags remains live across the fade/text calls, the
+   extra final use gives i=s1 and this=s2, and the texttoshow identity barrier
+   removes two more scheduling differences.  The remaining residual is localized
+   to the tournament-index expression, texttoshow's a0 handoff, and grid-loop
+   call setup. */
 void tScreenTrophyRoom::DrawBackground()
 
 {
@@ -273,11 +280,13 @@ void tScreenTrophyRoom::DrawBackground()
   else if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
     texttoshow = 0x3e0;
   }
+  __asm__("" : "=r"(texttoshow) : "0"(texttoshow));
+  i = 0;
   sMenuText = TextSys_Word(texttoshow);
   pDrawFlags = &drawFlags;
+  __asm__("" : "=r"(pDrawFlags) : "0"(pDrawFlags));
   texttoshow = CalcFadeVal(0x505050,this->fScreenFadeVal);
   FETextRender_FullTextRGB(sMenuText,0x100,200,texttoshow,'\0',2);
-  i = 0;
   while (true) {
     texttoshow = (int)i;
     if (this->fNumTrophies <= texttoshow) break;
@@ -294,6 +303,7 @@ void tScreenTrophyRoom::DrawBackground()
     ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
     i = i + 1;
   }
+  __asm__("" : : "r"(i));
   return;
 }
 

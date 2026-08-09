@@ -126,6 +126,16 @@ __asm__(
      * labels for &word[6] (the fix half) and &word[12]. --- */
     "\t.globl _patch_gte_handler_1\n"
     "_patch_gte_handler_1:\n"
+    /* W52-A9: the symbol must carry its FULL 0x30 size EXPLICITLY.  tools/fix_symsizes.py
+     * back-fills a size-less global as (next symbol - this), and the interior alabel
+     * D_80106518 sits at +0x18 -- so the symbol came out 0x18 instead of 0x30 and objdiff
+     * (which reads st_size) compared only the first 6 of the target's 12 words: a flat 50%
+     * row on a block whose bytes are in fact byte-exact (verify_asm PASS 12/12, because
+     * ours() walks the objdump BLOCK and deliberately continues THROUGH interior oracle
+     * alabels).  The expected object gets its 0x30 from splat's glabel/endlabel .size pair;
+     * an explicit .size here reproduces it and fix_symsizes then leaves the symbol alone. */
+    "\t.type  _patch_gte_handler_1, @function\n"
+    "\t.size  _patch_gte_handler_1, 0x30\n"
     "\t.globl _gte_patch_text\n"
     "_gte_patch_text = _patch_gte_handler_1\n"
     "\t.word 0xaf410004\n\t.word 0xaf420008\n\t.word 0xaf43000c\n"

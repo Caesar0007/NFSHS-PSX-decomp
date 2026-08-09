@@ -18,6 +18,37 @@
 
 #if defined(__mips__)
 
+/* @0x8010CA40 : func_8010CA40 -- the TWO 5-word patch TEMPLATES themselves (code-as-data class 2,
+ * methodology 3.9b: never `jal`'d, only address-taken by _patch_card / _patch_card2 below, which
+ * copy them over BIOS B0[0x56] / B0[0x57] table entries).  splat gave the island its own `func_`
+ * label; the recon referenced it by %hi/%lo but never DEFINED it, so objdiff reported the symbol
+ * 0% and verify_asm `NOT IN OBJECT` (W52-A9).  Emitted verbatim here, its owning object.
+ *
+ * The two kernel targets are hardcoded KSEG1 constants (0xA000DFAC / 0xA000DF80 = the relocated
+ * card handlers _copy_memcard_patch installs at 0xDF80), NOT relocatable symbols -- they are
+ * written as literal lui/addiu pairs so the BYTES are retail-exact.  ⚠ verify_asm reports 8
+ * residual lines on this function purely as a NORMALIZER artifact: spimdisasm names the literals
+ * `D_A000DFAC` / `D_A000DF80` and verify_asm's literal-dlabel rule resolves `%hi()` as a bare
+ * `addr>>16` (0xA000) and `%lo()` as an UNSIGNED `addr&0xFFFF` (0xDFAC), while the real assembler
+ * emits the %hi CARRY (0xA001, because %lo's bit 15 is set) and objdump renders the %lo SIGNED
+ * (-8276).  Retail word 0x3C02A001 == ours; see the W52-A9 patch proposal for the fix. */
+__asm__(
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"
+    "\t.set noreorder\n"
+    "\t.globl func_8010CA40\n"
+    "func_8010CA40:\n"
+    "\tlui   $v0, 0xA001\n"                         /* @0x8010CA40  patch1: %hi(0xA000DFAC) */
+    "\taddiu $v0, $v0, -8276\n"                     /* @0x8010CA44  %lo = 0xDFAC             */
+    "\tjr    $v0\n"                                 /* @0x8010CA48                           */
+    "\t nop\n"                                      /* @0x8010CA4C  [delay]                  */
+    "\tnop\n"                                       /* @0x8010CA50  (5th word of template 1) */
+    "\tlui   $t0, 0xA001\n"                         /* @0x8010CA54  patch2: %hi(0xA000DF80) */
+    "\taddiu $t0, $t0, -8320\n"                     /* @0x8010CA58  %lo = 0xDF80             */
+    "\tjalr  $t0\n"                                 /* @0x8010CA5C                           */
+    "\t nop\n"                                      /* @0x8010CA60  [delay]                  */
+    "\t.set at\n");
+
 /* @0x8010CB6C : _copy_memcard_patch -- copy the 28-word card-IRQ handler blob into kernel RAM. */
 __asm__(
     "\t.set noat\n"

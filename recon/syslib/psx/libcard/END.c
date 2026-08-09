@@ -43,6 +43,24 @@ __asm__(
     "\tnop\n"                                    /* @0x8010CC24  [load delay]            */
     "\tjr    $ra\n"                             /* @0x8010CC28                          */
     "\t nop\n"                                   /* @0x8010CC2C  [delay]                 */
+
+    /* The 4 zero words the loop above reads.  They live in THIS object, immediately after
+     * _ExitCard's `endlabel`, and splat exported each alternate label as a GLOBAL symbol
+     * (asm/nonmatchings/main/_ExitCard.s tail) -- so `D_8010CC30` and `D_8010CC3C` are rows in
+     * the objdiff/progress list in their own right.  The recon referenced them by %hi/%lo but
+     * left them UNDEFINED (`nm` showed both as *UND*), which is why both rows read 0% while
+     * _ExitCard itself was byte-exact (W52-A9).  Defining them here also makes the object
+     * self-contained: the loop's src pointer and end sentinel now resolve in-object exactly as
+     * they did in CARD.S.  D_8010CC3C is the loop's END sentinel, i.e. D_8010CC30 + 0xC, so the
+     * copied payload is the 3 words at D_8010CC30. */
+    "\t.globl D_8010CC30\n"
+    "D_8010CC30:\n"
+    "\t.word 0\n"                                /* @0x8010CC30                          */
+    "\t.word 0\n"                                /* @0x8010CC34                          */
+    "\t.word 0\n"                                /* @0x8010CC38                          */
+    "\t.globl D_8010CC3C\n"
+    "D_8010CC3C:\n"
+    "\t.word 0\n"                                /* @0x8010CC3C  loop end sentinel       */
     "\t.set at\n");
 
 /* NOTE: the 28 instructions above are byte-identical to the oracle (asm/nonmatchings/main/

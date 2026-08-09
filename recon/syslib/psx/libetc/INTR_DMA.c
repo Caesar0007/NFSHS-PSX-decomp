@@ -22,7 +22,15 @@
 extern void InterruptCallback(int idx, void (*h)());   /* INTR */
 extern int  printf(const char *fmt, ...);              /* C63 */
 extern void _dma_isr(void);
-static int _dma_set_callback(int ch, int func);   /* @0x80106878 : obj-local; only reached via the pointer startIntrDMA returns */
+/* @0x80106878 : the per-channel DMA-callback setter startIntrDMA hands back.  NOT `static`:
+ * the oracle materialises its address as `lui %hi(func_80106878); addiu %lo(func_80106878)`,
+ * i.e. the symbol has its OWN global entry (a file-static would take a .text SECTION-relative
+ * reloc with a nonzero addend -- methodology 3.12 #12).  It also carries the project label
+ * `func_80106878` (configs/symbol_addrs.txt + src/.../INTR_DMA.c's INCLUDE_ASM); naming it
+ * anything else leaves the oracle symbol unpaired -- objdiff reported it 0% and verify_asm
+ * `NOT IN OBJECT` while the body was in fact byte-exact under the local name
+ * `_dma_set_callback` (W52-A9; same hidden-phantom class as the _bzero_w note above). */
+int func_80106878(int ch, int func);
 
 extern volatile unsigned int *g_dicr_ptr;   /* @0x8013BD20 : = 0x1F8010F4 */
 extern int dma_cb[8];                        /* @0x8013BD24 : per-channel DMA callbacks */
@@ -52,7 +60,7 @@ extern void *startIntrDMA(void)   /* @0x801066AC */
      * the volatile qualifier alone cost the fill -- cast it away for this one store. */
     *(unsigned int *)g_dicr_ptr = 0;
     InterruptCallback(3, _dma_isr);
-    return (void *)_dma_set_callback;
+    return (void *)func_80106878;
 }
 
 extern void _dma_isr(void)   /* @0x801066F8 */
@@ -82,17 +90,28 @@ dma_error:
         printf("MADR[%d]=%08x\n", i, g_madr_ptr[4 * i]);
 }
 
-static int _dma_set_callback(int ch, int func)   /* @0x80106878 (obj-local; installed by startIntrDMA) */
+/* W52-A9 receipts on the body (63 -> 46 diffs, ours 41 / oracle 43):
+ *   - the ARMS are inverted vs the old recon: retail's `beqz $a0,.L801068E0` makes the
+ *     func != 0 (install) arm the FALL-THROUGH, so the source tests `if (func != 0)`.
+ *   - the `& 0x1f` on the shift COUNT was a Ghidra transcription artifact (sllv masks to 5
+ *     bits in hardware); writing it emits a real `andi rX,rX,31` retail does not have
+ *     (catalog SC "andi ...,31 before a variable shift -- delete it").
+ *   Residual: retail COPIES both params (`addu a2,a0,zero` = ch, `addu a0,a1,zero` = func)
+ *   and keeps `old` in $a3, staging `addu v0,a3,zero` in two branch delay slots; ours keeps
+ *   ch/func in their incoming regs (hence 2 insns short).  Falsified levers: explicit local
+ *   copies of both params, and an early `if (func == old) return old;` funnel -- both
+ *   coalesce back to identical code (46 diffs each). */
+int func_80106878(int ch, int func)   /* @0x80106878 (installed by startIntrDMA) */
 {
     int *p = &dma_cb[ch];
     int old = *p;
     if (func != old) {
-        if (func == 0) {
-            *p = 0;
-            DICR = (DICR & 0xffffff | 0x800000) & ~(1 << (ch + 0x10U & 0x1f));
-        } else {
+        if (func != 0) {
             *p = func;
-            DICR = DICR & 0xffffff | 1 << (ch + 0x10U & 0x1f) | 0x800000U;
+            DICR = DICR & 0xffffff | 1 << (ch + 0x10) | 0x800000;
+        } else {
+            *p = 0;
+            DICR = (DICR & 0xffffff | 0x800000) & ~(1 << (ch + 0x10));
         }
     }
     return old;

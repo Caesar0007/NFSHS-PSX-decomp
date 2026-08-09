@@ -29,5 +29,40 @@ __asm__(
     "\t nop\n"                             /* @0x8010C9F0  [delay]                          */
     "\tjr    $ra\n"                        /* @0x8010C9F4                                  */
     "\t nop\n"                             /* @0x8010C9F8  [delay]                          */
+
+    /* ---------------------------------------------------------------------------------------
+     * @0x8010C9FC : func_8010C9FC -- the REMAINING 17 words of the same 28-word card-IRQ handler
+     * blob (the blob runs [InitCARD2+0x10 .. func_8010CA40), i.e. 0x8010C9D0..0x8010CA40, and
+     * InitCARD2's own symbol ends at 0x8010C9FC).  splat gave the overhang its own `func_` label,
+     * so it is a separate SYMBOL that objdiff pairs -- but the recon only emitted InitCARD2, so
+     * the row read 0% / verify_asm `NOT IN OBJECT` (W52-A9).  It is code-as-data class 2 per
+     * methodology 3.9b: never `jal`'d, only its ADDRESS is used (by _copy_memcard_patch's word
+     * loop), so it must be emitted VERBATIM under its project label.
+     *
+     * What it does once relocated to kernel RAM 0xDF80: poll the card-IRQ status word at
+     * SIO+0x1074, bail to the plain `jr $ra` if bit 7 is clear, else spin on SIO+0x1044 bit 7
+     * and chain to the previous handler whose pointer sits at 0xDFFC.
+     * --------------------------------------------------------------------------------------- */
+    "\t.globl func_8010C9FC\n"
+    "func_8010C9FC:\n"
+    "\tlw    $v0, 4212($v1)\n"             /* @0x8010C9FC  lw $v0,0x1074($v1)              */
+    "\tnop\n"                              /* @0x8010CA00  [load delay]                     */
+    "\tandi  $v0, $v0, 0x80\n"             /* @0x8010CA04                                  */
+    "\tbeqz  $v0, .Lcard_irq_ret\n"        /* @0x8010CA08  -> 0x8010CA38                   */
+    "\t nop\n"                             /* @0x8010CA0C  [delay]                          */
+    ".Lcard_irq_spin:\n"
+    "\tlw    $v0, 4164($v1)\n"             /* @0x8010CA10  lw $v0,0x1044($v1)              */
+    "\tnop\n"                              /* @0x8010CA14  [load delay]                     */
+    "\tandi  $v0, $v0, 0x80\n"             /* @0x8010CA18                                  */
+    "\tbnez  $v0, .Lcard_irq_spin\n"       /* @0x8010CA1C                                  */
+    "\t nop\n"                             /* @0x8010CA20  [delay]                          */
+    "\tlui   $v0, 1\n"                     /* @0x8010CA24  0x10000                          */
+    "\tlw    $v0, -8196($v0)\n"            /* @0x8010CA28  *(0xDFFC) = chained handler      */
+    "\tnop\n"                              /* @0x8010CA2C  [load delay]                     */
+    "\tjr    $v0\n"                        /* @0x8010CA30  chain                            */
+    "\t nop\n"                             /* @0x8010CA34  [delay]                          */
+    ".Lcard_irq_ret:\n"
+    "\tjr    $ra\n"                        /* @0x8010CA38                                  */
+    "\t nop\n"                             /* @0x8010CA3C  [delay]                          */
     "\t.set pop\n");
 #endif

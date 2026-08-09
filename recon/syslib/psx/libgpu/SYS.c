@@ -161,21 +161,18 @@ extern u_long _set_draw_offset(int x, int y)
  * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
 extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
 {
-    /* MATCH (w48-a2, 5 -> 2, count-exact 8/8): the `lo = tpage & 0x9ff` statement must sit
-     * AFTER the dtd block, so the `andi` is the last insn before the dfe `beqz` and dbr's
-     * backward scan takes it as the delay-slot fill (ours previously hoisted it to the top and
-     * nop'd the slot).  The old note's "hi-first order = wrong coloring" reading was basin-stale.
-     * RESIDUAL 2 = the final `or $v0,$v1,$v0` OPERAND ORDER (ours `or $v0,$v0,$v1`).  Invariant
-     * across 11 spellings, all count-exact 8/8: lo|=hi, fresh result var, `dfe`-block reorder,
-     * decl-order lo-first, separate `hi=` assignment, `hi = dtd ? .. : ..` ternary, int-typed lo,
-     * int-typed lo+hi (all 2); `return hi|lo` in any decl order (10 -- recolors lo into $a2).
-     * = RTL commutative-operand canonicalization (w41 find_reg/cost-pass boundary class). */
-    u_long hi = (u_long)0xe1000000u;
-    u_long lo;
-    if (dtd) hi |= 0x200u;
-    lo = (u_long)(tpage & 0x9ff);
-    if (dfe) lo |= 0x400u;
-    return lo | hi;
+    /* MATCH (w53-a6, 2 -> PASS 8/8 on the wired 2.7.2 lane): the PSY-Q source form, taken
+     * verbatim from the matched PSY-Q 4.0 `get_mode` in the psyz decomp -- ONE expression of
+     * three ternary/mask terms, NOT the hi/lo statement pair.  That single-expression shape is
+     * what produces the oracle's `or $v0,$v1,$v0` operand order: gcc reassociates
+     * `(dfe?0x400:0) | (tpage & 0x9ff)` into the `andi`+conditional-`ori` on $v0 and leaves the
+     * dtd term in $v1, so the final `or` takes the dtd term FIRST.  The previous note's
+     * "11 spellings, invariant = RTL commutative canonicalization floor" verdict was WRONG:
+     * all 11 kept the hi/lo STATEMENT skeleton, which fixes the tree order to `lo | hi`.
+     * (w53-a6 measured: this form on the 2.8.1+-mno-split-addresses lane = FAIL 2, ours 10 /
+     * oracle 8 -- the old form was FAIL 2 count-exact there.  Re-check on any lane flip.) */
+    return (dtd ? 0xe1000200u : 0xe1000000u) | (dfe ? 0x400u : 0u)
+           | (u_long)(tpage & 0x9ff);
 }
 
 /* ============================ SUB-GROUP 2 ============================
@@ -1190,7 +1187,7 @@ extern void *PutDispEnv(void *env)
      * but a hand-expanded control-flow shape.  Variable names follow psyz
      * (h_start/h_end/v_start/v_end) so the two implementations can be diffed directly;
      * the OVERSCAN TABLE lookups are 4.3-specific and stay.
-     * MATCH: single base pointer for `env` (§3.12 lever). */
+     * MATCH: single base pointer for `env` (methodology 3.12 lever). */
     u_char *eb = (u_char *)env;
 #define ES(i) (*(short *)(eb + (i) * 2))
 #define EU(i) (*(u_short *)(eb + (i) * 2))

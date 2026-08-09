@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 3075 at 100% (88.0%)
+TOTAL: 3496 functions, 3078 at 100% (88.0%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ VA             %match  unit                     function
 0x80013F74    100.00%  frontend/common/feapp    DisplayHelp__14tFEApplications
 0x80013F98    100.00%  frontend/common/feapp    FreeHelpShapeCluts__Fv
 0x80014014     94.73%  frontend/common/feapp    RunDemoVideo__14tFEApplication
-0x800142A4     94.02%  frontend/common/feapp    MainLoop__14tFEApplicationP5tMenu
+0x800142A4     98.51%  frontend/common/feapp    MainLoop__14tFEApplicationP5tMenu
 0x80015430    100.00%  frontend/common/feapp    RunPostGame__14tFEApplication
 0x80015738    100.00%  frontend/common/feapp    RunFrontEnd__14tFEApplication
 0x80015760    100.00%  frontend/common/fedialog ___31tDialogMessageStringWithTimeout
@@ -90,7 +90,7 @@ VA             %match  unit                     function
 0x800189B8    100.00%  frontend/common/fedialog Draw__11tDialogBase
 0x80018AC8    100.00%  frontend/common/fedialog ProcessInput__11tDialogBase7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80018B0C    100.00%  frontend/common/fedialog AddItem__11tDialogHelpss
-0x80018B90     83.58%  frontend/common/fedialog CalculateDimensions__11tDialogHelp
+0x80018B90     88.77%  frontend/common/fedialog CalculateDimensions__11tDialogHelp
 0x8001912C     96.33%  frontend/common/fedialog Draw__11tDialogHelp
 0x80019418     77.39%  frontend/common/fedialog CalculateDimensions__20tDialogMessageString
 0x8001962C    100.00%  frontend/common/fedialog Draw__20tDialogMessageString
@@ -245,7 +245,7 @@ VA             %match  unit                     function
 0x8001FCAC    100.00%  frontend/common/femenuoptions CheckForCheats__FPc
 0x8001FD2C     79.21%  frontend/common/femenuoptions ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x800200EC    100.00%  frontend/common/femenuoptions SpecialCharacter__Fc
-0x8002017C     79.70%  frontend/common/femenuoptions Draw__17tUserNameMenuItemb
+0x8002017C     85.42%  frontend/common/femenuoptions Draw__17tUserNameMenuItemb
 0x80020574    100.00%  frontend/common/femenuoptions TransitionOff__17tUserNameMenuItem
 0x80020580     97.16%  frontend/common/femenuoptions TransitionOn__17tUserNameMenuItem
 0x800207B4    100.00%  frontend/common/femenuoptions TransitionIsFinished__17tUserNameMenuItem
@@ -293,7 +293,7 @@ VA             %match  unit                     function
 0x80021E14    100.00%  frontend/common/fetracks Increment__18tListIteratorTrack7tPlayer
 0x80021EC0    100.00%  frontend/common/fetracks Decrement__18tListIteratorTrack7tPlayer
 0x80021F50    100.00%  frontend/common/fetracks ValidTrack__18tListIteratorTrackc
-0x80021FF8     79.03%  frontend/common/fetv     DrawTVLines__FR9tTVConfig
+0x80021FF8    100.00%  frontend/common/fetv     DrawTVLines__FR9tTVConfig
 0x8002234C     93.02%  frontend/common/fetv     DrawTV__FR9tTVConfig
 0x80023008    100.00%  frontend/common/fetv     InitTV__FR9tTVConfigP18tTexture_ShapeInfos
 0x80023218    100.00%  frontend/common/fetv     TurnOffTV__FR9tTVConfig
@@ -364,7 +364,7 @@ VA             %match  unit                     function
 0x80024B54    100.00%  frontend/common/femenu   ___24tMenuItemLeftRightSlider
 0x80024B7C    100.00%  frontend/common/femenu   DebounceKeys__24tMenuItemLeftRightSlider
 0x80024B84     94.48%  frontend/common/femenu   ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand
-0x80024C2C     79.51%  frontend/common/femenu   DrawSlider__FsssssssssbT9ss
+0x80024C2C     81.42%  frontend/common/femenu   DrawSlider__FsssssssssbT9ss
 0x800251E4     80.15%  frontend/common/femenu   Draw__24tMenuItemLeftRightSliderb
 0x80025310    100.00%  frontend/common/femenu   SetDimensions__24tMenuItemLeftRightSliderssss
 0x80025328    100.00%  frontend/common/femenu   __23tMenuItemGoToMenuButtonUiP5tMenuPFR12tMenuCommand_v
@@ -736,7 +736,7 @@ VA             %match  unit                     function
 0x80042648    100.00%  frontend/common/screentrackrecords GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3
 0x8004266C    100.00%  frontend/common/screentrackrecords Initialize__19tScreenTrackRecords
 0x800426C4    100.00%  frontend/common/screentrackrecords Cleanup__19tScreenTrackRecords
-0x80042700     62.37%  frontend/common/screentrackrecords DrawOneRecord__19tScreenTrackRecordsibi
+0x80042700    100.00%  frontend/common/screentrackrecords DrawOneRecord__19tScreenTrackRecordsibi
 0x80042968    100.00%  frontend/common/screentrackrecords DrawRecords__19tScreenTrackRecordss
 0x80042B48     98.94%  frontend/common/screentrackrecords DrawBackground__19tScreenTrackRecords
 0x800430F8    100.00%  frontend/common/screentrackrecords ___19tScreenTrackRecords
@@ -752,7 +752,7 @@ VA             %match  unit                     function
 0x80043AF0    100.00%  frontend/common/screencontroller CalcAnimFrame__23tScreenControllerConfigi
 0x80043B7C     56.97%  frontend/common/screencontroller ActualDrawController__23tScreenControllerConfigiiiii
 0x80043DE4     94.83%  frontend/common/screencontroller DrawController__23tScreenControllerConfig
-0x80044AF4     73.90%  frontend/common/screencontroller HorzVertLine__23tScreenControllerConfigPsb
+0x80044AF4    100.00%  frontend/common/screencontroller HorzVertLine__23tScreenControllerConfigPsb
 0x80044D40     94.61%  frontend/common/screencontroller DrawArrow__23tScreenControllerConfigPs
 0x80044E40     83.93%  frontend/common/screencontroller DrawBackground__23tScreenControllerConfig
 0x80045064     87.79%  frontend/common/screencontroller DrawForeground__23tScreenControllerConfig

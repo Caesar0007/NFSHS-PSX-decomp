@@ -371,26 +371,51 @@ void tScreenCarSelect::SetState(int state)
       i = i + 1;
     } while (i < 4);
   }
-  if (state != 2) {
-    if (state < 3) {
-      if (state != 0) {
-        return;
-      }
-    }
-    else {
-      if (6 < state) {
-        return;
-      }
-      if (state < 5) {
-        return;
-      }
-    }
+  /* MATCH (W57-A2): GOTO-DISPATCH in the oracle's branch polarity.  The nested
+     `if (state != 2) { if (state < 3) { if (state != 0) return; } ... }` form makes
+     the state==0 test a `bnez s1,<return>` with the compute block as FALL-THROUGH;
+     the oracle has `beqz s1,<compute>` + a fall-through `j <return>` (the return is
+     the fall-through arm, the compute block is the branch TARGET).  Writing the
+     arms as explicit `goto compute;` reproduces it (22 -> 18).  The state==2 arm
+     enters one insn LATER than the state==0 arm in the oracle (0x8003B6D8 vs
+     0x8003B6DC) purely because reorg put `addiu v0,s1,-5` in the state==0 branch's
+     delay slot and jump.c threaded the edge past it -- not a source distinction. */
+  if (state == 2) goto compute;
+  if (state < 3) {
+    if (state == 0) goto compute;
+    return;
   }
+  if (6 < state) {
+    return;
+  }
+  if (state < 5) {
+    return;
+  }
+compute:
+  /* MATCH (W57-A2, the 16 -> PASS seal): `ticks` is the VSync-ISR counter, so each
+     read is a REAL re-read -- the oracle emits TWO `lw $rN,%lo(ticks)($v0)` off one
+     hoisted base, BATCHED (nothing between them), then all four stores.  A plain
+     `this->fSpeechTicks = ticks[0]; this->fShowroomTicks = ticks[0];` pair gets the
+     two loads serialized through one register with the fSpeechTicks store WEDGED
+     between them (cse re-loads because the intervening `this->` store invalidates,
+     but sched can no longer batch them) = 16 diffs; two named temps without the
+     volatile view CSE into ONE load (160 insns, 1 short).  The per-use volatile
+     view `*(volatile int *)&ticks[0]` is both semantically correct (ISR-written)
+     and the only form that gives TWO un-mergeable loads free to batch.
+     Statement order is load-bearing too: `gStopCommentaryNow = 1;` must precede the
+     pair (it hoists %hi(gStopCommentaryNow) above the fInShowroom store exactly as
+     the oracle does at 0x8003B6E0); with it after the reads the fn stalls at 2.
+     Falsified: every 5-statement permutation of the plain form (plateau 16), the
+     chained `a = b = ticks[0]` and every single-load temp form (9 @ 160). */
   this->fInShowroom = (uint)(state - 5U < 2);
   gStopCommentaryNow = 1;
+  {
+  int t1 = *(volatile int *)&ticks[0];
+  int t2 = *(volatile int *)&ticks[0];
+  this->fSpeechTicks = t1;
   this->fSpeechPlayed = 0;
-  this->fSpeechTicks = ticks[0];
-  this->fShowroomTicks = ticks[0];
+  this->fShowroomTicks = t2;
+  }
   if (this->fInShowroom != 0) {
     AudioMus_StopSong(1000);
     i = 0;
@@ -608,24 +633,34 @@ void tScreenCarSelect::Initialize()
     (mdefs->itemDamage).fFlags = uVar6 | 1;
   }
   this->Initialize();
+  /* MATCH (W57-A2): GROUP THE INT TERMS -- `base + (delta + -0x14)` not
+     `base + delta + -0x14`.  C's pointer_int_sum rebuilds ptr-first only when the
+     added term is ONE int expression; the flat 3-term form leaves gcc an INT sum
+     it finishes with `addu a0,a0,s0` where the oracle has `addu a0,s0,a0`
+     (this-first).  All three vtbl thunk call sites: 35 -> 31. */
   vtbl = this->_vf;
-  (*vtbl[1][4].pfn)(this->fPermShapes.fFilename + vtbl[1][4].delta + -0x14);
+  (*vtbl[1][4].pfn)(this->fPermShapes.fFilename + (vtbl[1][4].delta + -0x14));
   SetLicensePlate();
   vtbl = this->_vf;
   this->fTVsInitialized = 0;
   this->fCameraRotation = 0;
   this->fInShowroom = 0;
   valid = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
-  if (valid == 0) {
-    this->fPreviousCar = -1;
-    this->fPreviousCountry = -1;
-    this->fPreviousCarID = -1;
-  }
-  else {
+                    (this->fPermShapes.fFilename + (vtbl[1][3].delta + -0x14),&carInfo);
+  /* MATCH (W57-A2): ARM ORDER -- the oracle's `beqz $v0` branches AWAY to the
+     `fPrevious* = -1` block, which it lays OUT OF LINE after the carInfo
+     copies (0x8003BEC4-CC, SLD 737/738/739); the success copies are the
+     FALL-THROUGH.  Writing the `valid == 0` arm first inverts the branch and
+     inlines the -1 block (46 -> 35). */
+  if (valid != 0) {
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)carInfo.fCarID;
     this->fPreviousCountry = (ushort)carInfo.fCountry;
+  }
+  else {
+    this->fPreviousCar = -1;
+    this->fPreviousCountry = -1;
+    this->fPreviousCarID = -1;
   }
   valid = ticks[0];
   this->fBrightness[1] = 0;
@@ -637,7 +672,7 @@ void tScreenCarSelect::Initialize()
   valid = valid + -0x100;
   this->fFadeTicks[1] = valid;
   this->fFadeTicks[0] = valid;
-  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + vtbl[1][1].delta + -0x14);
+  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + (vtbl[1][1].delta + -0x14));
   i = 0;
   do {
     this->fOverlays[i].transition = 0;
@@ -730,19 +765,27 @@ st6:
   this->SetState(2);
   goto done;
 gamemode:
+  /* MATCH (W57-A2): the gameMode==1 arm must NOT stage a return value -- it just
+     goes to the shared epilogue like every other arm (same "no arm returns a
+     value" reading already documented above; the caller sees the compare's
+     incidental $v0 == 1).  Written `return 1;` the const-1 becomes a RETURN-value
+     constant, cse stops treating $v0 as "holds 1" at the fall-through, and the
+     SetState arg rematerializes as `li a1,1` instead of the oracle's
+     `addu a1,v0,zero` (6 -> 4 diffs on this one edit). */
   if (frontEnd.gameMode == '\x01') {
-    return 1;
+    goto done;
   }
-  /* RESIDUAL 6 (count-exact 98/98), two independent 1998-unreachable ties:
-     (a) the oracle stages the SetState arg as `addu a1,v0,zero` (re-using the
-         compare's constant register) where cc1plus const-props a fresh `li a1,1`
-         -- FALSIFIED here: named `int cmd = 1` before the compare, after the
-         compare, and shared across compare+return+arg all const-prop back;
-     (b) reorg fills the `bnez` slot with the gameMode block's head `lui` and nops
-         the `j`, while ours fills the `j` -- a fill_simple_delay_slots tie. */
   this->SetState(1);
 done:
-  ;
+  /* MATCH (W57-A2, the 4->0 seal): VOID-TAIL FENCE at the shared exit label.
+     Without it reorg's fill_simple_delay_slots reaches the `j gamemode`
+     simplejump FIRST and steals the gameMode block's head
+     `lui %hi(frontEnd.gameMode)` into the *j's* slot; retail leaves the `j`
+     nop'd and the `lui` lands in the preceding `bnez` (state2<2) slot instead.
+     A zero-insn `asm("" : : "i"(0))` at THIS label (the bnez's target head) is
+     the only placement that flips it -- at the gamemode head it costs a real
+     insn (99), before the `goto` / after the guard it is inert. */
+  __asm__("" : : "i"(0));
 }
 
 
@@ -2184,10 +2227,24 @@ void tScreenCarSelectTwoPlayer::SetDialog()
      the beqz delay slot; our build cse's harder and loads fPlayer straight into $s0,
      which also lets `this->s1` fill the beqz slot instead of the oracle's early
      prologue copy.  The a0/s0-vs-s0/slot split is one coupled allocno/CSE decision
-     (guard-index register choice); prior wave already predicted it. */
-  int player;
+     (guard-index register choice); prior wave already predicted it.
+     SEALED (W57-A2, 11 -> PASS 48/48): it IS the cse DOUBLE-EVALUATION copy
+     (catalog trichotomy case 2), and it is source-reachable.  `player` must be
+     WRITTEN ONCE IN THE GUARD'S BASIC BLOCK (decl-with-init; the guard then
+     indexes the local) AND RE-READ inside the then-block.  cse folds both C-level
+     reads into the single `lbu $a0,0x22C($v0)` and turns the second write into the
+     oracle's surviving copy `addu $s0,$a0,$zero`, which reorg steals into the
+     `beqz` delay slot -- which in turn frees the prologue for the early
+     `addu $s1,$a0,$zero` (`this`) the oracle emits at 0x8003EC60.
+     ONE write only (either position) makes the load land straight in $s0 and
+     defers the `this` copy into the slot = the 11-diff shape.  FALSIFIED:
+     read-before-guard-only; decl-init-only; TWO reads both inside the block;
+     `player = FEApp->fPlayer` embedded in the guard subscript alone; and a `this`
+     parm-copy fence (+2 insns).  SYM 8c confirms `player` is the fn's ONLY named
+     local, class REG $16 = $s0. */
+  int player = FEApp->fPlayer;
 
-  if (FEApp->waitingForOtherPlayer[FEApp->fPlayer] != 0) {
+  if (FEApp->waitingForOtherPlayer[player] != 0) {
     short y_off;
     tDialogBackUpOnly *dlg;
     player = FEApp->fPlayer;
@@ -2544,7 +2601,15 @@ switchD_8003f3b4_caseD_7:
     str = PlayerName(1 - p);
     sprintf("",str2,str);
     this->CarDialog.string = "";
-    goto SetDlg_displayAndReset;
+    /* MATCH (W57-A2): the CardLoadedFine arm DUPLICATES the Display +
+       fStartCheckTick=0 pair inline instead of sharing SetDlg_displayAndReset
+       -- the oracle has `jal Display; addiu a0,s2,928 (slot); j <cardOk>;
+       sw zero,1088(s2) (slot)` right here at 0x8003F44C-58, with the Display
+       argument REMATERIALIZED (a0 is not the preamble `dlg`, which still
+       holds the sprintf buffer at that point).  45 -> 37. */
+    Display((tDialogBase *)&this->CarDialog);
+    this->fStartCheckTick = 0;
+    goto SetDlg_cardOkReturn;
   case NoCardInserted:
     if (this->fCardFailed == 0) {
       if (this->fStartCheckTick == 0) {
@@ -2554,9 +2619,19 @@ switchD_8003f3b4_caseD_7:
       if (799 < ticks[0] - this->fStartCheckTick) {
         iVar3 = p + 0x2a9;
       }
+      {
+      /* MATCH (W57-A2): BASE-POINTER HOIST, taken BEFORE the TextSys_Word
+         call so the address is live across it -- the oracle materializes
+         `addiu s0,s2,928` (&CarDialog) into a register and reaches the
+         string field by displacement (`sw v0,144(s0)`) AND passes the same
+         register to Display (`addu a0,s0,zero`).  Taken AFTER the call gcc
+         folds it back into `sw v0,1072(s2)` + `addiu a0,s2,928` (2 insns,
+         1 short).  Same lever as SetDialog__25tScreenCarSelectTwoPlayer. */
+      tDialogBackUpOnly *dlg = &this->CarDialog;
       str2 = TextSys_Word(iVar3);
-      this->CarDialog.string = str2;
-      Display((tDialogBase *)&this->CarDialog);
+      dlg->string = str2;
+      Display((tDialogBase *)dlg);
+      }
       return;
     }
     if (this->fStartCheckTick == 0) {

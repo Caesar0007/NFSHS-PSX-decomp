@@ -16,6 +16,17 @@ name: progress-report
 #                                       Source: psyq400/COMPILER/CC1PSX.EXE,
 #                                       renamed. If absent, lane TUs fall back
 #                                       to the 2.8 pipeline with a warning.
+#       toolchain/gcc-ladder/gcc-<ver>-psx/cc1.exe
+#                                    <- w52: the FSF gcc ladder rungs (2.6.0,
+#                                       2.6.3, 2.7.2-970404, 2.7.2, 2.8.0,
+#                                       2.8.1, 2.91.66, 2.95.2) from the
+#                                       windows-gcc-psx fork, for the per-TU
+#                                       cc1_alt/cc1_ver lanes. build.py finds
+#                                       them BESIDE psyq/ (no env var). If a
+#                                       rung is absent, its TUs fall back to
+#                                       the cc1_272/default lane with a
+#                                       warning (build stays green, those
+#                                       TUs' match numbers drift low).
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
 #       toolchain/maspsx/maspsx.py   <- apply tools/maspsx-lid-reg.patch first
 #                                       (completes the li.d $N register LUT; without

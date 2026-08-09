@@ -78,8 +78,27 @@ GCC_LADDER = Path(_env("NFS4_GCC_LADDER", r"C:/Temp/windows-gcc-psx"))
 
 
 def _resolve_cc1_alt(ver: str):
-    c = GCC_LADDER / f"gcc-{ver}-psx" / "cc1.exe"
-    return c if c.is_file() else None
+    # Resolution order: env/dev-box ladder, then the CI toolchain zip's
+    # toolchain/gcc-ladder/ tree beside psyq/ (same pattern as CC1PSX272.EXE).
+    for base in (GCC_LADDER, Path(CC1).parent.parent / "gcc-ladder"):
+        c = base / f"gcc-{ver}-psx" / "cc1.exe"
+        if c.is_file():
+            return c
+    return None
+
+
+_warned_alt = set()
+
+
+def _warn_alt_fallback(rel, ver, fallback):
+    if ver in _warned_alt:
+        return
+    _warned_alt.add(ver)
+    print(f"WARNING: gcc ladder rung {ver!r} not found (env NFS4_GCC_LADDER / "
+          f"{GCC_LADDER} / toolchain gcc-ladder) -- {rel} and any other TU "
+          f"wired to it fall back to {fallback} this run; match numbers for "
+          f"those TUs will drift low until the rung is installed",
+          file=sys.stderr)
 PY = sys.executable
 RECON = ROOT / "recon"   # vendored reconstruction modules (C++), self-contained types
 
@@ -1049,11 +1068,20 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     alt_ver = os.environ.get("NFS4_FORCE_CC1_ALT") or tu_flags.get("cc1_alt")
     if alt_ver:
         cc1_alt = _resolve_cc1_alt(str(alt_ver))
-        if cc1_alt is None:
+        if cc1_alt is not None:
+            return _compile_c_272(rel, tu_flags, i_file, s_file, obj,
+                                  cc1_path=cc1_alt)
+        if os.environ.get("NFS4_FORCE_CC1_ALT"):
+            # probe use: fail loud -- a silent fallback would fake the A/B
             sys.exit(f"[cc1-alt] {rel}: ladder rung {alt_ver!r} not found "
                      f"under {GCC_LADDER}")
-        return _compile_c_272(rel, tu_flags, i_file, s_file, obj,
-                              cc1_path=cc1_alt)
+        # wired use (CI without the ladder): fall back to the nearest lane so
+        # the tree still BUILDS -- CC1_272 keeps the 272 recipe (exact for the
+        # "2.7.2" rung, approximate otherwise); else the normal 2.8 lane below.
+        if CC1_272 is not None:
+            _warn_alt_fallback(rel, str(alt_ver), "the cc1_272 lane")
+            return _compile_c_272(rel, tu_flags, i_file, s_file, obj)
+        _warn_alt_fallback(rel, str(alt_ver), "the default 2.8 pipeline")
 
     if tu_flags.get("cc1_272"):
         if CC1_272 is not None:
@@ -1092,8 +1120,10 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     if tu_flags.get("cc1_ver"):
         cc1_bin = _resolve_cc1_alt(str(tu_flags["cc1_ver"]))
         if cc1_bin is None:
-            sys.exit(f"[cc1-ver] {rel}: ladder rung "
-                     f"{tu_flags['cc1_ver']!r} not found under {GCC_LADDER}")
+            # CI without the ladder: fall back to the default cc1 so the tree
+            # still builds; the TU's match numbers drift until installed.
+            _warn_alt_fallback(rel, str(tu_flags["cc1_ver"]), "the default cc1")
+            cc1_bin = CC1
     r = run([cc1_bin, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")

@@ -223,6 +223,15 @@ extern "C" void MenuExtended_SetSoloRace__FR12tMenuCommand(tMenuCommand *command
    frame, purely a scratch-register/CSE tie-break (§3.15 family); the dead `dlgThis` local doesn't
    change it. Not source-reachable without a pin (forbidden); accept. */
 
+/* [W57-A1 2026-08-09, 34->6] THREE levers: (1) `dlgThis = &YesNoDialog` ANCHOR for the _vf /
+   string / yesnowords / fDefault stores (oracle addresses them off s0/a0, ours was sp-relative);
+   (2) `ptVar1 = menuDefs[0]` moved INSIDE the `sVar3 == 1` arm (oracle materializes %hi AFTER the
+   bne, ours hoisted a `lui s0` above the Run result test); (3) the else-arm's menuDefs pointer
+   made a BLOCK-LOCAL `defs` (a fresh block pseudo lands in v0 self-temp like the oracle; the
+   fn-scope ptVar1 was colored into the arg reg a0 = separate-temp).  RESIDUAL 6 = the SetState
+   arg-setup schedule (oracle emits `li a1,2` + the screenCarSelect %hi BEFORE the menuDefs load;
+   ours after) -- a sched1 ready-list tie, count already exact 69/69. */
+
 extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -233,17 +242,18 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
   tDialogYesNoTri *dlgThis;
   tDialogYesNoTri YesNoDialog;
 
-  *(void **)&(YesNoDialog._vf) = (void *)&tDialogYesNoTri_vtable;
+  dlgThis = &YesNoDialog;
+  *(void **)&(dlgThis->_vf) = (void *)&tDialogYesNoTri_vtable;
   uVar2 = GetNumOwnedCars(&carManager, 0);
   if ((int)((uint)uVar2 << 0x10) < 1) {
-    YesNoDialog.string =
+    dlgThis->string =
          TextSys_Word(0x42);
-    YesNoDialog.yesnowords[0] = 0x321;
-    YesNoDialog.yesnowords[1] = 0x322;
-    YesNoDialog.fDefault = 0;
-    sVar3 = Run((tDialogInteractive *)&YesNoDialog);
-    ptVar1 = menuDefs[0];
+    dlgThis->yesnowords[0] = 0x321;
+    dlgThis->yesnowords[1] = 0x322;
+    dlgThis->fDefault = 0;
+    sVar3 = Run((tDialogInteractive *)dlgThis);
     if (sVar3 == 1) {
+      ptVar1 = menuDefs[0];
       frontEnd.raceType = '\0';
       command->type = kMenu_Command_GoToMenu;
       Decrement(&ptVar1->iteratorDealerCar,kPlayerBoth);
@@ -254,10 +264,12 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
     }
   }
   else {
+    tGlobalMenuDefs *defs;
+
     MenuExtended_SetSoloRace__FR12tMenuCommand(command);
-    ptVar1 = menuDefs[0];
+    defs = menuDefs[0];
     command->type = kMenu_Command_GoToMenu;
-    command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuSingleTrackSelect;
+    command->nextMenu = (tMenu *)(tMenu*)&defs->menuSingleTrackSelect;
   }
   return;
 }
@@ -559,15 +571,29 @@ MX_GoToCar_oppFilterSetup:
    swap family) which WAS fixable because it had a genuine double pointer-derivation to collapse;
    this fn has no such redundancy to remove. */
 
+/* [W57-A1 2026-08-09, 10->8] The v0/v1 const-vs-pointer swap declared a "genuine gcc scratch tie
+   -> accept" above is NOT a floor -- it is a local-alloc QTY PRIORITY tie and the dial is the
+   constant's LIVE RANGE.  QTY_CMP_PRI = floor_log2(refs)*refs*size/(death-birth): with `1`
+   materialized at its store its range is ~2 insns -> priority 10000 -> it wins the numeric scan
+   and takes v0; the menuDefs pointer (range ~4) gets v1.  Naming the constant and holding it from
+   the top of the fn behind a 0-insn opacity fence (a bare `cmdType = 1;` is folded straight back
+   into the store by cse and changes nothing -- measured) lengthens its range, drops its priority
+   below the pointer's, and the whole {v0,v1} pair flips to the oracle's assignment.  RESIDUAL 8 =
+   position only: the fence is a scheduling barrier, so `li v1,1` sits at the top instead of after
+   the two global loads, which also pushes `li a1,2` and the `sw ra` to the wrong slots. */
+
 extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
 
 {
+  int cmdType;
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
 
+  cmdType = 1;
+  __asm__("" : "+r" (cmdType));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
-  command->type = 1;
+  command->type = cmdType;
   command->nextMenu = (tMenu *)&ptVar1->menuCarDealer;
   SetState(dlgThis,2);
   Decrement(&menuDefs[0]->iteratorDealerCar,kPlayerBoth);
@@ -592,15 +618,21 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
    shape, internal score 30). Same conclusion: genuine gcc scratch-register tie-break floor,
    accept, do not pin. */
 
+/* [W57-A1 2026-08-09, 10->8] Same fenced-named-constant live-range lever as the twin
+   GoToDealer above (see its note for the QTY_CMP_PRI derivation and the residual). */
+
 extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
 
 {
+  int cmdType;
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
-  
+
+  cmdType = 1;
+  __asm__("" : "+r" (cmdType));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
-  command->type = 1;
+  command->type = cmdType;
   command->nextMenu = (tMenu *)&ptVar1->menuCarSeller;
   SetState(dlgThis,3);
   Decrement(&menuDefs[0]->iteratorSellerCar,kPlayerBoth);
@@ -639,6 +671,15 @@ extern "C" void MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand *comman
    
    [ghidra-meta] section: front.text */
 
+/* [W57-A1 2026-08-09, 24->PASS] The stale "%hi(FEApp) reload tie-break, not source-reachable"
+   verdict above is FALSIFIED.  Two levers: (1) `noInput = &FEApp->NoInputMemCardDialog` ANCHOR
+   for the string store while the Display arg stays a FRESH `&FEApp->NoInputMemCardDialog` read
+   (oracle: `addiu s0,s0,720` held + a separate `lw a0,0(s1); addiu a0,a0,720` for the call);
+   (2) EXIT-IN-THE-MIDDLE loop `while(1){ app = FEApp; if((app->...fFullyOpen ^ 1)==0) break;
+   Redraw(app); }` + the post-loop `Redraw(app)` REUSING the loop's last-loaded app -- that kills
+   gcc's duplicate_loop_exit_test rotation (ours had the guard AND a bottom re-test = 6 extra
+   insns) and reproduces the oracle's a0-reuse after the loop. */
+
 void * GenericMenuSaveGame(int showdialog)
 
 {
@@ -662,14 +703,17 @@ void * GenericMenuSaveGame(int showdialog)
   Redraw(FEApp);
   successful = false;
   if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
-    app = FEApp;
+    tDialogNoInputMessage *noInput = &FEApp->NoInputMemCardDialog;
+
     pcVar4 = TextSys_Word(0x282);
-    (app->NoInputMemCardDialog).string = pcVar4;
-    Display((tDialogBase *)&app->NoInputMemCardDialog);
-    while (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) != 0) {
-      Redraw(FEApp);
+    noInput->string = pcVar4;
+    Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
+    while (1) {
+      app = FEApp;
+      if (((app->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+      Redraw(app);
     }
-    Redraw(FEApp);
+    Redraw(app);
     if (MEMCARD_INITIALIZED == 0) {
       successful = true;
       Init_Memcard(true,0);
@@ -839,35 +883,54 @@ extern "C" void MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand *command)
   int wordnum;
   tDialogMessageString *popUp;
   tCarInfo carInfo;
-  
+
+  /* [W57-A1 rewrite] The oracle materializes the word id STRAIGHT INTO $a0 in each guard's
+     branch delay slot (`li a0,170/241/242/243`) and cross-jump-merges four IDENTICAL
+     `string = TextSys_Word(K); Display(popUp); command->type = 0; return;` tails -- so retail
+     duplicated that tail per branch instead of funnelling one `wordnum` local (which forces a
+     callee-saved reg because the pseudo crosses the other guards' calls: ours was 6 s-regs /
+     frame 256 vs the oracle's 4 / 248).  Plus the 08D messagePopup ANCHOR: `popUp = &FEApp->
+     messagePopup` materialized EARLY (the oracle puts `addiu s1,v1,44` in the first guard's
+     delay slot) and reused for both the store and the Display arg. */
   ptVar1 = FEApp;
   command->type = kMenu_Command_StartRace;
-  if ((((frontEnd.carListType != '\x01') ||
-       (uVar2 = GetNumOwnedCars(&carManager, 0), 0 < (int)((uint)uVar2 << 0x10))) ||
-      (frontEnd.raceType == '\x01')) || (wordnum = 0xaa, frontEnd.raceType == '\x06')) {
-    if ((frontEnd.raceType == '\x02') &&
-       (uVar2 = GetNumTourneyCars(&carManager, 0), (int)((uint)uVar2 << 0x10) < 1)) {
-      wordnum = 0xf1;
-    }
-    else if ((frontEnd.raceType == '\x01') &&
-            (GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo),
-            carInfo.fPursuitAvailable == '\0')) {
-      wordnum = 0xf2;
-    }
-    else {
-      if (frontEnd.carListType != '\0') {
-        return;
-      }
-      GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo);
-      wordnum = 0xf3;
-      if (carInfo.fAvailable != '\0') {
-        return;
-      }
-    }
+  popUp = &ptVar1->messagePopup;
+  if (((frontEnd.carListType == '\x01') &&
+      (uVar2 = GetNumOwnedCars(&carManager, 0), (int)((uint)uVar2 << 0x10) <= 0)) &&
+     ((frontEnd.raceType != '\x01') && (frontEnd.raceType != '\x06'))) {
+    pcVar3 = TextSys_Word(0xaa);
+    popUp->string = pcVar3;
+    Display((tDialogBase *)popUp);
+    command->type = kMenu_Command_None;
+    return;
   }
-  pcVar3 = TextSys_Word(wordnum);
-  (ptVar1->messagePopup).string = pcVar3;
-  Display((tDialogBase *)&(ptVar1->messagePopup));
+  if ((frontEnd.raceType == '\x02') &&
+     (uVar2 = GetNumTourneyCars(&carManager, 0), (int)((uint)uVar2 << 0x10) < 1)) {
+    pcVar3 = TextSys_Word(0xf1);
+    popUp->string = pcVar3;
+    Display((tDialogBase *)popUp);
+    command->type = kMenu_Command_None;
+    return;
+  }
+  if ((frontEnd.raceType == '\x01') &&
+     (GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo),
+      carInfo.fPursuitAvailable == '\x00')) {
+    pcVar3 = TextSys_Word(0xf2);
+    popUp->string = pcVar3;
+    Display((tDialogBase *)popUp);
+    command->type = kMenu_Command_None;
+    return;
+  }
+  if (frontEnd.carListType != '\x00') {
+    return;
+  }
+  GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo);
+  if (carInfo.fAvailable != '\x00') {
+    return;
+  }
+  pcVar3 = TextSys_Word(0xf3);
+  popUp->string = pcVar3;
+  Display((tDialogBase *)popUp);
   command->type = kMenu_Command_None;
   return;
 }
@@ -892,34 +955,46 @@ extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *com
   int wordnum;
   tDialogMessageString *popUp;
   tCarInfo carInfo;
-  
+
+  /* [W57-A1 rewrite] Same shape as the twin GoToRace: the oracle drops the `wordnum` funnel
+     (which needed 2 extra callee-saved regs -- ours 6 s-regs/frame 256 vs 4/248) and instead
+     materializes `li a0,K` in each guard's delay slot, cross-jump-merging four identical
+     `TextSys_Word/Display/type=0` tails; + the 08D messagePopup anchor materialized early
+     (oracle `addiu s2,v0,44` in the raceType==6 guard's delay slot). */
   ptVar1 = FEApp;
   command->type = kMenu_Command_Start2PlayerRace;
+  popUp = &ptVar1->messagePopup;
   if (frontEnd.raceType == '\x06') {
     return;
   }
-  if (((frontEnd.carListType != '\x01') ||
-      (uVar2 = GetNumOwnedCars(&carManager, 0), 0 < (int)((uint)uVar2 << 0x10))) ||
-     (wordnum = 0xaa, frontEnd.raceType == '\x01')) {
-    if ((frontEnd.carListType == '\0') &&
-       (GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],&carInfo),
-       carInfo.fAvailable == '\0')) {
-      wordnum = 0xf3;
-    }
-    else {
-      if (frontEnd.raceType != '\x01') {
-        return;
-      }
-      GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],&carInfo);
-      wordnum = 0xf2;
-      if (carInfo.fPursuitAvailable != '\0') {
-        return;
-      }
-    }
+  if (((frontEnd.carListType == '\x01') &&
+      (uVar2 = GetNumOwnedCars(&carManager, 0), (int)((uint)uVar2 << 0x10) <= 0)) &&
+     (frontEnd.raceType != '\x01')) {
+    pcVar3 = TextSys_Word(0xaa);
+    popUp->string = pcVar3;
+    Display((tDialogBase *)popUp);
+    command->type = kMenu_Command_None;
+    return;
   }
-  pcVar3 = TextSys_Word(wordnum);
-  (ptVar1->messagePopup).string = pcVar3;
-  Display((tDialogBase *)&(ptVar1->messagePopup));
+  if ((frontEnd.carListType == '\x00') &&
+     (GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],&carInfo),
+      carInfo.fAvailable == '\x00')) {
+    pcVar3 = TextSys_Word(0xf3);
+    popUp->string = pcVar3;
+    Display((tDialogBase *)popUp);
+    command->type = kMenu_Command_None;
+    return;
+  }
+  if (frontEnd.raceType != '\x01') {
+    return;
+  }
+  GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],&carInfo);
+  if (carInfo.fPursuitAvailable != '\x00') {
+    return;
+  }
+  pcVar3 = TextSys_Word(0xf2);
+  popUp->string = pcVar3;
+  Display((tDialogBase *)popUp);
   command->type = kMenu_Command_None;
   return;
 }
@@ -933,6 +1008,17 @@ extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *com
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
+
+/* [W57-A1 2026-08-09, 50->32, count now EXACT 90/90] The W56-A3 "needs the 4th s-reg first" note
+   above is resolved: the SAME anchor set DOES land here once all three parts go in TOGETHER --
+   (a) `tourn = &ptVar3->fTournaments[iVar6]` as its own statement (keeps the oracle's +36 addiu /
+   +48 displacement split instead of the folded +84), (b) a fenced COPY `tsaved = tourn` at the
+   head of the `0 < fee` block (the oracle's `addu s2,a1,zero`, which is what forces `command` out
+   to s3 = the 4th saved reg; without the 0-insn fence cse propagates tourn and the copy vanishes),
+   (c) the `pp = &popUp` dialog anchor + the lazy `ptVar1 = FEApp` / `this_00` messagePopup anchor.
+   RESIDUAL 32 = tsaved and the &tournamentManager address pseudo take s1/s2 the wrong way round
+   (allocno-priority tie: tsaved's shorter live range wins the lower reg) + the head materialization
+   order.  Same residual, same cause, in the twin GoToSpecialEventTrackInfo. */
 
 extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *command)
 
@@ -966,33 +1052,38 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
      mixed-anchor landed TOGETHER with allocsim/qtytrace pricing the s2/s3 handout (methodology
      4.6) -- not a floor, a priced multi-dial. Reverted to the folded baseline pending that pass. */
   ptVar3 = tournamentManager.fDefinition;
-  ptVar1 = FEApp;
   frontEnd.tier = '\0';
   iVar6 = (uint)(tournamentManager.fDefinition)->fTiers[0].fTournOffset +
           (uint)(byte)frontEnd.tournament;
-  iVar7 = (tournamentManager.fDefinition)->fTournaments[iVar6].fEntranceFee;
+  tourn = &ptVar3->fTournaments[iVar6];
+  iVar7 = tourn->fEntranceFee;
   if (0 < iVar7) {
+    tTourneyInfo *tsaved = tourn;
+
+    __asm__("" : "+r" (tsaved));
     if (tournamentManager.fMoney < iVar7) {
-      this_00 = &FEApp->messagePopup;
+      ptVar1 = FEApp;
+      this_00 = &ptVar1->messagePopup;
       pcVar5 = TextSys_Word(0xf6);
-      (ptVar1->messagePopup).string = pcVar5;
+      this_00->string = pcVar5;
       Display((tDialogBase *)this_00);
       return;
     }
     {
       tDialogYesNo popUp;
+      tDialogYesNo *pp = &popUp;
 
-      popUp.string =
+      pp->string =
            TextSys_Word(0xf7);
-      popUp.yesnowords[0] = 0x322;
-      popUp.yesnowords[1] = 0x321;
-      popUp.fDefault = 0;
-      sVar4 = Run((tDialogInteractive *)&popUp);
+      pp->yesnowords[0] = 0x322;
+      pp->yesnowords[1] = 0x321;
+      pp->fDefault = 0;
+      sVar4 = Run((tDialogInteractive *)pp);
       if (sVar4 == 0) {
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tournamentManager.fMoney = tournamentManager.fMoney - ptVar3->fTournaments[iVar6].fEntranceFee;
+      tournamentManager.fMoney = tournamentManager.fMoney - tsaved->fEntranceFee;
     }
   }
   StartNewTournament(&tournamentManager,0,frontEnd.tournament);
@@ -1012,6 +1103,12 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
    
    [ghidra-meta] section: front.text */
 
+/* [W57-A1 2026-08-09, 45->20, count now EXACT 91/91] Same three-part landing as the twin
+   GoToTournTrackInfo (tourn split + fenced `tsaved` copy at the head of the `0 < fee` block +
+   the `pp` dialog anchor).  RESIDUAL 20 = the s1<->s2 allocno-priority tie (tsaved vs the
+   &tournamentManager address pseudo) plus the head's `lui a0` position; the copy itself now sits
+   in the oracle's `blez` delay slot.  Next instrument: allocsim/reqdelta on those two allocnos. */
+
 extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -1026,6 +1123,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
   tDialogMessageString *dlgThis;
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
+  tTourneyInfo *tsaved;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
      real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
@@ -1053,6 +1151,8 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
   tourn = &ptVar3->fTournaments[iVar6];
   iVar7 = tourn->fEntranceFee;
   if (0 < iVar7) {
+    tsaved = tourn;
+    __asm__("" : "+r" (tsaved));
     if (tournamentManager.fMoney < iVar7) {
       ptVar1 = FEApp;
       this_00 = &ptVar1->messagePopup;
@@ -1063,18 +1163,19 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
     }
     {
       tDialogYesNo popUp;
+      tDialogYesNo *pp = &popUp;
 
-      popUp.string =
+      pp->string =
            TextSys_Word(0xf7);
-      popUp.yesnowords[0] = 0x321;
-      popUp.yesnowords[1] = 0x322;
-      popUp.fDefault = 0;
-      sVar4 = Run((tDialogInteractive *)&popUp);
+      pp->yesnowords[0] = 0x321;
+      pp->yesnowords[1] = 0x322;
+      pp->fDefault = 0;
+      sVar4 = Run((tDialogInteractive *)pp);
       if (sVar4 == 0) {
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tournamentManager.fMoney = tournamentManager.fMoney - tourn->fEntranceFee;
+      tournamentManager.fMoney = tournamentManager.fMoney - tsaved->fEntranceFee;
     }
   }
   StartNewTournament(&tournamentManager,1,frontEnd.specialevent);
@@ -1295,6 +1396,17 @@ extern "C" void MenuExtended_SetHotPursuit__FR12tMenuCommand(tMenuCommand *comma
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SellCar__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
+/* [W57-A1 2026-08-09, 32->6, count EXACT 86/86] SYM 8c (fsize 200, mask 0x80070000 = ra+s0..s2)
+   lists exactly ONE fn-scope local: `money`, class REG $10 = s0, type LONG.  So retail
+   ACCUMULATED into it (`money = fMoney; money += CalcUsedPrice(...)`) -- the oracle's
+   `addu s0,s0,v0` -- instead of keeping the used-car price in a 4th saved reg and summing at the
+   compare (ours was 4 s-regs / frame 208).  That also collapses the `(1<n) || (cheapest <= sum)`
+   OR from `slt;xori 1;beqz` to the oracle's direct `slt v0,s0,v0; bnez`.  Plus the `pp` anchor on
+   the string/fDefault stores (was sp-relative), and `bVar1 = false` MOVED after the CalcUsedPrice
+   statement so gcc emits it into that jal's delay slot instead of at the top of the fn (which
+   also fixes the prologue save ORDER: s1,s0,s2,ra).  RESIDUAL 6 = which of {money accumulate,
+   the a1=0 arg copy} reorg steals into the GetNumOwnedCars delay slot -- a sched1 tie. */
+
 extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -1320,12 +1432,12 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
      materializes the `<=` as `slt;xori 1;beqz` where the oracle branches directly (`slt;bnez`,
      the w43 (x^1)/boolean-branch class), + a saved-reg-count/frame delta (ours 208/4-sreg vs
      oracle 200/3-sreg) -- coloring, allocsim/qtytrace class. */
-  lVar6 = tournamentManager.fMoney;
+  money = tournamentManager.fMoney;
+  money = money + CalcUsedPrice(&carManager, (ushort)(byte)frontEnd.garageCar[0]);
   bVar1 = false;
-  lVar4 = CalcUsedPrice(&carManager, (ushort)(byte)frontEnd.garageCar[0]);
   sVar3 = GetNumOwnedCars(&carManager, 0);
   if ((1 < sVar3) ||
-     (lVar5 = CheapestCarStockPrice(&carManager), lVar5 <= lVar6 + lVar4)) {
+     (CheapestCarStockPrice(&carManager) <= money)) {
     bVar1 = true;
   }
   ptVar2 = FEApp;
@@ -1333,11 +1445,11 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
     tDialogYesNo popUp;
     tDialogYesNo *pp = &popUp;
 
-    popUp.string =
+    pp->string =
          TextSys_Word(0xa5);
     pp->yesnowords[0] = 0x321;
     pp->yesnowords[1] = 0x322;
-    popUp.fDefault = 0;
+    pp->fDefault = 0;
     sVar3 = Run((tDialogInteractive *)&popUp);
     if (sVar3 != 0) {
       lVar6 = SellCar(&carManager, (ushort)(byte)frontEnd.sellerCar,0);
@@ -1372,6 +1484,18 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_BuyCar__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
+/* [W57-A1 2026-08-09, 14->7] The oracle uses TWO pseudos for `&FEApp->messagePopup`: s0 (the
+   if-arm's "not enough money" store + Display) and s1, a COPY of s0 that reorg steals into the
+   `beqz` delay slot for the else-arm.  Reproducing it needs the copy to be a GLOBAL allocno (a
+   copy made INSIDE the else block is block-local -> local-alloc's combine_regs merges it right
+   back, and the two arms then cross-jump into one tail): so `popUp = this_00;` is made BEFORE the
+   branch and held apart from this_00 with a 0-insn opacity fence (cse otherwise copy-propagates
+   this_00 into every popUp use and the split vanishes -- measured 14 either way without it).
+   Also the compare written `tournamentManager.fMoney >= carInfo.fPrices[0]` so the money load is
+   issued first (05H compare-operand order = load order).  RESIDUAL 7 = the fence blocks reorg's
+   backward scan so the copy stays ahead of the branch instead of in its delay slot (+1 insn), and
+   the if-arm's `addu a0,s0,zero` lands in a 2nd tail block rather than the `j` slot. */
+
 extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -1400,8 +1524,10 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   this_00 = &FEApp->messagePopup;
   GetStockCar(&carManager, (ushort)(byte)frontEnd.dealerCar,&carInfo);
   sVar2 = GetNumOwnedCars(&carManager, 0);
+  popUp = this_00;
+  __asm__("" : "+r" (popUp));
   if (sVar2 < 0x20) {
-    if (carInfo.fPrices[0] <= tournamentManager.fMoney) {
+    if (tournamentManager.fMoney >= carInfo.fPrices[0]) {
       tDialogYesNo yesNo;
       tDialogYesNo *pp = &yesNo;
 
@@ -1425,7 +1551,9 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   }
   else {
     pcVar4 = TextSys_Word(0x4b);
-    this_00->string = pcVar4;
+    popUp->string = pcVar4;
+    Display((tDialogBase *)popUp);
+    return;
   }
   Display((tDialogBase *)this_00);
   return;
@@ -1626,6 +1754,15 @@ extern "C" void MenuExtended_SaveGame__FR12tMenuCommand(tMenuCommand *command)
    
    [ghidra-meta] section: front.text */
 
+/* [W57-A1 2026-08-09, 17->8] The "address-hi-in-a-saved-reg with the VALUE reloaded per access
+   is not source-reachable" verdict is FALSIFIED: a `volatile`-qualified read of the pointer
+   global (`*(T *volatile *)&FEApp`) forces exactly that -- gcc keeps `%hi` in the callee-saved
+   reg and re-emits `lw ...,0(sN)` at every access instead of caching the VALUE.  Insn count now
+   EXACT 37/37.  RESIDUAL 8 = s0/s1 are swapped (oracle FEApp->s0, screenMemcard->s1; ours the
+   reverse, following which address pseudo is created first) + the `li v0,-1` vs the two reloads
+   ordering in the second block.  Tried and FALSIFIED: hoisting `&FEApp` into a `T *volatile *`
+   local before the first statement (10 diffs -- it flips the head instead). */
+
 void GenericMenuLoadGame(int player)
 
 {
@@ -1645,13 +1782,11 @@ void GenericMenuLoadGame(int player)
      enough that gcc abandons the 2-saved-reg structure altogether. Reverted; confirms the
      3.15 reload tie-break verdict above. WALL, accept. */
   if (CURRENTLYUSINGMEMCARD == 0) {
-    app = FEApp;
-    mc = screenMemcard;
-    mc->message = 0x27d;
-    Redraw(app);
+    (*(tScreenMemcard *volatile *)&screenMemcard)->message = 0x27d;
+    Redraw(*(tFEApplication *volatile *)&FEApp);
     LoadGame((short)player,false,1);
-    mc->message = -1;
-    Hide((tDialogBase *)&app->NoInputMemCardDialog);
+    (*(tScreenMemcard *volatile *)&screenMemcard)->message = -1;
+    Hide((tDialogBase *)&(*(tFEApplication *volatile *)&FEApp)->NoInputMemCardDialog);
   }
   Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
   return;
@@ -1771,31 +1906,52 @@ extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *comman
    the unlock-target car. If !fAvailable: SetCarAvailable, store congratsCopCar+congratsCopCountry,
    return 1. activateCar/result are caller-side spills. */
 
-void * MenuExtended_DidUserWinBeTheCop(void)
+/* [W57-A1 2026-08-09, 71->PASS] see the SYM note in the body: real `result` local (SYM class REG
+   $13 = s3, type BOOL) + FULLY NESTED ifs with ONE `return result;`.  The early-return form was
+   tried first and FAILED (28 diffs): with per-guard `return result;` gcc const-propagates the
+   provably-0 value into each exit (`addu v0,zero,zero`), which SHORTENS result's live range so it
+   coalesces with `activateCar` into one saved reg (3 s-regs / frame 240 vs the oracle's 4 / 248).
+   The single-return form keeps result live across the GetCarFromID block -> the two conflict ->
+   separate regs, and reorg then STEALS the shared epilogue's `addu v0,s3,zero` into each guard's
+   delay slot, reproducing all four copies.  Also `(signed char)` on carInfo.fCarID and on
+   frontEnd.carCountry[0][id] where they feed the INDEX arithmetic (oracle `lb`, ours `lbu`; the
+   later byte-COPY of the same field legitimately stays `lbu` -- 08C), and the perp compare
+   written `finalPerpArrests > numPerps` so the 440 load is issued before the 428 one.
+   Return type corrected void*->int (SYM BOOL; not declared in any header, single in-TU caller). */
+
+int MenuExtended_DidUserWinBeTheCop(void)
 
 {
-  tCarInfo *cop_car;
   tCarInfo *activateCar;
-  byte result;
-  void *pvVar1;
+  int result;
   tCarInfo carInfo;
-  
+
+  /* [W57-A1] SYM 8c budget (fsize 248, mask 0x800f0000): exactly TWO named locals besides
+     carInfo -- activateCar (class REG $10 = s0) and result (class REG $13 = s3, type BOOL =
+     4-byte int).  The old `pvVar1 = 0` repeated inside an `&&` chain never produced a
+     long-lived result pseudo (it landed in $a0); a real `result` local + flat early-return
+     guard chain (04T `return VARIABLE;` keeps DISTINCT return sites -> the oracle's
+     `addu v0,s3,zero` in each guard's delay slot) reproduces the 4-saved-reg frame. */
+  result = 0;
   GetStockCar(&carManager, (ushort)(byte)frontEnd.playerCar[0],&carInfo);
-  pvVar1 = (void *)0x0;
-  if ((((carInfo.fCarClass == '\a') && (pvVar1 = (void *)0x0, frontEnd.raceType == '\x01')) &&
-      (pvVar1 = (void *)0x0, frontEnd.gameMode != '\x01')) &&
-     (GameSetup_gData.numPerps < GameSetup_gData.finalPerpArrests)) {
-    cop_car = GetCarFromID(&carManager, (short)gCarActivation[carInfo.fCarID + -0x16]
-                                [frontEnd.carCountry[0][carInfo.fCarID]]);
-    pvVar1 = (void *)0x0;
-    if (cop_car->fAvailable == '\0') {
-      SetCarAvailable(&carManager, (int)cop_car->fCarID,true);
-      frontEnd.congratsCopCar = cop_car->fCarID;
-      frontEnd.congratsCopCountry = frontEnd.carCountry[0][carInfo.fCarID];
-      pvVar1 = (void *)0x1;
+  if (carInfo.fCarClass == '\a') {
+    if (frontEnd.raceType == '\x01') {
+      if (frontEnd.gameMode != '\x01') {
+        if (GameSetup_gData.finalPerpArrests > GameSetup_gData.numPerps) {
+          activateCar = GetCarFromID(&carManager,
+                                     (short)gCarActivation[(signed char)carInfo.fCarID + -0x16]
+                                         [(signed char)frontEnd.carCountry[0][(signed char)carInfo.fCarID]]);
+          if (activateCar->fAvailable == '\0') {
+            SetCarAvailable(&carManager, (int)activateCar->fCarID,true);
+            frontEnd.congratsCopCar = activateCar->fCarID;
+            frontEnd.congratsCopCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
+            result = 1;
+          }
+        }
+      }
     }
   }
-  return pvVar1;
+  return result;
 }
 
 
@@ -1805,6 +1961,16 @@ void * MenuExtended_DidUserWinBeTheCop(void)
 /* Decoded Phase 83: MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand&) - show post-game menu(continue/save/restart/quit) (256 B)
    
    [ghidra-meta] section: front.text */
+
+/* [W57-A1 2026-08-09, 50->PASS] Two levers: (1) the raceType dispatch is a REAL `switch`, not an
+   if/else-if cascade -- the oracle carries the gcc-2.8 balance_case_nodes fingerprint (median
+   pivot `beq a0,v1(=2)` + `slti a0,3` bound test in its delay slot, case bodies out-of-line, `j`
+   to the shared default).  Case ORDER 2 / 6 / 1 with case 1 FALLING THROUGH into `default:` is
+   what the oracle's block layout + the `beqz` from the DidUserWin test into the default block
+   say.  (2) inside case 2 the arms were swapped (`sVar1 != 0` is the FALL-THROUGH) and the
+   `ptVar4->fDrawMoney = 1; return;` tail DUPLICATED into both arms through two DIFFERENT locals
+   -- one shared `ptVar4` made the two arms textually identical so cross_jump merged the whole
+   tail (incl. the nextMenu store), where the oracle merges only `li 1; sw ...132`. */
 
 extern "C" void MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1817,32 +1983,32 @@ extern "C" void MenuExtended_PostGameMenu__FR12tMenuCommand(tMenuCommand *comman
   
   StatChk_ClearNewRecords();
   command->type = kMenu_Command_GoToMenuOneWay;
-  if (frontEnd.raceType == '\x02') {
+  switch (frontEnd.raceType) {
+  case 2:
     sVar1 = IsTournamentFinished(&tournamentManager);
-    if (sVar1 == 0) {
-      command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentStandings;
-      ptVar4 = (tScreenTournamentStandings *)screenTournamentStandings3item;
-    }
-    else {
+    if (sVar1 != 0) {
       command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentFinished;
-      ptVar4 = screenTournamentStandings;
+      dlgThis = screenTournamentStandings;
+      dlgThis->fDrawMoney = 1;
+      return;
     }
+    command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentStandings;
+    ptVar4 = (tScreenTournamentStandings *)screenTournamentStandings3item;
     ptVar4->fDrawMoney = 1;
     return;
-  }
-  if ((byte)frontEnd.raceType < 3) {
-    if ((frontEnd.raceType == '\x01') &&
-       (pvVar2 = MenuExtended_DidUserWinBeTheCop(), pvVar2 != (void *)0x0)) {
-      ptVar3 = (tMenu *)&menuDefs[0]->menuBeTheCopCongrats;
-      goto MXPostGameMenu_setNextMenu;
-    }
-  }
-  else if (frontEnd.raceType == '\x06') {
+  case 6:
     ptVar3 = (tMenu*)&menuDefs[0]->menuPinkSlipStandings;
-    goto MXPostGameMenu_setNextMenu;
+    break;
+  case 1:
+    pvVar2 = (void *)MenuExtended_DidUserWinBeTheCop();
+    if (pvVar2 != (void *)0x0) {
+      ptVar3 = (tMenu *)&menuDefs[0]->menuBeTheCopCongrats;
+      break;
+    }
+    /* fall through */
+  default:
+    ptVar3 = (tMenu*)&menuDefs[0]->menuMain;
   }
-  ptVar3 = (tMenu*)&menuDefs[0]->menuMain;
-MXPostGameMenu_setNextMenu:
   command->nextMenu = ptVar3;
   return;
 }
@@ -1856,6 +2022,14 @@ MXPostGameMenu_setNextMenu:
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
+
+/* [W57-A1 2026-08-09, 57->PASS] Three levers: (1) the if/else ARMS SWAPPED to
+   `if (needName[1] != 0 && gotName[1] == 0) {name-entry} else {records}` -- the oracle's two
+   guards both branch AWAY to the records block, so the name-entry block is the fall-through and
+   is laid out FIRST; (2) `dlgThis = &ptVar2->menuItemUserName2` ANCHOR (oracle holds
+   `addiu v1,a0,12868` and stores at 128/28/32/36/34(v1); ours emitted absolute 12996/12896/...
+   off the menuDefs base); (3) `ptVar2 = menuDefs[0]` moved INSIDE that arm, which drops the
+   `lui s3` hoist (an entire 4th saved reg + 8 bytes of frame). */
 
 extern "C" void MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1872,8 +2046,19 @@ extern "C" void MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuComma
   
   ptVar1 = FEApp;
   command->type = kMenu_Command_GoToMenuOneWay;
-  ptVar2 = menuDefs[0];
-  if ((ptVar1->needName[1] == 0) || (ptVar1->gotName[1] != 0)) {
+  if ((ptVar1->needName[1] != 0) && (ptVar1->gotName[1] == 0)) {
+    ptVar2 = menuDefs[0];
+    dlgThis = &ptVar2->menuItemUserName2;
+    dlgThis->fPlayer = 1;
+    dlgThis->fData = frontEnd.playerNameList[4];
+    dlgThis->fMaxStringLength = 7;
+    ptVar3 = screenUserName;
+    dlgThis->fCurrentRow = 0;
+    dlgThis->fCurrentColumn = 0;
+    ptVar3->callingMenu = &ptVar2->menuPostGamePlayer2Name;
+    command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuPostGamePlayer2Name;
+  }
+  else {
     pvVar5 = StatChk_IsRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,&nBestCarIndex);
     if (pvVar5 != (void *)0x0) {
       StatChk_SaveRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,nBestCarIndex);
@@ -1883,16 +2068,6 @@ extern "C" void MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand(tMenuComma
       StatChk_SaveTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
     }
     command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuPostGameTrackRecords;
-  }
-  else {
-    (menuDefs[0]->menuItemUserName2).fPlayer = 1;
-    (ptVar2->menuItemUserName2).fData = frontEnd.playerNameList[4];
-    (ptVar2->menuItemUserName2).fMaxStringLength = 7;
-    ptVar3 = screenUserName;
-    (ptVar2->menuItemUserName2).fCurrentRow = 0;
-    (ptVar2->menuItemUserName2).fCurrentColumn = 0;
-    ptVar3->callingMenu = &ptVar2->menuPostGamePlayer2Name;
-    command->nextMenu = (tMenu *)(tMenu*)&ptVar2->menuPostGamePlayer2Name;
   }
   return;
 }
@@ -2003,6 +2178,22 @@ extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *comman
    
    [ghidra-meta] section: front.text */
 
+/* [W57-A1 2026-08-09, 91->10] Five levers: (1) `dlgThis2 = &RetryCancelDialog` anchor for the
+   yesnowords/fDefault stores; (2) BOTH fFullyOpen spin loops rewritten exit-in-the-middle
+   (`while(1){ ptVar2 = FEApp; if((...fFullyOpen ^ 1)==0) break; Redraw(ptVar2);} Redraw(ptVar2);`)
+   -- kills duplicate_loop_exit_test's rotation and reuses the last-loaded a0 for the post-loop
+   Redraw, exactly like GenericMenuSaveGame; (3) the two NoInputMemCardDialog anchors made SEPARATE
+   locals (one shared local forced a callee-saved pseudo + an extra `addu a0,sN,zero`; the first
+   block's anchor legitimately dies into a0, the second is held across TextSys_Word); (4) the
+   pink-slip index written as the real member access `frontEnd.pinkSlipsCar[1 - player]` (+ the 4th
+   arg as `(short)(1 - player)`) so the shared `1-player` is CSE'd and the +293 stays a load
+   DISPLACEMENT -- the old `*(byte*)((int)&frontEnd + -player + 0x126)` cast folded the offset into
+   the %lo and forced a `negu/addiu` pair; (5) the second Display's arg re-derived from a FRESH
+   `&FEApp->NoInputMemCardDialog` (oracle reloads it) while the string store uses the held anchor.
+   RESIDUAL 10 = `playerNum`'s short->int shape: retail has ONE `lh` + a plain `addu s0,s3,zero`
+   copy, we get either 2 loads + sll/sra (this form, 10) or 1 load + sll/sra (12) or an exact
+   138/138 pure register rotation when playerNum is int (50).  qtytrace/allocsim class. */
+
 extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -2014,6 +2205,8 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   char *pcVar4;
   char *pcVar5;
   tScreenPinkSlipCongrats *dlgThis;
+  tDialogYesNo *dlgThis2;
+  tDialogNoInputMessage *dlgThis3;
   tDialogNoInputMessage *this_00;
   int fWinner;
   int player;
@@ -2027,40 +2220,44 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
      [BUG FIX 2026-07-27, 130->124] The matching manual `tScreen_dtor((tScreen*)&RetryCancelDialog,2)`
      at the function's tail was left in -- same DOUBLE-DESTRUCTION bug, firing alongside
      RetryCancelDialog's own auto-invoked destructor at the real `}`. Dropped it. */
-  RetryCancelDialog.yesnowords[0] = 0x291;
-  RetryCancelDialog.yesnowords[1] = 0x292;
-  RetryCancelDialog.fDefault = 1;
+  dlgThis2 = &RetryCancelDialog;
+  dlgThis2->yesnowords[0] = 0x291;
+  dlgThis2->yesnowords[1] = 0x292;
+  dlgThis2->fDefault = 1;
   playerNum = screenPinkSlipCongrats->fWinner;
-  player = (int)playerNum;
+  player = playerNum;
   pcVar4 = TextSys_Word(0x29a);
   pcVar5 = PlayerName(player);
   sprintf(string,pcVar4,pcVar5,player + 1);
-  this_00 = &FEApp->NoInputMemCardDialog;
-  (FEApp->NoInputMemCardDialog).string = string;
-  Display((tDialogBase *)this_00);
-  while ((FEApp->NoInputMemCardDialog).fFullyOpen != 1) {
-    Redraw(FEApp);
+  dlgThis3 = &FEApp->NoInputMemCardDialog;
+  dlgThis3->string = string;
+  Display((tDialogBase *)dlgThis3);
+  while (1) {
+    ptVar2 = FEApp;
+    if (((ptVar2->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+    Redraw(ptVar2);
   }
-  Redraw(FEApp);
+  Redraw(ptVar2);
   Init_Memcard(false,1);
-  GetPinkSlipsCar(&carManager, (ushort)*(byte *)((int)&frontEnd + -player + 0x126),&carInfo,
-             (short)((uint)((-player + 1) * 0x10000) >> 0x10));
+  GetPinkSlipsCar(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[1 - player],&carInfo,
+             (short)(1 - player));
   AddToPinkSlipsList(&carManager, (short)carInfo.fCarID,(ushort)carInfo.fColor,playerNum);
   AddUpgradesToPinkSlipsList(&carManager, (ushort)(byte)frontEnd.pinkSlipsCar[player],(ushort)carInfo.fUpgrades,
              playerNum);
   SavePinkSlipsCarsWithErrorDialogs(playerNum,2,-1);
   Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
   command->type = kMenu_Command_GoToMenuOneWay;
-  ptVar1 = FEApp;
   command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuMain;
+  this_00 = &FEApp->NoInputMemCardDialog;
   pcVar4 = TextSys_Word(0x274);
-  ptVar2 = FEApp;
-  (ptVar1->NoInputMemCardDialog).string = pcVar4;
-  Display((tDialogBase *)&ptVar2->NoInputMemCardDialog);
-  while ((FEApp->NoInputMemCardDialog).fFullyOpen != 1) {
-    Redraw(FEApp);
+  this_00->string = pcVar4;
+  Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
+  while (1) {
+    ptVar2 = FEApp;
+    if (((ptVar2->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+    Redraw(ptVar2);
   }
-  Redraw(FEApp);
+  Redraw(ptVar2);
   GenericMenuLoadGame(0);
   DeInit_Memcard();
   Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
@@ -2251,6 +2448,12 @@ extern "C" void MenuExtended_SetExpert__FR12tMenuCommand(tMenuCommand *command)
    Diff count still improved 52->49; kept as a correctness fix (this fn was double-freeing the
    dialog's vtable on every real call). */
 
+/* [W57-A1 2026-08-09, 49->PASS] Three faithful fixes: `dlgThis = &AreYouSure` anchor for every
+   field store + the Run arg (oracle s0-based, ours sp-relative); `ptVar1 = menuDefs[0]` moved
+   INSIDE the taken arm (oracle's `lui/lw` sits after the branch); and the if/else ARMS SWAPPED to
+   `if (sVar2 != 0) {GoToMenuOneWay...} else {None}` so the nonzero case is the FALL-THROUGH and
+   the zero case the beqz target -- matching the oracle's branch polarity + block layout. */
+
 extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -2259,19 +2462,20 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
   tDialogYesNo *dlgThis;
   tDialogYesNo AreYouSure;
 
-  AreYouSure.yesnowords[0] = 0x321;
-  AreYouSure.yesnowords[1] = 0x322;
-  AreYouSure.fDefault = 0;
-  AreYouSure.string =
+  dlgThis = &AreYouSure;
+  dlgThis->yesnowords[0] = 0x321;
+  dlgThis->yesnowords[1] = 0x322;
+  dlgThis->fDefault = 0;
+  dlgThis->string =
        TextSys_Word(0x9d);
-  sVar2 = Run((tDialogInteractive *)&AreYouSure);
-  ptVar1 = menuDefs[0];
-  if (sVar2 == 0) {
-    command->type = kMenu_Command_None;
-  }
-  else {
+  sVar2 = Run((tDialogInteractive *)dlgThis);
+  if (sVar2 != 0) {
+    ptVar1 = menuDefs[0];
     command->type = kMenu_Command_GoToMenuOneWay;
     command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuMain;
+  }
+  else {
+    command->type = kMenu_Command_None;
   }
   return;
 }
@@ -2301,6 +2505,13 @@ extern "C" void MenuExtended_ExitTourney__FR12tMenuCommand(tMenuCommand *command
    `tScreen_dtor((tScreen*)&AreYouSure,2)` firing alongside AreYouSure's own auto-invoked
    destructor. */
 
+/* [W57-A1 2026-08-09, 18->PASS] Two levers: (a) GOTO BACK-EDGE loop (`nextPlayer: if (player<2)
+   {...; goto nextPlayer;}`) instead of `while(true){if(2<=p)break;...}` -- it defeats LICM's
+   hoist of `%hi(FEApp)` into a 4th saved reg (s3), which was the whole +2-insn / extra-s-reg
+   delta; (b) the loop-invariant `&string` hoisted BY HAND into `msg` before the loop, because the
+   same goto shape also suppresses LICM for THAT address (oracle materializes `addiu s2,sp,184`
+   once, pre-loop).  So: LICM off for the global, on (manually) for the frame address. */
+
 extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -2311,6 +2522,7 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
   tDialogYesNo *dlgThis;
   int iVar5;
   int player_00;
+  char *msg;
   tDialogYesNo AreYouSure;
   char string [80];
   
@@ -2323,15 +2535,17 @@ extern "C" void MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand(tMenuCommand *
   if (sVar3 != 0) {
     Init_Memcard(false,1);
     player_00 = 0;
-    while (true) {
-      if (2 <= player_00) break;
+    msg = string;
+  nextPlayer:
+    if (player_00 < 2) {
       fmt = TextSys_Word(0x297);
       pcVar4 = PlayerName(player_00);
       iVar5 = player_00 + 1;
-      sprintf(string,fmt,pcVar4,iVar5);
-      (FEApp->NoInputMemCardDialog).string = string;
+      sprintf(msg,fmt,pcVar4,iVar5);
+      (FEApp->NoInputMemCardDialog).string = msg;
       SavePinkSlipsCarsWithErrorDialogs((short)player_00,1,-1);
       player_00 = iVar5;
+      goto nextPlayer;
     }
     DeInit_Memcard();
     Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);

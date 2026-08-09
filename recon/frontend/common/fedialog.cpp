@@ -233,22 +233,26 @@ void tDialogHelp::CalculateDimensions()
   if (helpArray[this->variant].autoGenerate != '\0') {
     bool showLeftRight;
     bool showCross;
+    tMenu *scanMenu;
 
     showLeftRight = false;
     showCross = false;
     menu = FEApp->fCurrentMenu[player];
-    for (i = 0; ; i = i + 1) {
-      if (menu->fItemList[i] == (tMenuItem *)0x0) {
+    scanMenu = menu;
+    i = 0;
+    while (true) {
+      if (scanMenu->fItemList[i] == (tMenuItem *)0x0) {
         break;
       }
-      if (((menu->fItemList[i]->fFlags ^ 1) & 1) != 0) {
-        if ((menu->fItemList[i]->fFlags & 0x400) != 0) {
+      if (((scanMenu->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+        if ((scanMenu->fItemList[i]->fFlags & 0x400) != 0) {
           showLeftRight = true;
         }
         else {
           showCross = true;
         }
       }
+      i = i + 1;
     }
     if (1 < menu->GetNumberEnabledItems()) {
       this->AddItem(0x52,0x50);
@@ -260,7 +264,12 @@ void tDialogHelp::CalculateDimensions()
       bool hasSpecialFlags;
 
       hasSpecialFlags = false;
-      if (((menu->fFlags & 0x10000) != 0) || ((menu->fFlags & 0x20000) != 0)) {
+      if ((menu->fFlags & 0x10000) == 0) {
+        if ((menu->fFlags & 0x20000) != 0) {
+          hasSpecialFlags = true;
+        }
+      }
+      else {
         hasSpecialFlags = true;
       }
       if (hasSpecialFlags) {
@@ -302,23 +311,29 @@ CalcDim_helpArrFetch:
   }
   this->helpcontrollers = 0;
   PAD_update();
-  if (gPadinfo.buf[0].nopad == '\0') {
-    short controllerFlags;
+  {
+    PAD_COMMON *pad = &gPadinfo.buf[0];
+    if (pad->nopad == '\0') {
+      short controllerFlags;
 
-    controllerFlags = this->helpcontrollers | 1;
-    if (gPadinfo.buf[0].ID == '#') {
-      controllerFlags = this->helpcontrollers | 2;
+      controllerFlags = this->helpcontrollers | 1;
+      if (pad->ID == '#') {
+        controllerFlags = this->helpcontrollers | 2;
+      }
+      this->helpcontrollers = controllerFlags;
     }
-    this->helpcontrollers = controllerFlags;
   }
-  if (gPadinfo.buf[4].nopad == '\0') {
-    short controllerFlags;
+  {
+    PAD_COMMON *pad = &gPadinfo.buf[4];
+    if (pad->nopad == '\0') {
+      short controllerFlags;
 
-    controllerFlags = this->helpcontrollers | 1;
-    if (gPadinfo.buf[4].ID == '#') {
-      controllerFlags = this->helpcontrollers | 2;
+      controllerFlags = this->helpcontrollers | 1;
+      if (pad->ID == '#') {
+        controllerFlags = this->helpcontrollers | 2;
+      }
+      this->helpcontrollers = controllerFlags;
     }
-    this->helpcontrollers = controllerFlags;
   }
   i = 0;
   this->width = 0;
@@ -355,8 +370,9 @@ CalcDim_helpArrFetch:
   if ((u_int)(ticks[0] - this->startTicks) < 0x32) {
     this->width =
          gHelpShapes[0x2a].width * 2 +
-         (short)((((int)this->width - (((int)gHelpShapes[0x2a].width << 0x11) >> 0x10)
-                  ) * (ticks[0] - this->startTicks)) / 0x32);
+         (short)((u_int)(((int)this->width -
+                         (((int)gHelpShapes[0x2a].width << 0x11) >> 0x10)) *
+                        (ticks[0] - this->startTicks)) / 0x32);
     this->height =
          gHelpShapes[0x2a].height * 2 +
          (short)((u_int)(((int)this->height -

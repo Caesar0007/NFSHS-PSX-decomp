@@ -49,71 +49,43 @@ void tScreenTrackRecords::Cleanup()
 void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
 
 {
-  int sign;
-  short y_00;
-  int wx2;
-  tMenuTextState rowState;
-  char *word;
-  int newrecordU;
-  int wx;
   tMenuTextState textState;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
   char sBuildOutput [80];
-  
-  newrecordU = newrecord;
-  textState = (tMenuTextState)((uint)(newrecordU != 0) << 1);
+
+  textState = (tMenuTextState)((newrecord != 0) << 1);
   if (-1 < this->TrackRecords[index].nBestLap) {
-    if (newrecordU != 0) {
-      wx2 = TextSys_WordX(0x247);
-      wx = this->flare_intensity << 1;
-      sign = wx >> 0x1f;
-      wx = wx / 3 + sign;
-      Flare_2DHalo(wx2 + 3,y + 4,this->flare_intensity / 2,wx - sign,0x17);
-      TextSys_WordX(0x247);
-      DrawShapeExtended(wx,shapeFlags,shapeX,shapeY,0,0,
-                 (tDrawShapeExtended *)0x0);
+    if (newrecord != 0) {
+      Flare_2DHalo(TextSys_WordX(0x247) + 3,y + 4,
+                   this->flare_intensity / 2,
+                   (this->flare_intensity * 2) / 3,0x17);
+      DrawShapeExtended(0,0,TextSys_WordX(0x247),y,0,0,
+                        (tDrawShapeExtended *)0x0);
     }
-    wx = TextSys_WordX(0x24b);
-    y_00 = (short)y;
-    if (newrecordU == 0) {
-      rowState = textState_Selected;
+    FETextRender_FullText
+              (this->TrackRecords[index].sName,(short)TextSys_WordX(0x24b),
+               (short)y,textType_TrackRecords,
+               newrecord != 0 ? textState_Hilighted : textState_Selected,0);
+    FETextRender_FullText
+              (TextSys_Word(this->TrackRecords[index].nCar + 0x153),
+               (short)TextSys_WordX(0x24c),(short)y,
+               textType_TrackRecords,textState,0);
+    if (this->TrackRecords[index].nTime != 0) {
+      Stattool_ParseTime(this->TrackRecords[index].nTime,sBuildOutput);
     }
     else {
-      rowState = textState_Hilighted;
+      sprintf(sBuildOutput,TextSys_Word(0x261));
     }
     FETextRender_FullText
-              (this->TrackRecords[index].sName,(short)wx,y_00,textType_TrackRecords,rowState,0);
-    word = TextSys_Word(this->TrackRecords[index].nCar + 0x153);
-    wx = TextSys_WordX(0x24c);
+              (sBuildOutput,(short)TextSys_WordX(0x24d),(short)y,
+               textType_TrackRecords,
+               newrecord ? textState_Hilighted
+                              : (tMenuTextState)(index != 0),0);
+    Stattool_ParseTime(this->TrackRecords[index].nBestLap,sBuildOutput);
     FETextRender_FullText
-              (word,(short)wx,y_00,textType_TrackRecords,textState,0);
-    wx = this->TrackRecords[index].nTime;
-    if (wx == 0) {
-      word = TextSys_Word(0x261);
-      sprintf(sBuildOutput,word);
-    }
-    else {
-      Stattool_ParseTime(wx,sBuildOutput);
-    }
-    wx = TextSys_WordX(0x24d);
-    if (newrecordU == 0) {
-      rowState = (tMenuTextState)(index != 0);
-    }
-    else {
-      rowState = textState_Hilighted;
-    }
-    FETextRender_FullText
-              (sBuildOutput,(short)wx,y_00,textType_TrackRecords,rowState,0);
-    Stattool_ParseTime
-              (this->TrackRecords[index].nBestLap,sBuildOutput);
-    wx = TextSys_WordX(0x24e);
-    if ((index == 0) && ((newrecordU != 0) == 0)) {
-      textState = textState_Selected;
-    }
-    FETextRender_FullText
-              (sBuildOutput,(short)wx,y_00,textType_TrackRecords,textState,0);
+              (sBuildOutput,(short)TextSys_WordX(0x24e),(short)y,
+               textType_TrackRecords,
+               index != 0 || textState != textState_Unselected
+                 ? textState : textState_Selected,0);
   }
   return;
 }

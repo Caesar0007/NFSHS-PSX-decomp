@@ -5,6 +5,13 @@
  */
 #include "fetv.h"
 
+typedef struct { unsigned addr : 24, len : 8; } FETV_PTag;
+#define FETV_setXYWH(p, x, y, w, h) \
+  ((p)->x0 = (x), (p)->y0 = (y), \
+   (p)->x1 = (x) + (w), (p)->y1 = (y), \
+   (p)->x2 = (x), (p)->y2 = (y) + (h), \
+   (p)->x3 = (x) + (w), (p)->y3 = (y) + (h))
+
 
 /* ---- DrawTVLines  [FETV.CPP:25-77] SLD-VERIFIED ---- */
 
@@ -15,71 +22,44 @@ void DrawTVLines(tTVConfig &tv)
   short x;
   short y;
   POLY_F4 *videoFX;
-  u_char *prevVideoFX;
-  int drawWide;
-  int pkt_addr24;
 
   tv.fxWide = (short)((tv.fxWide + 1) % (tv.h * 0x30));
-  y = tv.fxWide;
   tv.fxThin = (short)((tv.fxThin + 2) % (tv.h * 0x30));
+  y = tv.fxWide;
+  fxHeight = 8;
   if ((int)tv.fxWide < (int)tv.y) {
-    fxHeight = 8;
     fxHeight = (short)(fxHeight - ((u_int)tv.y - (u_int)y));
     y = tv.y;
   }
   else {
-    drawWide = 0x80000;
-    if (tv.fxWide + 8 <= (int)((u_int)tv.y + (int)tv.h)) goto DrawTVLines_writeWide;
-    /* fxHeight left as the caller's leftover $t2 -- oracle reads it uninitialized
-       on this path (tv.h>=8 && tv.fxWide>=tv.y); reproduced verbatim, not a fix. */
-    fxHeight = (short)((u_int)tv.y - (u_int)y);
+    if (tv.fxWide + 8 > (int)((u_int)tv.y + (int)tv.h)) {
+      fxHeight = (short)((u_int)tv.y - (u_int)y);
+    }
   }
-  drawWide = fxHeight << 0x10;
-DrawTVLines_writeWide:
-  if (0 < drawWide) {
+  if (0 < (fxHeight << 0x10)) {
     videoFX = (POLY_F4 *)Render_gPacketPtr;
-    prevVideoFX = Render_gPalettePtr;
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
+    ((FETV_PTag *)videoFX)->addr = ((FETV_PTag *)Render_gPalettePtr)->addr;
     Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *(u_int *)prevVideoFX = *(u_int *)prevVideoFX & 0xff000000 | pkt_addr24;
+    ((FETV_PTag *)Render_gPalettePtr)->addr = (u_int)videoFX;
     videoFX->code = 0x2a;
-    videoFX->r0 = 5;
-    videoFX->x0 = tv.x;
-    videoFX->y0 = y;
-    videoFX->x1 = tv.x + tv.w;
-    videoFX->y1 = y;
-    videoFX->x2 = tv.x;
-    videoFX->y2 = (short)(y + fxHeight);
+    ((FETV_PTag *)videoFX)->len = 5;
+    FETV_setXYWH(videoFX,tv.x,y,tv.w,fxHeight);
     videoFX->b0 = 10;
     videoFX->g0 = 10;
     videoFX->r0 = 10;
-    videoFX->x3 = tv.x + tv.w;
-    videoFX->y3 = (short)(y + fxHeight);
   }
-  videoFX = (POLY_F4 *)Render_gPacketPtr;
-  prevVideoFX = Render_gPalettePtr;
   y = tv.fxThin;
-  if (((int)tv.y < (int)tv.fxThin) && ((int)tv.fxThin < (int)tv.y + (int)tv.h)) {
-    *(u_int *)Render_gPacketPtr =
-         *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-    pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
+  if (((int)tv.fxThin > (int)tv.y) && ((int)tv.fxThin < (int)tv.y + (int)tv.h)) {
+    videoFX = (POLY_F4 *)Render_gPacketPtr;
+    ((FETV_PTag *)videoFX)->addr = ((FETV_PTag *)Render_gPalettePtr)->addr;
     Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    *(u_int *)prevVideoFX = *(u_int *)prevVideoFX & 0xff000000 | pkt_addr24;
+    ((FETV_PTag *)Render_gPalettePtr)->addr = (u_int)videoFX;
     videoFX->code = 0x2a;
-    videoFX->r0 = 5;
-    videoFX->x0 = tv.x;
-    videoFX->y0 = y;
-    videoFX->x1 = tv.x + tv.w;
-    videoFX->y1 = y;
-    videoFX->x2 = tv.x;
-    videoFX->y2 = (short)(y + 1);
+    ((FETV_PTag *)videoFX)->len = 5;
+    FETV_setXYWH(videoFX,tv.x,y,tv.w,1);
     videoFX->b0 = 10;
     videoFX->g0 = 10;
     videoFX->r0 = 10;
-    videoFX->x3 = tv.x + tv.w;
-    videoFX->y3 = (short)(y + 1);
   }
   FeDraw_SetABRMode(1);
   if ((tv.flags & 0x20) != 0) {

@@ -924,10 +924,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       Col = 0;
       if (!shadow) {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
-        if (x1 < fX + fWidth - width) {
-          Col = CalcFadeVal(0x280f00,fFadeVal);
-        }
-        else {
+        if (x1 >= fX + fWidth - width) {
           if (fSelFade) {
             Col = CalcFadeVal(myDarkBlue,
                 (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
@@ -938,6 +935,9 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
             Col = myDarkBlue;
           }
           Col = CalcFadeVal(Col,fFadeVal);
+        }
+        else {
+          Col = CalcFadeVal(0x280f00,fFadeVal);
         }
       }
       *(int *)((u_char *)prim + 4) = Col;

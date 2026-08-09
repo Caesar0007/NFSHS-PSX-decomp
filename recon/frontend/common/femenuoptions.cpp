@@ -2690,23 +2690,23 @@ int tUserNameMenuItem::Draw(bool selected)
         output[0] = this->fData[j];
         FETextRender_FullTextRGB(output,(short)(startx + j * 0x14),(short)(y + 0x11),
                                 ColText,'\x01',0);
+        __asm__("" : : "r"(this));
         j = j + 1;
       } while (j < sl);
     }
     if (sl < this->fMaxStringLength) {
-      do {
-        PSXDrawSquare(Col,startx + sl * 0x14,y + 0x19,0x11,1);
-        sl = sl + 1;
-      } while (sl < this->fMaxStringLength);
+      for (j = sl; j < this->fMaxStringLength; j = j + 1) {
+        PSXDrawSquare(Col,startx + j * 0x14,y + 0x19,0x11,1);
+      }
     }
+    xx = this->fCurrentColumn * 0x1c + 0x102;
+    yy = MENUUSERNAME_STARTY + this->fCurrentRow * 0xf;
     if (this->fFadeVal == 0) {
       tDrawShapeExtended fFlags;
       char current;
 
       fFlags.tint[0] = PulsateYellow[0];
       current = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
-      xx = this->fCurrentColumn * 0x1c + 0x102;
-      yy = this->fCurrentRow * 0xf;
       if ((current == '!') || (current == '@')) {
         DrawShapeExtended(0x4e,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }

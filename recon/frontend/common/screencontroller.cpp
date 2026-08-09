@@ -879,79 +879,75 @@ DrawCtrl_axisDone:
 void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
 
 {
-  short length;
-  int amount;
-  int endx;
-  int lineX;
-  int lineY;
-  int extrabit;
   int startx;
-  uint extrabit2;
   int starty;
+  int endx;
   int endy;
-  int col;
+  int LineCol;
   
-  amount = type;
   startx = (int)ArrowLoc[2];
-  endx = (int)ArrowLoc[4];
   starty = (int)ArrowLoc[3];
+  endx = (int)ArrowLoc[4];
   endy = (int)ArrowLoc[5];
-  if (amount != 0) {
+  if (type) {
     startx = (int)*ArrowLoc;
     starty = (int)ArrowLoc[1];
     endx = (int)ArrowLoc[2];
     endy = (int)ArrowLoc[3];
   }
-  col = 0x1e1e1e;
+  LineCol = 0x1e1e1e;
   if (0 < this->fArrowFadeDir) {
-    col = CalcFadeVal(0x1e1e1e,amount);
+    LineCol = CalcFadeVal(0x1e1e1e,this->fArrowFade);
   }
-  length = (short)(endx - startx);
   if (startx == endx) {
-    extrabit = 0;
-    if (amount == 0) {
-      extrabit = endy < starty ^ 1;
+    int extrabitoff;
+    int extrabit;
+    short length;
+
+    extrabitoff = 0;
+    if (!type) {
+      extrabitoff = endy >= starty;
     }
-    extrabit2 = 0;
-    if (amount == 1) {
-      extrabit2 = endy < starty ^ 1;
+    extrabit = 0;
+    if (type == true) {
+      extrabit = endy >= starty;
     }
     length = (short)(endy - starty);
     if (this->mult != 0x40) {
-      startx = ((endy - starty) * 0x10000 >> 0x10) * (int)this->mult >> 6;
-      length = (short)startx;
-      PSXDrawTransSquare(0xffffff,lineX,lineY,2,-((startx << 0x10) >> 0x13),2);
+      int brightlength;
+
+      brightlength = ((int)length * (int)this->mult) >> 6;
+      length = (short)brightlength;
+      PSXDrawTransSquare(0xffffff,endx,
+          endy - ((short)brightlength - ((short)brightlength >> 3) -
+                  extrabitoff + extrabit),
+          2,-((short)brightlength >> 3),2);
     }
-    endx = 2;
-    startx = -(((int)length - extrabit) + extrabit2);
+    PSXDrawTransSquare(LineCol,endx,endy + extrabit,2,
+                       -((int)length - extrabitoff + extrabit),2);
   }
   else {
-    starty = (endx < startx ^ 1) * 2;
+    int extrabit;
+    short length;
+
+    extrabit = (endx >= startx) * 2;
+    length = (short)(endx - startx);
     if (this->mult != 0x40) {
-      endx = ((endx - startx) * 0x10000 >> 0x10) * (int)this->mult >> 6;
-      length = (short)endx;
-      endx = endx << 0x10;
-      startx = endx >> 0x10;
-      if (startx < 0) {
-        startx = -startx;
+      length = (short)(((int)length * (int)this->mult) >> 6);
+      if (extrabit < ((length < 0) ? -(int)length : (int)length)) {
+        int brightlength;
+
+        brightlength = (int)length >> 3;
+        PSXDrawTransSquare(0xffffff,
+            endx - ((int)length - brightlength) + extrabit,starty,
+            -(brightlength + extrabit),1,2);
       }
-      if (startx <= starty) {
-        return;
-      }
-      PSXDrawTransSquare(0xffffff,lineX,lineY,-((endx >> 0x13) + starty),1,2);
     }
-    endx = (int)length;
-    startx = endx;
-    if (endx < 0) {
-      startx = -endx;
+    if (extrabit < ((length < 0) ? -(int)length : (int)length)) {
+      PSXDrawTransSquare(LineCol,endx + extrabit,endy,
+                         -((int)length + extrabit),1,2);
     }
-    if (startx <= starty) {
-      return;
-    }
-    endx = -(endx + starty);
-    startx = 1;
   }
-  PSXDrawTransSquare(col,lineX,lineY,endx,startx,2);
   return;
 }
 

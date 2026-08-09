@@ -179,7 +179,13 @@ void AIHigh_Player::SetupBlockade()
         manager = triggerManagerCops;
         blockadeHandle = blockade->roadblock.slice + 1;
         if (gNumSlices <= blockadeHandle) {
-          blockadeHandle = blockade->roadblock.slice - (gNumSlices - 1);
+          /* w54-a12 (27 -> 19 diffs): the `gNumSlices - 1` MUST be a named temp. Written
+           * inline, gcc-2.8 cse/combine reassociates `slice - (n-1)` into `(slice+1) - n`
+           * (reusing the just-computed blockadeHandle) and drops retail's `addiu v0,v1,-1`
+           * + `subu a1,a2,v0` pair, which also frees the original `slice` load's register.
+           * Catalog "keep arithmetic UN-simplified" (methodology 3.14). */
+          int lastSlice = gNumSlices - 1;
+          blockadeHandle = blockade->roadblock.slice - lastSlice;
         }
       }
       else {
@@ -984,29 +990,37 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   pInfo = &this->perpChaseInfo_;
 
+  /* w54-a12 (85 -> 67 diffs): SYM's own unused locals gameIndex/lapIndex/copGameInfo ARE
+   * the original variables.  The numLaps test must be evaluated BEFORE the commMode branch
+   * and used arithmetically -- retail is branchless there (`xori v0,v0,2; sltu a0,zero,v0`
+   * then `addu idx,4*(0<numAI),thatBit`); folding it into `iVar1 + (numLaps != 2)` AFTER
+   * the if made gcc emit a second branch + a duplicated `sll idx,3`.  Also: derive `levels`
+   * from the copGameInfo POINTER (not `copGame[idx].levels`, which recomputes the address)
+   * and keep that read AT its use in the chaseLevel_ statement -- moving it earlier costs
+   * ~16 diffs.  Residual: the a0/v1 rotation + retail's `addu v0,v1,zero` pointer copy. */
+  lapIndex = (u_int)(GameSetup_gData.numLaps != 2);
+
   if (GameSetup_gData.commMode == 1) {
 
-    iVar1 = 2;
+    gameIndex = 2;
 
   }
 
   else {
 
-    iVar1 = (u_int)(0 < Cars_gNumAIRaceCars) << 2;
+    gameIndex = (u_int)(0 < Cars_gNumAIRaceCars) << 2;
 
   }
 
-  iVar1 = iVar1 + (u_int)(GameSetup_gData.numLaps != 2);
+  copGameInfo = copGame + (gameIndex + lapIndex);
 
-  pInfo->copGameInfo_ = copGame + iVar1;
+  pInfo->copGameInfo_ = copGameInfo;
 
   pInfo->chaseLevelIndex_ = 0;
 
   pInfo->engagementTime_ = 0;
 
   pInfo->bestChaseLevelIndex_ = 0;
-
-  pcVar3 = copGame[iVar1].levels;
 
   pInfo->blockadeDone_ = 0;
 
@@ -1016,7 +1030,7 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   pInfo->engagementPercentIncreasePerTick_ = 0;
 
-  pInfo->chaseLevel_ = pcVar3 + pInfo->chaseLevelIndex_;
+  pInfo->chaseLevel_ = copGameInfo->levels + pInfo->chaseLevelIndex_;
 
   this->numWarnings_ = 0;
 
@@ -1380,9 +1394,17 @@ LAB_80062f48:
     else {
       this->numBusts_ = this->numBusts_ + 1;
       (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1;
+      int numArrestsIndex;
       iVar5 = GameSetup_gData.numLaps;
-      if ((AIHigh_Player_kNumArrestsByLap[
-               iVar5 == 2 ? 0 : (iVar5 == 4 ? 1 : 2)] <= this->numBusts_) ||
+      /* w54-a12 (27 -> PASS 307/307): the ternary must land in a NAMED index variable and
+       * the subscript must use that variable -- a ternary written INSIDE the subscript lets
+       * gcc constant-fold each arm into a pre-scaled BYTE offset (li 8 / 0 + addu base) and
+       * loses retail's `sll idx,2; addu idx,base` index form.  Paired with the compare
+       * written numBusts_-FIRST (`numBusts_ >= table[i]`, catalog 05H "compare-operand order
+       * IS load order"): that is what puts retail's `lw numBusts` before `lw table[i]` and
+       * settles the idx/base v1-vs-v0 coloring. Do not "simplify" either back. */
+      numArrestsIndex = iVar5 == 2 ? 0 : (iVar5 == 4 ? 1 : 2);
+      if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[numArrestsIndex]) ||
           (AICop_IsLastChaseLevel(&this->perpChaseInfo_) &&
            Cars_gNumHumanRaceCars == 1)) {
         this->pullOverMode_ = 3;

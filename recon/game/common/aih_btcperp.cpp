@@ -106,7 +106,19 @@ int AIHigh_BTC_Perp::IsFalseArrest()
    * coorddef, sp+0x10/14/18) -- NO iVar1..iVar5/delta[3] temps exist in the real source.
    * xDot uses incremental accumulation while zDot remains one expression: this gives the
    * closest allocator shape found (6 detailed diffs, down from 11). Per-term iVarN temps
-   * still force a substantially worse combine-afterward shape. */
+   * still force a substantially worse combine-afterward shape.
+   * w54-a12 SEALED (6 -> PASS 136/136). Three receipts, all needed (each removal re-fails):
+   *  (1) xDot's 2nd/3rd terms are NAMED temps (dotTerm/dotTerm2) issued BEFORE the two
+   *      accumulate statements, so the term-2 value is live across the term-3 call ->
+   *      retail's `addu s0,v0,zero` copy into a callee-saved reg lands in that jal's
+   *      delay slot and `addu s2,s2,s0` sits AFTER the call.
+   *  (2) a VOID FENCE (`__asm__("" : : "i"(0))`, 0 insns, implicitly volatile = scheduling
+   *      barrier -- catalog 05H/w48-a1) before the two `xDot +=` statements pins them
+   *      below the term-3 call; without it sched1/reorg hoists `xDot += dotTerm` into the
+   *      call's delay slot and we come out 1 insn short.
+   *  (3) two more void fences at the HEADS of the `if (xDot < 0)` test and of the join
+   *      block after it -- they defeat reorg's eager-steal into the `bgez`/`negu` delay
+   *      slots (retail leaves `nop` there). Do NOT "simplify" these away. */
   int randNum1000;
 
   int carLoop;
@@ -118,6 +130,10 @@ int AIHigh_BTC_Perp::IsFalseArrest()
   int xDot;
 
   int zDot;
+
+  int dotTerm;
+
+  int dotTerm2;
 
   coorddef carCopVector;
 
@@ -157,9 +173,15 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
         xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]);
 
-        xDot += fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
+        dotTerm = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
 
-        xDot += fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+        dotTerm2 = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+
+        __asm__("" : : "i"(0));
+
+        xDot += dotTerm;
+
+        xDot += dotTerm2;
 
         zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
 
@@ -167,11 +189,15 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
                fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
 
+        __asm__("" : : "i"(0));
+
         if (xDot < 0) {
 
           xDot = -xDot;
 
         }
+
+        __asm__("" : : "i"(0));
 
         if (((0x30000 < xDot) || (0x80000 < zDot)) || (zDot < 0)) {
 
@@ -714,6 +740,8 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   int iVar7;
 
+  int newSlice;
+
   int local_18;
 
   int local_14;
@@ -744,19 +772,22 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     pCVar3 = (chaserCop)->carObj_;
 
-    if ((pCVar3->N).simRoadInfo.slice + iVar5 < gNumSlices) {
+    /* w54-a12 (109 diffs @137 -> 106 @136, COUNT-EXACT): retail computes the wrap in INT
+     * width through ONE variable and factors the `+ iVar5` into a SHARED TAIL
+     * (`addu v0,v0,a1` reached from both arms) -- the two-arm form that adds sVar1 inside
+     * each arm makes gcc duplicate that add (+1 insn).  Residual = the a2/a3 + v0/v1
+     * rotation and retail's second (halfword) load of gNumSlices for the subtract.
+     * NOTE the negative-direction sibling below still wants the two-arm short form --
+     * converting it too costs an insn (measured 135/136). */
+    newSlice = (u_short)(pCVar3->N).simRoadInfo.slice;
 
-      sVar2 = (u_short)(pCVar3->N).simRoadInfo.slice + sVar1;
+    if (gNumSlices <= (pCVar3->N).simRoadInfo.slice + iVar5) {
+
+      newSlice = newSlice - gNumSlices;
 
     }
 
-    else {
-
-      sVar2 = ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1) - (short)gNumSlices;
-
-    }
-
-    (pCVar6->N).simRoadInfo.slice = sVar2;
+    (pCVar6->N).simRoadInfo.slice = (short)(newSlice + iVar5);
 
   }
 

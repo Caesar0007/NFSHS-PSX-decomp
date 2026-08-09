@@ -135,76 +135,71 @@ void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
 
 {
   short sVar1;
-  char *pcVar2;
-  int iVar3;
-  u_int uVar4;
   short dist;
   RECT rect;
   char buffer [64];
   
-  if ((selected != 0) || (dist = 0xe, 1 < this->fOffset + -0xe)) {
+  if ((selected == 0) && (this->fOffset + -0xe < 2)) {
+    this->fOffset = 0xe;
+  }
+  else {
     FETextRender_SetFont(0);
-    pcVar2 = TextSys_Word(this->fTextDescription);
-    sprintf(buffer,"%s",pcVar2);
+    sprintf(buffer,"%s",TextSys_Word(this->fTextDescription));
     s_upper(buffer);
-    iVar3 = textpixels(buffer);
-    uVar4 = strlen(buffer);
-    dist = 0xa5;
-    if (0x8b < (int)((iVar3 - uVar4) * 0x10000) >> 0x10) {
-      dist = (short)(iVar3 - uVar4) + 0x19;
+    dist = textpixels(buffer) - strlen(buffer);
+    if (dist < 0x8c) {
+      dist = 0xa5;
+    } else {
+      dist = dist + 0x19;
     }
     sVar1 = this->fOffset;
     this->fOffset = sVar1 + -2;
     if (selected == 0) {
       this->fOffset = sVar1 + -4;
     }
-    dist = this->fOffset + dist;
-    if (-1 < this->fOffset) goto Draw_GoToMenuButtonOffset;
+    if (this->fOffset < 0) {
+      this->fOffset = (u_short)this->fOffset + dist;
+    }
   }
-  this->fOffset = dist;
-Draw_GoToMenuButtonOffset:
-  if (((this->fFlags ^ 1) & 1) == 0) {
-    dist = this->fEnabledTransitionVal + -0xc;
+  if (((this->fFlags ^ 1) & 1) != 0) {
+    this->fEnabledTransitionVal = this->fEnabledTransitionVal + 0xc;
   }
   else {
-    dist = this->fEnabledTransitionVal + 0xc;
+    this->fEnabledTransitionVal = this->fEnabledTransitionVal - 0xc;
   }
-  this->fEnabledTransitionVal = dist;
   if (this->fEnabledTransitionVal < 0) {
     this->fEnabledTransitionVal = 0;
   }
   else if (0x80 < this->fEnabledTransitionVal) {
     this->fEnabledTransitionVal = 0x80;
   }
-  rect.h = 0xb;
-  dist = this->fTransitionVal;
-  if (this->fEnabledTransitionVal < this->fTransitionVal) {
-    dist = this->fEnabledTransitionVal;
-  }
-  iVar3 = dist * 0x73;
-  if (iVar3 < 0) {
-    iVar3 = iVar3 + 0x7f;
-  }
-  rect.w = (short)(iVar3 >> 7);
   rect.x = (short)x;
   rect.y = (short)y;
+  rect.w = 0x73;
+  rect.h = 0xb;
+  if (this->fTransitionVal > this->fEnabledTransitionVal) {
+    dist = this->fEnabledTransitionVal;
+  }
+  else {
+    dist = this->fTransitionVal;
+  }
+  rect.w = (short)(rect.w * dist / 0x80);
   MenuNFS4_DrawTextBox(this->fTextDescription,rect,
              0x8c,this->fOffset,
              this->fSelFade,false,0);
   if ((this->fFlags & 0x200) != 0) {
     Font_SetBlitter(FontUpsideDownBlit);
+    rect.x = (short)x;
     rect.y = 0x118 - (short)y;
+    rect.w = 0x73;
     rect.h = 0xb;
-    dist = this->fTransitionVal;
-    if (this->fEnabledTransitionVal < this->fTransitionVal) {
+    if (this->fTransitionVal > this->fEnabledTransitionVal) {
       dist = this->fEnabledTransitionVal;
     }
-    iVar3 = dist * 0x73;
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0x7f;
+    else {
+      dist = this->fTransitionVal;
     }
-    rect.w = (short)(iVar3 >> 7);
-    rect.x = (short)x;
+    rect.w = (short)(rect.w * dist / 0x80);
     MenuNFS4_DrawTextBox(this->fTextDescription,rect
                ,0x8c,this->fOffset,
                this->fSelFade,false,1);

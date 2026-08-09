@@ -130,6 +130,19 @@ delay-slot scan — a top-of-fn fence and a prologue-store slot fill are
 mutually exclusive. A mechanical fence-position sweeper exists
 (`w55a9_fencesweep.py` in scratchpad) — one run replaces days of hand probing.
 
+**THE COMPLETE `__asm__` POLICY** (what is allowed vs banned):
+
+| use | verdict |
+|---|---|
+| zero-insn fences above (empty template, no reg names) | ✅ standard instruments |
+| GTE/COP2 compute ops (`mtc2/.word 0x4A…/mfc2`) | ✅ the only faithful form — see methodology §3.4 + the gte_* macro reference |
+| PROVEN hand-asm fns (trapping opcodes / oracle-proven non-compiler: BIOS thunks, crt0, DecDCTvlc, _patch_gte, RotMatrix…) | ✅ file-scope `__asm__` transcription IS the reconstruction |
+| EA expander-template sites (§3.25 fixed-`$t4-$t7` census positive) | ✅ the documented inline-asm template recipe, never C spellings |
+| non-builtin alias (`extern void *_memcpy() __asm__("memcpy")`) | ✅ established device (defeats builtin inlining / symbol aliasing) |
+| `register T x asm("$N")` PINS | ❌ BANNED — the project is pin-free; fence dials replace every pin (incl. those in Rage Racer sources you port) |
+| hard-register CLOBBER fences (`__asm__("" : : : "$4")`) | ⛔ pin-adjacent — needs explicit USER sign-off (one such case is parked on that decision) |
+| `asm` with a non-empty template to "help" codegen of a normal fn | ❌ that is hand-asm smuggling; find the source shape or file the named angle |
+
 ### 4.5 build.py per-fn mechanisms (orchestrator wires; you SPEC)
 `PER_FN_NO_DELAYED_BRANCH` (dual-compile splice), `PER_FN_FORCE_ADDR`,
 `PER_FN_NO_THREAD_JUMPS`, `PER_FN_RA_SINK`, `PER_FN_PROLOGUE_UNSINK`,

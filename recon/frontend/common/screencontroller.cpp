@@ -71,19 +71,19 @@ void Controller_SetRamp(void)
   short i;
   short p;
   short ctrl_type;
-  byte config_idx;
+  uint config_idx;   /* MATCH: byte re-masks (andi 0xff) on every use */
   
-  for (p = 0; p < 2; p = p + 1) {
+  /* MATCH (SLD 794): the oracle re-tests at the TOP of every iteration
+     (sll/sra/slti/beqz before the body) -- a plain `for` gets loop-rotated and
+     fuses the sign-extend into the address (sra ..,15). */
+  p = 0;
+  while (1) {
+    if (p >= 2) break;
     ctrl_type = frontEnd.controlType[p];
-    if (ctrl_type == 0x23) {
-      type_idx = 0;
-    }
-    else if ((ctrl_type == 0x53) || (ctrl_type == 0x73)) {
-      type_idx = 1;
-    }
-    else {
-      type_idx = 2;
-    }
+    /* MATCH (SLD 797 = ONE source line): a nested ternary -- the if/else-if
+       chain lays the `0` arm out inline, the oracle has it LAST. */
+    type_idx = ctrl_type == 0x23 ? 0 :
+               ((ctrl_type == 0x53 || ctrl_type == 0x73) ? 1 : 2);
     config_idx = frontEnd.controlConfig[p];
     frontEnd.rampGas[p] = '\x01';
     frontEnd.rampBrake[p] = '\x01';
@@ -103,6 +103,7 @@ void Controller_SetRamp(void)
     if (devType == 1) {
       frontEnd.rampBrake[p] = '\0';
     }
+    p = p + 1;
   }
   return;
 }
@@ -173,8 +174,6 @@ short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 void tScreenControllerConfig::CheckConfigs()
 
 {
-  byte config;
-  byte prevConfig;
   int arrowDim;   /* MATCH: (fArrowFade < 0x80) computed PER ARM (oracle has an
                      slti in each fade arm sharing ONE bnez at .L80043544) --
                      a `short animVal` local instead forces lhu + sll/sra. */
@@ -264,9 +263,12 @@ ChkConfigs_swapIn:
   if ((*(int *)this->fFade == 0) && (this->fAnim == 0)) {
     this->fAnim = 1;
     this->fAnimController = (ushort)(byte)this->fCurrentController;
-    config = frontEnd.controlConfig[this->player];
-    prevConfig = this->fPrevConfig;
-    if (((prevConfig < config) && ((config != 2 || (prevConfig != 0)))) || ((config == 0 && (prevConfig == 2)))) {
+    /* MATCH: SLD 911 owns BOTH byte loads AND the whole compare chain -> retail
+       read the two config bytes INSIDE the if-expression (no line-267/268 locals);
+       that alone fixes the config-vs-prevConfig load order. */
+    if (((frontEnd.controlConfig[this->player] > this->fPrevConfig) &&
+         ((frontEnd.controlConfig[this->player] != 2 || (this->fPrevConfig != 0)))) ||
+        ((frontEnd.controlConfig[this->player] == 0 && (this->fPrevConfig == 2)))) {
       this->fAnimStart = this->AnimKeyPoints(true,1);
       this->fAnimStop = this->AnimKeyPoints(true,0);
       this->fAnimStep = 1;   /* MATCH: store the step DIRECTLY per arm (no shared
@@ -961,12 +963,11 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
   int fadeCalc;
   short m;
   int hi;
-  short *abr;
-  
   this->mult = 0;
-  abr = ArrowLoc;
   settrans(1);
-  FeDraw_SetABRMode((int)abr);
+  /* MATCH: the oracle passes the literal mode (a0 = 0 here, a0 = 1 at the tail);
+     the decompiler had aliased them to the ArrowLoc pointer. */
+  FeDraw_SetABRMode(0);
   if (*ArrowLoc != 0) {
     if (this->fArrowFadeDir < 0) {
       fadeCalc = 0x40 - (uint)(ushort)this->fArrowFade;
@@ -980,19 +981,33 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
     }
     this->HorzVertLine(ArrowLoc,true);
   }
-  clampVal = 0x40;
   if (this->fArrowFadeDir < 0) {
     fadeCalc = 0x80 - (uint)(ushort)this->fArrowFade;
     hi = fadeCalc * 0x10000 >> 0x10;
     m = (short)fadeCalc;
     this->mult = m;
-    if (((hi < 1) || (clampVal = 0x40, hi < 0x40)) && (clampVal = m, hi < 0)) {
+    /* MATCH (SLD 1593 = ONE source line): the >=0x40 arm is OUT OF LINE (oracle
+       `beqz` jumps straight to the store with 0x40 in its delay slot) and the
+       low clamp is a plain if/else whose `clampVal = m` rides the `bgez` slot. */
+    if (0 < hi) {
+      if (0x40 <= hi) { clampVal = 0x40; goto DA_store; }
+    }
+    if (hi < 0) {
       clampVal = 0;
     }
+    else {
+      clampVal = m;
+    }
   }
+  else {
+    /* MATCH: the 0x40 default is the ELSE ARM (it rides the `bgez` delay slot);
+       a pre-set before the if hoists it and kills the in-arm rematerialization. */
+    clampVal = 0x40;
+  }
+DA_store:
   this->mult = clampVal;
   this->HorzVertLine(ArrowLoc,false);
-  FeDraw_SetABRMode((int)ArrowLoc);
+  FeDraw_SetABRMode(1);
   settrans(0);
   return;
 }

@@ -80,16 +80,17 @@ void tScreenMain::SwapBackground(int num)
   oldState = this->hVideo;
   VIDEO_abortplayback(oldState);
   iVar1 = this->fCurrentSlot;
-  tVar2 = (tScreenMainState)iVar1;
   this->bVideoAborted = 1;
   if ((((this->fVideoShapes[iVar1].async_handle == 0) &&
        (this->fVideoShapes[iVar1].fFile == (char *)0x0)) &&
-      (this->fVideoShapes[1 - (int)tVar2].async_handle == 0)) &&
+      (this->fVideoShapes[1 - iVar1].async_handle == 0)) &&
      (this->fVideoShapes[1 - iVar1].fFile == 0)) {
     if (num == -1) {
       do {
-        iVar1 = rand();
-        this->fCurrentBG[this->fCurrentSlot] = iVar1 % 0x1c;
+        /* MATCH (SLD 246 = ONE statement): don't park rand()'s result in the
+           slot variable -- that copy (addu a1,v0,zero) is a live-range
+           extension the oracle has no room for. */
+        this->fCurrentBG[this->fCurrentSlot] = rand() % 0x1c;
       } while (this->fCurrentBG[this->fCurrentSlot] ==
                this->fCurrentBG[1 - this->fCurrentSlot]);
     }
@@ -101,13 +102,16 @@ void tScreenMain::SwapBackground(int num)
     tVar2 = this->fState;
     this->fState = kScreenMain_Off;
     this->fCurrentSlot = 1 - this->fCurrentSlot;
-    if (tVar2 == kScreenMain_WarningImage) {
-      tVar2 = kScreenMain_WarningImage;
+    /* MATCH (SLD 260/261/263): retail DUPLICATES the SetState call in both
+       arms (gcc cross-jump-merges them back into one `jal`, with the `!=`
+       polarity putting the Warning arm out of line and `a0 = this` in the
+       beq's delay slot); a select-into-a-variable form emits one setup. */
+    if (tVar2 != kScreenMain_WarningImage) {
+      this->SetState(kScreenMain_StaticImage);
     }
     else {
-      tVar2 = kScreenMain_StaticImage;
+      this->SetState(kScreenMain_WarningImage);
     }
-    this->SetState(tVar2);
     this->fNumTVsInTransition = 0x10;
   }
   return;
@@ -119,20 +123,23 @@ void tScreenMain::SwapBackground(int num)
 int tScreenMain::DoneLoadingBackground()
 
 {
-  int result;
-  int iVar2;
-  
-  iVar2 = this->fCurrentSlot;
-  result = 0;
-  if ((this->fVideoShapes[iVar2].async_handle == 0) &&
-     (result = 0, this->fVideoShapes[iVar2].fFile == (char *)0x0)) {
-    result = 0;
-    if ((this->fVideoShapes[1 - iVar2].async_handle == 0) &&
-       (result = 1, this->fVideoShapes[1 - iVar2].fFile != 0)) {
-      result = 0;
-    }
+  /* MATCH: the whole body is ONE retail source line (SLD 274) -- a single
+     `&&` chain.  It gives the oracle's early-exit chain with `v0 = 0` in each
+     branch delay slot and the final `beqz`+`li v0,1`-in-slot cross-jump tail;
+     a result-variable form emits an `sltiu` funnel instead. */
+  /* MATCH: the whole body is ONE retail source line (SLD 274) -- a single `||`
+     early-out chain.  It gives the oracle's `v0 = 0` in every branch delay slot
+     and the shared `jr ra` tail; a result-variable / &&-chain form folds the
+     last test into an `sltiu` funnel instead. */
+  if (this->fVideoShapes[this->fCurrentSlot].async_handle != 0 ||
+      this->fVideoShapes[this->fCurrentSlot].fFile != 0 ||
+      this->fVideoShapes[1 - this->fCurrentSlot].async_handle != 0 ||
+      this->fVideoShapes[1 - this->fCurrentSlot].fFile != 0) {
+    goto DLB_ret0;
   }
-  return result;
+  return 1;
+DLB_ret0:
+  return 0;
 }
 
 
@@ -296,7 +303,7 @@ void tScreenMain::InitDynamicImages()
           iVar12 = iVar12 + 1;
         } while (iVar12 < (int)(uint)(byte)video2->tileWidth);
       }
-      iVar7 = iVar7 + 1;
+      i = i + 1;
     } while (iVar7 < videoWallConfigs[iVar4].numVideos);
   }
   return;
@@ -659,35 +666,33 @@ void tScreenMain::PreLoad()
 
 {
   int rnd;
-  int iVar1;
   short i;
-  int i_int;
-  int local_s2_356;
   char buffer [32];
   
   sprintf(gPermBuffer,"zMain%d",(uint)(byte)frontEnd.language);
-  i_int = 0;
   rnd = rand();
   this->fPreviousAnim = (short)(rnd % 0x19);
   sprintf(gNameBuffer,"yVda%02d",(rnd % 0x19) * 0x10000 >> 0x10);
   this->PreLoad();
-  iVar1 = 0;
+  /* MATCH: ONE fn-scope `short i` serves BOTH loops -- splitting it into i/j
+     halves the allocno's refs and loses the oracle's s2 handout (s0 instead).
+     A plain `short` counter -- the decompiler's `i_int * 0x10000 >> 0x10`
+     idiom pre-shifts into an extra pseudo; the oracle re-signs the short at each
+     use (sll/sra) and copies the bumped value back (addiu v0,s2,1; addu s2,v0). */
+  i = 0;
   do {
-    this->fVideoShapes[iVar1 >> 0x10].fShapes = (tTexture_ShapeInfo *)0x0;
-    ::InitializeShapes((tScreen *)this,this->fVideoShapes + (iVar1 >> 0x10),0x10);
-    i_int = i_int + 1;
-    iVar1 = i_int * 0x10000;
-  } while (i_int * 0x10000 >> 0x10 < 2);
-  iVar1 = rand();
-  this->fCurrentBG[0] = iVar1 % 0x1c;
-  iVar1 = rand();
-  local_s2_356 = 0;
-  this->fCurrentBG[1] = (this->fCurrentBG[0] + iVar1 % 0x1b + 1) % 0x1c;
+    this->fVideoShapes[i].fShapes = (tTexture_ShapeInfo *)0x0;
+    ::InitializeShapes((tScreen *)this,this->fVideoShapes + i,0x10);
+    i = i + 1;
+  } while (i < 2);
+  this->fCurrentBG[0] = rand() % 0x1c;
+  i = 0;
+  this->fCurrentBG[1] = (this->fCurrentBG[0] + rand() % 0x1b + 1) % 0x1c;
   do {
-    sprintf(buffer,"zyVid%02d",this->fCurrentBG[(short)local_s2_356]);
-    ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + (short)local_s2_356);
-    local_s2_356 = local_s2_356 + 1;
-  } while (local_s2_356 * 0x10000 >> 0x10 < 2);
+    sprintf(buffer,"zyVid%02d",this->fCurrentBG[i]);
+    ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + i);
+    i = i + 1;
+  } while (i < 2);
   return;
 }
 
@@ -703,6 +708,7 @@ void tScreenMain::Initialize()
   int iVar2;
   byte shapesLoaded;
   int scratch;
+  short n;
   int iVar3;
   bool all_loaded;
   
@@ -736,28 +742,27 @@ void tScreenMain::Initialize()
   this->fCurrentSlot = 0;
   this->fStartTicks = iVar2;
   this->fAnimTicks = iVar2 - 800;
-  iVar2 = 0;
+  /* MATCH: ONE fn-scope `short n` serves all THREE loops -- the decompiler's
+     `iVarN * 0x10000 >> 0x10` pre-shift idiom costs an extra pseudo per loop
+     (and a whole extra saved register); a plain short counter reproduces the
+     oracle's per-use sll/sra + `addiu v0,n,1; addu n,v0,zero` bump. */
+  n = 0;
   do {
-    InitTV(this->tvConfigs + (iVar2 >> 0x10),this->fVideoShapes[this->fCurrentSlot].fShapes,
-               (short)((uint)iVar2 >> 0x10));
-    scratch = scratch + 1;
-    iVar2 = scratch * 0x10000;
-  } while (scratch * 0x10000 >> 0x10 < 0x10);
+    InitTV(this->tvConfigs + n,this->fVideoShapes[this->fCurrentSlot].fShapes,n);
+    n = n + 1;
+  } while (n < 0x10);
   this->fState = kScreenMain_Off;
   this->SetState(kScreenMain_StaticImage);
-  iVar3 = 0;
-  iVar2 = 0;
+  n = 0;
   do {
-    *(u_int *)((int)this->tvStates + (iVar2 >> 0xe)) = 0;
-    iVar3 = iVar3 + 1;
-    iVar2 = iVar3 * 0x10000;
-  } while (iVar3 * 0x10000 >> 0x10 < 0x10);
-  iVar2 = 0;
+    *(u_int *)((int)this->tvStates + n * 4) = 0;
+    n = n + 1;
+  } while (n < 0x10);
+  n = 0;
   do {
-    iVar3 = rand();
-    numberValues[(short)iVar2] = (char)iVar3;
-    iVar2 = iVar2 + 1;
-  } while (iVar2 * 0x10000 >> 0x10 < 0x19);
+    numberValues[n] = (char)rand();
+    n = n + 1;
+  } while (n < 0x19);
   return;
 }
 

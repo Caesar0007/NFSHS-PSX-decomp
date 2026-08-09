@@ -236,19 +236,24 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
   int height;
-  int g = gridpos;
 
-  /* MATCH: same two-guard clamp as DrawHorizontalLine -- see there. */
-  if (0 < g) {
-    if (0x40 <= g) {
-      gridpos = 0x40;
-    }
+  /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
+     OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
+     ends with its own `j`), so it must be a goto target, not the fall-through. */
+  if (0 < gridpos) {
+    if (0x40 <= gridpos) goto VL_clampHi;
   }
-  if (g < 0) {
+  if (gridpos < 0) {
     gridpos = 0;
   }
-  height = (ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2;
-  height = (ushort)EXTRAYATTOP + height;
+  goto VL_clamped;
+VL_clampHi:
+  gridpos = 0x40;
+VL_clamped:
+  /* MATCH (SLD 267 = ONE statement): EXTRAYATTOP + (HEIGHT + GOURAUDBIT_Y*2) --
+     two statements let gcc reassociate to (EXTRAYATTOP + GOURAUD*2) + HEIGHT. */
+  height = (ushort)EXTRAYATTOP +
+           ((ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2);
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,(short)height,
              (uint)(dir == 0),(int)gridpos * 2,0);
   return;
@@ -258,31 +263,27 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 {
-  int side;
   int width;
-  int g = gridpos;
 
-  /* MATCH: the oracle keeps BOTH guards (blez + slti 0x40) -- an
-     `x<1 || x<0x40` spelling folds to one slti.  Clamp-high first,
-     clamp-low as the else-if. */
-  if (0 < g) {
-    if (0x40 <= g) {
-      gridpos = 0x40;
-    }
+  /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT
+     OF LINE (oracle `beqz` branches forward past the =0 block, which ends with
+     its own `j`), so it is a goto target, not the fall-through. */
+  if (0 < gridpos) {
+    if (0x40 <= gridpos) goto HL_clampHi;
   }
-  if (g < 0) {
+  if (gridpos < 0) {
     gridpos = 0;
   }
-  width = (ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2;
-  width = (ushort)GRIDMEMCARD_WIDTH + width;
-  if (dir == 0) {
-    side = 2;
-  }
-  else {
-    side = 3;
-  }
+  goto HL_clamped;
+HL_clampHi:
+  gridpos = 0x40;
+HL_clamped:
+  /* MATCH (SLD 276 = ONE statement) */
+  width = (ushort)GRIDMEMCARD_WIDTH + 2 + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2;
+  /* MATCH (SLD 277): the side select is INSIDE the call expression, and the
+     oracle's `beqz` puts the 2-arm at the BRANCH TARGET (3 = fall-through). */
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,(short)width,
-             1,side,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X);
+             1,dir != 0 ? 3 : 2,(int)gridpos * 2,GRIDMEMCARDGOURAUDBIT_X);
   return;
 }
 
@@ -571,13 +572,15 @@ void tScreenMemcard::SetEnablings()
     DontChangeEnablings = true;
   }
   if (!DontChangeEnablings) {
-    if (this->theNFS4icon == -1) {
+    /* MATCH (SLD 538/539/540): the oracle's `beq` puts the CLEAR arm inline and
+       the SET arm out of line -- i.e. the test is `!= -1`, not `== -1`. */
+    if (this->theNFS4icon != -1) {
       (menuDefs[0]->itemLoadGame).fFlags =
-           (menuDefs[0]->itemLoadGame).fFlags | 1;
+           (menuDefs[0]->itemLoadGame).fFlags & 0xfffffffe;
     }
     else {
       (menuDefs[0]->itemLoadGame).fFlags =
-           (menuDefs[0]->itemLoadGame).fFlags & 0xfffffffe;
+           (menuDefs[0]->itemLoadGame).fFlags | 1;
     }
     i = this->pCI->status;
     if ((((i == 0) || (i == -2)) || ((i == -3 && (this->theNFS4icon != -1)))) &&

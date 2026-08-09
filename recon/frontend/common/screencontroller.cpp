@@ -1082,6 +1082,16 @@ ForceVbl_drawCtrlCheck:
 }
 
 /* ---- tScreenControllerConfig::DrawForeground  (screencontroller.cpp:1659) ---- */
+/* W63 (2026-08-10): 167 diffs -> PASS (410/410 insns).  SLD/SYM and the IDA
+   register annotations exposed five decompiler artifacts: fArrowFadeDir is
+   written directly in the two arms (after testing its old value); string1/2
+   are addressed as arrays rather than through invented pointer locals; the
+   text-loop index starts after the first fade call; the embedded negcon dialog
+   has one shared base pointer; and both pixel widths are explicit temporaries,
+   with the square width selected inside the call expression.  A full-width
+   text length plus a short candidate restores the sl/k handoff; declaring the
+   copy destination, counter, and source in retail order seals the last
+   scheduling difference without an assembly workaround. */
 void tScreenControllerConfig::DrawForeground()
 
 {
@@ -1099,20 +1109,18 @@ void tScreenControllerConfig::DrawForeground()
   this->SetCurrentController(false);
   this->CheckConfigs();
   brightstring[1] = '\0';
-  short fadeDir;
   if ((this->fFadeTextOut == 0) && (this->fAnim == 0) &&
       (this->fAnimFade == 0) && (*(int *)this->fFade == 0) &&
       (::TransitionIsFinished(&menuDefs[0]->menuControllerConfig) != 0) &&
       (this->fTransitioningOut == 0)) {
-    fadeDir = -8;
     if (0 < this->fArrowFadeDir) {
       this->fTextTypeOn = 0;
     }
+    this->fArrowFadeDir = -8;
   }
   else {
-    fadeDir = 8;
+    this->fArrowFadeDir = 8;
   }
-  this->fArrowFadeDir = fadeDir;
   this->fArrowFade = this->fArrowFade + this->fArrowFadeDir;
   if (this->fArrowFade < 0) {
     this->fArrowFade = 0;
@@ -1143,12 +1151,10 @@ void tScreenControllerConfig::DrawForeground()
       if (this->fTextController != '\0') {
         int ColText;
         int ColText2;
-        i = 0;
-        char *string2pointer = string2;
-        char *string1pointer = string1;
 
         ColText = kRGBVals[(byte)textDefinitions[0xb][3]];
         ColText2 = CalcFadeVal(ColText,0xffffff,100,(int)this->fArrowFade);
+        i = 0;
         ColText = CalcFadeVal(ColText,(int)this->fArrowFade);
         for (; i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig]; i++) {
           int TextIndex = (signed char)ControllerItemIndex[(byte)this->fTextController - 1]
@@ -1156,66 +1162,67 @@ void tScreenControllerConfig::DrawForeground()
 
           if (TextIndex != -1) {
             short *pTL = TL;
-            short *pTextLoc = TextLocations[TextIndex];
             int n = 4;
+            short *pTextLoc = TextLocations[TextIndex];
 
             do {
               *pTL++ = *pTextLoc++;
               n--;
             } while (n != -1);
             int k;
-            sl = (short)strlen(TextSys_Word((int)TL[2]));
-            k = this->fTextTypeOn;
-            if (sl < k) {
-              k = sl;
+            int textLength = strlen(TextSys_Word((int)TL[2]));
+            sl = (short)textLength;
+            short candidate = this->fTextTypeOn;
+            if ((short)textLength < candidate) {
+              candidate = textLength;
             }
-            if (this->fTextTypeOn < sl) {
+            k = candidate;
+            if (this->fTextTypeOn < (short)textLength) {
               int howfarout;
 
-              sprintf(string2pointer,TextSys_Word((int)TL[2]));
+              sprintf(string2,TextSys_Word((int)TL[2]));
               if (TL[3] == 0) {
                 j = 0;
-                if (0 < this->fTextTypeOn) {
+                if (j < this->fTextTypeOn) {
                   do {
-                    if (j >= (short)strlen(string2pointer)) {
+                    if (j >= (short)strlen(string2)) {
                       break;
                     }
-                    string1pointer[j] = string2pointer[j];
+                    string1[j] = string2[j];
                     j++;
                   } while (j < this->fTextTypeOn);
                 }
-                string1pointer[j] = '\0';
-                brightstring[0] = string1pointer[j - 1];
+                string1[j] = '\0';
+                brightstring[0] = string1[j - 1];
               }
               else {
-                howfarout = sl - k;
+                howfarout = textLength - k;
                 for (j = howfarout; j < sl; j++) {
-                  string1pointer[j - (sl - k)] = string2pointer[j];
+                  string1[j - (sl - k)] = string2[j];
                 }
-                string1pointer[j - (sl - k)] = '\0';
-                brightstring[0] = string1pointer[0];
+                string1[j - (sl - k)] = '\0';
+                brightstring[0] = string1[0];
               }
               FETextRender_SetFont(0);
-              brightX = textpixels(string1pointer) - strlen(string1pointer);
+              brightX = TL[0];
+              int textWidth = textpixels(string1) - strlen(string1);
               if (TL[3] == 1) {
-                brightX = TL[0] - brightX;
+                brightX = brightX - textWidth;
               }
               else {
-                brightX = TL[0] + brightX;
+                brightX = brightX + textWidth;
               }
-              astringpointer = string1pointer;
               FETextRender_FullTextRGB(brightstring,(short)brightX,TL[1],ColText2,
                                        '\0',(ushort)(TL[3] == 0));
+              astringpointer = string1;
             }
             else {
               astringpointer = TextSys_Word((int)TL[2]);
             }
             FETextRender_FullTextRGB(astringpointer,TL[0],TL[1],ColText,'\0',TL[3]);
-            brightX = textpixels(astringpointer) - strlen(astringpointer);
-            if (TL[3] != 0) {
-              brightX = -brightX;
-            }
-            PSXDrawSquare(0,(int)TL[0],(int)TL[1],brightX,7);
+            int squareWidth = textpixels(astringpointer) - strlen(astringpointer);
+            PSXDrawSquare(0,(int)TL[0],(int)TL[1],
+                          (TL[3] != 0) ? -squareWidth : squareWidth,7);
           }
         }
       }
@@ -1225,9 +1232,10 @@ void tScreenControllerConfig::DrawForeground()
          i++) {
       int TextIndex = (byte)this->fTextController - 1;
       bool flag = false;
+      tDialogYesNo *dialog = (tDialogYesNo *)this->negconPopUp;
 
-      if (((tDialogYesNo *)this->negconPopUp)->currentlyOn == 0) {
-        flag = ((tDialogYesNo *)this->negconPopUp)->fCurrentlyRunning == 0;
+      if (dialog->currentlyOn == 0) {
+        flag = dialog->fCurrentlyRunning == 0;
       }
       if (flag && (TextIndex >= 0)) {
         TextIndex = (signed char)ControllerItemIndex[TextIndex][(byte)this->fTextConfig][i][1];

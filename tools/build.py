@@ -459,12 +459,22 @@ PER_TU_FLAGS = {
     # PsyQ 4.0-4.7 LIBMATH.LIB) -- per-TU ladder rungs below are the measured
     # winners (agent whole-TU tables in each TU's receipts; zero regressions).
     "recon/syslib/psx/libmath/ADDDF3.c":    {"cc1_alt": "2.7.2-970404"},  # 352->347
-    "recon/syslib/psx/libmath/MULDF3.c":    {"cc1_alt": "2.6.3"},  # _mul_mant_d 93->84
+    # w55-a4: MULDF3 UNWIRED (04Z re-ladder after the 05B union/oracle-shape
+    # landing on __muldf3).  New TU totals: DEFAULT lane (CC1PSX+maspsx) =
+    # _mul_mant_d 95 + __muldf3 22 = 117; cc1_alt 2.8.0/2.8.1 = byte-identical
+    # to the default here; cc1_272/2.7.2 = 93+154 = 247; 2.6.3 (the OLD wiring,
+    # picked pre-landing for _mul_mant_d 93->84) = 84+154 = 238; 2.91.66 =
+    # 106+168.  The default lane wins the TU by 121 diffs, so the 2.6.3 rung is
+    # retired.  __muldf3 alone: 326 -> 22 (see MULDF3.c receipt).
     "recon/syslib/psx/libmath/GTDF2.c":     {"cc1_alt": "2.7.2-970404"},  # 33->21
     "recon/syslib/psx/libmath/LTDF2.c":     {"cc1_alt": "2.7.2-970404"},  # 21->15
     "recon/syslib/psx/libmath/MULSF3.c":    {"cc1_alt": "2.95.2"},  # 93->88
     "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_alt": "2.95.2"},  # 106->96
-    "recon/syslib/psx/libmath/DIVDF3.c":    {"cc1_alt": "2.91.66"},  # 305->300
+    # w55-a4: RE-LADDERED after the 05B union/oracle-shape landing (04Z: rung
+    # tables are basin-relative).  New table on the landed source: 2.6.0/2.6.3=30
+    # * 2.7.2-970404/2.7.2=27 * 2.8.0/2.8.1=28 (count-EXACT 184/184) * 2.91.66=171
+    # * 2.95.2=164.  The old 2.91.66 wiring is now the WORST rung (300->171).
+    "recon/syslib/psx/libmath/DIVDF3.c":    {"cc1_alt": "2.7.2"},  # 300->27
     "recon/syslib/psx/libmath/EXTSFDF2.c":  {"cc1_272": True},  # 69->55
     # w52-a7: nsync = gcc 2.8.1 through the NORMAL maspsx pipeline (cc1_ver
     # swaps only the binary): loadbigfileheaderatomic 4 -> PASS 81/81, TU 10/10.
@@ -847,7 +857,8 @@ PER_FN_EPILOGUE_UNFILL_272 = {
 PER_FN_EPILOGUE_UNFILL_ALT28 = {
     # w53-a6: the 3 sched2-class epilogue regressions of the SYS.c lane flip.
     "recon/syslib/psx/libgpu/SYS.c": {"_que_ref", "_install_drain_cb",
-                                      "_gpu_arm_timeout"},
+                                      "_gpu_arm_timeout",
+                                      "_gpu_check_timeout"},  # w55-a8: 4 -> PASS
 }
 
 _EPI_UNFILL_28_RE = re.compile(
@@ -883,6 +894,9 @@ PER_FN_FLAG_SPLICE_272 = {
     "recon/syslib/psx/libgpu/SYS.c": {
         "-fno-schedule-insns2": {"_que_ref", "_install_drain_cb",
                                  "_gpu_arm_timeout"},
+        # w55-close probe: -fno-delayed-branch splice FALSIFIED here
+        # (_gpu_init_videomode inert at 14; MoveImage REGRESSED 9->16) --
+        # the relax_delay_slots residual needs a different vehicle.
     },
     # w53-a9: cc1 self-fills the jal slot hiding the load-use hazard; with
     # -fno-delayed-branch gas sees it and emits the oracle's nop verbatim.
@@ -890,6 +904,42 @@ PER_FN_FLAG_SPLICE_272 = {
         "-fno-delayed-branch": {"RestartCallback"},  # 1 -> PASS (a9 cc1-level A/B)
     },
 }
+
+
+# w55-a8: per-FN cc1 VERSION splice for the 272/alt recipe -- like the flag
+# splice but swaps the cc1 BINARY (ladder rung) for the named fns only.
+# {rel: {ver: {fns}}}.  Runs before the flag splice.
+PER_FN_CC1_VER_SPLICE_272 = {
+    # _BlitClear: rung 2.8.0 = 20 count-exact vs wired 2.8.1's 39; whole-TU
+    # rung flip is net-negative (MoveImage 9->35) => per-fn.
+    "recon/syslib/psx/libgpu/SYS.c": {"2.8.0": {"_BlitClear"}},
+}
+
+
+def _apply_cc1_ver_splice_272(rel_posix, txt, i_file, cc1_flags, s_file):
+    table = PER_FN_CC1_VER_SPLICE_272.get(rel_posix)
+    if not table:
+        return txt
+    for gi, (ver, names) in enumerate(sorted(table.items())):
+        if not names:
+            continue
+        alt_cc1 = _resolve_cc1_alt(ver)
+        if alt_cc1 is None:
+            _warn_alt_fallback(rel_posix, ver, "the TU's own lane (ver-splice skipped)")
+            continue
+        s_alt = s_file.with_suffix(".vs272_%d.s" % gi)
+        r = run([alt_cc1, *cc1_flags, i_file, "-o", s_alt])
+        if r.returncode:
+            sys.exit(f"[vs272 {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
+        alt = s_alt.read_text(errors="replace")
+        alt = _MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), alt)
+        for i, name in enumerate(sorted(names)):
+            a = _extract_ent_region_272(alt, name)
+            b = _extract_ent_region_272(txt, name)
+            if a is None or b is None:
+                continue
+            txt = txt.replace(b, _uniq_labels_272(a, "vs%d_%d" % (gi, i)), 1)
+    return txt
 
 
 def _extract_ent_region_272(txt, name):
@@ -1255,6 +1305,8 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     txt = _apply_epilogue_unfill_272(rel.as_posix(), txt)
     # w53-a6 P2 then P1 -- splice first (region still carries the 2.8 block),
     # alt28 unfill second.
+    txt = _apply_cc1_ver_splice_272(rel.as_posix(), txt, i_file, cc1_flags,
+                                    s_file)
     txt = _apply_flag_splice_272(rel.as_posix(), txt, i_file, cc1, cc1_flags,
                                  s_file)
     txt = _apply_epilogue_unfill_alt28(rel.as_posix(), txt)

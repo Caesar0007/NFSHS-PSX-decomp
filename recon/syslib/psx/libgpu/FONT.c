@@ -141,7 +141,15 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   also costs the +1 `lw` the cost profile predicts.  NAMED NEXT ANGLE: make the colour
  *   defaults register-resident for their whole live range (they are only spilled because
  *   the glyph loop re-reads them), then the zero-cost fence forms become available; or dial
- *   sched2's ready list via the dependence chain of the FIRST post-prologue insn. */
+ *   sched2's ready list via the dependence chain of the FIRST post-prologue insn.
+ *
+ *   W55-A8 re-attack on the (b) reload-inheritance half, STILL 6 (recorded so the ground is
+ *   not re-walked a third time): `volatile DR_MODE *dr` + `(void *)` casts at the three use
+ *   sites = 6 (no movement -- the volatile view does force a reload, but sched hoists it to
+ *   exactly where our register copy already sat); `DR_MODE * volatile dr` (volatile POINTER,
+ *   i.e. a real stack home for dr) = 21 / 202 insns (spills at every use); and one more
+ *   colour-init order (r,g then maxx then b) on the (a) half = 6.  Both halves remain what
+ *   the W52/W53 receipts say they are. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

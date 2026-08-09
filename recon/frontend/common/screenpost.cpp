@@ -246,11 +246,10 @@ void tScreenTournamentStandings::DrawBackground()
   wwwww = textpixels(TextSys_Word(i));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
-  wwwww = shape->width;
-  lbx = ((wwwww >> 1) - shape->centerx) - 2;
-  tt = ticks[0] % (short)wwwww;
-  if ((wwwww / 2) < tt) {
-    tt = wwwww - tt;
+  lbx = (((short)shape->width >> 1) - shape->centerx) - 2;
+  tt = ticks[0] % (short)shape->width;
+  if (((short)shape->width / 2) < tt) {
+    tt = (short)shape->width - tt;
   }
   DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
@@ -258,6 +257,9 @@ void tScreenTournamentStandings::DrawBackground()
   DrawShapeExtended(0x27,0x400,0,-1,fade,0,&drawflags);
   PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
                        300,1,3,fadeline,0x1e);
+  /* Shared by the three money-state/justify pairs; this gives retail's late
+     s4 constant and leaves colf/colb in s3/s2. */
+  int one = 1;
   colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
   colb = CalcFadeVal(0x232323,fade);
   if ((1000 < ticks[0] - self->starttick) || (self->fStartCountdownNOW != 0)) {
@@ -280,14 +282,18 @@ void tScreenTournamentStandings::DrawBackground()
     }
   }
   if (self->fDrawMoney != 0) {
-    FETextRender_FullTextFade(fade,TextSys_Word(0x312),TextSys_WordX(0x2fa),TextSys_WordY(0x312),
-                             textType_TrackRecords,(uint)(self->gotmoney != 0),1);
+    FETextRender_FullTextFade(fade,TextSys_Word(0x312),(short)TextSys_WordX(0x2fa),
+                             (short)TextSys_WordY(0x312),
+                             textType_TrackRecords,
+                             self->gotmoney ? one : 0,one);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,self->moneyAwarded,colf,colb);
-    FETextRender_FullTextFade(fade,TextSys_Word(0x313),TextSys_WordX(0x2fa),TextSys_WordY(0x313),
-                             textType_TrackRecords,(uint)(self->gotbilled != 0),1);
+    FETextRender_FullTextFade(fade,TextSys_Word(0x313),(short)TextSys_WordX(0x2fa),
+                             (short)TextSys_WordY(0x313),
+                             textType_TrackRecords,self->gotbilled ? one : 0,one);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,self->moneyDamage,colf,colb);
-    FETextRender_FullTextFade(fade,TextSys_Word(0x314),TextSys_WordX(0x2fa),TextSys_WordY(0x314),
-                             textType_TrackRecords,(uint)(self->gotbonus != 0),1);
+    FETextRender_FullTextFade(fade,TextSys_Word(0x314),(short)TextSys_WordX(0x2fa),
+                             (short)TextSys_WordY(0x314),
+                             textType_TrackRecords,self->gotbonus ? one : 0,one);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,self->moneyBonus,colf,colb);
   }
   FETextRender_FullTextFade(fade,TextSys_Word(0x315),(short)TextSys_WordX(0x2fa),(short)TextSys_WordY(0x315),

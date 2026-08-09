@@ -2526,7 +2526,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
         trafficOffset.y = carObj->carIndex * 0xa0000;
         Newton_SetInitialSlicePositionOrientationEtc(
-            &newState->carObj_->N,0,offset,1);
+            &newState->carObj_->N,0,&trafficOffset,1);
         newState->carObj_->N.active = 0;
         oldState = this->state_;
         if (oldState != 0) {

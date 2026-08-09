@@ -52,8 +52,10 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     sprintf(buffer,"%s",TextSys_Word(helpText));
     s_upper(buffer);
     textpix = textpixels(buffer) - strlen(buffer);
-    dist = dist < textpix ? textpix : dist;
-    dist += 0x19;
+    {
+      int maxw = textpix >= dist ? textpix : dist;
+      dist = maxw + 0x19;
+    }
     {
       int col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
       if (reflected != 0) {
@@ -457,12 +459,10 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
   __vtbl_ptr_type (*pa_Var4) [6];
   tListIterator *ptVar5;
   short y_00;
-  int iVar6;
   RECT r;
   tDrawShapeExtended drawFlags;
   
-  left = gHelpShapes;
-  iVar6 = selected;
+  left = &gHelpShapes[0x29];
   col = CalcTextFadeSelToHi(textType_Options,
                       this->fSelFade,0);
   pcVar3 = TextSys_Word(this->fTextDescription);
@@ -472,20 +472,20 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
   pa_Var4 = ptVar5->_vf;
   sVar2 = (*(*pa_Var4)[3].pfn)((char *)ptVar5 + (int)(*pa_Var4)[3].delta,0xffffffff);
   pcVar3 = TextSys_Word((int)sVar2);
-  FETextRender_FullTextRGB(pcVar3,(short)((u_int)((((int)((u_int)(u_short)left[0x29].width << 0x10) >> 0x11) + x +
+  FETextRender_FullTextRGB(pcVar3,(short)((u_int)((((int)((u_int)(u_short)left->width << 0x10) >> 0x11) + x +
                                    0xd9) * 0x10000) >> 0x10),y_00,col,'\0',2);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
                   (int)this->fSelFade);
-  DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(iVar6 == 0),
+  DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(selected == 0),
              &drawFlags);
-  DrawShapeExtended(0xb,0x118,(x - (int)left[0x29].width) + 0x12f,y + 6,0,(u_int)(iVar6 == 0),
+  DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,(u_int)(selected == 0),
              &drawFlags);
   r.x = (short)x;
   r.y = (short)y;
   r.w = 0x129;
-  r.h = left[0x29].height;
-  DrawShape_NFS4RoundRectangle(-1,&r,(short)iVar6);
+  r.h = left->height;
+  DrawShape_NFS4RoundRectangle(-1,&r,(short)selected);
   return;
 }
 
@@ -530,7 +530,7 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   int ColTextOn;
   int ColTextOff;
   
-  left = gHelpShapes;
+  left = &gHelpShapes[0x29];
   iVar8 = selected;
   ptVar4 = this->fData;
   pa_Var7 = ptVar4->_vf;
@@ -558,19 +558,19 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   pcVar5 = TextSys_Word((int)*(this->fData)->fSelectionList);
   FETextRender_FullTextRGB(pcVar5,(short)((u_int)((x + 0xb0) * 0x10000) >> 0x10),sVar6,ColTextOff,'\0',0);
   pcVar5 = TextSys_Word((int)(this->fData)->fSelectionList[1]);
-  FETextRender_FullTextRGB(pcVar5,(short)(((x - (u_int)(u_short)left[0x29].width) + 0x126) * 0x10000 >> 0x10),
+  FETextRender_FullTextRGB(pcVar5,(short)(((x - (u_int)(u_short)left->width) + 0x126) * 0x10000 >> 0x10),
              sVar6,ColTextOn,'\0',1);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
                   (int)this->fSelFade);
   DrawShapeExtended(0xa,0x118,x + 0xa6,y + 6,0,(u_int)(iVar8 == 0),
              &drawFlags);
-  DrawShapeExtended(0xb,0x118,(x - (int)left[0x29].width) + 0x12f,y + 6,0,(u_int)(iVar8 == 0),
+  DrawShapeExtended(0xb,0x118,(x - (int)left->width) + 0x12f,y + 6,0,(u_int)(iVar8 == 0),
              &drawFlags);
   r.x = (short)x;
   r.y = (short)y;
   r.w = 0x129;
-  r.h = left[0x29].height;
+  r.h = left->height;
   DrawShape_NFS4RoundRectangle(-1,&r,(short)iVar8);
   return;
 }
@@ -744,19 +744,20 @@ void tMenuNFS4::UpdateTransition()
 
 {
   tMenuItem *ptVar1;
+  tMenuItem *pItem;
   __vtbl_ptr_type (*pa_Var2) [11];
-  int i;
+  short item;
 
-  i = 0;
+  item = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    ptVar1 = this->fItemList[(short)i];
-    pa_Var2 = ptVar1->_vf;
+    pItem = this->fItemList[item];
+    pa_Var2 = pItem->_vf;
     (*(*pa_Var2)[10].pfn)
-              ((char *)ptVar1 + (int)(*pa_Var2)[10].delta,
-               (int)(short)i == this->fCurrentItem);
-    i = i + 1;
-    ptVar1 = this->fItemList[(short)i];
+              ((char *)pItem + (int)(*pa_Var2)[10].delta,
+               (int)item == this->fCurrentItem);
+    item = item + 1;
+    ptVar1 = this->fItemList[item];
   }
   return;
 }
@@ -790,32 +791,31 @@ void tMenuNFS4::Draw()
   tMenuItem *ptVar1;
   __vtbl_ptr_type (*pa_Var2) [11];
   int iVar3;
+  int iVar4;
   short i;
   tDrawShapeExtended drawFlags;
-  
+
   index = this->fTitle;
   if (-1 < index) {
     FETextRender_Title(index);
   }
   this->Initialize();
   ptVar1 = this->fItemList[this->fCurrentItem];
+  iVar4 = ptVar1->fButtonImage;
   iVar3 = ptVar1->fNumFrames;
-  if ((-1 < ptVar1->fButtonImage) && (0 < iVar3)) {
-    int yPos = 0x10;
+  if ((-1 < iVar4) && (0 < iVar3)) {
     drawFlags.tint[0] = 0xcec844;
-    if (*(int *)(*(int *)&FEApp /* @0x800514c0 */ + 0x22c) != 0) {
-      yPos = 0x79;
-    }
-    DrawShapeExtended(ptVar1->fButtonImage + ((int)(*(int *)&ticks[0] >> 4) % iVar3),0x410,0x10,yPos,0,0,&drawFlags);
+    DrawShapeExtended(iVar4 + ((int)(*(int *)&ticks[0] >> 4) % iVar3),0x410,0x10,
+                      FEApp->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
   }
   i = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
     pa_Var2 = this->_vf;
     (*pa_Var2[1][0].pfn)
-              ((int)this->fItemList + pa_Var2[1][0].delta + -0x10,(int)(short)i);
+              ((int)this + pa_Var2[1][0].delta,(int)i);
     i = i + 1;
-    ptVar1 = *(tMenuItem **)((int)this->fItemList + (i * 0x10000 >> 0xe));
+    ptVar1 = this->fItemList[i];
   }
   return;
 }
@@ -902,10 +902,11 @@ void tMenuNFS4Bottom::Draw()
 
 {
   tMenuItem *ptVar1;
+  tMenuItem *pItem;
   __vtbl_ptr_type (*pa_Var2) [11];
-  int i;
+  short i;
   RECT r;
-  
+
   r.x = 0x39;
   r.y = 0xc6;
   r.w = 0x72;
@@ -914,13 +915,13 @@ void tMenuNFS4Bottom::Draw()
   i = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    ptVar1 = this->fItemList[(short)i];
-    pa_Var2 = ptVar1->_vf;
+    pItem = this->fItemList[i];
+    pa_Var2 = pItem->_vf;
     (*(*pa_Var2)[5].pfn)
-              ((char *)ptVar1 + (int)(*pa_Var2)[5].delta,0,0,
-               (int)(short)i == this->fCurrentItem);
+              ((char *)pItem + (int)(*pa_Var2)[5].delta,0,0,
+               (int)i == this->fCurrentItem);
     i = i + 1;
-    ptVar1 = this->fItemList[(short)i];
+    ptVar1 = this->fItemList[i];
   }
   return;
 }
@@ -1100,70 +1101,65 @@ void tMenuOptions::Draw()
   numItems = ((tMenu *)this)->GetNumberEnabledItems();
   w = 0x140;
   pa_Var2 = this->_vf;
-  (*(*pa_Var2)[7].pfn)((int)this->fItemList + (*pa_Var2)[7].delta + -0x10);
+  (*(*pa_Var2)[7].pfn)((int)this + (*pa_Var2)[7].delta);
   h = numItems * 0x12;
-  if (this->fInMenuTransition == 0) {
-    if (this->fTransitionDirection < '\0') {
-      return;
-    }
-  }
-  else {
+  if (this->fInMenuTransition != 0) {
     deltaTicks = ticks[0] - this->fMenuEnterTicks;
     if (0x20 < deltaTicks) {
       deltaTicks = 0x20;
       this->fInMenuTransition = 0;
-      if (this->fTransitionDirection < '\0') {
+      if ((signed char)this->fTransitionDirection < 0) {
         return;
       }
     }
-    if (this->fTransitionDirection < '\0') {
-      w = 0x140 - (deltaTicks * 0x140 >> 5);
-      h = h - (h * deltaTicks >> 5);
-    }
-    else {
-      w = deltaTicks * 0x140 >> 5;
+    if (-1 < (signed char)this->fTransitionDirection) {
+      w = w * deltaTicks >> 5;
       h = h * deltaTicks >> 5;
     }
+    else {
+      w = w - (w * deltaTicks >> 5);
+      h = h - (h * deltaTicks >> 5);
+    }
   }
-  itemY = 0xf0 - (h + 0x12);
-  y = itemY >> 1;
+  else if ((signed char)this->fTransitionDirection < 0) {
+    return;
+  }
+  h = h + 0x12;
   x = (int)(screenwidth - w) >> 1;
-  itemY = itemY >> 2;
+  iVar6 = 0xf0 - h;
+  y = iVar6 >> 1;
   if (this->fPlayer == 0) {
-    y = y - itemY;
+    y = y - (iVar6 >> 2);
   }
   else if (this->fPlayer == 1) {
-    y = y + itemY;
+    y = y + (iVar6 >> 2);
   }
   if (this->fInMenuTransition == 0) {
-    numItems = this->fTitle;
-    if (-1 < numItems) {
-      FETextRender_MenuTextPositionedJustify(numItems,(short)((u_int)((x + ((int)w >> 1)) * 0x10000) >> 0x10),
+    if (-1 < this->fTitle) {
+      FETextRender_MenuTextPositionedJustify(this->fTitle,(short)((u_int)((x + ((int)w >> 1)) * 0x10000) >> 0x10),
                  (short)((u_int)((y + 2) * 0x10000) >> 0x10),2,textState_Hilighted,
                  textType_PopUpTitle);
     }
-    i = 0;
     itemY = y + 0x12;
+    i = 0;
     while( true ) {
       ptVar5 = this->fItemList[i];
       if (ptVar5 == (tMenuItem *)0x0) break;
-      iVar6 = itemY;
       if (((ptVar5->fFlags ^ 1) & 1) != 0) {
-        iVar6 = itemY + 0x12;
         (*(*ptVar5->_vf)[5].pfn)
                   ((char *)ptVar5 + (int)(*ptVar5->_vf)[5].delta,x + 10,itemY,
                    (int)i == this->fCurrentItem);
+        itemY = itemY + 0x12;
       }
       i = i + 1;
-      itemY = iVar6;
     }
   }
   PSXDrawSquare(0,x,y,w,0xc);
   PSXDrawTransSquare(0,x,y + h,w,-2,1);
-  PSXDrawTransSquare(0,x,y,4,h + 4,1);
-  PSXDrawTransSquare(0,x + w,y,-4,h + 4,1);
-  PSXDrawTransSquare(0,x,y,w,h + 0x12,1);
-  FeDraw_SetABRMode(x);
+  PSXDrawTransSquare(0,x,y + 0xc,4,h - 0xe,1);
+  PSXDrawTransSquare(0,x + w,y + 0xc,-4,h - 0xe,1);
+  PSXDrawTransSquare(0,x,y,w,h,1);
+  FeDraw_SetABRMode(0);
   return;
 }
 

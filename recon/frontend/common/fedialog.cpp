@@ -130,27 +130,21 @@ void tDialogBase::Display()
 void tDialogBase::Hide()
 
 {
-  int iVar1;
   tDialogBase **dst;
-  int i;
-  
-  i = 0;
+  short i;
+
   if (this->currentlyOn != 0) {
     this->currentlyOn = 0;
-    iVar1 = 0;
-    do {
-      iVar1 = iVar1 >> 0x10;
-      dst = DialogVisibilityList + iVar1;
+    for (i = 0; i < 8; i++) {
+      dst = DialogVisibilityList + i;
       if (*dst == this) {
         this->currentlyOn = 0;
         *dst = (tDialogBase *)0x0;
-        blockmove(DialogVisibilityList + iVar1 + 1,dst,(7 - iVar1) * 4);
+        blockmove(DialogVisibilityList + i + 1,dst,(7 - i) * 4);
         DialogVisibilityList[7] = (tDialogBase *)0x0;
         AudioCmn_PlayFESFX(0x12);
       }
-      i = i + 1;
-      iVar1 = i * 0x10000;
-    } while (i * 0x10000 >> 0x10 < 8);
+    }
   }
   return;
 }
@@ -162,15 +156,12 @@ void tDialogBase::Hide()
 void tDialogBase::Draw()
 
 {
-  int abr;
-  
   PSXDrawTransSquare(0,(int)this->left,(int)this->top,4,(int)this->height,4);
   PSXDrawTransSquare(0,(this->left + this->width) - 4,(int)this->top,4,(int)this->height,4);
   PSXDrawTransSquare(0,this->left + 4,(int)this->top,this->width + -8,2,4);
   PSXDrawTransSquare(0,this->left + 4,(this->top + this->height) - 2,this->width + -8,2,4);
-  abr = this->left + 4;
   PSXDrawTransSquare(0,this->left + 4,this->top + 2,this->width + -8,this->height + -4,2);
-  FeDraw_SetABRMode(abr);
+  FeDraw_SetABRMode(0);
   return;
 }
 
@@ -536,11 +527,11 @@ void tDialogMessageString::Draw()
 {
   __vtbl_ptr_type (*pa_Var1) [10];
   int col;
+  int idx;
   RECT r;
   
   pa_Var1 = this->_vf;
-  (*pa_Var1[1][0].pfn)
-            (this->fPermShapes.fFilename + pa_Var1[1][0].delta + -0x14);
+  (*pa_Var1[1][0].pfn)((int)this + pa_Var1[1][0].delta);
   if (ticks[0] < this->startTicks + 0x32) {
     this->fFullyOpen = 0;
   }
@@ -552,16 +543,19 @@ void tDialogMessageString::Draw()
     r.x = this->left + 0x11;
     r.y = this->top + 10;
     r.w = this->width + -0x14;
-    r.h = this->height - (this->reservedheight + 8);
-    FETextRender_SetABR(1,true);
-    if (this->Centerit == 0) {
-      FETextRender_WordWrapTextRGB(this->string,r,col);
+    {
+      int rh = (u_short)this->reservedheight + 8;
+      r.h = this->height - rh;
     }
-    else {
+    FETextRender_SetABR(1,true);
+    if (this->Centerit != 0) {
       FETextRender_FullTextRGB(this->string,
                  (short)(((u_int)(u_short)this->left +
                          ((int)((u_int)(u_short)this->width << 0x10) >> 0x11)) * 0x10000
                         >> 0x10),this->top + 8,col,'\0',2);
+    }
+    else {
+      FETextRender_WordWrapTextRGB(this->string,r,col);
     }
     FETextRender_SetABR(0,false);
   }
@@ -691,11 +685,10 @@ void tDialogYesNo::CalculateDimensions()
       sVar1 = this->height + 0xf;
     }
     this->height = sVar1;
-    sVar1 = this->height;
     this->reservedheight = 0xf;
     this->top =
          this->OffsetY +
-         (short)((0xf0 - sVar1) / 2);
+         (short)((0xf0 - this->height) / 2);
   }
   return;
 }
@@ -751,29 +744,30 @@ void tDialogYesNo::Draw()
   __vtbl_ptr_type (*pa_Var3) [10];
   char *sMenuText;
   int col;
+  int idx;
   int y;
   int i;
   int x;
   tDialogYesNo *ptVar8;
   
   pa_Var3 = this->_vf;
-  (*pa_Var3[1][0].pfn)
-            (this->fPermShapes.fFilename + pa_Var3[1][0].delta + -0x14);
+  (*pa_Var3[1][0].pfn)((int)this + pa_Var3[1][0].delta);
   if (this->fFadeText != 0) {
     this->fFullyOpen = 0;
   }
   i = 0;
   if (0x31 < ticks[0] - this->startTicks) {
+    ptVar8 = this;
     x = (int)this->left +
             ((int)((u_int)(u_short)this->width
                   << 0x10) >> 0x12);
-    ptVar8 = this;
-    for (; i < 2; i = i + 1) {
-      col = 2;
+    while( true ) {
+      if (2 <= i) break;
+      idx = 2;
       if (i == this->ReturnValue) {
-        col = 1;
+        idx = 1;
       }
-      col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][col + 3]],(int)this->fFadeText);
+      col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][idx + 3]],(int)this->fFadeText);
       sVar1 = this->top;
       sVar2 = this->height;
       FETextRender_SetABR(1,true);
@@ -784,6 +778,7 @@ void tDialogYesNo::Draw()
       ptVar8 = (tDialogYesNo *)
                &(ptVar8)->fPermShapes.fFile;
       x = x + ((int)((u_int)(u_short)this->width << 0x10) >> 0x11);
+      i = i + 1;
     }
   }
   ((tDialogMessageString *)this)->Draw();

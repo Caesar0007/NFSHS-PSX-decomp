@@ -687,28 +687,37 @@ int tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 {
   u_int uVar1;
   __vtbl_ptr_type (*pa_Var2) [6];
+  tListIterator *ptVar3;
   int SFXnum;
-  
+  /* MATCH: SYM fsize=32 for this fn but our frame computes 24 -- 8 bytes of
+     retail frame have no named SYM local; this filler reproduces the SYM's
+     own frame size (do not delete: frame size is part of the byte match). */
+  int frameFiller[2];
+
   uVar1 = this->fFlags & 1;
-  if (uVar1 == 0) {
-    if (keyval == kInput_KeyType_Left) {
-      pa_Var2 = this->fData->_vf;
-      (*(*pa_Var2)[5].pfn)((char *)this->fData + (int)(*pa_Var2)[5].delta);
-      SFXnum = 5;
-    }
-    else {
-      if (keyval != kInput_KeyType_Right) {
-        return 0x1000;
-      }
-      pa_Var2 = this->fData->_vf;
-      (*(*pa_Var2)[4].pfn)((char *)this->fData + (int)(*pa_Var2)[4].delta);
-      SFXnum = 6;
-    }
-    uVar1 = 1;
-    keyval = kInput_KeyType_AlreadyProcessed;
-    AudioCmn_PlayFESFX(SFXnum);
+  if (uVar1 != 0) {
+    return uVar1;
   }
-  return uVar1;
+  switch (keyval) {
+  case kInput_KeyType_Left:
+    ptVar3 = this->fData;
+    pa_Var2 = ptVar3->_vf;
+    (*(*pa_Var2)[5].pfn)((char *)ptVar3 + (int)(*pa_Var2)[5].delta);
+    SFXnum = 5;
+    break;
+  case kInput_KeyType_Right:
+    ptVar3 = this->fData;
+    pa_Var2 = ptVar3->_vf;
+    (*(*pa_Var2)[4].pfn)((char *)ptVar3 + (int)(*pa_Var2)[4].delta);
+    SFXnum = 6;
+    break;
+  default:
+    return 0x1000;
+  }
+  keyval = kInput_KeyType_AlreadyProcessed;
+  AudioCmn_PlayFESFX(SFXnum);
+  /* MATCH: retail falls off the end here -- no return-value materialization
+     ($v0 is the AudioCmn_PlayFESFX leftover in the oracle). */
 }
 
 
@@ -789,28 +798,31 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
   u_int uVar2;
   int (*pcVar3)(...);
   tListIterator *ptVar4;
-  
+  /* MATCH: SYM fsize frame filler -- see tMenuItemLeftRightChoice::ProcessInput. */
+  int frameFiller[2];
+
   uVar2 = this->fFlags & 1;
-  if (uVar2 == 0) {
-    if (keyval == kInput_KeyType_Left) {
-      ptVar4 = this->fData;
-      sVar1 = (*ptVar4->_vf)[5].delta;
-      pcVar3 = (*ptVar4->_vf)[5].pfn;
-    }
-    else {
-      if (keyval != kInput_KeyType_Right) {
-        return 0x1000;
-      }
-      ptVar4 = this->fData;
-      sVar1 = (*ptVar4->_vf)[4].delta;
-      pcVar3 = (*ptVar4->_vf)[4].pfn;
-    }
-    (*pcVar3)((char *)ptVar4 + (int)sVar1);
-    uVar2 = 1;
-    keyval = kInput_KeyType_AlreadyProcessed;
-    AudioCmn_PlayFESFXVol(0x15,0x40);
+  if (uVar2 != 0) {
+    return uVar2;
   }
-  return uVar2;
+  switch (keyval) {
+  case kInput_KeyType_Left:
+    ptVar4 = this->fData;
+    (*(*ptVar4->_vf)[5].pfn)((char *)ptVar4 + (int)(*ptVar4->_vf)[5].delta);
+    break;
+  case kInput_KeyType_Right:
+    ptVar4 = this->fData;
+    (*(*ptVar4->_vf)[4].pfn)((char *)ptVar4 + (int)(*ptVar4->_vf)[4].delta);
+    break;
+  default:
+    return 0x1000;
+  }
+  keyval = kInput_KeyType_AlreadyProcessed;
+  /* NEAR-MISS(7): retail emits the two arg li's BEFORE this store, so dbr fills
+     the jal slot with the store; ours emits store-then-args (dbr takes li a1).
+     Writing the store AFTER the call gates 2/42 but is NOT retail's order. */
+  AudioCmn_PlayFESFXVol(0x15,0x40);
+  /* MATCH: retail falls off the end (no return-value materialization). */
 }
 
 
@@ -1023,29 +1035,31 @@ int tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
   u_int uVar1;
   u_int uVar2;
   void *reg_a3;
-  
+  /* MATCH: SYM fsize frame filler -- see tMenuItemLeftRightChoice::ProcessInput. */
+  int frameFiller[2];
+
   uVar2 = this->fFlags;
   uVar1 = uVar2 & 1;
-  if (uVar1 == 0) {
-    uVar1 = 2;
-    if (keyval == kInput_KeyType_Cross) {
-      if (this->fNewMenu != (tMenu *)0x0) {
-        if ((uVar2 & 0x40) == 0) {
-          command.type = kMenu_Command_GoToMenu;
-        }
-        else {
-          command.type = kMenu_Command_GoToMenuOneWay;
-        }
-        command.nextMenu = this->fNewMenu;
-      }
-      if (this->fOnButtonPress != (void *)0x0) {
-        ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
-      }
-      uVar1 = 1;
-      keyval = kInput_KeyType_AlreadyProcessed;
-    }
+  if (uVar1 != 0) {
+    return uVar1;
   }
-  return uVar1;
+  if (keyval != kInput_KeyType_Cross) {
+    return 2;
+  }
+  if (this->fNewMenu != (tMenu *)0x0) {
+    if ((uVar2 & 0x40) != 0) {
+      command.type = kMenu_Command_GoToMenuOneWay;
+    }
+    else {
+      command.type = kMenu_Command_GoToMenu;
+    }
+    command.nextMenu = this->fNewMenu;
+  }
+  if (this->fOnButtonPress != (void *)0x0) {
+    ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
+  }
+  keyval = kInput_KeyType_AlreadyProcessed;
+  return 1;
 }
 
 
@@ -1320,17 +1334,16 @@ void tMenu::UpdateTransition()
   tMenuItem *ptVar1;
   __vtbl_ptr_type (*pa_Var2) [11];
   short item;
-  int iVar3;
-  
-  iVar3 = 0;
+
+  item = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    pa_Var2 = this->fItemList[(short)iVar3]->_vf;
+    pa_Var2 = this->fItemList[item]->_vf;
     (*(*pa_Var2)[10].pfn)
-              ((char *)this->fItemList[(short)iVar3] + (int)(*pa_Var2)[10].delta,
-               this->fCurrentItem == (int)(short)iVar3);
-    iVar3 = iVar3 + 1;
-    ptVar1 = this->fItemList[(short)iVar3];
+              ((char *)this->fItemList[item] + (int)(*pa_Var2)[10].delta,
+               this->fCurrentItem == (int)item);
+    item = item + 1;
+    ptVar1 = this->fItemList[item];
   }
   return;
 }

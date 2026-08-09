@@ -408,11 +408,20 @@ PER_TU_FLAGS = {
     # zero PASS regressions.
     "recon/syslib/psx/libmath/FERR.c":      {"cc1_272": True},
     "recon/syslib/psx/libmath/FLTSIDF.c":   {"cc1_272": True},
-    "recon/syslib/psx/libmath/ADDDF3.c":    {"cc1_272": True},  # 377->352
-    "recon/syslib/psx/libmath/MULDF3.c":    {"cc1_272": True},  # -2
-    "recon/syslib/psx/libmath/GTDF2.c":     {"cc1_272": True},  # 54->50
-    "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_272": True},  # -1
+    # w52-a4: libmath = SONY PREBUILT VENDOR OBJECT (bytes verbatim in every
+    # PsyQ 4.0-4.7 LIBMATH.LIB) -- per-TU ladder rungs below are the measured
+    # winners (agent whole-TU tables in each TU's receipts; zero regressions).
+    "recon/syslib/psx/libmath/ADDDF3.c":    {"cc1_alt": "2.7.2-970404"},  # 352->347
+    "recon/syslib/psx/libmath/MULDF3.c":    {"cc1_alt": "2.6.3"},  # _mul_mant_d 93->84
+    "recon/syslib/psx/libmath/GTDF2.c":     {"cc1_alt": "2.7.2-970404"},  # 33->21
+    "recon/syslib/psx/libmath/LTDF2.c":     {"cc1_alt": "2.7.2-970404"},  # 21->15
+    "recon/syslib/psx/libmath/MULSF3.c":    {"cc1_alt": "2.95.2"},  # 93->88
+    "recon/syslib/psx/libmath/DIVSF3.c":    {"cc1_alt": "2.95.2"},  # 106->96
+    "recon/syslib/psx/libmath/DIVDF3.c":    {"cc1_alt": "2.91.66"},  # 305->300
     "recon/syslib/psx/libmath/EXTSFDF2.c":  {"cc1_272": True},  # 69->55
+    # w52-a7: nsync = gcc 2.8.1 through the NORMAL maspsx pipeline (cc1_ver
+    # swaps only the binary): loadbigfileheaderatomic 4 -> PASS 81/81, TU 10/10.
+    "recon/eaclib/psx/eacpsxz/nsync.c":     {"cc1_ver": "2.8.1"},
     "recon/syslib/psx/libmath/FLTSISF.c":   {"cc1_272": True},  # 38->32
     "recon/syslib/psx/libmath/FIXSFSI.c":   {"cc1_272": True},  # 12->8
     "recon/syslib/psx/libmath/FIXDFSI.c":   {"cc1_272": True},  # 80->67
@@ -1043,11 +1052,21 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-fno-strength-reduce")
     if tu_flags.get("no_builtin"):
         cc1_flags.append("-fno-builtin")
-    r = run([CC1, *cc1_flags, i_file, "-o", s_file])
+    # w52-a7: PER_TU "cc1_ver" swaps ONLY the cc1 binary (ladder rung) inside
+    # the NORMAL maspsx pipeline -- the single-variable version axis.  Distinct
+    # from cc1_alt, which also swaps the assembler route (272 recipe) and for
+    # eaclib costs a measured 42-PASS route penalty.
+    cc1_bin = CC1
+    if tu_flags.get("cc1_ver"):
+        cc1_bin = _resolve_cc1_alt(str(tu_flags["cc1_ver"]))
+        if cc1_bin is None:
+            sys.exit(f"[cc1-ver] {rel}: ladder rung "
+                     f"{tu_flags['cc1_ver']!r} not found under {GCC_LADDER}")
+    r = run([cc1_bin, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
 
-    _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1, cc1_flags)
+    _apply_fn_splice(rel.as_posix(), s_file, i_file, cc1_bin, cc1_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)
 

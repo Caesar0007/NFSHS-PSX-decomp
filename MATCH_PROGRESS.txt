@@ -98,7 +98,7 @@ VA             %match  unit                     function
 0x800197E8     80.59%  frontend/common/fedialog Run__18tDialogInteractive
 0x800199D4     98.15%  frontend/common/fedialog CalculateDimensions__12tDialogYesNo
 0x80019A8C    100.00%  frontend/common/fedialog __12tDialogYesNo
-0x80019B44     83.90%  frontend/common/fedialog Draw__12tDialogYesNo
+0x80019B44     83.89%  frontend/common/fedialog Draw__12tDialogYesNo
 0x80019CCC    100.00%  frontend/common/fedialog ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80019D98    100.00%  frontend/common/fedialog ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80019E7C    100.00%  frontend/common/fedialog ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand
@@ -518,7 +518,7 @@ VA             %match  unit                     function
 0x8002E18C     68.39%  frontend/common/femenudefs MenuExtended_ExitTourney__FR12tMenuCommand
 0x8002E21C     93.89%  frontend/common/femenudefs MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand
 0x8002E34C    100.00%  frontend/common/femenudefs MenuExtended_PinkSlipsContinue__FR12tMenuCommand
-0x8002E3B8     50.90%  frontend/common/femenudefs __15tGlobalMenuDefs
+0x8002E3B8     59.03%  frontend/common/femenudefs __15tGlobalMenuDefs
 0x800315D4    100.00%  frontend/common/femenudefs ___15tGlobalMenuDefs
 0x800321C0    100.00%  frontend/common/femenudefs TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button
 0x800321C8    100.00%  frontend/common/femenudefs Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib
@@ -836,7 +836,7 @@ VA             %match  unit                     function
 0x8004B048    100.00%  frontend/common/screenusername GetShapeInfo__15tScreenUserNameRsT1PPcT3
 0x8004B0A8    100.00%  frontend/common/screenusername DrawVerticalLine__15tScreenUserNamesss
 0x8004B128    100.00%  frontend/common/screenusername DrawHorizontalLine__15tScreenUserNamesss
-0x8004B1AC     85.27%  frontend/common/screenusername DrawBackground__15tScreenUserName
+0x8004B1AC     91.59%  frontend/common/screenusername DrawBackground__15tScreenUserName
 0x8004B7D4    100.00%  frontend/common/screenusername ___15tScreenUserName
 0x8004B7F8    100.00%  frontend/common/fefades  CalcFadeVal__Fiii
 0x8004B888    100.00%  frontend/common/fefades  CalcFadeVal__Fii

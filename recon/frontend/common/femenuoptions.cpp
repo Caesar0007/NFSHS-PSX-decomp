@@ -2878,22 +2878,23 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 int tMemoryCardMenuItem::Draw(bool selected)
 
 {
+  /* SYM 8c local list (the allocation budget, 06A): fEnableFade $10=s0,
+     fEnableSlide $13=s3, x $14=s4, y $16=s6, ColText $11=s1, Col $10=s0,
+     tCol AUTO -0x38, fWidth $10=s0, shape $11=s1.  Everything else here is a
+     caller-saved temp the oracle keeps in $v0/$v1/$a0 (no saved-reg cost). */
   tTexture_ShapeInfo *shape;
   short sVar2;
   int x;
   int y;
-  int iVar4;
   int Col;
-  char *sMenuText;
-  short fEnableSlide;
-  int iVar6;
   int ColText;
+  int fEnableSlide;
   int fEnableFade;
-  int amount;
   int fWidth;
-  /* SYM AUTO local optimizer-ELIMINATED (disasm: draw passes NULL, slot sp+0x20 unused) */
   tDrawShapeExtended tCol;
-  
+  int v;
+  int sv;
+
   /* MATCH: test `(fFlags & 1) != 0` -> oracle `andi;beqz` (branch-when-clear to the
      +8 arm, -8 in the fall-through), not the `== 0` -> `bnez` polarity. */
   if ((this->fFlags & 1) != 0) {
@@ -2902,57 +2903,91 @@ int tMemoryCardMenuItem::Draw(bool selected)
   else {
     sVar2 = this->fEnableVal + 8;
   }
-  this->fEnableVal = sVar2;
-  /* MATCH (05E volatile-test-read): the oracle RE-READS fEnableVal from memory for
-     the clamp (`lhu v1` pass-through default + `lh a0` for the compares) rather than
-     store-forwarding the just-written value (which emits sll/sra sign-extend). */
-  fEnableSlide = *(volatile u_short *)&this->fEnableVal;
-  sVar2 = *(volatile short *)&this->fEnableVal;
-  if ((sVar2 < 0x100) && (sVar2 < 1)) {
-    fEnableSlide = 0;
+  /* MATCH: the oracle RE-READS fEnableVal from memory for the clamp -- `lh a0`
+     (SIGNED, the compare operand) FIRST, then `lhu v1` (the pass-through default).
+     The barrier that stops cse store-forwarding must sit on the STORE, not on the
+     reads: a volatile MEM also blocks combine, so a `volatile signed short` READ
+     degrades to lhu + sll/sra (and the u_short read to lhu + andi 0xffff). */
+  *(volatile short *)&this->fEnableVal = sVar2;
+  sv = *(signed short *)&this->fEnableVal;
+  v = *(u_short *)&this->fEnableVal;
+  /* NESTED, not `&&`: gcc's fold_truthop merges `(sv<0x100) && (sv<1)` into the
+     single `sv<1` test and the oracle's `slti 256` branch disappears. */
+  if (sv < 0x100) {
+    if (sv < 1) goto fEnableZero;
   }
-  else if (0x100 < sVar2) {
-    fEnableSlide = 0x100;
+  if (0x100 < sv) {
+    v = 0x100;
   }
-  this->fEnableVal = fEnableSlide;
-  iVar6 = (int)fEnableSlide;
-  fEnableFade = 0x80;
-  if ((iVar6 < 0x80) && (fEnableFade = 0, 0 < iVar6)) {
-    fEnableFade = iVar6;
+  goto fEnableStore;
+fEnableZero:
+  v = 0;
+fEnableStore:
+  this->fEnableVal = (short)v;
+  v = (signed short)v;   /* oracle sll 16 / sra 16 of the just-stored value */
+  /* H-W57: fEnableFade (SYM $10=s0) was MISSING entirely -- retail derives a
+     SECOND fade from fEnableVal and feeds it to both CalcFadeVal calls; the recon
+     passed fSelFade there instead (a real behavioural bug). */
+  fEnableFade = v - 0x80;
+  if (0x80 < fEnableFade) {
+    fEnableFade = 0x80;
   }
-  iVar6 = (int)this->fFadeVal;
-  if ((iVar6 != 0x80) && (iVar6 = 0, this->fEnableVal != 0)) {
+  if (fEnableFade < 0) {
+    fEnableFade = 0;
+  }
+  /* BASIN NOTE (best of 5 spellings, 8 diffs, count-exact 150/150): the residual is
+     which side reorg steals the `beqz` delay slot from -- ours copies `s3 = v` first
+     and then tests the COPY (`bgtz s3`), retail tests `v` itself (`blez v1`) and
+     steals the MAX arm's `li s3,128`.  if/else (both arm orders), the goto ladder and
+     the else-if chain all score 8/12/24; a cse copy-substitution block is the missing
+     instrument. */
+  if (v < 0x80) {
+    if (0 < v) {
+      __asm__("" : : );   /* arm-head barrier: stop the `s3 = v` copy hoisting above
+                             the `blez v1` test (retail tests v, not the copy) */
+      fEnableSlide = v;
+    }
+    else {
+      fEnableSlide = 0;
+    }
+  }
+  else {
+    fEnableSlide = 0x80;
+  }
+  /* NEAR-MISS 2: the oracle KEEPS the (now dead) else block `li s3,128` after reorg
+     stole it into the `beqz` slot, so its then-arm exits with `bnez v0,T`; ours
+     deletes the block and falls through.  Falsified: two-separate-ifs (14), goto
+     ladder (12), else-if chain (24), plain ternary (8). */
+  __asm__("" : : "r"(sv));   /* 05C read-only fence: extends sv's live range past
+                                v's death so local_alloc hands v the lower reg */
+  if ((this->fFadeVal != 0x80) && (this->fEnableVal != 0)) {
+    fEnableFade = 0x80 - fEnableFade;
     x = TextSys_WordX(this->fTextDescription);
     y = TextSys_WordY(this->fTextDescription);
     ColText = CalcTextFadeSelToHi(textType_Options,
                        this->fSelFade,
                        this->fFadeVal);
-    amount = (int)this->fSelFade;
-    Col = CalcFadeVal(0xc83c1e,0xbebe,amount,(int)this->fFadeVal);
-    CalcFadeVal(Col,amount);
-    iVar6 = CalcFadeVal(ColText,amount);
-    if (iVar6 != 0) {
-      sMenuText = TextSys_Word(this->fTextDescription);
-      FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,iVar6,'\0',0);
+    Col = CalcFadeVal(0xc83c1e,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
+    Col = CalcFadeVal(Col,fEnableFade);
+    ColText = CalcFadeVal(ColText,fEnableFade);
+    tCol.tint[0] = Col;
+    if (ColText != 0) {
+      FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
+                               (short)x,(short)y,ColText,'\0',0);
     }
-    shape = gHelpShapes;
-    fWidth = fEnableFade * 0x96;   /* H14: was fWidth (uninitialized); oracle 0x80020A30 __MULT($s3=fEnableFade,0x96) */
-    if (fWidth < 0) {
-      fWidth = fWidth + 0x7f;
-    }
-    fWidth = (fWidth >> 7) * (0x80 - this->fFadeVal);
-    if (fWidth < 0) {
-      fWidth = fWidth + 0x7f;
-    }
-    DrawShapeExtended(0x1e,8,(x + (fWidth >> 7)) - (int)shape[0x1e].width,y + -3,0,0,(tDrawShapeExtended *)0x0);
-    iVar4 = (int)shape[0x1e].width;
-    iVar6 = 0;
-    if (iVar4 < fWidth >> 7) {
-      iVar6 = (int)shape[0x1e].height;
-      PSXDrawSquare(0,x,y + -3,(fWidth >> 7) - iVar4,iVar6);
+    /* the width is a VARIABLE the source seeds with 150 -- expand-time reg*reg
+       `mult` (06D multiply-by-the-VARIABLE); a literal 0x96 strength-reduces to a
+       5-insn shift/add chain the oracle does not have. */
+    fWidth = 150;
+    fWidth = fEnableSlide * fWidth / 0x80 * (0x80 - (int)this->fFadeVal) / 0x80;
+    shape = gHelpShapes + 0x1e;   /* SYM ptr = the ELEMENT, not the base (07C) */
+    DrawShapeExtended(0x1e,8,(x + fWidth) - (int)shape->width,y + -3,0,0,
+                      (tDrawShapeExtended *)0x0);
+    if ((int)shape->width < fWidth) {
+      PSXDrawSquare(0,x,y + -3,fWidth - (int)shape->width,(int)shape->height);
     }
   }
-  return iVar6;
+  /* retail DROPS the result (06A no-trailing-return) */
 }
 
 

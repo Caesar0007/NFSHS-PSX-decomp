@@ -460,6 +460,7 @@ void tOptionsMenu::UpdateTransition()
      403-405 shared call / 407-411 fade-in clamp / 418-419 the not-transitioning
      item loop / 422 the menu's own vtable[7] call. */
   short i;
+  tMenuItem *citem;
   tMenuItem *item;
   __vtbl_ptr_type *entry;
   char *adjusted;
@@ -479,7 +480,8 @@ void tOptionsMenu::UpdateTransition()
           if ((*(*this->fItemList[i]->_vf)[9].pfn)
                 ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) == 0) break;
         }
-        if (this->fItemList[i] == 0) goto feo_done;
+        citem = this->fItemList[i];
+        if (citem == 0) goto feo_done;
         goto feo_callUpdate;
       }
     }
@@ -494,9 +496,15 @@ void tOptionsMenu::UpdateTransition()
           if (i == -1) break;
         }
         if (i != -1) {
+          /* MATCH: BOTH paths that reach the shared UpdateTransition call load the
+             item into the SAME variable first, so gcc cross-jump-merges from the
+             `lw _vf` (oracle .L8001C9E8) instead of from the index computation —
+             which also lets the backward path reuse the `(short)i` extend the
+             `i != -1` guard already produced (`sra v1,..` / `sll v0,v1,2`). */
+          citem = this->fItemList[i];
 feo_callUpdate:
-          (*(*this->fItemList[i]->_vf)[10].pfn)
-            ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[10].delta, 0);
+          (*(*citem->_vf)[10].pfn)
+            ((char *)citem + (int)(*citem->_vf)[10].delta, 0);
           goto feo_done;
         }
       }
@@ -767,6 +775,17 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
   this->fFillback = fillback;
   this->fSelFade = 0;
   this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
+  /* MATCH (LAW 05A): the SLD attributes a SECOND `fFlags |= 0x80`
+     (`lw a0,0(v0); ori a0,a0,128; sw a0,0(v0)`) to line 624 — the ctor's closing
+     line — i.e. retail really ORs the bit in twice. */
+  this->fFlags = this->fFlags | 0x80;
+  /* NEAR-MISS 28 (was 37) — count + structure now byte-for-byte EXACT (42/42).
+     Residual = a pure saved-reg rotation: retail homes the three STACK-ARG params
+     (diffx/diffy/fillback) in $s1/$s2/$s3 and the two register params
+     (width/height) in $s4/$s5; ours is the reverse.  FALSIFIED dials: identity
+     fences on diffx/diffy/fillback (PROMOTE) and a read-only fence on
+     width/height (DEMOTE) — both inert, these are global allocnos live across
+     the base-ctor `jal`, outside a fence's reach. */
   return;
 }
 
@@ -905,38 +924,54 @@ void tMenuItemSlidingMenu::Draw(bool selected)
 void tMenuItemSlidingMenu::UpdatefOpenHeight(bool selected)
 
 {
-  int iVar1;
-  short sVar2;
-  
+  /* NEAR-MISS 26 (was 84) — count EXACT 136/136, structure byte-for-byte.
+     Residual = a $v0/$v1/$a2 rotation at three clamp sites (the fadeOut clamp,
+     the fade+0x28 clamp and the cur/lim pair).  Landed levers: guard-first
+     clamps (no comma-expression conditions), per-block clamp temps, the
+     store-forwarded `currMenu` test, and the lim-merged single `sh`.
+     FALSIFIED: cur/lim declaration-order swaps (both variants inert).
+
+     SYM 8c block: fsize 0 / mask 0 / NO named locals -- every clamp temp in retail
+     is a per-expression compiler temp.  ONE function-scope `iVar1` reused by all
+     six clamps is a single long-lived allocno that conflicts with everything and
+     loses $v0 at every site (`addiu v1,v0,-4` instead of the oracle's in-place
+     `addiu v0,v0,-4`); only the fFadeVal value genuinely flows between blocks. */
+  int fade;
+
   this->fClosing = 0;
   if (this->fOpenHeight == 0) {
     this->fSlideOffset = this->fHeight + (this->fHeight >> 1);
   }
-  if ((this->nextMenu != this->currMenu) && (iVar1 = this->fOpenHeight + -4, 0 < this->fOpenHeight))
+  /* MATCH: the subtraction lives INSIDE the guard (oracle `blez v0` with the
+     `addiu v0,v0,-4` IN its delay slot, IN PLACE on the loaded field); hoisting
+     it above the test — a comma-expression condition — keeps the loaded value
+     live and forces every clamp onto a second register. */
+  if ((this->nextMenu != this->currMenu) && (0 < this->fOpenHeight))
   {
-    if (iVar1 < 0) {
-      iVar1 = 0;
+    int closeH = this->fOpenHeight + -4;
+    if (closeH < 0) {
+      closeH = 0;
     }
-    this->fOpenHeight = (short)iVar1;
+    this->fOpenHeight = (short)closeH;
     this->fClosing = 1;
     goto UpdfOpenH_currMenuCheck;
   }
   if (this->nextMenu == (tInsideBoxMenu *)0x0) {
-    iVar1 = (int)this->fFadeVal;
-    if (0x7f < iVar1) goto feo_fadeCheck;
+    fade = (int)this->fFadeVal;
+    if (0x7f < fade) goto feo_fadeCheck;
     if (this->fInTransition != 0) goto UpdfOpenH_currMenuCheck;
   }
   else {
-    iVar1 = (int)this->fFadeVal;
+    fade = (int)this->fFadeVal;
 feo_fadeCheck:
-    if (((0 < iVar1) && (this->currMenu == (tInsideBoxMenu *)0x0)) &&
+    if (((0 < fade) && (this->currMenu == (tInsideBoxMenu *)0x0)) &&
        (this->nextMenu != (tInsideBoxMenu *)0x0)) {
-      iVar1 = iVar1 + -0x28;
+      fade = fade + -0x28;
       if (this->fInTransition == 0) {
-        if (iVar1 < 0) {
-          iVar1 = 0;
+        if (fade < 0) {
+          fade = 0;
         }
-        this->fFadeVal = (short)iVar1;
+        this->fFadeVal = (short)fade;
       }
       if (this->fTransitioningOut == 0) {
         this->currMenu = this->nextMenu;
@@ -945,51 +980,69 @@ feo_fadeCheck:
     }
     this->currMenu = this->nextMenu;
     if ((this->fTransitioningOut != 0) || (this->fInTransition != 0)) goto UpdfOpenH_currMenuCheck;
-    if (this->nextMenu != (tInsideBoxMenu *)0x0) {
-      iVar1 = this->fFadeVal + -0x28;
-      if (iVar1 < 0) {
-        iVar1 = 0;
+    /* MATCH: test the JUST-STORED `currMenu` (identical value here) — gcc
+       store-forwards it (`beqz v1`), where re-reading `nextMenu` across the
+       may-aliasing store costs a reload. */
+    if (this->currMenu != (tInsideBoxMenu *)0x0) {
+      int fadeOut = this->fFadeVal + -0x28;
+      if (fadeOut < 0) {
+        fadeOut = 0;
       }
-      this->fFadeVal = (short)iVar1;
+      this->fFadeVal = (short)fadeOut;
       goto UpdfOpenH_currMenuCheck;
     }
-    iVar1 = (int)this->fFadeVal;
+    fade = (int)this->fFadeVal;
   }
-  sVar2 = (short)(iVar1 + 0x28);
-  if (0x80 < iVar1 + 0x28) {
-    sVar2 = 0x80;
+  /* MATCH: a SECOND int pseudo for the sum (oracle `lh v0,44; addiu v1,v0,40;
+     slti v0,v1,129; … li v1,128; sh v1`), clamped IN PLACE — reusing `fade`
+     itself makes the load and the sum share one register; a `short` result var
+     adds an `addu v1,v0,zero` funnel. */
+  {
+    int newFade = fade + 0x28;
+    if (0x80 < newFade) {
+      newFade = 0x80;
+    }
+    this->fFadeVal = (short)newFade;
   }
-  this->fFadeVal = sVar2;
 UpdfOpenH_currMenuCheck:
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
     if (selected != 0) {
       if (this->fClosing == 0) {
-        sVar2 = this->fHeight;
-        iVar1 = this->fOpenHeight + 4;
-        if ((int)this->fOpenHeight < (int)sVar2) {
-          if (iVar1 < sVar2) {
-            sVar2 = (short)iVar1;
+        /* MATCH: plain if/else with the store in BOTH arms — gcc cross-jump-merges
+           them into the oracle's single `sh v1,40(a0)` and lets `fHeight` load
+           STRAIGHT into the merge register (a `short lim` pre-read forces an
+           `addu v1,a3,zero` copy and flips the two loads' order). */
+        /* MATCH: cur/lim as two int temps, the clamp merged into `lim` so both arms
+           share ONE `sh` (oracle `addu v1,a2,zero; sh v1,40`).  NEAR-MISS 26 is a
+           pure v0/v1/a2 rotation at three clamp sites (count EXACT 136/136);
+           decl-order swaps of cur/lim are inert. */
+        int cur = this->fOpenHeight;
+        int lim = this->fHeight;
+        if (cur < lim) {
+          cur = cur + 4;
+          if (cur < lim) {
+            lim = cur;
           }
-          this->fOpenHeight = sVar2;
+          this->fOpenHeight = (short)lim;
         }
         else {
-          iVar1 = this->fSlideOffset + -6;
-          if (iVar1 < 0) {
-            iVar1 = 0;
+          int slide = this->fSlideOffset + -6;
+          if (slide < 0) {
+            slide = 0;
           }
-          this->fSlideOffset = (short)iVar1;
+          this->fSlideOffset = (short)slide;
         }
       }
       if (selected != 0) {
         return;
       }
     }
-    iVar1 = this->fOpenHeight + -4;
     if (0 < this->fOpenHeight) {
-      if (iVar1 < 0) {
-        iVar1 = 0;
+      int shrinkH = this->fOpenHeight + -4;
+      if (shrinkH < 0) {
+        shrinkH = 0;
       }
-      this->fOpenHeight = (short)iVar1;
+      this->fOpenHeight = (short)shrinkH;
     }
   }
   return;
@@ -1167,7 +1220,6 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
 
 {
-  u_int uVar3;
   int iVar2;
   int iVar4;
 
@@ -1181,19 +1233,23 @@ int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
     this->fSlideOffset = this->fSlideOffset + 3;
   }
   /* MATCH: the fHeight limit is computed BEFORE the fSlideOffset read (oracle
-     `lhu 0x26` then `lh 0x2A`) — the reversed order swaps their registers. */
-  iVar2 = (u_int)(u_short)this->fHeight << 0x10;
-  iVar2 = (iVar2 >> 0x10) + (iVar2 >> 0x11);
+     `lhu 0x26` then `lh 0x2A`) — the reversed order swaps their registers.
+     The limit is ONE natural expression (same spelling as TransitionOn): the
+     hand-split `<<0x10` intermediate minted an extra named pseudo, which pushed
+     the sum off `$v1` and forced a return funnel for uVar3. */
+  iVar2 = (int)this->fHeight + ((int)this->fHeight >> 1);
   iVar4 = (int)this->fSlideOffset;
-  uVar3 = (u_int)(iVar4 < iVar2);
-  if (uVar3 != 0) {
+  if (iVar4 < iVar2) {
     iVar2 = iVar4;
   }
   if (iVar2 < 0) {
     iVar2 = 0;
   }
+  /* MATCH (06A): retail DROPS the result — there is no `return`; $v0 is left
+     holding the `slt` of the clamp test incidentally.  An explicit
+     `return uVar3;` funnels it through a second register (`addu a2,v0,zero`
+     + `addu v0,a2,zero`). */
   this->fSlideOffset = (short)iVar2;
-  return uVar3;
 }
 
 
@@ -1293,31 +1349,35 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
   __vtbl_ptr_type (*pa_Var3) [11];
   tInsideBoxMenu *ptVar4;
   
-  if (keyval == kInput_KeyType_Cross) {
-    if (this->fActive == 0) {
-      AudioCmn_PlayFESFX(0);
-      this->fActive = 1;
+  /* MATCH (catalog §B arm-order): the oracle branches AWAY on `== Cross`
+     (`beq v1,v0`) and lays the Cross body OUT-OF-LINE at the end, falling
+     through into the Triangle test.  The `!=`-first spelling reproduces that
+     polarity + block layout; the natural `== Cross` first inlines it. */
+  if (keyval != kInput_KeyType_Cross) {
+    if ((keyval == kInput_KeyType_Triangle) && (this->fActive != 0)) {
+      AudioCmn_PlayFESFX(1);
+      this->fActive = 0;
       keyval = kInput_KeyType_AlreadyProcessed;
       AudioMus_StopSong(0x14);
+      if (screenAudio->songlist != (AudioMus_tSongList *)0x0) {
+        purgememadr(screenAudio->songlist);
+      }
+      screenAudio->songlist = (AudioMus_tSongList *)0x0;
       AudioMus_SysCleanUp();
-      AudioMus_SysStartUp(0xc000,0x18000,"ymus");
-      AudioMus_PlaySong("game*");
-      pAVar1 = AudioMus_GetSongList("*",0);
-      screenAudio->songlist = pAVar1;
+      AudioMus_SysStartUp(0xd800,0x18000,"amus");
+      AudioMus_PlaySong("zmenu*");
     }
   }
-  else if ((keyval == kInput_KeyType_Triangle) && (this->fActive != 0)) {
-    AudioCmn_PlayFESFX(1);
-    this->fActive = 0;
+  else if (this->fActive == 0) {
+    AudioCmn_PlayFESFX(0);
+    this->fActive = 1;
     keyval = kInput_KeyType_AlreadyProcessed;
     AudioMus_StopSong(0x14);
-    if (screenAudio->songlist != (AudioMus_tSongList *)0x0) {
-      purgememadr(screenAudio->songlist);
-    }
-    screenAudio->songlist = (AudioMus_tSongList *)0x0;
     AudioMus_SysCleanUp();
-    AudioMus_SysStartUp(0xd800,0x18000,"amus");
-    AudioMus_PlaySong("zmenu*");
+    AudioMus_SysStartUp(0xc000,0x18000,"ymus");
+    AudioMus_PlaySong("game*");
+    pAVar1 = AudioMus_GetSongList("*",0);
+    screenAudio->songlist = pAVar1;
   }
   if (this->fSlideOffset == 0) {
     iVar2 = this->fActive;
@@ -1325,8 +1385,14 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
     ptVar4 = this->currMenu;
     if (ptVar4 != (tInsideBoxMenu *)0x0) {
       pa_Var3 = (ptVar4)->_vf;
-      (*(*pa_Var3)[3].pfn)
-                ((int)(ptVar4)->fItemList + (*pa_Var3)[3].delta + -0x10,fromPlayer,keyval,
+      /* MATCH (methodology #11): the vtable `pfn` is `int(*)(...)`, so passing the
+         two REFERENCE params through it decays them to BY-VALUE copies (a2/a3 +
+         a stack word).  The oracle passes the references themselves (a2=&keyval,
+         a3=&command) -> cast the fn-ptr to the real reference signature.  Also
+         `(int)ptVar4 + delta` (not fItemList-0x10) to get the oracle's
+         `addu a0,currMenu,delta` operand order. */
+      ((void (*)(int,tPlayer,tInputKeyType &,tMenuCommand &))(*pa_Var3)[3].pfn)
+                ((int)ptVar4 + (*pa_Var3)[3].delta,fromPlayer,keyval,
                  command);
       goto SlideActivProc_getActive;
     }
@@ -1446,8 +1512,7 @@ int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
     ptVar6 = this->fData;
     pa_Var3 = ptVar6->_vf;
     cVar1 = (*(*pa_Var3)[2].pfn)
-                      ((char *)ptVar6 + (int)(*pa_Var3)[2].delta,0xffffffff,offy,
-                       selected);
+                      ((char *)ptVar6 + (int)(*pa_Var3)[2].delta,0xffffffff);
     /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
     if (cVar1 != '\0') {
       this->fOnFade = this->fOnFade + 0x20;
@@ -1511,8 +1576,9 @@ int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
   tListIterator *ptVar4;
   u_int uVar5;
   int iVar6;
+  int *rgbVals;
   tDrawShapeExtended tCol;
-  
+
   /* MATCH: `textDefinitions` is 6 bytes per row in retail (index scaling
      `sll 1; addu` = *3, then *2) — the externs header now carries the true
      [14][6] shape (it used to say [6][14] -> stride 14 -> `sll 3; subu` = *7,
@@ -1523,10 +1589,14 @@ int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
   this->fX = (short)coltext + (short)ox;
   coltext = TextSys_WordY(this->fTextDescription);
   this->fY = (short)coltext + (short)oy;
+  /* MATCH (methodology #16): the oracle completes the `la s1,kRGBVals` BEFORE the
+     TextSys_WordFlags call (s1 held across it); the natural in-expression use
+     rematerializes the address after the call. */
+  rgbVals = kRGBVals;
   coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
-  iVar6 = kRGBVals[(u_char)textDefinitions[coltext][5]];
+  iVar6 = rgbVals[(u_char)textDefinitions[coltext][5]];
   coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
-  coltext = kRGBVals[(u_char)textDefinitions[coltext][4]];
+  coltext = rgbVals[(u_char)textDefinitions[coltext][4]];
   DrawLeftFlare((int)this->fY,
              (int)this->fSelFade,
              (int)this->fFadeVal,this->flareextra);
@@ -1781,38 +1851,40 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
                short fSelFade)
 
 {
-  short sVar1;
+  /* NEAR-MISS 62 (was 106) — count EXACT 139/139, frame + saved-reg set now
+     match the SYM ($807f0000 / 64).  Residual = a 3-way rotation of the param
+     homes (retail songnum/x/y -> $s4/$s3/$s2, ours x/y/songnum).  Landed levers:
+     the SYM local-budget reduction below, dropping the `*0x10000>>0x10`
+     pre-shift idiom (06C #6), and `- K` instead of `+ -K` on the unsigned-`w`
+     sums (which emitted `li 65446; addu` instead of `addiu -90`).
+
+     SYM 8c block (06A — the local list IS the allocation budget): mask $807f0000
+     = s0-s6 + ra, fsize 64, and the ONLY locals are `Col` (REG $s6), `ColText`
+     (REG $s0) and the two AUTO ints ColTextOn/ColTextOff.  The Ghidra-invented
+     sVar1/pcVar3/iVar4/iVar5 pseudos cost an eighth saved reg ($s7) + 8 frame
+     bytes; drop them and use the params directly. */
   int Col;
   int ColText;
-  char *pcVar3;
-  u_short in_register_0000001a;
-  int iVar4;
-  int iVar5;
   int ColTextOn;
   int ColTextOff;
-  
-  sVar1 = w;
-  w = (u_int)(u_short)w;
-  iVar4 = (int)x;
+
   Col = CalcFadeVal(0x551e00,0x28);   /* H13: 2nd arg is the literal 0x28 (oracle 0x8001EC84 $a1=0x28), not x */
   CalcOnOffFade(textType_Options,fOnOffFade,fSelFade,0,&ColTextOn,&ColTextOff);
   ColText = CalcTextFadeSelToHi(textType_Options,fSelFade,0);
-  iVar5 = (int)((u_int)(u_short)songnum << 0x10) >> 10;
-  FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[1].currentsong + iVar5),
-             (short)((u_int)((iVar4 + 3) * 0x10000) >> 0x10),y + 2,ColText,'\0',0);
-  FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[2].numsongs + iVar5),
-             (short)((u_int)((iVar4 + 2) * 0x10000) >> 0x10),y + 10,ColText,'\0',0);
-  pcVar3 = TextSys_Word(0x66);
-  FETextRender_FullTextRGB(pcVar3,(short)((iVar4 + w + -0x5a) * 0x10000 >> 0x10),y + 6,ColTextOn,'\0',2);
-  pcVar3 = TextSys_Word(0x67);
-  FETextRender_FullTextRGB(pcVar3,(short)((iVar4 + w + -0x1e) * 0x10000 >> 0x10),y + 6,ColTextOff,'\0',2);
-  iVar4 = (int)x;
-  iVar5 = (int)sVar1;
-  ColText = (int)y;
-  PSXDrawSquare(Col,iVar4 + iVar5 + -0x78,ColText,2,0x13);
-  PSXDrawSquare(Col,iVar4 + iVar5 + -0x3c,ColText,2,0x13);
-  PSXDrawSquare(Col,iVar4,ColText,iVar5,1);
-  PSXDrawSquare(Col,iVar4,ColText + 0x13,iVar5,-1);
+  FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[1].currentsong +
+             ((int)((u_int)(u_short)songnum << 0x10) >> 10)),
+             (short)(x + 3),y + 2,ColText,'\0',0);
+  FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[2].numsongs +
+             ((int)((u_int)(u_short)songnum << 0x10) >> 10)),
+             (short)(x + 2),y + 10,ColText,'\0',0);
+  FETextRender_FullTextRGB(TextSys_Word(0x66),
+             (short)(x + (u_short)w - 0x5a),y + 6,ColTextOn,'\0',2);
+  FETextRender_FullTextRGB(TextSys_Word(0x67),
+             (short)(x + (u_short)w - 0x1e),y + 6,ColTextOff,'\0',2);
+  PSXDrawSquare(Col,(int)x + (int)w + -0x78,(int)y,2,0x13);
+  PSXDrawSquare(Col,(int)x + (int)w + -0x3c,(int)y,2,0x13);
+  PSXDrawSquare(Col,(int)x,(int)y,(int)w,1);
+  PSXDrawSquare(Col,(int)x,(int)y + 0x13,(int)w,-1);
   return;
 }
 

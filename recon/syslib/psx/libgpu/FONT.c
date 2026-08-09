@@ -123,7 +123,25 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *       reg at the call, so the arg setup became a load that sched hoisted to the top).
  *       FALSIFIED: assigning `dr` immediately before the call, and calling
  *       `TermPrim(&fs->draw_mode)` directly -- both still 6.  Known no-source-lever class
- *       (catalog: choose_reload_regs / reload-inheritance identity). */
+ *       (catalog: choose_reload_regs / reload-inheritance identity).
+ *
+ *   W53-A12 re-attack, NO MOVEMENT (6 both before and after; recorded so the ground is not
+ *   re-walked).  The 4-diff half is purely a sched2 POSITION question: retail issues the two
+ *   `sw $a2,0x1C/0x20($sp)` (r and g) between `addiu $sp` and the callee-save block, i.e.
+ *   sched2 floated them ABOVE the whole prologue save run, and puts b's store in the `bltz`
+ *   delay slot.  Falsified this wave: five further init ORDERS on top of the six already
+ *   recorded -- r,g,b then maxx (10); r,g / maxx / b (6); r / g / maxx / b (6); b,g,r then
+ *   maxx (10); the chained `r = g = b = 0x80` (10) -- and three FENCE placements, which is
+ *   the instrument the catalog names for a sched-issue-position residual: a void-tail
+ *   `__asm__("" : : "i"(0))` after the colour block (9, +1 insn), the same before `maxx`
+ *   (6), and a read-only fence on `id` (9, +1 insn).  MECHANISM NOTE explaining why the
+ *   fence cannot win here: a fence is a BARRIER, so it can stop an insn from moving but
+ *   cannot make one float FURTHER up -- and the stores must move UP, past the prologue.
+ *   r/g/b are stack AUTOs (not register-resident), so every fence form that touches them
+ *   also costs the +1 `lw` the cost profile predicts.  NAMED NEXT ANGLE: make the colour
+ *   defaults register-resident for their whole live range (they are only spilled because
+ *   the glyph loop re-reads them), then the zero-cost fence forms become available; or dial
+ *   sched2's ready list via the dependence chain of the FIRST post-prologue insn. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

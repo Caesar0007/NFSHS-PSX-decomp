@@ -96,21 +96,35 @@ dma_error:
  *   - the `& 0x1f` on the shift COUNT was a Ghidra transcription artifact (sllv masks to 5
  *     bits in hardware); writing it emits a real `andi rX,rX,31` retail does not have
  *     (catalog SC "andi ...,31 before a variable shift -- delete it").
- *   Residual: retail COPIES both params (`addu a2,a0,zero` = ch, `addu a0,a1,zero` = func)
- *   and keeps `old` in $a3, staging `addu v0,a3,zero` in two branch delay slots; ours keeps
- *   ch/func in their incoming regs (hence 2 insns short).  Falsified levers: explicit local
- *   copies of both params, and an early `if (func == old) return old;` funnel -- both
- *   coalesce back to identical code (46 diffs each). */
+ *   W53-A12: 46 -> 36 diffs via the INDEX FORM (methodology 3.12 #1, second effect).
+ *   Dropping the hoisted `int *p = &dma_cb[ch]` cursor and writing `dma_cb[ch]` at each
+ *   of the three sites flips which local joins the ABI arg web: retail's `func` copy
+ *   (`addu $a2,$a1,$zero` in ours) appears, and the `sll`/base materialisation order
+ *   matches.  Count is unchanged (41 vs 43) -- this is a coloring, not a size, win.
+ *   Residual (36): the remaining half of the rotation.  Retail is {ch -> $a2, func -> $a0,
+ *   old -> $a3}, ours is {ch -> $a0, func -> $a2, old -> $a3}: an exact ch<->func swap,
+ *   plus retail's THREE `addu $v0,$a3,$zero` return-funnel copies (two of them in branch
+ *   delay slots) against our one.
+ *   FALSIFIED at this basin: an early `if (func == old) return old;` + per-arm `return old;`
+ *   funnel (75 -- gcc cross-jumps the three returns straight back together), grouping the
+ *   OR as `1 << (ch+0x10) | 0x800000` (36, neutral), a `ch + 0x10` shift temp (56, and one
+ *   insn SHORTER), identity fences on ch and on func before and after the decls, a
+ *   read-only fence on ch, and the pre-decl placements of all of those (46 each -- the
+ *   fences are inert here because nothing in the fn prefers or conflicts on the contested
+ *   regs).  NAMED NEXT ANGLE: ch must LOSE $a0 and func must LOSE $a1, which (per the
+ *   GTDF2/FIXDFSI finding this wave) is a CONFLICT-SET question, not an allocno dial --
+ *   the productive instrument is the -dg/-dl dump plus allocsim on the block-local qtys
+ *   that own $a0/$a1 in the two arms, i.e. a 3-QTY-LAW dial on the DICR read-modify-write
+ *   blocks rather than any further reshaping of the parameters.  Not a floor. */
 int func_80106878(int ch, int func)   /* @0x80106878 (installed by startIntrDMA) */
 {
-    int *p = &dma_cb[ch];
-    int old = *p;
+    int old = dma_cb[ch];
     if (func != old) {
         if (func != 0) {
-            *p = func;
+            dma_cb[ch] = func;
             DICR = DICR & 0xffffff | 1 << (ch + 0x10) | 0x800000;
         } else {
-            *p = 0;
+            dma_cb[ch] = 0;
             DICR = (DICR & 0xffffff | 0x800000) & ~(1 << (ch + 0x10));
         }
     }

@@ -92,6 +92,22 @@ int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, in
 int          *_mainasu(int *out, int a2, int a3);
 int           _err_math(int errnum, int code);
 
+/* W53-A12 HANDOFF -- THE DOUBLE-PARAM SHAPE IS CONFIRMED CORRECT HERE, BUT IT NEEDS THE
+ * SHAPE WORK TOO.  This wave cracked the libmath a1-vs-t1/parm-copy class with `double`
+ * parameters + a register-resident `union double_long` (full mechanism in GTDF2.c; it took
+ * __gtdf2/__ltdf2/__extendsfdf2 to PASS and __truncdfsf2 to 2).  __divdf3's ORACLE ENTRY
+ * PROVES it applies: `addu $t0,$a0,$zero; addu $t1,$a1,$zero; addu $t2,$a2,$zero` is the
+ * even-aligned DFmode PAIR signature ($t0:$t1 = a, $t2:$t3 = b), which four independent int
+ * params can never emit.  MEASURED on the shape change ALONE: 300 -> 303 diffs, but the
+ * instruction COUNT moves 174 -> 177 against the oracle's 184 -- i.e. it is buying real
+ * structure while the coloring temporarily worsens, exactly as it did on __truncdfsf2
+ * before its shape pass.  DO NOT wire the union alone; land it TOGETHER with the oracle
+ * re-derivation (the recipe that took __truncdfsf2 109 -> 2, in that file's receipt):
+ * (1) branch POLARITY of every test read off the oracle, (2) one IN-PLACE variable per
+ * accumulator with compound assignments (never fused `x = (x+k)>>n`), (3) array elements
+ * (not the source locals) passed to _dbl_shift/_comp_mant so the reloads appear, (4) a
+ * single `result` funnel assigned in both arms, (5) re-ladder afterwards (04Z).
+ * __muldf3 carries the same `addu $t0,$a0,$zero` entry signature and wants the same pass. */
 double __divdf3(int a1, int a2, int a3, int a4)   /* @0x800F5DD4 */
 {
     union { double d; unsigned int w[2]; } u;

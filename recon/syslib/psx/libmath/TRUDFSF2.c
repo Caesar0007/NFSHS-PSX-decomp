@@ -18,34 +18,79 @@
  * _mainasu/_comp_mant/_mul_mant_d are NOT FSF libgcc2/fp-bit names; searched
  * rage-racer-decomp + psyz + the whole disk -- nothing).  Full ladder tables and
  * the cracked levers are in GTDF2.c / LTDF2.c / MULSF3.c. */
+/* MATCH (W53-A12): 109 -> 2 diffs, count EXACT 76/76.  Lane: cc1_272 (unchanged).
+ * FOUR levers, all read off the oracle:
+ *
+ * 1. `double` PARAMETER + `union double_long` (the libmath cluster lever, full
+ *    mechanism in GTDF2.c): retail's `addu $s0,$a0,$zero; addu $s1,$a1,$zero`
+ *    is ONE DFmode pseudo in the even-aligned callee-saved PAIR $s0:$s1, which
+ *    two independent int params can never produce.
+ * 2. TWO 8-BYTE ARRAYS, MODELLED AS ONE `int buf[4]`.  Retail stores the input
+ *    words at 0x18/0x1C but hands _dbl_shift `$sp+0x20` as the OUT pointer and
+ *    reads the result from 0x24 -- an INPUT buffer and an OUTPUT buffer.
+ *    Spelling them as one `int buf[4]` with `&buf[2]` as the out pointer is
+ *    what reproduces the frame AND (unlike two separate arrays) most of the
+ *    aliasing; it was worth 10 diffs over the two-array spelling.
+ * 3. ONE IN-PLACE MANTISSA VARIABLE.  Retail runs the whole rounding chain in
+ *    $a1 (`addiu $a1,$a1,1; srl $a1,$a1,1; ... srl $a1,$a1,1`).  Writing the
+ *    steps as COMPOUND ASSIGNMENTS on a single `unsigned int m` (`m += 1;
+ *    m >>= 1;` -- separate statements, NOT `m = (m+1)>>1`) is what produces the
+ *    in-place updates; the fused form parks `m+1` in its own pseudo and lets
+ *    cc1 refold the second shift into `>>2` (24 -> 12 -> 2 across these two).
+ * 4. Branch polarity: `if (v5 > 0) {...} else {...}` (the >0 arm is retail's
+ *    FALL-THROUGH after `blez $s2`), `if (v5 < 255) return ...;` before the err
+ *    tail, and `if (ua.w.hi >= 0) return +INF;` (retail's `bgez $s1`).
+ *
+ * RESIDUAL (2, count exact): retail RELOADS the low input word at the call
+ * (`lw $a2,0x18($sp)`) where cse forwards the still-live $s0 for us
+ * (`addu $a2,$s0,$zero`).  FALSIFIED at this basin: `int in[2],out[2]` as two
+ * objects (worse), a memory identity fence `__asm__("":"=m"(buf[0]))` and its
+ * two-operand form (both DELETE an insn -> 3), `"=m"/"0"` (4), `buf+2` vs
+ * `&buf[2]` (same), `buf[0]+0` (same), a `*(int*)((char*)buf)` store (18), and
+ * routing every access through an `int *p` cursor (19).  NAMED NEXT ANGLE: this
+ * is an arg-PRECOMPUTE question (calls.c: an arg is precomputed iff its rtx is
+ * not already a REG and rtx_cost > 2) -- retail's arg rtx was still the MEM, so
+ * the lever is anything that stops cse replacing buf[0] with its stored value
+ * WITHOUT deleting the store; a `volatile` cast would do it but is barred by the
+ * wave rules.  Not a floor. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 
-int __truncdfsf2(int a1, int a2)   /* @0x800F5924 */
+typedef union {
+    double d;
+    struct { unsigned int lo; int hi; } w;
+} double_long;
+
+int __truncdfsf2(double a)   /* @0x800F5924 */
 {
-    int result;
-    int v4, v5, v9;
-    int sh[2];
-    unsigned int v6, v7;
-    if ((a2 & 0x7FFFFFFF) == 0 && !a1) return a2 & 0x80000000;
-    v4 = (a2 >> 20) & 0x7FF;
+    double_long ua;
+    int buf[4];
+    int v4, v5;
+    unsigned int m;
+    ua.d = a;
+    if ((ua.w.hi & 0x7FFFFFFF) == 0 && !ua.w.lo) return ua.w.hi & 0x80000000;
+    v4 = (ua.w.hi >> 20) & 0x7FF;
     v5 = v4 - 896;
-    _dbl_shift((unsigned int *)sh, 0, a1, a2 & 0xFFFFF | 0x100000, 4);
-    v9 = sh[1];
-    if (v4 - 896 <= 0) {
-        v6 = (unsigned int)(v9 + (1 << (1 - (v4 + 0x80)))) >> (2 - (v4 + 0x80));
-        v5 = 0;
-    } else {
-        v6 = (unsigned int)(v9 + 1) >> 1;
-        if ((v6 & 0xFF000000) != 0) {
-            v6 = (unsigned int)(v9 + 1) >> 2;
+    buf[1] = (ua.w.hi & 0xFFFFF) | 0x100000;
+    buf[0] = ua.w.lo;
+    _dbl_shift((unsigned int *)&buf[2], 0, buf[0], buf[1], 4);
+    m = buf[3];
+    if (v5 > 0) {
+        m += 1;
+        m >>= 1;
+        if ((m & 0xFF000000) != 0) {
+            m >>= 1;
             v5 = v4 - 895;
         }
+    } else {
+        int n = -v5;
+        m += 1 << (n + 1);
+        m >>= n + 2;
+        v5 = 0;
     }
-    v7 = v6 & 0xFF7FFFFF;
-    if (v5 < 255) return a2 & 0x80000000 | (v5 << 23) | v7;
+    m &= 0xFF7FFFFF;
+    if (v5 < 255) return ua.w.hi & 0x80000000 | (v5 << 23) | m;
     _err_math(34, 16);
-    result = 2139095040;
-    if (a2 < 0) return -8388608;
-    return result;
+    if (ua.w.hi >= 0) return 2139095040;
+    return -8388608;
 }

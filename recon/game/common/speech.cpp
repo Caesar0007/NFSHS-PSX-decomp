@@ -1190,19 +1190,41 @@ int SubmitRequest__6Speechlll(int bank,int localoffset,u_int size)
     patch = BankPatch__6SpeechlP8Car_tObj((int)Speech_fgSpeech,bank,(int)car);
     {
       Speech *pThis = Speech_fgSpeech;
-      /* MATCH: per-arm BLOCK-SCOPED temps -- each is a single-block pseudo
-         (local qty -> caller-saved $v0), then copied into the fn-scope `offset`
-         ($s0): oracle `lw v0,0(v0); addu s0,v0,zero` / `addu v0,zero,zero;
-         addu s0,v0,zero`.  One shared temp (or a direct `offset = ...`) is ONE
-         global pseudo and gcc writes $s0 directly (1 insn short). [05D LEVER] */
-      if ((bank >= 0) && (bank < pThis->fBankCount)) {
-        long tmp = pThis->fBankOffset[bank];
-        offset = tmp;
-      }
-      else {
-        long tmp = 0;
-        offset = tmp;
-      }
+      /* NEAR-MISS 7 (ours 60 / oracle 61) -- MECHANISM IDENTIFIED (W55-A16, RTL-
+         evidenced; the SLD says all 5 oracle insns are ONE retail statement, 1324).
+         The oracle is a COND_EXPR that gcc expanded into a FRESH TEMP pseudo ($v0)
+         plus ONE copy `addu s0,v0,zero` at the join (.L80095CB4); reorg then
+         duplicated that copy into the `j`'s delay slot and retargeted past it, so
+         the copy appears TWICE.  gcc-2.8 expr.c COND_EXPR writes the arms straight
+         into the assignment target (our 1-shorter form) unless
+         safe_from_p(target, cond) FAILS -- i.e. unless the destination variable is
+         itself read by the CONDITION.
+         MEASURED (each one compile, receipts in this order):
+           (a) per-arm block-scoped temps + `offset = tmp`   -> 7  (cse redirects the
+               def's dest to the copy's dest and deletes the copy; .cse dump insn 88)
+           (b) same + a `__asm__("":: "r"(tmp))` liveness fence -> 7 (cse REVERSES the
+               copy instead, combine then folds it into the asm)
+           (c) fn-scope tmp declared BEFORE offset (pseudo-number swap) -> 7
+           (d) plain `offset = cond ? tbl[bank] : 0`         -> 7 (safe_from_p passes)
+           (e) `int offset` vs `long` array (NOP_EXPR route)  -> 7 (conversion folded)
+           (f) chained `offset = bankStart = cond ? ... : 0` -> 7 (cse copy-propagates
+               bankStart into offset's uses; only ONE allocno survives)
+           (g) `bank = cond ? tbl[bank] : 0` (destination IN the condition)
+               -> 14 diffs but instruction count EXACT 61/61 and the oracle's
+                  temp+copy+delay-slot structure REPRODUCED.
+         (g) is the structural answer; its residual is a 2-pseudo coloring swap
+         (ours temp=$a0 / patch=$a1, oracle temp=$v0 / patch=$a0).  ROOT CAUSE from
+         the .greg dump: global.c expand_preferences propagates hard_reg_copy_
+         preferences across the dying copy `(set bank temp)`, and `bank` carries a
+         copy-preference for $a0/$a1 from its own entry copy + the BankPatch arg2
+         copy, so the temp inherits {a0,a1} and find_reg's copy-preference OVERRIDE
+         beats the numeric scan that would have handed it $v0.  Retail's destination
+         therefore cannot be the parameter allocno -- yet a non-parameter
+         destination is safe_from_p-clean (cases a-f).  OPEN: a destination that the
+         condition reads AND that is a distinct allocno from `bank` (every attempt
+         so far is merged back into `bank` by cse).  Keeping the shorter,
+         lower-diff form (d).  See catalog 06E "non-propagated reg-reg copy". */
+      offset = (bank >= 0 && bank < pThis->fBankCount) ? pThis->fBankOffset[bank] : 0;
     }
     if (patch >= 0) {
       CopSpeak_GenericBankRequest(patch,car);
@@ -1598,6 +1620,17 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     SPCHNFSType_DISTANCE *distance = &(pThis->_base_Speaker).fDistance;
     (pThis->_base_Speaker).fSpikeSide.flags = 4;
     (pThis->_base_Speaker).fWing = wing;
+    /* NEAR-MISS 5 (ours 268 / oracle 269) -- same class as SubmitRequest above:
+       retail stages the loaded value in $v1 and COPIES it into the $a3 call-arg
+       (`addu a3,v1,zero`); ours colours `wing` straight into $a3 because
+       local-alloc's qty_phys_copy_sugg (and, for a global allocno, global.c's
+       find_reg copy-preference OVERRIDE) hands the pseudo the very arg register
+       it is copied into.  MEASURED (W55-A16): passing the re-read field
+       `(pThis->_base_Speaker).fWing` as arg4 instead of `wing` DOES move the load
+       to $v1 and makes the count EXACT 269/269 -- but the arg then becomes a
+       RELOAD `lw a3,64(s1)` (6 diffs, a net regression), because expand_call's
+       stack-arg store `sw v0,16(sp)` is emitted BEFORE arg4 and cse conservatively
+       invalidates the s1-based MEM across it.  Keeping the 5-diff form. */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
       location,distance,wing,
       &(pThis->_base_Speaker).fSpikeSide);

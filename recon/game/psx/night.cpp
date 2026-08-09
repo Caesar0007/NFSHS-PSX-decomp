@@ -240,6 +240,28 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
   newG = sourceG + ((int)(chg * b15) >> 0xc);
   if (0xff < newG) newG = 0xff;
   newB = sourceB + ((int)(chb * b15) >> 0xc);
+  /* MATCH (W55-A16, 38 -> 26 diffs, count still EXACT 113/113) -- REQDELTA RECEIPT.
+     The chg / sourceG / sourceB three-way register rotation (ours a1/v1/t0 vs oracle
+     t0/a1/v1) was a GLOBAL-ALLOCNO PRIORITY tie, not a coloring coin-flip.
+     allocsim replicates this fn 15/15 EXACTLY, and reqdelta's minimal single-dial
+     answer for the retail handout {p86=v1, p85=a1, p88=t0} is
+        p86 (sourceB)  refs 2 -> 4   (the floor_log2 REF-STEP: pri 0.1666 -> 0.667,
+                                      lifting sourceB ABOVE the p85/p88 pair at 0.2857)
+        p86 (sourceB)  live 12 -> 6  (the alternative dial)
+     A two-operand read-only fence is exactly +2 refs and zero insns, so it buys the
+     REF-STEP directly.  MEASURED, all four placements, this fn:
+        1 operand  (refs 3, pri 0.25 -- BELOW the 0.2857 pair)  -> 41, rotation BACK
+        2 operands before `newB =`                              -> 29 but 114 insns
+                              (the implicit-volatile barrier blocks the chb `mult`
+                               from filling a load-delay slot -> a stray nop)
+        2 operands AFTER `newB =`                               -> 26, 113/113  <== kept
+        sinking the `sourceB =` load to its use (the live dial) -> 48
+     Re-laddered the store-order x read-back table AFTER this landing (04Z: rung
+     tables are basin-relative): bgr/gbr/brg + read-back-of-r all stay 26, rgb 56,
+     grb 58 -- the w50-a5 ranking is unchanged, so both halves below still hold.
+     Residual 26 = the newColor byte-store/pack block only (see the diffsrc SLD map:
+     retail stores .r at 16(sp) FIRST, SLD 206, and .b at 18(sp) SLD 208). */
+  __asm__("" : : "r"(sourceB), "r"(sourceB));
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */

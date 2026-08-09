@@ -762,6 +762,17 @@ traffic_object:
       int i;
       Car_tObj *carObj;
 
+      /* NEAR-MISS 11 (ours 212 / oracle 213).  Retail materialises `i = 0` EARLY
+         (its own SLD statement, line 925 -- ours sinks it into the `bnez` delay
+         slot) and then COPIES it into a second pseudo `addu a0,a1,zero` (SLD 927)
+         which is what the pre-loop `i < Cars_gNumTrafficCars` guard compares
+         (`slt v0,a0,v1`); the loop counter stays $a1 in both builds.  FALSIFIED
+         (W55-A16, 1 compile): an explicit second source variable
+         `guard = i; ... (guard < Cars_gNumTrafficCars)` -- cse constant-folds it
+         back (both pseudos are provably 0) and the diff count is UNCHANGED at 11.
+         The copy therefore is NOT a source-level second variable holding a known
+         zero; whatever feeds retail's guard pseudo is not constant-0 to cse.
+         Remaining 2 diffs are the carObj base ($a0 vs $v0) at :779/:780. */
       i = 0;
       if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
           (i < Cars_gNumTrafficCars)) {

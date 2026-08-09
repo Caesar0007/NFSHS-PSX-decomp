@@ -557,7 +557,21 @@ int InGame_GetDevice(int control)
  * so cse1 cannot re-merge them into ONE life-2 movable the way it re-merged the two
  * SPELLINGS w49 tried).  The loop body has no natural if/else pair to host it, so it needs
  * the three `InGame_GetDevice(...)` guards restructured first -- a bigger edit than this
- * wave's budget, and it must be gated against the two sibling near-misses in this TU. */
+ * wave's budget, and it must be gated against the two sibling near-misses in this TU.
+ * ---- W55-A16: 13 STAYS, re-gated (99/98).  NEW FALSIFICATION + a correction to the
+ * picture above.  The W52-a7/a5 ANTI-LICM-ADDRESS-HOIST lever (replace the `do{}while`
+ * with a label + `goto` back-edge so loop.c never recognises the loop) WAS tried here for
+ * the first time: it DOES kill our `&hoff` hoist -- ours rematerialises
+ * `lui/addiu %hi/%lo(hoff); addu s0,v1,v0` in-loop exactly like retail -- but it is
+ * INDISCRIMINATE and also kills the TWO hoists retail KEEPS, so the frame loses a saved
+ * reg and we land 19 diffs at 95/98 (3 insns SHORT).  Receipt on the oracle bytes
+ * (InGame_SetRamp__Fv.s @800DCD3C): retail HOISTS `Input_gHandler`->$s4,
+ * `Cars_gHumanRaceCarList`->$s5 and the constant 1->$s2 out of the loop, and
+ * REMATERIALISES only `hoff` (D_8013DAC0) inside it -- i.e. this is not "retail does no
+ * LICM", it is loop.c making a DIFFERENT per-movable cost decision for the one movable
+ * that is used ONCE per iteration.  Any future lever must therefore be movable-SELECTIVE
+ * (the arm-duplication inflator below, or a per-fn loop-flag splice), never a whole-loop
+ * anti-LICM device. */
 void InGame_SetRamp(void)
 
 {
@@ -572,7 +586,7 @@ void InGame_SetRamp(void)
     if (i < Cars_gNumHumanRaceCars) {
       do {
       int ctrl;
-  
+
         hp = hoff + i;
         ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
         *(int *)(ctrl + 0x1c) = 1;

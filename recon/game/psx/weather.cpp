@@ -1488,6 +1488,19 @@ void Weather_DoWeather(DRender_tView *Vi)
   DR_MODE *prim;
   u_int *pal;
 
+  /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
+     this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global
+     allocno tie and reqdelta has no dial to offer.  Every diff is a swap between two
+     BLOCK-LOCAL qtys that local-alloc.c (not global.c) hands out:
+       blocks 1-4: the `lo_sum(&Weather_gPServer)` base (ours $a0 / oracle $a1) vs the
+                   scaled index `sll s2,2` (ours $a1 / oracle $a0) -- RTL p92 vs p95,
+                   neither of which appears in `;; N regs to allocate:`;
+       blocks 5-8: the `ab` load and the prevLookBehind address, same $v1<->$a1 swap.
+     qtyprio puts p95 (refs=4, live=8) at QTY_PRI 1.0 while p92 is a 2-ref lo_sum, so the
+     order is decided by local-alloc's GROUP-1/GROUP-2 suggestion split, which is the
+     catalog's named 06E instrument gap ("local-alloc QTY handouts, outside allocsim's
+     model") and needs tools/qtytrace.py against an INSTRUMENTED cc1 to dial.  Do not
+     spend more source-shape guesses here until that instrument exists. */
   player = Vi->player;
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];

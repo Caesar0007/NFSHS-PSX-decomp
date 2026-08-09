@@ -758,7 +758,17 @@ void Hud_BTCStats(short player,bool postgame)
    * AND one insn SHORT (472); an outer ternary over the two complete subtractions
    * (`(postgame ? SIZE_H - (yoff+8) : SIZE_H - yoff) - (showtimeleft ? 0x10 : 0)`) = 37 at
    * 474 (one insn LONG).  So the ternary-as-two-calls / two-arm lever does NOT transfer to
-   * a value select feeding a call ARGUMENT here; the in-parenthesis spelling stays. */
+   * a value select feeding a call ARGUMENT here; the in-parenthesis spelling stays.
+   * W55-A16 re-probe (kept at 24 / 473-exact).  allocsim replicates this fn's global
+   * handout 57/57 EXACTLY, so the s1/s2/s3 rotation is NOT a global-allocno tie you can
+   * dial with reqdelta -- it is downstream of the ARM-1 expression shape, exactly as
+   * w49/w53 concluded.  NEW falsification of the one device w49 did not try: an OPACITY
+   * fence on the hoisted inset (`int yoff = (startY+0xf) - POS_Y; int inset = yoff +
+   * (postgame ? 8 : 0); __asm__("" : "=r"(inset) : "0"(inset));` then `SIZE_H - inset`),
+   * i.e. the w47 identity-fence used precisely to stop combine reassociating
+   * `SIZE_H - (yoff+8)` into `(SIZE_H-8) - yoff` -- 81 diffs at 472 (one insn SHORT), the
+   * fence recolours the whole prologue chain (s0->s1 on the POS_X/`sh 96(sp)` web).  The
+   * reassociation blocker is therefore not reachable with a tied-operand fence either. */
   for (i = 1; i < 4; i = i + 1) {
     Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
                  HUD_STATS_SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - HUD_STATS_POS_Y) -

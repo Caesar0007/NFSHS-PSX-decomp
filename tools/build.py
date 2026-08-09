@@ -425,7 +425,10 @@ PER_TU_FLAGS = {
     # down: _que_ref/_install_drain_cb/_gpu_arm_timeout epilogue class +
     # _clearOTagR_dma s0<->s1). STAYS 2.7.2 until the epilogue-fill mechanism
     # for the alt lane exists; then re-measure (BlitClear 20 count-exact there).
-    "recon/syslib/psx/libgpu/SYS.c":        {"cc1_272": True},
+    # w53-a6: THE FLIP -- P1 (alt28 unfill) + P2 (fs272 sched2 splice) make it
+    # PASS-NEUTRAL: 25 PASS/796 vs 25/1000 on 2.7.2. Frame-size proof: 6/6
+    # clamp-family frames match 2.8.1 exactly, mismatch 2.7.2 (vars=32 phantom).
+    "recon/syslib/psx/libgpu/SYS.c":        {"cc1_alt": "2.8.1", "no_split_addresses": True},
     # w52-a5: PADMAIN onto the 2.7.2 rung (replaces no_split_addresses, which
     # the 272 recipe ignores): whole-TU 249->205 on the post-rewrite source,
     # zero PASS regressions (all 4 PASSes hold).
@@ -739,6 +742,10 @@ PER_FN_FORCE_ADDR = {
     "recon/game/psx/weather.cpp": {
         "Weather_Init__Fv",   # FAIL 12 (211/211) -> PASS, byte-exact
     },
+    # w53-a11: the "missing address-copy" class -- update_equiv_regs rewrites
+    # base=<addr> through REG_EQUIV so no copy exists for combine_regs to
+    # keep; -fforce-addr restores it. TU 15/16 -> 16/16, 0 regressions.
+    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"SPCH_AddEvent"},  # 3 -> PASS 82/82
 }
 
 
@@ -825,6 +832,98 @@ PER_FN_EPILOGUE_UNFILL_272 = {
 }
 
 
+# w53-a6 P1: 2.8-SHAPE epilogue unfill for the ALT lane.  A 2.8.x rung driven
+# through the 272 recipe emits cc1-2.8's `.set noreorder/.set nomacro/j $31/
+# <slot>/.set macro/.set reorder` block, which the 272-shaped regex above can
+# never match.  This transform hoists the slot insn ABOVE the j and pins an
+# explicit nop inside .set noreorder (the lane feeds gas in reorder mode --
+# without the wrapper gas would re-fill the slot).  The hoisted addiu $sp also
+# covers the lw $31 load-delay hazard, so cc1's #nop stops materializing
+# (the w52-a8 PAD_state effect) -> count-exact.
+PER_FN_EPILOGUE_UNFILL_ALT28 = {
+    # w53-a6: the 3 sched2-class epilogue regressions of the SYS.c lane flip.
+    "recon/syslib/psx/libgpu/SYS.c": {"_que_ref", "_install_drain_cb",
+                                      "_gpu_arm_timeout"},
+}
+
+_EPI_UNFILL_28_RE = re.compile(
+    "\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tj\t\\$31\n(\t[^\n]*\n)"
+    "\t\\.set\tmacro\n\t\\.set\treorder\n")
+
+
+def _apply_epilogue_unfill_alt28(rel_posix, txt):
+    names = PER_FN_EPILOGUE_UNFILL_ALT28.get(rel_posix)
+    if not names:
+        return txt
+    for name in sorted(names):
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else len(txt) - m.end())
+        region = txt[m.start():end]
+        new = _EPI_UNFILL_28_RE.sub(
+            lambda mm: ("\t.set\tnoreorder\n" + mm.group(1)
+                        + "\tj\t$31\n\tnop\n\t.set\treorder\n"),
+            region)
+        if new != region:
+            txt = txt[:m.start()] + new + txt[end:]
+    return txt
+
+
+# w53-a6 P2: per-FUNCTION flag splice for the 272/alt recipe (the mechanism
+# _apply_fn_splice provides for the maspsx lane, which _compile_c_272 never
+# calls).  {rel: {extra_cc1_flag: {fns}}}.  Splice runs BEFORE the alt28
+# unfill (the spliced region still carries the 2.8 j-$31 block).
+PER_FN_FLAG_SPLICE_272 = {
+    "recon/syslib/psx/libgpu/SYS.c": {
+        "-fno-schedule-insns2": {"_que_ref", "_install_drain_cb",
+                                 "_gpu_arm_timeout"},
+    },
+}
+
+
+def _extract_ent_region_272(txt, name):
+    m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+    if not m:
+        return None
+    m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+    end = m.end() + (m2.end() if m2 else len(txt) - m.end())
+    return txt[m.start():end]
+
+
+def _uniq_labels_272(region, tag):
+    defined = set(re.findall(r'^\$L(\d+):', region, re.M))
+    if not defined:
+        return region
+    return re.sub(r'\$L(\d+)\b',
+                  lambda m: ("$L%s_%s" % (tag, m.group(1))
+                             if m.group(1) in defined else m.group(0)),
+                  region)
+
+
+def _apply_flag_splice_272(rel_posix, txt, i_file, cc1, cc1_flags, s_file):
+    table = PER_FN_FLAG_SPLICE_272.get(rel_posix)
+    if not table:
+        return txt
+    for gi, (extra_flag, names) in enumerate(sorted(table.items())):
+        if not names:
+            continue
+        s_alt = s_file.with_suffix(".fs272_%d.s" % gi)
+        r = run([cc1, *cc1_flags, extra_flag, i_file, "-o", s_alt])
+        if r.returncode:
+            sys.exit(f"[fs272 {extra_flag}] {rel_posix}\n{r.stdout}{r.stderr}")
+        alt = s_alt.read_text(errors="replace")
+        alt = _MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), alt)
+        for i, name in enumerate(sorted(names)):
+            a = _extract_ent_region_272(alt, name)
+            b = _extract_ent_region_272(txt, name)
+            if a is None or b is None:
+                continue
+            txt = txt.replace(b, _uniq_labels_272(a, "fs%d_%d" % (gi, i)), 1)
+    return txt
+
+
 def _apply_epilogue_unfill_272(rel_posix, txt):
     names = PER_FN_EPILOGUE_UNFILL_272.get(rel_posix)
     if not names:
@@ -906,6 +1005,42 @@ PER_FN_RA_SINK = {
         "CV_ColorTracks__Fiii",   # FAIL 2 (130/130) -> PASS per the a6 receipt
     },
 }
+
+
+# w53-a10: PROLOGUE UNSINK -- sched2 sinks a callee-saved save (zero
+# dependents => lowest priority) below the first body insns; retail sank only
+# $ra.  Move the named regs' `sw $R,N($sp)` back up to right after the
+# sp-adjust.  {rel: {fn: [regnums]}}.
+PER_FN_PROLOGUE_UNSINK = {
+    "recon/eaclib/psx/eacpsxz/nfile.c": {"FILE_completeop": ["16"]},  # 2 -> PASS 47
+}
+
+
+def _apply_prologue_unsink(rel_posix: str, s_file: Path) -> None:
+    table = PER_FN_PROLOGUE_UNSINK.get(rel_posix)
+    if not table:
+        return
+    txt = s_file.read_text(errors="replace")
+    for name, regs in table.items():
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else 0)
+        region = txt[m.start():end]
+        new = region
+        for rn in regs:
+            sv = re.search(r"^\tsw\t\$%s,\d+\(\$sp\)\n" % re.escape(rn), new, re.M)
+            spadj = re.search(r"^\t(?:subu|addu|addiu)\t\$sp,\$sp,-?\d+\n", new, re.M)
+            if not sv or not spadj or sv.start() < spadj.end():
+                continue
+            line = sv.group(0)
+            new = new[:sv.start()] + new[sv.end():]
+            spadj = re.search(r"^\t(?:subu|addu|addiu)\t\$sp,\$sp,-?\d+\n", new, re.M)
+            new = new[:spadj.end()] + line + new[spadj.end():]
+        if new != region:
+            txt = txt[:m.start()] + new + txt[end:]
+            s_file.write_text(txt)
 
 
 def _apply_ra_sink(rel_posix: str, s_file: Path) -> None:
@@ -1037,6 +1172,11 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     txt = s_file.read_text(errors="replace")
     txt = _MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), txt)
     txt = _apply_epilogue_unfill_272(rel.as_posix(), txt)
+    # w53-a6 P2 then P1 -- splice first (region still carries the 2.8 block),
+    # alt28 unfill second.
+    txt = _apply_flag_splice_272(rel.as_posix(), txt, i_file, cc1, cc1_flags,
+                                 s_file)
+    txt = _apply_epilogue_unfill_alt28(rel.as_posix(), txt)
     s_file.write_text(txt)
     r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
              "-I", ROOT, "-o", obj, s_file])
@@ -1131,6 +1271,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     _apply_fn_splice(rel.as_posix(), s_file, i_file, cc1_bin, cc1_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)
+    _apply_prologue_unsink(rel.as_posix(), s_file)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -1193,6 +1334,7 @@ def compile_cpp(src: Path) -> Path:
     _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1PL, cc1pl_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)
+    _apply_prologue_unsink(rel.as_posix(), s_file)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

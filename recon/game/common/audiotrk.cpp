@@ -157,7 +157,13 @@ AudioTrk_channel_found:
             int i;
 
             i = 0;
-            while ((c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10)) {
+            while (true) {
+              if (c != (AudioTrk_tAmbientChannel *)0x0) {
+                break;
+              }
+              if (i >= 0x10) {
+                break;
+              }
               chkdst = Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,
                                    &AudioClc_gRenderView.translation);
               if (c->handle != 0xffffffff) {

@@ -2006,7 +2006,12 @@ R_ICFtMenu_bigFileCheck:
       strcat(workFile,"h");
     }
     Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
-    ppTVar21 = loadedSceneBase + countryFlag * 50 + carType;
+    /* MATCH (W54-A13): SPLIT the two index terms into two statements.  The fused
+       `base + cf*50 + carType` reassociates (both `addu`s pick the wrong operand pair);
+       splitting keeps the oracle's pair.  WARNING: do NOT parenthesise the index sum
+       instead (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
+    ppTVar21 = loadedSceneBase + countryFlag * 50;
+    ppTVar21 = ppTVar21 + carType;
     if (*ppTVar21 != (Transformer_zScene *)0x0) {
       purgememadr(*ppTVar21);
       *ppTVar21 = (Transformer_zScene *)0x0;
@@ -2546,6 +2551,18 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
           else {
             /* envmap-masked menu facet (mirror overlay) */
             u_int maskFlag;
+            /* W54-A13 RECEIPT: retail masks `envmap` IN PLACE (oracle `andi t2,t2,128`
+               writes the reg it reads; every later test is `andi vN,t2,..`), so this
+               `drawEnvmap` copy is the +1 insn and all 17 diff insns here.  Deleting it
+               and masking `envmap` directly gives the EXACT count (266/266) but rotates
+               the three local-alloc t-quantities: ours {envmap t0, offset t1, visible t2}
+               vs retail {offset t0, visible t1, envmap t2} = 76 diffs, i.e. worse than
+               this 23.  Falsified as dials: all 4 decl permutations of
+               mirror/envmap/offset, and a read-only fence on envmap at 2 positions --
+               none move the t-handout (these are local-alloc QTYs, absent from the
+               global allocno table, so allocsim/reqdelta do not reach them).  NEXT: an
+               instrumented-cc1 [qty_compare] trace, or find the refs/live shape that
+               demotes envmap below offset+visible. */
             int drawEnvmap = envmap;
 
             if (carType >= 0x1c) {

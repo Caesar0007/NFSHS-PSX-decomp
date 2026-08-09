@@ -775,6 +775,29 @@ void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,
   if (surfaceType == 3) {
     smoking = 0;
   }
+  /* W54-A13 RECEIPT -- the retail SHAPE of this block is PROVEN but not yet landable.
+     SLD (nfs4-f-v3, VA 0x800874FC..) says retail is:
+        1169  traffic  = 0;
+        1170  sfxDelay = gTAddCarWheelDelay;
+        1171  if (carObj->render.currentCarType > 0x1c) {
+        1173      traffic   = 1;
+        1174      sfxDelay <<= traffic;        <- sllv INSIDE the if (bnez target = .L80087528)
+              }
+        1176  if (... == 0x1c) return;
+     and the head statement order is objID(1160) / sfxType(1162) / stateBit(1164) /
+     smoking(1166) / `if (surfaceType==3) smoking=0` (1167).  Transcribing all of that makes
+     the INSTRUCTION STREAM EXACT (272/272, every mnemonic+operand-shape aligned) but leaves a
+     5-way callee-saved PERMUTATION -- ours {sfxDelay s3, skidpt s4, stateBit s5, smoking s6,
+     sfxType s7} vs retail {skidpt s3, stateBit s4, sfxDelay s5, smoking s6, sfxType s7} = 98
+     gate diffs, i.e. WORSE than this (structurally wrong but better-coloured) 39-diff form,
+     so the retail shape is NOT landed here.  reqdelta receipt on the retail-shaped build:
+     the whole permutation needs `p91(sfxDelay) refs 9 -> 7` (REF-STEP floor_log2 3->2) --
+     retail's sfxDelay is referenced SEVEN times, ours NINE (1 def + 2 for `<<=` + 6 call
+     args).  Find the source form with 2 fewer sfxDelay refs (a merged/duplicated call tail?)
+     and the retail shape lands outright.  Falsified on the way: every branch-free spelling of
+     `traffic` (`x>0x1c`, `?:`, default+override, if/else-both-assign) folds to slti+xori --
+     only the `traffic=1` INSIDE the if survives; `traffic=0` must sit BEFORE
+     `sfxDelay = gTAddCarWheelDelay;` (it is the bnez delay slot). */
   traffic = carObj->render.currentCarType > 0x1c;
   sfxDelay = gTAddCarWheelDelay << traffic;
   if (carObj->render.currentCarType == 0x1c) {
@@ -1772,12 +1795,19 @@ void Cars_InitCar(Car_tObj *carObj,int index)
      (locatbig.cpp:178 `char *locatebig(void*,char*)`; oracle 0x8008A2AC sets up ONLY a0/a1
      before the jal, no a2) -- dropped the bogus 3rd "0" arg (was a stale/wrong "$a2 dropped
      by Ghidra" comment; the SAME bug exists in anim.cpp:81's locatebig call, out of scope
-     here). 16->12 by initializing handle_00 before mem_00, which matches the retail
-     s3/s4 prologue order. RESIDUAL 12 = handle_00/mem_00 still get s3/s4 swapped after
-     their calls (both Udff_Opena()
-     results, held live across the loadfileadrz/locatebig/2nd-Udff_Opena call chain to their
-     later use as AIInit_InitAICar/Physics_InitCarSpecs args) -- tried swapping their
-     declaration order (handle_00 before handle), no change; genuine allocator floor. */
+     here). The ex-"genuine allocator floor" (12 diffs, mem_00/handle_00 swapped between
+     $s3/$s4) is SOLVED (W54-A13) and was never a floor -- it is a pure allocno-PRIORITY
+     tie, readable straight off allocsim/reqdelta:
+        p87(mem_00)  refs=4 live=141 -> pri 0.0567   (got $s4)
+        p88(handle_00) refs=4 live=129 -> pri 0.0620 (got $s3)
+     mem_00 spans handle_00's whole range, so NO live-length dial can flip it (reqdelta's
+     other two candidates both need a 12-insn swing that the fixed call order forbids).
+     The only 1-step dial is refs 4->5 on mem_00: a zero-insn READ-ONLY fence (05C) below.
+     floor_log2(5)*5/141 = 0.0709 > 0.0620 -> mem_00 takes $s3, handle_00 $s4 = retail.
+     With the regs corrected the two `= 0` prologue inits then had to swap back to
+     source order mem_00-then-handle_00 (the emission order of the `addu sN,s2,zero`
+     copies IS the source statement order).  196/196 PASS.
+     Falsified: identity fence `"+r"(mem_00)` (22 diffs -- it also moves the def). */
   int iVar1;
   char *mem;
   Car_tSpecs *pCVar2;
@@ -1790,8 +1820,8 @@ void Cars_InitCar(Car_tObj *carObj,int index)
   char acStack_38 [24];
   
   pThis = 0x0;
-  handle_00 = (Udff_tInfo *)0x0;
   mem_00 = (char *)0x0;
+  handle_00 = (Udff_tInfo *)0x0;
   handle = (Udff_tInfo *)0x0;
   if (index < GameSetup_gData.numCars) {
     iVar1 = AIInit_IsNonStandardCarFile(carObj->carInfo->carType);
@@ -1802,6 +1832,9 @@ void Cars_InitCar(Car_tObj *carObj,int index)
       sprintf(acStack_108,"%sSTDR.qda",Paths_Paths[4]);
     }
     mem_00 = (char *)loadpackadr(acStack_108,(void *)0x10);
+    /* MATCH: zero-insn read-only fence = +1 REF on mem_00 (allocno-priority dial, see the
+       header note) -> mem_00 wins $s3 over handle_00.  Do NOT delete: it emits no code. */
+    __asm__("" : : "r"(mem_00));
     handle_00 = Udff_Opena((char *)0x0,mem_00,1);
     if (carObj->carInfo->carType < 0x1d) {
       sprintf(acStack_38,"p%s.dat",GameSetup_gCarNames[0] + carObj->carInfo->carType * 5);
@@ -2028,6 +2061,17 @@ void Cars_StartUp(void)
             ? simGlobal.schedule64Hz
             : simGlobal.schedule32Hz2,
         carObj->funcQDPhysicsUpdateRot,carObj,0x1e);
+    /* MATCH (W54-A13, 05C/05H fence class): the ONLY residual was reorg's eager-steal --
+       with the call and the loop latch in ONE basic block (the schedule select is a
+       ternary, so both arms reach the call) sched1 hoists the giv bump `s0+=4` ABOVE the
+       jal, which leaves `li a3,0x1e` out of the jal's delay slot and hands the slot to
+       `i++` instead (=> an unfilled `j` slot, ours 283 vs oracle 282).  The sibling
+       `carFlags & 1` loop matches for free because its call sits in a CONDITIONAL block,
+       so the latch is a separate BB and reorg cannot steal from it.  A zero-insn
+       operand-less asm barrier here restores exactly that boundary: jal slot = li a3,30,
+       j slot = i++.  282/282 PASS.  Falsified first: if/else-with-named-`sched` variable
+       (11 diffs, unchanged), arg-per-line spelling. */
+    __asm__("");
   }
 }
 
@@ -2043,42 +2087,40 @@ void Cars_CleanUp(void)
 
   iVar4 = 0;
   if (0 < Cars_gNumCars) {
-    /* MATCH: residual 4-diff s0/s1 preheader-order swap (both loop-invariant addr
-       materializations for Cars_gList/simGlobal land in the right regs throughout the body;
-       only the ORDER the two independent lui/addiu pairs are emitted differs). Tried: dead
-       early simGlobal touch; array-index Cars_gList[i] form (99 insns, +1 reg, WORSE -- the
-       SYM's "i"-only local list does NOT mean array-index source; pointer-walk is correct).
-       Genuine LICM/scheduling tie-break floor (§E/§F class), no pin. */
-    ppCVar3 = Cars_gList;
+    /* MATCH (W54-A13): the ex-"preheader-order floor" is SOLVED -- it was the INDEX-vs-POINTER
+       shape.  Oracle materializes &simGlobal (LICM invariant) BEFORE the Cars_gList base;
+       loop.c emits LICM invariants first and strength-reduction GIV inits after, so a source
+       `p = Cars_gList;` statement (a real preheader insn) can never come second.  Writing the
+       body as `Cars_gList[i]` makes the walk a GIV -> exact preheader order.  The counter
+       increment must sit at the LOOP END (moving it earlier costs 2 diffs).  98/98 PASS. */
     do {
-      Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcUpdateRoadInfo,*ppCVar3);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcControl,*ppCVar3);
-      pCVar2 = *ppCVar3;
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcUpdateRoadInfo,Cars_gList[iVar4]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcControl,Cars_gList[iVar4]);
+      pCVar2 = Cars_gList[iVar4];
       if ((pCVar2->carFlags & 1U) != 0) {
         Sched_DeleteFunction(simGlobal.schedule64Hz,pCVar2->funcStats,pCVar2);
-        pCVar2 = *ppCVar3;
+        pCVar2 = Cars_gList[iVar4];
       }
       Sched_DeleteFunction(simGlobal.schedule32Hz,pCVar2->funcHandlingPhysics,pCVar2);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcGravityPhysics,*ppCVar3);
-      Sched_DeleteFunction(simGlobal.schedule64Hz,(*ppCVar3)->funcQDPhysicsUpdateVel,*ppCVar3);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcTestMeForCollisions,*ppCVar3);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,(*ppCVar3)->funcDoPostCollisionStuff,*ppCVar3);
-      iVar1 = Force_IsForceOn(*ppCVar3);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcGravityPhysics,Cars_gList[iVar4]);
+      Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[iVar4]->funcQDPhysicsUpdateVel,Cars_gList[iVar4]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcTestMeForCollisions,Cars_gList[iVar4]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcDoPostCollisionStuff,Cars_gList[iVar4]);
+      iVar1 = Force_IsForceOn(Cars_gList[iVar4]);
       if (iVar1 != 0) {
-        Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,*ppCVar3);
+        Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,Cars_gList[iVar4]);
       }
-      pCVar2 = *ppCVar3;
+      pCVar2 = Cars_gList[iVar4];
       if ((pCVar2->carFlags & 4U) != 0) {
         schedule32Hz = simGlobal.schedule64Hz;
       }
       else {
         schedule32Hz = simGlobal.schedule32Hz2;
       }
-      iVar4 = iVar4 + 1;
       Sched_DeleteFunction(schedule32Hz,pCVar2->funcQDPhysicsUpdateRot,pCVar2);
-      Cars_DeInitCar(*ppCVar3);
-      purgememadr(*ppCVar3);
-      ppCVar3 = ppCVar3 + 1;
+      Cars_DeInitCar(Cars_gList[iVar4]);
+      purgememadr(Cars_gList[iVar4]);
+      iVar4 = iVar4 + 1;
     } while (iVar4 < Cars_gNumCars);
   }
   return;
@@ -2124,6 +2166,7 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
 {
   int span;
   int tempSpan;
+  int absSpan;
 
   span = ((carObj->N).roadMatrix.m[0] / 256) *
              ((carObj->N).orientMat.m[0] / 256) +
@@ -2131,9 +2174,24 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
              ((carObj->N).orientMat.m[1] / 256) +
          ((carObj->N).roadMatrix.m[2] / 256) *
              ((carObj->N).orientMat.m[2] / 256);
-  span = __builtin_abs(span);
-  span /= 256;
+  /* MATCH (W54-A13): TWO cooperating devices, both zero-insn.
+     (1) the abs result needs its OWN variable.  `span = __builtin_abs(span)` makes gcc
+         negate IN PLACE (`bgez a1; nop; negu a1,a1`) and then spend a fresh reg + the
+         guard's delay slot on the /256 copy; retail is the other way round -- abs into a
+         fresh reg (`bgez a1; addu v0,a1,zero; negu v0,v0`) and the /256 IN PLACE on it
+         (`bgez v0; nop; addiu v0,v0,255; sra a1,v0,8`).  Splitting the destination
+         reproduces the oracle exactly.  Keep the THREE statements: folding them into one
+         expression (any association) costs 62-90 diffs.
+     (2) the fresh pseudo then re-colors `span` a2<-a1 (uniform a1<->a2 swap, count exact).
+         allocsim/reqdelta: span = p81 refs=8 live=76 pri .3157 loses a1 to p139
+         (refs=2 live=6 pri .3333); the minimal single dial is span refs 8->9, i.e. one
+         zero-insn read-only fence -> floor_log2(9)*9/76 = .355 wins a1.  Fence POSITION is
+         load-bearing (after the *dim.x = PASS; after the /256 = +1 insn/13 diffs; after the
+         dim.y term = +2 insns/6 diffs).  146/146 PASS. */
+  absSpan = __builtin_abs(span);
+  span = absSpan / 256;
   span *= (carObj->N).dimension.x / 256;
+  __asm__("" : : "r"(span));
   tempSpan = ((carObj->N).roadMatrix.m[0] / 256) *
                  ((carObj->N).orientMat.m[3] / 256) +
              ((carObj->N).roadMatrix.m[1] / 256) *

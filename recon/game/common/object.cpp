@@ -180,7 +180,11 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
   } else {
     altChunk = (int)BWorldSm_slices[
         (slicePos->slice - 1 < 0)
-            ? slicePos->slice + gNumSlices - 1
+            /* MATCH: WRAP-ARM = the STEPPED value first, wrap term last.  `slice - 1 + gNumSlices`
+             * reassociates to the oracle's `addiu G,-1; addu slice,G-1`; `slice + gNumSlices - 1`
+             * emits addu-then-addiu, and `slice + (gNumSlices - 1)` lets cse steal the condition's
+             * own `slice-1` (=> `(slice-1)+G`, +2 insns).  Mirrors line 202's `(slice+1) - gNumSlices`. */
+            ? slicePos->slice - 1 + gNumSlices
             : slicePos->slice - 1].chunkIndex;
     if ((altChunk != slicePos->chunk) &&
         (Track_chunkList[altChunk].simObjBuf != (Group *)0x0)) {

@@ -1,3 +1,20 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ *
+ *   lane            SNDbankheadercopy
+ *   default         10 (81/81)
+ *   2.6.0           55 (80/81)
+ *   2.6.3           55 (80/81)
+ *   2.7.2-970404    17 (82/81)
+ *   2.7.2           55 (80/81)
+ *   2.8.0 CONTROL   10 (81/81)
+ *   2.8.1           10 (81/81)
+ *   2.91.66         50 (83/81)
+ *   2.95.2          73 (82/81)
+ *
+ * READING: only 2.8.0/2.8.1 reproduce the default's 10 at count parity; every other rung
+ * loses or gains instructions.  Compiler-version axis closed.
+ */
 /* eaclib/psx/sndpsxz/sbhdrcpy.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
  *   Source obj : nfs4\eaclib\psx\sbhdrcpy.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   1 fn @0x800E7BA8.  SNDbankheadercopy -- copy a loaded bank's header into `dst` and rebase its patch

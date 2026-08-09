@@ -1,3 +1,22 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: SPCHPSXZ identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ *
+ *   lane            iSPCH_GetRuleSettings
+ *   default         40 (112/112)
+ *   2.6.0          104 (110/112)
+ *   2.6.3          104 (110/112)
+ *   2.7.2-970404    40 (112/112)
+ *   2.7.2          102 (114/112)
+ *   2.8.0 CONTROL   40 (112/112)
+ *   2.8.1           40 (112/112)
+ *   2.91.66        100 (108/112)
+ *   2.95.2         138 (112/112)
+ *
+ * READING: 2.7.2-970404 / 2.8.0 / 2.8.1 all tie the default at 40 (count-exact 112/112);
+ * nothing improves.  Worth noting for the w47-a8/a9/a2 chain that closed this function's
+ * `-G` question via the DECLARATION-SHAPE fix (`extern SentenceRuleTestFn
+ * gSentenceRuleTest[];` + `[0]`): the compiler-VERSION axis is now closed alongside it.
+ */
 typedef int bool;
 #define true 1
 #define false 0

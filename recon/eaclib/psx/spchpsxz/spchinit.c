@@ -1,3 +1,37 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: SPCHPSXZ identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ *
+ *   lane            SPCH_Init
+ *   default          3 (40/39)
+ *   2.6.0           41 (40/39)
+ *   2.6.3           45 (40/39)
+ *   2.7.2-970404     2 (39/39)   <-- count-exact, but see the whole-TU row
+ *   2.7.2           40 (39/39)
+ *   2.8.0 CONTROL    3 (40/39)
+ *   2.8.1            3 (40/39)
+ *   2.91.66         27 (40/39)
+ *   2.95.2          31 (40/39)
+ *
+ * 2.7.2-970404 is the ONE rung that reaches COUNT PARITY on this function (39/39, i.e. it
+ * schedules `lw ra` up into the store block exactly as retail does, so no load-delay nop).
+ * It is NOT wireable: the whole-TU gate under that rung is 2 PASS / 5 FAIL against the
+ * default's 6 PASS / 1 FAIL --
+ *   fn                      default   2.7.2-970404
+ *   iSPCH_MemAlloc           PASS      4 (12/12)
+ *   iSPCH_MemFree            PASS      4 (11/11)
+ *   SPCH_Deinit              PASS      4 (21/21)
+ *   iSPCH_InitInGame         PASS      PASS
+ *   SPCH_GetSampleDataRate   PASS      PASS
+ *   SPCH_InitBankMem         PASS      1 (23/22)
+ *   SPCH_Init                3         2 (39/39)
+ * -- so the rung buys 1 diff on SPCH_Init and costs 5 PASSes.  The 4-diff regressions are
+ * the same epilogue-swap shape the 272 route introduces elsewhere.  Recorded so a future
+ * wave does not re-derive it: the `#nop`-placeholder residual here IS reachable by a
+ * compiler change, just not by one this TU can afford.  ALSO MEASURED (negative): the
+ * PER_FN_EPILOGUE_UNFILL mechanism regresses it 3 -> 5 (both builds already fill `jr ra`
+ * with `addiu sp`, so un-filling only adds a nop) -- unlike pad.c's PAD_state, where the
+ * same predicted-vs-measured question came out the other way.  See pad.c's PAD_state note.
+ */
 /* eaclib/psx/spchpsxz/spchinit.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 6 PASS + 1 NEAR ***
  *   Source obj : nfs4\eaclib\psx\spchinit.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   7 fns @[0x800EB5A4 .. 0x800EB748].  Speech subsystem init/deinit + the user-supplied alloc/free callback

@@ -1,3 +1,22 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ *
+ *   lane            iSNDserve
+ *   default         58 (229/231)
+ *   2.6.0           compile error
+ *   2.6.3           compile error
+ *   2.7.2-970404    85 (226/231)
+ *   2.7.2           compile error
+ *   2.8.0 CONTROL   67 (226/231)
+ *   2.8.1           85 (226/231)
+ *   2.91.66        187 (222/231)
+ *   2.95.2         261 (234/231)
+ *
+ * READING: nothing improves; the ROUTE alone costs 9 (58 -> 67 at the same compiler).
+ * Note iSNDserve is one of the w47-a9 "13 SN-DIVERGENT" functions (where SN's compiler
+ * patch diverges from stock 2.8.1) -- the ladder is consistent with that: no stock rung,
+ * old or new, reproduces it better than our patched-2.8.0 lane does.
+ */
 /* eaclib/psx/sndpsxz/slib.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/5 PASS ***
  *   Source obj : nfs4\eaclib\psx\slib.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   5 fns @[0x800FF5A8 .. 0x800FFAF4].  The PSX SPU sound-system: boot init (iSNDinit), teardown

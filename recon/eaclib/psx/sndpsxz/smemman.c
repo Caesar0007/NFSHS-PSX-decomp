@@ -1,3 +1,23 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: identity = gcc-2.8.0 + maspsx (the DEFAULT lane).  UNCHANGED source;
+ * forced-2.8.0 = CONTROL (the lane also swaps the assembler route).
+ *
+ *   lane            iSNDmalloc
+ *   default          6 (135/135)
+ *   2.6.0          101 (140/135)
+ *   2.6.3          101 (140/135)
+ *   2.7.2-970404    39 (134/135)
+ *   2.7.2           98 (137/135)
+ *   2.8.0 CONTROL    6 (135/135)
+ *   2.8.1            6 (135/135)
+ *   2.91.66        118 (133/135)
+ *   2.95.2         127 (138/135)
+ *
+ * READING: extends the w33-a7 note's "compiler axis closed here too (2.8.1 byte-identical,
+ * 2.7.2 = 134 @123)" from 2 generations to the FULL 8-rung ladder -- nothing beats 2.8.0.
+ * The 6-diff residual (a $v1 -> $a2 swap on the 3-insn `addu/lhu/lhu` address chain at
+ * idx 45-47, count-exact) stands as an allocator-coalescing residual.
+ */
 /* eaclib/psx/sndpsxz/smemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/4 PASS ***
  *   Source obj : nfs4\eaclib\psx\smemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   4 fns @[0x801061A8 .. 0x80106238].  The sound system's main-RAM sub-allocator (the `sndmm` pool the

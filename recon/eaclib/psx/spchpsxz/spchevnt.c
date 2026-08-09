@@ -1,3 +1,27 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: SPCHPSXZ identity = gcc-2.8.0 + maspsx (the DEFAULT lane).  UNCHANGED
+ * source; forced-2.8.0 = CONTROL (the lane also swaps the assembler route to direct GNU-as
+ * reorder, no maspsx).
+ *
+ *   lane            SPCH_AddEvent
+ *   default          3 (81/82)
+ *   2.6.0           29 (83/82)
+ *   2.6.3           29 (83/82)
+ *   2.7.2-970404    11 (81/82)
+ *   2.7.2           29 (83/82)
+ *   2.8.0 CONTROL    3 (81/82)
+ *   2.8.1            3 (81/82)
+ *   2.91.66         80 (76/82)
+ *   2.95.2          57 (79/82)
+ *
+ * READING: 2.8.0 and 2.8.1 tie the default; every other rung is far worse.  The residual-3
+ * (BASE's preheader `la` copy that update_equiv_regs generates straight into base's own
+ * pseudo, so no copy insn exists for local-alloc to preserve) is therefore NOT reachable by
+ * a compiler-version change either -- the axis the w47-a2 / w50-a9 notes had not yet tested.
+ * ALSO MEASURED (and negative) this wave: forcing the missing insn via build.py's
+ * PER_FN_EPILOGUE_UNFILL reaches count PARITY (6 @82/82) but supplies a `nop` where retail
+ * has the `addu t0,v0,zero` copy -- the right count, the wrong instruction.
+ */
 /* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 15/16 PASS ***
  *   Indexed queue walks now match SPCH_ClearEventQueue exactly and cut iSPCH_InitEventQueue from 42 to
  *   17 diffs; reconstructing gReparm as one-word callback storage made SPCH_ChooseSpeech PASS.

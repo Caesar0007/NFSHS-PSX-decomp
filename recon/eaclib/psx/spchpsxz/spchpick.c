@@ -1,3 +1,23 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: SPCHPSXZ identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ * UNCHANGED source; forced-2.8.0 = CONTROL.
+ *
+ *   lane            iSPCH_ConstantRuleSet
+ *   default         10 (83/83)
+ *   2.6.0           42 (83/83)
+ *   2.6.3           42 (83/83)
+ *   2.7.2-970404    26 (83/83)
+ *   2.7.2           42 (83/83)
+ *   2.8.0 CONTROL   26 (83/83)
+ *   2.8.1           26 (83/83)
+ *   2.91.66        103 (82/83)
+ *   2.95.2         117 (86/83)
+ *
+ * READING: every rung is worse, and the ROUTE alone costs 16 (10 -> 26 at the same
+ * compiler) -- this TU wants maspsx, not the GNU-as reorder route.  Compiler-version axis
+ * closed.  (git status was checked first: spchpick.c had NO uncommitted user work at
+ * W52-A8 dispatch, so it was safe to gate.)
+ */
 /* eaclib/psx/spchpsxz/spchpick.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 21/27 PASS ***
  *   Remaining FAILs after wave 33: iSPCH_MatchSample(22,67/65),
  *   iSPCH_ConstantRuleSet(10,83/83), iSPCH_OrderSentences(9,82/83),

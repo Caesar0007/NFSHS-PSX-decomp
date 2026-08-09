@@ -1,3 +1,27 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: this TU's identity is gcc-2.8.0 + maspsx (= the DEFAULT lane).
+ * Probe = `NFS4_FORCE_CC1_ALT=<ver> python tools/verify_asm.py <this> <fn>` on UNCHANGED
+ * source.  The forced lane swaps compiler AND assembler route (272 recipe: macro cc1 +
+ * direct GNU-as reorder, no maspsx), so the forced-2.8.0 row is the CONTROL.
+ *
+ *   lane            iSNDpacketsetirq     iSNDfillspuwithpackets
+ *   default          2 (56/56)            14 (308/308)
+ *   2.6.0           19 (55/56)           141 (305/308)
+ *   2.6.3           19 (55/56)           141 (305/308)
+ *   2.7.2-970404     5 (55/56)            14 (308/308)
+ *   2.7.2           16 (56/56)           105 (305/308)
+ *   2.8.0 CONTROL    5 (55/56)            14 (308/308)
+ *   2.8.1            5 (55/56)            14 (308/308)
+ *   2.91.66         27 (55/56)           238 (306/308)
+ *   2.95.2          29 (55/56)           362 (310/308)
+ *
+ * READING: no rung beats the default on either function; 2.8.1 ties 2.8.0 and every
+ * pre-2.8 / post-2.8 rung is far worse.  Note the ROUTE alone costs iSNDpacketsetirq
+ * 3 diffs and one insn (2 @56/56 -> 5 @55/56 at the SAME compiler), which is why the
+ * control row -- not the default row -- is the comparison baseline.  => the w34/w47/w50
+ * "loop.c APPENDS hoisted movables after the straight-line preheader" verdict on
+ * iSNDpacketsetirq's 2-diff residual is now also closed on the COMPILER-VERSION axis.
+ */
 /* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 8/13 PASS
  *   (w20-a8 2026-07-19/20: getirq 76->39, setirq 31->10, purgeframes 85->15, serve 75->60,
  *   platformpacketplaycreate 55->0 PASS, psxpacketstop 42->18; residual = fillspuwithpackets 480,

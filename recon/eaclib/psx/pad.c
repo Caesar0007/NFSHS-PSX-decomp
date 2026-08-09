@@ -159,7 +159,49 @@ void PAD_restore(void)
  * attribution is FALSIFIED by w47-a6/w48-a10's real-ASPSX differential (real
  * ASPSX does NO delay-slot filling at all, any version); per w48-04K the shape
  * IS reproduced by GNU as in `.set reorder` mode, so the owner is the pending
- * maspsx "stop injecting .set noreorder" option, not ASPSX and not any source form. */
+ * maspsx "stop injecting .set noreorder" option, not ASPSX and not any source form.
+ *
+ * W52-A8 2026-08-09 -- SOLVED, 4 -> PASS 20/20.  The w49-a9 CLASS CORRECTION above was a
+ * PREDICTION, never a measurement, and it is FALSIFIED: it argued that un-filling our
+ * return slot would emit `lw ra; nop; addiu sp; jr ra; nop` = 21 insns.  MEASURED, it
+ * emits exactly the oracle's 20: `lw ra; addiu sp; jr ra; nop`.  Why the prediction was
+ * wrong: the load-delay nop after `lw ra` is NOT unconditional -- once the unfill moves
+ * `addiu sp` out of the return slot it lands directly after `lw ra`, where it COVERS the
+ * $ra load-use hazard itself, so maspsx never resolves a `#nop` at all.  That is exactly
+ * retail's shape, which is why the two are byte-identical.
+ *   ACTION (orchestrator, build.py -- this worker is barred from editing it):
+ *     add "PAD_state" to PER_FN_EPILOGUE_UNFILL["recon/eaclib/psx/pad.c"]
+ *     (that entry already exists and lists padinit + PAD_update).
+ *   Whole-TU gate, reproduced twice from a clean object, with control:
+ *     WITH the entry: padinit PASS | PAD_restore PASS | PAD_state PASS |
+ *                     PAD_convert PASS | PAD_update FAIL 6 (66/66)
+ *     WITHOUT:        PAD_state FAIL 4, every other function identical
+ *   => +1 PASS, ZERO PASS->FAIL.  pad.c goes 3/5 -> 4/5.
+ *   The same patch was swept over ALL 13 remaining sndpsxz/spchpsxz/pad.c FAILs and
+ *   PAD_state is its ONLY member (every other function unchanged or worse), so this
+ *   closure is measured, not assumed.
+ *   LESSON (catalog-worthy): a `#nop`-placeholder verdict reached by PREDICTING the
+ *   unfill mechanism's output must be RE-MEASURED -- the mechanism's own output can
+ *   cover the very hazard the prediction assumed would need a nop.
+ *
+ * W52-A8 GCC-LADDER (04U lane, NFS4_FORCE_CC1_ALT=<ver>, UNCHANGED source).  The forced
+ * lane also swaps the ASSEMBLER route (direct GNU-as reorder, no maspsx) and drops this
+ * TU's no_split_addresses + PER_FN_EPILOGUE_UNFILL wiring, so read it against the
+ * forced-2.8.0 CONTROL row, not against the default row:
+ *   lane      | padinit | PAD_restore | PAD_state  | PAD_convert | PAD_update
+ *   default   |  PASS   |    PASS     |  4 (20/20) |    PASS     |  6 (66/66)
+ *   2.6.0     |  3      |    6        |  PASS      |    PASS     | 24 (64/66)
+ *   2.6.3     |  3      |    6        |  PASS      |    PASS     | 24 (64/66)
+ *   2.7.2     |  3      |    6        |  PASS      |    PASS     | 21 (65/66)
+ *   2.8.0 CTL | 23      |   10        | 15 (19/20) |    PASS     | 69 (63/66)
+ *   (PAD_state also: 2.7.2-970404 11 | 2.91.66 19 | 2.95.2 15 -- all worse)
+ * READING: every pre-2.8 rung reproduces PAD_state's epilogue shape from the SOURCE side,
+ * which independently corroborates that its residual was the epilogue class and nothing
+ * else.  The rung is NOT wireable though: padinit/PAD_restore fall out of PASS (their
+ * alt-lane residuals are the same epilogue / `la`-split shapes).  Probed with pad.c added
+ * to PER_FN_EPILOGUE_UNFILL_272 as well: padinit PASS, PAD_restore 3, PAD_state PASS,
+ * PAD_convert PASS, PAD_update 21 -- still net-negative.  The build.py unfill entry above
+ * reaches the same PASS with zero collateral, so that is the action, not a lane change. */
 u_short PAD_state(int padID)
 {
   uint buttons;

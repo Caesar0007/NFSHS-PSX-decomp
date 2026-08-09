@@ -1,3 +1,24 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ *
+ *   lane            iSNDpsxmemconstrain   iSNDpsxmalloc
+ *   default         14 (31/31)             59 (120/127)
+ *   2.6.0           compile error          compile error
+ *   2.6.3           compile error          compile error
+ *   2.7.2-970404    14 (31/31)             67 (120/127)
+ *   2.7.2           23 (32/31)             94 (123/127)
+ *   2.8.0 CONTROL   14 (31/31)             59 (120/127)
+ *   2.8.1           14 (31/31)             59 (120/127)
+ *   2.91.66         44 (33/31)            101 (118/127)
+ *   2.95.2          14 (31/31)            158 (125/127)
+ *
+ * READING: nothing beats the default.  This EXTENDS the w33-a7 sweep ("3 distinct cc1
+ * binaries / 2 gcc generations") to the full 8-rung ladder, so the w34-a7 verdict on
+ * iSNDpsxmemconstrain -- retail's `diff` is a BLOCK-1 pseudo that reorg eager-stole into
+ * the branch delay slot, and THIS cc1 always sinks the subu below the `lw *avail` to fill
+ * its load-delay slot -- is now closed on the compiler-version axis as well.  (The 2.6.x
+ * rungs reject this TU outright, so they are not evidence either way.)
+ */
 /* eaclib/psx/sndpsxz/sdmemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/3 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdmemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   3 fns @[0x8010A550 .. 0x8010A7C8].  SPU local-RAM block allocator -- a sorted free-list of up to 128

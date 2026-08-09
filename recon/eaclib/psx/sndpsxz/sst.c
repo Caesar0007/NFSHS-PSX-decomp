@@ -1,3 +1,19 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: identity = gcc-2.8.0 + maspsx (the DEFAULT lane).
+ *
+ *   lane            iSNDstreamparsedata
+ *   default         13 (98/97)
+ *   2.6.0           compile error
+ *   2.6.3           compile error
+ *   2.7.2-970404    17 (98/97)
+ *   2.7.2           39 (98/97)
+ *   2.8.0 CONTROL   13 (98/97)
+ *   2.8.1           13 (98/97)
+ *   2.91.66        105 (94/97)
+ *   2.95.2          88 (95/97)
+ *
+ * READING: only 2.8.0/2.8.1 reproduce the default; compiler-version axis closed.
+ */
 /* eaclib/psx/sndpsxz/sst.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 16/16 ***
  *
  *   COMPILED AS C by USER RULING (2026-07-25, uniformity; w26-a4 manual C89 port -- the automated

@@ -1,3 +1,24 @@
+/* W52-A8 2026-08-09 -- GCC-LADDER identity probe (04U lane); see the block below.
+ * W52-A8 GCC-LADDER: identity = gcc-2.8.0 + maspsx (the DEFAULT lane).  UNCHANGED source,
+ * `NFS4_FORCE_CC1_ALT=<ver>`; forced-2.8.0 is the CONTROL (the lane also swaps the
+ * assembler route to direct GNU-as reorder, no maspsx).
+ *
+ *   lane            iSNDfreechan
+ *   default          2 (110/110)
+ *   2.6.0           56 (112/110)
+ *   2.6.3           56 (112/110)
+ *   2.7.2-970404    16 (112/110)
+ *   2.7.2           56 (112/110)
+ *   2.8.0 CONTROL    2 (110/110)
+ *   2.8.1            4 (110/110)
+ *   2.91.66        124 (102/110)
+ *   2.95.2         136 (108/110)
+ *
+ * READING: 2.8.0 is the ONLY rung that reproduces the default's 2 -- even 2.8.1 costs 2
+ * more.  The w50-a7 residual ("ONE instruction's sched1 issue POSITION: retail interleaves
+ * `lw $v1,0x94($t1)` INTO the chan*100 scale chain while ours issues it first") is
+ * therefore NOT a compiler-version artifact; the version axis is closed for this TU.
+ */
 /* eaclib/psx/sndpsxz/salloc.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/4 PASS ***
  *   (w35-a1: iSNDallocchan 245->4 diffs @298/298 EXACT, iSNDfreechan 74->19 @107/110)
  *   (w47-a3: iSNDallocchan 4 -> PASS; only iSNDfreechan @16 remains)

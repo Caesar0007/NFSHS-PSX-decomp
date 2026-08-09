@@ -278,9 +278,11 @@ void tFEApplication::Redraw()
   FeAudio_systemtask(0);
   Draw_StartFrameRender();
   Draw_StartRenderingView(Draw_gPlayer1View);
-  sprintf(buffer,(char *)(bigBuf + 0x44),largestunused());
+  /* MATCH: retail keeps these adjacent format strings as distinct symbols.  Expressing both as
+     bigBuf offsets lets GCC common their base into a long-lived saved register (152 diffs). */
+  sprintf(buffer,D_80010044,largestunused());
   FETextRender_FullText(buffer,0x100,0xd7,textType_FramedInfo,textState_Selected,0);
-  sprintf(buffer,(char *)(bigBuf + 0x48),AudioMus_Buffered(),AudioMus_Threshold());
+  sprintf(buffer,D_80010048,AudioMus_Buffered(),AudioMus_Threshold());
   FETextRender_FullText(buffer,0x10,0xd7,textType_FramedInfo,textState_Hilighted,0);
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   if (this->fCurrentMenu[1] != (tMenu *)0x0) {

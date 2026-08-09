@@ -14,6 +14,8 @@ extern Car_tStats         Cars_gNewCarStatsList[];   /* was stale scalar int; ow
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) */
 extern tPadModuleState   gPadinfo;
 extern char              bigBuf[];
+extern char              D_80010044[];
+extern char              D_80010048[];
 extern int               Cars_gNumRaceCars;
 extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;
 extern int               gLargestUnused[];

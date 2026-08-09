@@ -702,45 +702,43 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
     return 5;
   }
   state2 = this->fState;
-  if (state2 == 5) {
-    state = 0;
-    this->SetState(state);
-    return 1;
-  }
-  else if (state2 < 6) {
-    if (2 <= state2) {
-      if (frontEnd.gameMode == '\x01') {
-        return 1;
+  /* MATCH: NONE of the three SetState arms stages a return value -- the oracle has
+     exactly ONE `jal SetState` that all three arms reach by `j` after setting only
+     $a0/$a1, and the epilogue returns SetState's incidental $v0.  Writing
+     `return 1;`/`return 6;` after each call blocks gcc's cross_jump merge (2 jals)
+     and rewrites the whole block layout.  Same "falls off the end" shape as the
+     state2<2 arm already documented below. */
+  /* MATCH: flat goto/shared-tail form.  The oracle has exactly ONE `jal SetState`
+     that every arm reaches by `j` after setting only $a0/$a1 -- no arm stages a
+     return value (the epilogue returns SetState's incidental $v0), and the
+     state2<2 arm falls off the end of the function entirely (retail UB, $v0 = the
+     scheduler's leftover).  `if/else if` spellings put the gameMode block in the
+     middle; the explicit labels reproduce the oracle's stub-then-tail layout. */
+  if (state2 != 5) {
+    if (state2 < 6) {
+      if (state2 < 2) {
+        goto done;
       }
-      state = 1;
-      this->SetState(state);
-      return 1;
+      goto gamemode;
     }
-    /* W37 FIX (was `return -0x7fef0000;`): state2<2 has NO explicit return.
-     * The oracle @0x8003C0B0 (`bnez v0,.L8003C104`) branches directly out of
-     * this if/elseif/else to the shared epilogue with $v0 UNSET; the
-     * `lui v0,%hi(D_80114603)` in its delay slot @0x8003C0B4 always executes
-     * (branch-delay semantics) but is really the address setup the fall-
-     * through path (state2>=2) needs for its `lbu v1,%lo(D_80114603)(v0)` at
-     * 0x8003C0E8 -- not a return-value materialization. The old recon misread
-     * that delay-slot lui as a literal `return 0x80110000`, same "misread
-     * delay slot -> phantom sentinel return" bug class documented in the w36
-     * briefing (screencarselect.cpp was the known-unfixed instance). Source-
-     * true fix: this is the LAST statement of the `else if (state2 < 6)` arm,
-     * so falling out of `if (2 <= state2)` with nothing else in the block
-     * falls off the end of the whole if/elseif/else -- and since nothing
-     * follows in the function body, off the end of ProcessInput itself
-     * (retail UB; $v0 holds whatever the scheduler put there, never read by
-     * any caller that matters). */
-  }
-  else {
     if (state2 != 6) {
       return 6;
     }
     state = 2;
     this->SetState(state);
-    return 6;
+    goto done;
   }
+  state = 0;
+  this->SetState(state);
+  goto done;
+gamemode:
+  if (frontEnd.gameMode == '') {
+    return 1;
+  }
+  state = 1;
+  this->SetState(state);
+done:
+  ;
 }
 
 
@@ -877,21 +875,24 @@ void tScreenCarSelect::UpdateBrightness(short i)
 
   brightness = this->fBrightness[i];
   destBrightness = this->fDestBrightness[i];
-  if (brightness < destBrightness) {
+  /* MATCH: `destBrightness > brightness` -- NOT the equivalent
+     `brightness < destBrightness`.  Compare-operand order IS the load order here
+     (05H): the reversed phrasing emits `lh a2,888` before `lh a1,884`, which is
+     what puts destBrightness in $a2 / brightness in $a1 like the oracle.  The
+     plain `<` spelling swaps the pair across all 3 compares. */
+  if (destBrightness > brightness) {
     sVar3 = this->fBrightness[i] + 8;
     this->fBrightness[i] = sVar3;
-    if (destBrightness < sVar3) {
+    if (this->fDestBrightness[i] < sVar3) {
       this->fBrightness[i] = this->fDestBrightness[i];
       return;
     }
   }
-  else {
-    brightness = brightness + -8;
-    if (destBrightness < brightness) {
-      this->fBrightness[i] = brightness;
-      if (brightness < this->fDestBrightness[i]) {
-        this->fBrightness[i] = this->fDestBrightness[i];
-      }
+  else if (destBrightness < brightness) {
+    sVar3 = this->fBrightness[i] + -8;
+    this->fBrightness[i] = sVar3;
+    if (sVar3 < this->fDestBrightness[i]) {
+      this->fBrightness[i] = this->fDestBrightness[i];
     }
   }
   return;
@@ -1744,32 +1745,38 @@ void tScreenCarSelectDuel::DrawForeground()
 int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
-  byte player;
-  byte color;
-  short count;
-  short otherPlayer;
+  /* MATCH (SYM 8c @0x8003e040, rule 8): fsize 48, mask $803f0000 = ra + s0..s5;
+     REGPARM `carInfo` = $18 ($s2); the ONLY named REG locals are
+     `currentplayer` = $21 ($s5) and `garageNumber` = $19 ($s3), both type INT.
+     Ghidra's `byte player / byte color / short count / short otherPlayer` were
+     inventions -- the byte types cost two dead `andi ..,255` promotions and the
+     named `count` pinned an extra pseudo.  RESIDUAL: 59 diffs / ours 81 vs
+     oracle 84 -- retail still holds THREE copies of FEApp->fPlayer (s0 anonymous
+     temp + s5 + s3, copies emitted BEFORE the carListType branch) so it needs a
+     6th callee-saved reg; every probed source form (2 reads, 3 reads,
+     garageNumber-from-FEApp, hoisted copy) coalesces one of them away. */
+  int currentplayer;
+  int garageNumber;
+  int color;
 
-  player = (byte)FEApp->fPlayer;
-  if (frontEnd.carListType == '\0') {
-    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[player],carInfo);
-    color = frontEnd.carColors[player][(signed char)carInfo.fCarID];
+  currentplayer = FEApp->fPlayer;
+  garageNumber = currentplayer;
+  if (frontEnd.carListType == ' ') {
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[currentplayer],carInfo);
+    color = frontEnd.carColors[currentplayer][(signed char)carInfo.fCarID];
   }
   else {
-    count = carManager.GetNumOwnedCars((short)player);
-    otherPlayer = player;
-    if (count <= 0) {
-      otherPlayer = 0;
+    if (carManager.GetNumOwnedCars((short)currentplayer) <= 0) {
+      garageNumber = 0;
     }
-    count = carManager.GetNumOwnedCars(otherPlayer);
-    if (count <= 0) {
+    if (carManager.GetNumOwnedCars((short)garageNumber) <= 0) {
       return 0;
     }
-    carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[player],carInfo,otherPlayer);
+    carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[currentplayer],carInfo,garageNumber);
     color = carInfo.fColor;
   }
   carInfo.fColor = carInfo.fColorOrder[color];
-  player = (byte)FEApp->fPlayer;
-  carInfo.fCountry = frontEnd.carCountry[player][(signed char)carInfo.fCarID];
+  carInfo.fCountry = frontEnd.carCountry[FEApp->fPlayer][(signed char)carInfo.fCarID];
   return 1;
 }
 
@@ -1973,6 +1980,12 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
         this->SetBrightness(carY_2,0);
         TurnOn(this->fVideoWall);
       }
+      /* MATCH: void fence HERE (inner-if exit, still inside the outer if) gives the
+         inner guard chain its OWN branch target, so reorg can no longer copy the
+         outer target's `addu a0,s0,zero` head into the `bne fBrightness,fDest`
+         delay slot -- the oracle leaves that one slot a nop while KEEPING the
+         steal in the outer `bnez async_handle` slot.  Zero insns.  Do NOT delete. */
+      __asm__("" : : "i"(0));
     }
     this->UpdateBrightness(0);
     showRoomFlag = 0;
@@ -2151,11 +2164,13 @@ void tScreenCarSelectTwoPlayer::SetDialog()
   char *str;
 
   player2 = FEApp->fPlayer;
-  dlg = &this->CarDialog;
-  if (FEApp->waitingForOtherPlayer[player2] == 0) {
-    Hide((tDialogBase *)dlg);
-  }
-  else {
+  /* MATCH: the Display arm is the FALL-THROUGH (oracle `beqz waiting,.Lhide`) and
+     the Hide arm sits OUT OF LINE at the end; `dlg` is materialized INSIDE each arm
+     (oracle `addiu s1,s1,928` in the display arm, `addiu a0,s1,928` in Hide's jal
+     delay slot) -- a function-scope `dlg = &this->CarDialog;` before the test hoists
+     it into the branch delay slot instead. */
+  if (FEApp->waitingForOtherPlayer[player2] != 0) {
+    dlg = &this->CarDialog;
     sVar2 = 0x3c;
     if (player2 == 0) {
       sVar2 = -0x3c;
@@ -2168,6 +2183,9 @@ void tScreenCarSelectTwoPlayer::SetDialog()
     sprintf("",fmt,str);
     dlg->string = "";
     Display((tDialogBase *)dlg);
+  }
+  else {
+    Hide((tDialogBase *)&this->CarDialog);
   }
   return;
 }
@@ -2462,25 +2480,52 @@ void tScreenPinkSlipsCarSelect::SetDialog()
   uint p;
   byte p_byte;
   
-  p_byte = FEApp->fPlayer;
-  p = (uint)p_byte;
+  /* MATCH: ONE u_int `p` (a separate `byte p_byte` + `(uint)` copy emits two dead
+     `andi ..,255` promotions the oracle has none of) and a BLOCK-LOCAL `dlg`
+     declared AFTER the y_off select -- the oracle materializes `addiu v0,s2,928`
+     there, in a caller-saved reg, and reaches all three header fields by
+     displacement (124/126/100) instead of the absolute 1028/1052/1054. */
+  p = FEApp->fPlayer;
   y_off = 0x3c;
   if (p == 0) {
     y_off = -0x3c;
   }
-  this->CarDialog.OffsetX = 0;
-  this->CarDialog.OffsetY = y_off;
-  this->CarDialog.specificPlayer =
-       (ushort)p_byte;
+  tDialogBackUpOnly *dlg = &this->CarDialog;
+  dlg->OffsetX = 0;
+  dlg->OffsetY = y_off;
+  dlg->specificPlayer = (ushort)p;
+  /* MATCH: the Hide+return block is OUT OF LINE -- the oracle's `bnez fExitingScreen`
+     branches TO it and it sits physically right after the switch dispatch (`jr v0`),
+     i.e. it IS the first case body.  Keeping it inline as the if-body flips the
+     branch polarity and costs the `j T; nop` skip pair. */
   if (((PinkSlipsScreenState[0] != CardLoadedFine) && (p == 1)) || (this->fExitingScreen != 0)) {
-switchD_8003f3b4_caseD_7:
-    Hide((tDialogBase *)&this->CarDialog);
-    return;
+    goto switchD_8003f3b4_caseD_7;
   }
   if (PinkSlipsScreenState[p] != NoCardInserted) {
     this->fStartCheckTick = 0;
   }
+  /* MATCH: CASE BODIES IN ORACLE VA ORDER (wave-10 law).  The jump table is keyed
+     by case VALUE, but the BODIES are emitted in source order -- retail lays them
+     out CardLoadedFine, NoCardInserted, NotFound(0x2af), Unformatted(0x2b1),
+     CardFailed(0x2ad, falls through into the shared TextSys_Word/Display tail),
+     then NotEnough/TooMany.  Ghidra's value order costs ~60 diffs of pure block
+     motion. */
   switch(PinkSlipsScreenState[p]) {
+  case WhoCaresWeBeExiting:
+switchD_8003f3b4_caseD_7:
+    Hide((tDialogBase *)&this->CarDialog);
+    return;
+  case CardLoadedFine:
+    if ((FEApp->waitingForOtherPlayer[p] == 0) && (PinkSlipsScreenState[1 - p] == CardLoadedFine)) {
+      Hide((tDialogBase *)&this->CarDialog);
+      this->fStartCheckTick = 0;
+      goto SetDlg_cardOkReturn;
+    }
+    str2 = TextSys_Word(0x2a8);
+    str = PlayerName(1 - p);
+    sprintf("",str2,str);
+    this->CarDialog.string = "";
+    goto SetDlg_displayAndReset;
   case NoCardInserted:
     if (this->fCardFailed == 0) {
       if (this->fStartCheckTick == 0) {
@@ -2503,14 +2548,14 @@ switchD_8003f3b4_caseD_7:
     }
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
-  case CardFailed:
-    iVar3 = p + 0x2ad;
-    break;
   case CardFailedNotFound:
     iVar3 = p + 0x2af;
     break;
   case CardFailedUnformatted:
     iVar3 = p + 0x2b1;
+    break;
+  case CardFailed:
+    iVar3 = p + 0x2ad;
     break;
   case NotEnoughCars:
     wordnum = p + 0x32d;
@@ -2518,19 +2563,6 @@ switchD_8003f3b4_caseD_7:
   case TooManyCars:
     wordnum = p + 0x32f;
     goto SetDlg_loadingWord;
-  case CardLoadedFine:
-    if ((FEApp->waitingForOtherPlayer[p] == 0) && (PinkSlipsScreenState[1 - p] == CardLoadedFine)) {
-      Hide((tDialogBase *)&this->CarDialog);
-      this->fStartCheckTick = 0;
-      goto SetDlg_cardOkReturn;
-    }
-    str2 = TextSys_Word(0x2a8);
-    str = PlayerName(1 - p);
-    sprintf("",str2,str);
-    this->CarDialog.string = "";
-    goto SetDlg_displayAndReset;
-  case WhoCaresWeBeExiting:
-    goto switchD_8003f3b4_caseD_7;
   case CardCurrentlyLoading:
     wordnum = p + 0x280;
 SetDlg_loadingWord:
@@ -2561,8 +2593,6 @@ int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_in
               tMenuCommand &menu_cmd)
 
 {
-  PinkSlipsCarSelectState PVar1;
-  
   if (key_input != kInput_KeyType_Triangle) {
     if ((key_input != kInput_KeyType_Circle) &&
        ((PinkSlipsScreenState[0] != CardLoadedFine || (PinkSlipsScreenState[1] != CardLoadedFine))))
@@ -2574,14 +2604,19 @@ int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_in
     }
   }
   if ((PinkSlipsScreenState[0] != CardLoadedFine) ||
-     (PVar1 = PinkSlipsScreenState[1], PinkSlipsScreenState[1] != CardLoadedFine)) {
+     (PinkSlipsScreenState[1] != CardLoadedFine)) {
     this->fExitingScreen = 1;
-    PVar1 = WhoCaresWeBeExiting;
     PinkSlipsScreenState[0] = WhoCaresWeBeExiting;
     PinkSlipsScreenState[1] = WhoCaresWeBeExiting;
     Hide((tDialogBase *)&this->CarDialog);
   }
-  return PVar1;
+  /* MATCH: NO trailing return.  The oracle stages no return value on either exit
+     path -- $v0 is the just-loaded PinkSlipsScreenState[1] on the fall-through and
+     Hide's incidental $v0 after the call.  An explicit `return PVar1;` makes gcc
+     const-prop PVar1==CardLoadedFine (transitively via the two guards) and emit an
+     extra `li v0,6`, which reorg then steals into the beq delay slot the oracle
+     leaves a nop.  (`return 0x10;` above still works: it reuses the compare
+     constant already in $v0 -- shared-constant-return.) */
 }
 
 

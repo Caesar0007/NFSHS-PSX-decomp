@@ -781,8 +781,10 @@ MainLoop_perPlayerFlagCheck:
         inputEndPlayer = (tPlayer)(u_char)this->fPlayer;
         inputStartPlayer = inputEndPlayer;
         u_int menuFlags = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
+        /* Keep this one-use value block-local so GCC rematerializes it. */
+        tPlayer one = kPlayerTwo;
         if (((menuFlags & 0x10) != 0) ||
-           ((frontEnd.gameMode == '\x01' && ((menuFlags & 8) == 0)))) {
+           ((frontEnd.gameMode == one && ((menuFlags & 8) == 0)))) {
           perPlayer = true;
         }
         if (perPlayer) {
@@ -980,7 +982,7 @@ MainLoop_noBack:
                    (tDialogMessageString *)&FEApp->NoInputMemCardDialog;
               this_tDialogMessageString_l311->string = TextSys_Word(player + 0x295);
               ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
-              while ((FEApp->NoInputMemCardDialog).fFullyOpen != 1)
+              while (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) != 0)
               {
                 FEApp->Redraw();
               }

@@ -1095,7 +1095,9 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     }
     if (frontEnd.raceType == '\x02') {
       UpdateCarLineup(&tournamentManager);
-      streamData->numOpponents = (short)tournamentManager.fNumRacers + -1;
+      /* MATCH: same int-temp WORD-load fix as the raceType==2 block above (retail `lw`). */
+      int numRacers2 = tournamentManager.fNumRacers;
+      streamData->numOpponents = numRacers2 + -1;
       carLineup = tournamentManager.fCarLineup;
       for (i = 0; i < numOpponents + 1; i = i + 1) {
         streamData->carLineup[i].personality = carLineup[i].personality;

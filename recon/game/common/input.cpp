@@ -447,10 +447,9 @@ void Input_Store(void)
 {
   if (gSimQueue_BlockSelf == 0) {
     if (1 < GameSetup_gData.numPlayerRaceCars) {
-      if (SimQueue_Put(0,Input_gResults) == 0) {
-        return;
+      if (SimQueue_Put(0,Input_gResults)) {
+        SimQueue_Put(1,&Input_gResults[1]);
       }
-      SimQueue_Put(1,D_8013D228);
     }
     else if (GameSetup_gData.commMode == 0) {
       SimQueue_Put(GameSetup_gData.localCar,Input_gResults);

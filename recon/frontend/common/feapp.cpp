@@ -1057,139 +1057,121 @@ MainLoop_nextPlayer:
 tAppCommand tFEApplication::RunPostGame()
 
 {
-  tGlobalMenuDefs *ptVar1;
-  tScreenUserName *ptVar2;
-  u_short uVar3;
-  void *pvVar4;
-  tAppCommand tVar5;
-  tUserNameMenuItem *this_tUserNameMenuItem_l112;
-  tUserNameMenuItem *this_tUserNameMenuItem_l119;
-  int ret;
-  tOptionsMenu *m_tOptionsMenu_l112;
-  tOptionsMenu *m_tOptionsMenu_l119;
-  tScreenUserName *this_tScreenUserName_l112;
-  tScreenUserName *this_tScreenUserName_l119;
-  tFEApplication *ptVar7;
-  int i;
-  int iVar8;
-  Car_tStats *dummyCars;
-  short recordLap;
   tMenuCommand command;
+  int ret;
+  Car_tStats *dummyCars;
+  int i;
   short nBestCarIndex;
   
   if ((frontEnd.raceType != '\x06') &&
      ((frontEnd.raceType != '\0' || (frontEnd.carListType != '\0')))) {
-    StatChk_ClearNewRecords();
     dummyCars = (Car_tStats *)Cars_gNewCarStatsList;
-    ptVar7 = this;
+    StatChk_ClearNewRecords();
     i = 0;
     do {
-      iVar8 = i + 1;
       Front_ResetPSXController(i,(u_int)(u_char)frontEnd.controlConfig[i]);
-      ptVar7->gotName[0] = 0;
-      ptVar7->needName[0] = 0;
-      ptVar7->speechToPlay[0] = -1;
-      ptVar7 = (tFEApplication *)ptVar7->fCurrentMenu;
-      i = iVar8;
-    } while (iVar8 < 2);
-    pvVar4 = StatChk_IsRecordLapTime(dummyCars,Cars_gNumRaceCars,&recordLap);
-    if (pvVar4 != (void *)0x0) {
+      this->gotName[i] = 0;
+      this->needName[i] = 0;
+      this->speechToPlay[i] = -1;
+      i = i + 1;
+    } while (i < 2);
+    if (StatChk_IsRecordLapTime(dummyCars,Cars_gNumRaceCars,&nBestCarIndex) != 0) {
       if (frontEnd.gameMode == '\x01') {
-        ret = 7;
-        if (nBestCarIndex != 0) {
-          ret = 8;
-        }
-        this->speechToPlay[nBestCarIndex] = ret;
+        this->speechToPlay[nBestCarIndex] = nBestCarIndex ? 8 : 7;
       }
       else {
         this->speechToPlay[nBestCarIndex] = 6;
       }
       this->needName[nBestCarIndex] = 1;
     }
-    uVar3 = StatChk_IsTopTime(dummyCars,Cars_gNumRaceCars);
-    if (uVar3 != 0) {
+    if ((ret = StatChk_IsTopTime(dummyCars,Cars_gNumRaceCars)) != 0) {
       if (frontEnd.gameMode == '\x01') {
-        if ((uVar3 & 3) != 0) {
+        if ((ret & 3) != 0) {
           this->needName[0] = 1;
-          if ((this->speechToPlay[0] == -1) || (nBestCarIndex != 0)) {
-            ret = 1;
-            if ((uVar3 & 2) == 0) {
-              ret = 4;
-            }
-          }
-          else {
-            ret = 10;
-            if ((uVar3 & 2) == 0) {
-              ret = 0xd;
-            }
-          }
-          this->speechToPlay[0] = ret;
-        }
-        if ((uVar3 & 0xc) != 0) {
-          this->needName[1] = 1;
-          if ((this->speechToPlay[1] == -1) || (nBestCarIndex != 1)) {
-            if ((uVar3 & 8) == 0) {
-              this->speechToPlay[1] = 5;
+          if ((this->speechToPlay[0] != -1) && (nBestCarIndex == 0)) {
+            if ((ret & 2) != 0) {
+              this->speechToPlay[0] = 10;
             }
             else {
-              this->speechToPlay[1] = 2;
+              this->speechToPlay[0] = 0xd;
             }
           }
-          else if ((uVar3 & 8) == 0) {
-            this->speechToPlay[1] = 0xe;
+          else {
+            if ((ret & 2) != 0) {
+              this->speechToPlay[0] = 1;
+            }
+            else {
+              this->speechToPlay[0] = 4;
+            }
+          }
+        }
+        if ((ret & 0xc) != 0) {
+          this->needName[1] = 1;
+          if ((this->speechToPlay[1] != -1) && (nBestCarIndex == 1)) {
+            if ((ret & 8) != 0) {
+              this->speechToPlay[1] = 0xb;
+            }
+            else {
+              this->speechToPlay[1] = 0xe;
+            }
           }
           else {
-            this->speechToPlay[1] = 0xb;
+            if ((ret & 8) != 0) {
+              this->speechToPlay[1] = 2;
+            }
+            else {
+              this->speechToPlay[1] = 5;
+            }
           }
         }
       }
       else {
         this->needName[0] = 1;
-        if (this->speechToPlay[0] == -1) {
-          ret = 3;
-          if ((uVar3 & 2) != 0) {
-            this->speechToPlay[0] = 0;
-            goto RunPostGame_setupNameMenu;
+        if (this->speechToPlay[0] != -1) {
+          if ((ret & 2) != 0) {
+            this->speechToPlay[0] = 9;
+          }
+          else {
+            this->speechToPlay[0] = 0xc;
           }
         }
         else {
-          ret = 9;
-          if ((uVar3 & 2) == 0) {
-            ret = 0xc;
+          if ((ret & 2) != 0) {
+            this->speechToPlay[0] = 0;
+          }
+          else {
+            this->speechToPlay[0] = 3;
           }
         }
-        this->speechToPlay[0] = ret;
       }
     }
-RunPostGame_setupNameMenu:
-    ptVar1 = menuDefs[0];
     if (this->needName[0] != 0) {
-      command.nextMenu = (tMenu*)&menuDefs[0]->menuPostGamePlayer1Name;
-      (menuDefs[0]->menuItemUserName1).fData = frontEnd.playerNameList[0];
-      ptVar2 = screenUserName;
-      (ptVar1->menuItemUserName1).fPlayer = 0;
-      (ptVar1->menuItemUserName1).fMaxStringLength = 7;
-      (ptVar1->menuItemUserName1).fCurrentRow = 0;
-      (ptVar1->menuItemUserName1).fCurrentColumn = 0;
-      ptVar2->callingMenu = (tOptionsMenu *)command.nextMenu;
-      goto RunPostGame_callMainLoop;
+      tUserNameMenuItem *item = &menuDefs[0]->menuItemUserName1;
+      tScreenUserName *screen = screenUserName;
+      tOptionsMenu *m = &menuDefs[0]->menuPostGamePlayer1Name;
+      item->fData = frontEnd.playerNameList[0];
+      item->fPlayer = 0;
+      item->fMaxStringLength = 7;
+      item->fCurrentRow = 0;
+      item->fCurrentColumn = 0;
+      screen->callingMenu = m;
+      return this->MainLoop((tMenu *)m);
     }
     if (this->needName[1] != 0) {
-      command.nextMenu = (tMenu*)&menuDefs[0]->menuPostGamePlayer2Name;
-      (menuDefs[0]->menuItemUserName2).fPlayer = 1;
-      (ptVar1->menuItemUserName2).fData = frontEnd.playerNameList[4];
-      ptVar2 = screenUserName;
-      (ptVar1->menuItemUserName2).fMaxStringLength = 7;
-      (ptVar1->menuItemUserName2).fCurrentRow = 0;
-      (ptVar1->menuItemUserName2).fCurrentColumn = 0;
-      ptVar2->callingMenu = (tOptionsMenu *)command.nextMenu;
-      goto RunPostGame_callMainLoop;
+      tUserNameMenuItem *item = &menuDefs[0]->menuItemUserName2;
+      tScreenUserName *screen = screenUserName;
+      tOptionsMenu *m = &menuDefs[0]->menuPostGamePlayer2Name;
+      item->fPlayer = 1;
+      item->fData = frontEnd.playerNameList[4];
+      item->fMaxStringLength = 7;
+      item->fCurrentRow = 0;
+      item->fCurrentColumn = 0;
+      screen->callingMenu = m;
+      return this->MainLoop((tMenu *)m);
     }
   }
   MenuExtended_PostGameMenu(command);
-RunPostGame_callMainLoop:
-  tVar5 = this->MainLoop(command.nextMenu);
-  return tVar5;
+  return this->MainLoop(command.nextMenu);
 }
 
 

@@ -307,6 +307,11 @@ void tScreenTournamentStandings::DrawBackground()
 
 
 /* ---- tScreenPinkSlipStandings::DrawBackground  [SCREENPOST.CPP:320-401] ---- */
+/* W56 REGRESSION RECEIPT: was PASS pre-wave; the phantom-signature/signed-short
+ * correctness fixes shifted this caller's coloring -> residual ~4 = fp<->s7
+ * saved-reg rotation (oracle: lh 92(s7), li fp,1; ours swapped). qtytrace-class
+ * (methodology 4.6); NOT reverting correct link/signedness fixes for one swap.
+ * TOP W57 near-seal. */
 void tScreenPinkSlipStandings::DrawBackground()
 
 {

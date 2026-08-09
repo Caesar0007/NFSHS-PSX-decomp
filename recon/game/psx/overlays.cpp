@@ -747,7 +747,18 @@ void Hud_BTCStats(short player,bool postgame)
    * already-hoisted yoff instead (`SIZE_H - (yoff + (postgame ? 8 : 0))`) lets combine
    * reassociate the postgame arm into `(SIZE_H - 8) - yoff` (`addiu v0,s1,-8` vs
    * retail's `addiu v0,s1,8; subu v0,s2,v0`), which also SWAPS the s1/s2 homes of
-   * SIZE_H and yoff and leaves the function one instruction short. */
+   * SIZE_H and yoff and leaves the function one instruction short.
+   * w53-a3 RE-PROBE of the SAME residual in this basin (kept at 24 / 473-exact).  The
+   * residual really is only the ARM-1 shape -- retail reuses the already-computed
+   * `yoff = s0 - B` and adds 8 (`addiu $v0,$s1,8; subu $v0,$s2,$v0`), we recompute
+   * `s0 - (B - 8)` (`addiu $v0,$s2,-8; subu $v0,$s0,$v0`), which drags an s1/s2 swap of
+   * SIZE_H vs yoff through the whole tail.  BOTH catalog shapes for "write the select as
+   * two full arms" were measured and BOTH are worse: an explicit `if (postgame) ruleH =
+   * ...; else ruleH = ...; if (showtimeleft) ruleH -= 0x10;` block-local funnel = 63 diffs
+   * AND one insn SHORT (472); an outer ternary over the two complete subtractions
+   * (`(postgame ? SIZE_H - (yoff+8) : SIZE_H - yoff) - (showtimeleft ? 0x10 : 0)`) = 37 at
+   * 474 (one insn LONG).  So the ternary-as-two-calls / two-arm lever does NOT transfer to
+   * a value select feeding a call ARGUMENT here; the in-parenthesis spelling stays. */
   for (i = 1; i < 4; i = i + 1) {
     Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
                  HUD_STATS_SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - HUD_STATS_POS_Y) -

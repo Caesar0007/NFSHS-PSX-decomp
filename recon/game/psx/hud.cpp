@@ -2007,13 +2007,22 @@ void Hud_BuildNumbers0(int player)
     HudF4[3].y2 = y + 10;
     HudF4[3].y3 = y + 10;
     y = y + 1;
+    /* MATCH (w53-a3): 53 -> 46 and the count becomes EXACT 531/531.  The seven split-time
+     * sprite stores were transcribed in Ghidra's emission order (30,32,33,31,35,36,34); the
+     * SOURCE order is plainly SEQUENTIAL 30..36.  Retail's schedule falls straight out of it:
+     * with `pSprt[31]` written second, sched2 issues its `lhu` right after the pSprt[30] store
+     * and fills the load-delay with the pSprt[32]/[33] stores, then sinks `sh 630` past them
+     * (same again for [34] vs [35]/[36]).  Ghidra's order made ours issue the lhu late and sink
+     * the 710/730 stores into the delay instead -- 1 insn longer.  (A `short`-typed asm-label
+     * ARRAY view of the two cells, tried first on the STRUCT-READ ANTI-DEP LAW, is exactly
+     * NEUTRAL here -- the pin was emission order, not aliasing.) */
     pSprt[30].y0 = y;
+    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + y;
     pSprt[32].y0 = y;
     pSprt[33].y0 = y;
-    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + y;
+    pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + y;
     pSprt[35].y0 = y;
     pSprt[36].y0 = y;
-    pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + y;
   }
   primAddr = BTC_BonusTime;
   if ((BTC_BonusTime != 0) && (Hud_BeTheCop != 0)) {
@@ -2063,7 +2072,12 @@ void Hud_BuildNumbers0(int player)
         return;
       }
       y_2 = (Cars_gHumanRaceCarList[player]->stats).checkpointDifference;
-      if (y_2 < -0x95ff) {
+      /* MATCH (w53-a3): the COMPARISON PHRASING selects the idiom (catalog sec.C).  Retail
+       * emits `ori $v0,$v0,0x6A00; slt $v0,$v0,$v1; beqz` = `!(-0x9600 < y_2)`; the
+       * `y_2 < -0x95ff` spelling emits the algebraically-equal `slt $v0,$v1,$v0` against
+       * the +1 constant 0x6A01 with `bnez`.  `<=` against the round bound is the retail
+       * form (and the natural one for a symmetric +-0x9600 window). */
+      if (y_2 <= -0x9600) {
         return;
       }
       if (0x95ff < y_2) {
@@ -2428,7 +2442,21 @@ void Hud_BuildNumbers(int player)
     *(u_int *)&prim->r3 = color2;
     *(u_int *)&prim->r2 = color2;
     if (ten == 1) {
-      x = x - w2;
+      /* MATCH (w53-a3): 256 -> 208, count still EXACT 758/758.  The do{}while(0) DEPTH
+       * WRAPPER (w44 ref-inflator #3) is here purely as an allocno REF dial: flow.c
+       * weights refs by loop depth, so this one `w2` reference counts twice and w2's
+       * REG_N_REFS crosses the floor_log2 step 3 -> 4.  reqdelta (allocsim, MATCH 49/49
+       * on this fn) named it as the MINIMAL single dial for `pSprt`(p82) to move $s4 ->
+       * $s5, which is retail's handout; loop.c strips the phony loop so 0 insns are
+       * added.  pSprt is now `lw s5,0(gp)` at both gSprite selects = oracle-exact.
+       * RESIDUAL 208 = the rest of the w46 4-cycle: `speed`(p643) is ours $s3 / retail
+       * $s4 and `w1`(p624) is ours $s6 / retail $s3 (w2 -> $s4 and `ten` -> $s6 follow).
+       * reqdelta's minimal dial for that half is p624(w1) refs 6 -> 8 or live 61 -> 42.
+       * FALSIFIED HERE (this basin): depth wrapper on `w3 = w1 - w2;` (421 @759),
+       * NESTED depth-2 wrapper on the else-arm `x = x - w1;` (260), one wrapper round
+       * the w2+w7 defs (346 @760), and moving `hun`/`ten` below the first Hud_BuildGT4
+       * to lengthen `speed`'s live range (504 @762). */
+      do { x = x - w2; } while (0);
     }
     else if (ten == 7) {
       x = x - w7;
@@ -2565,6 +2593,33 @@ void Hud_InitMap(void)
  *     split lever is not a blanket win -- it pays exactly when retail's variable really was
  *     several, and costs when retail's really was one.  Use the SYM 8c block as the gate on
  *     whether to split. */
+/* ===== w53-a3: 121 -> 81 (ours 313 / oracle 308; was 317) -- TWO LEVERS, both mechanism-named =====
+ * LEVER 1 (STRUCT-READ ANTI-DEP LAW, w45 sec.F): the marker-flag test was spelled as a cast-int
+ *   deref `*(u_int *)((char *)Cars_gXxxCarList[i] + 0x570)` = a PLAIN mem, so anti_dependence
+ *   could not prove it independent of the fixed-address packet-cursor store `*pktcell = ...`
+ *   and the load stayed PINNED BELOW it.  Retail loads the flag word FIRST and puts the cursor
+ *   store in the `beqz`'s DELAY SLOT.  Offset 0x570 is the real field `Car_tObj::AIFlags`
+ *   (0x54C carInLane .. 0x570 AIFlags, nfs4_types.h) -- spelling it as the COMPONENT_REF
+ *   `Cars_gXxxCarList[i]->AIFlags` makes the load mem/s, the MEM_IN_STRUCT clause kills the
+ *   dep, and the whole `lw/lw/addiu/andi/beqz + sw-in-slot` block becomes oracle-exact.
+ *   121 -> 109 at both marker sites.
+ * LEVER 2 (RESULT FUNNEL, w47-a2 "PRE-SET THE DEFAULT BEFORE THE TEST"): the oracle carries
+ *   `addiu $v0,$zero,0xFF` in BOTH `bnez` delay slots and `lui $v0,0xFF0000` in the `j`'s slot,
+ *   with ONE shared `sw $v0,%gp_rel(currentSpriteColor)($gp)` at the join that the
+ *   Hud_gXxxMarkerColor arm ALSO falls into (oracle .L800D5CF4).  That is a value funnel, not
+ *   two stores: `currentSpriteColor = (AIFlags & 2) ? ((gFlip||quickPause) ? 0xff : 0xff0000)
+ *   : markerColor[i];`  The `||`-first phrasing is load-bearing (it puts 0xff on the TAKEN
+ *   edges, matching both delay slots).  109 -> 81, and -4 insns.
+ * RESIDUAL 5 (+5 insns) = the UNCHANGED w44/w45/w46 `$fp` item, now fully isolated: ours parks
+ *   the cross-loop-CSE'd literal 0x1F800004 in `$fp` (prologue `lui $fp,0x1f80; ori $fp,$fp,4`,
+ *   +2) and const-propagates `mapy` to `li $t0,24` at each of the four `mapy - z` call-arg sites
+ *   (+4, MIPS has no reverse-subtract-immediate), while retail parks `mapy` in `$fp`
+ *   (`li $fp,24`, SYM REG $0x1e) and rematerialises the cursor address per loop
+ *   (`lui $a1,0x1f80; ori $a1,$a1,4`, -2 per loop).  NOTE `mapx` IS const-propagated in the
+ *   oracle too (`addiu $t0,$zero,0x16; addu $a2,$t0,$s3` @0x800D5D04) -- only mapy is a
+ *   register there, so this is a cse/LICM cost decision between the two constants, not a
+ *   spelling bug.  All four known ways to give mapy an allocno are measured negative (see the
+ *   w45/w46 notes above). */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -2609,12 +2664,9 @@ void Hud_BuildMapMarkers(int player)
       ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
       ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
-      if ((*(u_int *)((char *)Cars_gCopCarList[i] + 0x570) & 2) != 0) {
-        currentSpriteColor = ((gFlip == 0) && (simVar.quickPauseSim == 0)) ? 0xff0000 : 0xff;
-      }
-      else {
-        currentSpriteColor = *(u_long *)&Hud_gCopMarkerColor[i];
-      }
+      currentSpriteColor = ((Cars_gCopCarList[i]->AIFlags & 2) != 0)
+                         ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
+                         : *(u_long *)&Hud_gCopMarkerColor[i];
       Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
     }
     i = i + 1;
@@ -2643,12 +2695,9 @@ void Hud_BuildMapMarkers(int player)
       ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
       if ((Cars_gRaceCarList[i]->carFlags & 0x200U) != 0) {
-        if ((*(u_int *)((char *)Cars_gRaceCarList[i] + 0x570) & 2) != 0) {
-          currentSpriteColor = ((gFlip == 0) && (simVar.quickPauseSim == 0)) ? 0xff0000 : 0xff;
-        }
-        else {
-          currentSpriteColor = *(u_long *)&Hud_gMarkerColor[i];
-        }
+        currentSpriteColor = ((Cars_gRaceCarList[i]->AIFlags & 2) != 0)
+                           ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
+                           : *(u_long *)&Hud_gMarkerColor[i];
         Hud_BuildSprite(sprt,0x79,mapx + x + -3 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
       }
       else if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
@@ -4550,13 +4599,44 @@ void Hud_RenderHudView(void)
  *     `-mno-split-addresses` removes gcc's own %hi/%lo lowering (catalog w33) and would delete
  *     this movable outright -- but it is a PER_TU flag and hud.cpp holds 60 other functions,
  *     so it needs a whole-TU probe (tools/gprobe.py) before anyone tries it. */
+/* ===== w53-a3: 35 -> 18, ours 74 -> 73 insns (oracle 71), SAVED SET NOW EXACT $s0-$s5 =====
+ * The w46 "selective LICM block is CLOSED" verdict was BASIN-RELATIVE; the w46 NEW NAMED ANGLE
+ * ("make the body's showhud address NOT loop-invariant -- reach it through a base DEFINED IN
+ * THE LOOP, i.e. the exit test's own base") is now EXECUTED and it works, but only when paired
+ * with an allocno ref dial that the w46 receipt could not have known about:
+ *  LEVER 1 -- TAIL-REDEFINED BASE POINTER.  `int *dh;` assigned `(int *)&DashHUD_gInfo` BEFORE
+ *    the loop AND AGAIN AT THE LOOP TAIL, with the exit test spelled `j <= dh[0]` and the body
+ *    `dh[j + 7]`.  The tail set makes `dh` non-invariant, so loop.c builds NO second movable for
+ *    `high(DashHUD_gInfo+28)` and therefore NO address giv: the `$s4` walker (`addiu $s4,$s4,4`)
+ *    and its extra callee-saved save/restore pair are GONE and our saved set is retail's exact
+ *    $s0-$s5 (mask 0x803f0000).  74 -> 73 insns.  ⚠️ A BLOCK-LOCAL `dh` at the BODY TOP does NOT
+ *    work (75-76 insns in both basins) and dropping `dh` while keeping lever 2 reverts to 35 --
+ *    the TAIL position is the load-bearing part.
+ *  LEVER 2 -- OUT-OF-LOOP READ-ONLY USE FENCE ON `j`: `__asm__ volatile("" : : "r"(j));` placed
+ *    INSIDE the `if` guard, before the do-loop.  allocsim (MATCH 7/7 on this fn) + reqdelta gave
+ *    the required delta directly: p80(`j`, refs 13 live 48, pri .8125) must out-rank p135 (the
+ *    gTPage1+24 walker giv, refs 11 live 39, pri .8461) to take $s1 -- minimal dial `p80 refs
+ *    13 -> 14`.  flow.c weights refs ADDITIVELY by loop depth, so an OUT-of-loop fence buys
+ *    exactly +1 (an IN-loop one buys +2 and overshoots: `do{Hud_BuildTach(j);}while(0)` = 52).
+ *    That flips the whole j/walker pair to retail's $s1/$s2 -- ~20 of the diffs.  Fence position
+ *    matters: after `j = 0;` = 19 @74, inside the guard = 18 @73.
+ * RESIDUAL 18 (+2 insns), three items, all in the head/tail: (a) retail hoists the entry
+ *   `lui/lw DashHUD_gInfo.splitscreen` ABOVE the frame so the load delay is covered by the
+ *   register saves and `sw $s0,16(sp)` fills the `bltz` slot; ours emits it after the saves
+ *   and pays a `nop`; (b) our `dh` costs one preheader `addiu $a0,$v0,0` where retail computes
+ *   the lo_sum INSIDE the loop (`addiu $v0,$v1,0` in the HudTach `beqz` delay slot) and puts
+ *   `addiu $s3,$s3,180` in the exit `beqz` slot instead of our `addiu $a0,$v1,0`; (c) the
+ *   `lui $s5,0xff000000` mask is materialized one slot early. */
 void Hud_RenderTacView(void)
 
 {
   int j;
+  int *dh;
 
   j = 0;
-  if (-1 < DashHUD_gInfo.splitscreen) {
+  dh = (int *)&DashHUD_gInfo;
+  if (-1 < dh[0]) {
+    __asm__ volatile("" : : "r"(j));
     do {
       /* MATCH (w44-a5): ONE shared `j * 4` feeding BOTH the showhud test and the
        * Hud_gTacView[] fetch, index-term FIRST in the address add -- reproduces the
@@ -4566,7 +4646,7 @@ void Hud_RenderTacView(void)
 
       j4 = j * 4;
       if ((GameSetup_gData.carInfo[j].HudTach != 0) &&
-          (((int *)(j4 + (int)&DashHUD_gInfo))[7] != 0)) {
+          (dh[j + 7] != 0)) {
         u_char *pal;
         DR_MODE *tp;
 
@@ -4582,7 +4662,8 @@ void Hud_RenderTacView(void)
         Draw_StopRenderingView(*(int *)(j4 + (int)Hud_gTacView));
       }
       j = j + 1;
-    } while (j <= DashHUD_gInfo.splitscreen);
+      dh = (int *)&DashHUD_gInfo;
+    } while (j <= dh[0]);
   }
   return;
 }

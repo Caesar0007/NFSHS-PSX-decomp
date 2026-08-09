@@ -19,9 +19,9 @@ extern unsigned (*_padFuncClrCmdNo)(unsigned char *info);
 
 extern unsigned _padSioRW(unsigned char *dev, unsigned arg2);   /* PADMAIN @0x80105128 */
 extern unsigned _padSioRW2(unsigned char *dev, int tx);         /* PADMAIN @0x80105300 */
-extern void     _padClrIntSio0(void);                           /* PADMAIN @0x80105538 */
+extern int      _padClrIntSio0(void);                           /* PADMAIN @0x80105538 */
 extern void     _padWaitRXready(void);                          /* PADMAIN @0x801055C8 */
-extern unsigned setRC2wait(int ticks);                          /* WAITRC2 @0x8010BFE8 */
+extern void     setRC2wait(int ticks);                          /* WAITRC2 @0x8010BFE8 (VOID) */
 
 extern int            _padModeMtap;
 extern int            _padSioChan;
@@ -160,34 +160,49 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
     return r;
 }
 
-/* @0x8010C314 : _padIntRecvData -- stream the payload (multitap sub-ports), then advance the port. */
+/* @0x8010C314 : _padIntRecvData -- stream the payload (multitap sub-ports), then advance the port.
+ * MATCH (w52-a5, 289 -> 227): (a) setRC2wait is VOID and the tested value is _padClrIntSio0's
+ * RETURN -- the old `u = setRC2wait(0x3c); _padClrIntSio0(); if (u == 0)` tested the wrong thing;
+ * (b) the function-scope `unsigned r` funnel forced a 7th callee-saved register (retail uses
+ * s0-s5): every `st = call(...); if (st < 0) return st;` is now a BLOCK-LOCAL that dies at its
+ * own return, so the call result stays in $v0 (`bltz $v0` with no `addu sN,$v0,$zero` copy);
+ * (c) the header nibble goes through a named `int hdr` local; (d) `idx` gets its own init
+ * statement.  RESIDUAL 227: still one saved-reg too many + the whole-body s-register rotation
+ * that rides on it -- the next angle is the remaining cross-call live values (`cur`, `fix`,
+ * `base`), one of which retail rematerializes instead of parking. */
 extern unsigned _padIntRecvData(unsigned char *info)
 {
-    unsigned r;
     int align = 0;
 
     _padFuncCurrLimit(info);
-    if (_padModeMtap != 0 && (int)(**(unsigned char **)(info + 0x3c) >> 4) == 8)
-        align = (info[0x36] == 0);
+    if (_padModeMtap != 0) {
+        int hdr = **(unsigned char **)(info + 0x3c);
+        if (hdr >> 4 == 8)
+            align = (info[0x36] == 0);
+    }
 
     /* multitap: drive the per-sub-port command bytes */
     if (align != 0) {
-        int idx = -1, off = -0xf0;
+        int idx;
+        int off = -0xf0;
+        idx = -1;
         do {
             _padMtapCount = _padMtapCount - 1;
             if (_padMtapCount < 1)
                 break;
             if (idx >= 0)
                 _padFuncCurrLimit(*(unsigned char **)(info + 0xc) + off);
-            r = (unsigned)_padFuncGetTxd(info, 1);
-            r = _padSioRW2(info, r & 0xff);
-            if ((int)r < 0)
-                return r;
-            r = setRC2wait(0x3c);
-            _padClrIntSio0();
-            idx = idx + 1;
-            if (r == 0)
-                return 0xfffffffd;
+            {
+                int st = _padSioRW2(info, _padFuncGetTxd(info, 1) & 0xff);
+                if (st < 0)
+                    return (unsigned)st;
+            }
+            {
+                setRC2wait(0x3c);
+                if (_padClrIntSio0() == 0)
+                    return 0xfffffffd;
+                idx = idx + 1;
+            }
             off = off + 0xf0;
         } while (idx < 4);
     }
@@ -219,13 +234,13 @@ extern unsigned _padIntRecvData(unsigned char *info)
             } else if (v == 4) {
                 *fix = 3;
             }
-            r = (unsigned)_padFuncGetTxd(info, align);
-            r = _padSioRW(info, r & 0xff);
-            if ((int)r < 0)
-                return r;
-            r = setRC2wait(0x3c);
-            _padClrIntSio0();
-            if (r == 0)
+            {
+                int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
+                if (st < 0)
+                    return (unsigned)st;
+            }
+            setRC2wait(0x3c);
+            if (_padClrIntSio0() == 0)
                 return 0xfffffffd;
             _padMtapCount = _padMtapCount - 1;
         } while (1 < _padMtapCount);
@@ -243,14 +258,13 @@ extern unsigned _padIntRecvData(unsigned char *info)
             _padFuncNextPort(0);
             return 0;
         }
-        r = (unsigned)_padFuncGetTxd(info, align);
-        r = _padSioRW(info, r & 0xff);
-        if ((int)r < 0)
-            break;
-        r = setRC2wait(0x3c);
-        _padClrIntSio0();
-        if (r == 0)
+        {
+            int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
+            if (st < 0)
+                return (unsigned)st;
+        }
+        setRC2wait(0x3c);
+        if (_padClrIntSio0() == 0)
             return 0xfffffffd;
     }
-    return r;
 }

@@ -22,7 +22,7 @@ extern void ExitCriticalSection(void);      /* A37 @0x8010696C */
 extern void ChangeClearRCnt(int n, int m);  /* L10 @0x80106664 */
 extern void SysDeqIntRP(int pri, void *rp); /* L03 @0x8010BFC8 */
 extern void SysEnqIntRP(int pri, void *rp); /* L02 @0x8010BFD8 */
-extern unsigned setRC2wait(int ticks);      /* WAITRC2 @0x8010BFE8 */
+extern void setRC2wait(int ticks);          /* WAITRC2 @0x8010BFE8 (VOID -- see WAITRC2.c) */
 extern int      chkRC2wait(void);           /* WAITRC2 @0x8010C008 */
 
 /* ---- SIO0 + interrupt register blocks, reached via libpad's cached base pointers (PAD.OBJ) ----- */
@@ -64,7 +64,7 @@ extern int  (*_padFuncIntGun)(void);
 /* internal fns (forward) */
 extern int  _padInitSioMode(unsigned char *info);
 extern void _padSioMain(unsigned char *info);
-extern void _padClrIntSio0(void);
+extern int _padClrIntSio0(void);
 extern void _padWaitRXready(void);
 
 /* ---- the VSync interrupt-handler element (Interrupt Request Path) ----------------------------- */
@@ -185,11 +185,24 @@ extern void _padStopCom(void)
 
 /* @0x80104D2C : _padInitSioMode -- configure SIO0 for `info`'s port, run any pending auto-mode
  *   fix-ups, then exchange the 0x01/0x42/0x01 select+poll prologue.  Returns 1 on success. */
+/* MATCH (w52-a5, 198 -> 94) -- five ORACLE-READ corrections, three of them REAL BUGS:
+ *  (1) setRC2wait is VOID (WAITRC2.c receipt) and it is _padClrIntSio0's RETURN that retail
+ *      tests (`jal _padClrIntSio0; beqz $v0,<ret 0>`), not a setRC2wait result.  The old
+ *      `u = setRC2wait(N); _padClrIntSio0(); if (u == 0)` shape tested the WRONG value.
+ *  (2) BUG: the SIO reset store `JOY_CTRL = 0x40` before the `= 0` was missing entirely.
+ *  (3) BUG: the queued-recv drain passed `info + n*0xF0`; retail indexes off the port-table
+ *      pointer `*(u_char **)(info + 0xC) + n*0xF0` (`lw $v0,0xC($s0); addu $a0,$v0,$a0`).
+ *  (4) ONE JOY_CTRL store fed by a selected constant (`ctrl = 0x1003; if (chan) ctrl = 0x3003;`),
+ *      not two stores -- retail's `beqz $v0 / addiu $v1,0x1003` + a single `sh $v1,0xA($a0)`.
+ *  (5) each `_padWaitRXready()` is followed by a DISCARDED `JOY_DATA8` read (`lbu $v0,0($v0)`),
+ *      and the I_STAT ack spins are top-tested `while ((I_STAT & 0x80) == 0) { if (chkRC2wait())
+ *      return 0; }`, not do/while with the test in the body. */
 extern int _padInitSioMode(unsigned char *info)
 {
-    unsigned int u;
     int wait;
+    unsigned short ctrl;
 
+    JOY_CTRL = 0x40;
     JOY_CTRL = 0;
     JOY_MODE = 0xd;
     JOY_BAUD = 0x88;
@@ -197,15 +210,19 @@ extern int _padInitSioMode(unsigned char *info)
     if (info[0xe8] == 8)
         wait = 0x50;
     setRC2wait(wait);
-    JOY_CTRL = 0x1003;
+    ctrl = 0x1003;
     if (_padSioChan != 0)
-        JOY_CTRL = 0x3003;
+        ctrl = 0x3003;
+    JOY_CTRL = ctrl;
 
     /* drain any queued auto-mode recv fix-ups for this channel */
     if (_padFixResult[_padSioChan] >= 0) {
-        while (_padFixResult[_padSioChan] > 0) {
-            _padFixResult[_padSioChan] = _padFixResult[_padSioChan] - 1;
-            _padFuncRecvAuto(info + _padFixResult[_padSioChan] * 0xf0);
+        if (_padFixResult[_padSioChan] > 0) {
+            do {
+                int n = _padFixResult[_padSioChan] - 1;
+                _padFixResult[_padSioChan] = n;
+                _padFuncRecvAuto(*(unsigned char **)(info + 0xc) + n * 0xf0);
+            } while (_padFixResult[_padSioChan] > 0);
         }
         if (_padFixResult[_padSioChan] == 0) {
             _padFixResult[_padSioChan] = -1;
@@ -217,35 +234,36 @@ extern int _padInitSioMode(unsigned char *info)
     if ((JOY_STAT & 0x200) != 0) {
         JOY_CTRL = JOY_CTRL | 0x10;
         if ((JOY_STAT & 0x200) != 0) {
-            do {
-            } while (chkRC2wait() == 0);
+            while (chkRC2wait() == 0)
+                ;
             JOY_DATA8 = 1;                       /* 0x01 : select controller */
-            u = setRC2wait(100);
-            _padClrIntSio0();
-            if (u == 0) return 0;
+            setRC2wait(100);
+            if (_padClrIntSio0() == 0)
+                return 0;
             _padWaitRXready();
+            (void)JOY_DATA8;
             setRC2wait(0x1ae);
-            do {
-                if ((I_STAT & 0x80) != 0) {
-                    JOY_DATA8 = 0x42;            /* 0x42 : poll */
-                    u = setRC2wait(0x3c);
-                    _padClrIntSio0();
-                    if (u == 0) return 0;
-                    _padWaitRXready();
-                    setRC2wait(0x1ae);
-                    do {
-                        if ((I_STAT & 0x80) != 0) {
-                            JOY_DATA8 = 1;
-                            u = setRC2wait(0x3c);
-                            _padClrIntSio0();
-                            if (u == 0) return 0;
-                            _padWaitRXready();
-                            return 0;
-                        }
-                    } while (chkRC2wait() == 0);
+            while ((I_STAT & 0x80) == 0) {
+                if (chkRC2wait() != 0)
                     return 0;
-                }
-            } while (chkRC2wait() == 0);
+            }
+            JOY_DATA8 = 0x42;                    /* 0x42 : poll */
+            setRC2wait(0x3c);
+            if (_padClrIntSio0() == 0)
+                return 0;
+            _padWaitRXready();
+            (void)JOY_DATA8;
+            setRC2wait(0x1ae);
+            while ((I_STAT & 0x80) == 0) {
+                if (chkRC2wait() != 0)
+                    return 0;
+            }
+            JOY_DATA8 = 1;
+            setRC2wait(0x3c);
+            if (_padClrIntSio0() == 0)
+                return 0;
+            _padWaitRXready();
+            (void)JOY_DATA8;
             return 0;
         }
         I_STAT = 0xffffff7f;
@@ -262,7 +280,6 @@ extern void _padSioMain(unsigned char *info)
 {
     int (*fn)(unsigned char *);
     int r;
-    unsigned u;
 
     fn = (int (*)(unsigned char *))padIntFunc[_padSioState];
     _padSioState = _padSioState + 1;
@@ -271,9 +288,8 @@ extern void _padSioMain(unsigned char *info)
         _padFuncNextPort(r);
     } else {
         if (_padSioState != 0) {
-            u = setRC2wait(0x3c);
-            _padClrIntSio0();
-            if (u == 0)
+            setRC2wait(0x3c);
+            if (_padClrIntSio0() == 0)
                 _padFuncNextPort(0xfffffffd);
         }
         if (_padSioState > 4)
@@ -281,119 +297,123 @@ extern void _padSioMain(unsigned char *info)
     }
 }
 
-/* @0x80105128 : _padSioRW -- exchange one byte; first byte (arg2<0) issues the line, else polls. */
-extern unsigned _padSioRW(unsigned char *dev, unsigned arg2)
+/* @0x80105128 : _padSioRW -- exchange one byte; first byte (tx<0) issues the line, else polls.
+ * MATCH (w52-a5, 137 -> 59): rebuilt from the oracle.  Signature is `int (u_char*, int)` and BOTH
+ * exits return the RX byte (`addu $v0,$s1,$zero`).  Corrections: chkRC2wait's RESULT drives the
+ * spins (`while (chkRC2wait() == 0);` / `if (chkRC2wait() != 0) return -0x14;`) -- it was being
+ * called and discarded; the BAUD value is SELECTED into a local and stored ONCE, late, next to the
+ * `rx = JOY_DATA8` read (`sh $a2,0xE($v0)`), not written twice at the top; `_waitTime` is stored
+ * BEFORE `_startTime`; and the two STAT spins are plain `while`s (gcc-2.8 jump.c
+ * duplicate_loop_exit_test emits retail's duplicated entry test). */
+extern int _padSioRW(unsigned char *dev, int tx)
 {
-    unsigned r;
-    unsigned ack;
-    unsigned ret;
     unsigned char rx;
 
-    int again;
-
-    rx = JOY_DATA8;
-    if ((int)arg2 < 0) {
-        ret = JOY_DATA8;
+    if (tx < 0) {
+        unsigned char *out = *(unsigned char **)(dev + 0x40);
+        rx = JOY_DATA8;
         dev[0x44] = 0xff;
         dev[0x45] = 1;
-        **(unsigned char **)(dev + 0x40) = (unsigned char)~arg2;
-        do {
-            r = JOY_STAT & 1;
-        } while ((JOY_STAT & 1) == 0);
-        do {
-            chkRC2wait();
-            again = (r == 0);
-            r = ~arg2;
-        } while (again);
-        JOY_DATA8 = (unsigned char)r;
+        *out = (unsigned char)~tx;
+        while ((JOY_STAT & 1) == 0)
+            ;
+        while (chkRC2wait() == 0)
+            ;
+        JOY_DATA8 = (unsigned char)~tx;
+        return rx;
     } else {
-        JOY_BAUD = 0x88;
-        if ((int)(unsigned)**(unsigned char **)(dev + 0x3c) >> 4 == 8 && dev[0x44] > 8)
-            JOY_BAUD = 0x22;
-        _startTime = (int)T2_VALUE;
+        unsigned short baud = 0x88;
+        int hdr = **(unsigned char **)(dev + 0x3c);
+        if (hdr >> 4 == 8 && dev[0x44] > 8)
+            baud = 0x22;
         _waitTime  = 0x1ae;
-        do {
-        } while ((JOY_STAT & 2) == 0);
-        r = JOY_DATA8;
-        do {
-            ack = I_STAT & 0x80;
-            if (ack != 0) {
-                JOY_DATA8 = (unsigned char)arg2;
-                dev[0x45] = dev[0x45] + 1;
-                *(*(unsigned char **)(dev + 0x3c) + dev[0x44]) = rx;
-                dev[0x44] = dev[0x44] + 1;
-                return r;
-            }
-            chkRC2wait();
-            ret = 0xffffffec;
-        } while (ack == 0);
+        _startTime = T2_VALUE;
+        while ((JOY_STAT & 2) == 0)
+            ;
+        rx = JOY_DATA8;
+        JOY_BAUD = baud;
+        while ((I_STAT & 0x80) == 0) {
+            if (chkRC2wait() != 0)
+                return -0x14;
+        }
+        JOY_DATA8 = (unsigned char)tx;
+        dev[0x45] = dev[0x45] + 1;
+        *(*(unsigned char **)(dev + 0x3c) + dev[0x44]) = rx;
+        dev[0x44] = dev[0x44] + 1;
+        return rx;
     }
-    return ret;
 }
 
-/* @0x80105300 : _padSioRW2 -- like _padSioRW but bounded by the RC2 timer (no busy ACK spin). */
-extern unsigned _padSioRW2(unsigned char *dev, int tx)
+/* @0x80105300 : _padSioRW2 -- like _padSioRW but bounded by the RC2 timer.
+ * MATCH (w52-a5, 157 -> 36, count-EXACT 142/142): the ACK wait embeds an INLINE COPY of
+ * chkRC2wait's body (retail hoists _startTime/_waitTime and the four RC2/SIO MMIO addresses into
+ * $a0/$a1/$t1/$a2/$t2/$t0 above the loop -- a call could never produce that), returning -2 on
+ * timeout.  Also: baud is a selected local stored once, and the second baud decision reads the
+ * JUST-RECEIVED byte (`if (dev[0x44] == 0 && (int)rx >> 4 == 8) JOY_BAUD = 0x22;`).  The
+ * prescale arms are ordered `(T2_MODE & 0x200) != 0` FIRST (fall-through) so the >>3 arm is the
+ * beqz target, matching retail's block layout. */
+extern int _padSioRW2(unsigned char *dev, int tx)
 {
-    unsigned r;
-    unsigned t;
+    unsigned short baud = 0x88;
     unsigned char rx;
+    int hdr = **(unsigned char **)(dev + 0x3c);
 
-    unsigned short baud;
-    int again;
-
-    baud = 0x88;
-    if ((int)(unsigned)**(unsigned char **)(dev + 0x3c) >> 4 == 8 && dev[0x44] > 8)
+    if (hdr >> 4 == 8 && dev[0x44] > 8)
         baud = 0x22;
-    do {
-    } while ((JOY_STAT & 2) == 0);
-    setRC2wait(400);
+
+    while ((JOY_STAT & 2) == 0)
+        ;
+    setRC2wait(0x190);
     rx = JOY_DATA8;
-    r  = JOY_DATA8;
-    JOY_BAUD = baud;
-    if (dev[0x44] == 0 && (int)r >> 4 == 8)
+    if (dev[0x44] == 0 && (int)rx >> 4 == 8)
         JOY_BAUD = 0x22;
-    do {
-        if ((I_STAT & 0x80) != 0) {
-            if (dev[0xe8] != 8 && _padSioState == 2) {
-                t = setRC2wait(0x3c);
-                do {
-                    chkRC2wait();
-                    again = (t == 0);
-                    t = 0;
-                } while (again);
-            }
-            JOY_DATA8 = (unsigned char)tx;
-            dev[0x45] = dev[0x45] + 1;
-            if ((signed char)dev[0x44] != -1)
-                *(*(unsigned char **)(dev + 0x3c) + dev[0x44]) = rx;
-            dev[0x44] = dev[0x44] + 1;
-            return r;
-        }
-        t = (unsigned)T2_VALUE;
-        if (t < (unsigned)_startTime) {
+    else
+        JOY_BAUD = baud;
+
+    while ((I_STAT & 0x80) == 0) {
+        unsigned cur = T2_VALUE & 0xffff;
+        if (cur < (unsigned)_startTime) {
             if (T2_TARGET == 0)
-                t = t + 0x10000;
+                cur += 0x10000;
             else
-                t = T2_TARGET + t;
+                cur += T2_TARGET;
         }
-        t = t - _startTime;
-        if ((T2_MODE & 0x200) == 0)
-            t = t >> 3;
-    } while (t < (unsigned)_waitTime);
-    return 0xfffffffe;
+        if ((T2_MODE & 0x200) != 0) {
+            if (cur - (unsigned)_startTime >= (unsigned)_waitTime)
+                return -2;
+        } else {
+            if ((cur - (unsigned)_startTime) >> 3 >= (unsigned)_waitTime)
+                return -2;
+        }
+    }
+    if (dev[0xe8] != 8 && _padSioState == 2) {
+        setRC2wait(0x3c);
+        while (chkRC2wait() == 0)
+            ;
+    }
+    JOY_DATA8 = (unsigned char)tx;
+    dev[0x45] = dev[0x45] + 1;
+    if (dev[0x44] != 0xff)
+        *(*(unsigned char **)(dev + 0x3c) + dev[0x44]) = rx;
+    dev[0x44] = dev[0x44] + 1;
+    return rx;
 }
 
 /* @0x80105538 : _padClrIntSio0 -- ack the SIO0 IRQ and re-enable. */
-extern void _padClrIntSio0(void)
+/* MATCH (w52-a5, 24 -> 7): the fn RETURNS int (retail stages `addu $v0,$zero,$zero` in the
+ * timeout branch's delay slot and `addiu $v0,$zero,1` before the CTRL set) and the loop is a
+ * PLAIN TOP-TESTED `while`, not a do/while with an in-body early return: gcc-2.8's jump.c
+ * duplicate_loop_exit_test emits retail's second copy of the STAT test (the `.L8010559C`
+ * reload+`bnez` back-edge).  Both call sites (MCXMAIN/_padSioMain) discard the result. */
+extern int _padClrIntSio0(void)
 {
     I_STAT = 0xffffff7f;
-    do {
-        if ((JOY_STAT & 0x80) == 0) {
-            JOY_CTRL = JOY_CTRL | 0x10;
-            return;
-        }
-        chkRC2wait();
-    } while ((JOY_STAT & 0x80) != 0);
+    while ((JOY_STAT & 0x80) != 0) {
+        if (chkRC2wait() != 0)
+            return 0;
+    }
+    JOY_CTRL = JOY_CTRL | 0x10;
+    return 1;
 }
 
 /* @0x801055C8 : _padWaitRXready -- spin until SIO0 RX has a byte (STAT bit 1). */

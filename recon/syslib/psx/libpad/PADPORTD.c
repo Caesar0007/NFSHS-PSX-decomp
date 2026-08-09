@@ -35,7 +35,7 @@ extern unsigned char     *_padSioRegs;                /* @0x80137CDC -> 0x1F8010
 extern unsigned char *(*_padFuncNextPort)(int flag);
 extern void           (*_padFuncClrInfo)(unsigned char *info);
 extern int            (*_padFuncGetTxd)(unsigned char *info, int align);
-extern int            (*_padFuncCurrLimit)(unsigned char *info);
+extern void           (*_padFuncCurrLimit)(unsigned char *info);
 extern int            (*_padFuncPtr2Port)(unsigned char *info);
 extern unsigned char *(*_padFuncPort2Info)(int slot);
 extern unsigned       (*_padFuncClrCmdNo)(unsigned char *info);
@@ -50,7 +50,7 @@ static unsigned char _pad_info[2 * 0xf0 + 0x40];   /* @0x80147600 : 2 info block
 extern unsigned char *_pad_failall(int flag);
 extern void           _pad_reset_state(unsigned char *info);
 extern int            _pad_getbyte(unsigned char *info, int align);
-extern int            _pad_filter(unsigned char *info);
+extern void           _pad_filter(unsigned char *info);
 extern int            _pad_port_to_slot(unsigned char *p);
 extern unsigned char *_pad_get_port(int slot);
 extern unsigned       _pad_shift(unsigned char *info);
@@ -225,32 +225,85 @@ extern int _pad_getbyte(unsigned char *info, int align)
     return buf[idx];
 }
 
-/* @0x800FE0B0 : _pad_filter (_padFuncCurrLimit) -- gate the actuators against the current budget. */
-extern int _pad_filter(unsigned char *info)
+/* @0x800FE0B0 : _pad_filter (_padFuncCurrLimit) -- gate the actuators against the current budget.
+ * MATCH (w52-a5): the fn is VOID -- the oracle stages NO return value anywhere (every `$v0` it
+ * materialises is a store operand: the `li 1` feeding `sb $v0,0x57/0x58`), and both call sites
+ * (MCXMAIN _padIntRecvData) discard the result.  The old `unsigned r` funnel emitted a whole
+ * shadow dataflow (r=hdr, r=b1&1, r=1, r=_padTotalCurr, r=0) that has no counterpart in retail.
+ * MATCH: the credit test is TWO SEPARATE `if (matched)` statements sharing one flag -- retail
+ * re-tests `$a2` at .L800FE1D0 after CLEARING it (`addu $a2,$zero,$zero` at .L800FE1CC) on the
+ * over-budget path, i.e. `if (m) { if (t<0x3d) total=t; else m=0; } if (m) { ... }`, not the
+ * nested `if (m) { if (t<0x3d) { ... } }` shape.
+ * MATCH: statement ORDER in the outer-loop head -- the mask default+test come FIRST (retail
+ * schedules `matched=0` into the `lw 4($s0)` load-delay slot and `mask=1` into the `beqz` delay
+ * slot), and map/dat/i are initialised AFTER the test.
+ * MATCH: BLOCK ORDER -- the actuator-map LOOP path is the FALL-THROUGH (`if (e6 != 0 && p28 !=
+ * 0)`), the small/fallback path is the `else` pushed out-of-line at .L800FE228; the inverted
+ * spelling cost 160 diffs on its own.  MATCH: both search loops are counted `for (i = 0; i <
+ * nmask; i++)` with SIGNED counters (retail's `slt`, not `sltu`), and `row += 5` precedes
+ * `mode++` so retail's `lbu 0xE9($s0)` leads the outer back-edge test.
+ * 201 -> 23.  RESIDUAL 23 @164/159, four named classes: (a) `addu $t2,$t0,$zero` -- cse copies
+ * mode's zero into row where retail rematerializes (delete_noop_moves/global-destination tie,
+ * w47); (b) the first search loop's entry guard is `slt $v0,i,$t1; beqz` where retail folded it
+ * to `beqz $t1` (+1 insn); (c) TWO `j <join>` whose delay slot retail fills with the preceding
+ * `sw $vN,%lo(_padTotalCurr)($at)` store -- the maspsx reorder-branch-slot class (both sites
+ * DISSOLVE under the cc1_272/GNU-as-reorder lane, verified); (d) the 6-byte tail fill loop is
+ * strength-reduced by retail to a walking `info+i` base -- 3 walking-pointer spellings probed,
+ * all 31 (worse), so this one is source-resistant at this basin. */
+extern void _pad_filter(unsigned char *info)
 {
-    unsigned r = 0;
     bzero(info + 0x57, 6);
 
-    if (*(unsigned short *)(info + 0xe6) == 0 || *(int *)(info + 0x28) == 0) {
-        if (((unsigned char)(info[0xe8] - 4) < 2 || info[0xe8] == 7) &&
-            (*(unsigned short *)(info + 0xe6) == 0 && info[0x34] > 1)) {
-            unsigned hdr = **(unsigned char **)(info + 0x28) & 0xc0;
-            r = hdr;
-            if (hdr == 0x40) {
-                unsigned char b1 = (*(unsigned char **)(info + 0x28))[1];
-                r = b1 & 1;
-                if ((b1 & 1) != 0) {
-                    r = 1;
-                    if (_padTotalCurr + 10 < 0x3d) {
-                        info[0x58] = 1;
-                        info[0x57] = 1;
-                        _padTotalCurr = _padTotalCurr + 10;
-                        r = _padTotalCurr;
+    if (*(unsigned short *)(info + 0xe6) != 0 && *(int *)(info + 0x28) != 0) {
+        int nmask = info[0x34] < 7 ? info[0x34] : 6;
+        int mode = 0;
+        if (info[0xe9] != 0) {
+            int row = 0;
+            do {
+                int matched = 0;
+                unsigned char mask = 1;
+                unsigned char *map;
+                unsigned char *dat;
+                int i;
+                if (*(char *)(row + *(int *)(info + 4) + 2) != 0)
+                    mask = 0xff;
+                map = info + 0x5d;
+                dat = *(unsigned char **)(info + 0x28);
+                for (i = 0; i < nmask; i++) {
+                    if (*map == mode && (*dat & mask) != 0) { matched = 1; break; }
+                    map++; dat++;
+                }
+                if (matched) {
+                    int t = _padTotalCurr + *(unsigned char *)(row + *(int *)(info + 4) + 3);
+                    if (t < 0x3d)
+                        _padTotalCurr = t;
+                    else
+                        matched = 0;
+                }
+                if (matched) {
+                    unsigned char *m2 = info + 0x5d;
+                    unsigned char *flag = info + 0x57;
+                    int k;
+                    for (k = 0; k < nmask; k++) {
+                        if (*m2 == mode) *flag = 1;
+                        m2++; flag++;
                     }
                 }
+                row += 5;
+                mode++;
+            } while (mode < info[0xe9]);
+        }
+    } else {
+        if (((unsigned char)(info[0xe8] - 4) < 2 || info[0xe8] == 7) &&
+            (*(unsigned short *)(info + 0xe6) == 0 && info[0x34] > 1)) {
+            if ((**(unsigned char **)(info + 0x28) & 0xc0) == 0x40 &&
+                ((*(unsigned char **)(info + 0x28))[1] & 1) != 0 &&
+                _padTotalCurr + 10 < 0x3d) {
+                info[0x58] = 1;
+                info[0x57] = 1;
+                _padTotalCurr = _padTotalCurr + 10;
             }
         } else {
-            r = 1;
             if (info[0xe8] == 3) {
                 info[0x57] = 1;
             } else if (*(unsigned short *)(info + 0xe6) == 0) {
@@ -259,47 +312,7 @@ extern int _pad_filter(unsigned char *info)
                     info[0x57 + i] = 1;
             }
         }
-    } else {
-        unsigned nmask = info[0x34] < 7 ? info[0x34] : 6;
-        unsigned mode = 0;
-        if (info[0xe9] != 0) {
-            int row = 0;
-            do {
-                int matched = 0;
-                unsigned char mask = 1;
-                unsigned char *map = info + 0x5d;
-                unsigned char *dat = *(unsigned char **)(info + 0x28);
-                unsigned i = 0;
-                if (*(char *)(row + *(int *)(info + 4) + 2) != 0)
-                    mask = 0xff;
-                if (nmask != 0) {
-                    do {
-                        if (*map == mode && (*dat & mask) != 0) { matched = 1; break; }
-                        map++; i++; dat++;
-                    } while (i < nmask);
-                }
-                if (matched) {
-                    int t = _padTotalCurr + *(unsigned char *)(row + *(int *)(info + 4) + 3);
-                    if (t < 0x3d) {
-                        unsigned char *m2 = info + 0x5d;
-                        unsigned char *flag = info + 0x57;
-                        unsigned k = 0;
-                        _padTotalCurr = t;
-                        if (nmask != 0) {
-                            do {
-                                if (*m2 == mode) *flag = 1;
-                                m2++; k++; flag++;
-                            } while (k < nmask);
-                        }
-                    }
-                }
-                mode++;
-                row += 5;
-            } while (mode < (unsigned)info[0xe9]);
-        }
-        r = 0;
     }
-    return r;
 }
 
 /* @0x800FE32C : _pad_port_to_slot (_padFuncPtr2Port) -- info block ptr -> slot id (0x10/0x20).

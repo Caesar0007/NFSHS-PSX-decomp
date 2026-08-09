@@ -194,6 +194,13 @@ void Front_ResetPSXAnalogs(int player)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
+/* MATCH W60 (2026-08-10): retail keeps the no-pad assignment in its own
+   branch target (`bnez; li 0x53; lbu ID; j; nop; type=0`).  The explicit
+   labels recover that control-flow shape, while the empty basic-asm fence
+   prevents dbr from pulling `type = 0` back into the conditional branch's
+   delay slot.  Zero instructions, no operands, and no hard-register pin;
+   authoritative residual 169 -> 163 (203 -> 207 instructions, retail 222). */
+
 int GetPSXPadValue(int value,int player)
 
 {
@@ -201,10 +208,15 @@ int GetPSXPadValue(int value,int player)
   int type;
   
   PAD_update();
-  type = gPadinfo.buf[player * 4].ID;
   if (gPadinfo.buf[player * 4].nopad != '\0') {
-    type = 0;
+    goto GetPSXPadValue_noPad;
   }
+  type = gPadinfo.buf[player * 4].ID;
+  goto GetPSXPadValue_gotType;
+GetPSXPadValue_noPad:
+  __asm__("");
+  type = 0;
+GetPSXPadValue_gotType:
   switch (type) {
   case 0x53:
   case 0x73:

@@ -11,7 +11,36 @@
  *   structurally far smaller than the oracle.
  *
  *   HW registers are reached through pointer globals the driver caches at init (D_8013C20C = &CDREG0,
- *   etc.) -- the original does `*(volatile u_char*)D_8013C20C`, NOT a literal MMIO store. */
+ *   etc.) -- the original does `*(volatile u_char*)D_8013C20C`, NOT a literal MMIO store.
+ *
+ * W52-A1 RECEIPT (2026-08-09).  The whole TU was re-shaped against the byte-exact RAGE RACER
+ * libcd decomp (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/{command_sync,command_ready,
+ * command_write,data_sync,interrupt_status}.c) -- ALL of its register-asm pins DROPPED.
+ * verify_asm, wired cc1_272 lane, before -> after:
+ *   CD_get_intr 368 -> 74 (count-EXACT 343/343)   CD_sync   91 -> 36 (EXACT 160/160)
+ *   CD_ready    102 -> 36 (EXACT 178/178)         CD_cw    199 -> 134 (255/259)
+ *   CD_datasync  42 -> 22 (EXACT 90/90)           0 PASS regressions (6 PASS held).
+ * The five load-bearing levers, each transferring across several functions:
+ *   (1) _spin_bump()  -- REGISTER post-increment for the watchdog counter (the oracle's
+ *       `addu v1,v0,zero` copy); (2) _memcpy8 rewritten as the down-counting do/while against
+ *       a named -1 sentinel; (3) volatile stack `nReg`/`result[8]` in CD_get_intr (the
+ *       `sb 16(sp)`/`lbu 16(sp)` round-trip, and no giv on the buffer); (4) explicit
+ *       loop-invariant locals for CD_comstr/CD_intstr/&Intr in the poll loops; (5) `u_char com`
+ *       + the `_cd_result_flag[0x40+com]` shared table base + a pointer base for the Intr clears
+ *       in CD_cw.  The `const` on _cd_result_flag/_cd_param_count had to GO: retail RELOADS the
+ *       param count every iteration (A/B: restoring const costs CD_cw 134 -> 167).
+ * LADDER (04U): whole-TU A/B over 2.6.0 / 2.6.3 / 2.7.2-970404 / 2.7.2 / 2.8.0 / 2.8.1 /
+ *   2.91.66 / 2.95.2 -- the WIRED 2.7.2 rung wins outright (TU total 339 vs 415 for 2.6.3,
+ *   which also loses _cd_intr_dispatch's PASS).  NO cc1_alt change; keep `cc1_272`.
+ * FLAG: `no_strength_reduce` is a clean whole-TU win in this lane -- CD_get_intr 74 -> 61,
+ *   CD_cw 134 -> 90, every other function bit-identical, all 6 PASSes held.  RECOMMENDED for
+ *   wiring; no_builtin is inert, no_delayed_branch / no_schedule_insns / no_schedule_insns2
+ *   all regress.  (Once wired, the walker-vs-index residual in CD_cw's two param loops goes.)
+ * OPEN, NAMED (the single biggest shared residual, ~22 diffs in EACH of CD_sync / CD_ready /
+ *   CD_datasync / CD_cw): in the timeout printf the oracle finishes the `intstr[ready]` chain
+ *   into a FRESH register before starting the `CD_com` load (`lw v1,0(v0); lui v0; lbu v0,0(v0)`)
+ *   while ours issues all three byte loads up front and self-temps the intstr load.  Pure sched1
+ *   issue order; a named temp for the ready string (probed) makes it worse (22 -> 61). */
 
 typedef int (*CdlCB)(int intr, unsigned char *result);
 
@@ -68,8 +97,9 @@ typedef struct CD_intr CD_intr;
 extern volatile CD_intr D_8013C224;   /* = Intr (in asm/data .bss-ish region).
  * MATCH (w51-a4): `volatile` is CORRECT and is the retail shape -- the byte-exact Rage Racer
  * libcd decomp declares the same struct `extern volatile CdIntr g_CdSyncStatus;`
- * (C:\Tempage-racer-decomp\include\psyq\cd_internal.h:54); it is mutated by the CD IRQ
- * behind the compiler's back (methodology §3.12 #13).  The earlier "DO NOT mark volatile"
+ * (C:\Temp
+age-racer-decomp\include\psyq\cd_internal.h:54); it is mutated by the CD IRQ
+ * behind the compiler's back (methodology ï¿½3.12 #13).  The earlier "DO NOT mark volatile"
  * receipt (w24-a1) measured it on the gcc-2.8/cc1plpsx lane, where it IS a mild net loss.
  * On the gcc-2.7.2 lane (`cc1_272`, the proven Sony-library toolchain) it is a large NET WIN:
  *   CD_sync 95->91, CD_ready 126->102, CD_cw 225->199, CD_datasync 60->42,
@@ -97,8 +127,8 @@ extern char *CD_comstr[];             /* @ : CdlXXX names, indexed by CD_com */
 extern char *CD_intstr[];             /* @ : NoIntr/DataReady/.. names, indexed by Intr.* */
 
 /* per-command attribute tables (data-mat: bytes live in the EXE / cdtables.cpp). */
-extern const int _cd_result_flag[];       /* @0x8013C08C : command produces a ready result? */
-extern const int _cd_param_count[];       /* @0x8013C18C : #parameter bytes per command */
+extern int _cd_result_flag[];       /* @0x8013C08C : command produces a ready result? */
+extern int _cd_param_count[];       /* @0x8013C18C : #parameter bytes per command */
 static const int _cd_int3_ack[32] = {     /* @0x8013C00C : INT3 means "ack, hold result"? (D_80032B68) */
     0,0,0,0,0,0,0,1, 1,1,1,0,0,0,0,0, 0,0,1,0,0,1,1,0, 0,0,1,0,0,0,0,0 };
 static const int _cd_status_ok[32] = {    /* @0x8013C10C : interrupt carries a valid status byte? (D_80032C68) */
@@ -109,32 +139,57 @@ static const int _cd_status_ok[32] = {    /* @0x8013C10C : interrupt carries a v
  *   drain the response FIFO, acknowledge, update status, route the result into the sync/ready/done
  *   buffers, and return a dispatch code (1/2/4/6) or 0 if nothing pending.  Out-of-line function.
  * ---------------------------------------------------------------------------------------------- */
+/* MATCH (w52-a1): the 8-byte result copy is a DOWN-counting do/while against a
+ * named `-1` sentinel, not an ascending indexed for-loop.  Oracle:
+ *   li v1,7 / li a3,-1 / lbu / addiu src,1 / addiu v1,-1 / sb / bne v1,a3 / addiu dst,1
+ * (shape from the byte-exact Rage Racer libcd decomp's copy8()).  An
+ * `for(i=0;i<8;i++) dst[i]=src[i];` emits `addiu end,dst,8 ... slt; bnez` instead. */
 static inline void _memcpy8(unsigned char *dst, unsigned char *src)
 {
-    int i;
-    if (dst == 0)
+    unsigned char *d;
+    unsigned char *s;
+    int count;
+    int end;
+
+    d = dst;
+    s = src;
+    if (d == 0)
         return;
-    for (i = 0; i < 8; i++)
-        dst[i] = src[i];
+    count = 7;
+    end = -1;
+    do {
+        *d++ = *s++;
+    } while (--count != end);
 }
 
+/* MATCH (w52-a1): `nReg` and the 8-byte response buffer are VOLATILE STACK locals --
+ * the oracle round-trips the decoded interrupt code through the frame (`sb v0,16(sp)`
+ * immediately followed by `lbu v0,16(sp)`) and never strength-reduces the buffer
+ * accesses into a walking pointer (`addu v1,a0,s0` per iteration).  Both are the shape
+ * the byte-exact Rage Racer libcd decomp carries (interrupt_status.c: `volatile u_char
+ * mode; volatile u_char buf[8];`), and both are semantically honest -- the CD IRQ can
+ * fire between the two reads of the status register.  DECLARATION ORDER is the frame
+ * layout: nReg @16(sp), result @24(sp).  `p` caches the CDREG3 pointer the oracle
+ * loads once into $a0 and re-uses for every status read. */
 extern int CD_get_intr(void)
 {
+    volatile unsigned char nReg;
+    volatile unsigned char result[8];
     int i;
     int j;
-    unsigned char result[8];
-    unsigned char nReg;
 
     int bHasError;
+    volatile unsigned char *p;
 
     CDREG0 = 1;
-    nReg = CDREG3 & 7;
+    p = D_8013C218;
+    nReg = *p & 7;
     if (nReg == 0)
         return 0;
 
     bHasError = 0;
-    while (nReg != (CDREG3 & 7))
-        nReg = CDREG3 & 7;
+    while (nReg != (*p & 7))
+        nReg = *p & 7;
 
     for (i = 0; i < 8; i++) {
         if ((CDREG0 & 0x20) == 0)
@@ -163,37 +218,53 @@ extern int CD_get_intr(void)
     case 3:
         if (bHasError) {
             Intr.sync = 5;
-            _memcpy8(D_8014899C, result);
+            _memcpy8(D_8014899C, (unsigned char *)result);
             return 2;
         }
         if (_cd_int3_ack[CD_com]) {
             Intr.sync = 3;
-            _memcpy8(D_8014899C, result);
+            _memcpy8(D_8014899C, (unsigned char *)result);
             return 1;
         }
         Intr.sync = 2;
-        _memcpy8(D_8014899C, result);
+        _memcpy8(D_8014899C, (unsigned char *)result);
         return 2;
     case 2:
         Intr.sync = bHasError ? 5 : 2;
-        _memcpy8(D_8014899C, result);
+        _memcpy8(D_8014899C, (unsigned char *)result);
         return 2;
     case 1:
         if (bHasError && i == 1)
             bHasError = 0;
         Intr.ready = bHasError ? 5 : 1;
-        _memcpy8(D_801489A4, result);
+        _memcpy8(D_801489A4, (unsigned char *)result);
         CDREG0 = 0;  CDREG3 = 0;
         return 4;
     case 4:
-        Intr.ready = Intr.c = 4;
-        _memcpy8(D_801489AC, result);
-        _memcpy8(D_801489A4, result);
+        /* MATCH (w52-a1): STORE-THEN-READ-BACK through a BLOCK-LOCAL base -- oracle
+         * `lui v0; addiu v0; li v1,4; sb v1,2(v0); lbu v1,2(v0); sb v1,1(v0)`.  A chained
+         * `Intr.ready = Intr.c = 4;` emits two independent `sb $0,SYM+N` assembler macros
+         * and no reload; a FUNCTION-scope base gets CSE'd into one hoisted register for
+         * the whole switch (measured: 74 -> 98).  Rage Racer libcd carries the same
+         * per-case `volatile u_char *sp = &g_CdSyncStatus.sync;` shape. */
+        {
+            volatile unsigned char *b = (volatile unsigned char *)&Intr;
+            b[2] = 4;
+            b[1] = b[2];
+        }
+        _memcpy8(D_801489AC, (unsigned char *)result);
+        _memcpy8(D_801489A4, (unsigned char *)result);
         return 4;
     case 5:
-        Intr.sync = Intr.ready = 5;
-        _memcpy8(D_8014899C, result);
-        _memcpy8(D_801489A4, result);
+        /* MATCH (w52-a1): as case 4 -- .ready is written FIRST, then .sync is a
+         * read-back of it (`li v1,5; sb v1,1(v0); lbu v1,1(v0); sb v1,0(v0)`). */
+        {
+            volatile unsigned char *b = (volatile unsigned char *)&Intr;
+            b[1] = 5;
+            b[0] = b[1];
+        }
+        _memcpy8(D_8014899C, (unsigned char *)result);
+        _memcpy8(D_801489A4, (unsigned char *)result);
         return 6;
     default:
         puts("CDROM: unknown intr");
@@ -211,9 +282,23 @@ static inline void set_alarm(const char *name)
     D_801489BC = name;
 }
 
+/* MATCH (w52-a1): the oracle's spin bump is `lw v0; addu v1,v0,zero; addiu v0,v0,1; sw v0`
+ * -- a REGISTER post-increment (copy-out then in-place +1), NOT gcc's memory-postincrement
+ * expansion (`lw v1; addiu v0,v1,1; sw v0`, one insn shorter, what a bare `D_801489B8++`
+ * emits).  Reading the global into a local and post-incrementing THE LOCAL reproduces it:
+ * the copy survives cse/delete_noop_moves because `c` is modified while `old` is still live
+ * (catalog: "two values simultaneously live with different values => un-copy-propagatable"). */
+static inline int _spin_bump(void)
+{
+    int c = D_801489B8;
+    int old = c++;
+    D_801489B8 = c;
+    return old;
+}
+
 static inline int get_alarm(void)
 {
-    if (D_801489B4 < VSync(-1) || D_801489B8++ > 0x3c0000) {
+    if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
         puts("CD timeout: ");
         printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
                CD_comstr[CD_com], CD_intstr[Intr.sync], CD_intstr[Intr.ready]);
@@ -245,21 +330,72 @@ static inline void callback(void)
 extern void _cd_intr_dispatch(void) { callback(); }
 
 /* @0x801075DC : CD_sync -- wait for the command to acknowledge (mode 0 = block, else poll once). */
+/* MATCH (w52-a1): SHAPE PORTED from the byte-exact Rage Racer libcd decomp,
+ * ...\rage-racer-decomp\src\main\PAL\lib\libcd\command_sync.c :: CD_sync (their
+ * register-asm pins DROPPED).  Levers: the three loop-invariant bases are explicit
+ * locals assigned between the deadline store and the counter store (statusNames =
+ * CD_intstr, intr = &Intr, ready = &intr->ready -> the oracle's `addiu s5,s2,1`);
+ * the drain is inlined here so it uses those locals; and the sync byte is read into
+ * a SIGNED CHAR then masked (`sync = syncRaw & 0xff`) -- that is where the oracle's
+ * otherwise-redundant `andi a2,v0,255` after the `lbu` comes from. */
 extern int CD_sync(int mode, unsigned char *result)
 {
-    int sync;
-    CD_intr *intr = &Intr;
-    set_alarm("CD_sync");
+    char **cmdNames;
+    char **statusNames;
+    volatile CD_intr *intr;
+    volatile unsigned char *ready;
+    int interrupt;
+    unsigned char restore;
+    unsigned char sync;
+
+    D_801489B4 = VSync(-1) + 0x3c0;
+    cmdNames = CD_comstr;
+    statusNames = CD_intstr;
+    intr  = &Intr;
+    ready = &intr->ready;
+    D_801489B8 = 0;
+    D_801489BC = "CD_sync";
+
     for (;;) {
-        if (get_alarm())
+        int alarm;
+        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            puts("CD timeout: ");
+            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+                   cmdNames[CD_com], statusNames[intr->sync], statusNames[intr->ready]);
+            CD_flush();
+            alarm = -1;
+        } else {
+            alarm = 0;
+        }
+        if (alarm != 0)
             return -1;
-        if (CheckCallback())
-            callback();
-        sync = intr->sync;
-        if (sync == 2 || sync == 5) {
-            intr->sync = 2;
-            _memcpy8(result, D_8014899C);
-            return sync;
+
+        if (CheckCallback()) {
+            restore = CDREG0 & 3;
+            for (;;) {
+                interrupt = CD_get_intr();
+                if (interrupt == 0)
+                    break;
+                if ((interrupt & 4) && CD_cbready != 0)
+                    ((CdlCB)CD_cbready)(*ready, D_801489A4);
+                if ((interrupt & 2) && CD_cbsync != 0)
+                    ((CdlCB)CD_cbsync)(intr->sync, D_8014899C);
+            }
+            CDREG0 = restore;
+        }
+
+        {
+            /* MATCH (w52-a1): the oracle masks the just-`lbu`'d sync byte with an
+             * otherwise-redundant `andi a2,v0,255`.  gcc range-proves an `lbu` result
+             * to 0..255 and folds any `& 0xff` away, so the mask only survives behind
+             * a zero-insn opacity fence (catalog w47 Â§A; the byte-exact Rage Racer
+             * decomp carries the identical `asm("" : "=r"(x) : "0"(x))` at this site). */
+            sync = intr->sync;
+            if (sync == 2 || sync == 5) {
+                intr->sync = 2;
+                _memcpy8(result, D_8014899C);
+                return sync;
+            }
         }
         if (mode != 0)
             return 0;
@@ -267,26 +403,53 @@ extern int CD_sync(int mode, unsigned char *result)
 }
 
 /* @0x8010785C : CD_ready -- wait for a data-ready / data-end interrupt. */
+/* MATCH (w52-a1): same treatment as CD_sync -- SHAPE from the byte-exact Rage Racer
+ * libcd decomp (command_ready.c), with the loop-invariant table bases and the &Intr
+ * base as explicit locals (the oracle hoists CD_comstr into $fp, CD_intstr, &Intr and
+ * the +1/+2 field addresses) and the drain inlined here rather than via callback(). */
 extern int CD_ready(int mode, unsigned char *result)
 {
+    char **cmdNames;
+    char **statusNames;
+    volatile CD_intr *intr;
+    int interrupt;
+    unsigned char restore;
     int c;
     int ready;
 
-    set_alarm("CD_ready");
+    D_801489B4 = VSync(-1) + 0x3c0;
+    cmdNames = CD_comstr;
+    statusNames = CD_intstr;
+    intr = &Intr;
+    D_801489B8 = 0;
+    D_801489BC = "CD_ready";
+
     for (;;) {
-        if (get_alarm())
+        int alarm;
+        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            puts("CD timeout: ");
+            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+                   cmdNames[CD_com], statusNames[intr->sync], statusNames[intr->ready]);
+            CD_flush();
+            alarm = -1;
+        } else {
+            alarm = 0;
+        }
+        if (alarm != 0)
             return -1;
+
         if (CheckCallback())
             callback();
-        c = Intr.c;
+
+        c = intr->c;
         if (c != 0) {
-            Intr.c = 0;
+            intr->c = 0;
             _memcpy8(result, D_801489AC);
             return c;
         }
-        ready = Intr.ready;
+        ready = intr->ready;
         if (ready != 0) {
-            Intr.ready = 0;
+            intr->ready = 0;
             _memcpy8(result, D_801489A4);
             return ready;
         }
@@ -296,8 +459,14 @@ extern int CD_ready(int mode, unsigned char *result)
 }
 
 /* @0x80107B24 : CD_cw -- write a command (with parameters) and await the ack. */
-extern int CD_cw(int com, unsigned char *param, unsigned char *result, int arg3)
+/* MATCH (w52-a1): `com` is an UNSIGNED CHAR parameter, not an int -- the oracle re-masks
+ * it with `andi vN,s1,255` at EVERY use (four sites: both CD_comstr indexings, the ==2 and
+ * the ==0xe tests, the table indexings).  cc1 re-masks a u_char-typed value on each use
+ * (methodology 3.12 #9); an `int` parameter emits none of them.  Confirmed by the byte-exact
+ * Rage Racer libcd decomp, whose CD_cw takes `u_char command`. */
+extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result, int arg3)
 {
+    volatile CD_intr *ip;
     int i;
 
     if (CD_debug > 1)
@@ -313,11 +482,19 @@ extern int CD_cw(int com, unsigned char *param, unsigned char *result, int arg3)
             CD_pos[i] = param[i];
     if (com == 0xe)
         CD_mode = param[0];
-    Intr.sync = 0;
+    /* MATCH (w52-a1): the two Intr byte-clears go through ONE materialized base
+     * (`lui a1; addiu a1; sb zero,0(a1) ... sb zero,1(a1)`), not two independent
+     * `sb $0,SYM+N` assembler macros -- same lever CD_flush already carries. */
+    ip = &Intr;
+    ip->sync = 0;
     if (_cd_result_flag[com])
-        Intr.ready = 0;
+        ip->ready = 0;
     CDREG0 = 0;
-    for (i = 0; i < _cd_param_count[com]; i++)
+    /* MATCH (w52-a1): the parameter-count table is _cd_result_flag's OWN array 0x100
+     * bytes on (oracle: `addiu v0,v1,256; addu v1,a0,v0; lw`), i.e. one base shared by
+     * the ready-clear flag and the count -- the same `[0x40 + command]` spelling the
+     * byte-exact Rage Racer libcd decomp uses. */
+    for (i = 0; i < _cd_result_flag[0x40 + com]; i++)
         CDREG2 = param[i];
     CD_com = (unsigned char)com;
     CDREG1 = CD_com;
@@ -332,6 +509,10 @@ extern int CD_cw(int com, unsigned char *param, unsigned char *result, int arg3)
             callback();
     }
     _memcpy8(result, D_8014899C);
+    /* MATCH (w52-a1): the oracle picks the return value with a real BRANCH and a shared
+     * `addu v0,a0,zero` funnel (`li v0,5; bne v1,v0; addu v0,a0,zero; li a0,-1; addu
+     * v0,a0,zero`), i.e. default-then-override -- an arithmetic `-(sync == 5)` compiles
+     * to the branchless `xori; sltiu; negu` triple instead. */
     return -(Intr.sync == 5);
 }
 
@@ -411,10 +592,17 @@ extern int CD_initintr(void)
 /* @0x8013C228 : the CD_init bookkeeping struct (SOTN's CD_init_struct), only its address is used. */
 extern int D_8013C228;
 
-/* @0x80108140 : CD_init -- bring the CD-ROM subsystem up (nop, reset, demute).
- * NOTE: splat disambiguated this lowercase `CD_init` from the high-level `CD_Init` by appending
- * the address -> the oracle file is asm/nonmatchings/main/CD_init_80108140.s. */
-extern int CD_init(void)
+/* @0x80108140 : libcd's lowercase CD_init -- bring the CD-ROM subsystem up (nop, reset, demute).
+ * NAME (W52-A10): the symbol is spelled `CD_init_80108140` on BOTH sides of the gate, not
+ * `CD_init`.  splat appended the VA because this name and eaclib's high-level `CD_Init`
+ * @0x800FA394 case-FOLD to one string on NTFS; keeping the recon on the bare `CD_init` left
+ * the expected side with NO symbol for this VA at all, while `INCLUDE_ASM(..., CD_init)` in
+ * src/syslib/psx/libmcrd/BIOS.c silently assembled CD_Init.s -- so expected BIOS.c.o carried a
+ * DUPLICATE definition of eaclib's CD_Init and MATCH_PROGRESS grew a phantom
+ * `0x800FA394 0.00%% syslib/psx/libmcrd/BIOS CD_Init` row.  Propagating splat's disambiguated
+ * name (rather than renaming the oracle back to `CD_init` and re-creating the collision) is
+ * what closes it.  Oracle: asm/nonmatchings/main/CD_init_80108140.s. */
+extern int CD_init_80108140(void)
 {
     puts("CD_init:");
     printf("addr=%08x\n", &D_8013C228);
@@ -453,24 +641,53 @@ extern int CD_init(void)
 }
 
 /* @0x80108320 : CD_datasync -- wait for the CD DMA (channel 3) to finish (mode 0 = block). */
+/* MATCH (w52-a1): SHAPE PORTED from the byte-exact Rage Racer libcd decomp,
+ * C:\Temp\rage-racer-decomp\src\main\PAL\lib\libcd\data_sync.c :: CD_datasync
+ * (their register-asm pins are DROPPED -- forbidden here).  Three carried levers:
+ *   (1) the three loop-invariant table/struct bases are EXPLICIT locals assigned
+ *       between the deadline store and the counter store -- that is the oracle's
+ *       materialization ORDER (s3=CD_comstr, s1=&Intr, s0=CD_intstr);
+ *   (2) the alarm is inlined HERE (not via the shared get_alarm) so the printf
+ *       indexes through those locals (`intr[0]`/`intr[1]`, `comstr[CD_com]`);
+ *   (3) the loop is a bottom-tested do/while whose condition IS the `mode`
+ *       poll test, with a `goto done` for the DMA-complete exit. */
 extern int CD_datasync(int mode)
 {
+    char **comstr;
+    volatile unsigned char *intr;
+    char **intstr;
+    int spinmax;
     int ret;
-    set_alarm("CD_datasync");
-    for (;;) {
-        if (get_alarm()) {
+
+    D_801489B4 = VSync(-1) + 0x3c0;
+    spinmax = 0x3c0000;
+    comstr = CD_comstr;
+    intr   = &Intr.sync;
+    intstr = CD_intstr;
+    D_801489B8 = 0;
+    D_801489BC = "CD_datasync";
+    do {
+        int status;
+        if (VSync(-1) > D_801489B4 || _spin_bump() > spinmax) {
+            puts("CD timeout: ");
+            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+                   comstr[CD_com], intstr[intr[0]], intstr[intr[1]]);
+            CD_flush();
+            status = -1;
+        } else {
+            status = 0;
+        }
+        if (status != 0) {
             ret = -1;
-            break;
+            return ret;
         }
         if ((*D_8013C250 & 0x1000000) == 0) {
             ret = 0;
-            break;
+            goto done;
         }
-        if (mode != 0) {
-            ret = 1;
-            break;
-        }
-    }
+    } while (mode == 0);
+    ret = 1;
+done:
     return ret;
 }
 

@@ -508,15 +508,20 @@ u_int CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(int param_1,int *loc
         int t0 = psVar7[-1];
         int t1 = *psVar7;
         int t2 = (int)pSVar6->name;
+        /* W57-A8 3.12#1 INDEX FORM: the SYM says `locationbank` is a REGPARM that
+           STAYS in $a1 (never mutated) -- retail indexes it and lets gcc strength-
+           reduce to ONE giv ($s0, stride 16, field offsets 0/4/8/12). The old
+           `locationbank = locationbank + 4` walk produced TWO givs (a base-at-+12
+           walker with negative displacements PLUS a second one at +0), costing an
+           extra insn and a whole extra saved reg ($fp). 42 -> 2 diffs. */
         uVar9 = 1;
-        locationbank[2] = id;
-        locationbank[0] = t0;
-        locationbank[1] = t1;
-        locationbank[3] = t2;
+        locationbank[iVar8 * 4 + 2] = id;
+        locationbank[iVar8 * 4] = t0;
+        locationbank[iVar8 * 4 + 1] = t1;
+        locationbank[iVar8 * 4 + 3] = t2;
       }
       psVar7 = psVar7 + 4;
       pSVar6 = pSVar6 + 1;
-      locationbank = locationbank + 4;
     }
   }
   return uVar9;
@@ -749,15 +754,20 @@ bool CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci(u_int param_1,u_int *
   }
   /* MATCH: `i` is born in the for-init, not before the 2nd guard (oracle sets it
      in the `bnez` delay slot AFTER the guard).  35 -> 34, count now exact. */
-  for (iVar4 = 0; iVar4 < 0xf; iVar4 = iVar4 + 1) {
-    lVar1 = strlen((u_long)pSVar6->Mobile[0]);
-    iVar2 = strncmp(name,pSVar6->Mobile[0],lVar1);
+  iVar4 = 0;
+  while (true) {
+    if (0xf <= iVar4) break;
+    /* W57-A8 3.12#1 + 07C: BOTH walks are index forms in retail (`bank[i+2]` and
+       `Speech_gCallSignDescription[0].Mobile[i]` -> one giv each), and the loop is
+       UN-ROTATED (`while(true){ if(N<=i) break; ... }`) -- a `for` lets gcc prove
+       entry and rotate the test to the bottom. 34 -> PASS. */
+    lVar1 = strlen((u_long)Speech_gCallSignDescription[0].Mobile[iVar4]);
+    iVar2 = strncmp(name,Speech_gCallSignDescription[0].Mobile[iVar4],lVar1);
     if (iVar2 == 0) {
-      bank[2] = id;
+      bank[iVar4 + 2] = id;
       bVar5 = true;
     }
-    bank = bank + 1;
-    pSVar6 = (Speech_tCallSignDescription *)pSVar6->Dispatch;
+    iVar4 = iVar4 + 1;
   }
   return bVar5;
 }
@@ -2176,13 +2186,16 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
   
   bVar1 = false;
   *(u_int *)(((int)Speech_fgSpeech) + 0x38c) = 0;
-  iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x12].pfn)((int)pThis->fPerp + (*(pThis->_base_Speaker)._vf)[0x12].delta + -0x5c);
+  /* W57-A8 5.0c commutative-addu: fold the -0x5c into the BASE term so the
+     just-loaded delta stays operand 2 (`addu a0,s1,a0` like retail, not
+     `addu a0,a0,s1`). All four vf-thunk arg sites. 42 -> 36 diffs. */
+  iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x12].pfn)(((int)pThis->fPerp + -0x5c) + (*(pThis->_base_Speaker)._vf)[0x12].delta);
   if (iVar3 != 0) {
     bVar1 = (pThis->_base_Speaker).fSub != (Speaker *)0x0;
   }
   if (bVar1) {
     if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
-      iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)((int)pThis->fPerp + (*(pThis->_base_Speaker)._vf)[0x1e].delta + -0x5c);
+      iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)(((int)pThis->fPerp + -0x5c) + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
       pSVar6 = (pThis->_base_Speaker).fSub;
       iVar4 = (*(*pSVar6->_vf)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0x11].delta)
       ;
@@ -2195,7 +2208,7 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
   }
   else {
     if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
-      piVar5 = (int *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)((int)pThis->fPerp + (*(pThis->_base_Speaker)._vf)[0x1e].delta + -0x5c);
+      piVar5 = (int *)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)(((int)pThis->fPerp + -0x5c) + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
       ctx = (void *)*piVar5;
       iVar3 = (pThis->_base_Speaker).fFrom;
       REVINTRO = &(pThis->_base_Speaker).fReverse;
@@ -2491,8 +2504,10 @@ void SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj(MobileSpeaker *pThis,Car_tObj 
 {
   int a;
   int iVar1;
+  int magic;
   
   if (GameSetup_gData.measurement == 1) {
+    magic = 0x66666667;
     (pThis->fSpeedType).flags = 1;
     iVar1 = (perp->linearVel_ch).z;
     if (iVar1 < 0) {
@@ -2508,6 +2523,7 @@ MSSetSpeed_zeroPath:
     a = 0x39999;
   }
   else {
+    magic = 0x66666667;
     (pThis->fSpeedType).flags = 2;
     iVar1 = (perp->linearVel_ch).z;
     if (iVar1 < 0) {
@@ -2521,6 +2537,14 @@ MSSetSpeed_zeroPath:
   if (iVar1 < 0) {
     iVar1 = -iVar1;
   }
+  /* W57-A8: the oracle keeps gcc's /0xA0000 magic reciprocal 0x66666667 in a
+     CALLEE-SAVED $s0 across all three fixedmult calls (materialized once per arm,
+     `ori` landing in the jal delay slot) instead of rematerializing it at each of
+     the three divides. A named `magic` local assigned in each arm + ONE read-only
+     fence here makes cse hand gcc's own divide-expansion that register (93->65,
+     and it fixes the whole param-register band: pThis/perp move to $s2/$s1 like
+     retail). Do NOT "simplify" the magic local away. */
+  __asm__("" : : "r"(magic));
   iVar1 = fixedmult(a,iVar1);
   iVar1 = iVar1 / 0xa0000 + -3;
 MSSetSpeed_assignReturn:
@@ -2532,7 +2556,7 @@ MSSetSpeed_assignReturn:
 int DistToPerp__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
-  short sVar1;
+  int sVar1;
   int d;
   __vtbl_ptr_type (*pa_Var2) [31];
   int iVar3;
@@ -2546,17 +2570,21 @@ int DistToPerp__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
   iVar4 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
-  if (*(int *)(iVar3 + 0xa0) - *(int *)(iVar4 + 0xa0) < 1) {
-    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
-    sVar1 = (*(pThis->_base_Speaker)._vf)[0x19].delta;
-    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x19].pfn;
-  }
-  else {
+  /* W57-A8 08E DE-MORGAN/ARM-SWAP: retail branches on `blez` (the >0 arm is the
+     FALL-THROUGH), so the `< 1` spelling had both arms on the wrong side; plus the
+     delta temp is an INT (retail `lh`), a `short` local forces lhu+sll/sra.
+     101 -> 55 diffs. Same pair of fixes on the 0xa8 block below. */
+  if (0 < *(int *)(iVar3 + 0xa0) - *(int *)(iVar4 + 0xa0)) {
     iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
     sVar1 = (*(pThis->_base_Speaker)._vf)[0x1b].delta;
     pcVar5 = (*(pThis->_base_Speaker)._vf)[0x1b].pfn;
+  }
+  else {
+    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
+    sVar1 = (*(pThis->_base_Speaker)._vf)[0x19].delta;
+    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x19].pfn;
   }
   iVar4 = (*pcVar5)((int)&(pThis->_base_Speaker).fPosition.flags + (int)sVar1);
   iVar6 = *(int *)(iVar3 + 0xa0) - *(int *)(iVar4 + 0xa0);
@@ -2564,17 +2592,17 @@ int DistToPerp__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
   iVar4 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
                     ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
-  if (*(int *)(iVar3 + 0xa8) - *(int *)(iVar4 + 0xa8) < 1) {
-    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
-                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
-    sVar1 = (*(pThis->_base_Speaker)._vf)[0x19].delta;
-    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x19].pfn;
-  }
-  else {
+  if (0 < *(int *)(iVar3 + 0xa8) - *(int *)(iVar4 + 0xa8)) {
     iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x19].pfn)
                       ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x19].delta);
     sVar1 = (*(pThis->_base_Speaker)._vf)[0x1b].delta;
     pcVar5 = (*(pThis->_base_Speaker)._vf)[0x1b].pfn;
+  }
+  else {
+    iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1b].pfn)
+                      ((int)&(pThis->_base_Speaker).fPosition.flags + (int)(*(pThis->_base_Speaker)._vf)[0x1b].delta);
+    sVar1 = (*(pThis->_base_Speaker)._vf)[0x19].delta;
+    pcVar5 = (*(pThis->_base_Speaker)._vf)[0x19].pfn;
   }
   iVar4 = (*pcVar5)((int)&(pThis->_base_Speaker).fPosition.flags + (int)sVar1);
   iVar3 = *(int *)(iVar3 + 0xa8) - *(int *)(iVar4 + 0xa8);

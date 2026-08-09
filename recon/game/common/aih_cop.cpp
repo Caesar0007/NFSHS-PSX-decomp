@@ -9,11 +9,13 @@
 #include "../../nfs4_types.h"
 #include "aih_cop_externs.h"
 
-extern volatile int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
-                              volatile: defeats gcc's over-aggressive LICM hoist of
-                              "randVal < perTickProb+AI_elapsedTime" fully out of the
-                              CheckForWipeOut loop -- oracle recomputes it every iter
-                              (permuter-discovered device, catalog EA-DMPSX family). */
+extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
+                              W57-A8: the `volatile` here was WRONG (it forced a re-LOAD of
+                              AI_elapsedTime every CheckForWipeOut iteration = 4 spurious
+                              insns). The oracle loads it ONCE into $a2 in the loop preheader
+                              and computes `AI_elapsedTime * 89` inside the loop; gcc's LICM
+                              hoists all but the LAST insn of the synth-multiply chain
+                              (`addu $v1,$t1,$a2`), which is what the retail body shows. */
 extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (distinct alias symbol the oracle addresses
                               directly for a gameTicks re-read the compiler can't CSE against the
                               nearby simGlobal.gameTicks store -- see aih_basiccop.cpp/aiphysic.cpp) */
@@ -478,12 +480,17 @@ void AIHigh_Cop::HighExecute()
 
         newState = operator new(0x94);
 
+        /* W57-A8: arg2 via the inline GetCarObj() accessor (NOT the raw ->carObj_
+           field): the accessor form makes gcc evaluate the perpTarget deref EARLY
+           into its own scratch like retail, instead of parking perpTarget_ in $a2
+           across the whole 9-arg setup and dereferencing in place. Same edit at all
+           three AIState_Chase construction sites: 168 -> 84 diffs. */
         newState = (new(newState) AIState_Chase(this->carObj_,
-                             (this->perpTarget_)->carObj_,&pos,
+                             this->perpTarget_->GetCarObj(),&pos,
                              AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
                              NitroDistanceMeters[this->type_][0],
                              NitroDistanceMeters[this->type_][1],
-                             this->aggressionLevel_,AICop_skillDelay[GameSetup_gData.skill]));
+                             this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
         oldState = this->state_;
 
@@ -1259,11 +1266,11 @@ LAB_80064d34:;
         newState = operator new(0x94);
 
         newState = (new(newState) AIState_Chase(this->carObj_,
-                             (this->perpTarget_)->carObj_,&newPos,
+                             this->perpTarget_->GetCarObj(),&newPos,
                              AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
                              NitroDistanceMeters[this->type_][0],
                              NitroDistanceMeters[this->type_][1],
-                             this->aggressionLevel_,AICop_skillDelay[GameSetup_gData.skill]));
+                             this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
         oldState = this->state_;
 
@@ -1317,11 +1324,11 @@ LAB_80064d34:;
         newState = operator new(0x94);
 
         newState = (new(newState) AIState_Chase(this->carObj_,
-                             (this->perpTarget_)->carObj_,&pos,
+                             this->perpTarget_->GetCarObj(),&pos,
                              AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
                              NitroDistanceMeters[this->type_][0],
                              NitroDistanceMeters[this->type_][1],
-                             this->aggressionLevel_,AICop_skillDelay[GameSetup_gData.skill]));
+                             this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
         oldState = this->state_;
 
@@ -1672,7 +1679,11 @@ void AIHigh_Cop::CheckForWipeOut()
 
     if ((((pAVar3)->carObj_)->carFlags & 8U) != 0) {
 
-      if ((this->carObj_)->wipeOutEndTick <= D_8011E0B0[0]) {
+      /* W57-A8 08E: operand order is the load order -- `gameTicks >= wipeOutEndTick`
+         (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
+         gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
+         there instead and rotated the whole a0/a1 band. 25 -> PASS. */
+      if (D_8011E0B0[0] >= (this->carObj_)->wipeOutEndTick) {
 
         iVar2 = (pAVar3->perpChaseInfo_).engagementTime_;
 
@@ -1695,17 +1706,21 @@ void AIHigh_Cop::CheckForWipeOut()
 LAB_800654b8:
 
   if (!bVar1) {
+    /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
+       (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
+       materializations, the AI_elapsedTime load, Cars_gNumHumanRaceCars, the perpTarget_
+       re-read + thisTargetLevel load, and 5 of the 6 insns of `AI_elapsedTime * 89`),
+       867/868 = the two list lookups, 877 = the paired guard (the multiply's LAST insn
+       `addu $v1,$t1,$a2` lands in its delay slot), 879 = the store, 884 = the bump. */
     int hLoop;
 
     randtemp = fastRandom * randSeed;
 
-    perTickProb = AI_elapsedTime * 88;
-
-    thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
-
     randVal = (int)((randtemp >> 8) & 0xffff);
 
     fastRandom = randtemp & 0xffff;
+
+    thisTargetLevel = (this->perpTarget_->perpChaseInfo_).chaseLevelIndex_;
 
     hLoop = 0;
 
@@ -1721,9 +1736,11 @@ LAB_800654b8:
 
       thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
 
+      perTickProb = AI_elapsedTime * 89;
+
       if (thisTargetLevel < (thisPlayer->perpChaseInfo_).chaseLevelIndex_) {
 
-        if (randVal < perTickProb + AI_elapsedTime) {
+        if (randVal < perTickProb) {
 
           (this->carObj_)->wipeOutEndTick = simGlobal.gameTicks + 0x280;
 
@@ -1998,257 +2015,123 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 /* ---- CheckForNewTriggers__10AIHigh_Cop  AIHigh_Cop::CheckForNewTriggers  [AIH_COP.CPP:1021-1166] SLD-VERIFIED ---- */
 
 trigger_t * AIHigh_Cop::CheckForNewTriggers()
-
-
-
 {
-  copType cVar1;
-
-  int iVar2;
-
-  int trigger;
-
-  Car_tObj *pCVar3;
-
-  trigger_t *ptVar4;
-
-  u_int uVar5;
-
-  int iVar6;
-
-  int iVar7;
-
-  int iVar8;
-
-  AIHigh_Base *pAVar9;
-
-  int iVar10;
-
-  Car_tObj *pCVar11;
-
-  int iVar12;
-
-  int iStack_30;
-
-  int local_2c;
-
-  Sim_tSimGlobalVar *pSimGlobal;
-
-  pSimGlobal = &simGlobal;
+  /* W57-A8 05A/06A rewrite: SYM 8c local set (sortedLoop=$30 testCar=$21 dir=$3
+     thisPlayer=$16 needs=$4 got=AUTO-44 pLevel=$6 thisSlice=$3 startSlice=$4
+     endSlice=$20 fRandomChance=$18 | newSlice=$3 temp=$5 sliceLoop=$17
+     triggerHere=$19 iRandomChance=$18 randomValue=$16 unused=AUTO-48), statements
+     in SLD order (1034/1041/1043/1044/1047/1060/1066/1069/1073/1084/1087/1093/
+     1097/1100/1102/1115/1120/1122/1123/1138/1145/1152/1163/1165/1166).
+     REAL BUG FIXED: fRandomChance is thisPlayer->newTriggerProb_ (+0x84) and the
+     gate is basicPerpInfo_.crime_ (+0x78) -- the prior recon had the two SWAPPED
+     (it doubled perpInfo[2] and gated on +0x84). */
+  int sortedLoop;
+  Car_tObj *testCar;
+  Sim_tSimGlobalVar *pSimGlobal = &simGlobal;   /* oracle materializes &simGlobal as a
+                              value (lui/addiu + disp-4 load) at BOTH sites, not the
+                              folded lui/%lo(simGlobal+4) a direct member access gives */
 
   if (0x5bf < pSimGlobal->gameTicks) {
+    for (sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop; sortedLoop = sortedLoop - 1) {
+      testCar = Cars_gTotalSortedList[sortedLoop];
+      if ((testCar->carFlags & 1U) != 0) {
+        int dir;
+        AIHigh_Player *thisPlayer;
+        int needs;
+        int got;
+        copLevel_t *pLevel;
+        int thisSlice;
+        int startSlice;
+        int endSlice;
+        int fRandomChance;
+        AICop_BasicPerpInfo *perpInfo;
 
-    for (iVar12 = Cars_gNumCars - 1; -1 < iVar12; iVar12 = iVar12 - 1) {
-
-      pCVar11 = Cars_gTotalSortedList[iVar12];
-
-      if ((pCVar11->carFlags & 1U) != 0) {
-
-        pAVar9 = highLevelAIObjs[pCVar11->carIndex];
-
-        {
-        int *perpInfo;
-
-        int *pLevel;
-
-        perpInfo = &pAVar9[4].lastTrafficTriggerCheckSlice_;
-
-        pLevel = (int *)pAVar9[6].schedulingOff_;
-
-        cVar1 = this->type_;
-
-        iVar10 = perpInfo[2];
-
-        iVar6 = cVar1 * 4;
-
-        local_2c = perpInfo[cVar1];
-
-        if (((AIHigh_Player *)pAVar9)->newTriggerProb_ == 0) {   /* @0x84: was mis-offset
-                     as pAVar9[5].carObj_ (0x78=basicPerpInfo_.crime_) -- oracle loads 0x84
-                     (AIHigh_Player::newTriggerProb_); pAVar9[5]-stride breaks past AIHigh_Base's
-                     repeat region once into AIHigh_Player's own field extension. */
-
-          iVar10 = iVar10 << 1;
-
-          if (0 < *(int *)((int)pLevel + iVar6)) {
-
-            iVar2 = AICop_NoCopsInArea((int)(pAVar9->carObj_->N).simRoadInfo.slice,0x1f40000);
-
-            iVar6 = 1;
-
-            if (iVar2 != 0) goto LAB_80065a54;
-
+        thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex];
+        fRandomChance = thisPlayer->newTriggerProb_;
+        perpInfo = &thisPlayer->basicPerpInfo_;
+        got = perpInfo->copsAssigned_[this->type_];
+        pLevel = (thisPlayer->perpChaseInfo_).chaseLevel_;
+        if (perpInfo->crime_ == 0) {
+          fRandomChance = fRandomChance * 2;
+          if ((0 < pLevel->copChasers[this->type_]) &&
+              (AICop_NoCopsInArea((int)(thisPlayer->GetCarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
+            needs = 1;
           }
-
-          iVar6 = 0;
-
-        }
-
-        else {
-
-          iVar6 = *(int *)((int)pLevel + iVar6);
-
-        }
-        }
-
-LAB_80065a54:
-
-        if (GameSetup_gData.skill == 2) {
-
-          iVar10 = 0x10000;
-
-        }
-
-        if ((0x1bf < (int)(pSimGlobal->gameTicks - pAVar9[4].stateType_)) && (local_2c < iVar6)) {
-
-          int dir;
-
-          int thisSlice;
-
-          int startSlice;
-
-          int endSlice;
-
-          int sliceLoop;
-
-          dir = -1;
-
-          if (-1 < pCVar11->currentSpeed) {
-
-            dir = 1;
-
-          }
-
-          thisSlice = dir * 0x1f;
-
-          if (-1 < thisSlice) {
-
-            thisSlice = (pCVar11->N).simRoadInfo.slice + thisSlice;
-
-            if (gNumSlices <= thisSlice) {
-
-              thisSlice = thisSlice - gNumSlices;
-
-            }
-
-          }
-
           else {
-
-            thisSlice = (pCVar11->N).simRoadInfo.slice + thisSlice;
-
-            if (thisSlice < 0) {
-
-              thisSlice = thisSlice + gNumSlices;
-
-            }
-
+            needs = 0;
           }
-
-          {
-            int temp;
-
-            temp = pAVar9[5].lastTrafficTriggerCheckSlice_;
-
-            pAVar9[5].lastTrafficTriggerCheckSlice_ = thisSlice;
-
-            if (temp < thisSlice) {
-
-              startSlice = temp;
-
-              endSlice = thisSlice;
-
-            }
-
-            else {
-
-              startSlice = thisSlice;
-
-              endSlice = temp;
-
-            }
-          }
-
-          sliceLoop = startSlice;
-
-          {
-
-          int chanceBase;
-
-          chanceBase = iVar10 * 25;
-
-          while ((sliceLoop < endSlice) && (endSlice - startSlice < 6)) {
-
-            int triggerHere;
-
-            triggerHere = triggerManagerCops->CheckForTriggerAtSlice(pCVar11->carIndex, sliceLoop);
-
-            if (triggerHere != -1) {
-
-              int iRandomChance;
-
-              u_int randomValue;
-
-              int scaledRand;
-
-              iRandomChance = (chanceBase << 2) / 0x10000;
-
-              randtemp = fastRandom * randSeed;
-
-              fastRandom = randtemp & 0xffff;
-
-              randomValue = randtemp >> 8;
-
-              scaledRand = (int)((randomValue & 0xffff) * 0x19 >> 0xe);
-
-              if (AILife_IsSliceInAnyVisibleArea(sliceLoop) == (Car_tObj *)0x0) {
-
-                if ((local_2c != 0) ||
-
-                   (sliceLoop = sliceLoop + 1, scaledRand < iRandomChance)) {
-
-                  return triggerManagerCops->GetTrigger(triggerHere, &iStack_30);
-
-                }
-
-              }
-
-              else {
-
-LAB_80065c28:
-
-                sliceLoop = sliceLoop + 1;
-
-              }
-
-            }
-
-            else {
-
-              goto LAB_80065c28;
-
-            }
-
-          }
-
-          }
-
         }
+        else {
+          needs = pLevel->copChasers[this->type_];
+        }
+        if (GameSetup_gData.skill == 2) {
+          fRandomChance = 0x10000;
+        }
+        if (0x1bf < pSimGlobal->gameTicks - thisPlayer->lastPullOverTime_) {
+          if (got < needs) {
+            int newSlice;
 
+            dir = -1;
+            if (-1 < testCar->currentSpeed) {
+              dir = 1;
+            }
+            thisSlice = dir * 0x1f;
+            if (-1 < thisSlice) {
+              newSlice = (testCar->N).simRoadInfo.slice + thisSlice;
+              if (gNumSlices <= newSlice) {
+                newSlice = newSlice - gNumSlices;
+              }
+            }
+            else {
+              newSlice = (testCar->N).simRoadInfo.slice + thisSlice;
+              if (newSlice < 0) {
+                newSlice = newSlice + gNumSlices;
+              }
+            }
+            {
+              int temp;
+
+              temp = thisPlayer->lastTriggerCheckSlice_;
+              thisPlayer->lastTriggerCheckSlice_ = newSlice;
+              if (temp < newSlice) {
+                startSlice = temp;
+                endSlice = newSlice;
+              }
+              else {
+                startSlice = newSlice;
+                endSlice = temp;
+              }
+            }
+            for (int sliceLoop = startSlice;
+                 (sliceLoop < endSlice) && (endSlice - startSlice < 6);
+                 sliceLoop++) {
+              int triggerHere;
+
+              triggerHere = triggerManagerCops->CheckForTriggerAtSlice(testCar->carIndex, sliceLoop);
+              if (triggerHere != -1) {
+                int iRandomChance;
+                int randomValue;
+
+                iRandomChance = (fRandomChance * 100) / 0x10000;
+                randtemp = fastRandom * randSeed;
+                fastRandom = randtemp & 0xffff;
+                randomValue = (int)(((randtemp >> 8) & 0xffff) * 0x19 >> 0xe);
+                if (AILife_IsSliceInAnyVisibleArea(sliceLoop) == (Car_tObj *)0x0) {
+                  if ((got != 0) || (randomValue < iRandomChance)) {
+                    int unused;
+
+                    return triggerManagerCops->GetTrigger(triggerHere, &unused);
+                  }
+                }
+              }
+            }
+          }
+        }
       }
-
     }
-
   }
-
   return (trigger_t *)0x0;
-
 }
-
-
-
-
-
 
 
 /* end of aih_cop.cpp */

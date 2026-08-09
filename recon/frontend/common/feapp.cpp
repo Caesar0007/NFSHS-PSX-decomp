@@ -787,7 +787,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
       }
 MainLoop_subMenuDetect:
       if ((u_char)this->fPlayer == 1) {
-        ptVar17 = this->fCurrentMenu[1];
+        ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
         if ((((ptVar17 != (tMenu *)0x0) &&
              (iVar10 = (*(*ptVar17->_vf)[7].pfn)
                                  ((char *)ptVar17 + (*ptVar17->_vf)[7].delta),
@@ -1021,11 +1021,11 @@ MainLoop_noBack:
             goto MainLoop_perPlayerInputTop;
           case 6:
             iVar10 = 1 - (u_int)(u_char)this->fPlayer;
-            if (*(int *)((int)this + iVar10 * 4 + 0x230) == 0) {
+            if (this->waitingForOtherPlayer[iVar10] == 0) {
               this->waitingForOtherPlayer[(u_char)this->fPlayer] = 1;
               break;
             }
-            *(u_int *)((int)this + iVar10 * 4 + 0x230) = 0;
+            this->waitingForOtherPlayer[iVar10] = 0;
             if (frontEnd.raceType != '\x06') goto MainLoop_carInfoStockGarage;
             AudioMus_StopSong(400);
             Init_Memcard(false,1);

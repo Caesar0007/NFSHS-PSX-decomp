@@ -68,7 +68,7 @@ void tScreenTrackSelect::DrawBackground()
       this->SetBrightness(trackInfo.fAvailable != '\0' ? 0x80 : 0x20);
     }
     {
-      char moviename[80];
+      char moviename[88];
 
       sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],
               (int)this->fMovieTrack);
@@ -77,9 +77,6 @@ void tScreenTrackSelect::DrawBackground()
     VIDEO_startplayback(this->hVideo);
   }
   if (0 < this->fBrightness) {
-    short shapeX;
-
-    shapeX = 0x200;
     prim = (POLY_FT4 *)Render_gPacketPtr;
     ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
@@ -96,18 +93,17 @@ void tScreenTrackSelect::DrawBackground()
     prim->y2 = 0xe8;
     prim->x3 = 0x139;
     prim->y3 = 0xe8;
-    prim->u0 = shapeX & 0x3f;
+    prim->u0 = 0x200 & 0x3f;
     prim->v0 = shapeY;
-    prim->u1 = (shapeX & 0x3f) + 0x50;
+    prim->u1 = (0x200 & 0x3f) + 0x50;
     prim->v1 = shapeY;
-    prim->u2 = shapeX & 0x3f;
+    prim->u2 = 0x200 & 0x3f;
     prim->v2 = shapeY | 0x7f;
-    prim->u3 = (shapeX & 0x3f) + 0x50;
+    prim->u3 = (0x200 & 0x3f) + 0x50;
     prim->v3 = shapeY | 0x7f;
-    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,0);
+    prim->tpage = GetTPage(2,1,0x200 & ~0x3f,0);
     prim->clut = 0;
 
-    shapeX += 0x50;
     prim = (POLY_FT4 *)Render_gPacketPtr;
     ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
@@ -124,15 +120,15 @@ void tScreenTrackSelect::DrawBackground()
     prim->y2 = 0xe8;
     prim->x3 = 0x1d9;
     prim->y3 = 0xe8;
-    prim->u0 = shapeX & 0x3f;
+    prim->u0 = 0x250 & 0x3f;
     prim->v0 = shapeY;
-    prim->u1 = (shapeX & 0x3f) + 0x50;
+    prim->u1 = (0x250 & 0x3f) + 0x50;
     prim->v1 = shapeY;
-    prim->u2 = shapeX & 0x3f;
+    prim->u2 = 0x250 & 0x3f;
     prim->v2 = shapeY | 0x7f;
-    prim->u3 = (shapeX & 0x3f) + 0x50;
+    prim->u3 = (0x250 & 0x3f) + 0x50;
     prim->v3 = shapeY | 0x7f;
-    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,0);
+    prim->tpage = GetTPage(2,1,0x250 & ~0x3f,0);
     prim->clut = 0;
   }
   this->DrawVideoWall();

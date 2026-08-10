@@ -124,25 +124,32 @@ void tScreenAudio::PlaySound()
 void tScreenAudio::DrawForeground()
 
 {
+  /* MATCH (W69, 60 -> 2): the retail loop draws shapes 48..51 with fixed
+     flags/coordinates; the decompiler's four uninitialized call arguments
+     were phantom locals.  Keep the clamp result in an int funnel until its
+     final short assignment so gcc reproduces the retail branch graph and
+     48-byte frame.  Residual: one propagated read uses $a0 where retail
+     re-reads the just-assigned $s2 pseudo (same 68 instructions). */
   short fade;
+  int fadeCalc;
   char *label;
   int textWidth;
-  int shapeIdx;
   int i;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
   
-  fade = (short)((menuDefs[0]->menuAudio).fScreenFade >> 1);
-  if ((fade < 0x80) && (fade < 1)) {
-    fade = 0;
+  fadeCalc = (menuDefs[0]->menuAudio).fScreenFade >> 1;
+  if ((short)fadeCalc < 0x80) {
+    if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero;
   }
-  else if (0x80 < fade) {
-    fade = 0x80;
-  }
+  if ((short)fadeCalc < 0x81) goto DrawFgAudio_fadeDone;
+  fadeCalc = 0x80;
+  goto DrawFgAudio_fadeDone;
+DrawFgAudio_fadeZero:
+  fadeCalc = 0;
+DrawFgAudio_fadeDone:
   i = 0;
+  fade = (short)fadeCalc;
   do {
-    DrawShapeExtended(shapeIdx,shapeFlags,shapeX,shapeY,(int)fade,0,
+    DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
                (tDrawShapeExtended *)0x0);
     i = i + 1;
   } while (i < 4);
@@ -150,7 +157,7 @@ void tScreenAudio::DrawForeground()
     FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo);
     label = TextSys_Word(0x27d);
     textWidth = textpixels(label);
-    PSXDrawSquare(0,0x1e0,0xdc,-5 - textWidth,7);
+    PSXDrawSquare(0,0x1e0,0xdc,-textWidth - 5,7);
   }
   return;
 }

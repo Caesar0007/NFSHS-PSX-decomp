@@ -2601,6 +2601,12 @@ winCase:
 
 /* ---- tGlobalMenuDefs::ctor  [FEMENUDEFS.CPP:1353-2200] ---- */
 
+/* [2026-08-10] Retail constructs every iterator in declaration order between its
+   surrounding menu members.  Keeping those members in the initializer list fixes
+   the complete 254-call sequence (the old body deferred them all until the end),
+   including three wrong destination objects.  The SYM records a 640-byte retail
+   frame; this zero-instruction local keeps that recovered allocation boundary. */
+
 tGlobalMenuDefs::tGlobalMenuDefs()
  : itemMainOnePlayerRace(0x5b, (tMenu*)&menuOnePlayer, (void (*)(tMenuCommand&))MenuExtended_SetOnePlayer__FR12tMenuCommand, 0x1e, 10)   /* +0x0 tMenuItemGoToMenuNFS4Button */
  , itemMainTwoPlayerRace(0x5c, (tMenu*)&menuTwoPlayer, (void (*)(tMenuCommand&))MenuExtended_SetTwoPlayer__FR12tMenuCommand, 0x28, 10)   /* +0x2C tMenuItemGoToMenuNFS4Button */
@@ -2628,9 +2634,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemHotPursuitSolo(0x6c, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHPSoloRace__FR12tMenuCommand, 0x6e, 10)   /* +0x5D4 tMenuItemGoToMenuNFS4Button */
  , itemHotPursuitDuel(0x6d, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHPDuelRace__FR12tMenuCommand, 0x78, 10)   /* +0x600 tMenuItemGoToMenuNFS4Button */
  , menuHotPursuit(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemHotPursuitSolo, &itemHotPursuitDuel, 0)   /* +0x62C tMenuNFS4 */
+ , iteratorTournament((char *)&menuHotPursuit, &tournamentManager)   /* +0x6A8 tListIteratorTournament */
  , itemTournamentContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToTournTrackInfo__FR12tMenuCommand, 0x22, 10)   /* +0x6BC tMenuItemGoToMenuNFS4Button */
  , itemTournamentSelect(0x94, (tListIterator *)&iteratorTournament, 0x2c, 10)   /* +0x6E8 tMenuItemNFS4LeftRightChoice */
  , menuTournament(0x1000, (tScreen *)screenTournSelect, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToTournTrackInfo__FR12tMenuCommand, 0x65, (tMenuItem *)&itemTournamentContinue, &itemTournamentSelect, 0)   /* +0x710 tMenuNFS4 */
+ , iteratorSpecialEvent((char *)&menuTournament, &tournamentManager)   /* +0x78C tListIteratorTournament */
  , itemSpecialEventContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand, 0x22, 10)   /* +0x7A0 tMenuItemGoToMenuNFS4Button */
  , itemSpecialEventSelect(0x69, (tListIterator *)&iteratorSpecialEvent, 0x36, 10)   /* +0x7CC tMenuItemNFS4LeftRightChoice */
  , menuSpecialEvent(0x1000, (tScreen *)screenTournSelect, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand, 100, (tMenuItem *)&itemSpecialEventContinue, &itemSpecialEventSelect, 0)   /* +0x7F4 tMenuNFS4 */
@@ -2651,11 +2659,19 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemTrack5(199, (tListIterator *)&iteratorTrack, 0x2e, 10)   /* +0xB68 tMenuItemNFS4LeftRightChoice */
  , menuPinkSlipsBestOfThree(0x1400, (tScreen *)screenPinkSlips, (tMenu *)0x0, (tMenu *)&menuTrackOptions, (void (*)(tMenuCommand&))MenuExtended_GoToCarSelect__FR12tMenuCommand, 0xbe, (tMenuItem *)&itemPinkSlipsContinue, &itemTrack1, &itemTrack2, &itemTrack3, 0)   /* +0xB90 tMenuNFS4 */
  , menuPinkSlipsBestOfFive(0x1400, (tScreen *)screenPinkSlips, (tMenu *)0x0, (tMenu *)&menuTrackOptions, (void (*)(tMenuCommand&))MenuExtended_GoToCarSelect__FR12tMenuCommand, 0xbf, (tMenuItem *)&itemPinkSlipsContinue, &itemTrack1, &itemTrack2, &itemTrack3, &itemTrack4, &itemTrack5, 0)   /* +0xC0C tMenuNFS4 */
+ , iteratorTrack(frontEnd.track, &frontEnd.pinkSlipsTrackIndex, &trackManager)   /* +0xC88 tListIteratorTrack */
  , itemTrackContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToCarSelect__FR12tMenuCommand, 0x1c, 10)   /* +0xCA0 tMenuItemGoToMenuNFS4Button */
  , itemTrack(0x93, (tListIterator *)&iteratorTrack, 0x26, 10)   /* +0xCCC tMenuItemNFS4LeftRightChoice */
  , itemTrackRecords(0xd4, (tMenu*)&menuTrackRecords, 0, 0x3a, 10)   /* +0xCF4 tMenuItemGoToMenuNFS4Button */
  , menuSingleTrackSelect(0x1600, (tScreen *)screenTrackSelect, (tMenu *)0x0, (tMenu *)&menuTrackOptions, (void (*)(tMenuCommand&))MenuExtended_GoToCarSelect__FR12tMenuCommand, 200, (tMenuItem *)&itemTrackContinue, &itemTrack, &itemTrackRecords, 0)   /* +0xD20 tMenuNFS4 */
  , menuTestDriveTrackSelect(0x1600, (tScreen *)screenTrackSelect, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToCarSelect__FR12tMenuCommand, 200, (tMenuItem *)&itemTrackContinue, &itemTrack, &itemTrackRecords, 0)   /* +0xD9C tMenuNFS4 */
+ , iteratorLaps(SelectListNormal, frontEnd.lapind, &frontEnd.pinkSlipsTrackIndex)   /* +0xE18 tListIteratorIndexed */
+ , iteratorTrackDirection(SelectListTrackDirection, frontEnd.trackdirection, &frontEnd.pinkSlipsTrackIndex)   /* +0xE2C */
+ , iteratorTrackMirrored(SelectListOffOn, frontEnd.trackmirrored, &frontEnd.pinkSlipsTrackIndex)   /* +0xE40 */
+ , iteratorTimeOfDay(SelectListOffOn, frontEnd.timeOfDay, &frontEnd.pinkSlipsTrackIndex)   /* +0xE54 */
+ , iteratorWeather(SelectListOffOn, frontEnd.weather, &frontEnd.pinkSlipsTrackIndex)   /* +0xE68 */
+ , iteratorTraffic(SelectListOffOn, frontEnd.traffic, &frontEnd.pinkSlipsTrackIndex)   /* +0xE7C */
+ , iteratorLocalSpeech(SelectListOffOn, &frontEnd.localSpeech)   /* +0xE90 tListIterator */
  , itemLaps(0xca, (tListIterator *)&iteratorLaps)   /* +0xEA0 tMenuItemOptionsLeftRightChoice */
  , itemTrackDirection(0xcc, (tListIterator *)&iteratorTrackDirection)   /* +0xEC0 tMenuItemOptionsLeftRightChoice */
  , itemTrackMirrored(0xcd, (tListIterator *)&iteratorTrackMirrored)   /* +0xEE0 tMenuItemOptionsTwoItemChoice */
@@ -2668,16 +2684,20 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , menuTrackRecords(0x1000, (tScreen *)screenTrackRecords, (tMenu *)0x0, (tMenu *)0x0, 0, 0xd4, 1, 10, (tMenuItem *)0x0)   /* +0x1044 tOptionsMenu */
  , itemTrackInfoContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToGarage__FR12tMenuCommand, 0x21, 10)   /* +0x10C4 tMenuItemGoToMenuNFS4Button */
  , menuTrackInfo(0x1004, (tScreen *)screenTrackInfo, (tMenu *)0x0, (tMenu *)0x0, 0, 0xf9, (tMenuItem *)&itemTrackInfoContinue, 0)   /* +0x10F0 tMenuNFS4 */
+ , iteratorCar1(frontEnd.playerCar, &carManager)   /* +0x116C tListIteratorCar */
+ , iteratorColor((char *)&iteratorCar1, &FEApp->fPlayer, frontEnd.playerCar, 0x30, &carManager)   /* +0x1188 tListIteratorCarColor */
  , itemCarSelectRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x80, 10)   /* +0x11A8 tMenuItemGoToMenuNFS4Button */
  , itemCar(0x92, (tListIterator *)&iteratorCar1, 0x1c, 10)   /* +0x11D4 tMenuItemNFS4LeftRightChoice */
  , itemColor(0x120, (tListIterator *)&iteratorColor, 0x26, 10)   /* +0x11FC tMenuItemNFS4LeftRightChoice */
  , itemShowcase(0x112, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToShowroom__FR12tMenuCommand, 0x30, 10)   /* +0x1224 tMenuItemGoToMenuNFS4Button */
  , menuSingleCarSelect(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
+ , iteratorGarageCar(frontEnd.garageCar, &carManager)   /* +0x12CC tListIteratorCar */
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
  , itemUpgradeCar(0x91, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToUpgrades__FR12tMenuCommand, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
  , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
  , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
+ , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
  , itemDuelRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x2a, 10)   /* +0x147C tMenuItemGoToMenuNFS4Button */
  , itemCar2(0x92, (tListIterator *)&iteratorCar1, 0xc, 10)   /* +0x14A8 tMenuItemNFS4LeftRightChoice */
  , itemColor2(0x120, (tListIterator *)&iteratorColor, 0x16, 10)   /* +0x14D0 tMenuItemNFS4LeftRightChoice */
@@ -2699,6 +2719,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemPlayerTwoGarageRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoTo2PlayerRace__FR12tMenuCommand, 0x2a, 10)   /* +0x1904 tMenuItemGoToMenuNFS4Button */
  , itemGarageCarP2(0x92, (tListIterator *)&iteratorGarageCar, 0xc, 10)   /* +0x1930 tMenuItemNFS4LeftRightChoice */
  , menuPlayerTwoGarage(0x1008, (tScreen *)screenCarSelectPlayerTwo, (tMenu *)0x0, (tMenu *)&menuCarOptionsPlayerTwo, (void (*)(tMenuCommand&))MenuExtended_GoTo2PlayerRace__FR12tMenuCommand, 0xba, (tMenuItem *)&itemPlayerTwoGarageRace, &itemGarageCarP2, 0)   /* +0x1958 tMenuNFS4TwoPlayer */
+ , iteratorPinkSlipsCar(frontEnd.pinkSlipsCar, &carManager)   /* +0x19D4 tListIteratorCar */
  , itemPlayerOnePinkSlipRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoTo2PlayerRace__FR12tMenuCommand, 0x2a, 10)   /* +0x19F0 tMenuItemGoToMenuNFS4Button */
  , itemPinkSlipCarP1(0x92, (tListIterator *)&iteratorPinkSlipsCar, 0xc, 10)   /* +0x1A1C tMenuItemNFS4LeftRightChoice */
  , menuPlayerOnePinkSlipCarSelect(0x1008, (tScreen *)screenPinkSlipsCarSelectTwoPlayer, (tMenu *)0x0, (tMenu *)&menuPinkSlipCarOptionsPlayerOne, (void (*)(tMenuCommand&))MenuExtended_GoTo2PlayerRace__FR12tMenuCommand, 0xba, (tMenuItem *)&itemPlayerOnePinkSlipRace, &itemPinkSlipCarP1, 0)   /* +0x1A44 tMenuNFS4TwoPlayer */
@@ -2708,11 +2729,14 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemGoToBuyCar(0x78, (tMenu*)&menuCarDealer, (void (*)(tMenuCommand&))MenuExtended_GoToDealer__FR12tMenuCommand, 0x58, 10)   /* +0x1B90 tMenuItemGoToMenuNFS4Button */
  , itemGoToSellCar(0x79, (tMenu*)&menuCarSeller, (void (*)(tMenuCommand&))MenuExtended_GoToSeller__FR12tMenuCommand, 0x4e, 10)   /* +0x1BBC tMenuItemGoToMenuNFS4Button */
  , menuGoToCarDealer(0x1200, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x90, (tMenuItem *)&itemGoToBuyCar, &itemGoToSellCar, 0)   /* +0x1BE8 tMenuNFS4 */
+ , iteratorDealerCar(&frontEnd.dealerCar, &carManager)   /* +0x1C64 tListIteratorCar */
+ , iteratorDealerColor((char *)&iteratorDealerCar, &FEApp->fPlayer, &frontEnd.dealerCar, 0x30, &carManager)   /* +0x1C80 tListIteratorCarColor */
  , itemDealerCar(0x92, (tListIterator *)&iteratorDealerCar, 0x1c, 10)   /* +0x1CA0 tMenuItemNFS4LeftRightChoice */
  , itemDealerColor(0x120, (tListIterator *)&iteratorDealerColor, 0x26, 10)   /* +0x1CC8 tMenuItemNFS4LeftRightChoice */
  , itemBuyCar(0x75, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_BuyCar__FR12tMenuCommand, 0x58, 10)   /* +0x1CF0 tMenuItemGoToMenuNFS4Button */
  , itemDealerShowroom(0x112, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToDealerShowroom__FR12tMenuCommand, 0x30, 10)   /* +0x1D1C tMenuItemGoToMenuNFS4Button */
  , menuCarDealer(0x2240, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x90, (tMenuItem *)&itemDealerCar, &itemDealerColor, &itemBuyCar, &itemDealerShowroom, 0)   /* +0x1D48 tMenuNFS4 */
+ , iteratorSellerCar(&frontEnd.sellerCar, &carManager)   /* +0x1DC4 tListIteratorCar */
  , itemSellerCar(0x92, (tListIterator *)&iteratorSellerCar, 0x1c, 10)   /* +0x1DE0 tMenuItemNFS4LeftRightChoice */
  , itemSellCar(0x77, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_SellCar__FR12tMenuCommand, 0x4e, 10)   /* +0x1E08 tMenuItemGoToMenuNFS4Button */
  , menuCarSeller(0x2200, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x90, (tMenuItem *)&itemSellerCar, &itemSellCar, 0)   /* +0x1E34 tMenuNFS4 */
@@ -2720,6 +2744,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemPurchaseUpgrade2(0x97, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_PurchaseUpgrade2__FR12tMenuCommand, 0x6c, 10)   /* +0x1EDC tMenuItemGoToMenuNFS4Button */
  , itemPurchaseUpgrade3(0x98, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_PurchaseUpgrade3__FR12tMenuCommand, 0x76, 10)   /* +0x1F08 tMenuItemGoToMenuNFS4Button */
  , menuCarUpgrades(0x2200, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x91, (tMenuItem *)&itemPurchaseUpgrade1, &itemPurchaseUpgrade2, &itemPurchaseUpgrade3, 0)   /* +0x1F34 tMenuNFS4 */
+ , iteratorTransmission(SelectListTransmission, frontEnd.transmission, &FEApp->fPlayer)   /* +0x1FB0 tListIteratorIndexed */
+ , iteratorABS(SelectListOffOn, frontEnd.ABS, &FEApp->fPlayer)   /* +0x1FC4 tListIteratorIndexed */
+ , iteratorDamage(SelectListOffOn, &frontEnd.damage)   /* +0x1FD8 tListIterator */
+ , iteratorOpponentUpgrades(SelectListOpponentUpgrades, &frontEnd.opponentUpgrades)   /* +0x1FE8 tListIterator */
  , itemTransmission(0x10a, (tListIterator *)&iteratorTransmission)   /* +0x1FF8 tMenuItemOptionsLeftRightChoice */
  , itemABS(0x10b, (tListIterator *)&iteratorABS)   /* +0x2018 tMenuItemOptionsLeftRightChoice */
  , itemDamage(0x111, &iteratorDamage)   /* +0x2038 tMenuItemOptionsLeftRightChoice */
@@ -2740,6 +2768,12 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemOptionsUsername(0x1ca, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_EnterUserName__FR12tMenuCommand, 0xdc, 10)   /* +0x2498 tMenuItemGoToMenuNFS4Button */
  , itemOptionsCredits(0x1cc, (tMenu *)&menuCredits, 0, 0xe6, 10)   /* +0x24C4 tMenuItemGoToMenuNFS4Button */
  , menuOptions(0x1014, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x5d, (tMenuItem *)&itemOptionsAudio, &itemOptionsDisplay, &itemOptionsControllers, &itemOptionsMemoryCard, &itemOptionsUsername, &itemOptionsCredits, 0)   /* +0x24F0 tMenuNFS4 */
+ , iteratorMusicVolume('\0', '\x7f', &frontEnd.musicVolume)   /* +0x256C tListIteratorRange */
+ , iteratorSoundEffectsVolume('\0', '\x7f', &frontEnd.sfxVolume)   /* +0x257C */
+ , iteratorEngineVolume('\0', '\x7f', &frontEnd.engineVolume)   /* +0x258C */
+ , iteratorSpeechVolume('\0', '\x7f', &frontEnd.narrationVolume)   /* +0x259C */
+ , iteratorAmbientVolume('\0', '\x7f', &frontEnd.ambientVolume)   /* +0x25AC */
+ , iteratorAudioMode(SelectListAudioMode, &frontEnd.audioMode)   /* +0x25BC tListIterator */
  , itemMusicVolume(0x1d5, (tListIterator *)&iteratorMusicVolume, 0)   /* +0x25CC tMenuItemLeftRightAudioSlider */
  , itemSoundEffectsVolume(0x1d6, (tListIterator *)&iteratorSoundEffectsVolume, 1)   /* +0x2604 tMenuItemLeftRightAudioSlider */
  , itemEngineVolume(0x1d7, (tListIterator *)&iteratorEngineVolume, 2)   /* +0x263C tMenuItemLeftRightAudioSlider */
@@ -2749,6 +2783,14 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemSlidingPlayList(0x1db, 0x15e, 0x2b, -0x66, 0xd, false)   /* +0x2710 tMenuItemSlidingActivated */
  , menuPlayListMenu(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)0x0)   /* +0x2758 tInsideBoxSongMenu */
  , menuAudio(0x1010, (tScreen *)screenAudio, (tMenu *)0x0, (tMenu *)0x0, 0, 0x263, 0x26, 10, (tMenuItem *)&itemMusicVolume, &itemSoundEffectsVolume, &itemEngineVolume, &itemSpeechVolume, &itemAmbientVolume, &itemAudioMode, &itemSlidingPlayList, 0)   /* +0x27E0 tOptionsMenu */
+ , iteratorDisplaySpeedometer(SelectListDisplaySpeed, frontEnd.displaySpeed, &FEApp->fInputPlayer)   /* +0x2860 tListIteratorIndexed */
+ , iteratorDisplayMap(SelectListDisplayMap, frontEnd.displayMap, &FEApp->fInputPlayer)   /* +0x2874 */
+ , iteratorDisplayOpponentID(SelectListDisplayOpponentID, frontEnd.displayOpponentID, &FEApp->fInputPlayer)   /* +0x2888 */
+ , iteratorDisplayTime(SelectListOffOn, frontEnd.displayTime, &FEApp->fInputPlayer)   /* +0x289C */
+ , iteratorDisplayPosition(SelectListOffOn, frontEnd.displayPosition, &FEApp->fInputPlayer)   /* +0x28B0 */
+ , iteratorDisplayLapNumber(SelectListOffOn, frontEnd.displayLapNumber, &FEApp->fInputPlayer)   /* +0x28C4 */
+ , iteratorDisplaySplitTime(SelectListSplitTime, &frontEnd.checkPointType)   /* +0x28D8 tListIterator */
+ , iteratorDisplaySplitDisplay(SelectListSplitDisplay, frontEnd.checkPointDisplay, &FEApp->fInputPlayer)   /* +0x28E8 tListIteratorIndexed */
  , itemDisplaySpeedometer(0x1df, (tListIterator *)&iteratorDisplaySpeedometer)   /* +0x28FC tMenuItemDisplayLeftRightChoice */
  , itemDisplayMap(0x1e1, (tListIterator *)&iteratorDisplayMap)   /* +0x2928 tMenuItemDisplayLeftRightChoice */
  , itemDisplayOpponentID(0x1e2, (tListIterator *)&iteratorDisplayOpponentID)   /* +0x2954 tMenuItemDisplayLeftRightChoice */
@@ -2758,16 +2800,29 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemDisplaySplitTime(0x1e4, &iteratorDisplaySplitTime)   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
  , itemDisplaySplitDisplay(0x1e5, (tListIterator *)&iteratorDisplaySplitDisplay)   /* +0x2A3C tMenuItemDisplayLeftRightChoice */
  , menuDisplayOptions(0x1020, (tScreen *)screenDisplay, (tMenu *)0x0, (tMenu *)0x0, 0, 0x1dd, 1, 10, (tMenuItem *)&itemDisplaySpeedometer, &itemDisplayMap, &itemDisplayOpponentID, &itemDisplayTime, &itemDisplaySplitTime, &itemDisplaySplitDisplay, &itemDisplayPosition, &itemDisplayLapNumber, 0)   /* +0x2A68 tOptionsMenu */
+ , iteratorControllerConfigSelected(SelectListControllerConfig, frontEnd.controlConfig, &FEApp->fInputPlayer)   /* +0x2AE8 tListIteratorIndexed */
  , itemControllerConfigSelected(0x209, (tListIterator *)&iteratorControllerConfigSelected)   /* +0x2AFC tMenuItemControllerLeftRightChoice */
  , itemControllerSettings(0x20a, 0xac, 0x48, 0, 0xd, true)   /* +0x2B28 tMenuItemSlidingMenu */
  , menuControllerConfig(0x1020, (tScreen *)screenControllerConfig, (tMenu *)0x0, (tMenu *)0x0, 0, 0x208, 0, 10, (tMenuItem *)&itemControllerConfigSelected, &itemControllerSettings, 0)   /* +0x2B6C tOptionsMenu */
+ , iteratorControllerShockMode('\0', '\x7f', frontEnd.shockMode, &FEApp->fInputPlayer)   /* +0x2BEC tListIteratorRangeIndexed */
+ , itemControllerShockMode(0x20e, (tListIterator *)&iteratorControllerShockMode)   /* +0x2C00 tInsideBoxControllerLeftRightSlider */
+ , iteratorControllerShockImpact('\0', '\x7f', frontEnd.shockImpact, &FEApp->fInputPlayer)   /* +0x2C28 tListIteratorRangeIndexed */
+ , itemControllerShockImpact(0x20f, (tListIterator *)&iteratorControllerShockImpact)   /* +0x2C3C tInsideBoxControllerLeftRightSlider */
+ , iteratorControllerSteeringRange1('\0', '\x7f', frontEnd.J1MAX, &FEApp->fInputPlayer)   /* +0x2C64 tListIteratorRangeIndexed */
  , itemControllerSteeringRange1(0x211, (tListIterator *)&iteratorControllerSteeringRange1, 0)   /* +0x2C78 tInsideBoxTwoWaySlider */
+ , iteratorControllerDeadSpot1('\0', '\x7f', frontEnd.J1MIN, &FEApp->fInputPlayer)   /* +0x2CA8 */
  , itemControllerDeadSpot1(0x213, (tListIterator *)&iteratorControllerDeadSpot1, 1)   /* +0x2CBC tInsideBoxTwoWaySlider */
+ , iteratorControllerSteeringRange2('\0', '\x7f', frontEnd.J2MAX, &FEApp->fInputPlayer)   /* +0x2CEC */
  , itemControllerSteeringRange2(0x210, (tListIterator *)&iteratorControllerSteeringRange2, 2)   /* +0x2D00 tInsideBoxTwoWaySlider */
+ , iteratorControllerDeadSpot2('\0', '\x7f', frontEnd.J2MIN, &FEApp->fInputPlayer)   /* +0x2D30 */
  , itemControllerDeadSpot2(0x212, (tListIterator *)&iteratorControllerDeadSpot2, 3)   /* +0x2D44 tInsideBoxTwoWaySlider */
+ , iteratorControllerJoyRange('\0', '\x7f', frontEnd.steeringRange, &FEApp->fInputPlayer)   /* +0x2D74 */
  , itemControllerJoyRange(0x214, (tListIterator *)&iteratorControllerJoyRange, 0)   /* +0x2D88 tInsideBoxTwoWaySlider */
+ , iteratorControllerCenterPoint('\0', '\x7f', frontEnd.deadSpot, &FEApp->fInputPlayer)   /* +0x2DB8 */
  , itemControllerCenterPoint(0x215, (tListIterator *)&iteratorControllerCenterPoint, 1)   /* +0x2DCC tInsideBoxTwoWaySlider */
+ , iteratorControllerIMax('\0', -1, frontEnd.ImaxRange, &FEApp->fInputPlayer)   /* +0x2DFC */
  , itemControllerIMax(0x216, (tListIterator *)&iteratorControllerIMax, 2)   /* +0x2E10 tInsideBoxTwoWaySlider */
+ , iteratorControllerIIMax('\0', -1, frontEnd.IImaxRange, &FEApp->fInputPlayer)   /* +0x2E40 */
  , itemControllerIIMax(0x217, (tListIterator *)&iteratorControllerIIMax, 3)   /* +0x2E54 tInsideBoxTwoWaySlider */
  , menuControllerDualShock(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerShockMode, &itemControllerShockImpact, 0)   /* +0x2E84 tInsideBoxMenu */
  , menuControllerAnalog(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerSteeringRange1, &itemControllerDeadSpot1, &itemControllerSteeringRange2, &itemControllerDeadSpot2, 0)   /* +0x2EF8 tInsideBoxMenu */
@@ -2780,6 +2835,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , menuItemUserName1(0x1f8)   /* +0x31B8 tUserNameMenuItem */
  , menuItemUserName2(0x1f8)   /* +0x3244 tUserNameMenuItem */
  , menuUserName(0x1120, (tScreen *)screenUserName, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x20, 10, (tMenuItem *)&menuItemUserName, 0)   /* +0x32D0 tOptionsMenu */
+ , iteratorChangeTrophy(screenTrophyRoom->fTrophyList, &screenTrophyRoom->thisisuseless)   /* +0x3350 tListIterator */
  , itemChangeTrophy(0x5e, &iteratorChangeTrophy, -1, 0)   /* +0x3360 tBlankMenuItemNFS4LeftRightChoice */
  , menuTrophyRoom(0x4010, (tScreen *)screenTrophyRoom, (tMenu *)0x0, (tMenu *)0x0, 0, -1, (tMenuItem *)&itemChangeTrophy, 0)   /* +0x3388 tMenuNFS4Bottom */
  , itemPinkSlipStandingsForward(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_PinkSlipsContinue__FR12tMenuCommand, 0, 10)   /* +0x3404 tMenuItemGoToMenuNFS4Button */
@@ -2802,58 +2858,10 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
 {
-  tListIteratorTournament_ctor(&iteratorTournament, &menuHotPursuit, &tournamentManager);
-  tListIteratorTournament_ctor(&iteratorSpecialEvent, &menuTournament, &tournamentManager);
-  tListIteratorTrack_ctor(&iteratorTrack, frontEnd.track, &frontEnd.pinkSlipsTrackIndex, &trackManager);   /* ORACLE: a1=frontEnd+0x23 track, a2=frontEnd+0x46 pinkSlipsTrackIndex (old args were stale-reg fictions) */
-  tListIteratorIndexed_ctor(&iteratorLaps, SelectListNormal, frontEnd.lapind, &frontEnd.pinkSlipsTrackIndex);
-  tListIteratorIndexed_ctor(&iteratorTrackDirection, SelectListTrackDirection, frontEnd.trackdirection, &frontEnd.pinkSlipsTrackIndex);
-  tListIteratorIndexed_ctor(&iteratorTrackMirrored, SelectListOffOn, frontEnd.trackmirrored, &frontEnd.pinkSlipsTrackIndex);
-  tListIteratorIndexed_ctor(&iteratorTimeOfDay, SelectListOffOn, frontEnd.timeOfDay, &frontEnd.pinkSlipsTrackIndex);
-  tListIteratorIndexed_ctor(&iteratorWeather, SelectListOffOn, frontEnd.weather, &frontEnd.pinkSlipsTrackIndex);
-  tListIteratorIndexed_ctor(&iteratorTraffic, SelectListOffOn, frontEnd.traffic, &frontEnd.pinkSlipsTrackIndex);
-  tListIterator_ctor((tListIterator *)&iteratorLocalSpeech, SelectListOffOn, &frontEnd.localSpeech);   /* ptVar chain resolved: member @0xE90 */
-  tListIteratorCar_ctor(&iteratorCar1, frontEnd.playerCar, &carManager);
-  tListIteratorCarColor_ctor(&iteratorColor, (char *)&iteratorCar1, &FEApp->fPlayer, frontEnd.playerCar, 0x30, &carManager);
-  tListIteratorCar_ctor(&iteratorGarageCar, frontEnd.garageCar, &carManager);
-  tListIteratorCar_ctor(&iteratorOpponentCar, &frontEnd.oppCar, &carManager);
-  tListIteratorCar_ctor(&iteratorPinkSlipsCar, frontEnd.pinkSlipsCar, &carManager);
-  tListIteratorCar_ctor(&iteratorDealerCar, &frontEnd.dealerCar, &carManager);
-  tListIteratorCarColor_ctor(&iteratorDealerColor, (char *)&iteratorDealerCar, &FEApp->fPlayer, &frontEnd.dealerCar, 0x30, &carManager);
-  tListIteratorCar_ctor(&iteratorSellerCar, &frontEnd.sellerCar, &carManager);
-  tListIteratorIndexed_ctor(&iteratorTransmission, SelectListTransmission, frontEnd.transmission, &FEApp->fPlayer);
-  tListIteratorIndexed_ctor(&iteratorABS, SelectListOffOn, frontEnd.ABS, &FEApp->fPlayer);
-  tListIterator_ctor((tListIterator *)&iteratorDamage, SelectListOffOn, &frontEnd.damage);   /* ptVar chain resolved: member @0x1FD8 */
-  tListIterator_ctor((tListIterator *)&iteratorOpponentUpgrades, SelectListOpponentUpgrades, &frontEnd.opponentUpgrades);   /* ptVar chain resolved: member @0x1FE8 */
-  tListIteratorRange_ctor(&iteratorMusicVolume, '\0', '\x7f', &frontEnd.musicVolume);
-  tListIteratorRange_ctor(&iteratorSoundEffectsVolume, '\0', '\x7f', &frontEnd.sfxVolume);
-  tListIteratorRange_ctor(&iteratorEngineVolume, '\0', '\x7f', &frontEnd.engineVolume);
-  tListIteratorRange_ctor(&iteratorSpeechVolume, '\0', '\x7f', &frontEnd.narrationVolume);
-  tListIteratorRange_ctor(&iteratorAmbientVolume, '\0', '\x7f', &frontEnd.ambientVolume);
-  tListIterator_ctor(&iteratorAmbientVolume, SelectListAudioMode, &frontEnd.audioMode);
-  tListIteratorIndexed_ctor(&iteratorDisplaySpeedometer, SelectListDisplaySpeed, frontEnd.displaySpeed, &FEApp->fInputPlayer);
-  tListIteratorIndexed_ctor(&iteratorDisplayMap, SelectListDisplayMap, frontEnd.displayMap, &FEApp->fInputPlayer);
-  tListIteratorIndexed_ctor(&iteratorDisplayOpponentID, SelectListDisplayOpponentID, frontEnd.displayOpponentID, &FEApp->fInputPlayer);
-  tListIteratorIndexed_ctor(&iteratorDisplayTime, SelectListOffOn, frontEnd.displayTime, &FEApp->fInputPlayer);
-  tListIteratorIndexed_ctor(&iteratorDisplayPosition, SelectListOffOn, frontEnd.displayPosition, &FEApp->fInputPlayer);
-  tListIteratorIndexed_ctor(&iteratorDisplayLapNumber, SelectListOffOn, frontEnd.displayLapNumber, &FEApp->fInputPlayer);
-  tListIterator_ctor((tListIterator *)&iteratorDisplayLapNumber, SelectListSplitTime, &frontEnd.checkPointType);
-  tListIteratorIndexed_ctor(&iteratorDisplaySplitDisplay, SelectListSplitDisplay, frontEnd.checkPointDisplay, &FEApp->fInputPlayer);
-  tListIteratorIndexed_ctor(&iteratorControllerConfigSelected, SelectListControllerConfig, frontEnd.controlConfig, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerShockMode, '\0', '\x7f', frontEnd.shockMode, &FEApp->fInputPlayer);
-  tInsideBoxLeftRightSlider_ctor(&itemControllerShockMode._base_tInsideBoxLeftRightSlider, 0x20e, (tListIterator *)&iteratorControllerShockMode);
+  char compilerFramePad[56];
+
   *(void **)&((itemControllerShockMode)._base_tInsideBoxLeftRightSlider._vf) = (void *)&tInsideBoxControllerLeftRightSlider_vtable;
-  tListIteratorRangeIndexed_ctor(&iteratorControllerShockImpact, '\0', '\x7f', frontEnd.shockImpact, &FEApp->fInputPlayer);
-  tInsideBoxLeftRightSlider_ctor(&itemControllerShockImpact._base_tInsideBoxLeftRightSlider, 0x20f, (tListIterator *)&iteratorControllerShockImpact);
   *(void **)&((itemControllerShockImpact)._base_tInsideBoxLeftRightSlider._vf) = (void *)&tInsideBoxControllerLeftRightSlider_vtable;
-  tListIteratorRangeIndexed_ctor(&iteratorControllerSteeringRange1, '\0', '\x7f', frontEnd.J1MAX, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerDeadSpot1, '\0', '\x7f', frontEnd.J1MIN, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerSteeringRange2, '\0', '\x7f', frontEnd.J2MAX, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerDeadSpot2, '\0', '\x7f', frontEnd.J2MIN, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerJoyRange, '\0', '\x7f', frontEnd.steeringRange, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerCenterPoint, '\0', '\x7f', frontEnd.deadSpot, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerIMax, '\0', -1, frontEnd.ImaxRange, &FEApp->fInputPlayer);
-  tListIteratorRangeIndexed_ctor(&iteratorControllerIIMax, '\0', -1, frontEnd.IImaxRange, &FEApp->fInputPlayer);
-  tListIterator_ctor(&menuUserName, screenTrophyRoom->fTrophyList, &screenTrophyRoom->thisisuseless);
   (menuPlayerOneCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoCarSelect;
   (menuPlayerOneGarage).fChildMenu = (tMenu *)&menuPlayerTwoGarage;
   (menuPlayerOnePinkSlipCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
@@ -2874,6 +2882,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   (menuUserName).VertHelp = 0;
   (menuTrackRecords).VertHelp = 1;
   (menuTrophyInfo).VertHelp = 0;
+  __asm__("" : : "m"(compilerFramePad));
   return;
 }
 

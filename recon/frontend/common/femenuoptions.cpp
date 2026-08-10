@@ -1766,45 +1766,45 @@ tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 /* ---- tInsideBoxSongMenu::Draw  [FEMENUOPTIONS.CPP:1271-1314] SLD-VERIFIED ---- */
 
+/* MATCH W61: 126 -> 29 diffs.  SYM authenticates only j, drawY and song;
+   removing the Ghidra pointer walk, SSA scalar copies, and cached vtable row
+   restores retail's indexed fade loops.  drawBaseY is the loop-invariant
+   expression carrier visible in retail $s5.  Short-lived fadeValue carriers
+   recover the single-store clamp lowering, and the on/off arm order follows
+   the raw oracle's nonzero-first branch. */
+
 void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short maxheight)
 
 {
-  short sVar1;
-  u_short uVar2;
-  short sVar3;
-  int iVar4;
-  int iVar5;
-  tInsideBoxSongMenu *ptVar6;
-  __vtbl_ptr_type (*pa_Var7) [11];
   int song;
   int j;
   int drawY;
+  int drawBaseY;
+  __vtbl_ptr_type (*vtable)[11];
   
   if (screenAudio->songlist != (AudioMus_tSongList *)0x0) {
+    drawBaseY = (short)y + ((short)maxheight - 0x15 >> 1);
     j = 0;
-    ptVar6 = this;
     do {
       if (j != 2) {
-        iVar4 = ptVar6->fSelFade[0] + -8;
-        if (iVar4 < 0) {
-          iVar4 = 0;
+        int fadeValue = this->fSelFade[j] - 8;
+        if (fadeValue < 0) {
+          fadeValue = 0;
         }
-        ptVar6->fSelFade[0] = (short)iVar4;
+        this->fSelFade[j] = (short)fadeValue;
       }
       j = j + 1;
-      ptVar6 = (tInsideBoxSongMenu *)((int)&(ptVar6)->fFlags + 2);
     } while (j < 5);
-    j = this->fSelFade[2] + 8;
-    if (0x80 < j) {
-      j = 0x80;
+    {
+      int fadeValue = this->fSelFade[2] + 8;
+      if (0x80 < fadeValue) {
+        fadeValue = 0x80;
+      }
+      this->fSelFade[2] = (short)fadeValue;
     }
-    sVar3 = this->fMoving;
-    sVar1 = this->fMoving;
-    this->fSelFade[2] = (short)j;
-    if (sVar3 != 0) {
-      uVar2 = sVar1 + this->fMovingDir * 2;
-      this->fMoving = uVar2;
-      if ((this->fMovingDir < 0) && ((int)((u_int)uVar2 << 0x10) < 0)) {
+    if (this->fMoving != 0) {
+      this->fMoving = (u_short)this->fMoving + (u_short)this->fMovingDir * 2;
+      if ((this->fMovingDir < 0) && (this->fMoving < 0)) {
         this->fMoving = 0;
       }
       if ((0 < this->fMovingDir) && (0 < this->fMoving)) {
@@ -1813,36 +1813,33 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
     }
     j = 0;
     drawY = -0x28;
-    ptVar6 = this;
     do {
-      iVar5 = screenAudio->fSelectedSong + j;
-      song = iVar5 + -2;
+      song = screenAudio->fSelectedSong + j - 2;
       if ((-1 < song) && (song < screenAudio->songlist->numsongs)) {
-        if (*(int *)(frontEnd.checkPointDisplay + iVar5 * 4 + -3) == 0) {
-          sVar3 = ptVar6->fOnOffFade[0] + -0x20;
+        if (*(int *)((char *)&frontEnd + song * 4 + 0x39c) != 0) {
+          this->fOnOffFade[j] += 0x20;
         }
         else {
-          sVar3 = ptVar6->fOnOffFade[0] + 0x20;
+          this->fOnOffFade[j] -= 0x20;
         }
-        ptVar6->fOnOffFade[0] = sVar3;
-        if (0x80 < ptVar6->fOnOffFade[0]) {
-          ptVar6->fOnOffFade[0] = 0x80;
+        if (0x80 < this->fOnOffFade[j]) {
+          this->fOnOffFade[j] = 0x80;
         }
-        if (ptVar6->fOnOffFade[0] < 0) {
-          ptVar6->fOnOffFade[0] = 0;
+        if (this->fOnOffFade[j] < 0) {
+          this->fOnOffFade[j] = 0;
         }
-        pa_Var7 = this->_vf;
-        (*pa_Var7[1][1].pfn)
-                  ((int)this->fItemList + pa_Var7[1][1].delta + -0x10,
+        vtable = this->_vf;
+        (*vtable[1][1].pfn)
+                  ((int)this->fItemList + vtable[1][1].delta + -0x10,
                    song * 0x10000 >> 0x10,(int)x,
                    (int)(((u_int)(u_short)slideOffset +
                          (u_int)(u_short)this->fMoving +
-                         (int)y + (maxheight + -0x15 >> 1) + drawY) * 0x10000) >> 0x10,(int)w,
-                   (int)ptVar6->fOnOffFade[0],(int)ptVar6->fSelFade[0]);
+                         drawBaseY + drawY) * 0x10000) >> 0x10,
+                   (int)w,
+                   (int)this->fOnOffFade[j],(int)this->fSelFade[j]);
       }
       drawY = drawY + 0x15;
       j = j + 1;
-      ptVar6 = (tInsideBoxSongMenu *)((int)&(ptVar6)->fFlags + 2);
     } while (j < 5);
   }
   return;

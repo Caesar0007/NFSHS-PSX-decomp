@@ -295,26 +295,34 @@ void tScreenMain::DrawDropShadow()
 {
   int addr_24;
   int i;
+  uint addrMask;
+  uint tagMask;
   u_char *pal_link;
-  void *tp1;
+  uint palTag;
   u_char *prim;
   
   i = 0;
   do {
     prim = Render_gPacketPtr;
     pal_link = Render_gPalettePtr;
-    /* MATCH (28 @71 insns -> 32 @69 EXACT): re-reading the fixed-address
-       Render_gPacketPtr macro after the aliasing tag store forces a redundant
-       `lw v1,0(a3)` reload; the oracle reuses the already-loaded `prim` ($a0).
-       Residual 32 = a pure 3-way caller-saved rotation of the loop counter and
-       the two hoisted constants (oracle i->$t0, 0xFFFFFF->$a3, 0x808080->$t1;
-       ours a3/t1/t0) -- no structural runs.  Decl-order permute and dropping
-       the unused `tp1` measured neutral; next = local-alloc QTY ref/live dial
-       (qtytrace / 3-QTY law). */
-    *(uint *)prim = *(uint *)prim & 0xff000000 | *(uint *)pal_link & 0xffffff;
-    addr_24 = (uint)prim & 0xffffff;
+    addrMask = 0xffffff;
+    tagMask = 0xff000000;
+    /* MATCH (2026-08-11, 32 -> PASS, 69/69): allocsim reproduced all seven
+       allocnos and priced the 3-way rotation to exactly +2 weighted refs on
+       addrMask.  Re-masking the already-masked addr_24 inside the loop supplies
+       those refs at zero instructions, yielding retail's i->$t0,
+       0xFFFFFF->$a3 and 0x808080->$t1 handout.  The named early palTag snapshot
+       keeps the second tag RMW in $v1 across the packet-pointer update; the
+       prim/pal fence prevents the first tag store from sinking past it.  Keeping
+       the mask initializers at the top of the loop lets loop.c hoist them after
+       the two scratchpad address constants in the exact retail order. */
+    *(uint *)prim = *(uint *)prim & tagMask |
+                    *(uint *)pal_link & addrMask;
+    __asm__("" : : "r" (prim), "r" (pal_link));
+    palTag = *(uint *)pal_link;
+    addr_24 = (uint)prim & addrMask;
     Render_gPacketPtr = prim + 0x24;
-    *(uint *)pal_link = *(uint *)pal_link & 0xff000000 | addr_24;
+    *(uint *)pal_link = palTag & tagMask | (addr_24 & addrMask);
     *(u_int *)(prim + 4) = 0x808080;
     prim[7] = 0x3a;
     *(u_int *)(prim + 0xc) = 0x808080;

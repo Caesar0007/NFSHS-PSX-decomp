@@ -485,6 +485,9 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
                int shakex,int shakey)
 
 {
+  /* MATCH W64 PASS (40->0): keep frame+1 in the call argument, spell the
+     flag selects with the retail branch polarity, and lay out the non-art-2
+     final draw before the art-2 arrow block. */
   /* SYM (nfs4-f-v3.txt @0x80043b7c) shows NO locals besides the args and one
    * fn-scope `drawFlags` (tDrawShapeExtended); a SECOND `drawFlags` + `i` are
    * declared in a nested block starting at the CurrentlyLoadedArt==2 arm --
@@ -511,20 +514,24 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
      sits in that select branch's DELAY SLOT, so it runs on both paths (the
      Ghidra body had it only in the fadelevelmain!=0 arm -- a real bug). */
   if ((frame != 0) || (this->CurrentlyLoadedArt == 1)) {
-    frame = frame + 1;
-    ScaleShapeExtended(frame,fadelevelmain == 0 ? 0x600 : 0x601,
+    ScaleShapeExtended(frame + 1,fadelevelmain != 0 ? 0x601 : 0x600,
                Offset[this->CurrentlyLoadedArt][0],
                Offset[this->CurrentlyLoadedArt][1],fadelevelmain,0,&drawFlags);
-    if (this->CurrentlyLoadedArt != 2) goto ActDrawCtrl_emitShape;
-    DrawShapeExtended(0,fadelevelmain == 0 ? 0x600 : 0x601,
-               Offset[2][0] + shakex,Offset[2][1] + shakey,fadelevelmain,0,&drawFlags);
+    if (this->CurrentlyLoadedArt == 2) {
+      DrawShapeExtended(0,fadelevelmain != 0 ? 0x601 : 0x600,
+                 Offset[2][0] + shakex,Offset[2][1] + shakey,fadelevelmain,0,&drawFlags);
+    }
   }
   else {
-    DrawShapeExtended(1,fadelevelmain == 0 ? 0x600 : 0x601,
+    DrawShapeExtended(1,fadelevelmain != 0 ? 0x601 : 0x600,
                Offset[this->CurrentlyLoadedArt][0] + shakex,
                Offset[this->CurrentlyLoadedArt][1] + shakey,fadelevelmain,0,&drawFlags);
   }
-  if (this->CurrentlyLoadedArt == 2) {
+  if (this->CurrentlyLoadedArt != 2) {
+    DrawShapeExtended(0,fadeleveltop != 0 ? 0x201 : 0x200,0,0,fadeleveltop,0,&drawFlags);
+    return;
+  }
+  {
     tDrawShapeExtended drawFlags;
     int i;
 
@@ -540,8 +547,6 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
     } while (i < 0x36);
     return;
   }
-ActDrawCtrl_emitShape:
-  DrawShapeExtended(0,fadeleveltop == 0 ? 0x200 : 0x201,0,0,fadeleveltop,0,&drawFlags);
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */

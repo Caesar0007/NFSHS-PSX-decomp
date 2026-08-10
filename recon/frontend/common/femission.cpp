@@ -21,15 +21,13 @@ void tMissionManager::Initialize()
 /* ---- tMissionManager::LoadDescription  [FEMISSION.CPP:79-133] ---- */
 /* SYM 8c @0x8003407c: 4 REG locals data(s1) input(s2) numMissions(s5 ULONG)
    numStages(s3 ULONG) + filename AUTO; mask $803f0000 = 6 saved regs (s0/s4 are
-   the blockmove address temps).  W56-A10: numMissions/numStages typed ULONG per
-   SYM; ptVar2 Ghidra temp inlined (count unchanged).  RESIDUAL (24, count-exact
-   79/79): pure global-allocator priority rotation -- numMissions wants $s5 (lowest
-   priority s-reg) but ours hands it $s0, cascading input/base regs.  §4.6
-   local-alloc/global-QTY class: de-prioritized until the qtytrace lane exists. */
+   the blockmove address temps).  MATCH: 79/79.  The retail source advances the
+   named input pointer after the tier and mission copies; spelling the later
+   sources as repeated expressions introduced an unlisted byte temporary and
+   rotated the saved-register allocation (24 diffs). */
 void tMissionManager::LoadDescription(bool LoadHotPursuit)
 
 {
-  byte bVar1;
   char *data;
   char *input;
   unsigned long numStages;
@@ -47,9 +45,10 @@ void tMissionManager::LoadDescription(bool LoadHotPursuit)
     this->fDefinition = (tAcademyDefinition *)reservememadr("Missions",0x3120,0);
   }
   blockmove(input,this->fDefinition,(uint)(byte)this->fNumTiers << 2);
-  bVar1 = this->fNumTiers;
-  blockmove(input + (uint)bVar1 * 4,this->fDefinition->fMissions,numMissions * 0x14);
-  blockmove(input + (uint)bVar1 * 4 + numMissions * 0x14,this->fDefinition->fStages,numStages * 0x2c);
+  input = input + (uint)(byte)this->fNumTiers * 4;
+  blockmove(input,this->fDefinition->fMissions,numMissions * 0x14);
+  input = input + numMissions * 0x14;
+  blockmove(input,this->fDefinition->fStages,numStages * 0x2c);
   purgememadr(data);
   return;
 }

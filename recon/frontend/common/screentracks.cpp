@@ -68,7 +68,7 @@ void tScreenTrackSelect::DrawBackground()
       this->SetBrightness(trackInfo.fAvailable != '\0' ? 0x80 : 0x20);
     }
     {
-      char moviename[88];
+      char moviename[80];
 
       sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],
               (int)this->fMovieTrack);
@@ -77,65 +77,49 @@ void tScreenTrackSelect::DrawBackground()
     VIDEO_startplayback(this->hVideo);
   }
   if (0 < this->fBrightness) {
-    /* MATCH: preserve the texture-X value through the PsyQ UV/tpage macro
-       arithmetic.  `state` is dead after the dispatch above, so reusing its
-       SYM-listed pseudo avoids introducing a stack local. */
-    state = (VIDEOSTATE)0x200;
-    __asm__("" : "+r"(state));
-    prim = (POLY_FT4 *)Render_gPacketPtr;
-    ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
-    Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
-    ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    /* MATCH: the EA/PsyQ quad wrapper materializes its texture-X origin for
+       both UV and tpage arithmetic.  Recreate that hidden macro temporary;
+       rematerializing 0x200 before the second quad also avoids a call spill. */
+    short textureX = 0x200;
+
+    __asm__("" : "+r"(textureX));
+    (prim = (POLY_FT4 *)Render_gPacketPtr,
+     ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
+     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4),
+     ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
                           this->fBrightness << 8 | this->fBrightness;
-    ((tTrackSelectPrimTag *)prim)->len = 9;
-    prim->code = 0x2e;
-    prim->x0 = 0x99;
-    prim->y0 = 0x69;
-    prim->x1 = 0x139;
-    prim->y1 = 0x69;
-    prim->x2 = 0x99;
-    prim->y2 = 0xe8;
-    prim->x3 = 0x139;
-    prim->y3 = 0xe8;
-    prim->u0 = state & 0x3f;
-    prim->v0 = shapeY;
-    prim->u1 = (state & 0x3f) + 0x50;
-    prim->v1 = shapeY;
-    prim->u2 = state & 0x3f;
-    prim->v2 = shapeY | 0x7f;
-    prim->u3 = (state & 0x3f) + 0x50;
-    prim->v3 = shapeY | 0x7f;
-    prim->tpage = GetTPage(2,1,state & ~0x3f,0);
+    (((tTrackSelectPrimTag *)prim)->len = 9, prim->code = 0x2e);
+    (prim->x0 = 0x99, prim->y0 = 0x69,
+     prim->x1 = 0x139, prim->y1 = 0x69,
+     prim->x2 = 0x99, prim->y2 = 0xe8,
+     prim->x3 = 0x139, prim->y3 = 0xe8);
+    (prim->u0 = textureX & 0x3f, prim->v0 = shapeY,
+     prim->u1 = (textureX & 0x3f) + 0x50, prim->v1 = shapeY,
+     prim->u2 = textureX & 0x3f, prim->v2 = shapeY | 0x7f,
+     prim->u3 = (textureX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
+    prim->tpage = GetTPage(2,1,textureX & ~0x3f,shapeY & ~0xff);
     prim->clut = 0;
 
-    state = (VIDEOSTATE)0x250;
-    __asm__("" : "+r"(state));
-    prim = (POLY_FT4 *)Render_gPacketPtr;
-    ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
-    Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
-    ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+    textureX = 0x200;
+    __asm__("" : "+r"(textureX));
+    textureX += 0x50;
+    (prim = (POLY_FT4 *)Render_gPacketPtr,
+     ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
+     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4),
+     ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
                           this->fBrightness << 8 | this->fBrightness;
-    ((tTrackSelectPrimTag *)prim)->len = 9;
-    prim->code = 0x2e;
-    prim->x0 = 0x139;
-    prim->y0 = 0x69;
-    prim->x1 = 0x1d9;
-    prim->y1 = 0x69;
-    prim->x2 = 0x139;
-    prim->y2 = 0xe8;
-    prim->x3 = 0x1d9;
-    prim->y3 = 0xe8;
-    prim->u0 = state & 0x3f;
-    prim->v0 = shapeY;
-    prim->u1 = (state & 0x3f) + 0x50;
-    prim->v1 = shapeY;
-    prim->u2 = state & 0x3f;
-    prim->v2 = shapeY | 0x7f;
-    prim->u3 = (state & 0x3f) + 0x50;
-    prim->v3 = shapeY | 0x7f;
-    prim->tpage = GetTPage(2,1,state & ~0x3f,0);
+    (((tTrackSelectPrimTag *)prim)->len = 9, prim->code = 0x2e);
+    (prim->x0 = 0x139, prim->y0 = 0x69,
+     prim->x1 = 0x1d9, prim->y1 = 0x69,
+     prim->x2 = 0x139, prim->y2 = 0xe8,
+     prim->x3 = 0x1d9, prim->y3 = 0xe8);
+    (prim->u0 = textureX & 0x3f, prim->v0 = shapeY,
+     prim->u1 = (textureX & 0x3f) + 0x50, prim->v1 = shapeY,
+     prim->u2 = textureX & 0x3f, prim->v2 = shapeY | 0x7f,
+     prim->u3 = (textureX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
+    prim->tpage = GetTPage(2,1,textureX & ~0x3f,shapeY & ~0xff);
     prim->clut = 0;
   }
   this->DrawVideoWall();

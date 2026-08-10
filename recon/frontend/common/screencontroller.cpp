@@ -559,11 +559,17 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
-/* MATCH: 77 -> 50. `flare_intensity / 4` restores gcc's signed-division bias,
+/* MATCH: 77 -> 44. `flare_intensity / 4` restores gcc's signed-division bias,
    `__builtin_abs` restores the retail absolute-value branch/copy shape, and
    explicit flare x/Offset temporaries reduce the halo loop to allocation/order
-   differences. Remaining hotspots are the halo argument register order, one
-   float-denominator load order, and the final NegCon mode CFG. */
+   differences.  2026-08-10: splitting the reused shock boolean into the two
+   source-arm values shown by IDA (v7=$a0 for shockMode, v10=$a1 for shockImpact)
+   removes 6 diffs with no code-size change. Remaining hotspots are the halo
+   argument register order, one float-denominator load order, and the final
+   NegCon mode CFG. Falsified in this basin: one shared controller-offset pointer
+   (neutral), pointer/read fences (extra scheduling instruction), explicit
+   animStep/animRange locals (whole-function s1/s2 swap), and a direct SYM-local
+   NegCon rewrite (853/836 instructions); all were reverted. */
 void tScreenControllerConfig::DrawController()
 
 {
@@ -573,22 +579,22 @@ void tScreenControllerConfig::DrawController()
   short maxshakex;
   short maxshakey;
   int fadelevel;
-  bool bShockActive;
+  bool shockModeActive;
   
   shakex = 0;
   shakey = 0;
   maxshakex = 0;
   maxshakey = 0;
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-  bShockActive = false;
+  shockModeActive = false;
   if ((((this->fCurrentController == '\x04') &&
        ((short)(menuDefs[0]->menuControllerDualShock).fCurrentItem == 0)) ||
       ((this->fCurrentController == '\x06' &&
        ((short)(menuDefs[0]->menuControllerDualShockAnalog).fCurrentItem == 0)))) &&
      ((short)(menuDefs[0]->menuControllerConfig).fCurrentItem == 1)) {
-    bShockActive = true;
+    shockModeActive = true;
   }
-  if ((bShockActive) && (frontEnd.shockMode[this->player] != '\0')) {
+  if ((shockModeActive) && (frontEnd.shockMode[this->player] != '\0')) {
     if (this->fShakingItem != 0) {
       this->fShakingItem = 0;
       this->fResetShakeTimeOut = 1;
@@ -598,15 +604,17 @@ void tScreenControllerConfig::DrawController()
     maxshakey = ((byte)frontEnd.shockMode[this->player] >> 6) + 2;
   }
   else {
-    bShockActive = false;
+    bool shockImpactActive;
+
+    shockImpactActive = false;
     if ((((this->fCurrentController == '\x04') &&
          ((short)(menuDefs[0]->menuControllerDualShock).fCurrentItem == 1)) ||
         ((this->fCurrentController == '\x06' &&
          ((short)(menuDefs[0]->menuControllerDualShockAnalog).fCurrentItem == 1)))) &&
        ((short)(menuDefs[0]->menuControllerConfig).fCurrentItem == 1)) {
-      bShockActive = true;
+      shockImpactActive = true;
     }
-    if ((bShockActive) && ((byte)frontEnd.shockImpact[this->player] != 0)) {
+    if ((shockImpactActive) && ((byte)frontEnd.shockImpact[this->player] != 0)) {
       this->SetActuators((uint)(byte)frontEnd.shockImpact[this->player] << 1);
       maxshakex = ((byte)frontEnd.shockImpact[this->player] >> 5) + 2;
       maxshakey = ((byte)frontEnd.shockImpact[this->player] >> 6) + 2;

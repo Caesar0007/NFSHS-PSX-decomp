@@ -952,33 +952,22 @@ PinkSlipsErrorCode
 SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCarInGarageNumber)
 
 {
-  short sVar1;
-  PinkSlipsErrorCode PVar2;
-  char *pcVar3;
-  char *pcVar4;
-  tDialogYesNo *dlgmsg;
-  int count;
-  int iVar5;
-  PinkSlipsErrorCode err;
-  int yes;
-  int player_00;
-  int retry;
-  char *shapeFile;
   tDialogYesNo RetryCancelDialog;
   tDialogNoInputMessage WillLoseCarMessage;
   char string [500];
   char string2 [500];
+  PinkSlipsErrorCode err;
+  int retry;
 
   /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) +
      tScreen_ctor((tScreen*)&WillLoseCarMessage) manual calls: both are undefined phantom
      externs; the real declared ctors (tDialogYesNo(), tScreen() via the ctor-less tDialog*
      intermediate chain) auto-fire at declaration -- oracle shows exactly one
      jal __12tDialogYesNo + one jal __7tScreen here. RetryCancelDialog/WillLoseCarMessage are
-     function-scoped (constructed once, destructed once at the single `return PVar2;` below --
+     function-scoped (constructed once, destructed once at the single `return err;` below --
      manual tScreen_dtor calls for them dropped too, oracle's two ___7tScreen calls right
      before the epilogue are exactly the implicit auto-dtors at function scope exit). */
-  sVar1 = 0;
-  player_00 = (int)player;
+  retry = 0;
   /* manual _vf init chain in oracle store order (see LoadGame/SaveGame) */
   WillLoseCarMessage._vf = (__vtbl_ptr_type (*)[10])tDialogBase_vtable;
   WillLoseCarMessage.currentlyOn = 0;
@@ -1016,7 +1005,8 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
       if (((FEApp[0]->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz */
       Redraw(FEApp[0]);
     }
-    iVar5 = 0;
+    int count;
+    count = 0;
     Redraw(FEApp[0]);
     /* [block-scope fix] WarningDialog constructed/destructed FRESH every retry iteration --
        oracle's jal __7tScreen sits at the loop top (per-iteration ctor) and the matching
@@ -1050,7 +1040,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
       WarningDialog._vf =
            (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
       WarningDialog.string =
-           TextSys_Word(player_00 + 0x276);
+           TextSys_Word(player + 0x276);
       WarningDialog.OffsetX = 0;
       WarningDialog.OffsetY = 0x32;
       Display((tDialogBase *)&WarningDialog);
@@ -1060,37 +1050,35 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
       }
       Redraw(FEApp[0]);
       do {
-        PVar2 = SavePinkSlipsCars(player,withoutCarInGarageNumber);
-        iVar5 = iVar5 + 1;
-        if (PVar2 == PinkSlipsNoError) break;
-        timedwait(5);
-      } while (iVar5 < 3);
+        err = SavePinkSlipsCars(player,withoutCarInGarageNumber);
+        if (err != PinkSlipsNoError) {
+          timedwait(5);
+        }
+        count = count + 1;
+      } while ((err != PinkSlipsNoError) && (count < 3));
       Hide((tDialogBase *)&WarningDialog);
       Redraw(FEApp[0]);
-      if (PVar2 != PinkSlipsNoError) {
+      if (err != PinkSlipsNoError) {
         Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-        pcVar3 = TextSys_Word(textSysMemCardFail_Index[PVar2] + player_00);
-        sprintf(string,pcVar3);
+        sprintf(string,TextSys_Word(textSysMemCardFail_Index[err] + player));
         if (WillLoseCar != 0) {
-          iVar5 = 0x298;
-          if (WillLoseCar == 2) {
-            iVar5 = 0x299;
-          }
-          pcVar3 = TextSys_Word(iVar5);
-          pcVar4 = PlayerName(player_00);
-          sprintf(string2,pcVar3,pcVar4);
+          sprintf(string2,TextSys_Word(WillLoseCar == 2 ? 0x299 : 0x298),
+                  PlayerName(player));
+          WillLoseCarMessage.string = string2;
           WillLoseCarMessage.OffsetX = 0;
           WillLoseCarMessage.OffsetY = -0x3c;
-          WillLoseCarMessage.string = string2;
           Display((tDialogBase *)&WillLoseCarMessage);
         }
-        RetryCancelDialog.string = string;
-        sVar1 = Run((tDialogInteractive *)&RetryCancelDialog);
+        {
+          tDialogYesNo *rc = &RetryCancelDialog;
+          rc->string = string;
+          retry = Run((tDialogInteractive *)rc);
+        }
         Hide((tDialogBase *)&WillLoseCarMessage);
       }
     }
-    if ((PVar2 == PinkSlipsNoError) || (sVar1 == 0)) {
-      return PVar2;
+    if ((err == PinkSlipsNoError) || (retry == 0)) {
+      return err;
     }
   } while( true );
 }

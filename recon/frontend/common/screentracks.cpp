@@ -77,6 +77,11 @@ void tScreenTrackSelect::DrawBackground()
     VIDEO_startplayback(this->hVideo);
   }
   if (0 < this->fBrightness) {
+    /* MATCH: preserve the texture-X value through the PsyQ UV/tpage macro
+       arithmetic.  `state` is dead after the dispatch above, so reusing its
+       SYM-listed pseudo avoids introducing a stack local. */
+    state = (VIDEOSTATE)0x200;
+    __asm__("" : "+r"(state));
     prim = (POLY_FT4 *)Render_gPacketPtr;
     ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
@@ -93,17 +98,19 @@ void tScreenTrackSelect::DrawBackground()
     prim->y2 = 0xe8;
     prim->x3 = 0x139;
     prim->y3 = 0xe8;
-    prim->u0 = 0x200 & 0x3f;
+    prim->u0 = state & 0x3f;
     prim->v0 = shapeY;
-    prim->u1 = (0x200 & 0x3f) + 0x50;
+    prim->u1 = (state & 0x3f) + 0x50;
     prim->v1 = shapeY;
-    prim->u2 = 0x200 & 0x3f;
+    prim->u2 = state & 0x3f;
     prim->v2 = shapeY | 0x7f;
-    prim->u3 = (0x200 & 0x3f) + 0x50;
+    prim->u3 = (state & 0x3f) + 0x50;
     prim->v3 = shapeY | 0x7f;
-    prim->tpage = GetTPage(2,1,0x200 & ~0x3f,0);
+    prim->tpage = GetTPage(2,1,state & ~0x3f,0);
     prim->clut = 0;
 
+    state = (VIDEOSTATE)0x250;
+    __asm__("" : "+r"(state));
     prim = (POLY_FT4 *)Render_gPacketPtr;
     ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr;
     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4);
@@ -120,15 +127,15 @@ void tScreenTrackSelect::DrawBackground()
     prim->y2 = 0xe8;
     prim->x3 = 0x1d9;
     prim->y3 = 0xe8;
-    prim->u0 = 0x250 & 0x3f;
+    prim->u0 = state & 0x3f;
     prim->v0 = shapeY;
-    prim->u1 = (0x250 & 0x3f) + 0x50;
+    prim->u1 = (state & 0x3f) + 0x50;
     prim->v1 = shapeY;
-    prim->u2 = 0x250 & 0x3f;
+    prim->u2 = state & 0x3f;
     prim->v2 = shapeY | 0x7f;
-    prim->u3 = (0x250 & 0x3f) + 0x50;
+    prim->u3 = (state & 0x3f) + 0x50;
     prim->v3 = shapeY | 0x7f;
-    prim->tpage = GetTPage(2,1,0x250 & ~0x3f,0);
+    prim->tpage = GetTPage(2,1,state & ~0x3f,0);
     prim->clut = 0;
   }
   this->DrawVideoWall();

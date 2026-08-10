@@ -263,35 +263,39 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 {
   int width;
+  int pos;
+  int test;
+  unsigned int shifted;
 
   /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT
      OF LINE (oracle `beqz` branches forward past the =0 block, which ends with
      its own `j`), so it is a goto target, not the fall-through. */
-  /* RESIDUAL 16 (count-exact 48/48) -- PARAM-COPY-QTY-ABSORBS-SIGN-EXTEND, the
-     06E named-gap class, shared with DrawVerticalLine (26 @ 47/45).  SYM:
-     gridpos is REGPARM $8 ($t0) here / $7 ($a3) in DrawVerticalLine.  Retail
-     sign-extends into a FRESH pair (`sll v0,a3,16; sra v1,v0,16`) and keeps
-     gridpos live in its incoming HImode arg home for the clamp writes + the post-
-     clamp copy; our cc1plus emits the assign_parms copy at ENTRY, which kills
-     $a3 so the extend reuses it in place and the clamp targets the copy instead.
-     FALSIFIED here (W55-A14): an explicit `int g = gridpos;` chain-source local
-     for the three tests -- gcc coalesces `g` straight back into $a3, byte-
-     identical output.  The reachable dial is the parm-copy POSITION (w46 park
-     class / w47-a1 fence probe), not a source spelling of the compare operand. */
-  /* MATCH: the tests read a SEPARATE sign-extended value (`sll v0,a3,16;
-     sra v1,v0,16` into fresh pseudos) while `gridpos` itself stays live in its
-     HImode arg home ($a3) for the post-clamp copy -- so the extend chain must
-     SOURCE gridpos, not overwrite it. */
-  if (0 < gridpos) {
-    if (0x40 <= gridpos) goto HL_clampHi;
+  /* RESIDUAL 5 (W59, 16->10->5; ours 49/oracle 48).  SYM makes gridpos
+     REGPARM $t0, while the oracle clamps a promoted working value in incoming
+     $a3 and copies it to $t0 only at the join.  The separate `pos` reproduces
+     that delayed copy (16->10).  Spelling the signed test as an explicit
+     shift pair separates the test from the clamped value (10->5).  GCC still
+     CSEs the sign-extension into $a3 and emits `addu v1,a3`; retail instead
+     keeps the pair as `sll v0,a3,16; sra v1,v0,16`, accounting for the sole
+     extra instruction and all five remaining diff lines.
+     FALSIFIED in this basin: register on the parameter (neutral); a plain
+     promoted test local (neutral); read-only/identity fences at the init or
+     join (neutral or 27 diffs); a signed 16-bit bitfield carrier (27 diffs,
+     48-byte frame). */
+  shifted = (unsigned int)gridpos << 16;
+  test = (int)shifted >> 16;
+  pos = gridpos;
+  if (0 < test) {
+    if (0x40 <= test) goto HL_clampHi;
   }
-  if (gridpos < 0) {
-    gridpos = 0;
+  if (test < 0) {
+    pos = 0;
   }
   goto HL_clamped;
 HL_clampHi:
-  gridpos = 0x40;
+  pos = 0x40;
 HL_clamped:
+  gridpos = pos;
   /* MATCH (SLD 276 = ONE statement) */
   width = (ushort)GRIDMEMCARD_WIDTH + 2 + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2;
   /* MATCH (SLD 277): the side select is INSIDE the call expression, and the

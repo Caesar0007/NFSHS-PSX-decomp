@@ -148,7 +148,10 @@ DLB_ret0:
 void tScreenMain::SetState(tScreenMainState state)
 
 {
-  /* MATCH (W57, 99->55): the SYM 8c block lists ONLY `shape` and `i` -- every
+  /* MATCH (W64 PASS, 32->0): IDA's retail allocation is recovered by making
+     `shape` the current element pointer, storing transition state before the
+     u calculation, and placing the DynamicImage case first in source order.
+     The SYM 8c block lists ONLY `shape` and `i` -- every
      uVarN/iVarN/tVarN was a Ghidra temp.  And the state dispatch carries the
      gcc-2.8 balance_case_nodes fingerprint (median-pivot `beq $v1,3` with the
      `slti $v1,4` bound test in its DELAY SLOT, case bodies out of line in
@@ -167,29 +170,29 @@ void tScreenMain::SetState(tScreenMainState state)
     this->fState = state;
     this->fStartTicks = ticks;
     do {
-      shape = this->fVideoShapes[this->fCurrentSlot].fShapes;
-      this->tvTransitions[i].u =
-           (uchar)((((int)shape[i].shapex - (int)(short)(shape[i].shapex & 0xffc0)) * 0x10) /
-                   (int)(uint)(byte)shape[i].depth);
-      /* MATCH (55->32): the `.state` store is scheduled AFTER the u chain --
-         emitting it first (Ghidra's order) computes the tvTransitions[i]
-         address 6 insns early.  Positions after v/uw/vh measure 37. */
+      shape = this->fVideoShapes[this->fCurrentSlot].fShapes + i;
       this->tvTransitions[i].state = kScreenMain_StaticImage;
-      this->tvTransitions[i].v = (uchar)shape[i].shapey;
-      this->tvTransitions[i].uw = (uchar)shape[i].width;
-      this->tvTransitions[i].vh = (uchar)shape[i].height;
+      this->tvTransitions[i].u =
+           (uchar)((((int)shape->shapex - (int)(short)(shape->shapex & 0xffc0)) * 0x10) /
+                   (int)(uint)(byte)shape->depth);
+      this->tvTransitions[i].v = (uchar)shape->shapey;
+      this->tvTransitions[i].uw = (uchar)shape->width;
+      this->tvTransitions[i].vh = (uchar)shape->height;
       this->tvTransitions[i].tpage =
-           ((u_char)*((u_char*)&shape[i] + 9) & 3) << 7 | (short)(shape[i].shapey & 0x100U) >> 4 |
-           (ushort)(((ushort)shape[i].shapex & 0x3c0) >> 6) |
-           (shape[i].shapey & 0x200U) << 2;
+           ((u_char)*((u_char*)shape + 9) & 3) << 7 | (short)(shape->shapey & 0x100U) >> 4 |
+           (ushort)(((ushort)shape->shapex & 0x3c0) >> 6) |
+           (shape->shapey & 0x200U) << 2;
       this->tvTransitions[i].clut =
-           GetClut((shape[i].clutID & 0x3fU) << 4,shape[i].clutID >> 6);
+           GetClut((shape->clutID & 0x3fU) << 4,shape->clutID >> 6);
       this->tvTransitions[i].flags = 0;
       this->tvTransitions[i].tint = 0x808080;
       this->tvTransitions[i].bright = 0x80;
       i = i + 1;
     } while (i < 0x10);
     switch (this->fState) {
+    case kScreenMain_DynamicImage:
+      this->InitDynamicImages();
+      break;
     case kScreenMain_WarningImage:
       i = 4;
       do {
@@ -199,9 +202,6 @@ void tScreenMain::SetState(tScreenMainState state)
       } while (i < 0xc);
       this->tvTransitions[6].bright = 0x80;
       this->tvTransitions[5].bright = 0x80;
-      break;
-    case kScreenMain_DynamicImage:
-      this->InitDynamicImages();
       break;
     case kScreenMain_Credits:
       i = 0;

@@ -849,7 +849,6 @@ int tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
   uchar uVar1;
-  byte garageNum;
   short count;
 
   switch(this->fState) {
@@ -875,16 +874,11 @@ int tScreenCarSelect::GetCar(tCarInfo &carInfo)
         return 0;
       }
     }
-    /* MATCH (06A): the SYM 8c block for GetCar names NO locals -- a `garageNum`
-       byte local costs an `addu a1,v0,zero` copy where the oracle loads the byte
-       STRAIGHT into the call's $a1 in each arm.  Duplicating the call lets gcc
-       cross-jump-merge the two `jal`s back into one, and putting the `== 0`
-       (playerCar) arm first gives the oracle's `bnez` -> garage-arm polarity. */
-    if (frontEnd.carListType == 0) {
-      carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
-    } else {
-      carManager.GetStockCar((ushort)(byte)frontEnd.garageCar[0],carInfo);
-    }
+    /* W64 PASS: the SYM block names no selection local.  Passing the conditional
+       byte directly exposes frontEnd's base in $a1 and lets gcc merge both arms
+       into the retail call sequence. */
+    carManager.GetStockCar((ushort)(byte)
+        ((frontEnd.carListType == 0) ? frontEnd.playerCar[0] : frontEnd.garageCar[0]),carInfo);
     if (frontEnd.carListType == 0) {
       carInfo.fColor = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     }
@@ -901,8 +895,8 @@ int tScreenCarSelect::GetCar(tCarInfo &carInfo)
         return 0;
       }
     }
-    garageNum = (this->fState == 3) ? D_80114729 : D_80114723;
-    carManager.GetStockCar((ushort)garageNum,carInfo);
+    carManager.GetStockCar((ushort)(byte)
+        ((this->fState == 3) ? D_80114729 : D_80114723),carInfo);
     carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
   }
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];

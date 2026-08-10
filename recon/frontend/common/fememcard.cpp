@@ -2,6 +2,7 @@
  *   18 FREE fns (namespace nfs4::FRONTEND::COMMON::FEMemCard). Init/DeInit_Memcard tails
  *   rebuilt from m2c (Ghidra truncated to do{}while(true)). Dialog base-hierarchies routed.
  */
+#define FEAPP_DEFINE_DIALOG_CTORS
 #include "fememcard.h"
 
 /* ---- FEMemCard.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes / .bss zero;
@@ -34,6 +35,38 @@ extern int          MEMCARDFRONTENDISINITTED_word asm("MEMCARDFRONTENDISINITTED"
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */
 extern __vtbl_ptr_type tDialogBase_vtable[], tDialogMessageString_vtable[];
+
+inline tDialogBase::tDialogBase()
+{
+  *(void **)&_vf = (void *)tDialogBase_vtable;
+  currentlyOn = 0;
+  reservedheight = 0;
+  MaxH = 0;
+  OffsetY = 0;
+  OffsetX = 0;
+  height = 0;
+  width = 0;
+  top = 0;
+  left = 0;
+  MaxW = 0x120;
+  specificPlayer = -1;
+  fDefault = 0;
+  timeOutTicks = 0;
+}
+
+inline tDialogMessageString::tDialogMessageString()
+{
+  *(void **)&_vf = (void *)tDialogMessageString_vtable;
+  Centerit = 0;
+  fFullyOpen = 0;
+  timeOutTicks = 0;
+  fFadeText = 0x80;
+}
+
+inline tDialogNoInputMessage::tDialogNoInputMessage()
+{
+  *(void **)&_vf = (void *)tDialogNoInputMessage_vtable;
+}
 /* [HEADER WISH] Stats_gTrackRecords is an ARRAY (oracle materializes its ADDRESS, addiu --
    never loads a pointer value); fememcard_externs.h declares `int *` -- asm-label redecl. */
 extern int Stats_gTrackRecords_arr[] asm("Stats_gTrackRecords");
@@ -391,19 +424,13 @@ extern "C" void Init_MemcardFile__FR12MCRDFILE_defsb(MCRDFILE_def *memCardFile,s
 
 
 /* ---- SaveGame  [FEMEMCARD.CPP:395-583] ---- */
-/* NEAR-PASS 6, count EXACT 292/292.  RECEIPT (W57-A5, allocsim + reqdelta):
+/* MATCH (2026-08-11, 6 -> PASS, 292/292).  RECEIPT (W57-A5, allocsim + reqdelta):
    A read fence on player immediately before the final shapeFile use extends the right
    live range and reproduces retail's player=s5, returnvalue=s6, shapeFile=s7 rotation
    without adding an instruction.  Explicit message/display locals reproduce retail's
-   load-before-store order at the final dialog update.  The only remaining residual is
-   the `tScreen` base-ctor address staging.  Retail
-   materializes `addiu s0,sp,0x15C0` BEFORE the `jal __7tScreen` and passes
-   `addu a0,s0,zero` (the address is live across the call -> callee-saved s0); ours
-   emits `addiu a0,sp,0x15C0` in the jal delay slot and rematerializes s0 afterwards.
-   Lever #16 (hold-global-addr-across-call) cannot be spelled here: the address pseudo
-   must be the SAME one the implicit ctor call uses, and C++ runs the ctor at the
-   declaration -- `wd = &WarningDialog` can only be written AFTER it, by which time the
-   call has already clobbered the a0 copy so cse cannot unify the two. */
+   load-before-store order at the final dialog update.  Restoring the retail header's
+   inline dialog constructor chain makes the implicit ctor and following field stores
+   share one address pseudo, producing the retail s0 staging across `jal __7tScreen`. */
 
 void * SaveGame(short player)
 
@@ -427,9 +454,9 @@ void * SaveGame(short player)
       }
     }
   }
-  /* [block-scope fix] WarningDialog declared AFTER the loop (oracle jal __7tScreen position);
-     decl order WarningDialog/cardNum/memCardFile/shapeFileName = SYM stack layout. Manual _vf
-     init chain in oracle store order (see LoadGame). */
+  /* WarningDialog is declared after the loop at the oracle's `jal __7tScreen` position;
+     declaration order matches the SYM stack layout.  Its header-inline constructor above
+     emits the retail base/vtable/field chain. */
   tDialogNoInputMessage WarningDialog;
   short cardNum;
   MCRDFILE_def memCardFile;
@@ -443,27 +470,6 @@ void * SaveGame(short player)
      oracle stores the three non-zero-constant fields through s0 and takes both call args
      from it; zeros/vt stay sp-direct. */
   tDialogNoInputMessage *wd = &WarningDialog;
-  WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogBase_vtable;
-  WarningDialog.currentlyOn = 0;
-  WarningDialog.reservedheight = 0;
-  WarningDialog.MaxH = 0;
-  WarningDialog.OffsetY = 0;
-  WarningDialog.OffsetX = 0;
-  WarningDialog.height = 0;
-  WarningDialog.width = 0;
-  WarningDialog.top = 0;
-  WarningDialog.left = 0;
-  wd->MaxW = 0x120;
-  wd->specificPlayer = -1;
-  WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogMessageString_vtable;
-  WarningDialog.fDefault = 0;
-  WarningDialog.timeOutTicks = 0;
-  WarningDialog.Centerit = 0;
-  WarningDialog.fFullyOpen = 0;
-  /* MATCH: adjacent identical double store survives via volatile (catalog F(c)) */
-  *(volatile long *)&WarningDialog.timeOutTicks = 0;
-  wd->fFadeText = 0x80;
-  WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
   WarningDialog.string = TextSys_Word(player + 0x276);
   WarningDialog.OffsetX = 0;
   WarningDialog.OffsetY = 0x32;
@@ -568,6 +574,13 @@ void * SaveGame(short player)
 
 
 /* ---- LoadGame__FsbT1  [FEMEMCARD.CPP:591-812] ---- */
+/* MATCH (2026-08-11, 26 -> 20 -> 17 -> 6 -> PASS, 374/374): restoring the
+   header-inline dialog constructor fixed the ctor target and address lifetime.  The
+   retry is a real do/while (IDA), which lets loop-invariant motion hoist the promoted
+   player value before the loop.  `nomessage = 0` precedes the zero-valued locals so
+   sched1 splits its %hi setup across both dialog predecessors exactly as in retail.
+   The final empty scheduling fence keeps the last error-message assignment out of a
+   jump delay slot, leaving `finished = true` there instead. */
 
 extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
 
@@ -588,47 +601,12 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
      order ascending -- SYM layout is memCardData / buffer / WarningDialog / memCardFile. */
 
   cardNum = player * 4 | 1;
-  /* [block-scope fix] WarningDialog declared here (oracle jal __7tScreen after the
-     CURRENTPLAYER/CURRENTLYUSINGMEMCARD stores); init sequence below = the INLINED
-     tDialogBase -> tDialogMessageString -> tDialogNoInputMessage ctor chain, field order
-     exactly as the oracle stores it (three successive _vf stores). */
+  /* WarningDialog is declared here (oracle jal __7tScreen after the two global stores);
+     the header-inline constructor above emits the three-stage retail init chain. */
   CURRENTPLAYER[0] = player;
   CURRENTLYUSINGMEMCARD_arr[0] = 1;
   tDialogNoInputMessage WarningDialog;
   MCRDFILE_def memCardFile;
-  /* PARTIAL (2026-08-09, 183 -> 147): the retail inline-constructor allocation
-     keeps this narrow field subset behind one dialog-base pseudo.  That restores
-     the incoming player/finished coalescing in s1 without extending the alias
-     through the card-event loop. */
-  tDialogNoInputMessage *warning = &WarningDialog;
-  /* manual _vf init chain (EA manual-vtable doctrine), field order per oracle.
-     (NEGATIVE: routing ALL inits through a `wd` base pointer regresses 252->260 -- the
-     oracle's s0-based subset (MaxW/specificPlayer/fFadeText) is gcc's own partial CSE of
-     the ctor-call arg address, not a source pointer.) */
-  WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogBase_vtable;
-  WarningDialog.currentlyOn = 0;
-  WarningDialog.reservedheight = 0;
-  WarningDialog.MaxH = 0;
-  WarningDialog.OffsetY = 0;
-  WarningDialog.OffsetX = 0;
-  WarningDialog.height = 0;
-  WarningDialog.width = 0;
-  WarningDialog.top = 0;
-  WarningDialog.left = 0;
-  warning->MaxW = 0x120;
-  warning->specificPlayer = -1;
-  /* inline tDialogMessageString ctor */
-  WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogMessageString_vtable;
-  WarningDialog.fDefault = 0;
-  WarningDialog.timeOutTicks = 0;
-  WarningDialog.Centerit = 0;
-  WarningDialog.fFullyOpen = 0;
-  /* MATCH: adjacent identical double store survives via volatile (catalog F(c); fedialog
-     tDialogYesNo ctor precedent) */
-  *(volatile long *)&WarningDialog.timeOutTicks = 0;
-  warning->fFadeText = 0x80;
-  /* inline tDialogNoInputMessage ctor */
-  WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
   if ((WithDialogs != 0) || (PinkSlips != 0)) {
     WarningDialog.string = TextSys_Word(player + 0x276);
     if (PinkSlips == 0) {
@@ -642,18 +620,16 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
     }
     Redraw(FEApp[0]);
   }
+  nomessage_arr[0] = 0;
   finished = false;
   result = 0;
-  __asm__ volatile("" : "+r"(result));
   count = 0x2c;
-  nomessage_arr[0] = 0;
   if (WithDialogs != 0) {
     count = 0;
   }
-  __asm__ volatile("" : : "r"(count));
   returnmessage = 0x28d;
   cardshifted = cardNum << 16;
-LoadGame_memcardInit:
+  do {
   count = count + 1;
   MakeWayForMemoryCard();
   Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,(short)(cardshifted >> 0x10),true);
@@ -738,18 +714,18 @@ LoadGame_memcardInit:
           }
           else {
             returnmessage = 0x329;
+            __asm__ volatile("" : : "i"(0));
           }
         }
       }
       finished = true;
-      break;
     }
   }
   while (MCRD_handlecardevents(cardshifted >> 0x10) != 0x16) {
     VSync(0);
   }
   BringThatBeatBack();
-  if ((returnmessage != 0x28d) && (count < 3)) goto LoadGame_memcardInit;
+  } while ((returnmessage != 0x28d) && (count < 3));
   if (WithDialogs != 0) {
     if (nomessage_arr[0] == 0) {
       Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
@@ -1011,28 +987,6 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
        fixed dtor call site. */
     {
       tDialogNoInputMessage WarningDialog;
-      WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogBase_vtable;
-      WarningDialog.currentlyOn = 0;
-      WarningDialog.reservedheight = 0;
-      WarningDialog.MaxH = 0;
-      WarningDialog.OffsetY = 0;
-      WarningDialog.OffsetX = 0;
-      WarningDialog.height = 0;
-      WarningDialog.width = 0;
-      WarningDialog.top = 0;
-      WarningDialog.left = 0;
-      WarningDialog.MaxW = 0x120;
-      WarningDialog.specificPlayer = -1;
-      WarningDialog._vf = (__vtbl_ptr_type (*)[10])tDialogMessageString_vtable;
-      WarningDialog.fDefault = 0;
-      WarningDialog.timeOutTicks = 0;
-      WarningDialog.Centerit = 0;
-      WarningDialog.fFullyOpen = 0;
-      /* MATCH: adjacent identical double store survives via volatile (catalog F(c)) */
-      *(volatile long *)&WarningDialog.timeOutTicks = 0;
-      WarningDialog.fFadeText = 0x80;
-      WarningDialog._vf =
-           (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
       WarningDialog.string =
            TextSys_Word(player + 0x276);
       WarningDialog.OffsetX = 0;

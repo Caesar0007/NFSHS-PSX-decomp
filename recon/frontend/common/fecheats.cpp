@@ -169,54 +169,31 @@ void FECheat_EncodeString(char *input,char *output)
 void FECheat_EncodeString2(char *input,char *output)
 
 {
-  u_int uVar1;
-  u_int uVar2;
-  u_char bVar3;
-  u_char *pbVar4;
-  u_char *pbVar5;
-  u_char *inBase;
-  u_char *outBase;
-  int iVar6;
   int i;
-  u_int uVar7;
   char buffer [8];
 
-  iVar6 = 0;
-  inBase = (u_char *)input;
-  outBase = (u_char *)output;
+  i = 0;
   do {
-    pbVar5 = inBase + iVar6;
-    buffer[iVar6] = ~*pbVar5;
-    pbVar4 = outBase + iVar6;
-    iVar6 = iVar6 + 1;
-    *pbVar4 = ~*pbVar5;
-  } while (iVar6 < 8);
-  uVar7 = 0;
+    buffer[i] = ~input[i];
+    output[i] = ~input[i];
+    i = i + 1;
+  } while (i < 8);
+  i = 0;
   do {
-    pbVar5 = (u_char *)(output + uVar7);
-    *output = *output ^ (u_char)(((int)(u_int)(u_char)*output >> uVar7 & 1U) << uVar7);
-    *pbVar5 = *pbVar5 ^ (u_char)(((int)(u_int)*pbVar5 >> uVar7 & 1U) << uVar7);
-    *output = *output | (u_char)(((int)(u_int)(u_char)buffer[uVar7] >> uVar7 & 1U) <<
-                              uVar7);
-    uVar2 = uVar7;
-    uVar1 = uVar7;
-    uVar7 = uVar7 + 1;
-    *pbVar5 = *pbVar5 | (u_char)(((int)(u_int)(u_char)buffer[0] >> uVar2 & 1U) << uVar1);
-  } while ((int)uVar7 < 8);
-  iVar6 = 1;
+    output[0] ^= ((output[0] >> i) & 1) << i;
+    output[i] ^= ((output[i] >> i) & 1) << i;
+    output[0] |= ((buffer[i] >> i) & 1) << i;
+    output[i] |= ((buffer[0] >> i) & 1) << i;
+    i = i + 1;
+  } while (i < 8);
+  i = 1;
   do {
-    pbVar4 = (u_char *)(output + iVar6);
-    uVar7 = iVar6 - 1;
-    pbVar5 = (u_char *)(buffer + iVar6);
-    bVar3 = *pbVar4 & 0xfe;
-    *pbVar4 = bVar3;
-    bVar3 = bVar3 ^ (u_char)(((int)(u_int)bVar3 >> uVar7 & 1U) << uVar7);
-    *pbVar4 = bVar3;
-    bVar3 = bVar3 | (u_char)((int)(u_int)*pbVar5 >> uVar7) & 1;
-    *pbVar4 = bVar3;
-    iVar6 = iVar6 + 1;
-    *pbVar4 = bVar3 | (u_char)((*pbVar5 & 1) << uVar7);
-  } while (iVar6 < 8);
+    output[i] &= 0xfe;
+    output[i] ^= ((output[i] >> (i - 1)) & 1) << (i - 1);
+    output[i] |= (buffer[i] >> (i - 1)) & 1;
+    output[i] |= (buffer[i] & 1) << (i - 1);
+    i = i + 1;
+  } while (i < 8);
   return;
 }
 

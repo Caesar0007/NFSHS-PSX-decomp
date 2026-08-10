@@ -137,24 +137,22 @@ void tVideoWall::SetValid(short valid)
 void tVideoWall::UpdateTransition()
 
 {
-  int elapsed = (ticks[0] - this->fTVTicks) >> 3;
+  /* MATCH (W69, 67 -> PASS): SYM authenticates only two locals: elapsed
+     transition step `i`=$s3 and TV index `j`=$s0, both short.  Bounded for
+     loops preserve the retail dual tests without the decompiler's scoped
+     count copies; spelling the final comparison i-first fixes load order. */
   short i;
+  short j;
+
+  i = (ticks[0] - this->fTVTicks) >> 3;
 
   if (0 < this->fTransitionDirection) {
     if (this->fValid != 0) {
-      short sVar1 = (short)elapsed;
-      i = 0;
-      if (0 < sVar1) {
-        do {
-          if ((int)this->fNumTVs <= i) {
-            return;
-          }
-          if (((this->fTVs[this->tvOrder[i]].state == tv_StateOff) && (this->fValid != 0))
-             && (this->fAvailable != 0)) {
-            TurnOnTV(this->fTVs + this->tvOrder[i]);
-          }
-          i = i + 1;
-        } while (i < sVar1);
+      for (j = 0; (j < i) && (j < this->fNumTVs); j = j + 1) {
+        if (((this->fTVs[this->tvOrder[j]].state == tv_StateOff) && (this->fValid != 0))
+           && (this->fAvailable != 0)) {
+          TurnOnTV(this->fTVs + this->tvOrder[j]);
+        }
       }
     }
     else {
@@ -162,18 +160,12 @@ void tVideoWall::UpdateTransition()
     }
   }
   else {
-    short sVar1 = (short)elapsed;
-    i = 0;
-    if (0 < sVar1) {
-      do {
-        if ((int)this->fNumTVs <= i) break;
-        if (this->fTVs[this->tvOrder[i]].state == tv_StateOn) {
-          TurnOffTV(this->fTVs + this->tvOrder[i]);
-        }
-        i = i + 1;
-      } while (i < sVar1);
+    for (j = 0; (j < i) && (j < this->fNumTVs); j = j + 1) {
+      if (this->fTVs[this->tvOrder[j]].state == tv_StateOn) {
+        TurnOffTV(this->fTVs + this->tvOrder[j]);
+      }
     }
-    if (this->fNumTVs <= sVar1) {
+    if (i >= this->fNumTVs) {
       this->fTransitionDirection = 0;
     }
   }

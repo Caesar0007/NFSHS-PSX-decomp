@@ -124,17 +124,17 @@ void tScreenAudio::PlaySound()
 void tScreenAudio::DrawForeground()
 
 {
-  /* MATCH (W69, 60 -> 2): the retail loop draws shapes 48..51 with fixed
+  /* MATCH W64 PASS (60 -> 0, 68 instructions): the retail loop draws shapes 48..51 with fixed
      flags/coordinates; the decompiler's four uninitialized call arguments
      were phantom locals.  Keep the clamp result in an int funnel until its
      final short assignment so gcc reproduces the retail branch graph and
-     48-byte frame.  Residual: one propagated read uses $a0 where retail
-     re-reads the just-assigned $s2 pseudo (same 68 instructions). */
+     48-byte frame.  SYM scopes `i` to the draw loop.  The zero-instruction
+     identity fence invalidates the obsolete fadeCalc value after assigning
+     named `fade`, making the promoted call argument read retail's $s2. */
   short fade;
   int fadeCalc;
   char *label;
   int textWidth;
-  int i;
   
   fadeCalc = (menuDefs[0]->menuAudio).fScreenFade >> 1;
   if ((short)fadeCalc < 0x80) {
@@ -146,13 +146,17 @@ void tScreenAudio::DrawForeground()
 DrawFgAudio_fadeZero:
   fadeCalc = 0;
 DrawFgAudio_fadeDone:
-  i = 0;
-  fade = (short)fadeCalc;
-  do {
-    DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
-               (tDrawShapeExtended *)0x0);
-    i = i + 1;
-  } while (i < 4);
+  {
+    int i = 0;
+
+    fade = (short)fadeCalc;
+    __asm__("" : "+r"(fadeCalc));
+    do {
+      DrawShapeExtended(i + 0x30,1,0,0,(int)fade,0,
+                 (tDrawShapeExtended *)0x0);
+      i = i + 1;
+    } while (i < 4);
+  }
   if (99 < fade) {
     FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo);
     label = TextSys_Word(0x27d);

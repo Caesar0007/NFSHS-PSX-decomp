@@ -94,62 +94,49 @@ void tCreditManager::RealDeInit()
 
 /* ---- tCreditManager::Draw  [FECREDITS.CPP:120-151] ---- */
 void tCreditManager::Draw(bool selected)
-/* NOTE (w37-a2): 40-diff residual investigated, NOT resolved this pass.
-   SYM (fsize=24, mask=$80010000) names only ONE local for the whole fn:
-   `i` REG $a2, nested in the nvConfigs-loop block@0x80035ca8 -- everything
-   before/around it (the fTVFade delta, the clamp chain, ptVar4) is
-   compiler-transient with no SYM identity. Oracle keeps the pre-loop
-   fTVFade delta/clamp chain in $v0/$v1; ours lands it on $a2 (the SAME
-   physical register `i` later needs) even though the live ranges don't
-   textually overlap. Tried and reverted (no improvement or worse): giving
-   `i` its own nested `{ }` block scope (48 diffs, worse), collapsing the
-   selected?4:-4 delta to a ternary/direct-assign (39 diffs but loses the
-   oracle's explicit branch+duplicate-store shape), and re-scoping the
-   post-store reload into a fresh nested local (no change, 40 diffs).
-   Also: `ptVar4 = screenMain` mis-anchors a base-pointer scratch in the
-   tvConfigs loop tail (`lw v0,0(v0)` double-deref vs oracle's direct
-   `lw a1,0(v0)`) -- not yet isolated from the a2 pressure above. Leaving
-   as a documented floor; a fresh pass with a wider set of source
-   rephrasings (or the permuter) is the likely next lever. */
+/* MATCH (2026-08-10, 35 -> 9 diffs, ours 80 / oracle 81): direct fTVFade
+   updates keep their result in $v0, while one cached `screenMain` pointer and
+   indexed tvConfigs access produce retail's $a1 base with a 48-byte GIV.  The
+   SYM-only loop local consequently occupies $a2 exactly.  Remaining named
+   angle is the negative clamp's non-propagated copy: retail loads fTVFade in
+   $v0, copies it to $v1 in the branch delay, then copies a zeroed $v0 to $v1;
+   cc1plus coalesces the source transient directly into $v1 (one instruction
+   shorter).  An explicit fadeValue/copy chain was codegen-neutral, so defer
+   this catalog-06E copy/QTY case to the final hard rounds. */
 {
+  tScreenMain *mainScreen;
   int iVar1;
   int iVar2;
   uint uVar3;
-  tScreenMain *ptVar4;
-  bool doTextFade;
 
   if (selected) {
-    iVar1 = this->fTVFade + 4;
+    this->fTVFade = this->fTVFade + 4;
   }
   else {
-    iVar1 = this->fTVFade + -4;
+    this->fTVFade = this->fTVFade + -4;
   }
-  this->fTVFade = iVar1;
-  iVar1 = *(volatile int *)&this->fTVFade;
-  iVar2 = iVar1;
-  if (iVar1 < 0) {
+  iVar2 = *(volatile int *)&this->fTVFade;
+  if (iVar2 < 0) {
     iVar2 = 0;
   }
   if (0x5c < iVar2) {
     iVar2 = 0x5c;
   }
-  doTextFade = iVar2 < 0x5c;
   this->fTVFade = iVar2;
-  if (doTextFade) {
-    iVar1 = 0x80 - iVar2;
-    if (iVar1 < this->fTextFade) {
-      iVar1 = this->fTextFade;
+  if (iVar2 < 0x5c) {
+    iVar2 = 0x80 - iVar2;
+    if (iVar2 < this->fTextFade) {
+      iVar2 = this->fTextFade;
     }
-    this->fTextFade = iVar1;
+    this->fTextFade = iVar2;
   }
+  mainScreen = screenMain;
   iVar1 = 0;
-  ptVar4 = screenMain;
   do {
-    ptVar4->tvConfigs[0].flags = ptVar4->tvConfigs[0].flags | 2;
-    iVar1 = iVar1 + 1;
+    mainScreen->tvConfigs[iVar1].flags = mainScreen->tvConfigs[iVar1].flags | 2;
     uVar3 = 0x80 - this->fTVFade;
-    ptVar4->tvConfigs[0].tint = uVar3 * 0x10000 | uVar3 * 0x100 | uVar3;
-    ptVar4 = (tScreenMain *)&(ptVar4)->fSwapShapes.fDestFile;
+    mainScreen->tvConfigs[iVar1].tint = uVar3 * 0x10000 | uVar3 * 0x100 | uVar3;
+    iVar1 = iVar1 + 1;
   } while (iVar1 < 0x10);
   if (this->fTVFade == 0) {
     if (this->fRequestDeInit != 0) {

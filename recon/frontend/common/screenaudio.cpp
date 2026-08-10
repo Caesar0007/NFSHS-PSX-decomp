@@ -163,81 +163,84 @@ DrawFgAudio_fadeDone:
 }
 
 /* ---- tScreenAudio::DrawBackground  (screenaudio.cpp:220) ---- */
+/* MATCH: 115 -> 2 diffs, exact 154/154 instructions.  The SYM local budget
+   removes the decompiler's slider/transition/shape temporaries; retail uses
+   direct Percentage calls, a local fade clamp, and the final i+6 shape loop.
+   TransitionIsFinished returns bool (the old void* prototype changed its
+   test).  Remaining named angle: sprintf's selected value is copied to $a2;
+   retail tests that copy with bgez, while cc1plus propagates the original $s0
+   into the test.  A natural displayPercent temporary was codegen-neutral.
+   This is the catalog 06E non-propagated reg-reg copy/QTY class, deferred to
+   the last hard-case rounds. */
 void tScreenAudio::DrawBackground()
 
 {
   static int lastpercentage;   /* [SYM] STAT @0x800528e0 (last % shown) */
   static int perfade;          /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
-  void *transDone;
   int ColText;
-  int wordY;
-  tMenuItemLeftRightAudioSlider *slider;
-  int shapeIdx;
+  tOptionsMenu *optionsMenu;
   int percent;
-  int shapeFlags;
-  int shapeX;
-  int shapeY;
+  int fadeValue;
   char sBuildOutput [255];
   
   this->PlaySound();
-  fade = (short)((menuDefs[0]->menuAudio).fScreenFade >> 1);
+  optionsMenu = &menuDefs[0]->menuAudio;
+  fade = (short)(optionsMenu->fScreenFade >> 1);
   if (0x80 < fade) {
     fade = 0x80;
   }
   percent = -1;
-  switch((short)(menuDefs[0]->menuAudio).fCurrentItem) {
+  switch((short)optionsMenu->fCurrentItem) {
   case 0:
-    slider = &menuDefs[0]->itemMusicVolume;
+    percent = Percentage(&menuDefs[0]->itemMusicVolume);
     break;
   case 1:
-    slider = &menuDefs[0]->itemSoundEffectsVolume;
+    percent = Percentage(&menuDefs[0]->itemSoundEffectsVolume);
     break;
   case 2:
-    slider = &menuDefs[0]->itemEngineVolume;
+    percent = Percentage(&menuDefs[0]->itemEngineVolume);
     break;
   case 3:
-    slider = &menuDefs[0]->itemSpeechVolume;
+    percent = Percentage(&menuDefs[0]->itemSpeechVolume);
     break;
   case 4:
-    slider = &menuDefs[0]->itemAmbientVolume;
+    percent = Percentage(&menuDefs[0]->itemAmbientVolume);
     break;
   default:
     goto DrawBg_noSlider;
   }
-  percent = Percentage(slider);
 DrawBg_noSlider:
-  ColText = percent;
-  if ((-1 < percent) || (ColText = lastpercentage, -1 < lastpercentage)) {
-    lastpercentage = ColText;
+  if (-1 < percent) {
+    lastpercentage = percent;
+  }
+  if ((-1 < percent) || (-1 < lastpercentage)) {
     if ((percent == -1) ||
-       (transDone = ::TransitionIsFinished(&menuDefs[0]->menuAudio), transDone != (void *)0x1)) {
+       (!::TransitionIsFinished(&menuDefs[0]->menuAudio))) {
       perfade = perfade + 4;
     }
     else {
       perfade = perfade + -4;
     }
-    if (0x80 < perfade) {
-      perfade = 0x80;
+    fadeValue = perfade;
+    if (0x80 < fadeValue) {
+      fadeValue = 0x80;
     }
-    if (perfade < 0) {
-      perfade = 0;
+    if (fadeValue < 0) {
+      fadeValue = 0;
     }
-    ColText = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],0,(int)fade,perfade);
-    if (percent < 0) {
-      percent = lastpercentage;
-    }
-    sprintf(sBuildOutput,"%d%%",percent);
+    perfade = fadeValue;
+    ColText = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],0,(int)fade,fadeValue);
+    sprintf(sBuildOutput,"%d%%",percent < 0 ? lastpercentage : percent);
     if (perfade != 0x80) {
-      percent = TextSys_WordX(0x1dc);
-      wordY = TextSys_WordY(0x1dc);
-      FETextRender_FullTextRGB(sBuildOutput,(short)percent,(short)wordY,ColText,'\0',1);
+      FETextRender_FullTextRGB(sBuildOutput,(short)TextSys_WordX(0x1dc),
+                               (short)TextSys_WordY(0x1dc),ColText,'\0',1);
     }
   }
   percent = 0;
   do {
     DrawShapeExtended
-              (shapeIdx,shapeFlags,shapeX,shapeY,(int)fade,0,
+              (percent + 6,1,0,0,(int)fade,0,
                (tDrawShapeExtended *)0x0);
     percent = percent + 1;
   } while (percent < 0x20);

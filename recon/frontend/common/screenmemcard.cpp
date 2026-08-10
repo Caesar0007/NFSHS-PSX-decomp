@@ -310,7 +310,6 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
   shapetbl *icon;
   short xx;
   int j;
-  char *indexedThis = (char *)this + (i << 1);
   int animFrame;
   tDrawShapeExtended fFlags;
 
@@ -321,31 +320,37 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     if ((((int)this->cursorPosition / 3) & 1U) == 0) {
       xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
-           MEMCARD_DELTAX * (((int)this->cursorPosition % 3) * 0x10000 >> 0x10);
+           MEMCARD_DELTAX * (short)((int)this->cursorPosition % 3);
     }
     else {
       xx = (MEMCARDICONOFFX & 0xffffU) + (uint)(ushort)GRIDMEMCARD_STARTX +
-           MEMCARD_DELTAX * (2 - (((int)this->cursorPosition % 3) * 0x10000 >> 0x10));
+           MEMCARD_DELTAX * (2 - (short)((int)this->cursorPosition % 3));
     }
-    yy = (uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
-            (4 - (((int)this->cursorPosition / 3) * 0x10000 >> 0x10)) * MEMCARD_DELTAY;
-    /* MATCH: `ticks>>4` divided by numicon[i] is a genuine RUNTIME div (the
-       oracle carries the div-by-0/overflow guard), NOT a shift -- numicon[i]
+    yy = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
+            (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
+    /* MATCH: the natural signed-short coordinate expressions and the
+       sum-before-limit spelling below reproduce retail's register homes and
+       branch direction. They reduce this body from 73 diffs to 4 at identical
+       213-insn length. The residue is two sched2 relocations (`yy`'s s0 copy
+       and the width constant); read-only fence (5), named width (6), and named
+       fade (78) basins are worse, so leave that scheduler-only angle for the
+       final hard round. `ticks>>4` divided by numicon[i] is a genuine RUNTIME
+       div (the oracle carries the div-by-0/overflow guard), NOT a shift -- numicon[i]
        is a per-instance byte, not a compile-time constant. The remainder
        selects the icon's animation frame. */
     animFrame = (ticks >> 4) % this->numicon[i];
     if (i == this->theNFS4icon) {
       fFlags.tint[0] = 0xb55623;
       DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,
-                 0x80 < fadeval + *(short *)(indexedThis + 0x532) ? 0x80 :
-                 fadeval + *(short *)(indexedThis + 0x532),1,
+                 fadeval + this->fFadeIcon[i] < 0x81 ?
+                 fadeval + this->fFadeIcon[i] : 0x80,1,
                  &fFlags);
     }
     else {
       icon = (shapetbl *)(*fMemIcon[0])[i][animFrame];
       this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,
-                 (short)(0x80 < fadeval + *(short *)(indexedThis + 0x532) ? 0x80 :
-                         fadeval + *(short *)(indexedThis + 0x532)));
+                 (short)(fadeval + this->fFadeIcon[i] < 0x81 ?
+                         fadeval + this->fFadeIcon[i] : 0x80));
     }
     if (((this->theNFS4icon == i) && (fadeval == 0)) && (this->fGetNewIcons == 0)) {
       xx = xx * 0x10000 >> 0x10;

@@ -130,18 +130,22 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
 }
 
 /* ---- tScreenMemcard::LoadIcon  (screenmemcard.cpp:145) ---- */
+/* RESIDUAL 23 (ours 214 / oracle 215) -- 2026-08-10: direct
+   `fMemIcon[filenum][i]` indexing removed the fabricated shape-data,
+   byte-offset, X-scale, and file-offset locals and reduced 43 -> 23.  GCC now
+   synthesizes retail's byte-offset and X-position induction variables.  The
+   remainder is local allocation: retail assigns named `i` to s1 and its
+   strength-reduction GIV to s0 (ours are swapped), and keeps the shared 1 in
+   t0 where ours uses v0/s7.  A for-loop spelling was worse (25 @ 216/215).
+   Defer this QTY/allocator angle to the last rounds. */
 void tScreenMemcard::LoadIcon(int filenum)
 
 {
   bool done;
   int i;
   shapetbl *iconShape;
-  char *shape_data;
-  int byteOff;
-  int x_scale;
   int clutx;
   int cluty;
-  int fileOff8;
   CARDINFO_def *cardInfo;
   
   if (AudioMus_Buffered() < AudioMus_Threshold()) {
@@ -164,7 +168,6 @@ void tScreenMemcard::LoadIcon(int filenum)
       } while (i != 0x16);
       MCRD_loadfile(this->card,this->fMemFile + filenum,1);
       done = false;
-      fileOff8 = filenum << 3;
       while (1) {
         if (done) {
           break;
@@ -194,17 +197,13 @@ void tScreenMemcard::LoadIcon(int filenum)
           }
           Texture_GetClutId(0,&clutx,&cluty);
           this->fMemIconClutId[filenum] = (short)cluty << 6 | (ushort)(clutx >> 4) & 0x3f;
-          i = 0;
           if (this->numicon[filenum] != '\0') {
-            x_scale = 900;
-            byteOff = 0;
+            i = 0;
             do {
-              shape_data = (*fMemIcon[0])[0][0] + byteOff + (fileOff8 + filenum) * 0x40;
-              if ((*shape_data & 0xf7U) == 0x40) {
-                vramfxya(shape_data,x_scale,filenum * 0x11,clutx,cluty);
+              if (((*fMemIcon[0])[filenum][i][0] & 0xf7U) == 0x40) {
+                vramfxya((*fMemIcon[0])[filenum][i],i * 0x11 + 900,
+                         filenum * 0x11,clutx,cluty);
               }
-              x_scale = x_scale + 0x11;
-              byteOff = byteOff + 0xc0;
               i = i + 1;
             } while (i < (int)(uint)this->numicon[filenum]);
           }

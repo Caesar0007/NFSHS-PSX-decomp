@@ -693,7 +693,6 @@ void tScreenTournamentTrophy::CalculatePrizes()
   long money;
   short ranking;
   int numRanked;
-  tTrophyClass trophyClass;
   int tourIndex;
   int i;
   int place;
@@ -737,19 +736,17 @@ void tScreenTournamentTrophy::CalculatePrizes()
     this->congratsMessage = kScreenCongrats_Congrats;
   }
   else {
-    if (((place < 1) || (3 < place)) || (tourneyInfo->fKnockout != '\0')) {
-      this->congratsMessage = kScreenCongrats_Eliminated;
-      trophyClass = kTrophyCar;
-    }
-    else {
-      this->fSpeechToPlay = place + 0xe;
-      trophyClass = kTrophyBronze;
-      this->congratsMessage = kScreenCongrats_Congrats;
-      if (place == 2) {
-        trophyClass = kTrophySilver;
-      }
-    }
-    this->trophy = trophyClass;
+    if (place <= 0) goto eliminated;
+    if (place >= 4) goto eliminated;
+    if (tourneyInfo->fKnockout != '\0') goto eliminated;
+    this->fSpeechToPlay = place + 0xe;
+    this->congratsMessage = kScreenCongrats_Congrats;
+    this->trophy = place == 2 ? kTrophySilver : kTrophyBronze;
+    goto prizes_done;
+eliminated:
+    this->congratsMessage = kScreenCongrats_Eliminated;
+    this->trophy = kTrophyCar;
+prizes_done:
     this->smallSpinningThing = kSpinningNone;
   }
   this->fCarPlayer = 0;
@@ -758,10 +755,7 @@ void tScreenTournamentTrophy::CalculatePrizes()
   if (tInfo.fCompletedGarageFull != 0) {
     this->TotalCash = money - tInfo.fCompletedBonusMoney;
   }
-  if (tInfo.fTournMoney == 0) {
-    tInfo.fTournMoney = -1;
-  }
-  this->CashAwarded = tInfo.fTournMoney;
+  this->CashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney;
   this->fCarX = 0x116;
   this->fCarY = 0x3f;
   this->fCarCY = -7.4;

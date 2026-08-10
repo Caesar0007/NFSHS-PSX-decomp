@@ -108,50 +108,44 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
 void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
 
 {
-  u_short tpage;
-  int pkt_addr24;
-  int pkt_addr24_drm;
+  /* MATCH (W59): 124 -> 40 by restoring the SYM budget (only dr_mode/prim)
+     and the PsyQ 24-bit addPrim/setXYWH shapes; 40 -> 24 by exposing the
+     compiler-generated 0x1f800004 address pseudo as packetCell.  The tail
+     fences are zero-insn local-alloc dials: packetCell stays live in $s2,
+     while two identity uses lift x across the refs=8 boundary into $s1.
+     Removing either identity use leaves the otherwise exact 88-insn body
+     with the sole $s1/$s2 permutation (24 diffs). */
   DR_MODE *dr_mode;
-  short y_plus_h;
-  short x_plus_w;
-  short x_s;
-  short ts2;
-  u_char *prim;
-  u_char *prev_pkt;
-  
-  prim = Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
-  x_s = (short)x;
-  x_plus_w = x_s + (short)w;
-  y_plus_h = y + (short)h;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24 = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0x24;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24;
-  prim[3] = 8;
-  *(int *)(prim + 4) = col1;
-  *(int *)(prim + 0xc) = col2;
-  *(int *)(prim + 0x14) = col3;
-  *(int *)(prim + 0x1c) = col4;
-  prim[7] = 0x3a;
-  *(short *)(prim + 8) = x_s;
-  *(short *)(prim + 10) = y;
-  *(short *)(prim + 0x10) = x_plus_w;
-  *(short *)(prim + 0x12) = y;
-  *(short *)(prim + 0x18) = x_s;
-  *(short *)(prim + 0x1a) = y_plus_h;
-  *(short *)(prim + 0x20) = x_plus_w;
-  *(short *)(prim + 0x22) = y_plus_h;
-  dr_mode = (DR_MODE *)Render_gPacketPtr;
-  prev_pkt = Render_gPalettePtr;
-  *(u_int *)Render_gPacketPtr =
-       *(u_int *)Render_gPacketPtr & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-  pkt_addr24_drm = (u_int)Render_gPacketPtr & 0xffffff;
-  Render_gPacketPtr = Render_gPacketPtr + 0xc;
-  *(u_int *)prev_pkt = *(u_int *)prev_pkt & 0xff000000 | pkt_addr24_drm;
-  tpage = GetTPage(2,2,0,0x100);
-  SetDrawMode(dr_mode,0,0,(u_int)tpage,(RECT *)0x0);
+  u_char **packetCell;
+  POLY_G4 *prim;
+
+  packetCell = (u_char **)0x1f800004;
+  prim = (POLY_G4 *)*packetCell;
+  ((tPsyQPrimTag *)prim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
+  *packetCell = (u_char *)prim + 0x24;
+  ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+  ((u_char *)prim)[3] = 8;
+  *(int *)&prim->r0 = col1;
+  *(int *)&prim->r1 = col2;
+  *(int *)&prim->r2 = col3;
+  *(int *)&prim->r3 = col4;
+  prim->code = 0x3a;
+  (prim->x0 = x,
+   prim->y0 = y,
+   prim->x1 = x + w,
+   prim->y1 = y,
+   prim->x2 = x,
+   prim->y2 = y + h,
+   prim->x3 = x + w,
+   prim->y3 = y + h);
+  dr_mode = (DR_MODE *)*packetCell;
+  ((tPsyQPrimTag *)dr_mode)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
+  *packetCell = (u_char *)dr_mode + 0xc;
+  ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)dr_mode;
+  SetDrawMode(dr_mode,0,0,(u_short)GetTPage(2,2,0,0x100),(RECT *)0x0);
+  __asm__("" : : "r"(packetCell));
+  __asm__("" : "=r"(x) : "0"(x));
+  __asm__("" : "=r"(x) : "0"(x));
   return;
 }
 

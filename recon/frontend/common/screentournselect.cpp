@@ -71,7 +71,14 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 void tScreenTournSelect::Initialize()
 
 {
+  /* MATCH (W68, 62 -> PASS): keep the VIDEO_create result full-width by
+     assigning hVideo inside VIDEO_spoolfile's first argument; `i` is only the
+     authenticated short TV-loop counter.  Retail's special/tournament choice
+     is a real if/else and reuses one frontEnd base.  The trophy lookup uses an
+     index-first typed byte address, preserving `addu v0,v0,a0`; fTVTicks reads
+     the full-width ISR counter directly instead of truncating through `i`. */
   byte useSpecial;
+  tfrontEnd *fe;
   ushort flags;
   int tvIdx;
   short i;
@@ -91,9 +98,8 @@ void tScreenTournSelect::Initialize()
   this->fCurrentMovie = 0;
   this->fPreviousMovie = 0;
   sprintf(moviename,"%szzzTRN.dct",Paths_Paths[0x29]);
-  i = VIDEO_create(0x50,0x50,0xf0000,0x25800,0x10);
-  this->hVideo = i;
-  VIDEO_spoolfile(i,moviename);
+  VIDEO_spoolfile(this->hVideo = VIDEO_create(0x50,0x50,0xf0000,0x25800,0x10),
+                  moviename);
   i = 0;
   VIDEO_startplayback(this->hVideo);
   this->fFrame = 0;
@@ -112,17 +118,21 @@ void tScreenTournSelect::Initialize()
     } while (j < 2);
     i = i + 1;
   } while (i < 2);
-  useSpecial = frontEnd.tournament;
-  if (frontEnd.tier != '\0') {
-    useSpecial = frontEnd.specialevent;
+  fe = &frontEnd;
+  if (fe->tier != '\0') {
+    useSpecial = fe->specialevent;
+  }
+  else {
+    useSpecial = fe->tournament;
   }
   this->fPreviousTrophy =
-       (tournamentManager.fDefinition)->fTournaments
-       [(uint)useSpecial +
-        (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset].fTrophyID;
-  i = ticks;
+       ((tTourneyInfo *)
+        (((uint)useSpecial +
+          (uint)(tournamentManager.fDefinition)->fTiers[(byte)fe->tier].fTournOffset) *
+             sizeof(tTourneyInfo) +
+         (int)(tournamentManager.fDefinition)->fTournaments))->fTrophyID;
   this->fTransitionDirection = 1;
-  this->fTVTicks = i;
+  this->fTVTicks = ticks;
   return;
 }
 

@@ -118,8 +118,16 @@ extern void iSNDserver(void)
 }
 
 /* iSND100hzserver @0x800EA254 : one 100 Hz tick -- bump the audio clock, run the stream/serve pump and the
- *   registered 100 Hz clients, then for every held voice step its pitch LFO, velocity envelope, portamento
- *   and pitch sweep, recomputing SPU pitch/volume (and stopping voices whose sweep table runs out). */
+ *   registered 100 Hz clients, then for every held voice step its pitch LFO, the AUTO-VOLUME ramp and the
+ *   VOLUME ENVELOPE, recomputing SPU pitch/volume (and stopping voices whose envelope runs out).
+ *   FIELD SEMANTICS PROVEN by the NFS2-PC beta ancestor (Watcom debug names, byte-matched:
+ *   C:/Temp/nfs2-clean/pc-beta/match/sserver.obj/iSND100hzserver.c -- same TU cmn/sserver.c):
+ *   p[5]/p[6]/p[7] = autovol_step/autovol_target/current_volume (0x14/0x18/0x1C -- a volume ramp, NOT
+ *   portamento); p[8]/p[9]/p[10] = envelope_step/envelope_volume/envelope_duration (0x20/0x24/0x28);
+ *   +0x2d = mixed_volume (s8, the iSNDvol arg); +0x30/+0x31 = envelope_count/envelope_index;
+ *   p[0x10] = SND_ENVELOPE_POINT{int duration; int volume;}[] (the stride-8 table; <<16 = 16.16 volume);
+ *   the 100 Hz client array generalizes NFS2's discrete midiserver/speechserver/crowdserver/pathserver
+ *   pointers; NFS4 dropped NFS2's malformed-envelope abortmessage and added the pitch-LFO block. */
 extern void iSND100hzserver(void)
 {
     int *g;

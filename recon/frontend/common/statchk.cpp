@@ -266,11 +266,16 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * several small loops (classic C89 "declare once at top, reuse" style),
  * matching the sibling StatChk_IsTopTime in this same file.
  *
- * MATCH W60 (2026-08-10): the zero-insn read/write fence keeps the record
- * size as a real value at its first use, recovering part of retail's
- * 20*8/20*18 construction and reducing the authoritative residual 200->199.
- * Declaration initializers, split size locals, and equivalent conditional
- * rewrites all measured neutral or worse and were reverted. */
+ * MATCH W61 (2026-08-10): the duplicated finish-test arms recover retail's
+ * saved-register allocation; keeping the initial record size opaque while
+ * pricing the already-live nNumCars operand recovers the long exact middle;
+ * memcpy_call prevents GCC's 20-byte builtin expansion; and a separate
+ * loop-copy size plus its signed index input recovers retail's MULT shape.
+ * Together with the explicit lap-count else, these reduce the authoritative
+ * residual 199->62 at the exact 416/416 instruction count. Reusing uRecSz at
+ * the tail, block-scoped size locals, declaration initializers, bulk-copy
+ * identity fences, and explicit index temporaries measured neutral or worse
+ * in this basin and were reverted. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -282,6 +287,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   short nTopTenIndex [8];
   int nCheckTotalTime;
   unsigned int uRecSz;
+  unsigned int uCopySz;
   short k;
   short nCar;
   char *buffer;
@@ -300,7 +306,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   }
 
   uRecSz = sizeof(tRecordBuffer);
-  __asm__("" : "+r"(uRecSz));
+  __asm__("" : "=r"(uRecSz) : "0"(uRecSz), "r"(nNumCars));
   RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",uRecSz * 18,0x10);
   nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
   nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);
@@ -312,9 +318,11 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
   Stattool_GetRecords(Front_GetTrackRaced(),RecordHolders);
 
-  nLapIndicator = 9;
   if (Front_GetLapsForType() == 2) {
     nLapIndicator = 1;
+  }
+  else {
+    nLapIndicator = 9;
   }
 
   for (nCar = 0; nCar < nNumCars; nCar = nCar + 1) {
@@ -322,7 +330,6 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
                  (short)dummyCars[nRankCarTotalTimes[nCar]].carType);
       if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {   /* MATCH: unsigned sltiu range fold */
         if ((byte)frontEnd.gameMode < 3) {
-StatChkSave_validateCarFinish:
           if (((dummyCars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) &&
               (dummyCars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
           {
@@ -330,7 +337,11 @@ StatChkSave_validateCarFinish:
           }
         }
         else if (nRankCarTotalTimes[nCar] == GameSetup_gData.localCar) {
-          goto StatChkSave_validateCarFinish;
+          if (((dummyCars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) &&
+              (dummyCars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
+          {
+            bDoRecordCheck = true;
+          }
         }
         if (bDoRecordCheck == true) {
           nCheckTotalTime = dummyCars[nRankCarTotalTimes[nCar]].finalTotalTime;
@@ -362,12 +373,12 @@ StatChkSave_validateCarFinish:
             }
             strcpy(DummyRaceResult.sName,PlayerName((int)nRankCarTotalTimes[nCar]));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
-            uRecSz = sizeof(tRecordBuffer);
-            memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
+            memcpy_call(buffer,&RecordHolders[nLapIndicator],sizeof(tRecordBuffer) * 8);
             for (k = 0; k < 8; k = k + 1) {
-              uRecSz = sizeof(tRecordBuffer);
-              memcpy(&RecordHolders[nLapIndicator + k],
-                     buffer + nTopTenIndex[k] * uRecSz,uRecSz);
+              uCopySz = sizeof(tRecordBuffer);
+              __asm__("" : "=r"(uCopySz) : "0"(uCopySz), "r"((int)nTopTenIndex[k]));
+              memcpy_call(&RecordHolders[nLapIndicator + k],
+                          buffer + nTopTenIndex[k] * uCopySz,uCopySz);
             }
           }
         }

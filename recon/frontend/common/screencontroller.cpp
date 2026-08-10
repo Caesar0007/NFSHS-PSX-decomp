@@ -176,28 +176,28 @@ short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 void tScreenControllerConfig::CheckConfigs()
 
 {
-  int arrowDim;   /* MATCH: (fArrowFade < 0x80) computed PER ARM (oracle has an
-                     slti in each fade arm sharing ONE bnez at .L80043544) --
-                     a `short animVal` local instead forces lhu + sll/sra.
-     RECEIPT (W56-A7): residual 18 diffs = arrowDim(global allocno, spans arm->
-     shared .L80043544 tail) colored to v0 in ours but v1 in retail; swapCur/
-     ctrlCur then land v1 vs retail's a1/a0. Pure global.c-vs-local_alloc handout
-     (06E gap). Falsified: fFadeController[0]/[1] store-order flip (185!=187 insns,
-     cross-jump over-merges); local decl-order permute (no effect, C++ lane has no
-     version axis). Needs qtytrace (global_alloc QTY_CMP_PRI on arrowDim). */
   int ctrlCur;
   int swapPrev;
   int swapCur;
   int cmp;
 
-  /* MATCH (SLD-driven block order, oracle 0x80043400..0x800436EC):
+  /* MATCH (2026-08-10, 18 -> PASS 187/187; SLD-driven block order,
+     oracle 0x80043400..0x800436EC): allocsim exactly reproduced all 10 global
+     handouts and proved that the old function-wide `arrowDim` pseudo (p81=$v0)
+     could not reach retail's $v1 by any refs/live dial.  IDA's gold annotations
+     instead show arm-local controller snapshots in $a0/$a1 and the comparison in
+     $v1.  Giving each arm its own `armArrowDim`, then targeting the common text
+     tail, lets GCC local-allocate those values and cross-jump-merge the identical
+     branch.  In that basin the SLD/IDA [0]-then-[1] controller-store order is exact.
+     `short` snapshot types, `bool`/`register` comparison types, and declaration
+     permutations were neutral and reverted.
      - top-level guard is `!=` with the CHANGED-controller arm INLINE
        (oracle `beq v1,v0,.L800435B8` jumps AWAY to the unchanged arm);
      - the strcmp-hit "swap in" body is OUT OF LINE at the end (oracle
        `beqz $v0,.L80043570` branches FORWARD past the fTextController block),
        so it must be a `goto` target, not an inline if-body;
-     - the two fade arms each end computing `slti fArrowFade,0x80` and share
-       ONE `bnez` at .L80043544 (cross-jump-merged tail).
+     - the two fade arms each compute `slti fArrowFade,0x80` locally and share
+       ONE `bnez` at .L80043544 (cross-jump-merged `ChkConfigs_textDone` tail).
      SLD: 835 guard / 837 TurnOffShakers / 840 fAnim / 843 curr==0 /
           853 prev==0 / 869 strcmp / 871-879 fades / 880-883 fTextController /
           888-892 swap-in / 899-926 unchanged arm. */
@@ -217,16 +217,23 @@ void tScreenControllerConfig::CheckConfigs()
       return;
     }
     if (this->fPrevController == '\0') {
+      int armArrowDim;
+
       if (this->fAnimFade != 0) {
         return;
       }
       ctrlCur = (byte)this->fCurrentController;
-      arrowDim = this->fArrowFade < 0x80;
+      armArrowDim = this->fArrowFade < 0x80;
       this->fSwap = 1;
       this->fFade[1] = 1;
       this->fFadeController[1] = (ushort)ctrlCur;
+      if (armArrowDim) {
+        goto ChkConfigs_textDone;
+      }
     }
     else {
+      int armArrowDim;
+
       if ((this->CurrentlyLoadedArt != -1) &&
          (cmp = strcmp
                             (fileNames[(byte)this->fCurrentController],
@@ -238,18 +245,18 @@ void tScreenControllerConfig::CheckConfigs()
       }
       swapPrev = (byte)this->fPrevController;
       swapCur = (byte)this->fCurrentController;
-      arrowDim = this->fArrowFade < 0x80;
+      armArrowDim = this->fArrowFade < 0x80;
       this->fFade[0] = 1;
       this->fSwap = 1;
       this->fFade[1] = 1;
-      /* MATCH: [1] before [0] in source -- keeps this arm's `sh ?,0x76` out of
-         cross-jump range of the other arm's (oracle uses distinct regs a0/a1). */
-      this->fFadeController[1] = (ushort)swapCur;
       this->fFadeController[0] = (ushort)swapPrev;
+      this->fFadeController[1] = (ushort)swapCur;
+      if (armArrowDim) {
+        goto ChkConfigs_textDone;
+      }
     }
-    if (!arrowDim) {
-      this->fTextController = this->fCurrentController;
-    }
+    this->fTextController = this->fCurrentController;
+ChkConfigs_textDone:
     if (this->fTextController == 6) {
       this->fTextController = 5;
     }

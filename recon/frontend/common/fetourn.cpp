@@ -48,6 +48,13 @@ void tTournamentManager::Initialize()
 
 
 /* ---- tTournamentManager::LoadDescription  [FETOURN.CPP:89-139] ---- */
+/* MATCH (2026-08-10, 77 -> PASS, 147/147): SYM names the signed SHORT
+   counters tier/tourney/track, while SLD 119/122 and 127/130 separate each
+   field load from its widened loop-bound value.  Assigning the short first
+   and then copying it to uVar7/uVar6 gives retail's direct $s4/$s0 loads and
+   $v1 compare copies.  Placing each data-cursor increment after that copy
+   lets reorg sink it into the bound branch delay slot.  Together these also
+   restore the tournament byte offset in $s1 and the exact saved-reg map. */
 
 void tTournamentManager::LoadDescription()
 
@@ -82,27 +89,28 @@ void tTournamentManager::LoadDescription()
     do {
       blockmove(src_00,this->fDefinition->fTiers + tier,0xc);
       ptVar2 = this->fDefinition;
-      uVar7 = (uint)ptVar2->fTiers[tier].fTournOffset;
+      tourney = (short)ptVar2->fTiers[tier].fTournOffset;
+      uVar7 = (uint)tourney;
       src_00 = (void *)((int)src_00 + 0xc);
-      tourney = (short)uVar7;
-      if (uVar7 < uVar7 + ptVar2->fTiers[tier].fNumTournaments) {
+      if ((short)uVar7 < (short)uVar7 + ptVar2->fTiers[tier].fNumTournaments) {
         do {
           blockmove(src_00,ptVar2->fTournaments + tourney,0x54);
           ptVar2 = this->fDefinition;
-          uVar6 = (uint)ptVar2->fTournaments[tourney].fTrackOffset;
+          track = (short)ptVar2->fTournaments[tourney].fTrackOffset;
+          uVar6 = (uint)track;
           src_00 = (void *)((int)src_00 + 0x54);
-          track = (short)uVar6;
-          if (uVar6 < uVar6 + ptVar2->fTournaments[tourney].fNumTracks) {
+          if ((short)uVar6 < (short)uVar6 + ptVar2->fTournaments[tourney].fNumTracks) {
             do {
               blockmove(src_00,ptVar2->fTracks + track,0x28);
               track = track + 1;
               ptVar2 = this->fDefinition;
               src_00 = (void *)((int)src_00 + 0x28);
-            } while (track < (int)(uVar6 + ptVar2->fTournaments[tourney].fNumTracks));
+            } while (track < (int)((short)uVar6 +
+                                    ptVar2->fTournaments[tourney].fNumTracks));
           }
           tourney = tourney + 1;
           ptVar2 = this->fDefinition;
-        } while (tourney < (int)(uVar7 + ptVar2->fTiers[tier].fNumTournaments));
+        } while (tourney < (int)((short)uVar7 + ptVar2->fTiers[tier].fNumTournaments));
       }
       tier = tier + 1;
     } while (tier < (int)(uint)(byte)this->fNumTiers);

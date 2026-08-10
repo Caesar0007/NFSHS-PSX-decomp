@@ -235,20 +235,37 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
   int height;
+  int pos;
+  int test;
+  unsigned int shifted;
 
   /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
      OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
      ends with its own `j`), so it must be a goto target, not the fall-through. */
-  if (0 < gridpos) {
-    if (0x40 <= gridpos) goto VL_clampHi;
+  /* RESIDUAL 17 (W59, 26->17; ours 46/oracle 45).  The horizontal sibling's
+     promoted `pos` plus explicit signed-test pair transfers here: it removes
+     the premature gridpos result copy and makes the clamp stores use incoming
+     $a3 like retail.  Remaining differences are the same five-line CSE merge
+     (`sll/sra a3; addu v1,a3` versus retail's v0/v1 pair), plus y living in
+     $t1 instead of its SYM REGPARM home $a2, the consequent global-address
+     allocation/order, and gcc folding the final narrow multiply to `sll 1`.
+     FALSIFIED in this basin: `register` on y and inlining the height expression
+     are neutral; a promoted y copy worsens to 23; a union short-view is neutral;
+     an identity fence at the clamp join worsens to 19 and adds two insns. */
+  shifted = (unsigned int)gridpos << 16;
+  test = (int)shifted >> 16;
+  pos = gridpos;
+  if (0 < test) {
+    if (0x40 <= test) goto VL_clampHi;
   }
-  if (gridpos < 0) {
-    gridpos = 0;
+  if (test < 0) {
+    pos = 0;
   }
   goto VL_clamped;
 VL_clampHi:
-  gridpos = 0x40;
+  pos = 0x40;
 VL_clamped:
+  gridpos = pos;
   /* MATCH (SLD 267 = ONE statement): EXTRAYATTOP + (HEIGHT + GOURAUDBIT_Y*2) --
      two statements let gcc reassociate to (EXTRAYATTOP + GOURAUD*2) + HEIGHT. */
   height = (ushort)EXTRAYATTOP +

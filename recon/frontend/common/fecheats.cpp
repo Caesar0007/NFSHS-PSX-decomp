@@ -17,8 +17,8 @@
    ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
    delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
    assembler macro, which GNU-as expands per-access (self-temp / $at). */
-extern tRecordBuffer *A_Stats_gTrackRecords[] __asm__("Stats_gTrackRecords");
-#define Stats_gTrackRecords A_Stats_gTrackRecords[0]
+extern tRecordBuffer A_Stats_gTrackRecords[] __asm__("Stats_gTrackRecords");
+#define Stats_gTrackRecords A_Stats_gTrackRecords
 
 extern tFEApplication *A_FEApp[] __asm__("FEApp");
 #define FEApp A_FEApp[0]
@@ -51,6 +51,9 @@ static tCheat bonusList[3] = {   /* @0x800516a0, byte-exact from retail binary *
 void FECheat_HandleActivation(tCheatCode cheat)
 
 {
+  /* W65 PASS (57->0): preserve retail case-body order, pass the records array
+     address directly, and keep the placement cases as a top-tested loop with
+     their value and manager base prepared before the loop. */
   short i;
 
   switch(cheat) {
@@ -82,6 +85,12 @@ void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_BonusMoney:
     tournamentManager.fMoney = tournamentManager.fMoney + 50000;
     break;
+  case cheat_LotsaMoney:
+    tournamentManager.fMoney = tournamentManager.fMoney + 100000000;
+    break;
+  case cheat_NFSTeamRecords:
+    Stattool_GetAllDefaultRecords(Stats_gTrackRecords,true);
+    break;
   case cheat_AllCheats:
     gFECheats = 0xffffffff;
     i = 0;
@@ -92,19 +101,23 @@ void FECheat_HandleActivation(tCheatCode cheat)
       i = i + 1;
     } while (i < 0x1f);
     break;
-  case cheat_NFSTeamRecords:
-    Stattool_GetAllDefaultRecords(Stats_gTrackRecords,true);
-    break;
-  case cheat_LotsaMoney:
-    tournamentManager.fMoney = tournamentManager.fMoney + 100000000;
-    break;
   case cheat_AllNotRaced:
   case cheat_AllGold:
   case cheat_AllSilver:
-  case cheat_AllBronze:
-    for (i = 0; i < 0x40; i = i + 1) {
-      tournamentManager.fBestPlacement[i] = (char)cheat + -0x1b;
-    }
+  case cheat_AllBronze: {
+    char placement;
+    char *placements;
+
+    i = 0;
+    placement = (char)cheat + -0x1b;
+    placements = (char *)&tournamentManager;
+FECheat_placement_test:
+    if (0x3f < i) break;
+    *(char *)((int)i + (int)placements + 0x1f0) = placement;
+    i = i + 1;
+    goto FECheat_placement_test;
+    break;
+  }
   }
   return;
 }

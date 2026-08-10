@@ -653,56 +653,64 @@ void Front_InitGraphicsAndDisplayLoading(void)
    
    [ghidra-meta] section: front.text */
 
+/* MATCH: 91 -> 43. The retail source is a switch with InitialLoad falling
+   through to GameSetup, followed by the PostGame case; restoring that order
+   and the SYM-named dummyCars local aligns the central CFG. A shared `one`
+   value restores retail s4. Remaining diffs require the frontEnd base to live
+   in s5 without promoting it ahead of role/result (an explicit pointer was
+   measured at 118-122 diffs), plus the small starting-money expression. */
+
 int Front_Menu(tFront_ProcessingType role)
 
 {
-  ushort uVar1;
   long extraMoney;
-  tAppCommand tVar3;
+  int result;
+  int one;
   tMenuCommand tempCommand;
   
-  tVar3 = kApp_Command_StartRace;
-  _7tScreen_fSuppressLoadingText = 1;
+  result = kApp_Command_StartRace;
+  one = 1;
+  _7tScreen_fSuppressLoadingText = one;
   gLargestUnused[0] = largestunused();
   FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
   InitializeSpinningCars();
   Front_ConstructAll();
-  uVar1 = carManager.GetNumOwnedCars(0);
-  if ((int)((uint)uVar1 << 0x10) < 1 && tournamentManager.fMoney < 1) {
+  if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1 &&
+      tournamentManager.fMoney < one) {
     extraMoney = carManager.CheapestCarStockPrice();
-    tournamentManager.fMoney = tournamentManager.fMoney + extraMoney + 1;
+    tournamentManager.fMoney = tournamentManager.fMoney + extraMoney + one;
   }
-  if (role != kFront_QuitToGameSetup) {
-    if (1 < (int)role) {
-      if (role == kFront_QuitToPostGame) {
-        gCalculateVictory = '\x01';
-        if ((frontEnd.raceType == '\x02') && (GameSetup_gData.replayMode == 0)) {
-          tournamentManager.AdvanceToNextTrack();
-          tournamentManager.UpdateAwardInformation();
-        }
-        else if ((frontEnd.raceType == '\x06') && (GameSetup_gData.replayMode == 0)) {
-          if (((Cars_gNewCarStatsList[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
-             (frontEnd.pinkSlipsForfeit == 1)) {
-            frontEnd.pinkSlipsWinner[(byte)frontEnd.pinkSlipsTrackIndex] = 0;
-            frontEnd.pinkSlipsWins[0] = frontEnd.pinkSlipsWins[0] + '\x01';
-          }
-          else {
-            frontEnd.pinkSlipsWinner[(byte)frontEnd.pinkSlipsTrackIndex] = 1;
-            frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
-          }
-        }
-        tVar3 = FEApp[0]->RunPostGame();
-      }
-      goto FrontMenu_runFrontEndCleanup;
-    }
-    if (role != kFront_InitialLoad) goto FrontMenu_runFrontEndCleanup;
+  switch (role) {
+  case kFront_InitialLoad:
     LoadConfig();
+  case kFront_QuitToGameSetup:
+    if (gUseFrontend != 0) {
+      MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
+      result = FEApp[0]->RunFrontEnd();
+    }
+    break;
+  case kFront_QuitToPostGame:
+    gCalculateVictory = (char)one;
+    if ((frontEnd.raceType == '\x02') && (GameSetup_gData.replayMode == 0)) {
+      tournamentManager.AdvanceToNextTrack();
+      tournamentManager.UpdateAwardInformation();
+    }
+    else if ((frontEnd.raceType == '\x06') && (GameSetup_gData.replayMode == 0)) {
+      Car_tStats *dummyCars = Cars_gNewCarStatsList;
+
+      if (((dummyCars[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
+          (frontEnd.pinkSlipsForfeit == 1)) {
+        frontEnd.pinkSlipsWinner[(byte)frontEnd.pinkSlipsTrackIndex] = 0;
+        frontEnd.pinkSlipsWins[0] = frontEnd.pinkSlipsWins[0] + '\x01';
+      }
+      else {
+        frontEnd.pinkSlipsWinner[(byte)frontEnd.pinkSlipsTrackIndex] = 1;
+        frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
+      }
+    }
+    result = FEApp[0]->RunPostGame();
+    break;
   }
-  if (gUseFrontend != 0) {
-    MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);  /* W58-A1: tMenuCommand& decl */
-    tVar3 = FEApp[0]->RunFrontEnd();
-  }
-FrontMenu_runFrontEndCleanup:
   Front_DeleteAll();
   FeAudio_DeInitCommentary();
   Audio_FECleanUp();
@@ -714,7 +722,7 @@ FrontMenu_runFrontEndCleanup:
   frontEnd.recordlaptime =
        Stattool_ReturnRecordLapTime((ushort)(byte)frontEnd.track[0]);
   gLargestUnused[0] = largestunused();
-  return tVar3;
+  return result;
 }
 
 

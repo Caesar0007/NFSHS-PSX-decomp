@@ -110,10 +110,17 @@ int tScreenCongrats::GetCar(tCarInfo &carInfo)
 void tScreenCongrats::DrawBackground()
 
 {
-  /* W65: 54->21.  Retail source shapes recovered here include base-first
+  /* W65/W66: 54->21->5.  Retail source shapes recovered here include base-first
      virtual-thunk arithmetic, explicit stripe defaults, signed division by
      -4 in the spin timer, and the showroom-flag side effect in DrawCar's
-     brightness argument.  The residual is isolated to spin-block scheduling. */
+     brightness argument.  In the regular spin block, the scoped tick value
+     reproduces retail's $a0 lifetime; the void fence prevents speculative
+     delay-slot filling at the block boundary, and the read-only scale fence
+     anchors the $s0 assignment before the timer loads.  Writing the tick field
+     before the enable field lets sched2 produce retail's load/store order.
+     Remaining 5 = one cross-jump-shared framenum store (ours 540 / oracle 541)
+     plus one `sra` placement; leave those scheduler-only angles for the final
+     hard round. */
   int fJustFadeOff;
   static u_long carRotate;
   tDrawShapeExtended drawFlags;
@@ -188,11 +195,16 @@ void tScreenCongrats::DrawBackground()
       else {
         this->framenum = (ticks[0] - this->starttick) / 2;
         if (0x13 < this->framenum) {
+          int spinTicks;
+
+          __asm__("" : : "i"(0));
           scale = true;
+          __asm__("" : : "r"(scale));
+          spinTicks = ticks[0];
           this->framenum = 0x14;
-          if ((ticks[0] + this->starttick / -4) % 0x5dc < 0x2d) {
-            this->InExtraSpin = 1;
+          if ((spinTicks + this->starttick / -4) % 0x5dc < 0x2d) {
             this->InExtraSpinTick = ticks[0];
+            this->InExtraSpin = 1;
           }
         }
       }

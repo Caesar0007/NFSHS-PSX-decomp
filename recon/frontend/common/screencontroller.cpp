@@ -1039,6 +1039,11 @@ void tScreenControllerConfig::DrawBackground()
      `menuDefs[0]->menuControllerConfig.fScreenFade` form emits one fused load.
      Only the fade read goes through it (routing the two TransitionIsFinished
      calls through `om` too measured 48 @135 insns). */
+  /* MATCH (W64, 27->PASS): TransitionIsFinished is a normalized 0/1 result,
+     but its ABI-neutral declaration is `void *`.  Expressing the `!= true`
+     test as the corresponding integer XOR restores retail's immediate `xori`;
+     a pointer comparison made gcc retain constant 1 in $s1 across calls,
+     displaced `fade` to $s2, and added an unnecessary saved register. */
   tOptionsMenu *om = &menuDefs[0]->menuControllerConfig;
   fade = (short)(om->fScreenFade >> 1);
   if (0x80 < fade) {
@@ -1057,7 +1062,7 @@ void tScreenControllerConfig::DrawBackground()
     this->fAnimFadeFrame = this->fAnimFadeStart;
     this->fAnimFadeController = (ushort)(byte)this->fCurrentController;
   }
-  if ((::TransitionIsFinished(&menuDefs[0]->menuControllerConfig) != (void *)0x1) &&
+  if ((((int)(long)::TransitionIsFinished(&menuDefs[0]->menuControllerConfig) ^ 1) != 0) &&
       (this->fTransitionedIn != 0)) {
     if (this->fTransitioningOut != 0) goto ForceVbl_drawCtrlCheck;
     if (this->fCurrentController != '\0') {

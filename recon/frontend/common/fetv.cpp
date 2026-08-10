@@ -80,6 +80,11 @@ void DrawTVLines(tTVConfig &tv)
 
 /* ---- DrawTV  [FETV.CPP:82-284] SLD-VERIFIED ---- */
 
+/* MATCH W61 (2026-08-10): the retail state dispatch is a four-case switch.
+   The former range-folded if/else chain changed both its branch tree and the
+   rendering allocator handoff.  Restoring the discrete cases reduces the
+   authoritative residual from 151 to 135 without changing behavior. */
+
 void DrawTV(tTVConfig &tv)
 
 {
@@ -121,27 +126,27 @@ void DrawTV(tTVConfig &tv)
       }
     }
   }
-  if (tv.state == tv_StateOn) {
+  switch (tv.state) {
+  case tv_StateOn:
     bright = tv.destBrightness;
-  }
-  else if (tv.state < tv_TransitionOn) {
-    if (tv.state == tv_StateOff) {
-      bright = tv.destBrightness;
-    }
-  }
-  else if (tv.state == tv_TransitionOn) {
+    break;
+  case tv_StateOff:
+    bright = tv.destBrightness;
+    break;
+  case tv_TransitionOn:
     do_tint = 1;
     if (tv.transition == tv.destBrightness) {
       tv.state = tv_StateOn;
     }
     bright = tv.transition;
-  }
-  else if (tv.state == tv_TransitionOff) {
+    break;
+  case tv_TransitionOff:
     do_tint = 1;
     if (tv.transition == tv.destBrightness) {
       tv.state = tv_StateOff;
     }
     bright = tv.transition;
+    break;
   }
   fadeTop = (short)((u_int)tint >> 0x10 & 0xff);
   tint = ((u_int)(fadeTop * bright) >> 7) << 0x10 |

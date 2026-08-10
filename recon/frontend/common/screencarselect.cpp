@@ -1785,28 +1785,31 @@ void tScreenCarSelectDuel::DrawForeground()
 int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
-  /* MATCH (SYM 8c @0x8003e040, rule 8): fsize 48, mask $803f0000 = ra + s0..s5;
+  /* MATCH 2026-08-11 (59 -> PASS, 84/84).  SYM 8c @0x8003e040 gives fsize 48,
+     mask $803f0000 = ra + s0..s5;
      REGPARM `carInfo` = $18 ($s2); the ONLY named REG locals are
      `currentplayer` = $21 ($s5) and `garageNumber` = $19 ($s3), both type INT.
      Ghidra's `byte player / byte color / short count / short otherPlayer` were
      inventions -- the byte types cost two dead `andi ..,255` promotions and the
-     named `count` pinned an extra pseudo.  RESIDUAL: 59 diffs / ours 81 vs
-     oracle 84 -- retail still holds THREE copies of FEApp->fPlayer (s0 anonymous
-     temp + s5 + s3, copies emitted BEFORE the carListType branch) so it needs a
-     6th callee-saved reg; every probed source form (2 reads, 3 reads,
-     garageNumber-from-FEApp, hoisted copy) coalesces one of them away. */
+     named `count` pinned an extra pseudo.  The missing source shape was an INT
+     `player` cache used by the stock arm and first ownership query, distinct from
+     named `currentplayer` (later garage index) and mutable `garageNumber`.
+     That preserves retail's three simultaneous FEApp->fPlayer values naturally:
+     anonymous/cache s0, currentplayer s5, garageNumber s3; no fence is needed. */
   int currentplayer;
   int garageNumber;
+  int player;
   int color;
 
-  currentplayer = FEApp->fPlayer;
-  garageNumber = currentplayer;
+  player = (u_char)FEApp->fPlayer;
+  currentplayer = player;
+  garageNumber = player;
   if (frontEnd.carListType == '\0') {
-    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[currentplayer],carInfo);
-    color = frontEnd.carColors[currentplayer][(signed char)carInfo.fCarID];
+    carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[player],carInfo);
+    color = frontEnd.carColors[player][(signed char)carInfo.fCarID];
   }
   else {
-    if (carManager.GetNumOwnedCars((short)currentplayer) <= 0) {
+    if (carManager.GetNumOwnedCars((short)player) <= 0) {
       garageNumber = 0;
     }
     if (carManager.GetNumOwnedCars((short)garageNumber) <= 0) {
@@ -2160,7 +2163,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
     if (4 < j) break;
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);
-    /* MATCH: the ACCUMULATE arm is the inline one -- oracle `beqz $s4,.L8003EBC8`
+    /* SUPERSEDED RESIDUAL RECEIPT: the ACCUMULATE arm is the inline one -- oracle `beqz $s4,.L8003EBC8`
        branches AWAY to the `result = 0` block, which sits after it. RESIDUAL FLOOR:
        oracle keeps the accumulator in $v1 (matching the SYM's REG $v1 `result`) and
        the fUpgrades test byte in $a0; ours swaps them ($a0 accumulator / $v1 test) --
@@ -2172,7 +2175,13 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
        confirms `result` is REG $v1; the off-by-1 (oracle's speculative `sll v0,v1,16`
        sign-extend in the last `beqz` slot) is a direct consequence of the swap --
        fix the swap and the slot fills. Needs the QTY-layer instrument, not a spelling
-       sweep. */
+       sweep.
+       RESOLVED 2026-08-11 (27 -> PASS, 143/143): zero belongs directly to the
+       DrawSlider call argument, not to `result`.  The conditional first argument
+       `(gotcar != 0) ? result : 0` keeps result in the SYM-prescribed $v1 and
+       fUpgrades in $a0, emits the speculative sign extension in the final upgrade
+       branch slot, and materializes zero directly in $a0.  An identity-fenced
+       sliderResult was the intermediate 12-diff basin but left a join-copy echo. */
     if (gotcar != 0) {
       tCarStatType carStat = remap[j];
       tCarInfo *ci = &carInfo;
@@ -2187,10 +2196,8 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
         result = result + ci->fStats[3][carStat];
       }
     }
-    else {
-      result = 0;
-    }
-    DrawSlider(result,0,0xb,0x1a1,yOffset,0x49,3,4,3,true,0,0x80,0);
+    DrawSlider((gotcar != 0) ? result : 0,0,0xb,0x1a1,yOffset,0x49,3,4,3,
+               true,0,0x80,0);
     yOffset = yOffset + 0xf;
     j = j + 1;
   }

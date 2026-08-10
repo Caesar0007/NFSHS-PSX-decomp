@@ -259,38 +259,32 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
 void FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader,char *name,int *offset,int *length)
 
 {
-  bool bVar1;
-  int iVar2;
-  u_long *tempChar;
-  LUMPYHEAD *info;
+  char *tempChar;
+  FILEINFO *info;
   u_int i;
   
   *offset = 0;
   *length = 0;
   if (bigfileHeader != (LUMPYHEAD *)0x0) {
-    info = bigfileHeader + 1;
+    info = (FILEINFO *)(bigfileHeader + 1);
     i = 1;
     if (bigfileHeader->num != 0) {
       do {
-        tempChar = &info->num;
-        iVar2 = strcmp(name,(char *)tempChar);
-        if (iVar2 == 0) {
-          i = info->type;
-          *offset = i << 0x18 | (i & 0xff00) << 8 | (i & 0xff0000) >> 8 | i >> 0x18;
-          i = info->len;
-          *length = i << 0x18 | (i & 0xff00) << 8 | (i & 0xff0000) >> 8 | i >> 0x18;
+        if (strcmp(name,info->name) == 0) {
+          *offset = info->offset << 0x18 | (info->offset & 0xff00) << 8 |
+                    (info->offset & 0xff0000) >> 8 | (info->offset & 0xff000000) >> 0x18;
+          *length = info->length << 0x18 | (info->length & 0xff00) << 8 |
+                    (info->length & 0xff0000) >> 8 | (info->length & 0xff000000) >> 0x18;
           return;
         }
-        if ((char)info->num != '\0') {
-          tempChar = &info->num;
+        tempChar = info->name;
+        if (*tempChar != '\0') {
           do {
-            tempChar = (u_long *)((int)tempChar + 1);
-          } while (*(char *)tempChar != '\0');
+            tempChar = tempChar + 1;
+          } while (*tempChar != '\0');
         }
-        info = (LUMPYHEAD *)((int)tempChar + 1);
-        bVar1 = i < bigfileHeader->num;
-        i = i + 1;
-      } while (bVar1);
+        info = (FILEINFO *)(tempChar + 1);
+      } while (i++ < bigfileHeader->num);
     }
   }
   return;

@@ -1009,16 +1009,13 @@ extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *com
    
    [ghidra-meta] section: front.text */
 
-/* [W57-A1 2026-08-09, 50->32, count now EXACT 90/90] The W56-A3 "needs the 4th s-reg first" note
-   above is resolved: the SAME anchor set DOES land here once all three parts go in TOGETHER --
-   (a) `tourn = &ptVar3->fTournaments[iVar6]` as its own statement (keeps the oracle's +36 addiu /
-   +48 displacement split instead of the folded +84), (b) a fenced COPY `tsaved = tourn` at the
-   head of the `0 < fee` block (the oracle's `addu s2,a1,zero`, which is what forces `command` out
-   to s3 = the 4th saved reg; without the 0-insn fence cse propagates tourn and the copy vanishes),
-   (c) the `pp = &popUp` dialog anchor + the lazy `ptVar1 = FEApp` / `this_00` messagePopup anchor.
-   RESIDUAL 32 = tsaved and the &tournamentManager address pseudo take s1/s2 the wrong way round
-   (allocno-priority tie: tsaved's shorter live range wins the lower reg) + the head materialization
-   order.  Same residual, same cause, in the twin GoToSpecialEventTrackInfo. */
+/* NEAR-PASS: 32 -> 2 diffs, count exact 90/90.  The special-event twin's
+   fe/tm anchors, priced manager-reference dial, saved tourn copy, and subtraction
+   operand order transfer exactly.  The sole residual is one `%lo(frontEnd)`
+   `addiu a0,a0,0`: ours is immediately after its `lui`, while retail schedules
+   it after the tournamentManager high/low pair and s1 save.  Moving the manager
+   fence across the definition load is neutral; removing the fe anchor or swapping
+   anchor order regresses to 18.  Next angle is the sched1 ready-list tie only. */
 
 extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1034,6 +1031,9 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
   tDialogMessageString *dlgThis;
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
+  tTourneyInfo *tsaved;
+  tTournamentManager *tm;
+  tfrontEnd *fe;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
      real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
@@ -1051,17 +1051,21 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
      GoToSpecialEventTrackInfo took the SAME edits to 54->45. This one needs tourn+this_00+popUp-
      mixed-anchor landed TOGETHER with allocsim/qtytrace pricing the s2/s3 handout (methodology
      4.6) -- not a floor, a priced multi-dial. Reverted to the folded baseline pending that pass. */
-  ptVar3 = tournamentManager.fDefinition;
-  frontEnd.tier = '\0';
-  iVar6 = (uint)(tournamentManager.fDefinition)->fTiers[0].fTournOffset +
-          (uint)(byte)frontEnd.tournament;
+  fe = &frontEnd;
+  tm = &tournamentManager;
+  __asm__("" : : "r"(tm), "r"(tm), "r"(tm), "r"(tm),
+          "r"(tm), "r"(tm));
+  ptVar3 = tm->fDefinition;
+  fe->tier = '\0';
+  iVar6 = (uint)tm->fDefinition->fTiers[0].fTournOffset +
+          (uint)(byte)fe->tournament;
   tourn = &ptVar3->fTournaments[iVar6];
   iVar7 = tourn->fEntranceFee;
   if (0 < iVar7) {
-    tTourneyInfo *tsaved = tourn;
+    tsaved = tourn;
 
     __asm__("" : "+r" (tsaved));
-    if (tournamentManager.fMoney < iVar7) {
+    if (tm->fMoney < iVar7) {
       ptVar1 = FEApp;
       this_00 = &ptVar1->messagePopup;
       pcVar5 = TextSys_Word(0xf6);
@@ -1083,7 +1087,7 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tournamentManager.fMoney = tournamentManager.fMoney - tsaved->fEntranceFee;
+      tm->fMoney = -tsaved->fEntranceFee + tm->fMoney;
     }
   }
   tournamentManager.StartNewTournament(0,frontEnd.tournament);

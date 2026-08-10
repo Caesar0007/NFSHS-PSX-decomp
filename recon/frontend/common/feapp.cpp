@@ -514,60 +514,66 @@ void tFEApplication::DisplayHelp(short variant)
 
 /* ---- tFEApplication::RunDemoVideo  [FEAPP.CPP:483-554] SLD-VERIFIED ---- */
 
+/* MATCH (W65, 79->PASS): SYM names only the 40-byte buffer and static
+   currentVideo; the decompiler's boolean/result/vtable/screen temporaries
+   were all compiler values.  DisplayLoadingText is a static tScreen member
+   (its body never uses `this`, and retail prepares no $a0).  Base-first
+   virtual adjustments and the post-largestunused staging below reproduce
+   the hidden temporaries of the original native C++ virtual call. */
+
 void tFEApplication::RunDemoVideo()
 
 {
-  bool bVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
-  int iVar3;
-  __vtbl_ptr_type (*pa_Var4) [10];
-  tScreen *this_00;
   char buffer [40];
 
   if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs[0]->menuMain) {
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);
-    (*(*this->fCurrentMenu[0]->_vf)[5].pfn)((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[5].delta + -0x10);
+    (*(*this->fCurrentMenu[0]->_vf)[5].pfn)
+              ((char *)this->fCurrentMenu[0] + (*this->fCurrentMenu[0]->_vf)[5].delta);
     (this->fCurrentScreen[0])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-    while( true ) {
-      bVar1 = false;
-      iVar3 = (*(*this->fCurrentMenu[0]->_vf)[7].pfn)
-                        ((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[7].delta + -0x10);
-      if ((iVar3 == 0) ||
-         (pa_Var4 = this->fCurrentScreen[0]->_vf,
-         iVar3 = (*(*pa_Var4)[8].pfn)
-                           ((this->fCurrentScreen[0]->fPermShapes).fFilename +
-                            (*pa_Var4)[8].delta + -0x14), iVar3 == 0)) {
-        bVar1 = true;
-      }
-      if (!bVar1) break;
+    while (((*(*this->fCurrentMenu[0]->_vf)[7].pfn)
+                   ((char *)this->fCurrentMenu[0] +
+                    (*this->fCurrentMenu[0]->_vf)[7].delta) == 0) ||
+           ((*(*this->fCurrentScreen[0]->_vf)[8].pfn)
+                   ((char *)this->fCurrentScreen[0] +
+                    (*this->fCurrentScreen[0]->_vf)[8].delta) == 0)) {
       this->Redraw();
       FeAudio_systemtask(0);
     }
     (*(*this->fCurrentScreen[0]->_vf)[7].pfn)
-              ((this->fCurrentScreen[0]->fPermShapes).fFilename + (*this->fCurrentScreen[0]->_vf)[7].delta + -0x14);
+              ((char *)this->fCurrentScreen[0] + (*this->fCurrentScreen[0]->_vf)[7].delta);
     Audio_FECleanUp();
     Audio_DeInitDriver();
     PSXFront_FreeDrawMemory();
     FeTools_deinit();
     FreeHelpShapeCluts();
     gLargestUnused[0] = largestunused();
-    this_00 = (tScreen *)(u_int)(u_char)((char)currentVideo + 1U);
-    play_movie((char)currentVideo + 1U);
+    play_movie((u_char)(currentVideo + 1));
     gLargestUnused[0] = largestunused();
     PSXFront_AllocateDrawMemory();
     FeTools_init();
-    (this_00)->DisplayLoadingText();
+    tScreen::DisplayLoadingText();
     Audio_InitDriver(0xd800,0x18000);
     AudioCmn_LoadFESamples();
     LoadAllHelpShapes();
     this->UpdateMusic();
     AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
-    gLargestUnused[0] = largestunused();
-    (*(*this->fCurrentMenu[0]->_vf)[2].pfn)((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[2].delta + -0x10);
+    {
+      /* These spell the hidden evaluation temporaries of a native virtual
+         call; they are not additional semantic source state.  Loading both
+         before publishing `largest` permits retail's load/load/store order. */
+      int largest = largestunused();
+      tMenu *menu = this->fCurrentMenu[0];
+      __vtbl_ptr_type (*vtbl)[11] = menu->_vf;
+
+      gLargestUnused[0] = largest;
+      (*(*vtbl)[2].pfn)((char *)menu + (*vtbl)[2].delta);
+    }
     (*(*this->fCurrentScreen[0]->_vf)[6].pfn)
-              ((this->fCurrentScreen[0]->fPermShapes).fFilename + (*this->fCurrentScreen[0]->_vf)[6].delta + -0x14);
-    (*(*this->fCurrentMenu[0]->_vf)[6].pfn)((int)this->fCurrentMenu[0]->fItemList + (*this->fCurrentMenu[0]->_vf)[6].delta + -0x10);
+              ((char *)this->fCurrentScreen[0] + (*this->fCurrentScreen[0]->_vf)[6].delta);
+    (*(*this->fCurrentMenu[0]->_vf)[6].pfn)
+              ((char *)this->fCurrentMenu[0] + (*this->fCurrentMenu[0]->_vf)[6].delta);
     (this->fCurrentScreen[0])->TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     currentVideo = (currentVideo + 1) % 3;
   }

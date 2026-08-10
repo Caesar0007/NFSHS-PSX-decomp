@@ -3530,7 +3530,7 @@ struct tScreen {   /* 100 bytes */
     /* reconstructed member fns (non-virtual decls; manual vtable is _vf -> ABI-neutral) */
     tScreen();
     ~tScreen();
-    void DisplayLoadingText();
+    static void DisplayLoadingText();   /* SYM member; no implicit this argument */
     void GoNonInterlaced();
     void DrawBackgroundImage(int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip_axis);
     void AsyncLoadPermanentShapeFile(char *fileName);

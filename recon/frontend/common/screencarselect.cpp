@@ -151,6 +151,16 @@ void tScreenCarSelect::Cleanup()
 
 
 /* ---- tScreenCarSelect::DrawOverlay  [SCREENCARSELECT.CPP:334-494] ---- */
+/* MATCH (2026-08-10, 84 -> 70 diffs, exact 551/551): retail reads the
+   menuCarUpgrades item as a full word for the title expression; the shared
+   header's narrow field otherwise lets cc1plus fold it to lhu, so the test
+   read is volatile and width-explicit.  The description guard compares the
+   already-computed `descrItem` with 0xB0 instead of re-reading currentItem;
+   that removes the extra lw and reproduces retail's add/compare chain.
+   Remaining groups are the duplicated upgrade-loop caller-save allocation
+   and one independent call-setup order; direct-expression loop rewrites were
+   substantially worse and were reverted, so those groups remain for the
+   final allocation/QTY rounds. */
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
@@ -283,14 +293,14 @@ DrawOvl_transitionPos:
       temp.w = pos.w + -0x3c;
       temp.h = pos.h + -0x4b;
       FETextRender_MenuTextPositionedJustify
-                (menuDefs->menuCarUpgrades.fCurrentItem + 0x96,
+                (*(volatile int *)&menuDefs->menuCarUpgrades.fCurrentItem + 0x96,
                  pos.x + (pos.w >> 1),pos.y + 0x18,2,
                  textState_Hilighted,textType_FramedInfo);
       {
         int descrItem;
 
         descrItem = (short)menuDefs->menuCarUpgrades.fCurrentItem + 0xaf;
-        if ((menuDefs->menuCarUpgrades.fCurrentItem == 1) &&
+        if ((descrItem == 0xb0) &&
             (((signed char)carInfo.fCarID == 0xc) ||
              ((signed char)carInfo.fCarID == 10))) {
           descrItem = 0x41;

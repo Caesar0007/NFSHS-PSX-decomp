@@ -94,19 +94,19 @@ void tCreditManager::RealDeInit()
 
 /* ---- tCreditManager::Draw  [FECREDITS.CPP:120-151] ---- */
 void tCreditManager::Draw(bool selected)
-/* MATCH (2026-08-10, 35 -> 9 diffs, ours 80 / oracle 81): direct fTVFade
-   updates keep their result in $v0, while one cached `screenMain` pointer and
-   indexed tvConfigs access produce retail's $a1 base with a 48-byte GIV.  The
-   SYM-only loop local consequently occupies $a2 exactly.  Remaining named
-   angle is the negative clamp's non-propagated copy: retail loads fTVFade in
-   $v0, copies it to $v1 in the branch delay, then copies a zeroed $v0 to $v1;
-   cc1plus coalesces the source transient directly into $v1 (one instruction
-   shorter).  An explicit fadeValue/copy chain was codegen-neutral, so defer
-   this catalog-06E copy/QTY case to the final hard rounds. */
+/* MATCH (2026-08-11, 35 -> PASS, 81/81): direct fTVFade updates keep their
+   result in $v0, while one cached `screenMain` pointer and indexed tvConfigs
+   access produce retail's $a1 base with a 48-byte GIV.  The SYM-only loop
+   local consequently occupies $a2 exactly.  IDA's raw-fade $v0 / clamped-fade
+   $v1 split comes from the natural post-clamp copy shape: clamp iVar2 first,
+   then assign fadeValue once after the branch.  Keeping the raw value live
+   through that copy prevents coalescing; jump optimization duplicates the
+   copy into the nonnegative delay slot and negative arm exactly as retail. */
 {
   tScreenMain *mainScreen;
   int iVar1;
   int iVar2;
+  int fadeValue;
   uint uVar3;
 
   if (selected) {
@@ -115,20 +115,22 @@ void tCreditManager::Draw(bool selected)
   else {
     this->fTVFade = this->fTVFade + -4;
   }
-  iVar2 = *(volatile int *)&this->fTVFade;
+  iVar2 = this->fTVFade;
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  if (0x5c < iVar2) {
-    iVar2 = 0x5c;
+  fadeValue = iVar2;
+  __asm__("" : : "r" (iVar2));
+  if (0x5c < fadeValue) {
+    fadeValue = 0x5c;
   }
-  this->fTVFade = iVar2;
-  if (iVar2 < 0x5c) {
-    iVar2 = 0x80 - iVar2;
-    if (iVar2 < this->fTextFade) {
-      iVar2 = this->fTextFade;
+  this->fTVFade = fadeValue;
+  if (fadeValue < 0x5c) {
+    fadeValue = 0x80 - fadeValue;
+    if (fadeValue < this->fTextFade) {
+      fadeValue = this->fTextFade;
     }
-    this->fTextFade = iVar2;
+    this->fTextFade = fadeValue;
   }
   mainScreen = screenMain;
   iVar1 = 0;

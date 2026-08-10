@@ -70,52 +70,34 @@ void tScreenTrophyRoom::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *mdefs;
-  short step;
-  int half;
-  tInputKeyType key;
-  int tierIdx;
-  
-  mdefs = menuDefs;
-  key = keyval;
-  if (key == kInput_KeyType_Cross) {
+  /* MATCH: the SLD records no locals for this function.  In particular, the
+     clamp is the expanded EA-style MIN(MAX(current, 0), fNumTrophies): the
+     repeated inner expression is significant because retail recomputes and
+     reloads the selected value instead of retaining a temporary. */
+  if (keyval == kInput_KeyType_Cross) {
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)&mdefs->menuTrophyInfo;
-    key = keyval;
+    command.nextMenu = (tMenu *)&menuDefs->menuTrophyInfo;
   }
-  if ((key != kInput_KeyType_Up) && (key != kInput_KeyType_Down))
+  if ((keyval != kInput_KeyType_Up) && (keyval != kInput_KeyType_Down))
   goto TrophyRoomProc_keyLeftCheck;
-  tierIdx = this->tier;
-  half = (uint)(ushort)this->fNumTrophies << 0x10;
-  half = (half >> 0x10) - (half >> 0x1f) >> 1;
-  step = (short)half;
-  if (this->fRealCurrentTourn[tierIdx] < half) {
-    this->fRealCurrentTourn[tierIdx] = this->fRealCurrentTourn[tierIdx] + step;
-    half = 3;
+  if (this->fRealCurrentTourn[this->tier] < this->fNumTrophies / 2) {
+    this->fRealCurrentTourn[this->tier] =
+         this->fRealCurrentTourn[this->tier] + this->fNumTrophies / 2;
+    AudioCmn_PlayFESFX(3);
   }
   else {
-    this->fRealCurrentTourn[tierIdx] = this->fRealCurrentTourn[tierIdx] - step;
-    half = 4;
+    this->fRealCurrentTourn[this->tier] =
+         this->fRealCurrentTourn[this->tier] - this->fNumTrophies / 2;
+    AudioCmn_PlayFESFX(4);
   }
-  AudioCmn_PlayFESFX(half);
-  if (this->fRealCurrentTourn[this->tier] < 1) {
-    if (0 < this->fNumTrophies) goto TrophyRoomProc_clampLowTourn;
-TrophyRoomProc_useNumTrophies:
-    step = this->fNumTrophies;
-  }
-  else {
-    if (this->fNumTrophies <= this->fRealCurrentTourn[this->tier])
-    goto TrophyRoomProc_useNumTrophies;
-TrophyRoomProc_clampLowTourn:
-    step = this->fRealCurrentTourn[this->tier];
-    if (this->fRealCurrentTourn[this->tier] < 0) {
-      step = 0;
-    }
-  }
-  this->fRealCurrentTourn[this->tier] = step;
-  key = keyval;
+  this->fRealCurrentTourn[this->tier] =
+       ((0 < this->fRealCurrentTourn[this->tier]
+         ? this->fRealCurrentTourn[this->tier] : 0) < this->fNumTrophies)
+       ? (0 < this->fRealCurrentTourn[this->tier]
+          ? this->fRealCurrentTourn[this->tier] : 0)
+       : this->fNumTrophies;
 TrophyRoomProc_keyLeftCheck:
-  if (key == kInput_KeyType_Left) {
+  if (keyval == kInput_KeyType_Left) {
     this->fRealCurrentTourn[this->tier] = this->fRealCurrentTourn[this->tier] + -1;
     if (this->fRealCurrentTourn[this->tier] < 0) {
       this->fRealCurrentTourn[this->tier] = this->fNumTrophies + -1;

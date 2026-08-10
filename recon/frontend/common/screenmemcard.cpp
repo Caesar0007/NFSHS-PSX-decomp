@@ -130,14 +130,21 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
 }
 
 /* ---- tScreenMemcard::LoadIcon  (screenmemcard.cpp:145) ---- */
-/* RESIDUAL 23 (ours 214 / oracle 215) -- 2026-08-10: direct
-   `fMemIcon[filenum][i]` indexing removed the fabricated shape-data,
-   byte-offset, X-scale, and file-offset locals and reduced 43 -> 23.  GCC now
-   synthesizes retail's byte-offset and X-position induction variables.  The
-   remainder is local allocation: retail assigns named `i` to s1 and its
-   strength-reduction GIV to s0 (ours are swapped), and keeps the shared 1 in
-   t0 where ours uses v0/s7.  A for-loop spelling was worse (25 @ 216/215).
-   Defer this QTY/allocator angle to the last rounds. */
+/* MATCH (2026-08-10, 43 -> 23 -> PASS, 215/215). Direct
+   `fMemIcon[filenum][i]` indexing first removed the fabricated shape-data,
+   byte-offset, X-scale, and file-offset locals.  allocsim then proved the
+   remaining counter/GIV swap: i was p83 (23 refs/28 live, s0), while the
+   generated i*192 GIV was p293 (11 refs/24 live, s1); reqdelta priced retail's
+   s0/s1 order at exactly +9 GIV refs.  Three loop-depth read-only operands on
+   i*192 buy that threshold without emitting instructions (PASS dump: GIV p305
+   20 refs/25 live -> s0, i p83 23 refs/30 live -> s1).  Placing the existing
+   i=0 immediately before the nonzero guard makes reorg select its move for the
+   branch delay slot instead of stealing li 900.  The block-local `one` makes
+   the two literal stores use retail's t0 lifetime, and the identity-laundered
+   bool-to-int `pulled` preserves retail's addu t0,s7 before the final word
+   store.  Falsified basins: for-loop 25 @216/215; direct icon/cardInfo removal
+   40 @219/215; one pointer-read fence 24 @215/215; early i=0 26 @213/215;
+   post-loop i fence 44 @217/215; split induction fences 68 @215/215. */
 void tScreenMemcard::LoadIcon(int filenum)
 
 {
@@ -197,9 +204,11 @@ void tScreenMemcard::LoadIcon(int filenum)
           }
           Texture_GetClutId(0,&clutx,&cluty);
           this->fMemIconClutId[filenum] = (short)cluty << 6 | (ushort)(clutx >> 4) & 0x3f;
+          i = 0;
           if (this->numicon[filenum] != '\0') {
-            i = 0;
             do {
+              __asm__("" : :
+                      "r"(i * 0xc0), "r"(i * 0xc0), "r"(i * 0xc0));
               if (((*fMemIcon[0])[filenum][i][0] & 0xf7U) == 0x40) {
                 vramfxya((*fMemIcon[0])[filenum][i],i * 0x11 + 900,
                          filenum * 0x11,clutx,cluty);
@@ -207,8 +216,11 @@ void tScreenMemcard::LoadIcon(int filenum)
               i = i + 1;
             } while (i < (int)(uint)this->numicon[filenum]);
           }
-          this->fFadeIcon[filenum] = 0x80;
-          this->goticon[filenum] = '\x01';
+          {
+            int one = 1;
+            this->fFadeIcon[filenum] = 0x80;
+            this->goticon[filenum] = one;
+          }
           break;
         case 2:
         case 3:
@@ -219,7 +231,11 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x13:
         case 0x17:
           done = true;
-          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 1;
+          {
+            int pulled = done;
+            __asm__("" : "=r"(pulled) : "0"(pulled));
+            this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
+          }
           this->goticon[filenum] = '\0';
           break;
         }

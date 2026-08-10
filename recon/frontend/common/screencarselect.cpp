@@ -40,38 +40,43 @@ extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*resu
    
    [ghidra-meta] section: front.text */
 
+/* MATCH W63: 37 -> 9 diffs (102 -> 106 instructions; retail 107).  The SYM
+   names only `the_simcarcolor` ($a0) and unsigned-long `ticks` ($v1).  Keeping
+   the global tick read and signed remainder as two statements gives retail's
+   early $v1 load/prologue order; spelling the direction result as the SLD's
+   explicit if/else restores its branch normalizer.  Direct tCarInfo fields and
+   direct gCarObj[player] uses remove the decompiler's byte/pointer aliases and
+   make the entire post-remainder body byte-identical.  Remaining 9 are one
+   missing pre-branch copy in the signed-remainder local-allocation basin. */
+
 extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,short y,float camerax,float cameray,char brightness,
                bool reflection,u_long rotate,tPlayer player)
 
 {
-  byte bVar1;
-  int iVar2;
-  u_long ticks;
-  char *carBytes = (char*)carInfo;
   int the_simcarcolor;
-  Car_tObj **ppCVar3;
+  u_long ticks;
   
-  iVar2 = ::ticks[0];
-  if (::ticks[0] < 0) {
-    iVar2 = ::ticks[0] + 0x7ff;
-  }
+  ticks = ::ticks[0];
+  ticks = (long)ticks % 0x800;
   DrawC_gMenuLights = 0;
-  DrawC_gMenuLightsDirection = (int)(0x3ff < (uint)(::ticks[0] + (iVar2 >> 0xb) * -0x800));
-  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): plain `char` is UNSIGNED on this
-     build, so `-1 < *carBytes` folded to constant TRUE and gcc DELETED the whole guard --
-     an EMPTY car slot (fCarID == -1) would still be drawn.  Oracle 8003AA58/8003AA60 has
-     `lb $v0,0($t0); bltz $v0,.L8003AB5C`; force the signed load per-use. */
-  if (-1 < *(signed char *)carBytes) {
-    ppCVar3 = gCarObj + player;
-    bVar1 = carBytes[0xc5];
-    (*ppCVar3)->carInfo->carType = (uint)(byte)carBytes[1];
-    (*ppCVar3)->carInfo->Country = (uint)(byte)carBytes[199];
+  if (ticks < 0x400) {
+    DrawC_gMenuLightsDirection = 0;
+  }
+  else {
+    DrawC_gMenuLightsDirection = 1;
+  }
+  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): fCarID is signed in the
+     shared type, preserving the oracle's `lb`/`bltz` empty-slot guard here. */
+  if (-1 < carInfo->fCarID) {
+    the_simcarcolor = carInfo->fColor;
+    gCarObj[player]->carInfo->carType = (uint)carInfo->fSimNumber;
+    gCarObj[player]->carInfo->Country = (uint)carInfo->fCountry;
     gMenuRotate[player] = gMenuRotate[player] + 3;
-    (*ppCVar3)->carInfo->EngineMods = (byte)carBytes[0xc4] >> 2 & 1;
-    (*ppCVar3)->carInfo->WeightTransfer = (byte)carBytes[0xc4] >> 1 & 1;
-    (*ppCVar3)->carInfo->GroundEffects = (byte)carBytes[0xc4] & 1;
-    DrawC_MenuColorData((uint)bVar1,*ppCVar3,player);
-    Draw_MenuRenderingView(*ppCVar3,&gCView,(int)x,(int)y,player,0,rotate,camerax,cameray,(uint)(byte)brightness
+    gCarObj[player]->carInfo->EngineMods = carInfo->fUpgrades >> 2 & 1;
+    gCarObj[player]->carInfo->WeightTransfer = carInfo->fUpgrades >> 1 & 1;
+    gCarObj[player]->carInfo->GroundEffects = carInfo->fUpgrades & 1;
+    DrawC_MenuColorData((uint)the_simcarcolor,gCarObj[player],player);
+    Draw_MenuRenderingView(gCarObj[player],&gCView,(int)x,(int)y,player,0,rotate,camerax,cameray,(uint)(byte)brightness
                ,reflection);
   }
   return;
@@ -2524,6 +2529,11 @@ void tScreenPinkSlipsCarSelect::Cleanup()
 
 
 /* ---- tScreenPinkSlipsCarSelect::SetDialog  [SCREENCARSELECT.CPP:2098-2187] ---- */
+/* MATCH W63 PASS (37 -> 0, 164/164 instructions).  The raw CFG/SLD puts the
+   CardLoadedFine message arm first and branches to the ready-player Hide arm;
+   it also places the shared card-failure tail before the three loading cases.
+   Block-local dialog bases after sprintf and before TextSys_Word reproduce the
+   two retail address-materialization sites and seal the final store operands. */
 void tScreenPinkSlipsCarSelect::SetDialog()
 
 {
@@ -2572,22 +2582,21 @@ switchD_8003f3b4_caseD_7:
     ((tDialogBase *)&this->CarDialog)->Hide();
     return;
   case CardLoadedFine:
-    if ((FEApp->waitingForOtherPlayer[p] == 0) && (PinkSlipsScreenState[1 - p] == CardLoadedFine)) {
-      ((tDialogBase *)&this->CarDialog)->Hide();
+    if ((FEApp->waitingForOtherPlayer[p] != 0) ||
+        (PinkSlipsScreenState[1 - p] != CardLoadedFine)) {
+      str2 = TextSys_Word(0x2a8);
+      str = PlayerName(1 - p);
+      sprintf("",str2,str);
+      {
+        tDialogBackUpOnly *dlg = &this->CarDialog;
+
+        dlg->string = "";
+        ((tDialogBase *)dlg)->Display();
+      }
       this->fStartCheckTick = 0;
       goto SetDlg_cardOkReturn;
     }
-    str2 = TextSys_Word(0x2a8);
-    str = PlayerName(1 - p);
-    sprintf("",str2,str);
-    this->CarDialog.string = "";
-    /* MATCH (W57-A2): the CardLoadedFine arm DUPLICATES the Display +
-       fStartCheckTick=0 pair inline instead of sharing SetDlg_displayAndReset
-       -- the oracle has `jal Display; addiu a0,s2,928 (slot); j <cardOk>;
-       sw zero,1088(s2) (slot)` right here at 0x8003F44C-58, with the Display
-       argument REMATERIALIZED (a0 is not the preamble `dlg`, which still
-       holds the sprintf buffer at that point).  45 -> 37. */
-    ((tDialogBase *)&this->CarDialog)->Display();
+    ((tDialogBase *)&this->CarDialog)->Hide();
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
   case NoCardInserted:
@@ -2624,13 +2633,23 @@ switchD_8003f3b4_caseD_7:
     goto SetDlg_cardOkReturn;
   case CardFailedNotFound:
     iVar3 = p + 0x2af;
-    break;
+    goto SetDlg_cardFailed;
   case CardFailedUnformatted:
     iVar3 = p + 0x2b1;
-    break;
+    goto SetDlg_cardFailed;
   case CardFailed:
     iVar3 = p + 0x2ad;
-    break;
+SetDlg_cardFailed:
+    {
+      tDialogBackUpOnly *dlg = &this->CarDialog;
+
+      str2 = TextSys_Word(iVar3);
+      dlg->string = str2;
+      ((tDialogBase *)dlg)->Display();
+    }
+    this->fCardFailed = 1;
+    this->fStartCheckTick = 0;
+    return;
   case NotEnoughCars:
     wordnum = p + 0x32d;
     goto SetDlg_loadingWord;
@@ -2640,10 +2659,13 @@ switchD_8003f3b4_caseD_7:
   case CardCurrentlyLoading:
     wordnum = p + 0x280;
 SetDlg_loadingWord:
-    str2 = TextSys_Word(wordnum);
-    this->CarDialog.string = str2;
-SetDlg_displayAndReset:
-    ((tDialogBase *)&this->CarDialog)->Display();
+    {
+      tDialogBackUpOnly *dlg = &this->CarDialog;
+
+      str2 = TextSys_Word(wordnum);
+      dlg->string = str2;
+      ((tDialogBase *)dlg)->Display();
+    }
     this->fStartCheckTick = 0;
 SetDlg_cardOkReturn:
     this->fCardFailed = 0;
@@ -2651,11 +2673,6 @@ SetDlg_cardOkReturn:
   default:
     goto switchD_8003f3b4_default;
   }
-  str2 = TextSys_Word(iVar3);
-  this->CarDialog.string = str2;
-  ((tDialogBase *)&this->CarDialog)->Display();
-  this->fCardFailed = 1;
-  this->fStartCheckTick = 0;
 switchD_8003f3b4_default:
   return;
 }

@@ -2229,10 +2229,11 @@ int tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
 
 /* ---- GetCurrentStickRange  [FEMENUOPTIONS.CPP:1578-1582] SLD-VERIFIED ---- */
 
-/* MATCH: 5-line retail body — a two-armed TERNARY per axis (the arms funnel into
-   the result pseudo via `addu v1,v0,zero`, which an if/else form computes in
-   place instead), and an INT return (the `char` return added the oracle-absent
-   `andi v0,v0,255`). */
+/* MATCH W63: 17 -> 14 diffs, count exact 23/23.  Retail keeps the first-axis
+   clamp in place but funnels the second axis through a ternary result pseudo;
+   that hybrid restores the missing `addu` without changing semantics.  The
+   remaining residual is a symmetric v0/v1 local-allocation swap.  INT return
+   remains required (a char return adds an oracle-absent `andi`). */
 int GetCurrentStickRange(int player)
 
 {
@@ -2244,9 +2245,8 @@ int GetCurrentStickRange(int player)
     range1 = (int)gPadinfo.buf[player * 4].data.negcon.twist - 0x80;
   }
   range2 = 0x80 - (int)gPadinfo.buf[player * 4].data.negcon.buttonI;
-  if (range2 < 1) {
-    range2 = (int)gPadinfo.buf[player * 4].data.negcon.buttonI - 0x80;
-  }
+  range2 = (0 < range2) ? range2 :
+      (int)gPadinfo.buf[player * 4].data.negcon.buttonI - 0x80;
   if (range2 < range1) {
     range2 = range1;
   }
@@ -2257,11 +2257,9 @@ int GetCurrentStickRange(int player)
 
 /* ---- GetCurrentStickRange2  [FEMENUOPTIONS.CPP:1586-1590] SLD-VERIFIED ---- */
 
-/* MATCH: see GetCurrentStickRange — INT return (the `char` return emitted an
-   oracle-absent `andi v0,v0,255`) and the field re-read per arm.
-   NEAR-MISS 17: residual is a v0/v1 qty-numbering swap (ours loads the axis byte
-   into $v1 + the shared `li 128` into $v0; oracle the reverse) plus the one
-   funnel copy `addu v1,v0,zero` gcc coalesces away for us. */
+/* MATCH W63: see GetCurrentStickRange -- the same hybrid first-axis if plus
+   second-axis ternary gives 17 -> 14 at exact 23/23.  Remaining differences
+   are the same v0/v1 qty-numbering swap. */
 int GetCurrentStickRange2(int player)
 
 {
@@ -2273,9 +2271,8 @@ int GetCurrentStickRange2(int player)
     range1 = (int)gPadinfo.buf[player * 4].data.negcon.buttonII - 0x80;
   }
   range2 = 0x80 - (int)gPadinfo.buf[player * 4].data.negcon.leftshift;
-  if (range2 < 1) {
-    range2 = (int)gPadinfo.buf[player * 4].data.negcon.leftshift - 0x80;
-  }
+  range2 = (0 < range2) ? range2 :
+      (int)gPadinfo.buf[player * 4].data.negcon.leftshift - 0x80;
   if (range2 < range1) {
     range2 = range1;
   }

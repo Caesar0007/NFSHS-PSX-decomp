@@ -838,6 +838,9 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
    non-volatile alone 260; identity fence 267; a second read-only fence 192;
    loop placement 244; forward volatile local 282; OR term/order shapes 293+.
    qtytrace is not authoritative here: instrumented cc1plus differs by d311. */
+/* MATCH W63: 169 -> 168 diffs (375 -> 374 instructions; retail 366).  Writing
+   the forward arm's two-stage fade as a nested call removes one intermediate
+   result move while preserving the same calls and branch behavior. */
 
 /* WARNING: Unable to use type for symbol pkt2 */
 /* WARNING: Unable to use type for symbol pkt */
@@ -896,15 +899,15 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 < fX + width) {
           if (fSelFade) {
-            Col = CalcFadeVal(myDarkBlue,
-                (short)((((x1 - fX) * 0xbe) / fWidth) >> factor) |
-                (((((x1 - fX) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
-                ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
+            Col = CalcFadeVal(CalcFadeVal(myDarkBlue,
+                    (short)((((x1 - fX) * 0xbe) / fWidth) >> factor) |
+                    (((((x1 - fX) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
+                    ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade),
+                fFadeVal);
           }
           else {
-            Col = myDarkBlue;
+            Col = CalcFadeVal(myDarkBlue,fFadeVal);
           }
-          Col = CalcFadeVal(Col,fFadeVal);
         }
         else {
           Col = CalcFadeVal(0x280f00,fFadeVal);

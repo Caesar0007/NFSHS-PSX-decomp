@@ -180,7 +180,7 @@ extern void iSND100hzserver(void)
                 {
                     /* MATCH (184/184): keep the step as direct field reads. GCC CSEs them into the
                      * oracle's step/sign register pair while retaining `position` as the add result. */
-                    if (p[5] != 0) {                                   /* portamento step */
+                    if (p[5] != 0) {                                   /* autovol ramp step */
                         int position;
                         dirty = 1;
                         position = (int)p[7] + (int)p[5];
@@ -194,8 +194,15 @@ extern void iSND100hzserver(void)
                             p[7] = p[6];
                             p[5] = 0;
                         }
+                        /* 🔴 2026-08-10 REAL BUG FIX (found by the real-ASPSX byte confirm):
+                         * this negative-volume stop is INSIDE the ramp block -- retail's
+                         * `beqz a0` skips PAST it when the step is 0 (word 10800015 vs our
+                         * old 10800011), and the NFS2-PC ancestor agrees (current_volume<0
+                         * check nested in `if (step != 0)`).  The old placement ran the
+                         * check every tick.  verify_asm was BLIND to it (branch-target
+                         * lenient by design) -- objdiff's 99.97% was flagging exactly this. */
+                        if ((int)p[7] < 0) { SNDstop(*p); goto next_chan; }
                     }
-                    if ((int)p[7] < 0) { SNDstop(*p); goto next_chan; }
                 }
                 /* portamento done -> pitch sweep */
                 if (p[8] != 0) { dirty = 1; p[9] = p[9] + p[8]; }

@@ -37,29 +37,33 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  /* MATCH (SLD 79/81/82/84/86/87): no `def`/`tournOffset` temps - the whole
-     tourney index is ONE grouped expression on the call line (a single x84
-     chain), and gSwapFileName's address is held in $s0 across the call. */
+  /* MATCH (W68, 22 -> PASS; SLD 79/81/82/84/86/87): retain the front-end
+     base and precompute the trophy pointer before the output stores.  This
+     preserves numSwapShapes in $t1 and schedules the retail branch delays;
+     gSwapFileName's address remains in $s0 across the call. */
   byte useSpecial;
+  tfrontEnd *fe;
   char *swapName;
+  tTourneyInfo *trophyTourn;
 
   /* MATCH: an if/ELSE (both arms load) - the oracle jumps over the else arm;
      a default+override form emits no `j`. */
-  if (frontEnd.tier != '\0') {
-    useSpecial = frontEnd.specialevent;
+  fe = &frontEnd;
+  if (fe->tier != '\0') {
+    useSpecial = fe->specialevent;
   }
   else {
-    useSpecial = frontEnd.tournament;
+    useSpecial = fe->tournament;
   }
+  trophyTourn = (tournamentManager.fDefinition)->fTournaments +
+                ((uint)useSpecial +
+                 (uint)(tournamentManager.fDefinition)
+                     ->fTiers[(byte)fe->tier].fTournOffset);
   numPermShapes = 0x40;
   numSwapShapes = 0x20;
   *permFileName = "ztourn";
   swapName = gSwapFileName;
-  GetTrophyName(&tournamentManager,
-             (tournamentManager.fDefinition)->fTournaments +
-             ((uint)useSpecial +
-              (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset),
-             ts_Medium,swapName,-1);
+  GetTrophyName(&tournamentManager,trophyTourn,ts_Medium,swapName,-1);
   *swapFileName = swapName;
   return;
 }

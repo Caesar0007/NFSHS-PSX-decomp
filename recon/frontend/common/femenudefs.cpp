@@ -1103,11 +1103,12 @@ extern "C" void MenuExtended_GoToTournTrackInfo__FR12tMenuCommand(tMenuCommand *
    
    [ghidra-meta] section: front.text */
 
-/* [W57-A1 2026-08-09, 45->20, count now EXACT 91/91] Same three-part landing as the twin
-   GoToTournTrackInfo (tourn split + fenced `tsaved` copy at the head of the `0 < fee` block +
-   the `pp` dialog anchor).  RESIDUAL 20 = the s1<->s2 allocno-priority tie (tsaved vs the
-   &tournamentManager address pseudo) plus the head's `lui a0` position; the copy itself now sits
-   in the oracle's `blez` delay slot.  Next instrument: allocsim/reqdelta on those two allocnos. */
+/* MATCH: 91/91.  The early `fe`/`tm` anchors preserve retail's address order.
+   allocsim identifies the saved `tsaved` copy and persistent manager address as
+   the competing s1/s2 allocnos; the six read-only `tm` operands buy the exact
+   one-reference priority delta priced by reqdelta.  Keeping the final manager
+   call global rematerializes its address like retail, while `-fee + money`
+   preserves the right-to-left load order before the subtraction. */
 
 extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCommand *command)
 
@@ -1124,6 +1125,8 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
   tTourneyInfo *tsaved;
+  tTournamentManager *tm;
+  tfrontEnd *fe;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
      real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
@@ -1144,16 +1147,20 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
      edits REGRESSED the twin GoToTournTrackInfo (50->53) which needs its 4th saved-reg (s3) first,
      so they were kept here only. RESIDUAL 45 = the frontEnd base register + the 4-s-reg coloring
      (SYM fsize=208 mask=0x800f0000) -- do tourn+anchors+popUp together with allocsim. */
-  ptVar3 = tournamentManager.fDefinition;
-  frontEnd.tier = '\x01';
-  iVar6 = (uint)(tournamentManager.fDefinition)->fTiers[1].fTournOffset +
-          (uint)(byte)frontEnd.specialevent;
+  fe = &frontEnd;
+  tm = &tournamentManager;
+  __asm__("" : : "r"(fe), "r"(tm), "r"(tm), "r"(tm),
+          "r"(tm), "r"(tm), "r"(tm));
+  ptVar3 = tm->fDefinition;
+  fe->tier = '\x01';
+  iVar6 = (uint)tm->fDefinition->fTiers[1].fTournOffset +
+          (uint)(byte)fe->specialevent;
   tourn = &ptVar3->fTournaments[iVar6];
   iVar7 = tourn->fEntranceFee;
   if (0 < iVar7) {
     tsaved = tourn;
     __asm__("" : "+r" (tsaved));
-    if (tournamentManager.fMoney < iVar7) {
+    if (tm->fMoney < iVar7) {
       ptVar1 = FEApp;
       this_00 = &ptVar1->messagePopup;
       pcVar5 = TextSys_Word(0xf6);
@@ -1175,7 +1182,7 @@ extern "C" void MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand(tMenuCo
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tournamentManager.fMoney = tournamentManager.fMoney - tsaved->fEntranceFee;
+      tm->fMoney = -tsaved->fEntranceFee + tm->fMoney;
     }
   }
   tournamentManager.StartNewTournament(1,frontEnd.specialevent);

@@ -218,9 +218,9 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
    24 missing instructions.  Same 5 levers; see the RemoveFromPinkSlipsList receipt above.
    W55-A10 (2026-08-09) 50 -> 8, still count-exact 96/96: the RemoveFromPinkSlipsList
    ADDRESS-MUTATION + nc-REF-DIAL recipe ported verbatim (see that receipt for the mechanism).
-   W57-A7 (2026-08-09) 8 -> 6: the slot-31 named-`playerNum*128` statement ported from the twin.
-   RESIDUAL 6 (both twins, identical): the new-selection byte in $a1 where retail uses $v0 --
-   full mechanism + falsification list in the RemoveFromPinkSlipsList receipt below. */
+   W70 (2026-08-11) 6 -> PASS (96/96): the player-relative `frontEnd` byte base is named once
+   and kept live across an explicit if/else.  This preserves the base in $a0, puts newSel in
+   $v0, and lets thread filling place garageCar-1 in the retail branch delay slot. */
 
 long tCarManager::SellCar(short garageNumber,short playerNum)
 
@@ -255,16 +255,19 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
   }
   {
   u_long nc;
-  int chk = ((u_int)(u_char)frontEnd.garageCar[playerNum] - (nc = this->fNumCars)) * 4;
+  u_char *fePlayer = (u_char *)&frontEnd + playerNum;
+  int chk = ((u_int)fePlayer[0x123] - (nc = this->fNumCars)) * 4;
   chk = chk + playerNum * 128;
   if (*(signed char *)(chk + (char *)this + 8) < 0) {
-    char newSel = frontEnd.garageCar[playerNum] - 1;
-    if ((u_int)(u_char)frontEnd.garageCar[playerNum] <= nc) {
+    char newSel;
+    if ((u_int)fePlayer[0x123] <= nc) {
       newSel = '\0';
     }
-    frontEnd.garageCar[playerNum] = newSel;
+    else {
+      newSel = fePlayer[0x123] - 1;
+    }
+    fePlayer[0x123] = newSel;
   }
-  __asm__("" : : "r"(nc), "r"(nc));
   }
   return result;
 }
@@ -346,19 +349,11 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
    address sites already use) makes `this` operand 0 = retail's `addu v0,t1,a1`.  The w41
    int-typed-sum spelling `(int)this + playerNum*128 + K` measured IDENTICAL to flat, confirming
    the dial is statement granularity.
-   RESIDUAL 6 (both twins, identical): the new-selection byte lands in $a1 where retail uses
-   $v0.  MECHANISM NAMED (W57-A7): retail's `addiu $v0,$a2,-1` sits in the `bnez $v0` DELAY SLOT
-   while also WRITING the branch's condition register.  reorg's backward scan can NEVER do that
-   (`insn_sets_resource_p(trial,&needed)` rejects any candidate that sets a resource the branch
-   reads), so retail's slot insn came from `fill_slots_from_thread` -- i.e. in retail's RTL the
-   `gc-1` computation lives AFTER the branch, in a THREAD, and was stolen forward (safe because
-   the opposite thread immediately overwrites the reg).  Ours is the default-then-override shape,
-   whose `addiu` is emitted BEFORE the branch, so it can only be back-filled -- and only into a
-   register the branch does not read, hence $a1.  Falsified at this basin: both if/else arm
-   orders (87 insns -- the if/else also desynchronises the (B) nc REF DIAL, so the two levers are
-   COUPLED and would have to be re-tuned together), newSel typed int / u_char (inert) / short
-   (83).  NEXT ANGLE: re-derive the tail as if/else AND re-run reqdelta for the nc/garageCar pair
-   from that new basin (the fence operand count is basin-relative, 04Z). */
+   W70 (2026-08-11) 6 -> PASS (82/82): the if/else hypothesis was correct once coupled to a
+   single player-relative `frontEnd` byte base and the obsolete nc reference dial was removed.
+   The live base stays in $a0, nc/garageCar settle in $v1/$a2, newSel settles in $v0, and
+   `fill_slots_from_thread` moves garageCar-1 into the retail branch delay slot.  The SellCar
+   twin reaches PASS with the identical source shape. */
 
 void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 
@@ -398,16 +393,19 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
   }
   {
   u_long nc;
-  int chk = ((u_int)(u_char)frontEnd.garageCar[playerNum] - (nc = this->fNumCars)) * 4;
+  u_char *fePlayer = (u_char *)&frontEnd + playerNum;
+  int chk = ((u_int)fePlayer[0x123] - (nc = this->fNumCars)) * 4;
   chk = chk + playerNum * 128;
   if (*(signed char *)(chk + (char *)this + 0x108) < 0) {
-    char newSel = frontEnd.garageCar[playerNum] - 1;
-    if ((u_int)(u_char)frontEnd.pinkSlipsCar[playerNum] <= nc) {
+    char newSel;
+    if ((u_int)fePlayer[0x125] <= nc) {
       newSel = '\0';
     }
-    frontEnd.pinkSlipsCar[playerNum] = newSel;
+    else {
+      newSel = fePlayer[0x123] - 1;
+    }
+    fePlayer[0x125] = newSel;
   }
-  __asm__("" : : "r"(nc), "r"(nc));
   }
   return;
 }

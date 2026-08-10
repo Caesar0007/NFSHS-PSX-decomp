@@ -146,15 +146,21 @@ void tScreenTrophyRoom::Initialize()
      130 the `short i` for-loop / 132..138 ONE placement read + select /
      140 the texture load / 144..152 the tail.  No <<16 fixed-point counter,
      no `numT` temp, and the placement is read ONCE (the if-body reuses it).
-     RESIDUAL 18 (count-exact 118/118) -- W57-A7: a clean TWO-PSEUDO HOME SWAP, the
-     `&frontEnd` base and the 6/8 trophy-count constant trade $a0 and $v1 (retail
-     base=$v1, const=$a0; ours base=$a0, const=$v1), which then drags the `addu s3,..`
-     copy with it.  Nothing structural: falsified this basin -- if/else instead of the
-     ternary (27, +1 insn), Yoda `'\0' != frontEnd.tier` (18), a named `short numT` temp
-     (18), swapping the `this->tier` / `fNumTrophies` statement order (21, 117 insns),
-     `(byte)frontEnd.tier != 0` (18).  Local-alloc QTY class (4.6 instrument gap). */
+     MATCH (2026-08-10, 18 -> PASS 118/118): the instrumented GCC dump plus allocsim
+     reproduced all 13 global handouts and identified the only real mismatch as the
+     `&frontEnd` / 6-or-8 constant priority crossing.  Four read-only references at
+     the proven early placement give retail base=$v1 and constant=$a0; moving that
+     zero-insn fence to `fe`'s last use lengthens the pseudo and loses the crossing.
+     A separate `loopFe = fe` states retail's caller-saved-to-$s3 handoff; splitting
+     `i = 0` before it gives the SLD-130 `$s1` then `$s3` order.  Finally, explicit
+     `tournIdx`/`tourney` source temporaries make the SLD-132 address add retain its
+     result in $v0.  The earlier structural falsifications remain valid: if/else for
+     the ternary (27, +1 insn), Yoda compare (18), named `short numT` (18), swapped
+     tier/count statements (21, 117 insns), and `(byte)frontEnd.tier != 0` (18). */
   int loaded;
   int curIdx;
+  tfrontEnd *fe;
+  tfrontEnd *loopFe;
   short i;
 
   this->Initialize();
@@ -162,19 +168,25 @@ void tScreenTrophyRoom::Initialize()
     systemtask(0);
     loaded = (int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
   } while ((loaded ^ 1) != 0);
-  this->tier = (uint)(byte)frontEnd.tier;
-  this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
+  fe = &frontEnd;
+  __asm__("" : : "r"(fe), "r"(fe), "r"(fe), "r"(fe));
+  this->tier = (uint)(byte)fe->tier;
+  this->fNumTrophies = fe->tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
+  i = 0;
+  loopFe = fe;
 
-  for (i = 0; i < this->fNumTrophies; i = i + 1) {
+  for (; i < this->fNumTrophies; i = i + 1) {
     int placement;
+    int tournIdx;
     short place;
+    tTourneyInfo *tourney;
 
     this->fTrophyList[i] = 1;
-    placement = (signed char)tournamentManager.fBestPlacement
-             [(signed char)(tournamentManager.fDefinition)->fTournaments
-              [(uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-               (uint)(byte)i].fTournamentID];
+    tournIdx = (uint)(tournamentManager.fDefinition)->fTiers[(byte)loopFe->tier].fTournOffset +
+               (uint)(byte)i;
+    tourney = (tournamentManager.fDefinition)->fTournaments + tournIdx;
+    placement = (signed char)tournamentManager.fBestPlacement[(signed char)tourney->fTournamentID];
     place = 0;
     if ((u_int)(placement - 1) < 3) {
       place = placement;

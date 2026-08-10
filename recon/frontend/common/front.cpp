@@ -206,6 +206,11 @@ void Front_ResetPSXAnalogs(int player)
    the initializer and appending the low byte with |= restores four instructions
    and lowers the authoritative residual 163 -> 161 (207 -> 211, retail 222). */
 
+/* MATCH W62 (2026-08-10): retail also keeps the 0x23/0x200000 arm one
+   instruction less merged than W61.  A guide-permitted empty-template,
+   read-only USE fence selects that boundary without emitting code or pinning a
+   hard register: 161 -> 160 diffs (211 -> 212 instructions, retail 222). */
+
 int GetPSXPadValue(int value,int player)
 
 {
@@ -279,6 +284,7 @@ GetPSXPadValue_gotType:
       newControl = player << 0x1e |
                    ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000 |
                    ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100;
+      __asm__ volatile("" : : "r"(newControl));
       return newControl | 1;
     case 0x4000:
       newControl = player << 0x1e |

@@ -656,11 +656,13 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
   }
   finished = false;
   result = 0;
+  __asm__ volatile("" : "+r"(result));
   count = 0x2c;
   nomessage_arr[0] = 0;
   if (WithDialogs != 0) {
     count = 0;
   }
+  __asm__ volatile("" : : "r"(count));
   returnmessage = 0x28d;
   cardshifted = cardNum << 16;
 LoadGame_memcardInit:
@@ -717,8 +719,10 @@ LoadGame_memcardInit:
             Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
             /* dlgmsg held across the TextSys call (inlined-this block, s0) */
             tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
-            dlgmsg->string = TextSys_Word(player + 0x329);
-            Display((tDialogBase *)&FEApp[0]->MemCardDialog);
+            char *dialogText = TextSys_Word(player + 0x329);
+            tDialogBase *dialogBase = (tDialogBase *)&FEApp[0]->MemCardDialog;
+            dlgmsg->string = dialogText;
+            Display(dialogBase);
           }
         }
         finished = true;
@@ -764,8 +768,10 @@ LoadGame_memcardInit:
       Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
       /* dlgmsg held across the TextSys call (inlined-this block, s0) */
       tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
-      dlgmsg->string = TextSys_Word(returnmessage + player);
-      Display((tDialogBase *)&FEApp[0]->MemCardDialog);
+      char *dialogText = TextSys_Word(returnmessage + player);
+      tDialogBase *dialogBase = (tDialogBase *)&FEApp[0]->MemCardDialog;
+      dlgmsg->string = dialogText;
+      Display(dialogBase);
       while (true) {
         if (((FEApp[0]->MemCardDialog).fFullyOpen ^ 1) == 0) break;
         Redraw(FEApp[0]);

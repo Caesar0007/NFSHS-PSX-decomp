@@ -225,16 +225,11 @@ void tScreenTrackSelect::SetBrightness(short bright)
 
 
 /* ---- tScreenTrackSelect::UpdateBrightness ----
-   RESIDUAL 43 (ours 57 / oracle 60) -- W57-A7 analysis: the three missing insns are all
-   NOPS the oracle leaves in branch delay slots that OUR build fills (`bgez v0,T; nop` +
-   `sra v0,v0,7` after, vs ours `bgez a0,T; sra v0,a0,7` in the slot; likewise the two
-   guards).  Ours is strictly better-scheduled -- the "ours 1 (here 3) shorter, oracle
-   nop-filled" class.  The register letters (a0 vs v1 for `elapsed`) follow from it.
-   Falsified: arm-order swap `if (0x7f < elapsed) {fDest} else if (elapsed<0) {0} else
-   {lerp}` (43 -> 41, same 57/60).  Retail also reads fDestBrightness and fStartBrightness
-   TWICE each (lh for the arithmetic, lhu for the copy/add) -- ours already does.
-   NEXT ANGLE: this is the reorg-fill class; a void-tail fence at the guard heads is the
-   documented breaker but must be priced (3 sites). */
+   MATCH: 60/60.  SLD lines 277-286 reveal a three-way chain in source order:
+   finished, nonnegative interpolation, negative clamp.  Keeping the interpolation
+   as signed division by 128 lets gcc emit its own rounding sequence.  The named
+   `elapsed = ticks[0]` assignment inside the fTicksSet guard also gives retail's
+   delay-slot address setup and carries the tick value across the flag store. */
 void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
 
 {
@@ -242,29 +237,25 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
   
   elapsed = ticks[0] - this->fStartTicks;
   if ((int)this->fDestBrightness != (int)this->fBrightness) {
-    if (elapsed < 0x80) {
-      if (elapsed < 0) {
-        this->fBrightness = 0;
-      }
-      else {
-        elapsed = ((int)this->fDestBrightness - (int)this->fStartBrightness) * elapsed;
-        if (elapsed < 0) {
-          elapsed = elapsed + 0x7f;
-        }
-        this->fBrightness = this->fStartBrightness + (short)(elapsed >> 7);
-      }
-    }
-    else {
+    if (elapsed >= 0x80) {
       this->fBrightness = this->fDestBrightness;
     }
+    else if (elapsed >= 0) {
+      this->fBrightness = this->fStartBrightness +
+          (short)(((int)this->fDestBrightness - (int)this->fStartBrightness) * elapsed / 0x80);
+    }
+    else {
+      this->fBrightness = 0;
+    }
   }
-  elapsed = (this->fBrightness == 0 && this->fDestBrightness == 0) ? 0 : 1;
-  if ((elapsed == 0) &&
-     (VIDEO_abortplayback(this->hVideo), elapsed = ticks[0],
-     this->fTicksSet == 0)) {
-    this->fTicksSet = 1;
-    this->fVideoTicks = elapsed;
-    this->fMovieTrack = (short)trackInfo.fTrackID;
+  if ((this->fBrightness == 0) && (this->fDestBrightness == 0)) {
+    VIDEO_abortplayback(this->hVideo);
+    if (this->fTicksSet == 0) {
+      elapsed = ticks[0];
+      this->fTicksSet = 1;
+      this->fVideoTicks = elapsed;
+      this->fMovieTrack = (short)(signed char)trackInfo.fTrackID;
+    }
   }
   return;
 }

@@ -389,6 +389,29 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
 }
 
 /* ---- Physics_DoBarrierCheck__FP8Car_tObj  [PHYSICS.CPP:761-932] SLD-VERIFIED ---- */
+/* ==== 2026-08-10 MOBILE-TWIN CROSS-CHECK (NFSU2-mobile sub_5046C6, x86; extraction at
+ * scratchpad/mobile_DoBarrierCheck.c; VA map in memory reference-nfs4-mobile-nfsu2) ====
+ * STRUCTURE CONFIRMED 1:1: every block of this body corresponds to the mobile twin
+ * (right<<9 head, vel_b dot, two width dots w/ duplicated fixedmult abs arms, the two
+ * threshold ifs, widthVector arms, the objAltitude/orientation/flightTime gate,
+ * TestWithPlane arm, AttenuateVelocity+CorrectPostCollisionYaw else-arm). No missing
+ * statements, no wrong-arg bugs.
+ * ⚠️ MOBILE PORT-FIX CAVEAT (do NOT adopt): the mobile ZEROES `normal` before the
+ * else-arm CorrectPostCollisionYaw call; RETAIL PSX DOES NOT (oracle .L800A99EC..
+ * reloads sp+0x38/3C/40 with no zero stores -- the uninitialized-normal pass-through
+ * is retail's real behavior; Ideaworks fixed it in 2005). Mobile also swapped the
+ * otherObj/sfxType store order -- ours already matches retail (otherObj first).
+ * PC TWIN: NONE -- pcmap map_a10 rules it NOT-FOUND (PC folded barrier collision
+ * into the newton/world TU, different decomposition); mobile is the only twin.
+ * FALSIFIED FROM THE 214 BASIN (all re-gated): mobile temp/copy head shape (y/z temps
+ * feeding the first dot, x direct) 238@350; position-first vel_b operand order (oracle
+ * `addu v0,a1,v0` suggests it) 226; 05E volatile views on the first dot's right reads
+ * x3 223@353 / x-only 227 -- the oracle's `sw a1,40(sp); lw a2,40(sp)` immediate
+ * reload of right.x is NOT volatile-reachable (the view adds the reload without
+ * removing the register use). Residual 214 = whole-body register-name rotation +
+ * emission interleave over IDENTICAL statements (ours 352 vs oracle 358, the 6-insn
+ * gap = the receipted `right` stack-reload cluster) => qtytrace/sched1 instrument
+ * class, consistent with the W57-A9/A12 blocked-window receipts. */
 int Physics_DoBarrierCheck(Car_tObj *carObj)
 
 {

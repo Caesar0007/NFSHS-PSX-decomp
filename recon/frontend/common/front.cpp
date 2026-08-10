@@ -653,12 +653,13 @@ void Front_InitGraphicsAndDisplayLoading(void)
    
    [ghidra-meta] section: front.text */
 
-/* MATCH: 91 -> 43. The retail source is a switch with InitialLoad falling
-   through to GameSetup, followed by the PostGame case; restoring that order
-   and the SYM-named dummyCars local aligns the central CFG. A shared `one`
-   value restores retail s4. Remaining diffs require the frontEnd base to live
-   in s5 without promoting it ahead of role/result (an explicit pointer was
-   measured at 118-122 diffs), plus the small starting-money expression. */
+/* MATCH: PASS (173/173).  The retail source is a switch with InitialLoad
+   falling through to GameSetup, followed by the PostGame case.  Its car-buy
+   guard materializes a zero-initialized condition accumulator, then assigns
+   the money comparison only when the owned-car test succeeds.  Compound
+   addition preserves the `extraMoney + one` expression tree, while storing
+   the loading-text literal before initializing the shared `one` value gives
+   retail's address-materialization order and s4 lifetime. */
 
 int Front_Menu(tFront_ProcessingType role)
 
@@ -666,19 +667,23 @@ int Front_Menu(tFront_ProcessingType role)
   long extraMoney;
   int result;
   int one;
+  int needCar;
   tMenuCommand tempCommand;
   
   result = kApp_Command_StartRace;
+  _7tScreen_fSuppressLoadingText = 1;
   one = 1;
-  _7tScreen_fSuppressLoadingText = one;
   gLargestUnused[0] = largestunused();
   FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
   InitializeSpinningCars();
   Front_ConstructAll();
-  if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1 &&
-      tournamentManager.fMoney < one) {
+  needCar = 0;
+  if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) {
+    needCar = tournamentManager.fMoney < one;
+  }
+  if (needCar) {
     extraMoney = carManager.CheapestCarStockPrice();
-    tournamentManager.fMoney = tournamentManager.fMoney + extraMoney + one;
+    tournamentManager.fMoney += extraMoney + one;
   }
   switch (role) {
   case kFront_InitialLoad:

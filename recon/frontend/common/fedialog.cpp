@@ -792,24 +792,24 @@ tDialogYesNo::tDialogYesNo()
 
 
 /* ---- tDialogYesNo::Draw  [FEDIALOG.CPP:773-815] SLD-VERIFIED ---- */
-/* MATCH: 78 -> 16 (W57-A5), and the count is now EXACT 98/98 (was 104/98).
+/* MATCH: 78 -> 16 -> 12 -> 6 (W57-A5/W59), count EXACT 98/98 (was 104/98).
    THE LEVER: the two Ghidra locals `sVar1 = this->top; sVar2 = this->height;` were
    fabricated -- they held two field values in TWO callee-saved regs across the
    FETextRender_SetABR call (forcing an extra saved reg, `fp`, + its save/restore, and
    `lhu`+late-extend instead of `lh`).  Reading the fields INLINE in the `y` expression
    makes gcc load-and-add them in one reg pair exactly like retail.  Also moved
    `ptVar8 = this;` after the `x` init (preheader statement order).
-   REMAINING 16, two clusters, both position-only:
-   (a) 6: the preheader emits `addu s5,s2,zero` (ptVar8=this) BEFORE the two LICM-hoisted
-       global-address materializations; retail emits it after (and uses v0, not v1, as the
-       second %hi scratch).  Source statement order does NOT move it -- the two `lui`s are
-       loop-invariant addresses hoisted by LICM, so their position is set by the loop pass,
-       not by the preheader statement list.
-   (b) 10: retail computes `y` (lh 104 + lh 108, and the `col` capture) INSIDE the
-       SetABR(1,true) arg-setup window, with `addiu s0,s0,-11` filling the jal slot; ours
-       computes it after the call.  Writing the `y` statement BEFORE the SetABR call was
-       tried and is WORSE (99 insns / 13 diffs -- it costs an extra insn), so the hoist is
-       a scheduler decision, not a statement-order one: this is the 06E/07E sched1 gap. */
+   W59 source-authority corrections: retail's SLD/IDA sequence is a natural
+   `y = top + height; y -= 11;` followed by a `(short)y` call argument, not the
+   Ghidra-derived multiply-by-65536/shift-back expression (16->12).  Explicit
+   `rgbBase`/`textBase` loop invariants make LICM emit both address materializations
+   before `ptVar8=this`, reuse v0 for their %hi scratch, and seal the whole six-diff
+   preheader cluster (12->6).
+   REMAINING 6 are position-only: ours puts `add`, `-11`, and the short-cast `sll`
+   one call later than retail (SetABR delay, TextSys_Word delay, then ordinary body).
+   FALSIFIED in the 6-diff basin: y-subtract before SetABR and a named short cast are
+   neutral; y source order after SetABR worsens to 18; identity/read-only fences at
+   either y boundary cost one instruction and worsen to 7-9. */
 
 void tDialogYesNo::Draw()
 
@@ -824,6 +824,8 @@ void tDialogYesNo::Draw()
   int i;
   int x;
   tDialogYesNo *ptVar8;
+  int *rgbBase;
+  char *textBase;
   
   pa_Var3 = this->_vf;
   (*pa_Var3[1][0].pfn)((int)this + pa_Var3[1][0].delta);
@@ -835,6 +837,8 @@ void tDialogYesNo::Draw()
     x = (int)this->left +
             ((int)((u_int)(u_short)this->width
                   << 0x10) >> 0x12);
+    rgbBase = kRGBVals;
+    textBase = (char *)textDefinitions;
     ptVar8 = this;
     while( true ) {
       if (2 <= i) break;
@@ -842,11 +846,12 @@ void tDialogYesNo::Draw()
       if (i == this->ReturnValue) {
         idx = 1;
       }
-      col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[8][idx + 3]],(int)this->fFadeText);
+      col = CalcFadeVal(rgbBase[(u_char)textBase[idx + 0x33]],(int)this->fFadeText);
+      y = (int)this->top + (int)this->height;
       FETextRender_SetABR(1,true);
-      y = ((int)this->top + (int)this->height + -0xb) * 0x10000;
+      y = y - 0xb;
       sMenuText = TextSys_Word(ptVar8->yesnowords[0]);
-      FETextRender_FullTextRGB(sMenuText,(short)x,(short)((u_int)y >> 0x10),col,'\0',2);
+      FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,col,'\0',2);
       FETextRender_SetABR(0,false);
       ptVar8 = (tDialogYesNo *)
                &(ptVar8)->fPermShapes.fFile;

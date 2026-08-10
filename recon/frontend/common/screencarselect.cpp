@@ -1052,13 +1052,15 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 
 
 /* ---- tScreenCarSelect::DrawForeground  [SCREENCARSELECT.CPP:1015-1264] ---- */
-/* W64 (2026-08-10): 65 -> 23 diffs at 556/557 instructions.  Raw retail uses
+/* W64 (2026-08-11): 65 -> 14 diffs at 557/557 instructions.  Raw retail uses
    the subclass GetCar/SetCar vtable entries 13/12 (offsets 104/96), not the
    decompiler's base-table 3/2 indices.  SYM removes the invented state/overlay
    temporaries, while the modulo-first text-ID expression reproduces retail's
-   signed divide-by-19 chain.  A loop-local direction value preserves the
-   invariant `1` in $t0.  The remaining groups are the currentItem/menuDefs
-   saved-register handoff, the 996 association, and fadeVal's $t0 home. */
+   signed divide-by-19 chain.  Separate source temporaries reproduce retail's
+   delayed currentItem/validCar handoffs into $s2/$s5, and a textBase temporary
+   preserves the 996 association.  A loop-local direction value preserves the
+   invariant `1` in $t0.  The remaining groups are one seller-item CSE, loop
+   setup scheduling, and fadeVal's $t0 home. */
 void tScreenCarSelect::DrawForeground()
 
 {
@@ -1066,18 +1068,22 @@ void tScreenCarSelect::DrawForeground()
   tCarInfo carInfo;
   short bShowStats;
   tMenuItem *currentItem;
+  tMenuItem *currentItemValue;
   BOOL validCar;
+  BOOL validCarValue;
   int overlayDirection;
   
-  currentItem = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
-  validCar = (*(*this->_vf)[13].pfn)
+  currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
+  validCarValue = (*(*this->_vf)[13].pfn)
                     (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo);
   bShowStats = false;
+  currentItem = currentItemValue;
+  validCar = validCarValue;
   (menuDefs->itemOpponentUpgrades).fFlags =
        (menuDefs->itemOpponentUpgrades).
        fFlags | 1;
   if (this->fState == 1) {
-    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemGarageCar;
+    bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemGarageCar;
     (menuDefs->itemUpgradeCar).fFlags =
          (menuDefs->itemUpgradeCar).fFlags &
          0xfffffffe;
@@ -1086,6 +1092,7 @@ void tScreenCarSelect::DrawForeground()
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;
     }
+    __asm__("" : : "r"(currentItem));
     if ((validCar != 0) && (carInfo.fCarClass < 5)) {
       this->fOverlays[4].direction = 1;
     }
@@ -1097,7 +1104,7 @@ void tScreenCarSelect::DrawForeground()
     }
   }
   else if (this->fState == 0) {
-    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemCar) {
+    if ((tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemCar) {
       bShowStats = true;
     }
     (menuDefs->itemColor).fFlags &= 0xfffffffe;
@@ -1108,7 +1115,7 @@ void tScreenCarSelect::DrawForeground()
     }
   }
   else if (this->fState == 2) {
-    if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemDealerCar) {
+    if ((tMenuItemNFS4LeftRightChoice *)currentItemValue == &menuDefs->itemDealerCar) {
       bShowStats = true;
     }
   }
@@ -1181,6 +1188,7 @@ void tScreenCarSelect::DrawForeground()
         int cameraY;
         int cameraZ;
         int textID;
+        int textBase;
         u_long textTicks;
         long elapsedticks;
         short knot1;
@@ -1198,8 +1206,8 @@ void tScreenCarSelect::DrawForeground()
         elapsedticks = (ticks[0] - this->fSpeechTicks) + -0x100;
         cameraZ = 0;
         if ((-1 < elapsedticks) && (-1 < (signed char)carInfo.fSpeechCarID)) {
-          textID = (elapsedticks >> 9) % 0x13 + 0x3e4 +
-                   (signed char)carInfo.fSpeechCarID * 0x13;
+          textBase = (elapsedticks >> 9) % 0x13 + 0x3e4;
+          textID = textBase + (signed char)carInfo.fSpeechCarID * 0x13;
           textTicks = elapsedticks - ((elapsedticks >> 9) << 9);
           textColor = kRGBVals[(byte)textDefinitions[TextSys_WordFlags((short)textID)][4]];
           if (textTicks < 0x80) {

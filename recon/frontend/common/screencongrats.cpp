@@ -30,49 +30,37 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
                char **swapFileName)
 
 {
-  /* MATCH: SYM 8c block = tourneyInfo($s4) + j($s2, the winning place) +
-     i($s0); fsize 64, mask $80ff0000.  The RANKING arm is the INLINE one
-     (oracle `sltiu $v0,$v0,2; bnez $v0,.L80048030` branches AWAY to the
-     small-spin arm), and both 2-way selects are if/ELSE so the second value
-     lands in a branch delay slot. */
-  short ranking;
-  int numRanked;
-  char *prefix;
+  /* MATCH (W69, 63 -> PASS): SYM fixes tourneyInfo=$s4, j=$s2, i=$s0,
+     fsize=64 and mask=$80ff0000.  Build tourneyInfo before the zero stores,
+     express both message choices directly, and keep the racer bound short;
+     the decompiler's prefix/ranking locals changed statement order and the
+     $s4/$s5 allocation.  The trophy test branches away to the switch arm. */
+  short numRanked;
   int i;
   int j;
   tTourneyInfo *tourneyInfo;
 
-  this->fNumSmallSpinShapes = 0;
-  this->fNumSpinShapes = 0;
   tourneyInfo = &(tournamentManager.fDefinition)->fTournaments
       [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
        tournamentManager.fTournament];
-  if (this->congratsMessage == kScreenCongrats_Congrats) {
-    numPermShapes = 0x2b;
-  }
-  else {
-    numPermShapes = 0x16;
-  }
-  if (this->congratsMessage == kScreenCongrats_Congrats) {
-    prefix = "zcong";
-  }
-  else {
-    prefix = "zelim";
-  }
+  this->fNumSmallSpinShapes = 0;
+  this->fNumSpinShapes = 0;
+  numPermShapes = this->congratsMessage == kScreenCongrats_Congrats ? 0x2b : 0x16;
   /* 🔴 CORRECTNESS: the "" here were stale Ghidra rodata placeholders -- the
      oracle sprintf()s into fPermFileNameBuf and hands that buffer back.
      Writing through a string literal was a real runtime bug. */
-  sprintf(fPermFileNameBuf,"%s%d",prefix,(uint)(byte)frontEnd.language);
+  sprintf(fPermFileNameBuf,"%s%d",
+          this->congratsMessage == kScreenCongrats_Congrats ? "zcong" : "zelim",
+          (uint)(byte)frontEnd.language);
   *permFileName = fPermFileNameBuf;
   if (2 <= (u_int)(this->trophy - kTrophyCar)) {
     j = 900;
-    numRanked = (int)(((int)(short)tournamentManager.fNumRacers +
-                 (uint)(tourneyInfo->fKnockout != '\0')) * 0x10000) >> 0x10;
+    numRanked = (short)((short)tournamentManager.fNumRacers +
+                        (tourneyInfo->fKnockout != '\0'));
     i = 1;
     if (0 < numRanked) {
       do {
-        ranking = PlayerRanking(&tournamentManager,(short)i);
-        if (ranking == 0) {
+        if (PlayerRanking(&tournamentManager,(short)i) == 0) {
           j = i;
         }
         i = i + 1;

@@ -122,6 +122,10 @@ int tScreenCongrats::GetCar(tCarInfo &carInfo)
 void tScreenCongrats::DrawBackground()
 
 {
+  /* W65: 54->21.  Retail source shapes recovered here include base-first
+     virtual-thunk arithmetic, explicit stripe defaults, signed division by
+     -4 in the spin timer, and the showroom-flag side effect in DrawCar's
+     brightness argument.  The residual is isolated to spin-block scheduling. */
   int fJustFadeOff;
   static u_long carRotate;
   tDrawShapeExtended drawFlags;
@@ -139,7 +143,8 @@ void tScreenCongrats::DrawBackground()
   drawFlags2.custom_shapes = this->fSwapShapes.fShapes;
   vtbl = this->_vf;
   carRotate += 3;
-  (*vtbl[1][1].pfn)(this->fPermShapes.fFilename + vtbl[1][1].delta + -0x14);
+  (*vtbl[1][1].pfn)
+      ((char *)((int)this->fPermShapes.fFilename + (vtbl[1][1].delta + -0x14)));
   if ((((this->trophy == kTrophyCar) && (this->starttick == -1)) ||
       ((this->fGotCar == 0) && (this->trophy == kTrophyCar))) ||
      ((this->trophy == kTrophyCar) &&
@@ -193,17 +198,11 @@ void tScreenCongrats::DrawBackground()
         }
       }
       else {
-        int spinTick;
-
         this->framenum = (ticks[0] - this->starttick) / 2;
         if (0x13 < this->framenum) {
           scale = true;
           this->framenum = 0x14;
-          spinTick = this->starttick;
-          if (spinTick < 0) {
-            spinTick += 3;
-          }
-          if ((ticks[0] - (spinTick >> 2)) % 0x5dc < 0x2d) {
+          if ((ticks[0] + this->starttick / -4) % 0x5dc < 0x2d) {
             this->InExtraSpin = 1;
             this->InExtraSpinTick = ticks[0];
           }
@@ -245,7 +244,6 @@ void tScreenCongrats::DrawBackground()
       }
     }
   }
-  StripeRGB = 0x30022;
   if (this->congratsMessage == kScreenCongrats_Congrats) {
     switch (this->trophy) {
     case kTrophyGold:
@@ -258,7 +256,13 @@ void tScreenCongrats::DrawBackground()
     case kTrophyBronze:
       StripeRGB = 0x3044;
       break;
+    default:
+      StripeRGB = 0x30022;
+      break;
     }
+  }
+  else {
+    StripeRGB = 0x30022;
   }
   bannerframe = (this->congratsMessage == kScreenCongrats_Congrats) ? 0x2A : 0x15;
   drawFlags3.tint[0] = CalcFadeVal(StripeRGB,this->fScreenFadeVal);
@@ -296,9 +300,8 @@ void tScreenCongrats::DrawBackground()
     }
   }
   if ((this->trophy == kTrophyCar) && (this->fGotCar != 0)) {
-    showRoomFlag[0] = 0;
     DrawCar(&this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,
-            -0x80,true,carRotate,(tPlayer)this->fCarPlayer);
+            (showRoomFlag[0] = 0, -0x80),true,carRotate,(tPlayer)this->fCarPlayer);
   }
   return;
 }

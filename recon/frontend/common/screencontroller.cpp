@@ -64,11 +64,9 @@ SetActuators_clearAndRet:
 void Controller_SetRamp(void)
 
 {
-  /* MATCH (06A, SYM 8c @0x80043250): the only named locals are `i` (SHORT, loop
-     counter, REG s2), `type` (INT), `config` (INT). device/devType/ctrl_type were
-     Ghidra-fabricated -- inlined so the store constant 1 stays a fresh `li v0,1`
-     (shared by the 3 top-of-body stores) while the comparison constant 1 is the
-     ONE held callee-saved reg (s3) across the calls, exactly as retail. */
+  /* MATCH (06A, SYM 8c @0x80043250): the recovered semantic locals are `i`
+     (SHORT, loop counter, REG s2), `type` (INT), and `config` (INT).
+     device/devType/ctrl_type were Ghidra-fabricated and remain inlined. */
   short i;
   int type;
   int config;
@@ -78,24 +76,28 @@ void Controller_SetRamp(void)
      fuses the sign-extend into the address (sra ..,15). */
   i = 0;
   while (1) {
+    int one;
+
     if (i >= 2) break;
     /* MATCH (SLD 797 = ONE source line): a nested ternary -- the if/else-if
        chain lays the `0` arm out inline, the oracle has it LAST. */
     type = frontEnd.controlType[i] == 0x23 ? 0 :
            ((frontEnd.controlType[i] == 0x53 || frontEnd.controlType[i] == 0x73) ? 1 : 2);
     config = frontEnd.controlConfig[i];
-    /* RECEIPT (W56-A7): residual 26 diffs = gcc LICM hoists the STORE constant 1
-       into a callee-saved reg (s4) as a 3rd loop-invariant, forcing a 7th saved
-       reg (s6); retail hoists ONLY the comparison-1 (s3, used across the 3 calls)
-       and keeps `li v0,1` INSIDE the loop for these 3 stores (v0 local, dies
-       before the first call). Same source shape now matches the SYM 8c local set
-       (i/type/config) but gcc's move_movables cost model hoists one more invariant
-       than retail -- a LICM-selectivity/register-pressure gap (needs the LICM/
-       qtytrace instrument). Falsified: int-vs-char store literal (no change);
-       06A local-set alignment (neutral, still 26). */
-    frontEnd.rampGas[i] = '\x01';
-    frontEnd.rampBrake[i] = '\x01';
-    frontEnd.rampSteer[i] = '\x01';
+    /* MATCH (2026-08-10, 26 -> PASS 83/83): plain literals let LICM hoist the
+       store-only 1 into $s4, which adds an $s6 save and two instructions.  `one`
+       is only an identity-fence carrier: the empty template retains retail's
+       per-iteration `li $v0,1` without emitting code.  The read-only `config`
+       fence immediately before it preserves retail's `lbu $v1,866($s0)` then
+       `li $v0,1` schedule.  Retail still hoists the comparison constant 1 into
+       $s3 across the three calls.  A plain void scheduling barrier and literal
+       type changes were neutral and reverted. */
+    __asm__("" : : "r"(config));
+    one = 1;
+    __asm__("" : "=r"(one) : "0"(one));
+    frontEnd.rampGas[i] = (char)one;
+    frontEnd.rampBrake[i] = (char)one;
+    frontEnd.rampSteer[i] = (char)one;
     if (InGame_GetDevice(GetPSXPadValue(mappings[config][0][type],0)) == 1) {
       frontEnd.rampSteer[i] = '\0';
     }

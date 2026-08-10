@@ -201,6 +201,11 @@ void Front_ResetPSXAnalogs(int player)
    delay slot.  Zero instructions, no operands, and no hard-register pin;
    authoritative residual 169 -> 163 (203 -> 207 instructions, retail 222). */
 
+/* MATCH W61 (2026-08-10): the 0x200000 analog arm is not fully cross-jumped
+   with the other packed-axis arms in retail.  Keeping its high-word build as
+   the initializer and appending the low byte with |= restores four instructions
+   and lowers the authoritative residual 163 -> 161 (207 -> 211, retail 222). */
+
 int GetPSXPadValue(int value,int player)
 
 {
@@ -228,8 +233,8 @@ GetPSXPadValue_gotType:
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000;
+      newControl |= ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case 0x100000:
       newControl = player << 0x1e |

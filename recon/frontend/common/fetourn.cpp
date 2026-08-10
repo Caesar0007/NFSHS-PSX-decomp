@@ -552,132 +552,119 @@ void tTournamentManager::UpdateTrackFinishPoints()
 
 
 /* ---- tTournamentManager::AdvanceToNextTrack  [FETOURN.CPP:569-700] ---- */
+/* MATCH (W64, 80->PASS): sum fTournOffset+fTournament before the one 84-byte
+   scale, then restore the SYM-only locals (currentTourney, tourn, carInfo,
+   currentTier, i, numGarageCars).  The tournament IDs are signed chars, the
+   normalized cheat result uses its 0/1 XOR test, and the garage-full award arm
+   is laid out before PurchaseCar.  Reusing fCompletedBonusMoney for the money
+   addition gives retail's single price load; returning fCurrentTrack directly
+   preserves its word load despite this function's short return type. */
 
 short tTournamentManager::AdvanceToNextTrack()
 
 {
-  byte bVar1;
-  short sVar2;
-  tTourneyInfo *tourn;
-  short i;
-  int iVar3;
-  tCarInfo *ptVar4;
-  void *pvVar5;
-  int iVar6;
-  tTournamentDefinition *ptVar7;
-  tTierInfo *currentTier;
-  tTierInfo *ptVar8;
-  int numGarageCars;
   tTourneyInfo *currentTourney;
-  tTourneyInfo *ptVar9;
+  tTourneyInfo *tourn;
   tCarInfo *carInfo;
+  tTierInfo *currentTier;
+  short i;
+  int numGarageCars;
   
-  ptVar9 = this->fDefinition->fTournaments +
-           (uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament;
-  sVar2 = -1;
-  if (this->fCurrentTrack <= (int)(ptVar9->fNumTracks - 1)) {
+  currentTourney = this->fDefinition->fTournaments +
+                   ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
+  if (this->fCurrentTrack <= (int)(currentTourney->fNumTracks - 1)) {
     (this->fAwards).fMoney = 0;
     (this->fAwards).fTournMoney = 0;
     (this->fAwards).fActivateFlags = 0;
     (this->fAwards).fAwardCar = 0;
     this->UpdateTrackFinishMoney();
     this->UpdateTrackFinishPoints();
-    if (this->fCurrentTrack == ptVar9->fNumTracks - 1) {
+    if (this->fCurrentTrack == currentTourney->fNumTracks - 1) {
       this->UpdateTournFinishMoney();
       this->CalcTierFinishPrize();
     }
-    iVar3 = this->fCurrentTrack + 1;
-    this->fCurrentTrack = iVar3;
-    if ((int)(uint)ptVar9->fNumTracks <= iVar3) {
-      bVar1 = this->fCompetitors[0].fPosition;
+    this->fCurrentTrack = this->fCurrentTrack + 1;
+    if ((int)(uint)currentTourney->fNumTracks <= this->fCurrentTrack) {
       (this->fAwards).fAwardCarGarageFull = 0;
       (this->fAwards).fCompletedGarageFull = 0;
-      if (bVar1 < 4) {
-        if ((ptVar9->fActivateFlags & 1) != 0) {
+      if (this->fCompetitors[0].fPosition < 4) {
+        if ((currentTourney->fActivateFlags & 1) != 0) {
           (this->fAwards).fActivateFlags = (this->fAwards).fActivateFlags | 1;
-          (this->fAwards).fActivateTrack = ptVar9->fActivatedTrack;
+          (this->fAwards).fActivateTrack = currentTourney->fActivatedTrack;
         }
-        if ((ptVar9->fActivateFlags & 2) != 0) {
+        if ((currentTourney->fActivateFlags & 2) != 0) {
           (this->fAwards).fActivateFlags = (this->fAwards).fActivateFlags | 2;
-          (this->fAwards).fActivateCarClass = (uint)ptVar9->fActivatedCarClass;
+          (this->fAwards).fActivateCarClass = (uint)currentTourney->fActivatedCarClass;
         }
-        if ((ptVar9->fActivateFlags & 4) != 0) {
+        if ((currentTourney->fActivateFlags & 4) != 0) {
           (this->fAwards).fActivateFlags = (this->fAwards).fActivateFlags | 4;
-          (this->fAwards).fActivateCar = (uint)ptVar9->fActivatedCar;
+          (this->fAwards).fActivateCar = (uint)currentTourney->fActivatedCar;
         }
-        if ((ptVar9->fActivateFlags & 8) != 0) {
+        if ((currentTourney->fActivateFlags & 8) != 0) {
           (this->fAwards).fActivateFlags = (this->fAwards).fActivateFlags | 8;
-          (this->fAwards).fActivateTrackClass = (uint)ptVar9->fActivatedTrackClass;
+          (this->fAwards).fActivateTrackClass = (uint)currentTourney->fActivatedTrackClass;
         }
         (this->fAwards).fCompletedTier = 0;
       }
       if (this->fCompetitors[0].fPosition < 2) {
-        if (ptVar9->fAwardCar != '\0') {
-          ptVar4 = carManager.GetCarFromID((ushort)ptVar9->fAwardCarModel);
+        if (currentTourney->fAwardCar != '\0') {
+          carInfo = carManager.GetCarFromID((ushort)currentTourney->fAwardCarModel);
           (this->fAwards).fAwardCar = 1;
-          (this->fAwards).fAwardCarModel = (uint)ptVar9->fAwardCarModel;
-          (this->fAwards).fAwardCarColor = ptVar4->fDefaultColor;
-          (this->fAwards).fAwardCarUpgrades = ptVar9->fAwardCarUpgrades;
-          sVar2 = carManager.GetNumOwnedCars(0);
-          if (0x1f < sVar2) {
+          (this->fAwards).fAwardCarModel = (uint)currentTourney->fAwardCarModel;
+          (this->fAwards).fAwardCarColor = carInfo->fDefaultColor;
+          (this->fAwards).fAwardCarUpgrades = currentTourney->fAwardCarUpgrades;
+          if (0x1f < carManager.GetNumOwnedCars(0)) {
             (this->fAwards).fAwardCarGarageFull = 1;
-            (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + ptVar4->fPrices[0];
-            (this->fAwards).fAwardCarBonusMoney = ptVar4->fPrices[0];
+            (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + carInfo->fPrices[0];
+            (this->fAwards).fAwardCarBonusMoney = carInfo->fPrices[0];
           }
         }
-        if ((ptVar9->fActivateFlags & 0x10) != 0) {
+        if ((currentTourney->fActivateFlags & 0x10) != 0) {
           (this->fAwards).fActivateFlags = (this->fAwards).fActivateFlags | 0x10;
-          (this->fAwards).fActivateCheat = (uint)ptVar9->fActivatedCheat;
+          (this->fAwards).fActivateCheat = (uint)currentTourney->fActivatedCheat;
         }
         (this->fAwards).fCompletedTier = 0;
-        this->fBestPlacement[ptVar9->fTournamentID] = '\x01';
-        pvVar5 = FECheat_IsCheatEnabled(this->fTier + cheat_FinishedTournament);
-        if (pvVar5 != (void *)0x1) {
-          iVar3 = this->fTier;
+        this->fBestPlacement[(signed char)currentTourney->fTournamentID] = '\x01';
+        if (((int)(long)FECheat_IsCheatEnabled(this->fTier + cheat_FinishedTournament) ^ 1) != 0) {
           (this->fAwards).fCompletedTier = 1;
-          ptVar7 = this->fDefinition;
-          ptVar8 = ptVar7->fTiers + iVar3;
+          currentTier = this->fDefinition->fTiers + this->fTier;
           i = 0;
-          if (ptVar8->fNumTournaments != '\0') {
+          if (currentTier->fNumTournaments != '\0') {
             do {
-              if (this->fBestPlacement
-                  [ptVar7->fTournaments[(uint)ptVar8->fTournOffset + i].fTournamentID]
-                  != '\x01') {
+              tourn = this->fDefinition->fTournaments + ((uint)currentTier->fTournOffset + i);
+              if (this->fBestPlacement[(signed char)tourn->fTournamentID] != '\x01') {
                 (this->fAwards).fCompletedTier = 0;
               }
               i = i + 1;
-            } while (i < (int)(uint)ptVar8->fNumTournaments);
+            } while (i < (int)(uint)currentTier->fNumTournaments);
           }
           if ((this->fAwards).fCompletedTier != 0) {
-            sVar2 = carManager.GetNumOwnedCars(0);
-            iVar3 = (int)sVar2;
+            numGarageCars = carManager.GetNumOwnedCars(0);
             if ((this->fAwards).fAwardCar != 0) {
-              iVar3 = iVar3 + 1;
+              numGarageCars = numGarageCars + 1;
             }
             FECheat_ActivateBonus(this->fTier + cheat_FinishedTournament);
             (this->fAwards).fCompletedCar = this->fTier + cm_BonusCar1;
-            ptVar4 = carManager.GetCarFromID((short)(this->fAwards).fCompletedCar);
+            carInfo = carManager.GetCarFromID((short)(this->fAwards).fCompletedCar);
             carManager.SetCarAvailable((tCarModels)(this->fAwards).fCompletedCar,true);
             carManager.SetCarViewable((tCarModels)(this->fAwards).fCompletedCar,true);
-            if (iVar3 < 0x20) {
-              carManager.PurchaseCar((short)(this->fAwards).fCompletedCar,
-                         (ushort)ptVar4->fDefaultColor,0);
+            if (0x1f < numGarageCars) {
+              (this->fAwards).fCompletedGarageFull = 1;
+              (this->fAwards).fCompletedBonusMoney = carInfo->fPrices[0];
+              this->fMoney = this->fMoney + (this->fAwards).fCompletedBonusMoney;
             }
             else {
-              (this->fAwards).fCompletedGarageFull = 1;
-              iVar6 = ptVar4->fPrices[0];
-              iVar3 = this->fMoney;
-              (this->fAwards).fCompletedBonusMoney = iVar6;
-              this->fMoney = iVar3 + iVar6;
+              carManager.PurchaseCar((short)(this->fAwards).fCompletedCar,
+                         (ushort)carInfo->fDefaultColor,0);
             }
             (this->fAwards).fCompletedText = (short)this->fTier + 0x3d9;
           }
         }
       }
     }
-    sVar2 = (short)this->fCurrentTrack;
+    return this->fCurrentTrack;
   }
-  return sVar2;
+  return -1;
 }
 
 

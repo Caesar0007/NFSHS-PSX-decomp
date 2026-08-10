@@ -381,6 +381,12 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
      `fade`/`fadeInc` were a temp for a plain `this->fFadeIcon[i] +/- 8`
      read-modify-write. `i` is SHORT throughout (status code AND every loop
      counter share the one register). */
+  /* MATCH (W64, 64->PASS): retail parks the pulled-card cleanup out of line
+     between the zero/nonzero fGetNewIcons paths; the normal loop jumps back
+     to it only on the error flag.  Positive valid-icon and fade-out arms give
+     the retail block order, the LoadIcon arm falls through to the shared
+     fGetNewIcons test, and the ready scan is a natural `for` loop.  That final
+     spelling lets GCC retain pCI as its unnamed loop-invariant temporary. */
   short i;
 
   this->pCI = MCRD_getcard(this->card);
@@ -459,17 +465,19 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
      (physically later) address. */
   if (this->fGetNewIcons == 0) {
     this->fReadyToGetNewIcons = 0;
+    goto DrawMC_perFileLoopTop;
   }
-  else {
-    i = 0;
-    this->fReadyToGetNewIcons = 1;
-    if (0 < this->pCI->numfiles) {
-      do {
-        if (this->fFadeIcon[i] < 0x80) {
-          this->fReadyToGetNewIcons = 0;
-        }
-        i = i + 1;
-      } while (i < this->pCI->numfiles);
+  goto DrawMC_checkIconFades;
+DrawMC_cardPulled:
+  this->ReleaseIcons();
+  this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
+  this->fGetNewIcons = 0;
+  goto DrawMC_afterPerFileLoop;
+DrawMC_checkIconFades:
+  this->fReadyToGetNewIcons = 1;
+  for (i = 0; i < this->pCI->numfiles; i = i + 1) {
+    if (this->fFadeIcon[i] < 0x80) {
+      this->fReadyToGetNewIcons = 0;
     }
   }
 DrawMC_perFileLoopTop:
@@ -477,24 +485,21 @@ DrawMC_perFileLoopTop:
     if (0 < this->pCI->numfiles) {
       do {
         if (this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons != 0) {
-          this->ReleaseIcons();
-          this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
-          this->fGetNewIcons = 0;
-          break;
+          goto DrawMC_cardPulled;
         }
         if ((this->goticon[i] == '\0') && (CURRENTLYUSINGMEMCARD == 0)) {
           if (this->fGetNewIcons == 0) {
             this->LoadIcon(i);
-            goto DrawMC_getNewIconsCheck;
           }
+          else {
+            goto DrawMC_readyToGetNewIcons;
+          }
+        }
+        if (this->fGetNewIcons != 0) {
 DrawMC_readyToGetNewIcons:
           if (this->fReadyToGetNewIcons != 0) {
             this->goticon[i] = '\0';
           }
-        }
-        else {
-DrawMC_getNewIconsCheck:
-          if (this->fGetNewIcons != 0) goto DrawMC_readyToGetNewIcons;
         }
         if (CURRENTLYUSINGMEMCARD == 0) {
           if (this->goticon[i] != '\0') {
@@ -504,13 +509,13 @@ DrawMC_getNewIconsCheck:
                  ) {
                 this->checkingstart = 0;
               }
-              if ((this->theNFS4icon == -1) || (this->goticon[this->theNFS4icon] == '\0')) {
-                this->fMemCardMessageTextSys = 0x284;
-              }
-              else {
+              if ((this->theNFS4icon != -1) && (this->goticon[this->theNFS4icon] != '\0')) {
                 this->fMemCardMessageTextSys = -1;
                 sprintf(this->fMemCardMessage,
                            (char *)((int)this->fMemTitle + this->theNFS4icon * 0x20));
+              }
+              else {
+                this->fMemCardMessageTextSys = 0x284;
               }
             }
             goto DrawMC_iconActive;
@@ -519,13 +524,7 @@ DrawMC_getNewIconsCheck:
         else {
 DrawMC_iconActive:
           if (this->goticon[i] != '\0') {
-            if ((this->fGetNewIcons == 0) || (this->fReadyToGetNewIcons != 0)) {
-              this->fFadeIcon[i] = this->fFadeIcon[i] - 8;
-              if (this->fFadeIcon[i] < 0) {
-                this->fFadeIcon[i] = 0;
-              }
-            }
-            else {
+            if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons == 0)) {
               this->fFadeIcon[i] = this->fFadeIcon[i] + 8;
               if (0x80 < this->fFadeIcon[i]) {
                 this->fFadeIcon[i] = 0x80;
@@ -538,12 +537,19 @@ DrawMC_iconActive:
                 this->numblock[i] = '\0';
               }
             }
+            else {
+              this->fFadeIcon[i] = this->fFadeIcon[i] - 8;
+              if (this->fFadeIcon[i] < 0) {
+                this->fFadeIcon[i] = 0;
+              }
+            }
             this->PlaceIcons(i,fadeval);
           }
         }
         i = i + 1;
       } while (i < this->pCI->numfiles);
     }
+DrawMC_afterPerFileLoop:
   if ((this->fGetNewIcons != 0) && (this->fReadyToGetNewIcons != 0)) {
     this->fGetNewIcons = 0;
   }

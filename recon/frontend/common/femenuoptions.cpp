@@ -1766,12 +1766,12 @@ tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 /* ---- tInsideBoxSongMenu::Draw  [FEMENUOPTIONS.CPP:1271-1314] SLD-VERIFIED ---- */
 
-/* MATCH W61: 126 -> 29 diffs.  SYM authenticates only j, drawY and song;
-   removing the Ghidra pointer walk, SSA scalar copies, and cached vtable row
-   restores retail's indexed fade loops.  drawBaseY is the loop-invariant
-   expression carrier visible in retail $s5.  Short-lived fadeValue carriers
-   recover the single-store clamp lowering, and the on/off arm order follows
-   the raw oracle's nonzero-first branch. */
+/* MATCH W67: 126 -> PASS.  SYM authenticates j, drawY and song; removing the
+   Ghidra pointer walk, SSA scalar copies, and cached vtable row restores
+   retail's indexed fade loops.  The optimized-only expression carriers place
+   slideOffset/width in IDA's gold $s6/$s4 allocation.  Natural FEPlayList
+   ownership plus index-first address arithmetic preserves `addu v0,v0,fp`,
+   while the right-grouped Y sum reproduces retail's addition chain. */
 
 void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short maxheight)
 
@@ -1780,7 +1780,11 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
   int j;
   int drawY;
   int drawBaseY;
-  __vtbl_ptr_type (*vtable)[11];
+  u_int slide;
+  tfrontEnd *fe;
+  int width;
+
+  slide = (u_short)slideOffset;
   
   if (screenAudio->songlist != (AudioMus_tSongList *)0x0) {
     drawBaseY = (short)y + ((short)maxheight - 0x15 >> 1);
@@ -1812,11 +1816,13 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
       }
     }
     j = 0;
+    fe = &frontEnd;
+    width = (short)w;
     drawY = -0x28;
     do {
       song = screenAudio->fSelectedSong + j - 2;
       if ((-1 < song) && (song < screenAudio->songlist->numsongs)) {
-        if (*(int *)((char *)&frontEnd + song * 4 + 0x39c) != 0) {
+        if (*(int *)(song * 4 + (int)fe->FEPlayList) != 0) {
           this->fOnOffFade[j] += 0x20;
         }
         else {
@@ -1828,14 +1834,13 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         if (this->fOnOffFade[j] < 0) {
           this->fOnOffFade[j] = 0;
         }
-        vtable = this->_vf;
-        (*vtable[1][1].pfn)
-                  ((int)this->fItemList + vtable[1][1].delta + -0x10,
+        (*(*(this->_vf + 1))[1].pfn)
+                  ((int)this + (*(this->_vf + 1))[1].delta,
                    song * 0x10000 >> 0x10,(int)x,
-                   (int)(((u_int)(u_short)slideOffset +
-                         (u_int)(u_short)this->fMoving +
-                         drawBaseY + drawY) * 0x10000) >> 0x10,
-                   (int)w,
+                   (int)((slide +
+                         ((u_int)(u_short)this->fMoving +
+                          (drawBaseY + drawY))) * 0x10000) >> 0x10,
+                   width,
                    (int)this->fOnOffFade[j],(int)this->fSelFade[j]);
       }
       drawY = drawY + 0x15;

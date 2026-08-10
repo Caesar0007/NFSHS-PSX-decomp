@@ -550,6 +550,11 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
+/* MATCH: 77 -> 50. `flare_intensity / 4` restores gcc's signed-division bias,
+   `__builtin_abs` restores the retail absolute-value branch/copy shape, and
+   explicit flare x/Offset temporaries reduce the halo loop to allocation/order
+   differences. Remaining hotspots are the halo argument register order, one
+   float-denominator load order, and the final NegCon mode CFG. */
 void tScreenControllerConfig::DrawController()
 
 {
@@ -647,17 +652,13 @@ void tScreenControllerConfig::DrawController()
   }
   if (0 < flare_intensity) {
     int ii = 0;
+    unsigned char (*offsets)[2] = Offset;
+    int x = (int)shakex + 0x7e;
     do {
-      int intensity = flare_intensity;
-      int haloFade = intensity;
-      if (intensity < 0) {
-        haloFade += 3;
-      }
-      Flare_2DHalo((uint)Offset[(byte)this->fCurrentController][0] +
-                   ((int)shakex + 0x7e),
-                 (uint)Offset[(byte)this->fCurrentController][1] +
+      Flare_2DHalo(x + (uint)offsets[(byte)this->fCurrentController][0],
+                 (uint)offsets[(byte)this->fCurrentController][1] +
                    (ii + 0x3f) + (int)shakey,
-                 intensity,haloFade >> 2,0x15);
+                 flare_intensity,flare_intensity / 4,0x15);
       ii++;
     } while (ii < 2);
   }
@@ -732,12 +733,9 @@ DrawCtrl_ticksUpdate:
         this->fArrowFade = 0x80;
       }
     }
-    int fadeRange = (int)this->fAnimFadeStop - (int)this->fAnimFadeStart;
-    int fadeFrame = (int)this->fAnimFadeFrame - (int)this->fAnimFadeStart;
-    fadelevel = (fadeFrame * 0x80) / fadeRange;
-    if (fadelevel < 0) {
-      fadelevel = -fadelevel;
-    }
+    fadelevel = __builtin_abs(
+        (((int)this->fAnimFadeFrame - (int)this->fAnimFadeStart) * 0x80) /
+        ((int)this->fAnimFadeStop - (int)this->fAnimFadeStart));
     fadelevel = fadelevel << 1;
     if (this->SuperFastFadeOut != 0) {
       fadelevel = fadelevel << 1;

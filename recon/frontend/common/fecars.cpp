@@ -734,13 +734,15 @@ void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short pla
 
 /* ---- tCarManager::LoadDescription  [FECARS.CPP:645-702] SLD-VERIFIED ---- */
 
+/* MATCH: direct format/allocation strings avoid a false shared-base CSE, and
+   the top-tested color loop keeps `j` as the retail loop phi instead of
+   peeling its known-zero first iteration. 113 diffs -> PASS (112/112). */
+
 void tCarManager::LoadDescription()
 
 {
-  u_long *input;
-  tCarInfo *ptVar1;
-  tCarInfo *ptVar3;
-  u_long uVar4;
+  char *input;
+  char *data;
   short j;
   short i;
   char filename [80];
@@ -748,14 +750,13 @@ void tCarManager::LoadDescription()
   /* W55-A3 BUGFIX (06C class-5, sprintf-return-as-pointer): Ghidra attributed the
      sprintf `$v0` to `input`; the oracle (80017174 jal loadfileadr / 80017184
      addu $s1,$v0) shows `input` is loadfileadr's return -- sprintf's is discarded. */
-  sprintf(filename,(char *)(bigBuf + 0x1b4),Paths_Paths[0x25],"fecars.car");
+  sprintf(filename,"%s%s",Paths_Paths[0x25],"fecars.car");
   this->ReleaseDescription();
-  input = (u_long *)loadfileadr(filename,0x10);
-  uVar4 = *input;
-  this->fNumCars = uVar4;
-  ptVar1 = reservememadr((char *)(bigBuf + 0x1c8),uVar4 * 0xcc,0);
-  this->fCars = ptVar1;
-  blockmove(input + 1,ptVar1,this->fNumCars * 0xcc);
+  input = (char *)loadfileadr(filename,0x10);
+  this->fNumCars = *(u_long *)input;
+  data = (char *)reservememadr("Car List",this->fNumCars * 0xcc,0);
+  this->fCars = (tCarInfo *)data;
+  blockmove(input + 4,data,this->fNumCars * 0xcc);
   i = 0;
   if (this->fNumCars != 0) {
     do {
@@ -764,22 +765,16 @@ void tCarManager::LoadDescription()
         this->fAvailableCars[this->fCars[i].fCarID] = '\x01';
         this->fViewableCars[this->fCars[i].fCarID] = '\x01';
       }
-      ptVar3 = this->fCars + i;
-      ptVar1 = ptVar3;
-      if ((u_int)(u_char)ptVar3->fNumLightColors + (u_int)(u_char)ptVar3->fNumDarkColors != 0) {
-        do {
-          if ((int)ptVar3->fColorOrder[0] == (u_int)ptVar1->fDefaultColor) {
-            ptVar1->fDefaultColor = (uchar)j;
-            break;
-          }
-          ptVar1 = this->fCars + i;
-          j = j + 1;
-          ptVar3 = (tCarInfo *)(ptVar1->fShapeName + j + -8);
-        } while (j < (int)((u_int)(u_char)ptVar1->fNumLightColors +
-                              (u_int)(u_char)ptVar1->fNumDarkColors));
+      while (j < (int)((u_int)(u_char)this->fCars[i].fNumLightColors +
+                       (u_int)(u_char)this->fCars[i].fNumDarkColors)) {
+        if ((int)(signed char)this->fCars[i].fColorOrder[j] ==
+            (u_int)this->fCars[i].fDefaultColor) {
+          this->fCars[i].fDefaultColor = (uchar)j;
+          break;
+        }
+        j = j + 1;
       }
-      i = i + 1;
-    } while ((u_int)i < this->fNumCars);
+    } while ((u_int)++i < this->fNumCars);
   }
   purgememadr(input);
   return;

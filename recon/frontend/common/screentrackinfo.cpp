@@ -22,48 +22,52 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 }
 
 /* ---- tScreenTrackInfo::DrawBackground  (screentrackinfo.cpp:58) ---- */
+/* MATCH: 113 -> 72. The direct tournament/special-event ternary and one shared
+   loop counter restore the retail CFG; the explicit top-tested list loop keeps
+   one signed list load and avoids GCC's duplicated bottom test. Remaining
+   72 are a whole-body saved-register rotation plus one extra s6 save/restore:
+   ours keeps the tournamentManager base and loop's constant 4 in separate
+   colors, while retail shares s4 after their disjoint live ranges. */
 void tScreenTrackInfo::DrawBackground()
 
 {
-  byte useSpecial;
-  short condTextId;
   tTrackInformation *trackInfo;
   short *pList;
-  tMenuTextState textState;
-  int listIndex;
-  uint condCount;
+  uint i;
   int trackY;
   short trackConditions [4] = { 0xcc, 0xcd, 0xce, 0xcf };  /* .rodata @0x80011f6c: FE condition-label text IDs */
   
   
   trackInfo = GetTrackByID(&trackManager,(short)(this->fTrack).fTrackNumber);
-  useSpecial = frontEnd.tournament;
-  if (frontEnd.tier != '\0') {
-    useSpecial = frontEnd.specialevent;
-  }
-  listIndex = 0;
-  pList = GetTrackList(&tournamentManager,(ushort)(byte)frontEnd.tier,(ushort)useSpecial);
+  pList = GetTrackList(&tournamentManager,(ushort)(byte)frontEnd.tier,
+                       (ushort)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament));
+  i = 0;
   trackY = 0x8f0000;
-  for (; *pList != 0; pList = pList + 1) {
-    textState = textState_Selected;
-    if (listIndex == tournamentManager.fCurrentTrack) {
-      textState = textState_Hilighted;
+  for (;;) {
+    short word = *pList;
+
+    if (word == 0) {
+      break;
     }
-    FETextRender_MenuTextPositioned(*pList,0xaa,(short)((uint)trackY >> 0x10),textState,textType_ScreenInfo);
+    FETextRender_MenuTextPositioned
+              (word,0xaa,(short)((uint)trackY >> 0x10),
+               i == tournamentManager.fCurrentTrack ? textState_Hilighted : textState_Selected,
+               textType_ScreenInfo);
     trackY = trackY + 0x90000;
-    listIndex = listIndex + 1;
+    pList = pList + 1;
+    i = i + 1;
   }
-  condCount = 0;
+  i = 0;
   trackY = 0x8f0000;
   pList = trackConditions;
   do {
-    condTextId = *pList;
-    pList = pList + 1;
-    condCount = condCount + 1;
     FETextRender_MenuTextPositioned
-              (condTextId,0x154,(short)((uint)trackY >> 0x10),textState_Selected,textType_ScreenInfo);
+              (*pList,0x154,(short)((uint)trackY >> 0x10),
+               textState_Selected,textType_ScreenInfo);
+    pList = pList + 1;
+    i = i + 1;
     trackY = trackY + 0x120000;
-  } while (condCount < 4);
+  } while (i < 4);
   FETextRender_MenuTextPositionedJustify
             (SelectListTrackDirection[(this->fTrack).fDirection],0x1e0,0x98,1,textState_Hilighted,
              textType_ScreenInfo);

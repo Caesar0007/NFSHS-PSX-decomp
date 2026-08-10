@@ -929,6 +929,11 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   PinkSlipsErrorCode err;
   int retry;
 
+  /* MATCH W64 PASS (45 -> 0, 219 instructions): rely on the generated
+     tDialogNoInputMessage construction chain instead of replaying its stores
+     manually.  In the WillLoseCar arm, declaring the dialog-base pointer only
+     after sprintf gives it the retail $a0 home and reproduces the string store
+     as 0x90($a0) without extending its live range across the call. */
   /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) +
      tScreen_ctor((tScreen*)&WillLoseCarMessage) manual calls: both are undefined phantom
      externs; the real declared ctors (tDialogYesNo(), tScreen() via the ctor-less tDialog*
@@ -938,29 +943,6 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
      manual tScreen_dtor calls for them dropped too, oracle's two ___7tScreen calls right
      before the epilogue are exactly the implicit auto-dtors at function scope exit). */
   retry = 0;
-  /* manual _vf init chain in oracle store order (see LoadGame/SaveGame) */
-  WillLoseCarMessage._vf = (__vtbl_ptr_type (*)[10])tDialogBase_vtable;
-  WillLoseCarMessage.currentlyOn = 0;
-  WillLoseCarMessage.reservedheight = 0;
-  WillLoseCarMessage.MaxH = 0;
-  WillLoseCarMessage.OffsetY = 0;
-  WillLoseCarMessage.OffsetX = 0;
-  WillLoseCarMessage.height = 0;
-  WillLoseCarMessage.width = 0;
-  WillLoseCarMessage.top = 0;
-  WillLoseCarMessage.left = 0;
-  WillLoseCarMessage.MaxW = 0x120;
-  WillLoseCarMessage.specificPlayer = -1;
-  WillLoseCarMessage._vf = (__vtbl_ptr_type (*)[10])tDialogMessageString_vtable;
-  WillLoseCarMessage.fDefault = 0;
-  WillLoseCarMessage.timeOutTicks = 0;
-  WillLoseCarMessage.Centerit = 0;
-  WillLoseCarMessage.fFullyOpen = 0;
-  /* MATCH: adjacent identical double store survives via volatile (catalog F(c)) */
-  *(volatile long *)&WillLoseCarMessage.timeOutTicks = 0;
-  WillLoseCarMessage.fFadeText = 0x80;
-  WillLoseCarMessage._vf =
-       (__vtbl_ptr_type (*)[10])tDialogNoInputMessage_vtable;
   /* MATCH: RetryCancel stores through a base pointer (oracle addiu v1,sp,16 + offset stores) */
   {
     tDialogYesNo *rc = &RetryCancelDialog;
@@ -1012,10 +994,12 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
         if (WillLoseCar != 0) {
           sprintf(string2,TextSys_Word(WillLoseCar == 2 ? 0x299 : 0x298),
                   PlayerName(player));
-          WillLoseCarMessage.string = string2;
+          tDialogBase *dialog = (tDialogBase *)&WillLoseCarMessage;
+
+          ((tDialogNoInputMessage *)dialog)->string = string2;
           WillLoseCarMessage.OffsetX = 0;
           WillLoseCarMessage.OffsetY = -0x3c;
-          Display((tDialogBase *)&WillLoseCarMessage);
+          Display(dialog);
         }
         {
           tDialogYesNo *rc = &RetryCancelDialog;

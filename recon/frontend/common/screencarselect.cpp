@@ -1042,6 +1042,13 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 
 
 /* ---- tScreenCarSelect::DrawForeground  [SCREENCARSELECT.CPP:1015-1264] ---- */
+/* W64 (2026-08-10): 65 -> 23 diffs at 556/557 instructions.  Raw retail uses
+   the subclass GetCar/SetCar vtable entries 13/12 (offsets 104/96), not the
+   decompiler's base-table 3/2 indices.  SYM removes the invented state/overlay
+   temporaries, while the modulo-first text-ID expression reproduces retail's
+   signed divide-by-19 chain.  A loop-local direction value preserves the
+   invariant `1` in $t0.  The remaining groups are the currentItem/menuDefs
+   saved-register handoff, the 996 association, and fadeVal's $t0 home. */
 void tScreenCarSelect::DrawForeground()
 
 {
@@ -1050,20 +1057,16 @@ void tScreenCarSelect::DrawForeground()
   short bShowStats;
   tMenuItem *currentItem;
   BOOL validCar;
-  signed char state;
-  tOverlay *ovl;
-  short sVar12;
   int overlayDirection;
   
   currentItem = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
-  validCar = (*(*this->_vf)[3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[3].delta,&carInfo);
+  validCar = (*(*this->_vf)[13].pfn)
+                    (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo);
   bShowStats = false;
   (menuDefs->itemOpponentUpgrades).fFlags =
        (menuDefs->itemOpponentUpgrades).
        fFlags | 1;
-  sVar12 = this->fState;
-  if (sVar12 == 1) {
+  if (this->fState == 1) {
     bShowStats = (tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemGarageCar;
     (menuDefs->itemUpgradeCar).fFlags =
          (menuDefs->itemUpgradeCar).fFlags &
@@ -1083,7 +1086,7 @@ void tScreenCarSelect::DrawForeground()
       this->fOverlays[4].direction = -1;
     }
   }
-  else if (sVar12 == 0) {
+  else if (this->fState == 0) {
     if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemCar) {
       bShowStats = true;
     }
@@ -1094,12 +1097,12 @@ void tScreenCarSelect::DrawForeground()
       (menuDefs->itemShowcase).fFlags |= 1;
     }
   }
-  else if (sVar12 == 2) {
+  else if (this->fState == 2) {
     if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemDealerCar) {
       bShowStats = true;
     }
   }
-  else if (sVar12 == 3) {
+  else if (this->fState == 3) {
     if ((tMenuItemNFS4LeftRightChoice *)currentItem == &menuDefs->itemSellerCar) {
       bShowStats = true;
     }
@@ -1115,33 +1118,27 @@ void tScreenCarSelect::DrawForeground()
            (menuDefs->itemSellCar).fFlags | 1;
     }
   }
-  else if (sVar12 == 4) {
+  else if (this->fState == 4) {
     bShowStats = true;
   }
   if (validCar == 0) {
     bShowStats = false;
   }
-  sVar12 = 1;
-  if (!bShowStats) {
-    sVar12 = -1;
-  }
-  this->fOverlays[6].direction = sVar12;
+  this->fOverlays[6].direction = bShowStats ? 1 : -1;
   for (i = 0; i < 4; i++) {
     overlayDirection = 1;
-    ovl = this->fCurrentOverlays[i];
-    if (ovl != (tOverlay *)0x0) {
-      if ((int)ovl->ID == (int)gStateOverlays[this->fState][i]) {
+    if (this->fCurrentOverlays[i] != (tOverlay *)0x0) {
+      if ((int)this->fCurrentOverlays[i]->ID == (int)gStateOverlays[this->fState][i]) {
         continue;
       }
-      ovl->direction = -1;
+      this->fCurrentOverlays[i]->direction = -1;
       if (this->fCurrentOverlays[i]->transition > 0) {
         continue;
       }
       this->fCurrentOverlays[i] = (tOverlay *)0x0;
     }
-    state = gStateOverlays[this->fState][i];
-    if (-1 < state) {
-      this->fCurrentOverlays[i] = this->fOverlays + state;
+    if (-1 < (signed char)gStateOverlays[this->fState][i]) {
+      this->fCurrentOverlays[i] = this->fOverlays + (signed char)gStateOverlays[this->fState][i];
       this->fCurrentOverlays[i]->transition = 0;
       this->fCurrentOverlays[i]->direction = overlayDirection;
     }
@@ -1152,8 +1149,8 @@ void tScreenCarSelect::DrawForeground()
       if (validCar == 0) {
         *(signed char *)&carInfo.fCarID = -1;
       }
-      (*(*this->_vf)[2].pfn)
-                (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[2].delta,&carInfo);
+      (*(*this->_vf)[12].pfn)
+                (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[12].delta,&carInfo);
       if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);
@@ -1191,8 +1188,8 @@ void tScreenCarSelect::DrawForeground()
         elapsedticks = (ticks[0] - this->fSpeechTicks) + -0x100;
         cameraZ = 0;
         if ((-1 < elapsedticks) && (-1 < (signed char)carInfo.fSpeechCarID)) {
-          textID = (signed char)carInfo.fSpeechCarID * 0x13 + 0x3e4 +
-                   (elapsedticks >> 9) % 0x13;
+          textID = (elapsedticks >> 9) % 0x13 + 0x3e4 +
+                   (signed char)carInfo.fSpeechCarID * 0x13;
           textTicks = elapsedticks - ((elapsedticks >> 9) << 9);
           textColor = kRGBVals[(byte)textDefinitions[TextSys_WordFlags((short)textID)][4]];
           if (textTicks < 0x80) {

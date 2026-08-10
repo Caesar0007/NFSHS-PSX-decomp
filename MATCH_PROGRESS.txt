@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 3116 at 100% (89.1%)
+TOTAL: 3496 functions, 3136 at 100% (89.7%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ VA             %match  unit                     function
 0x80013F24    100.00%  frontend/common/feapp    SetScreen__14tFEApplicationsP7tScreen
 0x80013F74    100.00%  frontend/common/feapp    DisplayHelp__14tFEApplications
 0x80013F98    100.00%  frontend/common/feapp    FreeHelpShapeCluts__Fv
-0x80014014     94.73%  frontend/common/feapp    RunDemoVideo__14tFEApplication
+0x80014014    100.00%  frontend/common/feapp    RunDemoVideo__14tFEApplication
 0x800142A4     98.51%  frontend/common/feapp    MainLoop__14tFEApplicationP5tMenu
 0x80015430    100.00%  frontend/common/feapp    RunPostGame__14tFEApplication
 0x80015738    100.00%  frontend/common/feapp    RunFrontEnd__14tFEApplication
@@ -30,7 +30,7 @@ VA             %match  unit                     function
 0x80015BCC    100.00%  frontend/common/feaudio  FeAudio_AsyncPlayCommentary__FPc
 0x80015CB8    100.00%  frontend/common/feaudio  FeAudio_AsyncPlaySpeech__Fii
 0x80015D34    100.00%  frontend/common/feaudio  FeAudio_StartBigfileRead__FPciiPi
-0x80015DCC     87.48%  frontend/common/feaudio  FeAudio_LocateBigfile__FP9LUMPYHEADPcPiT2
+0x80015DCC    100.00%  frontend/common/feaudio  FeAudio_LocateBigfile__FP9LUMPYHEADPcPiT2
 0x80015F24     78.71%  frontend/common/feaudio  FeAudio_InitViv__FPc
 0x800160D8    100.00%  frontend/common/feaudio  FeAudio_InitCommentary__Fii
 0x80016178    100.00%  frontend/common/feaudio  FeAudio_DeInitCommentary__Fv
@@ -56,7 +56,7 @@ VA             %match  unit                     function
 0x80016E90    100.00%  frontend/common/fecars   GetStockCar__11tCarManagersR8tCarInfo
 0x80016F4C    100.00%  frontend/common/fecars   GetGarageCar__11tCarManagersR8tCarInfos
 0x80017058    100.00%  frontend/common/fecars   GetPinkSlipsCar__11tCarManagersR8tCarInfos
-0x80017134     73.03%  frontend/common/fecars   LoadDescription__11tCarManager
+0x80017134    100.00%  frontend/common/fecars   LoadDescription__11tCarManager
 0x800172F4    100.00%  frontend/common/fecars   ReleaseDescription__11tCarManager
 0x80017334    100.00%  frontend/common/fecars   GetNumOwnedCars__11tCarManagers
 0x80017378    100.00%  frontend/common/fecars   GetNumTourneyCars__11tCarManagers
@@ -226,7 +226,7 @@ VA             %match  unit                     function
 0x8001E8D4    100.00%  frontend/common/femenuoptions UpdateTransition__29tMenuItemLeftRightAudioSliderb
 0x8001E920    100.00%  frontend/common/femenuoptions __18tInsideBoxSongMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme
 0x8001E9B0    100.00%  frontend/common/femenuoptions ___18tInsideBoxSongMenu
-0x8001E9D8     90.54%  frontend/common/femenuoptions Draw__18tInsideBoxSongMenusssss
+0x8001E9D8    100.00%  frontend/common/femenuoptions Draw__18tInsideBoxSongMenusssss
 0x8001EC48     95.67%  frontend/common/femenuoptions DrawOneSong__18tInsideBoxSongMenussssss
 0x8001EE74    100.00%  frontend/common/femenuoptions DebounceKeys__18tInsideBoxSongMenu
 0x8001EE7C    100.00%  frontend/common/femenuoptions ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand
@@ -238,8 +238,8 @@ VA             %match  unit                     function
 0x8001F4C8    100.00%  frontend/common/femenuoptions ___22tInsideBoxTwoWaySlider
 0x8001F4F0    100.00%  frontend/common/femenuoptions ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x8001F5A0    100.00%  frontend/common/femenuoptions Draw__22tInsideBoxTwoWaySlideriiib
-0x8001F860     90.87%  frontend/common/femenuoptions GetCurrentStickRange__Fi
-0x8001F8BC     90.87%  frontend/common/femenuoptions GetCurrentStickRange2__Fi
+0x8001F860     97.61%  frontend/common/femenuoptions GetCurrentStickRange__Fi
+0x8001F8BC     97.61%  frontend/common/femenuoptions GetCurrentStickRange2__Fi
 0x8001F918    100.00%  frontend/common/femenuoptions Calibrate__22tInsideBoxTwoWaySlider
 0x8001FC38    100.00%  frontend/common/femenuoptions __17tUserNameMenuItemUi
 0x8001FCAC    100.00%  frontend/common/femenuoptions CheckForCheats__FPc
@@ -298,9 +298,9 @@ VA             %match  unit                     function
 0x80023008    100.00%  frontend/common/fetv     InitTV__FR9tTVConfigP18tTexture_ShapeInfos
 0x80023218    100.00%  frontend/common/fetv     TurnOffTV__FR9tTVConfig
 0x80023228    100.00%  frontend/common/fetv     TurnOnTV__FR9tTVConfig
-0x80023240     65.60%  frontend/common/fecheats FECheat_HandleActivation__F10tCheatCode
+0x80023240    100.00%  frontend/common/fecheats FECheat_HandleActivation__F10tCheatCode
 0x80023410    100.00%  frontend/common/fecheats FECheat_EncodeString__FPcT0
-0x8002349C     89.73%  frontend/common/fecheats FECheat_EncodeString2__FPcT0
+0x8002349C    100.00%  frontend/common/fecheats FECheat_EncodeString2__FPcT0
 0x800235D8    100.00%  frontend/common/fecheats FECheat_ActivateBonus__F10tCheatCode
 0x80023614    100.00%  frontend/common/fecheats FECheat_ActivateCheat__FPc
 0x8002371C    100.00%  frontend/common/fecheats FECheat_IsCheatEnabled__F10tCheatCode
@@ -364,7 +364,7 @@ VA             %match  unit                     function
 0x80024B54    100.00%  frontend/common/femenu   ___24tMenuItemLeftRightSlider
 0x80024B7C    100.00%  frontend/common/femenu   DebounceKeys__24tMenuItemLeftRightSlider
 0x80024B84     90.48%  frontend/common/femenu   ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand
-0x80024C2C     80.72%  frontend/common/femenu   DrawSlider__FsssssssssbT9ss
+0x80024C2C     80.73%  frontend/common/femenu   DrawSlider__FsssssssssbT9ss
 0x800251E4    100.00%  frontend/common/femenu   Draw__24tMenuItemLeftRightSliderb
 0x80025310    100.00%  frontend/common/femenu   SetDimensions__24tMenuItemLeftRightSliderssss
 0x80025328    100.00%  frontend/common/femenu   __23tMenuItemGoToMenuButtonUiP5tMenuPFR12tMenuCommand_v
@@ -424,7 +424,7 @@ VA             %match  unit                     function
 0x8002709C    100.00%  frontend/common/front    Front_ResetSettingsMenu__Fi
 0x800270E4    100.00%  frontend/common/front    Front_ResetPSXController__Fii
 0x80027150    100.00%  frontend/common/front    Front_ResetPSXAnalogs__Fi
-0x80027194     73.26%  frontend/common/front    GetPSXPadValue__Fii
+0x80027194     76.09%  frontend/common/front    GetPSXPadValue__Fii
 0x8002750C    100.00%  frontend/common/front    SetPads__Fv
 0x80027648    100.00%  frontend/common/front    InitFrontEndStructure__Fv
 0x80027940    100.00%  frontend/common/front    LoadConfig__Fv
@@ -432,7 +432,7 @@ VA             %match  unit                     function
 0x80027994    100.00%  frontend/common/front    Front_SecondaryMemCardCheck__Fv
 0x80027A5C    100.00%  frontend/common/front    Front_InitGraphics__Fv
 0x80027AD4    100.00%  frontend/common/front    Front_InitGraphicsAndDisplayLoading__Fv
-0x80027AF4     67.24%  frontend/common/front    Front_Menu__F21tFront_ProcessingType
+0x80027AF4     90.61%  frontend/common/front    Front_Menu__F21tFront_ProcessingType
 0x80027DA8    100.00%  frontend/common/front    OutputDisplaySettings__FPiiiR17tTrackInformation
 0x80027FC0    100.00%  frontend/common/front    Front_GetLapsForType__Fv
 0x80028068    100.00%  frontend/common/front    Front_InitStream__FR9tFEStream
@@ -528,7 +528,7 @@ VA             %match  unit                     function
 0x80032200    100.00%  frontend/common/femenudefs Draw__33tBlankMenuItemNFS4LeftRightChoiceiib
 0x80032208    100.00%  frontend/common/femenudefs ___33tBlankMenuItemNFS4LeftRightChoice
 0x80032228    100.00%  frontend/common/fetourn  Initialize__18tTournamentManager
-0x800322FC     90.61%  frontend/common/fetourn  LoadDescription__18tTournamentManager
+0x800322FC    100.00%  frontend/common/fetourn  LoadDescription__18tTournamentManager
 0x80032548    100.00%  frontend/common/fetourn  ReleaseDescription__18tTournamentManager
 0x80032584    100.00%  frontend/common/fetourn  UpdateTrackList__18tTournamentManagerss
 0x80032654    100.00%  frontend/common/fetourn  GetTrackList__18tTournamentManagerss
@@ -540,7 +540,7 @@ VA             %match  unit                     function
 0x80032C0C    100.00%  frontend/common/fetourn  UpdateTrackFinishMoney__18tTournamentManager
 0x80032C6C    100.00%  frontend/common/fetourn  CalcTrackFinishDamageBill__18tTournamentManagerbRlT2
 0x80032E30     93.92%  frontend/common/fetourn  UpdateTrackFinishPoints__18tTournamentManager
-0x80033048     86.33%  frontend/common/fetourn  AdvanceToNextTrack__18tTournamentManager
+0x80033048    100.00%  frontend/common/fetourn  AdvanceToNextTrack__18tTournamentManager
 0x8003348C    100.00%  frontend/common/fetourn  GetLastTrackRaced__18tTournamentManager
 0x800334FC    100.00%  frontend/common/fetourn  SaveTournament__18tTournamentManagerR15tSaveTournament
 0x80033544    100.00%  frontend/common/fetourn  LoadTournament__18tTournamentManagerR15tSaveTournament
@@ -582,14 +582,14 @@ VA             %match  unit                     function
 0x80034800    100.00%  frontend/common/fememcard DeInit_Memcard__Fv
 0x800348A0    100.00%  frontend/common/fememcard Init_MemcardFile__FR12MCRDFILE_defsb
 0x80034988     97.70%  frontend/common/fememcard SaveGame__Fs
-0x80034E18     91.46%  frontend/common/fememcard LoadGame__FsbT1
+0x80034E18     95.21%  frontend/common/fememcard LoadGame__FsbT1
 0x800353F0     93.00%  frontend/common/fememcard SavePinkSlipsCars__Fss
 0x80035778     74.77%  frontend/common/fememcard SavePinkSlipsCarsWithErrorDialogs__Fsss
 0x80035AE8    100.00%  frontend/common/fecredits Setup__14tCreditManager
 0x80035AF8    100.00%  frontend/common/fecredits Init__14tCreditManageri
 0x80035BD8    100.00%  frontend/common/fecredits DeInit__14tCreditManager
 0x80035BE4    100.00%  frontend/common/fecredits RealDeInit__14tCreditManager
-0x80035C24     94.72%  frontend/common/fecredits Draw__14tCreditManagerb
+0x80035C24     97.78%  frontend/common/fecredits Draw__14tCreditManagerb
 0x80035D68    100.00%  frontend/common/fecredits SetupCurrCredit__14tCreditManager
 0x80036084    100.00%  frontend/common/fecredits DrawCurrCredit__14tCreditManager
 0x80036790    100.00%  frontend/common/fevideowall Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss
@@ -599,14 +599,14 @@ VA             %match  unit                     function
 0x800369C8    100.00%  frontend/common/fevideowall SetOffset__10tVideoWallss
 0x800369D4    100.00%  frontend/common/fevideowall SetAvailable__10tVideoWalls
 0x800369DC    100.00%  frontend/common/fevideowall SetValid__10tVideoWalls
-0x800369E4     75.64%  frontend/common/fevideowall UpdateTransition__10tVideoWall
+0x800369E4    100.00%  frontend/common/fevideowall UpdateTransition__10tVideoWall
 0x80036BB4    100.00%  frontend/common/fevideowall Draw__10tVideoWall
 0x80036E58    100.00%  frontend/common/fevideowall TurnOff__10tVideoWall
 0x80036E7C    100.00%  frontend/common/fevideowall TurnOffInstant__10tVideoWall
 0x80036EF8    100.00%  frontend/common/fevideowall TurnOn__10tVideoWall
 0x80036F20    100.00%  frontend/common/screenmain SwapBackground__11tScreenMaini
 0x800370DC    100.00%  frontend/common/screenmain DoneLoadingBackground__11tScreenMain
-0x80037158     87.76%  frontend/common/screenmain SetState__11tScreenMain16tScreenMainState
+0x80037158    100.00%  frontend/common/screenmain SetState__11tScreenMain16tScreenMainState
 0x8003742C    100.00%  frontend/common/screenmain InitDynamicImages__11tScreenMain
 0x80037798    100.00%  frontend/common/screenmain ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80037804     86.72%  frontend/common/screenmain DrawDropShadow__11tScreenMain
@@ -639,11 +639,11 @@ VA             %match  unit                     function
 0x8003A8AC    100.00%  frontend/common/screenpost ___31tScreenTournamentStandings3item
 0x8003A8CC    100.00%  frontend/common/screenpost ___26tScreenTournamentStandings
 0x8003A8F0    100.00%  frontend/common/screencarselect TransformVector
-0x8003A9D4     83.29%  frontend/common/screencarselect DrawCar__FR8tCarInfossffcbUl7tPlayer
+0x8003A9D4     98.88%  frontend/common/screencarselect DrawCar__FR8tCarInfossffcbUl7tPlayer
 0x8003AB80    100.00%  frontend/common/screencarselect __16tScreenCarSelect
 0x8003AC90    100.00%  frontend/common/screencarselect ___16tScreenCarSelect
 0x8003ACB8    100.00%  frontend/common/screencarselect Cleanup__16tScreenCarSelect
-0x8003AD00     96.19%  frontend/common/screencarselect DrawOverlay__16tScreenCarSelectP8tOverlay
+0x8003AD00     96.44%  frontend/common/screencarselect DrawOverlay__16tScreenCarSelectP8tOverlay
 0x8003B59C    100.00%  frontend/common/screencarselect SetState__16tScreenCarSelecti
 0x8003B820    100.00%  frontend/common/screencarselect CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46
 0x8003BAE0    100.00%  frontend/common/screencarselect GetShapeInfo__16tScreenCarSelectRsT1PPcT3
@@ -651,15 +651,15 @@ VA             %match  unit                     function
 0x8003BC74    100.00%  frontend/common/screencarselect AllocateAsyncBuffer__16tScreenCarSelect
 0x8003BCA8    100.00%  frontend/common/screencarselect FreeAsyncBuffer__16tScreenCarSelect
 0x8003BCD0    100.00%  frontend/common/screencarselect InitializeVideoWall__16tScreenCarSelect
-0x8003BD88     92.31%  frontend/common/screencarselect Initialize__16tScreenCarSelect
+0x8003BD88    100.00%  frontend/common/screencarselect Initialize__16tScreenCarSelect
 0x8003BF90    100.00%  frontend/common/screencarselect ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x8003C118    100.00%  frontend/common/screencarselect DrawVideoWall__16tScreenCarSelects
-0x8003C224     92.28%  frontend/common/screencarselect GetCar__16tScreenCarSelectR8tCarInfo
+0x8003C224    100.00%  frontend/common/screencarselect GetCar__16tScreenCarSelectR8tCarInfo
 0x8003C4A4    100.00%  frontend/common/screencarselect SetBrightness__16tScreenCarSelectss
 0x8003C4B8    100.00%  frontend/common/screencarselect UpdateBrightness__16tScreenCarSelects
 0x8003C53C    100.00%  frontend/common/screencarselect DrawBackground__16tScreenCarSelect
 0x8003C66C    100.00%  frontend/common/screencarselect DrawSliders__16tScreenCarSelectR8tCarInfoss
-0x8003C7D8     97.33%  frontend/common/screencarselect DrawForeground__16tScreenCarSelect
+0x8003C7D8     98.64%  frontend/common/screencarselect DrawForeground__16tScreenCarSelect
 0x8003D08C    100.00%  frontend/common/screencarselect PreLoad__20tScreenCarSelectDuel
 0x8003D1B4    100.00%  frontend/common/screencarselect AllocateAsyncBuffer__20tScreenCarSelectDuel
 0x8003D1BC    100.00%  frontend/common/screencarselect FreeAsyncBuffer__20tScreenCarSelectDuel
@@ -691,7 +691,7 @@ VA             %match  unit                     function
 0x8003F22C    100.00%  frontend/common/screencarselect DrawForeground__25tScreenPinkSlipsCarSelect
 0x8003F24C    100.00%  frontend/common/screencarselect Initialize__25tScreenPinkSlipsCarSelect
 0x8003F2AC    100.00%  frontend/common/screencarselect Cleanup__25tScreenPinkSlipsCarSelect
-0x8003F300     81.68%  frontend/common/screencarselect SetDialog__25tScreenPinkSlipsCarSelect
+0x8003F300    100.00%  frontend/common/screencarselect SetDialog__25tScreenPinkSlipsCarSelect
 0x8003F590    100.00%  frontend/common/screencarselect ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x8003F638    100.00%  frontend/common/screencarselect GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3
 0x8003F6D0    100.00%  frontend/common/screencarselect ___25tScreenPinkSlipsCarSelect
@@ -699,8 +699,8 @@ VA             %match  unit                     function
 0x8003F758    100.00%  frontend/common/screencarselect ___20tScreenCarSelectDuel
 0x8003F778    100.00%  frontend/common/screentournselect __18tScreenTournSelect
 0x8003F7AC    100.00%  frontend/common/screentournselect ___18tScreenTournSelect
-0x8003F7D4     66.06%  frontend/common/screentournselect GetShapeInfo__18tScreenTournSelectRsT1PPcT3
-0x8003F8A0     93.64%  frontend/common/screentournselect Initialize__18tScreenTournSelect
+0x8003F7D4    100.00%  frontend/common/screentournselect GetShapeInfo__18tScreenTournSelectRsT1PPcT3
+0x8003F8A0    100.00%  frontend/common/screentournselect Initialize__18tScreenTournSelect
 0x8003FAE8    100.00%  frontend/common/screentournselect Cleanup__18tScreenTournSelect
 0x8003FB28    100.00%  frontend/common/screentournselect UpdateVideoWall__18tScreenTournSelectP12tTourneyInfo
 0x8003FBCC     59.74%  frontend/common/screentournselect DrawVideoWall__18tScreenTournSelect
@@ -709,7 +709,7 @@ VA             %match  unit                     function
 0x80040570    100.00%  frontend/common/screentrophyroom __17tScreenTrophyRoom
 0x800405B0    100.00%  frontend/common/screentrophyroom ___17tScreenTrophyRoom
 0x800405D8    100.00%  frontend/common/screentrophyroom GetShapeInfo__17tScreenTrophyRoomRsT1PPcT3
-0x80040698     70.57%  frontend/common/screentrophyroom ProcessInput__17tScreenTrophyRoom7tPlayerR13tInputKeyTypeR12tMenuCommand
+0x80040698    100.00%  frontend/common/screentrophyroom ProcessInput__17tScreenTrophyRoom7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x800408A8    100.00%  frontend/common/screentrophyroom PreLoad__17tScreenTrophyRoom
 0x80040910     97.88%  frontend/common/screentrophyroom Initialize__17tScreenTrophyRoom
 0x80040AE8    100.00%  frontend/common/screentrophyroom Cleanup__17tScreenTrophyRoom
@@ -729,7 +729,7 @@ VA             %match  unit                     function
 0x8004200C    100.00%  frontend/common/screentracks ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x800421D4    100.00%  frontend/common/screentracks ___18tScreenTrackSelect
 0x800421F8    100.00%  frontend/common/screentrackinfo GetShapeInfo__16tScreenTrackInfoRsT1PPcT3
-0x80042298     78.42%  frontend/common/screentrackinfo DrawBackground__16tScreenTrackInfo
+0x80042298     90.49%  frontend/common/screentrackinfo DrawBackground__16tScreenTrackInfo
 0x80042520    100.00%  frontend/common/screentrackinfo Initialize__16tScreenTrackInfo
 0x8004258C    100.00%  frontend/common/screentrackinfo ProcessInput__16tScreenTrackInfo7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80042628    100.00%  frontend/common/screentrackinfo ___16tScreenTrackInfo
@@ -750,11 +750,11 @@ VA             %match  unit                     function
 0x800436EC    100.00%  frontend/common/screencontroller SwapInController__23tScreenControllerConfig
 0x80043778    100.00%  frontend/common/screencontroller SetCurrentController__23tScreenControllerConfigb
 0x80043AF0    100.00%  frontend/common/screencontroller CalcAnimFrame__23tScreenControllerConfigi
-0x80043B7C     81.35%  frontend/common/screencontroller ActualDrawController__23tScreenControllerConfigiiiii
-0x80043DE4     94.83%  frontend/common/screencontroller DrawController__23tScreenControllerConfig
+0x80043B7C    100.00%  frontend/common/screencontroller ActualDrawController__23tScreenControllerConfigiiiii
+0x80043DE4     96.29%  frontend/common/screencontroller DrawController__23tScreenControllerConfig
 0x80044AF4    100.00%  frontend/common/screencontroller HorzVertLine__23tScreenControllerConfigPsb
 0x80044D40     95.62%  frontend/common/screencontroller DrawArrow__23tScreenControllerConfigPs
-0x80044E40     95.03%  frontend/common/screencontroller DrawBackground__23tScreenControllerConfig
+0x80044E40    100.00%  frontend/common/screencontroller DrawBackground__23tScreenControllerConfig
 0x80045064    100.00%  frontend/common/screencontroller DrawForeground__23tScreenControllerConfig
 0x800456CC    100.00%  frontend/common/screencontroller GetShapeInfo__23tScreenControllerConfigRsT1PPcT3
 0x800456FC    100.00%  frontend/common/screencontroller Initialize__23tScreenControllerConfig
@@ -766,8 +766,8 @@ VA             %match  unit                     function
 0x800459DC    100.00%  frontend/common/screendisplay GetShapeInfo__14tScreenDisplayRsT1PPcT3
 0x80045A04    100.00%  frontend/common/screendisplay ___14tScreenDisplay
 0x80045A28    100.00%  frontend/common/screenaudio PlaySound__12tScreenAudio
-0x80045DC8     59.10%  frontend/common/screenaudio DrawForeground__12tScreenAudio
-0x80045ED8     73.32%  frontend/common/screenaudio DrawBackground__12tScreenAudio
+0x80045DC8     99.93%  frontend/common/screenaudio DrawForeground__12tScreenAudio
+0x80045ED8     99.97%  frontend/common/screenaudio DrawBackground__12tScreenAudio
 0x80046140    100.00%  frontend/common/screenaudio GetShapeInfo__12tScreenAudioRsT1PPcT3
 0x80046164    100.00%  frontend/common/screenaudio __12tScreenAudio
 0x800461A4    100.00%  frontend/common/screenaudio Initialize__12tScreenAudio
@@ -775,11 +775,11 @@ VA             %match  unit                     function
 0x800462FC    100.00%  frontend/common/screenaudio ___12tScreenAudio
 0x80046320    100.00%  frontend/common/screenmemcard GetShapeInfo__14tScreenMemcardRsT1PPcT3
 0x80046344    100.00%  frontend/common/screenmemcard DrawIcon__14tScreenMemcardP8shapetbliiiis
-0x8004653C     97.21%  frontend/common/screenmemcard LoadIcon__14tScreenMemcardi
-0x80046898     83.78%  frontend/common/screenmemcard DrawVerticalLine__14tScreenMemcardssss
-0x8004694C     94.79%  frontend/common/screenmemcard DrawHorizontalLine__14tScreenMemcardssss
-0x80046A0C     81.53%  frontend/common/screenmemcard PlaceIcons__14tScreenMemcardii
-0x80046D60     81.27%  frontend/common/screenmemcard DrawMemCardStuff__14tScreenMemcards
+0x8004653C     99.21%  frontend/common/screenmemcard LoadIcon__14tScreenMemcardi
+0x80046898     81.33%  frontend/common/screenmemcard DrawVerticalLine__14tScreenMemcardssss
+0x8004694C     96.56%  frontend/common/screenmemcard DrawHorizontalLine__14tScreenMemcardssss
+0x80046A0C     98.78%  frontend/common/screenmemcard PlaceIcons__14tScreenMemcardii
+0x80046D60     99.99%  frontend/common/screenmemcard DrawMemCardStuff__14tScreenMemcards
 0x800472BC    100.00%  frontend/common/screenmemcard SetEnablings__14tScreenMemcard
 0x80047470     92.28%  frontend/common/screenmemcard DrawBackground__14tScreenMemcard
 0x80047AD8    100.00%  frontend/common/screenmemcard DrawForeground__14tScreenMemcard
@@ -789,11 +789,11 @@ VA             %match  unit                     function
 0x80047DD8    100.00%  frontend/common/screenmemcard Cleanup__14tScreenMemcard
 0x80047E3C    100.00%  frontend/common/screenmemcard ___14tScreenMemcard
 0x80047E60    100.00%  frontend/common/screencongrats Cleanup__15tScreenCongrats
-0x80047E8C     82.25%  frontend/common/screencongrats GetShapeInfo__15tScreenCongratsRsT1PPcT3
+0x80047E8C    100.00%  frontend/common/screencongrats GetShapeInfo__15tScreenCongratsRsT1PPcT3
 0x800480E4    100.00%  frontend/common/screencongrats GetCar__15tScreenCongratsR8tCarInfo
-0x8004813C     96.01%  frontend/common/screencongrats DrawBackground__15tScreenCongrats
+0x8004813C     99.43%  frontend/common/screencongrats DrawBackground__15tScreenCongrats
 0x800489B0    100.00%  frontend/common/screencongrats DrawForeground__15tScreenCongrats
-0x800489B8     91.90%  frontend/common/screencongrats CalculatePrizes__15tScreenCongrats
+0x800489B8     78.90%  frontend/common/screencongrats CalculatePrizes__15tScreenCongrats
 0x80048A2C    100.00%  frontend/common/screencongrats Initialize__15tScreenCongrats
 0x80048AF0    100.00%  frontend/common/screencongrats ProcessInput__15tScreenCongrats7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80048B48    100.00%  frontend/common/screencongrats DrawCongratsMessage__23tScreenPinkSlipCongrats
@@ -2731,7 +2731,7 @@ VA             %match  unit                     function
 0x800EA094    100.00%  eaclib/psx/sndpsxz/sstovrhd SNDSTRM_overhead
 0x800EA0D8    100.00%  eaclib/psx/sndpsxz/sstvol SNDSTRM_vol
 0x800EA138    100.00%  eaclib/psx/sndpsxz/sserver iSNDserver
-0x800EA254     99.97%  eaclib/psx/sndpsxz/sserver iSND100hzserver
+0x800EA254    100.00%  eaclib/psx/sndpsxz/sserver iSND100hzserver
 0x800EA534    100.00%  eaclib/psx/sndpsxz/sserver iSNDenteraudio
 0x800EA56C    100.00%  eaclib/psx/sndpsxz/sserver iSNDleaveaudio
 0x800EA5F0    100.00%  eaclib/psx/sndpsxz/sserver iSNDserveradd100hzclient

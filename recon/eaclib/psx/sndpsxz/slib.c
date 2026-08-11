@@ -35,6 +35,8 @@ extern int            sndgs[];
 extern unsigned char  sndpd[];              /* voice/queue state base @0x80147918 (unsized array: forces
                                               * base+offset addressing instead of folding &sndpd+const into
                                               * one absolute %lo load -- see sdpacket.c/spatkey.c precedent) */
+extern unsigned char  D_801479F0[];         /* exact voice-table-base linker symbol; iSNDserve's
+                                              * retail relocations name this object directly */
 #define DAT_80147919 (sndpd[1])              /* pre-load guard == sndpd+1 */
 #define snd_old_chan_mode (sndpd[2])         /* last applied channel-mode byte */
 #define DAT_8014791c (*(int *)(sndpd + 4))   /* current fx mode == sndpd+4 */
@@ -682,7 +684,7 @@ extern void iSNDserve(void)
         fpbase = base;
         vt = chan;
         do {
-            vp   = &DAT_801479f0 + vt;
+            vp   = D_801479F0 + vt;
             vreg = (unsigned short *)(*(int *)(fpbase + 0x510) + chan * 0x10);
             if (*(volatile unsigned char *)(vp + 0x1d) == 2) {       /* voice stopping */
                 if (vreg[6] != 0) {
@@ -696,16 +698,15 @@ extern void iSNDserve(void)
                             int c = chan;
                             if (n == 2) {
                                 c = (int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24;
-                                vbase = &DAT_801479f0;
+                                vbase = D_801479F0;
                                 vp = vbase +
                                      ((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c;
                             } else {
-                                vbase = &DAT_801479f0;
+                                vbase = D_801479F0;
                                 vp = vbase + cvt;
                             }
                             vp[0x1d] = 0;
                             vp[0x1c] = 0;
-                            n--;
                             iSNDfreechan(c);
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
                             onec = 1;
@@ -713,7 +714,11 @@ extern void iSNDserve(void)
                             onec = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510)) = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 2) = 0;
-                        } while (0 < n);
+                        /* MATCH: keeping the decrement in the latch expression exposes it as the
+                         * post-call loop update and fixes the cleanup store schedule (23 -> 15).
+                         * The direct D_801479F0 symbol above then fixes the loop-entry issue order
+                         * and avoids the sndpd+0xd8 allocation cascade (15 -> 13). */
+                        } while (0 < --n);
                     }
                 }
                 if (vp[0x28] != 0) {                                 /* pitch dirty -> reprogram */

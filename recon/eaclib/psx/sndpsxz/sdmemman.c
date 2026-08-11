@@ -415,7 +415,15 @@ extern int iSNDpsxmalloc(int size)
      * changes flow-reference pricing without emitted code.  Keeping the index offset unwrapped gives
      * the decisive asymmetric allocation: 46 diffs at exact 127/127 parity.  Wrapping both quantities
      * reaches parity too but scores 64; base depths 1/2 score 66/64, while depths 3/4 both score 46.
-     * This is the expected multi-step hard-floor route: 59@120 -> 60@123 -> 46@127. */
+     * This is the expected multi-step hard-floor route: 59@120 -> 60@123 -> 46@127.
+     *
+     * W59 2026-08-12: stage `table = base + 0x520` before the nonempty count guard, but delay the
+     * persistent `pd = base` copy and `previous` derivation until after it.  This is retail's exact
+     * lifetime order: the count load/test stays on incoming $v1, the table add fills the branch slot,
+     * then $v1 is copied to $s1.  It removes the three setup residual blocks: 46 -> 40 diffs at exact
+     * 127/127 parity.  Re-tested basin-relative negatives: shared-label 75@122; scan-tail literal
+     * return 44@127; direct indexed previous loads and offset-first respelling 46@127; prev-definition
+     * one-trip depths 1/2/3 all 51@124. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;
@@ -442,12 +450,12 @@ nonempty:
     {
         unsigned char *table;
         unsigned char *previous;
-        pd = base;
-        table = pd + 0x520;
-        previous = pd + 0x51c;
+        table = base + 0x520;
         if (idx >= (int)(unsigned int)
-                       *(volatile unsigned short *)(pd + 0x518))
+                       *(volatile unsigned short *)(base + 0x518))
             goto scan_done;
+        pd = base;
+        previous = pd + 0x51c;
 scan:
         {
             unsigned char *entry =

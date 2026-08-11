@@ -2395,33 +2395,33 @@ void tScreenPinkSlipsCarSelect::DrawBackground()
 
 
 /* ---- tScreenPinkSlipsCarSelect::DoMemCardStuff  [SCREENCARSELECT.CPP:1958-2061] ---- */
+/* MATCH: 83 -> 0 diffs.  The SYM budget has only player/card plus the scoped
+   load result; removing the decompiler's duplicate player/card identities
+   restores $s3/$s1.  CURRENTLYUSINGMEMCARD is a 32-bit BOOL (`lw`, not `lbu`).
+   The explicit xor-ready edge preserves retail's dialog branch and the named
+   PinkSlipsScreenState store lets sched2 fill the first Redraw delay slot.
+   Separate result pointer/value temporaries reproduce the shared outcome store;
+   the default arm's block-local base pointer fixes its %hi/%lo/index order. */
 void tScreenPinkSlipsCarSelect::DoMemCardStuff()
 
 {
-  byte player2;
-  bool bVar2;
-  tFEApplication *this_00;
-  short sVar3;
   CARDINFO_def *cardInfo;
-  long lVar5;
-  PinkSlipsCarSelectState PVar6;
-  int ret;
+  PinkSlipsCarSelectState resultState;
+  PinkSlipsCarSelectState *resultStatePtr;
+  short ret;
   PinkSlipsCarSelectState *pinkState;
   int card;
-  int card_00;
   int player;
-  tPlayer atIndex;
   
-  player2 = FEApp->fPlayer;
-  atIndex = (tPlayer)player2;
-  card_00 = 1;
-  if (atIndex != kPlayerOne) {
-    card_00 = 5;
+  player = FEApp->fPlayer;
+  card = 1;
+  if (player != kPlayerOne) {
+    card = 5;
   }
   if (this->fExitingScreen != 0) {
     return;
   }
-  if ((atIndex == kPlayerTwo) && (PinkSlipsScreenState[0] != CardLoadedFine)) {
+  if ((player == kPlayerTwo) && (PinkSlipsScreenState[0] != CardLoadedFine)) {
     return;
   }
   if (PinkSlipsScreenState[0] == CardCurrentlyLoading) {
@@ -2430,76 +2430,75 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
   if (PinkSlipsScreenState[1] == CardCurrentlyLoading) {
     return;
   }
-  pinkState = PinkSlipsScreenState + atIndex;
+  pinkState = PinkSlipsScreenState + player;
   if (*pinkState == CardLoadedFine) {
     return;
   }
-  if (this->CarDialog.fFullyOpen != 1)
-  {
-    this->waitfordialog = 0;
-    return;
+  if ((this->CarDialog.fFullyOpen ^ 1) == 0) {
+    goto DoMC_dialogReady;
   }
+  this->waitfordialog = 0;
+  return;
+DoMC_dialogReady:
   if (this->waitfordialog < 5) {
     this->waitfordialog = this->waitfordialog + 1;
     return;
   }
   if (*pinkState != CardCurrentlyLoading) {
-    MCRD_handlecardevents(card_00);
-    cardInfo = MCRD_getcard(card_00);
+    MCRD_handlecardevents(card);
+    cardInfo = MCRD_getcard(card);
     this->pCI = cardInfo;
-    this_00 = FEApp;
     if (cardInfo->status == -1) {
       *pinkState = NoCardInserted;
     }
     else if ((CURRENTLYUSINGMEMCARD == 0) && (*pinkState == NoCardInserted)) {
-      *pinkState = CardCurrentlyLoading;
-      this_00->Redraw();
+      PinkSlipsScreenState[player] = CardCurrentlyLoading;
       FEApp->Redraw();
-      sVar3 = LoadGame((ushort)player2,true,0);
-      if (sVar3 == 0) {
-        carManager.GetNumPinkSlipsCars((ushort)player2);
+      FEApp->Redraw();
+      ret = LoadGame((ushort)player,true,0);
+      if (ret == 0) {
+        carManager.GetNumPinkSlipsCars((ushort)player);
         carManager.CheapestCarStockPrice();
-        sVar3 = carManager.GetNumPinkSlipsCars((ushort)player2);
-        bVar2 = false;
-        if (sVar3 == 0x20) {
+        if (carManager.GetNumPinkSlipsCars((ushort)player) == 0x20) {
           *pinkState = TooManyCars;
           goto DoMC_pinkSlipsIter;
         }
-        sVar3 = carManager.GetNumPinkSlipsCars((ushort)player2);
-        if ((1 < sVar3) ||
-           ((sVar3 = carManager.GetNumPinkSlipsCars((ushort)player2), sVar3 == 1 &&
-            (lVar5 = carManager.CheapestCarStockPrice(),
-            lVar5 <= frontEnd.pinkSlipsCash[atIndex])))) {
-          bVar2 = true;
-        }
-        if (bVar2) {
-          pinkState = PinkSlipsScreenState + atIndex;
-          PVar6 = CardLoadedFine;
+        if ((1 < carManager.GetNumPinkSlipsCars((ushort)player)) ||
+           ((carManager.GetNumPinkSlipsCars((ushort)player) == 1) &&
+            (frontEnd.pinkSlipsCash[player] >= carManager.CheapestCarStockPrice()))) {
+          resultStatePtr = PinkSlipsScreenState + player;
+          resultState = CardLoadedFine;
         }
         else {
-          pinkState = PinkSlipsScreenState + atIndex;
-          PVar6 = NotEnoughCars;
+          resultStatePtr = PinkSlipsScreenState + player;
+          resultState = NotEnoughCars;
         }
       }
       else {
-        if (sVar3 == 1) {
+        switch (ret) {
+        case 1:
           *pinkState = CardFailed;
           goto DoMC_pinkSlipsIter;
-        }
-        if (sVar3 == 2) {
+        case 2:
           *pinkState = CardFailedUnformatted;
           goto DoMC_pinkSlipsIter;
+        default: {
+          PinkSlipsCarSelectState *stateBase;
+
+          stateBase = PinkSlipsScreenState;
+          resultStatePtr = stateBase + player;
+          resultState = CardFailedNotFound;
+          break;
         }
-        pinkState = PinkSlipsScreenState + atIndex;
-        PVar6 = CardFailedNotFound;
+        }
       }
-      *pinkState = PVar6;
+      *resultStatePtr = resultState;
     }
   }
 DoMC_pinkSlipsIter:
-  if (PinkSlipsScreenState[atIndex] == CardLoadedFine) {
-    menuDefs->iteratorPinkSlipsCar.Decrement(atIndex);
-    menuDefs->iteratorPinkSlipsCar.Increment(atIndex);
+  if (PinkSlipsScreenState[player] == CardLoadedFine) {
+    menuDefs->iteratorPinkSlipsCar.Decrement((tPlayer)player);
+    menuDefs->iteratorPinkSlipsCar.Increment((tPlayer)player);
   }
   if ((PinkSlipsScreenState[0] == CardLoadedFine) && (PinkSlipsScreenState[1] == CardLoadedFine)) {
     DeInit_Memcard();

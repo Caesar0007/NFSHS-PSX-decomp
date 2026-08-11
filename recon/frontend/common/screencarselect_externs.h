@@ -23,7 +23,7 @@ extern u_long             gCameraRotation;
 extern DRender_tView gCView;   /* W58-A1: real type (render.cpp @0x80116F7C); was mistyped int* */
 extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
-extern char               CURRENTLYUSINGMEMCARD;
+extern int                CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
 void DrawC_MenuColorData(int, Car_tObj *, int);

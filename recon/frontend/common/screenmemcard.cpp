@@ -251,21 +251,24 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
   int height;
+  int innerHeight;
   short pos;
   int test;
   unsigned int shifted;
   /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
      OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
      ends with its own `j`), so it must be a goto target, not the fall-through. */
-  /* RESIDUAL 13 (W60, 26->17->13; ours 46/oracle 45).  The horizontal sibling's
+  /* RESIDUAL 4 (W60/W65, 26->17->13->4; ours/oracle 45).  The horizontal sibling's
      promoted `pos` plus explicit signed-test pair transfers here: it removes
      the premature gridpos result copy and makes the clamp stores use incoming
      $a3 like retail.  Making `pos` short preserves that retail carrier through
      the clamp and its final doubled short value.  The approved empty identity
      fence keeps the signed-test shift pair in retail's separate $v0/$v1 webs
-     (17->13).  Remaining: the fence blocks reorg's backward $ra-store slot fill;
-     x copies one instruction late; y lives in $t1 instead of its SYM REGPARM
-     home $a2, so the height-global address/load homes differ correspondingly.
+     (17->13).  Separating `innerHeight = HEIGHT + GOURAUD*2` from the final
+     `EXTRA + innerHeight` gives retail's $v1/$v0 arithmetic webs, shortens the
+     EXTRA address lifetime, and leaves y in its SYM $a2 home (13->4).
+     Remaining: the fence blocks reorg's backward $ra-store slot fill and moves
+     the gridpos shift one slot past the stack-dir load; both are entry scheduling.
      FALSIFIED in this basin: volatile shifted carrier 36; short test neutral;
      register y neutral; read-only y fence at entry 17 and before call 56;
      inner height-term swap 17; literal IDA if/else clamp 31. */
@@ -284,10 +287,11 @@ VL_clampHi:
   pos = 0x40;
 VL_clamped:
   gridpos = pos;
-  /* MATCH (SLD 267 = ONE statement): EXTRAYATTOP + (HEIGHT + GOURAUDBIT_Y*2) --
-     two statements let gcc reassociate to (EXTRAYATTOP + GOURAUD*2) + HEIGHT. */
-  height = (ushort)EXTRAYATTOP +
-           ((ushort)GRIDMEMCARD_HEIGHT + (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2);
+  /* MATCH: keep the inner height sum in its own RTL web before adding EXTRA;
+     gcc emits the retail GOURAUD/HEIGHT/EXTRA load homes and final $v1->$v0 add. */
+  innerHeight = (ushort)GRIDMEMCARD_HEIGHT +
+                (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2;
+  height = (ushort)EXTRAYATTOP + innerHeight;
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,(short)height,
              (uint)(dir == 0),(int)gridpos * 2,0);
   return;

@@ -475,12 +475,15 @@ extern void iSNDserve(void)
                                 * through this cached base instead of re-materializing sndpd's own
                                 * %hi/%lo every time. */
 
-    chan = 0;
     *(volatile unsigned int *)&koff = 0;
     base = sndpd;
+    do {
+        do {
+            kon = 0;
+        } while (0);
+    } while (0);
     if (*(int *)(base + 0x720) != 0)
         (*(void (*)(void))*(int *)(base + 0x720))();
-    kon = 0;
 
     /* W31 (106 -> 101): `chan = kon` (== 0) -- the oracle's entry-guard is a real slt against the
      * count with the zero in a REGISTER (retail cse substituted kon's reg for the literal 0); a
@@ -674,15 +677,13 @@ extern void iSNDserve(void)
      *   PSX body's structure survives, so no statement order or variable identity transfers.
      *   NOTE: nfsw.IDA.c's sub_48C0A8 is a BROKEN-BOUNDARY stub (`JUMPOUT(0x48C0A5)`) -- use
      *   nfsw.Ghidra.c FUN_0048c0a8 for this one. */
-    fpbase = base;
-    vt = 0;
+    chan = 0;
     if ((int)kon < (int)(unsigned int)SUB(0x11)) {
+        fpbase = base;
+        vt = chan;
         do {
-            unsigned short *vreg0; /* split-temp: computed then copied into `vreg` -- a permuter basin find
-                               * that shaved one more insn off the register-coloring residual */
             vp   = &DAT_801479f0 + vt;
-            vreg0 = (unsigned short *)(*(int *)(fpbase + 0x510) + chan * 0x10);
-            vreg = vreg0;
+            vreg = (unsigned short *)(*(int *)(fpbase + 0x510) + chan * 0x10);
             if (*(volatile unsigned char *)(vp + 0x1d) == 2) {       /* voice stopping */
                 if (vreg[6] != 0) {
                     *(volatile unsigned char *)(vp + 0x26) = 1;
@@ -703,9 +704,9 @@ extern void iSNDserve(void)
                                 vp = vbase + cvt;
                             }
                             vp[0x1d] = 0;
-                            *(volatile unsigned char *)(vp + 0x1c) = 0;
-                            iSNDfreechan(c);
+                            vp[0x1c] = 0;
                             n--;
+                            iSNDfreechan(c);
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
                             onec = 1;
                             kon = kon | (onec << c);
@@ -735,14 +736,15 @@ extern void iSNDserve(void)
                     }
                 }
             } else if (*(volatile unsigned char *)(vp + 0x1d) == 3) { /* voice fully stopped */
-                one = 1;
                 if (vreg[6] == 0) {
+                    one = 1;
                     kon = kon | (one << chan);              /* (Ghidra `mask`) */
+                    vp[0x1d] = 0;
                     vreg[3] = 0x200;
                     vreg[0] = 0;
                     vreg[1] = 0;
-                    vp[0x1d] = 0;
                 } else {
+                    one = 1;
                     koff = koff | (one << chan);            /* (Ghidra `local_30`) */
                 }
                 one = 0;
@@ -770,6 +772,8 @@ extern void iSNDserve(void)
     }
     if (koff != 0)
         iSNDpsxkeyoff((int)koff);
-    if (kon != 0)
-        iSNDpsxkeyon((int)kon);
+    do {
+        if (kon != 0)
+            iSNDpsxkeyon((int)kon);
+    } while (0);
 }

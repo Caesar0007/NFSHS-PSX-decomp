@@ -319,12 +319,19 @@ extern int iSNDpsxmalloc(int size);                               /* @0x8010A5CC
 extern void iSNDpsxmemconstrain(unsigned int *size, int *avail)
 {
     unsigned char *pd = sndpd;
-    unsigned short lo;
+    unsigned int lo;
     unsigned int s, diff;
     lo = *(unsigned short *)(pd + 0x51a);
-    s = *size;
-    diff = (unsigned int)lo - s;
+    /* MATCH: enter the branch-local-diff basin, then keep `lo` as the equivalent
+     * `s + diff`.  That dependency puts the subtraction at the block head.  The
+     * zero-trip wrapper is a zero-insn ref-step dial: s refs 7->8, which restores
+     * the oracle's a2/a3 handout after `lo` gains its second role. */
+    do {
+        s = *size;
+    } while (0);
     if ((int)s < (int)lo) {
+        diff = (unsigned int)lo - s;
+        lo = s + diff;
         *size = lo;
         *avail = *avail - diff;
         s = *size;

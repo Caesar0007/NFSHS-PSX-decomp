@@ -40,14 +40,16 @@ extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*resu
    
    [ghidra-meta] section: front.text */
 
-/* MATCH W63: 37 -> 9 diffs (102 -> 106 instructions; retail 107).  The SYM
+/* MATCH W63/W66: 37 -> PASS (107/107 instructions).  The SYM
    names only `the_simcarcolor` ($a0) and unsigned-long `ticks` ($v1).  Keeping
-   the global tick read and signed remainder as two statements gives retail's
-   early $v1 load/prologue order; spelling the direction result as the SLD's
-   explicit if/else restores its branch normalizer.  Direct tCarInfo fields and
-   direct gCarObj[player] uses remove the decompiler's byte/pointer aliases and
-   make the entire post-remainder body byte-identical.  Remaining 9 are one
-   missing pre-branch copy in the signed-remainder local-allocation basin. */
+   the global read in that unsigned local, then explicitly converting it to a
+   signed temporary before `% 0x800`, gives retail's pre-branch `$v0 = $v1`
+   copy, `$a0` dividend preservation, and quotient/result flow through $v1.
+   The temporary optimizes away and does not contradict the SYM local table.
+   Spelling the direction result as the SLD's explicit if/else restores its
+   branch normalizer.  Direct tCarInfo fields and direct gCarObj[player] uses
+   remove the decompiler's byte/pointer aliases and make the remainder of the
+   body byte-identical. */
 
 extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,short y,float camerax,float cameray,char brightness,
                bool reflection,u_long rotate,tPlayer player)
@@ -55,9 +57,11 @@ extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,s
 {
   int the_simcarcolor;
   u_long ticks;
+  long signedTicks;
   
   ticks = ::ticks[0];
-  ticks = (long)ticks % 0x800;
+  signedTicks = (long)ticks;
+  ticks = signedTicks % 0x800;
   DrawC_gMenuLights = 0;
   if (ticks < 0x400) {
     DrawC_gMenuLightsDirection = 0;

@@ -179,6 +179,7 @@
  * slib.c's iSNDinit (writer) and sdmemlu.c's SNDmemlargestunused (reader) -- all three now compute
  * addresses off the same `sndpd` base instead of three disconnected storage locations. */
 extern unsigned char sndpd[];                 /* voice/queue state base @0x80147918 (shared, sdma.c) */
+extern unsigned short D_80147E34[];            /* sndpd+0x51C, exact retail tail-scan relocation */
 #define SNDPD_ENGINEVER   (*(unsigned short *)(sndpd + 0x51A))  /* min SPU block (reserved low area) */
 #define SNDPD_BLOCKTOTAL  (*(unsigned short *)(sndpd + 0x51C))  /* top of the SPU sample area */
 #define SNDPD_REVERBMODE  (*(unsigned short *)(sndpd + 0x51E))  /* reverb-work-area boundary */
@@ -352,11 +353,11 @@ extern int iSNDpsxmalloc(int size)
      * on the caller-saved `base`; the nonempty path promotes it to persistent `pd`, while commit deliberately
      * re-materializes sndpd+0x520.  The explicit volatile entry-count gate preserves the oracle's pre-loop
      * bound check, and branch-local block/avail temporaries keep each gap calculation on its own CFG arm.
-     * The empty/tail candidates remain separate register temporaries until the shared constrain block, matching
-     * the lifetime split recovered by RetDec.  The packed four-byte shift is expressed as __builtin_memcpy so
+     * The empty and scan-tail candidates use separate textual constrain sites, matching the lifetime split
+     * recovered by IDA.  The packed four-byte shift is expressed as __builtin_memcpy so
      * CC1PSX emits the oracle's direct lwl/lwr/swl/swr sequence without an artificial value move.  Together
      * with in-place size rounding and the oracle-ordered failure label, these changes reduced the detailed
-     * residual from 140 to 59 instructions.
+     * residual from 140 to 46 instructions.
      *
      * W34-a7 TRIED AND REVERTED (both move the INSN COUNT toward the oracle but raise the gate count,
      * so neither is a keep -- recorded so they are not re-derived):
@@ -407,13 +408,18 @@ extern int iSNDpsxmalloc(int size)
      *   a jump.  That is a block-ORDER question (catalog w42 "PHYSICAL BLOCK ORDER dominates"), not a
      *   fence question; the lever family is the arrangement of the `fail`/`return 0` tails, not the
      *   constrain call itself.  Do NOT re-spend budget on prev-address spellings or on the double
-     *   read in isolation -- both are now falsified twice. */
+     *   read in isolation -- both are now falsified twice.
+     *
+     * W58 2026-08-11: the deliberate split+dbl step-back finally crossed the 59-diff floor.  A fresh
+     * exact D_80147E34 tail base plus three nested one-trip wrappers around only that base definition
+     * changes flow-reference pricing without emitted code.  Keeping the index offset unwrapped gives
+     * the decisive asymmetric allocation: 46 diffs at exact 127/127 parity.  Wrapping both quantities
+     * reaches parity too but scores 64; base depths 1/2 score 66/64, while depths 3/4 both score 46.
+     * This is the expected multi-step hard-floor route: 59@120 -> 60@123 -> 46@127. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;
     int          idx = 0;
-    unsigned int final_block;
-    int          final_avail;
     unsigned int local_block;
     int          local_avail;
     unsigned short count = *(unsigned short *)(base + 0x518);
@@ -424,12 +430,9 @@ extern int iSNDpsxmalloc(int size)
     size >>= 6;
     if (count != 0)
         goto nonempty;
-    final_block = (unsigned int)*(unsigned short *)(base + 0x51A);
-    final_avail =
-        (int)*(unsigned short *)(base + 0x51C) - (int)final_block;
-final_constrain:
-    local_block = final_block;
-    local_avail = final_avail;
+    local_block = (unsigned int)*(unsigned short *)(base + 0x51A);
+    local_avail = (int)*(unsigned short *)(base + 0x51C) -
+                  (int)*(unsigned short *)(base + 0x51A);
     iSNDpsxmemconstrain(&local_block, &local_avail);
     if (size <= local_avail)
         goto commit;
@@ -495,14 +498,27 @@ scan:
             goto scan;
 scan_done:
         {
-            unsigned short *prev =
-                (unsigned short *)(previous + idx * 4);
-            final_block = (unsigned int)prev[0] + (unsigned int)prev[1];
-            final_avail =
-                (int)*(unsigned short *)(pd + 0x51C) - (int)final_block;
+            unsigned short *pv;
+            unsigned int off = idx * 4;
+            unsigned short *prev;
+            /* Instruction-free flow weighting: depth 3 is the first allocation boundary. */
+            do {
+                do {
+                    do {
+                        pv = D_80147E34;
+                    } while (0);
+                } while (0);
+            } while (0);
+            prev = (unsigned short *)((unsigned char *)pv + off);
+            local_block = (unsigned int)prev[0] + (unsigned int)prev[1];
+            local_avail =
+                (int)pv[0] - (int)local_block;
         }
     }
-    goto final_constrain;
+    iSNDpsxmemconstrain(&local_block, &local_avail);
+    if (size > local_avail)
+        goto fail;
+    goto commit;
 commit:
     {
         unsigned char *table = sndpd + 0x520;

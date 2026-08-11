@@ -559,15 +559,17 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
 }
 
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
-/* MATCH: 77 -> 44. `flare_intensity / 4` restores gcc's signed-division bias,
+/* MATCH: 77 -> 21. `flare_intensity / 4` restores gcc's signed-division bias,
    `__builtin_abs` restores the retail absolute-value branch/copy shape, and
    explicit flare x/Offset temporaries reduce the halo loop to allocation/order
    differences.  2026-08-10: splitting the reused shock boolean into the two
    source-arm values shown by IDA (v7=$a0 for shockMode, v10=$a1 for shockImpact)
-   removes 6 diffs with no code-size change. Remaining hotspots are the halo
-   argument register order, one float-denominator load order, and the final
-   NegCon mode CFG. Falsified in this basin: one shared controller-offset pointer
-   (neutral), pointer/read fences (extra scheduling instruction), explicit
+   removes 6 diffs with no code-size change. 2026-08-11: spelling the NegCon
+   zero-axis case as an out-of-line forward arm and comparing the already-wide
+   controller local removes one instruction and lowers the authoritative gate
+   from 30 to 21. Remaining hotspots are the halo argument register order and
+   two mode-constant delay slots. Falsified in this basin: one shared
+   controller-offset pointer (neutral), pointer/read fences (extra scheduling instruction), explicit
    animStep/animRange locals (whole-function s1/s2 swap), and a direct SYM-local
    NegCon rewrite (853/836 instructions); all were reverted. */
 void tScreenControllerConfig::DrawController()
@@ -873,19 +875,20 @@ DrawCtrl_calcModeTwo:
     goto DrawCtrl_calcModeOther;
 DrawCtrl_smallAxis:
     modeBase = 0x23;
-    if (axisB < -10) {
-      axisB = -axisB;
-      if ((byte)frame == 2) {
-        modeBase = 0x10;
-      }
-      __asm__("" : : "r"(frame));
-      if ((byte)frame == 2) goto DrawCtrl_calcModeTwo;
-      goto DrawCtrl_calcModeOther;
+    if (axisB >= -10) {
+      goto DrawCtrl_zeroAxis;
     }
-    frame = (uint)((byte)frame == 2);
-    goto DrawCtrl_axisDone;
+    axisB = -axisB;
+    if ((byte)frame == 2) {
+      modeBase = 0x10;
+    }
+    __asm__("" : : "r"(frame));
+    if ((byte)frame == 2) goto DrawCtrl_calcModeTwo;
 DrawCtrl_calcModeOther:
     frame = modeBase + (axisB << 3) / 0x81;
+    goto DrawCtrl_axisDone;
+DrawCtrl_zeroAxis:
+    frame = (uint)(frame == 2);
 DrawCtrl_axisDone:
     this->ActualDrawController(frame,0,0,0,0);
     return;

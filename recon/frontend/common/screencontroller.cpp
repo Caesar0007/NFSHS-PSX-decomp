@@ -983,13 +983,11 @@ void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
 void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
 
 {
-  /* MATCH (06A): the SYM 8c block for this fn declares NO locals at all (only the
-     `this`/`ArrowLoc` REGPARMs), so every intermediate is the FIELD itself --
-     `this->mult` is stored and then READ BACK (cse forwards the stored register,
-     giving the oracle's `sh` before the `sll/bgez` sign test instead of our
-     sunk-into-the-delay-slot store off a separate `fadeCalc` int). */
+  /* MATCH: SLD 1593 covers the entire clamp on one source line.  This is EA's
+     duplicated MIN(MAX(field, 0), 0x40) macro expansion, not a simplified
+     hand-written branch tree; keeping the field expression duplicated gives
+     retail's v1 raw value / a0 sign test / v0 clamp handout. */
   short clampVal;
-  int hi;
   this->mult = 0;
   settrans(1);
   /* MATCH: the oracle passes the literal mode (a0 = 0 here, a0 = 1 at the tail);
@@ -1009,38 +1007,16 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
   }
   if (this->fArrowFadeDir < 0) {
     this->mult = (short)(0x80 - (uint)(ushort)this->fArrowFade);
-    hi = this->mult;
-    /* MATCH (SLD 1593 = ONE source line): the >=0x40 arm is OUT OF LINE (oracle
-       `beqz` jumps straight to the store with 0x40 in its delay slot) and the
-       low clamp is a plain if/else whose `clampVal = this->mult` rides the
-       `bgez` slot (oracle `addu v0,v1,zero` = a copy of the just-stored value). */
-    if (0 < hi) {
-      if (0x40 <= hi) { clampVal = 0x40; goto DA_store; }
-    }
-    /* MATCH (W57, 12->10): PRE-SET THE DEFAULT BEFORE THE TEST (w47) -- the
-       oracle's `bgez $a0,.L..E08` carries `addu $v0,$v1,$zero` in its delay
-       slot with `addu $v0,$zero,$zero` as the FALL-THROUGH, i.e. the copy is
-       the default assigned before the guard, not an if/else arm (the if/else
-       form emits the inverted `bltz`).  RESIDUAL 10 = the two `0x40` arms
-       cross-jump-merge into ONE pseudo (oracle rematerializes `addiu
-       $v0,$zero,0x40` in BOTH branch delay slots), which lengthens the
-       constant's live range past the `slti` result and costs it $v0 -> $a1.
-       De-merge attempts (void fence in either arm, &&-nogoto, nested-nogoto,
-       int clampVal, decl-order swap, clampVal=(short)hi) all measured WORSE
-       (14/24/20/25/10/28) -- next angle = reorg dual-slot duplication
-       (w44 compare-operand-order row) or qtytrace. */
-    clampVal = this->mult;
-    if (hi < 0) {
-      clampVal = 0;
-    }
+    clampVal = (((((int)this->mult > 0) ? (int)this->mult : 0) < 0x40)
+                    ? (((int)this->mult > 0) ? (int)this->mult : 0) : 0x40);
   }
   else {
-    /* MATCH: the 0x40 default is the ELSE ARM (it rides the `bgez` delay slot);
-       a pre-set before the if hoists it and kills the in-arm rematerialization. */
     clampVal = 0x40;
   }
-DA_store:
   this->mult = clampVal;
+  /* MATCH: zero-insn scheduling barrier keeps the SLD-1596 store before the
+     HorzVertLine argument setup instead of sinking it into the call slot. */
+  __asm__("" : : "i"(0));
   this->HorzVertLine(ArrowLoc,false);
   FeDraw_SetABRMode(1);
   settrans(0);

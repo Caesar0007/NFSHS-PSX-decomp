@@ -186,15 +186,22 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
      * two callee regs i1/i2 need; decl/init order i2-before-i1, j2-before-j1 puts i2->fp,
      * i1->s7, j2->s4, j1->s3; progressive acc (+= per call) avoids a park reg; NO explicit
      * return -- $v0 after blockmove is incidental (oracle writes no v0). */
+    /* MATCH (w58, 31->29): IDA's retail register annotation order is significant here: the inner
+     * counter and its two byte-offset walkers are initialized before the pa[] address materialization.
+     * Spelling j's initialization as a separate statement at that boundary makes sched1 place
+     * `addu s1,zero,zero` at retail's exact slot, without changing code size or the saved-register
+     * allocation.  The remaining 29-diff floor is still the single inherited a-param reload and the
+     * two inherited b-param reload/load-delay pairs documented above. */
     i = 0;
     i2 = 8;
     i1 = 4;
     for (; i < 9; i += 3) {
-        pa[0] = (int *)((char *)a + i1);
-        pa[1] = (int *)((char *)a + i2);
+        j = 0;
         j2 = 24;
         j1 = 12;
-        for (j = 0; j < 3; j++) {
+        pa[0] = (int *)((char *)a + i1);
+        pa[1] = (int *)((char *)a + i2);
+        for (; j < 3; j++) {
             acc  = fixedmult(a[i], b[j]);
             acc += fixedmult(*pa[0], *(int *)((char *)b + j1));
             acc += fixedmult(*pa[1], *(int *)((char *)b + j2));

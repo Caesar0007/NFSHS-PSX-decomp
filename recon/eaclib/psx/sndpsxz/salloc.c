@@ -513,7 +513,10 @@ done:
    fence placed AFTER the increment instead of at the body head (17 @109).
    NEXT ANGLE: no statement boundary exists between the scale chain and the load, so a fence has
    no position to occupy -- this wants an allocsim/qtytrace read of the block's ready list or a
-   +/-1 RTL-insn dial, not another spelling. */
+   +/-1 RTL-insn dial, not another spelling.
+   W58 2026-08-11: PASS. Factoring chan*100 as `(chan*25)*4` creates exactly that missing source
+   boundary: gcc emits the *25 chain, schedules the independent pool load, then emits the final
+   shift by two. This is retail's exact 110-instruction order and introduces no extra code. */
 extern void iSNDfreechan(int chan)
 {
     unsigned int group;
@@ -533,6 +536,7 @@ extern void iSNDfreechan(int chan)
         unsigned char *scan;
         unsigned char *gs;
         int poolv;
+        int chan25;
 
         if (count < (int)base[0x11]) {
             slot = count;
@@ -568,8 +572,10 @@ extern void iSNDfreechan(int chan)
         }
 
         gs = (unsigned char *)sndgs;
+        /* Retail schedules this *25 prefix before the independent pool load, then finishes *4. */
+        chan25 = chan * 25;
         poolv = *(int *)(gs + 0x94);
-        slot = poolv + chan * 100;
+        slot = poolv + chan25 * 4;
 
         if (count == 1) {
             *(unsigned char *)(slot + 0xb) = 0;

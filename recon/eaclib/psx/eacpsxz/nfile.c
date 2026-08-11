@@ -243,8 +243,17 @@ extern FileHandle *reservehandle(void)
              * fill_simple_delay_slots refuses to scan past those, which is the whole +1) -- no
              * such construct exists in this compiler's C surface.  Also falsified: a `&&`-guarded
              * comma advance (25 @45) and an advance-first form with a `cur != next` loop
-             * condition (35 @45). */
-            __asm__("" : : "r"(cur));
+             * condition (35 @45).
+             * w61: FF8's pure-C regalloc idiom refutes the final conclusion above.  A one-trip
+             * increment/decrement pair keeps `cur` split without becoming an asm scheduling
+             * barrier; applying the same zero-net pair to `i` restores the retail a0/a1 priority.
+             * Both pairs optimize away, yielding an exact 44/44 PASS with no general asm fence. */
+            do {
+                cur++;
+                cur--;
+                i++;
+                i--;
+            } while (0);
         } while (i < count);
     }
     FILE_CS_LEAVE(sr);

@@ -590,6 +590,8 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
     unsigned int take;
     int  *cbuf;
     short *ringp;
+    int  result;         /* MATCH: IDA's function-wide `$v0` result joins the early no-frame exit
+                           * with the normal cursor-advance return at function_exit below. */
     int  frameSize;      /* MATCH: genuinely uninitialized (Ghidra local_30) -- iSNDpacketget always
                            * writes it before any read; a `=0` initializer emits a dead `sw zero,..(sp)`
                            * the oracle lacks. */
@@ -642,9 +644,15 @@ extern int iSNDfillspuwithpackets(int p, int chunk)
                     } while (i < (int)(unsigned)*(volatile unsigned char *)(voice + 0x1F));
                 }
                 if (*(int *)(pp + 0x24) == 0) {             /* no frame available -> finish/flush */
-                    int avail = *(int *)(pp + 0x14) - *(int *)(pp + 0x18);
-                    if ((int)(unsigned)*(unsigned short *)(pp + 0x40) < avail)
-                        return avail;
+                    int cursor;
+                    /* MATCH: a depth-3 phony-loop wrapper is a zero-instruction local_alloc dial.
+                     * flow.c weights only cursor's defining quantity before loop.c removes the
+                     * wrappers; that crosses the 3-QTY handout threshold and gives cursor/result
+                     * $v0, the second load $a0, and the limit/compare chain $v1, as in retail. */
+                    do { do { do { cursor = *(int *)(pp + 0x14); } while (0); } while (0); } while (0);
+                    result = cursor - *(int *)(pp + 0x18);
+                    if ((int)(unsigned)*(unsigned short *)(pp + 0x40) < result)
+                        goto function_exit;
                     if (*(unsigned short *)(pp + 0x36) > *(unsigned short *)(pp + 0x38))
                         goto advance;
                     if (*(unsigned short *)(pp + 0x36) < 2) {     /* mark SPU loop-back */
@@ -803,8 +811,10 @@ queue_dma:
     }
 advance:
     *(short *)(pp + 0x3a) = (short)chunk;
-    *(int *)(pp + 0x14) = *(int *)(pp + 0x14) + (unsigned)*(unsigned short *)(pp + 0x46);
-    return *(int *)(pp + 0x14);
+    result = *(int *)(pp + 0x14) + (unsigned)*(unsigned short *)(pp + 0x46);
+    *(int *)(pp + 0x14) = result;
+function_exit:
+    return result;
 }
 
 /* iSNDpacketserve @0x80104024 : per-tick service -- pull fresh stream chunks, advance each player's served

@@ -785,8 +785,8 @@ DrawCtrl_ticksUpdate:
       this->fAnimFrame = this->fAnimStop;
     }
     fadelevel = (int)(((float)(ticks - this->fStartTick) /
-                       (float)(((int)this->fAnimStep * 6) *
-                               ((int)this->fAnimStop - (int)this->fAnimStart))) * 256.0);
+                       (float)((((int)this->fAnimStop - (int)this->fAnimStart) * 6) *
+                               (int)this->fAnimStep)) * 256.0);
     if (0x100 < fadelevel) {
       fadelevel = 0x100;
     }
@@ -857,8 +857,15 @@ DrawCtrl_ticksUpdate:
     axisB = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
     if (axisB < 0xb) goto DrawCtrl_smallAxis;
     modeBase = 0x1a;
-    if (frame == 2) {
+    if ((byte)frame == 2) {
       modeBase = 2;
+    }
+    /* MATCH: the retail CFG tests the masked controller twice here and in the
+       negative-axis arm.  These read-only fences emit no instructions but
+       prevent gcc 2.8 from folding each pair into one test (44 -> 30 diffs,
+       together with the denominator multiplication tree above). */
+    __asm__("" : : "r"(frame));
+    if ((byte)frame == 2) {
 DrawCtrl_calcModeTwo:
       frame = modeBase + (axisB * 0xd) / 0x81;
       goto DrawCtrl_axisDone;
@@ -868,11 +875,14 @@ DrawCtrl_smallAxis:
     modeBase = 0x23;
     if (axisB < -10) {
       axisB = -axisB;
-      if (frame != 2) goto DrawCtrl_calcModeOther;
-      modeBase = 0x10;
-      goto DrawCtrl_calcModeTwo;
+      if ((byte)frame == 2) {
+        modeBase = 0x10;
+      }
+      __asm__("" : : "r"(frame));
+      if ((byte)frame == 2) goto DrawCtrl_calcModeTwo;
+      goto DrawCtrl_calcModeOther;
     }
-    frame = (uint)(frame == 2);
+    frame = (uint)((byte)frame == 2);
     goto DrawCtrl_axisDone;
 DrawCtrl_calcModeOther:
     frame = modeBase + (axisB << 3) / 0x81;

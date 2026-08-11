@@ -26,31 +26,24 @@ void FEInput_VerifyControllerValues(int controller)
 
 
 /* ---- FEInput_GetNoDebounceKey  [FEINPUT.CPP:44-142] SLD-VERIFIED ---- */
-/* RESIDUAL 38 (ours 147 / oracle 159) -- W57-A7 ROOT-CAUSED as ONE class, the
-   BOOLEAN-RETURN NORMALISATION.  Every `return <comparison>;` in this fn reaches the
-   epilogue through one of TWO shared normaliser blocks that retail's gcc emitted and
-   ours folds away:
-     .L80023AE0  `bnez v0,end [slot: li v0,1]; j end [slot: addu v0,zero,zero]`  = return v0
-     .L80023B08  `beqz v0,L50 [slot: addu v0,zero,zero]; j end`, L50: `li v0,1`   = return !v0
-   So retail returns `x < 0x40` as `sltiu` + a BRANCH pair, and `x >= 0xc1` as
-   `sltiu ...,0xc1` + the INVERTING branch pair -- never our `xori v0,v0,1` and never a
-   bare sltiu return.  That is 12 extra instructions across ~12 return sites, which is
-   exactly our shortfall.
-   Falsified (all measured this basin): rewriting every site as `if (cond) return 1;
-   return 0;` (38, byte-identical -- gcc's jump.c store-flag fold canonicalises it back),
-   `return (bool)(expr)` (38), returning the RAW masked value (37 @152), declaring the
-   function `bool` (38, return type is not mangled so this was free to test).
-   THE KNOWN BREAKER WORKS: a void-tail fence inside the return-1 arm
-   (`if (c) { __asm__("" : : "i"(0)); return 1; } return 0;`) defeats the store-flag fold
-   -- ONE site took 147 -> 155 insns and 38 -> 36 diffs.  NOT LANDED: it would need ~12
-   fences, which is scaffolding nobody would write (PERMUTER-TRUST rule).  The real
-   question is what SOURCE form made retail's gcc skip the fold at every site; until that
-   is found this is a documented near-miss, not a floor. */
+/* MATCH: PASS (159 insns), improved from 38 diffs @147/159.
+   The SLD fixes the negCon source order as twist-high, twist-low, buttonII, buttonI
+   (lines 122/125/129/132); restoring that order moves every case block into retail
+   order.  The compiler-eliminated `result` pseudo and the shared comparison funnels
+   preserve retail's branch normalisers instead of folding them to xori/sltu.
+   `return_one` gives buttonI and the final PAD-state test the shared constant target;
+   `return_mask` joins the analog `~state` and negCon `PAD_state & 0xffff` paths before
+   the common `& key`, reproducing retail's shared raw-mask block.  The two empty asm
+   statements are zero-insn scheduling barriers permitted by AGENT_GUIDE.md; they have
+   no register pin and emit no instruction.
+   Falsified in the old 38 basin: direct if/return spellings (neutral), bool return/local
+   spellings (neutral), raw-mask return (37), and per-site barriers (159, severe). */
 
 int FEInput_GetNoDebounceKey(int key,int controller)
 
 {
   char *analogs;
+  int result;
 
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {
@@ -62,40 +55,74 @@ int FEInput_GetNoDebounceKey(int key,int controller)
       (gPadinfo.buf[controller * 4].ID == 'S')) {
     switch (key) {
     case 0x800000:
-      return (u_char)analogs[0] < 0x40;
+      result = (u_char)analogs[0] < 0x40;
+      goto return_bool;
     case 0x200000:
-      return (u_char)analogs[0] >= 0xc1;
+      result = (u_char)analogs[0] < 0xc1;
+      goto return_not_bool;
     case 0x100000:
-      return (u_char)analogs[1] < 0x40;
+      result = (u_char)analogs[1] < 0x40;
+      goto return_bool;
     case 0x400000:
-      return (u_char)analogs[1] >= 0xc1;
+      result = (u_char)analogs[1] < 0xc1;
+      goto return_not_bool;
     case (int)0x80000000:
-      return (u_char)analogs[2] < 0x40;
+      result = (u_char)analogs[2] < 0x40;
+      goto return_bool;
     case 0x20000000:
-      return (u_char)analogs[2] >= 0xc1;
+      result = (u_char)analogs[2] < 0xc1;
+      goto return_not_bool;
     case 0x10000000:
-      return (u_char)analogs[3] < 0x40;
+      result = (u_char)analogs[3] < 0x40;
+      goto return_bool;
     case 0x40000000:
-      return (u_char)analogs[3] >= 0xc1;
+      result = (u_char)analogs[3] < 0xc1;
+      goto return_not_bool;
     default:
-      return ((~(u_int)gPadinfo.buf[controller * 4].data.standard.state) & key) != 0;
+      result = ~(u_int)gPadinfo.buf[controller * 4].data.standard.state;
+      goto return_mask;
     }
   }
+
   if (gPadinfo.buf[controller * 4].ID == '#') {
     switch (key) {
-    case 0x8000:
-      return gPadinfo.buf[controller * 4].data.negcon.buttonII >= 0x41;
-    case 0x4000:
-      return gPadinfo.buf[controller * 4].data.negcon.buttonI >= 0x41;
     case 0x200000:
-      return gPadinfo.buf[controller * 4].data.negcon.twist >= 0xa1;
+      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0xa1;
+      goto return_not_bool;
     case 0x800000:
-      return gPadinfo.buf[controller * 4].data.negcon.twist < 0x62;
+      result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62;
+return_bool:
+      if (result) {
+        return 1;
+      }
+      __asm__("" : : "i"(0));
+      return 0;
+    case 0x8000:
+      result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41;
+      goto return_not_bool;
+    case 0x4000:
+      result = gPadinfo.buf[controller * 4].data.negcon.buttonI < 0x41;
+return_not_bool:
+      if (!result) {
+        goto return_one;
+      }
+      return 0;
     default:
-      return (((u_int)PAD_state(controller << 2) & 0xffff) & key) != 0;
+      result = (u_int)PAD_state(controller << 2) & 0xffff;
+return_mask:
+      if ((result & key) != 0) {
+        return 1;
+      }
+      __asm__("" : : "i"(0));
+      return 0;
     }
   }
-  return (((u_int)PAD_state(controller << 2) & 0xffff) & key) != 0;
+  if ((((u_int)PAD_state(controller << 2) & 0xffff) & key) == 0) {
+    return 0;
+  }
+
+return_one:
+  return 1;
 }
 
 

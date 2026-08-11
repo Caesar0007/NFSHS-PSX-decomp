@@ -15,18 +15,20 @@ typedef struct tPsyQPrimTag {
 
 
 /* ---- MenuNFS4_DrawTextBox  [FEMENUEXTENDED.CPP:66-137] SLD-VERIFIED ---- */
-/* MATCH: 6 diffs (W56-A9). Removed the fabricated `int maxw` local (NOT in the
+/* MATCH: 6 -> 4 diffs (W56-A9/W66). Removed the fabricated `int maxw` local (NOT in the
    SYM 8c block -- locals are helpText/r/initialWidth/drawOffset/fSelFade/
    drawArrows/reflected/drenv/daprim/temp/textpix/dist($15=s5)/drawFlags/buffer/
    shape/col/ypos); `dist=(max)+0x19` inline is codegen-neutral (293->293) but
-   SYM-faithful. REMAINING 6 = two independent reorg delay-slot-fill tie-breaks
-   (NOT source-dialable; catalog F "permuter or accept"):
-   (a) `lui v0,0` for the Draw_gPlayer1View load scheduled before vs after
-       `sw s3,140(sp);addu s3,a1,zero`;
-   (b) `addiu s5,v1,25` (dist=max+25) -- oracle fills the CalcTextFadeSelToHi
+   SYM-faithful.  W66 removed the likewise fabricated `RECT *rect` local and uses
+   the native RECT& parameter directly; that moves Draw_gPlayer1View's `lui` to
+   its retail prologue position with no instruction-count change.  REMAINING 4:
+   `addiu s5,v1,25` (dist=max+25) -- oracle fills the CalcTextFadeSelToHi
        jal delay slot with it, ours fills the slot with `addu a2,zero,zero`
        (the 3rd arg 0) and computes dist before the call. Both are reorg
-       fill-candidate choices; explicit-if max form regressed 6->28. */
+       fill-candidate choices.  Moving the assignment after the call produces the
+       exact local sequence but swaps helpText/fSelFade $s1/$s2 (30); a named max
+       carrier costs a saved register and a 176-byte frame (136).  Inline helpers,
+       declaration-vs-assignment, and comma placement are neutral at 4. */
 
 void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset,short fSelFade,
                bool drawArrows,bool reflected)
@@ -40,16 +42,14 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
   tDrawShapeExtended drawFlags;
   char buffer [64];
   tTexture_ShapeInfo *shape;
-  RECT *rect;
 
-  rect = &r;
   dist = initialWidth;
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   drawFlags.tint[0] = CalcFadeVal(0xb54200,0xbebe,(int)fSelFade);
   if (reflected != 0) {
-    drawFlags.tint[0] = CalcFadeVal(0,drawFlags.tint[0],0xe0 - rect->y);
+    drawFlags.tint[0] = CalcFadeVal(0,drawFlags.tint[0],0xe0 - r.y);
   }
-  DrawShape_SubtractNFS4RectEdges(*rect);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
+  DrawShape_SubtractNFS4RectEdges(r);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
   if (-1 < helpText) {
     daprim = Render_gPacketPtr;
     temp.x = 0;
@@ -68,28 +68,28 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     {
       int col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
       if (reflected != 0) {
-        col = CalcFadeVal(0,col,0xf0 - rect->y);
+        col = CalcFadeVal(0,col,0xf0 - r.y);
       }
       FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
-                 (short)(rect->x + drawOffset),rect->y + 4,
+                 (short)(r.x + drawOffset),r.y + 4,
                  col,'\0',0);
       {
         FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
-                   (short)(rect->x + drawOffset - dist),rect->y + 4,col,'\0',0);
+                   (short)(r.x + drawOffset - dist),r.y + 4,col,'\0',0);
         if (drawArrows != 0) {
-          int ypos = rect->y + ((int)((u_int)(u_short)rect->h << 0x10) >> 0x11);
+          int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
           if (reflected == 0) {
             ypos = ypos + 2;
           }
-          DrawShapeExtended(0xa,0x118,(rect->x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
-          DrawShapeExtended(0xb,0x118,rect->x + drawOffset + textpix + 8,ypos,0,0,&drawFlags);
-          DrawShapeExtended(0xa,0x118,((rect->x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
-          DrawShapeExtended(0xb,0x118,((rect->x + drawOffset) - dist) + textpix + 8,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xa,0x118,(r.x + drawOffset) - 0xa,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xb,0x118,r.x + drawOffset + textpix + 8,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xa,0x118,((r.x + drawOffset) - dist) - 0xa,ypos,0,0,&drawFlags);
+          DrawShapeExtended(0xb,0x118,((r.x + drawOffset) - dist) + textpix + 8,ypos,0,0,&drawFlags);
         }
       }
     }
     daprim = Render_gPacketPtr;
-    temp = *rect;
+    temp = r;
     temp.y = temp.y + *(short *)((char *)drenv + 2);
     temp.x = temp.x + 2;
     temp.w = temp.w + -4;
@@ -98,7 +98,7 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
     SetDrawArea((DR_AREA *)daprim,&temp);
   }
-  temp = *rect;
+  temp = r;
   temp.y++;
   temp.h -= 2;
   shape = gHelpShapes + 0x1e;

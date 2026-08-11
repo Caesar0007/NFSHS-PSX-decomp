@@ -247,22 +247,18 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
      ONE sign-extended value feeds both the compare and the sprintf arg (oracle
      `addu $a2,$v0,$zero`), while the fPreviousTrack store RE-READS the field
      (the two calls may alias).  fPreviousTrack is a signed short -> `lh`. */
-  /* MATCH (W55-A15, 12 -> 9, count 42/43): retail does NOT fuse the sign-extension into
+  /* MATCH (W55-A15/W59, 12 -> PASS, count 43/43): retail does NOT fuse the sign-extension into
      an `lb` -- the oracle reads `lbu` then `sll 24 / sra 24`.  Per the volatile-QImode law
      a volatile QImode MEM cannot be combined with its sign_extend, so the volatile u_char
-     view + explicit shift chain reproduces it (a plain `(signed char)` cast folds to `lb`).
-     RESIDUAL 9 (1 insn): retail keeps trackID in $v0 and COPIES it to the sprintf arg
-     (`addu $a2,$v0,$zero` in the jal delay slot); ours coalesces trackID straight into
-     $a2 so no copy is minted.  W57-A7 SHARPENED: the real swap is that retail's SHIFT
-     TEMP owns $a2 (`sll a2,v0,24`) and the sign-extended value goes BACK into the lbu's
-     $v0 (`sra v0,a2,24`); ours does the reverse (`sll v0,v0,24; sra a2,v0,24`), which is
-     why the arg copy never has to be minted.  So it is a two-pseudo home swap at the
-     local-alloc QTY layer (the 06E instrument gap), NOT a copy-preference problem.
+     view prevents folding to `lb`.  Giving the promoted value its real narrow source type,
+     `signed char`, then makes local allocation put the shift temporary in $a2 and the
+     sign-extended result back in $v0; promotion at sprintf mints retail's final
+     `addu $a2,$v0,$zero` in the call delay slot.
      Falsified here: an identity fence on trackID at the definition (count-exact 43/43,
      16 diffs), the same fence just before the sprintf and a read-only fence inside the
      `if` (both 43/43 @10 -- they mint the copy but leave the sll/sra pair swapped and
      cost the beq delay-slot fill), a two-statement shift split (9), Yoda compare order. */
-  int trackID = ((int)(*(volatile u_char *)&trackInfo.fTrackID) << 24) >> 24;
+  signed char trackID = *(volatile u_char *)&trackInfo.fTrackID;
 
   if (trackID != this->fPreviousTrack) {
     sprintf(gSwapFileName,"TR%02dPS",trackID);

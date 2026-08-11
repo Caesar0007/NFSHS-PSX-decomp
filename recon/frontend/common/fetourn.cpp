@@ -505,7 +505,14 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
    dummyCars' generated second-arm cursor propagates an $a1 preference; that reserves $a1
    from the first-arm competitor cursor, which in turn occupies $a3 and rotates k/numCars.
    FALSIFIED: branch-head identity fence 74; base live through loop 81; forced distinct
-   base/cursor webs 68.  Next angle is removing that cursor preference without a new web. */
+   base/cursor webs 68.
+   W65: 66 -> PASS (134/134).  Evaluating the knockout flag before materializing dummyCars
+   gives the retail SYM handout k=$a3, numCompetitors=$t0, dummyCars=$t1.  The empty memory
+   reference on fCompetitors[i] raises the strength-reduced cursor from 15 to 16 refs, crossing
+   GCC's floor_log2 priority boundary and assigning cursor=$a1/finalPosition=$a2 with no emitted
+   instruction.  Flat integer address arithmetic preserves both retail add operand orders.  The
+   final ranking loop keeps old-i address formation and a distinct next-i web; its byte cursor
+   supplies the retail base-first add and +294 store exactly. */
 void tTournamentManager::UpdateTrackFinishPoints()
 
 {
@@ -516,20 +523,22 @@ void tTournamentManager::UpdateTrackFinishPoints()
   Car_tStats *stats;
   tCompetitor *comp;
   u_char rankVal;
+  bool knockout;
 
   numCompetitors = this->GetNumCompetitors();
   k = 0;
-  dummyCars = Cars_gNewCarStatsList;
-  if ((this->fDefinition->fTournaments +
+  knockout = (this->fDefinition->fTournaments +
       ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament))->fKnockout
-      != '\0') {
+      != '\0';
+  dummyCars = Cars_gNewCarStatsList;
+  if (knockout) {
     for (i = 0; i < numCompetitors; i = i + 1) {
       if (this->fCompetitors[i].fEliminated == 0) {
         /* MATCH: ONE &dummyCars[k] address, held live across the eliminated/points arms --
            retail reuses `v1` for the trailing `lbu 132(v1)` fPosition read; four separate
            `dummyCars[k].` spellings let gcc rematerialize the *160 index chain after the
            if/else join (6 extra insns). */
-        stats = &dummyCars[k];
+        stats = (Car_tStats *)((int)k * (int)sizeof(Car_tStats) + (int)dummyCars);
         if ((stats->finalPosition - 1U < 6) && (stats->finalFinishType == 2)) {
           if (stats->finalPosition >= this->fNumRacers) {
             this->fCompetitors[i].fEliminated = 1;
@@ -541,6 +550,7 @@ void tTournamentManager::UpdateTrackFinishPoints()
         }
         k = k + 1;
       }
+      __asm__("" : : "m"(this->fCompetitors[i]));
     }
     *(long *)&this->fNumRacers = *(long *)&this->fNumRacers + -1;
   }
@@ -566,8 +576,11 @@ void tTournamentManager::UpdateTrackFinishPoints()
     i = 0;
     do {
       rankVal = this->fRanking[i];
-      i = i + 1;
-      this->fCompetitors[rankVal].fPosition = (uchar)i;
+      int next;
+      __asm__("" : "=r"(next) : "0"(i + 1), "r"(rankVal));
+      char *ranked = (char *)this + rankVal * (int)sizeof(tCompetitor);
+      i = next;
+      ranked[294] = (uchar)i;
     } while (i < 6);
   }
   return;

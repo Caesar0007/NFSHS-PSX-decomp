@@ -281,7 +281,12 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * count as separate short-lived values before the expanded record assignment.
  * This recovers the retail calculation lifetime and reduces 62->59 diffs
  * (417/416 instructions); the two empty templates are identity/scheduling
- * fences only, with no register pinning or emitted instructions. */
+ * fences only, with no register pinning or emitted instructions.
+ *
+ * MATCH W67 (2026-08-11): repeat the bulk unit as a read operand of its
+ * zero-instruction identity fence.  The extra QTY reference changes GCC 2.8's
+ * local-allocation priority and recovers the retail t2/t3/t0/t1 rotation for
+ * the expanded five-word assignment, reducing 59->38 diffs (418/416). */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -381,7 +386,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             }
             strcpy(DummyRaceResult.sName,PlayerName((int)nRankCarTotalTimes[nCar]));
             uBulkUnit = sizeof(tRecordBuffer);
-            __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit));
+            __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit), "r"(uBulkUnit));
             uBulkSz = uBulkUnit * 8;
             __asm__("" : : "r"(uBulkUnit), "r"(uBulkSz));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;

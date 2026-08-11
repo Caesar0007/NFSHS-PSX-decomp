@@ -326,8 +326,13 @@ extern int iSNDstreamparsedata(int S, int chunk)
 
     step = 0;
     if (MB(S, 0x2f) == 0) {                              /* flat: every channel reads chunk+0x10 */
-        int flatBase = chunk + 0x10;
+        int flatBase;
         int offset = 0;
+        /* The one-trip wrapper is instruction-free, but gives gcc's flow pass the retail
+         * reference weight for flatBase; this fixes its preheader/IV allocation (13 -> 9). */
+        do {
+            flatBase = chunk + 0x10;
+        } while (0);
         i = step;
         if (MB(S, 0x1e) != 0) {
             int *dp = desc;                              /* MATCH: base ptr materialized ONLY here --
@@ -367,7 +372,7 @@ extern int iSNDstreamparsedata(int S, int chunk)
     }
     return 1;
 }
-/* near-miss (123->13 diffs, ours 98 / oracle 97 insns). MVI (volatile) on the 4 request-field
+/* near-miss (123->9 diffs, ours 98 / oracle 97 insns). MVI (volatile) on the 4 request-field
  * read/writes was needed to stop gcc from interleaving the 0x1c/0x20/0xc/8 field updates (oracle
  * does each field's read-op-write as one clean sequential block). The flat loop's explicit
  * `flatBase + offset` form preserves the oracle's separate zero-step induction register (`t1`) while
@@ -448,7 +453,13 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * their sched barrier; a wrapper on `dp = desc` itself (14, inert); one or two zero-insn use
  * fences on `dp` in the preheader (34); and both in-loop statement orders (14 each).
  * ==> next lever must raise `dp`'s qty priority (or lower the seed's) with a device that is NOT a
- * scheduling barrier inside the loop body. */
+ * scheduling barrier inside the loop body.
+ *
+ * w58 2026-08-11: a one-trip do/while wrapper around the flatBase definition supplies that missing
+ * flow-reference weight without emitting code or disturbing the loop schedule. It corrects the
+ * preheader order and reduces the kept basin from 13 to 9. The remaining flat residual is the
+ * extra zero-offset/add pair versus retail's preserved base-to-derived-IV copy; the other four
+ * lines remain the independently confirmed post-allocation scheduler placement of desc[3]. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)

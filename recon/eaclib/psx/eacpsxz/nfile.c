@@ -1143,7 +1143,15 @@ extern void FILE_cancelop(unsigned int id)
      *      cancelreq store and the status compare (27 @110), by the store only (27), by the
      *      compare only (27), or assigned as its own statement just before the test (39 @110).
      *      The constant must stay an anonymous literal at BOTH sites; the missing insn is purely
-     *      cse's choice to copy-propagate rather than rematerialize (class (a) above). */
+     *      cse's choice to copy-propagate rather than rematerialize (class (a) above).
+     * w57 SOLVED 14->PASS (109/109) by deliberately passing through the known 12 @111
+     * step-back.  IDA/m2c's shared cancelled-status tail plus the combined dispatch predicate
+     * first exposed the retail CFG.  Keeping `action = 2` and the state RMW together in a
+     * zero-runtime-overhead `do ... while (0)` raises action's weighted reference priority just enough
+     * to restore the retail $a2/$a3 handout while still allowing the scheduler to place `li a2,2`
+     * in the state load-delay slot.  Finally, status is genuinely asynchronous state: spelling
+     * that read volatile prevents delayed-branch cleanup from deleting retail's redundant second
+     * `li v0,1`, without changing the load or instruction count. */
     volatile int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
@@ -1160,9 +1168,9 @@ extern void FILE_cancelop(unsigned int id)
     if (gFileMgr.curop == op) {                  /* op is in flight */
         op->cancelreq = 1;
         action = 1;
-    } else if (op->status == 1) {                /* already complete */
-        op->status = -1;                         /* mark cancelled (no further action) */
-    } else {                                     /* still queued -> remove it */
+        goto dispatch;
+    }
+    if (*(volatile int *)&op->status != 1) {     /* still queued -> remove it */
         FileOp *prev = 0, *node = gFileMgr.queuehead;
         if (node == 0) goto cleanup;
         while (node != 0) {
@@ -1174,16 +1182,17 @@ extern void FILE_cancelop(unsigned int id)
         if (node == 0) { FILE_CS_LEAVE(sr); return; }  /* not in queue */
         if (prev != 0) prev->qnext        = op->qnext;
         else            gFileMgr.queuehead = op->qnext;
-        gFileMgr.state--;                        /* one fewer queued op */
-        op->status = -1;                         /* mark cancelled */
-        action = 2;
+        do {
+            action = 2;
+            gFileMgr.state--;                    /* one fewer queued op */
+        } while (0);
     }
+    op->status = -1;                             /* mark cancelled */
 
-    if (action == 1) {                           /* in-flight read -> stop the device read */
-        if (((op->id >> 0x14) & 0xF) == 4) {
-            void *handle = (void *)op->result24;
-            stopreadfile(*(int *)handle);
-        }
+dispatch:
+    if (action == 1 && ((op->id >> 0x14) & 0xF) == 4) {
+        void *handle = (void *)op->result24;
+        stopreadfile(*(int *)handle);
     } else if (action == 2) {                    /* removed from queue -> notify */
         if (op->callback) {
             /* @0x800EC198-1A4: callback(op->id, -1, op->param) -- $a0=*op(id), $a2=*(20+op)(param),

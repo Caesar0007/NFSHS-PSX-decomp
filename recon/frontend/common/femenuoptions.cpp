@@ -46,7 +46,6 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
 
 {
   int iVar1;
-  int iVar2;
   int x;
   int index;
   int flare_intensity;
@@ -64,29 +63,29 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
   if (0x3c < flareextra) {
     flareextra = 0;
   }
-  /* NEAR-MISS 26 (was 74; length now EXACT 87/87).  W56-A5 landed FOUR fixes:
+  /* MATCH: 74 -> 26 -> PASS (87/87).  W56-A5 landed FOUR fixes:
      (1) the triangle-clamp arms do a SIGNED /2 each (`srl;addu;sra`) laid out as
      an if/else with the constant-on-left test `0x1e < flareextra` -> the oracle's
      `slti;bnez` polarity (else=flareextra/2 out-of-line, 0x3c-flareextra inline);
      (2) DrawShapeExtended arg5/6 are `glintFade` + `(glintFade!=0)` (REAL bug: the
      old code passed flare_intensity + (flare_intensity!=0) and left glintFade dead
-     -> `sw s3,0x10(sp)`, unsigned `sltu`); (3) the Flare arg3 half is
-     `(flare_intensity + ((u_int)iVar2>>31))>>1` (`srl;addu` not `sra;subu`);
+     -> `sw s3,0x10(sp)`, unsigned `sltu`); (3) the Flare arg3 half is a signed
+     `/2` (`srl;addu;sra`, with GCC reusing the biased numerator's sign bit);
      (4) the increment writes through the reference directly (oracle keeps it in
-     $v0).  RESIDUAL = a pure local-alloc numbering/coalescing swap in the multiply
-     chain: retail chains /2->+20->product1 IN PLACE in $s1 then product2->$s2,
-     flare_intensity->$s1; ours splits $s1/v0/t1/$s1/$s2.  §4.6 qtytrace gap. */
+     $v0).  The final 26 vanished by following the SYM/SLD literally: retail names
+     only `flare_intensity=$s1`, and lines 93-96 update it in place through /2,
+     +20, and the first multiply.  Expressing the final multiply as part of the
+     signed /128 assignment lets GCC keep its biased numerator in unnamed $s2,
+     write the quotient back to $s1, and reuse $s2's sign for the later signed /2. */
   if (0x1e < flareextra) {
-    iVar2 = (0x3c - flareextra) / 2;
+    flare_intensity = (0x3c - flareextra) / 2;
   }
   else {
-    iVar2 = flareextra / 2;
+    flare_intensity = flareextra / 2;
   }
-  iVar2 = (iVar2 + 0x14) * fSelFade * (0x80 - fFadeVal);
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0x7f;
-  }
-  flare_intensity = iVar2 >> 7;
+  flare_intensity = flare_intensity + 0x14;
+  flare_intensity = flare_intensity * fSelFade;
+  flare_intensity = (flare_intensity * (0x80 - fFadeVal)) / 0x80;
   glintFade = 0x80 - fSelFade;
   if (0x80 - fSelFade < fFadeVal) {
     glintFade = fFadeVal;
@@ -95,7 +94,7 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
     x = TextSys_WordX(0x1de);
     iVar1 = (flare_intensity << 1) >> 0x1f;
     index = (flare_intensity << 1) / 3 + iVar1;
-    Flare_2DHalo(x,y + 5,(flare_intensity + ((u_int)iVar2 >> 0x1f)) >> 1,index - iVar1,0x17);
+    Flare_2DHalo(x,y + 5,flare_intensity / 2,index - iVar1,0x17);
     DrawShapeExtended(0,0,x - 3,y - 1,glintFade,(u_int)(glintFade != 0),(tDrawShapeExtended *)0x0);
   }
   return;

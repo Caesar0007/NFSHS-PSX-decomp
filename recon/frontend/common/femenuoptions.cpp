@@ -2861,6 +2861,7 @@ int tMemoryCardMenuItem::Draw(bool selected)
   tDrawShapeExtended tCol;
   int v;
   int sv;
+  int less;
 
   /* MATCH: test `(fFlags & 1) != 0` -> oracle `andi;beqz` (branch-when-clear to the
      +8 arm, -8 in the fall-through), not the `== 0` -> `bnez` polarity. */
@@ -2902,17 +2903,20 @@ fEnableStore:
   if (fEnableFade < 0) {
     fEnableFade = 0;
   }
-  /* BASIN NOTE (best of 5 spellings, 8 diffs, count-exact 150/150): the residual is
-     which side reorg steals the `beqz` delay slot from -- ours copies `s3 = v` first
-     and then tests the COPY (`bgtz s3`), retail tests `v` itself (`blez v1`) and
-     steals the MAX arm's `li s3,128`.  if/else (both arm orders), the goto ladder and
-     the else-if chain all score 8/12/24; a cse copy-substitution block is the missing
-     instrument. */
-  if (v < 0x80) {
+  /* MATCH: PASS (150 insns).  This is the duplicated EA clamp predicate rather
+     than a simplified clamp.  The zero-insn opacity fence stops jump.c proving
+     the second `less` test from the outer arm; inverted inner arms then retain
+     retail's `bnez`/`s3=v` delay slot and otherwise dead `li s3,128`. */
+  less = v < 0x80;
+  if (less) {
     if (0 < v) {
-      __asm__("" : : );   /* arm-head barrier: stop the `s3 = v` copy hoisting above
-                             the `blez v1` test (retail tests v, not the copy) */
-      fEnableSlide = v;
+      __asm__("" : "=r"(less) : "0"(less));
+      if (!less) {
+        fEnableSlide = 0x80;
+      }
+      else {
+        fEnableSlide = v;
+      }
     }
     else {
       fEnableSlide = 0;
@@ -2921,10 +2925,6 @@ fEnableStore:
   else {
     fEnableSlide = 0x80;
   }
-  /* NEAR-MISS 2: the oracle KEEPS the (now dead) else block `li s3,128` after reorg
-     stole it into the `beqz` slot, so its then-arm exits with `bnez v0,T`; ours
-     deletes the block and falls through.  Falsified: two-separate-ifs (14), goto
-     ladder (12), else-if chain (24), plain ternary (8). */
   __asm__("" : : "r"(sv));   /* 05C read-only fence: extends sv's live range past
                                 v's death so local_alloc hands v the lower reg */
   if ((this->fFadeVal != 0x80) && (this->fEnableVal != 0)) {

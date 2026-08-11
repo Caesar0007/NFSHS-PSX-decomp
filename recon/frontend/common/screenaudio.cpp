@@ -167,26 +167,23 @@ DrawFgAudio_fadeDone:
 }
 
 /* ---- tScreenAudio::DrawBackground  (screenaudio.cpp:220) ---- */
-/* MATCH: 115 -> 2 diffs, exact 154/154 instructions.  The SYM local budget
+/* MATCH: PASS (154 instructions).  The SYM local budget
    removes the decompiler's slider/transition/shape temporaries; retail uses
    direct Percentage calls, a local fade clamp, and the final i+6 shape loop.
    TransitionIsFinished returns bool (the old void* prototype changed its
-   test).  Remaining named angle: sprintf's selected value is copied to $a2;
-   retail tests that copy with bgez, while cc1plus propagates the original $s0
-   into the test.  A natural displayPercent temporary was codegen-neutral.
-   This is the catalog 06E non-propagated reg-reg copy/QTY class, deferred to
-   the last hard-case rounds. */
+   test).  The duplicated displayPercent assignment makes the selected value
+   a global allocno; jump.c merges the identical arms, while the zero-insn
+   identity fence prevents CSE from folding it back to percent.  That retains
+   retail's `addu a2,s0,zero` followed by `bgez a2`. */
 void tScreenAudio::DrawBackground()
 
 {
   static int lastpercentage;   /* [SYM] STAT @0x800528e0 (last % shown) */
   static int perfade;          /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
-  int ColText;
   tOptionsMenu *optionsMenu;
   int percent;
   int fadeValue;
-  char sBuildOutput [255];
   
   this->PlaySound();
   optionsMenu = &menuDefs[0]->menuAudio;
@@ -219,6 +216,10 @@ DrawBg_noSlider:
     lastpercentage = percent;
   }
   if ((-1 < percent) || (-1 < lastpercentage)) {
+    int ColText;
+    int displayPercent;
+    char sBuildOutput [255];
+
     if ((percent == -1) ||
        (!::TransitionIsFinished(&menuDefs[0]->menuAudio))) {
       perfade = perfade + 4;
@@ -235,7 +236,14 @@ DrawBg_noSlider:
     }
     perfade = fadeValue;
     ColText = CalcFadeVal(kRGBVals[(byte)textDefinitions[6][5]],0,(int)fade,fadeValue);
-    sprintf(sBuildOutput,"%d%%",percent < 0 ? lastpercentage : percent);
+    if (percent < 0) {
+      displayPercent = percent;
+    }
+    else {
+      displayPercent = percent;
+    }
+    __asm__("" : "+r"(displayPercent));
+    sprintf(sBuildOutput,"%d%%",displayPercent < 0 ? lastpercentage : displayPercent);
     if (perfade != 0x80) {
       FETextRender_FullTextRGB(sBuildOutput,(short)TextSys_WordX(0x1dc),
                                (short)TextSys_WordY(0x1dc),ColText,'\0',1);

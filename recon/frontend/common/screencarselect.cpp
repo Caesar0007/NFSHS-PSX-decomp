@@ -151,16 +151,16 @@ void tScreenCarSelect::Cleanup()
 
 
 /* ---- tScreenCarSelect::DrawOverlay  [SCREENCARSELECT.CPP:334-494] ---- */
-/* MATCH (2026-08-10, 84 -> 70 diffs, exact 551/551): retail reads the
+/* MATCH (2026-08-11, 84 -> PASS, exact 551/551): retail reads the
    menuCarUpgrades item as a full word for the title expression; the shared
    header's narrow field otherwise lets cc1plus fold it to lhu, so the test
    read is volatile and width-explicit.  The description guard compares the
    already-computed `descrItem` with 0xB0 instead of re-reading currentItem;
    that removes the extra lw and reproduces retail's add/compare chain.
-   Remaining groups are the duplicated upgrade-loop caller-save allocation
-   and one independent call-setup order; direct-expression loop rewrites were
-   substantially worse and were reverted, so those groups remain for the
-   final allocation/QTY rounds. */
+   In both upgrade loops a read-only yOffset fence buys the QTY reference that
+   places it in $a0, while a named xPos preserves retail's `(40*i + K) + x`
+   expression tree and caller-save handout.  The block-scoped tournamentMoney
+   pseudo reproduces the final DrawMoney call-setup schedule. */
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
@@ -245,8 +245,13 @@ DrawOvl_transitionPos:
     FETextRender_MenuTextPositionedJustify(text,temp.x + (temp.w >> 1),
                              temp.y + 3,1,textState_Selected,textType_FramedInfo)
     ;
-    DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,tournamentManager.fMoney,0xbebe,
-               0x232323);
+    {
+      long tournamentMoney;
+
+      tournamentMoney = tournamentManager.fMoney;
+      DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,
+                 tournamentMoney,0xbebe,0x232323);
+    }
     FETextRender_MenuTextPositionedJustify(0x7b,temp.x + (temp.w >> 1),
                             temp.y + 0xd,1,textState_Selected,textType_FramedInfo);
     DrawShape_NFS4Rectangle(temp);   /* W58-A1: RECT& decl */
@@ -256,17 +261,20 @@ DrawOvl_transitionPos:
     for (i = 0; i < 3; i = i + 1) {
       int yOffset;
       int flags;
+      int xPos;
 
       yOffset = 0;
       if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
         yOffset = 0x60;
       }
+      __asm__("" : : "r"(yOffset));
       drawFlags.tint[0] = 0xbebe;
       flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
       flags |= 0x410;
+      xPos = i * 0x28 + 0x21;
       DrawShapeExtended(0x62 + i * 10 + (ticks[0] >> 4) % 10,
                         flags,
-                        pos.x + i * 0x28 + 0x21,pos.y + 6,
+                        pos.x + xPos,pos.y + 6,
                         yOffset,1,&drawFlags);
     }
     break;
@@ -275,17 +283,20 @@ DrawOvl_transitionPos:
       for (i = 0; i < 3; i = i + 1) {
         int yOffset;
         int flags;
+        int xPos;
 
         yOffset = 0;
         if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
           yOffset = 0x60;
         }
+        __asm__("" : : "r"(yOffset));
         drawFlags.tint[0] = 0xbebe;
         flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
         flags |= 0x410;
+        xPos = i * 0x28 + 0x85;
         DrawShapeExtended(0x62 + i * 10 + (ticks[0] >> 4) % 10,
                           flags,
-                          pos.x + i * 0x28 + 0x85,pos.y + 6,
+                          pos.x + xPos,pos.y + 6,
                           yOffset,1,&drawFlags);
       }
       temp.y = pos.y + 0x23;

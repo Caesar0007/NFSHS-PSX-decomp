@@ -282,16 +282,13 @@ void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
 void tScreenPinkSlips::DrawVideoWall()
 
 {
-  short tv_ticks;
-  int n;
   short i;
   short j;
 
-  /* MATCH: every counter is a real `short` (gcc re-sign-extends per use, which
-     is the oracle's sll/sra pairs); the tick delta is an UNSIGNED >>2 (srl);
-     the fTransitionDirection>0 (TurnOn) arm is the FALL-THROUGH (retail's
-     `blez` jumps to the TurnOff arm), and both reveal loops are
-     exit-in-the-middle with a top `< 4` guard and a bottom `< bound` guard. */
+  /* MATCH: SLD records only `i` ($s0) and `j` ($s1).  The original reuses `i`
+     for the unsigned-shifted tick delta; introducing a separate tick local
+     displaces `this` from retail's $s2.  The condition order is also material:
+     GCC rotates `j < i && j < 4` into the oracle's entry, top, and bottom tests. */
   for (i = 0; i < 0x24; i = i + 1) {
     DrawShapeExtended(i,0,0,0,0,0,(tDrawShapeExtended *)0x0);
   }
@@ -301,35 +298,25 @@ void tScreenPinkSlips::DrawVideoWall()
     }
     this->fTVsInitialized = 1;
   }
-  tv_ticks = (short)((u_int)(ticks - this->fTVTicks) >> 2);
+  i = (short)((u_int)(ticks - this->fTVTicks) >> 2);
   if (0 < *(signed char *)&this->fTransitionDirection) {
-    if (0 < tv_ticks) {
-      n = tv_ticks;
-      j = 0;
-      while (true) {
-        if (3 < j) break;
-        if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOff) {
-          TurnOnTV(&this->fImageTVs[imageTVOrder[j]]);
-        }
-        j = j + 1;
-        if (n <= j) break;
+    j = 0;
+    while ((j < i) && (j < 4)) {
+      if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOff) {
+        TurnOnTV(&this->fImageTVs[imageTVOrder[j]]);
       }
+      j = j + 1;
     }
   }
   else {
-    if (0 < tv_ticks) {
-      n = tv_ticks;
-      j = 0;
-      while (true) {
-        if (3 < j) break;
-        if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOn) {
-          TurnOffTV(&this->fImageTVs[imageTVOrder[j]]);
-        }
-        j = j + 1;
-        if (n <= j) break;
+    j = 0;
+    while ((j < i) && (j < 4)) {
+      if (this->fImageTVs[imageTVOrder[j]].state == tv_StateOn) {
+        TurnOffTV(&this->fImageTVs[imageTVOrder[j]]);
       }
+      j = j + 1;
     }
-    if (7 < tv_ticks) {
+    if (7 < i) {
       this->fTransitionDirection = 0;
     }
   }

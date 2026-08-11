@@ -850,6 +850,10 @@ MainLoop_perPlayerFlagCheck:
             tDialogBase *dialog = (tDialogBase *)tDialogBase::GetTopMostDialog();
             demoLoopLastInputTick = tick;
             ticksAtLastInput[i] = tick;
+            /* MATCH: retail schedules the AUTO tick load before the dialog-result
+             * move and feeds both stores without a load-use nop.  This pin-free,
+             * zero-insn boundary reproduces that grouping (3 diffs -> PASS). */
+            __asm__("" : : "i"(0));
             this_tDialogBase_l181 = (tDialogBase *)&this->helpPopup;
             if ((keyVal[i] == 4) && (this_tDialogBase_l181->currentlyOn != 0)) {
               keyVal[i] = kInput_KeyType_AlreadyProcessed;

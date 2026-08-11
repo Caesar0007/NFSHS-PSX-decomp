@@ -303,21 +303,21 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 {
   int width;
-  int pos;
+  short pos;
   int test;
   unsigned int shifted;
 
   /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT
      OF LINE (oracle `beqz` branches forward past the =0 block, which ends with
      its own `j`), so it is a goto target, not the fall-through. */
-  /* RESIDUAL 5 (W59, 16->10->5; ours 49/oracle 48).  SYM makes gridpos
+  /* MATCH: PASS 48/48 (W59/W68; 16->10->5->2->0).  SYM makes gridpos
      REGPARM $t0, while the oracle clamps a promoted working value in incoming
      $a3 and copies it to $t0 only at the join.  The separate `pos` reproduces
      that delayed copy (16->10).  Spelling the signed test as an explicit
-     shift pair separates the test from the clamped value (10->5).  GCC still
-     CSEs the sign-extension into $a3 and emits `addu v1,a3`; retail instead
-     keeps the pair as `sll v0,a3,16; sra v1,v0,16`, accounting for the sole
-     extra instruction and all five remaining diff lines.
+     shift pair separates the test from the clamped value (10->5).  The
+     positive-arm identity fence preserves retail's independent
+     `sll v0,a3,16; sra v1,v0,16` web (5->2), and making `pos` short removes
+     the otherwise duplicated entry sign-extension (2->0).
      FALSIFIED in this basin: register on the parameter (neutral); a plain
      promoted test local (neutral); read-only/identity fences at the init or
      join (neutral or 27 diffs); a signed 16-bit bitfield carrier (27 diffs,
@@ -326,6 +326,7 @@ void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
   test = (int)shifted >> 16;
   pos = gridpos;
   if (0 < test) {
+    __asm__("" : "+r"(shifted));
     if (0x40 <= test) goto HL_clampHi;
   }
   if (test < 0) {

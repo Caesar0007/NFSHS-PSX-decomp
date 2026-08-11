@@ -251,26 +251,28 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
   int height;
-  int pos;
+  short pos;
   int test;
   unsigned int shifted;
-
   /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
      OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
      ends with its own `j`), so it must be a goto target, not the fall-through. */
-  /* RESIDUAL 17 (W59, 26->17; ours 46/oracle 45).  The horizontal sibling's
+  /* RESIDUAL 13 (W60, 26->17->13; ours 46/oracle 45).  The horizontal sibling's
      promoted `pos` plus explicit signed-test pair transfers here: it removes
      the premature gridpos result copy and makes the clamp stores use incoming
-     $a3 like retail.  Remaining differences are the same five-line CSE merge
-     (`sll/sra a3; addu v1,a3` versus retail's v0/v1 pair), plus y living in
-     $t1 instead of its SYM REGPARM home $a2, the consequent global-address
-     allocation/order, and gcc folding the final narrow multiply to `sll 1`.
-     FALSIFIED in this basin: `register` on y and inlining the height expression
-     are neutral; a promoted y copy worsens to 23; a union short-view is neutral;
-     an identity fence at the clamp join worsens to 19 and adds two insns. */
+     $a3 like retail.  Making `pos` short preserves that retail carrier through
+     the clamp and its final doubled short value.  The approved empty identity
+     fence keeps the signed-test shift pair in retail's separate $v0/$v1 webs
+     (17->13).  Remaining: the fence blocks reorg's backward $ra-store slot fill;
+     x copies one instruction late; y lives in $t1 instead of its SYM REGPARM
+     home $a2, so the height-global address/load homes differ correspondingly.
+     FALSIFIED in this basin: volatile shifted carrier 36; short test neutral;
+     register y neutral; read-only y fence at entry 17 and before call 56;
+     inner height-term swap 17; literal IDA if/else clamp 31. */
   shifted = (unsigned int)gridpos << 16;
-  test = (int)shifted >> 16;
   pos = gridpos;
+  __asm__("" : "+r"(shifted));
+  test = (int)shifted >> 16;
   if (0 < test) {
     if (0x40 <= test) goto VL_clampHi;
   }

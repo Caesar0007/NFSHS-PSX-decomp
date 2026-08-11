@@ -623,16 +623,18 @@ void tFEApplication::RunDemoVideo()
  * for-loop, and testing player two by truth value, reduces 404 -> 354 diffs.
  * The frame remains the retail 408 bytes and the command-array base now receives
  * retail $s7; the two-instruction size residual is still allocator/source shape. */
-/* PARTIAL (2026-08-11): 60 -> 7 diffs.  The explicit player-two comparison paired
+/* PARTIAL (2026-08-11): 60 -> 3 diffs.  The explicit player-two comparison paired
  * with removal of the artificial one-use enum local restores the retail lifetime;
  * the case-4 memory fence preserves retail's second current-menu load; and narrow
  * identity/read fences around the case-3 depth/flag sequence restore its exact
  * load/store order.  A one-site unsized-array view of scalar `ticks` restores the
- * retail final load destination ($v0) without changing the earlier scalar accesses
- * or instruction count (9 -> 7).  Remaining sites are the post-dialog load-delay
- * schedule and that final load's address base ($v0 versus retail $t0).  Splitting
- * the dialog declaration and a post-call value funnel were neutral; a read-only
- * fence on loop-local `tick` rotated the scratch band (274) and was rejected. */
+ * retail final load destination ($v0) without changing the earlier scalar accesses.
+ * A scalar `ticksValue` plus a post-load read-only fence keeps the address live just
+ * long enough for retail's `$t0` base / `$v0` value split (7 -> 3).  Remaining is
+ * only the post-dialog `lw tick` schedule and its avoidable load-delay nop.  Splitting
+ * the dialog declaration, a post-call value funnel, chained tick stores, and a
+ * pre-call tick carrier were neutral; fencing function- or block-scope `tick`
+ * rotates the whole `$t0/$t1` scratch band (255) and was rejected. */
 
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
@@ -1066,7 +1068,9 @@ MainLoop_nextPlayer:
     }
     if (0xf00 < (int)(tick - demoLoopLastInputTick)) {
       this->RunDemoVideo();
-      demoLoopLastInputTick = ticks_array[0];
+      int ticksValue = ticks;
+      __asm__("" : : "r"(ticksValue));
+      demoLoopLastInputTick = ticksValue;
     }
   } while( true );
   }

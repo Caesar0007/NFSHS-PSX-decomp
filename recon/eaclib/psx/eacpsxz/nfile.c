@@ -385,32 +385,52 @@ extern FileHandle *reservehandle(void)
  * doubly-sourced: the blocker is a LOCAL-ALLOC hard-reg-5 conflict on `off`, and the only dial
  * that could clear it (which hard reg the block-local recompute pair gets) is not reachable from
  * C in this block.  Do not re-run the qty-boundary family here. */
+/* W56 2026-08-11 -- PASS (71/71).  qtytrace localized the residual to the
+ * free-slot block: loading the sequence counter before the final slot-address
+ * calculation kept `off` live across the masked value and created a hard $a1
+ * conflict.  Reading `gFileOpSeq` at its use, incrementing that captured value,
+ * and expressing the slot offset as `i * 0x30` gives the retail schedule and
+ * strength-reduced induction variable.  Hoisting the four loop invariants from
+ * the loop-local assignments places the manager base first; the repeated mask
+ * supplies the one weighted seqMask reference needed for the retail allocation.
+ * No reconstructed asm or post-compiler rewriting is involved. */
 extern FileOp *reserveop(void)
 {
     int i, sr, off;
     FILE_CS_ENTER(sr);
     i = 0;
     if (gFileMgr.opcount > 0) {
-        unsigned int clearType = 0xFF0FFFFFu;
-        unsigned int setType = 0x100000u;
-        unsigned int seqMask = 0xFFFFFu;
-        unsigned int keepType = 0xFFF00000u;
-        off = 0;
+        unsigned int clearType;
+        unsigned int setType;
+        unsigned int seqMask;
+        unsigned int keepType;
         do {
-            FileOp *op = (FileOp *)(off + (int)gFileMgr.oparray);
+            FileOp *op;
+            FileMgr *mgr = &gFileMgr;
+            clearType = 0xFF0FFFFFu;
+            setType = 0x100000u;
+            seqMask = 0xFFFFFu;
+            keepType = 0xFFF00000u;
+            off = i * 0x30;
+            op = (FileOp *)(off + (int)mgr->oparray);
             if (((op->id >> 0x14) & 0xF) == 0) {
-                unsigned int seq = gFileOpSeq;
                 op->id = (op->id & clearType) | setType; /* set type nibble = 1 */
-                ((unsigned char *)&((FileOp *)(off + (int)gFileMgr.oparray))->id)[3] =
+                ((unsigned char *)&((FileOp *)(off + (int)mgr->oparray))->id)[3] =
                     (unsigned char)i;  /* byte3 = op index */
-                ((FileOp *)(off + (int)gFileMgr.oparray))->id =
-                    (((FileOp *)(off + (int)gFileMgr.oparray))->id & keepType) |
-                    (seq & seqMask); /* bits 0-19 = request seq */
-                if (++gFileOpSeq > (int)seqMask)             /* 20-bit wrap */
-                    gFileOpSeq = 0;
+                {
+                    int seq = gFileOpSeq;
+                    FileOp *seqop =
+                        (FileOp *)(off + (int)mgr->oparray);
+                    unsigned int kept = seqop->id & keepType;
+                    unsigned int masked = (seq & seqMask) & seqMask;
+                    seqop->id = kept | masked; /* bits 0-19 = request seq */
+                    seq++;
+                    gFileOpSeq = seq;
+                    if (seq > (int)seqMask)             /* 20-bit wrap */
+                        gFileOpSeq = 0;
+                }
                 break;
             }
-            off += 0x30;
             i++;
         } while (i < gFileMgr.opcount);
     }

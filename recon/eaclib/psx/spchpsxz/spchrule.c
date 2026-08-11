@@ -409,6 +409,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 volatile unsigned int type;
                 unsigned int packed;
                 unsigned int bit;
+                unsigned int ruleIdArg;
                 int          hit;
                 int          testValue;
                 ruleId = p[0];
@@ -427,6 +428,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                     testValue = *currentValue;
                 }
                 bit = 1 << (7 - i);
+                ruleIdArg = ruleId;
                 if (type == 4) {
                     if (values[param] != 0)
                         hit = bit;
@@ -435,7 +437,7 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                     short **sentSlot = &sentence;
                     if (gSentenceRuleTest[0] != 0)
                         testResult = gSentenceRuleTest[0](
-                            (unsigned short)**sentSlot, ruleId, testValue, (int)*sentSlot);
+                            (unsigned short)**sentSlot, ruleIdArg, testValue, (int)*sentSlot);
                     else
                         testResult = -1;
                     if (testResult == 0)

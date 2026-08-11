@@ -1074,8 +1074,15 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
    signed divide-by-19 chain.  Separate source temporaries reproduce retail's
    delayed currentItem/validCar handoffs into $s2/$s5, and a textBase temporary
    preserves the 996 association.  A loop-local direction value preserves the
-   invariant `1` in $t0.  The remaining groups are one seller-item CSE, loop
-   setup scheduling, and fadeVal's $t0 home. */
+   invariant `1` in $t0.
+   W65: 14 -> 8.  Laundering `currentItemValue` before its named handoff stops
+   CSE from replacing retail currentItem/$s2 with the source $s0; placing the
+   bShowStats zero after the two handoffs restores its SYM $s1 initialization
+   schedule.  Moving overlayDirection's assignment into its consuming arm lets
+   the gStateOverlays base precede the invariant `li $t0,1`, sealing the loop
+   preheader.  The sole residual is fadeVal's $v0 versus SYM/retail $t0.
+   Separate shape-fade storage, register spelling, join fences, a named flags
+   pointer, and a default-first clamp funnel were neutral or worse (8/8/13/22). */
 void tScreenCarSelect::DrawForeground()
 
 {
@@ -1091,9 +1098,10 @@ void tScreenCarSelect::DrawForeground()
   currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
   validCarValue = (*(*this->_vf)[13].pfn)
                     (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo);
-  bShowStats = false;
+  __asm__("" : "=r"(currentItemValue) : "0"(currentItemValue));
   currentItem = currentItemValue;
   validCar = validCarValue;
+  bShowStats = false;
   (menuDefs->itemOpponentUpgrades).fFlags =
        (menuDefs->itemOpponentUpgrades).
        fFlags | 1;
@@ -1158,7 +1166,6 @@ void tScreenCarSelect::DrawForeground()
   }
   this->fOverlays[6].direction = bShowStats ? 1 : -1;
   for (i = 0; i < 4; i++) {
-    overlayDirection = 1;
     if (this->fCurrentOverlays[i] != (tOverlay *)0x0) {
       if ((int)this->fCurrentOverlays[i]->ID == (int)gStateOverlays[this->fState][i]) {
         continue;
@@ -1170,6 +1177,7 @@ void tScreenCarSelect::DrawForeground()
       this->fCurrentOverlays[i] = (tOverlay *)0x0;
     }
     if (-1 < (signed char)gStateOverlays[this->fState][i]) {
+      overlayDirection = 1;
       this->fCurrentOverlays[i] = this->fOverlays + (signed char)gStateOverlays[this->fState][i];
       this->fCurrentOverlays[i]->transition = 0;
       this->fCurrentOverlays[i]->direction = overlayDirection;

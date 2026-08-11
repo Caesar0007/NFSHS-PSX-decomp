@@ -70,6 +70,7 @@ extern void blockmove(void *src, void *dst, int n);        /* eacpsxz @0x800E62D
 
 extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
 {
+    register int *aw = a;
     int temp[9];
     int *pa[2];
     register int i, j;
@@ -192,6 +193,14 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
      * `addu s1,zero,zero` at retail's exact slot, without changing code size or the saved-register
      * allocation.  The remaining 29-diff floor is still the single inherited a-param reload and the
      * two inherited b-param reload/load-delay pairs documented above. */
+    /* MATCH (w60, 29->25): keep an explicit long-lived `aw` for the a[i] row walk, but form pa[]
+     * through a block-local `&a` view.  That preserves the exact s6 walker/band while moving the
+     * inherited a-home reload from a3 to retail's v1; the compiler folds `va` itself, so code size
+     * stays 78.  Falsified in this basin: zero-byte __builtin_memcpy (29), direct *(&a) and union
+     * alias views (29), reversed pa[] construction (29), two separate va scopes (25, identical),
+     * block-local b carriers (25, identical), address-taken b with a separate bw walker (80-99),
+     * and volatile-a plus aw (37/80).  FF8/Xenogears contain only asm stubs for comparable PsyQ
+     * matrix multiplies; their barrier macros are diagnostic only and were not used here. */
     i = 0;
     i2 = 8;
     i1 = 4;
@@ -199,10 +208,13 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
         j = 0;
         j2 = 24;
         j1 = 12;
-        pa[0] = (int *)((char *)a + i1);
-        pa[1] = (int *)((char *)a + i2);
+        {
+            int **va = &a;
+            pa[0] = (int *)((char *)*va + i1);
+            pa[1] = (int *)((char *)*va + i2);
+        }
         for (; j < 3; j++) {
-            acc  = fixedmult(a[i], b[j]);
+            acc  = fixedmult(aw[i], b[j]);
             acc += fixedmult(*pa[0], *(int *)((char *)b + j1));
             acc += fixedmult(*pa[1], *(int *)((char *)b + j2));
             temp[i + j] = acc;

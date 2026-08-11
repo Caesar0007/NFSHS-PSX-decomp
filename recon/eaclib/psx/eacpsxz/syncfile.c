@@ -191,20 +191,23 @@ extern void synccallback(int op, int type, SyncCtrl *c)
 {
     SyncCtrl *t;
     unsigned int done;
-    done = FILE_completeop((unsigned int)op);
     t = c;
+    done = FILE_completeop((unsigned int)op);
     c->op = 0;
-    /* MATCH (pure-C hard-floor escape, 2026-08-11): moving the tail alias birth after
-     * FILE_completeop and giving the first accumulator one loop-depth step preserves the
-     * retail two-register body grouping without an opacity fence.  Reversing the clamp
-     * predicate (`0x2000 < remain`) also removes the former jump/store residual and emits
-     * retail's shared store.  Combined result: 17 -> 13 diffs, 72/71 instructions. */
+    /* MATCH (pure-C hard-floor escape, 2026-08-11; 13 -> 2): birth the tail alias before
+     * FILE_completeop, then give the first accumulator one loop-depth step.  Together those
+     * lifetime dials recover retail's exact $s1/$s2 prologue and phase split.  Keeping offset
+     * non-volatile lets its store fill the short-transfer branch delay slot, restoring exact
+     * 71/71 instruction parity.  The last two diffs are one CSE choice at the shared tail:
+     * retail uses t/$s2, while cc1 rewrites the same t expression to c/$s1.  FF8's zero-insn
+     * KEEP_ALIVE(t) proves an exact PASS, but that diagnostic is deliberately not retained:
+     * reconstructed code remains pure C, with no asm allocation barrier. */
     if (type == 1) {
         do {
             *(volatile int *)&c->buf += done;
         } while (0);
         *(volatile int *)&c->done += done;
-        *(volatile int *)&c->offset += done;
+        c->offset += done;
         if ((int)done < c->chunk) {                 /* short transfer => this was the last chunk */
             *(volatile int *)&c->remain = 0;
         } else {

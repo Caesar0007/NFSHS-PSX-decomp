@@ -387,21 +387,18 @@ CalcDim_helpArrFetch:
 
 
 /* ---- tDialogHelp::Draw  [FEDIALOG.CPP:459-546] SLD-VERIFIED ---- */
-/* MATCH: 16->10 (W56-A9). The DialogHelpDraw_drawButton 4th arg is written
-   `(i-1)*0xf + this->top + 0x13` (mul-first reassociation) so the multiply
-   lands in the dest reg like the oracle (was `this->top + (i-1)*0xf + 0x13`
-   -> field-first, a3<->v1 swap). REMAINING 10 = two hard floors, both
-   receipted, NOT source-dialable:
-   (a) ticks load (SYM $04=a0): oracle `lui v0;lw v0,0(v0);addu a0,v0,zero`
-       (load into %hi-scratch v0 then move to a0) vs ours `lw a0,0(v0)`
-       (direct into a0) -- the s3.15 reload-into-scratch-vs-target RTL
-       coalescing tie-break (catalog E register-materialization floor), 2 diffs.
-   (b) goto delay-slot fill: oracle fills each `j drawButton` slot with
-       `addiu v0,a3,-1` (i-1, the 4th-arg first step); ours fills with
-       `andi a1,a1,65535` ((u_short)control, the 2nd arg). Pure reorg
-       delay-slot candidate tie-break (catalog F "permuter or accept"), ~8 diffs.
-   NOTE: `int buttonY` (specialButtons path) is NOT in the SYM but is
-   load-bearing -- inlining it regressed 10->21, so it stays. */
+/* MATCH: 16->3 (W56-A9/W67). The 4th arg is written `(i-1)*0xf +
+   this->top + 0x13` (mul-first reassociation) so the multiply lands in the
+   retail destination register.  More importantly, the pad-65, pad-35, and
+   special-control arms retain their separate natural DrawPSXButton calls;
+   gcc cross-jump-merges their common tails only after each arm computes
+   `(i-1)`, reproducing both `j` delay-slot fills and the retail block order.
+   A single explicit goto-shared call instead hoists the prefix and costs ten
+   diffs.  `int buttonY` in the two-button arm remains load-bearing.
+   Remaining 3 are the ticks materialization: retail loads through $v0 and
+   copies to the SYM-assigned $a0, while this compiler coalesces the MEM
+   directly into $a0.  Volatile, unsigned/signed intermediates, full-width
+   bitfields, and declaration-time initialization were neutral. */
 
 void tDialogHelp::Draw()
 
@@ -428,16 +425,17 @@ void tDialogHelp::Draw()
       }
       if (i > 0) {
         int control = this->cont[i];
-        u_char padType;
         if (this->helpcontrollers == 2) goto DialogHelpDraw_pad35;
         if (this->helpcontrollers < 3) goto DialogHelpDraw_pad65;
         if (this->helpcontrollers == 3) goto DialogHelpDraw_specialButtons;
 DialogHelpDraw_pad65:
-        padType = 0x41;
-        goto DialogHelpDraw_drawButton;
+        FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
+                   (i - 1) * 0xf + this->top + 0x13);
+        goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_pad35:
-        padType = 0x23;
-        goto DialogHelpDraw_drawButton;
+        FeTools_DrawPSXButton(0x23,(u_short)control,this->left + 0x14,
+                   (i - 1) * 0xf + this->top + 0x13);
+        goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_specialButtons:
         if ((control == 0xa0) || (control == 0x50) || (control == 0x40))
           goto DialogHelpDraw_pad65Special;
@@ -450,9 +448,7 @@ DialogHelpDraw_specialButtons:
           goto DialogHelpDraw_buttonsDone;
         }
 DialogHelpDraw_pad65Special:
-        padType = 0x41;
-DialogHelpDraw_drawButton:
-        FeTools_DrawPSXButton(padType,(u_short)control,this->left + 0x14,
+        FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
                    (i - 1) * 0xf + this->top + 0x13);
 DialogHelpDraw_buttonsDone:;
       }

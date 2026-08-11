@@ -928,19 +928,15 @@ void tMenuItemSlidingMenu::Draw(bool selected)
 void tMenuItemSlidingMenu::UpdatefOpenHeight(bool selected)
 
 {
-  /* NEAR-MISS 26 (was 84) — count EXACT 136/136, structure byte-for-byte.
-     Residual = a $v0/$v1/$a2 rotation at three clamp sites (the fadeOut clamp,
-     the fade+0x28 clamp and the cur/lim pair).  Landed levers: guard-first
-     clamps (no comma-expression conditions), per-block clamp temps, the
-     store-forwarded `currMenu` test, and the lim-merged single `sh`.
-     FALSIFIED: cur/lim declaration-order swaps (both variants inert).
-
-     SYM 8c block: fsize 0 / mask 0 / NO named locals -- every clamp temp in retail
-     is a per-expression compiler temp.  ONE function-scope `iVar1` reused by all
-     six clamps is a single long-lived allocno that conflicts with everything and
-     loses $v0 at every site (`addiu v1,v0,-4` instead of the oracle's in-place
-     `addiu v0,v0,-4`); only the fFadeVal value genuinely flows between blocks. */
+  /* MATCH: PASS 136/136.  SYM: fsize 0 / mask 0 / no named locals.  Retail's
+     two fade-in paths feed one shared clamp with two compiler temporaries:
+     the first computes newFade from the existing fade value in $v1, while the
+     second reloads fFadeVal into $v0 and forms newFade in $v1.  The explicit
+     feo_fadeInClamp join preserves that asymmetric allocation and the retail
+     delay-slot fills.  The guarded fadeOut scope and four read-only lim refs
+     independently recover the other two clamp allocations. */
   int fade;
+  int newFade;
 
   this->fClosing = 0;
   if (this->fOpenHeight == 0) {
@@ -964,18 +960,20 @@ void tMenuItemSlidingMenu::UpdatefOpenHeight(bool selected)
     fade = (int)this->fFadeVal;
     if (0x7f < fade) goto feo_fadeCheck;
     if (this->fInTransition != 0) goto UpdfOpenH_currMenuCheck;
+    newFade = fade + 0x28;
+    goto feo_fadeInClamp;
   }
   else {
     fade = (int)this->fFadeVal;
 feo_fadeCheck:
     if (((0 < fade) && (this->currMenu == (tInsideBoxMenu *)0x0)) &&
        (this->nextMenu != (tInsideBoxMenu *)0x0)) {
-      fade = fade + -0x28;
       if (this->fInTransition == 0) {
-        if (fade < 0) {
-          fade = 0;
+        int fadeOut = fade + -0x28;
+        if (fadeOut < 0) {
+          fadeOut = 0;
         }
-        this->fFadeVal = (short)fade;
+        this->fFadeVal = (short)fadeOut;
       }
       if (this->fTransitioningOut == 0) {
         this->currMenu = this->nextMenu;
@@ -995,19 +993,17 @@ feo_fadeCheck:
       this->fFadeVal = (short)fadeOut;
       goto UpdfOpenH_currMenuCheck;
     }
-    fade = (int)this->fFadeVal;
   }
-  /* MATCH: a SECOND int pseudo for the sum (oracle `lh v0,44; addiu v1,v0,40;
-     slti v0,v1,129; … li v1,128; sh v1`), clamped IN PLACE — reusing `fade`
-     itself makes the load and the sum share one register; a `short` result var
-     adds an `addu v1,v0,zero` funnel. */
-  {
-    int newFade = fade + 0x28;
-    if (0x80 < newFade) {
-      newFade = 0x80;
-    }
-    this->fFadeVal = (short)newFade;
+  /* MATCH: this second path must omit the otherwise redundant `fade` reload.
+     Assigning the member expression directly to newFade gives oracle
+     `lh v0,44; addiu v1,v0,40`; the explicit join above keeps the first path's
+     `addiu v1,v1,40` and shared clamp rather than inverting its branch. */
+  newFade = (int)this->fFadeVal + 0x28;
+feo_fadeInClamp:
+  if (0x80 < newFade) {
+    newFade = 0x80;
   }
+  this->fFadeVal = (short)newFade;
 UpdfOpenH_currMenuCheck:
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
     if (selected != 0) {
@@ -1017,9 +1013,8 @@ UpdfOpenH_currMenuCheck:
            STRAIGHT into the merge register (a `short lim` pre-read forces an
            `addu v1,a3,zero` copy and flips the two loads' order). */
         /* MATCH: cur/lim as two int temps, the clamp merged into `lim` so both arms
-           share ONE `sh` (oracle `addu v1,a2,zero; sh v1,40`).  NEAR-MISS 26 is a
-           pure v0/v1/a2 rotation at three clamp sites (count EXACT 136/136);
-           decl-order swaps of cur/lim are inert. */
+           share ONE `sh` (oracle `addu v1,a2,zero; sh v1,40`).  Four read-only
+           lim refs buy the exact local-allocation handout: cur=$a2, lim=$v1. */
         int cur = this->fOpenHeight;
         int lim = this->fHeight;
         if (cur < lim) {
@@ -1027,6 +1022,7 @@ UpdfOpenH_currMenuCheck:
           if (cur < lim) {
             lim = cur;
           }
+          __asm__("" : : "r"(lim), "r"(lim), "r"(lim), "r"(lim));
           this->fOpenHeight = (short)lim;
         }
         else {

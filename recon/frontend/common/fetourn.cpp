@@ -493,9 +493,13 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
    declared unsized (§3.12 #5 does NOT apply -- it's an address-of, not a value load).
    FALSIFIED: moving `k = 0;` above the GetNumCompetitors() call makes numCompetitors land in
    t0 correctly BUT parks k in a callee-saved s1 across the call (+8 frame, 76 diffs).
-   Remaining 2-insn shortfall = the `for (i=5; -1<i; i--) fRanking[i]=i` loop (retail
-   decrements the ADDRESS, `addiu v0,v0,-1`; ours recomputes `addu v0,s0,a0`) and the final
-   do-while's `i+1` temp+copy.  Next angle = allocno ref-count dial, not spelling. */
+   W60: the IDA-gold cursor spelling `ranking=(uchar*)this+i; ranking[567]=i` makes the
+   descending fill decrement its ADDRESS in the branch delay slot and lands 70->68 with no
+   instruction-count change.  Remaining one-insn shortfall is the final do-while's retail
+   `i+1` temp+copy plus the dummyCars address-of self-temp versus separate-temp allocation.
+   FALSIFIED in the new basin: direct `++i` is neutral; an identity-fenced `next` reaches
+   134/134 but remains 68 and changes tail scheduling; an explicit final-loop cursor is 76.
+   Next angle = the measured three-way allocno handout, not loop spelling. */
 void tTournamentManager::UpdateTrackFinishPoints()
 
 {
@@ -535,6 +539,8 @@ void tTournamentManager::UpdateTrackFinishPoints()
     *(long *)&this->fNumRacers = *(long *)&this->fNumRacers + -1;
   }
   else {
+    u_char *ranking;
+
     for (i = 0; i < numCompetitors; i = i + 1) {
       if ((dummyCars[i].finalPosition - 1U < 6) && (dummyCars[i].finalFinishType == 2)) {
         this->fCompetitors[i].fPoints =
@@ -542,9 +548,13 @@ void tTournamentManager::UpdateTrackFinishPoints()
              (ushort)this->fFinishPoints[dummyCars[i].finalPosition + -1];
       }
     }
-    for (i = 5; -1 < i; i = i - 1) {
-      this->fRanking[i] = (uchar)i;
-    }
+    i = 5;
+    ranking = (u_char *)this + i;
+    do {
+      ranking[567] = (uchar)i;
+      i = i - 1;
+      ranking = ranking - 1;
+    } while (-1 < i);
     qsort(this->fRanking,(int)numCompetitors,1,
                tournPointsCompare);
     i = 0;

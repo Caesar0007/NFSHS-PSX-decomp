@@ -1725,11 +1725,13 @@ void tScreenCarSelectDuel::DrawBackground()
 
 
 /* ---- tScreenCarSelectDuel::DrawForeground  [SCREENCARSELECT.CPP:1613-1635] ---- */
-/* MATCH: 106 -> 12 diffs.  Rebuilding from the SYM local set removes the
-   fabricated integer loop state and fixes the upgrade-row indexing.  A
-   separate zero-insn identity-fenced sliderResult breaks gcc's hard-$a0 copy
-   suggestion, giving retail's $a0=fUpgrades/$v1=result allocation.  The 12
-   remaining differences are the post-fence join/sign-extension schedule. */
+/* MATCH: 106 -> 0 diffs.  Rebuilding from the SYM local set removes the
+   fabricated integer loop state and fixes the upgrade-row indexing.  The
+   final source shape keeps the accumulator as the block-local `short result`
+   recorded by SYM, then assigns it to an `int sliderResult` in the valid-car
+   arm (or literal zero in the other arm).  gcc consequently emits retail's
+   branch-local sign extension and tail-merges the shared DrawSlider call,
+   without the former zero-insn identity fence. */
 void tScreenCarSelectDuel::DrawForeground()
 
 {
@@ -1748,11 +1750,11 @@ void tScreenCarSelectDuel::DrawForeground()
   while (i < 2) {
     j = 0;
     while (j < 5) {
-      short sliderResult;
-      short result;
+      int sliderResult;
       FETextRender_MenuTextPositionedJustify(text2PVals[j],500,y + 4,1,
           textState_Unselected,textType_ScreenInfo);
       if (validCar != 0) {
+        short result;
         tCarStatType carStat = remap[j];
         tCarInfo *ci = &carInfo;
         result = (short)ci->fStats[0][carStat];
@@ -1765,11 +1767,11 @@ void tScreenCarSelectDuel::DrawForeground()
         if ((ci->fUpgrades & 4) != 0) {
           result = result + ci->fStats[3][carStat];
         }
+        sliderResult = (short)result;
       }
       else {
-        result = 0;
+        sliderResult = 0;
       }
-      __asm__("" : "=r"(sliderResult) : "0"(result));
       DrawSlider(sliderResult,0,0xb,0x1a1,y,0x49,3,4,3,true,0,0x80,0);
       y = y + 0xf;
       j = j + 1;

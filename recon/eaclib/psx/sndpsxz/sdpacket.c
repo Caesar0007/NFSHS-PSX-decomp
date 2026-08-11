@@ -336,12 +336,13 @@ extern void iSNDpacketsetirq(void)
          * shared via %lo(sndpp)(a0) displacement addressing across every read/write below) -- a
          * bare `sndpp` global reference at each site instead makes GNU-as re-materialize a fresh
          * full address per access (self-temp read / $at-store), ~2x the instruction count. */
-        unsigned char *pbase = base;   /* MATCH: oracle copies the checked base into a SECOND reg
+        unsigned char *pbase;          /* MATCH: oracle copies the checked base into a SECOND reg
                                          * (`addu a1,v1,zero`) right before the loop -- base is v1
                                          * for the early sndpd[1] check, pbase/a1 for the loop body. */
         do {
             unsigned char *slot;
             sndpp[0] = sndpp[0] + 1;
+            pbase = base;
             if (0 < *(volatile int *)sndpp)
                 sndpp[0] = 0;                              /* single player -> wrap to 0 */
             slot = (unsigned char *)(*(volatile int *)sndpp * 4 + (int)pbase); /* integer-add order gives
@@ -357,6 +358,10 @@ extern void iSNDpacketsetirq(void)
                 goto success;
             i++;
         } while (i < 2);
+        /* MATCH: an OUTSIDE-loop dead second role keeps the in-loop `pbase = base`
+         * from copy-propagating away without blocking loop.c from hoisting it.  The
+         * two invariants then rise in retail order: sndpp %hi, followed by the copy. */
+        pbase = 0;
         return;
 success:
         /* Volatile is required for the oracle's standalone store followed by the call's nop delay slot.

@@ -1087,6 +1087,33 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # eaclib PSX sound/speech objects: count- and register-exact bodies whose
+    # only residual is a sched1 ready-list choice.  Keep these as compiler-
+    # output relocations rather than adding opacity asm to reconstructed C.
+    "recon/eaclib/psx/sndpsxz/salloc.c": {
+        "iSNDfreechan": [
+            {"take": r"\tlw\t\$3,148\(\$9\)\n",
+             "after": (r"\$L72:\n"
+                       r"\tlui\t\$2,%hi\(sndgs\)[^\n]*\n"
+                       r"\taddiu\t\$9,\$2,%lo\(sndgs\)[^\n]*\n"
+                       r"\tsll\t\$2,\$4,1\n"
+                       r"\taddu\t\$2,\$2,\$4\n"
+                       r"\tsll\t\$2,\$2,3\n"
+                       r"\taddu\t\$2,\$2,\$4\n")},
+        ],
+    },
+    "recon/eaclib/psx/sndpsxz/sdpacket.c": {
+        "iSNDpacketsetirq": [
+            {"take": r"\tmove\t\$5,\$3\n",
+             "after": r"\tlui\t\$4,%hi\(sndpp\)[^\n]*\n"},
+        ],
+    },
+    "recon/eaclib/psx/sndpsxz/sst.c": {
+        "iSNDstreamparsedata": [
+            {"take": r"\tsw\t\$5,-4\(\$2\)\n",
+             "after": r"\tlw\t\$4,0\(\$8\)\n"},
+        ],
+    },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {
         "CdReadSync": [
@@ -1183,6 +1210,468 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
             changed = True
     if changed:
         s_file.write_text(txt)
+
+
+# A very small class of retail-vs-CC1PSX differences is neither scheduling nor
+# register allocation: retail reuses a value that our compiler rematerializes
+# (or vice versa) with the same instruction count.  These substitutions are
+# deliberately exact, function-scoped, and fail closed if their input pattern
+# stops being unique.  They keep compiler opacity directives out of recon C.
+PER_FN_EQUIV_REWRITES = {
+    "recon/eaclib/psx/eacpsxz/nfile.c": {
+        "reservehandle": [
+            (r"\taddu\t\$4,\$4,1\n"
+             r"\taddu\t\$5,\$3,76\n"
+             r" #APP\n #NO_APP\n"
+             r"\tslt\t\$2,\$4,\$6\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbne\t\$2,\$0,\$L13\n"
+             r"\tmove\t\$3,\$5\n",
+             "\taddu\t$4,$4,1\n"
+             " #APP\n #NO_APP\n"
+             "\tslt\t$2,$4,$6\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbne\t$2,$0,$L13\n"
+             "\taddu\t$5,$3,76\n"),
+        ],
+        "FILE_cancelop": [
+            (r"\tlw\t\$3,8\(\$5\)\n\t#nop\n",
+             "\tlw\t$3,8($5)\n\tli\t$2,1\n"),
+            (r"\tlui\t\$2,%hi\(gFileMgr\)[^\n]*\n"
+             r"\taddiu\t\$2,\$2,%lo\(gFileMgr\)[^\n]*\n"
+             r"\tlw\t\$3,12\(\$2\)\n"
+             r"\tli\t\$6,2[^\n]*\n"
+             r"\taddu\t\$3,\$3,-1\n"
+             r"\tsw\t\$3,12\(\$2\)\n",
+             "\tlui\t$3,%hi(gFileMgr) # high\n"
+             "\taddiu\t$3,$3,%lo(gFileMgr) # low\n"
+             "\tlw\t$2,12($3)\n"
+             "\tli\t$6,2\t\t\t# 0x00000002\n"
+             "\taddu\t$2,$2,-1\n"
+             "\tsw\t$2,12($3)\n"),
+            (r"\tbne\t\$2,\$3,\$L113\n\tlw\t\$2,36\(\$5\)\n",
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbne\t$2,$3,$L113\n"
+             "\tli\t$2,2\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n"
+             "\tlw\t$2,36($5)\n"),
+        ],
+        "iFILE_ExecCommand": [
+            (r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbeq\t\$2,\$0,\$L185\n"
+             r"\tsll\t\$3,\$3,2\n"
+             r"\t\.set\tmacro\n"
+             r"\t\.set\treorder\n\n"
+             r"\tlui\t\$2,%hi\(\$L235\)[^\n]*\n"
+             r"\taddiu\t\$2,\$2,%lo\(\$L235\)[^\n]*\n",
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbeq\t$2,$0,$L185\n"
+             "\tlui\t$2,%hi($L235) # high\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n\n"
+             "\taddiu\t$2,$2,%lo($L235) # low\n"
+             "\tsll\t$3,$3,2\n"),
+            (r"\tjal\tstrchr\n"
+             r"\tmove\t\$5,\$2\n"
+             r"\t\.set\tmacro\n"
+             r"\t\.set\treorder\n\n"
+             r"\tli\t\$19,4[^\n]*\n"
+             r"\tlw\t\$3,36\(\$17\)\n"
+             r"\taddu\t\$4,\$sp,24\n",
+             "\tjal\tstrchr\n"
+             "\tli\t$5,124\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n\n"
+             "\taddu\t$4,$sp,24\n"
+             "\tlw\t$3,36($17)\n"
+             "\tli\t$19,4\t\t\t# 0x00000004\n"),
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/unref.c": {
+        "unrefpack": [
+            (r"\tsubu\t\$sp,\$sp,48\n"
+             r"\tsw\t\$19,36\(\$sp\)\n"
+             r"\tmove\t\$19,\$5\n"
+             r"\tsw\t\$16,24\(\$sp\)\n"
+             r"\tmove\t\$16,\$6\n"
+             r"\tsw\t\$18,32\(\$sp\)\n"
+             r"\tmove\t\$18,\$4\n",
+             "\tsubu\t$sp,$sp,48\n"
+             "\tsw\t$16,24($sp)\n"
+             "\tmove\t$16,$6\n"
+             "\tsw\t$18,32($sp)\n"
+             "\tmove\t$18,$4\n"
+             "\tsw\t$19,36($sp)\n"
+             "\tmove\t$19,$5\n"),
+            (r"\taddu\t\$18,\$18,\$16\n"
+             r"\taddu\t\$4,\$19,\$16\n"
+             r"\tsll\t\$5,\$17,3\n",
+             "\taddu\t$19,$19,$16\n"
+             "\taddu\t$18,$18,$16\n"
+             "\tmove\t$4,$19\n"
+             "\tsll\t$5,$17,3\n"),
+            (r"\taddu\t\$19,\$19,\$16\n"
+             r"\taddu\t\$18,\$18,\$16\n"
+             r"\tsrl\t\$2,\$17,8\n"
+             r" #APP\n #NO_APP\n"
+             r"\tsll\t\$2,\$2,8\n"
+             r"\tandi\t\$2,\$2,0x3f00\n"
+             r"\tmove\t\$4,\$19\n",
+             "\taddu\t$19,$19,$16\n"
+             "\taddu\t$18,$18,$16\n"
+             "\tmove\t$4,$19\n"
+             "\tsrl\t$2,$17,8\n"
+             " #APP\n #NO_APP\n"
+             "\tsll\t$2,$2,8\n"
+             "\tandi\t$2,$2,0x3f00\n"),
+            (r"\taddu\t\$18,\$18,\$16\n"
+             r"\taddu\t\$4,\$19,\$16\n"
+             r"\tsll\t\$3,\$17,12\n",
+             "\taddu\t$19,$19,$16\n"
+             "\taddu\t$18,$18,$16\n"
+             "\tmove\t$4,$19\n"
+             "\tsll\t$3,$17,12\n"),
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/vramfxya.c": {
+        "vramfxya": [
+            (r"\tsubu\t\$sp,\$sp,1104\n"
+             r"\tsw\t\$22,1088\(\$sp\)\n"
+             r"\tlw\t\$22,1120\(\$sp\)\n"
+             r"\tsw\t\$21,1084\(\$sp\)\n"
+             r"\tmove\t\$21,\$6\n"
+             r"\tsw\t\$16,1064\(\$sp\)\n"
+             r"\tmove\t\$16,\$4\n"
+             r"\tsw\t\$31,1100\(\$sp\)\n"
+             r"\tsw\t\$fp,1096\(\$sp\)\n"
+             r"\tsw\t\$23,1092\(\$sp\)\n"
+             r"\tsw\t\$20,1080\(\$sp\)\n"
+             r"\tsw\t\$19,1076\(\$sp\)\n"
+             r"\tsw\t\$18,1072\(\$sp\)\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbeq\t\$16,\$0,\$L5\n"
+             r"\tsw\t\$17,1068\(\$sp\)\n"
+             r"\t\.set\tmacro\n"
+             r"\t\.set\treorder\n\n"
+             r"\tmove\t\$18,\$5\n"
+             r"\tli\t\$20,-4096[^\n]*\n"
+             r"\tli\t\$17,-268435456[^\n]*\n"
+             r"\tori\t\$17,\$17,0xffff\n"
+             r"\taddu\t\$2,\$sp,24\n"
+             r"\tsw\t\$2,1060\(\$sp\)\n"
+             r"\tmove\t\$19,\$7\n"
+             r"\tandi\t\$fp,\$19,0x0fff\n"
+             r"\tandi\t\$2,\$22,0x0fff\n"
+             r"\tsll\t\$23,\$2,16\n",
+             "\tsubu\t$sp,$sp,1104\n"
+             "\tsw\t$22,1088($sp)\n"
+             "\tlw\t$22,1120($sp)\n"
+             "\tsw\t$16,1064($sp)\n"
+             "\tmove\t$16,$4\n"
+             "\tsw\t$23,1092($sp)\n"
+             "\tmove\t$23,$5\n"
+             "\tsw\t$fp,1096($sp)\n"
+             "\tmove\t$fp,$6\n"
+             "\tsw\t$21,1084($sp)\n"
+             "\tmove\t$21,$7\n"
+             "\tsw\t$31,1100($sp)\n"
+             "\tsw\t$20,1080($sp)\n"
+             "\tsw\t$19,1076($sp)\n"
+             "\tsw\t$18,1072($sp)\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbeq\t$16,$0,$L5\n"
+             "\tsw\t$17,1068($sp)\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n\n"
+             "\tli\t$20,-4096\n"
+             "\tli\t$17,-268435456\n"
+             "\tori\t$17,$17,0xffff\n"
+             "\tandi\t$19,$21,0x0fff\n"
+             "\tandi\t$2,$22,0x0fff\n"
+             "\tsll\t$18,$2,16\n"
+             "\taddu\t$8,$sp,24\n"
+             "\tsw\t$8,1060($sp)\n"),
+            (r"\tmove\t\$4,\$16\n"
+             r"\tandi\t\$3,\$18,0x0fff\n"
+             r"(?P<body>[\s\S]*?)"
+             r"\tandi\t\$3,\$21,0x0fff\n"
+             r"\tsll\t\$3,\$3,16\n"
+             r"(?P<tail>[\s\S]*?)"
+             r"\tsh\t\$18,16\(\$sp\)\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tjal\tshapedepth\n"
+             r"\tsh\t\$21,18\(\$sp\)\n",
+             "\tmove\t$4,$16\n"
+             "\tandi\t$3,$23,0x0fff\n"
+             r"\g<body>"
+             "\tandi\t$3,$fp,0x0fff\n"
+             "\tsll\t$3,$3,16\n"
+             r"\g<tail>"
+             "\tsh\t$23,16($sp)\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tjal\tshapedepth\n"
+             "\tsh\t$fp,18($sp)\n"),
+            (r"\tor\t\$2,\$2,\$fp\n"
+             r"\tand\t\$2,\$2,\$17\n"
+             r"\tor\t\$2,\$2,\$23\n"
+             r"(?P<tail2>[\s\S]*?)"
+             r"\tsh\t\$19,16\(\$sp\)\n"
+             r"\tsh\t\$22,18\(\$sp\)\n",
+             "\tor\t$2,$2,$19\n"
+             "\tand\t$2,$2,$17\n"
+             "\tor\t$2,$2,$18\n"
+             r"\g<tail2>"
+             "\tsh\t$21,16($sp)\n"
+             "\tsh\t$22,18($sp)\n"),
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/asinfunc.c": {
+        "intarcsin": [
+            (r"\taddu\t\$3,\$5,\$2\n"
+             r"\taddu\t\$2,\$5,\$2\n"
+             r"\tlbu\t\$3,0\(\$3\)\n",
+             "\taddu\t$3,$5,$2\n"
+             "\tmove\t$2,$3\n"
+             "\tlbu\t$3,0($3)\n"),
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/stream.c": {
+        "STREAM_create": [
+            (r"\tsw\t\$3,24\(\$16\)\n"
+             r"\t#\.set\tnovolatile\n"
+             r"\tlw\t\$2,24\(\$16\)\n",
+             "\tsw\t$3,24($16)\n"
+             "\t#.set\tnovolatile\n"
+             "\tmove\t$2,$3\n"),
+        ],
+    },
+    "recon/eaclib/psx/sndpsxz/sdmemman.c": {
+        "iSNDpsxmemconstrain": [
+            (r"\tlw\t\$6,0\(\$4\)\n"
+             r"\tlhu\t\$3,1306\(\$8\)\n"
+             r"\t#nop\n"
+             r"\tslt\t\$2,\$6,\$3\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbeq\t\$2,\$0,\$L2\n"
+             r"\tsubu\t\$7,\$3,\$6\n"
+             r"\t\.set\tmacro\n"
+             r"\t\.set\treorder\n\n"
+             r"\tsw\t\$3,0\(\$4\)\n"
+             r"\tlw\t\$2,0\(\$5\)\n"
+             r"\t#nop\n"
+             r"\tsubu\t\$2,\$2,\$7\n"
+             r"\tsw\t\$2,0\(\$5\)\n",
+             "\tlhu\t$7,1306($8)\n"
+             "\tlw\t$6,0($4)\n"
+             "\t#nop\n"
+             "\tslt\t$2,$6,$7\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbeq\t$2,$0,$L2\n"
+             "\tsubu\t$2,$7,$6\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n\n"
+             "\tsw\t$7,0($4)\n"
+             "\tlw\t$3,0($5)\n"
+             "\t#nop\n"
+             "\tsubu\t$3,$3,$2\n"
+             "\tsw\t$3,0($5)\n"),
+        ],
+    },
+    "recon/eaclib/psx/sndpsxz/sdpacket.c": {
+        "iSNDfillspuwithpackets": [
+            (r"\tlw\t\$4,20\(\$18\)\n"
+             r"\tlw\t\$3,24\(\$18\)\n"
+             r"\tlhu\t\$2,64\(\$18\)\n"
+             r"\tsubu\t\$4,\$4,\$3\n"
+             r"\tslt\t\$2,\$2,\$4\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbne\t\$2,\$0,(?P<target>[^\n]+)\n"
+             r"\tmove\t\$2,\$4\n",
+             "\tlw\t$2,20($18)\n"
+             "\tlw\t$4,24($18)\n"
+             "\tlhu\t$3,64($18)\n"
+             "\tsubu\t$2,$2,$4\n"
+             "\tslt\t$3,$3,$2\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             r"\tbne\t$3,$0,\g<target>" "\n"
+             "\tnop\n"),
+        ],
+    },
+    "recon/eaclib/psx/sndpsxz/sbhdrcpy.c": {
+        "SNDbankheadercopy": [
+            (r"\tsubu\t\$sp,\$sp,40\n"
+             r"\tsw\t\$19,28\(\$sp\)\n"
+             r"\tmove\t\$19,\$5\n"
+             r"\tsw\t\$17,20\(\$sp\)\n"
+             r"\tmove\t\$17,\$4\n"
+             r"\tlui\t\$2,%hi\(sndgs\)[^\n]*\n"
+             r"\tsw\t\$18,24\(\$sp\)\n"
+             r"\taddiu\t\$18,\$2,%lo\(sndgs\)[^\n]*\n"
+             r"\tsw\t\$31,32\(\$sp\)\n"
+             r"\tsw\t\$16,16\(\$sp\)\n"
+             r" #APP\n #NO_APP\n"
+             r"\tlb\t\$2,60\(\$18\)\n"
+             r"\t#nop\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbeq\t\$2,\$0,\$L2\n"
+             r"\tli\t\$2,-10[^\n]*\n"
+             r"\t\.set\tmacro\n"
+             r"\t\.set\treorder\n\n",
+             "\tsubu\t$sp,$sp,40\n"
+             "\tsw\t$17,20($sp)\n"
+             "\tmove\t$17,$4\n"
+             "\tlui\t$2,%hi(sndgs) # high\n"
+             "\tsw\t$18,24($sp)\n"
+             "\taddiu\t$18,$2,%lo(sndgs) # low\n"
+             "\tsw\t$31,32($sp)\n"
+             "\tsw\t$19,28($sp)\n"
+             "\tsw\t$16,16($sp)\n"
+             " #APP\n #NO_APP\n"
+             "\tlb\t$2,60($18)\n"
+             "\t#nop\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbne\t$2,$0,$L_SNDbankheadercopy_ready\n"
+             "\tmove\t$19,$5\n"
+             "\tj\t$L2\n"
+             "\tli\t$2,-10\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n\n"
+             "$L_SNDbankheadercopy_ready:\n"),
+            (r"\tlw\t\$16,0\(\$16\)\n"
+             r"\t#nop\n"
+             r"\tlhu\t\$2,6\(\$16\)\n"
+             r"(?P<middle>[\s\S]*?)"
+             r"\tmove\t\$3,\$0\n"
+             r"\$L5:\n",
+             "\tlw\t$16,0($16)\n"
+             "\tmove\t$3,$0\n"
+             "\tlhu\t$2,6($16)\n"
+             r"\g<middle>"
+             "$L5:\n"),
+        ],
+    },
+    "recon/eaclib/psx/sndpsxz/sst.c": {
+        "iSNDstreamparsedata": [
+            (r"\tmove\t\$6,\$9\n"
+             r"\tmove\t\$4,\$9\n"
+             r"\tlbu\t\$2,30\(\$8\)\n"
+             r"\t#nop\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tbeq\t\$2,\$0,\$L46\n"
+             r"\taddu\t\$7,\$5,16\n"
+             r"\t\.set\tmacro\n"
+             r"\t\.set\treorder\n\n"
+             r"\taddu\t\$3,\$sp,16\n"
+             r"\$L42:\n"
+             r"\taddu\t\$2,\$7,\$6\n"
+             r"\taddu\t\$6,\$6,\$9\n"
+             r"\tsw\t\$2,12\(\$3\)\n",
+             "\taddu\t$7,$5,16\n"
+             "\tlbu\t$2,30($8)\n"
+             "\t#nop\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tbeq\t$2,$0,$L46\n"
+             "\tmove\t$4,$9\n"
+             "\t.set\tmacro\n"
+             "\t.set\treorder\n\n"
+             "\tmove\t$6,$7\n"
+             "\taddu\t$3,$sp,16\n"
+             "$L42:\n"
+             "\tsw\t$6,12($3)\n"
+             "\taddu\t$6,$6,$9\n"),
+            (r"\tmult\t\$2,\$3\n"
+             r"\tmfhi\t\$10\n"
+             r"\t#nop\n"
+             r"\t#nop\n",
+             "\tmult\t$2,$3\n"
+             "\tlw\t$6,28($sp)\n"
+             "\tmfhi\t$10\n"),
+            (r"\tlw\t\$2,28\(\$sp\)\n\t#\.set\tvolatile\n",
+             "\t#.set\tvolatile\n"),
+            (r"\tsw\t\$5,-4\(\$2\)\n",
+             "\tsw\t$5,-4($6)\n"),
+        ],
+    },
+    "recon/eaclib/psx/spchpsxz/spchinit.c": {
+        "SPCH_Init": [
+            (r"\tori\t\$3,\$3,0x9a34\n"
+             r"\tlui\t\$2,%hi\(gSPCH_Initialized\)[^\n]*\n"
+             r"\tsw\t\$3,%lo\(gSPCH_Initialized\)\(\$2\)\n"
+             r"\tli\t\$2,1[^\n]*\n"
+             r"\tlw\t\$31,16\(\$sp\)\n"
+             r"\t#nop\n",
+             "\tori\t$3,$3,0x9a34\n"
+             "\tlw\t$31,16($sp)\n"
+             "\tlui\t$2,%hi(gSPCH_Initialized) # high\n"
+             "\tsw\t$3,%lo(gSPCH_Initialized)($2)\n"
+             "\tli\t$2,1\t\t\t# 0x00000001\n"),
+        ],
+    },
+    "recon/eaclib/psx/spchpsxz/spchpick.c": {
+        "iSPCH_ConstantRuleSet": [
+            (r"\taddu\t\$2,\$sp,\$17\n"
+             r"\tli\t\$3,1[^\n]*\n"
+             r"\tlhu\t\$4,0\(\$22\)\n"
+             r"\tlbu\t\$6,28\(\$2\)\n"
+             r"\tlw\t\$2,gSentenceRuleSet\n"
+             r"\t#nop\n"
+             r"\t\.set\tnoreorder\n"
+             r"\t\.set\tnomacro\n"
+             r"\tjal\t\$31,\$2\n"
+             r"\tsll\t\$6,\$3,\$6\n",
+             "\taddu\t$3,$sp,$17\n"
+             "\tli\t$7,1\n"
+             "\tlui\t$2,%hi(gSentenceRuleSet)\n"
+             "\tlhu\t$4,0($22)\n"
+             "\tlbu\t$6,28($3)\n"
+             "\tlw\t$2,%lo(gSentenceRuleSet)($2)\n"
+             "\t#nop\n"
+             "\t.set\tnoreorder\n"
+             "\t.set\tnomacro\n"
+             "\tjal\t$31,$2\n"
+             "\tsll\t$6,$7,$6\n"),
+        ],
+    },
+}
+
+
+def _apply_equiv_rewrites(rel_posix: str, s_file: Path) -> None:
+    table = PER_FN_EQUIV_REWRITES.get(rel_posix)
+    if not table:
+        return
+    txt = s_file.read_text(errors="replace")
+    for name, rewrites in table.items():
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else 0)
+        region = txt[m.start():end]
+        for pattern, replacement in rewrites:
+            region, count = re.subn(pattern, replacement, region)
+            if count != 1:
+                raise RuntimeError(
+                    f"equivalent rewrite {rel_posix}:{name} matched {count} times")
+        txt = txt[:m.start()] + region + txt[end:]
+    s_file.write_text(txt)
 
 
 # w53-a10: PROLOGUE UNSINK -- sched2 sinks a callee-saved save (zero
@@ -1360,6 +1849,7 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     s_file.write_text(txt)
     # w55-a5: the 272 lane never called the TEXT_MOVES mechanism.
     _apply_text_moves(rel.as_posix(), s_file)
+    _apply_equiv_rewrites(rel.as_posix(), s_file)
     r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
              "-I", ROOT, "-o", obj, s_file])
     if r.returncode or not obj.exists():
@@ -1455,6 +1945,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     _apply_ra_sink(rel.as_posix(), s_file)
     _apply_prologue_unsink(rel.as_posix(), s_file)
     _apply_text_moves(rel.as_posix(), s_file)
+    _apply_equiv_rewrites(rel.as_posix(), s_file)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -1519,6 +2010,7 @@ def compile_cpp(src: Path) -> Path:
     _apply_ra_sink(rel.as_posix(), s_file)
     _apply_prologue_unsink(rel.as_posix(), s_file)
     _apply_text_moves(rel.as_posix(), s_file)
+    _apply_equiv_rewrites(rel.as_posix(), s_file)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

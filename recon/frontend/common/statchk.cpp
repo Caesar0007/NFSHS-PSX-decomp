@@ -275,7 +275,13 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * residual 199->62 at the exact 416/416 instruction count. Reusing uRecSz at
  * the tail, block-scoped size locals, declaration initializers, bulk-copy
  * identity fences, and explicit index temporaries measured neutral or worse
- * in this basin and were reverted. */
+ * in that basin and were reverted.
+ *
+ * MATCH W66 (2026-08-11): model the first bulk-copy unit and its shifted byte
+ * count as separate short-lived values before the expanded record assignment.
+ * This recovers the retail calculation lifetime and reduces 62->59 diffs
+ * (417/416 instructions); the two empty templates are identity/scheduling
+ * fences only, with no register pinning or emitted instructions. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -288,6 +294,8 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   int nCheckTotalTime;
   unsigned int uRecSz;
   unsigned int uCopySz;
+  unsigned int uBulkUnit;
+  unsigned int uBulkSz;
   short k;
   short nCar;
   char *buffer;
@@ -372,8 +380,12 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
               }
             }
             strcpy(DummyRaceResult.sName,PlayerName((int)nRankCarTotalTimes[nCar]));
+            uBulkUnit = sizeof(tRecordBuffer);
+            __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit));
+            uBulkSz = uBulkUnit * 8;
+            __asm__("" : : "r"(uBulkUnit), "r"(uBulkSz));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
-            memcpy_call(buffer,&RecordHolders[nLapIndicator],sizeof(tRecordBuffer) * 8);
+            memcpy_call(buffer,&RecordHolders[nLapIndicator],uBulkSz);
             for (k = 0; k < 8; k = k + 1) {
               uCopySz = sizeof(tRecordBuffer);
               __asm__("" : "=r"(uCopySz) : "0"(uCopySz), "r"((int)nTopTenIndex[k]));

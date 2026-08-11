@@ -621,6 +621,12 @@ void tFEApplication::RunDemoVideo()
  * for-loop, and testing player two by truth value, reduces 404 -> 354 diffs.
  * The frame remains the retail 408 bytes and the command-array base now receives
  * retail $s7; the two-instruction size residual is still allocator/source shape. */
+/* PARTIAL (2026-08-11): 60 -> 9 diffs.  The explicit player-two comparison paired
+ * with removal of the artificial one-use enum local restores the retail lifetime;
+ * the case-4 memory fence preserves retail's second current-menu load; and narrow
+ * identity/read fences around the case-3 depth/flag sequence restore its exact
+ * load/store order.  Remaining sites are the post-dialog load-delay schedule and
+ * the final ticks load's local register ($t0 versus $v0). */
 
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
@@ -636,7 +642,6 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   short i;
   int demoLoopLastInputTick;
   char string [80];
-  int dialog;
   PinkSlipsErrorCode err;
   int player;
   int iVar10;
@@ -735,7 +740,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
         demoLoopLastInputTick = ticks;
       }
 MainLoop_subMenuDetect:
-      if ((u_char)this->fPlayer != 0) {
+      if ((u_char)this->fPlayer == kPlayerTwo) {
         ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
         if ((ptVar17 != (tMenu *)0x0) &&
             ((*(*ptVar17->_vf)[7].pfn)
@@ -784,10 +789,8 @@ MainLoop_perPlayerFlagCheck:
         inputEndPlayer = (tPlayer)(u_char)this->fPlayer;
         inputStartPlayer = inputEndPlayer;
         u_int menuFlags = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
-        /* Keep this one-use value block-local so GCC rematerializes it. */
-        tPlayer one = kPlayerTwo;
         if (((menuFlags & 0x10) != 0) ||
-           ((frontEnd.gameMode == one && ((menuFlags & 8) == 0)))) {
+           ((frontEnd.gameMode == kPlayerTwo && ((menuFlags & 8) == 0)))) {
           perPlayer = true;
         }
         if (perPlayer) {
@@ -836,7 +839,7 @@ MainLoop_perPlayerFlagCheck:
             this->fLastKeyPressed[i] = keyVal[i];
           }
           if (keyVal[i] != kInput_KeyType_NoKey) {
-            dialog = tDialogBase::GetTopMostDialog();
+            tDialogBase *dialog = (tDialogBase *)tDialogBase::GetTopMostDialog();
             demoLoopLastInputTick = tick;
             ticksAtLastInput[i] = tick;
             this_tDialogBase_l181 = (tDialogBase *)&this->helpPopup;
@@ -846,9 +849,8 @@ MainLoop_perPlayerFlagCheck:
             }
             if (dialog != 0) {
               if (keyVal[i] != kInput_KeyType_Circle) {
-                (**(int (**)(...))(*(int *)(dialog + 0x60) + 0x4c))
-                          (dialog + *(short *)(*(int *)(dialog + 0x60) + 0x48),i,keyVal + i,
-                           command + i);
+                (*(*dialog->_vf)[9].pfn)
+                          ((char *)dialog + (*dialog->_vf)[9].delta,i,keyVal + i,command + i);
               }
             }
             tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
@@ -884,8 +886,11 @@ MainLoop_setMenuAndNext:
             AudioCmn_PlayFESFX(0);
             this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] =
                  this->fCurrentMenu[(u_char)this->fPlayer];
+            iVar10 = this->backDepth[(u_char)this->fPlayer];
+            __asm__("" : "+r"(iVar10));
             needToSetChildMenu = true;
-            this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
+            __asm__("" : : "r"(needToSetChildMenu));
+            this->backDepth[(u_char)this->fPlayer] = iVar10 + 1;
             stackBackupPin = (short)this->backDepth[(u_char)this->fPlayer];
             this->SetMenu((u_short)(u_char)this->fPlayer,
                     command[i].nextMenu);
@@ -924,11 +929,13 @@ MainLoop_setMenuAndNext:
                           ((char *)ptVar17 + (*pa_Var11)[5].delta);
                 (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
                 this->backDepth[1] = 0;
+                goto MainLoop_afterStackPair;
               }
             }
             if ((this->fPlayer == '\x01') &&
                 (this->backDepth[(u_char)this->fPlayer] < 1) &&
                 (this->fCurrentMenu[1] != (tMenu *)0x0)) {
+              __asm__("" : : : "memory");
               ptVar17 = this->fCurrentMenu[1];
               this->backDepth[0] = stackBackupPin + -1;
               pa_Var11 = ptVar17->_vf;
@@ -947,6 +954,7 @@ MainLoop_setMenuAndNext:
               stackBackupPin = -1;
               this->SetMenu(0,this->backList[0][this->backDepth[0]]);
             }
+MainLoop_afterStackPair:
             if (this->backDepth[(u_char)this->fPlayer] < 1) goto MainLoop_noBack;
 MainLoop_doBack:
             AudioCmn_PlayFESFX(1);

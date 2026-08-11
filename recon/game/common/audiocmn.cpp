@@ -412,18 +412,23 @@ void AudioCmn_Init(void)
 {
   int j;
   int temptrack;
-  int (*paiVar1) [2];
 
   /* @0x80076A7C: if(AudioCmn_kAudioOn==0) goto lbl_80076AF0 (the per-player loop, which always runs).
    * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
   if (AudioCmn_kAudioOn != 0) {
     AudioCmn_InitChannelArray();
+    GameSetup_tData *setup = &GameSetup_gData;
     /* MATCH (SYM rule-8): temptrack = REG $4 (a0), mutated IN PLACE by the &0x10 arm
        (addiu a0,v0,5); track is loaded ONCE. audioBackwardsDirection is stored then
        RE-READ for the table select (the join point starts a new EBB, so no CSE) --
        the reverse-track temp (v1) dies at the store. */
-    audioBackwardsDirection = GameSetup_gData.reverseTrack;
-    temptrack = GameSetup_gData.track;
+    audioBackwardsDirection = setup->reverseTrack;
+    temptrack = setup->track;
+    /* MATCH: keep the shared GameSetup base live through both member loads so
+       reverseTrack uses v1 and the load-delay nop disappears (21 -> 20).
+       The identity fence is zero-insn; placing it earlier loses the liveness,
+       while placing it after the branch rotates the base through v1. */
+    __asm__("" : "=r"(setup) : "0"(setup));
     if ((temptrack & 0x10) != 0) {
       temptrack = (temptrack & 0xf) + 5;
     }
@@ -431,29 +436,30 @@ void AudioCmn_Init(void)
        (`lw v0,0(gp); nop; bnez`) -- gcc otherwise keeps the just-stored value live in
        the reverseTrack temp and emits no load at all.  Volatile only on the TEST read
        (the store above stays ordinary).  48->45. */
+    /* MATCH: SYM has no table-pointer local.  Spelling the two source arms
+       directly lets gcc cross-jump their common load/store tail (29 -> 21). */
     if (*(volatile int *)&audioBackwardsDirection == 0) {
-      paiVar1 = falseLapTrigNumsForward;
+      falseLapTrigCur = falseLapTrigNumsForward[temptrack][0];
+      flaseLapTrigTrack = falseLapTrigNumsForward[temptrack][1];
     }
     else {
-      paiVar1 = falseLapTrigNumsBackward;
+      falseLapTrigCur = falseLapTrigNumsBackward[temptrack][0];
+      flaseLapTrigTrack = falseLapTrigNumsBackward[temptrack][1];
     }
-    falseLapTrigCur = paiVar1[temptrack][0];
-    flaseLapTrigTrack = paiVar1[temptrack][1];
+    /* MATCH: one zero-insn ref fence buys temptrack's SYM $a0 allocation;
+       without it the guarded head rotates through $v1 and costs 45 diffs. */
+    __asm__("" : : "r"(temptrack));
     falseLapCounter = 0;
     intensityFalseLapCounter = 0;
   }
-  /* MATCH: pure INDEX FORM for every per-player store -- gcc strength-reduces the word
-     arrays + gReTrig (stride 0x20) into givs whose la inits self-materialize
-     (lui tN;addiu tN,tN) exactly like the oracle; named walker pointers came out as a
-     shared lui-v0 scratch instead. j = SYM REG $3 (v1). */
   {
     /* MATCH: word arrays as pointer walkers (&arr[0] inits) + gReTrig/char arrays in index
        form: this hoists the 0x200 constant (li t1,512 pre-loop, oracle) and gives gReTrig
-       the oracle's lui-v0-scratch giv init. RESIDUAL (banked): the 4 walker inits emit
+       the oracle's lui-v0-scratch giv init. RESIDUAL (20, banked): the head has only the
+       `lw a0`/`andi v0` scheduling order left, while the 4 walker inits emit
        expand-time split lui $2/addiu (HIGH+LO_SUM) where the oracle has post-expand macro
        `la tN` self-form -- a pass-origin identity (expand-split vs loop-pass-macro), no
-       source shape found (index-form=split giv, byte-biv regresses 104); plus the
-       temptrack(v1<->a0) head pair. */
+       source shape found (index-form=34 in the current basin; byte-biv regresses 104). */
     int *p7 = &AudioCmn_gPlayerArrested[0];
     int *p6 = &gtotallaptimes[0];
     int *p5 = &PlayersRampedGasLevel[0];
@@ -713,7 +719,13 @@ LAB_800774e0:
     bestLapTime[(u_char)carnum] =
         simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
   }
-  currentLap[(u_char)carnum] = (char)car->lap;
+  {
+    char lap = (char)car->lap;
+    /* MATCH: zero-insn use fence keeps the lap byte load ahead of the next
+       global-base materialization, matching the SLD 1190/1191 interleave. */
+    __asm__("" : : "r"(lap));
+    currentLap[(u_char)carnum] = lap;
+  }
   gtotallaptimes[(u_char)carnum] = (car->stats).lapTime;
   intensityFalseLapCounter = falseLapCounter = car->lap;
   return;
@@ -1250,10 +1262,13 @@ BNK5:
   goto GOTBANK;
 LOOKUP:
   {
-    int lbase = (int)gBankNumLookupTable;   /* MATCH: base-first + index-first addu.
-       RESIDUAL (banked): ours CSEs ONE lui for the two jump-in paths (v1); the oracle
-       re-materializes %hi per path via delay-fill target-stealing (v0) -- +3 remat diffs */
-    PatchBank = gSndBnk[*(u_char *)((sndPlayer << 2) + lbase)].bnkID;
+    /* MATCH: the typed byte intermediate is structural, not cosmetic.  Keeping
+       the lookup and bank-table reads as one expression leaves the address
+       allocnos reversed (14 diffs); naming the byte gives retail's v0 lookup
+       base and v1 index/load web, including both stolen %hi delay slots. */
+    u_char *lookup = (u_char *)gBankNumLookupTable;
+    u_char bankNum = lookup[sndPlayer << 2];
+    PatchBank = gSndBnk[bankNum].bnkID;
   }
 GOTBANK:
   if (sndPlayer == 0x31) {
@@ -1272,12 +1287,14 @@ GOTBANK:
       slot->Partial = -1;
       slot->SFXnum = -1;
     }
-    /* W55-A10 FALSIFIED: retail computes the `PatchBank == -3` flag (li -3 / xor / sltiu 1)
-       BEFORE the `PatchBank < -1` guard, ours after -- but hoisting it into a named local
-       (declared above the `goto NEWSOUND` to satisfy C++) costs a pseudo and re-colours the
-       whole fn: 20 -> 94.  The speculative issue order must come from somewhere cheaper. */
+    /* MATCH: retail computes this flag before the PatchBank < -1 guard.  Reusing
+       the disjoint iPartial web initially crosses a 20 -> 94 allocation basin;
+       one post-SNDover reference to slot restores iAmp=s1/slot=s0 and reaches
+       PASS together with the typed lookup above.  The fence emits no code. */
+    __asm__("" : : "r"(slot));
+    iPartial = (PatchBank == -3);
     if ((PatchBank < -1) &&
-       (AudioCmn_GetAsyncSfx(PatchBank == -3,iSFXnum,false) == -1)) {
+       (AudioCmn_GetAsyncSfx(iPartial,iSFXnum,false) == -1)) {
       slot->Partial = -1;
       slot->SFXnum = -1;
     }
@@ -1696,11 +1713,13 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
      get REG copies (a2/s7/s6/s1), freq+doppler stay ARG (stack) and are reloaded per use.
      dir is consumed IN PLACE (s2=dir>>12 kept, s1 becomes dir>>10, s2-=0x40 for the 2nd
      index); relvel clamped in place; iAmpIn reused for the final scaled amp.
-     RESIDUAL (banked, 53 @ count 164/163): a pure saved-reg PERMUTATION -- ours
+     RESIDUAL (banked, 51 @ count 164/163): a pure saved-reg PERMUTATION -- ours
      {dir=s0, -1/pitchmult=s1, Xfade=s2, dir>>12=s3} vs oracle {pitchmult=s0, dir=s1,
      -1/dir>>12=s2, Xfade=s3} -- plus the 1st-index fold (ours A-(B-64), oracle (A+64)-B).
-     Tried: decl order, pitchmult 2-statement split (56), 0x40-leading index (56) --
-     permuter multi-basin candidate. */
+     MATCH gain: keep pitchmult at the post-`>>10` scale and apply `<<4` at each call;
+     this matches the retail value lifetime and reduced 53->51. Tried: decl order, named dir12
+     (52), nested early-return guard (neutral), pin-free priority reads (56), 0x40-leading index
+     (56) -- remaining cycle is a permuter multi-basin candidate. */
   int pitchmult;
   int iAmpIn;
   int player;
@@ -1727,14 +1746,14 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     }
   }
   else {
-    pitchmult = (fixedmult(freq + 0x3333,doppler) * 0x50 >> 10) << 4;
+    pitchmult = fixedmult(freq + 0x3333,doppler) * 0x50 >> 10;
     /* BUG FIX (2026-07-11): real crossfade table Xfade[129], not a stale "" placeholder.
        BUG FIX (wave-13): 2nd index IS +0x40 biased -- oracle mutates s2=(dir>>12)-0x40 then
        s1-s2 = (dir>>10)-(dir>>12)+0x40 (the wave-6 note claiming "no +0x40" misread the raw;
        the two calls use the symmetric +-0x40 crossfade pair). */
-    AudioCmn_PlaySFX(iChan + 4,CopSpeak_GetEnginePatch(iSFXnum,0),0x40,pitchmult,
+    AudioCmn_PlaySFX(iChan + 4,CopSpeak_GetEnginePatch(iSFXnum,0),0x40,pitchmult << 4,
                iAmpIn * Xfade[((dir >> 0xc) + 0x40) - (dir >> 10)] >> 7,azimuth);
-    AudioCmn_PlaySFX(iChan + 8,CopSpeak_GetEnginePatch(iSFXnum,1),0x40,pitchmult,
+    AudioCmn_PlaySFX(iChan + 8,CopSpeak_GetEnginePatch(iSFXnum,1),0x40,pitchmult << 4,
                iAmpIn * Xfade[(dir >> 10) - ((dir >> 0xc) - 0x40)] >> 7,azimuth);
     if (0x280000 < relvel) {
       relvel = 0x280000;
@@ -2051,15 +2070,16 @@ void AudioCmn_ReverbOff(void)
 
 
 
-/* ---- AudioCmn_Reset__Fv  [@0x80076bec] ---- (Ghidra decompile @NFS4.EXE.c:54396, disasm-v3 cross-checked:
+/* ---- AudioCmn_Reset__Fv  [@0x80076bec] ---- (Ghidra/IDA + SLD cross-checked:
 
- *  SNDstop arg restored; carInfo[] loop de-garbled; the goto-converging music-buffer wait kept verbatim.) */
+ *  SNDstop arg restored; carInfo[] loop de-garbled; music-buffer wait is the direct
+ *  SLD-scoped compound while. MATCH: 66 -> PASS, ours/oracle 214.) */
 
 void AudioCmn_Reset(void)
 
 {
 
-  bool ready;
+  int ready;
 
   int  i, t, t0, b, th, patch;
 
@@ -2154,71 +2174,32 @@ void AudioCmn_Reset(void)
 
   SNDSTRM_setpriority(gMusicHandle, 0xff, 0xff);
 
-  t0 = gettick();
+  {
+    int ticks;
 
-  gettick();
-
-  AudioMus_Buffered();
-
-  AudioMus_Threshold();
-
-  do {
-
-    ready = false;
-
-    t = gettick();
-
-    if (t < t0 + 0x40 || AudioMus_Threshold() < 1)
-
-      goto music_deadline;
-
-    b  = AudioMus_Buffered();
-
-    th = AudioMus_Threshold();
-
-    if (b < th)
-
-      goto music_deadline;
-
-  music_deadline:
-
-    if (gettick() < t0 + 0x100)
-
-      ready = true;
-
-    if (!ready) {
-
-      b  = AudioMus_Buffered();
-
-      th = AudioMus_Threshold();
-
-      if (b < th + -100) {
-
-        GameSetup_gData.userSetting.musicLevel = 0;
-
-        gMasterMusicLevel = 0;
-
-        AudioMus_Volume(AudioCmn_MusicLevel(0));
-
-      } else {
-
-        gettick();
-
-      }
-
-      gettick();
-
-      AudioMus_Buffered();
-
-      AudioMus_Threshold();
-
-      return;
-
+    /* MATCH: SLD line-126 `ticks` is the +0x100 deadline ($s3); gcc derives the
+       +0x40 deadline in $s2. Keeping the compound test directly in the while prevents
+       the first wait block's goodtogo web from leaking into this block (27 -> PASS). */
+    ticks = gettick() + 0x100;
+    gettick();
+    AudioMus_Buffered();
+    AudioMus_Threshold();
+    while ((((gettick() < ticks + -0xc0) || (AudioMus_Threshold() < 1)) ||
+            (AudioMus_Buffered() < AudioMus_Threshold())) && (gettick() < ticks)) {
+      systemtask(0);
     }
-
-    systemtask(0);
-
-  } while (1);
+    if (AudioMus_Buffered() < AudioMus_Threshold() + -100) {
+      GameSetup_gData.userSetting.musicLevel = 0;
+      gMasterMusicLevel = 0;
+      AudioMus_Volume(AudioCmn_MusicLevel(0));
+    }
+    else {
+      gettick();
+    }
+    gettick();
+    AudioMus_Buffered();
+    AudioMus_Threshold();
+  }
 
 }
 

@@ -788,7 +788,7 @@ tDialogYesNo::tDialogYesNo()
 
 
 /* ---- tDialogYesNo::Draw  [FEDIALOG.CPP:773-815] SLD-VERIFIED ---- */
-/* MATCH: 78 -> 16 -> 12 -> 6 (W57-A5/W59), count EXACT 98/98 (was 104/98).
+/* MATCH: 78 -> 16 -> 12 -> 6 -> 0 (W57-A5/W59/W66), exact 98/98.
    THE LEVER: the two Ghidra locals `sVar1 = this->top; sVar2 = this->height;` were
    fabricated -- they held two field values in TWO callee-saved regs across the
    FETextRender_SetABR call (forcing an extra saved reg, `fp`, + its save/restore, and
@@ -801,11 +801,11 @@ tDialogYesNo::tDialogYesNo()
    `rgbBase`/`textBase` loop invariants make LICM emit both address materializations
    before `ptVar8=this`, reuse v0 for their %hi scratch, and seal the whole six-diff
    preheader cluster (12->6).
-   REMAINING 6 are position-only: ours puts `add`, `-11`, and the short-cast `sll`
-   one call later than retail (SetABR delay, TextSys_Word delay, then ordinary body).
-   FALSIFIED in the 6-diff basin: y-subtract before SetABR and a named short cast are
-   neutral; y source order after SetABR worsens to 18; identity/read-only fences at
-   either y boundary cost one instruction and worsen to 7-9. */
+   W66: the SLD transitions at 0x80019c2c/38/3c/44 recover the last source
+   shape: `top + height - 11` was one expression before SetABR.  Keeping the
+   subtraction in that expression lets scheduling place the sum before SetABR,
+   the subtraction in its delay slot, and the short cast in TextSys_Word's delay
+   slot, sealing the final six position-only residuals. */
 
 void tDialogYesNo::Draw()
 
@@ -843,9 +843,8 @@ void tDialogYesNo::Draw()
         idx = 1;
       }
       col = CalcFadeVal(rgbBase[(u_char)textBase[idx + 0x33]],(int)this->fFadeText);
-      y = (int)this->top + (int)this->height;
+      y = (int)this->top + (int)this->height - 0xb;
       FETextRender_SetABR(1,true);
-      y = y - 0xb;
       sMenuText = TextSys_Word(ptVar8->yesnowords[0]);
       FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,col,'\0',2);
       FETextRender_SetABR(0,false);

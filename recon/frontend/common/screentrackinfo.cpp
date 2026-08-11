@@ -22,61 +22,44 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 }
 
 /* ---- tScreenTrackInfo::DrawBackground  (screentrackinfo.cpp:58) ---- */
-/* MATCH: 113 -> 18. SYM identifies i=$s0 and trackInfo=$s5; separating the two
-   loops' pointer/Y live ranges restores the rest of retail's saved-register
-   colors.  The explicit state variable matches the nested SLD blocks, while
-   zero-instruction identity fences reproduce GCC's reference-count allocation
-   without pinning registers.  The 18 remaining diffs are instruction-ordering
-   differences in three otherwise identical scheduling regions. */
+/* PASS (162/162).  SYM identifies only i=$s0, trackInfo=$s5, and the local
+   trackConditions array.  Expressing both loops with indexed operands lets
+   GCC strength-reduce the retail pointer/Y induction variables itself; named
+   pointer/Y locals left three scheduling residuals.  For the four justified
+   labels, two post-use read-only references to screenInfo price the saved
+   constants as retail s2=highlighted and s1=screenInfo without a pre-call
+   barrier, leaving a3=1 available for the retail sllv index scale. */
 void tScreenTrackInfo::DrawBackground()
 
 {
   tTrackInformation *trackInfo;
   short *pList;
-  short *conditionList;
   uint i;
-  int trackY;
-  int conditionY;
   short trackConditions [4] = { 0xcc, 0xcd, 0xce, 0xcf };  /* .rodata @0x80011f6c: FE condition-label text IDs */
   
   
   trackInfo = GetTrackByID(&trackManager,(short)(this->fTrack).fTrackNumber);
   for (pList = GetTrackList(&tournamentManager,(ushort)(byte)frontEnd.tier,
                             (ushort)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)),
-       i = 0, trackY = 0x8f0000;;) {
-    short word = *pList;
+       i = 0; pList[i] != 0; i = i + 1) {
+    short word = pList[i];
 
-    if (word == 0) {
-      break;
-    }
     tMenuTextState state = textState_Selected;
     if (i == tournamentManager.fCurrentTrack) {
       state = textState_Hilighted;
     }
     FETextRender_MenuTextPositioned
-              (word,0xaa,(short)((uint)trackY >> 0x10),
+              (word,0xaa,(short)(0x8f + (int)i * 9),
                state,textType_ScreenInfo);
-    trackY = trackY + 0x90000;
-    pList = pList + 1;
-    __asm__("" : "=r"(pList) : "0"(pList));
-    i = i + 1;
   }
-  i = 0;
-  conditionY = 0x8f0000;
-  conditionList = trackConditions;
-  do {
+  for (i = 0; i < 4; i = i + 1) {
     FETextRender_MenuTextPositioned
-              (*conditionList,0x154,(short)((uint)conditionY >> 0x10),
+              (trackConditions[i],0x154,(short)(0x8f + (int)i * 0x12),
                textState_Selected,textType_ScreenInfo);
-    conditionList = conditionList + 1;
-    i = i + 1;
-    conditionY = 0x8f0000 + (int)i * 0x120000;
-  } while (i < 4);
-  __asm__("" : : "r"(i), "r"(i), "r"(conditionList));
+  }
+  __asm__("" : : "r"(i), "r"(i));
   tMenuTextState highlighted = textState_Hilighted;
-  tMenuTextType screenInfo;
-  __asm__("" : "=r"(screenInfo) : "0"(textType_ScreenInfo));
-  __asm__("" : "=r"(screenInfo) : "0"(screenInfo));
+  tMenuTextType screenInfo = textType_ScreenInfo;
   FETextRender_MenuTextPositionedJustify
             (SelectListTrackDirection[(this->fTrack).fDirection],0x1e0,0x98,1,highlighted,
              screenInfo);
@@ -89,6 +72,7 @@ void tScreenTrackInfo::DrawBackground()
   FETextRender_MenuTextPositionedJustify
             (SelectListOffOn[(this->fTrack).fWeather],0x1e0,0xce,1,highlighted,
              screenInfo);
+  __asm__("" : : "r"(screenInfo), "r"(screenInfo));
   FETextRender_MenuTextPositionedJustify
             (trackInfo->fSpeedoCountry + 0x43,0x1de,0x21,1,textState_Unselected,textType_TrackRecords);
   ::DrawBackgroundImage((tScreen *)this,0,0x21,this->fPermShapes.fShapes,0);

@@ -149,6 +149,11 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
 }
 
 /* ---- tScreenTrackRecords::DrawBackground  (screentrackrec.cpp:210) ---- */
+static inline int TrackRecordLineY(short y)
+{
+  return y - 0xc;
+}
+
 void tScreenTrackRecords::DrawBackground()
 
 {
@@ -240,20 +245,19 @@ void tScreenTrackRecords::DrawBackground()
   FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249),
                            (short)(midy + 3),ColTextSel,0,0);
   PSXDrawBrightEndLine(Col,boxx,(short)boxy + 3,boxw,-1,2,linefadeval,0x23);
-  /* MATCH (W57-A7, 24 -> 6): the SECOND instance of the statement-granular
+  /* MATCH (W57-A7/W66, 24 -> 6 -> PASS): the SECOND instance of the statement-granular
      constant-reassociation -- inline, fold rewrites `(midy-0xc) - boxy` into
      `midy - (boxy+0xc)` (ours emitted `addiu s0,s0,12; subu v0,v0,s0`), and the
      resulting extra pseudo also flipped the two short temps' $s0/$s1 homes.
-     Naming the `midy - 0xc` half in its own statement fixes both at once.
-     RESIDUAL 6: ours narrows AFTER subtracting (`addiu v0,t0,-12; sll; sra`),
-     retail narrows FIRST (`sll; sra; addiu v0,v0,-12`).  Falsified: `int liney`
-     (52 -- rotates the whole mult/mfhi band), in-place `liney = liney - 0xc`,
-     a separate `short m = (short)midy` (both 6). */
+     Naming the `midy - 0xc` half in its own statement fixed both at once.  The
+     final lever is the inlined TrackRecordLineY helper: its short formal creates
+     the retail conversion boundary (`sll; sra; addiu -12`) without the live int
+     local that rotates the saved-register band.  Falsified: direct cast expression
+     (24), `int liney` (52), in-place subtraction, and a separate short local (6). */
   {
-    short liney = (short)midy - 0xc;
-
     PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
-                         liney - (short)boxy,1,linefadeval,0);
+                         TrackRecordLineY((short)midy) - (short)boxy,
+                         1,linefadeval,0);
   }
   if (8 < maxitem) {
     PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);

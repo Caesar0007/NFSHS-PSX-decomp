@@ -258,7 +258,7 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
   /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
      OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
      ends with its own `j`), so it must be a goto target, not the fall-through. */
-  /* RESIDUAL 4 (W60/W65, 26->17->13->4; ours/oracle 45).  The horizontal sibling's
+  /* MATCH: PASS 45/45 (W60/W65/W68; 26->17->13->4->2->0).  The horizontal sibling's
      promoted `pos` plus explicit signed-test pair transfers here: it removes
      the premature gridpos result copy and makes the clamp stores use incoming
      $a3 like retail.  Making `pos` short preserves that retail carrier through
@@ -266,17 +266,18 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
      fence keeps the signed-test shift pair in retail's separate $v0/$v1 webs
      (17->13).  Separating `innerHeight = HEIGHT + GOURAUD*2` from the final
      `EXTRA + innerHeight` gives retail's $v1/$v0 arithmetic webs, shortens the
-     EXTRA address lifetime, and leaves y in its SYM $a2 home (13->4).
-     Remaining: the fence blocks reorg's backward $ra-store slot fill and moves
-     the gridpos shift one slot past the stack-dir load; both are entry scheduling.
+     EXTRA address lifetime, and leaves y in its SYM $a2 home (13->4).  Moving
+     the identity fence into the positive arm lets reorg fill the initial `blez`
+     delay slot with the $ra store (4->2); making `x` a second identity output
+     moves its SYM $t0 parameter handoff before the gridpos shift (2->0).
      FALSIFIED in this basin: volatile shifted carrier 36; short test neutral;
      register y neutral; read-only y fence at entry 17 and before call 56;
      inner height-term swap 17; literal IDA if/else clamp 31. */
   shifted = (unsigned int)gridpos << 16;
   pos = gridpos;
-  __asm__("" : "+r"(shifted));
   test = (int)shifted >> 16;
   if (0 < test) {
+    __asm__("" : "+r"(shifted), "+r"(x));
     if (0x40 <= test) goto VL_clampHi;
   }
   if (test < 0) {

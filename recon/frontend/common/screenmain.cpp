@@ -681,6 +681,11 @@ void tScreenMain::PreLoad()
 void tScreenMain::Initialize()
 
 {
+  /* MATCH (2026-08-11, 14 -> PASS, exact 129/129): SLD lines 812-824 put
+     bVideoAborted before the tick snapshots, followed by transition and the
+     remaining state fields.  A site-local volatile read preserves retail's
+     separate fStartTicks/fAnimTicks loads; typed tvStates[i] indexing gives
+     the retail base-first address addition. */
   /* MATCH (06A): the SYM 8c block lists exactly TWO named locals -- `i` (class
      REG $16 = $s0, SHORT) and `shapesLoaded` (class REG $16 = $s0, BOOL), sharing
      one register over disjoint ranges; mask $800f0000 = ra + s0..s3, i.e. FOUR
@@ -712,14 +717,14 @@ void tScreenMain::Initialize()
   this->fPreviousMovie = -1;
   this->fFrame = 0;
   this->hVideo = VIDEO_create(0x50,0x50,0xf0000,0x20000,0x10);
-  this->fStartTicks = ticks;
   this->bVideoAborted = 0;
+  this->fStartTicks = *(volatile int *)&ticks;
+  this->fAnimTicks = ticks - 800;
   this->fTransitionDirection = '\x01';
   this->fAnimationUploaded = 0;
   this->fWarningFade = 0;
   this->fNumTVsInTransition = 0;
   this->fCurrentSlot = 0;
-  this->fAnimTicks = ticks - 800;
   /* MATCH: ONE fn-scope `short n` serves all THREE loops -- the decompiler's
      `iVarN * 0x10000 >> 0x10` pre-shift idiom costs an extra pseudo per loop
      (and a whole extra saved register); a plain short counter reproduces the
@@ -733,7 +738,7 @@ void tScreenMain::Initialize()
   this->SetState(kScreenMain_StaticImage);
   i = 0;
   do {
-    *(u_int *)((int)this->tvStates + i * 4) = 0;
+    this->tvStates[i] = 0;
     i = i + 1;
   } while (i < 0x10);
   i = 0;

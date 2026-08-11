@@ -370,18 +370,30 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     yy = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
-    /* MATCH: the natural signed-short coordinate expressions and the
-       sum-before-limit spelling below reproduce retail's register homes and
-       branch direction. They reduce this body from 73 diffs to 4 at identical
-       213-insn length. The residue is two sched2 relocations (`yy`'s s0 copy
-       and the width constant); read-only fence (5), named width (6), and named
-       fade (78) basins are worse, so leave that scheduler-only angle for the
-       final hard round. `ticks>>4` divided by numicon[i] is a genuine RUNTIME
-       div (the oracle carries the div-by-0/overflow guard), NOT a shift -- numicon[i]
-       is a per-instance byte, not a compile-time constant. The remainder
-       selects the icon's animation frame. */
-    animFrame = (ticks >> 4) % this->numicon[i];
-    if (i == this->theNFS4icon) {
+    int nfs4Icon = this->theNFS4icon;
+    int tickFrame;
+    int numIcons;
+    int *tickPtr = A_ticks;
+    short savedY = yy;
+    __asm__("" : "=r"(savedY) : "0"(savedY));
+    /* MATCH (73 -> 4 -> 2 -> PASS, 213/213): the natural signed-short
+       coordinate expressions and sum-before-limit spelling establish the
+       retail homes.  Naming the NFS4 icon and modulo divisor, then pricing the
+       divisor with the empty read-only fence, restores the $a0 comparison and
+       remainder webs.  `savedY` plus its zero-insn identity boundary preserves
+       retail's real $a3->$s0 copy for the coordinate that survives the calls.
+       Crucially, the honest `ticks` base pointer is born before that boundary:
+       split-address scheduling emits `%hi(ticks)`, the saved-Y copy, and then
+       folds `%lo(ticks)` into the load, exactly matching retail.  Direct
+       `ticks` left the hi half one slot late (2); forcing the pointer through a
+       fence materialized an extra address copy/add (4); laundering tickValue
+       rotated the division and icon webs (21).  This is a genuine runtime div
+       with the oracle's divide guards, because numicon[i] is instance data. */
+    numIcons = this->numicon[i];
+    tickFrame = *tickPtr >> 4;
+    __asm__("" : : "r"(numIcons));
+    animFrame = tickFrame % numIcons;
+    if (i == nfs4Icon) {
       fFlags.tint[0] = 0xb55623;
       DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,
                  fadeval + this->fFadeIcon[i] < 0x81 ?
@@ -396,7 +408,7 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     if (((this->theNFS4icon == i) && (fadeval == 0)) && (this->fGetNewIcons == 0)) {
       xx = xx * 0x10000 >> 0x10;
-      yy = (int)(short)yy;
+      yy = (int)(short)savedY;
       PSXDrawSquare(0,(xx - MEMCARDICONOFFX) + 2,(yy - MEMCARDICONOFFY) + 1,MEMCARD_DELTAX + -2,
                  MEMCARD_DELTAY + -1);
       PSXDrawSquare

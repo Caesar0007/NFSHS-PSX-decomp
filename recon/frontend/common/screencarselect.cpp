@@ -1221,6 +1221,14 @@ void tScreenCarSelect::DrawForeground()
         tDrawShapeExtended drawFlags;
         int textColor;
         int fadeVal;
+        /* MATCH W67 (2026-08-11): IDA's distinct v29/v30 live ranges are real:
+           keep the second speech-tick fade separate from the earlier text fade.
+           The empty early-clobber identity fence makes the subtraction's three
+           simultaneous values allocate as retail ($v0 base, $v1 ticks, $t0 fade)
+           and emits no instructions, reducing this function 8 diffs -> PASS. */
+        int shapeFade;
+        u_long shapeTicks;
+        int fadeBase;
 
         screenX = 0;
         screenY = 0;
@@ -1246,18 +1254,21 @@ void tScreenCarSelect::DrawForeground()
         }
         drawFlags.tint[0] = 0x551e00;
         drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-        if (this->fSpeechTicks < 0x101) {
-          fadeVal = 0x80;
+        shapeTicks = this->fSpeechTicks;
+        if (shapeTicks < 0x101) {
+          shapeFade = 0x80;
         }
         else {
-          if (this->fSpeechTicks >= 0x181) {
-            fadeVal = 0;
+          if (shapeTicks >= 0x181) {
+            shapeFade = 0;
             goto DrawFG_fadeDone;
           }
-          fadeVal = 0x180 - this->fSpeechTicks;
+          fadeBase = 0x180;
+          shapeFade = fadeBase - shapeTicks;
+          __asm__("" : "+&r"(shapeFade) : "r"(shapeTicks), "r"(fadeBase));
         }
 DrawFG_fadeDone:
-        DrawShapeExtended(0xA,0x200,0,0,fadeVal,0,&drawFlags);
+        DrawShapeExtended(0xA,0x200,0,0,shapeFade,0,&drawFlags);
         elapsedticks = ticks[0] - this->fShowroomTicks;
         while (600 < elapsedticks) {
           this->fShowroomTicks = this->fShowroomTicks + 600;

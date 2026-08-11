@@ -499,7 +499,13 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
    `i+1` temp+copy plus the dummyCars address-of self-temp versus separate-temp allocation.
    FALSIFIED in the new basin: direct `++i` is neutral; an identity-fenced `next` reaches
    134/134 but remains 68 and changes tail scheduling; an explicit final-loop cursor is 76.
-   Next angle = the measured three-way allocno handout, not loop spelling. */
+   W61: spelling the knockout lookup as pointer addition rather than an array subscript
+   restores retail's scaled-offset-first `addu v0,v0,base` and lands 68->66.  allocsim
+   matches all 19 current handouts and identifies the remaining rotation as one cascade:
+   dummyCars' generated second-arm cursor propagates an $a1 preference; that reserves $a1
+   from the first-arm competitor cursor, which in turn occupies $a3 and rotates k/numCars.
+   FALSIFIED: branch-head identity fence 74; base live through loop 81; forced distinct
+   base/cursor webs 68.  Next angle is removing that cursor preference without a new web. */
 void tTournamentManager::UpdateTrackFinishPoints()
 
 {
@@ -514,8 +520,8 @@ void tTournamentManager::UpdateTrackFinishPoints()
   numCompetitors = this->GetNumCompetitors();
   k = 0;
   dummyCars = Cars_gNewCarStatsList;
-  if (this->fDefinition->fTournaments
-      [(uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament].fKnockout
+  if ((this->fDefinition->fTournaments +
+      ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament))->fKnockout
       != '\0') {
     for (i = 0; i < numCompetitors; i = i + 1) {
       if (this->fCompetitors[i].fEliminated == 0) {

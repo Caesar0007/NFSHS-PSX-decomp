@@ -83,12 +83,25 @@ def main():
     rep = json.load(open(report_path, encoding="utf-8"))
     vas = load_vas()
 
+    # (unit, fn) rows whose retail home unit is tracked elsewhere: the fn is fully
+    # reconstructed in a DIFFERENT recon TU, so the splat-unit row can only ever
+    # show a phantom 0.00% ("symbol missing" -- our side deliberately has no copy
+    # there).  2026-08-10, user-flagged.  Keep this list tiny and receipted.
+    SUPERSEDED = {
+        ("game/common/spchevnt", "VoxEvent_GetFilterLengthFlag"),  # recon/eaclib/psx/spchpsxz/spchevnt.c static @0x800E6E88
+        ("game/common/spchevnt", "iSPCH_GetOffset16"),             # recon/eaclib/psx/spchpsxz/spchevnt.c static @0x800E6EA8
+        ("syslib/psx/libpad/PAD", "PAD_convert"),                  # recon/eaclib/psx/pad.c SYM-STAT static @0x800E41FC
+        ("syslib/psx/libpad/PAD", "ReadInitPadFlag"),              # recon/syslib/psx/libapi/PAD.c @0x8010C9B0 (gate PASS)
+    }
+
     rows, total, matched = [], 0, 0
     for unit in rep.get("units", []):
         uname = unit["name"].replace("\\", "/")
         for fn in unit.get("functions", []):
             name = fn["name"]
             if name.startswith(".L"):
+                continue
+            if (uname, name) in SUPERSEDED:
                 continue
             fm = float(fn.get("fuzzy_match_percent", 0.0))
             total += 1

@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3496 functions, 3169 at 100% (90.6%)
+TOTAL: 3492 functions, 3185 at 100% (91.2%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ VA             %match  unit                     function
 0x80013F74    100.00%  frontend/common/feapp    DisplayHelp__14tFEApplications
 0x80013F98    100.00%  frontend/common/feapp    FreeHelpShapeCluts__Fv
 0x80014014    100.00%  frontend/common/feapp    RunDemoVideo__14tFEApplication
-0x800142A4     99.84%  frontend/common/feapp    MainLoop__14tFEApplicationP5tMenu
+0x800142A4     99.85%  frontend/common/feapp    MainLoop__14tFEApplicationP5tMenu
 0x80015430    100.00%  frontend/common/feapp    RunPostGame__14tFEApplication
 0x80015738    100.00%  frontend/common/feapp    RunFrontEnd__14tFEApplication
 0x80015760    100.00%  frontend/common/fedialog ___31tDialogMessageStringWithTimeout
@@ -98,7 +98,7 @@ VA             %match  unit                     function
 0x800197E8     80.59%  frontend/common/fedialog Run__18tDialogInteractive
 0x800199D4    100.00%  frontend/common/fedialog CalculateDimensions__12tDialogYesNo
 0x80019A8C    100.00%  frontend/common/fedialog __12tDialogYesNo
-0x80019B44     93.88%  frontend/common/fedialog Draw__12tDialogYesNo
+0x80019B44    100.00%  frontend/common/fedialog Draw__12tDialogYesNo
 0x80019CCC    100.00%  frontend/common/fedialog ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80019D98    100.00%  frontend/common/fedialog ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80019E7C    100.00%  frontend/common/fedialog ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand
@@ -622,7 +622,7 @@ VA             %match  unit                     function
 0x800391D8    100.00%  frontend/common/screenpinkslips Initialize__16tScreenPinkSlips
 0x80039320    100.00%  frontend/common/screenpinkslips Cleanup__16tScreenPinkSlips
 0x80039368    100.00%  frontend/common/screenpinkslips UpdateVideoWall__16tScreenPinkSlipsR17tTrackInformation
-0x80039414     95.43%  frontend/common/screenpinkslips DrawVideoWall__16tScreenPinkSlips
+0x80039414    100.00%  frontend/common/screenpinkslips DrawVideoWall__16tScreenPinkSlips
 0x80039690    100.00%  frontend/common/screenpinkslips ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x800397CC    100.00%  frontend/common/screenpinkslips ___16tScreenPinkSlips
 0x800397F0    100.00%  frontend/common/screenpost DrawMoney__Fiiilii
@@ -659,7 +659,7 @@ VA             %match  unit                     function
 0x8003C4B8    100.00%  frontend/common/screencarselect UpdateBrightness__16tScreenCarSelects
 0x8003C53C    100.00%  frontend/common/screencarselect DrawBackground__16tScreenCarSelect
 0x8003C66C    100.00%  frontend/common/screencarselect DrawSliders__16tScreenCarSelectR8tCarInfoss
-0x8003C7D8     99.23%  frontend/common/screencarselect DrawForeground__16tScreenCarSelect
+0x8003C7D8    100.00%  frontend/common/screencarselect DrawForeground__16tScreenCarSelect
 0x8003D08C    100.00%  frontend/common/screencarselect PreLoad__20tScreenCarSelectDuel
 0x8003D1B4    100.00%  frontend/common/screencarselect AllocateAsyncBuffer__20tScreenCarSelectDuel
 0x8003D1BC    100.00%  frontend/common/screencarselect FreeAsyncBuffer__20tScreenCarSelectDuel
@@ -753,7 +753,7 @@ VA             %match  unit                     function
 0x80043B7C    100.00%  frontend/common/screencontroller ActualDrawController__23tScreenControllerConfigiiiii
 0x80043DE4     98.76%  frontend/common/screencontroller DrawController__23tScreenControllerConfig
 0x80044AF4    100.00%  frontend/common/screencontroller HorzVertLine__23tScreenControllerConfigPsb
-0x80044D40     95.62%  frontend/common/screencontroller DrawArrow__23tScreenControllerConfigPs
+0x80044D40    100.00%  frontend/common/screencontroller DrawArrow__23tScreenControllerConfigPs
 0x80044E40    100.00%  frontend/common/screencontroller DrawBackground__23tScreenControllerConfig
 0x80045064    100.00%  frontend/common/screencontroller DrawForeground__23tScreenControllerConfig
 0x800456CC    100.00%  frontend/common/screencontroller GetShapeInfo__23tScreenControllerConfigRsT1PPcT3
@@ -819,7 +819,7 @@ VA             %match  unit                     function
 0x80049840    100.00%  frontend/common/statchk  StatChk_IsRecordLapTime__FP10Car_tStatssPs
 0x80049B7C    100.00%  frontend/common/statchk  StatChk_SaveRecordLapTime__FP10Car_tStatsss
 0x80049D0C     97.64%  frontend/common/statchk  StatChk_IsTopTime__FP10Car_tStatss
-0x8004A1B8     97.48%  frontend/common/statchk  StatChk_SaveTopTime__FP10Car_tStatss
+0x8004A1B8     97.96%  frontend/common/statchk  StatChk_SaveTopTime__FP10Car_tStatss
 0x8004A838    100.00%  frontend/common/statchk  StatChk_ClearNewRecords__Fv
 0x8004A868    100.00%  frontend/common/stattool Stattool_nCreateIndex__FiPiPs
 0x8004A99C    100.00%  frontend/common/stattool Stattool_ParseTime__FiPc
@@ -892,7 +892,7 @@ VA             %match  unit                     function
 0x8004ECDC    100.00%  frontend/psx/psxfront    PSXDrawGouraudSquare__Fiiiiiiii
 0x8004EDCC    100.00%  frontend/psx/psxfront    PSXDrawTransGouraudSquare__Fiiiiiiiii
 0x8004EED0    100.00%  frontend/psx/psxfront    PSXDrawTransSquare__Fiiiiis
-0x8004EFB4     83.89%  frontend/psx/psxfront    FontUpsideDownBlit__FiiPviiP12charactertbli
+0x8004EFB4     80.49%  frontend/psx/psxfront    FontUpsideDownBlit__FiiPviiP12charactertbli
 0x8004F100    100.00%  frontend/psx/fetexture   FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii
 0x8004F3B8    100.00%  frontend/psx/fetexture   FETexture_LoadPmx__FPciP18tTexture_ShapeInfo
 0x8004F3E0    100.00%  frontend/psx/memcard     MCRD_init
@@ -1073,11 +1073,11 @@ VA             %match  unit                     function
 0x800613C4    100.00%  game/common/aih_btcperp  TestForRelease__12AIState_Base_800613C4
 0x800613CC    100.00%  game/common/aih_btcperp  ___12AIState_Base_800613CC
 0x80061400    100.00%  game/common/aih_play     CheckIfABlockadeCanBeSetup__13AIHigh_Player
-0x80061784     99.46%  game/common/aih_play     SetupBlockade__13AIHigh_Player
+0x80061784    100.00%  game/common/aih_play     SetupBlockade__13AIHigh_Player
 0x8006220C    100.00%  game/common/aih_play     CheckForNewLevel__13AIHigh_Playeri
 0x800624EC    100.00%  game/common/aih_play     HandleSpeech__13AIHigh_Player
 0x80062638    100.00%  game/common/aih_play     MaintainAvailableCops__13AIHigh_Player
-0x800628C0     93.47%  game/common/aih_play     __13AIHigh_PlayerP8Car_tObj
+0x800628C0    100.00%  game/common/aih_play     __13AIHigh_PlayerP8Car_tObj
 0x80062AC4    100.00%  game/common/aih_play     HandleCops__13AIHigh_Player
 0x80062C64    100.00%  game/common/aih_play     CleanupBlockaders__13AIHigh_Playeri
 0x80062D7C    100.00%  game/common/aih_play     HandlePullOver__13AIHigh_Player
@@ -1399,12 +1399,12 @@ VA             %match  unit                     function
 0x80076674    100.00%  game/common/audiocmn     AudioCmn_RemoveOldestAsyncSfx__Fi
 0x8007675C    100.00%  game/common/audiocmn     AudioCmn_LoadAsyncSfx__FiiPvi
 0x80076900    100.00%  game/common/audiocmn     AudioCmn_GetAsyncSfx__Fiib
-0x80076A74     88.24%  game/common/audiocmn     AudioCmn_Init__Fv
-0x80076BEC     89.49%  game/common/audiocmn     AudioCmn_Reset__Fv
+0x80076A74     99.57%  game/common/audiocmn     AudioCmn_Init__Fv
+0x80076BEC    100.00%  game/common/audiocmn     AudioCmn_Reset__Fv
 0x80076F44     99.91%  game/common/audiocmn     AudioCmn_DeInit__Fv
 0x8007701C    100.00%  game/common/audiocmn     AudioCmn_SetLevels__Fv
 0x8007706C    100.00%  game/common/audiocmn     AudioCmn_GetTimePhrase__Fi
-0x800770BC     97.31%  game/common/audiocmn     AudioCmn_CheckState__FP8Car_tObj
+0x800770BC     99.01%  game/common/audiocmn     AudioCmn_CheckState__FP8Car_tObj
 0x80077738    100.00%  game/common/audiocmn     AudioCmn_LoadFESamples__Fv
 0x8007777C    100.00%  game/common/audiocmn     AudioCmn_LoadGameSamples__Fv
 0x800778B0    100.00%  game/common/audiocmn     AudioCmn_InitChannelArray__Fv
@@ -1415,9 +1415,9 @@ VA             %match  unit                     function
 0x800780D0    100.00%  game/common/audiocmn     freeVoiceChannel__Fi
 0x80078140    100.00%  game/common/audiocmn     AudioCmn_PlayDoppleredSound__Fiiiiii
 0x800783A0    100.00%  game/common/audiocmn     AudioCmn_PlaySound__Fiiiii
-0x800783CC     97.67%  game/common/audiocmn     AudioCmn_PlaySFX__Fiiiiii
+0x800783CC    100.00%  game/common/audiocmn     AudioCmn_PlaySFX__Fiiiiii
 0x800788BC     93.28%  game/common/audiocmn     AudioCmn_SoundCar__FP8Car_tObjiiiiiii
-0x80079104     95.53%  game/common/audiocmn     AudioCmn_TrafficSFX__Fiiiiiiii
+0x80079104     96.98%  game/common/audiocmn     AudioCmn_TrafficSFX__Fiiiiiiii
 0x80079390    100.00%  game/common/audiocmn     AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii
 0x80079444    100.00%  game/common/audiocmn     AudioCmn_PlayerHornOn__Fiiiii
 0x80079548    100.00%  game/common/audiocmn     AudioCmn_PlayerHornOff__Fi
@@ -1461,7 +1461,7 @@ VA             %match  unit                     function
 0x8007B46C    100.00%  game/common/audiomus     AudioMus_AutoVolume__Fii
 0x8007B52C    100.00%  game/common/audedit      AudList_PurgeAudio__Fv
 0x8007B554    100.00%  game/common/audedit      AudList_LoadAudioFile__Fi
-0x8007B5A8     94.09%  game/common/audioeng     AudioEng_Set__Fiiiiiiii
+0x8007B5A8    100.00%  game/common/audioeng     AudioEng_Set__Fiiiiiiii
 0x8007B824    100.00%  game/common/audioeng     AudioEng_Update__Fv
 0x8007BDDC    100.00%  game/common/audioeng     AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef
 0x8007BE54    100.00%  game/common/audioeng     AudioEng_StartUp__FiPc
@@ -1543,7 +1543,7 @@ VA             %match  unit                     function
 0x800824C0    100.00%  game/common/camera       Camera_SetSplineCam__Fi
 0x800826C0     96.81%  game/common/camera       Camera_UpdateSplineCam__Fi
 0x80082C3C    100.00%  game/common/camera       Camera_IslandProfile__FUs
-0x80082C94     96.76%  game/common/camera       Camera_UpdatePulloverCam__Fi
+0x80082C94     95.08%  game/common/camera       Camera_UpdatePulloverCam__Fi
 0x80083010    100.00%  game/common/camera       Camera_UpdateCopCam1__Fi
 0x800831A8    100.00%  game/common/camera       Camera_UpdateCopCam2__Fi
 0x800832B0    100.00%  game/common/camera       Camera_UpdateBTCopCam__Fi
@@ -1897,7 +1897,7 @@ VA             %match  unit                     function
 0x800A454C    100.00%  game/common/nfs3         LoadOverlay__Fv
 0x800A45B8    100.00%  game/common/nfs3         NFS4_LoadingIcon__Fv
 0x800A46DC     91.43%  game/common/nfs3         NFS3_CheckForFileOperations__Fv
-0x800A4730     97.55%  game/common/nfs3         main
+0x800A4730    100.00%  game/common/nfs3         main
 0x800A4AE4    100.00%  game/common/object       CalcObjYawAngle__FP8CCOORD16
 0x800A4B1C    100.00%  game/common/object       CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat
 0x800A4BE8    100.00%  game/common/object       BuildObjCollisionMatrix__FiiiP10matrixtdef
@@ -1970,7 +1970,7 @@ VA             %match  unit                     function
 0x800A787C    100.00%  game/common/pausemenu    ___25tPMenuItemLeftRightSlider
 0x800A78A4    100.00%  game/common/pausemenu    Debounce__25tPMenuItemLeftRightSlider
 0x800A78AC    100.00%  game/common/pausemenu    ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand
-0x800A79C8     92.06%  game/common/pausemenu    Draw__25tPMenuItemLeftRightSliderb
+0x800A79C8     95.30%  game/common/pausemenu    Draw__25tPMenuItemLeftRightSliderb
 0x800A7C6C    100.00%  game/common/pausemenu    __32tPMenuItemLeftRightSliderIndexedUiPicPc
 0x800A7CB4    100.00%  game/common/pausemenu    ___32tPMenuItemLeftRightSliderIndexed
 0x800A7CDC    100.00%  game/common/pausemenu    ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand
@@ -2013,7 +2013,7 @@ VA             %match  unit                     function
 0x800AA808    100.00%  game/common/physics      Physics_CalculateRoadGripModifiers__FP8Car_tObj
 0x800AA984     95.16%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
 0x800AB49C     99.49%  game/common/physics      Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct
-0x800AB698     97.59%  game/common/physics      Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct
+0x800AB698    100.00%  game/common/physics      Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800ABA3C     95.04%  game/common/physics      Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800ABFA4    100.00%  game/common/physics      Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii
 0x800AC164     98.41%  game/common/physics      Physics_Real__FP8Car_tObj
@@ -2036,7 +2036,7 @@ VA             %match  unit                     function
 0x800AEDF4    100.00%  game/common/r3dcar       R3DCar_GetFileName__FPcN20
 0x800AEE50    100.00%  game/common/r3dcar       R3DCar_LoadFileAdr__FPc
 0x800AEE98    100.00%  game/common/r3dcar       R3DCar_GetCarName__FPcii
-0x800AEF2C     96.70%  game/common/r3dcar       R3DCar_Instantiate3DCar__FP8Car_tObji
+0x800AEF2C     97.84%  game/common/r3dcar       R3DCar_Instantiate3DCar__FP8Car_tObji
 0x800AF74C     99.74%  game/common/r3dcar       R3DCar_Visibilty__FP8Car_tObjP13DRender_tView
 0x800AFAF4    100.00%  game/common/r3dcar       R3DCar_TurnHeadLightOn__FP8Car_tObji
 0x800AFB54    100.00%  game/common/r3dcar       R3DCar_TurnHeadLightOff__FP8Car_tObji
@@ -2157,13 +2157,13 @@ VA             %match  unit                     function
 0x800B9B74    100.00%  game/common/track        Track_GetProperMultiPalShapeIndex__Fii
 0x800B9BC4    100.00%  game/common/track        Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1
 0x800B9D2C    100.00%  game/common/track        Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource
-0x800B9E98     95.43%  game/common/track        Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial
+0x800B9E98    100.00%  game/common/track        Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial
 0x800BA25C    100.00%  game/common/track        ReduceObjectPrecision__FP5GroupT0i
 0x800BA2FC    100.00%  game/common/track        InvalidatePersistentCollideBoomObjects__FP5GroupT0
 0x800BA368    100.00%  game/common/track        CalcObjectBoundingSphere__FP5GroupT0
 0x800BA5C8    100.00%  game/common/track        CalcObjDefPtrs__Fv
 0x800BA62C    100.00%  game/common/track        Track_InitPersistentData__FP15SerializedGroup
-0x800BA808     98.07%  game/common/track        Track_Init__FPc
+0x800BA808    100.00%  game/common/track        Track_Init__FPc
 0x800BAC74    100.00%  game/common/track        Track_DeInit__Fv
 0x800BAD48    100.00%  game/common/track        Track_AnimateTrackLighting__Fv
 0x800BAD50    100.00%  game/common/track        KillFile_OpenRead__Fv
@@ -2587,7 +2587,6 @@ VA             %match  unit                     function
 0x800E40E8    100.00%  eaclib/psx/pad           padinit
 0x800E4158    100.00%  eaclib/psx/pad           PAD_restore
 0x800E41AC    100.00%  eaclib/psx/pad           PAD_state
-0x800E41FC      0.00%  syslib/psx/libpad/PAD    PAD_convert
 0x800E4210     90.67%  eaclib/psx/pad           PAD_update
 0x800E4318    100.00%  syslib/psx/libc/C43      memset
 0x800E4328    100.00%  eaclib/psx/eacpsxz/fixdmult fixedmult
@@ -2650,11 +2649,9 @@ VA             %match  unit                     function
 0x800E6D58    100.00%  eaclib/psx/sndpsxz/seffect SNDfxinitbus
 0x800E6DD0    100.00%  eaclib/psx/sndpsxz/seffect SNDfxmasterlevel
 0x800E6E88    100.00%  eaclib/psx/spchpsxz/spchdata VoxEvent_GetFilterLengthFlag
-0x800E6E88      0.00%  game/common/spchevnt     VoxEvent_GetFilterLengthFlag
 0x800E6E94    100.00%  eaclib/psx/spchpsxz/spchevnt VoxEvent_GetKeepTillExpiresFlag
 0x800E6EA8    100.00%  eaclib/psx/spchpsxz/spchdata iSPCH_GetOffset16
 0x800E6EA8    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetOffset16
-0x800E6EA8      0.00%  game/common/spchevnt     iSPCH_GetOffset16
 0x800E6EC4    100.00%  eaclib/psx/spchpsxz/spchevnt iSPCH_SearchEventDat
 0x800E6F4C    100.00%  eaclib/psx/spchpsxz/spchevnt iSPCH_FindEvent
 0x800E6FBC    100.00%  eaclib/psx/spchpsxz/spchevnt iSPCH_InitEventDat
@@ -2705,7 +2702,7 @@ VA             %match  unit                     function
 0x800E8DD4    100.00%  eaclib/psx/sndpsxz/sst   iSNDstreamnotifycallback
 0x800E8E9C    100.00%  eaclib/psx/sndpsxz/sst   iSNDstreamparseheader
 0x800E9044    100.00%  eaclib/psx/sndpsxz/sst   iSNDstreamparsenumchunks
-0x800E90AC     89.74%  eaclib/psx/sndpsxz/sst   iSNDstreamparsedata
+0x800E90AC     90.41%  eaclib/psx/sndpsxz/sst   iSNDstreamparsedata
 0x800E9230    100.00%  eaclib/psx/sndpsxz/sst   iSNDstreamparseend
 0x800E9270    100.00%  eaclib/psx/sndpsxz/sst   iSNDstreamparsechunk
 0x800E9318    100.00%  eaclib/psx/sndpsxz/sst   iSNDstreamisheld
@@ -2810,7 +2807,7 @@ VA             %match  unit                     function
 0x800ECB98     98.34%  eaclib/psx/eacpsxz/nfile iFILE_ExecCommand
 0x800ED020    100.00%  eaclib/psx/eacpsxz/nfile iFILE_CommandCompleteCallback
 0x800ED0D4    100.00%  eaclib/psx/eacpsxz/nfile iFILE_perror
-0x800ED0DC     89.30%  eaclib/psx/eacpsxz/nfile reserveop
+0x800ED0DC    100.00%  eaclib/psx/eacpsxz/nfile reserveop
 0x800ED1F8    100.00%  eaclib/psx/eacpsxz/nfile freeop
 0x800ED240     96.25%  eaclib/psx/eacpsxz/nfile reservehandle
 0x800ED2F0    100.00%  eaclib/psx/eacpsxz/nfile freehandle
@@ -3179,7 +3176,7 @@ VA             %match  unit                     function
 0x800FF600    100.00%  eaclib/psx/sndpsxz/slib  iSNDplatformoutputset
 0x800FF700    100.00%  eaclib/psx/sndpsxz/slib  iSNDinit
 0x800FF9A0    100.00%  eaclib/psx/sndpsxz/slib  iSNDrestore
-0x800FFAF4     90.76%  eaclib/psx/sndpsxz/slib  iSNDserve
+0x800FFAF4     98.96%  eaclib/psx/sndpsxz/slib  iSNDserve
 0x800FFE90    100.00%  eaclib/psx/sndpsxz/sdriver iSNDstop
 0x800FFF94    100.00%  eaclib/psx/sndpsxz/sdriver iSNDplatformpitch
 0x80100058    100.00%  eaclib/psx/sndpsxz/sdriver iSNDplatformfxlevel
@@ -3261,11 +3258,11 @@ VA             %match  unit                     function
 0x801035E4    100.00%  eaclib/psx/sndpsxz/spat2hdr iSNDpatchtohdr
 0x80103734    100.00%  syslib/psx/libc/MEMCMP   memcmp
 0x80103784    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDpacketgetirq
-0x801038BC     96.43%  eaclib/psx/sndpsxz/sdpacket iSNDpacketsetirq
+0x801038BC    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDpacketsetirq
 0x8010399C    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDpacketirqcallback
 0x801039C4    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDpsxzerospu
 0x801039FC    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDpacketpurgeframes
-0x80103B54     99.63%  eaclib/psx/sndpsxz/sdpacket iSNDfillspuwithpackets
+0x80103B54     99.98%  eaclib/psx/sndpsxz/sdpacket iSNDfillspuwithpackets
 0x80104024    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDpacketserve
 0x801041B8    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDplatformpacketoverhead
 0x801041EC    100.00%  eaclib/psx/sndpsxz/sdpacket iSNDplatformcalcdatarate
@@ -3431,7 +3428,7 @@ VA             %match  unit                     function
 0x8010A434     98.09%  syslib/psx/libpad/PADSEQD _dirFailAuto
 0x8010A510     99.09%  syslib/psx/libpad/PADSEQD _dirCheck
 0x8010A540    100.00%  syslib/psx/libc/C40      bzero
-0x8010A550     91.94%  eaclib/psx/sndpsxz/sdmemman iSNDpsxmemconstrain
+0x8010A550    100.00%  eaclib/psx/sndpsxz/sdmemman iSNDpsxmemconstrain
 0x8010A5CC     79.20%  eaclib/psx/sndpsxz/sdmemman iSNDpsxmalloc
 0x8010A7C8    100.00%  eaclib/psx/sndpsxz/sdmemman iSNDpsxfree
 0x8010A880    100.00%  eaclib/psx/sndpsxz/sdma  iSNDdmtransfer
@@ -3482,7 +3479,6 @@ VA             %match  unit                     function
 0x8010C884    100.00%  syslib/psx/libapi/A66    firstfile2
 0x8010C894    100.00%  eaclib/psx/sndpsxz/saelib iSNDlibatodlrv
 0x8010C928    100.00%  eaclib/psx/sndpsxz/sgetdata iSNDgetdata
-0x8010C9B0      0.00%  syslib/psx/libpad/PAD    ReadInitPadFlag
 0x8010C9C0    100.00%  syslib/psx/libcard/A74   InitCARD2
 0x8010CA68    100.00%  syslib/psx/libcard/PATCH _patch_card
 0x8010CAFC    100.00%  syslib/psx/libcard/PATCH _patch_card2

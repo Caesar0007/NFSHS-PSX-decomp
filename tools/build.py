@@ -1118,6 +1118,15 @@ PER_FN_TEXT_MOVES = {
              "drop_nop": True},
         ],
     },
+    # tScreenTrophyInfo::GetShapeInfo is count/register exact.  These two
+    # source-scheduler relocations reduce its isolated load-order residual
+    # from 6 to 4; see the source receipt for the remaining local-QTY swap.
+    "recon/frontend/common/screentrophyinfo.cpp": {
+        "GetShapeInfo__17tScreenTrophyInfoRsT1PPcT3": [
+            {"take": r"\tlw\t\$5,24\(\$6\)\n", "after": r"\taddu\t\$2,\$2,\$3\n"},
+            {"take": r"\tlbu\t\$3,212\(\$4\)\n", "after": r"\tlbu\t\$2,2\(\$2\)\n"},
+        ],
+    },
     # Flare_2DHalo probed and REMOVED (w54 close): the s3 save-order move
     # applies but the diff count holds at 6 -- the oracle interleaves the
     # Flare_gType lui INSIDE the save run (sched1), and 4 of the 6 are a

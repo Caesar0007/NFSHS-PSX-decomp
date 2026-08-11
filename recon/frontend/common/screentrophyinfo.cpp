@@ -31,13 +31,15 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
            `sll 16; sra 14` = (short)placement * 4; an int local emits a bare `sll 2`);
        (c) the frontEnd.tier byte read in its OWN statement emits its lui/lbu pair FIRST,
            ahead of the tournamentManager address (statement-position/emission dial, 05A).
-     RESIDUAL 6: retail emits `lw a1,0x18(a2)` (fDefinition) one slot EARLIER and defers the
-     fRealCurrentTourn `lbu` to AFTER the fTournOffset `lbu`; ours does the reverse.  The
-     address chain (screenTrophyRoom + tier*2) is already in retail's position, so this is a
-     pure LOAD-emission-position dial.  Falsified at this basin: swapping the two addends
-     (20-25), naming `def = tournamentManager.fDefinition` (14) and def+swap (20), staging
-     the whole fTournOffset chain into a local (25), naming screenTrophyRoom->tier (19).
-     NEXT ANGLE: PER_FN_TEXT_MOVES (4.5) or a void-tail fence between the two loads. */
+     W59: PER_FN_TEXT_MOVES moves the definition load before the final tier scale and the
+     fRealCurrentTourn load after the fTournOffset load: 6 -> 4, still count-exact 76/76.
+     The residual is now only the two byte-load destinations (`v0`/`v1`) being exchanged.
+     Pointer/reference staging gives those loads the retail destinations and order but moves
+     the same six diffs to the room-base/index allocation; qtytrace shows that spelling merges
+     the final address with the index QTY instead of the room-base QTY.  A read-only room fence
+     crosses the ref step but costs two instructions (16 diffs/78).  Falsified at this basin:
+     reversed addends (20), named definition+fence (37/79), void-tail/feTier fences (35/79),
+     pointer mutation (28), and unfenced pointer/reference staging (neutral 6). */
   tTourneyInfo *tourn;
   short placement;   /* MATCH (W57-A7, 9 -> 6, count-exact 76/76): retail sign-extends the
                         placement from 16 bits at the kBannerColors index (`sll 16; sra 14`

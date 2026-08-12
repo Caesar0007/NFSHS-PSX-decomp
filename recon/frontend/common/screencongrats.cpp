@@ -317,15 +317,17 @@ void tScreenCongrats::DrawForeground()
 void tScreenCongrats::CalculatePrizes()
 
 {
-  /* MATCH (2026-08-10, 31 -> 8 diffs, exact 29/29): retail treats fCarCX's
-     4.0 as its raw 0x40800000 word.  The word representation keeps `this` in
-     $a0 instead of copying it to $a1, consistent with an EA float-bit macro.
-     SLD 367..376 fixes the field statement order and the paired X/Y line.
-     Remaining named angle is scheduling/lifetime: retail hoists the word into
-     $a1 and sinks its store into the comparison's delay slot; the alias cast
-     keeps ours in $v0 beside the store.  Typed float, local/register float,
-     reversed assignment, and comma-expression spellings were neutral or
-     worse, so defer this final scheduler/alias case to the hard rounds. */
+  unsigned long carCYBits = 0xc0eccccd;
+  unsigned long carCXBits = 0x40800000;
+
+  /* MATCH (2026-08-12, 8 -> 4 diffs, exact 29/29): spelling BOTH float fields
+     as raw-word locals gives gcc the two independent integer quantities seen
+     in retail.  It now materializes/stores the -7.4 bits in $v1, schedules the
+     message/zero stores correctly, and sinks fCarCX into the branch delay slot.
+     The remaining coupled pair is only `lui $a1,0x4080` + the fCarY store:
+     retail places both earlier.  Declaration order and a pure-C multi-set were
+     neutral; early read/identity fences moved the message/CY group too early
+     (8 diffs), and reversed X/Y stores also cost 8. */
   this->congratsMessage = kScreenCongrats_Congrats;
   this->trophy = kTrophyNone;
   this->smallSpinningThing = kSpinningNone;
@@ -333,12 +335,14 @@ void tScreenCongrats::CalculatePrizes()
   this->TotalCash = 0;
   this->CashAwarded = -1;
   this->fCarX = 0x116; this->fCarY = 0x3f;
-  this->fCarCY = -7.4; *(unsigned long *)&this->fCarCX = 0x40800000;
+  *(unsigned long *)&this->fCarCY = carCYBits;
+  *(unsigned long *)&this->fCarCX = carCXBits;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
     this->fCarX = 0x120;
     this->fCarY = 0x49;
     this->fCarCY = -8.2;
   }
+  __asm__("" : : "r"(carCXBits));
   return;
 }
 

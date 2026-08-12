@@ -777,19 +777,25 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
   this->fDiffX = diffx;
   this->fDiffY = diffy;
   this->fFillback = fillback;
+  __asm__("" : : "r"(diffx), "r"(diffx), "r"(diffx),
+                 "r"(diffy), "r"(diffy),
+                 "r"(fillback), "r"(fillback));
   this->fSelFade = 0;
   this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
   /* MATCH (LAW 05A): the SLD attributes a SECOND `fFlags |= 0x80`
      (`lw a0,0(v0); ori a0,a0,128; sw a0,0(v0)`) to line 624 — the ctor's closing
      line — i.e. retail really ORs the bit in twice. */
   this->fFlags = this->fFlags | 0x80;
-  /* NEAR-MISS 28 (was 37) — count + structure now byte-for-byte EXACT (42/42).
-     Residual = a pure saved-reg rotation: retail homes the three STACK-ARG params
-     (diffx/diffy/fillback) in $s1/$s2/$s3 and the two register params
-     (width/height) in $s4/$s5; ours is the reverse.  FALSIFIED dials: identity
-     fences on diffx/diffy/fillback (PROMOTE) and a read-only fence on
-     width/height (DEMOTE) — both inert, these are global allocnos live across
-     the base-ctor `jal`, outside a fence's reach. */
+  /* NEAR-MISS 22 (was 37) — count remains byte-for-byte EXACT (42/42).
+     A priced read-only ref dial after the last real stack-argument use gives the
+     retail saved-reg handout: diffx/diffy/fillback=$s1/$s2/$s3 and
+     width/height=$s4/$s5.  The residual is now body scheduling across the fence;
+     moving the same fence to the tail is worse (32).  FALSIFIED from this basin:
+     top-of-body read fence 18@44 and word-cast form 20@46 (both add narrow-value
+     materializations); tied-output identities 24/28; self identity 49 and combined
+     self+ref identity 41; fence before the stores 34; identical cross-jump arms 46.
+     The only remaining named angle is a source-native lifetime that creates the
+     oracle's `v0=this` base without an asm scheduling boundary. */
   return;
 }
 

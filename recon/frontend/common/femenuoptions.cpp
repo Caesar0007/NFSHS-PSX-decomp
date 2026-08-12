@@ -1859,9 +1859,10 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
                short fSelFade)
 
 {
-  /* NEAR-MISS 62 (was 106) — count EXACT 139/139, frame + saved-reg set now
+  /* NEAR-MISS 21 (was 106) — frame + saved-reg set now
      match the SYM ($807f0000 / 64).  Residual = a 3-way rotation of the param
-     homes (retail songnum/x/y -> $s4/$s3/$s2, ours x/y/songnum).  Landed levers:
+     homes.  Landed levers: materialize the scaled song-table offset before
+     the calls so retail's songnum/x/y allocation falls out naturally,
      the SYM local-budget reduction below, dropping the `*0x10000>>0x10`
      pre-shift idiom (06C #6), and `- K` instead of `+ -K` on the unsigned-`w`
      sums (which emitted `li 65446; addu` instead of `addiu -90`).
@@ -1875,15 +1876,17 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
   int ColText;
   int ColTextOn;
   int ColTextOff;
+  int songOffset;
 
+  songOffset = (int)songnum << 6;
   Col = CalcFadeVal(0x551e00,0x28);   /* H13: 2nd arg is the literal 0x28 (oracle 0x8001EC84 $a1=0x28), not x */
   CalcOnOffFade(textType_Options,fOnOffFade,fSelFade,0,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
   ColText = CalcTextFadeSelToHi(textType_Options,fSelFade,0);
   FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[1].currentsong +
-             ((int)((u_int)(u_short)songnum << 0x10) >> 10)),
+             songOffset),
              (short)(x + 3),y + 2,ColText,'\0',0);
   FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[2].numsongs +
-             ((int)((u_int)(u_short)songnum << 0x10) >> 10)),
+             songOffset),
              (short)(x + 2),y + 10,ColText,'\0',0);
   FETextRender_FullTextRGB(TextSys_Word(0x66),
              (short)(x + (u_short)w - 0x5a),y + 6,ColTextOn,'\0',2);

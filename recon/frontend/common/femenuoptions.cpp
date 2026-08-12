@@ -2637,6 +2637,7 @@ int tUserNameMenuItem::Draw(bool selected)
     output[1] = '\0';
     ColText = CalcFadeVal(0xbebe,(int)this->fFadeVal);
     Col = CalcFadeVal(0xbebe,(int)this->fFadeVal);
+    tCol.tint[0] = Col;
     j = 0;
     FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),(short)x,(short)y,
                             ColText,'\0',0);
@@ -2651,10 +2652,12 @@ int tUserNameMenuItem::Draw(bool selected)
         j = j + 1;
       } while (j < sl);
     }
-    if (sl < this->fMaxStringLength) {
-      for (j = sl; j < this->fMaxStringLength; j = j + 1) {
+    j = sl;
+    if (j < this->fMaxStringLength) {
+      do {
         PSXDrawSquare(Col,startx + j * 0x14,y + 0x19,0x11,1);
-      }
+        j = j + 1;
+      } while (j < this->fMaxStringLength);
     }
     xx = this->fCurrentColumn * 0x1c + 0x102;
     yy = MENUUSERNAME_STARTY + this->fCurrentRow * 0xf;

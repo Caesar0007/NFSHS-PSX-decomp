@@ -180,20 +180,20 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
 /* ---- tScreenTournSelect::DrawVideoWall  [SCREENTOURNSELECT.CPP:168-229] ---- */
 /* MATCH W62: retail falls through the positive-direction TurnOn arm and branches
    to the nonpositive TurnOff/reset arm.  SYM has no `onState` local; both arms
-   are bounded directly by transition count and four TVs.  Restoring that CFG
-   and the signed IDA transition count reduces the residual from 101 to 34. */
+   are bounded directly by transition count and four TVs.  Reusing only SYM's
+   `long i`/`long j` across the phases, delaying the first loop initializer until
+   after DrawBackgroundImage, and spelling the final walk as `trophyTV[j]`
+   restores retail's complete lifetime/address shape: 101 diffs to PASS. */
 void tScreenTournSelect::DrawVideoWall()
 
 {
-  int abr;
-  long j;
   long i;
-  int transCount;
+  long j;
   tDrawShapeExtended drawFlags;
 
-  i = 0xf4;
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   ::DrawBackgroundImage((tScreen *)this,0,0x22,this->fPermShapes.fShapes,0);
+  i = 0xf4;
   /* W55-A2 BUGFIX: the x/y args were transcribed as phantom `transX/transY` zeros and the
      loop counter `i` was never passed. Oracle 8003FC18: a1=$s1(=i), a2=0x29. */
   do {
@@ -209,21 +209,21 @@ void tScreenTournSelect::DrawVideoWall()
   /* W55-A2 BUGFIX: retail passes literal 2 (oracle 8003FC7C delay slot `addiu a0,zero,2`);
      the recon passed the stale coordinate 0xA5 via a phantom `abr`. */
   FeDraw_SetABRMode(2);
-  transCount = ticks - this->fTVTicks >> 2;
+  i = ticks - this->fTVTicks >> 2;
   if (this->fTransitionDirection > 0) {
-    for (i = 0; (i < (int)transCount) && (i < 4); i++) {
-      if (this->trophyTV[trophyTVOrder[i]].state == tv_StateOff) {
-        TurnOnTV(this->trophyTV + trophyTVOrder[i]);
+    for (j = 0; (j < i) && (j < 4); j++) {
+      if (this->trophyTV[trophyTVOrder[j]].state == tv_StateOff) {
+        TurnOnTV(this->trophyTV + trophyTVOrder[j]);
       }
     }
   }
   else {
-    for (i = 0; (i < transCount) && (i < 4); i++) {
-      if (this->trophyTV[trophyTVOrder[i]].state == tv_StateOn) {
-        TurnOffTV(this->trophyTV + trophyTVOrder[i]);
+    for (j = 0; (j < i) && (j < 4); j++) {
+      if (this->trophyTV[trophyTVOrder[j]].state == tv_StateOn) {
+        TurnOffTV(this->trophyTV + trophyTVOrder[j]);
       }
     }
-    if (3 < transCount) {
+    if (3 < i) {
       this->fTransitionDirection = 0;
     }
   }
@@ -232,13 +232,13 @@ void tScreenTournSelect::DrawVideoWall()
   PSXDrawTransSquare(0x202020,0xa5,0xb3,0x98,1,1);
   /* W55-A2 BUGFIX: retail passes literal 2 (oracle 8003FDCC delay slot); recon passed 0xA5. */
   FeDraw_SetABRMode(2);
-  abr = 0;
-  i = 0x1ec;
+  i = 0;
+  j = 0;
   do {
-    DrawTV((tTVConfig *)(this->fPermShapes.fFilename + i + -0x14));
-    abr = abr + 1;
-    i = i + 0x30;
-  } while (abr < 4);
+    DrawTV(this->trophyTV + j);
+    i = i + 1;
+    j = j + 1;
+  } while (i < 4);
   /* Oracle 8003FDF4-8003FE34: a0 = (ticks >> 4) % 0x20, then 0x600,0xB6,0x93,0,0,&drawFlags. */
   ScaleShapeExtended(((int)ticks >> 4) % 0x20,0x600,0xb6,0x93,0,0,&drawFlags);
   return;

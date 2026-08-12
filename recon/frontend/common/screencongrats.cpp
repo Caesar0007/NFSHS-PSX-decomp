@@ -700,14 +700,16 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
 void tScreenTournamentTrophy::CalculatePrizes()
 
 {
-  /* MATCH (2026-08-12, 115 -> 4 diffs, exact 144/144): rebuilt from the
+  /* MATCH (2026-08-12, 115 -> 2 diffs, exact 144/144): rebuilt from the
      trusted SYM allocation contract (i=$s1, j=$s3, tInfo=sp+0x10,
      tourneyInfo=$s5, this=$s2) and IDA/SLD control flow.  The decompiler's
      ranking/numRanked/tourIndex/place locals caused the original whole-body
      register cascade.  A void boundary after the spinner reset prevents
      sched2 from hoisting the tournament-money address setup across that
-     store.  Remaining pairs are a signed-halfword load spelling (`lhu` vs
-     `lh`, with identical following sign truncation) and the position of the
+     store.  The separate m2c body exposed the signed manager halfword as its
+     own working value before the short sum; `ranked` plus a short `numRanked`
+     reproduces retail's `lh` and post-add 16-bit truncation (4 -> 2) without
+     changing allocation.  The remaining pair is only the position of the
      4.0f high-half materialization. */
   long money;
   int i;
@@ -729,7 +731,8 @@ void tScreenTournamentTrophy::CalculatePrizes()
   i = 1;
   {
     int knockout = !!tourneyInfo->fKnockout;
-    int numRanked = (short)(*(short *)((char *)&tournamentManager + 0x10) + knockout);
+    int ranked = *(short *)((char *)&tournamentManager + 0x10);
+    short numRanked = ranked + knockout;
     if (0 < numRanked) {
       int loopLimit = numRanked;
       do {

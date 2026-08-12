@@ -694,6 +694,7 @@ void tScreenMemcard::DrawBackground()
   short i;
   short w;
   short h;
+  int fadeCalc;
   int value;
   ushort gouraudX;
   ushort extraY;
@@ -705,18 +706,17 @@ void tScreenMemcard::DrawBackground()
   }
   systemtask(0);
   fade = (ushort)this->fScreenFadeVal * 2;
-  if ((short)(fade - 0x80) < 0x80) {
-    if ((short)(fade - 0x80) <= 0) goto DrawBgFadeboxZero;
+  fadeCalc = fade - 0x80;
+  if ((short)fadeCalc < 0x80) {
+    if ((short)fadeCalc <= 0) goto DrawBgFadeboxCalcZero;
   }
-  if ((short)(fade - 0x80) < 0x81) goto DrawBgFadeboxNormal;
-  fadebox = 0x80;
-  goto DrawBgFadeboxDone;
-DrawBgFadeboxZero:
-  fadebox = 0;
-  goto DrawBgFadeboxDone;
-DrawBgFadeboxNormal:
-  fadebox = fade - 0x80;
-DrawBgFadeboxDone:
+  if ((short)fadeCalc < 0x81) goto DrawBgFadeboxCalcDone;
+  fadeCalc = 0x80;
+  goto DrawBgFadeboxCalcDone;
+DrawBgFadeboxCalcZero:
+  fadeCalc = 0;
+DrawBgFadeboxCalcDone:
+  fadebox = (short)fadeCalc;
   if ((fade >> 1) < 0x80) {
     if ((fade >> 1) <= 0) goto DrawBgGridposZero;
   }
@@ -785,7 +785,7 @@ DrawBgGridposDone:
   y = (ushort)GRIDMEMCARD_STARTY - gouraudY - (extraY + 4);
   w = (ushort)GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
   h = (short)((ushort)GRIDMEMCARD_HEIGHT +
-              gouraudY * 2 + extraY + 6) / 2;
+              (gouraudY * 2 + extraY) + 6) / 2;
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare
@@ -811,9 +811,15 @@ DrawBgGridposDone:
                              y,gridpos,i % 2);
     y += MEMCARD_DELTAY;
   }
-  this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
-                           y + kMemCardMessageH - MEMCARD_DELTAY,
-                           gridpos,i % 2);
+  {
+    short finalDir = i % 2;
+    ushort finalStartX = GRIDMEMCARD_STARTX;
+    ushort finalGouraudX = GRIDMEMCARDGOURAUDBIT_X;
+    ushort finalMessageH = kMemCardMessageH;
+    short finalX = finalStartX - finalGouraudX;
+    short finalY = y + (finalMessageH - MEMCARD_DELTAY);
+    this->DrawHorizontalLine(finalX,finalY,gridpos,finalDir);
+  }
   {
     int k;
     for (k = 0; k < 0x10; k++) {

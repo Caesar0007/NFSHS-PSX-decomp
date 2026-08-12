@@ -1859,15 +1859,12 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
                short fSelFade)
 
 {
-  /* NEAR-MISS 21 (was 106) — frame + saved-reg set now
-     match the SYM ($807f0000 / 64).  Residual = a 3-way rotation of the param
-     homes.  Landed levers: materialize the scaled song-table offset before
-     the calls so retail's songnum/x/y allocation falls out naturally,
-     the SYM local-budget reduction below, dropping the `*0x10000>>0x10`
-     pre-shift idiom (06C #6), and `- K` instead of `+ -K` on the unsigned-`w`
-     sums (which emitted `li 65446; addu` instead of `addiu -90`).
+  /* PASS.  The decisive source shape is typed indexing through
+     `songlist->song[songnum]`: the 64-byte AudioMus_tSongEntry stride keeps
+     raw `songnum` in $s4 until the first access, exactly like retail.  The two
+     displayed strings are the entry's title and artist fields.
 
-     SYM 8c block (06A — the local list IS the allocation budget): mask $807f0000
+     SYM 8c block (06A — the local list is the allocation budget): mask $807f0000
      = s0-s6 + ra, fsize 64, and the ONLY locals are `Col` (REG $s6), `ColText`
      (REG $s0) and the two AUTO ints ColTextOn/ColTextOff.  The Ghidra-invented
      sVar1/pcVar3/iVar4/iVar5 pseudos cost an eighth saved reg ($s7) + 8 frame
@@ -1876,17 +1873,13 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
   int ColText;
   int ColTextOn;
   int ColTextOff;
-  int songOffset;
 
-  songOffset = (int)songnum << 6;
   Col = CalcFadeVal(0x551e00,0x28);   /* H13: 2nd arg is the literal 0x28 (oracle 0x8001EC84 $a1=0x28), not x */
   CalcOnOffFade(textType_Options,fOnOffFade,fSelFade,0,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
   ColText = CalcTextFadeSelToHi(textType_Options,fSelFade,0);
-  FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[1].currentsong +
-             songOffset),
+  FETextRender_FullTextRGB(screenAudio->songlist->song[songnum].title,
              (short)(x + 3),y + 2,ColText,'\0',0);
-  FETextRender_FullTextRGB(*(char **)((int)&screenAudio->songlist[2].numsongs +
-             songOffset),
+  FETextRender_FullTextRGB(screenAudio->songlist->song[songnum].artist,
              (short)(x + 2),y + 10,ColText,'\0',0);
   FETextRender_FullTextRGB(TextSys_Word(0x66),
              (short)(x + (u_short)w - 0x5a),y + 6,ColTextOn,'\0',2);

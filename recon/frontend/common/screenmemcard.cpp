@@ -695,6 +695,9 @@ void tScreenMemcard::DrawBackground()
   short w;
   short h;
   int value;
+  ushort gouraudX;
+  ushort extraY;
+  ushort gouraudY;
   
   this->fMemCardMessageTextSys = -1;
   if (this->goticon[this->theNFS4icon] == '\0') {
@@ -774,13 +777,14 @@ DrawBgGridposDone:
              kMemCardMessage1Y,ColText,'\0',2);
 
   gray = 0x505050;
-  x = (ushort)GRIDMEMCARD_STARTX - (ushort)GRIDMEMCARDGOURAUDBIT_X;
-  y = (ushort)GRIDMEMCARD_STARTY - (ushort)GRIDMEMCARDGOURAUDBIT_Y -
-      ((ushort)EXTRAYATTOP + 4);
-  w = (ushort)GRIDMEMCARD_WIDTH + (ushort)GRIDMEMCARDGOURAUDBIT_X * 2 + 2;
+  gouraudX = GRIDMEMCARDGOURAUDBIT_X;
+  extraY = EXTRAYATTOP;
+  gouraudY = GRIDMEMCARDGOURAUDBIT_Y;
+  x = (ushort)GRIDMEMCARD_STARTX - gouraudX;
+  y = (ushort)GRIDMEMCARD_STARTY - gouraudY - (extraY + 4);
+  w = (ushort)GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
   h = (short)((ushort)GRIDMEMCARD_HEIGHT +
-              (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2 +
-              (ushort)EXTRAYATTOP + 6) / 2;
+              gouraudY * 2 + extraY + 6) / 2;
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare

@@ -700,7 +700,7 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
 void tScreenTournamentTrophy::CalculatePrizes()
 
 {
-  /* MATCH (2026-08-12, 115 -> 2 diffs, exact 144/144): rebuilt from the
+  /* MATCH (2026-08-12, 115 -> PASS, exact 144/144): rebuilt from the
      trusted SYM allocation contract (i=$s1, j=$s3, tInfo=sp+0x10,
      tourneyInfo=$s5, this=$s2) and IDA/SLD control flow.  The decompiler's
      ranking/numRanked/tourIndex/place locals caused the original whole-body
@@ -709,8 +709,11 @@ void tScreenTournamentTrophy::CalculatePrizes()
      store.  The separate m2c body exposed the signed manager halfword as its
      own working value before the short sum; `ranked` plus a short `numRanked`
      reproduces retail's `lh` and post-add 16-bit truncation (4 -> 2) without
-     changing allocation.  The remaining pair is only the position of the
-     4.0f high-half materialization. */
+     changing allocation.  The final store group needs the 4.0f high half in
+     $a0 before the -7.4f pair while retaining the preceding delay-slot nop:
+     a pin-free identity fence on a block-local raw word plus a zero-insn
+     boundary does that; a short-lived `cashAwarded` working value sinks its
+     store behind both materializations.  No volatile or fixed-register pin. */
   long money;
   int i;
   int j;
@@ -783,11 +786,17 @@ prizes_done:
   if (tInfo.fCompletedGarageFull != 0) {
     this->TotalCash = money - tInfo.fCompletedBonusMoney;
   }
-  this->CashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney;
-  this->fCarX = 0x116;
-  this->fCarY = 0x3f;
-  this->fCarCY = -7.4;
-  this->fCarCX = 4.0;
+  long cashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney;
+  __asm__("" : : "i"(0));
+  {
+    unsigned long carCXBits = 0x40800000;
+    __asm__("" : "=r"(carCXBits) : "0"(carCXBits));
+    this->CashAwarded = cashAwarded;
+    this->fCarX = 0x116;
+    this->fCarY = 0x3f;
+    this->fCarCY = -7.4;
+    *(unsigned long *)&this->fCarCX = carCXBits;
+  }
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
     this->fCarX = 0x120;
     this->fCarY = 0x49;

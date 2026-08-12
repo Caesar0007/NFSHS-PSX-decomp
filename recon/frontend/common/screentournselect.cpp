@@ -178,14 +178,17 @@ void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
 
 
 /* ---- tScreenTournSelect::DrawVideoWall  [SCREENTOURNSELECT.CPP:168-229] ---- */
+/* MATCH W62: retail falls through the positive-direction TurnOn arm and branches
+   to the nonpositive TurnOff/reset arm.  SYM has no `onState` local; both arms
+   are bounded directly by transition count and four TVs.  Restoring that CFG
+   and the signed IDA transition count reduces the residual from 101 to 34. */
 void tScreenTournSelect::DrawVideoWall()
 
 {
-  bool onState;
   int abr;
   long j;
   long i;
-  uint transCount;
+  int transCount;
   tDrawShapeExtended drawFlags;
 
   i = 0xf4;
@@ -207,35 +210,21 @@ void tScreenTournSelect::DrawVideoWall()
      the recon passed the stale coordinate 0xA5 via a phantom `abr`. */
   FeDraw_SetABRMode(2);
   transCount = ticks - this->fTVTicks >> 2;
-  if (this->fTransitionDirection < 1) {
-    i = 0;
-    if (transCount != 0) {
-      onState = true;
-      do {
-        if (!onState) break;
-        if (this->trophyTV[trophyTVOrder[i]].state == tv_StateOn) {
-          TurnOffTV(this->trophyTV + trophyTVOrder[i]);
-        }
-        i = i + 1;
-        onState = i < 4;
-      } while (i < (int)transCount);
-    }
-    if (3 < transCount) {
-      this->fTransitionDirection = 0;
+  if (this->fTransitionDirection > 0) {
+    for (i = 0; (i < (int)transCount) && (i < 4); i++) {
+      if (this->trophyTV[trophyTVOrder[i]].state == tv_StateOff) {
+        TurnOnTV(this->trophyTV + trophyTVOrder[i]);
+      }
     }
   }
   else {
-    i = 0;
-    if (transCount != 0) {
-      onState = true;
-      do {
-        if (!onState) break;
-        if (this->trophyTV[trophyTVOrder[i]].state == tv_StateOff) {
-          TurnOnTV(this->trophyTV + trophyTVOrder[i]);
-        }
-        i = i + 1;
-        onState = i < 4;
-      } while (i < (int)transCount);
+    for (i = 0; (i < transCount) && (i < 4); i++) {
+      if (this->trophyTV[trophyTVOrder[i]].state == tv_StateOn) {
+        TurnOffTV(this->trophyTV + trophyTVOrder[i]);
+      }
+    }
+    if (3 < transCount) {
+      this->fTransitionDirection = 0;
     }
   }
   /* Oracle 8003FD84 / 8003FDAC: the two closing squares' x/y are literals, not phantom zeros. */

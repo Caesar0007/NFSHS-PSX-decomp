@@ -298,38 +298,32 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
 
 {
   int vivHandle;
-  int iVar2;
-  u_int headerLength;
-  LUMPYHEAD *bigfileHeader;
   LUMPYHEAD lumpHead;
+  LUMPYHEAD *bigfileHeader;
   
   setasyncfile(fname);
   vivHandle = asyncloadsegment((char *)0x0,&lumpHead,0x10);
   do {
     systemtask(0);
-    iVar2 = getasyncreadstatus(vivHandle);
-  } while (iVar2 == 0);
-  headerLength = lumpHead.hlen;
+  } while (getasyncreadstatus(vivHandle) == 0);
   lumpHead.type =
        lumpHead.type << 0x18 | (lumpHead.type & 0xff00) << 8 | (lumpHead.type & 0xff0000) >> 8 |
        lumpHead.type >> 0x18;
   /* MATCH: a zero-insn barrier preserves retail's three header-swap statement
-     schedule.  Direct C is 52 diffs; volatile is unnecessary here; this is 42. */
+     schedule. Removing non-SLD temporaries reduces the remaining residual to 27. */
   __asm__("" : : "i"(0));
-  headerLength = headerLength << 0x18 | (headerLength & 0xff00) << 8 |
-                 (headerLength & 0xff0000) >> 8 | headerLength >> 0x18;
-  lumpHead.hlen = headerLength;
+  lumpHead.hlen = lumpHead.hlen << 0x18 | (lumpHead.hlen & 0xff00) << 8 |
+                  (lumpHead.hlen & 0xff0000) >> 8 | lumpHead.hlen >> 0x18;
   lumpHead.num = lumpHead.num << 0x18 | (lumpHead.num & 0xff00) << 8 |
                  (lumpHead.num & 0xff0000) >> 8 | lumpHead.num >> 0x18;
-  bigfileHeader = reservememadr((char *)(bigBuf + 0x130),headerLength + 0x20,0);
+  bigfileHeader = reservememadr((char *)(bigBuf + 0x130),lumpHead.hlen + 0x20,0);
   if (bigfileHeader == (LUMPYHEAD *)0x0) {
     return (LUMPYHEAD *)0x0;
   }
   vivHandle = asyncloadsegment((char *)0x0,bigfileHeader,lumpHead.hlen + 0x20);
   do {
     systemtask(0);
-    iVar2 = getasyncreadstatus(vivHandle);
-  } while (iVar2 == 0);
+  } while (getasyncreadstatus(vivHandle) == 0);
   bigfileHeader->type = bigfileHeader->type << 0x18 |
        (bigfileHeader->type & 0xff00) << 8 |
        (bigfileHeader->type & 0xff0000) >> 8 | bigfileHeader->type >> 0x18;

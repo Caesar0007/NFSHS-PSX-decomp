@@ -687,17 +687,11 @@ ProcInpFE_keyUpItemZero:
 void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
 
 {
-  __vtbl_ptr_type *entry;
+  __vtbl_ptr_type *entry10;
+  __vtbl_ptr_type *entry6;
+  tMenuItem *item;
   short i;
   short j;
-  tMenuItem *ptVar6;
-  char *adjusted;
-  bool selected1;
-  bool selected2;
-  int drawSlide;
-  int drawX;
-  int drawY;
-  int drawW;
   
   if (this->fCurrentItem != this->fPrevItem) {
     if (this->fPrevItem < this->fCurrentItem) {
@@ -720,38 +714,26 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
     }
   }
   j = 0;
-  drawSlide = slideOffset;
-  drawX = x;
-  drawY = y;
-  drawW = w;
   do {
-    i = (short)((u_short)this->fCurrentItem + (j - 2));
+    /* MATCH: the two-step narrow index plus subtract-negative spelling selects
+       retail's `lhu v1; addiu v0; addu v1,v1,v0` operand order. */
+    i = (short)(j - 2);
+    i = (short)(this->fCurrentItem - -i);
     if ((3 < j) && (this->fItemList[i - 1] == (tMenuItem *)0x0)) {
       return;
     }
-    if ((-1 < i) && (ptVar6 = this->fItemList[i], ptVar6 != (tMenuItem *)0x0)) {
-      entry = &(*ptVar6->_vf)[10];
-      adjusted = (char *)ptVar6 + (int)entry->delta;
-      if (this->fMoving == 0) {
-        selected1 = i == this->fCurrentItem;
-      }
-      else {
-        selected1 = false;
-      }
-      (*entry->pfn)(adjusted,selected1);
-      ptVar6 = this->fItemList[(short)i];
-      entry = &(*ptVar6->_vf)[6];
-      adjusted = (char *)ptVar6 + (int)entry->delta;
-      if (this->fMoving == 0) {
-        selected2 = (int)(short)i == this->fCurrentItem;
-      }
-      else {
-        selected2 = false;
-      }
-      (*entry->pfn)
-                (adjusted,drawX,
-                 (int)this->fMoving + drawY + drawSlide + ((short)j + -1) * 0x18 + 5,
-                 drawW,selected2);
+    if ((-1 < i) && (item = this->fItemList[i], item != (tMenuItem *)0x0)) {
+      entry10 = &(*item->_vf)[10];
+      (*entry10->pfn)((char *)item + (int)entry10->delta,
+                    this->fMoving == 0 ? i == this->fCurrentItem : false);
+      item = this->fItemList[i];
+      /* MATCH: retail gives the two vtable rows distinct scratch lifetimes. */
+      entry6 = &(*item->_vf)[6];
+      (*entry6->pfn)
+                ((char *)item + (int)entry6->delta,x,
+                 /* SLD line 599: form the base offset first, add fMoving last. */
+                 ((int)this->fMoving + (y + slideOffset + ((short)j + -1) * 0x18)) + 5,
+                 w,this->fMoving == 0 ? (short)i == this->fCurrentItem : false);
     }
     j = j + 1;
   } while (j * 0x10000 >> 0x10 < 5);

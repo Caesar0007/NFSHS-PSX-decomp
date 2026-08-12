@@ -630,30 +630,25 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 
 
 /* ---- tDialogInteractive::Run  [FEDIALOG.CPP:684-742] SLD-VERIFIED ---- */
-/* NAMED ANGLE (W56-A9, 110 diffs, NOT yet cracked): the residual is (1) a
-   MISSING callee-saved s7 -- SYM 8c mask=$80ff0000 (ra+s0..s7), fsize=72; ours
-   saves only s0..s6 (fsize 64). The oracle hoists a stack out-param address
-   `addiu s7,sp,16` (the &keyType/&command buffer passed to ProcessInput every
-   loop iter) into s7 across the loop; ours rematerializes it. Getting a stack
-   local's address to live in a callee-saved reg across the call-loop is the
-   catalog lever #16 family but not source-dialable here (LICM/allocator choice).
-   (2) A cascading this->s3(oracle) vs s4(ours) callee-saved assignment-order
-   swap. Both are the s4.6 de-prioritized register-choice class. */
+/* MATCH (2026-08-13, 110 -> 39 -> 27 -> 18 -> 4 -> PASS, 123/123): SYM lexical
+   scopes are codegen-significant here.  Declaring debounce and i inside the
+   outer loop restores retail's entry-tested outer CFG, s7 stack-base hoist,
+   and complete s0..s7 save mask.  The real scoped bool for the Circle path
+   reduces 39 -> 27; materializing tDialogBase *helpPopup before testing its
+   inherited currentlyOn member reduces 18 -> 4 and matches the SYM's scoped
+   implicit-this block.  Finally, the virtual this-adjust source is naturally
+   `(char *)this + delta`, producing retail's two addu a0,s3,a0 instructions.
+   FALSIFIED: explicit goto entry loops 129 (collapsed allocator); identity
+   fence after i=0 21 (blocked strength reduction); void barrier 22; explicit
+   key/menu-offset induction locals 40.  No fence or volatile remains. */
 
 short tDialogInteractive::Run()
 
 {
-  short sVar1;
   bool bVar2;
   __vtbl_ptr_type (*pa_Var3) [10];
-  tInputKeyType tVar4;
   int iVar5;
   int iVar6;
-  tInputKeyType *ptVar7;
-  int i;
-  tPlayer player;
-  int iVar8;
-  u_long debounce;
   tInputKeyType keyVal [2];
   tMenuCommand command;
   
@@ -661,56 +656,54 @@ short tDialogInteractive::Run()
   ((tDialogBase *)this)->Display();
   pa_Var3 = this->_vf;
   (*pa_Var3[1][0].pfn)
-            (this->fPermShapes.fFilename +
-             pa_Var3[1][0].delta + -0x14);
+            ((char *)this + pa_Var3[1][0].delta);
   this->ReadyToReturnValue = 0;
   while (this->ReadyToReturnValue == 0) {
+    u_long debounce = -1;
+    int i;
+
     command.type = kMenu_Command_None;
-    iVar8 = 0;
-    ptVar7 = keyVal;
-    for (player = kPlayerOne; player < 2; player = player + kPlayerTwo) {
-      tVar4 = FEInput_GetKeyFromPlayer(player,-1);
-      *ptVar7 = tVar4;
-      if (tVar4 == kInput_KeyType_NoKey) {
-        *ptVar7 = kInput_KeyType_AlreadyProcessed;
+    i = 0;
+    while (i < 2) {
+      keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
+      if (keyVal[i] == kInput_KeyType_NoKey) {
+        keyVal[i] = kInput_KeyType_AlreadyProcessed;
       }
-      if (*ptVar7 == kInput_KeyType_Circle) {
+      if (keyVal[i] == kInput_KeyType_Circle) {
         bVar2 = false;
         if ((FEApp->helpPopup).currentlyOn == 0) {
-          bVar2 = *(int *)((int)FEApp->fCurrentMenu + iVar8) != 0;
+          bVar2 = FEApp->fCurrentMenu[i] != (tInsideBoxMenu *)0x0;
         }
         if (bVar2) {
-          iVar6 = *(int *)((int)FEApp->fCurrentMenu + iVar8);
+          iVar6 = (int)FEApp->fCurrentMenu[i];
           iVar5 = *(int *)(iVar6 + 0x68);
-          (**(int (**)(...))(iVar5 + 0x1c))(iVar6 + *(short *)(iVar5 + 0x18),player,ptVar7,&command);
-          *ptVar7 = kInput_KeyType_AlreadyProcessed;
+          (**(int (**)(...))(iVar5 + 0x1c))
+              (iVar6 + *(short *)(iVar5 + 0x18),(tPlayer)i,&keyVal[i],&command);
+          keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
       }
-      tVar4 = kInput_KeyType_AlreadyProcessed;
-      if (*ptVar7 != kInput_KeyType_AlreadyProcessed) {
-        if ((FEApp->helpPopup).currentlyOn != 0) {
-          ((tDialogBase *)(tDialogBase *)&(FEApp->helpPopup))->Hide();
-          *ptVar7 = kInput_KeyType_AlreadyProcessed;
+      if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
+        tDialogBase *helpPopup = (tDialogBase *)&FEApp->helpPopup;
+        if (helpPopup->currentlyOn != 0) {
+          helpPopup->Hide();
+          keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
-        tVar4 = *ptVar7;
       }
-      if (tVar4 != kInput_KeyType_NoKey) {
+      if (keyVal[i] != kInput_KeyType_NoKey) {
         pa_Var3 = this->_vf;
         (*(*pa_Var3)[9].pfn)
-                  (this->fPermShapes.fFilename +
-                   (*pa_Var3)[9].delta + -0x14,player,ptVar7,&command);
+                  ((char *)this + (*pa_Var3)[9].delta,
+                   (tPlayer)i,&keyVal[i],&command);
       }
-      ptVar7 = ptVar7 + 1;
-      iVar8 = iVar8 + 4;
+      i++;
     }
     FEApp->Redraw();
   }
   AudioCmn_PlayFESFX(0);
   ((tDialogBase *)this)->Hide();
   FEApp->Redraw();
-  sVar1 = this->ReturnValue;
   this->fCurrentlyRunning = 0;
-  return sVar1;
+  return this->ReturnValue;
 }
 
 

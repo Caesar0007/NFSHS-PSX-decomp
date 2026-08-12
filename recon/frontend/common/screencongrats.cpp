@@ -700,12 +700,18 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
 void tScreenTournamentTrophy::CalculatePrizes()
 
 {
+  /* MATCH (2026-08-12, 115 -> 4 diffs, exact 144/144): rebuilt from the
+     trusted SYM allocation contract (i=$s1, j=$s3, tInfo=sp+0x10,
+     tourneyInfo=$s5, this=$s2) and IDA/SLD control flow.  The decompiler's
+     ranking/numRanked/tourIndex/place locals caused the original whole-body
+     register cascade.  A void boundary after the spinner reset prevents
+     sched2 from hoisting the tournament-money address setup across that
+     store.  Remaining pairs are a signed-halfword load spelling (`lhu` vs
+     `lh`, with identical following sign truncation) and the position of the
+     4.0f high-half materialization. */
   long money;
-  short ranking;
-  int numRanked;
-  int tourIndex;
   int i;
-  int place;
+  int j;
   tAwardInformation tInfo;
   tTourneyInfo *tourneyInfo;
 
@@ -713,55 +719,64 @@ void tScreenTournamentTrophy::CalculatePrizes()
   this->trophy = kTrophyNone;
   this->smallSpinningThing = kSpinningMemCard;
   GetAwardInformation(&tournamentManager,&tInfo);
-  place = 900;
-  tourIndex = (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
-          tournamentManager.fTournament;
+  j = 900;
   /* @0x800492A8-D4/0x80049380: oracle computes the tourneyInfo (fTournaments[tourIndex]) POINTER
    * ONCE (kept live in s5) and reuses it for BOTH fKnockout checks below (numRanked's ".fKnockout"
    * AND the later `def->fTournaments[tourIndex].fKnockout` re-test) -- one named local matches. */
-  tourneyInfo = (tournamentManager.fDefinition)->fTournaments + tourIndex;
-  numRanked = (int)(((int)(short)tournamentManager.fNumRacers +
-                (uint)(tourneyInfo->fKnockout != '\0')) *
-               0x10000) >> 0x10;
+  tourneyInfo = &(tournamentManager.fDefinition)->fTournaments[
+      (uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
+      tournamentManager.fTournament];
   i = 1;
-  if (0 < numRanked) {
-    do {
-      ranking = PlayerRanking(&tournamentManager,(short)i);
-      if (ranking == 0) {
-        place = i;
-      }
-      i = i + 1;
-    } while (i <= numRanked);
-  }
-  if (place == 1) {
-    if (tInfo.fAwardCar == 0) {
-      this->trophy = kTrophyGold;
-      this->smallSpinningThing = kSpinningNone;
+  {
+    int knockout = !!tourneyInfo->fKnockout;
+    int numRanked = (short)(*(short *)((char *)&tournamentManager + 0x10) + knockout);
+    if (0 < numRanked) {
+      int loopLimit = numRanked;
+      do {
+        if (PlayerRanking(&tournamentManager,(short)i) == 0) {
+          j = i;
+        }
+        i = i + 1;
+      } while (i <= loopLimit);
     }
-    else {
+  }
+  if (j == 1) goto first_place;
+  if (j <= 0) goto eliminated;
+  if (j >= 4) goto eliminated;
+  goto ranked_finish;
+
+first_place:
+  {
+    if (tInfo.fAwardCar != 0) {
       this->trophy = kTrophyCar;
       this->smallSpinningThing = kSpinningGold;
     }
+    else {
+      this->trophy = kTrophyGold;
+      this->smallSpinningThing = kSpinningNone;
+    }
     this->fSpeechToPlay = 0xf;
     this->congratsMessage = kScreenCongrats_Congrats;
-  }
-  else {
-    if (place <= 0) goto eliminated;
-    if (place >= 4) goto eliminated;
-    if (tourneyInfo->fKnockout != '\0') goto eliminated;
-    this->fSpeechToPlay = place + 0xe;
-    this->congratsMessage = kScreenCongrats_Congrats;
-    this->trophy = place == 2 ? kTrophySilver : kTrophyBronze;
     goto prizes_done;
-eliminated:
-    this->congratsMessage = kScreenCongrats_Eliminated;
-    this->trophy = kTrophyCar;
-prizes_done:
-    this->smallSpinningThing = kSpinningNone;
   }
+
+ranked_finish:
+  if (tourneyInfo->fKnockout != '\0') goto eliminated;
+  this->fSpeechToPlay = j + 0xe;
+  this->congratsMessage = kScreenCongrats_Congrats;
+  this->trophy = j == 2 ? kTrophySilver : kTrophyBronze;
+  goto prizes_done;
+
+eliminated:
+  this->congratsMessage = kScreenCongrats_Eliminated;
+  this->trophy = kTrophyCar;
+
+prizes_done:
+  this->smallSpinningThing = kSpinningNone;
+  __asm__("" : : "i"(0));
   this->fCarPlayer = 0;
   money = tournamentManager.fMoney;
-  this->TotalCash = tournamentManager.fMoney;
+  this->TotalCash = money;
   if (tInfo.fCompletedGarageFull != 0) {
     this->TotalCash = money - tInfo.fCompletedBonusMoney;
   }

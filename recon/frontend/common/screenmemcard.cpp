@@ -779,6 +779,7 @@ DrawBgGridposDone:
   gray = 0x505050;
   gouraudX = GRIDMEMCARDGOURAUDBIT_X;
   extraY = EXTRAYATTOP;
+  __asm__("" : "+r"(extraY));
   gouraudY = GRIDMEMCARDGOURAUDBIT_Y;
   x = (ushort)GRIDMEMCARD_STARTX - gouraudX;
   y = (ushort)GRIDMEMCARD_STARTY - gouraudY - (extraY + 4);

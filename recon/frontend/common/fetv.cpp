@@ -83,7 +83,10 @@ void DrawTVLines(tTVConfig &tv)
 /* MATCH W61 (2026-08-10): the retail state dispatch is a four-case switch.
    The former range-folded if/else chain changed both its branch tree and the
    rendering allocator handoff.  Restoring the discrete cases reduces the
-   authoritative residual from 151 to 135 without changing behavior. */
+   authoritative residual from 151 to 135 without changing behavior.
+   W62: after each absolute-value clamp input is known nonnegative; promoting
+   the short through u_short for the multiply avoids premature sign-extension
+   and reduces DrawTV from 135 to 131 without volatile lifetime constraints. */
 
 void DrawTV(tTVConfig &tv)
 
@@ -208,7 +211,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeTop < 0) {
           fadeTop = -fadeTop;
         }
-        fadeTop *= 2;
+        fadeTop = (u_short)fadeTop * 2;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
@@ -216,7 +219,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom < 0) {
           fadeBottom = -fadeBottom;
         }
-        fadeBottom *= 2;
+        fadeBottom = (u_short)fadeBottom * 2;
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
@@ -301,7 +304,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeTop < 0) {
           fadeTop = -fadeTop;
         }
-        fadeTop *= 2;
+        fadeTop = (u_short)fadeTop * 2;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
@@ -309,7 +312,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom < 0) {
           fadeBottom = -fadeBottom;
         }
-        fadeBottom *= 2;
+        fadeBottom = (u_short)fadeBottom * 2;
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }

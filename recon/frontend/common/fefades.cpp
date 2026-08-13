@@ -5,6 +5,14 @@
  */
 #include "fefades.h"
 
+static inline int TextDefinitionColor(tMenuTextType type, int column)
+{
+  /* The retail SYM records a nested inline block for each lookup.  Keeping
+     this as an accessor prevents CSE from merging the row-base expressions. */
+  int *colors = kRGBVals;
+  return colors[(byte)textDefinitions[type][column]];
+}
+
 /* lines 1-20: file header, #includes, static data, macros (no symbols emitted) */
 
 /* ---- CalcFadeVal3  (fefades.cpp:21, code lines 21-30) ---- */
@@ -55,31 +63,10 @@ int CalcFadeVal(int col1,int col2,int amount,int fFade)
 int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 
 {
-  /* SYM 8c block: NO locals (3 REGPARM only) -> single direct-return statement.
-     MATCH: volatile-deref views keep the two row reads independent (retail has two
-     separate `addu base` computations); residual = displacement-vs-folded-offset.
-     W57-A7 ROOT-CAUSE (shared by all three fefades near-misses; measured, not landed):
-     retail computes the textDefinitions ROW BASE ONCE PER ACCESS -- 2 identical
-     `addu vN,idx,base` here, THREE in CalcOnOffFade -- and keeps the column (3/4/5) as
-     the `lbu` DISPLACEMENT.  The two properties are ANTI-CORRELATED under our cc1:
-       * PLAIN `textDefinitions[type][K]` gives the right DISPLACEMENT (`lbu v1,3(v0)`)
-         but cse merges the identical `plus(idx,sym)` into ONE base -> 27 vs oracle 28;
-       * the volatile view keeps the bases SEPARATE but forces the whole address into a
-         register (offset 0) with the column folded into `%lo(td)+K` (the current 5-diff
-         form; volatile MEMs bypass mips_check_split, w44 law).
-     Falsified probes (all in this basin): `((volatile char*)textDefinitions[type])[K]`
-     (5), a volatile row-pointer local (29), mixed plain/volatile per column (3 and 10),
-     an UNSIZED `extern char textDefinitions[][6]` (19, cse unchanged), an identity fence
-     on a named `idx` (30-38 -- the fence mints a real copy because idx and idx2 are
-     simultaneously live), an `asm()`-label ALIAS extern for the 2nd column (30 -- it
-     duplicates the SYMBOL materialisation too, +2 insns).
-     NAMED ANGLE: we need "two identical address plus'es NOT cse'd" at zero instruction
-     cost -- i.e. an anti-cse device for a REGISTER expression (the opacity fence only
-     launders a VALUE, it cannot stop cse recording the `plus`).  Candidate: a per-access
-     laundered INDEX where the laundered pseudo REPLACES the original in place (the same
-     variable, so no second live range).  Same root cause fixes 5+5+12 = 22 diffs. */
-  return CalcFadeVal(kRGBVals[(byte)*(volatile char *)&textDefinitions[type][3]],
-                     kRGBVals[(byte)*(volatile char *)&textDefinitions[type][4]],
+  /* MATCH: the SYM's two nested inline-block pairs reveal two calls to the
+     accessor above.  They retain separate row bases and 3/4 load displacements. */
+  return CalcFadeVal(TextDefinitionColor(type,3),
+                     TextDefinitionColor(type,4),
                      (int)fSelFade,(int)fFade);
 }
 
@@ -91,10 +78,9 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
 {
   int result;
 
-  /* MATCH 2026-08-03 (17->5): flattened volatile indexing preserves the
-     two retail address pseudos and exact color-load order. */
-  result = CalcFadeVal(kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 4]],
-                            kRGBVals[(byte)((volatile char *)textDefinitions)[type * 6 + 5]],(int)fSelFade);
+  /* MATCH: two inlined accessor calls reproduce the SYM block nesting. */
+  result = CalcFadeVal(TextDefinitionColor(type,4),
+                            TextDefinitionColor(type,5),(int)fSelFade);
   result = CalcFadeVal(result,0,(int)fFade);
   return result;
 }
@@ -107,10 +93,9 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
    ($17, $1e); baseA/baseB/baseC below are compiler temps in retail (the three
    kRGBVals lookups are hoisted by CSE ahead of the first call).  SLD statements:
    72 / 73 / 75 / 76 / 78 / 79 -- the order kept here.
-   RESIDUAL (12 diffs, 88/88): retail materialises the textDefinitions row base
-   THREE times (`addu vN,idx,base`) and folds 3/4/5 into the lbu displacement; the
-   volatile row view reproduces the three independent bases but bakes the offset
-   into the address instead (loads at 0/+1/-1).  Named angle, see the report. */
+   MATCH 2026-08-13 (12->2): the three SYM inline-block pairs were accessor calls.
+   The sole residual is scheduling of `%lo(kRGBVals)` by six instructions; register
+   allocation, instruction count, row bases, displacements, and calls are exact. */
 void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFade,int &OnColor,
                int &OffColor)
 
@@ -123,9 +108,9 @@ void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFad
   int baseB;
   int baseC;
 
-  baseA = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][4]];
-  baseB = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][5]];
-  baseC = kRGBVals[(byte)((volatile char (*)[6])textDefinitions)[type][3]];
+  baseA = TextDefinitionColor(type,4);
+  baseB = TextDefinitionColor(type,5);
+  baseC = TextDefinitionColor(type,3);
   ColSelOn = CalcFadeVal(baseA,baseB,(int)fOnOffFade);
   ColSelOff = CalcFadeVal(baseB,baseA,(int)fOnOffFade);
   ColUnSelOn = CalcFadeVal(baseC,baseA,(int)fOnOffFade);

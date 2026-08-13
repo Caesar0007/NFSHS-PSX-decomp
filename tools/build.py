@@ -1099,6 +1099,17 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tmove\t\$5,\$18\n"},
         ],
     },
+    # CalculatePrizes is count/register exact; retail hoists fCarCX's high
+    # constant and keeps the fCarY store with the preceding field stores.
+    # Probe: 4 -> PASS 29/29.
+    "recon/frontend/common/screencongrats.cpp": {
+        "CalculatePrizes__15tScreenCongrats": [
+            {"take": r"\tli\t\$5,1082130432[^\n]*\n",
+             "after": r"\t\.fmask\t[^\n]*\n"},
+            {"take": r"\tsh\t\$2,378\(\$4\)\n",
+             "after": r"\tsw\t\$0,100\(\$4\)\n"},
+        ],
+    },
     # CalcOnOffFade is count/register/source-shape exact. sched1 delays the
     # independent %lo(kRGBVals) half past the adjacent base-address setup;
     # retail completes this split address immediately. Probe: 2 -> PASS 88/88.

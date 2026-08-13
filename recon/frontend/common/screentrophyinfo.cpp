@@ -39,7 +39,10 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      the final address with the index QTY instead of the room-base QTY.  A read-only room fence
      crosses the ref step but costs two instructions (16 diffs/78).  Falsified at this basin:
      reversed addends (20), named definition+fence (37/79), void-tail/feTier fences (35/79),
-     pointer mutation (28), and unfenced pointer/reference staging (neutral 6). */
+     pointer mutation (28), and unfenced pointer/reference staging (neutral 6).
+     MATCH (W65): comma-staging the current tournament into a byte local makes GCC combine its
+     copy web without extending its lifetime; retail v0/v1 ownership follows exactly (4 -> PASS,
+     76/76).  A uint local instead inherits a0 and remains at 4. */
   tTourneyInfo *tourn;
   short placement;   /* MATCH (W57-A7, 9 -> 6, count-exact 76/76): retail sign-extends the
                         placement from 16 bits at the kBannerColors index (`sll 16; sra 14`
@@ -53,9 +56,12 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      fTournOffset chain into a local (25), naming screenTrophyRoom->tier (19). */
   {
     uint feTier = (uint)(byte)frontEnd.tier;
+    byte currentTourn;
 
-    idx = (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier] +
-          (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset;
+    idx = (currentTourn =
+               (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier],
+           (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset +
+               currentTourn);
   }
   tourn = (tournamentManager.fDefinition)->fTournaments + idx;
   placement = 0;

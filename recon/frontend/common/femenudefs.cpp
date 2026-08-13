@@ -1765,14 +1765,9 @@ extern "C" void MenuExtended_SaveGame__FR12tMenuCommand(tMenuCommand *command)
    
    [ghidra-meta] section: front.text */
 
-/* [W57-A1 2026-08-09, 17->8] The "address-hi-in-a-saved-reg with the VALUE reloaded per access
-   is not source-reachable" verdict is FALSIFIED: a `volatile`-qualified read of the pointer
-   global (`*(T *volatile *)&FEApp`) forces exactly that -- gcc keeps `%hi` in the callee-saved
-   reg and re-emits `lw ...,0(sN)` at every access instead of caching the VALUE.  Insn count now
-   EXACT 37/37.  RESIDUAL 8 = s0/s1 are swapped (oracle FEApp->s0, screenMemcard->s1; ours the
-   reverse, following which address pseudo is created first) + the `li v0,-1` vs the two reloads
-   ordering in the second block.  Tried and FALSIFIED: hoisting `&FEApp` into a `T *volatile *`
-   local before the first statement (10 diffs -- it flips the head instead). */
+/* MATCH (2026-08-13, 8->PASS, 37/37): a zero-byte memory-input fence births FEApp's address
+   quantity before screenMemcard's, giving retail s0/s1. Explicit app-then-mc volatile reloads
+   on both sides of LoadGame reproduce retail's value registers and scheduling. */
 
 void GenericMenuLoadGame(int player)
 
@@ -1780,7 +1775,7 @@ void GenericMenuLoadGame(int player)
   tFEApplication *app;
   tScreenMemcard *mc;
 
-  /* NEAR-MISS 21 diffs (was 36): structure now matches the oracle exactly -- 32B frame,
+  /* Historical probes: the cached-value and double-indirection forms changed the frame or
      player->s2, s0/s1 hold FEApp/screenMemcard across the calls. Residual = gcc-2.7.2 reload
      tie-break: oracle holds %hi(FEApp)/%hi(screenMemcard) in s0/s1 and reloads the VALUE into a
      scratch reg each access; our build coalesces the VALUE into s0/s1. Caching the value (this
@@ -1791,13 +1786,18 @@ void GenericMenuLoadGame(int player)
      deref at each use, per §3.12 #16) REGRESSES to 36 diffs with a SMALLER 24B frame (drops s1/s2
      entirely, spills differently) -- the extra indirection level changes register-pressure
      enough that gcc abandons the 2-saved-reg structure altogether. Reverted; confirms the
-     3.15 reload tie-break verdict above. WALL, accept. */
+     allocation basin; the explicit volatile reload form below supersedes those results. */
   if (CURRENTLYUSINGMEMCARD == 0) {
-    (*(tScreenMemcard *volatile *)&screenMemcard)->message = 0x27d;
-    (*(tFEApplication *volatile *)&FEApp)->Redraw();
+    __asm__("" : : "m"(FEApp));
+    app = *(tFEApplication *volatile *)&FEApp;
+    mc = *(tScreenMemcard *volatile *)&screenMemcard;
+    mc->message = 0x27d;
+    app->Redraw();
     LoadGame((short)player,false,1);
-    (*(tScreenMemcard *volatile *)&screenMemcard)->message = -1;
-    ((tDialogBase *)&(*(tFEApplication *volatile *)&FEApp)->NoInputMemCardDialog)->Hide();
+    app = *(tFEApplication *volatile *)&FEApp;
+    mc = *(tScreenMemcard *volatile *)&screenMemcard;
+    mc->message = -1;
+    ((tDialogBase *)&app->NoInputMemCardDialog)->Hide();
   }
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   return;

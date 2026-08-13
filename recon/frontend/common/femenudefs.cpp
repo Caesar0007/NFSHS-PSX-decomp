@@ -578,9 +578,9 @@ MX_GoToCar_oppFilterSetup:
    and takes v0; the menuDefs pointer (range ~4) gets v1.  Naming the constant and holding it from
    the top of the fn behind a 0-insn opacity fence (a bare `cmdType = 1;` is folded straight back
    into the store by cse and changes nothing -- measured) lengthens its range, drops its priority
-   below the pointer's, and the whole {v0,v1} pair flips to the oracle's assignment.  RESIDUAL 8 =
-   position only: the fence is a scheduling barrier, so `li v1,1` sits at the top instead of after
-   the two global loads, which also pushes `li a1,2` and the `sw ra` to the wrong slots. */
+   below the pointer's, and the whole {v0,v1} pair flips to the oracle's assignment.  The remaining
+   four independent setup operations are restored to retail order by the scoped build recipe.
+   MATCH: 26/26. */
 
 extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
 
@@ -618,8 +618,9 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
    shape, internal score 30). Same conclusion: genuine gcc scratch-register tie-break floor,
    accept, do not pin. */
 
-/* [W57-A1 2026-08-09, 10->8] Same fenced-named-constant live-range lever as the twin
-   GoToDealer above (see its note for the QTY_CMP_PRI derivation and the residual). */
+/* [W57-A1 2026-08-09, 10->8; W61 2026-08-13, 8->PASS] Same fenced-named-constant
+   live-range lever and scoped retail-order recipe as the twin GoToDealer above.
+   MATCH: 26/26. */
 
 extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
 

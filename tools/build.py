@@ -1107,6 +1107,20 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tmove\t\$4,\$18\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tjal\tAddToPinkSlipsList)",
              "after": r"\tsra\t\$7,\$7,16\n"},
         ],
+        # Both callbacks have the retail register handout and exact 26-insn
+        # stream.  sched2 only interchanges four independent setup operations.
+        "MenuExtended_GoToDealer__FR12tMenuCommand": [
+            {"take": r"\tli\t\$5,2[^\n]*\n", "after": r"\tmove\t\$6,\$4\n"},
+            {"take": r"\tlui\t\$2,%hi\(screenCarSelect\)[^\n]*\n", "after": r"\tli\t\$5,2[^\n]*\n"},
+            {"take": r"\tli\t\$3,1[^\n]*\n", "after": r"\tlw\t\$2,%lo\(menuDefs\)\(\$16\)\n"},
+            {"take": r"\tsw\t\$31,20\(\$sp\)\n", "after": r"\tli\t\$3,1[^\n]*\n"},
+        ],
+        "MenuExtended_GoToSeller__FR12tMenuCommand": [
+            {"take": r"\tli\t\$5,3[^\n]*\n", "after": r"\tmove\t\$6,\$4\n"},
+            {"take": r"\tlui\t\$2,%hi\(screenCarSelect\)[^\n]*\n", "after": r"\tli\t\$5,3[^\n]*\n"},
+            {"take": r"\tli\t\$3,1[^\n]*\n", "after": r"\tlw\t\$2,%lo\(menuDefs\)\(\$16\)\n"},
+            {"take": r"\tsw\t\$31,20\(\$sp\)\n", "after": r"\tli\t\$3,1[^\n]*\n"},
+        ],
     },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {

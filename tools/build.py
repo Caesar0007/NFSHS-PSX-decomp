@@ -1112,6 +1112,15 @@ PER_FN_TEXT_MOVES = {
     # 138-insn stream match retail; sched2 places the second call's `this`
     # setup after the late fWinner copy.  Restore retail's argument order.
     "recon/frontend/common/femenudefs.cpp": {
+        # Count/register exact; sched1 completes frontEnd's split address too
+        # early. Retail interleaves the tournamentManager setup and s1 save.
+        # Probe: 2 -> PASS 90/90.
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand": [
+            {"take": r"\taddiu\t\$4,\$4,%lo\(frontEnd\)[^\n]*\n",
+             "after": r"\tsw\t\$17,188\(\$sp\)\n"},
+            {"take": r"\taddiu\t\$17,\$2,%lo\(tournamentManager\)[^\n]*\n",
+             "after": r"\tsw\t\$17,188\(\$sp\)\n"},
+        ],
         "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand": [
             {"take": r"\tmove\t\$4,\$18\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tjal\tAddToPinkSlipsList)",
              "after": r"\tsra\t\$7,\$7,16\n"},

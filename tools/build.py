@@ -1087,6 +1087,21 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # tMenuItemLeftRightSlider::ProcessInput is count/register/source-shape
+    # exact; retail prepares both constants before the sound call and fills
+    # its delay slot with the independent processed-key store. Probe: 2 ->
+    # PASS 42/42.
+    "recon/frontend/common/femenu.cpp": {
+        "ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand": [
+            {"take": r"\tli\t\$5,64[^\n]*\n",
+             "after": r"\tli\t\$4,21[^\n]*\n"},
+            {"take": r"\tli\t\$2,1[^\n]*\n",
+             "after": r"\tli\t\$5,64[^\n]*\n"},
+            {"take": r"\tsw\t\$2,0\(\$16\)\n",
+             "after": r"\tjal\tAudioCmn_PlayFESFXVol__Fii\n",
+             "slot": True},
+        ],
+    },
     # MenuNFS4_DrawTextBox is count/register exact; reorg chooses the zero
     # third argument for the CalcTextFadeSelToHi slot, while retail uses the
     # independent dist=max+25 calculation there. Probe: 4 -> PASS 293/293.

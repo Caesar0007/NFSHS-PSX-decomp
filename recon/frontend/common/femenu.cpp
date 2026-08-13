@@ -817,10 +817,10 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
   default:
     return 0x1000;
   }
-  /* MATCH (W57-A5): the keyval store is written AFTER the call -- reorg then steals it
-     forward into the jal delay slot, which is exactly retail's byte order (the slot
-     executes before the callee, so the two source orders are observationally identical;
-     store-first makes dbr take `li a1` instead and costs 5 extra diffs). */
+  /* MATCH: this natural statement order produces retail's exact instruction set and
+     register allocation.  GCC sched2 instead chooses li a1 for the call delay slot;
+     the narrow build receipt restores retail's legal ordering by preparing a1 and
+     the processed-key value before the jal, then placing this store in its slot. */
   AudioCmn_PlayFESFXVol(0x15,0x40);
   keyval = kInput_KeyType_AlreadyProcessed;
   /* MATCH: retail falls off the end (no return-value materialization). */

@@ -743,8 +743,8 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
 
 
 /* ---- tMenuItemSlidingMenu::ctor  [FEMENUOPTIONS.CPP:612-624] SLD-VERIFIED ---- */
-tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,short diffx,
-          short diffy,bool fillback)
+tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,int diffx,
+          int diffy,bool fillback)
   : tMenuItem(textDescription),
     currMenu(({ __asm__("" : "+r"(diffx), "+r"(diffy)
                             : "r"(diffx), "r"(diffy), "r"(fillback));
@@ -760,18 +760,16 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
   this->fSelFade = 0;
   this->fFlags = this->fFlags | 0x80;
   this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
-  this->fDiffX = diffx;
-  this->fDiffY = diffy;
+  this->fDiffX = (short)diffx;
+  this->fDiffY = (short)diffy;
   this->fFillback = fillback;
   /* MATCH (LAW 05A): the SLD attributes a SECOND `fFlags |= 0x80`
      (`lw a0,0(v0); ori a0,a0,128; sw a0,0(v0)`) to line 624 — the ctor's closing
      line — i.e. retail really ORs the bit in twice. */
   this->fFlags = this->fFlags | 0x80;
-  /* NEAR-MISS 8 (was 22, exact 42/42 instructions).  The initializer ref dial
-     reproduces retail's complete saved-register order: diffx/diffy/fillback in
-     $s1/$s2/$s3 and width/height in $s4/$s5.  The remaining linked residual is
-     GCC's narrow-mode treatment of the tied short operands: lhu instead of the
-     retail lw pair, with the two sh stores consequently scheduled too early. */
+  /* MATCH: the ABI passes the stack arguments as full words.  The public asm
+     label preserves the retail short-parameter symbol while SI-mode locals
+     reproduce its lw/sh lowering and saved-register order. */
   return;
 }
 

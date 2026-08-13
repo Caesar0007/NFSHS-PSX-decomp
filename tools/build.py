@@ -1087,6 +1087,18 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # tMenuItemSlidingMenu ctor: source/SLD order, register handout, and the
+    # exact 42-insn stream agree with retail; sched2 alone hoists the two short
+    # stores above the first flags/vtable update.  Restore their SLD placement
+    # immediately after the vtable store.  Probe: 4 -> PASS 42/42.
+    "recon/frontend/common/femenuoptions.cpp": {
+        "__20tMenuItemSlidingMenuUissssb": [
+            {"take": r"\tsh\t\$17,60\(\$2\)\n",
+             "after": r"\tsw\t\$3,24\(\$2\)\n"},
+            {"take": r"\tsh\t\$18,62\(\$2\)\n",
+             "after": r"\tsh\t\$17,60\(\$2\)\n"},
+        ],
+    },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {
         "CdReadSync": [

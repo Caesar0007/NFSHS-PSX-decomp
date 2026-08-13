@@ -4720,7 +4720,8 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
     BOOL               fFillback;   /* +0x40 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
-    tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
+    tMenuItemSlidingMenu(unsigned int, short, short, int, int, bool)
+      __asm__("__20tMenuItemSlidingMenuUissssb");
     ~tMenuItemSlidingMenu();
     void TransitionOff();
     void TransitionOn();

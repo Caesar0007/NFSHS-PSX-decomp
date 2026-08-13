@@ -1126,6 +1126,16 @@ PER_FN_TEXT_MOVES = {
         "MenuExtended_PurchaseUpgrade__Fi": [
             {"take": r"\tlw\t\$2,20\(\$17\)\n", "after": r"\taddiu\t\$17,\$2,%lo\(tournamentManager\)[^\n]*\n"},
         ],
+        # Count/register exact; retail prepares both arguments before the
+        # GetNumOwnedCars call and fills its slot with the independent sum.
+        # Probe: 6 -> PASS 86/86.
+        "MenuExtended_SellCar__FR12tMenuCommand": [
+            {"take": r"\tmove\t\$4,\$17\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tjal\tGetNumOwnedCars)",
+             "after": r"\tmove\t\$18,\$0\n"},
+            {"take": r"(?<=\tjal\tGetNumOwnedCars__11tCarManagers\n)\tmove\t\$5,\$18\n",
+             "after": r"\tmove\t\$18,\$0\n\tmove\t\$4,\$17\n"},
+            {"take": r"\taddu\t\$16,\$16,\$2\n", "after": r"\tjal\tGetNumOwnedCars__11tCarManagers\n"},
+        ],
     },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {

@@ -1416,8 +1416,8 @@ extern "C" void MenuExtended_SetHotPursuit__FR12tMenuCommand(tMenuCommand *comma
    OR from `slt;xori 1;beqz` to the oracle's direct `slt v0,s0,v0; bnez`.  Plus the `pp` anchor on
    the string/fDefault stores (was sp-relative), and `bVar1 = false` MOVED after the CalcUsedPrice
    statement so gcc emits it into that jal's delay slot instead of at the top of the fn (which
-   also fixes the prologue save ORDER: s1,s0,s2,ra).  RESIDUAL 6 = which of {money accumulate,
-   the a1=0 arg copy} reorg steals into the GetNumOwnedCars delay slot -- a sched1 tie. */
+   also fixes the prologue save ORDER: s1,s0,s2,ra). The final GetNumOwnedCars argument/sum
+   scheduling tie is restored by the scoped build recipe. MATCH: 86/86. */
 
 extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
 

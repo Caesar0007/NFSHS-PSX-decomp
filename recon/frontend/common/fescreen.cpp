@@ -315,6 +315,11 @@ tScreen::~tScreen()
 void tScreen::Initialize()
 
 {
+  /* MATCH: IDA's retail allocation and the raw call site show no implicit
+     `this` setup for GoNonInterlaced; that routine also reads no object state.
+     Calling its class-qualified symbol through the static-member-shaped alias
+     removes the spurious a0 copy and leaves both final stores based on s1.
+     Probe: 6 -> PASS 61/61. */
   /* SYM 8c: the ONLY local is `shapesLoaded` (class REG $10 = $s0, type BOOL);
      `this` is REGPARM $11 = $s1 and the frame carries just $s0/$s1/$ra
      (mask $80030000, fsize 56).  So there is NO separate pvVar2 -- ONE variable

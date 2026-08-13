@@ -3531,7 +3531,7 @@ struct tScreen {   /* 100 bytes */
     tScreen();
     ~tScreen();
     static void DisplayLoadingText();   /* SYM member; no implicit this argument */
-    void GoNonInterlaced();
+    static void GoNonInterlaced();   /* SYM member; no implicit this argument */
     void DrawBackgroundImage(int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip_axis);
     void AsyncLoadPermanentShapeFile(char *fileName);
     void AsyncLoadSwapShapeFile(char *fileName);

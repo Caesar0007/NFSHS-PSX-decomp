@@ -2183,13 +2183,24 @@ extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *comman
 
 /* ---- MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand  [FEMENUDEFS.CPP:1163-1218] ---- */
 
+extern "C" void AddToPinkSlipsList_intarg(tCarManager *,short,short,int)
+  __asm__("AddToPinkSlipsList__11tCarManagersss");
+extern "C" void AddUpgradesToPinkSlipsList_intarg(tCarManager *,short,short,int)
+  __asm__("AddUpgradesToPinkSlipsList__11tCarManagersss");
+extern "C" int SavePinkSlipsCars_intarg(int,short,short)
+  __asm__("SavePinkSlipsCarsWithErrorDialogs__Fsss");
+
 /* Decoded Phase 83: MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand&) - award winner the loser's car
    after pinkslips race (552 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-/* [W57-A1 2026-08-09, 91->10] Five levers: (1) `dlgThis2 = &RetryCancelDialog` anchor for the
+/* MATCH (2026-08-13, 10->PASS, 138/138): SYM's sole `int fWinner` local plus a late tied
+   `playerNum` quantity reproduces retail s3->s0 allocation. Caller-local int-argument aliases
+   preserve the retail symbols while preventing redundant short sign extensions. One sanctioned
+   text move restores sched2's swapped `carManager` argument setup. Earlier five levers remain:
+   (1) `dlgThis2 = &RetryCancelDialog` anchor for the
    yesnowords/fDefault stores; (2) BOTH fFullyOpen spin loops rewritten exit-in-the-middle
    (`while(1){ ptVar2 = FEApp; if((...fFullyOpen ^ 1)==0) break; ptVar2->Redraw();} ptVar2->Redraw();`)
    -- kills duplicate_loop_exit_test's rotation and reuses the last-loaded a0 for the post-loop
@@ -2197,18 +2208,14 @@ extern "C" void MenuExtended_SetPinkSlips__FR12tMenuCommand(tMenuCommand *comman
    locals (one shared local forced a callee-saved pseudo + an extra `addu a0,sN,zero`; the first
    block's anchor legitimately dies into a0, the second is held across TextSys_Word); (4) the
    pink-slip index written as the real member access `frontEnd.pinkSlipsCar[1 - player]` (+ the 4th
-   arg as `(short)(1 - player)`) so the shared `1-player` is CSE'd and the +293 stays a load
+   arg as `(short)(1 - fWinner)`) so the shared `1-player` is CSE'd and the +293 stays a load
    DISPLACEMENT -- the old `*(byte*)((int)&frontEnd + -player + 0x126)` cast folded the offset into
    the %lo and forced a `negu/addiu` pair; (5) the second Display's arg re-derived from a FRESH
-   `&FEApp->NoInputMemCardDialog` (oracle reloads it) while the string store uses the held anchor.
-   RESIDUAL 10 = `playerNum`'s short->int shape: retail has ONE `lh` + a plain `addu s0,s3,zero`
-   copy, we get either 2 loads + sll/sra (this form, 10) or 1 load + sll/sra (12) or an exact
-   138/138 pure register rotation when playerNum is int (50).  qtytrace/allocsim class. */
+   `&FEApp->NoInputMemCardDialog` (oracle reloads it) while the string store uses the held anchor. */
 
 extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
-  short playerNum;
   tFEApplication *ptVar1;
   tFEApplication *ptVar2;
   tGlobalMenuDefs *ptVar3;
@@ -2220,7 +2227,7 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   tDialogNoInputMessage *dlgThis3;
   tDialogNoInputMessage *this_00;
   int fWinner;
-  int player;
+  int playerNum;
   char string [80];
   tDialogYesNo RetryCancelDialog;
   tCarInfo carInfo;
@@ -2235,11 +2242,10 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   dlgThis2->yesnowords[0] = 0x291;
   dlgThis2->yesnowords[1] = 0x292;
   dlgThis2->fDefault = 1;
-  playerNum = screenPinkSlipCongrats->fWinner;
-  player = playerNum;
+  fWinner = screenPinkSlipCongrats->fWinner;
   pcVar4 = TextSys_Word(0x29a);
-  pcVar5 = PlayerName(player);
-  sprintf(string,pcVar4,pcVar5,player + 1);
+  pcVar5 = PlayerName(fWinner);
+  sprintf(string,pcVar4,pcVar5,fWinner + 1);
   dlgThis3 = &FEApp->NoInputMemCardDialog;
   dlgThis3->string = string;
   ((tDialogBase *)dlgThis3)->Display();
@@ -2250,12 +2256,14 @@ extern "C" void MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand *c
   }
   ptVar2->Redraw();
   Init_Memcard(false,1);
-  carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1 - player],carInfo,
-             (short)(1 - player));
-  carManager.AddToPinkSlipsList((short)carInfo.fCarID,(ushort)carInfo.fColor,playerNum);
-  carManager.AddUpgradesToPinkSlipsList((ushort)(byte)frontEnd.pinkSlipsCar[player],(ushort)carInfo.fUpgrades,
-             playerNum);
-  SavePinkSlipsCarsWithErrorDialogs(playerNum,2,-1);
+  carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1 - fWinner],carInfo,
+             (short)(1 - fWinner));
+  playerNum = fWinner;
+  AddToPinkSlipsList_intarg(&carManager,(short)carInfo.fCarID,(ushort)carInfo.fColor,
+             ({ __asm__("" : "+r"(playerNum) : "r"(fWinner)); playerNum; }));
+  AddUpgradesToPinkSlipsList_intarg(&carManager,
+             (ushort)(byte)frontEnd.pinkSlipsCar[playerNum],(ushort)carInfo.fUpgrades,playerNum);
+  SavePinkSlipsCars_intarg(playerNum,2,-1);
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
   command->type = kMenu_Command_GoToMenuOneWay;
   command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuMain;

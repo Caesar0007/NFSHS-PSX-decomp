@@ -1099,6 +1099,15 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tsh\t\$17,60\(\$2\)\n"},
         ],
     },
+    # MenuExtended_AwardPinkSlipsCar: source/SYM allocation and the exact
+    # 138-insn stream match retail; sched2 places the second call's `this`
+    # setup after the late fWinner copy.  Restore retail's argument order.
+    "recon/frontend/common/femenudefs.cpp": {
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand": [
+            {"take": r"\tmove\t\$4,\$18\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tjal\tAddToPinkSlipsList)",
+             "after": r"\tsra\t\$7,\$7,16\n"},
+        ],
+    },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {
         "CdReadSync": [

@@ -697,8 +697,11 @@ void tScreenMemcard::DrawBackground()
   int fadeCalc;
   int value;
   ushort gouraudX;
-  ushort extraY;
   ushort gouraudY;
+  ushort extraY;
+  ushort startX;
+  ushort startY;
+  ushort width;
   
   this->fMemCardMessageTextSys = -1;
   if (this->goticon[this->theNFS4icon] == '\0') {
@@ -706,7 +709,8 @@ void tScreenMemcard::DrawBackground()
   }
   systemtask(0);
   fade = (ushort)this->fScreenFadeVal * 2;
-  fadeCalc = fade - 0x80;
+  __asm__("" : "+r"(fade));
+  fadeCalc = (ushort)this->fScreenFadeVal * 2 - 0x80;
   if ((short)fadeCalc < 0x80) {
     if ((short)fadeCalc <= 0) goto DrawBgFadeboxCalcZero;
   }
@@ -717,17 +721,16 @@ DrawBgFadeboxCalcZero:
   fadeCalc = 0;
 DrawBgFadeboxCalcDone:
   fadebox = (short)fadeCalc;
-  if ((fade >> 1) < 0x80) {
-    if ((fade >> 1) <= 0) goto DrawBgGridposZero;
+  fadeCalc = fade >> 1;
+  if ((short)fadeCalc < 0x80) {
+    if ((short)fadeCalc <= 0) goto DrawBgGridposZero;
   }
-  if ((fade >> 1) < 0x81) goto DrawBgGridposNormal;
+  gridpos = (short)fadeCalc;
+  if ((short)fadeCalc < 0x81) goto DrawBgGridposDone;
   gridpos = 0x80;
   goto DrawBgGridposDone;
 DrawBgGridposZero:
   gridpos = 0;
-  goto DrawBgGridposDone;
-DrawBgGridposNormal:
-  gridpos = fade >> 1;
 DrawBgGridposDone:
   value = fade * 2;
   if (value > 0x80) {
@@ -777,15 +780,17 @@ DrawBgGridposDone:
              kMemCardMessage1Y,ColText,'\0',2);
 
   gray = 0x505050;
+  startX = GRIDMEMCARD_STARTX;
   gouraudX = GRIDMEMCARDGOURAUDBIT_X;
-  extraY = EXTRAYATTOP;
-  __asm__("" : "+r"(extraY));
+  startY = GRIDMEMCARD_STARTY;
   gouraudY = GRIDMEMCARDGOURAUDBIT_Y;
-  x = (ushort)GRIDMEMCARD_STARTX - gouraudX;
-  y = (ushort)GRIDMEMCARD_STARTY - gouraudY - (extraY + 4);
-  w = (ushort)GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
+  extraY = EXTRAYATTOP;
+  width = GRIDMEMCARD_WIDTH;
+  x = startX - gouraudX;
+  y = startY - gouraudY - (extraY + 4);
+  w = width + gouraudX * 2 + 2;
   h = (short)((ushort)GRIDMEMCARD_HEIGHT +
-              (gouraudY * 2 + extraY) + 6) / 2;
+              gouraudY * 2 + (extraY + 6)) / 2;
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare

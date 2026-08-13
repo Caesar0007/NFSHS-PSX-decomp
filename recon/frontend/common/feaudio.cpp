@@ -309,23 +309,30 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
   } while (getasyncreadstatus(vivHandle) == 0);
   /* MATCH (W66): 0x80010130 contains the real source literal "lumpyhead".
      Naming it before a zero-byte statement boundary lets reorg place its %hi
-     in the retail loop-exit delay slot (27 -> 22, exact 109/109).  The pointer
+     in the retail loop-exit delay slot.  The pointer
      is optimized away: no extra SYM local, frame byte, or instruction remains.
      Falsified basins: plain literal 27, no boundary 54, bigBuf base+late offset
      23, explicit header temporaries 25-51, macro-block/inline-helper forms 22-54. */
   lumpyName = "lumpyhead";
   __asm__("" : : "i"(0));
-  lumpHead.type =
-       lumpHead.type << 0x18 | (lumpHead.type & 0xff00) << 8 | (lumpHead.type & 0xff0000) >> 8 |
-       lumpHead.type >> 0x18;
-  /* MATCH: the value-specific zero-byte fence keeps the first swap serialized
-     without adding code.  A broad void-tail fence reaches the same 22 basin;
-     removing this boundary interleaves all three swaps and regresses to 54. */
-  __asm__("" : : "r"(lumpHead.type));
-  lumpHead.hlen = lumpHead.hlen << 0x18 | (lumpHead.hlen & 0xff00) << 8 |
-                  (lumpHead.hlen & 0xff0000) >> 8 | lumpHead.hlen >> 0x18;
-  lumpHead.num = lumpHead.num << 0x18 | (lumpHead.num & 0xff00) << 8 |
-                 (lumpHead.num & 0xff0000) >> 8 | lumpHead.num >> 0x18;
+  {
+    u_int headerType = lumpHead.type;
+    u_int swappedType = headerType << 0x18 | (headerType & 0xff00) << 8 |
+                        (headerType & 0xff0000) >> 8 | headerType >> 0x18;
+    u_int headerLength;
+    u_int headerNum;
+
+    /* MATCH: fence the computed value before publishing it.  This preserves
+       the swap while allowing the hlen/num loads to fill retail's slots. */
+    __asm__("" : "+r"(swappedType));
+    headerLength = lumpHead.hlen;
+    headerNum = lumpHead.num;
+    lumpHead.type = swappedType;
+    lumpHead.hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |
+                    (headerLength & 0xff0000) >> 8 | headerLength >> 0x18;
+    lumpHead.num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |
+                   (headerNum & 0xff0000) >> 8 | headerNum >> 0x18;
+  }
   bigfileHeader = reservememadr(lumpyName,lumpHead.hlen + 0x20,0);
   if (bigfileHeader == (LUMPYHEAD *)0x0) {
     return (LUMPYHEAD *)0x0;

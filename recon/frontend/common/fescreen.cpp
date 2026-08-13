@@ -61,21 +61,22 @@ void tScreen::DisplayLoadingText()
 
 /* ---- tScreen::GoNonInterlaced  [FESCREEN.CPP:144-173] SLD-VERIFIED ---- */
 
-/* NEAR-MATCH (2026-08-03, 11->1): retail does not write literal 240 to every
+/* MATCH (2026-08-03, 11->1; 2026-08-13, 1->PASS): retail does not write literal 240 to every
    halfword. It stores `screenheight = 240`, reloads the low half once for
    the three gEnviro heights/first drawenv height, then reloads it for the
    second drawenv. GCC 2.8.1's scheduler otherwise moves the first load below
    the two hardware-environment stores; retaining their volatile byte view
    fixes that ordering, while an int carrier restores retail's $a1/$a2
-   allocation. The sole residual is GCC's redundant `andi $a1, 0xffff`
-   after the already-zero-extending volatile lhu (53/52 instructions). */
+   allocation. A `u_short` carrier removes GCC's redundant post-lhu `andi`;
+   the height identity restores retail's a1/a2 handout, and the scoped build
+   recipe restores the three independent prologue placements. MATCH: 52/52. */
 
 void tScreen::GoNonInterlaced()
 
 {
   int iVar1;
   int iVar2;
-  int height;
+  u_short height;
   short sVar3;
   Draw_tView *views;
   Draw_tView *view0;
@@ -85,6 +86,7 @@ void tScreen::GoNonInterlaced()
   
   screenheight = 0xf0;
   height = *(volatile u_short *)&screenheight;
+  __asm__("" : "+r" (height));
   views = Draw_gView;
   env = (volatile char *)gEnviro;
   env[16] = '\0';

@@ -1146,6 +1146,18 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tjal\tSetState__16tScreenCarSelecti\n", "slot": True},
         ],
     },
+    # A ushort height carrier removes the redundant zero-extension and its
+    # late identity gives retail's a1/a2 allocation. Restore the three
+    # independent prologue placements. Probe: 6 (52/52) -> PASS.
+    "recon/frontend/common/fescreen.cpp": {
+        "GoNonInterlaced__7tScreen": [
+            {"take": r"\tsubu\t\$sp,\$sp,24\n", "after": r"\t\.fmask\t[^\n]*\n"},
+            {"take": r"\tlhu\t\$5,%lo\(screenheight\)\(\$8\)\n",
+             "after": r"\tlui\t\$6,%hi\(Draw_gView\)[^\n]*\n"},
+            {"take": r"\tsw\t\$31,16\(\$sp\)\n",
+             "after": r"\tlui\t\$4,%hi\(Draw_gPlayer1View\)[^\n]*\n"},
+        ],
+    },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {
         "CdReadSync": [

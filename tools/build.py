@@ -1136,6 +1136,15 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tmove\t\$18,\$0\n\tmove\t\$4,\$17\n"},
             {"take": r"\taddu\t\$16,\$16,\$2\n", "after": r"\tjal\tGetNumOwnedCars__11tCarManagers\n"},
         ],
+        # The late state identity gives retail's v1 screen pointer allocation.
+        # Restore the remaining li order and SetState delay-slot store.
+        # Probe: 5 (70/69) -> PASS 69/69.
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand": [
+            {"take": r"\tli\t\$5,2[^\n]*\n",
+             "after": r"\t\.set\treorder\n\n(?=\tlui\t\$3,%hi\(screenCarSelect\))"},
+            {"take": r"\tsw\t\$2,4\(\$17\)\n",
+             "after": r"\tjal\tSetState__16tScreenCarSelecti\n", "slot": True},
+        ],
     },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {

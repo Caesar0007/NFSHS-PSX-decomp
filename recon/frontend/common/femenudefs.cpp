@@ -228,9 +228,9 @@ extern "C" void MenuExtended_SetSoloRace__FR12tMenuCommand(tMenuCommand *command
    (2) `ptVar1 = menuDefs[0]` moved INSIDE the `sVar3 == 1` arm (oracle materializes %hi AFTER the
    bne, ours hoisted a `lui s0` above the Run result test); (3) the else-arm's menuDefs pointer
    made a BLOCK-LOCAL `defs` (a fresh block pseudo lands in v0 self-temp like the oracle; the
-   fn-scope ptVar1 was colored into the arg reg a0 = separate-temp).  RESIDUAL 6 = the SetState
-   arg-setup schedule (oracle emits `li a1,2` + the screenCarSelect %hi BEFORE the menuDefs load;
-   ours after) -- a sched1 ready-list tie, count already exact 69/69. */
+   fn-scope ptVar1 was colored into the arg reg a0 = separate-temp). A named `screenState` with a
+   late identity boundary gives retail's v1 screen pointer allocation; the scoped build recipe
+   restores the remaining independent li and SetState delay-slot store. MATCH: 69/69. */
 
 extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuCommand *command)
 
@@ -239,6 +239,7 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
   tScreenCarSelect *this_00;
   ushort uVar2;
   short sVar3;
+  int screenState;
   tDialogYesNoTri *dlgThis;
   tDialogYesNoTri YesNoDialog;
 
@@ -258,9 +259,11 @@ extern "C" void MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand(tMenuComm
       command->type = kMenu_Command_GoToMenu;
       ptVar1->iteratorDealerCar.Decrement(kPlayerBoth);
       menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
+      screenState = 2;
       this_00 = screenCarSelect[0];
       command->nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
-      this_00->SetState(2);
+      __asm__("" : "+r" (screenState));
+      this_00->SetState(screenState);
     }
   }
   else {

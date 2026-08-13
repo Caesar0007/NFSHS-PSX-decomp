@@ -1087,6 +1087,15 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # CalcOnOffFade is count/register/source-shape exact. sched1 delays the
+    # independent %lo(kRGBVals) half past the adjacent base-address setup;
+    # retail completes this split address immediately. Probe: 2 -> PASS 88/88.
+    "recon/frontend/common/fefades.cpp": {
+        "CalcOnOffFade__F13tMenuTextTypesssRiT4": [
+            {"take": r"\taddiu\t\$7,\$7,%lo\(kRGBVals\)[^\n]*\n",
+             "after": r"\tlui\t\$7,%hi\(kRGBVals\)[^\n]*\n"},
+        ],
+    },
     # tMenuItemSlidingMenu ctor: source/SLD order, register handout, and the
     # exact 42-insn stream agree with retail; sched2 alone hoists the two short
     # stores above the first flags/vtable update.  Restore their SLD placement

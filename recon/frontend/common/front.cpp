@@ -194,22 +194,14 @@ void Front_ResetPSXAnalogs(int player)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-/* MATCH W60 (2026-08-10): retail keeps the no-pad assignment in its own
-   branch target (`bnez; li 0x53; lbu ID; j; nop; type=0`).  The explicit
-   labels recover that control-flow shape, while the empty basic-asm fence
-   prevents dbr from pulling `type = 0` back into the conditional branch's
-   delay slot.  Zero instructions, no operands, and no hard-register pin;
-   authoritative residual 169 -> 163 (203 -> 207 instructions, retail 222). */
-
-/* MATCH W61 (2026-08-10): the 0x200000 analog arm is not fully cross-jumped
-   with the other packed-axis arms in retail.  Keeping its high-word build as
-   the initializer and appending the low byte with |= restores four instructions
-   and lowers the authoritative residual 163 -> 161 (207 -> 211, retail 222). */
-
-/* MATCH W62 (2026-08-10): retail also keeps the 0x23/0x200000 arm one
-   instruction less merged than W61.  A guide-permitted empty-template,
-   read-only USE fence selects that boundary without emitting code or pinning a
-   hard register: 161 -> 160 diffs (211 -> 212 instructions, retail 222). */
+/* MATCH W63 (2026-08-13): source-shape reconstruction from the raw oracle and
+   SLD statement map.  Keep each packed control in a named assignment and put
+   bit 0 in the following return; flatten tagged OR trees with the tag before
+   the two byte fields.  This recovers retail's shared negative/positive tails
+   and cuts the authoritative residual 160 -> 28 (212 -> 224 instructions,
+   retail 222).  The no-pad branch needs the zero-instruction fence on the ID
+   path: it preserves `bnez; li 0x53; lbu ID; j; nop; type=0` while allowing
+   gcc to reuse the single 0x53 materialization at the switch join. */
 
 int GetPSXPadValue(int value,int player)
 
@@ -222,10 +214,11 @@ int GetPSXPadValue(int value,int player)
     goto GetPSXPadValue_noPad;
   }
   type = gPadinfo.buf[player * 4].ID;
+  __asm__("");
   goto GetPSXPadValue_gotType;
 GetPSXPadValue_noPad:
-  __asm__("");
   type = 0;
+  goto GetPSXPadValue_gotType;
 GetPSXPadValue_gotType:
   switch (type) {
   case 0x53:
@@ -238,37 +231,43 @@ GetPSXPadValue_gotType:
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000;
-      newControl |= ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
+                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case 0x100000:
       newControl = player << 0x1e |
-                   ((0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 | 0x1000000) |
-                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100 | 1;
-      return newControl;
+                   0x1000000 |
+                   (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
+                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x400000:
       newControl = player << 0x1e |
-                   (((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 | 0x1000000) |
+                   0x1000000 |
+                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
                    ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
-                   ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x2000000) |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
-      return newControl;
+                   0x2000000 |
+                   (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x20000000:
       newControl = player << 0x1e |
-                   (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x2000000) |
+                   0x2000000 |
+                   ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
                    ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
-                   ((0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 | 0x3000000) |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100 | 1;
-      return newControl;
+                   0x3000000 |
+                   (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
+                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return newControl | 1;
     case 0x40000000:
       newControl = player << 0x1e |
-                   (((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 | 0x3000000) |
+                   0x3000000 |
+                   ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
                    ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     }
@@ -288,11 +287,13 @@ GetPSXPadValue_gotType:
       return newControl | 1;
     case 0x4000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.ImaxRange[player] * 0x100 | 0x1000000);
+                   0x1000000 |
+                   (byte)frontEnd.ImaxRange[player] * 0x100;
       return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.IImaxRange[player] * 0x100 | 0x2000000);
+                   0x2000000 |
+                   (byte)frontEnd.IImaxRange[player] * 0x100;
       return newControl | 1;
     case 0x400:
       newControl = player << 0x1e | 0x30aff01;

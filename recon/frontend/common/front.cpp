@@ -198,13 +198,14 @@ void Front_ResetPSXAnalogs(int player)
    SLD statement map.  Keep each packed control in a named assignment and put
    bit 0 in the following return; flatten tagged OR trees with the tag before
    the two byte fields.  This recovers retail's shared negative/positive tails
-   and cuts the authoritative residual 160 -> 22 (212 -> 224 instructions,
+   and cuts the authoritative residual 160 -> 18 (212 -> 222 instructions,
    retail 222).  The no-pad branch needs the zero-instruction fence on the ID
    path: it preserves `bnez; li 0x53; lbu ID; j; nop; type=0` while allowing
    gcc to reuse the single 0x53 materialization at the switch join.  The
-   digital positive arm is a two-stage source expression (high word assigned,
-   low byte folded into the return); that removes its local tail and restores
-   retail's shared `0x274cc` funnel. */
+   digital positive arm is a two-stage source expression with its low-byte OR
+   expressed as a compound assignment in the return.  That makes `newControl`
+   the accumulator through the merge, removes its local tail, and restores
+   retail's shared `0x274cc` funnel at exact function length. */
 
 int GetPSXPadValue(int value,int player)
 
@@ -285,8 +286,8 @@ GetPSXPadValue_gotType:
     case 0x200000:
       newControl = player << 0x1e |
                    ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000;
-      return newControl |
-             ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100 | 1;
+      return (newControl |=
+              ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100) | 1;
     case 0x4000:
       newControl = player << 0x1e |
                    0x1000000 |

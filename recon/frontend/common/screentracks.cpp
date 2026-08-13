@@ -16,6 +16,7 @@ void tScreenTrackSelect::DrawBackground()
 {
   short creditsTextVal;
   short shapeY;
+  int videoY;
   RECT r;
   tTrackInformation trackInfo;
   POLY_FT4 *prim;
@@ -40,7 +41,8 @@ void tScreenTrackSelect::DrawBackground()
       TurnOn(videoWall);
     }
   }
-  shapeY = ((this->fFrame & 1U) == 0) << 7;
+  videoY = ((this->fFrame & 1U) == 0) << 7;
+  shapeY = (short)videoY;
   state = (VIDEOSTATE)VIDEO_state(this->hVideo);
   if (state == VIDEOSTATE_SPOOLING) {
     RECT r;
@@ -57,9 +59,11 @@ void tScreenTrackSelect::DrawBackground()
     this->fStartTicks = startTicks - 0x14;
   }
   else if (state == VIDEOSTATE_PLAYING) {
-    if (VIDEO_updateframexy(this->hVideo,0x200,(u_short)shapeY) != 0) {
+    if (VIDEO_updateframexy(this->hVideo,0x200,
+                            (u_int)(videoY << 0x10) >> 0x10) != 0) {
       this->fFrame = this->fFrame + 1;
-      shapeY = ((this->fFrame & 1U) == 0) << 7;
+      videoY = ((this->fFrame & 1U) == 0) << 7;
+      shapeY = (short)videoY;
     }
   }
   else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) &&
@@ -78,11 +82,14 @@ void tScreenTrackSelect::DrawBackground()
   }
   if (0 < this->fBrightness) {
     /* MATCH: the EA/PsyQ quad wrapper materializes its texture-X origin for
-       both UV and tpage arithmetic.  Recreate that hidden macro temporary;
-       rematerializing 0x200 before the second quad also avoids a call spill. */
+       both UV and tpage arithmetic.  The address-mask read is also explicit:
+       its fourth GCC reference crosses the local-allocator priority step and
+       gives retail's s0/s1/s2/s3 mask/page/V/Y handout. */
+    u_int addrMask = 0xffffff;
     short textureX = 0x200;
 
     __asm__("" : "+r"(textureX));
+    __asm__("" : : "r"(addrMask));
     (prim = (POLY_FT4 *)Render_gPacketPtr,
      ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
      Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4),

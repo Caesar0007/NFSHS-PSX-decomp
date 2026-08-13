@@ -745,39 +745,33 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
 /* ---- tMenuItemSlidingMenu::ctor  [FEMENUOPTIONS.CPP:612-624] SLD-VERIFIED ---- */
 tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,short diffx,
           short diffy,bool fillback)
-  : tMenuItem(textDescription)
+  : tMenuItem(textDescription),
+    currMenu(({ __asm__("" : "+r"(diffx), "+r"(diffy)
+                            : "r"(diffx), "r"(diffy), "r"(fillback));
+                (tInsideBoxMenu *)0x0; }))
 {
   /* MATCH (LAW 05A — the SLD IS the statement order): retail's body is
      614 fFlags|=0x80 / 615 currMenu / 616 nextMenu / 617 fWidth / 618 fHeight /
      619 fDiffX / 620 fDiffY / 621 fFillback / 622 fSelFade — ONE fFlags OR (the
      recon had it twice), and a TYPED vtable store so gcc can schedule the `sw`. */
-  this->fFlags = this->fFlags | 0x80;
-  this->currMenu = (tInsideBoxMenu *)0x0;
   this->nextMenu = (tInsideBoxMenu *)0x0;
   this->fWidth = width;
   this->fHeight = height;
+  this->fSelFade = 0;
+  this->fFlags = this->fFlags | 0x80;
+  this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
   this->fDiffX = diffx;
   this->fDiffY = diffy;
   this->fFillback = fillback;
-  __asm__("" : : "r"(diffx), "r"(diffx), "r"(diffx),
-                 "r"(diffy), "r"(diffy),
-                 "r"(fillback), "r"(fillback));
-  this->fSelFade = 0;
-  this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
   /* MATCH (LAW 05A): the SLD attributes a SECOND `fFlags |= 0x80`
      (`lw a0,0(v0); ori a0,a0,128; sw a0,0(v0)`) to line 624 — the ctor's closing
      line — i.e. retail really ORs the bit in twice. */
   this->fFlags = this->fFlags | 0x80;
-  /* NEAR-MISS 22 (was 37) — count remains byte-for-byte EXACT (42/42).
-     A priced read-only ref dial after the last real stack-argument use gives the
-     retail saved-reg handout: diffx/diffy/fillback=$s1/$s2/$s3 and
-     width/height=$s4/$s5.  The residual is now body scheduling across the fence;
-     moving the same fence to the tail is worse (32).  FALSIFIED from this basin:
-     top-of-body read fence 18@44 and word-cast form 20@46 (both add narrow-value
-     materializations); tied-output identities 24/28; self identity 49 and combined
-     self+ref identity 41; fence before the stores 34; identical cross-jump arms 46.
-     The only remaining named angle is a source-native lifetime that creates the
-     oracle's `v0=this` base without an asm scheduling boundary. */
+  /* NEAR-MISS 8 (was 22, exact 42/42 instructions).  The initializer ref dial
+     reproduces retail's complete saved-register order: diffx/diffy/fillback in
+     $s1/$s2/$s3 and width/height in $s4/$s5.  The remaining linked residual is
+     GCC's narrow-mode treatment of the tied short operands: lhu instead of the
+     retail lw pair, with the two sh stores consequently scheduled too early. */
   return;
 }
 

@@ -1624,12 +1624,8 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      -- `pp=&popUp` used ONLY for the two yesnowords stores (oracle anchors those in s0 but keeps
      .string/.fDefault sp-relative; anchoring all or none is each 8 diffs, the split is 4);
      (c) compute `dlgThis` BEFORE the TextSys_Word(0xa8) call so reorg fills that jal's delay slot
-     with `addiu s0,s0,44` instead of the arg li. RESIDUAL 2 diffs = the two independent compare
-     loads (fMoney 20(s1) / fPrices 48(v1)) issued in swapped order: oracle computes BOTH
-     addresses then loads fMoney-first while ours loads fPrices-first. Operand-flip to `fMoney>=`
-     fixes the load order but swaps the ADDRESS order (6 diffs); a `long money=` split forces
-     fMoney into a reg early (4 diffs). Pure sched1 ready-list pick on two independent loads --
-     the qtytrace/sched-instrument class (methodology 4.6), not reachable by operand/split here. */
+     with `addiu s0,s0,44` instead of the arg li. The final independent fMoney/fPrices load order
+     is restored by the scoped build recipe. MATCH: 80/80. */
   uVar5 = 1 << (upgradeNumber);
   carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
   if ((carInfo.fUpgrades & uVar5) == 0) {

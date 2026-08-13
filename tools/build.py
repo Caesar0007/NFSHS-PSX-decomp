@@ -1121,6 +1121,11 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tli\t\$3,1[^\n]*\n", "after": r"\tlw\t\$2,%lo\(menuDefs\)\(\$16\)\n"},
             {"take": r"\tsw\t\$31,20\(\$sp\)\n", "after": r"\tli\t\$3,1[^\n]*\n"},
         ],
+        # Count/register exact; sched1 emits the independent price load before
+        # the money load, opposite retail's SLD order.  Probe: 2 -> PASS 80/80.
+        "MenuExtended_PurchaseUpgrade__Fi": [
+            {"take": r"\tlw\t\$2,20\(\$17\)\n", "after": r"\taddiu\t\$17,\$2,%lo\(tournamentManager\)[^\n]*\n"},
+        ],
     },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {

@@ -2608,6 +2608,13 @@ int SpecialCharacter(char current)
 int tUserNameMenuItem::Draw(bool selected)
 
 {
+  /* MATCH (2026-08-14): IDA/SLD show that lowercase, digit, and fallback
+     glyphs share the scoped `shapetodraw` join, while punctuation arms call
+     directly.  Keeping the column*28 value separate from `xx`, and spelling
+     startx as two assignments, restores retail's a2/s1 web and start-x
+     arithmetic.  Detailed residual: 63 -> 42 (254 retail instructions).
+     The value-specific empty template preserves the otherwise-combined
+     column offset; it emits no bytes and pins no register. */
   int x;
   int y;
   tTexture_ShapeInfo *shape;
@@ -2623,6 +2630,7 @@ int tUserNameMenuItem::Draw(bool selected)
     tDrawShapeExtended tCol;
     short sl;
     short startx;
+    int columnx;
     int xx;
     int yy;
 
@@ -2634,7 +2642,8 @@ int tUserNameMenuItem::Draw(bool selected)
     FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),(short)x,(short)y,
                             ColText,'\0',0);
     sl = (short)strlen(this->fData);
-    startx = x + 0x4e + this->fMaxStringLength * -10;
+    startx = x + 0x4e;
+    startx = startx - this->fMaxStringLength * 10;
     if (0 < sl) {
       do {
         output[0] = this->fData[j];
@@ -2651,7 +2660,9 @@ int tUserNameMenuItem::Draw(bool selected)
         j = j + 1;
       } while (j < this->fMaxStringLength);
     }
-    xx = this->fCurrentColumn * 0x1c + 0x102;
+    columnx = this->fCurrentColumn * 0x1c;
+    xx = columnx + 0x102;
+    __asm__("" : "=r"(columnx) : "0"(columnx));
     yy = MENUUSERNAME_STARTY + this->fCurrentRow * 0xf;
     if (this->fFadeVal == 0) {
       tDrawShapeExtended fFlags;
@@ -2660,22 +2671,28 @@ int tUserNameMenuItem::Draw(bool selected)
       fFlags.tint[0] = PulsateYellow[0];
       current = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
       if ((current == '!') || (current == '@')) {
-        DrawShapeExtended(0x4e,0x10,xx - 5,yy - 3,0,0,&fFlags);
+        DrawShapeExtended(0x4e,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
       }
       else if ((u_char)(current - 0x23U) < 2) {
-        DrawShapeExtended(0x4f,0x10,xx - 5,yy - 3,0,0,&fFlags);
+        DrawShapeExtended(0x4f,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
       }
       else if ((current == '&') || (current == '^')) {
-        DrawShapeExtended(0x50,0x10,xx - 5,yy - 3,0,0,&fFlags);
-      }
-      else if ((u_char)(current - 0x61U) < 0x1a) {
-        DrawShapeExtended((u_char)current - 0x37,0x10,xx - 5,yy - 3,0,0,&fFlags);
-      }
-      else if ((u_char)(current - 0x30U) < 0xa) {
-        DrawShapeExtended((u_char)current + 0x14,0x10,xx - 5,yy - 3,0,0,&fFlags);
+        DrawShapeExtended(0x50,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
       }
       else {
-        int shapetodraw = SpecialCharacter(current);
+        int shapetodraw;
+
+        if ((u_char)(current - 0x61U) < 0x1a) {
+          shapetodraw = (u_char)this->fRowList[0][(int)this->fCurrentColumn +
+                                                   this->fCurrentRow * 9] - 0x37;
+        }
+        else if ((u_char)(current - 0x30U) < 0xa) {
+          shapetodraw = (u_char)this->fRowList[0][(int)this->fCurrentColumn +
+                                                   this->fCurrentRow * 9] + 0x14;
+        }
+        else {
+          shapetodraw = SpecialCharacter(current);
+        }
         DrawShapeExtended(shapetodraw,0x10,xx - 5,yy - 3,0,0,&fFlags);
       }
     }

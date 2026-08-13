@@ -194,14 +194,17 @@ void Front_ResetPSXAnalogs(int player)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-/* MATCH W63 (2026-08-13): source-shape reconstruction from the raw oracle and
+/* MATCH W63/W64 (2026-08-13): source-shape reconstruction from the raw oracle and
    SLD statement map.  Keep each packed control in a named assignment and put
    bit 0 in the following return; flatten tagged OR trees with the tag before
    the two byte fields.  This recovers retail's shared negative/positive tails
-   and cuts the authoritative residual 160 -> 28 (212 -> 224 instructions,
+   and cuts the authoritative residual 160 -> 22 (212 -> 224 instructions,
    retail 222).  The no-pad branch needs the zero-instruction fence on the ID
    path: it preserves `bnez; li 0x53; lbu ID; j; nop; type=0` while allowing
-   gcc to reuse the single 0x53 materialization at the switch join. */
+   gcc to reuse the single 0x53 materialization at the switch join.  The
+   digital positive arm is a two-stage source expression (high word assigned,
+   low byte folded into the return); that removes its local tail and restores
+   retail's shared `0x274cc` funnel. */
 
 int GetPSXPadValue(int value,int player)
 
@@ -281,10 +284,9 @@ GetPSXPadValue_gotType:
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100;
-      __asm__ volatile("" : : "r"(newControl));
-      return newControl | 1;
+                   ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000;
+      return newControl |
+             ((byte)frontEnd.steeringRange[player] + 0x80) * 0x100 | 1;
     case 0x4000:
       newControl = player << 0x1e |
                    0x1000000 |

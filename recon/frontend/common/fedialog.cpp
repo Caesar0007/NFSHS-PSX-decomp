@@ -387,18 +387,17 @@ CalcDim_helpArrFetch:
 
 
 /* ---- tDialogHelp::Draw  [FEDIALOG.CPP:459-546] SLD-VERIFIED ---- */
-/* MATCH: 16->3 (W56-A9/W67). The 4th arg is written `(i-1)*0xf +
+/* MATCH: PASS. The 4th arg is written `(i-1)*0xf +
    this->top + 0x13` (mul-first reassociation) so the multiply lands in the
    retail destination register.  More importantly, the pad-65, pad-35, and
    special-control arms retain their separate natural DrawPSXButton calls;
    gcc cross-jump-merges their common tails only after each arm computes
    `(i-1)`, reproducing both `j` delay-slot fills and the retail block order.
    A single explicit goto-shared call instead hoists the prefix and costs ten
-   diffs.  `int buttonY` in the two-button arm remains load-bearing.
-   Remaining 3 are the ticks materialization: retail loads through $v0 and
-   copies to the SYM-assigned $a0, while this compiler coalesces the MEM
-   directly into $a0.  Volatile, unsigned/signed intermediates, full-width
-   bitfields, and declaration-time initialization were neutral. */
+   diffs.  `int buttonY` in the two-button arm remains load-bearing.  The
+   two-stage tick materialization preserves retail's load/copy pair.  Keeping
+   the tick live through the letter-count division, and initializing the loop
+   index and stack-buffer cursor first, reproduces its allocation and schedule. */
 
 void tDialogHelp::Draw()
 
@@ -407,16 +406,26 @@ void tDialogHelp::Draw()
   short i;
   short j;
   char buffer [80];
+  char *bufferPtr;
   short y;
   long ticks;
   int numLetters;
+  long firstTick;
   
   pa_Var3 = this->_vf;
   (*pa_Var3[1][0].pfn)((char *)this + pa_Var3[1][0].delta);
-  ticks = ::ticks[0];
-  if (this->startTicks + 0x32 <= ticks) {
-    numLetters = (ticks - this->startTicks - 0x32) / 3;
-    for (i = 0; i < this->numItems; i++) {
+  firstTick = this->startTicks;
+  {
+    long loadedTicks = ::ticks[0];
+    ticks = loadedTicks;
+    __asm__("" : "+r"(loadedTicks));
+  }
+  if (firstTick + 0x32 <= ticks) {
+    i = 0;
+    bufferPtr = buffer;
+    numLetters = (ticks - firstTick - 0x32) / 3;
+    __asm__("" : : "r"(ticks));
+    for (; i < this->numItems; i++) {
       if (i == 0) {
         y = this->top + 4;
       }
@@ -456,12 +465,12 @@ DialogHelpDraw_buttonsDone:;
         j = 0;
         if (numLetters > 0) {
           do {
-            buffer[j] = this->text[i][j];
+            bufferPtr[j] = this->text[i][j];
             j = j + 1;
           } while (j < numLetters);
         }
-        buffer[numLetters] = '\0';
-        FETextRender_FullText(buffer,this->left + this->lefttext,y,
+        bufferPtr[numLetters] = '\0';
+        FETextRender_FullText(bufferPtr,this->left + this->lefttext,y,
                              i == 0 ? textType_PopUpTitle : textType_PopUpText,
                              textState_Selected,0);
       }

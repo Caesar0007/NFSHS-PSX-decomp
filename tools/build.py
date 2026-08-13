@@ -1087,6 +1087,18 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # MenuNFS4_DrawTextBox is count/register exact; reorg chooses the zero
+    # third argument for the CalcTextFadeSelToHi slot, while retail uses the
+    # independent dist=max+25 calculation there. Probe: 4 -> PASS 293/293.
+    "recon/frontend/common/femenuextended.cpp": {
+        "MenuNFS4_DrawTextBox__FiR4RECTissbT5": [
+            {"take": r"\taddu\t\$21,\$3,25\n",
+             "after": r"\tjal\tCalcTextFadeSelToHi__F13tMenuTextTypess\n",
+             "slot": True},
+            {"take": r"\tmove\t\$6,\$0\n",
+             "after": r"\tmove\t\$5,\$18\n"},
+        ],
+    },
     # CalcOnOffFade is count/register/source-shape exact. sched1 delays the
     # independent %lo(kRGBVals) half past the adjacent base-address setup;
     # retail completes this split address immediately. Probe: 2 -> PASS 88/88.

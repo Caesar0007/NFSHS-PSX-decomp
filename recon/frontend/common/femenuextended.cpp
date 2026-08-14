@@ -14,6 +14,18 @@ typedef struct tPsyQPrimTag {
 } tPsyQPrimTag;
 
 
+/* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
+ *  Skipped from the FEMenuExtended pass; trivial RECT copy into gHelpPos (defined above @0x80052b58). */
+extern "C" void MenuNFS4_SetHelpPos__FR4RECT(RECT *r)
+{
+  gHelpPos.x = r->x;
+  gHelpPos.y = r->y;
+  gHelpPos.w = r->w;
+  gHelpPos.h = r->h;
+}
+
+
+
 /* ---- MenuNFS4_DrawTextBox  [FEMENUEXTENDED.CPP:66-137] SLD-VERIFIED ---- */
 /* MATCH: 6 -> 4 diffs (W56-A9/W66). Removed the fabricated `int maxw` local (NOT in the
    SYM 8c block -- locals are helpText/r/initialWidth/drawOffset/fSelFade/
@@ -1327,17 +1339,5 @@ void tMenuItemGoToMenuNFS4Button::Draw(bool selected)
 {
   return;
 }
-
-/* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
- *  Skipped from the FEMenuExtended pass; trivial RECT copy into gHelpPos (defined above @0x80052b58). */
-extern "C" void MenuNFS4_SetHelpPos__FR4RECT(RECT *r)
-{
-  gHelpPos.x = r->x;
-  gHelpPos.y = r->y;
-  gHelpPos.w = r->w;
-  gHelpPos.h = r->h;
-}
-
-
 
 /* end of femenuextended.cpp */

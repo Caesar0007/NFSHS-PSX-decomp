@@ -1527,6 +1527,75 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
         s_file.write_text(normal_text)
 
 
+# w60-a5: DEFAULT-LANE twin of PER_FN_CC1_VER_SPLICE_272 (spec'd at a661dd36).
+# Same dual-compile splice as _apply_fn_splice, but the second compile swaps the
+# cc1 BINARY (a windows-gcc-psx ladder rung) instead of adding a flag: the named
+# functions get rung codegen, every other function in the TU keeps the TU's own
+# cc1, and the WHOLE .s still goes through the normal maspsx route.  That is the
+# distinction from the per-TU "cc1_alt" key, which also swaps the assembler
+# route (272 recipe, direct GNU as in reorder mode), and from "cc1_ver", which
+# swaps the binary for the WHOLE TU.
+#
+# Layout: {rel_posix: {ladder_ver: {fn names}}}.  Runs BEFORE _apply_fn_splice,
+# so a function listed in both tables ends up with the FLAG splice's region
+# (compiled by the TU's own cc1) -- do not list one function in both.
+#
+# Rung flags: the rung is invoked with the TU's own cc1_flags.  Sub-2.8 rungs
+# accept -G/-g1/-mgpOPT/-fgnu-linker but REJECT -mno-split-addresses (04Z note),
+# so a TU carrying no_split_addresses cannot use a sub-2.8 rung here.
+# MECHANISM VALIDATION (w60-a5, MULDF3.c, whole-TU gate per rung): splicing
+# the rung that EQUALS the TU's own cc1 ("2.8.1") reproduces the un-spliced
+# build exactly (_mul_mant_d 14, __muldf3 12), and every other rung moves ONLY
+# the named function (__muldf3 held at 12 across all eight rungs) -- the splice
+# is faithful and surgical.
+#
+# The a661dd36 spec ("_mul_mant_d wants 2.7.2 while __muldf3 wants the default
+# lane", expected -2) is FALSIFIED on the current source: that reading predates
+# the same commit's own 05E/3-fence landing, and 04Z (rung tables are
+# basin-relative) applies.  Measured _mul_mant_d, whole-TU, via this mechanism:
+#   default/2.8.0/2.8.1 14 | 2.7.2 19 | 2.6.0/2.6.3/2.7.2-970404 21 |
+#   2.95.2 80 | 2.91.66 86        (__muldf3: default 12, invariant)
+# => no rung wins; MULDF3 stays a pure default-lane TU and the table stays
+# empty until a real adopter is measured.  Keep the mechanism: the "two
+# functions in one default-lane TU want different compilers" class is real
+# (it is exactly what PER_FN_CC1_VER_SPLICE_272 exists for in the 272 lane).
+PER_FN_CC1_VER_SPLICE = {
+    # "recon/syslib/psx/libmath/MULDF3.c": {"2.7.2": {"_mul_mant_d"}},  # 14->19
+}
+
+
+def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
+                          cc1_flags: list) -> None:
+    """Per-FUNCTION cc1-BINARY splice for the normal (maspsx) lane."""
+    table = PER_FN_CC1_VER_SPLICE.get(rel_posix)
+    if not table:
+        return
+    for ver, fn_names in sorted(table.items()):
+        if not fn_names:
+            continue
+        alt_cc1 = _resolve_cc1_alt(ver)
+        if alt_cc1 is None:
+            # CI without the ladder: keep the TU's own codegen so the tree still
+            # builds (the named fns' match numbers drift until it is installed).
+            _warn_alt_fallback(rel_posix, ver,
+                               "the TU's own cc1 (fn ver-splice skipped)")
+            continue
+        alt_s = s_file.with_suffix(".vs_%s.s" % ver.replace(".", "_"))
+        r = run([alt_cc1, *cc1_flags, i_file, "-o", alt_s])
+        if r.returncode:
+            sys.exit(f"[cc1-vs {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
+        alt_text = alt_s.read_text(errors="replace")
+        normal_text = s_file.read_text()
+        for name in sorted(fn_names):
+            alt_region = _extract_fn_region(alt_text, name)
+            target_region = _extract_fn_region(normal_text, name)
+            _SPLICE_COUNTER[0] += 1
+            alt_region = _uniquify_local_labels(
+                alt_region, f"vs{_SPLICE_COUNTER[0]}")
+            normal_text = normal_text.replace(target_region, alt_region, 1)
+        s_file.write_text(normal_text)
+
+
 ASPSX_VERSION = "2.77"
 G_VALUE = "4"               # original built with -G4
 AS_ARCH = ["-EL", "-march=r3000", "-mtune=r3000"]
@@ -1691,6 +1760,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
 
+    _apply_cc1_ver_splice(rel.as_posix(), s_file, i_file, cc1_flags)
     _apply_fn_splice(rel.as_posix(), s_file, i_file, cc1_bin, cc1_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)

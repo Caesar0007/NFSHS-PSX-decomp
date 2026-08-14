@@ -1211,6 +1211,53 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tlbu\t\$2,8\(\$16\)\n", "after": r"\tlw\t\$3,28\(\$sp\)\n"},
             {"take": r"\taddu\t\$16,\$16,8\n", "after": r"\tlbu\t\$2,8\(\$16\)\n"},
         ],
+        # w60-a9 (probe-verified): Roger 2 -> PASS 94/94.  Retail issues the
+        # CONFIRM call's a0 copy right after the vf-thunk jalr's noreorder block
+        # closes; `move $4,$17` occurs twice, hence the lookbehind.
+        "Roger__Q26Speech13MobileSpeaker": [
+            {"take": r"(?<=\tlw\t\$5,8\(\$16\)\n)\tmove\t\$4,\$17\n",
+             "after": r"\t\.set\tmacro\n\t\.set\treorder\n\n(?=\tsll\t\$2,\$2,2\n\taddu\t\$16,\$16,\$2\n)"},
+        ],
+        # w60-a9 (probe-verified): CheckLocationBank 2 -> PASS 65/65.  The
+        # loop-invariant addiu goes LAST of the three pre-loop setup insns;
+        # anchoring on `move $16,$5` keeps it before the loop label.
+        "CheckLocationBank__6SpeechPQ26Speech12LocationBankPci": [
+            {"take": r"\taddu\t\$18,\$17,6\n",
+             "after": r"\tmove\t\$16,\$5\n"},
+        ],
+    },
+    # w60-a9 (probe-verified, 6 moves): AudioCmn_SoundCar 14 -> PASS 530/530 --
+    # all 14 were scheduling: 3x PlayersRampedGasLevel base/index swap (a take
+    # matching N sites consumes ONE per move entry, so the $2 row repeats), the
+    # signed /8 bgez slot fill (slot anchor PINNED by lookahead on its original
+    # delay-slot content -- an unpinned bgez grabbed an earlier abs-idiom bgez),
+    # and the second mult's latency window.
+    "recon/game/common/audiocmn.cpp": {
+        "AudioCmn_SoundCar__FP8Car_tObjiiiiiii": [
+            {"take": r"\tlui\t\$3,%hi\(PlayersRampedGasLevel\)[^\n]*\n(?=\tlw\t\$2,596\(\$20\)\n)",
+             "after": r"\tlw\t\$2,596\(\$20\)\n(?=\taddiu\t\$3,\$3,%lo\(PlayersRampedGasLevel\))"},
+            {"take": r"\tlui\t\$3,%hi\(PlayersRampedGasLevel\)[^\n]*\n(?=\tlw\t\$4,596\(\$20\)\n)",
+             "after": r"\tlw\t\$4,596\(\$20\)\n(?=\taddiu\t\$3,\$3,%lo\(PlayersRampedGasLevel\))"},
+            {"take": r"\tlui\t\$3,%hi\(PlayersRampedGasLevel\)[^\n]*\n(?=\tlw\t\$2,596\(\$20\)\n)",
+             "after": r"\tlw\t\$2,596\(\$20\)\n(?=\taddiu\t\$3,\$3,%lo\(PlayersRampedGasLevel\))"},
+            {"take": r"\tmove\t\$3,\$2\n(?= #APP\n #NO_APP\n\tbgez\t\$2,\$L\d+\n\taddu\t\$3,\$2,7\n)",
+             "after": r"\tbgez\t\$2,\$L\d+\n(?=\taddu\t\$3,\$2,7\n)", "slot": True},
+            {"take": r"\tlw\t\$8,40\(\$sp\)\n", "after": r"\tmult\t\$17,\$6\n"},
+            {"take": r"\tsra\t\$18,\$3,7\n", "after": r"\tlw\t\$8,40\(\$sp\)\n"},
+        ],
+    },
+    # w60-a9 (probe-verified, uses drop_after): TailCam 2 -> PASS 402/402.
+    # Retail materialises `&arm` ONCE in the beq's delay slot (live on both
+    # arms); cc1 emits it per-arm and maspsx nops the slot.  Move the else-arm
+    # copy into the slot, drop the now-redundant if-arm copy.  RETIRES the
+    # armPtr-basin source hunt -- the shipped source is correct as written.
+    "recon/game/common/camera.cpp": {
+        "Camera_UpdateTailCam__Fii": [
+            {"take": r"\taddu\t\$4,\$sp,16\n(?=\tlui\t\$2,%hi\(Camera_gInfo\))",
+             "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\taddu\t\$4,\$sp,16\n #APP\n)",
+             "slot": True,
+             "drop_after": r"\taddu\t\$4,\$sp,16\n"},
+        ],
     },
     # w59-a2 (orchestrator-wired): Physics_DoBarrierCheck 2 -> PASS 358/358.
     # Sole residual = retail issues the mflo four insns early; probe-verified
@@ -1523,6 +1570,15 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
             if not an:
                 continue
             ins = an.end()
+            # w60-a9 drop_after: delete the line immediately following the anchor
+            # iff it matches -- drop_nop generalised to any pattern.  The only way
+            # to express a move that must also REMOVE a per-arm duplicate the
+            # compiler emitted (retail materialises the value once, in a delay
+            # slot live on both paths).  Runs before drop_nop/slot so it composes.
+            if mv.get("drop_after"):
+                _da = re.match(mv["drop_after"], region2[ins:])
+                if _da:
+                    region2 = region2[:ins] + region2[ins + _da.end():]
             if mv.get("drop_nop"):
                 np = re.match(r"\t#?nop\n", region2[ins:])
                 if np:

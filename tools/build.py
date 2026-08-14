@@ -927,6 +927,21 @@ PER_FN_FLAG_SPLICE_272 = {
     "recon/syslib/psx/libetc/INTR.c": {
         "-fno-delayed-branch": {"RestartCallback"},  # 1 -> PASS (a9 cc1-level A/B)
     },
+    # w60-a2: MemCardFormat 4 -> PASS 35/35 (with its PER_FN_TEXT_MOVES row).
+    # reorg SCHED_GROUPs the cheap arg address `addiu $a1,$sp,16` onto the
+    # `jal MemCardMakeDevname` and eats its slot, so cc1 emits arg-AFTER-store;
+    # retail emits arg-BEFORE-store and lets GNU-as backward-fill the
+    # `sw $v1,_mc_present` MACRO's %lo half into the slot (the W51 272-lane
+    # AT-MACRO-SPLIT identity).  -fno-delayed-branch is precisely the "make the
+    # STORE the later insn" the w46/w52-a6 named angle asked for: cc1 then
+    # emits `addu $5,$sp,16` BEFORE `sw $3,_mc_present` and gas splits the
+    # macro across the jal exactly like retail.  Cost: the fn's OTHER filled
+    # slot (`bne $2,$0,$L; li $2,1`) goes empty -- restored by the TEXT_MOVES
+    # row, which runs AFTER this splice.  Falsified same probe:
+    # -fno-schedule-insns 18, -fno-schedule-insns2 6 (both worse than the 4 baseline).
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {
+        "-fno-delayed-branch": {"MemCardFormat"},
+    },
 }
 
 
@@ -1372,6 +1387,17 @@ PER_FN_TEXT_MOVES = {
         "MemCardWriteData_cb": [
             {"take": r"(?<=:\n)\tli\t\$2,0x0000001e[^\n]*\n",
              "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "slot": True},
+        ],
+        # w60-a2: pairs with the -fno-delayed-branch FLAG_SPLICE row above
+        # (this runs after it).  The splice buys the `jal MemCardMakeDevname`
+        # AT-macro-split slot but empties the guard branch's slot; retail fills
+        # that one with the busy-return constant `addiu $v0,$zero,1` -- again
+        # the 09L shape (the candidate WRITES $2, the bne READS $2), so no
+        # compiler configuration can produce both.  Label regex is \w+ because
+        # the spliced region carries the splice's uniquified $Lfs0_0_NNN names.
+        "MemCardFormat": [
+            {"take": r"\tli\t\$2,0x00000001[^\n]*\n",
+             "after": r"\tbne\t\$2,\$0,\$L\w+\n", "slot": True},
         ],
     },
 }

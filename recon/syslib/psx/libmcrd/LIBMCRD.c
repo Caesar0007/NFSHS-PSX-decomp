@@ -251,6 +251,24 @@ static int (*_mc_save_cb)(int, int) __attribute__((section(".bss")));  /* @0x801
  * standalone static in retail, not a member of the mc aggregate. */
 static int   _mc_present __attribute__((section(".bss")));  /* @0x80147514 : per-channel card-present bitmask */
 
+/* 🔴 w60-a2 FALSIFIED (recorded so nobody re-fights it): the UNSIZED-ARRAY ASM-LABEL VIEW
+ * of the `mc` aggregate -- `extern int mc_words[] __asm__("mc"); mc_words[1] = r;` -- does
+ * NOT reproduce retail's `lui $v1,%hi(mc); addiu $v1,$v1,%lo(mc); sw $v0,4($v1)` here.  In
+ * THIS shape the element index is a COMPILE-TIME CONSTANT, so gcc-2.7.2 folds the access
+ * straight back to a MEM at `(symbol_ref mc + 4)` and emits the 2-insn `lui $at; sw
+ * %lo(mc+4)($at)` assembler macro -- identical to the plain `mc.rslt = r` field store.  The
+ * catalog's wave-13 asm-label-view lever therefore needs a NON-constant index (or an
+ * address that outlives folding) to make the %hi an RTL pseudo; the `int *pc = &mc.cmd;`
+ * + opacity-fence anchor idiom stays the only device that produces the base-in-a-register
+ * form on constant-offset field stores.  MEASURED on MemCardWriteData_cb (272 lane):
+ *   fenced `pc` anchor, single shared call .................. 1  (ours 78 / oracle 79)
+ *   mc_words[] view + fully duplicated call arms ............ 5  (ours 78 / oracle 79)
+ * The view DID buy the cross_jump the w55-a7 named angle asked for (the duplicated
+ * `jal MemCardEventToRslt` tails merged and the `addu $a0,$zero,$zero` block appeared,
+ * i.e. that half of the angle is CONFIRMED source-reachable) -- but it costs the store
+ * form, which is a bigger loss.  NAMED ANGLE (unchanged, now sharper): a device that is
+ * BOTH cross_jump-transparent (not an `__asm__`) AND holds `&mc` in a register. */
+
 static int   _mc_rd_retry;               /* @0x80136CB8 : MemCardReadData retry counter */
 static int   _mc_wr_retry;               /* @0x80136CBC : MemCardWriteData retry counter */
 static int   _mc_rf_retry;               /* @0x80136CC0 : MemCardReadFile retry counter */

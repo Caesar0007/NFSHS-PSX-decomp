@@ -351,7 +351,49 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        and storing swappedResult straight (12); writing the first swap as ONE
        inline expression like its two siblings (12); fence-before-copy (34).
        => the last dial is a local-alloc QTY handout (the AGENT_GUIDE Sec.4.6 /
-       06E gap), not a source shape.  Re-attack with the qtytrace lane. */
+       06E gap), not a source shape.  Re-attack with the qtytrace lane.
+
+       W60-A10 ROUND 2 -- INSTRUMENT LANE: MECHANISM READ, NOT GUESSED.
+       The lab cc1plus (gcc-2.8.1) does NOT reproduce this fn (8/10 of the TU
+       byte-identical, InitViv d94), so its trace is not a receipt here; the
+       evidence below is from the REAL CC1PLPSX run with `-dl -dg`
+       (scratchpad/w60a10lab, harness fast.py):
+
+         THIS shape (identity fence, 7 diffs / 110 insns)
+           ;; 3 regs to allocate: 86 81 82
+           p86 refs=9 live=16 "dies in 2 places"  -> GLOBAL -> $a3
+           ;; 86 conflicts: 86 2 3 4 5 6 8 29   (v0,v1,a0,a1,a2,t0 -- NOT a3)
+         V4 shape (read-only fence, 12 diffs / 109 insns)
+           ;; 2 regs to allocate: 81 82        (p86 is gone from the global set)
+           p86 refs=7 live=11 in block 2       -> LOCAL qty -> $a1
+
+       THE COPY AND THE $a3 HOME ARE ONE EVENT.  The identity fence merges the
+       source word and the swapped result into a SINGLE pseudo with two live
+       ranges, so it "dies in 2 places"; local-alloc.c's combine_regs refuses a
+       qty that "is not local to this block OR DIES MORE THAN ONCE", the pseudo
+       falls through to global.c, and global.c's CONFLICT-driven assignment is
+       the only path that reaches $a3.  Drop the fence and the same value is a
+       block-local qty, so find_free_reg's numeric 0..75 scan hands it the first
+       free caller-saved reg -- $a1 -- and can never reach $a3 while $a1 is free
+       over its window.  So a fence dial buys retail's REGISTER (+1 copy insn)
+       or retail's COUNT (wrong register), never both.  This is exactly the
+       parasite-eve-2 diagnostic (DECOMPILATION_LEARNINGS.md, "`register asm`
+       pins"): "dropping a pin gives the right instruction form with the wrong
+       register, keeping it gives the right register with the wrong form --
+       the conflict is upstream" -- now with the gcc-source mechanism attached.
+
+       THE DIAL DOES EXIST AND IS PROVEN: extending the source word's live range
+       past the two header loads flips it to $a3 at 109 insns (f2.py "late OR":
+       p87 refs=5 live=19 -> $a3, hlen -> $a1 = retail's exact handout).  But
+       every spelling that reaches it also MOVES a statement, which reorders the
+       swap chain -> 34/36/40 diffs.  What is missing is a way to lengthen a
+       live range WITHOUT relocating a use (a fence adds a ref AND a barrier).
+       ROUND-2 FALSIFICATIONS (all measured, base 7): one shared carrier for the
+       type+num source words (the "retail reuses $a3 for both" reading) 30/38/30
+       -- the merged pseudo goes GLOBAL but lands in $t0, so that reading is
+       WRONG; late-OR variants 34/36/36/40; a separate source name `w` with a
+       read-only fence after the loads 40, before the loads 26, after the store
+       40, two operands 40, and without the result fence 36. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

@@ -412,7 +412,18 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
            `lbu` retail puts there: 48 @103 (the split kills 4 real insns).
        ⇒ the NON-BARRIER-pin verdict stands; also note this fn is NOT reachable by the
        -G lever: whole-TU g_value 8 takes it 4 -> 57 (drawc.obj is a -G4 object, as the
-       TU header's flag receipts already record for -mno-split-addresses). */
+       TU header's flag receipts already record for -mno-split-addresses).
+       ---- w59-a5 (2026-08-14): JOINT sweep of the two dials every earlier wave swept
+       SEPARATELY -- {fence form} x {per-channel operand order}, 5 x 8 = 40 combos, all
+       count-exact 107/107 (scratchpad/w59a5/sweep_nighthl.py).  Fence forms: "r"(wc) /
+       "r"(lp) / "r"(lp),"r"(wc) / "i"(0) / none.  Orders: lp-first or wc-first chosen
+       INDEPENDENTLY per channel (lll..www).  RESULT: 4 is the joint minimum and it is
+       reached by ALL FOUR fence forms at order lll (the fence's OPERAND SET is exactly
+       inert here -- bit-identical output, extending the w53-a2 finding to the 2-operand
+       and "i"(0) forms); wll 6, lwl 8, wwl 10, and any channel-2 wc-first 24-28.  With
+       NO fence the whole family is 34-40.  ⇒ the residual is not a joint fence/operand
+       minimum either; it stays the sched2 ready-list pick, and the -dl qty-count dial
+       (w46-a10, local-alloc.c:1588 next_qty<=3) remains the sole untried instrument. */
     __asm__("" : : "r"(wc));
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);
@@ -3678,7 +3689,34 @@ gte_SetTransMatrix(((char *)sd + 0x14));
        index form with an in-loop `char *tVc = &sd->tV[n].v;` (29).  NEXT ANGLE:
        an index form whose giv address is the `.v` field (write `.v` before `.u`,
        or index a `char*` view based at &sd->tV[0].v) so SR bases the giv at
-       sd+215 -- that is the only remaining shape difference. */
+       sd+215 -- that is the only remaining shape difference.
+       ---- w59-a5 (2026-08-14): THE NAMED NEXT ANGLE IS NOW RUN AND FALSIFIED,
+       both spellings, from the 2-diff basin:
+         (a) `char *`-view INDEX form based at the `.v` field --
+             `(&sd->tV[0].v)[tVn - 1] = u; (&sd->tV[0].v)[tVn] = v; tVn += 8;`
+             = 6 @480.  gcc does NOT fold the +215 into the giv's add_val: it
+             emits `addu v0,a3,s1` INSIDE the loop and keeps disps 214/215
+             (i.e. the same base-sd+0 combine_givs outcome as the w53 `.u/.v`
+             index probe, plus one extra in-loop insn).
+         (b) SINGLE-giv form (one address pseudo, disps -1/0) --
+             `{ char *tVc = &sd->tV[0].v + tVn; tVc[-1]=u; *tVc=v; } tVn += 8;`
+             = 30 @482.  `tVn` survives as its own biv (`addu a3,zero,zero` in
+             the preheader) and the loop-1 vertex walker rotates a3<->a2.
+       ⇒ every INDEX spelling makes the +215 a memory DISPLACEMENT, never the
+       giv's add_val; only a pointer BIV puts sd+215 in a register, and a biv's
+       init is a source statement, which by construction precedes the preheader's
+       LICM movables.  The remaining shape difference is therefore NOT reachable
+       by rewriting this cursor: retail's `addiu a2,s1,215` sits in the movable
+       band, so retail's source computed that address INSIDE the loop body (an
+       invariant that LICM hoists in order-of-appearance -- it appears LAST,
+       after the 172/156 gte-macro addresses, which is exactly the retail order).
+       NEXT ANGLE (named, untried): an in-loop invariant base whose giv init
+       COALESCES with it, e.g. spell the two byte stores through a block-local
+       `char *tVb = &sd->tV[0].v;` declared at the END of the body with the
+       varying part carried by a SEPARATE stepped pointer that dies immediately
+       -- the target RTL is "LICM movable (addiu a2,s1,215) + giv init that is a
+       deleted copy", which is the only shape that puts one insn in the movable
+       band and none in the giv band. */
     { int tex = facet->textureIndex;
       rawFlag = facet->flag;
       __asm__("" : : "r"(tex));   /* tex ONLY -- see the ref-count warning above */

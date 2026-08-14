@@ -284,7 +284,28 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
    * LOOP_BEG/END note costs a real insn inside this loop -- the catalog's "NEGATIVE on
    * straight-line call-free blocks" boundary), fence before n0 18 @44, after n0 12 @44,
    * n0-first + fence 22 @44.  Every one breaks the exact 42/42 count, so (a) still has
-   * no zero-insn dial.  STRONG floor stands. */
+   * no zero-insn dial.  STRONG floor stands.
+   * ---- w59-a5 (2026-08-14): 4 -> 2, count-exact 42/42.  THE "STRONG FLOOR" WAS AN
+   * ARTEFACT OF SWEEPING THE TWO DIALS SEPARATELY.  w39 swept the 24 ASSIGNMENT orders
+   * (at the fixed `|` order n0|n1|n2|n3) and separately swept the `|` operand order (at
+   * the fixed best assignment order); the JOINT 24 x 24 = 576 sweep
+   * (scratchpad/w59a5/sweep_copytoshape.py) finds a strictly better cell that neither
+   * axis reaches alone:  **assign n0,n1,n2,n3  +  `|` order n0 | n3 | n1 | n2  = 2**
+   * (the w39 cell n1,n2,n0,n3 + n0|n1|n2|n3 reproduces at 4; assign n0,n1,n2,n3 with the
+   * plain `|` order is 16).  With it, retail's whole andi/sll issue order appears verbatim
+   * (`andi v0,v1,15; sll v0,v0,12` FIRST -- residual (a) is GONE) and all four registers
+   * match.  Also swept and NOT better (same harness, sweep_cts2.py, 864 more cells): every
+   * 3-named-temp subset (the 4th term written INLINE in the `|` chain) x its 6 assignment
+   * orders x all 24 `|` orders, and every 2-named-temp subset -- exactly ONE cell reaches
+   * 2 (`named n0/n1/n2, assign n0+n1+n2, or n0|n3|n1|n2`, i.e. the same shape with n3
+   * inline) and nothing beats it.
+   * RESIDUAL 2 (count-exact 42/42): ONE `or` position -- ours ORs the n3 term FIRST
+   * (`or v0,v0,v1` at 32), retail ORs it LAST (at 34, after the n1 and n2 ors).  The
+   * emitted register map, the four value chains and their order are otherwise identical,
+   * so this is the last sched2 ready-tie in the block; the plain left-assoc source order
+   * n0|n1|n2|n3 that would spell it is exactly the cell that costs 16 (it re-schedules
+   * the value chains).  CATALOG CANDIDATE: "sweep dial pairs JOINTLY -- a per-axis
+   * minimum is not a joint minimum" (this fn: 4 -> 2 with zero new devices). */
   int h;
 
   h = 0x16;
@@ -313,11 +334,11 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
         int n3;
 
         pixel3 = source[i];
+        n0 = (pixel3 & 0xf) << 0xc;
         n1 = (pixel3 & 0xf0) << 4;
         n2 = (pixel3 & 0xf00) >> 4;
-        n0 = (pixel3 & 0xf) << 0xc;
         n3 = pixel3 >> 0xc;
-        *dest++ = (short)(n0 | n1 | n2 | n3);
+        *dest++ = (short)(n0 | n3 | n1 | n2);
         i = i - 1;
       }
       /* w46-a9 (6 -> 4, count now EXACT 42/42): residual (b) above -- the two arms'

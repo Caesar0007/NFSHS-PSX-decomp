@@ -1899,7 +1899,56 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
    * give the two call-arg addresses real pointer locals defined at the TOP of the pt block
    * (`DVECTOR *pp = pt; CVECTOR *cp = &col;`) and pass those, so their addiu's are born
    * before the reads; a bare `"r"(pt)` fence operand does NOT compile under cc1plus 2.8
-   * ("inconsistent operand constraints") -- use the locals. */
+   * ("inconsistent operand constraints") -- use the locals.
+   * ---- w59-a5 (2026-08-14): 30 -> 18, count-exact 409/409.  THE w50 NAMED ANGLE WORKS,
+   * with one correction: the pointer locals must be born BEFORE the vx0/vy0 fence block,
+   * not merely "at the top of the pt block".  The `__asm__ volatile("")` head fence is a
+   * FULL sched barrier, so anything written after it can never issue before the two `lh`s
+   * -- the fix is to MOVE THE FENCED HEAD BLOCK INSIDE the pt block, below the decls:
+   *     { DVECTOR pt[4]; CVECTOR col;
+   *       u_long colw = 0xffffff;      // (2) constant VALUE hoisted, store stays at use
+   *       DVECTOR *pp = pt;            // (1) the two call-arg addresses, born pre-fence
+   *       CVECTOR *cp = &col;
+   *       int otSize = Draw_gViewOtSize;   // (3) load split from the `-2`
+   *       { int vx0=..; int vy0=..; __asm__ volatile("" : : "r"(vx0),"r"(vy0));
+   *         sx=vx0; sy=vy0; }
+   *       ...pt stores...
+   *       angleZ  = (sx+sy)*8;         // (4) MOVED UP, above the call
+   *       angleZ2 = (sx+sy)*6;
+   *       Flare_QuadNotTransparent((long *)pp,cp,otSize + -2); }
+   * pt/col STAY in their own block so the SYM's -0x98/-0x88 slots (and the line-134 `col`
+   * that re-uses pt's slot) are untouched -- frame is unchanged, count stays 409.
+   * MEASURED, step by step, each re-gated: (1) alone 34 (a WORSE score that is the
+   * hard-floor basin rule in action -- it is what makes retail's ARG-slot reload
+   * `lw t7,184(sp); lh v0,0(t7)` appear, the residual w46-a8 declared "not reachable by
+   * any source handle on the pointer"); +(2) 30; +(3) with decl order colw,pp,cp 24;
+   * +(4) 18.  Item (4) is the biggest single step and is a STRUCTURE find, not a dial:
+   * retail computes angleZ/angleZ2 BEFORE the QuadNotTransparent call (oracle
+   * `addu v1,fp,s7; sll s1,v1,3; sll v0,v1,1; addu; sll; ... jal`), i.e. EA's source had
+   * those two statements inside the pt block, not after it.
+   * RE-SWEPT IN THIS BASIN (both stale-check runs, both confirm the kept form):
+   *   - all 24 pt-group orderings: 24 is the joint minimum at the pre-(4) basin and the
+   *     kept 0,1,2,3 is in the winning set {0123,0132,0213,2013,2103}; retail's STORE
+   *     order 1,2,3,0 = 42.
+   *   - the `col` store WALKED through all 7 positions of the block (before every pt
+   *     group .. immediately before the call): 18 at EVERY position -- inert here, so the
+   *     w50 "col at its use site" lever is now basin-neutral, only its VALUE hoist (2)
+   *     still pays.  Moving the whole `col = colw` store to the block head in the 24-basin
+   *     was 32, i.e. it only hurt before (4) landed.
+   * RESIDUAL 18 = ONE cluster, all in the pt block, count-exact: retail holds sx-2 in $a3
+   * from `addiu a3,fp,-2` right after the fp copy and SINKS its two stores (`sh a3,32(sp)`
+   * / `sh a3,40(sp)`) past the whole angleZ chain to just before the `jal`; ours computes
+   * it into $v0 and stores immediately.  Same for `addiu v1,fp,3` (one slot early in
+   * retail) and the positions of `addu s0,zero,zero`, `addiu a2,a2,-2` and `sw a3,48(sp)`,
+   * which all follow that one register's fate.  FALSIFIED here: splitting the value out
+   * (`int xm2 = sx + -2;` first, `pt[2].vx = pt[0].vx = (short)xm2;` moved below the
+   * angleZ pair) = 40 -- it makes `sy` the first-defined value again and flips the
+   * fp/s7 split, the same trap the w39 note records for the pt STORE order.
+   * NEXT ANGLE (named): the store sink needs sx-2 to be the ONLY live short-lived value
+   * across the angleZ chain while sx-2's DEF stays first; try a form that keeps group 0's
+   * def in place but gives its two stores a later, separate statement THROUGH THE SAME
+   * expression (`pt[0].vx = (short)(sx + -2);` early, `pt[2].vx = pt[0].vx;` late -- a
+   * re-read, not a temp), or price it with allocsim/reqdelta on the block's local qtys. */
   int dx;
   int dy;
   DVECTOR pxy;
@@ -1916,13 +1965,17 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
 
   otz = 0;
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
-    { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
-      __asm__ volatile("" : : "r"(vx0), "r"(vy0));
-      sx = vx0;  sy = vy0; }
     {
       DVECTOR pt [4];
       CVECTOR col;
+      u_long colw = 0xffffff;
+      DVECTOR *pp = pt;
+      CVECTOR *cp = &col;
+      int otSize = Draw_gViewOtSize;
 
+      { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
+        __asm__ volatile("" : : "r"(vx0), "r"(vy0));
+        sx = vx0;  sy = vy0; }
       /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
        * with each chain written HI = LO = v (stores ascending).  Moving the
        * sx-2 group last (= the oracle's STORE order) costs 14 diffs: it flips
@@ -1931,11 +1984,11 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       pt[1].vy = pt[0].vy = (short)(sy + -2);
       pt[3].vx = pt[1].vx = (short)(sx + 3);
       pt[3].vy = pt[2].vy = (short)(sy + 3);
-      *(u_long *)&col = 0xffffff;
-      Flare_QuadNotTransparent((long *)pt,&col,Draw_gViewOtSize + -2);
+      *(u_long *)&col = colw;
+      angleZ = (sx + sy) * 8;
+      angleZ2 = (sx + sy) * 6;
+      Flare_QuadNotTransparent((long *)pp,cp,otSize + -2);
     }
-    angleZ = (sx + sy) * 8;
-    angleZ2 = (sx + sy) * 6;
     dx = 0x140 - sx;
     dy = 0xf0 - sy;
     flareVis = '\0';

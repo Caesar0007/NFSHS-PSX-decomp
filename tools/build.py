@@ -1134,10 +1134,13 @@ PER_FN_TEXT_MOVES = {
     # the oracle carries `move $2,$16` BOTH in the slot and at the $L merge point
     # => aspsx copied it.  gcc reorg can never (09L: the insn writes $2 which the
     # beq reads).  Anchor on the beq; copy the merge-point move; drop maspsx's nop.
+    # w60-a8: label-AGNOSTIC anchors ($L numbers renumber on any TU reorder; a
+    # literal $L<n> silently no-ops the splice) -- shape-anchored on the
+    # merge-point move that precedes the epilogue's double label + lw $31.
     "recon/game/common/aiphysic.cpp": {
         "AIPhysic_CalcAcceleration__FP8Car_tObji": [
-            {"take": r"(?<=\$L694:\n)\tmove\t\$2,\$16\n",
-             "after": r"\tbeq\t\$5,\$2,\$L694\n",
+            {"take": r"\tmove\t\$2,\$16\n(?=\$L\d+:\n\$L\d+:\n\tlw\t\$31,)",
+             "after": r"\tbeq\t\$5,\$2,\$L\d+\n",
              "copy": True, "slot": True},
         ],
     },

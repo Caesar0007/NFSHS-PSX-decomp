@@ -103,7 +103,7 @@ int           _err_math(int errnum, int code);
  * assigned at the top of the arm 25.  And re-confirmed for (a) at this basin:
  * if/else instead of the ternary 69 (head) / 73 (tail) / 73 (both), inverted
  * if/else 70 -- the ternary IS retail's shape, the residual is cse's mask reuse
- * exactly as the note above says. */
+ * exactly as the note above says.
  *
  * The W53-A12 handoff recipe applied in full:
  * `double` params + a register-resident `union double_long` (the 05B soft-float PAIR law,

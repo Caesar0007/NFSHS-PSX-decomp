@@ -75,10 +75,21 @@ def floor_log2(n):
     return n.bit_length() - 1 if n > 0 else -1
 
 
+SUB28_LANE = False   # w60-a1: gcc-2.7.2's global.c has NO SIZE term in
+                     # allocno_compare (validated 47/47 over 18 lane TUs; the
+                     # 2.8 form with SIZE scored 40/47).  Set True (or env
+                     # ALLOCSIM_LANE=272) when pricing a cc1_272/sub-2.8 TU --
+                     # with SIZE, every HImode pseudo is mis-priced 2x.
+
+
 def priority(refs, live, size):
-    """global.c:594 allocno_compare, verbatim (double math then int truncation)."""
+    """global.c:594 allocno_compare, verbatim (double math then int truncation).
+    2.7.2 lane (SUB28_LANE / ALLOCSIM_LANE=272): floor_log2(refs)*refs/live, no SIZE."""
     if live == 0:
         live = -1                      # global.c:546
+    import os
+    if SUB28_LANE or os.environ.get("ALLOCSIM_LANE", "").startswith("27"):
+        size = 1
     return int((float(floor_log2(refs) * refs) / live) * 10000 * size)
 
 

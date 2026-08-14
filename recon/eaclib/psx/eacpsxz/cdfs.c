@@ -283,328 +283,6 @@ static inline int rd_le32(const unsigned char *q)
     return ((const struct rd_le32_unaligned *)q)->v;
 }
 
-/* CD_Open @0x800FA554 : open `name` on the CD; writes the 1-based handle to *outp.  Finds a free slot,
- *   upper-cases the name, binary-searches the directory, and parks the matching entry in the slot.
- *   Returns 1 if found, 0 if not.  (`flags` is unused -- the CD is read-only.) */
-extern int CD_Open(char *name, int flags, int *outp)
-{
-    char   upper[16];
-    char  *p    = upper;
-    void **h;
-    int    slot = 0;
-    int    limit = CD_maxOpen;
-    void  *entry;
-    int    c;
-    (void)flags;
-
-    if (limit > 0) {
-        int bound = limit;
-        h = CD_handleTable;
-        do {                                            /* find the first free slot */
-            if (*h == 0)
-                goto slot_done;
-            slot++;
-            h++;
-        } while (slot < bound);
-    }
-slot_done:
-    do {                                        /* upper-case the name into a scratch buffer */
-        c = toupper((unsigned char)*name++);
-        *p++ = (char)c;
-    } while ((c & 0xFF) != 0);
-
-    entry = bsearch(upper, CD_dirEntryArray, CD_dirEntryCount, 0x14, dircompare);
-    CD_handleTable[slot] = entry;
-    if (CD_handleTable[slot] == 0) {            /* not on the disc */
-        *outp = 0;
-        return 0;
-    }
-    *outp = slot + 1;
-    return 1;
-}
-
-/* CD_Close @0x800FA65C : release a CD handle slot (1-based). */
-extern int CD_Close(int handle)
-{
-    CD_handleTable[handle - 1] = 0;
-    return 0;
-}
-
-/* CD_Stopread @0x800FA904 : request the in-flight CD read to stop (sets Cdinfo bit 2). */
-extern int CD_Stopread(int dev)
-{
-    /* Cdinfo (info) is volatile (the IRQ + readsectorB's spin re-read it), so a bare
-     * `return Cdinfo |= 4;` would RE-READ info after the store to source the return
-     * value (an extra `lw`).  The oracle reads once, ORs, writes, and returns the
-     * COMPUTED value -> keep it in a temp and return that (no re-read). */
-    int v = Cdinfo | 4;
-    (void)dev;
-    Cdinfo = v;
-    return v;
-}
-
-/* CD_Getinfo @0x800FA920 : query an open CD file -- optionally copy its 0xC-byte name into `namebuf`
- *   and write its size to *sizeout; returns the size. */
-extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
-{
-    void **slot = &CD_handleTable[handle - 1];       /* the SLOT address is what's kept; the entry
-                                                         pointer itself is RELOADED at every use below
-                                                         (oracle @0x800FA950/964/978 -- no cached copy) */
-    if (namebuf != 0)
-        strncpy((char *)namebuf, (char *)*slot, 0xC);     /* directory entry name (0xC bytes) */
-    if (sizeout != 0)
-        *sizeout = *(int *)((char *)*slot + 0x10);        /* file size */
-    return *(int *)((char *)*slot + 0x10);
-}
-
-/* CD_Read @0x800FA678 : arm a read of `len` bytes from file `dev` at `offset` into `dest`.  Sets up the
- *   sector-ring read state (clamping `len` to the file and to the 0x800 sector boundary) and starts the
- *   watchdog timer; the transfer itself proceeds asynchronously via CD_timerfunc/CdReadyHandler.  If the
- *   target sector happens to already be in the sector cache (same execution context), it is copied
- *   immediately -- completing the read (calling the completion callback) or advancing to the next sector.
- *   Returns the (clamped) byte count, or 0 if the CD is busy. */
-extern int CD_Read(int dev, int dest, int offset, int len)
-{
-    /* same slot idiom as CD_Getinfo (which PASSes): `&CD_handleTable[dev-1]` yields the oracle's
-     * full address materialization `sll $a0,$a0,2; addiu $a0,$a0,-4; addu $a0,$v0,$a0`, and the
-     * directory ENTRY is RE-READ from the slot at each of its two uses (`lw $v0,0($a0)` twice)
-     * rather than cached in a local -- a cached copy lives in a register across the intervening
-     * volatile Cdinfo RMWs (registers are not invalidated) and loses the oracle's second load. */
-    void **slot = &CD_handleTable[dev - 1];
-    int   q, remaining;
-    /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
-     * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
-     * slot) so gcc hoists the base as early as the oracle does, instead of lazily at first field use. */
-    struct { int curLen, remLen, curOff; void *curDst; } *rs = (void *)&CD_ctx.curLen;
-
-    if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
-        return 0;
-
-    remaining = *(int *)((char *)*slot + 0x10) - offset; /* clamp len to bytes left in the file */
-    if (remaining < len)
-        len = remaining;
-
-    q = offset;
-    if (q < 0)
-        q += 0x7FF;
-    rs->curOff = offset - ((q >> 0xB) << 0xB);           /* byte offset within the 0x800 sector */
-    rs->curDst = (void *)dest;      /* the oracle fills the curOff-test's delay slot with this */
-    if (rs->curOff != 0 || len < 0x800)
-        Cdinfo |= 8;                                    /* partial-sector transfer */
-    if (rs->curOff + len > 0x800)
-        q = 0x800 - rs->curOff;                         /* clamp this chunk to the sector boundary */
-    else
-        q = len;
-    rs->curLen = q;
-    rs->remLen = len - q;
-
-    { CD_ctx_t *ctx = &CD_ctx; /* the ctx base is materialized HERE, in the pre-sign-correction
-                                * block, but its first STORE is after the join -- see the note
-                                * above CD_Read for why that is the whole 12-diff residual. */
-      char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
-      int   startSector;
-      if (offset < 0)
-          offset += 0x7FF;
-      startSector    = *(int *)(e + 0xC);
-      ctx->ringIdx   = 0;
-      startSector   += offset >> 0xB;
-      ctx->curSector = startSector; } /* start sector + offset / 0x800 */
-    Cdinfo |= 2;                                        /* read in progress */
-    CD_timeout   = timerhz[0] * 6;
-    addtimer((void *)CD_timerfunc, (void *)dest);
-
-    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {
-        { char *cache = (char *)CD_sectorCache;
-          int off;
-          __asm__("" : : "r"(cache));  /* w47-a5: sched fixpoint -- pin the cache-base addiu first */
-          off = rs->curOff;
-          off += (int)cache;
-          blockmove((void *)off, rs->curDst, rs->curLen); }  /* sector already cached */
-        if (rs->remLen > 0) {                            /* more to read -> advance to the next sector */
-            rs->curOff = 0;
-            rs->curDst = (char *)rs->curDst + rs->curLen;
-            if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
-            else                    { rs->curLen = 0x800;      Cdinfo &= ~8; }
-            rs->remLen  -= rs->curLen;
-            CD_curSector += 1;
-        } else {                                        /* whole request satisfied -> complete now */
-            int gpctx[2];
-            CD_timeout = 0;
-            Cdinfo &= ~2;
-            deltimer((void *)CD_timerfunc);
-            if (CD_completionCallback != 0) {
-                savegp(gpctx);
-                CD_completionCallback(1);
-                restoregp(gpctx[0]);
-            }
-        }
-    }
-    return len;
-}
-
-/* readsectorB @0x800FA154 : synchronously read CD_curSector into the global sector cache.  Arms a
- *   single-sector transfer (CD_curLen=0x800, in-progress|partial flags) into the cache buffer and
- *   busy-waits until CdReadyHandler clears the in-progress bits.  Returns the cache pointer.
- *   (Ghidra rendered the spin-wait as an "infinite loop" -- the loop exits when the IRQ runs.)
- *   @0x800FA17C: the oracle's `beqz v0,.L800FA19C` tests `(Cdinfo&3)` but its DELAY SLOT stores
- *   `CD_curDst=&CD_sectorCache` UNCONDITIONALLY (methodology-§3.1: a delay-slot store runs on both
- *   branch paths) -- not gated by the "if" the Ghidra shape implied.  (Harmless either way since
- *   Cdinfo was just set to 0xA above so the gate is always true, but the C must mirror the
- *   unconditional-store shape to reproduce the branch-then-delay-slot instruction order.)
- *   LOOP-ROTATED shape (methodology-§3.12 #15a): the guard test's RELOAD is reused as-is to decide
- *   whether to enter the loop, but the loop body reloads Cdinfo FRESH every pass (incl. the first) --
- *   a `do{}while()` gated by an outer `if`, not a `while(){}` (which would test-before-every-pass off
- *   the SAME reload as the guard, an extra reload+branch pair the oracle doesn't have). */
-extern unsigned char *readsectorB(void)
-{
-    int busy;
-
-    CD_curLen  = 0x800;
-    CD_ringIdx = 0;
-    Cdinfo     = 0xA;                     /* read-in-progress (2) | partial (8) */
-    CD_curDst = CD_sectorCache;           /* ctx+0x3C == &CD_sectorCache (0x80146D00) -- unconditional */
-    if ((Cdinfo & 3) != 0) {
-        do {
-            busy = (Cdinfo & 3);          /* spin until the CD IRQ completes this sector */
-        } while (busy != 0);
-    }
-    return CD_sectorCache;
-}
-
-/* loaddirinfo @0x800FA1A8 : recursively walk an ISO9660 directory, appending every FILE record to the
- *   global directory-entry array.  Skips the "." and ".." records of the first sector; recurses into
- *   subdirectory records.  Stops when the directory's sectors run out or CD_dirEntryCount hits
- *   `maxEntries` (a budget shared across the recursion).  The return value (a fixed address) is unused. */
-extern void loaddirinfo(int startSector, int numSectors, int maxEntries)
-{
-    CD_ctx_t      *ctx = &CD_ctx;
-    int            limit = maxEntries;
-    int            savedSector = ctx->curSector;
-    unsigned char *p;
-
-    ctx->curSector = startSector;
-    p = readsectorB();                    /* load the directory's first sector into the cache */
-    numSectors = numSectors - 1;
-    p = p + p[0];                         /* skip the "." self record (record 0) */
-
-    goto test_entry_count;
-next_entry:
-        if (p[0] == 0) {                  /* zero reclen -> no more records in this sector */
-            if (numSectors == 0)
-                goto done;
-            ctx->curSector = ctx->curSector + 1;
-            p = readsectorB();            /* load the next directory sector (start at its record 0) */
-            numSectors--;
-        }
-
-        if ((p[0x19] & 2) != 0) {         /* flags bit1 == directory -> recurse */
-            int subExtent = rd_le32(p + 2);
-            unsigned int subSize = (unsigned int)rd_le32(p + 10);
-            loaddirinfo(subExtent, subSize >> 0xB, limit);
-            readsectorB();                /* recursion reused the cache -> reload our own sector */
-        } else {                          /* a FILE -> append a 0x14-byte directory entry */
-            /* the slot address (CD_dirEntryArray + CD_dirEntryCount*0x14) is RECOMPUTED at each of
-             * the 4 uses below, not cached in a local -- oracle independently rematerializes
-             * count*0x14+base for the memcpy, the NUL-term, the extent store, and the size store
-             * (4 near-identical lw/sll/addu/lw/sll/addu blocks; verified vs the .s). */
-            memcpy((unsigned char *)(ctx->dirEntryCount * 0x14 + (int)ctx->dirEntryArray),
-                   p + 0x21, p[0x20] - 2);            /* drop the ";1" version suffix */
-            ((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14)[p[0x20] - 2] = 0;  /* NUL-term */
-            *(int *)((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14 + 0xC)
-                = rd_le32(p + 2);                      /* extent (start sector) */
-            *(int *)((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14 + 0x10)
-                = rd_le32(p + 10);                     /* file size in bytes */
-            ctx->dirEntryCount = ctx->dirEntryCount + 1;
-        }
-test_entry_count:
-        p = p + p[0];
-        if (ctx->dirEntryCount < limit)
-            goto next_entry;
-
-done:
-    CD_curSector = savedSector;
-}
-
-/* dircompare @0x800FA344 : qsort/bsearch comparator -- compares the 0xC-byte names of two dir entries. */
-extern int dircompare(const void *a, const void *b)
-{
-    return strncmp((const char *)a, (const char *)b, 0xC);
-}
-
-/* CD_Restore @0x800FA364 : addexit() cleanup -- reset the drive and clear the CD context block. */
-extern void CD_Restore(void)
-{
-    CdReset(0);
-    blockclear(&Cdinfo, 0x83C);           /* ctx header (0x3C) + sector cache (0x800) = 0x83C */
-}
-
-/* CD_Init @0x800FA394 : mount the CD filesystem.  Brings up libcd, reads the Primary Volume Descriptor
- *   (sector 0x10), walks its root directory into the caller-provided buffer, sorts the entry array, and
- *   registers the at-exit drive-reset.  `buffer` holds `maxOpen` handle pointers followed by the
- *   `numEntries`-slot (0x14-byte) directory array.  Returns the number of entries found (0 on failure). */
-extern int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callback)(int))
-{
-    CdlLOC         toc[2];
-    unsigned char *root;
-    int            rootExtent;
-    unsigned int   rootSize;              /* oracle: srl (unsigned) for the >>0xB below */
-
-    if (CD_dirEntryCount != 0)            /* already mounted */
-        return 0;
-    if (CdInit() == 0)
-        return 0;
-    CdSetDebug(0);
-    if (CdGetToc(toc) == 0)               /* no disc / unreadable TOC */
-        return 0;
-
-    CD_maxOpen       = maxOpen;
-    CD_handleTable   = (void **)buffer;                            /* ctx+0x34 */
-    CD_dirEntryArray = (void *)((char *)buffer + maxOpen * 4);     /* ctx+0x38, after the handle table */
-    blockclear(buffer, maxOpen * 4 + numEntries * 0x14);
-
-    CD_Restart(0x10);                     /* seek + read the PVD (sector 0x10) */
-    root = readsectorB();                 /* ensure it is in the cache; root = &CD_sectorCache */
-    rootExtent = rd_le32(root + 158);     /* PVD root dir record @+156: extent  @ +156+2  */
-    rootSize   = rd_le32(root + 166);     /* PVD root dir record @+156: data len @ +156+10 */
-    loaddirinfo(rootExtent, rootSize >> 0xB, numEntries);
-
-    qsort(CD_dirEntryArray, CD_dirEntryCount, 0x14, dircompare);
-    CD_completionCallback = callback;     /* ctx+0x30 */
-    addexit((void *)CD_Restore);
-    return CD_dirEntryCount;
-}
-
-/* CD_Restart @0x800FA4A8 : (re)set the read mode and start a streaming read at `startSector` (default
- *   0x10).  Loops CdlSetmode until accepted, flushes, installs CdReadyHandler, and issues CdlReadN. */
-extern int CD_Restart(int startSector)
-{
-    unsigned char pos[8];
-    unsigned char mode[8];
-    int           rc;
-
-    (void)Cdinfo;                         /* oracle @0x800FA4B4: lui/lw Cdinfo, result discarded --
-                                              a volatile touch (its read is not elided) before arming
-                                              the new read mode below */
-    mode[0] = 0xA0;                       /* double-speed read mode */
-    do {
-        rc = CdControlB(0x0E, mode, 0);   /* CdlSetmode -- retry until the drive accepts it */
-    } while (rc == 0);
-    VSync(3);
-    CdFlush();
-    CdSync(0, 0);
-    if (startSector == 0)
-        startSector = 0x10;
-    /* MATCH: oracle stores curSector (ctx+0x14) before cachedSector (ctx+0xC).  The volatile view
-     * pins the second store before the call, letting gcc schedule CdReadyHandler's final `addiu %lo` into the
-     * `jal CdReadyCallback`'s delay slot (methodology-§3.1 delay-slot-as-arg) instead of
-     * completing the address materialization early. */
-    CD_curSector    = startSector;        /* ctx+0x14 target  */
-    *(volatile int *)&CD_cachedSector = startSector; /* ctx+0x0C read-head */
-    CdReadyCallback(CdReadyHandler);
-    CdIntToPos(CD_curSector, pos);
-    return CdControl(0x1B, pos, 0);       /* CdlReadN */
-}
-
 /* CD_systaskfunc @0x800F9AE8 : disc-swap recovery system task.  Polls CdDiskReady; on a stable disc
  *   (or a timed-out error) it resets the drive, re-arms the read mode + CdReadyHandler, and resumes the
  *   in-flight transfer if one was pending. */
@@ -881,3 +559,326 @@ advance:
 #undef sub
 #undef hdr
 #undef RS_Cdinfo
+
+/* readsectorB @0x800FA154 : synchronously read CD_curSector into the global sector cache.  Arms a
+ *   single-sector transfer (CD_curLen=0x800, in-progress|partial flags) into the cache buffer and
+ *   busy-waits until CdReadyHandler clears the in-progress bits.  Returns the cache pointer.
+ *   (Ghidra rendered the spin-wait as an "infinite loop" -- the loop exits when the IRQ runs.)
+ *   @0x800FA17C: the oracle's `beqz v0,.L800FA19C` tests `(Cdinfo&3)` but its DELAY SLOT stores
+ *   `CD_curDst=&CD_sectorCache` UNCONDITIONALLY (methodology-§3.1: a delay-slot store runs on both
+ *   branch paths) -- not gated by the "if" the Ghidra shape implied.  (Harmless either way since
+ *   Cdinfo was just set to 0xA above so the gate is always true, but the C must mirror the
+ *   unconditional-store shape to reproduce the branch-then-delay-slot instruction order.)
+ *   LOOP-ROTATED shape (methodology-§3.12 #15a): the guard test's RELOAD is reused as-is to decide
+ *   whether to enter the loop, but the loop body reloads Cdinfo FRESH every pass (incl. the first) --
+ *   a `do{}while()` gated by an outer `if`, not a `while(){}` (which would test-before-every-pass off
+ *   the SAME reload as the guard, an extra reload+branch pair the oracle doesn't have). */
+extern unsigned char *readsectorB(void)
+{
+    int busy;
+
+    CD_curLen  = 0x800;
+    CD_ringIdx = 0;
+    Cdinfo     = 0xA;                     /* read-in-progress (2) | partial (8) */
+    CD_curDst = CD_sectorCache;           /* ctx+0x3C == &CD_sectorCache (0x80146D00) -- unconditional */
+    if ((Cdinfo & 3) != 0) {
+        do {
+            busy = (Cdinfo & 3);          /* spin until the CD IRQ completes this sector */
+        } while (busy != 0);
+    }
+    return CD_sectorCache;
+}
+
+/* loaddirinfo @0x800FA1A8 : recursively walk an ISO9660 directory, appending every FILE record to the
+ *   global directory-entry array.  Skips the "." and ".." records of the first sector; recurses into
+ *   subdirectory records.  Stops when the directory's sectors run out or CD_dirEntryCount hits
+ *   `maxEntries` (a budget shared across the recursion).  The return value (a fixed address) is unused. */
+extern void loaddirinfo(int startSector, int numSectors, int maxEntries)
+{
+    CD_ctx_t      *ctx = &CD_ctx;
+    int            limit = maxEntries;
+    int            savedSector = ctx->curSector;
+    unsigned char *p;
+
+    ctx->curSector = startSector;
+    p = readsectorB();                    /* load the directory's first sector into the cache */
+    numSectors = numSectors - 1;
+    p = p + p[0];                         /* skip the "." self record (record 0) */
+
+    goto test_entry_count;
+next_entry:
+        if (p[0] == 0) {                  /* zero reclen -> no more records in this sector */
+            if (numSectors == 0)
+                goto done;
+            ctx->curSector = ctx->curSector + 1;
+            p = readsectorB();            /* load the next directory sector (start at its record 0) */
+            numSectors--;
+        }
+
+        if ((p[0x19] & 2) != 0) {         /* flags bit1 == directory -> recurse */
+            int subExtent = rd_le32(p + 2);
+            unsigned int subSize = (unsigned int)rd_le32(p + 10);
+            loaddirinfo(subExtent, subSize >> 0xB, limit);
+            readsectorB();                /* recursion reused the cache -> reload our own sector */
+        } else {                          /* a FILE -> append a 0x14-byte directory entry */
+            /* the slot address (CD_dirEntryArray + CD_dirEntryCount*0x14) is RECOMPUTED at each of
+             * the 4 uses below, not cached in a local -- oracle independently rematerializes
+             * count*0x14+base for the memcpy, the NUL-term, the extent store, and the size store
+             * (4 near-identical lw/sll/addu/lw/sll/addu blocks; verified vs the .s). */
+            memcpy((unsigned char *)(ctx->dirEntryCount * 0x14 + (int)ctx->dirEntryArray),
+                   p + 0x21, p[0x20] - 2);            /* drop the ";1" version suffix */
+            ((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14)[p[0x20] - 2] = 0;  /* NUL-term */
+            *(int *)((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14 + 0xC)
+                = rd_le32(p + 2);                      /* extent (start sector) */
+            *(int *)((unsigned char *)ctx->dirEntryArray + ctx->dirEntryCount * 0x14 + 0x10)
+                = rd_le32(p + 10);                     /* file size in bytes */
+            ctx->dirEntryCount = ctx->dirEntryCount + 1;
+        }
+test_entry_count:
+        p = p + p[0];
+        if (ctx->dirEntryCount < limit)
+            goto next_entry;
+
+done:
+    CD_curSector = savedSector;
+}
+
+/* dircompare @0x800FA344 : qsort/bsearch comparator -- compares the 0xC-byte names of two dir entries. */
+extern int dircompare(const void *a, const void *b)
+{
+    return strncmp((const char *)a, (const char *)b, 0xC);
+}
+
+/* CD_Restore @0x800FA364 : addexit() cleanup -- reset the drive and clear the CD context block. */
+extern void CD_Restore(void)
+{
+    CdReset(0);
+    blockclear(&Cdinfo, 0x83C);           /* ctx header (0x3C) + sector cache (0x800) = 0x83C */
+}
+
+/* CD_Init @0x800FA394 : mount the CD filesystem.  Brings up libcd, reads the Primary Volume Descriptor
+ *   (sector 0x10), walks its root directory into the caller-provided buffer, sorts the entry array, and
+ *   registers the at-exit drive-reset.  `buffer` holds `maxOpen` handle pointers followed by the
+ *   `numEntries`-slot (0x14-byte) directory array.  Returns the number of entries found (0 on failure). */
+extern int CD_Init(int maxOpen, int numEntries, void *buffer, void (*callback)(int))
+{
+    CdlLOC         toc[2];
+    unsigned char *root;
+    int            rootExtent;
+    unsigned int   rootSize;              /* oracle: srl (unsigned) for the >>0xB below */
+
+    if (CD_dirEntryCount != 0)            /* already mounted */
+        return 0;
+    if (CdInit() == 0)
+        return 0;
+    CdSetDebug(0);
+    if (CdGetToc(toc) == 0)               /* no disc / unreadable TOC */
+        return 0;
+
+    CD_maxOpen       = maxOpen;
+    CD_handleTable   = (void **)buffer;                            /* ctx+0x34 */
+    CD_dirEntryArray = (void *)((char *)buffer + maxOpen * 4);     /* ctx+0x38, after the handle table */
+    blockclear(buffer, maxOpen * 4 + numEntries * 0x14);
+
+    CD_Restart(0x10);                     /* seek + read the PVD (sector 0x10) */
+    root = readsectorB();                 /* ensure it is in the cache; root = &CD_sectorCache */
+    rootExtent = rd_le32(root + 158);     /* PVD root dir record @+156: extent  @ +156+2  */
+    rootSize   = rd_le32(root + 166);     /* PVD root dir record @+156: data len @ +156+10 */
+    loaddirinfo(rootExtent, rootSize >> 0xB, numEntries);
+
+    qsort(CD_dirEntryArray, CD_dirEntryCount, 0x14, dircompare);
+    CD_completionCallback = callback;     /* ctx+0x30 */
+    addexit((void *)CD_Restore);
+    return CD_dirEntryCount;
+}
+
+/* CD_Restart @0x800FA4A8 : (re)set the read mode and start a streaming read at `startSector` (default
+ *   0x10).  Loops CdlSetmode until accepted, flushes, installs CdReadyHandler, and issues CdlReadN. */
+extern int CD_Restart(int startSector)
+{
+    unsigned char pos[8];
+    unsigned char mode[8];
+    int           rc;
+
+    (void)Cdinfo;                         /* oracle @0x800FA4B4: lui/lw Cdinfo, result discarded --
+                                              a volatile touch (its read is not elided) before arming
+                                              the new read mode below */
+    mode[0] = 0xA0;                       /* double-speed read mode */
+    do {
+        rc = CdControlB(0x0E, mode, 0);   /* CdlSetmode -- retry until the drive accepts it */
+    } while (rc == 0);
+    VSync(3);
+    CdFlush();
+    CdSync(0, 0);
+    if (startSector == 0)
+        startSector = 0x10;
+    /* MATCH: oracle stores curSector (ctx+0x14) before cachedSector (ctx+0xC).  The volatile view
+     * pins the second store before the call, letting gcc schedule CdReadyHandler's final `addiu %lo` into the
+     * `jal CdReadyCallback`'s delay slot (methodology-§3.1 delay-slot-as-arg) instead of
+     * completing the address materialization early. */
+    CD_curSector    = startSector;        /* ctx+0x14 target  */
+    *(volatile int *)&CD_cachedSector = startSector; /* ctx+0x0C read-head */
+    CdReadyCallback(CdReadyHandler);
+    CdIntToPos(CD_curSector, pos);
+    return CdControl(0x1B, pos, 0);       /* CdlReadN */
+}
+
+/* CD_Open @0x800FA554 : open `name` on the CD; writes the 1-based handle to *outp.  Finds a free slot,
+ *   upper-cases the name, binary-searches the directory, and parks the matching entry in the slot.
+ *   Returns 1 if found, 0 if not.  (`flags` is unused -- the CD is read-only.) */
+extern int CD_Open(char *name, int flags, int *outp)
+{
+    char   upper[16];
+    char  *p    = upper;
+    void **h;
+    int    slot = 0;
+    int    limit = CD_maxOpen;
+    void  *entry;
+    int    c;
+    (void)flags;
+
+    if (limit > 0) {
+        int bound = limit;
+        h = CD_handleTable;
+        do {                                            /* find the first free slot */
+            if (*h == 0)
+                goto slot_done;
+            slot++;
+            h++;
+        } while (slot < bound);
+    }
+slot_done:
+    do {                                        /* upper-case the name into a scratch buffer */
+        c = toupper((unsigned char)*name++);
+        *p++ = (char)c;
+    } while ((c & 0xFF) != 0);
+
+    entry = bsearch(upper, CD_dirEntryArray, CD_dirEntryCount, 0x14, dircompare);
+    CD_handleTable[slot] = entry;
+    if (CD_handleTable[slot] == 0) {            /* not on the disc */
+        *outp = 0;
+        return 0;
+    }
+    *outp = slot + 1;
+    return 1;
+}
+
+/* CD_Close @0x800FA65C : release a CD handle slot (1-based). */
+extern int CD_Close(int handle)
+{
+    CD_handleTable[handle - 1] = 0;
+    return 0;
+}
+
+/* CD_Read @0x800FA678 : arm a read of `len` bytes from file `dev` at `offset` into `dest`.  Sets up the
+ *   sector-ring read state (clamping `len` to the file and to the 0x800 sector boundary) and starts the
+ *   watchdog timer; the transfer itself proceeds asynchronously via CD_timerfunc/CdReadyHandler.  If the
+ *   target sector happens to already be in the sector cache (same execution context), it is copied
+ *   immediately -- completing the read (calling the completion callback) or advancing to the next sector.
+ *   Returns the (clamped) byte count, or 0 if the CD is busy. */
+extern int CD_Read(int dev, int dest, int offset, int len)
+{
+    /* same slot idiom as CD_Getinfo (which PASSes): `&CD_handleTable[dev-1]` yields the oracle's
+     * full address materialization `sll $a0,$a0,2; addiu $a0,$a0,-4; addu $a0,$v0,$a0`, and the
+     * directory ENTRY is RE-READ from the slot at each of its two uses (`lw $v0,0($a0)` twice)
+     * rather than cached in a local -- a cached copy lives in a register across the intervening
+     * volatile Cdinfo RMWs (registers are not invalidated) and loses the oracle's second load. */
+    void **slot = &CD_handleTable[dev - 1];
+    int   q, remaining;
+    /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
+     * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
+     * slot) so gcc hoists the base as early as the oracle does, instead of lazily at first field use. */
+    struct { int curLen, remLen, curOff; void *curDst; } *rs = (void *)&CD_ctx.curLen;
+
+    if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
+        return 0;
+
+    remaining = *(int *)((char *)*slot + 0x10) - offset; /* clamp len to bytes left in the file */
+    if (remaining < len)
+        len = remaining;
+
+    q = offset;
+    if (q < 0)
+        q += 0x7FF;
+    rs->curOff = offset - ((q >> 0xB) << 0xB);           /* byte offset within the 0x800 sector */
+    rs->curDst = (void *)dest;      /* the oracle fills the curOff-test's delay slot with this */
+    if (rs->curOff != 0 || len < 0x800)
+        Cdinfo |= 8;                                    /* partial-sector transfer */
+    if (rs->curOff + len > 0x800)
+        q = 0x800 - rs->curOff;                         /* clamp this chunk to the sector boundary */
+    else
+        q = len;
+    rs->curLen = q;
+    rs->remLen = len - q;
+
+    { CD_ctx_t *ctx = &CD_ctx; /* the ctx base is materialized HERE, in the pre-sign-correction
+                                * block, but its first STORE is after the join -- see the note
+                                * above CD_Read for why that is the whole 12-diff residual. */
+      char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
+      int   startSector;
+      if (offset < 0)
+          offset += 0x7FF;
+      startSector    = *(int *)(e + 0xC);
+      ctx->ringIdx   = 0;
+      startSector   += offset >> 0xB;
+      ctx->curSector = startSector; } /* start sector + offset / 0x800 */
+    Cdinfo |= 2;                                        /* read in progress */
+    CD_timeout   = timerhz[0] * 6;
+    addtimer((void *)CD_timerfunc, (void *)dest);
+
+    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {
+        { char *cache = (char *)CD_sectorCache;
+          int off;
+          __asm__("" : : "r"(cache));  /* w47-a5: sched fixpoint -- pin the cache-base addiu first */
+          off = rs->curOff;
+          off += (int)cache;
+          blockmove((void *)off, rs->curDst, rs->curLen); }  /* sector already cached */
+        if (rs->remLen > 0) {                            /* more to read -> advance to the next sector */
+            rs->curOff = 0;
+            rs->curDst = (char *)rs->curDst + rs->curLen;
+            if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
+            else                    { rs->curLen = 0x800;      Cdinfo &= ~8; }
+            rs->remLen  -= rs->curLen;
+            CD_curSector += 1;
+        } else {                                        /* whole request satisfied -> complete now */
+            int gpctx[2];
+            CD_timeout = 0;
+            Cdinfo &= ~2;
+            deltimer((void *)CD_timerfunc);
+            if (CD_completionCallback != 0) {
+                savegp(gpctx);
+                CD_completionCallback(1);
+                restoregp(gpctx[0]);
+            }
+        }
+    }
+    return len;
+}
+
+/* CD_Stopread @0x800FA904 : request the in-flight CD read to stop (sets Cdinfo bit 2). */
+extern int CD_Stopread(int dev)
+{
+    /* Cdinfo (info) is volatile (the IRQ + readsectorB's spin re-read it), so a bare
+     * `return Cdinfo |= 4;` would RE-READ info after the store to source the return
+     * value (an extra `lw`).  The oracle reads once, ORs, writes, and returns the
+     * COMPUTED value -> keep it in a temp and return that (no re-read). */
+    int v = Cdinfo | 4;
+    (void)dev;
+    Cdinfo = v;
+    return v;
+}
+
+/* CD_Getinfo @0x800FA920 : query an open CD file -- optionally copy its 0xC-byte name into `namebuf`
+ *   and write its size to *sizeout; returns the size. */
+extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
+{
+    void **slot = &CD_handleTable[handle - 1];       /* the SLOT address is what's kept; the entry
+                                                         pointer itself is RELOADED at every use below
+                                                         (oracle @0x800FA950/964/978 -- no cached copy) */
+    if (namebuf != 0)
+        strncpy((char *)namebuf, (char *)*slot, 0xC);     /* directory entry name (0xC bytes) */
+    if (sizeout != 0)
+        *sizeout = *(int *)((char *)*slot + 0x10);        /* file size */
+    return *(int *)((char *)*slot + 0x10);
+}
+

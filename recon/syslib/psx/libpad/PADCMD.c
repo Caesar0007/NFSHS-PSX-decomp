@@ -54,78 +54,6 @@ extern void _padSetAct(unsigned char *info, int data, int len)
     info[0x34] = (unsigned char)len;
 }
 
-/* @0x80105E8C : _padCmdParaMode -- 0x43 enter-config(para).
- * MATCH: r=1 hoisted early so v0=1 is live before sb a1,0x24; jr ra delay-slot gets sb v0,0x35. */
-extern int _padCmdParaMode(unsigned char *info, int para)
-{
-    int r;
-    info[0x36] = 0x43;
-    *(unsigned char **)(info + 0x2c) = info + 0x24;
-    r = 1;
-    info[0x24] = (unsigned char)para;
-    info[0x35] = (unsigned char)r;
-    return r;
-}
-
-/* @0x80105EAC : _padCmdGetStatus -- 0x45 get-status. */
-extern int _padCmdGetStatus(unsigned char *info)
-{
-    int r = 0x45;                       /* one li v0,0x45 reused for the 0x36 store AND the return */
-    info[0x36] = (unsigned char)r;
-    *(int *)(info + 0x2c) = 0;
-    info[0x35] = 0;
-    return r;
-}
-
-/* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx).
- * MATCH: same r=1 hoist as _padCmdParaMode. */
-extern int _padCmdSetMap(unsigned char *info, int idx)
-{
-    int r;
-    info[0x36] = 0x4c;
-    *(unsigned char **)(info + 0x2c) = info + 0x24;
-    r = 1;
-    info[0x24] = (unsigned char)idx;
-    info[0x35] = (unsigned char)r;
-    return r;
-}
-
-/* @0x80105EE0 : _padCmdGetDescR0 -- 0x46 get-descriptor-0(idx).
- * MATCH: same r=1 hoist. */
-extern int _padCmdGetDescR0(unsigned char *info, int idx)
-{
-    int r;
-    info[0x36] = 0x46;
-    *(unsigned char **)(info + 0x2c) = info + 0x24;
-    r = 1;
-    info[0x24] = (unsigned char)idx;
-    info[0x35] = (unsigned char)r;
-    return r;
-}
-
-/* @0x80105F00 : _padCmdGetDescR1 -- 0x47 get-descriptor-1(idx).
- * MATCH: same r=1 hoist. */
-extern int _padCmdGetDescR1(unsigned char *info, int idx)
-{
-    int r;
-    info[0x36] = 0x47;
-    *(unsigned char **)(info + 0x2c) = info + 0x24;
-    r = 1;
-    info[0x24] = (unsigned char)idx;
-    info[0x35] = (unsigned char)r;
-    return r;
-}
-
-/* @0x80105F20 : _padCmd4B -- 0x4B exit-config. */
-extern int _padCmd4B(unsigned char *info)
-{
-    int r = 0x4b;                       /* one li v0,0x4b reused for the 0x36 store AND the return */
-    info[0x36] = (unsigned char)r;
-    *(int *)(info + 0x2c) = 0;
-    info[0x35] = 0;
-    return r;
-}
-
 /* =====================  load-info (actuator/mode descriptor) command sequence  ================= */
 
 /* @0x801055FC : _padSendAtLoadInfo -- pick the send command for the current load-info phase. */
@@ -148,17 +76,6 @@ extern void _padSendAtLoadInfo(unsigned char *info)
         _padCmdGetDescR1(info, info[0x47]);
         break;
     }
-}
-
-/* @0x801057CC : _padGetActSize -- size of the actuator-info block being assembled. */
-extern int _padGetActSize(unsigned char *info)
-{
-    int nmode = info[0xe3];
-    int nact  = info[0xe9];
-    int accum = *(int *)(info + 0xec);
-    int a = ((nmode + 1) >> 1) << 2;
-    int b = ((nact * 5 + 3) & 0xffc) + 4;
-    return a + b + accum;
 }
 
 /* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake.
@@ -232,6 +149,17 @@ finish_load_info:
     }
 return_one:
     return 1;
+}
+
+/* @0x801057CC : _padGetActSize -- size of the actuator-info block being assembled. */
+extern int _padGetActSize(unsigned char *info)
+{
+    int nmode = info[0xe3];
+    int nact  = info[0xe9];
+    int accum = *(int *)(info + 0xec);
+    int a = ((nmode + 1) >> 1) << 2;
+    int b = ((nact * 5 + 3) & 0xffc) + 4;
+    return a + b + accum;
 }
 
 /* @0x80105804 : _padLoadActInfo -- carve the actuator buffer (info+0x63) into mode/act sub-regions
@@ -635,3 +563,76 @@ extern int _padSetMainMode_rcv(unsigned char *info)
     _padFuncClrInfo(info);
     return 0;
 }
+
+/* @0x80105E8C : _padCmdParaMode -- 0x43 enter-config(para).
+ * MATCH: r=1 hoisted early so v0=1 is live before sb a1,0x24; jr ra delay-slot gets sb v0,0x35. */
+extern int _padCmdParaMode(unsigned char *info, int para)
+{
+    int r;
+    info[0x36] = 0x43;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)para;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105EAC : _padCmdGetStatus -- 0x45 get-status. */
+extern int _padCmdGetStatus(unsigned char *info)
+{
+    int r = 0x45;                       /* one li v0,0x45 reused for the 0x36 store AND the return */
+    info[0x36] = (unsigned char)r;
+    *(int *)(info + 0x2c) = 0;
+    info[0x35] = 0;
+    return r;
+}
+
+/* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx).
+ * MATCH: same r=1 hoist as _padCmdParaMode. */
+extern int _padCmdSetMap(unsigned char *info, int idx)
+{
+    int r;
+    info[0x36] = 0x4c;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)idx;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105EE0 : _padCmdGetDescR0 -- 0x46 get-descriptor-0(idx).
+ * MATCH: same r=1 hoist. */
+extern int _padCmdGetDescR0(unsigned char *info, int idx)
+{
+    int r;
+    info[0x36] = 0x46;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)idx;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105F00 : _padCmdGetDescR1 -- 0x47 get-descriptor-1(idx).
+ * MATCH: same r=1 hoist. */
+extern int _padCmdGetDescR1(unsigned char *info, int idx)
+{
+    int r;
+    info[0x36] = 0x47;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)idx;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105F20 : _padCmd4B -- 0x4B exit-config. */
+extern int _padCmd4B(unsigned char *info)
+{
+    int r = 0x4b;                       /* one li v0,0x4b reused for the 0x36 store AND the return */
+    info[0x36] = (unsigned char)r;
+    *(int *)(info + 0x2c) = 0;
+    info[0x35] = 0;
+    return r;
+}
+

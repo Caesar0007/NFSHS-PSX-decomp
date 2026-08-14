@@ -91,6 +91,20 @@ int           _err_math(int errnum, int code);
  * constant into the arm -- an opacity device on the b-side mask, not a barrier
  * (barriers were falsified).  NOT a floor.
  *
+ * MATCH (w60-a5, 2026-08-14): 27 -> 25.  Residual (c) half-cleared: the
+ * exponent update belongs BEFORE its `_add_mant_d` call, not after -- reorg's
+ * backward scan can only steal an insn that PRECEDES the jal, so after the call
+ * `exp += 1` / `exp = 0` are unreachable to it and the a0 arg-setup gets stolen
+ * instead; moved, retail's `addiu $s1,$s1,1` / `addu $s1,$zero,$zero` land in
+ * the two slots.  (Arm 1 carries the whole win; arm 2's move is oracle-evidenced
+ * and gate-neutral, kept for faithfulness.)
+ * FALSIFIED at 25 for residual (b), the arg-load order: a named temp for arg4
+ * `t[0]` 27 | a named temp for the arg5 `t[1]` 25 | a pointer local for `q`
+ * assigned at the top of the arm 25.  And re-confirmed for (a) at this basin:
+ * if/else instead of the ternary 69 (head) / 73 (tail) / 73 (both), inverted
+ * if/else 70 -- the ternary IS retail's shape, the residual is cse's mask reuse
+ * exactly as the note above says. */
+ *
  * The W53-A12 handoff recipe applied in full:
  * `double` params + a register-resident `union double_long` (the 05B soft-float PAIR law,
  * mechanism in GTDF2.c) TOGETHER with the oracle re-derivation.
@@ -173,14 +187,19 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 n = 1;
                 t[1] = 0;
                 t[0] = n;
-                _add_mant_d(q, q[0], q[1], t[0], t[1]);
+                /* w60-a5: the exponent update sits BEFORE the call in retail --
+                 * reorg's backward scan steals it into the jal's delay slot
+                 * (`addiu $s1,$s1,1` / `addu $s1,$zero,$zero`).  After the call
+                 * it is unreachable to reorg and the a0 arg-setup gets stolen
+                 * instead.  27 -> 25. */
                 exp += 1;
+                _add_mant_d(q, q[0], q[1], t[0], t[1]);
             } else {
                 n = -exp;
                 t[1] = 0;
                 t[0] = 1 << n;
-                _add_mant_d(q, q[0], q[1], t[0], t[1]);
                 exp = 0;
+                _add_mant_d(q, q[0], q[1], t[0], t[1]);
                 n += 1;
             }
             __asm__("" : : "r"(n));   /* 05C ref-fence: see receipt */

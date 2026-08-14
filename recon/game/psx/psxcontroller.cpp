@@ -132,7 +132,27 @@ void InGame_ResetPSXController(int player,int config)
      Also neutral this pass: a named `int p4 = player * 4;` local fenced instead of the
      expression, with the gPadinfo reads indexed off it (15 @306); a doubled operand list
      `"r"(player*4),"r"(player*4)` (15); the if-block written without braces (15); fencing
-     `hoff[player]`'s VALUE instead 22 @307. */
+     `hoff[player]`'s VALUE instead 22 @307.
+     ===== w59-a6: 15 -> 3 (count unchanged 306 vs 305).  THE `sll` SLOT WAS NOT A SCHED
+     TIE -- IT WAS THE ADDRESS-BLOCK ORDER (catalog 09I CAST-INT ARRAY SUBSCRIPT).  Twelve
+     of the fifteen diffs were three sites where the oracle emits `sll aN,s2,2` BEFORE the
+     `lui/addiu %hi/%lo(hoff)` pair and ours AFTER it; all three are the FIRST statement of
+     a basic block that follows a `jal` (the two `h[0x73 - hoff[player]]` arms of the
+     `GameSetup_gData.Time` if/else, and `h[0x66 - hoff[player]]`).  Spelling just those
+     three as the byte-base form `*(int *)((player << 2) + (int)hoff)` pins the scaled index
+     as the first operand of the address block and issues it first: 15 -> 3.  Spelling ALL
+     ~20 sites that way measures the same 3 (the other sites already match, so the minimal
+     three-site edit is kept); spelling only ONE site = 11.
+     RESIDUAL 3 = the read-only fence's OWN insn (306 vs 305): retail materialises
+     `sll s5,s2,2` in the controlType `beq`'s DELAY SLOT (reorg's backward eager-steal takes
+     it because it is the LAST pre-branch RTL insn), while our fence pins it FIRST in the
+     block so reorg steals a `lui v0,0` from the fall-through instead.  RE-MEASURED IN THIS
+     BASIN (the w53 fence sweep re-run): no fence 254 @305 -- so the fence is still load-
+     bearing; identity fence 4 @307; void-tail fence 229 @306; non-volatile read-only fence
+     3 @306 (identical); a SECOND fence before the controllerConfig store 3 (neutral); Yoda
+     compare on the controlType test 31; a statement-expression fence placed after the
+     compare's operand evaluation 22 @303.  Open angle unchanged: a device that makes
+     `player * 4` a global allocno WITHOUT being the block's first insn. */
   __asm__ volatile("" : : "r"(player * 4));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
@@ -165,10 +185,15 @@ void InGame_ResetPSXController(int player,int config)
     }
     h[0x82 - hoff[player]] = InGame_GetPSXPadValue(m,player);
   }
+  /* w59-a6: the three `hoff[player]` reads below are spelled as the byte-base form
+     `*(int *)((player << 2) + (int)hoff)` ON PURPOSE (catalog 09I) -- they are the first
+     statement of a post-`jal` block and the plain subscript issues the `lui/addiu` pair
+     ahead of the `sll`, which retail does not.  Do NOT "simplify" them back to
+     `hoff[player]`: that costs 12 diffs.  Every other site in this fn stays natural. */
   if (GameSetup_gData.Time != 0) {
     int m;
 
-    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][9][type],player);
+    h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][9][type],player);
     m = 0;
     if (type == 1) {
       m = 6;
@@ -178,14 +203,14 @@ void InGame_ResetPSXController(int player,int config)
   else {
     int m;
 
-    h[0x73 - hoff[player]] = InGame_GetPSXPadValue(0,player);
+    h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(0,player);
     m = mappings[config][9][type];
     if (type == 1) {
       m = m | 6;
     }
     h[0x54 - hoff[player]] = InGame_GetPSXPadValue(m,player);
   }
-  h[0x66 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][5][type],player);
+  h[0x66 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][5][type],player);
   h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
   h[0x68 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xc][type],player);
   h[0x4d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0xb][type],player);

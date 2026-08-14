@@ -262,62 +262,52 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
    * the i*4 term ($a3) are compiler GIVs, so both loops are written in INDEX
    * form and the invented Ghidra temps (bVar1/pCVar5/iVar3/iVar7/local_a0__1)
    * are deleted (catalog: SYM has only i/j => the pointers are givs). */
-  short weather;
-  short night;
   int i;
   int j;
 
-  i = 0;
-  spec->fogstate = 0;
-  weather = (short)GameSetup_gData.Weather;
-  /* MATCH (w45-a9, 6 -> 4): ZERO-INSN SCHEDULING FENCE (§2b.5) at the ready-list DRAIN
-   * point.  `li $a3,23` is loop.c's LICM hoist of the ring loop's 0x17; it has no
-   * consumer in block 0, so sched2 held it in the ready list until the list drained and
-   * issued it at position 2 (retail: 7).  w44-a10 proved statement order cannot reach it
-   * (27 head-order variants, all 6).  An empty asm splits the block into two scheduling
-   * regions, so the hoist can no longer drain past this point and lands exactly where
-   * retail has it.  POSITION IS THE DIAL, operands are irrelevant -- measured here:
-   * after fogstate 8, after weather 4 (kept), after horizonstate 6, after weatherstate 6,
-   * after night 6, after skystate 6; operand variants at the winning position
-   * (i / weather / spec / i+weather / i+spec) all 4. */
-  __asm__ volatile("" : : "r"(i));
-  spec->horizonstate = 1;
-  spec->skystate = 1;
-  spec->weatherstate = weather;
-  night = (short)GameSetup_gData.Time;
-  (spec->fogspec).contrast = 0x10000;
-  spec->depthcuestate = 1;
-  (spec->fogspec).color.r = 0x80;
-  (spec->fogspec).color.g = 0x80;
-  (spec->fogspec).color.b = 0x80;
-  (spec->fogspec).start = 200;
-  (spec->fogspec).dist2base = 8;
-  (spec->weatherspec).intensity_limit = 2;
-  (spec->horizonspec).mirror = 1;
-  (spec->horizonspec).yoffset = -0x1080;
-  (spec->weatherspec).type = 0;
-  (spec->horizonspec).angle = 0;
-  (spec->horizonspec).height = 0x4b00;
-  (spec->horizonspec).frontColor[0].r = 0x80;
-  (spec->horizonspec).frontColor[0].g = 0x80;
-  (spec->horizonspec).frontColor[0].b = 0x80;
-  (spec->horizonspec).frontColor[1].r = 0x80;
-  (spec->horizonspec).frontColor[1].g = 0x80;
-  (spec->horizonspec).frontColor[1].b = 0x80;
-  (spec->horizonspec).backColor[0].r = 0x80;
-  (spec->horizonspec).backColor[0].g = 0x80;
-  (spec->horizonspec).backColor[0].b = 0x80;
-  (spec->horizonspec).backColor[1].r = 0x80;
-  (spec->horizonspec).backColor[1].g = 0x80;
-  (spec->horizonspec).backColor[1].b = 0x80;
-  spec->nightstate = night;
-  for (; i < 0x10; i = i + 1) {
+  /* MATCH (w59-a6): WHOLE-BODY REWRITE IN THE SLD STATEMENT ORDER (catalog 05A/06A).
+   * `tools/diffsrc.py` + the SYM SLD stream give retail's real statement list for
+   * TRACKSPEC.CPP:44-113 -- the recon carried Ghidra's EMISSION order (weatherstate
+   * after skystate, dist2base before weatherspec.type, nightstate just before the ring
+   * loop, the tail's sunHalo/depthcue/nightcolor stores interleaved).  Re-laying the
+   * straight-line statements in SLD order (47..52 the six state words, 54..57 fogspec,
+   * 59/60 weatherspec, 62..69 horizonspec, 70 the ring for-init, 74/75 skyspec head,
+   * 77 the sky for-init, 88..113 the tail) removes BOTH standing residuals -- the
+   * `li $v1,1`-vs-`li $a3,23` head issue order (which the w45-a9 zero-insn fence was
+   * papering over: the fence is DELETED here) and the `sb $v1,240` tail placement.
+   * The two `short weather/night` locals are gone too: SLD 48/51 show retail assigning
+   * `GameSetup_gData.Weather/Time` straight into the record (one line each, the store
+   * scheduled far from the load), so the locals were a reconstruction artifact whose
+   * merged live range was what pushed `spec` off $a1 in the first place. */
+  spec->fogstate = 0;                                       /* SLD 47 */
+  spec->weatherstate = (short)GameSetup_gData.Weather;      /* SLD 48 */
+  spec->horizonstate = 1;                                   /* SLD 49 */
+  spec->skystate = 1;                                       /* SLD 50 */
+  spec->nightstate = (short)GameSetup_gData.Time;           /* SLD 51 */
+  spec->depthcuestate = 1;                                  /* SLD 52 */
+
+  (spec->fogspec).contrast = 0x10000;                       /* SLD 54 */
+  (spec->fogspec).color.r = 0x80; (spec->fogspec).color.g = 0x80; (spec->fogspec).color.b = 0x80;  /* SLD 55 */
+  (spec->fogspec).start = 200;                              /* SLD 56 */
+  (spec->fogspec).dist2base = 8;                            /* SLD 57 */
+
+  (spec->weatherspec).type = 0;                             /* SLD 59 */
+  (spec->weatherspec).intensity_limit = 2;                  /* SLD 60 */
+
+  (spec->horizonspec).mirror = 1;                           /* SLD 62 */
+  (spec->horizonspec).angle = 0;                            /* SLD 63 */
+  (spec->horizonspec).yoffset = -0x1080;                    /* SLD 64 */
+  (spec->horizonspec).height = 0x4b00;                      /* SLD 65 */
+  (spec->horizonspec).frontColor[0].r = 0x80; (spec->horizonspec).frontColor[0].g = 0x80; (spec->horizonspec).frontColor[0].b = 0x80;  /* SLD 66 */
+  (spec->horizonspec).frontColor[1].r = 0x80; (spec->horizonspec).frontColor[1].g = 0x80; (spec->horizonspec).frontColor[1].b = 0x80;  /* SLD 67 */
+  (spec->horizonspec).backColor[0].r = 0x80; (spec->horizonspec).backColor[0].g = 0x80; (spec->horizonspec).backColor[0].b = 0x80;     /* SLD 68 */
+  (spec->horizonspec).backColor[1].r = 0x80; (spec->horizonspec).backColor[1].g = 0x80; (spec->horizonspec).backColor[1].b = 0x80;     /* SLD 69 */
+  for (i = 0; i < 0x10; i = i + 1) {                        /* SLD 70 */
     (spec->horizonspec).ringPMX[i] = (char)((i < 8) ? i : (0x17 - i));
   }
-  i = 0;
-  (spec->skyspec).type = 0;
-  (spec->skyspec).flags = 4;
-  for (; i < 5; i = i + 1) {
+  (spec->skyspec).type = 0;                                 /* SLD 74 */
+  (spec->skyspec).flags = 4;                                /* SLD 75 */
+  for (i = 0; i < 5; i = i + 1) {                           /* SLD 77 */
     (spec->skyspec).frontcolors[i].r = '2';
     (spec->skyspec).frontcolors[i].g = '2';
     (spec->skyspec).frontcolors[i].b = 'F';
@@ -329,36 +319,27 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
     }
     (spec->skyspec).ringAngles[i] = i << 0xc;
   }
-  (spec->skyspec).clearcolor.r = '\b';
-  (spec->skyspec).clearcolor.g = '\x10';
-  (spec->skyspec).sunAngleInSky = -0x1848;
-  (spec->skyspec).sunHeightInSky = 0xee;
-  (spec->skyspec).moonHeightInSky = 0xee;
-  (spec->skyspec).numStars = 0x3c;
-  (spec->skyspec).starAngleLow = 4000;
-  (spec->skyspec).starAngleHigh = 10000;
-  (spec->skyspec).starBrightMin = 0x40;
-  (spec->skyspec).starBrightMax = 200;
-  (spec->skyspec).starBaseColor.r = 0xff;
-  (spec->skyspec).starBaseColor.g = 0xff;
-  (spec->skyspec).starBaseColor.b = 0xff;
-  (spec->skyspec).starRandomSeed = 0x3039;
-  (spec->skyspec).sunBeamColor.r = '!';
-  (spec->skyspec).sunBeamColor.g = '!';
-  (spec->skyspec).sunHaloColor.r = '\x19';
-  (spec->skyspec).sunBeamColor.b = '\x10';
-  (spec->nightspec).nightcolor.g = '\x10';
-  (spec->nightspec).nightcolor.b = '\x10';
-  (spec->skyspec).sunHaloColor.g = '\n';
-  (spec->depthcuespec).color.r = 0x80;
-  (spec->depthcuespec).distance = 0x44;
-  (spec->skyspec).clearcolor.b = '\b';
-  (spec->skyspec).moonAngleInSky = 0;
-  (spec->skyspec).sunHaloColor.b = '\0';
-  (spec->skyspec).yoffset = 0;
-  (spec->nightspec).nightcolor.r = '\b';
-  (spec->depthcuespec).color.g = 0x80;
-  (spec->depthcuespec).color.b = 0x80;
+  (spec->skyspec).clearcolor.r = '\b'; (spec->skyspec).clearcolor.g = '\x10'; (spec->skyspec).clearcolor.b = '\b';  /* SLD 88 */
+  (spec->skyspec).sunAngleInSky = -0x1848;                  /* SLD 89 */
+  (spec->skyspec).sunHeightInSky = 0xee;                    /* SLD 90 */
+  (spec->skyspec).moonAngleInSky = 0;                       /* SLD 91 */
+  (spec->skyspec).moonHeightInSky = 0xee;                   /* SLD 92 */
+  (spec->skyspec).numStars = 0x3c;                          /* SLD 93 */
+  (spec->skyspec).starAngleLow = 4000;                      /* SLD 94 */
+  (spec->skyspec).starAngleHigh = 10000;                    /* SLD 95 */
+  (spec->skyspec).starBrightMin = 0x40;                     /* SLD 96 */
+  (spec->skyspec).starBrightMax = 200;                      /* SLD 97 */
+  (spec->skyspec).starBaseColor.r = 0xff; (spec->skyspec).starBaseColor.g = 0xff; (spec->skyspec).starBaseColor.b = 0xff;  /* SLD 98 */
+  (spec->skyspec).starRandomSeed = 0x3039;                  /* SLD 99 */
+  (spec->skyspec).sunBeamColor.r = '!'; (spec->skyspec).sunBeamColor.g = '!'; (spec->skyspec).sunBeamColor.b = '\x10';  /* SLD 100 */
+  (spec->skyspec).sunHaloColor.r = '\x19'; (spec->skyspec).sunHaloColor.g = '\n'; (spec->skyspec).sunHaloColor.b = '\0'; /* SLD 101 */
+  (spec->skyspec).yoffset = 0;                              /* SLD 102 */
+
+  (spec->nightspec).nightcolor.r = '\b'; (spec->nightspec).nightcolor.g = '\x10'; (spec->nightspec).nightcolor.b = '\x10';  /* SLD 105 */
+
+  (spec->depthcuespec).color.r = 0x80; (spec->depthcuespec).color.g = 0x80; (spec->depthcuespec).color.b = 0x80;  /* SLD 107 */
+  (spec->depthcuespec).distance = 0x44;                     /* SLD 108 */
+
   (spec->worldcolorspec).worldR = 0;
   (spec->worldcolorspec).worldG = 0;
   (spec->worldcolorspec).worldB = 0;

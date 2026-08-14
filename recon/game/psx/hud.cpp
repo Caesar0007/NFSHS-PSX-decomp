@@ -1228,10 +1228,10 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
   if (time < 0) {
     time = 0;
   }
-  temp2 = __builtin_abs(time);
-  temp1 = time / 0x40;
-  min = (temp1 / 0x3c) % 0x3c;
-  sec = temp1 % 0x3c;
+  temp1 = __builtin_abs(time) / 0x40;               /* SLD 1237 */
+  temp2 = __builtin_abs(time) - temp1 * 0x40;       /* SLD 1238 */
+  min = (temp1 / 0x3c) % 0x3c;                      /* SLD 1239 */
+  sec = temp1 % 0x3c;                               /* SLD 1239 */
   /* MATCH: statement ORDER (min,sec BEFORE hun) is the lever here -- 146->10 diffs.
      RESIDUAL 10 (99/99 count-exact), w44-a5 MECHANISM (supersedes "copy-direction pick"):
      the oracle's 5 insns are `v0=abs(a1); bgez v0; [slot] a2=v0; v0=v0+63; sra a1,v0,6`
@@ -1337,14 +1337,37 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
        divide (`(-time < 0 ? time : -(-time)) / 0x40`, 6 = neutral).
        STATE OF THE ANGLE: retail's `addu a2,v0,zero` is a copy whose DEST outlives and
        whose SOURCE (the abs pseudo) DIES at the divide.  gcc-2.8 will not produce it from
-       C: with no fence cse copy-propagates the survivor; with an identity fence the "0"
+       ===== w59-a6: 6 -> PASS (99/99).  THE SYM 8c BLOCK SETTLED IT (catalog 06A) =====
+       Every wave above assumed `temp2` IS the abs value and then hunted for a copy whose
+       source dies at the divide.  The SYM 8c block @0x800d3a18 says otherwise:
+           min REG $9 | sec REG $a | hun REG $5 | temp1 REG $5 | temp2 REG $3
+       temp2 is `$v1` -- and the oracle's `$v1` is the SUBTRACTION result (`sll v1,a1,6;
+       subu v1,a2,v1` = abs - temp1*0x40), not the abs.  The abs lives in `$a2`, which no
+       SYM record names => it is an ANONYMOUS cse temp.  So retail's shape is simply:
+           1237:  temp1 = abs(time) / 0x40;
+           1238:  temp2 = abs(time) - temp1 * 0x40;
+           1239:  min = (temp1 / 0x3c) % 0x3c;  sec = temp1 % 0x3c;
+           1241:  hun = temp2 * 100 / 0x40;
+       -- TWO textual `__builtin_abs(time)` calls.  cse recognises the repeat, computes it
+       once into the divide's operand and emits the extra `addu a2,v0,zero` copy to keep the
+       common subexpression alive for line 1238; the abs pseudo then DIES at the divide and
+       the copy is the survivor.  That is EXACTLY the copy the w44-w51 receipts declared
+       "gcc-2.8 will not produce from C": it is produced by cse's common-subexpression copy,
+       not by any source-level assignment.  (`temp2 = abs(time); temp1 = temp2/0x40;` scores
+       10 precisely because there the NAMED temp2 is the abs and outlives the divide.)
+       The SLD line order also moved `hun`'s numerator from after min/sec to line 1238,
+       before them -- both changes are needed; the pair takes 6 -> 0.
+       CATALOG CANDIDATE: "a SYM REG number that does not match the value you assumed the
+       local holds is the whole diagnosis" + "a repeated subexpression is the only C spelling
+       that mints a cse copy whose SOURCE dies and whose DEST outlives".
+       (historical, superseded) With no fence cse copy-propagates the survivor; with an identity fence the "0"
        constraint ties both ends to one register; an extra real producer is copy-propagated
        too.  What is left is not a source spelling at all -- it is a local-alloc
        `combine_regs` refusal (w47 row: combine_regs will not tie a copy whose DESTINATION
        is a GLOBAL allocno).  Route: make temp2 a GLOBAL allocno (live across a basic-block
        boundary) while the abs stays block-local -- e.g. by moving temp2's only consumer
        (`hun`) behind a real branch.  Not attempted here (it changes control flow). */
-  hun = (temp2 - temp1 * 0x40) * 100 / 0x40;
+  hun = temp2 * 100 / 0x40;                         /* SLD 1241 */
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min / 10];
   sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[min % 10];
@@ -1761,10 +1784,22 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
      *      fence: place it where its BARRIER costs nothing -- the ref dial only needs the
      *      fence somewhere at the right loop depth, so prefer a position with no schedulable
      *      insn crossing it.
-     * RESIDUAL 2 = `li s0,103` (alphShape=0x67) vs `li a2,-1` (offy=-1) issue order in the
-     *      0xE5 arm.  Swapping the two statements, or adding a `goto HudBuildStr_haveShape`
-     *      after them, drops to 4 diffs @213 (two insns cross-jump away); a void fence
-     *      between them is exactly neutral.  Pure sched2 ready-list order on two `li`s. */
+     * ===== w59-a6: 2 -> PASS (215/215).  THE LAST TWO DIFFS ARE CLOSED =====
+     * The residual was `li s0,103` (alphShape=0x67) vs `li a2,-1` (offy=-1) issue order in
+     * the 0xE5 arm.  Retail's order is s0-then-a2, i.e. SOURCE order `alphShape = 0x67;
+     * offy = -1;` -- but writing it that way alone drops to 4 diffs @213 because the arm's
+     * new TAIL (`offy = -1;`) then matches the tail of the sibling `(u_char)(*str+0x40)<0x1d`
+     * arm (`offy = -1; goto haveShape;`) and jump.c's CROSS_JUMP merges the two, deleting
+     * two insns.  FIX = swap the statements AND terminate the arm with a ZERO-INSN VOID-TAIL
+     * FENCE `__asm__("" : : "i"(0))`: the asm becomes the block's last RTL insn, so the two
+     * arms no longer share a common tail and cross_jump leaves both copies alone, while the
+     * fence itself emits nothing.  (The earlier receipt's "a void fence between them is
+     * exactly neutral" is correct and not in conflict -- the fence has to be AFTER both
+     * statements, where it breaks the tail, not BETWEEN them.)
+     * CATALOG CANDIDATE: "void-tail fence AS A CROSS_JUMP TAIL-BREAKER" -- whenever the
+     * statement order retail needs makes two arms tail-identical, end the arm with a
+     * void-tail fence; it is the zero-insn way to keep a duplicate that jump.c would merge
+     * (the 09G "duplicate a shared tail through DIFFERENT locals" trick without the local). */
     if (*str == ' ') {
       ix = ix + 3;
     }
@@ -1854,8 +1889,9 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
               __asm__("" : "=r"(str) : "0"(str));
               alphShape = *str + 0x43;
               if ((u_char)*str == 0xe5) {
-                offy = -1;
                 alphShape = 0x67;
+                offy = -1;
+                __asm__("" : : "i"(0));
               }
             }
           }
@@ -3338,7 +3374,20 @@ HudCdPlay_buildOutString:
  * EARLIER than retail, so no fence placement can move it down; the reachable dial is the
  * sched2 PRIORITY of `addu s6,s0,zero` (its critical-path length to the end of the entry
  * block), not its position.  Retail's address chain out-prioritises the pair; ours does not.
- * That is a `-dR` reading job, or the permuter -- unchanged verdict. */
+ * That is a `-dR` reading job, or the permuter -- unchanged verdict.
+ * ===== w59-a6: 4 -> PASS (450/450) -- SOLVED BY THE SLD STATEMENT ORDER (catalog 05A) =====
+ * Every w46/w51 probe moved `visible = 0;` around but left the rest of the head in GHIDRA
+ * EMISSION order.  `tools/diffsrc.py` + the SYM SLD stream give retail's real statement list
+ * for HUD.CPP:2497-2614: 2498 `car =` / 2507-2510 m00,m01,m10,m11 / 2512 mapx / 2513 mapz /
+ * 2514 cenX / 2515 cenZ / 2519 the `for`.  Our head had mapx/mapz BEFORE the matrix reads and
+ * `visible = 0;` second -- i.e. two independent order faults.  Re-laying the head in SLD order
+ * (matrix first, then mapx/mapz, then cenX/cenZ, `visible = 0;` last -- it has NO line of its
+ * own in the SLD, it shares 2519 with the `for`) lands the s6-pair at retail's slot with no
+ * device at all.  The "sched2 ready-list drain tie" verdict was therefore a MIS-DIAGNOSIS: the
+ * pair's luid was wrong because the statements around it were in the wrong order.
+ * LESSON (catalog candidate): when a residual is "N instructions issued at the wrong position
+ * inside ONE basic block", re-lay the WHOLE block in SLD order before reaching for any dial --
+ * moving the diffing statement alone cannot fix a global luid mismatch. */
 /* ---- Hud_BuildRadar__Fi ---- */
 int Hud_BuildRadar(int player)
 
@@ -3362,17 +3411,17 @@ int Hud_BuildRadar(int player)
   coorddef scr [15];
   int visible;
 
-  car = Camera_gInfo[player].anchor;
-  visible = 0;
-  mapx = 0x16;
-  mapz = 0x18;
-  m00 = car->orientMat.m[0] >> 8;   /* +0xF0 */
-  m01 = car->orientMat.m[6] >> 8;   /* +0x108 */
-  m10 = car->orientMat.m[2] >> 8;   /* +0xF8 */
-  m11 = car->orientMat.m[8] >> 8;   /* +0x110 */
-  cenX = car->position.x >> 8;
-  cenZ = -car->position.z >> 8;
-  for (i = 0; i < Cars_gNumRaceCars; i++) {
+  car = Camera_gInfo[player].anchor;               /* SLD 2498 */
+  m00 = car->orientMat.m[0] >> 8;   /* +0xF0  SLD 2507 */
+  m01 = car->orientMat.m[6] >> 8;   /* +0x108 SLD 2508 */
+  m10 = car->orientMat.m[2] >> 8;   /* +0xF8  SLD 2509 */
+  m11 = car->orientMat.m[8] >> 8;   /* +0x110 SLD 2510 */
+  mapx = 0x16;                                     /* SLD 2512 */
+  mapz = 0x18;                                     /* SLD 2513 */
+  cenX = car->position.x >> 8;                     /* SLD 2514 */
+  cenZ = -car->position.z >> 8;                    /* SLD 2515 */
+  visible = 0;                                     /* SLD 2519 (no line of its own) */
+  for (i = 0; i < Cars_gNumRaceCars; i++) {        /* SLD 2519 */
     x = (Cars_gRaceCarList[i]->N.position.x >> 8) - cenX;
     z = (-Cars_gRaceCarList[i]->N.position.z >> 8) - cenZ;
     scr[i].x = m00 * x + m01 * z >> 0x10;

@@ -76,7 +76,6 @@ int _err_math(int errnum, int code);
 unsigned int __mulsf3(int a1, int a2)   /* @0x800F34B0 */
 {
     unsigned int sign;
-    unsigned int result;
     unsigned int prod;
     int ha, hb, ea, eb;
     int e, exp;
@@ -112,11 +111,20 @@ unsigned int __mulsf3(int a1, int a2)   /* @0x800F34B0 */
         }
     }
     prod &= 0xFF7FFFFF;
+    /* w60-a5: THE RESULT FUNNEL, cracked by the FLTSISF law -- accumulate into
+     * an EXISTING pseudo whose register is the target, never a fresh one.
+     * Retail's `result` lives in $t0, which is the FIRST PARAMETER's own
+     * register (`addu $t0,$a0,$zero` in the head, rebuilt in place by
+     * `or $t0,$v1,$a0`, dead after the last `andi $v0,$t0,255`).  Reusing the
+     * a1 variable as the result destination gets that register WITHOUT minting
+     * a pseudo (a fresh `result` local is what coalesced both copies away).
+     * 8 -> 5.  Measured, same edit on every other candidate pseudo:
+     * a1 5 | prod 9 | exp 9 | sign 23 | a2 41. */
     if (exp >= 255) {
         _err_math(34, 12);
-        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;
+        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;
     } else {
-        result = (sign | exp << 23) | prod;
+        a1 = (sign | exp << 23) | prod;
     }
-    return result;
+    return (unsigned int)a1;
 }

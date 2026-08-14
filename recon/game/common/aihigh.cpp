@@ -437,6 +437,19 @@ AIHigh_Base::~AIHigh_Base()
 
 
 
+/* ---- _._15AIHigh_BTC_Perp  AIHigh_BTC_Perp::dtor  [@0x8005B438, AIHIGH.OBJ instance] ----
+   W54-A15: cfront vague-linkage duplicate.  configs/symbol_addrs.txt gives the CANONICAL
+   ___15AIHigh_BTC_Perp to the AIHIGH object (0x8005B438; aih_btcperp owns the VA-suffixed
+   copy at 0x80061348), and src/game/common/aihigh.c INCLUDE_ASMs it -- but no aihigh TU
+   emitted it (0.00% NOT-IN-OBJECT).  Same cross-TU duplicate model the tree already uses for
+   TestForRelease__12AIState_Base (defined in aistate/aih_btccop/aih_btcperp alike). */
+AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
+{
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  return;
+}
+
+
 /* ---- HighExecute__11AIHigh_None  AIHigh_None::HighExecute  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
 
 void AIHigh_None::HighExecute()
@@ -568,19 +581,6 @@ AIState_Base::~AIState_Base()
 
 
 
-
-
-/* ---- _._15AIHigh_BTC_Perp  AIHigh_BTC_Perp::dtor  [@0x8005B438, AIHIGH.OBJ instance] ----
-   W54-A15: cfront vague-linkage duplicate.  configs/symbol_addrs.txt gives the CANONICAL
-   ___15AIHigh_BTC_Perp to the AIHIGH object (0x8005B438; aih_btcperp owns the VA-suffixed
-   copy at 0x80061348), and src/game/common/aihigh.c INCLUDE_ASMs it -- but no aihigh TU
-   emitted it (0.00% NOT-IN-OBJECT).  Same cross-TU duplicate model the tree already uses for
-   TestForRelease__12AIState_Base (defined in aistate/aih_btccop/aih_btcperp alike). */
-AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
-{
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
-  return;
-}
 
 
 /* end of aihigh.cpp */

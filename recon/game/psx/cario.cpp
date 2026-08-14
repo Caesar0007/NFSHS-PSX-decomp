@@ -337,8 +337,30 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
         n0 = (pixel3 & 0xf) << 0xc;
         n1 = (pixel3 & 0xf0) << 4;
         n2 = (pixel3 & 0xf00) >> 4;
-        n3 = pixel3 >> 0xc;
-        *dest++ = (short)(n0 | n3 | n1 | n2);
+        /* w60-a7 SEAL (2 -> PASS 42/42).  The last residual was ONE `or` position
+         * (ours ORed the n3 term first, retail last) and the plain left-assoc
+         * `n0|n1|n2|n3` that spells retail's or ORDER cost 16 because it rotates
+         * pixel3/n1/n2 one hard reg (ours a1/a0/v1, retail v1/a1/a0).  ROOT CAUSE:
+         * with n3 ORed LAST, `n3 = pixel3 >> 0xc` written as a fresh temp keeps
+         * pixel3's qty alive to the last `or` -> long live range -> low
+         * QTY_CMP_PRI -> allocated late -> $a1.  Writing it as an IN-PLACE MUTATION
+         * of pixel3 followed by a COPY (`pixel3 = pixel3 >> 0xc; n3 = pixel3;`)
+         * ends pixel3's own range at the shift and gives n3 its own short-lived
+         * qty, restoring retail's exact handout AND the plain or order.
+         * Falsified from this basin (all worse): plain-or alone 16; the same with
+         * `(int)pixel3` 16, `(pixel3 & 0xf000) >> 0xc` 16, n3 assigned first 12,
+         * n3 written inline in the `|` chain 16, dropping n3 and using pixel3
+         * directly 16 (BOTH `pixel3 = pixel3 >> 0xc;` and `pixel3 >>= 0xc;` --
+         * the named COPY is load-bearing); read-only fences on pixel3 x1/x2/x3
+         * after n3 15/15/31 (+3 insns), after the load 22, opacity fence on n3 20,
+         * 3-operand fence on n0/n1/n2 22; every parenthesisation of the 4-term `|`
+         * 14-22; accumulator statement forms 43-51 (they drop an insn); `+` for `|`
+         * 20.  (The pre-existing 576-cell assign-order x or-order joint sweep never
+         * reached this cell -- it varied only the two ORDER axes, never the SHAPE
+         * of the n3 term.) */
+        pixel3 = pixel3 >> 0xc;
+        n3 = pixel3;
+        *dest++ = (short)(n0 | n1 | n2 | n3);
         i = i - 1;
       }
       /* w46-a9 (6 -> 4, count now EXACT 42/42): residual (b) above -- the two arms'

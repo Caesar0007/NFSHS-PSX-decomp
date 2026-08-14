@@ -216,6 +216,47 @@ static inline void _memcpy8(unsigned char *dst, unsigned char *src)
  * fire between the two reads of the status register.  DECLARATION ORDER is the frame
  * layout: nReg @16(sp), result @24(sp).  `p` caches the CDREG3 pointer the oracle
  * loads once into $a0 and re-uses for every status read. */
+/* MATCH (W60-A4, 61 -> 10, count-exact 343/343).  Five independent levers, each gated:
+ *  (1) OPAQUE Intr BASE.  Retail reaches the Intr flag bytes through a REGISTER base
+ *      (`lui v0; addiu v0,v0,0; sb v1,1(v0)` / `sb v1,2(v0)` / `lbu v1,2(v0)`), ours
+ *      emitted the assembler's absolute macro `lui at; sb v0,Intr+N`.  A block-local
+ *      `volatile u_char *b = &Intr` is NOT enough -- gcc const-folds the pointer straight
+ *      back into the store address.  A zero-insn IDENTITY FENCE on the pointer makes it
+ *      opaque, so the address is materialized once and every access becomes base+disp.
+ *      cases 4+5: 56 -> 39.  case 1 (`Intr.ready = err?5:1`): 39 -> 33.  case 2 the SAME
+ *      edit REGRESSES (39 -> 42) -- retail really does use the absolute macro there.
+ *  (2) DOUBLE `CD_debug > 0` GUARD.  Retail tests CD_debug TWICE inside the nReg==5 arm
+ *      -- once before `puts("DiskError: ")` and again before the printf.  (The guard is
+ *      NOT cse-shared because the intervening puts() call may clobber the global.)  Ours
+ *      called puts unconditionally.  61 -> 56.  This is a REAL BEHAVIOURAL FIX: retail
+ *      does not print "DiskError: " when CD_debug is 0.
+ *  (3) NON-VOLATILE ALIAS READ for the two constant compares.  `nReg` must stay
+ *      `volatile u_char` (the `sb 16(sp)` / `lbu 16(sp)` round-trip depends on it), but a
+ *      volatile QImode read cannot fold its zero-extend into the load, so `nReg != 3` /
+ *      `nReg == 5` each emitted a redundant `andi v0,v0,255`.  Reading through
+ *      `*(const unsigned char *)&nReg` at those two sites (and ONLY there -- the switch
+ *      and the settle loop must keep the volatile form) folds the extend into the `lbu`
+ *      exactly like retail.  33 -> 21.  FALSIFIED: plain non-volatile nReg (163),
+ *      non-volatile + an "m" constraint (77), `(unsigned char)` casts on the constants
+ *      (inert), the alias on the switch selector (inert).
+ *  (4) TERNARY VALUE INTO A NAMED LOCAL BEFORE THE BASE in case 1 -- retail materializes
+ *      the Intr base AFTER the 5/1 select; a bare `b[1] = err?5:1` materializes it first.
+ *      21 -> 17.
+ *  (5) `&result[i]` TAKEN BEFORE THE CDREG0 TEST in the fill loop -- retail fills the
+ *      `beqz` delay slot with `addu v1,a0,s0` (the element address), which reorg's
+ *      backward scan can only steal if the address is computed BEFORE the branch.
+ *      17 -> 10.  Paired with the identity fence on `i` between the two loops: retail
+ *      RE-EVALUATES `i < 8` as the second loop's entry guard where ours cse-shared the
+ *      value it had speculated into the break-branch delay slot (fence on i: 17 -> 16;
+ *      a void-tail fence between the loops scores the same 16; `j != 8` 25; while-form 17).
+ * RESIDUAL 10, NAMED = PURE LINE ORDER (a PER_FN_TEXT_MOVES job, spec in the W60-A4
+ *   receipt file): (a) 8 diffs = in switch cases 4 and 5 retail emits the _memcpy8
+ *   DESTINATION `la` (`la $4,D_801489AC` / `la $4,D_8014899C`) BEFORE the Intr-base `la`
+ *   (`la $2,D_8013C224`); ours emits the base first because the identity fence is a
+ *   scheduling barrier the dest `la` cannot cross.  FALSIFIED at source level: a `dst`
+ *   local declared before `b` (10, .s order unchanged), the same with the memcpy call
+ *   pulled inside the block (10), an identity fence on `dst` as well (32).  (b) 2 diffs =
+ *   ours steals `li v0,5` into the `beqz` delay slot where retail has a `nop`. */
 extern int CD_get_intr(void)
 {
     volatile unsigned char nReg;
@@ -237,24 +278,27 @@ extern int CD_get_intr(void)
         nReg = *p & 7;
 
     for (i = 0; i < 8; i++) {
+        volatile unsigned char *q = &result[i];
         if ((CDREG0 & 0x20) == 0)
             break;
-        result[i] = CDREG1;
+        *q = CDREG1;
     }
+    __asm__("" : "=r"(i) : "0"(i));  /* MATCH (W60-A4): stop cse sharing the i<8 test */
     for (j = i; j < 8; j++)
         result[j] = 0;
 
     CDREG0 = 1;  CDREG3 = 7;  CDREG2 = 7;
 
-    if (nReg != 3 || _cd_status_ok[CD_com]) {
+    if ((*(const unsigned char *)&nReg) != 3 || _cd_status_ok[CD_com]) {
         if (!(CD_status & 0x10) && (result[0] & 0x10))
             CD_nopen++;
         CD_status  = result[0];
         CD_status1 = result[1];
         bHasError  = CD_status & 0x1d;
     }
-    if (nReg == 5) {
-        puts("DiskError: ");
+    if ((*(const unsigned char *)&nReg) == 5) {
+        if (CD_debug > 0)
+            puts("DiskError: ");
         if (CD_debug > 0)
             printf("com=%s,code=(%02x:%02x)\n", CD_comstr[CD_com], CD_status, CD_status1);
     }
@@ -281,7 +325,12 @@ extern int CD_get_intr(void)
     case 1:
         if (bHasError && i == 1)
             bHasError = 0;
-        Intr.ready = bHasError ? 5 : 1;
+        {
+            unsigned char rv = bHasError ? 5 : 1;
+            volatile unsigned char *b = (volatile unsigned char *)&Intr;
+            __asm__("" : "=r"(b) : "0"(b));  /* MATCH (W60-A4): OPAQUE BASE -- see the receipt above */
+            b[1] = rv;
+        }
         _memcpy8(D_801489A4, (unsigned char *)result);
         CDREG0 = 0;  CDREG3 = 0;
         return 4;
@@ -294,6 +343,7 @@ extern int CD_get_intr(void)
          * per-case `volatile u_char *sp = &g_CdSyncStatus.sync;` shape. */
         {
             volatile unsigned char *b = (volatile unsigned char *)&Intr;
+            __asm__("" : "=r"(b) : "0"(b));  /* MATCH (W60-A4): OPAQUE BASE -- see the receipt above */
             b[2] = 4;
             b[1] = b[2];
         }
@@ -305,6 +355,7 @@ extern int CD_get_intr(void)
          * read-back of it (`li v1,5; sb v1,1(v0); lbu v1,1(v0); sb v1,0(v0)`). */
         {
             volatile unsigned char *b = (volatile unsigned char *)&Intr;
+            __asm__("" : "=r"(b) : "0"(b));  /* MATCH (W60-A4): OPAQUE BASE -- see the receipt above */
             b[1] = 5;
             b[0] = b[1];
         }

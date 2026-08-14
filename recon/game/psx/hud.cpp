@@ -2001,7 +2001,20 @@ HudBuildStr_next:
  *      (index 53) where we emitted a `nop` and then the addiu just before the `jal`.  Per
  *      calls.c an rtx_cost-1 argument is NEVER precomputed, so the only way to get it ahead
  *      of the branch is to make it a source statement of its own.
- * RESIDUAL 8 (6 diff insns, ONE block, count exact): a sched2 ready-list tie in the
+ *  (5) *** SEALED, 8 -> PASS 531/531 ***  INDEX-TERM-FIRST ADDRESS FORM on the SLD-1599
+ *      statement: `pSprt[31].y0 = *(u_short *)((player << 2) + (int)HudSplitTimeDiff1) + y;`
+ *      instead of `*(u_short *)&HudSplitTimeDiff1[player]`.  This is the sec.5.0c
+ *      commutative-addu lever used for its SCHEDULING side: spelling the scaled index as
+ *      the FIRST addend makes cc1 emit `sll $a0,$s1,2` BEFORE the `lui/addiu` base pair
+ *      (the natural `&arr[i]` form emits base-first), which is exactly the ordering the
+ *      residual below needed -- with `sll $a0` issued early, $a0 is freed early and sched2
+ *      drains the $a0 HudF4 stores first, in SLD order, like retail.  The whole 6-insn
+ *      block collapses.  ONE token of address spelling, 3 statements away from the diff.
+ *      GENERAL LAW (catalog candidate): the `sll`-index-vs-`lui`-base emission order, long
+ *      filed as an irreducible pre-RA scheduling tie, IS source-reachable via the
+ *      index-term-first cast form -- and it reaches sched2 decisions in NEIGHBOURING
+ *      statements, not just its own.
+ * (superseded) RESIDUAL 8 (6 diff insns, ONE block, count exact): a sched2 ready-list tie in the
  *   HudF4[3] y-store group.  Retail issues [sh $a0,82 (SLD 1591) . sh $a0,86 (1592) .
  *   sll $a0,$s1,2 (1599)] BEFORE [sh $v0,90 (1593) . sh $v0,94 (1594) . lui/addiu (1599)];
  *   ours issues the $v0 pair first.  Both builds have $a0 = y+7 and $v0 = y+10 ready at the
@@ -2124,7 +2137,7 @@ void Hud_BuildNumbers0(int player)
      * ARRAY view of the two cells, tried first on the STRUCT-READ ANTI-DEP LAW, is exactly
      * NEUTRAL here -- the pin was emission order, not aliasing.) */
     pSprt[30].y0 = y;
-    pSprt[31].y0 = *(u_short *)&HudSplitTimeDiff1[player] + y;
+    pSprt[31].y0 = *(u_short *)((player << 2) + (int)HudSplitTimeDiff1) + y;
     pSprt[32].y0 = y;
     pSprt[33].y0 = y;
     pSprt[34].y0 = *(u_short *)&HudSplitTimeDiff2[player] + y;

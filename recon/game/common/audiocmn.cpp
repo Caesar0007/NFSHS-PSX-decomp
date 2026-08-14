@@ -766,7 +766,21 @@ int AudioCmn_GetTimePhrase(int time)
   return index + 0x35;
 }
 
-/* ---- AudioCmn_CheckState__FP8Car_tObj  [@0x800770bc] ---- */
+/* ---- AudioCmn_CheckState__FP8Car_tObj  [@0x800770bc] ----
+ * NEAR-MISS 6, COUNT-EXACT 415/415 (W60-A9 triage).  TWO independent scheduling
+ * sites, no structural or arity difference anywhere:
+ *  (1) retail fills the `beqz v0` slot after `lw v0,864(s2)` with
+ *      `lui a1,%hi(D_8011E0B0)`; ours fills it with `andi v1,s4,255` and issues the
+ *      `lui a1` two slots later.
+ *  (2) at .L8007744C retail materialises `bestLapTime`'s address SELF-TEMP
+ *      (`lui a1,%hi; addiu a1,a1,%lo`) AFTER the `lw v0,596(s2)`; ours splits the
+ *      pair across that load with a SEPARATE scratch (`lui v1,%hi ... addiu a1,v1`).
+ *      NOTE we already emit the self-temp form for `bestLapTime` at its OTHER sites
+ *      in this same function, so this is NOT the S3.12 #5 declaration-shape lever --
+ *      it is combine_regs failing to tie the {high, lo_sum} pair at THIS site only
+ *      (w46: the tie is refused when the lo_sum destination is a global allocno).
+ * NB this TU carries a PER_FN_G8 region splice for AudioCmn_Init; whole-TU -G8
+ * breaks CheckState (6 -> 27), so keep any flag experiment per-fn. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
   char carnum;

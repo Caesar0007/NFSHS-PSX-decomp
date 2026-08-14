@@ -785,7 +785,16 @@ traffic_object:
          FALSIFIED (W56-A14): inner-shadow `int i;` inside the if-block DOES add the
          missing copy (count 212->213 exact) but colors the inner loop counter off $a1
          (32 diffs) -- oracle keeps i in $a1 throughout with ONLY the guard using the a0
-         copy; a scheduling/coloring split, permuter-class re-seed (not spelling). */
+         copy; a scheduling/coloring split, permuter-class re-seed (not spelling).
+         FALSIFIED (W60-A9), closing the 09G "make the copy a GLOBAL allocno" route:
+         a second `int guard = i;` carrying an OPACITY fence `"=r"(guard):"0"(guard)`
+         (the w47 value-numbering barrier cse cannot fold through) = 15 @216 -- it
+         does defeat the constant-fold but emits THREE extra insns, not retail's one;
+         the same fence placed on `i` itself before the copy = 31 @216.  And the
+         second residual (the carObj base $a0-vs-$v0 at :779/:780) does NOT respond to
+         an opacity fence on `carObj` (11, unchanged).  So the missing copy is a
+         local-alloc copy-preference question (06E), consistent with the W56-A14
+         inner-shadow measurement, and the remaining route is a permuter re-seed. */
       i = 0;
       if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
           (i < Cars_gNumTrafficCars)) {

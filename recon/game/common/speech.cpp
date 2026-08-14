@@ -1562,11 +1562,12 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
  * NEAR-MISS 5, ours 268 / oracle 269 -- ours is ONE SHORT (W60-A9).  Retail loads
  * the value into $v1 (`lw v1,8(s0)`), stores it (`sw v1,64(s1)`) and keeps a
  * SURVIVING copy `addu a3,v1,zero`; ours loads straight into $a3 and needs no copy.
- * That is the w47 delete_noop_moves class: the copy survives in retail only because
- * its two ends got DIFFERENT hard regs, and combine_regs refuses to tie only when
- * the DESTINATION is a global allocno.  Reachable lever per w47 A: make the
- * PRODUCER's destination a distinct short-lived pseudo (a block-local temp for the
- * stored value, live only across the store), NOT another spelling of the copy. */
+ * That is the w47 delete_noop_moves class.  >>> The FULL receipt for this residual
+ * (with the W55-A16 re-read measurement and the W59-A4 identity-fence placements,
+ * 15 and 9, both worse) lives at the SPCHNFS_D_C_SPBLT_CONFIRMED call site below --
+ * read it before touching this fn.  W60-A9 ADDED and FALSIFIED: the w43 trichotomy
+ * case-2 store-then-read-back (`fTo = expr;` then `context = fTo;`) applied to the
+ * OTHER (else-branch) INTRO_CALL site: 15@268 in both statement orders. */
 void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 
 {

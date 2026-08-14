@@ -1118,6 +1118,17 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w60-a5 PROBE (schedule-relocation row, same class as the DoBarrierCheck
+    # mflo row below): bsearch's only residual is the prologue emission ORDER of
+    # the `lo = 0` def vs the 4th parm copy -- retail key,base,n,LO,w; ours
+    # key,base,n,w,LO.  See the BSEARCH.c receipt for the mechanism + the
+    # falsification list.
+    "recon/syslib/psx/libc/BSEARCH.c": {
+        "bsearch": [
+            {"take": r"\tsw\t\$18,24\(\$sp\)\n\taddu\t\$18,\$0,\$0\n",
+             "after": r"\taddu\t\$19,\$6,\$0\n"},
+        ],
+    },
     # w59-a3 (orchestrator-wired, COPY variant): AIPhysic_CalcAcceleration 2 -> PASS.
     # cc1plus leaves the EQ-forward beq's slot empty (mostly_true_jump scores 0);
     # the oracle carries `move $2,$16` BOTH in the slot and at the $L merge point

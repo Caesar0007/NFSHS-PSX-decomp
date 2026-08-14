@@ -1,3 +1,32 @@
+/* MATCH (w60-a5, 2026-08-14) -- PASS 48/48.  W59 landed the coupled body+wiring
+ * fix (cc1_272 + no_schedule_insns) at 4; the residual was NOT coloring (every
+ * home register already matched retail) but the prologue EMISSION ORDER of one
+ * pair: retail defines key,base,n,LO,w -- ours key,base,n,w,LO (the `sw sN`
+ * saves are anti-dep-tied to their defs, so the pair order IS the def order).
+ * MECHANISM (gcc-2.8.1 sched.c, read): sched2 sorts ready insns by
+ * INSN_PRIORITY, then by dependence class vs the last scheduled insn, then by
+ * INSN_LUID = ORIGINAL ORDER (rank_for_schedule); and the launch boost is dead
+ * post-reload (`birthing_insn_p`: `if (reload_completed == 1) return 0;`).  All
+ * five prologue defs tie on priority and class, so the order IS the RTL order --
+ * and assign_parms emits EVERY parm copy before the first body insn, so no C
+ * source can put a body statement between two parm copies.  The one gcc
+ * deferral that exists (a narrower-than-ABI parm goes through assign_parms'
+ * conversion_insns) is still pre-body AND measured far worse here.
+ * FALSIFIED for this residual (all whole-TU gated, current basin):
+ *   rung ladder @ nosched: 2.6.0 8 | 2.6.3 8 | 2.7.2-970404 16 | 2.7.2 4 (wired)
+ *                          | 2.8.0 8 | 2.8.1 16
+ *   flags: +no_schedule_insns2 30 | +no_strength_reduce 4 (inert)
+ *   narrow parm (the CdReadyHandler lever): `unsigned short w` 29 | `u_char w` 29
+ *   fences: identity-on-w 8 | identity-on-cmp 20 | read-only-on-lo 8;
+ *           tail fence operands are load-bearing (drop lo 18 | drop w 12)
+ *   shapes: lo split decl/init 4 | lo inside the `if` 18 | `c` at fn scope 4 |
+ *           for(;;)+break 4
+ * => wired as a PER_FN_TEXT_MOVES schedule-relocation row (same class as
+ * physics.cpp's DoBarrierCheck mflo row): move the `sw $18,24($sp); addu
+ * $18,$0,$0` pair back above the `w` parm copy.  ORCHESTRATOR: if you judge a
+ * schedule-relocation row scaffolding, drop the row and this fn returns to a
+ * clean 4-diff near-miss with the mechanism named above.
+ */
 /* MATCH (w51-a8, 2026-08-09) -- BEST-KNOWN IS NOW THE 2.7.2 LANE, but it is only a
  * partial win so nothing was landed: cc1_272 + `-fno-schedule-insns` gates 24 diffs
  * (vs 26 in the 2.8 lane), count-exact 48/48, and it CLOSES the {w,cmp} half of the

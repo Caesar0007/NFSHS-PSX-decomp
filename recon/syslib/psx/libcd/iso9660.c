@@ -71,173 +71,6 @@ static int rd32le(const u_char *p)
     return (int)((u_long)p[0] | ((u_long)p[1] << 8) | ((u_long)p[2] << 16) | ((u_long)p[3] << 24));
 }
 
-/* @0x800F9984 : read `nsec` sectors starting at LBA `lba` into `buf`; returns 1 on success. */
-extern int cd_read(int nsec, int lba, void *buf)
-{
-    CdlLOC loc;
-    CdIntToPos(lba, &loc);
-    CdControl(2, (u_char *)&loc, 0);            /* CdlSetloc */
-    CdRead(nsec, (u_long *)buf, 0x80);
-    return (unsigned)CdReadSync(0, 0) < 1u;
-}
-
-/* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */
-extern int _cd_cmp_name(char *a, char *b)
-{
-    return (unsigned)strncmp(a, b, 0xC) < 1u;   /* MATCH: sltiu (unsigned < 1) not slti */
-}
-
-/* @0x800F9644 : find the path-table entry for child (parent, name); returns its 1-based id or -1. */
-extern int _cd_find_path(int parent, char *name)
-{
-    int k = 0;
-    do {
-        if (_cd_pathtbl[k].parent == 0)
-            return -1;                          /* end of table */
-        if (_cd_pathtbl[k].parent == parent && strcmp(name, _cd_pathtbl[k].name) == 0)
-            return k + 1;
-        k++;
-    } while (k < 0x80);
-    return -1;
-}
-
-/* @0x800F9380 : mount new media -- read the PVD, verify it, read & cache the whole path table.
- * MATCH (w51-a4): structure TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
- * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_media.c :: CD_newmedia.  Three levers:
- *  (1) ONE local `buf` holds &_cd_secbuf and is used for EVERY reference (both cd_read calls,
- *      the strncmp, the +140 path-table-LBA read and the walk bounds) -- the oracle keeps that
- *      base in $s0 and reads the misaligned LBA as `lwl 143(s0)/lwr 140(s0)`, where a fresh
- *      `_cd_secbuf + 140` constant address emits its own lui/addiu pair;
- *  (2) the first cd_read's result is kept in a named `r` and the SECOND read is compared
- *      against `r`, not against a literal 1 (oracle `beq v0,s1`);
- *  (3) the sector-buffer END pointer is hoisted into a local before the walk, so the loop test
- *      is a single `sltu v0,p,end` instead of rematerializing the address each iteration.
- * W56: Rage's `CdRawWord` is a four-byte STRUCT, not the earlier union-shaped LBA.  Reinterpreting
- * the raw struct at both call/diagnostic uses makes gcc reload the value from its stack slot rather
- * than retain it in $s0 across `cd_read`: 39 -> 32, with exact 177/177 instruction count. */
-extern int CD_newmedia(void)
-{
-    u_char *buf;
-    RawWord pt_lba;
-    u_char *rec;
-    u_char *end;
-    int     idx;
-    int     r;
-
-    buf = (u_char *)_cd_secbuf;
-    r = cd_read(1, 0x10, (char *)buf);                       /* read PVD at LBA 0x10 */
-    if (r != 1) {
-        if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)\n");
-        return 0;
-    }
-    if (strncmp((char *)buf + 1, "CD001", 5) != 0) {         /* standard identifier */
-        if (CD_debug > 0) printf("CD_newmedia: Disc format error in cd_read(PVD)\n");
-        return 0;
-    }
-
-    /* w51-a4/W56 OPEN (32 diffs): the oracle reads this off the SAME base register as every other
-     * buf reference (`lwl 143(s0)/lwr 140(s0)`); gcc-2.7.2 const-folds `buf` back to the symbol
-     * for the unaligned load and emits its own `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)`.
-     * FALSIFIED: `(LBA*)(buf+140)`, `((LBA*)buf)[35]`, decl reorder, -fforce-addr, -fforce-mem,
-     * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base). */
-    pt_lba = *(RawWord *)(buf + 140);                        /* type-L path table LBA (misaligned;
-                                                              * indexed off buf so the +140 folds into
-                                                              * the lwl/lwr displacement, oracle
-                                                              * `lwl 143(s0)/lwr 140(s0)`) */
-    if (cd_read(1, *(int *)&pt_lba, (char *)buf) != r) {
-        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", *(int *)&pt_lba);
-        return 0;
-    }
-    if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");
-
-    idx = 0;
-    rec = buf;
-    end = buf + 0x800;
-    while (rec < end) {
-        if (rec[0] == 0)
-            break;
-        ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
-        _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
-        _cd_pathtbl[idx].index  = idx + 1;
-        memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
-        _cd_pathtbl[idx].name[rec[0]] = '\0';
-        rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
-        if (CD_debug > 1)
-            printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
-                   _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
-        if (++idx >= 0x80)
-            break;
-    }
-    if (idx < 0x80)
-        _cd_pathtbl[idx].parent = 0;                    /* sentinel: no more entries */
-
-    _cd_cached_dir = 0;
-    if (CD_debug > 1) printf("CD_newmedia: %d dir entries found\n", idx);
-    return 1;
-}
-
-/* @0x800F96E8 : read directory `dir` (1-based path-table id) and cache its file records. */
-extern int CD_cachefile(int dir)
-{
-    LBA     entryLba;
-    u_char *rec;
-    int     i;
-    short  *namePtr;
-
-    if (dir == _cd_cached_dir)
-        return 1;                                           /* already resident */
-
-    /* MATCH (w51-a4): the oracle scales the RAW `dir` by the 0x2C stride off a base that sits
-     * one entry BELOW _cd_pathtbl (`sll;addu;sll;subu;sll` on $s6 == dir*44, no `addiu -1`), i.e.
-     * the original indexed a 1-BASED view of the table -- the byte-exact Rage Racer libcd decomp
-     * spells it as its own symbol `g_CdPathEntryLbaByDirNum[dir]`
-     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_cache_file.c).  `(_cd_pathtbl - 1)[dir]`
-     * is the same view without inventing a second symbol (the -0x2C folds into the %lo addend);
-     * `_cd_pathtbl[dir - 1]` instead emits an extra `addiu v0,s6,-1` and scales the decremented
-     * index. 13 -> PASS. */
-    if (cd_read(1, (_cd_pathtbl - 1)[dir].lba, _cd_secbuf) != 1) {
-        if (CD_debug > 0) printf("CD_cachefile: dir not found\n");
-        return -1;
-    }
-    if (CD_debug > 1) printf("CD_cachefile: searching...\n");
-
-    rec = (u_char *)_cd_secbuf;
-    i   = 0;
-    while (rec < (u_char *)_cd_secbuf + 0x800) {
-        if (rec[0] == 0)                                    /* zero reclen -> end of records */
-            break;
-        entryLba.i = ((LBA *)&rec[2])->i;                   /* extent LBA (misaligned -> lwl/lwr) */
-        CdIntToPos(entryLba.addr, &_cd_dir[i].pos);
-        ((LBA *)&_cd_dir[i].size)->i = ((LBA *)&rec[0xA])->i; /* data length (misaligned copy) */
-        switch (i) {
-        case 0:                                             /* first record = "." */
-            namePtr = (short *)_cd_dir[i].name;
-            __builtin_memcpy(namePtr, ".", 2);              /* halfword store (oracle: sh) */
-            break;
-        case 1:                                             /* second record = ".." */
-            namePtr = (short *)_cd_dir[i].name;
-            __builtin_memcpy(namePtr, "..", 3);             /* sh + sb (oracle) */
-            break;
-        default:
-            memcpy(_cd_dir[i].name, &rec[0x21], rec[0x20]); /* namelen re-read (oracle: 2x lbu 0x20) */
-            _cd_dir[i].name[rec[0x20]] = '\0';
-            break;
-        }
-        if (CD_debug > 1)
-            printf("\t(%02x:%02x:%02x) %8d %s\n", _cd_dir[i].pos.minute, _cd_dir[i].pos.second,
-                   _cd_dir[i].pos.sector, (int)_cd_dir[i].size, _cd_dir[i].name);
-        rec += rec[0];                                      /* ISO directory-record stride */
-        if (++i >= 0x40)
-            break;
-    }
-
-    _cd_cached_dir = dir;
-    if (i < 0x40)
-        _cd_dir[i].name[0] = 0;                             /* terminate the cache */
-    if (CD_debug > 1) printf("CD_cachefile: %d files found\n", i);
-    return 1;
-}
-
 /* w51-a4 FALSIFIED on CdSearchFile (75 diffs, cc1_272 lane) -- do NOT retry either form:
  *  - the FULL Rage Racer DsSearchFile transplant (C:/Temp/rage-racer-decomp/src/main/PAL/lib/
  *    libds/search_file.c: `while (n < 8)` path split walking `*p` directly + two-pointer final
@@ -318,3 +151,171 @@ out:
     if (CD_debug > 0) printf("%s: not found\n", name);
     return 0;
 }
+
+/* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */
+extern int _cd_cmp_name(char *a, char *b)
+{
+    return (unsigned)strncmp(a, b, 0xC) < 1u;   /* MATCH: sltiu (unsigned < 1) not slti */
+}
+
+/* @0x800F9380 : mount new media -- read the PVD, verify it, read & cache the whole path table.
+ * MATCH (w51-a4): structure TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
+ * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_media.c :: CD_newmedia.  Three levers:
+ *  (1) ONE local `buf` holds &_cd_secbuf and is used for EVERY reference (both cd_read calls,
+ *      the strncmp, the +140 path-table-LBA read and the walk bounds) -- the oracle keeps that
+ *      base in $s0 and reads the misaligned LBA as `lwl 143(s0)/lwr 140(s0)`, where a fresh
+ *      `_cd_secbuf + 140` constant address emits its own lui/addiu pair;
+ *  (2) the first cd_read's result is kept in a named `r` and the SECOND read is compared
+ *      against `r`, not against a literal 1 (oracle `beq v0,s1`);
+ *  (3) the sector-buffer END pointer is hoisted into a local before the walk, so the loop test
+ *      is a single `sltu v0,p,end` instead of rematerializing the address each iteration.
+ * W56: Rage's `CdRawWord` is a four-byte STRUCT, not the earlier union-shaped LBA.  Reinterpreting
+ * the raw struct at both call/diagnostic uses makes gcc reload the value from its stack slot rather
+ * than retain it in $s0 across `cd_read`: 39 -> 32, with exact 177/177 instruction count. */
+extern int CD_newmedia(void)
+{
+    u_char *buf;
+    RawWord pt_lba;
+    u_char *rec;
+    u_char *end;
+    int     idx;
+    int     r;
+
+    buf = (u_char *)_cd_secbuf;
+    r = cd_read(1, 0x10, (char *)buf);                       /* read PVD at LBA 0x10 */
+    if (r != 1) {
+        if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)\n");
+        return 0;
+    }
+    if (strncmp((char *)buf + 1, "CD001", 5) != 0) {         /* standard identifier */
+        if (CD_debug > 0) printf("CD_newmedia: Disc format error in cd_read(PVD)\n");
+        return 0;
+    }
+
+    /* w51-a4/W56 OPEN (32 diffs): the oracle reads this off the SAME base register as every other
+     * buf reference (`lwl 143(s0)/lwr 140(s0)`); gcc-2.7.2 const-folds `buf` back to the symbol
+     * for the unaligned load and emits its own `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)`.
+     * FALSIFIED: `(LBA*)(buf+140)`, `((LBA*)buf)[35]`, decl reorder, -fforce-addr, -fforce-mem,
+     * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base). */
+    pt_lba = *(RawWord *)(buf + 140);                        /* type-L path table LBA (misaligned;
+                                                              * indexed off buf so the +140 folds into
+                                                              * the lwl/lwr displacement, oracle
+                                                              * `lwl 143(s0)/lwr 140(s0)`) */
+    if (cd_read(1, *(int *)&pt_lba, (char *)buf) != r) {
+        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", *(int *)&pt_lba);
+        return 0;
+    }
+    if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");
+
+    idx = 0;
+    rec = buf;
+    end = buf + 0x800;
+    while (rec < end) {
+        if (rec[0] == 0)
+            break;
+        ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
+        _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
+        _cd_pathtbl[idx].index  = idx + 1;
+        memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
+        _cd_pathtbl[idx].name[rec[0]] = '\0';
+        rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
+        if (CD_debug > 1)
+            printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
+                   _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
+        if (++idx >= 0x80)
+            break;
+    }
+    if (idx < 0x80)
+        _cd_pathtbl[idx].parent = 0;                    /* sentinel: no more entries */
+
+    _cd_cached_dir = 0;
+    if (CD_debug > 1) printf("CD_newmedia: %d dir entries found\n", idx);
+    return 1;
+}
+
+/* @0x800F9644 : find the path-table entry for child (parent, name); returns its 1-based id or -1. */
+extern int _cd_find_path(int parent, char *name)
+{
+    int k = 0;
+    do {
+        if (_cd_pathtbl[k].parent == 0)
+            return -1;                          /* end of table */
+        if (_cd_pathtbl[k].parent == parent && strcmp(name, _cd_pathtbl[k].name) == 0)
+            return k + 1;
+        k++;
+    } while (k < 0x80);
+    return -1;
+}
+
+/* @0x800F96E8 : read directory `dir` (1-based path-table id) and cache its file records. */
+extern int CD_cachefile(int dir)
+{
+    LBA     entryLba;
+    u_char *rec;
+    int     i;
+    short  *namePtr;
+
+    if (dir == _cd_cached_dir)
+        return 1;                                           /* already resident */
+
+    /* MATCH (w51-a4): the oracle scales the RAW `dir` by the 0x2C stride off a base that sits
+     * one entry BELOW _cd_pathtbl (`sll;addu;sll;subu;sll` on $s6 == dir*44, no `addiu -1`), i.e.
+     * the original indexed a 1-BASED view of the table -- the byte-exact Rage Racer libcd decomp
+     * spells it as its own symbol `g_CdPathEntryLbaByDirNum[dir]`
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_cache_file.c).  `(_cd_pathtbl - 1)[dir]`
+     * is the same view without inventing a second symbol (the -0x2C folds into the %lo addend);
+     * `_cd_pathtbl[dir - 1]` instead emits an extra `addiu v0,s6,-1` and scales the decremented
+     * index. 13 -> PASS. */
+    if (cd_read(1, (_cd_pathtbl - 1)[dir].lba, _cd_secbuf) != 1) {
+        if (CD_debug > 0) printf("CD_cachefile: dir not found\n");
+        return -1;
+    }
+    if (CD_debug > 1) printf("CD_cachefile: searching...\n");
+
+    rec = (u_char *)_cd_secbuf;
+    i   = 0;
+    while (rec < (u_char *)_cd_secbuf + 0x800) {
+        if (rec[0] == 0)                                    /* zero reclen -> end of records */
+            break;
+        entryLba.i = ((LBA *)&rec[2])->i;                   /* extent LBA (misaligned -> lwl/lwr) */
+        CdIntToPos(entryLba.addr, &_cd_dir[i].pos);
+        ((LBA *)&_cd_dir[i].size)->i = ((LBA *)&rec[0xA])->i; /* data length (misaligned copy) */
+        switch (i) {
+        case 0:                                             /* first record = "." */
+            namePtr = (short *)_cd_dir[i].name;
+            __builtin_memcpy(namePtr, ".", 2);              /* halfword store (oracle: sh) */
+            break;
+        case 1:                                             /* second record = ".." */
+            namePtr = (short *)_cd_dir[i].name;
+            __builtin_memcpy(namePtr, "..", 3);             /* sh + sb (oracle) */
+            break;
+        default:
+            memcpy(_cd_dir[i].name, &rec[0x21], rec[0x20]); /* namelen re-read (oracle: 2x lbu 0x20) */
+            _cd_dir[i].name[rec[0x20]] = '\0';
+            break;
+        }
+        if (CD_debug > 1)
+            printf("\t(%02x:%02x:%02x) %8d %s\n", _cd_dir[i].pos.minute, _cd_dir[i].pos.second,
+                   _cd_dir[i].pos.sector, (int)_cd_dir[i].size, _cd_dir[i].name);
+        rec += rec[0];                                      /* ISO directory-record stride */
+        if (++i >= 0x40)
+            break;
+    }
+
+    _cd_cached_dir = dir;
+    if (i < 0x40)
+        _cd_dir[i].name[0] = 0;                             /* terminate the cache */
+    if (CD_debug > 1) printf("CD_cachefile: %d files found\n", i);
+    return 1;
+}
+
+/* @0x800F9984 : read `nsec` sectors starting at LBA `lba` into `buf`; returns 1 on success. */
+extern int cd_read(int nsec, int lba, void *buf)
+{
+    CdlLOC loc;
+    CdIntToPos(lba, &loc);
+    CdControl(2, (u_char *)&loc, 0);            /* CdlSetloc */
+    CdRead(nsec, (u_long *)buf, 0x80);
+    return (unsigned)CdReadSync(0, 0) < 1u;
+}
+

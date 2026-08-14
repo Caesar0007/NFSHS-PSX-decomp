@@ -50,35 +50,6 @@ extern void _padInitDirSeq(void)
     _padFuncRecvAuto = _dirRecvAuto;
 }
 
-/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
- * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction.
- * MATCH (w48-a4): the "5-diff scheduling floor" note below was WRONG -- it was a STRUCTURE miss.
- *   The old `if (A || B) return 1; return 0;` shape emits TWO `jr ra` blocks (12 insns); the oracle
- *   has ONE shared epilogue reached from both arms, i.e. the source is the De-Morgan EARLY-OUT
- *   `if (!A && !B) return 0; return 1;` (11/11 count-exact, 6 diffs).  MATCH: `int ff = 0xff;`
- *   (catalog NAMED-ONE) then moves the byte load onto the oracle's $v1 (6 -> 4).
- * RESIDUAL 4 (2 lines): ours `li a1,255 / beq v1,a1` vs oracle `li v0,255 / beq v1,v0`.
- *   NOT a priority dial -- `-dg` shows the constant's allocno literally `81 conflicts: 80 81 2 3 29`,
- *   i.e. a HARD-REG conflict with $v0(2) that no ref/live dial can move (reqdelta class:
- *   conflict-set, w46 "a hard-reg conflict beats every allocno dial").  Falsified at this basin:
- *   yoda-compare (6), nested-if block scope (6), (int) cast (6), byte-local (12), decl-after-guard
- *   (12), word/const SHARED pseudo -- in-place reuse, all 3 spellings put the merged pseudo in $a1
- *   (8), opacity fence on ff (5 @12 insns), fence in the nested-reuse form (8), pre-loaded byte
- *   local (8 @9 insns).  NEXT ANGLE: find what puts hard $v0 in the constant's conflict set
- *   (global.c record_conflicts around the two return-value sets) -- retail's constant IS $v0.
- *   w53-a8 added 8 more falsifications at this basin (all 4 or worse, none reaches the conflict
- *   set): result-funnel `int r = 1; if (...) r = 0; return r;` (11 @10 insns), `return !(A && B)`
- *   (13 @12), inner-arm early-return nest (12 @11), `unsigned ff` (4), a 4th block qty `int busy
- *   = 0; return busy;` (4 -- the w46 3-QTY-boundary dial does NOT fire here), a named `mw` word
- *   temp (4), a use fence on ff inside the guard (4), bare literal instead of `ff` (6). */
-extern int _dirCheck(unsigned char *info)
-{
-    int ff = 0xff;
-    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == ff)
-        return 0;
-    return 1;
-}
-
 /* @0x8010A0E4 : _dirSendAuto (_padFuncSendAuto) -- emit the next request for the current state.
  * MATCH (w48-a4, 32 -> PASS 64/64).  Two facts:
  *  (1) the state dispatch is a REAL `switch (st)` over {0, 1, 0xfe, 0xff}.  The oracle's tree is
@@ -271,3 +242,33 @@ extern int _dirFailAuto(unsigned char *info)
     info[0xe8] = 0;
     return (int)padbuf;
 }
+
+/* @0x8010A510 : _dirCheck (_padFuncChkEng) -- 1 = engine free/idle, 0 = mid actuator-load command.
+ * MATCH: lhu (unsigned short) for the modeword field; lh (signed) generates wrong instruction.
+ * MATCH (w48-a4): the "5-diff scheduling floor" note below was WRONG -- it was a STRUCTURE miss.
+ *   The old `if (A || B) return 1; return 0;` shape emits TWO `jr ra` blocks (12 insns); the oracle
+ *   has ONE shared epilogue reached from both arms, i.e. the source is the De-Morgan EARLY-OUT
+ *   `if (!A && !B) return 0; return 1;` (11/11 count-exact, 6 diffs).  MATCH: `int ff = 0xff;`
+ *   (catalog NAMED-ONE) then moves the byte load onto the oracle's $v1 (6 -> 4).
+ * RESIDUAL 4 (2 lines): ours `li a1,255 / beq v1,a1` vs oracle `li v0,255 / beq v1,v0`.
+ *   NOT a priority dial -- `-dg` shows the constant's allocno literally `81 conflicts: 80 81 2 3 29`,
+ *   i.e. a HARD-REG conflict with $v0(2) that no ref/live dial can move (reqdelta class:
+ *   conflict-set, w46 "a hard-reg conflict beats every allocno dial").  Falsified at this basin:
+ *   yoda-compare (6), nested-if block scope (6), (int) cast (6), byte-local (12), decl-after-guard
+ *   (12), word/const SHARED pseudo -- in-place reuse, all 3 spellings put the merged pseudo in $a1
+ *   (8), opacity fence on ff (5 @12 insns), fence in the nested-reuse form (8), pre-loaded byte
+ *   local (8 @9 insns).  NEXT ANGLE: find what puts hard $v0 in the constant's conflict set
+ *   (global.c record_conflicts around the two return-value sets) -- retail's constant IS $v0.
+ *   w53-a8 added 8 more falsifications at this basin (all 4 or worse, none reaches the conflict
+ *   set): result-funnel `int r = 1; if (...) r = 0; return r;` (11 @10 insns), `return !(A && B)`
+ *   (13 @12), inner-arm early-return nest (12 @11), `unsigned ff` (4), a 4th block qty `int busy
+ *   = 0; return busy;` (4 -- the w46 3-QTY-boundary dial does NOT fire here), a named `mw` word
+ *   temp (4), a use fence on ff inside the guard (4), bare literal instead of `ff` (6). */
+extern int _dirCheck(unsigned char *info)
+{
+    int ff = 0xff;
+    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == ff)
+        return 0;
+    return 1;
+}
+

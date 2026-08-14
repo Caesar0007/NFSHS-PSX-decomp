@@ -52,6 +52,12 @@ extern int iSNDremovepatches(int bank, int count)
     return 0;
 }
 
+/* SNDbankremove @0x800E6674 : the exit-time hook (sndgs[0x1f]); unloads bank `bankId`. */
+extern void SNDbankremove(int bankId)
+{
+    cSNDbankremove(bankId, 0);
+}
+
 /* cSNDbankremove @0x800E6694 : unload bank `bankId` (or all banks when bankId == -1) -- stop its playing
  *   voices, free its patches/SPU data, and clear its bank-table entry. */
 extern int cSNDbankremove(int bankId, int recurse)
@@ -96,9 +102,4 @@ extern int cSNDbankremove(int bankId, int recurse)
     }
     return 0;
 }
-
-/* SNDbankremove @0x800E6674 : the exit-time hook (sndgs[0x1f]); unloads bank `bankId`. */
-extern void SNDbankremove(int bankId)
-{
-    cSNDbankremove(bankId, 0);
-}
+

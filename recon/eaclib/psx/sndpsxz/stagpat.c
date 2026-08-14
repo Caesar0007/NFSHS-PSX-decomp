@@ -148,44 +148,6 @@ done:
      * then preserves the oracle's branch value in v1 and copies it to a2 for the loop bound. */
 }
 
-/* iSNDresolvetaggedpatch @0x801024EC : walk a bank's tag stream and resolve its SPU sample data (tag 0xfd
- *   = platform resolve), marking the bank resolved (+3 |= 1).  Returns -1 / resolve result. */
-extern int iSNDresolvetaggedpatch(int bank, int patch_idx, int scratch)
-{
-    unsigned int state[4];
-    int r = -1;
-    state[0] = (unsigned int)bank;
-    if ((*(unsigned char *)(bank + 3) & 2) != 0)
-        state[0] = (unsigned int)(bank + 8);
-    else
-        state[0] = (unsigned int)(bank + 4);
-    while (iSNDgettag((int *)&state[0], &state[1], (int *)&state[2], (int *)&state[3]) != 0) {
-        if (state[1] == 0xfd)
-            r = iSNDplatformresolve((int)state[0], patch_idx, scratch);
-    }
-    if (-1 < r)
-        *(unsigned char *)(bank + 3) = *(unsigned char *)(bank + 3) | 1;
-    return r;
-}
-
-/* iSNDremovetaggedpatch @0x801025C0 : walk a bank's tag stream and release its resolved SPU data (tag 0xfd
- *   = platform remove), clearing the resolved flag (+3 &= ~1). */
-extern int iSNDremovetaggedpatch(int bank, int *patch_idx)
-{
-    unsigned int state[4];
-    state[0] = (unsigned int)bank;
-    if ((*(unsigned char *)(bank + 3) & 2) != 0)
-        state[0] = (unsigned int)(bank + 8);
-    else
-        state[0] = (unsigned int)(bank + 4);
-    while (iSNDgettag((int *)&state[0], &state[1], (int *)&state[2], (int *)&state[3]) != 0) {
-        if (state[1] == 0xfd)
-            iSNDplatformremove((int)state[0], patch_idx);
-    }
-    *(unsigned char *)(bank + 3) = *(unsigned char *)(bank + 3) & 0xfe;
-    return 0;
-}
-
 /* iSNDplaytaggedtimbre @0x80101C8C : launch ONE note's voice from a fully-resolved timbre.  Folds the
  *   override `header`, randomises detune/pan/pitch (srrange/srandom), allocates a channel, fills its ~50
  *   playback fields from the timbre `vol`, computes the SPU sweep, and starts it via iSNDplatformplay.
@@ -448,3 +410,42 @@ fail:
         SNDstop(started[i]);
     return ret;
 }
+
+/* iSNDresolvetaggedpatch @0x801024EC : walk a bank's tag stream and resolve its SPU sample data (tag 0xfd
+ *   = platform resolve), marking the bank resolved (+3 |= 1).  Returns -1 / resolve result. */
+extern int iSNDresolvetaggedpatch(int bank, int patch_idx, int scratch)
+{
+    unsigned int state[4];
+    int r = -1;
+    state[0] = (unsigned int)bank;
+    if ((*(unsigned char *)(bank + 3) & 2) != 0)
+        state[0] = (unsigned int)(bank + 8);
+    else
+        state[0] = (unsigned int)(bank + 4);
+    while (iSNDgettag((int *)&state[0], &state[1], (int *)&state[2], (int *)&state[3]) != 0) {
+        if (state[1] == 0xfd)
+            r = iSNDplatformresolve((int)state[0], patch_idx, scratch);
+    }
+    if (-1 < r)
+        *(unsigned char *)(bank + 3) = *(unsigned char *)(bank + 3) | 1;
+    return r;
+}
+
+/* iSNDremovetaggedpatch @0x801025C0 : walk a bank's tag stream and release its resolved SPU data (tag 0xfd
+ *   = platform remove), clearing the resolved flag (+3 &= ~1). */
+extern int iSNDremovetaggedpatch(int bank, int *patch_idx)
+{
+    unsigned int state[4];
+    state[0] = (unsigned int)bank;
+    if ((*(unsigned char *)(bank + 3) & 2) != 0)
+        state[0] = (unsigned int)(bank + 8);
+    else
+        state[0] = (unsigned int)(bank + 4);
+    while (iSNDgettag((int *)&state[0], &state[1], (int *)&state[2], (int *)&state[3]) != 0) {
+        if (state[1] == 0xfd)
+            iSNDplatformremove((int)state[0], patch_idx);
+    }
+    *(unsigned char *)(bank + 3) = *(unsigned char *)(bank + 3) & 0xfe;
+    return 0;
+}
+

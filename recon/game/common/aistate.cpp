@@ -14,55 +14,13 @@
 int          AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero)) */
 
 
-/* ---- Execute__17AIState_NonActive  AIState_NonActive::Execute  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-void AIState_NonActive::Execute()
-
-
-
-{
-
-  return;
-
-}
-
-
-
-
-
-
-
-
-/* ---- _._17AIState_NonActive  AIState_NonActive::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-/* reconstructed as extern "C" ___17AIState_NonActive(AIState_NonActive*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
-
-extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
-
-
-
-{
-
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
-
-  ((pThis->carObj_)->N).active = '\x01';
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-
-  return;
-
-}
-
-
-
-
-
-
+/* w60 link-debt fix (W60-A8 finding, user-unblocked): the canonical
+ * Execute__17AIState_NonActive / ___17AIState_NonActive pair (@0x8005F624/62C)
+ * was over-emitted by THREE objects.  aih_btccop.cpp owns those VAs (its own
+ * banners + SLD adjacency); this TU keeps only its VA-suffixed vague-linkage
+ * instances (Execute__17AIState_NonActive_80072750 etc., see the tail block).
+ * The canonical definitions that lived here were removed; the file's old tail
+ * comment ("the canonicals live in THIS TU") is superseded by this note. */
 
 
 /* ---- AIState_StartUp__Fv  AIState_StartUp  [AISTATE.CPP:25-26] SLD-VERIFIED ---- */

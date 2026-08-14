@@ -3742,6 +3742,15 @@ int StatusCount__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
   return pThis->fStatusCount;
 }
 
+/* base Speech::Speaker virtual not separately reconstructed (vtable-only ref, surfaced by #75
+ * data-materialization); faithful from nfs4-f.exe @0x80099364 = { jr $ra; addiu $v0,$zero,0 }
+ * W60-A9: moved here from the file tail to restore retail VA emission order (tu_order_audit
+ * inversion: 0x80099364 sits between StatusCount__...DispatchSpeaker and FindClosestLocationTo). */
+CallSignBank * CallSign__Q26Speech7Speaker(Speaker *pThis)   /* @0x80099364  CallSign__Q26Speech7Speaker -> NULL */
+{
+  return (CallSignBank *)0;
+}
+
 /* ---- FindClosestLocationTo__Q26Speech7Speakeri  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
 LocationBank * FindClosestLocationTo__Q26Speech7Speakeri(Speaker *pThis,int slice)
 
@@ -3838,13 +3847,6 @@ void Status__Q26Speech7Speaker(Speaker *pThis)
 
 {
   return;
-}
-
-/* base Speech::Speaker virtual not separately reconstructed (vtable-only ref, surfaced by #75
- * data-materialization); faithful from nfs4-f.exe @0x80099364 = { jr $ra; addiu $v0,$zero,0 } */
-CallSignBank * CallSign__Q26Speech7Speaker(Speaker *pThis)   /* @0x80099364  CallSign__Q26Speech7Speaker -> NULL */
-{
-  return (CallSignBank *)0;
 }
 
 /* ---- #75 data-materialization: 3 Speech vtables (nested Speech::<Leaf>, flat <Leaf>_<Method> pfns). ---- */

@@ -33,6 +33,32 @@ int _err_math(int errnum, int code);
  * RESIDUAL (38, ours 2 short): one callee-saved seat rotation (ours {exp=$t0,
  * bit=$a3}, retail {exp=$a3, bit=$v1}) plus the same RESULT FUNNEL copies as
  * __mulsf3.  Not a floor. */
+/* MATCH (w60-a5, 2026-08-14): 38 -> 14.  The "seat rotation" above was ONE
+ * declaration: SPLITTING `int v8 = 0x1000000;` into a bare decl + an assignment
+ * in the loop PREHEADER.  The fused decl-with-init starts the mask's live range
+ * at the top of the else-block, so its priority (floor_log2(refs)*refs/live)
+ * falls below both exponent values and all THREE rotate one seat
+ * (ours v8/v2/v3 = $a3/$t1/$t0 -> retail $v1/$t0/$a3).  Same emitted position
+ * for the `lui` either way -- this is purely the live-range START.  Generalizes:
+ * on a block-local constant whose only real use is a loop, decl-with-init is an
+ * allocno DEMOTE you did not ask for.
+ * FALSIFIED at 38 before it (each whole-TU gated): identity fence on v8 38 |
+ * identity fence on v3 38 | read-only fence on v3 38 | read-only fence on v2 38 |
+ * do{}while(0) depth wrapper on `v8 >>= 1` 38.
+ * RESIDUAL (14) = TWO clusters, both known classes:
+ *  (a) the RESULT FUNNEL shared with __mulsf3 -- retail stages `result` through
+ *      $a2 with a copy IN from each err arm (`addu $a2,$a0,$zero`) and a copy OUT
+ *      to $v0; ours coalesces both away.  Falsified here: the explicit
+ *      default-then-override funnel (`if(..) v13=..; else v13=..;` + one
+ *      `return v13;`) 14 (no change), and in __mulsf3 the identity-fence family
+ *      (5 placements) is falsified too.  This is the 06E non-propagated
+ *      reg-reg-copy instrument gap, now with THREE members (MULSF3, DIVSF3,
+ *      FLTSISF's old one) -- crack it once, transfer it three times.
+ *  (b) two speculative materializations retail does BEFORE a guard: `lui
+ *      $v0,20224` before the sign test (ours fills the beqz slot with it) and
+ *      `sll $v0,$a3,23` in the overflow test's delay slot.  Falsified: hoisting
+ *      the shift into a named temp before the guard 19, and combining it with
+ *      the funnel/default-first shapes 19/14. */
 unsigned int __divsf3(int a1, int a2)   /* @0x800F66E4 */
 {
     int          v2 = (unsigned char)(a1 >> 23) - (unsigned char)(a2 >> 23);
@@ -50,11 +76,17 @@ unsigned int __divsf3(int a1, int a2)   /* @0x800F66E4 */
              * incoming parameter registers (`or $a2,$v1,$a0` / `or $a1,$v0,$a0`)
              * after the exponents are already extracted -- separate v6/v7
              * locals cost two extra pseudos. */
-            int v8 = 0x1000000;
+            /* w60-a5: SPLIT decl from init.  The fused `int v8 = 0x1000000;`
+             * starts the mask's live range at the top of the block, dropping its
+             * allocno below the two exponent values and rotating all three
+             * (ours v8/v2/v3 -> $a3/$t1/$t0 vs retail $v1/$t0/$a3).  Assigning it
+             * in the loop preheader instead gives retail's exact handout. 38 -> 14. */
+            int v8;
             int v9, n, v13;
             a1 = a1 & 0x7FFFFF | 0x800000;
             a2 = a2 & 0x7FFFFF | 0x800000;
             if (a1 < a2) { a1 *= 2; v3 = v2 + 125; }
+            v8 = 0x1000000;
             v9 = 0;
             do {
                 if (a1 >= a2) { v9 |= v8; a1 -= a2; }

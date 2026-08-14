@@ -571,13 +571,17 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
    recover the retail halo allocation exactly: build the byte row from a staged
    doubled controller offset, and stage `iy = ii; iy += 0x3f`. Writing the first
    mode tests as fresh field reads also places the 2/16 constants in the retail
-   delay slots, reducing 21 -> 5 at 837/836 instructions. Remaining residual:
-   CSE removes the second positive test and rematerializes the negative mask.
+   delay slots, reducing 21 -> 5 at 837/836 instructions. 2026-08-14 PASS:
+   stage the captured controller as a `byte` separately inside each sign arm.
+   Its short lifetime lets GCC keep the normalized value in v0, while the byte
+   local and fresh field test remain logically distinct, preserving retail's
+   two identical comparisons without a copy or a second mask (836/836).
    Falsified in this basin: one shared
    controller-offset pointer (neutral), pointer/read fences (extra scheduling instruction), explicit
    animStep/animRange locals (whole-function s1/s2 swap), and a direct SYM-local
    NegCon rewrite (853/836 instructions), identity fences (extra masks), and
-   identical-arm fences (wrong v0/v1 basin); all were reverted. */
+   identical-arm fences (wrong v0/v1 basin), an arm-local `int` copy
+   (21 diffs/839), and an outer initialized copy (6/838); all were reverted. */
 void tScreenControllerConfig::DrawController()
 
 {
@@ -866,16 +870,18 @@ DrawCtrl_ticksUpdate:
   int frame = (uint)(byte)this->fCurrentController;
   int axisB;
   int modeBase;
+  byte controller;
   if (((u_int)(frame - 1) < 2) &&
       (((menuDefs[0]->itemControllerJoyRange).fActive != 0 ||
        ((menuDefs[0]->itemControllerCenterPoint).fActive != 0)))) {
     axisB = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
     if (axisB < 0xb) goto DrawCtrl_smallAxis;
     modeBase = 0x1a;
+    controller = (byte)frame;
     if ((byte)this->fCurrentController == 2) {
       modeBase = 2;
     }
-    if ((byte)frame == 2) {
+    if (controller == 2) {
 DrawCtrl_calcModeTwo:
       frame = modeBase + (axisB * 0xd) / 0x81;
       goto DrawCtrl_axisDone;
@@ -888,10 +894,11 @@ DrawCtrl_smallAxis:
       goto DrawCtrl_zeroAxis;
     }
     axisB = -axisB;
+    controller = (byte)frame;
     if ((byte)this->fCurrentController == 2) {
       modeBase = 0x10;
     }
-    if ((byte)frame == 2) goto DrawCtrl_calcModeTwo;
+    if (controller == 2) goto DrawCtrl_calcModeTwo;
 DrawCtrl_calcModeOther:
     frame = modeBase + (axisB << 3) / 0x81;
     goto DrawCtrl_axisDone;

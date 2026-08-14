@@ -54,64 +54,10 @@ extern FirstFn _first_save;          /* @0x80148A7C : saved original device hand
  * omit the size, or give the correct one -- here the omission is what retail's codegen shows. */
 extern char    _first_devname[];     /* @0x80148A84 : device prefix extracted from `name` */
 
-/* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
-extern int _first_patch(int *state, int arg, int arg2)
-{
-    DCB *e, *end, *lim;
-    unsigned int cnt;
-    FirstFn saved;
-
-    /* MATCH (w59-a13, 2026-08-14, 9 -> 2 diffs @62/64): SUPERSEDES the w48-a7 note that
-     * `saved` must be assigned FIRST (that basin measured 9; every later position measured
-     * 20 -- but only because the s2/s3 roles then swapped).  The oracle SCHEDULES the
-     * `lui/lw _first_save` pair into the multu latency window (between `lw s0,336` and
-     * `mfhi`), i.e. in the block AFTER the `*state` update -- unreachable from the
-     * first-statement position, where sched1 puts it in the `lw v0,0(s2)` load-delay slot
-     * and retail keeps a `nop`.  Assigning it here reproduces retail's placement AND the
-     * prologue `sw ra` order; the resulting s2/s3 swap is then bought back by the one
-     * read-only fence on `state` before the tail call (see below).
-     * FALSIFIED at this position (all worse): fence on `saved` instead (24), two `state`
-     * operands (18), no fence (20), void fence at the fall-through head (3) / after the
-     * `end` copy (2, inert) / at the tail head (2, inert), duplicated tail call in the
-     * guarded arm (24 @68 -- the call setup duplicates without a cross_jump merge).
-     * FLAG/VERSION AXIS RE-LADDERED on THIS basin (04Z): default best -- cc1_ver 2.7.2 30,
-     * 2.7.2-970404 12, 2.6.3 36, 2.8.1 == default, -fno-schedule-insns2 14,
-     * -mno-split-addresses 4 @64/64 (count-exact but it un-splits the `la _first_devname`
-     * macro, so the jal can no longer sit between its halves = 2 NEW diffs for 2 old ones).
-     * RESIDUAL (2, both reorg-side): retail fills the zero-trip guard's `beqz $v0` slot from
-     * the TARGET thread (`addu $a0,$s2,$zero`, the tail call's first arg, re-done at the
-     * shared tail) while ours fills it from the fall-through (`addu $s1,$v1,$zero`), and
-     * retail leaves the `beqz $a0` name-test slot EMPTY where our reorg steals the
-     * `lui %hi(_first_devname)` half into it.  Both are mostly_true_jump/thread-choice
-     * decisions in reorg.c, downstream of RTL; no source shape reached them. */
-    if (*state == 0)
-        *state = 1;
-    cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
-    e    = BIOS_DCB_BASE;
-    saved = _first_save;
-    /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
-     * the zero-trip guard, and only copies it into the callee-saved loop bound inside the guard
-     * (`addu $v1,$s0,$v0; sltu $v0,$s0,$v1; beqz $v0,..; addu $s1,$v1,$zero`).  The copy survives
-     * because the destination outlives its source (make_regs_eqv); computing straight into `end`
-     * coalesces it away. */
-    lim  = e + cnt;
-    if (e < lim) {
-        end = lim;
-scan:
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
-            e->firstfile = (void *)saved;   /* un-patch (one-shot) */
-        } else {
-            e++;
-            if (e < end) goto scan;
-        }
-    }
-    /* MATCH (w59-a13): read-only fence = +1 ref on `state`, which raises its allocno
-     * priority back above `saved`'s and restores retail's $s2=state / $s3=saved roles
-     * (without it the late `saved` assignment colours them the other way round: 20 diffs).
-     * Zero insns; must list `state` ONLY -- a second operand costs 16 more diffs. */
-    __asm__("" : : "r"(state));
-    return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
-}
+/* W60-A1 (2026-08-14): the _first_patch DEFINITION lives at EOF -- retail's obj is
+ * firstfile (0x80109DC0) then _first_patch (0x80109F5C).  Forward decl for the DCB
+ * install site inside firstfile below. */
+extern int _first_patch(int *state, int arg, int arg2);
 
 /* @0x80109DC0 : firstfile */
 extern void *firstfile(char *name, void *dir)
@@ -204,4 +150,63 @@ scan2:
     goto tail;
 tail:
     return firstfile2(name, dir);
+}
+
+/* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
+extern int _first_patch(int *state, int arg, int arg2)
+{
+    DCB *e, *end, *lim;
+    unsigned int cnt;
+    FirstFn saved;
+
+    /* MATCH (w59-a13, 2026-08-14, 9 -> 2 diffs @62/64): SUPERSEDES the w48-a7 note that
+     * `saved` must be assigned FIRST (that basin measured 9; every later position measured
+     * 20 -- but only because the s2/s3 roles then swapped).  The oracle SCHEDULES the
+     * `lui/lw _first_save` pair into the multu latency window (between `lw s0,336` and
+     * `mfhi`), i.e. in the block AFTER the `*state` update -- unreachable from the
+     * first-statement position, where sched1 puts it in the `lw v0,0(s2)` load-delay slot
+     * and retail keeps a `nop`.  Assigning it here reproduces retail's placement AND the
+     * prologue `sw ra` order; the resulting s2/s3 swap is then bought back by the one
+     * read-only fence on `state` before the tail call (see below).
+     * FALSIFIED at this position (all worse): fence on `saved` instead (24), two `state`
+     * operands (18), no fence (20), void fence at the fall-through head (3) / after the
+     * `end` copy (2, inert) / at the tail head (2, inert), duplicated tail call in the
+     * guarded arm (24 @68 -- the call setup duplicates without a cross_jump merge).
+     * FLAG/VERSION AXIS RE-LADDERED on THIS basin (04Z): default best -- cc1_ver 2.7.2 30,
+     * 2.7.2-970404 12, 2.6.3 36, 2.8.1 == default, -fno-schedule-insns2 14,
+     * -mno-split-addresses 4 @64/64 (count-exact but it un-splits the `la _first_devname`
+     * macro, so the jal can no longer sit between its halves = 2 NEW diffs for 2 old ones).
+     * RESIDUAL (2, both reorg-side): retail fills the zero-trip guard's `beqz $v0` slot from
+     * the TARGET thread (`addu $a0,$s2,$zero`, the tail call's first arg, re-done at the
+     * shared tail) while ours fills it from the fall-through (`addu $s1,$v1,$zero`), and
+     * retail leaves the `beqz $a0` name-test slot EMPTY where our reorg steals the
+     * `lui %hi(_first_devname)` half into it.  Both are mostly_true_jump/thread-choice
+     * decisions in reorg.c, downstream of RTL; no source shape reached them. */
+    if (*state == 0)
+        *state = 1;
+    cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    e    = BIOS_DCB_BASE;
+    saved = _first_save;
+    /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
+     * the zero-trip guard, and only copies it into the callee-saved loop bound inside the guard
+     * (`addu $v1,$s0,$v0; sltu $v0,$s0,$v1; beqz $v0,..; addu $s1,$v1,$zero`).  The copy survives
+     * because the destination outlives its source (make_regs_eqv); computing straight into `end`
+     * coalesces it away. */
+    lim  = e + cnt;
+    if (e < lim) {
+        end = lim;
+scan:
+        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
+            e->firstfile = (void *)saved;   /* un-patch (one-shot) */
+        } else {
+            e++;
+            if (e < end) goto scan;
+        }
+    }
+    /* MATCH (w59-a13): read-only fence = +1 ref on `state`, which raises its allocno
+     * priority back above `saved`'s and restores retail's $s2=state / $s3=saved roles
+     * (without it the late `saved` assignment colours them the other way round: 20 diffs).
+     * Zero insns; must list `state` ONLY -- a second operand costs 16 more diffs. */
+    __asm__("" : : "r"(state));
+    return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
 }

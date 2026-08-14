@@ -2824,15 +2824,21 @@ void tScreenPinkSlipsCarSelect::GetShapeInfo(short &numPermShapes,short &numSwap
  * ___25tScreenPinkSlipsCarSelect) still genuinely exist in retail (their own vtable dtor slots
  * need a real address) and are IDENTICAL in body (CarDialog @0x3A0 -> ___7tScreen, then base
  * -> ___16tScreenCarSelect forwarding in_chrg) -- transcribed verbatim, same technique/rationale
- * as ___23tScreenControllerConfig. Byte-identical to the prior compiler-generated PASS. */
+ * as ___23tScreenControllerConfig. Byte-identical to the prior compiler-generated PASS.
+ *
+ * W60-A10 (intra-TU VA ORDER, the MSC02 class): the two blobs are byte-identical, so only their
+ * LABELS were swapped -- retail emits ___25tScreenPinkSlipsCarSelect (@0x8003f6d0) BEFORE
+ * ___25tScreenCarSelectTwoPlayer (@0x8003f714). Wrong order here is invisible to verify_asm
+ * (per-fn, VA-agnostic) but link-visible: it hands both symbols the wrong VAs. The two
+ * `&this->CarDialog` / delay-slot comments below stayed with their original blob positions. */
 #if defined(__mips__)
 __asm__(
     "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"
     "\t.set noreorder\n"
-    "\t.globl ___25tScreenCarSelectTwoPlayer\n"
-    "___25tScreenCarSelectTwoPlayer:\n"
+    "\t.globl ___25tScreenPinkSlipsCarSelect\n"
+    "___25tScreenPinkSlipsCarSelect:\n"
     "\taddiu $sp, $sp, -32\n"
     "\tsw    $s0, 16($sp)\n"
     "\taddu  $s0, $a0, $zero\n"
@@ -2857,8 +2863,8 @@ __asm__(
     "\t.set noat\n"
     "\t.set\tnoreorder\n"
     "\t.set noreorder\n"
-    "\t.globl ___25tScreenPinkSlipsCarSelect\n"
-    "___25tScreenPinkSlipsCarSelect:\n"
+    "\t.globl ___25tScreenCarSelectTwoPlayer\n"
+    "___25tScreenCarSelectTwoPlayer:\n"
     "\taddiu $sp, $sp, -32\n"
     "\tsw    $s0, 16($sp)\n"
     "\taddu  $s0, $a0, $zero\n"

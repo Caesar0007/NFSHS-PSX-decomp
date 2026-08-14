@@ -67,8 +67,18 @@ unsigned int __divsf3(int a1, int a2)   /* @0x800F66E4 */
     if ((a2 & 0x7FFFFFFF) == 0) {
         /* W55-A4 branch polarity: retail's `bnez v0,<continue>` makes the two
          * degenerate arms the FALL-THROUGH, i.e. the tests are POSITIVE. */
-        if (v4) return 1333788672;
-        return 1325400064;
+        /* w60-a5 SEAL: retail materializes the DEFAULT constant BEFORE the
+         * sign test (`lui $v0,20224`) and leaves the beqz's delay slot EMPTY.
+         * default-then-override alone is not enough -- gcc still schedules the
+         * lui into the slot; the zero-insn VOID-TAIL FENCE between the default
+         * and the test is what stops reorg's backward scan from reaching it
+         * (06B: any asm bounds that scan), reproducing retail's nop. */
+        {
+            unsigned int r = 1325400064;
+            __asm__("" : : "i"(0));
+            if (v4) r = 1333788672;
+            return r;
+        }
     } else if ((a1 & 0x7FFFFFFF) == 0) {
         return v4;
     } else {
@@ -82,7 +92,7 @@ unsigned int __divsf3(int a1, int a2)   /* @0x800F66E4 */
              * (ours v8/v2/v3 -> $a3/$t1/$t0 vs retail $v1/$t0/$a3).  Assigning it
              * in the loop preheader instead gives retail's exact handout. 38 -> 14. */
             int v8;
-            int v9, n, v13;
+            int v9, n;
             a1 = a1 & 0x7FFFFF | 0x800000;
             a2 = a2 & 0x7FFFFF | 0x800000;
             if (a1 < a2) { a1 *= 2; v3 = v2 + 125; }
@@ -108,12 +118,26 @@ unsigned int __divsf3(int a1, int a2)   /* @0x800F66E4 */
                 v3 = 0;
             }
             v9 &= 0xFF7FFFFF;   /* retail masks the quotient IN PLACE (`and $a0,$a0,$v0`) */
+            /* w60-a5: RESULT FUNNEL via the FLTSISF law (same crack as
+             * __mulsf3) -- accumulate into an EXISTING pseudo whose register
+             * is the target, never a fresh one.  Retail's result lives in $a2
+             * = the FIRST PARAMETER's own register (`addu $a2,$a0,$zero` in
+             * the head, mantissa rebuilt in place by `or $a2,$v1,$a0`, dead
+             * after the division loop).  14 -> 8.  Measured on every candidate:
+             * a1 8 | v9 10 | a2 12 | v3 12 | v4 26; the old v13 funnel = 14. */
             if (v3 >= 255) {
                 _err_math(34, 14);
-                v13 = 2139095040;
-                if (v4) return -8388608;
-                return v13;
+                /* w60-a5: the err arm stages through the DEAD QUOTIENT pseudo
+                 * -- retail `lui $a0,..; addu $a2,$a0,$zero`, and $a0 is v9's
+                 * own register (`addu $a0,$zero,$zero` at the loop head,
+                 * `and $a0,$a0,$v0` at the mask).  8 -> 3.  Same law as the
+                 * result funnel: an EXISTING dead pseudo, never a fresh one.
+                 * Measured: v9 3 | v3 9 | v2 9 | a2 9 | n 67. */
+                if (v4) v9 = (int)0xFF800000; else v9 = 0x7F800000;
+                a1 = v9;
+            } else {
+                a1 = (int)(v4 | (v3 << 23) | v9);
             }
-            return v4 | (v3 << 23) | v9;
+            return (unsigned int)a1;
     }
 }

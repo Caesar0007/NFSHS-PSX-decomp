@@ -3026,6 +3026,14 @@ void ___25tInsideBoxLeftRightSlider(void *);
 void ___35tInsideBoxControllerLeftRightSlider(void *thisp) { ___25tInsideBoxLeftRightSlider(thisp); }
 }
 
+/* tMemoryCardMenuItem dtor is a delegating thunk to ___23tMenuItemGoToMenuButton
+ * (oracle @0x80020BD8: jal ___23tMenuItemGoToMenuButton) -- was missing entirely
+ * (gate "NOT IN OBJECT").  Same form as ___27tMenuItemGoToMenuButtonFade. */
+extern "C" {
+void ___23tMenuItemGoToMenuButton(void *);
+void ___19tMemoryCardMenuItem(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
+}
+
 extern "C" {
 void ___23tMenuItemGoToMenuButton(void *);
 void ___27tMenuItemGoToMenuButtonFade(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
@@ -3056,21 +3064,17 @@ void ___20tMenuItemSlidingMenu(void *);
 void ___25tMenuItemSlidingActivated(void *thisp) { ___20tMenuItemSlidingMenu(thisp); }
 }
 
-/* tMemoryCardMenuItem dtor is a delegating thunk to ___23tMenuItemGoToMenuButton
- * (oracle @0x80020BD8: jal ___23tMenuItemGoToMenuButton) -- was missing entirely
- * (gate "NOT IN OBJECT").  Same form as ___27tMenuItemGoToMenuButtonFade. */
-extern "C" {
-void ___23tMenuItemGoToMenuButton(void *);
-void ___19tMemoryCardMenuItem(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
-}
-
 extern "C" {
 void ___24tMenuItemLeftRightChoice(void *);
 void ___22tMenuItemLeftRightFade(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 }
 
-/* cont.34: tMenuItemGoToMenuNFS4Button::Draw(bool) nullsub re-attributed from front.c.
-   The class declares Draw(bool) (nfs4_types.h) so the REAL method def mangles to the
-   exact oracle symbol Draw__27tMenuItemGoToMenuNFS4Buttonb (0x8001BF40 = jr ra;nop).
-   (extern-C free-fn form would clash with the member's mangled symbol.) */
-void tMenuItemGoToMenuNFS4Button::Draw(bool /*selected*/) {}  /* @0x8001BF40 */
+/* W60-A10: the tMenuItemGoToMenuNFS4Button::Draw(bool) nullsub USED to be defined here
+   (cont.34 re-attribution from front.c).  It is a DUPLICATE -- femenuextended.cpp also
+   defines it, so both objects emitted a global Draw__27tMenuItemGoToMenuNFS4Buttonb
+   (multiply-defined at link; invisible to verify_asm, which gates per-fn).
+   OWNER = FEMenuExtended.obj, proven from the SYM: the SLD run covering $8001bf40 is
+   "Set SLD to line 215 of file C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H" and ends at
+   $8001bf48, where FEMenuOptions.obj's first fn (CalcPulsateYellow__Fv) starts.
+   0x8001BF40 is also FAR below this TU's own VA range, i.e. an inversion here.
+   Definition removed; femenuextended.cpp keeps it as its last emitted fn. */

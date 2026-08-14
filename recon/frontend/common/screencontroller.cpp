@@ -60,6 +60,37 @@ SetActuators_clearAndRet:
   return;
 }
 
+/* ---- tScreenControllerConfig::TurnOffShakers  (screencontroller.cpp:70) ---- */
+void tScreenControllerConfig::TurnOffShakers()
+
+{
+  (this->fShaker).active = '\0';
+  return;
+}
+
+/* ---- tScreenControllerConfig::ShakeIt  (screencontroller.cpp:76) ---- */
+void tScreenControllerConfig::ShakeIt()
+
+{
+  int padState;
+  int padnum;
+  
+  padnum = this->player << 4;
+  padState = PadGetState(padnum);
+  if (padState != 6) {
+    if (padState < 4) {
+      (this->fShaker).active = '\0';
+    }
+    this->ClearActuators();
+  }
+  else if ((this->fShaker).active == '\0') {
+    (this->fShaker).active = '\x01';
+    PadSetAct(padnum,(this->fShaker).actuator,2);
+    PadSetActAlign(padnum,"");
+  }
+  return;
+}
+
 /* ---- Controller_SetRamp  (screencontroller.cpp:791) ---- */
 void Controller_SetRamp(void)
 
@@ -108,37 +139,6 @@ void Controller_SetRamp(void)
       frontEnd.rampBrake[i] = '\0';
     }
     i = i + 1;
-  }
-  return;
-}
-
-/* ---- tScreenControllerConfig::TurnOffShakers  (screencontroller.cpp:70) ---- */
-void tScreenControllerConfig::TurnOffShakers()
-
-{
-  (this->fShaker).active = '\0';
-  return;
-}
-
-/* ---- tScreenControllerConfig::ShakeIt  (screencontroller.cpp:76) ---- */
-void tScreenControllerConfig::ShakeIt()
-
-{
-  int padState;
-  int padnum;
-  
-  padnum = this->player << 4;
-  padState = PadGetState(padnum);
-  if (padState != 6) {
-    if (padState < 4) {
-      (this->fShaker).active = '\0';
-    }
-    this->ClearActuators();
-  }
-  else if ((this->fShaker).active == '\0') {
-    (this->fShaker).active = '\x01';
-    PadSetAct(padnum,(this->fShaker).actuator,2);
-    PadSetActAlign(padnum,"");
   }
   return;
 }

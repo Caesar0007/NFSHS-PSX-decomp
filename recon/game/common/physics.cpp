@@ -2187,7 +2187,24 @@ void Physics_Real(Car_tObj *carObj)
        splitting into `damageMult = damage / 0x200; damageMult = 0x10000 - damageMult;`
        31@1273.  (b) SLD 2341 (`... * 2` in the wheelMult term): retail issues
        `lw a2,52(sp); lw a0,100(sp)` BEFORE `lw v1,0(gp)`, ours after -- a pure sched
-       order + a2-vs-v0 choice, 3 diffs. */
+       order + a2-vs-v0 choice, 3 diffs.
+       W60-A9 ADDENDUM -- the (a) cluster re-read at instruction level: retail's LAST
+       ADDEND writes a FRESH register (`addu v1,v0,a0`, so the sum lands in damage's
+       own pseudo) and expand_sdiv_pow2's bias then reads THAT sum (`addiu v0,v1,511`),
+       with the temp copy filling the bgez delay slot; ours folds the last addend into
+       the accumulator (`addu v0,v0,a0`), copies to v1, and the bias reads the COPY
+       (`addiu v1,v1,511`) while the delay slot takes the next statement's
+       `addu a0,a1,zero`.  MEASURED THIS WAVE, none beat 14: a named `partial` local
+       for the first three addends + the fence 14 | the same without the fence 15@1271
+       | `(d0+d1) + (d2+d9)` pair-association 32@1270 | `damage = d0+d1+d2;
+       damage += d9;` 14.  So the fresh-destination is not reachable by re-associating
+       the sum.  The newton DoPostBarrier device (a volatile-view re-read on ONE term)
+       is FALSIFIED here too: volatile on damage[9] / damage[0] / all four = 14@1272
+       each, byte-identical to the plain form (the four terms are already separate
+       loads, so there is no cse substitution left to block).  NEXT ANGLE: the
+       fresh-destination is a local-alloc qty question -- run tools/qtyprio.py on the
+       .lreg block that owns the four-addend chain and dial the ACCUMULATOR's birth,
+       not the sum's spelling. */
     damage = (carObj->N).damage[0] + (carObj->N).damage[1] +
              (carObj->N).damage[2] + (carObj->N).damage[9];
     __asm__("" : "=r"(damage) : "0"(damage));

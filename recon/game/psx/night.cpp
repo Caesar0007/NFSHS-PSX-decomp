@@ -206,6 +206,38 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
  * clamp branches, in both builds), and computing B/G/R in reverse order (74).
  * STRONG FLOOR under the current bar: prototype audited vs SYM, mechanism named and
  * quantified from the RTL dumps, -G8 already adopted for this TU. */
+/* ===== w60-a6: THE W59-11D WHOLE-BLOCK SLD RE-LAY IS EXECUTED -- and it FALSIFIES the
+ * "the shipped basin is anti-SLD papering" reading.  26 STAYS. =====
+ * The suspicion was well-founded and worth executing: tools/sldall.py shows retail's pack
+ * block is plainly NATURAL r,g,b --
+ *     SLD:206  and v0,a2,v1 ; sb v0,16(sp)      <- newColor.r
+ *     SLD:207  and v0,a1,v1 ; sb v0,17(sp)      <- newColor.g
+ *     SLD:208  and v1,a0,v1 ; sb v1,18(sp)      <- newColor.b
+ *     SLD:212  andi/sll/lbu/or ... jal          <- the by-value CVECTOR arg build
+ * and retail FORWARDS the last two stored bytes (.g in $v0 via `andi v0,v0,255`, .b in $v1)
+ * while RELOADING the first (`lbu a0,16(sp)`) and .cd (`lbu v0,19(sp)`) -- i.e. the shipped
+ * reverse-order + read-back devices are the MIRROR IMAGE of that, which is what made them
+ * look like papering.  MEASURED, all count-exact 113/113:
+ *   natural r,g,b, read-back REMOVED, sourceB fence kept ............. 56
+ *   ... with the sourceB fence re-laddered 0 / 1 / 3 / 4 operands ..... 56 / 58 / 56 / 56
+ *   ... + a parm-spill pin (void fence / "r"(colorval) first stmt) .... 60 / 60
+ *   ... + a 1/2/3-operand ref fence on sourceG (the model-derived dial
+ *       for the b15<->sourceG swap the re-lay exposes) ............... 88 / 88 / 88
+ * WHY THE RE-LAY LOSES, and this is the useful part: removing the reverse order does NOT
+ * just move the pack block -- it rotates the whole UPSTREAM clamp region (b15 lands $a1
+ * and sourceG $a3, retail has them the other way round; the prologue parm spill
+ * `sw s1,36(sp); addu s1,a3,zero` slides from index 1-2 to 10-11).  So the reverse store
+ * order is NOT paying for the pack block at all -- it is paying for the b15/sourceG global
+ * allocno order, and the pack-block mirror is the PRICE, not the purpose.  That is a
+ * genuine correction to this receipt stack: the residual 26 is the COST of a lever that
+ * buys ~30 elsewhere, not an unexplained floor.
+ * 11D CAVEAT LEARNED HERE (catalog candidate): an SLD-contradicting source shape is not
+ * automatically a papering device.  When the SLD-faithful re-lay measures WORSE, check
+ * whether the anti-SLD device is compensating a SEPARATE allocno decision UPSTREAM before
+ * concluding the basin is fake -- 11D's own instruction is to judge the re-lay on the
+ * WHOLE block, and here the whole block includes the clamps, not just the stores.
+ * REMAINING TARGET (unchanged, now better framed): find a dial for the b15/sourceG order
+ * that does NOT require the reverse store order; then the SLD-natural pack block is free. */
 void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
 
 {

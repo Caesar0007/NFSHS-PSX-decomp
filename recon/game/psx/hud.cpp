@@ -2025,6 +2025,19 @@ HudBuildStr_next:
  *   address (`&HudSplitTimeDiff1[player]`) its own earlier named local so its %hi/%lo is no
  *   longer competing for $v0 inside this store group (untried -- watch for a +1 insn).
  *   NOT the ternary and NOT the giv: those are closed above. */
+/* w60-a6 addendum -- IDIOM-CORPUS PROBE (C:/Temp/ps1-decomp-refs, read-only).
+ * parasite-eve-2-decomp/DECOMPILATION_LEARNINGS.md has a row that is exactly this residual
+ * class inverted -- "Reload a global (not the local pointer) to fill a branch delay with
+ * lui" (their CdAudio_Begin): reaching a field through the GLOBAL makes cc1 rematerialise
+ * `lui %hi`, while reaching it through a live local pointer REUSES the local's register.
+ * Our residual wants the opposite direction at the body site (reuse the high that is live
+ * across the back edge instead of minting a fresh lui/addiu pair), so the row predicts the
+ * body should stay on the local -- CONFIRMED BY MEASUREMENT: spelling the body read as the
+ * bare global `DashHUD_view[j + 7]` instead of `dh[j + 7]` gives 40 @79 (+7 insns -- the
+ * address becomes loop-invariant again and loop.c rebuilds the giv).  Same-era toolchain
+ * (gcc 2.8.1 -O2 -mips1 + aspsx 2.77), so the row transfers; it just points the way we are
+ * already going.  The open item is unchanged and is NOT in that corpus: a device that lets
+ * two address expressions SHARE their (high sym) while keeping distinct (lo_sum)s. */
 void Hud_BuildNumbers0(int player)
 
 {
@@ -2740,6 +2753,20 @@ void Hud_InitMap(void)
  *   register there, so this is a cse/LICM cost decision between the two constants, not a
  *   spelling bug.  All four known ways to give mapy an allocno are measured negative (see the
  *   w45/w46 notes above). */
+/* ===== w60-a6: 81 STAYS.  The catalog 07B "3-IDENTITY-FENCE BARE-CONSTANT STEP" is the
+ * one documented device the w45/w46 mapy notes had NOT tried (they measured ONE fence at
+ * 188@320); 07B says 1 or 2 are not enough and the constant must be ASSIGNED, never
+ * decl-with-init -- both of which hold for `mapy = 0x18;` here.  EXECUTED AND FALSIFIED:
+ *   n = 1 / 2 / 3 identity fences on mapy: 155 / 155 / 155, all at ours 315 (+2 insns)
+ *   n = 4:                                 191 @315
+ * So the step is FLAT in n and the cost is structural, not a dial: an identity fence on a
+ * value that is NOT already register-resident materialises the literal AND forces a copy,
+ * exactly as the w46 note reasoned -- 07B's step only applies once the constant has a
+ * register home to begin with.  (Better than w46's single-fence 188@320, so the earlier
+ * number was basin-stale, but still far worse than 81.)  ==> ALL FIVE known ways to give
+ * `mapy` an allocno are now measured negative (distinct address rtx, plain use fence,
+ * single identity fence, N-stacked identity fences, per-loop storage split).
+ * The $fp item stands; the open side is the CSE, not the occupant. */
 void Hud_BuildMapMarkers(int player)
 
 {

@@ -67,41 +67,10 @@ extern int g_intr_timeout;                   /* @0x80135B90 */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_bzero_w" (no __F mangling suffix), but
  * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
  * ("NOT IN OBJECT" forever). `static`+`extern "C"` can't combine as adjacent storage-class
- * specifiers on this compiler -- wrap in an `extern "C" { }` block instead. */
-
-static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
-{
-    int i = n - 1;
-    if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
-}
-   /* extern "C" */
-
-/* W59-A13 (2026-08-14) RE-GATE 6 @54/54.  The WHOLE fn is byte-exact except ONE address
- * pseudo: the second `g_hooks_ptr` reload (for `dma_setter`, offset +4) lands in $v1 for us
- * and $a0 in retail, while the FIRST one (`vsync_setter`, +0x14) is $v1 in both.  Two
- * consecutive one-block address qtys where retail's second one skips the free low regs =
- * the local-alloc QTY handout (06E gap).  FALSIFIED: a local `IntrHooks *h` for the dma
- * store (20), naming both call results in temps (6, inert), a void fence between the two
- * stores (6, inert), `(&g_hooks_ptr[0])->` index form on both (6, inert); ladder as above. */
-extern IntrState *_initIntr(void)       /* @0x800F2968 */
-{
-    if (g_intr.inited != 0)
-        return 0;
-
-    I_STAT = I_MASK = 0;
-    DPCR = 0x33333333;
-    _bzero_w((int *)&g_intr, 0x41a);
-    if (setjmp(g_intr.jmpbuf) != 0)
-        _intrhand();
-    g_intr.jmpbuf[1] = (long)g_intr.evcb;
-    HookEntryInt(g_intr.jmpbuf);
-    g_intr.inited = 1;
-    g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
-    g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA();
-    _96_remove();
-    ExitCriticalSection();
-    return &g_intr;
-}
+ * specifiers on this compiler -- wrap in an `extern "C" { }` block instead.
+ * W60-A1 (2026-08-14): the DEFINITION moved to EOF -- retail puts _bzero_w LAST in the obj
+ * (@0x800F2E70, after RestartCallback); this forward decl keeps _initIntr's call site valid. */
+static void _bzero_w(int *p, int n);
 
 extern void ResetCallback(void)        /* @0x800F284C */
 {
@@ -141,6 +110,33 @@ extern int SetIntrMask(int mask)   /* @0x800F2950 */
     int old = *p;
     *p = (unsigned short)mask;
     return old;
+}
+
+/* W59-A13 (2026-08-14) RE-GATE 6 @54/54.  The WHOLE fn is byte-exact except ONE address
+ * pseudo: the second `g_hooks_ptr` reload (for `dma_setter`, offset +4) lands in $v1 for us
+ * and $a0 in retail, while the FIRST one (`vsync_setter`, +0x14) is $v1 in both.  Two
+ * consecutive one-block address qtys where retail's second one skips the free low regs =
+ * the local-alloc QTY handout (06E gap).  FALSIFIED: a local `IntrHooks *h` for the dma
+ * store (20), naming both call results in temps (6, inert), a void fence between the two
+ * stores (6, inert), `(&g_hooks_ptr[0])->` index form on both (6, inert); ladder as above. */
+extern IntrState *_initIntr(void)       /* @0x800F2968 */
+{
+    if (g_intr.inited != 0)
+        return 0;
+
+    I_STAT = I_MASK = 0;
+    DPCR = 0x33333333;
+    _bzero_w((int *)&g_intr, 0x41a);
+    if (setjmp(g_intr.jmpbuf) != 0)
+        _intrhand();
+    g_intr.jmpbuf[1] = (long)g_intr.evcb;
+    HookEntryInt(g_intr.jmpbuf);
+    g_intr.inited = 1;
+    g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
+    g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA();
+    _96_remove();
+    ExitCriticalSection();
+    return &g_intr;
 }
 
 extern void _intrhand(void)            /* @0x800F2A40 */
@@ -370,6 +366,12 @@ extern int RestartCallback(void)       /* @0x800F2DF8 */
      * ORCHESTRATOR ACTION: probe a per-fn no-delayed-branch splice (or whole-TU
      * `no_delayed_branch` measured across all 11 INTR.c fns) for RestartCallback.
      * No C spelling reaches it -- the slot is filled before the assembler runs. */
+}
+
+static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
+{
+    int i = n - 1;
+    if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
 }
 
  IntrState g_intr;   /* owning-TU def (BSS) -- at EOF for type visibility */

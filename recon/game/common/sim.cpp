@@ -280,16 +280,34 @@ void Sim_CheckForPause(int checkInput)
  * with the `speed == one` compare. `int one;` assigned `one = 1;` at the START
  * of the else{} block (its materialization position = oracle's `li s0,1`) is the
  * dial (function-scope `int one = 1;` hoists to prologue -> +2 regress).
- * RESIDUAL 11 (was 31; W57-A12 fixed the s-band rotation with the replaySetup fence below).
- * What is left is TWO independent 4-5 insn classes:
- *  (1) the oracle splits the two Sim_ProcessSimSchedules() calls across the else{} block
+ * W59-A14: 11 -> 6 diffs. CLASS (2) IS SOLVED -- three cooperating edits, each one alone
+ * regressing, all three together landing (see the input-loop block below):
+ *   (2a) the loop-entry guard must NOT read GameSetup through `gameSetup`; retail reads it
+ *        through the ALREADY-LIVE `replaySetup` pointer (`replaySetup->commMode`), so no new
+ *        address is materialized before the guard;
+ *   (2b) `gameSetup = (char *)&GameSetup_gData;` then moves BELOW the guard, which lets reorg
+ *        put its `lui %hi` in the `bnez` delay slot exactly like retail;
+ *   (2c) that move alone flips the whole gameSetup web s2<->s3 (measured 33). A 1-operand
+ *        READ-ONLY fence on gameSetup is the priced cure: allocsim MATCH 22/23 says
+ *        p195(gameSetup) refs 6 -> 7 raises pri 0.1578 -> 0.1842 past p118 (0.1611) and swaps
+ *        the pair back to retail's {gameSetup=$s2, call-result=$s3}.
+ *   Falsified on the way (do NOT retry): reading the guard as `GameSetup_gData.commMode`
+ *   (fused %lo form, 38 -- rotates the whole s4..fp band) or as `*(int *)((char *)&G + 0xc)` /
+ *   `((int *)&G)[3]` (11 -- gcc CSEs `&G+12` and derives gameSetup as `addiu s2,v1,-12`,
+ *   a 3-insn 05F base anchor); an identity fence instead of the read-only fence (same 11).
+ * RESIDUAL 6 = CLASS (1) ONLY, ours 319 vs oracle 321:
+ *      the oracle splits the two Sim_ProcessSimSchedules() calls across the else{} block
  *      (jal#1; j .Lshared; [else: InBetween=one; Camera_Update; j out]; .Lshared: jal#2) --
- *      our cross_jump merges them and saves the `j`+`nop` (ours 320 vs oracle 321).
- *      De-Morgan + arm-swap measured WORSE (33). Block-layout/permuter.
- *  (2) the `gameSetup = &GameSetup_gData` la is emitted BEFORE the `i != 0` guard in ours
- *      (leaving the bnez slot a nop) but AFTER it in retail (the `lui %hi` IS the slot filler).
- *      Moving the assignment below the guard in source does fix the placement but flips
- *      s2<->s3 for the whole gameSetup web (33); a void-tail fence before it is inert. */
+ *      our cross_jump keeps the PAIR's copy (fall-through) and deletes the bigcond arm's, so
+ *      we save the `j`+`nop`. Retail kept the BIGCOND arm's copy, i.e. in retail's emission
+ *      that arm was laid out LAST. Measured this wave, all worse: De-Morgan `!(...)` + arm
+ *      swap (32, layout unchanged, s4<->s5 rotation); goto-to-shared-tail with the shared
+ *      call after the if/else (38/317) and its flat variant (25/318 -- the `goto` lets gcc
+ *      thread the ELSE into the fall-through so cse merges the `speed` load into the ||
+ *      chain, `li v0,3; beq a0,v0` instead of retail's fresh `lw v1,4(s4)`).
+ *      Named angle: this is a cross_jump SURVIVOR-CHOICE, not a source expression -- next
+ *      lever is a block-order device that keeps the || chain's ELSE a branch target while
+ *      emitting the bigcond arm last. */
 void Sim_MainGameLoop(void)
 
 {
@@ -381,9 +399,18 @@ void Sim_MainGameLoop(void)
             char *gameSetup;
 
             i = 0;
-            gameSetup = (char *)&GameSetup_gData;
-            if (i > (int)(u_int)(*(int *)(gameSetup + 0xc) == 1))
+            /* MATCH (W59-A14, class 2a/2b): the guard reads commMode through the ALREADY-LIVE
+               replaySetup pointer, so nothing of GameSetup is materialized before it; the
+               `gameSetup` la then sits BELOW the guard and reorg fills the `bnez` delay slot
+               with its `lui %hi` exactly like retail. */
+            if (i > (int)(u_int)(replaySetup->commMode == 1))
               goto SimMainLoop_inputDone;
+            gameSetup = (char *)&GameSetup_gData;
+            /* MATCH (W59-A14, class 2c): 1-operand read-only fence = +1 ref on gameSetup.
+               allocsim (MATCH 22/23) prices it: pri 0.1578 -> 0.1842 overtakes the
+               call-result pseudo (0.1611), restoring retail's gameSetup=$s2 / result=$s3.
+               Without it the whole web flips s2<->s3 (measured 33 diffs). */
+            __asm__ ("" : : "r"(gameSetup));
 SimMainLoop_inputLoop:
               if ((Input_Interface(i != 0 ? 0x1b : 0x1a,1) != 0) &&
                   (Replay_ReplayMode < 2)) {

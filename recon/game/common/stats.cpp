@@ -467,12 +467,37 @@ void Stats_ExtrapolateOpponentTimes(int type)
    assigns the result in BOTH arms from a temp). (d) SLD 507 is ONE statement = abs()>>16 over
    the index form -> __builtin_abs. (e) SLD 500/512 = TOP test + UNCONDITIONAL `j` back-edge ->
    exit-in-the-middle while(1)/break (a `for` lets gcc prove entry and rotate; measured 97 vs 80).
-   RESIDUAL (named angle): retail SPILLS PlayerSlice to 20(sp) (`sw a1,20(sp)`/`sw v1,20(sp)` in
-   the MIN's two arms, `lw t5,20(sp)` at the use) while ours keeps it in $fp; that one spill is
-   what rotates the whole s-band (ours s3=DesiredSlice/s4=base/s6=DesiredSpeed vs retail
-   s7/s3/s4 + $s6 as the j*4 index temp). The union-with-array frame-slot device (07A) does NOT
-   reach it (measured 86, ours got 2 insns SHORTER, no spill) -- this is an allocator SPILL
-   choice, i.e. the 06E/07E local-alloc instrument lane, not a source shape. */
+   W59-A14: 80 -> 44 diffs, INSN COUNT NOW EXACT 232/232, and the W57-A12 "PlayerSlice is an
+   allocator SPILL choice" verdict is REFUTED -- PlayerSlice now spills to 20(sp) by itself.
+   ROOT CAUSE of the whole 6-insn gap was ONE over-CSE: gcc merged the abs arm's
+   `Cars_gRaceCarList[j]` with the sliceTotal read above it (ours `lw v0,1056(a0)`, 1 insn, vs
+   retail's 5-insn base+index rematerialization), so our build had ONE FEWER global allocno
+   than retail -- and that spare callee-saved register is exactly what PlayerSlice took.
+   (f) THE UN-MERGE DEVICE = an IDENTITY FENCE on the index at the LOOP-BODY TOP
+   (`jj = j; __asm__("" : "=r"(jj) : "0"(jj));` then index with `jj`): laundering j makes the
+   arm's address cse-opaque AND loop.c-opaque, so it materializes base+scaled-index like retail
+   and adds the missing allocno. Placement is the dial: the SAME fence INSIDE the arm scores 82
+   (the `sll` then sits in the arm, not the loop head).
+   (g) SLD 485 (the FIRST min) is an OVERRIDE, not a ternary: `PlayerSlice = trackSlices;
+   if (trackSlices >= sliceTotal) PlayerSlice = sliceTotal;` -- that puts the then-store in the
+   `bnez` delay slot and both stores on the slot, exactly like retail (54 -> 44).
+   FALSIFIED here (do not retry): cast-int address arithmetic on the abs (folds back, 80);
+   `Car_tObj *volatile *` view (breaks the load cse but keeps the WALKER address, 66/228);
+   arm-swap `if (PlayerPosition != 1)` polarity (109, trackSlices leaves $a1); the same
+   override shape on the SECOND min at SLD 505 (115, frame grows to 80); a named `sliceTot`
+   temp for the second min (coalesced, diff-neutral 44); `jj = j << 2` + cast-int address
+   (150-154, frame grows to 80 -- the scaled launder costs a whole extra allocno);
+   swapping the `DesiredSlice = 0 / DesiredSpeed = 0` order (54); moving the identity fence
+   from the loop-body TOP down into the matched `if` block (65, and ours goes 1 insn short).
+   RESIDUAL (44) = a PRICED 4-way callee-saved permutation, allocsim MATCH 31/31 (model valid):
+     ours   p101 PlayerPosition=s4  p103 DesiredSlice=s5  p104 DesiredSpeed=s6  p130 jj=s7
+     retail p104 DesiredSpeed=s4    p101 PlayerPosition=s5 p130 temp=s6         p103 DesiredSlice=s7
+   REQUIRED DELTA (verified by allocsim --what-if, no SINGLE-pseudo dial exists at +-40):
+     p101 live 28 -> 29  AND  p103 live 41 -> 43   (equivalently p103 refs 13 -> 12)
+   i.e. two ZERO-INSN dials at once; every fence that buys refs also buys the wrong priority
+   step here (p130 refs 5->6 jumps pri to 1.09 and steals $s3). Next lever = a live-range-only
+   dial (def moved one insn earlier / last use one insn later) on PlayerPosition + one weighted
+   ref removed from DesiredSlice. Dumps: scratch/rtl/stats.i.{greg,lreg}. */
 void Stats_TrackEndGame(void)
 
 {
@@ -493,8 +518,10 @@ void Stats_TrackEndGame(void)
         int DesiredSpeed;
 
         /* SLD 485: ONE statement -- a MIN (both arms assign, oracle stores each to the slot). */
-        PlayerSlice = trackSlices < Cars_gHumanRaceCarList[i]->stats.sliceTotal ?
-                      trackSlices : Cars_gHumanRaceCarList[i]->stats.sliceTotal;
+        PlayerSlice = trackSlices;
+        if (trackSlices >= Cars_gHumanRaceCarList[i]->stats.sliceTotal) {
+          PlayerSlice = Cars_gHumanRaceCarList[i]->stats.sliceTotal;
+        }
 
         PlayerPosition = Stats_GetPosition(Cars_gHumanRaceCarList[i]);
         DesiredSlice = 0;
@@ -514,6 +541,7 @@ void Stats_TrackEndGame(void)
 
         {
           int j;
+          int jj;
 
           /* SLD 500/512: TOP test + UNCONDITIONAL `j` back-edge -> exit-in-the-middle
              (a `for` lets gcc prove entry and ROTATE to a bottom test). */
@@ -522,6 +550,8 @@ void Stats_TrackEndGame(void)
             if (j >= Cars_gNumRaceCars) {
               break;
             }
+            jj = j;
+            __asm__("" : "=r"(jj) : "0"(jj));
             if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {
               /* SLD 505: ONE statement -- a MIN, so both arms assign from a temp. */
               DesiredSlice = trackSlices < Cars_gRaceCarList[j]->stats.sliceTotal ?
@@ -529,7 +559,7 @@ void Stats_TrackEndGame(void)
 
               if (PlayerPosition == 1) {
                 /* SLD 507: ONE statement -- abs()>>16 over the INDEX form. */
-                DesiredSpeed = __builtin_abs(Cars_gRaceCarList[j]->linearVel_ch.z) >> 16;
+                DesiredSpeed = __builtin_abs(Cars_gRaceCarList[jj]->linearVel_ch.z) >> 16;
               }
               else {
                 DesiredSpeed =

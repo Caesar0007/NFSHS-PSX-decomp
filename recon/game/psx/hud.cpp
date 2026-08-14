@@ -4532,9 +4532,17 @@ void Hud_RenderHudView(void)
    * viewOff/tpageOff, which no declared fn-scope local can do -- see the tail note. */
   int splitY;
   u_long ww;
+  /* MATCH (w61-a1), step 2: retail's THIRD spill slot (sp+104) holds the 0x00FFFFFF OT-link
+   * mask, i.e. its pseudo is born BEFORE the two walkers'.  A literal `0xffffff` is a
+   * compiler temp born mid-body, so no fn-scope walker can follow it -- naming the mask and
+   * declaring it here puts it in the right place in the reload1.c:778 regno walk.  cse does
+   * NOT const-prop the name back (the value is loop-invariant and stays one pseudo).
+   * 50 -> 18, count still EXACT 606/606. */
+  u_int otmask;
   int viewOff;
   int tpageOff;
 
+  otmask = 0xffffff;
   viewOff = 0;
   tpageOff = 0;
   j = 0;
@@ -4622,11 +4630,11 @@ void Hud_RenderHudView(void)
 
         pal = Render_gPalettePtr;
         tagp = (u_int *)((int)gTPage0 + tpageOff);
-        *tagp = *tagp & 0xff000000 | *(u_int *)pal & 0xffffff;
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & 0xffffff;
+        *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
+        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & otmask;
         if (GameSetup_gData.carInfo[j].HudTach != 0) {
-          gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(gSprt1 + 1) & 0xffffff;
+          gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | *(u_int *)pal & otmask);
+          *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(gSprt1 + 1) & otmask;
         }
       }
       if (GameSetup_gData.carInfo[j].HudMap != 0) {
@@ -4677,8 +4685,8 @@ void Hud_RenderHudView(void)
           i = 0x3f;
           pal = Render_gPalettePtr;
           do {
-            gSprt1[i].tag = (u_long *)((u_int)gSprt1[i].tag & 0xff000000 | *(u_int *)pal & 0xffffff);
-            *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gSprt1[i] & 0xffffff;
+            gSprt1[i].tag = (u_long *)((u_int)gSprt1[i].tag & 0xff000000 | *(u_int *)pal & otmask);
+            *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)&gSprt1[i] & otmask;
             i = i + 1;
           } while (i < 0x47);
         }
@@ -4693,8 +4701,8 @@ void Hud_RenderHudView(void)
 
       pal = Render_gPalettePtr;
       tagp = (u_int *)((int)gTPage1 + tpageOff);
-      *tagp = *tagp & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & 0xffffff;
+      *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & otmask;
     }
     if (((((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) &&
          (Hud_gWingmanInterface[j] != '\0')) && (Replay_ReplayMode < 2)) {
@@ -4710,8 +4718,8 @@ void Hud_RenderHudView(void)
       tagp = (u_int *)((int)gTPage0 + tpageOff + 0xc);
       viewOff = viewOff + 4;
       tpageOff = tpageOff + 0x30;
-      *tagp = *tagp & 0xff000000 | *(u_int *)pal & 0xffffff;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & 0xffffff;
+      *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & otmask;
       Draw_StopRenderingView(*viewp);
     }
     j = j + 1;

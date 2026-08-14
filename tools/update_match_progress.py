@@ -94,6 +94,7 @@ def main():
         ("syslib/psx/libpad/PAD", "ReadInitPadFlag"),              # recon/syslib/psx/libapi/PAD.c @0x8010C9B0 (gate PASS)
         # w60 unlock dedups (canonical owner per SYM; the old-unit copy removed):
         ("frontend/common/fememcard", "___19tMemoryCardMenuItem"), # femenuoptions.cpp owns @0x80020BD8 (gate PASS there)
+        ("frontend/common/femenuoptions", "Draw__27tMenuItemGoToMenuNFS4Buttonb"),  # femenuextended.cpp owns @0x8001BF40 (W60-A10 dedup; gate PASS 2/2)
         ("game/common/aih_btcperp", "___15AIHigh_BTC_Perp"),       # aihigh.cpp owns @0x8005B438 (member dtor, gate PASS)
     }
 

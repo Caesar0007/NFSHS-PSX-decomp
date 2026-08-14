@@ -1068,16 +1068,34 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList)) {
     tDrawShapeExtended drawFlags;
     int width;
-    tDrawShapeExtended *drawFlagsPtr;
+    int right;
     int draw;
+    int drawX;
+    int drawY;
+    tDrawShapeExtended *drawFlagsPtr;
 
+    /* MATCH: right/draw/drawX/drawY/drawFlagsPtr expose the compiler-managed
+       values visible in the retail SSA without changing the SYM source-local
+       contract.  The read-only pointer fence crosses p127's 3->4 ref step so
+       GCC hands &drawFlags/right to $s0/$s1, as recorded by retail. */
     width = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
-    drawFlagsPtr = &drawFlags;
-    const int right = x + width;
+    right = x + width;
+    drawY = y + -2;
+    drawX = (right - (int)shape->width) - 0xa;
+    if (fPlayList) {
+      drawY = y + -3;
+    }
     draw = 1;
-    DrawShapeExtended(0x39,0x18,(right - (int)shape->width) - 0xa,(fPlayList ? y + -3 : y + -2),0,draw,drawFlagsPtr);
-    DrawShapeExtended(0x3a,0x18,(right - (int)shape->width) - 0xa,(fPlayList ? y + 3 : y + 4),0,draw,drawFlagsPtr);
+    drawFlagsPtr = &drawFlags;
+    DrawShapeExtended(0x39,0x18,drawX,drawY,0,draw,drawFlagsPtr);
+    __asm__("" : : "r"(drawFlagsPtr));
+    drawY = y + 4;
+    drawX = (right - (int)shape->width) - 0xa;
+    if (fPlayList) {
+      drawY = y + 3;
+    }
+    DrawShapeExtended(0x3a,0x18,drawX,drawY,0,draw,drawFlagsPtr);
   }
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
     int xx;
@@ -1112,7 +1130,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     shapetop = gHelpShapes + 0x1f;
     shapebottom = gHelpShapes + 0x20;
     (**(int (**)(...))((int)this->currMenu->_vf + 0x5c))
-              ((int)this->currMenu->fItemList + *(short *)((int)this->currMenu->_vf + 0x58) + -0x10,
+              (((int)this->currMenu->fItemList + -0x10) + *(short *)((int)this->currMenu->_vf + 0x58),
                xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,ww,
                (int)((u_int)(u_short)this->fSlideOffset << 0x11) >> 0x10,(int)this->fHeight);
     if ((this->fFillback != 0) && (shapetop->height < hh)) {
@@ -1129,11 +1147,12 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     }
     temp.x = (short)xx;
     temp.y = *(short *)((char *)drenv + 2) + (short)yy;
+    temp.w = (short)ww;
+    temp.h = (short)hh;
     daprim = (DR_AREA *)Render_gPacketPtr;
-    addPrim(Render_gPalettePtr,daprim);
+    ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
+    ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
     Render_gPacketPtr = Render_gPacketPtr + 0xc;
-    temp.w = this->fWidth;
-    temp.h = this->fOpenHeight;
     SetDrawArea(daprim,&temp);
     if (fHelpText[0] != -1) {
       FETextRender_FullTextRGB(TextSys_Word(fHelpText[0]),TextSys_WordX(fHelpText[0]),

@@ -1501,10 +1501,29 @@ void Weather_DoWeather(DRender_tView *Vi)
      catalog's named 06E instrument gap ("local-alloc QTY handouts, outside allocsim's
      model") and needs tools/qtytrace.py against an INSTRUMENTED cc1 to dial.  Do not
      spend more source-shape guesses here until that instrument exists. */
+  /* MATCH (w60-a6): 36 -> 30, count still EXACT 197/197.  The w55 verdict above ("do not
+     spend more source-shape guesses until qtytrace exists") is HALF-refuted: the $a0<->$a1
+     swap on the base/scaled-index pair at :1505-1507 IS reachable with a plain ref dial --
+     a zero-insn read-only fence on `player` placed AFTER the three array reads (+1 ref,
+     out-of-loop) flips the whole 4-block cascade (blocks 1-4 of the w55 census).
+     POSITION IS THE DIAL, not the operand count: after the three reads = 30; BEFORE them
+     = 46 (worse than baseline); 1, 2 and 3 operands all measure 30, so take one.
+     ALSO MEASURED, NOT LANDED: index-term-first cast spelling on all three reads
+     (`*(T **)((player << 2) + (int)Weather_gPServerA)`) = 36, exactly neutral -- the
+     sec.5.0c commutative-addu operand order is ALREADY right in both builds here (both
+     emit `addu rD,<index>,<base>`), so only the register assignment differed; and a named
+     `int one = 1;` for the `commMode != 1` compare (aimed at retail's early `li $a2,1`,
+     residual block 2 below) = 29 diffs but 198 insns -- REJECTED, the count must stay exact.
+     RESIDUAL 30, two clusters: (a) retail materializes the `1` of the commMode compare ~10
+     slots early (`li $a2,1` at index 18, SLD 1086) and loads commMode into $v0 rather than
+     $v1 -- a scheduler hoist of a ready `li`, and the named-constant device pays an insn for
+     it; (b) the $v1<->$a1 swap on the `ab` load / prevLookBehind address (w55 blocks 5-8),
+     untouched by this fence and still the 06E local-alloc-QTY instrument gap. */
   player = Vi->player;
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
   wd = Weather_gDrawnServerA[player];
+  __asm__("" : : "r"(player));
   if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
     timechange = simGlobal.gameTicks;
     if (Weather_gSnowTrack == 0) {

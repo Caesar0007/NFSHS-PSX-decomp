@@ -560,9 +560,32 @@ extern int MoveImage(void *rect, int x, int y)
      *     lane, so it was worth re-testing on 2.8.1+nosplit)                   -> 16.
      * Ladder on this fn (whole-TU force, W60-A3): 2.8.1 = 9 (wired), 2.8.0 = 35, 2.91.66 = 45,
      * 2.95.2 = 45; per-fn 2.7.2 splice = 18 real, 2.6.3 = 23 real.  No rung helps.
-     * NEXT ANGLE (named, untried): the anchor-vs-andi emission order is a sched2/local-alloc
-     * question inside ONE basic block -- exactly the 06E qtytrace gap.  Do not spend more
-     * spelling budget here; it wants the instrument. */
+     * 🔴 W60-A3 ROUND 2 -- I TOOK THE INSTRUMENT LANE TO IT, AND MY OWN "sched2 emission
+     * order" ANGLE ABOVE IS FALSIFIED.  Recipe (11A, real ladder cc1, no instrumented build
+     * needed): compile the TU's own .i with `-dS -dR -dl -dg` and read the post-global-alloc
+     * RTL (`*.greg`) + the sched2 ready lists (`*.sched2`); artifacts under
+     * scratchpad/w60a3/instr/.  In the 46/46 basin MoveImage's body block is, ALREADY at
+     * greg (i.e. before sched2 runs):
+     *     48 (set (reg v0) (ashift (reg s1) 16))            <- the sll reorg steals
+     *     49 (set (reg v1) (and (reg s2) 65535))            <- the x mask  -> $v1
+     *     50 (set (reg v0) (ior (reg v0) (reg v1)))
+     *    106 (set (reg v1) (const (plus (symbol_ref "_move_prim") 8)))   <- anchor REUSES $v1
+     * and sched2's block-3 ready lists never reorder that quartet (it emits 48,49,50,106 in
+     * RTL order; its only real choices are further down, around the a3/a0/a2 call setup).
+     * ⇒ The residual is NOT an emission-order/scheduling decision at all.  It is a GLOBAL
+     * REGISTER ASSIGNMENT: the allocator hands the anonymous mask temp `$v1` and then reuses
+     * `$v1` for the anchor once the mask dies, whereas retail parks the mask in `$a0` and the
+     * src word in `$a1`, leaving `$v1` to the anchor for its whole live range.  The 3-register
+     * rotation is a consequence of that ONE handout, which is why every statement-order,
+     * split, fence-flavour and named-temp spelling above was inert or worse.
+     * ⇒ Also explains the two "inert" readings precisely: `p` is the opacity fence's OUTPUT,
+     * so insn 106 is generated at the FENCE's position, not at the assignment's -- moving
+     * `p = &_move_prim[2];` earlier while leaving the fence alone cannot move the anchor.
+     * NEXT ANGLE (named, correctly this time): dial the mask temp's allocno REFS so it loses
+     * $v1 to the anchor (05C/06B fence dials).  ⚠️ It must be dialed EMPIRICALLY -- allocsim/
+     * reqdelta do not model this lane (11A: "reqdelta unusable in 272/alt lanes") -- and the
+     * mask is an ANONYMOUS temp here, while giving it a name to fence costs +8 (the 22 row
+     * above).  So the dial has to be applied to a NEIGHBOURING named value, not to the mask. */
     p[0] = *(u_long *)rect;                      /* src xy */
     p[1] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
     p[2] = *((u_long *)rect + 1);                /* wh */
@@ -685,6 +708,23 @@ extern void *PutDispEnv(void *env)
      * (b) ~6 in the overscan span -- the oracle loads .base BEFORE .end so `subu` runs
      * end-minus-base in the just-loaded register (falsified: named ovbase/ovend locals 147,
      * h_start-first 147).  Both are local_alloc handout order.
+     * 🟢 W60-A3 -- MEASURED HONESTLY instead of estimated (scratchpad/w60a3/classify.py, which
+     * buckets the GATE's OWN normalized streams position-by-position).  318 insns, exactly 30
+     * mismatched POSITIONS, and they are almost one thing:
+     *     22  pure $v0 <-> $v1 role swap
+     *      3  that same swap PLUS a commutative-operand flip (the `or $a0,$v1,$a0` sites)
+     *      4  ONE instruction rotated by three slots in the overscan span
+     *          (retail `addu $v1,$a0,$v0` BEFORE the `lbu 0x12($s1)` + `beqz`; ours after)
+     *      1  `andi $v0,$v1,4095` vs `andi $v1,$v1,4095` (dest register only)
+     * So 25 of 30 are ONE coupled register-role decision repeated at the three `send_gp1`
+     * sites -- the SAME family as `_set_draw_mode` (see its block: 2 diffs, and now proven
+     * COMPILER-VERSION-INVARIANT), not three independent floors.  Corollary: this fn's
+     * realistic ceiling if that class ever cracks is ~54 -> under 10, so it is worth
+     * re-testing the moment anything moves `_set_draw_mode`.  New falsifications on top of
+     * the existing list, both gate-measured and reverted: flipping ONLY the final or to
+     * `hi | lo` at all three sites = 60 (order right, registers still wrong -- the same
+     * coupling `_set_draw_mode` shows); ALSO swapping the comma-staging so `lo` is assigned
+     * first = 124 (it changes which field lands in $a0).
      *
      * W52-A3: the four range clamps and the two "compute-then-override" pairs are the
      * PsyQ CLAMP macro and plain ternaries -- the same idiom the matched PSY-Q 4.0

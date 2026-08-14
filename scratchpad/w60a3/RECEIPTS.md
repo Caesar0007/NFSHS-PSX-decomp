@@ -334,3 +334,125 @@ the orchestrator's real gate (36/44 → 38/44).
   a blanket "2.8.0 ≡ 2.8.1 on this TU".)
 * The `_BlitClear` and `_clearOTagR_dma` TEXT_MOVES rows were never affected — they are landed
   and PASS on the real gate.
+
+---
+
+# §10 — ROUND 2 (assignments 2–4 + the idiom-corpora directive)
+
+Baseline on resume: **38/44** (the coordinator's wirings landed). Final: **38/44 with −6 diffs**.
+
+| fn | on resume | now |
+|---|---|---|
+| _dws | 11 | **8** (count-exact 143/143) |
+| _drs | 13 | **10** (count-exact 160/160) |
+| _set_draw_mode | 2 | 2 (version axis now closed too) |
+| MoveImage | 9 | 9 (diagnosis corrected — my own filed angle was wrong) |
+| _gpu_que_drain | 14 | 14 |
+| PutDispEnv | 54 | 54 (residual measured precisely, not estimated) |
+
+## 10.1 `_dws` 11→8 and `_drs` 13→10 — the Rage-Racer corpus paid immediately
+
+`C:/Temp/rage-racer-decomp/src/main/PAL/lib/libgpu/image_commands.c` carries **the same two PsyQ
+functions**, byte-exact: `Gpu_LoadImage` = our `_dws` (GP0 A0h), `Gpu_StoreImage` = our `_drs`
+(GP0 C0h). Three C shapes ported (their `register … asm("$N")` pins dropped — shapes port, pins
+do not):
+
+1. **shift into a fenced local, then COPY** — RR: `rem = transferValue >> 5; asm("" : "=r"(rem)
+   : "0"(rem)); quotient = rem;`. Our comma-staged `quotient = to_write >> 4` folded to one
+   in-place `sra $v1,$v1,5`; retail computes into a *different* register then copies
+   (`sra $s0,$v1,5; addu $v1,$s0,$zero`). **This idiom alone is the entire count gap on both
+   functions.**
+2. **zero-trip-guarded `do/while` spin with the mask in a named local** inside the guard
+   (RR's `readyMask`), replacing `while ((*GP1 & LITERAL) == 0)`. `_drs` has two spins
+   (0x04000000 ready, 0x08000000 send) exactly as RR does.
+3. **peeled transfer loop** — `n--; if (n != -1) { do { … } while (n != -1); }`, not `while (n--)`.
+
+Falsified on top of the new basin (each gate-measured, each reverted): RR's entry opacity fence
+on the rect pointer (inert, 8) · RR's `status = *GP1; status &= readyMask;` spin temp (inert, 8)
+· a named `current` local for the data pointer in RR's decl order (inert, 8) · a void-tail
+parm-spill pin before the first statement (10) · an identity fence on `readyMask` to break cse
+constant-sharing (**52** — it rotates the whole saved-reg band) · a `sentinel` local re-assigned
+`-1` before each loop test, per the W60 catalog "re-assign a fresh literal" row (15, and loses
+the count).
+
+Residual on both is now one story: (a) 3.25-3b old-gcc no-copy-prop constant rematerialization
+(`lui $s3,1024` / `lui $s1,2048` / `li -1` vs our `addu` copies); (b) the two parm (save, copy)
+pairs emitted in the opposite order to retail. Version axis closed (§9.4).
+
+## 10.2 `PutDispEnv` — measured, not estimated (assignment 2)
+
+New `scratchpad/w60a3/classify.py` buckets the **gate's own** normalized streams position by
+position. 318 insns, **30 mismatched positions**:
+
+| bucket | count |
+|---|---|
+| pure `$v0 ↔ $v1` role swap | 22 |
+| that swap **+** a commutative-operand flip | 3 |
+| one instruction rotated three slots (overscan span) | 4 |
+| `andi $v0,$v1,4095` vs `andi $v1,$v1,4095` (dest only) | 1 |
+
+So **25 of 30 are ONE coupled register-role decision** repeated at the three `send_gp1` sites —
+the `_set_draw_mode` family, *not* three independent per-site floors. The coordinator's
+hypothesis ("ceiling may be per-site 2s") is therefore **too pessimistic in structure and too
+optimistic in count**: it is a single global decision worth ~25 positions, and if it ever cracks
+PutDispEnv goes 54 → under 10. Re-test it the moment anything moves `_set_draw_mode`.
+
+New falsifications: flipping only the final `or` to `hi | lo` at all three sites = **60** (order
+right, registers still wrong — the same coupling `_set_draw_mode` shows); also swapping the
+comma-staging so `lo` is assigned first = **124**.
+
+## 10.3 `MoveImage` — the instrument lane, and my own filed angle FALSIFIED (assignment 3)
+
+Recipe used (11A, no instrumented build needed — the real ladder cc1 accepts the dump flags):
+compile the TU's own `.i` with `-dS -dR -dl -dg`, read `*.greg` (post-global-alloc RTL) and
+`*.sched2` (ready lists). Artifacts in `scratchpad/w60a3/instr/`.
+
+I had filed the residual as "anchor-vs-andi **emission order**, a sched2/local-alloc question".
+**That is wrong.** In the 46/46 basin the body block is already, *at greg*:
+
+```
+ 48 (set (reg v0) (ashift (reg s1) 16))                       <- the sll reorg steals
+ 49 (set (reg v1) (and (reg s2) 65535))                       <- the x mask -> $v1
+ 50 (set (reg v0) (ior (reg v0) (reg v1)))
+106 (set (reg v1) (const (plus (symbol_ref "_move_prim") 8))) <- anchor REUSES $v1
+```
+
+and sched2's block-3 ready lists emit that quartet in RTL order — it never had a choice to make
+there. The residual is a **global register assignment**: the allocator gives the anonymous mask
+temp `$v1` and then recycles `$v1` for the anchor once the mask dies, where retail parks the mask
+in `$a0` and the src word in `$a1` and leaves `$v1` to the anchor for its whole live range. The
+3-register rotation is a *consequence* of that one handout — which is exactly why every
+statement-order / split / fence-flavour / named-temp spelling was inert or worse.
+
+It also explains the two "inert" readings exactly: `p` is the opacity fence's **output**, so
+insn 106 is generated at the *fence's* position, not the assignment's — moving
+`p = &_move_prim[2];` earlier while leaving the fence in place cannot move the anchor.
+
+**Corrected next angle:** dial the mask temp's allocno refs so it loses `$v1` to the anchor
+(05C/06B fences). Must be dialed empirically — `allocsim`/`reqdelta` do not model this lane
+(11A) — and the mask is anonymous, while naming it costs +8, so the dial has to be applied to a
+neighbouring *named* value. Left un-landed; MoveImage reverted to its authoritative 9.
+
+## 10.4 `_dws`/`_drs` version axis (assignment 4) — closed, see §9.4
+
+2.8.0 and 2.8.1 emit **byte-identical** `.ent/.end` regions for both functions (regions diffed
+directly, not merely scored); 2.7.2 = 59/55; 2.91.66/2.95.2 = 137/172. **No rung to wire.**
+
+## 10.5 Hazards hit this round (all catalogued classes, all mine)
+
+* **`str.replace` with no assert silently no-op'd twice**, producing "inert" readings for edits
+  that were never applied. Same family as the heredoc / dup-key hazards. Only the Edit tool or
+  an asserting script gives an honest measurement.
+* **`*/` closing a host comment** (methodology gotcha #1) — an appended receipt paragraph ended
+  with `*/` inside an existing block, which detached the rest and broke the TU compile. Caught
+  by the build, fixed, re-gated.
+* A transient `build.py` mid-edit race produced a bogus "symbol already defined" wall on one run;
+  the next run was clean. Re-run before believing a whole-TU build failure.
+
+## 10.6 Tools added this round
+
+* `gatecmp.py` — run verify_asm's own logic over an arbitrary `.o`. **Promotion candidate**: it
+  is the thing that makes any scratch probe honest.
+* `classify.py` — bucket a residual (register-role swap / commutative flip / other) using the
+  gate's normalized streams. Promotion candidate.
+* `instr/` — the `-dS -dR -dl -dg` dump artifacts for SYS.c (both MoveImage basins).

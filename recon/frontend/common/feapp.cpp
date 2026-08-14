@@ -408,7 +408,19 @@ void tFEApplication::Redraw()
          fenced store-only cell 66.
        => the missing device is a SELECTIVE anti-LICM that leaves the pseudo
        block-local (09G goto-back-edge class), or the local-alloc handout
-       itself.  Do not re-run the list above. */
+       itself.  Do not re-run the list above.
+
+       W60-A10 ROUND 2 (parasite-eve-2 idiom corpus, DECOMPILATION_LEARNINGS.md):
+       three more cures from another team's catalog, all falsified here --
+       "ptr = (u8*)&global; ptr += 4" two-step address (their shared-%hi-base
+       lever) 89 (394); pointer-TO-volatile `u_char *volatile *cell` (their
+       indexed-volatile-array lever, which is NOT the same as a volatile
+       VARIABLE) 89 (394); the two-step cell on the STORE only 70 (395); a
+       pointer-to-volatile cell on the store only 34 (393, count-exact but a
+       worse basin).  Their "Reload a global (not the local pointer) to fill a
+       branch delay with lui" law is the right FAMILY -- retail's `lui t0,8064`
+       IS a delay-slot fill -- but it prescribes what we already do (name the
+       global), so the residual is upstream of the spelling. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

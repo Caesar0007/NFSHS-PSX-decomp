@@ -118,7 +118,19 @@ void tScreenTrackSelect::DrawBackground()
        once (a fence gives the triple but loses the immediate; no fence gives
        neither).  Next angle = an opacity that blocks FOLDING but not cse
        constant PROPAGATION (an rtl-level distinction) -- i.e. an instrumented
-       -dl/-dg read of retail's cse pass, not another spelling. */
+       -dl/-dg read of retail's cse pass, not another spelling.
+
+       W60-A10 ROUND 2: parasite-eve-2's DECOMPILATION_LEARNINGS.md carries this
+       exact class twice ("Same byte mask across a call: andi vs CSE'd and" and
+       "0xFE byte clear vs ~1 word mask: CSE to li -2") -- their rule is that
+       cse unifies equal SImode constants into ONE register + `and`, and the
+       cure is to route the value that must stay an IMMEDIATE through a
+       different width so cse cannot unify it.  Applied here as: make the MASK
+       the opaque operand (identity-fenced `int pageMask = ~0x3f;`) so the
+       origin can be the andi immediate.  FALSIFIED: opaque mask + literal
+       origin on the first prim 181 (290 insns -- still folds); opaque mask on
+       BOTH prims with textureX kept 40 (299); mixed literal/textureX 38 (297);
+       read-only instead of identity fence on the mask 158 (291). */
     u_int addrMask = 0xffffff;
     short textureX = 0x200;
 

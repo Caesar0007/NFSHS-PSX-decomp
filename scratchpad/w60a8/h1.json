@@ -1,0 +1,1 @@
+[["      slot = &highLevelAIObjs[carLoop];", "      slot = highLevelAIObjs + carLoop;", 1]]

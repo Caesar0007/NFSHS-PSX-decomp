@@ -1,0 +1,1 @@
+[["  cfg = &AIPhysicConfig;\n", "  __asm__(\"\" : : \"r\"(currentLatVel));\n  cfg = &AIPhysicConfig;\n", 1]]

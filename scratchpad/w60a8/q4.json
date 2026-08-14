@@ -1,0 +1,1 @@
+[["  cfg = &AIPhysicConfig;\n", "  cfg = &AIPhysicConfig;\n  __asm__(\"\" : : \"r\"(cfg));\n", 1]]

@@ -1,0 +1,1 @@
+[["    *(volatile int *)&GameSetup_gData.raceType;\n", "    { int rt = *(volatile int *)&GameSetup_gData.raceType; __asm__(\"\" : : \"r\"(rt), \"r\"(turnAroundSpeed)); }\n", 1]]

@@ -1,0 +1,2 @@
+[["        new_var = 116;", "        new_var = AI_elapsedTime * 29;", 1],
+ ["*(volatile int *)&AI_elapsedTime * new_var", "new_var * 4", 2]]

@@ -1,0 +1,2 @@
+[["  cfg = &AIPhysicConfig;\n  if (carObj->direction", "  if (carObj->direction", 1],
+ ["  uTurn = 0;\n", "  cfg = &AIPhysicConfig;\n  uTurn = 0;\n", 1]]

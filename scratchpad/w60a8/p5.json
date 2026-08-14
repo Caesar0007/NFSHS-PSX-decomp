@@ -1,0 +1,1 @@
+[["  ppCVar3 = Cars_gSortedList + iVar2;", "  __asm__(\"\" : : \"r\"(iVar2)); ppCVar3 = Cars_gSortedList; ppCVar3 = ppCVar3 + iVar2;", 1]]

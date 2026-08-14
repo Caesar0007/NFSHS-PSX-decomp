@@ -423,7 +423,32 @@ extern int iSNDpsxmalloc(int size)
      * then $v1 is copied to $s1.  It removes the three setup residual blocks: 46 -> 40 diffs at exact
      * 127/127 parity.  Re-tested basin-relative negatives: shared-label 75@122; scan-tail literal
      * return 44@127; direct indexed previous loads and offset-first respelling 46@127; prev-definition
-     * one-trip depths 1/2/3 all 51@124. */
+     * one-trip depths 1/2/3 all 51@124.
+     *
+     * W60 2026-08-12: 40 -> 26, still exact 127/127.  The Sled Storm PSX twin and NFS4 Ghidra CFG
+     * both show the empty-table failure as a direct return, separate from the post-scan failure.
+     * Expressing those two returns textually stops gcc from cross-jumping the empty constrain/check
+     * tail into the scan-done copy, restoring retail's duplicated jal/reload/compare block.  This
+     * removes the whole 14-diff CFG cluster without disturbing iSNDpsxmemconstrain/iSNDpsxfree.
+     * Remaining 26 are three exact-count allocation/scheduling clusters: previous-entry address
+     * fresh-dest a2 vs coalesced v1, three missing/sunk `idx<<2` schedule copies, and the commit
+     * table/address local handout.
+     *
+     * W61 2026-08-12: 26 -> 20 at exact 127/127.  Declaring the commit byte offset before the
+     * table/address restores retail's three path-local `idx << 2` copies.  Two instruction-free
+     * FF8-style ++/-- reference dials, on the saved block value and then the byte offset, cross the
+     * local-alloc boundaries that keep the offset in v1 and the block value in v0.  Fork-corpus
+     * follow-up falsified, in this basin: moving the offset dial after both stores 24; pointer
+     * ++/-- 26; a function-scope/path-assigned offset 62@133; shared scan offset and early entry
+     * capture both neutral at 20; scan offset/pointer ++/-- and identical-arm variants 36-45.
+     * Remaining 20 are three count-exact local-allocation clusters: previous-entry address v1/a2,
+     * scan-done offset/base a2,v0/v0,v1, and commit derived address v1/a1.
+     *
+     * W62 2026-08-12: 20 -> 18, still exact 127/127.  Move the existing instruction-free
+     * commit_block ++/-- reference dial from before the two entry stores to between them.  This
+     * changes only local-alloc/live-range pricing and improves the commit address/store cluster;
+     * placing it after both stores regresses to 30, duplicating it before and between returns to
+     * 20, and moving the entry_off dial before the stores regresses to 26. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;
@@ -433,19 +458,18 @@ extern int iSNDpsxmalloc(int size)
     unsigned short count = *(unsigned short *)(base + 0x518);
 
     if (count >= 0x80)
-        goto fail;
+        return 0;
     size += 0x3f;
     size >>= 6;
-    if (count != 0)
-        goto nonempty;
-    local_block = (unsigned int)*(unsigned short *)(base + 0x51A);
-    local_avail = (int)*(unsigned short *)(base + 0x51C) -
-                  (int)*(unsigned short *)(base + 0x51A);
-    iSNDpsxmemconstrain(&local_block, &local_avail);
-    if (size <= local_avail)
-        goto commit;
-fail:
-    return 0;
+    if (count == 0) {
+        local_block = (unsigned int)*(unsigned short *)(base + 0x51A);
+        local_avail = (int)*(unsigned short *)(base + 0x51C) -
+                      (int)*(unsigned short *)(base + 0x51A);
+        iSNDpsxmemconstrain(&local_block, &local_avail);
+        if (size <= local_avail)
+            goto commit;
+        return 0;
+    }
 nonempty:
     {
         unsigned char *table;
@@ -468,11 +492,12 @@ scan:
                 local_block = block;
                 local_avail = avail;
             } else {
+                unsigned int block;
+                int avail;
                 unsigned short *prev =
                     (unsigned short *)(previous + idx * 4);
-                unsigned int block =
-                    (unsigned int)prev[0] + (unsigned int)prev[1];
-                int avail = *(unsigned short *)entry - (int)block;
+                block = (unsigned int)prev[0] + (unsigned int)prev[1];
+                avail = *(unsigned short *)entry - (int)block;
                 local_block = block;
                 local_avail = avail;
             }
@@ -509,7 +534,6 @@ scan_done:
             unsigned short *pv;
             unsigned int off = idx * 4;
             unsigned short *prev;
-            /* Instruction-free flow weighting: depth 3 is the first allocation boundary. */
             do {
                 do {
                     do {
@@ -525,16 +549,23 @@ scan_done:
     }
     iSNDpsxmemconstrain(&local_block, &local_avail);
     if (size > local_avail)
-        goto fail;
+        return 0;
     goto commit;
 commit:
     {
+        unsigned short *entry = 0;
+        unsigned int entry_off = idx * 4;
         unsigned char *table = sndpd + 0x520;
-        unsigned short *entry =
-            (unsigned short *)(table + idx * 4);
-        unsigned char *commit_base = table - 0x520;
+        unsigned short commit_block;
+        unsigned char *commit_base;
+        entry = (unsigned short *)(table + entry_off);
+        commit_base = (unsigned char *)
+            ((unsigned int)table - entry_off - 0x520 + entry_off);
+        commit_block = (unsigned short)local_block;
         entry[1] = (short)size;
-        entry[0] = (unsigned short)local_block;
+        do { commit_block++; commit_block--; } while (0);
+        do { entry_off++; entry_off--; } while (0);
+        entry[0] = commit_block;
         *(unsigned short *)(commit_base + 0x518) =
             *(unsigned short *)(commit_base + 0x518) + 1;
         return local_block << 6;

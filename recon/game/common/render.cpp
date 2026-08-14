@@ -5,6 +5,26 @@
 #include "../../nfs4_types.h"
 #include "render_externs.h"
 
+struct Render_PTag {
+  unsigned int addr : 24;
+  unsigned int len : 8;
+  u_char r0, g0, b0, code;
+};
+
+#define RENDER_SETADDR(p,a) (((Render_PTag *)(p))->addr = (u_long)(a))
+#define RENDER_GETADDR(p)   ((u_long)((Render_PTag *)(p))->addr)
+#define RENDER_ADDPRIM(ot,p) \
+  (RENDER_SETADDR((p),RENDER_GETADDR(ot)),RENDER_SETADDR((ot),(p)))
+#define RENDER_SETPOLYF4(p) \
+  (((Render_PTag *)(p))->len = 5,((Render_PTag *)(p))->code = 0x28)
+#define RENDER_SETSEMITRANS(p) \
+  (((Render_PTag *)(p))->code = ((Render_PTag *)(p))->code | 2)
+#define RENDER_SETXY4(p,_x0,_y0,_x1,_y1,_x2,_y2,_x3,_y3) \
+  ((p)->x0=(_x0),(p)->y0=(_y0),(p)->x1=(_x1),(p)->y1=(_y1), \
+   (p)->x2=(_x2),(p)->y2=(_y2),(p)->x3=(_x3),(p)->y3=(_y3))
+#define RENDER_SETRGB0(p,_r,_g,_b) \
+  ((p)->r0=(_r),(p)->g0=(_g),(p)->b0=(_b))
+
 /* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
 short Render_gPacketLenLo, Render_gPacketLenHi;  /* render.obj-owned packet-length accumulators (BSS) */
 
@@ -496,50 +516,30 @@ void Render_InsertDepthOfField(void)
       StampImage(2,Render_gBlurEffectDepth2);
     }
     {
-      u_int *pal_link;
       POLY_F4 *prim;
 
       prim = (POLY_F4 *)Render_gPacketPtr;
-      pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal_link & 0xffffff;
+      RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,prim);
       Render_gPacketPtr = (u_char *)prim + 0x18;
-      *pal_link = *pal_link & 0xff000000 | (u_int)prim & 0xffffff;
-      ((u_char *)prim)[3] = 5;
-      prim->code = 0x2a;
-      /* setXY4(prim,0,0,0x140,0,0,0xf0,0x140,0xf0) -- ONE retail statement (SLD 819) */
-      prim->x0 = 0;
-      prim->y0 = 0;
-      prim->x1 = 0x140;
-      prim->y1 = 0;
-      prim->x2 = 0;
-      prim->y2 = 0xf0;
-      prim->x3 = 0x140;
-      prim->y3 = 0xf0;
-      /* setRGB0(prim,0,0,0) -- SLD 820 */
-      prim->r0 = 0;
-      prim->g0 = 0;
-      prim->b0 = 0;
+      RENDER_SETPOLYF4(prim);
+      RENDER_SETSEMITRANS(prim);
+      RENDER_SETXY4(prim,0,0,0x140,0,0,0xf0,0x140,0xf0);
+      RENDER_SETRGB0(prim,0,0,0);
     }
     {
       DR_STP *stp_prim;
-      u_int *pal_link;
 
       stp_prim = (DR_STP *)Render_gPacketPtr;
-      pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-      *(u_int *)stp_prim = *(u_int *)stp_prim & 0xff000000 | *pal_link & 0xffffff;
+      RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,stp_prim);
       Render_gPacketPtr = (u_char *)stp_prim + 0xc;
-      *pal_link = *pal_link & 0xff000000 | (u_int)stp_prim & 0xffffff;
       SetDrawStp(stp_prim,1);
     }
     {
       DR_MODE *dr_mode;
-      u_int *pal_link;
 
       dr_mode = (DR_MODE *)Render_gPacketPtr;
-      pal_link = (u_int *)(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4);
-      *(u_int *)dr_mode = *(u_int *)dr_mode & 0xff000000 | *pal_link & 0xffffff;
+      RENDER_ADDPRIM(Render_gPalettePtr + Render_gBlurEffectDepth1 * 4,dr_mode);
       Render_gPacketPtr = (u_char *)dr_mode + 0xc;
-      *pal_link = *pal_link & 0xff000000 | (u_int)dr_mode & 0xffffff;
       SetDrawMode(dr_mode,0,0,(u_int)(u_short)GetTPage(2,1,0,0x100),(RECT *)0x0);
     }
   }

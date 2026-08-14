@@ -68,15 +68,22 @@
 extern int  fixedmult(int a, int b);                       /* eacpsxz @0x800E4328 (lbl_D4328) */
 extern void blockmove(void *src, void *dst, int n);        /* eacpsxz @0x800E62DC (lbl_D62DC) */
 
-extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
+typedef union transmult_pointer_arg {
+    int *pointer;
+    int * volatile memory;
+} transmult_pointer_arg;
+
+extern int *transmult(transmult_pointer_arg a, transmult_pointer_arg b, int *out) /* @0x80105F40 */
 {
-    register int *aw = a;
+    register int *aw;
     int temp[9];
     int *pa[2];
     register int i, j;
     register int i2, i1;
     register int j2, j1;
     register int acc;
+    register int *bw;
+    register int *base;
     /* MATCH (107->31; residual = pure instruction-ORDER/scratch-serialization: the oracle .obj shows
      * unscheduled reload output -- serial single-$v1 reloads with unfillable load-delay nops -- not
      * reachable under the gate's fixed -O2+sched flags.  w33-a4 pinned the 3-insn gap EXACTLY: it is
@@ -201,22 +208,46 @@ extern int *transmult(int *a, int *b, int *out)            /* @0x80105F40 */
      * block-local b carriers (25, identical), address-taken b with a separate bw walker (80-99),
      * and volatile-a plus aw (37/80).  FF8/Xenogears contain only asm stubs for comparable PsyQ
      * matrix multiplies; their barrier macros are diagnostic only and were not used here. */
+    /* MATCH (2026-08-13, 25->2): a 4-byte union argument is ABI-identical to the original
+     * pointer argument but exposes a volatile pointer-value view of its parameter home.  Reading
+     * that view twice defeats reload inheritance without an asm barrier.  Reusing one `base`
+     * carrier across pa[k], the volatile b-home read, and the following indexed load makes reload
+     * choose retail's v1 twice and restores both load-delay nops.  Keeping `bw` between the two
+     * a-home reads preserves IDA's exact s2/s3 allocation and the whole 81-insn body.  The two
+     * remaining diffs are one independent prologue store (`sw a0,104(sp)`) scheduled later than
+     * retail; all other instructions are byte-identical. */
     i = 0;
     i2 = 8;
     i1 = 4;
+    aw = a.pointer;
     for (; i < 9; i += 3) {
         j = 0;
         j2 = 24;
         j1 = 12;
         {
-            int **va = &a;
-            pa[0] = (int *)((char *)*va + i1);
-            pa[1] = (int *)((char *)*va + i2);
+            base = a.memory;
+            base = (int *)((char *)base + i1);
+            pa[0] = base;
+            bw = b.pointer;
+            base = a.memory;
+            base = (int *)((char *)base + i2);
+            pa[1] = base;
         }
         for (; j < 3; j++) {
-            acc  = fixedmult(aw[i], b[j]);
-            acc += fixedmult(*pa[0], *(int *)((char *)b + j1));
-            acc += fixedmult(*pa[1], *(int *)((char *)b + j2));
+            int av;
+            int bv;
+            acc  = fixedmult(aw[i], *bw);
+            bw++;
+            base = pa[0];
+            av = *(volatile int *)base;
+            base = b.memory;
+            bv = *(int *)((char *)base + j1);
+            acc += fixedmult(av, bv);
+            base = pa[1];
+            av = *(volatile int *)base;
+            base = b.memory;
+            bv = *(int *)((char *)base + j2);
+            acc += fixedmult(av, bv);
             temp[i + j] = acc;
             j1 += 4;
             j2 += 4;

@@ -908,12 +908,12 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
     base = MI(objbuf, 0x08) + numReq * 100;
     MI(objbuf, 0x10) = base;                                   /* filterArray */
     base = base + numFilters * 0xc;
-    /* MATCH (w34-a2 #4): volatile keeps the following read-back a real memory reference, which
+    /* HISTORICAL (w34-a2 #4): volatile kept the following read-back a real memory reference, which
      * frees $v1 and therefore pins this store ahead of the ring-base `sll` (see the header note).
      * w49-a3 RESIDUAL 4 = ours re-READS the field (`lw v1,24(s0)`) where retail keeps a register
      * COPY of the just-stored value (`addu v0,v1,zero`), plus the paired `sll` destination.  The
      * volatile IS what forces the real reload -- but every non-volatile route measured WORSE, so
-     * it stays: plain `MI(objbuf,0x18) = base;` 17 @143/144 (cse fully propagates the read-back,
+     * it stayed temporarily: plain `MI(objbuf,0x18) = base;` 17 @143/144 (cse fully propagates the read-back,
      * so we land 1 SHORT -- exactly the missing copy); + a named `rb` read-back local 17 @143;
      * + an OPACITY FENCE on `base` after the store 10 @144 (keeps the count but reorders the
      * memset arg block); anonymous store + named read-back (the w45 cse double-evaluation recipe
@@ -932,8 +932,16 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
      * an opacity-fenced COPY of `base` instead of the read-back (28 @142 / 21 @143), a plain
      * `cbase = base` copy (19 @143), `base` used directly (19 @143), and an opacity fence on a
      * read-back local (21-23 @143).  => the missing insn is cse's copy under a NON-volatile store,
-     * and every device that restores the copy also un-pins the store. */
-    *(volatile int *)(objbuf + 0x18) = base;                   /* consumerArray */
+     * and every device that restores the copy also un-pins the store.
+     * FINAL PASS (2026-08-12): the earlier opacity experiment wrapped `base++/base--` in a
+     * `do { } while (0)`.  Although the arithmetic emits no instructions, gcc retains LOOP notes;
+     * that scheduling boundary stranded the three future memset arguments beside this block (8
+     * diffs @144/144).  Two straight-line statements keep the same non-volatile CSE break without
+     * the loop boundary: the store stays ahead of the shift, the read-back becomes retail's
+     * `addu v0,v1,zero`, and sched1 hoists a0/a1/a2 after allocmutex.  PASS @144/144. */
+    MI(objbuf, 0x18) = base;                                  /* consumerArray */
+    base++;
+    base--;
     {
         /* MATCH (w33-a2): the oracle's THREE `addu <reg>,v0,zero` copies of the ring base are NOT a
          * missing copy-propagation in retail's compiler -- they are THREE SEPARATE SOURCE
@@ -943,14 +951,14 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
          * initialised from one expression do NOT work (gcc copy-propagates them into one register,
          * verified) -- the read-back is what makes it three evaluations.  This also frees $v0 for
          * the late `li 50` and takes the function from 142 to the oracle's 144 instructions. */
-        /* MATCH (w50-a4, 4 -> 2, still 144/144): with the VOLATILE store above the read-back is a
+        /* HISTORICAL (w50-a4, 4 -> 2, still 144/144): with the then-VOLATILE store the read-back was a
          * real `lw`, and gcc expands operand 0 FIRST -- so the READ-BACK must be operand 0 to land
          * in retail's $v0 (and push the `sll numConsumers,4` onto $v1).  The w34-a2 #3 receipt
          * ("shift term FIRST") was measured in the PLAIN-store basin where the read-back was a
          * free cse copy; once the store went volatile the operand order inverted with it and the
          * receipt went stale.  RESIDUAL 2 = the load itself (`lw v0,24(s0)` vs retail's cse copy
          * `addu v0,v1,zero`): the volatile store is what makes the read-back a real memory
-         * reference, and every non-volatile route is worse (see the store's note). */
+         * reference; superseded by the straight-line CSE break documented on the store above. */
         MI(objbuf, 0x20) = MI(objbuf, 0x18) + numConsumers * 0x10;  /* bufBase */
         MI(objbuf, 0x30) = 0x32;
         MI(objbuf, 0x40) = MI(objbuf, 0x20);

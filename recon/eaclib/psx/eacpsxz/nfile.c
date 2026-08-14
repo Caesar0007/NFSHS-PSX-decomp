@@ -1522,6 +1522,16 @@ extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (abov
  * wave: a USE fence on `type` before the switch (11 @291), an OPACITY fence on `type` (18 @294),
  * an opacity fence on `bar` before the second strchr (13 @291), and a void fence between the
  * `!= '|'` compare and that strchr (compile error -- a declaration follows it in C89). */
+/* 2026-08-12 -- 10 -> 4 diffs, still count-exact 290/290.  Duplicating the COMPLETE
+ * volume-split block in two identical arms gives cross_jump a common machine tail while denying
+ * the earlier compare's `124` pseudo to the second strchr: the jal delay slot is now retail's fresh
+ * `li a1,124`.  Keeping `s3 = 4` after strncpy in source then gives sched2 the retail post-strchr
+ * order (`addiu a0,sp,24; lw v1,36(s1); li s3,4; sb zero,24(sp)`) without emitted scaffolding.
+ * The only residual is the four-line jump-table scheduling tie: ours shifts the index before the
+ * table-base lui/addiu, retail materializes the base first.  Explicit/direct range guards, an inline
+ * switch expression, signed/unsigned type spelling, a copied dispatch local, and inverted goto
+ * orientation are byte-identical or worse and were reverted.  Do not use volatile here: it would
+ * introduce a memory boundary into an otherwise count-exact scheduler-only basin. */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)
@@ -1605,11 +1615,19 @@ extern int iFILE_ExecCommand(void *cmdp)
             if (bar != 0) {
                 s3 = 2;
                 if (NAME(cmd)[0] != '|') {       /* "volume|entry" -> split out the volume name */
-                    int vollen = (int)(strchr(NAME(cmd), '|') - NAME(cmd));
-                    s3 = 4;
-                    volbuf[0] = 0;
-                    strncpy(volbuf, NAME(cmd), vollen);
-                    volbuf[vollen] = 0;
+                    if (OPI(cmd, 0x10) != 0) {
+                        int vollen = (int)(strchr(NAME(cmd), '|') - NAME(cmd));
+                        volbuf[0] = 0;
+                        strncpy(volbuf, NAME(cmd), vollen);
+                        s3 = 4;
+                        volbuf[vollen] = 0;
+                    } else {
+                        int vollen = (int)(strchr(NAME(cmd), '|') - NAME(cmd));
+                        volbuf[0] = 0;
+                        strncpy(volbuf, NAME(cmd), vollen);
+                        s3 = 4;
+                        volbuf[vollen] = 0;
+                    }
                 }
                 strcpy(entrybuf, strchr(NAME(cmd), '|') + 1);   /* entry = text after '|' */
             } else {

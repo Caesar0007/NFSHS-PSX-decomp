@@ -187,9 +187,13 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
  * s0-s5): every `st = call(...); if (st < 0) return st;` is now a BLOCK-LOCAL that dies at its
  * own return, so the call result stays in $v0 (`bltz $v0` with no `addu sN,$v0,$zero` copy);
  * (c) the header nibble goes through a named `int hdr` local; (d) `idx` gets its own init
- * statement.  RESIDUAL 227: still one saved-reg too many + the whole-body s-register rotation
- * that rides on it -- the next angle is the remaining cross-call live values (`cur`, `fix`,
- * `base`), one of which retail rematerializes instead of parking. */
+ * statement.
+ * MATCH (2026-08-14, 172 -> 12; count-exact 223/223): explicit loop/header labels reproduce
+ * retail's three backedges; `_padSioChan == 0` is computed once for both `fix` and `base`;
+ * `cur` is not initialized on paths that define it before use; staging `_padFixResult` through
+ * `fixBase` gives the retail address materialization; separate pre-call `initial`, post-call `v`,
+ * and stored `next` values reproduce the a0/v1/v0 webs.  The remaining 12 are one duplicated
+ * a0 delay-slot placement plus two inverse but count-balancing clear-error branch layouts. */
 extern unsigned _padIntRecvData(unsigned char *info)
 {
     int align = 0;
@@ -203,13 +207,14 @@ extern unsigned _padIntRecvData(unsigned char *info)
 
     /* multitap: drive the per-sub-port command bytes */
     if (align != 0) {
-        int idx;
+        int idx = -1;
         int off = -0xf0;
-        idx = -1;
-        do {
+
+    drive_mtap:
+        {
             _padMtapCount = _padMtapCount - 1;
             if (_padMtapCount < 1)
-                break;
+                goto drive_done;
             if (idx >= 0)
                 _padFuncCurrLimit(*(unsigned char **)(info + 0xc) + off);
             {
@@ -224,36 +229,68 @@ extern unsigned _padIntRecvData(unsigned char *info)
                 idx = idx + 1;
             }
             off = off + 0xf0;
-        } while (idx < 4);
+            if (idx < 4)
+                goto drive_mtap;
+        }
     }
 
+drive_done:
+
     /* dispatch the auto-recv of the other ports' queued replies */
-    if (1 < _padMtapCount) {
-        int *fix = &_padFixResult[_padSioChan == 0 ? 1 : 0];
-        int base = (_padSioChan == 0) * 0xf0;
-        unsigned char *cur = 0;
-        do {
-            int v = *fix;
-            if (v < 0)
-                break;
-            if (0 < v) {
-                cur = *(unsigned char **)(base + _padInfoDir + 0xc) + v * 0xf0 - 0xf0;
+    {
+        int other = (_padSioChan == 0);
+
+        if (1 < _padMtapCount) {
+            int *fixBase = _padFixResult;
+            int *fix = &fixBase[other];
+            int base = other * 0xf0;
+            int three = 3;
+            unsigned char *cur;
+
+        recv_auto:
+        {
+            int initial = *fix;
+            int v;
+            int next;
+            if (initial < 0)
+                goto stream_count;
+            if (0 < initial) {
+                cur = *(unsigned char **)((unsigned)base + (unsigned)_padInfoDir + 0xc)
+                    + initial * 0xf0 - 0xf0;
                 _padFuncRecvAuto(cur);
             }
             v = *fix;
-            if (v == 3) {
-                _padFuncRecvAuto(cur - 0xf0);
-                *fix = 1;
-            } else if (v < 4) {
-                if (v < 2 && v >= 0) {
-                    cur = _padInfoDir + base;
-                    _padFuncRecvAuto(cur);
-                    _padFuncClrCmdNo(cur);
-                    *fix = -1;
-                }
-            } else if (v == 4) {
-                *fix = 3;
-            }
+            if (v == three)
+                goto fix_is_3;
+            if (v >= 4)
+                goto fix_at_least_4;
+            if (v >= 2)
+                goto send_byte;
+            if (v < 0)
+                goto send_byte;
+            goto fix_is_0_or_1;
+
+        fix_at_least_4:
+            if (v != 4)
+                goto send_byte;
+            *fix = three;
+            goto send_byte;
+
+        fix_is_3:
+            _padFuncRecvAuto(cur - 0xf0);
+            next = 1;
+            goto store_fix;
+
+        fix_is_0_or_1:
+            cur = _padInfoDir + base;
+            _padFuncRecvAuto(cur);
+            _padFuncClrCmdNo(cur);
+            next = -1;
+
+        store_fix:
+            *fix = next;
+
+        send_byte:
             {
                 int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
                 if (st < 0)
@@ -263,28 +300,35 @@ extern unsigned _padIntRecvData(unsigned char *info)
             if (_padClrIntSio0() == 0)
                 return 0xfffffffd;
             _padMtapCount = _padMtapCount - 1;
-        } while (1 < _padMtapCount);
+            if (1 < _padMtapCount)
+                goto recv_auto;
+        }
+        }
     }
+    goto stream_count;
 
     /* stream the remaining payload bytes into the receive buffer */
-    for (;;) {
-        _padMtapCount = _padMtapCount - 1;
-        if (_padMtapCount < 1) {
-            unsigned char len;
-            _padWaitRXready();
-            len = info[0x44];
-            info[0x44] = len + 1;
-            (*(unsigned char **)(info + 0x3c))[len] = JOY_DATA8;
-            _padFuncNextPort(0);
-            return 0;
-        }
-        {
-            int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
-            if (st < 0)
-                return (unsigned)st;
-        }
-        setRC2wait(0x3c);
-        if (_padClrIntSio0() == 0)
-            return 0xfffffffd;
+stream_retry:
+    {
+        int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
+        if (st < 0)
+            return (unsigned)st;
+    }
+    setRC2wait(0x3c);
+    if (_padClrIntSio0() == 0)
+        return 0xfffffffd;
+
+stream_count:
+    _padMtapCount = _padMtapCount - 1;
+    if (_padMtapCount > 0)
+        goto stream_retry;
+    {
+        unsigned char len;
+        _padWaitRXready();
+        len = info[0x44];
+        info[0x44] = len + 1;
+        (*(unsigned char **)(info + 0x3c))[len] = JOY_DATA8;
+        _padFuncNextPort(0);
+        return 0;
     }
 }

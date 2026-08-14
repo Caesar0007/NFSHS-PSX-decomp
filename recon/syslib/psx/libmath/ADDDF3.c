@@ -24,7 +24,7 @@ int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, in
 int          *_mainasu(int *out, int a2, int a3);
 int           _err_math(int errnum, int code);
 
-/* MATCH (W55-A4): 347 -> 126 diffs, count EXACT 221/221.  Lane UNCHANGED
+/* MATCH (2026-08-14): 347 -> 67 diffs (ours 222 / oracle 221).  Lane UNCHANGED
  * {"cc1_alt": "2.7.2-970404"}.  04Z re-ladder on the landed basin: 2.6.0/2.6.3
  * = 128 * 2.7.2-970404 = 126 (count-exact) * 2.7.2 = 125 (222 insns) *
  * 2.8.0/2.8.1 = 126 (count-exact) * 2.91.66 = 269 * 2.95.2 = 233.  The wired
@@ -33,16 +33,22 @@ int           _err_math(int errnum, int code);
  * LANDINGS: 347 -> 138 the 05B `double` params + `double_long` unions + the
  * 32-bit normalisation tests (the old body compared the 64-bit `union I64`
  * with `long long` operators -- retail only ever ANDs A[1], the HIGH word);
- * 138 -> 126 (a) the zero-double spelled as a union with an ARRAY member so
- * gcc forces it to the frame (retail `sw zero,0x30/0x34` ... `lw v0,0x30;
+ * 138 -> 126 (a) the zero-double spelled as a union with an ARRAY member; the
+ * later `zp` address escape completes the required frame placement (retail
+ * `sw zero,0x30/0x34` ... `lw v0,0x30;
  * lw v1,0x34`; the struct form kept it in two registers = 3 wasted insns),
  * and (b) the SECOND early `return b` spelled `return ub.d` so it uses the
  * $s0:$s1 copy the way retail does (the FIRST one legitimately still uses the
  * live $a2:$a3).
  *
- * RESIDUAL (126, count exact -- ALL coloring/scheduling): the whole callee-saved
- * map is rotated one seat (ours {be=$s5, sign=$fp}, retail {be=$s6, sign=$s7,
- * $s5 = the 0x80000000 constant}), plus the two early-return block placements
+ * The latest reduction makes the zero-union address escape through `zp`, forcing
+ * retail's stack-backed 0x30/0x34 representation, and keeps a named sign mask
+ * live across both sign tests and the result-sign assignment.  That moves the
+ * function from 126 to 67 and establishes the retail 0x60-byte frame and $s7
+ * result-sign lifetime without asm or volatile.
+ *
+ * RESIDUAL (67): the remaining dominant coloring is one allocation-seat swap
+ * (ours {be=$s5, mask=$s6}, retail {mask=$s5, be=$s6}), plus the two early-return block placements
  * (retail keeps `return b` as the FALL-THROUGH of both zero tests) and the
  * arg4-load order class shared with DIVDF3/MULDF3.  FALSIFIED: seven 05C fence
  * operand sets at the mantissa-build anchor (sign / be / ae and every pair and
@@ -61,9 +67,10 @@ int           _err_math(int errnum, int code);
  * ($s1 = sp+0x20, `addu a0,s1,zero`) at two sites.  The normalisation tests are
  * 32-bit on A[1] ONLY (`and v0,v0,0xE0000000`), NOT the 64-bit `long long`
  * compares the old IDA transcription used -- that alone was worth ~10 insns.
- * Sign tests are spelled ASYMMETRICALLY, exactly as retail: `ua.w.hi < 0`
- * (`bgez $s3`) for a, `ub.w.hi & 0x80000000` (`and`+`beqz` against the $s5
- * constant) for b. */
+ * Retail spells the sign tests asymmetrically (`bgez` for A, mask test for B).
+ * The current named-mask form deliberately tests both through the same mask: it
+ * adds one instruction but raises the mask allocation quantity and is the verified
+ * lower-diff basin from which the final $s5/$s6 priority swap can be solved. */
 typedef union {
     double d;
     struct { unsigned int lo; int hi; } w;
@@ -72,19 +79,22 @@ typedef union {
 double __adddf3(double a, double b)   /* @0x800F5A54 */
 {
     double_long ua, ub;
-    union { double d; int w[2]; } uz;   /* ARRAY member -> gcc forces it to the
-                                         * frame, which is what retail's
+    union { double d; int w[2]; } uz;   /* ARRAY member + the `zp` address escape
+                                         * force the frame, which is what retail's
                                          * `sw zero,0x30/0x34` + `lw v0,0x30;
                                          * lw v1,0x34` return path shows. */
     int A[2];     /* 0x18 */
     int B[2];     /* 0x20 */
     int rnd[2];   /* 0x28 */
+    int *zp;
     int *bp;
     int ae, be, k;
     int sign;
+    int signMask;
 
-    uz.w[0] = 0;
-    uz.w[1] = 0;
+    zp = uz.w;
+    zp[0] = 0;
+    zp[1] = 0;
     sign = 0;
     ua.d = a;
     ub.d = b;
@@ -98,8 +108,9 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     A[0] = ua.w.lo;
     B[1] = (ub.w.hi & 0xFFFFF) | 0x100000;
     B[0] = ub.w.lo;
-    if (ua.w.hi < 0) _mainasu(A, A[0], A[1]);
-    if (ub.w.hi & 0x80000000) _mainasu(B, B[0], B[1]);
+    signMask = 0x80000000;
+    if (ua.w.hi & signMask) _mainasu(A, A[0], A[1]);
+    if (ub.w.hi & signMask) _mainasu(B, B[0], B[1]);
     _dbl_shift((unsigned int *)A, 0, A[0], A[1], 9);
     bp = B;
     _dbl_shift((unsigned int *)bp, 0, B[0], B[1], 9);
@@ -111,7 +122,7 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     }
     _add_mant_d(A, A[0], A[1], B[0], B[1]);
     if (A[1] < 0) {
-        sign = 0x80000000;
+        sign = signMask;
         _mainasu(A, A[0], A[1]);
     } else if (A[1] == 0 && A[0] == 0) {
         return uz.d;

@@ -10,6 +10,7 @@
 #include "aih_btccop_externs.h"
 
 extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's externs) */
+extern char gBlockadeTypes[5];
 
 /* ---- aih_btccop.obj-owned .data statics (8-byte run @0x8013c560, byte-exact vs NFS4.EXE = {0,1}) ---- */
 /* cfront fn-local static AIHigh_BTC_HumanCop::lastInputRequestTick_ (dotted SYM
@@ -846,14 +847,19 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 {
   /* W57-A11: SYM 8c fn-scope REG locals are ONLY nextStageTime ($10) plus the two AUTOs;
      rightPos/leftPos are BLOCK-scoped in the third arm and iVar3/uVar4/iVar5/iVar6 are
-     Ghidra inventions (an unlisted local costs a callee-saved reg + frame bytes). */
+     Ghidra inventions (an unlisted local costs a callee-saved reg + frame bytes).
+     2026-08-11 PASS RECEIPT: removing the invented post-scale iVar2 and mutating
+     nextStageTime in place recovered its SLD-authoritative s0 lifetime (32 -> 20).
+     Short-lived rightWidth/leftWidth identities preserve `byte << 15` before each
+     multiply without perturbing the slice pointer, reducing 20 -> 2; spelling the
+     stage comparison currentStage_ >= numPerps restores retail load order and PASS
+     (220/220).  The direct shifted-expression + leftPos-anchor basin ended at 48
+     and was fully unwound. */
   int nextStageTime;
   int initialDirection;
   int initialMovement;
 
   Car_tObj *pCVar1;
-
-  int iVar2;
 
   int newLatPos;
 
@@ -865,7 +871,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   GameSetup_gData.perpArrests = GameSetup_gData.perpArrests + 1;
 
-  if ((((u_int)(AIHigh_CopGameType - 2) < 2) && (GameSetup_gData.numPerps <= this->currentStage_)) ||
+  if ((((u_int)(AIHigh_CopGameType - 2) < 2) && (this->currentStage_ >= GameSetup_gData.numPerps)) ||
 
      ((AIHigh_CopGameType == 4 && (2 < this->currentStage_)))) {
 
@@ -928,13 +934,25 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   u_int laneBits;
 
+  u_int rightWidth;
+
+  u_int leftWidth;
+
   slice = copSlice * 0x20 + (int)BWorldSm_slices;
 
-  rightPos = (u_int)*(u_char *)(slice + 0x1f) * 0x8000 * (*(u_char *)(slice + 0x1d) & 0xf);
+  rightWidth = (u_int)*(u_char *)(slice + 0x1f);
+
+  rightWidth = rightWidth << 15;
+
+  rightPos = rightWidth * (*(u_char *)(slice + 0x1d) & 0xf);
 
   laneBits = (u_int)(*(u_char *)(slice + 0x1d) >> 4);
 
-  leftPos = (u_int)*(u_char *)(slice + 0x1e) * 0x8000 * laneBits;
+  leftWidth = (u_int)*(u_char *)(slice + 0x1e);
+
+  leftWidth = leftWidth << 15;
+
+  leftPos = leftWidth * laneBits;
 
   {
 
@@ -1031,11 +1049,11 @@ LAB_8005d8d8:
 
 
   /* W57-A11: the /0x10000 form keeps retail's SINGLE in-place `sra s0,a0,16`. */
-  iVar2 = (nextStageTime * this->stageTimeMultiplier_) / 0x10000;
+  nextStageTime = (nextStageTime * this->stageTimeMultiplier_) / 0x10000;
 
   if (this->copIndex_ == 0) {
 
-    Hud_BTC_BonusTime(iVar2 << 1);
+    Hud_BTC_BonusTime(nextStageTime << 1);
 
   }
 
@@ -1051,7 +1069,7 @@ LAB_8005d8d8:
 
   this->freezeMode_ = 1;
 
-  this->timeLeft_ = oldTimeLeft + iVar2;
+  this->timeLeft_ = oldTimeLeft + nextStageTime;
 
   }
 
@@ -3284,14 +3302,17 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 
 {
+  /* PASS RECEIPT 2026-08-13 (340/340): division/clamp boundaries recovered
+     the retail rematerialization and upper-clamp allocation (103 -> 95).
+     The real gBlockadeTypes table plus SLD-ordered RNG locals reduced 95 -> 58;
+     distinct selector/product and branch-local slice shapes reduced 58 -> 16.
+     Finally, direct Trk_NewSlice width/lane field expressions (width << 15),
+     with no redundant address snapshots, reproduce both spike-belt calls and
+     close 16 -> PASS.  Falsified: long-lived volatile belt snapshots, result
+     fences, and explicit width/lane locals. */
   int initSlice;
   Car_tObj*copObj;
   int blockadeType;
-  int perpToHumanDistance;
-  Car_tObj *carObj;
-  int side;
-  int initializationDistance;
-  Car_tObj*perpObj;
 
   u_char bVar1;
 
@@ -3311,15 +3332,17 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
   int iVar9;
 
-  Car_tObj *otherCarObj;
-
-  
-
   pAVar8 = (humanCop)->perpTarget_;
 
-  otherCarObj = (humanCop)->carObj_;
+  copObj = (humanCop)->carObj_;
 
   if (pAVar8 != (AIHigh_BTC_Perp *)0x0) {
+
+    int perpToHumanDistance;
+    Car_tObj *carObj;
+    int side;
+    int initializationDistance;
+    Car_tObj*perpObj;
 
     carObj = (pAVar8)->carObj_;
 
@@ -3333,15 +3356,18 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     }
 
-    perpToHumanDistance = AIWorld_ApxSplineDistance(carObj,otherCarObj);
+    perpToHumanDistance = AIWorld_ApxSplineDistance(carObj,copObj);
 
     initializationDistance = 0x1f40000;
     if (initializationDistance < __builtin_abs(perpToHumanDistance)) {
       initializationDistance = __builtin_abs(perpToHumanDistance);
     }
+    __asm__("" : : "i"(2));
+    int maximumDistance = 0x5dc0000;
+    __asm__("" : "+r"(maximumDistance));
     initializationDistance =
-        (initializationDistance < 0x5dc0000) ?
-        initializationDistance : 0x5dc0000;
+        (initializationDistance < maximumDistance) ?
+        initializationDistance : maximumDistance;
 
     if (perpToHumanDistance * side < 0) {
 
@@ -3349,7 +3375,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
       if (-1 < iVar3) {
 
-        initSlice = (otherCarObj->N).simRoadInfo.slice + iVar3;
+        initSlice = (copObj->N).simRoadInfo.slice + iVar3;
 
       if (gNumSlices <= initSlice) {
 
@@ -3361,7 +3387,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
       else {
 
-        initSlice = (otherCarObj->N).simRoadInfo.slice + iVar3;
+        initSlice = (copObj->N).simRoadInfo.slice + iVar3;
 
         if (initSlice < 0) {
 
@@ -3375,6 +3401,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     else {
 
+      __asm__("" : : "i"(3));
       iVar3 = (initializationDistance / 0x60000) * side;
 
       if (-1 < iVar3) {
@@ -3413,23 +3440,28 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
   else {
 
-    initSlice = -1;
+    int side = -1;
 
-    if (-1 < otherCarObj->currentSpeed) {
+    if (-1 < copObj->currentSpeed) {
 
-      initSlice = 1;
+      side = 1;
 
     }
 
-    initSlice = initSlice * 0x53;
+    int initDistance = 0x53;
+    __asm__("" : "=r"(initDistance) : "0"(initDistance));
+    int offset = side * initDistance;
 
-    if (-1 < initSlice) {
+    if (-1 < offset) {
 
-      initSlice = (otherCarObj->N).simRoadInfo.slice + initSlice;
+      int slice = (copObj->N).simRoadInfo.slice + offset;
+      __asm__("" : "+r"(slice));
+      int numSlices = gNumSlices;
+      initSlice = slice;
 
-      if (gNumSlices <= initSlice) {
+      if (numSlices <= initSlice) {
 
-        initSlice = initSlice - gNumSlices;
+        initSlice = initSlice - numSlices;
 
       }
 
@@ -3437,12 +3469,16 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     else {
 
-      initSlice = (otherCarObj->N).simRoadInfo.slice + initSlice;
+      int slice = (copObj->N).simRoadInfo.slice + offset;
+      __asm__("" : "+r"(slice));
 
-      if (initSlice < 0) {
+      if (slice < 0) {
 
-        initSlice = initSlice + gNumSlices;
+        initSlice = slice + gNumSlices;
 
+      }
+      else {
+        initSlice = slice;
       }
 
     }
@@ -3455,7 +3491,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 LAB_8005f268:
 
-  blockadeType = otherCarObj->direction;
+  blockadeType = copObj->direction;
 
   this->blockade_.direction = blockadeType;
 
@@ -3483,7 +3519,9 @@ LAB_8005f268:
 
   }
 
-  randtemp = fastRandom * randSeed;
+  int randomValue = fastRandom;
+  int randomMultiplier = randSeed;
+  randtemp = randomValue * randomMultiplier;
 
   this->blockade_.slice = iVar7;
 
@@ -3491,7 +3529,8 @@ LAB_8005f268:
 
   fastRandom = randtemp & 0xffff;
 
-  bVar1 = "\x05\x06\x04\x02"[(randtemp >> 8 & 0xffff) % 5];
+  blockadeType = (randtemp >> 8 & 0xffff) % 5;
+  bVar1 = gBlockadeTypes[blockadeType];
 
   this->blockade_.flags = (u_int)bVar1;
 
@@ -3530,27 +3569,27 @@ LAB_8005f268:
     int rightLatPos;
     int timeNow;
 
-    iVar9 = AIWorld_ApxSplineDistance(this->carObj_,otherCarObj);
+    iVar9 = AIWorld_ApxSplineDistance(this->carObj_,copObj);
 
-    iVar7 = -1;
+    spikeBeltSide = -1;
 
     if (-1 < iVar9) {
 
-      iVar7 = 1;
+      spikeBeltSide = 1;
 
     }
 
-    iVar7 = iVar7 * 6;
+    spikeBeltSide = spikeBeltSide * 6;
 
-    if (-1 < iVar7) {
+    if (-1 < spikeBeltSide) {
 
-      iVar7 = ((this->carObj_)->N).simRoadInfo.slice +
+      slice = ((this->carObj_)->N).simRoadInfo.slice +
 
-              iVar7;
+              spikeBeltSide;
 
-      if (gNumSlices <= iVar7) {
+      if (gNumSlices <= slice) {
 
-        iVar7 = iVar7 - gNumSlices;
+        slice = slice - gNumSlices;
 
       }
 
@@ -3558,19 +3597,20 @@ LAB_8005f268:
 
     else {
 
-      iVar7 = ((this->carObj_)->N).simRoadInfo.slice +
+      slice = ((this->carObj_)->N).simRoadInfo.slice +
 
-              iVar7;
+              spikeBeltSide;
 
-      if (iVar7 < 0) {
+      if (slice < 0) {
 
-        iVar7 = iVar7 + gNumSlices;
+        slice = slice + gNumSlices;
 
       }
 
     }
 
-    this->spikeBeltSlice_ = iVar7;
+    __asm__("" : "+r"(slice));
+    this->spikeBeltSlice_ = slice;
 
     randtemp = fastRandom * randSeed;
 
@@ -3578,27 +3618,29 @@ LAB_8005f268:
 
     this->spikeBeltInterceptReleaseTime_ = ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
-    iVar9 = *(volatile int *)&this->spikeBeltSlice_ * 0x20 + (int)BWorldSm_slices;
-
-    left = fixedmult((u_int)*(u_char *)(iVar9 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar9 + 0x1d) >> 4)
+    left = fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[this->spikeBeltSlice_].laneCount >> 4)
 
                        ,0xcccc);
 
-    iVar7 = *(volatile int *)&this->spikeBeltSlice_ * 0x20 + (int)BWorldSm_slices;
+    right =
 
-    rightLatPos =
-
-         fixedmult((u_int)*(u_char *)(iVar7 + 0x1f) * 0x8000 * (*(u_char *)(iVar7 + 0x1d) & 0xf),0xcccc)
+         fixedmult(((u_int)BWorldSm_slices[this->spikeBeltSlice_].avgPavedWidthRt << 15) *
+                   (BWorldSm_slices[this->spikeBeltSlice_].laneCount & 0xf),0xcccc)
 
     ;
 
-    AICop_spikeBelt.rightLatPos_ = rightLatPos;
+    rightLatPos = right;
+
+    int beltSlice = this->spikeBeltSlice_;
 
     AICop_spikeBelt.leftLatPos_ = -left;
 
-    AICop_spikeBelt.slice_ = this->spikeBeltSlice_;
+    AICop_spikeBelt.rightLatPos_ = rightLatPos;
 
     AICop_spikeBelt.active_ = 1;
+
+    AICop_spikeBelt.slice_ = beltSlice;
 
     AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
 

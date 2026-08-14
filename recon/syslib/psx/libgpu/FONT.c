@@ -265,22 +265,15 @@ extern u_long *FntFlush(int id)
 
 /* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width).
  * Psy-Q also accepts the format string itself as the first argument, selecting the active stream.
- * NEAR-MISS (verify_asm 97/239 vs 240, improved from 103/241 this wave -- w24-a5): the vararg
- * reads are hand-rolled pointer bumps (`*(T*)args; args += 4;`), not the stdarg.h `va_arg()`
- * macro -- the oracle DEREFERENCES before advancing the cursor (matches this shape), while the
- * project's va_arg macro expands to advance-then-dereference-old (verified: switching back
- * regresses badly). A previously-documented "commutative constant-register tie ('%'=37 vs the
- * /10 magic-multiply constant, s4<->s5) plus an a0/a2 role tie in the entry bounds check" was
- * tried in both orders with zero effect -- true. w24-a5 found a DIFFERENT, working lever on the
- * same entry block: replacing the repeated inline `(int)id` casts with ONE named `int idn`
- * local (computed once right after `va_start`, cast back to `id` only where the original
- * pointer type is still needed) dropped 103->97 and 241->239 insns, zero regressions -- this is
- * a genuinely different shape from the already-tried operand-order swaps (same VALUE, different
- * SOURCE REPRESENTATION: named int vs repeated pointer-to-int casts). The oracle still puts
- * `addu s3,a0,zero` (a0->s3, i.e. id/f) in a different cycle slot than ours in the
- * fnt_active-resolution block -- that specific tie is still open; the s4/s5 constant swap
- * (37 vs the magic /10 divisor) is also still open and per the prior note not worth re-trying
- * via reordering. */
+ * NEAR-MISS (W56, 80 -> 3 diffs; ours 239 / retail 240): retail mutates the variadic `id`
+ * parameter itself, which produces its stack home and fixes the whole active-stream entry path.
+ * A signed-byte zero-pad flag removes the spurious mask; statement-ordering the width clamp
+ * before `bufPtr`, keeping the explicit sign `else`, and staging the `%c` vararg through a
+ * block-local pointer match the remaining large regions.  The dependency-shaped preloop
+ * `percent = ch ^ (ch ^ '%')` is mathematically constant but delays pseudo birth just enough for
+ * GCC 2.8.x to allocate retail s4='%' / s5=0xCCCCCCCD.  The final residual is only reorg's
+ * filled initial zero-check slot (retail nop) plus jump2 reusing v0=-1 instead of rematerializing
+ * a2=-1.  Hand-rolled vararg pointer bumps remain required; stdarg `va_arg` regresses. */
 #define WriteChar(c)                                                        \
     fs->textbuf[fs->textlen++] = (c);                                       \
     if (fs->textlen > fs->maxchars) {                                       \
@@ -292,7 +285,7 @@ extern int FntPrint(const char *id, ...)
     char buf[0x200];
     va_list args;
     FntStream *fs;
-    u_char padZeros;
+    signed char padZeros;
     int num;
     int len;
     int width;
@@ -300,34 +293,37 @@ extern int FntPrint(const char *id, ...)
     char *bufPtr;
     char sign;
     unsigned int ch;
-
-    int idn;
+    int percent;
 
     va_start(args, id);
-    idn = (int)id;
-    if (idn < 0 || idn >= _fnt_count) {
+    if ((int)id < 0 || (int)id >= _fnt_count) {
         f = (signed char *)id;
-        idn = _fnt_active;
-        if (_fnt[idn].textbuf == NULL)
+        id = (const char *)_fnt_active;
+        if (_fnt[(int)id].textbuf == NULL)
             return -1;
     } else {
         f = *(signed char **)args; args = (void *)((char *)args + 4);
     }
-    id = (const char *)idn;
 
     fs = &_fnt[(int)id];
     if (fs->textlen > fs->maxchars)
         return -1;
 
-    for (; ch = *f, ch; ++f) {
-        if (ch != '%') {
+    ch = *f;
+    if (ch == 0)
+        goto fnt_done;
+    {
+        percent = ch ^ (ch ^ '%');
+    }
+    for (; ch; ch = *++f) {
+        if (ch != percent) {
             WriteChar(ch);
             continue;
         }
 
         ch = *++f;
-        if (ch == '%') {
-            WriteChar('%');
+        if (ch == percent) {
+            WriteChar(percent);
             continue;
         }
 
@@ -337,17 +333,18 @@ extern int FntPrint(const char *id, ...)
             width = (width * 10) + (ch - '0');
             ch = *++f;
         }
-        bufPtr = (char *)&args;
         if (width <= 0)
             width = 1;
+        bufPtr = (char *)&args;
 
         switch (ch) {
         case 'd':
             num = *(int *)args; args = (void *)((char *)args + 4);
-            sign = 0;
             if (num < 0) {
                 num = -num;
                 sign = '-';
+            } else {
+                sign = 0;
             }
             len = 0;
             do {
@@ -382,10 +379,14 @@ extern int FntPrint(const char *id, ...)
             }
             break;
 
-        case 'c':
-            *--bufPtr = (char)(*(int *)args); args = (void *)((char *)args + 4);
+        case 'c': {
+            int *arg = (int *)args;
+            --bufPtr;
+            *bufPtr = (char)*arg;
+            args = (void *)(arg + 1);
             len = 1;
             break;
+        }
 
         case 's':
             bufPtr = *(char **)args; args = (void *)((char *)args + 4);
@@ -397,12 +398,11 @@ extern int FntPrint(const char *id, ...)
             WriteChar(' ');
             width--;
         }
-        len--;
-        while (len != -1) {
+        while (len--, len != -1) {
             WriteChar(*bufPtr++);
-            len--;
         }
     }
+fnt_done:
     fs->textbuf[fs->textlen] = 0;
     return fs->textlen;
 }

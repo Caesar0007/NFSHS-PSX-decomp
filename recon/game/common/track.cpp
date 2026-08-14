@@ -546,35 +546,33 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
            (Track_tMaterialController *)BWAllocMem(Track_gControllerCount << 4);
     }
 
-    {
-      Trk_Material *inputMat = mats;
-      Track_tMaterial *outputMat = matList;
-
+    /* MATCH: SLD has no input/output walker locals.  Indexed source lets loop.c
+     * derive retail's +10/+4 walkers while preserving mats/matList identities. */
     for (i = 0, controlIndex = 0; i < matCount; i = i + 1) {
-      Track_AssociateSingleMaterial(inputMat,outputMat,&gInitialArt);
+      Track_AssociateSingleMaterial(&mats[i],&matList[i],&gInitialArt);
 
-      if ((inputMat->flag & 4) != 0) {
-        Track_gMatController[controlIndex].type = inputMat->flag;
-        Track_gMatController[controlIndex].interval = inputMat->interval;
-        Track_gMatController[controlIndex].textureCount = inputMat->textureCount;
-        Track_gMatController[controlIndex].pmxIndex = outputMat->pmxIndex;
-        Track_gMatController[controlIndex].matPtr = outputMat;
+      if ((mats[i].flag & 4) != 0) {
+        Track_gMatController[controlIndex].type = mats[i].flag;
+        Track_gMatController[controlIndex].interval = mats[i].interval;
+        Track_gMatController[controlIndex].textureCount = mats[i].textureCount;
+        Track_gMatController[controlIndex].pmxIndex = matList[i].pmxIndex;
+        Track_gMatController[controlIndex].matPtr = &matList[i];
         controlIndex = controlIndex + 1;
       }
-      else if ((inputMat->flag & 0x80) != 0) {
+      else if ((mats[i].flag & 0x80) != 0) {
         Draw_tPixMap *pmx;
         int d;
 
-        Track_gMatController[controlIndex].type = inputMat->flag;
-        if (inputMat->interval == 0) {
-          inputMat->interval = 1;
+        Track_gMatController[controlIndex].type = mats[i].flag;
+        if (mats[i].interval == 0) {
+          mats[i].interval = 1;
         }
-        Track_gMatController[controlIndex].interval = inputMat->interval;
-        Track_gMatController[controlIndex].textureCount = inputMat->textureCount;
-        Track_gMatController[controlIndex].pmxIndex = outputMat->pmxIndex;
-        Track_gMatController[controlIndex].matPtr = outputMat;
+        Track_gMatController[controlIndex].interval = mats[i].interval;
+        Track_gMatController[controlIndex].textureCount = mats[i].textureCount;
+        Track_gMatController[controlIndex].pmxIndex = matList[i].pmxIndex;
+        Track_gMatController[controlIndex].matPtr = &matList[i];
 
-        pmx = gInitialArt.pPmx + outputMat->pmxIndex;
+        pmx = gInitialArt.pPmx + matList[i].pmxIndex;
         Track_gMatController[controlIndex].uv0 = pmx->v0;
         Track_gMatController[controlIndex].uv1 = pmx->v1;
         Track_gMatController[controlIndex].uv2 = pmx->v2;
@@ -591,36 +589,34 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
         int mm;
 
         for (mm = 0; mm < 0x20; mm = mm + 1) {
-          if ((*(int *)gTempMipMapInfo[mm].code != -1) &&
-              (gTempMipMapInfo[mm].shapeParentIndex == inputMat->shapeIndex)) {
+          if (*(int *)gTempMipMapInfo[mm].code != -1) {
             int shapeIndex;
-            int mipmap_offset;
 
             shapeIndex = gTempMipMapInfo[mm].shapeParentIndex;
-            mipmap_offset = gTempMipMapInfo[mm].mipMapIndex;
-            outputMat->flag = outputMat->flag | 8;
-            mipmap_offset = mipmap_offset - shapeIndex;
-            if (inputMat->shapeIndex != outputMat->pmxIndex) {
-              Draw_tPixMap originalPmx;
-              int shapeIndex;
+            if (shapeIndex == mats[i].shapeIndex) {
+              int mipmap_offset;
 
-              shapeIndex = inputMat->shapeIndex + mipmap_offset;
-              originalPmx = gInitialArt.pPmx[shapeIndex];
-              Track_ProcessFlipAndUVFlags(inputMat->uvFlag,&originalPmx,
-                         gInitialArt.pPmx + gInitialArt.pmxCount);
-              gInitialArt.pmxCount = gInitialArt.pmxCount + 1;
-              outputMat->mipmap_offset = 1;
-            }
-            else {
-              outputMat->mipmap_offset = mipmap_offset;
+              mipmap_offset = gTempMipMapInfo[mm].mipMapIndex;
+              matList[i].flag = matList[i].flag | 8;
+              mipmap_offset = mipmap_offset - shapeIndex;
+              if (mats[i].shapeIndex != matList[i].pmxIndex) {
+                Draw_tPixMap originalPmx;
+                int shapeIndex;
+
+                shapeIndex = mats[i].shapeIndex + mipmap_offset;
+                originalPmx = gInitialArt.pPmx[shapeIndex];
+                Track_ProcessFlipAndUVFlags(mats[i].uvFlag,&originalPmx,
+                           gInitialArt.pPmx + gInitialArt.pmxCount);
+                gInitialArt.pmxCount = gInitialArt.pmxCount + 1;
+                matList[i].mipmap_offset = 1;
+              }
+              else {
+                matList[i].mipmap_offset = mipmap_offset;
+              }
             }
           }
         }
       }
-
-      outputMat = outputMat + 1;
-      inputMat = inputMat + 1;
-    }
     }
 
     if (gTempMipMapInfo != (Track_MipMap *)0x0) {
@@ -968,13 +964,16 @@ void Track_Init(char *tempName)
       short *src;
       short *dest;
 
+      /* MATCH: the block-local header cache occupies $t2; this also shifts the
+       * earlier LightTableData movstrsi scratch pool to retail's $t3-$t6. */
+      tT33 = Track_header;
       src = visList;
       dest = (short *)(matOffset + (int)Track_gInViewList);
 
       do {
         u_short entry = (u_short)*src;
 
-        if ((int)(entry & 0x3ff) < Track_header->chunkCount) {
+        if ((int)(entry & 0x3ff) < tT33->chunkCount) {
           *dest = entry;
           dest = dest + 1;
           j = j + 1;

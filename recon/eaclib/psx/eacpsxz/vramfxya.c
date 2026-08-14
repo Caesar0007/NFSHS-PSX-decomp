@@ -64,7 +64,7 @@ extern int   drawpending;                         /* primate */
 
 extern unsigned int checkrect(int rectp);                         /* @0x800F6934 */
 extern int  vramimage(RECT *rect, u_long *data);                  /* @0x800F6960 */
-extern void vramfxya(int shapep, int imgX, int imgY,
+extern void vramfxya(unsigned int *c, int imgX, int imgY,
                          int clutX, int clutY);                       /* @0x800F69A8 */
 
 /* checkrect @0x800F6934 : if the RECT is flagged (+4 bit0), set bit0 of the +6 word.  Returns the +4 flag. */
@@ -89,15 +89,13 @@ extern int vramimage(RECT *rect, u_long *data)
 
 /* vramfxya @0x800F69A8 : upload every chunk of shape `shapep` to VRAM.  Bitmap chunks (0x40..0x43) go to
  *   (imgX,imgY); CLUT chunks (0x22/0x23/0x24) go to (clutX,clutY). */
-extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
+extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
 {
-    unsigned int *c = (unsigned int *)shapep;
-    struct {
-        RECT rect;
-        unsigned int clut22[128]; /* >>1 BGR scratch */
-        unsigned int clut24[131]; /* >>3 BGR scratch */
-        unsigned int *clut22p;
-    } scratch;
+    RECT rect;
+    unsigned int clut22[128]; /* >>1 BGR scratch */
+    unsigned int clut24[130]; /* >>3 BGR scratch */
+    volatile unsigned int clut24tail; /* Retail stack slot completing the 524-byte CLUT scratch. */
+    unsigned int *clut22p;
 
     if (c == (unsigned int *)0)
         return;
@@ -298,25 +296,36 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
      * control 34 and every flag 34 or worse (-fno-force-mem 42, -mno-split-addresses 43,
      * -fno-schedule-insns2 55 + vramimage 0 -> 10, -fno-delayed-branch 80, -fno-schedule-insns
      * 154; the other 15 flags all inert at 34).  STRONG floor stands; route unchanged. */
-    int ix = imgX;                          /* +2 weighted refs -> priority dial only, see above  */
-    int cx = clutX;                         /* (gcc coalesces both copies away; 0 insns added)     */
-    unsigned int maskLo  = ~0xFFFu;         /* clears the low 12 bits (x field) */
-    unsigned int maskHi  = 0xF000FFFFu;     /* clears bits 16-27 (y field) */
-    scratch.clut22p = scratch.clut22;       /* in-loop variant tested: 36 (the sw is not a movable;
-                                             * only its addiu hoists) -- stays in the preheader */
+    /* MATCH (2026-08-13, 34 -> 12, 165/165): complementary low/high-byte
+     * expressions keep the raw CLUT coordinates live for the final shorts,
+     * while the redundant maskLo refinement is removed by CSE but supplies
+     * the reference step that gives every long-lived value its retail s-reg.
+     * Reconstructing `c` as the pointer parameter (instead of an int parameter
+     * plus a local cast) also restores retail's a0->s0 prologue placement. */
+    unsigned int maskLo;
+    unsigned int maskHi;                     /* clears bits 16-27 (y field) */
+    unsigned int clutXraw = (unsigned int)clutX;
+    unsigned int clutYmasked = (unsigned int)clutY;
+    register unsigned int clutXm = clutXraw;
+    register unsigned int clutYm;
+    clutXm &= 0xff;
+    clutXm |= clutXraw & 0xf00;
+    clutYmasked &= 0xfff;
+    clutYm = clutYmasked << 0x10;
+    clutYm &= 0xffff0000u;
+    maskHi = 0xF000FFFFu;
+    clut22p = clut22; /* in-loop variant tested: 36 (the sw is not a movable;
+                             * only its addiu hoists) -- stays in the preheader */
     do {
         u_long        *data;
-        unsigned int clutXm = (unsigned int)clutX & 0xfff;            /* permuter find (w34,
-                                        * output-250 + extension): IN-LOOP defs -- LICM hoists the
-                                        * computations (same insns) but the loop-weighted defs
-                                        * double clutXm/clutYm's REG_N_REFS */
-        unsigned int clutYm = ((unsigned int)clutY & 0xfff) << 0x10;
         int            i;
         unsigned short *dst;
         unsigned char  *src;
         unsigned int  *next;
         RECT          *rectp;
-
+        unsigned int tailX, tailY;
+        unsigned int packed;
+        maskLo = ~0xFFFu;
         switch ((unsigned char)*c & 0xf7) {
         case 0x40:
         case 0x41:
@@ -328,33 +337,33 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
                  * low 12 bits and OR in x, THEN clear bits 16-27 and OR in y<<16) -- not one combined
                  * `& 0xf000f000` mask; the oracle materializes and shares 2 distinct AND-mask
                  * constants (~0xFFF, 0xF000FFFF) across both this site and the CLUT-tail site below. */
-                c[3] = (c[3] & maskLo) | ((unsigned int)ix & 0xfff);
+                c[3] = (c[3] & maskLo) | ((unsigned int)imgX & 0xfff);
                 c[3] = (c[3] & maskHi) | (((unsigned int)imgY & 0xfff) << 0x10);
                 *(unsigned char *)c = (unsigned char)*c | 8;
-                scratch.rect.x = ix;
-                scratch.rect.y = imgY;                 /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
+                rect.x = imgX;
+                rect.y = imgY;                 /* H04: was missing (oracle 0x800F6A80 *(short*)(18+sp)=imgY) */
                 bits   = (short)c[1] * shapedepth((unsigned char *)c);
                 w      = bits + 0xf;
                 i = w < 0;             /* permuter find (w34, output-230): naming the sign test
                                         * in the shared `i` local re-weights the allocno web */
                 if (i)
                     w = bits + 0x1e;
-                scratch.rect.w = (short)(w >> 4);    /* width in 16-bit VRAM words */
-                scratch.rect.h = *(short *)((int)c + 6);
+                rect.w = (short)(w >> 4);    /* width in 16-bit VRAM words */
+                rect.h = *(short *)((int)c + 6);
                 data   = (u_long *)(c + 4);
-                vramimage(&scratch.rect, data);
+                vramimage(&rect, data);
             }
             goto walk;
 
         case 0x23:                                   /* raw CLUT words */
-            rectp = &scratch.rect;
+            rectp = &rect;
             data = (u_long *)(c + 4);
             break;
 
         case 0x22:                                   /* CLUT, 8->5 bit via >>1 */
             i   = 0;
             if (0 < (short)c[1]) {
-                dst = (unsigned short *)scratch.clut22p;
+                dst = (unsigned short *)clut22p;
                 src = (unsigned char *)c;
             clut22loop:
                 *dst++ = (unsigned short)(src[0x12] >> 1) << 10 |
@@ -365,14 +374,14 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
                 if (i < (short)c[1])
                     goto clut22loop;
             }
-            rectp = &scratch.rect;
-            data = (u_long *)scratch.clut22;
+            rectp = &rect;
+            data = (u_long *)clut22;
             break;
 
         case 0x24:                                   /* CLUT, 8->5 bit via >>3 */
             i = 0;
             if (0 < (short)c[1]) {
-                dst = (unsigned short *)scratch.clut24;
+                dst = (unsigned short *)clut24;
                 src = (unsigned char *)c;
             clut24loop:
                 *dst++ = (unsigned short)(src[0x12] >> 3) << 10 |
@@ -383,8 +392,8 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
                 if (i < (short)c[1])
                     goto clut24loop;
             }
-            rectp = &scratch.rect;
-            data = (u_long *)scratch.clut24;
+            rectp = &rect;
+            data = (u_long *)clut24;
             break;
 
         default:                                     /* 0x25 etc.: nothing to upload */
@@ -392,13 +401,19 @@ extern void vramfxya(int shapep, int imgX, int imgY, int clutX, int clutY)
         }
 
         /* common CLUT tail (0x22/0x23/0x24) -> (clutX,clutY) */
-        c[3] = (c[3] & maskLo) | clutXm;
+        packed = c[3] & maskLo;
+        packed &= maskLo;
+        c[3] = packed | clutXm;
         c[3] = (c[3] & maskHi) | clutYm;
         *(unsigned char *)c = (unsigned char)*c | 8;
-        scratch.rect.x = cx;
-        scratch.rect.y = clutY;                     /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
-        scratch.rect.w = (short)c[1];
-        scratch.rect.h = 1;
+        tailX = (unsigned int)clutX & 0xff;
+        tailX |= (unsigned int)clutX & 0xff00;
+        tailY = (unsigned int)clutY & 0xff;
+        tailY |= (unsigned int)clutY & 0xff00;
+        rect.x = tailX;
+        rect.y = tailY;                     /* H04: was missing (oracle 0x800F6BC4 *(short*)(18+sp)=clutY) */
+        rect.w = (short)c[1];
+        rect.h = 1;
         vramimage(rectp, data);
 
     walk:

@@ -2012,6 +2012,16 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
 
 
+static inline copLevel_t *AIHigh_Player_ChaseLevel(AIHigh_Player *player)
+{
+  return *(copLevel_t * volatile *)&player->perpChaseInfo_.chaseLevel_;
+}
+
+static inline int AIHigh_Player_LastPullOverTime(AIHigh_Player *player)
+{
+  return player->lastPullOverTime_;
+}
+
 /* ---- CheckForNewTriggers__10AIHigh_Cop  AIHigh_Cop::CheckForNewTriggers  [AIH_COP.CPP:1021-1166] SLD-VERIFIED ---- */
 
 trigger_t * AIHigh_Cop::CheckForNewTriggers()
@@ -2024,15 +2034,32 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
      1097/1100/1102/1115/1120/1122/1123/1138/1145/1152/1163/1165/1166).
      REAL BUG FIXED: fRandomChance is thisPlayer->newTriggerProb_ (+0x84) and the
      gate is basicPerpInfo_.crime_ (+0x78) -- the prior recon had the two SWAPPED
-     (it doubled perpInfo[2] and gated on +0x84). */
+     (it doubled perpInfo[2] and gated on +0x84).
+     2026-08-12 FORK/SLD RECEIPT: the SYM's nested AIHigh_Player scopes were
+     real inline accessors.  Reconstructing the chase-level and last-pull-over
+     accessors creates the retail a1->a2 copy and the later a3 simGlobal base.
+     The decisive final lever is a paired volatile read on the chase-level
+     pointer and cop type.  Either volatile read alone is score-neutral at 4
+     diffs; together they give sched2 the retail load priority/order, preserve
+     the a1->a2 copy in its retail slot, and produce byte-exact PASS (202/202).
+     No empty-asm scheduling boundaries or register pins remain in this block.
+     Authoritative progression: 29 -> 15 -> 9 -> 8 -> 2 -> PASS.  Falsified
+     follow-ups: raw/pLevel identity 14, empty-loop boundary 5/10, accessor
+     wrapper 16/19, pointer keepalive 8, and tied-output fences 7/51. */
   int sortedLoop;
+  int numCars;
   Car_tObj *testCar;
-  Sim_tSimGlobalVar *pSimGlobal = &simGlobal;   /* oracle materializes &simGlobal as a
+  int initialGameTicks;
+  Sim_tSimGlobalVar *pSimGlobalInitial = &simGlobal;   /* oracle materializes &simGlobal as a
                               value (lui/addiu + disp-4 load) at BOTH sites, not the
                               folded lui/%lo(simGlobal+4) a direct member access gives */
+  initialGameTicks = pSimGlobalInitial->gameTicks;
 
-  if (0x5bf < pSimGlobal->gameTicks) {
-    for (sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop; sortedLoop = sortedLoop - 1) {
+  if (0x5bf < initialGameTicks) {
+    __asm__("" : : "r"(pSimGlobalInitial));
+    numCars = Cars_gNumCars;
+    __asm__("" : : "r"(numCars));
+    for (sortedLoop = numCars - 1; -1 < sortedLoop; sortedLoop = sortedLoop - 1) {
       testCar = Cars_gTotalSortedList[sortedLoop];
       if ((testCar->carFlags & 1U) != 0) {
         int dir;
@@ -2044,16 +2071,24 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         int startSlice;
         int endSlice;
         int fRandomChance;
+        int crime;
+        int rawType;
+        int typeOffset;
+        int *gotPtr;
         AICop_BasicPerpInfo *perpInfo;
 
         thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex];
-        fRandomChance = thisPlayer->newTriggerProb_;
         perpInfo = &thisPlayer->basicPerpInfo_;
-        got = perpInfo->copsAssigned_[this->type_];
-        pLevel = (thisPlayer->perpChaseInfo_).chaseLevel_;
-        if (perpInfo->crime_ == 0) {
+        pLevel = AIHigh_Player_ChaseLevel(thisPlayer);
+        rawType = *(volatile int *)&this->type_;
+        fRandomChance = thisPlayer->newTriggerProb_;
+        typeOffset = rawType << 2;
+        gotPtr = (int *)((char *)perpInfo->copsAssigned_ + typeOffset);
+        crime = perpInfo->crime_;
+        got = *gotPtr;
+        if (crime == 0) {
           fRandomChance = fRandomChance * 2;
-          if ((0 < pLevel->copChasers[this->type_]) &&
+          if ((0 < *(int *)((char *)pLevel->copChasers + typeOffset)) &&
               (AICop_NoCopsInArea((int)(thisPlayer->GetCarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
             needs = 1;
           }
@@ -2062,12 +2097,13 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
           }
         }
         else {
-          needs = pLevel->copChasers[this->type_];
+          needs = *(int *)((char *)pLevel->copChasers + typeOffset);
         }
         if (GameSetup_gData.skill == 2) {
           fRandomChance = 0x10000;
         }
-        if (0x1bf < pSimGlobal->gameTicks - thisPlayer->lastPullOverTime_) {
+        if (0x1bf < simGlobal.gameTicks -
+                      AIHigh_Player_LastPullOverTime(thisPlayer)) {
           if (got < needs) {
             int newSlice;
 

@@ -316,6 +316,7 @@ extern int iSNDstreamparsedata(int S, int chunk)
     int step;
     int desc[8];
     int i;
+    int flatPtr;
 
     desc[1] = *(int *)(chunk + 0xc);                     /* stash datalen in an unused desc slot --
                                                            * gcc doesn't naturally spill a plain local
@@ -327,20 +328,26 @@ extern int iSNDstreamparsedata(int S, int chunk)
     step = 0;
     if (MB(S, 0x2f) == 0) {                              /* flat: every channel reads chunk+0x10 */
         int flatBase;
-        int offset = 0;
         /* The one-trip wrapper is instruction-free, but gives gcc's flow pass the retail
          * reference weight for flatBase; this fixes its preheader/IV allocation (13 -> 9). */
         do {
             flatBase = chunk + 0x10;
         } while (0);
         i = step;
-        if (MB(S, 0x1e) != 0) {
-            int *dp = desc;                              /* MATCH: base ptr materialized ONLY here --
+        if (i < (int)MB(S, 0x1e)) {
+            int *dp;
+            flatPtr = flatBase;
+            /* Keep the seed source live past its copy without emitting code.  Otherwise
+             * cc1 copy-propagates flatPtr back into flatBase and deletes retail's a3->a2 move. */
+            if (flatBase != 0)
+                dp = desc;
+            else
+                dp = desc;                              /* MATCH: base ptr materialized ONLY here --
                                                            * oracle's `v1=sp+0x10` sits AFTER the
                                                            * numCh!=0 guard, not hoisted to fn scope. */
             do {
-                dp[3] = flatBase + offset;
-                offset += step;
+                dp[3] = flatPtr + flatBase - flatBase;   /* zero-net use extends flatBase into loop */
+                flatPtr += step;
                 dp++;
             } while ((int)MB(S, 0x1e) > ++i);
         }
@@ -348,7 +355,7 @@ extern int iSNDstreamparsedata(int S, int chunk)
         int *off = (int *)(chunk + 0x10);
         int base = (int)off + MB(S, 0x1e) * 4;
         i = 0;
-        if (MB(S, 0x1e) != 0) {
+        if (i < (int)MB(S, 0x1e)) {
             int *dp = desc;
             do {
                 dp[3] = base + *off;
@@ -359,10 +366,11 @@ extern int iSNDstreamparsedata(int S, int chunk)
         }
     }
 
+    flatPtr = desc[3];
     desc[1] = ((desc[1] + 0x1b) / 0x1c) * 0x1c;          /* round up to 0x1C -- reload of the spill */
     {
         int req = MI(S, 0) + (((int)(*(volatile unsigned char *)(S + 0x17)) << 24) >> 24) * 0x2c;
-        *(int *)(desc[3] - 4) = chunk;                   /* back-ptr just before the first sample */
+        *(int *)(flatPtr - 4) = chunk;                   /* back-ptr just before the first sample */
         *(int *)chunk = MI(req, 4);                      /* request id -> chunk[0] */
         MVI(req, 0x1c) = MVI(req, 0x1c) + desc[1];       /* remaining += */
         MVI(req, 0x20) = MVI(req, 0x20) + 1;             /* submitted++ */
@@ -460,6 +468,20 @@ extern int iSNDstreamparsedata(int S, int chunk)
  * preheader order and reduces the kept basin from 13 to 9. The remaining flat residual is the
  * extra zero-offset/add pair versus retail's preserved base-to-derived-IV copy; the other four
  * lines remain the independently confirmed post-allocation scheduler placement of desc[3]. */
+/* w64 2026-08-12 -- 9 -> 4 at exact 97/97, using the Sled Storm PSX twin plus the approved
+ * fork-corpus pure-C allocation idioms.  Sled's byte-identical routine confirms the flat arm is a
+ * distinct pointer seeded from chunk+0x10 and advanced by the zero step.  An identical-arm `dp`
+ * assignment keeps the seed source live, and `flatPtr + flatBase - flatBase` carries that lifetime
+ * into the loop; together they preserve retail's otherwise-copy-propagated a3->a2 seed.  The two
+ * zero guards are written as `i < numChannels`, adding exactly two REG_N_REFS to i (14 -> 16), the
+ * qtytrace/allocsim-predicted floor_log2 step that swaps i/flatPtr into retail's a0/a2 handout.
+ * All flat and interleaved instructions/registers now match.  The only residual is the independent
+ * sched2 placement of the same desc[3] load/store pair: retail fills the mult/mfhi latency slot;
+ * ours emits it after the rounded-length store. */
+/* W65 2026-08-12 -- 4 -> PASS at exact 97/97 via the PS1-fork disjoint-lifetime-reuse idiom.
+ * Hoisting flatPtr to function scope lets its dead flat-loop identity carry desc[3] after the two
+ * arms.  It already owns retail's a2 allocation, so gcc schedules the reload into the mult/mfhi
+ * latency slot and emits the store through a2 without any fence, extra instruction, or asm. */
 
 /* iSNDstreamparseend @0x800E9230 : 'SCEl' chunk -- end of one queued sound; advance parseIdx. */
 extern int iSNDstreamparseend(int S, int chunk)

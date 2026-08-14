@@ -17,7 +17,7 @@
  * patch diverges from stock 2.8.1) -- the ladder is consistent with that: no stock rung,
  * old or new, reproduces it better than our patched-2.8.0 lane does.
  */
-/* eaclib/psx/sndpsxz/slib.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/5 PASS ***
+/* eaclib/psx/sndpsxz/slib.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 5/5 PASS ***
  *   Source obj : nfs4\eaclib\psx\slib.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   5 fns @[0x800FF5A8 .. 0x800FFAF4].  The PSX SPU sound-system: boot init (iSNDinit), teardown
  *   (iSNDrestore), the per-frame voice driver (iSNDserve), and the output-format caps/apply.
@@ -37,6 +37,8 @@ extern unsigned char  sndpd[];              /* voice/queue state base @0x8014791
                                               * one absolute %lo load -- see sdpacket.c/spatkey.c precedent) */
 extern unsigned char  D_801479F0[];         /* exact voice-table-base linker symbol; iSNDserve's
                                               * retail relocations name this object directly */
+extern unsigned char  D_80147A0C[];         /* same table's +0x1c state field; exact-VA alias is in
+                                              * linkers/undefined_syms_auto.txt */
 #define DAT_80147919 (sndpd[1])              /* pre-load guard == sndpd+1 */
 #define snd_old_chan_mode (sndpd[2])         /* last applied channel-mode byte */
 #define DAT_8014791c (*(int *)(sndpd + 4))   /* current fx mode == sndpd+4 */
@@ -212,12 +214,12 @@ extern int iSNDplatformoutputset(void)
                               * a shifted base), so the reads are ordered BEFORE the 0x11 write to
                               * anchor at offset 0 instead (POSITIVE displacements) -- see
                               * wave-20/wave-21 notes */
-    unsigned char *vbase;
     unsigned char *vp;       /* WALKING &sndpd+0xd8 pointer (voice-table row base), +=0x2c per
                                * iter -- matches iSNDserve's established `vp = &DAT_801479f0 + vt`
                                * lever: keeps the 4 field accesses (0x1c/0x21/0x24/0x25) as load
                                * DISPLACEMENTS off ONE walking base instead of 4 separately-folded
                                * &DAT_80147a0x constant bases */
+    unsigned char *vbase;
     int chan;
     base = (unsigned char *)sndgs;
     base[0x11] = 0x18;
@@ -697,16 +699,26 @@ extern void iSNDserve(void)
                         do {
                             int c = chan;
                             if (n == 2) {
-                                c = (int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24;
                                 vbase = D_801479F0;
-                                vp = vbase +
+                                do { vbase++; vbase--; } while (0);
+                                c = (int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24;
+                                vp = D_801479F0 +
                                      ((int)((unsigned int)*(volatile unsigned char *)(vp + 0x20) << 24) >> 24) * 0x2c;
                             } else {
                                 vbase = D_801479F0;
-                                vp = vbase + cvt;
+                                /* MATCH: using the real +0x1c field symbol and subtracting its field
+                                 * offset gives this arm a distinct address pseudo.  GCC can then
+                                 * consume its %hi in place (`lui/addiu a1`) instead of keeping the
+                                 * shared high half live and forming the low half in v0. */
+                                vp = D_80147A0C + cvt - 0x1c;
                             }
-                            vp[0x1d] = 0;
-                            vp[0x1c] = 0;
+                            /* MATCH: both state bytes are asynchronously visible voice state.  The
+                             * volatile stores stay before iSNDfreechan; with the decrement left in
+                             * the loop latch, reorg selects `--n` for the jal delay slot.  This paired
+                             * basin changed 9 -> 4 diffs; the distinct +0x1c alias above changed 4 ->
+                             * PASS (231/231).  Making only the second byte volatile stalled at 17. */
+                            *(volatile unsigned char *)(vp + 0x1d) = 0;
+                            *(volatile unsigned char *)(vp + 0x1c) = 0;
                             iSNDfreechan(c);
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 6) = 0x200;
                             onec = 1;
@@ -714,10 +726,8 @@ extern void iSNDserve(void)
                             onec = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510)) = 0;
                             *(unsigned short *)(c * 0x10 + *(int *)(fpbase + 0x510) + 2) = 0;
-                        /* MATCH: keeping the decrement in the latch expression exposes it as the
-                         * post-call loop update and fixes the cleanup store schedule (23 -> 15).
-                         * The direct D_801479F0 symbol above then fixes the loop-entry issue order
-                         * and avoids the sndpd+0xd8 allocation cascade (15 -> 13). */
+                        /* Keep the decrement in the latch; the volatile state stores above make it
+                         * the retail jal-delay-slot candidate without changing the loop semantics. */
                         } while (0 < --n);
                     }
                 }

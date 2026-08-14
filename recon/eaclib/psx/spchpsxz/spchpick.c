@@ -49,8 +49,9 @@ extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
 typedef void (*SampleRequestFn)(int, int, int, int);
 extern SampleRequestFn gSampleRequest[]; /* spchinit (callback) */
-typedef void (*SentenceRuleSetFn)(int, int, int);
-extern SentenceRuleSetFn gSentenceRuleSet; /* spchinit (callback) */
+/* Four arguments, matching spchrule.c and retail's live $a3 at both callback sites. */
+typedef void (*SentenceRuleSetFn)(int, int, int, int);
+extern SentenceRuleSetFn gSentenceRuleSet[]; /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
 extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
 extern int  gFilterSetting[]; /* spchevnt-shared; UNSIZED ARRAY -> separate-temp lui/lw pair */
@@ -971,13 +972,14 @@ top:
  * still PASS. */
 extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
 {
-    if (gSentenceRuleSet != 0) {
+    if (gSentenceRuleSet[0] != 0) {
         int n = VoxSentence_GetNumPhrases(rule);
         int table = 0;
         if (0 < n) {
             unsigned char *pickBase = ispch_gPickSamples;
             short *choice = ispch_gChoice;
             do {
+                unsigned int rid;
                 int j;
                 int ruleEntry;
                 ruleEntry = iSPCH_GetOffset8(rule, rule + 4, table);
@@ -988,7 +990,9 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                     if (ruleType != 0xf) {
                         int tmp[4];
                         int r;
-                        unsigned int rid;
+                        int callRid;
+                        unsigned int one;
+                        unsigned char *cycle;
                         rid = iSPCH_GetRuleID((int)sentence, (int)ruleType);
    /* MATCH: was int[3] (too small -- oracle's frame reserves the
                                        * full 16 bytes and reads byte [0xc+j], i.e. tmp[3]'s bytes,
@@ -997,6 +1001,8 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                         r = iSPCH_UnPackSample(*(int *)(*choice * 4 + gVoxBanks[0]),
                                                    (unsigned int)*(unsigned char *)
                                                        ((int)choice[4] + (int)pickBase), tmp);
+                        callRid = rid;
+                        rid = 0;
                         /* residual 10 (83/83, exact insn parity): register-pair coloring wall.
                          * ours colors tmp-byte-addr->v0 then reuses v0 for the reloaded
                          * gSentenceRuleSet callee address, shift-constant 1->v1; oracle colors
@@ -1057,11 +1063,44 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                          * The addr temp's $v0 is therefore NOT inherited from the call's return
                          * preference; it is a plain first-free-register pick, and the only untried
                          * instrument left is the -dl qty table itself (qtytrace) -- not another
-                         * source shape. */
-                        if (r != 0)
-                            gSentenceRuleSet(
-                                (int)(unsigned int)*(unsigned short *)sentence, (int)rid,
-                                1 << ((unsigned char *)tmp)[0xc + j]);
+                        * source shape. */
+                        /* MATCH (2026-08-13, 6 -> PASS 83/83): the successful route deliberately
+                         * steps through a larger allocator basin.  Declaring rid before j wins
+                         * their equal-priority birth-order tie; callRid plus the dead rid=0 set
+                         * ends rid's live range without emitting a second copy.  The loop-carried
+                         * one=1/one=0 pair prevents LICM and gives retail's single `li a3,1` web.
+                         * The zero-net cycle weighting keeps the byte address in v1.  Treating
+                         * gSentenceRuleSet as its real callback SLOT, then naming the slot pointer
+                         * and loaded callee in one-level phony loops, keeps the callback address in
+                         * v0 at zero instruction cost.  The volatile halfword read is the C-level
+                         * scheduling boundary that keeps it before the callback load, preserving
+                         * retail's load-delay nop.  The final count/register-exact 4-diff sched2
+                         * permutation is sealed by PER_FN_TEXT_MOVES in tools/build.py.  None of
+                         * these zero-instruction allocation/scheduling dials is redundant. */
+                        one = 1;
+                        if (r != 0) {
+                            SentenceRuleSetFn *setRule;
+                            SentenceRuleSetFn callee;
+                            int sentenceArg;
+                            unsigned int bit;
+                            cycle = (unsigned char *)(j + (int)tmp - 0x10);
+                            do {
+                                cycle++;
+                                cycle--;
+                            } while (0);
+                            do {
+                                setRule = gSentenceRuleSet;
+                            } while (0);
+                            sentenceArg =
+                                (int)(unsigned int)*(volatile unsigned short *)sentence;
+                            bit = one << cycle[0x1c];
+                            do {
+                                callee = *setRule;
+                            } while (0);
+                            callee(
+                                sentenceArg, callRid, bit, one);
+                        }
+                        one = 0;
                     }
                     j = j + 1;
                 } while (j < 4);

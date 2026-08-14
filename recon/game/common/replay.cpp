@@ -228,9 +228,11 @@ void Replay_StoringReplay(void)
 void Replay_StoringControllerData(tControllerData controllerdata)
 
 {
-  /* struct-assignment (not the hand-written unaligned-copy bit-math below) reproduces the
-   * oracle's inline movstrsi expansion for an unknown-alignment 33-byte copy (aligned lw/sw
-   * fast path + lwl/lwr..swl/swr slow path + 1-byte tail). See catalog §D / sst.cpp precedent. */
+  /* Struct assignment reproduces the oracle's unknown-alignment 33-byte movstrsi
+   * expansion.  The source identities preserve the returned-pointer handoff in v1.
+   * For the final copy, staging packedPtr before replayBuffer plus a read-only fence
+   * preserves the retail a1 branch slots and keeps the store-pointer load below the
+   * byte-copy tail: exact 243/243. */
   struct PackedBuf33 { char b[33]; };
   char packeddata [33];
 
@@ -239,20 +241,43 @@ void Replay_StoringControllerData(tControllerData controllerdata)
     Replay_Size = simGlobal.gameTicks;
     return;
   }
-  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress(controllerdata.steering);
+  {
+    struct PackedBuf33 *source =
+        (struct PackedBuf33 *)Replay_Compress(controllerdata.steering);
+    __asm__("" : "=r"(source) : "0"(source));
+    *(struct PackedBuf33 *)packeddata = *source;
+  }
   memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
   Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
 
-  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress((char *)controllerdata.gas);
+  {
+    struct PackedBuf33 *source =
+        (struct PackedBuf33 *)Replay_Compress((char *)controllerdata.gas);
+    __asm__("" : "=r"(source) : "0"(source));
+    *(struct PackedBuf33 *)packeddata = *source;
+  }
   memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
   Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
 
-  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress((char *)controllerdata.brake);
+  {
+    struct PackedBuf33 *source =
+        (struct PackedBuf33 *)Replay_Compress((char *)controllerdata.brake);
+    __asm__("" : "=r"(source) : "0"(source));
+    *(struct PackedBuf33 *)packeddata = *source;
+  }
   memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
   Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
 
-  *(struct PackedBuf33 *)packeddata = *(struct PackedBuf33 *)Replay_Compress((char *)controllerdata.states);
-  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
+  {
+    struct PackedBuf33 *source =
+        (struct PackedBuf33 *)Replay_Compress((char *)controllerdata.states);
+    __asm__("" : "=r"(source) : "0"(source));
+    *(struct PackedBuf33 *)packeddata = *source;
+  }
+  char *packedPtr = packeddata;
+  char *replayBuffer = Replay_ReplayBuffer.buffer;
+  __asm__("" : : "r"(packedPtr));
+  memcpy(replayBuffer + Replay_ReplayStorePtr,packedPtr,(u_int)(u_char)packedPtr[0]);
   Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
   return;
 }

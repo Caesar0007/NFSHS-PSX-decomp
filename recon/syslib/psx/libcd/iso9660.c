@@ -40,6 +40,8 @@ typedef struct CdPathEnt CdPathEnt;
  * through this CdlLOC-shaped union (misaligned load) -- byte-assembly rd32le diverges. */
 union LBA { int addr; CdlLOC i; };
 typedef union LBA LBA;
+struct RawWord { u_char bytes[4]; };
+typedef struct RawWord RawWord;
 
 /* ---- libc (BIOS) / libcd / driver externs ----------------------------------------------------- */
 extern int      strncmp(const char *, const char *, unsigned);  /* BIOS A0:0x18 @0x800EB1D0 */
@@ -109,11 +111,14 @@ extern int _cd_find_path(int parent, char *name)
  *  (2) the first cd_read's result is kept in a named `r` and the SECOND read is compared
  *      against `r`, not against a literal 1 (oracle `beq v0,s1`);
  *  (3) the sector-buffer END pointer is hoisted into a local before the walk, so the loop test
- *      is a single `sltu v0,p,end` instead of rematerializing the address each iteration. */
+ *      is a single `sltu v0,p,end` instead of rematerializing the address each iteration.
+ * W56: Rage's `CdRawWord` is a four-byte STRUCT, not the earlier union-shaped LBA.  Reinterpreting
+ * the raw struct at both call/diagnostic uses makes gcc reload the value from its stack slot rather
+ * than retain it in $s0 across `cd_read`: 39 -> 32, with exact 177/177 instruction count. */
 extern int CD_newmedia(void)
 {
     u_char *buf;
-    LBA     pt_lba;
+    RawWord pt_lba;
     u_char *rec;
     u_char *end;
     int     idx;
@@ -130,17 +135,17 @@ extern int CD_newmedia(void)
         return 0;
     }
 
-    /* w51-a4 OPEN (39 diffs): the oracle reads this off the SAME base register as every other
+    /* w51-a4/W56 OPEN (32 diffs): the oracle reads this off the SAME base register as every other
      * buf reference (`lwl 143(s0)/lwr 140(s0)`); gcc-2.7.2 const-folds `buf` back to the symbol
      * for the unaligned load and emits its own `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)`.
      * FALSIFIED: `(LBA*)(buf+140)`, `((LBA*)buf)[35]`, decl reorder, -fforce-addr, -fforce-mem,
      * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base). */
-    pt_lba.i = ((LBA *)buf)[140 / 4].i;                      /* type-L path table LBA (misaligned;
+    pt_lba = *(RawWord *)(buf + 140);                        /* type-L path table LBA (misaligned;
                                                               * indexed off buf so the +140 folds into
                                                               * the lwl/lwr displacement, oracle
                                                               * `lwl 143(s0)/lwr 140(s0)`) */
-    if (cd_read(1, pt_lba.addr, (char *)buf) != r) {
-        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", pt_lba.addr);
+    if (cd_read(1, *(int *)&pt_lba, (char *)buf) != r) {
+        if (CD_debug > 0) printf("CD_newmedia: Read error (PT:%08x)\n", *(int *)&pt_lba);
         return 0;
     }
     if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");

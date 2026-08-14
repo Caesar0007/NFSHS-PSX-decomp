@@ -198,10 +198,12 @@ extern void synccallback(int op, int type, SyncCtrl *c)
      * FILE_completeop, then give the first accumulator one loop-depth step.  Together those
      * lifetime dials recover retail's exact $s1/$s2 prologue and phase split.  Keeping offset
      * non-volatile lets its store fill the short-transfer branch delay slot, restoring exact
-     * 71/71 instruction parity.  The last two diffs are one CSE choice at the shared tail:
-     * retail uses t/$s2, while cc1 rewrites the same t expression to c/$s1.  FF8's zero-insn
-     * KEEP_ALIVE(t) proves an exact PASS, but that diagnostic is deliberately not retained:
-     * reconstructed code remains pure C, with no asm allocation barrier. */
+     * 71/71 instruction parity.  FINAL PASS (2026-08-12): the last two diffs were one CSE
+     * choice at the shared tail -- retail used t/$s2 while cc1 rewrote the original t expression
+     * to c/$s1.  Reassigning t from c in two identical arms after the early-return region creates
+     * a fresh join pseudo without emitted code; cross-jump removes the duplicate control flow but
+     * preserves retail's tail alias.  This replaces the diagnostic FF8 KEEP_ALIVE asm barrier
+     * with pure C and keeps the function count-exact at 71/71. */
     if (type == 1) {
         do {
             *(volatile int *)&c->buf += done;
@@ -229,6 +231,11 @@ extern void synccallback(int op, int type, SyncCtrl *c)
             return;
         }
     }
+    /* MATCH: identical-arm copy births the retail tail-only alias ($s2) at the join. */
+    if (done != 0)
+        t = c;
+    else
+        t = c;
     t->remain = 0;
 }
 

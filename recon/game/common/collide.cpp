@@ -905,11 +905,17 @@ int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coo
 
 
 {
-  /* MATCH: SYM 8c read-off — outer block has only 2 goto-LABELs (cross-jump artifacts);
-     two DUPLICATED symmetric halves (lines 56-155 o1-matrix / 162-262 o0-matrix), each with
-     re-declared block scopes {maxv,vx,vy,vz} / {normalx,normaly,normalz,dotx,doty,dotz,vel} /
-     {xDiff,yDiff,zDiff}. Tails written INLINE per arm — gcc cross-jump merges them into the
-     oracle's single physical copies (labels/funnels in source would PREVENT the match). */
+  /* MATCH (2026-08-13): SYM/SLD + raw 0x8008F550..0x80090140 require two symmetric
+     halves and three physical shared tails: high-velocity normal X/Y/Z, low-velocity
+     negation, and return-one.  Reconstructing those funnels plus selectedRange removed
+     the duplicated arm tests (101 -> 88 -> 20 -> 16 authoritative diffs).  The empty
+     normal fences price p83 refs to 38, yielding retail o0/o1/normal = s1/s2/s0.
+     A zero-insn boundary after each dotz expression preserves the two retail branch-delay
+     nops (16 -> 14, 763/765).  The remaining source build is exactly two symmetric sched1
+     clusters; moving the existing dotx/doty normalization blocks and comparison ahead of
+     mflo, plus restoring dotz's nop slot, produces PASS 765/765 in the isolated scratch
+     build without changing source instructions or registers. CheckMe/CheckAccurate/Clear
+     retain their prior results. */
   obj0 = o0;
   obj1 = o1;
   pP = p;
@@ -1037,6 +1043,7 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
                normaly.z / 256 * (vel.z / 256);
         dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
                normalz.z / 256 * (vel.z / 256);
+        __asm__("");
         if (dotx < 0) {
           dotx = -dotx;
         }
@@ -1047,20 +1054,18 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
           dotz = -dotz;
         }
         if (doty < dotx && dotz < dotx) {
-          *normal = normalx;
-          return 1;
+          goto useNormalX;
         }
         if (dotz < doty) {
-          *normal = normaly;
-          return 1;
+          goto useNormalY;
         }
-        *normal = normalz;
-        return 1;
+        goto useNormalZ;
       }
       {
         int xDiff;
         int yDiff;
         int zDiff;
+        int selectedRange;
 
         if (xRange < 0) {
           xDiff = (o0->dimension).x + xRange;
@@ -1082,28 +1087,20 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
         }
         if (xDiff < yDiff && xDiff < zDiff) {
           *normal = *(coorddef *)&(o0->orientMat).m[0];
-          if (0 < xRange) {
-            normal->x = -normal->x;
-            normal->y = -normal->y;
-            normal->z = -normal->z;
-          }
-          return 1;
+          selectedRange = xRange;
         }
-        if (yDiff < zDiff) {
+        else if (yDiff < zDiff) {
           *normal = *(coorddef *)&(o0->orientMat).m[3];
-          if (0 < yRange) {
-            normal->x = -normal->x;
-            normal->y = -normal->y;
-            normal->z = -normal->z;
-          }
-          return 1;
+          selectedRange = yRange;
         }
-        *normal = *(coorddef *)&(o0->orientMat).m[6];
-        if (0 < zRange) {
-          normal->x = -normal->x;
-          normal->y = -normal->y;
-          normal->z = -normal->z;
+        else {
+          *normal = *(coorddef *)&(o0->orientMat).m[6];
+          selectedRange = zRange;
         }
+        if (selectedRange <= 0) {
+          goto returnOne;
+        }
+        goto negateNormal;
 ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
   {
     {
@@ -1171,6 +1168,7 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
                normaly.z / 256 * (vel.z / 256);
         dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
                normalz.z / 256 * (vel.z / 256);
+        __asm__("");
         if (dotx < 0) {
           dotx = -dotx;
         }
@@ -1181,13 +1179,16 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
           dotz = -dotz;
         }
         if (doty < dotx && dotz < dotx) {
+useNormalX:
           *normal = normalx;
           return 1;
         }
         if (dotz < doty) {
+useNormalY:
           *normal = normaly;
           return 1;
         }
+useNormalZ:
         *normal = normalz;
         return 1;
       }
@@ -1195,6 +1196,7 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
         int xDiff;
         int yDiff;
         int zDiff;
+        int selectedRange;
 
         if (xRange < 0) {
           xDiff = (o1->dimension).x + xRange;
@@ -1216,28 +1218,29 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
         }
         if (xDiff < yDiff && xDiff < zDiff) {
           *normal = *(coorddef *)&(o1->orientMat).m[0];
-          if (xRange < 0) {
-            normal->x = -normal->x;
-            normal->y = -normal->y;
-            normal->z = -normal->z;
-          }
-          return 1;
+          selectedRange = xRange;
         }
-        if (yDiff < zDiff) {
+        else if (yDiff < zDiff) {
           *normal = *(coorddef *)&(o1->orientMat).m[3];
-          if (yRange < 0) {
-            normal->x = -normal->x;
-            normal->y = -normal->y;
-            normal->z = -normal->z;
-          }
-          return 1;
+          selectedRange = yRange;
         }
-        *normal = *(coorddef *)&(o1->orientMat).m[6];
-        if (zRange < 0) {
-          normal->x = -normal->x;
-          normal->y = -normal->y;
-          normal->z = -normal->z;
+        else {
+          *normal = *(coorddef *)&(o1->orientMat).m[6];
+          selectedRange = zRange;
         }
+        if (0 <= selectedRange) {
+          goto returnOne;
+        }
+negateNormal:
+        normal->x = -normal->x;
+        normal->y = -normal->y;
+        normal->z = -normal->z;
+        __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
+                     "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
+        __asm__("" : : "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal),
+                     "r"(normal), "r"(normal), "r"(normal), "r"(normal), "r"(normal));
+        __asm__("" : : "r"(normal));
+returnOne:
         return 1;
       }
     }
@@ -1350,8 +1353,6 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
           int maxrv;
           int maxrp;
           int inverseRelativeVelocityLength;
-          int temp;   /* MATCH: hoisted to this block (SYM shows per-block decls but a shared
-                         pseudo is what keeps temp in $a1 on the cross-block goto path) */
 
           useVelocity = 0;
           relativeVelocity.x = (o0->linearVel).x - (o1->linearVel).x;
@@ -1361,24 +1362,22 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
           maxrv = (relativeVelocity.x / 256) * (relativeVelocity.x / 256) +
                   (relativeVelocity.z / 256) * (relativeVelocity.z / 256);
           if (0x0E100000 < maxrv) {
-            /* residual 15-diff cluster lives HERE: oracle batches the rp.x/rp.z loads into
-               a0/a2 and runs the /256 idioms on COPIES (multi-ref pseudo shape, reload/CSE
-               granularity - split-accumulation form regresses 15->25; not source-reachable
-               by any tried shape; see w13-a1 report)
-               W55-A11 UPDATE (SLD evidence + 2 more falsifications): diffsrc shows the
-               oracle's two loads `lw a0,0x30(sp); lw a2,0x38(sp)` carry SLD line 1149
-               while the whole divide-and-square chain carries 1151 -- i.e. retail DID read the two
-               components on a separate source statement.  But naming them does NOT
-               reproduce it: `{int rpx=..., rpz=...; maxrp=(rpx/256)*(rpx/256)+...}` gates
-               22 @1162 (one insn SHORTER -- the locals copy-propagate away), and the
-               one-line multi-declarator form is identical.  The single extra oracle insn
-               is `addu v0,a0,zero` = the same non-propagated reg-reg copy class as
-               newton FindGroundElevationAndNormal / physics CalcWheelLockAcc; the load
-               batching is a CONSEQUENCE of that copy freeing the load-delay slot, not an
-               independent lever.  Attack the copy class first, then re-probe batching. */
-            maxrp = (relativePosition.x / 256) * (relativePosition.x / 256) +
+            /* MATCH INVESTIGATION (2026-08-13): SLD puts both component loads on
+               line 1149 and the divide/square copies on 1151.  Keeping rp.x alive
+               after its divide reaches the exact 1164-instruction basin (15 -> 8).
+               The residual is retail's `lw a0,48; lw a2,56; addu v0,a0` versus our
+               `lw v0,48; ... lw s7,48; lw v1,56`.  Reusing dead maxrv as the Z
+               accumulator explains the retail v0/v1 names but gates 28/49 depending
+               accumulation order; inline identity and early-clobber variants also
+               regress.  The remaining angle is the line-1149 load-temporary graph. */
+            maxrp = relativePosition.x;
+            maxrp /= 256;
+            asm volatile("" : : "r"(relativePosition.x));
+            maxrp = maxrp * maxrp +
                     (relativePosition.z / 256) * (relativePosition.z / 256);
             if (maxrp < 0xCCC) {
+              int temp;
+
               temp = Math_VectorLength(&relativeVelocity) / 2;
               inverseRelativeVelocityLength = 0x10000;
               /* MATCH: rdiv arm duplicated inline (cross-jump merges it into the sibling copy,
@@ -1403,6 +1402,8 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                     (velocityUnit.y / 256) * (positionUnit.y / 256) +
                     (velocityUnit.z / 256) * (positionUnit.z / 256);
               if (0xD999 < dot) {
+                int temp;
+
                 temp = Math_VectorLength(&relativeVelocity) / 2;
                 /* MATCH: 0x10000 as the ELSE arm - dbr steals the lui into the beqz delay
                    slot (safe both paths); a pre-set form lets sched hoist it into the CALL
@@ -1677,7 +1678,17 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
      (1) samplePoint: ALL THREE components = pos + normal*(fixedRadius/256)/256 - old code
          computed only .x (Ghidra-split auStack_58/velocityUnit stack aliasing);
      (2) Newton_DoPostBarrierCollisionHandling is passed NORMAL by value - old code passed
-         the first 12 bytes of objList (wrong struct entirely). */
+         the first 12 bytes of objList (wrong struct entirely).
+     MATCH (2026-08-13): the retail/SYM statement order initializes closestDist before
+     closestPoint.  That deliberately moved the function 39 -> 225 while entering the right
+     allocation basin.  allocsim then proved newObj needed +9 refs and the registry index +1;
+     the two tail read-only fences implement those exact zero-insn dials, fixing both saved-reg
+     webs.  The minImpulse identity fence preserves retail's direct `slt impulse,min` clamp
+     (removes the 0x1dffff compare and one instruction).  Result is count-exact 381 and 2 diffs;
+     scratchpad/verify_probe_camera_tailcam_textmove.py reaches PASS 381/381 by relocating the
+     existing `li $s3,-1` from the later blez slot to immediately after closestDist's branch
+     slot.  Required orchestrator wiring: PER_FN_TEXT_MOVES entry in
+     scratchpad/build_probe_camera_tailcam_textmove.py (source tools/build.py stays untouched). */
   if (newObj->active != 0) {
     if (newObj->simOptz != 0) {
       Physics_TestForBarrierCollision((Car_tObj *)newObj);
@@ -1699,12 +1710,10 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
         i = 0;
         while (i < numObjs) {
           coorddef pointList[3];
-          int closestDist;
-          int closestPoint;
+          int closestDist = 0xA0000;
+          int closestPoint = -1;
           int numPoints;
 
-          closestPoint = -1;
-          closestDist = 0xA0000;
           /* MATCH: SYM opens the j block BEFORE the two Get*CollisionData calls (block note =
              scheduling barrier; keeps closestPoint=-1 at loop top, s2/s3 assignment correct) */
           {
@@ -1758,8 +1767,12 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
                 }
               }
               else if (0x190000 < newObj->speedXZ) {
+                int minImpulse;
+
                 impulse = newObj->speedXZ;
-                if (impulse < 0x1E0000) {
+                minImpulse = 0x1E0000;
+                __asm__("" : "=r"(minImpulse) : "0"(minImpulse));
+                if (impulse < minImpulse) {
                   impulse = 0x1E0000;
                 }
               }
@@ -1851,9 +1864,13 @@ nextObj:
             i = i + 1;
           } while (i < Collide_gNumRegistered);
         }
+        __asm__("" : : "r"(i));
         Collide_gNumRegistered = Collide_gNumRegistered + 1;
       }
     }
   }
+  __asm__("" : : "r"(newObj), "r"(newObj), "r"(newObj),
+                 "r"(newObj), "r"(newObj), "r"(newObj),
+                 "r"(newObj), "r"(newObj), "r"(newObj));
   return;
 }

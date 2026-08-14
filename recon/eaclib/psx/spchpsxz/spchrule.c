@@ -386,11 +386,18 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * here.  One structural probe run and falsified: passing arg 1 as `*sentence` while arg 4 stays
  * `(int)*sentSlot` (to stop the two sharing pseudo 121, cse-proof) = 40, unchanged.
  * The angle stays as stated: a3-side, and it needs the -dl/-dg hard_reg_n_uses table, not C. */
+/* W66 2026-08-12 -- 36 -> 26 at exact 112/112 after cross-checking the new separate-function
+ * m2c/JEB exports and the PS1-fork scheduler cookbook.  Staging the volatile type spill through
+ * nonvolatile typeArg restores retail's `li v1,4; lw v0,24(sp); lw a1,16(sp)` issue order.  Empty
+ * one-trip boundaries immediately after hit=0 and after the type decode emit no instructions but
+ * pin hit's zeroing after the packed-byte load and defer the param copy into the ruleType branch
+ * delay slot.  The remaining 26 are the established reload1 $t0/$a3 hard-register-order cluster
+ * plus its spill-slot cascade, and the independent known-zero testValue copy ($s3 vs $zero). */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     int            numRules = *(signed char *)((int)sentence + 7);
-    unsigned int   result = 0;
-    unsigned int   flags = 0;
+    unsigned char  result = 0;
+    unsigned char  flags = 0;
     unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
     int            ruleType = 1;
     int           *value = values + 1;
@@ -410,14 +417,19 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 unsigned int packed;
                 unsigned int bit;
                 unsigned int ruleIdArg;
-                int          hit;
+                unsigned int typeArg;
+                unsigned char hit;
                 int          testValue;
                 ruleId = p[0];
                 packed = *(volatile unsigned char *)(p + 1);
                 hit = 0;
+                do {
+                } while (0);
                 paramStore = packed & 0xf;
-                param = packed & 0xf;
                 type = (unsigned int)*(volatile unsigned char *)(p + 1) >> 4;
+                do {
+                } while (0);
+                param = packed & 0xf;
                 if (ruleType == 0xc) {
                     if (param != 0)
                         goto next_rule;
@@ -428,8 +440,9 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                     testValue = *currentValue;
                 }
                 bit = 1 << (7 - i);
+                typeArg = type;
                 ruleIdArg = ruleId;
-                if (type == 4) {
+                if (typeArg == 4) {
                     if (values[param] != 0)
                         hit = bit;
                 } else {
@@ -449,9 +462,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 }
                 result |= hit;
 next_rule:
-                i = i + 1;
                 p = p + 2;
-            } while (i < numRules);
+            } while (++i < numRules);
         }
         ruleType = ruleType + 1;
         value = value + 1;

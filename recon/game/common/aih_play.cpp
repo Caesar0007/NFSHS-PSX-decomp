@@ -251,13 +251,15 @@ void AIHigh_Player::SetupBlockade()
       AICop_PerpChaseInfo *chaseInfo;
       AIHigh_Cop *thisCop;
       blockade_t *copBlockade;
-      for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+      int one;
+      for (copLoop = 0, one = 1, chaseInfo = &this->perpChaseInfo_;
+           copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
 
       thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
       if (((Cars_gCopCarList[copLoop]->AIFlags & 4U) != 0) &&
-          (thisCop->blockade_.mode == 1)) {
+          (thisCop->blockade_.mode == one)) {
 
-        if ((thisCop->type_ == 1) && (nCopsNeeded[1] != 0)) {
+        if ((thisCop->type_ == one) && (nCopsNeeded[1] != 0)) {
           int addToSlice;
           int distance;
 
@@ -273,7 +275,6 @@ void AIHigh_Player::SetupBlockade()
 
           copBlockade->blockadeSpeechFlags = 0;
           copBlockade->flags = blockadeFlags;
-          chaseInfo = &this->perpChaseInfo_;
           copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
           copBlockade->mode = 2;
 
@@ -295,7 +296,7 @@ void AIHigh_Player::SetupBlockade()
                        (BWorldSm_slices[copBlockade->slice].avgPavedWidthRt << 15) *
                        (BWorldSm_slices[copBlockade->slice].laneCount & 0xf);
 
-          if ((nCopsAvail[1] == 1) && (nCopsAvail[0] == 0)) {
+          if ((nCopsAvail[1] == one) && (nCopsAvail[0] == 0)) {
 
             copBlockade->latPos = ((u_int)totalRoadWidth >> 1) -
                 (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
@@ -377,7 +378,6 @@ void AIHigh_Player::SetupBlockade()
 
           copBlockade->blockadeSpeechFlags = 0;
           copBlockade->flags = blockadeFlags;
-          chaseInfo = &this->perpChaseInfo_;
           copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
           copBlockade->mode = 2;
 
@@ -399,7 +399,7 @@ void AIHigh_Player::SetupBlockade()
 
           if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 300) {
 
-            copBlockade->reverse = 1;
+            copBlockade->reverse = one;
 
           }
 
@@ -438,7 +438,7 @@ void AIHigh_Player::SetupBlockade()
                        (BWorldSm_slices[copBlockade->slice].avgPavedWidthRt << 15) *
                        (BWorldSm_slices[copBlockade->slice].laneCount & 0xf);
 
-          if ((nCopsAvail[0] == 1) && (nCopsAvail[1] == 0)) {
+          if ((nCopsAvail[0] == one) && (nCopsAvail[1] == 0)) {
 
             copBlockade->latPos = ((u_int)totalRoadWidth >> 1) -
                 (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
@@ -485,7 +485,7 @@ void AIHigh_Player::SetupBlockade()
           requestSpikeBeltAtSlice = -1;
         }
 
-        chaseInfo->blockadeDone_ = 1;
+        chaseInfo->blockadeDone_ = one;
 
         posIndex = posIndex + 1;
 
@@ -494,6 +494,18 @@ void AIHigh_Player::SetupBlockade()
 LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
 
       }
+      /* MATCH: retail keeps requestSpikeBeltAtSlice in s6 and the shared
+       * chaseInfo base in fp.  The seven spike-slice refs cross its measured
+       * global-alloc priority step; the chaseInfo ref gives the base fp over
+       * the loop's shared `one` pseudo.  Empty-template fence: zero insns. */
+      __asm__("" : : "r"(requestSpikeBeltAtSlice),
+                       "r"(requestSpikeBeltAtSlice),
+                       "r"(requestSpikeBeltAtSlice),
+                       "r"(requestSpikeBeltAtSlice),
+                       "r"(requestSpikeBeltAtSlice),
+                       "r"(requestSpikeBeltAtSlice),
+                       "r"(requestSpikeBeltAtSlice),
+                       "r"(chaseInfo));
     }
 
     if (blockadeCar != (AIHigh_Cop *)0x0) {
@@ -1004,12 +1016,23 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
   copGameInfo = copGame + (gameIndex + lapIndex);
 
   pInfo->copGameInfo_ = copGameInfo;
+  /* MATCH: keep the copGameInfo_ store ahead of the retail pointer copy.
+   * The memory barrier and identity fence are both empty-template/zero-insn;
+   * together they preserve retail's `sw v1,4(a1); addu v0,v1,zero`. */
+  __asm__ __volatile__("" : : : "memory");
+
+  copGame_t *copGameInfoCopy = copGameInfo;
+  __asm__("" : "=r"(copGameInfoCopy) : "0"(copGameInfoCopy));
 
   pInfo->chaseLevelIndex_ = 0;
 
   pInfo->engagementTime_ = 0;
 
+  int chaseIndex = pInfo->chaseLevelIndex_;
+
   pInfo->bestChaseLevelIndex_ = 0;
+
+  copLevel_t *levels = copGameInfoCopy->levels;
 
   pInfo->blockadeDone_ = 0;
 
@@ -1019,16 +1042,11 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   pInfo->engagementPercentIncreasePerTick_ = 0;
 
-  pInfo->chaseLevel_ = copGameInfo->levels + pInfo->chaseLevelIndex_;
+  pInfo->chaseLevel_ = levels + chaseIndex;
 
-  /* W57-A11 RECEIPT: the residual 33 here is a 1-insn-shorter base<->value coloring swap
-     -- retail moves copGameInfo to a 2nd reg (`addu v0,v1,zero`) so $v1 can take the
-     chaseLevelIndex_ reload; ours keeps copGameInfo in $v1 and puts the index in $a0.
-     FALSIFIED (all measured 33/33, no movement): static-inline helper with a pointer
-     PARAMETER (cse copy-props the param copy away), array-index form
-     `&cg->levels[idx]`, a split `int idx` temp, a store-then-read-back of
-     copGameInfo_, and passing the address expression directly at the call.
-     Next lens: allocsim/reqdelta on which pseudo must win $v1. */
+  /* MATCH: the named chaseIndex/levels split shortens the copied copGameInfo
+   * lifetime, giving its copy v0, the index v1, and levels a0.  Retail's SLD
+   * statement order also initializes bestChaseLevelIndex_ before levels. */
 
   this->numWarnings_ = 0;
 
@@ -1053,13 +1071,15 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
        triggerManagerCops->invNumTriggers_ * (pInfo2->chaseLevel_)->copsPerLap;
 
+  AICop_PerpChaseInfo *pInfo3 = pInfo2;
+
   this->lastTriggerCheckSlice_ = (int)(pCVar2->N).simRoadInfo.slice;
 
-  pInfo2->chaseLevelIndex_ = 0;
+  pInfo3->chaseLevelIndex_ = 0;
 
-  if (pInfo2->bestChaseLevelIndex_ < 0) {
+  if (pInfo3->bestChaseLevelIndex_ < 0) {
 
-    pInfo2->bestChaseLevelIndex_ = 0;
+    pInfo3->bestChaseLevelIndex_ = 0;
 
   }
 
@@ -1072,31 +1092,30 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
        lets cross_jump merge them while each arm materializes its constant
        straight into $a1 (a shared temp goes through a callee-saved reg). */
     int lapTicks;
+    pInfo3->chaseLevel_ = (pInfo3->copGameInfo_)->levels + pInfo3->chaseLevelIndex_;
 
-    pInfo2->chaseLevel_ = (pInfo2->copGameInfo_)->levels + pInfo2->chaseLevelIndex_;
-
-    lapTicks = ((pInfo2->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
+    lapTicks = ((pInfo3->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
                / 0x10000;
 
-    pInfo2->engagementTime_ = lapTicks << 0x15;
+    pInfo3->engagementTime_ = lapTicks << 0x15;
 
-    pInfo2->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
+    pInfo3->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
 
     if (GameSetup_gData.numLaps == 2) {
 
-      pInfo2->engagementPercentIncreasePerTick_ =
-          fixedmult(pInfo2->engagementPercentIncreasePerTick_,0x13333);
+      pInfo3->engagementPercentIncreasePerTick_ =
+          fixedmult(pInfo3->engagementPercentIncreasePerTick_,0x13333);
 
     }
 
     else if (GameSetup_gData.numLaps == 4) {
 
-      pInfo2->engagementPercentIncreasePerTick_ =
-          fixedmult(pInfo2->engagementPercentIncreasePerTick_,0xa8f5);
+      pInfo3->engagementPercentIncreasePerTick_ =
+          fixedmult(pInfo3->engagementPercentIncreasePerTick_,0xa8f5);
 
     }
 
-    pInfo2->blockadeDone_ = 0;
+    pInfo3->blockadeDone_ = 0;
 
   }
 

@@ -5,6 +5,10 @@
 #include "../../nfs4_types.h"
 #include "cars_externs.h"
 
+#define WRAP_SLICE(a,b) (((a) >= 0) \
+    ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
+    : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
 int          Cars_topSpeedCap[22] = { 4107141, 3932160, 4653056, 4587520, 4660264, 4631429, 4805754, 4514775, 4543610, 5097390, 5388369, 5417861, 5796003, 6087639, 5825495, 6552944, 7274496, 7274496, 7274496, 7274496, 7274496, 7274496 };   /* @0x8010f828 */
@@ -369,17 +373,9 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
 {
   int y;
   int newSlice;
-  int resetCounter;
-  int side;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  u_int uVar6;
-  int iVar7;
-  int direction;
   coorddef offset;
+  int resetCounter;
+  int direction;
   
   memset((u_char *)&offset,'\0',0xc);
   direction = carObj->desiredDirection;
@@ -393,57 +389,25 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
                    (carObj->N).roadMatrix.m[5] / 256 * ((carObj->N).orientMat.m[5] / 256)) &&
          ((carObj->N).angularVel.x < 0x10000)) &&
         ((carObj->N).angularVel.z < 0x10000) &&
-        (((iVar1 = (carObj->N).driveSurfaceType, iVar1 != 0xe && (iVar1 != 0)) &&
+        ((((carObj->N).driveSurfaceType != 0xe &&
+          ((carObj->N).driveSurfaceType != 0)) &&
          (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0 &&
           (((carObj->N).flightTime < 6 && ((carObj->N).objAltitude < 0x10000)))))))) {
       (carObj->collision).smoking = 0;
       return;
     }
   }
-  iVar1 = (carObj->N).simRoadInfo.slice;
-  y = iVar1 + direction * 4;
-  if (0 <= direction * 4) {
-    if (gNumSlices <= y) {
-      y = y - gNumSlices;
-    }
-  }
-  else if (y < 0) {
-    y = y + gNumSlices;
-  }
-  iVar1 = y;
+  newSlice = (carObj->N).simRoadInfo.slice;
+  newSlice = WRAP_SLICE(direction * 4,newSlice);
   if (forceReset == 2) {
-    iVar1 = (int)(carObj->N).simRoadInfo.slice;
+    newSlice = (int)(carObj->N).simRoadInfo.slice;
   }
   if (0 < accidentSlice) {
-    if (accidentSlice + 5 < gNumSlices) {
-      iVar2 = accidentSlice - 5;
-      if (!(iVar1 < accidentSlice + 5)) goto LAB_80086908;
-    }
-    else {
-      if (!(iVar1 < accidentSlice - (gNumSlices - 5))) goto LAB_80086908;
-      iVar2 = accidentSlice - 5;
-    }
-    if (0 <= iVar2) {
-      if (!(iVar2 < iVar1)) goto LAB_80086908;
-    }
-    else if (!(accidentSlice + (gNumSlices - 5) < iVar1)) goto LAB_80086908;
-    y = iVar1 + direction * 5;
-    if (0 <= direction * 5) {
-      iVar1 = y;
-      if (gNumSlices <= y) {
-        y = y - gNumSlices;
-        iVar1 = y;
-      }
-    }
-    else {
-      iVar1 = y;
-      if (y < 0) {
-        y = y + gNumSlices;
-        iVar1 = y;
-      }
+    if ((newSlice < WRAP_SLICE(5,accidentSlice)) &&
+        (WRAP_SLICE(-5,accidentSlice) < newSlice)) {
+      newSlice = WRAP_SLICE(direction * 5,newSlice);
     }
   }
-LAB_80086908:
   {
     int side;   /* SYM block-62 side (s4): stays 0 -- the loop's `offset.x += side << 14`
                    nudge is a REAL EA BUG (inner block-63 `side` SHADOWS this one, so the
@@ -451,7 +415,7 @@ LAB_80086908:
     side = 0;
     {
       int side;   /* SYM block-63 side (v1) -- shadows the outer one */
-      side = 0 < (u_int)(carObj->carIndex / 2 * 2 ^ carObj->carIndex);
+      side = carObj->carIndex / 2 * 2 != carObj->carIndex;
       if (direction == -1) {
         side = 1 - side;
       }
@@ -459,31 +423,27 @@ LAB_80086908:
         side = 1 - side;
       }
       if (side != 0) {
-        /* CORRECTNESS FIX kept: byte-base cast -- BWorldSm_slices is `Trk_NewSlice *`
-           (sizeof==0x20); without the cast gcc double-scales iVar1*0x20 by the struct
-           size again (oracle: single `sll ...,5`). */
-        iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
-        offset.x = -(int)((u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000 *
-                          (u_int)(*(u_char *)(iVar2 + 0x1d) >> 4)) +
-                   (carObj->N).dimension.x / 256 * 0x180;
+        offset.x =
+            -(((u_int)BWorldSm_slices[newSlice].avgPavedWidthLf << 15) *
+              (BWorldSm_slices[newSlice].laneCount >> 4)) +
+            (carObj->N).dimension.x / 256 * 0x180;
       }
       else {
-        iVar2 = iVar1 * 0x20 + (int)BWorldSm_slices;
-        offset.x = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000 *
-                   (*(u_char *)(iVar2 + 0x1d) & 0xf) -
+        offset.x = ((u_int)BWorldSm_slices[newSlice].avgPavedWidthRt << 15) *
+                       (BWorldSm_slices[newSlice].laneCount & 0xf) -
                    (carObj->N).dimension.x / 256 * 0x180;
       }
     }
-    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&offset,direction);
+    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,newSlice,&offset,direction);
     resetCounter = 0;
     while (((carObj->N).driveSurfaceType == 0 || ((carObj->N).driveSurfaceType == 0xe)) ||
            ((carObj->N).simRoadInfo.simQuad == (Trk_NewSimQuad *)0x0)) {
-      resetCounter = resetCounter + 1;
       offset.x = offset.x + (side << 14);
-      Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&offset,direction);
+      Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,newSlice,&offset,direction);
+      resetCounter = resetCounter + 1;
       if (0x28 < resetCounter) {
         offset.x = 0;
-        Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,iVar1,&offset,direction);
+        Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,newSlice,&offset,direction);
         break;
       }
     }

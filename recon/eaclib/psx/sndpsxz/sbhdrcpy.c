@@ -125,10 +125,10 @@ extern int SNDbankheadercopy(void *dst, int bankId);   /* @0x800E7BA8 */
  * hoisted init restores the rank and returns to exactly 10, so the hoist is a no-op, not a win). */
 extern int SNDbankheadercopy(void *dst, int bankId)
 {
+    register int id;
     unsigned char *dest = (unsigned char *)dst;
     struct SNDGlobals *base = &sndgs;
     int size;
-    unsigned char *bankData;
 
     /* MATCH (w50-a8, 13 -> 10, and count-exact 81/81): TWO cooperating dials.
      *  (1) the w45 ZERO-INSN BARRIER immediately before the guard (w49-a8 found this; it is the
@@ -149,30 +149,40 @@ extern int SNDbankheadercopy(void *dst, int bankId)
      * in the later `lw s0,0(s0)` load-delay slot where retail spends `i = 0`.  All 10 diffs are
      * that one un-merged trampoline plus its cascade -- the w47 else-arm fence mode (the
      * documented de-merger) does NOT reach it here. */
-    __asm__("" : : "i"(0));
-    if (base->initialized != 0) {
-    size = SNDbankheadersize(bankId);
-    if (size < 0)
-        return size;
-    memcpy(dest, *(unsigned char **)(bankId * 0xc + base->bank_table), size);
-    bankData = *(unsigned char **)(bankId * 0xc + base->bank_table);
+    do { id = bankId; } while (0);
+    do {
+        if (base->initialized != 0)
+            goto initialized;
+        return -10;
+    } while (0);
+initialized:
     {
+        size = SNDbankheadersize(id);
+        if (size < 0)
+            return size;
+    memcpy(dest, *(unsigned char **)(id * 0xc + base->bank_table), size);
+    {
+        int i;
+        unsigned char *bankData;
         unsigned char *origin;
         int type4;
         unsigned char *dst12;
         unsigned char *src12;
         unsigned char *dst20;
         unsigned char *src20;
-        int i;
-
-        if (*(unsigned short *)(bankData + 6) != 0) {
-            origin = bankData;
+        /* MATCH (2026-08-14, 3 -> PASS, 81/81): in the current allocation basin,
+         * define `origin` before `i`.  sched1 then places i=0 in the bankData
+         * pointer-load delay slot, and reorg steals origin into the count branch
+         * slot, reproducing retail exactly. */
+        bankData = *(unsigned char **)(id * 0xc + base->bank_table);
+        origin = bankData;
+        i = 0;
+        if ((unsigned int)i < *(unsigned short *)(bankData + 6)) {
             type4 = 4;
             dst12 = dest;
             src12 = bankData;
             dst20 = dest;
             src20 = bankData;
-            i = 0;
         do {
             if (*(unsigned char *)(bankData + 4) == type4) {
                 int sp = *(int *)(src20 + 0x14);
@@ -191,8 +201,7 @@ extern int SNDbankheadercopy(void *dst, int bankId)
         } while (i < (int)(unsigned)*(unsigned short *)(bankData + 6));
         }
     }
-    *(int *)(bankId * 0xc + sndgs.bank_table) = (int)dest;
-    return 0;
+        *(int *)(id * 0xc + sndgs.bank_table) = (int)dest;
+        return 0;
     }
-    return -10;
 }

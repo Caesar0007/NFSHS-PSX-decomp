@@ -660,19 +660,14 @@ void R3DCar_GetCarName(char *filename,int carType,int country)
 void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
 {
-  u_char bVar1;
   u_short uVar2;
   short sVar3;
   Transformer_zScene *pTVar4;
-  char *pcVar5;
   GameSetup_tCarData *pGVar6;
   char *pcVar7;
-  u_int uVar8;
+  int uVar8;
   int iVar9;
-  int iVar10;
-  int carType;
   int carType_00;
-  int reload;
   u_int uVar12;
   char filename [10];
   char workFile [10];
@@ -698,23 +693,30 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     if (R3DCar_InMenu != 0) {
       (carObj->render).inside = 1;
     }
-    else if (GameSetup_gData.commMode == 1) {
-      (carObj->render).medOnly = '\x01';
-    }
-    else if ((carObj->carFlags & 4U) != 0) {
-      (carObj->render).inside = 1;
-    }
-    else if (Cars_gNumCars - Cars_gNumTrafficCars < 3) {
-      (carObj->render).inside = 1;
-    }
     else {
-      (carObj->render).medOnly = '\x01';
+      int commMode;
+
+      commMode = GameSetup_gData.commMode;
+      if (commMode != 1) {
+        if ((carObj->carFlags & 4U) != 0) {
+          (carObj->render).inside = 1;
+        }
+        else if (Cars_gNumCars - Cars_gNumTrafficCars < 3) {
+          (carObj->render).inside = 1;
+        }
+        else {
+          (carObj->render).medOnly = '\x01';
+        }
+      }
+      else {
+        __asm__("" : "=r"(commMode) : "0"(commMode));
+        (carObj->render).medOnly = commMode;
+      }
     }
   }
-  iVar9 = R3DCar_InMenu;
   (carObj->render).headLight = 0;
   (carObj->render).brakeLight = 0;
-  if (iVar9 == 0) {
+  if (R3DCar_InMenu == 0) {
     if (GameSetup_gData.Time != 0) {
       (carObj->render).headLight = 0x33;
       (carObj->render).brakeLight = 2;
@@ -747,40 +749,74 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     strcat(workFile,"s");
   }
   if (R3DCar_LoadedScenePointer[0][carType_00] == (Transformer_zScene *)0x0) {
+    /* MATCH: the retail SYM block lists one local here, index in $a1.  Keeping
+       the raw color index in that local and deriving both >>3 and &8 at the
+       store corrects the miss-arm shift schedule (24 -> 22). */
     int index;
-    int color;
 
-    color = (short)(carObj->render).colorIndex;
+    index = (short)(carObj->render).colorIndex;
     pTVar4 = R3DCar_ReadInCarData(workFile,carObj);
-    index = color >> 3;
     uVar12 = 0;
     R3DCar_LoadedScenePointer[0][carType_00] = pTVar4;
     R3DCar_LoadedSceneCounter[0][carType_00] = R3DCar_LoadedSceneCounter[0][carType_00] + '\x01';
     R3DCar_LoadedSceneCountry[carType_00] = (carObj->render).currentCountry;
-    R3DCar_LoadedSceneColor[index][carType_00] = color & 8;
+    R3DCar_LoadedSceneColor[index >> 3][carType_00] = index & 8;
   }
   else {
-    bVar1 = (carObj->render).currentCountry;
-    if ((int)R3DCar_LoadedSceneCountry[carType_00] != (u_int)bVar1) {
-      (carObj->render).currentCountry = bVar1 | 0x80;
+    /* MATCH: compare the global first and read currentCountry directly; the cached byte local
+       reversed the retail load order. This removes the two-instruction country island (40->38). */
+    if ((int)R3DCar_LoadedSceneCountry[carType_00] !=
+        (u_int)(u_char)(carObj->render).currentCountry) {
+      (carObj->render).currentCountry = (carObj->render).currentCountry | 0x80;
       pTVar4 = R3DCar_ReadInCarData(workFile,carObj);
       R3DCar_LoadedScenePointer[1][carType_00] = pTVar4;
       uVar12 = 0;
       R3DCar_LoadedSceneCounter[1][carType_00] = R3DCar_LoadedSceneCounter[1][carType_00] + '\x01';
     }
     else {
-      R3DCar_LoadedSceneCounter[0][carType_00] = R3DCar_LoadedSceneCounter[0][carType_00] + '\x01';
-      uVar8 = (u_int)(u_short)(carObj->render).colorIndex;
-      iVar9 = (int)(uVar8 << 0x10) >> 0x13;
-      uVar8 = uVar8 & 8;
+      int index;
+      int color;
+      int colorTypeOffset;
+      int scaledIndex;
+      int finalIndex;
+      short (*loadedSceneColor)[2] =
+          (short (*)[2])R3DCar_LoadedSceneColor;
+
+      color = (u_int)(u_short)(carObj->render).colorIndex;
+      R3DCar_LoadedSceneCounter[0][carType_00]++;
+      /* MATCH: keep the color-table base live through the counter update. */
+      __asm__("" : : "r"(loadedSceneColor));
+      index = (short)color >> 3;
+      colorTypeOffset = carType_00 << 1;
+      __asm__("" : : "r"(colorTypeOffset));
+      scaledIndex = (index * 3) << 3;
+      finalIndex = scaledIndex + index;
+      index = finalIndex;
+      /* MATCH: GCC's refs=6 color quantity loses a1 to the scaled index.
+         Four read-only refs cross the measured refs=10 allocation step. */
+      __asm__("" : : "r"(color), "r"(color), "r"(color), "r"(color));
       uVar12 = 0;
-      if ((int)R3DCar_LoadedSceneColor[iVar9][carType_00] == uVar8) {
-        (carObj->render).VRamX = R3DCar_LoadedSceneVRam[iVar9][carType_00][0];
+      if ((int)*(short *)(colorTypeOffset + (index << 2) +
+                          (u_int)loadedSceneColor) == (color &= 8)) {
+        short (*loadedSceneVRam)[2][2];
+
+        loadedSceneVRam = (short (*)[2][2])R3DCar_LoadedSceneVRam;
+        (carObj->render).VRamX =
+            *(short *)((carType_00 << 2) + (index << 3) +
+                       (u_int)loadedSceneVRam);
         uVar12 = 1;
-        (carObj->render).VRamY = R3DCar_LoadedSceneVRam[iVar9][carType_00][1];
+        (carObj->render).VRamY =
+            *(short *)((carType_00 << 2) + (index << 3) +
+                       (u_int)loadedSceneVRam + 2);
       }
       else {
-        R3DCar_LoadedSceneColor[iVar9][carType_00] = (short)uVar8;
+        *(short *)(colorTypeOffset + (index << 2) +
+                   (u_int)loadedSceneColor) = (short)color;
+        /* MATCH: the retail CFG keeps this store distinct from the identical
+           null-scene arm store.  A zero-insn boundary after only this arm stops
+           crossjump from merging the tails, restoring the first arm's store in
+           its jump delay slot (17 -> 14, exact 520-insn body). */
+        __asm__("");
       }
     }
   }
@@ -827,10 +863,12 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     for (i = 0; i < index; i = i + 1) {
       shpfiles[i] = locatebig(R3DCar_BigFile,infilenames[i]);   /* locatebig is 2-arg (locatbig.cpp:178) */
     }
-    index = 1;
+    /* MATCH: index is assigned after CreateLicense in the source; gcc hoists the li into the
+       retail setup window after preparing a0-a2 (moves this function 46 -> 40). */
     (carObj->render).textureOffsetV = 0;
     (carObj->render).textureOffsetU = 0;
     CarIO_CreateLicense(carObj->carInfo->license,carType_00,0);
+    index = 1;
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
     CarIO_ReadInCarTextureData(shpfiles[0],carObj,uVar12 | duplicateLicense,0);
@@ -839,15 +877,25 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       CarIO_ReadInCarTextureData(shpfile[index],carObj,0x19,0);
       index = index + 1;
     }
+    /* Integer-address staging keeps the array-base add in retail operand order
+       without disturbing the surrounding call schedule. */
+    char *shape = *(char **)((u_int)shpfile + (index << 2));
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
-    CarIO_ReadInCarTextureData(shpfile[index],carObj,duplicateLicense | 0x91,0);
+    CarIO_ReadInCarTextureData(shape,carObj,duplicateLicense | 0x91,0);
     CarIO_CleanUpLicense(0);
     (carObj->render).palNum = (short)Texture_palNum;
-    Texture_CarColor =
-         ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
     index = index + 1;
-    CarIO_UpdateCarTextureData(shpfile[index],carObj,0);
+    /* MATCH: comma-stage the final base-first pointer load and color update in
+       one argument.  This preserves retail's addu base,index operand order
+       while keeping the load in its pre-color-store scheduler window. */
+    CarIO_UpdateCarTextureData(
+        (shape = *(char **)((u_int)shpfile + (index << 2)),
+         Texture_CarColor =
+             ((u_short)(carObj->render).colorIndex & 7) +
+             ((u_char)(carObj->render).upgradeFlags & 2) * 4,
+         shape),
+        carObj,0);
   }
   else {
     char infilename[15];
@@ -905,14 +953,20 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
   inCarCam = 0;
   zoom = Camera_gInfo[Vi->player].zooming;
   camCarObj = (Car_tObj *)Camera_gInfo[Vi->player].anchor;
-  /* MATCH: nested-if + goto shape (Ghidra flattened it into one giant || condition, which
-     materializes a phantom bool flag; the oracle is pure control flow) */
   if (((camCarObj == carObj) && ((carObj->carFlags & 4U) != 0)) &&
       (Camera_gInfo[Vi->player].inCar != 0)) {
     if (Camera_GetMode(Vi->player) == 0) goto R3DVis_setNoDetailReturn;
-    if ((Camera_gInfo[Vi->player].inCar != 0) && (Camera_GetMode(Vi->player) == 1)) {
-      inCarCam = 1;
-      if (((carObj->render).inside & 1U) == 0) goto R3DVis_setNoDetailReturn;
+    if (Camera_gInfo[Vi->player].inCar != 0) {
+      u_int modeOne;
+
+      if (Camera_GetMode(Vi->player) ==
+          ({ modeOne = 1;
+             __asm__("" : "=r"(modeOne) : "0"(modeOne));
+             modeOne; })) {
+        if (((u_short)(carObj->render).inside & modeOne) == 0)
+          goto R3DVis_setNoDetailReturn;
+        inCarCam = 1;
+      }
     }
   }
   if ((carObj->N).active == '\0') goto R3DVis_setNoDetailReturn;
@@ -932,9 +986,12 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
   }
   /* MATCH: read-only fence raises maxMax+carObj allocno refs so priority order matches SYM
      (maxMax=s0, carObj=s1, maxMid=s4). Without it gcc colored carObj=s4/maxMid=s1 (60-84 diffs);
-     this single fence took the whole cascade 60->2. Residual = inCarCam=1 rematerialize-vs-copyprop
-     (oracle fresh `li s5,1` in the beqz delay slot; ours copies the shared const-1 from v1 -- catalog F
-     delay-slot reg-reuse class, permuter-reachable, not source-shapable). W56-A14. */
+     this single fence took the whole cascade 60->2.  The final copyprop residual was sealed
+     above by evaluating a scoped modeOne on the call's RHS, laundering it with a pin-free
+     identity fence, and reusing it for the inside mask: v1 stays the retail mask while the
+     later inCarCam literal rematerializes as `li s5,1` in the branch delay slot (2 -> PASS).
+     A direct literal, assignment reordering, ++/|=, and volatile-free comma variants stay at 2;
+     deriving inCarCam from inside recolors s1/s2 and regresses to 50. W56-A14. */
   __asm__ ("" : : "r"(maxMax), "r"(carObj));
   car.x = (carObj->N).position.x - (Vi->cview).translation.x;
   car.y = (carObj->N).position.y - (Vi->cview).translation.y;
@@ -1069,6 +1126,7 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   int countryFlag;
   int rightHandDrive;
   int cop_flag;          /* SYM fn REG s6 */
+  int copIndex;
 
   rightHandDrive = 0;
   rideHeight = (carObj->render).rideHeight;
@@ -1085,8 +1143,19 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   if (GameSetup_gData.mirrorTrack != 0) {
     rightHandDrive = rightHandDrive ^ 1;
   }
+  copIndex = carType - 0x16;
+  /* MATCH: keep the scheduled carType-0x16 value live across the mirror
+     branch as a distinct quantity.  The direct expression coalesces it into
+     cop_flag/$s6 and leaves 23 diffs; this tied empty fence originally gave 22.
+     Moving the copIndex source assignment after the mirror branch lets GCC
+     hoist it back into that branch's delay slot without conflicting with the
+     detail load, giving retail's copIndex=$v0/detail=$v1 and taking 20 -> 12;
+     the wheel changes below subsequently take the whole function to 9.
+     A named detail temp, removing this fence, and 1/2/4 read-only copIndex
+     ref steps were byte-neutral; moving cop_flag after the guard regressed. */
+  __asm__("" : "=r"(copIndex) : "0"(copIndex));
   R3DCar_rightHandDrive = rightHandDrive;
-  cop_flag = carType - 0x16U < 6; /* SYM: cop_flag REG s6 (int, not a spilled bool) */
+  cop_flag = (u_int)copIndex < 6; /* SYM: cop_flag REG s6 (int, not a spilled bool) */
   if ((carObj->render).detail < 0) {
     return;
   }
@@ -1237,19 +1306,26 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       int spin;   /* SYM blk 196 REG v0 -- abs(wheelSpin), hoisted guard */
       int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
       int replayMode;
+      tReplayInterface *replayInterface;
       rear = 0;
+      /* MATCH: retail puts rear=0 in the carType branch delay slot. */
+      __asm__("" : : "r"(rear));
+      /* MATCH: expose and reuse the replay base.  __builtin_abs preserves the
+         retail bgez/negu shape while allowing loop invariants and the wheel
+         GIV to schedule before wheelSpin.  The read-only replayInterface fence
+         after its last loop use buys one ref at loop depth; qtytrace then swaps
+         {limit,base} from {$t0,$t1} to retail {$t1,$t0}.  Together these lower
+         the wheel island from the old 12-diff basin to one li relocation. */
+      replayInterface = &Replay_ReplayInterface;
+      spin = __builtin_abs(carObj->wheelSpin);
       replayMode = Replay_ReplayMode;
-      spin = carObj->wheelSpin;
-      if (spin < 0) {
-        spin = -spin;
-      }
       while (1) {
         if (rear >= 2) break;
         if (replayMode != 2) {
           vel = (carObj->linearVel_ch).z >> 6;
         }
         else {
-          vel = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed);
+          vel = (carObj->linearVel_ch).z >> (8U - replayInterface->speed);
         }
         if (rear != 0) {
           if (spin - 1U < 2) goto R_ICFt_wheelspinRpmCalc;
@@ -1264,8 +1340,9 @@ R_ICFt_wheelspinRpmCalc:
               vel = vel << 9;
             }
             else {
-              vel = vel << (Replay_ReplayInterface.speed + 7U);
+              vel = vel << (replayInterface->speed + 7U);
             }
+            __asm__("" : : "r"(replayInterface));
           }
         }
         if ((carObj->wheelLock != 0) && ((carObj->wheelLock & rear + 1U) != 0)) {
@@ -1406,9 +1483,13 @@ R_ICFt_brakeAIBranch:
         }
         break;
       case 0xd:
-cfLbl1:   /* @0x800b0524  (-f-build goto label) */
+cfLbl1:   /* @0x800b0524: keep this arm explicit; a goto to the case-E tail
+             cross-jump-merges away retail's beqz/addiu pair. */
         if (cop_flag == 0) break;
-        goto R_ICFt_caseE_dmgCheck;
+        if (((carObj->render).damageParts & 4U) != 0) {
+          code = 0;
+        }
+        break;
       default:
         goto switchD_800b03ec_caseD_8;
       case 0xf:
@@ -1570,6 +1651,14 @@ R_ICFt_loop2Post:
     }
     /* MATCH: case bodies in ORACLE physical order (jlabels 800B0A3C..800B0BD0):
        0x2f, 0x30-34, 0x35, 0x36, 0x37, 0x38, 0x23/24, 0x25, 0x26, 0x27/28 + shared tails, default */
+    /* NEAR-MISS (current 9-diff floor): this final table needs the explicit
+       $v0 `lui/addiu/addu/lw`
+       address form while earlier tables in the same function need maspsx's
+       fused $at form.  Selector copy is neutral; tied selector is 23 and a
+       pre-switch empty boundary regresses 9 -> 11.  The other residual is
+       only `li $t1,2` two slots late in the otherwise exact wheel preheader.
+       This is a per-site jtbl-fusion angle plus a pure line relocation, not a
+       whole-TU or whole-function assembler setting. */
     switch(i) {
     case 0x2f:
       fixedxformx(&tmpMat,(carObj->N).wheelRot[0]);
@@ -1689,8 +1778,14 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (Replay_ReplayMode != 2) {
+      int positionStep;
+      positionStep = *(signed short *)((int)&(carObj->linearVel_ch).z + 2);
+      /* MATCH: the sum is stored modulo 16 bits, so GCC otherwise folds this
+         to lhu and reverses the two tail loads.  The tied fence preserves the
+         retail signed lh/load order and lowers the gate 38 -> 36. */
+      __asm__("" : "=r"(positionStep) : "0"(positionStep));
       (carObj->N).positionXZ =
-           (carObj->N).positionXZ + *(short *)((int)&(carObj->linearVel_ch).z + 2);
+           (carObj->N).positionXZ + positionStep;
     }
     else {
       (carObj->N).positionXZ =
@@ -2014,11 +2109,11 @@ R_ICFtMenu_bigFileCheck:
     if (((carObj->render).inside & 1U) != 0) {
       strcat(workFile,"h");
     }
-    Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
     /* MATCH (W54-A13): SPLIT the two index terms into two statements.  The fused
        `base + cf*50 + carType` reassociates (both `addu`s pick the wrong operand pair);
        splitting keeps the oracle's pair.  WARNING: do NOT parenthesise the index sum
        instead (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
+    Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
     ppTVar21 = loadedSceneBase + countryFlag * 50;
     ppTVar21 = ppTVar21 + carType;
     if (*ppTVar21 != (Transformer_zScene *)0x0) {
@@ -2522,6 +2617,16 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
           if ((carType < 0x1c) && ((i - 0x1cU < 2 && (R3DCar_RecessedLight[carType] != 0)))) {
             offset = -offset;
           }
+          /* MATCH: retail allocates the SYM locals as offset=$t0, visible=$t1,
+             envmap=$t2.  Mutating envmap in place gives the exact 266-insn body
+             but, without this loop-depth priority fence, gcc rotates them to
+             envmap/offset/visible=$t0/$t1/$t2 (76 diffs).  qtytrace priced the
+             required ref steps: four offset operands plus one visible operand
+             restore the retail order; placing the fence here, after the first
+             guard, preserves retail's slti/mirror delay-slot schedule.  The same
+             fence before the guard leaves a 6-diff scheduling residual. */
+          __asm__("" : : "r"(offset), "r"(offset), "r"(offset), "r"(offset),
+                           "r"(visible));
           if (((rightHandDrive != 0) && (0x22 < i)) && (i < 0x29)) {
             mirror = true;
             sd->head.mirror = sd->head.mirror ^ 1;
@@ -2562,25 +2667,13 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
           }
           else {
             /* envmap-masked menu facet (mirror overlay) */
-            u_int maskFlag;
-            /* W54-A13 RECEIPT: retail masks `envmap` IN PLACE (oracle `andi t2,t2,128`
-               writes the reg it reads; every later test is `andi vN,t2,..`), so this
-               `drawEnvmap` copy is the +1 insn and all 17 diff insns here.  Deleting it
-               and masking `envmap` directly gives the EXACT count (266/266) but rotates
-               the three local-alloc t-quantities: ours {envmap t0, offset t1, visible t2}
-               vs retail {offset t0, visible t1, envmap t2} = 76 diffs, i.e. worse than
-               this 23.  Falsified as dials: all 4 decl permutations of
-               mirror/envmap/offset, and a read-only fence on envmap at 2 positions --
-               none move the t-handout (these are local-alloc QTYs, absent from the
-               global allocno table, so allocsim/reqdelta do not reach them).  NEXT: an
-               instrumented-cc1 [qty_compare] trace, or find the refs/live shape that
-               demotes envmap below offset+visible. */
-            int drawEnvmap = envmap;
-
+            /* MATCH: mask the SYM envmap local itself.  A separate drawEnvmap
+               copy costs one instruction (267/266, 23 diffs).  The non-SYM
+               maskFlag local similarly forces the repeated masks into $v1;
+               testing envmap directly keeps retail's anonymous $v0 masks. */
             if (carType >= 0x1c) {
-              drawEnvmap &= 0x80;
+              envmap &= 0x80;
               if (carType == 0x1c) {
-                maskFlag = drawEnvmap & 0x80;
                 if (i == 0x23) {
                   offset = 4;
                 }
@@ -2589,8 +2682,7 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
                 goto R_ICFtMenuII_block43;
               }
             }
-            else if ((drawEnvmap & 0x10) != 0) {
-              maskFlag = drawEnvmap & 0x80;
+            else if ((envmap & 0x10) != 0) {
               if (carType >= 0x16) {
                 offset = offset + 0xc;
                 if ((R3DCar_InMenu & 0x80U) != 0) {
@@ -2601,14 +2693,14 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
             }
             else {
 R_ICFtMenuII_block43:
-              maskFlag = drawEnvmap & 0x80;
+              ;
             }
-            if ((maskFlag != 0) && ((R3DCar_InMenu & 0x80U) != 0)) {
+            if (((envmap & 0x80) != 0) && ((R3DCar_InMenu & 0x80U) != 0)) {
               offset = -offset;
             }
             sd->sub_otz = (carObj->render).sub_otz + offset;
             DrawC_PrimMenu((matrixtdef *)((int)R3DCar_orientMat + i * 0x24),
-                       (coorddef *)((int)R3DCar_position + i * 0xc),obj,overlay,drawEnvmap,
+                       (coorddef *)((int)R3DCar_position + i * 0xc),obj,overlay,envmap,
                        sd);
           }
           if (mirror) {

@@ -1579,12 +1579,27 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *     lets cse merge the two pos reads the oracle keeps separate; the scalar
    *     cast-int derefs are LOAD-BEARING here (inverse of the 05H struct-field law:
    *     for a REUSED anonymous word, the cast-int spelling is the un-merge device).
-   * His macro ORDER (tint after addPrim) = our falsified V22 (112). Residual stays 24. */
+   * His macro ORDER (tint after addPrim) = our falsified V22 (112).
+   * ==== 2026-08-11 QTY/SCHED ROUND -- 24 -> 22 (still 82/82) ====
+   * LANDED: spell the two shared XY sums explicitly in retail order (bottom, right),
+   * then put a void-tail fence between x0 and y0.  This keeps both adds at their
+   * oracle slots while delaying only the y0 store until after the tpage RMW.  The
+   * remaining 22 diffs are one isolated addPrim/font_tint/setlen scheduling cluster.
+   * The structurally-correct SLD order was explored through 112 -> 82 -> 38; QTY
+   * traces proved its blocker is the prim/dv handout, but early fences suppress the
+   * retail prologue and are not viable.
+   * 2026-08-12 PS1-FORK CROSS-CHECK: Tenchu's matched gcc-2.8.1 multi-set packet
+   * initializer is a real scheduling lever, but a reused {9,0x2c} local is 24 here
+   * (both constants move to t9). Reversing the len/code comma arms stays 22 but emits
+   * their stores in the wrong order. A named font_tint carrier is byte-neutral at 22;
+   * moving its load/store after addPrim reproduces the already-known 112 basin. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;
   int            height;
   int            dv;
+  int            right;
+  int            bottom;
 
   width = ch->width;
   height = ch->height;
@@ -1598,19 +1613,23 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   *(u_long *)&prim->r0 = font_tint;
   ((PSXFront_PTag *)prim)->addr = pal->addr,
   pal->addr = (uint)prim;
-  ((u_char *)prim)[3] = 9;
+  ((PSXFront_PTag *)prim)->len = 9,
   prim->code = 0x2c;
   prim->clut = gFontClut;
+  bottom = y + height;
+  right = x + width;
   prim->tpage = (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
                 (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
   prim->u0 = u, prim->v0 = dv,
-  prim->u1 = u + width, prim->v1 = dv,
+  prim->u1 = u + width, prim->v1 = dv;
   prim->u2 = u, prim->v2 = dv + height,
   prim->u3 = u + width, prim->v3 = dv + height;
-  prim->x0 = x, prim->y0 = y + height,
-  prim->x1 = x + width, prim->y1 = y + height,
+  prim->x0 = x;
+  __asm__("" : : "i"(0));
+  prim->y0 = bottom,
+  prim->x1 = right, prim->y1 = bottom,
   prim->x2 = x, prim->y2 = y,
-  prim->x3 = x + width, prim->y3 = y;
+  prim->x3 = right, prim->y3 = y;
   return;
 }
 

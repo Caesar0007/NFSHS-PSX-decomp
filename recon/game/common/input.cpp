@@ -96,7 +96,17 @@ trueResult:
   return 1;
 }
 
-/* ---- Input_Update__Fv  [INPUT.CPP:104-430] SLD-VERIFIED ---- */
+/* ---- Input_Update__Fv  [INPUT.CPP:104-430] SLD-VERIFIED ----
+ * MATCH RECEIPT: the retail SLD statement order and IDA register map reduced the
+ * authoritative residual from 28 to 16: h/r/i/one/menukeys/activeBase initialization,
+ * the inner dbFlags pointer, and the post-flags memory reread are source-shape fixes.
+ * The interface loop's table-address hoist needs all five zero-insn pressure blockers
+ * below (four leaves 18); the void fence restores interfaceActive/left scheduling.
+ * One post-use acc reference keeps acc=$s5 and one=$s6, allowing the same `one` value
+ * to feed the second active fill and player-count comparison.  Measured path:
+ * 28 -> 24 -> 20 -> 18 -> 16 -> 12 -> 10 -> PASS (868/868).
+ * qtytrace's instrumented C++ compilers are not byte-faithful for this function, so
+ * their QTY handouts were rejected; detailed verify_asm/vdiff is the authority. */
 void Input_Update(void)
 
 {
@@ -132,11 +142,12 @@ void Input_Update(void)
 
   h = Input_gHandler;
   r = Input_gResults;
-  activeBase = sharedActive;
+  i = 0;
   one = 1;
   menukeys = 0;
+  activeBase = sharedActive;
 
-  for (i = 0; i < 2; i++) {
+  for (; i < 2; i++) {
     int mode;
 
     mode = 0;
@@ -246,14 +257,16 @@ void Input_Update(void)
       {
         int m;
         int k;
+        u_long *dbFlags;
 
         for (m = 0; m < 2; m++) {
+          dbFlags = &Input_gDBFlags[i];
           for (k = 0; k < 17; k++) {
             if (*h != 0) {
               if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
-                Input_gDBFlags[i] |= (one << k);
+                *dbFlags |= (one << k);
               } else {
-                Input_gDBFlags[i] &= ~(one << k);
+                *dbFlags &= ~(one << k);
               }
             }
             h++;
@@ -327,7 +340,7 @@ void Input_Update(void)
           k = 16;
           activePtr = activeBase + k;
           for (; k >= 0; k--) {
-            *activePtr = 1;
+            *activePtr = one;
             activePtr--;
           }
         }
@@ -405,7 +418,9 @@ secondHeldDone:
     }
 
     r->flags |= (acc << 3);
-    right = r->flags;
+    __asm__("" : : "r"(acc));                 /* zero instructions: acc=$s5 */
+    __asm__("" : "+m"(r->flags));             /* force retail byte reload */
+    right = (u_char)r->flags;
     switch (((u_char)right) >> 3) {
       case 15:
         r->flags &= 7;
@@ -422,7 +437,7 @@ secondHeldDone:
     }
 
     r++;
-    if (GameSetup_gData.numPlayerRaceCars == 1) {
+    if (GameSetup_gData.numPlayerRaceCars == one) {
       h += 76;
       i++;
     }
@@ -430,10 +445,21 @@ secondHeldDone:
 
   {
     char *interfaceActive;
+    int addressBlocker;
+    int addressBlocker2;
+    int addressBlocker3;
+    int addressBlocker4;
+    int addressBlocker5;
 
     i = 0;
     interfaceActive = iactive;
+    __asm__("" : : "i"(0));                  /* zero-insn scheduling fence */
     left = 1;
+    __asm__("" : "=r"(addressBlocker));
+    __asm__("" : "=r"(addressBlocker2));
+    __asm__("" : "=r"(addressBlocker3));
+    __asm__("" : "=r"(addressBlocker4));
+    __asm__("" : "=r"(addressBlocker5));
     for (; i < 32; i++) {
       if ((interfaceActive[i] != 0) && (*h != 0) &&
           ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
@@ -441,6 +467,11 @@ secondHeldDone:
       }
       h++;
     }
+    __asm__("" : : "r"(addressBlocker));
+    __asm__("" : : "r"(addressBlocker2));
+    __asm__("" : : "r"(addressBlocker3));
+    __asm__("" : : "r"(addressBlocker4));
+    __asm__("" : : "r"(addressBlocker5));
   }
 
   Input_gTime += 2;

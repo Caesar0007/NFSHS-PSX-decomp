@@ -170,9 +170,25 @@ extern void chase(unsigned int code);                                           
  *   -fno-schedule-insns2 26 + chase 0 -> 6, both 46, -fno-expensive-optimizations 44,
  *   -fno-delayed-branch 92).  Notably -fno-expensive-optimizations does NOT restore the in-place
  *   mutate, so the fold is not the "expensive" pass.  Do NOT re-run the flag ladder here. */
-extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
+/* w62 2026-08-12 -- NFS2's PC unref.asm confirms the command decode, and the Sled Storm PSX
+ * eaclib copy is the same 158-instruction body as NFS4.  Giving the three live parameters
+ * C89-style aliases in retail's lifetime order fixes the four prologue scheduling diffs:
+ * unrefpack 12 -> 8 at 156/158; chase remains PASS.  Shared-label/source-variable reconstructions
+ * were measured at 62..121 diffs and reverted.  The residual is now only the two folded output
+ * advances plus the middle arm's otherwise-neutral a0 scheduling move. */
+/* w63 2026-08-12 -- 8 -> 6 at exact 158/158 using the fork-corpus pure-C levers.  In each of the
+ * two arms where combine folded `out += reverse; refcpy(out,...)` into one argument add, an
+ * identical-arm working copy keeps the advanced pointer distinct; FF8's zero-net
+ * `count + advanced - advanced` reference then keeps that copy live through argument expansion.
+ * Splitting the shift/mask and accumulating `hi += lo` recovers the oracle's local a1/v0/v1
+ * handout without changing the instruction inventory.  The remaining six differences are only
+ * the placement of the same `addu a0,s3,zero` in the three command arms: ours follows each arm's
+ * first arithmetic chain, while retail schedules it immediately after the pointer advances. */
+extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_arg)
 {
+    int            reverse = reverse_arg;
     unsigned char *src = comp;
+    unsigned char *out = out_arg;
     int           size = 0;
     unsigned char trail[8];
     if (comp != (unsigned char *)0) {
@@ -192,20 +208,24 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
                     unsigned int   hi;
                     unsigned int   lo;
                     int            len;
+                    unsigned char *advanced;
                     src += 2;
                     reverse = op & 3;
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    hi    = (op << 3) & 0x300;        /* MATCH: BOTH terms get their own
-                                                       * statement -- written as one sum gcc
-                                                       * reassociates the +1 onto the first
-                                                       * term and evaluates them in the wrong
-                                                       * order */
+                    hi    = op << 3;
+                    hi    = hi & 0x300;
                     lo    = ((op >> 8) & 0xff) + 1;
-                    count = hi + lo;
+                    if (lo != 0)
+                        advanced = out;
+                    else
+                        advanced = out;
+                    hi = hi + lo;
+                    count = hi;
                     len   = (int)(op >> 2 & 7) + 3;
-                    out   = refcpy(out, count, len);
+                    out = refcpy(advanced,
+                                 count + (int)advanced - (int)advanced, len);
                 } else if ((op & 0x40) == 0) {            /* 3-byte command */
                     unsigned int   count;
                     unsigned int   hi;
@@ -235,16 +255,24 @@ extern int unrefpack(unsigned char *comp, unsigned char *out, int reverse)
                     unsigned int   hi;
                     unsigned int   lo;
                     int            len;
+                    unsigned char *advanced;
                     src += 4;
                     reverse = op & 3;
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    hi    = (op << 12) & 0x10000;
+                    hi    = op << 12;
+                    hi    = hi & 0x10000;
                     lo    = (op & 0xff00) + 1;
-                    count = hi + lo + ((op >> 16) & 0xff);
+                    if (lo != 0)
+                        advanced = out;
+                    else
+                        advanced = out;
+                    hi = hi + lo;
+                    count = hi + ((op >> 16) & 0xff);
                     len   = (int)(((op << 6) & 0x300) + (op >> 24)) + 5;
-                    out   = refcpy(out, count, len);
+                    out = refcpy(advanced,
+                                 count + (int)advanced - (int)advanced, len);
                 } else {                                  /* literal run / terminator */
                     src += 1;
                     if ((op & 0xff) < 0xfc) {

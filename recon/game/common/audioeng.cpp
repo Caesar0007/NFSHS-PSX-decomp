@@ -24,27 +24,18 @@ void AudioEng_CleanUp(void);
 
 
 /* ---- AudioEng_Set__Fiiiiiiii  [@0x8007b5a8] ---- */
-/* MATCH: FAIL 16 (159/159) -- W56-A13 re-gate.  RESIDUAL = the carType `?:`
- * arm ORDER + a coupled gas>>6 schedule slip.  Retail lays the
- * `(esp>>2)+0xc000` arm FIRST (fall-through, ending `j T` w/ addu in the
- * delay slot) and `esp+0x3333` out-of-line; ours mirrors them (cheap addiu
- * arm as fall-through).  SOURCE-INVARIANT: `!=`<->`==` ternary flip is
- * gate-NEUTRAL (gcc fold/jump_optimize canonicalizes COND_EXPR arm
- * placement independent of spelling), and rewriting as an explicit
- * if/else STATEMENT with a temp is ALSO neutral (SYM lists NO ternary-temp
- * local anyway -- players/vol/esp/gas/cam/dop/azi/dir + g/a/s only).
- * FALSIFIED per-fn flag mechanisms (probed on a build.py copy):
- * -fno-thread-jumps = no-op (not a thread artifact); -fno-delayed-branch +
- * -fforce-addr (combined) REGRESS to 22.  Named angle: the arm swap is
- * gcc's invert_jump/COND_EXPR canonicalization -- needs a jump.c-level
- * instrument (which-arm-falls-through) or a not-yet-identified cc1 flag;
- * same family as the 06E local-alloc gap, receipted not floored. */
+/* MATCH: PASS 159/159.  The carType arms require their explicit retail layout:
+ * shifted pitch first, normal pitch out-of-line.  Zero-insn arm/use fences keep
+ * reorg from speculating the normal add into the branch slot; the post-dop
+ * statement fence keeps gas>>6 on its SLD statement. */
 void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir)
 {
   AudioEng_t *g;
   AudioEng_tAdjustments *a;
   AudioEng_tState *s;
   const int d = dop;
+  int adjustedEsp;
+  int shiftedEsp;
 
   if ((u_int)player < 2) {
     g = AudioEng_g[player];
@@ -55,11 +46,22 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
         s->esp = ((int)((u_int)a->timbreScale * esp) >> 0xe) < 0x200
                      ? (u_short)((int)((u_int)a->timbreScale * esp) >> 0xe)
                      : 0x1ff;
+        if (Cars_gList[player]->carInfo->carType == 0x1c) {
+          shiftedEsp = esp >> 2;
+          /* MATCH: issue the shift before the independent 0xc000 materialization. */
+          __asm__("" : : "r"(shiftedEsp));
+          adjustedEsp = 0xc000;
+          adjustedEsp += shiftedEsp;
+        }
+        else {
+          /* MATCH: arm-head barrier keeps the normal add out of the branch slot. */
+          __asm__("" : : "i"(0));
+          adjustedEsp = esp + 0x3333;
+        }
         s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *
-            fixedmult(Cars_gList[player]->carInfo->carType != 0x1c
-                          ? esp + 0x3333
-                          : (esp >> 2) + 0xc000,
-                      d)) >> 10);
+            fixedmult(adjustedEsp,d)) >> 10);
+        /* MATCH: SLD boundary; prevents gas>>6 from crossing the dop store. */
+        __asm__("" : : "i"(0));
         if (gas + (gas >> 5) + (gas >> 6) < 0x81) {
           s->gas = gas + (gas >> 5) + (gas >> 6);
         }
@@ -82,12 +84,14 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
         }
         else {
           s->exh = a->outCarExhaust;
-          s->exh += ((int)(dir < 0
-                               ? dir * (u_int)a->fwdEngBoost *
-                                     (u_int)s->exh
-                               : dir * (u_int)a->rwdExhBoost *
-                                     (0x80 - (u_int)s->exh)) >> 7) /
-                    0x10000;
+          if (dir < 0) {
+            s->exh += ((int)(dir * (u_int)a->fwdEngBoost *
+                             (u_int)s->exh) >> 7) / 0x10000;
+          }
+          else {
+            s->exh += ((int)(dir * (u_int)a->rwdExhBoost *
+                             (0x80 - (u_int)s->exh)) >> 7) / 0x10000;
+          }
           s->azi = (u_short)azi;
           s->sep = 0;
           s->vol = ((int)(vol * (u_int)a->outCarBoost) >> 6) < 0x800
@@ -191,18 +195,28 @@ void AudioEng_Update(void)
       u_short rightazim;
 
       n = 0;
-      /* MATCH (w55-a12, 28 -> 26 and count 364 -> EXACT 366/366): retail's
+      /* MATCH (w55-a12 + 2026-08-11, 28 -> 26 -> PASS 366/366): retail's
        * second channel loop is UN-rotated -- `slti;beqz;nop` at the loop head
        * and an unconditional `j` back-edge with the increment in its slot.
        * `for (;;) { if (n >= 16) break; ... }` lets gcc-2.8 prove n==0 on
        * entry, peel the first test and rotate the loop (test at the bottom,
        * 2 insns short).  The `while (1) { if (!(n < 16)) break; ... }`
-       * spelling reproduces retail's top-test + j back-edge.  Residual 26 =
-       * a pure s5<->s6 swap (counter vs the +4 giv). */
+       * spelling reproduces retail's top-test + j back-edge.  The remaining
+       * 26 were only the three induction variables colored in the wrong
+       * order.  allocsim priced the generated walks at n=p98 refs29/live237,
+       * delay=p573 refs20/live159 and vol=p578 refs17/live158.  Empty memory
+       * operands at the LOOP HEAD buy the weighted refs without emitting
+       * loads: vol x2 + delay x3 gives retail delay=$s4, vol=$s5, n=$s6.
+       * Placement is essential: the identical operand set at the loop tail
+       * reached 8 diffs but retained the wrong base-copy chain and moved the
+       * s0+=12 increment; at the head both schedules match exactly. */
       while (1) {
         if (!(n < 16)) {
           break;
         }
+        __asm__("" : : "m"(g->vol[n]), "m"(g->vol[n]),
+                         "m"(g->delay[n]), "m"(g->delay[n]),
+                         "m"(g->delay[n]));
         if ((signed char)g->chan[n].patchnum >= 0) {
           if (g->vol[n] != 0) {
           if ((signed char)g->chan[n].patchnum >= 64) {

@@ -11,6 +11,10 @@
 
 extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */
 
+#define WRAP_SLICE(a,b) (((a) >= 0) \
+    ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
+    : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
 struct SpeakerVirtualDispatch {
   char data[76];
   virtual int slot0(Car_tObj *carObj);
@@ -19,6 +23,16 @@ struct SpeakerVirtualDispatch {
   virtual int slot3();
   virtual int slot4();
   virtual int slot5(Car_tObj *carObj);
+  virtual int slot6();
+  virtual int slot7();
+  virtual int slot8();
+  virtual int slot9();
+  virtual int slot10();
+  virtual int slot11();
+  virtual int slot12();
+  virtual int slot13();
+  virtual int slot14();
+  virtual int slot15();
 };
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
@@ -725,30 +739,11 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
   int humanDirection;
   int newLatPos;
   int throwAway;
-
-  short sVar1;
-
-  short sVar2;
-
-  Car_tObj *pCVar3;
-
-  Speaker *pSVar4;
-
-  int iVar5;
-
-  Car_tObj *pCVar6;
-
-  int iVar7;
-
-  int newSlice;
-
-  int local_18;
-
-  int local_14;
+  Car_tObj *carObj;
 
   
 
-  iVar7 = chaserCop->initialDirection_;
+  humanDirection = chaserCop->initialDirection_;
 
   this->originalActivationCop_ = chaserCop;
 
@@ -758,114 +753,91 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   randtemp = fastRandom * randSeed;
 
-  placementDirection = 1;   /* MATCH: oracle materializes a constant-1 "direction multiplier" here (0x800600C4), reused after the slice-wrap for the desiredDirection mult+degenerate-negate idiom shared with AIPerp::NewStage */
+  placementSide = 1;
 
-  pCVar6 = this->carObj_;
-
-  iVar5 = iVar7 * 0x10;
+  carObj = this->carObj_;
 
   fastRandom = randtemp & 0xffff;
 
-  sVar1 = (short)iVar5;
+  placementDirection = placementSide;
 
-  if (0 <= iVar5) {   /* MATCH: branch-polarity flip -- oracle's fallthrough (non-branch-taken) path is the iVar5>=0 case; the iVar5<0 case is the branch target */
+  if (0 <= humanDirection * 0x10) {
+    short wrappedSlice;
 
-    pCVar3 = (chaserCop)->carObj_;
+    if (gNumSlices <=
+        (short)(chaserCop->carObj_->N).simRoadInfo.slice +
+            humanDirection * 0x10) {
 
-    /* w54-a12 (109 diffs @137 -> 106 @136, COUNT-EXACT): retail computes the wrap in INT
-     * width through ONE variable and factors the `+ iVar5` into a SHARED TAIL
-     * (`addu v0,v0,a1` reached from both arms) -- the two-arm form that adds sVar1 inside
-     * each arm makes gcc duplicate that add (+1 insn).  Residual = the a2/a3 + v0/v1
-     * rotation and retail's second (halfword) load of gNumSlices for the subtract.
-     * NOTE the negative-direction sibling below still wants the two-arm short form --
-     * converting it too costs an insn (measured 135/136). */
-    newSlice = (u_short)(pCVar3->N).simRoadInfo.slice;
-
-    if (gNumSlices <= (pCVar3->N).simRoadInfo.slice + iVar5) {
-
-      newSlice = newSlice - gNumSlices;
+      wrappedSlice = (u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                     humanDirection * 0x10 - (u_short)gNumSlices;
+      goto storePositiveSlice;
 
     }
 
-    (pCVar6->N).simRoadInfo.slice = (short)(newSlice + iVar5);
+    wrappedSlice = (u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                   humanDirection * 0x10;
+
+  storePositiveSlice:
+    (carObj->N).simRoadInfo.slice = wrappedSlice;
 
   }
 
   else {
 
-    pCVar3 = (chaserCop)->carObj_;
+    short wrappedSlice;
 
-    if ((pCVar3->N).simRoadInfo.slice + iVar5 < 0) {
+    if ((short)(chaserCop->carObj_->N).simRoadInfo.slice +
+            humanDirection * 0x10 < 0) {
 
-      sVar2 = (short)gNumSlices + ((u_short)(pCVar3->N).simRoadInfo.slice + sVar1);
+      wrappedSlice = (u_short)gNumSlices +
+                     ((u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                      humanDirection * 0x10);
 
     }
 
     else {
 
-      sVar2 = (u_short)(pCVar3->N).simRoadInfo.slice + sVar1;
+      wrappedSlice = (u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                     humanDirection * 0x10;
 
     }
 
-    (pCVar6->N).simRoadInfo.slice = sVar2;
+    (carObj->N).simRoadInfo.slice = wrappedSlice;
 
   }
 
   if (placementDirection == 1) {
 
-    (this->carObj_)->desiredDirection = placementDirection * iVar7;
-
-  } else {
-
-    (this->carObj_)->desiredDirection = -(placementDirection * iVar7);
+    (this->carObj_)->desiredDirection = placementSide * humanDirection;
 
   }
 
-  pCVar6 = this->carObj_;
+  else {
 
-  pCVar6->direction = pCVar6->desiredDirection;
+    (this->carObj_)->desiredDirection = -(placementSide * humanDirection);
 
-  local_14 = 0;
+  }
 
-  local_18 = 0;
+  this->carObj_->direction = this->carObj_->desiredDirection;
 
-  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&local_18,&local_14);
+  newLatPos = 0;
 
-  pCVar6 = this->carObj_;
+  throwAway = 0;
+
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
 
   AILife_PlaceCarAtLocation(this->carObj_,
 
-             (int)(pCVar6->N).simRoadInfo.slice,local_14,pCVar6->direction,0,0);
+             (int)(this->carObj_->N).simRoadInfo.slice,newLatPos,
+             this->carObj_->direction,0,0);
 
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
+  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot15();
 
-  (**(int (**)(...))((int)*pSVar4->_vf + 0x84))
+  ((SpeakerVirtualDispatch *)Speech_Dispatch())->slot0(this->carObj_);
 
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x80));
+  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot0(this->carObj_);
 
-  pSVar4 = (Speaker *)Speech_Dispatch();
-
-  (**(int (**)(...))((int)*pSVar4->_vf + 0xc))
-
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 8),
-
-             this->carObj_);
-
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
-
-  (**(int (**)(...))((int)*pSVar4->_vf + 0xc))
-
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 8),
-
-             this->carObj_);
-
-  pSVar4 = (Speaker *)Speech_Mobile((chaserCop)->carObj_);
-
-  (**(int (**)(...))((int)*pSVar4->_vf + 0x34))
-
-            ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x30),
-
-             this->carObj_);
+  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot5(this->carObj_);
 
   TrgSfx_RestartTrgSfx();
 
@@ -1027,16 +999,20 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 
 /* ---- AvoidCops__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::AvoidCops  [AIH_BTCPERP.CPP:488-552] SLD-VERIFIED ---- */
 
+/* PASS (209/209 insns; was 200 diffs).  Retail's missing first-roll threshold is
+ * `AI_elapsedTime * 7 + pullOver * 500`.  The SYM starts xPosition, zPosition,
+ * xPositionIndex, and zPositionIndex in the nested block at 0x80060428; using
+ * precisely that scope fixes the caller-register interference graph.  Spelling
+ * xPosition as load, subtract, then multiply keeps it in retail's $v1 through
+ * the multiply.  Direct __builtin_abs comparisons recover the branch shapes.
+ * No volatile, register pin, or empty-asm allocation fence is required. */
+
 void AIHigh_BTC_AIPerp::AvoidCops()
 
 
 
 {
   int doBrake;
-  int xPosition;
-  int zPosition;
-  int xPositionIndex;
-  int zPositionIndex;
 
   bool bVar1;
 
@@ -1054,61 +1030,64 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
   
 
-  pCVar3 = this->closestCopCarObj_;
-
   bVar1 = false;
 
-  if ((pCVar3 != (Car_tObj *)0x0) && (pCVar3->RSControl == 0)) {
+  if ((this->closestCopCarObj_ != (Car_tObj *)0x0) &&
+      (this->closestCopCarObj_->RSControl == 0)) {
 
-    pCVar5 = this->carObj_;
+    if (this->closestCopCarObj_->direction == this->carObj_->direction) {
 
-    iVar4 = pCVar3->direction;
+      if (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000) {
+        int xPosition;
+        int zPosition;
+        int xPositionIndex;
+        int zPositionIndex;
 
-    if (iVar4 == pCVar5->direction) {
+        xPosition = this->carObj_->roadPosition;
+        xPosition -= this->closestCopCarObj_->roadPosition;
+        xPosition *= this->closestCopCarObj_->direction;
 
-      iVar6 = this->closestCopCarDistanceMeters_;
+        zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction;
 
-      iVar2 = iVar6;
+        iVar4 = (this->closestCopCarObj_->N).dimension.x;
 
-      if (iVar6 < 0) {
+        xPositionIndex = bVar1;
 
-        iVar2 = -iVar6;
+        if ((-iVar4 <= xPosition) && (xPositionIndex = 1, iVar4 < xPosition)) {
 
-      }
-
-      if (iVar2 < 0x1f40000) {
-
-        iVar2 = (pCVar5->roadPosition - pCVar3->roadPosition) * iVar4;
-
-        iVar6 = iVar6 * iVar4;
-
-        iVar4 = (pCVar3->N).dimension.x;
-
-        iVar7 = 0;
-
-        if ((-iVar4 <= iVar2) && (iVar7 = 1, iVar4 < iVar2)) {
-
-          iVar7 = 2;
+          xPositionIndex = 2;
 
         }
 
-        iVar4 = 0;
+        zPositionIndex = 0;
 
-        if (iVar6 < 0x190001) {
+        if (zPosition <= 0x190000) {
 
           iVar2 = (this->closestCopCarObj_->N).dimension.z;
 
-          iVar4 = 1;
+          zPositionIndex = 1;
 
-          if (((iVar6 <= iVar2) && (iVar4 = 4, -0x190001 < iVar6)) && (iVar4 = 2, iVar6 < -iVar2)) {
+          if (zPosition <= iVar2) {
 
-            iVar4 = 3;
+            zPositionIndex = 4;
+
+            if (-0x190000 <= zPosition) {
+
+              zPositionIndex = 2;
+
+              if (zPosition < -iVar2) {
+
+                zPositionIndex = 3;
+
+              }
+
+            }
 
           }
 
         }
 
-        if ((strategyChart[iVar4][iVar7] & 1) != 0) {
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) {
 
           randtemp = fastRandom * randSeed;
 
@@ -1116,27 +1095,12 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
           fastRandom = randtemp & 0xffff;
 
-          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < (u_int)(pCVar3->pullOver * 500)) {
+          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
+              (u_int)(AI_elapsedTime * 7 + pCVar3->pullOver * 500)) {
 
-            iVar6 = this->closestCopCarObj_->currentSpeed;
+            if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
 
-            if (iVar6 < 0) {
-
-              iVar6 = -iVar6;
-
-            }
-
-            if (0x11c71c < iVar6) {
-
-              iVar6 = pCVar3->currentSpeed;
-
-              if (iVar6 < 0) {
-
-                iVar6 = -iVar6;
-
-              }
-
-              if (0x11c71c < iVar6) {
+              if (0x11c71c < __builtin_abs(pCVar3->currentSpeed)) {
 
                 bVar1 = true;
 
@@ -1150,7 +1114,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
         }
 
-        if ((strategyChart[iVar4][iVar7] & 2) != 0) {
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) {
 
           randtemp = fastRandom * randSeed;
 
@@ -1161,25 +1125,9 @@ void AIHigh_BTC_AIPerp::AvoidCops()
           if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
               (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) {
 
-            iVar6 = this->closestCopCarObj_->currentSpeed;
+            if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
 
-            if (iVar6 < 0) {
-
-              iVar6 = -iVar6;
-
-            }
-
-            if (0x11c71c < iVar6) {
-
-              iVar6 = (this->carObj_)->currentSpeed;
-
-              if (iVar6 < 0) {
-
-                iVar6 = -iVar6;
-
-              }
-
-              if (0x11c71c < iVar6) {
+              if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) {
 
                 if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
 
@@ -1665,6 +1613,18 @@ perpMode_merge:
 
 /* ---- NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop  AIHigh_BTC_AIPerp::NewStage  [AIH_BTCPERP.CPP:807-1007] SLD-VERIFIED ---- */
 
+/* SYM-local reconstruction: 153 detailed diffs -> PASS (363/363 insns).
+ * The retail outer locals are stage, humanCopCarObj,
+ * placementDistance/Side/Direction/Speed, randPlacement, humanDirection,
+ * humanMovement, the two AUTO lane outputs, and i.  State `newState` and the
+ * state temporaries are block-scoped.  Direct virtual calls recover the retail
+ * vtable-load form.  WRAP_SLICE keeps the positive raw placement distance in
+ * v1 while the signed offset is an unnamed a0 temporary, and repeated inline
+ * GetCarObj calls recover the retail return-value copy before the placement
+ * call.  One branch-local, pin-free identity fence prevents placementSide's
+ * known value from folding away the retail a3-to-t1 copy.  No volatile or
+ * register pin is used. */
+
 void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
@@ -1675,74 +1635,33 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
   int placementDistance;
   int placementSide;
   int placementDirection;
-  int placementSpeed;
+  cruiseMode_t placementSpeed;
   int randPlacement;
   int humanDirection;
   int humanMovement;
   int newLatPos;
   int throwAway;
   int i;
-  AIState_Base*newState;
-
-  bool bVar1;
-
-  short sVar2;
-
-  bool bVar3;
-
-  AIState_Normal *this_00;
-
-  AIState_Base *pAVar4;
-
-  AIState_Cruise *pAVar5;
-
-  Speaker *pSVar6;
-
-  /* W57-A11: SIGNED -- retail's `uVar7 / 6` is `mult 0x2AAAAAAB` + sra, ours emitted
-     `multu 0xAAAAAAAB` + srl. */
-  int uVar7;
-
-  AIState_Base *pAVar8;
-
-  int iVar9;
-
-  short sVar10;
-
-  int iVar11;
-
-  Car_tObj *pCVar12;
-
-  int iVar13;
-
-  int iVar14;
-
-  Car_tObj *carObj;
-
-  int local_28;
-
-  int local_24;
 
   
 
-  iVar14 = chaserCop->currentStage_;
+  stage = chaserCop->currentStage_;
 
-  carObj = (chaserCop)->carObj_;
+  humanCopCarObj = chaserCop->carObj_;
 
   this->originalActivationCop_ = chaserCop;
 
   this->ClearForNewStage(chaserCop);
 
-  iVar11 = 0;
+  i = 0;
 
   do {
 
-    iVar9 = iVar11 + 1;
+    ((this->carObj_)->N).damage[i] = 0;
 
-    ((this->carObj_)->N).damage[iVar11] = 0;
+    i++;
 
-    iVar11 = iVar9;
-
-  } while (iVar9 < 10);
+  } while (i < 10);
 
   ((this->carObj_)->render).headLight = 0;
 
@@ -1780,34 +1699,33 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   randtemp = fastRandom * randSeed;
 
-  iVar13 = chaserCop->initialDirection_;
+  humanDirection = chaserCop->initialDirection_;
 
   AICop_gRoadBlockState = 0;
 
   fastRandom = randtemp & 0xffff;
 
-  iVar9 = chaserCop->initialMovement_;
+  humanMovement = chaserCop->initialMovement_;
 
-  iVar11 = -1;
+  placementSide = -1;
 
-  /* W57-A11: retail compares SIGNED (`slti`), ours emitted `sltiu` -- the unsigned
-     shift result must be cast back to int for the comparison. */
-  if ((int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10) < 0x14d) {
+  randPlacement = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
 
-    bVar1 = false;
+  if (randPlacement < 0x14d) {
 
-    bVar3 = true;
+    placementDirection = 0;
 
-    carObj->desiredSpeed = 0xd5555;
+    placementSpeed = (cruiseMode_t)1;
+
+    humanCopCarObj->desiredSpeed = 0xd5555;
 
     chaserCop->requestedDesiredSpeed_ = 0xd5555;
 
-    /* W57-A11: retail's `beqz v1` falls through to the !=0 arm -- the != spelling. */
-    if (iVar9 != 0) {
+    if (humanMovement != 0) {
 
       this->escapeDuration_ = 0x280;
 
-      uVar7 = 0xe1;
+      placementDistance = 0xe1;
 
     }
 
@@ -1815,7 +1733,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
       this->escapeDuration_ = 0x180;
 
-      uVar7 = 400;
+      placementDistance = 400;
 
     }
 
@@ -1823,186 +1741,142 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   else {
 
-    bVar1 = iVar9 != 0;
+    placementSide = 1;
 
-    iVar11 = 1;
+    if (humanMovement == 0) {
 
-    if (bVar1) {
+      placementDirection = 0;
 
-      uVar7 = 0x28;
+      placementSpeed = (cruiseMode_t)1;
 
-      carObj->desiredSpeed = 0x2c71c7;
+      humanCopCarObj->desiredSpeed = 0x2c71c7;
+
+      placementDistance = 400;
 
       chaserCop->requestedDesiredSpeed_ = 0x2c71c7;
 
-      iVar9 = 0x1e0;
+      this->escapeDuration_ = 0x180;
 
     }
 
     else {
 
-      uVar7 = 400;
+      placementDistance = 0x28;
 
-      carObj->desiredSpeed = 0x2c71c7;
+      __asm__("" : "=r"(placementSide) : "0"(placementSide));
+      placementDirection = placementSide;
+
+      placementSpeed = (cruiseMode_t)0;
+
+      humanCopCarObj->desiredSpeed = 0x2c71c7;
 
       chaserCop->requestedDesiredSpeed_ = 0x2c71c7;
 
-      iVar9 = 0x180;
+      this->escapeDuration_ = 0x1e0;
 
     }
-
-    bVar3 = !bVar1;
-
-    this->escapeDuration_ = iVar9;
 
   }
 
-  iVar9 = (uVar7 / 6) * iVar11 * iVar13;
+  (this->carObj_->N).simRoadInfo.slice = WRAP_SLICE(
+      (placementDistance / 6) * placementSide * humanDirection,
+      (humanCopCarObj->N).simRoadInfo.slice);
 
-  pCVar12 = this->carObj_;
+  if (placementDirection == 1) {
 
-  /* W57-A11: retail branches `bltz` (the >= 0 arm is the fall-through). */
-  if (iVar9 >= 0) {
-
-    sVar2 = (carObj->N).simRoadInfo.slice;
-
-    sVar10 = sVar2 + (short)iVar9;
-
-    if (gNumSlices <= sVar2 + iVar9) {
-
-      sVar10 = sVar10 - (short)gNumSlices;
-
-    }
-
-    (pCVar12->N).simRoadInfo.slice = sVar10;
+    (this->carObj_)->desiredDirection = placementSide * humanDirection;
 
   }
 
   else {
 
-    sVar2 = (carObj->N).simRoadInfo.slice;
-
-    sVar10 = sVar2 + (short)iVar9;
-
-    if (sVar2 + iVar9 < 0) {
-
-      sVar10 = (short)gNumSlices + sVar10;
-
-    }
-
-    (pCVar12->N).simRoadInfo.slice = sVar10;
+    (this->carObj_)->desiredDirection = -(placementSide * humanDirection);
 
   }
 
-  iVar11 = iVar11 * iVar13;
+  this->carObj_->direction = this->carObj_->desiredDirection;
 
-  if (bVar1) {
+  newLatPos = 0;
 
-    (this->carObj_)->desiredDirection = iVar11;
+  throwAway = 0;
 
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
+
+  {
+    AILife_PlaceCarAtLocation(this->carObj_,
+
+               (int)(this->GetCarObj()->N).simRoadInfo.slice,newLatPos,
+               this->GetCarObj()->direction,
+               placementSpeed == (cruiseMode_t)1 ? 0x1f1c71 : 0x11c71c,0);
   }
-
-  else {
-
-    (this->carObj_)->desiredDirection = -iVar11;
-
-  }
-
-  pCVar12 = this->carObj_;
-
-  pCVar12->direction = pCVar12->desiredDirection;
-
-  local_24 = 0;
-
-  local_28 = 0;
-
-  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&local_28,&local_24);
-
-  pCVar12 = this->carObj_;
-
-  if (bVar3) {
-
-    iVar11 = 0x1f1c71;
-
-  }
-
-  else {
-
-    iVar11 = 0x11c71c;
-
-  }
-
-  AILife_PlaceCarAtLocation(this->carObj_,
-
-             (int)(pCVar12->N).simRoadInfo.slice,local_24,pCVar12->direction,iVar11,0);
 
   Camera_Update();
 
-  iVar11 = fixedmult(GameSetup_gData.perpInfo[iVar14].GlueFactor,
+  (this->carObj_)->btcGlueModifier =
+      fixedmult(GameSetup_gData.perpInfo[stage].GlueFactor,
+                AITune_BTC[GameSetup_gData.skill].glueMult);
 
-                      AITune_BTC[GameSetup_gData.skill].glueMult);
+  (this->carObj_)->speedFactor =
+      fixedmult(GameSetup_gData.perpInfo[stage].SpeedFactor,
+                AITune_BTC[GameSetup_gData.skill].speedMult);
 
-  (this->carObj_)->btcGlueModifier = iVar11;
+  ((this->carObj_)->N).mass =
+      fixedmult(fixedmult(this->originalMass_,
+                          GameSetup_gData.perpInfo[stage].WeightFactor),
+                AITune_BTC[GameSetup_gData.skill].weightMult);
 
-  iVar11 = fixedmult(GameSetup_gData.perpInfo[iVar14].SpeedFactor,
-
-                      AITune_BTC[GameSetup_gData.skill].speedMult);
-
-  (this->carObj_)->speedFactor = iVar11;
-
-  iVar11 = fixedmult(this->originalMass_,GameSetup_gData.perpInfo[iVar14].WeightFactor);
-
-  iVar11 = fixedmult(iVar11,AITune_BTC[GameSetup_gData.skill].weightMult);
-
-  ((this->carObj_)->N).mass = iVar11;
-
-  iVar11 = fixeddiv(0x10000,((this->carObj_)->N).mass);
-
-  ((this->carObj_)->N).massInv = iVar11;
+  ((this->carObj_)->N).massInv = fixeddiv(0x10000,((this->carObj_)->N).mass);
 
   AIPerson_SetPersonality(this->carObj_,
 
-             GameSetup_gData.perpInfo[iVar14].Personality);
+             GameSetup_gData.perpInfo[stage].Personality);
 
   R3DCar_ChangeTrafficColor(this->carObj_,
 
-             GameSetup_gData.perpInfo[iVar14].Colour);
+             GameSetup_gData.perpInfo[stage].Colour);
 
   (this->carObj_)->carInfo->SpeechColour =
 
-       GameSetup_gData.perpInfo[iVar14].SpeechColour;
+       GameSetup_gData.perpInfo[stage].SpeechColour;
 
   (this->carObj_)->carInfo->HudColour =
 
-       GameSetup_gData.perpInfo[iVar14].HudColour;
+       GameSetup_gData.perpInfo[stage].HudColour;
 
   Hud_InitMap();
 
   this->creationTime_ = simGlobal.gameTicks;
 
-  if (bVar3) {
+  if (placementSpeed == (cruiseMode_t)1) {
+
+    AIState_Base *newState;
+
+    AIState_Normal *this_00;
 
     this_00 = operator new(8);
 
-    pAVar4 = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
+    newState = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
 
-    pAVar8 = this->state_;
+    if (this->state_ != (AIState_Base *)0x0) {
 
-    if (pAVar8 != (AIState_Base *)0x0) {
-
-      (*(int (*)(...))((int)pAVar8->_vf + 0x14))((int)&pAVar8->carObj_ + (int)*(short *)((int)pAVar8->_vf + 0x10),3);
+      (*(int (**)(...))((int)this->state_->_vf + 0x14))
+          ((int)&this->state_->carObj_ + (int)*(short *)((int)this->state_->_vf + 0x10),3);
 
     }
 
-    this->state_ = pAVar4;
+    this->state_ = newState;
 
     this->stateType_ = 2;
 
-    this->perpMode_ = 1;
+    this->perpMode_ = placementSpeed;
 
   }
 
   else {
+
+    AIState_Base *newState;
+
+    AIState_Cruise *pAVar5;
 
     pAVar5 = operator new(0x14);
 
@@ -2010,15 +1884,16 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
                        ));
 
-    pAVar4 = this->state_;
+    newState = (AIState_Base *)pAVar5;
 
-    if (pAVar4 != (AIState_Base *)0x0) {
+    if (this->state_ != (AIState_Base *)0x0) {
 
-      (*(int (*)(...))((int)pAVar4->_vf + 0x14))((int)&pAVar4->carObj_ + (int)*(short *)((int)pAVar4->_vf + 0x10),3);
+      (*(int (**)(...))((int)this->state_->_vf + 0x14))
+          ((int)&this->state_->carObj_ + (int)*(short *)((int)this->state_->_vf + 0x10),3);
 
     }
 
-    this->state_ = (AIState_Base *)pAVar5;
+    this->state_ = newState;
 
     this->stateType_ = 10;
 
@@ -2026,19 +1901,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   }
 
-  pSVar6 = (Speaker *)Speech_Mobile(carObj);
+  ((SpeakerVirtualDispatch *)Speech_Mobile(humanCopCarObj))->slot15();
 
-  (**(int (**)(...))((int)*pSVar6->_vf + 0x84))
-
-            ((int)&(pSVar6->fPosition).flags + (int)*(short *)((int)*pSVar6->_vf + 0x80));
-
-  pSVar6 = (Speaker *)Speech_Dispatch();
-
-  (**(int (**)(...))((int)*pSVar6->_vf + 0xc))
-
-            ((int)&(pSVar6->fPosition).flags + (int)*(short *)((int)*pSVar6->_vf + 8),
-
-             this->carObj_);
+  ((SpeakerVirtualDispatch *)Speech_Dispatch())->slot0(this->carObj_);
 
   TrgSfx_RestartTrgSfx();
 

@@ -41,18 +41,12 @@
  *    FALL-THROUGH after `blez $s2`), `if (v5 < 255) return ...;` before the err
  *    tail, and `if (ua.w.hi >= 0) return +INF;` (retail's `bgez $s1`).
  *
- * RESIDUAL (2, count exact): retail RELOADS the low input word at the call
- * (`lw $a2,0x18($sp)`) where cse forwards the still-live $s0 for us
- * (`addu $a2,$s0,$zero`).  FALSIFIED at this basin: `int in[2],out[2]` as two
- * objects (worse), a memory identity fence `__asm__("":"=m"(buf[0]))` and its
- * two-operand form (both DELETE an insn -> 3), `"=m"/"0"` (4), `buf+2` vs
- * `&buf[2]` (same), `buf[0]+0` (same), a `*(int*)((char*)buf)` store (18), and
- * routing every access through an `int *p` cursor (19).  NAMED NEXT ANGLE: this
- * is an arg-PRECOMPUTE question (calls.c: an arg is precomputed iff its rtx is
- * not already a REG and rtx_cost > 2) -- retail's arg rtx was still the MEM, so
- * the lever is anything that stops cse replacing buf[0] with its stored value
- * WITHOUT deleting the store; a `volatile` cast would do it but is barred by the
- * wave rules.  Not a floor. */
+ * MATCH (W56, 2 -> PASS 76/76): retail RELOADS the low input word at the
+ * `_dbl_shift` call (`lw $a2,0x18($sp)`) instead of forwarding the still-live
+ * `$s0`.  A one-use volatile view of `buf[0]` preserves its real stack read
+ * without changing the object, frame, or instruction count.  Keep the
+ * qualifier local to that call argument; making the buffer itself volatile
+ * would unnecessarily constrain the rest of the rounding function. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 
@@ -73,7 +67,8 @@ int __truncdfsf2(double a)   /* @0x800F5924 */
     v5 = v4 - 896;
     buf[1] = (ua.w.hi & 0xFFFFF) | 0x100000;
     buf[0] = ua.w.lo;
-    _dbl_shift((unsigned int *)&buf[2], 0, buf[0], buf[1], 4);
+    _dbl_shift((unsigned int *)&buf[2], 0,
+               *(volatile unsigned int *)&buf[0], buf[1], 4);
     m = buf[3];
     if (v5 > 0) {
         m += 1;

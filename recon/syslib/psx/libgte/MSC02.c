@@ -18,6 +18,70 @@
 
 #if defined(__mips__)
 
+/* 2026-08-14 W59-A18 STRICT-BRANCH AUDIT FIX: the four __asm__ blocks were emitted in
+ * the WRONG intra-TU order (kernel first), landing all four fns at wrong VAs and
+ * mis-encoding VectorNormalS's cross-function `b` word (10000004 vs retail 10000010).
+ * Retail order restored: VectorNormalS @+0x00, VectorNormal @+0x14, VectorNormalSS
+ * @+0x44, _VectorNormalSS_kernel @+0x74.  Block contents unchanged.  Proven byte-exact
+ * by scratchpad/w59a18/ reassembly.  The gate is branch-target lenient and cannot see
+ * this class; caught by strict_branch.py (the only defect in 3257 PASS fns). */
+
+/* @0x800F1AC8 : VectorNormalS -- int VECTOR in, short SVECTOR out.  Loads the vector as int,
+ * then BRANCHES into VectorNormalSS's shared store-as-short tail (the oracle is just 5 insns:
+ * 3x lw + b + nop -- it reuses VectorNormalSS's $a3/jal/sh body). */
+__asm__(
+    "\t.set\tnoreorder\n"
+    "\t.set noreorder\n"
+    "\t.globl VectorNormalS\n"
+    "VectorNormalS:\n"
+    "\tlw    $t0, 0($a0)\n"
+    "\tlw    $t1, 4($a0)\n"
+    "\tlw    $t2, 8($a0)\n"
+    "\tb     .L_vecnormSS_tail\n"             /* -> VectorNormalSS's save-ra/jal/store-short body */
+    "\t nop\n"
+    "\t.set	pop\n");
+
+/* @0x800F1ADC : VectorNormal -- int VECTOR in, int VECTOR out. */
+__asm__(
+    "\t.set\tnoreorder\n"
+    "\t.set noreorder\n"
+    "\t.globl VectorNormal\n"
+    "VectorNormal:\n"
+    "\tlw    $t0, 0($a0)\n"
+    "\tlw    $t1, 4($a0)\n"
+    "\tlw    $t2, 8($a0)\n"
+    "\taddu  $a3, $ra, $zero\n"             /* save ra in $a3 (handwritten, no stack) */
+    "\tjal   _VectorNormalSS_kernel\n"
+    "\t nop\n"
+    "\tsw    $t0, 0($a1)\n"
+    "\tsw    $t1, 4($a1)\n"
+    "\tsw    $t2, 8($a1)\n"
+    "\taddu  $ra, $a3, $zero\n"             /* restore ra */
+    "\tjr    $ra\n"
+    "\t nop\n"
+    "\t.set	pop\n");
+
+/* @0x800F1B0C : VectorNormalSS -- short SVECTOR in, short SVECTOR out. */
+__asm__(
+    "\t.set\tnoreorder\n"
+    "\t.set noreorder\n"
+    "\t.globl VectorNormalSS\n"
+    "VectorNormalSS:\n"
+    "\tlh    $t0, 0($a0)\n"
+    "\tlh    $t1, 2($a0)\n"
+    "\tlh    $t2, 4($a0)\n"
+    ".L_vecnormSS_tail:\n"                    /* VectorNormalS branches here (shared tail) */
+    "\taddu  $a3, $ra, $zero\n"
+    "\tjal   _VectorNormalSS_kernel\n"
+    "\t nop\n"
+    "\tsh    $t0, 0($a1)\n"
+    "\tsh    $t1, 2($a1)\n"
+    "\tsh    $t2, 4($a1)\n"
+    "\taddu  $ra, $a3, $zero\n"
+    "\tjr    $ra\n"
+    "\t nop\n"
+    "\t.set	pop\n");
+
 /* @0x800F1B3C : GTE unit-normalise worker.  In: v in $t0,$t1,$t2.  Out: scaled v in $t0,$t1,$t2;
  * $v0 = |v|^2.  Handwritten (GTE + trapping arith + private regs). */
 __asm__(
@@ -74,62 +138,6 @@ __asm__(
     "\tsrav  $t0, $t0, $t6\n"               /* >> shift */
     "\tsrav  $t1, $t1, $t6\n"
     "\tsrav  $t2, $t2, $t6\n"
-    "\tjr    $ra\n"
-    "\t nop\n"
-    "\t.set	pop\n");
-
-/* @0x800F1ADC : VectorNormal -- int VECTOR in, int VECTOR out. */
-__asm__(
-    "\t.set\tnoreorder\n"
-    "\t.set noreorder\n"
-    "\t.globl VectorNormal\n"
-    "VectorNormal:\n"
-    "\tlw    $t0, 0($a0)\n"
-    "\tlw    $t1, 4($a0)\n"
-    "\tlw    $t2, 8($a0)\n"
-    "\taddu  $a3, $ra, $zero\n"             /* save ra in $a3 (handwritten, no stack) */
-    "\tjal   _VectorNormalSS_kernel\n"
-    "\t nop\n"
-    "\tsw    $t0, 0($a1)\n"
-    "\tsw    $t1, 4($a1)\n"
-    "\tsw    $t2, 8($a1)\n"
-    "\taddu  $ra, $a3, $zero\n"             /* restore ra */
-    "\tjr    $ra\n"
-    "\t nop\n"
-    "\t.set	pop\n");
-
-/* @0x800F1AC8 : VectorNormalS -- int VECTOR in, short SVECTOR out.  Loads the vector as int,
- * then BRANCHES into VectorNormalSS's shared store-as-short tail (the oracle is just 5 insns:
- * 3x lw + b + nop -- it reuses VectorNormalSS's $a3/jal/sh body). */
-__asm__(
-    "\t.set\tnoreorder\n"
-    "\t.set noreorder\n"
-    "\t.globl VectorNormalS\n"
-    "VectorNormalS:\n"
-    "\tlw    $t0, 0($a0)\n"
-    "\tlw    $t1, 4($a0)\n"
-    "\tlw    $t2, 8($a0)\n"
-    "\tb     .L_vecnormSS_tail\n"             /* -> VectorNormalSS's save-ra/jal/store-short body */
-    "\t nop\n"
-    "\t.set	pop\n");
-
-/* @0x800F1B0C : VectorNormalSS -- short SVECTOR in, short SVECTOR out. */
-__asm__(
-    "\t.set\tnoreorder\n"
-    "\t.set noreorder\n"
-    "\t.globl VectorNormalSS\n"
-    "VectorNormalSS:\n"
-    "\tlh    $t0, 0($a0)\n"
-    "\tlh    $t1, 2($a0)\n"
-    "\tlh    $t2, 4($a0)\n"
-    ".L_vecnormSS_tail:\n"                    /* VectorNormalS branches here (shared tail) */
-    "\taddu  $a3, $ra, $zero\n"
-    "\tjal   _VectorNormalSS_kernel\n"
-    "\t nop\n"
-    "\tsh    $t0, 0($a1)\n"
-    "\tsh    $t1, 2($a1)\n"
-    "\tsh    $t2, 4($a1)\n"
-    "\taddu  $ra, $a3, $zero\n"
     "\tjr    $ra\n"
     "\t nop\n"
     "\t.set	pop\n");

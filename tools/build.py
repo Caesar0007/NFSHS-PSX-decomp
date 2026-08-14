@@ -1601,6 +1601,10 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
 # (it is exactly what PER_FN_CC1_VER_SPLICE_272 exists for in the 272 lane).
 PER_FN_CC1_VER_SPLICE = {
     # "recon/syslib/psx/libmath/MULDF3.c": {"2.7.2": {"_mul_mant_d"}},  # 14->19
+    # w60 orchestrator (A4 ladder + A5 mechanism): cdread.c whole-TU 2.8.1 is
+    # 81<87 but costs _read_data_int's PASS.  Per-fn pricing on the 2.8.1 rung:
+    # _read_int 21->15, _read_issue 23->22, CdRead 43->45 (worse -- stays 2.8.0).
+    "recon/syslib/psx/libcd/cdread.c": {"2.8.1": {"_read_int", "_read_issue"}},
 }
 
 

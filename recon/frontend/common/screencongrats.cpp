@@ -403,13 +403,6 @@ void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand 
   return;
 }
 
-/* ---- tScreenCongrats::~tScreenCongrats  (screencongrats.cpp:109) ---- */
-tScreenCongrats::~tScreenCongrats()
-
-{
-  return;
-}
-
 /* ---- tScreenPinkSlipCongrats::DrawCongratsMessage  (screencongrats.cpp:432) ---- */
 void tScreenPinkSlipCongrats::DrawCongratsMessage()
 
@@ -547,13 +540,6 @@ void tScreenPinkSlipCongrats::Cleanup()
   
   CleanupSpinningCarsMenu();
   this->Cleanup();
-  return;
-}
-
-/* ---- tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats  (screencongrats.cpp:141) ---- */
-tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats()
-
-{
   return;
 }
 
@@ -805,13 +791,6 @@ prizes_done:
   return;
 }
 
-/* ---- tScreenTournamentTrophy::~tScreenTournamentTrophy  (screencongrats.cpp:126) ---- */
-tScreenTournamentTrophy::~tScreenTournamentTrophy()
-
-{
-  return;
-}
-
 /* ---- tScreenBeTheCopCongrats::GetCar  (screencongrats.cpp:746) ---- */
 int tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 
@@ -875,13 +854,6 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   copWord = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   sprintf(buffer,fmt,copWord);
   FETextRender_WordWrapText(buffer,r,fade,textType_PostGame);   /* MATCH: pass buffer (addr held in s0 across sprintf, 3.12#16), NOT sprintf's return */
-  return;
-}
-
-/* ---- tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats  (screencongrats.cpp:151) ---- */
-tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats()
-
-{
   return;
 }
 
@@ -962,6 +934,34 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
 
 /* ---- tScreenTournamentCongrats::~tScreenTournamentCongrats  (screencongrats.cpp:161) ---- */
 tScreenTournamentCongrats::~tScreenTournamentCongrats()
+
+{
+  return;
+}
+
+/* ---- tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats  (screencongrats.cpp:151) ---- */
+tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats()
+
+{
+  return;
+}
+
+/* ---- tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats  (screencongrats.cpp:141) ---- */
+tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats()
+
+{
+  return;
+}
+
+/* ---- tScreenTournamentTrophy::~tScreenTournamentTrophy  (screencongrats.cpp:126) ---- */
+tScreenTournamentTrophy::~tScreenTournamentTrophy()
+
+{
+  return;
+}
+
+/* ---- tScreenCongrats::~tScreenCongrats  (screencongrats.cpp:109) ---- */
+tScreenCongrats::~tScreenCongrats()
 
 {
   return;

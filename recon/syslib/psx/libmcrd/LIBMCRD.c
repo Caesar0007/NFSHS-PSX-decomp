@@ -1566,6 +1566,7 @@ extern long MemCardFormat(long chan)
 extern long MemCardUnformat(long chan)
 {
     signed char buf[128];
+    signed char fill;
     int  blk;
     long c;
     int *base = &mc.cmd;
@@ -1585,31 +1586,64 @@ extern long MemCardUnformat(long chan)
      * MATCH: the fill loop counts DOWN (`addiu $s0,$s0,-1; bgez` off a walking `addiu $v0,$v0,-1`
      * pointer seeded at `&buf[127]` = `$sp+0x8F`) and stores the byte as -1, not 0xFF
      * (`addiu $v1,$zero,-1`; a 0xFF constant on this unsigned-char build emits `li 255`). */
+    /* 🏆 MATCH (w60-a2, 3 -> PASS 45/45): THE OUT-OF-LINE RETURN-0 BLOCK, placed HERE.
+     * Retail's failure exit is a standalone 2-insn block sitting between the busy-guard's
+     * `return -1` and the fill loop -- `.L800FC0A4: j <epilogue>; addu $v0,$zero,$zero`
+     * (the zero IS the j's delay slot) -- and the loop's `bnez $v0,.L800FC0A4` fills its OWN
+     * slot with the unconditional `addiu $s0,$s0,1`.  Ours had no such block: with the
+     * `return 0;` written inline in the loop, gcc laid its landing pad directly ON the
+     * epilogue, the `j` folded away, and reorg then STOLE the bare `addu $v0,$zero,$zero`
+     * into the bnez slot (1 insn shorter than retail, 3 diffs).
+     * MECHANISM (why placement is the whole lever): reorg processes the unconditional `j`
+     * FIRST and fills its slot with the preceding `addu`, turning the block into a SEQUENCE;
+     * `stop_search_p` then refuses to search a thread that starts with a SEQUENCE/JUMP_INSN,
+     * so the later `bnez` can no longer steal from it and falls back to a plain backward fill
+     * (the `blk++`).  A landing pad ADJACENT to the epilogue has no `j` to protect it.  The
+     * `if (0) { failed: ... }` wrapper is a ZERO-INSN placement device -- gcc drops the dead
+     * branch but keeps the labelled block at THIS point in the RTL, which is exactly the
+     * "zero-insn de-merger that is NOT a scheduling barrier" the w52-a6 named angle asked
+     * for.  (The falsified alternatives are receipted at the `goto failed` below.)
+     * DO NOT "simplify" this back to an inline `return 0;` -- it silently re-merges. */
+    if (0) {
+failed:
+        return 0;
+    }
+
     /* the parm copy is retail's beqz DELAY-SLOT filler (eager steal of the guard target's
      * first insn), not a prologue copy -- an opacity-fenced copy at the block head sinks it */
     c = chan;
     __asm__ __volatile__("" : "=r"(c) : "0"(c));
 
     /* ONE counter serves both loops (retail keeps both in $s0) -- a separate `i` gets its own
-     * caller-saved pseudo and the fill loop then runs in $v1 instead. */
+     * caller-saved pseudo and the fill loop then runs in $v1 instead.
+     * MATCH (w60-a2, 5 -> 3): the fill BYTE is a NAMED LOCAL assigned before the loop, not the
+     * literal `buf[blk] = -1`.  Retail materializes the -1 BEFORE the counter
+     * (`addiu $v1,$zero,-1; addiu $s0,$zero,0x7F`); with the literal in the loop body the -1 is
+     * a loop INVARIANT that loop.c hoists into the preheader AFTER the for-init, giving the
+     * reversed `li $s0,127; li $v1,-1` (2 diffs).  A plain preceding assignment emits it as an
+     * ordinary statement, i.e. first. */
+    fill = -1;
     for (blk = 127; blk >= 0; blk--)
-        buf[blk] = -1;
+        buf[blk] = fill;
 
     blk = 0;
     do {
         _clr_card_event();
         _new_card();
         _card_write(c, blk, buf);
-        /* MATCH-ANGLE (w52-a6, 5-diff residual, ours 44 / oracle 45): retail branches to an
-         * OUT-OF-LINE `j epilogue; addu $v0,$zero,$zero` block and fills the `bnez` slot with
-         * the unconditional `blk++`; ours eager-steals the return-0 constant into the slot and
-         * branches straight to the epilogue (1 insn shorter).  Falsified this wave:
+        /* the failure exit jumps to the out-of-line `failed:` block placed ABOVE (see the big
+         * receipt there -- that placement is what puts retail's `addiu $s0,$s0,1` in this
+         * bnez's delay slot instead of an eager-stolen return-0).  Falsified w52-a6 in the
+         * inline-`return 0` basin, kept for the record:
          *   opacity-fenced `long r = 0; return r;` ....... 7 (block materializes but the
          *                                                    fence barrier nops the j slot)
          *   increment written BEFORE the test ............ 8 (43 insns, loses 2 elsewhere)
-         * NAMED ANGLE: a zero-insn de-merger that is NOT a scheduling barrier. */
+         * w60-a2 additionally falsified, all in the post-`fill` 3-diff basin, all 272 lane:
+         *   -fno-delayed-branch splice ................... 12   -fno-strength-reduce ..... 11
+         *   -fno-schedule-insns2 splice ..................  7   -fno-schedule-insns ......  3
+         *   -fno-thread-jumps ............................  3 */
         if (_get_card_event_x() != 0)
-            return 0;
+            goto failed;
         blk = blk + 1;
     } while (blk < 0xf);
     return 1;

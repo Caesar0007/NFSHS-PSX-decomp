@@ -52,6 +52,21 @@ int   StStartFrame     ST_BSS;   /* @0x80146CC0 : first frame to play           
 extern void StSetMask(u_long mask, u_long start_frame, u_long end_frame); /* C_010 @0x8010885C */
 extern int  init_ring_status(int base, unsigned count);                  /* C_008 @0x80108758 */
 
+/* @0x800F8968 (C_002) : reset the ring (indices, flags, per-slot status).
+ * W60-A4: moved FIRST -- retail VA order is StClearRing @0x800F8968 <
+ * StSetStream @0x800F8FF8 < StSetRing @0x800F99F8. */
+extern void StClearRing(void)
+{
+    StRingIdx3    = 0;
+    StRingIdx2    = 0;
+    StRingIdx1    = 0;
+    StFinalSector = 0;
+    init_ring_status(0, (unsigned)StRingSize);
+    StCdIntrFlag    = 0;
+    Stsector_offset = 0;
+    Stframe_no      = 0;
+}
+
 /* @0x800F8FF8 (C_005) : arm a streaming read. */
 extern void StSetStream(u_long mode, u_long start_frame, u_long end_frame,
                             void (*func1)(), void (*func2)())
@@ -65,19 +80,6 @@ extern void StSetStream(u_long mode, u_long start_frame, u_long end_frame,
     Stsector_offset = 0;
     Stframe_no      = 0;
     StFunc2         = (int)func2;
-}
-
-/* @0x800F8968 (C_002) : reset the ring (indices, flags, per-slot status). */
-extern void StClearRing(void)
-{
-    StRingIdx3    = 0;
-    StRingIdx2    = 0;
-    StRingIdx1    = 0;
-    StFinalSector = 0;
-    init_ring_status(0, (unsigned)StRingSize);
-    StCdIntrFlag    = 0;
-    Stsector_offset = 0;
-    Stframe_no      = 0;
 }
 
 /* @0x800F99F8 (CDROM) : install the caller's ring buffer and clear it. */

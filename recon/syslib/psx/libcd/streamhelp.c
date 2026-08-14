@@ -51,6 +51,22 @@ extern void data_ready_callback(void);
 extern int  DsReadyCallback(int func);
 extern int  DsDataCallback(int func);
 
+/* @0x800F8EC8 (C_003) : remove the streaming callbacks and quiesce the drive. */
+extern void StUnSetRing(void)
+{
+    EnterCriticalSection();
+    if (DS_active == 1) {
+        DsDataCallback(0);
+        DsReadyCallback(0);
+    } else {
+        CdDataCallback(0);
+        CdReadyCallback(0);
+    }
+    *_un_cd_idx  = 0;     /* CDREG0 = 0 */
+    *_un_cd_reg3 = 0;     /* CDREG3 = 0 */
+    ExitCriticalSection();
+}
+
 /* @0x800F9A28 (C_009) : if the next frame is decoded, return its data + header; else return 1. */
 extern u_long StGetNext(u_long **addr, u_long **header)
 {
@@ -183,19 +199,3 @@ extern void StSetMask(u_long mask, u_long start_frame, u_long end_frame)
  * libds.lib(DSCB.OBJ) -> defined in syslib/psx/libds/DSCB.cpp.  They were duplicated
  * here originally; removed to avoid a multiple-definition link conflict.  The extern
  * decls above keep the calls below resolving against the libds definitions. */
-
-/* @0x800F8EC8 (C_003) : remove the streaming callbacks and quiesce the drive. */
-extern void StUnSetRing(void)
-{
-    EnterCriticalSection();
-    if (DS_active == 1) {
-        DsDataCallback(0);
-        DsReadyCallback(0);
-    } else {
-        CdDataCallback(0);
-        CdReadyCallback(0);
-    }
-    *_un_cd_idx  = 0;     /* CDREG0 = 0 */
-    *_un_cd_reg3 = 0;     /* CDREG3 = 0 */
-    ExitCriticalSection();
-}

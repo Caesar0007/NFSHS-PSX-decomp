@@ -57,130 +57,11 @@ extern void init_ring_status(int base, unsigned count); /* C_008 @0x80108758 */
 extern void data_ready_callback(void);                 /* C_004 @0x80108798 */
 extern int  printf(const char *, ...);                  /* libc C63 @0x801028AC */
 
-/* @0x800F8794 : copy `num` 32-bit words src -> dst.  (4th arg present in the original signature
- *   but unused -- callers pass a trailing 0 / 1; reproduced so the call-site stack layout matches.) */
-extern void _st_copy_words(int *dst, int *src, unsigned num, int arg3)
-{
-    /* MATCH (w51-a4, cc1_272 lane): a counted `for (i = 0; i < num; i++)` makes gcc-2.7.2
-     * reserve an 8-byte `vars` frame on every such loop (`.frame $sp,8` -> subu/addu $sp),
-     * where the oracle is frameless.  Guard-then-goto is frameless and reproduces the
-     * oracle byte-for-byte (`beqz num` with `i=0` in the slot; bottom `sltu`/`bnez` with
-     * `addiu a0,a0,4` in ITS slot).  Lane-neutral: still PASSes on the 2.8 lane. */
-    unsigned i = 0;
-    (void)arg3;
-    if (num == 0)
-        return;
-loop:
-    *dst++ = *src++;
-    i++;
-    if (i < num)
-        goto loop;
-}
-
-/* @0x800F87C0 : program DMA channel `ch` (madr, blocks x blocksize, chcr); waits for the channel
- *   idle first and gates the kick on CDREG0 bit 0x40.  `enable_irq` toggles the channel DICR bit.
- * MATCH (w51-a4): shape TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
- * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/dma_start.c :: CD_dmastart.  What it recovered
- * that the earlier reconstruction was MISSING (ours 91 insns vs oracle 106):
- *   (a) TWO discarded `volatile` read-backs the original keeps (`sw $v0,0x10($sp)` twice in the
- *       oracle = one stack `dummy` slot): the DICR word re-read after the byte-mask store, and the
- *       CHCR read-back after the kick -- both are real PSX DMA write-posting flushes;
- *   (b) the DICR bit is read into a TEMP then stored (`bv = dptr[2]; dptr[2] = bv | (1<<ch);`)
- *       through a NON-volatile `u_char *`, not a `|=` on a volatile lvalue;
- *   (c) the 6th argument is a `u_char` (oracle `lbu $s1,0x44($sp)`), not an int;
- *   (d) the busy-wait is a plain rotated `while (busy) { if (i == 0x10000) {printf; break;} i++; }`.
- *   (7th arg present in the original signature but unused; reproduced for the call-site layout.) */
-/* MATCH (w52-a2): 95 -> 25 diffs, frame 56 -> 48 (= retail).  Four levers, in the order they
- * landed -- each one gated individually:
- *  (1) `volatile int chcr` PARAM.  Retail reads the 5th (stack-passed) argument at its POINT
- *      OF USE (`lw $v0,0x40($sp)` right before the CHCR store).  Ours copied it into a 6th
- *      callee-saved register ($s5) in the prologue, which grew the frame by 8 and shifted
- *      EVERY incoming stack-arg displacement (arg6 read at 0x4C instead of 0x44).  Marking the
- *      parameter `volatile` keeps it in its incoming home and loads it once, at the store.
- *      95 -> 67, frame exact.
- *  (2) The two `__asm__ __volatile__("")` SCHEDULING BARRIERS -- transplanted verbatim from the
- *      byte-exact Rage Racer decomp's identical routine (C:/Temp/rage-racer-decomp/src/main/
- *      PAL/lib/libcd/dma_start.c, CD_dmastart: one after the DICR read-back, one after
- *      `bit = 1 << (dv+3)`).  Without them sched1 interleaves the DPCR/bit/p computation into
- *      the DICR read-back's two load-delay gaps; retail keeps that read-back SERIAL
- *      (`lui; lw; nop; lw; nop; sw`).  67 -> 65 and the whole DICR region became byte-exact.
- *  (3) READ-ONLY FENCE on `bv` after the if/else (allocno DEMOTE dial, W49 fence-direction
- *      law): lengthening bv's live range drops its priority so `dptr` wins the lower register
- *      -- retail has dptr=$v1 / bv=$a0, ours had them swapped.  65 -> 47.
- *  (4) IDENTITY FENCES (PROMOTE dial, +2 refs each) on `bit` (x2) and `dp` (x1): retail's
- *      fill order is bit($v1) > dp($a0) > p($a1) > dv($a2); ours was dv > p > bit > dp.  The
- *      `bit` pseudo has only 2 refs, so its allocno numerator floor_log2(refs)*refs - SIZE is
- *      NEGATIVE -- one fence was not enough, two were.  47 -> 39 -> 31 -> 25.
- * Rage Racer needed `register long bv asm("$4")` / `register long dv asm("$6")` for the same
- * two registers; the fences reach $a0 and $v1 pin-free.
- * RESIDUAL 25 = (a) `dv` colors $v0 where retail has $a2, and (b) ONE extra `li $v0,1` reorg
- * speculates into the busy-wait entry branch's delay slot.  NAMED ANGLE for (a) (numeric-scan
- * law): retail's $v0 is occupied across dv's whole window by the BCR value
- * (`sll $v0,$s3,16` scheduled UP into the DPCR load's delay gap), so $v0 is not free when dv
- * fills; ours computes BCR after dv dies.  FALSIFIED so far: hoisting BCR into a named local
- * before `dp = _dpcr` / before `dv = *dp` (sched1 sinks it straight back, 25), the same with a
- * read-only fence pinning it (25), read-only/identity/volatile fences on `p` (31, +2 insns),
- * read-only fences on dv at either def (25/33), a 3rd `bit` fence (25), and a void-tail fence
- * before the mode test for (b) (27).  Next dial: make the BCR value's live range genuinely
- * span dv (a second consumer), or an out-of-loop ref-step on dv. */
+/* W60-A4: retail VA order -- StCdInterrupt @0x800F7E78 precedes _st_copy_words
+ * @0x800F8794 and _st_dma @0x800F87C0; forward decls for the two helpers. */
+extern void _st_copy_words(int *dst, int *src, unsigned num, int arg3);
 extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
-                    u_char enable_irq, int arg6)
-{
-    volatile int  dummy;
-    int           i;
-    volatile int *p;
-    u_char       *dptr;
-    volatile int *dp;
-    int           bv;
-    int           mode;
-    (void)arg6;
-
-    mode = enable_irq;
-    i = 0;
-    while (*(volatile int *)(0x1F801088 + (ch << 4)) & 0x01000000) {
-        if (i == 0x10000) {
-            printf("StCdInterrupt: DMA ch busy %08x\n",
-                   *(volatile int *)(0x1F801088 + (ch << 4)));
-            break;
-        }
-        i++;
-    }
-
-    if (mode == 1) {
-        dptr = (u_char *)_dicr;
-        bv = dptr[2];
-        dptr[2] = bv | (1 << ch);
-    } else {
-        dptr = (u_char *)_dicr;
-        bv = dptr[2];
-        dptr[2] = bv & ~(1 << ch);
-    }
-
-    __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
-    dummy = *(volatile int *)_dicr;
-    __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
-    {
-        int dv;
-        int bit;
-
-        dv  = ch * 4;
-        bit = 1 << (dv + 3);
-        __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier */
-        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */
-        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */
-        p   = (volatile int *)(0x1F801080 + (ch << 4));
-        dp  = _dpcr;
-        __asm__("" : "=r"(dp) : "0"(dp));  /* MATCH: PROMOTE dp -> $a0 (p then takes $a1) */
-        dv  = *dp;
-        *dp = dv | bit;
-        *p++ = madr;                                /* MADR */
-        *p++ = (blocks << 16) | blocksize;          /* BCR  */
-        while ((*_cd_idx & 0x40) == 0)              /* wait until the CD is ready to DMA */
-            ;
-        *p = chcr;                                  /* CHCR -- kick the transfer */
-        dummy = *p;
-    }
-}
+                    u_char enable_irq, int arg6);
 
 /* @0x800F7E78 : the CD-streaming sector interrupt handler.
  *
@@ -409,4 +290,129 @@ extern void StCdInterrupt(void)
     StRingIdx1++;
     if (StEmu_Addr != 0 && StFinalSector != 0)
         data_ready_callback();
+}
+
+/* @0x800F8794 : copy `num` 32-bit words src -> dst.  (4th arg present in the original signature
+ *   but unused -- callers pass a trailing 0 / 1; reproduced so the call-site stack layout matches.) */
+extern void _st_copy_words(int *dst, int *src, unsigned num, int arg3)
+{
+    /* MATCH (w51-a4, cc1_272 lane): a counted `for (i = 0; i < num; i++)` makes gcc-2.7.2
+     * reserve an 8-byte `vars` frame on every such loop (`.frame $sp,8` -> subu/addu $sp),
+     * where the oracle is frameless.  Guard-then-goto is frameless and reproduces the
+     * oracle byte-for-byte (`beqz num` with `i=0` in the slot; bottom `sltu`/`bnez` with
+     * `addiu a0,a0,4` in ITS slot).  Lane-neutral: still PASSes on the 2.8 lane. */
+    unsigned i = 0;
+    (void)arg3;
+    if (num == 0)
+        return;
+loop:
+    *dst++ = *src++;
+    i++;
+    if (i < num)
+        goto loop;
+}
+
+/* @0x800F87C0 : program DMA channel `ch` (madr, blocks x blocksize, chcr); waits for the channel
+ *   idle first and gates the kick on CDREG0 bit 0x40.  `enable_irq` toggles the channel DICR bit.
+ * MATCH (w51-a4): shape TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
+ * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/dma_start.c :: CD_dmastart.  What it recovered
+ * that the earlier reconstruction was MISSING (ours 91 insns vs oracle 106):
+ *   (a) TWO discarded `volatile` read-backs the original keeps (`sw $v0,0x10($sp)` twice in the
+ *       oracle = one stack `dummy` slot): the DICR word re-read after the byte-mask store, and the
+ *       CHCR read-back after the kick -- both are real PSX DMA write-posting flushes;
+ *   (b) the DICR bit is read into a TEMP then stored (`bv = dptr[2]; dptr[2] = bv | (1<<ch);`)
+ *       through a NON-volatile `u_char *`, not a `|=` on a volatile lvalue;
+ *   (c) the 6th argument is a `u_char` (oracle `lbu $s1,0x44($sp)`), not an int;
+ *   (d) the busy-wait is a plain rotated `while (busy) { if (i == 0x10000) {printf; break;} i++; }`.
+ *   (7th arg present in the original signature but unused; reproduced for the call-site layout.) */
+/* MATCH (w52-a2): 95 -> 25 diffs, frame 56 -> 48 (= retail).  Four levers, in the order they
+ * landed -- each one gated individually:
+ *  (1) `volatile int chcr` PARAM.  Retail reads the 5th (stack-passed) argument at its POINT
+ *      OF USE (`lw $v0,0x40($sp)` right before the CHCR store).  Ours copied it into a 6th
+ *      callee-saved register ($s5) in the prologue, which grew the frame by 8 and shifted
+ *      EVERY incoming stack-arg displacement (arg6 read at 0x4C instead of 0x44).  Marking the
+ *      parameter `volatile` keeps it in its incoming home and loads it once, at the store.
+ *      95 -> 67, frame exact.
+ *  (2) The two `__asm__ __volatile__("")` SCHEDULING BARRIERS -- transplanted verbatim from the
+ *      byte-exact Rage Racer decomp's identical routine (C:/Temp/rage-racer-decomp/src/main/
+ *      PAL/lib/libcd/dma_start.c, CD_dmastart: one after the DICR read-back, one after
+ *      `bit = 1 << (dv+3)`).  Without them sched1 interleaves the DPCR/bit/p computation into
+ *      the DICR read-back's two load-delay gaps; retail keeps that read-back SERIAL
+ *      (`lui; lw; nop; lw; nop; sw`).  67 -> 65 and the whole DICR region became byte-exact.
+ *  (3) READ-ONLY FENCE on `bv` after the if/else (allocno DEMOTE dial, W49 fence-direction
+ *      law): lengthening bv's live range drops its priority so `dptr` wins the lower register
+ *      -- retail has dptr=$v1 / bv=$a0, ours had them swapped.  65 -> 47.
+ *  (4) IDENTITY FENCES (PROMOTE dial, +2 refs each) on `bit` (x2) and `dp` (x1): retail's
+ *      fill order is bit($v1) > dp($a0) > p($a1) > dv($a2); ours was dv > p > bit > dp.  The
+ *      `bit` pseudo has only 2 refs, so its allocno numerator floor_log2(refs)*refs - SIZE is
+ *      NEGATIVE -- one fence was not enough, two were.  47 -> 39 -> 31 -> 25.
+ * Rage Racer needed `register long bv asm("$4")` / `register long dv asm("$6")` for the same
+ * two registers; the fences reach $a0 and $v1 pin-free.
+ * RESIDUAL 25 = (a) `dv` colors $v0 where retail has $a2, and (b) ONE extra `li $v0,1` reorg
+ * speculates into the busy-wait entry branch's delay slot.  NAMED ANGLE for (a) (numeric-scan
+ * law): retail's $v0 is occupied across dv's whole window by the BCR value
+ * (`sll $v0,$s3,16` scheduled UP into the DPCR load's delay gap), so $v0 is not free when dv
+ * fills; ours computes BCR after dv dies.  FALSIFIED so far: hoisting BCR into a named local
+ * before `dp = _dpcr` / before `dv = *dp` (sched1 sinks it straight back, 25), the same with a
+ * read-only fence pinning it (25), read-only/identity/volatile fences on `p` (31, +2 insns),
+ * read-only fences on dv at either def (25/33), a 3rd `bit` fence (25), and a void-tail fence
+ * before the mode test for (b) (27).  Next dial: make the BCR value's live range genuinely
+ * span dv (a second consumer), or an out-of-loop ref-step on dv. */
+extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
+                    u_char enable_irq, int arg6)
+{
+    volatile int  dummy;
+    int           i;
+    volatile int *p;
+    u_char       *dptr;
+    volatile int *dp;
+    int           bv;
+    int           mode;
+    (void)arg6;
+
+    mode = enable_irq;
+    i = 0;
+    while (*(volatile int *)(0x1F801088 + (ch << 4)) & 0x01000000) {
+        if (i == 0x10000) {
+            printf("StCdInterrupt: DMA ch busy %08x\n",
+                   *(volatile int *)(0x1F801088 + (ch << 4)));
+            break;
+        }
+        i++;
+    }
+
+    if (mode == 1) {
+        dptr = (u_char *)_dicr;
+        bv = dptr[2];
+        dptr[2] = bv | (1 << ch);
+    } else {
+        dptr = (u_char *)_dicr;
+        bv = dptr[2];
+        dptr[2] = bv & ~(1 << ch);
+    }
+
+    __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
+    dummy = *(volatile int *)_dicr;
+    __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
+    {
+        int dv;
+        int bit;
+
+        dv  = ch * 4;
+        bit = 1 << (dv + 3);
+        __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier */
+        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */
+        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */
+        p   = (volatile int *)(0x1F801080 + (ch << 4));
+        dp  = _dpcr;
+        __asm__("" : "=r"(dp) : "0"(dp));  /* MATCH: PROMOTE dp -> $a0 (p then takes $a1) */
+        dv  = *dp;
+        *dp = dv | bit;
+        *p++ = madr;                                /* MADR */
+        *p++ = (blocks << 16) | blocksize;          /* BCR  */
+        while ((*_cd_idx & 0x40) == 0)              /* wait until the CD is ready to DMA */
+            ;
+        *p = chcr;                                  /* CHCR -- kick the transfer */
+        dummy = *p;
+    }
 }

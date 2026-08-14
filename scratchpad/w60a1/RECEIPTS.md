@@ -193,3 +193,186 @@ cluster, not one function.
 * `scratchpad/w60a1/tier.py` — crosses inversions x classes into the tier table.
 * `scratchpad/w60a1/ord.py` — object offset vs retail VA delta table (the free 2nd gate).
 * `scratchpad/w60a1/probe*.py` — the falsification harnesses behind §2.2.
+
+---
+
+# W60-A1 PART 2 (resumed) — THE cc1_272 ALLOCATOR INSTRUMENT
+
+Assignment: the blocker I named in §2.4 became the task. Result: **the blocker was
+not real, and the reason it looked real is a wrong formula.**
+
+## 6. THE HEADLINE: the 2.7.2 cc1 accepts `-dl` / `-dg` / `-dL`
+
+PsyQ 4.0's `CC1PSX.EXE` (= GNU C 2.7.2.SN32, the binary the `cc1_272` / `cc1_alt`
+lanes drive) **emits full RTL dumps**: `-dl` to `<input>.lreg`, `-dg` to
+`<input>.greg`, `-dL` to `<input>.loop`. No instrumented build, no gcc-2.7.2
+source, no static simulator needed. Nobody had tried the flags on this binary, so
+the lane was treated as instrument-dark (W59-11A: *"allocsim 6/10 on 2.7.2 dumps,
+reqdelta unusable in the 272/alt lanes"*).
+
+What the dumps carry, per function:
+
+* `.lreg` — `Register N used R times across L insns[ in block B]; [dies in D
+  places;][ crosses C calls;][ S bytes;] <class>[; pointer]` = REG_N_REFS
+  (loop-depth weighted), live length, SIZE, call-crossing, mode, **and the
+  block-local flag** (`in block B` means a local_alloc QTY, not a global allocno);
+  then `;; Register N in H.` = **the local-alloc handout, i.e. the 06E gap,
+  printed**.
+* `.greg` — `;; N regs to allocate: <pseudos IN global.c ALLOCATION ORDER>`,
+  per-allocno `conflicts:` and `preferences:`, `;; Register dispositions:`,
+  `;; Hard regs used:`.
+
+## 7. THE 272-LANE PRIORITY LAW (this is why allocsim scored 6/10)
+
+Because `;; N regs to allocate:` **is** the post-`allocno_compare` order, the
+ordering rule can be *read off* instead of guessed. `qty272_rule.py` checks the
+printed order of every function against candidate formulas (ties allowed, since
+qsort is unstable), over **18 cc1_272-lane TUs / 47 functions with 3+ global
+allocnos**:
+
+| formula | consistent |
+|---|---|
+| **`floor_log2(refs) * refs / live`  (no SIZE term)** | **47/47** |
+| `floor_log2(refs) * refs * SIZE / live`  (gcc-2.8 `allocno_compare` / `QTY_CMP_PRI`) | 40/47 |
+| `floor_log2(refs) * refs / (live * SIZE)` | 40/47 |
+| longest-live-first (the pre-2.8 rule the 2.8 source comment refers to) | 2/47 |
+| refs only | 12/47 |
+
+**gcc-2.7.2's global.c has NO SIZE term.** Seven clean counter-examples to the 2.8
+formula, none the other way. Consequence: `tools/allocsim.py` and
+`tools/reqdelta.py` mis-price **every HImode (`2 bytes`) pseudo by 2x** on this
+lane — and syslib is full of them (`u_short` state words, card/pad flags; the `s0`
+IRQ mask in `_intrhand` is itself `2 bytes`). That IS the "6/10 on 2.7.2 dumps"
+symptom, now root-caused instead of worked around. Raw output:
+`scratchpad/w60a1/rule_validation.txt`.
+
+The 47/47 result also **retires the "old gcc = longest-life-first" reading for this
+binary** (2/47). Whatever 2.8's source comment refers to, 2.7.2.SN32 already sorts
+by the ref-based priority — just without SIZE.
+
+## 8. THE TOOLS (committed, `scratchpad/w60a1/`)
+
+* **`qty272.py <TU> <FUNC>`** — the instrument. Compiles the TU through the *same*
+  flags the lane uses (imports `tools/build.py`'s `PER_TU_FLAGS`, mirrors
+  `_cc1_flags_for_rung`'s sub-2.8 `-mno-split-addresses` drop, never edits it),
+  then prints (a) the **local-alloc QTY table** — block, refs, live, size, calls,
+  272-priority, hard-reg home — and (b) the **global allocno table in allocation
+  order** with conflicts, preferences and dispositions. Dumps go beside a
+  per-invocation copy of the `.i` (cc1 names dumps after the input path; a shared
+  `.i` silently clobbers them — W45).
+* **`reqdelta272.py <TU> <FUNC> [--flip MOVER RIVAL]`** — the pricing companion.
+  Prints, per rank, the minimal `refs`/`live` delta that overtakes the rank above,
+  marks `floor_log2` STEP crossings (where one reference beats any live-length
+  dial), and — critically — **flags a hard-reg PREFERENCE on the mover**, because
+  `find_reg` honours it before the numeric scan, so no priority dial alone can
+  move that pseudo.
+* **`qty272_rule.py <TU>...`** — the formula validator above. Re-run it per rung;
+  do not assume the ladder shares one allocator rule.
+
+**VALIDATION AGAINST A KNOWN 272-LANE PASS FN** (required, done):
+`BIOS.c::_card_start`, part of the 17/17-PASS byte-exact `libmcrd/BIOS.c`.
+qty272 predicts two block-local QTYs and **no global allocnos at all**:
+`72 -> $s0` (`prev`, 2 refs, live 71, **crosses 17 calls**, so callee-saved) and
+`97 -> $v0`. A register census of the built object over `_card_start`'s extent
+shows exactly `s0` (4 occurrences) and `v0` (11) as the allocated homes —
+everything else is ABI (`a0`-`a3`, `sp`, `ra`). **Predicted = actual, on a function
+that byte-matches retail.**
+
+## 9. APPLIED — `_intrhand` (the diagnosis is now a priced certificate)
+
+qty272 identified the pseudos from the RTL, not by guessing: `74 = pend`
+(`reg/v:SI`, set by both `and`s, tested by both branches, copied into `73 = s0`)
+and `105 = the indirect callback pointer *p` in the inner loop.
+
+```
+rank pseudo refs live     pri   home prefs
+  0    105     9    3   9.0000   $v0   -
+  1     74     9    6   4.5000   $a0   4     <- pend; retail wants it in $v0
+```
+
+`reqdelta272 --flip 74 105` prices it: **refs 9->16 (+7, crossing a floor_log2
+step) OR live 6->2 (-4)** — *and* 74 carries a hard-reg **preference `$a0`**, which
+`find_reg` takes before the numeric scan, so priority alone can never move it.
+
+Instrument-directed probes (`probe4.py`, all gated, all reverted):
+
+| variant | result |
+|---|---|
+| baseline | 44 @116/116 |
+| opacity fence on `pend` (kills the preference), both sites | 51 @117/116 |
+| same, entry site only | 51 @117/116 |
+| sink `s0 = pend` past the test (shortens 74's live) | 45 @117/116 |
+| both | 52 @118/116 |
+
+Every available dial **costs an instruction** off a count-EXACT base. So
+`_intrhand`'s 44 is a **quantified hardness certificate**, not a wall: the flip
+needs a preference kill (cheapest device = the opacity fence, +1 insn here because
+`pend` is not free-register-resident at that point) *plus* a +7-ref or -4-live
+change on `pend`. Re-attacking it needs a **zero-insn preference killer** — a
+general 272-lane device, not a per-function trick.
+
+## 10. APPLIED — FIRST.c (the instrument REDIRECTS rather than unblocks)
+
+`firstfile` (12 global allocnos) and `_first_patch` (9) both show **clean,
+strictly-descending 272-priority order with homes matching rank** — no inversion,
+no starved allocno, and the only preferences are the expected `$a0` call-arg ones.
+That **corroborates the in-source W59 diagnosis** that these residuals are
+sched1/reorg-side (ready-list order, reload-scratch pick, delay-slot thread
+choice), *not* allocation-layer. Concretely: **stop spending allocator budget on
+FIRST.c** — its 2+6 needs a scheduler instrument, which the same discovery says is
+worth testing next on this binary (`-dS`/`-dR`).
+
+## 11. Laws / catalog-row candidates (part 2)
+
+8. **THE 272 LANE IS NOT INSTRUMENT-DARK.** PsyQ 4.0 `CC1PSX.EXE` accepts
+   `-dl`/`-dg`/`-dL`. Before declaring any lane un-instrumentable, pass the dump
+   flags to its actual binary.
+9. **272 PRIORITY = `floor_log2(refs)*refs/live`, NO SIZE TERM** (47/47 vs 40/47
+   for the 2.8 form). `allocsim`/`reqdelta` are wrong by 2x on every `2 bytes`
+   pseudo in a `cc1_272` TU — the whole "6/10" story. Add a lane switch to those
+   tools, or use `qty272.py`/`reqdelta272.py`.
+10. **READ THE ORDERING RULE OFF THE DUMP.** `;; N regs to allocate:` IS the
+    post-sort order, so a candidate formula can be falsified *at scale* instead of
+    argued from source.
+11. **A HARD-REG PREFERENCE OUTRANKS EVERY PRIORITY DIAL.** reqdelta-style pricing
+    is necessary but not sufficient: if the dump prints `;; P preferences: <hard
+    reg>`, `find_reg` takes it before the numeric scan. Check the preferences line
+    before pricing any flip.
+12. **THE MISSING 272-LANE DEVICE: a ZERO-INSN preference killer.** The opacity
+    fence works mechanically (an `asm_operands` def makes `set_preference` return
+    early) but costs +1 insn when the value is not already register-resident.
+    Named, reproducible, and it blocks `_intrhand` today.
+
+## 12. Process notes (part 2)
+
+* Probe-bug rule honoured: **no word-compare harness was built**, so the A3
+  "same-mnemonic mismatch counted as reloc" vacuity class cannot arise here. Every
+  number in section 9 comes from `tools/verify_asm.py` itself, never a private
+  comparator.
+* All probes restore in `finally` and assert byte-identity; the belt is clean
+  against HEAD and `INTR.c` re-gates 10/13 PASS after the probe run (zero
+  PASS->FAIL).
+* `tools/build.py` was **imported, never edited**; `qty272.py` mirrors
+  `_cc1_flags_for_rung`'s sub-2.8 `-mno-split-addresses` drop rather than
+  duplicating policy.
+* Cosmetic fix: 2.7.2's disposition line can carry a renumber above 31; `hname()`
+  reports `(reg N)` instead of inventing a `$64`.
+* Hazard fired: a `<<'MDEOF'` heredoc append of this section failed to parse and
+  wrote NOTHING (file verified unchanged, no corruption). Re-done with the Edit
+  tool, per the standing rule.
+
+## 13. Orchestrator actions requested
+
+1. **Promote `qty272.py` / `reqdelta272.py` / `qty272_rule.py` to `tools/`** (they
+   only read `build.py`).
+2. **Add a lane switch to `tools/allocsim.py` + `tools/reqdelta.py`**: drop the
+   SIZE factor when the TU is on `cc1_272` or a sub-2.8 `cc1_alt` rung. That one
+   change turns allocsim from 6/10 into a usable model here, and it
+   **retro-invalidates any 272-lane "allocator floor" verdict priced with SIZE** —
+   so **re-price A4's drv.c belt before any further spelling work there**
+   (`CD_get_intr` has 46 global allocnos; `CD_cw`/`CD_ready`/`CD_sync`/
+   `_cd_intr_dispatch` are in the 7-function counter-example set where the 2.8
+   formula is provably wrong).
+3. **Test `-dS`/`-dR` on the same 2.7.2 binary.** If the scheduler traces work
+   too, the FIRST.c class and the whole 272 reorg/ready-list family open up the
+   same way this one did.

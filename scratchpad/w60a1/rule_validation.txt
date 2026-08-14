@@ -1,0 +1,55 @@
+          INTR.c _intrhand                          n=10  FAILS: 2.8, alt, old, naive
+          INTR.c _set_intr_callback                 n=8   FAILS: old, naive
+          INTR.c _bzero_w                           n=3   FAILS: old
+       INTR_VB.c startIntrVSync_helper_1            n=3   FAILS: old, naive
+       INTR_VB.c startIntrVSync_helper_2            n=3   FAILS: old
+       INTR_VB.c startIntrVSync_helper_3            n=3   FAILS: old
+         VSYNC.c VSync                              n=9   FAILS: old, naive
+      USERFUNC.c UserFuncOpen                       n=4   FAILS: old
+       LIBMCRD.c MemCardExist_cb                    n=6   FAILS: old, naive
+       LIBMCRD.c MemCardCmd_cb                      n=8   FAILS: old, naive
+       LIBMCRD.c MemCardReadData                    n=7   FAILS: old, naive
+       LIBMCRD.c MemCardReadData_cb                 n=7   FAILS: old, naive
+       LIBMCRD.c MemCardWriteData                   n=7   FAILS: old, naive
+       LIBMCRD.c MemCardWriteData_cb                n=7   FAILS: old, naive
+       LIBMCRD.c MemCardReadFile                    n=7   FAILS: old, naive
+       LIBMCRD.c MemCardReadFile_cb                 n=4   FAILS: old
+       LIBMCRD.c MemCardWriteFile                   n=7   FAILS: old, naive
+       LIBMCRD.c MemCardWriteFile_cb                n=4   FAILS: old
+       LIBMCRD.c MemCardGetDirentry                 n=16  FAILS: old, naive
+       LIBMCRD.c MemCardSync                        n=7   FAILS: old, naive
+       LIBMCRD.c MemCardCreateFile                  n=10  FAILS: old, naive
+       LIBMCRD.c MemCardDeleteFile                  n=8   FAILS: old, naive
+       LIBMCRD.c MemCardUnformat                    n=5   FAILS: alt, old, naive
+       LIBMCRD.c MemCardMakeDevname                 n=3   FAILS: old, naive
+           drv.c CD_get_intr                        n=46  FAILS: 2.8, alt, old, naive
+           drv.c CD_sync                            n=17  FAILS: 2.8, alt, old, naive
+           drv.c CD_ready                           n=22  FAILS: 2.8, alt, old, naive
+           drv.c CD_cw                              n=27  FAILS: 2.8, alt, old, naive
+           drv.c CD_datasync                        n=7   FAILS: old, naive
+           drv.c CD_getsector                       n=5   FAILS: old
+           drv.c _cd_intr_dispatch                  n=6   FAILS: 2.8, alt, old, naive
+       iso9660.c _cd_find_path                      n=6   FAILS: old, naive
+       iso9660.c CD_newmedia                        n=10  FAILS: old, naive
+       iso9660.c CD_cachefile                       n=8   FAILS: old, naive
+       iso9660.c CdSearchFile                       n=11  FAILS: 2.8, old, naive
+        cdcont.c CdControl                          n=9   FAILS: old
+        cdcont.c CdControlF                         n=9   FAILS: old
+        cdcont.c CdControlB                         n=10  FAILS: old, naive
+        cdcont.c CdIntToPos                         n=5   FAILS: old
+           toc.c CdGetToc2                          n=11  FAILS: old, naive
+       stcdint.c StCdInterrupt                      n=24  FAILS: old, naive
+       stcdint.c _st_copy_words                     n=4   FAILS: (none)
+       stcdint.c _st_dma                            n=15  FAILS: old, naive
+         FIRST.c firstfile                          n=12  FAILS: old, naive
+         FIRST.c _first_patch                       n=9   FAILS: old, naive
+         QSORT.c qsort                              n=9   FAILS: old, naive
+         QSORT.c _swap                              n=4   FAILS: (none)
+
+47 functions with >=3 global allocnos
+formula                             consistent
+2.7.2? refs*log2/live                 47/47     <== RULE
+2.8   refs*log2*SIZE/live             40/47   
+alt   refs*log2/(live*SIZE)           40/47   
+old   longest live first               2/47   
+naive refs only                       12/47   

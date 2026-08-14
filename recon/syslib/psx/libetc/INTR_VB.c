@@ -28,6 +28,7 @@
  int vsync_cb[8];
 extern void  InterruptCallback(int idx, void (*h)());     /* INTR */
 extern void  startIntrVSync_helper_1(void);               /* the vblank trap handler */
+extern int   startIntrVSync_helper_2(int idx, int cb);    /* the per-slot callback setter */
 extern void  startIntrVSync_helper_3(int *p, int nwords); /* this obj's private word-clear */
 
 /* MATCH: both fns that touch Vcount reach it via lui/%hi+%lo ABSOLUTE addressing in the oracle
@@ -37,23 +38,6 @@ extern void  startIntrVSync_helper_3(int *p, int nwords); /* this obj's private 
 extern int Vcount;            /* @0x80137D10 */
 extern int vsync_cb[8];       /* @0x80137CF0 : 8 vblank callbacks */
 extern volatile unsigned int *g_rcnt_ptr;   /* @0x80137D14 : = 0x1F801114 (RCnt vblank-timing mode reg) */
-
-/* @0x80106624 -- INTR_VB.obj's private word-clear (the same routine INTR.obj/INTR_DMA.obj each
- * carry as their own `_bzero_w`); only ever reached by the jal in startIntrVSync below. */
-extern void startIntrVSync_helper_3(int *p, int n)   /* @0x80106624 */
-{
-    int i = n - 1;
-    if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
-}
-
-/* @0x801065F8 -- the per-slot vblank-callback SETTER; the pointer startIntrVSync returns.
- * (Ghidra named it "VSyncCallback", which collides with the INTR.obj public API.) */
-extern int startIntrVSync_helper_2(int idx, int cb)   /* @0x801065F8 */
-{
-    int old = vsync_cb[idx];
-    if (cb != old) vsync_cb[idx] = cb;
-    return old;
-}
 
 extern void *startIntrVSync(int priority)   /* @0x80106534 */
 {
@@ -82,4 +66,21 @@ extern void startIntrVSync_helper_1(void)   /* @0x8010658C */
         i = i + 1;
         cb = cb + 1;
     } while (i < 8);
+}
+
+/* @0x801065F8 -- the per-slot vblank-callback SETTER; the pointer startIntrVSync returns.
+ * (Ghidra named it "VSyncCallback", which collides with the INTR.obj public API.) */
+extern int startIntrVSync_helper_2(int idx, int cb)   /* @0x801065F8 */
+{
+    int old = vsync_cb[idx];
+    if (cb != old) vsync_cb[idx] = cb;
+    return old;
+}
+
+/* @0x80106624 -- INTR_VB.obj's private word-clear (the same routine INTR.obj/INTR_DMA.obj each
+ * carry as their own `_bzero_w`); only ever reached by the jal in startIntrVSync below. */
+extern void startIntrVSync_helper_3(int *p, int n)   /* @0x80106624 */
+{
+    int i = n - 1;
+    if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
 }

@@ -1290,12 +1290,6 @@ extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __
 
 /* ---- ___15ObjectMultiAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-/* ---- _._10ObjectAnim  [OBJECT.H:53] SLD-VERIFIED ---- */
-ObjectAnim::~ObjectAnim()
-{
-  _vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-}
-
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg)
 
 {
@@ -1337,6 +1331,16 @@ extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int 
   return;
 }
 
+
+
+/* ---- _._10ObjectAnim  [OBJECT.H:53] SLD-VERIFIED ---- */
+/* W60-A9: moved here from between the ObjectMultiAnim marker and its body to restore retail
+ * VA emission order (___10ObjectAnim @0x800a6de0 is the LAST of the four dtors:
+ * FinishedSignAnim 0x800a6cc4 < MultiAnim 0x800a6cf8 < FinishedMultiAnim 0x800a6dac < this). */
+ObjectAnim::~ObjectAnim()
+{
+  _vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
+}
 
 
 /* end of object.cpp */

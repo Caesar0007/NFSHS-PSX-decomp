@@ -87,6 +87,80 @@ Commits: 7817e1c7, 6d4c42dc, f3630c63, 9d6962d6, 93a58bf4.
    moment the two x stores were sunk. ResetPSXController: 4 devices that were dead in
    earlier basins stayed dead, but the mechanism reading changed completely.
 
+## PART 2 (coordinator resume) — THE INSTRUMENT LANE
+
+Baseline re-confirmed after the tree moved: psxcontroller 1/4, cario 9/11,
+drawc 16/20, draww 25/35, flare 25/27, sfx 5/7, overlays 3/5 (all unchanged).
+
+**Lane built without touching `tools/build.py`:** `scratchpad/w60a7/lab.sh`
+(cpp via `tools/rtl_dump.py`'s exact build.py recipe -> real CC1PLPSX AND the
+instrumented `cc1plus-ecoff` with `-mgas -msplit-addresses -funsigned-char
+-fno-exceptions -fno-rtti`, `GCC_TRACE_ALLOC=1`, Windows TMPDIR/TMP/TEMP with a
+trailing backslash, per-config `.i` copies) + `scratchpad/w60a7/cmpfn.py` (the
+per-function IDENTICAL/DIFFERS fidelity gate).
+
+### SEAL: `Sfx_AdditivePrim` 26 -> PASS 126/126 (`e8c5ffd5`)
+A multi-wave "STRONG floor" (5 waves, ~30 falsified spellings). Lab fidelity
+IDENTICAL 120/120, so the trace is a receipt.
+`[qty_combine] pseudo 145 merged into qty 4 of pseudo 130` named the whole
+thing: insn 287 was `(set 145 (plus (palette) (otz*4)))` with both inputs dead
+and local-alloc ties the dest to the FIRST operand, so the site-2 address
+inherited the palette's qty (6 refs/38 life = 3157, ranked first -> `$a0`).
+Retail's `addu $a0,$a0,$a2` has the INDEX first, the address inherits the otz
+chain, and the palette survives as its own 3-ref qty (3/17 = 1764 off retail's
+own insn spacing) -> `$a2`. **Fix = a JOINT dial pair**: an INT-typed index-first
+sum (a pointer sum is canonicalised ptr-first — the W50 law) **plus** `l0` and
+the packet-cursor bump moved below the OT read via a `w` temp (retail's own
+statement order, which keeps `$v0`/`$v1` busy so the short site-2 address takes
+`$a0`). Control 26 · (1) alone 42 · (2) alone 26 · together PASS.
+
+### `DrawW_DrawQuad` 7 — a standing claim REFUTED (`b7491143`)
+Fresh dump of the LANDED basin: sd p80 62refs/844live = 1.4692, prim p141
+24/358 = 1.0726 — **sd already out-ranks prim with zero extra references**; the
+w53 "+66 refs" was priced in the if/else basin only. And w53's *"the
+live-length route and the register it needs are MUTUALLY EXCLUSIVE — holding
+prim live to the end denies `$s1` to zeroTransFlag"* is **false**: prim is live
+358 in the landed form and zeroTransFlag is not in the residual. The 7 diffs
+are the ARM SHAPE alone. Re-priced for the if/else form (prim live -> 114 =
+3.368): sd alone +57 refs, prim alone −11, but the **joint** cell is prim
+24->15 with sd 62->64 = **−9 and +2** — never tried.
+
+### `Flare_2DHalo` 6 — the named untried instrument, run (`b7491143`)
+Lab fidelity IDENTICAL 247/247. All seven global allocnos match retail's
+register (pt->$s3, otz->$s4, x->$s5, y->$s6, scalex->$s0, scaley->$s1,
+sd->$t0), so residual (A) is not an allocation question at any layer — sched2
+places an already-correct `sw $s3` three slots late. The PER_FN
+prologue-save-order splice named in w51 is the right and only route; no further
+source dial should be spent here.
+
+### `Flare_LensFlare` 6 — the lane does NOT apply (fidelity negative)
+Under the lab this fn is 396/396 but **NOT identical** (diverges at insn 243).
+It is in the ~6% Mode-A-divergent set, so its trace must not be quoted — while
+its TU-mate `Flare_2DHalo` IS identical, i.e. **divergence is per-function, not
+per-TU**. Recorded in-source so nobody re-derives a false receipt.
+
+### BIV-preheader sweep (coordinator item 4)
+`DrawC_Prim`'s world->cache vertex copy converted to `DrawC_PrimMenu`'s sealed
+loop-2 shape (`0f83a309`): six Ghidra-invented locals (an INT cursor walked +8,
+a short* cursor walked +4, a third walked +3, three temps) replaced by the two
+the SYM names. Gate-NEUTRAL 336 at unchanged count — landed for faithfulness.
+`DrawC_PrimClip`'s envmap twin measures 552 -> 566 and was NOT landed (re-probe
+after its block-order work).
+
+### CORPUS CHECK (user directive, read-only; cited in-source)
+- **rage-racer**: its terrain/prim submission is **hand-written asm in their own
+  tree** (`src/main/PAL/main/render/terrain_submission.c` = three `INCLUDE_ASM`
+  blocks with a HANDWRITTEN_ASM rationale), so the corpus offers **no C shape**
+  for the DrawW/DrawC prim-builder class. Its matched C packet code
+  (`render/draw_packet_queue.c` `QueueDrawModePrim`) only re-confirms the
+  already-recorded `pkt = prim; prim += N; AddPrim(ot, pkt);` order.
+- **silent-hill**: `src/maps/unk_draw_m1s05.c` writes packet colour/UV words
+  exactly as we do (`*(u32*)&(*poly)->u0 = ...`), confirming the word-store
+  shape; but it reaches the packet through a **pointer-to-pointer**, which would
+  make our `prim` a memory object with no allocno at all — removes it from the
+  DrawQuad tie *and* from `$s1`, so not the shape here.
+- Net: a genuine NEGATIVE for this belt, recorded so it is not re-searched.
+
 ## PER-FN LOG
 
 - **CarIO_CopyToShape 2 -> PASS 42/42** (7817e1c7). Law 2+3 above. Falsified from the

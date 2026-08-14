@@ -2040,7 +2040,21 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
        * folded into the decl (10), the same as its own `otSize = otSize - 2;`
        * statement at the block head (8), an explicit `i = 0;` at the block head
        * with the scan loop changed to `for (; i < 0x19; ...)` (6, exactly inert
-       * -- so the s0 position is NOT a source-statement question). */
+       * -- so the s0 position is NOT a source-statement question).
+       * ---- w60-a7 addendum: THE INSTRUMENTED-cc1plus LANE DOES NOT APPLY HERE.
+       * Fidelity check (the 11A discipline: a trace is only a receipt when the lab
+       * reproduces the real compiler byte-for-byte): under cc1plus-ecoff with
+       * `-O2 -G4 -mgas -msplit-addresses -funsigned-char -fno-exceptions -fno-rtti`
+       * this fn is 396/396 insns but NOT identical -- it diverges from insn 243
+       * (the lab hoists a `lui %hi` and re-orders the `lw` pair around the
+       * `ori $17,$17,0x851f`).  Flare_LensFlare therefore sits in the ~6%
+       * Mode-A-DIVERGENT set and its [qty_order]/[find_free_reg] trace must NOT be
+       * quoted as evidence for it (its TU-mate Flare_2DHalo IS identical, so the
+       * divergence is per-function, not per-TU).  The real CC1PLPSX -dl/-dg dump
+       * still applies and confirms what the side-by-side already shows: every
+       * register in the pt[] region matches the oracle, so the residual 3 lines are
+       * pure sched2 EMISSION POSITION in the entry block, the same class as
+       * Flare_2DHalo's residual (A) -- a PER_FN emission splice, not a source dial. */
       *(u_long *)&col = colw;
       pt[0].vx = (short)(sx + -2);
       pt[1].vy = pt[0].vy = (short)(sy + -2);

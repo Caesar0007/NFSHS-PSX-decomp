@@ -296,7 +296,35 @@ def _is_method_header_brace_next(l: str) -> bool:
 STRUCT_OPEN = re.compile(r"^\s*(typedef\s+)?(struct|union)\b.*\{\s*$")
 
 
+
+_MLDECL_START = re.compile(r"^\s{2,}(~?\w+)\s*\([^;{}=]*$")
+_MLDECL_KEYWORDS = {"if", "for", "while", "switch", "return", "do", "else",
+                    "sizeof", "case", "goto", "__asm__", "asm", "defined"}
+
+
+def _drop_multiline_struct_decls(text):
+    """w59-a17 gap: a struct-scope ctor/method DECLARATION wrapped over several
+    lines survives the single-line stripper and breaks pycparser.  Drop the
+    whole wrapped statement (same discriminator as A17's fix_base.py)."""
+    lines = text.split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        m = _MLDECL_START.match(lines[i])
+        if m and m.group(1) not in _MLDECL_KEYWORDS:
+            j = i
+            while (j < len(lines) and ";" not in lines[j] and "{" not in lines[j]
+                   and "=" not in lines[j] and j - i < 8):
+                j += 1
+            if (j < len(lines) and lines[j].rstrip().endswith(");")
+                    and "=" not in lines[j] and "{" not in lines[j]):
+                i = j + 1
+                continue
+        out.append(lines[i])
+        i += 1
+    return "\n".join(out)
+
 def sanitize(text: str) -> str:
+    text = _drop_multiline_struct_decls(text)   # w59-a17 gap fix
     text = _wrap_sizeof_parens(text)      # transform 4 (see docstring)
     text = _wrap_new_expressions(text)    # transform 5 (see docstring) -- do
     lines = text.splitlines()             # these first; neither ever inserts

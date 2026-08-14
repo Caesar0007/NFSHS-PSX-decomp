@@ -70,8 +70,7 @@ extern int CdGetToc2(int n, CdlLOC *loc)
     track_first = (result[1] >> 4) * 10 + (result[1] & 0xF);     /* BCD -> decimal */
     track_last  = (result[2] >> 4) * 10 + (result[2] & 0xF);
     if (CD_debug >= 2)
-        printf("track=%d,%d
-", track_first, track_last);
+        printf("track=%d,%d\n", track_first, track_last);
 
     param[0] = 0;
     if (CdControlB(0x14, param, result) == 0)           /* CdlGetTD, track 0 = lead-in */
@@ -95,16 +94,14 @@ extern int CdGetToc2(int n, CdlLOC *loc)
 
     if (CD_debug >= 2) {
         for (i = 0; i <= nTrack; i++)
-            printf("CdGetToc2: %02x:%02x:00
-", loc[i].minute, loc[i].second);
+            printf("CdGetToc2: %02x:%02x:00\n", loc[i].minute, loc[i].second);
     }
     CdSyncCallback(save);
     return nTrack;
 
 err:
     if (CD_debug != 0)
-        printf("CdGetToc2: error
-");
+        printf("CdGetToc2: error\n");
     CdSyncCallback(save);
     return 0;
 }

@@ -33,9 +33,13 @@ SOURCE OF TRUTH (gcc-2.8.1/local-alloc.c, read not guessed)
 
 INPUT = a trace from the instrumented cc1 (scratch/gccbuild*/cc1{,plus}.exe):
     GCC_TRACE_ALLOC=1 cc1plus -quiet -O2 -G4 -mgas -msplit-addresses \
-        -funsigned-char [-fno-exceptions -fno-rtti] tu.i -o tu.s 2> trace.txt
+        -funsigned-char -fno-exceptions -fno-rtti tu.i -o tu.s 2> trace.txt
+  !! -fno-exceptions -fno-rtti are MANDATORY for cc1plus, not optional: w60-a10
+     measured 8/10 byte-fidelity WITH them and 0/10 for every shorter flag set.
   !! VERIFY FIDELITY FIRST (scratch/instr/cmp_cc1.sh): the trace is a RECEIPT only
      for functions the instrumented cc1 reproduces byte-identically vs CC1PSX.
+     Fidelity is per-FUNCTION, not per-TU (w60-a7: Flare_LensFlare diverges while
+     its TU-mate Flare_2DHalo is identical) -- gate the target fn, not the file.
 
 USAGE
   python tools/qtytrace.py trace.txt                    # list traced functions

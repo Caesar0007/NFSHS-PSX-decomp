@@ -294,7 +294,14 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * MATCH W67 (2026-08-11): repeat the bulk unit as a read operand of its
  * zero-instruction identity fence.  The extra QTY reference changes GCC 2.8's
  * local-allocation priority and recovers the retail t2/t3/t0/t1 rotation for
- * the expanded five-word assignment, reducing 59->38 diffs (418/416). */
+ * the expanded five-word assignment, reducing 59->38 diffs (418/416).
+ *
+ * MATCH W68 (2026-08-14): retain strcpy's otherwise-dead return in the already
+ * dead carInfo local and price that value in the bulk-unit identity fence.
+ * This recovers retail's direct `li t1,20` plus the exact expanded-record word
+ * rotation, reducing the authoritative residual 36->34 (418/416).  Direct
+ * source-shape restoration, split first-size fences, and a distinct copy-call
+ * size handoff all measured neutral or worse and were reverted. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -393,9 +400,10 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
                 break;
               }
             }
-            strcpy(DummyRaceResult.sName,PlayerName((int)nRankCarTotalTimes[nCar]));
+            carInfo = (tCarInfo *)strcpy(DummyRaceResult.sName,
+                                        PlayerName((int)nRankCarTotalTimes[nCar]));
             uBulkUnit = sizeof(tRecordBuffer);
-            __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit), "r"(uBulkUnit));
+            __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit), "r"(carInfo));
             uBulkSz = uBulkUnit * 8;
             __asm__("" : : "r"(uBulkUnit), "r"(uBulkSz));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;

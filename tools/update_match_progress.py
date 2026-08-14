@@ -92,6 +92,9 @@ def main():
         ("game/common/spchevnt", "iSPCH_GetOffset16"),             # recon/eaclib/psx/spchpsxz/spchevnt.c static @0x800E6EA8
         ("syslib/psx/libpad/PAD", "PAD_convert"),                  # recon/eaclib/psx/pad.c SYM-STAT static @0x800E41FC
         ("syslib/psx/libpad/PAD", "ReadInitPadFlag"),              # recon/syslib/psx/libapi/PAD.c @0x8010C9B0 (gate PASS)
+        # w60 unlock dedups (canonical owner per SYM; the old-unit copy removed):
+        ("frontend/common/fememcard", "___19tMemoryCardMenuItem"), # femenuoptions.cpp owns @0x80020BD8 (gate PASS there)
+        ("game/common/aih_btcperp", "___15AIHigh_BTC_Perp"),       # aihigh.cpp owns @0x8005B438 (member dtor, gate PASS)
     }
 
     rows, total, matched = [], 0, 0

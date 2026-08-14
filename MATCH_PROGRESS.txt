@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3492 functions, 3297 at 100% (94.4%)
+TOTAL: 3490 functions, 3297 at 100% (94.5%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -253,7 +253,6 @@ VA             %match  unit                     function
 0x8002089C    100.00%  frontend/common/femenuoptions Draw__19tMemoryCardMenuItemb
 0x80020AF4    100.00%  frontend/common/femenuoptions ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80020BB8    100.00%  frontend/common/femenuoptions ___35tInsideBoxControllerLeftRightSlider
-0x80020BD8      0.00%  frontend/common/fememcard ___19tMemoryCardMenuItem
 0x80020BF8    100.00%  frontend/common/femenuoptions ___27tMenuItemGoToMenuButtonFade
 0x80020C18    100.00%  frontend/common/femenuoptions ___17tUserNameMenuItem
 0x80020C38    100.00%  frontend/common/femenuoptions ___34tMenuItemControllerLeftRightChoice
@@ -981,7 +980,6 @@ VA             %match  unit                     function
 0x8005B210    100.00%  game/common/aihigh       AIHigh_Execute__Fv
 0x8005B318    100.00%  game/common/aihigh       __11AIHigh_BaseP8Car_tObj
 0x8005B3C4    100.00%  game/common/aihigh       ___11AIHigh_Base
-0x8005B438      0.00%  game/common/aih_btcperp  ___15AIHigh_BTC_Perp
 0x8005B438    100.00%  game/common/aihigh       ___15AIHigh_BTC_Perp
 0x8005B460    100.00%  game/common/aihigh       HighExecute__11AIHigh_None
 0x8005B468    100.00%  game/common/aihigh       ___11AIHigh_None

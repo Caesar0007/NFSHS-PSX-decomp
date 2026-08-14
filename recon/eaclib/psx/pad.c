@@ -338,7 +338,39 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
      Verdict unchanged: 9 = item 1 (4, loop.c biv elimination our cc1 will not do)
      + item 2 (2, cse zero-reuse) + item 3 (3, the w48 EPILOGUE-SWAP class, whose
      only instrument is build.py's PER_FN_EPILOGUE_UNFILL table -- still the single
-     highest-value action on this function and still outside a worker's remit). */
+     highest-value action on this function and still outside a worker's remit).
+
+   W59-A9 2026-08-14 RE-GATE 6, COUNT-EXACT 66/66.  Item 3 (the epilogue swap) is
+   GONE -- PER_FN_EPILOGUE_UNFILL is wired now -- so the residual is exactly
+   item 1 (4 diffs) + item 2 (2 diffs).
+     * ITEM 1 IS NOW MECHANISED.  It is a PURE EMISSION-ORDER difference (both
+       sides have the identical two instructions), so it is reachable by
+       build.py's PER_FN_TEXT_MOVES table without any source change.  MEASURED
+       spec (probe harness scratchpad/w59a9/probe_moves.py, which patches
+       build.PER_FN_TEXT_MOVES in memory and re-uses verify_asm's normalizers):
+           "recon/eaclib/psx/pad.c": {
+             "PAD_update": [
+               {"take": r"\tsw\t\$16,16\(\$sp\)\n", "after": r"\tmove\t\$17,\$2\n"},
+               {"take": r"\tmove\t\$16,\$0\n",      "after": r"\tsw\t\$16,16\(\$sp\)\n"},
+             ],
+           }
+       Result: PAD_update 6 -> 2, whole TU 4/5 PASS (no regression; pad.c has no
+       prior TEXT_MOVES entry).  This restores retail's giv-init emission order
+       ($s2, $s1, $s0) without pretending our loop.c eliminated the biv.
+     * ITEM 2 STAYS (2 diffs, `addu $a3,$t0,$zero` vs retail `addu $a3,$zero,$zero`).
+       It is an instruction-CONTENT difference, so TEXT_MOVES cannot reach it.
+       W59-A9 re-falsified three more source forms, each re-measured from the
+       6-diff base (all WORSE, none kept):
+         loop 1 AND loop 2 both in index form (`Padglobal[i]` / `gPadinfo.buf[i]`)   26
+         loop 1 index form only (loop 2 keeps i/btnOff)                              21
+         loop 2 index form only (loop 1 keeps the byte offset)                       17
+         identity fence on `i` before a `for (btnOff = 0; ...)` header               25
+       In every index spelling cc1 keeps the counter as a real biv and adds a
+       per-iteration `sll`, exactly as w50-a9 recorded -- the byte-offset
+       spellings in this body ARE the faithful shape.  Item 2's only remaining
+       angle is the loop.c giv-creation decision itself (retail's btnOff is a
+       preheader giv init emitted AFTER cse, ours is a source variable cse
+       rewrites into a copy of i's zero) -- i.e. the instrumented-cc1 lane, not C. */
 void PAD_update(void)
 {
   int i;

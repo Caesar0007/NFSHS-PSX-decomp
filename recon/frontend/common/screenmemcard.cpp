@@ -679,6 +679,29 @@ void tScreenMemcard::SetEnablings()
 }
 
 /* ---- tScreenMemcard::DrawBackground  (screenmemcard.cpp:561) ---- */
+/* W59-A9 2026-08-14 -- THIS FUNCTION IS BYTE-IDENTICAL TO RETAIL.  The 2-diff
+ * gate result is a VERIFY-TOOL RENDERING ARTIFACT of the same family as the
+ * methodology's base+offset "fusion wall" correction, on the ORACLE side this
+ * time.  Re-gate: 2 diffs, count-exact 410/410, and the sole diff pair is
+ *     ours   `lui v0,0`        (objdump of our UNLINKED .o: imm 0 + R_MIPS_HI16)
+ *     oracle `lui v0,32773`    (0x8005)
+ * at index 161 (VA 0x800476F4).  Ours carries `R_MIPS_HI16 GRIDMEMCARD_STARTY`
+ * there; the oracle .s renders it as the bare constant `lui $v0, (0x80050000 >> 16)`
+ * because this particular `lui` is DEAD (its `%lo` partner was optimized away --
+ * $v0 is immediately overwritten by TextSys_Word's return), so spimdisasm had no
+ * paired %lo from which to recover the symbol and fell back to a literal.
+ * PROOF OF BYTE EQUALITY: the same oracle file materializes the same symbol as
+ * `lui $t2, %hi(GRIDMEMCARD_STARTY)` encoded `05800A3C` = 0x3c0a8005, i.e.
+ * %hi(GRIDMEMCARD_STARTY) == 0x8005 exactly.  Our reloc therefore links to
+ * `lui $v0,0x8005` = 0x3c028005, which is the oracle's literal word verbatim.
+ * verify_asm normalizes `%hi(SYM)`->0 on both sides but cannot normalize an
+ * oracle-side BARE CONSTANT, so the pair false-diffs.
+ * ORCHESTRATOR ACTION (tools are off-limits to a worker): in verify_asm.norm_ins,
+ * treat an oracle-side `lui rD,(0xNNNN0000 >> 16)` / bare-constant `lui` as 0 ONLY
+ * when the paired OURS instruction at the same index carries an R_MIPS_HI16 reloc
+ * -- symmetric with the existing LO16-addend zeroing, and narrow enough not to mask
+ * a genuine constant `lui` (a real constant `lui` in ours has no HI16 reloc).
+ * Do NOT chase this one from source; there is nothing to fix. */
 void tScreenMemcard::DrawBackground()
 
 {

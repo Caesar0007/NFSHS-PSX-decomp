@@ -841,6 +841,64 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 /* MATCH W63: 169 -> 168 diffs (375 -> 374 instructions; retail 366).  Writing
    the forward arm's two-stage fade as a nested call removes one intermediate
    result move while preserving the same calls and branch behavior. */
+/* W59-A9 2026-08-14 -- THE PARM-READ-MODE QUESTION, ANSWERED (re-gated 168 @ 374/366).
+   Method: census every incoming-slot load on BOTH sides (ours via tools/ourdis.py,
+   retail via asm/nonmatchings/front/DrawSlider__FsssssssssbT9ss.s).
+
+     slot   param        RETAIL              OURS
+     0x80   fY           lhu x1              lhu x1
+     0x84   fWidth       lh x1 AND lw x1     lh x1 AND lw x1     <- both dual-mode
+     0x88   fHeight      lhu x1              lhu x1
+     0x8C   rectwidth    lhu x1              lhu x1
+     0x90   rectspace    lhu x1              lhu x1
+     0x94   reverse      lw x1               lw x1
+     0x98   shadow       lw x2               lw x2
+     0x9C   fSelFade     lh x1  ONLY         lh x1 + lw x1       <- THE DELTA
+     0xA0   fFadeVal     lhu x1              lhu x1
+
+   So the two builds agree on the read mode of EVERY parameter except one, and the
+   whole 374-vs-366 instruction surplus starts with ONE extra load: `lw $a1,0x9C($sp)`.
+
+   MECHANISM (why two modes exist at all): the MIPS backend PROMOTES a stack-passed
+   `short` argument to a word-mode home, so the incoming slot legitimately holds a
+   sign-extended word.  gcc-2.8 therefore reads the SAME slot with `lh` for a HImode
+   use and with `lw` for an SImode use, and cse never unifies the two (different
+   modes => different MEMs).  0x84 shows this is normal: retail itself reads fWidth
+   both ways (`lh` for the `(value-min)*fWidth` multiply, `lw` for a later int use).
+   The bug is not "retail uses lh, we use lw" -- it is that OUR body contains an
+   SImode use of fSelFade that retail's does not.
+
+   WHERE OURS' SImode USE COMES FROM: the reverse arm caches the parameter
+   (`reverseSelFade = fSelFade;`) and hands it to `CalcFadeVal(int,int,int)`, an
+   int-typed callee -- an SImode read of a promoted short parm.  Retail reads
+   0x9C exactly ONCE and that single `lh $a1` feeds ONLY the `sltiu $t1,$a1,1`
+   that computes `factor = !fSelFade`, which is then spilled to 0x28($sp) and
+   RE-READ (`lhu $t2,0x28($sp)`) at the shift sites.  After that `sltiu` the raw
+   parameter value is DEAD in retail: the 3-arg `CalcFadeVal__Fiii` call in the
+   reverse arm takes its fade in $s5, which is loaded at 0x80024F8C from $a1 in
+   the reverse-arm preamble, not from the parameter slot.
+
+   => NEXT ANGLE (structural, not a dial): re-derive the reverse arm so it consumes
+   `factor` / the reverse-arm $s5 value instead of re-reading the parameter, i.e.
+   remove the only SImode use of fSelFade.  Verify first WHAT retail's $s5 actually
+   holds on that path (it is 0xFFFFFF in the forward arm -- a 24-bit stitch mask --
+   and `addu $s5,$a1,$zero` in the reverse arm): if it is not fSelFade, our reverse
+   arm is passing the wrong VALUE, which would make this a semantic correction
+   rather than a codegen dial.  That check is the first thing the next worker
+   should do; it is cheap and it decides the whole remaining 116-line diff.
+
+   FALSIFIED HERE (each re-measured from the 168 base, none kept):
+     - `reverseSelFade = factor;`  gates 165 but is SEMANTICALLY WRONG (factor is
+       !fSelFade), recorded only so the number is not mistaken for a win;
+     - dropping the W59 read-only fence, or re-pointing it at `factor` / `x1`, does
+       not compile as a standalone edit: `reverseSelFade` is also read at the
+       `if (reverseSelFade)` test and as the 3rd CalcFadeVal argument, so the local
+       cannot simply be deleted -- the reverse arm has to be re-derived as a whole.
+   NOTE for the instrument lane: C:/Temp/gcc-2.8.1-src/extracted/ carries only the
+   pass files (cse.c, local-alloc.c, global.c, loop.c, reorg.c, sched.c, flow.c,
+   jump.c, regclass.c, caller-save.c, toplev.c) -- expr.c and function.c
+   (assign_parms, promote_mode) are NOT in that extraction, so the promotion rule
+   above is stated from the emitted code, not cited to a line. */
 
 /* WARNING: Unable to use type for symbol pkt2 */
 /* WARNING: Unable to use type for symbol pkt */

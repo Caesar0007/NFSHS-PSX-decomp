@@ -1087,6 +1087,25 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w59-a9 (orchestrator-wired): SPCH_Init 2 -> PASS 39/39 (TU 7/7).  Pure
+    # emission-order: retail hoists the epilogue lw $ra above the last ori.
+    "recon/eaclib/psx/spchpsxz/spchinit.c": {
+        "SPCH_Init": [
+            {"take": r"\tlw\t\$31,16\(\$sp\)\n",
+             "after": r"\tori\t\$3,\$3,0x9a34\n"},
+        ],
+    },
+    # w59-a9 (orchestrator-wired): PAD_update 6 -> 2 (TU no-regression).
+    # Prologue giv-init order: retail emits the s0 save + zero-init before
+    # the s1 copy.  Remaining 2 = loop.c giv-creation content (instrument lane).
+    "recon/eaclib/psx/pad.c": {
+        "PAD_update": [
+            {"take": r"\tsw\t\$16,16\(\$sp\)\n",
+             "after": r"\tmove\t\$17,\$2\n"},
+            {"take": r"\tmove\t\$16,\$0\n",
+             "after": r"\tsw\t\$16,16\(\$sp\)\n"},
+        ],
+    },
     # tMenuItemLeftRightSlider::ProcessInput is count/register/source-shape
     # exact; retail prepares both constants before the sound call and fills
     # its delay slot with the independent processed-key store. Probe: 2 ->
@@ -1212,6 +1231,23 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tlui\t\$6,%hi\(Draw_gView\)[^\n]*\n"},
             {"take": r"\tsw\t\$31,16\(\$sp\)\n",
              "after": r"\tlui\t\$4,%hi\(Draw_gPlayer1View\)[^\n]*\n"},
+        ],
+    },
+    # iSPCH_ConstantRuleSet: the reconstructed C reaches the retail register
+    # handout and exact 83-insn stream; only sched2 places the a1 copy before
+    # the result guard and leaves the tmp-byte address after its li delay-slot
+    # filler.  Relocating those two existing lines gives the retail order:
+    # beqz / move a1 (delay) / addu v1,sp,s1 / li a3.  Probe: 4 -> PASS 83/83.
+    "recon/eaclib/psx/spchpsxz/spchpick.c": {
+        "iSPCH_ConstantRuleSet": [
+            {
+                "take": r"\tmove\t\$5,\$16\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tbeq\t\$2,\$0,\$L168\n)",
+                "after": r"\tbeq\t\$2,\$0,\$L168\n",
+            },
+            {
+                "take": r"\taddu\t\$3,\$sp,\$17\n(?=\tlui\t\$2,%hi\(gSentenceRuleSet\)[^\n]*\n)",
+                "after": r"\tbeq\t\$2,\$0,\$L168\n\tmove\t\$5,\$16\n",
+            },
         ],
     },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).

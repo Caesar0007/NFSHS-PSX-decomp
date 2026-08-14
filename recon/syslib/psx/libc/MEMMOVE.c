@@ -19,6 +19,16 @@
  *   -fno-strength-reduce 5 @26-vs-27, where reorg fills the RETURN's slot instead of
  *   stealing into the `j`).  ==> genuine floor at 2.
  */
+/* 🏆 FLOOR REFUTED (w59-a13, 2026-08-14) -- THE BODY ABOVE IS ALREADY BYTE-EXACT; the
+ * "genuine floor at 2" was a COMPILER-VERSION artifact, and the full W52 ladder finds the
+ * rung (04M/04U: ladder the version before filing any floor).  NO SOURCE CHANGE NEEDED:
+ *     "recon/syslib/psx/libc/MEMMOVE.c": {"cc1_alt": "2.7.2-970404"}
+ * gates memmove PASS 27/27 (reproduced twice; whole-TU 1/1, and this TU holds only memmove).
+ * Per-rung table on the UNCHANGED source: 2.6.0 22 | 2.6.3 22 | 2.7.2-970404 PASS |
+ * 2.7.2 22 | 2.8.0 2 | 2.8.1 2 | 2.91.66 25 @30 | 2.95.2 25 @30 | default (2.8+maspsx) 2.
+ * The winning rung is the same 970404 snapshot the libmath vendor-object cluster uses
+ * (04X) -- consistent with libc.lib being a Sony PREBUILT vendor object too.
+ */
 /* syslib/psx/libc/MEMMOVE.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   obj nfs4\syslib\psx\MEMMOVE.obj ; libc.lib.  1 fn memmove @0x800FE398 (108 B) -- REAL code (in EXE).
  *   Ghidra nfs4-f.exe.c.  Overlap-safe: backward (index form dst[i]=src[i]) when dest>=src, else forward

@@ -35,7 +35,7 @@ extern void *bsearch(void *key, void *base, unsigned n, unsigned w,
     unsigned lo = 0;
     if (n != 0) {
         do {
-            unsigned mid = (n + lo) >> 1;
+            unsigned mid = (lo + n) >> 1;
             unsigned char *el = (unsigned char *)base + w * mid;
             int c = cmp(el, key);
             if (c < 0)
@@ -46,5 +46,6 @@ extern void *bsearch(void *key, void *base, unsigned n, unsigned w,
                 return el;
         } while (lo < n);
     }
+    __asm__("" : : "r"(lo), "r"(key), "r"(w));
     return (void *)0;
 }

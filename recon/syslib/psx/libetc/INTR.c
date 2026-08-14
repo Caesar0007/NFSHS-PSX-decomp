@@ -76,6 +76,13 @@ static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
 }
    /* extern "C" */
 
+/* W59-A13 (2026-08-14) RE-GATE 6 @54/54.  The WHOLE fn is byte-exact except ONE address
+ * pseudo: the second `g_hooks_ptr` reload (for `dma_setter`, offset +4) lands in $v1 for us
+ * and $a0 in retail, while the FIRST one (`vsync_setter`, +0x14) is $v1 in both.  Two
+ * consecutive one-block address qtys where retail's second one skips the free low regs =
+ * the local-alloc QTY handout (06E gap).  FALSIFIED: a local `IntrHooks *h` for the dma
+ * store (20), naming both call results in temps (6, inert), a void fence between the two
+ * stores (6, inert), `(&g_hooks_ptr[0])->` index form on both (6, inert); ladder as above. */
 extern IntrState *_initIntr(void)       /* @0x800F2968 */
 {
     if (g_intr.inited != 0)
@@ -198,6 +205,19 @@ extern void _intrhand(void)            /* @0x800F2A40 */
     ReturnFromException();
 }
 
+/* W59-A13 (2026-08-14) RE-GATE 27 @83/82; FALSIFIED THIS PASS (all gated, all reverted):
+ *  - fence removals: no pendingValue fence 28 @82/82 | no `st` fence 25 | no `base` fence 28 @86
+ *    | no `index` fence 47 | no `callback` fence 32 | no `bit` fence 35 | no pend+no st 26 @82
+ *    | no st + void fence at the else-arm head 25 | + void fence before the final return 25/26.
+ *  - REF dials on `slot` (05C): fence after `oldCallback = *slot` (27, inert), 2-operand (27),
+ *    in each arm (28 @84), all three (28) -- the a0/a1/a2 rotation does not move.
+ *  - LADDER (04Z, whole TU): current cc1_272 lane 10/13 PASS is best; 2.6.3 10/13 (_intrhand 45,
+ *    the rest identical), 2.7.2-970404 7/13, 2.8.0 alt 2/13.
+ * RESIDUAL CLASS: ours {base=$a0, slot=$a2, st=$a1} vs retail {base=$a1, slot=$a0, st=$a2} --
+ * a THREE-pseudo rotation inside one block (local-alloc QTY handout, the 06E instrument gap),
+ * plus retail computing `st` in the `beqz $v0` delay slot where ours re-stages the return value,
+ * plus one extra `andi $v1,0xffff` (dropping the pendingValue opacity fence removes it but costs
+ * more elsewhere).  Needs qtytrace, not another spelling sweep. */
 extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 {
     /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp

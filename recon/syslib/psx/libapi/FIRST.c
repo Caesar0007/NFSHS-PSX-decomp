@@ -61,17 +61,34 @@ extern int _first_patch(int *state, int arg, int arg2)
     unsigned int cnt;
     FirstFn saved;
 
-    /* MATCH (w48-a7, allocsim priority dial): assigning `saved` FIRST -- before the *state
-     * update -- LENGTHENS its live range from 14 to ~26 insns, which DROPS its allocno
-     * priority (2 refs / live) below `state`'s (4 refs / 60), swapping them into the
-     * oracle's $s2 (state) / $s3 (saved).  Every other saved-reg role then lands exactly.
-     * Positions further down (after the div, after `e =`, after `lim =`) all measure 20. */
-    saved = _first_save;
-
+    /* MATCH (w59-a13, 2026-08-14, 9 -> 2 diffs @62/64): SUPERSEDES the w48-a7 note that
+     * `saved` must be assigned FIRST (that basin measured 9; every later position measured
+     * 20 -- but only because the s2/s3 roles then swapped).  The oracle SCHEDULES the
+     * `lui/lw _first_save` pair into the multu latency window (between `lw s0,336` and
+     * `mfhi`), i.e. in the block AFTER the `*state` update -- unreachable from the
+     * first-statement position, where sched1 puts it in the `lw v0,0(s2)` load-delay slot
+     * and retail keeps a `nop`.  Assigning it here reproduces retail's placement AND the
+     * prologue `sw ra` order; the resulting s2/s3 swap is then bought back by the one
+     * read-only fence on `state` before the tail call (see below).
+     * FALSIFIED at this position (all worse): fence on `saved` instead (24), two `state`
+     * operands (18), no fence (20), void fence at the fall-through head (3) / after the
+     * `end` copy (2, inert) / at the tail head (2, inert), duplicated tail call in the
+     * guarded arm (24 @68 -- the call setup duplicates without a cross_jump merge).
+     * FLAG/VERSION AXIS RE-LADDERED on THIS basin (04Z): default best -- cc1_ver 2.7.2 30,
+     * 2.7.2-970404 12, 2.6.3 36, 2.8.1 == default, -fno-schedule-insns2 14,
+     * -mno-split-addresses 4 @64/64 (count-exact but it un-splits the `la _first_devname`
+     * macro, so the jal can no longer sit between its halves = 2 NEW diffs for 2 old ones).
+     * RESIDUAL (2, both reorg-side): retail fills the zero-trip guard's `beqz $v0` slot from
+     * the TARGET thread (`addu $a0,$s2,$zero`, the tail call's first arg, re-done at the
+     * shared tail) while ours fills it from the fall-through (`addu $s1,$v1,$zero`), and
+     * retail leaves the `beqz $a0` name-test slot EMPTY where our reorg steals the
+     * `lui %hi(_first_devname)` half into it.  Both are mostly_true_jump/thread-choice
+     * decisions in reorg.c, downstream of RTL; no source shape reached them. */
     if (*state == 0)
         *state = 1;
     cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     e    = BIOS_DCB_BASE;
+    saved = _first_save;
     /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
      * the zero-trip guard, and only copies it into the callee-saved loop bound inside the guard
      * (`addu $v1,$s0,$v0; sltu $v0,$s0,$v1; beqz $v0,..; addu $s1,$v1,$zero`).  The copy survives
@@ -88,6 +105,11 @@ scan:
             if (e < end) goto scan;
         }
     }
+    /* MATCH (w59-a13): read-only fence = +1 ref on `state`, which raises its allocno
+     * priority back above `saved`'s and restores retail's $s2=state / $s3=saved roles
+     * (without it the late `saved` assignment colours them the other way round: 20 diffs).
+     * Zero insns; must list `state` ONLY -- a second operand costs 16 more diffs. */
+    __asm__("" : : "r"(state));
     return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
 }
 
@@ -106,6 +128,23 @@ extern void *firstfile(char *name, void *dir)
         *p++ = (unsigned char)*scan++;
     *p = '\0';
 
+    /* RESIDUAL (w59-a13, 6 diffs @103/103, both sites reorg/sched1-side):
+     *  (1) HEAD: retail emits the `la _first_devname` AFTER the first `lb $v0,0($s2)`
+     *      (its `lui` fills that load's delay slot) and materializes it SELF-TEMP
+     *      (`lui $a0; addiu $a0,$a0`); ours hoists the pair into the prologue store group
+     *      and splits it through a SEPARATE scratch (`lui $v0; addiu $a0,$v0`) leaving the
+     *      lb's slot a `nop` -- a sched1 ready-list order + reload-scratch tie-break.
+     *      FALSIFIED: `scan` before `p` (22), split-increment loop body (22), peeled
+     *      do/while (22), void/read-only fences before or after either init (6 inert or 9),
+     *      sized `_first_devname[32]`/`[16]` (6 inert; `[4]`/`[1]` = 15, they fall under -G4).
+     *  (2) the zero-trip guard's `beqz $v0` slot: retail eager-steals `addu $a0,$s2,$zero`
+     *      from the TARGET thread (the firstfile2 arg setup, re-done at the shared tail),
+     *      ours fills from the fall-through -- the same reorg thread-choice residual as
+     *      _first_patch's, and the only diff left after (1).
+     *  FLAG/VERSION AXIS RE-LADDERED on this basin (04Z): default lane best (6+2);
+     *  cc1_alt 2.7.2 = 5 on firstfile but 18 on _first_patch (23 total), 2.7.2-970404 21/7,
+     *  2.8.0/2.8.1 alt 22/6, cc1_ver 2.7.2 18/30, -mno-split-addresses 12/4,
+     *  -fno-schedule-insns 18, -fno-schedule-insns2 17/14, -G0 25/13, -G8 == default. */
     /* MATCH (w48-a7): both DCB searches use a GOTO back-edge (see _first_patch) so loop.c never
      * hoists the `(high _first_devname)` half into a callee-saved reg, and `found` is assigned in
      * the two EXIT paths (never before the loop) so it does not live across strcmp and stays in a
@@ -132,6 +171,23 @@ hit1:
     _first_save = (FirstFn)e->firstfile;
     found = 1;
     goto tested;
+/* MATCH (2026-08-14, 16 @103/103 -> 9 @102/103): retail places the second
+ * search's match arm physically before the search setup.  Keeping hit2 here
+ * makes the loop branch backward to the patch store and reproduces the SDK
+ * cross-jump layout; placing it after scan2 emitted the right logic in the
+ * wrong block order. */
+hit2:
+    /* MATCH (w59-a13, 2026-08-14, 9 @102/103 -> 6 @103/103): void-tail fence at the ARM
+     * HEAD (06B/05H).  Without it reorg back-scans into this block and steals the
+     * `lui %hi(_first_patch)` half of the split address into the preceding loop's
+     * `beqz $v0` delay slot, where retail keeps a `nop` and emits the lui adjacent to its
+     * `addiu %lo` -- one wrong fill costing 3 diffs AND the instruction count.  Zero insns.
+     * FALSIFIED (all inert or worse): the same fence at hit1's head (9), at tail's head (9),
+     * a read-only `name` fence at tail (9), void fence before/after `p = _first_devname`
+     * (6, inert), after `scan = name` (9 @104). */
+    __asm__("" : : "i"(0));
+    e->firstfile = (void *)_first_patch;
+    goto tail;
 pass2:
 
     /* pass 2: install the self-removing patch into that device */
@@ -146,8 +202,6 @@ scan2:
         if (e < end) goto scan2;
     }
     goto tail;
-hit2:
-    e->firstfile = (void *)_first_patch;
 tail:
     return firstfile2(name, dir);
 }

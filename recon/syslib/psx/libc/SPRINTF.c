@@ -1,4 +1,25 @@
-/* MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
+/* MATCH (2026-08-14): 174 -> 60 diffs, now count-exact at 545/545.  Retail loads each
+ * variadic argument from the current cursor before advancing it; spelling those as
+ * separate load/advance statements removes the repeated advance-then-load(-4) cascade.
+ * The prefix tests require signed-byte reads, while the prefix copy remains unsigned.
+ * A narrow unsigned-char temporary in case 'c' also reproduces retail's load and removes
+ * the last two count differences.  Detailed verify_asm/vdiff are the authority.
+ */
+/* W59-A13 RE-GATE + FALSIFICATIONS (2026-08-14, baseline re-measured at 60 @545/545):
+ *  - FORMAT-POINTER CLUSTER (~15 of the 60): retail reads the next char off the OLD base with
+ *    a bigger displacement (`addiu $v0,$a2,1; sw $v0,596(sp); lb $a1,2($a2)`) where ours reads
+ *    it off the freshly-incremented pointer (`lb $a1,1($a3)`).  All four spellings of the 9
+ *    `ch = *++f;` sites gate IDENTICALLY (60): `f = f + 1; ch = *f;`, `ch = *(++f);`,
+ *    `ch = *(f += 1);`; the index form `ch = f[1]; f = f + 1;` is much worse (110 @537).
+ *    ==> post-RTL base-reuse choice, not a source spelling.
+ *  - LANE/FLAG AXIS RE-LADDERED (04Z): default (jtbl_at_fusion) 60 @545/545 is best on
+ *    instruction parity; cc1_272 168 @529, cc1_272+no_schedule_insns 204 @529,
+ *    cc1_ver 2.8.1 60 (identical), -G0 60 (identical), -mno-split-addresses 49 @546/545 --
+ *    the last one FIXES the `lui $v0; addiu $a3,$v0` vs retail `lui $a3; addiu $a3,$a3`
+ *    self-temp class (~6 diffs) but ADDS an instruction, so it fails the w34 keep-rule as
+ *    written; reported as an orchestrator judgement call, not wired.
+ */
+/* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
  * Reference: C:\Tempage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full
  * byte-matched PsyQ libc sprintf, gcc-2.6.3 -O2 -G0 -funsigned-char).  Findings:
@@ -80,7 +101,7 @@
 typedef enum { false = 0, true = 1 } bool;
 typedef char *va_list;
 #define va_start(ap, last) ((ap) = (char *)&(last) + 4)
-#define va_arg(ap, type)   (*(type *)(((ap) += 4) - 4))
+#define va_arg(ap, type)   (*(type *)(ap))
 #define NULL ((void *)0)
 
 extern int   strlen(const char *s);
@@ -145,6 +166,7 @@ extern int sprintf(char *out, signed char *f, ...)
 
         if (ch == '*') {
             info.width = va_arg(args, int);
+            args += 4;
             if (info.width < 0) {
                 info.width = -info.width;
                 info.leftJustified = true;
@@ -160,6 +182,7 @@ extern int sprintf(char *out, signed char *f, ...)
             ch = *++f;
             if (ch == '*') {
                 info.precision = va_arg(args, int);
+                args += 4;
                 ch = *++f;
             } else {
                 while (ch >= '0' && ch <= '9') {
@@ -197,6 +220,7 @@ extern int sprintf(char *out, signed char *f, ...)
         case 'd':
         case 'i':
             num = va_arg(args, int);
+            args += 4;
             do {
                 if (info.isHalf)
                     num = (short)num;
@@ -214,6 +238,7 @@ extern int sprintf(char *out, signed char *f, ...)
 
         case 'u':
             num = va_arg(args, unsigned int);
+            args += 4;
             do {
                 if (info.isHalf)
                     num = (unsigned short)num;
@@ -223,7 +248,7 @@ extern int sprintf(char *out, signed char *f, ...)
             if (!info.usePrecision) {
                 if (info.leadingZeros) {
                     info.precision = info.width;
-                    if (info.leadingChar != '\0')
+                    if ((signed char)info.leadingChar != '\0')
                         info.precision = info.width - 1;
                 }
                 if (info.precision <= 0)
@@ -239,7 +264,7 @@ extern int sprintf(char *out, signed char *f, ...)
                 *--bufPtr = flagZero;
                 len++;
             }
-            if (info.leadingChar != '\0') {
+            if ((signed char)info.leadingChar != '\0') {
                 *--bufPtr = info.leadingChar;
                 len++;
             }
@@ -247,6 +272,7 @@ extern int sprintf(char *out, signed char *f, ...)
 
         case 'o':
             num = va_arg(args, unsigned int);
+            args += 4;
             do {
                 if (info.isHalf)
                     num = (unsigned short)num;
@@ -285,6 +311,7 @@ extern int sprintf(char *out, signed char *f, ...)
             hexChars = "0123456789abcdef";
         printHex:
             num = va_arg(args, unsigned int);
+            args += 4;
             do {
                 if (info.isHalf)
                     num = (unsigned short)num;
@@ -315,13 +342,20 @@ extern int sprintf(char *out, signed char *f, ...)
             }
             break;
 
-        case 'c':
-            *--bufPtr = (char)va_arg(args, int);
+        case 'c': {
+            unsigned char argChar;
+
+            --bufPtr;
+            argChar = *(unsigned char *)args;
+            args += 4;
+            *bufPtr = argChar;
             len = 1;
             break;
+        }
 
         case 's':
             bufPtr = va_arg(args, char *);
+            args += 4;
             if (info.alternativeForm) {
                 len = (unsigned char)*bufPtr++;
                 if (info.usePrecision && info.precision < len)
@@ -338,6 +372,7 @@ extern int sprintf(char *out, signed char *f, ...)
 
         case 'n':
             bufPtr = va_arg(args, char *);
+            args += 4;
             if (info.isHalf)
                 *(short *)bufPtr = (short)written;
             else if (info.isLong)

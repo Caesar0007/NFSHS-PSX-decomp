@@ -144,11 +144,11 @@ static void MDEC_rest(u_long mode)
      *   - printf takes the FORMAT STRING ONLY (the oracle sets up `$a0` and nothing else).
      * The quant-table pointer is hoisted into a local ahead of the switch, as in the original. */
     volatile u_long *inBuffer = (volatile u_long *)_mdec_iqtab;
-    u_long option = mode;
-    /* RR pins this copy to $a1 (`register long option asm("$5")`); pins are forbidden here, so
-     * the zero-insn opacity fence does the same job -- an asm_operands def cancels the param's
-     * $a0 copy-preference and mints the oracle's `addu $a1,$a0,$zero`. */
-    __asm__("" : "=r"(option) : "0"(option));
+    long option = (long)mode;
+    /* MATCH (2026-08-14, 6 @60/60 -> 5 @59/60): keep Rage Racer's signed `long`
+     * option type, but do not retain its hard-register pin or the former opacity fence.
+     * The fence moved the copy to $v1 and was strictly worse; this natural local leaves
+     * only retail's otherwise redundant `addu $a1,$a0,$zero` copy outstanding. */
 
     switch (option) {
     case 0:
@@ -168,8 +168,15 @@ static void MDEC_rest(u_long mode)
         MDEC1 = 0x60000000;
         return;
     }
-    printf("MDEC_rest:bad option(%d)
-");
+    /* MATCH (w59-a13, 2026-08-14, 5 @59/60 -> PASS 60/60): the %d ARGUMENT was missing.
+     * Passing `option` is what makes gcc coalesce its pseudo into the outgoing $a1 at
+     * ENTRY -- that IS retail's otherwise inexplicable `addu $a1,$a0,$zero` copy, and it is
+     * why the printf call site itself sets up $a0 only (the w51-a7 note read that as "format
+     * string only"; the arg is simply already in place).  The literal also carried a RAW CRLF
+     * inside the quotes instead of an 
+ escape (the w48-a1 CRLF-fixer corruption class: cc1
+     * accepts it, host g++ rejects it) -- fixed here too. */
+    printf("MDEC_rest:bad option(%d)\n", option);
 }
 
 /* @0x800F8BE8 : feed `buf` (cmd word + payload) to MDEC over DMA channel 0. */

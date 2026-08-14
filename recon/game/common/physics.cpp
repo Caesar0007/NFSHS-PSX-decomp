@@ -758,8 +758,20 @@ void Physics_AutoShift(Car_tObj *carObj)
           (carObj->specs->redline <
            ((0 <= wheelRpm) ? wheelRpm : -wheelRpm))) {
         if (ShiftPoint + 500 < wheelRpm) {
+          /* MATCH (W60-A9, 20 -> PASS 175/175): the w45 FOLD-REWRITE ESCAPE.  Retail
+           * computes `SkipLastGear + 1` as its OWN insn in the beqz delay slot
+           * (`addiu $v1,$s6,1`) and subtracts it; every natural spelling of
+           * `numGears - SkipLastGear - 1` (incl. the parenthesised
+           * `numGears - (SkipLastGear + 1)` and `- (1 + SkipLastGear)`) is
+           * reassociated by fold() to `(numGears - SkipLastGear) - 1` = ours'
+           * `subu;addiu -1` pair (20 diffs).  Writing the sum NEGATED FIRST takes
+           * split_tree's varsign=-1 branch, whose rewrite fold never re-folds, so the
+           * `addiu +1` survives.  Do NOT "simplify" this back -- and do NOT reuse the
+           * existing `lastGearOffset` local here either (cse then shares the earlier
+           * computation instead of rematerialising: 47 diffs).  `move_term`
+           * (`gear + SkipLastGear + 1 < numGears`) = 23. */
           if ((u_char)(carObj->control).gear <
-              carObj->specs->numGears - SkipLastGear - 1) {
+              -(SkipLastGear + 1) + carObj->specs->numGears) {
             if (nextGear != (u_char)(carObj->control).gear) {
               (carObj->control).downShifting = '\0';
               (carObj->control).lastGear = (carObj->control).gear;

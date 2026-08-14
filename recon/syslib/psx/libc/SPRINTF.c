@@ -126,7 +126,7 @@ extern printf_info D_8012348C;
 
 extern int sprintf(char *out, signed char *f, ...)
 {
-    register int flagZero = '0';
+    register int flagZero;
     char buf[0x200];
     printf_info info;
     va_list args;
@@ -140,6 +140,19 @@ extern int sprintf(char *out, signed char *f, ...)
     va_start(args, f);
     ch = *f;
     written = 0;
+    /* w60-a5 (idiom: rage-racer-decomp src/main/PAL/lib/libc/sprintf.c,
+     * a 100%-matched PSY-Q libc sprintf): the flag-character constants are
+     * assigned AFTER the zero-trip guard, not at function entry.  Retail
+     * emits `beqz` with `written = 0` in its delay slot and only THEN the
+     * four `li` constants (s7='-', s6='+', s5=' ', s3='0'); a function-scope
+     * `flagZero = '0'` initializer emits its `li s3,48` FIRST, ahead of the
+     * three LICM-hoisted literals.  Splitting the decl from the init and
+     * assigning behind an explicit guard puts it in the loop preheader with
+     * them.  60 -> 56.  (RR spells the guard `if (c == 0) goto finished;`
+     * and the loop `do { ... } while (format++, (c = *format) != 0);` -- the
+     * do/while half is gate-neutral here, so only the guard is taken.) */
+    if (ch == 0) goto end;
+    flagZero = '0';
     for (; ch = *f, ch != 0; ++f) {
         if (ch != '%') {
             out[written++] = ch;

@@ -469,7 +469,10 @@ void CountLocations__6Speech(int param_1)
   return;
 }
 
-/* ---- CheckLocationBank__6SpeechPQ26Speech12LocationBankPci  [SPEECH.CPP:539-561] SLD-VERIFIED ---- */
+/* ---- CheckLocationBank__6SpeechPQ26Speech12LocationBankPci  [SPEECH.CPP:539-561] SLD-VERIFIED ----
+ * NEAR-MISS 2, COUNT-EXACT 65/65 (W60-A9): the sole residual is the issue POSITION
+ * of `addiu s2,s1,6` (retail issues it one slot earlier).  Pure emission order --
+ * a PER_FN_TEXT_MOVES candidate, no register or count difference. */
 u_int CheckLocationBank__6SpeechPQ26Speech12LocationBankPci(int param_1,int *locationbank,char *name,int id)
 
 {
@@ -876,7 +879,13 @@ int CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3(Speech *pThis,char *
   return bsize;
 }
 
-/* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell  [SPEECH.CPP:990-1102] SLD-VERIFIED ---- */
+/* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell  [SPEECH.CPP:990-1102] SLD-VERIFIED ----
+ * NEAR-MISS 6, COUNT-EXACT 270/270 (W60-A9).  ONE relocation, three diff lines each
+ * way: retail issues the call's `li a2,16` BEFORE the header read
+ * `lbu v0,8(s0); addiu s0,s0,8`, ours issues that pair ~6 slots earlier (right after
+ * `addiu s4,s0,16`) and the `li a2,16` after `lw v1,28(sp)`.  Everything else is
+ * byte-identical.  PER_FN_TEXT_MOVES candidate: move the `lbu/addiu` pair to sit
+ * after the `li $6,16`, anchored on the `lw $3,28($sp)` that follows it. */
 /* MATCHING-RECEIPT (2026-08-14): detailed verify_asm 137 -> 133 -> 119 -> 97
  * -> 62 -> 51 -> 31 -> 13 -> 11 -> 9 -> 6, with the final source stream count-
  * and register-exact at 270/270.  IDA's gold allocation and the SLD expose a
@@ -1549,7 +1558,15 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
   return;
 }
 
-/* ---- StatusReply__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1636-1713] SLD-VERIFIED ---- */
+/* ---- StatusReply__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1636-1713] SLD-VERIFIED ----
+ * NEAR-MISS 5, ours 268 / oracle 269 -- ours is ONE SHORT (W60-A9).  Retail loads
+ * the value into $v1 (`lw v1,8(s0)`), stores it (`sw v1,64(s1)`) and keeps a
+ * SURVIVING copy `addu a3,v1,zero`; ours loads straight into $a3 and needs no copy.
+ * That is the w47 delete_noop_moves class: the copy survives in retail only because
+ * its two ends got DIFFERENT hard regs, and combine_regs refuses to tie only when
+ * the DESTINATION is a global allocno.  Reachable lever per w47 A: make the
+ * PRODUCER's destination a distinct short-lived pseudo (a block-local temp for the
+ * stored value, live only across the store), NOT another spelling of the copy. */
 void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 
 {
@@ -1904,7 +1921,18 @@ DispStatus_fetchSpeechCtx:
   return;
 }
 
-/* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ---- */
+/* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ----
+ * NEAR-MISS 14 (W60-A9 triage), three separable classes:
+ *  (1) x2 `addu a1,s1,v0` (ours) vs `addiu a1,s1,8` (retail).  $v0 holds the
+ *      constant 8 from the neighbouring `beq v1,v0` compare, and cse REUSES that
+ *      register as the address offset; retail rematerialises the immediate.  This is
+ *      the INVERSE of the catalog's "name the constant so cse reuses its register"
+ *      row -- the cure direction here is to stop the compare constant living in a
+ *      register at that point (spell the test so it uses an immediate form), or to
+ *      write the +8 address as a real field access rather than a computed offset.
+ *  (2) x2 `lw v1,48(a1)` issue position (retail two slots earlier).
+ *  (3) one `sw v0,20(sp)` vs `sw v1,20(sp)` register pick riding on (2).
+ * Classes (2)+(3) are emission order = TEXT_MOVES-shaped; (1) is the real lever. */
 /* MATCH: 90 -> 14 diffs (358/358).  IDA/SLD recovered the shared s0 boolean
    lifetimes, direct Dispatch virtual call, far-subbranch order, and speed/look
    cross-jump layout.  The remaining 14 are four call-argument scheduling
@@ -2195,7 +2223,18 @@ void AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tO
   return;
 }
 
-/* ---- Report__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1990-2031] SLD-VERIFIED ---- */
+/* ---- Report__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1990-2031] SLD-VERIFIED ----
+ * NEAR-MISS 11, ours 103 / oracle 104 (W60-A9).  Retail keeps the second vf-thunk's
+ * receiver in a FRESH register ($a1: `lw a1,76(v1); lh a0,136(a1); lw v1,140(a1)`)
+ * and defers the first call's result copy `addu s0,v0,zero` into the SECOND jalr's
+ * DELAY SLOT (so it still captures the FIRST result -- delay slots run before the
+ * call lands, S3.1); ours reuses $v0 for the receiver and emits the copy right after
+ * the first call.  Semantics identical.
+ * FALSIFIED (W60-A9): rewriting the `iVar3 = pfnA(); iVar4 = pfnB(); iVar3 += iVar4*4;`
+ * chain as Roger's single-expression form `pfnA() + pfnB()*4` -- 13@101 with the
+ * fenced pSVar6 hoisted, 15@103 keeping the statement order, 14@100 without the
+ * identity fence.  All three LOSE insns (ours already runs short), so the missing
+ * insn is retail's extra receiver register, not the expression shape. */
 /* MATCH: 36 -> 11 diffs (103/104).  Distinct short-lived speech arguments
    recover every tail register, the SLD Speech* local plus the first empty
    barrier recover the retail prologue, and the pin-free pSVar6 fence recovers
@@ -3007,7 +3046,12 @@ MSEngage_emitSpeech:
   return;
 }
 
-/* ---- Lose__Q26Speech13MobileSpeaker  [SPEECH.CPP:2463-2538] SLD-VERIFIED ---- */
+/* ---- Lose__Q26Speech13MobileSpeaker  [SPEECH.CPP:2463-2538] SLD-VERIFIED ----
+ * NEAR-MISS 3, ours 214 / oracle 213 -- ours is ONE LONG (W60-A9): we emit an extra
+ * `addu a0,s0,zero` and issue `lw a2,48(s1)` one slot later than retail.  Ours-longer
+ * with a redundant receiver copy = the "cache a pointer the oracle re-derives" class;
+ * try inlining the receiver expression at that call site instead of the cached local
+ * (catalog: drop the eager whole-pointer cache). */
 void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
@@ -3409,7 +3453,21 @@ void Backup__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
   return;
 }
 
-/* ---- Roger__Q26Speech13MobileSpeaker  [SPEECH.CPP:2711-2733] SLD-VERIFIED ---- */
+/* ---- Roger__Q26Speech13MobileSpeaker  [SPEECH.CPP:2711-2733] SLD-VERIFIED ----
+ * NEAR-MISS 2, COUNT-EXACT 94/94 (W60-A9).  The whole residual is the ISSUE
+ * POSITION of ONE argument copy: at the SPCHNFS_C_A_CONFIRM site retail emits
+ * `addu a0,s1,zero` FIRST -- immediately after the second pfn's jalr delay slot,
+ * i.e. BEFORE the `bank` chain (`sll v0,v0,2; addu s0,s0,v0; lw a1,8(s0)`) -- and
+ * ours emits it AFTER that chain, between the a1 load and `addiu a2,s2,28`.  Pure
+ * emission order, no register or count difference.
+ * FALSIFIED (W60-A9): passing `VOICE` instead of the `ctx_00` alias at the call
+ * (2, unchanged) and re-spelling the a1 argument (2, unchanged).
+ * CLASS: this is a pure line relocation = a PER_FN_TEXT_MOVES candidate.  SPEC for
+ * the orchestrator (regexes against the cc1plus .s, no new build.py keys needed):
+ *   take  = the `\tmove\t\$4,\$17\n` line that precedes the CONFIRM `jal`
+ *   after  = the `\taddu\t\$16,\$2,\$0\n` (jalr result copy) that precedes the
+ *            `sll \$2,\$2,2` bank chain
+ * Same family as LoadBankHeaders below (li a2,16 issued one slot late). */
 void Roger__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {

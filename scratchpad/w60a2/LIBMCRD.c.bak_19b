@@ -1486,16 +1486,7 @@ extern long MemCardDeleteFile(long chan, char *file)
      * AND the whole inlined sync body (`lw $v1,0($s0)` ... `lw $v0,8($s0)`), which only happens
      * when the caller's base is a plain address expression.  Measured: no fence 57 / non-volatile
      * 57 / volatile 60.  (CreateFile measures the opposite way -- volatile 68 / plain 70 / none
-     * 81 -- so A/B per function.)
-     * 🔴 w60-a2 FALSIFIED -- the floor_log2 REF-STEP dial that cracked MemCardCmd_cb's $s0/$s1
-     * swap (47 -> 17 with 8 read-only fence operands) does NOT reach this fn's saved-reg
-     * ROTATION (retail chan=$s2/file=$s0/base=$s3->$s0; ours base=$s0/file=$s2/chan=$s3):
-     *   PROMOTE `file` (read-only fence, 2/4/6/8/10 operands) ..... 57 -> 67 on every count
-     *   DEMOTE `base` (late read-only fence, 1 and 4 operands) ..... 57 (inert)
-     * Cmd_cb's was a TWO-allocno tie (one step flipped the pair); this is a THREE-way rotation,
-     * so a single-pseudo ref/live delta cannot express it.  NAMED ANGLE: price it properly --
-     * dump -dg/-dl for this fn and run tools/reqdelta.py --want "file=s0,chan=s2,base=s3" to get
-     * the minimal MULTI-pseudo delta, instead of hand-dialling one pseudo at a time. */
+     * 81 -- so A/B per function.) */
     int *base = &mc.cmd;
 
     if (base[0] != 0) {

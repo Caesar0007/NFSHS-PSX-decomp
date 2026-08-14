@@ -594,34 +594,11 @@ static int MemCardCmd_cb(void *pv)
      * to block gcc's branchless if-conversion (`sltu;negu;andi 3`) (89->79, polarity flip ->77) ·
      * a SEPARATE local for the tail's re-read of _mc_evrslt (reusing `ev` extends its web onto the
      * $a0 call-arg and re-colors the whole dispatch) (57).
-     * w60-a2: 55 -> 47 -> 17.  TWO further landings:
-     *   🔴 CORRECTNESS: the `ctail` re-read wrote `ev = _mc_evrslt;` but then USED the never-
-     *      assigned `e` in both the `e == 4` test and the two `pc[1] = e` / EventToRslt(e) uses
-     *      -- an uninitialised local.  The w53-a7 note's own wording ("a SEPARATE local for the
-     *      tail's re-read") says the assignment was meant to be `e = _mc_evrslt;`.  Fixed; worth
-     *      8 diffs on its own (55 -> 47), which is the usual sign a "matching" hack was really
-     *      standing in for a bug.
-     *   🏆 NAMED ANGLE (a) CLOSED, 47 -> 17: the $s0<->$s1 swap is a global_alloc PRIORITY tie,
-     *      priced with the floor_log2 REF-STEP dial (w44/catalog §A "priced register dial").
-     *      priority ~ floor_log2(refs)*refs/live_length, and the first-allocated allocno takes
-     *      the lowest free callee-saved reg ($s0=$16).  Retail hands $s0 to the `pv` param and
-     *      $s1 to the case-10 &mc.rslt anchor; ours had it the other way because the anchor's
-     *      live range is SHORT (one case arm) while `st` spans the whole function.  Buying `st`
-     *      refs with ONE zero-insn read-only fence flips it -- but only once the count crosses a
-     *      floor_log2 step.  MEASURED (each operand = +1 ref): 1 = 47, 4 = 47, 5 = 47, 6 = 47,
-     *      7 = 47, 8 = 17, 9 = 17, 10 = 17; 12+ makes CC1PSX fail (asm-operand limit).  8 is the
-     *      minimum that lands the step -- do not "tidy" the operand list, the COUNT is the dial.
-     *      The swap cascaded through every `0($sN)` state access, so one fence took 30 diffs.
-     * NAMED ANGLE (the 17 residual, both are the SAME class as MemCardExist_cb's): (a) the
-     * `cdone` tail is a $v0<->$v1 swap -- retail keeps `rslt` in $v1 and the &mc.cmd anchor in
-     * $v0, stores BEFORE the `j`, and fills the `j` slot with `li $v0,1`; ours holds rslt in $v0,
-     * the anchor in $v1 and fills the slot with the store, cross-jump-merging its own `li $v0,1`
-     * into a shared block (ours 140 vs oracle 141 = exactly that one merged constant);
-     * (b) the `ctail` ev==4 arm wants the anchor in $v0 (reusing the just-dead `li $v0,4`
-     * compare constant) where ours takes a fresh $v1.  FALSIFIED w60-a2: 2 extra identity fences
-     * on `pc` in the ev==4 arm = 17 (inert) -- these are LOCAL-alloc QTY handouts, not global
-     * allocnos, so the priced dial above does not reach them (methodology §4.6). */
-    __asm__("" : : "r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st));
+     * NAMED ANGLE (the 55 residual): (a) a straight $s0<->$s1 swap -- retail puts the `pv` param
+     * in $s0 and the case-10 &_mc_rslt anchor in $s1, ours the reverse (decl-order swap tested:
+     * inert), and it cascades through every `0($sN)` state access; (b) each `return 1` site
+     * materializes its own `li $v0,1` in the `j` delay slot in retail while ours cross-jump-merges
+     * them into one shared block. */
     switch (st[0]) {
     case 0:
         _mc_cleared = 0;
@@ -698,8 +675,8 @@ set1e:
         st[0] = 0x1e;
         goto ret0;
 ctail:
-        e = _mc_evrslt;                 /* re-read: retail loads it into $a0 for the call/store */
-        if (e == 4) {
+        ev = _mc_evrslt;                /* re-read: retail loads it into $a0 for the call/store */
+        if (ev == 4) {
             pc = &mc.cmd;
             __asm__("" : "=r"(pc) : "0"(pc));
             pc[1] = e;                  /* stores the LOADED 4, not a fresh `li` */
@@ -1486,16 +1463,7 @@ extern long MemCardDeleteFile(long chan, char *file)
      * AND the whole inlined sync body (`lw $v1,0($s0)` ... `lw $v0,8($s0)`), which only happens
      * when the caller's base is a plain address expression.  Measured: no fence 57 / non-volatile
      * 57 / volatile 60.  (CreateFile measures the opposite way -- volatile 68 / plain 70 / none
-     * 81 -- so A/B per function.)
-     * 🔴 w60-a2 FALSIFIED -- the floor_log2 REF-STEP dial that cracked MemCardCmd_cb's $s0/$s1
-     * swap (47 -> 17 with 8 read-only fence operands) does NOT reach this fn's saved-reg
-     * ROTATION (retail chan=$s2/file=$s0/base=$s3->$s0; ours base=$s0/file=$s2/chan=$s3):
-     *   PROMOTE `file` (read-only fence, 2/4/6/8/10 operands) ..... 57 -> 67 on every count
-     *   DEMOTE `base` (late read-only fence, 1 and 4 operands) ..... 57 (inert)
-     * Cmd_cb's was a TWO-allocno tie (one step flipped the pair); this is a THREE-way rotation,
-     * so a single-pseudo ref/live delta cannot express it.  NAMED ANGLE: price it properly --
-     * dump -dg/-dl for this fn and run tools/reqdelta.py --want "file=s0,chan=s2,base=s3" to get
-     * the minimal MULTI-pseudo delta, instead of hand-dialling one pseudo at a time. */
+     * 81 -- so A/B per function.) */
     int *base = &mc.cmd;
 
     if (base[0] != 0) {
@@ -1598,7 +1566,6 @@ extern long MemCardFormat(long chan)
 extern long MemCardUnformat(long chan)
 {
     signed char buf[128];
-    signed char fill;
     int  blk;
     long c;
     int *base = &mc.cmd;
@@ -1618,64 +1585,31 @@ extern long MemCardUnformat(long chan)
      * MATCH: the fill loop counts DOWN (`addiu $s0,$s0,-1; bgez` off a walking `addiu $v0,$v0,-1`
      * pointer seeded at `&buf[127]` = `$sp+0x8F`) and stores the byte as -1, not 0xFF
      * (`addiu $v1,$zero,-1`; a 0xFF constant on this unsigned-char build emits `li 255`). */
-    /* 🏆 MATCH (w60-a2, 3 -> PASS 45/45): THE OUT-OF-LINE RETURN-0 BLOCK, placed HERE.
-     * Retail's failure exit is a standalone 2-insn block sitting between the busy-guard's
-     * `return -1` and the fill loop -- `.L800FC0A4: j <epilogue>; addu $v0,$zero,$zero`
-     * (the zero IS the j's delay slot) -- and the loop's `bnez $v0,.L800FC0A4` fills its OWN
-     * slot with the unconditional `addiu $s0,$s0,1`.  Ours had no such block: with the
-     * `return 0;` written inline in the loop, gcc laid its landing pad directly ON the
-     * epilogue, the `j` folded away, and reorg then STOLE the bare `addu $v0,$zero,$zero`
-     * into the bnez slot (1 insn shorter than retail, 3 diffs).
-     * MECHANISM (why placement is the whole lever): reorg processes the unconditional `j`
-     * FIRST and fills its slot with the preceding `addu`, turning the block into a SEQUENCE;
-     * `stop_search_p` then refuses to search a thread that starts with a SEQUENCE/JUMP_INSN,
-     * so the later `bnez` can no longer steal from it and falls back to a plain backward fill
-     * (the `blk++`).  A landing pad ADJACENT to the epilogue has no `j` to protect it.  The
-     * `if (0) { failed: ... }` wrapper is a ZERO-INSN placement device -- gcc drops the dead
-     * branch but keeps the labelled block at THIS point in the RTL, which is exactly the
-     * "zero-insn de-merger that is NOT a scheduling barrier" the w52-a6 named angle asked
-     * for.  (The falsified alternatives are receipted at the `goto failed` below.)
-     * DO NOT "simplify" this back to an inline `return 0;` -- it silently re-merges. */
-    if (0) {
-failed:
-        return 0;
-    }
-
     /* the parm copy is retail's beqz DELAY-SLOT filler (eager steal of the guard target's
      * first insn), not a prologue copy -- an opacity-fenced copy at the block head sinks it */
     c = chan;
     __asm__ __volatile__("" : "=r"(c) : "0"(c));
 
     /* ONE counter serves both loops (retail keeps both in $s0) -- a separate `i` gets its own
-     * caller-saved pseudo and the fill loop then runs in $v1 instead.
-     * MATCH (w60-a2, 5 -> 3): the fill BYTE is a NAMED LOCAL assigned before the loop, not the
-     * literal `buf[blk] = -1`.  Retail materializes the -1 BEFORE the counter
-     * (`addiu $v1,$zero,-1; addiu $s0,$zero,0x7F`); with the literal in the loop body the -1 is
-     * a loop INVARIANT that loop.c hoists into the preheader AFTER the for-init, giving the
-     * reversed `li $s0,127; li $v1,-1` (2 diffs).  A plain preceding assignment emits it as an
-     * ordinary statement, i.e. first. */
-    fill = -1;
+     * caller-saved pseudo and the fill loop then runs in $v1 instead. */
     for (blk = 127; blk >= 0; blk--)
-        buf[blk] = fill;
+        buf[blk] = -1;
 
     blk = 0;
     do {
         _clr_card_event();
         _new_card();
         _card_write(c, blk, buf);
-        /* the failure exit jumps to the out-of-line `failed:` block placed ABOVE (see the big
-         * receipt there -- that placement is what puts retail's `addiu $s0,$s0,1` in this
-         * bnez's delay slot instead of an eager-stolen return-0).  Falsified w52-a6 in the
-         * inline-`return 0` basin, kept for the record:
+        /* MATCH-ANGLE (w52-a6, 5-diff residual, ours 44 / oracle 45): retail branches to an
+         * OUT-OF-LINE `j epilogue; addu $v0,$zero,$zero` block and fills the `bnez` slot with
+         * the unconditional `blk++`; ours eager-steals the return-0 constant into the slot and
+         * branches straight to the epilogue (1 insn shorter).  Falsified this wave:
          *   opacity-fenced `long r = 0; return r;` ....... 7 (block materializes but the
          *                                                    fence barrier nops the j slot)
          *   increment written BEFORE the test ............ 8 (43 insns, loses 2 elsewhere)
-         * w60-a2 additionally falsified, all in the post-`fill` 3-diff basin, all 272 lane:
-         *   -fno-delayed-branch splice ................... 12   -fno-strength-reduce ..... 11
-         *   -fno-schedule-insns2 splice ..................  7   -fno-schedule-insns ......  3
-         *   -fno-thread-jumps ............................  3 */
+         * NAMED ANGLE: a zero-insn de-merger that is NOT a scheduling barrier. */
         if (_get_card_event_x() != 0)
-            goto failed;
+            return 0;
         blk = blk + 1;
     } while (blk < 0xf);
     return 1;

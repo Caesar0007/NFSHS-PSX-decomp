@@ -1,0 +1,44 @@
+diff --git a/tools/build.py b/tools/build.py
+index 1232798f..afb74831 100644
+--- a/tools/build.py
++++ b/tools/build.py
+@@ -1341,6 +1341,39 @@ PER_FN_TEXT_MOVES = {
+              "after": r"\t(?:beq|bne|bgez|bltz|blez|bgtz)[^\n]*\n", "slot": True},
+         ],
+     },
++    # w60-a2 (272 lane -- _apply_text_moves is lane-generic since w55-a5):
++    # the four libmcrd *_cb state-dispatch twins.  gcc's balance_case_nodes
++    # emits the bound test `beq $2,$0,$L<hi-subtree>` and the hi subtree opens
++    # with its own compare constant (`li $2,11` / `li $2,30`).  Retail carries
++    # that constant IN the bound test's delay slot with the label moved past it
++    # (`beqz $v0,.L59C; addiu $v0,$zero,0xB`); reorg can NEVER produce it --
++    # this is the 09L shape exactly (the candidate WRITES $2, the beq READS
++    # $2), and mostly_true_jump scores an EQ forward branch 0 on top.  The
++    # constant is dead on the fall-through path (the next branch's slot does
++    # `addu $2,$0,$0`), so the move is semantics-preserving.  Ladder-checked:
++    # 2.6.3/2.7.2 identical residual, 2.7.2-970404/2.8.0/2.8.1 far worse.
++    # Probe (scratchpad/w60a2): ReadFile_cb 3 -> PASS 66/66, WriteFile_cb
++    # 3 -> PASS 66/66, ReadData_cb 4 -> 1, WriteData_cb 4 -> 1 (residual on the
++    # data twins = the pre-existing cross-jumped `addu $a0,$zero,$zero` named
++    # angle).  Whole-TU 15/26 -> 17/26, zero regressions.
++    "recon/syslib/psx/libmcrd/LIBMCRD.c": {
++        "MemCardReadFile_cb": [
++            {"take": r"(?<=:\n)\tli\t\$2,0x0000000b[^\n]*\n",
++             "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "slot": True},
++        ],
++        "MemCardWriteFile_cb": [
++            {"take": r"(?<=:\n)\tli\t\$2,0x0000000b[^\n]*\n",
++             "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "slot": True},
++        ],
++        "MemCardReadData_cb": [
++            {"take": r"(?<=:\n)\tli\t\$2,0x0000001e[^\n]*\n",
++             "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "slot": True},
++        ],
++        "MemCardWriteData_cb": [
++            {"take": r"(?<=:\n)\tli\t\$2,0x0000001e[^\n]*\n",
++             "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "slot": True},
++        ],
++    },
+ }
+ 
+ 

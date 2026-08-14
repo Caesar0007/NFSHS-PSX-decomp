@@ -1979,14 +1979,52 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
        * with each chain written HI = LO = v (stores ascending).  Moving the
        * sx-2 group last (= the oracle's STORE order) costs 14 diffs: it flips
-       * which of sx/sy is defined first and therefore the fp/s7 split. */
-      pt[2].vx = pt[0].vx = (short)(sx + -2);
-      pt[1].vy = pt[0].vy = (short)(sy + -2);
-      pt[3].vx = pt[1].vx = (short)(sx + 3);
-      pt[3].vy = pt[2].vy = (short)(sy + 3);
+       * which of sx/sy is defined first and therefore the fp/s7 split.
+       * ---- w60-a7 (2026-08-14): 18 -> 6, count still exact 409/409.  The w59
+       * NEXT ANGLE ("give group 0's two stores a later, separate statement
+       * THROUGH THE SAME EXPRESSION -- a RE-READ, not a temp") is CORRECT, and
+       * it generalises to BOTH x groups.  The DEF must stay where it is (it is
+       * what fixes which of sx/sy is defined first, i.e. the fp/s7 split); only
+       * the SECOND store of each x pair moves, spelled as a re-read of the
+       * already-stored halfword:
+       *     pt[0].vx = (short)(sx + -2);   <- def stays first
+       *     ...
+       *     pt[3].vx = pt[1].vx;           <- sunk, re-read
+       *     pt[2].vx = pt[0].vx;           <- sunk, re-read
+       * That alone is 18 -> 16 for group 0, 18 -> 12 for group 1, and 10 for
+       * both.  The last -4 came from the `col` word store moved to the HEAD of
+       * the block: it frees $a3 (the 0xFFFFFF constant's home) early, and $a3 is
+       * then reused for `sx-2` exactly like retail (`sw a3,48(sp)` then
+       * `addiu a3,fp,-2`).  With both, the whole pt[] build -- every addiu, every
+       * sh, and all four registers -- is byte-identical to the oracle.
+       * NOTE this REVERSES the w50/w59 "col at its use site" receipt: that lever
+       * measured inert (18 at all 7 positions) in the 18-basin and only becomes
+       * live once the two x stores are sunk (lever-order law again).
+       * FALSIFIED from the 10-basin: col store at every OTHER position (all 10);
+       * the col constant spelled inline instead of via `colw` (10).  From the
+       * 18-basin: sinking the DEF as well (both x stores late, one expression)
+       * 40, the same with the expression written twice 40, a named `xm2` temp
+       * with the stores late 40, col-store-first alone 40, x+3 group computed
+       * before y-2 18, sinking the y-2 pair too 22.
+       * RESIDUAL 6, count-exact 409/409, all three lines in the entry block and
+       * all of them POSITION-only (registers and instruction stream identical):
+       * retail issues `addu s0,zero,zero` (i = 0) BEFORE the `lw t7,184(sp)`
+       * screenPos reload, and `addiu a2,a2,-2` (otSize - 2) + `sw a3,48(sp)`
+       * (the col store) IMMEDIATELY after the two `lh`s; ours issues all three a
+       * few slots later.  FALSIFIED here: `int otSize = Draw_gViewOtSize - 2;`
+       * folded into the decl (10), the same as its own `otSize = otSize - 2;`
+       * statement at the block head (8), an explicit `i = 0;` at the block head
+       * with the scan loop changed to `for (; i < 0x19; ...)` (6, exactly inert
+       * -- so the s0 position is NOT a source-statement question). */
       *(u_long *)&col = colw;
+      pt[0].vx = (short)(sx + -2);
+      pt[1].vy = pt[0].vy = (short)(sy + -2);
+      pt[1].vx = (short)(sx + 3);
+      pt[3].vy = pt[2].vy = (short)(sy + 3);
       angleZ = (sx + sy) * 8;
       angleZ2 = (sx + sy) * 6;
+      pt[3].vx = pt[1].vx;
+      pt[2].vx = pt[0].vx;
       Flare_QuadNotTransparent((long *)pp,cp,otSize + -2);
     }
     dx = 0x140 - sx;

@@ -119,6 +119,7 @@ extern int  printf(const char *fmt, ...);
 
 extern void CD_flush(void);
 extern int  CD_sync(int mode, unsigned char *result);
+extern void _cd_intr_dispatch(void);   /* @0x80108680 -- defined LAST in this TU (retail VA order) */
 
 /* ---- shared CD state globals (defined in asm/data with REGULAR .data placement -> ABSOLUTE
  *   addressing; the oracle reaches them via `lui %hi; lw/sw %lo`, NOT gp-rel, so they must be
@@ -373,9 +374,6 @@ static inline void callback(void)
     }
     CDREG0 = restore;
 }
-
-/* @0x80108680 : the registered CD interrupt handler (InterruptCallback(2, ...)). */
-extern void _cd_intr_dispatch(void) { callback(); }
 
 /* @0x801075DC : CD_sync -- wait for the command to acknowledge (mode 0 = block, else poll once). */
 /* MATCH (w52-a1): SHAPE PORTED from the byte-exact Rage Racer libcd decomp,
@@ -879,3 +877,8 @@ extern int CD_getsector2(void *madr, int size)
  * D_8013C1F0 @0x8013C1F0 = 0x8013C18C + 25*4) -> a direct absolute store `lui $at; sw a0,%lo($at)`. */
 extern int D_8013C1F0;
 extern void CD_set_test_parmnum(int n) { D_8013C1F0 = n; }
+
+/* @0x80108680 : the registered CD interrupt handler (InterruptCallback(2, ...)).
+ * W60-A4: moved to the END of the TU -- retail VA order puts it LAST in drv.obj
+ * (it sat 2nd in source, inverting all 11 following functions; tu_order_audit). */
+extern void _cd_intr_dispatch(void) { callback(); }

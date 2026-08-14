@@ -771,6 +771,30 @@ extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
     return 0;
 }
 
+/* w60-a2 -- THE SAME-SOURCE-LINE CROSS_JUMP RULE.  Both *Data_cb twins report their
+ * completion through TWO duplicated `MemCardEventToRslt` tails that retail's gcc CROSS-JUMPED
+ * back into one shared call, leaving only the ev==0 arm's own argument setup behind
+ * (`.L800FB21C: addu $a0,$zero,$zero` falling into `.L800FB220: jal MemCardEventToRslt`).
+ * A single shared call with the `if (ev != 0)` guard above it CANNOT produce that block --
+ * the ev==0 edge lands straight on the join, so the arm has nowhere to put its `$a0 = 0`.
+ * Writing the two tails out DOES make gcc cross-jump them -- but ONLY if their two `__asm__`
+ * base-anchor fences sit on the SAME SOURCE LINE.  find_cross_jump compares candidate insns
+ * with rtx_renumbered_equal_p (jump.c:2637), whose generic loop compares every 'i' field of
+ * the rtx -- and ASM_OPERANDS carries ASM_OPERANDS_SOURCE_LINE as an 'i' field.  Two
+ * byte-identical fences on different lines therefore compare UNEQUAL, the merge stops at
+ * them, and two `jal`s survive (that is the w55-a7 receipt's "cross_jump will NOT merge
+ * across the __asm__", 85 insns / 10 diffs -- it was never the asm itself, it was the LINE).
+ * Expanding both tails from ONE macro invoked twice on ONE line makes the fences identical
+ * rtx, the merge runs the whole way back through the call, and both twins byte-match.
+ *   MemCardReadData_cb  1 -> PASS 79/79      MemCardWriteData_cb  1 -> PASS 79/79
+ * DO NOT reformat the two invocation sites onto separate lines -- that silently reverts both
+ * functions to a 1-diff near-miss.  (The non-volatile fence is NOT rejected by
+ * find_cross_jump's own asm guard, which only refuses ASM_INPUT and VOLATILE ASM_OPERANDS.)
+ * Falsified alternative (w60-a2): an unsized-array asm-label view `extern int mc_words[]
+ * __asm__("mc")` removes the fence and DOES merge, but a constant element index folds the
+ * access back to `(symbol_ref mc + 4)` and emits the `lui $at; sw %lo` macro -- 1 -> 5. */
+#define MCRD_REPORT(EV) r = MemCardEventToRslt(EV); pc = &mc.cmd; __asm__("" : "=r"(pc) : "0"(pc)); pc[1] = r; return 1
+
 /* @0x800FB118 : MemCardReadData transfer step. */
 static int MemCardReadData_cb(void *pv)
 {
@@ -808,18 +832,10 @@ static int MemCardReadData_cb(void *pv)
     case 0x1e:
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
-        if (ev != 0) {
-            _mc_rd_retry = _mc_rd_retry + 1;
-            if (_mc_rd_retry < 4) { st[0] = 10; return 0; }
-        }
-        {   /* MATCH (w53-a7): the &_mc_cmd base is materialized AFTER the call, into a
-             * caller-saved reg (`jal; nop; lui $v1; addiu $v1; sw $v0,0x4($v1)`); the natural
-             * `mc.rslt = ...` field store emits a `lui $at; sw %lo(...)($at)` macro instead. */
-            int  r  = MemCardEventToRslt(ev);
-            int *pc = &mc.cmd;
-            __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = r;
-            return 1;
+        {
+            int  r;
+            int *pc;
+            if (ev != 0) { _mc_rd_retry = _mc_rd_retry + 1; if (_mc_rd_retry < 4) { st[0] = 10; return 0; } MCRD_REPORT(ev); } MCRD_REPORT(0);
         }
     default:
         return 0;
@@ -919,15 +935,7 @@ static int MemCardWriteData_cb(void *pv)
              * `$a0 = 0` arg setup to live. */
             int  r;
             int *pc;
-            if (ev != 0) {
-                _mc_wr_retry = _mc_wr_retry + 1;
-                if (_mc_wr_retry < 4) { st[0] = 10; return 0; }
-            }
-            r = MemCardEventToRslt(ev);
-            pc = &mc.cmd;
-            __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = r;
-            return 1;
+            if (ev != 0) { _mc_wr_retry = _mc_wr_retry + 1; if (_mc_wr_retry < 4) { st[0] = 10; return 0; } MCRD_REPORT(ev); } MCRD_REPORT(0);
         }
     case 10:
         do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);

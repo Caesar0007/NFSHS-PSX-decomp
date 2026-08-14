@@ -4718,6 +4718,50 @@ void Hud_RenderHudView(void)
  *   - preheader `dh = ...` moved INSIDE the guard, entry test natural: 45 @74.
  * ⇒ the w53 pairing (source assignment at the TAIL + read-only fence on `j`) is a local
  * optimum; what is still missing is a NON-REF-BEARING way to redefine a pointer. */
+/* ===== w60-a6: 18 -> 13, ours 73 -> 72 (oracle 71); SAVED SET + FRAME NOW EXACT =====
+ * The w55 verdict ("the w53 pairing is a local optimum") was BASIN-RELATIVE.  Two new
+ * levers, both aimed at the same mechanism (keep `dh` non-invariant WITHOUT paying a
+ * preheader lo_sum), and they only work TOGETHER:
+ *  LEVER 3 -- ASSIGN `dh` INSIDE THE `&&`'s SECOND OPERAND (comma expr):
+ *    `(GameSetup_gData.carInfo[j].HudTach != 0) && (dh = ..., dh[j + 7] != 0)`.
+ *    That puts the body's base materialization in the CONDITIONAL block -- exactly where
+ *    retail's `addiu $v0,$v1,%lo(DashHUD_gInfo)` sits (the HudTach beqz delay slot) -- and
+ *    KILLS the preheader `dh` assignment outright, so the w53/w55 residual item (b) (the
+ *    preheader `addiu $a0,$v0,0`) is gone and `addiu $s3,$s3,180` gets the exit beqz slot
+ *    back (residual items (b) AND the tail load-delay `nop` both closed).  ALONE it is a
+ *    LOSS (36 @75): a single set inside the loop is used in its own basic block, so
+ *    loop.c's reg_in_basic_block_p test lets it be hoisted -> invariant -> address giv ->
+ *    the $s7 basin again.  It needs a SECOND set of `dh` in the loop (n_times_set == 2
+ *    makes loop.c skip the movable entirely).
+ *  LEVER 4 -- THE TAIL SET MUST NAME A *DIFFERENT SYMBOL NODE*: `dh = DashHUD_view;`
+ *    with `extern int DashHUD_view[] __asm__("DashHUD_gInfo");` at file scope.  With BOTH
+ *    sets spelled `&DashHUD_gInfo` (14 @73) cse proves the two values equal, merges the
+ *    two `(high sym)` into ONE pseudo that is then live from the preheader across all four
+ *    jals -> a 7th callee-saved reg ($s6) + its save/restore + an `addu s6,v1,zero` copy.
+ *    Spelling the TAIL set through the asm-label alias makes the two symbol_refs distinct,
+ *    cse cannot merge them, the tail high dies inside the loop, and the saved set collapses
+ *    to retail's exact $s0-$s5 (mask 0x803f0000) with frame 48 == SYM fsize.
+ *    Sized `[64]` and unsized `[]` view both gate 13 (verify normalizes %hi/%lo); unsized
+ *    kept per IDT Ch9 ("omit the size or give the CORRECT size").
+ * MEASURED THIS WAVE (all re-gated): natural entry test + in-&& only, no tail set 36 @75 .
+ *   in-&& + tail set both `&DashHUD_gInfo` 14 @73 . same + an identity fence after the tail
+ *   set 19 @76 . in-&& + tail set via an identity fence INSTEAD of a real assignment 42 @77
+ *   (the fence's +2 refs re-rank dh, reconfirming the w55 finding) . ALL THREE reads through
+ *   the view 14 @73 (cse re-merges) . entry test natural vs via the view: bit-identical 13.
+ * RESIDUAL 13, ours 72 / oracle 71 -- ONE surplus insn, now precisely one item:
+ *   the body's `dh = ...` emits its OWN `lui $v0,%hi; addiu $v0,$v0,%lo` pair, while retail
+ *   derives the base from the HIGH THAT IS STILL LIVE across the back edge (`addiu $v0,$v1,
+ *   %lo` alone) -- i.e. retail shares the (high sym) pseudo between the exit-test load and
+ *   the body's lo_sum but NOT the lo_sum itself.  Our two devices are all-or-nothing: same
+ *   symbol node => cse merges the whole value (and parks it callee-saved, 14); different
+ *   symbol nodes => nothing is shared (13, +1 lui).  NAMED ANGLE: a device that makes two
+ *   address expressions share their `(high sym)` while keeping distinct `(lo_sum)`s -- i.e.
+ *   an alias whose HIGH cse can equate but whose value it cannot (the two entry/exit loads
+ *   are also self-temp `lui v0;lw v0,0(v0)` vs retail's separate-temp `lui v1;lw v0,0(v1)`,
+ *   so the separate-temp shape -- sec.3.12 #5 -- is the same missing ingredient).  Also still
+ *   open: `lui $s5,0xff000000` is materialized one slot early (position only). */
+extern int DashHUD_view[] __asm__("DashHUD_gInfo");
+
 void Hud_RenderTacView(void)
 
 {
@@ -4725,8 +4769,7 @@ void Hud_RenderTacView(void)
   int *dh;
 
   j = 0;
-  dh = (int *)&DashHUD_gInfo;
-  if (-1 < dh[0]) {
+  if (-1 < DashHUD_view[0]) {
     __asm__ volatile("" : : "r"(j));
     do {
       /* MATCH (w44-a5): ONE shared `j * 4` feeding BOTH the showhud test and the
@@ -4737,7 +4780,7 @@ void Hud_RenderTacView(void)
 
       j4 = j * 4;
       if ((GameSetup_gData.carInfo[j].HudTach != 0) &&
-          (dh[j + 7] != 0)) {
+          (dh = (int *)&DashHUD_gInfo, dh[j + 7] != 0)) {
         u_char *pal;
         DR_MODE *tp;
 
@@ -4753,7 +4796,7 @@ void Hud_RenderTacView(void)
         Draw_StopRenderingView(*(int *)(j4 + (int)Hud_gTacView));
       }
       j = j + 1;
-      dh = (int *)&DashHUD_gInfo;
+      dh = DashHUD_view;
     } while (j <= dh[0]);
   }
   return;

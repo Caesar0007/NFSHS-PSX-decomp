@@ -1,0 +1,1 @@
+[["      pos = pos + -1;\n    } while (0 < pos);", "      pos = pos + -1;\n      __asm__(\"\" : \"=r\"(pos) : \"0\"(pos));\n    } while (0 < pos);", 1]]

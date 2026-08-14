@@ -1,0 +1,1 @@
+[["            if (pos < 1) break;", "            { int posOpaque = pos; __asm__(\"\" : \"=r\"(posOpaque) : \"0\"(posOpaque)); if (posOpaque < 1) break; pos = posOpaque; }", 1]]

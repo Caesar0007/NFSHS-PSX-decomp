@@ -1,0 +1,1 @@
+[["    if (latDistance < 0) {\n\n      latDistance = -latDistance;\n\n    }\n\n    if ((longDistance - 0x10001U < 0x26ffff)", "    int c1 = -0x10001;\n\n    u_int c2 = 0x26fffeU;\n\n    __asm__(\"\" : : \"r\"(c1));\n\n    __asm__(\"\" : : \"r\"(c2));\n\n    if (latDistance < 0) {\n\n      latDistance = -latDistance;\n\n    }\n\n    if (!(c2 < (u_int)(longDistance + c1))", 1]]

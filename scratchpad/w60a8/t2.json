@@ -1,0 +1,1 @@
+[["    int direction = (this->carObj_)->direction;\n\n    reverseDirCheck = ~direction;\n\n    if (D_8011321C == 0) {\n\n      reverseDirCheck = direction ^ 1;\n\n    }\n", "    int gate = D_8011321C;\n    int direction = (this->carObj_)->direction;\n    reverseDirCheck = ~direction;\n    if (gate == 0) {\n      reverseDirCheck = direction ^ 1;\n    }\n", 1]]

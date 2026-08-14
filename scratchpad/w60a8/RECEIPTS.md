@@ -189,4 +189,116 @@ aih_opp 4/6 · aih_basicperp 8/9 — **IDENTICAL to the session baselines, 0 PAS
 tu_order_audit: my belt's only remaining inversions are aiphysic's 38 (blocked as above);
 aispeeds/aihigh/aistate/aidatarecord are silent.
 
+---
 
+# W60-A8 ROUND 2 (resumed) — the four unreached fns
+
+Re-baselined first (tree had moved to `19c40394`): aistate 51/54 · aih_opp 4/6 ·
+aih_basicperp 8/9 · aiphysic 40/42 — all unchanged, and the orchestrator's landing of my
+aiphysic reorder + label-agnostic anchor (`06590f5f`) is confirmed holding (38 inv -> 0,
+CalcAcceleration PASS). Every probe below ran through `scratchpad/w60a8/probe.py`
+(finally-restore); `git status` confirmed all four TUs byte-identical to HEAD afterwards.
+NOTHING LANDED this round — 0 PASS->FAIL, but also 0 new seals. Full angle ledger:
+
+## (2) aih_basicperp `CheckChaserPosition` — 2. PRIOR VERDICT REFUTED (mechanism found)
+
+The in-source receipt said this "needs a value-range-opaque cse-invalidation the fence toolkit
+lacks". **That is now false.** The opacity fence on a BLOCK-LOCAL copy of `pos` DOES restore
+the deleted `blez` guard — the cross-block objection that killed the earlier fence-on-`pos`
+does not apply to a fresh in-loop local, exactly as flagged:
+
+| variant | result |
+|---|---|
+| baseline | 2 diffs, ours 85 / oracle 87 (guard deleted) |
+| `{int p=pos; __asm__("":"=r"(p):"0"(p)); if(p<1)break;}` | **15 diffs, 86 insns — GUARD PRESENT** |
+| ...same + `pos = p;` after the guard | **11 diffs, 86 insns — GUARD PRESENT** |
+| opacity fence on `pos` at the loop BOTTOM (after `pos = pos + -1`) | 21 diffs, 84 insns, guard still deleted |
+| read-only fence `("" : : "r"(pos))` at the guard | 35 diffs, 90 insns, guard still deleted |
+
+So the device is settled: **only an opacity/identity fence whose OUTPUT is the tested value
+invalidates cse's range proof**; a read-only use of the same value does not (cse's range
+knowledge survives a mere use), and fencing the value on the back-edge does not reach the
+loop-top guard (the entry `if(0<pos)` still proves it on the other predecessor).
+REMAINING BLOCKER, now precisely named: the fence is not free because `pos` is a GLOBAL
+allocno, so `combine_regs` refuses to tie the copy (w47 law) -> a real `addu v1,s0,zero`, and
+that displaced def also costs the `-1`-sentinel reuse (`addu v0,s0,s3` degrades to
+`addiu v0,s0,-1`) plus the loop-tail `blez`/`j` polarity. Net 11 vs 2, so not landed.
+NEXT (untried, cheap): carry the OPAQUE copy through the whole loop body — use it for the two
+`positionVSCopList_[p-1]` loads and the guard, and write `pos = p - 1` at the bottom — so the
+fence's copy IS the loop's live value and no separate move is needed.
+
+## (1) aistate Chase ctor — 11 (ours 67 / oracle 66). SHAPE CRACKED, one ready-list tie left
+
+Classification (the coordinator's discriminator): ours is **1 LONGER**, and the extra insn is a
+`nop`, not a redundant `addu`/`li`/saved-trio — so this is NOT the permuter multi-basin class,
+NOT void->int, NOT hold-global-addr. Retail avoids the nop by filling the `lw v0,%lo(D_8011321C)`
+load-delay slot with the `carObj_->direction` load; ours cannot because our two loads are issued
+in the opposite order.
+
+**NEW FINDING — the residual's real root cause was a STORAGE SHAPE, not coloring.**
+`extern int D_8011321C;` makes cc1 emit the scalar assembler MACRO, which maspsx expands to
+`lui;lw` AFTER cc1 — position-pinned, so sched1 can never hoist the `lui`. Retail's `lui` sits
+seven insns higher (in the `lw v1,0(fp)` load-delay slot, above the four field stores), which is
+only possible from cc1's OWN split lowering. Switching to the unsized asm-label view
+(`extern int D_8011321C_v[] asm("D_8011321C");` + `D_8011321C_v[0]`) **reproduces retail's `lui`
+placement exactly** — the emitted block becomes byte-for-byte the oracle's except for one
+swapped load pair and the register names:
+
+```
+OURS(view)                       ORACLE
+lw v0,0(fp)                      lw v1,0(fp)
+lui v1,0                         lui v0,0          <- now matches
+sw s5/s6/s7/zero,128..140(fp)    (identical)
+lw a0,1364(v0)   direction       lw v0,0(v0)       gate
+lw v0,0(v1)      gate            lw v1,1364(v1)    direction
+nop                              (none)
+bnez v0 / nor / xori             bnez v0 / nor / xori
+```
+
+The two loads are independent and ready at the same cycle -> a pure sched1 ready-list tie.
+FALSIFIED against it (each re-gated; baseline 11, view alone 13):
+- view + gate read hoisted to its own statement before `direction` -> **13** (unchanged; sched1
+  reorders regardless of statement order/luid — refutes the "own statement = issues first" rule
+  for two zero-dependency loads);
+- view + gate statement + read-only use fence between the two reads -> **13**, and the fence
+  drags the gate load ABOVE the `carObj_` load instead (over-pins);
+- view + in-place term shape (`reverseDirCheck = ~(this->carObj_)->direction;` re-read form,
+  the A7 term-shape axis) -> **13**;
+- plain re-read WITHOUT the view -> **11** (cse shares the load either way — the pre-w30-a2
+  "extra dead load" note is stale, there is no extra load);
+- if/else with the global tested first (`if (D_8011321C != 0) ... else ...`) -> **20** (72 insns).
+Not landed (13 > 11). **HANDOFF: the view is the right storage shape and should land the moment
+the load-pair tie is solved** — the whole rest of the block is already byte-exact under it.
+Also note the in-source WALL comment's claim that "insn count is EXACT 66/66" is STALE: it is
+67/66.
+
+## (3) aih_opp `DoRearEnder` — 54 (count-exact 181/181). Lever found, costs a count.
+
+Read the residual properly for the first time: at BOTH of its two sites the oracle materializes
+the range test's two 32-bit constants (`0xFFFEFFFF` = -0x10001 and `0x26FFFE`) **speculatively,
+above the `bgez` of the branchy abs**, using the two `roadPosition` load-delay slots as filler,
+and defers the `mflo` of `longDistance*direction` past that branch. Ours emits both constants
+after the branch, because RTL generation follows source order and the constants belong to the
+`if` that sits after the abs. (Confirms the w22 "speculative compute before the guard" row and
+explains the in-source note's "constant hoist across the abs BB split".)
+
+| variant | result |
+|---|---|
+| baseline | 54 diffs, **181/181** |
+| `int c1 = -0x10001;` before the abs, `(u_int)(longDistance + c1) < 0x26ffffU` | 54, 181/181 — but the `lui` HOISTS above the bgez (the `ori` stays below: cc1 splits a big constant like a `high`/`lo_sum` pair and sinks the low half to the use) |
+| + named `c2` as well | 54, 181/181 |
+| + read-only fence on `c1` (or on `c1`+`c2`, or two separate fences) | **51 diffs, 180/181** — the fence pins BOTH halves early; retail's constant placement is reached at all four spellings |
+
+So the lever is real and reproducible (three fence spellings all land on exactly 51/180) — the
+fence is what stops the `lo_sum` half sinking to the use. NOT LANDED: it beats the gate (51<54)
+but loses count-exactness (180 vs 181 — we now fill a slot retail leaves), and this project's
+own bar rejects a lower LCS bought with a wrong count (w47-a1 precedent). Ready to land as a
+PAIR the moment the missing insn is identified; the constant-hoist half is settled.
+
+## (4) aistate `CloseTargeting` — 78. NOT REACHED (honest).
+
+Budget went to the three above. No probe was run, so no claim is made about it. Untouched.
+
+## Round-2 certification
+aistate 51/54 · aih_opp 4/6 · aih_basicperp 8/9 · aiphysic 40/42 — identical to the round-2
+baselines. Zero PASS->FAIL. No `tools/*.py` written. aih_btccop/btcperp/cop/play untouched.

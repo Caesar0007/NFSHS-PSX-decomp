@@ -16,6 +16,11 @@ static inline bool MenuHasFlag(tMenu *menu, unsigned int flag)
 }
 
 
+
+extern "C" {
+void ___7tScreen(void *);
+void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
+}
 /* ---- tDialogBase::ShouldTimeOut  [FEDIALOG.CPP:73-76] SLD-VERIFIED ---- */
 
 short tDialogBase::ShouldTimeOut()
@@ -987,6 +992,11 @@ tDialogYesNo::~tDialogYesNo()
 
 
 
+
+extern "C" {
+void ___7tScreen(void *);
+void ___18tDialogInteractive(void *thisp) { ___7tScreen(thisp); }
+}
 /* ---- tDialogNoInputMessage::dtor  [FEDIALOG.CPP:233 decl] SLD-FLAG:NO_SLD ---- */
 
 tDialogNoInputMessage::~tDialogNoInputMessage()
@@ -1038,13 +1048,3 @@ tDialogBase::~tDialogBase()
 
 
 /* end of fedialog.cpp */
-
-extern "C" {
-void ___7tScreen(void *);
-void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
-}
-
-extern "C" {
-void ___7tScreen(void *);
-void ___18tDialogInteractive(void *thisp) { ___7tScreen(thisp); }
-}

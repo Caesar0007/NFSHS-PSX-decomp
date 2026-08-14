@@ -61,20 +61,6 @@ extern int sizeofbigfileheader(void *buf)
 }
 
 /* ===================================================================== *
- *  bigcount @0x800E6258 : number of entries in the directory.           *
- * ===================================================================== */
-extern int bigcount(void *buf)
-{
-    /* MATCH: same funnel + switch-dispatch shape as sizeofbigfileheader. */
-    int r = 0;
-    switch (typeofbigfile(buf)) {
-    case 1:  r = (int)getm((char *)buf + 4, 2);  break;
-    case 2:  r = (int)getm((char *)buf + 8, 4);  break;
-    }
-    return r;
-}
-
-/* ===================================================================== *
  *  locatebigentryz @0x800E5FFC : find a directory entry by `name`, or by *
  *  `index` when name==NULL.  On a hit, store the entry's data offset and *
  *  size through `offset`/`size` (when non-NULL) and return a pointer to  *
@@ -185,3 +171,18 @@ extern char *locatebig(void *buf, char *name)
         r = (char *)buf + off;
     return r;
 }
+
+/* ===================================================================== *
+ *  bigcount @0x800E6258 : number of entries in the directory.           *
+ * ===================================================================== */
+extern int bigcount(void *buf)
+{
+    /* MATCH: same funnel + switch-dispatch shape as sizeofbigfileheader. */
+    int r = 0;
+    switch (typeofbigfile(buf)) {
+    case 1:  r = (int)getm((char *)buf + 4, 2);  break;
+    case 2:  r = (int)getm((char *)buf + 8, 4);  break;
+    }
+    return r;
+}
+

@@ -1972,6 +1972,46 @@ HudBuildStr_next:
  * arms gives 59 (so the else-arm `Hud_BuildDistanceString` result is the load-bearing half).
  * RESIDUAL 59: re-census before continuing -- the two clusters recorded above were measured
  * in the 141 basin and the falsification receipts there are BASIN-RELATIVE. */
+/* ===== w60-a6: 46 -> 8 diffs, count still EXACT 531/531 (6 diff insns in ONE block) =====
+ * FOUR levers.  The w46 receipt's own warning ("falsification receipts here are
+ * BASIN-RELATIVE") was right: one of these was explicitly falsified in the 141 basin and
+ * works now.  Order matters -- (1) must land before (3) is worth anything.
+ *  (1) REF-STEP ON THE j=4 TAG-WALK COUNTER -- zero-insn read-only fence right after
+ *      `j = 4;` (`__asm__("" : : "r"(j));`).  46 -> 22.  The whole {j, pal, mask} triple
+ *      was rotated (ours j=$a3/pal=$a2/mask=$a1, retail j=$a1/mask=$a2/pal=$a3) with EVERY
+ *      instruction already in retail's position -- a pure allocno-priority order, and `j`
+ *      ranks last because loop.c strength-reduces both `pSprt[j]` uses into the $a0 giv,
+ *      leaving j only its increment + compare.  ONE extra ref is enough (measured: 1, 2, 3
+ *      and 4 operands all give 22, so take the cheapest); the fence sits OUT of the loop so
+ *      it is +1 ref, not +2, and adds no instruction.
+ *  (2) SEPARATE `last` VARIABLE for `num + j` (the loop bound).  22 -> 16.  Retail emits
+ *      `addu $t0,$v1,$a1` (num survives in $v1, the sum goes to a FRESH register); the
+ *      in-place `num = num + j;` gives `addu $t0,$t0,$a1`.  `last` is also the natural 1998
+ *      spelling (num = how many, last = the end index).
+ *  (3) THE TERNARY BECOMES A REAL if/else + NAMED TEMP.  16 -> 12.  ** w46 measured this
+ *      shape at 145-vs-141 and filed the branch polarity as "decided by RTL expand's
+ *      operand-complexity pick, NOT by source arm order" -- FALSIFIED: in the post-(1)/(2)
+ *      basin the if/else form lands retail's `beqz` polarity AND the arm order
+ *      (`lw $a1,0($gp)` fall-through / `lw $a1,52($a1)` at the branch target) exactly.
+ *      Re-confirmed neutral in THIS basin (all 16): `== 0 ?` with the arms swapped, and the
+ *      bare `Hud_BeTheCop ? ... : ...` spelling -- so the COND_EXPR really is canonicalized
+ *      and only the if/else STATEMENT form escapes it.
+ *  (4) PRECOMPUTED CALL-ARG POINTER `eSprt = pSprt + 12;` as its own statement before the
+ *      if/else.  12 -> 8.  Retail puts `addiu $a0,$s3,240` in the guard branch's DELAY SLOT
+ *      (index 53) where we emitted a `nop` and then the addiu just before the `jal`.  Per
+ *      calls.c an rtx_cost-1 argument is NEVER precomputed, so the only way to get it ahead
+ *      of the branch is to make it a source statement of its own.
+ * RESIDUAL 8 (6 diff insns, ONE block, count exact): a sched2 ready-list tie in the
+ *   HudF4[3] y-store group.  Retail issues [sh $a0,82 (SLD 1591) . sh $a0,86 (1592) .
+ *   sll $a0,$s1,2 (1599)] BEFORE [sh $v0,90 (1593) . sh $v0,94 (1594) . lui/addiu (1599)];
+ *   ours issues the $v0 pair first.  Both builds have $a0 = y+7 and $v0 = y+10 ready at the
+ *   same point (insns 150/151 match), and our SOURCE order is already the SLD order
+ *   1591..1594 -- ours reorders because `lui $v0,%hi(HudSplitTimeDiff1)` (SLD 1599, hoisted)
+ *   CLOBBERS $v0, so our sched2 drains the $v0 stores first to free it, while retail drains
+ *   the $a0 stores and lets `sll $a0,$s1,2` free $a0 first.  NAMED ANGLE: give the SLD-1599
+ *   address (`&HudSplitTimeDiff1[player]`) its own earlier named local so its %hi/%lo is no
+ *   longer competing for $v0 inside this store group (untried -- watch for a +1 insn).
+ *   NOT the ternary and NOT the giv: those are closed above. */
 void Hud_BuildNumbers0(int player)
 
 {
@@ -2005,13 +2045,22 @@ void Hud_BuildNumbers0(int player)
   }
   if (GameSetup_gData.carInfo[player].HudTime != 0) {
     if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
-      Hud_BuildETimeString(pSprt + 12,
-                           Hud_BeTheCop != 0 ? BTC_Countdown : DashHUD_gInfo.laptime);
+      SPRT *eSprt;
+      int etime;
+
+      eSprt = pSprt + 12;
+      if (Hud_BeTheCop != 0) {
+        etime = BTC_Countdown;
+      } else {
+        etime = DashHUD_gInfo.laptime;
+      }
+      Hud_BuildETimeString(eSprt, etime);
     }
     {
       {
         int j;
         int num;
+        int last;
         u_int *pal;
 
         num = 8;
@@ -2019,14 +2068,14 @@ void Hud_BuildNumbers0(int player)
           num = 5;
         }
         j = 0xc;
-        num = num + j;
-        if (j < num) {
+        last = num + j;
+        if (j < last) {
           pal = (u_int *)Render_gPalettePtr;
           do {
             ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;
             ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
             j = j + 1;
-          } while (j < num);
+          } while (j < last);
         }
       }
       {
@@ -2035,6 +2084,7 @@ void Hud_BuildNumbers0(int player)
         u_int *pal_2;
 
         j = 4;
+        __asm__("" : : "r"(j));
         pal = (u_int *)Render_gPalettePtr;
         do {
           ((Hud_PTag *)&pSprt[j])->addr = ((Hud_PTag *)pal)->addr;

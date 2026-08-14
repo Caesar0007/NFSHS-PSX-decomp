@@ -909,18 +909,30 @@ MainLoop_setMenuAndNext:
             this->backDepth[1] = 0;
             break;
           case 4:
-            if (((this->fPlayer == '\0') &&
-                 ((int)stackBackupPin < this->backDepth[(u_char)this->fPlayer])) ||
-                ((this->fPlayer == '\x01') &&
-                 (0 < this->backDepth[(u_char)this->fPlayer]))) {
-              goto MainLoop_doBack;
-            }
-            if (this->waitingForOtherPlayer[(u_char)this->fPlayer] != 0) {
+            /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT).  This guard used to read
+               `if (cond) goto MainLoop_doBack;` -- it gated PASS 1123/1123
+               (verify_asm is branch-target lenient) but BOTH of its branch words
+               were wrong: insn 700 `bnez v1` = 14600099 (ours) vs 1460001E
+               (retail) and insn 710 `bgtz v0` = 1C40008F vs 1C400014.  Ours
+               jumped 153 insns forward straight to AudioCmn_PlayFESFX (doBack);
+               retail jumps only 30 forward, to .L80014E10 -- i.e. past the
+               waitingForOtherPlayer handling and INTO the fPlayer==0 stack-pair
+               block.  A real behaviour bug: with a pending back-request our
+               build skipped the whole two-player stack-pair / player-1 unwind
+               (and the `backDepth < 1` noBack test) and always played the back
+               SFX.  The retail shape is a NEGATED guard around just the
+               waitingForOtherPlayer block; instruction layout is unchanged. */
+            if (!(((this->fPlayer == '\0') &&
+                   ((int)stackBackupPin < this->backDepth[(u_char)this->fPlayer])) ||
+                  ((this->fPlayer == '\x01') &&
+                   (0 < this->backDepth[(u_char)this->fPlayer])))) {
+              if (this->waitingForOtherPlayer[(u_char)this->fPlayer] != 0) {
+                this->waitingForOtherPlayer[(u_char)this->fPlayer] = 0;
+                break;
+              }
+              this->waitingForOtherPlayer[1 - (u_char)this->fPlayer] = 0;
               this->waitingForOtherPlayer[(u_char)this->fPlayer] = 0;
-              break;
             }
-            this->waitingForOtherPlayer[1 - (u_char)this->fPlayer] = 0;
-            this->waitingForOtherPlayer[(u_char)this->fPlayer] = 0;
             if (this->fPlayer == '\0') {
               if ((this->backDepth[(u_char)this->fPlayer] == (int)stackBackupPin) &&
                   (this->fCurrentMenu[1] != (tMenu *)0x0)) {

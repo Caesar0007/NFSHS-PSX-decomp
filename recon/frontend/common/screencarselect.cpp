@@ -1474,6 +1474,23 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
     UpdateImages(vw);
     this->fTVsInitialized = 1;
   }
+  /* NAMED ANGLE -- w59-a10 BRANCH-TARGET AUDIT (gate-invisible, objdiff 99.94).
+     This fn gates PASS 86/86 but its FIRST guard branch word is 1040000D (ours)
+     vs 1040000E (retail): ours targets the merge-point `addiu s0,s2,0x304`
+     (insn 67), retail targets the shared tail (insn 68) -- i.e. retail's insn 67
+     belongs to the IF BODY, ours is the merge.  gcc's reorg COPIES the merge addu
+     into the branch delay slot (insn 54) but does not redirect the branch past
+     the original; retail's build did redirect.  Instruction placement is
+     byte-identical -- ONLY the branch label differs.
+     FALSIFIED (both re-gated):
+       (a) move `vw = this->fVideoWall;` to the END of the if body -> gcc CSEs the
+           duplicate away, 85/86 insns, FAIL 1;
+       (b) (a) + a pre-if identity fence `__asm__("" : "=r"(vw) : "0"(vw))` to make
+           the first materialization cse-opaque -> keeps both addu's but the fence
+           blocks reorg's backward slot scan, 87/86 insns, FAIL 5.
+     Next angle: read build/recon/frontend/common/screencarselect.cpp.i.dbr
+     (reorg dump) for the redirect decision, or a PER_FN_TEXT_MOVES-class branch
+     relabel spec.  Sibling: DrawOpponentVideoWall has the identical defect. */
   vw = this->fVideoWall;
   ::UpdateTransition(vw);
   vw->SetValid(valid);

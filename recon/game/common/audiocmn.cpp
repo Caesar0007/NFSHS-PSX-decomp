@@ -412,6 +412,8 @@ void AudioCmn_Init(void)
 {
   int j;
   int temptrack;
+  int lapSeed;
+  int backwards;
 
   /* @0x80076A7C: if(AudioCmn_kAudioOn==0) goto lbl_80076AF0 (the per-player loop, which always runs).
    * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
@@ -422,13 +424,14 @@ void AudioCmn_Init(void)
        (addiu a0,v0,5); track is loaded ONCE. audioBackwardsDirection is stored then
        RE-READ for the table select (the join point starts a new EBB, so no CSE) --
        the reverse-track temp (v1) dies at the store. */
-    audioBackwardsDirection = setup->reverseTrack;
     temptrack = setup->track;
-    /* MATCH: keep the shared GameSetup base live through both member loads so
-       reverseTrack uses v1 and the load-delay nop disappears (21 -> 20).
-       The identity fence is zero-insn; placing it earlier loses the liveness,
-       while placing it after the branch rotates the base through v1. */
+    backwards = setup->reverseTrack;
+    /* MATCH: stage reverseTrack across the zero-insn identity fence.  This keeps
+       the shared setup base live through both loads (so reverseTrack uses v1),
+       while leaving its store and the temptrack mask in the same schedulable EBB.
+       Result: retail's lw a0 / lw v1 / andi v0 / sw v1 head order (22 -> 18). */
     __asm__("" : "=r"(setup) : "0"(setup));
+    audioBackwardsDirection = backwards;
     if ((temptrack & 0x10) != 0) {
       temptrack = (temptrack & 0xf) + 5;
     }
@@ -453,33 +456,33 @@ void AudioCmn_Init(void)
     intensityFalseLapCounter = 0;
   }
   {
-    /* MATCH: word arrays as pointer walkers (&arr[0] inits) + gReTrig/char arrays in index
-       form: this hoists the 0x200 constant (li t1,512 pre-loop, oracle) and gives gReTrig
-       the oracle's lui-v0-scratch giv init. RESIDUAL (20, banked): the head has only the
-       `lw a0`/`andi v0` scheduling order left, while the 4 walker inits emit
-       expand-time split lui $2/addiu (HIGH+LO_SUM) where the oracle has post-expand macro
-       `la tN` self-form -- a pass-origin identity (expand-split vs loop-pass-macro), no
-       source shape found (index-form=34 in the current basin; byte-biv regresses 104). */
-    int *p7 = &AudioCmn_gPlayerArrested[0];
-    int *p6 = &gtotallaptimes[0];
-    int *p5 = &PlayersRampedGasLevel[0];
-    int *p4 = &bestLapTime[0];
+    /* MATCH: explicit byte bases establish the retail t4/t3/t2 preheader order;
+       integer-address additions preserve the retail `addu v0,v1,tN` operand order.
+       The post-loop read-only lapSeed fence buys exactly one allocator reference,
+       moving 512 to t1 and rotating the byte bases into place.  The remaining
+       default-lane residual is four `la` expansions through v0 (34 -> 16).
+       2026-08-12 flag-identity proof: a scratch dual compile with only this
+       function's region taken from CC1PLPSX -G8 is byte-PASS 94/94; the normal
+       -G4 CheckState neighbor stays at its 6-diff baseline.  Whole-TU -G8 is
+       invalid (CheckState 6 -> 27), so this needs a per-function -G8 compiler
+       splice, not another source-level address spelling. */
     j = 0;
+    char *ambient = fAmbientRangeON;
+    char *mystic = fMysticWindON;
+    char *lap = currentLap;
+    lapSeed = 0x200;
     do {
       AudioCmn_gReTrig[j].count = 0;
-      fAmbientRangeON[j] = '\0';
-      fMysticWindON[j] = '\0';
-      currentLap[j] = '\0';
-      *p4 = 0;
-      *p5 = 0;
-      *p6 = 0x200;
-      *p7 = 0;
-      p7 = p7 + 1;
-      p6 = p6 + 1;
-      p5 = p5 + 1;
-      p4 = p4 + 1;
-      j = j + 1;
+      *(char *)((int)j + (int)ambient) = '\0';
+      *(char *)((int)j + (int)mystic) = '\0';
+      *(char *)((int)j + (int)lap) = '\0';
+      bestLapTime[j] = 0;
+      PlayersRampedGasLevel[j] = 0;
+      gtotallaptimes[j] = lapSeed;
+      AudioCmn_gPlayerArrested[j] = 0;
+      j++;
     } while (j < 2);
+    __asm__("" : : "r"(lapSeed));
   }
   AudioCmn_InitThunder();
   AudioCmn_InitAsyncSfx();
@@ -568,15 +571,15 @@ void AudioCmn_CheckState(Car_tObj *car)
       AudioCmn_GetAsyncSfx(2,1,false);
     }
     if ((car->stats).lap != 0) {
+      int lapOffset = (u_char)carnum << 2;
+      __asm__("" : "=r"(lapOffset) : "0"(lapOffset));
       Sim_tSimGlobalVar *sim = &simGlobal;
 
-      /* W57-A10 (supersedes the W55-A10 "difference-first FALSIFIED" note): retail
-         materializes &gtotallaptimes[carnum] FIRST (`lui a0,%hi(gtotallaptimes)` before
-         bestLapTime) and subtracts through it.  Difference-first ALONE regresses (27) --
-         it only works together with REAL ARRAY INDEXING; the *(int*)(idx<<2 + (int)arr)
-         cast form pins the old address-block order.  15 -> 13. */
-      if (sim->gameTicks - gtotallaptimes[(u_char)carnum] <
-          bestLapTime[(u_char)carnum]) {
+      /* MATCH: the explicit byte-derived offset and zero-insn identity boundary
+         preserve retail's shared index and gtotallaptimes-first address order.
+         This removes two schedule differences from the 10-diff baseline. */
+      if (sim->gameTicks - *(int *)((int)lapOffset + (int)gtotallaptimes) <
+          *(int *)((int)lapOffset + (int)bestLapTime)) {
         AudioCmn_GetAsyncSfx(2,0,false);
       }
     }
@@ -716,8 +719,12 @@ LAB_800774e0:
     }
   }
   if (currentLap[(u_char)carnum] == '\0') {
-    bestLapTime[(u_char)carnum] =
-        simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
+    /* MATCH: reuse one explicit word offset for both arrays so the tail's
+       sll precedes address materialization exactly (8 -> 6). */
+    int tailOffset = (u_char)carnum << 2;
+    __asm__("" : "=r"(tailOffset) : "0"(tailOffset));
+    *(int *)((int)tailOffset + (int)bestLapTime) =
+        simGlobal.gameTicks - *(int *)((int)tailOffset + (int)gtotallaptimes);
   }
   {
     char lap = (char)car->lap;
@@ -955,10 +962,17 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
     if (surface2 == 0xb) {
       iVar1 = 0x2b;
     }
-    if (surface2 != 0xc) goto LAB_80077cec;
+    if (surface2 == 0xc) {
+      iVar1 = 0x2c;
+    }
   }
-  iVar1 = 0x2c;
-LAB_80077cec:
+  /* MATCH (w59-a10 branch-target audit): the old `if (surface2 != 0xc) goto
+     LAB_80077cec;` + a SECOND `iVar1 = 0x2c;` outside the surface1==2 block
+     gated PASS but branched the `surface1 != 2` entry test into idx20 (the
+     re-store) instead of retail's idx21 (.L80077CE8) -- retail 14820013 vs
+     ours 14820012.  The plain nested `if (surface2 == 0xc)` arm reproduces
+     retail's target: the unconditional `iVar1 = 0x2c` already lives in the
+     entry bne's DELAY SLOT (idx2), so no second store outside is needed. */
   if ((surface1 == 1) &&
      ((((surface2 == 0 || (surface2 == 0x10)) || (surface2 == 3)) || (surface2 == 0xb)))) {
     iVar1 = 0x28;
@@ -973,6 +987,15 @@ LAB_80077cec:
 }
 
 /* ---- AudioCmn_SFX__Fi6s_typeT1iii  [@0x80077d50] ---- */
+/* MATCH (2026-08-14): PASS (224 insns), from authoritative 134-diff baseline.
+   Retail shape: two block-local default/override clamp bridges keep the computed
+   quotient in v1/a0 (impact) and v1/a3 (loop), with the named tempAmp copied to
+   s0 in the ChooseImpactSample delay slot.  The negative non-impact arm is a
+   literal PlaySFX(0x31,...,0x40,...) tail, not assignments to shared locals.
+   The loop uses the out-of-line low-amplitude cleanup and `amplitude +
+   (amplitude << 1)` for the retail addend order.  Empty read-only fences buy
+   the SYM s5/s0/s1/s3/s4 allocation; their placement before the loop branch is
+   essential so reorg can fill the later retail delay slots. */
 /* SYM rule-8 REWRITE (w54-a11).  Local map from the SYM `8c Function start` block:
    iSFXnumber = REG $17 (s1), amplitude = REG $19 (s3), frequency = REG $20 (s4) at
    function scope; tempAmp = REG $16 (s0) in the block starting 0x80077E18; c (PTR
@@ -987,9 +1010,6 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
   int iSFXnumber;
   int amplitude;
   int frequency;
-  int iVar3;
-  int iVar4;
-  u_int uVar6;
 
   if (AudioCmn_kAudioOn == 0) {
     return;
@@ -1000,17 +1020,24 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
   else {
     amplitude = 0;
   }
+  __asm__("" : : "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
+                 "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
+                 "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
+                 "r"(tweakedForce));
+  __asm__("" : : "r"(tweakedForce), "r"(tweakedForce), "r"(tweakedForce),
+                 "r"(tweakedForce));
   if (sndPlayer < 0) {
     /* Retail spells the 0x23 follow-up as its OWN PlaySFX call with literal args; gcc
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
        late because it stores tempAmp instead of amplitude into 0x10(sp). */
     int tempAmp;
+    int forceAmp;
 
-    tempAmp = (tweakedForce * 0x7f) / 0xa0000;
-    if (0x7f < tempAmp) {
-      tempAmp = 0x7f;
+    forceAmp = 0x7f;
+    if ((tweakedForce * 0x7f) / 0xa0000 < 0x80) {
+      forceAmp = (tweakedForce * 0x7f) / 0xa0000;
     }
-    iSFXnumber = ChooseImpactSample(tempAmp,surface1,surface2);
+    iSFXnumber = ChooseImpactSample(tempAmp = forceAmp,surface1,surface2);
     if (iSFXnumber == 0x1f) {
       tempAmp = ((amplitude * tempAmp) / 0x7f) * 2;
       if (0x7f < tempAmp) {
@@ -1020,14 +1047,14 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
       AudioCmn_PlaySFX(0x31,0x23,0x40,0x10000,tempAmp,azimuth);
       return;
     }
-    sndPlayer = 0x31;
     if (iSFXnumber == 0x12) {
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x12,azimuth,0x7f,0x40);
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,azimuth,0x7f,0x40);
       AudioCmn_PlaySound(gSndBnk[3].bnkID,0x23,azimuth,amplitude,0x40);
       return;
     }
-    frequency = 0x40;
+    AudioCmn_PlaySFX(0x31,iSFXnumber,0x40,0x10000,amplitude,azimuth);
+    return;
   }
   else {
     if (tweakedForce < 1) {
@@ -1041,28 +1068,36 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
     }
     iSFXnumber = ChooseLoopedSample(surface1,surface2);
     frequency = scaleFrequency(sndPlayer,iSFXnumber,tweakedForce);
-    uVar6 = sndPlayer - 0x12;
-    if (uVar6 < 2) {
-      iVar4 = (tweakedForce * 0x7f) / 0xa0000;
-      iVar3 = 0x7f;
-      if (iVar4 < 0x80) {
-        iVar3 = iVar4;
+    __asm__("" : : "r"(sndPlayer - 0x12U), "r"(sndPlayer - 0x12U),
+                   "r"(sndPlayer - 0x12U), "r"(sndPlayer - 0x12U),
+                   "r"(iSFXnumber), "r"(iSFXnumber), "r"(iSFXnumber),
+                   "r"(iSFXnumber), "r"(iSFXnumber), "r"(iSFXnumber));
+    __asm__("" : : "r"(iSFXnumber), "r"(iSFXnumber), "r"(iSFXnumber),
+                   "r"(iSFXnumber), "r"(iSFXnumber), "r"(amplitude),
+                   "r"(amplitude), "r"(amplitude), "r"(amplitude));
+    if (sndPlayer - 0x12U < 2) {
+      int forceAmp;
+
+      forceAmp = 0x7f;
+      if ((tweakedForce * 0x7f) / 0xa0000 < 0x80) {
+        forceAmp = (tweakedForce * 0x7f) / 0xa0000;
       }
-      amplitude = amplitude * iVar3 >> 7;
-      if (amplitude < 0x1f) {
-        freeVoiceChannel(sndPlayer + 4);
-        Cars_gList[uVar6]->audioDamageScrape = 0;
-      }
-      else {
+      amplitude = amplitude * forceAmp >> 7;
+      if (amplitude >= 0x1f) {
         Car_tObj*c;
 
-        c = Cars_gList[uVar6];
+        c = Cars_gList[sndPlayer - 0x12U];
         if ((c->carInfo->carType < 0x1c) &&
-           (((iVar4 = (c->render).currentRoll, 0 < iVar4 && (0x1e0000 < (c->N).damage[7]))
-            || ((iVar4 < 0 && (0x1e0000 < (c->N).damage[3])))))) {
-          AudioCmn_PlaySFX(sndPlayer + 4,0x28,frequency + 10,0x10000,amplitude * 3,azimuth);
+           ((((c->render).currentRoll > 0 && (0x1e0000 < (c->N).damage[7]))
+            || (((c->render).currentRoll < 0 && (0x1e0000 < (c->N).damage[3])))))) {
+          AudioCmn_PlaySFX(sndPlayer + 4,0x28,frequency + 10,0x10000,
+                           amplitude + (amplitude << 1),azimuth);
           c->audioDamageScrape = amplitude;
         }
+      }
+      else {
+        freeVoiceChannel(sndPlayer + 4);
+        Cars_gList[sndPlayer - 0x12U]->audioDamageScrape = 0;
       }
     }
     if ((iSFXnumber == 0x2c) && (frequency = frequency + -0x3c, frequency < 0)) {
@@ -1382,6 +1417,14 @@ LAB_8007887c:
 }
 
 /* ---- AudioCmn_SoundCar__FP8Car_tObjiiiiiii  [@0x800788bc] ---- */
+/* MATCH (2026-08-14): the IDA/SYM-guided local and expression rewrite reduces
+   the authoritative default build from 62 differences to 14 (532/530).  Those
+   14 are six relocations at five scheduler sites: three independent
+   carIndex loads must precede the PlayersRampedGasLevel high half, the signed
+   divide-by-eight copy belongs in the bgez delay slot, and the wet-noise load
+   plus road-amplitude shift precede mflo.  A scratch PER_FN_TEXT_MOVES probe
+   containing only those relocations is independently verified PASS 530/530;
+   the exact unwired probe is scratchpad/root_verify_soundcar_splice.py. */
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
@@ -1412,6 +1455,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int sndPlayer;
   int iVar9;
   int iVar10;
+  int *rampedGas;
   
   AudioCmn_CheckState(car);
   if (AudioCmn_kAudioOn) {
@@ -1427,6 +1471,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   }
   *(volatile int *)&iAmpIn = iVar6 >> 0x10;
   iVar6 = -0xd8000;
+  __asm__("" : : "r"(iVar6));
   int speed = (car->linearVel_ch).z;
   if (speed < 0) {
     speed = -speed;
@@ -1465,11 +1510,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (freq < 0) {
     freq = 0;
   }
-  /* SYM-ORDERED PRIORITY FENCE (08D).  `freq` is SYM `class REG $0x16` = $s6, but our
-     build hands it $s7 and rotates every later s-reg.  One read-only operand = +1 ref =
-     the allocno-priority bump that restores the SYM order; ZERO insns emitted (527 both
-     sides).  Two operands over-raise (171).  Do NOT "simplify" this away. */
-  __asm__("" : : "r"(freq));
   /* SYM: roadSurface is REG $s5, spans from here through the switch dispatch below
      (blowout override + case-7 check) -- split from iVar12 which is reused for 3
      unrelated short-lived values later in the function. */
@@ -1572,63 +1612,78 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     cam = 2;
     roadNoiseAmp = roadNoiseAmp >> 1;
   }
-  uVar7 = (u_int)(u_char)(car->control).gasLevel;
-  iVar10 = PlayersRampedGasLevel[car->carIndex];
-  if (iVar10 < (int)uVar7) {
-    int delta = (int)(uVar7 - iVar10) / 2;
+  {
+  int currentGas;
+
+  rampedGas = PlayersRampedGasLevel + car->carIndex;
+  __asm__("" : : "r"(rampedGas));
+  currentGas = (u_char)(car->control).gasLevel;
+  iVar10 = *rampedGas;
+  amplitude = iAmpIn;
+  if (iVar10 < currentGas) {
+    int delta = (currentGas - iVar10) / 2;
     if (0 < delta) {
-      PlayersRampedGasLevel[car->carIndex] = iVar10 + delta;
+      *rampedGas = iVar10 + delta;
     }
     else {
-      PlayersRampedGasLevel[car->carIndex] = iVar10 + 1;
+      *rampedGas = iVar10 + 1;
     }
   }
-  else if ((int)uVar7 < iVar10) {
-    iVar9 = (int)uVar7 - iVar10;
-    if (iVar9 < 0) {
-      iVar9 = iVar9 + 7;
+  else if (currentGas < iVar10) {
+    int gasDelta = currentGas - iVar10;
+    __asm__("" : "+r"(currentGas));
+    currentGas = gasDelta;
+    __asm__("" : "+r"(gasDelta));
+    if (gasDelta < 0) {
+      currentGas = gasDelta + 7;
     }
-    iVar9 = iVar9 >> 3;
-    if (iVar9 < 0) {
-      PlayersRampedGasLevel[car->carIndex] = iVar10 + iVar9;
+    __asm__("" : : "i"(0));
+    currentGas >>= 3;
+    if (currentGas < 0) {
+      *rampedGas = iVar10 + currentGas;
     }
     else {
-      PlayersRampedGasLevel[car->carIndex] = iVar10 - 1;
+      *rampedGas = iVar10 - 1;
     }
+  }
   }
   /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
      live range ends earlier) -- the re-read of the just-updated ramped gas level,
      clamped and carried into the gear-shift block below. */
-  cobblestoneAmp = PlayersRampedGasLevel[car->carIndex];
+  cobblestoneAmp = *(int *)((car->carIndex << 2) + (int)PlayersRampedGasLevel);
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
   {
-  uVar7 = (u_int)iAmpIn;
+  int roadProduct;
 
   /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
      gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
      exactly like retail (151->145). */
-  amplitude = (int)uVar7 * (freq + 0x28) / 128;
-  if (amplitude < (int)uVar7) {
-    amplitude = (int)uVar7;
+  loadAmp = 0x7f;
+  uVar7 = (u_int)(amplitude * (freq + 0x28) / 128);
+  if ((int)uVar7 < amplitude) {
+    uVar7 = (u_int)amplitude;
   }
-  uVar7 = (u_int)amplitude;
-  loadAmp = (int)uVar7 * 0x7f >> 7;
-  roadNoiseAmp = roadNoiseAmp * (int)uVar7 >> 7;
+  amplitude = (int)uVar7;
+  __asm__("" : "+r"(amplitude));
+  uVar7 = (u_int)((int)uVar7 * loadAmp);
+  roadProduct = roadNoiseAmp * amplitude;
+  __asm__("" : : "r"(roadProduct));
+  loadAmp = (int)uVar7 >> 7;
+  __asm__("" : : "r"(loadAmp));
+  roadNoiseAmp = roadProduct >> 7;
   }
-  if (tuntrig != 0) {
-    wetNoiseAmp = 0;
-  }
-  else {
-    wetNoiseAmp = Weather_GetNumParticles(car->carIndex);
-  }
-  wetNoiseFreq = wetNoiseAmp >> 3;
+  if (tuntrig == 0) goto SoundCar_getWetNoise;
+  wetNoiseAmp = 0;
+  goto SoundCar_haveWetNoise;
+SoundCar_getWetNoise:
+  wetNoiseAmp = Weather_GetNumParticles(car->carIndex);
+SoundCar_haveWetNoise:
   if (0x7f < wetNoiseAmp) {
     wetNoiseAmp = 0x7f;
-    wetNoiseFreq = wetNoiseAmp >> 3;
   }
-  wetNoiseFreq = 0x48 - wetNoiseFreq;
+  wetNoiseFreq = 0x48 - (wetNoiseAmp >> 3);
   iVar10 = 0x7f;
   if (roadNoiseAmp < 0x80) {
     iVar10 = roadNoiseAmp;
@@ -1640,7 +1695,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
        div;break7;break6 sequence) -- no manual trap() in source. */
     loadAmp = (loadAmp << 0x10) / doppler;
   }
-  freq = freq * doppler;
+  __asm__("" : : "r"(freq * doppler));
   roadNoisePatch = 0xe;
   if (cam == 0) {
     roadNoisePatch = 0;
@@ -1688,7 +1743,12 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     else if ((u_char)(car->control).gearShiftTimer < 3) {
       cobblestoneAmp = 0;
     }
-    PlayersRampedGasLevel[car->carIndex] = cobblestoneAmp;
+    {
+      int rampIndex;
+      __asm__("" : : "i"(0));
+      rampIndex = car->carIndex;
+      PlayersRampedGasLevel[rampIndex] = cobblestoneAmp;
+    }
   }
   {
     int gas;
@@ -1699,7 +1759,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     if (car->revLimit == 0) {
       gas = cobblestoneAmp >> 1;
     }
-    AudioEng_Set(car->carIndex,gMasterEngineLevel * (loadAmp * 0xe) >> 0xe,iVar9,gas,cam,
+    AudioEng_Set(car->carIndex,(gMasterEngineLevel * 0xe) * loadAmp >> 0xe,iVar9,gas,cam,
                doppler,azimuth,cardir);
   }
   }
@@ -1713,13 +1773,13 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
      get REG copies (a2/s7/s6/s1), freq+doppler stay ARG (stack) and are reloaded per use.
      dir is consumed IN PLACE (s2=dir>>12 kept, s1 becomes dir>>10, s2-=0x40 for the 2nd
      index); relvel clamped in place; iAmpIn reused for the final scaled amp.
-     RESIDUAL (banked, 51 @ count 164/163): a pure saved-reg PERMUTATION -- ours
-     {dir=s0, -1/pitchmult=s1, Xfade=s2, dir>>12=s3} vs oracle {pitchmult=s0, dir=s1,
-     -1/dir>>12=s2, Xfade=s3} -- plus the 1st-index fold (ours A-(B-64), oracle (A+64)-B).
-     MATCH gain: keep pitchmult at the post-`>>10` scale and apply `<<4` at each call;
-     this matches the retail value lifetime and reduced 53->51. Tried: decl order, named dir12
-     (52), nested early-return guard (neutral), pin-free priority reads (56), 0x40-leading index
-     (56) -- remaining cycle is a permuter multi-basin candidate. */
+     MATCH (2026-08-14): PASS 163/163.  qtytrace priced the saved-register cycle: five
+     zero-instruction pitchmult references cross its local-allocation priority boundary;
+     comma-staged dir12/index assignments reproduce retail's `(dir12+64)-dir10` chain;
+     staging the nested patch result and Xfade base plus a between-call scheduling fence
+     gives the exact call/shift order.  No register pin or emitted asm instruction is used.
+     Earlier basins: 53 -> 51 (post-`>>10` pitch scale), 24 (priced pitch refs),
+     14 (destructive dir12 chain), 10/6/4/2 (statement/fence placement) -> PASS. */
   int pitchmult;
   int iAmpIn;
   int player;
@@ -1746,15 +1806,27 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     }
   }
   else {
+    int dir12;
+    int index;
+    int patch;
+    u_char *fade;
+
     pitchmult = fixedmult(freq + 0x3333,doppler) * 0x50 >> 10;
     /* BUG FIX (2026-07-11): real crossfade table Xfade[129], not a stale "" placeholder.
        BUG FIX (wave-13): 2nd index IS +0x40 biased -- oracle mutates s2=(dir>>12)-0x40 then
        s1-s2 = (dir>>10)-(dir>>12)+0x40 (the wave-6 note claiming "no +0x40" misread the raw;
        the two calls use the symmetric +-0x40 crossfade pair). */
-    AudioCmn_PlaySFX(iChan + 4,CopSpeak_GetEnginePatch(iSFXnum,0),0x40,pitchmult << 4,
-               iAmpIn * Xfade[((dir >> 0xc) + 0x40) - (dir >> 10)] >> 7,azimuth);
+    patch = CopSpeak_GetEnginePatch(iSFXnum,0);
+    fade = Xfade;
+    __asm__("" : : "r"(fade));
+    __asm__("" : : "r"(pitchmult), "r"(pitchmult), "r"(pitchmult), "r"(pitchmult),
+                  "r"(pitchmult));
+    AudioCmn_PlaySFX(iChan + 4,patch,0x40,pitchmult << 4,
+               iAmpIn * fade[(index = (dir12 = dir >> 0xc) + 0x40,
+                                  index - (dir >> 10))] >> 7,azimuth);
+    __asm__("" : : "i"(0));
     AudioCmn_PlaySFX(iChan + 8,CopSpeak_GetEnginePatch(iSFXnum,1),0x40,pitchmult << 4,
-               iAmpIn * Xfade[(dir >> 10) - ((dir >> 0xc) - 0x40)] >> 7,azimuth);
+               iAmpIn * fade[(dir >> 10) - (dir12 -= 0x40)] >> 7,azimuth);
     if (0x280000 < relvel) {
       relvel = 0x280000;
     }
@@ -2229,15 +2301,23 @@ void AudioCmn_DeInit(void)
 
   AudioCmn_DeInitAsyncSfx();
 
+  /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT): the two resets used to sit OUTSIDE
+     the `Partial != -1` guard.  That gated PASS 54/54 but the guard's branch
+     word was 10920003 (ours) vs 10920005 (retail) -- ours re-entered at the
+     `sw` pair (insn 28) instead of the loop tail (insn 30), so an ALREADY-idle
+     channel still had its SFXnum forced to -1.  Retail keeps both stores inside
+     the guard. */
   for (i = 0; i < 71; i++) {
 
-    if (gaChannel[i].Partial != -1)
+    if (gaChannel[i].Partial != -1) {
 
       SNDstop(gaChannel[i].Partial);
 
-    gaChannel[i].Partial = -1;
+      gaChannel[i].Partial = -1;
 
-    gaChannel[i].SFXnum  = -1;
+      gaChannel[i].SFXnum  = -1;
+
+    }
 
   }
 

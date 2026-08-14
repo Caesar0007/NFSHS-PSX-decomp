@@ -412,9 +412,17 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
   type = simObj->type & 0xf;
   switch (type) {
   case 2:
-    if ((objStatus != (ObjectAnim *)0x0) || (vel < 0)) {
+    if (objStatus != (ObjectAnim *)0x0) {
       break;
     }
+    /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT): the two guards used to be one
+       `||`, which gated PASS 166/166 but emitted 06200067 for the vel test
+       (retail 06200063) -- ours branched to the epilogue (insn 156, returning
+       ret==0) while retail branches to .L800A5550 (insn 152) = the shared
+       `ret = 1` block that `case 1` also uses.  Retail returns 1 on vel < 0.
+       (Unreachable in practice -- vel is a sum of two __builtin_abs -- but it
+       is the retail encoding.) */
+    if (vel < 0) goto Object_ret1;
     {
     Chunk *pMChunk;
     Trk_CollideBoomInst *objInstance;
@@ -464,6 +472,7 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
     }
     break;
   case 1:
+  Object_ret1:
     ret = 1;
     break;
   case 3:

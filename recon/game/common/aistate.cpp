@@ -1083,6 +1083,26 @@ LAB_80070704:
   if (doLatAction) {
     int targettingStrength;
     int targetLanePosition;
+    /* NEAR-MISS 78 diffs, count-exact 300/300 (W59-A3 re-gated).  SYM 8c block
+     * @0x8007078c (retail line 603) declares EXACTLY these two locals:
+     * targettingStrength = REG $8 = t0 and targetLanePosition = REG $4 = a0 -- the two
+     * registers the tail diff wants (ours parks them in a3 / v1).  latOffset and
+     * slicePtr are Ghidra-invented (06A).  The residual is one uniform saved/caller band
+     * rotation running from the first mflo (t0 vs t1) to the two preferredLateralPosition
+     * stores.  W59-A3 FALSIFIED: rewriting BOTH clamps in the 09A/5.0c both-arms-assign
+     * ternary form (targetLanePosition = (latOffset < targetLanePosition) ?
+     * targetLanePosition : latOffset; and the MIN twin) -- which is what the oracle's
+     * two extra `addu a0,<tmp>,zero` copies and the SLD 623/624 one-line-per-clamp
+     * grouping suggest -- ADDS 3 insns (303/300) and goes 78 -> 89.  The override form
+     * is the count-exact one; next lens = the SYM-ordered priority fence (08D) on
+     * targetLanePosition/targettingStrength, or qtytrace.
+     * W59-A3 also FALSIFIED against the W59-A11 mobile twin (sub_51F8B4): (a) the EA
+     * MIN/MAX-macro shape (fresh block temp, if/else, both arms assigning, per-arm
+     * args) on both clamps -> 80 diffs / 304 insns; (b) the mobile ladder shape for
+     * longPos/bigLongPos (`>= low` guard with a nested no-else inner if and the -1 in
+     * the else, dir*longMetersBetween_ and dimension.z recomputed at every use, no
+     * hoisted t/z temps) -> 94 diffs.  The PSX oracle keeps our if/else-if ladder and
+     * the in-place clamp override; the mobile port diverged here. */
 
     targettingStrength = 0xf0000;
     if (this->murderMode_ != 0) {
@@ -2066,7 +2086,11 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * sched1 ready-list tie.  W56-A16 FALSIFIED: `&Cars_gSortedList[iVar2]`
    * index-form is BYTE-IDENTICAL to the `+iVar2` pointer-form (no change);
    * moving the fence above the ppCVar3 assign regresses (19 diffs).  §4.6
-   * qtytrace gap -- not source-reachable. */
+   * qtytrace gap -- not source-reachable.  W59-A3 also FALSIFIED the 09I CAST-INT
+   * ARRAY SUBSCRIPT device on this site: both `(Car_tObj**)((iVar2<<2)+(int)Cars_gSortedList)`
+   * and the operand-swapped `((int)Cars_gSortedList+(iVar2<<2))` are byte-identical to
+   * the pointer form (still 2 diffs) -- address-block-order pinning does not reach a
+   * sll-vs-la ready-list tie. */
   iVar2 = Cars_gNumCars + -1;
 
   ppCVar3 = Cars_gSortedList + iVar2;
@@ -2378,17 +2402,7 @@ void AIState_RovingTraffic::Execute()
   coorddef carRelativeForLatPos;
   coorddef carRelativeForDistance;
 
-  trigger_pathPosition_t *ptVar1;
-
   Car_tObj *pCVar4;
-
-  int iVar3;
-
-  int iVar5;
-
-  int iVar6;
-
-  int iVar7;
 
   int iVar8;
 
@@ -2396,81 +2410,47 @@ void AIState_RovingTraffic::Execute()
 
   Car_tObj **ppCVar10;
 
-  /* pCVar2 rule: this->carObj_ is re-read fresh at nearly every use in the oracle
-     (13 separate reloads of *(int*)this over the function) rather than cached once --
-     each block below re-derives pCVar4 to reproduce that liveness shape. */
-
-  ptVar1 = this->path_ + this->pathIndex_;
-
-  pCVar4 = this->carObj_;
-
     /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
      uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
      statements (catalog 3d(a)). */
-  pCVar4->targetPos = ptVar1->position;
+  this->carObj_->targetPos = this->path_[this->pathIndex_].position;
 
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
-  iVar3 = (int)BWorldSm_slices + ((this->carObj_)->N).simRoadInfo.slice * 0x20;
-
   /* W57-A11: SLD line 1183 = one struct assignment (movstrsi t0/t1/t2). */
-  centerBack = *(coorddef *)((Trk_NewSlice *)iVar3)->center;
+  centerBack = *(coorddef *)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].center;
 
-  pCVar4 = this->carObj_;
+  carRelativeForLatPos.x = this->carObj_->targetPos.x - centerBack.x;
 
-  carRelativeForLatPos.x = (pCVar4->targetPos).x - centerBack.x;
+  carRelativeForLatPos.y = this->carObj_->targetPos.y - centerBack.y;
 
-  pCVar4 = this->carObj_;
-
-  carRelativeForLatPos.y = (pCVar4->targetPos).y - centerBack.y;
-
-  pCVar4 = this->carObj_;
-
-  carRelativeForLatPos.z = (pCVar4->targetPos).z - centerBack.z;
-
-  pCVar4 = this->carObj_;
+  carRelativeForLatPos.z = this->carObj_->targetPos.z - centerBack.z;
 
   /* gcc-2.x signed /256 idiom (bgez;addiu 0xFF;sra 8) -- write the plain division,
      not a hand-rolled if(x<0)x+=0xff;x>>=8 -- reference_mips_isa_asm.md MULT/DIV section.
      Statement order matches the oracle's interleave: div-pair, mult, div-pair, mult, ... */
 
-  iVar5 = (pCVar4->N).roadMatrix.m[0] / 256;
+  this->carObj_->targetLatPos =
+      this->carObj_->N.roadMatrix.m[0] / 256 * (carRelativeForLatPos.x / 256) +
+      this->carObj_->N.roadMatrix.m[1] / 256 * (carRelativeForLatPos.y / 256) +
+      this->carObj_->N.roadMatrix.m[2] / 256 * (carRelativeForLatPos.z / 256);
 
-  iVar8 = carRelativeForLatPos.x / 256;
-
-  iVar3 = iVar5 * iVar8;
-
-  iVar6 = (pCVar4->N).roadMatrix.m[1] / 256;
-
-  iVar9 = carRelativeForLatPos.y / 256;
-
-  iVar3 = iVar3 + iVar6 * iVar9;
-
-  iVar7 = (pCVar4->N).roadMatrix.m[2] / 256;
-
-  iVar8 = carRelativeForLatPos.z / 256;
-
-  iVar3 = iVar3 + iVar7 * iVar8;
-
-  pCVar4->targetLatPos = iVar3;
-
-  pCVar4 = this->carObj_;
-
-  carRelativeForDistance.x = (pCVar4->targetPos).x - (pCVar4->N).position.x;
+  carRelativeForDistance.x = this->carObj_->targetPos.x - this->carObj_->N.position.x;
 
   iVar9 = carRelativeForDistance.x >> 0xc;
 
-  pCVar4 = this->carObj_;
+  carRelativeForDistance.y = this->carObj_->targetPos.y - this->carObj_->N.position.y;
 
-  carRelativeForDistance.y = (pCVar4->targetPos).y - (pCVar4->N).position.y;
-
-  pCVar4 = this->carObj_;
-
-  carRelativeForDistance.z = (pCVar4->targetPos).z - (pCVar4->N).position.z;
+  carRelativeForDistance.z = this->carObj_->targetPos.z - this->carObj_->N.position.z;
 
   iVar8 = carRelativeForDistance.z >> 0xc;
 
-  if (iVar9 * iVar9 + iVar8 * iVar8 < 10000) {
+  carRelativeForDistance.x = iVar9;
+
+  carRelativeForDistance.z = iVar8;
+
+  if (carRelativeForDistance.x * carRelativeForDistance.x +
+      carRelativeForDistance.z * carRelativeForDistance.z < 10000) {
 
     if (this->waitTick_ == 0) {
 
@@ -2599,11 +2579,11 @@ extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
 
 
 /* ---- Execute__14AIState_Donuts  AIState_Donuts::Execute  [AISTATE.CPP:1256-1334] SLD-VERIFIED ---- */
-/* NEAR (18 diffs/317 vs 319 insns): IDA's retail register annotations and the
-   SYM SLD line trace recovered the real locals, scopes, and source-statement
-   boundaries. All regions now match except the slice-wrap at 0x80072008:
-   even with an explicit gNumSlices-3 temporary, equivalent control flow leaves
-   forwardSlice in v1 instead of the oracle's v0 and folds two merge instructions. */
+/* PASS (319 insns): IDA's retail register annotations and the SYM SLD line trace
+   recovered the real locals, scopes, and statement boundaries.  The candidate
+   fence must precede the copy so the copy fills the jump delay slot; spelling
+   the slice-table access as an integer byte address gives forwardSlice/result
+   v0 and the table base v1, matching retail's allocation. */
 
 void AIState_Donuts::Execute()
 
@@ -2664,8 +2644,8 @@ void AIState_Donuts::Execute()
        * to forwardSlice, the then-arm becomes EMPTY and gcc inverts the branch (ours 317 vs
        * retail 319: retail keeps `addu v0,v1,zero; j` as a real arm and branches `beqz`). */
       if (candidateSlice < gNumSlices) {
-        forwardSlice = candidateSlice;
         __asm__("" : : "r"(candidateSlice));
+        forwardSlice = candidateSlice;
       }
       else {
         numSlicesLess3 = gNumSlices - 3;
@@ -2685,7 +2665,7 @@ void AIState_Donuts::Execute()
     }
 
     {
-      coorddef &sliceCenter = *(coorddef *)(BWorldSm_slices + forwardSlice);
+      coorddef &sliceCenter = *(coorddef *)((forwardSlice << 5) + (int)BWorldSm_slices);
       targetPos = sliceCenter;
     }
 

@@ -122,7 +122,12 @@ void AIHigh_Opponent::CheckForWipeOut()
 
 
 
-/* ---- DoRearEnder__15AIHigh_Opponent  AIHigh_Opponent::DoRearEnder  [AIH_OPP.CPP:97-146] SLD-VERIFIED ---- */
+/* ---- DoRearEnder__15AIHigh_Opponent  AIHigh_Opponent::DoRearEnder  [AIH_OPP.CPP:97-146] SLD-VERIFIED ----
+ * MATCH (185 -> 54, exact 181/181 size): restoring the SYM block scopes separates
+ * attackIndex from the loop counter/list walk; explicit shifted road bounds preserve
+ * the retail byte/multiply handout; builtin_abs fixes both speed paths; and splitting
+ * the two probability tests restores the retail early-return CFG. The two remaining
+ * islands are repeated self/direction/roadPosition allocation-scheduling variants. */
 
 int AIHigh_Opponent::DoRearEnder()
 
@@ -130,22 +135,6 @@ int AIHigh_Opponent::DoRearEnder()
 
 {
   int attackIndex;
-  Car_tObj*otherCarObj;
-  int longDistance;
-  int latDistance;
-  int racerLoop;
-
-  int iVar1;
-
-  u_int uVar3;
-
-  Car_tObj *pCVar4;
-
-  Car_tObj *pCVar6;
-
-  Car_tObj **ppCVar7;
-
-  Sim_tSimGlobalVar *tickPtr;
 
 
 
@@ -154,16 +143,26 @@ int AIHigh_Opponent::DoRearEnder()
                                             rewired from anonymous iVar1 per the SYM ground truth. */
 
   if (attackIndex != -1) {
+    Car_tObj *otherCarObj;
+    int longDistance;
+    int latDistance;
+    /* NEAR-MISS 54 diffs, count-exact 181/181 (W59-A3 re-gated).  Retail interleaves
+       the two 32-bit range constants of the line-112 test (-0x10001 and 0x26FFFE) INTO
+       the roadPosition load-delay slots ABOVE the latDistance sign test (oracle idx
+       28-33, SLD 112 sitting between SLD-106 loads), and defers the mflo of
+       longDistance*direction past the bgez; ours emits the constants after the branch.
+       W59-A3 FALSIFIED: 09L's `hand-rolled abs is a jump-merge magnet` cure --
+       latDistance = __builtin_abs(roadPosition - other->roadPosition) -- makes it
+       WORSE (58 diffs) and rotates a1/v1 on the carObj_ load; the branchy abs is what
+       retail has.  The residual is the constant hoist across the abs BB split. */
 
     otherCarObj = Cars_gList[attackIndex];
 
     longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
 
-    pCVar4 = this->carObj_;
+    longDistance = longDistance * this->carObj_->direction;
 
-    longDistance = longDistance * pCVar4->direction;
-
-    latDistance = pCVar4->roadPosition - otherCarObj->roadPosition;
+    latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
 
     if (latDistance < 0) {
 
@@ -173,15 +172,9 @@ int AIHigh_Opponent::DoRearEnder()
 
     if ((longDistance - 0x10001U < 0x26ffff) && (latDistance < longDistance * 2)) {
 
-      longDistance = otherCarObj->currentSpeed;
+      int speed = __builtin_abs(otherCarObj->currentSpeed);
 
-      if (longDistance < 0) {
-
-        longDistance = -longDistance;
-
-      }
-
-      if (0xb1c71 < longDistance) {
+      if (0xb1c71 < speed) {
 
         return attackIndex;
 
@@ -191,23 +184,17 @@ int AIHigh_Opponent::DoRearEnder()
 
   }
 
-  pCVar4 = this->carObj_;
+  Car_tObj *pCVar4 = this->carObj_;
 
   if ((pCVar4->N).simOptz == '\0') {
 
-    iVar1 = pCVar4->currentSpeed;
-
-    if (iVar1 < 0) {
-
-      iVar1 = -iVar1;
-
-    }
-
-    racerLoop = 0;
+    int iVar1 = __builtin_abs(pCVar4->currentSpeed);
 
     if (0x140000 < iVar1) {
 
-      ppCVar7 = Cars_gHumanRaceCarList;
+      int racerLoop = 0;
+      Car_tObj **ppCVar7;
+      Sim_tSimGlobalVar *tickPtr;
 
       tickPtr = &simGlobal;   /* §3.12 lever #16: hold the &simGlobal BASE in a callee-saved $s4 across
                                             the AIWorld_SplineDistance call (H26 FIX: oracle keeps the
@@ -215,7 +202,8 @@ int AIHigh_Opponent::DoRearEnder()
                                             re-applies the +4 gameTicks field offset as the LOAD
                                             DISPLACEMENT at both mask-check sites: `lw v1,4(s4)`, not
                                             `lw v1,0(s4)`. Confirmed via Sim_tSimGlobalVar layout
-                                            (gameTicks @+4). Rewired *tickPtr -> tickPtr->gameTicks). */
+                                            (gameTicks @+4). */
+      ppCVar7 = Cars_gHumanRaceCarList;
 
       for (; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {   /* SYM: racerLoop is a
                                             SEPARATE local from the pre-loop longDistance check (2nd SYM
@@ -224,27 +212,26 @@ int AIHigh_Opponent::DoRearEnder()
                                             var, conflating it with the pre-loop longDistance temp forces
                                             them into ONE callee-saved reg for the whole function). */
 
-        otherCarObj = *ppCVar7;   /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh block-scope
+        Car_tObj *otherCarObj = *ppCVar7;   /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh block-scope
                                      pseudo) inside this loop -- same physical slot as section 1's
                                      otherCarObj, rewired from anonymous pCVar4. */
 
-        iVar1 = (otherCarObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
+        int sliceAddress = (otherCarObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
-        if (((int)-((u_int)*(u_char *)(iVar1 + 0x1e) * 0x8000 * (u_int)(*(u_char *)(iVar1 + 0x1d) >> 4))
+        if (((int)-(((u_int)*(u_char *)(sliceAddress + 0x1e) << 15) *
+                    (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4)) <=
+             otherCarObj->roadPosition) &&
+            (otherCarObj->roadPosition <=
+             (int)(((u_int)*(u_char *)(sliceAddress + 0x1f) << 15) *
+                   (*(u_char *)(sliceAddress + 0x1d) & 0xf)))) {
 
-             <= otherCarObj->roadPosition) &&
+          int longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
 
-           (otherCarObj->roadPosition <=
+          Car_tObj *pCVar6 = this->carObj_;
 
-            (int)((u_int)*(u_char *)(iVar1 + 0x1f) * 0x8000 * (*(u_char *)(iVar1 + 0x1d) & 0xf)))) {
+          longDistance = longDistance * pCVar6->direction;
 
-          iVar1 = AIWorld_SplineDistance(otherCarObj,this->carObj_);
-
-          pCVar6 = this->carObj_;
-
-          iVar1 = iVar1 * pCVar6->direction;
-
-          latDistance = pCVar6->roadPosition - otherCarObj->roadPosition;   /* SYM: latDistance REG $a1,
+          int latDistance = pCVar6->roadPosition - otherCarObj->roadPosition;   /* SYM: latDistance REG $a1,
                                      re-declared fresh in this block (same reg as section 1's). */
 
           if (latDistance < 0) {
@@ -253,28 +240,19 @@ int AIHigh_Opponent::DoRearEnder()
 
           }
 
-          if ((((iVar1 - 0x10001U < 0x26ffff) && (latDistance < iVar1 * 2)) &&
-
-              /* H26: BUG FIX -- personality is a REAL typed AIPerson_t* (sizeof 84); the old
-                 `*(u_int*)(personality + 0x48)` did POINTER ARITHMETIC scaled by 84 (0x48*84=6048,
-                 matched the oracle's huge bogus-looking `lw a1,6048(v0)` diff literally, confirming
-                 this WAS the reconstruction bug, not a real 6048-byte-offset access). Oracle's true
-                 codegen is a single fused `lw a0,0x48(personality)` -- the real struct field
-                 AIPerson_t::rearBumpProbMask @+0x48 (u_int) via real member access. */
-              (uVar3 = pCVar6->personality->rearBumpProbMask,
-
-              (tickPtr->gameTicks + pCVar6->carIndex * 0x7b & uVar3) == uVar3)) ||
-
-             ((iVar1 + 0x3ffffU < 0x7ffff &&
-
-              (pCVar6 = this->carObj_,
-
-              uVar3 = pCVar6->personality->smackProbMask,   /* AIPerson_t::smackProbMask @+0x4C */
-
-              (tickPtr->gameTicks + pCVar6->carIndex * 0x7b & uVar3) == uVar3)))) {
-
-            return otherCarObj->carIndex;
-
+          if ((longDistance - 0x10001U < 0x26ffff) &&
+              (latDistance < longDistance * 2)) {
+            u_int mask = pCVar6->personality->rearBumpProbMask;
+            if ((tickPtr->gameTicks + pCVar6->carIndex * 0x7b & mask) == mask) {
+              return otherCarObj->carIndex;
+            }
+          }
+          if (longDistance + 0x3ffffU < 0x7ffff) {
+            Car_tObj *smackCarObj = this->carObj_;
+            u_int mask = smackCarObj->personality->smackProbMask;
+            if ((tickPtr->gameTicks + smackCarObj->carIndex * 0x7b & mask) == mask) {
+              return otherCarObj->carIndex;
+            }
           }
 
         }

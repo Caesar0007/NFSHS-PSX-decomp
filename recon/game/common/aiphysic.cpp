@@ -645,8 +645,22 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
   return acceleration;
   /* NEAR-MISS 2 diffs, count-exact 184/184 (w11-a8, was 123): the final beqz's delay
      slot -- aspsx-2.77 fills it with the merge target's `addu v0,s0` (redundant-copy
-     fill), maspsx unconditionally nops a reorder-mode branch slot. Catalog F
-     maspsx-reorder-branch-slot FLOOR (TurnOff/TurnOn class); not source-reachable. */
+     fill), maspsx unconditionally nops a reorder-mode branch slot.
+     W59-A3 EVIDENCE (gcc .s, scratch/rtl/aiphysic.s): cc1plus emits
+       `beq $5,$2,$L694` under .set REORDER with an EMPTY slot; $L694 is `move $2,$16`
+       and the oracle carries that same insn BOTH in the slot AND at the merge point
+       (indices 172 and 176) => aspsx COPIED the target insn into the slot.  gcc's own
+       reorg declined because mostly_true_jump scores an EQ forward branch 0, so
+       fill_eager_delay_slots never tries the target thread, and the backward scan is
+       barred by 09L (the candidate WRITES $2, which the beq READS).
+     W59-A3 FALSIFIED (4 source shapes, all re-gated): early-return in the ==-arm,
+       duplicated `return acceleration;` in both arms, per-arm return + shared tail,
+       and `==`-inverted guard all COLLAPSE the oracle's `addu s0,v0 / addu v0,s0`
+       round-trip (182/184, still 2 diffs) -- the baseline shape is the only
+       count-exact one.  ORCHESTRATOR SPEC (PER_FN_TEXT_MOVES): for
+       AIPhysic_CalcAcceleration__FP8Car_tObji, COPY (not move) the `move $2,$16` line
+       that follows `$L694:` into the empty slot of `beq $5,$2,$L694` and drop the
+       maspsx nop; the copy is idempotent so the branch target need not be redirected. */
 ret0:
   return 0;
 }
@@ -669,9 +683,24 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
      REG $5=a1) to a1; ours coalesces dead value into the addr reg (v0 self-temp),
      freeing v1 for turnAroundSpeed. Tried: bare volatile stmt, named local, pointer
      local, unsized-array read, volatile object, init-reorder, same-value folded
-     store, cross-jump dup-tail (gcc deleted the whole block) — all self-temp. The
-     retail separate-dest implies a value USE deleted post-regalloc (cross-jump/dbr)
-     unreachable from source statement forms. Permuter candidate. */
+     store, cross-jump dup-tail (gcc deleted the whole block) -- all self-temp.
+     W59-A3 ROOT CAUSE (RTL -dg/-dl, scratch/rtl/aiphysic.i.{greg,lreg}): the whole
+     chain is LOCAL-ALLOC, not global.  Block-1 locals are p85 (the %hi addr pseudo,
+     2 refs) and p86 (the load dest, 1 ref, NO USE); p85 dies AT the lw and p86 is
+     born AT the lw, so block_alloc/find_free_reg legally gives both $2.  That leaves
+     $3 free, so global_alloc hands p81 (turnAroundSpeed, conflicts p80/$4 + hard $2)
+     the lowest free = $3.  Retail: p86 CONFLICTED with p85 (=> $3), which pushed
+     turnAroundSpeed to $5 = the SYM REG $5.  So retail's dead load HAD a use at
+     local-alloc time that was deleted post-reload; a source-level dead read cannot
+     recreate the conflict.  W59-A3 MEASURED: read-only fence on the loaded value
+     ("" : : "r"(rt)) = INERT (8, the dest may reuse a dead base regardless of its own
+     liveness); a POINTER LOCAL kept live past the load
+     (volatile int *p = ...; (void)*p; __asm__("" : : "r"(p));) DOES split them and
+     drops it to 1 diff -- but costs a real addiu (19/18) because a pointer VALUE
+     forces the %lo out of the load, so it is structurally worse than the count-exact
+     baseline and was NOT landed.  Only a 2nd memory ref off the same %hi keeps that
+     pseudo live for free, and retail has only one.  Next lens = qtytrace (local-alloc
+     QTY birth/death), not the permuter. */
 }
 
 /* ---- AIPhysic_Main__FP8Car_tObj ---- */
@@ -1143,40 +1172,43 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
   if ((__builtin_abs(carObj->aCarWRTDesired) < 0x74) && (carObj->driveDirection != -1)) {
     int iVar3;
 
+    /* MATCH (W59-A3): retail is ONE goto-funnel -- SLD proves the whole test chain
+       is line 1312, the shared `return 1` block is line 1325 (label .L8006B3E4,
+       jumped to by every early exit) and `return 0` is line 1333, LAST.  Writing the
+       early exits as literal `return 1;` let jump.c fold the final
+       `if(x)return 0;return 1;` into xori+j (the old 6-diff residual) and gave the
+       tail its own private return-1 block.  goto ret1/ret0 with ret1 BEFORE ret0
+       reproduces retail exactly (5.0c goto-to-shared-tail + 09G funnel-duplication). */
     if (__builtin_abs(carObj->currentSpeed) < AIPhysicConfig.OOCModel.vel_limit_range + -0x30000) {
-      return 1;
+      goto ret1;
     }
     iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
     if (carObj->roadPosition <
         (int)-((u_int)(*(u_char *)(iVar3 + 0x1e) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4))) {
-      return 1;
+      goto ret1;
     }
     if ((int)((u_int)(*(u_char *)(iVar3 + 0x1f) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) & 0xf)) <
         carObj->roadPosition) {
-      return 1;
+      goto ret1;
     }
     if (0xcccc < futureBend) {
-      return 1;
+      goto ret1;
     }
     {
       int lat = (carObj->linearVel_ch).x;
       int spd = carObj->speed;
-      /* W54-A15 / LAW 05A: retail's SLD block order is `... bnez [v0=0 in slot]` (1312),
-       * `j EPI; li v0,1` (1325), `addu v0,zero,zero` (1333, LAST) -- i.e. the two return-0
-       * sites share ONE tail block placed AFTER the return-1 block, and reorg eager-steals
-       * its `v0=0` into the bnez slot.  Writing the inner return-0 as a flat if/return pair
-       * lets jump.c fold `if(X)return 0; return 1;` into `xori v0,v0,1` + one `j` instead
-       * (the whole 6-diff residual).  goto-to-shared-tail is the idiom this TU already uses. */
-      if (__builtin_abs(lat) > spd / 256 * 0x66) {
-        if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
-          return 0;
-        }
-        return 1;
+      if (__builtin_abs(lat) <= spd / 256 * 0x66) {
+        goto ret0;
       }
-      return 0;
+      if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
+        goto ret0;
+      }
     }
   }
+ret1:
   return 1;
+ret0:
+  return 0;
   /* NEAR-MISS 6 diffs, count-exact 104/104: separating the bend call from its
      absolute-value assignment gives the SLD/IDA allocation futureBend=$a3 and
      cached abs(currentSpeed)=$t0. The remaining tail is compiler block-layout
@@ -1190,7 +1222,20 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * Oracle holds &AIPhysicConfig in $s0 across the head calls (cluster 1: latvelcalc_lookahead,
    * dangle/max_dav, max_dlvel, vel_limit_range, lat/ang factors) -> block-local cfg pointer;
    * later accesses (dav_to_aa, dlvel_to_clacc, targetVel vel_limit_range, skid_value) are fresh
-   * caller-saved rematerializations -> direct AIPhysicConfig globals. */
+   * caller-saved rematerializations -> direct AIPhysicConfig globals.
+   * NEAR-MISS 5 diffs (ours 413 / oracle 412): retail puts `uTurn = 0` (addu s4,zero,zero)
+   * in the AIWorld_CalcFutureLateralVel jal slot and defers the `addiu s0,s0,%lo` that
+   * completes the &AIPhysicConfig address to the simGlobal load-delay slot (oracle idx 31,
+   * SLD 1385); ours swaps the two and nops idx 32.  A pure sched1 ready-list tie.
+   * W59-A3 FALSIFIED (each re-gated): (a) moving `cfg = &AIPhysicConfig;` after the
+   * wipeOutEndTick store -> 9 diffs, breaks the %hi share (lui v1 + addiu s0,v1,0);
+   * (b) same move to just after the if-block -> 9; (c) void-tail fence
+   * __asm__("" : : "i"(0)) between the call and the cfg assign -> 16 (414 insns);
+   * (d) 06A SYM-faithful removal of the whole cfg pointer (the SYM 8c lists 14 INT
+   * locals and NO pointer) with all 14 uses spelled AIPhysicConfig.OOCModel.X -> 9,
+   * gcc still builds an address pseudo but splits it across two regs, so 09K applies
+   * (the SYM-absent local is load-bearing here).  Baseline stands; next lens = qtytrace
+   * sched1 ready-list, not source shape. */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

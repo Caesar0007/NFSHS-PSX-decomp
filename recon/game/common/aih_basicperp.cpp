@@ -96,7 +96,17 @@ crime_checks_done:
 
 
 
-/* ---- CheckIfCaught__16AIHigh_BasicPerp  AIHigh_BasicPerp::CheckIfCaught  [AIH_BASICPERP.CPP:180-289] SLD-VERIFIED ---- */
+/* ---- CheckIfCaught__16AIHigh_BasicPerp  AIHigh_BasicPerp::CheckIfCaught  [AIH_BASICPERP.CPP:180-289] SLD-VERIFIED ----
+ * MATCH RECEIPT: SYM lists no barrier-byte/lane temporaries, so the direct
+ * Trk_NewSlice::laneCount expressions below replace four decompiler-invented
+ * locals and recover retail's $a0/$v1 byte handout.  SLD line 274 is a single
+ * abs(xDot) threshold, not a destructive two-statement absolute value.
+ * Two zero-insn xDot references buy its refs 6->8 allocator boundary.  Moving
+ * xDot=0 to its SLD block then shortens it enough to outrank `this`; eleven
+ * loop-weighted `this` references buy p80 refs 43->65, crossing the 64-ref
+ * floor_log2 boundary and restoring this=$s3/xDot=$s4.  Fence placement before
+ * the barrier branch preserves xDot=0 in its retail delay slot.
+ * Measured path: 37 -> 13 -> 4 -> 1 -> PASS (380/380). */
 
 int AIHigh_BasicPerp::CheckIfCaught()
 
@@ -156,8 +166,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
         cop = Cars_gList[carLoop];
 
-        xDot = 0;
-
         diffSpeed = this->carObj_->currentSpeed - cop->currentSpeed;
 
         validCar = 0;
@@ -208,51 +216,37 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
           distanceAbsMeters = __builtin_abs(AIWorld_ApxSplineDistance(this->carObj_,cop));
 
-          {
-            u_char bVar1;
-            int iVar10;
+          barrierInWay = 0;
 
-            bVar1 = *(u_char *)((this->carObj_->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1d);
+          if (((int)(7 - (u_int)(BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount >> 4))
+                    <= this->carObj_->laneIndex) &&
+              (this->carObj_->laneIndex <=
+                    (int)((BWorldSm_slices[(this->carObj_->N).simRoadInfo.slice].laneCount & 0xf) + 6)) &&
+              ((int)(7 - (u_int)(BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount >> 4))
+                    <= cop->laneIndex) &&
+              (cop->laneIndex <=
+                    (int)((BWorldSm_slices[(cop->N).simRoadInfo.slice].laneCount & 0xf) + 6)) &&
+              (AIWorld_CheckForBarrierBetweenLanes((int)(cop->N).simRoadInfo.slice,
+                    cop->laneIndex,this->carObj_->laneIndex) != 0)) {
 
-            iVar10 = this->carObj_->laneIndex;
+            barrierInWay =
+                AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice,
+                    cop->laneIndex,this->carObj_->laneIndex) != 0;
 
-            barrierInWay = 0;
-
-            if (((int)(7 - (u_int)(bVar1 >> 4)) <= iVar10) && (iVar10 <= (int)((bVar1 & 0xf) + 6))) {
-
-              int iVar11;
-              int iVar12;
-
-              iVar11 = (int)(cop->N).simRoadInfo.slice;
-
-              bVar1 = *(u_char *)(iVar11 * 0x20 + (int)BWorldSm_slices + 0x1d);
-
-              iVar12 = cop->laneIndex;
-
-              if (((int)(7 - (u_int)(bVar1 >> 4)) <= iVar12) &&
-
-                 ((iVar12 <= (int)((bVar1 & 0xf) + 6) &&
-
-                  (iVar10 = AIWorld_CheckForBarrierBetweenLanes(iVar11,iVar12,iVar10), iVar10 != 0)))) {
-
-                iVar10 = AIWorld_CheckForBarrierBetweenLanes((int)(this->carObj_->N).simRoadInfo.slice,cop->laneIndex,
-
-                                    this->carObj_->laneIndex);
-
-                barrierInWay = iVar10 != 0;
-
-              }
-
-            }
           }
 
           if (AIHigh_BasicPerp_CaughtDistance[skill] <= distanceAbsMeters) continue;
 
+          __asm__("" : : "r"(this), "r"(this), "r"(this),
+                          "r"(this), "r"(this), "r"(this));
+          __asm__("" : : "r"(this), "r"(this), "r"(this),
+                          "r"(this), "r"(this));
           if (barrierInWay) continue;
 
           {
           int zDot;
 
+          xDot = 0;
           zDot = 0x10000;
 
           if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
@@ -293,13 +287,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
           }
 
-          if (xDot < 0) {
-
-            xDot = -xDot;
-
-          }
-
-          if (0x8ffff < xDot) continue;
+          __asm__("" : : "r"(xDot), "r"(xDot));
+          if (0x8ffff < __builtin_abs(xDot)) continue;
 
           if (zDot < 0) continue;
 
@@ -549,8 +538,20 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          (regress 2->34, +6 callee-saved shuffle); per-fn -fno-thread-jumps
          splice is INERT (probed via monkeypatched build.py: still 85/87) --
          the deletion is a cse/redundant-branch pass, not thread_jumps.  Needs
-         a value-range-opaque cse-invalidation the fence toolkit lacks. */
-      if (pos < 1) break;
+         a value-range-opaque cse-invalidation the fence toolkit lacks.
+         W59-A3 SYM CONFIRMS THE SHAPE and adds two falsifications: the 8c block
+         set is {S5 lines 372-396 = the loop body, declaring nextCopIndex+nextCarIndex;
+         S6 lines 378-395 = a nested block whose FIRST insn IS the missing blez;
+         S7/S8 line 379 = the inlined AIHigh_Base method}, and the SLD puts the blez
+         at line 378 -- so retail really did write a redundant pos guard there.
+         FALSIFIED (each re-gated): (a) the guard as a positive nested block
+         `if (0 < pos) { ...rest of body... }` instead of `break` -> 26 diffs, still
+         85 insns (guard STILL deleted) + an s4/s5/s6 saved-band rotation; (b) the
+         same with the loop UN-ROTATED to `while (0 < pos) { ... }` (no outer if, no
+         do/while) -> the identical 26-diff basin.  So the deletion is independent of
+         both the loop shape and break-vs-if, and the extra lexical block alone costs
+         the band -- only a cse-invalidating device can restore the branch. */
+            if (pos < 1) break;
 
       if (nextCopIndex != -1) {
 

@@ -1,0 +1,1254 @@
+== build/recon/eaclib/psx/eacpsxz/asinfunc.c.o  A=0 B=0 C=1
+   [C] intarccos -> intarcsin @0xc8  jal	0 <intarcsin>
+== build/recon/eaclib/psx/eacpsxz/cdfs.c.o  A=0 B=0 C=28
+   [C] CD_Open -> dircompare @0x88  lui	v0,0x0
+   [C] CD_Open -> dircompare @0x8c  addiu	v0,v0,0
+   [C] CD_Read -> CD_timerfunc @0x2b0  lui	v0,0x0
+   [C] CD_Read -> CD_timerfunc @0x2b4  addiu	s4,v0,0
+   [C] loaddirinfo -> readsectorB @0x4c4  jal	0 <CD_Open>
+   [C] loaddirinfo -> readsectorB @0x500  jal	0 <CD_Open>
+   [C] loaddirinfo -> readsectorB @0x53c  jal	0 <CD_Open>
+   [C] CD_Init -> CD_Restart @0x710  jal	0 <CD_Open>
+== build/recon/eaclib/psx/eacpsxz/fileroot.c.o  A=0 B=0 C=2
+   [C] initfileio -> readfile_systask @0x44  lui	a0,0x0
+   [C] initfileio -> readfile_systask @0x48  addiu	a0,a0,0
+== build/recon/eaclib/psx/eacpsxz/inittmr.c.o  A=0 B=0 C=6
+   [C] inittimer -> tmrint @0xc0  lui	a3,0x0
+   [C] inittimer -> tmrint @0xc8  addiu	a3,a3,0
+   [C] inittimer -> restoretimer @0xdc  lui	a0,0x0
+   [C] inittimer -> restoretimer @0xec  addiu	a0,a0,0
+   [C] inittimer -> restoretimer @0x168  lui	a0,0x0
+   [C] inittimer -> restoretimer @0x170  addiu	a0,a0,0
+== build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o  A=0 B=0 C=1
+   [C] decodeshiftjis -> remapshiftjiscode @0x6c  jal	0 <remapshiftjiscode>
+== build/recon/eaclib/psx/eacpsxz/locatbig.c.o  A=0 B=0 C=7
+   [C] sizeofbigfileheader -> typeofbigfile @0x7c  jal	0 <typeofbigfile>
+   [C] bigcount -> typeofbigfile @0xf4  jal	0 <typeofbigfile>
+   [C] locatebigentryz -> sizeofbigfileheader @0x18c  jal	0 <typeofbigfile>
+   [C] locatebigentryz -> typeofbigfile @0x198  jal	0 <typeofbigfile>
+   [C] locatebigentry -> locatebigentryz @0x31c  jal	0 <typeofbigfile>
+   [C] locatebigoffset -> locatebigentry @0x354  jal	0 <typeofbigfile>
+   [C] locatebig -> locatebigoffset @0x384  jal	0 <typeofbigfile>
+== build/recon/eaclib/psx/eacpsxz/matrix.c.o  A=0 B=0 C=3
+   [C] reorthogonalize -> submatrix @0x15c  jal	0 <addmatrix>
+   [C] reorthogonalize -> scalematrix @0x260  jal	0 <addmatrix>
+   [C] reorthogonalize -> addmatrix @0x270  jal	0 <addmatrix>
+== build/recon/eaclib/psx/eacpsxz/memstd.c.o  A=0 B=0 C=18
+   [C] creatememclass -> initmemblock @0x400  jal	0 <FREE_find>
+   [C] creatememclass -> initmemblock @0x424  jal	0 <FREE_find>
+   [C] creatememclass -> initmemblock @0x45c  jal	0 <FREE_find>
+   [C] creatememclass -> FREE_add @0x4e0  jal	0 <FREE_find>
+   [C] largestunused -> FREE_findlargest @0x564  jal	0 <FREE_find>
+   [C] getblockname -> MEM_infosize @0x5c0  jal	0 <FREE_find>
+   [C] reservememadr -> MEM_tailsize @0x658  jal	0 <FREE_find>
+   [C] reservememadr -> FREE_findlargest @0x690  jal	0 <FREE_find>
+== build/recon/eaclib/psx/eacpsxz/nasync.c.o  A=0 B=0 C=44
+   [C] cancelrequest -> queueadd @0x1b4  jal	0 <queueadd>
+   [C] finishrequest -> queueadd @0x1f0  jal	0 <queueadd>
+   [C] loadfileclosecallback -> cancelrequest @0x238  jal	0 <queueadd>
+   [C] loadfileclosecallback -> finishrequest @0x248  jal	0 <queueadd>
+   [C] loadfilereadcallback -> loadfileclosecallback @0x2c8  lui	a1,0x0
+   [C] loadfilereadcallback -> loadfileclosecallback @0x2d0  addiu	a1,a1,0
+   [C] loadfilesizecallback -> loadfileclosecallback @0x380  lui	a1,0x0
+   [C] loadfilesizecallback -> loadfileclosecallback @0x388  addiu	a1,a1,0
+== build/recon/eaclib/psx/eacpsxz/nfile.c.o  A=0 B=0 C=47
+   [C] FILE_init -> FILE_overhead @0x370  jal	0 <freeop>
+   [C] FILE_init -> FILE_initwithmem @0x398  jal	0 <freeop>
+   [C] FILE_completeop -> freeop @0x458  jal	0 <freeop>
+   [C] FILE_open -> reserveop @0x51c  jal	0 <freeop>
+   [C] FILE_open -> reservehandle @0x54c  jal	0 <freeop>
+   [C] FILE_open -> iFILE_perror @0x564  jal	0 <freeop>
+   [C] FILE_open -> iFILE_ExecCommand @0x588  jal	0 <freeop>
+   [C] FILE_close -> reserveop @0x5d4  jal	0 <freeop>
+== build/recon/eaclib/psx/eacpsxz/nloadpk.c.o  A=0 B=0 C=1
+   [C] loadpackadr -> loadpackadrz @0x100  jal	0 <loadpackadrz>
+== build/recon/eaclib/psx/eacpsxz/nsync.c.o  A=0 B=0 C=12
+   [C] filesize -> filesizeatomic @0x80  lui	a0,0x0
+   [C] filesize -> filesizeatomic @0x84  addiu	a0,a0,0
+   [C] loadfileadrz -> loadfileadratomic @0x1b8  lui	a0,0x0
+   [C] loadfileadrz -> loadfileadratomic @0x1bc  addiu	a0,a0,0
+   [C] loadfileadr -> loadfileadratomic @0x200  lui	a0,0x0
+   [C] loadfileadr -> loadfileadratomic @0x204  addiu	a0,a0,0
+   [C] loadfileatadrz -> loadfileatadratomic @0x2c0  lui	a0,0x0
+   [C] loadfileatadrz -> loadfileatadratomic @0x2c4  addiu	a0,a0,0
+== build/recon/eaclib/psx/eacpsxz/stream.c.o  A=0 B=0 C=53
+   [C] parsechunks -> filterchunk @0x3a4  jal	0 <validatehandle>
+   [C] opencallback -> restartstream @0x540  jal	0 <validatehandle>
+   [C] closecallback -> opencallback @0x594  lui	a1,0x0
+   [C] closecallback -> opencallback @0x59c  addiu	a1,a1,0
+   [C] readcallback -> parsechunks @0x62c  jal	0 <validatehandle>
+   [C] readcallback -> startnextrequest @0x688  jal	0 <validatehandle>
+   [C] readcallback -> restartstream @0x69c  jal	0 <validatehandle>
+   [C] startnextrequest -> opencallback @0x7e8  lui	a1,0x0
+== build/recon/eaclib/psx/eacpsxz/syncfile.c.o  A=0 B=0 C=3
+   [C] syncblockio -> synccallback @0x188  lui	a1,0x0
+   [C] syncblockio -> synccallback @0x190  addiu	a1,a1,0
+   [C] FILE_readsync -> syncblockio @0x26c  jal	0 <synccallback>
+== build/recon/eaclib/psx/eacpsxz/textfor.c.o  A=0 B=0 C=1
+   [C] getcharacter -> textbsearch @0xfc  jal	0 <textbsearch>
+== build/recon/eaclib/psx/eacpsxz/timer.c.o  A=0 B=0 C=3
+   [C] elapsedticks -> gettick @0x20  jal	0 <gettick>
+   [C] timedwait -> gettick @0x70  jal	0 <gettick>
+   [C] timedwait -> gettick @0x7c  jal	0 <gettick>
+== build/recon/eaclib/psx/eacpsxz/unhuff.c.o  A=0 B=0 C=2
+   [C] refcpy -> memcpyb @0xcec  jal	0 <unhuff>
+   [C] refcpy -> memcpyl @0xcfc  jal	0 <unhuff>
+== build/recon/eaclib/psx/eacpsxz/vramfxya.c.o  A=0 B=0 C=2
+   [C] vramimage -> checkrect @0x40  jal	0 <checkrect>
+   [C] vramfxya -> vramimage @0x2a4  jal	0 <checkrect>
+== build/recon/eaclib/psx/eacpsxz/wildcard.c.o  A=0 B=0 C=1
+   [C] wildcard -> strrstr @0xa8  jal	0 <strrstr>
+== build/recon/eaclib/psx/pad.c.o  A=0 B=0 C=4
+   [C] padinit -> PAD_update @0x4c  lui	a0,0x0
+   [C] padinit -> PAD_update @0x50  addiu	a0,a0,0
+   [C] PAD_restore -> PAD_update @0x94  lui	a0,0x0
+   [C] PAD_restore -> PAD_update @0x98  addiu	a0,a0,0
+== build/recon/eaclib/psx/sndpsxz/saetodv.c.o  A=0 B=0 C=2
+   [C] iSNDatodlrv -> iSNDabs @0x88  jal	0 <iSNDabs>
+   [C] iSNDatodlrv -> iSNDabs @0x94  jal	0 <iSNDabs>
+== build/recon/eaclib/psx/sndpsxz/salloc.c.o  A=0 B=0 C=2
+   [C] iSNDallocchan -> iSNDischanreserved @0x140  jal	0 <iSNDischanreserved>
+   [C] iSNDallocchan -> iSNDischanreserved @0x1f4  jal	0 <iSNDischanreserved>
+== build/recon/eaclib/psx/sndpsxz/sbend.c.o  A=0 B=0 C=1
+   [C] SNDpitchbend -> iSNDunsafebend @0x108  jal	0 <iSNDunsafebend>
+== build/recon/eaclib/psx/sndpsxz/sbremove.c.o  A=0 B=0 C=2
+   [C] cSNDbankremove -> iSNDremovepatches @0x1c4  jal	0 <iSNDremovepatches>
+   [C] SNDbankremove -> cSNDbankremove @0x224  jal	0 <iSNDremovepatches>
+== build/recon/eaclib/psx/sndpsxz/sclcptch.c.o  A=0 B=0 C=1
+   [C] iSNDcalcpitch -> iSNDdetunetolinear @0x184  jal	0 <iSNDdetunetolinear>
+== build/recon/eaclib/psx/sndpsxz/sdfx.c.o  A=0 B=0 C=1
+   [C] iSNDplatformfxinit -> iSNDpsxfxinit @0x3b8  jal	0 <SNDI_mutexalloc>
+== build/recon/eaclib/psx/sndpsxz/sdma.c.o  A=0 B=0 C=7
+   [C] iSNDdmcallback -> iSNDdmtransfer @0x388  jal	0 <iSNDdmtransfer>
+   [C] iSNDdmservice -> iSNDdmtransfer @0x3c0  jal	0 <iSNDdmtransfer>
+   [C] iSNDdmservice -> iSNDdmcallback @0x408  jal	0 <iSNDdmtransfer>
+   [C] iSNDdmqueue -> iSNDdmservice @0x4dc  jal	0 <iSNDdmtransfer>
+   [C] iSNDdmqueuesplit -> iSNDdmservice @0x590  jal	0 <iSNDdmtransfer>
+   [C] iSNDdmqueuesplit -> iSNDdmqueue @0x5ac  jal	0 <iSNDdmtransfer>
+   [C] iSNDdmcomplete -> iSNDdmservice @0x5f8  jal	0 <iSNDdmtransfer>
+== build/recon/eaclib/psx/sndpsxz/sdmemman.c.o  A=0 B=0 C=2
+   [C] iSNDpsxmalloc -> iSNDpsxmemconstrain @0xe4  jal	0 <iSNDpsxmemconstrain>
+   [C] iSNDpsxmalloc -> iSNDpsxmemconstrain @0x170  jal	0 <iSNDpsxmemconstrain>
+== build/recon/eaclib/psx/sndpsxz/sdpacket.c.o  A=0 B=0 C=19
+   [C] iSNDpacketsetirq -> iSNDpacketirqcallback @0x1dc  lui	a1,0x0
+   [C] iSNDpacketsetirq -> iSNDpacketirqcallback @0x1e4  addiu	a1,a1,0
+   [C] iSNDpacketirqcallback -> iSNDpacketgetirq @0x220  jal	0 <iSNDpacketgetirq>
+   [C] iSNDpacketirqcallback -> iSNDpacketsetirq @0x228  jal	0 <iSNDpacketgetirq>
+   [C] iSNDfillspuwithpackets -> iSNDpsxzerospu @0x488  jal	0 <iSNDpacketgetirq>
+   [C] iSNDfillspuwithpackets -> iSNDpsxzerospu @0x590  jal	0 <iSNDpacketgetirq>
+   [C] iSNDpacketserve -> iSNDpacketpurgeframes @0x9a8  jal	0 <iSNDpacketgetirq>
+   [C] iSNDpacketserve -> iSNDfillspuwithpackets @0x9fc  jal	0 <iSNDpacketgetirq>
+== build/recon/eaclib/psx/sndpsxz/seffect.c.o  A=0 B=0 C=1
+   [C] SNDfxinitbus -> SNDfxmasterlevel @0x58  jal	0 <SNDfxinitbus>
+== build/recon/eaclib/psx/sndpsxz/smemman.c.o  A=0 B=0 C=3
+   [C] iSNDmalloc -> iSNDmemconstrain @0xe8  jal	0 <iSNDmemconstrain>
+   [C] iSNDmalloc -> iSNDmemconstrain @0x168  jal	0 <iSNDmemconstrain>
+   [C] iSNDmalloc -> iSNDmemconstrain @0x210  jal	0 <iSNDmemconstrain>
+== build/recon/eaclib/psx/sndpsxz/spat2hdr.c.o  A=0 B=0 C=1
+   [C] iSNDpatchtohdr -> SNDattributessetdef @0x5c  jal	0 <SNDattributessetdef>
+== build/recon/eaclib/psx/sndpsxz/spatkey.c.o  A=0 B=0 C=2
+   [C] iSNDstartvoice -> iSNDsetslot @0x4ec  jal	0 <iSNDpatchkey>
+   [C] iSNDstartvoice -> iSNDsetslot @0x5d8  jal	0 <iSNDpatchkey>
+== build/recon/eaclib/psx/sndpsxz/spktplay.c.o  A=0 B=0 C=3
+   [C] SNDPKTPLAY_overhead -> iSNDpacketplayoverhead @0x1c  jal	0 <iSNDpacketplayoverhead>
+   [C] SNDPKTPLAY_framesoutstanding -> SNDPKTPLAY_unsafeframesoutstanding @0x654  jal	0 <iSNDpacketplayoverhead>
+   [C] SNDPKTPLAY_stop -> SNDPKTPLAY_purge @0x8b8  jal	0 <iSNDpacketplayoverhead>
+== build/recon/eaclib/psx/sndpsxz/splay.c.o  A=0 B=0 C=1
+   [C] SNDplay -> cSNDplay @0x14  jal	0 <SNDplay>
+== build/recon/eaclib/psx/sndpsxz/spvoices.c.o  A=0 B=0 C=1
+   [C] SNDSTRM_destroy -> SNDSTRM_purge @0x74  jal	0 <SNDSTRM_create>
+== build/recon/eaclib/psx/sndpsxz/sserver.c.o  A=0 B=0 C=1
+   [C] iSNDleaveaudio -> iSNDserver @0x490  jal	0 <iSNDserver>
+== build/recon/eaclib/psx/sndpsxz/sst.c.o  A=0 B=0 C=19
+   [C] iSNDstreamnotifycallback -> iSNDstreamremoverequest @0x25c  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamparsechunk -> iSNDstreamparsedata @0x67c  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamparsechunk -> iSNDstreamparseheader @0x69c  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamparsechunk -> iSNDstreamparseend @0x6b8  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamparsechunk -> iSNDstreamparsenumchunks @0x6d4  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamhotroddatachunks -> iSNDstreamisheld @0x88c  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamhotroddatachunks -> iSNDstreamparsedata @0x934  jal	0 <iSNDstreamdestroyall>
+   [C] iSNDstreamservice -> iSNDstreamisheld @0xa34  jal	0 <iSNDstreamdestroyall>
+== build/recon/eaclib/psx/sndpsxz/sstovrhd.c.o  A=0 B=0 C=1
+   [C] SNDSTRM_overhead -> SNDSTRM_overheadtap @0x50  jal	0 <SNDSTRM_overheadtap>
+== build/recon/eaclib/psx/sndpsxz/ssysinit.c.o  A=0 B=0 C=2
+   [C] SNDSYS_init -> SNDSYS_getopts @0x1f8  jal	0 <SNDSYS_getopts>
+   [C] SNDSYS_init -> SNDSYS_setopts @0x200  jal	0 <SNDSYS_getopts>
+== build/recon/eaclib/psx/sndpsxz/ssysreal.c.o  A=0 B=0 C=2
+   [C] SNDSYS_vectortoreal -> iSNDsystemtaskreal @0x3c  lui	a0,0x0
+   [C] SNDSYS_vectortoreal -> iSNDsystemtaskreal @0x40  addiu	a0,a0,0
+== build/recon/eaclib/psx/sndpsxz/stagpat.c.o  A=0 B=0 C=7
+   [C] iSNDplaytaggedtimbre -> iSNDresolveheader @0x39c  jal	0 <iSNDresetpatch>
+   [C] iSNDplaytaggedpatch -> iSNDresetpatch @0x8c8  jal	0 <iSNDresetpatch>
+   [C] iSNDplaytaggedpatch -> iSNDresettimbre @0x8d4  jal	0 <iSNDresetpatch>
+   [C] iSNDplaytaggedpatch -> iSNDfindfreekey @0x8e4  jal	0 <iSNDresetpatch>
+   [C] iSNDplaytaggedpatch -> iSNDplaytaggedtimbre @0x994  jal	0 <iSNDresetpatch>
+   [C] iSNDplaytaggedpatch -> iSNDresettimbre @0x9b8  jal	0 <iSNDresetpatch>
+   [C] iSNDplaytaggedpatch -> iSNDplaytaggedtimbre @0xa6c  jal	0 <iSNDresetpatch>
+== build/recon/eaclib/psx/sndpsxz/svol.c.o  A=0 B=0 C=1
+   [C] SNDvol -> iSNDunsafevol @0xf4  jal	0 <iSNDunsafevol>
+== build/recon/eaclib/psx/spchpsxz/spchbank.c.o  A=0 B=0 C=2
+   [C] SPCH_AddBank -> iSPCH_GetFreeBank @0x368  jal	0 <iSPCH_InitBanks>
+   [C] SPCH_AddBank -> iSPCH_SetCycleBits @0x390  jal	0 <iSPCH_InitBanks>
+== build/recon/eaclib/psx/spchpsxz/spchevnt.c.o  A=0 B=0 C=8
+   [C] iSPCH_FindEvent -> iSPCH_SearchEventDat @0xf8  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] SPCH_AddEvent -> iSPCH_FindEvent @0x34c  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] SPCH_AddEvent -> iSPCH_FindEventSlot @0x37c  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] iSPCH_ChooseEvent -> GetFilterPriority @0x538  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] iSPCH_ClearOldEvents -> VoxEvent_GetKeepTillExpiresFlag @0x73c  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] SPCH_PlaySpeech -> SPCH_ChooseSpeech @0x7d4  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] SPCH_ChooseSpeech -> iSPCH_ChooseEvent @0x830  jal	0 <VoxEvent_GetFilterLengthFlag>
+   [C] SPCH_ChooseSpeech -> iSPCH_ClearOldEvents @0x844  jal	0 <VoxEvent_GetFilterLengthFlag>
+== build/recon/eaclib/psx/spchpsxz/spchinit.c.o  A=0 B=0 C=1
+   [C] SPCH_Init -> iSPCH_InitInGame @0x208  jal	0 <iSPCH_MemAlloc>
+== build/recon/eaclib/psx/spchpsxz/spchpick.c.o  A=0 B=0 C=28
+   [C] iSPCH_ClearCycleBit -> iSPCH_GetBankBits @0x270  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_CheckBankBit -> iSPCH_GetBankBits @0x2cc  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_CheckTemplateSample -> iSPCH_CheckBankBit @0x328  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_SampleExists -> iSPCH_CheckTemplateSample @0x38c  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_SampleExists -> iSPCH_CheckBankBit @0x3ac  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_ChooseSamples -> iSPCH_MatchSample @0x464  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_ChooseSamples -> iSPCH_SampleExists @0x478  jal	0 <iSPCH_MatchSample>
+   [C] iSPCH_SentenceLength -> iSPCH_SampleLength @0x5d8  jal	0 <iSPCH_MatchSample>
+== build/recon/eaclib/psx/spchpsxz/spchrand.c.o  A=0 B=0 C=1
+   [C] iSPCH_Rand -> iSPCH_EACrandom @0x178  jal	0 <iSPCH_EACrandom>
+== build/recon/eaclib/psx/spchpsxz/spchrule.c.o  A=0 B=0 C=4
+   [C] iSPCH_GetRuleID -> iSPCH_GetRuleDataAddr @0x134  jal	0 <VoxSentence_GetNumPhrases>
+   [C] iSPCH_RuleSet -> iSPCH_GetRuleDataAddr @0x1dc  jal	0 <VoxSentence_GetNumPhrases>
+   [C] iSPCH_RuleSet -> iSPCH_SentenceUsesParm @0x25c  jal	0 <VoxSentence_GetNumPhrases>
+   [C] iSPCH_GetRuleSettings -> iSPCH_GetRuleDataAddr @0x310  jal	0 <VoxSentence_GetNumPhrases>
+== build/recon/eaclib/psx/spchpsxz/spchsamp.c.o  A=0 B=0 C=1
+   [C] iSPCH_UnPackSample -> iSPCH_InitSample @0x5c  jal	0 <iSPCH_InitSample>
+== build/recon/frontend/common/feapp.cpp.o  A=0 B=0 C=21
+   [C] Redraw__14tFEApplication -> DrawHelpIcons__14tFEApplication @0x8b8  jal	0 <__14tFEApplication>
+   [C] SetMenu__14tFEApplicationsP5tMenu -> UpdateMusic__14tFEApplication @0xed8  jal	0 <__14tFEApplication>
+   [C] SetMenu__14tFEApplicationsP5tMenu -> SetScreen__14tFEApplicationsP7tScreen @0xf64  jal	0 <__14tFEApplication>
+   [C] RunDemoVideo__14tFEApplication -> Redraw__14tFEApplication @0x10d0  jal	0 <__14tFEApplication>
+   [C] RunDemoVideo__14tFEApplication -> FreeHelpShapeCluts__Fv @0x112c  jal	0 <__14tFEApplication>
+   [C] RunDemoVideo__14tFEApplication -> UpdateMusic__14tFEApplication @0x1190  jal	0 <__14tFEApplication>
+   [C] MainLoop__14tFEApplicationP5tMenu -> PerformMenuInitialization__14tFEApplication @0x12dc  jal	0 <__14tFEApplication>
+   [C] MainLoop__14tFEApplicationP5tMenu -> SetMenu__14tFEApplicationsP5tMenu @0x13c4  jal	0 <__14tFEApplication>
+== build/recon/frontend/common/feaudio.cpp.o  A=0 B=0 C=7
+   [C] FEAudio_StartLoadPatch__FP10SPEECHINFO -> FeAudio_LocateBigfile__FP9LUMPYHEADPcPiT2 @0x24  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+   [C] FEAudio_StartLoadPatch__FP10SPEECHINFO -> FeAudio_StartBigfileRead__FPciiPi @0x78  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+   [C] Feaudio_StartPatch__FP10SPEECHINFO -> FEAudio_StartLoadPatch__FP10SPEECHINFO @0x1a0  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+   [C] FeAudio_systemtask__Fi -> Feaudio_StartPatch__FP10SPEECHINFO @0x430  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+   [C] FeAudio_AsyncPlayCommentary__FPc -> FEAudio_StartLoadPatch__FP10SPEECHINFO @0x4f0  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+   [C] FeAudio_AsyncPlaySpeech__Fii -> FeAudio_AsyncPlayCommentary__FPc @0x598  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+   [C] FeAudio_InitCommentary__Fii -> FeAudio_InitViv__FPc @0x9dc  jal	0 <FEAudio_StartLoadPatch__FP10SPEECHINFO>
+== build/recon/frontend/common/fecars.cpp.o  A=0 B=0 C=25
+   [C] CalcUsedPrice__11tCarManagers -> GetCarFromID__11tCarManagers @0x1e0  jal	0 <Initialize__11tCarManager>
+   [C] PurchaseCar__11tCarManagersss -> GetCarFromID__11tCarManagers @0x2d4  jal	0 <Initialize__11tCarManager>
+   [C] SellCar__11tCarManagerss -> CalcUsedPrice__11tCarManagers @0x3a8  jal	0 <Initialize__11tCarManager>
+   [C] PurchaseUpgrade__11tCarManagersss -> GetCarFromID__11tCarManagers @0x548  jal	0 <Initialize__11tCarManager>
+   [C] AddUpgradesToPinkSlipsList__11tCarManagersss -> GetCarFromID__11tCarManagers @0x810  jal	0 <Initialize__11tCarManager>
+   [C] SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss -> GetPinkSlipsCar__11tCarManagersR8tCarInfos @0xab4  jal	0 <Initialize__11tCarManager>
+   [C] SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss -> RemoveFromPinkSlipsList__11tCarManagerss @0xac4  jal	0 <Initialize__11tCarManager>
+   [C] SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss -> AddToPinkSlipsList__11tCarManagersss @0xb68  jal	0 <Initialize__11tCarManager>
+== build/recon/frontend/common/fecheats.cpp.o  A=0 B=0 C=6
+   [C] FECheat_ActivateBonus__F10tCheatCode -> FECheat_HandleActivation__F10tCheatCode @0x3a4  jal	0 <FECheat_HandleActivation__F10tCheatCode>
+   [C] FECheat_ActivateCheat__FPc -> FECheat_EncodeString__FPcT0 @0x3ec  jal	0 <FECheat_HandleActivation__F10tCheatCode>
+   [C] FECheat_ActivateCheat__FPc -> FECheat_HandleActivation__F10tCheatCode @0x4a0  jal	0 <FECheat_HandleActivation__F10tCheatCode>
+   [C] FECheat_LoadBonus__FRUl -> FECheat_HandleActivation__F10tCheatCode @0x560  jal	0 <FECheat_HandleActivation__F10tCheatCode>
+   [C] FECheat_ActivateBonusByCode__FPc -> FECheat_EncodeString2__FPcT0 @0x5b4  jal	0 <FECheat_HandleActivation__F10tCheatCode>
+   [C] FECheat_ActivateBonusByCode__FPc -> FECheat_ActivateBonus__F10tCheatCode @0x620  jal	0 <FECheat_HandleActivation__F10tCheatCode>
+== build/recon/frontend/common/fecredits.cpp.o  A=0 B=0 C=3
+   [C] Draw__14tCreditManagerb -> RealDeInit__14tCreditManager @0x230  jal	0 <Setup__14tCreditManager>
+   [C] Draw__14tCreditManagerb -> SetupCurrCredit__14tCreditManager @0x250  jal	0 <Setup__14tCreditManager>
+   [C] Draw__14tCreditManagerb -> DrawCurrCredit__14tCreditManager @0x268  jal	0 <Setup__14tCreditManager>
+== build/recon/frontend/common/fedialog.cpp.o  A=0 B=0 C=29
+   [C] InitializeClass__11tDialogBase -> HideAllDialogs__11tDialogBase @0x40  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] DrawAllDialogs__11tDialogBase -> ShouldTimeOut__11tDialogBase @0x9c  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] DrawAllDialogs__11tDialogBase -> Hide__11tDialogBase @0xb4  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] Display__11tDialogBase -> ShouldTimeOut__11tDialogBase @0x1f4  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] Display__11tDialogBase -> ShouldTimeOut__11tDialogBase @0x200  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] ProcessInput__11tDialogBase7tPlayerR13tInputKeyTypeR12tMenuCommand -> Hide__11tDialogBase @0x424  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] CalculateDimensions__11tDialogHelp -> AddItem__11tDialogHelpss @0x550  jal	0 <ShouldTimeOut__11tDialogBase>
+   [C] CalculateDimensions__11tDialogHelp -> AddItem__11tDialogHelpss @0x628  jal	0 <ShouldTimeOut__11tDialogBase>
+== build/recon/frontend/common/fefades.cpp.o  A=0 B=0 C=12
+   [C] CalcFadeVal__Fii -> CalcFadeVal__Fiii @0x9c  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcFadeVal__Fiiii -> CalcFadeVal__Fiii @0xc0  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcFadeVal__Fiiii -> CalcFadeVal__Fiii @0xd0  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcTextFadeUnselToSel__F13tMenuTextTypess -> CalcFadeVal__Fiiii @0x140  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcTextFadeSelToHi__F13tMenuTextTypess -> CalcFadeVal__Fiii @0x1b0  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcTextFadeSelToHi__F13tMenuTextTypess -> CalcFadeVal__Fiii @0x1c4  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcOnOffFade__F13tMenuTextTypesssRiT4 -> CalcFadeVal__Fiii @0x284  jal	0 <CalcFadeVal__Fiii>
+   [C] CalcOnOffFade__F13tMenuTextTypesssRiT4 -> CalcFadeVal__Fiii @0x298  jal	0 <CalcFadeVal__Fiii>
+== build/recon/frontend/common/feinput.cpp.o  A=0 B=0 C=9
+   [C] FEInput_GetNoDebounceKey__Fii -> FEInput_VerifyControllerValues__Fi @0xa8  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetDebounceKey__Fii -> FEInput_GetNoDebounceKey__Fii @0x2f0  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetKeyFromPlayer__F7tPlayerl -> FEInput_GetDebounceKey__Fii @0x438  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetKeyFromPlayer__F7tPlayerl -> FEInput_GetNoDebounceKey__Fii @0x460  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetKeyFromPlayer__F7tPlayerl -> FEInput_GetDebounceKey__Fii @0x494  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetKeyFromPlayer__F7tPlayerl -> FEInput_GetDebounceKey__Fii @0x4a8  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetKeyFromPlayer__F7tPlayerl -> FEInput_GetDebounceKey__Fii @0x4bc  jal	0 <FEInput_VerifyControllerValues__Fi>
+   [C] FEInput_GetKeyFromPlayer__F7tPlayerl -> FEInput_GetDebounceKey__Fii @0x4d0  jal	0 <FEInput_VerifyControllerValues__Fi>
+== build/recon/frontend/common/felines.cpp.o  A=0 B=0 C=1
+   [C] PSXDrawBrightEndLine__Fiiiiiiii -> PSXTransDrawBrightEndLine__Fiiiiiiiii @0x28  jal	0 <PSXDrawBrightEndLine__Fiiiiiiii>
+== build/recon/frontend/common/fememcard.cpp.o  A=0 B=0 C=30
+   [C] Confirm__Fii -> BringThatBeatBack__Fv @0x1b8  jal	0 <ChecksumData__FP12tMemCardData>
+   [C] Confirm__Fii -> MakeWayForMemoryCard__Fv @0x314  jal	0 <ChecksumData__FP12tMemCardData>
+   [C] OverwriteConfirm__Fv -> Confirm__Fii @0x360  jal	0 <ChecksumData__FP12tMemCardData>
+   [C] FormatConfirm__Fv -> Confirm__Fii @0x394  jal	0 <ChecksumData__FP12tMemCardData>
+   [C] Init_Memcard__FbT0 -> FormatConfirm__Fv @0x4c8  lui	v0,0x0
+   [C] Init_Memcard__FbT0 -> FormatConfirm__Fv @0x4cc  addiu	v0,v0,0
+   [C] Init_Memcard__FbT0 -> OverwriteAlwaysYes__Fv @0x4e0  lui	v0,0x0
+   [C] Init_Memcard__FbT0 -> OverwriteAlwaysYes__Fv @0x4e8  addiu	v0,v0,0
+== build/recon/frontend/common/femenu.cpp.o  A=0 B=0 C=18
+   [C] __20tListIteratorIndexedPsPcT2 -> __13tListIteratorPsPc @0x1a4  jal	0 <__13tListIteratorPsPc>
+   [C] ___20tListIteratorIndexed -> ___13tListIterator @0x1e4  jal	0 <__13tListIteratorPsPc>
+   [C] ___26tListIteratorDoubleIndexed -> ___13tListIterator @0x394  jal	0 <__13tListIteratorPsPc>
+   [C] ___24tListIteratorMultiPlayer -> ___13tListIterator @0x5d0  jal	0 <__13tListIteratorPsPc>
+   [C] __18tListIteratorRangeccPc -> __13tListIteratorPsPc @0x788  jal	0 <__13tListIteratorPsPc>
+   [C] ___18tListIteratorRange -> ___13tListIterator @0x7d0  jal	0 <__13tListIteratorPsPc>
+   [C] __25tListIteratorRangeIndexedccPcT3 -> __18tListIteratorRangeccPc @0x870  jal	0 <__13tListIteratorPsPc>
+   [C] ___25tListIteratorRangeIndexed -> ___18tListIteratorRange @0x8b0  jal	0 <__13tListIteratorPsPc>
+== build/recon/frontend/common/femenudefs.cpp.o  A=0 B=0 C=148
+   [C] MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand -> MenuExtended_SetSoloRace__FR12tMenuCommand @0x27c  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand -> AskTheUserToSaveTheGame__Fv @0x3dc  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand -> MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand @0x404  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] PinkSlipsPreSave__Fv -> GenericMenuSaveGame__Fi @0xa6c  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] MenuExtended_GoToBestOfOne__FR12tMenuCommand -> PinkSlipsPreSave__Fv @0xab0  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] MenuExtended_GoToBestOfThree__FR12tMenuCommand -> PinkSlipsPreSave__Fv @0xb0c  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] MenuExtended_GoToBestOfFive__FR12tMenuCommand -> PinkSlipsPreSave__Fv @0xb68  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+   [C] MenuExtended_PurchaseUpgrade1__FR12tMenuCommand -> MenuExtended_PurchaseUpgrade__Fi @0x16b4  jal	0 <MenuExtended_SetOnePlayer__FR12tMenuCommand>
+== build/recon/frontend/common/femenuextended.cpp.o  A=0 B=0 C=15
+   [C] Draw__27tMenuItemGoToMenuNFS4Buttoniib -> MenuNFS4_DrawTextBox__FiR4RECTissbT5 @0x6d4  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] Draw__27tMenuItemGoToMenuNFS4Buttoniib -> MenuNFS4_DrawTextBox__FiR4RECTissbT5 @0x770  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] Draw__28tMenuItemNFS4LeftRightChoiceiib -> MenuNFS4_DrawTextBox__FiR4RECTissbT5 @0xa50  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] Draw__28tMenuItemNFS4LeftRightChoiceiib -> MenuNFS4_DrawTextBox__FiR4RECTissbT5 @0xb18  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] Draw__9tMenuNFS4 -> Initialize__9tMenuNFS4 @0x1508  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] __18tMenuNFS4TwoPlayerUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme -> __9tMenuNFS4UiP7tScreenP5tMenuT3PFR12tMenuCommand_vs @0x1654  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] ___18tMenuNFS4TwoPlayer -> ___9tMenuNFS4 @0x16a0  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+   [C] __15tMenuNFS4BottomUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme -> __9tMenuNFS4UiP7tScreenP5tMenuT3PFR12tMenuCommand_vs @0x1760  jal	0 <MenuNFS4_DrawTextBox__FiR4RECTissbT5>
+== build/recon/frontend/common/femenuoptions.cpp.o  A=0 B=0 C=18
+   [C] Draw__12tOptionsMenu -> CalcPulsateYellow__Fv @0xbcc  jal	0 <CalcPulsateYellow__Fv>
+   [C] Draw__20tMenuItemSlidingMenuiib -> DrawLeftFlare__FiiiRi @0x17d8  jal	0 <CalcPulsateYellow__Fv>
+   [C] Draw__20tMenuItemSlidingMenuiib -> SubtractiveBox__Fiiiiiiii @0x19c8  jal	0 <CalcPulsateYellow__Fv>
+   [C] Draw__20tMenuItemSlidingMenuiib -> SubtractiveBox__Fiiiiiiii @0x19ec  jal	0 <CalcPulsateYellow__Fv>
+   [C] MyLeftRightDraw__22tMenuItemLeftRightFadeii -> DrawLeftFlare__FiiiRi @0x223c  jal	0 <CalcPulsateYellow__Fv>
+   [C] Draw__31tMenuItemDisplayLeftRightChoiceiib -> MyLeftRightDraw__22tMenuItemLeftRightFadeii @0x235c  jal	0 <CalcPulsateYellow__Fv>
+   [C] Draw__29tMenuItemOnOffLeftRightChoiceiib -> MyLeftRightDraw__22tMenuItemLeftRightFadeii @0x2538  jal	0 <CalcPulsateYellow__Fv>
+   [C] Draw__29tMenuItemLeftRightAudioSlideriib -> DrawLeftFlare__FiiiRi @0x26dc  jal	0 <CalcPulsateYellow__Fv>
+== build/recon/frontend/common/fescreen.cpp.o  A=0 B=0 C=25
+   [C] AsyncLoadPermanentShapeFile__7tScreenPc -> AsyncLoadShapeFile__7tScreenPcR17tShapeInformation @0x2e8  jal	0 <DisplayLoadingText__7tScreen>
+   [C] AsyncLoadSwapShapeFile__7tScreenPc -> AsyncLoadShapeFile__7tScreenPcR17tShapeInformation @0x33c  jal	0 <DisplayLoadingText__7tScreen>
+   [C] IsShapeFileLoaded__7tScreenR17tShapeInformation -> AsyncLoadShapeFile__7tScreenPcR17tShapeInformation @0x420  jal	0 <DisplayLoadingText__7tScreen>
+   [C] IsShapeFileLoaded__7tScreenR17tShapeInformation -> AsyncLoadShapeFile__7tScreenPcR17tShapeInformation @0x440  jal	0 <DisplayLoadingText__7tScreen>
+   [C] IsShapeFileLoaded__7tScreenR17tShapeInformation -> AsyncLoadShapeFile__7tScreenPcR17tShapeInformation @0x498  jal	0 <DisplayLoadingText__7tScreen>
+   [C] UploadPermanentShapes__7tScreeni -> UploadShapes__7tScreenR17tShapeInformationssss @0x4f4  jal	0 <DisplayLoadingText__7tScreen>
+   [C] UploadSwapShapes__7tScreeni -> UploadShapes__7tScreenR17tShapeInformationssss @0x538  jal	0 <DisplayLoadingText__7tScreen>
+   [C] __7tScreen -> InitializeShapes__7tScreenR17tShapeInformationUi @0x58c  jal	0 <DisplayLoadingText__7tScreen>
+== build/recon/frontend/common/fetextrender.cpp.o  A=0 B=0 C=16
+   [C] FETextRender_FullTextRGB__FPcssics -> FETextRender_SetFont__Fi @0xbc  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates -> FETextRender_FullTextRGB__FPcssics @0x254  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates -> FETextRender_FullTextRGB__FPcssics @0x310  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType -> FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType @0x3b8  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType -> FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType @0x47c  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType -> FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType @0x4e4  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType -> FETextRender_Title__Fs @0x548  jal	0 <FETextRender_SetFont__Fi>
+   [C] FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType -> FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates @0x5a0  jal	0 <FETextRender_SetFont__Fi>
+== build/recon/frontend/common/fetourn.cpp.o  A=0 B=0 C=18
+   [C] LoadDescription__18tTournamentManager -> ReleaseDescription__18tTournamentManager @0x124  jal	0 <Initialize__18tTournamentManager>
+   [C] GetTrackList__18tTournamentManagerss -> UpdateTrackList__18tTournamentManagerss @0x448  jal	0 <Initialize__18tTournamentManager>
+   [C] StartNewTournament__18tTournamentManagerUcUc -> GetNumCompetitors__18tTournamentManager @0x58c  jal	0 <Initialize__18tTournamentManager>
+   [C] UpdateTournFinishMoney__18tTournamentManager -> GetTournamentFinishPrize__18tTournamentManagers @0x940  jal	0 <Initialize__18tTournamentManager>
+   [C] UpdateTournFinishMoney__18tTournamentManager -> GetTournamentFinishPrize__18tTournamentManagers @0x978  jal	0 <Initialize__18tTournamentManager>
+   [C] UpdateTrackFinishMoney__18tTournamentManager -> GetTrackFinishPrize__18tTournamentManagers @0xa1c  jal	0 <Initialize__18tTournamentManager>
+   [C] UpdateTrackFinishPoints__18tTournamentManager -> GetNumCompetitors__18tTournamentManager @0xc14  jal	0 <Initialize__18tTournamentManager>
+   [C] UpdateTrackFinishPoints__18tTournamentManager -> tournPointsCompare__FPcT0 @0xdd0  lui	a3,0x0
+== build/recon/frontend/common/fetracks.cpp.o  A=0 B=0 C=3
+   [C] LoadDescription__13tTrackManager -> ReleaseDescription__13tTrackManager @0x138  jal	0 <Initialize__13tTrackManager>
+   [C] Increment__18tListIteratorTrack7tPlayer -> ValidTrack__18tListIteratorTrackc @0x48c  jal	0 <Initialize__13tTrackManager>
+   [C] Decrement__18tListIteratorTrack7tPlayer -> ValidTrack__18tListIteratorTrackc @0x51c  jal	0 <Initialize__13tTrackManager>
+== build/recon/frontend/common/fetv.cpp.o  A=0 B=0 C=1
+   [C] DrawTV__FR9tTVConfig -> DrawTVLines__FR9tTVConfig @0x554  jal	0 <DrawTVLines__FR9tTVConfig>
+== build/recon/frontend/common/fevideowall.cpp.o  A=0 B=0 C=1
+   [C] TurnOffInstant__10tVideoWall -> TurnOff__10tVideoWall @0x6fc  jal	0 <Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss>
+== build/recon/frontend/common/front.cpp.o  A=0 B=0 C=80
+   [C] Front_ConstructAll__Fv -> __11tAllScreens @0x10  jal	0 <Front_ConstructAll__Fv>
+   [C] Front_DeleteAll__Fv -> ___11tAllScreens @0x1a4  jal	0 <Front_ConstructAll__Fv>
+   [C] Front_ResetSettingsMenu__Fi -> Front_ResetSettingsForCar__Fii @0x260  jal	0 <Front_ConstructAll__Fv>
+   [C] InitFrontEndStructure__Fv -> Front_ResetPSXAnalogs__Fi @0x9f8  jal	0 <Front_ConstructAll__Fv>
+   [C] InitFrontEndStructure__Fv -> Front_ResetPSXController__Fii @0xa04  jal	0 <Front_ConstructAll__Fv>
+   [C] InitFrontEndStructure__Fv -> Front_ResetSettingsMenu__Fi @0xa40  jal	0 <Front_ConstructAll__Fv>
+   [C] InitFrontEndStructure__Fv -> Front_ResetSettingsMenu__Fi @0xa48  jal	0 <Front_ConstructAll__Fv>
+   [C] Front_InitialMemCardCheck__Fv -> InitFrontEndStructure__Fv @0xb20  jal	0 <Front_ConstructAll__Fv>
+== build/recon/frontend/common/screenaudio.cpp.o  A=0 B=0 C=1
+   [C] DrawBackground__12tScreenAudio -> PlaySound__12tScreenAudio @0x4c4  jal	0 <PlaySound__12tScreenAudio>
+== build/recon/frontend/common/screencarselect.cpp.o  A=0 B=0 C=45
+   [C] DrawOverlay__16tScreenCarSelectP8tOverlay -> DrawSliders__16tScreenCarSelectR8tCarInfoss @0xc70  jal	0 <TransformVector>
+   [C] SetState__16tScreenCarSelecti -> SetBrightness__16tScreenCarSelectss @0xcf8  jal	0 <TransformVector>
+   [C] CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46 -> TransformVector @0x1060  jal	0 <TransformVector>
+   [C] CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46 -> TransformVector @0x1078  jal	0 <TransformVector>
+   [C] CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46 -> TransformVector @0x1188  jal	0 <TransformVector>
+   [C] CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46 -> TransformVector @0x1198  jal	0 <TransformVector>
+   [C] UpdateVideoWall__16tScreenCarSelectR8tCarInfo -> SetBrightness__16tScreenCarSelectss @0x1360  jal	0 <TransformVector>
+   [C] ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand -> SetState__16tScreenCarSelecti @0x180c  jal	0 <TransformVector>
+== build/recon/frontend/common/screencongrats.cpp.o  A=0 B=0 C=4
+   [C] ___23tScreenPinkSlipCongrats -> ___15tScreenCongrats @0x1038  jal	0 <Cleanup__15tScreenCongrats>
+   [C] ___23tScreenTournamentTrophy -> ___15tScreenCongrats @0x1664  jal	0 <Cleanup__15tScreenCongrats>
+   [C] ___23tScreenBeTheCopCongrats -> ___15tScreenCongrats @0x17f0  jal	0 <Cleanup__15tScreenCongrats>
+   [C] ___25tScreenTournamentCongrats -> ___15tScreenCongrats @0x19c8  jal	0 <Cleanup__15tScreenCongrats>
+== build/recon/frontend/common/screencontroller.cpp.o  A=0 B=0 C=43
+   [C] SetActuators__23tScreenControllerConfigi -> ClearActuators__23tScreenControllerConfig @0x7c  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] ShakeIt__23tScreenControllerConfig -> ClearActuators__23tScreenControllerConfig @0x22c  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] CheckConfigs__23tScreenControllerConfig -> TurnOffShakers__23tScreenControllerConfig @0x310  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] CheckConfigs__23tScreenControllerConfig -> SwapInController__23tScreenControllerConfig @0x48c  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] CheckConfigs__23tScreenControllerConfig -> AnimKeyPoints__23tScreenControllerConfigbT1 @0x540  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] CheckConfigs__23tScreenControllerConfig -> AnimKeyPoints__23tScreenControllerConfigbT1 @0x554  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] CheckConfigs__23tScreenControllerConfig -> AnimKeyPoints__23tScreenControllerConfigbT1 @0x570  jal	0 <ClearActuators__23tScreenControllerConfig>
+   [C] CheckConfigs__23tScreenControllerConfig -> AnimKeyPoints__23tScreenControllerConfigbT1 @0x584  jal	0 <ClearActuators__23tScreenControllerConfig>
+== build/recon/frontend/common/screenmain.cpp.o  A=0 B=0 C=10
+   [C] SwapBackground__11tScreenMaini -> SetState__11tScreenMain16tScreenMainState @0x194  jal	0 <SwapBackground__11tScreenMaini>
+   [C] SetState__11tScreenMain16tScreenMainState -> InitDynamicImages__11tScreenMain @0x440  jal	0 <SwapBackground__11tScreenMaini>
+   [C] ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand -> SwapBackground__11tScreenMaini @0x8ac  jal	0 <SwapBackground__11tScreenMaini>
+   [C] DrawBackground__11tScreenMain -> SetState__11tScreenMain16tScreenMainState @0xc48  jal	0 <SwapBackground__11tScreenMaini>
+   [C] DrawBackground__11tScreenMain -> SetState__11tScreenMain16tScreenMainState @0xd18  jal	0 <SwapBackground__11tScreenMaini>
+   [C] DrawBackground__11tScreenMain -> SetState__11tScreenMain16tScreenMainState @0x1130  jal	0 <SwapBackground__11tScreenMaini>
+   [C] DrawBackground__11tScreenMain -> SetState__11tScreenMain16tScreenMainState @0x1198  jal	0 <SwapBackground__11tScreenMaini>
+   [C] DrawBackground__11tScreenMain -> DrawDropShadow__11tScreenMain @0x11b8  jal	0 <SwapBackground__11tScreenMaini>
+== build/recon/frontend/common/screenmemcard.cpp.o  A=0 B=0 C=13
+   [C] LoadIcon__14tScreenMemcardi -> ReleaseIcons__14tScreenMemcard @0x3d8  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] PlaceIcons__14tScreenMemcardii -> DrawIcon__14tScreenMemcardP8shapetbliiiis @0x950  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] DrawMemCardStuff__14tScreenMemcards -> PlaceIcons__14tScreenMemcardii @0xbc8  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] DrawMemCardStuff__14tScreenMemcards -> ReleaseIcons__14tScreenMemcard @0xc48  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] DrawMemCardStuff__14tScreenMemcards -> LoadIcon__14tScreenMemcardi @0xd1c  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] DrawMemCardStuff__14tScreenMemcards -> PlaceIcons__14tScreenMemcardii @0xed8  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] DrawBackground__14tScreenMemcard -> DrawMemCardStuff__14tScreenMemcards @0x131c  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+   [C] DrawBackground__14tScreenMemcard -> DrawVerticalLine__14tScreenMemcardssss @0x15c8  jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3>
+== build/recon/frontend/common/screenpinkslips.cpp.o  A=0 B=0 C=2
+   [C] DrawBackground__16tScreenPinkSlips -> UpdateVideoWall__16tScreenPinkSlipsR17tTrackInformation @0x268  jal	0 <DrawBackground__16tScreenPinkSlips>
+   [C] DrawBackground__16tScreenPinkSlips -> DrawVideoWall__16tScreenPinkSlips @0x2bc  jal	0 <DrawBackground__16tScreenPinkSlips>
+== build/recon/frontend/common/screenpost.cpp.o  A=0 B=0 C=6
+   [C] DrawBackground__26tScreenTournamentStandings -> DrawMoney__Fiiilii @0xa2c  jal	0 <DrawMoney__Fiiilii>
+   [C] DrawBackground__26tScreenTournamentStandings -> DrawMoney__Fiiilii @0xabc  jal	0 <DrawMoney__Fiiilii>
+   [C] DrawBackground__26tScreenTournamentStandings -> DrawMoney__Fiiilii @0xb4c  jal	0 <DrawMoney__Fiiilii>
+   [C] DrawBackground__26tScreenTournamentStandings -> DrawMoney__Fiiilii @0xbe8  jal	0 <DrawMoney__Fiiilii>
+   [C] ___24tScreenPinkSlipStandings -> ___31tScreenTournamentStandings3item @0x1088  jal	0 <DrawMoney__Fiiilii>
+   [C] ___31tScreenTournamentStandings3item -> ___26tScreenTournamentStandings @0x10a8  jal	0 <DrawMoney__Fiiilii>
+== build/recon/frontend/common/screentournselect.cpp.o  A=0 B=0 C=2
+   [C] DrawBackground__18tScreenTournSelect -> UpdateVideoWall__18tScreenTournSelectP12tTourneyInfo @0x8f8  jal	0 <__18tScreenTournSelect>
+   [C] DrawBackground__18tScreenTournSelect -> DrawVideoWall__18tScreenTournSelect @0x948  jal	0 <__18tScreenTournSelect>
+== build/recon/frontend/common/screentrackrecords.cpp.o  A=0 B=0 C=3
+   [C] DrawRecords__19tScreenTrackRecordss -> DrawOneRecord__19tScreenTrackRecordsibi @0x478  jal	0 <GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3>
+   [C] DrawRecords__19tScreenTrackRecordss -> DrawOneRecord__19tScreenTrackRecordsibi @0x4c8  jal	0 <GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3>
+   [C] DrawBackground__19tScreenTrackRecords -> DrawRecords__19tScreenTrackRecordss @0x69c  jal	0 <GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3>
+== build/recon/frontend/common/screentracks.cpp.o  A=0 B=0 C=5
+   [C] DrawBackground__18tScreenTrackSelect -> UpdateBrightness__18tScreenTrackSelectR17tTrackInformation @0x98  jal	0 <DrawBackground__18tScreenTrackSelect>
+   [C] DrawBackground__18tScreenTrackSelect -> UpdateVideoWall__18tScreenTrackSelectR17tTrackInformation @0xa4  jal	0 <DrawBackground__18tScreenTrackSelect>
+   [C] DrawBackground__18tScreenTrackSelect -> SetBrightness__18tScreenTrackSelects @0x224  jal	0 <DrawBackground__18tScreenTrackSelect>
+   [C] DrawBackground__18tScreenTrackSelect -> DrawVideoWall__18tScreenTrackSelect @0x474  jal	0 <DrawBackground__18tScreenTrackSelect>
+   [C] UpdateVideoWall__18tScreenTrackSelectR17tTrackInformation -> SetBrightness__18tScreenTrackSelects @0x8dc  jal	0 <DrawBackground__18tScreenTrackSelect>
+== build/recon/frontend/common/screentrophyroom.cpp.o  A=0 B=0 C=1
+   [C] DrawBackground__17tScreenTrophyRoom -> LoadTrophy__17tScreenTrophyRoom @0x6c0  jal	0 <__17tScreenTrophyRoom>
+== build/recon/frontend/common/screenusername.cpp.o  A=0 B=0 C=2
+   [C] DrawBackground__15tScreenUserName -> DrawVerticalLine__15tScreenUserNamesss @0x72c  jal	0 <Initialize__15tScreenUserName>
+   [C] DrawBackground__15tScreenUserName -> DrawHorizontalLine__15tScreenUserNamesss @0x7ac  jal	0 <Initialize__15tScreenUserName>
+== build/recon/frontend/common/stattool.cpp.o  A=0 B=0 C=6
+   [C] Stattool_SamNelsonsUpperLowerStringConverterForRecords__FPc -> UserNameUpperCaseOneLetter__FPc @0x388  jal	0 <Stattool_nCreateIndex__FiPiPs>
+   [C] Stattool_SamNelsonsUpperLowerStringConverterForRecords__FPc -> UserNameUpperCaseOneLetter__FPc @0x3ac  jal	0 <Stattool_nCreateIndex__FiPiPs>
+   [C] StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters__FPc -> UserNameUpperCaseOneLetter__FPc @0x404  jal	0 <Stattool_nCreateIndex__FiPiPs>
+   [C] Stattool_GetAllDefaultRecords__FP13tRecordBufferb -> Stattool_ReadDefaultRecords__FP13tRecordBufferb @0x478  jal	0 <Stattool_nCreateIndex__FiPiPs>
+   [C] Stattool_GetAllDefaultRecords__FP13tRecordBufferb -> Stattool_SamNelsonsUpperLowerStringConverterForRecords__FPc @0x4b0  jal	0 <Stattool_nCreateIndex__FiPiPs>
+   [C] Stattool_ReturnRecordLapTime__Fs -> Stattool_GetRecords__FsP13tRecordBuffer @0x628  jal	0 <Stattool_nCreateIndex__FiPiPs>
+== build/recon/frontend/psx/fetexture.cpp.o  A=0 B=0 C=1
+   [C] FETexture_LoadPmx__FPciP18tTexture_ShapeInfo -> FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii @0x2c4  jal	0 <FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii>
+== build/recon/frontend/psx/mdec.cpp.o  A=0 B=0 C=5
+   [C] initmdec -> MDECCompleteHandler__Fv @0x84  lui	a0,0x0
+   [C] initmdec -> MDECCompleteHandler__Fv @0x8c  addiu	a0,a0,0
+   [C] mdecreset__Fv -> MDECCompleteHandler__Fv @0x20c  lui	a0,0x0
+   [C] mdecreset__Fv -> MDECCompleteHandler__Fv @0x214  addiu	a0,a0,0
+   [C] mdec -> mdecreset__Fv @0x2b8  jal	0 <initmdec>
+== build/recon/frontend/psx/memcard.c.o  A=0 B=0 C=23
+   [C] MCRD_init -> iMCRD_DefaultCBProc1 @0x2c  lui	v0,0x0
+   [C] MCRD_init -> iMCRD_DefaultCBProc1 @0x30  addiu	v0,v0,0
+   [C] MCRD_init -> iMCRD_InitCard @0x64  jal	0 <MCRD_init>
+   [C] MCRD_init -> iMCRD_timersub @0x78  lui	a0,0x0
+   [C] MCRD_init -> iMCRD_timersub @0x80  addiu	a0,a0,0
+   [C] MCRD_restore -> iMCRD_timersub @0xfc  lui	a0,0x0
+   [C] MCRD_restore -> iMCRD_timersub @0x108  addiu	a0,a0,0
+   [C] iMCRD_DoFileLoad -> iMCRD_HandleError @0x478  jal	0 <MCRD_init>
+== build/recon/frontend/psx/movie.cpp.o  A=0 B=0 C=18
+   [C] Movie_Init__Fc -> Movie_SetDecodeOffset__Fssss @0x8c  jal	0 <Movie_Init__Fc>
+   [C] Movie_Load__Fc -> strSetDefDecEnv__FP6DECENV @0x4d8  jal	0 <Movie_Init__Fc>
+   [C] Movie_Load__Fc -> strCallback__Fv @0x4ec  lui	a2,0x0
+   [C] Movie_Load__Fc -> strCallback__Fv @0x4f0  addiu	a2,a2,0
+   [C] Movie_Load__Fc -> strInit__FP6CdlLOCiPFe_vT2 @0x4f4  jal	0 <Movie_Init__Fc>
+   [C] Movie_Load__Fc -> strNextVlc__FP6DECENV @0x4fc  jal	0 <Movie_Init__Fc>
+   [C] Movie_NextFrame__Fv -> strNextVlc__FP6DECENV @0x620  jal	0 <Movie_Init__Fc>
+   [C] Movie_NextFrame__Fv -> strSync__FP6DECENVi @0x630  jal	0 <Movie_Init__Fc>
+== build/recon/frontend/psx/psxfront.cpp.o  A=0 B=0 C=19
+   [C] CleanupSpinningCars__Fv -> PSXFront_FreeDrawMemory__Fv @0x2c4  jal	0 <Quick_DD__Fiii>
+   [C] DoTitleScreen__Fv -> Quick_DD__Fiii @0x454  jal	0 <Quick_DD__Fiii>
+   [C] DoTitleScreen__Fv -> Quick_DD__Fiii @0x484  jal	0 <Quick_DD__Fiii>
+   [C] PSXExitFrontend__Fv -> CleanupSpinningCars__Fv @0x500  jal	0 <Quick_DD__Fiii>
+   [C] Init_RenderingEnvironment__Fv -> PSXFront_AllocateDrawMemory__Fv @0x644  jal	0 <Quick_DD__Fiii>
+   [C] Init_PSX_FrontEnd__Fv -> PSX_AllocShapes__Fv @0x6a8  jal	0 <Quick_DD__Fiii>
+   [C] Init_PSX_FrontEnd__Fv -> Init_RenderingEnvironment__Fv @0x708  jal	0 <Quick_DD__Fiii>
+   [C] Init_PSX_FrontEnd__Fv -> DoLanguageScreen__Fv @0x720  jal	0 <Quick_DD__Fiii>
+== build/recon/frontend/psx/video.cpp.o  A=0 B=0 C=2
+   [C] VIDEO_updateframexy__Fiii -> videoupdatetime__FP11VIDEOSTRUCT @0x41c  jal	0 <VIDEO_create__Fiiiii>
+   [C] VIDEO_updateframexy__Fiii -> videodecode__FP11VIDEOSTRUCTP14STREAMCHUNKHDRii @0x440  jal	0 <VIDEO_create__Fiiiii>
+== build/recon/game/common/ai.cpp.o  A=0 B=0 C=38
+   [C] AI_CarAvoidance__FP8Car_tObj -> AI_SetupOncomingLaneDemerits__FP8Car_tObj @0x24  jal	0 <AI_StartUp__Fv>
+   [C] AI_CarAvoidance__FP8Car_tObj -> AI_CalculateLaneSpeeds__FP8Car_tObj @0x2c  jal	0 <AI_StartUp__Fv>
+   [C] AI_CarAvoidance__FP8Car_tObj -> AI_CalcMeritsBasedOnSpeed__FP8Car_tObj @0x34  jal	0 <AI_StartUp__Fv>
+   [C] AI_CarAvoidance__FP8Car_tObj -> AI_CheckForClearLanes__FP8Car_tObj @0x3c  jal	0 <AI_StartUp__Fv>
+   [C] AI_CarAvoidance__FP8Car_tObj -> AI_CheckForCarsOnSide__FP8Car_tObj @0x44  jal	0 <AI_StartUp__Fv>
+   [C] AI_WorldAvoidance__FP8Car_tObj -> AI_CheckForBarriers__FP8Car_tObj @0x68  jal	0 <AI_StartUp__Fv>
+   [C] AI_WorldAvoidance__FP8Car_tObj -> AI_HandleChangeInNumLanes__FP8Car_tObj @0x70  jal	0 <AI_StartUp__Fv>
+   [C] AI_WorldAvoidance__FP8Car_tObj -> AI_HandleShouldersAndOffRoad__FP8Car_tObj @0x78  jal	0 <AI_StartUp__Fv>
+== build/recon/game/common/aidatarecord.cpp.o  A=0 B=0 C=18
+   [C] __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc -> AddRecordToCollection__14AIDataRecord_t @0x20  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] ___14AIDataRecord_t -> SaveAndPurge__14AIDataRecord_t @0x68  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] ___14AIDataRecord_t -> RemoveRecordFromCollection__14AIDataRecord_t @0x70  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] StartUp1__14AIDataRecord_t -> __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t @0x154  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] StartUp1__14AIDataRecord_t -> __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t @0x16c  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] Setup__14AIDataRecord_t -> Load__14AIDataRecord_t @0x288  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t -> __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc @0x36c  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+   [C] Setup__23AIDataRecord_AccTable_t -> Setup__14AIDataRecord_t @0x3f8  jal	0 <__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc>
+== build/recon/game/common/aidelaycar.cpp.o  A=0 B=0 C=1
+   [C] __10AIDelayCarP8Car_tObjT1i -> SetNewTargetCar__10AIDelayCarP8Car_tObj @0x18  jal	0 <__10AIDelayCarP8Car_tObjT1i>
+== build/recon/game/common/aih_basiccop.cpp.o  A=0 B=0 C=12
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> PlacePointOnRoad__FiP8coorddef @0x6b0  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> Blockade_AddRoadFlare__FP8coorddef @0x6b8  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> PlacePointOnRoad__FiP8coorddef @0x704  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> Blockade_AddRoadFlare__FP8coorddef @0x70c  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> PlacePointOnRoad__FiP8coorddef @0x770  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> Blockade_AddRoadFlare__FP8coorddef @0x778  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> PlacePointOnRoad__FiP8coorddef @0x7cc  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+   [C] SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t -> Blockade_AddRoadFlare__FP8coorddef @0x7d4  jal	0 <__15AIHigh_BasicCopP8Car_tObji>
+== build/recon/game/common/aih_basicperp.cpp.o  A=0 B=0 C=2
+   [C] AddChaser__16AIHigh_BasicPerpii7copType -> CheckChaserPosition__16AIHigh_BasicPerpii @0xa44  jal	0 <CheckForCrimes__16AIHigh_BasicPerp>
+   [C] __16AIHigh_BasicPerpP8Car_tObj -> Clear__16AIHigh_BasicPerp @0xc18  jal	0 <CheckForCrimes__16AIHigh_BasicPerp>
+== build/recon/game/common/aih_btccop.cpp.o  A=0 B=0 C=48
+   [C] CheckForNewTarget__14AIHigh_BTC_Cop -> AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp @0x24c  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] CheckForNewTarget__14AIHigh_BTC_Cop -> AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp @0x26c  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp -> HudOff__14AIHigh_BTC_Cop @0x35c  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] __19AIHigh_BTC_HumanCopP8Car_tObji -> __14AIHigh_BTC_CopP8Car_tObji @0x3e0  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] __19AIHigh_BTC_HumanCopP8Car_tObji -> FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii @0x544  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] __19AIHigh_BTC_HumanCopP8Car_tObji -> NewStage__19AIHigh_BTC_HumanCopiii @0x5c0  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp -> CheckForNewTarget__14AIHigh_BTC_Cop @0x7dc  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+   [C] ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp -> ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop @0x808  jal	0 <__14AIHigh_BTC_CopP8Car_tObji>
+== build/recon/game/common/aih_btcperp.cpp.o  A=0 B=0 C=22
+   [C] HandleCops__15AIHigh_BTC_Perp -> HandlePullOver__15AIHigh_BTC_Perp @0xcc  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] HandlePullOver__15AIHigh_BTC_Perp -> NotifyCopsOfArrest__15AIHigh_BTC_Perp @0x3c8  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] HandlePullOver__15AIHigh_BTC_Perp -> IsFalseArrest__15AIHigh_BTC_Perp @0x3fc  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] HandlePullOver__15AIHigh_BTC_Perp -> NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp @0x418  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] HandlePullOver__15AIHigh_BTC_Perp -> NotifyHumanCopsOfArrestHud__15AIHigh_BTC_Perp @0x474  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] HandlePullOver__15AIHigh_BTC_Perp -> CheckForControlsPressed__15AIHigh_BTC_Perp @0x484  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] HandlePullOver__15AIHigh_BTC_Perp -> NotifyCopsOfArrestComplete__15AIHigh_BTC_Perp @0x4e8  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+   [C] NewStage__20AIHigh_BTC_HumanPerpP19AIHigh_BTC_HumanCop -> ClearForNewStage__15AIHigh_BTC_PerpP19AIHigh_BTC_HumanCop @0x9e8  jal	0 <ReleaseCops__15AIHigh_BTC_Perp>
+== build/recon/game/common/aih_cop.cpp.o  A=0 B=0 C=29
+   [C] HighExecute__10AIHigh_Cop -> CheckForWipeOut__10AIHigh_Cop @0xf8  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> SetTuningLevers__10AIHigh_Cop @0x100  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> AssignToPlayer__10AIHigh_CopP13AIHigh_Player @0x13c  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> AssignToPlayer__10AIHigh_CopP13AIHigh_Player @0x270  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> CheckForNewTriggers__10AIHigh_Cop @0x32c  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> AssignToPlayer__10AIHigh_CopP13AIHigh_Player @0x43c  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> AssignToPlayer__10AIHigh_CopP13AIHigh_Player @0x538  jal	0 <__10AIHigh_CopP8Car_tObji>
+   [C] HighExecute__10AIHigh_Cop -> AssignToPlayer__10AIHigh_CopP13AIHigh_Player @0x58c  jal	0 <__10AIHigh_CopP8Car_tObji>
+== build/recon/game/common/aih_opp.cpp.o  A=0 B=0 C=5
+   [C] HighExecute__15AIHigh_Opponent -> CheckForWipeOut__15AIHigh_Opponent @0x55c  jal	0 <CheckForWipeOut__15AIHigh_Opponent>
+   [C] HighExecute__15AIHigh_Opponent -> DoRearEnder__15AIHigh_Opponent @0x58c  jal	0 <CheckForWipeOut__15AIHigh_Opponent>
+   [C] HighExecute__15AIHigh_Opponent -> DoProvokedAttack__15AIHigh_Opponent @0x5a8  jal	0 <CheckForWipeOut__15AIHigh_Opponent>
+   [C] HighExecute__15AIHigh_Opponent -> CheckForWipeOut__15AIHigh_Opponent @0x690  jal	0 <CheckForWipeOut__15AIHigh_Opponent>
+   [C] HighExecute__15AIHigh_Opponent -> DoRearEnder__15AIHigh_Opponent @0x708  jal	0 <CheckForWipeOut__15AIHigh_Opponent>
+== build/recon/game/common/aih_play.cpp.o  A=0 B=0 C=9
+   [C] SetupBlockade__13AIHigh_Player -> CheckForNewLevel__13AIHigh_Playeri @0xd34  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandleCops__13AIHigh_Player -> MaintainAvailableCops__13AIHigh_Player @0x16f4  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandleCops__13AIHigh_Player -> CheckIfABlockadeCanBeSetup__13AIHigh_Player @0x16fc  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandleCops__13AIHigh_Player -> SetupBlockade__13AIHigh_Player @0x170c  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandleCops__13AIHigh_Player -> CleanupBlockaders__13AIHigh_Playeri @0x1728  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandleCops__13AIHigh_Player -> CheckForNewLevel__13AIHigh_Playeri @0x183c  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandleCops__13AIHigh_Player -> HandlePullOver__13AIHigh_Player @0x1844  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+   [C] HandlePullOver__13AIHigh_Player -> CleanupBlockaders__13AIHigh_Playeri @0x1c2c  jal	0 <CheckIfABlockadeCanBeSetup__13AIHigh_Player>
+== build/recon/game/common/aih_traf.cpp.o  A=0 B=0 C=4
+   [C] CopCheck__14AIHigh_TrafficPi -> CheckForCops__14AIHigh_TrafficPi @0x100  jal	0 <CheckForCops__14AIHigh_TrafficPi>
+   [C] HighExecute__14AIHigh_Traffic -> CheckForNewTriggers__14AIHigh_Traffic @0x450  jal	0 <CheckForCops__14AIHigh_TrafficPi>
+   [C] HighExecute__14AIHigh_Traffic -> CopCheck__14AIHigh_TrafficPi @0x608  jal	0 <CheckForCops__14AIHigh_TrafficPi>
+   [C] HighExecute__14AIHigh_Traffic -> CopCheck__14AIHigh_TrafficPi @0x8e4  jal	0 <CheckForCops__14AIHigh_TrafficPi>
+== build/recon/game/common/aihigh.cpp.o  A=0 B=0 C=8
+   [C] _vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp -> ___15AIHigh_BTC_Perp @0x8  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] _vtdtor_AIHigh_None__FP11AIHigh_None -> ___11AIHigh_None @0x28  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] AIHigh_StartUp__Fv -> __11AIHigh_BaseP8Car_tObj @0x210  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] AIHigh_StartUp__Fv -> __11AIHigh_BaseP8Car_tObj @0x384  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] AIHigh_Restart1__Fv -> AIHigh_CleanUp__Fv @0x3f0  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] AIHigh_Restart2__Fv -> AIHigh_StartUp__Fv @0x418  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] ___11AIHigh_None -> ___11AIHigh_Base @0x6f4  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+   [C] ___15AIHigh_BTC_Perp -> ___11AIHigh_Base @0x794  jal	0 <_vtdtor_AIHigh_BTC_Perp__FP15AIHigh_BTC_Perp>
+== build/recon/game/common/aiinit.cpp.o  A=0 B=0 C=7
+   [C] AIInit_StartUp1__Fv -> AI_TrafficStartUp__Fv @0xc  jal	0 <AIInit_StartUp1__Fv>
+   [C] AIInit_StartUp2__Fv -> AIInit_LoadConfigs__Fv @0x8c  jal	0 <AIInit_StartUp1__Fv>
+   [C] AIInit_StartUp2__Fv -> AIInit_InitAICar2__FP8Car_tObj @0x124  jal	0 <AIInit_StartUp1__Fv>
+   [C] AIInit_CleanUp1__Fv -> AI_TrafficCleanUp__Fv @0x27c  jal	0 <AIInit_StartUp1__Fv>
+   [C] AIInit_CleanUp2__Fv -> AIInit_DeInitAICar2__FP8Car_tObj @0x2c0  jal	0 <AIInit_StartUp1__Fv>
+   [C] AIInit_LoadConfigs__Fv -> AIInit_LoadPhysicsConfig__FP10Udff_tInfo @0x484  jal	0 <AIInit_StartUp1__Fv>
+   [C] AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo -> AIInit_IsNonStandardCarFile__Fi @0x8a0  jal	0 <AIInit_StartUp1__Fv>
+== build/recon/game/common/ailife.cpp.o  A=0 B=0 C=19
+   [C] AILife_EvaluateLife__FP8Car_tObj -> AILife_IsCoordInThisLiveArea__FP8coorddefP8Car_tObj @0x28  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_EvaluateLife__FP8Car_tObj -> AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj @0x38  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_RCPickSliceAndDirection__FP8Car_tObj -> AILife_IsCoordInThisVisibleArea__FP8coorddefP8Car_tObj @0x2c0  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_RCPickSliceAndDirection__FP8Car_tObj -> AILife_Debug__FPce @0x498  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_PlaceCarAtLocation__FP8Car_tObjiiiii -> AILife_PlaceCarAtLocation__FP8Car_tObji @0x624  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_PlaceCarAtLocation__FP8Car_tObji -> AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj @0x700  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_PlaceCarAtLocation__FP8Car_tObji -> AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj @0x734  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+   [C] AILife_ReencarnateTraffic__FP8Car_tObj -> AILife_RCPickSliceAndDirection__FP8Car_tObj @0x910  jal	0 <AILife_EvaluateLife__FP8Car_tObj>
+== build/recon/game/common/aiperson.cpp.o  A=0 B=0 C=6
+   [C] AIPerson_SetPersonalityPointers__Fv -> AIPerson_SetPersonality__FP8Car_tObji @0x154  jal	0 <AIPerson_LoadGridAndSetPersonalityIndexes__Fv>
+   [C] AIPerson_Startup__Fv -> AIPerson_LoadGridAndSetPersonalityIndexes__Fv @0x6b0  jal	0 <AIPerson_LoadGridAndSetPersonalityIndexes__Fv>
+   [C] AIPerson_Startup__Fv -> AIPerson_LoadPersonalityData__FP10Udff_tInfo @0x6e8  jal	0 <AIPerson_LoadGridAndSetPersonalityIndexes__Fv>
+   [C] AIPerson_Startup__Fv -> AIPerson_LoadScriptData__FP10Udff_tInfo @0x720  jal	0 <AIPerson_LoadGridAndSetPersonalityIndexes__Fv>
+   [C] AIPerson_Startup__Fv -> AIPerson_LoadGlue__FP10Udff_tInfo @0x81c  jal	0 <AIPerson_LoadGridAndSetPersonalityIndexes__Fv>
+   [C] AIPerson_Startup__Fv -> AIPerson_SetPersonalityPointers__Fv @0x82c  jal	0 <AIPerson_LoadGridAndSetPersonalityIndexes__Fv>
+== build/recon/game/common/aiphysic.cpp.o  A=0 B=0 C=42
+   [C] AIPhysic_ProcessBarrierCollision__FP8Car_tObj -> AIPhysic_ChangeDirection__FP8Car_tObji @0x208  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_HandleDirection__FP8Car_tObj @0x2ec  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_HitWallCheck__FP8Car_tObj @0x324  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_ChangeDirection__FP8Car_tObji @0x334  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_Preperation__FP8Car_tObj @0x33c  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_CheckIfOutOfControl__FP8Car_tObj @0x344  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_OutOfControlPhysics__FP8Car_tObj @0x354  jal	0 <AIPhysic_StartUp__Fv>
+   [C] AIPhysic_CoolPhysics__FP8Car_tObj -> AIPhysic_InControlPhysics__FP8Car_tObj @0x364  jal	0 <AIPhysic_StartUp__Fv>
+== build/recon/game/common/aiscript.cpp.o  A=0 B=0 C=2
+   [C] AIScript_Startup__FP10AIScript_t -> AIScript_ClearLastReactionIndex__FP10AIScript_t @0x4c  jal	0 <AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails>
+   [C] AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni -> AIScript_ClearLastReactionIndex__FP10AIScript_t @0xa8  jal	0 <AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails>
+== build/recon/game/common/aispeeds.cpp.o  A=0 B=0 C=24
+   [C] AISpeeds_StartUp__Fv -> AISpeeds_ReadTuningInfo__Fv @0x20  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj @0x3ac  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_BTCGetGlueFactor__FP8Car_tObj @0x438  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_GetGlueFactor__FP8Car_tObj @0x448  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_GetScriptFactor__FP8Car_tObj @0x454  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_GetDamageFactor__FP8Car_tObj @0x464  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_GetCaravanFactor__FP8Car_tObj @0x49c  jal	0 <AISpeeds_StartUp__Fv>
+   [C] AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi -> AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj @0x61c  jal	0 <AISpeeds_StartUp__Fv>
+== build/recon/game/common/aistate.cpp.o  A=0 B=0 C=26
+   [C] AIState_StartUp__Fv -> StartUp__17AIState_Purgatory @0x8  jal	0 <AIState_StartUp__Fv>
+   [C] AIState_Restart__Fv -> StartUp__17AIState_Purgatory @0x28  jal	0 <AIState_StartUp__Fv>
+   [C] __14AIState_NormalP8Car_tObj -> __12AIState_BaseP8Car_tObj @0x144  jal	0 <AIState_StartUp__Fv>
+   [C] __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii -> __12AIState_BaseP8Car_tObj @0x2a4  jal	0 <AIState_StartUp__Fv>
+   [C] __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii -> SetTarget__13AIState_ChaseP8Car_tObjP8coorddef @0x2d8  jal	0 <AIState_StartUp__Fv>
+   [C] SetTarget__13AIState_ChaseP8Car_tObjP8coorddef -> SetUp__13AIState_Chase @0x4ac  jal	0 <AIState_StartUp__Fv>
+   [C] Execute__13AIState_Chase -> SetUp__13AIState_Chase @0x7c8  jal	0 <AIState_StartUp__Fv>
+   [C] Execute__13AIState_Chase -> CloseTargeting__13AIState_Chase @0x874  jal	0 <AIState_StartUp__Fv>
+== build/recon/game/common/aitriger.cpp.o  A=0 B=0 C=7
+   [C] Init__24AITrigger_TriggerManagerPc -> InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb @0x7c  jal	0 <Init__24AITrigger_TriggerManagerPc>
+   [C] Init__24AITrigger_TriggerManagerPc -> Sort__24AITrigger_TriggerManager @0x9c  jal	0 <Init__24AITrigger_TriggerManagerPc>
+   [C] InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb -> DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t @0x100  jal	0 <Init__24AITrigger_TriggerManagerPc>
+   [C] CheckForTriggerAtSlice__24AITrigger_TriggerManagerii -> GetNextTrigger__24AITrigger_TriggerManageri @0x33c  jal	0 <Init__24AITrigger_TriggerManagerPc>
+   [C] CheckForTriggerAtSlice__24AITrigger_TriggerManagerii -> GetPrevTrigger__24AITrigger_TriggerManageri @0x3c0  jal	0 <Init__24AITrigger_TriggerManagerPc>
+   [C] Sort__24AITrigger_TriggerManager -> AITrigger_Compare__FPCvT0 @0x5dc  lui	a3,0x0
+   [C] Sort__24AITrigger_TriggerManager -> AITrigger_Compare__FPCvT0 @0x5e8  addiu	a3,a3,0
+== build/recon/game/common/aitune.cpp.o  A=0 B=0 C=3
+   [C] AITune_StartUp1__Fv -> AITune_GetOneWay__Fv @0xe0  jal	0 <AITune_GetOneWay__Fv>
+   [C] AITune_StartUp1__Fv -> AITune_GetDriveSide__Fv @0xec  jal	0 <AITune_GetOneWay__Fv>
+   [C] AITune_StartUp1__Fv -> AITune_GetRoughLapTimes__Fv @0xf8  jal	0 <AITune_GetOneWay__Fv>
+== build/recon/game/common/AIWORLD.cpp.o  A=0 B=0 C=9
+   [C] AIWorld_ApxSplineDistance__FiP8Car_tObj -> AIWorld_ApxSplineDistance__FP8Car_tObji @0x214  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_SplineDistance__FP8Car_tObjT0 -> AIWorld_ApxSplineDistance__FP8Car_tObjT0 @0x2a8  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_SplineDistance__FP8Car_tObjT0 -> AIWorld_ZSplineDistance__FP8Car_tObjT0 @0x2d0  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_SplineDistance__FP8Car_tObjiP8coorddef -> AIWorld_ApxSplineDistance__FP8Car_tObji @0x300  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_SplineDistance__FP8Car_tObjiP8coorddef -> AIWorld_ZSplineDistance__FP8coorddefT0P10matrixtdef @0x32c  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_CalculateLaneInfo__FP8Car_tObj -> AIWorld_LaneIndex__Fii @0x634  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_CalculateLaneInfo__FP8Car_tObj -> AIWorld_LaneIndex__Fii @0x650  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+   [C] AIWorld_CalculateLaneInfo__FP8Car_tObj -> AIWorld_LaneIndex__Fii @0x66c  jal	0 <AIWorld_ZSplineDistance__FP8Car_tObjT0>
+== build/recon/game/common/anim.cpp.o  A=0 B=0 C=6
+   [C] Anim_InitSystem__FPc -> Anim_Restart__Fv @0xa0  jal	0 <Anim_Restart__Fv>
+   [C] Anim_Handle__Fi -> __10AnimScripti @0x2a8  jal	0 <Anim_Restart__Fv>
+   [C] Anim_GetLastAnimPosRot__FiiP8coorddefP10matrixtdef -> Anim_GetLastRotPos__FP15Trk_AnimateInstP8coorddefP10matrixtdef @0x41c  jal	0 <Anim_Restart__Fv>
+   [C] GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef -> GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef @0xb78  jal	0 <Anim_Restart__Fv>
+   [C] GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef -> GetStatus__10AnimScript @0xbb4  jal	0 <Anim_Restart__Fv>
+   [C] GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef -> Anim_GetRotPos__FP15Trk_AnimateInstiiP8coorddefP10matrixtdef @0xbf0  jal	0 <Anim_Restart__Fv>
+== build/recon/game/common/audioclc.cpp.o  A=0 B=0 C=40
+   [C] AudioClc_StartUp__Fv -> AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj @0x18c  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_StartUp__Fv -> AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj @0x220  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_SoundCloseCar__Fii -> AudioClc_CalcDopplerShiftRatio__FP8coorddefT0 @0x958  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_SoundCloseCar__Fii -> AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef @0x974  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_SoundCloseCar__Fii -> AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj @0x984  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_SoundCloseCar__Fii -> AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj @0x9a8  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_SoundCloseCar__Fii -> AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj @0x9cc  jal	0 <AudioClc_SndError__Fi>
+   [C] AudioClc_SoundCloseCar__Fii -> AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj @0x9ec  jal	0 <AudioClc_SndError__Fi>
+== build/recon/game/common/audiocmn.cpp.o  A=0 B=0 C=74
+   [C] AudioCmn_UpdateThunder__Fv -> AudioCmn_PlaySound__Fiiiii @0xe8  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_DeInitAsyncSfx__Fv -> AudioCmn_RemoveAsyncSfx__Fi @0x22c  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_RemoveOldestAsyncSfx__Fi -> AudioCmn_RemoveAsyncSfx__Fi @0x320  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_LoadAsyncSfx__FiiPvi -> AudioCmn_RemoveOldestAsyncSfx__Fi @0x3dc  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_GetAsyncSfx__Fiib -> AudioCmn_RemoveOldestAsyncSfx__Fi @0x58c  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_Init__Fv -> AudioCmn_InitChannelArray__Fv @0x664  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_Init__Fv -> AudioCmn_InitThunder__Fv @0x764  jal	0 <AudioCmn_MusicLevel__Fi>
+   [C] AudioCmn_Init__Fv -> AudioCmn_InitAsyncSfx__Fv @0x76c  jal	0 <AudioCmn_MusicLevel__Fi>
+== build/recon/game/common/audioeng.cpp.o  A=0 B=0 C=5
+   [C] AudioEng_StartUp__FiPc -> AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef @0xbe0  jal	0 <AudioEng_Set__Fiiiiiiii>
+   [C] AudioEng_StartServer__Fv -> AudioEng_Update__Fv @0xe90  lui	a0,0x0
+   [C] AudioEng_StartServer__Fv -> AudioEng_Update__Fv @0xe9c  addiu	a0,a0,0
+   [C] AudioEng_StopServer__Fv -> AudioEng_Update__Fv @0xeb4  lui	a0,0x0
+   [C] AudioEng_StopServer__Fv -> AudioEng_Update__Fv @0xec0  addiu	a0,a0,0
+== build/recon/game/common/audiomus.cpp.o  A=0 B=0 C=31
+   [C] AudioMus_Fail__Fi -> AudioMus_Buffered__Fv @0x304  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_Fail__Fi -> AudioMus_Buffered__Fv @0x320  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_SetCurrentSongInfo__Fv -> AudioMus_SetEntry__FP19AudioMus_tSongEntry @0x4c4  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_Server__Fii -> AudioMus_Buffered__Fv @0x55c  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_Server__Fii -> AudioMus_RefreshStatus__Fv @0x5d8  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_Server__Fii -> AudioMus_Threshold__Fv @0x5e0  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_Server__Fii -> AudioMus_Buffered__Fv @0x608  jal	0 <AudioMus_RefreshStatus__Fv>
+   [C] AudioMus_Server__Fii -> AudioMus_Fail__Fi @0x61c  jal	0 <AudioMus_RefreshStatus__Fv>
+== build/recon/game/common/audiotrk.cpp.o  A=0 B=0 C=3
+   [C] AudioTrk_StartUp__Fv -> AudioTrk_Reset__Fv @0x124  jal	0 <AudioTrk_Reset__Fv>
+   [C] AudioTrk_SoundTrack__FP8Car_tObji -> AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji @0xd00  jal	0 <AudioTrk_Reset__Fv>
+   [C] AudioTrk_CleanUp__Fv -> AudioTrk_Reset__Fv @0xf28  jal	0 <AudioTrk_Reset__Fv>
+== build/recon/game/common/bworld.cpp.o  A=0 B=0 C=18
+   [C] UpdateContext__FP13DRender_tViewi -> SetContext__Fi @0x5c  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache -> UpdateContext__FP13DRender_tViewi @0x3d0  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] SetupChunkBuildList__FP13DRender_tView -> xzsquaredist32__FP8coorddefT0 @0x854  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] SetupChunkBuildList__FP13DRender_tView -> GetRezIndex__Fi @0xa80  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] BWorld_OnyxBuildFacets__FP13DRender_tView -> SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache @0xb78  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] BWorld_OnyxBuildFacets__FP13DRender_tView -> SetupChunkBuildList__FP13DRender_tView @0xb98  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] BWorld_OnyxBuildFacets__FP13DRender_tView -> BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group @0xda0  jal	0 <xzsquaredist32__FP8coorddefT0>
+   [C] BWorld_OnyxBuildFacets__FP13DRender_tView -> BWorld_IsSliceInBuildList__Fi @0xdd0  jal	0 <xzsquaredist32__FP8coorddefT0>
+== build/recon/game/common/bworldSm.cpp.o  A=0 B=0 C=39
+   [C] BWorldSm_Init__FP5Group -> BWorldSm_Restart__Fv @0x20  jal	0 <BWorldSm_Init__FP5Group>
+   [C] BWorldSm_Restart__Fv -> NormalCache_Init__Fv @0x40  jal	0 <BWorldSm_Init__FP5Group>
+   [C] BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos -> FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos @0x148  jal	0 <BWorldSm_Init__FP5Group>
+   [C] BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos -> RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos @0x154  jal	0 <BWorldSm_Init__FP5Group>
+   [C] GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16 -> SetStrip__FP12BWorldSm_Pos @0x69c  jal	0 <BWorldSm_Init__FP5Group>
+   [C] RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos -> BWorld_SetSimSlice__FP12BWorldSm_Pos @0x87c  jal	0 <BWorldSm_Init__FP5Group>
+   [C] RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos -> GetStmQuadPts__FP12BWorldSm_PosP8coorddef @0x8dc  jal	0 <BWorldSm_Init__FP5Group>
+   [C] RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos -> BWorld_SetSimSlice__FP12BWorldSm_Pos @0x938  jal	0 <BWorldSm_Init__FP5Group>
+== build/recon/game/common/camera.cpp.o  A=0 B=0 C=59
+   [C] Camera_SetCamera__FP13DRender_tView -> Camera_GetViewInfo__FiP17DRender_tCalcViewi @0x110  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateCollisionCam__Fi -> Camera_TunnelLimit__FiPi @0x3bc  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateSimpleCam__Fi -> Camera_TunnelLimit__FiPi @0x534  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateSimpleCam__Fi -> Camera_LookBack__FP10matrixtdefT0 @0x57c  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateBumperCam__Fi -> Camera_LookBack__FP10matrixtdefT0 @0x700  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateTailCam__Fii -> Camera_TunnelLimit__FiPi @0xbc0  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateTailCam__Fii -> Camera_TunnelLimit__FiPi @0xc3c  jal	0 <EulerToMat__FP10matrixtdefiii>
+   [C] Camera_UpdateHeliCam__Fii -> Camera_TunnelLimit__FiPi @0x12b8  jal	0 <EulerToMat__FP10matrixtdefiii>
+== build/recon/game/common/cars.cpp.o  A=0 B=0 C=46
+   [C] Cars_ResetCollidedCars__FP8Car_tObjii -> Cars_ResetVariablesAfterACollision__FP8Car_tObj @0xd18  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Cars_SetCarUpForHiRezSim__FP8Car_tObj -> Cars_ResetCollidedCars__FP8Car_tObjii @0xd9c  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Cars_DoExtraCarCollisionProcessing__FP8Car_tObj -> Cars_ResetCollidedCars__FP8Car_tObjii @0xe54  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Cars_DoExtraCarCollisionProcessing__FP8Car_tObj -> Cars_ResetCollidedCars__FP8Car_tObjii @0xedc  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Cars_DoExtraCarCollisionProcessing__FP8Car_tObj -> Cars_SetAudioCalls__FP8Car_tObjiiiiii @0x1408  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Cars_DoExtraCarCollisionProcessing__FP8Car_tObj -> Cars_SetAudioCalls__FP8Car_tObjiiiiii @0x1578  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Cars_DoExtraCarCollisionProcessing__FP8Car_tObj -> Cars_ResetCollidedCars__FP8Car_tObjii @0x1614  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+   [C] Car_TireSkiddingStuff__FP8Car_tObj -> Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii @0x1f84  jal	0 <Cars_DoGravityEffectsOnAcc__FP8Car_tObji>
+== build/recon/game/common/clock.cpp.o  A=0 B=0 C=4
+   [C] Clock_SystemStartUp__Fv -> Clock_MasterInterruptHandler__Fv @0xc8  lui	a0,0x0
+   [C] Clock_SystemStartUp__Fv -> Clock_MasterInterruptHandler__Fv @0xd4  addiu	a0,a0,0
+   [C] Clock_SystemCleanUp__Fv -> Clock_MasterInterruptHandler__Fv @0x11c  lui	a0,0x0
+   [C] Clock_SystemCleanUp__Fv -> Clock_MasterInterruptHandler__Fv @0x124  addiu	a0,a0,0
+== build/recon/game/common/collide.cpp.o  A=0 B=0 C=40
+   [C] Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1 -> Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21 @0x2874  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1 -> Collide_LimitAngularVel__FP13BO_tNewtonObj @0x2934  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 -> CHECK_CENTER_VERTEX_WITH_DIRS__Fiii @0x3b18  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 -> CHECK_CENTER_VERTEX_WITH_DIRS__Fiii @0x3b30  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 -> CHECK_CENTER_VERTEX_WITH_DIRS__Fiii @0x3b48  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 -> CHECK_CENTER_VERTEX_WITH_DIRS__Fiii @0x3b60  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 -> CHECK_CENTER_VERTEX_WITH_DIRS__Fiii @0x3b78  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+   [C] Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 -> CHECK_CENTER_VERTEX_WITH_DIRS__Fiii @0x3b90  jal	0 <CHECK_CENTER_VERTEX_WITH_DIRS__Fiii>
+== build/recon/game/common/color.cpp.o  A=0 B=0 C=2
+   [C] Risk_ReadNextValue__FPPc -> IsNumChar__Fc @0x6c  jal	0 <IsNumChar__Fc>
+   [C] Risk_ReadNextValue__FPPc -> IsNumChar__Fc @0xc4  jal	0 <IsNumChar__Fc>
+== build/recon/game/common/copspeak.cpp.o  A=0 B=0 C=24
+   [C] CopSpeak_SilenceCop__FP8Car_tObji -> CopSpeak_RadioStaticSquelch__Fv @0x290  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_ReadyNextRequest__Fv -> CopSpeak_Free__FP17CopSpeak_tRequest @0x5b4  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_Cancel__Fv -> CopSpeak_ReadyNextRequest__Fv @0x658  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_Cancel__Fv -> CopSpeak_RadioStaticSquelch__Fv @0x694  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_Cancel__Fv -> CopSpeak_InitRequest__FP17CopSpeak_tRequest @0x6a4  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_Stop__Fv -> CopSpeak_Cancel__Fv @0x6e8  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_CleanUp__Fv -> CopSpeak_Stop__Fv @0x70c  jal	0 <CopSpeak_RadioStaticInit__Fv>
+   [C] CopSpeak_InitVars__Fv -> CopSpeak_InitRequest__FP17CopSpeak_tRequest @0x7f8  jal	0 <CopSpeak_RadioStaticInit__Fv>
+== build/recon/game/common/group.cpp.o  A=0 B=0 C=3
+   [C] LocateCreateGroupType__15SerializedGroupiP9SimpleMemi -> LocateGroupType__15SerializedGroupii @0x104  jal	0 <LocateNextGroupType__15SerializedGroupi>
+   [C] LocateCreateGroupType__15SerializedGroupiP9SimpleMemi -> LocateGroupType__15SerializedGroupii @0x120  jal	0 <LocateNextGroupType__15SerializedGroupi>
+   [C] LocateCreateGroupType__15SerializedGroupiP9SimpleMemi -> CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem @0x130  jal	0 <LocateNextGroupType__15SerializedGroupi>
+== build/recon/game/common/hudpmx.cpp.o  A=0 B=0 C=15
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x908  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x944  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x984  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x9a8  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x9b8  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x9c8  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x9d8  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+   [C] HudPmx_InitTextures__Fv -> HudPmx_LoadShape__FPcP13HudPmx_tShape @0x9e8  jal	0 <HudPmx_LoadShape__FPcP13HudPmx_tShape>
+== build/recon/game/common/mathnfs.cpp.o  A=0 B=0 C=2
+   [C] Math_QDNormalizeVector__FP8coorddef -> Math_BetterDist__Fii @0x908  jal	0 <Math_DistXZ__FP8coorddefT0>
+   [C] Math_QDNormalizeVector__FP8coorddef -> Math_BetterDist__Fii @0x914  jal	0 <Math_DistXZ__FP8coorddefT0>
+== build/recon/game/common/mpause.cpp.o  A=0 B=0 C=4
+   [C] MPause_Logic__Fv -> MPause_MusicLogic__Fc @0xba4  jal	0 <__14tPauseMenuDefs>
+   [C] MPause_Logic__Fv -> MPause_ControllerLogic__Fv @0xbac  jal	0 <__14tPauseMenuDefs>
+   [C] MPause_InitMPause__Fv -> __14tPauseMenuDefs @0xd94  jal	0 <__14tPauseMenuDefs>
+   [C] MPause_KillMPause__Fv -> ___14tPauseMenuDefs @0x1038  jal	0 <__14tPauseMenuDefs>
+== build/recon/game/common/newton.cpp.o  A=0 B=0 C=41
+   [C] Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef -> Newton_FindGroundElevationGeneral__FP8coorddefN20 @0xf70  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef -> Newton_FindGroundElevationRough__FP8coorddefN20 @0x13ec  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef -> Newton_FindGroundElevationGeneral__FP8coorddefN20 @0x1400  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef -> Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1 @0x1e38  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj -> Newton_FindClosestQuad__FP13BO_tNewtonObj @0x1e9c  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj -> Newton_UpdateRoadGeometry__FP13BO_tNewtonObj @0x1ea4  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj -> Newton_FindClosestQuad__FP13BO_tNewtonObj @0x2560  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+   [C] Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj -> Newton_UpdateRoadGeometry__FP13BO_tNewtonObj @0x2568  jal	0 <Newton_AddDamageZone__FP13BO_tNewtonObjiii>
+== build/recon/game/common/nfs3.cpp.o  A=0 B=0 C=15
+   [C] Nfs2_GameModuleStartUp__FPi -> Nfs2_BefuddleCode__Fv @0x400  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] Nfs2_GameModuleStartUp__FPi -> NFS4_LoadPerps__Fv @0x418  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] LoadOverlay__Fv -> LoadFrontendOverlay__Fv @0x768  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] main -> Nfs2_SystemNLibStartUp__Fv @0x970  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] main -> LoadFrontendOverlay__Fv @0x99c  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] main -> NFS3_CheckForFileOperations__Fv @0xa80  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] main -> NFS3_CheckForFileOperations__Fv @0xaf0  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+   [C] main -> Nfs2_GameModuleStartUp__FPi @0xaf8  jal	0 <Nfs2_SystemNLibStartUp__Fv>
+== build/recon/game/common/object.cpp.o  A=0 B=0 C=23
+   [C] Object_GetRadiusCollisionData__FP18Object_tSimObjListiP8coorddefPi -> GetSimObj__FiP18Object_tSimObjListPi @0x52c  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_GetRadiusCollisionData__FP18Object_tSimObjListiP8coorddefPi -> FindObjInstanceFromSerialNum__FP5Groupi @0x598  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef -> GetSimObj__FiP18Object_tSimObjListPi @0x638  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef -> FindObjInstanceFromSerialNum__FP5Groupi @0x684  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef -> CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat @0x6d8  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj -> GetSimObj__FiP18Object_tSimObjListPi @0x86c  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj -> FindObjInstanceFromSerialNum__FP5Groupi @0x908  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+   [C] Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj -> __15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim @0x9d8  jal	0 <CalcObjYawAngle__FP8CCOORD16>
+== build/recon/game/common/pausemenu.cpp.o  A=0 B=0 C=25
+   [C] PauseMenu_MenuTextPositioned__Fssss -> PauseMenu_FullText__FPcsss @0x10c  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] PauseMenu_MenuText__FsbT1 -> PauseMenu_MenuTextPositioned__Fssss @0x170  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] __21tPListIteratorIndexedPsPiPc -> __14tPListIteratorPsPi @0x364  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] ___21tPListIteratorIndexed -> ___14tPListIterator @0x3a4  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] __28tPMenuItemNonInteractiveTextUi -> __10tPMenuItemUi @0x5fc  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] ___28tPMenuItemNonInteractiveText -> ___10tPMenuItem @0x634  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] Draw__28tPMenuItemNonInteractiveTextb -> PauseMenu_MenuText__FsbT1 @0x65c  jal	0 <PauseMenu_FullText__FPcsss>
+   [C] __21tPMenuItemInteractiveUi -> __10tPMenuItemUi @0x680  jal	0 <PauseMenu_FullText__FPcsss>
+== build/recon/game/common/physics.cpp.o  A=0 B=0 C=16
+   [C] Physics_DoBarrierCheck__FP8Car_tObj -> Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef @0x133c  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_DoBarrierCheck__FP8Car_tObj -> Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef @0x1358  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_TestForBarrierCollision__FP8Car_tObj -> Physics_DoBarrierCheck__FP8Car_tObj @0x20f8  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_TestForBarrierCollision__FP8Car_tObj -> Physics_FixEngineRpm__FP8Car_tObj @0x2120  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_CalculateCarAcceleration__FP8Car_tObj -> Physics_AutoShift__FP8Car_tObj @0x27fc  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_CalculateCarAcceleration__FP8Car_tObj -> Physics_GetTorque__FP8Car_tObji @0x28d8  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct -> Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct @0x3608  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+   [C] Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct -> Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct @0x386c  jal	0 <Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo>
+== build/recon/game/common/quatern.cpp.o  A=0 B=0 C=1
+   [C] Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2 -> Quatern_VecInterpolate__FP8coorddefT0iT0 @0x188  jal	0 <Quatern_VecInterpolate__FP8coorddefT0iT0>
+== build/recon/game/common/r3dcar.cpp.o  A=0 B=0 C=27
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_GetCarName__FPcii @0x14c0  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_LoadFileAdr__FPc @0x1548  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_ReadInCarData__FPcP8Car_tObj @0x15d8  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_ReadInCarData__FPcP8Car_tObj @0x1674  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei @0x1768  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_GetFileName__FPcN20 @0x17e8  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_GetFileName__FPcN20 @0x1818  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+   [C] R3DCar_Instantiate3DCar__FP8Car_tObji -> R3DCar_GetFileName__FPcN20 @0x186c  jal	0 <R3DCar_ChangeTrafficColor__FP8Car_tObji>
+== build/recon/game/common/render.cpp.o  A=0 B=0 C=19
+   [C] Render_CreateViews__Fv -> Render_CreatePlayerViews__Fv @0x148  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_CreateViews__Fv -> Render_CreatePauseMenuViews__Fv @0x158  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_RenderWorld__FP13DRender_tView -> Render_InsertDepthOfField__Fv @0x294  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_RenderPlayerView__Fii -> Render_StartRenderingWorldView__Fi @0x2d0  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_RenderPlayerView__Fii -> Render_RenderWorld__FP13DRender_tView @0x2d8  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_RenderPlayerView__Fii -> Render_StopRenderingWorldView__Fi @0x2e0  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_Render__Fi -> Render_RenderPauseMenuView__Fv @0x498  jal	0 <Render_CreatePlayerViews__Fv>
+   [C] Render_Render__Fi -> Render_StartFrameRender__Fv @0x4dc  jal	0 <Render_CreatePlayerViews__Fv>
+== build/recon/game/common/replay.cpp.o  A=0 B=0 C=18
+   [C] Replay_InitReplay__Fv -> Replay_LoadCameraFile__Fv @0x174  jal	0 <Replay_Compress__FPc>
+   [C] Replay_InitReplay__Fv -> Replay_LoadReplay__Fv @0x1d8  jal	0 <Replay_Compress__FPc>
+   [C] Replay_ResetReplay__Fv -> Replay_ReplayFindClosestCamera__Fii @0x3d8  jal	0 <Replay_Compress__FPc>
+   [C] Replay_StoringReplay__Fv -> Replay_SaveReplay__Fv @0x458  jal	0 <Replay_Compress__FPc>
+   [C] Replay_StoringControllerData__FG15tControllerData -> Replay_Compress__FPc @0x4b8  jal	0 <Replay_Compress__FPc>
+   [C] Replay_StoringControllerData__FG15tControllerData -> Replay_Compress__FPc @0x598  jal	0 <Replay_Compress__FPc>
+   [C] Replay_StoringControllerData__FG15tControllerData -> Replay_Compress__FPc @0x678  jal	0 <Replay_Compress__FPc>
+   [C] Replay_StoringControllerData__FG15tControllerData -> Replay_Compress__FPc @0x758  jal	0 <Replay_Compress__FPc>
+== build/recon/game/common/scene.cpp.o  A=0 B=0 C=1
+   [C] Scene_DeInit__Fv -> Scene_PurgeScene__Fv @0x1c  jal	0 <Scene_Init__Fi>
+== build/recon/game/common/sim.cpp.o  A=0 B=0 C=6
+   [C] Sim_ProcessSimSchedules__Fv -> Sim_FadeInSFX__Fv @0x454  jal	0 <Sim_StartUp__Fv>
+   [C] Sim_ProcessSimSchedules__Fv -> Sim_FadeInSFX__Fv @0x464  jal	0 <Sim_StartUp__Fv>
+   [C] Sim_MainGameLoop__Fv -> Sim_ProcessPause__Fv @0x9c8  jal	0 <Sim_StartUp__Fv>
+   [C] Sim_MainGameLoop__Fv -> Sim_CheckForPause__Fi @0xab8  jal	0 <Sim_StartUp__Fv>
+   [C] Sim_MainGameLoop__Fv -> Sim_ProcessSimSchedules__Fv @0xbd4  jal	0 <Sim_StartUp__Fv>
+   [C] Sim_MainGameLoop__Fv -> Sim_ProcessSimSchedules__Fv @0xbdc  jal	0 <Sim_StartUp__Fv>
+== build/recon/game/common/simplemem.cpp.o  A=0 B=0 C=1
+   [C] FeignAlloc__9SimpleMemi -> Alloc__9SimpleMemii @0x54  jal	0 <Alloc__9SimpleMemii>
+== build/recon/game/common/simqueue.cpp.o  A=0 B=0 C=2
+   [C] SimQueue_StartUp__Fv -> SimQueue_SetLag__Fv @0x14  jal	0 <SimQueue_StartUp__Fv>
+   [C] SimQueue_Put__FiP14Input_tResults -> SimQueue_IsBlocking__Fi @0x118  jal	0 <SimQueue_StartUp__Fv>
+== build/recon/game/common/souffle.cpp.o  A=0 B=0 C=4
+   [C] Souffle_Add__FP8coorddefiT0iii -> GetGustWind__FP17Souffle_tISouffle @0x22c  jal	0 <GetGustWind__FP17Souffle_tISouffle>
+   [C] Souffle_Add__FP8coorddefiT0iii -> GetAngleWind__FP17Souffle_tISouffle @0x27c  jal	0 <GetGustWind__FP17Souffle_tISouffle>
+   [C] Souffle_DoSouffle__Fv -> MoveAngleWind__FP17Souffle_tISouffle @0x644  jal	0 <GetGustWind__FP17Souffle_tISouffle>
+   [C] Souffle_InsertFacet__FP13DRender_tView -> Souffle_CircleClip__FP8coorddefT0i @0x7f0  jal	0 <GetGustWind__FP17Souffle_tISouffle>
+== build/recon/game/common/speech.cpp.o  A=0 B=0 C=119
+   [C] Speech_HandleRequest__Fllll -> SubmitRequest__6Speechlll @0x54  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName -> Check__Q26Speech7CarBankPciPQ26Speech11CarBankName @0x298  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] SetCar__Q26Speech7SpeakerP8Car_tObj -> Dispatch__6Speech @0x37c  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki -> Distance__Q26Speech12LocationBanki @0x690  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] FindLocation__Q26Speech7SpeakerP8Car_tObj -> Distance__Q26Speech12LocationBanki @0x884  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] FindLocation__Q26Speech7SpeakerP8Car_tObj -> Distance__Q26Speech12LocationBanki @0x894  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] CheckMultiBank__6SpeechPciPQ26Speech11CarBankName -> CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci @0xbe8  jal	0 <Speech_AllocateRAM__FlPc>
+   [C] CheckMultiBank__6SpeechPciPQ26Speech11CarBankName -> CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName @0xc20  jal	0 <Speech_AllocateRAM__FlPc>
+== build/recon/game/common/stats.cpp.o  A=0 B=0 C=8
+   [C] Stats_DoPlayerGlue__Fv -> Stats_GetPosition__FP8Car_tObj @0x40  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_ExtrapolateOpponentTimes__Fi -> Stats_GetPosition__FP8Car_tObj @0x8bc  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_ExtrapolateOpponentTimes__Fi -> Stats_GetPosition__FP8Car_tObj @0x930  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_ExtrapolateOpponentTimes__Fi -> Stats_GetPosition__FP8Car_tObj @0x948  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_ExtrapolateOpponentTimes__Fi -> Stats_GetPosition__FP8Car_tObj @0xbdc  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_TrackEndGame__Fv -> Stats_GetPosition__FP8Car_tObj @0xf30  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_TrackEndGame__Fv -> Stats_GetPosition__FP8Car_tObj @0xfd4  jal	0 <Stats_DoPlayerGlue__Fv>
+   [C] Stats_TrackEndGame__Fv -> Stats_ExtrapolateOpponentTimes__Fi @0x11c8  jal	0 <Stats_DoPlayerGlue__Fv>
+== build/recon/game/common/textsys.cpp.o  A=0 B=0 C=2
+   [C] TextSys_LoadInGame__Fi -> TextSys_LoadWordsGeneric__FiPc @0xb8  jal	0 <TextSys_LoadWordsGeneric__FiPc>
+   [C] TextSys_LoadWords__Fi -> TextSys_LoadWordsGeneric__FiPc @0xe0  jal	0 <TextSys_LoadWordsGeneric__FiPc>
+== build/recon/game/common/track.cpp.o  A=0 B=0 C=26
+   [C] InitArtResources__Fv -> AllocArtResource__FP18Track_tArtresourcei @0xf0  jal	0 <Track_SetTrackNumber__Fi>
+   [C] TexturesLoadInitial__Fv -> Track_MakeTrackPathName__FPc @0x5a4  jal	0 <Track_SetTrackNumber__Fi>
+   [C] TexturesLoadInitial__Fv -> LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii @0x5f0  jal	0 <Track_SetTrackNumber__Fi>
+   [C] TexturesLoadInitial__Fv -> Track_MakeTrackPathName__FPc @0x68c  jal	0 <Track_SetTrackNumber__Fi>
+   [C] TexturesLoadInitial__Fv -> LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii @0x6c4  jal	0 <Track_SetTrackNumber__Fi>
+   [C] Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource -> Track_GetProperMultiPalShapeIndex__Fii @0xaac  jal	0 <Track_SetTrackNumber__Fi>
+   [C] Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource -> Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1 @0xb1c  jal	0 <Track_SetTrackNumber__Fi>
+   [C] Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource -> Track_GetProperMultiPalShapeIndex__Fii @0xb64  jal	0 <Track_SetTrackNumber__Fi>
+== build/recon/game/common/trgsfx.cpp.o  A=0 B=0 C=2
+   [C] TrgSfx_RestartTrgSfx__Fv -> TrgSfx_KillTrgSfx__Fv @0x978  jal	0 <TrgSfx_AddEnviroEffect__FiiP8coorddefT2>
+   [C] TrgSfx_RestartTrgSfx__Fv -> TrgSfx_InitTrgSfx__Fv @0x980  jal	0 <TrgSfx_AddEnviroEffect__FiiP8coorddefT2>
+== build/recon/game/psx/audio.cpp.o  A=0 B=0 C=1
+   [C] AudioCmn_LoadBank__FPci -> AudioCmn_AddBank__FPciT0i @0x36c  jal	0 <Audio_InitDriver__Fii>
+== build/recon/game/psx/cario.cpp.o  A=0 B=0 C=11
+   [C] CarIO_ReStart__Fv -> CarIO_CleanUpLicense__Fi @0xc0  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_ReStart__Fv -> CarIO_CleanUpLicense__Fi @0xc8  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_CreateLicense__FPcii -> CarIO_CopyFromShape__FPsT0iiii @0x51c  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_CreateLicense__FPcii -> CarIO_CopyFromShape__FPsT0iiii @0x5f4  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_CreateLicense__FPcii -> CarIO_CopyToShape__FPsT0i @0x648  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_CreateLicense__FPcii -> CarIO_CopyToShape__FPsT0i @0x684  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_CreateLicense__FPcii -> CarIO_CopyToShape__FPsT0i @0x6a4  jal	0 <CarIO_StartUp__Fv>
+   [C] CarIO_ReadInCarTextureData__FPcP8Car_tObjii -> CarIO_LicenseCheck__FiPiT1P8Car_tObji @0xb94  jal	0 <CarIO_StartUp__Fv>
+== build/recon/game/psx/device.cpp.o  A=0 B=0 C=9
+   [C] Device_Fail__Fi -> Device_VerifyType__Fi @0xb4  jal	0 <Device_VerifyType__Fi>
+   [C] Device_Update__Fv -> Device_Fail__Fi @0x188  jal	0 <Device_VerifyType__Fi>
+   [C] Device_Update__Fv -> Device_Fail__Fi @0x1c0  jal	0 <Device_VerifyType__Fi>
+   [C] Device_PSXPad__FUl -> Device_VerifyType__Fi @0x29c  jal	0 <Device_VerifyType__Fi>
+   [C] Device_ReadPad__FiUl -> Device_VerifyType__Fi @0x300  jal	0 <Device_VerifyType__Fi>
+   [C] Device_PSXPadMulti__FUl -> Device_ReadPad__FiUl @0x53c  jal	0 <Device_VerifyType__Fi>
+   [C] Device_PSXPadMulti__FUl -> Device_ReadPad__FiUl @0x55c  jal	0 <Device_VerifyType__Fi>
+   [C] Device_PSXPadMulti__FUl -> Device_ReadPad__FiUl @0x5b4  jal	0 <Device_VerifyType__Fi>
+== build/recon/game/psx/draw.cpp.o  A=0 B=0 C=11
+   [C] AllocatePrimitivesBuffer__Fv -> Draw_InitViewOT__Fv @0x3bc  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] AllocatePrimitivesBuffer__Fv -> Draw_InitViewOTInGame__Fv @0x3cc  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] ClearPrimitivesBuffer__Fv -> Draw_DeInitViews__Fv @0x52c  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] ClearPlatformPrimitivesBuffer__Fv -> Draw_DeInitViews__Fv @0x578  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] ClearPlatformPrimitivesBuffer__Fv -> Draw_DeInitViewsInGame__Fv @0x588  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] Draw_CheckFirstFrameRender__Fv -> Draw_DirectSetEnvironment__Fiiiiiiiiii @0x7b0  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] Draw_CheckFirstFrameRender__Fv -> Draw_DirectSetEnvironment__Fiiiiiiiiii @0x7dc  jal	0 <Draw_SetView__Fiiiiiiiii>
+   [C] Draw_CheckFirstFrameRender__Fv -> AllocatePrimitivesBuffer__Fv @0x7e8  jal	0 <Draw_SetView__Fiiiiiiiii>
+== build/recon/game/psx/drawc.cpp.o  A=0 B=0 C=15
+   [C] DrawC_BuildRenderingData__Fv -> DrawC_ReadLightingData__Fv @0x250  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_BuildRenderingData__Fv -> DrawC_ReadeMapData__Fv @0x258  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache -> ChangeTPage__FPUsi @0x1378  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache -> ChangeTPage__FPUsi @0x14c4  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache -> DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache @0x38d4  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache -> DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache @0x38fc  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache -> DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache @0x3924  jal	0 <ChangeTPage__FPUsi>
+   [C] DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache -> DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache @0x3948  jal	0 <ChangeTPage__FPUsi>
+== build/recon/game/psx/draww.cpp.o  A=0 B=0 C=82
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31 @0x46c  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_DivVertice__FP12Draw_SVertexN20 @0x4e8  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_DivVertice__FP12Draw_SVertexN20 @0x50c  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_DivVertice__FP12Draw_SVertexN20 @0x564  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_DivVertice__FP12Draw_SVertexN20 @0x5bc  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_DivVertice__FP12Draw_SVertexN20 @0x614  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache @0x760  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+   [C] DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss -> DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache @0x804  jal	0 <DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache>
+== build/recon/game/psx/fe3dmenu.cpp.o  A=0 B=0 C=1
+   [C] Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii -> CameraLookAt__FP10matrixtdefP8coorddef @0x3b0  jal	0 <Fe3D_InitShowroom__Fv>
+== build/recon/game/psx/flare.cpp.o  A=0 B=0 C=64
+   [C] Flare_QuadFlare__FPli -> Flare_Tri__FPlN20i @0xe00  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_QuadFlare__FPli -> Flare_Tri__FPlN20i @0xe38  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_QuadFlare__FPli -> Flare_Tri__FPlN20i @0xe6c  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_QuadFlare__FPli -> Flare_Tri__FPlN20i @0xe80  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache -> Flare_IdentMatrix__FP6MATRIX @0x13a8  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache -> Flare_ReflectHexFlare__FPli @0x14f4  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache -> Flare_IdentMatrix__FP6MATRIX @0x1544  jal	0 <Flare_Tri__FPlN20i>
+   [C] Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache -> Flare_IdentMatrix__FP6MATRIX @0x1550  jal	0 <Flare_Tri__FPlN20i>
+== build/recon/game/psx/font.cpp.o  A=0 B=0 C=11
+   [C] Font_Getcharacter__Fi -> Font_textbsearch__FiPcUlUl @0x590  jal	0 <Font_TextColor__Fi>
+   [C] Font_ReSetBlitter__Fv -> Font_Blit__FiiPviiP12charactertbli @0x5cc  lui	v0,0x0
+   [C] Font_ReSetBlitter__Fv -> Font_Blit__FiiPviiP12charactertbli @0x5d0  addiu	v0,v0,0
+   [C] Font_SwitchFont__FPc -> Font_Getcharacter__Fi @0x630  jal	0 <Font_TextColor__Fi>
+   [C] Font_LoadFont__FPciic -> Font_ComputeColors__Fiiic @0x804  jal	0 <Font_TextColor__Fi>
+   [C] Font_LoadFont__FPciic -> Font_ReSetBlitter__Fv @0x818  jal	0 <Font_TextColor__Fi>
+   [C] Font_LoadFont__FPciic -> Font_SwitchFont__FPc @0x820  jal	0 <Font_TextColor__Fi>
+   [C] Font_LoadFont__FPciic -> Font_TextTint__Fi @0x844  jal	0 <Font_TextColor__Fi>
+== build/recon/game/psx/force.cpp.o  A=0 B=0 C=4
+   [C] Force_StartUp__Fv -> Force_Vbl__Fv @0x6d8  lui	a0,0x0
+   [C] Force_StartUp__Fv -> Force_Vbl__Fv @0x6e0  addiu	a0,a0,0
+   [C] Force_StartUp__Fv -> Force_Update__FP8Car_tObj @0x6e4  lui	v0,0x0
+   [C] Force_StartUp__Fv -> Force_Update__FP8Car_tObj @0x6e8  addiu	s2,v0,0
+== build/recon/game/psx/hrzsku.cpp.o  A=0 B=0 C=24
+   [C] Hrz_InitSky__Fv -> Hrz_InitSkyColor__Fv @0x7d0  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_Init2DRing__Fv -> Hrz_InitSky__Fv @0xac4  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_InitHorizon__Fv -> Hrz_Init2DRing__Fv @0xbdc  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_InitHorizon__Fv -> Sky_InitStars__Fv @0xbf8  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_KillHorizon__Fv -> Sky_KillStars__Fv @0xc24  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_CalculateLightning__Fv -> Hrz_LightningAddFork__FScScSc @0xe78  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_BuildForkLightning__FP11Draw_DCache -> HrzSetPsxTranslation__FP8coorddef @0x1120  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+   [C] Hrz_BuildForkLightning__FP11Draw_DCache -> Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache @0x11a0  jal	0 <Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii>
+== build/recon/game/psx/hud.cpp.o  A=0 B=0 C=191
+   [C] Hud_CreateHudViews__Fv -> Hud_InitTables__Fv @0x10  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_DebugInfo__Fv -> Hud_FBuildF4__FiiiiiUlcc @0x3ec  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_DebugInfo__Fv -> Hud_FBuildF4__FiiiiiUlcc @0x4e8  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_BuildSprite2__FP4SPRTiii -> Hud_BuildSprite__FP4SPRTiiiUli @0x5d8  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_FBuildSprite__FiiiUli -> Hud_BuildSprite__FP4SPRTiiiUli @0x66c  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_FBuildGT4__FP13HudPmx_tShapeiiUl -> Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl @0xe5c  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_FBuildFT4__FP13HudPmx_tShapeiiUl -> Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli @0xeec  jal	0 <Hud_CreateHudViews__Fv>
+   [C] Hud_FBuildF4__FiiiiiUlcc -> Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc @0xfac  jal	0 <Hud_CreateHudViews__Fv>
+== build/recon/game/psx/night.cpp.o  A=0 B=0 C=16
+   [C] Night_CreateNightTableElement__FiliPUc -> Night_FindClosestColor__FG7CVECTORPi @0x1b8  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_CreateNightTable__FiliPA256_A16_Uc -> Night_CreateNightTableElement__FiliPUc @0x29c  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_DoLightningEffect__FP13DRender_tView -> Night_GenerateNextLightningEvent__Fv @0x508  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_SetPlayerHeadLightColor__Fiii -> Night_CreateNightTable__FiliPA256_A16_Uc @0x644  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_SetCopLightColors__Fii -> Night_CreateNightTableElement__FiliPUc @0x6f4  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_SetCopLightColors__Fii -> Night_CreateNightTableElement__FiliPUc @0x714  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_SetWeatherColors__Fi -> Night_CreateNightTableElement__FiliPUc @0x808  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+   [C] Night_GenerateAllLightTables__Fv -> Night_SetWeatherColors__Fi @0x918  jal	0 <Night_FindClosestColor__FG7CVECTORPi>
+== build/recon/game/psx/overlays.cpp.o  A=0 B=0 C=6
+   [C] RaceSummary__Fv -> OptionsBarThing__Fiiii @0x608  jal	0 <OptionsBarThing__Fiiii>
+   [C] RaceStatistics__Fv -> OptionsBarThing__Fiiii @0xd64  jal	0 <OptionsBarThing__Fiiii>
+   [C] Hud_BTCStats__Fsb -> OptionsBarThing__Fiiii @0x14b0  jal	0 <OptionsBarThing__Fiiii>
+   [C] Hud_RenderStatsView__Fv -> RaceSummary__Fv @0x16b8  jal	0 <OptionsBarThing__Fiiii>
+   [C] Hud_RenderStatsView__Fv -> Hud_BTCStats__Fsb @0x1718  jal	0 <OptionsBarThing__Fiiii>
+   [C] Hud_RenderStatsView__Fv -> RaceStatistics__Fv @0x1728  jal	0 <OptionsBarThing__Fiiii>
+== build/recon/game/psx/platform.cpp.o  A=0 B=0 C=1
+   [C] Platform_SysStartUp__Fv -> nfs2eacinit__Fv @0xf8  jal	0 <Platform_InitMemory__Fv>
+== build/recon/game/psx/psxcontroller.cpp.o  A=0 B=0 C=22
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0xf0  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x120  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x144  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x168  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x18c  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x1a0  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x1c4  jal	0 <InGame_ResetPSXController__Fii>
+   [C] InGame_ResetPSXController__Fii -> InGame_GetPSXPadValue__Fii @0x1e8  jal	0 <InGame_ResetPSXController__Fii>
+== build/recon/game/psx/rpause.cpp.o  A=0 B=0 C=1
+   [C] RPause_StopPauseMenu__Fv -> RPause_CopyBackToFrontBuffer__Fv @0x104  jal	0 <RPause_CopyBackToFrontBuffer__Fv>
+== build/recon/game/psx/sfx.cpp.o  A=0 B=0 C=9
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap @0x7a4  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap @0x7c0  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache @0x7f0  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap @0x80c  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_Transform__FP8coorddefP7SVECTORT0 @0x888  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_ThickenXZ__FP7SVECTORP8coorddefN21 @0xaec  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2 @0x10b8  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+   [C] Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle -> Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache @0x10d0  jal	0 <Sfx_Transform__FP8coorddefP7SVECTORT0>
+== build/recon/game/psx/skidmark.cpp.o  A=0 B=0 C=12
+   [C] Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii -> Skidmark_CheckChunk__FP8coorddefii @0x4e8  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii -> CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i @0x520  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii -> Skidmark_CheckChunk__FP8coorddefii @0x5ac  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii -> CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i @0x5ec  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii -> CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i @0x708  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii -> Skidmark_CheckChunk__FP8coorddefii @0x8cc  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii -> CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i @0x904  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+   [C] Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii -> Skidmark_CheckChunk__FP8coorddefii @0x990  jal	0 <CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i>
+== build/recon/game/psx/textpix.c.o  A=0 B=0 C=1
+   [C] textpixels -> textnpixels @0x9c  jal	0 <textnpixels>
+== build/recon/game/psx/textpsx.c.o  A=0 B=0 C=2
+   [C] inittextdraw -> fortext4 @0xc  lui	v0,0x0
+   [C] inittextdraw -> fortext4 @0x10  addiu	v0,v0,0
+== build/recon/game/psx/texture.cpp.o  A=0 B=0 C=22
+   [C] Texture_ProcessPaletteCopy__FP15Texture_pal8bitii -> Texture_ColorCarPalette__FPcT0i @0x540  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_Vramf__FP8shapetbliiii -> Texture_LoadImage__FP4RECTPUl @0x724  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_Vramcf__FP8shapetbliiii -> Texture_Vramf__FP8shapetbliiii @0x898  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_Vramcf__FP8shapetbliiii -> Texture_Vramf__FP8shapetbliiii @0x8b4  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap -> Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi @0xacc  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap -> Texture_GetClutId__FiPiT1 @0xaf4  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap -> Texture_CopyPalette__FPciii @0xb94  jal	0 <Texture_InitPaletteSharing__Fv>
+   [C] Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap -> Texture_ColorCarPalette__FPcT0i @0xbac  jal	0 <Texture_InitPaletteSharing__Fv>
+== build/recon/game/psx/textureprocess.cpp.o  A=0 B=0 C=13
+   [C] TextureProcess_DepthColorCluts__FPci -> TextureProcess_ColorClut__FiiPciii @0x2d8  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_FindKey__FiP6FogKey -> Fog_CheckRange__FiP6FogKey @0x38c  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_FindKey__FiP6FogKey -> Fog_CheckRange__FiP6FogKey @0x3b8  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_FindKey__FiP6FogKey -> Fog_CheckRange__FiP6FogKey @0x3d8  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_AddKey__Fii -> Fog_AllocKey__Fv @0x460  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_AddKey__Fii -> Fog_FindKey__FiP6FogKey @0x4a4  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_Update__Fi -> Fog_FindKey__FiP6FogKey @0x568  jal	0 <TextureProcess_TransColorCheck__FPci>
+   [C] Fog_ReadFogKeys__Fv -> Fog_MakeTrackPathName__FPc @0x718  jal	0 <TextureProcess_TransColorCheck__FPci>
+== build/recon/game/psx/trackspec.cpp.o  A=0 B=0 C=5
+   [C] TrackSpec_Read__Fi -> read__FPPcPvi @0x2f8  jal	0 <TrackSpec_SetDefault__FP10CTrackSpec>
+   [C] TrackSpec_Read__Fi -> TrackSpec_SetDefault__FP10CTrackSpec @0x318  jal	0 <TrackSpec_SetDefault__FP10CTrackSpec>
+   [C] TrackSpec_Read__Fi -> read__FPPcPvi @0x350  jal	0 <TrackSpec_SetDefault__FP10CTrackSpec>
+   [C] TrackSpec_Read__Fi -> TrackSpec_SetUp__Fv @0x358  jal	0 <TrackSpec_SetDefault__FP10CTrackSpec>
+   [C] TrackSpec_Load__Fii -> TrackSpec_Read__Fi @0x3d0  jal	0 <TrackSpec_SetDefault__FP10CTrackSpec>
+== build/recon/game/psx/trsproj.cpp.o  A=0 B=0 C=2
+   [C] TrsProj_SetViewTrsProjEnviro__FP13DRender_tView -> TrsProj_SetProjection__Fiiii @0x118  jal	0 <TrsProj_SetTransPrecision__Fi>
+   [C] TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef -> TrsProj_SetPsxTrans__FP8coorddef @0x1dc  jal	0 <TrsProj_SetTransPrecision__Fi>
+== build/recon/game/psx/unpack.c.o  A=0 B=0 C=2
+   [C] unpack -> unpackz @0xbc  jal	0 <unpackz>
+   [C] unpacksize -> unpacksizez @0x1a4  jal	0 <unpackz>
+== build/recon/game/psx/weather.cpp.o  A=0 B=0 C=22
+   [C] Weather_ChangeDensityState__Fv -> Weather_GetNewState__Fv @0x374  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_ChangeIntensityState__Fv -> Weather_GetNewState__Fv @0x3e8  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_ChangeDensityBasedOnTime__Fv -> Weather_ChangeDensityState__Fv @0x4f8  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_ChangeIntensityBasedOnTime__Fv -> Weather_ChangeIntensityState__Fv @0x5d0  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_Restart__Fv -> Weather_InitStateControls__Fv @0x724  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_Init__Fv -> Weather_InitRain__Fv @0x7b8  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_Init__Fv -> Weather_InitSnow__Fv @0x7d0  jal	0 <Weather_GetNumParticles__Fi>
+   [C] Weather_Init__Fv -> Weather_InitSplats__Fv @0xa98  jal	0 <Weather_GetNumParticles__Fi>
+== build/recon/syslib/psx/libapi/FIRST.c.o  A=0 B=0 C=2
+   [C] firstfile -> _first_patch @0x1f0  lui	v0,0x0
+   [C] firstfile -> _first_patch @0x1f4  addiu	v0,v0,0
+== build/recon/syslib/psx/libc/QSORT.c.o  A=0 B=0 C=4
+   [C] qsort -> _swap @0xa4  jal	0 <_swap>
+   [C] qsort -> _swap @0xcc  jal	0 <_swap>
+   [C] qsort -> _swap @0x108  jal	0 <_swap>
+   [C] qsort -> _swap @0x12c  jal	0 <_swap>
+== build/recon/syslib/psx/libcard/END.c.o  A=0 B=0 C=4
+   [C] _ExitCard -> D_8010CC30 @0x24  lui	t2,0x0
+   [C] _ExitCard -> D_8010CC30 @0x28  addiu	t2,t2,0
+   [C] _ExitCard -> D_8010CC3C @0x2c  lui	t1,0x0
+   [C] _ExitCard -> D_8010CC3C @0x30  addiu	t1,t1,0
+== build/recon/syslib/psx/libcard/PATCH.c.o  A=0 B=0 C=10
+   [C] _copy_memcard_patch -> func_8010CA40 @0x30  lui	t1,0x0
+   [C] _copy_memcard_patch -> func_8010CA40 @0x34  addiu	t1,t1,0
+   [C] _patch_card -> func_8010CA40 @0xa4  lui	t2,0x0
+   [C] _patch_card -> func_8010CA40 @0xa8  addiu	t2,t2,0
+   [C] _patch_card -> func_8010CA40 @0xac  lui	t1,0x0
+   [C] _patch_card -> func_8010CA40 @0xb0  addiu	t1,t1,20
+   [C] _patch_card2 -> func_8010CA40 @0x118  lui	t2,0x0
+   [C] _patch_card2 -> func_8010CA40 @0x11c  addiu	t2,t2,20
+== build/recon/syslib/psx/libcd/cdread.c.o  A=0 B=0 C=13
+   [C] _read_int -> _read_data_int @0xb8  lui	a0,0x0
+   [C] _read_int -> _read_data_int @0xc0  addiu	a0,a0,0
+   [C] _read_int -> _read_issue @0x1c0  jal	0 <_read_sync>
+   [C] _read_int -> _read_sync @0x24c  lui	a0,0x0
+   [C] _read_int -> _read_sync @0x254  addiu	a0,a0,0
+   [C] _read_data_int -> _read_sync @0x334  lui	a0,0x0
+   [C] _read_data_int -> _read_sync @0x33c  addiu	a0,a0,0
+   [C] _read_issue -> _read_int @0x4e0  lui	a0,0x0
+== build/recon/syslib/psx/libcd/cdread2.c.o  A=0 B=0 C=2
+   [C] CdRead2 -> _cdread2_ready @0x78  lui	a0,0x0
+   [C] CdRead2 -> _cdread2_ready @0x80  addiu	a0,a0,0
+== build/recon/syslib/psx/libcd/drv.c.o  A=0 B=0 C=18
+   [C] _cd_intr_dispatch -> CD_get_intr @0x58c  jal	0 <CD_get_intr>
+   [C] CD_sync -> CD_flush @0x754  jal	0 <CD_get_intr>
+   [C] CD_sync -> CD_get_intr @0x798  jal	0 <CD_get_intr>
+   [C] CD_ready -> CD_flush @0x9d4  jal	0 <CD_get_intr>
+   [C] CD_ready -> CD_get_intr @0xa18  jal	0 <CD_get_intr>
+   [C] CD_cw -> CD_sync @0xc34  jal	0 <CD_get_intr>
+   [C] CD_cw -> CD_flush @0xe2c  jal	0 <CD_get_intr>
+   [C] CD_cw -> CD_get_intr @0xe70  jal	0 <CD_get_intr>
+== build/recon/syslib/psx/libcd/event.c.o  A=0 B=0 C=7
+   [C] CdInit -> _cd_event_init @0xc4  jal	0 <_cd_event_sync>
+   [C] CdInit -> _cd_event_sync @0xd8  lui	v1,0x0
+   [C] CdInit -> _cd_event_sync @0xdc  addiu	v1,v1,0
+   [C] CdInit -> _cd_event_ready @0xe8  lui	v1,0x0
+   [C] CdInit -> _cd_event_ready @0xec  addiu	v1,v1,0
+   [C] CdInit -> _cd_event_read @0xf8  lui	v1,0x0
+   [C] CdInit -> _cd_event_read @0xfc  addiu	v1,v1,0
+== build/recon/syslib/psx/libcd/iso9660.c.o  A=0 B=0 C=7
+   [C] CD_newmedia -> cd_read @0x18c  jal	0 <rd32le>
+   [C] CD_newmedia -> cd_read @0x230  jal	0 <rd32le>
+   [C] CD_cachefile -> cd_read @0x47c  jal	0 <rd32le>
+   [C] CdSearchFile -> CD_newmedia @0x6f4  jal	0 <rd32le>
+   [C] CdSearchFile -> _cd_find_path @0x78c  jal	0 <rd32le>
+   [C] CdSearchFile -> CD_cachefile @0x820  jal	0 <rd32le>
+   [C] CdSearchFile -> _cd_cmp_name @0x8b0  jal	0 <rd32le>
+== build/recon/syslib/psx/libcd/stcdint.c.o  A=0 B=0 C=6
+   [C] StCdInterrupt -> _st_copy_words @0x400  jal	0 <_st_copy_words>
+   [C] StCdInterrupt -> _st_dma @0x42c  jal	0 <_st_copy_words>
+   [C] StCdInterrupt -> _st_copy_words @0x984  jal	0 <_st_copy_words>
+   [C] StCdInterrupt -> _st_dma @0x9c4  jal	0 <_st_copy_words>
+   [C] StCdInterrupt -> _st_copy_words @0xa20  jal	0 <_st_copy_words>
+   [C] StCdInterrupt -> _st_dma @0xa60  jal	0 <_st_copy_words>
+== build/recon/syslib/psx/libcd/stream.c.o  A=0 B=0 C=1
+   [C] StSetRing -> StClearRing @0xf8  jal	0 <StSetStream>
+== build/recon/syslib/psx/libcd/toc.c.o  A=0 B=0 C=1
+   [C] CdGetToc -> CdGetToc2 @0x228  jal	0 <CdGetToc2>
+== build/recon/syslib/psx/libetc/INTR.c.o  A=0 B=0 C=1
+   [C] _initIntr -> _intrhand @0x94  jal	0 <_bzero_w>
+== build/recon/syslib/psx/libetc/INTR_DMA.c.o  A=0 B=0 C=4
+   [C] startIntrDMA -> _dma_isr @0x48  lui	a1,0x0
+   [C] startIntrDMA -> _dma_isr @0x4c  addiu	a1,a1,0
+   [C] startIntrDMA -> func_80106878 @0x58  lui	v0,0x0
+   [C] startIntrDMA -> func_80106878 @0x5c  addiu	v0,v0,0
+== build/recon/syslib/psx/libetc/INTR_VB.c.o  A=0 B=0 C=5
+   [C] startIntrVSync -> startIntrVSync_helper_3 @0x78  jal	0 <startIntrVSync_helper_3>
+   [C] startIntrVSync -> startIntrVSync_helper_1 @0x80  lui	a1,0x0
+   [C] startIntrVSync -> startIntrVSync_helper_1 @0x84  addiu	a1,a1,0
+   [C] startIntrVSync -> startIntrVSync_helper_2 @0x90  lui	v0,0x0
+   [C] startIntrVSync -> startIntrVSync_helper_2 @0x94  addiu	v0,v0,0
+== build/recon/syslib/psx/libgpu/SYS.c.o  A=0 B=0 C=56
+   [C] _gpu_que_push -> _gpu_arm_timeout @0x564  jal	0 <_get_status>
+   [C] _gpu_que_push -> _gpu_check_timeout @0x574  jal	0 <_get_status>
+   [C] _gpu_que_push -> _gpu_que_drain @0x584  jal	0 <_get_status>
+   [C] _gpu_que_push -> _gpu_que_drain @0x664  lui	a1,0x0
+   [C] _gpu_que_push -> _gpu_que_drain @0x668  addiu	a1,a1,0
+   [C] _gpu_que_push -> _gpu_que_drain @0x7b0  jal	0 <_get_status>
+   [C] _que_ref -> _gpu_que_push @0x7fc  jal	0 <_get_status>
+   [C] _install_drain_cb -> _gpu_que_drain @0x81c  lui	a1,0x0
+== build/recon/syslib/psx/libgte/MSC02.c.o  A=1 B=0 C=2
+   [A] VectorNormalS -> VectorNormalSS @0xc  b	50 <VectorNormalSS+0xc>
+   [C] VectorNormal -> _VectorNormalSS_kernel @0x24  jal	0 <VectorNormalS>
+   [C] VectorNormalSS -> _VectorNormalSS_kernel @0x54  jal	0 <VectorNormalS>
+== build/recon/syslib/psx/libgte/PATCHGTE.c.o  A=0 B=0 C=8
+   [C] _patch_gte -> _gte_patch_text @0x30  lui	t2,0x0
+   [C] _patch_gte -> _gte_patch_text @0x34  addiu	t2,t2,0
+   [C] _patch_gte -> _gte_patch_text @0x38  lui	t1,0x0
+   [C] _patch_gte -> _gte_patch_text @0x3c  addiu	t1,t1,24
+   [C] _patch_gte -> _gte_patch_text @0x60  lui	t2,0x0
+   [C] _patch_gte -> _gte_patch_text @0x64  addiu	t2,t2,24
+   [C] _patch_gte -> _gte_patch_text @0x68  lui	t1,0x0
+   [C] _patch_gte -> _gte_patch_text @0x6c  addiu	t1,t1,48
+== build/recon/syslib/psx/libmath/DIVDF3.c.o  A=0 B=0 C=2
+   [C] __divdf3 -> _comp_mant @0x12c  jal	0 <_comp_mant>
+   [C] __divdf3 -> _comp_mant @0x188  jal	0 <_comp_mant>
+== build/recon/syslib/psx/libmath/MULDF3.c.o  A=0 B=0 C=3
+   [C] __muldf3 -> _mul_mant_d @0x20c  jal	0 <_mul_mant_d>
+   [C] __muldf3 -> _mul_mant_d @0x220  jal	0 <_mul_mant_d>
+   [C] __muldf3 -> _mul_mant_d @0x268  jal	0 <_mul_mant_d>
+== build/recon/syslib/psx/libmcrd/BIOS.c.o  A=0 B=0 C=17
+   [C] _card_start -> funcEvSpIOE @0x218  lui	a3,0x0
+   [C] _card_start -> funcEvSpIOE @0x21c  addiu	a3,a3,0
+   [C] _card_start -> funcEvSpError @0x234  lui	a3,0x0
+   [C] _card_start -> funcEvSpError @0x238  addiu	a3,a3,0
+   [C] _card_start -> funcEvSpTimeout @0x258  lui	a3,0x0
+   [C] _card_start -> funcEvSpTimeout @0x25c  addiu	a3,a3,0
+   [C] _card_start -> funcEvSpNewcard @0x27c  lui	a3,0x0
+   [C] _card_start -> funcEvSpNewcard @0x280  addiu	a3,a3,0
+== build/recon/syslib/psx/libmcrd/LIBMCRD.c.o  A=0 B=0 C=7
+   [C] MemCardGetDirentry -> MemCardCallback @0xeec  jal	0 <MemCardInit>
+   [C] MemCardGetDirentry -> MemCardSync @0xf40  jal	0 <MemCardInit>
+   [C] MemCardGetDirentry -> MemCardCallback @0xf50  jal	0 <MemCardInit>
+   [C] MemCardCreateFile -> MemCardCallback @0x1240  jal	0 <MemCardInit>
+   [C] MemCardCreateFile -> MemCardCallback @0x1308  jal	0 <MemCardInit>
+   [C] MemCardDeleteFile -> MemCardCallback @0x1414  jal	0 <MemCardInit>
+   [C] MemCardDeleteFile -> MemCardCallback @0x14d4  jal	0 <MemCardInit>
+== build/recon/syslib/psx/libpad/PADCMD.c.o  A=0 B=0 C=21
+   [C] _padSendAtLoadInfo -> _padCmdGetStatus @0xf8  jal	0 <_padSetAct>
+   [C] _padSendAtLoadInfo -> _padCmdSetMap @0x10c  jal	0 <_padSetAct>
+   [C] _padSendAtLoadInfo -> _padCmdGetDescR1 @0x120  jal	0 <_padSetAct>
+   [C] _padRecvAtLoadInfo -> _padGetActSize @0x264  jal	0 <_padSetAct>
+   [C] _padRecvAtLoadInfo -> _padLoadActInfo @0x294  jal	0 <_padSetAct>
+   [C] _padLoadActInfo -> _padLoadActInfo_snd @0x328  lui	v1,0x0
+   [C] _padLoadActInfo -> _padLoadActInfo_snd @0x32c  addiu	v1,v1,0
+   [C] _padLoadActInfo -> _padLoadActInfo_rcv @0x334  lui	v1,0x0
+== build/recon/syslib/psx/libpad/PADMAIN.c.o  A=0 B=0 C=13
+   [C] _padSetVsyncParam -> _padVbCallback0 @0x8  lui	v1,0x0
+   [C] _padSetVsyncParam -> _padVbCallback0 @0xc  addiu	v1,v1,0
+   [C] _padSetVsyncParam -> _padVbCallback1 @0x14  lui	v1,0x0
+   [C] _padSetVsyncParam -> _padVbCallback1 @0x18  addiu	v1,v1,0
+   [C] _padVbCallback0 -> _padInitSioMode @0x15c  jal	0 <_padSetVsyncParam>
+   [C] _padVbCallback0 -> _padSioMain @0x1b8  jal	0 <_padSetVsyncParam>
+   [C] _padInitSioMode -> _padClrIntSio0 @0x4d4  jal	0 <_padSetVsyncParam>
+   [C] _padInitSioMode -> _padWaitRXready @0x4e4  jal	0 <_padSetVsyncParam>
+== build/recon/syslib/psx/libpad/PADPORTD.c.o  A=0 B=0 C=15
+   [C] PadInitDirect -> _pad_failall @0x38  lui	v0,0x0
+   [C] PadInitDirect -> _pad_failall @0x3c  addiu	v0,v0,0
+   [C] PadInitDirect -> _pad_reset_state @0x48  lui	v0,0x0
+   [C] PadInitDirect -> _pad_reset_state @0x4c  addiu	v0,v0,0
+   [C] PadInitDirect -> _pad_getbyte @0x58  lui	v0,0x0
+   [C] PadInitDirect -> _pad_getbyte @0x5c  addiu	v0,v0,0
+   [C] PadInitDirect -> _pad_filter @0x68  lui	v0,0x0
+   [C] PadInitDirect -> _pad_filter @0x6c  addiu	v0,v0,0
+== build/recon/syslib/psx/libpad/PADSEQD.c.o  A=0 B=0 C=7
+   [C] _padInitDirSeq -> _dirSendAuto @0x0  lui	v0,0x0
+   [C] _padInitDirSeq -> _dirSendAuto @0x4  addiu	v0,v0,0
+   [C] _padInitDirSeq -> _dirCheck @0x10  lui	v0,0x0
+   [C] _padInitDirSeq -> _dirCheck @0x14  addiu	v0,v0,0
+   [C] _padInitDirSeq -> _dirRecvAuto @0x20  lui	v0,0x0
+   [C] _padInitDirSeq -> _dirRecvAuto @0x24  addiu	v0,v0,0
+   [C] _dirRecvAuto -> _dirCheck @0x244  jal	0 <_padInitDirSeq>
+== build/recon/syslib/psx/libpress/LIBPRESS.c.o  A=0 B=0 C=1
+   [C] DecDCTinSync -> _MDEC_get_reg1 @0xec  jal	0 <DecDCTReset>

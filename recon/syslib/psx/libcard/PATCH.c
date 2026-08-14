@@ -47,30 +47,22 @@ __asm__(
     "\taddiu $t0, $t0, -8320\n"                     /* @0x8010CA58  %lo = 0xDF80             */
     "\tjalr  $t0\n"                                 /* @0x8010CA5C                           */
     "\t nop\n"                                      /* @0x8010CA60  [delay]                  */
+    /* W60-A1 (2026-08-14) INTRA-TU LAYOUT FIX -- the 10th word.  splat's `endlabel
+     * func_8010CA40, 0x24` stops at 0x8010CA64, but the retail obj carries ONE MORE word
+     * there (the oracle .s prints it right after endlabel) and `_patch_card` starts at
+     * 0x8010CA68, i.e. blob+0x28.  That word is LOAD-BEARING: `_patch_card2` copies
+     * [func_8010CA40+0x14, _patch_card) as template 2, so without it the copy loop moves
+     * FOUR words instead of five and the B0[0x57] handler is patched with a truncated
+     * template (a runtime defect, invisible to every per-function gate).  Emitted OUTSIDE
+     * the symbol via an explicit .size/.type so verify_asm still sees exactly the oracle's
+     * 9 instructions. */
+    "\t.type  func_8010CA40, @function\n"
+    "\t.size  func_8010CA40, 0x24\n"
+    "pad_8010CA64:\n"                               /* LOCAL label: ends the symbol's objdump
+                                                     * block so verify_asm still slices exactly
+                                                     * the oracle's 9 instructions */
+    "\tnop\n"                                       /* @0x8010CA64  template-2 5th word / pad */
     "\t.set at\n");
-
-/* @0x8010CB6C : _copy_memcard_patch -- copy the 28-word card-IRQ handler blob into kernel RAM. */
-__asm__(
-    "\t.set noat\n"
-    "\t.set\tnoreorder\n"   /* tab form: turns maspsx's is_reorder OFF (no auto bne/jal delay nop) */
-    "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
-    "\t.globl _copy_memcard_patch\n"
-    "_copy_memcard_patch:\n"
-    "\tori   $v0, $zero, 0xDF80\n"                  /* dst = 0xDF80 (kernel scratch)        */
-    "\tlui   $t2, %hi(InitCARD2 + 0x10)\n"          /* src = InitCARD2 tail (28 words)      */
-    "\taddiu $t2, $t2, %lo(InitCARD2 + 0x10)\n"
-    "\tlui   $t1, %hi(func_8010CA40)\n"             /* end = func_8010CA40                  */
-    "\taddiu $t1, $t1, %lo(func_8010CA40)\n"
-    ".L_copy_memcard_patch_loop:\n"
-    "\tlw    $v1, 0($t2)\n"
-    "\tnop\n"                                        /* [load delay]                         */
-    "\tsw    $v1, 0($v0)\n"
-    "\taddiu $t2, $t2, 4\n"
-    "\tbne   $t2, $t1, .L_copy_memcard_patch_loop\n"
-    "\t addiu $v0, $v0, 4\n"                         /* [branch delay]                       */
-    "\tjr    $ra\n"
-    "\t nop\n"
-    "\t.set	pop\n");
 
 /* @0x8010CA68 : _patch_card -- overlay the jump-into-patch onto the BIOS B0[0x56] table-6 handler. */
 __asm__(
@@ -153,6 +145,29 @@ __asm__(
     "\tlui   $ra, %hi(D_80148AC4)\n"                /* restore ra                           */
     "\tlw    $ra, %lo(D_80148AC4)($ra)\n"
     "\tnop\n"
+    "\tjr    $ra\n"
+    "\t nop\n"
+    "\t.set	pop\n");
+
+/* @0x8010CB6C : _copy_memcard_patch -- copy the 28-word card-IRQ handler blob into kernel RAM. */
+__asm__(
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"   /* tab form: turns maspsx's is_reorder OFF (no auto bne/jal delay nop) */
+    "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
+    "\t.globl _copy_memcard_patch\n"
+    "_copy_memcard_patch:\n"
+    "\tori   $v0, $zero, 0xDF80\n"                  /* dst = 0xDF80 (kernel scratch)        */
+    "\tlui   $t2, %hi(InitCARD2 + 0x10)\n"          /* src = InitCARD2 tail (28 words)      */
+    "\taddiu $t2, $t2, %lo(InitCARD2 + 0x10)\n"
+    "\tlui   $t1, %hi(func_8010CA40)\n"             /* end = func_8010CA40                  */
+    "\taddiu $t1, $t1, %lo(func_8010CA40)\n"
+    ".L_copy_memcard_patch_loop:\n"
+    "\tlw    $v1, 0($t2)\n"
+    "\tnop\n"                                        /* [load delay]                         */
+    "\tsw    $v1, 0($v0)\n"
+    "\taddiu $t2, $t2, 4\n"
+    "\tbne   $t2, $t1, .L_copy_memcard_patch_loop\n"
+    "\t addiu $v0, $v0, 4\n"                         /* [branch delay]                       */
     "\tjr    $ra\n"
     "\t nop\n"
     "\t.set	pop\n");

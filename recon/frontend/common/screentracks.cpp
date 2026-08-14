@@ -84,7 +84,41 @@ void tScreenTrackSelect::DrawBackground()
     /* MATCH: the EA/PsyQ quad wrapper materializes its texture-X origin for
        both UV and tpage arithmetic.  The address-mask read is also explicit:
        its fourth GCC reference crosses the local-allocator priority step and
-       gives retail's s0/s1/s2/s3 mask/page/V/Y handout. */
+       gives retail's s0/s1/s2/s3 mask/page/V/Y handout.
+
+       W60-A10 -- the whole 26-diff residual is count-exact (299/299) and reads
+       off the SLD (tools/sldall.py) as ONE cause: retail's FIRST prim treats
+       the texture-X origin as a PLAIN COMPILE-TIME 512 while the `~0x3f` page
+       mask is the shared REGISTER constant, so SLD:161 emits
+         li s1,-64 ; andi a2,s1,512 ; sll ; sra
+       (512 in the ANDI IMMEDIATE, mask in the reg -- the mask cannot be an
+       immediate because andi zero-extends and -64 needs 32 bits, so gcc's cse
+       propagates the OTHER operand's constant into the insn instead of
+       folding).  The SECOND prim's origin IS a runtime value (SLD:164
+       `li t2,512 ; addiu t1,t2,80`), so SLD:171 correctly keeps the
+       register-register `and s1,t1,s1` -- and ours matches THAT one.
+       Our `"+r"` identity fence makes textureX opaque at BOTH sites, so the
+       first prim degrades to `li t1,512 ; and a2,t1,s1`, and the same t1
+       carrier then drags the 512 materialisations (and the neighbouring
+       `lui t2,8064 ; ori t2,t2,4` scratchpad-cell pair) off their retail slots
+       -- that is every remaining diff.
+       MEASURED (base 26): dropping the textureX identity fence 192 (285 insns,
+       14 SHORT -- the fence is load-bearing for the rest of the block);
+       dropping the addrMask read-only fence 68 (299); `int` instead of `short`
+       textureX 164 (291).
+       The obvious SPLIT cure is FALSIFIED: a second, un-fenced `short tpageX =
+       0x200;` used only in the first prim's GetTPage -- with a literal mask
+       (S1) or a named `int pageMask = ~0x3f;` (S2) -- BOTH collapse to 156 /
+       289 insns, i.e. gcc const-folds the whole `and;sll;sra` triple away (10
+       insns short).  Writing the mask first, `~0x3f & textureX` (S3), is
+       exactly neutral (26).
+       => retail's paradox is the real finding: its textureX is opaque enough
+       that the sign-extend triple SURVIVES, yet cse still propagates 512 into
+       the andi immediate.  No plain-C opacity level we have reproduces both at
+       once (a fence gives the triple but loses the immediate; no fence gives
+       neither).  Next angle = an opacity that blocks FOLDING but not cse
+       constant PROPAGATION (an rtl-level distinction) -- i.e. an instrumented
+       -dl/-dg read of retail's cse pass, not another spelling. */
     u_int addrMask = 0xffffff;
     short textureX = 0x200;
 

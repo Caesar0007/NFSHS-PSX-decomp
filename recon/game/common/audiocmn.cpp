@@ -148,6 +148,37 @@ static inline int AudioCmn_MusicLevel_inl(int level)
   return level * 0x46 >> 7;
 }
 
+/* W60-A9: file-scope helper decls hoisted here from the old audiocmn.obj-tail block
+ * so they precede EVERY consumer after the retail-VA reorder of the fn definitions. */
+
+/* ===================================================================================
+ *  RECONSTRUCTED 2026-06-12 from nfs4-f.exe (disasm-v3 MIPS) — the audiocmn.obj tail
+ *  SKIPPED from the original 42-fn pass. Full reconstructions, NOT stubs.
+ *  Helper VAs resolved via disasm-v3 offset markers. 0x801131EC = &GameSetup_gData;
+ *  +240/+244 = userSetting.musicLevel/.sfxLevel; gaChannel[71] (Channels_t {Partial,SFXnum}).
+ * =================================================================================== */
+/* sibling externs not already in audiocmn.cpp scope (defined in audioeng/audio/copspeak/spch) */
+void AudioEng_StopServer(void);
+void AudioEng_CleanUp(void);
+void AudioEng_Pause(void);
+void AudioTrk_CleanUp(void);
+void Audio_CleanUp(void);
+void CopSpeak_Stop(void);
+void CopSpeak_Cancel(void);
+void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
+void AudioMus_StopSong(int fadeticks);
+void systemtask(int taskFlag);
+extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
+extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
+/* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
+ * come from lib/libfns.h already included via audiocmn_externs.h) */
+void CopSpeak_Server(void);
+int  AudioTrk_PreLoad(void);
+int  AudioMus_Buffered(void);
+int  AudioMus_Threshold(void);
+extern int gMusicHandle;
+
+
 /* ---- AudioCmn_MusicLevel__Fi  [@0x80076420] ---- */
 int AudioCmn_MusicLevel(int level)
 {
@@ -500,6 +531,201 @@ void AudioCmn_Init(void)
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
   return;
 }
+
+/* ---- AudioCmn_Reset__Fv  [@0x80076bec] ---- (Ghidra/IDA + SLD cross-checked:
+
+ *  SNDstop arg restored; carInfo[] loop de-garbled; music-buffer wait is the direct
+ *  SLD-scoped compound while. MATCH: 66 -> PASS, ours/oracle 214.) */
+
+void AudioCmn_Reset(void)
+
+{
+
+  int ready;
+
+  int  i, t, t0, b, th, patch;
+
+  int  unused[2];   /* auStack_28[8] : SNDmemlargestunused scratch */
+
+
+
+  CopSpeak_SilenceCop((Car_tObj *)0, 0);
+
+  CopSpeak_Cancel();
+
+  SPCH_ClearEventQueue();
+
+  AudioCmn_DeInitAsyncSfx();
+
+  for (i = 0; i < 0x47; i++) {
+
+    if (gaChannel[i].Partial != -1) {
+
+      SNDstop(gaChannel[i].Partial);
+
+      gaChannel[i].Partial = -1;
+
+      gaChannel[i].SFXnum  = -1;
+
+    }
+
+  }
+
+  if (fReverbOn != '\0')
+
+    AudioCmn_ReverbOff();
+
+  AudioCmn_Init();
+
+  /* W57-A10 SYM-FIRST REWRITE (126 -> 66).  Three findings from the 8c block:
+     (1) `ticks` = REG $s6 holds gettick()+0x280 = the DEADLINE computed ONCE
+         (`addiu s6,v0,640` in the preheader), not t0 re-added per iteration;
+     (2) the wait loop is UN-ROTATED -- retail keeps both head tests at the loop top
+         with a `j` back-edge (`bnez s1` on goodtogo BEFORE the gettick call); the
+         `while (!ready && ...)` form lets gcc prove entry and rotate (row 52);
+     (3) SYM BLOCK SCOPES: `i` is re-declared per block -- fn-scope $s1 (channel loop),
+         block line 52 $s0 (the 4-phrase loop), block line 60 $s2 (the numCars loop).
+         One shared fn-scope `i` pins all three to the same register.  `goodtogo` is
+         $s1 (our `ready`), which only frees up once the inner i's move out. */
+  if (0 < gMasterAmbientLevel) {
+    ready = false;
+    t0 = gettick() + 0x280;
+    while (1) {
+      if (ready) break;
+      if (gettick() >= t0) break;
+      ready = true;
+      CopSpeak_Server();
+      systemtask(0);
+      if (0x8000 < SNDmemlargestunused(unused)) {
+        if (GameSetup_gData.raceType == 1) {
+          int i;
+          for (i = 0; i < 4; i++) {
+            if (AudioCmn_GetAsyncSfx(2, i + 0x2f, false) == -1)
+              ready = false;
+          }
+        }
+        if (GameSetup_gData.Weather == 1 &&
+            AudioCmn_GetAsyncSfx(1, 0, false) == -1)
+          ready = false;
+        {
+          int i;
+          i = 0;
+          while (1) {
+            if (i >= GameSetup_gData.numCars) break;
+            if (GameSetup_gData.carInfo[i].carClass == 2) {
+              patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 0);
+              if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
+                ready = false;
+              patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 1);
+              if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
+                ready = false;
+            }
+            i++;
+          }
+        }
+      }
+    }
+  }
+  AudioTrk_PreLoad();
+
+  if (gMasterMusicLevel == 0)
+
+    return;
+
+  AudioMus_Volume(AudioCmn_MusicLevel(gMasterMusicLevel));
+
+  SNDSTRM_setpriority(gMusicHandle, 0xff, 0xff);
+
+  {
+    int ticks;
+
+    /* MATCH: SLD line-126 `ticks` is the +0x100 deadline ($s3); gcc derives the
+       +0x40 deadline in $s2. Keeping the compound test directly in the while prevents
+       the first wait block's goodtogo web from leaking into this block (27 -> PASS). */
+    ticks = gettick() + 0x100;
+    gettick();
+    AudioMus_Buffered();
+    AudioMus_Threshold();
+    while ((((gettick() < ticks + -0xc0) || (AudioMus_Threshold() < 1)) ||
+            (AudioMus_Buffered() < AudioMus_Threshold())) && (gettick() < ticks)) {
+      systemtask(0);
+    }
+    if (AudioMus_Buffered() < AudioMus_Threshold() + -100) {
+      GameSetup_gData.userSetting.musicLevel = 0;
+      gMasterMusicLevel = 0;
+      AudioMus_Volume(AudioCmn_MusicLevel(0));
+    }
+    else {
+      gettick();
+    }
+    gettick();
+    AudioMus_Buffered();
+    AudioMus_Threshold();
+  }
+
+}
+
+
+
+/* ---- AudioCmn_DeInit__Fv  [@0x80076f44] ---- */
+
+void AudioCmn_DeInit(void)
+
+{
+
+  int i;
+
+
+
+  AudioEng_StopServer();
+
+  AudioEng_CleanUp();
+
+  CopSpeak_Stop();
+
+  gMasterSFXLevel   = GameSetup_gData.userSetting.sfxLevel;    /* @0x801132e0 */
+
+  gMasterMusicLevel = GameSetup_gData.userSetting.musicLevel;  /* @0x801132dc */
+
+  AudioTrk_CleanUp();
+
+  AudioCmn_DeInitAsyncSfx();
+
+  /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT): the two resets used to sit OUTSIDE
+     the `Partial != -1` guard.  That gated PASS 54/54 but the guard's branch
+     word was 10920003 (ours) vs 10920005 (retail) -- ours re-entered at the
+     `sw` pair (insn 28) instead of the loop tail (insn 30), so an ALREADY-idle
+     channel still had its SFXnum forced to -1.  Retail keeps both stores inside
+     the guard. */
+  for (i = 0; i < 71; i++) {
+
+    if (gaChannel[i].Partial != -1) {
+
+      SNDstop(gaChannel[i].Partial);
+
+      gaChannel[i].Partial = -1;
+
+      gaChannel[i].SFXnum  = -1;
+
+    }
+
+  }
+
+  SNDstopall();
+
+  SNDbankremove(-1);
+
+  Audio_CleanUp();
+
+  if (fReverbOn)
+
+    AudioCmn_ReverbOff();
+
+  AudioCmn_kAudioStreamingOn = gFEmusicON;
+
+}
+
+
 
 /* ---- AudioCmn_SetLevels__Fv  [@0x8007701c] ---- */
 void AudioCmn_SetLevels(void)
@@ -2097,246 +2323,6 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
   }
   return;
 }
-
-/* ===================================================================================
- *  RECONSTRUCTED 2026-06-12 from nfs4-f.exe (disasm-v3 MIPS) — the audiocmn.obj tail
- *  SKIPPED from the original 42-fn pass. Full reconstructions, NOT stubs.
- *  Helper VAs resolved via disasm-v3 offset markers. 0x801131EC = &GameSetup_gData;
- *  +240/+244 = userSetting.musicLevel/.sfxLevel; gaChannel[71] (Channels_t {Partial,SFXnum}).
- * =================================================================================== */
-/* sibling externs not already in audiocmn.cpp scope (defined in audioeng/audio/copspeak/spch) */
-void AudioEng_StopServer(void);
-void AudioEng_CleanUp(void);
-void AudioEng_Pause(void);
-void AudioTrk_CleanUp(void);
-void Audio_CleanUp(void);
-void CopSpeak_Stop(void);
-void CopSpeak_Cancel(void);
-void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
-void AudioMus_StopSong(int fadeticks);
-void systemtask(int taskFlag);
-extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
-extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
-/* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused
- * come from lib/libfns.h already included via audiocmn_externs.h) */
-void CopSpeak_Server(void);
-int  AudioTrk_PreLoad(void);
-int  AudioMus_Buffered(void);
-int  AudioMus_Threshold(void);
-extern int gMusicHandle;
-
-
-/* ---- AudioCmn_ReverbOff__Fv  [@0x80079ecc] ---- */
-
-void AudioCmn_ReverbOff(void)
-
-{
-
-  SNDfxmasterlevel(0,0);
-
-  fReverbLevel = '\0';
-
-  fReverbOn = '\0';
-
-}
-
-
-
-/* ---- AudioCmn_Reset__Fv  [@0x80076bec] ---- (Ghidra/IDA + SLD cross-checked:
-
- *  SNDstop arg restored; carInfo[] loop de-garbled; music-buffer wait is the direct
- *  SLD-scoped compound while. MATCH: 66 -> PASS, ours/oracle 214.) */
-
-void AudioCmn_Reset(void)
-
-{
-
-  int ready;
-
-  int  i, t, t0, b, th, patch;
-
-  int  unused[2];   /* auStack_28[8] : SNDmemlargestunused scratch */
-
-
-
-  CopSpeak_SilenceCop((Car_tObj *)0, 0);
-
-  CopSpeak_Cancel();
-
-  SPCH_ClearEventQueue();
-
-  AudioCmn_DeInitAsyncSfx();
-
-  for (i = 0; i < 0x47; i++) {
-
-    if (gaChannel[i].Partial != -1) {
-
-      SNDstop(gaChannel[i].Partial);
-
-      gaChannel[i].Partial = -1;
-
-      gaChannel[i].SFXnum  = -1;
-
-    }
-
-  }
-
-  if (fReverbOn != '\0')
-
-    AudioCmn_ReverbOff();
-
-  AudioCmn_Init();
-
-  /* W57-A10 SYM-FIRST REWRITE (126 -> 66).  Three findings from the 8c block:
-     (1) `ticks` = REG $s6 holds gettick()+0x280 = the DEADLINE computed ONCE
-         (`addiu s6,v0,640` in the preheader), not t0 re-added per iteration;
-     (2) the wait loop is UN-ROTATED -- retail keeps both head tests at the loop top
-         with a `j` back-edge (`bnez s1` on goodtogo BEFORE the gettick call); the
-         `while (!ready && ...)` form lets gcc prove entry and rotate (row 52);
-     (3) SYM BLOCK SCOPES: `i` is re-declared per block -- fn-scope $s1 (channel loop),
-         block line 52 $s0 (the 4-phrase loop), block line 60 $s2 (the numCars loop).
-         One shared fn-scope `i` pins all three to the same register.  `goodtogo` is
-         $s1 (our `ready`), which only frees up once the inner i's move out. */
-  if (0 < gMasterAmbientLevel) {
-    ready = false;
-    t0 = gettick() + 0x280;
-    while (1) {
-      if (ready) break;
-      if (gettick() >= t0) break;
-      ready = true;
-      CopSpeak_Server();
-      systemtask(0);
-      if (0x8000 < SNDmemlargestunused(unused)) {
-        if (GameSetup_gData.raceType == 1) {
-          int i;
-          for (i = 0; i < 4; i++) {
-            if (AudioCmn_GetAsyncSfx(2, i + 0x2f, false) == -1)
-              ready = false;
-          }
-        }
-        if (GameSetup_gData.Weather == 1 &&
-            AudioCmn_GetAsyncSfx(1, 0, false) == -1)
-          ready = false;
-        {
-          int i;
-          i = 0;
-          while (1) {
-            if (i >= GameSetup_gData.numCars) break;
-            if (GameSetup_gData.carInfo[i].carClass == 2) {
-              patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 0);
-              if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
-                ready = false;
-              patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 1);
-              if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
-                ready = false;
-            }
-            i++;
-          }
-        }
-      }
-    }
-  }
-  AudioTrk_PreLoad();
-
-  if (gMasterMusicLevel == 0)
-
-    return;
-
-  AudioMus_Volume(AudioCmn_MusicLevel(gMasterMusicLevel));
-
-  SNDSTRM_setpriority(gMusicHandle, 0xff, 0xff);
-
-  {
-    int ticks;
-
-    /* MATCH: SLD line-126 `ticks` is the +0x100 deadline ($s3); gcc derives the
-       +0x40 deadline in $s2. Keeping the compound test directly in the while prevents
-       the first wait block's goodtogo web from leaking into this block (27 -> PASS). */
-    ticks = gettick() + 0x100;
-    gettick();
-    AudioMus_Buffered();
-    AudioMus_Threshold();
-    while ((((gettick() < ticks + -0xc0) || (AudioMus_Threshold() < 1)) ||
-            (AudioMus_Buffered() < AudioMus_Threshold())) && (gettick() < ticks)) {
-      systemtask(0);
-    }
-    if (AudioMus_Buffered() < AudioMus_Threshold() + -100) {
-      GameSetup_gData.userSetting.musicLevel = 0;
-      gMasterMusicLevel = 0;
-      AudioMus_Volume(AudioCmn_MusicLevel(0));
-    }
-    else {
-      gettick();
-    }
-    gettick();
-    AudioMus_Buffered();
-    AudioMus_Threshold();
-  }
-
-}
-
-
-
-/* ---- AudioCmn_DeInit__Fv  [@0x80076f44] ---- */
-
-void AudioCmn_DeInit(void)
-
-{
-
-  int i;
-
-
-
-  AudioEng_StopServer();
-
-  AudioEng_CleanUp();
-
-  CopSpeak_Stop();
-
-  gMasterSFXLevel   = GameSetup_gData.userSetting.sfxLevel;    /* @0x801132e0 */
-
-  gMasterMusicLevel = GameSetup_gData.userSetting.musicLevel;  /* @0x801132dc */
-
-  AudioTrk_CleanUp();
-
-  AudioCmn_DeInitAsyncSfx();
-
-  /* BUG FIX (w59-a10 BRANCH-TARGET AUDIT): the two resets used to sit OUTSIDE
-     the `Partial != -1` guard.  That gated PASS 54/54 but the guard's branch
-     word was 10920003 (ours) vs 10920005 (retail) -- ours re-entered at the
-     `sw` pair (insn 28) instead of the loop tail (insn 30), so an ALREADY-idle
-     channel still had its SFXnum forced to -1.  Retail keeps both stores inside
-     the guard. */
-  for (i = 0; i < 71; i++) {
-
-    if (gaChannel[i].Partial != -1) {
-
-      SNDstop(gaChannel[i].Partial);
-
-      gaChannel[i].Partial = -1;
-
-      gaChannel[i].SFXnum  = -1;
-
-    }
-
-  }
-
-  SNDstopall();
-
-  SNDbankremove(-1);
-
-  Audio_CleanUp();
-
-  if (fReverbOn)
-
-    AudioCmn_ReverbOff();
-
-  AudioCmn_kAudioStreamingOn = gFEmusicON;
-
-}
-
-
-
 /* ---- AudioCmn_Pause__Fv  [@0x80079b60] ---- */
 void AudioCmn_Pause(void)
 {
@@ -2354,6 +2340,21 @@ void AudioCmn_Pause(void)
   SNDstopall();
   gMasterSFXLevel   = GameSetup_gData.userSetting.sfxLevel;
   gMasterMusicLevel = GameSetup_gData.userSetting.musicLevel;
+}
+
+/* ---- AudioCmn_UnPause__Fv  [@0x80079c18] ---- */
+void AudioCmn_UnPause(void)
+{
+  SNDmastervol(0x7f);
+  /* MATCH: oracle inlines the AudioCmn_MusicLevel formula here with NO jal (no
+     AudioCmn_MusicLevel call in the disasm at all) -- reproduced via a local
+     static-inline twin of AudioCmn_MusicLevel so cc1plus folds it in-line while the
+     real out-of-line AudioCmn_MusicLevel__Fi (used by AudioCmn_Reset) stays untouched. */
+  AudioMus_Volume(AudioCmn_MusicLevel_inl(gMasterMusicLevel));
+  AudioEng_Resume();
+  GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
+  GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
+  return;
 }
 
 /* ---- AudioCmn_UnPauseAndQuit__Fv  [@0x80079ca4] ---- */
@@ -2411,21 +2412,6 @@ void AudioCmn_UnPauseAndRestart(void)
   AudioCmn_Init();
 }
 
-/* ---- AudioCmn_UnPause__Fv  [@0x80079c18] ---- */
-void AudioCmn_UnPause(void)
-{
-  SNDmastervol(0x7f);
-  /* MATCH: oracle inlines the AudioCmn_MusicLevel formula here with NO jal (no
-     AudioCmn_MusicLevel call in the disasm at all) -- reproduced via a local
-     static-inline twin of AudioCmn_MusicLevel so cc1plus folds it in-line while the
-     real out-of-line AudioCmn_MusicLevel__Fi (used by AudioCmn_Reset) stays untouched. */
-  AudioMus_Volume(AudioCmn_MusicLevel_inl(gMasterMusicLevel));
-  AudioEng_Resume();
-  GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
-  GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
-  return;
-}
-
 /* ---- AudioCmn_InitReverb__Fv  [@0x80079e88] ---- */
 void AudioCmn_InitReverb(void)
 {
@@ -2435,3 +2421,19 @@ void AudioCmn_InitReverb(void)
   fReverbOn = '\0';
   return;
 }
+
+/* ---- AudioCmn_ReverbOff__Fv  [@0x80079ecc] ---- */
+
+void AudioCmn_ReverbOff(void)
+
+{
+
+  SNDfxmasterlevel(0,0);
+
+  fReverbLevel = '\0';
+
+  fReverbOn = '\0';
+
+}
+
+

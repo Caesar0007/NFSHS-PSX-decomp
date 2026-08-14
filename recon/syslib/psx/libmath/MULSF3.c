@@ -77,7 +77,7 @@ unsigned int __mulsf3(int a1, int a2)   /* @0x800F34B0 */
 {
     unsigned int sign;
     unsigned int prod;
-    int ha, hb, ea, eb;
+    int ha, hb, ea, eb, p3;
     int e, exp;
 
     sign = a1 & 0x80000000 ^ a2 & 0x80000000;
@@ -96,7 +96,12 @@ unsigned int __mulsf3(int a1, int a2)   /* @0x800F34B0 */
     prod = ha * hb;
     e = (ea & 0xFF) + (eb & 0xFF);
     prod += ((a1 & 0xFF) * hb) >> 8;
-    prod += ((a2 & 0xFF) * ha) >> 8;
+    /* w60-a5: the third partial product is a NAMED value in retail -- its
+     * pseudo ($a0) is the one the err arm stages its constant through.
+     * Naming it alone REGRESSES (9); it only pays PAIRED with the err-arm
+     * carrier below -- land the two together. */
+    p3 = (a2 & 0xFF) * ha;
+    prod += p3 >> 8;
     exp = e - 126;
     if ((prod & 0x80000000) != 0) {
         prod += 0x80;
@@ -122,7 +127,14 @@ unsigned int __mulsf3(int a1, int a2)   /* @0x800F34B0 */
      * a1 5 | prod 9 | exp 9 | sign 23 | a2 41. */
     if (exp >= 255) {
         _err_math(34, 12);
-        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;
+        /* w60-a5 SEAL: the err arm stages through the DEAD third-partial-
+         * product pseudo (retail `lui $a0,K` in both arms, then
+         * `addu $t0,$a0,$zero`), exactly as __divsf3's err arm stages
+         * through its dead quotient.  Measured carriers: p3 PASS |
+         * a2 6 | prod 6 | exp 12 | e 14 | hb 52 | ha 60 | ea 78 | eb 76;
+         * void-tail fence 5 | default-then-override 5. */
+        if (sign != 0) p3 = (int)0xFF800000; else p3 = 0x7F800000;
+        a1 = p3;
     } else {
         a1 = (sign | exp << 23) | prod;
     }

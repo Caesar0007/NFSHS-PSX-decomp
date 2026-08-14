@@ -23,7 +23,7 @@ char *TextSys_Word(int id);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);
 void  FETextRender_MenuTextPositionedJustifyFade(int idx, short x, short y, short j, short state, tMenuTextState st, tMenuTextType tt);
 void  FETextRender_WordWrapTextRGB(char *s, RECT &r, int rgb);
-short FETextRender_WordWrapHeight(short w, char *s);
+int FETextRender_WordWrapHeight(short w, char *s);
 void  FETextRender_WordWrapTextRGBJustify(char *s, RECT &r, int rgb, int j, int a, bool b);
 void  ScaleShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  DrawShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);

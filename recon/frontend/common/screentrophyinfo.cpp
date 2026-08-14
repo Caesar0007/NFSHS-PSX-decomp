@@ -109,23 +109,32 @@ void tScreenTrophyInfo::DrawBackground()
     FadePartIITheRevenge = 0x80;
   }
   int tournID;
+  tTourneyInfo *tourn;
 
+  /* MATCH (W66): retail keeps the definition base in s0, the selected tournament ID in
+     signed-byte s5, and the element pointer alive just long enough to reload the title ID
+     after CalcFadeVal.  Staging currentTourn before the tier offset also reproduces the
+     screenTrophyRoom/frontEnd load order.  Together with the direct fade expression this
+     removes the former 106-diff allocation cascade (298/298 PASS). */
   {
     int tournamentIndex;
     tTournamentDefinition *definition;
     tTourneyInfo *tournaments;
+    uint feTier;
+    byte currentTourn;
 
+    feTier = (uint)(byte)frontEnd.tier;
     definition = tournamentManager.fDefinition;
     tournamentIndex =
-        (uint)definition->fTiers[(byte)frontEnd.tier].fTournOffset +
-        (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier];
+        (currentTourn = (byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier],
+         (uint)definition->fTiers[feTier].fTournOffset + currentTourn);
     tournaments = definition->fTournaments + tournamentIndex;
-    tournID = tournaments->fTournamentID;
+    tourn = tournaments;
+    tournID = (signed char)tourn->fTournamentID;
   }
-  col = kRGBVals[(byte)textDefinitions[4][5]];
-  col = CalcFadeVal(col,FadePartI);
+  col = CalcFadeVal(kRGBVals[(byte)textDefinitions[4][5]],FadePartI);
   yyy = 0xaf;
-  FETextRender_FullTextRGB(TextSys_Word(tournID + 0x341),0x1e,0x19,col,'\x03',3);
+  FETextRender_FullTextRGB(TextSys_Word((signed char)tourn->fTournamentID + 0x341),0x1e,0x19,col,'\x03',3);
   if (strlen(TextSys_Word(tournID + 0x37a)) != 0) {
     char *word;
 
@@ -139,19 +148,20 @@ void tScreenTrophyInfo::DrawBackground()
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3dd,0x8c,yyy,1,textState_Hilighted,textType_ScreenInfo);
     r.x = 0x91;
     r.w = 0x15b;
-    r.h = 100;
     r.y = yyy;
+    r.h = 100;
     FETextRender_WordWrapTextRGB(TextSys_Word(tournID + 0x3a0),r,
         CalcFadeVal(0x505050,FadePartI));
-    yyy = yyy + (short)FETextRender_WordWrapHeight(0x15b,
+    /* WordWrapHeight returns int; the old short declaration inserted a false sign extend. */
+    yyy = yyy + FETextRender_WordWrapHeight(0x15b,
         TextSys_Word(tournID + 0x3a0));
   }
   if (strlen(TextSys_Word(tournID + 0x38d)) != 0) {
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3dc,0x8c,yyy,1,textState_Hilighted,textType_ScreenInfo);
     r.x = 0x91;
     r.w = 0x15b;
-    r.h = 100;
     r.y = yyy;
+    r.h = 100;
     FETextRender_WordWrapTextRGB(TextSys_Word(tournID + 0x38d),r,
         CalcFadeVal(0x505050,FadePartI));
     FETextRender_WordWrapHeight(0x15b,TextSys_Word(tournID + 0x38d));

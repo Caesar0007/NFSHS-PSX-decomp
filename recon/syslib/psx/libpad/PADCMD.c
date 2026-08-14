@@ -162,7 +162,7 @@ extern int _padGetActSize(unsigned char *info)
 }
 
 /* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake.
- * w51-a5: 105 -> 70 diffs, now COUNT-EXACT 83/83.  Three oracle-read corrections:
+ * w51-a5: 105 -> 70 diffs.  Three oracle-read corrections:
  *   (a) a real `switch (info[0x46])` with cases in SOURCE order 2/3/4 -- gcc-2.8's
  *       balance_case_nodes fingerprint (median-pivot `beq ,3` with `slti ,4` in its delay slot,
  *       out-of-line case bodies, `j` default).  The if/else-if cascade laid the arms out wrong.
@@ -171,46 +171,66 @@ extern int _padGetActSize(unsigned char *info)
  *   (c) `accum + 8` is its own term (a single `a + 8 + ((n+3)&0x1fc)` expression reassociates
  *       the +8 onto the masked term), and the size guard is `>= 0x81` so the `slti 0x81; bnez`
  *       arm order matches.
- * RESIDUAL 70 @83/83: register rotation (v0/v1/a0) in the case-2 byte shuffle + the shared
- * return-0 block (.L8010576C) that jump.c duplicates here. */
+ * MATCH (2026-08-14, 70 -> 6, count-exact 83/83): case 2 reads the mutable rx-pointer cell
+ * through a one-use volatile view at each access, reproducing retail's four loads; case 3
+ * names the pointer/high/low values so its loads and zero store match; case 4 stages acc,
+ * idx, rx and chunk in retail lifetime order; explicit physical return_zero/return_one labels
+ * reproduce both shared result blocks and eliminate jump.c's duplicated zero/copy cascade.
+ * The remaining 6 are instruction-order only.  A scratch PER_FN_TEXT_MOVES proof reaches
+ * PASS 83/83 by ordering the case-4 six-line window as:
+ *   lw $4,236($16); lbu $2,71($16); lw $3,60($16);
+ *   addu $2,$2,1; lbu $3,4($3); addu $4,$4,8.
+ * Source-order/type/volatile/flag probes are byte-identical at 6; -fno-schedule-insns is 25,
+ * -fno-schedule-insns2 38, and -fno-delayed-branch 32. */
 extern int _padRecvAtLoadInfo(unsigned char *info)
 {
     switch (info[0x46]) {
     case 2:
-        info[0xe3] = (*(unsigned char **)(info + 0x3c))[3];
-        info[0xe4] = (*(unsigned char **)(info + 0x3c))[4];
+        info[0xe3] = (*(unsigned char * volatile *)(info + 0x3c))[3];
+        info[0xe4] = (*(unsigned char * volatile *)(info + 0x3c))[4];
         *(unsigned short *)(info + 0xe6) = 0;
-        info[0xe9] = (*(unsigned char **)(info + 0x3c))[5];
-        info[0xea] = (*(unsigned char **)(info + 0x3c))[6];
+        info[0xe9] = (*(unsigned char * volatile *)(info + 0x3c))[5];
+        info[0xea] = (*(unsigned char * volatile *)(info + 0x3c))[6];
         *(int *)(info + 0xec) = 0;
-        return 1;
-    case 3:
+        goto return_one;
+    case 3: {
+        unsigned char *rx = *(unsigned char **)(info + 0x3c);
+        unsigned hi = rx[4];
+        unsigned lo = rx[5];
         info[0x47] = 0;
         *(unsigned short *)(info + 0xe6) =
-            (unsigned short)(*(unsigned char **)(info + 0x3c))[5] +
-            (unsigned short)(*(unsigned char **)(info + 0x3c))[4] * 0x100;
-        return 1;
+            (unsigned short)lo + (unsigned short)hi * 0x100;
+        goto return_one;
+    }
     case 4: {
-        unsigned char idx = info[0x47] + 1;
-        int acc = *(int *)(info + 0xec) + 8;     /* MATCH: `accum + 8` FIRST -- one expression
-                                                  * reassociates the +8 onto the masked term */
+        int acc = *(int *)(info + 0xec);
+        unsigned char idx = info[0x47];
+        unsigned char *rx = *(unsigned char **)(info + 0x3c);
+        unsigned chunk;
+        idx++;
+        chunk = rx[4];
+        acc += 8;
         info[0x47] = idx;
-        acc += (((*(unsigned char **)(info + 0x3c))[4] + 3) & 0x1fc);
+        acc += ((chunk + 3) & 0x1fc);
         *(int *)(info + 0xec) = acc;
-        if (idx < info[0xea])
-            return 0;
+        if (!(idx < info[0xea]))
+            goto finish_load_info;
+return_zero:
+        return 0;
+finish_load_info:
         if (_padGetActSize(info) >= 0x81) {       /* MATCH: oracle `slti 0x81; bnez` -- the
                                                    * >= arm is the FALL-THROUGH */
             info[0x46] = 0xfe;
             info[0x49] = 2;
-            return 0;
+            goto return_zero;
         }
         info[0x46] = 0xff;
         _padLoadActInfo(info, info + 0x63);
         info[0x46] = 2;
-        return 0;
+        goto return_zero;
     }
     }
+return_one:
     return 1;
 }
 
@@ -221,26 +241,49 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
     int aw;
     unsigned char *a;
 
-    if (buf == 0)
+    if (buf == 0 || *(int *)(info + 4) != 0 || _padFuncChkEng(info) != 0)
         return 0;
-    if (*(int *)(info + 4) != 0)
-        return 0;
-    /* RESIDUAL 38 @53/53 count-exact (w55-a6 re-read of the oracle -- the block LAYOUT is the
-     * root, not coloring).  Retail places the SHARED `return 0` block (.L8010584C:
-     * `j <epilogue>; addu $v0,$zero,$zero`) BETWEEN the ChkEng test and the body, because the
-     * `buf == 0` guard branches to it -- so the ChkEng guard has to SKIP OVER it
-     * (`beqz $v0,.L80105854` = branch to the BODY, with `addiu $v0,$zero,1` -- the eventual
-     * `return 1` -- pre-set in its delay slot).  Ours emits `bnez $v0,<ret0>` with ret0 placed
-     * elsewhere.  🔑 And retail's `buf == 0` branch carries `sw $ra,0x18($sp)` IN ITS DELAY SLOT
-     * -- a PROLOGUE STORE, i.e. the w54-06B PER_FN_PROLOGUE_FILL class (reorg's backward scan
-     * reaching into the prologue), where ours fills that slot with `addu $v0,$zero,$zero`.
-     * FALSIFIED (w55-a6): hoisting the whole body into `if (_padFuncChkEng(info) == 0) { ... }
-     * return 0;` -- it flips the ChkEng polarity the right way but ALSO flips the info+4 guard
-     * (which already matched) and adds an insn: 43 @54/53.  The two guards' polarities are
-     * coupled through the shared ret0 block; the reachable lever is its PLACEMENT. */
-    if (_padFuncChkEng(info) != 0)
-        return 0;
+    /* w59-a7: 38 -> 26 (source) -> PASS 53/53 with the wiring below.  The w55-a6 residual was
+     * NOT the PER_FN_PROLOGUE_FILL class at all -- it was the GUARD SHAPE.
+     *
+     * ** THE `||`-CHAIN LAW.  Retail's three guards are ONE `||` expression, not three separate
+     * `if (..) return 0;` statements.  In a `||` chain gcc emits each leading condition as a
+     * branch TO the shared then-block and the LAST condition as the INVERTED branch that skips
+     * it -- which reproduces, in one edit, ALL of:
+     *   (a) `beqz $s1,.L8010584C` with `sw $ra,0x18($sp)` IN ITS DELAY SLOT (reorg has no
+     *       `v0=0` left to steal for that slot -- guard1 now branches to a real block whose
+     *       first insn is the shared `v0=0`, and reorg cannot steal-and-redirect past the
+     *       block's own `j`, so it reaches BACKWARD into the prologue instead).  The
+     *       "prologue store in a delay slot" was a CONSEQUENCE, never an independent mechanism.
+     *   (b) the SHARED ret0 block `.L8010584C: j <epilogue>; addu $v0,$zero,$zero` sitting
+     *       BETWEEN the ChkEng test and the body, with guard2 (`bnez`) steal-redirected
+     *       straight to the epilogue -- retail's exact two-route layout.
+     *   (c) `beqz $v0,.L80105854` (branch to the BODY) with `addiu $v0,$zero,1` pre-set in
+     *       its slot.
+     *   (d) the jalr's `nop`: with the guards in ONE expression the whole entry..call region
+     *       is a single extended basic block, so cse propagates $a0 and delete_noop_moves
+     *       kills the `addu $a0,$s0,$zero` our three-statement form emitted.
+     * FALSIFIED (w55-a6, kept): hoisting the body into `if (ChkEng(info)==0){...} return 0;`
+     * (43 @54/53).  FALSIFIED (w59-a7): void-tail fence `__asm__("":: "i"(0))` before the
+     * body (inert, 26); named `nmode`/`nact` locals for the two lbu's (inert, 26); moving the
+     * `aw` statement below the byte stores (inert, 26) -- the body residual is a sched1
+     * ready-list decision, not a source-order one.
+     *
+     * ORCHESTRATOR WIRING (probe-validated on a scratchpad build.py copy, this fn only):
+     *   PER_FN_CC1_VER_SPLICE_272["recon/syslib/psx/libpad/PADCMD.c"] = {"2.7.2": {"_padLoadActInfo"}}
+     *   PER_FN_TEXT_MOVES["recon/syslib/psx/libpad/PADCMD.c"]["_padLoadActInfo"] =
+     *       [{"take": r"\tli\t\$3,0x00000004[^\n]*\n", "after": r" #NO_APP\n"}]
+     * WHY the rung: 2.7.2 has NO -msplit-addresses, so it emits `la $3,sym` MACROS where the
+     * wired 2.7.2-970404 rung pre-splits `lui/addiu` and sched1 then scatters the rcv pair
+     * across the two `lbu`s (costing a 3rd temp, $a2).  On the 2.7.2 rung this fn is 2 diffs;
+     * the whole-TU flip is net-negative (4 cmd builders 0->4 each, _padRecvAtLoadInfo 6->24)
+     * => per-fn splice.  The single text move restores retail's `li $3,4`-before-the-aw-round-up
+     * (sched1-only; source order is provably inert per the falsifications above). */
     {
+        int r = 1;
+        __asm__("" : "=r"(r) : "0"(r));      /* MATCH: opacity fence -- same device as the sibling
+                                              * _padSetActAlign; stops cse copy-substituting the
+                                              * return constant into the info[0x46] store */
         aw = ((int)buf + 3) >> 2;            /* MATCH (w51-a5): the oracle rounds up with a SIGNED
                                               * `addiu ,3 / sra ,2` ... `sll ,2` PAIR (word index
                                               * materialized early, scaled back late), not the
@@ -255,9 +298,8 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
         a += ((info[0xe3] + 1) >> 1) << 2;
         *(unsigned char **)(info + 4) = a;
         *(unsigned char **)(info + 8) = a + ((info[0xe9] * 5 + 3) & 0xffc);
-        return 1;
+        return r;
     }
-    return 0;
 }
 
 /* @0x801058D8 : _padLoadActInfo_snd -- emit the right descriptor request for the current sub-phase. */

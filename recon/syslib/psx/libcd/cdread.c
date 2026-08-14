@@ -388,33 +388,89 @@ extern int _read_issue(int retry)
  * (Reverted for now: the gate is the authority and 53 > 43.) */
 extern int CdRead(int sectors, u_long *buf, int mode)
 {
-    volatile CdrEnv *g = &_cdr;
+    /* w59-a7: 43 @94/103 (9 insns SHORT) -> 43 @102/103 -> PASS-track 38 @103/103 COUNT-EXACT
+     * with the one-line orchestrator wiring below.  This retires the file-header / methodology
+     * "BASE-POINTER-ANCHOR granularity = GENUINE FLOOR" verdict for CdRead exactly as w52-a2
+     * retired it for CdReadSync.  Ladder was re-run at the new basin (04Z): the header's
+     * per-fn rung table is unchanged in its verdict -- no rung beats the wired lane.
+     *
+     * ORCHESTRATOR WIRING (probe-validated on a scratchpad build.py copy; NEW MECHANISM,
+     * ~2 lines): give the MASPSX lane the per-fn flag splice it already has for
+     * -fno-delayed-branch / -fno-thread-jumps / -fforce-addr, extended with
+     * `-mno-split-addresses`:
+     *     PER_FN_NO_SPLIT_ADDRESSES = {"recon/syslib/psx/libcd/cdread.c": {"CdRead"}}
+     *   and one extra tuple in _apply_fn_splice's table list:
+     *     (PER_FN_NO_SPLIT_ADDRESSES, "-mno-split-addresses", "nosplit")
+     * WHY per-FN and not per-TU: the file header already measures whole-TU
+     * `no_split_addresses` as a net LOSS (169 -> 199: _read_data_int 4->27, _read_issue
+     * 64->81) even though CdRead itself improves -- the classic PER_FN_NO_DELAYED_BRANCH
+     * situation.  Measured with the splice: CdRead 43 -> 38 @103/103, _read_int 21,
+     * _read_issue 23, three PASSes unchanged (whole-TU gate 3/6, zero PASS->FAIL).
+     * MECHANISM: the residual 5 insns were cc1's PRE-SPLIT `lui/addiu` address halves --
+     * three stray `lui $v1` copies that sched/jump-threading scattered across the switch
+     * arms.  With split-addresses off cc1 emits the `la` MACRO and they collapse.
+     * RESIDUAL 38 @103/103, three named classes: (a) an $a0<->$v1 swap on the mode-region
+     * anchor and its `andi` temp (retail parks the anchor in $a0); (b) which switch arm's
+     * constant reorg steals into the `beq` delay slot (retail pre-sets the DEFAULT's
+     * `li $v0,0x246`, ours steals case-0x20's `li $v0,0x249`); (c) `CdControlB(9,0,0)`'s
+     * third argument -- retail rematerializes `addu $a2,$zero,$zero`, cse substitutes our
+     * live `$a1` zero (the catalog's cse-substituted-live-zero opacity-fence job), plus the
+     * `slt $v0,$zero,$v0` scheduled before vs after the frame restores.
+     *
+     * MATCH (w59-a7): PER-REGION FIELD ANCHORS, the same Rage-Racer idiom that already seals
+     * CdReadSync's block below.  Retail does NOT hold one `&_cdr` across this function: it
+     * materializes FOUR separate anchors (`la $s0,_cdr+0x24` for the busy poll; `la $s0,_cdr+0x28`
+     * in the watchdog arm, from which cse derives `&_cdr` by `addiu $s0,$s0,-0x28` in the
+     * CdSyncCallback delay slot; `la $a0,_cdr` for the mode/switch region -- plus its own
+     * `la $v1,_cdr` inside the DEFAULT arm; `la $s0,_cdr` again for the tail region) and reaches
+     * each region's fields by displacement off its own anchor.  That is exactly the 9 instructions
+     * ours was SHORT.  Each anchor is pinned with the w49 zero-instruction identity fence, without
+     * which cse collapses them all back into one hoisted base (the shape this file's own header
+     * calls the "BASE-POINTER-ANCHOR granularity floor" -- retired here as it was for CdReadSync). */
+    volatile int *busy = &_cdr.w24;
+    volatile CdrEnv *g;
+    volatile CdrEnv *e;
 
-    if (g->w24 != 0) {                              /* a previous read is still active */
+    __asm__("" : "=r"(busy) : "0"(busy));
+
+    if (*busy != 0) {                               /* a previous read is still active */
         int t0 = VSync(-1);
-        while (g->w24 != 0) {
+        while (*busy != 0) {
             if (!((unsigned)(VSync(-1) - t0) < 0x79)) {   /* waited >= 121 frames -> force-finish */
-                CdSyncCallback(g->w28);
-                g->w24 = 0;
+                volatile int *sv = &_cdr.w28;
+                __asm__("" : "=r"(sv) : "0"(sv));
+                CdSyncCallback(*sv);
+                sv -= 10;                           /* -0x28 -> &_cdr (jal delay slot) */
+                sv[9] = 0;                          /* w24 = 0 */
                 break;
             }
         }
     }
 
+    g = &_cdr;
+    __asm__("" : "=r"(g) : "0"(g));
     g->w0c = mode;
     switch (g->w0c & 0x30) {
     case 0:    g->w10 = 0x200; break;               /* 2048 bytes */
     case 0x20: g->w10 = 0x249; break;               /* 2340 bytes (full raw) */
-    default:   g->w10 = 0x246; break;               /* 2328 bytes */
+    default: {                                      /* 2328 bytes -- own anchor in this arm */
+        volatile CdrEnv *d = &_cdr;
+        __asm__("" : "=r"(d) : "0"(d));
+        d->w10 = 0x246;
+        break;
     }
-    g->w0c |= 0x20;
-    g->w04 = (u_char *)buf;
-    g->w28 = CdSyncCallback(0);                     /* save+clear sync cb */
-    g->w00 = sectors;
-    g->w2c = CdReadyCallback(0);                    /* save+clear ready cb */
+    }
+
+    e = &_cdr;
+    __asm__("" : "=r"(e) : "0"(e));
+    e->w0c |= 0x20;
+    e->w04 = (u_char *)buf;
+    e->w00 = sectors;
+    e->w28 = CdSyncCallback(0);                     /* save+clear sync cb */
+    e->w2c = CdReadyCallback(0);                    /* save+clear ready cb */
     if (CD_read_dma_mode & 1)
-        g->w30 = CdDataCallback(0);                 /* save+clear data cb */
-    g->w1c = VSync(-1);
+        e->w30 = CdDataCallback(0);                 /* save+clear data cb */
+    e->w1c = VSync(-1);
     if (CdStatus() & 0xE0)                          /* drive busy -> pause first */
         CdControlB(9, 0, 0);
     return _read_issue(0) > 0;

@@ -1,0 +1,76 @@
+[
+ {
+  "name": "reuse-a1",
+  "subs": [
+   [
+    "    unsigned int result;\r\n",
+    ""
+   ],
+   [
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n    } else {\r\n        result = (sign | exp << 23) | prod;\r\n    }\r\n    return result;\r\n",
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n    } else {\r\n        a1 = (sign | exp << 23) | prod;\r\n    }\r\n    return (unsigned int)a1;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-a2",
+  "subs": [
+   [
+    "    unsigned int result;\r\n",
+    ""
+   ],
+   [
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n    } else {\r\n        result = (sign | exp << 23) | prod;\r\n    }\r\n    return result;\r\n",
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) a2 = 0xFF800000; else a2 = 0x7F800000;\r\n    } else {\r\n        a2 = (sign | exp << 23) | prod;\r\n    }\r\n    return (unsigned int)a2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-prod",
+  "subs": [
+   [
+    "    unsigned int result;\r\n",
+    ""
+   ],
+   [
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n    } else {\r\n        result = (sign | exp << 23) | prod;\r\n    }\r\n    return result;\r\n",
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) prod = 0xFF800000; else prod = 0x7F800000;\r\n    } else {\r\n        prod = (sign | exp << 23) | prod;\r\n    }\r\n    return prod;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-exp",
+  "subs": [
+   [
+    "    unsigned int result;\r\n",
+    ""
+   ],
+   [
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n    } else {\r\n        result = (sign | exp << 23) | prod;\r\n    }\r\n    return result;\r\n",
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) exp = 0xFF800000; else exp = 0x7F800000;\r\n    } else {\r\n        exp = (int)((sign | exp << 23) | prod);\r\n    }\r\n    return (unsigned int)exp;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-sign",
+  "subs": [
+   [
+    "    unsigned int result;\r\n",
+    ""
+   ],
+   [
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n    } else {\r\n        result = (sign | exp << 23) | prod;\r\n    }\r\n    return result;\r\n",
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) sign = 0xFF800000; else sign = 0x7F800000;\r\n    } else {\r\n        sign = (sign | exp << 23) | prod;\r\n    }\r\n    return sign;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-a1-keepdecl",
+  "subs": [
+   [
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n    } else {\r\n        result = (sign | exp << 23) | prod;\r\n    }\r\n    return result;\r\n",
+    "    if (exp >= 255) {\r\n        _err_math(34, 12);\r\n        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n    } else {\r\n        a1 = (sign | exp << 23) | prod;\r\n    }\r\n    return (unsigned int)a1;\r\n"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,76 @@
+[
+ {
+  "name": "p3-named+err-via-p3",
+  "subs": [
+   [
+    "    int ha, hb, ea, eb;\r\n",
+    "    int ha, hb, ea, eb, p3;\r\n"
+   ],
+   [
+    "    prod += ((a2 & 0xFF) * ha) >> 8;\r\n",
+    "    p3 = (a2 & 0xFF) * ha;\r\n    prod += p3 >> 8;\r\n"
+   ],
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) p3 = (int)0xFF800000; else p3 = 0x7F800000;\r\n        a1 = p3;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "p3-named-only",
+  "subs": [
+   [
+    "    int ha, hb, ea, eb;\r\n",
+    "    int ha, hb, ea, eb, p3;\r\n"
+   ],
+   [
+    "    prod += ((a2 & 0xFF) * ha) >> 8;\r\n",
+    "    p3 = (a2 & 0xFF) * ha;\r\n    prod += p3 >> 8;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "p2-named+err-via-p2",
+  "subs": [
+   [
+    "    int ha, hb, ea, eb;\r\n",
+    "    int ha, hb, ea, eb, p2;\r\n"
+   ],
+   [
+    "    prod += ((a1 & 0xFF) * hb) >> 8;\r\n",
+    "    p2 = (a1 & 0xFF) * hb;\r\n    prod += p2 >> 8;\r\n"
+   ],
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) p2 = (int)0xFF800000; else p2 = 0x7F800000;\r\n        a1 = p2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-a2",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) a2 = (int)0xFF800000; else a2 = 0x7F800000;\r\n        a1 = a2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-voidfence",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        __asm__(\"\" : : \"i\"(0));\r\n        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-defaultfirst",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        a1 = 0x7F800000;\r\n        if (sign != 0) a1 = (int)0xFF800000;\r\n"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "reuse-a1 (keep v13 decl)",
+  "subs": [
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n            } else {\r\n                a1 = (int)(v4 | (v3 << 23) | v9);\r\n            }\r\n            return (unsigned int)a1;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-a1 (drop v13 decl)",
+  "subs": [
+   [
+    "            int v9, n, v13;\r\n",
+    "            int v9, n;\r\n"
+   ],
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n            } else {\r\n                a1 = (int)(v4 | (v3 << 23) | v9);\r\n            }\r\n            return (unsigned int)a1;\r\n"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,47 @@
+[
+ {
+  "name": "err-via-v9",
+  "subs": [
+   [
+    "                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n",
+    "                if (v4) v9 = (int)0xFF800000; else v9 = 0x7F800000;\r\n                a1 = v9;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-v3",
+  "subs": [
+   [
+    "                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n",
+    "                if (v4) v3 = (int)0xFF800000; else v3 = 0x7F800000;\r\n                a1 = v3;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-n",
+  "subs": [
+   [
+    "                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n",
+    "                if (v4) n = (int)0xFF800000; else n = 0x7F800000;\r\n                a1 = n;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-v2",
+  "subs": [
+   [
+    "                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n",
+    "                if (v4) v2 = (int)0xFF800000; else v2 = 0x7F800000;\r\n                a1 = v2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-a2",
+  "subs": [
+   [
+    "                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n",
+    "                if (v4) a2 = (int)0xFF800000; else a2 = 0x7F800000;\r\n                a1 = a2;\r\n"
+   ]
+  ]
+ }
+]

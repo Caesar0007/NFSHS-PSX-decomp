@@ -1,0 +1,47 @@
+[
+ {
+  "name": "defaultfirst+voidfence",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        {\r\n            unsigned int r = 1325400064;\r\n            __asm__(\"\" : : \"i\"(0));\r\n            if (v4) r = 1333788672;\r\n            return r;\r\n        }\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "voidfence-before-test",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        __asm__(\"\" : : \"i\"(0));\r\n        if (v4) return 1333788672;\r\n        return 1325400064;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "voidfence-in-armA",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        if (v4) { __asm__(\"\" : : \"i\"(0));\r\n            return 1333788672; }\r\n        return 1325400064;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "voidfence-before-retB",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        if (v4) return 1333788672;\r\n        __asm__(\"\" : : \"i\"(0));\r\n        return 1325400064;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "defaultfirst-v4+voidfence",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        {\r\n            unsigned int r = 1325400064;\r\n            __asm__(\"\" : : \"i\"(0));\r\n            if (v4) r = 1333788672;\r\n            v4 = r;\r\n        }\r\n        return v4;\r\n"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,47 @@
+[
+ {
+  "name": "reuse-a1",
+  "subs": [
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) a1 = (int)0xFF800000; else a1 = 0x7F800000;\r\n            } else {\r\n                a1 = (int)(v4 | (v3 << 23) | v9);\r\n            }\r\n            return (unsigned int)a1;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-a2",
+  "subs": [
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) a2 = (int)0xFF800000; else a2 = 0x7F800000;\r\n            } else {\r\n                a2 = (int)(v4 | (v3 << 23) | v9);\r\n            }\r\n            return (unsigned int)a2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-v9",
+  "subs": [
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) v9 = (int)0xFF800000; else v9 = 0x7F800000;\r\n            } else {\r\n                v9 = (int)(v4 | (v3 << 23) | v9);\r\n            }\r\n            return (unsigned int)v9;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-v3",
+  "subs": [
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) v3 = (int)0xFF800000; else v3 = 0x7F800000;\r\n            } else {\r\n                v3 = (int)(v4 | (v3 << 23) | v9);\r\n            }\r\n            return (unsigned int)v3;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "reuse-v4",
+  "subs": [
+   [
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                v13 = 2139095040;\r\n                if (v4) return -8388608;\r\n                return v13;\r\n            }\r\n            return v4 | (v3 << 23) | v9;\r\n",
+    "            if (v3 >= 255) {\r\n                _err_math(34, 14);\r\n                if (v4) v4 = 0xFF800000; else v4 = 0x7F800000;\r\n            } else {\r\n                v4 = (v4 | (v3 << 23) | v9);\r\n            }\r\n            return v4;\r\n"
+   ]
+  ]
+ }
+]

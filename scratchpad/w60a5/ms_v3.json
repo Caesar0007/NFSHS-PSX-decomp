@@ -1,0 +1,65 @@
+[
+ {
+  "name": "err-via-ha",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) ha = (int)0xFF800000; else ha = 0x7F800000;\r\n        a1 = ha;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-hb",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) hb = (int)0xFF800000; else hb = 0x7F800000;\r\n        a1 = hb;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-ea",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) ea = (int)0xFF800000; else ea = 0x7F800000;\r\n        a1 = ea;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-eb",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) eb = (int)0xFF800000; else eb = 0x7F800000;\r\n        a1 = eb;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-e",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) e = (int)0xFF800000; else e = 0x7F800000;\r\n        a1 = e;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-exp",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) exp = (int)0xFF800000; else exp = 0x7F800000;\r\n        a1 = exp;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "err-via-prod",
+  "subs": [
+   [
+    "        if (sign != 0) a1 = 0xFF800000; else a1 = 0x7F800000;\r\n",
+    "        if (sign != 0) prod = 0xFF800000; else prod = 0x7F800000;\r\n        a1 = (int)prod;\r\n"
+   ]
+  ]
+ }
+]

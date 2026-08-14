@@ -1,0 +1,28 @@
+[
+ {
+  "name": "RRzero-in-loop",
+  "subs": [
+   [
+    "    if (ch == 0) goto end;\n    flagZero = '0';\n",
+    "    if (ch == 0) goto end;\n"
+   ],
+   [
+    "        info = D_8012348C;\n",
+    "        info = D_8012348C;\n        flagZero = '0';\n"
+   ]
+  ]
+ },
+ {
+  "name": "RRzero-in-loop-after-hash",
+  "subs": [
+   [
+    "    if (ch == 0) goto end;\n    flagZero = '0';\n",
+    "    if (ch == 0) goto end;\n"
+   ],
+   [
+    "            } else if (ch == flagZero) {\n",
+    "            } else if (ch == (flagZero = '0')) {\n"
+   ]
+  ]
+ }
+]

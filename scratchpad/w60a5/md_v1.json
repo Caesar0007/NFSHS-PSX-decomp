@@ -1,0 +1,65 @@
+[
+ {
+  "name": "u-w0-named",
+  "subs": [
+   [
+    "    int ah, bh, al, bl;\r\n",
+    "    int ah, bh, al, bl, w0;\r\n"
+   ],
+   [
+    "        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);\r\n",
+    "        w0 = u[0];\r\n        _dbl_shift_us((unsigned int *)tp, 1, w0, u[1], 21);\r\n",
+    2
+   ]
+  ]
+ },
+ {
+  "name": "u+bm-w0-named",
+  "subs": [
+   [
+    "    int ah, bh, al, bl;\r\n",
+    "    int ah, bh, al, bl, w0;\r\n"
+   ],
+   [
+    "        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);\r\n",
+    "        w0 = u[0];\r\n        _dbl_shift_us((unsigned int *)tp, 1, w0, u[1], 21);\r\n",
+    2
+   ],
+   [
+    "        _dbl_shift_us((unsigned int *)tp, 1, bm[0], bm[1], 21);\r\n",
+    "        w0 = bm[0];\r\n        _dbl_shift_us((unsigned int *)tp, 1, w0, bm[1], 21);\r\n",
+    1
+   ]
+  ]
+ },
+ {
+  "name": "u-w0-reuse-ah",
+  "subs": [
+   [
+    "        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);\r\n",
+    "        ah = u[0];\r\n        _dbl_shift_us((unsigned int *)tp, 1, ah, u[1], 21);\r\n",
+    2
+   ]
+  ]
+ },
+ {
+  "name": "u-w0-reuse-al",
+  "subs": [
+   [
+    "        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);\r\n",
+    "        al = u[0];\r\n        _dbl_shift_us((unsigned int *)tp, 1, al, u[1], 21);\r\n",
+    2
+   ]
+  ]
+ },
+ {
+  "name": "u-w0-reuse-e",
+  "subs": [
+   [
+    "        _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);\r\n",
+    "        e = u[0];\r\n        _dbl_shift_us((unsigned int *)tp, 1, e, u[1], 21);\r\n",
+    2
+   ]
+  ]
+ }
+]

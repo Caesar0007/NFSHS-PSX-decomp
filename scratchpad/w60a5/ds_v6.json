@@ -1,0 +1,65 @@
+[
+ {
+  "name": "default-first-local",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        {\r\n            unsigned int r = 1325400064;\r\n            if (v4) r = 1333788672;\r\n            return r;\r\n        }\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "default-first-a1",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        a1 = 1325400064;\r\n        if (v4) a1 = (int)1333788672;\r\n        return (unsigned int)a1;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "default-first-a2",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        a2 = 1325400064;\r\n        if (v4) a2 = (int)1333788672;\r\n        return (unsigned int)a2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "default-first-v3",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        v3 = 1325400064;\r\n        if (v4) v3 = (int)1333788672;\r\n        return (unsigned int)v3;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "default-first-v2",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        v2 = 1325400064;\r\n        if (v4) v2 = (int)1333788672;\r\n        return (unsigned int)v2;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "default-first-v4",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        {\r\n            unsigned int r = 1325400064;\r\n            if (v4) r = 1333788672;\r\n            v4 = r;\r\n        }\r\n        return v4;\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "ternary",
+  "subs": [
+   [
+    "        if (v4) return 1333788672;\r\n        return 1325400064;\r\n",
+    "        return v4 ? 1333788672u : 1325400064u;\r\n"
+   ]
+  ]
+ }
+]

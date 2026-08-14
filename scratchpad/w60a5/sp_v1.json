@@ -1,0 +1,45 @@
+[
+ {
+  "name": "RR-head+flagZero-after",
+  "subs": [
+   [
+    "    register int flagZero = '0';\n",
+    "    register int flagZero;\n"
+   ],
+   [
+    "    va_start(args, f);\n    ch = *f;\n    written = 0;\n    for (; ch = *f, ch != 0; ++f) {\n",
+    "    va_start(args, f);\n    ch = *f;\n    written = 0;\n    if (ch == 0) goto end;\n    flagZero = '0';\n    do {\n"
+   ],
+   [
+    "    }\nend:\n",
+    "    } while (++f, (ch = *f) != 0);\nend:\n"
+   ]
+  ]
+ },
+ {
+  "name": "guard+flagZero-after",
+  "subs": [
+   [
+    "    register int flagZero = '0';\n",
+    "    register int flagZero;\n"
+   ],
+   [
+    "    va_start(args, f);\n    ch = *f;\n    written = 0;\n    for (; ch = *f, ch != 0; ++f) {\n",
+    "    va_start(args, f);\n    ch = *f;\n    written = 0;\n    if (ch == 0) goto end;\n    flagZero = '0';\n    for (; ch = *f, ch != 0; ++f) {\n"
+   ]
+  ]
+ },
+ {
+  "name": "RR-head-only",
+  "subs": [
+   [
+    "    va_start(args, f);\n    ch = *f;\n    written = 0;\n    for (; ch = *f, ch != 0; ++f) {\n",
+    "    va_start(args, f);\n    ch = *f;\n    written = 0;\n    if (ch == 0) goto end;\n    do {\n"
+   ],
+   [
+    "    }\nend:\n",
+    "    } while (++f, (ch = *f) != 0);\nend:\n"
+   ]
+  ]
+ }
+]

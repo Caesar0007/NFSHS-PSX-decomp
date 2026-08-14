@@ -3005,16 +3005,20 @@ void * tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished()
   return (void *)0x1;
 }
 
-/* ---- Draw  [FEMENUDEFS.CPP:?] ---- */
-void tBlankMenuItemGoToMenuNFS4Button::Draw(int x,int y,char flags)
-{
-  return;
-}
-
-/* ---- Draw  [FEMENUDEFS.CPP:?] ---- */
-void tBlankMenuItemGoToMenuNFS4Button::Draw(int arg1)
-{
-  return;
+/* ---- Draw nullsubs @0x800321C8 / @0x800321D0  [W60-A10: MOVED here from the TU tail] ----
+   cont.34: tBlankMenuItem::Draw nullsubs re-attributed from front.c.  The class decls in
+   nfs4_types.h carry the WRONG SYM arg-type (char/int vs the SYM's bool), so the C++ method
+   definitions mangled to ...iic/...i -- NOT the oracle's ...iib/...b -- and the correctly
+   named extern-C exports then landed at the TU TAIL (retail VA order INVERSION, link-visible:
+   both symbols got the wrong VAs).  The two forms emit identical bytes (jr ra;nop), so the
+   fix is to drop the mis-mangled member definitions (both unreferenced; the header decls are
+   NON-virtual, so no definition is required) and emit the oracle-named exports HERE, in the
+   retail slot between TransitionIsFinished (0x800321C0) and the dtor (0x800321D8).
+   (A fully clean fix = correct the class decls to bool in nfs4_types.h -- a shared-header
+   change, still deferred.) */
+extern "C" {
+void Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib(void) {}  /* @0x800321C8 */
+void Draw__32tBlankMenuItemGoToMenuNFS4Buttonb(void) {}  /* @0x800321D0 */
 }
 
 /* ---- tBlankMenuItemGoToMenuNFS4Button::dtor  [FEMENUDEFS.CPP:?] ---- */
@@ -3033,10 +3037,9 @@ void * tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished()
   return (void *)0x1;
 }
 
-/* ---- Draw  [FEMENUDEFS.CPP:?] ---- */
-void tBlankMenuItemNFS4LeftRightChoice::Draw(int x,int y,char flags)
-{
-  return;
+/* ---- Draw nullsub @0x80032200  [W60-A10: MOVED here from the TU tail; see the note above] ---- */
+extern "C" {
+void Draw__33tBlankMenuItemNFS4LeftRightChoiceiib(void) {}  /* @0x80032200 */
 }
 
 /* ---- tBlankMenuItemNFS4LeftRightChoice::dtor  [FEMENUDEFS.CPP:?] ---- */
@@ -3051,14 +3054,6 @@ tBlankMenuItemNFS4LeftRightChoice::~tBlankMenuItemNFS4LeftRightChoice()
 
 /* end of femenudefs.cpp */
 
-/* cont.34: tBlankMenuItem::Draw nullsubs re-attributed from front.c.
-   The recon class methods above (::Draw(int,int,char)/::Draw(int), ~line 3100) carry the
-   WRONG SYM arg-type (char/int vs the SYM's bool) so they mangle to ...iic/...i, NOT the
-   oracle's ...iib/...b — leaving the bare oracle names free. The extern-C free-fn form
-   exports those exact oracle symbols; oracle = jr ra;nop. (A fully clean fix = correct
-   the class decls to bool in nfs4_types.h, a shared-header change — deferred.) */
-extern "C" {
-void Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib(void) {}  /* @0x800321C8 */
-void Draw__32tBlankMenuItemGoToMenuNFS4Buttonb(void) {}  /* @0x800321D0 */
-void Draw__33tBlankMenuItemNFS4LeftRightChoiceiib(void) {}  /* @0x80032200 */
-}
+/* W60-A10: the three tBlankMenuItem::Draw nullsub exports that used to sit HERE were moved
+   up into their retail VA slots (see the notes at 0x800321C8 / 0x80032200); the mis-mangled
+   member definitions they shadowed were deleted. */

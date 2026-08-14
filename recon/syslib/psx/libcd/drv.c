@@ -296,6 +296,17 @@ extern int CD_get_intr(void)
         CD_status1 = result[1];
         bHasError  = CD_status & 0x1d;
     }
+    /* MATCH (W60-A4): VOID-TAIL FENCE at the HEAD of the nReg==5 thread.  Reorg
+     * STEALS the first insn of a branch TARGET thread when the branch can be
+     * redirected past it (steal_delay_list_from_target): ours copied this block's
+     * `li $2,5` into the `beq $2,$0` slot of the _cd_status_ok test and moved the
+     * label after it, where retail has a plain `nop`.  A zero-insn void-tail fence
+     * at the thread head makes the thread unstealable (the CdInit device).  This
+     * is the LAST 2 diffs -- CD_get_intr is PASS 343/343 with it, PAIRED with the
+     * two PER_FN_TEXT_MOVES rows for the case-4/5 `la` order (see RECEIPTS.md);
+     * fence alone / moves alone do NOT seal.  Inside the block instead of before
+     * it = 2 (the steal happens at the thread HEAD). */
+    __asm__("" : : "i"(0));
     if ((*(const unsigned char *)&nReg) == 5) {
         if (CD_debug > 0)
             puts("DiskError: ");

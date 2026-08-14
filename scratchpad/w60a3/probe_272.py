@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""W60-A3 probe: per-FN cc1-VERSION splice for a sub-2.8 rung.
-
-PER_FN_CC1_VER_SPLICE_272 cannot reach the 2.6/2.7 rungs on this TU today,
-because SYS.c's wiring carries `-mno-split-addresses` and every pre-2.8 cc1
-rejects that option outright.  This probe answers the question the mechanism
-would answer if it dropped unsupported flags for the splice compile: does the
-older rung emit retail's shape for the named function?
+"""W60-A3 probe: per-FN cc1-VERSION splice for an arbitrary ladder rung, scored
+by the REAL GATE.
 
   python probe_272.py <rung> <fn> [<fn> ...]
 
-It compiles the ALREADY-PREPROCESSED .i (build.py's own cpp output) with the
-rung's cc1 using the 272 recipe MINUS -mno-split-addresses, splices only the
+Compiles build.py's own .i with the rung's cc1 (272 recipe, dropping flags the
+rung rejects -- every pre-2.8 cc1 errors on -mno-split-addresses), splices the
 named functions' .ent/.end regions into the wired .s, assembles with build.py's
-`as` line, and byte-diffs vs the oracle (reloc/branch-target classes excluded,
-exactly like verify_asm).
+`as` line, then prints tools/verify_asm.py's OWN verdict for each function via
+gatecmp.py.
+
+CORRECTION 2026-08-14: the first cut of this script scored with a home-grown
+"REAL vs reloc" split that called any same-mnemonic word mismatch a reloc.  That
+was vacuous and produced a FALSE REAL=0 for _set_draw_mode (a commutative
+or-operand swap in a function with zero relocations).  All scoring now goes
+through the gate.
 """
+import os
 import re
 import subprocess
 import sys
@@ -23,25 +25,33 @@ from pathlib import Path
 ROOT = Path(r"C:/Temp/nfs4-decomp")
 LADDER = Path(r"C:/Temp/windows-gcc-psx")
 AS = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-as.exe"
-OD = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump"
-I = ROOT / "build/recon/syslib/psx/libgpu/SYS.c.i"
-S = ROOT / "build/recon/syslib/psx/libgpu/SYS.c.s"
+TU = "recon/syslib/psx/libgpu/SYS.c"
+I = ROOT / "build" / (TU + ".i")
+S = ROOT / "build" / (TU + ".s")
 TMP = ROOT / "scratchpad/w60a3"
 
 MOVE_RE = re.compile(r"^(\tmove\t)(\$[a-z0-9]+),(\$[a-z0-9]+)[ \t]*$", re.M)
 
 rung = sys.argv[1]
-fns = sys.argv[2:]
+# accept both `fn fn fn` and `fn,fn,fn` -- an unsplit comma list used to make
+# region() miss, print SKIP, and then score the UNSPLICED object (i.e. echo the
+# live tree).  Any SKIP is now fatal rather than silently vacuous.
+fns = [f for a in sys.argv[2:] for f in a.split(",") if f]
 cc1 = LADDER / ("gcc-%s-psx" % rung) / "cc1.exe"
 assert cc1.exists(), cc1
 
+# build.py's 272 recipe flags for THIS TU, minus what the rung rejects.
+flags = ["-quiet", "-O2", "-G0", "-mgas"]
+if not re.match(r"2\.[67]|2\.[67]\.", rung):
+    flags.append("-mno-split-addresses")
+
 alt_s = TMP / ("alt_%s.s" % rung)
-r = subprocess.run([str(cc1), "-quiet", "-O2", "-G0", "-mgas", str(I),
-                    "-o", str(alt_s)], capture_output=True, text=True)
+r = subprocess.run([str(cc1), *flags, str(I), "-o", str(alt_s)],
+                   capture_output=True, text=True)
 if r.returncode:
     sys.exit("cc1 failed:\n" + r.stdout + r.stderr)
-alt = alt_s.read_text(errors="replace")
-alt = MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), alt)
+alt = MOVE_RE.sub(lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)),
+                  alt_s.read_text(errors="replace"))
 
 
 def region(txt, name):
@@ -54,59 +64,24 @@ def region(txt, name):
 
 base = S.read_text(errors="replace")
 for fn in fns:
-    a = region(alt, fn)
-    b = region(base, fn)
+    a, b = region(alt, fn), region(base, fn)
     if not a or not b:
-        print("%-24s SKIP (no region)" % fn)
-        continue
+        sys.exit("probe_272: no .ent/.end region for %r -- refusing to score an "
+                 "unspliced object (that is how the first cut faked results)" % fn)
+    assert alt[a[0]:a[1]] != base[b[0]:b[1]] or True
     base = base[:b[0]] + alt[a[0]:a[1]] + base[b[1]:]
 
-probe_s = TMP / "probe272.s"
-probe_o = TMP / "probe272.o"
+probe_s, probe_o = TMP / "probe272.s", TMP / "probe272.o"
 probe_s.write_text(base)
 r = subprocess.run([AS, "-EL", "-march=r3000", "-mtune=r3000", "-G0",
                     "-I", str(ROOT / "include"), "-I", str(ROOT),
-                    "-o", str(probe_o), str(probe_s)], capture_output=True, text=True)
+                    "-o", str(probe_o), str(probe_s)],
+                   capture_output=True, text=True)
 if r.returncode:
     sys.exit("as failed:\n" + r.stdout + r.stderr)
 
-out = subprocess.run([OD, "-d", str(probe_o)], capture_output=True, text=True).stdout
-for fn in fns:
-    ours, words, grab = [], [], False
-    for ln in out.splitlines():
-        if ln.endswith("<%s>:" % fn):
-            grab = True
-            continue
-        if grab:
-            if not ln.strip():
-                break
-            mm = re.match(r"\s*[0-9a-f]+:\s+([0-9a-f]{8})\s+(.*)", ln)
-            if mm:
-                h = mm.group(1)
-                words.append("".join(reversed([h[i:i + 2] for i in range(0, 8, 2)])))
-                ours.append(re.sub(r"\s+", " ", mm.group(2).strip()))
-    orc, ow = [], []
-    for ln in open(ROOT / ("asm/nonmatchings/main/%s.s" % fn)):
-        if ln.strip().startswith("nonmatching"):
-            continue
-        mm = re.search(r"/\*\s+\S+\s+[0-9A-F]{8}\s+([0-9A-F]{8})\s+\*/\s+(\S+)\s*(.*)$", ln)
-        if mm:
-            ow.append(mm.group(1).lower())
-            orc.append(re.sub(r"\s+", " ", (mm.group(2) + " " + mm.group(3)).strip()))
-    real = reloc = 0
-    rows = []
-    for i in range(max(len(ours), len(orc))):
-        a = ours[i] if i < len(ours) else ""
-        b = orc[i] if i < len(orc) else ""
-        wa = words[i] if i < len(words) else ""
-        wb = ow[i] if i < len(ow) else ""
-        if wa != wb:
-            if a.split()[:1] == b.split()[:1]:
-                reloc += 1
-            else:
-                real += 1
-                rows.append("      %3d %-38s | %s" % (i, a, b))
-    print("%-24s rung %-10s ours=%-4d oracle=%-4d REAL=%d reloc=%d"
-          % (fn, rung, len(ours), len(orc), real, reloc))
-    for x in rows[:12]:
-        print(x)
+env = dict(os.environ, GATE_OBJ=str(probe_o))
+print("== rung %s ==" % rung)
+sys.stdout.flush()
+subprocess.run([sys.executable, str(TMP / "gatecmp.py"), TU, ",".join(fns)],
+               env=env)

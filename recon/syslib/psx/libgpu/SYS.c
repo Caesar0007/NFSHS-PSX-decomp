@@ -599,17 +599,18 @@ extern u_long *ClearOTagR(u_long *ot, int n)
  * effect: named `int n=0` local, both n/extra as separate named locals -- gcc CSEs the two
  * zero args regardless of source form (both are the literal 0 in the same call). Same class as
  * the documented commutative-operand-selection floors; not source-reachable.
- * 🟢 W60-A3 -- FLOOR REFUTED, and it was never a source problem: it is the 04M COMPILER-VERSION
- * axis (cse.c constant-sharing, catalog 11B).  PROBE-VERIFIED: compiling THIS UNCHANGED SOURCE
- * with the ladder's gcc-2.7.2 cc1 through the 272 recipe MINUS `-mno-split-addresses` and
- * splicing only this function's .ent/.end region gives 28/28 with **ZERO real word diffs**
- * (8 residual words are the %hi/%lo + jal-target reloc class verify_asm normalizes).
- * WIRING SPEC (orchestrator): `PER_FN_CC1_VER_SPLICE_272["recon/syslib/psx/libgpu/SYS.c"]`
- * gains `{"2.7.2": {"DrawOTag", "_set_draw_mode", "_gpu_init_videomode"}}`, with ONE mechanism
- * change: the splice compile must DROP any flag the rung rejects -- every pre-2.8 cc1 errors
- * out on `-mno-split-addresses` ("Invalid option"), which is why the W56 receipt below
- * concluded "the 2.7.2 rung is unreachable for this TU".  It is reachable per-FUNCTION; only
- * the whole-TU flag pairing is not.  Probe driver: scratchpad/w60a3/probe_272.py. */
+ * 🟢 W60-A3 -- FLOOR REFUTED + WIRED (PASS).  It was never a source problem: it is the 04M
+ * COMPILER-VERSION axis (cse.c constant-sharing, catalog 11B).  The blocker was a WIRING
+ * artifact, not the rung -- every pre-2.8 cc1 exits on `-mno-split-addresses` ("Invalid
+ * option"), which is why the W56 receipt concluded "the 2.7.2 rung is unreachable for this
+ * TU".  It is unreachable only WHOLE-TU; per-FUNCTION the flag simply has to be dropped for
+ * the splice compile (orchestrator's `_cc1_flags_for_rung`, now in both ver-splice paths).
+ * Wired `PER_FN_CC1_VER_SPLICE_272[SYS.c]["2.7.2"] = {DrawOTag, _gpu_init_videomode}`;
+ * real-gate verified, SYS.c 36/44 -> 38/44.
+ * ⚠️ `_set_draw_mode` was in the first draft of that set and is NOT wired -- its REAL=0 came
+ * from a probe bug (same-mnemonic mismatch scored as a relocation).  Re-scored through the
+ * gate's own code it is 2 diffs on EVERY rung.  See its block; and score per-fn splices only
+ * with scratchpad/w60a3/probe_272.py + gatecmp.py, never a hand-rolled word compare. */
 extern void DrawOTag(u_long *ot)
 {
     if (GEnv.debug >= 2)
@@ -1038,13 +1039,21 @@ extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
      * pre-2.8 cc1s reject `-mno-split-addresses` outright ("Invalid option"), so the SYS
      * ladder is only {2.8.0, 2.8.1, 2.91.66, 2.95.2} and the wired 2.8.1 wins it -- see
      * the whole-TU ladder receipt at MoveImage.
-     * 🟢 W60-A3 -- THE "2.7.2 IS UNREACHABLE" HALF OF THAT RECEIPT IS WRONG, and this fn is
-     * NOT a floor.  The flag is a WHOLE-TU wiring, not a property of the rung: a per-FUNCTION
-     * splice can compile just this region with 2.7.2 and no `-mno-split-addresses`.  Probed
-     * (scratchpad/w60a3/probe_272.py): 8/8 with **ZERO real word diffs** -- retail's
-     * `or $v0,$v1,$v0` operand order falls straight out of THIS UNCHANGED source.  Confirms
-     * the w59-a8 finding that operand order and the register map are coupled: they are coupled
-     * to the COMPILER, not to any spelling.  See the DrawOTag block for the wiring spec. */
+     * W60-A3 -- the "2.7.2 is unreachable" HALF of that receipt is indeed wrong (a per-FN
+     * splice now reaches any rung; see DrawOTag), BUT that does NOT help here.
+     * 🔴 RETRACTION: an earlier W60-A3 note in this block claimed 2.7.2 gives 8/8 with zero
+     * real diffs.  That was a PROBE BUG -- scratchpad/w60a3/probe_272.py classified any
+     * same-mnemonic word mismatch as a "relocation", which is exactly what this residual is
+     * (`or $2,$2,$3` vs `or $2,$3,$2`), in a function that carries NO relocations at all.
+     * Re-scored through the gate's own code (scratchpad/w60a3/gatecmp.py), the per-FN rung
+     * table is: 2.7.2 = 2 · 2.8.0 = 2 · 2.8.1 = 2 (wired) · 2.91.66 = 2.  So this fn is NOT
+     * wired to any rung, and the finding is STRONGER than the old floor note: the commutative
+     * operand order here is COMPILER-VERSION-INVARIANT, so both the spelling axis (w59-a8's
+     * six forms + w60-a3's inline-ternary, 16 diffs / 12 insns) and the version axis are now
+     * exhausted.  What is left is a post-reload operand-slot choice; the only vehicles that
+     * could reach it are an RTL-level instrument (06E) or a mechanism that rewrites the
+     * operand in the .s -- and a bare line-rewrite mechanism would be hand-asm smuggling,
+     * NOT a TEXT_MOVES-class relocation.  Do not re-grind spellings here. */
     u_long hi = 0xe1000000u;
     u_long lo;
     if (dtd != 0)

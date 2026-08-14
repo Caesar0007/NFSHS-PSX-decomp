@@ -63,18 +63,24 @@ Probe driver `scratchpad/w60a3/probe_272.py`: compiles build.py's own `SYS.c.i` 
 assembles with build.py's exact `as` line, and byte-diffs vs the oracle separating the
 reloc/branch-target class (which verify_asm normalizes) from real word diffs.
 
+> 🔴🔴 **THE NUMBERS IN THE TABLE BELOW WERE WRONG — see §9 for the corrected table and the
+> probe bug that produced them.** `_set_draw_mode`'s `REAL=0` was FALSE and it is NOT wired;
+> its 2-diff floor stands. `DrawOTag` and `_gpu_init_videomode` are genuine (independently
+> confirmed by the orchestrator's real gate: SYS.c went 36/44 → 38/44). Every other row was
+> wrong in one direction or the other. The table is kept only so the error is legible.
+
 | fn | now | 2.7.2 per-fn splice | verdict |
 |---|---|---|---|
-| **DrawOTag** | 2 | 28/28, **REAL=0** (8 reloc) | **PASS** |
-| **_set_draw_mode** | 2 | 8/8, **REAL=0** (1 reloc) | **PASS** |
-| **_gpu_init_videomode** | 14 | 40/40, **REAL=0** (12 reloc) | **PASS** |
-| _clearOTagR_dma | 2 | 56/56, REAL=13 | worse |
-| _gpu_que_drain | 14 | 152/152, REAL=17 | ~same/worse |
-| MoveImage | 9 | 45/46, REAL=18 | worse |
-| _dws | 11 | 140/143, REAL=122 | far worse |
-| _drs | 13 | 159/160, REAL=124 | far worse |
-| _BlitClear | 2 | 146/140, REAL=113 | far worse |
-| PutDispEnv | 54 | 326/318, REAL=296 | far worse |
+| **DrawOTag** | 2 | 28/28, ~~REAL=0~~ | **PASS** (holds — §9) |
+| ~~**_set_draw_mode**~~ | 2 | ~~8/8, REAL=0~~ | 🔴 **FALSE** — really 2 diffs (§9) |
+| **_gpu_init_videomode** | 14 | 40/40, ~~REAL=0~~ | **PASS** (holds — §9) |
+| _clearOTagR_dma | 2 | ~~REAL=13~~ | really 2 (§9) |
+| _gpu_que_drain | 14 | ~~REAL=17~~ | really 24 (§9) |
+| MoveImage | 9 | ~~REAL=18~~ | really 17 (§9) |
+| _dws | 11 | ~~REAL=122~~ | really 59 (§9) |
+| _drs | 13 | ~~REAL=124~~ | really 55 (§9) |
+| _BlitClear | 2 | ~~REAL=113~~ | really 130 (§9) |
+| PutDispEnv | 54 | ~~REAL=296~~ | really 106 (§9) |
 
 All three winners come from **unchanged source**. What they were previously filed as:
 
@@ -248,5 +254,83 @@ Per-function they are reachable — §2.
   agent verify a TEXT_MOVES row end-to-end without touching `tools/build.py`.
 * `probe_272.py` — per-FN ladder-rung splice prober with flag-dropping. **Promotion candidate**
   for the same reason; it is what turned three standing floors into wiring rows.
-* `smove.py` — single-move variant of `probe_moves.py` (superseded by it).
 * `SYS.c.bak0` / `SYS.c.bak_mi14` / `SYS.c.bak_pre_sdm` — per-landing backups.
+  (`smove.py` deleted — superseded by `probe_moves.py`.)
+
+---
+
+# §9 — CORRECTION ROUND (coordinator-flagged). Two probe bugs, all numbers re-derived.
+
+## 9.1 The bugs
+
+**Bug A — vacuous reloc classifier (coordinator-flagged).** Both probes scored with a
+home-grown split:
+
+```python
+if a.split()[:1] == b.split()[:1]:   # same mnemonic
+    reloc += 1                       # ...so "not a real diff"
+```
+
+That excuses *any* same-mnemonic word mismatch. `_set_draw_mode`'s whole residual is
+`or $2,$2,$3` vs retail `or $2,$3,$2` — same mnemonic, **zero relocations in the entire
+function** — so it was counted as `reloc=1, REAL=0`. A commutative-operand floor was reported
+as a seal. My "REAL" counter was also never the gate's metric (the gate is an LCS diff over
+normalized text, not a positional word compare), so *every* number it produced was wrong in
+one direction or the other — including ones that looked conservative.
+
+**Bug B — found while fixing A: unsplit comma lists.** `fns = sys.argv[2:]` meant
+`probe_272.py 2.8.0 a,b,c` produced one bogus name, `region()` missed, the script printed
+`SKIP (no region)` and then **scored the unspliced object** — i.e. echoed the live tree and
+looked like a plausible result. This is why an early multi-fn run "confirmed" 2.8.0 ≡ 2.8.1
+on MoveImage (really 35 vs 9).
+
+## 9.2 The fix — score with the gate itself, not a re-implementation
+
+New `scratchpad/w60a3/gatecmp.py`: loads `tools/verify_asm.py`'s **source**, substitutes only
+the compile step (`obj = Path(os.environ['GATE_OBJ'])`), and executes it. Every normalizer,
+the `R_MIPS_LO16`/`GPREL16` addend zeroing, branch-target masking, the dead-`%hi` rule and the
+difflib count are the gate's own. It hard-fails if verify_asm's compile block ever changes
+shape, rather than drifting silently. Both probes now delegate to it, and a failed take/after
+regex or a missing `.ent` region is **fatal** instead of silently vacuous.
+
+**Validity checks (two, independent):**
+* `GATE_OBJ=build/.../SYS.c.o gatecmp.py` reproduces `tugate` exactly on all 8 functions.
+* `probe_moves.py _gpu_que_drain '[]'` (null move) → `FAIL 14 diffs (152/152)` = the live gate.
+* `probe_272.py 2.8.1 …` (the wired rung = a control) reproduces the live numbers on all five
+  open FAILs.
+
+## 9.3 Corrected per-FN rung table (gate diffs; `—` = cc1/as failed on that combo)
+
+| fn | live | 2.7.2 | 2.8.0 | 2.8.1 (wired) | 2.91.66 | 2.95.2 |
+|---|---|---|---|---|---|---|
+| DrawOTag | **PASS** | **PASS** | 2 | 2 | — | — |
+| _gpu_init_videomode | **PASS** | **PASS** | 14 | 14 | — | — |
+| _BlitClear | **PASS** (2.8.0 + TEXT_MOVES) | 130 | — | — | — | — |
+| _clearOTagR_dma | **PASS** (TEXT_MOVES) | 2 | — | — | — | — |
+| _set_draw_mode | 2 | **2** | **2** | **2** | **2** | — |
+| MoveImage | 9 | 17 | **35** | **9** | 45 | 19 |
+| _dws | 11 | 59 | 11 | 11 | 137 | 139 |
+| _drs | 13 | 55 | 13 | 13 | 172 | — |
+| _gpu_que_drain | 14 | 24 | 14 | 14 | — | — |
+| PutDispEnv | 54 | 106 | 54 | 54 | 210 | 361 |
+
+The two wired 2.7.2 seals **survive the correction** — they are also confirmed independently by
+the orchestrator's real gate (36/44 → 38/44).
+
+## 9.4 What the correction changes about my conclusions
+
+* 🔴 **`_set_draw_mode` is NOT the 04M version axis.** It is **2 diffs on every rung that
+  builds it** — 2.7.2, 2.8.0, 2.8.1 and 2.91.66 all emit `or $2,$2,$3` where retail has
+  `or $2,$3,$2`. That is a much *stronger* statement than the floor the W56 receipt filed: the
+  commutative-operand order here is **compiler-version-INVARIANT**, so the version axis is
+  exhausted as well as the spelling axis. My in-source claim that 2.7.2 fixes it is deleted.
+* ✅ **`DrawOTag` / `_gpu_init_videomode` conclusions stand**, including the mechanism reading
+  (`reorg.c:4289 make_return_insns` only converts a *filled* jump to `end_of_function_label`).
+* 🔴 **`_dws` / `_drs`: the version axis is now definitively closed** (assignment 4). 2.8.0 and
+  2.8.1 are **byte-identical** on both functions — I diffed the two rungs' `.ent/.end` regions
+  directly, not just their scores — so a default-lane/272-lane per-fn version splice has
+  nothing to buy. 2.7.2 is 59/55 and the late rungs 137/172. **No rung to wire; do not spend
+  orchestrator budget here.** (2.8.0 ≢ 2.8.1 on MoveImage, so the identity is per-function, not
+  a blanket "2.8.0 ≡ 2.8.1 on this TU".)
+* The `_BlitClear` and `_clearOTagR_dma` TEXT_MOVES rows were never affected — they are landed
+  and PASS on the real gate.

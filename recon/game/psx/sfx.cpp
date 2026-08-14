@@ -292,10 +292,62 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
       prim = (POLY_FT4 *)Render_gPacketPtr;
       ((Sfx_tTag *)&prim->tag)->addr =
                   *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+      /* ---- w60-a7 SEAL (26 -> PASS 126/126).  The multi-wave "four-constant
+       * rotation STRONG floor" fell to the -dl/-dg + instrumented-cc1plus qty
+       * trace, which named the mechanism exactly.  LAB FIDELITY FIRST: this fn
+       * compiles BYTE-IDENTICAL (120/120 insns) under the instrumented
+       * cc1plus-ecoff with `-O2 -G8 -mgas -msplit-addresses -funsigned-char
+       * -fno-exceptions -fno-rtti`, so its GCC_TRACE_ALLOC trace is a receipt.
+       *
+       * WHAT THE TRACE SAID.  Block 11 (this tail) had FOUR long-lived qtys and
+       * local-alloc's numeric scan handed them out in QTY_CMP_PRI order
+       * (= floor_log2(refs)*refs*size/life):
+       *     qty4 {p130 palette + p145 ot2-ADDRESS} 6 refs/38 life = 3157 -> $a0
+       *     qty1 {p136 0xffffff + p86 l0}          6/48          = 2500 -> $a1
+       *     qty5  p141 0xff000000                  3/28          = 1071 -> $a2
+       *     qty0  p127 0x1F800004 (cursor addr)    3/40          =  750 -> $a3
+       * The oracle's own tail decodes to $a1 = {0xffffff, l0}, $a2 = palette,
+       * $a3 = 0xff000000, $t0 = cursor addr, with $a0 holding only the SHORT
+       * site-2 address.  Recomputing retail's priorities off its own insn
+       * spacing gives palette 3 refs/17 = 1764, 0xff000000 3/20 = 1500, cursor
+       * 3/26 = 1153 -- i.e. retail's palette is its OWN 3-ref qty, NOT merged
+       * with the site-2 address, and that single difference produces the whole
+       * apparent "one-slot rotation".
+       * ROOT CAUSE: `[qty_combine] pseudo 145 merged into qty 4 of pseudo 130`.
+       * insn 287 was `(set 145 (plus (reg 130 palette) (reg 149 otz*4)))` with
+       * BOTH inputs dead, and local-alloc ties the dest to the FIRST operand ->
+       * the address inherits the palette's qty, doubling its refs and halving
+       * its life.  Retail's `addu $a0,$a0,$a2` has the INDEX first, so the
+       * address inherits the otz chain (short) and the palette survives.
+       * (Site 1 already emitted index-first, which is why the palette lived
+       * across it -- only site 2 was inverted.)
+       *
+       * THE FIX IS A DIAL PAIR AND NEITHER HALF WORKS ALONE:
+       *  (1) an INT-TYPED index-first sum for the site-2 address.  A pointer
+       *      sum is canonicalised ptr-first by C's pointer_int_sum (the W50 law),
+       *      so `sd->otz * 4 + (int)Render_gPalettePtr` is the only spelling that
+       *      flips the RTL operand order.  ALONE it measures 42: with the palette
+       *      split out, {0xffffff,l0} becomes the highest-priority long qty and
+       *      takes $a0 instead of $a1.
+       *  (2) `l0` and the packet-cursor bump moved BELOW the OT-word read (via
+       *      the `w` temp), which is retail's own statement order (`lw $v0,0($a0)`
+       *      then `and $a1,$s0,$a1` then `sw $v1,0($t0)`).  This keeps $v0/$v1
+       *      occupied across the site-2 address's window so that short qty takes
+       *      $a0, pushing all four long qtys one slot later = retail exactly.
+       *      ALONE (with the pointer-form address) it measures 26, i.e. inert.
+       * MEASURED: control 26 . (1) alone 42 . (2) alone 26 . (1)+(2) PASS .
+       * (1) with the bump moved BELOW the whole RMW instead 43 @127 . (1) with
+       * only l0 moved (bump still above) 42 . (1) with the ot2 local dropped and
+       * the address written twice 42.
+       * This retires the STRONG-FLOOR claim in the function header AND its
+       * "the one untried instrument remains the -dl/-dg allocno dump" note --
+       * the dump was the instrument, and the answer was a JOINT dial pair
+       * (the same joint-sweep law that cracked CarIO_CopyToShape this wave). */
+      { u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
+      u_int w = *ot2;
       l0 = (u_int)prim & 0xffffff;
       Render_gPacketPtr = (u_char *)prim + 0x28;
-      { u_int *ot2 = (u_int *)(Render_gPalettePtr + sd->otz * 4);
-      *ot2 = *ot2 & 0xff000000 | l0; }
+      *ot2 = w & 0xff000000 | l0; }
     }
   }
   return;

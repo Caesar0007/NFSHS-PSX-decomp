@@ -191,6 +191,11 @@ they are receipted, not floors, and spelling sweeps there are wasted budget.
    after every landing.
 4. Avoid `volatile` and `do{}while` by default — a measured win with falsified
    alternatives receipted may override (several catalog laws are exactly this).
+   Treat `volatile` as a high-cost diagnostic dial: it can freeze CSE, alias,
+   liveness, and scheduling decisions that later steps need for further diff
+   reduction. Do not retain it merely for a local score decrease; re-test the
+   surrounding reduction path without it and keep it only when the final
+   authoritative result requires it.
 5. **Never** edit: `tools/*.py`, shared maspsx, the memory dir, or the user's
    live session files (`recon/frontend/common/fedialog_externs.h`,
    `femenudefs.cpp`, `femenuextended_externs.h`, `screenusername_externs.h`,
@@ -202,6 +207,12 @@ they are receipted, not floors, and spelling sweeps there are wasted budget.
 7. Keep `/* @0xVA */` breadcrumbs and in-source `MATCH:` receipt blocks.
 8. Think like a 1998 programmer (EA for game/frontend/eaclib, Sony/SN for
    syslib). "Natural 1998 source" rewrites beat dialing, repeatedly.
+9. **Hard-floor basin rule:** a deliberate, measured step may temporarily
+   increase the authoritative diff when it unlocks a different allocation or
+   scheduling basin. Receipt every intermediate score, complete the paired
+   follow-up steps before judging the path, and only land the branch when its
+   final verified result beats the previous authoritative best; otherwise
+   unwind it cleanly.
 
 ## 6. HAZARDS (all have fired; all cost real time)
 

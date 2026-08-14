@@ -2221,6 +2221,49 @@ void Cars_Randomize(void)
   return;
 }
 
+/* ---- Cars_ManageBureaucracy__Fv  [@0x8008affc] ---- RECONSTRUCTED 2026-06-13 (Ghidra @NFS4.EXE.c:65747).
+ *  Skipped from the cars.obj pass. Per active car: recompute road span/position + lane info,
+ *  (cool physics) velocity-down-road, (carFlags&4) direction sign from orientMat.row . slice
+ *  forward vector, (sliceChanged) lap/total-slice; then sort, randomize, leaderboard, anims. */
+void Cars_ManageBureaucracy(void)
+{
+  int carLoop;
+
+  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+    Car_tObj *carObj = Cars_gList[carLoop];
+    if (carObj->N.active != '\0') {
+      carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
+      carObj->roadPosition = Cars_CalculateRoadPosition(carObj);
+      AIWorld_CalculateLaneInfo(carObj);
+      if (AIPhysics_UseCoolPhysics(carObj) != 0) {
+        carObj->currentSpeed = Cars_CalcVelDownRoad(carObj);
+      }
+      if ((carObj->carFlags & 4U) != 0) {
+        int facing;
+
+        carObj->speed = carObj->N.speedXZ;
+        if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
+          facing =
+              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
+              fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
+              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
+          carObj->direction = (0 < facing) ? 1 : -1;
+        } else {
+          carObj->direction = (-1 < carObj->currentSpeed) ? 1 : -1;
+        }
+      }
+      if ((signed char)carObj->N.simRoadInfo.sliceChanged != '\0') {
+        Cars_FindCurrentLap(carObj);
+        Cars_FindTotalSlice(carObj);
+      }
+    }
+  }
+  Cars_SortCars();
+  Cars_Randomize();
+  AISpeeds_MaintainLeaderBoard();
+  DrawW_DoObjectAnimations();
+}
+
 /* ---- Cars_CheckForAccidentScenes__Fv  [@0x8008b1c4] ---- */
 void Cars_CheckForAccidentScenes(void)
 {
@@ -2291,46 +2334,4 @@ void Cars_SortCars(void)
     }
   } while (swapped != 0);
 }
-
-/* ---- Cars_ManageBureaucracy__Fv  [@0x8008affc] ---- RECONSTRUCTED 2026-06-13 (Ghidra @NFS4.EXE.c:65747).
- *  Skipped from the cars.obj pass. Per active car: recompute road span/position + lane info,
- *  (cool physics) velocity-down-road, (carFlags&4) direction sign from orientMat.row . slice
- *  forward vector, (sliceChanged) lap/total-slice; then sort, randomize, leaderboard, anims. */
-void Cars_ManageBureaucracy(void)
-{
-  int carLoop;
-
-  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
-    Car_tObj *carObj = Cars_gList[carLoop];
-    if (carObj->N.active != '\0') {
-      carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
-      carObj->roadPosition = Cars_CalculateRoadPosition(carObj);
-      AIWorld_CalculateLaneInfo(carObj);
-      if (AIPhysics_UseCoolPhysics(carObj) != 0) {
-        carObj->currentSpeed = Cars_CalcVelDownRoad(carObj);
-      }
-      if ((carObj->carFlags & 4U) != 0) {
-        int facing;
-
-        carObj->speed = carObj->N.speedXZ;
-        if ((unsigned)(carObj->currentSpeed + 0x2ffff) < 0x5ffff) {
-          facing =
-              fixedmult(carObj->N.orientMat.m[6], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[0]) +
-              fixedmult(carObj->N.orientMat.m[7], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[1]) +
-              fixedmult(carObj->N.orientMat.m[8], (int)(signed char)BWorldSm_slices[carObj->N.simRoadInfo.slice].forward[2]);
-          carObj->direction = (0 < facing) ? 1 : -1;
-        } else {
-          carObj->direction = (-1 < carObj->currentSpeed) ? 1 : -1;
-        }
-      }
-      if ((signed char)carObj->N.simRoadInfo.sliceChanged != '\0') {
-        Cars_FindCurrentLap(carObj);
-        Cars_FindTotalSlice(carObj);
-      }
-    }
-  }
-  Cars_SortCars();
-  Cars_Randomize();
-  AISpeeds_MaintainLeaderBoard();
-  DrawW_DoObjectAnimations();
-}
+

@@ -1059,9 +1059,13 @@ void Hud_Init(void)
     x = g1Player[3].x;
     timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
     y = (g1Player[3].y + splitY) - timelapshift;
+    /* MATCH (w61-a1): retail emits `li $s3,29` (this `w2`) in the slot right after the
+     * PREVIOUS jal, i.e. the assignment precedes the Hud_BuildSprite2 call.  22 -> 20.
+     * NOTE the sibling `w2 = 0x3c;` hoist below measures -2 ALONE but +40 when BOTH are
+     * hoisted (62) -- the pair rotates w2's allocno band.  Take exactly one. */
+    w2 = 0x1d;
     Hud_BuildSprite2(gSprt1 + 6,0x6b,x,y);
     x = x + w1;
-    w2 = 0x1d;
     Hud_BuildG4(HudG4 + 1,1,x,y,w2,10,0,0x707070,0,0x707070);
     x = x + w2;
     Hud_BuildF4(HudF4 + 1,1,x,y + 7,7,3,0x707070);
@@ -1131,9 +1135,19 @@ void Hud_Init(void)
       y = g1Player[5].y + splitY + 1;
     }
     x = x + HudPmx_gShapes[0x76].width;
-    Hud_BuildTimeSprites(gSprt1 + 0x1e,
-               (GameSetup_gData.checkpointHUD[i] == 0) ? "0M00S00" : "0.000",
-               x,y);
+    /* MATCH (w61-a1): 09J "EACH ARM CARRIES ITS OWN TAIL" -- retail materialises
+     * `addiu $a0,$s5,600` (= gSprt1+0x1e) TWICE, once per arm, and cross_jump merges
+     * only the jal + $a2/$a3 setup.  The ternary form hoists the shared $a0 above the
+     * branch (1 insn SHORT) and lets reorg steal it into the `bnez` delay slot instead
+     * of `addu $s0,$s0,$v1` (= x += width).  Duplicating the call per arm restores both.
+     * Receipt: ternary 43 @623/624 -> if/else duplicated 22 @624/624 (count-exact);
+     * arms swapped = 24; a named `char *tstr` select temp = 50 @622 (2 SHORT). */
+    if (GameSetup_gData.checkpointHUD[i] == 0) {
+      Hud_BuildTimeSprites(gSprt1 + 0x1e,"0M00S00",x,y);
+    }
+    else {
+      Hud_BuildTimeSprites(gSprt1 + 0x1e,"0.000",x,y);
+    }
     HudSplitTimeDiff1[i] = gSprt1[0x1f].y0 - gSprt1[0x1e].y0;
     currentSpriteColor = textcolour;
     HudSplitTimeDiff2[i] = gSprt1[0x22].y0 - gSprt1[0x1e].y0;
@@ -1144,8 +1158,12 @@ void Hud_Init(void)
     if ((i == 0) && (DashHUD_gInfo.splitscreen != 0)) {
       y = y + -2;
     }
-    j = 0;
+    /* MATCH (w61-a1): retail's `beqz` delay slot holds `addiu $a0,$s5,800` (the
+     * Hud_BuildSprite a0 arg, duplicated at the join) -- i.e. the call, not `j = 0`,
+     * is the first statement after the if.  Moving `j = 0;` below the call gives reorg
+     * that candidate instead.  -4 diffs. */
     Hud_BuildSprite(gSprt1 + 0x28,0x3e,g1Player[0xe].x + 0x13,y + -1,0x808080,0);
+    j = 0;
     Hud_BuildSprite2(gSprt1 + 0x25,0x2c,x,y);
     x = x + w1;
     Hud_BuildSprite2(gSprt1 + 0x26,0x47,x,y);
@@ -1155,8 +1173,8 @@ void Hud_Init(void)
     y = g1Player[1].y + g1Player[0xb].y + splitY;
     Hud_BuildSprite2(gSprt1 + 0x31,0x1a,x + -1,y);
     Hud_BuildSprite2(gSprt1 + 0x32,0x1b,x + -2,y + -1);
+    y = y + 6;   /* MATCH (w61-a1): retail emits `addiu $s1,$s1,6` before `addiu $s0,$s0,2` (-2) */
     x = x + 2;
-    y = y + 6;
     do {
       Hud_BuildSprite2(gSprt1 + 0x29 + j,j + 0x1c,x,y);
       j = j + 1;
@@ -1170,10 +1188,13 @@ void Hud_Init(void)
   int baseX;
   int baseY;
 
-  spriteReplay = gSprite0;
-  i = 0;
+  /* MATCH (w61-a1): retail's order after the loop is `ori v0,0x8080` (the colour),
+   * `li a1,111` (the first call's shape arg), `lw s1,%gp_rel(gSprite0)`, `addu fp,zero,zero`
+   * -- i.e. the colour/transparency stores precede the pointer + counter inits.  -2. */
   currentSpriteColor = 0x808080;
   currentSpriteTransparent = 1;
+  spriteReplay = gSprite0;
+  i = 0;
   baseX = g1Player[0xd].x;
   baseY = g1Player[0xd].y;
   Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);

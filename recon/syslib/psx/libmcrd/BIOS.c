@@ -81,10 +81,57 @@ extern void _card_open(int pad_enable)
     _bu_init();
 }
 
+/* W60-A1 (2026-08-14): _clr_card_event is DEFINED after _card_stop -- retail's obj order is
+ * _card_open, _card_start, _card_close, _card_stop, _clr_card_event.  Forward decl for
+ * _card_start's call site below. */
+extern void _clr_card_event(void);
+
+/* @0x80109620 : _card_start -- open + enable the eight card events.  Oracle fully unrolls both
+ *   the OpenEvent and EnableEvent sequences (no loop). */
+extern void _card_start(void)
+{
+    int prev = EnterCriticalSection();
+    _card_evhandle0 = OpenEvent(0xf4000001, 4,      0x1000, (void *)funcEvSpIOE);
+    _card_evhandle1 = OpenEvent(0xf4000001, 0x8000, 0x1000, (void *)funcEvSpError);
+    _card_evhandle2 = OpenEvent(0xf4000001, 0x100,  0x1000, (void *)funcEvSpTimeout);
+    _card_evhandle3 = OpenEvent(0xf4000001, 0x2000, 0x1000, (void *)funcEvSpNewcard);
+    _card_evhandle4 = OpenEvent(0xf0000011, 4,      0x1000, (void *)funcEvSpIOEx);
+    _card_evhandle5 = OpenEvent(0xf0000011, 0x8000, 0x1000, (void *)funcEvSpErrorx);
+    _card_evhandle6 = OpenEvent(0xf0000011, 0x100,  0x1000, (void *)funcEvSpTimeoutx);
+    _card_evhandle7 = OpenEvent(0xf0000011, 0x2000, 0x1000, (void *)funcEvSpNewcardx);
+    EnableEvent(_card_evhandle0);
+    EnableEvent(_card_evhandle1);
+    EnableEvent(_card_evhandle2);
+    EnableEvent(_card_evhandle3);
+    EnableEvent(_card_evhandle4);
+    EnableEvent(_card_evhandle5);
+    EnableEvent(_card_evhandle6);
+    EnableEvent(_card_evhandle7);
+    _clr_card_event();
+    if (prev == 1)
+        ExitCriticalSection();
+}
+
 /* @0x801097FC : _card_close */
 extern void _card_close(void)
 {
     StopCARD();
+}
+
+/* @0x8010981C : _card_stop -- close the eight card events (oracle fully unrolled). */
+extern void _card_stop(void)
+{
+    int prev = EnterCriticalSection();
+    CloseEvent(_card_evhandle0);
+    CloseEvent(_card_evhandle1);
+    CloseEvent(_card_evhandle2);
+    CloseEvent(_card_evhandle3);
+    CloseEvent(_card_evhandle4);
+    CloseEvent(_card_evhandle5);
+    CloseEvent(_card_evhandle6);
+    CloseEvent(_card_evhandle7);
+    if (prev == 1)
+        ExitCriticalSection();
 }
 
 /* @0x801098D0 : _clr_card_event -- acknowledge & clear every card event.  Oracle is fully
@@ -114,48 +161,6 @@ extern void _clr_card_event(void)
      * operand-LESS `asm("")` is deleted before reorg, an "r" operand would cost a real
      * insn here (no value is reg-resident at this point), and "i"(0) emits NOTHING. */
     __asm__("" : : "i"(0));
-}
-
-/* @0x80109620 : _card_start -- open + enable the eight card events.  Oracle fully unrolls both
- *   the OpenEvent and EnableEvent sequences (no loop). */
-extern void _card_start(void)
-{
-    int prev = EnterCriticalSection();
-    _card_evhandle0 = OpenEvent(0xf4000001, 4,      0x1000, (void *)funcEvSpIOE);
-    _card_evhandle1 = OpenEvent(0xf4000001, 0x8000, 0x1000, (void *)funcEvSpError);
-    _card_evhandle2 = OpenEvent(0xf4000001, 0x100,  0x1000, (void *)funcEvSpTimeout);
-    _card_evhandle3 = OpenEvent(0xf4000001, 0x2000, 0x1000, (void *)funcEvSpNewcard);
-    _card_evhandle4 = OpenEvent(0xf0000011, 4,      0x1000, (void *)funcEvSpIOEx);
-    _card_evhandle5 = OpenEvent(0xf0000011, 0x8000, 0x1000, (void *)funcEvSpErrorx);
-    _card_evhandle6 = OpenEvent(0xf0000011, 0x100,  0x1000, (void *)funcEvSpTimeoutx);
-    _card_evhandle7 = OpenEvent(0xf0000011, 0x2000, 0x1000, (void *)funcEvSpNewcardx);
-    EnableEvent(_card_evhandle0);
-    EnableEvent(_card_evhandle1);
-    EnableEvent(_card_evhandle2);
-    EnableEvent(_card_evhandle3);
-    EnableEvent(_card_evhandle4);
-    EnableEvent(_card_evhandle5);
-    EnableEvent(_card_evhandle6);
-    EnableEvent(_card_evhandle7);
-    _clr_card_event();
-    if (prev == 1)
-        ExitCriticalSection();
-}
-
-/* @0x8010981C : _card_stop -- close the eight card events (oracle fully unrolled). */
-extern void _card_stop(void)
-{
-    int prev = EnterCriticalSection();
-    CloseEvent(_card_evhandle0);
-    CloseEvent(_card_evhandle1);
-    CloseEvent(_card_evhandle2);
-    CloseEvent(_card_evhandle3);
-    CloseEvent(_card_evhandle4);
-    CloseEvent(_card_evhandle5);
-    CloseEvent(_card_evhandle6);
-    CloseEvent(_card_evhandle7);
-    if (prev == 1)
-        ExitCriticalSection();
 }
 
 /* @0x801099D8 : _get_card_event -- block until a slot-0 event fires, acknowledge the slot-1

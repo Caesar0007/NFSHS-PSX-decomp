@@ -4,7 +4,7 @@ Reuses verify_asm's compile + normalizers (one compile per run)."""
 import sys, difflib, importlib.util
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 f, fn = sys.argv[1], sys.argv[2]
 sys.argv = [sys.argv[0], f, '__none__']

@@ -1144,6 +1144,16 @@ PER_FN_TEXT_MOVES = {
              "copy": True, "slot": True},
         ],
     },
+    # w60-a9 (orchestrator-wired from the in-source spec): LoadBankHeaders 6 ->
+    # PASS 270/270 -- one pure reorg rotation: retail issues the call's li a2,16
+    # before the header read pair (lbu v0,8(s0); addiu s0,s0,8).
+    "recon/game/common/speech.cpp": {
+        "LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell": [
+            {"take": r"\tli\t\$6,16[^\n]*\n", "after": r"\tmove\t\$5,\$19\n"},
+            {"take": r"\tlbu\t\$2,8\(\$16\)\n", "after": r"\tlw\t\$3,28\(\$sp\)\n"},
+            {"take": r"\taddu\t\$16,\$16,8\n", "after": r"\tlbu\t\$2,8\(\$16\)\n"},
+        ],
+    },
     # w59-a2 (orchestrator-wired): Physics_DoBarrierCheck 2 -> PASS 358/358.
     # Sole residual = retail issues the mflo four insns early; probe-verified
     # (scratchpad/root_probe_physics_barrier_splice.py).

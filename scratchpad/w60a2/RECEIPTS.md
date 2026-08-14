@@ -242,3 +242,115 @@ MemCardCreateFile (68), its twin.
 * `git status --cached` is not a thing (`git diff --cached` is) — the typo broke
   an `&&` chain so a commit silently did not run, and another agent's
   pathspec-limited commit landed in between. Verified my index survived it.
+
+---
+
+# W60-A2 — ROUND 2 (resume)
+
+Re-baselined on the moved tree (`19c40394`): TU **19/26**, per-fn counts
+identical to my round-1 close (1/1/17/47/57/68/69). No drift.
+
+**TU: 19/26 → 21/26 PASS.**
+
+| fn | | lever |
+|---|---|---|
+| MemCardReadData_cb | 1 → **PASS 79/79** | same-source-line cross_jump rule |
+| MemCardWriteData_cb | 1 → **PASS 79/79** | same |
+| MemCardCmd_cb | 17 | unchanged (2 more dials falsified) |
+| MemCardExist_cb | 47 | unchanged |
+| MemCardDeleteFile / CreateFile / GetDirentry | 57 / 68 / 69 | unchanged |
+
+Commit: `0c5d4e75`.
+
+## 🏆 NEW LAW — THE SAME-SOURCE-LINE CROSS_JUMP RULE
+
+**Symptom:** the oracle reaches ONE shared call/tail from two paths, with only
+the differing argument (or value) setup left behind in its own tiny landing
+block that FALLS INTO the shared code — and your duplicated-arm source refuses
+to merge, leaving two `jal`s. An in-source receipt blames "cross_jump will not
+merge across the `__asm__`".
+
+**It is not the asm. It is the LINE NUMBER.** Read from
+`C:\Temp\gcc-2.8.1-src\extracted\jump.c`:
+
+* `find_cross_jump` (jump.c:2632-2635) refuses only `ASM_INPUT` and
+  `ASM_OPERANDS` with `MEM_VOLATILE_P`. Our zero-insn anchor fence
+  `__asm__("" : "=r"(pc) : "0"(pc))` has an output operand ⇒ **not** volatile
+  ⇒ **not** refused by that guard. (And the top-level pattern is a `SET`, so
+  the guard does not even fire.)
+* The rejection is one line later, at `rtx_renumbered_equal_p` (jump.c:2637 →
+  4095). Its generic element loop (jump.c:4226) compares every `'i'` field with
+  `!=` — and `ASM_OPERANDS` carries `ASM_OPERANDS_SOURCE_LINE` as an `'i'`
+  field. Two byte-identical fences on different source lines compare
+  **UNEQUAL**, the backward merge stops there, and both `jal`s survive.
+
+**Fix:** expand both tails from ONE macro invoked TWICE **on one physical
+source line**. The fences become identical rtx, the merge runs the whole way
+back through the call, and retail's arg-setup-only landing block appears.
+
+```c
+#define MCRD_REPORT(EV) r = MemCardEventToRslt(EV); pc = &mc.cmd; \
+    __asm__("" : "=r"(pc) : "0"(pc)); pc[1] = r; return 1
+...
+if (ev != 0) { retry...; MCRD_REPORT(ev); } MCRD_REPORT(0);   /* ONE line */
+```
+
+Both `*Data_cb` twins: **1 → PASS 79/79**. The one-line invocation is
+load-bearing and says so loudly in-source; splitting the two `MCRD_REPORT()`
+sites onto separate lines silently reverts both functions.
+
+This retires the w55-a7 named angle *and* explains my own round-1 `mc_words`
+falsification: the asm-label view merged the tails **because it removed the
+fence**, and paid for it with the store form. Keeping the fence and fixing its
+line is the correct answer. **Generalizes to every fenced duplicated-tail shape
+in the tree** — any receipt that says "cross_jump will not merge across the
+`__asm__`" should be re-tested with the fences on one line.
+
+**Corollary (untested, for the inverse class):** the same field makes
+cross_jump *breakable* on demand — two arms whose fences sit on different lines
+cannot merge. Useful wherever ours merges a tail retail keeps duplicated.
+
+## Falsified this round
+
+**MemCardCmd_cb 17 → 17.** The residual is now understood end-to-end. Our
+`cdone` arm ends `sw $2,4($3); li $2,1; j $L62` and the `ctail`
+EventToRslt arm ends with the *same* post-reload rtx, so the post-reload
+cross_jump merges `sw + set v0,1 + jump` into one `$L64` block — that merged
+`li $v0,1` is exactly why ours is 140 vs oracle 141. Retail does not merge
+because its `cdone` arm allocates the other way round (rslt `$v1`, base `$v0`),
+so the two `sw`s are not rtx-equal. **The merge is the EFFECT; the $v0/$v1
+swap in `cdone` is the cause** (post-reload cross_jump cannot influence
+allocation). Dial attempts on that swap:
+
+| probe | diffs |
+|---|---|
+| baseline | 17 |
+| extra identity fences on `pc` in the `cdone` arm, +1 / +2 / +3 / +4 | 17 (inert) |
+| extra identity fences on `pc` in the `ctail` ev==4 arm, +2 (round 1) | 17 (inert) |
+
+These are LOCAL-alloc QTY handouts; the floor_log2 REF-STEP dial that flipped
+this fn's GLOBAL `$s0`/`$s1` tie does not reach them (methodology §4.6).
+**NAMED ANGLE (sharpened):** make `rslt` land in `$v1` and the `&mc.cmd`
+anchor in `$v0` inside `cdone`; everything else — the merge, the missing
+`li $v0,1`, the 141st insn — falls out of that one handout. Instrument lane
+(`qtytrace --want`) is the right vehicle, not more hand-dialling.
+MemCardExist_cb's standing 47 is the same shape (ours 116 vs oracle 117, one
+merged tail insn).
+
+## Re-ladder in the new (21/26) basin — 04Z discipline
+
+| rung | whole-TU |
+|---|---|
+| **2.7.2 (wired)** | **21/26** |
+| 2.6.3 | 20/26 — Format 12, Cmd_cb 30, DeleteFile 63, CreateFile 76, GetDirentry 87; **only** Exist_cb improves (47 → 45) |
+| 2.7.2-970404 | catastrophic (Cmd_cb 75, Exist_cb 102, GetDirentry 136, 8 more fns fall out) |
+
+**No `PER_FN_CC1_VER_SPLICE_272` recommended.** The single per-fn candidate is
+Exist_cb on 2.6.3 for −2 diffs — not a seal, and it would buy a whole extra cc1
+compile per build. Filed, not wired.
+
+## Orchestrator items (unchanged from round 1, both still open)
+
+1. `tools/sbsx.py` ROOT bug — `parents[2]` → `parents[1]`.
+2. Shared-file (build.py) own-hunk staging pattern; `git diff` → split hunks by
+   agent tag → `git apply --cached`. No build.py change was needed this round.

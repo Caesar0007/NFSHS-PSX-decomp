@@ -148,11 +148,37 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      * `while ((s0 != 0) && (i < 0xB))`, a POINTER WALK `p++` over the callback slots (not
      * `cb[i]` indexing), and the stuck-counter read-then-store
      * `c = t; t = c + 1; if (c >= 0x801)`.  $s1 gets reused as the counter `i` exactly because
-     * `state` dies at `base = &state[2]`. */
+     * `state` dies at `base = &state[2]`.
+     *
+     * W60-A1 (2026-08-14) 49 @115/116 -> 44 @116/116 (COUNT-EXACT).  TWO named mechanisms, both
+     * instances of the delete_noop_moves / combine_regs identity (catalog w47 sec A: "combine_regs
+     * REFUSES to tie when the destination is a GLOBAL allocno -- make the PRODUCER's destination a
+     * distinct short-lived pseudo"):
+     *   (1) THE `pend` TEMP.  Retail computes the pending-IRQ mask into a BLOCK-LOCAL pseudo,
+     *       tests THAT, and copies it into the loop-carried `s0` in the branch's DELAY SLOT
+     *       (`and v0,v0,v1; beqz v0,T; addu s0,v0,zero`) -- at BOTH sites (the entry test and the
+     *       outer do-while back-edge).  Assigning the AND result straight into `s0` (a multi-block
+     *       global allocno) makes the copy the noop-move that flow deletes, leaving a bare `nop`
+     *       in each slot.  A separate `long pend` restores both copies.
+     *   (2) THE TIMEOUT READ-THEN-COPY (see its own note below) -- the missing 116th instruction.
+     * FALSIFIED at this basin (all gated, all reverted): pend expression spellings
+     * `(state[0x18] & I_STAT) & I_MASK` 50, `state&I_STAT` then `&I_MASK` as two statements 46,
+     * `I_MASK & pend` as two statements 46, `I_STAT & (state & I_MASK)` 44 (ties, kept the
+     * I_MASK-outer form); `(I_MASK & I_STAT)` for the closing timeout test 46.
+     * FALSIFIED in the OLD 115-insn basin (04Z: basin-relative, re-test if the basin moves):
+     * g_intr_timeout as an unsized `[]` / sized `[1]`/`[2]`/`[4]` array (the catalog's store-side
+     * $at lever) all 48 @114/116 -- they REMOVE an instruction here, they do not add retail's
+     * copy; `volatile int []` 53.
+     * RESIDUAL (44, count-exact): pure register ASSIGNMENT -- ours puts the AND chain in
+     * {v0,a0} where retail uses {v1,v0}, and the two `lhu` of I_STAT/I_MASK for the closing
+     * test land in the opposite pair.  Same class as the fn's SYM-less local-alloc QTY handout
+     * (06E gap) -- qtytrace/allocsim territory, not another spelling sweep. */
     unsigned short *state;
     unsigned short s0;
+    long pend;
     long i;
     long c;
+    long t;
     long one;
     int *p;
     int *base;
@@ -164,8 +190,9 @@ extern void _intrhand(void)            /* @0x800F2A40 */
         ReturnFromException();
     }
     state[1] = 1;
-    s0 = (unsigned short)((state[0x18] & I_STAT) & I_MASK);
-    if (s0 != 0) {
+    pend = I_MASK & (state[0x18] & I_STAT);
+    s0 = (unsigned short)pend;
+    if (pend != 0) {
         one = 1;
         base = (int *)&state[2];
         do {
@@ -183,12 +210,20 @@ extern void _intrhand(void)            /* @0x800F2A40 */
                     i++;
                 }
             }
-            s0 = (unsigned short)((g_intr.enabled & I_STAT) & I_MASK);
-        } while (s0 != 0);
+            pend = I_MASK & (g_intr.enabled & I_STAT);
+            s0 = (unsigned short)pend;
+        } while (pend != 0);
     }
     if ((I_STAT & I_MASK) != 0) {
-        c = g_intr_timeout;
-        g_intr_timeout = c + 1;
+        /* MATCH (w60-a1): retail MUTATES the loaded pseudo IN PLACE for the store and
+         * keeps a COPY of the pre-increment value for the compare
+         * (`lw t; addu c,t,zero; addiu t,t,1; slti c,c,2049; ...; sw t`).  Reading
+         * straight into `c` and storing `c + 1` coalesces that copy away and lands the
+         * whole fn ONE INSTRUCTION SHORT (115 vs 116).  This shape is count-EXACT. */
+        t = g_intr_timeout;
+        c = t;
+        t = t + 1;
+        g_intr_timeout = t;
         if (c >= 0x801) {
             printf("intr timeout(%04x:%04x)\n", I_STAT, I_MASK);
             g_intr_timeout = 0;

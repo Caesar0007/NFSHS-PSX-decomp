@@ -341,15 +341,21 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
   do {
     systemtask(0);
   } while (getasyncreadstatus(vivHandle) == 0);
-  bigfileHeader->type = bigfileHeader->type << 0x18 |
-       (bigfileHeader->type & 0xff00) << 8 |
-       (bigfileHeader->type & 0xff0000) >> 8 | bigfileHeader->type >> 0x18;
-  bigfileHeader->hlen = bigfileHeader->hlen << 0x18 |
-       (bigfileHeader->hlen & 0xff00) << 8 |
-       (bigfileHeader->hlen & 0xff0000) >> 8 | bigfileHeader->hlen >> 0x18;
-  bigfileHeader->num = bigfileHeader->num << 0x18 |
-       (bigfileHeader->num & 0xff00) << 8 |
-       (bigfileHeader->num & 0xff0000) >> 8 | bigfileHeader->num >> 0x18;
+  {
+    u_int byteMask = 0xff0000;
+    u_int headerType = bigfileHeader->type;
+    __asm__("" : : "r"(headerType), "r"(byteMask));
+    LUMPYHEAD *header = bigfileHeader;
+    u_int headerLength = header->hlen;
+    u_int headerNum = header->num;
+
+    header->type = headerType << 0x18 | (headerType & 0xff00) << 8 |
+                   (headerType & byteMask) >> 8 | headerType >> 0x18;
+    header->hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |
+                   (headerLength & byteMask) >> 8 | headerLength >> 0x18;
+    header->num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |
+                  (headerNum & byteMask) >> 8 | headerNum >> 0x18;
+  }
   return bigfileHeader;
 }
 

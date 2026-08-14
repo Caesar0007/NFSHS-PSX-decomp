@@ -383,6 +383,32 @@ void tFEApplication::Redraw()
                    (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
       }
     }
+    /* MATCH (W60-A10): the WHOLE 10-diff residual of this fn is ONE window --
+       retail builds the FULL scratchpad constant 0x1F800004 into a caller-saved
+       temp (`lui t0,8064; ori t0,t0,4`) and uses it at displacement 0 for BOTH
+       the join-block read (`lw a0,0(t0)`) and the store (`sw v0,0(t0)`), with
+       reorg stealing that `lui` into the preceding `beqz` delay slot.  Ours
+       instead folds the address per access: `lui a0,8064; lw a0,4(a0)` +
+       `lui at,8064; sw v0,4(at)` + a `nop` in the slot.  Same insn COUNT
+       (393/393), so it is a pure address-materialisation shape.
+       ROOT CAUSE of every failed cure: an explicit `u_char **cell =
+       (u_char **)0x1f800004;` local IS the right shape (it is exactly what the
+       FIRST packet block above uses, and that block matches), but HERE the
+       block sits inside the `for (i = 1; i >= 0; i--)` loop, so loop.c hoists
+       the loop-invariant address into the preheader -> it needs a CALLEE-saved
+       reg -> +1 saved reg, +8 frame bytes and a whole s-band rotation.
+       FALSIFIED (all measured, base = 10):
+         join-read + cell local 89 (394, s7 added) . cell in both arms 39 (390,
+         cross-jump merged the arms) . cell before the guard 39 . store-only
+         cell 39/66 . join-read on the bare macro 58 . fn-scope cell reused
+         from the first block 80 . fn-scope re-assigned 57 . fn-scope 2nd cell
+         10 (inert) / 14 . anti-cross-jump void fence in one/both arms 42
+         (count restored to 393, coloring worse) . identity(opacity) fence on
+         the cell to defeat the LICM hoist 55 (394) . volatile cell 115 .
+         fenced store-only cell 66.
+       => the missing device is a SELECTIVE anti-LICM that leaves the pseudo
+       block-local (09G goto-back-edge class), or the local-alloc handout
+       itself.  Do not re-run the list above. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

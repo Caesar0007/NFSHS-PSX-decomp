@@ -12,11 +12,20 @@ ROOT = Path(__file__).resolve().parents[1]
 OBJDUMP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump"
 
 vas = {}
+dup = set()
 for ln in open(ROOT / "configs" / "symbol_addrs.txt", encoding="utf-8",
                errors="replace"):
     m = re.match(r"(\S+?)\s*=\s*(0x[0-9A-Fa-f]+);\s*//\s*type:func", ln)
     if m:
+        if m.group(1) in vas and vas[m.group(1)] != int(m.group(2), 16):
+            dup.add(m.group(1))          # name maps to >1 VA (per-TU static
         vas.setdefault(m.group(1), int(m.group(2), 16))
+# w60 unlock: a name with multiple VAs (per-TU static copies, e.g.
+# iSPCH_GetOffset16 x3) mis-attributes the FIRST VA to every object holding a
+# copy => FALSE inversions (spchdata/spchrule were 3 phantoms).  Skip them --
+# report the count so the exclusion is never silent (anti-vacuity rule).
+for n in dup:
+    del vas[n]
 
 bad = 0
 objs = sorted(o for o in (ROOT / "build" / "recon").rglob("*.o")
@@ -37,5 +46,6 @@ for obj in objs:
             bad += 1
         else:
             last_va = va
-print(f"{len(objs)} objects audited, {bad} inversions")
+print(f"{len(objs)} objects audited, {bad} inversions "
+      f"({len(dup)} multi-VA names excluded: {' '.join(sorted(dup)) or '-'})")
 sys.exit(1 if bad else 0)

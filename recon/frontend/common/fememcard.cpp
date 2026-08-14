@@ -1019,7 +1019,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
 
 /* end of fememcard.cpp */
 
-extern "C" {
-void ___23tMenuItemGoToMenuButton(void *);
-void ___19tMemoryCardMenuItem(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
-}
+/* w60 link-debt fix: ___19tMemoryCardMenuItem was multiply-defined here AND in
+ * femenuoptions.cpp.  SYM ownership proof: `Set SLD to line 425 of file
+ * ...FEMENUOPTIONS.H`, `$80020bd8 94 Def class EXT ... _._19tMemoryCardMenuItem`
+ * => FEMenuOptions.obj owns it; this copy removed. */

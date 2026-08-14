@@ -222,13 +222,16 @@ void tScreenTrophyRoom::Cleanup()
 
 
 /* ---- tScreenTrophyRoom::DrawBackground  [SCREENTROPHYROOM.CPP:161-234] ---- */
-/* W66 (2026-08-10): 158 -> 108 diffs (257/261 insns).  Three guide-sanctioned
-   empty-template fences preserve retail lifetimes without emitting instructions
-   or pinning registers: pDrawFlags remains live across the fade/text calls, the
-   extra final use gives i=s1 and this=s2, and the texttoshow identity barrier
-   removes two more scheduling differences.  The remaining residual is localized
-   to the tournament-index expression, texttoshow's a0 handoff, and grid-loop
-   call setup. */
+/* MATCH (W66): 108 -> PASS (261/261).  The trophy-info comma-staging receipt gives
+   the this-dependent current tournament its retail evaluation order, while the
+   selectedTourn pointer prevents destructive reuse of the definition base.  The
+   text call is kept as one nested expression and pDrawFlags is published after it,
+   letting sched1 place the pointer between TextSys_Word and CalcFadeVal.  Retail's
+   loop came from duplicated branch-local ScaleShapeExtended calls which GCC then
+   cross-jumps; spelling one shared call loses three argument-setup instructions.
+   Finally, the source-order comparison `i >= fNumTrophies` produces the oracle's
+   sign-extend-before-load sequence.  The two-reference fModNumber fence crosses
+   its allocator step and restores the SLD s3 / pDrawFlags s4 handout. */
 void tScreenTrophyRoom::DrawBackground()
 
 {
@@ -241,7 +244,6 @@ void tScreenTrophyRoom::DrawBackground()
   short x;
   short y;
   int texttoshow;
-  char *sMenuText;
   
   drawFlags3.tint[0] = 0xcec844;
   DrawShapeExtended((ticks >> 4) % 10 + 0x1c,
@@ -259,11 +261,20 @@ void tScreenTrophyRoom::DrawBackground()
     ::UploadSwapShapes((tScreen *)this,0x20);
     this->startTicks = ticks;
   }
-  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
-             (signed char)(tournamentManager.fDefinition)->fTournaments
-             [(uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset +
-               (uint)(byte)this->fRealCurrentTourn[this->tier]].fTournamentID + 0x354,0x100,0x2f,2,
-             textState_Hilighted,textType_ScreenInfo);
+  {
+    uint feTier = (uint)(byte)frontEnd.tier;
+    byte currentTourn;
+    uint tourn;
+    tTourneyInfo *selectedTourn;
+
+    tourn = (currentTourn = (byte)this->fRealCurrentTourn[this->tier],
+             (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset +
+                 currentTourn);
+    selectedTourn = (tournamentManager.fDefinition)->fTournaments + tourn;
+    FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,
+               (signed char)selectedTourn->fTournamentID + 0x354,0x100,0x2f,2,
+               textState_Hilighted,textType_ScreenInfo);
+  }
   texttoshow = 0x3de;
   if (((gPadinfo.buf[0].ID == '#') &&
       ((gPadinfo.buf[4].ID == '#' || (gPadinfo.buf[4].nopad != '\0')))) ||
@@ -276,28 +287,29 @@ void tScreenTrophyRoom::DrawBackground()
   }
   __asm__("" : "=r"(texttoshow) : "0"(texttoshow));
   i = 0;
-  sMenuText = TextSys_Word(texttoshow);
+  FETextRender_FullTextRGB(TextSys_Word(texttoshow),0x100,200,
+                           CalcFadeVal(0x505050,this->fScreenFadeVal),'\0',2);
   pDrawFlags = &drawFlags;
   __asm__("" : "=r"(pDrawFlags) : "0"(pDrawFlags));
-  texttoshow = CalcFadeVal(0x505050,this->fScreenFadeVal);
-  FETextRender_FullTextRGB(sMenuText,0x100,200,texttoshow,'\0',2);
   while (true) {
-    texttoshow = (int)i;
-    if (this->fNumTrophies <= texttoshow) break;
-    x = TROPHY_LEFTOFFSET + (texttoshow % fModNumber) * 0x5f;
-    y = (texttoshow / fModNumber) * 45 + 70;
-    if ((texttoshow == this->fRealCurrentTourn[this->tier]) &&
+    if ((int)i >= (int)this->fNumTrophies) break;
+    x = TROPHY_LEFTOFFSET + (i % fModNumber) * 0x5f;
+    y = (i / fModNumber) * 45 + 70;
+    if ((i == this->fRealCurrentTourn[this->tier]) &&
        ((this->fSwapShapes.fFlags & 1) != 0)) {
       drawFlags.custom_shapes = this->fSwapShapes.fShapes;
       texttoshow = ((ticks - this->startTicks) / 12) % 32;
+      ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
     }
     else {
       drawFlags.custom_shapes = (this->fTrophyShapes).fShapes;
+      texttoshow = i;
+      ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
     }
-    ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
     i = i + 1;
   }
   __asm__("" : : "r"(i));
+  __asm__("" : : "r"(fModNumber), "r"(fModNumber));
   return;
 }
 

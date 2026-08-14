@@ -594,11 +594,34 @@ static int MemCardCmd_cb(void *pv)
      * to block gcc's branchless if-conversion (`sltu;negu;andi 3`) (89->79, polarity flip ->77) ·
      * a SEPARATE local for the tail's re-read of _mc_evrslt (reusing `ev` extends its web onto the
      * $a0 call-arg and re-colors the whole dispatch) (57).
-     * NAMED ANGLE (the 55 residual): (a) a straight $s0<->$s1 swap -- retail puts the `pv` param
-     * in $s0 and the case-10 &_mc_rslt anchor in $s1, ours the reverse (decl-order swap tested:
-     * inert), and it cascades through every `0($sN)` state access; (b) each `return 1` site
-     * materializes its own `li $v0,1` in the `j` delay slot in retail while ours cross-jump-merges
-     * them into one shared block. */
+     * w60-a2: 55 -> 47 -> 17.  TWO further landings:
+     *   🔴 CORRECTNESS: the `ctail` re-read wrote `ev = _mc_evrslt;` but then USED the never-
+     *      assigned `e` in both the `e == 4` test and the two `pc[1] = e` / EventToRslt(e) uses
+     *      -- an uninitialised local.  The w53-a7 note's own wording ("a SEPARATE local for the
+     *      tail's re-read") says the assignment was meant to be `e = _mc_evrslt;`.  Fixed; worth
+     *      8 diffs on its own (55 -> 47), which is the usual sign a "matching" hack was really
+     *      standing in for a bug.
+     *   🏆 NAMED ANGLE (a) CLOSED, 47 -> 17: the $s0<->$s1 swap is a global_alloc PRIORITY tie,
+     *      priced with the floor_log2 REF-STEP dial (w44/catalog §A "priced register dial").
+     *      priority ~ floor_log2(refs)*refs/live_length, and the first-allocated allocno takes
+     *      the lowest free callee-saved reg ($s0=$16).  Retail hands $s0 to the `pv` param and
+     *      $s1 to the case-10 &mc.rslt anchor; ours had it the other way because the anchor's
+     *      live range is SHORT (one case arm) while `st` spans the whole function.  Buying `st`
+     *      refs with ONE zero-insn read-only fence flips it -- but only once the count crosses a
+     *      floor_log2 step.  MEASURED (each operand = +1 ref): 1 = 47, 4 = 47, 5 = 47, 6 = 47,
+     *      7 = 47, 8 = 17, 9 = 17, 10 = 17; 12+ makes CC1PSX fail (asm-operand limit).  8 is the
+     *      minimum that lands the step -- do not "tidy" the operand list, the COUNT is the dial.
+     *      The swap cascaded through every `0($sN)` state access, so one fence took 30 diffs.
+     * NAMED ANGLE (the 17 residual, both are the SAME class as MemCardExist_cb's): (a) the
+     * `cdone` tail is a $v0<->$v1 swap -- retail keeps `rslt` in $v1 and the &mc.cmd anchor in
+     * $v0, stores BEFORE the `j`, and fills the `j` slot with `li $v0,1`; ours holds rslt in $v0,
+     * the anchor in $v1 and fills the slot with the store, cross-jump-merging its own `li $v0,1`
+     * into a shared block (ours 140 vs oracle 141 = exactly that one merged constant);
+     * (b) the `ctail` ev==4 arm wants the anchor in $v0 (reusing the just-dead `li $v0,4`
+     * compare constant) where ours takes a fresh $v1.  FALSIFIED w60-a2: 2 extra identity fences
+     * on `pc` in the ev==4 arm = 17 (inert) -- these are LOCAL-alloc QTY handouts, not global
+     * allocnos, so the priced dial above does not reach them (methodology §4.6). */
+    __asm__("" : : "r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st),"r"(st));
     switch (st[0]) {
     case 0:
         _mc_cleared = 0;
@@ -675,8 +698,8 @@ set1e:
         st[0] = 0x1e;
         goto ret0;
 ctail:
-        ev = _mc_evrslt;                /* re-read: retail loads it into $a0 for the call/store */
-        if (ev == 4) {
+        e = _mc_evrslt;                 /* re-read: retail loads it into $a0 for the call/store */
+        if (e == 4) {
             pc = &mc.cmd;
             __asm__("" : "=r"(pc) : "0"(pc));
             pc[1] = e;                  /* stores the LOADED 4, not a fresh `li` */

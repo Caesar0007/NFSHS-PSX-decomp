@@ -1511,6 +1511,21 @@ extern "C" void MenuExtended_SellCar__FR12tMenuCommand(tMenuCommand *command)
    backward scan so the copy stays ahead of the branch instead of in its delay slot (+1 insn), and
    the if-arm's `addu a0,s0,zero` lands in a 2nd tail block rather than the `j` slot. */
 
+/* [W59-A12 2026-08-14, 7->0 PASS] The last two residuals were ONE shape each.
+   (a) TAIL: both arms must END in their own `Display(); return;` (the else-arm
+   de-nested to straight-line fall-out).  gcc then cross-jump-merges the two
+   `jal Display`+epilogue tails and each arm keeps only its own receiver setup --
+   the if-arm`s `addu a0,s0,zero` rides the `j` delay slot (oracle) instead of our
+   old shared-tail form, which parked the STORE in that slot and needed an extra
+   `addu a0,s0,zero` block (= the +1 insn, ours 86 vs oracle 85).
+   (b) FENCE PLACEMENT: the opacity fence must sit on `this_00` BEFORE the copy,
+   not on `popUp` after it.  Any asm stops reorg`s backward delay-slot scan, so a
+   fence AFTER the copy pins `addu s1,s0,zero` ahead of the branch; moved ahead of
+   the copy it still keeps the two pseudos apart (cse cannot launder through it)
+   while leaving the copy as the last movable insn -> reorg fills the `beqz` slot
+   with it, exactly as retail.  Measured: tail-only 47, fence-only 12, no-fence 12,
+   BOTH -> PASS 85/85. */
+
 extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
 
 {
@@ -1539,8 +1554,8 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
   this_00 = &FEApp->messagePopup;
   carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
   sVar2 = carManager.GetNumOwnedCars(0);
+  __asm__("" : "+r" (this_00));
   popUp = this_00;
-  __asm__("" : "+r" (popUp));
   if (sVar2 < 0x20) {
     if (tournamentManager.fMoney >= carInfo.fPrices[0]) {
       tDialogYesNo yesNo;
@@ -1563,14 +1578,12 @@ extern "C" void MenuExtended_BuyCar__FR12tMenuCommand(tMenuCommand *command)
     AudioCmn_PlayFESFX(10);
     pcVar4 = TextSys_Word(0xa7);
     this_00->string = pcVar4;
-  }
-  else {
-    pcVar4 = TextSys_Word(0x4b);
-    popUp->string = pcVar4;
-    ((tDialogBase *)popUp)->Display();
+    ((tDialogBase *)this_00)->Display();
     return;
   }
-  ((tDialogBase *)this_00)->Display();
+  pcVar4 = TextSys_Word(0x4b);
+  popUp->string = pcVar4;
+  ((tDialogBase *)popUp)->Display();
   return;
 }
 
@@ -2619,6 +2632,64 @@ winCase:
 
 
 /* ---- tGlobalMenuDefs::ctor  [FEMENUDEFS.CPP:1353-2200] ---- */
+
+/* [W59-A12 2026-08-14] CTOR DIFF-SHAPE DIAGNOSIS -- re-gated 3365 (the 5176/86.19%
+   board row is stale).  ours 3180 insns / oracle 3207.  THIS IS NOT A DATA PROBLEM:
+     * the `jal` MULTISET *and* the `jal` ORDER are IDENTICAL (254 calls, same targets,
+       same counts, same sequence) -- the 254 sub-object constructions are already in
+       retail order with retail's arguments;
+     * erase spill-slot numbers and register names from both streams and only 729 of
+       2619 normalized diffs survive => ~63% of the mass is REGISTER NAMING, ~11% is
+       spill-slot NUMBERING, ~26% is structure/scheduling;
+     * register confusion matrix over the aligned stream: 4884 register slots compared,
+       82.1% identical; the mismatches are dominated by ONE GLOBAL t0<->t1 rotation
+       (587 slots) plus s2<->s3 (45+) -- a single allocation-order phase difference,
+       not 250 independent errors.  Dest-register histograms are otherwise equal
+       (ours t1 634 / t0 618 / s2 77, oracle t1 644 / t0 633 / s3 75).
+   FRAME (SYM 8c: fp=29 fsize=640 retreg=31 mask=$c0ff0000 = s0-s7+fp+ra, both sides):
+   the oracle's spill area is 72..592 (131 slots), ours 128..596 (118).  The 13-slot
+   deficit is why `compilerFramePad[56]` exists: it restores the 640-byte total so the
+   245 `lw ...,640(sp)` this-reloads and the whole prologue/epilogue match.  Pad swept
+   4,8,16,24,32,40,48,52,56,60,64,72,80,108,112 -> 52/56 are the optimum (3365); 32/40
+   =3595, 4/8=3703, 16=3745.  The deficit itself is visible alignment-free: the oracle
+   has +13 `sw N(sp)` / +12 `lw N(sp)` exactly where ours has +18 `addu R,R,R` and
+   rematerialized constants (`li 0x80` x4, `li 50`) -- retail SPILLS long-lived member
+   addresses and parks constants in callee-saved regs, we copy/rematerialize.
+   SLD (only 22 records): line 1353 covers insns 0..920, 2163 covers 921..3128,
+   2168-2172 are the FIVE SetDimensions calls (the last five calls in the function),
+   2200 the trailing store block, 2180 is emitted last.  Our body-statement order
+   already reproduces retail's tail exactly (child stores, 5x SetDimensions, the four
+   fCarListFilter stores, the VertHelp block with the fFlags|=0x40 in the middle).
+   SYM inline-block list: 39 named inline-ctor `this` locals (REG $10/$13/$15/$16/$17/
+   $1e, AUTO -0x198..-0x84) + 3 `tMenu *child` REG $2 -> retail's three fChildMenu
+   stores were an inline SetChildMenu-style member call (codegen-identical here).
+   FALSIFIED this wave (measured, all reverted): (a) moving the two
+   tInsideBoxControllerLeftRightSlider vptr stores INLINE to their objects'
+   construction via a comma-expression in the next member's args = 3467 (worse);
+   first-only = 3523; dropping them entirely = 3361 but semantically wrong (the vptr
+   would never be set).  (b) `(tMenuItem *)this` -> `(tMenuItem *)&itemMainOnePlayerRace`
+   in menuMain = codegen-neutral.  (c) moving the two vptr stores to the end of the
+   body = codegen-neutral.
+   NAMED ANGLE (next wave): the entire init list is ONE basic block, so every one of
+   these handouts is LOCAL-ALLOC QTY, not global_alloc -- allocsim/reqdelta cannot
+   model it (the 06E gap).  Use the instrumented cc1 [qty_order]/[find_free_reg] trace
+   and diff the QTY order at the FIRST divergence (our insn 41 / oracle 42): ours emits
+   TWO `lw this,640(sp)` and keeps this+0x58 in a caller-saved temp, retail emits ONE
+   and parks this+0x58 in s3 across the call because menuMain later takes
+   &itemMainTrophyRoom (lever #16 shape, but it must be dialed at the QTY layer).
+   SHARED-HEADER REPORT (not applied -- nfs4_types.h is report-only for this agent):
+   nfs4_types.h:4894 `tInsideBoxControllerLeftRightSlider(unsigned int, tListIterator*)`
+   does NOT set its vptr, which is why this file sets it from the body.  Retail sets it
+   INSIDE the object's construction: oracle 0x80030ADC/0x80030AFC/0x80030B34
+   `lui/addiu $s0,%hi/%lo(_vt_35tInsideBoxControllerLeftRightSlider); sw $s0,0x18(obj)`
+   immediately after the `jal __25tInsideBoxLeftRightSliderUiP13tListIterator` base
+   ctor -- exactly what the sibling ctors at nfs4_types.h:4577 / :4586 already do for
+   tMenuItemOptionsLeftRightChoice / tMenuItemOptionsTwoItemChoice.  Recommended diff:
+   add `{ *(void **)&_base_tInsideBoxLeftRightSlider._vf =
+   (void *)&tInsideBoxControllerLeftRightSlider_vtable; }` to that ctor and delete the
+   two body stores here.  (Probed indirectly via the comma-expression form above, which
+   is NOT the same shape -- the header form is untested and may re-basin the fn.) */
+
 
 /* [2026-08-10] Retail constructs every iterator in declaration order between its
    surrounding menu members.  Keeping those members in the initializer list fixes

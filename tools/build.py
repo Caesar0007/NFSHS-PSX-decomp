@@ -1144,6 +1144,24 @@ PER_FN_TEXT_MOVES = {
              "copy": True, "slot": True},
         ],
     },
+    # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
+    # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
+    # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma
+    # 2 -> PASS 56/56 (09L: both retail slot insns write $v0 which their branches
+    # read -- aspsx COPIED the merge-point addu into the beqz slot and MOVED it
+    # into the bnez slot; label-agnostic anchors per the w60-a8 law).
+    "recon/syslib/psx/libgpu/SYS.c": {
+        "_BlitClear": [
+            {"take": r"\taddu\t\$2,\$0,\$0\n(?=\t\.set\tnoreorder)",
+             "after": r"\tjal\t_gpu_dma_chain\n"},
+        ],
+        "_clearOTagR_dma": [
+            {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",
+             "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "copy": True},
+            {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",
+             "after": r"\tand\t\$2,\$2,\$17\n\tbne\t\$2,\$0,\$L\d+\n", "slot": True},
+        ],
+    },
     # w60-a9 (orchestrator-wired from the in-source spec): LoadBankHeaders 6 ->
     # PASS 270/270 -- one pure reorg rotation: retail issues the call's li a2,16
     # before the header read pair (lbu v0,8(s0); addiu s0,s0,8).

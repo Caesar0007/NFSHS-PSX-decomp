@@ -1433,14 +1433,6 @@ void tMenu::TransitionOn()
   return;
 }
 
-/* ---- tMenuItem::TransitionOn / TransitionOff  @0x80025aa8 / @0x80025ab0 ----
- * empty base virtuals (overridden by tMenu); not separately reconstructed -- vtable-only
- * refs surfaced by #75 data-materialization. nfs4-f.exe = { jr $ra } (no-op). */
-void tMenuItem::TransitionOn()  { return; }
-void tMenuItem::TransitionOff() { return; }
-
-
-
 /* ---- tMenu::TransitionIsFinished  [FEMENU.CPP:1243-1244] SLD-VERIFIED ---- */
 
 void * tMenu::TransitionIsFinished()
@@ -1474,6 +1466,14 @@ long tMenu::DebounceKeys()
                     ((char *)this->fItemList[this->fCurrentItem] + (int)(*pa_Var1)[2].delta);
   return lVar2;
 }
+
+
+
+/* ---- tMenuItem::TransitionOn / TransitionOff  @0x80025aa8 / @0x80025ab0 ----
+ * empty base virtuals (overridden by tMenu); not separately reconstructed -- vtable-only
+ * refs surfaced by #75 data-materialization. nfs4-f.exe = { jr $ra } (no-op). */
+void tMenuItem::TransitionOn()  { return; }
+void tMenuItem::TransitionOff() { return; }
 
 
 

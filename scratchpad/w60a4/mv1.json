@@ -1,0 +1,14 @@
+{
+ "recon/syslib/psx/libcd/drv.c": {
+  "CD_get_intr": [
+   {
+    "take": "\\tla\\t\\$2,D_8013C224\\n(?= \\#APP\\n \\#NO_APP\\n\\tla\\t\\$4,D_801489AC\\n)",
+    "after": "\\tla\\t\\$4,D_801489AC\\n"
+   },
+   {
+    "take": "\\tla\\t\\$2,D_8013C224\\n(?= \\#APP\\n \\#NO_APP\\n\\tla\\t\\$4,D_8014899C\\n)",
+    "after": "\\tla\\t\\$4,D_8014899C\\n"
+   }
+  ]
+ }
+}

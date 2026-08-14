@@ -251,3 +251,13 @@ full re-lay, not a dial; out of this wave's remaining budget.
   BEFORE writing.  (This is the 9th-ish firing of the line-ending-hazard family.)
 - Concurrent agents: only `recon/syslib/psx/libcd/*` touched; `iso9660.c` never opened for
   write.  No `git checkout`/`stash`/`reset`; every commit named explicit paths.
+
+
+---
+
+# >>> ROUND 2 (resume): see scratchpad/w60a4/ROUND2.md <<<
+
+Probe-verified wiring hand-offs (CD_get_intr TEXT_MOVES = PASS 343/343 paired with the
+landed void-tail fence; CdControl TEXT_MOVES 8 -> 4; CdRead PER_FN_NO_SPLIT_ADDRESSES
+re-validated 43 -> 38 @103/103), the sched1 `-dS` hardness certificate for the 8x3
+timeout-printf residual, and the idiom-corpora sweep are all in ROUND2.md.

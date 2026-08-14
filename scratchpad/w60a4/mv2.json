@@ -1,0 +1,10 @@
+{
+ "recon/syslib/psx/libcd/cdcont.c": {
+  "CdControl": [
+   {
+    "take": "\\tsw\\t\\$20,32\\(\\$sp\\)\\n\\taddu\\t\\$20,\\$4,\\$0\\n",
+    "after": "\\taddu\\t\\$18,\\$6,\\$0\\n"
+   }
+  ]
+ }
+}

@@ -3480,13 +3480,31 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   Nvertice = obj->Nvertex;
   if ((envmap & 1U) != 0) {
     COORD16 *vt;
-    char *tVc;   /* anonymous giv in retail too: &sd->tV[n].v, stride 8 */
+    /* w60-a7 SEAL (2 -> PASS 480/480).  The last residual was the PREHEADER
+     * POSITION of `addiu a2,s1,215` (the &sd->tV[0].v cursor): ours emitted it
+     * FIRST, retail emits it after loop.c's hoisted invariants (`li -1`, the
+     * gte_ldv0/gte_stlvnl addresses 172/156) and before the `vt+4` giv init.
+     * ROOT CAUSE: a raw `char *tVc` walked with an explicit `tVc = tVc + 8` is
+     * a BIV, so its init is an ordinary source statement emitted in the
+     * preheader BEFORE loop.c ever runs.  Declaring the real
+     * `Draw_CarVertex *tV` (stride 8, the same shape loop-2 already uses) and
+     * writing `tV->u`/`tV->v` lets loop.c fold both byte stores onto ONE
+     * address giv anchored at `.v`, ELIMINATE the biv, and emit that giv's
+     * init in the giv group -- exactly retail's slot.
+     * LAW (catalog candidate): an explicit byte-cursor biv and a typed-struct
+     * walker whose biv loop.c eliminates put their initialisation in DIFFERENT
+     * preheader groups; the preheader ORDER is the discriminator.
+     * Falsified from this basin (all still 2): moving the cursor init before
+     * `i =`, before the two gte_Set macros, and spelling it `(char *)sd + 215`
+     * -- source position inside the preheader is a no-op against loop.c's
+     * hoists.  Storing `.v` before `.u` = 6. */
+    Draw_CarVertex *tV;
 
     vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     i = (u_int)obj->numVertex;   /* SYM: ONE fn-scope `i` (t8) counts ALL 3 loops */
-    tVc = &sd->tV[0].v;
+    tV = sd->tV;
     /* exit-in-the-middle: keeps the top dec+test + unconditional j back (no rotation),
      * and the after-join reg-reg compare beats the nor/~x const-fold */
     while (1) {
@@ -3512,9 +3530,9 @@ gte_stlvnl((char *)sd + 0x9c);
           v = -v;
         }
         vt = vt + 1;
-        tVc[-1] = (char)u;
-        *tVc = (char)v;
-        tVc = tVc + 8;
+        tV->u = (char)u;
+        tV->v = (char)v;
+        tV = tV + 1;
       }
     }
   }

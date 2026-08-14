@@ -1315,8 +1315,41 @@ extern int _dws(RECT *rect, u_long *data)
     int var_s0;
     int var_s4;
     int quotient;
+    int readyMask;
     RECT *saved;
 
+    /* W60-A3 (11 -> 8, and the instruction count became EXACT 143/143): three idioms ported
+     * from the 100%-byte-exact Rage-Racer `Gpu_LoadImage`
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libgpu/image_commands.c) -- the SAME PsyQ
+     * function, same-era toolchain.  Its register-asm pins are of course dropped (this project
+     * is pin-free); only the C shapes transfer:
+     *   (1) `rem = x >> N; <opacity fence>; quotient = rem;` -- RR's `rem = transferValue >> 5;
+     *       asm("" : "=r"(rem) : "0"(rem)); quotient = rem;`.  This is what produces retail's
+     *       `sra $s0,$v1,5; addu $v1,$s0,$zero` (compute into one register, then COPY) where a
+     *       plain comma-staged `quotient = x >> 4` folds to a single in-place `sra $v1,$v1,5`.
+     *       Worth +1 instruction -- it is the whole count gap.
+     *   (2) ZERO-TRIP-GUARDED do/while for the GPU-ready spin, with the mask held in a NAMED
+     *       local inside the guard (RR's `readyMask`), instead of a bare `while (...)`.
+     *   (3) the transfer loop PEELED the RR way -- `n--; if (n != -1) { do { ... } while
+     *       (n != -1); }` -- not `while (n--)`.
+     * FALSIFIED on top of this basin (each gate-measured, all reverted): RR's entry opacity
+     * fence on the rect pointer (inert, 8) * RR's `status = *GP1; status &= readyMask;` temp
+     * inside the spin (inert, 8) * a named `current` local for the data pointer, declared after
+     * `saved` to mirror RR's decl order (inert, 8) * a void-tail parm-spill pin before the
+     * first statement (10) * an identity fence on `readyMask` to break cse's constant sharing
+     * (52 -- it rotates the whole saved-reg band) * a `sentinel` local re-assigned -1 before
+     * each of the two loop tests, per the W60 catalog "re-assign the same variable a fresh
+     * literal" row (15, and drops back to 140 insns).
+     * RESIDUAL 8 = TWO classes, both shared verbatim with `_drs` below:
+     *   (a) 3.25-3b OLD-GCC NO-COPY-PROP: retail rematerializes a constant we copy-propagate
+     *       (`lui $s3,1024` vs our `addu $s3,$v1,$zero` for the 0x04000000 mask; `li $a0,-1`
+     *       vs our `addu $a0,$v0,$zero` for the loop sentinel).  The version axis is CLOSED
+     *       here -- 2.8.0 and 2.8.1 are BYTE-IDENTICAL on this function (regions diffed
+     *       directly, not just scores) and 2.7.2 is 59; see the W60-A3 rung table in
+     *       scratchpad/w60a3/RECEIPTS.md.
+     *   (b) the two parm (save, copy) pairs are emitted in the opposite ORDER to retail
+     *       (retail does $s1<-$a0 then $s2<-$a1; ours the reverse) -- an assign_parms/sched2
+     *       emission-order question, i.e. the 06E instrument gap, not a spelling. */
     saved = rect;
     var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
     _gpu_arm_timeout();
@@ -1325,19 +1358,31 @@ extern int _dws(RECT *rect, u_long *data)
     to_write = (saved->w * saved->h + 1) / 2;
     if (to_write <= 0)
         return -1;
-    var_s0 = (quotient = to_write >> 4,
-              to_write - (quotient << 4));
+    var_s0 = to_write >> 4;
+    __asm__("" : "=r"(var_s0) : "0"(var_s0));
+    quotient = var_s0;
+    var_s0 = to_write - (quotient << 4);
     size = quotient;
-    while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready to receive DMA */
-        if (_gpu_check_timeout())
-            return -1;
+    if ((*GPU_GP1 & 0x04000000) == 0) {          /* wait until ready to receive DMA */
+        readyMask = 0x04000000;
+        do {
+            if (_gpu_check_timeout())
+                return -1;
+        } while ((*GPU_GP1 & readyMask) == 0);
+    }
     *GPU_GP1 = 0x04000000;
     *GPU_GP0 = 0x01000000;
     *GPU_GP0 = var_s4 ? 0xb0000000u : 0xa0000000u;
     *GPU_GP0 = *(u_long *)saved;
     *GPU_GP0 = *((u_long *)saved + 1);
-    while (var_s0--)
-        *GPU_GP0 = *data++;
+    var_s0--;
+    if (var_s0 != -1) {
+        do {
+            *GPU_GP0 = *data;
+            data++;
+            var_s0--;
+        } while (var_s0 != -1);
+    }
     if (size) {
         *GPU_GP1 = 0x04000002;
         *D2_MADR = (u_long)data;
@@ -1350,13 +1395,24 @@ extern int _dws(RECT *rect, u_long *data)
 /* @0x800EEFC8 : StoreImage backend -- read the VRAM rect back into `data` words. */
 extern int _drs(RECT *rect, u_long *data)
 {
-    /* W52-A3: same psyz `_drs` shape as _dws above (in-struct clamps, signed /2,
-     * `% 16`, down-counting `while (n--)` transfer loop).  See the W56 allocator receipt
-     * above for the shared `saved` alias and comma-staged quotient. */
+    /* W52-A3: same psyz `_drs` shape as _dws above (in-struct clamps, signed /2, `% 16`).
+     * W60-A3 (13 -> 10, instruction count now EXACT 160/160): the three Rage-Racer
+     * `Gpu_StoreImage` idioms ported wholesale from _dws above -- shift-into-a-fenced-local
+     * then COPY into `quotient`, zero-trip-guarded do/while spins with the mask in a named
+     * local, and the peeled `n--; if (n != -1) do{...}while(n != -1);` transfer loop.  _drs
+     * has TWO spins (0x04000000 ready, 0x08000000 send), matching RR's two, so it gets two
+     * named masks.  Source: C:/Temp/rage-racer-decomp/src/main/PAL/lib/libgpu/image_commands.c
+     * (100% byte-exact corpus; its register-asm pins dropped -- shapes port, pins do not).
+     * RESIDUAL 10 = the identical two classes listed at the end of _dws: three no-copy-prop
+     * constant rematerializations (`lui $s3,1024`, `lui $s1,2048`, `li $v1,-1` vs our copies)
+     * plus the parm (save, copy) emission order.  Do not re-grind spellings -- the _dws block
+     * lists six that were measured and reverted, and the whole version axis is closed. */
     int to_read;
     int size;
     int var_s0;
     int quotient;
+    int readyMask;
+    int sendMask;
     RECT *saved;
 
     saved = rect;
@@ -1366,22 +1422,38 @@ extern int _drs(RECT *rect, u_long *data)
     to_read = (saved->w * saved->h + 1) / 2;
     if (to_read <= 0)
         return -1;
-    var_s0 = (quotient = to_read >> 4,
-              to_read - (quotient << 4));
+    var_s0 = to_read >> 4;
+    __asm__("" : "=r"(var_s0) : "0"(var_s0));
+    quotient = var_s0;
+    var_s0 = to_read - (quotient << 4);
     size = quotient;
-    while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready for DMA */
-        if (_gpu_check_timeout())
-            return -1;
+    if ((*GPU_GP1 & 0x04000000) == 0) {          /* wait until ready for DMA */
+        readyMask = 0x04000000;
+        do {
+            if (_gpu_check_timeout())
+                return -1;
+        } while ((*GPU_GP1 & readyMask) == 0);
+    }
     *GPU_GP1 = 0x04000000;
     *GPU_GP0 = 0x01000000;
     *GPU_GP0 = 0xc0000000;                       /* VRAM -> CPU copy */
     *GPU_GP0 = *(u_long *)saved;
     *GPU_GP0 = *((u_long *)saved + 1);
-    while ((*GPU_GP1 & 0x08000000) == 0)         /* wait until ready to send pixels */
-        if (_gpu_check_timeout())
-            return -1;
-    while (var_s0--)
-        *data++ = *GPU_GP0;
+    if ((*GPU_GP1 & 0x08000000) == 0) {          /* wait until ready to send pixels */
+        sendMask = 0x08000000;
+        do {
+            if (_gpu_check_timeout())
+                return -1;
+        } while ((*GPU_GP1 & sendMask) == 0);
+    }
+    var_s0--;
+    if (var_s0 != -1) {
+        do {
+            *data = *GPU_GP0;
+            var_s0--;
+            data++;
+        } while (var_s0 != -1);
+    }
     if (size) {
         *GPU_GP1 = 0x04000003;
         *D2_MADR = (u_long)data;

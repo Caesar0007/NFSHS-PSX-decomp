@@ -4542,10 +4542,12 @@ void Hud_RenderHudView(void)
   int viewOff;
   int tpageOff;
 
+  /* MATCH (w61-a1), step 3: retail saves $fp and zeroes it (j = 0) BEFORE materialising
+   * the two loop-invariant constants -- `j = 0;` first.  18 -> 14, count still EXACT. */
+  j = 0;
   otmask = 0xffffff;
   viewOff = 0;
   tpageOff = 0;
-  j = 0;
   while (true) {
     if (DashHUD_gInfo.splitscreen < j) break;
     splitY = 0;

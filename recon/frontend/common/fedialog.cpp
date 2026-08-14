@@ -483,73 +483,70 @@ DialogHelpDraw_buttonsDone:;
 
 
 /* ---- tDialogMessageString::CalculateDimensions  [FEDIALOG.CPP:551-600] SLD-VERIFIED ---- */
-/* MATCH: 115->94 (W56-A9) + CORRECTNESS FIX. Was reading an UNINITIALIZED local
-   `int ticks;` (shadowed the global `extern int ticks[]`); replaced with the
-   global element `ticks[0]` at each use. SYM 8c: fsize=24, mask=$80010000
-   (only s0+ra), `ticks`=REG $08=t0 (caller-saved). The cached-local form forced
-   ticks into callee-saved s1 (+8 frame -> fsize 32); `ticks[0]` inline lets gcc
-   reload it (caller-saved) -> frame now matches (-24). REMAINING 94, two floors:
-   (a) ticks lands in v0 (reloaded late) vs the SYM's t0 (loaded early) -> a
-       register-coloring cascade through the whole body (allocno reg-choice, the
-       s4.6 de-prioritized class; not reqdelta-priceable).
-   (b) A2-OWNED TYPE: `gHelpShapes[].width`/`.height` (tTexture_ShapeInfo in
-       nfs4_types.h) read `lhu`+sll/sra sign-extend (3 insns) where the oracle
-       uses `lh` (1 insn) -> the field should be signed `short`. A `*(short*)&`
-       cast at the site is codegen-NEUTRAL (gcc rematerializes the field by its
-       declared type); the fix must be in nfs4_types.h (A2). REPORTED. */
+/* MATCH (2026-08-14): PASS, 133/133 instructions (115 -> 94 -> 76 -> 31 ->
+   28 -> 19 -> 0).  SLD's `ticks` REG $t0 is the raw global tick value, with a
+   second assignment after WordWrapHeight; refreshing it there avoids a
+   call-crossing callee-saved lifetime.  Assigning fFadeText before reading its
+   clamped working copies reproduces retail's v0/v1 copies.  The final large
+   reduction came from promoting the signed shape width/height into separate
+   int temporaries and writing width/height directly in each MaxH branch;
+   the old short reuse and `w` phi caused lhu/sign-extension and preload
+   cascades. */
 
 void tDialogMessageString::CalculateDimensions()
 
 {
-  short sVar1;
-  short w;
   int fade_or_h;
   int iVar2;
+  int ticks;
   int tick_age;
-  short h;
+  int clampedFade;
   
-  fade_or_h = 0x80 - (((ticks[0] + -0x32) - this->startTicks) * 0x80) / 100;
-  this->fFadeText = fade_or_h;
+  ticks = ::ticks[0];
+  tick_age = ticks + -0x32;
+  this->fFadeText = 0x80 - ((tick_age - this->startTicks) * 0x80) / 100;
+  fade_or_h = this->fFadeText;
   if (0x80 < fade_or_h) {
     fade_or_h = 0x80;
   }
-  if (fade_or_h < 0) {
-    fade_or_h = 0;
+  clampedFade = fade_or_h;
+  if (clampedFade < 0) {
+    clampedFade = 0;
   }
-  this->fFadeText = fade_or_h;
-  if (fade_or_h != 0) {
+  this->fFadeText = clampedFade;
+  if (clampedFade != 0) {
     this->fFullyOpen = 0;
   }
-  sVar1 = this->MaxW;
-  this->width = sVar1;
+  this->width = this->MaxW;
   if (this->MaxH == 0) {
-    iVar2 = FETextRender_WordWrapHeight(sVar1 + -0x28,this->string);
-    this->height = (short)iVar2;
-    if ((short)iVar2 == 8) {
+    this->height = FETextRender_WordWrapHeight(this->MaxW + -0x28,this->string);
+    if (this->height == 8) {
       this->Centerit = 1;
     }
     else {
       this->Centerit = 0;
     }
-    w = this->height + 0x10;
+    this->height = this->height + 0x10;
   }
   else {
-    w = this->MaxH;
     this->Centerit = 0;
+    this->height = this->MaxH;
   }
-  this->height = w;
-  iVar2 = ticks[0] - this->startTicks;
+  ticks = ::ticks[0];
+  iVar2 = ticks - this->startTicks;
   if (iVar2 < 0x32) {
-    sVar1 = gHelpShapes[0x2a].width;
-    h = gHelpShapes[0x2a].height;
-    tick_age = ticks[0] - this->startTicks;
+    int shapeWidth = gHelpShapes[0x2a].width;
+    int shapeHeight = gHelpShapes[0x2a].height;
+
     this->fFullyOpen = 0;
     this->width =
-         sVar1 * 2 +
-         (short)((((int)this->width - (((int)sVar1 << 0x11) >> 0x10)) * iVar2) / 0x32)
+         shapeWidth * 2 +
+         (short)((((int)this->width - (((int)shapeWidth << 0x11) >> 0x10)) * iVar2) / 0x32)
     ;
     this->height =
-         h * 2 + (short)((((int)this->height - (((int)h << 0x11) >> 0x10)) * tick_age)
+         shapeHeight * 2 +
+         (short)((((int)this->height - (((int)shapeHeight << 0x11) >> 0x10)) *
+                  (ticks - this->startTicks))
                         / 0x32);
   }
   else {

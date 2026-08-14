@@ -22,6 +22,12 @@ for n in sorted(set(names)):
         if not a: continue
     except Exception:
         continue
+    # w60-a10: apply verify_asm's w59-a9 dead-%hi collapse (tugate diffs the raw
+    # streams itself, so without this it OVER-REPORTS vs the authoritative gate).
+    if len(a) == len(b):
+        for i in range(len(a)):
+            mo = re.match(r'lui (\w+),0$', a[i]); me = re.match(r'lui (\w+),\d+$', b[i])
+            if mo and me and mo.group(1) == me.group(1): b[i] = a[i]
     d = [l for l in difflib.unified_diff(a, b, lineterm='') if l[0] in '+-' and not l.startswith(('+++','---'))]
     res.append((len(d), n))
 res.sort()

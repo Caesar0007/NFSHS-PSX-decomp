@@ -1410,10 +1410,12 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     int  fd;
     int  retry;
     int  rslt;
+    int *p;
     /* MATCH (w52-a6): ONE anchor at &_mc_cmd ($s2 in retail) serves cmd/rslt/done/chan --
      * the oracle reaches _mc_chan as `lw $a2,0xC($s2)`, not with its own %hi/%lo pair. */
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "=r"(base) : "0"(base));
+    __asm__("" : : "r"(file), "r"(file));
 
     if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
@@ -1430,17 +1432,20 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
         close(fd);
         return 6;                                /* already present */
     }
+    if (0) {
+nocard:
+        return 7;                                /* no card */
+    }
 
     /* MATCH: retail shifts the block count IN PLACE once (`sll $s4,$s4,16`) before the loop and
      * re-uses it every iteration (`ori $a1,$s4,0x200`); recomputing `blocks << 16` inside the
      * call argument emits a fresh `sll` per pass. */
     blocks = blocks << 16;
+    p = base;
     while (1) {
         fd = open(devname, (int)blocks | 0x200);   /* create */
-        if (fd >= 0) {
-            close(fd);
-            return 0;
-        }
+        if (fd >= 0)
+            goto created;
         /* create failed: re-accept card and inspect the result */
         _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
         /* MATCH (w52-a6): retail's guard is `blez $v1` -- the PRINTF is the FALL-THROUGH arm and
@@ -1455,31 +1460,37 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
          * insns) -- cse already shares the literal and the named local rotates the saved-reg
          * band the wrong way.  NAMED ANGLE: the residual on both fns is exactly that saved-reg
          * rotation (retail chan=$s2/file=$s0/base=$s3->$s0; ours chan=$s3/file=$s2/base=$s0). */
-        if (base[0] > 0) {
+        if (p[0] > 0) {
             printf("Access Denied. : event multiple open\n");
         } else {
-            base[0] = 2;
-            base[1] = 0;
-            base[2] = 0;
+            p[0] = 2;
+            p[1] = 0;
+            p[2] = 0;
             mc.chan = chan;
+            __asm__("" : : "r"(chan));
             UserFuncOpen((int)MemCardCmd_cb);
         }
         MemCardSync(0, 0, &rslt);
         MemCardCallback((int)_mc_save_cb);
 
         if (rslt == 0)
-            return 7;                            /* no card */
+            goto nocard;
         if (rslt == 3)
             continue;                            /* new card -> retry */
         if (rslt != 2)
             break;
         retry = retry + 1;
+        __asm__("" : : "r"(retry), "r"(retry), "r"(retry));
         if (retry >= 4)
             break;
     }
     if (rslt == 0)
         rslt = 5;
     return rslt;
+
+created:
+    close(fd);
+    return 0;
 }
 
 /* @0x800FBE20 : MemCardDeleteFile -- synchronously erase a named file. */
@@ -1488,6 +1499,7 @@ extern long MemCardDeleteFile(long chan, char *file)
     char devname[32];
     int  retry;
     int  rslt;
+    int *p;
     /* w53-a7: NO fence on this base here (unlike CreateFile).  The fence makes the pointer
      * opaque, so gcc can no longer prove it equals the &_mc_cmd the INLINED MemCardSync
      * materializes below -- retail shares ONE register ($s0) across the caller's field stores
@@ -1505,6 +1517,7 @@ extern long MemCardDeleteFile(long chan, char *file)
      * dump -dg/-dl for this fn and run tools/reqdelta.py --want "file=s0,chan=s2,base=s3" to get
      * the minimal MULTI-pseudo delta, instead of hand-dialling one pseudo at a time. */
     int *base = &mc.cmd;
+    __asm__("" : : "r"(file), "r"(file));
 
     if (base[0] != 0) {
         printf("Access Denied. : system busy\n");
@@ -1514,14 +1527,15 @@ extern long MemCardDeleteFile(long chan, char *file)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
-    _mc_present |= 1 << (base[3]);
+    p = base;
+    _mc_present |= 1 << (p[3]);
 
     while (1) {
         rslt = erase(devname);          /* retail stores the result in the `rslt` stack slot
                                          * (`bnez $v0,...; sw $v0,0x30($sp)` -- the store is the
                                          * branch's delay slot, so it is unconditional) */
         if (rslt != 0)
-            return 0;
+            goto erased;
         /* erase failed: re-accept card and inspect the result */
         _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
         /* MATCH (w52-a6): retail's guard is `blez $v1` -- the PRINTF is the FALL-THROUGH arm and
@@ -1536,13 +1550,14 @@ extern long MemCardDeleteFile(long chan, char *file)
          * insns) -- cse already shares the literal and the named local rotates the saved-reg
          * band the wrong way.  NAMED ANGLE: the residual on both fns is exactly that saved-reg
          * rotation (retail chan=$s2/file=$s0/base=$s3->$s0; ours chan=$s3/file=$s2/base=$s0). */
-        if (base[0] > 0) {
+        if (p[0] > 0) {
             printf("Access Denied. : event multiple open\n");
         } else {
-            base[0] = 2;
-            base[1] = 0;
-            base[2] = 0;
+            p[0] = 2;
+            p[1] = 0;
+            p[2] = 0;
             mc.chan = chan;
+            __asm__("" : : "r"(chan), "r"(chan));
             UserFuncOpen((int)MemCardCmd_cb);
         }
         MemCardSync(0, 0, &rslt);
@@ -1553,12 +1568,16 @@ extern long MemCardDeleteFile(long chan, char *file)
         if (rslt != 2)
             break;
         retry = retry + 1;
+        __asm__("" : : "r"(retry));
         if (retry >= 4)
             break;
     }
     if (rslt == 0)
         rslt = 5;
     return rslt;
+
+erased:
+    return 0;
 }
 
 /* @0x800FBFDC : MemCardFormat -- synchronously format the card on chan. */

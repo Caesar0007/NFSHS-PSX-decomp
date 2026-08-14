@@ -2636,7 +2636,24 @@ int tUserNameMenuItem::Draw(bool selected)
      read-only row fence fills the column-load delay slot, and two tail
      lifetime markers buy reqdelta's measured +2 live-length for `shape`,
      recovering retail's shape/y saved-register order.  All templates emit no
-     bytes and pin no register.  Detailed residual: 63 -> 42 -> 17. */
+     bytes and pin no register.  Detailed residual: 63 -> 42 -> 17.
+
+     W60-A10: the remaining 8 diffs are count-exact (254/254) and are TWO
+     copies of one fact -- the `boxRight` constant 156 lands in $v1 for us and
+     in $t0 for retail (which REUSES the register that held `x` and is dead by
+     then), plus the resulting 2-slot shift of the `li` inside the argument
+     setup (`li v1,156` before `addu a0,zero,zero` vs retail's `li t0,156`
+     after `addu a2,s0,zero`).  Every other instruction in both tail blocks is
+     byte-exact.
+     FALSIFIED, all exactly NEUTRAL at 8 (so the dial is not source-visible):
+     ONE fn-scope carrier shared by both blocks (05D global-allocno promotion);
+     a second identity fence (07B 2-of-3 step); assign-not-decl-with-init;
+     the carrier declared first / last in the function's top decl list (the
+     W52-a9 decl-order-is-the-register-map lever); a void-tail fence after the
+     identity fence.  REGRESSIONS: read-only instead of identity fence 89 (253,
+     the constant folds back); a read-only fence on `shape` 32.
+     => local-alloc QTY handout (Sec.4.6 / 06E), same class as
+     front.cpp GetPSXPadValue and feaudio.cpp FeAudio_InitViv this wave. */
   int x;
   int y;
   tTexture_ShapeInfo *shape;

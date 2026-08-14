@@ -71,11 +71,16 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
   if (GameSetup_gData.Damage != 0) {
     int imp;
 
-    imp = 0x640000 > impulse / 2 ? impulse / 2 : 0x640000;
+    if (0x640000 < impulse / 2) {
+      imp = 0x640000;
+    }
+    else {
+      imp = impulse / 2;
+    }
     if ((newtonObj[1].simRoadInfo.quadPts[1].y & 0x200U) != 0) {
       imp = imp / 2;
     }
-    if (newtonObj->damage[zone] > imp) {
+    if (imp < newtonObj->damage[zone]) {
       imp = newtonObj->damage[zone];
     }
     newtonObj->damage[zone] = imp;
@@ -83,66 +88,80 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
       if (zone == 0) {
         int temp = (newtonObj->damage[0] + newtonObj->damage[2]) / 2;
 
-        if (temp < newtonObj->damage[1]) {
-          temp = newtonObj->damage[1];
+        newtonObj->damage[1] = temp < newtonObj->damage[1] ?
+            newtonObj->damage[1] : temp;
+        {
+          int secondTemp =
+              (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+
+          if (secondTemp < newtonObj->damage[7]) {
+            secondTemp = newtonObj->damage[7];
+          }
+          newtonObj->damage[7] = secondTemp;
         }
-        newtonObj->damage[1] = temp;
-        temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
-        if (temp < newtonObj->damage[7]) {
-          temp = newtonObj->damage[7];
-        }
-        newtonObj->damage[7] = temp;
       }
       else if (zone == 1) {
         int temp;
 
         temp = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
-        if (temp < newtonObj->damage[0]) {
-          temp = newtonObj->damage[0];
+        newtonObj->damage[0] = temp < newtonObj->damage[0] ?
+            newtonObj->damage[0] : temp;
+        {
+          int secondTemp =
+              (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
+
+          if (secondTemp < newtonObj->damage[2]) {
+            secondTemp = newtonObj->damage[2];
+          }
+          newtonObj->damage[2] = secondTemp;
         }
-        newtonObj->damage[0] = temp;
-        temp = (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
-        if (temp < newtonObj->damage[2]) {
-          temp = newtonObj->damage[2];
-        }
-        newtonObj->damage[2] = temp;
       }
       else if (zone == 6) {
         int temp;
 
         temp = (newtonObj->damage[4] + newtonObj->damage[6]) / 2;
-        if (temp < newtonObj->damage[5]) {
-          temp = newtonObj->damage[5];
+        newtonObj->damage[5] = temp < newtonObj->damage[5] ?
+            newtonObj->damage[5] : temp;
+        {
+          int secondTemp =
+              (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+
+          if (secondTemp < newtonObj->damage[7]) {
+            secondTemp = newtonObj->damage[7];
+          }
+          newtonObj->damage[7] = secondTemp;
         }
-        newtonObj->damage[5] = temp;
-        temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
-        if (temp < newtonObj->damage[7]) {
-          temp = newtonObj->damage[7];
-        }
-        newtonObj->damage[7] = temp;
       }
       else if (zone == 7) {
         int temp;
 
         temp = (newtonObj->damage[7] + newtonObj->damage[1]) / 2;
-        if (temp < newtonObj->damage[0]) {
-          temp = newtonObj->damage[0];
+        newtonObj->damage[0] = temp < newtonObj->damage[0] ?
+            newtonObj->damage[0] : temp;
+        {
+          int secondTemp =
+              (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
+
+          if (secondTemp < newtonObj->damage[6]) {
+            secondTemp = newtonObj->damage[6];
+          }
+          newtonObj->damage[6] = secondTemp;
         }
-        newtonObj->damage[0] = temp;
-        temp = (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
-        if (temp < newtonObj->damage[6]) {
-          temp = newtonObj->damage[6];
-        }
-        newtonObj->damage[6] = temp;
       }
       else {
+        /* MATCH: keep the average and the two-arm maximum in separate webs.
+         * This preserves retail's v0 pre-divide sum and v1 temp/result flow. */
         int temp;
+        int result;
 
         temp = (imp + newtonObj->damage[zone + 2]) / 2;
         if (temp < newtonObj->damage[zone + 1]) {
-          temp = newtonObj->damage[zone + 1];
+          result = newtonObj->damage[zone + 1];
         }
-        newtonObj->damage[zone + 1] = temp;
+        else {
+          result = temp;
+        }
+        newtonObj->damage[zone + 1] = result;
         temp = (newtonObj->damage[zone] + newtonObj->damage[zone - 2]) / 2;
         if (temp < newtonObj->damage[zone - 1]) {
           temp = newtonObj->damage[zone - 1];
@@ -174,9 +193,11 @@ Newton_AddDmgZ_typeSet:
         (newtonObj->position).y = (newtonObj->position).y + 0x10000;
       }
       newYVel = newtonObj->linearVel.y + impulse / 3;
-      cappedYVel = 0xc0000;
-      if (newYVel <= cappedYVel) {
+      if (newYVel <= 0xc0000) {
         cappedYVel = newYVel;
+      }
+      else {
+        cappedYVel = 0xc0000;
       }
       newtonObj->linearVel.y = cappedYVel;
       intensity = impulse / 32;
@@ -951,7 +972,7 @@ nextWheel:;
                  ((Car_tObj *)newtonObj)->wheel[3].wheelAcc -
                  (((Car_tObj *)newtonObj)->wheel[0].wheelAcc +
                   ((Car_tObj *)newtonObj)->wheel[1].wheelAcc)) >> 2;
-        /* RECEIPT (w55-a11): this fn is at 10 diffs / ours 903 vs oracle 905, and BOTH
+        /* HISTORICAL RECEIPT (w55-a11): this fn was at 10 diffs / ours 903 vs oracle 905, and BOTH
            missing insns are the same NON-PROPAGATED REG-REG COPY: oracle loads the cap
            into $v0 and then `addu v1,v0,zero` into the clamp variable (here and again
            at the rollAngularVelCap site, 800A0B30 / 800A0BA8); ours loads straight into
@@ -961,11 +982,18 @@ nextWheel:;
            `limit` hoisted to the enclosing block so it spans both arms (05D global-
            allocno promotion); same with the `pitch = limit` tail hoisted out; ternary
            clamp (18, worse).  Same class as Physics_CalcWheelLockAcc/RampCarControlValues
-           -- see the 06E "non-propagated reg-reg copy" instrument gap. */
+        -- see the 06E "non-propagated reg-reg copy" instrument gap.
+           RESOLVED: NFSU2 mobile exposes the original uninitialized two-arm
+           result shape below; it preserves the v0-to-v1 copies naturally.
+           Detailed gate: PASS, 905/905. */
         if (pitch > 0) {
-          int limit = ((Car_tObj *)newtonObj)->specs->pitchAngularVelCap;
-          if (limit >= pitch) {
+          int limit;
+          if (pitch <=
+              ((Car_tObj *)newtonObj)->specs->pitchAngularVelCap) {
             limit = pitch;
+          }
+          else {
+            limit = ((Car_tObj *)newtonObj)->specs->pitchAngularVelCap;
           }
           pitch = limit;
         }
@@ -982,9 +1010,13 @@ nextWheel:;
                 (((Car_tObj *)newtonObj)->wheel[1].wheelAcc +
                  ((Car_tObj *)newtonObj)->wheel[3].wheelAcc)) >> 2;
         if (roll > 0) {
-          int limit = ((Car_tObj *)newtonObj)->specs->rollAngularVelCap;
-          if (limit >= roll) {
+          int limit;
+          if (roll <=
+              ((Car_tObj *)newtonObj)->specs->rollAngularVelCap) {
             limit = roll;
+          }
+          else {
+            limit = ((Car_tObj *)newtonObj)->specs->rollAngularVelCap;
           }
           roll = limit;
         }
@@ -1871,9 +1903,38 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
      islandMatrix.m[0].  Every /256 in the oracle carries the extra
      `addu vN,src,zero` copy because its dividend stays live; ours mutates in place.
      MEASURED: div16+clamp-if 81 | div16+clamp-ternary 81 | neg-as-own-statement 83
-     (both clamp forms).  NEXT ANGLES (untried): 06B parm-spill fence placed BEFORE
-     the first statement to pin the assign_parms stores; and forcing normal.x to
-     outlive its divide (it must reach islandMatrix.m[0] in a register, not a reload). */
+     (both clamp forms).
+     w59-a2 CLOSED BOTH "NEXT ANGLES" -- BOTH FALSIFIED, do not retry:
+       (a) 06B parm-spill fence `__asm__("" : : "i"(0));` before the first statement: 83.
+       (b) `int normalX = normal.x;` held across the body and used for barrierVec.z /
+           the dot product / islandMatrix.m[0]: 95 @ 99 insns (gcc coalesces it and
+           DROPS two more insns -- exactly the wrong direction).
+       (c) pressure fences `__asm__("" : : "r"(normal.x))` / `+ "r"(normal.z)` after
+           barrierVec.z: 82 @ 102 and 83 @ 103 (they add insns, but not retail's).
+     RE-DIAGNOSIS (w59-a2): the 5-insn gap is NOT parm-spill placement -- it is that
+     retail SPILLS the `normal.z` pseudo and RE-READS it (`lw t2,124(sp)`) for the dot
+     product, then RECOMPUTES `normal.z / 0x100` there (`addu v1,t2,zero; addiu
+     v1,t2,255; sra v1,v1,8`), i.e. retail does NOT cse `normal.z / 0x100` between
+     `barrierVec.x` and the dot; ours keeps it in a register across.  Same story for
+     `addu a3,a1,zero` (retail parks normal.x in a3 for the whole body).  This is a
+     register-PRESSURE basin, so the reachable instrument is allocsim/reqdelta on the
+     three parm pseudos, not another fence guess.
+     w59-a2 ROUND 2 -- the W59-A11 mobile twin (sub_4FDB9E, brief at
+     scratchpad/w59a11/Newton_DoPostBarrierCollisionHandling_twin.md) predicts the
+     dot product was a LIVE EXPRESSION inside nested PHY_ABS/MIN macros (emitted
+     TWICE).  MEASURED ON PSX -- ALL FALSIFIED, do not retry:
+       - full PHY_ABS macro with the dot expression re-emitted per arm:
+         139 @ 119 insns (the PSX oracle is 106 -- retail's gcc CSE'd the second
+         copy, so the x86 double-emission is a mobile-compiler artifact);
+       - `<= 0` instead of `< 0` on the abs test: 81 (neutral);
+       - MIN macro form `(-d/0x10 <= -0x7ae) ? -d/0x10 : -0x7ae`: 81 (neutral),
+         with or without the `<= 0` abs;
+       - `distRetreat > -0x7ae` clamp polarity: 81 (neutral);
+       - twin B2 `-0x100 * (normal.z / 0x100)` + `(normal.x / 0x100) << 8`:
+         81 (neutral);
+       - twin B3 dot term order z + y + x: 89;
+       - twin B1 upVec constants written straight into islandMatrix.m[3..5] (dropping
+         the upVec local): 97 @ 95 insns (the SYM's upVec AUTO is real -- keep it). */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;
@@ -1961,6 +2022,28 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
    gcc rotates and re-colors the whole body.  The goto shape IS retail's; the
    pointer-walk must come from the SOURCE (a real `coorddef *` cursor), not from
    letting gcc's loop optimizer see a structured loop. */
+/* RECEIPT (w59-a2): 75 -> 73, count 467 (oracle 470).  The w57-a9 prediction was
+   RIGHT: a real `coorddef *quadPt` cursor (fn-scope, `quadPt =
+   testSimRoadInfo.quadPts;` at each loop's j=0, `temp = *quadPt;`, `quadPt =
+   quadPt + 1;`) makes BOTH loop bodies BYTE-EXACT vs retail -- `lw t2,0(a2); lw
+   t3,4(a2); lw t4,8(a2); ... j T; addiu a2,a2,12` with the separate `addiu a3,a3,1`
+   counter (SYM $7 = $a3 for `j`, confirmed).  COST: dropping the
+   `testSimRoadInfo.quadPts[j]` reference removes refs from the hoisted
+   `&testSimRoadInfo` allocno, which rotated the whole callee-saved band by one
+   (75 -> 83).  CURE = a 4-operand read-only fence on `collision_type` right after its
+   init (dial swept: n=1 85, n=2 77, n=3 77, n=4..7 73, n=8..10 93, n>=12 ICE) --
+   restores the giv to $s5 and the prologue save order, 83 -> 73.
+   FALSIFIED (each gated): two BLOCK-scope quadPt decls instead of one fn-scope 83
+   (identical -- the rotation is ref-count driven, not pseudo-count driven);
+   `__asm__("" : : "r"(&testSimRoadInfo))` xN in the loops to buy the lost refs
+   137/141/125/149 (an `&global` fence is NOT zero-insn -- it emits lui/addiu);
+   swapping the `local_2c = 0;` / `pBVar13 = newtonObj;` init order 75.
+   RESIDUAL 73 = a clean 2-way $s3<->$s6 swap (ours collision_type=$s3 and
+   &testSimRoadInfo=$s6; retail $s6 / $s3 per SYM $0x16 for collision_type) plus the
+   `lui v0,0; addiu a2,v0,0` self-vs-separate-temp and two `sw zero,20(sp)` sched
+   positions.  Next angle = allocsim/reqdelta priced dial on the &testSimRoadInfo
+   allocno (raise ITS priority rather than lowering collision_type's -- the fence can
+   only add refs, and n=0 already puts collision_type one rank too high at $s5). */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {
@@ -1974,8 +2057,11 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
   int iVar12;
   BO_tNewtonObj *pBVar13;
   int local_2c;
+  coorddef *quadPt;
   
   collision_type = 0;
+  /* w59-a2: 4-operand read-only fence = allocno priority dial (SYM $0x16 = $s6). */
+  __asm__("" : : "r"(collision_type), "r"(collision_type), "r"(collision_type), "r"(collision_type));
   newHeight = 0;
   cautionaryCenter = newtonObj->roadCenterPoint;
   memset((u_char *)&speedVec,'\0',0xc);
@@ -2073,10 +2159,11 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
                 undrivableCenter.y = 0;
                 undrivableCenter.x = 0;
                 j = 0;
+                quadPt = testSimRoadInfo.quadPts;
 NewtonTestUndrv_loop1:
                 if (j < 4) {
                   if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
-                    temp = testSimRoadInfo.quadPts[j];
+                    temp = *quadPt;
                   }
                   else {
                     temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
@@ -2084,6 +2171,7 @@ NewtonTestUndrv_loop1:
                   undrivableCenter.x = undrivableCenter.x + temp.x;
                   undrivableCenter.y = undrivableCenter.y + temp.y;
                   undrivableCenter.z = undrivableCenter.z + temp.z;
+                  quadPt = quadPt + 1;
                   j = j + 1;
                   goto NewtonTestUndrv_loop1;
                 }
@@ -2102,10 +2190,11 @@ NewtonTestUndrv_loop1:
               undrivableCenter.y = 0;
               undrivableCenter.x = 0;
               j = 0;
+              quadPt = testSimRoadInfo.quadPts;
 NewtonTestUndrv_loop2:
               if (j < 4) {
                 if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
-                  temp = testSimRoadInfo.quadPts[j];
+                  temp = *quadPt;
                 }
                 else {
                   temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
@@ -2113,6 +2202,7 @@ NewtonTestUndrv_loop2:
                 undrivableCenter.x = undrivableCenter.x + temp.x;
                 undrivableCenter.y = undrivableCenter.y + temp.y;
                 undrivableCenter.z = undrivableCenter.z + temp.z;
+                quadPt = quadPt + 1;
                 j = j + 1;
                 goto NewtonTestUndrv_loop2;
               }

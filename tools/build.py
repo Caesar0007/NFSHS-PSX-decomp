@@ -222,6 +222,15 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # w59-a13 (orchestrator-wired): memmove FAIL 2 -> PASS 27/27 with NO source
+    # change on the 2.7.2-970404 rung (full ladder: 970404 PASS, 2.8.x 2, 2.6.x 22,
+    # 2.9x 25).  Same rung as the libmath vendor cluster -- libc.lib looks Sony-prebuilt.
+    # Refutes the in-source "genuine floor at 2" receipt.
+    "recon/syslib/psx/libc/MEMMOVE.c":      {"cc1_alt": "2.7.2-970404"},
+    # w59-a13 (orchestrator-wired, COUPLED with the BSEARCH.c body landed in the same
+    # commit): 26 -> 4 @48/48.  Source alone regresses the 2.8 lane to 40; wiring
+    # alone gives 24.  (_compile_c_272 supports no_schedule_insns since w51.)
+    "recon/syslib/psx/libc/BSEARCH.c":      {"cc1_272": True, "no_schedule_insns": True},
     # 2026-08-04G -G8 PROBE QUEUE (w47-a7 census S7, 20 objects gated inline):
     # these 7 TUs meet the a8 wiring bar -- net diff improvement + ZERO PASS
     # regressions + reproduced 2x -- under g_value 8 (= CC1PSX's DEFAULT when a
@@ -1087,6 +1096,15 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w59-a2 (orchestrator-wired): Physics_DoBarrierCheck 2 -> PASS 358/358.
+    # Sole residual = retail issues the mflo four insns early; probe-verified
+    # (scratchpad/root_probe_physics_barrier_splice.py).
+    "recon/game/common/physics.cpp": {
+        "Physics_DoBarrierCheck__FP8Car_tObj": [
+            {"take": r"\tmflo\t\$10\n(?=\t#nop\n\tlw\t\$4,268\(\$17\)\n)",
+             "after": r"\tmove\t\$5,\$3\n(?=\taddu\t\$18,\$2,\$10\n)"},
+        ],
+    },
     # w59-a9 (orchestrator-wired): SPCH_Init 2 -> PASS 39/39 (TU 7/7).  Pure
     # emission-order: retail hoists the epilogue lw $ra above the last ori.
     "recon/eaclib/psx/spchpsxz/spchinit.c": {

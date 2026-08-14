@@ -2612,9 +2612,12 @@ int tUserNameMenuItem::Draw(bool selected)
      glyphs share the scoped `shapetodraw` join, while punctuation arms call
      directly.  Keeping the column*28 value separate from `xx`, and spelling
      startx as two assignments, restores retail's a2/s1 web and start-x
-     arithmetic.  Detailed residual: 63 -> 42 (254 retail instructions).
-     The value-specific empty template preserves the otherwise-combined
-     column offset; it emits no bytes and pins no register. */
+     arithmetic.  The value-specific empty template preserves the otherwise-
+     combined column offset.  A split MENUUSERNAME_STARTY pointer plus a
+     read-only row fence fills the column-load delay slot, and two tail
+     lifetime markers buy reqdelta's measured +2 live-length for `shape`,
+     recovering retail's shape/y saved-register order.  All templates emit no
+     bytes and pin no register.  Detailed residual: 63 -> 42 -> 17. */
   int x;
   int y;
   tTexture_ShapeInfo *shape;
@@ -2630,7 +2633,9 @@ int tUserNameMenuItem::Draw(bool selected)
     tDrawShapeExtended tCol;
     short sl;
     short startx;
+    short *menuStartY;
     int columnx;
+    int row;
     int xx;
     int yy;
 
@@ -2660,10 +2665,13 @@ int tUserNameMenuItem::Draw(bool selected)
         j = j + 1;
       } while (j < this->fMaxStringLength);
     }
+    menuStartY = &MENUUSERNAME_STARTY;
     columnx = this->fCurrentColumn * 0x1c;
+    row = this->fCurrentRow;
+    __asm__("" : : "r"(row));
     xx = columnx + 0x102;
     __asm__("" : "=r"(columnx) : "0"(columnx));
-    yy = MENUUSERNAME_STARTY + this->fCurrentRow * 0xf;
+    yy = *menuStartY + row * 0xf;
     if (this->fFadeVal == 0) {
       tDrawShapeExtended fFlags;
       char current;
@@ -2703,6 +2711,8 @@ int tUserNameMenuItem::Draw(bool selected)
   shape = &gHelpShapes[0x21];
   DrawShapeExtended(0x21,8,x + 0x9c - (int)shape->width,y + 0xc,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
+  __asm__("" : : "r"(this));
+  __asm__("" : : "r"(this));
   PSXDrawSquare(0,x,y + 0xc,0x9c - shape->width,(int)shape->height);
 }
 

@@ -1,0 +1,8 @@
+[
+ {"name":"ident-before-return","subs":[["    return result;\r\n}","    __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n    return result;\r\n}"]]},
+ {"name":"ident-both-arms","subs":[["        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n","        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n        __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n"],["        result = (sign | exp << 23) | prod;\r\n","        result = (sign | exp << 23) | prod;\r\n        __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n"]]},
+ {"name":"ident-normal-arm","subs":[["        result = (sign | exp << 23) | prod;\r\n","        result = (sign | exp << 23) | prod;\r\n        __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n"]]},
+ {"name":"ident-err-arm","subs":[["        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n","        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n        __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n"]]},
+ {"name":"ident-both+return","subs":[["        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n","        if (sign != 0) result = 0xFF800000; else result = 0x7F800000;\r\n        __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n"],["        result = (sign | exp << 23) | prod;\r\n","        result = (sign | exp << 23) | prod;\r\n        __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n"],["    return result;\r\n}","    __asm__(\"\" : \"=r\"(result) : \"0\"(result));\r\n    return result;\r\n}"]]},
+ {"name":"split-or","subs":[["        result = (sign | exp << 23) | prod;\r\n","        result = sign | exp << 23;\r\n        result = result | prod;\r\n"]]}
+]

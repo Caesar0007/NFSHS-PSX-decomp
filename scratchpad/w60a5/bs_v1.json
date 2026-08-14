@@ -1,0 +1,12 @@
+[
+ {"name":"base",            "subs":[]},
+ {"name":"identfence-w-top","subs":[["{\r\n    unsigned lo = 0;","{\r\n    __asm__(\"\" : \"=r\"(w) : \"0\"(w));\r\n    unsigned lo = 0;"]]},
+ {"name":"identfence-w-aft","subs":[["    unsigned lo = 0;\r\n","    unsigned lo = 0;\r\n    __asm__(\"\" : \"=r\"(w) : \"0\"(w));\r\n"]]},
+ {"name":"identfence-cmp",  "subs":[["    unsigned lo = 0;\r\n","    unsigned lo = 0;\r\n    __asm__(\"\" : \"=r\"(cmp) : \"0\"(cmp));\r\n"]]},
+ {"name":"lo-split-init",   "subs":[["    unsigned lo = 0;\r\n","    unsigned lo;\r\n    lo = 0;\r\n"]]},
+ {"name":"w-short",         "subs":[["unsigned n, unsigned w,","unsigned n, unsigned short w,"]]},
+ {"name":"w-uchar",         "subs":[["unsigned n, unsigned w,","unsigned n, unsigned char w,"]]},
+ {"name":"rofence-lo-top",  "subs":[["    unsigned lo = 0;\r\n","    unsigned lo = 0;\r\n    __asm__(\"\" : : \"r\"(lo));\r\n"]]},
+ {"name":"tailfence-nolo",  "subs":[["__asm__(\"\" : : \"r\"(lo), \"r\"(key), \"r\"(w));","__asm__(\"\" : : \"r\"(key), \"r\"(w));"]]},
+ {"name":"tailfence-now",   "subs":[["__asm__(\"\" : : \"r\"(lo), \"r\"(key), \"r\"(w));","__asm__(\"\" : : \"r\"(lo), \"r\"(key));"]]}
+]

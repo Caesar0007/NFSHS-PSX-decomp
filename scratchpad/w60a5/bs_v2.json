@@ -1,0 +1,8 @@
+[
+ {"name":"decl-mid-first","subs":[["    unsigned lo = 0;\r\n","    unsigned mid;\r\n    unsigned lo = 0;\r\n"],["            unsigned mid = (lo + n) >> 1;","            mid = (lo + n) >> 1;"]]},
+ {"name":"lo-inside-if","subs":[["    unsigned lo = 0;\r\n    if (n != 0) {\r\n","    if (n != 0) {\r\n        unsigned lo = 0;\r\n"],["    __asm__(\"\" : : \"r\"(lo), \"r\"(key), \"r\"(w));\r\n","    __asm__(\"\" : : \"r\"(key), \"r\"(w));\r\n"]]},
+ {"name":"n-copy-local","subs":[["    unsigned lo = 0;\r\n","    unsigned lo = 0;\r\n    unsigned hi = n;\r\n"],["                mid = (lo + n) >> 1;","                mid = (lo + n) >> 1;"]]},
+ {"name":"el-fnscope","subs":[["    unsigned lo = 0;\r\n","    unsigned char *el;\r\n    unsigned lo = 0;\r\n"],["            unsigned char *el = (unsigned char *)base + w * mid;","            el = (unsigned char *)base + w * mid;"]]},
+ {"name":"c-fnscope","subs":[["    unsigned lo = 0;\r\n","    int c;\r\n    unsigned lo = 0;\r\n"],["            int c = cmp(el, key);","            c = cmp(el, key);"]]},
+ {"name":"forloop","subs":[["    if (n != 0) {\r\n        do {","    if (n != 0) {\r\n        for (;;) {"],["        } while (lo < n);\r\n","            if (lo >= n) break;\r\n        }\r\n"]]}
+]

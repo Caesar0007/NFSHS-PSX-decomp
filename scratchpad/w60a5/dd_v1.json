@@ -1,0 +1,6 @@
+[
+ {"name":"A-head-ifelse","subs":[["        ur.w.hi = sign ? -1 : 0x7FFFFFFF;\r\n","        if (sign) ur.w.hi = -1; else ur.w.hi = 0x7FFFFFFF;\r\n"]]},
+ {"name":"B-tail-ifelse","subs":[["                ur.w.hi = sign ? 0xFFF00000 : 0x7FF00000;\r\n","                if (sign) ur.w.hi = 0xFFF00000; else ur.w.hi = 0x7FF00000;\r\n"]]},
+ {"name":"C-both","subs":[["        ur.w.hi = sign ? -1 : 0x7FFFFFFF;\r\n","        if (sign) ur.w.hi = -1; else ur.w.hi = 0x7FFFFFFF;\r\n"],["                ur.w.hi = sign ? 0xFFF00000 : 0x7FF00000;\r\n","                if (sign) ur.w.hi = 0xFFF00000; else ur.w.hi = 0x7FF00000;\r\n"]]},
+ {"name":"D-head-inverted","subs":[["        ur.w.hi = sign ? -1 : 0x7FFFFFFF;\r\n","        if (!sign) ur.w.hi = 0x7FFFFFFF; else ur.w.hi = -1;\r\n"]]}
+]

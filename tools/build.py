@@ -1096,6 +1096,18 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w59-a3 (orchestrator-wired, COPY variant): AIPhysic_CalcAcceleration 2 -> PASS.
+    # cc1plus leaves the EQ-forward beq's slot empty (mostly_true_jump scores 0);
+    # the oracle carries `move $2,$16` BOTH in the slot and at the $L merge point
+    # => aspsx copied it.  gcc reorg can never (09L: the insn writes $2 which the
+    # beq reads).  Anchor on the beq; copy the merge-point move; drop maspsx's nop.
+    "recon/game/common/aiphysic.cpp": {
+        "AIPhysic_CalcAcceleration__FP8Car_tObji": [
+            {"take": r"(?<=\$L694:\n)\tmove\t\$2,\$16\n",
+             "after": r"\tbeq\t\$5,\$2,\$L694\n",
+             "copy": True, "slot": True},
+        ],
+    },
     # w59-a2 (orchestrator-wired): Physics_DoBarrierCheck 2 -> PASS 358/358.
     # Sole residual = retail issues the mflo four insns early; probe-verified
     # (scratchpad/root_probe_physics_barrier_splice.py).
@@ -1343,7 +1355,14 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
             if not tk:
                 continue
             line = tk.group(0)
-            region2 = region[:tk.start()] + region[tk.end():]
+            # w59-a3 COPY variant: keep the source line in place (aspsx COPIES an
+            # insn into a slot, keeping the merge-point copy -- mostly_true_jump
+            # scores an EQ forward branch 0, so gcc leaves the slot empty and the
+            # oracle's duplicate is the assembler's).
+            if mv.get("copy"):
+                region2 = region
+            else:
+                region2 = region[:tk.start()] + region[tk.end():]
             an = re.search(mv["after"], region2)
             if not an:
                 continue

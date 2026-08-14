@@ -392,7 +392,42 @@ lookahead_done:;
        * to s2).  The remaining 2-insn receipt is reorg/assembler slot placement:
        * scratchpad/build_probe_camera_tailcam_textmove.py moves the join's existing
        * `addu $4,$sp,16` into the beq slot and drops reorg's copied filler, producing
-       * PASS 402/402 with HeliCam unchanged at 72 and CircleCam still PASS. */
+       * PASS 402/402 with HeliCam unchanged at 72 and CircleCam still PASS.
+       * NOTE (W60-A9): that probe spec needs a "drop_after" key build.py's
+       * _apply_text_moves does NOT implement (take/after/slot/drop_nop/copy only) --
+       * it is an ORCHESTRATOR wiring item, not applicable as-is.
+       *
+       * W60-A9 STRUCTURAL FINDING (not landed -- the gate prefers the 2): retail
+       * materialises `&arm` ONCE, in the beq's DELAY SLOT, so a0 is live on BOTH
+       * arms (delay slots execute either way, §3.1).  Our shipped shape duplicates
+       * `addiu a0,sp,16` per arm and is +2.  Hoisting ONE `coorddef *armPtr = &arm;`
+       * above the `if` and using it in BOTH arms' first transform() call, with the
+       * identity fence moved INSIDE the look-behind arm, reaches
+       * COUNT-EXACT 402/402 and the whole residual collapses to a single $a0<->$a1
+       * rotation (26 diffs; the `addiu a0,sp,16` placement fixes itself).
+       * -dg EVIDENCE (scratch/rtl/camera.i.greg): p217 = armPtr, refs=5 live=6
+       * pri 1.6666 rank 1 with copy-preference $4; p86 = vertigo, refs=12 live=47
+       * pri 0.7659 rank 11; and `86 conflicts: ... 217 ...` -- sched1 hoists armPtr's
+       * `addu $4,$sp,16` into the `lw $2,20($sp)` load-delay slot, i.e. ABOVE
+       * vertigo's last use, creating the conflict retail does not have.  reqdelta
+       * arithmetic: vertigo needs refs 12->20 to outrank p217 (unreachable), so the
+       * only cure is REMOVING the overlap, not re-ranking.
+       * W60-A9 MEASURED from that basin, all worse: void-tail barrier between the
+       * arm.y store and the armPtr decl 29@403 (the barrier starves the load-delay
+       * slot -> a nop) | read-only fence instead of identity 100@404 | armPtr+fence
+       * hoisted above the armY load 39@403 | armPtr assigned after a lookBehind
+       * read 26 | store via armPtr->y 31@403 | hoisting the Input_gLookBehind base
+       * into a local to feed the load-delay slot 44@404 (with and without the
+       * barrier) | vertigo ref dials +1/+2/identity/none: 26/26/26/27 (INERT --
+       * this is not an allocno_compare razor) | clamp respellings (named MIN temp
+       * 54, override-MAX 52, override-both 44).
+       * Two natural spellings for the record: plain `&arm` in both arms with no
+       * local at all = 3 diffs @403 (one insn BETTER than shipped on count);
+       * plain `&arm` in the else arm + the scoped armPtr in the if arm = the
+       * shipped 2 @404.  NEXT ANGLE: keep the hoisted-armPtr basin and stop sched1
+       * from hoisting its `addu $4,$sp,16` into the load-delay slot WITHOUT paying a
+       * nop -- i.e. supply a different, retail-shaped filler for that slot (retail
+       * uses the Input_gLookBehind `lui/addiu` pair there). */
       coorddef *armPtr = &arm;
       __asm__("" : "+r"(armPtr));
       transform(armPtr,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
@@ -1824,6 +1859,22 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   normal.z = temp.x;
   edge.y = edge.y - triPnt.y;
   edge.z = edge.z - triPnt.z;
+  /* NEAR-MISS 6 (ours 603 / oracle 605), W60-A9 characterised.  Retail gives the
+   * SECOND term of each dot product its own register and adds it
+   * (`addu s0,v0,zero; addu s1,s1,s0`) where ours accumulates straight out of $v0
+   * (`addu s1,s1,v0`); everything else is byte-identical.  MEASURED, all worse or
+   * neutral: both dots as ONE sum expression 24 diffs but COUNT-EXACT 605/605
+   * (a pure s0/s1/s2 rotation -- the closest structural basin found) | edge only
+   * as an expression 11@604 | cam only 25@604 | both as `= f1+f2; += f3;` 8@603 |
+   * edge `+=` + cam `= f1+f2; += f3;` 6@603 (ties the shipped form) | a plain
+   * block-local temp for the 2nd term 6 (copy-propagated away, no change) | the
+   * same temp with an opacity fence `"=r"(t):"0"(t)` 44@603 (the fence recolours
+   * without materialising the copy).  So the copy is NOT reachable by a source
+   * temp here -- per the w47 delete_noop_moves law it survives in retail only
+   * because its two ends got DIFFERENT hard regs, and combine_regs refuses to tie
+   * only when the destination is a GLOBAL allocno.  NEXT ANGLE: from the
+   * count-exact single-expression basin (24), dial the s0/s1/s2 rotation with
+   * allocsim/reqdelta -- that basin has the right instruction stream. */
   edgeDotNorm = fixedmult(edge.x,normal.x);
   edgeDotNorm += fixedmult(edge.y,normal.y);
   edgeDotNorm += fixedmult(edge.z,normal.z);

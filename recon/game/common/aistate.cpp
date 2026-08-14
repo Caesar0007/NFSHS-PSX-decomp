@@ -14,6 +14,57 @@
 int          AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero)) */
 
 
+/* ---- Execute__17AIState_NonActive  AIState_NonActive::Execute  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+
+void AIState_NonActive::Execute()
+
+
+
+{
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- _._17AIState_NonActive  AIState_NonActive::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* reconstructed as extern "C" ___17AIState_NonActive(AIState_NonActive*,int) free fn -- see
+   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
+
+extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
+
+
+
+{
+
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
+
+  ((pThis->carObj_)->N).active = '\x01';
+
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
+
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
 /* ---- AIState_StartUp__Fv  AIState_StartUp  [AISTATE.CPP:25-26] SLD-VERIFIED ---- */
 
 void AIState_StartUp(void)
@@ -3163,11 +3214,22 @@ extern "C" void ___21AIState_RovingTraffic(AIState_RovingTraffic *pThis,int __in
 
 
 
-/* ---- Execute__17AIState_NonActive  AIState_NonActive::Execute  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- func_80072750  AIState_NonActive::Execute  [rule-8, w30-a2] ----
+   SECOND compiled instance of AIState_NonActive::Execute (empty body) -- the OLD-ABI
+   vague-linkage duplicate sitting immediately next to func_80072758/func_80072830/func_80072838
+   below. Every canonical name (Execute__17AIState_NonActive/___17AIState_NonActive/
+   TestForRelease__12AIState_Base) is already claimed by a DIFFERENT VA
+   (0x8005F624/0x8005F62C/0x8005B4C4 -- see configs/symbol_addrs.txt), so this instance keeps
+   its func_<VA> identity (extern-C name can't collide) with the real identity in this comment.
+   [2026-08-03 NAME-FIX: the four same-TU duplicates now carry VA-SUFFIXED real names
+   (Execute__17AIState_NonActive_80072750 etc.) on BOTH sides -- unique at the symbol level
+   (one obj cannot hold two same-named globals; the canonicals live in THIS TU), real at the
+   display level; renamed in symbol_addrs + asm labels/refs/rodata vtable words + expected
+   obj (objcopy).  The four banners keep their historical func_ text.]
+   PROOF: asm/data/rdata_80054548.rodata.s @0x800555AC (AIState_NonActive_vtable Execute slot,
+   D_800555A0+0xC) holds the literal word `func_80072750`. */
 
-void AIState_NonActive::Execute()
-
-
+extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *pThis)
 
 {
 
@@ -3178,22 +3240,23 @@ void AIState_NonActive::Execute()
 
 
 
+/* ---- func_80072758  AIState_NonActive's deleting destructor [rule-8, w30-a2] ----
+   SECOND compiled instance of ~AIState_NonActive (see func_80072750 comment -- canonical name
+   ___17AIState_NonActive already claimed by the instance at 0x8005F62C). Same shape as
+   ___17AIState_Purgatory's tail (own-class vtable -> mark carObj_->N.active -> AIState_Base_vtable
+   -> conditional delete).
+   PROOF: rdata_80054548.rodata.s @0x800555B4 (AIState_NonActive_vtable dtor slot) holds the
+   literal word `func_80072758`; the two lui/addiu loads in the oracle (D_800555A0, D_80055640)
+   are the exact VAs of AIState_NonActive_vtable and AIState_Base_vtable materialized in
+   vtables_aistate.cpp. */
 
-
-
-
-/* ---- _._17AIState_NonActive  AIState_NonActive::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-/* reconstructed as extern "C" ___17AIState_NonActive(AIState_NonActive*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
-
-extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
+extern "C" void ___17AIState_NonActive_80072758(AIState_NonActive *pThis,int __in_chrg)
 
 
 
 {
 
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
 
   ((pThis->carObj_)->N).active = '\x01';
 
@@ -3206,10 +3269,6 @@ extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
   return;
 
 }
-
-
-
-
 
 
 
@@ -3261,65 +3320,6 @@ extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
 
 {
 
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-
-  return;
-
-}
-
-
-
-
-/* ---- func_80072750  AIState_NonActive::Execute  [rule-8, w30-a2] ----
-   SECOND compiled instance of AIState_NonActive::Execute (empty body) -- the OLD-ABI
-   vague-linkage duplicate sitting immediately next to func_80072758/func_80072830/func_80072838
-   below. Every canonical name (Execute__17AIState_NonActive/___17AIState_NonActive/
-   TestForRelease__12AIState_Base) is already claimed by a DIFFERENT VA
-   (0x8005F624/0x8005F62C/0x8005B4C4 -- see configs/symbol_addrs.txt), so this instance keeps
-   its func_<VA> identity (extern-C name can't collide) with the real identity in this comment.
-   [2026-08-03 NAME-FIX: the four same-TU duplicates now carry VA-SUFFIXED real names
-   (Execute__17AIState_NonActive_80072750 etc.) on BOTH sides -- unique at the symbol level
-   (one obj cannot hold two same-named globals; the canonicals live in THIS TU), real at the
-   display level; renamed in symbol_addrs + asm labels/refs/rodata vtable words + expected
-   obj (objcopy).  The four banners keep their historical func_ text.]
-   PROOF: asm/data/rdata_80054548.rodata.s @0x800555AC (AIState_NonActive_vtable Execute slot,
-   D_800555A0+0xC) holds the literal word `func_80072750`. */
-
-extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *pThis)
-
-{
-
-  return;
-
-}
-
-
-
-
-/* ---- func_80072758  AIState_NonActive's deleting destructor [rule-8, w30-a2] ----
-   SECOND compiled instance of ~AIState_NonActive (see func_80072750 comment -- canonical name
-   ___17AIState_NonActive already claimed by the instance at 0x8005F62C). Same shape as
-   ___17AIState_Purgatory's tail (own-class vtable -> mark carObj_->N.active -> AIState_Base_vtable
-   -> conditional delete).
-   PROOF: rdata_80054548.rodata.s @0x800555B4 (AIState_NonActive_vtable dtor slot) holds the
-   literal word `func_80072758`; the two lui/addiu loads in the oracle (D_800555A0, D_80055640)
-   are the exact VAs of AIState_NonActive_vtable and AIState_Base_vtable materialized in
-   vtables_aistate.cpp. */
-
-extern "C" void ___17AIState_NonActive_80072758(AIState_NonActive *pThis,int __in_chrg)
-
-
-
-{
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
-
-  ((pThis->carObj_)->N).active = '\x01';
 
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 

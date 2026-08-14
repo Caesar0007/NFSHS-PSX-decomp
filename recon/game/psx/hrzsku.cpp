@@ -931,6 +931,39 @@ void Hrz_LightningFlicker(int on)
  * that decides whether a source shape exists at all or this is a sched1 ordering fixpoint
  * (in which case the w45 use-fence walked statement-by-statement is the instrument -- it
  * is what sealed Hrz_InitSky this wave). */
+/* ===== w60-a6: THE w45 USE-FENCE WALK IS EXECUTED (the named next instrument above) =====
+ * The count-exact 56/56 single-{t1,t2,t3}-block base was REBUILT from the w41 receipt
+ * (scratch/hrz_1tblock.cpp is long gone -- scratch is gitignored; the base is simply the
+ * three t-blocks below FUSED into one, re-defining t1/t2/t3 per row) and re-measures
+ * EXACTLY 72 @56/56 as recorded.  Harness: scratchpad/w60a6/hrzwalk.py (regenerates the
+ * whole r-block region with a read-only fence at statement position N, gates, always
+ * restores; its pos=0 control reproduces the base byte-identically).
+ * FULL 2-D SWEEP -- 18 positions x 4 operand sets, 27 gates, EVERY ONE count-exact 56/56
+ * (so the fence is genuinely NON-BARRIER here, unlike the do{}while(0) wrappers):
+ *   ops=r0 by position 1..18:  78 78 78 74 76 76 76 76 74 74 70 68 72 74 72 70 68 68
+ *   pos 12: r2 68 . r0,r1,r2 72 . r1 72      pos 17: r2 72 . r0,r1,r2 70 . r1 72
+ *   pos 18: r2 72 . r0,r1,r2 72 . r1 76      (control, no fence: 72)
+ * FLOOR OF THE WHOLE SWEEP = 68, never lower, and the SHIPPED 3-block form below is 62.
+ * ==> THE USE-FENCE WALK IS FALSIFIED FOR THIS FUNCTION.  Mechanically this is expected in
+ * hindsight and the walk is what proves it: w50-a5 established the target is "make
+ * LOCAL_ALLOC burn SIX hard regs on the r-values", i.e. a LIVENESS/conflict-set property,
+ * and a read-only fence only adds REFS -- with the r-triples in three disjoint block
+ * scopes each triple still dies before the next is born, so no ref count can create the
+ * overlap.  (Same family as the belt's other blocked pair, Night_SetEnviroment and
+ * Hud_BuildTimeSprites: the missing device is a ZERO-REF LIVE-RANGE change.)
+ * ALSO FALSIFIED THIS WAVE, aimed straight at the six-register mechanism: rows 0 and 1
+ * FUSED into one block (six distinct locals r0-r2/s0-s2) with a SIX-OPERAND read-only
+ * fence between the six shifts and the six stores -- the strongest liveness device
+ * available, forcing all six values live at one point = 80 @56/56, WORSE than the 72
+ * control.  (w50 had already measured the un-fenced version of that shape at 72.)
+ * REFINED READING OF RETAIL, for the next taker: the six regs are NOT six simultaneously
+ * live values.  Retail's per-row triples are {$v1,$a0,$v0} {$a1,$v0,$v1} {$a2,$a3,$v0} --
+ * $v0 recurs in ALL THREE and $v1 in two, so it is a STAGGERED overlap in which roughly
+ * ONE value per row survives into the next row (that is what forces row 1 off $a0 onto
+ * $a1 and row 2 onto $a2/$a3).  So the shape to hunt is not "six live at once" (measured
+ * 80) nor "three disjoint triples" (72) but a ONE-VALUE-PER-ROW CARRY -- e.g. each row's
+ * last shift computed before the previous row's last store.  Untried; it is the only
+ * remaining source-shape hypothesis that matches the observed register map. */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;

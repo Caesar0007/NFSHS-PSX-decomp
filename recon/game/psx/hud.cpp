@@ -4517,6 +4517,21 @@ void Hud_RenderHudView(void)
    * viewOff/tpageOff walkers of the old recon are compiler givs -> index-form [j]. */
   char sBuildOutput[64];
   int j;
+  /* MATCH (w61-a1) -- THE SPILL-SLOT CYCLE IS DECLARATION ORDER, and the w46/w51 verdict
+   * ("reload hands out slots in spilled-ALLOCNO order, which no source position touches")
+   * is FALSIFIED.  gcc-2.8.1 reload1.c:778-780 assigns every spill slot in a single
+   *   `for (i = LAST_VIRTUAL_REGISTER+1; i < max_regno; i++) alter_reg (i, -1);`
+   * loop, i.e. in PSEUDO-NUMBER order -- and a local's pseudo is born at expand_decl,
+   * i.e. in DECLARATION order.  Retail's frame is 96=splitY, 100=ww, 104=the 0x00FFFFFF
+   * mask temp, 108=viewOff, 112=tpageOff, 116=the %hi/%lo temp (read straight off the SYM
+   * fsize=160: splitY AUTO -0x40 = sp+96, ww AUTO -0x3C = sp+100).  Ours had the two
+   * fn-scope walkers first, so every frame reference in the function was off by the same
+   * 2-slot rotation.  Hoisting splitY and ww ABOVE them reproduces retail's first two
+   * slots: 78 -> 50, count still EXACT 606/606 (splitY alone 60, ww alone 78 -- ww only
+   * pays once splitY precedes it).  RESIDUAL: retail's 0x00FFFFFF temp is born BEFORE
+   * viewOff/tpageOff, which no declared fn-scope local can do -- see the tail note. */
+  int splitY;
+  u_long ww;
   int viewOff;
   int tpageOff;
 
@@ -4524,8 +4539,6 @@ void Hud_RenderHudView(void)
   tpageOff = 0;
   j = 0;
   while (true) {
-    int splitY;
-
     if (DashHUD_gInfo.splitscreen < j) break;
     splitY = 0;
     if (j != 0) splitY = -0xf;
@@ -4536,7 +4549,6 @@ void Hud_RenderHudView(void)
       int flare_intensity;
       u_long x;
       u_long y;
-      u_long ww;
       u_long ww2;
       u_long ww2p1;
       u_long color;

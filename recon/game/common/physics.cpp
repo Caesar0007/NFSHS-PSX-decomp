@@ -1654,9 +1654,22 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
      qtys -- the copy's dest is a block-local qty, so per w47 delete_noop_moves the
      lever is to stop combine_regs tying it (make the copy's DEST a global allocno,
      05D) which needs a sibling block writing the same variable; no such sibling
-     exists in this fn, so the reachable dial is the 3-QTY LAW boundary (w46). */
-  if (roadGrip >= wheel->skid) {
-    roadGrip = wheel->skid;
+     exists in this fn, so the reachable dial is the 3-QTY LAW boundary (w46).
+     ==== 2026-08-14 W59-A16 INSTRUMENT VERDICT: that next angle was WRONG. The lab
+     -dl RTL dump (block 22) proves the copy DOES NOT EXIST in our RTL -- cse folds
+     it at expand time, so no allocator dial could ever mint it.  Cure = the opacity
+     fence (the one device cse cannot see through) on a block-local copy, with the
+     skid load hoisted ABOVE the fence (fence is a sched barrier; load below it =
+     3 diffs, the barrier eats the load-delay fill).  local-alloc.c:471-477 +
+     1867-1869 then guarantee the copy survives (roadGrip is multi-block => reg_qty
+     -1 => combine_regs can never tie it).  4 -> PASS 127/127. */
+  {
+    int skid = wheel->skid;
+    int cmp = roadGrip;
+    __asm__("" : "=r"(cmp) : "0"(cmp));   /* opacity: mints retail's addu v0,a2,zero */
+    if (cmp >= skid) {
+      roadGrip = skid;
+    }
   }
   wheel->skid = roadGrip;
   if (0x100 < __builtin_abs(totalAcc)) {

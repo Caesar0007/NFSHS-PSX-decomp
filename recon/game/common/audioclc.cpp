@@ -682,7 +682,13 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
  * (120/30 diffs @count-EXACT 267 -- base-reuse works but defs rotate),
  * operand swaps, split stmt, cast-ptr (FE folds back), abs interleave,
  * whole-TU no_split_addresses (9 PASSes break), -fforce-addr (same double
- * lui).  Route: instrument loop.c combine_movables (r11-style) or accept. */
+ * lui).  Route: instrument loop.c combine_movables (r11-style) or accept.
+ * W59-A4 adds two more falsifications on the same 3: a plain
+ * `coorddef *viewpos = &AudioClc_gRenderView.translation;` local with x/y/z read
+ * through it is INERT (3 -- the FE folds it back exactly as the cast-ptr note
+ * says), and the same local laundered with an identity fence
+ * `__asm__("" : "=r"(viewpos) : "0"(viewpos))` REGRESSES to 29 (the opaque base
+ * un-CSEs the y/z pair and rotates the whole abs region).  Route unchanged. */
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 {
   int i;

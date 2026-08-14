@@ -587,6 +587,34 @@ PMLeftRtSlide_playSound:
 
 /* ---- tPMenuItemLeftRightSlider::Draw  [PAUSEMENU.CPP:498-534] SLD-VERIFIED ---- */
 
+/*
+ * MATCH: the SLD statement order and the three empty allocation fences below
+ * move this function from 31 to 8 diffs.  allocsim confirms the complete
+ * retail handout: y/s3, packetPtr/s4, i/s5, x/s6, the generated step/s7,
+ * and xpos/fp.  The remaining named angle is loop.c's affine constant:
+ * this spelling reduces i*5 with add=0 and adds 66 at the use, while retail
+ * initializes the reduced GIV to 66.  A separate offset local or inline
+ * helper does produce add=66, but grows vars 8 to 16 and regresses to 77.
+ *
+ * W59-A4 ORACLE EVIDENCE (upgrades the note above from "loop.c affine constant"
+ * to a real source fact): the oracle carries `addiu $s7,$s7,0x5` at 800A7BF4
+ * (Draw__25tPMenuItemLeftRightSliderb.s:152) next to `addiu $s7,$zero,0x42`
+ * @800A7A18 -- retail did NOT reduce a giv, it wrote a REAL stepping local
+ * (`step = 66; ...; step += 5;`) and the use is `addu $fp,$s6,$s7` = x + step.
+ * MEASURED (all with the i*5 fence removed, since `step` supplies its refs):
+ *   step local, decl anywhere in the list       -> 83  (frame 88 vs retail 80)
+ *   + read-only fence on step / xpos / x        -> 83 / 84 / 84
+ *   + 2-operand step fence                      -> 95
+ *   decl-order sweep (step first/mid/last)      -> 83 (inert)
+ *   dropping the i*5 fence alone (no step)      -> 81
+ * The 83-basin is instruction-for-instruction closer (it HAS `li s7,66` +
+ * `addu fp,s6,s7`) but costs 8 EXTRA BYTES OF `vars` -- one spilled pseudo the
+ * retail frame does not have, with the same 10 saved regs.  That spill, not the
+ * giv, is the real blocker: a local-alloc/QTY question (06E instrument gap).
+ * Do NOT re-run the plain "separate offset local" experiment; it is receipted
+ * twice now.  Next move is qtytrace on the 83-basin to name the spilled pseudo.
+ */
+
 void tPMenuItemLeftRightSlider::Draw(bool selected)
 
 {
@@ -597,14 +625,16 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
   int xpos;
 
   x = (short)TextSys_WordX(this->fTextDescription);
+  y = gPause_CurrentY;
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
              *(volatile u_int *)&this->fFlags & 1, x);
-  y = gPause_CurrentY + 4;
+  y += 4;
   i = 0;
   while (i < 15) {
     col = 0x323232;
     if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
       xpos = i * 5 + 66;
+      __asm__("" : : "r"(i * 5));
       xpos += x;
       col = 0x808080;
       if (selected != 0) {
@@ -617,20 +647,24 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
         u_int len : 8;
       };
       POLY_GT4 *prim;
+      u_char **packetPtr;
 
-      prim = (POLY_GT4 *)Render_gPacketPtr;
+      packetPtr = (u_char **)0x1f800004;
+      prim = (POLY_GT4 *)*packetPtr;
       ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
       ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
-      Render_gPacketPtr = (u_char *)(prim + 1);
+      *packetPtr = (u_char *)(prim + 1);
       Hud_BuildGT4(prim, HudPmx_gShapes + 0x12, x + 53, y + 2, 0xbebe);
 
-      prim = (POLY_GT4 *)Render_gPacketPtr;
+      prim = (POLY_GT4 *)*packetPtr;
       ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
       ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
-      Render_gPacketPtr = (u_char *)(prim + 1);
+      *packetPtr = (u_char *)(prim + 1);
       Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 144, y + 2, 0xbebe);
+      __asm__("" : : "r"((int)x), "r"(packetPtr));
     }
     Hud_FBuildF4(0, xpos, y + 2, 3, 5, col, '\0', '\0');
+    __asm__("" : : "r"(y), "r"(i));
     i++;
   }
   Hud_FBuildF4(0, x + 63, y + 1, 79, 7, 0, '\0', '\0');

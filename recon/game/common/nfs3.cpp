@@ -226,45 +226,30 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
 
 
 
-/* ---- Nfs2_CleanUpGameModule  [NFS3.CPP:464-549] SLD-VERIFIED ---- */
+/* ---- Nfs2_CleanUpGameModule  [NFS3.CPP:464-549] SLD-VERIFIED ----
+ * MATCH RECEIPT: SYM lists only `short k`; the seven pointer/value temporaries
+ * in the prior reconstruction were decompiler inventions.  Retail's ten
+ * four-word copy iterations are CC1PLPSX's expansion of the single 160-byte
+ * Car_tStats aggregate assignment below.  Replacing the manual field-copy
+ * loop with the source-level assignment reduced 57 diffs directly to PASS
+ * (105/105). */
 
 
 void Nfs2_CleanUpGameModule(void)
 
 {
-  Car_tObj *pCVar1;
-  Car_tStats *pCVar2;
-  Car_tStats *pCVar3;
-  Car_tObj **ppCVar4;
-  int iVar5;
   short k;
-  int iVar7;
-  int iVar8;
   
   Render_KillTrackRender();
   Render_KillPauseMenu();
   k = 0;
   if (0 < GameSetup_gData.numCars) {
     do {
-      ppCVar4 = Cars_gList + k;
-      ((*ppCVar4)->stats).carType = (*ppCVar4)->carInfo->carType;
-      ((*ppCVar4)->stats).carClass = (*ppCVar4)->carInfo->carClass;
-      ((*ppCVar4)->stats).carNameIndex = (*ppCVar4)->carInfo->carNameIndex;
-      ((*ppCVar4)->stats).carFlags = (*ppCVar4)->carFlags;
-      pCVar1 = *ppCVar4;
-      pCVar3 = Cars_gNewCarStatsList + k;
-      pCVar2 = &pCVar1->stats;
-      do {
-        iVar5 = pCVar2->sliceTotal;
-        iVar7 = pCVar2->sliceTime;
-        iVar8 = pCVar2->slice;
-        pCVar3->extractSlice = pCVar2->extractSlice;
-        pCVar3->sliceTotal = iVar5;
-        pCVar3->sliceTime = iVar7;
-        pCVar3->slice = iVar8;
-        pCVar2 = (Car_tStats *)&pCVar2->lastSlice;
-        pCVar3 = (Car_tStats *)&pCVar3->lastSlice;
-      } while (pCVar2 != (Car_tStats *)&pCVar1->crash);
+      Cars_gList[k]->stats.carType = Cars_gList[k]->carInfo->carType;
+      Cars_gList[k]->stats.carClass = Cars_gList[k]->carInfo->carClass;
+      Cars_gList[k]->stats.carNameIndex = Cars_gList[k]->carInfo->carNameIndex;
+      Cars_gList[k]->stats.carFlags = Cars_gList[k]->carFlags;
+      Cars_gNewCarStatsList[k] = Cars_gList[k]->stats;
       k = k + 1;
     } while (k < GameSetup_gData.numCars);
   }
@@ -372,7 +357,20 @@ void NFS3_CheckForFileOperations(void)
 {
   /* MATCH: retail walks the eaclib FileMgr's op-slot array (+0x18) up to the handle array
    * (+0x1C) through ONE %hi/%lo(gFileDevice) base -- a base-anchor pointer local, not two
-   * separate small globals (the invented gFileMem/gFileHandleTable were gp-rel scalars). */
+   * separate small globals (the invented gFileMem/gFileHandleTable were gp-rel scalars).
+   *
+   * W59-A4 NAMED ANGLE for the residual 9 (ours 20 / oracle 21), fully decoded:
+   * retail's two zeroed asm operands land in $a2 and $a0 (`addu a2,zero,zero;
+   * addu a0,a2,zero`), so the asm CLOBBERS $a0 -- which is why retail must copy the
+   * loop bound out of the load's $a0 into $a1 (`addu a1,a0,zero` in the guard's
+   * beqz slot, oracle insn 7) and tests `sltu v0,v1,a1` inside the loop.  Ours gets
+   * $a1/$a2 for the operands, leaves $a0 free, needs no copy, and is 1 insn shorter.
+   * Every diff is downstream of that ONE operand-register choice.
+   * MEASURED FALSIFIED: a shared `int zero = 0;` local for both operands (8 diffs but
+   * gcc hoists a single `addu a1,zero,zero` OUT of the loop -- 19 insns, retail
+   * materializes both INSIDE); a named `int *end` loop bound (inert, 9).
+   * Per 08D this class is only reachable by naming the register, i.e. the
+   * USER-blocked $4-clobber-fence policy -- do not spend spellings here. */
   FileMgr *mgr = &gFileMgr;
   int *piVar1;
 
@@ -393,6 +391,12 @@ void NFS3_CheckForFileOperations(void)
 
 
 /* ---- main  [NFS3.CPP:703-935] SLD-VERIFIED ---- */
+/* MATCH: PASS 237/237.  CC1PL inserts `__main` automatically for C++ main, so
+   the explicit reconstructed call was a duplicate (19 -> 10 and it also freed
+   the retail startup scheduling).  SYM lists only setup and oldReplayMode as
+   register locals: spelling the win/lose choice as the two direct PlaySong
+   call arms lets cross-jump merge the call while selecting the string in $a0,
+   removing the decompiler-invented pattern local (10 -> PASS). */
 
 int main(void)
 
@@ -400,10 +404,8 @@ int main(void)
   u_int uVar1;
   int *setup;
   int iVar2;
-  char *pattern;
   short oldReplayMode;
   
-  __main();
   oldReplayMode = 0;
   Platform_DebuggerPollHost();
   Nfs2_SystemNLibStartUp();
@@ -464,12 +466,11 @@ int main(void)
                  ((Cars_gNumHumanRaceCars != 2 ||
                   ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0)))))))) {
               if ((Cars_gHumanRaceCarList[0]->stats).finalPosition == 1) {
-                pattern = "win*";
+                AudioMus_PlaySong("win*");
               }
               else {
-                pattern = "lose*";
+                AudioMus_PlaySong("lose*");
               }
-              AudioMus_PlaySong(pattern);
             }
           }
           Replay_ReplayMode = 2;

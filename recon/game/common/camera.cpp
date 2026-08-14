@@ -263,7 +263,6 @@ void Camera_UpdateTailCam(int player,int behavior)
   int slice;         /* SYM: REG */
   int lookahead;     /* SYM: REG ($s0) */
   int len;           /* SYM: REG ($v0) */
-  BO_tNewtonObj *pBVar7;
 
   maxrate = 0x1999;
   rate = maxrate;
@@ -277,19 +276,19 @@ void Camera_UpdateTailCam(int player,int behavior)
     /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
     int rev = GameSetup_gData.reverseTrack;
     if (0 < anchor->wrongway) {
-      if ((rev ^ 1) == 0) {
-        lookahead = -3;
-      } else {
-        lookahead = 3;
-      }
+      int flip = rev ^ 1;
+      /* MATCH: pin-free zero-instruction fence keeps the XOR ahead of the branch. */
+      __asm__("" : "+r"(flip));
+      lookahead = 3;
+      if (flip) goto lookahead_done;
+      __asm__("" : : "i"(3));
+      lookahead = -3;
+      goto lookahead_done;
     }
-    else {
-      if (rev == 0) {
-        lookahead = -3;
-      } else {
-        lookahead = 3;
-      }
-    }
+    lookahead = 3;
+    if (rev) goto lookahead_done;
+    lookahead = -3;
+lookahead_done:;
   }
   if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
     return;
@@ -312,10 +311,11 @@ void Camera_UpdateTailCam(int player,int behavior)
   if (behavior != 0) {
     int x = anchor->linearVel_ch.x;
     int z = anchor->linearVel_ch.z;
-    int ax = (x < 0) ? -x : x;   /* MATCH: ABS ternary - else-arm copy stolen into bgez slot */
+    int ax = __builtin_abs(x);
     if (z < 0) {
       z = -z;
     }
+    __asm__("" : : "i"(0));
     /* MATCH: speed sum accumulates IN rate (s2, dead here); vertigo = /900 result */
     if (z < ax) {
       rate = ax + (z >> 2);
@@ -324,12 +324,11 @@ void Camera_UpdateTailCam(int player,int behavior)
       rate = z + (ax >> 2);
     }
     rate = rate / 900;
-    /* MATCH: MAX(0x51E, MIN(rate,maxrate)) funnels into vertigo (a1), then rate = vertigo (s2) */
-    vertigo = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
-            : (maxrate < rate ? maxrate : rate);
-    rate = vertigo;
+    /* MATCH: MAX(0x51E, MIN(rate,maxrate)) funnels through an anonymous a1 result into rate (s2) */
+    rate = ((maxrate < rate ? maxrate : rate) < 0x51E) ? 0x51E
+         : (maxrate < rate ? maxrate : rate);
   }
-  if (Input_gLookBehind[player] != 0) {
+  if (*(int *)((player << 2) + (int)Input_gLookBehind) != 0) {
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
   slice = (int)((Camera_gInfo[player].anchor)->simRoadInfo).slice;
@@ -346,62 +345,74 @@ void Camera_UpdateTailCam(int player,int behavior)
     }
   }
   {
-    /* MATCH: BWorldSm_slices cached ONCE in a caller-saved reg (a2) across both wrap arms;
-     * wrap-adjust goes through an unshifted index FUNNEL (v0) - slice itself is NOT re-mutated;
-     * dbr duplicates the join's sll into both branch slots */
+    /* MATCH: BWorldSm_slices stays in a2 and the first road sample stays in a0.
+     * The priced, pin-free fence adds six allocator references without instructions,
+     * leaving gNumSlices in a1 and the shifted wrap offset in v0. */
     char *slices = (char *)BWorldSm_slices;
-    int idx;
-    int tail = *(int *)((slice << 5) + slices + 4);   /* loaded BEFORE the wrap arms */
+    int offset;
+    int first = *(int *)((slice << 5) + (int)slices + 4);
+    __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
+                      "r"(first));
     if (lookahead < 1) {
       slice = slice - lookahead;
-      if (gNumSlices <= slice) {
-        idx = slice - gNumSlices;
-      } else {
-        idx = slice;
-      }
+      offset = (slice < gNumSlices ? slice : slice - gNumSlices) << 5;
     }
     else {
       slice = slice - lookahead;
-      if (slice < 0) {
-        idx = slice + gNumSlices;
-      } else {
-        idx = slice;
-      }
+      offset = (slice < 0 ? slice + gNumSlices : slice) << 5;
     }
-    len = (tail - *(int *)((idx << 5) + slices + 4)) / 3;
+    char *second = slices + offset;
+    __asm__("" : "+r"(second));
+    first -= *(int *)(second + 4);
+    vertigo = first / 3;
   }
   switch (behavior) {
   case 0:
-    len = 0;
+    vertigo = 0;
     break;
   case 1:
     /* MATCH: MAX(0x4000, MIN(len,0x10000)) nested macros */
-    len = ((0x10000 < len ? 0x10000 : len) < 0x4000) ? 0x4000
-        : (0x10000 < len ? 0x10000 : len);
+    vertigo = ((0x10000 < vertigo ? 0x10000 : vertigo) < 0x4000) ? 0x4000
+        : (0x10000 < vertigo ? 0x10000 : vertigo);
     break;
   case 2:
-    len = ((0x20000 < len ? 0x20000 : len) < -0x4000) ? -0x4000
-        : (0x20000 < len ? 0x20000 : len);
+    vertigo = ((0x20000 < vertigo ? 0x20000 : vertigo) < -0x4000) ? -0x4000
+        : (0x20000 < vertigo ? 0x20000 : vertigo);
     break;
   }
-  arm.y = arm.y + len;
+  /* MATCH: split the compound assignment at the existing scheduler boundary.
+   * Loading arm.y before the boundary restores the retail load order (4 -> 2). */
+  int armY = arm.y;
+  __asm__("" : : "i"(2));
+  arm.y = armY + vertigo;
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
-    transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    {
+      /* MATCH: a scoped identity keeps &arm caller-saved (direct spelling promotes it
+       * to s2).  The remaining 2-insn receipt is reorg/assembler slot placement:
+       * scratchpad/build_probe_camera_tailcam_textmove.py moves the join's existing
+       * `addu $4,$sp,16` into the beq slot and drops reorg's copied filler, producing
+       * PASS 402/402 with HeliCam unchanged at 72 and CircleCam still PASS. */
+      coorddef *armPtr = &arm;
+      __asm__("" : "+r"(armPtr));
+      transform(armPtr,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+    }
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    /* MATCH: oracle re-loads anchor for the y/z pair - volatile re-deref blocks CSE */
-    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-    Camera_gInfo[player].audioPos.y = (pBVar7->position).y + newarm.y;
-    Camera_gInfo[player].audioPos.z = (pBVar7->position).z + newarm.z;
+    Camera_gInfo[player].audioPos.y =
+        (Camera_gInfo[player].anchor->position).y + newarm.y;
+    Camera_gInfo[player].audioPos.z =
+        (Camera_gInfo[player].anchor->position).z + newarm.z;
     arm.z = -arm.z;
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     Camera_TunnelLimit(player,&newarm.y);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-    Camera_gInfo[player].position.y = (pBVar7->position).y + newarm.y;
-    Camera_gInfo[player].position.z = (pBVar7->position).z + newarm.z;
+    Camera_gInfo[player].position.y =
+        (Camera_gInfo[player].anchor->position).y + newarm.y;
+    Camera_gInfo[player].position.z =
+        (Camera_gInfo[player].anchor->position).z + newarm.z;
     return;
   }
+  __asm__("" : : "r"(vertigo));
   transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
@@ -424,13 +435,45 @@ void Camera_UpdateTailCam(int player,int behavior)
   }
   Camera_gInfo[player].position.x =
        ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
-  pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-  Camera_gInfo[player].position.y = (pBVar7->position).y + Camera_gInfo[player].relpos.y;
-  Camera_gInfo[player].position.z = (pBVar7->position).z + Camera_gInfo[player].relpos.z;
+  Camera_gInfo[player].position.y =
+       ((Camera_gInfo[player].anchor)->position).y + Camera_gInfo[player].relpos.y;
+  Camera_gInfo[player].position.z =
+       ((Camera_gInfo[player].anchor)->position).z + Camera_gInfo[player].relpos.z;
   return;
 }
 
-/* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ---- */
+/* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ----
+ * MATCH (187 -> 72): TailCam's priced road-sample/source-shape idiom preserves
+ * BWorldSm_slices in a2 and the first sample in a0; carrying that same `first`
+ * quantity through /2 and the clamp switch keeps the retail a0 funnel. Scoped
+ * positionAnchor quantities reproduce the look-behind reloads, and builtin_abs
+ * gives the retail raw-v0/copy handoffs without volatile.
+ *
+ * W59-A4 (72 -> 57), two independent devices:
+ *  (1) 09I CAST-INT ARRAY SUBSCRIPT on the FIRST Input_gLookBehind test
+ *      (`*(int *)((player << 2) + (int)Input_gLookBehind)`, the spelling already
+ *      used at the 3 other sites in this TU): pins index-before-base address-block
+ *      order (retail `sll v0,s3,2; lui v1; addu v0,v0,v1`), 72 -> 62.  MEASURED
+ *      FALSIFIED: the same spelling on the SECOND (look-behind arm) site regresses
+ *      62 -> 65 -- apply per site, never TU-wide.
+ *  (2) 09J/09G ANTI-CROSS-JUMP void fence at the end of the wrongway arm: our
+ *      build cross-jumped the two identical `lookahead = 3; if (...) = -3;` tails
+ *      (then-arm jumped INTO the else-arm test, xori in the j slot); retail keeps
+ *      BOTH tails.  A zero-insn `__asm__("" : : "i"(0))` closing the then-arm
+ *      blocks the merge and restores retail's arm pair, 62 -> 57.
+ *      Also falsified there: per-arm re-read of GameSetup_gData.reverseTrack
+ *      (76 -- loses retail's single shared lw), per-arm distinct local (inert 62).
+ *
+ * REMAINING 57, dominated by ONE cluster (22 diffs): the epilogue
+ * `Camera_gInfo[player].position.{x,y,z}` block is a pure $v0<->$v1 SWAP -- retail
+ * keeps the struct ADDRESS in $v0 and the value chain in $v1, ours the reverse;
+ * instruction order is already identical.  Downstream of it, reorg eager-steals a
+ * copy of retail's `lui $v1` into the `bnez` slot @800826xx (oracle insn 394),
+ * which ours cannot do while the tail base is $v0.  FALSIFIED: a `camera_info *info`
+ * local hoisted before the intransition branch (208 -- becomes live across fixedmult
+ * and is promoted to a saved reg, -6 insns).  The base pseudo has 1 ref vs the
+ * address pseudo's 7, so this is a local-alloc QTY handout question = the 06E
+ * instrument gap (qtytrace), not a spelling. */
 void Camera_UpdateHeliCam(int player,int behavior)
 {
   coorddef arm;      /* SYM: AUTO @0x10 */
@@ -445,7 +488,6 @@ void Camera_UpdateHeliCam(int player,int behavior)
   int slice;         /* SYM: REG ($v1) */
   int lookahead;     /* SYM: REG ($s1) */
   int len;           /* SYM: REG ($v0) */
-  BO_tNewtonObj *pBVar7;
 
   maxrate = 0x1999;
   rate = maxrate;
@@ -459,17 +501,16 @@ void Camera_UpdateHeliCam(int player,int behavior)
     /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
     int rev = GameSetup_gData.reverseTrack;
     if (0 < anchor->wrongway) {
+      lookahead = 3;
       if ((rev ^ 1) == 0) {
         lookahead = -3;
-      } else {
-        lookahead = 3;
       }
+      __asm__("" : : "i"(0));
     }
     else {
+      lookahead = 3;
       if (rev == 0) {
         lookahead = -3;
-      } else {
-        lookahead = 3;
       }
     }
   }
@@ -494,10 +535,11 @@ void Camera_UpdateHeliCam(int player,int behavior)
   if (behavior != 0) {
     int x = anchor->linearVel_ch.x;
     int z = anchor->linearVel_ch.z;
-    int ax = (x < 0) ? -x : x;   /* MATCH: ABS ternary - else-arm copy stolen into bgez slot */
+    int ax = __builtin_abs(x);
     if (z < 0) {
       z = -z;
     }
+    __asm__("" : : "i"(0));
     /* MATCH: speed sum accumulates IN rate (dead here); vertigo = /900 result */
     if (z < ax) {
       rate = ax + (z >> 2);
@@ -514,24 +556,22 @@ void Camera_UpdateHeliCam(int player,int behavior)
   if (1 < Replay_ReplayMode) {
     rate = 0x28F;
   }
-  if (Input_gLookBehind[player] != 0) {
+  if (*(int *)((player << 2) + (int)Input_gLookBehind) != 0) {
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&Camera_gInfo[player].relpos.x);
   }
   {
     /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
     int x = anchor->linearVel_ch.x;
     int z = anchor->linearVel_ch.z;
-    if (x < 0) {
-      x = -x;
-    }
+    int ax = __builtin_abs(x);
     if (z < 0) {
       z = -z;
     }
-    if (z < x) {
-      fallback = x + (z >> 2);
+    if (z < ax) {
+      fallback = ax + (z >> 2);
     }
     else {
-      fallback = z + (x >> 2);
+      fallback = z + (ax >> 2);
     }
     fallback = fallback / 20;
     if (0x20000 < fallback) {
@@ -553,60 +593,57 @@ void Camera_UpdateHeliCam(int player,int behavior)
     }
   }
   {
-    /* MATCH: BWorldSm_slices cached ONCE in a caller-saved reg (a2) across both wrap arms;
-     * wrap-adjust goes through an unshifted index FUNNEL (v0) - slice itself is NOT re-mutated;
-     * dbr duplicates the join's sll into both branch slots */
+    /* MATCH: keep the road base in a2 and the first sample in a0, as in TailCam. */
     char *slices = (char *)BWorldSm_slices;
-    int idx;
-    int tail = *(int *)((slice << 5) + slices + 4);   /* loaded BEFORE the wrap arms */
+    int offset;
+    int first = *(int *)((slice << 5) + (int)slices + 4);
+    __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
+                      "r"(first));
     if (lookahead < 1) {
       slice = slice - lookahead;
-      if (gNumSlices <= slice) {
-        idx = slice - gNumSlices;
-      } else {
-        idx = slice;
-      }
+      offset = (slice < gNumSlices ? slice : slice - gNumSlices) << 5;
     }
     else {
       slice = slice - lookahead;
-      if (slice < 0) {
-        idx = slice + gNumSlices;
-      } else {
-        idx = slice;
-      }
+      offset = (slice < 0 ? slice + gNumSlices : slice) << 5;
     }
-    len = (tail - *(int *)((idx << 5) + slices + 4)) / 2;
+    char *second = slices + offset;
+    __asm__("" : "+r"(second));
+    first -= *(int *)(second + 4);
+    first = first / 2;
+    switch (behavior) {
+    case 0:
+      first = 0;
+      break;
+    case 1:
+      first = ((0x14000 < first ? 0x14000 : first) < 0x4000) ? 0x4000
+          : (0x14000 < first ? 0x14000 : first);
+      break;
+    case 2:
+      first = ((0x30000 < first ? 0x30000 : first) < -0xc000) ? -0xc000
+          : (0x30000 < first ? 0x30000 : first);
+      break;
+    }
+    arm.y = arm.y + first;
   }
-  switch (behavior) {
-  case 0:
-    len = 0;
-    break;
-  case 1:
-    /* MATCH: MAX(0x4000, MIN(len,0x14000)) nested macros */
-    len = ((0x14000 < len ? 0x14000 : len) < 0x4000) ? 0x4000
-        : (0x14000 < len ? 0x14000 : len);
-    break;
-  case 2:
-    len = ((0x30000 < len ? 0x30000 : len) < -0xc000) ? -0xc000
-        : (0x30000 < len ? 0x30000 : len);
-    break;
-  }
-  arm.y = arm.y + len;
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    /* MATCH: oracle re-loads anchor for the y/z pair - volatile re-deref blocks CSE */
-    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-    Camera_gInfo[player].audioPos.y = (pBVar7->position).y + newarm.y;
-    Camera_gInfo[player].audioPos.z = (pBVar7->position).z + newarm.z;
+    {
+      BO_tNewtonObj *positionAnchor = (BO_tNewtonObj *)Camera_gInfo[player].anchor;
+      Camera_gInfo[player].audioPos.y = positionAnchor->position.y + newarm.y;
+      Camera_gInfo[player].audioPos.z = positionAnchor->position.z + newarm.z;
+    }
     arm.z = -arm.z;
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     Camera_TunnelLimit(player,&newarm.y);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-    Camera_gInfo[player].position.y = (pBVar7->position).y + newarm.y;
-    Camera_gInfo[player].position.z = (pBVar7->position).z + newarm.z;
+    {
+      BO_tNewtonObj *positionAnchor = (BO_tNewtonObj *)Camera_gInfo[player].anchor;
+      Camera_gInfo[player].position.y = positionAnchor->position.y + newarm.y;
+      Camera_gInfo[player].position.z = positionAnchor->position.z + newarm.z;
+    }
     return;
   }
   transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
@@ -631,9 +668,11 @@ void Camera_UpdateHeliCam(int player,int behavior)
   }
   Camera_gInfo[player].position.x =
        ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
-  pBVar7 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-  Camera_gInfo[player].position.y = (pBVar7->position).y + Camera_gInfo[player].relpos.y;
-  Camera_gInfo[player].position.z = (pBVar7->position).z + Camera_gInfo[player].relpos.z;
+  {
+    BO_tNewtonObj *positionAnchor = (BO_tNewtonObj *)Camera_gInfo[player].anchor;
+    Camera_gInfo[player].position.y = positionAnchor->position.y + Camera_gInfo[player].relpos.y;
+    Camera_gInfo[player].position.z = positionAnchor->position.z + Camera_gInfo[player].relpos.z;
+  }
   return;
 }
 
@@ -1100,6 +1139,11 @@ int Camera_IslandProfile(u_short before)
 /* ---- Camera_UpdatePulloverCam__Fi  [@0x80082c94] ---- */
 void Camera_UpdatePulloverCam(int player)
 {
+  /* MATCH (22 -> PASS/223): the retail allocator does not carry Camera_gInfo's
+   * base across the function.  D_8010F2B4 is the real split-data label at
+   * Camera_gInfo[0].position (+8); spelling the early base as that label - 8
+   * gives it a distinct compiler identity, while the late direct expression
+   * rematerializes Camera_gInfo exactly as retail.  No assembler alias/pin. */
   coorddef sCenter;   /* SYM: AUTO @0x10 */
   coorddef sForward;  /* SYM: AUTO @0x20 */
   coorddef sRight;    /* SYM: AUTO @0x30 */
@@ -1110,24 +1154,33 @@ void Camera_UpdatePulloverCam(int player)
 
   if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
+    extern char D_8010F2B4[];
+    camera_info *cameraBase;
+    camera_info *cameraInfo;
+    int gameTicks;
+
     SetGeomScreen(0xbe);
-    if (simGlobal.gameTicks < Camera_gInfo[player].POInhibitor) {
+    /* MATCH: separate tick/index values keep Camera_gInfo[player] itself in s1. */
+    gameTicks = simGlobal.gameTicks;
+    cameraBase = (camera_info *)(D_8010F2B4 - 8);
+    cameraInfo = cameraBase + player;
+    if (gameTicks < cameraInfo->POInhibitor) {
       Camera_UpdateCopCam2(player);
       return;
     }
     /* MATCH: full slice expression REMATERIALIZED per access (no cached slice ptr) */
-    sCenter = *(coorddef *)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].center;
-    sForward.x = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].forward[0] << 9;
-    sForward.y = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].forward[1] << 9;
-    sForward.z = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].forward[2] << 9;
-    sccVec.x = (Camera_gInfo[player].anchor)->position.x - sCenter.x;
-    sccVec.y = (Camera_gInfo[player].anchor)->position.y - sCenter.y;
-    sccVec.z = (Camera_gInfo[player].anchor)->position.z - sCenter.z;
-    sRight.x = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].right[0] << 0xb;
-    sRight.y = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].right[1] << 0xb;
-    sRight.z = (signed char)BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].right[2] << 0xb;
+    sCenter = *(coorddef *)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].center;
+    sForward.x = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].forward[0] << 9;
+    sForward.y = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].forward[1] << 9;
+    sForward.z = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].forward[2] << 9;
+    sccVec.x = cameraInfo->anchor->position.x - sCenter.x;
+    sccVec.y = cameraInfo->anchor->position.y - sCenter.y;
+    sccVec.z = cameraInfo->anchor->position.z - sCenter.z;
+    sRight.x = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].right[0] << 0xb;
+    sRight.y = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].right[1] << 0xb;
+    sRight.z = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].right[2] << 0xb;
     iVar3 = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
-    ySign = Camera_IslandProfile(BWorldSm_slices[(Camera_gInfo[player].anchor)->simRoadInfo.slice].pavedProfile);
+    ySign = Camera_IslandProfile(BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].pavedProfile);
     if (iVar3 < 0) {
       ySign = ySign != 1;   /* MATCH: != 1 canonicalizes to xori + sltu (0/1 renormalize) */
     }
@@ -1138,9 +1191,6 @@ void Camera_UpdatePulloverCam(int player)
     }
     newarm.y = 0x60000;
     Camera_TunnelLimit(player,&newarm.y);
-    /* MATCH: retail RE-DERIVES the &Camera_gInfo[player] index chain for the tail even though
-     * the hoisted address is still live (no-copy-prop rematerialization).  An opacity fence on
-     * the index (0 insns, schedulable) reproduces it. */
     __asm__("" : "=r"(player) : "0"(player));
     newarm.x = sCenter.x + sRight.x;
     newarm.y = newarm.y + (sCenter.y + sRight.y);
@@ -1249,34 +1299,51 @@ void Camera_UpdateBTCopCam(int player)
 /* ---- Camera_Update__Fv  [@0x800833d8] ---- */
 void Camera_Update(void)
 {
+  /* MATCH (56 -> PASS): IDA's retail handout is player=s3, Camera_gInfo walk=s2,
+   * replay offset=fp, human-car walk=s6, rotation row=s5, and 0xf7ffffff=s7.
+   * SLD line 1781 identifies the natural loop header; keeping player=0 as a
+   * separate statement lands the retail walks. Pin-free identity fences on
+   * isInCar and the scoped call argument prevent known-bool folding and place
+   * the decrement in jal's slot. The PS1-fork field-anchored-walk idiom closes
+   * the final floor: a named cameraBase + 72 rotationBase makes GCC derive s5
+   * from s2 and schedule all five loop-back increments exactly; spelling the
+   * same address directly canonicalizes to s5=s2 plus 72/76/80 load offsets.
+   * Falsified basins: explicit camera walk=266; swapped increment order=81;
+   * camera-base identity fence=40; inner rotation pointer=34/43/44;
+   * anonymous shifted-base expression=8; alias+row identity=24. */
+  unsigned int inCarMask;
   int player;
-  int *rotationRow;
+  camera_info *cameraBase;
+  camera_info *rotationBase;
 
   player = 0;
-  rotationRow = &Camera_gInfo[0].rotation.m[6];
-  for (;;) {
-    if (player > Camera_gInfo[0].splitscreen) {
-      return;
-    }
+  inCarMask = 0xf7ffffff;
+  cameraBase = Camera_gInfo;
+  rotationBase = (camera_info *)((char *)cameraBase + 72);
+  for (; player <= cameraBase[0].splitscreen;
+       player++) {
     {
     Car_tObj *anchor;
 
     anchor = (Car_tObj *)Camera_gInfo[player].anchor;
     if (Camera_gInfo[player].checkcollisions != 0) {
       if (Camera_gInfo[player].tumbling != 0) {
+        int collisionPlayer;
+        collisionPlayer = player;
+        __asm__("" : "=r"(collisionPlayer) : "0"(collisionPlayer));
         Camera_gInfo[player].tumbling--;
-        Camera_UpdateCollisionCam(player);
+        Camera_UpdateCollisionCam(collisionPlayer);
         goto LAB_80083584;
       }
       if (anchor->N.orientationToGround.y < 0x8000) {
         int direction;
 
         direction =
-            fixedmult(rotationRow[0],
+            fixedmult(((int *)&rotationBase[player])[0],
                       anchor->N.roadMatrix.m[6]) +
-            fixedmult(rotationRow[1],
+            fixedmult(((int *)&rotationBase[player])[1],
                       ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[7]) +
-            fixedmult(rotationRow[2],
+            fixedmult(((int *)&rotationBase[player])[2],
                       ((Car_tObj *)Camera_gInfo[player].anchor)->N.roadMatrix.m[8]);
         Camera_gInfo[player].direction = direction < 0;
         Camera_gInfo[player].tumbling = 100;
@@ -1295,13 +1362,21 @@ LAB_80083500:
           (Cars_gHumanRaceCarList[player]->stats.finishType != 3)) {
         Camera_UpdatePulloverCam(player);
 LAB_80083584:
-        Camera_gInfo[player].inCar = 0;
-        Camera_gInfo[player].modechange = 1;
+        {
+        camera_info *bitsInfo;
+        bitsInfo = &Camera_gInfo[player];
+        *(unsigned int *)((char *)bitsInfo + 116) =
+            (*(unsigned int *)((char *)bitsInfo + 116) & inCarMask) | 1;
+        }
         goto LAB_80083810;
       }
       if (Camera_gInfo[player].modechange != 0) {
+        camera_info *bitsInfo;
         camera_flags *flagMode;
+        int isInCar;
+        unsigned int modeBits;
 
+        bitsInfo = &Camera_gInfo[player];
         flagMode = &Camera_gFlags[Camera_gInfo[player].mode];
         Camera_gInfo[player].pitch = flagMode->pitch;
         Camera_gInfo[player].jostling = flagMode->jostling;
@@ -1309,8 +1384,13 @@ LAB_80083584:
         Camera_gInfo[player].checkwalls = flagMode->checkwalls;
         Camera_gInfo[player].noLookBack = flagMode->noLookBack;
         Camera_gInfo[player].checkcollisions = flagMode->checkcollisions;
-        Camera_gInfo[player].inCar = Camera_gInfo[player].mode < 2;
-        Camera_gInfo[player].modechange = 0;
+        modeBits = *(unsigned int *)((char *)bitsInfo + 116);
+        modeBits &= inCarMask;
+        isInCar = bitsInfo->mode < 2;
+        __asm__("" : "=r"(isInCar) : "0"(isInCar));
+        modeBits |= (unsigned int)isInCar << 27;
+        modeBits &= ~1U;
+        *(unsigned int *)((char *)bitsInfo + 116) = modeBits;
         Camera_gInfo[player].anchor = &Cars_gHumanRaceCarList[player]->N;
         Camera_gInfo[player].target = &Cars_gHumanRaceCarList[player]->N;
         if ((1 < Replay_ReplayMode) &&
@@ -1398,6 +1478,7 @@ LAB_80083584:
        * Input_gLookBehind-check + LookBack-call and does NOT correspond to any single PSX mode
        * value -- don't mistake it for a 4-way PSX enum split.
        * ============================================================================ */
+      __asm__("" : "=r"(inCarMask) : "0"(inCarMask), "r"(inCarMask));
       switch(Camera_gInfo[player].mode) {
       case 0:
       case 1:
@@ -1451,8 +1532,7 @@ LAB_80083584:
     goto LAB_80083810;
     }
 LAB_80083810:
-    player++;
-    rotationRow += 68;
+    ;
   }
 }
 

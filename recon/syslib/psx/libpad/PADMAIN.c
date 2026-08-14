@@ -206,49 +206,50 @@ extern void _padStopCom(void)
 
 /* @0x80104D2C : _padInitSioMode -- configure SIO0 for `info`'s port, run any pending auto-mode
  *   fix-ups, then exchange the 0x01/0x42/0x01 select+poll prologue.  Returns 1 on success. */
-/* MATCH (w52-a5, 198 -> 94) -- five ORACLE-READ corrections, three of them REAL BUGS:
+/* MATCH (w59-root, 54 -> 24 at 203/205; earlier w52-a5, 198 -> 94) -- the matched
+ * Sled Storm Sony-lib body at `pc-beta/sotn-sled/_padInitSioMode.c` confirms this control flow.
+ * The direct ternary JOY_CTRL store removes two excess instructions, and a short-lived initial
+ * `fix` value gives retail's AT-indexed load into v0 plus the delayed s1 base materialization.
+ * The remaining 24 are isolated to GCC's phantom `vars=8` frame and the two-insn folded final
+ * byte test.  Per-function -G8 is byte-identical; compiler ladder: 2.6.3=40,
+ * 2.7.2-970404=186, 2.8.0/2.8.1=177, confirming 2.7.2 as the correct basin.
+ * Five earlier ORACLE-READ corrections, three of them REAL BUGS:
  *  (1) setRC2wait is VOID (WAITRC2.c receipt) and it is _padClrIntSio0's RETURN that retail
  *      tests (`jal _padClrIntSio0; beqz $v0,<ret 0>`), not a setRC2wait result.  The old
  *      `u = setRC2wait(N); _padClrIntSio0(); if (u == 0)` shape tested the WRONG value.
  *  (2) BUG: the SIO reset store `JOY_CTRL = 0x40` before the `= 0` was missing entirely.
  *  (3) BUG: the queued-recv drain passed `info + n*0xF0`; retail indexes off the port-table
  *      pointer `*(u_char **)(info + 0xC) + n*0xF0` (`lw $v0,0xC($s0); addu $a0,$v0,$a0`).
- *  (4) ONE JOY_CTRL store fed by a selected constant (`ctrl = 0x1003; if (chan) ctrl = 0x3003;`),
+ *  (4) ONE JOY_CTRL store fed by a selected constant (`chan ? 0x3003 : 0x1003`),
  *      not two stores -- retail's `beqz $v0 / addiu $v1,0x1003` + a single `sh $v1,0xA($a0)`.
  *  (5) each `_padWaitRXready()` is followed by a DISCARDED `JOY_DATA8` read (`lbu $v0,0($v0)`),
  *      and the I_STAT ack spins are top-tested `while ((I_STAT & 0x80) == 0) { if (chkRC2wait())
  *      return 0; }`, not do/while with the test in the body. */
 extern int _padInitSioMode(unsigned char *info)
 {
-    int wait;
-    unsigned short ctrl;
-
     JOY_CTRL = 0x40;
     JOY_CTRL = 0;
     JOY_MODE = 0xd;
     JOY_BAUD = 0x88;
-    wait = 0x91;
-    if (info[0xe8] == 8)
-        wait = 0x50;
-    setRC2wait(wait);
-    ctrl = 0x1003;
-    if (_padSioChan != 0)
-        ctrl = 0x3003;
-    JOY_CTRL = ctrl;
+    setRC2wait(info[0xe8] == 8 ? 0x50 : 0x91);
+    JOY_CTRL = (_padSioChan != 0) ? 0x3003 : 0x1003;
 
     /* drain any queued auto-mode recv fix-ups for this channel */
-    if (_padFixResult[_padSioChan] >= 0) {
-        if (_padFixResult[_padSioChan] > 0) {
-            do {
-                int n = _padFixResult[_padSioChan] - 1;
-                _padFixResult[_padSioChan] = n;
-                _padFuncRecvAuto(*(unsigned char **)(info + 0xc) + n * 0xf0);
-            } while (_padFixResult[_padSioChan] > 0);
-        }
-        if (_padFixResult[_padSioChan] == 0) {
-            _padFixResult[_padSioChan] = -1;
-            _padFuncRecvAuto(info);
-            _padFuncClrCmdNo(info);
+    {
+        int fix = _padFixResult[_padSioChan];
+        if (fix >= 0) {
+            if (fix > 0) {
+                do {
+                    --_padFixResult[_padSioChan];
+                    _padFuncRecvAuto(*(unsigned char **)(info + 0xc) +
+                                     _padFixResult[_padSioChan] * 0xf0);
+                } while (_padFixResult[_padSioChan] > 0);
+            }
+            if (_padFixResult[_padSioChan] == 0) {
+                _padFixResult[_padSioChan] = -1;
+                _padFuncRecvAuto(info);
+                _padFuncClrCmdNo(info);
+            }
         }
     }
 
@@ -340,16 +341,21 @@ extern void _padSioMain(unsigned char *info)
 }
 
 /* @0x80105128 : _padSioRW -- exchange one byte; first byte (tx<0) issues the line, else polls.
- * MATCH (w52-a5, 137 -> 59): rebuilt from the oracle.  Signature is `int (u_char*, int)` and BOTH
+ * MATCH (w59-root, 57 -> PASS 118/118; earlier w52-a5, 137 -> 59): rebuilt from the oracle.
+ * Signature is `int (u_char*, int)` and BOTH
  * exits return the RX byte (`addu $v0,$s1,$zero`).  Corrections: chkRC2wait's RESULT drives the
  * spins (`while (chkRC2wait() == 0);` / `if (chkRC2wait() != 0) return -0x14;`) -- it was being
  * called and discarded; the BAUD value is SELECTED into a local and stored ONCE, late, next to the
  * `rx = JOY_DATA8` read (`sh $a2,0xE($v0)`), not written twice at the top; `_waitTime` is stored
- * BEFORE `_startTime`; and the two STAT spins are plain `while`s (gcc-2.8 jump.c
- * duplicate_loop_exit_test emits retail's duplicated entry test). */
+ * BEFORE `_startTime`.  Final GCC-2.7.2 source-shape receipts: `rx` is an `int`; both arms share
+ * one physical `return_rx` label; the negative transmit byte is a block-local `unsigned char`;
+ * the positive arm caches SIO/IRQ bases only for their retail-sized phases; and both STAT waits
+ * are guard + do/while shapes.  Most decisively, the timer value and the first volatile JOY_STAT
+ * read are named locals loaded before the two timer stores.  That statement/lifetime order gives
+ * retail's a2 baud, a1 SIO base, a0 timer, v1 STAT allocation and exact scheduling without asm. */
 extern int _padSioRW(unsigned char *dev, int tx)
 {
-    unsigned char rx;
+    int rx;
 
     if (tx < 0) {
         unsigned char *out = *(unsigned char **)(dev + 0x40);
@@ -361,33 +367,58 @@ extern int _padSioRW(unsigned char *dev, int tx)
             ;
         while (chkRC2wait() == 0)
             ;
-        JOY_DATA8 = (unsigned char)~tx;
-        return rx;
+        {
+            unsigned char value = (unsigned char)~tx;
+            volatile unsigned char *data = _padSioRegs;
+            *data = value;
+        }
+        goto return_rx;
     } else {
         unsigned short baud = 0x88;
         int hdr = **(unsigned char **)(dev + 0x3c);
         if (hdr >> 4 == 8 && dev[0x44] > 8)
             baud = 0x22;
-        _waitTime  = 0x1ae;
-        _startTime = T2_VALUE;
-        while ((JOY_STAT & 2) == 0)
-            ;
-        rx = JOY_DATA8;
-        JOY_BAUD = baud;
-        while ((I_STAT & 0x80) == 0) {
-            if (chkRC2wait() != 0)
-                return -0x14;
+        {
+            unsigned short start = T2_VALUE;
+            unsigned char *sio = _padSioRegs;
+            unsigned short stat;
+            stat = *(volatile unsigned short *)(sio + 4);
+            _waitTime  = 0x1ae;
+            _startTime = start;
+            if ((stat & 2) == 0) {
+                do {
+                } while ((JOY_STAT & 2) == 0);
+            }
+        }
+        {
+            unsigned char *sio = _padSioRegs;
+            unsigned char *ir = _padIntRegs;
+            rx = *(volatile unsigned char *)sio;
+            *(volatile unsigned short *)(sio + 0xe) = baud;
+            if ((*(volatile unsigned int *)ir & 0x80) == 0) {
+                do {
+                    if (chkRC2wait() != 0)
+                        return -0x14;
+                } while ((I_STAT & 0x80) == 0);
+            }
         }
         JOY_DATA8 = (unsigned char)tx;
         dev[0x45] = dev[0x45] + 1;
         *(*(unsigned char **)(dev + 0x3c) + dev[0x44]) = rx;
         dev[0x44] = dev[0x44] + 1;
+return_rx:
         return rx;
     }
 }
 
 /* @0x80105300 : _padSioRW2 -- like _padSioRW but bounded by the RC2 timer.
- * MATCH (w52-a5, 157 -> 36, count-EXACT 142/142): the ACK wait embeds an INLINE COPY of
+ * MATCH (w59-root, 36 -> 2, count-EXACT 142/142; earlier w52-a5, 157 -> 36): the matched
+ * Sled Storm donor confirms the baud-arm polarity and the `T2_TARGET != 0` arm order.  `rx` is
+ * an int normalized with `& 0xff`; an int index stages the required second `dev[0x44]` read.
+ * The allocator boundary is only 0.1142 vs 0.1111: spelling the nibble threshold as
+ * `baud - 0x80` adds the one real baud reference needed for retail s1/s2 ownership.  The sole
+ * residual is therefore `addiu v0,s1,-128` versus retail `li v0,8`; `int baud` regresses to 14,
+ * and -G8 is not a solution.  The ACK wait embeds an INLINE COPY of
  * chkRC2wait's body (retail hoists _startTime/_waitTime and the four RC2/SIO MMIO addresses into
  * $a0/$a1/$t1/$a2/$t2/$t0 above the loop -- a call could never produce that), returning -2 on
  * timeout.  Also: baud is a selected local stored once, and the second baud decision reads the
@@ -397,7 +428,7 @@ extern int _padSioRW(unsigned char *dev, int tx)
 extern int _padSioRW2(unsigned char *dev, int tx)
 {
     unsigned short baud = 0x88;
-    unsigned char rx;
+    int rx;
     int hdr = **(unsigned char **)(dev + 0x3c);
 
     if (hdr >> 4 == 8 && dev[0x44] > 8)
@@ -406,19 +437,20 @@ extern int _padSioRW2(unsigned char *dev, int tx)
     while ((JOY_STAT & 2) == 0)
         ;
     setRC2wait(0x190);
-    rx = JOY_DATA8;
-    if (dev[0x44] == 0 && (int)rx >> 4 == 8)
-        JOY_BAUD = 0x22;
-    else
+    rx = JOY_DATA8 & 0xff;
+    if (*(volatile unsigned char *)(dev + 0x44) != 0 ||
+        rx >> 4 != baud - 0x80)
         JOY_BAUD = baud;
+    else
+        JOY_BAUD = 0x22;
 
     while ((I_STAT & 0x80) == 0) {
         unsigned cur = T2_VALUE & 0xffff;
         if (cur < (unsigned)_startTime) {
-            if (T2_TARGET == 0)
-                cur += 0x10000;
-            else
+            if (T2_TARGET != 0)
                 cur += T2_TARGET;
+            else
+                cur += 0x10000;
         }
         if ((T2_MODE & 0x200) != 0) {
             if (cur - (unsigned)_startTime >= (unsigned)_waitTime)
@@ -434,9 +466,14 @@ extern int _padSioRW2(unsigned char *dev, int tx)
             ;
     }
     JOY_DATA8 = (unsigned char)tx;
-    dev[0x45] = dev[0x45] + 1;
-    if (dev[0x44] != 0xff)
-        *(*(unsigned char **)(dev + 0x3c) + dev[0x44]) = rx;
+    {
+        int idx = dev[0x44];
+        dev[0x45] = dev[0x45] + 1;
+        if (idx != 0xff) {
+            idx = dev[0x44];
+            *(*(unsigned char **)(dev + 0x3c) + idx) = rx;
+        }
+    }
     dev[0x44] = dev[0x44] + 1;
     return rx;
 }

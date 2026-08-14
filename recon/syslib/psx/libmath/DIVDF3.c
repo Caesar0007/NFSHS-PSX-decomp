@@ -40,52 +40,6 @@
  * the cracked levers are in GTDF2.c / LTDF2.c / MULSF3.c. */
 int _comp_mant(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4);   /* fwd decl for __divdf3 below */
 
-#if defined(__mips__)
-__asm__(
-    "\t.set push\n"
-    "\t.set noat\n"
-    "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
-    "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
-
-    "\t.globl _comp_mant\n"        /* @0x800F60B4 : int _comp_mant(uint a0,a1,a2,a3) -- compare [a1:a0] vs [a3:a2] as u64 -> 1/-1/0 */
-    "_comp_mant:\n"
-    "\tsltu\t$v0,$a3,$a1\n"
-    "\tsw\t$a0,0($sp)\n"
-    "\tsw\t$a1,4($sp)\n"
-    "\tsw\t$a2,8($sp)\n"
-    "\tbnez\t$v0,.L800F60F8\n"
-    "\t sw\t$a3,12($sp)\n"
-    "\tsltu\t$v0,$a1,$a3\n"
-    "\tbnez\t$v0,.L800F60FC\n"
-    "\t addiu\t$v0,$zero,-1\n"
-    "\tsltu\t$v0,$a2,$a0\n"
-    "\tbnez\t$v0,.L800F60FC\n"
-    "\t addiu\t$v0,$zero,1\n"
-    "\tsltu\t$v1,$a0,$a2\n"
-    "\tbnez\t$v1,.L800F60FC\n"
-    "\t addiu\t$v0,$zero,-1\n"
-    "\tj\t.L800F60FC\n"
-    "\t addu\t$v0,$zero,$zero\n"
-    ".L800F60F8:\n"
-    "\taddiu\t$v0,$zero,1\n"
-    ".L800F60FC:\n"
-    "\tjr\t$ra\n"
-    "\t nop\n"
-    "\t.set pop\n"
-);
-#else
-/* Direct-return cascade (lever 3.12#8): each return materializes $v0 in the branch
- * delay slot; staging through a `result` temp would pin $t0+move instead. */
-int _comp_mant(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4)
-{
-    if (a4 < a2) return 1;
-    if (a2 < a4) return -1;
-    if (a3 < a1) return 1;
-    if (a1 < a3) return -1;
-    return 0;
-}
-#endif
-
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
@@ -244,3 +198,49 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
     }
     return ur.d;
 }
+
+#if defined(__mips__)
+__asm__(
+    "\t.set push\n"
+    "\t.set noat\n"
+    "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
+    "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
+
+    "\t.globl _comp_mant\n"        /* @0x800F60B4 : int _comp_mant(uint a0,a1,a2,a3) -- compare [a1:a0] vs [a3:a2] as u64 -> 1/-1/0 */
+    "_comp_mant:\n"
+    "\tsltu\t$v0,$a3,$a1\n"
+    "\tsw\t$a0,0($sp)\n"
+    "\tsw\t$a1,4($sp)\n"
+    "\tsw\t$a2,8($sp)\n"
+    "\tbnez\t$v0,.L800F60F8\n"
+    "\t sw\t$a3,12($sp)\n"
+    "\tsltu\t$v0,$a1,$a3\n"
+    "\tbnez\t$v0,.L800F60FC\n"
+    "\t addiu\t$v0,$zero,-1\n"
+    "\tsltu\t$v0,$a2,$a0\n"
+    "\tbnez\t$v0,.L800F60FC\n"
+    "\t addiu\t$v0,$zero,1\n"
+    "\tsltu\t$v1,$a0,$a2\n"
+    "\tbnez\t$v1,.L800F60FC\n"
+    "\t addiu\t$v0,$zero,-1\n"
+    "\tj\t.L800F60FC\n"
+    "\t addu\t$v0,$zero,$zero\n"
+    ".L800F60F8:\n"
+    "\taddiu\t$v0,$zero,1\n"
+    ".L800F60FC:\n"
+    "\tjr\t$ra\n"
+    "\t nop\n"
+    "\t.set pop\n"
+);
+#else
+/* Direct-return cascade (lever 3.12#8): each return materializes $v0 in the branch
+ * delay slot; staging through a `result` temp would pin $t0+move instead. */
+int _comp_mant(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a4)
+{
+    if (a4 < a2) return 1;
+    if (a2 < a4) return -1;
+    if (a3 < a1) return 1;
+    if (a1 < a3) return -1;
+    return 0;
+}
+#endif

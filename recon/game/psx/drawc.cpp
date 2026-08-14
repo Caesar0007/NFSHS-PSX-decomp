@@ -423,7 +423,23 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        and "i"(0) forms); wll 6, lwl 8, wwl 10, and any channel-2 wc-first 24-28.  With
        NO fence the whole family is 34-40.  ⇒ the residual is not a joint fence/operand
        minimum either; it stays the sched2 ready-list pick, and the -dl qty-count dial
-       (w46-a10, local-alloc.c:1588 next_qty<=3) remains the sole untried instrument. */
+       (w46-a10, local-alloc.c:1588 next_qty<=3) remains the sole untried instrument.
+       ---- w60-a7 (2026-08-14): 4 STAYS, count-exact 107/107.  FIRST SLD READING of this
+       block (the w59 11D instrument, never applied here).  The oracle's SLD attributes
+       EVERY insn of the wc address materialisation -- `lui v0; addiu v0; lui v1; lw v1;
+       lbu a0,104(sp); sll v1; addu v1,v1,v0; lbu v0,0(v1); addu a0,a0,v0; addu t1,a0` --
+       to ONE line (255 = the newR statement); lines 251..254 carry NO insns at all, and
+       the `addiu a2,sp,104` (lp) sits in the guard's delay slot at line 250.  So the two
+       insns whose order we are fighting BELONG TO THE SAME SOURCE STATEMENT: the SLD
+       cannot discriminate here.  That retires "read the SLD first" for this residual and
+       confirms it is intra-statement (sched2 ready-list), not a statement re-lay.  The
+       one structural reading the SLD invites -- that `wc` was never a declared pointer
+       (no insns on its decl line) but spelled INLINE at each channel -- is much worse:
+       `((u_char *)&Night_gWeatherColor[Night_gLightningType])[N]` at all three channels
+       measures 48 @109 with the existing fence, 48 @109 with the fence moved onto `lp`,
+       and 48 @109 with no fence at all.  (The silence of lines 251-254 is the ordinary
+       "decl-with-init whose address folds into its first use" case, not evidence against
+       the local.)  The -dl qty-count dial remains the sole untried instrument. */
     __asm__("" : : "r"(wc));
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);

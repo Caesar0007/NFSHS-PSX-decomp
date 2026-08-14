@@ -152,7 +152,34 @@ void InGame_ResetPSXController(int player,int config)
      3 @306 (identical); a SECOND fence before the controllerConfig store 3 (neutral); Yoda
      compare on the controlType test 31; a statement-expression fence placed after the
      compare's operand evaluation 22 @303.  Open angle unchanged: a device that makes
-     `player * 4` a global allocno WITHOUT being the block's first insn. */
+     `player * 4` a global allocno WITHOUT being the block's first insn.
+     ---- w60-a7 (2026-08-14): 3 STAYS (306 vs 305).  The residual is now MECHANISM-
+     COMPLETE and the open angle above is proved to be the only one left.  WHAT THE
+     ORACLE DOES: reorg fills the controlType `beq`'s delay slot by a SIMPLE FILL of the
+     `sll s5,s2,2` that is the LAST pre-branch RTL insn -- no duplication, hence 305.
+     Ours has that sll as the FIRST insn of the block, so reorg's backward scan stops at
+     `lbu v0,5(a0)` (it sets the branch's own operand) and the sll is unreachable; reorg
+     then EAGER-STEALS `lui v0,0` from the branch TARGET, duplicating it -> 306.  The fix
+     must put the sll's DEF pre-branch (for the global allocno) AND make it the LAST
+     pre-branch insn.  Every device tried moves one or the other, never both:
+       * THE GLOBAL-ALLOCNO JOB IS PRE-BRANCH-ONLY.  A fence on `player*4` placed after
+         the last h[] store 260, ditto non-volatile 260, inside the carFlags then-arm
+         33 @310 -- a LATE def/use pair does NOT make the pseudo global (no fence = 254).
+       * FENCE AFTER THE COMPARE'S OPERANDS (aimed at making the sll last): condition
+         hoisted to `int ne = ...;` + fence + `if (ne)` 28 @307; the same written as a
+         statement-expression `if (({ int _ne = ...; __asm__(...); _ne; }))` 28 @307
+         (volatile and plain identical); the fence inside the compare's SECOND operand
+         22 @303.
+       * NAMED `int p4 = player * 4;` defined after the if with the hoff sites indexed
+         off it: 123 @302 / 121 @302 (cfg store left plain) / 141 @306 (hoff untouched);
+         with the existing fence kept and p4 fenced instead of the expression 24 @303.
+         All of them SHED instructions (302) -- retail rematerialises the address at
+         every hoff site, so one shared p4 is structurally wrong.
+       * 09I CAST-INT SUBSCRIPT on the controllerConfig store, to put the sll at the
+         merge block's head so reorg would steal IT instead of the lui: without the fence
+         260 (`player << 2` and `player * 4` identical), with the fence 5.  Spelling ALL
+         ~28 hoff sites cast-int: without the fence 254, with the fence 3 and
+         bit-identical to the kept minimal three-site form -- so the minimal edit stays. */
   __asm__ volatile("" : : "r"(player * 4));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
@@ -596,7 +623,19 @@ int InGame_GetDevice(int control)
  * LICM", it is loop.c making a DIFFERENT per-movable cost decision for the one movable
  * that is used ONCE per iteration.  Any future lever must therefore be movable-SELECTIVE
  * (the arm-duplication inflator below, or a per-fn loop-flag splice), never a whole-loop
- * anti-LICM device. */
+ * anti-LICM device.
+ * ---- w60-a7 (2026-08-14): 13 STAYS (99 vs 98).  A NEW hypothesis was tested and
+ * FALSIFIED: loop.c hoists movables in ORDER OF APPEARANCE and its threshold DECAYS 3
+ * per accepted move (catalog w46-a4), so making the `&hoff` movable appear LATER in the
+ * body -- after the three already-accepted movables retail keeps -- should push it past
+ * the budget and get it declined.  It does not: `hp = hoff + i;` moved below the three
+ * ramp stores 17, `hp` deleted entirely with `hoff[i]` spelled at all three
+ * InGame_GetDevice sites (first appearance now at the first guard) 17, the same plus a
+ * dummy block-local to shift the qty count 17, and the `int *hp` declaration removed
+ * 17.  All four are the SAME 17 and all keep the hoist, so the movable's LIST POSITION
+ * is not the dial here -- consistent with the w49 finding that every spelling collapses
+ * to one RTL movable.  The two named angles (ARM-DUPLICATION of the materialization so
+ * cse1 cannot re-merge it, and a per-fn loop-flag splice) are still the only ones left. */
 void InGame_SetRamp(void)
 
 {

@@ -768,7 +768,30 @@ void Hud_BTCStats(short player,bool postgame)
    * i.e. the w47 identity-fence used precisely to stop combine reassociating
    * `SIZE_H - (yoff+8)` into `(SIZE_H-8) - yoff` -- 81 diffs at 472 (one insn SHORT), the
    * fence recolours the whole prologue chain (s0->s1 on the POS_X/`sh 96(sp)` web).  The
-   * reassociation blocker is therefore not reachable with a tied-operand fence either. */
+   * reassociation blocker is therefore not reachable with a tied-operand fence either.
+   * ---- w60-a7 (2026-08-14): 24 STAYS, count-exact 473/473.  THIRTEEN more spellings of
+   * the ARM-1 expression, none better, and the fold now has a NAME in both directions:
+   * `(A + 8) - B` folds to `A - (B - 8)` (ours: `addiu v0,s2,-8; subu v0,s0,v0`) while
+   * `SIZE_H - (yoff + 8)` folds the other way to `(SIZE_H - 8) - yoff` -- retail folded
+   * NEITHER (`addiu v0,s1,8; subu v0,s2,v0`), so the target is a form fold cannot touch
+   * at all, not a choice between the two folds.  MEASURED (all this basin):
+   *   yoff spelled as its own parenthesised subexpression `(((startY+0xf) - POS_Y) +
+   *   (postgame?8:0))` 27 @472 . the same with `(int)` casts on SIZE_H/POS_Y 27 @472 .
+   *   `(int)POS_Y` alone 24 (bit-identical) . an extra inner paren on `(startY+0xf)` 24
+   *   (bit-identical) . `inset` as its own statement inside the loop 59 @470 . the same
+   *   with an `if (postgame) inset += 8;` instead of the ternary 81 @472 . subtracting
+   *   the 8 as a separate term `- (postgame?8:0)` 33 @472 . a `yoff` local hoisted above
+   *   the loop 33 @474 . that plus an `inset` statement 59 @472 . the ternary moved to
+   *   cover the WHOLE subtrahend (`SIZE_H - (postgame ? yoff+8 : yoff)`) 37 @474, and its
+   *   `8 + yoff` variant 37 @474 . the showtimeleft term written first 39 @474 .
+   *   `startY + 0xf` hoisted into a local 26 @473.
+   * Note the count tell: every spelling that reaches the retail SHAPE loses or gains an
+   * instruction (472/474), i.e. the fold is what keeps us count-exact.  NEXT ANGLE
+   * (named, untried): retail's `yoff` is a cse temp shared with the LATER showtimeleft
+   * call at line ~779, which spells `(startY + 0xf - HUD_STATS_POS_Y)` literally -- so
+   * the dial may be that SECOND call site's spelling (make cse mint yoff THERE first),
+   * not this one's; and per the w44 ternary-fold boundary the only other route is to
+   * make the addend non-constant, which here would delete retail's own `beqz`. */
   for (i = 1; i < 4; i = i + 1) {
     Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
                  HUD_STATS_SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - HUD_STATS_POS_Y) -

@@ -1222,7 +1222,13 @@ int AISpeeds_GetUpgradeTopSpeedMult(int carIndex)
   return a;
 }
 
-/* ---- AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj  [@0x8006f3fc] ---- RECONSTRUCTED 2026-06-12
+/* ---- AISpeeds_CalcHumanTopSpeed__FP8Car_tObj  [@0x8006f3fc] ---- RECONSTRUCTED 2026-06-12
+ *  (Ghidra @NFS4.EXE.c:49318). Thin wrapper over CalcHumanCurveSpeed. */
+int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
+{
+  return AISpeeds_CalcHumanCurveSpeed(carObj);
+}
+/* ---- AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj  [@0x8006f41c] ---- RECONSTRUCTED 2026-06-12
  *  (Ghidra @NFS4.EXE.c:49330). Skipped from the AISPEEDS pass. Looks ahead up to 5 slices in the
  *  car's direction, takes the max track-curve value, scales (0x1a666 in 16.16), clamps to 0xff,
  *  and maps through the car's curve-speed table. Unrolled exactly as in the binary. */
@@ -1274,9 +1280,3 @@ int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
   return carObj->curveSpeedTable->Get(best);
 }
 
-/* ---- AISpeeds_CalcHumanTopSpeed__FP8Car_tObj  [@0x8006f3f4] ---- RECONSTRUCTED 2026-06-12
- *  (Ghidra @NFS4.EXE.c:49318). Thin wrapper over CalcHumanCurveSpeed. */
-int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
-{
-  return AISpeeds_CalcHumanCurveSpeed(carObj);
-}

@@ -55,6 +55,28 @@
  * a distinct SHORT-LIVED pseudo whose end-points get different regs, or to force
  * the `return 0` block out of the fall-through position (its placement is what
  * removes the `j`).  Not a floor. */
+/* MATCH (w60-a5, 2026-08-14): 6 -> 5, count 62 vs 63.  The first half of that
+ * named angle LANDED -- in-place shift + a zero-insn OPACITY FENCE restores
+ * retail's `srav $v1,$v1,$v0` + `addu $v0,$v1,$zero` copy (see the fence
+ * comment in the body).  RESIDUAL (5) is now PURELY jump.c BLOCK PLACEMENT and
+ * ours is 1 insn SHORTER: retail lays [tests][shift; j Ltail][ret0][Ltail],
+ * i.e. `beqz $v1,Lret0` with the shift as the FALL-THROUGH and a `j` over the
+ * shared return-0 block; gcc gives us the canonicalized `bnez $v1,Lshift` with
+ * the ret0 block inline (no `j`).  Both cross-jump the two `return 0` sites
+ * into ONE block -- only its POSITION differs.
+ * FALSIFIED for the placement half (all whole-TU gated on the fence base):
+ *   if/else with `return 0` as the else arm 5 (byte-identical to early-return:
+ *     jump.c canonicalizes the two forms) | explicit `goto zero;` with the
+ *     label physically BETWEEN shift and tail 5 (gcc re-orders anyway) |
+ *     same + void-tail fence in the zero block 7 | 04T `return (unsigned)v8;`
+ *     (distinct return site) 5 | the two guards swapped 9 | the two guards
+ *     merged into one `||` 5 | void-tail fence at the tail-block head 5.
+ * Without the fence, the same layout set measures 6/6/8/6/6/6 -- i.e. the
+ * placement is invariant under every source shape tried, in BOTH basins.
+ * NAMED NEXT ANGLE: jump.c's "conditional jumping around an unconditional
+ * jump" inversion is what collapses retail's `j Ltail`; the reachable lever
+ * would be one that keeps the shift arm from ENDING in that `j` (a real insn
+ * in the arm tail that cross_jump cannot merge), or the permuter. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 
@@ -86,9 +108,20 @@ unsigned int __fixdfsi(double a)   /* @0x800F6834 */
         if ((unsigned int)(v4 - 1022) >= 0x20) return 0;
         if (v8 == 0) return 0;
         {
-            int r = v8 >> (-v6);
-            unsigned int result = (unsigned int)r;
-            if (ua.w.hi < 0) result = (unsigned int)(-r);
+            unsigned int result;
+            /* w60-a5: retail shifts IN PLACE (`srav $v1,$v1,$v0`) and copies to
+             * the return reg at the join (`addu $v0,$v1,$zero`).  The in-place
+             * mutation alone is not enough -- local-alloc's combine_regs ties
+             * the srav's dest to the return pseudo and delete_noop_moves eats
+             * the copy.  The zero-insn OPACITY FENCE gives the shifted value an
+             * end-point cse/combine cannot equate with its source, so the copy
+             * survives (the w47-a2 delete_noop_moves cure, and exactly the
+             * "make the PRODUCER's destination a distinct pseudo" angle the
+             * W53-A12 receipt below named).  6 -> 5. */
+            v8 = v8 >> (-v6);
+            __asm__("" : "=r"(v8) : "0"(v8));
+            result = (unsigned int)v8;
+            if (ua.w.hi < 0) result = (unsigned int)(-(int)result);
             return result;
         }
     }

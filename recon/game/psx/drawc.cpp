@@ -1223,7 +1223,17 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   u_int uVar10;
   u_char v;
   int iVar11;
-  char *envmapUV_dst;
+  /* w60-a7: the envmap-UV cursor is the TYPED `Draw_CarVertex *` walker, not a raw
+     byte cursor -- the same shape DrawC_PrimMenu's identical loop was SEALED with this
+     wave.  A `char *` walked `+ 8` is a BIV whose init is an ordinary source statement
+     emitted in the preheader BEFORE loop.c runs; the typed walker lets loop.c fold both
+     byte stores onto ONE address giv anchored at `.v`, ELIMINATE the biv, and emit that
+     init in loop.c's giv group -- which is where retail has it.  Gate 338 -> 336 at an
+     unchanged count (1395/1389); on a far-miss that delta is LCS noise, the STRUCTURE
+     is the reason it is kept.  NOTE the same conversion applied to DrawC_PrimClip's
+     twin loop measures 552 -> 566 (also count-unchanged) and was NOT landed -- re-probe
+     it there after PrimClip's block-order work, per the lever-order law. */
+  Draw_CarVertex *envmapUV_dst;
   short *psVar12;
   int iVar13;
   int iVar14;
@@ -1281,7 +1291,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     vertCounter = (int)obj->numVertex;
-    envmapUV_dst = &sd->tV[0].v;
+    envmapUV_dst = sd->tV;
     while( true ) {
       vertCounter = vertCounter - 1;
       if (vertCounter == -1) break;
@@ -1303,9 +1313,9 @@ gte_stlvnl((char *)sd + 0x9c);
         absZ = -absZ;
       }
       vt = vt + 1;
-      envmapUV_dst[-1] = (char)tvx;
-      *envmapUV_dst = (char)absZ;
-      envmapUV_dst = envmapUV_dst + 8;
+      envmapUV_dst->u = (char)tvx;
+      envmapUV_dst->v = (char)absZ;
+      envmapUV_dst = envmapUV_dst + 1;
     }
   }
   TrsProj_SetTransPrecision(8);

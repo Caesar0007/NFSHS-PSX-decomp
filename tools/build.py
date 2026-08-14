@@ -776,6 +776,13 @@ PER_FN_G8 = {
     "recon/game/common/audiocmn.cpp": {"AudioCmn_Init__Fv"},
 }
 
+# w59-a7 spec, w60-a4 re-validated: CdRead 43 -> 38 count-exact 103/103 with
+# per-fn -mno-split-addresses; whole-TU nosplit is a net loss, and this
+# composes cleanly with cdread.c's 2.8.1 per-fn version splice.
+PER_FN_NO_SPLIT_ADDRESSES = {
+    "recon/syslib/psx/libcd/cdread.c": {"CdRead"},
+}
+
 PER_FN_FORCE_ADDR = {
     "recon/game/psx/weather.cpp": {
         "Weather_Init__Fv",   # FAIL 12 (211/211) -> PASS, byte-exact
@@ -1164,6 +1171,19 @@ PER_FN_TEXT_MOVES = {
              "copy": True, "slot": True},
         ],
     },
+    # w60-a4 (orchestrator-wired, probe-verified): CD_get_intr -> PASS 343/343
+    # WITH the coupled in-source void-tail fence (moves alone 10->2, fence
+    # alone 10->8).  Anchors disambiguated by LOOKAHEAD on the following
+    # `la $4,<dest>` (la $2,D_8013C224 occurs 3x in this fn; $L anchors banned
+    # per the w60-a8 law).
+    "recon/syslib/psx/libcd/drv.c": {
+        "CD_get_intr": [
+            {"take": r"\tla\t\$2,D_8013C224\n(?= \#APP\n \#NO_APP\n\tla\t\$4,D_801489AC\n)",
+             "after": r"\tla\t\$4,D_801489AC\n"},
+            {"take": r"\tla\t\$2,D_8013C224\n(?= \#APP\n \#NO_APP\n\tla\t\$4,D_8014899C\n)",
+             "after": r"\tla\t\$4,D_8014899C\n"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma
@@ -1374,8 +1394,16 @@ PER_FN_TEXT_MOVES = {
         ],
     },
     # w55-a5 (probe-verified): CdControlB 4 -> PASS 83/83 (272 lane).
+    # w60-a4: CdControl gets the SAME sibling move, 8 -> 4 (residual = a li
+    # v0/t0 register substitution TEXT_MOVES cannot reach).  NOTE: this dict
+    # key must stay UNIQUE -- a duplicate rel key elsewhere in the table is
+    # silently shadowed (Python dict literal, last wins).
     "recon/syslib/psx/libcd/cdcont.c": {
         "CdControlB": [
+            {"take": "\\tsw\\t\\$20,32\\(\\$sp\\)\\n\\taddu\\t\\$20,\\$4,\\$0\\n",
+             "after": "\\taddu\\t\\$18,\\$6,\\$0\\n"},
+        ],
+        "CdControl": [
             {"take": "\\tsw\\t\\$20,32\\(\\$sp\\)\\n\\taddu\\t\\$20,\\$4,\\$0\\n",
              "after": "\\taddu\\t\\$18,\\$6,\\$0\\n"},
         ],
@@ -1592,7 +1620,8 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
             (PER_FN_NO_DELAYED_BRANCH, "-fno-delayed-branch", "nodb"),
             (PER_FN_NO_THREAD_JUMPS, "-fno-thread-jumps", "nthr"),
             (PER_FN_FORCE_ADDR, "-fforce-addr", "faddr"),
-            (PER_FN_G8, "-G8", "g8")):
+            (PER_FN_G8, "-G8", "g8"),
+            (PER_FN_NO_SPLIT_ADDRESSES, "-mno-split-addresses", "nosplit")):
         fn_names = table.get(rel_posix)
         if not fn_names:
             continue

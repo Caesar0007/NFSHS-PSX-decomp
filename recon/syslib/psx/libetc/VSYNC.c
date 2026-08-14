@@ -38,21 +38,10 @@ extern int vsync_lastcount;       /* @0x80134A94 : Vcount at the previous VSync 
  * every other fn in this file is already `extern "C"`), but this `static` C++ fn got C++-mangled
  * to _VSync_wait__Fii, a NAME MISMATCH invisible to the gate ("NOT IN OBJECT" forever). `static`
  * and `extern "C"` can't combine as adjacent storage-class specifiers on this compiler --
- * wrap in an `extern "C" { }` block instead (keeps internal/static linkage, drops the mangling). */
-static void _VSync_wait(int target, int mult)   /* @0x800F2494 */
-{
-    volatile int timeout[2];
-
-    timeout[0] = mult << 0xf;
-    while (Vcount < target) {
-        if (timeout[0]-- == 0) {
-            puts("VSync: timeout\n");
-            ChangeClearPAD(0);
-            ChangeClearRCnt(3, 0);
-            return;
-        }
-    }
-}
+ * wrap in an `extern "C" { }` block instead (keeps internal/static linkage, drops the mangling).
+ * W60-A1 (2026-08-14): the DEFINITION moved BELOW VSync -- retail's obj is VSync (0x800F231C)
+ * then _VSync_wait (0x800F2494); this forward decl keeps VSync's two call sites valid. */
+static void _VSync_wait(int target, int mult);
 
 extern int VSync(int mode)   /* @0x800F231C */
 {
@@ -101,4 +90,19 @@ extern int VSync(int mode)   /* @0x800F231C */
         Hcount = T1_VALUE;
     } while (Hcount != T1_VALUE);
     return ret;
+}
+
+static void _VSync_wait(int target, int mult)   /* @0x800F2494 */
+{
+    volatile int timeout[2];
+
+    timeout[0] = mult << 0xf;
+    while (Vcount < target) {
+        if (timeout[0]-- == 0) {
+            puts("VSync: timeout\n");
+            ChangeClearPAD(0);
+            ChangeClearRCnt(3, 0);
+            return;
+        }
+    }
 }

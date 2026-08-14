@@ -21,6 +21,7 @@ void AIHigh_Opponent::CheckForWipeOut()
 
 {
   int perTickProb;
+  int new_var;    /* w59-a17: the 116 multiplier as a pre-loop local -- 68->51 (placement load-bearing: top-of-fn init = 77) */
   int randVal;
   int oppLevel;
   int oppFines;
@@ -79,6 +80,7 @@ void AIHigh_Opponent::CheckForWipeOut()
       }
       pInfo = &this->perpChaseInfo_;
       if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
+        new_var = 116;
         for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h     = Cars_gHumanRaceCarList[hLoop];           /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
@@ -97,10 +99,10 @@ void AIHigh_Opponent::CheckForWipeOut()
                  (real semantic effect: this->AI_elapsedTime is a per-tick global gcc must not treat as
                  provably loop-invariant across this branch merge) and reproduces the oracle's per-branch
                  recompute shape (107->86 diffs measured). */
-              if (randVal < *(volatile int *)&AI_elapsedTime * 116)           /* 0x800634B8 */
+              if (randVal < *(volatile int *)&AI_elapsedTime * new_var)           /* 0x800634B8 */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             } else if (2 <= oppFines_v1 - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
-              if (randVal < *(volatile int *)&AI_elapsedTime * 116)          /* $t2<<2, 0x800634B4-BC */
+              if (randVal < *(volatile int *)&AI_elapsedTime * new_var)          /* $t2<<2, 0x800634B4-BC */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             }
           }

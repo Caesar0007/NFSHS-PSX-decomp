@@ -93,7 +93,9 @@ extern int chkRC2wait(void)
     unsigned cur = T2_VALUE & 0xffff;
     unsigned elapsed;
 
-    if (cur < (unsigned)_startTime) {                 /* counter wrapped past _startTime */
+    elapsed = cur < (unsigned)_startTime;           /* w59-a17: wrap test through the dead-here
+                                                       elapsed local -- flips cur onto $a0 (34->32) */
+    if (elapsed) {                                    /* counter wrapped past _startTime */
         if (T2_TARGET == 0)
             cur += 0x10000;
         else

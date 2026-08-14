@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3492 functions, 3277 at 100% (93.8%)
+TOTAL: 3492 functions, 3278 at 100% (93.9%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -1163,7 +1163,7 @@ VA             %match  unit                     function
 0x80069638    100.00%  game/common/aiphysic     AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t
 0x80069660    100.00%  game/common/aiphysic     AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t
 0x80069688    100.00%  game/common/aiphysic     AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t
-0x800696B0     99.65%  game/common/aiphysic     AIPhysic_CalcAcceleration__FP8Car_tObji
+0x800696B0     99.97%  game/common/aiphysic     AIPhysic_CalcAcceleration__FP8Car_tObji
 0x80069990    100.00%  game/common/aiphysic     AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji
 0x800699E8    100.00%  game/common/aiphysic     AIPhysic_CalcDeceleration__FP8Car_tObj
 0x80069A34     98.61%  game/common/aiphysic     AIPhysic_CheckDesiredDirection__FP8Car_tObj
@@ -1399,7 +1399,7 @@ VA             %match  unit                     function
 0x80076674    100.00%  game/common/audiocmn     AudioCmn_RemoveOldestAsyncSfx__Fi
 0x8007675C    100.00%  game/common/audiocmn     AudioCmn_LoadAsyncSfx__FiiPvi
 0x80076900    100.00%  game/common/audiocmn     AudioCmn_GetAsyncSfx__Fiib
-0x80076A74     99.57%  game/common/audiocmn     AudioCmn_Init__Fv
+0x80076A74    100.00%  game/common/audiocmn     AudioCmn_Init__Fv
 0x80076BEC    100.00%  game/common/audiocmn     AudioCmn_Reset__Fv
 0x80076F44    100.00%  game/common/audiocmn     AudioCmn_DeInit__Fv
 0x8007701C    100.00%  game/common/audiocmn     AudioCmn_SetLevels__Fv

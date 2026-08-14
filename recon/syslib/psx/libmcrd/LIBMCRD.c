@@ -1278,7 +1278,28 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * (no fence) / 123 (plain) / 124 (volatile), even though the count becomes EXACT 152/152.
      * NAMED ANGLE: the residual is that saved-reg band -- retail chan=$s7, name=$s0, dir=$s6,
      * base=$s3, ofs=$fp(!), max=$t0, and it spills `&ent` to 0x60($sp) as a real pointer local
-     * (`addiu $t0,$sp,80; sw $t0,0x60($sp)`), which we never materialize. */
+     * (`addiu $t0,$sp,80; sw $t0,0x60($sp)`), which we never materialize.
+     *
+     * 🔴 REAL BUG FOUND + FIXED (w59-a8): 91 -> 69 diffs, count 147 -> 149 (oracle 152).
+     * The `firstfile` failure classifier called `MemCardEventToRslt((uint)(ofs > 0))` -- a
+     * fabricated predicate.  The oracle @0x800FB974 is `jal _get_card_event_x` immediately
+     * followed by `jal MemCardEventToRslt` with `addu $a0,$v0,$zero` in its delay slot, i.e.
+     * a WHOLE DROPPED CALL plus the wrong classifier input.  See the fix site below.
+     *
+     * 04Z RE-TEST of the base-anchor law on the POST-FIX basin (w59-a8): still does NOT pay.
+     * A fenced `int *base = &mc.cmd` above the guard, with base[0]/base[1]/base[2] for the
+     * cmd/rslt/done block and base[3] for the `_mc_present |= 1 << mc.chan` read, DOES
+     * reproduce two oracle shapes exactly -- retail's `lw $a0,0xC($s3)` chan READ (ours emits
+     * a fresh `lui;lw` pair) and the `sw $t0,0($s3); sw $zero,4($s3); sw $zero,8($s3)` store
+     * block -- but it grows the frame 0x90 -> 0x98 and rotates the whole $s0-$s7/$fp band:
+     * 69 -> 108, ours 154 vs oracle 152.  MEASURED, reverted.
+     * REFINED NAMED ANGLE (unclaimed): retail is ASYMMETRIC about _mc_chan -- it READS it off
+     * the anchor (`lw $a0,0xC($s3)`) but WRITES it with the `$at` assembler MACRO
+     * (`lui $at,%hi(D_80147524); sw $s7,%lo(D_80147524)($at)`, in the UserFuncOpen delay slot).
+     * Ours is exactly INVERTED (fresh pair for the read, `sw $s7,12($s2)` for the write).  A
+     * device that gets the READ onto the live base without dragging the WRITE onto it -- and
+     * without spending the 9th saved reg -- is the whole remaining structural lever here; the
+     * rest is the saved-reg band plus the hoisted-and-spilled movstrsi end pointer above. */
     if (mc.cmd != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
@@ -1300,7 +1321,15 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                     p = firstfile(devname, &ent);
                     if (p != 0)
                         break;
-                    err = MemCardEventToRslt((uint)(ofs > 0));
+                    /* BUG FIX (w59-a8): the argument is the CARD EVENT, not a fabricated
+                     * `ofs > 0` predicate.  The oracle @0x800FB974 is
+                     * `jal _get_card_event_x` immediately followed by
+                     * `jal MemCardEventToRslt` with `addu $a0,$v0,$zero` in its delay slot --
+                     * i.e. MemCardEventToRslt(_get_card_event_x()), the same shape
+                     * MemCardGetEventRslt (@0x800FBC00) and MemCardWriteData use.  The old
+                     * spelling dropped a whole call (ours 147 vs oracle 152 insns) AND
+                     * classified every firstfile failure by the wrong value. */
+                    err = MemCardEventToRslt((uint)_get_card_event_x());
                     if (err == 0)
                         goto have_entry;        /* (p == 0, err == 0): empty directory */
                     fretry = fretry + 1;

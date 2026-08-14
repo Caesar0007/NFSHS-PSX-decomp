@@ -60,7 +60,27 @@ extern int CdGetToc(CdlLOC *loc)
  * RESIDUAL (71): ours uses 6 callee-saved regs where the oracle uses 7 -- the
  * oracle hoists the /10 magic reciprocal into $s5 and puts `save` in $s6,
  * ours rematerializes the magic in the loop and puts `save` in $s5, so ours
- * is 3 instructions short (the $s6 save/restore pair + one hoist half). */
+ * is 3 instructions short (the $s6 save/restore pair + one hoist half).
+ *
+ * W60-A4 (64 -> 56): MAGIC-RECIPROCAL SHARING (catalog 09H) partially landed.
+ *   A named `int magic = 0x66666667;` plus a ZERO-INSN READ-ONLY FENCE on it at the
+ *   TOP OF THE TRACK-LOOP BODY (in-loop => +2 refs => callee-saved rank) reproduces
+ *   retail's preheader hoist EXACTLY: `sw s5,52(sp); lui s5,26214; ori s5,s5,26215`
+ *   and the 7-callee-saved-register frame.  That alone retires the whole
+ *   s0/s1/s2/s5/s6 band rotation the previous basin carried.
+ *   POSITION IS THE DIAL, measured: fence at the TOP of the function = 66 diffs but
+ *   count-EXACT 137/137 (the magic lands in a caller-saved $t0 and the loop still
+ *   rematerializes its own); fence in the loop = 56 at 139 (+2); fence at BOTH places
+ *   = 56; the magic local with NO fence = 64 (inert, identical to the pre-W60 form);
+ *   a 2-operand read-only fence = 69.
+ * RESIDUAL 56, NAMED: the hoisted $s5 magic is NOT SHARED with the division's own
+ *   expansion -- gcc still emits `lui v0,26214; ori v0,v0,26215; mult s2,v0` inside
+ *   the loop where retail has the bare `mult s0,s5`.  That duplicate pair IS the +2
+ *   instruction excess.  NEXT ANGLE (named, unmeasured): force cse to substitute the
+ *   live $s5 into the `mult` operand -- either an identity fence on `magic` (making
+ *   it the only rtx for that value) combined with the in-loop read-only fence, or the
+ *   explicit multiply-high spelling driven off `magic` (the bare `(long long)` form
+ *   was measured +7 insns in the w53 basin and must be re-measured in THIS one). */
 extern int CdGetToc2(int n, CdlLOC *loc)
 {
     int track_first;
@@ -71,7 +91,9 @@ extern int CdGetToc2(int n, CdlLOC *loc)
 
     int i;
     int nTrack;
+    int magic;               /* MATCH (W60-A4): magic-reciprocal hoist, see above */
 
+    magic = 0x66666667;
     param[0] = 1;
     save = CdSyncCallback(0);
     if (CdControlB(0x13, 0, result) == 0)               /* CdlGetTN */
@@ -90,6 +112,7 @@ extern int CdGetToc2(int n, CdlLOC *loc)
 
     i = 1;
     while (track_first <= track_last) {
+        __asm__("" : : "r"(magic));   /* MATCH (W60-A4): see the receipt above */
         param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */
         if (CdControlB(0x14, param, result) == 0)
             goto err;

@@ -28,7 +28,23 @@
  *   is unchanged (§3.25 code class: this is dialect-only, no semantic edit).
  *   Dual-compile measurement (verify_asm.py, cc1 vs the pre-migration cc1plus
  *   baseline) confirmed net non-regressive across all 44 oracled functions --
- *   see the migration commit message for the full per-fn before/after table. */
+ *   see the migration commit message for the full per-fn before/after table.
+ *
+ *   W60-A3 (2026-08-14) -- FUNCTION ORDER.  The definitions below are emitted in RETAIL VA
+ *   ORDER (0x800ED670 ResetGraph .. 0x800EFE34 _memset).  They used to follow the four
+ *   reconstruction "sub-groups", which put 37 of the 44 symbols after a higher-VA symbol --
+ *   the W59-11C MSC02 defect class (wrong VAs in a real link; the byte gate diffs one symbol
+ *   in isolation and can never see it).  All file-scope state keeps its original RELATIVE
+ *   order and now precedes every body; the forward-declaration block before `_gpu_tbl` exists
+ *   only because that table's initializer names 15 of the functions.  KEEP THE ORDER: check
+ *   with `python tools/tu_order_audit.py 2>&1 | grep libgpu.SYS` (must print nothing).
+ *
+ *   W60-A3 -- WHOLE-TU RUNG LADDER (04Z says re-ladder after every landing; this is the
+ *   post-reorder table, `NFS4_FORCE_CC1_ALT=<v> python tools/tugate.py <this file>`):
+ *     2.8.1 (wired) 34/44 PASS  | 2.8.0 34/44 (identical except MoveImage 9 -> 35)
+ *     2.91.66       far-miss    | 2.95.2 far-miss  (both wreck the whole TU)
+ *   Sub-2.8 rungs cannot be laddered whole-TU at all: they reject `-mno-split-addresses`,
+ *   which this TU's clamp identity needs.  They CAN be reached per-function -- see DrawOTag. */
 
 typedef unsigned long  u_long;
 typedef unsigned char  u_char;
@@ -520,7 +536,33 @@ extern int MoveImage(void *rect, int x, int y)
      * Also falsified on the ORIGINAL 9-diff basin: -fno-thread-jumps, -fno-schedule-insns{,2},
      * -fno-cse-follow-jumps, -fno-peephole, -fno-strength-reduce, -fno-expensive-optimizations,
      * -fno-rerun-cse-after-loop (all 9 or worse) -- the branch inversion is reorg's
-     * relax_delay_slots "conditional jump around an unconditional jump", not a flag. */
+     * relax_delay_slots "conditional jump around an unconditional jump", not a flag.
+     *
+     * W60-A3 RE-WALK of the 14-diff basin (edits (1)+(2) re-applied, re-measured, then
+     * UNWOUND per the hard-floor basin rule -- 14 never beat the authoritative 9).  The
+     * residual there is now DIAGNOSED, not just described: retail emits the payload ANCHOR
+     * (`la $v1,_move_prim+8`) BEFORE the `andi`, so $v1 is taken and the x-mask temp falls to
+     * $a0 and the src word to $a1; ours emits `andi` FIRST into the still-free $v1 and then
+     * overwrites $v1 with the anchor, which frees $v0 to double as the src scratch.  One
+     * ordering decision produces the whole 3-register rotation.  Every attempt to move the
+     * anchor ahead of the andi WITHOUT losing reorg's `sll` steal failed:
+     *   anchor assigned before dstxy, opacity fence left at its old position   -> 14 (inert;
+     *     the fence, not the assignment, is what pins where the address materializes) *
+     *   dstxy SPLIT across the anchor (`dstxy = y<<16;` head, `dstxy |= x&0xffff;` after the
+     *     fence -- textually retail's own order)                               -> 14 (sched2
+     *     re-merges the two halves back above the anchor) *
+     *   the same split with the fence made `__asm__ __volatile__` (hard barrier) -> 28 *
+     *   named `xm` local for the mask                                          -> 22 (fresh
+     *     pseudo re-colors the head, the standard trap) *
+     *   read-only fence on `*(u_long *)rect` to force the early src load       -> 16 AND
+     *     +2 insns (48/46) -- a multi-operand pointer fence is not zero-insn *
+     *   dropping the opacity fence entirely (its rationale was written for the retired 272
+     *     lane, so it was worth re-testing on 2.8.1+nosplit)                   -> 16.
+     * Ladder on this fn (whole-TU force, W60-A3): 2.8.1 = 9 (wired), 2.8.0 = 35, 2.91.66 = 45,
+     * 2.95.2 = 45; per-fn 2.7.2 splice = 18 real, 2.6.3 = 23 real.  No rung helps.
+     * NEXT ANGLE (named, untried): the anchor-vs-andi emission order is a sched2/local-alloc
+     * question inside ONE basic block -- exactly the 06E qtytrace gap.  Do not spend more
+     * spelling budget here; it wants the instrument. */
     p[0] = *(u_long *)rect;                      /* src xy */
     p[1] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
     p[2] = *((u_long *)rect + 1);                /* wh */
@@ -556,7 +598,18 @@ extern u_long *ClearOTagR(u_long *ot, int n)
  * in the jalr delay slot; ours CSEs it from the just-set a2=0 (addu a3,a2,zero). Tried+no
  * effect: named `int n=0` local, both n/extra as separate named locals -- gcc CSEs the two
  * zero args regardless of source form (both are the literal 0 in the same call). Same class as
- * the documented commutative-operand-selection floors; not source-reachable. */
+ * the documented commutative-operand-selection floors; not source-reachable.
+ * 🟢 W60-A3 -- FLOOR REFUTED, and it was never a source problem: it is the 04M COMPILER-VERSION
+ * axis (cse.c constant-sharing, catalog 11B).  PROBE-VERIFIED: compiling THIS UNCHANGED SOURCE
+ * with the ladder's gcc-2.7.2 cc1 through the 272 recipe MINUS `-mno-split-addresses` and
+ * splicing only this function's .ent/.end region gives 28/28 with **ZERO real word diffs**
+ * (8 residual words are the %hi/%lo + jal-target reloc class verify_asm normalizes).
+ * WIRING SPEC (orchestrator): `PER_FN_CC1_VER_SPLICE_272["recon/syslib/psx/libgpu/SYS.c"]`
+ * gains `{"2.7.2": {"DrawOTag", "_set_draw_mode", "_gpu_init_videomode"}}`, with ONE mechanism
+ * change: the splice compile must DROP any flag the rung rejects -- every pre-2.8 cc1 errors
+ * out on `-mno-split-addresses` ("Invalid option"), which is why the W56 receipt below
+ * concluded "the 2.7.2 rung is unreachable for this TU".  It is reachable per-FUNCTION; only
+ * the whole-TU flag pairing is not.  Probe driver: scratchpad/w60a3/probe_272.py. */
 extern void DrawOTag(u_long *ot)
 {
     if (GEnv.debug >= 2)
@@ -984,7 +1037,14 @@ extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
      * value-to-register map to change.  The 2.7.2 rung is unreachable for this TU: the
      * pre-2.8 cc1s reject `-mno-split-addresses` outright ("Invalid option"), so the SYS
      * ladder is only {2.8.0, 2.8.1, 2.91.66, 2.95.2} and the wired 2.8.1 wins it -- see
-     * the whole-TU ladder receipt at MoveImage. */
+     * the whole-TU ladder receipt at MoveImage.
+     * 🟢 W60-A3 -- THE "2.7.2 IS UNREACHABLE" HALF OF THAT RECEIPT IS WRONG, and this fn is
+     * NOT a floor.  The flag is a WHOLE-TU wiring, not a property of the rung: a per-FUNCTION
+     * splice can compile just this region with 2.7.2 and no `-mno-split-addresses`.  Probed
+     * (scratchpad/w60a3/probe_272.py): 8/8 with **ZERO real word diffs** -- retail's
+     * `or $v0,$v1,$v0` operand order falls straight out of THIS UNCHANGED source.  Confirms
+     * the w59-a8 finding that operand order and the register map are coupled: they are coupled
+     * to the COMPILER, not to any spelling.  See the DrawOTag block for the wiring spec. */
     u_long hi = 0xe1000000u;
     u_long lo;
     if (dtd != 0)
@@ -1107,7 +1167,27 @@ extern int _clearOTagR_dma(u_long *ot, int n)
      * 10 -> 2, exact 56/56.  The last residual is only reorg placement of `v0 = r`: retail
      * fills both normal-exit branch slots, while ours leaves the pretest slot for `lui $s1`
      * and copies after the backedge.  Literal/variable returns, comma staging, inverted
-     * nesting, and a two-assignment result funnel were neutral or worse and were reverted. */
+     * nesting, and a two-assignment result funnel were neutral or worse and were reverted.
+     * 🟢 W60-A3 -- SOLVED, and it was never reorg's to give: BOTH slot insns WRITE $v0 while
+     * their branches READ $v0, so 09L says gcc reorg can NEVER place either.  Retail's shape
+     * is the assembler's: it COPIED the merge-point `addu $v0,$s0,$zero` into the pre-loop
+     * `beqz` slot (idempotent on both paths -- the value is the same $s0) and MOVED it into
+     * the loop-back `bnez` slot.  Same COPY class as the W59 AIPhysic_CalcAcceleration row.
+     * PROBE-VERIFIED (scratchpad/w60a3/probe_moves.py, exact _apply_text_moves semantics +
+     * build.py's `as` line): 56/56 with **ZERO real word diffs**.  EXACT WIRING SPEC,
+     * label-agnostic (the $L numbers renumbered in the W60-A3 VA-order reorder, so a literal
+     * $L<n> would silently no-op -- w60-a8's law):
+     *   "recon/syslib/psx/libgpu/SYS.c": {"_clearOTagR_dma": [
+     *       {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",
+     *        "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "copy": True},
+     *       {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",
+     *        "after": r"\tand\t\$2,\$2,\$17\n\tbne\t\$2,\$0,\$L\d+\n", "slot": True}]}
+     * Move 1 needs no slot wrapper (the `beq` already sits in cc1's own noreorder/nomacro
+     * block, so the inserted line becomes its slot and the old slot `li $17` follows); move 2
+     * needs `slot` so gas stops materializing its nop.  Both moves take the SAME line -- the
+     * lookahead is what keeps move 2 off move 1's copy.  The branch that gains a slot keeps
+     * targeting the copy's old label; re-executing an idempotent `$v0 = $s0` is harmless and
+     * the gate is branch-target-lenient anyway. */
     *DMA_DPCR |= 0x08000000;                      /* enable DMA channel 6 (OTC) */
     *D6_CHCR = 0;
     *D6_MADR = (u_long)(ot - 1 + n);              /* last word of the table */
@@ -1145,7 +1225,18 @@ extern int _clearOTagR_dma(u_long *ot, int n)
  * W56 continuation: `D_8013EAD8` plus removal of those fences takes the authoritative
  * residual 7 -> 2 (exact 140/140).  The remaining pair is a pure sched2 relocation of the
  * existing `v0 = 0` return copy from below the epilogue reloads to immediately after the
- * `_gpu_dma_chain` call; a scratch PER_FN_TEXT_MOVES probe reaches PASS 140/140. */
+ * `_gpu_dma_chain` call; a scratch PER_FN_TEXT_MOVES probe reaches PASS 140/140.
+ * W60-A3 -- that probe RE-RUN on the current tree (scratchpad/w60a3/probe_moves.py, which
+ * replicates build.py's _apply_text_moves verbatim and then assembles with build.py's own
+ * `as` line): 140/140 with **ZERO real word diffs**.  EXACT WIRING SPEC, label-agnostic:
+ *   "recon/syslib/psx/libgpu/SYS.c": {"_BlitClear": [
+ *       {"take": r"\taddu\t\$2,\$0,\$0\n(?=\t\.set\tnoreorder)",
+ *        "after": r"\tjal\t_gpu_dma_chain\n"}]}
+ * (cc1 emits `jal; lw $31; lw $18; lw $17; lw $16; addu $2,$0,$0` -- retail has the result
+ * copy BEFORE the reload chain.  The `jal`'s slot is already taken by the `la` split, so the
+ * relocated line lands at the oracle's index 133 with no slot wrapper needed.)  Keep the
+ * existing PER_FN_CC1_VER_SPLICE_272 2.8.0 entry: the 2.7.2 rung is catastrophic here
+ * (146 insns, 113 real diffs). */
 extern int _BlitClear(RECT *rect, u_long color)
 {
     u_long *ptr;
@@ -1617,7 +1708,22 @@ extern int _gpu_init_videomode(int mode)
      * result-funnel form (`int r; ... return r;`) -- gcc colors r into $a0 and adds an
      * `addu v0,a0,zero` copy per arm (31 diffs, ours 41).  This is a per-fn delayed-branch
      * / return-duplication mechanism, not a source shape -- SPEC'd for the orchestrator
-     * (P2 `-fno-delayed-branch` splice candidate). */
+     * (P2 `-fno-delayed-branch` splice candidate).
+     * W60-A3 ADDITIONS.  (a) The explicit GOTO-FUNNEL (`int r; ... r=K; goto done; ... done:
+     * return r;`, arms ordered PAL-then-NTSC so the NTSC block precedes the shared exit --
+     * i.e. 11D COMPLETE-THE-FUNNEL done properly) lands in the SAME basin as the plain funnel:
+     * 31 diffs, ours 41, `r` colored $a0 with an `addu v0,a0,zero` per arm.  Moving `r = 0;`
+     * above the discarded `(void)*GPU_GP0` read is inert (31).  Root cause read off the
+     * oracle: retail's dummy GP0 re-read goes through $v1 BECAUSE $v0 already holds the
+     * result; ours takes $v0 for the re-read scratch, which forces `r` elsewhere -- circular,
+     * and no arm/order/goto spelling breaks the circle.  (b) Read from the gcc source
+     * (reorg.c:4289 make_return_insns, gated at 4586): only a jump to `end_of_function_label`
+     * whose slot is ALREADY FILLED is turned into a RETURN, so retail's surviving `j <tail>`
+     * pair means retail's jump.c never redirected those arms into returns at all -- a
+     * compiler-version property.  (c) CONFIRMED SO: probed on the ladder's gcc-2.7.2 (272
+     * recipe minus `-mno-split-addresses`, this fn's region only) -> 40/40 with **ZERO real
+     * word diffs**, from THIS UNCHANGED SOURCE.  Not a floor and not a delayed-branch splice:
+     * it is the 04M version axis.  Wiring spec in the DrawOTag block. */
     *GPU_GP1 = 0x10000007;
     if ((*GPU_GP0 & 0x00ffffff) != 2) {          /* old GPU */
         *GPU_GP0 = (*GPU_GP1 & 0x3fff) | 0xe1001000u;

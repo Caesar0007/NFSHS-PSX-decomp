@@ -230,14 +230,6 @@ void AIDataRecord_AccTable_t::Setup()
   return;
 }
 
-/* ---- ___23AIDataRecord_AccTable_t  AccTable::dtor ---- */
-AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t()
-{
-  int recordLoop;
-  int curveLoop;
-  return;
-}
-
 /* ---- __23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t  BestLine::ctor ---- */
 AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
@@ -255,15 +247,6 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
     sprintf(this->name_,D_800553D4,D_8011649C[0],D_80113228[0]);
   }
   return;
-}
-
-/* ---- ___23AIDataRecord_BestLine_t  BestLine::dtor  [@0x8006d574] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t()
-{
 }
 
 /* ---- __25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t  TrackCurve::ctor ---- */
@@ -289,15 +272,6 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
 int AIDataRecord_TrackCurve_t::Get(int slice)
 {
   return (u_int)(u_char)this->dataBuffer_[slice];
-}
-
-/* ---- ___25AIDataRecord_TrackCurve_t  TrackCurve::dtor  [@0x8006d554] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_TrackCurve_t::~AIDataRecord_TrackCurve_t()
-{
 }
 
 /* ---- __30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t  CurveSpeedTable::ctor ---- */
@@ -354,15 +328,6 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
   return;
 }
 
-/* ---- ___30AIDataRecord_CurveSpeedTable_t  CurveSpeedTable::dtor  [@0x8006d534] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_CurveSpeedTable_t::~AIDataRecord_CurveSpeedTable_t()
-{
-}
-
 /* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] ---- */
 /* Trivial stub: always returns 0 (record-method not implemented/used). */
 int AIDataRecord_CarTracking_t::Get(int i)
@@ -377,6 +342,41 @@ int AIDataRecord_CarTracking_t::Get(int i)
  * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
 AIDataRecord_CarTracking_t::~AIDataRecord_CarTracking_t()
 {
+}
+
+/* ---- ___30AIDataRecord_CurveSpeedTable_t  CurveSpeedTable::dtor  [@0x8006d534] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_CurveSpeedTable_t::~AIDataRecord_CurveSpeedTable_t()
+{
+}
+
+/* ---- ___25AIDataRecord_TrackCurve_t  TrackCurve::dtor  [@0x8006d554] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_TrackCurve_t::~AIDataRecord_TrackCurve_t()
+{
+}
+
+/* ---- ___23AIDataRecord_BestLine_t  BestLine::dtor  [@0x8006d574] ---- */
+/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
+ * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
+ * (not composition) is required for gcc to emit this bare form -- composition
+ * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
+AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t()
+{
+}
+
+/* ---- ___23AIDataRecord_AccTable_t  AccTable::dtor ---- */
+AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t()
+{
+  int recordLoop;
+  int curveLoop;
+  return;
 }
 
 /* end of aidatarecord.cpp */

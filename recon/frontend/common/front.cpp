@@ -205,7 +205,27 @@ void Front_ResetPSXAnalogs(int player)
    digital positive arm is a two-stage source expression with its low-byte OR
    expressed as a compound assignment in the return.  That makes `newControl`
    the accumulator through the merge, removes its local tail, and restores
-   retail's shared `0x274cc` funnel at exact function length. */
+   retail's shared `0x274cc` funnel at exact function length.
+
+   W60-A10 -- the 18-diff residual is FULLY CHARACTERISED and is NOT a source
+   shape.  It is 6 instructions in 3 un-merged case tails (0x53/0x10000000,
+   0x53/0x40000000, 0x23/0x800000): retail writes the LAST `or` back into the
+   accumulator's own register (`or a2,a2,a1` then `ori v0,a2,1` in the `j`
+   delay slot), ours gives the OR result a fresh dest (`or a0,a2,a1`,
+   `ori v0,a0,1`) -- it coalesced the result with the now-dead ADDRESS BASE
+   ($a0) instead of with the accumulator.  Everything up to and including the
+   preceding sll/subu/or chain is byte-exact and the count is exact (222/222),
+   so the whole gap is one local-alloc combine_regs/QTY tie-break
+   (local-alloc.c ~1867: the source must be block-local and die exactly once --
+   both candidates qualify here, so the numeric scan decides).
+   FALSIFIED (all measured against base 18; every one ADDS instructions by
+   breaking the cross-jump tail merge): compound-assign accumulator
+   `return (newControl |= lo) | 1;` per site 53 / 63 / 20 and all three 52;
+   the same split as two plain statements 53 / 63 / 20 / 52; grouping the
+   tag+hi terms in parentheses 53; swapping the hi/lo OR operand order
+   93 / 51 / 42; folding the `| 1` into the assignment 53.  Yoda
+   `return 1 | newControl;` is exactly neutral (18).
+   => qtytrace lane, not a spelling. */
 
 int GetPSXPadValue(int value,int player)
 

@@ -332,7 +332,26 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        Splitting the three high-byte terms from the destructive final shift
        gives the source word retail's a3 handout (12 -> 7 diffs, 110/109).
        The remaining residual is one copy back into the long-lived carrier;
-       removing it returns the input to a1 and loses the allocation gain. */
+       removing it returns the input to a1 and loses the allocation gain.
+
+       W60-A10 -- THE COUNT-EXACT BASIN, PROBED AND UNWOUND (kept as a receipt).
+       Swapping this identity fence for a READ-ONLY fence on the result word
+       (`__asm__("" : : "r"(swappedResult));`) deletes the copy and lands the
+       body STRUCTURALLY EXACT: 109/109 insns, `sw v1,16(sp)` direct (no
+       carrier), and BOTH later loads (`lw a1,28(sp)` hlen, `lw a3,24(sp)` num)
+       in retail's slots.  The whole residual collapses to ONE pseudo's home:
+       the first swap's SOURCE word gets $a1, retail gives it $a3 (6 renamed
+       insns + the load's position inside the `lui a0 / addiu a0` string-address
+       pair) => authoritative 12 diffs vs this shape's 7, so it is NOT landed.
+       FALSIFIED follow-ups on that basin (all still 12, none reached $a3):
+       decl-order x4 (hlen/num first, result first, num first, split decl-init);
+       hoisting both header loads into the decl inits (36); a read-only
+       fence on the SOURCE word, 1 and 2 operands (27, +1 insn); void-fence removal / re-siting
+       (17) and a read-only fence on lumpyName (12); dropping the carrier copy
+       and storing swappedResult straight (12); writing the first swap as ONE
+       inline expression like its two siblings (12); fence-before-copy (34).
+       => the last dial is a local-alloc QTY handout (the AGENT_GUIDE Sec.4.6 /
+       06E gap), not a source shape.  Re-attack with the qtytrace lane. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

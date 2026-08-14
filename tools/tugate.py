@@ -7,7 +7,11 @@ sys.argv = [sys.argv[0], cpp, '__none__']
 _sp = importlib.util.spec_from_file_location('va', ROOT/'tools'/'verify_asm.py')
 V = importlib.util.module_from_spec(_sp)
 try: _sp.loader.exec_module(V)
-except SystemExit: pass
+except SystemExit as e:
+    # w60-a4: a TU that fails to COMPILE aborts verify_asm here; swallowing it
+    # used to surface as a bogus AttributeError on _name2addr below.
+    if not hasattr(V, '_name2addr'):
+        sys.exit(f"tugate: verify_asm aborted loading {cpp} (exit {e.code}) -- the compile diagnostics above are the real error")
 names = [n for n in V._name2addr if not n.startswith('.') and n]
 res = []
 for n in sorted(set(names)):

@@ -3794,10 +3794,8 @@ extern "C" int TestForRelease__12AIState_Base_8005F678(AIState_Base *pThis)
   return 0;
 }
 
-int AIState_Base::TestForRelease()
-{
-  return 0;
-}
+/* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
+ * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
 
 /* ---- ___12AIState_Base_8005F680 @0x8005F680 : deleting dtor (SYM _._12AIState_Base) ---- */
 extern "C" void ___12AIState_Base_8005F680(AIState_Base *pThis,int __in_chrg)

@@ -1942,16 +1942,22 @@ AIHigh_BTC_HumanPerp::~AIHigh_BTC_HumanPerp()
 
 
 
-/* ---- _._15AIHigh_BTC_Perp  AIHigh_BTC_Perp::dtor  [AIH_BTCPERP.CPP:?] SLD-FLAG:NO_SLD ---- */
+/* ---- ___15AIHigh_BTC_Perp_80061348 @0x80061348 : AIHigh_BTC_Perp dtor, THIS obj's
+ * vague-linkage instance (w60 unlock: was spelled as the canonical member dtor, which
+ * collides with AIHIGH.OBJ's canonical @0x8005B438 -- oracles byte-identical 10/10).
+ * cfront chain: own-base vtable store in the jal delay slot + tail call of the next
+ * NON-TRIVIAL base dtor (___11AIHigh_Base, ONE arg -- same device as aih_basicperp). ---- */
 
-AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
+extern "C" void ___11AIHigh_Base_1arg(void *) __asm__("___11AIHigh_Base");
+extern "C" void ___15AIHigh_BTC_Perp_80061348(AIHigh_BTC_Perp *pThis)
 
 
 
 {
 
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  pThis->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
+  ___11AIHigh_Base_1arg(pThis);
 
   return;
 
@@ -2009,10 +2015,8 @@ extern "C" void Execute__17AIState_NonActive_80061370(AIState_NonActive *pThis)
   return;
 }
 
-void AIState_NonActive::Execute()
-{
-  return;
-}
+/* w60 unlock: the surplus canonical `AIState_NonActive::Execute()` member def that
+ * lived here collided with aih_btccop's (owner of 0x8005F624) -- removed. */
 
 /* ---- ___17AIState_NonActive_80061378 @0x80061378 : deleting dtor (SYM _._17AIState_NonActive) ---- */
 extern "C" void ___17AIState_NonActive_80061378(AIState_NonActive *pThis,int __in_chrg)
@@ -2032,10 +2036,8 @@ extern "C" int TestForRelease__12AIState_Base_800613C4(AIState_Base *pThis)
   return 0;
 }
 
-int AIState_Base::TestForRelease()
-{
-  return 0;
-}
+/* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
+ * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
 
 /* ---- ___12AIState_Base_800613CC @0x800613CC : deleting dtor (SYM _._12AIState_Base) ---- */
 extern "C" void ___12AIState_Base_800613CC(AIState_Base *pThis,int __in_chrg)

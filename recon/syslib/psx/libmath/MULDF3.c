@@ -23,80 +23,8 @@ unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1,
 int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
 int           _err_math(int errnum, int code);
 
-/* _mul_mant_d @0x800F65F8 : 32x32->64 unsigned multiply of (x,y) via 16-bit lanes -> out[0:1].
- * MATCH (W55-A4): 84 -> 18 diffs, count EXACT 59/59 (default lane; 14 on the 2.6.3/2.7.2 rungs,
- * but those cost __muldf3 +132 so the TU stays on the default).  REWRITE off the oracle -- the
- * old body was an IDA-verbatim `unsigned long long` transcription emitting 67 insns.
- * RESIDUAL (18): the VALUE-RELOAD class at both calls (`addu a3,v0,zero` vs retail's
- * `lw a3,0x20(sp)`, 4), the `sw ra` / `addiu a0,sp,0x18` scheduling picks (4), and the tail's
- * load/store interleave -- ours hoists `lw sh[0]` above the `mflo`, pushing the product into
- * $t1 and making the second store use $v0 as base.  FALSIFIED on the tail: a named product
- * temp (30), swapped store order (15 but 58 insns), `sh[1] = sh[1] + x*y` (18), block-local
- * lo/hi (23), and five fence placements (13-35, ALL +1 insn -- the void fence at the tail head
- * scores 13 but breaks count-exactness, so ctrl is kept).
- *
- * 🏆 MATCH (w59-a8): 18 -> 14, still count EXACT 59/59, via the 05E VALUE-RELOAD device the
- * W55-A4 receipt named but did not have budget for -- a VOLATILE VIEW ON THE READ:
- *   (1) `*(volatile int *)&add[0]` as the 4th argument of BOTH `_add_mant_d` calls stops cse
- *       forwarding the live register and restores retail's `lw $a3,0x20($sp)` (was
- *       `addu $a3,$v0,$zero`).  -2 diffs.  Only add[0] needs it: the 5th (stack) argument
- *       add[1] is register-forwarded in retail too (`sw $v1,0x10($sp)`), so do NOT volatile it.
- *   (2) the tail's two `out[]` sources read through `lo`/`hi` FUNCTION-SCOPE temps, each a
- *       volatile view (`lo = *(volatile int *)&sh[0]`).  -2 more.  Both halves are required:
- *       volatile-without-temps = 16 (the two loads stay split by the store, costing a `nop`),
- *       temps-without-volatile = 19 at 58 insns (cse forwards and the count breaks).
- *   FALSIFIED here (w59-a8): a `__asm__ __volatile__("" : : "i"(0))` void-tail barrier between
- *   `sh[1] += x*y` and the tail reads is INERT once the temps exist (14 either way) and costs a
- *   `nop` (11 diffs at 60 insns) when the temps are absent -- dropped, count-exactness kept.
- * RESIDUAL (14, count EXACT): the outgoing-arg EMISSION ORDER at both calls -- retail loads
- * $a3 (add[0]) BEFORE $a1/$a2 (sh[0]/sh[1]), we load a1,a2,a3 in source order -- plus the
- * `addiu $a0,$sp,0x18` scheduling pick and the tail's `move $v0,$s3` return copy, which our
- * allocator coalesces EARLY and then uses as the store base (retail keeps $s3 as the base and
- * copies to $v0 last).  Same arg-order class as __muldf3's residual below.
- * LADDER (04Z re-run on this basin, whole TU = _mul_mant_d + __muldf3):
- *   default/2.8.0/2.8.1 = 14+12 = 26 * 2.7.2 = 12+150 * 2.7.2-970404 = 14+150 *
- *   2.6.0 = 18+155 * 2.6.3 = 18+154 * 2.91.66 = 86+169 * 2.95.2 = 80+180.
- *   The DEFAULT lane still wins the TU by 136; UNWIRED stays correct.  NOTE for a future
- *   mechanism spec: 2.7.2 is _mul_mant_d's best rung (12) -- a PER-FN cc1-version splice would
- *   buy 2 more diffs, but PER_FN_CC1_VER_SPLICE_272 only exists in the 272/alt lane and this TU
- *   is on the default maspsx lane, so it is not reachable today.
- * Oracle tells (frame 0x40):
- *  - locals in address order: 0x18 sh[2] (the running 64-bit sum) | 0x20 add[2] (the shifted
- *    partial product handed to _add_mant_d, a REAL two-word array: `sw v1,0x24; sw v0,0x20`
- *    then `lw a3,0x20`), so the addend is NOT an expression at the call.
- *  - BOTH multiplicands are shifted IN PLACE ($s1 = x, `srl s1,s1,16`; $s0 = y, `srl s0,s0,16`
- *    in the first jal's delay slot).  Separate hi/lo locals would burn two more callee-saved
- *    regs; the in-place form is what puts xlo alone in $s2.
- *  - the low half `x & 0xFFFF` is a NAMED value live across both calls ($s2), the low half of
- *    y is an anonymous caller-saved temp ($v0) -- i.e. ylo is used twice in a row and dies. */
-int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
-{
-    int sh[2];       /* 0x18 */
-    int add[2];      /* 0x20 */
-    unsigned int xlo, ylo, p;
-    int lo, hi;
-
-    xlo = x & 0xFFFF;
-    ylo = y & 0xFFFF;
-    sh[1] = 0;
-    sh[0] = xlo * ylo;
-    x >>= 16;
-    p = x * ylo;
-    add[1] = p >> 16;
-    add[0] = p << 16;
-    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
-    y >>= 16;
-    p = xlo * y;
-    add[1] = p >> 16;
-    add[0] = p << 16;
-    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
-    sh[1] += x * y;
-    lo = *(volatile int *)&sh[0];
-    hi = *(volatile int *)&sh[1];
-    out[0] = lo;
-    out[1] = hi;
-    return out;
-}
+/* fwd decl: retail VA order puts __muldf3 (0x800F62E4) before _mul_mant_d (0x800F65F8) */
+int *_mul_mant_d(int *out, unsigned int x, unsigned int y);
 
 /* MATCH (W55-A4): __muldf3 326 -> 22 diffs, ours 195 / oracle 197.
  * Lane UNWIRED (was {"cc1_alt": "2.6.3"}).  04Z re-ladder on the landed basin,
@@ -268,4 +196,79 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
         }
     }
     return ur.d;
+}
+
+/* _mul_mant_d @0x800F65F8 : 32x32->64 unsigned multiply of (x,y) via 16-bit lanes -> out[0:1].
+ * MATCH (W55-A4): 84 -> 18 diffs, count EXACT 59/59 (default lane; 14 on the 2.6.3/2.7.2 rungs,
+ * but those cost __muldf3 +132 so the TU stays on the default).  REWRITE off the oracle -- the
+ * old body was an IDA-verbatim `unsigned long long` transcription emitting 67 insns.
+ * RESIDUAL (18): the VALUE-RELOAD class at both calls (`addu a3,v0,zero` vs retail's
+ * `lw a3,0x20(sp)`, 4), the `sw ra` / `addiu a0,sp,0x18` scheduling picks (4), and the tail's
+ * load/store interleave -- ours hoists `lw sh[0]` above the `mflo`, pushing the product into
+ * $t1 and making the second store use $v0 as base.  FALSIFIED on the tail: a named product
+ * temp (30), swapped store order (15 but 58 insns), `sh[1] = sh[1] + x*y` (18), block-local
+ * lo/hi (23), and five fence placements (13-35, ALL +1 insn -- the void fence at the tail head
+ * scores 13 but breaks count-exactness, so ctrl is kept).
+ *
+ * 🏆 MATCH (w59-a8): 18 -> 14, still count EXACT 59/59, via the 05E VALUE-RELOAD device the
+ * W55-A4 receipt named but did not have budget for -- a VOLATILE VIEW ON THE READ:
+ *   (1) `*(volatile int *)&add[0]` as the 4th argument of BOTH `_add_mant_d` calls stops cse
+ *       forwarding the live register and restores retail's `lw $a3,0x20($sp)` (was
+ *       `addu $a3,$v0,$zero`).  -2 diffs.  Only add[0] needs it: the 5th (stack) argument
+ *       add[1] is register-forwarded in retail too (`sw $v1,0x10($sp)`), so do NOT volatile it.
+ *   (2) the tail's two `out[]` sources read through `lo`/`hi` FUNCTION-SCOPE temps, each a
+ *       volatile view (`lo = *(volatile int *)&sh[0]`).  -2 more.  Both halves are required:
+ *       volatile-without-temps = 16 (the two loads stay split by the store, costing a `nop`),
+ *       temps-without-volatile = 19 at 58 insns (cse forwards and the count breaks).
+ *   FALSIFIED here (w59-a8): a `__asm__ __volatile__("" : : "i"(0))` void-tail barrier between
+ *   `sh[1] += x*y` and the tail reads is INERT once the temps exist (14 either way) and costs a
+ *   `nop` (11 diffs at 60 insns) when the temps are absent -- dropped, count-exactness kept.
+ * RESIDUAL (14, count EXACT): the outgoing-arg EMISSION ORDER at both calls -- retail loads
+ * $a3 (add[0]) BEFORE $a1/$a2 (sh[0]/sh[1]), we load a1,a2,a3 in source order -- plus the
+ * `addiu $a0,$sp,0x18` scheduling pick and the tail's `move $v0,$s3` return copy, which our
+ * allocator coalesces EARLY and then uses as the store base (retail keeps $s3 as the base and
+ * copies to $v0 last).  Same arg-order class as __muldf3's residual below.
+ * LADDER (04Z re-run on this basin, whole TU = _mul_mant_d + __muldf3):
+ *   default/2.8.0/2.8.1 = 14+12 = 26 * 2.7.2 = 12+150 * 2.7.2-970404 = 14+150 *
+ *   2.6.0 = 18+155 * 2.6.3 = 18+154 * 2.91.66 = 86+169 * 2.95.2 = 80+180.
+ *   The DEFAULT lane still wins the TU by 136; UNWIRED stays correct.  NOTE for a future
+ *   mechanism spec: 2.7.2 is _mul_mant_d's best rung (12) -- a PER-FN cc1-version splice would
+ *   buy 2 more diffs, but PER_FN_CC1_VER_SPLICE_272 only exists in the 272/alt lane and this TU
+ *   is on the default maspsx lane, so it is not reachable today.
+ * Oracle tells (frame 0x40):
+ *  - locals in address order: 0x18 sh[2] (the running 64-bit sum) | 0x20 add[2] (the shifted
+ *    partial product handed to _add_mant_d, a REAL two-word array: `sw v1,0x24; sw v0,0x20`
+ *    then `lw a3,0x20`), so the addend is NOT an expression at the call.
+ *  - BOTH multiplicands are shifted IN PLACE ($s1 = x, `srl s1,s1,16`; $s0 = y, `srl s0,s0,16`
+ *    in the first jal's delay slot).  Separate hi/lo locals would burn two more callee-saved
+ *    regs; the in-place form is what puts xlo alone in $s2.
+ *  - the low half `x & 0xFFFF` is a NAMED value live across both calls ($s2), the low half of
+ *    y is an anonymous caller-saved temp ($v0) -- i.e. ylo is used twice in a row and dies. */
+int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
+{
+    int sh[2];       /* 0x18 */
+    int add[2];      /* 0x20 */
+    unsigned int xlo, ylo, p;
+    int lo, hi;
+
+    xlo = x & 0xFFFF;
+    ylo = y & 0xFFFF;
+    sh[1] = 0;
+    sh[0] = xlo * ylo;
+    x >>= 16;
+    p = x * ylo;
+    add[1] = p >> 16;
+    add[0] = p << 16;
+    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
+    y >>= 16;
+    p = xlo * y;
+    add[1] = p >> 16;
+    add[0] = p << 16;
+    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
+    sh[1] += x * y;
+    lo = *(volatile int *)&sh[0];
+    hi = *(volatile int *)&sh[1];
+    out[0] = lo;
+    out[1] = hi;
+    return out;
 }

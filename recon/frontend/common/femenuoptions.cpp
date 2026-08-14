@@ -2724,15 +2724,24 @@ int tUserNameMenuItem::Draw(bool selected)
       }
     }
   }
-  DrawShapeExtended(0x1e,8,x + 0x9c - (int)shape->width,y - 3,
+  int right = x + 0x9c;
+  DrawShapeExtended(0x1e,8,right - (int)shape->width,y - 3,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
-  PSXDrawSquare(0,x,y + -3,0x9c - shape->width,(int)shape->height);
+  {
+    int boxRight = 0x9c;
+    __asm__("" : "=r"(boxRight) : "0"(boxRight));
+    PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);
+  }
   shape = &gHelpShapes[0x21];
-  DrawShapeExtended(0x21,8,x + 0x9c - (int)shape->width,y + 0xc,
+  DrawShapeExtended(0x21,8,right - (int)shape->width,y + 0xc,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
   __asm__("" : : "r"(this));
   __asm__("" : : "r"(this));
-  PSXDrawSquare(0,x,y + 0xc,0x9c - shape->width,(int)shape->height);
+  {
+    int boxRight = 0x9c;
+    __asm__("" : "=r"(boxRight) : "0"(boxRight));
+    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);
+  }
 }
 
 

@@ -461,11 +461,30 @@ extern int CD_sync(int mode, unsigned char *result)
  * libcd decomp (command_ready.c), with the loop-invariant table bases and the &Intr
  * base as explicit locals (the oracle hoists CD_comstr into $fp, CD_intstr, &Intr and
  * the +1/+2 field addresses) and the drain inlined here rather than via callback(). */
+/* MATCH (W60-A4, 22 -> 8): PER-REGION FIELD ANCHORS (catalog 11D).  Retail derives
+ * BOTH sub-field addresses from the single &Intr base -- `addiu s6,s2,1` (&intr->ready,
+ * consumed by the drain) and `addiu s4,s2,2` (&intr->c) -- and then reads the poll bytes
+ * THROUGH THE +2 ANCHOR (`lbu 0(s4)` = c, `lbu -1(s4)` = ready) while WRITING the clears
+ * through the BASE (`sb zero,2(s2)`, `sb zero,1(s2)`).  Three cooperating edits, each
+ * measured on the gate (count-exact 178/178 unless noted):
+ *   (a) the drain INLINED here with the local pointers (`*readyp`, `intr->sync`) instead
+ *       of the shared callback() -- callback() reaches the `Intr` GLOBAL, so gcc
+ *       materialized &Intr a second time and cse turned it into the copy `addu s5,s2,zero`
+ *       that retail does not have.  ALONE: 59 (175 insns, 3 short).
+ *   (b) `cflag = &intr->c` + reads AND writes through it.  ALONE: 45 (179 insns, +1).
+ *       (a)+(b): 30, count-exact -- residual = an s3/s4 band swap plus the two stores.
+ *   (c) the asymmetric access: READ via `*cflag` / `cflag[-1]`, WRITE via `intr->c` /
+ *       `intr->ready`.  That drops cflag's ref count enough to hand it $s4 and the result
+ *       pointer $s3 (retail's band) AND reproduces the base-relative `sb`s.  30 -> 8.
+ * RESIDUAL 8 = the shared timeout-printf sync-chain register only (see the W55-A5 receipt
+ * at the top of this file); every other instruction is byte-identical. */
 extern int CD_ready(int mode, unsigned char *result)
 {
     char **cmdNames;
     char **statusNames;
     volatile CD_intr *intr;
+    volatile unsigned char *readyp;
+    volatile unsigned char *cflag;
     int interrupt;
     unsigned char restore;
     int c;
@@ -475,6 +494,8 @@ extern int CD_ready(int mode, unsigned char *result)
     cmdNames = CD_comstr;
     statusNames = CD_intstr;
     intr = &Intr;
+    readyp = &intr->ready;
+    cflag = &intr->c;
     D_801489B8 = 0;
     D_801489BC = "CD_ready";
 
@@ -497,16 +518,27 @@ extern int CD_ready(int mode, unsigned char *result)
         if (alarm != 0)
             return -1;
 
-        if (CheckCallback())
-            callback();
+        if (CheckCallback()) {
+            restore = CDREG0 & 3;
+            for (;;) {
+                interrupt = CD_get_intr();
+                if (interrupt == 0)
+                    break;
+                if ((interrupt & 4) && CD_cbready != 0)
+                    ((CdlCB)CD_cbready)(*readyp, D_801489A4);
+                if ((interrupt & 2) && CD_cbsync != 0)
+                    ((CdlCB)CD_cbsync)(intr->sync, D_8014899C);
+            }
+            CDREG0 = restore;
+        }
 
-        c = intr->c;
+        c = *cflag;
         if (c != 0) {
             intr->c = 0;
             _memcpy8(result, D_801489AC);
             return c;
         }
-        ready = intr->ready;
+        ready = cflag[-1];
         if (ready != 0) {
             intr->ready = 0;
             _memcpy8(result, D_801489A4);

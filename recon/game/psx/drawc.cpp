@@ -1356,24 +1356,37 @@ gte_stlvnl((char *)sd + 0x9c);
   TrsProj_ResetTransPrecision();
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
-  tV_dst = (int)sd->tV;
-  psVar12 = &sd->tV[0].vt.z;
+  /* w60-a7: the world->cache vertex copy is DrawC_PrimMenu's loop-2 verbatim (that
+     twin is a sealed PASS this wave), i.e. ONE typed `Draw_CarVertex *` walker and
+     ONE `COORD16 *`, with the y,z,x read order and x,y,z store order the SYM/oracle
+     show.  It replaces SIX Ghidra-invented locals (an INT cursor tV_dst walked +8, a
+     second short* cursor psVar12 walked +4, a third short* psVar6 walked +3 and the
+     tu11/tu12/tu14 temps) with the two the SYM names.  Gate-NEUTRAL (336, count
+     unchanged 1395/1389) -- landed for FAITHFULNESS and to unblock the next
+     structural pass, not for the score: an explicit `+8` byte cursor is a BIV whose
+     init is emitted before every loop.c hoist, while the typed walker's biv is
+     eliminated into an address giv (the PrimMenu seal law, w60-a7). */
+  {
+  Draw_CarVertex *tV = sd->tV;
+
   vertex_iter = obj->vertex;
   vertCounter = (int)obj->numVertex;
-  psVar6 = &vertex_iter->z;
   while( true ) {
     vertCounter = vertCounter + -1;
     if (vertCounter == -1) break;
-    tu11 = psVar6[-1];
-    tu12 = *psVar6;
-    psVar6 = psVar6 + 3;
-    tu14 = vertex_iter->x;
+    {
+      short t1, t2, t3;
+
+      t2 = vertex_iter->y;
+      t3 = vertex_iter->z;
+      t1 = vertex_iter->x;
+      (tV->vt).x = t1;
+      (tV->vt).y = t2;
+      (tV->vt).z = t3;
+    }
     vertex_iter = vertex_iter + 1;
-    *(short *)tV_dst = tu14;
-    psVar12[-1] = tu11;
-    *psVar12 = tu12;
-    psVar12 = psVar12 + 4;
-    tV_dst = tV_dst + 8;
+    tV = tV + 1;
+  }
   }
   facetIdx = (u_int)obj->numFacet;
   /* envmap&9 computed AT the switch -- the delay-slot filler pulls the andi

@@ -21,6 +21,15 @@ extern int  printf(const char *fmt, ...);                         /* libc C63 @0
 /* ---- driver debug level (DRV.OBJ) ------------------------------------------------------------- */
 extern int CD_debug;   /* @0x8013BF50 */
 
+/* W60-A4: retail VA order -- CdGetToc @0x8010929C precedes CdGetToc2 @0x801092C0. */
+extern int CdGetToc2(int n, CdlLOC *loc);
+
+/* @0x8010929C : CdGetToc -- convenience wrapper, loc[] points at the caller's CdlLOC array. */
+extern int CdGetToc(CdlLOC *loc)
+{
+    return CdGetToc2(1, loc);
+}
+
 /* @0x801092C0 : CdGetToc2 -- fill loc[] with the MSF start of every track (lead-in entry first).
  *
  * MATCH: shape transplanted from the byte-exact Rage Racer decomp
@@ -104,10 +113,4 @@ err:
         printf("CdGetToc2: error\n");
     CdSyncCallback(save);
     return 0;
-}
-
-/* @0x8010929C : CdGetToc -- convenience wrapper, loc[] points at the caller's CdlLOC array. */
-extern int CdGetToc(CdlLOC *loc)
-{
-    return CdGetToc2(1, loc);
 }

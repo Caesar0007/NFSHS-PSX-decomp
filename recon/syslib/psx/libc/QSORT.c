@@ -42,19 +42,8 @@
  *     - `_swap`'s write-back `q[i]=tmp` @0x800E5F0C runs every loop iteration (it is the delay slot).
  */
 
-/* _swap @0x800E5EDC : exchange two `size`-byte elements byte by byte. */
-extern void _swap(char *p, char *q, int size)
-{
-    unsigned i = 0;
-    if (size == 0)
-        return;
-    do {
-        char tmp = p[i];
-        p[i] = q[i];
-        q[i] = tmp;
-        i++;
-    } while (i < (unsigned)size);
-}
+/* fwd decl: retail VA order puts qsort (0x800E5D8C) before _swap (0x800E5EDC) */
+extern void _swap(char *p, char *q, int size);
 
 /* qsort @0x800E5D8C : sort `nmemb` elements of `size` bytes using comparator `cmp`. */
 extern void qsort(void *base, unsigned nmemb, int size,
@@ -94,4 +83,18 @@ extern void qsort(void *base, unsigned nmemb, int size,
 
     qsort(b, count, size, cmp);                            /* left  partition */
     qsort(boundary + size, nmemb - count - 1, size, cmp);  /* right partition */
+}
+
+/* _swap @0x800E5EDC : exchange two `size`-byte elements byte by byte. */
+extern void _swap(char *p, char *q, int size)
+{
+    unsigned i = 0;
+    if (size == 0)
+        return;
+    do {
+        char tmp = p[i];
+        p[i] = q[i];
+        q[i] = tmp;
+        i++;
+    } while (i < (unsigned)size);
 }

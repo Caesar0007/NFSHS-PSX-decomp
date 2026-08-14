@@ -1641,7 +1641,10 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
 # lane", expected -2) is FALSIFIED on the current source: that reading predates
 # the same commit's own 05E/3-fence landing, and 04Z (rung tables are
 # basin-relative) applies.  Measured _mul_mant_d, whole-TU, via this mechanism:
-#   default/2.8.0/2.8.1 14 | 2.7.2 19 | 2.6.0/2.6.3/2.7.2-970404 21 |
+# (w60-a5 RE-MEASURED after the _cc1_flags_for_rung landing; the first pass had
+#  2.8.0 mis-transcribed as 14 -- only the 2.8.1 rung, i.e. the TU's own cc1,
+#  reproduces the default, which is exactly the mechanism's identity check.)
+#   default 14 | 2.8.1-splice 14 | 2.7.2 19 | 2.6.0/2.6.3/2.7.2-970404/2.8.0 21 |
 #   2.95.2 80 | 2.91.66 86        (__muldf3: default 12, invariant)
 # => no rung wins; MULDF3 stays a pure default-lane TU and the table stays
 # empty until a real adopter is measured.  Keep the mechanism: the "two

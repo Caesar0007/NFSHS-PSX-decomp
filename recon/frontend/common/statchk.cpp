@@ -309,6 +309,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   unsigned int uCopySz;
   unsigned int uBulkUnit;
   unsigned int uBulkSz;
+  int copyDst;
   short k;
   short nCar;
   char *buffer;
@@ -402,7 +403,9 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             for (k = 0; k < 8; k = k + 1) {
               uCopySz = sizeof(tRecordBuffer);
               __asm__("" : "=r"(uCopySz) : "0"(uCopySz), "r"((int)nTopTenIndex[k]));
-              memcpy_call(&RecordHolders[nLapIndicator + k],
+              copyDst = (nLapIndicator + k) * (int)sizeof(tRecordBuffer);
+              copyDst = copyDst + (int)RecordHolders;
+              memcpy_call((tRecordBuffer *)copyDst,
                           buffer + nTopTenIndex[k] * uCopySz,uCopySz);
             }
           }

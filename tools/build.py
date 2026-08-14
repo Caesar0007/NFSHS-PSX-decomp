@@ -769,6 +769,13 @@ PER_FN_NO_THREAD_JUMPS = {
 # of cse find_best_addr folding it onto the computed pointer, freeing $v0 for
 # the li-1 in the beqz slot.  Whole-TU -fforce-addr is NOT the identity
 # (breaks ProcessParticles/QuickReOrthogonalize) -- per-fn only.
+# w59-a4 (orchestrator-wired): per-fn -G8 region splice for the C++ lane.
+# AudioCmn_Init measured byte-PASS 94/94 under a -G8 region splice while
+# whole-TU -G8 breaks CheckState (6->27).  -G appended last wins in cc1plus.
+PER_FN_G8 = {
+    "recon/game/common/audiocmn.cpp": {"AudioCmn_Init__Fv"},
+}
+
 PER_FN_FORCE_ADDR = {
     "recon/game/psx/weather.cpp": {
         "Weather_Init__Fv",   # FAIL 12 (211/211) -> PASS, byte-exact
@@ -1463,7 +1470,8 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
     for table, extra_flag, tag in (
             (PER_FN_NO_DELAYED_BRANCH, "-fno-delayed-branch", "nodb"),
             (PER_FN_NO_THREAD_JUMPS, "-fno-thread-jumps", "nthr"),
-            (PER_FN_FORCE_ADDR, "-fforce-addr", "faddr")):
+            (PER_FN_FORCE_ADDR, "-fforce-addr", "faddr"),
+            (PER_FN_G8, "-G8", "g8")):
         fn_names = table.get(rel_posix)
         if not fn_names:
             continue

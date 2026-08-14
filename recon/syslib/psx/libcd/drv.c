@@ -444,11 +444,23 @@ extern int CD_sync(int mode, unsigned char *result)
              * to 0..255 and folds any `& 0xff` away, so the mask only survives behind
              * a zero-insn opacity fence (catalog w47 §A; the byte-exact Rage Racer
              * decomp carries the identical `asm("" : "=r"(x) : "0"(x))` at this site). */
+            /* MATCH (W60-A4, 22 -> 8): retail keeps the MASKED byte (`andi a2,v0,255`)
+             * live across the whole tail -- both `== 2` / `== 5` tests AND the return
+             * value come out of $a2 -- while the raw `lbu` result dies immediately.
+             * Ours returned the RAW byte (cse substitutes it for the mask result: an
+             * `lbu` is already zero-extended, so the two are provably equal) which
+             * pinned the raw pseudo to the exit and pushed the _memcpy8 sentinel off
+             * $a3.  A zero-insn IDENTITY FENCE on the masked value makes it cse-opaque,
+             * so the mask survives as its own pseudo and takes $a2 with the sentinel
+             * falling back to $a3 -- the oracle's whole tail band. */
+            int syncv;
             sync = intr->sync;
-            if (sync == 2 || sync == 5) {
+            syncv = sync;
+            __asm__("" : "=r"(syncv) : "0"(syncv));
+            if (syncv == 2 || syncv == 5) {
                 intr->sync = 2;
                 _memcpy8(result, D_8014899C);
-                return sync;
+                return syncv;
             }
         }
         if (mode != 0)

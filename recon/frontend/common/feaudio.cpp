@@ -316,14 +316,23 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
   lumpyName = "lumpyhead";
   __asm__("" : : "i"(0));
   {
-    u_int headerType = lumpHead.type;
-    u_int swappedType = headerType << 0x18 | (headerType & 0xff00) << 8 |
-                        (headerType & 0xff0000) >> 8 | headerType >> 0x18;
+    u_int swappedType = lumpHead.type;
+    u_int swappedResult;
     u_int headerLength;
     u_int headerNum;
 
+    swappedResult = swappedType << 0x18 | (swappedType & 0xff00) << 8 |
+                    (swappedType & 0xff0000) >> 8;
+    swappedType >>= 0x18;
+    swappedResult |= swappedType;
+    swappedType = swappedResult;
+
     /* MATCH: fence the computed value before publishing it.  This preserves
-       the swap while allowing the hlen/num loads to fill retail's slots. */
+       the swap while allowing the hlen/num loads to fill retail's slots.
+       Splitting the three high-byte terms from the destructive final shift
+       gives the source word retail's a3 handout (12 -> 7 diffs, 110/109).
+       The remaining residual is one copy back into the long-lived carrier;
+       removing it returns the input to a1 and loses the allocation gain. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

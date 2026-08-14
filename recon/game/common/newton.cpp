@@ -1882,7 +1882,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
   barrierVec.z = normal.x / 0x100 * 0x100;
   distRetreat = normal.x / 0x100 * (newtonObj->linearVel.x / 0x100) +
                 normal.y / 0x100 * (newtonObj->linearVel.y / 0x100) +
-                normal.z / 0x100 * (newtonObj->linearVel.z / 0x100);
+                *(volatile int *)&normal.z / 0x100 * (newtonObj->linearVel.z / 0x100);
   if (distRetreat < 0) {
     distRetreat = -distRetreat;
   }
@@ -1934,7 +1934,26 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
          81 (neutral);
        - twin B3 dot term order z + y + x: 89;
        - twin B1 upVec constants written straight into islandMatrix.m[3..5] (dropping
-         the upVec local): 97 @ 95 insns (the SYM's upVec AUTO is real -- keep it). */
+         the upVec local): 97 @ 95 insns (the SYM's upVec AUTO is real -- keep it).
+     W60-A9 LANDED (81 -> 76 @ 104/106): the w59-a2 re-diagnosis was RIGHT and its
+     named instrument (allocsim) was not needed -- the VOLATILE-VIEW RE-READ is the
+     device.  `*(volatile int *)&normal.z` on the DOT-PRODUCT term only defeats cse's
+     substitution of the live `normal.z` pseudo, so gcc re-loads the parm spill slot
+     and RECOMPUTES `normal.z / 0x100` there, exactly as retail does (+3 insns of the
+     right kind).  MEASURED this wave, all WORSE, do not retry: volatile on ALL three
+     dot terms 87 @109 | volatile on x+z only 84 @108 | ": : : memory" before the
+     dot 90 @108 | volatile also on normal.y in the dot 81 @105 | volatile also on
+     the barrierVec.x read 87 @105 | on the barrierVec.z read 88 @108 | hoisting
+     "normal.y / 0x100" into a local before the dot (volatile 92 @106 COUNT-EXACT,
+     plain 88 @102) | hoisting x+y both 88 @102.
+     RESIDUAL SHAPE (76): retail's three /256 expansions each carry TWO copies --
+     a survivor copy (addu a3,a1,zero) AND expand_divmod's own fresh temp
+     (addu v0,a3,zero in the bgez delay slot) -- and retail hoists normal.y/0x100
+     ahead of the first mult.  Ours mutates the source register in place for two of
+     the three.  Per the w44 rule gcc-2.8 cannot emit a source-level survivor copy of
+     a divide's dividend (expand_divmod copies, cse copy-props the survivor away), so
+     the survivor must come from a DISTINCT 1-insn computation -- NEXT ANGLE: find the
+     1-insn expression retail's source used for normal.x at the barrierVec.z site. */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;

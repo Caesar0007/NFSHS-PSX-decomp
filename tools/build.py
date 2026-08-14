@@ -951,11 +951,31 @@ PER_FN_FLAG_SPLICE_272 = {
 PER_FN_CC1_VER_SPLICE_272 = {
     # _BlitClear: rung 2.8.0 = 20 count-exact vs wired 2.8.1's 39; whole-TU
     # rung flip is net-negative (MoveImage 9->35) => per-fn.
-    "recon/syslib/psx/libgpu/SYS.c": {"2.8.0": {"_BlitClear"}},
+    # w60-a3 + orchestrator verify: the "2.7-unreachable" verdicts were a WIRING
+    # artifact (-mno-split-addresses rejected by the rung, now dropped per-rung).
+    # DrawOTag + _gpu_init_videomode PASS the REAL gate on the 2.7.2 splice.
+    # _set_draw_mode does NOT: probe_272.py's REAL=0 there was a PROBE BUG
+    # (same-mnemonic word mismatches counted as "reloc" -- the commutative
+    # `or $2,$2,$3` vs retail `or $2,$3,$2` was excluded as reloc=1 in a fn
+    # with ZERO relocations); its 2-diff or-operand floor stands, un-spliced.
+    "recon/syslib/psx/libgpu/SYS.c": {
+        "2.8.0": {"_BlitClear"},
+        "2.7.2": {"DrawOTag", "_gpu_init_videomode"},
+    },
     # w55-a5 (probe-verified): CdReset -> PASS 27/27 on 2.8.0; whole-TU flip
     # catastrophic (CdControlF PASS->51) => per-fn.
     "recon/syslib/psx/libcd/cdcont.c": {"2.8.0": {"CdReset"}},
 }
+
+
+def _cc1_flags_for_rung(ver, cc1_flags):
+    """w60-a3 mechanism fix: sub-2.8 rungs REJECT -mno-split-addresses outright,
+    which made every nosplit TU look '2.7-unreachable' (a wiring artifact, not a
+    codegen fact -- probe_272.py proved DrawOTag/_set_draw_mode/
+    _gpu_init_videomode hit REAL=0 on 2.7.2 once the flag is dropped)."""
+    if ver.startswith(("2.6", "2.7")):
+        return [f for f in cc1_flags if f != "-mno-split-addresses"]
+    return cc1_flags
 
 
 def _apply_cc1_ver_splice_272(rel_posix, txt, i_file, cc1_flags, s_file):
@@ -970,7 +990,7 @@ def _apply_cc1_ver_splice_272(rel_posix, txt, i_file, cc1_flags, s_file):
             _warn_alt_fallback(rel_posix, ver, "the TU's own lane (ver-splice skipped)")
             continue
         s_alt = s_file.with_suffix(".vs272_%d.s" % gi)
-        r = run([alt_cc1, *cc1_flags, i_file, "-o", s_alt])
+        r = run([alt_cc1, *_cc1_flags_for_rung(ver, cc1_flags), i_file, "-o", s_alt])
         if r.returncode:
             sys.exit(f"[vs272 {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
         alt = s_alt.read_text(errors="replace")
@@ -1653,7 +1673,7 @@ def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
                                "the TU's own cc1 (fn ver-splice skipped)")
             continue
         alt_s = s_file.with_suffix(".vs_%s.s" % ver.replace(".", "_"))
-        r = run([alt_cc1, *cc1_flags, i_file, "-o", alt_s])
+        r = run([alt_cc1, *_cc1_flags_for_rung(ver, cc1_flags), i_file, "-o", alt_s])
         if r.returncode:
             sys.exit(f"[cc1-vs {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
         alt_text = alt_s.read_text(errors="replace")

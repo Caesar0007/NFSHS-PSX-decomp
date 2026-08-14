@@ -780,7 +780,12 @@ int AudioCmn_GetTimePhrase(int time)
  *      it is combine_regs failing to tie the {high, lo_sum} pair at THIS site only
  *      (w46: the tie is refused when the lo_sum destination is a global allocno).
  * NB this TU carries a PER_FN_G8 region splice for AudioCmn_Init; whole-TU -G8
- * breaks CheckState (6 -> 27), so keep any flag experiment per-fn. */
+ * breaks CheckState (6 -> 27), so keep any flag experiment per-fn.
+ * W60-A9 resume: SoundCar's sibling residual turned out to be the SAME class and was
+ * fully closed by a 6-row PER_FN_TEXT_MOVES (PASS 530/530, TU 47/48 under the
+ * probe) -- CheckState's two sites are the same shape (a base/index issue-order swap
+ * and a {high,lo_sum} tie), so a TEXT_MOVES row is the FIRST thing to try here too;
+ * spec in scratchpad/w60a9/RECEIPTS.md. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
   char carnum;

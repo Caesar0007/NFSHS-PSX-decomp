@@ -424,10 +424,17 @@ lookahead_done:;
        * Two natural spellings for the record: plain `&arm` in both arms with no
        * local at all = 3 diffs @403 (one insn BETTER than shipped on count);
        * plain `&arm` in the else arm + the scoped armPtr in the if arm = the
-       * shipped 2 @404.  NEXT ANGLE: keep the hoisted-armPtr basin and stop sched1
-       * from hoisting its `addu $4,$sp,16` into the load-delay slot WITHOUT paying a
-       * nop -- i.e. supply a different, retail-shaped filler for that slot (retail
-       * uses the Input_gLookBehind `lui/addiu` pair there). */
+       * shipped 2 @404.
+       *
+       * >>> RESOLVED (W60-A9 resume): the source is CORRECT AS SHIPPED and the whole
+       * source-side hunt above is SUPERSEDED.  The 2 insns are an assembler-side
+       * duplicate, not an allocation problem: cc1 emits `addu $4,$sp,16` once per
+       * arm and leaves the branch in reorder mode, so maspsx nops the slot, while
+       * retail materialises it ONCE in the beq's DELAY SLOT (executing on both
+       * paths).  A PER_FN_TEXT_MOVES row that moves the ELSE-arm copy into the slot
+       * and drops the redundant if-arm copy gates PASS 402/402 (camera TU 35/38,
+       * probe-verified); it needs a new `drop_after` key, spec'd in
+       * scratchpad/w60a9/RECEIPTS.md.  Do NOT re-open the armPtr basin. */
       coorddef *armPtr = &arm;
       __asm__("" : "+r"(armPtr));
       transform(armPtr,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);

@@ -632,6 +632,7 @@ extern int CD_ready(int mode, unsigned char *result)
 extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result, int arg3)
 {
     volatile CD_intr *ip;
+    char **cmdNames;
     int i;
     int ret;
 
@@ -667,9 +668,48 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
     if (arg3 != 0)
         return 0;
 
-    set_alarm("CD_cw");
+    /* MATCH (W61-A7): 84 -> 75.  The alarm is inlined HERE (it was routed through the
+     * shared get_alarm(), the only caller) with the SAME shape CD_sync/CD_ready carry --
+     * three cooperating pieces, each measured:
+     *   (1) a `cmdNames` local: retail hoists the command-name table into the loop
+     *       PREHEADER (`lui s5; addiu s5` right after the entry test) and therefore
+     *       carries EIGHT callee-saved registers where the shared-get_alarm form bought
+     *       only seven.  The shared copy's single `CD_comstr[CD_com]` use gives cse no
+     *       common subexpression, so no invariant pseudo exists to hoist and the base is
+     *       re-materialized inside the arg block (`lui a2; addu a2,a2,v1`, +1 insn).
+     *       An IDENTITY FENCE on the local is NOT needed and is a NET LOSS here (77 vs 75):
+     *       it materializes the `la` before the loop ENTRY TEST (s3) instead of in the
+     *       preheader (s5) and rotates the whole s3/s4/s5 band.
+     *   (2) the split locals `syncIdx` / `readyName` (the w53-a9 CD_datasync lever) --
+     *       falsified against the SHARED get_alarm() in w53-a9 (90 -> 93), it lands here
+     *       once the copy is private to CD_cw.
+     *   (3) the `alarm` VARIABLE + `if (alarm != 0) return -1;` funnel, not a direct
+     *       `return -1` inside the timeout block: that is retail's extra
+     *       `addu v0,zero,zero; bnez v0` pair and it makes the count exact.
+     * FALSIFIED in this basin (all re-measured after the landing): identity fence on
+     * cmdNames 77 · an explicit `statusNames` local 79 · `cmdNames = CD_comstr` moved to
+     * the last preamble statement 75 (INERT) · identity fence on `ip` 94 · a separate
+     * loop counter `j` for the parameter loop 93 · dropping the store-flag breaker 86. */
+    D_801489B4 = VSync(-1) + 0x3c0;
+    cmdNames = CD_comstr;
+    D_801489B8 = 0;
+    D_801489BC = "CD_cw";
     while (Intr.sync == 0) {
-        if (get_alarm())
+        int alarm;
+        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            int syncIdx;
+            char *readyName;
+            puts("CD timeout: ");
+            syncIdx   = Intr.sync;
+            readyName = CD_intstr[Intr.ready];
+            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+                   cmdNames[CD_com], CD_intstr[syncIdx], readyName);
+            CD_flush();
+            alarm = -1;
+        } else {
+            alarm = 0;
+        }
+        if (alarm != 0)
             return -1;
         if (CheckCallback())
             callback();
@@ -688,7 +728,10 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * the STORE-FLAG BREAKER (make the guarded block 2 insns, e.g. a zero-insn fence beside
      * the store -- catalog w46 fence grammar mode 2) is the named next angle. */
     ret = 0;
-    if (Intr.sync == 5) {
+    /* W61-A7: NON-VOLATILE ALIAS READ (catalog: CD_get_intr lever 3) -- a volatile
+     * QImode read cannot fold its zero-extend into the `lbu`, which is where our
+     * redundant `andi v0,v0,255` before the ==5 test came from. */
+    if (*(const unsigned char *)&Intr.sync == 5) {
         ret = -1;
         __asm__("" : : "i"(0));   /* STORE-FLAG BREAKER: jump.c's `-(cond)` fold only matches
                                    * a SINGLE-set guarded block; the zero-insn void-tail fence

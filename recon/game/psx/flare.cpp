@@ -1349,7 +1349,32 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
  *   the `sw s3,92(sp)` prologue save is now a named PER_FN prologue-save-order
  *   SPLICE candidate (same family as PER_FN_EPILOGUE_UNFILL / PER_FN_RA_SINK in
  *   build.py) -- the flag axis and every fence position/operand set are receipted
- *   dead across w45/w46/w49/w50 and now w51. */
+ *   dead across w45/w46/w49/w50 and now w51.
+ *   ---- w60-a7 (2026-08-14): 6 STAYS.  THE NAMED UNTRIED INSTRUMENT WAS RUN.
+ *   Lab fidelity first: this fn compiles BYTE-IDENTICAL (247/247) under the
+ *   instrumented cc1plus-ecoff (`-O2 -G4 -mgas -msplit-addresses -funsigned-char
+ *   -fno-exceptions -fno-rtti`), so its GCC_TRACE_ALLOC trace is a receipt.
+ *   [allocno_compare] + [find_reg] for the GLOBAL allocnos:
+ *       p85  17 refs / 179 live / 16 calls = 3798 -> reg 19 = $s3   (pt)
+ *       p86  18 / 384 / 17               = 1875 -> reg 20 = $s4   (otz)
+ *       p80  10 / 350 / 13               =  857 -> reg 21 = $s5   (x)
+ *       p81  10 / 354 / 13               =  847 -> reg 22 = $s6   (y)
+ *       p82   4 / 138 / 1                =  579 -> reg 16 = $s0   (scalex)
+ *       p83   4 / 138 / 1                =  579 -> reg 17 = $s1   (scaley)
+ *       p87   4 /  58 / 0                = 1379 -> reg  8 = $t0   (sd)
+ *   EVERY ONE OF THESE MATCHES RETAIL.  ⇒ residual (A) is NOT an allocation
+ *   question at any layer -- the save-order divergence is sched2 placing an
+ *   already-correct `sw $s3` three slots later, so the PER_FN prologue-save-order
+ *   SPLICE named above is the right and only route, and no further source dial
+ *   should be spent on it.  Residual (B) likewise sits below the global layer (both
+ *   colour carriers are block-local qtys), where w51's 10-device sweep already
+ *   closed the source axis.
+ *   CORPUS CHECK (user directive, read-only): silent-hill's src/maps/unk_draw_m1s05.c
+ *   writes packet colour/UV words exactly the way this fn does
+ *   (`*(u32*)&(*poly)->u0 = <packed literal>`), i.e. one word store per pair --
+ *   it confirms the word-copy SHAPE we already use and offers no two-carrier
+ *   device; rage-racer has no matched C for this class (its prim submission is
+ *   INCLUDE_ASM). */
   DVECTOR pt2;
   DVECTOR *pt;
   int otz;

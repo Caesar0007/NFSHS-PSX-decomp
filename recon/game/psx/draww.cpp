@@ -1699,7 +1699,47 @@ gte_swc2(0x8,&depthcue);
        * this wave on DrawW_BuildObjectFacets: an in-loop opacity fence moved that
        * fn's objInstance 27 -> 31 (+2 refs x depth 2) and an out-of-loop one
        * 31 -> 33 (+2 x depth 1).  Run tools/reqdelta.py on the IF/ELSE dump to
-       * re-price the delta before writing any code. */
+       * re-price the delta before writing any code.
+       * ---- w60-a7 (2026-08-14): RE-PRICED FROM A FRESH -dl/-dg DUMP OF THE LANDED
+       * BASIN, and ONE STANDING CLAIM IS REFUTED.
+       * TODAY'S NUMBERS (tools/rtl_dump.py on this TU, allocno_compare =
+       * floor_log2(refs)*refs*size/live):
+       *     p80  sd    62 refs / 844 live / 6 calls  -> 5*62*4/844 = 1.4692
+       *     p141 prim  24 refs / 358 live / 2 calls  -> 4*24*4/358 = 1.0726
+       * i.e. IN THE LANDED DEFAULT-THEN-OVERRIDE FORM sd ALREADY OUT-RANKS prim and
+       * takes $s0 with ZERO extra references -- the w53 "+66 refs" figure was priced
+       * in the IF/ELSE basin only.
+       * 🔴 REFUTED: the w53 note's "the live-length route and the register it needs
+       * are MUTUALLY EXCLUSIVE (holding prim live to the end is exactly what denies
+       * $s1 to zeroTransFlag)".  prim IS held live 358 insns in the landed form and
+       * zeroTransFlag is NOT in the residual -- the 7 diffs are entirely the ARM
+       * SHAPE (`sw s1,108(sp)` prologue-save position, `addiu s1,s0,272` in our
+       * prologue vs retail's `j`-delay-slot, and the `bnez`/`beqz` polarity that
+       * follows).  So this fn's residual is a STRUCTURE question, not an allocation
+       * one, and the allocation is already correct.
+       * RE-PRICED DELTA for the if/else (arm) form, which collapses prim's live back
+       * to 114 -> 4*24*4/114 = 3.368:
+       *     sd alone      : refs >= 119  (6*119*4/844 = 3.384)          = +57
+       *     prim alone    : refs <= 13   (3*13*4/114 = 1.368 < 1.4692)  = -11
+       *     JOINT (new)   : prim 24->15 (3*15*4/114 = 1.579) with sd 62->64
+       *                     (6*64*4/844 = 1.820 > 1.579)   = -9 refs and +2 refs.
+       * The joint cell is an order of magnitude cheaper than either single-axis
+       * figure and has never been tried (the same joint-sweep law that cracked
+       * CarIO_CopyToShape and Sfx_AdditivePrim this wave).  prim's 24 refs are 4
+       * `&prim->xN` + 4 `&prim->uN` + 8 colour (4 per exclusive arm) + tag + code +
+       * 2 clut + the NightColorCalc arg + the asm operand + 2 defs, so -9 needs
+       * three zero-cost group bases; sd's +2 is one opacity fence (proven free here).
+       * CORPUS CHECK (user directive, read-only): rage-racer's terrain/prim
+       * submission is HAND-WRITTEN ASM in their tree
+       * (src/main/PAL/main/render/terrain_submission.c is three INCLUDE_ASM blocks
+       * with a HANDWRITTEN_ASM rationale), so it offers no C shape for this class;
+       * its matched C packet code (render/draw_packet_queue.c QueueDrawModePrim)
+       * only re-confirms the already-recorded `pkt = prim; prim += N;
+       * AddPrim(ot, pkt);` order.  silent-hill's src/maps/unk_draw_m1s05.c reaches
+       * its packet through a POINTER-TO-POINTER (`*(u32*)&(*poly)->u0 = ...`) at
+       * every use -- that would make prim a MEMORY object with no allocno at all,
+       * which removes it from the tie but also from $s1, so it is NOT the shape
+       * here.  No corpus lever for this residual. */
 
       if (doSubdivision == 0) {
         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;

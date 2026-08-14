@@ -373,6 +373,11 @@ void tScreenMain::DrawVideoLines()
 
 
 /* ---- tScreenMain::DrawBackground  [SCREENMAIN.CPP:456-737] ---- */
+/* MATCH: 121 -> 115 diffs.  Keeping the video-timeout test as one combined
+   condition removes the decompiler's invented saved-register boolean; the
+   unsigned-short VIDEO y cast removes one of its two sign-extension ops.
+   Remaining large islands are the SLD-confirmed dot-grid/TV-order loop CFGs
+   and warning-fade/animation local-allocation order. */
 void tScreenMain::DrawBackground()
 
 {
@@ -387,7 +392,6 @@ void tScreenMain::DrawBackground()
   int shapeX;
   int shapeY;
   byte bVar1;
-  bool bVar2;
   short sVar3;
   int fade;
   char *str;
@@ -491,18 +495,15 @@ void tScreenMain::DrawBackground()
   if (iVar5 == 3) {
     this->bVideoAborted = 0;
     this->fMovieTicks = ticks;
-    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,j);
+    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,(u_int)(u_short)j);
     if (iVar7 != 0) {
       this->fFrame = this->fFrame + 1;
     }
   }
   else {
-    bVar2 = false;
     iVar7 = VIDEO_state(this->hVideo);
-    if (iVar7 != 1) {
-      bVar2 = 0x280 < ticks - this->fStartTicks;
-    }
-    if ((bVar2) && (this->fState == kScreenMain_StaticImage)) {
+    if ((iVar7 != 1) && (0x280 < ticks - this->fStartTicks) &&
+        (this->fState == kScreenMain_StaticImage)) {
       r.x = 0x200;
       r.w = 0x50;
       r.y = 0;

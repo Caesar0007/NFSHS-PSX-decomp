@@ -83,110 +83,6 @@ u_char _gp1_shadow[256] __attribute__((section(".bss")));
 
 /* ============================ SUB-GROUP 1 ============================ */
 
-/* @0x800EEA64 : read the GPU status register (GPUSTAT, shares GP1 address). */
-extern int _get_status(void)
-{
-    return (int)*GPU_GP1;
-}
-
-/* @0x800EF248 : write one GP1 (control) command and shadow its low byte by command number. */
-extern void _send_gp1(u_long cmd)
-{
-    *GPU_GP1 = cmd;
-    _gp1_shadow[cmd >> 24] = (u_char)cmd;
-}
-
-/* @0x800EF26C : read back the shadowed low byte for GP1 command number `idx`. */
-extern int _get_gp1(int idx)
-{
-    return _gp1_shadow[idx];
-}
-
-/* @0x800EF280 : push n words straight to GP0 with DMA disabled (CPU->GP0 transfer). */
-extern int _send_gp0(u_long *p, int n)
-{
-    /* MATCH: counter split from the param and computed up-front (oracle addiu a2,a1,-1
-     * FIRST insn); guard keeps n live so i gets a fresh reg; explicit -1 sentinel
-     * compare -> li a1,-1 reusing the dead param reg (catalog rows 47/48). */
-    int i = n - 1;
-    /* MATCH: volatile cast away on the two stores -- the oracle has BOTH in branch
-     * delay slots (GP1 store in the beqz slot, GP0 store in the loop bne slot); gcc
-     * refuses to slot-fill volatile MEMs, the original assembler filled them blind. */
-    *(u_long *)GPU_GP1 = 0x04000000;        /* DMA direction = off */
-    if (n != 0) {
-        do { *(u_long *)GPU_GP0 = *p++; i--; } while (i != -1);
-    }
-    return 0;
-}
-
-/* @0x800EF2C0 : kick off a GPU ordering-table (linked-list) DMA on channel 2. */
-extern void _gpu_dma_chain(u_long *ot)
-{
-    *GPU_GP1 = 0x04000002;                   /* DMA direction = 2 (linked list) */
-    *D2_MADR = (u_long)ot;
-    *D2_BCR  = 0;
-    /* MATCH: volatile cast away -- oracle has this final sw in the jr delay slot;
-     * gcc won't slot-fill a volatile MEM (same lever as _send_gp0). */
-    *(u_long *)D2_CHCR = 0x01000401;         /* start, linked-list mode */
-}
-
-/* @0x800EF308 : issue a GP1 0x10 "get GPU info" query and return the 24-bit GPUREAD reply. */
-extern int _get_gpuinfo(u_long cmd)
-{
-    *GPU_GP1 = cmd | 0x10000000;
-    return (int)(*GPU_GP0 & 0x00ffffffu);
-}
-
-/* @0x800EFE34 : obj-local byte fill (libgpu's private memset). */
-extern void _memset(char *p, int c, int n)
-{
-    /* MATCH: i=n-1 hoisted ABOVE the guard -- n stays live across the compare, so the
-     * counter can't coalesce into $a2: fresh $v0 counter + $v1 sentinel, and the init
-     * lands in the beqz delay slot (oracle: addiu v0,a2,-1). */
-    int i = n - 1;
-    if (n != 0) {
-        do { *p++ = (char)c; } while (--i != -1);
-    }
-}
-
-/* @0x800EE9C8 : build a GP0 0xE5 "drawing offset" command word. */
-extern u_long _set_draw_offset(int x, int y)
-{
-    u_long yi = (u_long)(y & 0x7ff) << 11;
-    return 0xe5000000u | yi | (u_long)(x & 0x7ff);
-}
-
-/* @0x800EE878 : build a GP0 0xE1 "draw mode" command word (dfe=draw-to-display, dtd=dither).
- * Oracle uses beqz dtd delay-slot=lui v1,E100 (hi base in delay slot), then beqz dfe
- * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
-extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
-{
-    /* W56: the explicit PSY-Q hi/lo statement form is count-exact on the current 2.8.1
-     * lane (8/8), unlike the single ternary expression, which duplicates the final
-     * `jr/or` return pair (10/8).  Allocation and every branch/delay slot now match.
-     * The remaining two normalized diffs are only the commutative final `or` operands:
-     * ours `or v0,v0,v1`, retail `or v0,v1,v0`.  The matched 2.7.2 lane emits retail
-     * order from the ternary form, but that compiler is net-negative for the SYS TU.
-     * FALSIFIED (w59-a8) on the commutative-operand axis -- the operand order and the
-     * register map are COUPLED here, so no spelling reaches retail's `or $v0,$v1,$v0`
-     * (op0 in a NON-dest register): `return hi | lo;` = 10 diffs (hi moves into $v0, lo
-     * into $a2 -- right operand order, wrong regs); the same with the decl order swapped
-     * to `lo; hi` = 10; `lo = hi | lo; return lo;` folds straight back to `or v0,v0,v1`
-     * = 2.  gcc computes op0 INTO the dest, so getting op0 off the dest needs the whole
-     * value-to-register map to change.  The 2.7.2 rung is unreachable for this TU: the
-     * pre-2.8 cc1s reject `-mno-split-addresses` outright ("Invalid option"), so the SYS
-     * ladder is only {2.8.0, 2.8.1, 2.91.66, 2.95.2} and the wired 2.8.1 wins it -- see
-     * the whole-TU ladder receipt at MoveImage. */
-    u_long hi = 0xe1000000u;
-    u_long lo;
-    if (dtd != 0)
-        hi = 0xe1000200u;
-    lo = (u_long)(tpage & 0x9ff);
-    if (dfe != 0)
-        lo |= 0x400u;
-    return lo | hi;
-}
-
 /* ============================ SUB-GROUP 2 ============================
  *   Async DMA-chain + command-queue engine.  GPU work requests are pushed to a 64-entry
  *   ring of slots; a slot is dispatched either inline (when the GPU is idle) or from the
@@ -260,421 +156,12 @@ static GEnvT GEnv __attribute__((section(".bss")));   /* @0x8012369C */
 
 extern int _gpu_que_drain(void);     /* @0x800EF60C (fwd) */
 
-/* @0x800EFAF8 : arm the GPU watchdog against the current VSync hsync count. */
-extern void _gpu_arm_timeout(void)
-{
-    _gpu_timeout_target = VSync(-1) + 0xF0;
-    _gpu_timeout_count = 0;
-}
-
-/* @0x800EFB2C : poll the watchdog.  Returns 0 while still waiting; on timeout it prints the
- *   GPU state, force-resets the queue + GPU, and returns -1. */
-extern int _gpu_check_timeout(void)
-{
-    /* MATCH (W55-A8, ported in SHAPE from the Rage-Racer matched `Gpu_CheckTimeout`,
-     * register pins dropped).  Four idioms, all oracle-evidenced:
-     *  (a) the poll counter is bumped through a POINTER LOCAL with a POST-INCREMENT --
-     *      `la $v1,_gpu_timeout_count; lw $v0,0($v1); addu $a0,$v0,zero; addiu $v0,$v0,1;
-     *      sw $v0,0($v1)` -- a bare `_gpu_timeout_count = cnt + 1` is an `$at` macro store
-     *      and compares the pre-read copy instead of the post-increment's saved value;
-     *  (b) a DEAD READ of *GPU_GP1 through a POINTER LOCAL before the printf (RR spells it
-     *      `(void)*gp1ForLog;`) -- the oracle's `lw $v0,0($a2)` whose result is dropped;
-     *      the same $a2 then serves the printf's `stat` argument;
-     *  (c) the queue indices are pulled into NAMED locals for the depth expression;
-     *  (d) the reset block READS _qout BACK to seed _qin (`_qout = 0; state = _qout;
-     *      _q_reset_mask = mask; _qin = state;`) -- the same read-back `_reset` already uses;
-     *  (e) a RESULT FUNNEL over the whole body (RR's `switch (0) { default: ... }`) so both
-     *      exits reach ONE shared epilogue via `j`. */
-    int result;
-    int state2;
-    switch (0) { default:
-    if (!(_gpu_timeout_target < VSync(-1))) {
-        int *pollp = &_gpu_timeout_count;
-        int  state = (*pollp)++;
-        if (!(0xF0000 < state))
-            break;
-    }
-    {
-        volatile u_long *gp1 = GPU_GP1;
-        int pending, gputail, mask;
-
-        (void)*gp1;                              /* dead read, oracle `lw $v0,0($a2)` */
-        pending = _qin;
-        gputail = _qout;
-        printf("GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\n",   /* @0x80056EB8 */
-               (pending - gputail) & 0x3f, (int)*gp1, (int)*D2_CHCR, (int)*D2_MADR);
-        mask = SetIntrMask(0);
-        _qout = 0;
-        state2 = _qout;
-        _q_reset_mask = mask;
-        _qin = state2;
-        *D2_CHCR = 0x401;
-        *DMA_DPCR |= 0x800;
-        *GPU_GP1 = 0x02000000;
-        *GPU_GP1 = 0x01000000;
-        SetIntrMask(_q_reset_mask);
-    }
-    result = -1;
-    return result;
-    }
-    result = 0;
-    return result;
-}
-
-/* @0x800EF60C : dequeue-and-dispatch.  Called inline after a push and from the channel-2
- *   DMA-complete interrupt.  Runs queued requests until the queue empties or a request
- *   kicks off a DMA (CHCR busy), then fires the idle callback if the queue is fully drained. */
-extern int _gpu_que_drain(void)
-{
-    /* Rage Racer's two long-lived mask quantities are source-shape significant.  Keeping the
-     * same declaration order and spelling the wait as an entry test plus do/while restores
-     * retail's $s1=GPU-ready / $s0=DMA-active allocation (58 -> 31 diffs).  W56: declaring
-     * the slot's narrow scalar `extra` before `arg` and `func` gives the closest retail
-     * three-index dispatch schedule; the remaining tail is handled below (31 -> 14 total). */
-    u_long dma_busy = 0x01000000;
-
-    if ((*D2_CHCR & dma_busy) != 0)
-        return 1;                                /* a DMA is still running */
-    _drain_saved_mask = SetIntrMask(0);
-    if (_qin != _qout && (*D2_CHCR & dma_busy) == 0) {
-        u_long gpu_ready = 0x04000000;
-        u_long dma_active = 0x01000000;
-        for (;;) {
-            if (((_qout + 1) & 0x3f) == _qin && GEnv.idle_cb == 0)
-                DMACallback(2, 0);               /* last entry, no idle cb: detach drain */
-            if ((*GPU_GP1 & gpu_ready) == 0) {
-                u_long wait_ready = 0x04000000;
-                do {
-                } while ((*GPU_GP1 & wait_ready) == 0);
-            }
-            {
-                int     extra;
-                u_long *arg;
-                QueFunc func;
-                extra = _que.plain[_qout].extra;
-                arg = _que.plain[_qout].arg;
-                func = _que.plain[_qout].func;
-                func(arg, extra);
-            }
-            _qout = (_qout + 1) & 0x3f;
-            if (_qin == _qout)
-                break;                           /* queue empty */
-            if ((*D2_CHCR & dma_active) != 0)
-                break;                           /* a DMA was started */
-        }
-    }
-    SetIntrMask(_drain_saved_mask);
-    if (_qin == _qout && (*D2_CHCR & 0x01000000) == 0) {
-        /* Rage's pending-flag store is volatile.  Preserve that source fact here: comma-staging
-         * the containing GEnv base and callback from the busy-field pointer gives retail's
-         * $v1=busy / $a0=callback ownership, while the volatile store remains before jalr
-         * instead of being moved into its delay slot.  This makes the function count-exact. */
-        int *busy = &GEnv.busy;
-        if (*busy != 0) {
-            GEnvT *g;
-            void (*idle_cb)(void);
-            if ((g = (GEnvT *)((char *)busy - 8),
-                 idle_cb = *(void (**)(void))(busy + 1),
-                 idle_cb) != 0) {
-                *(volatile int *)&g->busy = 0;
-                idle_cb();
-            }
-        }
-    }
-    return (_qin - _qout) & 0x3f;
-}
-
-/* @0x800EF35C : enqueue a GPU request func(arg,extra).  If the GPU is idle the request is
- *   run inline; otherwise it is queued (optionally snapshotting n bytes of args into the
- *   slot).  Spins on the watchdog while the ring is full.  Returns the resulting depth. */
-extern int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
-{
-    GEnvT *g;
-    _gpu_arm_timeout();
-    while (((_qin + 1) & 0x3f) == _qout) {       /* ring full */
-        if (_gpu_check_timeout() != 0)
-            return -1;
-        _gpu_que_drain();
-    }
-    /* MATCH (W52-A3): ONE fenced base register for GEnv -- the oracle reaches active
-     * (`lbu $v1,1($a0)`), busy (`sw $v0,8($a0)`) and idle_cb (`lw $v0,12($a0)`) by
-     * displacement off a single `la $a0,GEnv`; bare field accesses re-emit a `lui`
-     * self-temp / `$at` macro each under this lane.  And the dispatch decision is a
-     * W56: the matched Rage Racer `Gpu_AddQueue` switch/break region is load-bearing: it
-     * retains that branch chain but removes a duplicated GPU-ready precheck.  Together with
-     * its volatile byte-copy loop and shared queue view this makes the function PASS. */
-    _q_saved_mask = SetIntrMask(0);              /* enter critical section */
-    g = &GEnv;
-    __asm__("" : "=r"(g) : "0"(g));
-    g->busy = 1;
-    switch (0) { default:
-        if (g->active != 0) {
-            if (_qin != _qout || (*D2_CHCR & 0x01000000) != 0 || g->idle_cb != 0)
-                break;
-        }
-        do {
-        } while ((*GPU_GP1 & 0x04000000) == 0);
-        func(arg, extra);
-        SetIntrMask(_q_saved_mask);
-        return 0;
-    }
-    DMACallback(2, (int)_gpu_que_drain);         /* (re)attach drain to channel-2 interrupt */
-    if (n != 0) {
-        volatile u_long *pbase = (volatile u_long *)((u_char *)_que.shared + 12);
-        int i = 0;
-        u_long *src = arg;
-        while (i < n / 4) {
-            *(volatile u_long *)((u_char *)pbase + _qin * 96 + i * 4) = *src;
-            src++;
-            i++;
-        }
-        _que.shared[_qin].arg = (u_long *)_que.shared[_qin].buf;
-    } else {
-        _que.shared[_qin].arg = arg;
-    }
-    _que.shared[_qin].extra = extra;
-    _que.shared[_qin].func  = func;
-    _qin = (_qin + 1) & 0x3f;
-    SetIntrMask(_q_saved_mask);                  /* leave critical section */
-    _gpu_que_drain();
-    return (_qin - _qout) & 0x3f;
-}
-
-/* @0x800EF338 : convenience wrapper -- push with no inline-arg copy (n = 0). */
-extern int _que_ref(QueFunc func, u_long *arg, int extra)
-{
-    return _gpu_que_push(func, arg, 0, extra);
-}
-
-/* @0x800EFE0C : attach _gpu_que_drain as the channel-2 (GPU) DMA-complete callback. */
-extern void _install_drain_cb(void)
-{
-    DMACallback(2, (int)_gpu_que_drain);
-}
-
-/* @0x800EEA7C : clear an ordering table in reverse via the OTC DMA (channel 6), with watchdog. */
-extern int _clearOTagR_dma(u_long *ot, int n)
-{
-    /* W52-A3, from the matched psyz `_otc`:  RETURNS n (oracle stages `addu $v0,$s0,$zero`
-     * -- the count -- in BOTH loop-exit delay slots, and -1 on timeout), the watchdog is
-     * armed AFTER the CHCR kick (the store sits in the `jal _gpu_arm_timeout` delay slot),
-     * and the MADR address is spelled `ot - 1 + n` so the reassociation gives the oracle's
-     * `sll $v0,n,2; addiu $v0,$v0,-4; addu` instead of `addiu n,-1; sll 2; addu`.
-     *
-     * W55-A8 (18 -> 10): the s0<->s1 rotation the briefing named is a RESULT-FUNNEL
-     * question, not an allocator coin-flip.  With `int r = n;` + `r = -1; break;` the
-     * count-variable takes $s0 and the hoisted 0x01000000 busy mask takes $s1 with its own
-     * fresh `lui $s1,256` -- exactly the oracle -- where the bare `while (...) { return -1; }
-     * return n;` form put the mask in $s0 as a COPY of the pre-loop test constant
-     * (`addu $s0,$v1,$zero`) and the count in $s1.  Sweep (all gate-measured): bare 18 ·
-     * named `u_long busy` mask local 21 · exit-in-the-middle `while(1)` 27 · funnel+direct
-     * `return -1` 11 · funnel + read-only fence on r 11 · do/while-on-timeout 41.
-     * RESIDUAL 10 (ours 58 / oracle 56, +2): the oracle reaches the -1 exit with a DIRECT
-     * `li $v0,-1` in the `bnez` delay slot while the funnel routes it through `j` + `li
-     * $s0,-1`, and it stages `addu $v0,$s0,$zero` in the pre-loop `beqz` slot.  Getting
-     * both at once needs the funnel's ALLOCATION with the direct form's TAIL -- the
-     * direct-return variants above lose the allocation.  Permuter / reqdelta candidate.
-     * W56 UPDATE: a zero-trip-guarded do/while with two normal `return r` sites preserves
-     * the retail $s0=count / $s1=busy-mask allocation and restores the direct timeout tail:
-     * 10 -> 2, exact 56/56.  The last residual is only reorg placement of `v0 = r`: retail
-     * fills both normal-exit branch slots, while ours leaves the pretest slot for `lui $s1`
-     * and copies after the backedge.  Literal/variable returns, comma staging, inverted
-     * nesting, and a two-assignment result funnel were neutral or worse and were reverted. */
-    *DMA_DPCR |= 0x08000000;                      /* enable DMA channel 6 (OTC) */
-    *D6_CHCR = 0;
-    *D6_MADR = (u_long)(ot - 1 + n);              /* last word of the table */
-    *D6_BCR  = (u_long)n;
-    *D6_CHCR = 0x11000002;                        /* start: backward, OTC clear */
-    _gpu_arm_timeout();
-    {
-        int r = n;
-        if ((*D6_CHCR & 0x01000000) == 0)
-            return r;
-        do {
-            if (_gpu_check_timeout() != 0)
-                return -1;
-        } while ((*D6_CHCR & 0x01000000) != 0);
-        return r;
-    }
-}
-
 /* ============================ SUB-GROUP 3a ============================
  *   DRAWENV -> DR_ENV builders.  These pack the GP0 environment commands (clip area, draw
  *   offset, draw mode, texture window) from a DRAWENV, clamping coordinates to the screen.
  *   _set_drawenv assembles the whole DR_ENV primitive and, when DRAWENV.isbg is set, appends
  *   a background-clear fill (GP0 0x02 fast fill for 64-aligned rects, GP0 0x60 mono-rect with
  *   offset-relative coordinates otherwise).  Screen size lives in GEnv.screenW/GEnv.screenH. */
-
-/* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
-/* W51-A1 RECEIPT (29 diffs 2.8 / 36 diffs 272, ours 39 vs oracle 38).  Two residual classes:
- * (1) ADDRESS CSE -- ours hoists one `la $a3,GEnv+4` and does `lh 0($a3)`/`lhu 0($a3)`; the
- *     oracle emits the two assembler MACROS `lh $r,GEnv+4` / `lhu $r,GEnv+4` (self-temp
- *     lui+load each).  Same insn count, different registers/form.
- * (2) the X clamp funnels through $v0 (`addu v0,a0,zero` + `addu a0,v0,zero`) and pre-sets its
- *     default in the bltz DELAY SLOT, so it spends 2 insns where ours spends a `j` (+1 net).
- *     The Y clamp already matches ours (no funnel).
- * FALSIFIED (both basins, each gate-measured): Rage-Racer `Gpu_BuildDrawAreaTopLeftCmd`
- * funnel shape verbatim (52), same non-volatile (44), RR + mutate-param (54), volatile casts
- * on both loads (33), volatile on the signed load only (33), volatile + x funnel temp (33),
- * plain x funnel temp (29, copy-propagated = identical to base), default-first + funnel (45),
- * both halves funnelled (47).  `volatile` is the WRONG direction here: it defeats
- * TARGET_SPLIT_ADDRESSES and forces a register-base address (+4 insns).  The funnel temp is
- * copy-propagated away.  Next angle: an address FORM that blocks the cse of the two loads'
- * shared symbol (unsized asm-label view per access), not a volatile. */
-extern u_long _set_clip_tl(short x, short y)
-{
-    x = CLAMP(x, 0, GEnv.screenW - 1);
-    y = CLAMP(y, 0, GEnv.screenH - 1);
-    return 0xe3000000u | ((u_long)(y & 0x3ff) << 10) | (u_long)(x & 0x3ff);
-}
-
-/* @0x800EE930 : GP0 0xE4 drawing-area bottom-right, x/y clamped to the screen. */
-extern u_long _set_clip_br(short x, short y)
-{
-    x = CLAMP(x, 0, GEnv.screenW - 1);
-    y = CLAMP(y, 0, GEnv.screenH - 1);
-    return 0xe4000000u | ((u_long)(y & 0x3ff) << 10) | (u_long)(x & 0x3ff);
-}
-
-/* @0x800EE9E4 : GP0 0xE2 texture window from a RECT (mask x/y at +0/+2, window w/h at +4/+6),
- *   or 0 when tw is null. */
-extern u_long _get_tw(void *tw)
-{
-    /* MATCH (w48-a2, 40 diffs -> PASS; the old "register-pressure spill FLOOR" note here was
-     * WRONG on all three counts).  Three cooperating levers:
-     *  1. LOCAL ARRAY, not four scalars.  The oracle's four `sw` to 0/4/8/0xC(sp) are DEAD
-     *     stores that are never read back -- gcc-2.8 has no SRA, so an `int m[4]` is written
-     *     to its stack home on every element assignment while cse forwards the just-stored
-     *     value to the reader (store-then-read-back).  Four separate `int` scalars are pure
-     *     pseudos and the stores never appear (that was the missing 8 insns, ours 24/32).
-     *     Slot order proves the shape: 0=m[0] 4=m[1] 8=m[2] 0xC=m[3].
-     *  2. SINGLE-EXIT `ret` FUNNEL with the NULL case as the `if` BODY.  `if (tw == 0) ret=0;
-     *     else {...}` gives the oracle's `bnez $a0,body` + fall-through `j end; addu v0,0,0`
-     *     + shared `jr ra; addiu sp,0x10` epilogue.  An early `return 0;` inverts the
-     *     polarity and puts the zero block out of line.
-     *  3. OR-TERM ORDER: the m[1]<<15 term must come BEFORE m[0]<<10.  `|` is commutative so
-     *     this is semantically identical, but it decides which shifted value's register the
-     *     constant is folded into and therefore which pseudo becomes the accumulator
-     *     (oracle: a1 = m0<<10|C then v0 = m1<<15|a1).  Measured sweep of six term orders,
-     *     all count-exact 32/32: C,B,A,D,E = PASS; C,A,B,D,E = 10; C,A,B,E,D = 28;
-     *     A,C,B,E,D = 28; C,E,A,B,D = 39; A,B,D,E,C = 55 (33 insns). */
-    u_char *b;
-    short  *s;
-    int m[4];
-    u_long ret;
-    if (tw == 0) {
-        ret = 0;
-    } else {
-        b = (u_char *)tw;
-        s = (short *)tw;
-        m[0] = b[0] >> 3;
-        m[2] = (-s[2] & 0xff) >> 3;
-        m[1] = b[2] >> 3;
-        m[3] = (-s[3] & 0xff) >> 3;
-        ret = 0xe2000000u | ((u_long)m[1] << 15) | ((u_long)m[0] << 10)
-                          | ((u_long)m[3] << 5)  | (u_long)m[2];
-    }
-    return ret;
-}
-
-/* @0x800EE608 : populate the DR_ENV primitive `d` from the DRAWENV `e`. */
-extern void _set_drawenv(void *dr_env, void *env)
-{
-    /* W52-A3 REWRITE from the matched PSY-Q 4.0 `SetDrawEnv2` (psyz libgpu/sys.c).
-     * The oracle proves every element of that shape:
-     *  - a POST-INCREMENTING WORD CURSOR, not constant indices: the three isbg pushes
-     *    emit `sll $aN,$t0,2; addiu $t0,$t0,1` triples and then `addu $aN,$aN,$s1;
-     *    sw ...,0($aN)` -- i.e. `((u_long*)dr)[len++] = v` with `len` const-folded to
-     *    7 (`addiu $t0,$zero,7` in the isbg guard's delay slot) for the six fixed
-     *    pushes, and `sb len-1,3(dr)` at the end;
-     *  - a real STACK `RECT rect` (frame slots 0x10..0x17) copied field-by-field from
-     *    env->clip, clamped IN PLACE, then read back as two words (`lw 0x10(sp)` /
-     *    `lw 0x14(sp)`) -- the old `short xy[2]/wh[2]` pair could not produce the
-     *    store/reload set.  W56 restored the previously omitted `rect.h = h` after
-     *    the second clamp; that one semantic store supplied the missing 15-instruction
-     *    height path and moved the function from 43 diffs to PASS (156/156);
-     *  - the offset bias is an IN-PLACE `rect.x -= env->ofs[0]` on that stack RECT
-     *    (`subu; sh 0x10(sp)`), duplicated pushes in BOTH arms (cross-jump keeps them
-     *    separate here because the colour command word differs). */
-#define PUSH_CODE ((u_long *)dr)[len++]
-    DRAWENV *e = (DRAWENV *)env;
-    u_long *dr;
-    int len;
-    RECT rect;
-    int coord;
-    u_short w, h;
-
-    len = 1;
-    dr = (u_long *)dr_env;
-    PUSH_CODE = _set_clip_tl(e->clip.x, e->clip.y);
-    PUSH_CODE = _set_clip_br(e->clip.w + e->clip.x - 1, e->clip.y + e->clip.h - 1);
-    PUSH_CODE = _set_draw_offset(e->ofs[0], e->ofs[1]);
-    PUSH_CODE = _set_draw_mode(e->dfe, e->dtd, e->tpage);
-    PUSH_CODE = _get_tw(&e->tw);
-    PUSH_CODE = 0xe6000000u;
-    if (e->isbg) {                        /* DRAWENV.isbg : append a background clear */
-        rect.x = e->clip.x;
-        rect.y = e->clip.y;
-        rect.w = e->clip.w;
-        rect.h = e->clip.h;
-        if (rect.w >= 0) {
-            if (GEnv.screenW - 1 < rect.w) w = GEnv.screenW - 1;
-            else                           w = rect.w;
-        } else {
-            w = 0;
-        }
-        rect.w = w;
-        if (rect.h >= 0) {
-            if (GEnv.screenH - 1 < rect.h) h = GEnv.screenH - 1;
-            else                           h = rect.h;
-        } else {
-            h = 0;
-        }
-        rect.h = h;
-        /* MATCH (W55-A8, from the Rage-Racer matched `Gpu_BuildDrawEnvCmds`): the three
-         * pushes of each arm RESERVE their slots FIRST -- `off = len * 4; len++;` x3 (the
-         * oracle's `sll $aN,$t0,2; addiu $t0,$t0,1` run before any value is computed) and
-         * only then `off += (int)dr; *(u_long *)off = v;`.  The `PUSH_CODE` macro
-         * interleaved each triple with its own store.  Also: the oracle's unaligned arm has
-         * NO trailing `rect.x += ofs / rect.y += ofs` restore (RR's retail carries one, this
-         * one does not) -- those two were 9 dead instructions (165 vs oracle 156). */
-        coord = (u_short)rect.x;
-        if ((coord & 0x3f) != 0 || ((u_short)rect.w & 0x3f) != 0) {
-            /* unaligned: GP0 0x60 mono-rect, coordinates relative to the draw offset */
-            int cmdo, poso, sizo, value;
-            cmdo = len * 4; len++;
-            poso = len * 4; len++;
-            sizo = len * 4; len++;
-            value = (u_short)e->ofs[0];
-            cmdo += (int)(long)dr;
-            value = coord - value;
-            rect.x = value;
-            value = (u_short)rect.y;
-            coord = (u_short)e->ofs[1];
-            value -= coord;
-            rect.y = value;
-            *(u_long *)(long)cmdo = 0x60000000u | (e->b0 << 16) | (e->g0 << 8) | e->r0;
-            poso += (int)(long)dr;
-            *(u_long *)(long)poso = *(u_long *)&rect.x;
-            sizo += (int)(long)dr;
-            *(u_long *)(long)sizo = *(u_long *)&rect.w;
-        } else {
-            /* 64-aligned: GP0 0x02 fast framebuffer fill, absolute coordinates */
-            int cmdo, poso, sizo;
-            cmdo = len * 4; len++;
-            poso = len * 4; len++;
-            sizo = len * 4; len++;
-            cmdo += (int)(long)dr;
-            *(u_long *)(long)cmdo = 0x02000000u | (e->b0 << 16) | (e->g0 << 8) | e->r0;
-            poso += (int)(long)dr;
-            *(u_long *)(long)poso = *(u_long *)&rect.x;
-            sizo += (int)(long)dr;
-            *(u_long *)(long)sizo = *(u_long *)&rect.w;
-        }
-    }
-    ((char *)dr)[3] = (char)(len - 1);    /* primitive length word-count */
-#undef PUSH_CODE
-}
 
 /* ============================ SUB-GROUP 3b ============================
  *   Software blitters (the *Image backends).  Each clamps its RECT to the screen, then:
@@ -688,278 +175,9 @@ extern void _set_drawenv(void *dr_env, void *env)
 static u_long _blit_buf[18];   /* @0x8013EAB0 : scratch OT for _BlitClear */
 extern u_long D_8013EAD8[];    /* restore sub-packet at _blit_buf + 10 */
 
-/* @0x800EEB5C : ClearImage backend -- fill rect with `color`.
- * W52-A3 REWRITE from the PSY-Q 4.0 matched `_clr` (psyz decomp libgpu/sys.c), every
- * shape re-confirmed against THIS oracle:
- *  - the clamps write BACK INTO THE RECT (`sh $v0,4($t0)` / `sh $v1,6($t0)`), and the
- *    alignment test RE-READS x/w from the struct (`lhu 0($t0)` / `lhu 4($t0)`) -- the
- *    old local-`cw`/`ch` form could never produce that store-then-read-back;
- *  - the UNALIGNED arm is the FALL-THROUGH (`bnez ...,unaligned` on `x & 0x3f`,
- *    `beqz ...,aligned` on `w & 0x3f`) -- the old source had the arms inverted;
- *  - the GP0-0xE1 `mode` word is computed INDEPENDENTLY IN EACH ARM (two `lw` of
- *    the GP1 pointer, two `srl/sll/or` chains), not hoisted into one local;
- *  - the fn RETURNS 0 (`addu $v0,$zero,$zero` after the tail `jal`), it is not void;
- *  - `ptr` (psyz's name) is a REAL POINTER anchor: the oracle keeps the independently
- *    named interior symbol `D_8013EAD8` in $s0 across the three `_get_gpuinfo` calls and
- *    reaches the restore block by 0/4/8/0xC displacements off it, while ALSO masking it
- *    for the header tag.  Spelling that existing linker symbol directly prevents CSE from
- *    deriving it as `_blit_buf + 40`; it also makes both former opacity fences unnecessary.
- * W56 continuation: `D_8013EAD8` plus removal of those fences takes the authoritative
- * residual 7 -> 2 (exact 140/140).  The remaining pair is a pure sched2 relocation of the
- * existing `v0 = 0` return copy from below the epilogue reloads to immediately after the
- * `_gpu_dma_chain` call; a scratch PER_FN_TEXT_MOVES probe reaches PASS 140/140. */
-extern int _BlitClear(RECT *rect, u_long color)
-{
-    u_long *ptr;
-    rect->w = CLAMP(rect->w, 0, GEnv.screenW - 1);
-    rect->h = CLAMP(rect->h, 0, GEnv.screenH - 1);
-    if (rect->x & 0x3f || rect->w & 0x3f) {
-        /* unaligned: GP0 0x60 mono-rect under a full-screen clip, then restore the env */
-        u_long *b = _blit_buf;
-        u_long mask = 0x00ffffffu;
-        u_long clip_br = 0xe4ffffffu;
-        u_long last;
-        ptr = D_8013EAD8;
-        b[0] = ((u_long)ptr & mask) | 0x08000000u;            /* 8-word header -> restore block */
-        b[1] = 0xe3000000u;                                   /* clip TL = 0,0 */
-        b[2] = clip_br;                                        /* clip BR = max */
-        b[3] = 0xe5000000u;                                   /* draw offset = 0,0 */
-        b[4] = 0xe6000000u;                                   /* mask */
-        b[5] = 0xe1000000u | (*GPU_GP1 & 0x7ff) | ((color >> 31) << 10);
-        b[6] = 0x60000000u | (color & mask);
-        b[7] = *(u_long *)rect;
-        last = *((u_long *)rect + 1);
-        ptr[0] = 0x03ffffffu;                                 /* restore block: 3 words, terminates */
-        b[8] = last;
-        ptr[1] = _get_gpuinfo(3) | 0xe3000000u;
-        ptr[2] = _get_gpuinfo(4) | 0xe4000000u;
-        ptr[3] = _get_gpuinfo(5) | 0xe5000000u;
-    } else {
-        /* 64-aligned: GP0 0x02 fast fill, list terminates immediately */
-        u_long tag = 0x05ffffffu;
-        u_long mask = 0x00ffffffu;
-        u_long *b = _blit_buf;
-        __asm__("" : "=r"(b) : "0"(b));
-        b[0] = tag;
-        b[1] = 0xe6000000u;
-        b[2] = 0xe1000000u | (*GPU_GP1 & 0x7ff) | ((color >> 31) << 10);
-        b[3] = 0x02000000u | (color & mask);
-        b[4] = *(u_long *)rect;
-        b[5] = *((u_long *)rect + 1);
-    }
-    _gpu_dma_chain(_blit_buf);
-    return 0;
-}
-
-/* @0x800EED8C : LoadImage backend -- transfer `data` words into the VRAM rect.
- * W52-A3: rebuilt on the matched PSY-Q 4.0 `_dws` (psyz), every detail re-confirmed
- * against THIS oracle:
- *  - the clamps write BACK INTO THE RECT (`sh $a0,4($s1)` / `sh $a0,6($s1)`) and the
- *    word count RE-READS `rect->w` from the struct (`lh $v1,4($s1)`);
- *  - the clamp ceiling here is `GEnv.screenW` with NO `-1` (the oracle's `slt $v0,$v0,$a1`
- *    has no `addiu -1` -- unlike _BlitClear/_set_clip_*, which do).  The old `-1` was a
- *    behaviour bug as well as a mismatch;
- *  - `(w*h + 1) / 2` is a SIGNED DIVIDE (`srl 31; addu; sra 1`), not `>> 1`; the `>> 4`
- *    for the block count then COMPOSES with it into the oracle's single `sra $s0,$v1,5`;
- *  - the remainder is `to_write % 16` (`sll blocks,4; subu`), not `& 0xf` (no `andi`);
- *  - the remainder loop is a DOWN-COUNTING `while (n--)` (oracle: `addiu $s0,$s0,-1` +
- *    `beq $s0,-1` peel, then `bne $s0,$a0` with the store in the delay slot), not an
- *    up-counting `for`.
- * W56: the apparently redundant `saved` alias is an allocator-shape receipt.  Its copy web
- * raises the rectangle base above the pixel cursor, producing retail $s1/$s2 ownership in
- * both transfer workers (_dws 43->13, _drs 47->15).  Comma-staging the quotient additionally
- * prevents gcc from rematerializing the block count directly into $s4 (_dws 13->11 and
- * _drs 15->13), without adding instructions or changing transfer semantics. */
-extern int _dws(RECT *rect, u_long *data)
-{
-    int to_write;
-    int size;
-    int var_s0;
-    int var_s4;
-    int quotient;
-    RECT *saved;
-
-    saved = rect;
-    var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
-    _gpu_arm_timeout();
-    saved->w = CLAMP(saved->w, 0, GEnv.screenW);
-    saved->h = CLAMP(saved->h, 0, GEnv.screenH);
-    to_write = (saved->w * saved->h + 1) / 2;
-    if (to_write <= 0)
-        return -1;
-    var_s0 = (quotient = to_write >> 4,
-              to_write - (quotient << 4));
-    size = quotient;
-    while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready to receive DMA */
-        if (_gpu_check_timeout())
-            return -1;
-    *GPU_GP1 = 0x04000000;
-    *GPU_GP0 = 0x01000000;
-    *GPU_GP0 = var_s4 ? 0xb0000000u : 0xa0000000u;
-    *GPU_GP0 = *(u_long *)saved;
-    *GPU_GP0 = *((u_long *)saved + 1);
-    while (var_s0--)
-        *GPU_GP0 = *data++;
-    if (size) {
-        *GPU_GP1 = 0x04000002;
-        *D2_MADR = (u_long)data;
-        *D2_BCR  = (size << 16) | 0x10;
-        *D2_CHCR = 0x01000201;
-    }
-    return 0;
-}
-
-/* @0x800EEFC8 : StoreImage backend -- read the VRAM rect back into `data` words. */
-extern int _drs(RECT *rect, u_long *data)
-{
-    /* W52-A3: same psyz `_drs` shape as _dws above (in-struct clamps, signed /2,
-     * `% 16`, down-counting `while (n--)` transfer loop).  See the W56 allocator receipt
-     * above for the shared `saved` alias and comma-staged quotient. */
-    int to_read;
-    int size;
-    int var_s0;
-    int quotient;
-    RECT *saved;
-
-    saved = rect;
-    _gpu_arm_timeout();
-    saved->w = CLAMP(saved->w, 0, GEnv.screenW);
-    saved->h = CLAMP(saved->h, 0, GEnv.screenH);
-    to_read = (saved->w * saved->h + 1) / 2;
-    if (to_read <= 0)
-        return -1;
-    var_s0 = (quotient = to_read >> 4,
-              to_read - (quotient << 4));
-    size = quotient;
-    while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready for DMA */
-        if (_gpu_check_timeout())
-            return -1;
-    *GPU_GP1 = 0x04000000;
-    *GPU_GP0 = 0x01000000;
-    *GPU_GP0 = 0xc0000000;                       /* VRAM -> CPU copy */
-    *GPU_GP0 = *(u_long *)saved;
-    *GPU_GP0 = *((u_long *)saved + 1);
-    while ((*GPU_GP1 & 0x08000000) == 0)         /* wait until ready to send pixels */
-        if (_gpu_check_timeout())
-            return -1;
-    while (var_s0--)
-        *data++ = *GPU_GP0;
-    if (size) {
-        *GPU_GP1 = 0x04000003;
-        *D2_MADR = (u_long)data;
-        *D2_BCR  = (size << 16) | 0x10;
-        *D2_CHCR = 0x01000200;
-    }
-    return 0;
-}
-
 /* ============================ SUB-GROUP 4a ============================
  *   Public env-setter primitives.  Each fills a small GPU primitive `p` (length byte at +3,
  *   GP0 command words at +4/+8/...) using the SG3a word builders.  No queue/DMA involved. */
-
-/* @0x800EE2DC : SetTexWindow(DR_TWIN *p, RECT *tw) */
-extern void SetTexWindow(void *p, void *tw)
-{
-    ((char *)p)[3] = 2;
-    ((int *)p)[1] = (int)_get_tw(tw);
-    ((int *)p)[2] = 0;
-}
-
-/* @0x800EE314 : SetDrawArea(DR_AREA *p, RECT *r) */
-extern void SetDrawArea(void *p, void *r)
-{
-    short   *rs = (short *)r;
-    u_short *ru = (u_short *)r;
-    ((char *)p)[3] = 2;
-    ((int *)p)[1] = (int)_set_clip_tl(rs[0], rs[1]);
-    ((int *)p)[2] = (int)_set_clip_br((short)(ru[0] + ru[2] - 1), (short)(ru[1] + ru[3] - 1));
-}
-
-/* @0x800EE394 : SetDrawStp(DR_STP *p, int pbw) -- GP0 0xE6 mask-bit setting */
-extern void SetDrawStp(void *p, int pbw)
-{
-    ((char *)p)[3] = 2;
-    ((int *)p)[1] = (int)(pbw ? 0xe6000001u : 0xe6000000u);
-    ((int *)p)[2] = 0;
-}
-
-/* @0x800EE3BC : SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw) */
-extern void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw)
-{
-    ((char *)p)[3] = 2;
-    ((int *)p)[1] = (int)_set_draw_mode(dfe, dtd, tpage & 0xffff);
-    ((int *)p)[2] = (int)_get_tw(tw);
-}
-
-/* @0x800EE410 : SetDrawEnv(DR_ENV *dr_env, DRAWENV *env) -- public twin of _set_drawenv. */
-extern void SetDrawEnv(void *dr_env, void *env)
-{
-    /* W52-A3: this is psyz's `SetDrawEnv` -- the PUBLIC twin has NO 64-alignment test
-     * at all (the oracle falls straight from the height clamp into the three pushes
-     * with a fixed 0x60000000 command word; only the internal `_set_drawenv`
-     * == psyz `SetDrawEnv2` carries the aligned/unaligned split).  The old recon had
-     * the align test copied in from _set_drawenv -- a structural miss, not codegen.
-     * MATCH (2026-08-14, 31 -> PASS, 126/126): retain the RR three-slot reservation shape,
-     * but comma-stage the final size offset as `sizo = (sizo = len, sizo << 2)`.  The extra
-     * source assignment folds away while changing its copy web enough to give retail's
-     * cmdo/poso/sizo = $a2/$a3/$a1 allocation.  Storing h inside the packet block and spelling
-     * the two unsigned coordinate biases directly then gives retail's $v0 height result and
-     * load schedule.  No volatile, register pin, asm, or post-cc1 rewrite is required. */
-#define PUSH_CODE ((u_long *)dr)[len++]
-    DRAWENV *e = (DRAWENV *)env;
-    u_long *dr;
-    int len;
-    RECT rect;
-    int coord;
-    u_short w, h;
-
-    len = 1;
-    dr = (u_long *)dr_env;
-    PUSH_CODE = _set_clip_tl(e->clip.x, e->clip.y);
-    PUSH_CODE = _set_clip_br(e->clip.w + e->clip.x - 1, e->clip.y + e->clip.h - 1);
-    PUSH_CODE = _set_draw_offset(e->ofs[0], e->ofs[1]);
-    PUSH_CODE = _set_draw_mode(e->dfe, e->dtd, e->tpage);
-    PUSH_CODE = _get_tw(&e->tw);
-    PUSH_CODE = 0xe6000000u;
-    if (e->isbg) {
-        rect.x = e->clip.x;
-        rect.y = e->clip.y;
-        rect.w = e->clip.w;
-        rect.h = e->clip.h;
-        if (rect.w >= 0) {
-            if (GEnv.screenW - 1 < rect.w) w = GEnv.screenW - 1;
-            else                           w = rect.w;
-        } else {
-            w = 0;
-        }
-        rect.w = w;
-        if (rect.h >= 0) {
-            if (GEnv.screenH - 1 < rect.h) h = GEnv.screenH - 1;
-            else                           h = rect.h;
-        } else {
-            h = 0;
-        }
-        /* Same RR `Gpu_BuildDrawEnvCmds` push shape as `_set_drawenv`: reserve the three
-         * word slots first, then add the packet base and store. */
-        {
-            int cmdo, poso, sizo, value;
-            cmdo = len * 4; len++;
-            poso = len * 4; len++;
-            sizo = (sizo = len, sizo << 2); len++;
-            rect.h = h;
-            cmdo += (int)(long)dr;
-            rect.x = (u_short)rect.x - (u_short)e->ofs[0];
-            rect.y = (u_short)rect.y - (u_short)e->ofs[1];
-            *(u_long *)(long)cmdo = 0x60000000u | (e->b0 << 16) | (e->g0 << 8) | e->r0;
-            poso += (int)(long)dr;
-            *(u_long *)(long)poso = *(u_long *)&rect.x;
-            sizo += (int)(long)dr;
-            *(u_long *)(long)sizo = *(u_long *)&rect.w;
-        }
-    }
-    ((char *)dr)[3] = (char)(len - 1);
-#undef PUSH_CODE
-}
 
 /* ============================ SUB-GROUP 4b-i ============================
  *   The GPU driver dispatch table + the public ops that go through it.  libgpu reaches its
@@ -1003,6 +221,59 @@ typedef struct GpuTbl {                          /* @0x80123654 */
     int  (*get_status)(void);                    /* +56 _get_status */
     int  (*sync)(int);                           /* +60 _sync (DrawSync backend) */
 } GpuTbl;
+
+/* ---- forward declarations -------------------------------------------------
+ * W60-A3: the function DEFINITIONS below are emitted in retail VA order (the
+ * object's .text symbol order must match 0x800ED670..0x800EFE58; a wrong intra-TU
+ * order is a LINK-VISIBLE defect the byte gate cannot see -- see the MSC02
+ * precedent).  Since a callee can now sit after its call site, every definition
+ * gets a prototype here.  The prototypes are byte-identical to the definitions'
+ * own signatures, so no call site sees a different declaration than before. */
+extern int ResetGraph(int mode);
+extern void SetDispMask(int mask);
+extern int DrawSync(int mode);
+extern void _image(const char *label, RECT *r);
+extern int ClearImage(void *rect, unsigned char r, unsigned char g, unsigned char b);
+extern int LoadImage(void *rect, u_long *data);
+extern int StoreImage(void *rect, u_long *data);
+extern int MoveImage(void *rect, int x, int y);
+extern u_long *ClearOTagR(u_long *ot, int n);
+extern void DrawOTag(u_long *ot);
+extern void *PutDrawEnv(void *env);
+extern void *PutDispEnv(void *env);
+extern void SetTexWindow(void *p, void *tw);
+extern void SetDrawArea(void *p, void *r);
+extern void SetDrawStp(void *p, int pbw);
+extern void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw);
+extern void SetDrawEnv(void *dr_env, void *env);
+extern void _set_drawenv(void *dr_env, void *env);
+extern u_long _set_draw_mode(int dfe, int dtd, int tpage);
+extern u_long _set_clip_tl(short x, short y);
+extern u_long _set_clip_br(short x, short y);
+extern u_long _set_draw_offset(int x, int y);
+extern u_long _get_tw(void *tw);
+extern int _get_status(void);
+extern int _clearOTagR_dma(u_long *ot, int n);
+extern int _BlitClear(RECT *rect, u_long color);
+extern int _dws(RECT *rect, u_long *data);
+extern int _drs(RECT *rect, u_long *data);
+extern void _send_gp1(u_long cmd);
+extern int _get_gp1(int idx);
+extern int _send_gp0(u_long *p, int n);
+extern void _gpu_dma_chain(u_long *ot);
+extern int _get_gpuinfo(u_long cmd);
+extern int _que_ref(QueFunc func, u_long *arg, int extra);
+extern int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra);
+extern int _gpu_que_drain(void);
+extern int _reset(int mode);
+extern int _sync(int mode);
+extern void _gpu_arm_timeout(void);
+extern int _gpu_check_timeout(void);
+extern int _gpu_init_videomode(int mode);
+extern int DrawOTag2(u_long *p);
+extern void _install_drain_cb(void);
+extern void _memset(char *p, int c, int n);
+
 static const GpuTbl _gpu_tbl = {                 /* the live driver table */
     "GPU",                                        /* @0x80056cd8 */
     _que_ref, _gpu_que_push, (QueFunc)_BlitClear, _send_gp1, _send_gp0,
@@ -1015,6 +286,128 @@ static const GpuTbl _gpu_tbl = {                 /* the live driver table */
  * .data with an explicit section so it is addressed absolute, matching the oracle (§3.12 absolute
  * lever; the gp-rel CAVEAT -- a small global can be regular .data, not .sdata). */
 static const GpuTbl *GEnv_drv __attribute__((section(".data"))) = &_gpu_tbl;   /* @0x80123694 -> @0x80123654 */
+
+/* ============================ SUB-GROUP 4b-ii (FINALE) ============================
+ *   GPU init/reset + env-commit, with their data tables.  ResetGraph zeroes GEnv, resets the
+ *   queue+GPU via _reset, latches the video mode and screen size; PutDrawEnv/PutDispEnv commit a
+ *   draw/display environment (caching the last one in GEnv); ClearOTagR clears an OT in reverse
+ *   and links a fixed terminator tail. */
+
+extern int   GetVideoMode(void);                 /* libetc VMODE.obj */
+/* w26-a3: called via a renamed local decl (asm-label back to the real symbol "memcpy") --
+ * under CC1PSX (C lane, unlike cc1plus) both calls below pass a COMPILE-TIME-CONSTANT length
+ * (0x5c/0x14), which gcc's builtin-function table matches by the literal identifier "memcpy"
+ * and expands INLINE as an lwl/lwr/swl/swr unrolled copy (~35 extra insns, PutDrawEnv 48->95),
+ * unlike the oracle (and the pre-migration cc1plus build, which never triggered this because
+ * C++'s extern "C" memcpy apparently never hit gcc2's builtin table the same way here) which
+ * always calls the real libc C42.obj routine. The asm-label renames the C-visible identifier so
+ * gcc's name-keyed builtin lookup can't match it, while still linking to the real "memcpy"
+ * symbol -- a real `jal memcpy`, verified byte-for-byte against this same idiom in isolation. */
+extern void *_memcpy(void *d, const void *s, unsigned n) __asm__("memcpy");/* libc C42.obj @0x800EAAC4 */
+extern void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
+extern void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
+
+/* per-video-mode VRAM clip extents: stride-4 in .data (low u16 = value, high u16 = 0
+   padding); @0x8012371C (_vmode_w) / 0x80123728 (_vmode_h). EXE bytes 00 04 00 00.. confirm
+   4-byte stride; oracle ResetGraph reads u_short @ base + mode*4 (sll 2, lhu). */
+static const struct { u_short v, pad; } _vmode_w[3] = { {1024,0}, {1024,0}, {1024,0} };  /* @0x8012371C */
+static const struct { u_short v, pad; } _vmode_h[3] = { { 512,0}, { 512,0}, {1024,0} };  /* @0x80123728 */
+
+/* display H/V overscan ranges, indexed (videomode*5 + resIdx); @0x80123770 (base/end u16 pairs). */
+static const struct { u_short base, end; } _disp_overscan[10] = {
+    { 590, 3150 }, { 600, 3160 }, { 539, 3227 }, { 615, 3175 }, { 620, 3180 },
+    { 610, 3170 }, { 624, 3184 }, { 560, 3248 }, { 635, 3195 }, { 640, 3200 }
+};
+static const u_char _disp_mult[5] = { 10, 8, 7, 5, 4 };    /* @0x80123798 : per-resIdx dot multiplier */
+
+static u_long _otc_link;                       /* @0x8012375C : OT terminator link (runtime) */
+static const u_long _otc_term = 0x04ffffffu;   /* @0x80123748 : list terminator word */
+/* @0x800ED670 : initialise the graphics system for the given mode. */
+extern int ResetGraph(int mode)
+{
+    GEnvT *g;
+    u_char *graphState;
+    int graphType;
+    u_char *clearEnv;
+    int fillValue;
+    /* W52-A3, from the matched psyz `ResetGraph`:
+     *  - a `switch (mode & 7)` with case 3 / case 0 FALLING THROUGH into case 5 (the
+     *    oracle's `beq 3 -> print block -> falls into the memset block`, plus the
+     *    balance_case_nodes tree `beq 3 / slti 4 / beqz 0 / beq 5`);
+     *  - the screen size is indexed by a RE-READ of the just-stored GEnv.mode
+     *    (`sb $v0,0($s0)` then THREE separate `lbu $v0,0($s0)`), never by a local --
+     *    the store-then-read-back is the whole shape;
+     *  - the return value is likewise a fresh `lbu` of GEnv.mode. */
+    switch (mode & 7) {
+    case 3:
+    case 0:
+        printf("ResetGraph:jtb=%08x,env=%08x\n",   /* @0x80056D10 (always; libc printf) */
+               (int)(long)&_gpu_tbl, (int)(long)&GEnv);
+        /* FALLTHROUGH */
+    case 5:
+        /* MATCH: ONE base register for the whole GEnv block -- the oracle keeps
+         * `la $s0,GEnv` (materialized for the first _memset arg) and reaches every
+         * field by displacement (0/1/4/6/0x10/0x6C).  Under the macro lane a bare
+         * `GEnv.field = ...` is an `sw/sb $r,sym` $at macro instead; the fenced
+         * pointer local restores the anchor. */
+        g = &GEnv;
+        __asm__("" : "=r"(g) : "0"(g));
+        graphState = (u_char *)g;
+        _memset((char *)graphState, 0, 0x80);
+        ResetCallback();
+        GPU_cw((u_long)(long)GEnv_drv & 0x00ffffffu);
+        graphType = _reset(mode);
+        clearEnv = graphState + 0x10;
+        *(volatile u_char *)graphState = graphType;
+        /* MATCH (2026-08-14, 30 -> PASS, 93/93): port Rage Racer's matched
+         * ResetGraph inner-block shape: read mode, store active, fetch width,
+         * re-read mode, then store width/height.  With this 2.8.1 lane the raw
+         * byte locals add two unwanted `andi 255`s; staging the already-scaled
+         * offsets in int locals preserves the retail `lbu; sll` webs and their
+         * v0/v1 allocation exactly.  A direct expression reached 20 diffs and
+         * ordinary int/byte comma-staging was neutral or count-worse. */
+        {
+            int st0 = (int)*(volatile char *)graphState << 2;
+            u_short v;
+            int st1;
+
+            *(volatile u_char *)(graphState + 1) = 1;
+            v = *(u_short *)((char *)_vmode_w + st0);
+            st1 = (int)*(volatile char *)graphState << 2;
+            fillValue = -1;
+            g->screenW = v;
+            g->screenH = *(u_short *)((char *)_vmode_h + st1);
+        }
+        _memset((char *)clearEnv, fillValue, 0x5c);
+        _memset((char *)graphState + 0x6c, -1, 0x14);
+        return *(volatile u_char *)graphState;
+    }
+    if (GEnv.debug >= 2)
+        GPU_printf("ResetGraph(%d)...\n", mode);   /* @0x80056D30 */
+    return GEnv_drv->reset(1);
+}
+
+/* @0x800ED7E4 : turn the display on (mask!=0) or off (mask==0). */
+extern void SetDispMask(int mask)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("SetDispMask(%d)...\n", mask);   /* @0x80056DA0 (oracle @0x800ed7fc-824) */
+    if (mask == 0)
+        _memset(GEnv.dispenv, -1, 0x14);
+    /* MATCH: the oracle dispatches through the DRIVER TABLE (`lw v0,GEnv_drv; lw v0,0x10(v0);
+     * jalr v0` = GpuTbl.send_gp1 at +16), not a direct `jal _send_gp1` -- 4 insns.
+     * Shape confirmed against the Rage-Racer matched libgpu (graph_control.c uses
+     * g_GpuFuncs->... for the same call class). */
+    GEnv_drv->send_gp1(mask ? 0x03000000u : 0x03000001u);
+}
+
+/* @0x800ED87C : DrawSync */
+extern int DrawSync(int mode)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("DrawSync(%d)...\n", mode);       /* @0x80056DB4 */
+    return GEnv_drv->sync(mode);
+}
 
 /* @0x800ED8E4 : debug-only RECT validator/printer (inert when GPU debug level is 0). */
 extern void _image(const char *label, RECT *r)
@@ -1039,97 +432,6 @@ extern void _image(const char *label, RECT *r)
         GPU_printf("(%d,%d)-(%d,%d)\n", r->x, r->y, r->w, r->h);
         break;
     }
-}
-
-/* @0x800EF9BC : DrawSync backend.  mode==0 blocks until the queue and GPU are idle (or the
- *   watchdog fires, -1).  mode!=0 polls and returns the current queue depth. */
-extern int _sync(int mode)
-{
-    /* MATCH: mode==0 arm written FIRST -- the oracle's bnez-mode branches AROUND this whole
-     * block (placing it inline/fallthrough) and the mode!=0 arm out-of-line at the tail;
-     * writing mode!=0 first (as an early-return `if`) inverted the branch and swapped which
-     * block lands inline vs branched-to. */
-    if (mode == 0) {
-        _gpu_arm_timeout();
-        while (_qin != _qout) {
-            _gpu_que_drain();
-            if (_gpu_check_timeout() != 0)
-                return -1;
-        }
-        while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
-            if (_gpu_check_timeout() != 0)
-                return -1;
-        }
-        return 0;
-    }
-    {
-        int depth = (_qin - _qout) & 0x3f;
-        if (depth != 0)
-            _gpu_que_drain();
-        /* MATCH (W55-A8, from the Rage-Racer matched `Gpu_DrawSync` poll arm): the two
-         * readiness tests are an EMPTY-then-else nested pair whose ready path leaves the
-         * block (RR spells it `break` out of a `switch(0)`), and the ready return is its
-         * OWN return site -- the `&&` + shared `return depth` form let reorg eager-steal
-         * `addu v0,s0,zero` into the FIRST branch's delay slot, which occupies $v0 and
-         * pushes the GP1 read onto $v1/$a0 (the whole 16-diff residual). */
-        if ((*D2_CHCR & 0x01000000) != 0) {
-        } else {
-            if ((*GPU_GP1 & 0x04000000) != 0)
-                goto ready;
-        }
-        if (depth != 0)
-            return depth;                        /* `addu v0,s0,zero` = the bnez delay slot */
-        return 1;
-    ready:
-        return depth;
-    }
-}
-
-/* @0x800EFC70 : reconfigure the GPU display registers for the current video mode. */
-extern int _gpu_init_videomode(int mode)
-{
-    /* W55-A8 RECEIPT (14 diffs, ours 38 / oracle 40): the body, the branch polarities and
-     * every arm's VALUE staging already match instruction-for-instruction.  The ENTIRE
-     * residual is that reorg's `relax_delay_slots` converted our two `j <epilogue>` edges
-     * into duplicated `jr ra` returns (and then filled their slots, which also pulled the
-     * `andi v0,a0,8` up into the leading `beq`'s slot); the oracle keeps `j T; nop` /
-     * `j T; sw a0,0(v1)` reaching ONE shared bare `jr ra; nop`.  FALSIFIED: the
-     * result-funnel form (`int r; ... return r;`) -- gcc colors r into $a0 and adds an
-     * `addu v0,a0,zero` copy per arm (31 diffs, ours 41).  This is a per-fn delayed-branch
-     * / return-duplication mechanism, not a source shape -- SPEC'd for the orchestrator
-     * (P2 `-fno-delayed-branch` splice candidate). */
-    *GPU_GP1 = 0x10000007;
-    if ((*GPU_GP0 & 0x00ffffff) != 2) {          /* old GPU */
-        *GPU_GP0 = (*GPU_GP1 & 0x3fff) | 0xe1001000u;
-        (void)*GPU_GP0;
-        return 0;
-    }
-    if ((mode & 8) == 0)                          /* new GPU, NTSC */
-        return 1;
-    *GPU_GP1 = 0x09000001;                        /* new GPU, PAL : enable */
-    return 2;
-}
-
-/* @0x800ED7E4 : turn the display on (mask!=0) or off (mask==0). */
-extern void SetDispMask(int mask)
-{
-    if (GEnv.debug >= 2)
-        GPU_printf("SetDispMask(%d)...\n", mask);   /* @0x80056DA0 (oracle @0x800ed7fc-824) */
-    if (mask == 0)
-        _memset(GEnv.dispenv, -1, 0x14);
-    /* MATCH: the oracle dispatches through the DRIVER TABLE (`lw v0,GEnv_drv; lw v0,0x10(v0);
-     * jalr v0` = GpuTbl.send_gp1 at +16), not a direct `jal _send_gp1` -- 4 insns.
-     * Shape confirmed against the Rage-Racer matched libgpu (graph_control.c uses
-     * g_GpuFuncs->... for the same call class). */
-    GEnv_drv->send_gp1(mask ? 0x03000000u : 0x03000001u);
-}
-
-/* @0x800ED87C : DrawSync */
-extern int DrawSync(int mode)
-{
-    if (GEnv.debug >= 2)
-        GPU_printf("DrawSync(%d)...\n", mode);       /* @0x80056DB4 */
-    return GEnv_drv->sync(mode);
 }
 
 /* @0x800EDA00 : ClearImage(RECT*, r, g, b) */
@@ -1225,176 +527,6 @@ extern int MoveImage(void *rect, int x, int y)
     return GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, p - 2, 0x14, 0);
 }
 
-/* @0x800EDCB4 : DrawOTag -- queue an ordering-table for DMA.
- * FLOOR (2 diffs, re-tried w24-a4): oracle materializes a3=0 independently (addu a3,zero,zero)
- * in the jalr delay slot; ours CSEs it from the just-set a2=0 (addu a3,a2,zero). Tried+no
- * effect: named `int n=0` local, both n/extra as separate named locals -- gcc CSEs the two
- * zero args regardless of source form (both are the literal 0 in the same call). Same class as
- * the documented commutative-operand-selection floors; not source-reachable. */
-extern void DrawOTag(u_long *ot)
-{
-    if (GEnv.debug >= 2)
-        GPU_printf("DrawOTag(%08x)...\n", ot);   /* @0x80056e58 */
-    GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, ot, 0, 0);
-}
-
-/* @0x800EFD10 : DrawOTag2 -- synchronous ordering-table draw (waits, then DMAs directly). */
-extern int DrawOTag2(u_long *p)
-{
-    if (GEnv.debug >= 2)
-        GPU_printf("DrawOTag(%08x)...\n", p);    /* @0x80056e58 */
-    /* MATCH: the oracle ARMS THE WATCHDOG INLINE here -- `jal VSync` with $a0=-1 in the slot,
-     * then `_gpu_timeout_target = v0 + 0xF0` and `_gpu_timeout_count = 0` as two direct stores.
-     * A `jal _gpu_arm_timeout` (the helper call we had) is one instruction where the oracle
-     * spends seven; the jal-count census flagged it (oracle VSync x1, ours _gpu_arm_timeout x1). */
-    _gpu_timeout_target = VSync(-1) + 0xF0;
-    _gpu_timeout_count = 0;
-    while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
-        if (_gpu_check_timeout() != 0)
-            return -1;
-    }
-    DMACallback(2, (int)_install_drain_cb);
-    GEnv_drv->dma_chain(p);
-    return 0;
-}
-
-/* ============================ SUB-GROUP 4b-ii (FINALE) ============================
- *   GPU init/reset + env-commit, with their data tables.  ResetGraph zeroes GEnv, resets the
- *   queue+GPU via _reset, latches the video mode and screen size; PutDrawEnv/PutDispEnv commit a
- *   draw/display environment (caching the last one in GEnv); ClearOTagR clears an OT in reverse
- *   and links a fixed terminator tail. */
-
-extern int   GetVideoMode(void);                 /* libetc VMODE.obj */
-/* w26-a3: called via a renamed local decl (asm-label back to the real symbol "memcpy") --
- * under CC1PSX (C lane, unlike cc1plus) both calls below pass a COMPILE-TIME-CONSTANT length
- * (0x5c/0x14), which gcc's builtin-function table matches by the literal identifier "memcpy"
- * and expands INLINE as an lwl/lwr/swl/swr unrolled copy (~35 extra insns, PutDrawEnv 48->95),
- * unlike the oracle (and the pre-migration cc1plus build, which never triggered this because
- * C++'s extern "C" memcpy apparently never hit gcc2's builtin table the same way here) which
- * always calls the real libc C42.obj routine. The asm-label renames the C-visible identifier so
- * gcc's name-keyed builtin lookup can't match it, while still linking to the real "memcpy"
- * symbol -- a real `jal memcpy`, verified byte-for-byte against this same idiom in isolation. */
-extern void *_memcpy(void *d, const void *s, unsigned n) __asm__("memcpy");/* libc C42.obj @0x800EAAC4 */
-extern void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
-extern void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
-
-/* per-video-mode VRAM clip extents: stride-4 in .data (low u16 = value, high u16 = 0
-   padding); @0x8012371C (_vmode_w) / 0x80123728 (_vmode_h). EXE bytes 00 04 00 00.. confirm
-   4-byte stride; oracle ResetGraph reads u_short @ base + mode*4 (sll 2, lhu). */
-static const struct { u_short v, pad; } _vmode_w[3] = { {1024,0}, {1024,0}, {1024,0} };  /* @0x8012371C */
-static const struct { u_short v, pad; } _vmode_h[3] = { { 512,0}, { 512,0}, {1024,0} };  /* @0x80123728 */
-
-/* display H/V overscan ranges, indexed (videomode*5 + resIdx); @0x80123770 (base/end u16 pairs). */
-static const struct { u_short base, end; } _disp_overscan[10] = {
-    { 590, 3150 }, { 600, 3160 }, { 539, 3227 }, { 615, 3175 }, { 620, 3180 },
-    { 610, 3170 }, { 624, 3184 }, { 560, 3248 }, { 635, 3195 }, { 640, 3200 }
-};
-static const u_char _disp_mult[5] = { 10, 8, 7, 5, 4 };    /* @0x80123798 : per-resIdx dot multiplier */
-
-static u_long _otc_link;                       /* @0x8012375C : OT terminator link (runtime) */
-static const u_long _otc_term = 0x04ffffffu;   /* @0x80123748 : list terminator word */
-
-/* @0x800EF86C : reset the GPU command queue and (optionally) the GPU itself. */
-extern int _reset(int mode)
-{
-    /* W52-A3, from the matched psyz `_reset`:
-     *  - `_qin = _qout;` (the oracle LOADS _qout back and stores it into _qin), not
-     *    two independent `= 0` stores;
-     *  - a real `switch (mode & 7)` -- the oracle carries gcc-2.8's balance_case_nodes
-     *    TREE (root `beq 1`, `slti 2` bound test, then `beqz 0` / `beq 3` / `bne 5`),
-     *    which the old if/else-if chain cannot produce (>2 case NODES => tree);
-     *  - the return is `!(mode & 7) ? _gpu_init_videomode(mode) : 0` (oracle stages
-     *    `addu $v0,$zero,$zero` in the guard's delay slot) -- the old code returned
-     *    SetIntrMask's saved mask on the non-zero path, a behaviour bug too. */
-    _q_reset_mask = SetIntrMask(0);
-    _qout = 0;
-    _qin = _qout;
-    switch (mode & 7) {
-    case 0:
-    case 5:
-        *D2_CHCR = 0x401;
-        *DMA_DPCR |= 0x800;
-        *GPU_GP1 = 0;
-        _memset((char *)_gp1_shadow, 0, 0x100);
-        _memset((char *)&_que, 0, 0x1800);
-        break;
-    case 1:
-    case 3:
-        *D2_CHCR = 0x401;
-        *DMA_DPCR |= 0x800;
-        *GPU_GP1 = 0x02000000;
-        *GPU_GP1 = 0x01000000;
-        break;
-    }
-    SetIntrMask(_q_reset_mask);
-    return !(mode & 7) ? _gpu_init_videomode(mode) : 0;
-}
-
-/* @0x800ED670 : initialise the graphics system for the given mode. */
-extern int ResetGraph(int mode)
-{
-    GEnvT *g;
-    u_char *graphState;
-    int graphType;
-    u_char *clearEnv;
-    int fillValue;
-    /* W52-A3, from the matched psyz `ResetGraph`:
-     *  - a `switch (mode & 7)` with case 3 / case 0 FALLING THROUGH into case 5 (the
-     *    oracle's `beq 3 -> print block -> falls into the memset block`, plus the
-     *    balance_case_nodes tree `beq 3 / slti 4 / beqz 0 / beq 5`);
-     *  - the screen size is indexed by a RE-READ of the just-stored GEnv.mode
-     *    (`sb $v0,0($s0)` then THREE separate `lbu $v0,0($s0)`), never by a local --
-     *    the store-then-read-back is the whole shape;
-     *  - the return value is likewise a fresh `lbu` of GEnv.mode. */
-    switch (mode & 7) {
-    case 3:
-    case 0:
-        printf("ResetGraph:jtb=%08x,env=%08x\n",   /* @0x80056D10 (always; libc printf) */
-               (int)(long)&_gpu_tbl, (int)(long)&GEnv);
-        /* FALLTHROUGH */
-    case 5:
-        /* MATCH: ONE base register for the whole GEnv block -- the oracle keeps
-         * `la $s0,GEnv` (materialized for the first _memset arg) and reaches every
-         * field by displacement (0/1/4/6/0x10/0x6C).  Under the macro lane a bare
-         * `GEnv.field = ...` is an `sw/sb $r,sym` $at macro instead; the fenced
-         * pointer local restores the anchor. */
-        g = &GEnv;
-        __asm__("" : "=r"(g) : "0"(g));
-        graphState = (u_char *)g;
-        _memset((char *)graphState, 0, 0x80);
-        ResetCallback();
-        GPU_cw((u_long)(long)GEnv_drv & 0x00ffffffu);
-        graphType = _reset(mode);
-        clearEnv = graphState + 0x10;
-        *(volatile u_char *)graphState = graphType;
-        /* MATCH (2026-08-14, 30 -> PASS, 93/93): port Rage Racer's matched
-         * ResetGraph inner-block shape: read mode, store active, fetch width,
-         * re-read mode, then store width/height.  With this 2.8.1 lane the raw
-         * byte locals add two unwanted `andi 255`s; staging the already-scaled
-         * offsets in int locals preserves the retail `lbu; sll` webs and their
-         * v0/v1 allocation exactly.  A direct expression reached 20 diffs and
-         * ordinary int/byte comma-staging was neutral or count-worse. */
-        {
-            int st0 = (int)*(volatile char *)graphState << 2;
-            u_short v;
-            int st1;
-
-            *(volatile u_char *)(graphState + 1) = 1;
-            v = *(u_short *)((char *)_vmode_w + st0);
-            st1 = (int)*(volatile char *)graphState << 2;
-            fillValue = -1;
-            g->screenW = v;
-            g->screenH = *(u_short *)((char *)_vmode_h + st1);
-        }
-        _memset((char *)clearEnv, fillValue, 0x5c);
-        _memset((char *)graphState + 0x6c, -1, 0x14);
-        return *(volatile u_char *)graphState;
-    }
-    if (GEnv.debug >= 2)
-        GPU_printf("ResetGraph(%d)...\n", mode);   /* @0x80056D30 */
-    return GEnv_drv->reset(1);
-}
-
 /* @0x800EDC08 : clear an ordering table in reverse, then append the fixed terminator tail. */
 extern u_long *ClearOTagR(u_long *ot, int n)
 {
@@ -1417,6 +549,19 @@ extern u_long *ClearOTagR(u_long *ot, int n)
         ot[0] = (u_long)(long)link & mask;
     }
     return ot;
+}
+
+/* @0x800EDCB4 : DrawOTag -- queue an ordering-table for DMA.
+ * FLOOR (2 diffs, re-tried w24-a4): oracle materializes a3=0 independently (addu a3,zero,zero)
+ * in the jalr delay slot; ours CSEs it from the just-set a2=0 (addu a3,a2,zero). Tried+no
+ * effect: named `int n=0` local, both n/extra as separate named locals -- gcc CSEs the two
+ * zero args regardless of source form (both are the literal 0 in the same call). Same class as
+ * the documented commutative-operand-selection floors; not source-reachable. */
+extern void DrawOTag(u_long *ot)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("DrawOTag(%08x)...\n", ot);   /* @0x80056e58 */
+    GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, ot, 0, 0);
 }
 
 /* @0x800EDD24 : build the env draw environment, queue it, and cache it. */
@@ -1614,4 +759,911 @@ done:
 #undef ES
 #undef EU
 #undef EI
+}
+
+/* @0x800EE2DC : SetTexWindow(DR_TWIN *p, RECT *tw) */
+extern void SetTexWindow(void *p, void *tw)
+{
+    ((char *)p)[3] = 2;
+    ((int *)p)[1] = (int)_get_tw(tw);
+    ((int *)p)[2] = 0;
+}
+
+/* @0x800EE314 : SetDrawArea(DR_AREA *p, RECT *r) */
+extern void SetDrawArea(void *p, void *r)
+{
+    short   *rs = (short *)r;
+    u_short *ru = (u_short *)r;
+    ((char *)p)[3] = 2;
+    ((int *)p)[1] = (int)_set_clip_tl(rs[0], rs[1]);
+    ((int *)p)[2] = (int)_set_clip_br((short)(ru[0] + ru[2] - 1), (short)(ru[1] + ru[3] - 1));
+}
+
+/* @0x800EE394 : SetDrawStp(DR_STP *p, int pbw) -- GP0 0xE6 mask-bit setting */
+extern void SetDrawStp(void *p, int pbw)
+{
+    ((char *)p)[3] = 2;
+    ((int *)p)[1] = (int)(pbw ? 0xe6000001u : 0xe6000000u);
+    ((int *)p)[2] = 0;
+}
+
+/* @0x800EE3BC : SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw) */
+extern void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw)
+{
+    ((char *)p)[3] = 2;
+    ((int *)p)[1] = (int)_set_draw_mode(dfe, dtd, tpage & 0xffff);
+    ((int *)p)[2] = (int)_get_tw(tw);
+}
+
+/* @0x800EE410 : SetDrawEnv(DR_ENV *dr_env, DRAWENV *env) -- public twin of _set_drawenv. */
+extern void SetDrawEnv(void *dr_env, void *env)
+{
+    /* W52-A3: this is psyz's `SetDrawEnv` -- the PUBLIC twin has NO 64-alignment test
+     * at all (the oracle falls straight from the height clamp into the three pushes
+     * with a fixed 0x60000000 command word; only the internal `_set_drawenv`
+     * == psyz `SetDrawEnv2` carries the aligned/unaligned split).  The old recon had
+     * the align test copied in from _set_drawenv -- a structural miss, not codegen.
+     * MATCH (2026-08-14, 31 -> PASS, 126/126): retain the RR three-slot reservation shape,
+     * but comma-stage the final size offset as `sizo = (sizo = len, sizo << 2)`.  The extra
+     * source assignment folds away while changing its copy web enough to give retail's
+     * cmdo/poso/sizo = $a2/$a3/$a1 allocation.  Storing h inside the packet block and spelling
+     * the two unsigned coordinate biases directly then gives retail's $v0 height result and
+     * load schedule.  No volatile, register pin, asm, or post-cc1 rewrite is required. */
+#define PUSH_CODE ((u_long *)dr)[len++]
+    DRAWENV *e = (DRAWENV *)env;
+    u_long *dr;
+    int len;
+    RECT rect;
+    int coord;
+    u_short w, h;
+
+    len = 1;
+    dr = (u_long *)dr_env;
+    PUSH_CODE = _set_clip_tl(e->clip.x, e->clip.y);
+    PUSH_CODE = _set_clip_br(e->clip.w + e->clip.x - 1, e->clip.y + e->clip.h - 1);
+    PUSH_CODE = _set_draw_offset(e->ofs[0], e->ofs[1]);
+    PUSH_CODE = _set_draw_mode(e->dfe, e->dtd, e->tpage);
+    PUSH_CODE = _get_tw(&e->tw);
+    PUSH_CODE = 0xe6000000u;
+    if (e->isbg) {
+        rect.x = e->clip.x;
+        rect.y = e->clip.y;
+        rect.w = e->clip.w;
+        rect.h = e->clip.h;
+        if (rect.w >= 0) {
+            if (GEnv.screenW - 1 < rect.w) w = GEnv.screenW - 1;
+            else                           w = rect.w;
+        } else {
+            w = 0;
+        }
+        rect.w = w;
+        if (rect.h >= 0) {
+            if (GEnv.screenH - 1 < rect.h) h = GEnv.screenH - 1;
+            else                           h = rect.h;
+        } else {
+            h = 0;
+        }
+        /* Same RR `Gpu_BuildDrawEnvCmds` push shape as `_set_drawenv`: reserve the three
+         * word slots first, then add the packet base and store. */
+        {
+            int cmdo, poso, sizo, value;
+            cmdo = len * 4; len++;
+            poso = len * 4; len++;
+            sizo = (sizo = len, sizo << 2); len++;
+            rect.h = h;
+            cmdo += (int)(long)dr;
+            rect.x = (u_short)rect.x - (u_short)e->ofs[0];
+            rect.y = (u_short)rect.y - (u_short)e->ofs[1];
+            *(u_long *)(long)cmdo = 0x60000000u | (e->b0 << 16) | (e->g0 << 8) | e->r0;
+            poso += (int)(long)dr;
+            *(u_long *)(long)poso = *(u_long *)&rect.x;
+            sizo += (int)(long)dr;
+            *(u_long *)(long)sizo = *(u_long *)&rect.w;
+        }
+    }
+    ((char *)dr)[3] = (char)(len - 1);
+#undef PUSH_CODE
+}
+
+/* @0x800EE608 : populate the DR_ENV primitive `d` from the DRAWENV `e`. */
+extern void _set_drawenv(void *dr_env, void *env)
+{
+    /* W52-A3 REWRITE from the matched PSY-Q 4.0 `SetDrawEnv2` (psyz libgpu/sys.c).
+     * The oracle proves every element of that shape:
+     *  - a POST-INCREMENTING WORD CURSOR, not constant indices: the three isbg pushes
+     *    emit `sll $aN,$t0,2; addiu $t0,$t0,1` triples and then `addu $aN,$aN,$s1;
+     *    sw ...,0($aN)` -- i.e. `((u_long*)dr)[len++] = v` with `len` const-folded to
+     *    7 (`addiu $t0,$zero,7` in the isbg guard's delay slot) for the six fixed
+     *    pushes, and `sb len-1,3(dr)` at the end;
+     *  - a real STACK `RECT rect` (frame slots 0x10..0x17) copied field-by-field from
+     *    env->clip, clamped IN PLACE, then read back as two words (`lw 0x10(sp)` /
+     *    `lw 0x14(sp)`) -- the old `short xy[2]/wh[2]` pair could not produce the
+     *    store/reload set.  W56 restored the previously omitted `rect.h = h` after
+     *    the second clamp; that one semantic store supplied the missing 15-instruction
+     *    height path and moved the function from 43 diffs to PASS (156/156);
+     *  - the offset bias is an IN-PLACE `rect.x -= env->ofs[0]` on that stack RECT
+     *    (`subu; sh 0x10(sp)`), duplicated pushes in BOTH arms (cross-jump keeps them
+     *    separate here because the colour command word differs). */
+#define PUSH_CODE ((u_long *)dr)[len++]
+    DRAWENV *e = (DRAWENV *)env;
+    u_long *dr;
+    int len;
+    RECT rect;
+    int coord;
+    u_short w, h;
+
+    len = 1;
+    dr = (u_long *)dr_env;
+    PUSH_CODE = _set_clip_tl(e->clip.x, e->clip.y);
+    PUSH_CODE = _set_clip_br(e->clip.w + e->clip.x - 1, e->clip.y + e->clip.h - 1);
+    PUSH_CODE = _set_draw_offset(e->ofs[0], e->ofs[1]);
+    PUSH_CODE = _set_draw_mode(e->dfe, e->dtd, e->tpage);
+    PUSH_CODE = _get_tw(&e->tw);
+    PUSH_CODE = 0xe6000000u;
+    if (e->isbg) {                        /* DRAWENV.isbg : append a background clear */
+        rect.x = e->clip.x;
+        rect.y = e->clip.y;
+        rect.w = e->clip.w;
+        rect.h = e->clip.h;
+        if (rect.w >= 0) {
+            if (GEnv.screenW - 1 < rect.w) w = GEnv.screenW - 1;
+            else                           w = rect.w;
+        } else {
+            w = 0;
+        }
+        rect.w = w;
+        if (rect.h >= 0) {
+            if (GEnv.screenH - 1 < rect.h) h = GEnv.screenH - 1;
+            else                           h = rect.h;
+        } else {
+            h = 0;
+        }
+        rect.h = h;
+        /* MATCH (W55-A8, from the Rage-Racer matched `Gpu_BuildDrawEnvCmds`): the three
+         * pushes of each arm RESERVE their slots FIRST -- `off = len * 4; len++;` x3 (the
+         * oracle's `sll $aN,$t0,2; addiu $t0,$t0,1` run before any value is computed) and
+         * only then `off += (int)dr; *(u_long *)off = v;`.  The `PUSH_CODE` macro
+         * interleaved each triple with its own store.  Also: the oracle's unaligned arm has
+         * NO trailing `rect.x += ofs / rect.y += ofs` restore (RR's retail carries one, this
+         * one does not) -- those two were 9 dead instructions (165 vs oracle 156). */
+        coord = (u_short)rect.x;
+        if ((coord & 0x3f) != 0 || ((u_short)rect.w & 0x3f) != 0) {
+            /* unaligned: GP0 0x60 mono-rect, coordinates relative to the draw offset */
+            int cmdo, poso, sizo, value;
+            cmdo = len * 4; len++;
+            poso = len * 4; len++;
+            sizo = len * 4; len++;
+            value = (u_short)e->ofs[0];
+            cmdo += (int)(long)dr;
+            value = coord - value;
+            rect.x = value;
+            value = (u_short)rect.y;
+            coord = (u_short)e->ofs[1];
+            value -= coord;
+            rect.y = value;
+            *(u_long *)(long)cmdo = 0x60000000u | (e->b0 << 16) | (e->g0 << 8) | e->r0;
+            poso += (int)(long)dr;
+            *(u_long *)(long)poso = *(u_long *)&rect.x;
+            sizo += (int)(long)dr;
+            *(u_long *)(long)sizo = *(u_long *)&rect.w;
+        } else {
+            /* 64-aligned: GP0 0x02 fast framebuffer fill, absolute coordinates */
+            int cmdo, poso, sizo;
+            cmdo = len * 4; len++;
+            poso = len * 4; len++;
+            sizo = len * 4; len++;
+            cmdo += (int)(long)dr;
+            *(u_long *)(long)cmdo = 0x02000000u | (e->b0 << 16) | (e->g0 << 8) | e->r0;
+            poso += (int)(long)dr;
+            *(u_long *)(long)poso = *(u_long *)&rect.x;
+            sizo += (int)(long)dr;
+            *(u_long *)(long)sizo = *(u_long *)&rect.w;
+        }
+    }
+    ((char *)dr)[3] = (char)(len - 1);    /* primitive length word-count */
+#undef PUSH_CODE
+}
+
+/* @0x800EE878 : build a GP0 0xE1 "draw mode" command word (dfe=draw-to-display, dtd=dither).
+ * Oracle uses beqz dtd delay-slot=lui v1,E100 (hi base in delay slot), then beqz dfe
+ * delay-slot=andi v0,a2,9ff (lo base in delay slot).  Return or v0,v1,v0 = lo|hi. */
+extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
+{
+    /* W56: the explicit PSY-Q hi/lo statement form is count-exact on the current 2.8.1
+     * lane (8/8), unlike the single ternary expression, which duplicates the final
+     * `jr/or` return pair (10/8).  Allocation and every branch/delay slot now match.
+     * The remaining two normalized diffs are only the commutative final `or` operands:
+     * ours `or v0,v0,v1`, retail `or v0,v1,v0`.  The matched 2.7.2 lane emits retail
+     * order from the ternary form, but that compiler is net-negative for the SYS TU.
+     * FALSIFIED (w59-a8) on the commutative-operand axis -- the operand order and the
+     * register map are COUPLED here, so no spelling reaches retail's `or $v0,$v1,$v0`
+     * (op0 in a NON-dest register): `return hi | lo;` = 10 diffs (hi moves into $v0, lo
+     * into $a2 -- right operand order, wrong regs); the same with the decl order swapped
+     * to `lo; hi` = 10; `lo = hi | lo; return lo;` folds straight back to `or v0,v0,v1`
+     * = 2.  gcc computes op0 INTO the dest, so getting op0 off the dest needs the whole
+     * value-to-register map to change.  The 2.7.2 rung is unreachable for this TU: the
+     * pre-2.8 cc1s reject `-mno-split-addresses` outright ("Invalid option"), so the SYS
+     * ladder is only {2.8.0, 2.8.1, 2.91.66, 2.95.2} and the wired 2.8.1 wins it -- see
+     * the whole-TU ladder receipt at MoveImage. */
+    u_long hi = 0xe1000000u;
+    u_long lo;
+    if (dtd != 0)
+        hi = 0xe1000200u;
+    lo = (u_long)(tpage & 0x9ff);
+    if (dfe != 0)
+        lo |= 0x400u;
+    return lo | hi;
+}
+
+/* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
+/* W51-A1 RECEIPT (29 diffs 2.8 / 36 diffs 272, ours 39 vs oracle 38).  Two residual classes:
+ * (1) ADDRESS CSE -- ours hoists one `la $a3,GEnv+4` and does `lh 0($a3)`/`lhu 0($a3)`; the
+ *     oracle emits the two assembler MACROS `lh $r,GEnv+4` / `lhu $r,GEnv+4` (self-temp
+ *     lui+load each).  Same insn count, different registers/form.
+ * (2) the X clamp funnels through $v0 (`addu v0,a0,zero` + `addu a0,v0,zero`) and pre-sets its
+ *     default in the bltz DELAY SLOT, so it spends 2 insns where ours spends a `j` (+1 net).
+ *     The Y clamp already matches ours (no funnel).
+ * FALSIFIED (both basins, each gate-measured): Rage-Racer `Gpu_BuildDrawAreaTopLeftCmd`
+ * funnel shape verbatim (52), same non-volatile (44), RR + mutate-param (54), volatile casts
+ * on both loads (33), volatile on the signed load only (33), volatile + x funnel temp (33),
+ * plain x funnel temp (29, copy-propagated = identical to base), default-first + funnel (45),
+ * both halves funnelled (47).  `volatile` is the WRONG direction here: it defeats
+ * TARGET_SPLIT_ADDRESSES and forces a register-base address (+4 insns).  The funnel temp is
+ * copy-propagated away.  Next angle: an address FORM that blocks the cse of the two loads'
+ * shared symbol (unsized asm-label view per access), not a volatile. */
+extern u_long _set_clip_tl(short x, short y)
+{
+    x = CLAMP(x, 0, GEnv.screenW - 1);
+    y = CLAMP(y, 0, GEnv.screenH - 1);
+    return 0xe3000000u | ((u_long)(y & 0x3ff) << 10) | (u_long)(x & 0x3ff);
+}
+
+/* @0x800EE930 : GP0 0xE4 drawing-area bottom-right, x/y clamped to the screen. */
+extern u_long _set_clip_br(short x, short y)
+{
+    x = CLAMP(x, 0, GEnv.screenW - 1);
+    y = CLAMP(y, 0, GEnv.screenH - 1);
+    return 0xe4000000u | ((u_long)(y & 0x3ff) << 10) | (u_long)(x & 0x3ff);
+}
+
+/* @0x800EE9C8 : build a GP0 0xE5 "drawing offset" command word. */
+extern u_long _set_draw_offset(int x, int y)
+{
+    u_long yi = (u_long)(y & 0x7ff) << 11;
+    return 0xe5000000u | yi | (u_long)(x & 0x7ff);
+}
+
+/* @0x800EE9E4 : GP0 0xE2 texture window from a RECT (mask x/y at +0/+2, window w/h at +4/+6),
+ *   or 0 when tw is null. */
+extern u_long _get_tw(void *tw)
+{
+    /* MATCH (w48-a2, 40 diffs -> PASS; the old "register-pressure spill FLOOR" note here was
+     * WRONG on all three counts).  Three cooperating levers:
+     *  1. LOCAL ARRAY, not four scalars.  The oracle's four `sw` to 0/4/8/0xC(sp) are DEAD
+     *     stores that are never read back -- gcc-2.8 has no SRA, so an `int m[4]` is written
+     *     to its stack home on every element assignment while cse forwards the just-stored
+     *     value to the reader (store-then-read-back).  Four separate `int` scalars are pure
+     *     pseudos and the stores never appear (that was the missing 8 insns, ours 24/32).
+     *     Slot order proves the shape: 0=m[0] 4=m[1] 8=m[2] 0xC=m[3].
+     *  2. SINGLE-EXIT `ret` FUNNEL with the NULL case as the `if` BODY.  `if (tw == 0) ret=0;
+     *     else {...}` gives the oracle's `bnez $a0,body` + fall-through `j end; addu v0,0,0`
+     *     + shared `jr ra; addiu sp,0x10` epilogue.  An early `return 0;` inverts the
+     *     polarity and puts the zero block out of line.
+     *  3. OR-TERM ORDER: the m[1]<<15 term must come BEFORE m[0]<<10.  `|` is commutative so
+     *     this is semantically identical, but it decides which shifted value's register the
+     *     constant is folded into and therefore which pseudo becomes the accumulator
+     *     (oracle: a1 = m0<<10|C then v0 = m1<<15|a1).  Measured sweep of six term orders,
+     *     all count-exact 32/32: C,B,A,D,E = PASS; C,A,B,D,E = 10; C,A,B,E,D = 28;
+     *     A,C,B,E,D = 28; C,E,A,B,D = 39; A,B,D,E,C = 55 (33 insns). */
+    u_char *b;
+    short  *s;
+    int m[4];
+    u_long ret;
+    if (tw == 0) {
+        ret = 0;
+    } else {
+        b = (u_char *)tw;
+        s = (short *)tw;
+        m[0] = b[0] >> 3;
+        m[2] = (-s[2] & 0xff) >> 3;
+        m[1] = b[2] >> 3;
+        m[3] = (-s[3] & 0xff) >> 3;
+        ret = 0xe2000000u | ((u_long)m[1] << 15) | ((u_long)m[0] << 10)
+                          | ((u_long)m[3] << 5)  | (u_long)m[2];
+    }
+    return ret;
+}
+
+/* @0x800EEA64 : read the GPU status register (GPUSTAT, shares GP1 address). */
+extern int _get_status(void)
+{
+    return (int)*GPU_GP1;
+}
+
+/* @0x800EEA7C : clear an ordering table in reverse via the OTC DMA (channel 6), with watchdog. */
+extern int _clearOTagR_dma(u_long *ot, int n)
+{
+    /* W52-A3, from the matched psyz `_otc`:  RETURNS n (oracle stages `addu $v0,$s0,$zero`
+     * -- the count -- in BOTH loop-exit delay slots, and -1 on timeout), the watchdog is
+     * armed AFTER the CHCR kick (the store sits in the `jal _gpu_arm_timeout` delay slot),
+     * and the MADR address is spelled `ot - 1 + n` so the reassociation gives the oracle's
+     * `sll $v0,n,2; addiu $v0,$v0,-4; addu` instead of `addiu n,-1; sll 2; addu`.
+     *
+     * W55-A8 (18 -> 10): the s0<->s1 rotation the briefing named is a RESULT-FUNNEL
+     * question, not an allocator coin-flip.  With `int r = n;` + `r = -1; break;` the
+     * count-variable takes $s0 and the hoisted 0x01000000 busy mask takes $s1 with its own
+     * fresh `lui $s1,256` -- exactly the oracle -- where the bare `while (...) { return -1; }
+     * return n;` form put the mask in $s0 as a COPY of the pre-loop test constant
+     * (`addu $s0,$v1,$zero`) and the count in $s1.  Sweep (all gate-measured): bare 18 ·
+     * named `u_long busy` mask local 21 · exit-in-the-middle `while(1)` 27 · funnel+direct
+     * `return -1` 11 · funnel + read-only fence on r 11 · do/while-on-timeout 41.
+     * RESIDUAL 10 (ours 58 / oracle 56, +2): the oracle reaches the -1 exit with a DIRECT
+     * `li $v0,-1` in the `bnez` delay slot while the funnel routes it through `j` + `li
+     * $s0,-1`, and it stages `addu $v0,$s0,$zero` in the pre-loop `beqz` slot.  Getting
+     * both at once needs the funnel's ALLOCATION with the direct form's TAIL -- the
+     * direct-return variants above lose the allocation.  Permuter / reqdelta candidate.
+     * W56 UPDATE: a zero-trip-guarded do/while with two normal `return r` sites preserves
+     * the retail $s0=count / $s1=busy-mask allocation and restores the direct timeout tail:
+     * 10 -> 2, exact 56/56.  The last residual is only reorg placement of `v0 = r`: retail
+     * fills both normal-exit branch slots, while ours leaves the pretest slot for `lui $s1`
+     * and copies after the backedge.  Literal/variable returns, comma staging, inverted
+     * nesting, and a two-assignment result funnel were neutral or worse and were reverted. */
+    *DMA_DPCR |= 0x08000000;                      /* enable DMA channel 6 (OTC) */
+    *D6_CHCR = 0;
+    *D6_MADR = (u_long)(ot - 1 + n);              /* last word of the table */
+    *D6_BCR  = (u_long)n;
+    *D6_CHCR = 0x11000002;                        /* start: backward, OTC clear */
+    _gpu_arm_timeout();
+    {
+        int r = n;
+        if ((*D6_CHCR & 0x01000000) == 0)
+            return r;
+        do {
+            if (_gpu_check_timeout() != 0)
+                return -1;
+        } while ((*D6_CHCR & 0x01000000) != 0);
+        return r;
+    }
+}
+
+/* @0x800EEB5C : ClearImage backend -- fill rect with `color`.
+ * W52-A3 REWRITE from the PSY-Q 4.0 matched `_clr` (psyz decomp libgpu/sys.c), every
+ * shape re-confirmed against THIS oracle:
+ *  - the clamps write BACK INTO THE RECT (`sh $v0,4($t0)` / `sh $v1,6($t0)`), and the
+ *    alignment test RE-READS x/w from the struct (`lhu 0($t0)` / `lhu 4($t0)`) -- the
+ *    old local-`cw`/`ch` form could never produce that store-then-read-back;
+ *  - the UNALIGNED arm is the FALL-THROUGH (`bnez ...,unaligned` on `x & 0x3f`,
+ *    `beqz ...,aligned` on `w & 0x3f`) -- the old source had the arms inverted;
+ *  - the GP0-0xE1 `mode` word is computed INDEPENDENTLY IN EACH ARM (two `lw` of
+ *    the GP1 pointer, two `srl/sll/or` chains), not hoisted into one local;
+ *  - the fn RETURNS 0 (`addu $v0,$zero,$zero` after the tail `jal`), it is not void;
+ *  - `ptr` (psyz's name) is a REAL POINTER anchor: the oracle keeps the independently
+ *    named interior symbol `D_8013EAD8` in $s0 across the three `_get_gpuinfo` calls and
+ *    reaches the restore block by 0/4/8/0xC displacements off it, while ALSO masking it
+ *    for the header tag.  Spelling that existing linker symbol directly prevents CSE from
+ *    deriving it as `_blit_buf + 40`; it also makes both former opacity fences unnecessary.
+ * W56 continuation: `D_8013EAD8` plus removal of those fences takes the authoritative
+ * residual 7 -> 2 (exact 140/140).  The remaining pair is a pure sched2 relocation of the
+ * existing `v0 = 0` return copy from below the epilogue reloads to immediately after the
+ * `_gpu_dma_chain` call; a scratch PER_FN_TEXT_MOVES probe reaches PASS 140/140. */
+extern int _BlitClear(RECT *rect, u_long color)
+{
+    u_long *ptr;
+    rect->w = CLAMP(rect->w, 0, GEnv.screenW - 1);
+    rect->h = CLAMP(rect->h, 0, GEnv.screenH - 1);
+    if (rect->x & 0x3f || rect->w & 0x3f) {
+        /* unaligned: GP0 0x60 mono-rect under a full-screen clip, then restore the env */
+        u_long *b = _blit_buf;
+        u_long mask = 0x00ffffffu;
+        u_long clip_br = 0xe4ffffffu;
+        u_long last;
+        ptr = D_8013EAD8;
+        b[0] = ((u_long)ptr & mask) | 0x08000000u;            /* 8-word header -> restore block */
+        b[1] = 0xe3000000u;                                   /* clip TL = 0,0 */
+        b[2] = clip_br;                                        /* clip BR = max */
+        b[3] = 0xe5000000u;                                   /* draw offset = 0,0 */
+        b[4] = 0xe6000000u;                                   /* mask */
+        b[5] = 0xe1000000u | (*GPU_GP1 & 0x7ff) | ((color >> 31) << 10);
+        b[6] = 0x60000000u | (color & mask);
+        b[7] = *(u_long *)rect;
+        last = *((u_long *)rect + 1);
+        ptr[0] = 0x03ffffffu;                                 /* restore block: 3 words, terminates */
+        b[8] = last;
+        ptr[1] = _get_gpuinfo(3) | 0xe3000000u;
+        ptr[2] = _get_gpuinfo(4) | 0xe4000000u;
+        ptr[3] = _get_gpuinfo(5) | 0xe5000000u;
+    } else {
+        /* 64-aligned: GP0 0x02 fast fill, list terminates immediately */
+        u_long tag = 0x05ffffffu;
+        u_long mask = 0x00ffffffu;
+        u_long *b = _blit_buf;
+        __asm__("" : "=r"(b) : "0"(b));
+        b[0] = tag;
+        b[1] = 0xe6000000u;
+        b[2] = 0xe1000000u | (*GPU_GP1 & 0x7ff) | ((color >> 31) << 10);
+        b[3] = 0x02000000u | (color & mask);
+        b[4] = *(u_long *)rect;
+        b[5] = *((u_long *)rect + 1);
+    }
+    _gpu_dma_chain(_blit_buf);
+    return 0;
+}
+
+/* @0x800EED8C : LoadImage backend -- transfer `data` words into the VRAM rect.
+ * W52-A3: rebuilt on the matched PSY-Q 4.0 `_dws` (psyz), every detail re-confirmed
+ * against THIS oracle:
+ *  - the clamps write BACK INTO THE RECT (`sh $a0,4($s1)` / `sh $a0,6($s1)`) and the
+ *    word count RE-READS `rect->w` from the struct (`lh $v1,4($s1)`);
+ *  - the clamp ceiling here is `GEnv.screenW` with NO `-1` (the oracle's `slt $v0,$v0,$a1`
+ *    has no `addiu -1` -- unlike _BlitClear/_set_clip_*, which do).  The old `-1` was a
+ *    behaviour bug as well as a mismatch;
+ *  - `(w*h + 1) / 2` is a SIGNED DIVIDE (`srl 31; addu; sra 1`), not `>> 1`; the `>> 4`
+ *    for the block count then COMPOSES with it into the oracle's single `sra $s0,$v1,5`;
+ *  - the remainder is `to_write % 16` (`sll blocks,4; subu`), not `& 0xf` (no `andi`);
+ *  - the remainder loop is a DOWN-COUNTING `while (n--)` (oracle: `addiu $s0,$s0,-1` +
+ *    `beq $s0,-1` peel, then `bne $s0,$a0` with the store in the delay slot), not an
+ *    up-counting `for`.
+ * W56: the apparently redundant `saved` alias is an allocator-shape receipt.  Its copy web
+ * raises the rectangle base above the pixel cursor, producing retail $s1/$s2 ownership in
+ * both transfer workers (_dws 43->13, _drs 47->15).  Comma-staging the quotient additionally
+ * prevents gcc from rematerializing the block count directly into $s4 (_dws 13->11 and
+ * _drs 15->13), without adding instructions or changing transfer semantics. */
+extern int _dws(RECT *rect, u_long *data)
+{
+    int to_write;
+    int size;
+    int var_s0;
+    int var_s4;
+    int quotient;
+    RECT *saved;
+
+    saved = rect;
+    var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
+    _gpu_arm_timeout();
+    saved->w = CLAMP(saved->w, 0, GEnv.screenW);
+    saved->h = CLAMP(saved->h, 0, GEnv.screenH);
+    to_write = (saved->w * saved->h + 1) / 2;
+    if (to_write <= 0)
+        return -1;
+    var_s0 = (quotient = to_write >> 4,
+              to_write - (quotient << 4));
+    size = quotient;
+    while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready to receive DMA */
+        if (_gpu_check_timeout())
+            return -1;
+    *GPU_GP1 = 0x04000000;
+    *GPU_GP0 = 0x01000000;
+    *GPU_GP0 = var_s4 ? 0xb0000000u : 0xa0000000u;
+    *GPU_GP0 = *(u_long *)saved;
+    *GPU_GP0 = *((u_long *)saved + 1);
+    while (var_s0--)
+        *GPU_GP0 = *data++;
+    if (size) {
+        *GPU_GP1 = 0x04000002;
+        *D2_MADR = (u_long)data;
+        *D2_BCR  = (size << 16) | 0x10;
+        *D2_CHCR = 0x01000201;
+    }
+    return 0;
+}
+
+/* @0x800EEFC8 : StoreImage backend -- read the VRAM rect back into `data` words. */
+extern int _drs(RECT *rect, u_long *data)
+{
+    /* W52-A3: same psyz `_drs` shape as _dws above (in-struct clamps, signed /2,
+     * `% 16`, down-counting `while (n--)` transfer loop).  See the W56 allocator receipt
+     * above for the shared `saved` alias and comma-staged quotient. */
+    int to_read;
+    int size;
+    int var_s0;
+    int quotient;
+    RECT *saved;
+
+    saved = rect;
+    _gpu_arm_timeout();
+    saved->w = CLAMP(saved->w, 0, GEnv.screenW);
+    saved->h = CLAMP(saved->h, 0, GEnv.screenH);
+    to_read = (saved->w * saved->h + 1) / 2;
+    if (to_read <= 0)
+        return -1;
+    var_s0 = (quotient = to_read >> 4,
+              to_read - (quotient << 4));
+    size = quotient;
+    while ((*GPU_GP1 & 0x04000000) == 0)         /* wait until ready for DMA */
+        if (_gpu_check_timeout())
+            return -1;
+    *GPU_GP1 = 0x04000000;
+    *GPU_GP0 = 0x01000000;
+    *GPU_GP0 = 0xc0000000;                       /* VRAM -> CPU copy */
+    *GPU_GP0 = *(u_long *)saved;
+    *GPU_GP0 = *((u_long *)saved + 1);
+    while ((*GPU_GP1 & 0x08000000) == 0)         /* wait until ready to send pixels */
+        if (_gpu_check_timeout())
+            return -1;
+    while (var_s0--)
+        *data++ = *GPU_GP0;
+    if (size) {
+        *GPU_GP1 = 0x04000003;
+        *D2_MADR = (u_long)data;
+        *D2_BCR  = (size << 16) | 0x10;
+        *D2_CHCR = 0x01000200;
+    }
+    return 0;
+}
+
+/* @0x800EF248 : write one GP1 (control) command and shadow its low byte by command number. */
+extern void _send_gp1(u_long cmd)
+{
+    *GPU_GP1 = cmd;
+    _gp1_shadow[cmd >> 24] = (u_char)cmd;
+}
+
+/* @0x800EF26C : read back the shadowed low byte for GP1 command number `idx`. */
+extern int _get_gp1(int idx)
+{
+    return _gp1_shadow[idx];
+}
+
+/* @0x800EF280 : push n words straight to GP0 with DMA disabled (CPU->GP0 transfer). */
+extern int _send_gp0(u_long *p, int n)
+{
+    /* MATCH: counter split from the param and computed up-front (oracle addiu a2,a1,-1
+     * FIRST insn); guard keeps n live so i gets a fresh reg; explicit -1 sentinel
+     * compare -> li a1,-1 reusing the dead param reg (catalog rows 47/48). */
+    int i = n - 1;
+    /* MATCH: volatile cast away on the two stores -- the oracle has BOTH in branch
+     * delay slots (GP1 store in the beqz slot, GP0 store in the loop bne slot); gcc
+     * refuses to slot-fill volatile MEMs, the original assembler filled them blind. */
+    *(u_long *)GPU_GP1 = 0x04000000;        /* DMA direction = off */
+    if (n != 0) {
+        do { *(u_long *)GPU_GP0 = *p++; i--; } while (i != -1);
+    }
+    return 0;
+}
+
+/* @0x800EF2C0 : kick off a GPU ordering-table (linked-list) DMA on channel 2. */
+extern void _gpu_dma_chain(u_long *ot)
+{
+    *GPU_GP1 = 0x04000002;                   /* DMA direction = 2 (linked list) */
+    *D2_MADR = (u_long)ot;
+    *D2_BCR  = 0;
+    /* MATCH: volatile cast away -- oracle has this final sw in the jr delay slot;
+     * gcc won't slot-fill a volatile MEM (same lever as _send_gp0). */
+    *(u_long *)D2_CHCR = 0x01000401;         /* start, linked-list mode */
+}
+
+/* @0x800EF308 : issue a GP1 0x10 "get GPU info" query and return the 24-bit GPUREAD reply. */
+extern int _get_gpuinfo(u_long cmd)
+{
+    *GPU_GP1 = cmd | 0x10000000;
+    return (int)(*GPU_GP0 & 0x00ffffffu);
+}
+
+/* @0x800EF338 : convenience wrapper -- push with no inline-arg copy (n = 0). */
+extern int _que_ref(QueFunc func, u_long *arg, int extra)
+{
+    return _gpu_que_push(func, arg, 0, extra);
+}
+
+/* @0x800EF35C : enqueue a GPU request func(arg,extra).  If the GPU is idle the request is
+ *   run inline; otherwise it is queued (optionally snapshotting n bytes of args into the
+ *   slot).  Spins on the watchdog while the ring is full.  Returns the resulting depth. */
+extern int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
+{
+    GEnvT *g;
+    _gpu_arm_timeout();
+    while (((_qin + 1) & 0x3f) == _qout) {       /* ring full */
+        if (_gpu_check_timeout() != 0)
+            return -1;
+        _gpu_que_drain();
+    }
+    /* MATCH (W52-A3): ONE fenced base register for GEnv -- the oracle reaches active
+     * (`lbu $v1,1($a0)`), busy (`sw $v0,8($a0)`) and idle_cb (`lw $v0,12($a0)`) by
+     * displacement off a single `la $a0,GEnv`; bare field accesses re-emit a `lui`
+     * self-temp / `$at` macro each under this lane.  And the dispatch decision is a
+     * W56: the matched Rage Racer `Gpu_AddQueue` switch/break region is load-bearing: it
+     * retains that branch chain but removes a duplicated GPU-ready precheck.  Together with
+     * its volatile byte-copy loop and shared queue view this makes the function PASS. */
+    _q_saved_mask = SetIntrMask(0);              /* enter critical section */
+    g = &GEnv;
+    __asm__("" : "=r"(g) : "0"(g));
+    g->busy = 1;
+    switch (0) { default:
+        if (g->active != 0) {
+            if (_qin != _qout || (*D2_CHCR & 0x01000000) != 0 || g->idle_cb != 0)
+                break;
+        }
+        do {
+        } while ((*GPU_GP1 & 0x04000000) == 0);
+        func(arg, extra);
+        SetIntrMask(_q_saved_mask);
+        return 0;
+    }
+    DMACallback(2, (int)_gpu_que_drain);         /* (re)attach drain to channel-2 interrupt */
+    if (n != 0) {
+        volatile u_long *pbase = (volatile u_long *)((u_char *)_que.shared + 12);
+        int i = 0;
+        u_long *src = arg;
+        while (i < n / 4) {
+            *(volatile u_long *)((u_char *)pbase + _qin * 96 + i * 4) = *src;
+            src++;
+            i++;
+        }
+        _que.shared[_qin].arg = (u_long *)_que.shared[_qin].buf;
+    } else {
+        _que.shared[_qin].arg = arg;
+    }
+    _que.shared[_qin].extra = extra;
+    _que.shared[_qin].func  = func;
+    _qin = (_qin + 1) & 0x3f;
+    SetIntrMask(_q_saved_mask);                  /* leave critical section */
+    _gpu_que_drain();
+    return (_qin - _qout) & 0x3f;
+}
+
+/* @0x800EF60C : dequeue-and-dispatch.  Called inline after a push and from the channel-2
+ *   DMA-complete interrupt.  Runs queued requests until the queue empties or a request
+ *   kicks off a DMA (CHCR busy), then fires the idle callback if the queue is fully drained. */
+extern int _gpu_que_drain(void)
+{
+    /* Rage Racer's two long-lived mask quantities are source-shape significant.  Keeping the
+     * same declaration order and spelling the wait as an entry test plus do/while restores
+     * retail's $s1=GPU-ready / $s0=DMA-active allocation (58 -> 31 diffs).  W56: declaring
+     * the slot's narrow scalar `extra` before `arg` and `func` gives the closest retail
+     * three-index dispatch schedule; the remaining tail is handled below (31 -> 14 total). */
+    u_long dma_busy = 0x01000000;
+
+    if ((*D2_CHCR & dma_busy) != 0)
+        return 1;                                /* a DMA is still running */
+    _drain_saved_mask = SetIntrMask(0);
+    if (_qin != _qout && (*D2_CHCR & dma_busy) == 0) {
+        u_long gpu_ready = 0x04000000;
+        u_long dma_active = 0x01000000;
+        for (;;) {
+            if (((_qout + 1) & 0x3f) == _qin && GEnv.idle_cb == 0)
+                DMACallback(2, 0);               /* last entry, no idle cb: detach drain */
+            if ((*GPU_GP1 & gpu_ready) == 0) {
+                u_long wait_ready = 0x04000000;
+                do {
+                } while ((*GPU_GP1 & wait_ready) == 0);
+            }
+            {
+                int     extra;
+                u_long *arg;
+                QueFunc func;
+                extra = _que.plain[_qout].extra;
+                arg = _que.plain[_qout].arg;
+                func = _que.plain[_qout].func;
+                func(arg, extra);
+            }
+            _qout = (_qout + 1) & 0x3f;
+            if (_qin == _qout)
+                break;                           /* queue empty */
+            if ((*D2_CHCR & dma_active) != 0)
+                break;                           /* a DMA was started */
+        }
+    }
+    SetIntrMask(_drain_saved_mask);
+    if (_qin == _qout && (*D2_CHCR & 0x01000000) == 0) {
+        /* Rage's pending-flag store is volatile.  Preserve that source fact here: comma-staging
+         * the containing GEnv base and callback from the busy-field pointer gives retail's
+         * $v1=busy / $a0=callback ownership, while the volatile store remains before jalr
+         * instead of being moved into its delay slot.  This makes the function count-exact. */
+        int *busy = &GEnv.busy;
+        if (*busy != 0) {
+            GEnvT *g;
+            void (*idle_cb)(void);
+            if ((g = (GEnvT *)((char *)busy - 8),
+                 idle_cb = *(void (**)(void))(busy + 1),
+                 idle_cb) != 0) {
+                *(volatile int *)&g->busy = 0;
+                idle_cb();
+            }
+        }
+    }
+    return (_qin - _qout) & 0x3f;
+}
+
+/* @0x800EF86C : reset the GPU command queue and (optionally) the GPU itself. */
+extern int _reset(int mode)
+{
+    /* W52-A3, from the matched psyz `_reset`:
+     *  - `_qin = _qout;` (the oracle LOADS _qout back and stores it into _qin), not
+     *    two independent `= 0` stores;
+     *  - a real `switch (mode & 7)` -- the oracle carries gcc-2.8's balance_case_nodes
+     *    TREE (root `beq 1`, `slti 2` bound test, then `beqz 0` / `beq 3` / `bne 5`),
+     *    which the old if/else-if chain cannot produce (>2 case NODES => tree);
+     *  - the return is `!(mode & 7) ? _gpu_init_videomode(mode) : 0` (oracle stages
+     *    `addu $v0,$zero,$zero` in the guard's delay slot) -- the old code returned
+     *    SetIntrMask's saved mask on the non-zero path, a behaviour bug too. */
+    _q_reset_mask = SetIntrMask(0);
+    _qout = 0;
+    _qin = _qout;
+    switch (mode & 7) {
+    case 0:
+    case 5:
+        *D2_CHCR = 0x401;
+        *DMA_DPCR |= 0x800;
+        *GPU_GP1 = 0;
+        _memset((char *)_gp1_shadow, 0, 0x100);
+        _memset((char *)&_que, 0, 0x1800);
+        break;
+    case 1:
+    case 3:
+        *D2_CHCR = 0x401;
+        *DMA_DPCR |= 0x800;
+        *GPU_GP1 = 0x02000000;
+        *GPU_GP1 = 0x01000000;
+        break;
+    }
+    SetIntrMask(_q_reset_mask);
+    return !(mode & 7) ? _gpu_init_videomode(mode) : 0;
+}
+
+/* @0x800EF9BC : DrawSync backend.  mode==0 blocks until the queue and GPU are idle (or the
+ *   watchdog fires, -1).  mode!=0 polls and returns the current queue depth. */
+extern int _sync(int mode)
+{
+    /* MATCH: mode==0 arm written FIRST -- the oracle's bnez-mode branches AROUND this whole
+     * block (placing it inline/fallthrough) and the mode!=0 arm out-of-line at the tail;
+     * writing mode!=0 first (as an early-return `if`) inverted the branch and swapped which
+     * block lands inline vs branched-to. */
+    if (mode == 0) {
+        _gpu_arm_timeout();
+        while (_qin != _qout) {
+            _gpu_que_drain();
+            if (_gpu_check_timeout() != 0)
+                return -1;
+        }
+        while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
+            if (_gpu_check_timeout() != 0)
+                return -1;
+        }
+        return 0;
+    }
+    {
+        int depth = (_qin - _qout) & 0x3f;
+        if (depth != 0)
+            _gpu_que_drain();
+        /* MATCH (W55-A8, from the Rage-Racer matched `Gpu_DrawSync` poll arm): the two
+         * readiness tests are an EMPTY-then-else nested pair whose ready path leaves the
+         * block (RR spells it `break` out of a `switch(0)`), and the ready return is its
+         * OWN return site -- the `&&` + shared `return depth` form let reorg eager-steal
+         * `addu v0,s0,zero` into the FIRST branch's delay slot, which occupies $v0 and
+         * pushes the GP1 read onto $v1/$a0 (the whole 16-diff residual). */
+        if ((*D2_CHCR & 0x01000000) != 0) {
+        } else {
+            if ((*GPU_GP1 & 0x04000000) != 0)
+                goto ready;
+        }
+        if (depth != 0)
+            return depth;                        /* `addu v0,s0,zero` = the bnez delay slot */
+        return 1;
+    ready:
+        return depth;
+    }
+}
+
+/* @0x800EFAF8 : arm the GPU watchdog against the current VSync hsync count. */
+extern void _gpu_arm_timeout(void)
+{
+    _gpu_timeout_target = VSync(-1) + 0xF0;
+    _gpu_timeout_count = 0;
+}
+
+/* @0x800EFB2C : poll the watchdog.  Returns 0 while still waiting; on timeout it prints the
+ *   GPU state, force-resets the queue + GPU, and returns -1. */
+extern int _gpu_check_timeout(void)
+{
+    /* MATCH (W55-A8, ported in SHAPE from the Rage-Racer matched `Gpu_CheckTimeout`,
+     * register pins dropped).  Four idioms, all oracle-evidenced:
+     *  (a) the poll counter is bumped through a POINTER LOCAL with a POST-INCREMENT --
+     *      `la $v1,_gpu_timeout_count; lw $v0,0($v1); addu $a0,$v0,zero; addiu $v0,$v0,1;
+     *      sw $v0,0($v1)` -- a bare `_gpu_timeout_count = cnt + 1` is an `$at` macro store
+     *      and compares the pre-read copy instead of the post-increment's saved value;
+     *  (b) a DEAD READ of *GPU_GP1 through a POINTER LOCAL before the printf (RR spells it
+     *      `(void)*gp1ForLog;`) -- the oracle's `lw $v0,0($a2)` whose result is dropped;
+     *      the same $a2 then serves the printf's `stat` argument;
+     *  (c) the queue indices are pulled into NAMED locals for the depth expression;
+     *  (d) the reset block READS _qout BACK to seed _qin (`_qout = 0; state = _qout;
+     *      _q_reset_mask = mask; _qin = state;`) -- the same read-back `_reset` already uses;
+     *  (e) a RESULT FUNNEL over the whole body (RR's `switch (0) { default: ... }`) so both
+     *      exits reach ONE shared epilogue via `j`. */
+    int result;
+    int state2;
+    switch (0) { default:
+    if (!(_gpu_timeout_target < VSync(-1))) {
+        int *pollp = &_gpu_timeout_count;
+        int  state = (*pollp)++;
+        if (!(0xF0000 < state))
+            break;
+    }
+    {
+        volatile u_long *gp1 = GPU_GP1;
+        int pending, gputail, mask;
+
+        (void)*gp1;                              /* dead read, oracle `lw $v0,0($a2)` */
+        pending = _qin;
+        gputail = _qout;
+        printf("GPU timeout:que=%d,stat=%08x,chcr=%08x,madr=%08x\n",   /* @0x80056EB8 */
+               (pending - gputail) & 0x3f, (int)*gp1, (int)*D2_CHCR, (int)*D2_MADR);
+        mask = SetIntrMask(0);
+        _qout = 0;
+        state2 = _qout;
+        _q_reset_mask = mask;
+        _qin = state2;
+        *D2_CHCR = 0x401;
+        *DMA_DPCR |= 0x800;
+        *GPU_GP1 = 0x02000000;
+        *GPU_GP1 = 0x01000000;
+        SetIntrMask(_q_reset_mask);
+    }
+    result = -1;
+    return result;
+    }
+    result = 0;
+    return result;
+}
+
+/* @0x800EFC70 : reconfigure the GPU display registers for the current video mode. */
+extern int _gpu_init_videomode(int mode)
+{
+    /* W55-A8 RECEIPT (14 diffs, ours 38 / oracle 40): the body, the branch polarities and
+     * every arm's VALUE staging already match instruction-for-instruction.  The ENTIRE
+     * residual is that reorg's `relax_delay_slots` converted our two `j <epilogue>` edges
+     * into duplicated `jr ra` returns (and then filled their slots, which also pulled the
+     * `andi v0,a0,8` up into the leading `beq`'s slot); the oracle keeps `j T; nop` /
+     * `j T; sw a0,0(v1)` reaching ONE shared bare `jr ra; nop`.  FALSIFIED: the
+     * result-funnel form (`int r; ... return r;`) -- gcc colors r into $a0 and adds an
+     * `addu v0,a0,zero` copy per arm (31 diffs, ours 41).  This is a per-fn delayed-branch
+     * / return-duplication mechanism, not a source shape -- SPEC'd for the orchestrator
+     * (P2 `-fno-delayed-branch` splice candidate). */
+    *GPU_GP1 = 0x10000007;
+    if ((*GPU_GP0 & 0x00ffffff) != 2) {          /* old GPU */
+        *GPU_GP0 = (*GPU_GP1 & 0x3fff) | 0xe1001000u;
+        (void)*GPU_GP0;
+        return 0;
+    }
+    if ((mode & 8) == 0)                          /* new GPU, NTSC */
+        return 1;
+    *GPU_GP1 = 0x09000001;                        /* new GPU, PAL : enable */
+    return 2;
+}
+
+/* @0x800EFD10 : DrawOTag2 -- synchronous ordering-table draw (waits, then DMAs directly). */
+extern int DrawOTag2(u_long *p)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("DrawOTag(%08x)...\n", p);    /* @0x80056e58 */
+    /* MATCH: the oracle ARMS THE WATCHDOG INLINE here -- `jal VSync` with $a0=-1 in the slot,
+     * then `_gpu_timeout_target = v0 + 0xF0` and `_gpu_timeout_count = 0` as two direct stores.
+     * A `jal _gpu_arm_timeout` (the helper call we had) is one instruction where the oracle
+     * spends seven; the jal-count census flagged it (oracle VSync x1, ours _gpu_arm_timeout x1). */
+    _gpu_timeout_target = VSync(-1) + 0xF0;
+    _gpu_timeout_count = 0;
+    while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
+        if (_gpu_check_timeout() != 0)
+            return -1;
+    }
+    DMACallback(2, (int)_install_drain_cb);
+    GEnv_drv->dma_chain(p);
+    return 0;
+}
+
+/* @0x800EFE0C : attach _gpu_que_drain as the channel-2 (GPU) DMA-complete callback. */
+extern void _install_drain_cb(void)
+{
+    DMACallback(2, (int)_gpu_que_drain);
+}
+
+/* @0x800EFE34 : obj-local byte fill (libgpu's private memset). */
+extern void _memset(char *p, int c, int n)
+{
+    /* MATCH: i=n-1 hoisted ABOVE the guard -- n stays live across the compare, so the
+     * counter can't coalesce into $a2: fresh $v0 counter + $v1 sentinel, and the init
+     * lands in the beqz delay slot (oracle: addiu v0,a2,-1). */
+    int i = n - 1;
+    if (n != 0) {
+        do { *p++ = (char)c; } while (--i != -1);
+    }
 }

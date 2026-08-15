@@ -285,3 +285,37 @@ instrument, as already routed.
 * probe kit: `ctx.py` (context diff on top of verify_asm), `p_lose*.py`,
   `p_report*.py`, `p_statusreply.py`, `p_sr2.py`, `p_ccs*.py`, `p_gcc*.py`.
 * no `build.py` / `tools/` edits, no wiring specs pending.
+
+---
+
+## 10. CLOSE-OUT (post-resume re-verification)
+
+Re-gated 2x after the session gap, on a freshly rebuilt tree:
+
+| TU | run 1 | run 2 |
+|---|---|---|
+| `recon/game/common/speech.cpp` | 100/102 | 100/102 |
+| `recon/game/common/audioclc.cpp` | **18/18** | **18/18** |
+| `recon/game/common/audiocmn.cpp` | 47/48 | 47/48 |
+| `recon/game/common/audiotrk.cpp` | 6/6 | 6/6 |
+
+`tu_order_audit.py` = **0 inversions**. All four psyqproof seals re-confirmed
+REAL=0 (SubmitRequest 61w, Lose 213w, GetClosestCars 267w, AddCustomObject 413w).
+
+🔴 **NEW PROCESS FINDING — `brdist.py` CAN REPORT A FALSE DIVERGENCE (verify it
+against psyqproof before treating a row as a bug).** The close-out screen flagged
+`AudioTrk_AddCustomObject` branch 48 at ours 14 / retail 13, on a fn that gates
+PASS 413/413 **and** is psyqproof REAL=0 over all 413 words. Inspection: the `j`
+at stream index 283 targets index 297 in the oracle and 298 in our GATE object,
+and index 297 is a **`nop`** — i.e. maspsx+GNU-as places the merge LABEL *after*
+the load-delay nop where ASPSX places it *before*. Production is byte-true, so
+this is a pure gate-lane label/nop placement artifact, not a branch bug.
+⇒ the correct screen order is **brdist flags → psyqproof arbitrates**; a brdist
+row whose target is a `nop` (or whose fn is already REAL=0) is an artifact.
+(Contrast SubmitRequest §1, where brdist flagged -2 vs +8 and psyqproof
+CONFIRMED REAL=1 — that one was a genuine, gate-invisible production bug.)
+
+Commits: `68276047` (SubmitRequest dual-lane), `e394afe0` (Lose dual-lane),
+`6a9c51c4` (GetClosestCars dual-lane, audioclc COMPLETE), `ef3c512e`
+(Report/StatusReply/CheckState classifications), `55c02ca5` (receipts + kit).
+No `tools/` or `build.py` edits; no wiring specs pending.

@@ -4750,11 +4750,25 @@ void Hud_RenderHudView(void)
       {
         u_char *pal;
         u_int *tagp;
+        u_int pw;
 
         pal = Render_gPalettePtr;
         tagp = (u_int *)((int)gTPage0 + tpageOff);
         *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
-        *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & otmask;
+        /* MATCH (w64-a1) -- SEAL, the w63 named angle executed.  Retail gives the AND a FRESH
+         * dest tied to the OR's dest (`and v1,v0,t1 / or v1,v1,a0`); ours tied it to the AND's
+         * DYING SOURCE (`and v0,v0,t1 / or v1,v0,a0`).  The gate is local-alloc's combine_regs
+         * eligibility [local-alloc.c:470-477 sets reg_qty=-2 only when REG_BASIC_BLOCK>=0 AND
+         * REG_N_DEATHS==1; :1866 then refuses the tie for anything else], i.e. a BIT, not a
+         * priority razor -- which is why 22 w63 variants (word-RMW spellings, identity fences,
+         * addr24 temps, OR-operand swap, bitfield view, A2's foreign-operand fence) were all
+         * inert or worse.  The device that flips the bit at ZERO instructions: name the loaded
+         * pal word and keep it live PAST the store with a read-only fence, so it no longer dies
+         * at the AND.  The fence must carry TWO operands (one = 10 diffs; the ref step is the
+         * dial, catalog 05C) and must sit AFTER the consuming store (before it = 5 @607). */
+        pw = *(u_int *)pal;
+        *(u_int *)pal = pw & 0xff000000 | (u_int)tagp & otmask;
+        __asm__("" : : "r"(pw), "r"(pw));
         if (GameSetup_gData.carInfo[j].HudTach != 0) {
           gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | *(u_int *)pal & otmask);
           *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(gSprt1 + 1) & otmask;

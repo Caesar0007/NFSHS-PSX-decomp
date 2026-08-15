@@ -1296,6 +1296,10 @@ PER_FN_TEXT_MOVES = {
     "recon/syslib/psx/libpad/MCXMAIN.c": {
         "_padIntRecvHdr": [
             {"take": r"\taddu\t\$2,\$3,\$0\n", "after": r"\tbeq\t\$3,\$2,\$L\d+\n", "slot": True, "copy": True},
+            # w64-a7 (probed 2x + brdist proof): LABEL MOVE past the
+            # merge copy -- fixes 2 wrong branch WORDS behind a green
+            # gate (04Q pure form); brdist 2 -> 0, TU 5/5.
+            {"take": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$3,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$31,)", "after": "\\taddu\\t\\$2,\\$3,\\$0\\n(?=\\$L\\d+:\\n\\tlw\\t\\$31,)"},
         ],
         "_padIntRecvData": [
             {"take": r"\taddu\t\$4,\$17,\$0\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n\tj\t\$L\d+\n\$L\d+:\n\tli\t\$2,0x00000004)", "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tbltz\t\$3,)", "slot": True, "drop_after": r"\t\.set\tnoreorder\n\t\.set\tnomacro\n"},

@@ -1,0 +1,46 @@
+[
+ {
+  "agent": "w63-a4",
+  "supersedes": "scratchpad/w62a8/text_moves_probe.json row 1 (MemCardExist_cb) -- that row's anchors used ABI register NAMES (`$a0,$v0,$zero`); cc1's .s emits NUMERIC registers ($4,$2,$0), so the regex could never match and the row was a silent no-op (this is why the blind site-2 derivation measured INERT: nothing was ever moved).",
+  "rel": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+  "fn": "MemCardExist_cb",
+  "baseline": "FAIL 4 diffs (ours 117 / oracle 117), HEAD 10e1a01b, re-gated by w63-a4",
+  "result": "PASS 117/117 -- probe-verified 2x via tools/vprobe.py W60_TEXT_MOVES_FILE; whole-TU 22/26 -> 23/26, ZERO regressions (all 26 .ent symbols gated in the moved build)",
+  "class": "sched2 emission order only -- TWO sites, each one `li $2,1` that retail emits ONE LINE EARLIER. Identical insn multiset, count already exact.",
+  "sites": [
+   {
+    "site": "iodone tail ($L27, the `return 1` constant)",
+    "ours":   ["addu $a0,$v0,$zero", "addiu $v1,$s0,-0xC", "li $v0,1", "j <epi>", "sw $a0,4($v1)"],
+    "retail": ["addu $a0,$v0,$zero", "li $v0,1", "addiu $v1,$s0,-0xC", "j <epi>", "sw $a0,4($v1)"]
+   },
+   {
+    "site": "common tail ($L25 head, the `1 << *pc` mask literal)",
+    "ours":   ["lui $s0,%hi(mc+12)", "addiu $s0,$s0,%lo", "lw $v1,0($s0)", "li $v0,1", "lui $a0,%hi(_mc_exrslt)"],
+    "retail": ["lui $s0,%hi(mc+12)", "addiu $s0,$s0,%lo", "li $v0,1", "lw $v1,0($s0)", "lui $a0,%hi(_mc_exrslt)"]
+   }
+  ],
+  "move": [
+   {
+    "take": "\\tli\\t\\$2,0x00000001[^\\n]*\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tsw\\t\\$4,4\\(\\$3\\))",
+    "after": "\\taddu\\t\\$4,\\$2,\\$0\\n",
+    "note": "site 1. The fn contains FIVE `li $2,0x00000001` lines; the `(?<= #NO_APP)` context is shared with the common tail's ALREADY-CORRECT one, so the take is disambiguated by LOOKAHEAD on its own tail (`j $L..; sw $4,4($3)`). Anchor `addu $4,$2,$0` (the identity-laundered call result) is unique in the fn. Label-agnostic (12F)."
+   },
+   {
+    "take": "\\tli\\t\\$2,0x00000001[^\\n]*\\n(?=\\tlw\\t\\$4,_mc_exrslt)",
+    "after": "\\tla\\t\\$16,mc\\+12\\n(?= \\#APP\\n \\#NO_APP\\n\\tlw\\t\\$3,0\\(\\$16\\))",
+    "note": "site 2. `la $16,mc+12` occurs TWICE in the fn ($L24 iodone + $L25 common) -- disambiguated by lookahead on the following fence + `lw $3,0($16)` ($L24's loads into $4). The li lands between the `la` and the empty #APP/#NO_APP launder block, which is where retail has it; the fence emits no bytes so the insertion point is textual only."
+   }
+  ],
+  "probe_proof": {
+   "cmd": "W60_TEXT_MOVES_FILE=scratchpad/w63a4/tm_exist.json python tools/vprobe.py recon/syslib/psx/libmcrd/LIBMCRD.c MemCardExist_cb",
+   "run1": "PASS (117 insns)",
+   "run2": "PASS (117 insns)",
+   "control_same_session": "FAIL 4 diffs (ours 117 / oracle 117)",
+   "whole_tu_moved": "26 symbols gated in the moved build: 23 PASS; only GetDirentry 36 / CreateFile 30 / DeleteFile 23 remain (their own pre-existing baselines) -- 0 PASS->FAIL",
+   "regex_uniqueness": "both `take` and both `after` patterns match EXACTLY ONCE in the fn region (checked against build/recon/syslib/psx/libmcrd/LIBMCRD.c.s)"
+  },
+  "source_falsifications_this_basin": [
+   "w62-a8 (pre-existing): `pi` assigned after the r launder = 4 (inert); no pi fence = 7; pi fence dropped = 7"
+  ]
+ }
+]

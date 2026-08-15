@@ -1665,6 +1665,14 @@ PER_FN_TEXT_MOVES = {
     # data twins = the pre-existing cross-jumped `addu $a0,$zero,$zero` named
     # angle).  Whole-TU 15/26 -> 17/26, zero regressions.
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {
+        # w63-a4 (probe-verified 2x, PASS 117/117; whole-TU 23/26, 0
+        # PASS->FAIL): Exist_cb sched2 emission order, two li-$2,1 sites
+        # each one line earlier in retail. Supersedes the w62a8 row whose
+        # ABI-name anchors could never match cc1's numeric registers.
+        "MemCardExist_cb": [
+            {"take": "\\tli\\t\\$2,0x00000001[^\\n]*\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tsw\\t\\$4,4\\(\\$3\\))", "after": "\\taddu\\t\\$4,\\$2,\\$0\\n"},
+            {"take": "\\tli\\t\\$2,0x00000001[^\\n]*\\n(?=\\tlw\\t\\$4,_mc_exrslt)", "after": "\\tla\\t\\$16,mc\\+12\\n(?= \\#APP\\n \\#NO_APP\\n\\tlw\\t\\$3,0\\(\\$16\\))"},
+        ],
         "MemCardReadFile_cb": [
             {"take": r"(?<=:\n)\tli\t\$2,0x0000000b[^\n]*\n",
              "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "slot": True},

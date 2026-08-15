@@ -1,0 +1,10 @@
+{
+ "recon/syslib/psx/libmcrd/LIBMCRD.c": {
+  "MemCardExist_cb": [
+   {"take": "\\tli\\t\\$2,0x00000001[^\\n]*\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tsw\\t\\$4,4\\(\\$3\\))",
+    "after": "\\taddu\\t\\$4,\\$2,\\$0\\n"},
+   {"take": "\\tli\\t\\$2,0x00000001[^\\n]*\\n(?=\\tlw\\t\\$4,_mc_exrslt)",
+    "after": "\\tla\\t\\$16,mc\\+12\\n(?= \\#APP\\n \\#NO_APP\\n\\tlw\\t\\$3,0\\(\\$16\\))"}
+  ]
+ }
+}

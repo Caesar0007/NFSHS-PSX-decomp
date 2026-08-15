@@ -1,0 +1,81 @@
+W67-A1 VENDOR GROUND TRUTH  LIBETC / INTR_VB / startIntrVSync
+linkage=export  section-size=288 bytes (72 words)  vendor-relocs=20
+retail VA=0x80106534  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  3c040000  3c048013  R  lui	a0,0x0                          <HI16 .data(base)>
+0008  24840120  24847cf0  R  addiu	a0,a0,288                     <LO16 .data(base)>
+000c  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x24 + .data(base))>
+0010  8c630144  8c637d14  R  lw	v1,324(v1)                       <LO16 (0x24 + .data(base))>
+0014  24020100  24020100  =  li	v0,256                         
+0018  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+001c  ac620000  ac620000  =  sw	v0,0(v1)                       
+0020  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x20 + .data(base))>
+0024  ac200140  ac207d10  R  sw	zero,320(at)                     <LO16 (0x20 + .data(base))>
+0028  0c00003c  0c041989  R  jal	0xf0                            <REL26 (0xF0 + .text(base))>
+002c  24050008  24050008  =  li	a1,8                           
+0030  3c050000  3c058010  R  lui	a1,0x0                          <HI16 (0x58 + .text(base))>
+0034  24a50058  24a5658c  R  addiu	a1,a1,88                      <LO16 (0x58 + .text(base))>
+0038  0c000000  0c03ca1f  R  jal	0x0                             <REL26 InterruptCallback>
+003c  00002021  00002021  =  move	a0,zero                      
+0040  3c020000  3c028010  R  lui	v0,0x0                          <HI16 (0xC4 + .text(base))>
+0044  244200c4  244265f8  R  addiu	v0,v0,196                     <LO16 (0xC4 + .text(base))>
+0048  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+004c  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0050  03e00008  03e00008  =  jr	ra                             
+0054  00000000  00000000  =  nop                               
+        >> retail symbol here: startIntrVSync_helper_1 (0x8010658C)
+0058  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x20 + .data(base))>
+005c  8c420140  8c427d10  R  lw	v0,320(v0)                       <LO16 (0x20 + .data(base))>
+0060  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0064  afb10014  afb10014  =  sw	s1,20(sp)                      
+0068  00008821  00008821  =  move	s1,zero                      
+006c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0070  3c100000  3c108013  R  lui	s0,0x0                          <HI16 .data(base)>
+0074  26100120  26107cf0  R  addiu	s0,s0,288                     <LO16 .data(base)>
+0078  afbf0018  afbf0018  =  sw	ra,24(sp)                      
+007c  24420001  24420001  =  addiu	v0,v0,1                     
+0080  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x20 + .data(base))>
+0084  ac220140  ac227d10  R  sw	v0,320(at)                       <LO16 (0x20 + .data(base))>
+0088  8e020000  8e020000  =  lw	v0,0(s0)                       
+008c  00000000  00000000  =  nop                               
+0090  10400003  10400003  =  beqz	v0,0xa0                      
+0094  00000000  00000000  =  nop                               
+0098  0040f809  0040f809  =  jalr	v0                           
+009c  00000000  00000000  =  nop                               
+00a0  26310001  26310001  =  addiu	s1,s1,1                     
+00a4  2a220008  2a220008  =  slti	v0,s1,8                      
+00a8  1440fff7  1440fff7  =  bnez	v0,0x88                      
+00ac  26100004  26100004  =  addiu	s0,s0,4                     
+00b0  8fbf0018  8fbf0018  =  lw	ra,24(sp)                      
+00b4  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+00b8  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00bc  03e00008  03e00008  =  jr	ra                             
+00c0  27bd0020  27bd0020  =  addiu	sp,sp,32                    
+        >> retail symbol here: startIntrVSync_helper_2 (0x801065F8)
+00c4  3c020000  3c028013  R  lui	v0,0x0                          <HI16 .data(base)>
+00c8  24420120  24427cf0  R  addiu	v0,v0,288                     <LO16 .data(base)>
+00cc  00042080  00042080  =  sll	a0,a0,0x2                     
+00d0  00822021  00822021  =  addu	a0,a0,v0                     
+00d4  8c820000  8c820000  =  lw	v0,0(a0)                       
+00d8  00000000  00000000  =  nop                               
+00dc  10a20002  10a20002  =  beq	a1,v0,0xe8                    
+00e0  00000000  00000000  =  nop                               
+00e4  ac850000  ac850000  =  sw	a1,0(a0)                       
+00e8  03e00008  03e00008  =  jr	ra                             
+00ec  00000000  00000000  =  nop                               
+        >> retail symbol here: startIntrVSync_helper_3 (0x80106624)
+00f0  10a00006  10a00006  =  beqz	a1,0x10c                     
+00f4  24a2ffff  24a2ffff  =  addiu	v0,a1,-1                    
+00f8  2403ffff  2403ffff  =  li	v1,-1                          
+00fc  ac800000  ac800000  =  sw	zero,0(a0)                     
+0100  2442ffff  2442ffff  =  addiu	v0,v0,-1                    
+0104  1443fffd  1443fffd  =  bne	v0,v1,0xfc                    
+0108  24840004  24840004  =  addiu	a0,a0,4                     
+010c  03e00008  03e00008  =  jr	ra                             
+0110  00000000  00000000  =  nop                               
+0114  00000000  00000000  =  nop                               
+0118  00000000  00000000  =  nop                               
+011c  00000000  00000000  =  nop                               

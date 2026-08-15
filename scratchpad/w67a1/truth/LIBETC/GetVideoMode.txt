@@ -1,0 +1,13 @@
+W67-A1 VENDOR GROUND TRUTH  LIBETC / VMODE / GetVideoMode
+linkage=export  section-size=28 bytes (7 words)  vendor-relocs=2
+retail VA=0x800F1784  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028013  R  lui	v0,0x0                          <HI16 .data(base)>
+0004  8c420030  8c424838  R  lw	v0,48(v0)                        <LO16 .data(base)>
+0008  03e00008  03e00008  =  jr	ra                             
+000c  00000000  00000000  =  nop                               
+0010  00000000  00000000  =  nop                               
+0014  00000000  00000000  =  nop                               
+0018  00000000  00000000  =  nop                               

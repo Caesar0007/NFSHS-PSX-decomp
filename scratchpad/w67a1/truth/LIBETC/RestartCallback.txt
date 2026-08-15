@@ -1,0 +1,19 @@
+W67-A1 VENDOR GROUND TRUTH  LIBETC / INTR / RestartCallback
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=2
+retail VA=0x800F2DF8  VERDICT=drifted(12)
+member $Id: $Id: intr.c,v 1.75 1997/02/07 09:00:36 makoto Exp $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  27bdffe8  !  lui	v0,0x0                          <HI16 (0x10E0 + .data(base))>
+0004  8c421810  afb00010  !  lw	v0,6160(v0)                      <LO16 (0x10E0 + .data(base))>
+0008  27bdffe8  3c108013  !  addiu	sp,sp,-24                   
+000c  afbf0010  26104af8  !  sw	ra,16(sp)                      
+0010  8c420018  afbf0014  !  lw	v0,24(v0)                      
+0014  00000000  96020000  !  nop                               
+0018  0040f809  00000000  !  jalr	v0                           
+001c  00000000  14400011  !  nop                               
+0020  8fbf0010  00000000  !  lw	ra,16(sp)                      
+0024  27bd0018  0c0419a7  !  addiu	sp,sp,24                    
+0028  03e00008  26040038  !  jr	ra                             
+002c  00000000  3c048013  !  nop                               

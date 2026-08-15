@@ -1,0 +1,13 @@
+W67-A1 VENDOR GROUND TRUTH  LIBETC / INTR / GetIntrMask
+linkage=export  section-size=24 bytes (6 words)  vendor-relocs=2
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: intr.c,v 1.75 1997/02/07 09:00:36 makoto Exp $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  --------     lui	v0,0x0                          <HI16 (0x10E8 + .data(base))>
+0004  8c421818  --------     lw	v0,6168(v0)                      <LO16 (0x10E8 + .data(base))>
+0008  00000000  --------     nop                               
+000c  94420000  --------     lhu	v0,0(v0)                      
+0010  03e00008  --------     jr	ra                             
+0014  00000000  --------     nop                               

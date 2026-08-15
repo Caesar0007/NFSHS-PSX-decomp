@@ -1,0 +1,25 @@
+W67-A1 VENDOR GROUND TRUTH  LIBETC / PAD / PadInit
+linkage=export  section-size=76 bytes (19 words)  vendor-relocs=9
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  2402ffff  --------     li	v0,-1                          
+0008  afbf0010  --------     sw	ra,16(sp)                      
+000c  3c010000  --------     lui	at,0x0                          <HI16 PadIdentifier>
+0010  ac240000  --------     sw	a0,0(at)                         <LO16 PadIdentifier>
+0014  3c010000  --------     lui	at,0x0                          <HI16 .bss(base)>
+0018  0c000000  --------     jal	0x0                             <REL26 ResetCallback>
+001c  ac2200a0  --------     sw	v0,160(at)                       <LO16 .bss(base)>
+0020  3c042000  --------     lui	a0,0x2000                     
+0024  3c050000  --------     lui	a1,0x0                          <HI16 .bss(base)>
+0028  24a500a0  --------     addiu	a1,a1,160                     <LO16 .bss(base)>
+002c  0c000000  --------     jal	0x0                             <REL26 PAD_init>
+0030  34840001  --------     ori	a0,a0,0x1                     
+0034  0c000000  --------     jal	0x0                             <REL26 ChangeClearPAD>
+0038  00002021  --------     move	a0,zero                      
+003c  8fbf0010  --------     lw	ra,16(sp)                      
+0040  27bd0018  --------     addiu	sp,sp,24                    
+0044  03e00008  --------     jr	ra                             
+0048  00000000  --------     nop                               

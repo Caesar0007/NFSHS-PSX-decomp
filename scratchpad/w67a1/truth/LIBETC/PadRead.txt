@@ -1,0 +1,16 @@
+W67-A1 VENDOR GROUND TRUTH  LIBETC / PAD / PadRead
+linkage=export  section-size=40 bytes (10 words)  vendor-relocs=3
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afbf0010  --------     sw	ra,16(sp)                      
+0008  0c000000  --------     jal	0x0                             <REL26 PAD_dr>
+000c  00000000  --------     nop                               
+0010  3c020000  --------     lui	v0,0x0                          <HI16 .bss(base)>
+0014  8c4200a0  --------     lw	v0,160(v0)                       <LO16 .bss(base)>
+0018  8fbf0010  --------     lw	ra,16(sp)                      
+001c  00021027  --------     nor	v0,zero,v0                    
+0020  03e00008  --------     jr	ra                             
+0024  27bd0018  --------     addiu	sp,sp,24                    

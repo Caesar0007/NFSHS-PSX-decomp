@@ -836,13 +836,22 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
         memCardFile.icon[1] = (shapetbl *)0x0;
         memCardFile.icon[2] = (shapetbl *)0x0;
         ChecksumData(&memCardData);
-        /* inner save switch-loop (jtbl_80011800, base LICM-hoisted to s6); VA order
-           0x16 savefile / 0xc done / getcard-fail. */
+        /* MATCH (2026-08-15, 25 -> PASS): the two operand-free boundaries add
+           four live units to the LICM-hoisted inner jump-table base.  This drops
+           its global-alloc priority below the sign-extended player and restores
+           retail's player=$s4 / table=$s6 handout without emitting bytes.  In
+           that basin the retail player*4+1 recomputation no longer triggers the
+           old loop.c spill cascade.  The boundary after MCRD_getcard keeps the
+           CardFull constant in retail's status-branch delay slot.  Finally, the
+           two forward labels reproduce retail's distinct read-failure block and
+           the shared outer-case `finished` tail.  Detailed gate: PASS 226/226. */
         while (true) {
           if (finishedsave) break;
           int event = MCRD_handlecardevents(cardNum);
           systemtask(0);
           VSync(0);
+          __asm__("");
+          __asm__("");
           switch(event) {
           case 0x16:
             if (gMemCardInfo.bReady != 0) {
@@ -862,14 +871,8 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           case 0x17:
             Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
             {
-              /* MATCH W61-A18: `cardNum` (== player*4+1, set once at entry) NOT the
-                 recompute.  Retail recomputes here (`sll a0,s4,2; addiu a0,a0,1`), but a
-                 THIRD in-loop `player*4` tips gcc-2.8 loop.c combine_movables/move_movables
-                 over its threshold and the whole `sext(player)<<2` is hoisted to the
-                 preheader + SPILLED (frame 5744 vs retail 5736).  With two occurrences the
-                 hoist does not fire: 102 -> 25 diffs, frame + prologue + fp/s7 roles all
-                 snap to retail.  Cost = this one site is 1 insn short (225 vs 226). */
-              CARDINFO_def *pCVar7 = MCRD_getcard(cardNum);
+              CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
+              __asm__("");
               result = PinkSlipsError_CardFull;
               if (pCVar7->status != -3) {
                 result = PinkSlipsError_SaveFailed;
@@ -885,10 +888,16 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
         finished = true;
       }
       else {
-        result = PinkSlipsError_LoadFailed;
-        finished = true;
+        goto load_failed_outer;
       }
       break;
+    case 3:
+    case 7:
+    case 10:
+    case 0xb:
+    case 0x17:
+      result = PinkSlipsError_LoadFailed;
+      goto finish_outer_card_case;
     case 2:
     case 0x10:
       {
@@ -901,13 +910,11 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           }
         }
       }
+finish_outer_card_case:
+      __asm__("");
       finished = true;
       break;
-    case 3:
-    case 7:
-    case 10:
-    case 0xb:
-    case 0x17:
+load_failed_outer:
       finished = true;
       result = PinkSlipsError_LoadFailed;
       break;

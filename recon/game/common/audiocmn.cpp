@@ -51,14 +51,14 @@ Channels_t   gaChannel[71];   /* @0x8010e8fc  (bss(zero)) */
 AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32];   /* @0x8010eb34  (bss(zero)) */
 char         carbankname[12];   /* @0x8010ee34  (bss(zero)) */
 char         trackMusicState = 4;   /* @0x8013c628 */
-int          audioBackwardsDirection;   /* @0x8013c62c  (bss(zero)) */
-int          intensityFalseLapCounter;   /* @0x8013c630  (bss(zero)) */
-int          falseLapCounter;   /* @0x8013c634  (bss(zero)) */
-int          gMusicStyle;   /* @0x8013c638  (bss(zero)) */
-char         countdown;   /* @0x8013c63c  (bss(zero)) */
-char         FadingMusic;   /* @0x8013c63d  (bss(zero)) */
-char         StartedNewMusic;   /* @0x8013c63e  (bss(zero)) */
-int          recordLapTime;   /* @0x8013c640  (bss(zero)) */
+int          audioBackwardsDirection = 0;   /* @0x8013c62c  (bss(zero)) */
+int          intensityFalseLapCounter = 0;   /* @0x8013c630  (bss(zero)) */
+int          falseLapCounter = 0;   /* @0x8013c634  (bss(zero)) */
+int          gMusicStyle = 0;   /* @0x8013c638  (bss(zero)) */
+char         countdown = 0;   /* @0x8013c63c  (bss(zero)) */
+char         FadingMusic = 0;   /* @0x8013c63d  (bss(zero)) */
+char         StartedNewMusic = 0;   /* @0x8013c63e  (bss(zero)) */
+int          recordLapTime = 0;   /* @0x8013c640  (bss(zero)) */
 int          AudioCmn_kAudioOn = 1;   /* @0x8013c644 */
 int          AudioCmn_kAudioStreamingOn = 1;   /* @0x8013c648 */
 int          SgameSFXvol = 40;   /* @0x8013c64c */
@@ -70,13 +70,13 @@ int          gMasterAmbientLevel = 127;   /* @0x8013c660 */
 int          previousSFXLevel = 127;   /* @0x8013c664 */
 int          AudioCmn_musicInteractive = 1;   /* @0x8013c668 */
 int          gFEmusicON = 1;   /* @0x8013c66c */
-int          NumSFXOn;   /* @0x8013c670  (bss(zero)) */
+int          NumSFXOn = 0;   /* @0x8013c670  (bss(zero)) */
 int          gStereoMode = 1;   /* @0x8013c674 */
-char         fReverbOn;   /* @0x8013c678  (bss(zero)) */
+char         fReverbOn = 0;   /* @0x8013c678  (bss(zero)) */
 char         fReverbLevel = 0;   /* @0x8013c679 */
-int          falseLapTrigCur;   /* @0x8013c6b4  (bss(zero)) */
-int          flaseLapTrigTrack;   /* @0x8013c6b8  (bss(zero)) */
-char         currentLap[2];   /* @0x8013c6bc  (bss(zero)) */
+int          falseLapTrigCur = 0;   /* @0x8013c6b4  (bss(zero)) */
+int          flaseLapTrigTrack = 0;   /* @0x8013c6b8  (bss(zero)) */
+char         currentLap[2] = {0, 0};   /* @0x8013c6bc  (bss(zero)) */
 /* MATCH (w66-a6): the five 8-byte objects of this TU's .sdata run sit INSIDE
  * retail's small-data window (0x8013c628..0x8013c71c) but -G4 exiles anything
  * over 4 bytes to .data, punching 24- and 16-byte holes in the ownership map.
@@ -89,25 +89,25 @@ char         currentLap[2];   /* @0x8013c6bc  (bss(zero)) */
  * The section attribute is the storage-only equivalent: it moves the object and
  * leaves -G (and therefore every address materialization) alone -- the object's
  * TEXT is BYTE-IDENTICAL to the un-attributed build, 3765/3765 words. */
-int          bestLapTime[2] __attribute__((section(".sdata")));   /* @0x8013c6c0  (bss(zero)) */
-int          gtotallaptimes[2] __attribute__((section(".sdata")));   /* @0x8013c6c8  (bss(zero)) */
-int          AudioCmn_gPlayerArrested[2] __attribute__((section(".sdata")));   /* @0x8013c6d0  (bss(zero)) */
-int          AudioCmn_gCursorSndHandle;   /* @0x8013c6d8  (bss(zero)) */
-int          AudioCmn_gLastFade;   /* @0x8013c6dc  (bss(zero)) */
-void         *AudioCmn_gLoadTables;   /* @0x8013c6e0  (bss(zero)) */
-void         *AudioCmn_gCruiseTables;   /* @0x8013c6e4  (bss(zero)) */
-int          AudioCmn_gResume;   /* @0x8013c6e8  (bss(zero)) */
-int          AudioCmn_gStreamRestartTimer;   /* @0x8013c6ec  (bss(zero)) */
-char         fMysticWindON[2];   /* @0x8013c6f0  (bss(zero)) */
-char         fAmbientRangeON[2];   /* @0x8013c6f4  (bss(zero)) */
-int          currentWindVal[2] __attribute__((section(".sdata")));   /* @0x8013c6f8  (bss(zero)) */
-int          nextWindVal[2] __attribute__((section(".sdata")));   /* @0x8013c700  (bss(zero)) */
-int          currentWindPan;   /* @0x8013c708  (bss(zero)) */
-int          nextWindPan;   /* @0x8013c70c  (bss(zero)) */
-int          gQuickSirenCount;   /* @0x8013c710  (bss(zero)) */
-int          AudioCmn_ThunderAmp;   /* @0x8013c714  (bss(zero)) */
-int          AudioCmn_ThunderAzi;   /* @0x8013c718  (bss(zero)) */
-int          AudioCmn_ThunderDel;   /* @0x8013c71c  (bss(zero)) */
+int          bestLapTime[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6c0  (bss(zero)) */
+int          gtotallaptimes[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6c8  (bss(zero)) */
+int          AudioCmn_gPlayerArrested[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6d0  (bss(zero)) */
+int          AudioCmn_gCursorSndHandle = 0;   /* @0x8013c6d8  (bss(zero)) */
+int          AudioCmn_gLastFade = 0;   /* @0x8013c6dc  (bss(zero)) */
+void         *AudioCmn_gLoadTables = 0;   /* @0x8013c6e0  (bss(zero)) */
+void         *AudioCmn_gCruiseTables = 0;   /* @0x8013c6e4  (bss(zero)) */
+int          AudioCmn_gResume = 0;   /* @0x8013c6e8  (bss(zero)) */
+int          AudioCmn_gStreamRestartTimer = 0;   /* @0x8013c6ec  (bss(zero)) */
+char         fMysticWindON[2] = {0, 0};   /* @0x8013c6f0  (bss(zero)) */
+char         fAmbientRangeON[2] = {0, 0};   /* @0x8013c6f4  (bss(zero)) */
+int          currentWindVal[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6f8  (bss(zero)) */
+int          nextWindVal[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c700  (bss(zero)) */
+int          currentWindPan = 0;   /* @0x8013c708  (bss(zero)) */
+int          nextWindPan = 0;   /* @0x8013c70c  (bss(zero)) */
+int          gQuickSirenCount = 0;   /* @0x8013c710  (bss(zero)) */
+int          AudioCmn_ThunderAmp = 0;   /* @0x8013c714  (bss(zero)) */
+int          AudioCmn_ThunderAzi = 0;   /* @0x8013c718  (bss(zero)) */
+int          AudioCmn_ThunderDel = 0;   /* @0x8013c71c  (bss(zero)) */
 int          PlayersRampedGasLevel[2];   /* @0x8013dd80  (bss(zero)) */
 
 

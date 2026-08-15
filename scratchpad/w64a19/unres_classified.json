@@ -1,0 +1,900 @@
+[
+ {
+  "kind": "ORPHAN",
+  "sym": "CD_init",
+  "hits": 1,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcd/event.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "CarIO_textureName",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/game/psx/cario.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_80134a6c",
+  "hits": 3,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/ssysreal.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_8013bd50",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/eacpsxz/isqrttbl.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_801478f4",
+  "hits": 3,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/salloc.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_801479f0",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/sdplapat.c.o",
+   "recon/eaclib/psx/sndpsxz/sdriver.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_80147e28",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/spatkey.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_80148064",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "DAT_80148448",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_1000001",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "asm/data/data_8010CCD4_o23.data.s.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80000004",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/2mbyte/2mbyte.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_8013EAD8",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libgpu/SYS.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80147871",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/sdpacket.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80147898",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/ssysinit.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_801479F0",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/sdtimrem.c.o",
+   "recon/eaclib/psx/sndpsxz/slib.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80147A0C",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/slib.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80147E34",
+  "hits": 3,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/sdmemman.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_801489B4",
+  "hits": 56,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcd/drv.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80148AC4",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcard/PATCH.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "D_80148AD4",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcard/END.c.o"
+  ]
+ },
+ {
+  "kind": "ALIAS",
+  "sym": "DisplayHelp__FP14tFEApplicationi",
+  "hits": 1,
+  "cands": [
+   "DisplayHelp__14tFEApplications"
+  ],
+  "objs": [
+   "recon/frontend/common/femenu.cpp.o"
+  ]
+ },
+ {
+  "kind": "ALIAS",
+  "sym": "DrawBackgroundImage__FP7tScreeniiP18tTexture_ShapeInfoi",
+  "hits": 2,
+  "cands": [
+   "DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi"
+  ],
+  "objs": [
+   "recon/frontend/common/screenpost.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "FECredits_lastFadeTick",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/fecredits.cpp.o"
+  ]
+ },
+ {
+  "kind": "ALIAS",
+  "sym": "FETextRender_FullTextRGB__FPcssici",
+  "hits": 2,
+  "cands": [
+   "FETextRender_FullTextRGB__FPcssics"
+  ],
+  "objs": [
+   "recon/frontend/common/screenpost.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "Padglobal",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/pad.c.o"
+  ]
+ },
+ {
+  "kind": "ALIAS",
+  "sym": "TextValue__FPv7tPlayer",
+  "hits": 1,
+  "cands": [
+   "TextValue__16tListIteratorCar7tPlayer",
+   "TextValue__21tListIteratorCarColor7tPlayer",
+   "TextValue__13tListIterator7tPlayer",
+   "TextValue__18tListIteratorRange7tPlayer",
+   "TextValue__20tListIteratorIndexed7tPlayer",
+   "TextValue__24tListIteratorMultiPlayer7tPlayer",
+   "TextValue__26tListIteratorDoubleIndexed7tPlayer",
+   "TextValue__23tListIteratorTournament7tPlayer",
+   "TextValue__18tListIteratorTrack7tPlayer",
+   "TextValue__14tPListIterator7tPlayer",
+   "TextValue__21tPListIteratorIndexed7tPlayer"
+  ],
+  "objs": [
+   "recon/frontend/common/screenpost.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "__20tDialogMessageString",
+  "hits": 1,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/fedialog.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "__last_org",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/2mbyte/2mbyte.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_cd_cached_dir",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcd/iso9660.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_cd_search_nopen",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcd/iso9660.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_cdr",
+  "hits": 34,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libcd/cdread.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_first_devname",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libapi/FIRST.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_first_save",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libapi/FIRST.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_fnt",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libgpu/FONT.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_fnt_active",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libgpu/FONT.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_fnt_count",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libgpu/FONT.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_gp",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/2mbyte/2mbyte.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "_rsincos",
+  "hits": 16,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libgte/FGO_01.c.o",
+   "recon/syslib/psx/libgte/FGO_06.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "bigBuf",
+  "hits": 23,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/feapp.cpp.o",
+   "recon/frontend/common/feaudio.cpp.o",
+   "recon/game/common/minfront.cpp.o",
+   "recon/game/common/nfs3.cpp.o",
+   "recon/game/psx/fe3dmenu.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "currentwindow",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/eacpsxz/fastmovf.c.o",
+   "recon/eaclib/psx/eacpsxz/movf.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "debounce",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/feinput.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "dma_cb",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR_DMA.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gDataRate",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchinit.c.o",
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gEventDats",
+  "hits": 10,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchevnt.c.o",
+   "recon/eaclib/psx/spchpsxz/spchrand.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gFilterSetting",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchevnt.c.o",
+   "recon/eaclib/psx/spchpsxz/spchinit.c.o",
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gGameNum",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchbank.c.o",
+   "recon/eaclib/psx/spchpsxz/spchinit.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gLastSubTick",
+  "hits": 9,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchevnt.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gLastTick",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchevnt.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gPadinfo",
+  "hits": 115,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/pad.c.o",
+   "recon/frontend/common/feapp.cpp.o",
+   "recon/frontend/common/fedialog.cpp.o",
+   "recon/frontend/common/feinput.cpp.o",
+   "recon/frontend/common/fememcard.cpp.o",
+   "recon/frontend/common/femenudefs.cpp.o",
+   "recon/frontend/common/femenuoptions.cpp.o",
+   "recon/frontend/common/front.cpp.o",
+   "recon/frontend/common/screencarselect.cpp.o",
+   "recon/frontend/common/screencontroller.cpp.o",
+   "recon/frontend/common/screentrophyroom.cpp.o",
+   "recon/game/psx/device.cpp.o",
+   "recon/game/psx/hud.cpp.o",
+   "recon/game/psx/psxcontroller.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gPreLoadTicks",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchevnt.c.o",
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gSentenceChoice",
+  "hits": 7,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "gSndState",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/span.c.o",
+   "recon/eaclib/psx/sndpsxz/sstsetpr.c.o",
+   "recon/eaclib/psx/sndpsxz/svol.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gVoxEvents",
+  "hits": 44,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchevnt.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "gVoxInGame",
+  "hits": 10,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchinit.c.o",
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_bootGP",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/eacpsxz/savegp.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_dicr_ptr",
+  "hits": 14,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR_DMA.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_dpcr_ptr",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_hooks_ptr",
+  "hits": 14,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_imask_ptr",
+  "hits": 18,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_intr_timeout",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_istat_ptr",
+  "hits": 16,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_madr_ptr",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR_DMA.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_rcnt_ptr",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/INTR_VB.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_videomode",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/VMODE.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_vsync_gp1_ptr",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/VSYNC.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "g_vsync_t1_ptr",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/VSYNC.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "hilight_colors",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/game/psx/drawc.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "hoff",
+  "hits": 10,
+  "cands": [],
+  "objs": [
+   "recon/game/psx/psxcontroller.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "inputQueue",
+  "hits": 15,
+  "cands": [],
+  "objs": [
+   "recon/game/common/simqueue.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "ispch_gChoice",
+  "hits": 16,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "ispch_gPickSamples",
+  "hits": 10,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/spchpsxz/spchpick.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "loading_languageNames",
+  "hits": 2,
+  "cands": [],
+  "objs": [
+   "recon/game/psx/loading.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "memclass",
+  "hits": 3,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/eacpsxz/inittmr.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "mutexbuf",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/eacpsxz/callback.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "nextTick",
+  "hits": 7,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/feinput.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "output",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/game/common/simqueue.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "showRoomFlag",
+  "hits": 17,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/screencarselect.cpp.o",
+   "recon/frontend/common/screencongrats.cpp.o",
+   "recon/game/psx/fe3dmenu.cpp.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndchanreserved",
+  "hits": 17,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/salloc.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndgs",
+  "hits": 201,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/s3dlow.c.o",
+   "recon/eaclib/psx/sndpsxz/s3dpos.c.o",
+   "recon/eaclib/psx/sndpsxz/salloc.c.o",
+   "recon/eaclib/psx/sndpsxz/sautovol.c.o",
+   "recon/eaclib/psx/sndpsxz/sbadd.c.o",
+   "recon/eaclib/psx/sndpsxz/sballoc.c.o",
+   "recon/eaclib/psx/sndpsxz/sbend.c.o",
+   "recon/eaclib/psx/sndpsxz/sbhdrcpy.c.o",
+   "recon/eaclib/psx/sndpsxz/sbhdrsze.c.o",
+   "recon/eaclib/psx/sndpsxz/sbirmpat.c.o",
+   "recon/eaclib/psx/sndpsxz/sbremove.c.o",
+   "recon/eaclib/psx/sndpsxz/sbvalid.c.o",
+   "recon/eaclib/psx/sndpsxz/scdvol.c.o",
+   "recon/eaclib/psx/sndpsxz/sclcptch.c.o",
+   "recon/eaclib/psx/sndpsxz/sdfx.c.o",
+   "recon/eaclib/psx/sndpsxz/sdma.c.o",
+   "recon/eaclib/psx/sndpsxz/sdpacket.c.o",
+   "recon/eaclib/psx/sndpsxz/sdplapat.c.o",
+   "recon/eaclib/psx/sndpsxz/seffect.c.o",
+   "recon/eaclib/psx/sndpsxz/sfxlevel.c.o",
+   "recon/eaclib/psx/sndpsxz/sgetvol.c.o",
+   "recon/eaclib/psx/sndpsxz/slib.c.o",
+   "recon/eaclib/psx/sndpsxz/slimits.c.o",
+   "recon/eaclib/psx/sndpsxz/smasterv.c.o",
+   "recon/eaclib/psx/sndpsxz/sover.c.o",
+   "recon/eaclib/psx/sndpsxz/spatkey.c.o",
+   "recon/eaclib/psx/sndpsxz/spitch.c.o",
+   "recon/eaclib/psx/sndpsxz/spktplay.c.o",
+   "recon/eaclib/psx/sndpsxz/splay.c.o",
+   "recon/eaclib/psx/sndpsxz/spvoices.c.o",
+   "recon/eaclib/psx/sndpsxz/sserver.c.o",
+   "recon/eaclib/psx/sndpsxz/sst.c.o",
+   "recon/eaclib/psx/sndpsxz/sstautov.c.o",
+   "recon/eaclib/psx/sndpsxz/sstgetv.c.o",
+   "recon/eaclib/psx/sndpsxz/sstop.c.o",
+   "recon/eaclib/psx/sndpsxz/sstopall.c.o",
+   "recon/eaclib/psx/sndpsxz/sstrstat.c.o",
+   "recon/eaclib/psx/sndpsxz/sstsetgl.c.o",
+   "recon/eaclib/psx/sndpsxz/sstsetgs.c.o",
+   "recon/eaclib/psx/sndpsxz/sststat.c.o",
+   "recon/eaclib/psx/sndpsxz/sstvol.c.o",
+   "recon/eaclib/psx/sndpsxz/ssysinit.c.o",
+   "recon/eaclib/psx/sndpsxz/ssysserv.c.o",
+   "recon/eaclib/psx/sndpsxz/stagpat.c.o",
+   "recon/eaclib/psx/sndpsxz/stimerem.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndmm",
+  "hits": 13,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/smemman.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndpd",
+  "hits": 113,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/s3dpos.c.o",
+   "recon/eaclib/psx/sndpsxz/sdcdvol.c.o",
+   "recon/eaclib/psx/sndpsxz/sdfx.c.o",
+   "recon/eaclib/psx/sndpsxz/sdma.c.o",
+   "recon/eaclib/psx/sndpsxz/sdmemlu.c.o",
+   "recon/eaclib/psx/sndpsxz/sdmemman.c.o",
+   "recon/eaclib/psx/sndpsxz/sdpacket.c.o",
+   "recon/eaclib/psx/sndpsxz/sdplapat.c.o",
+   "recon/eaclib/psx/sndpsxz/sdriver.c.o",
+   "recon/eaclib/psx/sndpsxz/sdspuirq.c.o",
+   "recon/eaclib/psx/sndpsxz/slib.c.o",
+   "recon/eaclib/psx/sndpsxz/spatkey.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndpp",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/sdpacket.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndpps",
+  "hits": 22,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/spktplay.c.o"
+  ]
+ },
+ {
+  "kind": "IN_SYMADDRS",
+  "sym": "sndss",
+  "hits": 24,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/sndpsxz/spvoices.c.o",
+   "recon/eaclib/psx/sndpsxz/sst.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "systemtasksubs",
+  "hits": 8,
+  "cands": [],
+  "objs": [
+   "recon/eaclib/psx/eacpsxz/systask.c.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand",
+  "hits": 1,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/screenpost.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "ticksA",
+  "hits": 4,
+  "cands": [],
+  "objs": [
+   "recon/frontend/common/fevideowall.cpp.o"
+  ]
+ },
+ {
+  "kind": "ORPHAN",
+  "sym": "vsync_lastcount",
+  "hits": 6,
+  "cands": [],
+  "objs": [
+   "recon/syslib/psx/libetc/VSYNC.c.o"
+  ]
+ }
+]

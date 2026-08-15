@@ -1,0 +1,125 @@
+{
+ "fixed": [
+  [
+   "UpdateImages__FP10tVideoWall",
+   "UpdateImages__10tVideoWall",
+   "recon/frontend/common/screencarselect_externs.h",
+   104,
+   "recon/frontend/common/screencarselect.cpp"
+  ],
+  [
+   "TurnOffInstant__FP10tVideoWall",
+   "TurnOffInstant__10tVideoWall",
+   "recon/frontend/common/screentrackinfo_externs.h",
+   28,
+   "recon/frontend/common/screentrackinfo.cpp"
+  ],
+  [
+   "TurnOn__FP10tVideoWall",
+   "TurnOn__10tVideoWall",
+   "recon/frontend/common/screentrackinfo_externs.h",
+   27,
+   "recon/frontend/common/screentrackinfo.cpp"
+  ],
+  [
+   "UpdateImages__FP10tVideoWall",
+   "UpdateImages__10tVideoWall",
+   "recon/frontend/common/screentrackinfo_externs.h",
+   29,
+   "recon/frontend/common/screentrackinfo.cpp"
+  ],
+  [
+   "GetCarFromSimID__FP11tCarManagers",
+   "GetCarFromSimID__11tCarManagers",
+   "recon/frontend/common/statchk_externs.h",
+   16,
+   "recon/frontend/common/statchk.cpp"
+  ],
+  [
+   "ItemEnabledNum__FPvi",
+   "ItemEnabledNum__6tPMenui",
+   "recon/game/common/mpause_externs.h",
+   44,
+   "recon/game/common/mpause.cpp"
+  ],
+  [
+   "BWorldSm_TunnelFlagSm__FPv",
+   "BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos",
+   "recon/game/psx/weather_externs.h",
+   57,
+   "recon/game/psx/weather.cpp"
+  ]
+ ],
+ "failed": [
+  [
+   "SetAvailable__FP10tVideoWallUs",
+   "recon/frontend/common/screencarselect.cpp",
+   "no working decl"
+  ],
+  [
+   "TurnOff__FP10tVideoWall",
+   "recon/frontend/common/screencarselect.cpp",
+   "no working decl"
+  ],
+  [
+   "TurnOn__FP10tVideoWall",
+   "recon/frontend/common/screencarselect.cpp",
+   "no working decl"
+  ],
+  [
+   "Texture_GetClutId",
+   "recon/frontend/psx/fetexture.cpp",
+   "no working decl"
+  ],
+  [
+   "Platform_ResetDCTBuffer",
+   "recon/frontend/psx/movie.cpp",
+   "no working decl"
+  ],
+  [
+   "Platform_ResetDCTBuffer",
+   "recon/frontend/psx/video.cpp",
+   "no working decl"
+  ],
+  [
+   "mdecreset",
+   "recon/frontend/psx/video.cpp",
+   "no working decl"
+  ],
+  [
+   "AISpeeds_CalcHumanCurveSpeed",
+   "recon/game/common/aispeeds.cpp",
+   "no working decl"
+  ],
+  [
+   "AudioCmn_ReverbOff",
+   "recon/game/common/audiocmn.cpp",
+   "no working decl"
+  ],
+  [
+   "AIPhysics_UseCoolPhysics",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "AISpeeds_MaintainLeaderBoard",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "AIWorld_CalculateLaneInfo",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "Cars_SortCars",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "DrawW_DoObjectAnimations",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ]
+ ]
+}

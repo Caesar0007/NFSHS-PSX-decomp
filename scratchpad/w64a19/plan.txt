@@ -1,0 +1,935 @@
+ALIAS symbols: 108   ambiguous(want): 22
+decl files to patch: 61
+blocked files touched: ['recon/frontend/common/femenu.cpp', 'recon/frontend/common/screenpost.cpp', 'recon/nfs4_types.h']
+total decl lines: 388
+
+--- recon/frontend/common/feapp.cpp
+  637	DECL	play_movie__Fc
+	play_movie((u_char)(currentVideo + 1));
+  924	DECL	FEInput_GetKeyFromPlayer__F7tPlayerl
+	keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
+--- recon/frontend/common/feapp_externs.h
+  58	DECL	FEInput_GetKeyFromPlayer__F7tPlayerl
+	int  FEInput_GetKeyFromPlayer(tPlayer, int);
+  70	DECL	play_movie__Fc
+	void play_movie(int);
+--- recon/frontend/common/fememcard.cpp
+  197	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)noInput);
+  210	DECL	Run__18tDialogInteractive
+	sVar4 = Run((tDialogInteractive *)dlg);
+  223	DECL	Display__11tDialogBase
+	Display(displayDialog);
+  229	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  231	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  240	DECL	Display__11tDialogBase
+	Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  243	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  246	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  306	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  317	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  384	DECL	UpdateMusic__14tFEApplication
+	UpdateMusic(FEApp[0]);
+  477	DECL	Display__11tDialogBase
+	Display((tDialogBase *)wd);
+  480	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  485	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  495	DECL	SaveTournament__18tTournamentManagerR15tSaveTournament
+	SaveTournament(&tournamentManager,&memCardData.tournament);
+  496	DECL	SaveTracks__13tTrackManagerR14tSaveTrackInfo
+	SaveTracks(&trackManager,&memCardData.trackInfo);
+  497	DECL	SaveCars__11tCarManagerR12tSaveCarInfo
+	SaveCars(&carManager,&memCardData.carInfo);
+  500	DECL	FECheat_SaveBonus__FRUl
+	FECheat_SaveBonus(&memCardData.bonus);
+  554	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  560	DECL	Display__11tDialogBase
+	Display(displayDialog);
+  563	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  565	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  568	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&WarningDialog);
+  569	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  617	DECL	Display__11tDialogBase
+	Display((tDialogBase *)&WarningDialog);
+  620	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  622	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  659	DECL	LoadTournament__18tTournamentManagerR15tSaveTournament
+	LoadTournament(&tournamentManager,&memCardData.tournament);
+  660	DECL	LoadTracks__13tTrackManagerR14tSaveTrackInfo
+	LoadTracks(&trackManager,&memCardData.trackInfo);
+  662	DECL	FECheat_LoadBonus__FRUl
+	FECheat_LoadBonus(&memCardData.bonus);
+  667	DECL	LoadCars__11tCarManagerR12tSaveCarInfos
+	LoadCars(&carManager,&memCardData.carInfo,player);
+  671	DECL	LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos
+	LoadPinkSlipsCars(&carManager,&memCardData.carInfo,player);
+  683	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  684	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
+  690	DECL	Display__11tDialogBase
+	Display(dialogBase);
+  705	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  732	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  733	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
+  739	DECL	Display__11tDialogBase
+	Display(dialogBase);
+  742	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  744	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  747	DECL	Front_ResetPSXController__Fii
+	Front_ResetPSXController((int)player,(uint)(byte)frontEnd.controlConfig[player]);
+  755	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&WarningDialog);
+  758	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  873	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  970	DECL	Display__11tDialogBase
+	Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  973	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  977	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  991	DECL	Display__11tDialogBase
+	Display((tDialogBase *)&WarningDialog);
+  994	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  996	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  1004	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&WarningDialog);
+  1005	DECL	Redraw__14tFEApplication
+	Redraw(FEApp[0]);
+  1007	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+  1017	DECL	Display__11tDialogBase
+	Display(dialog);
+  1022	DECL	Run__18tDialogInteractive
+	retry = Run((tDialogInteractive *)rc);
+  1024	DECL	Hide__11tDialogBase
+	Hide((tDialogBase *)&WillLoseCarMessage);
+--- recon/frontend/common/fememcard_externs.h
+  53	DECL	Display__11tDialogBase
+	void Display(tDialogBase*);
+  54	DECL	Hide__11tDialogBase
+	void Hide(tDialogBase*);
+  55	DECL	Run__18tDialogInteractive
+	short Run(tDialogInteractive*);
+  56	DECL	Redraw__14tFEApplication
+	void Redraw(tFEApplication*);
+  57	DECL	UpdateMusic__14tFEApplication
+	void UpdateMusic(tFEApplication*);
+  85	DECL	FECheat_SaveBonus__FRUl
+	void  FECheat_SaveBonus(unsigned long*);
+  86	DECL	FECheat_LoadBonus__FRUl
+	void  FECheat_LoadBonus(unsigned long*);
+  89	DECL	SaveTournament__18tTournamentManagerR15tSaveTournament
+	void  SaveTournament(tTournamentManager*, tSaveTournament*);
+  91	DECL	LoadTournament__18tTournamentManagerR15tSaveTournament
+	void  LoadTournament(tTournamentManager*, tSaveTournament*);
+  92	DECL	SaveTracks__13tTrackManagerR14tSaveTrackInfo
+	void  SaveTracks(tTrackManager*, tSaveTrackInfo*);
+  93	DECL	LoadTracks__13tTrackManagerR14tSaveTrackInfo
+	void  LoadTracks(tTrackManager*, tSaveTrackInfo*);
+  94	DECL	SaveCars__11tCarManagerR12tSaveCarInfo
+	void  SaveCars(tCarManager*, tSaveCarInfo*);
+  95	DECL	LoadCars__11tCarManagerR12tSaveCarInfos
+	void  LoadCars(tCarManager*, tSaveCarInfo*, short);
+  97	DECL	LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos
+	void  LoadPinkSlipsCars(tCarManager*, tSaveCarInfo*, short);
+  99	DECL	Front_ResetPSXController__Fii
+	void  Front_ResetPSXController(int, unsigned int);
+--- recon/frontend/common/femenu.cpp   [BLOCKED]
+  1332	DECL	DisplayHelp__14tFEApplications
+	DisplayHelp(FEApp,0);
+--- recon/frontend/common/femenu_externs.h
+  33	DECL	DisplayHelp__14tFEApplications
+	void  DisplayHelp(tFEApplication *app, int which);
+--- recon/frontend/common/femenuoptions.cpp
+  2284	DECL	GetHelpText__23tScreenControllerConfig
+	fHelpText[0] = GetHelpText(screen);
+--- recon/frontend/common/femenuoptions_externs.h
+  49	DECL	GetHelpText__23tScreenControllerConfig
+	int  GetHelpText(tScreenControllerConfig*);
+--- recon/frontend/common/fetourn.cpp
+  683	DECL	FECheat_ActivateBonus__F10tCheatCode
+	FECheat_ActivateBonus(this->fTier + cheat_FinishedTournament);
+  875	DECL	FECheat_ActivateBonus__F10tCheatCode
+	FECheat_ActivateBonus((this->fAwards).fActivateCarClass);
+  887	DECL	FECheat_ActivateBonus__F10tCheatCode
+	FECheat_ActivateBonus((this->fAwards).fActivateCheat);
+--- recon/frontend/common/fetourn_externs.h
+  34	DECL	FECheat_ActivateBonus__F10tCheatCode
+	void  FECheat_ActivateBonus(int);
+--- recon/frontend/common/fevideowall.cpp
+  57	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	InitTV(this->fTVs + i_2,this->fTVShapes,(short)(this->fFirstTVShape + i_2));
+  154	DECL	TurnOnTV__FR9tTVConfig
+	TurnOnTV(this->fTVs + this->tvOrder[j]);
+  165	DECL	TurnOffTV__FR9tTVConfig
+	TurnOffTV(this->fTVs + this->tvOrder[j]);
+  205	DECL	DrawTVLines__FR9tTVConfig
+	DrawTVLines(this->fTVs + i);
+  230	DECL	DrawTV__FR9tTVConfig
+	DrawTV(this->fTVs + i);
+  265	DECL	TurnOffTV__FR9tTVConfig
+	TurnOffTV(this->fTVs + i);
+--- recon/frontend/common/fevideowall_externs.h
+  9	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short);
+  10	DECL	DrawTV__FR9tTVConfig
+	void  DrawTV(tTVConfig*);
+  11	DECL	DrawTVLines__FR9tTVConfig
+	void  DrawTVLines(tTVConfig*);
+  12	DECL	TurnOnTV__FR9tTVConfig
+	void  TurnOnTV(tTVConfig*);
+  13	DECL	TurnOffTV__FR9tTVConfig
+	void  TurnOffTV(tTVConfig*);
+--- recon/frontend/common/screenaudio.cpp
+  197	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	percent = Percentage(&menuDefs[0]->itemMusicVolume);
+  200	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	percent = Percentage(&menuDefs[0]->itemSoundEffectsVolume);
+  203	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	percent = Percentage(&menuDefs[0]->itemEngineVolume);
+  206	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	percent = Percentage(&menuDefs[0]->itemSpeechVolume);
+  209	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	percent = Percentage(&menuDefs[0]->itemAmbientVolume);
+--- recon/frontend/common/screenaudio_externs.h
+  31	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	int Percentage(tMenuItemLeftRightAudioSlider * thisobj);
+--- recon/frontend/common/screencarselect.cpp
+  380	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall);
+  474	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  581	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall);
+  621	DECL	SetAvailableText__10tVideoWallsss
+	SetAvailableText(videowall,0xf8,0x140,0x50);
+  624	DECL	UpdateImages__10tVideoWall
+	UpdateImages(videowall);
+  842	DECL	UpdateImages__10tVideoWall
+	UpdateImages(this->fVideoWall);
+  846	DECL	TurnOffInstant__10tVideoWall
+	TurnOffInstant(this->fVideoWall);
+  852	DECL	SetAvailable__10tVideoWalls
+	SetAvailable(this_00,(ushort)carInfo.fAvailable);
+  1002	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  1196	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall);
+  1324	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  1399	DECL	SetAvailableText__10tVideoWallsss
+	SetAvailableText(vw_player,0xf8,0x10e,0x2d);
+  1402	DECL	UpdateImages__10tVideoWall
+	UpdateImages(vw_player);
+  1408	DECL	SetAvailableText__10tVideoWallsss
+	SetAvailableText(vw_player,0xf8,0x10e,0x96);
+  1411	DECL	UpdateImages__10tVideoWall
+	UpdateImages(vw_opp);
+  1467	DECL	TurnOffInstant__10tVideoWall
+	TurnOffInstant(this->fVideoWall);
+  1474	DECL	UpdateImages__10tVideoWall
+	UpdateImages(vw);
+  1497	DECL	SetAvailable__10tVideoWalls
+	SetAvailable(vw,(ushort)carInfo.fAvailable);
+  1520	DECL	TurnOffInstant__10tVideoWall
+	TurnOffInstant(this->fVideoWall + 1);
+  1527	DECL	UpdateImages__10tVideoWall
+	UpdateImages(vw_opp);
+  1533	DECL	SetAvailable__10tVideoWalls
+	SetAvailable(this_00,1);
+  1588	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall);
+  1607	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall + 1);
+  1668	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall + 1);
+  1677	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall + 1);
+  1689	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall + 1);
+  1727	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall);
+  1739	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  1752	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  1927	DECL	SetAvailableText__10tVideoWallsss
+	SetAvailableText(this->fVideoWall,0xf8,0x10e,sVar2);
+  1928	DECL	UpdateImages__10tVideoWall
+	UpdateImages(this->fVideoWall);
+  1933	DECL	TurnOffInstant__10tVideoWall
+	TurnOffInstant(this->fVideoWall);
+  1938	DECL	SetAvailable__10tVideoWalls
+	SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
+  1984	DECL	TurnOff__10tVideoWall
+	TurnOff(this->fVideoWall);
+  1996	DECL	TurnOffInstant__10tVideoWall
+	TurnOffInstant(this->fVideoWall);
+  2085	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  2129	DECL	TurnOn__10tVideoWall
+	TurnOn(this->fVideoWall);
+  2349	DECL	UpdateImages__10tVideoWall
+	UpdateImages(this->fVideoWall);
+--- recon/frontend/common/screencarselect_externs.h
+  87	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int);
+  88	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
+  97	DECL	FreeShapes__7tScreenR17tShapeInformation
+	void  FreeShapes(tScreen*, tShapeInformation*);
+  98	DECL	InitializeShapes__7tScreenR17tShapeInformationUi
+	void  InitializeShapes(tScreen*, tShapeInformation*, int);
+  99	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void  AsyncLoadSwapShapeFile(tScreen*, char*);
+  100	DECL	AsyncLoadShapeFile__7tScreenPcR17tShapeInformation
+	void  AsyncLoadShapeFile(tScreen*, char*, tShapeInformation*);
+  103	DECL	TurnOffInstant__10tVideoWall
+	void TurnOn(tVideoWall*); void TurnOff(tVideoWall*); void TurnOffInstant(tVideoWall*);
+  103	DECL	TurnOff__10tVideoWall
+	void TurnOn(tVideoWall*); void TurnOff(tVideoWall*); void TurnOffInstant(tVideoWall*);
+  103	DECL	TurnOn__10tVideoWall
+	void TurnOn(tVideoWall*); void TurnOff(tVideoWall*); void TurnOffInstant(tVideoWall*);
+  104	DECL	UpdateImages__10tVideoWall
+	void UpdateImages(tVideoWall*); void UpdateTransition(tVideoWall*); void Draw(tVideoWall*);
+  105	DECL	SetAvailableText__10tVideoWallsss
+	void SetAvailable(tVideoWall*, unsigned short); void SetAvailableText(tVideoWall*, short, short, short);
+  105	DECL	SetAvailable__10tVideoWalls
+	void SetAvailable(tVideoWall*, unsigned short); void SetAvailableText(tVideoWall*, short, short, short);
+--- recon/frontend/common/screencongrats.cpp
+  69	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
+  82	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	GetTrophyName(&tournamentManager,tourneyInfo,ts_Small,congratsSwapFileName,-1);
+  104	DECL	GetGarageCar__11tCarManagersR8tCarInfos
+	GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
+  566	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	GetAwardInformation(&tournamentManager,&tInfo);
+  567	DECL	GetCarFromID__11tCarManagers
+	srcCar = GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel);
+  573	DECL	GetGarageCar__11tCarManagersR8tCarInfos
+	GetGarageCar(&carManager, (ushort)(byte)frontEnd.garageCar[0],&carInfo,0);
+  661	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	GetAwardInformation(&tournamentManager,&tInfo);
+  712	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	GetAwardInformation(&tournamentManager,&tInfo);
+  800	DECL	GetCarFromID__11tCarManagers
+	srcCar = GetCarFromID(&carManager, (ushort)(byte)frontEnd.congratsCopCar);
+  867	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	GetAwardInformation(&tournamentManager,&tInfo);
+  868	DECL	GetCarFromID__11tCarManagers
+	srcCar = GetCarFromID(&carManager, (u_short)tInfo.fCompletedCar);
+  880	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	GetAwardInformation(&tournamentManager,&tInfo);
+  918	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	GetAwardInformation(&tournamentManager,&tInfo);
+--- recon/frontend/common/screencongrats_externs.h
+  21	DECL	GetCarFromID__11tCarManagers
+	tCarInfo *GetCarFromID(tCarManager *mgr, short carID);
+  22	DECL	GetGarageCar__11tCarManagersR8tCarInfos
+	void GetGarageCar(tCarManager *mgr, short garageNumber, tCarInfo *carInfo, short playerNum);
+  23	DECL	GetPinkSlipsCar__11tCarManagersR8tCarInfos
+	void GetPinkSlipsCar(tCarManager *mgr, short garageNumber, tCarInfo *carInfo, short playerNum);
+  24	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	void GetAwardInformation(tTournamentManager *mgr, tAwardInformation *info);
+  25	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	void GetTrophyName(tTournamentManager *mgr, tTourneyInfo *tourn, tTrophySize size, char *buffer, int place);
+  26	DECL	PlayerRanking__18tTournamentManagers
+	short PlayerRanking(tTournamentManager *mgr, short pos);
+  35	DECL	DrawCar__FR8tCarInfossffcbUl7tPlayer
+	void  DrawCar(tCarInfo *carInfo, short x, short y, float camerax, float cameray, char brightness, bool reflection, u_long rotate, tPlayer player);
+--- recon/frontend/common/screencontroller.cpp
+  366	DECL	Run__18tDialogInteractive
+	this->negconChoice = Run((tDialogInteractive *)dialog);
+--- recon/frontend/common/screencontroller_externs.h
+  33	DECL	UploadSwapShapes__7tScreeni
+	void UploadSwapShapes(tScreen * thisobj, int numSwapShapes);
+  40	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void AsyncLoadSwapShapeFile(tScreen * thisobj, char * fileName);
+  43	DECL	Run__18tDialogInteractive
+	short Run(tDialogInteractive * thisobj);
+  47	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void * IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes);
+--- recon/frontend/common/screenmain.cpp
+  167	DECL	DeInit__14tCreditManager
+	DeInit(&CreditManager);
+  683	DECL	TurnOffTV__FR9tTVConfig
+	TurnOffTV(this->tvConfigs + tvOrder[j]);
+  700	DECL	TurnOnTV__FR9tTVConfig
+	TurnOnTV(this->tvConfigs + i);
+  706	DECL	DrawTV__FR9tTVConfig
+	DrawTV(this->tvConfigs + i);
+  793	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	shapesLoaded = (int)::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
+  802	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	(::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != (void *)0x0);
+  824	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	InitTV(this->tvConfigs + i,this->fVideoShapes[this->fCurrentSlot].fShapes,i);
+--- recon/frontend/common/screenmain_externs.h
+  35	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
+  36	DECL	UploadShapes__7tScreenR17tShapeInformationssss
+	void  UploadShapes(tScreen*, tShapeInformation*, short, short, int, int);
+  37	DECL	UploadSwapShapes__7tScreeni
+	void  UploadSwapShapes(tScreen*, int);
+  38	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void  AsyncLoadSwapShapeFile(tScreen*, char*);
+  39	DECL	AsyncLoadShapeFile__7tScreenPcR17tShapeInformation
+	void  AsyncLoadShapeFile(tScreen*, char*, tShapeInformation*);
+  40	DECL	InitializeShapes__7tScreenR17tShapeInformationUi
+	void  InitializeShapes(tScreen*, tShapeInformation*, unsigned int);
+  41	DECL	FreeShapes__7tScreenR17tShapeInformation
+	void  FreeShapes(tScreen*, tShapeInformation*);
+  42	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int);
+  54	DECL	DrawTV__FR9tTVConfig
+	void  DrawTV(tTVConfig*);
+  55	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short);
+  56	DECL	TurnOnTV__FR9tTVConfig
+	void  TurnOnTV(tTVConfig*);
+  57	DECL	TurnOffTV__FR9tTVConfig
+	void  TurnOffTV(tTVConfig*);
+  61	DECL	DeInit__14tCreditManager
+	void  DeInit(tCreditManager*);
+--- recon/frontend/common/screenmemcard.cpp
+  194	DECL	garyMemCardGrabBlocks
+	i = garyMemCardGrabBlocks(this->card,filenum);
+  770	DECL	Init_Memcard__FbT0
+	Init_Memcard(true,false);
+--- recon/frontend/common/screenmemcard_externs.h
+  30	DECL	garyMemCardGrabBlocks
+	int garyMemCardGrabBlocks(int card, int filenum);
+  32	DECL	Init_Memcard__FbT0
+	void Init_Memcard(bool redraw, u_char pinkslips);
+--- recon/frontend/common/screenpinkslips.cpp
+  75	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	GetTrack(&trackManager,(ushort)(byte)frontEnd.track[i],&trackInfo);
+  80	DECL	DrawShape_NFS4RoundRectangle__FiR4RECTs
+	DrawShape_NFS4RoundRectangle(-1,&r,1);
+  160	DECL	DrawTV__FR9tTVConfig
+	DrawTV(this->fTrackTVs + i);
+  175	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  209	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  297	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	InitTV(&this->fImageTVs[i],this->fSwapShapes.fShapes,i);
+  306	DECL	TurnOnTV__FR9tTVConfig
+	TurnOnTV(&this->fImageTVs[imageTVOrder[j]]);
+  315	DECL	TurnOffTV__FR9tTVConfig
+	TurnOffTV(&this->fImageTVs[imageTVOrder[j]]);
+  324	DECL	DrawTV__FR9tTVConfig
+	DrawTV(&this->fImageTVs[i]);
+--- recon/frontend/common/screenpinkslips_externs.h
+  22	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
+  23	DECL	UploadSwapShapes__7tScreeni
+	void  UploadSwapShapes(tScreen*, int);
+  24	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void  AsyncLoadSwapShapeFile(tScreen*, char*);
+  28	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	void  GetTrack(tTrackManager*, unsigned short, void*);
+  32	DECL	DrawShape_NFS4RoundRectangle__FiR4RECTs
+	void  DrawShape_NFS4RoundRectangle(int, RECT*, short);
+  39	DECL	DrawTV__FR9tTVConfig
+	void  DrawTV(tTVConfig*);
+  40	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short);
+  41	DECL	TurnOnTV__FR9tTVConfig
+	void  TurnOnTV(tTVConfig*);
+  42	DECL	TurnOffTV__FR9tTVConfig
+	void  TurnOffTV(tTVConfig*);
+--- recon/frontend/common/screenpost.cpp   [BLOCKED]
+  35	DECL	FETextRender_FullTextRGB__FPcssics
+	FETextRender_FullTextRGB(string2,(short)x,(short)y,colfore,'\0',1);
+  36	DECL	FETextRender_FullTextRGB__FPcssics
+	FETextRender_FullTextRGB(string1,(short)x,(short)y,colback,'\0',1);
+--- recon/frontend/common/screenpost_externs.h
+  58	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int);
+  83	DECL	FETextRender_FullTextRGB__FPcssics
+	void  FETextRender_FullTextRGB(char *, short, short, int, char, short);
+  111	DECL	FETextRender_FullTextRGB__FPcssics
+	int   FETextRender_FullTextRGB(char *s, short x, short y, int col, char a, int b);
+--- recon/frontend/common/screentournselect.cpp
+  66	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	GetTrophyName(&tournamentManager,trophyTourn,ts_Medium,swapName,-1);
+  114	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	InitTV(this->trophyTV + tvIdx,this->fPermShapes.fShapes,0);
+  166	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
+  216	DECL	TurnOnTV__FR9tTVConfig
+	TurnOnTV(this->trophyTV + trophyTVOrder[j]);
+  223	DECL	TurnOffTV__FR9tTVConfig
+	TurnOffTV(this->trophyTV + trophyTVOrder[j]);
+  238	DECL	DrawTV__FR9tTVConfig
+	DrawTV(this->trophyTV + j);
+  354	DECL	DrawTVLines__FR9tTVConfig
+	DrawTVLines(&this->tvConfigs[i]);
+  395	DECL	DrawTV__FR9tTVConfig
+	DrawTV(&this->tvConfigs[i]);
+--- recon/frontend/common/screentournselect_externs.h
+  23	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip);
+  24	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void *IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
+  25	DECL	UploadSwapShapes__7tScreeni
+	void  UploadSwapShapes(tScreen *s, int n);
+  26	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void  AsyncLoadSwapShapeFile(tScreen *s, char *name);
+  37	DECL	InitTV__FR9tTVConfigP18tTexture_ShapeInfos
+	void InitTV(tTVConfig *cfg, tTexture_ShapeInfo *shapes, short n);
+  38	DECL	TurnOnTV__FR9tTVConfig
+	void TurnOnTV(tTVConfig *cfg);
+  39	DECL	TurnOffTV__FR9tTVConfig
+	void TurnOffTV(tTVConfig *cfg);
+  40	DECL	DrawTV__FR9tTVConfig
+	void DrawTV(tTVConfig *cfg);
+  41	DECL	DrawTVLines__FR9tTVConfig
+	void DrawTVLines(tTVConfig *cfg);
+  44	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n);
+  56	DECL	FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType
+	void  FETextRender_WordWrapFade(int fade, short index, RECT *r, tMenuTextState st, tMenuTextType tt);
+--- recon/frontend/common/screentrackinfo.cpp
+  14	DECL	GetTrackToRace__18tTournamentManagerR10tTrackInfo
+	GetTrackToRace(&tournamentManager,&this->fTrack);
+  41	DECL	GetTrackByID__13tTrackManagers
+	trackInfo = GetTrackByID(&trackManager,(short)(this->fTrack).fTrackNumber);
+  93	DECL	UpdateImages__10tVideoWall
+	UpdateImages(&this->fVideoWall);
+  94	DECL	TurnOn__10tVideoWall
+	TurnOn(&this->fVideoWall);
+--- recon/frontend/common/screentrackinfo_externs.h
+  36	DECL	GetTrackList__18tTournamentManagerss
+	short * GetTrackList(tTournamentManager * thisobj, short tier, short tournament);
+  37	DECL	GetTrackToRace__18tTournamentManagerR10tTrackInfo
+	void GetTrackToRace(tTournamentManager * thisobj, tTrackInfo * track);
+  38	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis);
+  40	DECL	GetTrackByID__13tTrackManagers
+	tTrackInformation * GetTrackByID(tTrackManager * thisobj, short track);
+--- recon/frontend/common/screentrackrecords_externs.h
+  34	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis);
+--- recon/frontend/common/screentracks.cpp
+  31	DECL	DrawShape_NFS4RoundRectangle__FiR4RECTs
+	DrawShape_NFS4RoundRectangle(creditsTextVal,&r,0);
+  32	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  42	DECL	TurnOn__10tVideoWall
+	TurnOn(videoWall);
+  242	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  267	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
+  284	DECL	SetAvailableText__10tVideoWallsss
+	SetAvailableText(this_00,0xf8,0x140,0x50);
+  285	DECL	SetAvailableIcon__10tVideoWallssssP18tTexture_ShapeInfo
+	SetAvailableIcon(this_00,0x26,10,0x136,0x3c,this->fPermShapes.fShapes);
+  289	DECL	TurnOn__10tVideoWall
+	TurnOn(this_00);
+  378	DECL	TurnOff__10tVideoWall
+	TurnOff(&this->fVideoWall);
+  402	DECL	SetAvailable__10tVideoWalls
+	SetAvailable(&this->fVideoWall,(ushort)trackInfo.fAvailable);
+  403	DECL	UpdateImages__10tVideoWall
+	UpdateImages(&this->fVideoWall);
+  485	DECL	TurnOffInstant__10tVideoWall
+	TurnOffInstant(&this->fVideoWall);
+--- recon/frontend/common/screentracks_externs.h
+  32	DECL	DrawShape_NFS4RoundRectangle__FiR4RECTs
+	void  DrawShape_NFS4RoundRectangle(int textValue, RECT *r, short s);
+  42	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	void  GetTrack(tTrackManager *tm, u_short track, tTrackInformation *out);
+  45	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
+  46	DECL	UploadSwapShapes__7tScreeni
+	void UploadSwapShapes(tScreen *s, int n);
+  47	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void AsyncLoadSwapShapeFile(tScreen *s, char *name);
+  48	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip);
+  51	DECL	TurnOn__10tVideoWall
+	void TurnOn(tVideoWall *vw);
+  52	DECL	TurnOff__10tVideoWall
+	void TurnOff(tVideoWall *vw);
+  53	DECL	TurnOffInstant__10tVideoWall
+	void TurnOffInstant(tVideoWall *vw);
+  55	DECL	SetAvailableText__10tVideoWallsss
+	void SetAvailableText(tVideoWall *vw, short a, short b, short c);
+  56	DECL	SetAvailableIcon__10tVideoWallssssP18tTexture_ShapeInfo
+	void SetAvailableIcon(tVideoWall *vw, short a, short b, short c, short d, tTexture_ShapeInfo *shapes);
+  57	DECL	SetAvailable__10tVideoWalls
+	void SetAvailable(tVideoWall *vw, u_short avail);
+  58	DECL	UpdateImages__10tVideoWall
+	void UpdateImages(tVideoWall *vw);
+--- recon/frontend/common/screentrophyinfo.cpp
+  75	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	GetTrophyName(&tournamentManager,tourn,ts_Large,gSwapFileNameTI,-1);
+--- recon/frontend/common/screentrophyinfo_externs.h
+  30	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n);
+  33	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
+  34	DECL	UploadSwapShapes__7tScreeni
+	void UploadSwapShapes(tScreen *s, int n);
+--- recon/frontend/common/screentrophyroom.cpp
+  169	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	loaded = (int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
+--- recon/frontend/common/screentrophyroom_externs.h
+  25	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip);
+  26	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void *IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
+  27	DECL	UploadSwapShapes__7tScreeni
+	void  UploadSwapShapes(tScreen *s, int n);
+  28	DECL	InitializeShapes__7tScreenR17tShapeInformationUi
+	void  InitializeShapes(tScreen *s, tShapeInformation *shp, int n);
+  29	DECL	AsyncLoadShapeFile__7tScreenPcR17tShapeInformation
+	void  AsyncLoadShapeFile(tScreen *s, char *name, tShapeInformation *shp);
+  30	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void  AsyncLoadSwapShapeFile(tScreen *s, char *name);
+  31	DECL	FreeShapes__7tScreenR17tShapeInformation
+	void  FreeShapes(tScreen *s, tShapeInformation *shp);
+  36	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n);
+--- recon/frontend/common/statchk.cpp
+  46	DECL	GetCarFromSimID__11tCarManagers
+	carInfo = GetCarFromSimID(&carManager, (short)dummyCars[i].carType);
+  108	DECL	GetCarFromSimID__11tCarManagers
+	carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
+  185	DECL	GetCarFromSimID__11tCarManagers
+	carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nCar].carType);
+--- recon/frontend/psx/fetexture.cpp
+  59	DECL	Texture_GetClutId__FiPiT1
+	Texture_GetClutId(bpp,&xclut,&yclut);
+--- recon/frontend/psx/fetexture_externs.h
+  11	DECL	Texture_GetClutId__FiPiT1
+	void  Texture_GetClutId(unsigned int bpp, int *xclut, int *yclut);
+--- recon/frontend/psx/movie.cpp
+  116	DECL	Platform_ResetDCTBuffer__Fv
+	Platform_ResetDCTBuffer();
+  150	DECL	Platform_ResetDCTBuffer__Fv
+	Platform_ResetDCTBuffer();
+--- recon/frontend/psx/movie_externs.h
+  31	DECL	Platform_ResetDCTBuffer__Fv
+	void Platform_ResetDCTBuffer(void);
+--- recon/frontend/psx/video.cpp
+  39	DECL	Platform_ResetDCTBuffer__Fv
+	Platform_ResetDCTBuffer();
+  269	DECL	mdecreset__Fv
+	mdecreset();
+--- recon/frontend/psx/video_externs.h
+  18	DECL	Platform_ResetDCTBuffer__Fv
+	void  Platform_ResetDCTBuffer(void);
+  23	DECL	mdecreset__Fv
+	void  mdecreset(void);
+--- recon/game/common/aispeeds.cpp
+  1229	DECL	AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj
+	return AISpeeds_CalcHumanCurveSpeed(carObj);
+--- recon/game/common/audiocmn.cpp
+  170	DECL	systemtask
+	void systemtask(int taskFlag);
+  576	DECL	AudioCmn_ReverbOff__Fv
+	AudioCmn_ReverbOff();
+  598	DECL	systemtask
+	systemtask(0);
+  651	DECL	systemtask
+	systemtask(0);
+  722	DECL	AudioCmn_ReverbOff__Fv
+	AudioCmn_ReverbOff();
+  2429	DECL	AudioCmn_ReverbOff__Fv
+	AudioCmn_ReverbOff();
+  2458	DECL	systemtask
+	systemtask(0);
+  2472	DECL	AudioCmn_ReverbOff__Fv
+	AudioCmn_ReverbOff();
+  2485	DECL	systemtask
+	systemtask(0);
+  2500	DECL	AudioCmn_ReverbOff__Fv
+	AudioCmn_ReverbOff();
+--- recon/game/common/cars.cpp
+  2237	DECL	AIWorld_CalculateLaneInfo__FP8Car_tObj
+	AIWorld_CalculateLaneInfo(carObj);
+  2261	DECL	Cars_SortCars__Fv
+	Cars_SortCars();
+  2263	DECL	AISpeeds_MaintainLeaderBoard__Fv
+	AISpeeds_MaintainLeaderBoard();
+  2264	DECL	DrawW_DoObjectAnimations__Fv
+	DrawW_DoObjectAnimations();
+  2288	DECL	AIWorld_CalculateLaneInfo__FP8Car_tObj
+	void AIWorld_CalculateLaneInfo(Car_tObj *carObj);
+  2289	DECL	AIPhysics_UseCoolPhysics__FP8Car_tObj
+	int  AIPhysics_UseCoolPhysics(Car_tObj *carObj);
+  2290	DECL	AISpeeds_MaintainLeaderBoard__Fv
+	void AISpeeds_MaintainLeaderBoard(void);
+  2291	DECL	DrawW_DoObjectAnimations__Fv
+	void DrawW_DoObjectAnimations(void);
+--- recon/game/common/cars_externs.h
+  38	DECL	Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj
+	extern void Newton_ApplyTheLawOfGravity(Car_tObj *newtonObj);
+  39	DECL	Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii
+	extern void Newton_InitBaseNewtonObj(u_int *newtonObj,u_int index,int mass,u_int moInertia,int dimX, int dimY,int dimZ);
+  40	DECL	Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj
+	extern void Newton_QDUpdateRot32Hz(int newtonObj);
+  41	DECL	Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj
+	extern void Newton_QDUpdateRot64Hz(int newtonObj);
+  42	DECL	Newton_QDUpdateVel__FP13BO_tNewtonObj
+	extern void Newton_QDUpdateVel(int newtonObj);
+--- recon/game/common/mpause.cpp
+  305	DECL	ItemEnabledNum__6tPMenui
+	start = ItemEnabledNum(gPauseCurrentMenu,(short)oldItem) * 0xd + 0x6a;
+  306	DECL	ItemEnabledNum__6tPMenui
+	finish = ItemEnabledNum(gPauseCurrentMenu,(short)newItem) * 0xd + 0x6a;
+  395	DECL	NumEnabledItems__6tPMenu
+	numItems = NumEnabledItems(gPauseCurrentMenu);
+  398	DECL	ItemEnabledNum__6tPMenui
+	int y = gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd;
+--- recon/game/common/mpause_externs.h
+  34	DECL	Input_Interface__FUli
+	extern int   Input_Interface(int key, int debounce);
+  35	DECL	InGame_ResetPSXController__Fii
+	extern void  InGame_ResetPSXController(u_int port, int config);
+  45	DECL	NumEnabledItems__6tPMenu
+	extern int   NumEnabledItems(void *menu);
+--- recon/game/common/nfs3.cpp
+  188	DECL	restoretextdraw
+	restoretextdraw();
+--- recon/game/common/nfs3_externs.h
+  32	DECL	restoretextdraw
+	extern void restoretextdraw(void);
+--- recon/game/common/track.cpp
+  117	DECL	BWAllocMem__Fl
+	pDVar1 = (Draw_tPixMap *)BWAllocMem(numPmx << 4);
+  129	DECL	BWAllocMem__Fl
+	Track_materials = (Track_tMaterial *)BWAllocMem(0xd48);
+  546	DECL	BWAllocMem__Fl
+	(Track_tMaterialController *)BWAllocMem(Track_gControllerCount << 4);
+--- recon/game/common/track_externs.h
+  34	DECL	BWAllocMem__Fl
+	extern void *BWAllocMem(int);
+--- recon/game/psx/drawc.cpp
+  4368	DECL	Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+	Flare_CarShapedHalo(uVar8,&sd->vt0,&sd->vt1,&sd->vt2,facet->flag,sd->otz,(Draw_FlareCache *)sd);
+--- recon/game/psx/drawc_externs.h
+  46	DECL	Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+	extern void Flare_CarShapedHalo(int, COORD16 *, int, int, short, int, Draw_FlareCache *);
+--- recon/game/psx/overlays.cpp
+  35	DECL	Hud_BuildString__FPciiiib
+	width = Hud_BuildString(TextSys_Word(0x40),0,0,0,0,1);
+  36	DECL	Hud_BuildString__FPciiiib
+	Hud_BuildString(str,0xa0 - (width >> 1),y + h + -6,0xbebe,0,0);
+--- recon/game/psx/overlays_externs.h
+  39	DECL	Hud_BuildString__FPciiiib
+	extern int   Hud_BuildString(char *str, int x, int y, int rgb, int flag, int center);
+--- recon/nfs4_types.h   [BLOCKED]
+  2821	DECL	GetCarFromID__11tCarManagers
+	tCarInfo * GetCarFromID(short carID);
+  2822	DECL	GetCarFromSimID__11tCarManagers
+	tCarInfo * GetCarFromSimID(short carID);
+  2831	DECL	LoadCars__11tCarManagerR12tSaveCarInfos
+	void LoadCars(tSaveCarInfo &load,short playerNum);
+  2832	DECL	SaveCars__11tCarManagerR12tSaveCarInfo
+	void SaveCars(tSaveCarInfo &save);
+  2833	DECL	LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos
+	void LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum);
+  2839	DECL	GetGarageCar__11tCarManagersR8tCarInfos
+	void GetGarageCar(short garageNumber,tCarInfo &carInfo,short playerNum);
+  2840	DECL	GetPinkSlipsCar__11tCarManagersR8tCarInfos
+	void GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short playerNum);
+  3366	DECL	NumEnabledItems__6tPMenu
+	int NumEnabledItems();
+  3367	DECL	ItemEnabledNum__6tPMenui
+	int ItemEnabledNum(int num);
+  3535	DECL	DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+	void DrawBackgroundImage(int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip_axis);
+  3537	DECL	AsyncLoadSwapShapeFile__7tScreenPc
+	void AsyncLoadSwapShapeFile(char *fileName);
+  3538	DECL	IsShapeFileLoaded__7tScreenR17tShapeInformation
+	void *IsShapeFileLoaded(tShapeInformation &shapes);
+  3540	DECL	UploadSwapShapes__7tScreeni
+	void UploadSwapShapes(int numSwapShapes);
+  3545	DECL	AsyncLoadShapeFile__7tScreenPcR17tShapeInformation
+	void AsyncLoadShapeFile(char *name, tShapeInformation &data);
+  3547	DECL	InitializeShapes__7tScreenR17tShapeInformationUi
+	void InitializeShapes(tShapeInformation &data, unsigned int numShapes);
+  3547	DECL	InitializeShapes__7tScreenR17tShapeInformationUi
+	void InitializeShapes(tShapeInformation &data, unsigned int numShapes);
+  3548	DECL	FreeShapes__7tScreenR17tShapeInformation
+	void FreeShapes(tShapeInformation &data);
+  3549	DECL	UploadShapes__7tScreenR17tShapeInformationssss
+	void UploadShapes(tShapeInformation &data, short x, short y, short numShapes, short index);
+  3588	DECL	LoadTracks__13tTrackManagerR14tSaveTrackInfo
+	void LoadTracks(tSaveTrackInfo &load);
+  3589	DECL	SaveTracks__13tTrackManagerR14tSaveTrackInfo
+	void SaveTracks(tSaveTrackInfo &save);
+  3590	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	void GetTrack(short trackNumber, tTrackInformation &trackInfo);
+  3590	DECL	GetTrack__13tTrackManagersR17tTrackInformation
+	void GetTrack(short trackNumber, tTrackInformation &trackInfo);
+  3594	DECL	GetTrackByID__13tTrackManagers
+	tTrackInformation *GetTrackByID(short track);
+  3677	DECL	GetTrackList__18tTournamentManagerss
+	short *GetTrackList(short tier, short tournament);
+  3678	DECL	GetTrackToRace__18tTournamentManagerR10tTrackInfo
+	void   GetTrackToRace(tTrackInfo &);
+  3687	DECL	SaveTournament__18tTournamentManagerR15tSaveTournament
+	void   SaveTournament(tSaveTournament &);
+  3688	DECL	LoadTournament__18tTournamentManagerR15tSaveTournament
+	void   LoadTournament(tSaveTournament &);
+  3693	DECL	GetAwardInformation__18tTournamentManagerR17tAwardInformation
+	void   GetAwardInformation(tAwardInformation &);
+  3696	DECL	PlayerRanking__18tTournamentManagers
+	short  PlayerRanking(short);
+  3698	DECL	GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci
+	void   GetTrophyName(tTourneyInfo *, tTrophySize, char *, int);
+  3756	DECL	Display__11tDialogBase
+	void Display();
+  3764	DECL	Hide__11tDialogBase
+	void Hide();
+  3785	DECL	Run__18tDialogInteractive
+	short Run();
+  3815	DECL	DeInit__14tCreditManager
+	void DeInit();
+  4525	DECL	UpdateMusic__14tFEApplication
+	void UpdateMusic();
+  4528	DECL	DisplayHelp__14tFEApplications
+	void DisplayHelp(short variant);
+  4785	DECL	Percentage__29tMenuItemLeftRightAudioSlider
+	int Percentage();
+  5170	DECL	GetHelpText__23tScreenControllerConfig
+	int   GetHelpText();
+  5289	DECL	UpdateImages__10tVideoWall
+	void UpdateImages();
+  5290	DECL	SetAvailableText__10tVideoWallsss
+	void SetAvailableText(short textID, short x, short y);
+  5291	DECL	SetAvailableIcon__10tVideoWallssssP18tTexture_ShapeInfo
+	void SetAvailableIcon(short icon, short numFrames, short x, short y, tTexture_ShapeInfo *iconImages);
+  5293	DECL	SetAvailable__10tVideoWalls
+	void SetAvailable(short avail);
+  5297	DECL	TurnOff__10tVideoWall
+	void TurnOff();
+  5298	DECL	TurnOffInstant__10tVideoWall
+	void TurnOffInstant();
+  5299	DECL	TurnOn__10tVideoWall
+	void TurnOn();
+
+=== AMBIGUOUS (manual) ===
+Debounce__FPv
+   cands=['Debounce__10tPMenuItem', 'Debounce__25tPMenuItemLeftRightSlider', 'Debounce__6tPMenu']
+   in_symaddrs=['Debounce__10tPMenuItem', 'Debounce__25tPMenuItemLeftRightSlider', 'Debounce__6tPMenu']
+   objs=['recon/game/common/mpause.cpp.o']
+Decrement__FP18tListIteratorTrack7tPlayer
+   cands=['Decrement__16tListIteratorCar7tPlayer', 'Decrement__21tListIteratorCarColor7tPlayer', 'Decrement__13tListIterator7tPlayer', 'Decrement__18tListIteratorRange7tPlayer', 'Decrement__20tListIteratorIndexed7tPlayer', 'Decrement__24tListIteratorMultiPlayer7tPlayer', 'Decrement__25tListIteratorRangeIndexed7tPlayer', 'Decrement__26tListIteratorDoubleIndexed7tPlayer', 'Decrement__23tListIteratorTournament7tPlayer', 'Decrement__18tListIteratorTrack7tPlayer', 'Decrement__14tPListIterator7tPlayer', 'Decrement__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['Decrement__16tListIteratorCar7tPlayer', 'Decrement__21tListIteratorCarColor7tPlayer', 'Decrement__13tListIterator7tPlayer', 'Decrement__18tListIteratorRange7tPlayer', 'Decrement__20tListIteratorIndexed7tPlayer', 'Decrement__24tListIteratorMultiPlayer7tPlayer', 'Decrement__25tListIteratorRangeIndexed7tPlayer', 'Decrement__26tListIteratorDoubleIndexed7tPlayer', 'Decrement__23tListIteratorTournament7tPlayer', 'Decrement__18tListIteratorTrack7tPlayer', 'Decrement__14tPListIterator7tPlayer', 'Decrement__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screentracks.cpp.o']
+Decrement__FPv7tPlayer
+   cands=['Decrement__16tListIteratorCar7tPlayer', 'Decrement__21tListIteratorCarColor7tPlayer', 'Decrement__13tListIterator7tPlayer', 'Decrement__18tListIteratorRange7tPlayer', 'Decrement__20tListIteratorIndexed7tPlayer', 'Decrement__24tListIteratorMultiPlayer7tPlayer', 'Decrement__25tListIteratorRangeIndexed7tPlayer', 'Decrement__26tListIteratorDoubleIndexed7tPlayer', 'Decrement__23tListIteratorTournament7tPlayer', 'Decrement__18tListIteratorTrack7tPlayer', 'Decrement__14tPListIterator7tPlayer', 'Decrement__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['Decrement__16tListIteratorCar7tPlayer', 'Decrement__21tListIteratorCarColor7tPlayer', 'Decrement__13tListIterator7tPlayer', 'Decrement__18tListIteratorRange7tPlayer', 'Decrement__20tListIteratorIndexed7tPlayer', 'Decrement__24tListIteratorMultiPlayer7tPlayer', 'Decrement__25tListIteratorRangeIndexed7tPlayer', 'Decrement__26tListIteratorDoubleIndexed7tPlayer', 'Decrement__23tListIteratorTournament7tPlayer', 'Decrement__18tListIteratorTrack7tPlayer', 'Decrement__14tPListIterator7tPlayer', 'Decrement__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screenpinkslips.cpp.o']
+Draw__32tBlankMenuItemGoToMenuNFS4Buttoni
+   cands=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   in_symaddrs=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   objs=['recon/game/common/vtables_tmenu.cpp.o']
+Draw__32tBlankMenuItemGoToMenuNFS4Buttoniic
+   cands=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   in_symaddrs=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   objs=['recon/game/common/vtables_tmenu.cpp.o']
+Draw__33tBlankMenuItemNFS4LeftRightChoiceiic
+   cands=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   in_symaddrs=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   objs=['recon/game/common/vtables_tmenu.cpp.o']
+Draw__FP10tVideoWall
+   cands=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   in_symaddrs=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   objs=['recon/frontend/common/screencarselect.cpp.o', 'recon/frontend/common/screentrackinfo.cpp.o', 'recon/frontend/common/screentracks.cpp.o']
+Draw__FP14tCreditManageri
+   cands=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   in_symaddrs=['Draw__14tCreditManagerb', 'Draw__11tDialogBase', 'Draw__11tDialogHelp', 'Draw__12tDialogYesNo', 'Draw__20tDialogMessageString', 'Draw__24tMenuItemLeftRightChoiceb', 'Draw__24tMenuItemLeftRightSliderb', 'Draw__5tMenu', 'Draw__9tMenuItemiib', 'Draw__9tMenuItemiiib', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttonb', 'Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib', 'Draw__33tBlankMenuItemNFS4LeftRightChoiceiib', 'Draw__10tMenuBlank', 'Draw__12tMenuOptions', 'Draw__15tMenuNFS4Bottom', 'Draw__27tMenuItemGoToMenuNFS4Buttonb', 'Draw__27tMenuItemGoToMenuNFS4Buttoniib', 'Draw__28tMenuItemNFS4LeftRightChoiceiib', 'Draw__29tMenuItemOptionsTwoItemChoiceiib', 'Draw__31tMenuItemOptionsLeftRightChoiceiib', 'Draw__9tMenuNFS4', 'Draw__12tOptionsMenu', 'Draw__14tInsideBoxMenusssss', 'Draw__17tUserNameMenuItemb', 'Draw__18tInsideBoxSongMenusssss', 'Draw__19tMemoryCardMenuItemb', 'Draw__20tMenuItemSlidingMenub', 'Draw__20tMenuItemSlidingMenuiib', 'Draw__22tInsideBoxTwoWaySlideriiib', 'Draw__25tInsideBoxLeftRightSlideriiib', 'Draw__29tMenuItemLeftRightAudioSlideriib', 'Draw__29tMenuItemOnOffLeftRightChoiceiib', 'Draw__31tMenuItemDisplayLeftRightChoiceiib', 'Draw__34tMenuItemControllerLeftRightChoiceiib', 'Draw__7tScreenb', 'Draw__10tVideoWall', 'Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei', 'Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei', 'Draw__21tPMenuItemInteractiveb', 'Draw__25tPMenuItemLeftRightChoiceb', 'Draw__25tPMenuItemLeftRightSliderb', 'Draw__28tPMenuItemNonInteractiveTextb', 'Draw__32tPMenuItemLeftRightSliderIndexedb', 'Draw__6tPMenu']
+   objs=['recon/frontend/common/screenmain.cpp.o']
+Increment__FP18tListIteratorTrack7tPlayer
+   cands=['Increment__16tListIteratorCar7tPlayer', 'Increment__21tListIteratorCarColor7tPlayer', 'Increment__13tListIterator7tPlayer', 'Increment__18tListIteratorRange7tPlayer', 'Increment__20tListIteratorIndexed7tPlayer', 'Increment__24tListIteratorMultiPlayer7tPlayer', 'Increment__25tListIteratorRangeIndexed7tPlayer', 'Increment__26tListIteratorDoubleIndexed7tPlayer', 'Increment__23tListIteratorTournament7tPlayer', 'Increment__18tListIteratorTrack7tPlayer', 'Increment__14tPListIterator7tPlayer', 'Increment__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['Increment__16tListIteratorCar7tPlayer', 'Increment__21tListIteratorCarColor7tPlayer', 'Increment__13tListIterator7tPlayer', 'Increment__18tListIteratorRange7tPlayer', 'Increment__20tListIteratorIndexed7tPlayer', 'Increment__24tListIteratorMultiPlayer7tPlayer', 'Increment__25tListIteratorRangeIndexed7tPlayer', 'Increment__26tListIteratorDoubleIndexed7tPlayer', 'Increment__23tListIteratorTournament7tPlayer', 'Increment__18tListIteratorTrack7tPlayer', 'Increment__14tPListIterator7tPlayer', 'Increment__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screentracks.cpp.o']
+Increment__FPv7tPlayer
+   cands=['Increment__16tListIteratorCar7tPlayer', 'Increment__21tListIteratorCarColor7tPlayer', 'Increment__13tListIterator7tPlayer', 'Increment__18tListIteratorRange7tPlayer', 'Increment__20tListIteratorIndexed7tPlayer', 'Increment__24tListIteratorMultiPlayer7tPlayer', 'Increment__25tListIteratorRangeIndexed7tPlayer', 'Increment__26tListIteratorDoubleIndexed7tPlayer', 'Increment__23tListIteratorTournament7tPlayer', 'Increment__18tListIteratorTrack7tPlayer', 'Increment__14tPListIterator7tPlayer', 'Increment__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['Increment__16tListIteratorCar7tPlayer', 'Increment__21tListIteratorCarColor7tPlayer', 'Increment__13tListIterator7tPlayer', 'Increment__18tListIteratorRange7tPlayer', 'Increment__20tListIteratorIndexed7tPlayer', 'Increment__24tListIteratorMultiPlayer7tPlayer', 'Increment__25tListIteratorRangeIndexed7tPlayer', 'Increment__26tListIteratorDoubleIndexed7tPlayer', 'Increment__23tListIteratorTournament7tPlayer', 'Increment__18tListIteratorTrack7tPlayer', 'Increment__14tPListIterator7tPlayer', 'Increment__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screenpinkslips.cpp.o']
+Init__FP14tCreditManagerUl
+   cands=['Init__14tCreditManageri', 'Init__24AITrigger_TriggerManagerPc']
+   in_symaddrs=['Init__14tCreditManageri', 'Init__24AITrigger_TriggerManagerPc']
+   objs=['recon/frontend/common/screenmain.cpp.o']
+Initialize__FP10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss
+   cands=['Initialize__11tCarManager', 'Initialize__5tMenu', 'Initialize__10tMenuBlank', 'Initialize__9tMenuNFS4', 'Initialize__15tMissionManager', 'Initialize__7tScreen', 'Initialize__18tTournamentManager', 'Initialize__13tTrackManager', 'Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss', 'Initialize__12tScreenAudio', 'Initialize__16tScreenCarSelect', 'Initialize__20tScreenCarSelectDuel', 'Initialize__25tScreenCarSelectTwoPlayer', 'Initialize__25tScreenPinkSlipsCarSelect', 'Initialize__15tScreenCongrats', 'Initialize__23tScreenPinkSlipCongrats', 'Initialize__23tScreenControllerConfig', 'Initialize__11tScreenMain', 'Initialize__14tScreenMemcard', 'Initialize__16tScreenPinkSlips', 'Initialize__26tScreenTournamentStandings', 'Initialize__18tScreenTournSelect', 'Initialize__16tScreenTrackInfo', 'Initialize__19tScreenTrackRecords', 'Initialize__18tScreenTrackSelect', 'Initialize__17tScreenTrophyRoom', 'Initialize__15tScreenUserName', 'Initialize__6tPMenu']
+   in_symaddrs=['Initialize__11tCarManager', 'Initialize__5tMenu', 'Initialize__10tMenuBlank', 'Initialize__9tMenuNFS4', 'Initialize__15tMissionManager', 'Initialize__7tScreen', 'Initialize__18tTournamentManager', 'Initialize__13tTrackManager', 'Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss', 'Initialize__12tScreenAudio', 'Initialize__16tScreenCarSelect', 'Initialize__20tScreenCarSelectDuel', 'Initialize__25tScreenCarSelectTwoPlayer', 'Initialize__25tScreenPinkSlipsCarSelect', 'Initialize__15tScreenCongrats', 'Initialize__23tScreenPinkSlipCongrats', 'Initialize__23tScreenControllerConfig', 'Initialize__11tScreenMain', 'Initialize__14tScreenMemcard', 'Initialize__16tScreenPinkSlips', 'Initialize__26tScreenTournamentStandings', 'Initialize__18tScreenTournSelect', 'Initialize__16tScreenTrackInfo', 'Initialize__19tScreenTrackRecords', 'Initialize__18tScreenTrackSelect', 'Initialize__17tScreenTrophyRoom', 'Initialize__15tScreenUserName', 'Initialize__6tPMenu']
+   objs=['recon/frontend/common/screencarselect.cpp.o', 'recon/frontend/common/screentrackinfo.cpp.o', 'recon/frontend/common/screentracks.cpp.o']
+PreLoad__FP7tScreen
+   cands=['PreLoad__7tScreen', 'PreLoad__20tScreenCarSelectDuel', 'PreLoad__11tScreenMain', 'PreLoad__17tScreenTrophyRoom']
+   in_symaddrs=['PreLoad__7tScreen', 'PreLoad__20tScreenCarSelectDuel', 'PreLoad__11tScreenMain', 'PreLoad__17tScreenTrophyRoom']
+   objs=['recon/frontend/common/screencarselect.cpp.o', 'recon/frontend/common/screentrophyroom.cpp.o']
+ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand
+   cands=['ProcessInput__11tDialogBase7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__17tDialogBackUpOnly7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__21tDialogNoInputMessage7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__5tMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__10tMenuBlank7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__12tMenuOptions7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__12tOptionsMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__25tMenuItemSlidingActivated7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__15tScreenCongrats7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__23tScreenTournamentTrophy7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__26tScreenTournamentStandings7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__16tScreenTrackInfo7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__17tScreenTrophyRoom7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand']
+   in_symaddrs=['ProcessInput__11tDialogBase7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__17tDialogBackUpOnly7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__21tDialogNoInputMessage7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__5tMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__10tMenuBlank7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__12tMenuOptions7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__12tOptionsMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__25tMenuItemSlidingActivated7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__15tScreenCongrats7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__23tScreenTournamentTrophy7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__26tScreenTournamentStandings7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__16tScreenTrackInfo7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__17tScreenTrophyRoom7tPlayerR13tInputKeyTypeR12tMenuCommand', 'ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand', 'ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand']
+   objs=['recon/frontend/common/screentrophyroom.cpp.o']
+SavePinkSlipsCars__FP11tCarManagerP12tSaveCarInfoss
+   cands=['SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss', 'SavePinkSlipsCars__Fss']
+   in_symaddrs=['SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss', 'SavePinkSlipsCars__Fss']
+   objs=['recon/frontend/common/fememcard.cpp.o']
+SetMenu__FP20tMenuItemSlidingMenubPv
+   cands=['SetMenu__14tFEApplicationsP5tMenu', 'SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu']
+   in_symaddrs=['SetMenu__14tFEApplicationsP5tMenu', 'SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu']
+   objs=['recon/frontend/common/screencontroller.cpp.o']
+SetMenu__FP20tMenuItemSlidingMenusPv
+   cands=['SetMenu__14tFEApplicationsP5tMenu', 'SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu']
+   in_symaddrs=['SetMenu__14tFEApplicationsP5tMenu', 'SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu']
+   objs=['recon/frontend/common/screenaudio.cpp.o']
+TextValue__FP18tListIteratorTrack7tPlayer
+   cands=['TextValue__16tListIteratorCar7tPlayer', 'TextValue__21tListIteratorCarColor7tPlayer', 'TextValue__13tListIterator7tPlayer', 'TextValue__18tListIteratorRange7tPlayer', 'TextValue__20tListIteratorIndexed7tPlayer', 'TextValue__24tListIteratorMultiPlayer7tPlayer', 'TextValue__26tListIteratorDoubleIndexed7tPlayer', 'TextValue__23tListIteratorTournament7tPlayer', 'TextValue__18tListIteratorTrack7tPlayer', 'TextValue__14tPListIterator7tPlayer', 'TextValue__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['TextValue__16tListIteratorCar7tPlayer', 'TextValue__21tListIteratorCarColor7tPlayer', 'TextValue__13tListIterator7tPlayer', 'TextValue__18tListIteratorRange7tPlayer', 'TextValue__20tListIteratorIndexed7tPlayer', 'TextValue__24tListIteratorMultiPlayer7tPlayer', 'TextValue__26tListIteratorDoubleIndexed7tPlayer', 'TextValue__23tListIteratorTournament7tPlayer', 'TextValue__18tListIteratorTrack7tPlayer', 'TextValue__14tPListIterator7tPlayer', 'TextValue__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screentracks.cpp.o']
+TextValue__FP23tListIteratorTournament7tPlayer
+   cands=['TextValue__16tListIteratorCar7tPlayer', 'TextValue__21tListIteratorCarColor7tPlayer', 'TextValue__13tListIterator7tPlayer', 'TextValue__18tListIteratorRange7tPlayer', 'TextValue__20tListIteratorIndexed7tPlayer', 'TextValue__24tListIteratorMultiPlayer7tPlayer', 'TextValue__26tListIteratorDoubleIndexed7tPlayer', 'TextValue__23tListIteratorTournament7tPlayer', 'TextValue__18tListIteratorTrack7tPlayer', 'TextValue__14tPListIterator7tPlayer', 'TextValue__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['TextValue__16tListIteratorCar7tPlayer', 'TextValue__21tListIteratorCarColor7tPlayer', 'TextValue__13tListIterator7tPlayer', 'TextValue__18tListIteratorRange7tPlayer', 'TextValue__20tListIteratorIndexed7tPlayer', 'TextValue__24tListIteratorMultiPlayer7tPlayer', 'TextValue__26tListIteratorDoubleIndexed7tPlayer', 'TextValue__23tListIteratorTournament7tPlayer', 'TextValue__18tListIteratorTrack7tPlayer', 'TextValue__14tPListIterator7tPlayer', 'TextValue__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screentournselect.cpp.o']
+TextValue__FPv7tPlayer
+   cands=['TextValue__16tListIteratorCar7tPlayer', 'TextValue__21tListIteratorCarColor7tPlayer', 'TextValue__13tListIterator7tPlayer', 'TextValue__18tListIteratorRange7tPlayer', 'TextValue__20tListIteratorIndexed7tPlayer', 'TextValue__24tListIteratorMultiPlayer7tPlayer', 'TextValue__26tListIteratorDoubleIndexed7tPlayer', 'TextValue__23tListIteratorTournament7tPlayer', 'TextValue__18tListIteratorTrack7tPlayer', 'TextValue__14tPListIterator7tPlayer', 'TextValue__21tPListIteratorIndexed7tPlayer']
+   in_symaddrs=['TextValue__16tListIteratorCar7tPlayer', 'TextValue__21tListIteratorCarColor7tPlayer', 'TextValue__13tListIterator7tPlayer', 'TextValue__18tListIteratorRange7tPlayer', 'TextValue__20tListIteratorIndexed7tPlayer', 'TextValue__24tListIteratorMultiPlayer7tPlayer', 'TextValue__26tListIteratorDoubleIndexed7tPlayer', 'TextValue__23tListIteratorTournament7tPlayer', 'TextValue__18tListIteratorTrack7tPlayer', 'TextValue__14tPListIterator7tPlayer', 'TextValue__21tPListIteratorIndexed7tPlayer']
+   objs=['recon/frontend/common/screenpinkslips.cpp.o', 'recon/frontend/common/screenpost.cpp.o']
+TransitionIsFinished__FP12tOptionsMenu
+   cands=['TransitionIsFinished__5tMenu', 'TransitionIsFinished__9tMenuItem', 'TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button', 'TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice', 'TransitionIsFinished__10tMenuBlank', 'TransitionIsFinished__12tMenuOptions', 'TransitionIsFinished__27tMenuItemGoToMenuNFS4Button', 'TransitionIsFinished__28tMenuItemNFS4LeftRightChoice', 'TransitionIsFinished__9tMenuNFS4', 'TransitionIsFinished__12tOptionsMenu', 'TransitionIsFinished__17tUserNameMenuItem', 'TransitionIsFinished__20tMenuItemSlidingMenu', 'TransitionIsFinished__22tMenuItemLeftRightFade', 'TransitionIsFinished__25tMenuItemSlidingActivated', 'TransitionIsFinished__27tMenuItemGoToMenuButtonFade', 'TransitionIsFinished__29tMenuItemLeftRightAudioSlider', 'TransitionIsFinished__7tScreen']
+   in_symaddrs=['TransitionIsFinished__5tMenu', 'TransitionIsFinished__9tMenuItem', 'TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button', 'TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice', 'TransitionIsFinished__10tMenuBlank', 'TransitionIsFinished__12tMenuOptions', 'TransitionIsFinished__27tMenuItemGoToMenuNFS4Button', 'TransitionIsFinished__28tMenuItemNFS4LeftRightChoice', 'TransitionIsFinished__9tMenuNFS4', 'TransitionIsFinished__12tOptionsMenu', 'TransitionIsFinished__17tUserNameMenuItem', 'TransitionIsFinished__20tMenuItemSlidingMenu', 'TransitionIsFinished__22tMenuItemLeftRightFade', 'TransitionIsFinished__25tMenuItemSlidingActivated', 'TransitionIsFinished__27tMenuItemGoToMenuButtonFade', 'TransitionIsFinished__29tMenuItemLeftRightAudioSlider', 'TransitionIsFinished__7tScreen']
+   objs=['recon/frontend/common/screenaudio.cpp.o', 'recon/frontend/common/screencontroller.cpp.o']
+UpdateTransition__FP10tVideoWall
+   cands=['UpdateTransition__5tMenu', 'UpdateTransition__9tMenuItemb', 'UpdateTransition__10tMenuBlank', 'UpdateTransition__27tMenuItemGoToMenuNFS4Buttonb', 'UpdateTransition__28tMenuItemNFS4LeftRightChoiceb', 'UpdateTransition__9tMenuNFS4', 'UpdateTransition__12tOptionsMenu', 'UpdateTransition__17tUserNameMenuItemb', 'UpdateTransition__20tMenuItemSlidingMenub', 'UpdateTransition__22tMenuItemLeftRightFadeb', 'UpdateTransition__25tMenuItemSlidingActivatedb', 'UpdateTransition__27tMenuItemGoToMenuButtonFadeb', 'UpdateTransition__29tMenuItemLeftRightAudioSliderb', 'UpdateTransition__7tScreen', 'UpdateTransition__10tVideoWall']
+   in_symaddrs=['UpdateTransition__5tMenu', 'UpdateTransition__9tMenuItemb', 'UpdateTransition__10tMenuBlank', 'UpdateTransition__27tMenuItemGoToMenuNFS4Buttonb', 'UpdateTransition__28tMenuItemNFS4LeftRightChoiceb', 'UpdateTransition__9tMenuNFS4', 'UpdateTransition__12tOptionsMenu', 'UpdateTransition__17tUserNameMenuItemb', 'UpdateTransition__20tMenuItemSlidingMenub', 'UpdateTransition__22tMenuItemLeftRightFadeb', 'UpdateTransition__25tMenuItemSlidingActivatedb', 'UpdateTransition__27tMenuItemGoToMenuButtonFadeb', 'UpdateTransition__29tMenuItemLeftRightAudioSliderb', 'UpdateTransition__7tScreen', 'UpdateTransition__10tVideoWall']
+   objs=['recon/frontend/common/screencarselect.cpp.o', 'recon/frontend/common/screentrackinfo.cpp.o', 'recon/frontend/common/screentracks.cpp.o']
+
+=== UNFOUND DECL ===
+('BWorldSm_TunnelFlagSm__FPv', 'recon/game/psx/weather.cpp', 'no decl')

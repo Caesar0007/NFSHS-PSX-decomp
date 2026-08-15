@@ -1,0 +1,138 @@
+{
+ "fixed": [
+  [
+   "TextValue__FP23tListIteratorTournament7tPlayer",
+   "TextValue__23tListIteratorTournament7tPlayer",
+   "recon/frontend/common/screentournselect_externs.h",
+   60,
+   "recon/frontend/common/screentournselect.cpp"
+  ],
+  [
+   "Decrement__FP18tListIteratorTrack7tPlayer",
+   "Decrement__18tListIteratorTrack7tPlayer",
+   "recon/frontend/common/screentracks_externs.h",
+   40,
+   "recon/frontend/common/screentracks.cpp"
+  ],
+  [
+   "Increment__FP18tListIteratorTrack7tPlayer",
+   "Increment__18tListIteratorTrack7tPlayer",
+   "recon/frontend/common/screentracks_externs.h",
+   41,
+   "recon/frontend/common/screentracks.cpp"
+  ],
+  [
+   "TextValue__FP18tListIteratorTrack7tPlayer",
+   "TextValue__18tListIteratorTrack7tPlayer",
+   "recon/frontend/common/screentracks_externs.h",
+   39,
+   "recon/frontend/common/screentracks.cpp"
+  ],
+  [
+   "ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand",
+   "ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand",
+   "recon/frontend/common/screentrophyroom_externs.h",
+   33,
+   "recon/frontend/common/screentrophyroom.cpp"
+  ]
+ ],
+ "failed": [
+  [
+   "Initialize__FP10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss",
+   "recon/frontend/common/screentrackinfo.cpp",
+   "no working decl"
+  ],
+  [
+   "Draw__32tBlankMenuItemGoToMenuNFS4Buttoni",
+   "recon/game/common/vtables_tmenu.cpp",
+   "no working decl"
+  ],
+  [
+   "Draw__32tBlankMenuItemGoToMenuNFS4Buttoniic",
+   "recon/game/common/vtables_tmenu.cpp",
+   "no working decl"
+  ],
+  [
+   "Draw__33tBlankMenuItemNFS4LeftRightChoiceiic",
+   "recon/game/common/vtables_tmenu.cpp",
+   "no working decl"
+  ]
+ ],
+ "unresolved": [
+  [
+   "Debounce__FPv",
+   "no class receiver",
+   [
+    "recon/game/common/mpause.cpp.o"
+   ],
+   [
+    "Debounce__10tPMenuItem",
+    "Debounce__25tPMenuItemLeftRightSlider",
+    "Debounce__6tPMenu"
+   ]
+  ],
+  [
+   "Decrement__FPv7tPlayer",
+   "no class receiver",
+   [
+    "recon/frontend/common/screenpinkslips.cpp.o"
+   ],
+   [
+    "Decrement__16tListIteratorCar7tPlayer",
+    "Decrement__21tListIteratorCarColor7tPlayer",
+    "Decrement__13tListIterator7tPlayer",
+    "Decrement__18tListIteratorRange7tPlayer",
+    "Decrement__20tListIteratorIndexed7tPlayer",
+    "Decrement__24tListIteratorMultiPlayer7tPlayer",
+    "Decrement__25tListIteratorRangeIndexed7tPlayer",
+    "Decrement__26tListIteratorDoubleIndexed7tPlayer",
+    "Decrement__23tListIteratorTournament7tPlayer",
+    "Decrement__18tListIteratorTrack7tPlayer",
+    "Decrement__14tPListIterator7tPlayer",
+    "Decrement__21tPListIteratorIndexed7tPlayer"
+   ]
+  ],
+  [
+   "Increment__FPv7tPlayer",
+   "no class receiver",
+   [
+    "recon/frontend/common/screenpinkslips.cpp.o"
+   ],
+   [
+    "Increment__16tListIteratorCar7tPlayer",
+    "Increment__21tListIteratorCarColor7tPlayer",
+    "Increment__13tListIterator7tPlayer",
+    "Increment__18tListIteratorRange7tPlayer",
+    "Increment__20tListIteratorIndexed7tPlayer",
+    "Increment__24tListIteratorMultiPlayer7tPlayer",
+    "Increment__25tListIteratorRangeIndexed7tPlayer",
+    "Increment__26tListIteratorDoubleIndexed7tPlayer",
+    "Increment__23tListIteratorTournament7tPlayer",
+    "Increment__18tListIteratorTrack7tPlayer",
+    "Increment__14tPListIterator7tPlayer",
+    "Increment__21tPListIteratorIndexed7tPlayer"
+   ]
+  ],
+  [
+   "TextValue__FPv7tPlayer",
+   "no class receiver",
+   [
+    "recon/frontend/common/screenpinkslips.cpp.o",
+    "recon/frontend/common/screenpost.cpp.o"
+   ],
+   [
+    "TextValue__16tListIteratorCar7tPlayer",
+    "TextValue__21tListIteratorCarColor7tPlayer",
+    "TextValue__13tListIterator7tPlayer",
+    "TextValue__18tListIteratorRange7tPlayer",
+    "TextValue__20tListIteratorIndexed7tPlayer",
+    "TextValue__24tListIteratorMultiPlayer7tPlayer",
+    "TextValue__26tListIteratorDoubleIndexed7tPlayer",
+    "TextValue__23tListIteratorTournament7tPlayer",
+    "TextValue__18tListIteratorTrack7tPlayer",
+    "TextValue__14tPListIterator7tPlayer",
+    "TextValue__21tPListIteratorIndexed7tPlayer"
+   ]
+  ]
+ ]
+}

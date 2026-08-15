@@ -1,0 +1,188 @@
+reloc-filtered unresolved = 88   {'ORPHAN': 59, 'ALIAS': 4, 'IN_SYMADDRS': 25}
+
+===== ALIAS (4) =====
+DisplayHelp__FP14tFEApplicationi	[1 relocs]
+    have: DisplayHelp__14tFEApplications
+    from: recon/frontend/common/femenu.cpp.o
+DrawBackgroundImage__FP7tScreeniiP18tTexture_ShapeInfoi	[2 relocs]
+    have: DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi
+    from: recon/frontend/common/screenpost.cpp.o
+FETextRender_FullTextRGB__FPcssici	[2 relocs]
+    have: FETextRender_FullTextRGB__FPcssics
+    from: recon/frontend/common/screenpost.cpp.o
+TextValue__FPv7tPlayer	[1 relocs]
+    have: TextValue__16tListIteratorCar7tPlayer, TextValue__21tListIteratorCarColor7tPlayer, TextValue__13tListIterator7tPlayer, TextValue__18tListIteratorRange7tPlayer, TextValue__20tListIteratorIndexed7tPlayer, TextValue__24tListIteratorMultiPlayer7tPlayer ...
+    from: recon/frontend/common/screenpost.cpp.o
+
+===== IN_SYMADDRS (25) =====
+Padglobal	[6 relocs]
+    from: recon/eaclib/psx/pad.c.o
+__last_org	[4 relocs]
+    from: recon/syslib/psx/2mbyte/2mbyte.c.o
+currentwindow	[4 relocs]
+    from: recon/eaclib/psx/eacpsxz/fastmovf.c.o, recon/eaclib/psx/eacpsxz/movf.c.o
+gDataRate	[4 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchinit.c.o, recon/eaclib/psx/spchpsxz/spchpick.c.o
+gEventDats	[10 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchevnt.c.o, recon/eaclib/psx/spchpsxz/spchrand.c.o
+gFilterSetting	[6 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchevnt.c.o, recon/eaclib/psx/spchpsxz/spchinit.c.o, recon/eaclib/psx/spchpsxz/spchpick.c.o
+gGameNum	[4 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchbank.c.o, recon/eaclib/psx/spchpsxz/spchinit.c.o
+gLastSubTick	[9 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchevnt.c.o
+gLastTick	[6 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchevnt.c.o
+gPadinfo	[115 relocs]
+    from: recon/eaclib/psx/pad.c.o, recon/frontend/common/feapp.cpp.o, recon/frontend/common/fedialog.cpp.o, recon/frontend/common/feinput.cpp.o, recon/frontend/common/fememcard.cpp.o, recon/frontend/common/femenudefs.cpp.o, recon/frontend/common/femenuoptions.cpp.o, recon/frontend/common/front.cpp.o ...
+gPreLoadTicks	[4 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchevnt.c.o, recon/eaclib/psx/spchpsxz/spchpick.c.o
+gSentenceChoice	[7 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchpick.c.o
+gVoxEvents	[44 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchevnt.c.o
+gVoxInGame	[10 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchinit.c.o, recon/eaclib/psx/spchpsxz/spchpick.c.o
+ispch_gChoice	[16 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchpick.c.o
+ispch_gPickSamples	[10 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchpick.c.o
+memclass	[3 relocs]
+    from: recon/eaclib/psx/eacpsxz/inittmr.c.o
+mutexbuf	[4 relocs]
+    from: recon/eaclib/psx/eacpsxz/callback.c.o
+sndchanreserved	[17 relocs]
+    from: recon/eaclib/psx/sndpsxz/salloc.c.o
+sndgs	[201 relocs]
+    from: recon/eaclib/psx/sndpsxz/s3dlow.c.o, recon/eaclib/psx/sndpsxz/s3dpos.c.o, recon/eaclib/psx/sndpsxz/salloc.c.o, recon/eaclib/psx/sndpsxz/sautovol.c.o, recon/eaclib/psx/sndpsxz/sbadd.c.o, recon/eaclib/psx/sndpsxz/sballoc.c.o, recon/eaclib/psx/sndpsxz/sbend.c.o, recon/eaclib/psx/sndpsxz/sbhdrcpy.c.o ...
+sndmm	[13 relocs]
+    from: recon/eaclib/psx/sndpsxz/smemman.c.o
+sndpd	[113 relocs]
+    from: recon/eaclib/psx/sndpsxz/s3dpos.c.o, recon/eaclib/psx/sndpsxz/sdcdvol.c.o, recon/eaclib/psx/sndpsxz/sdfx.c.o, recon/eaclib/psx/sndpsxz/sdma.c.o, recon/eaclib/psx/sndpsxz/sdmemlu.c.o, recon/eaclib/psx/sndpsxz/sdmemman.c.o, recon/eaclib/psx/sndpsxz/sdpacket.c.o, recon/eaclib/psx/sndpsxz/sdplapat.c.o ...
+sndpp	[8 relocs]
+    from: recon/eaclib/psx/sndpsxz/sdpacket.c.o
+sndpps	[22 relocs]
+    from: recon/eaclib/psx/sndpsxz/spktplay.c.o
+sndss	[24 relocs]
+    from: recon/eaclib/psx/sndpsxz/spvoices.c.o, recon/eaclib/psx/sndpsxz/sst.c.o
+
+===== ORPHAN (59) =====
+CD_init	[1 relocs]
+    from: recon/syslib/psx/libcd/event.c.o
+CarIO_textureName	[4 relocs]
+    from: recon/game/psx/cario.cpp.o
+DAT_80134a6c	[3 relocs]
+    from: recon/eaclib/psx/sndpsxz/ssysreal.c.o
+DAT_8013bd50	[2 relocs]
+    from: recon/eaclib/psx/eacpsxz/isqrttbl.c.o
+DAT_801478f4	[3 relocs]
+    from: recon/eaclib/psx/sndpsxz/salloc.c.o
+DAT_801479f0	[4 relocs]
+    from: recon/eaclib/psx/sndpsxz/sdplapat.c.o, recon/eaclib/psx/sndpsxz/sdriver.c.o
+DAT_80147e28	[2 relocs]
+    from: recon/eaclib/psx/sndpsxz/spatkey.c.o
+DAT_80148064	[2 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchpick.c.o
+DAT_80148448	[6 relocs]
+    from: recon/eaclib/psx/spchpsxz/spchpick.c.o
+D_1000001	[2 relocs]
+    from: asm/data/data_8010CCD4_o23.data.s.o
+D_80000004	[2 relocs]
+    from: recon/syslib/psx/2mbyte/2mbyte.c.o
+D_8013EAD8	[2 relocs]
+    from: recon/syslib/psx/libgpu/SYS.c.o
+D_80147871	[2 relocs]
+    from: recon/eaclib/psx/sndpsxz/sdpacket.c.o
+D_80147898	[2 relocs]
+    from: recon/eaclib/psx/sndpsxz/ssysinit.c.o
+D_801479F0	[6 relocs]
+    from: recon/eaclib/psx/sndpsxz/sdtimrem.c.o, recon/eaclib/psx/sndpsxz/slib.c.o
+D_80147A0C	[2 relocs]
+    from: recon/eaclib/psx/sndpsxz/slib.c.o
+D_80147E34	[3 relocs]
+    from: recon/eaclib/psx/sndpsxz/sdmemman.c.o
+D_801489B4	[56 relocs]
+    from: recon/syslib/psx/libcd/drv.c.o
+D_80148AC4	[8 relocs]
+    from: recon/syslib/psx/libcard/PATCH.c.o
+D_80148AD4	[4 relocs]
+    from: recon/syslib/psx/libcard/END.c.o
+FECredits_lastFadeTick	[4 relocs]
+    from: recon/frontend/common/fecredits.cpp.o
+__20tDialogMessageString	[1 relocs]
+    from: recon/frontend/common/fedialog.cpp.o
+_cd_cached_dir	[6 relocs]
+    from: recon/syslib/psx/libcd/iso9660.c.o
+_cd_search_nopen	[4 relocs]
+    from: recon/syslib/psx/libcd/iso9660.c.o
+_cdr	[34 relocs]
+    from: recon/syslib/psx/libcd/cdread.c.o
+_first_devname	[8 relocs]
+    from: recon/syslib/psx/libapi/FIRST.c.o
+_first_save	[6 relocs]
+    from: recon/syslib/psx/libapi/FIRST.c.o
+_fnt	[8 relocs]
+    from: recon/syslib/psx/libgpu/FONT.c.o
+_fnt_active	[4 relocs]
+    from: recon/syslib/psx/libgpu/FONT.c.o
+_fnt_count	[4 relocs]
+    from: recon/syslib/psx/libgpu/FONT.c.o
+_gp	[2 relocs]
+    from: recon/syslib/psx/2mbyte/2mbyte.c.o
+_rsincos	[16 relocs]
+    from: recon/syslib/psx/libgte/FGO_01.c.o, recon/syslib/psx/libgte/FGO_06.c.o
+bigBuf	[23 relocs]
+    from: recon/frontend/common/feapp.cpp.o, recon/frontend/common/feaudio.cpp.o, recon/game/common/minfront.cpp.o, recon/game/common/nfs3.cpp.o, recon/game/psx/fe3dmenu.cpp.o
+debounce	[4 relocs]
+    from: recon/frontend/common/feinput.cpp.o
+dma_cb	[6 relocs]
+    from: recon/syslib/psx/libetc/INTR_DMA.c.o
+gSndState	[8 relocs]
+    from: recon/eaclib/psx/sndpsxz/span.c.o, recon/eaclib/psx/sndpsxz/sstsetpr.c.o, recon/eaclib/psx/sndpsxz/svol.c.o
+g_bootGP	[2 relocs]
+    from: recon/eaclib/psx/eacpsxz/savegp.c.o
+g_dicr_ptr	[14 relocs]
+    from: recon/syslib/psx/libetc/INTR_DMA.c.o
+g_dpcr_ptr	[8 relocs]
+    from: recon/syslib/psx/libetc/INTR.c.o
+g_hooks_ptr	[14 relocs]
+    from: recon/syslib/psx/libetc/INTR.c.o
+g_imask_ptr	[18 relocs]
+    from: recon/syslib/psx/libetc/INTR.c.o
+g_intr_timeout	[6 relocs]
+    from: recon/syslib/psx/libetc/INTR.c.o
+g_istat_ptr	[16 relocs]
+    from: recon/syslib/psx/libetc/INTR.c.o
+g_madr_ptr	[2 relocs]
+    from: recon/syslib/psx/libetc/INTR_DMA.c.o
+g_rcnt_ptr	[2 relocs]
+    from: recon/syslib/psx/libetc/INTR_VB.c.o
+g_videomode	[6 relocs]
+    from: recon/syslib/psx/libetc/VMODE.c.o
+g_vsync_gp1_ptr	[6 relocs]
+    from: recon/syslib/psx/libetc/VSYNC.c.o
+g_vsync_t1_ptr	[4 relocs]
+    from: recon/syslib/psx/libetc/VSYNC.c.o
+hilight_colors	[2 relocs]
+    from: recon/game/psx/drawc.cpp.o
+hoff	[10 relocs]
+    from: recon/game/psx/psxcontroller.cpp.o
+inputQueue	[15 relocs]
+    from: recon/game/common/simqueue.cpp.o
+loading_languageNames	[2 relocs]
+    from: recon/game/psx/loading.cpp.o
+nextTick	[7 relocs]
+    from: recon/frontend/common/feinput.cpp.o
+output	[4 relocs]
+    from: recon/game/common/simqueue.cpp.o
+showRoomFlag	[17 relocs]
+    from: recon/frontend/common/screencarselect.cpp.o, recon/frontend/common/screencongrats.cpp.o, recon/game/psx/fe3dmenu.cpp.o
+systemtasksubs	[8 relocs]
+    from: recon/eaclib/psx/eacpsxz/systask.c.o
+tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand	[1 relocs]
+    from: recon/frontend/common/screenpost.cpp.o
+ticksA	[4 relocs]
+    from: recon/frontend/common/fevideowall.cpp.o
+vsync_lastcount	[6 relocs]
+    from: recon/syslib/psx/libetc/VSYNC.c.o
+

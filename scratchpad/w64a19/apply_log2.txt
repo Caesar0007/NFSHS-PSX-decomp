@@ -1,0 +1,26 @@
+  MISS recon/frontend/common/screencarselect.cpp: SetAvailable__FP10tVideoWallUs -> SetAvailable__10tVideoWalls
+  MISS recon/frontend/common/screencarselect.cpp: TurnOff__FP10tVideoWall -> TurnOff__10tVideoWall
+  MISS recon/frontend/common/screencarselect.cpp: TurnOn__FP10tVideoWall -> TurnOn__10tVideoWall
+  OK recon/frontend/common/screencarselect.cpp: UpdateImages__FP10tVideoWall -> UpdateImages__10tVideoWall  @recon/frontend/common/screencarselect_externs.h:104
+  OK recon/frontend/common/screentrackinfo.cpp: TurnOffInstant__FP10tVideoWall -> TurnOffInstant__10tVideoWall  @recon/frontend/common/screentrackinfo_externs.h:28
+  OK recon/frontend/common/screentrackinfo.cpp: TurnOn__FP10tVideoWall -> TurnOn__10tVideoWall  @recon/frontend/common/screentrackinfo_externs.h:27
+  OK recon/frontend/common/screentrackinfo.cpp: UpdateImages__FP10tVideoWall -> UpdateImages__10tVideoWall  @recon/frontend/common/screentrackinfo_externs.h:29
+  OK recon/frontend/common/statchk.cpp: GetCarFromSimID__FP11tCarManagers -> GetCarFromSimID__11tCarManagers  @recon/frontend/common/statchk_externs.h:16
+  MISS recon/frontend/psx/fetexture.cpp: Texture_GetClutId -> Texture_GetClutId__FiPiT1
+  MISS recon/frontend/psx/movie.cpp: Platform_ResetDCTBuffer -> Platform_ResetDCTBuffer__Fv
+  MISS recon/frontend/psx/video.cpp: Platform_ResetDCTBuffer -> Platform_ResetDCTBuffer__Fv
+  MISS recon/frontend/psx/video.cpp: mdecreset -> mdecreset__Fv
+  MISS recon/game/common/aispeeds.cpp: AISpeeds_CalcHumanCurveSpeed -> AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj
+  MISS recon/game/common/audiocmn.cpp: AudioCmn_ReverbOff -> AudioCmn_ReverbOff__Fv
+  reject recon/game/common/cars.cpp:2306 for AIPhysics_UseCoolPhysics (still=True new=[])
+  MISS recon/game/common/cars.cpp: AIPhysics_UseCoolPhysics -> AIPhysics_UseCoolPhysics__FP8Car_tObj
+  reject recon/game/common/cars.cpp:2307 for AISpeeds_MaintainLeaderBoard (still=True new=[])
+  MISS recon/game/common/cars.cpp: AISpeeds_MaintainLeaderBoard -> AISpeeds_MaintainLeaderBoard__Fv
+  reject recon/game/common/cars.cpp:2305 for AIWorld_CalculateLaneInfo (still=True new=[])
+  MISS recon/game/common/cars.cpp: AIWorld_CalculateLaneInfo -> AIWorld_CalculateLaneInfo__FP8Car_tObj
+  MISS recon/game/common/cars.cpp: Cars_SortCars -> Cars_SortCars__Fv
+  reject recon/game/common/cars.cpp:2308 for DrawW_DoObjectAnimations (still=True new=[])
+  MISS recon/game/common/cars.cpp: DrawW_DoObjectAnimations -> DrawW_DoObjectAnimations__Fv
+  OK recon/game/common/mpause.cpp: ItemEnabledNum__FPvi -> ItemEnabledNum__6tPMenui  @recon/game/common/mpause_externs.h:44
+  OK recon/game/psx/weather.cpp: BWorldSm_TunnelFlagSm__FPv -> BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  @recon/game/psx/weather_externs.h:57
+PASS2 FIXED 7 / FAILED 14

@@ -1,0 +1,90 @@
+{
+ "fixed": [
+  [
+   "SetAvailable__FP10tVideoWallUs",
+   "SetAvailable__10tVideoWalls",
+   "recon/frontend/common/screencarselect_externs.h",
+   105,
+   "recon/frontend/common/screencarselect.cpp"
+  ],
+  [
+   "TurnOff__FP10tVideoWall",
+   "TurnOff__10tVideoWall",
+   "recon/frontend/common/screencarselect_externs.h",
+   103,
+   "recon/frontend/common/screencarselect.cpp"
+  ],
+  [
+   "TurnOn__FP10tVideoWall",
+   "TurnOn__10tVideoWall",
+   "recon/frontend/common/screencarselect_externs.h",
+   103,
+   "recon/frontend/common/screencarselect.cpp"
+  ],
+  [
+   "Texture_GetClutId",
+   "Texture_GetClutId__FiPiT1",
+   "recon/frontend/psx/fetexture_externs.h",
+   11,
+   "recon/frontend/psx/fetexture.cpp"
+  ],
+  [
+   "Platform_ResetDCTBuffer",
+   "Platform_ResetDCTBuffer__Fv",
+   "recon/frontend/psx/movie_externs.h",
+   31,
+   "recon/frontend/psx/movie.cpp"
+  ],
+  [
+   "Platform_ResetDCTBuffer",
+   "Platform_ResetDCTBuffer__Fv",
+   "recon/frontend/psx/video_externs.h",
+   18,
+   "recon/frontend/psx/video.cpp"
+  ],
+  [
+   "mdecreset",
+   "mdecreset__Fv",
+   "recon/frontend/psx/video_externs.h",
+   23,
+   "recon/frontend/psx/video.cpp"
+  ]
+ ],
+ "failed": [
+  [
+   "AISpeeds_CalcHumanCurveSpeed",
+   "recon/game/common/aispeeds.cpp",
+   "no working decl"
+  ],
+  [
+   "AudioCmn_ReverbOff",
+   "recon/game/common/audiocmn.cpp",
+   "no working decl"
+  ],
+  [
+   "AIPhysics_UseCoolPhysics",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "AISpeeds_MaintainLeaderBoard",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "AIWorld_CalculateLaneInfo",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "Cars_SortCars",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ],
+  [
+   "DrawW_DoObjectAnimations",
+   "recon/game/common/cars.cpp",
+   "no working decl"
+  ]
+ ]
+}

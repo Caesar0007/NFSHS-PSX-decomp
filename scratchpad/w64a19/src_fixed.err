@@ -1,0 +1,20 @@
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: small-data section too large; lower small-data size limit (see option -G)
+build/src/aidatarecord.c.o: in function `StartUp1__14AIDataRecord_t':
+(.text+0x130): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_WhichRecord'
+(.text+0x134): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_RecordMethod'
+(.text+0x15c): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_BestLine'
+(.text+0x178): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_TrackCurve'
+build/src/aidatarecord.c.o: in function `CleanUp1__14AIDataRecord_t':
+(.text+0x1f0): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_BestLine'
+(.text+0x21c): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_BestLine'
+(.text+0x220): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_TrackCurve'
+(.text+0x24c): relocation truncated to fit: R_MIPS_GPREL16 against `AIDataRecord_TrackCurve'
+build/src/aiinit.c.o: in function `AI_TrafficCleanUp__Fv':
+(.text+0x24): relocation truncated to fit: R_MIPS_GPREL16 against `AITraffic_rawTriggers'
+(.text+0x3c): relocation truncated to fit: R_MIPS_GPREL16 against `AITraffic_rawTriggers'
+build/src/aiinit.c.o: in function `AI_TrafficStartUp__Fv':
+(.text+0xac): additional relocation overflows omitted from the output
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/eaclib/psx/pad.c.o: in function `PAD_state':
+(.text+0xf0): undefined reference to `PAD_convert'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/syslib/psx/libcard/INIT.c.o: in function `InitCARD':
+(.text+0x20): undefined reference to `ReadInitPadFlag'

@@ -1,0 +1,6 @@
+affected TUs: 32
+section-byte IDENTICAL: 31
+section-byte CHANGED  : 1
+skipped (compile err) : 0
+
+CHANGED recon/game/common/cars.cpp: ['.text']

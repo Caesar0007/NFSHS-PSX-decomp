@@ -1,0 +1,40 @@
+{
+ "solo": [
+  "recon/frontend/common/feapp_externs.h",
+  "recon/frontend/common/fememcard.cpp",
+  "recon/frontend/common/fememcard_externs.h",
+  "recon/frontend/common/femenuoptions_externs.h",
+  "recon/frontend/common/fetourn_externs.h",
+  "recon/frontend/common/fevideowall_externs.h",
+  "recon/frontend/common/screenaudio_externs.h",
+  "recon/frontend/common/screencarselect_externs.h",
+  "recon/frontend/common/screencongrats_externs.h",
+  "recon/frontend/common/screencontroller_externs.h",
+  "recon/frontend/common/screenmain_externs.h",
+  "recon/frontend/common/screenmemcard_externs.h",
+  "recon/frontend/common/screenpinkslips_externs.h",
+  "recon/frontend/common/screentournselect_externs.h",
+  "recon/frontend/common/screentrackinfo_externs.h",
+  "recon/frontend/common/screentrackrecords_externs.h",
+  "recon/frontend/common/screentracks_externs.h",
+  "recon/frontend/common/screentrophyinfo_externs.h",
+  "recon/frontend/common/screentrophyroom_externs.h",
+  "recon/frontend/common/statchk_externs.h",
+  "recon/frontend/psx/fetexture_externs.h",
+  "recon/frontend/psx/movie_externs.h",
+  "recon/frontend/psx/video_externs.h",
+  "recon/game/common/cars_externs.h",
+  "recon/game/common/mpause_externs.h",
+  "recon/game/common/nfs3_externs.h",
+  "recon/game/common/track_externs.h",
+  "recon/game/psx/drawc_externs.h",
+  "recon/game/psx/overlays_externs.h",
+  "recon/game/psx/weather_externs.h"
+ ],
+ "shared": [
+  "recon/game/common/aispeeds.cpp",
+  "recon/game/common/audiocmn.cpp",
+  "recon/game/common/cars.cpp",
+  "recon/game/common/vtables_tmenu.cpp"
+ ]
+}

@@ -201,17 +201,61 @@ def tu_settings(rel):
             f"{lane}={flags.get(lane)}" if lane else None)
 
 
+def _exists_exact(p):
+    """w63-a20: `Path.exists()` is CASE-INSENSITIVE on this NTFS checkout, so a
+    lookup for `cd_read.s` silently resolves to the UNRELATED `CD_Read.s` and
+    the prover would word-compare one function against another's retail bytes
+    -- a REAL=n or a vacuous REAL=0 against the wrong oracle.  Two such pairs
+    exist in-tree (cd_read/CD_Read, CD_init/CD_Init); tools/verify_asm.py has
+    carried this guard (+ the VA fallback below) for a while and psyqproof did
+    not.  No EA row is affected (census: 0 collisions over main/ + front/ for
+    the 2972 sealed EA rows) -- both pairs are syslib, which is exactly where an
+    unguarded prover run would have gone wrong next."""
+    return p.exists() and p.name in {e.name for e in p.parent.iterdir()}
+
+
+def _find_oracle_path(fn):
+    """Name -> oracle .s, mirroring tools/verify_asm.py `_find_oracle_path`:
+    case-EXACT name first, then the VA fallbacks through
+    configs/symbol_addrs.txt (splat parks a case-colliding or late-named
+    function under `func_<VA>.s` / `<name>_<VA>.s`)."""
+    segs = ("main", "front")
+    for seg in segs:
+        p = ROOT / "asm" / "nonmatchings" / seg / (fn + ".s")
+        if _exists_exact(p):
+            return p
+    addrs = {}
+    ap = ROOT / "configs" / "symbol_addrs.txt"
+    if ap.exists():
+        for ln in ap.read_text().splitlines():
+            m = re.match(r"^(\w+)\s*=\s*0x([0-9A-Fa-f]+)\s*;", ln.strip())
+            if m:
+                addrs[m.group(1)] = int(m.group(2), 16)
+    vas = []
+    if fn in addrs:
+        vas.append(addrs[fn])
+    else:
+        pat = re.compile(r"^" + re.escape(fn) + r"_[0-9A-Fa-f]{8}$")
+        vas = [va for name, va in addrs.items() if pat.match(name)]
+    for va in vas:
+        for seg in segs:
+            for cand in (f"{fn}_{va:08X}", f"func_{va:08X}"):
+                p = ROOT / "asm" / "nonmatchings" / seg / (cand + ".s")
+                if _exists_exact(p):
+                    return p
+    return None
+
+
 def oracle_words(fn):
-    for sub in ("main", "front"):
-        p = ROOT / "asm" / "nonmatchings" / sub / (fn + ".s")
-        if p.exists():
-            ow = []
-            for ln in open(p, encoding="utf-8", errors="replace"):
-                m = re.search(r"/\*\s+\S+\s+[0-9A-F]{8}\s+([0-9A-F]{8})\s+\*/", ln)
-                if m:
-                    ow.append(bytes.fromhex(m.group(1)))  # already LE byte order
-            return ow
-    sys.exit(f"no oracle asm/nonmatchings/{{main,front}}/{fn}.s")
+    p = _find_oracle_path(fn)
+    if p is None:
+        sys.exit(f"no oracle asm/nonmatchings/{{main,front}}/{fn}.s")
+    ow = []
+    for ln in open(p, encoding="utf-8", errors="replace"):
+        m = re.search(r"/\*\s+\S+\s+[0-9A-F]{8}\s+([0-9A-F]{8})\s+\*/", ln)
+        if m:
+            ow.append(bytes.fromhex(m.group(1)))      # already LE byte order
+    return ow
 
 
 def strip_redundant_externs(text):

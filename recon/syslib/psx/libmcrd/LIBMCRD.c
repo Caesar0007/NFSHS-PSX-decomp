@@ -1394,6 +1394,49 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * why our `files` parm spills to 0x60($sp) and retail`s to 0x5C($sp) (~8); (b) the
      * $t0/$t1 local-QTY swap on the `max` reload and on `files`, a consequence of (a) (~6);
      * (c) the init-block emission order plus `li $v0,2` vs `li $t0,2` (~5).  NOT a floor. */
+    /* 🔑 W64-A4 — CLASSES (a)+(b) ARE FULLY DIAGNOSED AND REACHABLE; ONE LANE PROPERTY BLOCKS
+     * THE LANDING.  Read the mechanism before spending another dial here.
+     *
+     * 1. WHY retail hoists the movstrsi end pointer and we do not (cc1 `-dL` of this fn):
+     *      Loop from 100 to 343: 67 real insns.
+     *      Insn 371: regno 97 (life 58) move-insn savings 1 HALVED SINCE ALREADY MOVED -> moved
+     *      Insn 312: regno 120 (life 5), savings 1 NOT DESIRABLE      <-- &ent+32, the end ptr
+     *    loop.c:1640 moves iff `threshold*savings*lifetime >= insn_count`.  threshold solves to
+     *    27 (= 1*(1+n_non_fixed_regs), loop has calls; decays 3 per move -> 24 here) and
+     *    `insn_count` is STATEFUL across the movable list (loop.c:1618-24 `insn_count *= 2`
+     *    when moved_once[regno]).  regno 97 (the `mc` cse base) was ALREADY hoisted out of the
+     *    INNER `while (1)` retry loop, so its outer-loop movable doubles insn_count 67 -> 134,
+     *    and the end pointer then prices 24*1*5 = 120 < 134 = declined.  Retail's build never
+     *    paid that doubling.
+     * 2. THE CURE, MEASURED: write the retry loop as a LABEL+goto loop.  A goto loop carries no
+     *    NOTE_INSN_LOOP_BEG, loop.c never runs a pass over it, moved_once[97] stays 0,
+     *    insn_count stays 67, and 120 >= 67 -> the end pointer IS hoisted into the outer
+     *    preheader and reload spills it, exactly like retail:
+     *      +addiu $t0,$sp,80 / +sw $t0,<slot>($sp)   in the preheader
+     *      +lw $t0,<slot>($sp) / +nop                in the copy loop
+     *    and class (b) evaporates with it (the whole `$t1` -> `$t0` swap on the `max` reload).
+     *    sp-displacement-BLIND diff 22 -> 19; every remaining item is one of (c) or the two
+     *    rows below.
+     * 3. WHY IT IS NOT LANDED: our reload spill slots are 8-ALIGNED and 8-WIDE, retail's are
+     *    4/4.  Proven, not assumed: a probe local declared after `err` takes 92($sp) (so
+     *    expand-time locals ARE 4-aligned and 92 IS reachable) while `files` still lands at
+     *    96 and the new end-pointer slot at 104.  So the second spill costs +8 of frame
+     *    (144 -> 152), which shifts all 24 saved-reg/local displacements and takes the gate
+     *    36 -> 85 even though the structure improved.  This same property IS the long-standing
+     *    1-diff `sw $a3,96($sp)` vs retail `92($sp)`.  LADDERED (04U): 2.8.0/2.8.1 pack spills
+     *    4-aligned = retail's exact slot map (88/92/96, frame 144!) but cost ~130 elsewhere;
+     *    2.6.3 and both 2.7.2 rungs 8-align.  Baseline ladder on the current source:
+     *    2.6.3 50 | 2.7.2-970404 134 | 2.7.2 36 | 2.8.0 174 | 2.8.1 174.
+     *    => NEXT: a 4-aligned-spill mechanism (or a per-fn rung/flag that packs like retail)
+     *    turns the goto-loop lever from -49 into roughly -17 in one step.  Do NOT re-derive
+     *    the LICM razor; it is settled.
+     * 4. CORROBORATION (independent Sony build): Parasite Eve 2 ships a REAL prebuilt PsyQ
+     *    `libmcrd.o` WITH SYMBOLS at C:\Temp\ps1-decomp-refs\parasite-eve-2-decomp\lib\libmcrd\.
+     *    Its MemCardGetDirentry (0x11a8, 151 insns vs our oracle's 152) carries retail's shape
+     *    verbatim: `sw $a3,92($sp)`, `move $s2,$zero` before `move $s1,$zero`, `lw $t0,164($sp)`,
+     *    `move $s5,$zero` in the blez slot, `addiu $t0,$sp,80` + `sw $t0,96($sp)` in the
+     *    preheader and `lw $t0,96($sp); nop` in the copy loop.  Two independent Sony builds
+     *    agree, so the hoist+spill is structural, not noise. */
     /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
      * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
@@ -1539,6 +1582,132 @@ extern int MemCardCallback(int func)
  * can merge it with the caller`s anchor) -- i.e. a device that is loop-hoistable AND
  * opacity-preserving.  A gcc -dL/-dS dump of MemCardDeleteFile will show exactly why
  * scan_loop declines the asm; that is the next experiment, not another spelling sweep. */
+/* 🏆 W64-A4 — THE INLINED-ANCHOR CLASS, SOLVED (CreateFile 30 -> 12, DeleteFile 23 -> 5,
+ * both COUNT-EXACT; MemCardSync itself stays PASS).  Five waves treated this as an
+ * "anchor cannot merge" allocator/LICM problem; it is a SIGNATURE problem.
+ *
+ * THE MECHANISM (read off the cc1-2.7.2 `-dL` dump of MemCardDeleteFile, not guessed):
+ * the inlined copy's own `int *base = &mc.cmd;` NEVER appears in loop.c's movable list at
+ * all -- neither with the opacity fence nor without it (measured both; the w63-a4
+ * "scan_loop declines the volatile asm" reading is REFUTED: dropping the fence leaves the
+ * movable list byte-identical, `Insn 120 regno 88 savings 2 moved` + `Insn 275 regno 119
+ * done move-insn matches 120` and nothing else).  With no fence cse folds every access
+ * through the known-constant pointer into the `lw/sw $r,sym+off` assembler MACRO, so there
+ * is no pseudo to hoist; with the fence there IS a pseudo but it is opaque, so
+ * `rtx_equal_for_loop_p` can never match it against the caller's anchor and
+ * `combine_movables` (loop.c:1342, the `m->match` merge that DOES fire for the two `li 2`
+ * movables in the same loop) cannot merge them.  A pincer: no source spelling of a
+ * FUNCTION-LOCAL anchor can reach retail's shared register.
+ *
+ * THE CURE: the anchor is a PARAMETER.  Then the inliner substitutes the CALLER's pointer
+ * pseudo directly and retail's single shared base ($s0 across the caller's field stores AND
+ * the whole inlined sync body) falls out with no dial at all.  MemCardSync keeps its own
+ * body (see below) because the two instantiations need OPPOSITE spellings of the
+ * spin-pointer / done-store pair -- which is itself evidence for the split, and a 2x2
+ * matrix proves no single spelling serves both:
+ *      pdone=&base[2] store=fresh-anchor   Sync PASS | Create 22 | Delete 15
+ *      pdone=&mc.done store=base[2]=0      Sync   9  | Create 13 | Delete  6
+ *      pdone=&base[2] store=base[2]=0      Sync   8  | Create 17 | Delete 10
+ *      pdone=&mc.done store=fresh-anchor   Sync   3  | Create 18 | Delete 11
+ * so the helper takes row 2 and the standalone keeps row 1.  Landed with the plain
+ * `return 1` (the callers discard the result, so the cross-jump launder's `li $v0,1` is
+ * pure excess here: 13/6 -> 12/5).
+ *
+ * FALSIFIED in THIS basin (04Z re-probes, all whole-TU gated):
+ *   volatile snapshot reads to keep retail's two dead `lw 0($s0)/4($s0)` .. Cre 14 Del  7
+ *   read-only fence on cmd+rslt (same goal) ......................... Cre 18 Del 11
+ *   read-only fence on cmd only ..................................... Cre 16 Del  9
+ *   block-local fenced `pc` for the p[3] chan read (the GetDirentry
+ *     device) -- re-confirms the w62-a8 verdict in the new basin ..... Cre 12 Del 29
+ *   named `oflag = 1;` before/after the _mc_present statement to move
+ *     retail's early `li $a1,1` ............................. inert (12/5); FENCED 22/5
+ * REMAINING: Delete 5 = the `p[3]` load-fold (2) + retail's two dead snapshot loads (2);
+ * Create 12 = the same 4 + the `li $a1,1` open()-arg position (2) + the `p[0]`-load-above-
+ * the-`_mc_save_cb`-store schedule that CreateFile's opaque base costs (DeleteFile's plain
+ * base is free of it).  All named, none a floor. */
+static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *base)
+{
+    int rslt;
+    int cmd;
+    /* MATCH: anchor = &_mc_cmd; cmd/rslt/done all reached by offset from it, and sync_cmd/
+     * sync_rslt (0x560/0x564, cmd+0x48/+0x4C) likewise -- one shared base for the whole fn. */
+    if (base[0] == 0 && base[2] == 0)
+        return -1;                          /* nothing in flight */
+
+    /* w48-a1: the snapshot reads come AFTER the guard -- the oracle emits
+     * `lw $t0,0($v1); lw $a3,4($v1)` at the .L800FBB24 join, not before the bnez. */
+    cmd = base[0];
+    rslt = base[1];
+
+    if (mode == 0) {                        /* blocking */
+        /* MATCH (w52-a6, 26 -> 7 diffs): the oracle spins on a REBASED anchor -- it zero-trip-
+         * guards on `lw $v0,8($v1)`, then `addiu $v1,$v1,8` mutates the shared base IN PLACE
+         * (§3.12 #14: `base` is dead in this arm, so gcc reuses its register) and the loop body
+         * reads `lw $v0,0($v1)`.  That mutation is ALSO what keeps this arm's tail DISTINCT from
+         * the non-blocking `done != 0` tail (which still reaches `done` as `8($v1)`): with a
+         * shared `base[2] = 0;` the two byte-identical tails cross-jump-MERGE and the whole
+         * blocking arm collapses -- that single statement was 24 of the 26 missing insns. */
+        if (base[2] == 0) {                  /* explicit zero-trip guard, as retail wrote it */
+            volatile int *pdone = (volatile int *)&mc.done;
+            /* the guard is EXPLICIT + the loop is bottom-tested: a plain `while` makes gcc add
+             * its OWN rotation copy of the test on top of ours (double guard, +3 insns).
+             * `volatile` is the same honest fix as MemCardStop's: `done` is cleared
+             * ASYNCHRONOUSLY by the VSync pump, so a plain read gets hoisted and spins forever. */
+            do {
+                /* nothing -- wait for MemCardStart_cb to set done */
+            } while (*pdone == 0);
+        }
+        /* MATCH: the oracle materializes each snapshot's FULL address into a register
+         * (`lui; addiu; lw 0($v0)`) instead of the lane's 2-insn self-temp macro expansion
+         * (`lui; lw %lo($v0)`) -- a fenced pointer local per read site is what reaches it. */
+        if (result != 0) {
+            int *psr = &_mc_sync_rslt;
+            __asm__ __volatile__("" : "=r"(psr) : "0"(psr));
+            *result = *psr;                   /* sync_rslt */
+        }
+        if (cmds != 0) {
+            int *psc = &_mc_sync_cmd;
+            __asm__ __volatile__("" : "=r"(psc) : "0"(psc));
+            *cmds = *psc;                     /* sync_cmd  */
+        }
+        /* W64-A4: store `done` through the SHARED (caller`s) anchor so `base` stays
+         * live past the spin loop -- which is why retail materialises a FRESH pointer
+         * for the spin instead of rebasing in place (the w63-a4 coupling). */
+        base[2] = 0;                          /* done      */
+        /* W64-A4: the standalone MemCardSync needs the cross-jump de-merger launder
+         * (see its own body); the INLINED copies discard the result, so a plain
+         * `return 1` is right here -- the launder emits an `li $v0,1` retail lacks.
+         * Measured (helper only): laundered Create 13 / Delete 6; plain 12 / 5. */
+        return 1;
+    }
+
+    /* non-blocking */
+    if (base[2] == 0) {
+        if (result != 0) *result = rslt;
+        if (cmds   != 0) *cmds   = cmd;
+        return 0;
+    }
+    /* same full-address materialization as the blocking arm above */
+    if (result != 0) {
+        int *psr = &_mc_sync_rslt;
+        __asm__ __volatile__("" : "=r"(psr) : "0"(psr));
+        *result = *psr;                       /* sync_rslt */
+    }
+    if (cmds != 0) {
+        int *psc = &_mc_sync_cmd;
+        __asm__ __volatile__("" : "=r"(psc) : "0"(psc));
+        *cmds = *psc;                         /* sync_cmd  */
+    }
+    base[2] = 0;                              /* done      */
+    return 1;
+}
+
+/* W64-A4: the STANDALONE MemCardSync keeps its own body (its own `&mc.cmd` anchor and
+ * the `pdone=&base[2]` / fresh-reanchor-store pair).  It is not routed through
+ * MemCardSyncAt because the two instantiations provably need opposite spellings of that
+ * pair (the 2x2 matrix in the helper receipt); routing it through the helper costs this
+ * function its PASS (0 -> 9).  MemCardGetDirentry / MemCardFormat / MemCardUnformat
+ * still call THIS one and are unaffected (re-gated: 36 / PASS / PASS, unchanged). */
 __inline__ long MemCardSync(long mode, int *cmds, int *result)
 {
     int rslt;
@@ -1705,7 +1874,7 @@ nocard:
             __asm__("" : : "r"(chan));
             UserFuncOpen((int)MemCardCmd_cb);
         }
-        MemCardSync(0, 0, &rslt);
+        MemCardSyncAt(0, 0, &rslt, p);
         MemCardCallback((int)_mc_save_cb);
 
         if (rslt == 0)
@@ -1827,7 +1996,7 @@ extern long MemCardDeleteFile(long chan, char *file)
             __asm__("" : : "r"(chan), "r"(chan));
             UserFuncOpen((int)MemCardCmd_cb);
         }
-        MemCardSync(0, 0, &rslt);
+        MemCardSyncAt(0, 0, &rslt, p);
         MemCardCallback((int)_mc_save_cb);
 
         if (rslt == 3)

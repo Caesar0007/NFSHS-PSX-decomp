@@ -1,0 +1,11 @@
+recon/game/psx/night.cpp Night_AdditiveNightCalc__FP6VECTORP7CVECTOR
+recon/game/psx/night.cpp Night_CreateNightTableElement__FiliPUc
+recon/game/psx/night.cpp Night_SetEnviroment__FP13DRender_tView
+recon/game/psx/hrzsku.cpp HrzSetPsxMatrix__FP10matrixtdef
+recon/game/psx/hrzsku.cpp Hrz_BuildHorizon__FP13DRender_tView
+recon/game/psx/hrzsku.cpp Hrz_BuildSky__Fv
+recon/game/psx/weather.cpp Weather_ChangeDensityBasedOnTime__Fv
+recon/game/psx/weather.cpp Weather_DoWeather__FP13DRender_tView
+recon/game/psx/sfx.cpp Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle
+recon/game/psx/overlays.cpp Hud_BTCStats__Fsb
+recon/game/psx/overlays.cpp RaceStatistics__Fv

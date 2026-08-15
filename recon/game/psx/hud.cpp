@@ -1653,9 +1653,22 @@ void Hud_BuildTach(int player)
     ((Hud_PTag *)tp9)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = prim + 0x24;
     ((Hud_PTag *)pal)->addr = (u_int)tp9;
+    /* MATCH (w63-a1): 30 -> 22 (count EXACT 269/269) by STATEMENT ORDER of this tp9
+     * vertex block alone -- the colour word is written FIRST (retail SLD 1418 issues its
+     * whole `lw color; lui 0x4200; addu; or` chain as one group before any vertex store;
+     * with the colour store third, sched1 fills its load-delay slot with the y1 `sh`).
+     * Measured orders (code first unless noted, all 269/269 unless marked):
+     *   code,x0,rgb,y0,y1,x1 = 30 (the old form) . code,rgb,x0,y0,y1,x1 = 22 (kept)
+     *   rgb,code,x0,y0,y1,x1 = 26 . code,rgb,y0,x0,y1,x1 = 28 . code,rgb,x0,y1,y0,x1 = 22
+     *   code,x0,y0,rgb,y1,x1 = 32 . rgb,x0,y0,y1,x1,code = 25 @268
+     *   code,rgb,x0,y0,x1,y1 = 19 @268 and code,rgb,x0,x1,y0,y1 / x1,y1,x0,y0 = 25 @268
+     *     -- all three are 1 insn SHORT, so 22 @269 is the better (count-exact) basin.
+     * FALSIFIED: a void fence `("" : : "i"(0))` anywhere inside this block is
+     * CATASTROPHIC here (263-273 diffs, 259-266 insns) -- it walls off the whole
+     * packet-store region; and POLY_F3 member spelling for tp9's x1/y1 is inert (30). */
     ((u_char *)tp9)[3] = 3;
-    *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
+    *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
     *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;

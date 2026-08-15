@@ -632,6 +632,7 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
 {
     volatile CD_intr *ip;
     char **cmdNames;
+    volatile CD_intr *ep;
     int i;
     int ret;
 
@@ -648,20 +649,54 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
             CD_pos[i] = param[i];
     if (com == 0xe)
         CD_mode = param[0];
+    /* MATCH (W62-A6): 75 -> 49.  THE FRAME IS NOW RETAIL'S EXACTLY (72 bytes /
+     * `vars= 16` -> 56 / `vars= 0`, 20 diffs) -- the two DANGLING `(use (reg))`
+     * pseudos w61-a7 located are GONE.  MECHANISM (gcc-cited, combine.c
+     * distribute_notes ~11395): when a REG_DEAD note for a pseudo whose set combine
+     * folded away finds no home, the backward scan runs to a CODE_LABEL and gcc
+     * plants `(use (reg))` after that label; reload then hands the def-less pseudo an
+     * 8-byte stack slot.  Each of the two orphans was worth 8 bytes of frame.
+     * The CURE is to RESHAPE the two expressions so combine deletes the set instead:
+     *   (a) the ready-flag test as an INDEX-FIRST CAST -- `*(int *)((com << 2) +
+     *       (int)_cd_result_flag)` (12D A6 spelling); the plain subscript, `!= 0`,
+     *       a named `int flag` local and a `&_cd_result_flag[com]` pointer local ALL
+     *       leave the orphan (each measured: 76 with the loop already fixed);
+     *   (b) the parameter loop as `i = 0; if (count > 0) do { ... } while (i < count);`
+     *       -- the guard must be a REAL statement outside the loop.  The `for` form
+     *       (any bound spelling) and a `while` form both keep the orphan.
+     * Ladder: 75 -> 64 (both orphans dead, frame exact, count exact 259/259)
+     *      -> 57 (identity fence on `ip`: the ready-clear now reuses the materialized
+     *             base, `sb zero,1(v1)`, instead of the `lui at; sb` macro.  This is
+     *             the SAME fence w61-a7 measured at 94 in the pre-landing basin --
+     *             04Z basin-relativity, re-probe parked fences after every landing)
+     *      -> 49 (a FRESH fenced tail pointer `ep` for the `sync == 5` test: retail
+     *             re-materializes `&Intr` there as a `la` and reads `lbu 0(reg)`,
+     *             where our folded `lui; lbu %lo` was 1 insn short; routing the test
+     *             through the existing `ip` instead costs a 9th callee-saved reg = 88).
+     * FALSIFIED in this basin: all 23 permutations of the 4 preamble statements
+     * (57 or 61 -- the preamble block order is a sched1 tie, TEXT_MOVES only); a
+     * shared bare-symbol `tbl = _cd_result_flag` pointer for the count (58) or for
+     * both accesses (57); index-first casts on the count sites (57); `+ 256` spelled
+     * on the cast (57); `ep` placed before `ret = 0` (52, count exact).  */
     /* MATCH (w52-a1): the two Intr byte-clears go through ONE materialized base
      * (`lui a1; addiu a1; sb zero,0(a1) ... sb zero,1(a1)`), not two independent
      * `sb $0,SYM+N` assembler macros -- same lever CD_flush already carries. */
     ip = &Intr;
+    __asm__("" : "=r"(ip) : "0"(ip));
     ip->sync = 0;
-    if (_cd_result_flag[com])
+    if (*(int *)((com << 2) + (int)_cd_result_flag))
         ip->ready = 0;
     CDREG0 = 0;
     /* MATCH (w52-a1): the parameter-count table is _cd_result_flag's OWN array 0x100
      * bytes on (oracle: `addiu v0,v1,256; addu v1,a0,v0; lw`), i.e. one base shared by
      * the ready-clear flag and the count -- the same `[0x40 + command]` spelling the
      * byte-exact Rage Racer libcd decomp uses. */
-    for (i = 0; i < _cd_result_flag[0x40 + com]; i++)
-        CDREG2 = param[i];
+    i = 0;
+    if (_cd_result_flag[0x40 + com] > 0)
+        do {
+            CDREG2 = param[i];
+            i++;
+        } while (i < _cd_result_flag[0x40 + com]);
     CD_com = (unsigned char)com;
     CDREG1 = CD_com;
     if (arg3 != 0)
@@ -727,10 +762,12 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * the STORE-FLAG BREAKER (make the guarded block 2 insns, e.g. a zero-insn fence beside
      * the store -- catalog w46 fence grammar mode 2) is the named next angle. */
     ret = 0;
+    ep = &Intr;
+    __asm__("" : "=r"(ep) : "0"(ep));
     /* W61-A7: NON-VOLATILE ALIAS READ (catalog: CD_get_intr lever 3) -- a volatile
      * QImode read cannot fold its zero-extend into the `lbu`, which is where our
      * redundant `andi v0,v0,255` before the ==5 test came from. */
-    if (*(const unsigned char *)&Intr.sync == 5) {
+    if (*(const unsigned char *)&ep->sync == 5) {
         ret = -1;
         __asm__("" : : "i"(0));   /* STORE-FLAG BREAKER: jump.c's `-(cond)` fold only matches
                                    * a SINGLE-set guarded block; the zero-insn void-tail fence

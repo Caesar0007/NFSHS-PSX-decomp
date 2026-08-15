@@ -315,6 +315,33 @@ extern void _padStopCom(void)
  *   Also falsified this wave (all in the cast+launder basin): a laundered `fb` base local
  *   carrying the loop accesses (44 @205), the same for the loop only (39 @206), an unlaundered
  *   `fb` (28 @203), and the volatile first-read instead of the cast (31 @206).
+ * MATCH (w64-a7, 24 @203 -> 20 @207, LANDED) -- the three devices now in the body, in the order
+ *   they must be read: (1) the CAST first-read kills the phantom `vars= 8` frame per (2)/(3)
+ *   above; (2) the TAIL LAUNDER restores the folded final byte test, which is what
+ *   `tools/brdist.py` was flagging (BRANCH COUNT 20 vs 21 -> the count divergence is GONE, only
+ *   2 branch-OFFSET rows remain, both from the +2 insn count); (3) a `do { ... } while (0)`
+ *   DEPTH WRAPPER around the JOY_CTRL select is the ZERO-INSTRUCTION +1-REF DIAL that (5) asked
+ *   for, and it works for a reason worth recording: flow.c weights refs by loop depth, so
+ *   wrapping a block scales EVERY pseudo in it MULTIPLICATIVELY while the loop notes lengthen
+ *   every live range ADDITIVELY -- p86 (refs 3, live 6) goes to 2*6/8 = 1.500 and p85 (refs 2,
+ *   live 4) to 2*4/6 = 1.333, so a wrapper breaks a tie that is invariant under any dial that
+ *   scales both sides equally.  The $v1<->$a0 swap on the ctrl select (11 of the 25) is gone.
+ *   MEASURED: cast+launder+wrapper 20 @207 | depth 2 and depth 3 identical (20 @207 -- one
+ *   level is the whole dial) | cast+wrapper WITHOUT the launder 22 @205 (count-exact but the
+ *   tail fold, and brdist's branch-count hit, come back -- rejected on structure) | wrapper
+ *   alone 31 @204 | wrapper stretched over `setRC2wait` too 25 @206 | volatile first-read
+ *   instead of the cast 24 @207 | + an `fb` base local plain 25 @206 / laundered 51 @206.
+ *   RESIDUAL 20 @207, three named clusters and NO frame lines left:
+ *     [4] two extra `nop`s -- the wrapper's LOOP_BEG/END notes are a scheduling barrier and the
+ *         `lw _padSioChan` load-delay slot can no longer be filled across it.  This is the whole
+ *         +2 count.  A non-barrier +1-ref device on the HImode ctrl constant would erase it.
+ *     [6] cluster 2: the `&_padFixResult` materialization (retail `lui $v1; addiu $v1;
+ *         addu $s1,$v1,$zero`, ours `lui $s1; addiu $s1` direct).  Retail's copy survives
+ *         because its `la` pseudo spans two blocks (born with the first read in block 0, used in
+ *         the loop preheader) so combine_regs refuses to tie it; the cast removes that pseudo,
+ *         so loop.c mints its own single-block one.  The named angle is a two-block `la` that
+ *         cse cannot const-propagate -- the `fb` probes above are the falsified first attempts.
+ *     [6] cluster 3: the tail `lbu $v0,54($s0)` vs retail `lbu $v1` (the w63 item (ii)).
  * Five earlier ORACLE-READ corrections, three of them REAL BUGS:
  *  (1) setRC2wait is VOID (WAITRC2.c receipt) and it is _padClrIntSio0's RETURN that retail
  *      tests (`jal _padClrIntSio0; beqz $v0,<ret 0>`), not a setRC2wait result.  The old
@@ -334,11 +361,23 @@ extern int _padInitSioMode(unsigned char *info)
     JOY_MODE = 0xd;
     JOY_BAUD = 0x88;
     setRC2wait(info[0xe8] == 8 ? 0x50 : 0x91);
-    JOY_CTRL = (_padSioChan != 0) ? 0x3003 : 0x1003;
+    /* MATCH (w64-a7): do{}while(0) DEPTH WRAPPER -- ZERO instructions (loop.c strips the
+       phony loop) but flow.c weights refs by loop depth, which lifts the HImode ctrl
+       constant's allocno over the _padSioRegs value's and hands it retail's $v1.  Both
+       pseudos tie at pri .5000 without it and the tie is broken by allocno NUMBER.  DO NOT
+       unwrap: it is worth 11 diff lines.  See the header note (5). */
+    do {
+        JOY_CTRL = (_padSioChan != 0) ? 0x3003 : 0x1003;
+    } while (0);
 
     /* drain any queued auto-mode recv fix-ups for this channel */
     {
-        int fix = _padFixResult[_padSioChan];
+        /* MATCH (w64-a7): the `<< 2` CAST form, NOT `_padFixResult[_padSioChan]`.  The
+           subscript form expands an address into its own pseudo that cse2 then folds into
+           the MEM, orphaning it; gcc-2.7.2 never recomputes reg usage after combine, so the
+           orphan keeps refs=2, regclass ties it to ST_REGS and reload gives it a 4-byte
+           stack slot -> the phantom `vars= 8` frame (8 diff lines).  See header (2)/(3). */
+        int fix = *(int *)((_padSioChan << 2) + (int)_padFixResult);
         if (fix >= 0) {
             if (fix > 0) {
                 do {
@@ -396,7 +435,14 @@ extern int _padInitSioMode(unsigned char *info)
         return 1;
     if (info[0x36] != 0)
         return 0;
-    return 1;
+    {
+        /* MATCH (w62-a5 device, LANDED w64-a7): laundering the result constant breaks
+           jump.c's store-flag transform, which otherwise folds both constant exits into
+           `sltiu $v0,$v0,1` and DELETES a branch (brdist: BRANCH COUNT 20 vs 21). */
+        int one = 1;
+        __asm__("" : "=r"(one) : "0"(one));
+        return one;
+    }
 }
 
 /* @0x80105060 : _padSioMain -- run the next SIO state function; advance / retire on its result. */

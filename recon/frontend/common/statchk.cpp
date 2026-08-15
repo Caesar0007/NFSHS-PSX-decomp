@@ -216,18 +216,25 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
       }
     }
   }
-  if (LASTPLACE[0] != 0) {
-    if (LASTPLACE[1] != 0) {
-      if (!(dummyCars->finalTotalTime > dummyCars[1].finalTotalTime)) {
-        TOPLIST[1] = 0;
-      }
-      else {
-        TOPLIST[0] = 0;
-      }
+  /* MATCH W64-A17 -- REAL CFG FIX (11C branch-target audit; gate-invisible,
+     caught by tools/brdist.py + tools/psyqproof.py as REAL=1 on a PASSing
+     body).  Retail's chain is FLAT: from the LASTPLACE[0]!=0 / LASTPLACE[1]==0
+     / TOPLIST[1]==0 path it FALLS THROUGH into the third test
+     (`beqz $v0,.L8004A09C` at 0x8004A08C, offset 3), where our nested
+     `if (LASTPLACE[0]) {...} else if (...)` jumped straight to the join
+     (offset 12).  cse's record_jump_equiv deletes the repeated LASTPLACE[0]
+     guard, so the flat spelling is codegen-identical -- gate still PASS
+     299/299, and the branch word now matches. */
+  if ((LASTPLACE[0] != 0) && (LASTPLACE[1] != 0)) {
+    if (!(dummyCars->finalTotalTime > dummyCars[1].finalTotalTime)) {
+      TOPLIST[1] = 0;
     }
-    else if (TOPLIST[1] != 0) {
+    else {
       TOPLIST[0] = 0;
     }
+  }
+  else if ((LASTPLACE[0] != 0) && (TOPLIST[1] != 0)) {
+    TOPLIST[0] = 0;
   }
   else if ((LASTPLACE[1] != 0) && (TOPLIST[0] != 0)) {
     TOPLIST[1] = 0;

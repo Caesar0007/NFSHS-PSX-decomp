@@ -1,0 +1,6 @@
+# tools/build.py is CRLF-mixed, so branch_retarget.patch's CONTEXT/ADDED lines
+# legitimately end with a literal CR before the patch's own newline.  Under the
+# repo's core.autocrlf=true those `\r\n` sequences are normalised away on `git
+# add`, and the committed blob NO LONGER APPLIES (measured: 6062 -> 5948 bytes,
+# `git apply` -> "patch does not apply").  Store it verbatim.
+branch_retarget.patch -text

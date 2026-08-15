@@ -1,0 +1,39 @@
+recon/syslib/psx/libgte/MSC00.c
+   MISPLACED-SMALL 0x800f21a4 _InitGeom_ra_save                  ours=.sbss
+recon/syslib/psx/libgte/PATCHGTE.c
+   MISPLACED-SMALL 0x80106454 _patch_gte_ra_save                 ours=.sbss
+recon/syslib/psx/libpad/PAD.c
+   MISPLACED-SMALL 0x80137c78 _padFuncNextPort                   ours=.sdata
+   MISPLACED-SMALL 0x80137c7c _padFuncClrInfo                    ours=.sdata
+   MISPLACED-SMALL 0x80137c80 _padFuncGetTxd                     ours=.sdata
+   MISPLACED-SMALL 0x80137c84 _padFuncCurrLimit                  ours=.sdata
+   MISPLACED-SMALL 0x80137c88 _padFuncPtr2Port                   ours=.sdata
+   MISPLACED-SMALL 0x80137c8c _padFuncPort2Info                  ours=.sdata
+   MISPLACED-SMALL 0x80137c90 _padFuncSendAuto                   ours=.sdata
+   MISPLACED-SMALL 0x80137c94 _padFuncChkEng                     ours=.sdata
+   MISPLACED-SMALL 0x80137c98 _padFuncRecvAuto                   ours=.sdata
+   MISPLACED-SMALL 0x80137c9c _padFuncClrCmdNo                   ours=.sdata
+   MISPLACED-SMALL 0x80137ca0 _padFuncIntGun                     ours=.sdata
+   MISPLACED-SMALL 0x80137ca4 _padFuncSetGunPort                 ours=.sdata
+   MISPLACED-SMALL 0x80137ca8 _padFuncGetGunPos                  ours=.sdata
+   MISPLACED-SMALL 0x80137cb0 _padIntExec                        ours=.sdata
+   MISPLACED-SMALL 0x80137cb4 _padGunExec                        ours=.sdata
+   MISPLACED-SMALL 0x80137cb8 _padSioChan                        ours=.sdata
+   MISPLACED-SMALL 0x80137cbc _padSioState                       ours=.sdata
+   MISPLACED-SMALL 0x80137cc0 _padTotalCurr                      ours=.sdata
+   MISPLACED-SMALL 0x80137cc4 _padModeMtap                       ours=.sdata
+   MISPLACED-SMALL 0x80137cc8 _padChanStart                      ours=.sdata
+   MISPLACED-SMALL 0x80137ccc _padChanStop                       ours=.sdata
+   MISPLACED-SMALL 0x80137ce0 _padVbExec                         ours=.sdata
+   MISPLACED-SMALL 0x80148aac _waitTime                          ours=.sdata
+   MISPLACED-SMALL 0x80148ab0 _startTime                         ours=.sdata
+recon/frontend/psx/drawshp.cpp
+   MISPLACED-SMALL 0x800529d0 kNoColor                           ours=.sdata
+recon/frontend/psx/psxfront.cpp
+   MISPLACED-SMALL 0x80052a5c ofs                                ours=.sbss
+recon/game/common/aih_play.cpp
+   MISPLACED-BIG  0x8013c568 gBlockadeTypes                     ours=.data
+recon/game/common/track.cpp
+   MISPLACED-SMALL 0x80055ac4 Track_gShapeNamePtrs_end           ours=.sdata
+
+TOTAL: 1 retail-small objects we emit BIG (the -G8 tell class), 29 objects we emit SMALL whose retail VA is OUTSIDE the small-data window (the movie.cpp section-attribute class)

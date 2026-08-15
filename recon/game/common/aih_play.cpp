@@ -13,7 +13,15 @@ extern int AI_elapsedTime;   /* H26-H29: ai.cpp @0x8013C554 (not in this TU's ex
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 int          AIHigh_Player_kNumArrestsByLap[3] = { 3, 5, 8 };   /* @0x8010ce98 */
-char         gBlockadeTypes[5] = { 5, 6, 4, 2, 0 };   /* @0x8013c568 */
+/* MATCH (w66-a6): retail keeps this 5-byte table INSIDE the .sdata run
+ * (0x8013C54C..0x8013DD7C) but -G4 exiles anything over 4 bytes to .data.  The
+ * per-fn -G8 splice cannot reach data (it substitutes only the .ent/.end TEXT
+ * region -- proven by splicing all 48 fns of audiocmn with the objects still in
+ * .data), and a whole-TU -G8 changes every address materialization.  The
+ * section attribute is the storage-only cure: TEXT byte-identical, gate 10/10
+ * held.  This was the LAST row of the tree-wide -G8 tell census
+ * (scratchpad/w66a6/GCENSUS.txt). */
+char         gBlockadeTypes[5] __attribute__((section(".sdata"))) = { 5, 6, 4, 2, 0 };   /* @0x8013c568 */
 
 
 /* ---- CheckIfABlockadeCanBeSetup__13AIHigh_Player  AIHigh_Player::CheckIfABlockadeCanBeSetup  [AIH_PLAY.CPP:55-170] SLD-VERIFIED ---- */

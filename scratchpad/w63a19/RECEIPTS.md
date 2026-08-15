@@ -305,6 +305,23 @@ pieces · `linkers/nfs4.ld` (53 ordered entries) ·
 tiling/alignment/round-trip assertions) · plus `scan.py`/`probe_link.py`/
 `tile.py`/`layout.py` copied from `w62a19` so this lane is self-contained.
 
+🔴 **COMMIT ATTRIBUTION NOTE.** While this lane was staging, a peer belt ran a
+broad `git add -A` / commit and **swept every staged file of mine into its own
+commit `56471eb9` ("w63: brdist.py VACUITY FIX")** — the catalog's
+"`git add -A` sweeps" hazard, fired at wave scale on a shared worktree. The
+content is intact and verified after the fact (below); only the commit message
+is not mine. HEAD also moved 10e1a01b → 56471eb9 (a full round of peer commits)
+during the run.
+**Post-sweep re-verification, run against the moved HEAD:** `git diff HEAD` over
+`asm/data`, `linkers`, `scratchpad/w63a19` is EMPTY (nothing of mine was
+clobbered or half-staged); re-assembling the 53 pieces and comparing to
+`rom/nfs4-f.exe` again gives **exactly 12 differing bytes at `0x8013DD20`,
+`0x8013DD34`, `0x8013DD40`** — precisely the three `R_MIPS_32` reloc sites of
+P4, and nothing else; `tu_order_audit` still **0 inversions**.
+**Process rule for the next wave:** on this shared tree, stage-and-commit in one
+step per landing (never leave an index populated across a tool call), or a peer
+takes your work.
+
 **Evidence:** `ownmap_sdata.txt` / `.json` (t0), `ownmap_sdata_t1.txt` / `.json`
 (post-peer-rebuild control), `sdata_pieces_order.txt`, `link_probe.txt`,
 `build_baseline.log`, `nfs4_HEAD.ld` (the P6 control script),

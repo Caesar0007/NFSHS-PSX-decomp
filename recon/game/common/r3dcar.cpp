@@ -1306,17 +1306,21 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       int spin;   /* SYM blk 196 REG v0 -- abs(wheelSpin), hoisted guard */
       int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
       int replayMode;
-      tReplayInterface *replayInterface;
       rear = 0;
       /* MATCH: retail puts rear=0 in the carType branch delay slot. */
       __asm__("" : : "r"(rear));
-      /* MATCH: expose and reuse the replay base.  __builtin_abs preserves the
-         retail bgez/negu shape while allowing loop invariants and the wheel
-         GIV to schedule before wheelSpin.  The read-only replayInterface fence
-         after its last loop use buys one ref at loop depth; qtytrace then swaps
-         {limit,base} from {$t0,$t1} to retail {$t1,$t0}.  Together these lower
-         the wheel island from the old 12-diff basin to one li relocation. */
-      replayInterface = &Replay_ReplayInterface;
+      /* MATCH (w63-a14, 9 -> PASS coupled with dropping jtbl_at_fusion on this TU):
+         the replay base must stay an IN-LOOP reference, NOT a preheader local.
+         Retail's preheader emits `li $t1,2` BEFORE `la $t0,Replay_ReplayInterface`
+         -- that is loop.c movable DISCOVERY order (the literal 2 is first seen in
+         `replayMode != 2`, the base only in the else arm's `->speed`).  Hoisting the
+         base by hand into a preheader local made it ordinary preheader CODE, which
+         always precedes the LICM group, so the two materializations swapped and no
+         dial could reorder them.  Falsified alternatives (both still 2 diffs):
+         moving the assignment after `replayMode = ...`; keeping the base and fencing
+         it.  Keeping the old read-only fence on `Replay_ReplayInterface.speed`
+         instead ADDS an insn (1145/1144).  __builtin_abs still supplies retail's
+         bgez/negu shape. */
       spin = __builtin_abs(carObj->wheelSpin);
       replayMode = Replay_ReplayMode;
       while (1) {
@@ -1325,7 +1329,7 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
           vel = (carObj->linearVel_ch).z >> 6;
         }
         else {
-          vel = (carObj->linearVel_ch).z >> (8U - replayInterface->speed);
+          vel = (carObj->linearVel_ch).z >> (8U - Replay_ReplayInterface.speed);
         }
         if (rear != 0) {
           if (spin - 1U < 2) goto R_ICFt_wheelspinRpmCalc;
@@ -1340,9 +1344,8 @@ R_ICFt_wheelspinRpmCalc:
               vel = vel << 9;
             }
             else {
-              vel = vel << (replayInterface->speed + 7U);
+              vel = vel << (Replay_ReplayInterface.speed + 7U);
             }
-            __asm__("" : : "r"(replayInterface));
           }
         }
         if ((carObj->wheelLock != 0) && ((carObj->wheelLock & rear + 1U) != 0)) {

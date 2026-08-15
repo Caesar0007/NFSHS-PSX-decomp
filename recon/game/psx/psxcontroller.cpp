@@ -455,6 +455,36 @@ int InGame_GetPSXPadValue(int value,int player)
      ours carry `sll aN,s1,30` (player<<30), and retail's prologue copies PLAYER
      before VALUE (`sw s1,20(sp); addu s1,a1` with `addu s0,a0` in the jal slot;
      ours mirrored) -- an assign_parms/sched1 emission-order question. */
+  /* w63-a14 (257 -> 168 @243 vs 233): THE CROSS-TU TWIN'S EXPRESSION SHAPE,
+     PORTED WHOLESALE.  recon/frontend/common/front.cpp's GetPSXPadValue (the
+     18-diff near-sealed twin) writes every tagged arm as ONE FLAT OR chain with
+     the tag constant SECOND -- `player<<0x1e | TAG | hi*0x10000 | lo*0x100` --
+     whereas this fn had the tag nested inside the hi term
+     (`(hi*0x10000 | TAG)`).  Its own receipt says that flattening is what took
+     front.cpp 160 -> 18, and it transfers: three independent, additive landings,
+     each re-gated here from the 257 basin:
+       (a) flatten the six tagged 0x53/0x73 arms          257 -> 208 @243
+       (b) + flatten the two tagged 0x23 arms (0x4000/0x8000) -> 197 @244
+       (c) + front.cpp's TWO-STAGE compound spelling on the 0x23/0x200000 arm
+           (`newControl = tag|hi; return (newControl |= lo) | 1;`)   -> 168 @243
+     The de-merge fence set was RE-SWEPT from each new basin (04Z): after (a)+(b)
+     the w62-a14 optimum {8,9} is no longer optimal -- {} 197 @238, {8} 196 @237,
+     {9} 198 @245, {8,9} 197 @244 -- and after (c) the winner is {8} alone
+     (168 @243) vs {} 189 @244.  So arm 9's fence is SUPERSEDED BY the two-stage
+     spelling: the compound assignment is what keeps that tail from over-merging,
+     and the fence becomes redundant.  Falsified from the (c) basin: the same
+     two-stage spelling applied to arm 8 as well ({8} 196 @245, {} 188 @239 --
+     both worse), i.e. the two 0x23 range arms are NOT symmetric; retail keeps
+     one fenced-shaped and one compound.
+     LAW CANDIDATE (catalog): when two TUs carry the SAME retail function under
+     different names (a frontend/in-game pair), the near-sealed twin's EXPRESSION
+     SHAPE is a first-class oracle -- port it before dialing.  Here it beat six
+     waves of fence/basin sweeps that never questioned the OR-tree nesting.
+     The residual 168 is the structural pair the census already named: retail's
+     dispatch delay slots carry `sll aN,s1,2` (the int-array index player*4) and
+     `li a0,0x80` SPECULATIVELY where ours carry `sll aN,s1,30`/`lui`, and the
+     prologue parm-copy order is mirrored (retail `sw s1,20(sp); addu s1,a1`
+     first, `addu s0,a0` in the jal slot).  Both are emission-order, not shape. */
   if (gPadinfo.buf[player * 4].nopad != '\0') {
     goto InGame_GetPSXPadValue_noPad;
   }
@@ -481,32 +511,38 @@ InGame_GetPSXPadValue_gotType:
       return newControl | 1;
     case 0x100000:
       newControl = player << 0x1e |
-                   ((0x80 - GameSetup_gData.controllerData.J1MIN[player]) * 0x10000 | 0x1000000) |
+                   0x1000000 |
+                   (0x80 - GameSetup_gData.controllerData.J1MIN[player]) * 0x10000 |
                    (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 ;
       return newControl | 1;
     case 0x400000:
       newControl = player << 0x1e |
-                   ((GameSetup_gData.controllerData.J1MIN[player] + 0x80) * 0x10000 | 0x1000000) |
+                   0x1000000 |
+                   (GameSetup_gData.controllerData.J1MIN[player] + 0x80) * 0x10000 |
                    (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 ;
       return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
-                   ((0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 | 0x2000000) |
+                   0x2000000 |
+                   (0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 |
                    (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 ;
       return newControl | 1;
     case 0x20000000:
       newControl = player << 0x1e |
-                   ((GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 | 0x2000000) |
+                   0x2000000 |
+                   (GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 |
                    (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 ;
       return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
-                   ((0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 | 0x3000000) |
+                   0x3000000 |
+                   (0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 |
                    (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 ;
       return newControl | 1;
     case 0x40000000:
       newControl = player << 0x1e |
-                   ((GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 | 0x3000000) |
+                   0x3000000 |
+                   (GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 |
                    (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 ;
       return newControl | 1;
     }
@@ -517,6 +553,7 @@ InGame_GetPSXPadValue_gotType:
       newControl = player << 0x1e |
                    (0x80 - GameSetup_gData.controllerData.deadSpot[player]) * 0x10000 |
                    (0x80 - GameSetup_gData.controllerData.steeringRange[player]) * 0x100 ;
+      __asm__ volatile("" : : "r"(newControl));
       /* w46-a8 DE-MERGE FENCE (zero insns, §2b.5 -- NOT a register pin).  The w45 `| 1`-
          on-the-return lever made gcc's jump2 cross-jump the case tails like retail, but it
          OVER-merges: these two 0x23 arms had their range-cal loads and `sll s1,2` folded
@@ -526,21 +563,21 @@ InGame_GetPSXPadValue_gotType:
          the whole fence configuration, k1 nopad spelling): {8,9} 264 (kept), {9} 266,
          {8} 268, {8,9,10} / {8,9,11} / all-four-0x23 268, {9,10} 270, none 272, {8,10} 272,
          adding ANY 0x53/0x73 arm 267-280, all eight 0x53/0x73 arms 331. */
-      __asm__ volatile("" : : "r"(newControl));
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.deadSpot[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100 ;
-      __asm__ volatile("" : : "r"(newControl));
-      return newControl | 1;
+                   (GameSetup_gData.controllerData.deadSpot[player] + 0x80) * 0x10000 ;
+      return (newControl |=
+              (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100) | 1;
     case 0x4000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.ImaxRange[player] * 0x100 | 0x1000000) ;
+                   0x1000000 |
+                   GameSetup_gData.controllerData.ImaxRange[player] * 0x100 ;
       return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.IImaxRange[player] * 0x100 | 0x2000000) ;
+                   0x2000000 |
+                   GameSetup_gData.controllerData.IImaxRange[player] * 0x100 ;
       return newControl | 1;
     case 0x400:
       newControl = player << 0x1e | 0x30aff01;

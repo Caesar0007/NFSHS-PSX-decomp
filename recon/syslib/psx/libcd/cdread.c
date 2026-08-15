@@ -151,7 +151,17 @@ extern void _read_sync(void)
  * `_cdr.w34 = code` store (27, +3 insns); an anchor+fence for the common tail (60, +4).
  * RESIDUAL 21 = the head store's split `lui $v0/addiu $v1` and the tail's `lui $v1/addiu $s0`
  * (same split-address class, but both fence attempts overshoot), plus three delay-slot
- * placement diffs. */
+ * placement diffs.
+ * W63-A6: re-gated at 15 @158/157 and the VOID-BARRIER POSITION axis is now CLOSED --
+ * a mechanical sweep inserting a zero-insn `__asm__("" : : "i"(0))` before EVERY statement
+ * in the body (scratchpad/w63a6/fencesweep.py, ~50 positions) found NOTHING under 15; the
+ * best non-baseline results were 16 (three positions) and everything else 15 or worse.
+ * This matters because the same sweep is what took _read_issue 15 -> 8 and StCdInterrupt
+ * 36 -> 27 in this wave, so its emptiness here is a real negative, not an untried axis.
+ * Remaining named clusters are unchanged: the two split-address `lui/addiu` pairs (head +
+ * tail anchor), a `j` slot retail fills with `sw $v0,32($a0)` (the 3.25-3c non-volatile
+ * cast is FALSIFIED at this site, see the in-body note), and the `beqz $v1` slot where
+ * retail carries `li $v0,1`. */
 extern void _read_int(int intr, int code)
 {
     _cdr.w34 = code;                                /* remember intr arg for the user cb */
@@ -507,7 +517,25 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      * its own, i.e. the remaining slot fills are ASSEMBLER-side (vendor-toolchain class,
      * libcd being a Sony prebuilt), but whole-TU that lane costs 2 PASSes (_read_int 50,
      * _read_issue 33) so it is not wirable.
-     * RESIDUAL 16, named: (a) the prologue `sw $s2,24($sp)` / `addu $s2,$a2,$zero` pair
+     * W63-A6 re-gate: 14 @105/103.  The switch residual (class b) is now known EXACTLY --
+ * it is only WHICH ARM IS THE FALL-THROUGH of the `beq $v1,$v0` size test:
+ *     retail  beq v1,v0 ; [slot] li v0,582   <- the DEFAULT (0x246) arm's constant
+ *     ours    beq v1,v0 ; [slot] li v0,585   <- the case-0x20 (0x249) arm's constant
+ * and retail's DEFAULT arm then reaches its own `lui/addiu` anchor with the 582 already
+ * in $v0.  That is textbook W47-a2 "PRE-SET THE DEFAULT BEFORE THE TEST" + "case bodies
+ * emit in SOURCE order", so the arm-order rewrite is the obvious lever -- and it is
+ * FALSIFIED HERE (scratchpad/w63a6/probe_cdread.py, all gated + reverted): default arm
+ * physically between case 0 and case 0x20 = 26 @103/103 (count-exact but far worse),
+ * default arm FIRST = 21 @102, an if/else chain with the default pre-assigned before the
+ * 0x20 test = 39 @102.  Class (c) also re-probed: a named opaque zero for CdControlB's
+ * third argument (`int z=0; identity fence; CdControlB(9,0,z)`) = 16 alone and 28 with the
+ * arm swap -- cse's live-zero substitution is NOT the reachable half here.
+ * A18's sotn twin (src/main/psxsdk/libcd/cdread.c, fully matched) names the store-then-
+ * read-back switch discriminator as the untried delta -- our recon ALREADY reads the
+ * just-stored field back (`g->w0c = mode; sel = g->w0c & 0x30;`), so that one is closed.
+ * The fence-POSITION axis is closed too: a void-barrier sweep over every statement in the
+ * function (scratchpad/w63a6/fencesweep.py) found no position under 14.
+ * RESIDUAL 16, named: (a) the prologue `sw $s2,24($sp)` / `addu $s2,$a2,$zero` pair
      * (retail sinks the save and puts the copy in the first `beq`'s slot -- sched1 tie,
      * PER_FN_TEXT_MOVES candidate, probe rows in scratchpad/w62a6); (b) which arm's
      * constant reorg steals into the `beq` slot (retail the DEFAULT's 0x246, ours

@@ -67,6 +67,27 @@ extern void *firstfile(char *name, void *dir)
     signed char *scan;
     int   found;
 
+    /* W63-A6 re-gate: the basin has MOVED since the w59-a13 note below -- it is now
+     * 5 diffs at ours 104 / oracle 103 (1 LONG), and the whole residual is residual (1):
+     *     ours    ... addu s3,a1 | lui v0 ; addiu a0,v0 | sw ra ; sw s1 ; sw s0 ; lb v0,0(s2) ; NOP
+     *     retail  ... addu s3,a1 | sw ra ; sw s1 ; sw s0 ; lb v0,0(s2) ; lui a0 ; addiu a0,a0
+     * i.e. ours issues the address pair ABOVE the callee-save store group and through a
+     * SEPARATE scratch, leaving the lb's load-delay slot empty; retail issues a SELF-temp
+     * pair after the lb and fills that slot with its `lui`.  Residual (2) (the zero-trip
+     * guard's eager steal) is GONE on this basin.
+     * FALSIFIED W63-A6, all gated + reverted (scratchpad/w63a6/probe_first*.py):
+     *  - the W43 ARRAY-DECAY-vs-&SCALAR law, which is what the symptom looks like: a
+     *    second file-scope `extern char _first_devname_h __asm__("_first_devname");`
+     *    view used only here (`p = &_first_devname_h;`) = 5, with a `(char *)` cast = 5,
+     *    `&_first_devname[0]` = 5.  The loop site keeps the unsized form regardless.
+     *  - identity fence on `p` = 5, read-only fence on `p` = 5.
+     *  - fence POSITION sweep: void fence as the first statement 5, read-only fence on
+     *    (name,dir) first 5, void fence between the two inits 5, void fence after
+     *    `scan = name` 8 @105.
+     *  - `scan` before `p` re-tested on THIS basin (04Z): 18 but COUNT-EXACT 103/103 --
+     *    it does fill the slot, at the price of swapping p/scan's registers ($a0<->$v1)
+     *    through the whole prefix loop.  NAMED ANGLE: that count-exact basin plus a
+     *    p/scan coloring dial is the only structurally-right route seen so far. */
     /* extract the device prefix (characters before ':') into _first_devname */
     p = _first_devname;
     scan = (signed char *)name;

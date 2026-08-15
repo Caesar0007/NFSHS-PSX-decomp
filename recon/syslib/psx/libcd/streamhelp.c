@@ -161,6 +161,23 @@ struct _ds_loc { short lo, hi; };
 /* @0x80108798 (C_004) : a sector finished decoding -- mark its slot ready and notify StFunc1. */
 extern void data_ready_callback(void)
 {
+    /* W63-A6: re-gated at 9 @34/35 (unchanged) and TWO more axes closed.
+     *  (1) VOID-BARRIER POSITION: a mechanical sweep inserting a zero-insn
+     *      `__asm__("" : : "i"(0))` before every statement in the body
+     *      (scratchpad/w63a6/fencesweep.py) leaves all 8 positions at exactly 9.
+     *  (2) The matched-twin devices A18 harvested from sotn `libcd/c_004.c:16` are
+     *      already present or inert here: sotn hoists an ELEMENT POINTER to the top
+     *      (`StHEADER *ptr = &ring[idx];`) -- our `slot` local IS that -- and opens with
+     *      a literal `do { } while (0);` scaffold, which is a loop-depth REF dial and has
+     *      nothing to lift in a fn whose whole residual is the ANCHOR'S HARD REGISTER.
+     * The residual therefore stays exactly as w55-a5/w61-a8 left it: the fenced basin is
+     * count-EXACT 35/35 and structurally right, and the only thing wrong is that the
+     * anchor lands in $a0 (numeric first-free) where retail has $a2 -- and retail's body
+     * never uses $a1 at all, so this is NOT "two other qtys took $a0/$a1".  NAMED ANGLE
+     * (new): find what EXCLUDES $a0/$a1 from the scan at that point in retail -- most
+     * likely the 4-byte align-1 struct copy being expanded as a movstrsi block move,
+     * whose expander reserves its own address registers.  Measure with qty272 --keep on
+     * the fenced basin and read `[find_free_reg]`, do not spell-probe further. */
     /* RESIDUAL 9 (ours 34 / oracle 35, 1 SHORT) -- CLASSIFIED w55-a5, NOT landed.
      * Retail reaches the 3-byte unaligned sub-header destination through ONE anchor
      * (`lui $a2; addiu $a2,$a2,%lo(D_801489D0); swl $v0,3($a2); swr $v0,0($a2)`);

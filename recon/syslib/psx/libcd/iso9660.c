@@ -332,7 +332,18 @@ extern int CD_newmedia(void)
      * buf reference (`lwl 143(s0)/lwr 140(s0)`); gcc-2.7.2 const-folds `buf` back to the symbol
      * for the unaligned load and emits its own `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)`.
      * FALSIFIED: `(LBA*)(buf+140)`, `((LBA*)buf)[35]`, decl reorder, -fforce-addr, -fforce-mem,
-     * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base). */
+     * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base).
+     * W63-A6 FALSIFIED the matched-TWIN spelling too (scratchpad/w63a6/probe_newmedia.py):
+     * psyz and sotn both declare a real PVD STRUCT (`type; id[5]; version; _unused[0x85];
+     * LBA ptLBA;` = exactly this 140-byte prefix) and read the field as a COMPONENT_REF --
+     * `(&pathTableLBA)->i = ((IsoPVD*)load_buf_)->pathTableLBA.i;`
+     * (C:/Temp/psyz/decomp/src/libcd/iso9660.c:145).  That is the catalog's STRUCT-READ
+     * ANTI-DEP law applied to the LOAD side, and it is INERT here: the psyz spelling
+     * verbatim = 11 (unchanged), the same read into a RawWord = 11, a plain member-to-member
+     * assignment = 39, a whole-union struct assignment = 74 @171/177.  ⇒ the base-fold is
+     * NOT a MEM_IN_STRUCT_P question.  W63-A6 also swept a zero-insn void barrier over
+     * EVERY statement position in the function (scratchpad/w63a6/fencesweep.py): no position
+     * beats 11 -- the fence-position axis is now CLOSED for CD_newmedia. */
     pt_lba = *(RawWord *)(buf + 140);                        /* type-L path table LBA (misaligned;
                                                               * indexed off buf so the +140 folds into
                                                               * the lwl/lwr displacement, oracle

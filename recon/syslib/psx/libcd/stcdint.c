@@ -386,7 +386,11 @@ loop:
  * read-only fence pinning it (25), read-only/identity/volatile fences on `p` (31, +2 insns),
  * read-only fences on dv at either def (25/33), a 3rd `bit` fence (25), and a void-tail fence
  * before the mode test for (b) (27).  Next dial: make the BCR value's live range genuinely
- * span dv (a second consumer), or an out-of-loop ref-step on dv. */
+ * span dv (a second consumer), or an out-of-loop ref-step on dv.
+ * W63-A6: re-gated at 25 @107/106 and the VOID-BARRIER POSITION axis is now CLOSED -- a
+ * mechanical sweep inserting a zero-insn `__asm__("" : : "i"(0))` before every statement in
+ * the body (scratchpad/w63a6/fencesweep.py) found no position under 25.  Recorded as a real
+ * negative: the SAME sweep moved this TU's StCdInterrupt 36 -> 27, so the axis was live. */
 extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
                     u_char enable_irq, int arg6)
 {

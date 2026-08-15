@@ -192,10 +192,36 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      * g_intr_timeout as an unsized `[]` / sized `[1]`/`[2]`/`[4]` array (the catalog's store-side
      * $at lever) all 48 @114/116 -- they REMOVE an instruction here, they do not add retail's
      * copy; `volatile int []` 53.
-     * RESIDUAL (44, count-exact): pure register ASSIGNMENT -- ours puts the AND chain in
-     * {v0,a0} where retail uses {v1,v0}, and the two `lhu` of I_STAT/I_MASK for the closing
-     * test land in the opposite pair.  Same class as the fn's SYM-less local-alloc QTY handout
-     * (06E gap) -- qtytrace/allocsim territory, not another spelling sweep. */
+     * W62-A7 (2026-08-15) 44 -> 30, still count-EXACT 116/116.  THE TIMEOUT BLOCK'S
+     * ADDRESS ANCHOR (see the `int *tp` note below) closed that whole 14-diff cluster.
+     * RESIDUAL (30) = three clusters, ALL the same shape: the three values of the pend
+     * expression are BORN in the wrong order, and local-alloc hands $a0 / $v1 / $v0 to
+     * the 1st / 2nd / 3rd born (the `li 1` constant takes $v0 in between and dies):
+     *   retail birth order  I_STAT ptr ($a0), enabled ($v1), I_MASK ptr ($v0)
+     *   ours                I_MASK ptr ($a0), I_STAT ptr ($v1), enabled ($v0)
+     * plus the closing test's two `lhu` in the opposite pair (4 of the 30).
+     * 12D-A7 CONFIRMS THE SHIPPED TREE IS RETAIL'S: the inner AND's dest is enabled's
+     * reg and the outer's is I_MASK's, i.e. `I_MASK & (enabled & I_STAT)`.
+     * FALSIFIED W62-A7 (all gated + reverted, on THIS basin -- 04Z re-pricing of the
+     * whole w60-a1/w61-a8/w61-a20 spelling list plus new ones):
+     *  - THE UNTRIED CELL (the device lab's re-diagnosis, hoist ALONE on the shipped
+     *    tree): `en = state[0x18];` above `state[1] = 1;` = 35 (`unsigned short en` 36).
+     *    The two converging diagnoses are now BOTH measured and BOTH falsified.
+     *  - ALL SIX operand permutations of the 3-way AND at both sites: stat_en_mask 30,
+     *    stat_mask_en 32, en_stat_mask 36, en_mask_stat 36, mask_stat_en 32, flat forms
+     *    42 / 36; entry-only and loop-only 30.  DECISIVE: a side-by-side of the 30-scoring
+     *    permutation is BYTE-IDENTICAL to the shipped form's -- fold CANONICALISES the
+     *    commutative operands, so the tree spelling cannot reorder the two pointer
+     *    materialisations AT ALL (this is stronger than w61-a8's count-based reading).
+     *  - forcing the I_STAT pointer to be born first in its own statement:
+     *    `volatile u_short *sp = g_istat_ptr;` before the store 30 (INERT), at the loop
+     *    site 32, both 32; the I_MASK mirror (`mp = g_imask_ptr;` after the store) 30;
+     *    both together 30; the I_STAT VALUE in a local before the store 38.
+     *  - the inner AND as its own statement 30 (inert) / both sites 32 / loop only 32;
+     *    the closing test's operand order swapped 32; naming I_STAT first 38.
+     * ANGLE: the birth order is fixed BEFORE any source-visible choice (fold + sched1),
+     * so this needs the 2.7.2 scheduler dump (-dS/-dR on CC1PSX.EXE, 12A) or a
+     * zero-insn preference killer -- not another spelling sweep. */
     unsigned short *state;
     unsigned short s0;
     long pend;
@@ -243,10 +269,24 @@ extern void _intrhand(void)            /* @0x800F2A40 */
          * (`lw t; addu c,t,zero; addiu t,t,1; slti c,c,2049; ...; sw t`).  Reading
          * straight into `c` and storing `c + 1` coalesces that copy away and lands the
          * whole fn ONE INSTRUCTION SHORT (115 vs 116).  This shape is count-EXACT. */
-        t = g_intr_timeout;
+        /* MATCH (w62-a7): 44 -> 30 in one edit, count still EXACT.  Retail HOLDS
+         * &g_intr_timeout in a register (`lui v0; addiu v0,v0,%lo`) and uses it for
+         * BOTH the read and the write-back (`lw v1,0(v0)` ... `sw v1,0(v0)`); reading
+         * and writing the bare global self-temps the %hi for the load and then pays
+         * the assembler's $at macro for the store, and the whole 9-insn block plus its
+         * register assignment diverges.  A block-local address pointer reproduces it
+         * byte-for-byte (incl. retail's v1/a0 pair) and is COUNT-NEUTRAL (la = 2 insns
+         * replaces lui + lui-at).  Scoped to this block so the two `g_intr_timeout = 0`
+         * $at-macro stores below are untouched.
+         * FALSIFIED here: the catalog's store-side $at lever (`g_intr_timeout` as an
+         * unsized `[]`) RE-TESTED on this basin = 49 -- it still subtracts where retail
+         * wants a held ADDRESS (w60-a1 law 5 holds); the pointer used for the STORE
+         * only = 44 (inert), i.e. the anchor must carry BOTH accesses. */
+        int *tp = &g_intr_timeout;
+        t = *tp;
         c = t;
         t = t + 1;
-        g_intr_timeout = t;
+        *tp = t;
         if (c >= 0x801) {
             printf("intr timeout(%04x:%04x)\n", I_STAT, I_MASK);
             g_intr_timeout = 0;

@@ -96,7 +96,26 @@ static int rd32le(const u_char *p)
  *      fresh `lb`+`lbu` pair per test (the `*q` store may alias `name`), so a cached
  *      `ch` carried across the back-edge cost a `move` + a `sll/sra` sign-extend.
  *      Re-reading the STORE too (`*q++ = *s`) is 4 diffs WORSE.
- * RESIDUAL 64 = (a) the inner loop still CSEs the compare's load with `ch = *++s`
+ * W62-A7 (2026-08-15) 64/60 -> 42.  THE `fp++; fp--;` NO-OP WAS THE ROTATION.  It sits
+ * INSIDE the i-loop, so its refs are loop-depth weighted (+2 per operand): qty272 priced
+ * fp at refs 11 / live 84 / pri 3928 = FIRST of the four long-lived allocnos, where
+ * retail has it LAST ($s6).  fp is live to the `*fp = _cd_dir[i]` copy-out anyway, so the
+ * no-op bought nothing but refs; deleting it drops fp to the bottom of the priority list
+ * and the prologue save/copy group becomes retail's.  READ-OFF RECIPE (13A/12A: 272
+ * priority = floor_log2(refs)*refs/live, NO size term): dump the four call-crossing
+ * allocnos with tools/qty272.py, compare their order against the oracle's $s3..$s6
+ * handout, and look for a REF-INFLATING artifact before reaching for a dial.
+ * FALSIFIED W62-A7 (all gated + reverted): read-only fence operands on `name` (1/2/3)
+ * and on `notfound` (2) after the no-op removal -- all 42, the remaining rotation
+ * (ours sep/name/notfound = $s3/$s4/$s5, retail name/notfound/sep) does NOT move on a
+ * ref dial; an inner-loop copy of the separator (`sep2 = sep;`) 42 inert (cse folds it
+ * back, so retail's `li a1,92` inner-preheader copy is NOT source-reachable this way).
+ * THE PHANTOM-VARS BLOCKER IS RE-CONFIRMED ON THIS BASIN (13E): `*q++ = *s++` 72 with
+ * frame 96 / vars=48 (retail 80 / vars=32) -- measured with the .frame line, not just the
+ * diff count; the same walk with the unused `ch` decl dropped 72; a re-reading store with
+ * the frame-safe `ch = *++s` increment 45; both tests off the cached `ch` 46; zero test
+ * off `ch` + re-reading store 47; an explicit `(int)*s` compare 42 (inert).
+ * RESIDUAL 42 = (a) the inner loop still CSEs the compare's load with `ch = *++s`
  *   (same address) and sign-extends by `sll 24/sra 24` instead of retail's second
  *   `lb`, and the loop entry is a `j <bottom test>` where retail PEELS the guard;
  *   (b) the `lb` vs `lbu` split at the three PLAIN-`char` sites (`*name`, `comp[0]`,
@@ -137,11 +156,10 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
     comp[0] = 0;
     s = (signed char *)name;
     /* split on '\\'; descend through each directory component, leaving the filename in `comp`.
-     * (the binary threads the parent dir id through $a0 across _cd_find_path calls, and keeps fp
-     * live across the loop -- reproduced with the `fp++;fp--;` no-op.) */
+     * (the binary threads the parent dir id through $a0 across _cd_find_path calls; fp needs NO
+     * liveness no-op -- it is live to the `*fp = _cd_dir[i]` copy-out, and the `fp++;fp--;`
+     * pair that used to sit here only inflated its ref count, see the W62-A7 note above.) */
     sep = '\\'; notfound = -1; for (i = 0; i < 8; i++) {
-        fp++;
-        fp--;
         ch = *s;
         q = (signed char *)comp;
         while (*s != sep) {
@@ -225,7 +243,12 @@ extern int _cd_cmp_name(char *a, char *b)
  *      (`addu s5,v1,zero`); ours computes straight into the callee-saved reg and is
  *      one insn SHORT -- the combine_regs/global-allocno copy device (w60-a1 law 6).
  *      FALSIFIED: `while (rec < buf + 0x800)` with no `end` variable (46),
- *      `end = rec + 0x800` (11, inert), assigning `end` on the `rec = buf` line (11). */
+ *      `end = rec + 0x800` (11, inert), assigning `end` on the `rec = buf` line (11).
+ *      FALSIFIED W62-A7: the w48-a7 TWO-VARIABLE zero-trip-guard shape that supplies
+ *      exactly this copy in FIRST.c (`lim` tested in the guard, `end = lim` inside it)
+ *      does NOT transfer -- with a goto back-edge 64, with the `while` kept 15.  The
+ *      multi-exit body (two `break`s) is why: the guard shape changes the whole block
+ *      order here, where FIRST.c's single-exit walk keeps it. */
 extern int CD_newmedia(void)
 {
     u_char *buf;

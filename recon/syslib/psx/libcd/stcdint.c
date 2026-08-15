@@ -409,6 +409,18 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
         dptr[2] = bv & ~(1 << ch);
     }
 
+    /* RESIDUAL 25 (w62-a7 re-gate, ours 107 / oracle 106 = 1 LONG).  Two clusters:
+     * (a) ours emits an EXTRA `li v0,1` in the busy-wait guard's `beqz` delay slot
+     *     (reorg rematerialises the `mode == 1` constant there) where retail fills that
+     *     slot with `lui a2,1` (the 0x10000 limit) and materialises the 1 only once;
+     * (b) retail computes the BCR word BEFORE the DPCR read-modify-write and reuses the
+     *     BASE constant's register for the channel address (`addu a1,v0,a1`) where ours
+     *     reuses the shift temp's (`addu a1,a1,a2`).
+     * FALSIFIED W62-A7 (all gated + reverted): a named `bcr` local before the DPCR update
+     * 25 (INERT -- cse hoists the expression there anyway), `bcr` at the block top 39,
+     * the mode test straight off the u_char parameter (no `mode` copy) 37, both 37, the
+     * channel address as a mutated pointer (`p = 0x1F801080; p += ch << 2;`) 33, and that
+     * with `bcr` 33. */
     __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
     dummy = *(volatile int *)_dicr;
     __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */

@@ -185,12 +185,21 @@ extern int _first_patch(int *state, int arg, int arg2)
      * 2.7.2-970404 12, 2.6.3 36, 2.8.1 == default, -fno-schedule-insns2 14,
      * -mno-split-addresses 4 @64/64 (count-exact but it un-splits the `la _first_devname`
      * macro, so the jal can no longer sit between its halves = 2 NEW diffs for 2 old ones).
-     * RESIDUAL (2, both reorg-side): retail fills the zero-trip guard's `beqz $v0` slot from
-     * the TARGET thread (`addu $a0,$s2,$zero`, the tail call's first arg, re-done at the
-     * shared tail) while ours fills it from the fall-through (`addu $s1,$v1,$zero`), and
-     * retail leaves the `beqz $a0` name-test slot EMPTY where our reorg steals the
-     * `lui %hi(_first_devname)` half into it.  Both are mostly_true_jump/thread-choice
-     * decisions in reorg.c, downstream of RTL; no source shape reached them. */
+     * W62-A7 (2026-08-15): 2 -> 0, SEALED.  BOTH residuals were the SAME mechanism and
+     * both were reachable -- 13B, reorg.c:685-712 `stop_search_p` returns 1 at ANY asm:
+     *  (1) the read-only `state` fence below was sitting at the MERGE POINT, i.e. it was
+     *      the FIRST insn of the zero-trip guard's BRANCH-TARGET thread (the cc1 .s shows
+     *      `$L24: #APP #NO_APP move $4,$18`), so it was blocking the very steal retail
+     *      makes.  Moving it INSIDE the guard keeps its +1 ref (same loop depth, so the
+     *      $s2/$s3 coloring is unchanged) and frees the target-thread steal: 2 -> 1.
+     *      Measured positions: above the guard 2, after `saved = _first_save` 2, both
+     *      sites 18 -- only the in-guard position pays.
+     *  (2) the name test's slot: a void fence at its FALL-THROUGH head stops our reorg
+     *      stealing the `lui %hi(_first_devname)` half into it: 1 -> 0.  The identical
+     *      nesting WITHOUT the fence still measures 1, so the fence is the lever.
+     *      Naming the devname address in a local instead 21.
+     * LAW (belt-wide): a ref-buying fence and reorg's thread choice are the SAME dial --
+     * price a fence's POSITION against every branch whose thread it heads. */
     if (*state == 0)
         *state = 1;
     cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
@@ -203,19 +212,30 @@ extern int _first_patch(int *state, int arg, int arg2)
      * coalesces it away. */
     lim  = e + cnt;
     if (e < lim) {
+        /* MATCH (w59-a13 + w62-a7): read-only fence = +1 ref on `state`, which raises
+         * its allocno priority back above `saved`'s and restores retail's $s2=state /
+         * $s3=saved roles (without it the late `saved` assignment colours them the
+         * other way round: 20 diffs).  Zero insns; must list `state` ONLY -- a second
+         * operand costs 16 more diffs.  W62-A7 moved it INSIDE the guard: at the merge
+         * point it was the first insn of the zero-trip branch's TARGET thread and
+         * blocked reorg's steal (see the header note). */
+        __asm__("" : : "r"(state));
         end = lim;
 scan:
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0) {
+        /* MATCH (w62-a7): 2 -> 0.  The void fence is a SLOT-THEFT BLOCKER at the
+         * FALL-THROUGH head of the name test (13B / reorg.c:685-712 stop_search_p
+         * returns 1 at ANY asm): retail leaves this beqz $a0 slot EMPTY, ours stole
+         * the lui $5,%hi(_first_devname) half of the strcmp arg setup into it.  It is
+         * inside the && (a statement-expression) so the source SHAPE is unchanged --
+         * the same nesting WITHOUT the fence still measures 1, i.e. the fence is the
+         * lever, not the restructure.  Zero insns. */
+        if (e->name != 0 && ({ __asm__("" : : "i"(0));
+                               strcmp(e->name, _first_devname); }) == 0) {
             e->firstfile = (void *)saved;   /* un-patch (one-shot) */
         } else {
             e++;
             if (e < end) goto scan;
         }
     }
-    /* MATCH (w59-a13): read-only fence = +1 ref on `state`, which raises its allocno
-     * priority back above `saved`'s and restores retail's $s2=state / $s3=saved roles
-     * (without it the late `saved` assignment colours them the other way round: 20 diffs).
-     * Zero insns; must list `state` ONLY -- a second operand costs 16 more diffs. */
-    __asm__("" : : "r"(state));
     return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
 }

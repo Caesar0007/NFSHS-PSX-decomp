@@ -964,6 +964,40 @@ void Hrz_LightningFlicker(int on)
  * 80) nor "three disjoint triples" (72) but a ONE-VALUE-PER-ROW CARRY -- e.g. each row's
  * last shift computed before the previous row's last store.  Untried; it is the only
  * remaining source-shape hypothesis that matches the observed register map. */
+/* ===== w63-a13 (2026-08-15): THE STAGGERED ONE-VALUE-PER-ROW CARRY IS EXECUTED AND
+ * FALSIFIED, in both the plain and the FENCE-PINNED form.  62 STAYS (re-gated @52/56).
+ * The r-half was rewritten flat with NINE distinct names (r0-r2 / s0-s2 / u0-u2 -- the
+ * carry cannot be expressed with three sibling blocks reusing one name set) and the
+ * stores interleaved so that N values of row K are still unstored when row K+1's first
+ * shift is computed.  MEASURED (all re-gated, from BOTH bases):
+ *     shipped 3-t-block base                                     62 @52/56
+ *     count-exact single-t-block seed                            72 @56/56
+ *     3-t + carry-1 (one value carried)                          62  BIT-IDENTICAL
+ *     3-t + carry-2 (two values carried)                         62  BIT-IDENTICAL
+ *     3-t + carry-1b (the row's LAST shift deferred instead)     62  BIT-IDENTICAL
+ *     1-t + the same three carries                               72 / 72 / 72 (identical)
+ * ⇒ THE SOURCE STATEMENT ORDER OF INDEPENDENT shift/store PAIRS IS CANONICALISED BY
+ * sched1 -- six different interleavings produce byte-identical output, so a carry simply
+ * CANNOT BE REQUESTED FROM C.  That closes the w60-a6 "only remaining source-shape
+ * hypothesis" cleanly rather than leaving it open.
+ * Then PINNED with the only zero-insn device that fixes issue position (w45 use fence):
+ * a read-only fence on the carried value placed between the next row's shift and the
+ * previous row's store -- 3-t + 1 fence 68, + 2 fences 74, 1-t + 1 or 2 fences 76 both.
+ * The fences ARE zero-insn here (the count stays 52 / 56) but they do not create the
+ * overlap either -- consistent with the w60 walk's floor of 68.
+ * OPCODE CENSUS (new, cheap, and it names the whole gap): ours vs oracle differ in
+ * EXACTLY ONE opcode -- `lw 14 v 18`.  The four missing instructions are precisely the
+ * four `lw NN(sp)` reloads; nothing else in the multiset differs.
+ * 🔴 LAW CORRECTION that re-opens the w50-a5 arithmetic below: gcc-2.8.1 QTY_CMP_PRI
+ * (local-alloc.c:1727) is floor_log2(refs)*refs*SIZE/live -- size MULTIPLIES, there is no
+ * `- size` term.  So the w50 claim "a 2-ref 4-byte r-value is NEGATIVE (-2/live) while
+ * the 6-ref t is POSITIVE (+8/live), so NO live-length dial can put an r above a t" is
+ * FALSE: an r is 1*2*4/live = 8/live and a t is 2*6*4/live = 48/live, i.e. an r at live 3
+ * (2.67) already TIES a t at live 18 (2.67).  The live-length dial is NOT excluded by the
+ * formula.  It is excluded by the stronger fact just proved above -- source order does not
+ * reach the liveness at all.  Next taker: attack it at the RTL layer (instrumented-cc1
+ * [qty_compare] / [find_free_reg] traces on the 56/56 base), not with more spellings.
+ * Harness: scratchpad/w63a13/hprobe.py + hprobe2.py (composable, always restores). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1209,7 +1243,19 @@ void Hrz_BuildSky(void)
          all three pointers as asm INPUTS, so both `addiu` address forms are emitted
          BEFORE the three `swc2` (retail: addiu v0,a0,4; addiu v1,a0,8; swc2 17/18/19);
          three separate one-pointer asms let gcc interleave each addiu with its own
-         store.  Same family as the gte_stsxy3 line above it. */
+         store.  Same family as the gte_stsxy3 line above it.
+         ---- w63-a13: THE GTE-MACRO AUDIT ASKED FOR AFTER w62 IS DONE AND COMES BACK
+         CLEAN.  A per-opcode census of the whole function against the oracle
+         (scratchpad/w63a13/opcen.py, which runs verify_asm's OWN normalizers) shows the
+         two streams differ in EXACTLY TWO opcodes -- `addu 32 v 33` and `nop 59 v 58` --
+         at an identical total of 458.  Every GTE opcode matches one-for-one
+         (swc2 13/13, lwc2 10/10, and zero mtc2/mfc2/ctc2/cfc2/cop2 on either side), so
+         there is NO remaining gte_* macro mis-selection in this function: gte_ldv3 /
+         gte_rtpt / gte_stsxy3 / gte_stsz3 / gte_ldv0 / gte_rtps / gte_stSXY2 / gte_stsz /
+         gte_stlvnl are all the right forms and the right arities.  The 370 residual is
+         therefore ENTIRELY the register permutation the w62 receipt priced (the +1 shift
+         over the caller-saved band, ~94 diffs by permtest) plus body scheduling, plus one
+         addu/nop pair.  Do not spend more budget looking for a macro here. */
       gte_stsz3(&zcnt[0],&zcnt[1],&zcnt[2]);
     } while (2 < n);
     scnt = &scnt[2];
@@ -1597,6 +1643,28 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * dials do not reach it); (2) the movable-rank swap of the two masks in (F); (3) the
  * 2-insn clip shortfall.  Harness: scratchpad/w61a14/bhprobe.py (composable variant
  * sets, always restores the base). */
+/* ---- w63-a13 (2026-08-15): 132 STAYS @471/473.  Open dial (2) -- "make the 24-bit mask
+ * outrank the 8-bit one as a loop.c MOVABLE" -- attacked with the w44 zero-insn
+ * semantic no-op RE-MASK inflator and catalog 13C's "LICM TIPS AT N OCCURRENCES".
+ * FALSIFIED, all re-gated, all @471:
+ *   `(*pal & 0xffffff) & 0xffffff` (3rd occurrence of the 24-bit mask)   132 BIT-IDENTICAL
+ *   both ANDs re-masked (4 occurrences)                                  132 BIT-IDENTICAL
+ *   the same on the 8-bit mask (negative control)                        132 BIT-IDENTICAL
+ *   a named `pkt24` evaluated first (the Flare_Tri idiom that works in the sibling
+ *     Hrz_BuildSky star loop)                                            148
+ *   pkt24 + the 24-bit re-mask                                           148
+ * MECHANISM: cse folds a redundant AND against an already-masked value at TREE level,
+ * before loop.c ever builds its movable list, so the occurrence-count dial cannot reach
+ * combine_movables here at zero insns.  (It reaches flow.c's REG_N_REFS -- which is why
+ * the same device works as an ALLOCNO dial elsewhere -- but the two consumers see
+ * different lists.  Worth a catalog row: the re-mask inflator is an allocno dial, NOT a
+ * LICM dial.)  The remaining route for this cluster is to make the 8-bit mask cheaper to
+ * NOT hoist (savings 1 is already the minimum) or to give the 24-bit one a genuinely
+ * distinct third USE, which costs an instruction we do not have.
+ * OPCODE CENSUS (new): ours vs oracle differ in EXACTLY ONE opcode -- `lui 26 v 28`.
+ * The whole 2-insn shortfall is two missing address materialisations, i.e. the w61
+ * open items (2) [the mask movable] and (3) [the clip shortfall] are the SAME two luis.
+ * Harness: scratchpad/w63a13/bhprobe.py. */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {

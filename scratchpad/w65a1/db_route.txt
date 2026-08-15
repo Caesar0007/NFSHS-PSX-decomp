@@ -1,0 +1,343 @@
+idx  OURS                                       ORACLE                                    
+   0 addiu	sp,sp,-296                           addiu      $sp, $sp, -0x128                
+   1 sw	s0,264(sp)                              sw         $s0, 0x108($sp)                 
+   2 move	s0,a0                                 addu       $s0, $a0, $zero                 
+   3 lui	v0,0x0                                 lui        $v0, %hi(Draw_gPlayer1View)     
+   4 lw	a0,0(v0)                                lw         $a0, %lo(Draw_gPlayer1View)($v0) 
+   5 lui	v0,0x0                                 lui        $v0, %hi(gFlip)                 
+   6 lw	a1,0(v0)                                lw         $a1, %lo(gFlip)($v0)            
+   7 sw	s4,280(sp)                              sw         $s4, 0x118($sp)                 
+   8 li	s4,79                                   addiu      $s4, $zero, 0x4F                
+   9 sw	ra,288(sp)                              sw         $ra, 0x120($sp)                 
+  10 sw	s5,284(sp)                              sw         $s5, 0x11C($sp)                 
+  11 sw	s3,276(sp)                              sw         $s3, 0x114($sp)                 
+  12 sw	s2,272(sp)                              sw         $s2, 0x110($sp)                 
+  13 jal	0 <TransformVector>                    jal        Draw_GetDRAWENV__Fii            
+  14 sw	s1,268(sp)                              sw        $s1, 0x10C($sp)                  
+  15 lui	t1,0x1f80                              lui        $t1, (0x1F800004 >> 16)         
+  16 ori	t1,t1,0x4                              ori        $t1, $t1, (0x1F800004 & 0xFFFF) 
+  17 lui	a3,0xff                                lui        $a3, (0xFFFFFF >> 16)           
+  18 ori	a3,a3,0xffff                           ori        $a3, $a3, (0xFFFFFF & 0xFFFF)   
+  19 addiu	a1,sp,256                            addiu      $a1, $sp, 0x100                 
+  20 lw	a0,0(t1)                                lw         $a0, 0x0($t1)                   
+  21 move	s5,v0                                 addu       $s5, $v0, $zero                 
+  22 sh	zero,256(sp)                            sh         $zero, 0x100($sp)               
+  23 lhu	v1,2(s5)                               lhu        $v1, 0x2($s5)                   
+  24 li	v0,512                                  addiu      $v0, $zero, 0x200               
+  25 sh	v0,260(sp)                              sh         $v0, 0x104($sp)                 
+  26 lui	v0,0x0                                 lui        $v0, %hi(screenheight)          
+  27 lhu	v0,0(v0)                               lhu        $v0, %lo(screenheight)($v0)     
+  28 lui	a2,0x1f80                              lui        $a2, (0x1F800000 >> 16)         
+  29 lw	a2,0(a2)                                lw         $a2, (0x1F800000 & 0xFFFF)($a2) 
+  30 lui	t0,0xff00                              lui        $t0, (0xFF000000 >> 16)         
+  31 sh	v1,258(sp)                              sh         $v1, 0x102($sp)                 
+  32 sh	v0,262(sp)                              sh         $v0, 0x106($sp)                 
+  33 lw	v1,0(a0)                                lw         $v1, 0x0($a0)                   
+  34 lw	v0,0(a2)                                lw         $v0, 0x0($a2)                   
+  35 and	v1,v1,t0                               and        $v1, $v1, $t0                   
+  36 and	v0,v0,a3                               and        $v0, $v0, $a3                   
+  37 or	v1,v1,v0                                or         $v1, $v1, $v0                   
+  38 sw	v1,0(a0)                                sw         $v1, 0x0($a0)                   
+  39 lw	v0,0(a2)                                lw         $v0, 0x0($a2)                   
+  40 addiu	v1,a0,12                             addiu      $v1, $a0, 0xC                   
+  41 sw	v1,0(t1)                                sw         $v1, 0x0($t1)                   
+  42 and	v1,a0,a3                               and        $v1, $a0, $a3                   
+  43 and	v0,v0,t0                               and        $v0, $v0, $t0                   
+  44 or	v0,v0,v1                                or         $v0, $v0, $v1                   
+  45 jal	0 <TransformVector>                    jal        SetDrawArea                     
+  46 sw	v0,0(a2)                                sw        $v0, 0x0($a2)                    
+  47 lui	s2,0x0                                 lui        $s2, %hi(FEApp)                 
+  48 lw	v1,0(s2)                                lw         $v1, %lo(FEApp)($s2)            
+  49 li	v0,290                                  addiu      $v0, $zero, 0x122               
+  50 sh	v0,40(sp)                               sh         $v0, 0x28($sp)                  
+  51 li	v0,25                                   addiu      $v0, $zero, 0x19                
+  52 sh	v0,42(sp)                               sh         $v0, 0x2A($sp)                  
+  53 lbu	v0,556(v1)                             lbu        $v0, 0x22C($v1)                 
+  54 li	s3,1                                    addiu      $s3, $zero, 0x1                 
+  55 bne	v0,s3,3cbc <DrawBackground__25tScreenCarSelectTwoPlayer+0xf0>   -> 60 bne        $v0, $s3, .L8003E5AC   -> 60    
+  56 li	v0,200                                  addiu     $v0, $zero, 0xC8                 
+  57 li	v0,130                                  addiu      $v0, $zero, 0x82                
+  58 sh	v0,42(sp)                               sh         $v0, 0x2A($sp)                  
+  59 li	v0,200                                  addiu      $v0, $zero, 0xC8                
+  60 sh	v0,44(sp)                               sh         $v0, 0x2C($sp)                  .L8003E5AC: 
+  61 li	v0,12                                   addiu      $v0, $zero, 0xC                 
+  62 addiu	s1,sp,48                             addiu      $s1, $sp, 0x30                  
+  63 sh	v0,46(sp)                               sh         $v0, 0x2E($sp)                  
+  64 lw	v0,96(s0)                               lw         $v0, 0x60($s0)                  
+  65 move	a1,s1                                 addu       $a1, $s1, $zero                 
+  66 lh	a0,104(v0)                              lh         $a0, 0x68($v0)                  
+  67 lw	v0,108(v0)                              lw         $v0, 0x6C($v0)                  
+  68 nop                                        nop                                        
+  69 jalr	v0                                    jalr       $v0                             
+  70 addu	a0,s0,a0                              addu      $a0, $s0, $a0                    
+  71 beqz	v0,3e8c <DrawBackground__25tScreenCarSelectTwoPlayer+0x2c0>   -> 176 beqz       $v0, .L8003E77C   -> 176        
+  72 li	v1,20                                   addiu     $v1, $zero, 0x14                 
+  73 lw	v0,0(s2)                                lw         $v0, %lo(FEApp)($s2)            
+  74 sh	v1,42(sp)                               sh         $v1, 0x2A($sp)                  
+  75 lbu	v0,556(v0)                             lbu        $v0, 0x22C($v0)                 
+  76 nop                                        nop                                        
+  77 bne	v0,s3,3d10 <DrawBackground__25tScreenCarSelectTwoPlayer+0x144>   -> 81 bne        $v0, $s3, .L8003E600   -> 81    
+  78 li	v0,128                                  addiu     $v0, $zero, 0x80                 
+  79 li	s4,184                                  addiu      $s4, $zero, 0xB8                
+  80 sh	v0,42(sp)                               sh         $v0, 0x2A($sp)                  
+  81 lw	v0,924(s0)                              lw         $v0, 0x39C($s0)                 .L8003E600: 
+  82 addiu	a1,sp,40                             addiu      $a1, $sp, 0x28                  
+  83 addiu	v0,v0,3                              addiu      $v0, $v0, 0x3                   
+  84 sw	v0,924(s0)                              sw         $v0, 0x39C($s0)                 
+  85 lb	a0,48(sp)                               lb         $a0, 0x30($sp)                  
+  86 move	a2,zero                               addu       $a2, $zero, $zero               
+  87 jal	0 <TransformVector>                    jal        DrawShape_NFS4RoundRectangle__FiR4RECTs 
+  88 addiu	a0,a0,289                            addiu     $a0, $a0, 0x121                  
+  89 lw	v0,96(s0)                               lw         $v0, 0x60($s0)                  
+  90 move	a1,s1                                 addu       $a1, $s1, $zero                 
+  91 lh	a0,96(v0)                               lh         $a0, 0x60($v0)                  
+  92 lw	v0,100(v0)                              lw         $v0, 0x64($v0)                  
+  93 nop                                        nop                                        
+  94 jalr	v0                                    jalr       $v0                             
+  95 addu	a0,s0,a0                              addu      $a0, $s0, $a0                    
+  96 lw	v0,0(s2)                                lw         $v0, %lo(FEApp)($s2)            
+  97 lui	v1,0x0                                 lui        $v1, %hi(gCarObj)               
+  98 lbu	v0,556(v0)                             lbu        $v0, 0x22C($v0)                 
+  99 addiu	s1,v1,0                              addiu      $s1, $v1, %lo(gCarObj)          
+ 100 sll	v0,v0,0x2                              sll        $v0, $v0, 2                     
+ 101 addu	v0,v0,s1                              addu       $v0, $v0, $s1                   
+ 102 lw	v0,0(v0)                                lw         $v0, 0x0($v0)                   
+ 103 nop                                        nop                                        
+ 104 lw	v0,2264(v0)                             lw         $v0, 0x8D8($v0)                 
+ 105 nop                                        nop                                        
+ 106 beqz	v0,3dc8 <DrawBackground__25tScreenCarSelectTwoPlayer+0x1fc>   -> 127 beqz       $v0, .L8003E688   -> 115         <<<<<<
+ 107 move	a0,s0                                 addu      $a0, $s0, $zero                  
+ 108 move	a1,zero                               addu       $a1, $zero, $zero               
+ 109 jal	0 <TransformVector>                    jal        SetBrightness__16tScreenCarSelectss 
+ 110 move	a2,a1                                 addu      $a2, $a1, $zero                  
+ 111 lui	v0,0x0                                 lui        $v0, %hi(ticks)                 
+ 112 lw	v0,0(v0)                                lw         $v0, %lo(ticks)($v0)            
+ 113 nop                                        nop                                        
+ 114 sw	v0,892(s0)                              sw         $v0, 0x37C($s0)                 
+ 115 lw	v0,0(s2)                                lw         $v0, %lo(FEApp)($s2)            .L8003E688: 
+ 116 nop                                        nop                                        
+ 117 lbu	v0,556(v0)                             lbu        $v0, 0x22C($v0)                 
+ 118 nop                                        nop                                        
+ 119 sll	v0,v0,0x2                              sll        $v0, $v0, 2                     
+ 120 addu	v0,v0,s1                              addu       $v0, $v0, $s1                   
+ 121 lw	v0,0(v0)                                lw         $v0, 0x0($v0)                   
+ 122 nop                                        nop                                        
+ 123 lw	v0,2264(v0)                             lw         $v0, 0x8D8($v0)                 
+ 124 nop                                        nop                                        
+ 125 bnez	v0,3e2c <DrawBackground__25tScreenCarSelectTwoPlayer+0x260>   -> 152 bnez       $v0, .L8003E71C   -> 152        
+ 126 move	a0,s0                                 addu      $a0, $s0, $zero                  
+ 127 lh	v1,884(s0)                              lh         $v1, 0x374($s0)                 
+ 128 lh	v0,888(s0)                              lh         $v0, 0x378($s0)                 
+ 129 nop                                        nop                                        
+ 130 bne	v1,v0,3e28 <DrawBackground__25tScreenCarSelectTwoPlayer+0x25c>   -> 151 bne        $v1, $v0, .L8003E71C   -> 152    <<<<<<
+ 131 nop                                        nop                                        
+ 132 bnez	v1,3e28 <DrawBackground__25tScreenCarSelectTwoPlayer+0x25c>   -> 151 bnez       $v1, .L8003E71C   -> 152         <<<<<<
+ 133 lui	v0,0x0                                 lui       $v0, %hi(ticks)                  
+ 134 lw	v0,0(v0)                                lw         $v0, %lo(ticks)($v0)            
+ 135 lw	v1,892(s0)                              lw         $v1, 0x37C($s0)                 
+ 136 nop                                        nop                                        
+ 137 subu	v0,v0,v1                              subu       $v0, $v0, $v1                   
+ 138 slti	v0,v0,129                             slti       $v0, $v0, 0x81                  
+ 139 bnez	v0,3e28 <DrawBackground__25tScreenCarSelectTwoPlayer+0x25c>   -> 151 bnez       $v0, .L8003E71C   -> 152         <<<<<<
+ 140 nop                                        nop                                        
+ 141 lbu	v0,55(sp)                              lbu        $v0, 0x37($sp)                  
+ 142 nop                                        nop                                        
+ 143 beqz	v0,3e14 <DrawBackground__25tScreenCarSelectTwoPlayer+0x248>   -> 146 beqz       $v0, .L8003E708   -> 147         <<<<<<
+ 144 li	a1,32                                   addiu     $a1, $zero, 0x20                 
+ 145 li	a1,128                                  addiu      $a1, $zero, 0x80                
+ 146 move	a0,s0                                 addu       $a0, $s0, $zero                 
+ 147 jal	0 <TransformVector>                    jal        SetBrightness__16tScreenCarSelectss .L8003E708: 
+ 148 move	a2,zero                               addu      $a2, $zero, $zero                
+ 149 jal	0 <TransformVector>                    jal        TurnOn__10tVideoWall            
+ 150 addiu	a0,s0,772                            addiu     $a0, $s0, 0x304                  
+ 151 move	a0,s0                                 addu       $a0, $s0, $zero                 
+ 152 jal	0 <TransformVector>                    jal        UpdateBrightness__16tScreenCarSelects .L8003E71C: 
+ 153 move	a1,zero                               addu      $a1, $zero, $zero                
+ 154 lui	v0,0x0                                 lui        $v0, %hi(FEApp)                 
+ 155 lui	a3,0x3fd9                              lui        $a3, (0x3FD9999A >> 16)         
+ 156 ori	a3,a3,0x999a                           ori        $a3, $a3, (0x3FD9999A & 0xFFFF) 
+ 157 lw	v1,0(v0)                                lw         $v1, %lo(FEApp)($v0)            
+ 158 lui	v0,0x0                                 lui        $v0, %hi(_front_data_org)       
+ 159 sw	zero,0(v0)                              sw         $zero, %lo(_front_data_org)($v0) 
+ 160 lui	v0,0xc11e                              lui        $v0, (0xC11E6666 >> 16)         
+ 161 ori	v0,v0,0x6666                           ori        $v0, $v0, (0xC11E6666 & 0xFFFF) 
+ 162 lbu	v1,556(v1)                             lbu        $v1, 0x22C($v1)                 
+ 163 addiu	a0,sp,48                             addiu      $a0, $sp, 0x30                  
+ 164 sw	v0,16(sp)                               sw         $v0, 0x10($sp)                  
+ 165 lbu	v0,884(s0)                             lbu        $v0, 0x374($s0)                 
+ 166 li	a1,278                                  addiu      $a1, $zero, 0x116               
+ 167 sw	zero,24(sp)                             sw         $zero, 0x18($sp)                
+ 168 sw	v0,20(sp)                               sw         $v0, 0x14($sp)                  
+ 169 lw	v0,924(s0)                              lw         $v0, 0x39C($s0)                 
+ 170 move	a2,s4                                 addu       $a2, $s4, $zero                 
+ 171 sw	v1,32(sp)                               sw         $v1, 0x20($sp)                  
+ 172 jal	0 <TransformVector>                    jal        DrawCar__FR8tCarInfossffcbUl7tPlayer 
+ 173 sw	v0,28(sp)                               sw        $v0, 0x1C($sp)                   
+ 174 j	3f1c <DrawBackground__25tScreenCarSelectTwoPlayer+0x350>   -> 212 j          .L8003E80C   -> 212             
+ 175 move	a0,s0                                 addu      $a0, $s0, $zero                  
+ 176 li	v0,-1                                   addiu      $v0, $zero, -0x1                .L8003E77C: 
+ 177 sb	v0,48(sp)                               sb         $v0, 0x30($sp)                  
+ 178 lw	v0,96(s0)                               lw         $v0, 0x60($s0)                  
+ 179 move	a1,s1                                 addu       $a1, $s1, $zero                 
+ 180 lh	a0,96(v0)                               lh         $a0, 0x60($v0)                  
+ 181 lw	v0,100(v0)                              lw         $v0, 0x64($v0)                  
+ 182 nop                                        nop                                        
+ 183 jalr	v0                                    jalr       $v0                             
+ 184 addu	a0,s0,a0                              addu      $a0, $s0, $a0                    
+ 185 lui	a3,0x3fd9                              lui        $a3, (0x3FD9999A >> 16)         
+ 186 ori	a3,a3,0x999a                           ori        $a3, $a3, (0x3FD9999A & 0xFFFF) 
+ 187 lw	v1,0(s2)                                lw         $v1, %lo(FEApp)($s2)            
+ 188 lui	v0,0x0                                 lui        $v0, %hi(_front_data_org)       
+ 189 sw	zero,0(v0)                              sw         $zero, %lo(_front_data_org)($v0) 
+ 190 lui	v0,0xc11e                              lui        $v0, (0xC11E6666 >> 16)         
+ 191 ori	v0,v0,0x6666                           ori        $v0, $v0, (0xC11E6666 & 0xFFFF) 
+ 192 lbu	v1,556(v1)                             lbu        $v1, 0x22C($v1)                 
+ 193 move	a0,s1                                 addu       $a0, $s1, $zero                 
+ 194 sw	v0,16(sp)                               sw         $v0, 0x10($sp)                  
+ 195 lbu	v0,884(s0)                             lbu        $v0, 0x374($s0)                 
+ 196 li	a1,278                                  addiu      $a1, $zero, 0x116               
+ 197 sw	zero,24(sp)                             sw         $zero, 0x18($sp)                
+ 198 sw	v0,20(sp)                               sw         $v0, 0x14($sp)                  
+ 199 lw	v0,924(s0)                              lw         $v0, 0x39C($s0)                 
+ 200 li	a2,79                                   addiu      $a2, $zero, 0x4F                
+ 201 sw	v1,32(sp)                               sw         $v1, 0x20($sp)                  
+ 202 jal	0 <TransformVector>                    jal        DrawCar__FR8tCarInfossffcbUl7tPlayer 
+ 203 sw	v0,28(sp)                               sw        $v0, 0x1C($sp)                   
+ 204 lw	v0,96(s0)                               lw         $v0, 0x60($s0)                  
+ 205 nop                                        nop                                        
+ 206 lh	a0,128(v0)                              lh         $a0, 0x80($v0)                  
+ 207 lw	v0,132(v0)                              lw         $v0, 0x84($v0)                  
+ 208 nop                                        nop                                        
+ 209 jalr	v0                                    jalr       $v0                             
+ 210 addu	a0,s0,a0                              addu      $a0, $s0, $a0                    
+ 211 move	a0,s0                                 addu       $a0, $s0, $zero                 
+ 212 jal	0 <TransformVector>                    jal        IsShapeFileLoaded__7tScreenR17tShapeInformation .L8003E80C: 
+ 213 addiu	a1,s0,40                             addiu     $a1, $s0, 0x28                   
+ 214 lw	v0,44(s0)                               lw         $v0, 0x2C($s0)                  
+ 215 nop                                        nop                                        
+ 216 beqz	v0,3f8c <DrawBackground__25tScreenCarSelectTwoPlayer+0x3c0>   -> 240 beqz       $v0, .L8003E87C   -> 240        
+ 217 move	a0,zero                               addu      $a0, $zero, $zero                
+ 218 lh	v1,792(s0)                              lh         $v1, 0x318($s0)                 
+ 219 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+ 220 beq	v1,v0,3f8c <DrawBackground__25tScreenCarSelectTwoPlayer+0x3c0>   -> 240 beq        $v1, $v0, .L8003E87C   -> 240   
+ 221 lui	v0,0x0                                 lui       $v0, %hi(FEApp)                  
+ 222 lw	v0,0(v0)                                lw         $v0, %lo(FEApp)($v0)            
+ 223 lui	v1,0x0                                 lui        $v1, %hi(gCarObj)               
+ 224 lbu	v0,556(v0)                             lbu        $v0, 0x22C($v0)                 
+ 225 addiu	v1,v1,0                              addiu      $v1, $v1, %lo(gCarObj)          
+ 226 sll	v0,v0,0x2                              sll        $v0, $v0, 2                     
+ 227 addu	v0,v0,v1                              addu       $v0, $v0, $v1                   
+ 228 lw	v0,0(v0)                                lw         $v0, 0x0($v0)                   
+ 229 nop                                        nop                                        
+ 230 lw	v0,2264(v0)                             lw         $v0, 0x8D8($v0)                 
+ 231 nop                                        nop                                        
+ 232 bnez	v0,3f8c <DrawBackground__25tScreenCarSelectTwoPlayer+0x3c0>   -> 240 bnez       $v0, .L8003E87C   -> 240        
+ 233 lui	v0,0x0                                 lui       $v0, %hi(ticks)                  
+ 234 lw	v0,0(v0)                                lw         $v0, %lo(ticks)($v0)            
+ 235 lw	v1,892(s0)                              lw         $v1, 0x37C($s0)                 
+ 236 nop                                        nop                                        
+ 237 subu	v0,v0,v1                              subu       $v0, $v0, $v1                   
+ 238 slti	v0,v0,129                             slti       $v0, $v0, 0x81                  
+ 239 xori	a0,v0,0x1                             xori       $a0, $v0, 0x1                   
+ 240 beqz	a0,4008 <DrawBackground__25tScreenCarSelectTwoPlayer+0x43c>   -> 271 beqz       $a0, .L8003E8F8   -> 271        .L8003E87C: 
+ 241 lui	v0,0x0                                 lui       $v0, %hi(FEApp)                  
+ 242 lw	v0,0(v0)                                lw         $v0, %lo(FEApp)($v0)            
+ 243 nop                                        nop                                        
+ 244 lbu	v1,556(v0)                             lbu        $v1, 0x22C($v0)                 
+ 245 li	v0,1                                    addiu      $v0, $zero, 0x1                 
+ 246 bne	v1,v0,3fb0 <DrawBackground__25tScreenCarSelectTwoPlayer+0x3e4>   -> 249 bne        $v1, $v0, .L8003E8A0   -> 249   
+ 247 move	a3,zero                               addu      $a3, $zero, $zero                
+ 248 li	a3,65                                   addiu      $a3, $zero, 0x41                
+ 249 move	a0,s0                                 addu       $a0, $s0, $zero                 .L8003E8A0: 
+ 250 addiu	a1,s0,40                             addiu      $a1, $s0, 0x28                  
+ 251 move	a2,zero                               addu       $a2, $zero, $zero               
+ 252 li	v0,5                                    addiu      $v0, $zero, 0x5                 
+ 253 sw	v0,16(sp)                               sw         $v0, 0x10($sp)                  
+ 254 jal	0 <TransformVector>                    jal        UploadShapes__7tScreenR17tShapeInformationssss 
+ 255 sw	zero,20(sp)                             sw        $zero, 0x14($sp)                 
+ 256 jal	0 <TransformVector>                    jal        TurnOn__10tVideoWall            
+ 257 addiu	a0,s0,772                            addiu     $a0, $s0, 0x304                  
+ 258 lh	v1,888(s0)                              lh         $v1, 0x378($s0)                 
+ 259 lh	v0,884(s0)                              lh         $v0, 0x374($s0)                 
+ 260 nop                                        nop                                        
+ 261 bne	v1,v0,400c <DrawBackground__25tScreenCarSelectTwoPlayer+0x440>   -> 272 bne        $v1, $v0, .L8003E8FC   -> 272   
+ 262 lui	s1,0x0                                 lui       $s1, %hi(FEApp)                  
+ 263 lbu	v0,55(sp)                              lbu        $v0, 0x37($sp)                  
+ 264 nop                                        nop                                        
+ 265 beqz	v0,3ffc <DrawBackground__25tScreenCarSelectTwoPlayer+0x430>   -> 268 beqz       $v0, .L8003E8EC   -> 268        
+ 266 li	a1,32                                   addiu     $a1, $zero, 0x20                 
+ 267 li	a1,128                                  addiu      $a1, $zero, 0x80                
+ 268 move	a0,s0                                 addu       $a0, $s0, $zero                 .L8003E8EC: 
+ 269 jal	0 <TransformVector>                    jal        SetBrightness__16tScreenCarSelectss 
+ 270 move	a2,zero                               addu      $a2, $zero, $zero                
+ 271 lui	s1,0x0                                 lui        $s1, %hi(FEApp)                 .L8003E8F8: 
+ 272 lw	v0,0(s1)                                lw         $v0, %lo(FEApp)($s1)            .L8003E8FC: 
+ 273 sh	zero,42(sp)                             sh         $zero, 0x2A($sp)                
+ 274 lbu	v0,556(v0)                             lbu        $v0, 0x22C($v0)                 
+ 275 li	s2,1                                    addiu      $s2, $zero, 0x1                 
+ 276 bne	v0,s2,4028 <DrawBackground__25tScreenCarSelectTwoPlayer+0x45c>   -> 279 bne        $v0, $s2, .L8003E918   -> 279   
+ 277 li	v0,105                                  addiu     $v0, $zero, 0x69                 
+ 278 sh	v0,42(sp)                               sh         $v0, 0x2A($sp)                  
+ 279 lw	v0,96(s0)                               lw         $v0, 0x60($s0)                  .L8003E918: 
+ 280 lh	a1,42(sp)                               lh         $a1, 0x2A($sp)                  
+ 281 lh	a0,80(v0)                               lh         $a0, 0x50($v0)                  
+ 282 lw	v0,84(v0)                               lw         $v0, 0x54($v0)                  
+ 283 nop                                        nop                                        
+ 284 jalr	v0                                    jalr       $v0                             
+ 285 addu	a0,s0,a0                              addu      $a0, $s0, $a0                    
+ 286 lw	v0,96(s0)                               lw         $v0, 0x60($s0)                  
+ 287 nop                                        nop                                        
+ 288 lh	a0,136(v0)                              lh         $a0, 0x88($v0)                  
+ 289 lw	v0,140(v0)                              lw         $v0, 0x8C($v0)                  
+ 290 nop                                        nop                                        
+ 291 jalr	v0                                    jalr       $v0                             
+ 292 addu	a0,s0,a0                              addu      $a0, $s0, $a0                    
+ 293 lui	v0,0x0                                 lui        $v0, %hi(screenheight)          
+ 294 sh	zero,256(sp)                            sh         $zero, 0x100($sp)               
+ 295 lhu	a0,2(s5)                               lhu        $a0, 0x2($s5)                   
+ 296 lw	v1,0(v0)                                lw         $v1, %lo(screenheight)($v0)     
+ 297 li	v0,512                                  addiu      $v0, $zero, 0x200               
+ 298 sh	v0,260(sp)                              sh         $v0, 0x104($sp)                 
+ 299 srl	v0,v1,0x1f                             srl        $v0, $v1, 31                    
+ 300 addu	v1,v1,v0                              addu       $v1, $v1, $v0                   
+ 301 lw	v0,0(s1)                                lw         $v0, %lo(FEApp)($s1)            
+ 302 sra	v1,v1,0x1                              sra        $v1, $v1, 1                     
+ 303 sh	a0,258(sp)                              sh         $a0, 0x102($sp)                 
+ 304 sh	v1,262(sp)                              sh         $v1, 0x106($sp)                 
+ 305 lbu	v0,556(v0)                             lbu        $v0, 0x22C($v0)                 
+ 306 nop                                        nop                                        
+ 307 bne	v0,s2,40a8 <DrawBackground__25tScreenCarSelectTwoPlayer+0x4dc>   -> 311 bne        $v0, $s2, .L8003E998   -> 311   
+ 308 lui	t1,0x1f80                              lui       $t1, (0x1F800004 >> 16)          
+ 309 addu	v0,a0,v1                              addu       $v0, $a0, $v1                   
+ 310 sh	v0,258(sp)                              sh         $v0, 0x102($sp)                 
+ 311 ori	t1,t1,0x4                              ori        $t1, $t1, (0x1F800004 & 0xFFFF) .L8003E998: 
+ 312 lui	a3,0xff                                lui        $a3, (0xFFFFFF >> 16)           
+ 313 ori	a3,a3,0xffff                           ori        $a3, $a3, (0xFFFFFF & 0xFFFF)   
+ 314 addiu	a1,sp,256                            addiu      $a1, $sp, 0x100                 
+ 315 lui	t0,0xff00                              lui        $t0, (0xFF000000 >> 16)         
+ 316 lw	a0,0(t1)                                lw         $a0, 0x0($t1)                   
+ 317 lui	a2,0x1f80                              lui        $a2, (0x1F800000 >> 16)         
+ 318 lw	a2,0(a2)                                lw         $a2, (0x1F800000 & 0xFFFF)($a2) 
+ 319 lw	v1,0(a0)                                lw         $v1, 0x0($a0)                   
+ 320 lw	v0,0(a2)                                lw         $v0, 0x0($a2)                   
+ 321 and	v1,v1,t0                               and        $v1, $v1, $t0                   
+ 322 and	v0,v0,a3                               and        $v0, $v0, $a3                   
+ 323 or	v1,v1,v0                                or         $v1, $v1, $v0                   
+ 324 sw	v1,0(a0)                                sw         $v1, 0x0($a0)                   
+ 325 lw	v0,0(a2)                                lw         $v0, 0x0($a2)                   
+ 326 addiu	v1,a0,12                             addiu      $v1, $a0, 0xC                   
+ 327 sw	v1,0(t1)                                sw         $v1, 0x0($t1)                   
+ 328 and	v1,a0,a3                               and        $v1, $a0, $a3                   
+ 329 and	v0,v0,t0                               and        $v0, $v0, $t0                   
+ 330 or	v0,v0,v1                                or         $v0, $v0, $v1                   
+ 331 jal	0 <TransformVector>                    jal        SetDrawArea                     
+ 332 sw	v0,0(a2)                                sw        $v0, 0x0($a2)                    
+ 333 lw	ra,288(sp)                              lw         $ra, 0x120($sp)                 
+ 334 lw	s5,284(sp)                              lw         $s5, 0x11C($sp)                 
+ 335 lw	s4,280(sp)                              lw         $s4, 0x118($sp)                 
+ 336 lw	s3,276(sp)                              lw         $s3, 0x114($sp)                 
+ 337 lw	s2,272(sp)                              lw         $s2, 0x110($sp)                 
+ 338 lw	s1,268(sp)                              lw         $s1, 0x10C($sp)                 
+ 339 lw	s0,264(sp)                              lw         $s0, 0x108($sp)                 
+ 340 jr	ra                                      jr         $ra                             
+ 341 addiu	sp,sp,296                            addiu     $sp, $sp, 0x128                  

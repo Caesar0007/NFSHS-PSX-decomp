@@ -14,5 +14,21 @@
     "after": "\tbne\t\\$2,\\$0,\\$L\\d+\n\tandi\t\\$2,\\$4,0xffff\n\t\\.set\tmacro\n\t\\.set\treorder\n\n"
    }
   ]
+ },
+ "recon/frontend/common/screencarselect.cpp": {
+  "DrawBackground__25tScreenCarSelectTwoPlayer": [
+   {
+    "take": "\\$L\\d+:\n(?=\tlh\t\\$3,884\\(\\$16\\)\n)",
+    "after": "\tsw\t\\$2,892\\(\\$16\\)\n"
+   },
+   {
+    "take": "\\$L\\d+:\n(?= \\#APP\n \\#NO_APP\n\tmove\t\\$4,\\$16\n)",
+    "after": " \\#APP\n \\#NO_APP\n\tmove\t\\$4,\\$16\n"
+   },
+   {
+    "take": "\\$L\\d+:\n(?=\tmove\t\\$4,\\$16\n\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tjal\tSetBrightness__16tScreenCarSelectss\n\tmove\t\\$6,\\$0\n\t\\.set\tmacro\n\t\\.set\treorder\n\n\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tjal\tTurnOn__10tVideoWall\n)",
+    "after": "\tmove\t\\$4,\\$16\n(?=\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tjal\tSetBrightness__16tScreenCarSelectss\n\tmove\t\\$6,\\$0\n\t\\.set\tmacro\n\t\\.set\treorder\n\n\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tjal\tTurnOn__10tVideoWall\n)"
+   }
+  ]
  }
 }

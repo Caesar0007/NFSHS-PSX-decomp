@@ -9,6 +9,16 @@ extern int  ticks[];
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern tTexture_ShapeInfo *gCurrentShapes[];
+/* W62-A17 decl-divergence receipt -- `bool` HERE IS CORRECT, do not "fix" it to int.
+   LAW (measured this wave): on the cc1plus C++ lane sizeof(bool) == 4, so bool and
+   int are the same STORAGE; the oracle confirms 4-byte objects (front_data.data.s
+   dlabels NewRecords = 8 .words @0x80052978, StatChk_ClearNewRecords walks them with
+   `addiu $v0,-0x4`, DrawRecords indexes with `sll $s1,2`).  The types differ only at
+   implicit-conversion sites, and there the oracle proves BOOL: DrawRecords passes
+   `lw $a2,0($s0)` straight into DrawOneRecord__19tScreenTrackRecords*i*b*i with NO
+   sltu normalization, which an `int` source type would have forced (measured:
+   int -> +1 `sltu a2,zero,a2`, 7/7 -> 6/7).  statchk.h's `int NewRecords[8]` /
+   `int NewBestLap` are the divergent (but size-compatible) spelling. */
 extern bool NewRecords[8];
 extern bool NewBestLap;
 void trap(int code);

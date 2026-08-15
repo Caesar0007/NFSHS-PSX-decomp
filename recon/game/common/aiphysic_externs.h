@@ -84,7 +84,12 @@ extern int                AIPhysic_time;               /* @0x8013c598 */
 extern int                AIPhysic_iTime;              /* @0x8013c594 */
 extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;
 extern AIScript_tReactionDetails  AIPerson_ScriptData[]; /* flat view @0x8010da5c */
-extern u_char             AIInit_forceHumanHandBrake[]; /* (int)array decays to base addr */
+/* W62-A17: was `u_char [...]` (1-byte elements) -- WRONG.  It is a single 4-byte int:
+   owner def aiinit.cpp `int AIInit_forceHumanHandBrake;` @0x8013c584, and every oracle
+   access is a word op (AIInit_Reset1 `sw $zero,%gp_rel(...)`, Physics_RampCarControlValues
+   `lw`, UpdateFreezeModeAndPullOverMode `sw`) -- zero byte accesses tree-wide.
+   Unreferenced in this TU, so the correction is codegen-inert here. */
+extern int                AIInit_forceHumanHandBrake;
 extern int                gNumSlices;
 extern int                Cars_topSpeedCap[];
 extern Car_tObj          *Cars_gHumanRaceCarList[];

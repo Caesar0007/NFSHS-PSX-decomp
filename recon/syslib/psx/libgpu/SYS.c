@@ -494,9 +494,6 @@ extern int MoveImage(void *rect, int x, int y)
      * address.  The explicit payload pointer restores the anchor+displacement shape.
      * (Under the OLD 2.8 lane this form regressed the then-PASS to 35 -- lane-paired.) */
     p = &_move_prim[2];
-    __asm__("" : "=r"(p) : "0"(p));              /* zero-insn opacity fence: keeps cse from
-                                                   * folding p back to the bare symbol address
-                                                   * (which re-emits `sw $r,sym` $at macros). */
     /* FALSIFIED (272 basin, w51): dst-xy store FIRST rotates the payload base off
      * $v1 onto $a2 and costs +16 (17 -> 33); the oracle's `sw 4 / sw 0 / sw 8`
      * emission order is a scheduling product, not the source statement order.
@@ -604,6 +601,18 @@ extern int MoveImage(void *rect, int x, int y)
      * only fenced pseudo in the block. */
     p[0] = *(u_long *)rect;                      /* src xy */
     p[1] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
+    /* W64-A3 -- FENCE POSITION IS THE CFG DIAL (reorg.c:685-712 stop_search_p).
+     * This opacity fence still pins the payload ANCHOR (see the note above), but it
+     * must NOT sit at the head of the BODY thread: `stop_search_p` returns 1 at ANY
+     * asm insn, so guard2 (`bnez h,BODY`) could never reach the `sll $v0,$s1,16` that
+     * retail steals into its delay slot -- with no target-thread candidate reorg
+     * inverted guard2 and folded the whole `li -1; j` block away (45 insns vs 46).
+     * Fence placed AFTER the dst-xy store instead: statement order (and therefore the
+     * whole register handout, which already matches retail) is untouched, the anchor
+     * is still laundered, and reorg gets its steal back.  9 -> 4, count EXACT 46/46.
+     * Measured alternatives, same basin: fence after p[0] 28 * after p[2] 29 (47 insns)
+     * * dropped entirely 28 * read-only fence after the stores 28. */
+    __asm__("" : "=r"(p) : "0"(p));
     p[2] = *((u_long *)rect + 1);                /* wh */
     return GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, p - 2, 0x14, 0);
 }

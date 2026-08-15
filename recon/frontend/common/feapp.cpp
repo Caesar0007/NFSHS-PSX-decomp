@@ -420,7 +420,33 @@ void tFEApplication::Redraw()
        worse basin).  Their "Reload a global (not the local pointer) to fill a
        branch delay with lui" law is the right FAMILY -- retail's `lui t0,8064`
        IS a delay-slot fill -- but it prescribes what we already do (name the
-       global), so the residual is upstream of the spelling. */
+       global), so the residual is upstream of the spelling.
+
+       W62-A15 -- NAMED ANGLE, sharpened by a same-wave POSITIVE CONTROL.  The
+       device this fn's whole falsification list is reaching for DOES work and
+       is proven this wave in a sibling TU: screentracks.cpp's
+       tScreenTrackSelect::DrawBackground carries
+           u_char **packetPtrSlot = &Render_gPacketPtr;
+       and its cc1plus output is retail's shape verbatim --
+           li $10,0x1f800000 ; ori $10,$10,0x0004 ; ... lw $fp,0($10)
+           ... sw $v1,0($10)
+       i.e. the FULL literal in ONE caller-saved temp with displacement 0 at
+       BOTH the read and the write, which is exactly what is missing here.
+       The only structural difference between the two sites is that
+       screentracks' block is straight-line while ours sits inside
+       `for (i = 1; i >= 0; i--)`, so loop.c hoists the invariant address into
+       the preheader and the pseudo must go callee-saved.  That isolates the
+       blocker to ONE named question instead of a spelling search:
+         WANTED = a SELECTIVE anti-LICM that leaves the address pseudo
+         block-local.  13C's "LICM TIPS AT N OCCURRENCES (drop one
+         occurrence)" is the closest catalogued handle and is the next thing
+         to price: our block has exactly TWO in-loop occurrences of the cell
+         (the join read and the store) and retail rematerialises at both, so
+         the target is to keep combine_movables BELOW its tipping point rather
+         than to fight the hoist after it happens.
+       Do NOT re-run the 17 spellings above -- every one is downstream of the
+       hoist.  Working control to diff against: screentracks.cpp
+       DrawBackground (+ its W62-A15 TEXT_MOVES row). */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

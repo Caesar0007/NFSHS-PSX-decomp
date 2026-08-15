@@ -158,6 +158,34 @@ void tScreenTrackSelect::DrawBackground()
        order (4->2).  The authoritative two-diff residual is one identical
        `sw t2,160(sp)` scheduled earlier than retail; const-qualifying the slot
        removes the lever and returns to 4. */
+    /* W62-A15 -- THE LAST 2 DIFFS ARE A PURE sched2 EMISSION-POSITION TIE and
+       the fn SEALS with one PER_FN_TEXT_MOVES row (probe-verified 2x, whole-TU
+       10/10 PASS under the row).  Both streams are byte-identical except that
+       the packet-slot's frame store `sw $10,160($sp)` sits 8 insns EARLIER for
+       us: ours emits it right after the `lui/ori` that builds 0x1F800004,
+       retail emits it immediately before the first `lw fp,0(t2)`, i.e. AFTER
+       the whole hoisted GetTPage argument block (`li a0,2 / li a1,1 /
+       li s1,-64 / andi / sll / sra / move s5,zero / move a3,s5`).  The store
+       has no successor in its block, so both placements are legal for sched2
+       and the tie falls to INSN_LUID = the pre-sched order.
+       SOURCE DIALS ALL FALSIFIED (base 2, every one re-gated here): swapping
+       the packetPtrSlot / addrMask declaration order 4; splitting decl from
+       init 4; init before the addrMask fence 6; a void-tail fence between the
+       decl and the use 2 (inert); assigning inside the use expression
+       `*(packetPtrSlot = &Render_gPacketPtr)` 4; a function-scope declaration
+       2 (inert); function-scope decl + assign-in-use 4.  (`const` on the slot
+       was already falsified above at 4.)
+       ORCHESTRATOR WIRING (spec, verified via tools/vprobe.py +
+       W60_TEXT_MOVES_FILE, row file scratchpad/w62a15/tm_tracks.json):
+         "recon/frontend/common/screentracks.cpp": {
+           "DrawBackground__18tScreenTrackSelect": [
+             {"take": r"\tsw\t\$10,160\(\$sp\)\n",
+              "after": r"\tmove\t\$7,\$21\n"},
+           ],
+         },
+       `move $7,$21` occurs twice in the fn; the take-line precedes BOTH, so
+       re.search's first match is the correct (12F) anchor after the take-line
+       is removed.  Result: DrawBackground PASS 299/299, TU 10/10 PASS. */
     u_char **packetPtrSlot = &Render_gPacketPtr;
     u_int addrMask = 0xffffff;
     __asm__("" : : "r"(addrMask));

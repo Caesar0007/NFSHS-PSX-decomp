@@ -1293,6 +1293,13 @@ PER_FN_TEXT_MOVES = {
             {"take": "\\tsll\\t\\$3,\\$4,2\\n", "after": "\\taddiu\\t\\$2,\\$2,%lo\\(Cars_gSortedList\\)[^\\n]*\\n"},
         ],
     },
+    # w62-a15 (probe-verified 2x): screentracks DrawBackground 2 -> PASS
+    # 299/299 (sched2 INSN_LUID tie on the packet-slot frame store); TU 10/10.
+    "recon/frontend/common/screentracks.cpp": {
+        "DrawBackground__18tScreenTrackSelect": [
+            {"take": r"\tsw\t\$10,160\(\$sp\)\n", "after": r"\tmove\t\$7,\$21\n"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma

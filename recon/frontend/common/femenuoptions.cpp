@@ -2653,7 +2653,36 @@ int tUserNameMenuItem::Draw(bool selected)
      identity fence.  REGRESSIONS: read-only instead of identity fence 89 (253,
      the constant folds back); a read-only fence on `shape` 32.
      => local-alloc QTY handout (Sec.4.6 / 06E), same class as
-     front.cpp GetPSXPadValue and feaudio.cpp FeAudio_InitViv this wave. */
+     front.cpp GetPSXPadValue and feaudio.cpp FeAudio_InitViv this wave.
+
+     W62-A15 -- RECLASSIFIED: this is a CONFLICT-STRUCTURE question, not a
+     QTY/priority one, read off the real CC1PLPSX `-dg` dump of this TU (-G0,
+     harness scratchpad/w62a15/dumpg.py):
+         ;; 196 conflicts: 80 82 83 84 98 100 101 196 210 211 2 29
+         ;; 211 preferences: 4      (211 is allocated BEFORE 196 and takes a0)
+         ;; Register dispositions: ... 196 in 3 ...
+     196 is the boxRight constant.  Its HARD-reg conflict set is {v0(2),
+     sp(29)} plus the already-assigned 211 -> a0(4).  find_reg's plain
+     ascending scan therefore hands it v1(3).  To reach retail's t0(8) the
+     pseudo would have to conflict with v0,v1,a0,a1,a2,a3 -- i.e. stay live
+     ACROSS the whole hard-argument setup.  It cannot: gcc computes every call
+     argument's VALUE into a pseudo first and only then moves those pseudos
+     into $a0-$a3, so the 156 constant dies at the `subu` long before a1/a2/a3
+     exist.  No ref-count, priority or fence dial changes a conflict set.
+     NEW FALSIFICATIONS (base 8, all re-gated, all reverted) -- the 13B COPY
+     devices, which did not exist when the rows above were written:
+       COPY-TAIL (`int b2 = boxRight;` + read-only fence on the still-live
+         source, both blocks)                                  8 (exactly inert)
+       COPY-TAIL applied to the first block only               8 (inert)
+       COPY-BACK (`int w = shape->width; int h = shape->height;`
+         pre-read, both blocks)                                8 (inert)
+       height read hoisted above the identity fence, both blocks  16
+     The two inert copy results are the 13B GOVERNING LIMIT in action: cse eats
+     a synthetic copy before local-alloc, so a copy dial exists only where the
+     emitted code ALREADY carries a real reg-reg copy -- and here it does not.
+     => the open device is one that lengthens the constant's live range across
+     the argument-move block without relocating a use (the same 4-witness
+     instrument feaudio's FeAudio_InitViv is waiting for). */
   int x;
   int y;
   tTexture_ShapeInfo *shape;

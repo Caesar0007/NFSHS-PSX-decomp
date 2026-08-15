@@ -251,6 +251,51 @@ void Front_ResetPSXAnalogs(int player)
    (0x3000001) and the whole block layout changes, so it is not a partial
    landing.  => the remaining lever is the local-alloc numeric scan (qtytrace
    class), not a spelling.  */
+
+/* W62-A15 (base 18, unchanged) -- QUANTIFIED HARDNESS CERTIFICATE.  The
+   handout is now READ OFF the real CC1PLPSX `-dg` dump of this TU (-G0;
+   harness scratchpad/w62a15/dumpg.py):
+
+       ;; 9 regs to allocate: 82 83 88 80 252 255 260 325 81
+       ;; 82 conflicts:   82 2 29
+       ;; 82 preferences: 4 5 6
+       ;; Register 82 used 30 times across 27 insns; dies in 12 places
+       ;; Register dispositions: ... 82 in 4 ...
+
+   82 = newControl.  Per the 13A SET_PREFERENCE law (global.c:1538/1584) its
+   preference set is the accumulation of every SET's FIRST-OPERAND home over
+   the 13 case blocks -- {a0, a1, a2} -- and find_reg takes the LOWEST FREE
+   PREFERENCE, so a0 wins unconditionally.  Retail agrees with us at 10 of the
+   13 sites (a0 there too) and differs ONLY in the 3 merged tails, where its
+   dest is op0's OWN register (`or a2,a2,a1` / `or a1,a1,v1` / `or a1,a1,a0`)
+   = a LOCAL qty that qty_combine tied to the first operand.  One global
+   allocno cannot be a2 at one tail and a1 at two, so retail's three tails are
+   genuinely block-local while its other ten are the same a0 global as ours.
+
+   THE OPERAND-ORDER LEAD IS CLOSED: at all three sites ours and retail carry
+   the SAME two operands in the SAME order (`or ?,a2,a1`); only the DEST
+   differs, so there is no operand order left to swap.
+
+   NEW FALSIFICATIONS (15 measurements, all re-gated here, all reverted).
+   Three spellings x five groupings, where G1 = .L80027398 (0x100000 /
+   -0x80000000 / 0x10000000), G2 = .L800273D0 (0x400000 / 0x20000000 /
+   0x40000000), G4 = .L8002744C (0x53:0x800000 + 0x23:0x800000):
+
+       spelling                            G4   G1   G2  G1+G2  G1+G2+G4
+       block-scope `{ int newControl; ... }` 58  112   80    156      206
+       anonymous   `return (expr) | 1;`      58  112   80    156      206
+       fold        `nc = expr | 1; ret nc`   58  112   80    156      206
+
+   The three spellings are BYTE-IDENTICAL at every grouping => gcc builds the
+   same RTL for all of them and this axis is exhausted; do not re-sweep it.
+   The whole-function fold (all 11 plain sites) re-measured at 252 diffs /
+   224 insns -- +2 over the oracle's 222, an entirely different block layout,
+   confirming the W60-A10 reading.
+   => the cure needs newControl to be the v0-homed `|1` global at ALL 13 sites
+   (which the SYM's `REG newControl = $2 (v0)` says it was) WITHOUT the
+   whole-function fold's basin change: a cse/expression-identity device that
+   keeps the `1` out of the tag constant, not a spelling and not an allocator
+   dial.  Harnesses: scratchpad/w62a15/pad{,2,3,4,5}.py. */
 int GetPSXPadValue(int value,int player)
 
 {
@@ -1138,9 +1183,23 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 
     usePlayerUpgrades = 0;
     if (frontEnd.raceType == '\x02') {
-      opponentClass = (tCarClassType)tournamentManager.fDefinition->fTournaments
-              [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-               tournamentManager.fTournament].fOpponentCarClass;
+      /* MATCH W62-A15: 12D-A7 / W60-A6 INDEX-TERM-FIRST address spelling.
+         Retail closes this element address with the INDEX as operand 0
+         (`addu v0,v0,a1` then `lbu v1,39(v0)`); a plain `arr[idx].field`
+         subscript canonicalises the POINTER first (`addu a1,a1,v0`,
+         `lbu v1,39(a1)`) because qty_combine ties the dest to op0 and gcc
+         puts the base first in a pointer sum.  Writing the whole address as
+         an INT sum with the scaled index leading restores retail's operand
+         order and the register that follows it: 115 -> 111 diffs (358/357).
+         SITE-SELECTIVE, exactly as the W60-A6 row warns -- the same rewrite
+         applied to the two sibling `fTournaments[...]` sites below is a
+         REGRESSION: +this site only 111, +the cct_OpenClass tourn 113,
+         +the else-arm tourn 115, all three 117, the two tourn sites alone
+         121.  Price every site, never blanket. */
+      opponentClass = (tCarClassType)((tTourneyInfo *)
+              (((uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+                tournamentManager.fTournament) * sizeof(tTourneyInfo)
+               + (int)tournamentManager.fDefinition->fTournaments))->fOpponentCarClass;
     }
     else {
       opponentClass = cct_OpenClass;

@@ -515,15 +515,39 @@ void tScreenMain::DrawBackground()
   if (iVar5 == 3) {
     this->bVideoAborted = 0;
     this->fMovieTicks = ticks;
-    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,(u_int)(u_short)j);
+    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,j);
     if (iVar7 != 0) {
       this->fFrame = this->fFrame + 1;
     }
   }
   else {
+    /* MATCH W62-A15: the 13C INVERTED-DEFAULT lever + the 13C
+       CSE-CONSTANT-CAPTURE, read straight off the oracle.  Retail zeroes the
+       flag variable in the VIDEO_state jal's DELAY SLOT (`addu s0,zero,zero`),
+       materialises the guard as a VALUE, and tests it with the `1` that the
+       preceding `iVar7 != 1` guard already left in $a0:
+           jal VIDEO_state ; addu s0,zero,zero ; li a0,1 ; beq v0,a0,T
+           ... sltiu v0,v0,641 ; xor s0,v0,a0 ; beqz s0,T
+       A bare `&&` chain emits `sltiu ; bnez` with an EMPTY slot (3 insns
+       short).  Spelling the middle term as an assignment to `j` -- which the
+       SYM names as REG $16 = $s0 and which is dead after the
+       VIDEO_updateframexy arg above -- reproduces the zero-in-the-slot, the
+       xor-against-the-captured-1 and the beqz byte-exactly, and takes the fn
+       COUNT-EXACT: 111 diffs @819 insns -> 110 @822 (oracle 822).
+       The 3rd arg's `(u_int)(u_short)` cast was the Sec.3.12 #9 redundant-mask
+       class: SYM `j` is a plain SHORT and retail passes it with
+       `addu a2,s0,zero`; the cast emitted `andi a2,s0,65535`.
+       CARRIER CHOICE IS LOAD-BEARING (12D dead-pseudo staging): a fresh
+       `int notYet` 117 @821, `shapeY` (the OTHER SYM local homed in $s0, and
+       an INT) 178, `shapeX` 178, `shapeY` without the zero-default 204 @824.
+       RESIDUAL AT THIS SITE = the `sll/sra 16` pair gcc inserts because `j` is
+       a SHORT being tested as a word; retail's `beqz s0` has none. */
+    j = 0;
     iVar7 = VIDEO_state(this->hVideo);
-    if ((iVar7 != 1) && (0x280 < ticks - this->fStartTicks) &&
-        (this->fState == kScreenMain_StaticImage)) {
+    if (iVar7 != 1) {
+      j = (0x280 < ticks - this->fStartTicks);
+    }
+    if (j && (this->fState == kScreenMain_StaticImage)) {
       r.x = 0x200;
       r.w = 0x50;
       r.y = 0;

@@ -442,7 +442,28 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        What is missing is unchanged from R2 -- a device that gives the source
        word a SECOND live range (or a 2nd death) whose value needs no copy insn
        and does not displace the mask.  W61-A20's zero-ref live-range
-       lengthener is the exact instrument this fn is waiting for. */
+       lengthener is the exact instrument this fn is waiting for.
+
+       W62-A15 -- THE ONE BOUNDED PROBE THE CERTIFICATE ALLOWS: the 13B
+       zero-insn COPY devices (optimize_reg_copy_1 COPY-TAIL /
+       optimize_reg_copy_2 COPY-BACK) and the fence-POSITION dial.  All four
+       measured here against base 7 @110, all reverted:
+         COPY-BACK  `u_int typeOut = swappedType; lumpHead.type = typeOut;`
+                    with the identity fence DROPPED         34 @109
+         fence-LATE (identity fence moved below both header loads)  54 @109
+         fence-LATE + copy-back                                     54 @109
+         COPY-TAIL  (copy + read-only fence on the still-live source
+                     AFTER the store)                               54 @109
+       COPY-BACK does exactly what regmove promises -- the copy is DELETED and
+       the count goes exact 109/109 -- and the handout collapses anyway, which
+       is the 13B GOVERNING LIMIT stated from the other side: `the copy IS the
+       mechanism`.  Here the carrier copy is not an artefact to be removed, it
+       is the only thing making the source word die twice, and every device
+       that deletes it returns the word to a LOCAL qty and to $a1.
+       => CERTIFICATE RE-CONFIRMED with the copy-device class now priced.  The
+       missing instrument is unchanged and is NOT a copy: a way to give the
+       pseudo a second live range with no copy insn.
+       Harness: scratchpad/w62a15/viv.py. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

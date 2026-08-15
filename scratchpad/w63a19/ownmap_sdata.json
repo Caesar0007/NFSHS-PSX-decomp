@@ -954,6 +954,90 @@
   "bytediff": 0
  },
  {
+  "obj": "build/recon/game/common/fastrand.cpp.o",
+  "sec": ".sdata",
+  "base": 2148782332,
+  "end": 2148782348,
+  "size": 16,
+  "n": 4,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "fastRandom",
+    "lines": [
+     "nonmatching fastRandom",
+     "",
+     "dlabel fastRandom",
+     "    /* 12D8FC 8013D0FC 01AF74F8 */ .word 0xF874AF01",
+     "enddlabel fastRandom",
+     ""
+    ],
+    "va": 2148782332,
+    "end": 2148782336
+   },
+   {
+    "name": "randtemp",
+    "lines": [
+     "nonmatching randtemp",
+     "",
+     "dlabel randtemp",
+     "    /* 12D900 8013D100 00000000 */ .word 0x00000000",
+     "enddlabel randtemp",
+     ""
+    ],
+    "va": 2148782336,
+    "end": 2148782340
+   },
+   {
+    "name": "randSeed",
+    "lines": [
+     "nonmatching randSeed",
+     "",
+     "dlabel randSeed",
+     "    /* 12D904 8013D104 01000000 */ .word 0x00000001",
+     "enddlabel randSeed",
+     ""
+    ],
+    "va": 2148782340,
+    "end": 2148782344
+   },
+   {
+    "name": "numRandCalls",
+    "lines": [
+     "nonmatching numRandCalls",
+     "",
+     "dlabel numRandCalls",
+     "    /* 12D908 8013D108 00000000 */ .word 0x00000000",
+     "enddlabel numRandCalls",
+     "",
+     ".align 2"
+    ],
+    "va": 2148782344,
+    "end": 2148782348
+   }
+  ],
+  "labels": [
+   "fastRandom",
+   "numRandCalls",
+   "randSeed",
+   "randtemp"
+  ],
+  "inwin": [
+   "fastRandom",
+   "randtemp",
+   "randSeed",
+   "numRandCalls"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
   "obj": "build/recon/game/common/input.cpp.o",
   "sec": ".sdata",
   "base": 2148782624,

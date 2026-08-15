@@ -3286,15 +3286,31 @@
 },
 {
 "off": 0,
-"sec": ".sbss",
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013DD2C",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 8,
+"sec": ".sdata",
 "size": 0,
 "name": "D_8013DD34",
 "glob": true,
 "flags": "g      "
 },
 {
-"off": 4,
-"sec": ".sbss",
+"off": 12,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013DD38",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 20,
+"sec": ".sdata",
 "size": 0,
 "name": "D_8013DD40",
 "glob": true,
@@ -4383,6 +4399,18 @@
 "val": "stopreadfile"
 },
 {
+"sec": ".sdata",
+"off": 8,
+"type": "R_MIPS_32",
+"val": "D_8013DD2C"
+},
+{
+"sec": ".sdata",
+"off": 20,
+"type": "R_MIPS_32",
+"val": "D_8013DD38"
+},
+{
 "sec": ".rodata",
 "off": 0,
 "type": "R_MIPS_32",
@@ -4432,9 +4460,8 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 288,
-".sdata": 2,
+".sdata": 26,
 ".rodata": 28,
-".sbss": 8,
 ".gnu.attributes": 16
 }
 },
@@ -176074,6 +176101,38 @@
 "flags": "g      "
 },
 {
+"off": 100,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C68C",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 124,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C6A4",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 128,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C6A8",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 104,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C690",
+"glob": true,
+"flags": "g      "
+},
+{
 "off": 84,
 "sec": ".data",
 "size": 0,
@@ -176122,6 +176181,30 @@
 "flags": "g      "
 },
 {
+"off": 108,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C694",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 112,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C698",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 116,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013C69C",
+"glob": true,
+"flags": "g      "
+},
+{
 "off": 760,
 "sec": ".data",
 "size": 0,
@@ -176154,7 +176237,7 @@
 "flags": "g      "
 },
 {
-"off": 28,
+"off": 0,
 "sec": ".sdata",
 "size": 0,
 "name": "trackMusicState",
@@ -176162,7 +176245,7 @@
 "flags": "g      "
 },
 {
-"off": 32,
+"off": 4,
 "sec": ".sdata",
 "size": 0,
 "name": "audioBackwardsDirection",
@@ -176170,7 +176253,7 @@
 "flags": "g      "
 },
 {
-"off": 36,
+"off": 8,
 "sec": ".sdata",
 "size": 0,
 "name": "intensityFalseLapCounter",
@@ -176178,7 +176261,7 @@
 "flags": "g      "
 },
 {
-"off": 40,
+"off": 12,
 "sec": ".sdata",
 "size": 0,
 "name": "falseLapCounter",
@@ -176186,7 +176269,7 @@
 "flags": "g      "
 },
 {
-"off": 44,
+"off": 16,
 "sec": ".sdata",
 "size": 0,
 "name": "gMusicStyle",
@@ -176194,7 +176277,7 @@
 "flags": "g      "
 },
 {
-"off": 48,
+"off": 20,
 "sec": ".sdata",
 "size": 0,
 "name": "countdown",
@@ -176202,7 +176285,7 @@
 "flags": "g      "
 },
 {
-"off": 49,
+"off": 21,
 "sec": ".sdata",
 "size": 0,
 "name": "FadingMusic",
@@ -176210,7 +176293,7 @@
 "flags": "g      "
 },
 {
-"off": 50,
+"off": 22,
 "sec": ".sdata",
 "size": 0,
 "name": "StartedNewMusic",
@@ -176218,7 +176301,7 @@
 "flags": "g      "
 },
 {
-"off": 52,
+"off": 24,
 "sec": ".sdata",
 "size": 0,
 "name": "recordLapTime",
@@ -176226,7 +176309,7 @@
 "flags": "g      "
 },
 {
-"off": 56,
+"off": 28,
 "sec": ".sdata",
 "size": 0,
 "name": "AudioCmn_kAudioOn",
@@ -176234,7 +176317,7 @@
 "flags": "g      "
 },
 {
-"off": 60,
+"off": 32,
 "sec": ".sdata",
 "size": 0,
 "name": "AudioCmn_kAudioStreamingOn",
@@ -176242,7 +176325,7 @@
 "flags": "g      "
 },
 {
-"off": 64,
+"off": 36,
 "sec": ".sdata",
 "size": 0,
 "name": "SgameSFXvol",
@@ -176250,7 +176333,7 @@
 "flags": "g      "
 },
 {
-"off": 68,
+"off": 40,
 "sec": ".sdata",
 "size": 0,
 "name": "gMasterMusicLevel",
@@ -176258,7 +176341,7 @@
 "flags": "g      "
 },
 {
-"off": 72,
+"off": 44,
 "sec": ".sdata",
 "size": 0,
 "name": "gMasterSFXLevel",
@@ -176266,7 +176349,7 @@
 "flags": "g      "
 },
 {
-"off": 76,
+"off": 48,
 "sec": ".sdata",
 "size": 0,
 "name": "gMasterEngineLevel",
@@ -176274,7 +176357,7 @@
 "flags": "g      "
 },
 {
-"off": 80,
+"off": 52,
 "sec": ".sdata",
 "size": 0,
 "name": "gMasterFENarrationLevel",
@@ -176282,7 +176365,7 @@
 "flags": "g      "
 },
 {
-"off": 84,
+"off": 56,
 "sec": ".sdata",
 "size": 0,
 "name": "gMasterAmbientLevel",
@@ -176290,7 +176373,7 @@
 "flags": "g      "
 },
 {
-"off": 88,
+"off": 60,
 "sec": ".sdata",
 "size": 0,
 "name": "previousSFXLevel",
@@ -176298,7 +176381,7 @@
 "flags": "g      "
 },
 {
-"off": 92,
+"off": 64,
 "sec": ".sdata",
 "size": 0,
 "name": "AudioCmn_musicInteractive",
@@ -176306,7 +176389,7 @@
 "flags": "g      "
 },
 {
-"off": 96,
+"off": 68,
 "sec": ".sdata",
 "size": 0,
 "name": "gFEmusicON",
@@ -176314,7 +176397,7 @@
 "flags": "g      "
 },
 {
-"off": 100,
+"off": 72,
 "sec": ".sdata",
 "size": 0,
 "name": "NumSFXOn",
@@ -176322,7 +176405,7 @@
 "flags": "g      "
 },
 {
-"off": 104,
+"off": 76,
 "sec": ".sdata",
 "size": 0,
 "name": "gStereoMode",
@@ -176330,7 +176413,7 @@
 "flags": "g      "
 },
 {
-"off": 108,
+"off": 80,
 "sec": ".sdata",
 "size": 0,
 "name": "fReverbOn",
@@ -176338,7 +176421,7 @@
 "flags": "g      "
 },
 {
-"off": 109,
+"off": 81,
 "sec": ".sdata",
 "size": 0,
 "name": "fReverbLevel",
@@ -176346,18 +176429,18 @@
 "flags": "g      "
 },
 {
-"off": 112,
+"off": 84,
 "sec": ".sdata",
 "size": 0,
-"name": "falseLapTrigCur",
+"name": "D_8013C67C",
 "glob": true,
 "flags": "g      "
 },
 {
-"off": 116,
+"off": 92,
 "sec": ".sdata",
 "size": 0,
-"name": "flaseLapTrigTrack",
+"name": "D_8013C684",
 "glob": true,
 "flags": "g      "
 },
@@ -176365,15 +176448,7 @@
 "off": 120,
 "sec": ".sdata",
 "size": 0,
-"name": "currentLap",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 124,
-"sec": ".sdata",
-"size": 0,
-"name": "bestLapTime",
+"name": "D_8013C6A0",
 "glob": true,
 "flags": "g      "
 },
@@ -176381,15 +176456,31 @@
 "off": 132,
 "sec": ".sdata",
 "size": 0,
-"name": "gtotallaptimes",
-"glob": true,
-"flags": "g      "
+"name": "lastImpactSample",
+"glob": false,
+"flags": "l      "
+},
+{
+"off": 136,
+"sec": ".sdata",
+"size": 0,
+"name": "cobbleCount",
+"glob": false,
+"flags": "l      "
 },
 {
 "off": 140,
 "sec": ".sdata",
 "size": 0,
-"name": "AudioCmn_gPlayerArrested",
+"name": "falseLapTrigCur",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 144,
+"sec": ".sdata",
+"size": 0,
+"name": "flaseLapTrigTrack",
 "glob": true,
 "flags": "g      "
 },
@@ -176397,7 +176488,7 @@
 "off": 148,
 "sec": ".sdata",
 "size": 0,
-"name": "AudioCmn_gCursorSndHandle",
+"name": "currentLap",
 "glob": true,
 "flags": "g      "
 },
@@ -176405,15 +176496,7 @@
 "off": 152,
 "sec": ".sdata",
 "size": 0,
-"name": "AudioCmn_gLastFade",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 156,
-"sec": ".sdata",
-"size": 0,
-"name": "AudioCmn_gLoadTables",
+"name": "bestLapTime",
 "glob": true,
 "flags": "g      "
 },
@@ -176421,15 +176504,7 @@
 "off": 160,
 "sec": ".sdata",
 "size": 0,
-"name": "AudioCmn_gCruiseTables",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 164,
-"sec": ".sdata",
-"size": 0,
-"name": "AudioCmn_gResume",
+"name": "gtotallaptimes",
 "glob": true,
 "flags": "g      "
 },
@@ -176437,15 +176512,7 @@
 "off": 168,
 "sec": ".sdata",
 "size": 0,
-"name": "AudioCmn_gStreamRestartTimer",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 172,
-"sec": ".sdata",
-"size": 0,
-"name": "fMysticWindON",
+"name": "AudioCmn_gPlayerArrested",
 "glob": true,
 "flags": "g      "
 },
@@ -176453,7 +176520,7 @@
 "off": 176,
 "sec": ".sdata",
 "size": 0,
-"name": "fAmbientRangeON",
+"name": "AudioCmn_gCursorSndHandle",
 "glob": true,
 "flags": "g      "
 },
@@ -176461,7 +176528,15 @@
 "off": 180,
 "sec": ".sdata",
 "size": 0,
-"name": "currentWindVal",
+"name": "AudioCmn_gLastFade",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 184,
+"sec": ".sdata",
+"size": 0,
+"name": "AudioCmn_gLoadTables",
 "glob": true,
 "flags": "g      "
 },
@@ -176469,7 +176544,15 @@
 "off": 188,
 "sec": ".sdata",
 "size": 0,
-"name": "nextWindVal",
+"name": "AudioCmn_gCruiseTables",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 192,
+"sec": ".sdata",
+"size": 0,
+"name": "AudioCmn_gResume",
 "glob": true,
 "flags": "g      "
 },
@@ -176477,7 +176560,7 @@
 "off": 196,
 "sec": ".sdata",
 "size": 0,
-"name": "currentWindPan",
+"name": "AudioCmn_gStreamRestartTimer",
 "glob": true,
 "flags": "g      "
 },
@@ -176485,7 +176568,7 @@
 "off": 200,
 "sec": ".sdata",
 "size": 0,
-"name": "nextWindPan",
+"name": "fMysticWindON",
 "glob": true,
 "flags": "g      "
 },
@@ -176493,7 +176576,7 @@
 "off": 204,
 "sec": ".sdata",
 "size": 0,
-"name": "gQuickSirenCount",
+"name": "fAmbientRangeON",
 "glob": true,
 "flags": "g      "
 },
@@ -176501,12 +176584,52 @@
 "off": 208,
 "sec": ".sdata",
 "size": 0,
+"name": "currentWindVal",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 216,
+"sec": ".sdata",
+"size": 0,
+"name": "nextWindVal",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 224,
+"sec": ".sdata",
+"size": 0,
+"name": "currentWindPan",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 228,
+"sec": ".sdata",
+"size": 0,
+"name": "nextWindPan",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 232,
+"sec": ".sdata",
+"size": 0,
+"name": "gQuickSirenCount",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 236,
+"sec": ".sdata",
+"size": 0,
 "name": "AudioCmn_ThunderAmp",
 "glob": true,
 "flags": "g      "
 },
 {
-"off": 212,
+"off": 240,
 "sec": ".sdata",
 "size": 0,
 "name": "AudioCmn_ThunderAzi",
@@ -176514,7 +176637,7 @@
 "flags": "g      "
 },
 {
-"off": 216,
+"off": 244,
 "sec": ".sdata",
 "size": 0,
 "name": "AudioCmn_ThunderDel",
@@ -177427,14 +177550,6 @@
 },
 {
 "off": 0,
-"sec": ".sbss",
-"size": 0,
-"name": "lastImpactSample.270",
-"glob": false,
-"flags": "l      "
-},
-{
-"off": 0,
 "sec": "*UND*",
 "size": 0,
 "name": "Cars_gList",
@@ -177536,14 +177651,6 @@
 "name": "SNDfxmasterlevel",
 "glob": false,
 "flags": "       "
-},
-{
-"off": 4,
-"sec": ".sbss",
-"size": 0,
-"name": "cobbleCount.285",
-"glob": false,
-"flags": "l      "
 },
 {
 "off": 0,
@@ -177919,13 +178026,13 @@
 "sec": ".text",
 "off": 1060,
 "type": "R_MIPS_HI16",
-"val": ".rodata"
+"val": "D_8013C67C"
 },
 {
 "sec": ".text",
 "off": 1064,
 "type": "R_MIPS_LO16",
-"val": ".rodata"
+"val": "D_8013C67C"
 },
 {
 "sec": ".text",
@@ -179497,13 +179604,13 @@
 "sec": ".text",
 "off": 4916,
 "type": "R_MIPS_HI16",
-"val": ".rodata"
+"val": "D_8013C684"
 },
 {
 "sec": ".text",
 "off": 4924,
 "type": "R_MIPS_LO16",
-"val": ".rodata"
+"val": "D_8013C684"
 },
 {
 "sec": ".text",
@@ -179581,13 +179688,13 @@
 "sec": ".text",
 "off": 5080,
 "type": "R_MIPS_HI16",
-"val": ".sdata"
+"val": "D_8013C6A0"
 },
 {
 "sec": ".text",
 "off": 5088,
 "type": "R_MIPS_LO16",
-"val": ".sdata"
+"val": "D_8013C6A0"
 },
 {
 "sec": ".text",
@@ -179779,7 +179886,7 @@
 "sec": ".text",
 "off": 5848,
 "type": "R_MIPS_GPREL16",
-"val": ".sbss"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -179851,7 +179958,7 @@
 "sec": ".text",
 "off": 6080,
 "type": "R_MIPS_GPREL16",
-"val": ".sbss"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -180919,19 +181026,19 @@
 "sec": ".text",
 "off": 10156,
 "type": "R_MIPS_GPREL16",
-"val": ".sbss"
+"val": ".sdata"
 },
 {
 "sec": ".text",
 "off": 10168,
 "type": "R_MIPS_GPREL16",
-"val": ".sbss"
+"val": ".sdata"
 },
 {
 "sec": ".text",
 "off": 10224,
 "type": "R_MIPS_GPREL16",
-"val": ".sbss"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -182377,109 +182484,109 @@
 "sec": ".data",
 "off": 36,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 40,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C6A4"
 },
 {
 "sec": ".data",
 "off": 44,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 48,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C6A8"
 },
 {
 "sec": ".data",
 "off": 52,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 56,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C6A4"
 },
 {
 "sec": ".data",
 "off": 60,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C690"
 },
 {
 "sec": ".data",
 "off": 64,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C6A4"
 },
 {
 "sec": ".data",
 "off": 68,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 72,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 76,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 732,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 736,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C690"
 },
 {
 "sec": ".data",
 "off": 740,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C694"
 },
 {
 "sec": ".data",
 "off": 744,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C698"
 },
 {
 "sec": ".data",
 "off": 748,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C69C"
 },
 {
 "sec": ".data",
 "off": 752,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".data",
 "off": 756,
 "type": "R_MIPS_32",
-"val": ".sdata"
+"val": "D_8013C68C"
 },
 {
 "sec": ".pdr",
@@ -182771,6 +182878,30 @@
 },
 {
 "sec": ".rodata",
+"off": 64,
+"type": "R_MIPS_32",
+"val": ".text"
+},
+{
+"sec": ".rodata",
+"off": 68,
+"type": "R_MIPS_32",
+"val": ".text"
+},
+{
+"sec": ".rodata",
+"off": 72,
+"type": "R_MIPS_32",
+"val": ".text"
+},
+{
+"sec": ".rodata",
+"off": 76,
+"type": "R_MIPS_32",
+"val": ".text"
+},
+{
+"sec": ".rodata",
 "off": 80,
 "type": "R_MIPS_32",
 "val": ".text"
@@ -182816,30 +182947,6 @@
 "off": 108,
 "type": "R_MIPS_32",
 "val": ".text"
-},
-{
-"sec": ".rodata",
-"off": 112,
-"type": "R_MIPS_32",
-"val": ".text"
-},
-{
-"sec": ".rodata",
-"off": 116,
-"type": "R_MIPS_32",
-"val": ".text"
-},
-{
-"sec": ".rodata",
-"off": 120,
-"type": "R_MIPS_32",
-"val": ".text"
-},
-{
-"sec": ".rodata",
-"off": 124,
-"type": "R_MIPS_32",
-"val": ".text"
 }
 ],
 "secs": {
@@ -182849,9 +182956,8 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 1536,
-".sdata": 224,
-".rodata": 128,
-".sbss": 5,
+".sdata": 248,
+".rodata": 112,
 ".gnu.attributes": 16
 }
 },
@@ -187210,6 +187316,14 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "SceneLoaded",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 68,
 "name": "xzsquaredist32__FP8coorddefT0",
@@ -187255,6 +187369,14 @@
 "name": "BWorld_GetSpikeBelt__FPiN20",
 "glob": true,
 "flags": "g     F"
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "cop_angle.238",
+"glob": false,
+"flags": "l      "
 },
 {
 "off": 892,
@@ -187303,6 +187425,14 @@
 "name": "BWorld_OnyxBuildFacets__FP13DRender_tView",
 "glob": true,
 "flags": "g     F"
+},
+{
+"off": 8,
+"sec": ".sdata",
+"size": 0,
+"name": "gBWMemTotal",
+"glob": true,
+"flags": "g      "
 },
 {
 "off": 3632,
@@ -187377,14 +187507,6 @@
 "flags": "g     F"
 },
 {
-"off": 4,
-"sec": ".sdata",
-"size": 0,
-"name": "gBWMemTotal",
-"glob": true,
-"flags": "g      "
-},
-{
 "off": 0,
 "sec": ".data",
 "size": 0,
@@ -187425,15 +187547,7 @@
 "flags": "g      "
 },
 {
-"off": 8,
-"sec": ".sdata",
-"size": 0,
-"name": "SceneLoaded",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 12,
+"off": 16,
 "sec": ".sdata",
 "size": 0,
 "name": "gCurrContext",
@@ -187441,7 +187555,7 @@
 "flags": "g      "
 },
 {
-"off": 16,
+"off": 20,
 "sec": ".sdata",
 "size": 0,
 "name": "gSpikeBelt",
@@ -187449,7 +187563,7 @@
 "flags": "g      "
 },
 {
-"off": 20,
+"off": 24,
 "sec": ".sdata",
 "size": 0,
 "name": "gSpikeBeltSlice",
@@ -187457,7 +187571,7 @@
 "flags": "g      "
 },
 {
-"off": 24,
+"off": 28,
 "sec": ".sdata",
 "size": 0,
 "name": "gSpikeBeltChunk",
@@ -187465,7 +187579,7 @@
 "flags": "g      "
 },
 {
-"off": 28,
+"off": 32,
 "sec": ".sdata",
 "size": 0,
 "name": "gSpikeBeltX",
@@ -187473,7 +187587,7 @@
 "flags": "g      "
 },
 {
-"off": 32,
+"off": 36,
 "sec": ".sdata",
 "size": 0,
 "name": "gBWSlice",
@@ -187481,7 +187595,7 @@
 "flags": "g      "
 },
 {
-"off": 36,
+"off": 40,
 "sec": ".sdata",
 "size": 0,
 "name": "BWorld_gChunkCount",
@@ -187489,7 +187603,7 @@
 "flags": "g      "
 },
 {
-"off": 40,
+"off": 44,
 "sec": ".sdata",
 "size": 0,
 "name": "gSpikeBeltWidth",
@@ -187497,7 +187611,7 @@
 "flags": "g      "
 },
 {
-"off": 44,
+"off": 48,
 "sec": ".sdata",
 "size": 0,
 "name": "gSpikeBeltColourTableIndex",
@@ -187505,7 +187619,7 @@
 "flags": "g      "
 },
 {
-"off": 48,
+"off": 52,
 "sec": ".sdata",
 "size": 0,
 "name": "BW_gCopCarObj",
@@ -187513,7 +187627,7 @@
 "flags": "g      "
 },
 {
-"off": 52,
+"off": 56,
 "sec": ".sdata",
 "size": 0,
 "name": "gVi2",
@@ -187817,7 +187931,7 @@
 "flags": "       "
 },
 {
-"off": 8,
+"off": 0,
 "sec": ".sbss",
 "size": 0,
 "name": "gBWPrimPtr",
@@ -188111,22 +188225,6 @@
 "name": "Anim_DeInitSystem__Fv",
 "glob": false,
 "flags": "       "
-},
-{
-"off": 0,
-"sec": ".sbss",
-"size": 0,
-"name": "cop_angle.238",
-"glob": false,
-"flags": "l      "
-},
-{
-"off": 4,
-"sec": ".sbss",
-"size": 0,
-"name": "totalMem.251",
-"glob": false,
-"flags": "l      "
 }
 ],
 "relocs": [
@@ -190196,9 +190294,9 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 672,
+".sdata": 60,
 ".rodata": 49,
-".sdata": 56,
-".sbss": 12,
+".sbss": 4,
 ".gnu.attributes": 16
 }
 },
@@ -207721,6 +207819,22 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "cdsectorreseek",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "CopSpeak_gHandleCount",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 60,
 "name": "CopSpeak_RadioStaticInit__Fv",
@@ -207972,22 +208086,6 @@
 "sec": ".data",
 "size": 0,
 "name": "CopSpeak_gMusicStat",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 68,
-"sec": ".sdata",
-"size": 0,
-"name": "cdsectorreseek",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 72,
-"sec": ".sdata",
-"size": 0,
-"name": "CopSpeak_gHandleCount",
 "glob": true,
 "flags": "g      "
 },
@@ -211075,8 +211173,8 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 864,
-".rodata": 174,
 ".sdata": 126,
+".rodata": 174,
 ".gnu.attributes": 16
 }
 },
@@ -226051,30 +226149,6 @@
 "flags": "g      "
 },
 {
-"off": 36,
-"sec": ".sdata",
-"size": 0,
-"name": "nfs_sysInfo",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 40,
-"sec": ".sdata",
-"size": 0,
-"name": "missionManager",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 48,
-"sec": ".sdata",
-"size": 0,
-"name": "finishOrder",
-"glob": true,
-"flags": "g      "
-},
-{
 "off": 0,
 "sec": ".text",
 "size": 100,
@@ -226223,6 +226297,30 @@
 "sec": ".data",
 "size": 0,
 "name": "befuddleTemp",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 68,
+"sec": ".sdata",
+"size": 0,
+"name": "nfs_sysInfo",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 72,
+"sec": ".sdata",
+"size": 0,
+"name": "missionManager",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 80,
+"sec": ".sdata",
+"size": 0,
+"name": "finishOrder",
 "glob": true,
 "flags": "g      "
 },
@@ -228808,7 +228906,7 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 352,
-".sdata": 86,
+".sdata": 88,
 ".rodata": 71,
 ".gnu.attributes": 16
 }
@@ -237938,6 +238036,14 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "R3DCar_InMenu",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 232,
 "name": "R3DCar_ChangeTrafficColor__FP8Car_tObji",
@@ -238229,14 +238335,6 @@
 "sec": ".data",
 "size": 0,
 "name": "R3DCar_EnvMapInfo",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 92,
-"sec": ".sdata",
-"size": 0,
-"name": "R3DCar_InMenu",
 "glob": true,
 "flags": "g      "
 },
@@ -244850,8 +244948,8 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 864,
-".rodata": 380,
 ".sdata": 156,
+".rodata": 380,
 ".gnu.attributes": 16
 }
 },
@@ -250912,6 +251010,38 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "InBetween",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013D410",
+"glob": false,
+"flags": "l      "
+},
+{
+"off": 12,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013D418",
+"glob": false,
+"flags": "l      "
+},
+{
+"off": 20,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013D420",
+"glob": false,
+"flags": "l      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 276,
 "name": "Sim_StartUp__Fv",
@@ -250975,15 +251105,7 @@
 "flags": "g     F"
 },
 {
-"off": 0,
-"sec": ".sdata",
-"size": 0,
-"name": "InBetween",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 4,
+"off": 28,
 "sec": ".sdata",
 "size": 0,
 "name": "unPauseDelay",
@@ -250991,7 +251113,7 @@
 "flags": "g      "
 },
 {
-"off": 8,
+"off": 32,
 "sec": ".sdata",
 "size": 0,
 "name": "skipRender",
@@ -250999,7 +251121,7 @@
 "flags": "g      "
 },
 {
-"off": 12,
+"off": 36,
 "sec": ".sdata",
 "size": 0,
 "name": "quitType",
@@ -251708,13 +251830,13 @@
 "sec": ".text",
 "off": 4,
 "type": "R_MIPS_HI16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
 "off": 8,
 "type": "R_MIPS_LO16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -251780,13 +251902,13 @@
 "sec": ".text",
 "off": 84,
 "type": "R_MIPS_HI16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
 "off": 88,
 "type": "R_MIPS_LO16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -251798,13 +251920,13 @@
 "sec": ".text",
 "off": 104,
 "type": "R_MIPS_HI16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
 "off": 108,
 "type": "R_MIPS_LO16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -253638,8 +253760,7 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 256,
-".rodata": 21,
-".sdata": 16,
+".sdata": 40,
 ".gnu.attributes": 16
 }
 },
@@ -282695,6 +282816,14 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "CarIO_carPixMap",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 108,
 "name": "CarIO_StartUp__Fv",
@@ -282782,31 +282911,7 @@
 "flags": "g     F"
 },
 {
-"off": 28,
-"sec": ".sdata",
-"size": 0,
-"name": "CarIO_carPixMap",
-"glob": true,
-"flags": "g      "
-},
-{
 "off": 32,
-"sec": ".sdata",
-"size": 0,
-"name": "CarIO_Plate1",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 40,
-"sec": ".sdata",
-"size": 0,
-"name": "CarIO_Plate2",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 48,
 "sec": ".sdata",
 "size": 0,
 "name": "CarIO_carPixMapCount",
@@ -282814,7 +282919,7 @@
 "flags": "g      "
 },
 {
-"off": 52,
+"off": 36,
 "sec": ".sdata",
 "size": 0,
 "name": "CarIO_carVRamCount",
@@ -282822,10 +282927,26 @@
 "flags": "g      "
 },
 {
-"off": 56,
+"off": 40,
 "sec": ".sdata",
 "size": 0,
 "name": "CarIO_licenseSFX_Count",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 44,
+"sec": ".sdata",
+"size": 0,
+"name": "CarIO_Plate1",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 52,
+"sec": ".sdata",
+"size": 0,
+"name": "CarIO_Plate2",
 "glob": true,
 "flags": "g      "
 },
@@ -284561,8 +284682,8 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 352,
-".rodata": 140,
 ".sdata": 60,
+".rodata": 140,
 ".gnu.attributes": 16
 }
 },
@@ -293313,127 +293434,127 @@
 },
 {
 "sec": ".text",
-"off": 13672,
+"off": 13676,
 "type": "R_MIPS_HI16",
 "val": "goffsets"
 },
 {
 "sec": ".text",
-"off": 13676,
+"off": 13680,
 "type": "R_MIPS_LO16",
 "val": "goffsets"
 },
 {
 "sec": ".text",
-"off": 13740,
+"off": 13744,
 "type": "R_MIPS_26",
 "val": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache"
 },
 {
 "sec": ".text",
-"off": 13828,
+"off": 13832,
 "type": "R_MIPS_26",
 "val": "fixedatan"
 },
 {
 "sec": ".text",
-"off": 13840,
+"off": 13844,
 "type": "R_MIPS_26",
 "val": "fixedxformy"
 },
 {
 "sec": ".text",
-"off": 13884,
+"off": 13888,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 13900,
+"off": 13904,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 13916,
+"off": 13920,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 13940,
+"off": 13944,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 13956,
+"off": 13960,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 13972,
+"off": 13976,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 13996,
+"off": 14000,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 14012,
+"off": 14016,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 14028,
+"off": 14032,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 14076,
+"off": 14080,
 "type": "R_MIPS_HI16",
 "val": "Track_gObjDefs"
 },
 {
 "sec": ".text",
-"off": 14080,
+"off": 14084,
 "type": "R_MIPS_LO16",
 "val": "Track_gObjDefs"
 },
 {
 "sec": ".text",
-"off": 14120,
+"off": 14124,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 14160,
+"off": 14164,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 14188,
+"off": 14192,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 14200,
+"off": 14208,
 "type": "R_MIPS_HI16",
 "val": "Track_gObjDefs"
 },
 {
 "sec": ".text",
-"off": 14204,
+"off": 14212,
 "type": "R_MIPS_LO16",
 "val": "Track_gObjDefs"
 },
@@ -313356,6 +313477,22 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "smallShapeFile",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013D9D4",
+"glob": false,
+"flags": "l      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 328,
 "name": "Loading_DrawLoadingScreen__Fv",
@@ -313379,15 +313516,7 @@
 "flags": "g     F"
 },
 {
-"off": 0,
-"sec": ".sdata",
-"size": 0,
-"name": "smallShapeFile",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 4,
+"off": 12,
 "sec": ".sdata",
 "size": 0,
 "name": "totalAvailMem",
@@ -313680,13 +313809,13 @@
 "sec": ".text",
 "off": 432,
 "type": "R_MIPS_HI16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
 "off": 464,
 "type": "R_MIPS_LO16",
-"val": ".rodata"
+"val": ".sdata"
 },
 {
 "sec": ".text",
@@ -313750,8 +313879,8 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 96,
-".rodata": 45,
-".sdata": 8,
+".sdata": 16,
+".rodata": 40,
 ".gnu.attributes": 16
 }
 },
@@ -313823,7 +313952,15 @@
 "off": 0,
 "sec": ".sdata",
 "size": 0,
-"name": "lightningInit",
+"name": "Night_gDrawLightning",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 2,
+"sec": ".sdata",
+"size": 0,
+"name": "Night_gCopCarTypeColorIdx",
 "glob": true,
 "flags": "g      "
 },
@@ -313839,7 +313976,55 @@
 "off": 4,
 "sec": ".sdata",
 "size": 0,
+"name": "Night_gPlayerLightingTable",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 8,
+"sec": ".sdata",
+"size": 0,
+"name": "Night_gCopLightingTableRed",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 12,
+"sec": ".sdata",
+"size": 0,
+"name": "Night_gCopLightingTableBlue",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 16,
+"sec": ".sdata",
+"size": 0,
+"name": "Night_gWeatherLightingTable",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 20,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013D9F4",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 24,
+"sec": ".sdata",
+"size": 0,
 "name": "CopCarTypeLights",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 30,
+"sec": ".sdata",
+"size": 0,
+"name": "lightningInit",
 "glob": true,
 "flags": "g      "
 },
@@ -314004,14 +314189,6 @@
 "flags": "g     F"
 },
 {
-"off": 52,
-"sec": ".sdata",
-"size": 0,
-"name": "Night_gCopCarTypeColorIdx",
-"glob": true,
-"flags": "g      "
-},
-{
 "off": 36,
 "sec": ".data",
 "size": 0,
@@ -314028,55 +314205,7 @@
 "flags": "g      "
 },
 {
-"off": 54,
-"sec": ".sdata",
-"size": 0,
-"name": "Night_gDrawLightning",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 56,
-"sec": ".sdata",
-"size": 0,
-"name": "Night_gPlayerLightingTable",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 60,
-"sec": ".sdata",
-"size": 0,
-"name": "Night_gCopLightingTableRed",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 64,
-"sec": ".sdata",
-"size": 0,
-"name": "Night_gCopLightingTableBlue",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 68,
-"sec": ".sdata",
-"size": 0,
-"name": "Night_gWeatherLightingTable",
-"glob": true,
-"flags": "g      "
-},
-{
 "off": 72,
-"sec": ".sdata",
-"size": 0,
-"name": "D_8013D9F4",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 76,
 "sec": ".sdata",
 "size": 0,
 "name": "gNight_renderNight",
@@ -314084,7 +314213,7 @@
 "flags": "g      "
 },
 {
-"off": 80,
+"off": 76,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gXDist",
@@ -314092,7 +314221,7 @@
 "flags": "g      "
 },
 {
-"off": 84,
+"off": 80,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gZNear",
@@ -314100,7 +314229,7 @@
 "flags": "g      "
 },
 {
-"off": 88,
+"off": 84,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gZDist",
@@ -314108,7 +314237,7 @@
 "flags": "g      "
 },
 {
-"off": 92,
+"off": 88,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gXDistShift",
@@ -314116,7 +314245,7 @@
 "flags": "g      "
 },
 {
-"off": 96,
+"off": 92,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gZDistShift",
@@ -314124,7 +314253,7 @@
 "flags": "g      "
 },
 {
-"off": 100,
+"off": 96,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gNightTbl",
@@ -314132,7 +314261,7 @@
 "flags": "g      "
 },
 {
-"off": 104,
+"off": 100,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gLightningType",
@@ -314140,7 +314269,7 @@
 "flags": "g      "
 },
 {
-"off": 108,
+"off": 104,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gCurrentNightColor",
@@ -314148,7 +314277,7 @@
 "flags": "g      "
 },
 {
-"off": 112,
+"off": 108,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gCopColor",
@@ -314156,7 +314285,7 @@
 "flags": "g      "
 },
 {
-"off": 116,
+"off": 112,
 "sec": ".sdata",
 "size": 0,
 "name": "D_8013DA50",
@@ -314164,7 +314293,7 @@
 "flags": "g      "
 },
 {
-"off": 120,
+"off": 116,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gNightAmbientColor",
@@ -314172,7 +314301,7 @@
 "flags": "g      "
 },
 {
-"off": 124,
+"off": 120,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gColor",
@@ -314180,7 +314309,7 @@
 "flags": "g      "
 },
 {
-"off": 132,
+"off": 128,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gTotalLights",
@@ -314188,7 +314317,7 @@
 "flags": "g      "
 },
 {
-"off": 136,
+"off": 132,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gLightning",
@@ -314196,7 +314325,7 @@
 "flags": "g      "
 },
 {
-"off": 140,
+"off": 136,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gNextLightning",
@@ -314204,7 +314333,7 @@
 "flags": "g      "
 },
 {
-"off": 144,
+"off": 140,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gEndNextLightning",
@@ -314212,7 +314341,7 @@
 "flags": "g      "
 },
 {
-"off": 148,
+"off": 144,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gNextFlicker",
@@ -314220,7 +314349,7 @@
 "flags": "g      "
 },
 {
-"off": 152,
+"off": 148,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gFlashAzimuth",
@@ -314228,7 +314357,7 @@
 "flags": "g      "
 },
 {
-"off": 156,
+"off": 152,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gShowForks",
@@ -314236,7 +314365,7 @@
 "flags": "g      "
 },
 {
-"off": 160,
+"off": 156,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gFlashIntensity",
@@ -314244,7 +314373,7 @@
 "flags": "g      "
 },
 {
-"off": 164,
+"off": 160,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gPlayerHeadLightColor",
@@ -314252,7 +314381,7 @@
 "flags": "g      "
 },
 {
-"off": 172,
+"off": 168,
 "sec": ".sdata",
 "size": 0,
 "name": "Night_gWeatherColor",
@@ -314260,7 +314389,7 @@
 "flags": "g      "
 },
 {
-"off": 176,
+"off": 172,
 "sec": ".sdata",
 "size": 0,
 "name": "D_8013DA8C",
@@ -314268,7 +314397,7 @@
 "flags": "g      "
 },
 {
-"off": 180,
+"off": 176,
 "sec": ".sdata",
 "size": 0,
 "name": "gNightInitCache",
@@ -314276,7 +314405,7 @@
 "flags": "g      "
 },
 {
-"off": 184,
+"off": 180,
 "sec": ".sdata",
 "size": 0,
 "name": "gTableCache",
@@ -314284,7 +314413,7 @@
 "flags": "g      "
 },
 {
-"off": 188,
+"off": 184,
 "sec": ".sdata",
 "size": 0,
 "name": "nightfile",
@@ -316221,7 +316350,7 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 608,
-".sdata": 192,
+".sdata": 188,
 ".rodata": 22,
 ".gnu.attributes": 16
 }
@@ -318178,6 +318307,70 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "gSysStartUp",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "D_8013DAA0",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 12,
+"sec": ".sdata",
+"size": 0,
+"name": "disablecard",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 16,
+"sec": ".sdata",
+"size": 0,
+"name": "gDctXtraMem",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 20,
+"sec": ".sdata",
+"size": 0,
+"name": "gLowMemory",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 24,
+"sec": ".sdata",
+"size": 0,
+"name": "gHighMemory",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 28,
+"sec": ".sdata",
+"size": 0,
+"name": "gCurrentMemory",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 32,
+"sec": ".sdata",
+"size": 0,
+"name": "gTotalMemory",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 48,
 "name": "Platform_InitMemory__Fv",
@@ -318242,54 +318435,6 @@
 },
 {
 "off": 0,
-"sec": ".sdata",
-"size": 0,
-"name": "gTotalMemory",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 4,
-"sec": ".sdata",
-"size": 0,
-"name": "gLowMemory",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 8,
-"sec": ".sdata",
-"size": 0,
-"name": "gHighMemory",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 12,
-"sec": ".sdata",
-"size": 0,
-"name": "gCurrentMemory",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 16,
-"sec": ".sdata",
-"size": 0,
-"name": "gSysStartUp",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 20,
-"sec": ".sdata",
-"size": 0,
-"name": "gDctXtraMem",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 0,
 "sec": ".data",
 "size": 0,
 "name": "gPlatformInitMem",
@@ -318349,14 +318494,6 @@
 "sec": "*UND*",
 "size": 0,
 "name": "initlinkmode",
-"glob": false,
-"flags": "       "
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "D_8013DAA0",
 "glob": false,
 "flags": "       "
 },
@@ -318742,7 +318879,7 @@
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 256,
-".sdata": 24,
+".sdata": 36,
 ".gnu.attributes": 16
 }
 },
@@ -346502,7 +346639,7 @@
 "flags": "       "
 },
 {
-"off": 1576,
+"off": 1580,
 "sec": ".text",
 "size": 36,
 "name": "_bzero_w",
@@ -346592,7 +346729,7 @@
 {
 "off": 964,
 "sec": ".text",
-"size": 332,
+"size": 336,
 "name": "_set_intr_callback",
 "glob": true,
 "flags": "g     F"
@@ -346614,7 +346751,7 @@
 "flags": "       "
 },
 {
-"off": 1296,
+"off": 1300,
 "sec": ".text",
 "size": 160,
 "name": "StopCallback",
@@ -346638,7 +346775,7 @@
 "flags": "       "
 },
 {
-"off": 1456,
+"off": 1460,
 "sec": ".text",
 "size": 120,
 "name": "RestartCallback",
@@ -347123,175 +347260,199 @@
 },
 {
 "sec": ".text",
-"off": 1104,
+"off": 1100,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 1156,
+"off": 1124,
+"type": "R_MIPS_HI16",
+"val": "D_80134AF8"
+},
+{
+"sec": ".text",
+"off": 1128,
+"type": "R_MIPS_LO16",
+"val": "D_80134AF8"
+},
+{
+"sec": ".text",
+"off": 1140,
+"type": "R_MIPS_HI16",
+"val": "D_80134AF8"
+},
+{
+"sec": ".text",
+"off": 1144,
+"type": "R_MIPS_LO16",
+"val": "D_80134AF8"
+},
+{
+"sec": ".text",
+"off": 1160,
 "type": "R_MIPS_26",
 "val": "ChangeClearPAD"
 },
 {
 "sec": ".text",
-"off": 1168,
+"off": 1172,
 "type": "R_MIPS_26",
 "val": "ChangeClearRCnt"
 },
 {
 "sec": ".text",
-"off": 1192,
+"off": 1196,
 "type": "R_MIPS_26",
 "val": "ChangeClearRCnt"
 },
 {
 "sec": ".text",
-"off": 1216,
+"off": 1220,
 "type": "R_MIPS_26",
 "val": "ChangeClearRCnt"
 },
 {
 "sec": ".text",
-"off": 1236,
+"off": 1240,
 "type": "R_MIPS_26",
 "val": "ChangeClearRCnt"
-},
-{
-"sec": ".text",
-"off": 1244,
-"type": "R_MIPS_HI16",
-"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1248,
+"type": "R_MIPS_HI16",
+"val": "D_80135B88"
+},
+{
+"sec": ".text",
+"off": 1252,
 "type": "R_MIPS_LO16",
 "val": "D_80135B88"
 },
 {
 "sec": ".text",
-"off": 1304,
+"off": 1308,
 "type": "R_MIPS_HI16",
 "val": "D_80134AF8"
 },
 {
 "sec": ".text",
-"off": 1308,
+"off": 1312,
 "type": "R_MIPS_LO16",
 "val": "D_80134AF8"
 },
 {
 "sec": ".text",
-"off": 1332,
+"off": 1336,
 "type": "R_MIPS_26",
 "val": "EnterCriticalSection"
 },
 {
 "sec": ".text",
-"off": 1340,
-"type": "R_MIPS_HI16",
-"val": "D_80135B88"
-},
-{
-"sec": ".text",
 "off": 1344,
-"type": "R_MIPS_LO16",
+"type": "R_MIPS_HI16",
 "val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1348,
-"type": "R_MIPS_HI16",
-"val": "D_80135B8C"
+"type": "R_MIPS_LO16",
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1352,
-"type": "R_MIPS_LO16",
+"type": "R_MIPS_HI16",
 "val": "D_80135B8C"
 },
 {
 "sec": ".text",
-"off": 1372,
-"type": "R_MIPS_HI16",
-"val": "D_80135B84"
+"off": 1356,
+"type": "R_MIPS_LO16",
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 1376,
+"type": "R_MIPS_HI16",
+"val": "D_80135B84"
+},
+{
+"sec": ".text",
+"off": 1380,
 "type": "R_MIPS_LO16",
 "val": "D_80135B84"
 },
 {
 "sec": ".text",
-"off": 1400,
+"off": 1404,
 "type": "R_MIPS_HI16",
 "val": "D_80135B8C"
 },
 {
 "sec": ".text",
-"off": 1404,
+"off": 1408,
 "type": "R_MIPS_LO16",
 "val": "D_80135B8C"
 },
 {
 "sec": ".text",
-"off": 1424,
+"off": 1428,
 "type": "R_MIPS_26",
 "val": "ResetEntryInt"
 },
 {
 "sec": ".text",
-"off": 1464,
+"off": 1468,
 "type": "R_MIPS_HI16",
 "val": "D_80134AF8"
 },
 {
 "sec": ".text",
-"off": 1468,
+"off": 1472,
 "type": "R_MIPS_LO16",
 "val": "D_80134AF8"
 },
 {
 "sec": ".text",
-"off": 1492,
+"off": 1496,
 "type": "R_MIPS_26",
 "val": "HookEntryInt"
 },
 {
 "sec": ".text",
-"off": 1500,
+"off": 1504,
 "type": "R_MIPS_HI16",
 "val": "D_80135B88"
 },
 {
 "sec": ".text",
-"off": 1504,
+"off": 1508,
 "type": "R_MIPS_LO16",
 "val": "D_80135B88"
-},
-{
-"sec": ".text",
-"off": 1524,
-"type": "R_MIPS_HI16",
-"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 1528,
+"type": "R_MIPS_HI16",
+"val": "D_80135B8C"
+},
+{
+"sec": ".text",
+"off": 1532,
 "type": "R_MIPS_LO16",
 "val": "D_80135B8C"
 },
 {
 "sec": ".text",
-"off": 1540,
+"off": 1544,
 "type": "R_MIPS_26",
 "val": "ExitCriticalSection"
 },
 {
 "sec": ".text",
-"off": 1548,
+"off": 1552,
 "type": "R_MIPS_26",
 "val": ".text"
 },
@@ -347375,7 +347536,7 @@
 }
 ],
 "secs": {
-".text": 1612,
+".text": 1616,
 ".data": 0,
 ".bss": 0,
 ".reginfo": 24,

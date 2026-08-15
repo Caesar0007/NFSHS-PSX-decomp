@@ -1,12 +1,12 @@
-# W63-A19 blob-vs-TU ownership map   blob=asm/data/sdata_8013C54C.sdata.s
-# blob labels=1099  TU-defined=458  windows=74
+# W63-A19 blob-vs-TU ownership map   blob=scratchpad/w63a19/ctl_blob/sdata_8013C54C.sdata.s
+# blob labels=1099  TU-defined=458  windows=73
 
       base        end   size  lbl   ok  sec     object
 0x8013bcd0 0x8013c6f0   2592    5    -  .data   build/recon/game/common/audiocmn.cpp.o
       E3 2 implied bases (intra-TU data ORDER/SIZE drift)
       E1 71 labels owned by another TU inside: ['AI_time', 'AI_elapsedTime', 'AI_iTime', 'AIHigh_CopGameType', '_19AIHigh_BTC_HumanCop_lastInputRequestTick_', 'gBlockadeTypes']
       E1 1 UN-MIGRATED blob labels inside: ['__sdata_org']
-      E2 2 own labels OUTSIDE: ['nextWindVal', 'currentWindVal']
+      E2 2 own labels OUTSIDE: ['currentWindVal', 'nextWindVal']
       E4 window edge is not a blob label boundary
       E5 BYTES DIFFER from retail (1664 of 2592)
 0x8013c550 0x8013c55c     12    3  OWN  .sdata  build/recon/game/common/ai.cpp.o
@@ -23,15 +23,15 @@
       E1 2 labels owned by another TU inside: ['AIDataRecord_BestLine', 'AIDataRecord_TrackCurve']
       E2 2 own labels OUTSIDE: ['AIPhysic_iTime', 'AIPhysic_time']
 0x8013c5a0 0x8013c5b0     16    4  OWN  .sdata  build/recon/game/common/aidatarecord.cpp.o
-0x8013c5b8 0x8013c5d8     32    6    -  .sdata  build/recon/game/common/aispeeds.cpp.o
-      E5 BYTES DIFFER from retail (7 of 32)
+0x8013c5b8 0x8013c5e0     40    6    -  .sdata  build/recon/game/common/aispeeds.cpp.o
+      E5 BYTES DIFFER from retail (4 of 40)
 0x8013c5e8 0x8013c5f0      8    2  OWN  .sdata  build/recon/game/common/aitriger.cpp.o
 0x8013c5f0 0x8013c5fc     12    3  OWN  .sdata  build/recon/game/common/aitune.cpp.o
 0x8013c608 0x8013c628     32    8  OWN  .sdata  build/recon/game/common/audioclc.cpp.o
 0x8013c624 0x8013c6e0    188   41    -  .sdata  build/recon/game/common/audiocmn.cpp.o
       E3 10 implied bases (intra-TU data ORDER/SIZE drift)
       E1 4 labels owned by another TU inside: ['AudioClc_gLastphrase3', 'bestLapTime', 'gtotallaptimes', 'AudioCmn_gPlayerArrested']
-      E2 12 own labels OUTSIDE: ['nextWindPan', 'AudioCmn_ThunderAmp', 'AudioCmn_gLoadTables', 'AudioCmn_ThunderAzi', 'AudioCmn_gCruiseTables', 'AudioCmn_gResume']
+      E2 12 own labels OUTSIDE: ['AudioCmn_gStreamRestartTimer', 'currentWindPan', 'nextWindPan', 'fAmbientRangeON', 'AudioCmn_gResume', 'AudioCmn_gCruiseTables']
       E5 BYTES DIFFER from retail (63 of 188)
 0x8013c71c 0x8013c73c     32    1    -  .sdata  build/recon/game/common/audioeng.cpp.o
       E1 3 labels owned by another TU inside: ['AudioCmn_ThunderDel', 'AudioMus_g', 'gGameAudioList']
@@ -59,25 +59,18 @@
       E3 2 implied bases (intra-TU data ORDER/SIZE drift)
       E4 window edge is not a blob label boundary
       E5 BYTES DIFFER from retail (37 of 126)
-0x8013d0fc 0x8013d10c     16    4    -  .sdata  build/recon/game/common/fastrand.cpp.o
-      E5 BYTES DIFFER from retail (5 of 16)
+0x8013d0fc 0x8013d10c     16    4  OWN  .sdata  build/recon/game/common/fastrand.cpp.o
 0x8013d10c 0x8013d220    276   13    -  .sdata  build/recon/game/common/genericpmx.cpp.o
-      E3 10 implied bases (intra-TU data ORDER/SIZE drift)
       E1 1 UN-MIGRATED blob labels inside: ['D_8013D10C']
 0x8013d220 0x8013d240     32    5  OWN  .sdata  build/recon/game/common/input.cpp.o
-0x8013d244 0x8013d254     16    2    -  .data   build/recon/game/common/mpause.cpp.o
-      E5 BYTES DIFFER from retail (6 of 16)
-0x8013d268 0x8013d274     12    3    -  .sdata  build/recon/game/common/mpause.cpp.o
-      E3 3 implied bases (intra-TU data ORDER/SIZE drift)
-      E1 1 labels owned by another TU inside: ['gMusicInSimIsOn']
-      E1 1 UN-MIGRATED blob labels inside: ['New_cplusplus_heap']
-      E2 2 own labels OUTSIDE: ['gMPauseUpdate', 'gMPauseUpdateNextTime']
-      E5 BYTES DIFFER from retail (1 of 12)
-0x8013d280 0x8013d2d8     88   16    -  .sdata  build/recon/game/common/nfs3.cpp.o
+0x8013d244 0x8013d260     28    5    -  .sdata  build/recon/game/common/mpause.cpp.o
       E3 4 implied bases (intra-TU data ORDER/SIZE drift)
-      E1 4 labels owned by another TU inside: ['Object_customObjInst', 'Object_customSimObjs', 'Object_customSFXInst', 'Object_customSliceNum']
-      E2 4 own labels OUTSIDE: ['gFECheats', 'gFEBonus', 'gMusicInSimIsOn', 'gUseFrontend']
-      E5 BYTES DIFFER from retail (35 of 88)
+      E2 3 own labels OUTSIDE: ['gMPauseUpdate', 'gMPauseUpdateNextTime', 'gPauseMenuDefs']
+      E5 BYTES DIFFER from retail (1 of 28)
+0x8013d270 0x8013d2c6     86   16    -  .sdata  build/recon/game/common/nfs3.cpp.o
+      E3 2 implied bases (intra-TU data ORDER/SIZE drift)
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (33 of 86)
 0x8013d2c8 0x8013d2e0     24    6    -  .sdata  build/recon/game/common/object.cpp.o
       E3 3 implied bases (intra-TU data ORDER/SIZE drift)
 0x8013d2e8 0x8013d2ec      4    1  OWN  .sdata  build/recon/game/common/paths.cpp.o
@@ -90,7 +83,7 @@
 0x8013d3f4 0x8013d408     20    5    -  .sdata  build/recon/game/common/replay.cpp.o
       E3 2 implied bases (intra-TU data ORDER/SIZE drift)
       E1 1 UN-MIGRATED blob labels inside: ['Replay_ReplayCounter']
-      E2 2 own labels OUTSIDE: ['Replay_Size', 'numValidCams']
+      E2 2 own labels OUTSIDE: ['numValidCams', 'Replay_Size']
 0x8013d408 0x8013d40c      4    1  OWN  .sdata  build/recon/game/common/scene.cpp.o
 0x8013d424 0x8013d434     16    4    -  .sdata  build/recon/game/common/sim.cpp.o
       E3 2 implied bases (intra-TU data ORDER/SIZE drift)
@@ -99,7 +92,7 @@
 0x8013d43c 0x8013d44c     16    3    -  .sdata  build/recon/game/common/simqueue.cpp.o
       E3 3 implied bases (intra-TU data ORDER/SIZE drift)
       E1 1 labels owned by another TU inside: ['gISouffle']
-      E2 2 own labels OUTSIDE: ['gSimQueue_Ticker', 'gSimQueue_BlockSelf']
+      E2 2 own labels OUTSIDE: ['gSimQueue_BlockSelf', 'gSimQueue_Ticker']
       E5 BYTES DIFFER from retail (8 of 16)
 0x8013d448 0x8013d458     16    4  OWN  .sdata  build/recon/game/common/souffle.cpp.o
 0x8013d454 0x8013d45c      8    1    -  .sdata  build/recon/game/common/textsys.cpp.o
@@ -108,7 +101,7 @@
 0x8013d4b8 0x8013d510     88   17    -  .sdata  build/recon/game/common/track.cpp.o
       E3 10 implied bases (intra-TU data ORDER/SIZE drift)
       E1 5 labels owned by another TU inside: ['gTAddCarWheelDelay', 'gTAddCSmoke', 'grabValue', 'Audio_direct3davail', 'Audio_gHeap']
-      E2 3 own labels OUTSIDE: ['Track_gInViewCount', 'Track_gInViewList', 'Track_header']
+      E2 3 own labels OUTSIDE: ['Track_header', 'Track_gInViewCount', 'Track_gInViewList']
       E4 window edge is not a blob label boundary
       E5 BYTES DIFFER from retail (11 of 88)
 0x8013d4f0 0x8013d4f8      8    2  OWN  .sdata  build/recon/game/common/trgsfx.cpp.o
@@ -117,7 +110,7 @@
 0x8013d70c 0x8013d748     60    6    -  .sdata  build/recon/game/psx/cario.cpp.o
       E3 3 implied bases (intra-TU data ORDER/SIZE drift)
       E1 1 UN-MIGRATED blob labels inside: ['D_8013D70C']
-      E2 2 own labels OUTSIDE: ['CarIO_Plate2', 'CarIO_Plate1']
+      E2 2 own labels OUTSIDE: ['CarIO_Plate1', 'CarIO_Plate2']
       E5 BYTES DIFFER from retail (36 of 60)
 0x8013d774 0x8013d794     32    6    -  .sdata  build/recon/game/psx/device.cpp.o
       E3 3 implied bases (intra-TU data ORDER/SIZE drift)
@@ -137,7 +130,7 @@
 0x8013d7e8 0x8013d80c     36    7    -  .sdata  build/recon/game/psx/drawc.cpp.o
       E3 7 implied bases (intra-TU data ORDER/SIZE drift)
       E1 3 UN-MIGRATED blob labels inside: ['D_8013D7E8', 'DrawC_gMenuColor', 'DrawC_gMenuLights']
-      E2 3 own labels OUTSIDE: ['DrawC_gWetRoad', 'DrawC_gReflectOffset', 'DrawC_gMenuLightsDirection']
+      E2 3 own labels OUTSIDE: ['DrawC_gReflectOffset', 'DrawC_gMenuLightsDirection', 'DrawC_gWetRoad']
       E5 BYTES DIFFER from retail (5 of 36)
 0x8013d818 0x8013d81c      4    1  OWN  .sdata  build/recon/game/psx/drawdbg.cpp.o
 0x8013d840 0x8013d854     20    4  OWN  .sdata  build/recon/game/psx/force.cpp.o
@@ -185,7 +178,7 @@
 0x8013dbd8 0x8013dc40    104   19    -  .sdata  build/recon/game/psx/weather.cpp.o
       E3 5 implied bases (intra-TU data ORDER/SIZE drift)
       E1 6 UN-MIGRATED blob labels inside: ['Weather_gLastTimeProcessed', 'memaborthook', 'galloccount', 'lowmemadr', 'highmemadr', 'defaultbigext']
-      E2 8 own labels OUTSIDE: ['Weather_gPrevPos', 'gCurrentNumSplats', 'Weather_gPos', 'Weather_gPServer', 'Weather_gSplatInfoServer', 'Weather_gWasDrawn']
+      E2 8 own labels OUTSIDE: ['Weather_gPrevPos', 'Weather_gTrackSpec', 'Weather_gSplatInfoServer', 'Weather_gWasDrawn', 'Weather_gSplatInfo', 'gCurrentNumSplats']
       E5 BYTES DIFFER from retail (17 of 104)
 0x8013dcfc 0x8013dd38     60    5    -  .sbss   build/recon/eaclib/psx/eacpsxz/primate.c.o
       E3 5 implied bases (intra-TU data ORDER/SIZE drift)
@@ -205,18 +198,18 @@
       E1 2 UN-MIGRATED blob labels inside: ['textntabstops', 'texttabstops']
 0x8013dd5c 0x8013dd60      4    1  OWN  .sbss   build/recon/eaclib/psx/eacpsxz/threads.c.o
 
-OWNABLE windows            : 30
-  ... after overlap pruning: 30  (dropped 0)
-bytes owned                : 408 of 6192
-blob labels inside owned windows: 102
-  of which TU-defined      : 96
+OWNABLE windows            : 31
+  ... after overlap pruning: 31  (dropped 0)
+bytes owned                : 424 of 6192
+blob labels inside owned windows: 106
+  of which TU-defined      : 100
   of which splat D_ interior: 6
-TU-defined labels NOT owned: 362
+TU-defined labels NOT owned: 358
 
 ## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
-  E3 intra-TU drift          28
-  E4 edge not a boundary     14
-  E5 bytes differ            33
-  E1 foreign owner inside    17
-  E1 un-migrated inside      19
-  E2 own label outside       17
+  E3 intra-TU drift          27
+  E4 edge not a boundary     15
+  E5 bytes differ            31
+  E1 foreign owner inside    15
+  E1 un-migrated inside      18
+  E2 own label outside       16

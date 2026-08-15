@@ -1041,6 +1041,23 @@ extern int CD_init_80108140(void)
      * two-statement `state[2] = 0; state[1] = state[2];` (psyz decomp/src/libcd/bios.c)
      * all gate identically at 10 @120/120 -- the corpus angle is confirmed equivalent,
      * not a lever. */
+    /* W64-A5 re-probe of R2 (still 10 @120/120).  13B's IDENTITY LAUNDER on the CD_sync
+     * result -- the one device W62's "plain named result temp INERT" note never gated, and
+     * which the 13B law says must be tried before believing such a note -- is ALSO INERT
+     * here: a named `syncRet` with an identity fence 10, with a read-only fence 10, two
+     * identity fences 10, Yoda `2 != syncRet` 10, plain 10; dropping the store-flag void
+     * fences with the launder 15 @117.  MECHANISM (why the launder cannot reach it): the
+     * value is set FROM A HARD REG (the call's $v0), and combine_regs takes the hard-reg
+     * branch (local-alloc.c ~1895) which records `qty_phys_sugg = $v0` for the pseudo
+     * instead of tying it -- a suggestion no die-twice trick removes.
+     * SHARPENED ANGLE for R2 (replaces "stop reorg stealing the -1"): the two builds differ
+     * only in what fills the CdlDemute `bnez`'s slot -- retail takes `addu $a0,$zero,$zero`
+     * from the FALL-THROUGH thread, ours eager-steals `li $v0,-1` from the TARGET thread.
+     * reorg.c:3901 picks the thread from `mostly_true_jump`, which for this NE branch scores
+     * 1 (likely taken) via the `case NE: return 1` rule at reorg.c ~1440 once
+     * `rare_fallthrough - rare_dest` is 0.  So the question is precisely: what makes retail's
+     * target thread yield nothing (or its rarity differ) -- a `-dj`/reorg trace on the two
+     * `return -1` predecessors, NOT another source spelling. */
     if (CD_sync(0, 0) != 2) {
         __asm__("" : : "i"(0));
         return -1;

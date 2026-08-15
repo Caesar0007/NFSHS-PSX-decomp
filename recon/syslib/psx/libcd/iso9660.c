@@ -204,6 +204,20 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
          * and restore retail's order.  Minimal operand set: x1/x1 = 23, x1/x2 = 19,
          * and every larger combo measured 19 as well (x2/x4 = 37, an over-dial that
          * re-inverts name/notfound).  See scratchpad/w63a6/probe_iso7.py. */
+        /* W64-A5: the 09I DISTINCT-EXTENSION device (which is what the named angle asked
+         * for) is FALSIFIED here, per-use as well as cached.  Retail loads `*s` TWICE with
+         * `lb` (an entry peel plus the back-edge test) and keeps a separate unsigned copy in
+         * $v1 for the zero test and the store; ours sign-extends one cached byte
+         * (`sll 24; sra 24`).  Measured (all count 181/182 unless noted): zero test through
+         * `!*(u_char *)s` 19 (INERT) · that plus an explicit `*(signed char *)s` sep compare
+         * 19 · the sep compare itself through `*(u_char *)s` 42 @180 · the u_char zero test
+         * plus a signed re-read at the advance 19 · storing `*(signed char *)s` and advancing
+         * separately 55 @177.  The two reads are the SAME MEM in the SAME block, so cse
+         * merges them whatever mode each use asks for.
+         * ALSO FALSIFIED: the CD_newmedia cure transplanted -- an IDENTITY LAUNDER on the
+         * cursor `s` at the loop head (which is exactly what defeated the const-fold there)
+         * costs 3 insns and 58 diffs, with or without the u_char zero test.  Laundering
+         * splits a pointer from a SYMBOL, not one MEM from another. */
         __asm__("" : : "r"(name), "r"(notfound), "r"(notfound));
         ch = *s;
         q = (signed char *)comp;

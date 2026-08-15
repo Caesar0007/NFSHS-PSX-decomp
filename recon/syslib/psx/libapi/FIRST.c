@@ -88,6 +88,23 @@ extern void *firstfile(char *name, void *dir)
      *    it does fill the slot, at the price of swapping p/scan's registers ($a0<->$v1)
      *    through the whole prefix loop.  NAMED ANGLE: that count-exact basin plus a
      *    p/scan coloring dial is the only structurally-right route seen so far. */
+    /* W64-A5 re-gate + PRICING of the named angle above (still 5 @104/103).  The
+     * `scan`-before-`p` basin is count-EXACT 103/103 at 18 and its residual is a clean
+     * TWO-REGISTER swap: retail scan=$v1 / p=$a0, ours p=$v1 / scan=$a0.  Both are global
+     * allocnos and priced off .greg (qty272): p (p78) refs 9 / live 12 = 2.2500 is allocated
+     * FIRST and takes $v1; scan (p77) refs 8 / live 11 = 2.1818 gets $a0.  They conflict, so
+     * whoever ranks first takes the lower reg -- the flip needs scan ABOVE p, i.e. scan
+     * refs 8->9, or scan live 11->10, or p refs 9->8 / live 12->13.
+     * FALSIFIED W64-A5 (every one measured, all in the swap basin, all count-EXACT 103): a
+     * read-only fence on `scan` or on `p` or on `name` placed after the prefix loop, before
+     * the terminator store, or after it -- ALL INERT at 18 (the operands do not move the .greg table);
+     * 1- and 2-operand forms identical; in the ctl basin the same fences are inert at 5.
+     * Only the fence placed BETWEEN the two inits costs instructions (8 @105).
+     * NAMED ANGLE (sharpened): the dial is one ref or one live-unit on a pseudo whose refs the
+     * fence provably fails to change -- read `-dl`/`-dg` on the swap basin and find WHY the
+     * asm operand is not counted (candidate: the operand is a copy cse folds back into `name`,
+     * so the ref lands on p73/name, not on p77).  That is a 1-run instrument question, not a
+     * spelling sweep. */
     /* extract the device prefix (characters before ':') into _first_devname */
     p = _first_devname;
     scan = (signed char *)name;

@@ -1894,7 +1894,27 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
   }
   else if (((0 < wheel->acc) && (0 < wheel->velCap.z)) &&
            ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
-    wheel->acc = (wheel->acc < wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
+    /* MATCH (w64-a11, the SEALING edit): DEFAULT-THEN-OVERRIDE onto the value the
+       GUARD already left live.  Retail's `.L800ABB20: bnez $v0,.L800ABB2C; nop;
+       addu $v1,$a0,$zero; .L800ABB2C: sw $v1,0($s1)` funnels through $v1, which
+       ALREADY holds velCap.z from the `0 < velCap.z` guard, so the default costs
+       ZERO instructions and only the override emits a move; and `acc <= velCap`
+       is the only phrasing that yields retail's `slt $v0,$v1,$a0` + `bnez`
+       (gcc negates the <= into a velCap-first slt and inverts the branch).
+       MEASURED on this basin, all worse: the original ternary
+       `(acc < velCap) ? acc : velCap` 6 @346 (slt operands + polarity flipped);
+       `(velCap < acc) ? velCap : acc` 25 @349 (reverses the GUARD's own load
+       roles -- it reloads acc into $v1 and velCap into $a0); the same as a
+       `<=` ternary 14 @348; the arm-1-style explicit if/else funnel
+       `if (velCap < acc) a = velCap; else a = acc;` 20 @346 count-exact.
+       The dial is WHICH value the funnel defaults to, not the operand order. */
+    {
+      int a = wheel->velCap.z;
+      if (wheel->acc <= wheel->velCap.z) {
+        a = wheel->acc;
+      }
+      wheel->acc = a;
+    }
     brakingSituation = 1;
   }
   wheel->acc = fixedmult(wheel->acc,carObj->specs->lateralGripMult);
@@ -1975,18 +1995,18 @@ Phy_TireF_normalTire:
         else {
           xAcc = __builtin_abs(latAcc);
         }
-        /* w59-a2: THEN arm funnels through xAcc and stores here; the ELSE arm
-           stores directly.  The ASYMMETRY is the lever (see the fn receipt). */
-        wheel->finalAcc.x = xAcc;
       }
       else {
-        if (-__builtin_abs(latAcc) < wheel->velCap.x) {
-          wheel->finalAcc.x = wheel->velCap.x;
-        }
-        else {
-          wheel->finalAcc.x = -__builtin_abs(latAcc);
+        /* MATCH (w64-a11, 09A at site A too): retail negates the abs into the
+           funnel register (`negu $v1,$v0`) and OVERRIDES with velCap.x
+           (`addu $v1,$a2,$zero` in the `j`'s delay slot) -- the per-arm store
+           the w59-a2 asymmetry receipt kept was the miss. */
+        xAcc = -__builtin_abs(latAcc);
+        if (xAcc < wheel->velCap.x) {
+          xAcc = wheel->velCap.x;
         }
       }
+      wheel->finalAcc.x = xAcc;
     }
   }
   else {
@@ -1994,12 +2014,32 @@ Phy_TireF_normalTire:
     int xAcc;
 
     minSlipAngle = 0x8000;
-    latAcc = fixedmult(
-        (0x20000 < ((__builtin_abs(slipAngle) < minSlipAngle) ?
-                    minSlipAngle : __builtin_abs(slipAngle))) ?
-        0x20000 :
-        ((__builtin_abs(slipAngle) < minSlipAngle) ? minSlipAngle : __builtin_abs(slipAngle)),
-        roadGrip) / 2;
+    /* MATCH (w64-a11): the MIN is an if/else onto a named result with the
+       CONSTANT ARM LAST (13D) and the inner MAX re-spelled as a default-then-
+       override that RECOMPUTES __builtin_abs(slipAngle) -- retail expands the
+       abs TWICE (w63-a11's clamp receipt) and materialises 0x20000 TWICE
+       (`lui $v0,2` for the compare, `lui $a0,2` in the `bnez` delay slot for the
+       arm).  With the constant arm written FIRST, cse shares the one 0x20000
+       across the compare and the arm and pays a copy instead (15 @348, the extra
+       `addu $v0,$a0,$zero`); moving it to the else arm restores both `lui`s and
+       makes the fn COUNT-EXACT.  Keeping the whole thing as the original nested
+       ternary leaves the second max as a funnel (`addu $a0,$v1,$zero`) where
+       retail computes straight into the call's $a0. */
+    {
+      int cap;
+
+      if (((__builtin_abs(slipAngle) < minSlipAngle) ?
+           minSlipAngle : __builtin_abs(slipAngle)) <= 0x20000) {
+        cap = __builtin_abs(slipAngle);
+        if (cap < minSlipAngle) {
+          cap = minSlipAngle;
+        }
+      }
+      else {
+        cap = 0x20000;
+      }
+      latAcc = fixedmult(cap, roadGrip) / 2;
+    }
     if (slipAngle < 0) {
       latAcc = -latAcc;
     }
@@ -2010,11 +2050,11 @@ Phy_TireF_normalTire:
        ours stored per-arm.  BOTH halves are load-bearing and the ARMS matter more
        than the funnel: funnel + ternary arms 53@351, funnel + if/else arms
        21@347 (09C -- a COND_EXPR whose target is a MEM stores in both arms and
-       can never reach the shared-store shape).  Site-A (the >0x4001 branch, line
-       ~1970) does NOT want the same treatment on this basin: adding its full
-       funnel too costs +1 insn (22@348), and the w59-a2 asymmetry receipt there
-       still stands.  A `cap` local for velCap.x REGRESSES hard (57@351);
-       xAcc declared first vs last is neutral (21 both). */
+       can never reach the shared-store shape).  A `cap` local for velCap.x
+       REGRESSES hard (57@351); xAcc declared first vs last is neutral.
+       w64-a11: the negative-velCap arm below is the 09A default-then-override
+       (`negu $v1,$v0` straight into the funnel, then the velCap override) --
+       the if/else spelling negates in place and pays `addu $v1,$v0,$zero`. */
     if (0 < wheel->velCap.x) {
       if (wheel->velCap.x <= __builtin_abs(latAcc)) {
         xAcc = wheel->velCap.x;
@@ -2024,11 +2064,13 @@ Phy_TireF_normalTire:
       }
     }
     else {
-      if (-__builtin_abs(latAcc) < wheel->velCap.x) {
+      /* MATCH (w64-a11, 09A): retail negates the abs STRAIGHT INTO the result
+         register (`negu $v1,$v0`) and then overrides -- the if/else form
+         negates in place and pays a copy into the funnel (`negu $v0,$v0;
+         addu $v1,$v0,$zero`). */
+      xAcc = -__builtin_abs(latAcc);
+      if (xAcc < wheel->velCap.x) {
         xAcc = wheel->velCap.x;
-      }
-      else {
-        xAcc = -__builtin_abs(latAcc);
       }
     }
     wheel->finalAcc.x = xAcc;
@@ -2099,7 +2141,27 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
   }
 }
 
-/* ---- Physics_Real__FP8Car_tObj  [PHYSICS.CPP:2048-2500] SLD-VERIFIED ---- */
+/* ---- Physics_Real__FP8Car_tObj  [PHYSICS.CPP:2048-2500] SLD-VERIFIED ----
+ * RESIDUAL 6, count-EXACT 1272/1272.  ONE statement (SLD 2341, the wheelMult
+ * fixedmult below): retail emits `lw $6,52(sp); lw $4,100(sp); lw $3,leftMult;
+ * lw $5,rightMult; addu $4,$6,$4`, ours emits `lw $3,leftMult` FIRST and seats
+ * the stack sum in $2.  TWO independent halves -- LOAD ORDER and the $6-vs-$2
+ * seat.
+ * W64-A11 DERIVED + PROBED THE ORDER HALF AS A `PER_FN_TEXT_MOVES` ROW
+ * (spec: scratchpad/w64a11/tm_physicsreal_spec.json; probed 2x via
+ * tools/vprobe.py W60_TEXT_MOVES_FILE, control re-gated at 6): 6 -> 4.
+ *   take  "\tlw\t\$3,leftMult\n(?=\tlw\t\$2,52\(\$sp\)\n)"
+ *   after "\tlw\t\$4,100\(\$sp\)\n(?=\tlw\t\$5,rightMult\n)"
+ * Both anchors are unique in the fn region (asserted) and lookahead-pinned on
+ * BOTH sides per 15D; no labels involved, so no $L renumbering exposure.
+ * SOURCE-SIDE ALTERNATIVE MEASURED (rejected, but it CHARACTERISES the residual):
+ * inlining `leftMult - rightMult` into the fixedmult argument list (dropping the
+ * `wheelMult` local) reproduces retail's LOAD ORDER EXACTLY -- all four loads and
+ * both operand insns line up -- but gates 10 because the whole pair rotates one
+ * register DOWN (ours 52(sp)->$v1 / leftMult->$v0 vs retail $a2 / $v1).  So the
+ * order half IS source-reachable; what it costs is the seat, and the seat is the
+ * same 2-pseudo rotation the TEXT_MOVES row leaves behind.  A dial that pushes
+ * both pseudos one slot UP the ascending find_free_reg scan closes the fn. */
 void Physics_Real(Car_tObj *carObj)
 
 {

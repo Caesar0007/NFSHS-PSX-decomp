@@ -1,0 +1,10 @@
+{
+  "recon/game/common/physics.cpp": {
+    "Physics_Real__FP8Car_tObj": [
+      {
+        "take": "\tlw\t\\$3,leftMult\n(?=\tlw\t\\$2,52\\(\\$sp\\)\n)",
+        "after": "\tlw\t\\$4,100\\(\\$sp\\)\n(?=\tlw\t\\$5,rightMult\n)"
+      }
+    ]
+  }
+}

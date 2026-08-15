@@ -42,6 +42,8 @@ default OFF, so shipped behaviour is unchanged; when any is live the run prints
   W64_PQ_TU_FLAGS         JSON {"<tu>": {"g_value": 8, ...}} over per_tu_flags()
   W64_PQ_TEXT_MOVES_FILE  JSON {"<tu>": {"<fn>": [moves]}}, applied to the
                           production .s with build.py's OWN _apply_text_moves
+                          (w67-a6: build.py's PER_FN_BRANCH_RETARGET rows are
+                          applied right after, exactly as in the build lanes)
   --with-text-moves       same, using only build.py's existing rows
   W64_PQ_CC1              override the cc1/cc1plus binary (compiler-rung probe)
   W64_PQ_NO_DIALECT=1     same as --no-dialect
@@ -256,11 +258,21 @@ def _apply_probe_moves(rel_posix, s_file):
     for tu, fns in table.items():
         bp.PER_FN_TEXT_MOVES.setdefault(tu, {}).update(fns)
     bp._apply_text_moves(rel_posix, s_file)
+    # w67-a6 (the w66-a1 named gap): apply PER_FN_BRANCH_RETARGET beside the
+    # text moves, exactly where the build lanes do (build.py calls it right
+    # after _apply_text_moves in all three lanes).  Without this the two
+    # production REAL=1 BR-rowed EA fns (DrawBackground__11tScreenMain,
+    # MCRD_handlecardevents) were unprovable here (w66a1 §5.3; prototype
+    # scratchpad/w66a1/pq.py).  A direct call, not getattr: if build.py ever
+    # loses the mechanism this must fail LOUDLY, never measure without it.
+    bp._apply_branch_retarget(rel_posix, s_file)
     # count the EFFECTIVE table (build.py's own rows + the override), not just
     # the JSON's -- an override file that adds nothing still applies build.py's
     # existing rows, and reporting 0 there read as "hook inert" when it was not.
+    # BR rows are counted too (a BR-only TU is not a no-op).
     eff = bp.PER_FN_TEXT_MOVES.get(rel_posix, {})
-    return sum(len(v) for v in eff.values())
+    br = getattr(bp, "PER_FN_BRANCH_RETARGET", {}).get(rel_posix, {})
+    return sum(len(v) for v in eff.values()) + sum(len(v) for v in br.values())
 
 
 def tu_settings(rel):
@@ -396,7 +408,7 @@ def main():
         # own NUMERIC register spelling).
         nmoves = _apply_probe_moves(src_rel, s_out)
         if nmoves is not None:
-            print(f"  W64_PQ_TEXT_MOVES_FILE: {nmoves} move row(s) for this TU"
+            print(f"  text-moves hook: {nmoves} move/retarget row(s) for this TU"
                   + ("  <-- NO-OP, check the tu key" if not nmoves else ""))
         if dialect:
             s_out.write_text(to_aspsx_dialect(s_out.read_text(errors="replace")))

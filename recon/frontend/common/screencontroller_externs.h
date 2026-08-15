@@ -19,8 +19,8 @@ extern tFEApplication *FEApp;
 extern tPadModuleState gPadinfo;        /* pad-info (84B, SYM anon .63fake tag = tPadModuleState) */
 extern int  mappings[3][13][3];         /* PSX->FE key mappings */
 /* menu helpers + Pad actuator (dumped overloads wrong-class/const; real call types per this TU) */
-void SetMenu(tMenuItemSlidingMenu *thisobj, bool i, void *menu);
-void *TransitionIsFinished(tOptionsMenu *thisobj);
+void SetMenu(tMenuItemSlidingMenu *thisobj, bool i, void *menu) asm("SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu");
+void *TransitionIsFinished(tOptionsMenu *thisobj) asm("TransitionIsFinished__12tOptionsMenu");
 /* libmath soft-float runtime (REAL SYM fns @0x800f####; variadic: Ghidra splits doubles into int pairs) */
 extern "C" { double __muldf3(double,double); int __fixdfsi(double);
  }
@@ -30,21 +30,21 @@ void FETextRender_SetABR(int abr, bool trans);
 void Flare_2DHalo(int x, int y, int scalex, int scaley, int type);
 void Controller_SetRamp(void);
 void Front_ResetPSXController(int player, int config);
-void UploadSwapShapes(tScreen * thisobj, int numSwapShapes);
+void UploadSwapShapes(tScreen * thisobj, int numSwapShapes) asm("UploadSwapShapes__7tScreeni");
 int GetPSXPadValue(int value, int player);
 void PSXDrawSquare(int col, int x, int y, int w, int h);
 int CalcFadeVal(int col1, int col2, int amount);
 void FETextRender_FullTextRGB(char * sMenuText, short x, short y, int col, char size, short justify);
 int InGame_GetDevice(int control);
 char * TextSys_Word(int wordnum);
-void AsyncLoadSwapShapeFile(tScreen * thisobj, char * fileName);
+void AsyncLoadSwapShapeFile(tScreen * thisobj, char * fileName) asm("AsyncLoadSwapShapeFile__7tScreenPc");
 void ScaleShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
-short Run(tDialogInteractive * thisobj);
+short Run(tDialogInteractive * thisobj) asm("Run__18tDialogInteractive");
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void AudioCmn_PlayFESFX(int SFXnum);
 void FeDraw_SetABRMode(int abr);
-void * IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes);
+void * IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void FETextRender_SetFont(int size);
 
 #endif

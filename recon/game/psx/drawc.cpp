@@ -2018,7 +2018,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -2189,7 +2189,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -3186,7 +3186,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -3389,7 +3389,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;

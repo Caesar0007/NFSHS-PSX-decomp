@@ -27,9 +27,9 @@ extern __vtbl_ptr_type tScreenMemcard_vtable[];   /* @0x80012228 manual vtable *
 
 /* called game/FE/MCRD/PsyQ functions (Ghidra-dumped signatures) */
 void trap(int code);
-int garyMemCardGrabBlocks(int card, int filenum);
+int garyMemCardGrabBlocks(int card, int filenum) asm("garyMemCardGrabBlocks");
 int AudioMus_Buffered(void);
-void Init_Memcard(bool redraw, u_char pinkslips);
+void Init_Memcard(bool redraw, u_char pinkslips) asm("Init_Memcard__FbT0");
 void DeInit_Memcard(void);
 void SubtractiveBox(int x, int y, int w, int h, int col1, int col2, int col3, int col4);
 void PSXDrawSquare(int col, int x, int y, int w, int h);

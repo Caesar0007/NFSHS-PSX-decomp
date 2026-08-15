@@ -6,11 +6,11 @@
 extern int ticks[];
 
 /* TV tiles (FETv) */
-void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short);
-void  DrawTV(tTVConfig*);
-void  DrawTVLines(tTVConfig*);
-void  TurnOnTV(tTVConfig*);
-void  TurnOffTV(tTVConfig*);
+void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short) asm("InitTV__FR9tTVConfigP18tTexture_ShapeInfos");
+void  DrawTV(tTVConfig*) asm("DrawTV__FR9tTVConfig");
+void  DrawTVLines(tTVConfig*) asm("DrawTVLines__FR9tTVConfig");
+void  TurnOnTV(tTVConfig*) asm("TurnOnTV__FR9tTVConfig");
+void  TurnOffTV(tTVConfig*) asm("TurnOffTV__FR9tTVConfig");
 
 /* drawing / text */
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended*);

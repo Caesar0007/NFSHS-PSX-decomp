@@ -27,10 +27,10 @@ int FETextRender_WordWrapHeight(short w, char *s);
 void  FETextRender_WordWrapTextRGBJustify(char *s, RECT &r, int rgb, int j, int a, bool b);
 void  ScaleShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  DrawShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
-void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n);
+void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
 
 /* --- tScreen helpers (base passed explicitly) --- */
-BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
-void UploadSwapShapes(tScreen *s, int n);
+BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+void UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
 
 #endif

@@ -31,7 +31,7 @@ int TextSys_WordY(int wordnum);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 void FETextRender_FullText(char * sMenuText, short x, short y, tMenuTextType textType, tMenuTextState textState, short justify);
 void Flare_2DHalo(int x, int y, int scalex, int scaley, int type);
-void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis);
+void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
 void StatChk_ClearNewRecords(void);
 void Stattool_GetRecords(short nShowTrack, tRecordBuffer * TrackRecords);
 short Front_GetTrackRaced(void);

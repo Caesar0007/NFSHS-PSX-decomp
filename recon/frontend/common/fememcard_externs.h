@@ -50,11 +50,11 @@ extern __vtbl_ptr_type tDialogNoInputMessage_vtable[];
 void tScreen_ctor(tScreen*);
 void tScreen_dtor(tScreen*, int);
 void tDialogYesNo_ctor(tDialogYesNo*);
-void Display(tDialogBase*);
-void Hide(tDialogBase*);
-short Run(tDialogInteractive*);
-void Redraw(tFEApplication*);
-void UpdateMusic(tFEApplication*);
+void Display(tDialogBase*) asm("Display__11tDialogBase");
+void Hide(tDialogBase*) asm("Hide__11tDialogBase");
+short Run(tDialogInteractive*) asm("Run__18tDialogInteractive");
+void Redraw(tFEApplication*) asm("Redraw__14tFEApplication");
+void UpdateMusic(tFEApplication*) asm("UpdateMusic__14tFEApplication");
 
 /* ===== memcard (PSX::memcard) ===== */
 /* W62-A17: the whole MCRD_* family is defined in frontend/psx/memcard.c -- a C-lane TU,
@@ -82,21 +82,21 @@ void  AudioMus_StopSong(int);
 char *TextSys_Word(int);
 void *PlayerNameExist(int);
 char *PlayerName(int);
-void  FECheat_SaveBonus(unsigned long*);
-void  FECheat_LoadBonus(unsigned long*);
+void  FECheat_SaveBonus(unsigned long*) asm("FECheat_SaveBonus__FRUl");
+void  FECheat_LoadBonus(unsigned long*) asm("FECheat_LoadBonus__FRUl");
 
 /* ===== game-manager methods (rendered free by Ghidra; first arg is the manager ptr) ===== */
-void  SaveTournament(tTournamentManager*, tSaveTournament*);
+void  SaveTournament(tTournamentManager*, tSaveTournament*) asm("SaveTournament__18tTournamentManagerR15tSaveTournament");
 void  RestoreTournament(tTournamentManager*, tSaveTournament*);
-void  LoadTournament(tTournamentManager*, tSaveTournament*);
-void  SaveTracks(tTrackManager*, tSaveTrackInfo*);
-void  LoadTracks(tTrackManager*, tSaveTrackInfo*);
-void  SaveCars(tCarManager*, tSaveCarInfo*);
-void  LoadCars(tCarManager*, tSaveCarInfo*, short);
+void  LoadTournament(tTournamentManager*, tSaveTournament*) asm("LoadTournament__18tTournamentManagerR15tSaveTournament");
+void  SaveTracks(tTrackManager*, tSaveTrackInfo*) asm("SaveTracks__13tTrackManagerR14tSaveTrackInfo");
+void  LoadTracks(tTrackManager*, tSaveTrackInfo*) asm("LoadTracks__13tTrackManagerR14tSaveTrackInfo");
+void  SaveCars(tCarManager*, tSaveCarInfo*) asm("SaveCars__11tCarManagerR12tSaveCarInfo");
+void  LoadCars(tCarManager*, tSaveCarInfo*, short) asm("LoadCars__11tCarManagerR12tSaveCarInfos");
 void  SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short);   /* overload of FE SavePinkSlipsCars(short,short) */
-void  LoadPinkSlipsCars(tCarManager*, tSaveCarInfo*, short);
+void  LoadPinkSlipsCars(tCarManager*, tSaveCarInfo*, short) asm("LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos");
 void  SetPads();
-void  Front_ResetPSXController(int, unsigned int);
+void  Front_ResetPSXController(int, unsigned int) asm("Front_ResetPSXController__Fii");
 
 #endif
 

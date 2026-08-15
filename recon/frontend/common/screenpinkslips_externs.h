@@ -19,27 +19,27 @@ static char  gSwapFileName[20];                       /* STAT @0x80052C00 */
 static int   flareextra_248 = 0;                      /* @0x80052bf0 fn-static, real bytes=00000000 (flare ramp counter) */
 
 /* ===== free helpers (member fns rendered free by Ghidra; tScreen* first arg where applicable) ===== */
-void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
-void  UploadSwapShapes(tScreen*, int);
-void  AsyncLoadSwapShapeFile(tScreen*, char*);
-short TextValue(void*, tPlayer);
-void  Increment(void*, tPlayer);
-void  Decrement(void*, tPlayer);
-void  GetTrack(tTrackManager*, unsigned short, void*);
+void *IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+void  UploadSwapShapes(tScreen*, int) asm("UploadSwapShapes__7tScreeni");
+void  AsyncLoadSwapShapeFile(tScreen*, char*) asm("AsyncLoadSwapShapeFile__7tScreenPc");
+short TextValue(void*, tPlayer) asm("TextValue__18tListIteratorTrack7tPlayer");
+void  Increment(void*, tPlayer) asm("Increment__18tListIteratorTrack7tPlayer");
+void  Decrement(void*, tPlayer) asm("Decrement__18tListIteratorTrack7tPlayer");
+void  GetTrack(tTrackManager*, unsigned short, void*) asm("GetTrack__13tTrackManagersR17tTrackInformation");
 
 /* drawing / text */
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended*);
-void  DrawShape_NFS4RoundRectangle(int, RECT*, short);
+void  DrawShape_NFS4RoundRectangle(int, RECT*, short) asm("DrawShape_NFS4RoundRectangle__FiR4RECTs");
 void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
 void  Flare_2DHalo(int, int, int, int, int);
 void  PSXDrawTransSquare(int, int, int, int, int, short);
 void  FeDraw_SetABRMode(int);
 
 /* TV tiles (FETv) */
-void  DrawTV(tTVConfig*);
-void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short);
-void  TurnOnTV(tTVConfig*);
-void  TurnOffTV(tTVConfig*);
+void  DrawTV(tTVConfig*) asm("DrawTV__FR9tTVConfig");
+void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short) asm("InitTV__FR9tTVConfigP18tTexture_ShapeInfos");
+void  TurnOnTV(tTVConfig*) asm("TurnOnTV__FR9tTVConfig");
+void  TurnOffTV(tTVConfig*) asm("TurnOffTV__FR9tTVConfig");
 
 /* video (FRONTEND::PSX::video) */
 int   VIDEO_create(int, int, int, int, int);

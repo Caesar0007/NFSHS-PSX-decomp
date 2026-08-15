@@ -20,10 +20,10 @@ extern __vtbl_ptr_type tScreenTournSelect_vtable[];              /* _vt.18tScree
 /* --- base tScreen ctor/dtor + helpers --- */
 void tScreen_ctor(tScreen *s);
 void tScreen_dtor(tScreen *s);
-void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip);
-void *IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
-void  UploadSwapShapes(tScreen *s, int n);
-void  AsyncLoadSwapShapeFile(tScreen *s, char *name);
+void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
+void *IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+void  UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
+void  AsyncLoadSwapShapeFile(tScreen *s, char *name) asm("AsyncLoadSwapShapeFile__7tScreenPc");
 
 /* --- PSX video player --- */
 int  VIDEO_create(int w, int h, int a, int b, int c);
@@ -34,14 +34,14 @@ void VIDEO_startplayback(int h);
 void VIDEO_destroy(int h);
 
 /* --- FETv video-wall tiles --- */
-void InitTV(tTVConfig *cfg, tTexture_ShapeInfo *shapes, short n);
-void TurnOnTV(tTVConfig *cfg);
-void TurnOffTV(tTVConfig *cfg);
-void DrawTV(tTVConfig *cfg);
-void DrawTVLines(tTVConfig *cfg);
+void InitTV(tTVConfig *cfg, tTexture_ShapeInfo *shapes, short n) asm("InitTV__FR9tTVConfigP18tTexture_ShapeInfos");
+void TurnOnTV(tTVConfig *cfg) asm("TurnOnTV__FR9tTVConfig");
+void TurnOffTV(tTVConfig *cfg) asm("TurnOffTV__FR9tTVConfig");
+void DrawTV(tTVConfig *cfg) asm("DrawTV__FR9tTVConfig");
+void DrawTVLines(tTVConfig *cfg) asm("DrawTVLines__FR9tTVConfig");
 
 /* --- FE / game / PsyQ helpers --- */
-void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n);
+void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
 void  PSXDrawTransSquare(int col, int x, int y, int w, int h, short op);
 void  ScaleShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  FeDraw_SetABRMode(int abr);
@@ -53,10 +53,10 @@ int   TextSys_WordY(int id);
 void  DrawMoney(int x, int y, int digits, long amount, int rgb1, int rgb2);
 void  FETextRender_MenuTextFade(int fade, short index, tMenuTextState st, tMenuTextType tt);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);
-void  FETextRender_WordWrapFade(int fade, short index, RECT *r, tMenuTextState st, tMenuTextType tt);
+void  FETextRender_WordWrapFade(int fade, short index, RECT *r, tMenuTextState st, tMenuTextType tt) asm("FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType");
 void  FETextRender_WordWrapTextRGB(char *s, RECT &r, int rgb);
 int FETextRender_WordWrapHeight(short w, char *s);
 void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x, short y, short j, tMenuTextState st, tMenuTextType tt);
-short TextValue(tListIteratorTournament *it, tPlayer p);
+short TextValue(tListIteratorTournament *it, tPlayer p) asm("TextValue__23tListIteratorTournament7tPlayer");
 
 #endif

@@ -769,7 +769,7 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
 
 /* TU-local 4-arg decl: the shared header's 3-arg SavePinkSlipsCars(tCarManager*,...) DROPS the
    real 4th arg (oracle jal ...R12tSaveCarInfoss loads a3 = withoutCarInGarageNumber). */
-void SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short, short);
+void SavePinkSlipsCars(tCarManager*, tSaveCarInfo*, short, short) asm("SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss");
 
 PinkSlipsErrorCode
 SavePinkSlipsCars(short player,short withoutCarInGarageNumber)

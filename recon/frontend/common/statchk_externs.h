@@ -13,7 +13,7 @@ extern tRecordBuffer Stats_gTrackRecords[187];
 int   Front_GetLapsForType(void);
 short Front_GetTrackRaced(void);
 char *PlayerName(int player);
-tCarInfo *GetCarFromSimID(tCarManager *mgr, short carID);   /* tCarManager:: method (external) */
+tCarInfo *GetCarFromSimID(tCarManager *mgr, short carID) asm("GetCarFromSimID__11tCarManagers");   /* tCarManager:: method (external) */
 
 extern "C" {
 }

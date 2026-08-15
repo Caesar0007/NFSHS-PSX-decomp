@@ -29,34 +29,34 @@ void VIDEO_destroy(int h);
 /* --- PsyQ / syslib --- */
 
 /* --- FE draw / text / effect --- */
-void  DrawShape_NFS4RoundRectangle(int textValue, RECT *r, short s);
+void  DrawShape_NFS4RoundRectangle(int textValue, RECT *r, short s) asm("DrawShape_NFS4RoundRectangle__FiR4RECTs");
 void  FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
 void  PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void  FeDraw_SetABRMode(int abr);
 void *Front_EnableLocalSpeech();
 
 /* --- list iterator / track manager (called as free fns) --- */
-short TextValue(tListIteratorTrack *it, tPlayer p);
-void  Decrement(tListIteratorTrack *it, tPlayer p);
-void  Increment(tListIteratorTrack *it, tPlayer p);
-void  GetTrack(tTrackManager *tm, u_short track, tTrackInformation *out);
+short TextValue(tListIteratorTrack *it, tPlayer p) asm("TextValue__18tListIteratorTrack7tPlayer");
+void  Decrement(tListIteratorTrack *it, tPlayer p) asm("Decrement__18tListIteratorTrack7tPlayer");
+void  Increment(tListIteratorTrack *it, tPlayer p) asm("Increment__18tListIteratorTrack7tPlayer");
+void  GetTrack(tTrackManager *tm, u_short track, tTrackInformation *out) asm("GetTrack__13tTrackManagersR17tTrackInformation");
 
 /* --- tScreen helpers (non-member; base passed explicitly) --- */
-BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp);
-void UploadSwapShapes(tScreen *s, int n);
-void AsyncLoadSwapShapeFile(tScreen *s, char *name);
-void DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip);
+BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+void UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
+void AsyncLoadSwapShapeFile(tScreen *s, char *name) asm("AsyncLoadSwapShapeFile__7tScreenPc");
+void DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
 
 /* --- tVideoWall methods (free-fn form; called on this->fVideoWall) --- */
-void TurnOn(tVideoWall *vw);
-void TurnOff(tVideoWall *vw);
-void TurnOffInstant(tVideoWall *vw);
-void Initialize(tVideoWall *vw, tTVConfig *cfgs, tTexture_ShapeInfo *shapes, short a, short b, short *order, short c);
-void SetAvailableText(tVideoWall *vw, short a, short b, short c);
-void SetAvailableIcon(tVideoWall *vw, short a, short b, short c, short d, tTexture_ShapeInfo *shapes);
-void SetAvailable(tVideoWall *vw, u_short avail);
-void UpdateImages(tVideoWall *vw);
-void UpdateTransition(tVideoWall *vw);
-void Draw(tVideoWall *vw);
+void TurnOn(tVideoWall *vw) asm("TurnOn__10tVideoWall");
+void TurnOff(tVideoWall *vw) asm("TurnOff__10tVideoWall");
+void TurnOffInstant(tVideoWall *vw) asm("TurnOffInstant__10tVideoWall");
+void Initialize(tVideoWall *vw, tTVConfig *cfgs, tTexture_ShapeInfo *shapes, short a, short b, short *order, short c) asm("Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss");
+void SetAvailableText(tVideoWall *vw, short a, short b, short c) asm("SetAvailableText__10tVideoWallsss");
+void SetAvailableIcon(tVideoWall *vw, short a, short b, short c, short d, tTexture_ShapeInfo *shapes) asm("SetAvailableIcon__10tVideoWallssssP18tTexture_ShapeInfo");
+void SetAvailable(tVideoWall *vw, u_short avail) asm("SetAvailable__10tVideoWalls");
+void UpdateImages(tVideoWall *vw) asm("UpdateImages__10tVideoWall");
+void UpdateTransition(tVideoWall *vw) asm("UpdateTransition__10tVideoWall");
+void Draw(tVideoWall *vw) asm("Draw__10tVideoWall");
 
 #endif

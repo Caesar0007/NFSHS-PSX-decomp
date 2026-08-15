@@ -17,8 +17,8 @@ extern SPEECHINFO ginfo;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern "C" int textpixels(char *str);
-void SetMenu(tMenuItemSlidingMenu *thisobj, short i, void *menu);   /* sliding-menu method; menu is tMenu-derived */
-bool TransitionIsFinished(tOptionsMenu *thisobj);   /* method on the options menu */
+void SetMenu(tMenuItemSlidingMenu *thisobj, short i, void *menu) asm("SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu");   /* sliding-menu method; menu is tMenu-derived */
+bool TransitionIsFinished(tOptionsMenu *thisobj) asm("TransitionIsFinished__12tOptionsMenu");   /* method on the options menu */
 int CalcFadeVal(int col1, int amount);            /* 2-arg overload */
 int CalcFadeVal(int col1, int col2, int f1, int f2);  /* 4-arg overload */
 
@@ -28,7 +28,7 @@ void FETextRender_MenuTextPositionedJustify(short index, short x, short y, short
 char * TextSys_Word(int wordnum);
 void FeAudio_systemtask(int x);
 int TextSys_WordY(int wordnum);
-int Percentage(tMenuItemLeftRightAudioSlider * thisobj);
+int Percentage(tMenuItemLeftRightAudioSlider * thisobj) asm("Percentage__29tMenuItemLeftRightAudioSlider");
 int AudioMus_PlaySong(char * pattern);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 int AudioCmn_PlaySound(int bhandle, int patchNum, int azimuth, int vol, int bend);

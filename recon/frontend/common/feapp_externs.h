@@ -55,7 +55,7 @@ void LoadAllHelpShapes(void);
 void FreeHelpShapeCluts(void);
 
 /* input / clock / memcard / stats / misc subsystems */
-int  FEInput_GetKeyFromPlayer(tPlayer, int);
+int  FEInput_GetKeyFromPlayer(tPlayer, int) asm("FEInput_GetKeyFromPlayer__F7tPlayerl");
 void Front_ResetPSXController(int controller, int mode);
 void Clock_SystemStartUp(void);
 void Clock_SystemCleanUp(void);
@@ -67,7 +67,7 @@ short StatChk_IsTopTime(Car_tStats *, short);
 int  SavePinkSlipsCarsWithErrorDialogs(short, short, short);
 char *PlayerName(int);
 int  MenuExtended_PostGameMenu(tMenuCommand &command);
-void play_movie(int);
+void play_movie(int) asm("play_movie__Fc");
 
 /* CRT */
 

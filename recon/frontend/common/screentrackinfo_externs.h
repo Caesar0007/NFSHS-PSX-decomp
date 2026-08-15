@@ -22,22 +22,22 @@ tScreenTrackInfo *screenTrackInfo;
 
 /* tVideoWall methods (SYM mangled forms confirmed; called on this->fVideoWall).
  * Initialize sig per Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss */
-void Draw(tVideoWall *thisobj);                                 /* Draw__10tVideoWall            */
-void UpdateTransition(tVideoWall *thisobj);                     /* UpdateTransition__10tVideoWall */
-void TurnOn(tVideoWall *thisobj);                               /* TurnOn__10tVideoWall          */
-void TurnOffInstant(tVideoWall *thisobj);                       /* TurnOffInstant__10tVideoWall  */
-void UpdateImages(tVideoWall *thisobj);                         /* UpdateImages__10tVideoWall    */
+void Draw(tVideoWall *thisobj) asm("Draw__10tVideoWall");                                 /* Draw__10tVideoWall            */
+void UpdateTransition(tVideoWall *thisobj) asm("UpdateTransition__10tVideoWall");                     /* UpdateTransition__10tVideoWall */
+void TurnOn(tVideoWall *thisobj) asm("TurnOn__10tVideoWall");                               /* TurnOn__10tVideoWall          */
+void TurnOffInstant(tVideoWall *thisobj) asm("TurnOffInstant__10tVideoWall");                       /* TurnOffInstant__10tVideoWall  */
+void UpdateImages(tVideoWall *thisobj) asm("UpdateImages__10tVideoWall");                         /* UpdateImages__10tVideoWall    */
 void Initialize(tVideoWall *thisobj, tTVConfig *cfgs, tTexture_ShapeInfo *shapes,
-                short a, short b, short *order, short c);
+                short a, short b, short *order, short c) asm("Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss");
 
 /* called game/FE/audio/PsyQ functions (Ghidra-dumped signatures) */
 void FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
 void FETextRender_MenuTextPositioned(short index, short x, short y, tMenuTextState textState, tMenuTextType textType);
-short * GetTrackList(tTournamentManager * thisobj, short tier, short tournament);
-void GetTrackToRace(tTournamentManager * thisobj, tTrackInfo * track);
-void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis);
+short * GetTrackList(tTournamentManager * thisobj, short tier, short tournament) asm("GetTrackList__18tTournamentManagerss");
+void GetTrackToRace(tTournamentManager * thisobj, tTrackInfo * track) asm("GetTrackToRace__18tTournamentManagerR10tTrackInfo");
+void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
-tTrackInformation * GetTrackByID(tTrackManager * thisobj, short track);
+tTrackInformation * GetTrackByID(tTrackManager * thisobj, short track) asm("GetTrackByID__13tTrackManagers");
 void FeDraw_SetABRMode(int abr);                                /* FeDraw_SetABRMode__Fi */
 
 #endif

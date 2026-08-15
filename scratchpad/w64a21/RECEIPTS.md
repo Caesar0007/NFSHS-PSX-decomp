@@ -92,6 +92,15 @@ Receipts: gate **2× 4/4 PASS** (unchanged) · `psyqproof` **REAL=0 RELOP=0** on
 symtab now mirrors the expected object exactly · CRLF preserved, 0 NUL/control bytes ·
 backup `scratchpad/w64a21/2mbyte.c.bak` · staged by explicit path.
 
+🔗 **COORDINATION FLAG for the orchestrator:** the immediately preceding commit
+(`8eb3987c`, w64-a20) drops `.type`/`.size` from `draww.cpp`'s file-scope asm as part of
+making 27 GNU-dialect TUs ASPSX-buildable ("retiring the W52 workaround"). My fix *adds*
+them to `2mbyte.c`. They are not in conflict today — I measured `psyqproof` REAL=0
+RELOP=0 on all four 2mbyte symbols **after** the edit — but if a tree-wide `.type`/`.size`
+purge is planned, `stup0` needs the equivalent expressed another way (e.g. moving the
+inline table out of the symbol, or teaching `fix_symsizes` not to treat a LOCAL label as a
+sizing boundary) or the board row silently reverts to 42.86 %.
+
 ## R6 — NOT landed (specced, per mission step 3)
 
 * **splat literal-`D_` pseudo-labels** (4 rows: `func_8010CA40`, `__divsf3`,

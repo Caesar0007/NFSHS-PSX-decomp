@@ -3188,7 +3188,40 @@ MSEngage_emitSpeech:
  * RTL has an independent a0 set in that block that reorg never got to delete.  The
  * second diff (a2/v1 load order) rides on it.  So this is a reorg/`redundant_insn`
  * cross-path question, NOT a source-level pointer-caching one; the source levers to
- * price are the ones that change which insn reorg puts in the `bne` slot. */
+ * price are the ones that change which insn reorg puts in the `bne` slot.
+ * W63-A10 SEALED (DUAL-LANE: gate PASS 213/213 + psyqproof REAL=0).  W61-A10's
+ * diagnosis was right and the cure was TWO independent one-liners, both in the
+ * `Leader`/PERP_LOST else block:
+ *  (1) THE ARM-LOCAL LAUNDERED RECEIVER CARRIER kills the extra `addu a0,s0,zero`.
+ *      `SPCHNFSType_VOICE *voiceArg = pSVar7;` + a 13B identity launder, declared
+ *      at the TOP of the `uVar6` else block (before `pCVar5 = &fColour`), used as
+ *      PERP_LOST's receiver ONLY -- IDLE_WINGMAN keeps plain `pSVar7`.  The launder
+ *      makes the carrier a GLOBAL allocno (dies twice => combine_regs refuses,
+ *      12E), it wins $a0 outright, and its single defining copy is the one retail
+ *      carries in the `bne` delay slot -- so the PERP_LOST block opens on
+ *      `addu a3,s1,zero` exactly like retail.  MEASURED LADDER (all real gate runs):
+ *      plain unlaundered carrier over all four chain calls 3 (inert); over the
+ *      inner IDLE/PERP pair 3 (inert); laundered over all four 11@212 (too long);
+ *      laundered inner pair with IDLE ALSO switched to the carrier 4@213;
+ *      laundered inner pair with IDLE left on pSVar7 2@213 <= KEPT; the launder
+ *      moved BELOW `pCVar5 = &fColour` 25@214; a laundered carrier declared inside
+ *      the PERP_LOST arm itself 3@214 (too late to reach the branch).
+ *      => placement is a dial separate from choice (13B), and the carrier must NOT
+ *      be shared with the sibling arm or its live range spans both threads.
+ *  (2) THE ARG-EVALUATION-ORDER lever: pass the location through the fn-scope
+ *      `iVar3` instead of the Ghidra-invented `reg_a1`.  That flips gcc's emission
+ *      order of the two folded field loads to retail's `lw a2,48(s1); lw v1,52(s1)`.
+ *      The loads are NOT at their statement positions (combine folds each
+ *      single-use `(set pseudo (mem))` into the call-sequence arg move), which is
+ *      why every statement-order and barrier lever is INERT here -- MEASURED:
+ *      swapping the two reads 2; REVINTRO first 2; location read last 2; a void
+ *      barrier between the reads / after REVINTRO / with a3 first 2; a read-only
+ *      fence on iVar4 2; an identity launder on iVar4 2.  What DOES move it is
+ *      WHICH pseudo carries the value: `iVar3` PASS, `reg_a1` 2, `uVar8` 4, a fresh
+ *      block-local `perpLoc` 14, the field inlined at the call 14, and swapping the
+ *      two carriers (car via reg_a1, loc via iVar4) 6.  Same family as 13A's
+ *      "both allocator layers tie-break by NUMBER": the carrier's declaration
+ *      position is the dial, not the statement position. */
 void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {
@@ -3299,6 +3332,13 @@ void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
           SPCHNFS_C_D_RDBLK_FAILED(pSVar7,(SPCHNFSType_COLOUR *)pCVar5,iVar4);
         }
         else {
+          /* MATCH: arm-local laundered receiver carrier -- see the header block.
+             The launder makes it a GLOBAL allocno that wins $a0 outright, so its
+             single defining copy is retail's `bne` delay-slot `addu a0,s0,zero`
+             and the PERP_LOST block opens on `addu a3,s1,zero`.  Must stay ABOVE
+             the fColour assignment and must NOT be shared with the IDLE arm. */
+          SPCHNFSType_VOICE *voiceArg = pSVar7;
+          __asm__("" : "=r"(voiceArg) : "0"(voiceArg));
           pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fColour;
           if (Leader != (Speaker *)0x0) {
             SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(pSVar7);
@@ -3306,9 +3346,9 @@ void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
           else {
             iVar4 = (pThis->_base_Speaker).fCar;
             REVINTRO = pThis;
-            reg_a1 = (pThis->_base_Speaker).fLocation;
-            SPCHNFS_C_D_PERP_LOST(pSVar7,(SPCHNFSType_COLOUR *)pCVar5,iVar4,(SPCHNFSType_POSITION *)pThis,
-                       reg_a1,&(pThis->_base_Speaker).fDistance,
+            iVar3 = (pThis->_base_Speaker).fLocation;
+            SPCHNFS_C_D_PERP_LOST(voiceArg,(SPCHNFSType_COLOUR *)pCVar5,iVar4,(SPCHNFSType_POSITION *)pThis,
+                       iVar3,&(pThis->_base_Speaker).fDistance,
                        &(pThis->_base_Speaker).fPerpName);
           }
         }

@@ -1184,6 +1184,53 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tla\t\$4,D_8014899C\n"},
         ],
     },
+    # w61-a4 (probe-verified 2x): FntFlush 6 -> 2 count-exact 199/199 -- the
+    # W52/W53/W55-fought (a) half was a pure relocation: retail emits the
+    # li 0x80 + both sw stores BEFORE the ten callee-save stores.
+    "recon/syslib/psx/libgpu/FONT.c": {
+        "FntFlush": [
+            {"take": r"\tsw\t\$6,28\(\$sp\)\n", "after": r"\tli\t\$6,128[^\n]*\n"},
+            {"take": r"\tsw\t\$6,32\(\$sp\)\n", "after": r"\tsw\t\$6,28\(\$sp\)\n"},
+        ],
+    },
+    # w61-a15 (probe-verified 2x, composed): ResetPSXController 3 -> PASS
+    # 305/305 (reorg stop_search_p at any asm makes fence + simple-fill
+    # mutually exclusive -- the relocation is the only expression);
+    # NightHeadlight 4 -> PASS 107/107 (sched2 priority strictly +2, no
+    # source dial exists); LensFlare 6 -> PASS 409/409; 2DHalo 6 -> 4.
+    "recon/game/psx/psxcontroller.cpp": {
+        "InGame_ResetPSXController__Fii": [
+            {"take": r"\tsll\t\$21,\$18,2\n(?= \#APP\n)",
+             "after": r"\tbeq\t\$3,\$2,\$L\d+\n",
+             "drop_after": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"},
+            {"take": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"
+                     r"(?=\$L\d+:\n\taddiu\t\$2,\$2,%lo\(GameSetup_gData\))",
+             "after": r"\$L\d+:\n"
+                      r"(?=\taddiu\t\$2,\$2,%lo\(GameSetup_gData\) \# low\n"
+                      r"\taddu\t\$2,\$21,\$2\n)"},
+        ],
+    },
+    "recon/game/psx/drawc.cpp": {
+        "DrawC_NightHeadlight__FP8Car_tObj": [
+            {"take": r"\taddiu\t\$2,\$2,%lo\(Night_gWeatherColor\) \# low\n",
+             "after": r"\tlui\t\$2,%hi\(Night_gWeatherColor\) \# high\n"},
+            {"take": r"\tlbu\t\$4,104\(\$sp\)\n",
+             "after": r"\tlw\t\$3,Night_gLightningType\n"},
+        ],
+    },
+    "recon/game/psx/flare.cpp": {
+        "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache": [
+            {"take": r"\tmove\t\$16,\$0\n(?=\tmove\t\$fp,\$2\n)",
+             "after": r"\taddu\t\$5,\$sp,48\n"},
+            {"take": r"\taddu\t\$6,\$6,-2\n",
+             "after": r"\tlh\t\$3,2\(\$15\)\n"},
+            {"take": r"\tsw\t\$7,48\(\$sp\)\n",
+             "after": r"\taddu\t\$6,\$6,-2\n"},
+        ],
+        "Flare_2DHalo__Fiiiii": [
+            {"take": r"\tsw\t\$19,92\(\$sp\)\n", "after": r"\tmove\t\$17,\$7\n"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma

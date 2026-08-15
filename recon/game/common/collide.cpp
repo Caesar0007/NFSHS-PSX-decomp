@@ -1044,6 +1044,29 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
         dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
                normalz.z / 256 * (vel.z / 256);
         __asm__("");
+        /* NEAR-MISS 14 (ours 763 / oracle 765) -- BOTH sites of this block carry the
+           SAME 7-insn residual (this one and the `zRange < 0` twin below), so a fix
+           here doubles.  Retail DEFERS dotz's `mflo $t3; addu $v1,$a0,$t3` past the
+           whole abs(dotx)/abs(doty) chain AND past the `slt $v0,$a1,$a3`
+           (= `doty < dotx`), then pays a `nop`:
+              retail  ... mult ; bgez a3 ; negu a3 ; bgez a1 ; negu a1 ;
+                          slt v0,a1,a3 ; mflo t3 ; addu v1,a0,t3 ; bgez v1 ; nop
+              ours    ... mult ; mflo t3 ; addu v1,a0,t3 ; bgez a3 ; negu a3 ;
+                          bgez a1 ; negu a1 ; slt v0,a1,a3
+           i.e. retail's mflo lands in a LATER BASIC BLOCK (after two conditional
+           branches), which gcc-2.8's per-BB sched2 can never do by scheduling --
+           it has to be the RTL emission order.  Ours completes dotz in the mult's
+           own block.
+           FALSIFIED (W61-A13, 2026-08-15, real gate runs on site 1):
+             delete this fence ................................. 15 @762
+             move this fence between doty and dotz ............. 23 @764
+           So the fence is NOT what pins the mflo (it is load-bearing for something
+           else: removing it LOSES an instruction).
+           NEXT ANGLE: the deferral is an emission-order fact -- read the -dl/-dg
+           RTL for this region and find what keeps our (set t3 (lo)) adjacent to the
+           mult; candidates are an opacity fence on `dotz` placed AFTER the abs
+           chain, or a source order in which the dotz SUM (not its terms) is written
+           after the dotx/doty abs statements. */
         if (dotx < 0) {
           dotx = -dotx;
         }
@@ -1369,7 +1392,33 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                `lw v0,48; ... lw s7,48; lw v1,56`.  Reusing dead maxrv as the Z
                accumulator explains the retail v0/v1 names but gates 28/49 depending
                accumulation order; inline identity and early-clobber variants also
-               regress.  The remaining angle is the line-1149 load-temporary graph. */
+               regress.  The remaining angle is the line-1149 load-temporary graph.
+               W61-A13 (2026-08-15) SHARPENED + 10 MORE FALSIFICATIONS.  Retail's
+               shape is exactly 2 LOADS + 2 COPIES (rp.x -> $a0, rp.z -> $a2 loaded
+               ADJACENTLY so the second fills the first's load-delay slot, then
+               `addu $v0,$a0` / `addu $v1,$a2` feed the two /256 idioms).  Ours is
+               3 LOADS + 1 nop + 0 copies (same count, hence 1164/1164 both ways).
+               So the missing device is "hold BOTH components live in their own
+               pseudos across the divides", not a spelling of the accumulation.
+               FALSIFIED, each a real gate run:
+                 plain symmetric expression (no split, no fence) ......... 15 @1163
+                 two block-local temps rpx/rpz (decl-init) ............... 22 @1162
+                 same, comma decl + separate assignment .................. 22 @1162
+                 rpz temp only .......................................... 22 @1162
+                 rpx temp only .......................................... 15 @1163
+                 plain + read-only fence on rp.z before the statement .... 16 @1164
+                 split + fence on rp.z instead of rp.x ................... 8 @1164 (ties base)
+                 split + fence on rp.z placed before the whole block ..... 16 @1164
+                 split + 2-operand fence "r"(rp.x),"r"(rp.z) ............. 9 @1165
+                 split + fence moved between the load and the /256 ....... 15 @1163
+               Every named-temp form is 2 insns SHORT: cse merges the temp with the
+               divide's working pseudo, deleting BOTH copies.  The copies survive in
+               retail because each source pseudo is still live at the copy point.
+               NEXT ANGLE (instrument, not spelling): -dl on this TU to see whether
+               our RTL even contains the two copies before local-alloc (the W59-11A
+               CalcWheelLockAcc lesson -- if cse folds them at expand, no source
+               spelling downstream can matter and the cure is an opacity fence on the
+               SOURCE, hoisted above every load it must not block). */
             maxrp = relativePosition.x;
             maxrp /= 256;
             asm volatile("" : : "r"(relativePosition.x));
@@ -1685,10 +1734,20 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
      the two tail read-only fences implement those exact zero-insn dials, fixing both saved-reg
      webs.  The minImpulse identity fence preserves retail's direct `slt impulse,min` clamp
      (removes the 0x1dffff compare and one instruction).  Result is count-exact 381 and 2 diffs;
-     scratchpad/verify_probe_camera_tailcam_textmove.py reaches PASS 381/381 by relocating the
-     existing `li $s3,-1` from the later blez slot to immediately after closestDist's branch
-     slot.  Required orchestrator wiring: PER_FN_TEXT_MOVES entry in
-     scratchpad/build_probe_camera_tailcam_textmove.py (source tools/build.py stays untouched). */
+     MATCH (W61-A13, 2026-08-15): SEALED 2 -> PASS 381/381 by a PURE SOURCE lever; the
+     previously-specified PER_FN_TEXT_MOVES wiring is WITHDRAWN (no longer needed).
+     The 2-diff residual was a delay-slot COMPETITION, not a text relocation: `j = 0;` sat
+     INSIDE `if (0 < numPoints)`, so the `blez numPoints` slot had no nearby eligible insn and
+     reorg's backward scan reached back past both Object_Get*CollisionData calls and stole
+     `li $s3,-1` (closestPoint = -1) into the slot -- which simultaneously emptied the oracle's
+     slot content AND sank the -1 out of the loop-top group.
+     FIX = hoist `j = 0;` ABOVE the guard (`j = 0; if (0 < numPoints) { do {...} while ... }`),
+     the natural rotated-for shape.  j=0 is then the NEAREST eligible insn, reorg fills the blez
+     slot with it (= oracle), and `li $s3,-1` stays directly after closestDist's `lui $s4,10`.
+     FALSIFIED en route: a void-tail scheduling fence __asm__ __volatile__("" : : "i"(0)) after
+     the two initializers DOES pin `li $s3,-1` to the oracle position (2 -> 1) but leaves the
+     blez slot a bare nop (382/381) -- it blocks the backward scan without supplying the
+     oracle's slot insn.  Not retained; the j=0 hoist subsumes it (PASS with the fence removed). */
   if (newObj->active != 0) {
     if (newObj->simOptz != 0) {
       Physics_TestForBarrierCollision((Car_tObj *)newObj);
@@ -1721,8 +1780,8 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
             numPoints = 1;
             Object_GetRadiusCollisionData(&objList,i,&pos,&fixedRadius);
             Object_GetPointsCollisionData(&objList,i,&numPoints,pointList);
+            j = 0;
             if (0 < numPoints) {
-              j = 0;
               do {
                 dist = Math_DistXZ(&pointList[j],&newObj->position);
                 if ((dist < fixedRadius + newObj->dimensionRadius) && (dist < closestDist)) {

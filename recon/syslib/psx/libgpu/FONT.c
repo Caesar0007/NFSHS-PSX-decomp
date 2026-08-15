@@ -143,6 +143,35 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   the glyph loop re-reads them), then the zero-cost fence forms become available; or dial
  *   sched2's ready list via the dependence chain of the FIRST post-prologue insn.
  *
+ *   W61-A4 -- THE (a) HALF IS SOLVED: 6 -> 2, count still EXACT 199/199.  W53-A12's own
+ *   mechanism note ("a fence is a BARRIER, so it can stop an insn from moving but cannot make
+ *   one float FURTHER up -- and the stores must move UP, past the prologue") is exactly the
+ *   signature of a PER_FN_TEXT_MOVES row, not of a source lever: the residual IS a pure line
+ *   relocation.  Retail emits `li $a2,0x80; sw $a2,0x1C($sp); sw $a2,0x20($sp)` BEFORE the ten
+ *   callee-save stores; cc1 emits both stores after them (and after `sw $zero,0x14($sp)`).
+ *   Relocating exactly those two lines reproduces retail's prologue verbatim -- same class as
+ *   the landed W60-A3 `_BlitClear` row (sched2 emission position, expressed as a relocation).
+ *   Probe-verified through the gate's own code (scratchpad/w61a4, W60_TEXT_MOVES_FILE hook on
+ *   a scratchpad copy of tools/vprobe.py; run twice, identical).  Anchors are label-agnostic
+ *   (no `$L<n>`) and the `li` anchor tolerates the trailing hex comment, per the W60 12F craft
+ *   rules; `sw $6,28($sp)` occurs exactly ONCE in the region, so the two rows cannot collide.
+ *   ORCHESTRATOR WIRING (I cannot edit tools/*.py):
+ *       PER_FN_TEXT_MOVES["recon/syslib/psx/libgpu/FONT.c"] = {
+ *           "FntFlush": [
+ *               {"take": r"\tsw\t\$6,28\(\$sp\)\n", "after": r"\tli\t\$6,128[^\n]*\n"},
+ *               {"take": r"\tsw\t\$6,32\(\$sp\)\n", "after": r"\tsw\t\$6,28\(\$sp\)\n"},
+ *           ],
+ *       }
+ *   RESIDUAL 2 = the (b) reload-inheritance half only, re-tested in the NEW basin per 04Z
+ *   (rung tables and lever verdicts are basin-relative) and all still falsified:
+ *   `TermPrim(&fs->draw_mode)` 2 (inert) / dropping the `dr` local entirely 14 /
+ *   void-tail fence before the call 9 (and -1 insn) / read-only fence on `dr` 45 (+1 insn).
+ *   VERSION AXIS CLOSED per-FUNCTION too (W61-A4, the 12G flag-dropping splice applied to the
+ *   maspsx lane, both fns spliced): 2.6.3 = 98/183 | 2.7.2 = 74/173 | 2.7.2-970404 = as-fails |
+ *   2.8.0 = 6/4 (FntPrint WORSE) | 2.8.1 (wired) = 6/3 | 2.91.66 = 182/255 | 2.95.2 = 156/243.
+ *   No rung to wire; the whole-TU NFS4_FORCE_CC1_ALT path still cannot reach the sub-2.8 rungs
+ *   at all (it does not drop `-mno-split-addresses`), only the per-fn splice can.
+ *
  *   W55-A8 re-attack on the (b) reload-inheritance half, STILL 6 (recorded so the ground is
  *   not re-walked a third time): `volatile DR_MODE *dr` + `(void *)` casts at the three use
  *   sites = 6 (no movement -- the volatile view does force a reload, but sched hoists it to

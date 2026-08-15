@@ -123,6 +123,29 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
 }
 
 /* ---- SimQueue_SetCurrentInput__Fi  [SIMQUEUE.CPP:271-290] SLD-VERIFIED ---- */
+/*
+ * NEAR-MISS 4 (count-exact 48/48).  Structure is SYM-exact: the 8c block lists
+ * exactly `i` (REG $4 = $a0) and `pIndex` (REG $3 = $v1), and both are ours.
+ * The whole residual is the %hi SCRATCH of the FIRST loop's `output` base:
+ *     ours    lui $v0,%hi(output) ; addiu $a2,$v0,%lo(output)   (separate temp)
+ *     oracle  lui $a2,%hi(output) ; addiu $a2,$a2,%lo(output)   (self temp)
+ * i.e. local-alloc COMBINED the HIGH pseudo with the LO_SUM dest in retail and
+ * did not in ours (3.15 v0-vs-a2 tie-break).  The SECOND loop's base uses the
+ * separate-temp form in BOTH builds, so it is a per-site allocator decision,
+ * not a flag or a declaration.
+ * FALSIFIED (W61-A13, 2026-08-15, each a real gate run, all 4 diffs / 48-48
+ * unless noted): for-loop form; `pIndex++`; cast-int index-term-first subscript
+ * `*(Input_tResults *)((pIndex << 2) + (int)output)`; explicit `&inputQueue...`
+ * source cast; per-iteration `Input_tResults *dst = output + pIndex` (28 @46);
+ * statement order `i` before `pIndex`; a void-tail fence before the first loop
+ * (9 @49); and -- in simqueue_externs.h -- `output[]` unsized and `output[64]`
+ * (3.12 #5 declaration-shape lever), both inert.
+ * NOT tentative-def-able: no oracle in the tree reaches `output` via %gp_rel, so
+ * the 3.12 #6 ownership gate forbids it.
+ * NEXT ANGLE: read the local-alloc handout (-dl) for this TU and find which
+ * pseudo blocks combine_regs on the HIGH (11A: "not local to this block OR DIES
+ * MORE THAN ONCE").  Do not spend more spellings.
+ */
 void SimQueue_SetCurrentInput(int time)
 
 {

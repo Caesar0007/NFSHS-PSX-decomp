@@ -179,7 +179,50 @@ void InGame_ResetPSXController(int player,int config)
          merge block's head so reorg would steal IT instead of the lui: without the fence
          260 (`player << 2` and `player * 4` identical), with the fence 5.  Spelling ALL
          ~28 hoff sites cast-int: without the fence 254, with the fence 3 and
-         bit-identical to the kept minimal three-site form -- so the minimal edit stays. */
+         bit-identical to the kept minimal three-site form -- so the minimal edit stays.
+   ---- w61-a15 (2026-08-15): 3 -> **PASS 305/305** via PER_FN_TEXT_MOVES; the source
+   axis is now CLOSED WITH A CITED MECHANISM, not a guess.
+   🔑 WHY NO SOURCE DEVICE CAN EVER WORK (gcc-2.8.1 reorg.c `stop_search_p`, lines
+   685-712): the backward delay-slot scan in `fill_simple_delay_slots` terminates
+   unconditionally at ANY asm insn --
+       case INSN: return (GET_CODE (PATTERN (insn)) == SEQUENCE
+                          || GET_CODE (PATTERN (insn)) == ASM_INPUT
+                          || asm_noperands (PATTERN (insn)) >= 0);
+   So a read-only fence ANYWHERE in the pre-branch block hides EVERY insn before it
+   from the scan -- including the `sll $21,$18,2` the fence itself exists to pin
+   there.  And the fence must be pre-branch (a late def/use pair does not make the
+   pseudo global; no fence = 254).  The two requirements are therefore mutually
+   exclusive BY THE COMPILER'S OWN CODE: fence pre-branch => scan blocked => reorg
+   falls through to the target steal and duplicates `lui $2,%hi(GameSetup_gData)`
+   (306); no fence => the giv is block-local, local-alloc grabs $s0 and the whole
+   6-way saved-reg rotation returns (254).  This retires the w60-a7 "open angle".
+   NEWLY FALSIFIED THIS WAVE (all from the 3 basin, all reconfirming the above):
+   hoisting the compare's two OPERANDS into locals so the fence is emitted LAST
+   pre-branch -- `int ct`/`int id` + fence + `if (ct != id)` 3 (bit-identical,
+   i.e. the operand hoist is inert); the same non-volatile 3; the same with the
+   ORIGINAL top-of-block fence kept as well 3; `u_short ct`/`u_short id` 22 @303;
+   the fence carrying `"r"(ct)` as a second operand 9 @306.
+   ⇒ ORCHESTRATOR ACTION -- wire this PER_FN_TEXT_MOVES row (probe-verified PASS
+   twice, TU-mates byte-unchanged: SetRamp 13, GetPSXPadValue 257, GetDevice PASS):
+       "recon/game/psx/psxcontroller.cpp": {
+           "InGame_ResetPSXController__Fii": [
+               {"take": r"\tsll\t\$21,\$18,2\n(?= \#APP\n)",
+                "after": r"\tbeq\t\$3,\$2,\$L\d+\n",
+                "drop_after": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"},
+               {"take": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"
+                        r"(?=\$L\d+:\n\taddiu\t\$2,\$2,%lo\(GameSetup_gData\))",
+                "after": r"\$L\d+:\n"
+                         r"(?=\taddiu\t\$2,\$2,%lo\(GameSetup_gData\) \# low\n"
+                         r"\taddu\t\$2,\$21,\$2\n)"},
+           ],
+       },
+   Move 1 puts the giv `sll $s5,$s2,2` in the controlType `beq`'s delay slot and
+   DELETES the eager-stolen `lui` duplicate (this is exactly retail's simple fill).
+   Move 2 slides the `$L` merge label ABOVE the surviving `lui %hi(GameSetup_gData)`
+   so both paths reach it once -- semantically identical to what we emit today and
+   byte-identical to retail.  All anchors are label-agnostic and verified unique in
+   the region (1 match each; the `lui %hi(GameSetup_gData)` pair is disambiguated by
+   lookahead).  Probe harness: scratchpad/w61a15/textmove_probe.py. */
   __asm__ volatile("" : : "r"(player * 4));
   if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
     frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
@@ -385,10 +428,24 @@ int InGame_GetPSXPadValue(int value,int player)
      spelling measured 322 and was rejected; in the 279 basin it is the BEST of the
      four (264 vs 271/271/271 for if/else, ternary and default-then-override) --
      a textbook basin-relative falsification (catalog w45 LEVER-ORDER law). */
-  type = gPadinfo.buf[player * 4].ID;
+  /* w61-a15 (264 -> 257): the nopad select transferred from front.cpp's
+     sealed-adjacent GetPSXPadValue (18-diff twin).  The GOTO form + the
+     zero-insn `__asm__("")` on the ID path reproduces retail's
+     `bnez; li 0x53; lbu ID; j; nop; type=0` layout and lets gcc reuse the
+     single 0x53 materialization at the switch join.  MEASURED from the 264
+     basin: goto+fence 264 -> 257 (@212 insns), goto WITHOUT the fence 271
+     (@210).  This is the device the w53-a4 "guard-polarity lead is dead"
+     receipt never tried -- it swept plain if/else spellings only. */
   if (gPadinfo.buf[player * 4].nopad != '\0') {
-    type = 0;
+    goto InGame_GetPSXPadValue_noPad;
   }
+  type = gPadinfo.buf[player * 4].ID;
+  __asm__("");
+  goto InGame_GetPSXPadValue_gotType;
+InGame_GetPSXPadValue_noPad:
+  type = 0;
+  goto InGame_GetPSXPadValue_gotType;
+InGame_GetPSXPadValue_gotType:
   switch (type) {
   case 0x53:
   case 0x73:
@@ -635,7 +692,38 @@ int InGame_GetDevice(int control)
  * 17.  All four are the SAME 17 and all keep the hoist, so the movable's LIST POSITION
  * is not the dial here -- consistent with the w49 finding that every spelling collapses
  * to one RTL movable.  The two named angles (ARM-DUPLICATION of the materialization so
- * cse1 cannot re-merge it, and a per-fn loop-flag splice) are still the only ones left. */
+ * cse1 cannot re-merge it, and a per-fn loop-flag splice) are still the only ones left.
+ * ---- w61-a15 (2026-08-15): 13 STAYS.  TWO deliverables, both measured.
+ * (1) **PER_FN_NO_SPLIT_ADDRESSES IS PRICED AND NEGATIVE -- DO NOT WIRE IT.**  The
+ *     mechanism now EXISTS in build.py (the w59-a7/w60-a4 CdRead adopter), so the
+ *     w46-a8 "gcc has no per-symbol switch" note was re-tested for real: a probe copy
+ *     of build.py with `"recon/game/psx/psxcontroller.cpp": {"InGame_SetRamp__Fv"}`
+ *     in PER_FN_NO_SPLIT_ADDRESSES gives **SetRamp 41 @101** (vs 13 @99).  The splice
+ *     is faithful and surgical -- the three TU-mates are byte-unchanged
+ *     (ResetPSXController 3, GetPSXPadValue 257, GetDevice PASS) -- so this is a
+ *     clean per-fn pricing, not a whole-TU artifact: the object simply is not a
+ *     no-split-addresses object, exactly as w46 concluded for the whole TU.  Harness:
+ *     scratchpad/w61a15/nosplit_probe.py.
+ * (2) THE loop.c THRESHOLD ARITHMETIC, WORKED THROUGH ON THE REAL SOURCE
+ *     (C:/Temp/gccsrc/gcc-2.8.1/loop.c).  `move_movables` moves iff
+ *     `already_moved || (threshold * savings * lifetime) >= insn_count`, with
+ *     `threshold = (loop_has_call ? 1 : 2) * (1 + n_non_fixed_regs)` (line 535) and
+ *     `threshold -= 3` after EVERY accepted move (lines 1728 / 1913).  The `&hoff`
+ *     HIGH movable's savings 2 / life 2 is NOT a coincidence: `force_movables`
+ *     (lines 1226-1231) does `m1->lifetime += m->lifetime; m1->savings += m1->savings;`
+ *     for a HIGH/LO_SUM pair -- i.e. the pair's 4 is STRUCTURAL and no source spelling
+ *     can lower it (this is why every respelling collapses to the same movable).
+ *     Calibrating T from our own -dL verdicts (savings1*life1 refused at insn_count 58
+ *     => T < 58; savings2*life2 taken => 4T >= 58) and from the decay schedule, our
+ *     loop has T0 ~= 28 (loop_has_call = 1); after the 3 movables retail also keeps
+ *     T ~= 19, so declining the pair needs `4*19 < insn_count`, i.e. **insn_count >= 77
+ *     with the &hoff movable ordered LAST**.  w46 reached only 67 (with the pair
+ *     FIRST, where the bound is 4*28 = 112) and w60 moved it later WITHOUT inflating
+ *     the count -- the two halves were never combined.  That combination is the one
+ *     arithmetically-live source angle left, and it is expensive (each inflator w46
+ *     measured survives to the output, +7 gate per 2 insns), so it is recorded as a
+ *     PRICED angle, not a recommendation.  The cheap read: this residual is 3 insns
+ *     and the whole remaining search space is a 19-insn RTL inflation. */
 void InGame_SetRamp(void)
 
 {

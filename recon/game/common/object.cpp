@@ -794,7 +794,26 @@ traffic_object:
          second residual (the carObj base $a0-vs-$v0 at :779/:780) does NOT respond to
          an opacity fence on `carObj` (11, unchanged).  So the missing copy is a
          local-alloc copy-preference question (06E), consistent with the W56-A14
-         inner-shadow measurement, and the remaining route is a permuter re-seed. */
+         inner-shadow measurement, and the remaining route is a permuter re-seed.
+         FALSIFIED (W61-A13, 2026-08-15) -- the W60 12D DEAD-PSEUDO-STAGING route is
+         now closed too.  SYM 8c @800a5c80 (block line 117) gives the ground truth:
+         `i` = REG $5 = $a1 and `carObj` = REG $4 = $a0, so retail's missing insn
+         `addu a0,a1,zero` stages i's zero THROUGH carObj's own register -- exactly
+         the shape 12D says to reproduce by assigning into the register's owning
+         variable rather than inventing one.  Measured (real gate runs):
+           carObj = (Car_tObj *)i;  + guard `(int)carObj < N` ....... 19 @212
+           same with the guard written Yoda ......................... 19 @212
+           drop the redundant `i < N` guard conjunct entirely ........ 11 @212
+           guard on the literal `0 < N` ............................. 13 @214
+           guard `0 < N` + `for (; i < N; i++)` ..................... 13 @214
+           guard `i < N` + `for (; i < N; i++)` ..................... 11 @212
+           guard Yoda `N > i` + `for (i = 0; ...)` .................. 11 @212
+           guard `0 < N` + `for (i = i; ...)` ....................... 13 @214
+         Note the literal-guard forms DO add two instructions (214) but the wrong
+         ones.  Every route that produces retail's copy also moves the loop counter
+         off $a1 (W56-A14) -- 12E's law in the flesh: a dial buys retail's REGISTER
+         or retail's COUNT, never both.  Instrument-only from here (local-alloc
+         copy preference); do not spend more spellings. */
       i = 0;
       if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
           (i < Cars_gNumTrafficCars)) {

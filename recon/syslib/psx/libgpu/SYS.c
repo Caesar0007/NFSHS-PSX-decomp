@@ -725,6 +725,31 @@ extern void *PutDispEnv(void *env)
      * `hi | lo` at all three sites = 60 (order right, registers still wrong -- the same
      * coupling `_set_draw_mode` shows); ALSO swapping the comma-staging so `lo` is assigned
      * first = 124 (it changes which field lands in $a0).
+     * W61-A4 -- THE 22-POSITION $v0/$v1 SWAP IS PRICED, AND IT IS A **LOCAL-ALLOC** QTY
+     * ORDERING, NOT the global set_preference story that governs `_set_draw_mode` (read the
+     * mechanism there first; both are needed).  Instrumented cc1 (GCC_TRACE_ALLOC=1 on
+     * C:/Temp/gccbuild-ecoff/cc1.exe, the 2.8.1 lane's flags) prints this block for the first
+     * `send_gp1` site -- every temp there is block-local, so global.c never sees them:
+     *     [qty_order] 1/96:6/14=8571   0/97:6/18=6666   2/104:2/4=5000  3/95:2/4=5000 ...
+     *     qty1 (the x-chain -> $a0, suggested by the call arg) -> reg 4
+     *     qty0 (the y-chain = `hi`, refs 6 life 18)            -> reg 2   <-- ours
+     *     qty2 (the 0x5000000 command constant `K`, refs 2 life 4) -> reg 3
+     * Retail has K in $v0 and `hi` in $v1 (and then the driver-table fn-ptr reuses $v0, which
+     * is where the rest of the 22 positions come from), i.e. retail allocated K BEFORE hi.
+     * QTY_CMP_PRI = floor_log2(refs)*refs*size/life*10000 (local-alloc.c:1727), so the flip
+     * needs pri(K) > 6666: refs 2 -> 4 at life 4..6 gives 13333.  That is exactly the 12C
+     * REF-STEP dial, and it is REACHABLE ONLY IF K IS A NAMED LOCAL -- which is where it dies:
+     * naming K alone costs +4 (58) before any fence is applied, and the fenced forms recover
+     * only 2 of that.  MEASURED (site 1 only, all count-neutral 318/318, all reverted):
+     *   named `k` local, no fence 58 | + 1-operand read-only fence 56 | + 2-operand 56 |
+     *   + 3-operand 56 | 2-operand fence with the final or spelled `hi | lo` 58.
+     * So the dial exists and is priced, but the +4 naming penalty swamps it at this site.
+     * NAMED NEXT ANGLE (untried, and the one the mechanism actually points at): give the
+     * command constant its extra refs WITHOUT naming it -- e.g. share ONE named constant
+     * across all three sites, so the naming cost is paid once while the ref count rises to
+     * 6 -- or find the source shape that makes `hi` conflict with $a0 (the call-argument
+     * register IS live across hi's range here, unlike $v0 in `_set_draw_mode`, so retail's
+     * "op0 preferred the dest and was denied" is genuinely source-reachable in this fn).
      *
      * W52-A3: the four range clamps and the two "compute-then-override" pairs are the
      * PsyQ CLAMP macro and plain ternaries -- the same idiom the matched PSY-Q 4.0
@@ -1093,7 +1118,42 @@ extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
      * exhausted.  What is left is a post-reload operand-slot choice; the only vehicles that
      * could reach it are an RTL-level instrument (06E) or a mechanism that rewrites the
      * operand in the .s -- and a bare line-rewrite mechanism would be hand-asm smuggling,
-     * NOT a TEXT_MOVES-class relocation.  Do not re-grind spellings here. */
+     * NOT a TEXT_MOVES-class relocation.  Do not re-grind spellings here.
+     *
+     * W61-A4 -- THE MECHANISM, READ OUT OF THE GCC SOURCE (this replaces "post-reload
+     * operand-slot choice", which was a guess).  The operand order is NOT chosen after
+     * reload: it is the RTL order, fixed at expand, and it is COUPLED to the register map
+     * through ONE function, global.c:1584 `set_preference`:
+     *     if (GET_RTX_FORMAT (GET_CODE (src))[0] == 'e') src = XEXP (src, 0), copy = 0;
+     * i.e. for `(set (reg 2 v0) (ior A B))` the FIRST ior operand A -- and only A -- is given
+     * a hard-reg PREFERENCE for the dest ($v0).  Then global.c:571 `prune_preferences` builds
+     * `regs_someone_prefers[X]` = the preferences of every LOWER-priority allocno that
+     * conflicts with X, MINUS X's own preferences; and global.c:982 `find_reg` pass 0 treats
+     * those as used.  MIPS defines no REG_ALLOC_ORDER, so the fallback scan is the numeric
+     * 0,1,2,... = $v0 first.  Consequences, all confirmed by A/B here:
+     *   `lo | hi` -> lo (op0) prefers $v0, takes it, hi falls to $v1  => `or $v0,$v0,$v1` (2)
+     *   `hi | lo` -> hi (op0) prefers $v0, takes it, lo (which also prefers $a2 via
+     *                `(set lo (and (reg 6 a2) 0x9ff))`, same set_preference rule) takes $a2,
+     *                and $v0 is in regs_someone_prefers[lo] so pass 0 skips it => 10 diffs.
+     * RETAIL is `hi | lo` (op0 = hi) WITH lo in the dest $v0 -- i.e. retail's hi had NO usable
+     * $v0 preference, which per prune_preferences means retail's hi CONFLICTED with hard reg
+     * $v0.  In this function $v0 is live only at the epilogue, after hi is dead, so that
+     * conflict is not source-reachable here.  (It IS reachable in a function where the dest
+     * hard reg is a CALL-ARGUMENT register that is live across the first operand's range --
+     * that is the named angle for PutDispEnv, see its block.)
+     * NEW FALSIFICATIONS (all gate-measured, all reverted): identity fence on hi 10;
+     * read-only fence on tpage to kill lo's $a2 preference 10 (it WORKS -- lo moves $a2 -> $v1
+     * -- but hi still wins $v0, so the pair is still swapped); `lo |= hi; return lo;` 2;
+     * `lo = hi | lo; return lo;` 2 (expand_binop swaps a commutative op so op0 == target, so
+     * both fold back to the baseline); `hi |= lo; return hi;` 10; if/return two-ior forms
+     * (both arms `hi | (lo|0x400)` / `hi | lo`) 12/14 at 10 insns (the duplicate tails do not
+     * cross-jump); both-ternary `hi | (dfe ? lo|0x400 : lo)` 10 at 10 insns; the same with a
+     * result local declared FIRST 10.
+     * VERSION AXIS RE-LADDERED IN THE `hi | lo` BASIN TOO (04Z: rung tables are basin-relative,
+     * so the W60-A3 table -- measured only in the `lo | hi` basin -- did not close this):
+     * 2.7.2 = 10 | 2.8.0 = 10 | 2.8.1 = 10 | 2.91.66 = 10 (2.6.3 / 2.7.2-970404 / 2.95.2
+     * as-fail on the spliced region).  Both basins are rung-invariant; the axis is CLOSED
+     * twice over. */
     u_long hi = 0xe1000000u;
     u_long lo;
     if (dtd != 0)

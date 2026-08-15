@@ -444,6 +444,32 @@ SimMainLoop_inputDone:
             SimQueue_SetCurrentInput(simVar.currentClockTicks >> 1);
           }
           InBetween = 0;
+          /* NEAR-MISS 6 (ours 319 / oracle 321) -- W61-A13 2026-08-15, DIAGNOSED.
+             Not a coloring or a statement-order residual: it is pure BASIC-BLOCK
+             PLACEMENT of the shared Sim_ProcessSimSchedules() block.  Label the
+             three arms A = the shared PSS (this if's then-arm, also the target of
+             all four condition branches), B = the speed==3 arm, C = the
+             InBetween/Camera_Update arm.  Retail lays them out [B][C][A]:
+                 bne v1,v0,.L7158 ; jal PSS ; j .L716C          <- B (ONE call + j)
+               .L7158: sw s0,InBetween ; jal Camera_Update ; j .L7174   <- C
+               .L716C: jal PSS                                   <- A
+               .L7174:
+             so gcc cross-jump-merged B's SECOND call into A and B pays a `j`.
+             Ours lays them out [B][A][C]: B falls straight THROUGH into A, so the
+             `j`+`nop` pair never exists -- byte-for-byte identical merge, 2 insns
+             shorter.  Everything else in the function matches.
+             FALSIFIED (each a real gate run):
+               goto-shared-tail, one call in B (label after C) ....... 38 @317
+               goto-shared-tail, both calls in B .................... 32 @319
+               negated outer guard, no gotos ....................... 32 @319
+               inner if/else inverted (C arm written first) .......... 8 @319
+               base + explicit `goto` out of the C arm .............. 6 @319 (ties)
+               negated guard + shared call textually last .......... 38 @317
+             The goto forms make it WORSE because gcc then folds B entirely
+             (`beq a0,v0,.Lshared`), losing B's own call.
+             NEXT ANGLE: this is a jump.c/cross_jump block-ordering question, not a
+             spelling one -- dump the RTL after jump2 and find which pass puts A
+             adjacent to B.  Do not spend more source permutations. */
           if ((Replay_ReplayMode != 2) ||
               (Replay_ReplayInterface.speed == 2) ||
               ((Replay_ReplayInterface.speed == one) &&

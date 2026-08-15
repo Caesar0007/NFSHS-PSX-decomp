@@ -370,7 +370,39 @@ void NFS3_CheckForFileOperations(void)
    * gcc hoists a single `addu a1,zero,zero` OUT of the loop -- 19 insns, retail
    * materializes both INSIDE); a named `int *end` loop bound (inert, 9).
    * Per 08D this class is only reachable by naming the register, i.e. the
-   * USER-blocked $4-clobber-fence policy -- do not spend spellings here. */
+   * USER-blocked $4-clobber-fence policy -- do not spend spellings here.
+   *
+   * W61-A13 (2026-08-15) -- THE PARKED "$4-CLOBBER POLICY" PREMISE IS REFUTED,
+   * and 9 -> 8 landed PIN-FREE.  Two separate findings:
+   *
+   * (1) LANDED, pin-free: the template is `"break 0x666\n\tnop"`, not `"break 0x666"`.
+   *     Retail's oracle carries a standalone `nop` right AFTER the break (insn 14,
+   *     NOT a delay slot -- the bnez slot is insn 18).  Neither maspsx nor GNU as
+   *     emits it for us, so it belongs in the transcription, exactly like the
+   *     explicit post-`jal` nops in PATCH.cpp/blockmove (catalog SS-G rows).
+   *     RESULT: 9 diffs (ours 20 / oracle 21) -> 8 diffs, COUNT-EXACT 21/21.
+   *     The whole residual is now the single operand-register question below.
+   *
+   * (2) THE POLICY QUESTION IS AIMED AT THE WRONG MECHANISM.  Priced on the real
+   *     gate (all probes restored; nothing pin-adjacent was landed):
+   *         base + nop template, no clobber ........ 8 diffs  21/21   [LANDED]
+   *         + clobber "$4"  (the parked device) .... 2 diffs  21/21
+   *         + clobber "$5" ......................... 6 diffs  21/21
+   *         + clobber "$7" ......................... 8 diffs  21/21
+   *     The clobber-"$4" residual is `-addu a3,a2,zero` / `+addu a0,a2,zero`:
+   *     retail's SECOND asm operand IS $a0.  Retail does not clobber $a0 -- it
+   *     ALLOCATES $a0 to the operand, which is precisely why the loop bound has to
+   *     be copied out of $a0 into $a1 (`addu a1,a0,zero` in the guard's beqz slot)
+   *     and why the loop tests `sltu v0,v1,a1`.  A $4 clobber therefore CANNOT
+   *     reproduce retail (it forbids the very allocation retail made) and stalls at
+   *     2.  => the standing "$4-clobber sign-off" item does not unblock this fn; the
+   *     real question is a pin-free ASM-OPERAND allocation dial: make gcc hand the
+   *     operand pair {$a2,$a0} instead of {$a1,$a2}.
+   *     ALSO FALSIFIED in the NEW 21/21 basin (09K basin-relative re-test of the
+   *     W59 verdicts): named bound `int *end = mgr->handlearray;` = 8 (inert here
+   *     too); read-only fence on `end` = 10; `while` form = 16 @19; three "r"(0)
+   *     operands = 9 @22; "memory" clobber = 18 @21; two named zero locals = 15 @18.
+   *     Next instrument: -dl/-dg on this TU to read which allocno wins $a0. */
   FileMgr *mgr = &gFileMgr;
   int *piVar1;
 
@@ -379,7 +411,8 @@ void NFS3_CheckForFileOperations(void)
 #if defined(__mips__)
       /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
        * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
-      __asm__ __volatile__("break 0x666" : : "r"(0), "r"(0));
+      __asm__ __volatile__("break 0x666
+	nop" : : "r"(0), "r"(0));
 #else
       trap(0x666);   /* host build: no MIPS break */
 #endif

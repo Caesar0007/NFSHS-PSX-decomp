@@ -1,0 +1,140 @@
+=== R0 control (launder)
+_padInitSioMode: FAIL 26 diffs (ours 205 / oracle 205)
+    -addiu sp,sp,-40
+    -sw s0,24(sp)
+    +addiu sp,sp,-32
+    +sw s0,16(sp)
+    -sw ra,32(sp)
+    -sw s1,28(sp)
+    +sw ra,24(sp)
+    +sw s1,20(sp)
+    -lbu v0,54(s0)
+    -nop
+    -bnez v0,T
+    -addu v0,zero,zero
+    -li v0,1
+    -lw ra,32(sp)
+    -lw s1,28(sp)
+    -lw s0,24(sp)
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+    +lw ra,24(sp)
+    +lw s1,20(sp)
+    +lw s0,16(sp)
+    -addiu sp,sp,40
+    +addiu sp,sp,32
+=== R1 laundered byte temp
+_padInitSioMode: FAIL 26 diffs (ours 205 / oracle 205)
+    -addiu sp,sp,-40
+    -sw s0,24(sp)
+    +addiu sp,sp,-32
+    +sw s0,16(sp)
+    -sw ra,32(sp)
+    -sw s1,28(sp)
+    +sw ra,24(sp)
+    +sw s1,20(sp)
+    -lbu v0,54(s0)
+    -nop
+    -bnez v0,T
+    -addu v0,zero,zero
+    -li v0,1
+    -lw ra,32(sp)
+    -lw s1,28(sp)
+    -lw s0,24(sp)
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+    +lw ra,24(sp)
+    +lw s1,20(sp)
+    +lw s0,16(sp)
+    -addiu sp,sp,40
+    +addiu sp,sp,32
+=== R2 plain byte temp
+_padInitSioMode: FAIL 26 diffs (ours 205 / oracle 205)
+    -addiu sp,sp,-40
+    -sw s0,24(sp)
+    +addiu sp,sp,-32
+    +sw s0,16(sp)
+    -sw ra,32(sp)
+    -sw s1,28(sp)
+    +sw ra,24(sp)
+    +sw s1,20(sp)
+    -lbu v0,54(s0)
+    -nop
+    -bnez v0,T
+    -addu v0,zero,zero
+    -li v0,1
+    -lw ra,32(sp)
+    -lw s1,28(sp)
+    -lw s0,24(sp)
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+    +lw ra,24(sp)
+    +lw s1,20(sp)
+    +lw s0,16(sp)
+    -addiu sp,sp,40
+    +addiu sp,sp,32
+=== R3 uchar byte temp
+_padInitSioMode: FAIL 26 diffs (ours 205 / oracle 205)
+    -addiu sp,sp,-40
+    -sw s0,24(sp)
+    +addiu sp,sp,-32
+    +sw s0,16(sp)
+    -sw ra,32(sp)
+    -sw s1,28(sp)
+    +sw ra,24(sp)
+    +sw s1,20(sp)
+    -lbu v0,54(s0)
+    -nop
+    -bnez v0,T
+    -addu v0,zero,zero
+    -li v0,1
+    -lw ra,32(sp)
+    -lw s1,28(sp)
+    -lw s0,24(sp)
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+    +lw ra,24(sp)
+    +lw s1,20(sp)
+    +lw s0,16(sp)
+    -addiu sp,sp,40
+    +addiu sp,sp,32
+=== R4 read-only fence on one after the test
+_padInitSioMode: FAIL 26 diffs (ours 205 / oracle 205)
+    -addiu sp,sp,-40
+    -sw s0,24(sp)
+    +addiu sp,sp,-32
+    +sw s0,16(sp)
+    -sw ra,32(sp)
+    -sw s1,28(sp)
+    +sw ra,24(sp)
+    +sw s1,20(sp)
+    -lbu v0,54(s0)
+    -nop
+    -bnez v0,T
+    -addu v0,zero,zero
+    -li v0,1
+    -lw ra,32(sp)
+    -lw s1,28(sp)
+    -lw s0,24(sp)
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+    +lw ra,24(sp)
+    +lw s1,20(sp)
+    +lw s0,16(sp)
+    -addiu sp,sp,40
+    +addiu sp,sp,32

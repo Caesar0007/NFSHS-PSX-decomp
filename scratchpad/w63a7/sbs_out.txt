@@ -1,0 +1,16 @@
+=== B3 default-then-override
+  _dirCheck: FAIL 1 diffs (ours 12 / oracle 11)
+      -jr ra
+ours=12 oracle=11
+   0 lhu v0,230(a0)                       |    0 lhu v0,230(a0)
+   1 nop                                  |    1 nop
+   2 beqz v0,T                            |    2 beqz v0,T
+   3 li v0,255                            |    3 li v0,255
+   4 lbu v1,70(a0)                        |    4 lbu v1,70(a0)
+   5 nop                                  |    5 nop
+   6 beq v1,v0,T                          |    6 beq v1,v0,T
+   7 addu v0,zero,zero                    |    7 addu v0,zero,zero
+   8 jr ra                              X |      
+   9 li v0,1                              |    8 li v0,1
+  10 jr ra                                |    9 jr ra
+  11 nop                                  |   10 nop

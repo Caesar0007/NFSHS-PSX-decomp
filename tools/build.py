@@ -1364,6 +1364,16 @@ PER_FN_TEXT_MOVES = {
             {"take": "\\tla\\t\\$7,\\$LC0\\n(?=\\tj\\t\\$L\\d+\\n\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)", "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)", "slot": True},
         ],
     },
+    # w63-a7 (proven 2x; spliced object OBJDUMP-VERIFIED = retail 11 words,
+    # both branch targets exact): _dirCheck 1 -> PASS 11/11. Undoes
+    # make_return_insns (reorg.c:4289) duplicating the return; li rejoins
+    # the fall-through block. NOTE: the analogous _padInitDirSeq splice is
+    # a GATE-BLIND DEAD-CODE BUG (store past the return) -- never wire it.
+    "recon/syslib/psx/libpad/PADSEQD.c": {
+        "_dirCheck": [
+            {"take": "\\tli\\t\\$2,1[^\\n]*\\n", "after": "\\t\\.set\\tnomacro\\n(?=\\tj\\t\\$31\\n)", "drop_after": "\\tj\\t\\$31\\n"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma

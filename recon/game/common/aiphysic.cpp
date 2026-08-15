@@ -334,7 +334,18 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
      forces the %lo out of the load, so it is structurally worse than the count-exact
      baseline and was NOT landed.  Only a 2nd memory ref off the same %hi keeps that
      pseudo live for free, and retail has only one.  Next lens = qtytrace (local-alloc
-     QTY birth/death), not the permuter. */
+     QTY birth/death), not the permuter.
+     W63-A12 re-gated the certificate (8 @ 18/18, unchanged) and FALSIFIED ONE NEW ANGLE:
+     the UNSIZED-ARRAY ASM-LABEL VIEW (methodology 3.12 #5 / catalog storage-shape #2),
+     `extern int GameSetup_gData_view[] __asm__("GameSetup_gData");` read as
+     `*(volatile int *)&GameSetup_gData_view[0]`.  That lever is the documented cure for
+     exactly this "%hi folds into the load's own dest" symptom elsewhere in the tree, but
+     here it is INERT at BOTH declaration scopes (block-scope AND file-scope: 8 diffs,
+     byte-identical output).  Reading: the volatile cast already pins the MEM so
+     mips_check_split never runs, leaving the array-vs-scalar shape nothing to decide --
+     the self-temp comes from local-alloc coalescing the dead dest onto the DYING BASE,
+     not from address materialization; and a view without the volatile cannot be used at
+     all (the read is then DCE'd).  The storage-shape axis is CLOSED for this fn. */
 }
 
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */

@@ -1155,12 +1155,32 @@ LAB_80070704:
       int latOffset;
       int slicePtr;
 
+      /* W63-A12 SEAL (15 -> PASS 300/300, psyqproof REAL=0).  Retail fills the
+       * `beqz $s6` (forceLatAction) delay slot with `lui $v1,0x60000` -- i.e. the
+       * bias constant is materialized as its OWN insn in the same basic block, just
+       * before the branch, where reorg's simple fill can take it.  Written inline as
+       * `dimension.x + 0x60000` cc1 folds the lui into the arm and emits it AFTER the
+       * targetCar_ load, leaving the slot to a nop (the whole 15-diff residual, 301 vs
+       * 300).  The cure is the DoRearEnder pair: an ASSIGNED local (never
+       * decl-with-init -- that is const-propagated straight back) plus a zero-insn
+       * OPACITY/IDENTITY fence `__asm__("" : "=r"(x) : "0"(x))` to stop cse folding it.
+       * 🔴 PLACEMENT IS THE WHOLE LEVER: with the fence BETWEEN the assignment and the
+       * branch it lands 15 -> 3 but the slot STAYS a nop -- an asm is a reorg backward-
+       * scan barrier (catalog 06B HARD BOUNDARY), so it walls the lui off from its own
+       * delay slot.  Moving the fence BELOW the if/else keeps the pseudo real (cse
+       * still cannot fold across it) while leaving the lui as the last insn before the
+       * branch => reorg fills the slot => PASS.  General rule: when an opacity fence is
+       * used to mint a constant for a DELAY SLOT, the fence must sit AFTER the consumer,
+       * never between the def and the branch. */
+      int latBias;
+      latBias = 0x60000;
       if (forceLatAction != 0) {
-        latOffset = (this->targetCar_->N).dimension.x + 0x60000;
+        latOffset = (this->targetCar_->N).dimension.x + latBias;
       }
       else {
         latOffset = (this->relPosition_).x;
       }
+      __asm__("" : "=r"(latBias) : "0"(latBias));
       targetLanePosition = (this->delayCar_).roadPosition_ + latOffset * dir;
       /* W62-A9 EAGER-SUM BARRIER: retail completes this sum inside the mult
        * latency (`lw v0,76; mult; lw v0,56; mflo t1; addu a0,v0,t1`); without

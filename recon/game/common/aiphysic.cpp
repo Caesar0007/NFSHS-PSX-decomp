@@ -1085,7 +1085,16 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * locals and NO pointer) with all 14 uses spelled AIPhysicConfig.OOCModel.X -> 9,
    * gcc still builds an address pseudo but splits it across two regs, so 09K applies
    * (the SYM-absent local is load-bearing here).  Baseline stands; next lens = qtytrace
-   * sched1 ready-list, not source shape. */
+   * sched1 ready-list, not source shape.
+   * W63-A12 re-gated (5 @ 413/412) and FALSIFIED one more shape: ARG-PRECOMPUTE, i.e.
+   * hoisting the call argument into a block-local (`int look = direction *
+   * AIPhysicConfig.latvelcalc_lookahead;`) so that `uTurn = 0;` becomes the LAST
+   * statement before the jal and reorg's simple fill can take it -- INERT (5, byte
+   * identical).  Reading: the two insns retail swaps are both already adjacent to the
+   * call in our RTL; the choice between them is made by sched1's ready list, and no
+   * statement-position change alters which one it releases (consistent with the 3 prior
+   * waves).  This closes the STATEMENT-ORDER axis alongside the already-closed
+   * cfg-placement, void-fence and SYM-purge axes; qtytrace remains the only open lens. */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

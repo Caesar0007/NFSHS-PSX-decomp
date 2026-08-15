@@ -2483,6 +2483,19 @@ stateExecuteAndReturn:
      read-only fence on offset AFTER  the .y store   -> 500 diffs / 699 insns
      identity fence ("" : "=r"(offset) : "0"(offset)) -> 489 diffs / 698 insns
    The first and third land on EXACTLY the same 489/698 as simply dropping the capture,
+   W63-A12 re-gated (4 @ 675/675) and adds TWO measurements.  (i) NEW FALSIFICATION:
+   reordering all three arms to `offset = &X; memset((u_char *)offset,'\0',0xc);` (so the
+   address pseudo is BORN before the call and must survive it, the classic REG_EQUIV
+   remat trigger) is INERT -- 4 diffs, byte-identical.  (ii) THE RESIDUAL IS SHARPENED
+   TO AN ALLOCATION FACT, not a remat one: the oracle sets the arg IN THE ARM
+   (`addiu $a2,$sp,0x48` @0x8005E904 and `addiu $a2,$sp,0x38` @0x8005EBF8, both several
+   insns BEFORE the `j` to the shared Newton block), i.e. retail's `offset` pseudo is
+   simply ALLOCATED TO $a2, so each arm's `offset = &X` IS the arg setup and no copy
+   exists.  Ours allocates it elsewhere and copies (`addu a2,v0,zero`) at the call.
+   Note the THIRD arm (sp+0x28, three sites) already matches -- so the ask is a
+   per-pseudo handout (offset -> $a2), and allocsim reports MATCH 45/45 on this fn with
+   NO pseudo homed in $v0, i.e. the losing address pseudo is a LOCAL-ALLOC qty, outside
+   allocsim/reqdelta's model.  Next lens = qtytrace, exactly as for CheckDesiredDirection.
    so `offset`'s liveness is IRRELEVANT: the basin flip is caused solely by the CALL ARG
    being an address-valued expression.  That sharpens the standing verdict -- the device
    needed is one that makes reload rematerialize `addiu a2,sp,N` from a REG_EQUIV

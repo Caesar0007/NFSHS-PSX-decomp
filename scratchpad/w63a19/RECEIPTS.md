@@ -207,6 +207,48 @@ with the retail bytes already decoded above.
 
 ---
 
+## 5b. REGION 2 — `data_8010CCD4` (the next-largest), ALSO CUT
+
+Same model, same tooling (`ownmap.py --blob asm/data/data_8010CCD4.data.s --end
+0x8013C54C`). Retail main `.data`, `0x8010CCD4..0x8013C54C`, **194 680 bytes**.
+
+```
+blob labels also defined by a recon TU : 277   (W62-A18 briefed 273)
+windows examined                       :  52
+OWNABLE windows                        :  26   (0 overlapping, 0 pruned)
+bytes owned                            : 24 232 of 194 680  (12.4 %)
+labels inside owned windows            : 287  (109 TU-defined + 178 splat D_ interior)
+TU-defined labels NOT ownable          : 168
+```
+Blocker histogram: E4 edge 22 · E5 bytes 21 · E1 foreign 12 · E1 un-migrated 8 ·
+E3 drift 8 · E2 outside 4.
+
+🔑 **Region 2 is a much better yield per window than region 1** — 26 windows
+carry 24 KB because the owned data is real arrays (`cars.cpp` 5116 B,
+`hudpmx.cpp` 3540 B, `gmesetup.cpp` 2600 B, `r3dcar.cpp` 2460 B,
+`copspeak.cpp` 2188 B, `object.cpp` 1800 B, `func_va_data.cpp` 1672 B), and its
+dominant blocker is **E4 (edge not a label boundary)**, not E5 — i.e. mostly
+*tail-sized* sections, a different and cheaper defect than region 1's wrong
+bytes. **Region 2, not region 1, is where the next wave gets the most bytes per
+edit.**
+
+Cut into **44 segments** (18 residual + 26 owned), same banner convention;
+`linkers/nfs4.ld` lists all 44 in VA order; `linkers/nfs4_recon.data.ldfrag`
+(new) is the recon-lane ordering.
+
+**Proofs, re-run for region 2:** P3 concatenated `.data` of the 44 objects vs
+the pre-split blob object **194 680 == 194 680, IDENTICAL** · P4 **454
+relocations, identical offsets and targets** · P5 piece-vs-ROM differs in 1808
+bytes and **0 of them lie outside a relocation word** (checked byte-by-byte
+against the reloc coverage set, not inferred from a count) · P6 the splat-lane
+control (pre-W63 `.ld` + whole blobs vs the W63 `.ld` + all 97 pieces): **rc 1
+both, 2077 stderr lines both, identical error list in identical order**; the
+only textual differences are the object NAME and the section-relative offset
+printed for the same undefined symbol (29 lines), which is exactly what
+slicing one object into many must change.
+
+---
+
 ## 6. CONTINUATION CURSOR (exact)
 
 **Region 1 (`sdata_8013C54C`) is CUT but not CLOSED: 30 of 74 windows owned,
@@ -235,10 +277,12 @@ Next agent, in order:
      that no TU defines yet: pure §4b data-materialisation.
    * **E2 (17)** / **E4 (14)** — a TU whose data spans two retail runs, or
      whose section is short by a tail datum.
-3. **Then region 2 = `data_8010CCD4`** (273 dups, the next-largest) and region
-   3 = `front_data` (78). `ownmap.py`/`splitblob.py` are blob-agnostic:
-   `--blob asm/data/data_8010CCD4.data.s --end <next section VA>`; the only
-   per-blob input is the region's end VA.
+3. **Region 2 (`data_8010CCD4`) is ALSO CUT (�5b) � finish it FIRST**, it has
+   the better yield: 26 owned windows / 24 232 B, and its dominant blocker is
+   E4 (a section short by its tail datum), which is cheaper than region 1's E5.
+   Then **region 3 = `front_data`** (78 dups) � untouched. `ownmap.py` /
+   `splitblob.py` are blob-agnostic; the only per-blob input is the end VA
+   (`front_data` ends where `front_bss` begins).
 4. **Do NOT** rename the 131 `*_vtable` labels (T2) without deleting the
    matching rodata-blob region in the same commit — W62-A18 §5: rename-alone
    converts 115 silent duplicates into 115 hard errors.

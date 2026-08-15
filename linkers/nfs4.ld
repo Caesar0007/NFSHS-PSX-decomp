@@ -43,7 +43,54 @@ SECTIONS
         build/src/front.c.o(.data);
         build/asm/data/rdata_80054548.rodata.s.o(.data);
         build/src/main.c.o(.data);
-        build/asm/data/data_8010CCD4.data.s.o(.data);
+        /* W63-A19: the 0x8010CCD4 .data run, sliced at the recon-TU
+         * ownership boundaries (scratchpad/w63a19/ownmap_data.txt).
+         * _rNN = residual; _oNN = a window a recon TU owns (SPLAT LANE
+         * ONLY -- see linkers/nfs4_recon.data.ldfrag). */
+        build/asm/data/data_8010CCD4_r00.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o00.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o01.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o02.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r01.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o03.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r02.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o04.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o05.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r03.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o06.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r04.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o07.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o08.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o09.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r05.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o10.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r06.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o11.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r07.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o12.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o13.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r08.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o14.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r09.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o15.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o16.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r10.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o17.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o18.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r11.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o19.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o20.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r12.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o21.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o22.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r14.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o23.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r15.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o24.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r16.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o25.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data);
         build/asm/data/tail.data.s.o(.data);
         . = ALIGN(., 16);
         nfs4_DATA_END = .;

@@ -49,7 +49,65 @@ SECTIONS
         nfs4_DATA_END = .;
         nfs4_DATA_SIZE = ABSOLUTE(nfs4_DATA_END - nfs4_DATA_START);
         nfs4_SDATA_START = .;
-        build/asm/data/sdata_8013C54C.sdata.s.o(.sdata);
+        /* W63-A19: the 0x8013C54C sdata run, sliced at the recon-TU
+         * ownership boundaries (scratchpad/w63a19/ownmap_sdata.txt).
+         * _rNN = residual (no recon TU defines it) -- BOTH lanes.
+         * _oNN = a window a recon TU owns -- SPLAT LANE ONLY; the
+         *        recon-lane script links that object's own section
+         *        here instead (linkers/nfs4_recon.sdata.ldfrag). */
+        build/asm/data/sdata_8013C54C_r00.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o00.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o01.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o02.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r01.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o03.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o04.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r02.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o05.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r03.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o06.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o07.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o08.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r05.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o09.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r06.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o10.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r07.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o11.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o12.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r08.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o13.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r09.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o14.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o15.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r11.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o16.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r12.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o17.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o18.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r14.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o19.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o20.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o21.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o22.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o23.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o24.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r18.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o25.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r19.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o26.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o27.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o28.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_o29.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
         . = ALIGN(., 16);
         nfs4_SDATA_END = .;
         nfs4_SDATA_SIZE = ABSOLUTE(nfs4_SDATA_END - nfs4_SDATA_START);

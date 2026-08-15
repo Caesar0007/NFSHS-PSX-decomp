@@ -116,7 +116,10 @@ def main():
         (dest / n).write_text(t, newline="")
     blob.unlink()
     order = [n for n, *_ in files]
-    (ROOT / "scratchpad/w63a19/sdata_pieces_order.txt").write_text(
+    # name the order file after the BLOB -- a fixed name silently clobbers the
+    # previous region's ordering the moment a second region is cut.
+    kind = stem.split("_")[0]
+    (ROOT / f"scratchpad/w63a19/{kind}_pieces_order.txt").write_text(
         "\n".join(order) + "\n")
     print(f"\nwrote {len(files)} pieces, removed {blob.name}")
 

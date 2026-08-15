@@ -1,0 +1,99 @@
+  addiu sp,sp,-48
+  lui v0,0
+  lw v0,0(v0)
+  lui v1,0
+  sw s4,32(sp)
+  addiu s4,v1,0
+  sw ra,40(sp)
+  sw s5,36(sp)
+  sw s3,28(sp)
+  sw s2,24(sp)
+  sw s1,20(sp)
+  slti v0,v0,2
+  beqz v0,T
+  sw s0,16(sp)
+  lui v0,0
+  lw v0,0(v0)
+  nop
+  blez v0,T
+  addu s3,zero,zero
+  lui v0,0
+  addiu s5,v0,0
+  li s2,1
+-ONLY  OURS:lui a0,0                       ORACLE:
+  sll v1,s3,16
+  sra v1,v1,14
+  addu s1,v1,s5
+  lw v0,0(s1)
+!=     OURS:addiu s0,a0,0                  ORACLE:nop
+  lw v0,648(v0)
+!=     OURS:addu s0,v1,s0                  ORACLE:nop
+  sw s2,28(v0)
+  sw s2,32(v0)
+  sw s2,24(v0)
++ONLY  OURS:                               ORACLE:lui v0,0
++ONLY  OURS:                               ORACLE:addiu v0,v0,0
++ONLY  OURS:                               ORACLE:addu s0,v1,v0
+  lw v1,0(s0)
+  li v0,79
+  subu v0,v0,v1
+  sll v0,v0,2
+  addu v0,v0,s4
+  lw a0,0(v0)
+  jal T
+  nop
+  bne v0,s2,T
+  nop
+  lw v0,0(s1)
+  nop
+  lw v0,648(v0)
+  nop
+  sw zero,24(v0)
+  lw v1,0(s0)
+  li v0,81
+  subu v0,v0,v1
+  sll v0,v0,2
+  addu v0,v0,s4
+  lw a0,0(v0)
+  jal T
+  nop
+  bne v0,s2,T
+  nop
+  lw v0,0(s1)
+  nop
+  lw v0,648(v0)
+  nop
+  sw zero,28(v0)
+  lw v1,0(s0)
+  li v0,82
+  subu v0,v0,v1
+  sll v0,v0,2
+  addu v0,v0,s4
+  lw a0,0(v0)
+  jal T
+  nop
+  bne v0,s2,T
+  addiu v0,s3,1
+  lw v0,0(s1)
+  nop
+  lw v0,648(v0)
+  nop
+  sw zero,32(v0)
+  addiu v0,s3,1
+  addu s3,v0,zero
+  sll v0,v0,16
+  lui v1,0
+  lw v1,0(v1)
+  sra v0,v0,16
+  slt v0,v0,v1
+  bnez v0,T
+!=     OURS:lui a0,0                       ORACLE:sll v1,s3,16
+  lw ra,40(sp)
+  lw s5,36(sp)
+  lw s4,32(sp)
+  lw s3,28(sp)
+  lw s2,24(sp)
+  lw s1,20(sp)
+  lw s0,16(sp)
+  jr ra
+  addiu sp,sp,48

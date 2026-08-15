@@ -378,8 +378,9 @@ void DeInit_Memcard(void)
   padrestorestarttick = ticks_arr[0];
   do { } while (ticks_arr[0] - padrestorestarttick < 0xc0);
   padinit();
-  /* [header wish] see Init_Memcard -- MEMCARDFRONTENDISINITTED is a 4-byte value, cast locally. */
-  if (*(int *)&MEMCARDFRONTENDISINITTED != 0) {
+  /* W62-A17: the `*(int*)&` header-wish workaround is retired -- fememcard_externs.h now
+     declares MEMCARDFRONTENDISINITTED with its true 4-byte type. */
+  if (MEMCARDFRONTENDISINITTED != 0) {
     UpdateMusic(FEApp[0]);
   }
   return;

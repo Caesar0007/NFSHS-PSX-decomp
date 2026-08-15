@@ -517,11 +517,11 @@ C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C
 C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C_r15.sdata.s.o: in function `quitType':
 (.sdata+0x24): multiple definition of `quitType'; build/recon/game/common/sim.cpp.o:(.sdata+0xc): first defined here
 C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C_r15.sdata.s.o: in function `gSimQueue_Ticker':
-(.sdata+0x28): multiple definition of `gSimQueue_Ticker'; build/recon/game/common/simqueue.cpp.o:(.sdata+0x8): first defined here
+(.sdata+0x28): multiple definition of `gSimQueue_Ticker'; build/recon/game/common/simqueue.cpp.o:(.sdata+0x0): first defined here
 C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C_r15.sdata.s.o: in function `gSimQueue_BlockSelf':
 (.sdata+0x2c): multiple definition of `gSimQueue_BlockSelf'; build/recon/game/common/simqueue.cpp.o:(.sdata+0x4): first defined here
 C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C_r15.sdata.s.o: in function `gSimQueue_BlockOther':
-(.sdata+0x30): multiple definition of `gSimQueue_BlockOther'; build/recon/game/common/simqueue.cpp.o:(.sdata+0x0): first defined here
+(.sdata+0x30): multiple definition of `gSimQueue_BlockOther'; build/recon/game/common/simqueue.cpp.o:(.sdata+0x8): first defined here
 C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C_r16.sdata.s.o: in function `wordFile':
 (.sdata+0x0): multiple definition of `wordFile'; build/recon/game/common/textsys.cpp.o:(.sdata+0x4): first defined here
 C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/sdata_8013C54C_r16.sdata.s.o: in function `Track_gInViewList':

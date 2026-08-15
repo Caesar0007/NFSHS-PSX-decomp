@@ -1,0 +1,29 @@
+lane=recon  objects=747  excluded={}
+defined global symbols : 7283
+COMMON (.comm) symbols : 1
+undefined names (raw)  : 18
+  reloc-referenced (REAL link errors): 18  (141 reloc sites)
+  symtab-only (benign)               : 0
+
+== REAL UNRESOLVED ==
+CD_init	1	recon/syslib/psx/libcd/event.c.o
+D_1000001	2	asm/data/data_8010CCD4_o25.data.s.o
+D_80000004	2	recon/syslib/psx/2mbyte/2mbyte.c.o
+FECredits_lastFadeTick	4	recon/frontend/common/fecredits.cpp.o
+__20tDialogMessageString	1	recon/frontend/common/fedialog.cpp.o
+__last_org	4	recon/syslib/psx/2mbyte/2mbyte.c.o
+_cdr	34	recon/syslib/psx/libcd/cdread.c.o
+_fnt	8	recon/syslib/psx/libgpu/FONT.c.o
+_gp	2	recon/syslib/psx/2mbyte/2mbyte.c.o
+_rsincos	16	recon/syslib/psx/libgte/FGO_01.c.o;recon/syslib/psx/libgte/FGO_06.c.o
+bigBuf	23	recon/frontend/common/feapp.cpp.o;recon/frontend/common/feaudio.cpp.o;recon/game/common/minfront.cpp.o;recon/game/common/nfs3.cpp.o;recon/game/psx/fe3dmenu.cpp.o
+dma_cb	6	recon/syslib/psx/libetc/INTR_DMA.c.o
+gSndState	8	recon/eaclib/psx/sndpsxz/span.c.o;recon/eaclib/psx/sndpsxz/sstsetpr.c.o;recon/eaclib/psx/sndpsxz/svol.c.o
+g_bootGP	2	recon/eaclib/psx/eacpsxz/savegp.c.o
+g_videomode	6	recon/syslib/psx/libetc/VMODE.c.o
+showRoomFlag	17	recon/frontend/common/screencarselect.cpp.o;recon/frontend/common/screencongrats.cpp.o;recon/game/psx/fe3dmenu.cpp.o
+tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand	1	recon/frontend/common/screenpost.cpp.o
+ticksA	4	recon/frontend/common/fevideowall.cpp.o
+
+== COMMONS ==
+debug_cause	4	recon/syslib/psx/libcd/stcdint.c.o

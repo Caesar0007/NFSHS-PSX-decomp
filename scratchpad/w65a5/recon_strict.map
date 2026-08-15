@@ -11671,9 +11671,9 @@ Linker script and memory map
                 0x8013df48                quitType
  build/recon/game/common/simqueue.cpp.o(.sdata)
  .sdata         0x8013df4c       0x10 build/recon/game/common/simqueue.cpp.o
-                0x8013df4c                gSimQueue_BlockOther
+                0x8013df4c                gSimQueue_Ticker
                 0x8013df50                gSimQueue_BlockSelf
-                0x8013df54                gSimQueue_Ticker
+                0x8013df54                gSimQueue_BlockOther
                 0x8013df58                maxTicksPerFrame
  build/recon/game/common/speech.cpp.o(.sdata)
  .sdata         0x8013df5c       0x3c build/recon/game/common/speech.cpp.o

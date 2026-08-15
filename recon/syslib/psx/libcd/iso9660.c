@@ -306,6 +306,7 @@ extern int CD_newmedia(void)
     RawWord pt_lba;
     u_char *rec;
     u_char *end;
+    u_char *lim;
     int     idx;
     int     r;
 
@@ -318,7 +319,7 @@ extern int CD_newmedia(void)
      * the `buf = _cd_secbuf` line scores 15, because an asm at the top of the
      * function is a scheduling barrier and retail sets up the cd_read arguments
      * BEFORE the callee-saved stores.  Operand count is inert here (1/2/3 all 11). */
-    __asm__("" : : "r"(buf));
+    __asm__("" : "=r"(buf) : "0"(buf));
     if (r != 1) {
         if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)\n");
         return 0;
@@ -328,22 +329,25 @@ extern int CD_newmedia(void)
         return 0;
     }
 
-    /* w51-a4/W56 OPEN (32 diffs): the oracle reads this off the SAME base register as every other
-     * buf reference (`lwl 143(s0)/lwr 140(s0)`); gcc-2.7.2 const-folds `buf` back to the symbol
-     * for the unaligned load and emits its own `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)`.
-     * FALSIFIED: `(LBA*)(buf+140)`, `((LBA*)buf)[35]`, decl reorder, -fforce-addr, -fforce-mem,
-     * -fno-schedule-insns (hand-probed on the .i with CC1PSX 2.7.2 -- none move the base).
-     * W63-A6 FALSIFIED the matched-TWIN spelling too (scratchpad/w63a6/probe_newmedia.py):
-     * psyz and sotn both declare a real PVD STRUCT (`type; id[5]; version; _unused[0x85];
-     * LBA ptLBA;` = exactly this 140-byte prefix) and read the field as a COMPONENT_REF --
-     * `(&pathTableLBA)->i = ((IsoPVD*)load_buf_)->pathTableLBA.i;`
-     * (C:/Temp/psyz/decomp/src/libcd/iso9660.c:145).  That is the catalog's STRUCT-READ
-     * ANTI-DEP law applied to the LOAD side, and it is INERT here: the psyz spelling
-     * verbatim = 11 (unchanged), the same read into a RawWord = 11, a plain member-to-member
-     * assignment = 39, a whole-union struct assignment = 74 @171/177.  ⇒ the base-fold is
-     * NOT a MEM_IN_STRUCT_P question.  W63-A6 also swept a zero-insn void barrier over
-     * EVERY statement position in the function (scratchpad/w63a6/fencesweep.py): no position
-     * beats 11 -- the fence-position axis is now CLOSED for CD_newmedia. */
+    /* W64-A5 -- SOLVED (11 -> 6, count-EXACT 177/177) BY THE IDENTITY LAUNDER, and the
+     * w51-a4/W56/W63-A6 verdict below ("the base-fold is not reachable") is RETIRED.
+     * SYMPTOM was: the oracle reads the misaligned path-table LBA off the SAME base
+     * register as every other buf reference (`lwl 143(s0)/lwr 140(s0)`), while gcc-2.7.2
+     * CONST-FOLDS `buf` back to the symbol for the unaligned load and emits its own
+     * `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)` (+2 insns).  Every previous angle
+     * attacked the ACCESS (casts, a real PVD struct + COMPONENT_REF from the psyz/sotn
+     * matched twins, -fforce-addr/-fforce-mem, decl order, a whole-function void-barrier
+     * position sweep).  All of those leave `buf` PROVABLY EQUAL to &_cd_secbuf, so cse
+     * substitutes the symbol no matter how the load is spelled.  The cure is to attack the
+     * POINTER instead: 13B's IDENTITY LAUNDER `__asm__("" : "=r"(buf) : "0"(buf))` makes
+     * the pseudo die twice, so cse can no longer prove the equality and the load must go
+     * through the register -- the two `la` insns vanish (178 -> 176).  It REPLACES the
+     * w61-a8 read-only fence on the same line and keeps that fence's allocno-demote effect
+     * (buf still takes retail's $s0 and `r` $s1).
+     * The launder alone left us 1 SHORT (176/177) with a clean 19-diff residual, which
+     * exposed the second, independent item below.  ⇒ ALWAYS GATE THE UNLAUNDERED CONTROL
+     * (13B): the read-only fence had been masking a reachable fold for three waves. */
+
     pt_lba = *(RawWord *)(buf + 140);                        /* type-L path table LBA (misaligned;
                                                               * indexed off buf so the +140 folds into
                                                               * the lwl/lwr displacement, oracle
@@ -354,23 +358,39 @@ extern int CD_newmedia(void)
     }
     if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");
 
+    /* MATCH (W64-A5): the W48-A7 TWO-VARIABLE ZERO-TRIP-GUARD -- compute the limit into a
+     * caller-saved temp, TEST that temp in the guard, and copy it into the callee-saved loop
+     * bound INSIDE the guard.  The copy survives (make_regs_eqv: the destination outlives its
+     * source) and IS the oracle's `addiu v1,s1,2048; sltu v0,s1,v1; ... addu s5,v1,zero`;
+     * computing straight into `end` coalesces it away.  W62-A7 had FALSIFIED this shape here
+     * (goto back-edge 64, while-kept 15) and blamed the two `break`s -- 04Z: that was measured
+     * in the pre-launder basin.  In the laundered basin the WHILE-KEPT form is the winner
+     * (19 -> 6, count EXACT), the do-while form is 18 @181 and the goto form does not compile
+     * (label before the block's declarations); without the launder it is 24 @183.
+     * RESIDUAL 6 = pure CODE MOTION of instructions we already emit: retail issues the
+     * `li a0,1; li a1,16` cd_read arg pair BEFORE the first callee-saved store (ours after the
+     * `la _cd_secbuf`), and places the `addu s5,v1,zero` copy 3 slots later.  Both are prologue/
+     * block emission-order ties (11B arg-emission), i.e. TEXT_MOVES class, not allocation. */
     idx = 0;
     rec = buf;
-    end = buf + 0x800;
-    while (rec < end) {
-        if (rec[0] == 0)
-            break;
-        ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
-        _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
-        _cd_pathtbl[idx].index  = idx + 1;
-        memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
-        _cd_pathtbl[idx].name[rec[0]] = '\0';
-        rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
-        if (CD_debug > 1)
-            printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
-                   _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
-        if (++idx >= 0x80)
-            break;
+    lim = buf + 0x800;
+    if (rec < lim) {
+        end = lim;
+        while (rec < end) {
+            if (rec[0] == 0)
+                break;
+            ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
+            _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
+            _cd_pathtbl[idx].index  = idx + 1;
+            memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
+            _cd_pathtbl[idx].name[rec[0]] = '\0';
+            rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
+            if (CD_debug > 1)
+                printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
+                       _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
+            if (++idx >= 0x80)
+                break;
+        }
     }
     if (idx < 0x80)
         _cd_pathtbl[idx].parent = 0;                    /* sentinel: no more entries */

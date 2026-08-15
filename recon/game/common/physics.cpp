@@ -1991,6 +1991,7 @@ Phy_TireF_normalTire:
   }
   else {
     int minSlipAngle;
+    int xAcc;
 
     minSlipAngle = 0x8000;
     latAcc = fixedmult(
@@ -2003,14 +2004,34 @@ Phy_TireF_normalTire:
       latAcc = -latAcc;
     }
     latAcc = latAcc + gravity_ch.x / 2;
+    /* MATCH (w63-a11): RESULT-FUNNEL + EXPLICIT if/else ARMS.  Retail computes
+       BOTH clamp arms into one result register and stores finalAcc.x ONCE after
+       the join (oracle 0x800ABEF8/0x800ABF14 `addu $v1,...` then a shared `sw`);
+       ours stored per-arm.  BOTH halves are load-bearing and the ARMS matter more
+       than the funnel: funnel + ternary arms 53@351, funnel + if/else arms
+       21@347 (09C -- a COND_EXPR whose target is a MEM stores in both arms and
+       can never reach the shared-store shape).  Site-A (the >0x4001 branch, line
+       ~1970) does NOT want the same treatment on this basin: adding its full
+       funnel too costs +1 insn (22@348), and the w59-a2 asymmetry receipt there
+       still stands.  A `cap` local for velCap.x REGRESSES hard (57@351);
+       xAcc declared first vs last is neutral (21 both). */
     if (0 < wheel->velCap.x) {
-      wheel->finalAcc.x = (wheel->velCap.x <= __builtin_abs(latAcc)) ?
-                          wheel->velCap.x : __builtin_abs(latAcc);
+      if (wheel->velCap.x <= __builtin_abs(latAcc)) {
+        xAcc = wheel->velCap.x;
+      }
+      else {
+        xAcc = __builtin_abs(latAcc);
+      }
     }
     else {
-      wheel->finalAcc.x = (-__builtin_abs(latAcc) < wheel->velCap.x) ?
-                          wheel->velCap.x : -__builtin_abs(latAcc);
+      if (-__builtin_abs(latAcc) < wheel->velCap.x) {
+        xAcc = wheel->velCap.x;
+      }
+      else {
+        xAcc = -__builtin_abs(latAcc);
+      }
     }
+    wheel->finalAcc.x = xAcc;
   }
   wheel->finalAcc.y = 0;
   wheel->finalAcc.z = wheel->acc;

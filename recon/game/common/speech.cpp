@@ -1224,7 +1224,39 @@ u_int BankPatch__6SpeechlP8Car_tObj(int param_1,int bank,int car)
   return 0xffffffff;
 }
 
-/* ---- SubmitRequest__6Speechlll  [SPEECH.CPP:1317-1342] SLD-VERIFIED ---- */
+/* ---- SubmitRequest__6Speechlll  [SPEECH.CPP:1317-1342] SLD-VERIFIED ----
+ * W63-A10 DUAL-LANE SEAL (gate PASS 61/61 + psyqproof REAL=0).  The gate had
+ * read PASS since W59 but the PRODUCTION lane scored REAL=1 on word 43 and
+ * brdist.py flagged branch 6 at distance -2 where retail has +8: our
+ * `beq $16,$0` guard (the `offset != 0` test) jumped BACKWARD onto the FIRST
+ * arm's copy of the return tail instead of forward onto its OWN copy.  Both
+ * are semantically identical (each tail is `addu v0,s0,s2; j <epilogue>`), so
+ * verify_asm -- which normalises every branch TARGET -- could never see it.
+ * MECHANISM (gcc-2.8.1 jump.c, read off the -dj/-dJ dumps of this fn):
+ *   the final `jump_optimize (insns, cross_jump=1, ...)` (toplev.c:3548)
+ *   pairs the two `j <epilogue>` insns via the jump_chain loop (jump.c:2148)
+ *   and calls find_cross_jump(e1=2nd j, e2=1st j, minimum=2).  The walk back
+ *   from e1 matches ONE insn (the shared `addu v0,s0,s2`, minimum 2->1) and
+ *   then hits the CODE_LABEL that ends the inner `if (offset != 0)`; jump.c
+ *   2568-2573 spends a FREE `--minimum` on any CODE_LABEL in stream 1, so
+ *   minimum reaches 0 and do_cross_jump fires on a ONE-insn tail: it plants a
+ *   label before the first arm's `addu`, redirects the 2nd `j` there and
+ *   DELETES our `addu`; jump tensioning then folds the `beq` onto that same
+ *   label, and reorg re-steals the first arm's `addu` back into the delay
+ *   slot -- which is why the instruction STREAM still matches retail exactly
+ *   and only the branch WORD differs.
+ * CURE (zero insns, pin-free): a void fence between that label and the
+ *   duplicated tail.  jump.c:2632-2635 sets `lose = 1` for an ASM_OPERANDS
+ *   with MEM_VOLATILE_P, so the match dies BEFORE the label bonus is reached
+ *   and neither arm is cross-jumped.  61/61 unchanged, TU 99/102 unchanged.
+ * FALSIFIED first (both left word 43 at 1200fffd): the same fence placed
+ *   after `CopSpeak_GenericBankRequest` in the THEN arm (it sits outside the
+ *   compared range -- the walk from the 2nd `j` never reaches it), and
+ *   dropping the `else` so both returns are at statement level.
+ * REUSABLE: any function with N duplicated `return <expr>;` tails where one
+ *   of them is preceded by an end-of-inner-if label is exposed to this
+ *   gate-invisible redirect.  brdist.py is the screen; the fence is the cure. */
+/* ---- SubmitRequest__6Speechlll ---- */
 int SubmitRequest__6Speechlll(int bank,int localoffset,u_int size)
 
 {
@@ -1261,6 +1293,11 @@ int SubmitRequest__6Speechlll(int bank,int localoffset,u_int size)
         Car_tObj *requestCar = car;
         CopSpeak_DirectRequest(requestFile,offset + localoffset,size,requestCar,0);
       }
+      /* MATCH: cross_jump un-merger -- see the header block.  jump.c's free
+         `--minimum` for the end-of-if CODE_LABEL lets do_cross_jump redirect
+         this arm's one-insn return tail onto the other arm's copy; a volatile
+         asm here makes find_cross_jump lose before that.  Zero insns. */
+      __asm__("" : : "i"(0));
       return offset + localoffset;
     }
   }

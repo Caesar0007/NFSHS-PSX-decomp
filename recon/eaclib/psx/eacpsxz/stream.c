@@ -1332,24 +1332,29 @@ reclaim:
                     if (u2 != 0) {                   /* free this request's own chunks in place */
                         unsigned int rstate = (unsigned int)MI(out[1], 4) << 0x18;
                         int *p = s4;
-                        /* RESIDUAL (2): the ring walk's back edge.  Oracle `bne p,s6,<head>;
-                         * j <exit>`; ours `beq p,s6,<exit>; j <head>` -- jump.c's
-                         * invert-conditional-around-unconditional fires in retail but not here
-                         * (our pass threads `goto Lend` straight to the merge label first, which
-                         * destroys the "target is the label right after the jump" precondition).
-                         * TRIED and all identical-or-worse: guard + do-while (2), `continue` in
-                         * the wrap arm (2), empty one-shot boundary after the loop (2), full
-                         * label+goto loop (59 -- also de-hoists the -1 marker).
-                         * w49-a3 FALSIFIES the jump-threading attribution above: a direct A/B on
-                         * the REAL cc1 (cpp'd TU -> CC1PSX -O2 -G4 -g1 -mgpOPT -fgnu-linker,
-                         * with and without -fno-thread-jumps, tools/cc1try.py) is BYTE-IDENTICAL
-                         * for this whole function -- `beq $16,$22,$L248 ; nop ; j $L252 ; nop`
-                         * either way.  thread_jumps is NOT the mechanism, so the per-fn
-                         * PER_FN_NO_THREAD_JUMPS splice lane cannot help here; the polarity comes
-                         * out of RTL generation / expand_end_loop's rotation, and retail's form
-                         * (`bne back ; j exit`) is what a rotated do-while emits.  Count is exact
-                         * 173/173, so the remaining lever is the loop's BLOCK LAYOUT, not a flag. */
-                        while (p != s6) {
+                        /* MATCH (w64-a15, DUAL-LANE SEAL: gate PASS 173/173 + psyqproof REAL=0):
+                         * the EXPLICIT-GOTO ZERO-TRIP GUARD.  Retail's guard is
+                         * `beq $s4,$s6,.L800FD7BC` -- it jumps to the ci++ JOIN (the same label
+                         * the `ccount <= 0` blez skips to), NOT to this arm's own loop-exit block.
+                         * A plain `while (p != s6)` makes gcc emit the guard against the loop's
+                         * exit label; jump.c's follow_jumps then either (a) forwards BOTH the
+                         * guard and the loop-bottom `beq` past `Lexit: j <join>` -- which destroys
+                         * the "conditional jump around an unconditional jump" precondition so the
+                         * back edge never inverts (nofence: gate FAIL 2, word 128 `beq` vs
+                         * retail's `bne`), or (b) with the void-tail fence below blocking the
+                         * forward, inverts the back edge correctly but ALSO leaves the GUARD
+                         * pointing at `Lexit` -- gate PASS but production word 88 wrong
+                         * (`beq $s4,$s6,+41` vs retail `+65`), a defect verify_asm cannot see
+                         * (04Q: branch targets are normalised to T).
+                         * Spelling the guard as an explicit `goto` to the join gives retail BOTH
+                         * halves at once: the guard is generated against the join label directly
+                         * (nothing left to forward) while the do-while's own exit block still ends
+                         * in `j <join>` so the fence's inversion still fires.
+                         * MEASURED (all 173/173): control while+fence gate PASS / REAL=1 word 88;
+                         * while, no fence gate 2 / REAL=1 word 128; goto-guard, NO fence gate 2 /
+                         * REAL=1 word 128  ==> THE FENCE IS STILL LOAD-BEARING, keep both. */
+                        if (p == s6) goto nextconsumer;
+                        do {
                             if (p[0] == -1) {
                                 p = *(int **)(out[0] + 0x20);   /* wrap */
                             } else {
@@ -1364,7 +1369,7 @@ reclaim:
                                 }
                                 p = (int *)((int)p + len);
                             }
-                        }
+                        } while (p != s6);
                         /* MATCH (w50-a4, 2 -> PASS 173/173): the back-edge polarity above is a
                          * JUMP-FORWARDING artifact of THIS arm's tail, not of the loop.
                          * gcc rotates the `while` the same way in both builds and emits
@@ -1383,7 +1388,10 @@ reclaim:
                          * three waves): for/while/do-while/while(1)+break/!(p==s6)/if-guard+do-while/
                          * `for(p=s4;p!=s6;)`/goto-label loop/`continue` in the wrap arm/an explicit
                          * `goto` past the else arm -- the loop's own spelling is NOT the dial.
-                         * A use fence on `s6` here costs 34 (it lengthens s6 past the arm). */
+                         * A use fence on `s6` here costs 34 (it lengthens s6 past the arm).
+                         * w64-a15: the fence is RETAINED, but the guard is now an explicit goto to
+                         * the ci++ join (see above) so the fence no longer costs the guard's
+                         * forwarding -- that pairing is what makes the fn production-clean. */
                         __asm__("" : : "i"(0));
                     } else {                         /* consumer head is before this request -> drain it */
                         unsigned int pos = MU(out[1], 0xc);
@@ -1397,6 +1405,7 @@ reclaim:
                         }
                     }
                 }
+nextconsumer:
                 ci++;
                 sobj = out[0];
             } while (ci < MI(sobj, 0x1c));

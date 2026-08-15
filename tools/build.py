@@ -1675,6 +1675,11 @@ PER_FN_TEXT_MOVES = {
         # only CdRead moves, all three PASSes hold.
         "CdRead": [
             {"take": r"\tsw\t\$18,24\(\$sp\)\n", "after": r"\tsw\t\$31,36\(\$sp\)\n"},
+            # w64-a6 (probed 2x FINAL-LIST, objdump-proven: slot word
+            # 0xAE140000 @insn 67 both streams; after-pin load-bearing
+            # vs the watchdog-arm jal): w00 store into the sync slot,
+            # CdRead 5 -> 2 COUNT-EXACT 103/103.
+            {"take": "\\tsw\\t\\$20,0\\(\\$16\\)\\n(?=\\t#\\.set\\tnovolatile\\n\\tjal\\tCdSyncCallback\\n)", "after": "\\tjal\\tCdSyncCallback\\n(?=\\tmove\\t\\$4,\\$0\\n)", "slot": True},
         ],
         "CdReadSync": [
             {"take": "\\tsw\\t\\$18,24\\(\\$sp\\)\\n",

@@ -1,0 +1,10 @@
+BASELINE   CdRead FAIL 14 diffs (ours 105 / oracle 103)
+A1 busy fence REMOVED        CdRead FAIL 11 diffs (ours 104 / oracle 103)
+A2 busy fence -> read-only   CdRead FAIL 14 diffs (ours 105 / oracle 103)
+A3 busy fence inside the if  SKIP (anchor count 0):     __asm__("" : "=r"(busy) : "0"(busy));
+    if (*busy != 0
+B1 w00 nonvolatile           CdRead FAIL 23 diffs (ours 104 / oracle 103)
+B2 w04 nonvolatile           CdRead FAIL 17 diffs (ours 104 / oracle 103)
+B3 w00+w04 nonvolatile       CdRead FAIL 17 diffs (ours 104 / oracle 103)
+B4 w00 nonvol + A1           CdRead FAIL 20 diffs (ours 103 / oracle 103)
+restored 45614

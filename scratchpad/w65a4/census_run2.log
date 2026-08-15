@@ -1,0 +1,178 @@
+CENSUS2 HEAD: deae02d7
+Sat Aug 15 18:50:55 WAST 2026
+== 0. REBUILD all base objects (tools/build.py --skip-asm) ==
+   exit=0  TUs that failed to build: 0
+== 1. BOARD (x2, reproducibility) ==
+   run1 3496 rows, 3379 at 100%
+   run2 3496 rows, 3379 at 100%
+   run1 == run2 : True
+   matched_code_percent : 84.45931
+   fuzzy_match_percent  : 99.386116
+
+== 2. GATE over the 70 units owning a sub-100 row ==
+   [1/70] eaclib/psx/eacpsxz/asinfunc: 1/1 rows gated
+   [2/70] eaclib/psx/pad: 1/1 rows gated
+   [3/70] eaclib/psx/sndpsxz/sdmemman: 1/1 rows gated
+   [4/70] frontend/common/feapp: 1/1 rows gated
+   [5/70] frontend/common/feaudio: 1/1 rows gated
+   [6/70] frontend/common/fememcard: 2/2 rows gated
+   [7/70] frontend/common/femenu: 1/1 rows gated
+   [8/70] frontend/common/femenudefs: 1/1 rows gated
+   [9/70] frontend/common/femenuoptions: 2/2 rows gated
+   [10/70] frontend/common/fescreen: 1/1 rows gated
+   [11/70] frontend/common/fetv: 1/1 rows gated
+   [12/70] frontend/common/front: 1/1 rows gated
+   [13/70] frontend/common/screencarselect: 1/1 rows gated
+   [14/70] frontend/common/screenmain: 1/1 rows gated
+   [15/70] frontend/common/screenpost: 1/1 rows gated
+   [16/70] frontend/common/screenusername: 1/1 rows gated
+   [17/70] frontend/common/statchk: 1/1 rows gated
+   [18/70] frontend/psx/memcard: 1/1 rows gated
+   [19/70] frontend/psx/psxfront: 2/2 rows gated
+   [20/70] game/common/aih_basicperp: 1/1 rows gated
+   [21/70] game/common/aih_btccop: 1/1 rows gated
+   [22/70] game/common/aih_btcperp: 1/1 rows gated
+   [23/70] game/common/aih_cop: 1/1 rows gated
+   [24/70] game/common/aih_opp: 1/1 rows gated
+   [25/70] game/common/aiphysic: 1/1 rows gated
+   [26/70] game/common/audiocmn: 1/1 rows gated
+   [27/70] game/common/bworld: 1/1 rows gated
+   [28/70] game/common/camera: 1/1 rows gated
+   [29/70] game/common/collide: 2/2 rows gated
+   [30/70] game/common/newton: 2/2 rows gated
+   [31/70] game/common/nfs3: 1/1 rows gated
+   [32/70] game/common/pausemenu: 1/1 rows gated
+   [33/70] game/common/physics: 1/1 rows gated
+   [34/70] game/common/r3dcar: 1/1 rows gated
+   [35/70] game/common/sim: 1/1 rows gated
+   [36/70] game/common/simqueue: 1/1 rows gated
+   [37/70] game/common/spchevnt: 2/2 rows gated
+   [38/70] game/common/speech: 2/2 rows gated
+   [39/70] game/common/stats: 1/1 rows gated
+   [40/70] game/psx/cario: 2/2 rows gated
+   [41/70] game/psx/drawc: 3/3 rows gated
+   [42/70] game/psx/draww: 9/9 rows gated
+   [43/70] game/psx/hrzsku: 3/3 rows gated
+   [44/70] game/psx/hud: 8/8 rows gated
+   [45/70] game/psx/night: 2/2 rows gated
+   [46/70] game/psx/overlays: 2/2 rows gated
+   [47/70] game/psx/psxcontroller: 1/1 rows gated
+   [48/70] game/psx/sfx: 1/1 rows gated
+   [49/70] game/psx/weather: 1/1 rows gated
+   [50/70] syslib/psx/libapi/FIRST: 1/1 rows gated
+   [51/70] syslib/psx/libc/SPRINTF: 1/1 rows gated
+   [52/70] syslib/psx/libcd/cdread: 3/3 rows gated
+   [53/70] syslib/psx/libcd/drv: 2/2 rows gated
+   [54/70] syslib/psx/libcd/iso9660: 2/2 rows gated
+   [55/70] syslib/psx/libcd/stcdint: 2/2 rows gated
+   [56/70] syslib/psx/libcd/streamhelp: 1/1 rows gated
+   [57/70] syslib/psx/libetc/INTR: 3/3 rows gated
+   [58/70] syslib/psx/libetc/INTR_DMA: 1/1 rows gated
+   [59/70] syslib/psx/libgpu/FONT: 2/2 rows gated
+   [60/70] syslib/psx/libgpu/SYS: 5/5 rows gated
+   [61/70] syslib/psx/libmath/ADDDF3: 1/1 rows gated
+   [62/70] syslib/psx/libmath/DIVDF3: 1/1 rows gated
+   [63/70] syslib/psx/libmath/FIXDFSI: 1/1 rows gated
+   [64/70] syslib/psx/libmath/MULDF3: 1/1 rows gated
+   [65/70] syslib/psx/libmcrd/LIBMCRD: 4/4 rows gated
+   [66/70] syslib/psx/libpad/PAD: 2/2 rows gated
+   [67/70] syslib/psx/libpad/PADCMD: 1/1 rows gated
+   [68/70] syslib/psx/libpad/PADMAIN: 1/1 rows gated
+   [69/70] syslib/psx/libpad/PADPORTD: 2/2 rows gated
+   [70/70] syslib/psx/libpad/PADSEQD: 2/2 rows gated
+
+== 3. BRDIST over the same 70 units ==
+   [1/70] eaclib/psx/eacpsxz/asinfunc: 0 branch divergence(s)
+   [2/70] eaclib/psx/pad: 0 branch divergence(s)
+   [3/70] eaclib/psx/sndpsxz/sdmemman: 0 branch divergence(s)
+   [4/70] frontend/common/feapp: 1 branch divergence(s)
+   [5/70] frontend/common/feaudio: 0 branch divergence(s)
+   [6/70] frontend/common/fememcard: 1 branch divergence(s)
+   [7/70] frontend/common/femenu: 1 branch divergence(s)
+   [8/70] frontend/common/femenudefs: 0 branch divergence(s)
+   [9/70] frontend/common/femenuoptions: 0 branch divergence(s)
+   [10/70] frontend/common/fescreen: 1 branch divergence(s)
+   [11/70] frontend/common/fetv: 1 branch divergence(s)
+   [12/70] frontend/common/front: 0 branch divergence(s)
+   [13/70] frontend/common/screencarselect: 1 branch divergence(s)
+   [14/70] frontend/common/screenmain: 1 branch divergence(s)
+   [15/70] frontend/common/screenpost: 1 branch divergence(s)
+   [16/70] frontend/common/screenusername: 1 branch divergence(s)
+   [17/70] frontend/common/statchk: 1 branch divergence(s)
+   [18/70] frontend/psx/memcard: 1 branch divergence(s)
+   [19/70] frontend/psx/psxfront: 1 branch divergence(s)
+   [20/70] game/common/aih_basicperp: 1 branch divergence(s)
+   [21/70] game/common/aih_btccop: 0 branch divergence(s)
+   [22/70] game/common/aih_btcperp: 0 branch divergence(s)
+   [23/70] game/common/aih_cop: 1 branch divergence(s)
+   [24/70] game/common/aih_opp: 1 branch divergence(s)
+   [25/70] game/common/aiphysic: 0 branch divergence(s)
+   [26/70] game/common/audiocmn: 0 branch divergence(s)
+   [27/70] game/common/bworld: 0 branch divergence(s)
+   [28/70] game/common/camera: 1 branch divergence(s)
+   [29/70] game/common/collide: 1 branch divergence(s)
+   [30/70] game/common/newton: 2 branch divergence(s)
+   [31/70] game/common/nfs3: 0 branch divergence(s)
+   [32/70] game/common/pausemenu: 1 branch divergence(s)
+   [33/70] game/common/physics: 0 branch divergence(s)
+   [34/70] game/common/r3dcar: 0 branch divergence(s)
+   [35/70] game/common/sim: 1 branch divergence(s)
+   [36/70] game/common/simqueue: 0 branch divergence(s)
+   [37/70] game/common/spchevnt: 0 branch divergence(s)
+   [38/70] game/common/speech: 2 branch divergence(s)
+   [39/70] game/common/stats: 1 branch divergence(s)
+   [40/70] game/psx/cario: 0 branch divergence(s)
+   [41/70] game/psx/drawc: 3 branch divergence(s)
+   [42/70] game/psx/draww: 6 branch divergence(s)
+   [43/70] game/psx/hrzsku: 2 branch divergence(s)
+   [44/70] game/psx/hud: 7 branch divergence(s)
+   [45/70] game/psx/night: 0 branch divergence(s)
+   [46/70] game/psx/overlays: 2 branch divergence(s)
+   [47/70] game/psx/psxcontroller: 1 branch divergence(s)
+   [48/70] game/psx/sfx: 0 branch divergence(s)
+   [49/70] game/psx/weather: 0 branch divergence(s)
+   [50/70] syslib/psx/libapi/FIRST: 0 branch divergence(s)
+   [51/70] syslib/psx/libc/SPRINTF: 1 branch divergence(s)
+   [52/70] syslib/psx/libcd/cdread: 2 branch divergence(s)
+   [53/70] syslib/psx/libcd/drv: 2 branch divergence(s)
+   [54/70] syslib/psx/libcd/iso9660: 1 branch divergence(s)
+   [55/70] syslib/psx/libcd/stcdint: 2 branch divergence(s)
+   [56/70] syslib/psx/libcd/streamhelp: 0 branch divergence(s)
+   [57/70] syslib/psx/libetc/INTR: 1 branch divergence(s)
+   [58/70] syslib/psx/libetc/INTR_DMA: 1 branch divergence(s)
+   [59/70] syslib/psx/libgpu/FONT: 1 branch divergence(s)
+   [60/70] syslib/psx/libgpu/SYS: 1 branch divergence(s)
+   [61/70] syslib/psx/libmath/ADDDF3: 0 branch divergence(s)
+   [62/70] syslib/psx/libmath/DIVDF3: 1 branch divergence(s)
+   [63/70] syslib/psx/libmath/FIXDFSI: 1 branch divergence(s)
+   [64/70] syslib/psx/libmath/MULDF3: 0 branch divergence(s)
+   [65/70] syslib/psx/libmcrd/LIBMCRD: 4 branch divergence(s)
+   [66/70] syslib/psx/libpad/PAD: 0 branch divergence(s)
+   [67/70] syslib/psx/libpad/PADCMD: 1 branch divergence(s)
+   [68/70] syslib/psx/libpad/PADMAIN: 1 branch divergence(s)
+   [69/70] syslib/psx/libpad/PADPORTD: 2 branch divergence(s)
+   [70/70] syslib/psx/libpad/PADSEQD: 1 branch divergence(s)
+
+== 3b. BRDIST CONTROL: 40 of 389 all-100 units ==
+   control divergences on all-100 units: 0
+
+== 3c. BOARD RE-READ after gate+brdist (must equal run 1) ==
+   board unchanged by gate/brdist recompiles: True
+
+== 4. CROSS-CLASSIFICATION ==
+  a GATE_FAIL (gate FAIL + board<100)                          101
+  d BRANCH_REAL (gate PASS + board<100 + brdist hit)           9
+  c ARTIFACT (gate PASS + board<100, no brdist hit)            0
+  x GATE-ONLY (gate FAIL + board 100 -- board blind)           0
+  ? UNRESOLVED (no gate verdict / NO ORACLE)                   7
+
+wrote board_rows.json / gate_rows.json / brdist_rows.json / classified.json
+EXIT=0
+FINAL board: 3496 rows, 3379 at 100%
+  reproducible (run1 == run2): True
+  matched_code_percent = 84.45931
+
+sub-100 rows with no gate verdict yet: 0
+
+FINAL CLASSES: a=101  d=9  c=0  x=0  ?=7
+Sat Aug 15 18:55:50 WAST 2026

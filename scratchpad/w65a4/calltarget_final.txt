@@ -7,28 +7,13 @@
   ...350/461 units
   ...400/461 units
   ...450/461 units
-8 PROVEN wrong-call-target sites (both names known, different VAs)
+3 PROVEN wrong-call-target sites (both names known, different VAs)
   frontend/common/screenpost  DrawBackground__26tScreenTournamentStandings
       retail calls TextValue__23tListIteratorTournament7tPlayer @0x80033e28
       ours   calls TextValue__13tListIterator7tPlayer @0x80023e3c
-  game/common/aih_btccop  ___18AIHigh_BTC_Wingman
-      retail calls ___11AIHigh_Base @0x8005b3c4
-      ours   calls ___14AIHigh_BTC_Cop @0x8005f604
-  game/common/aih_btccop  ___19AIHigh_BTC_HumanCop
-      retail calls ___11AIHigh_Base @0x8005b3c4
-      ours   calls ___14AIHigh_BTC_Cop @0x8005f604
-  game/common/aih_btccop  ___14AIHigh_BTC_Cop
-      retail calls ___11AIHigh_Base @0x8005b3c4
-      ours   calls ___15AIHigh_BasicCop @0x8005cb4c
-  game/common/aih_btcperp  ___17AIHigh_BTC_AIPerp
-      retail calls ___11AIHigh_Base @0x8005b3c4
-      ours   calls ___15AIHigh_BTC_Perp @0x8005b438
-  game/common/aih_btcperp  ___20AIHigh_BTC_HumanPerp
-      retail calls ___11AIHigh_Base @0x8005b3c4
-      ours   calls ___15AIHigh_BTC_Perp @0x8005b438
-  game/common/sim  Sim_MainGameLoop__Fv
-      retail calls Sim_ProcessSimSchedules__Fv @0x800b6878
-      ours   calls Camera_Update__Fv @0x800833d8
   game/common/sim  Sim_MainGameLoop__Fv
       retail calls Camera_Update__Fv @0x800833d8
       ours   calls Sim_ProcessSimSchedules__Fv @0x800b6878
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Sim_ProcessSimSchedules__Fv @0x800b6878
+      ours   calls Camera_Update__Fv @0x800833d8

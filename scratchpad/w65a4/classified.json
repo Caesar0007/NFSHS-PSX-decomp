@@ -609,20 +609,8 @@
  ],
  "d": [
   [
-   "eaclib/psx/eacpsxz/cdfs|CdReadyHandler",
-   99.9833,
-   "PASS",
-   true
-  ],
-  [
    "frontend/common/fememcard|LoadGame__FsbT1",
    99.9599,
-   "PASS",
-   true
-  ],
-  [
-   "frontend/common/femenuextended|Draw__29tMenuItemOptionsTwoItemChoiceiib",
-   99.9689,
    "PASS",
    true
   ],
@@ -639,24 +627,6 @@
    true
   ],
   [
-   "frontend/common/screencarselect|DrawOpponentVideoWall__20tScreenCarSelectDuels",
-   99.9315,
-   "PASS",
-   true
-  ],
-  [
-   "frontend/common/screencarselect|DrawVideoWall__20tScreenCarSelectDuels",
-   99.9419,
-   "PASS",
-   true
-  ],
-  [
-   "frontend/common/screencongrats|CalculatePrizes__23tScreenTournamentTrophy",
-   99.9653,
-   "PASS",
-   true
-  ],
-  [
    "frontend/common/screenmain|DrawBackground__11tScreenMain",
    99.9939,
    "PASS",
@@ -669,38 +639,8 @@
    true
   ],
   [
-   "game/common/aiphysic|AIPhysic_CalcAcceleration__FP8Car_tObji",
-   99.9728,
-   "PASS",
-   true
-  ],
-  [
-   "game/common/audiotrk|AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
-   99.9879,
-   "PASS",
-   true
-  ],
-  [
-   "game/common/physics|Physics_CalculateCarAcceleration__FP8Car_tObj",
-   99.993,
-   "PASS",
-   true
-  ],
-  [
    "game/psx/hud|Hud_BuildString__FPciiiib",
    99.9767,
-   "PASS",
-   true
-  ],
-  [
-   "game/psx/weather|Weather_ChangeDensityBasedOnTime__Fv",
-   99.9074,
-   "PASS",
-   true
-  ],
-  [
-   "syslib/psx/libcd/streamhelp|StGetNext",
-   99.8913,
    "PASS",
    true
   ],
@@ -713,12 +653,6 @@
   [
    "syslib/psx/libmcrd/LIBMCRD|MemCardWriteData_cb",
    99.9367,
-   "PASS",
-   true
-  ],
-  [
-   "syslib/psx/libpad/MCXMAIN|_padIntRecvData",
-   99.9776,
    "PASS",
    true
   ],

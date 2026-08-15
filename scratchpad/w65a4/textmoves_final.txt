@@ -1,0 +1,14 @@
+48 TU(s) carry PER_FN_TEXT_MOVES entries (PC-relative branches only; j/jal excluded)
+
+  !! iFILE_ExecCommand: PC-REL BRANCH COUNT ours=29 expected=10  board=100.0 gate=None
+  !! vramfxya: PC-REL BRANCH COUNT ours=9 expected=2  board=100.0 gate=None
+  !! DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii: 1 differing PC-rel branch WORD(s) [(2, '104000bf', '104000be')]  board=97.1184 gate=FAIL:7
+  ?? recon/game/common/aiphysic.cpp: missing object (ours=True exp=False)
+  !! AudioCmn_SoundCar__FP8Car_tObjiiiiiii: PC-REL BRANCH COUNT ours=75 expected=23  board=100.0 gate=None
+  !! sprintf: PC-REL BRANCH COUNT ours=63 expected=16  board=98.9798 gate=FAIL:44
+  !! CD_get_intr: PC-REL BRANCH COUNT ours=38 expected=14  board=100.0 gate=None
+  !! FntPrint: PC-REL BRANCH COUNT ours=27 expected=11  board=99.9792 gate=PASS
+  !! PutDispEnv: 1 differing PC-rel branch WORD(s) [(28, '10400025', '10400024')]  board=98.9937 gate=FAIL:38
+  !! __divdf3: 3 differing PC-rel branch WORD(s) [(1, '15400007', '15400008'), (2, '12800002', '16800003'), (9, '0620000a', '0620000c')]  board=94.7989 gate=FAIL:16
+
+80 TEXT_MOVES-sealed fns audited; 9 with a real PC-relative branch-word difference; 0 of those are scored 100.00 by the board

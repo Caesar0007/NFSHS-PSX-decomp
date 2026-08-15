@@ -301,7 +301,14 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * This recovers retail's direct `li t1,20` plus the exact expanded-record word
  * rotation, reducing the authoritative residual 36->34 (418/416).  Direct
  * source-shape restoration, split first-size fences, and a distinct copy-call
- * size handoff all measured neutral or worse and were reverted. */
+ * size handoff all measured neutral or worse and were reverted.
+ *
+ * MATCH W69 (2026-08-15): in the W68 basin, a second identity only at the
+ * final memcpy size handoff prevents uCopySz from coalescing directly into
+ * hard argument $a2.  GCC now keeps the loop size in retail's $t0 and emits
+ * the late `addu a2,t0,zero`, removing one instruction and reducing 34->33
+ * (417/416).  Moving this fence before copyDst or duplicating it is neutral;
+ * naming the source offset or reusing uBulkSz regresses to 79/62 diffs. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -413,6 +420,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
               __asm__("" : "=r"(uCopySz) : "0"(uCopySz), "r"((int)nTopTenIndex[k]));
               copyDst = (nLapIndicator + k) * (int)sizeof(tRecordBuffer);
               copyDst = copyDst + (int)RecordHolders;
+              __asm__("" : "=r"(uCopySz) : "0"(uCopySz));
               memcpy_call((tRecordBuffer *)copyDst,
                           buffer + nTopTenIndex[k] * uCopySz,uCopySz);
             }

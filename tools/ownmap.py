@@ -38,9 +38,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import blobparse  # noqa: E402
-import ownmap  # noqa: E402
 import vamap  # noqa: E402
 
+# 🔴 W65-A7 PROMOTION REPAIR (catalog 16F).  As committed this file was
+# UNRUNNABLE -- three defects from its scratchpad/w64a18/ownmap2.py origin:
+#   1. `import vamap` -- vamap.py was never promoted (ModuleNotFoundError on
+#      the very first line of work).  Promoted alongside this fix.
+#   2. `import ownmap` -- in the scratchpad that resolved to ownmap.py *v1*
+#      (which owns dump_objects); in tools/ the same statement imports THIS
+#      file, so `ownmap.dump_objects` never existed.  dump_objects is now
+#      defined here directly.
+#   3. `blobparse.ROOT = parents[2]` -- stale scratchpad depth (fixed there).
 ROOT = Path(__file__).resolve().parents[1]
 OBJDUMP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe"
 FBASE = 0x8000F800
@@ -48,6 +56,62 @@ DRX = re.compile(r"^D_[0-9A-Fa-f]{8}$")
 DATA_SECS = (".sdata", ".sbss", ".data", ".bss", ".rodata")
 RELHDR = re.compile(r"^RELOCATION RECORDS FOR \[(\S+)\]:")
 RELROW = re.compile(r"^([0-9a-f]{8}) (\S+)\s+(.*)$")
+# objdump prints "%08lx %c%c%c%c%c%c%c %s\t%08lx %s" -- the 7 flag chars are
+# COLUMN-EXACT and the first is a SPACE for undefined syms, so a greedy \s+
+# would silently misalign the line.
+SYMLINE = re.compile(r"^([0-9a-f]{8}) (.{7}) (\S+)\s+([0-9a-f]{8}) (.*)$")
+
+
+def dump_objects(objs):
+    """obj -> {secs, syms, bytes} (batched objdump -t -h -s)."""
+    out = {}
+    B = 40
+    for i in range(0, len(objs), B):
+        batch = objs[i:i + B]
+        rel = [str(o.relative_to(ROOT)).replace("\\", "/") for o in batch]
+        r = subprocess.run([OBJDUMP, "-t", "-h", "-s", *rel],
+                           capture_output=True, text=True, cwd=ROOT)
+        cur = mode = None
+        secname = None
+        for ln in r.stdout.splitlines():
+            m = re.match(r"^(\S.*?):\s+file format", ln)
+            if m:
+                cur = m.group(1).replace("\\", "/")
+                out[cur] = {"secs": {}, "syms": [], "bytes": {}}
+                mode = None
+                continue
+            if cur is None:
+                continue
+            if ln.startswith("Sections:"):
+                mode = "sec"
+                continue
+            if ln.startswith("SYMBOL TABLE:"):
+                mode = "sym"
+                continue
+            if ln.startswith("Contents of section "):
+                mode = "hex"
+                secname = ln.split("Contents of section ", 1)[1].rstrip(":")
+                out[cur]["bytes"].setdefault(secname, bytearray())
+                continue
+            if mode == "sec":
+                m = re.match(r"^\s*\d+\s+(\S+)\s+([0-9a-f]+)\s", ln)
+                if m:
+                    out[cur]["secs"][m.group(1)] = int(m.group(2), 16)
+            elif mode == "sym":
+                m = SYMLINE.match(ln)
+                if m:
+                    out[cur]["syms"].append(
+                        (m.group(5).strip(), m.group(3), int(m.group(1), 16),
+                         m.group(2)[0] == "g"))
+            elif mode == "hex":
+                m = re.match(r"^\s([0-9a-f]{4,8}) ((?:[0-9a-f]{2,8} ?){1,4})", ln)
+                if m:
+                    hx = m.group(2).replace(" ", "")
+                    out[cur]["bytes"][secname] += bytes.fromhex(hx)
+        for o in batch:
+            key = str(o.relative_to(ROOT)).replace("\\", "/")
+            assert key in out, f"objdump produced no record for {key}"
+    return out
 
 
 def dump_relocs(objs):
@@ -128,7 +192,7 @@ def main():
 
     names, _ = vamap.build()
     objs = sorted((ROOT / "build" / "recon").rglob("*.o"))
-    data = ownmap.dump_objects(objs)
+    data = dump_objects(objs)
     rels = dump_relocs(objs)
 
     wins = defaultdict(list)

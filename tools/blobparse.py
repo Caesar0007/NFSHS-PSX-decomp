@@ -8,7 +8,11 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+# 🔴 W65-A7 (catalog 16F root-resolution law): this module was promoted from a
+# scratchpad, where the repo root is parents[2].  In tools/ it is parents[1] --
+# the stale depth pointed ROOT at C:\Temp and made the __main__ default path
+# (and any caller passing a repo-relative path) resolve outside the repo.
+ROOT = Path(__file__).resolve().parents[1]
 
 VA_RE = re.compile(r"/\*\s*([0-9A-Fa-f]+)\s+([0-9A-Fa-f]{8})\s")
 

@@ -29,7 +29,31 @@ asm = sorted((ROOT / "build" / "asm").rglob("*.o"))
 objs = src + asm
 assert src, "no build/src objects -- refusing a vacuous link probe"
 assert asm, "no build/asm objects -- refusing a vacuous link probe"
-print(f"[objs] src={len(src)} asm={len(asm)} total={len(objs)}")
+
+# 🔴 SKIP-ASM VACUITY GUARD (W62-A18's banked hazard, fired again in W65):
+# `build.py --skip-asm` makes INCLUDE_ASM a no-op, so every build/src/*.o
+# becomes a ~950-byte EMPTY SHELL.  The link then reports ~2000 undefined
+# `.L<VA>` jump-table labels that are in fact perfectly fine -- a completely
+# false picture.  Any src-lane figure must come from an asm-INCLUSIVE build.
+nonempty = 0
+for i in range(0, len(src), 30):
+    r = subprocess.run(
+        [r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump", "-h"] +
+        [str(p.relative_to(ROOT).as_posix()) for p in src[i:i + 30]],
+        capture_output=True, text=True, cwd=ROOT)
+    # NB: parse the SIZE, never `\s+(?!00000000)` -- the greedy \s+ backtracks
+    # one space and the negative lookahead then trivially succeeds (measured:
+    # that spelling reported 461/461 non-empty on a tree of empty shells).
+    for ln in r.stdout.splitlines():
+        m = re.match(r"^\s*\d+\s+\.text\s+([0-9a-f]{8})\s", ln)
+        if m and int(m.group(1), 16):
+            nonempty += 1
+print(f"[objs] src={len(src)} (with .text: {nonempty}) asm={len(asm)} "
+      f"total={len(objs)}")
+if nonempty * 2 < len(src):
+    sys.exit(f"REFUSING: only {nonempty}/{len(src)} src objects carry .text -- "
+             f"this tree was built with --skip-asm; the src-lane numbers would "
+             f"be vacuous (~2000 phantom undefined .L labels)")
 
 # 🔴 the paths MUST be ROOT-relative with forward slashes: linkers/nfs4.ld names
 # its inputs as `build/asm/...`, and a SECTIONS filename that does not match an

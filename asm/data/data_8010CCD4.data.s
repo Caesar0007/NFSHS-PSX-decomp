@@ -27260,21 +27260,21 @@ nonmatching D_80123654
 
 dlabel D_80123654
     /* 113E54 80123654 D86C0580 */ .word D_80056CD8
-    /* 113E58 80123658 38F30E80 */ .word func_800EF338
-    /* 113E5C 8012365C 5CF30E80 */ .word func_800EF35C
-    /* 113E60 80123660 5CEB0E80 */ .word func_800EEB5C
-    /* 113E64 80123664 48F20E80 */ .word func_800EF248
-    /* 113E68 80123668 80F20E80 */ .word func_800EF280
-    /* 113E6C 8012366C C0F20E80 */ .word func_800EF2C0
-    /* 113E70 80123670 C8EF0E80 */ .word func_800EEFC8
-    /* 113E74 80123674 8CED0E80 */ .word func_800EED8C
-    /* 113E78 80123678 0CF60E80 */ .word func_800EF60C
-    /* 113E7C 8012367C 6CF20E80 */ .word func_800EF26C
-    /* 113E80 80123680 7CEA0E80 */ .word func_800EEA7C
-    /* 113E84 80123684 08F30E80 */ .word func_800EF308
-    /* 113E88 80123688 6CF80E80 */ .word func_800EF86C
-    /* 113E8C 8012368C 64EA0E80 */ .word func_800EEA64
-    /* 113E90 80123690 BCF90E80 */ .word func_800EF9BC
+    /* 113E58 80123658 38F30E80 */ .word _que_ref
+    /* 113E5C 8012365C 5CF30E80 */ .word _gpu_que_push
+    /* 113E60 80123660 5CEB0E80 */ .word _BlitClear
+    /* 113E64 80123664 48F20E80 */ .word _send_gp1
+    /* 113E68 80123668 80F20E80 */ .word _send_gp0
+    /* 113E6C 8012366C C0F20E80 */ .word _gpu_dma_chain
+    /* 113E70 80123670 C8EF0E80 */ .word _drs
+    /* 113E74 80123674 8CED0E80 */ .word _dws
+    /* 113E78 80123678 0CF60E80 */ .word _gpu_que_drain
+    /* 113E7C 8012367C 6CF20E80 */ .word _get_gp1
+    /* 113E80 80123680 7CEA0E80 */ .word _clearOTagR_dma
+    /* 113E84 80123684 08F30E80 */ .word _get_gpuinfo
+    /* 113E88 80123688 6CF80E80 */ .word _reset
+    /* 113E8C 8012368C 64EA0E80 */ .word _get_status
+    /* 113E90 80123690 BCF90E80 */ .word _sync
 enddlabel D_80123654
 
 nonmatching D_80123694
@@ -53885,9 +53885,9 @@ enddlabel D_8013C310
 nonmatching padIntFunc
 
 dlabel padIntFunc
-    /* 12CB14 8013C314 A8C01080 */ .word func_8010C0A8
-    /* 12CB18 8013C318 F0C01080 */ .word func_8010C0F0
-    /* 12CB1C 8013C31C C8C11080 */ .word func_8010C1C8
+    /* 12CB14 8013C314 A8C01080 */ .word _padIntInit
+    /* 12CB18 8013C318 F0C01080 */ .word _padIntQuery
+    /* 12CB1C 8013C31C C8C11080 */ .word _padIntRecvId
     /* 12CB20 8013C320 88C21080 */ .word _padIntRecvHdr
     /* 12CB24 8013C324 14C31080 */ .word _padIntRecvData
     /* 12CB28 8013C328 50730325 */ .word 0x25037350

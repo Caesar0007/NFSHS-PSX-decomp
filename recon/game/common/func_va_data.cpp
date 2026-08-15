@@ -37,18 +37,13 @@ int          AIPerson_glueTable[21];                       /* @0x8010d714 */
 AIPerson_t   AIPerson_PersonalityData[9];                  /* @0x8010d768 */
 AIScript_tReactionDetails AIPerson_ScriptData[9][7];       /* @0x8010da5c */
 
-/* @0x8010DC74  0x6C bytes  bss(zero) — fully loaded at runtime from trafcfg.dat
- * by AIInit_LoadPhysicsConfig (100%); read across the AI physics module. */
-AIPhysic_Config_t AIPhysicConfig;
-
-/* @0x8013C5EC  4 bytes  bss(zero) — heap handle, new'd in AI_TrafficStartUp and
- * freed/cleared by AI_TrafficCleanUp (100%). */
-AITrigger_TriggerManager *triggerManagerTraffic;
-
-/* @0x8010CCF0  72 bytes  bss(zero) — AI lane/blocking runtime state; cleared by
- * AIInit_Reset2 (100%), read across the AI module. */
-AI_tInfo AI_Info;
-
-/* @0x8010DDA4  16 bytes  bss(zero) — race leaderboard; initialized by AIInit_Reset2
- * (100%) to the lead human/AI racers, maintained by the AISpeeds module. */
-AISpeeds_tLeaderBoard leaderBoard;
+/* W62-A18 LINK-PREP dedup: four data objects that this catch-all TU also defined
+ * are OWNED by their module TUs and were multiply-defined at link time (ld -r:
+ * "multiple definition of ...").  The owning definition stays where the datum's
+ * module lives; only the extern decls (aiinit_externs.h) are needed here:
+ *   AIPhysicConfig        @0x8010DC74 -> recon/game/common/aiphysic.cpp:15
+ *   triggerManagerTraffic @0x8013C5EC -> recon/game/common/aitriger.cpp:13
+ *   AI_Info               @0x8010CCF0 -> recon/game/common/ai.cpp:17
+ *   leaderBoard           @0x8010DDA4 -> recon/game/common/aispeeds.cpp:25
+ * (each is also still emitted by the splat data blob -- see SYMBOL_LEDGER.md
+ * class M1, the blob-vs-recon data-ownership decision, which is separate.) */

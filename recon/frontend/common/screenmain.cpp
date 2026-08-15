@@ -600,6 +600,7 @@ void tScreenMain::DrawBackground()
   }
   if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
     int drawAnimFade;
+    int frameIdx;
 
     drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
     drawFlags.custom_shapes = this->fSwapShapes.fShapes;
@@ -610,9 +611,20 @@ void tScreenMain::DrawBackground()
         drawAnimFade = 0x80;
       }
     }
+    /* MATCH W63-A17 (68 -> 44, count still EXACT 822/822): the frame-index divide
+       is its OWN statement AHEAD of the animLocations reads.  Retail materialises
+       the %10 magic pair first (`lui a0,52428; ori a0,a0,52429`), then the
+       animLocations base (`lui v1,0; addiu v1,v1,0`), then `multu t0,a0`, and only
+       then loads fAnimLocation -- our fused call-argument form interleaved the two
+       chains and swapped their register roles (magic in $v0, base in $a0, index in
+       $v1).  w43's "independent-chain issue order is fixed by STATEMENT SPLIT, not
+       operand order".  Fully inlining the x/y reads into the call args measures
+       EXACTLY the same 44, but drops both SYM 8c locals (shapeX $v0, shapeY $s0),
+       so the split-temp form is kept. */
+    frameIdx = (deltaTicks / 0xf) % 10;
     shapeX = animLocations[this->fAnimLocation].x;
     shapeY = animLocations[this->fAnimLocation].y;
-    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
+    DrawShapeExtended(frameIdx,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
   }
   y = 0x32;
   i = 0;

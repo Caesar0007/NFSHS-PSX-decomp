@@ -182,6 +182,23 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
     int *qp;
     int sign;
 
+    /* W62-A8 (2026-08-15) -- RE-GATED at 22.  The div-by-zero arm's named angle ("stop cse
+     * carrying the mask constant into the arm -- an opacity device, not a barrier") is now
+     * TRIED IN BOTH POLARITIES and FALSIFIED (whole-TU, scratchpad/w62a8/div_v{1,2}.json):
+     *   13C INVERTED-DEFAULT `ur.w.hi = -1; if (sign == 0) ur.w.hi = 0x7FFFFFFF;` ..... 70
+     *   same with `ur.w.lo = -1` first / both stores then the override ............ 70 / 70
+     *   a named `int h` carrying the select, stored once ............................. 23
+     *   a named `int nan = 0x7FFFFFFF` + 1 / 2 / 3 identity fences ............. 34 / 33 / 33
+     *   a named `int neg = -1` + identity fence, used for BOTH hi and lo ............. 26
+     * The 70s are the tell: ANY spelling that writes `ur.w.hi` twice re-materialises the
+     * whole union head; the arm is a single-store select and must stay one.  So the residual
+     * (a) is NOT reachable by naming or laundering the constant on either side -- retail's
+     * `li $s3,-1` in the `bnez` delay slot + `lui;ori` on the fall-through is a jump/reorg
+     * polarity that our cse-shared mask forbids.  NEXT: the mask itself is shared with the
+     * ub-side guard `(ub.w.hi & 0x7FFFFFFF)`; the only untried device is one that keeps the
+     * GUARD's mask in $t3 (it already is) while denying cse the value for the ARM -- i.e. a
+     * per-arm constant that is not an allocno at all, which on this lane means TEXT_MOVES.
+     * NOT a floor. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;

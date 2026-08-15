@@ -106,6 +106,20 @@
  * residual is a pure 3-line relocation (`srav`/`j`/`addu v0,zero,zero`) plus a
  * branch-polarity flip, which is exactly what a take/after/slot row expresses.
  * NOT a floor. */
+/* W62-A8 (2026-08-15) -- RE-GATED at 5 (62/63).  TWO MORE block orders falsified, taking
+ * the shape count to 13 over three waves; recorded so nobody re-fights the axis:
+ *   the ELSE-ARM form with ONLY the shift in the then-arm and the common tail AFTER the
+ *   join -- `if (v8 != 0) { v8 >>= -v6; } else { return 0; } result = v8; ...` -- 5, and
+ *   byte-identical output to the early-return form (verified by side-by-side, not just by
+ *   score).  Same with the `(v4-1022) >= 0x20` guard retained as a separate early return: 5.
+ * This was the one shape the w60-a5/w61-a9 lists did NOT contain, and it is the shape that
+ * expand_end_cond SHOULD emit in retail's order ([then: srav; j Lend][else: v0=0; j Lepi]
+ * [Lend]) -- gcc canonicalises it back anyway, so the placement is now falsified from BOTH
+ * directions (source order AND expansion order).
+ * SHARPENED ANGLE (unchanged, and now the only live one): the residual is retail's SECOND
+ * `j .L800F6908` -- retail's shift arm and its ret0 arm BOTH end in a jump and neither falls
+ * through, ours cross-jumps one of them away.  Routes: (i) a cc1-instrument read of jump.c's
+ * `jump_optimize` on the 2.7.2 binary (-dj), or (ii) PER_FN_TEXT_MOVES.  NOT a floor. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 

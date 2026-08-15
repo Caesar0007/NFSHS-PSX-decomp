@@ -213,6 +213,26 @@ extern void _padStopCom(void)
  * The remaining 24 are isolated to GCC's phantom `vars=8` frame and the two-insn folded final
  * byte test.  Per-function -G8 is byte-identical; compiler ladder: 2.6.3=40,
  * 2.7.2-970404=186, 2.8.0/2.8.1=177, confirming 2.7.2 as the correct basin.
+ * w62-a5 -- THE FOLDED FINAL BYTE TEST IS SOURCE-REACHABLE (device found, NOT landed).
+ *   `if (info[0x36] != 0) return 0; return 1;` is turned into `sltiu $v0,$v0,1` by jump.c's
+ *   store-flag transform (both exits are constants).  LAUNDERING THE RESULT CONSTANT breaks it:
+ *     if (info[0x36] != 0) return 0;
+ *     { int one = 1; __asm__("" : "=r"(one) : "0"(one)); return one; }
+ *   -> the oracle's exact tail returns (`bnez $v1; [slot] addu $v0,$zero,$zero; addiu $v0,1`)
+ *   and the fn becomes COUNT-EXACT 205/205, residual = ONLY the phantom frame (4 lines) and one
+ *   register ($v0 vs retail $v1 on the `lbu`/`bnez` pair).  LCS score is 26 vs the 24 baseline
+ *   (09K non-monotonicity), so per the basin rule it is REPORTED, NOT LANDED -- adopt it
+ *   together with a cure for the phantom frame.  Falsified around it (all re-gated w62-a5):
+ *   laundering the TEST value instead of the constant (24 @203 -- the fold returns); the same
+ *   launder moved ABOVE the test (32 @207); both ternaries rewritten as if/else (38 @207);
+ *   dropping the `fix` local (42/44); hoisting `fix` to function scope (inert 26).
+ *   PHANTOM FRAME, ISOLATED: the 8 `vars` bytes at $sp+16..23 are NEVER REFERENCED by any
+ *   instruction in the body (grep the .s for `($sp)`: only the three reg saves/restores).  It is
+ *   NOT `fix` (vars stays 8 with the local removed), NOT the three `(void)JOY_DATA8` discards
+ *   (removed: still 8), NOT the ternaries, NOT block scope.  It is RUNG-SPECIFIC: 2.7.2 and
+ *   2.6.3 emit vars=8/regs=3, while 2.7.2-970404 and 2.8.0 emit vars=0/regs=5 (and are far
+ *   worse overall) -- i.e. a gcc-2.7.2 dangling-pseudo stack temp (13E class).  Next angle: a
+ *   `-dl`/`-dg` dump on the wired rung to name the pseudo that owns the slot.
  * Five earlier ORACLE-READ corrections, three of them REAL BUGS:
  *  (1) setRC2wait is VOID (WAITRC2.c receipt) and it is _padClrIntSio0's RETURN that retail
  *      tests (`jal _padClrIntSio0; beqz $v0,<ret 0>`), not a setRC2wait result.  The old
@@ -415,10 +435,15 @@ return_rx:
  * MATCH (w59-root, 36 -> 2, count-EXACT 142/142; earlier w52-a5, 157 -> 36): the matched
  * Sled Storm donor confirms the baud-arm polarity and the `T2_TARGET != 0` arm order.  `rx` is
  * an int normalized with `& 0xff`; an int index stages the required second `dev[0x44]` read.
- * The allocator boundary is only 0.1142 vs 0.1111: spelling the nibble threshold as
- * `baud - 0x80` adds the one real baud reference needed for retail s1/s2 ownership.  The sole
- * residual is therefore `addiu v0,s1,-128` versus retail `li v0,8`; `int baud` regresses to 14,
- * and -G8 is not a solution.  The ACK wait embeds an INLINE COPY of
+ * The allocator boundary is only 0.1142 vs 0.1111: the nibble threshold needs ONE extra real
+ * baud reference for retail s1/s2 ownership.
+ * MATCH (w62-a5, 2 -> PASS 142/142) -- REF WITHOUT VALUE-CAPTURE.  Spelling that extra ref as
+ * `baud - 0x80` inside the compare hands cse the constant: it knows baud==0x88 there and
+ * rewrites the literal 8 as `addiu v0,s1,-128` (13C cse-constant-capture, mirrored).  Buy the
+ * SAME ref with a zero-insn read-only fence AFTER baud's last real use and write the threshold
+ * as the literal `8`: `li v0,8` returns and the whole allocation is unchanged.  CONTROL GATED:
+ * literal `8` with NO fence = 14 diffs (the ref really is load-bearing); `int baud` = 14; -G8
+ * is not a solution.  The ACK wait embeds an INLINE COPY of
  * chkRC2wait's body (retail hoists _startTime/_waitTime and the four RC2/SIO MMIO addresses into
  * $a0/$a1/$t1/$a2/$t2/$t0 above the loop -- a call could never produce that), returning -2 on
  * timeout.  Also: baud is a selected local stored once, and the second baud decision reads the
@@ -439,10 +464,11 @@ extern int _padSioRW2(unsigned char *dev, int tx)
     setRC2wait(0x190);
     rx = JOY_DATA8 & 0xff;
     if (*(volatile unsigned char *)(dev + 0x44) != 0 ||
-        rx >> 4 != baud - 0x80)
+        rx >> 4 != 8)
         JOY_BAUD = baud;
     else
         JOY_BAUD = 0x22;
+    __asm__("" : : "r"(baud));   /* MATCH w62-a5: +1 baud ref, 0 insns */
 
     while ((I_STAT & 0x80) == 0) {
         unsigned cur = T2_VALUE & 0xffff;

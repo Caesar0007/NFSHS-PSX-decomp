@@ -47,6 +47,21 @@
  * The template-copy handout is a local-alloc QTY question (the 06E gap) -- de-prioritized
  * per the agent guide until qtytrace exists.  NOT a floor.
  */
+/* W62-A8 (2026-08-15) -- RE-GATED at 56 @545/545.  Nothing landed; ONE new structural
+ * reading that upgrades the orchestrator call, and no new spellings (the axis is closed):
+ *   THE TEMPLATE-COPY REGISTER HANDOUT IS NOT AN INDEPENDENT 06E ROW -- IT IS DOWNSTREAM OF
+ *   THE SPLIT-ADDRESS FORM.  Ours emits `lui $v0,0; addiu $t3,$v0,0` for &D_8012348C, so $v0
+ *   is occupied at the copy and the three words fall to $t0/$t1/$t2; retail emits
+ *   `lui $a1; addiu $a1,$a1` and the three words take the first three free caller-saved regs
+ *   $v0/$v1/$a0.  Same at the two `addiu $a3,$v0,0` sites.  I.e. the "8-diff local-alloc QTY
+ *   handout" the w61-a9 receipt de-prioritised behind qtytrace and the ~6-diff self-temp
+ *   cluster are ONE row with ONE cause, and `-mno-split-addresses` removes the cause.
+ *   That makes the standing orchestrator call (45 @546 vs 56 @545) a -11 for +1 `nop`, and
+ *   the +1 is not structural.  Spec unchanged:
+ *     "recon/syslib/psx/libc/SPRINTF.c": {"jtbl_at_fusion": True, "no_split_addresses": True}
+ *   Not wired by me -- it is the count-parity rule's call.
+ * No new source spellings were probed: w59-a13 (4 pointer forms), w60-a5 and w61-a9 (8 more)
+ * cover the format-pointer, flag-constant and case-'c' rows, and all are post-RTL. */
 /* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
  * Reference: C:\Tempage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full

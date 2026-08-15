@@ -1272,6 +1272,15 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tlbu\t\$3,4\(\$3\)\n", "after": r"\taddu\t\$2,\$2,1\n"},
         ],
     },
+    # w62 wired (probe-verified by belt agent).
+    "recon/syslib/psx/libpad/MCXMAIN.c": {
+        "_padIntRecvHdr": [
+            {"take": r"\taddu\t\$2,\$3,\$0\n", "after": r"\tbeq\t\$3,\$2,\$L\d+\n", "slot": True, "copy": True},
+        ],
+        "_padIntRecvData": [
+            {"take": r"\taddu\t\$4,\$17,\$0\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n\tj\t\$L\d+\n\$L\d+:\n\tli\t\$2,0x00000004)", "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tbltz\t\$3,)", "slot": True, "drop_after": r"\t\.set\tnoreorder\n\t\.set\tnomacro\n"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma
@@ -1282,6 +1291,11 @@ PER_FN_TEXT_MOVES = {
         "_BlitClear": [
             {"take": r"\taddu\t\$2,\$0,\$0\n(?=\t\.set\tnoreorder)",
              "after": r"\tjal\t_gpu_dma_chain\n"},
+        ],
+                # w62-a3 (probe-verified 2x): PutDispEnv 42 -> 38 on top of the
+        # intruder-eviction landing (site-1 GEnv_drv reload one slot earlier).
+        "PutDispEnv": [
+            {"take": r"\tlw\t\$5,GEnv_drv\n", "after": r"\tlhu\t\$4,0\(\$17\)\n"},
         ],
         "_clearOTagR_dma": [
             {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",

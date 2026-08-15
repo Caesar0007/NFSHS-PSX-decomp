@@ -316,7 +316,36 @@ extern void _padLoadActInfo_snd(unsigned char *info)
  *   LANE RE-LADDERED AT THE NEW BASIN (04Z): the "closes under the cc1_272 lane, COUNT-EXACT
  *   157/157 @38" claim above is now FALSE -- per-fn ver-splice 2.7.2 = 31 @158, 2.6.3 = 50 @159,
  *   2.8.0 = 33 @156, whole-TU cc1_272 = 31 @158; the wired 2.7.2-970404 rung is best at 17.
- *   RESIDUAL 17, four named items, all pre-existing: (ii) `srl` vs `sra` on `rx[5] >> 7`;
+ * MATCH (w62-a5, 17 -> 14 @155/157) -- TWO of the four named residual items closed:
+ *   (ii) `srl` vs `sra` on `rx[5] >> 7` was NOT a "compiler-version artifact, not source-reachable
+ *       while the load stays lbu".  combine proves the `lbu` value non-negative and demotes the
+ *       arithmetic shift, so the cure is to make the value OPAQUE to combine without changing the
+ *       load: stage it in an `int` and IDENTITY-LAUNDER it (13B, `__asm__("" : "=r"(x) : "0"(x))`,
+ *       zero insns).  `lbu` stays, `sra` returns, nothing else moves.  -1 diff.
+ *   (iv) the `la $a3,_actcur` preheader anchor landing 2 insns early WITH `t0 = -1` as a cse copy
+ *       was ONE structural fact, not two allocator facts: retail's byte loop is a ZERO-TRIP-GUARDED
+ *       do/while whose anchor is assigned INSIDE the guard.  `if (--cnt != -1) { ac = &_actcur;
+ *       do {...} while (--cnt != -1); }` puts the `la` after the guard AND spells the `-1` twice,
+ *       so the back edge gets its own `li $t0,-1` instead of `addu $t0,$v0,$zero`.  -2 diffs.
+ *   RESIDUAL 14 = ONE identity, fully diagnosed: THE SPLIT-ADDRESSES AXIS.  cc1 emits the UNSPLIT
+ *   macro forms `sw $2,_actcur` / `la $7,_actcur` in the .s, then (this rung being a SPLIT-address
+ *   build) splits them itself into `lui $2,%hi; sw $3,%lo($2)` / `lui $2,%hi; addiu $7,$2,%lo` and
+ *   FILLS TWO BRANCH DELAY SLOTS with the `lui` halves (that is also why we are 2 insns SHORT:
+ *   155 vs 157).  Retail keeps both macros whole -- ASPSX expands the store through `$at`
+ *   (`lui $at,0; sw $3,0($at)`) and the `la` dest-as-scratch (`lui $a3; addiu $a3,$a3`), and
+ *   refuses to put a multi-word macro in a delay slot, so retail pays a `nop` and fills the `j`
+ *   slot with `addiu $a0,$a0,-1` instead.  PROVEN by A/B: whole-TU `cc1_alt 2.8.0` +
+ *   `no_split_addresses` reproduces retail's `lui $at,0 / sw ,0($at)` and the `addiu $a0,$a0,-1`
+ *   j-slot EXACTLY (and is COUNT-EXACT 157/157) -- but scores 32 on the rest, and whole-TU 2.8.0
+ *   costs the TU's other PASSes, so it is not a wiring recommendation.  The 970404 rung REJECTS
+ *   the flag outright (`cc1.exe: Invalid option 'no-split-addresses'`), so neither
+ *   PER_FN_NO_SPLIT_ADDRESSES (default lane only -- inert here) nor PER_FN_FLAG_SPLICE_272 can
+ *   express it; the missing mechanism is a per-fn ver-splice that ALSO carries the flag (the 272
+ *   twin of the 12G `PER_FN_NO_SPLIT_ADDRESSES` + version-splice composition).  TEXT_MOVES cannot
+ *   substitute: the two forms differ in REGISTER ($at/$a3 vs $v0), not only in line position.
+ *   psyqproof (psq43 CC1PSX 2.8.0 + ASPSX 2.77) scores REAL=96 on this fn -- count-exact 157
+ *   words but a different codegen basin; the gate rung stays authoritative.
+ *   RESIDUAL (pre-existing, now the only other item):
  *   (iii) the `_actcur` store reaching through `$at` in retail (an ASSEMBLER MACRO SPLIT, the
  *   W51 AT-MACRO class) vs our `$v0` base; (iv) the `la $a3,_actcur` preheader anchor landing 2
  *   insns early with `t0 = -1` as a copy; plus one `lbu $v0,4($v0)` load-delay placement. */
@@ -342,7 +371,11 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
         d[1] = (*(unsigned char **)(info + 0x3c))[5] & 0x7f;
         d[2] = (*(unsigned char **)(info + 0x3c))[6];
         d[3] = (*(unsigned char **)(info + 0x3c))[7];
-        d[4] = (unsigned char)((*(unsigned char **)(info + 0x3c))[5] >> 7);
+        {
+            int hi = (*(unsigned char **)(info + 0x3c))[5];
+            __asm__("" : "=r"(hi) : "0"(hi));
+            d[4] = (unsigned char)(hi >> 7);
+        }
         n = info[0x47] + 1;
         info[0x47] = n;
         if (n < info[0xe9])
@@ -383,14 +416,19 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
             src = (*(unsigned char **)(info + 0x3c)) + 2;
             cnt = 6;
         }
-        ac = &_actcur;                           /* MATCH: pointer local -- the oracle keeps
-                                                  * `la $a3,_actcur` live across the loop and the
-                                                  * body does ONE `lw 0($a3)` / `sw 0($a3)` per
-                                                  * iteration (a direct `_actcur` re-reads twice) */
-        while (--cnt != -1) {
-            if (info[0x48] == 0) goto tail;
-            *(*ac)++ = *src++;
-            info[0x48] = info[0x48] - 1;
+        /* MATCH: pointer local -- the oracle keeps `la $a3,_actcur` live across the loop and
+         * the body does ONE `lw 0($a3)` / `sw 0($a3)` per iteration (a direct `_actcur`
+         * re-reads twice).  MATCH (w62-a5): the loop is a ZERO-TRIP-GUARDED do/while and the
+         * anchor is assigned INSIDE the guard -- that is what puts `la $a3,_actcur` AFTER the
+         * `beq $a0,$v0` guard (ours hoisted it 2 insns early) and gives the back-edge its OWN
+         * `li $t0,-1` instead of a cse copy of the guard's `li $v0,-1`. */
+        if (--cnt != -1) {
+            ac = &_actcur;
+            do {
+                if (info[0x48] == 0) goto tail;
+                *(*ac)++ = *src++;
+                info[0x48] = info[0x48] - 1;
+            } while (--cnt != -1);
         }
         if (info[0x48] == 0) goto tail;
 return_zero:
@@ -464,7 +502,20 @@ extern void _padSetActAlign_snd(unsigned char *info)
  *   (iii) one insn over (51 vs 50): retail hoists the outer-loop re-test `lbu $v0,233($a0)`
  *       ABOVE `addiu $t0,$t0,1` so the increment covers the load-delay slot; ours emits it after
  *       and pays a nop.  That one IS a pure TEXT_MOVES relocation once (i)+(ii) are settled.
- * Lane-invariant: 27 on the wired 2.7.2-970404 rung AND on the cc1_272 (PsyQ CC1PSX) lane. */
+ * Lane-invariant: 27 on the wired 2.7.2-970404 rung AND on the cc1_272 (PsyQ CC1PSX) lane.
+ * w62-a5 RE-LADDER + falsifications (04Z re-probe at the current basin, all re-gated here):
+ *   per-fn flag splices -fno-strength-reduce / -fno-schedule-insns / -fno-schedule-insns2 are
+ *   ALL still 27 @51/50 (the strength-reduce splice still produces retail's `sb $t3,93($v1)`
+ *   displacement form, but its base copy `addu $v1,$a0,$zero` then lands 9 insns EARLY, in the
+ *   OUTER preheader instead of the inner one, so the win is traded 1:1).  For item (iii) (the
+ *   one-insn overrun: retail loads `lbu $v0,233($a0)` ABOVE `addiu $t0,$t0,1` so the increment
+ *   covers the load delay) two source spellings were falsified: flipping the do/while compare
+ *   operand order (`(int)info[0xe9] > (int)mode`, inert 27) and hoisting the limit into a named
+ *   `int nmodes` read before `mode++` (inert 27) -- gcc's scheduler re-sinks the load either way.
+ *   Item (ii) remains the blocker: a 3-way LOCAL-QTY rotation (ours matchcount/k/slot =
+ *   $a2/$a3/$v1, retail $a3/$v1/$a2).  Next instrument, not yet run here: tools/qty272.py /
+ *   reqdelta272.py (12A -- the 2.7.x local-alloc handout is now readable off `-dl`), to price
+ *   which qty must move before any further spelling sweep. */
 extern int _padSetActAlign_rcv(unsigned char *info)
 {
     unsigned mode = 0;

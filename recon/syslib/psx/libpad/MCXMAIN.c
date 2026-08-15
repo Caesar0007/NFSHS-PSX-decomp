@@ -206,7 +206,16 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
      * depends on the pre-cross-jump block numbering of the WHOLE function, not on this tail.
      * => NOT reachable from a local spelling; the lever, if any, is a whole-function change
      * that alters the pre-jump2 block layout (or a build.py TEXT_MOVES relocation of the one
-     * line).  Same class as _padIntRecvData's 4-diff residual. */
+     * line).  Same class as _padIntRecvData's 4-diff residual.
+     * MATCH (w62-a5, 2 -> PASS 35/35) -- IT IS THE ASSEMBLER'S INSN, NOT gcc's (11B mostly_true_jump
+     * EQ rule).  `beq $3,$2,$L19` is an EQ FORWARD branch, which mostly_true_jump scores 0, so
+     * gcc does NO eager target-thread fill on it and leaves the slot empty BY CONSTRUCTION -- the
+     * w61-a6 CFG-stale-liveness read explains why our reorg refuses, but retail's duplicate was
+     * never gcc's to begin with: ASPSX COPIED the merge-point `addu $v0,$v1,$zero` into the slot
+     * and kept the copy at $L19 (libpad = Sony vendor-prebuilt; this is the VENDOR-TOOLCHAIN
+     * residual class, cf. _padInitDirSeq @e471bfa9).  Expressed with ONE `copy`+`slot`
+     * PER_FN_TEXT_MOVES row (spec in scratchpad/w62a5/RECEIPTS.md); zero collateral, the other
+     * four MCXMAIN fns stay byte-identical. */
     if (r != 0x5a && r != 0) {
         if ((int)r < 0)
             return r;
@@ -236,6 +245,13 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
  * [slot] li $v0,-3`); every other site is cross-jumped onto it, and reorg then steals the
  * owner block's `li $v0,-3` into the branch slot and redirects -- the SHORT form
  * (`beqz <end>; [slot] li $v0,-3`).  Ours put the owner at site 3 (stream_retry), retail at
+ * [w62-a5: the remaining 4 closed to PASS 223/223 -- ONE `slot`+`drop_after` PER_FN_TEXT_MOVES
+ *  row.  Same class as _padIntRecvHdr's: retail's `addu $a0,$s1,$zero` sits in the FIRST of two
+ *  consecutive branches' slots (`beqz $v0`), ours in the SECOND (`bltz $v1`); gcc's fill order
+ *  is not source-reachable (16 shapes / 8 rungs / 6 flags falsified in w61-a6) and the insn is
+ *  ASPSX's placement.  The row moves the line into the beqz slot and DROPS the now-orphaned
+ *  `.set noreorder/.set nomacro` pair in front of the bltz so the assembler nops that slot --
+ *  without the drop the following `j` falls into the bltz delay slot (measured: 1 diff @222).]
  * site 2 (the recv_auto `send_byte` tail).  Writing the owner explicitly -- ONE physical
  * `clr_fail:` return block at the retail site plus `goto clr_fail;` at the other two -- is
  * codegen-exact and reaches retail's layout at all three sites.  MEASURED: owner at site 1

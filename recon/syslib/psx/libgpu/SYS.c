@@ -585,7 +585,23 @@ extern int MoveImage(void *rect, int x, int y)
      * $v1 to the anchor (05C/06B fence dials).  ⚠️ It must be dialed EMPIRICALLY -- allocsim/
      * reqdelta do not model this lane (11A: "reqdelta unusable in 272/alt lanes") -- and the
      * mask is an ANONYMOUS temp here, while giving it a name to fence costs +8 (the 22 row
-     * above).  So the dial has to be applied to a NEIGHBOURING named value, not to the mask. */
+     * above).  So the dial has to be applied to a NEIGHBOURING named value, not to the mask.
+     * W62-A3 -- THE NAMED ANGLE ABOVE IS NOW FALSIFIED.  `p` IS the neighbouring named value
+     * (it owns the anchor), and its ref dial is INERT past one operand: in the 14-basin
+     * (edits (1)+(2) re-applied, control re-measured at 14, 46/46) a read-only fence on `p`
+     * with 1 / 2 / 3 / 4 operands gives 22 / 22 / 22 / 22 -- the +1 change is structural, not
+     * a priority step, so the handout is not ref-priced here.  In the authoritative 9-basin
+     * the same fence gives 23 (1-op) / 23 (2-op).  Also falsified this wave, all in the
+     * 14-basin: a read-only fence on `dstxy` after the stores 32 (+2 insns); anchor assigned
+     * and fenced FIRST 33 (loses reorg's sll steal, reproducing the W60-A3 reading exactly);
+     * `dstxy` split across the anchor 14 (inert), that split with an identity launder on
+     * `dstxy` 14, and a joint 2-operand fence on (p, dstxy) after the anchor 22.
+     * REMAINING ANGLE (unchanged in kind, now with one option removed): the handout that must
+     * move is the ANONYMOUS mask temp's, and neither naming it (+8) nor dialling its only
+     * named neighbour reaches it -- this is the 06E local-alloc/global-handout gap, and the
+     * device that cracked PutDispEnv's site 1 (pin a COMPETING value's materialization earlier
+     * with an opacity fence) has no competing value to pin here: the anchor is already the
+     * only fenced pseudo in the block. */
     p[0] = *(u_long *)rect;                      /* src xy */
     p[1] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
     p[2] = *((u_long *)rect + 1);                /* wh */
@@ -782,12 +798,48 @@ extern void *PutDispEnv(void *env)
     mode = 0x8000000;                            /* oracle: `lui $s0,0x800` in the bnez slot */
     if (*dbg >= 2)
         GPU_printf("PutDispEnv(%08x)...\n", env);   /* @0x80056EA0 */
+    /* MATCH (W62-A3, 54 -> 42, count-exact 318/318): the site-1 $v0/$v1 role swap is
+     * NOT a priority dial on `hi` or on the command constant -- it is decided by WHERE the
+     * driver-table load sits in the block.  Instrumented cc1 (GCC_TRACE_ALLOC=1) shows the
+     * table address pseudo born at luid 16, BETWEEN the constant (14) and the `or` (18), so
+     * the constant's qty has life 4 (pri 5000) and loses to the y-chain (6 refs / life 18,
+     * pri 6666), which then takes the first free reg $v0.  An OPACITY FENCE on `gpu` pins
+     * the table load ahead of the whole argument computation; the constant's qty becomes
+     * adjacent to its `or`, outranks the y-chain, and takes $v0 -- so the y-chain falls to
+     * $v1 and the fn-ptr reload inherits $v0, exactly as retail.  Paired with retail's
+     * `hi | lo` operand order (op0 = hi, denied the dest, so the dest ties to op1 = lo:
+     * `or $a0,$v1,$a0`).  Both halves are required: fence alone 44, order alone 56.
+     * Read-only `("" : : "r"(gpu))` and `__volatile__` flavours measure identically (42).
+     * Residual at this site = a 4-instruction EMISSION-ORDER rotation only (ours emits the
+     * two table-load words before `lui $v0,0x500`/the two `lhu`s; retail after) -- every
+     * REGISTER at the site now matches.  Falsified on the way (all gate-measured, reverted):
+     * named `k` constant + 1/2-operand fences 60/58/58; identity-launder on `hi` 56 and on
+     * `lo` 60; read-only fence on `hi` after the call 208 (+2 insns, it makes the qty
+     * call-crossing); psyz's single-expression `(hi|x)|K` 60; `hi|(x|K)` 57 (-1 insn);
+     * fn-ptr hoisted to its own local 56; `K` as op0 of `lo` 56; plain statements 56.
+     * The SAME fence at site 2 is catastrophic (148) and at site 3 costs +2 (56) -- those
+     * two blocks have their operands already in callee-saved registers, so the table load
+     * is not what is crowding them.  See their own notes below.
+     * ORCHESTRATOR WIRING (W62-A3, probe-verified TWICE with scratchpad/w60a3/probe_moves.py,
+     * which scores through verify_asm's own logic): 42 -> 38, count-exact 318/318.  The fence
+     * pins the table load AHEAD of the argument words; retail emits it AFTER them, so the last
+     * site-1 residual is a pure 2-line relocation.  ADD THIS ROW TO THE EXISTING SYS.c ENTRY of
+     * PER_FN_TEXT_MOVES (12F: a duplicate dict key is silently shadowed -- the file already has
+     * _BlitClear and _clearOTagR_dma there):
+     *     "PutDispEnv": [
+     *         {"take":  r"\tlw\t\$5,GEnv_drv\n",
+     *          "after": r"\tlhu\t\$4,0\(\$17\)\n"},
+     *     ],
+     * Craft checks: `lw $5,GEnv_drv` occurs 3x in the region and a move entry consumes the
+     * FIRST match, which is site 1's; the `after` anchor `lhu $4,0($17)` is UNIQUE in the
+     * region; both anchors are label-agnostic and carry no trailing hex comment. */
     { const GpuTbl *gpu = GEnv_drv;
         u_long lo;
         u_long hi;
+        __asm__("" : "=r"(gpu) : "0"(gpu));      /* opacity: pin the table load first */
         gpu->send_gp1((hi = (u_long)(EU(1) & 0x3ff) << 10,
                        lo = (EU(0) & 0x3ff) | 0x5000000u,
-                       lo | hi)); }
+                       hi | lo)); }
     /* the gate is a CACHE COMPARE against GEnv.dispenv (disp.x/y/w/h + the
      * isinter/isrgb24/pad word at +0x10), not a check against literal zero. */
     cache = (u_short *)(dbg + 0x6A);
@@ -859,6 +911,28 @@ extern void *PutDispEnv(void *env)
             v_start = CLAMP(v_start, 0x10, 0x101);
             v_end   = CLAMP(v_end, v_start + 2, 0x102);
         }
+        /* W62-A3 -- SITES 2 AND 3 ARE **NOT** THE SITE-1 CLASS, measured not assumed.  Both
+         * live in ONE basic block (no branch between them, and it runs on to the memcpy), so
+         * the site-1 opacity fence hoists the driver-table load to the top of a block that
+         * spans the OTHER call: site 2 + fence = 148, site 2 fence-only = 136, site 3 + fence
+         * = 56 (all vs 42).  Their residual is the same $v0/$v1 role swap plus the `or` operand
+         * order (15 pure swaps + 2 swap-with-flip over both sites), but the crowding value is
+         * not the table pointer: at both sites the operands arrive in callee-saved registers
+         * from the clamps, and the constant's qty already sits 3 insns from its `or` in RETAIL
+         * TOO -- the priorities are identical on both sides, so no local dial separates them.
+         * Falsified this wave (gate-measured, reverted): `hi | lo` order alone at site 2 = 44,
+         * at site 3 = 44, at both = 46; in-place mutation of the clamp variables themselves
+         * (`h_end = (h_end & 0xfff) << 12` etc, which is retail's `andi $v1,$v1,0xFFF`
+         * shape) = 136 at site 2 / 46 at site 3; a named `k` constant plus a read-only fence
+         * at site 2 = 134; a read-only fence on `lo` after the site-2 call = 136 and +2 insns.
+         * Every site-2 edit lands in the same 134-136 basin, i.e. it re-colors the whole clamp
+         * band -- treat sites 2/3 as ONE joint problem, and price any candidate against 38.
+         * The overscan span keeps its own 4-position rotation (retail loads .base into $v1
+         * BEFORE .end into $v0 and runs `subu $v0,$v0,$v1`, so the span lands in $v0 and the
+         * h_end add is emitted before the `lbu $v0,0x12($s1)` instead of in its branch slot).
+         * Re-falsified in THIS basin per 04Z: h_start statement first 109 (+1 insn), a named
+         * `base` local 109 (+1 insn), `span` reused as the base carrier 141, `-(base - end)`
+         * 42 (inert), an identity launder on `span` 42 (inert). */
         { const GpuTbl *gpu = GEnv_drv;
         u_long hi;
         u_long lo;
@@ -1153,7 +1227,25 @@ extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
      * so the W60-A3 table -- measured only in the `lo | hi` basin -- did not close this):
      * 2.7.2 = 10 | 2.8.0 = 10 | 2.8.1 = 10 | 2.91.66 = 10 (2.6.3 / 2.7.2-970404 / 2.95.2
      * as-fail on the spliced region).  Both basins are rung-invariant; the axis is CLOSED
-     * twice over. */
+     * twice over.
+     * W62-A3 -- THE ONE BOUNDED PROBE THE 13A LAW ASKS FOR, RUN AND NEGATIVE; this fn is now a
+     * QUANTIFIED HARDNESS CERTIFICATE.  Note first what the 2 diffs are NOT: the REGISTER MAP
+     * ALREADY MATCHES retail exactly (ours `or $v0,$v0,$v1`, retail `or $v0,$v1,$v0` -- same
+     * three registers, only the commutative operand ORDER differs).  Getting retail's order
+     * needs source op0 = hi, and that spelling costs the map (10) because set_preference hands
+     * op0 the dest's hard reg, so hi wins $v0 in find_reg PASS 0 -- before any numeric scan.
+     * The 12A law says a priority dial cannot beat a hard-reg preference, and that is exactly
+     * what measures: in the `hi | lo` basin, a read-only fence on `tpage` (which does kill
+     * lo's $a2 preference) plus a 1 / 2 / 3 / 4-operand read-only fence on `lo` to raise its
+     * allocno priority above hi's gives 10 / 10 / 10 / 10; the lo fence alone 10; a fence on
+     * `hi` to lower it 10.  Eight dial points, all inert.  Denying hi its $v0 preference needs
+     * prune_preferences to see a CONFLICT with hard reg $v0, and in this 8-instruction leaf
+     * nothing occupies $v0 while hi is live -- there is no competing value to pin, which is
+     * precisely what distinguishes it from PutDispEnv's site 1 (where pinning the driver-table
+     * load with an opacity fence supplied the missing occupant and flipped the pair).  BOUNDED
+     * VERDICT: 2 diffs = one commutative operand order, compiler-version-invariant (both
+     * basins laddered), dial-invariant (8 points), and structurally unreachable in a leaf with
+     * no third live value.  Do not re-spend budget without a NEW mechanism. */
     u_long hi = 0xe1000000u;
     u_long lo;
     if (dtd != 0)
@@ -1682,7 +1774,23 @@ extern int _gpu_que_drain(void)
      * same declaration order and spelling the wait as an entry test plus do/while restores
      * retail's $s1=GPU-ready / $s0=DMA-active allocation (58 -> 31 diffs).  W56: declaring
      * the slot's narrow scalar `extra` before `arg` and `func` gives the closest retail
-     * three-index dispatch schedule; the remaining tail is handled below (31 -> 14 total). */
+     * three-index dispatch schedule; the remaining tail is handled below (31 -> 14 total).
+     * W62-A3 -- the 14 residual READ OFF precisely (it was described as "interleaving"; here is
+     * what it costs and why).  Ours and retail compute the SAME three `_que.plain[_qout]` index
+     * chains from the SAME two `_qout` values (the pre-branch one still in $a1, and one fresh
+     * reload).  Two differences, and the second is a CONSEQUENCE of the first: (a) retail hoists
+     * chain 2's `sll/addu` ABOVE the `.arg` load and defers its `sll ,5` until after the reload,
+     * where ours runs each chain to completion in turn; (b) chain 2's temp therefore lands in
+     * $v1 for retail and $v0 for ours -- and because ours then wants `lw $v0,_que($v0)` (dest ==
+     * index), the ASSEMBLER has to route it through the $at macro (`lui $at; addu $at,$at,$v0;
+     * lw $v0,%lo($at)`) while retail's `lw $v0,_que($v1)` uses the dest as its own %hi scratch.
+     * So 3 of the 14 are the $at macro, and they are DOWNSTREAM of one register handout -- fix
+     * the handout and the $at goes with it.  Falsified this wave (gate-measured, reverted):
+     * reading `.arg` before `.extra` 22; an identity launder on `func` 14 (inert); one on
+     * `extra` before the `func` read 14; one immediately after the `extra` read 14; declaring
+     * `func` first 14.  Still the 06E gap: the decision is a local-alloc handout inside one
+     * block, and unlike PutDispEnv's site 1 there is no address materialization to pin (all
+     * three chains already start from registers). */
     u_long dma_busy = 0x01000000;
 
     if ((*D2_CHCR & dma_busy) != 0)

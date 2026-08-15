@@ -281,6 +281,22 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
  *    regs; the in-place form is what puts xlo alone in $s2.
  *  - the low half `x & 0xFFFF` is a NAMED value live across both calls ($s2), the low half of
  *    y is an anonymous caller-saved temp ($v0) -- i.e. ylo is used twice in a row and dies. */
+/* W62-A8 (2026-08-15) -- RE-GATED at 14 (59/59).  The tail's `move $v0,$s3` class was
+ * re-attacked with the device that cracked MemCardExist_cb's identical-looking tails (the
+ * 13B IDENTITY-LAUNDER ON THE RETURNED VALUE) and it does NOT transfer here.  FALSIFIED,
+ * whole-TU gated (scratchpad/w62a8/mul_v1.json):
+ *   `{ int *r = out; __asm__("" : "=r"(r) : "0"(r)); return r; }` after the stores .. 24
+ *   read-only fence `__asm__("" : : "r"(out));` after the stores .................... 24
+ *   block-local `int *o = out; o[0]=lo; o[1]=hi;` then `return out;` ................ 14 (inert)
+ *   same + an opacity fence on `o` .................................................. 15
+ * WHY IT DIFFERS FROM THE MEMCARD CASE (worth keeping): there the laundered pseudo was the
+ * CALL RESULT competing with a hard `li $v0,K` return set; here BOTH candidates are the same
+ * pointer, so laundering only adds a second copy.  13B's governing limit applies -- the copy
+ * `addu $v0,$s3,$zero` already exists in our output, so this is a SCHEDULING/position row
+ * (retail emits it after the two stores), not an allocation row.
+ * Residual (14) otherwise unchanged: the 11B arg-emission order at both `_add_mant_d` sites
+ * plus the `addiu $a0,$sp,0x18` pick.  TEXT_MOVES rows filed in
+ * scratchpad/w62a8/text_moves_probe.json.  NOT a floor. */
 int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
 {
     int sh[2];       /* 0x18 */

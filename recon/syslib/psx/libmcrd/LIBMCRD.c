@@ -439,6 +439,45 @@ extern long MemCardExist(long chan)
  * value race as (a).  NAMED ANGLE: the carrier for the return constant must be a BLOCK-LOCAL
  * qty born BEFORE the call result`s qty in the same block -- neither a fence (parks it in a
  * saved reg) nor an existing dead variable (12D) does that here. */
+/* W62-A8 (2026-08-15): 41 -> 4, count now EXACT 117/117.  FOUR devices, in order, each
+ * whole-TU gated; every one of them is zero-insn and pin-free:
+ *   41 -> 39  DROP the second opacity fence on `pchan` in the common tail.  reorg's
+ *             stop_search_p returns 1 at ANY asm (13B), so the fence standing between
+ *             `pchan -= 3` and the jal made retail`s `addiu $s0,$s0,-0xC` delay-slot fill
+ *             unreachable; without it reorg steals the mutate exactly as retail does.
+ *   39 -> 26  BLOCK-LOCAL ANCHOR (13A) in the common tail.  `pchan` was FUNCTION-SCOPE and
+ *             shared with the iodone tail => a global allocno; local_alloc had already given
+ *             the chan VALUE $v0 before global.c placed it, so the whole `li 1; sllv; nor;
+ *             and` chain came out as retail`s MIRROR.  A block-local `pc` is a local QTY,
+ *             takes $v1, and `li $v0,1` is emitted FIRST = retail, insn for insn.
+ *             FALSIFIED on this basin: a FUNCTION-SCOPE named `mask` 53 (the same global-vs-
+ *             local race one level up), block-local `int m = 1` fenced 27 / unfenced 26
+ *             (inert -- the mask must stay a literal), iodone-mirror c/pres temps 47.
+ *   26 -> 25  `pc = pc - 3;` (in-place mutate, 3.12 #14) instead of `pchan = pc - 3;` -- the
+ *             separate destination let gcc fold the -12 into the store displacement
+ *             (`sw $v0,-8($s0)`) and lose retail`s `addiu`.  Fencing the mutated `pc` = 29.
+ *   25 -> 17  13D SHARED-EXIT FUNNEL on case 10.  Retail`s case-10 exit is a bare `j` onto the
+ *             ONE `addu $v0,$zero,$zero` block before the epilogue; spelled `return 0;` gcc
+ *             materialises 0 locally and then FILLS the `lw $v1,0($s0)` load-delay slot with
+ *             it (ours had `addu $v0,$zero,$zero` where retail has a `nop`, and the whole
+ *             counter moved $v0->$v1).  `goto ret0;` + `ret0:` on the default arm fixes all 4.
+ *             The label alone, without the goto, is inert (25).
+ *   17 -> 11 -> 4  THE IDENTITY-LAUNDER ON THE CALL RESULT (13B) -- the crack for the
+ *             three-wave "retail materialises the return constant BEFORE the store" class.
+ *             `__asm__("" : "=r"(r) : "0"(r))` on the MemCardEventToRslt result makes `r` die
+ *             twice, so combine_regs refuses to tie it to the call`s hard $v0; it becomes a
+ *             global allocno assigned by conflict, retail`s `addu $a0,$v0,$zero` /
+ *             `addu $v1,$v0,$zero` copy appears, and the hard `li $v0,1` of `return 1` can
+ *             then be emitted BEFORE the store -- leaving the store for the `j` slot.
+ *             Common tail -6, iodone tail -7, ev==4 arm INERT (its residual was a different
+ *             row).  THE DIAL IS ON THE RESULT, NOT ON THE CONSTANT: every previous attempt
+ *             (w61-a3`s opacity-fenced `long ret = 1;`, 12D staging on the dead `c`) dialled
+ *             the constant and parked it in a saved reg.  ==> CATALOG ROW.
+ * RESIDUAL (4 = ONE two-line swap): in the iodone tail retail emits `li $v0,1` BEFORE
+ * `addiu $v1,$s0,-0xC`, we emit it after; identical insns, sched2 order only.  FALSIFIED:
+ * `pi` assigned after the r launder (4, inert), same without the pi fence (7), dropping the
+ * pi fence (7).  NEXT = a PER_FN_TEXT_MOVES two-line relocation (row filed in
+ * scratchpad/w62a8/text_moves_probe.json).  NOT a floor. */
 /* @0x800FABF0 : MemCardExist / MemCardAccept(card-present) probe step. */
 static int MemCardExist_cb(void *pv)
 {
@@ -483,7 +522,12 @@ static int MemCardExist_cb(void *pv)
         _clr_card_event();
         _card_info(mc.chan);
         st[0] = st[0] + 1;              /* -> 0xb */
-        return 0;
+        goto ret0;                      /* 13D shared-exit funnel: retail's case-10 exit is a bare
+                                         * `j` onto the ONE `addu $v0,$zero,$zero` block that sits
+                                         * just before the epilogue; spelled as `return 0;` gcc
+                                         * materializes 0 locally and fills the chan load-delay
+                                         * slot with it (ours had `addu $v0,$zero,$zero` where
+                                         * retail has a `nop`).  25 -> 17. */
 
     case 0xb:
         if (_chk_card_event() == 0) return 0;
@@ -533,6 +577,10 @@ iodone:                                 /* ev == 0 : I/O complete */
             int r = MemCardEventToRslt(_mc_exrslt);
             int *pi = pchan - 3;        /* w61-a3: block-local anchor = a local QTY */
             __asm__("" : "=r"(pi) : "0"(pi));
+            /* W62-A8: same IDENTITY-LAUNDER on the result as the common tail -- 11 -> 4.
+             * Inert on the ev==4 arm (that tail`s residual is a different, slot-choice
+             * row), so price it per tail. */
+            __asm__("" : "=r"(r) : "0"(r));
             pi[1] = r;
             return 1;
         }
@@ -541,23 +589,47 @@ retry:
         if (_mc_exretry < 5) { st[0] = 10; return 0; }
         /* FALLTHROUGH to the common tail */
 common:
-        pchan = &mc.chan;
-        __asm__("" : "=r"(pchan) : "0"(pchan));
-        _mc_present &= ~(1 << *pchan);
-        pchan = pchan - 3;              /* ... but MUTATED IN PLACE here (`addiu $s0,$s0,-0xC`
-                                         * in the jal delay slot) -- the two tails are otherwise
-                                         * identical and gcc cross-jump-MERGES them */
-        __asm__("" : "=r"(pchan) : "0"(pchan));
-        /* ANGLE (both tails, 2 of the 47): retail materializes the return constant BEFORE the
-         * store, forcing a redundant `addu $v1,$v0,$zero` copy of the result out of $v0
-         * (`addu v1,v0,zero; li v0,1; j; sw v1,4(s0)`); ours stores straight from $v0 and puts
-         * the `li` in the `j` slot = 1 insn shorter per tail.  FALSIFIED here: an opacity-fenced
-         * `long ret = 1;` before the store (iodone 47->49, common 47->52 -- the fenced constant
-         * takes a SAVED reg, $s0/$a1, instead of $v0). */
-        pchan[1] = MemCardEventToRslt(_mc_exrslt);
+        /* W62-A8: the BLOCK-LOCAL ANCHOR LAW (13A) applied to the COMMON tail.  The
+         * function-scope `pchan` was shared with the iodone tail => a GLOBAL allocno, and
+         * local_alloc had already handed the chan VALUE $v0 before global.c placed it, so the
+         * whole mask chain came out as retail's MIRROR (ours chan=$v0/mask=$v1, retail
+         * chan=$v1/mask=$v0).  A block-local `pc` is a local QTY born before the value qty and
+         * takes $v1, so the `li $v0,1` is emitted FIRST and every insn of the chain matches.
+         * 39 -> 26.  NOTE the mask must stay a LITERAL: a named `m` (block-local, fenced or
+         * not) is inert-or-worse here (26/27), and a FUNCTION-SCOPE `mask` costs +14 (53) --
+         * the same global-vs-local race, one level up. */
+        {
+            int *pc = &mc.chan;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            _mc_present &= ~(1 << *pc);
+            pc = pc - 3;             /* MUTATED IN PLACE (`addiu $s0,$s0,-0xC` in the jal
+                                         * delay slot); dropping the second opacity fence that
+                                         * used to sit here is what lets reorg reach it -- an
+                                         * asm makes stop_search_p return 1 (13B).  41 -> 39. */
+            /* ANGLE (both tails, 2 diffs): retail materializes the return constant BEFORE the
+             * store, forcing a redundant `addu $v1,$v0,$zero` copy of the result out of $v0
+             * (`addu v1,v0,zero; li v0,1; j; sw v1,4(s0)`); ours stores straight from $v0 and
+             * puts the `li` in the `j` slot = 1 insn shorter per tail.  FALSIFIED: opacity-
+             * fenced `long ret = 1;` before the store (saved reg, not $v0); 12D staging on the
+             * dead `c` (52). */
+            {   /* W62-A8: the IDENTITY-LAUNDER (13B) on the CALL RESULT is the crack for
+             * the `retail materialises the return constant BEFORE the store` class.  The
+             * launder makes `r` die twice so combine_regs refuses to tie it to the call`s
+             * hard $v0; it becomes a global allocno assigned by conflict, retail`s
+             * `addu $v1,$v0,$zero` copy appears and the hard `li $v0,1` of `return 1` can
+             * then be emitted BEFORE the store, leaving the store for the `j` slot.
+             * 17 -> 11.  (An opacity-fenced `long ret = 1;` on the CONSTANT side was the
+             * w61-a3 falsification -- it parks the constant in a saved reg; the dial is on
+             * the RESULT, not on the constant.) */
+                int r = MemCardEventToRslt(_mc_exrslt);
+                __asm__("" : "=r"(r) : "0"(r));
+                pc[1] = r;
+            }
+        }
         return 1;
 
     default:
+ret0:
         return 0;
     }
 }
@@ -1300,6 +1372,34 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * device that gets the READ onto the live base without dragging the WRITE onto it -- and
      * without spending the 9th saved reg -- is the whole remaining structural lever here; the
      * rest is the saved-reg band plus the hoisted-and-spilled movstrsi end pointer above. */
+    /* W62-A8 SUMMARY: 44 -> 36.  TWO devices (each whole-TU gated):
+     *   44 -> 40  the PARM-SPILL PIN on `dir` above the busy guard (just below).
+     *   40 -> 36  the chan READ through a BLOCK-LOCAL, opacity-fenced &_mc_cmd pointer,
+     *             which answers the w59-a8 "REFINED NAMED ANGLE" (get the READ onto the live
+     *             base without dragging the WRITE onto it and without a 9th saved reg): a
+     *             block-local pointer is a local QTY that dies inside its block, so it
+     *             coalesces onto the compiler`s OWN cse base ($s3) instead of becoming a
+     *             global allocno -- the frame stays 0x90 and `mc.chan = chan` keeps its `$at`
+     *             store macro.  The fence is load-bearing (unfenced = 40): without it cse
+     *             constant-folds `pc[3]` back to the `lui;lw` pair, the same fold that
+     *             DeleteFile`s receipt describes for `p[3]`.
+     *   FALSIFIED on these basins: init reorder fretry-first 56/61 | `stored = 0` moved inside
+     *   the `ofs+max>0` guard 42 (pre-fence basin) / 68 (post) | err-last 36 (inert) |
+     *   `chan` or `name` as an extra parm-fence operand 40 (inert) | the SAME fenced
+     *   block-local chan read applied to MemCardDeleteFile 23 -> 47 (there `p` is loop-live
+     *   and the fence becomes an alias barrier) -- price this device PER FUNCTION.
+     * REMAINING 36, three classes: (a) retail HOISTS the movstrsi end pointer
+     * `addiu $t0,$sp,80` into the preheader and SPILLS it to 0x60($sp), reloading it every
+     * iteration, while we recompute it inside the loop -- that missing reload slot is also
+     * why our `files` parm spills to 0x60($sp) and retail`s to 0x5C($sp) (~8); (b) the
+     * $t0/$t1 local-QTY swap on the `max` reload and on `files`, a consequence of (a) (~6);
+     * (c) the init-block emission order plus `li $v0,2` vs `li $t0,2` (~5).  NOT a floor. */
+    /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
+     * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
+     * the prologue group and lets reorg fill that slot from the fall-through thread with the
+     * MemCardMakeDevname arg (`addu $a0,$s7,$zero`).  44 -> 40.  Adding `chan` or `name` as a
+     * second operand is inert (40). */
+    __asm__("" : : "r"(dir));
     if (mc.cmd != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
@@ -1313,7 +1413,20 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     stored  = 0;
     fretry  = 0;
     __asm__("" : : "r"(fretry));
-    _mc_present |= 1 << (mc.chan);
+    /* W62-A8: retail READS _mc_chan off the live &_mc_cmd base (`lw $a0,0xC($s3)`) while
+     * still WRITING it with the `$at` macro.  The device that gets the read there WITHOUT
+     * spending a 9th saved reg (the w53-a7/w59-a8 objection) is a BLOCK-LOCAL, opacity-
+     * fenced pointer: it is a local QTY that dies at the end of the block, so it coalesces
+     * onto the compiler`s own cse base instead of becoming a 9th global allocno, and the
+     * fence stops cse folding `pc[3]` back to the `lui;lw` macro (the DeleteFile p[3] fold).
+     * 40 -> 36.  A PLAIN (unfenced) block-local is inert (40) -- the fence is the lever.
+     * On MemCardDeleteFile the same fenced form measures 23 -> 47 (its `p` is loop-live and
+     * the fence becomes an alias barrier), so price it per function. */
+    {
+        int *pc = &mc.cmd;
+        __asm__("" : "=r"(pc) : "0"(pc));
+        _mc_present |= 1 << pc[3];
+    }
 
     if (ofs + max > 0) {
         do {

@@ -183,7 +183,11 @@ extern unsigned _dirRecvAuto(unsigned char *info)
         (*(unsigned char **)(info + 0x3c))[0] != (unsigned char)0xf3)
         _padFuncClrInfo(info);
     if (info[0x46] != 0 && info[0x36] == 0)
-        return 0;
+        return info[0x36];   /* MATCH (w62-a4): RETURN THE TESTED BYTE, not a literal 0 -- see
+                              * the header note.  cse's record_jump_equiv knows the compared
+                              * register holds 0 on this edge, so the value costs NOTHING and
+                              * retail's `nop` delay slot is restored.  `return 0;` made reorg
+                              * eager-steal an `addu $v0,$zero,$zero` into that slot. */
 
     st = info[0x46];
     switch (st) {
@@ -247,7 +251,16 @@ extern unsigned _dirRecvAuto(unsigned char *info)
  * w61-a5: the 12D "assign into the EXISTING variable that owns the register" reading was tested
  * too -- routing BOTH constants through the fn's own return variable `r` (`r = 2; info[0x49] =
  * r; r = 0xff; info[0x46] = r; return r;`) measures 16 with the info fence and 16 without, and
- * carrying only the 255 through `r` measures 12 (all @57/55).  The 3-diff copy stands. */
+ * carrying only the 255 through `r` measures 12 (all @57/55).  The 3-diff copy stands.
+ * w62-a4 tried the STORE-THEN-READ-BACK route (the w43 lever: cc1 forwards a just-stored value,
+ * so `info[0x46] = 0xff; return info[0x46];` should give ONE pseudo serving store and return):
+ * with the fence 3 @56 (byte-identical to the landed form -- cse forwards the value but keeps the
+ * two pseudos), `(unsigned char)`-cast read-back 3, WITHOUT the info fence 7, with a SECOND fence
+ * between the store and the read-back 5.  The copy is minted by cc1's own expander before any of
+ * these see it; the reachable angle stays "the store pseudo must win $2" (a local-alloc qty
+ * question).  NOTE the sibling seal: _dirRecvAuto's 2-diff residual WAS this shape's cousin and
+ * fell to `return <the tested lvalue>` (cse record_jump_equiv) -- that lever needs a COMPARISON
+ * to carry the value, which this arm does not have. */
 extern int _dirFailAuto(unsigned char *info)
 {
     unsigned char st;
@@ -314,7 +327,17 @@ extern int _dirFailAuto(unsigned char *info)
  * in $v0 = the register the just-tested `mw` halfword owns, so the law says "assign into the
  * EXISTING variable"): reusing that variable as the constant carrier in the nested form (8), in
  * the De-Morgan flat form (12), and via a comma-expression inside the `&&` (8).  All three
- * rotate the whole fn; the hard-reg conflict receipt above stands. */
+ * rotate the whole fn; the hard-reg conflict receipt above stands.
+ * w62-a4 re-swept the BIRTH-POSITION axis (the conflict set says the constant is born too early:
+ * `int ff = 0xff;` at fn scope is live across BOTH the `lhu` (=$v0) and the `lbu` (=$v1), which is
+ * exactly why it can have neither).  Every form that births it after the guard measures 6 @11,
+ * byte-identical: bare literal in the `&&`; nested `if (mw != 0) { int ff = 0xff; ... }`; nested
+ * with a bare literal; `(unsigned char)0xff`; the goto/early-out spelling; `int ff;` assigned
+ * inside the guard body; and a named `mw` halfword temp + bare literal.  In ALL of them the
+ * constant lands $v1 and the byte load is pushed to $a0 -- i.e. block 1 never offers $v0 at all,
+ * so the target register is barred by something outside the constant's own birth position
+ * (candidate: the return-value pseudo's hard-reg range).  The landed `int ff` form is still the
+ * best (it at least buys retail's $v1 byte load).  Open, quantified, not a floor. */
 extern int _dirCheck(unsigned char *info)
 {
     int ff = 0xff;

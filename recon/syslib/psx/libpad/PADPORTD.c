@@ -267,7 +267,37 @@ extern void _pad_reset_state(unsigned char *info)
  *      the parm in $a0 and pays two moves instead (59 vs 61 insns).  ONE allocno decision, not a
  *      source shape => the 06E global/local-alloc gap; instrument = allocsim `--want ret=$v0` +
  *      reqdelta.  Rung ladder re-run at this basin (04Z): wired 2.7.2 is optimal (2.6.3 26,
- *      970404 56, 2.8.0 / 2.8.1 58). */
+ *      970404 56, 2.8.0 / 2.8.1 58).
+ * QUANTIFIED HARDNESS CERTIFICATE for (a) (w62-a4, gcc-source-cited, 17 unchanged) -- the parm
+ * register is NOT reachable by any allocno dial, and the reason is a rule nobody had read:
+ *   .greg: pseudo 72 = `flag`, refs 7 / live 13 / calls 0, rank 4, `72 preferences: 4`, conflicts
+ *   {73,74,76,77,82,84, hard 2, hard 29} -- $a0 is NOT among its hard conflicts.  find_reg's
+ *   copy-preference override (global.c:1033-1075) therefore hands it $a0 and delete_noop_moves
+ *   eats retail's `addu $a1,$a0,$zero`.  The two exits are both closed:
+ *   (1) `regs_someone_prefers` CANNOT evict $a0 here.  prune_preferences (global.c:865-876) ORs in
+ *       each lower-priority conflicting allocno's preferences, but FIRST subtracts the allocno's
+ *       OWN preferences whenever `allocno_size[j] <= allocno_size[allocno]` -- and every rival here
+ *       is SImode like 72.  So a reg 72 itself prefers can never be pruned away from it.  ** A
+ *       LOWER-PRIORITY ALLOCNO'S PREFERENCE CANNOT EVICT A REGISTER THE ALLOCNO ITSELF PREFERS AT
+ *       EQUAL SIZE ** -- catalog-row candidate; it kills the whole "give a rival the $a0 copy
+ *       preference" family for any parm-copy residual, in-tree and elsewhere.
+ *   (2) A HARD CONFLICT with $a0 is the only other route, and the only $a0-live regions in the fn
+ *       are the two call-arg setups -- so any source form that keeps `flag` live to one of them
+ *       also makes it CROSS that call (allocno_calls_crossed > 0), and find_reg then excludes
+ *       every call-used reg: MEASURED, `flag = 0xffff` hoisted to just after the first `if`
+ *       (4 positions x fence/no-fence) = 36 @63 with `addu $s1,$a0,$zero` -- the copy appears but
+ *       in a CALLEE-SAVED register, +1 saved reg, +8 frame.  The class is structurally bounded.
+ * ALSO FALSIFIED w62-a4 (this basin, all measured by me): identity fence on `flag` before the loop
+ *   / at the loop top / doubled (17, INERT -- the w59 "19" was a different basin); `int f = flag;`
+ *   plain and with an identity launder (17, copy still deleted -- 13B's "cse eats synthetic
+ *   copies" limit, the launder does not mint a preference); a named `nextp` local for the
+ *   _padInitSioMode argument to manufacture an $a0-preferring rival allocno (43 @62; it does not
+ *   conflict with `flag`, and per (1) it could not evict $a0 even if it did).
+ * (b) THE TWO-LOAD LUID TIE re-swept w62-a4 -- all SIX orderings of the state/JOY/chan trio:
+ *   chan,state,JOY = 17 @60 (landed) | chan,JOY,state = 17 | state,chan,JOY = 17 |
+ *   state,JOY,chan = 19 | JOY,state,chan = 22 @61 | JOY,chan,state = 22 @61 | JOY-first + void
+ *   fence = 22 @61.  The JOY-first forms DO reach count-parity but pay 5 more diffs (an extra nop
+ *   plus the state-store block moving); the tie itself never flips.  Sched1 ready-list, confirmed. */
 extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;
@@ -355,6 +385,12 @@ extern unsigned _pad_shift(unsigned char *info)
  *   decided by which block ENDS in a jump vs falls into the epilogue, which no in-arm spelling
  *   moves: the ANGLE is jump.c's do_cross_jump input (make the `jr ra`-terminated default arm
  *   ineligible as the merge TARGET), i.e. a mechanism/permuter job, not a spelling one.
+ *   w62-a4 added the ROLE-SWAP probes the note asks for -- they confirm the canonicalization from
+ *   the other side: case 0 given the inline return + void fence WITH 'M'/default sharing the
+ *   `buf` tail = 10 @43 (worse: the default arm loses its own copy); case 0 inline-return only,
+ *   default fence kept = 5 @44 (byte-identical to the landed form); ALL THREE arms as inline
+ *   returns = 5 @44; a read-only fence on `buf` after case 0's pointer load = 5 @44.  Four more
+ *   spellings, one output.  do_cross_jump's direction input is confirmed source-invariant here.
  * OLD (stale, 2.8 basin) note: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
  * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
  * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable
@@ -481,6 +517,28 @@ extern int _pad_getbyte(unsigned char *info, int align)
  *       ANGLE: `n` outranks `fill` by REF COUNT (3 vs 2) in local_alloc's qty_compare, so it is
  *       handed $v0 first; the dial is +1 REF ON `fill` THAT SURVIVES cse (the fences above did
  *       not change the count), or a qty272-priced equivalent -- then the fn is 4 diffs.
+ * MATCH (w62-a4, 11 -> 4 @159/159 -- (c) SEALED, the priced dial executed):
+ *   The w61 angle was right but under-dialed.  qty272 says fill/n/f are all GLOBAL allocnos
+ *   (154/155/156), not local qtys: fill refs 3 / live 14 (pri .214), n refs 7 / live 6 (pri
+ *   2.333), f refs 7 / live 5 (pri 2.8, prefs $a0 from `info`).  global.c allocates in priority
+ *   order and find_free_reg is a plain ascending scan (12A), so n takes $v0 and fill is left $v1.
+ *   To flip, fill's 272 priority (floor_log2(refs)*refs/live, NO size term) must exceed 2.333:
+ *   at live 14 that needs refs >= 11 (3*11/14 = 2.357), i.e. +8 refs -- and an IN-LOOP read-only
+ *   fence operand is worth +2 each (flow.c loop-depth weighting), so FOUR operands is the exact
+ *   minimum.  MEASURED, model-exact: 3 operands = 14 (no flip), 4 = 4, 5 = 4; 8 operands in an
+ *   OUT-OF-loop fence = 14 (weight 1 each AND the live range grows).  Placement: before or after
+ *   the store both land 4; at the loop TAIL (after `f--`) the barrier costs an insn (7 @160).
+ *   `int fill` is neutral (4 with the fence, 14 without) -- the type was never the lever.
+ * RESIDUAL 4 @159/159 = the two OLD classes (a) 3 lines + (b) 1 line, both re-probed w62-a4:
+ *   (a) FALSIFIED again in the post-(c) basin: `while (i < nmask)` and `for (i=0;i<nmask;i++)`
+ *       both give 4 @161 (the 3 lines move from the back-edge to the entry guard -- ours
+ *       `slt $v0,$a2,$t1; beqz` where retail folded `0 < nmask` to `beqz $t1`; note cse hands us
+ *       `matched`'s zero register instead of $zero, the 13C constant-capture family), the guarded
+ *       do-while is catastrophic again (44 @163), `*map++` fused = 7 @158.  Count-exact 159 is
+ *       the better basin, so the `!=` bound stays.
+ *   (b) FALSIFIED: `(int)` / `(unsigned int)` / `x - 7 == 0` on the second use are all INERT (4);
+ *       `int e8` kills the andi but cse then SHARES the load with the `info[0xe8]==3` arm below
+ *       (5 @158, ours 1 short); volatile views to un-share it measure 6/6/10/11/14.
  * => the rung is the TU's home; see the wiring note in the report. */
 extern void _pad_filter(unsigned char *info)
 {
@@ -546,9 +604,19 @@ extern void _pad_filter(unsigned char *info)
             if (info[0xe8] == 3) {
                 info[0x57] = 1;
             } else if (*(unsigned short *)(info + 0xe6) == 0) {
-                int i;
-                for (i = 5; i >= 0; i--)
-                    info[0x57 + i] = 1;
+                unsigned char fill = 1;
+                int n = 5;
+                unsigned char *f = info + 5;
+                do {
+                    f[0x57] = fill;
+                    /* MATCH (w62-a4): 4-operand read-only fence = the PRICED
+                     * ref dial that hands `fill` retail's $v0 (see the residual
+                     * (c) note above).  ZERO instructions (159/159 either way).
+                     * DO NOT trim the operand list -- 3 operands measures 14,
+                     * 4 measures 4; the count IS the lever. */
+                    __asm__("" : : "r"(fill), "r"(fill), "r"(fill), "r"(fill));
+                    f--;
+                } while (--n >= 0);
             }
         }
     }

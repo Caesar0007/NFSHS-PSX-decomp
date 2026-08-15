@@ -85,7 +85,7 @@
  * Mask -0x402 clears bits 0x400+0x2 of SR (IEc + one IM bit) -- same constant at every call site. */
 #if defined(__mips__)
 #define FILE_CS_ENTER(saved) \
-    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $1,$0,-0x402\n\t and $8,%0,$1\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
                       : "=r"(saved) : : "at", "t0")
 #define FILE_CS_LEAVE(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
 #else
@@ -368,6 +368,12 @@ extern int FILE_operror(unsigned int id)
      * base-local 2/6 · opacity-after-the-shift 11 (copy gone again) · one-expression+opacity PASS
      * (also PASS via a separate `idc = id` copy carrying the fence, and with the base hoisted +
      * the operand flip).  A use-fence on `id` AFTER the opacity fence costs 16 -- do not stack. */
+    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+     * Gate-lane object is byte-identical (proven by hash); see
+     * scratchpad/w64a20/RECEIPTS.md. */
     __asm__("" : "=r"(id) : "0"(id));
     /* The volatile aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
      * direct field return remains better than caching `op`. */
@@ -1204,7 +1210,7 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  *        "after": r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n"},
  *       {"take":  r"\tlui\t\$2,%hi\(\$L\d+\) \# high\n",
  *        "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n"
- *                 r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n)"}]}
+ *                 r"\taddiu\t\\$2,\\$2,%lo\\(\\$L\\d+\\) \\# low\n)"}]}
  * Move 1 pulls the `sll` out of the (already noreorder-wrapped) delay slot and re-inserts it after
  * the `%lo`; move 2 then drops the `lui` into the now-empty slot INSIDE the existing
  * `.set noreorder/nomacro` block, so no assembler mode change is needed and no nop is minted.

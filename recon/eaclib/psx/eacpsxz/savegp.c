@@ -29,31 +29,37 @@ extern unsigned int g_bootGP;   /* @0x801234E8 : lib/boot $gp; written by initgp
 
 #if defined(__mips__)
 
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
 "       .set noreorder\n"
 "       .set noat\n"
 /* initgp @0x800EB080 : g_bootGP = $gp */
 "       .globl initgp\n"
 "initgp:\n"
-"       lui     $at, %hi(g_bootGP)\n"
-"       sw      $gp, %lo(g_bootGP)($at)\n"
-"       jr      $ra\n"
+"       lui     $1, %hi(g_bootGP)\n"
+"       sw      $28, %lo(g_bootGP)($1)\n"
+"       jr      $31\n"
 "        nop\n"
 /* savegp @0x800EB090 : *a0 = $gp; then $gp = g_bootGP (reload the lib gp from 0x801234E8).
  * The oracle keeps this reload as a linked literal (splat did not re-symbolize it), so the address is
  * transcribed as lui 0x8012 / lw 0x34E8 == 0x801234E8. The lw offset is DECIMAL (13544) for maspsx. */
 "       .globl savegp\n"
 "savegp:\n"
-"       sw      $gp, 0($a0)\n"
-"       lui     $gp, 32786\n"        /* 0x8012                         */
-"       lw      $gp, 13544($gp)\n"   /* 0x34E8 -> 0x801234E8 == g_bootGP */
-"       jr      $ra\n"
+"       sw      $28, 0($4)\n"
+"       lui     $28, 32786\n"        /* 0x8012                         */
+"       lw      $28, 13544($28)\n"   /* 0x34E8 -> 0x801234E8 == g_bootGP */
+"       jr      $31\n"
 "        nop\n"
 /* restoregp @0x800EB0A4 : $gp = a0 (in the jr delay slot) */
 "       .globl restoregp\n"
 "restoregp:\n"
-"       jr      $ra\n"
-"        or     $gp, $zero, $a0\n"
+"       jr      $31\n"
+"        or     $28, $0, $4\n"
 "       .set at\n"
 "       .set reorder\n"
 );

@@ -30,8 +30,14 @@
  char *D_8013DD40 __attribute__((section(".sbss")));  /* fsprefix2 */
 #define fsprefix1 D_8013DD34
 #define fsprefix2 D_8013DD40
-__asm__("	.globl	D_8013DD34");
-__asm__("	.globl	D_8013DD40");
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
+__asm__("\t.globl\tD_8013DD34");
+__asm__("\t.globl\tD_8013DD40");
 /* 04U FINAL (openfile 100.00): the 99.91 was NOT just bookkeeping -- THREE real
  * semantic divergences hid behind the gate's branch-target masking: the two
  * availablefilesystems guards and the CD_Open-failure path all wrote *outp = 0
@@ -102,7 +108,7 @@ ReadCmd readcmd;   /* definition (BSS zero) */
  * a0-a3 setup can't survive a real call without spilling to s-regs); the inline form needs none. */
 #if defined(__mips__)
 #define FROOT_enterCS(saved) \
-    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $1,$0,-0x402\n\t and $8,%0,$1\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
                       : "=r"(saved) : : "at", "t0")
 #define FROOT_leaveCS(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
 #else

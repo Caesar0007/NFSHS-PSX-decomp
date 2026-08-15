@@ -23,99 +23,105 @@
 #if defined(__mips__)
 /* the 6-word PRNG state, defined in the .data blob (original @0x8012349C); asm refs it as `seed`. */
 extern unsigned seed[6];
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
 
     "\t.globl random\n"     /* @0x800E77A8 : int random(void) */
     "random:\n"
-    "\tlui\t$a0,%hi(seed)\n"
-    "\taddiu\t$a0,$a0,%lo(seed)\n"
-    "\tlw\t$t5,20($a0)\n"          /* load the six state words (state[5]..state[0]); maspsx needs */
-    "\tlw\t$t4,16($a0)\n"          /* DECIMAL load/store offsets (it int()-parses offset base-10) */
-    "\tlw\t$t3,12($a0)\n"
-    "\tlw\t$t2,8($a0)\n"
-    "\tlw\t$t1,4($a0)\n"
-    "\tlw\t$t0,0($a0)\n"
-    "\taddu\t$t4,$t4,$t5\n"        /* t4 += t5 */
-    "\tsltu\t$a1,$t4,$t5\n"        /* a1 = carry */
-    "\taddu\t$t3,$t3,$t4\n"        /* t3 += t4 */
-    "\tsltu\t$a2,$t3,$t4\n"        /* a2 = carry */
-    "\taddu\t$t3,$t3,$a1\n"        /* t3 += a1 */
-    "\tsltu\t$a1,$t3,$a1\n"
-    "\taddu\t$a1,$a1,$a2\n"
-    "\taddu\t$t2,$t2,$t3\n"
-    "\tsltu\t$a2,$t2,$t3\n"
-    "\taddu\t$t2,$t2,$a1\n"
-    "\tsltu\t$a1,$t2,$a1\n"
-    "\taddu\t$a1,$a1,$a2\n"
-    "\taddu\t$t1,$t1,$t2\n"
-    "\tsltu\t$a2,$t1,$t2\n"
-    "\taddu\t$t1,$t1,$a1\n"
-    "\tsltu\t$a1,$t1,$a1\n"
-    "\taddu\t$a1,$a1,$a2\n"
-    "\taddu\t$t0,$t0,$t1\n"
-    "\tsltu\t$a2,$t0,$t1\n"
-    "\taddu\t$t0,$t0,$a1\n"
-    "\taddiu\t$t5,$t5,0x1\n"       /* 192-bit counter increment (carry-chained) */
-    "\tbnez\t$t5,.L800E7858\n"
+    "\tlui\t$4,%hi(seed)\n"
+    "\taddiu\t$4,$4,%lo(seed)\n"
+    "\tlw\t$13,20($4)\n"          /* load the six state words (state[5]..state[0]); maspsx needs */
+    "\tlw\t$12,16($4)\n"          /* DECIMAL load/store offsets (it int()-parses offset base-10) */
+    "\tlw\t$11,12($4)\n"
+    "\tlw\t$10,8($4)\n"
+    "\tlw\t$9,4($4)\n"
+    "\tlw\t$8,0($4)\n"
+    "\taddu\t$12,$12,$13\n"        /* t4 += t5 */
+    "\tsltu\t$5,$12,$13\n"        /* a1 = carry */
+    "\taddu\t$11,$11,$12\n"        /* t3 += t4 */
+    "\tsltu\t$6,$11,$12\n"        /* a2 = carry */
+    "\taddu\t$11,$11,$5\n"        /* t3 += a1 */
+    "\tsltu\t$5,$11,$5\n"
+    "\taddu\t$5,$5,$6\n"
+    "\taddu\t$10,$10,$11\n"
+    "\tsltu\t$6,$10,$11\n"
+    "\taddu\t$10,$10,$5\n"
+    "\tsltu\t$5,$10,$5\n"
+    "\taddu\t$5,$5,$6\n"
+    "\taddu\t$9,$9,$10\n"
+    "\tsltu\t$6,$9,$10\n"
+    "\taddu\t$9,$9,$5\n"
+    "\tsltu\t$5,$9,$5\n"
+    "\taddu\t$5,$5,$6\n"
+    "\taddu\t$8,$8,$9\n"
+    "\tsltu\t$6,$8,$9\n"
+    "\taddu\t$8,$8,$5\n"
+    "\taddiu\t$13,$13,0x1\n"       /* 192-bit counter increment (carry-chained) */
+    "\tbnez\t$13,.L800E7858\n"
     "\t nop\n"
-    "\taddiu\t$t4,$t4,0x1\n"
-    "\tbnez\t$t4,.L800E7858\n"
+    "\taddiu\t$12,$12,0x1\n"
+    "\tbnez\t$12,.L800E7858\n"
     "\t nop\n"
-    "\taddiu\t$t3,$t3,0x1\n"
-    "\tbnez\t$t3,.L800E7858\n"
+    "\taddiu\t$11,$11,0x1\n"
+    "\tbnez\t$11,.L800E7858\n"
     "\t nop\n"
-    "\taddiu\t$t2,$t2,0x1\n"
-    "\tbnez\t$t2,.L800E7858\n"
+    "\taddiu\t$10,$10,0x1\n"
+    "\tbnez\t$10,.L800E7858\n"
     "\t nop\n"
-    "\taddiu\t$t1,$t1,0x1\n"
-    "\tbnez\t$t1,.L800E7858\n"
+    "\taddiu\t$9,$9,0x1\n"
+    "\tbnez\t$9,.L800E7858\n"
     "\t nop\n"
-    "\taddiu\t$t0,$t0,0x1\n"
+    "\taddiu\t$8,$8,0x1\n"
     ".L800E7858:\n"
-    "\tsw\t$t5,20($a0)\n"          /* store the six words back */
-    "\tsw\t$t4,16($a0)\n"
-    "\tsw\t$t3,12($a0)\n"
-    "\tsw\t$t2,8($a0)\n"
-    "\tsw\t$t1,4($a0)\n"
-    "\tsw\t$t0,0($a0)\n"
-    "\tjr\t$ra\n"
-    "\t addu\t$v0,$t0,$zero\n"     /* jr delay slot: return top word (state[0]) */
+    "\tsw\t$13,20($4)\n"          /* store the six words back */
+    "\tsw\t$12,16($4)\n"
+    "\tsw\t$11,12($4)\n"
+    "\tsw\t$10,8($4)\n"
+    "\tsw\t$9,4($4)\n"
+    "\tsw\t$8,0($4)\n"
+    "\tjr\t$31\n"
+    "\t addu\t$2,$8,$0\n"     /* jr delay slot: return top word (state[0]) */
 
     "\t.globl seedrandom\n"        /* @0x800E7878 : void seedrandom(int s) */
     "seedrandom:\n"
-    "\tlui\t$a1,%hi(seed)\n"
-    "\taddiu\t$a1,$a1,%lo(seed)\n"
-    "\tlui\t$at,0xf22d\n"          /* += 0xF22D0E56 ; store state[0] */
-    "\tori\t$at,$at,0xe56\n"
-    "\taddu\t$a0,$a0,$at\n"
-    "\tsw\t$a0,0($a1)\n"
-    "\tlui\t$at,0x9604\n"          /* += 0x96041893 ; store state[1] */
-    "\tori\t$at,$at,0x1893\n"
-    "\taddu\t$a0,$a0,$at\n"
-    "\tsw\t$a0,4($a1)\n"
-    "\tlui\t$at,0x3df3\n"          /* += 0x3DF3B646 ; store state[2] */
-    "\tori\t$at,$at,0xb646\n"
-    "\taddu\t$a0,$a0,$at\n"
-    "\tsw\t$a0,8($a1)\n"
-    "\tlui\t$at,0x40dd\n"          /* += 0x40DDE76D ; store state[3] */
-    "\tori\t$at,$at,0xe76d\n"
-    "\taddu\t$a0,$a0,$at\n"
-    "\tsw\t$a0,12($a1)\n"
-    "\tlui\t$at,0x9732\n"          /* += 0x97327AE1 ; store state[4] */
-    "\tori\t$at,$at,0x7ae1\n"
-    "\taddu\t$a0,$a0,$at\n"
-    "\tsw\t$a0,16($a1)\n"
-    "\tlui\t$at,0xd1a9\n"          /* += 0xD1A9FBE7 ; store state[5] */
-    "\tori\t$at,$at,0xfbe7\n"
-    "\taddu\t$a0,$a0,$at\n"
-    "\tsw\t$a0,20($a1)\n"
-    "\tjr\t$ra\n"
+    "\tlui\t$5,%hi(seed)\n"
+    "\taddiu\t$5,$5,%lo(seed)\n"
+    "\tlui\t$1,0xf22d\n"          /* += 0xF22D0E56 ; store state[0] */
+    "\tori\t$1,$1,0xe56\n"
+    "\taddu\t$4,$4,$1\n"
+    "\tsw\t$4,0($5)\n"
+    "\tlui\t$1,0x9604\n"          /* += 0x96041893 ; store state[1] */
+    "\tori\t$1,$1,0x1893\n"
+    "\taddu\t$4,$4,$1\n"
+    "\tsw\t$4,4($5)\n"
+    "\tlui\t$1,0x3df3\n"          /* += 0x3DF3B646 ; store state[2] */
+    "\tori\t$1,$1,0xb646\n"
+    "\taddu\t$4,$4,$1\n"
+    "\tsw\t$4,8($5)\n"
+    "\tlui\t$1,0x40dd\n"          /* += 0x40DDE76D ; store state[3] */
+    "\tori\t$1,$1,0xe76d\n"
+    "\taddu\t$4,$4,$1\n"
+    "\tsw\t$4,12($5)\n"
+    "\tlui\t$1,0x9732\n"          /* += 0x97327AE1 ; store state[4] */
+    "\tori\t$1,$1,0x7ae1\n"
+    "\taddu\t$4,$4,$1\n"
+    "\tsw\t$4,16($5)\n"
+    "\tlui\t$1,0xd1a9\n"          /* += 0xD1A9FBE7 ; store state[5] */
+    "\tori\t$1,$1,0xfbe7\n"
+    "\taddu\t$4,$4,$1\n"
+    "\tsw\t$4,20($5)\n"
+    "\tjr\t$31\n"
     "\t nop\n"
-    "\t.set pop\n"
+    "\t.set at\n"
+    "\t.set reorder\n"
 );
 #else
 static unsigned seed[6] = {                  /* @0x8012349C (== seedrandom(0)) */

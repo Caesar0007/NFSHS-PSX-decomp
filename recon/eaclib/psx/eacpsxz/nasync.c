@@ -18,6 +18,13 @@
  *   Queue/slot edits run in a cop0 IRQ-disabled critical section (host no-op via lib/nasync.h).
  *   (-m32-only verified: req stride 0x2C + pointer-sized queue links diverge from the LLP64 host layout.)
  */
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
+
 #include "../../../lib/nasync.h"
 typedef unsigned int size_t;   /* was <stddef.h>; C TU is self-contained */
 
@@ -31,7 +38,7 @@ typedef unsigned int size_t;   /* was <stddef.h>; C TU is self-contained */
 #undef ASYNC_leaveCS
 #if defined(__mips__)
 #define ASYNC_enterCS(saved) \
-    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $1,$0,-0x402\n\t and $8,%0,$1\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
                       : "=r"(saved) : : "at", "t0")
 #define ASYNC_leaveCS(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
 #else

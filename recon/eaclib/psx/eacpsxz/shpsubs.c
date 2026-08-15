@@ -15,51 +15,57 @@
  */
 
 #if defined(__mips__)
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
 
     "\t.globl shapecount\n"        /* @0x800F0AAC : int shapecount(void *sf) */
     "shapecount:\n"
-    "\tlw\t$v0,8($a0)\n"
-    "\tjr\t$ra\n"
+    "\tlw\t$2,8($4)\n"
+    "\tjr\t$31\n"
     "\t nop\n"
 
     "\t.globl shapepointer\n"      /* @0x800F0AB8 : void *shapepointer(void *sf, unsigned i) */
     "shapepointer:\n"
-    "\tlw\t$t0,8($a0)\n"            /* count */
-    "\tsll\t$t2,$a1,3\n"            /* i*8 */
-    "\tsltu\t$at,$a1,$t0\n"         /* i < count (unsigned) */
-    "\tbeqz\t$at,.L800F0AD8\n"      /* out of range -> 0 */
-    "\t addu\t$t2,$a0,$t2\n"        /* delay: sf + i*8 */
-    "\tlw\t$v0,20($t2)\n"           /* entry[i].offset  (0x10 + i*8 + 4) */
-    "\tjr\t$ra\n"
-    "\t addu\t$v0,$a0,$v0\n"        /* delay: sf + offset */
+    "\tlw\t$8,8($4)\n"            /* count */
+    "\tsll\t$10,$5,3\n"            /* i*8 */
+    "\tsltu\t$1,$5,$8\n"         /* i < count (unsigned) */
+    "\tbeqz\t$1,.L800F0AD8\n"      /* out of range -> 0 */
+    "\t addu\t$10,$4,$10\n"        /* delay: sf + i*8 */
+    "\tlw\t$2,20($10)\n"           /* entry[i].offset  (0x10 + i*8 + 4) */
+    "\tjr\t$31\n"
+    "\t addu\t$2,$4,$2\n"        /* delay: sf + offset */
     ".L800F0AD8:\n"
-    "\tjr\t$ra\n"
-    "\t addiu\t$v0,$zero,0\n"       /* delay: return 0 */
+    "\tjr\t$31\n"
+    "\t addiu\t$2,$0,0\n"       /* delay: return 0 */
 
     "\t.globl shapename\n"         /* @0x800F0AE0 : void shapename(void *sf, unsigned i, void *dst) */
     "shapename:\n"
-    "\tlw\t$t0,8($a0)\n"            /* count */
-    "\tsll\t$t2,$a1,3\n"            /* i*8 */
-    "\tsltu\t$at,$a1,$t0\n"         /* i < count */
-    "\tbeqz\t$at,.L800F0B08\n"      /* out of range */
-    "\t addu\t$t2,$a0,$t2\n"        /* delay: sf + i*8 */
-    "\tlw\t$v0,16($t2)\n"           /* entry[i].name  (0x10 + i*8) */
+    "\tlw\t$8,8($4)\n"            /* count */
+    "\tsll\t$10,$5,3\n"            /* i*8 */
+    "\tsltu\t$1,$5,$8\n"         /* i < count */
+    "\tbeqz\t$1,.L800F0B08\n"      /* out of range */
+    "\t addu\t$10,$4,$10\n"        /* delay: sf + i*8 */
+    "\tlw\t$2,16($10)\n"           /* entry[i].name  (0x10 + i*8) */
     "\tnop\n"
-    "\tswr\t$v0,0($a2)\n"           /* unaligned store name -> dst */
-    "\tswl\t$v0,3($a2)\n"
-    "\tjr\t$ra\n"
+    "\tswr\t$2,0($6)\n"           /* unaligned store name -> dst */
+    "\tswl\t$2,3($6)\n"
+    "\tjr\t$31\n"
     ".L800F0B08:\n"                 /* (label sits AT the jr delay slot) */
-    "\t addiu\t$v0,$zero,0\n"       /* name = 0 */
-    "\tswr\t$v0,0($a2)\n"
-    "\tswl\t$v0,3($a2)\n"
-    "\tjr\t$ra\n"
+    "\t addiu\t$2,$0,0\n"       /* name = 0 */
+    "\tswr\t$2,0($6)\n"
+    "\tswl\t$2,3($6)\n"
+    "\tjr\t$31\n"
     "\t nop\n"
-    "\t.set pop\n"
+    "\t.set at\n"
+    "\t.set reorder\n"
 );
 #else
 extern int shapecount(void *shapefile)   /* @0x800F0AAC */

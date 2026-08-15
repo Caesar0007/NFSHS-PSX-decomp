@@ -21,37 +21,43 @@
 
 #if defined(__mips__)
 extern int D_8012356C;   /* @0x8012356C : base of the fixdsqrt scale/offset tables (data blob owns it) */
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
     "\t.globl fixedsqrt\n"  /* @0x800EB0AC : int fixedsqrt(int x) */
     "fixedsqrt:\n"
-    "\tbeqz\t$a0,.L800EB0F8\n"          /* x == 0 -> return 0 */
-    "\t lui\t$t1,0x8000\n"             /* delay: mask = 0x80000000 */
-    "\tlui\t$t0,%hi(D_8012356C)\n"
-    "\taddiu\t$t0,$t0,%lo(D_8012356C)\n" /* t0 = &(one past scale[31]); walks BACKWARD */
+    "\tbeqz\t$4,.L800EB0F8\n"          /* x == 0 -> return 0 */
+    "\t lui\t$9,0x8000\n"             /* delay: mask = 0x80000000 */
+    "\tlui\t$8,%hi(D_8012356C)\n"
+    "\taddiu\t$8,$8,%lo(D_8012356C)\n" /* t0 = &(one past scale[31]); walks BACKWARD */
     ".L800EB0BC:\n"
-    "\tand\t$t2,$a0,$t1\n"             /* test the current (mask) bit */
-    "\taddiu\t$t0,$t0,-4\n"            /* t0-- (down into the scale table) */
-    "\tbeqz\t$t2,.L800EB0BC\n"         /* bit clear -> keep scanning */
-    "\t srl\t$t1,$t1,1\n"             /* delay: mask >>= 1 */
-    "\tlw\t$t3,0($t0)\n"               /* scale[p] */
-    "\tlw\t$t4,132($t0)\n"            /* offset[p] (scale[p] + 0x84; DECIMAL 132 for maspsx) */
+    "\tand\t$10,$4,$9\n"             /* test the current (mask) bit */
+    "\taddiu\t$8,$8,-4\n"            /* t0-- (down into the scale table) */
+    "\tbeqz\t$10,.L800EB0BC\n"         /* bit clear -> keep scanning */
+    "\t srl\t$9,$9,1\n"             /* delay: mask >>= 1 */
+    "\tlw\t$11,0($8)\n"               /* scale[p] */
+    "\tlw\t$12,132($8)\n"            /* offset[p] (scale[p] + 0x84; DECIMAL 132 for maspsx) */
     "\t.word\t0x008B0018\n"            /* mult $a0,$t3  (bare 2-op -> raw word for maspsx) */
     "\tnop\n"
-    "\tmflo\t$t0\n"
-    "\tmfhi\t$t1\n"
-    "\tsrl\t$t0,$t0,16\n"
-    "\tsll\t$t1,$t1,16\n"
-    "\tor\t$v0,$t0,$t1\n"              /* v0 = (x * scale[p]) >> 16 */
-    "\tjr\t$ra\n"
-    "\t addu\t$v0,$v0,$t4\n"           /* delay: + offset[p] */
+    "\tmflo\t$8\n"
+    "\tmfhi\t$9\n"
+    "\tsrl\t$8,$8,16\n"
+    "\tsll\t$9,$9,16\n"
+    "\tor\t$2,$8,$9\n"              /* v0 = (x * scale[p]) >> 16 */
+    "\tjr\t$31\n"
+    "\t addu\t$2,$2,$12\n"           /* delay: + offset[p] */
     ".L800EB0F8:\n"
-    "\tjr\t$ra\n"
-    "\t addu\t$v0,$zero,$zero\n"       /* delay: x == 0 -> 0 */
-    "\t.set pop\n"
+    "\tjr\t$31\n"
+    "\t addu\t$2,$0,$0\n"       /* delay: x == 0 -> 0 */
+    "\t.set at\n"
+    "\t.set reorder\n"
 );
 #else
 static const int kSqrtScale[32] = {          /* @0x801234EC */

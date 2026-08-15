@@ -19,11 +19,55 @@ SECTIONS
 
     nfs4_ROM_START = __romPos;
     nfs4_VRAM = ADDR(.nfs4);
-    .nfs4 0x80010000 : AT(nfs4_ROM_START) SUBALIGN(16)
+    /* W65-A5: SUBALIGN(16) -> SUBALIGN(4).  SUBALIGN forces EVERY input
+     * section in this region to the given alignment, so it silently pads
+     * between the blob PIECES the ownership sweeps cut (front_data since
+     * W64-A18, the two rodata blobs now): piece boundaries are 4-aligned,
+     * not 16.  With 94 rodata pieces added it stops being latent and ld
+     * dies `final link failed: file truncated`.  Retail bases are
+     * 4-aligned (catalog 14B), and the group boundaries that really do
+     * need 16 are held by the explicit `. = ALIGN(., 16);` statements
+     * below.  PROVEN: with SUBALIGN(4) the .nfs4 image built from the 94
+     * pieces is byte-identical (238416 B) to the one built from the two
+     * un-split control blobs, and both links emit the same 2077
+     * diagnostics (scratchpad/w65a5/p6.py). */
+    .nfs4 0x80010000 : AT(nfs4_ROM_START) SUBALIGN(4)
     {
         FILL(0x00000000);
         nfs4_RODATA_START = .;
-        build/asm/data/rdata_80010000.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r00.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j00.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r01.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j01.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r02.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j02.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r03.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j03.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r04.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j04.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j05.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j06.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j07.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r05.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j08.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r06.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j09.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r07.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j10.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r08.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j11.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r09.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j12.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r10.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j13.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r11.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j14.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r12.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j15.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j16.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r13.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_j17.rodata.s.o(.rodata);
+        build/asm/data/rdata_80010000_r14.rodata.s.o(.rodata);
         build/src/front.c.o(.rodata);
         build/asm/data/rdata_80054548.rodata.s.o(.rodata);
         build/src/main.c.o(.rodata);
@@ -59,7 +103,7 @@ SECTIONS
         build/asm/data/front_data_o09.data.s.o(.data);
         build/asm/data/front_data_r08.data.s.o(.data);
         build/asm/data/front_bss.data.s.o(.data);
-        build/asm/data/rdata_80010000.rodata.s.o(.data);
+        /* W65-A5: rdata_80010000 is now 33 pieces (the .L localize cut); every piece's .data is EMPTY (objdump size 0, re-asserted by relink_nfs4ld.py). */
         build/src/front.c.o(.data);
         build/asm/data/rdata_80054548.rodata.s.o(.data);
         build/src/main.c.o(.data);
@@ -204,7 +248,7 @@ SECTIONS
         nfs4_SBSS_END = .;
         nfs4_SBSS_SIZE = ABSOLUTE(nfs4_SBSS_END - nfs4_SBSS_START);
         nfs4_BSS_START = .;
-        build/asm/data/rdata_80010000.rodata.s.o(.bss);
+        /* W65-A5: rdata_80010000 is now 33 pieces (the .L localize cut); every piece's .bss is EMPTY (objdump size 0, re-asserted by relink_nfs4ld.py). */
         build/src/front.c.o(.bss);
         build/asm/data/rdata_80054548.rodata.s.o(.bss);
         build/src/main.c.o(.bss);

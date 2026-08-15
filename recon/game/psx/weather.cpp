@@ -1651,7 +1651,13 @@ void Weather_DoWeather(DRender_tView *Vi)
    * the hoist (not the declaration shape) that forces the separate scratch -- so the device
    * has to keep the lui adjacent to its load without adding a barrier above the array
    * reads.  §3.12 #5's declaration axis does not apply (this is a struct FIELD of an
-   * already-absolute global, and the pointer-form spelling measures bit-identical). */
+   * already-absolute global, and the pointer-form spelling measures bit-identical).
+   * w67-a7: the position-pinned MACRO-form device (15E menu form 1) is UNREACHABLE for a
+   * struct FIELD on this lane: a scalar view `extern int X __asm__("GameSetup_gData+12")`
+   * makes cc1 emit `.extern GameSetup_gData+12,4` and GNU-as rejects the expression in
+   * the directive (junk at end of line).  An offset-free array view keeps the split
+   * (schedulable) form, so the macro route needs a symbol AT the field address, which
+   * does not exist.  Cluster (A) stays the named sched1-hoist angle. */
   player = Vi->player;
   int cm = GameSetup_gData.commMode;
   wpt = Weather_gPServerA[player];

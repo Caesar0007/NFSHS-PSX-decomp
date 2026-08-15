@@ -126,16 +126,39 @@ extern int CdGetToc2(int n, CdlLOC *loc)
     int nTrack;
     int magic;               /* MATCH (W60-A4): magic-reciprocal hoist, see above */
 
-    /* W62-A6 -- the residual 4 is now MECHANISM-NAMED (gcc-cited), not just observed.
-     * loop.c `scan_loop` (2.8.1 loop.c:738-755, the "potential lossage" rule) does NOT
-     * hoist an invariant set whose register has exactly ONE in-loop use: when
-     * reg_single_usage says one, it VALIDATE_REPLACEs the use with the SET_SRC and
-     * DELETES the set.  The division's own 0x66666667 is exactly that -- one use, in the
-     * `mult` -- so it is substituted and re-materialised inside the loop, while retail
-     * carries it in $s5 from the preheader.  Our fenced `magic` local reproduces the
-     * preheader lui/ori pair and the 8-register frame, but it is a DIFFERENT pseudo, and
-     * cse (extended-basic-block scope, loop body has several predecessors) never learns
-     * the live $s5 already holds the constant.
+    /* 🔴 W63-A5 -- W62-A6's MECHANISM CITATION IS REFUTED, and the real one is now READ
+     * OFF THE COMPILER, not inferred.  W62 blamed loop.c `scan_loop`'s "potential
+     * lossage" rule (2.8.1 loop.c:738-755, the reg_single_usage / validate_replace_rtx
+     * path).  That rule never fires here: `-dL` on the lane binary (CC1PSX accepts it,
+     * W60-A1; driver = tools/qty272.py, which writes the .loop dump) prints
+     *
+     *     Loop from 147 to 250: 31 real insns.
+     *     Insn 154: regno 117 (life 1), move-insn savings 1 not desirable
+     *     Insn 154: possible biv, reg 117, const = 1717986919      <- 0x66666667
+     *
+     * i.e. the division's own constant IS entered as a movable (so it was NOT
+     * substituted-and-deleted); it is `move_movables` that DECLINES it at loop.c:1640
+     *
+     *     already_moved[regno] || (threshold * savings * m->lifetime) >= insn_count
+     *
+     * with `threshold = (loop_has_call ? 1 : 2) * (1 + n_non_fixed_regs)` (loop.c:535 --
+     * this loop HAS a call, so the x2 is lost), savings = 1, lifetime = 1 and
+     * insn_count = 31.  The verdict is a pure budget miss, and the dump gives the exact
+     * shortfall: ONE unit of `savings` or of `lifetime` on THAT movable flips it.
+     * NEXT ANGLE (precise, replaces W62's): buy savings/lifetime on the DIVISION's own
+     * const movable -- `force_movables` (loop.c:1195-1232) doubles savings and adds
+     * lifetimes when another movable's set_src chains off it, and `combine_movables`
+     * merges equal invariants; lifetime is the luid distance from the const's set to its
+     * single use, currently adjacent.
+     * MEASURED in this basin: putting `magic = 0x66666667;` INSIDE the loop makes it a
+     * second movable that combine_movables merges with reg 117 -- the hoist LANDS and the
+     * count becomes EXACT 137/137 -- but the whole s-band rotates (54 diffs; fence
+     * variants there: 1-operand track_first 18 @135, 3-operand 18 @135, magic-only 70,
+     * no fence 64 @135, fence-before-assignment 22 @137).  That basin is structurally
+     * right and 14 diffs from being better than this one; it is the recommended
+     * re-entry point, together with the -dL numbers above.
+     * (The cse-scope observation below still stands as the reason our PREHEADER `magic`
+     * pseudo is not itself the sharer.)
      * W62-A6 FALSIFIED (all re-gated in the landed basin): `magic = 0x66666667;` moved
      * INTO the loop body as its first statement 54 / after the fence 22 / in-loop with
      * the magic operand dropped from the fence 18 @135 / duplicated preheader+in-loop 54
@@ -144,9 +167,12 @@ extern int CdGetToc2(int n, CdlLOC *loc)
      * 10)` spelled out, and the same via a named `tens` local, are both INERT at 4 -- cse
      * runs BEFORE loop and merges the two divisions back into one.  Control re-gate:
      * dropping the magic local entirely is now 64 @135 (the w60-a4 receipt's 18 is
-     * basin-stale).  NEXT ANGLE unchanged and now precise: the cure must make the
-     * DIVISION's own constant have >= 2 in-loop uses at LOOP time (i.e. survive cse), or
-     * defeat validate_replace_rtx for the `mult` operand.  */
+     * basin-stale).  W62's closing sentence ("make the constant have >= 2 in-loop uses,
+     * or defeat validate_replace_rtx") is SUPERSEDED by the -dL block above: neither is
+     * the gate -- the movable exists and is declined on budget.
+     * W63-A5 additionally falsified here (all re-gated, all at 4 or worse): splitting the
+     * BCD build through a named `tens` local (INERT 4 @139); a 3-operand fence listing
+     * `magic` twice 32 @139; duplicating `magic = 0x66666667;` after the fence 32 @139.  */
     param[0] = 1;
     save = CdSyncCallback(0);
     if (CdControlB(0x13, 0, result) == 0)               /* CdlGetTN */

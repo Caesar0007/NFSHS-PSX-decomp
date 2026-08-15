@@ -1727,7 +1727,20 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
        => THE EXACT WANTED DEVICE (13B's 4-witness request, sharpened by a witness):
        mint the copy WITHOUT adding a reference after the call.  Every device that
        mints it today also lengthens the range past the call and therefore buys the
-       wrong register CLASS. */
+       wrong register CLASS.
+       W63-A10 (three more families, all real gate runs, all INERT at exactly
+       5@268 -- they supersede nothing, they CLOSE the pseudo-shape axis):
+         decl split `int wing; wing = ...` (12D's decl-with-init demote) 5;
+         a named `wingIdx` for the CallSign call result + the array read 5;
+         both together 5;
+         a FUNCTION-SCOPE `int wing;` swept through ALL SIX positions of the
+         local declaration list (before Blocker / after Blocker / after invalid /
+         after context / after from / after reverse) -- 5 at every position.
+       The 13A decl-order dial reaches allocno NUMBER, and the number is not the
+       decider here: local-alloc's copy suggestion hands the pseudo $a3 whatever
+       its number, its scope, or how its value is spelled.  The residual is
+       exactly and only the 12A hard-reg PREFERENCE; nothing below the
+       preference-killer instrument will move it. */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
       location,distance,wing,
       &(pThis->_base_Speaker).fSpikeSide);
@@ -2360,7 +2373,35 @@ void AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tO
  * `addu s0,v0,zero` copy because OUR arg insn `addu a0,v1,a0` is still eligible
  * for the jalr slot -- retail's is not, because retail's pfn load `lw v1,140(a1)`
  * clobbers v1 AFTER it.  Everything is downstream of the receiver's register;
- * route unchanged (12A hard-reg preference killer). */
+ * route unchanged (12A hard-reg preference killer).
+ * W63-A10 re-gated 11@103 and CLASSIFIED the blocker, which retires two whole
+ * device families here:
+ *  - THE W63 FOREIGN-OPERAND FENCE (`asm("" : : "r"(neighbour))`, the wave's
+ *    named unblock for THIS function) is INERT at exactly 11@103 in all NINE
+ *    placements tried: operand iVar3 / pSVar6 / pThis, each with and without a
+ *    named `__vtbl_ptr_type (*subVf)[31]` receiver local, plus x2, x3 and a
+ *    two-operand form.  This is an independent witness for the A16 correction:
+ *    REG_LIVE_LENGTH is a SERVING-ORDER (QTY_CMP_PRI) dial, and this residual is
+ *    not a serving-order loss -- our receiver is served while $v0 is simply FREE,
+ *    so it takes the lowest free reg.  Retail's $a1 requires $v0, $v1 AND $a0 all
+ *    UNAVAILABLE across the receiver's window; only the first call's result can
+ *    occupy $v0 there, and its copy-to-$s0 is emitted by expand immediately after
+ *    the call.  PROVEN NOT A SCHEDULER QUESTION: compiling the TU with
+ *    -fno-schedule-insns and with -fno-schedule-insns2 leaves `move $16,$2`
+ *    glued to the call in both, so sched1 never moved it and there is nothing to
+ *    stop.  This is 13A's UNREACHABILITY TRIAGE: change qty STRUCTURE, not a dial.
+ *  - THE CARRIER-IDENTITY dial that sealed Lose in this same TU is also inert
+ *    here: carrying the first result / the CallSign result in reg_a2, reg_a3,
+ *    iVar4 or any pairing of them is 11@103 (except iVar4<->iVar3 swapped, 93@105).
+ *  - SPLITTING the copy so it is emitted AFTER the receiver load (`int bankRes =
+ *    call(); ... iVar3 = bankRes;` with and without a launder, with and without
+ *    the named subVf) is 16-18 @102 -- it goes ONE SHORTER, i.e. the two pseudos
+ *    coalesce and an insn is lost; the structural change we need has to ADD
+ *    retail's extra nop, not remove one.
+ * NEXT: the only structure that can work is one where a caller-saved pseudo
+ * genuinely holds a live value in $v0 across the receiver load.  That is the
+ * 12A preference/availability instrument (or an allocsim/reqdelta reading of the
+ * receiver's qty window), not a fence and not a spelling. */
 /* MATCH: 36 -> 11 diffs (103/104).  Distinct short-lived speech arguments
    recover every tail register, the SLD Speech* local plus the first empty
    barrier recover the retail prologue, and the pin-free pSVar6 fence recovers

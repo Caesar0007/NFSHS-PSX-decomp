@@ -832,7 +832,32 @@ int AudioCmn_GetTimePhrase(int time)
  * STORE 27 @416.
  * ROUTE: not a spelling.  Either (a) stop reorg/sched from hoisting the HIGH into
  * the predecessor's delay slot WITHOUT planting a barrier between the lw and the
- * la (no zero-insn device does both), or (b) the 06E local-alloc instrument. */
+ * la (no zero-insn device does both), or (b) the 06E local-alloc instrument.
+ * W63-A10 re-gated 4@415 and reproduced the 12E cell exactly (3@416 with the
+ * register right, 4@415 with the count right).  TEN more falsifications, all
+ * real gate runs, none of which beats 4:
+ *   arm-local `int *bl = bestLapTime;` LAUNDERED and used by BOTH arm sites
+ *   (guard + store) 3@416 -- same cell as the store-only form, so sharing the
+ *   pointer across both uses is not the missing piece;  the same with a
+ *   block-local `int ci = car->carIndex` 3@416;  the same with the guard written
+ *   Yoda `!(carspeed < bl[..])` 3@416;  UNLAUNDERED arm-local bl used by both
+ *   sites 4@415 (inert, the FE folds it back);  the guard through bl and the
+ *   store through bestLapTime 30@417.
+ *   PLACEMENT LADDER (the lever that sealed GetClosestCars and Lose this wave --
+ *   here it FAILS, and that is the point): hoisting the pointer's declaration out
+ *   of the arm to the top of the `{ CopSpeak_tRequest r; ... }` block makes the
+ *   address loop/block-invariant and DELETES the per-site materialisation --
+ *   plain 20@413, laundered 53@416, plain with all three bestLapTime sites on it
+ *   24@411, laundered with all three 20@411.  Retail rematerialises the address
+ *   per site, so the declaration must stay arm-local.
+ *   The W63 FOREIGN-OPERAND FENCE (`asm("" : : "r"(carspeed))` at the arm head)
+ *   is 4@415, inert -- consistent with the A16 correction (this is not a
+ *   serving-order loss).
+ * => the certificate stands and is now BOUNDED ON BOTH SIDES: every arm-local
+ * form that buys retail's REGISTER costs the load-delay nop, and every form that
+ * keeps the COUNT leaves the split scratch.  The wanted device is one that stops
+ * the {high, lo_sum} split WITHOUT being an RTL insn (i.e. not an asm at all) --
+ * a local-alloc/06E instrument, exactly as routed above. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
   char carnum;

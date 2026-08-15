@@ -58,12 +58,19 @@ def ours_branches(fn):
     return out
 
 
+def _exists_exact(p):
+    """w63-a20: Path.exists() is CASE-INSENSITIVE on this NTFS checkout,
+    so 'cd_read.s' silently resolves to the UNRELATED 'CD_Read.s' and the
+    census compares one function's branches against another's oracle
+    (cd_read reported 'BRANCH COUNT 0 vs 17').  Same guard verify_asm.py
+    already carries; in-tree pairs: cd_read/CD_Read, CD_init/CD_Init."""
+    return p.exists() and p.name in {e.name for e in p.parent.iterdir()}
+
+
 def oracle_branches(fn):
-    p = ROOT / 'asm' / 'nonmatchings' / 'main' / (fn + '.s')
-    if not p.exists():
-        p = ROOT / 'asm' / 'nonmatchings' / 'front' / (fn + '.s')
-    if not p.exists():
-        return None
+    p = g['_find_oracle_path'](fn)   # verify_asm's resolver: case-exact
+    if p is None:                    # first, then the symbol_addrs VA
+        return None                  # fallbacks (func_<VA>.s etc.)
     idx, labels, brs = 0, {}, []
     for ln in p.read_text().splitlines():
         s = re.sub(r'/\*.*?\*/', '', ln).strip()
@@ -71,6 +78,19 @@ def oracle_branches(fn):
             break
         if s.endswith(':') and s.startswith('.L'):
             labels[s[:-1]] = idx
+            continue
+        if s.startswith('.word'):
+            # w63-a20: spimdisasm emits every unrecognised instruction
+            # (i.e. EVERY GTE/COP2 op) as `.word 0x4A480012`.  It is a
+            # real 4-byte INSTRUCTION and occupies an index slot; the
+            # blanket '.'-prefix skip below under-counted the oracle,
+            # so every branch whose target label lay past a `.word`
+            # reported a bogus distance.  26 false positives tree-wide,
+            # all in the GTE-heavy render TUs (drawc/draww/flare/hrzsku/
+            # sfx/trsproj/weather) -- fns that psyqproof scores REAL=0,
+            # i.e. byte-identical to retail, so the 'divergence' was
+            # impossible.  It also HID one real hit (_padInitSioMode).
+            idx += 1
             continue
         if not s or s.startswith(('.', 'glabel', 'nonmatching', 'dlabel', 'jlabel', 'alabel')) or s.endswith(':'):
             continue

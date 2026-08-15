@@ -738,8 +738,15 @@ class MaspsxProcessor:
                     elif size >= 2:
                         res.append("\t.align 1")
 
-                # only mark bss symbols as global
-                if section == "bss":
+                # only mark bss symbols as global -- and only those that
+                # came from `.comm` (a true tentative definition).  A
+                # `.lcomm` is a FILE STATIC: GNU as keeps it local and so
+                # must we.  Without this guard maspsx globalizes every
+                # file-static that lands in .bss (24 tree-wide; the five
+                # `static char gSwapFileName[..]` copies then collide with
+                # the one genuinely global symbol of that name).
+                # w62-a18 SYMBOL_LEDGER 1.2; probe w63a20/lcomm_probe.py.
+                if section == "bss" and symbol in self.comm_symbols:
                     res.append(
                         f"\t.globl {symbol}",
                     )

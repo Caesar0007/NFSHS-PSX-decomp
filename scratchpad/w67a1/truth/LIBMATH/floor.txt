@@ -1,0 +1,60 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / FLOOR / floor
+linkage=export  section-size=216 bytes (54 words)  vendor-relocs=11
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  afb10014  --------     sw	s1,20(sp)                      
+0008  afb00010  --------     sw	s0,16(sp)                      
+000c  00008021  --------     move	s0,zero                      
+0010  00008821  --------     move	s1,zero                      
+0014  02003021  --------     move	a2,s0                        
+0018  afbf0018  --------     sw	ra,24(sp)                      
+001c  afa40020  --------     sw	a0,32(sp)                      
+0020  afa50024  --------     sw	a1,36(sp)                      
+0024  0c000000  --------     jal	0x0                             <REL26 __ltdf2>
+0028  02203821  --------     move	a3,s1                        
+002c  0441001f  --------     bgez	v0,0xac                      
+0030  00000000  --------     nop                               
+0034  8fa40020  --------     lw	a0,32(sp)                      
+0038  8fa50024  --------     lw	a1,36(sp)                      
+003c  0c000000  --------     jal	0x0                             <REL26 __negdf2>
+0040  00000000  --------     nop                               
+0044  00402021  --------     move	a0,v0                        
+0048  00602821  --------     move	a1,v1                        
+004c  0c000000  --------     jal	0x0                             <REL26 modf>
+0050  27a60020  --------     addiu	a2,sp,32                    
+0054  00402021  --------     move	a0,v0                        
+0058  00602821  --------     move	a1,v1                        
+005c  02003021  --------     move	a2,s0                        
+0060  0c000000  --------     jal	0x0                             <REL26 __nedf2>
+0064  02203821  --------     move	a3,s1                        
+0068  1040000a  --------     beqz	v0,0x94                      
+006c  00000000  --------     nop                               
+0070  8fa40020  --------     lw	a0,32(sp)                      
+0074  8fa50024  --------     lw	a1,36(sp)                      
+0078  3c010000  --------     lui	at,0x0                          <HI16 .rdata(base)>
+007c  8c2602c0  --------     lw	a2,704(at)                       <LO16 .rdata(base)>
+0080  8c2702c4  --------     lw	a3,708(at)                       <LO16 (0x4 + .rdata(base))>
+0084  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+0088  00000000  --------     nop                               
+008c  afa20020  --------     sw	v0,32(sp)                      
+0090  afa30024  --------     sw	v1,36(sp)                      
+0094  8fa40020  --------     lw	a0,32(sp)                      
+0098  8fa50024  --------     lw	a1,36(sp)                      
+009c  0c000000  --------     jal	0x0                             <REL26 __negdf2>
+00a0  00000000  --------     nop                               
+00a4  08000031  --------     j	0xc4                              <REL26 (0xC4 + .text(base))>
+00a8  00000000  --------     nop                               
+00ac  8fa40020  --------     lw	a0,32(sp)                      
+00b0  8fa50024  --------     lw	a1,36(sp)                      
+00b4  0c000000  --------     jal	0x0                             <REL26 modf>
+00b8  27a60020  --------     addiu	a2,sp,32                    
+00bc  8fa20020  --------     lw	v0,32(sp)                      
+00c0  8fa30024  --------     lw	v1,36(sp)                      
+00c4  8fbf0018  --------     lw	ra,24(sp)                      
+00c8  8fb10014  --------     lw	s1,20(sp)                      
+00cc  8fb00010  --------     lw	s0,16(sp)                      
+00d0  03e00008  --------     jr	ra                             
+00d4  27bd0020  --------     addiu	sp,sp,32                    

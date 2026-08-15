@@ -1,0 +1,65 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / MULDF3 / _mul_mant_d
+linkage=export  section-size=236 bytes (59 words)  vendor-relocs=2
+retail VA=0x800F65F8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc0  27bdffc0  =  addiu	sp,sp,-64                   
+0004  afb1002c  afb1002c  =  sw	s1,44(sp)                      
+0008  00a08821  00a08821  =  move	s1,a1                        
+000c  afb00028  afb00028  =  sw	s0,40(sp)                      
+0010  00c08021  00c08021  =  move	s0,a2                        
+0014  afb20030  afb20030  =  sw	s2,48(sp)                      
+0018  3232ffff  3232ffff  =  andi	s2,s1,0xffff                 
+001c  3202ffff  3202ffff  =  andi	v0,s0,0xffff                 
+0020  02420018  02420018  =  mult	s2,v0                        
+0024  00001812  00001812  =  mflo	v1                           
+0028  00118c02  00118c02  =  srl	s1,s1,0x10                    
+002c  00000000  00000000  =  nop                               
+0030  02220018  02220018  =  mult	s1,v0                        
+0034  afb30034  afb30034  =  sw	s3,52(sp)                      
+0038  00809821  00809821  =  move	s3,a0                        
+003c  27a40018  27a40018  =  addiu	a0,sp,24                    
+0040  afa0001c  afa0001c  =  sw	zero,28(sp)                    
+0044  afa30018  afa30018  =  sw	v1,24(sp)                      
+0048  00001012  00001012  =  mflo	v0                           
+004c  00021c02  00021c02  =  srl	v1,v0,0x10                    
+0050  00021400  00021400  =  sll	v0,v0,0x10                    
+0054  afa30024  afa30024  =  sw	v1,36(sp)                      
+0058  afa20020  afa20020  =  sw	v0,32(sp)                      
+005c  afa30010  afa30010  =  sw	v1,16(sp)                      
+0060  8fa70020  8fa70020  =  lw	a3,32(sp)                      
+0064  8fa50018  8fa50018  =  lw	a1,24(sp)                      
+0068  8fa6001c  8fa6001c  =  lw	a2,28(sp)                      
+006c  afbf0038  afbf0038  =  sw	ra,56(sp)                      
+0070  0c000000  0c041bdc  R  jal	0x0                             <REL26 _add_mant_d>
+0074  00108402  00108402  =  srl	s0,s0,0x10                    
+0078  02500018  02500018  =  mult	s2,s0                        
+007c  00001012  00001012  =  mflo	v0                           
+0080  00021c02  00021c02  =  srl	v1,v0,0x10                    
+0084  00021400  00021400  =  sll	v0,v0,0x10                    
+0088  afa30024  afa30024  =  sw	v1,36(sp)                      
+008c  afa20020  afa20020  =  sw	v0,32(sp)                      
+0090  afa30010  afa30010  =  sw	v1,16(sp)                      
+0094  8fa70020  8fa70020  =  lw	a3,32(sp)                      
+0098  8fa50018  8fa50018  =  lw	a1,24(sp)                      
+009c  8fa6001c  8fa6001c  =  lw	a2,28(sp)                      
+00a0  0c000000  0c041bdc  R  jal	0x0                             <REL26 _add_mant_d>
+00a4  27a40018  27a40018  =  addiu	a0,sp,24                    
+00a8  02300018  02300018  =  mult	s1,s0                        
+00ac  8fa2001c  8fa2001c  =  lw	v0,28(sp)                      
+00b0  00001812  00001812  =  mflo	v1                           
+00b4  00431021  00431021  =  addu	v0,v0,v1                     
+00b8  afa2001c  afa2001c  =  sw	v0,28(sp)                      
+00bc  8fa20018  8fa20018  =  lw	v0,24(sp)                      
+00c0  8fa3001c  8fa3001c  =  lw	v1,28(sp)                      
+00c4  ae620000  ae620000  =  sw	v0,0(s3)                       
+00c8  ae630004  ae630004  =  sw	v1,4(s3)                       
+00cc  02601021  02601021  =  move	v0,s3                        
+00d0  8fbf0038  8fbf0038  =  lw	ra,56(sp)                      
+00d4  8fb30034  8fb30034  =  lw	s3,52(sp)                      
+00d8  8fb20030  8fb20030  =  lw	s2,48(sp)                      
+00dc  8fb1002c  8fb1002c  =  lw	s1,44(sp)                      
+00e0  8fb00028  8fb00028  =  lw	s0,40(sp)                      
+00e4  03e00008  03e00008  =  jr	ra                             
+00e8  27bd0040  27bd0040  =  addiu	sp,sp,64                    

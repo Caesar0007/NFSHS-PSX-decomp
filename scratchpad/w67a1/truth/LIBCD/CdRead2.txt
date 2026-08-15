@@ -1,0 +1,51 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / CDREAD2 / CdRead2
+linkage=export  section-size=176 bytes (44 words)  vendor-relocs=14
+retail VA=0x800F8F48  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0004  afb00018  afb00018  =  sw	s0,24(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  2404000e  2404000e  =  li	a0,14                          
+0010  27a50010  27a50010  =  addiu	a1,sp,16                    
+0014  00003021  00003021  =  move	a2,zero                      
+0018  afbf001c  afbf001c  =  sw	ra,28(sp)                      
+001c  0c000000  0c03de2d  R  jal	0x0                             <REL26 CdControl>
+0020  a3b00010  a3b00010  =  sb	s0,16(sp)                      
+0024  32020100  32020100  =  andi	v0,s0,0x100                  
+0028  1040000e  1040000e  =  beqz	v0,0x64                      
+002c  32020020  32020020  =  andi	v0,s0,0x20                   
+0030  10400004  10400004  =  beqz	v0,0x44                      
+0034  24020001  24020001  =  li	v0,1                           
+0038  3c010000  3c018015  R  lui	at,0x0                          <HI16 StMode>
+003c  08000013  0803e3e5  R  j	0x4c                              <REL26 (0x4C + .text(base))>
+0040  ac200000  ac2089cc  R  sw	zero,0(at)                       <LO16 StMode>
+0044  3c010000  3c018015  R  lui	at,0x0                          <HI16 StMode>
+0048  ac220000  ac2289cc  R  sw	v0,0(at)                         <LO16 StMode>
+004c  3c040000  3c048011  R  lui	a0,0x0                          <HI16 data_ready_callback>
+0050  0c000000  0c03df2c  R  jal	0x0                             <REL26 CdDataCallback>
+0054  24840000  24848798  R  addiu	a0,a0,0                       <LO16 data_ready_callback>
+0058  3c040000  3c048010  R  lui	a0,0x0                          <HI16 (0x84 + .text(base))>
+005c  0c000000  0c03de28  R  jal	0x0                             <REL26 CdReadyCallback>
+0060  24840084  24848fcc  R  addiu	a0,a0,132                     <LO16 (0x84 + .text(base))>
+0064  2404001b  2404001b  =  li	a0,27                          
+0068  00002821  00002821  =  move	a1,zero                      
+006c  0c000000  0c03de2d  R  jal	0x0                             <REL26 CdControl>
+0070  00003021  00003021  =  move	a2,zero                      
+0074  8fbf001c  8fbf001c  =  lw	ra,28(sp)                      
+0078  8fb00018  8fb00018  =  lw	s0,24(sp)                      
+007c  03e00008  03e00008  =  jr	ra                             
+0080  27bd0020  27bd0020  =  addiu	sp,sp,32                    
+        >> retail symbol here: _cdread2_ready (0x800F8FCC)
+0084  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0088  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+008c  0c000000  0c03df9e  R  jal	0x0                             <REL26 StCdInterrupt>
+0090  00000000  00000000  =  nop                               
+0094  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0098  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+009c  03e00008  03e00008  =  jr	ra                             
+00a0  00000000  00000000  =  nop                               
+00a4  00000000  00000000  =  nop                               
+00a8  00000000  00000000  =  nop                               
+00ac  00000000  00000000  =  nop                               

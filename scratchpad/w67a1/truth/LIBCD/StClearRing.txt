@@ -1,0 +1,30 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_002 / StClearRing
+linkage=export  section-size=96 bytes (24 words)  vendor-relocs=17
+retail VA=0x800F8968  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingSize>
+0008  8ca50000  8ca56cbc  R  lw	a1,0(a1)                         <LO16 StRingSize>
+000c  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0010  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx3>
+0014  ac200000  ac206cb8  R  sw	zero,0(at)                       <LO16 StRingIdx3>
+0018  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx2>
+001c  ac200000  ac206cb4  R  sw	zero,0(at)                       <LO16 StRingIdx2>
+0020  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx1>
+0024  ac200000  ac206cb0  R  sw	zero,0(at)                       <LO16 StRingIdx1>
+0028  3c010000  3c018014  R  lui	at,0x0                          <HI16 StFinalSector>
+002c  ac200000  ac206ca4  R  sw	zero,0(at)                       <LO16 StFinalSector>
+0030  0c000000  0c0421d6  R  jal	0x0                             <REL26 init_ring_status>
+0034  00002021  00002021  =  move	a0,zero                      
+0038  3c010000  3c018014  R  lui	at,0x0                          <HI16 StCdIntrFlag>
+003c  ac200000  ac206c80  R  sw	zero,0(at)                       <LO16 StCdIntrFlag>
+0040  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+0044  a4200000  a4206ca0  R  sh	zero,0(at)                       <LO16 Stsector_offset>
+0048  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stframe_no>
+004c  ac200000  ac206c8c  R  sw	zero,0(at)                       <LO16 Stframe_no>
+0050  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0054  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0058  03e00008  03e00008  =  jr	ra                             
+005c  00000000  00000000  =  nop                               

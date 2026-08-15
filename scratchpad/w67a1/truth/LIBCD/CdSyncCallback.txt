@@ -1,0 +1,11 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / SYS / CdSyncCallback
+linkage=export  section-size=20 bytes (5 words)  vendor-relocs=4
+retail VA=0x800F788C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028014  R  lui	v0,0x0                          <HI16 CD_cbsync>
+0004  8c420000  8c42bf48  R  lw	v0,0(v0)                         <LO16 CD_cbsync>
+0008  3c010000  3c018014  R  lui	at,0x0                          <HI16 CD_cbsync>
+000c  03e00008  03e00008  =  jr	ra                             
+0010  ac240000  ac24bf48  R  sw	a0,0(at)                         <LO16 CD_cbsync>

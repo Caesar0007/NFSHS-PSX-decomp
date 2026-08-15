@@ -1,0 +1,78 @@
+W67-A1 VENDOR GROUND TRUTH  LIBC / STRTOK / strtok
+linkage=export  section-size=288 bytes (72 words)  vendor-relocs=12
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  1480001c  --------     bnez	a0,0x74                      
+0004  00000000  --------     nop                               
+0008  3c040000  --------     lui	a0,0x0                          <HI16 .data(base)>
+000c  8c840120  --------     lw	a0,288(a0)                       <LO16 .data(base)>
+0010  00000000  --------     nop                               
+0014  14800017  --------     bnez	a0,0x74                      
+0018  00001021  --------     move	v0,zero                      
+001c  08000043  --------     j	0x10c                             <REL26 (0x10C + .text(base))>
+0020  00000000  --------     nop                               
+0024  00a03021  --------     move	a2,a1                        
+0028  80c20000  --------     lb	v0,0(a2)                       
+002c  90c30000  --------     lbu	v1,0(a2)                      
+0030  1040000e  --------     beqz	v0,0x6c                      
+0034  00004821  --------     move	t1,zero                      
+0038  00071600  --------     sll	v0,a3,0x18                    
+003c  00024603  --------     sra	t0,v0,0x18                    
+0040  00031600  --------     sll	v0,v1,0x18                    
+0044  00021603  --------     sra	v0,v0,0x18                    
+0048  14480003  --------     bne	v0,t0,0x58                    
+004c  00000000  --------     nop                               
+0050  0800001b  --------     j	0x6c                              <REL26 (0x6C + .text(base))>
+0054  24090001  --------     li	t1,1                           
+0058  24c60001  --------     addiu	a2,a2,1                     
+005c  80c20000  --------     lb	v0,0(a2)                       
+0060  90c30000  --------     lbu	v1,0(a2)                      
+0064  1440fff7  --------     bnez	v0,0x44                      
+0068  00031600  --------     sll	v0,v1,0x18                    
+006c  11200006  --------     beqz	t1,0x88                      
+0070  00000000  --------     nop                               
+0074  90870000  --------     lbu	a3,0(a0)                      
+0078  80820000  --------     lb	v0,0(a0)                       
+007c  00000000  --------     nop                               
+0080  1440ffe8  --------     bnez	v0,0x24                      
+0084  24840001  --------     addiu	a0,a0,1                     
+0088  14e00018  --------     bnez	a3,0xec                      
+008c  2488ffff  --------     addiu	t0,a0,-1                    
+0090  3c010000  --------     lui	at,0x0                          <HI16 .data(base)>
+0094  ac200120  --------     sw	zero,288(at)                     <LO16 .data(base)>
+0098  08000043  --------     j	0x10c                             <REL26 (0x10C + .text(base))>
+009c  00001021  --------     move	v0,zero                      
+00a0  a080ffff  --------     sb	zero,-1(a0)                    
+00a4  3c010000  --------     lui	at,0x0                          <HI16 .data(base)>
+00a8  ac240120  --------     sw	a0,288(at)                       <LO16 .data(base)>
+00ac  08000043  --------     j	0x10c                             <REL26 (0x10C + .text(base))>
+00b0  01001021  --------     move	v0,t0                        
+00b4  00a03021  --------     move	a2,a1                        
+00b8  80c20000  --------     lb	v0,0(a2)                       
+00bc  90c30000  --------     lbu	v1,0(a2)                      
+00c0  1040000a  --------     beqz	v0,0xec                      
+00c4  00071600  --------     sll	v0,a3,0x18                    
+00c8  00023e03  --------     sra	a3,v0,0x18                    
+00cc  00031600  --------     sll	v0,v1,0x18                    
+00d0  00021603  --------     sra	v0,v0,0x18                    
+00d4  1047fff2  --------     beq	v0,a3,0xa0                    
+00d8  24c60001  --------     addiu	a2,a2,1                     
+00dc  80c20000  --------     lb	v0,0(a2)                       
+00e0  90c30000  --------     lbu	v1,0(a2)                      
+00e4  1440fffa  --------     bnez	v0,0xd0                      
+00e8  00031600  --------     sll	v0,v1,0x18                    
+00ec  90870000  --------     lbu	a3,0(a0)                      
+00f0  80820000  --------     lb	v0,0(a0)                       
+00f4  00000000  --------     nop                               
+00f8  1440ffee  --------     bnez	v0,0xb4                      
+00fc  24840001  --------     addiu	a0,a0,1                     
+0100  3c010000  --------     lui	at,0x0                          <HI16 .data(base)>
+0104  ac200120  --------     sw	zero,288(at)                     <LO16 .data(base)>
+0108  01001021  --------     move	v0,t0                        
+010c  03e00008  --------     jr	ra                             
+0110  00000000  --------     nop                               
+0114  00000000  --------     nop                               
+0118  00000000  --------     nop                               
+011c  00000000  --------     nop                               

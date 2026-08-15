@@ -1,0 +1,11 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / PATCH / EnablePAD
+linkage=export  section-size=20 bytes (5 words)  vendor-relocs=2
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c090000  --------     lui	t1,0x0                          <HI16 (0x8 + .bss(base))>
+0004  8d2900a8  --------     lw	t1,168(t1)                       <LO16 (0x8 + .bss(base))>
+0008  00000000  --------     nop                               
+000c  01200008  --------     jr	t1                             
+0010  00000000  --------     nop                               

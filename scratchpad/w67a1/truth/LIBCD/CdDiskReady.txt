@@ -1,0 +1,85 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / TYPE / CdDiskReady
+linkage=export  section-size=316 bytes (79 words)  vendor-relocs=9
+retail VA=0x800E8448  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  27bdffd8  =  addiu	sp,sp,-40                   
+0004  afb00018  afb00018  =  sw	s0,24(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  24040001  24040001  =  li	a0,1                           
+0010  00002821  00002821  =  move	a1,zero                      
+0014  27a60010  27a60010  =  addiu	a2,sp,16                    
+0018  afbf0020  afbf0020  =  sw	ra,32(sp)                      
+001c  0c000000  0c03dec9  R  jal	0x0                             <REL26 CdControlB>
+0020  afb1001c  afb1001c  =  sw	s1,28(sp)                      
+0024  93a20010  93a20010  =  lbu	v0,16(sp)                     
+0028  00000000  00000000  =  nop                               
+002c  30420010  30420010  =  andi	v0,v0,0x10                   
+0030  10400003  10400003  =  beqz	v0,0x40                      
+0034  24040013  24040013  =  li	a0,19                          
+0038  0800004a  0803a15c  R  j	0x128                             <REL26 (0x128 + .text(base))>
+003c  24020010  24020010  =  li	v0,16                          
+0040  00002821  00002821  =  move	a1,zero                      
+0044  0c000000  0c03dec9  R  jal	0x0                             <REL26 CdControlB>
+0048  27a60010  27a60010  =  addiu	a2,sp,16                    
+004c  00402021  00402021  =  move	a0,v0                        
+0050  24020001  24020001  =  li	v0,1                           
+0054  16020009  16020009  =  bne	s0,v0,0x7c                    
+0058  24110002  24110002  =  li	s1,2                           
+005c  93a30010  93a30010  =  lbu	v1,16(sp)                     
+0060  24020002  24020002  =  li	v0,2                           
+0064  1462002f  1462002f  =  bne	v1,v0,0x124                   
+0068  00000000  00000000  =  nop                               
+006c  1480002e  1480002e  =  bnez	a0,0x128                     
+0070  00000000  00000000  =  nop                               
+0074  0800004a  0803a15c  R  j	0x128                             <REL26 (0x128 + .text(base))>
+0078  24020005  24020005  =  li	v0,5                           
+007c  00008021  00008021  =  move	s0,zero                      
+0080  93a30010  93a30010  =  lbu	v1,16(sp)                     
+0084  00000000  00000000  =  nop                               
+0088  30620002  30620002  =  andi	v0,v1,0x2                    
+008c  10400016  10400016  =  beqz	v0,0xe8                      
+0090  00000000  00000000  =  nop                               
+0094  14710003  14710003  =  bne	v1,s1,0xa4                    
+0098  00000000  00000000  =  nop                               
+009c  14800022  14800022  =  bnez	a0,0x128                     
+00a0  24020002  24020002  =  li	v0,2                           
+00a4  0c000000  0c03c8c7  R  jal	0x0                             <REL26 VSync>
+00a8  2404001e  2404001e  =  li	a0,30                          
+00ac  24040013  24040013  =  li	a0,19                          
+00b0  00002821  00002821  =  move	a1,zero                      
+00b4  0c000000  0c03dec9  R  jal	0x0                             <REL26 CdControlB>
+00b8  27a60010  27a60010  =  addiu	a2,sp,16                    
+00bc  93a30010  93a30010  =  lbu	v1,16(sp)                     
+00c0  00402021  00402021  =  move	a0,v0                        
+00c4  30620010  30620010  =  andi	v0,v1,0x10                   
+00c8  1440ffdb  1440ffdb  =  bnez	v0,0x38                      
+00cc  00000000  00000000  =  nop                               
+00d0  1471fff4  1471fff4  =  bne	v1,s1,0xa4                    
+00d4  00000000  00000000  =  nop                               
+00d8  1080fff2  1080fff2  =  beqz	a0,0xa4                      
+00dc  24020002  24020002  =  li	v0,2                           
+00e0  0800004a  0803a15c  R  j	0x128                             <REL26 (0x128 + .text(base))>
+00e4  00000000  00000000  =  nop                               
+00e8  0c000000  0c03c8c7  R  jal	0x0                             <REL26 VSync>
+00ec  2404001e  2404001e  =  li	a0,30                          
+00f0  24040013  24040013  =  li	a0,19                          
+00f4  00002821  00002821  =  move	a1,zero                      
+00f8  0c000000  0c03dec9  R  jal	0x0                             <REL26 CdControlB>
+00fc  27a60010  27a60010  =  addiu	a2,sp,16                    
+0100  93a30010  93a30010  =  lbu	v1,16(sp)                     
+0104  00000000  00000000  =  nop                               
+0108  30630010  30630010  =  andi	v1,v1,0x10                   
+010c  1460ffca  1460ffca  =  bnez	v1,0x38                      
+0110  00402021  00402021  =  move	a0,v0                        
+0114  26100001  26100001  =  addiu	s0,s0,1                     
+0118  2a02000a  2a02000a  =  slti	v0,s0,10                     
+011c  1440ffd8  1440ffd8  =  bnez	v0,0x80                      
+0120  00000000  00000000  =  nop                               
+0124  24020005  24020005  =  li	v0,5                           
+0128  8fbf0020  8fbf0020  =  lw	ra,32(sp)                      
+012c  8fb1001c  8fb1001c  =  lw	s1,28(sp)                      
+0130  8fb00018  8fb00018  =  lw	s0,24(sp)                      
+0134  03e00008  03e00008  =  jr	ra                             
+0138  27bd0028  27bd0028  =  addiu	sp,sp,40                    

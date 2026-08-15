@@ -1,0 +1,45 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / COUNTER / SetRCnt
+linkage=export  section-size=156 bytes (39 words)  vendor-relocs=6
+retail VA=0x800E9E70  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3088ffff  3088ffff  =  andi	t0,a0,0xffff                 
+0004  29020003  29020003  =  slti	v0,t0,3                      
+0008  14400003  14400003  =  bnez	v0,0x18                      
+000c  24070048  24070048  =  li	a3,72                          
+0010  08000025  0803a7c1  R  j	0x94                              <REL26 (0x94 + .text(base))>
+0014  00001021  00001021  =  move	v0,zero                      
+0018  3c020000  3c028012  R  lui	v0,0x0                          <HI16 (0x4 + .data(base))>
+001c  8c420174  8c4234b8  R  lw	v0,372(v0)                       <LO16 (0x4 + .data(base))>
+0020  00081900  00081900  =  sll	v1,t0,0x4                     
+0024  00621821  00621821  =  addu	v1,v1,v0                     
+0028  2d020002  2d020002  =  sltiu	v0,t0,2                     
+002c  a4600004  a4600004  =  sh	zero,4(v1)                     
+0030  a4650008  a4650008  =  sh	a1,8(v1)                       
+0034  10400008  10400008  =  beqz	v0,0x58                      
+0038  30c20010  30c20010  =  andi	v0,a2,0x10                   
+003c  10400002  10400002  =  beqz	v0,0x48                      
+0040  30c20001  30c20001  =  andi	v0,a2,0x1                    
+0044  24070049  24070049  =  li	a3,73                          
+0048  1440000a  1440000a  =  bnez	v0,0x74                      
+004c  30c21000  30c21000  =  andi	v0,a2,0x1000                 
+0050  0800001d  0803a7b9  R  j	0x74                              <REL26 (0x74 + .text(base))>
+0054  34e70100  34e70100  =  ori	a3,a3,0x100                   
+0058  24020002  24020002  =  li	v0,2                           
+005c  15020005  15020005  =  bne	t0,v0,0x74                    
+0060  30c21000  30c21000  =  andi	v0,a2,0x1000                 
+0064  30c20001  30c20001  =  andi	v0,a2,0x1                    
+0068  14400002  14400002  =  bnez	v0,0x74                      
+006c  30c21000  30c21000  =  andi	v0,a2,0x1000                 
+0070  24070248  24070248  =  li	a3,584                         
+0074  10400002  10400002  =  beqz	v0,0x80                      
+0078  24020001  24020001  =  li	v0,1                           
+007c  34e70010  34e70010  =  ori	a3,a3,0x10                    
+0080  3c040000  3c048012  R  lui	a0,0x0                          <HI16 (0x4 + .data(base))>
+0084  8c840174  8c8434b8  R  lw	a0,372(a0)                       <LO16 (0x4 + .data(base))>
+0088  00081900  00081900  =  sll	v1,t0,0x4                     
+008c  00641821  00641821  =  addu	v1,v1,a0                     
+0090  a4670004  a4670004  =  sh	a3,4(v1)                       
+0094  03e00008  03e00008  =  jr	ra                             
+0098  00000000  00000000  =  nop                               

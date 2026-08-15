@@ -1,0 +1,38 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_003 / StUnSetRing
+linkage=export  section-size=128 bytes (32 words)  vendor-relocs=13
+retail VA=0x800F8EC8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0008  0c000000  0c041a63  R  jal	0x0                             <REL26 EnterCriticalSection>
+000c  00000000  00000000  =  nop                               
+0010  3c030000  3c038014  R  lui	v1,0x0                          <HI16 DS_active>
+0014  8c630000  8c63bf68  R  lw	v1,0(v1)                         <LO16 DS_active>
+0018  24020001  24020001  =  li	v0,1                           
+001c  14620007  14620007  =  bne	v1,v0,0x3c                    
+0020  00000000  00000000  =  nop                               
+0024  0c000000  0c04220e  R  jal	0x0                             <REL26 DsDataCallback>
+0028  00002021  00002021  =  move	a0,zero                      
+002c  0c000000  0c042209  R  jal	0x0                             <REL26 DsReadyCallback>
+0030  00002021  00002021  =  move	a0,zero                      
+0034  08000013  0803e3c5  R  j	0x4c                              <REL26 (0x4C + .text(base))>
+0038  00000000  00000000  =  nop                               
+003c  0c000000  0c03df2c  R  jal	0x0                             <REL26 CdDataCallback>
+0040  00002021  00002021  =  move	a0,zero                      
+0044  0c000000  0c03de28  R  jal	0x0                             <REL26 CdReadyCallback>
+0048  00002021  00002021  =  move	a0,zero                      
+004c  3c020000  3c028013  R  lui	v0,0x0                          <HI16 .data(base)>
+0050  8c420080  8c426c48  R  lw	v0,128(v0)                       <LO16 .data(base)>
+0054  00000000  00000000  =  nop                               
+0058  a0400000  a0400000  =  sb	zero,0(v0)                     
+005c  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0xC + .data(base))>
+0060  8c42008c  8c426c54  R  lw	v0,140(v0)                       <LO16 (0xC + .data(base))>
+0064  00000000  00000000  =  nop                               
+0068  0c000000  0c041a5b  R  jal	0x0                             <REL26 ExitCriticalSection>
+006c  a0400000  a0400000  =  sb	zero,0(v0)                     
+0070  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0074  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0078  03e00008  03e00008  =  jr	ra                             
+007c  00000000  00000000  =  nop                               

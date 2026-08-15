@@ -1,0 +1,10 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / A53 / write
+linkage=export  section-size=16 bytes (4 words)  vendor-relocs=0
+retail VA=0x80109DB0  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  240a00b0  240a00b0  =  li	t2,176                         
+0004  01400008  01400008  =  jr	t2                             
+0008  24090035  24090035  =  li	t1,53                          
+000c  00000000  00000000  =  nop                               

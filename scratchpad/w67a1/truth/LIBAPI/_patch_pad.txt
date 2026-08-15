@@ -1,0 +1,36 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / PATCH / _patch_pad
+linkage=export  section-size=120 bytes (30 words)  vendor-relocs=10
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 .bss(base)>
+0004  ac3f00a0  --------     sw	ra,160(at)                       <LO16 .bss(base)>
+0008  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+000c  00000000  --------     nop                               
+0010  24090057  --------     li	t1,87                          
+0014  240a00b0  --------     li	t2,176                         
+0018  0140f809  --------     jalr	t2                           
+001c  00000000  --------     nop                               
+0020  8c42016c  --------     lw	v0,364(v0)                     
+0024  2409000b  --------     li	t1,11                          
+0028  20430884  --------     addi	v1,v0,2180                   
+002c  3c010000  --------     lui	at,0x0                          <HI16 (0x8 + .bss(base))>
+0030  ac2300a8  --------     sw	v1,168(at)                       <LO16 (0x8 + .bss(base))>
+0034  20430894  --------     addi	v1,v0,2196                   
+0038  3c010000  --------     lui	at,0x0                          <HI16 (0xC + .bss(base))>
+003c  ac2300ac  --------     sw	v1,172(at)                       <LO16 (0xC + .bss(base))>
+0040  ac400594  --------     sw	zero,1428(v0)                  
+0044  24420004  --------     addiu	v0,v0,4                     
+0048  2529ffff  --------     addiu	t1,t1,-1                    
+004c  1520fffc  --------     bnez	t1,0x40                      
+0050  00000000  --------     nop                               
+0054  0c000000  --------     jal	0x0                             <REL26 FlushCache>
+0058  00000000  --------     nop                               
+005c  3c1f0000  --------     lui	ra,0x0                          <HI16 .bss(base)>
+0060  8fff00a0  --------     lw	ra,160(ra)                       <LO16 .bss(base)>
+0064  00000000  --------     nop                               
+0068  03e00008  --------     jr	ra                             
+006c  00000000  --------     nop                               
+0070  00000000  --------     nop                               
+0074  00000000  --------     nop                               

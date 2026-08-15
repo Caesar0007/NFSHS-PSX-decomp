@@ -1,0 +1,67 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / BIOS / CD_initvol
+linkage=export  section-size=240 bytes (60 words)  vendor-relocs=18
+retail VA=0x80108004  VERDICT=reloc-only
+member $Id: $Id: bios.c,v 1.86 1997/03/28 07:42:42 makoto Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2E0 + .data(base))>
+0004  8c631ca0  8c63c220  R  lw	v1,7328(v1)                      <LO16 (0x2E0 + .data(base))>
+0008  00000000  00000000  =  nop                               
+000c  946201b8  946201b8  =  lhu	v0,440(v1)                    
+0010  00000000  00000000  =  nop                               
+0014  14400009  14400009  =  bnez	v0,0x3c                      
+0018  27bdfff8  27bdfff8  =  addiu	sp,sp,-8                    
+001c  946201ba  946201ba  =  lhu	v0,442(v1)                    
+0020  00000000  00000000  =  nop                               
+0024  14400006  14400006  =  bnez	v0,0x40                      
+0028  24023fff  24023fff  =  li	v0,16383                       
+002c  a4620180  a4620180  =  sh	v0,384(v1)                     
+0030  a4620182  a4620182  =  sh	v0,386(v1)                     
+0034  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2E0 + .data(base))>
+0038  8c631ca0  8c63c220  R  lw	v1,7328(v1)                      <LO16 (0x2E0 + .data(base))>
+003c  24023fff  24023fff  =  li	v0,16383                       
+0040  a46201b0  a46201b0  =  sh	v0,432(v1)                     
+0044  a46201b2  a46201b2  =  sh	v0,434(v1)                     
+0048  3402c001  3402c001  =  li	v0,0xc001                      
+004c  a46201aa  a46201aa  =  sh	v0,426(v1)                     
+0050  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2CC + .data(base))>
+0054  8c631c8c  8c63c20c  R  lw	v1,7308(v1)                      <LO16 (0x2CC + .data(base))>
+0058  24020080  24020080  =  li	v0,128                         
+005c  a3a20002  a3a20002  =  sb	v0,2(sp)                       
+0060  a3a20000  a3a20000  =  sb	v0,0(sp)                       
+0064  24020002  24020002  =  li	v0,2                           
+0068  a3a00003  a3a00003  =  sb	zero,3(sp)                     
+006c  a3a00001  a3a00001  =  sb	zero,1(sp)                     
+0070  a0620000  a0620000  =  sb	v0,0(v1)                       
+0074  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2D4 + .data(base))>
+0078  8c631c94  8c63c214  R  lw	v1,7316(v1)                      <LO16 (0x2D4 + .data(base))>
+007c  93a20000  93a20000  =  lbu	v0,0(sp)                      
+0080  00000000  00000000  =  nop                               
+0084  a0620000  a0620000  =  sb	v0,0(v1)                       
+0088  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2D8 + .data(base))>
+008c  8c631c98  8c63c218  R  lw	v1,7320(v1)                      <LO16 (0x2D8 + .data(base))>
+0090  93a20001  93a20001  =  lbu	v0,1(sp)                      
+0094  00000000  00000000  =  nop                               
+0098  a0620000  a0620000  =  sb	v0,0(v1)                       
+009c  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2CC + .data(base))>
+00a0  8c631c8c  8c63c20c  R  lw	v1,7308(v1)                      <LO16 (0x2CC + .data(base))>
+00a4  24020003  24020003  =  li	v0,3                           
+00a8  a0620000  a0620000  =  sb	v0,0(v1)                       
+00ac  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2D0 + .data(base))>
+00b0  8c631c90  8c63c210  R  lw	v1,7312(v1)                      <LO16 (0x2D0 + .data(base))>
+00b4  93a20002  93a20002  =  lbu	v0,2(sp)                      
+00b8  00000000  00000000  =  nop                               
+00bc  a0620000  a0620000  =  sb	v0,0(v1)                       
+00c0  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2D4 + .data(base))>
+00c4  8c631c94  8c63c214  R  lw	v1,7316(v1)                      <LO16 (0x2D4 + .data(base))>
+00c8  93a20003  93a20003  =  lbu	v0,3(sp)                      
+00cc  00000000  00000000  =  nop                               
+00d0  a0620000  a0620000  =  sb	v0,0(v1)                       
+00d4  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x2D8 + .data(base))>
+00d8  8c631c98  8c63c218  R  lw	v1,7320(v1)                      <LO16 (0x2D8 + .data(base))>
+00dc  24020020  24020020  =  li	v0,32                          
+00e0  a0620000  a0620000  =  sb	v0,0(v1)                       
+00e4  00001021  00001021  =  move	v0,zero                      
+00e8  03e00008  03e00008  =  jr	ra                             
+00ec  27bd0008  27bd0008  =  addiu	sp,sp,8                     

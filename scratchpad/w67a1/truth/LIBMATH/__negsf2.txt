@@ -1,0 +1,14 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / NEGSF2 / __negsf2
+linkage=export  section-size=32 bytes (8 words)  vendor-relocs=1
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  10800003  --------     beqz	a0,0x10                      
+0004  3c028000  --------     lui	v0,0x8000                     
+0008  08000005  --------     j	0x14                              <REL26 (0x14 + .text(base))>
+000c  00821026  --------     xor	v0,a0,v0                      
+0010  00001021  --------     move	v0,zero                      
+0014  03e00008  --------     jr	ra                             
+0018  00000000  --------     nop                               
+001c  00000000  --------     nop                               

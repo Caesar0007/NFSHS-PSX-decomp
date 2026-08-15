@@ -1,0 +1,38 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / SYS / CdPosToInt
+linkage=export  section-size=128 bytes (32 words)  vendor-relocs=0
+retail VA=0x800F7DF8  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  90830000  90830000  =  lbu	v1,0(a0)                      
+0004  90860001  90860001  =  lbu	a2,1(a0)                      
+0008  00032902  00032902  =  srl	a1,v1,0x4                     
+000c  00051080  00051080  =  sll	v0,a1,0x2                     
+0010  00451021  00451021  =  addu	v0,v0,a1                     
+0014  00021040  00021040  =  sll	v0,v0,0x1                     
+0018  3063000f  3063000f  =  andi	v1,v1,0xf                    
+001c  00431021  00431021  =  addu	v0,v0,v1                     
+0020  00022900  00022900  =  sll	a1,v0,0x4                     
+0024  00a22823  00a22823  =  subu	a1,a1,v0                     
+0028  00052880  00052880  =  sll	a1,a1,0x2                     
+002c  00061902  00061902  =  srl	v1,a2,0x4                     
+0030  00031080  00031080  =  sll	v0,v1,0x2                     
+0034  00431021  00431021  =  addu	v0,v0,v1                     
+0038  00021040  00021040  =  sll	v0,v0,0x1                     
+003c  30c6000f  30c6000f  =  andi	a2,a2,0xf                    
+0040  00461021  00461021  =  addu	v0,v0,a2                     
+0044  00a22821  00a22821  =  addu	a1,a1,v0                     
+0048  00051880  00051880  =  sll	v1,a1,0x2                     
+004c  00651821  00651821  =  addu	v1,v1,a1                     
+0050  00031100  00031100  =  sll	v0,v1,0x4                     
+0054  90850002  90850002  =  lbu	a1,2(a0)                      
+0058  00431023  00431023  =  subu	v0,v0,v1                     
+005c  00052102  00052102  =  srl	a0,a1,0x4                     
+0060  00041880  00041880  =  sll	v1,a0,0x2                     
+0064  00641821  00641821  =  addu	v1,v1,a0                     
+0068  00031840  00031840  =  sll	v1,v1,0x1                     
+006c  30a5000f  30a5000f  =  andi	a1,a1,0xf                    
+0070  00651821  00651821  =  addu	v1,v1,a1                     
+0074  00431021  00431021  =  addu	v0,v0,v1                     
+0078  03e00008  03e00008  =  jr	ra                             
+007c  2442ff6a  2442ff6a  =  addiu	v0,v0,-150                  

@@ -1,0 +1,708 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_011 / StCdInterrupt
+linkage=export  section-size=2800 bytes (700 words)  vendor-relocs=306
+retail VA=0x800F7E78  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc0  27bdffc0  =  addiu	sp,sp,-64                   
+0004  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StFinalSector>
+0008  8c420000  8c426ca4  R  lw	v0,0(v0)                         <LO16 StFinalSector>
+000c  24040001  24040001  =  li	a0,1                           
+0010  1044023e  1044023e  =  beq	v0,a0,0x90c                   
+0014  afbf0038  afbf0038  =  sw	ra,56(sp)                      
+0018  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRgb24>
+001c  8c420000  8c426c90  R  lw	v0,0(v0)                         <LO16 StRgb24>
+0020  00000000  00000000  =  nop                               
+0024  10400017  10400017  =  beqz	v0,0x84                      
+0028  00000000  00000000  =  nop                               
+002c  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x20 + .data(base))>
+0030  8c420b30  8c426ab8  R  lw	v0,2864(v0)                      <LO16 (0x20 + .data(base))>
+0034  00000000  00000000  =  nop                               
+0038  8c420000  8c420000  =  lw	v0,0(v0)                       
+003c  3c030100  3c030100  =  lui	v1,0x100                      
+0040  00431024  00431024  =  and	v0,v0,v1                      
+0044  1040000f  1040000f  =  beqz	v0,0x84                      
+0048  00000000  00000000  =  nop                               
+004c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+0050  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+0054  3c010000  3c018014  R  lui	at,0x0                          <HI16 StCdIntrFlag>
+0058  10400007  10400007  =  beqz	v0,0x78                      
+005c  ac240000  ac246c80  R  sw	a0,0(at)                         <LO16 StCdIntrFlag>
+0060  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+0064  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0068  00000000  00000000  =  nop                               
+006c  24420001  24420001  =  addiu	v0,v0,1                     
+0070  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+0074  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0078  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+007c  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+0080  ac240b58  ac246ae0  R  sw	a0,2904(at)                      <LO16 (0x48 + .data(base))>
+0084  0c000000  0c03de1b  R  jal	0x0                             <REL26 CdReady>
+0088  27a50030  27a50030  =  addiu	a1,sp,48                    
+008c  24030005  24030005  =  li	v1,5                           
+0090  1043021e  1043021e  =  beq	v0,v1,0x90c                   
+0094  00000000  00000000  =  nop                               
+0098  93a20030  93a20030  =  lbu	v0,48(sp)                     
+009c  93a30031  93a30031  =  lbu	v1,49(sp)                     
+00a0  a7a20022  a7a20022  =  sh	v0,34(sp)                      
+00a4  a7a30024  a7a30024  =  sh	v1,36(sp)                      
+00a8  97a20022  97a20022  =  lhu	v0,34(sp)                     
+00ac  00000000  00000000  =  nop                               
+00b0  30420004  30420004  =  andi	v0,v0,0x4                    
+00b4  10400004  10400004  =  beqz	v0,0xc8                      
+00b8  24020003  24020003  =  li	v0,3                           
+00bc  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+00c0  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+00c4  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+00c8  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingIdx1>
+00cc  8c420000  8c426cb0  R  lw	v0,0(v0)                         <LO16 StRingIdx1>
+00d0  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingAddr>
+00d4  8c630000  8c636cac  R  lw	v1,0(v1)                         <LO16 StRingAddr>
+00d8  00021140  00021140  =  sll	v0,v0,0x5                     
+00dc  00621821  00621821  =  addu	v1,v1,v0                     
+00e0  3c010000  3c018014  R  lui	at,0x0                          <HI16 .bss(base)>
+00e4  ac230b60  ac234864  R  sw	v1,2912(at)                      <LO16 .bss(base)>
+00e8  94620000  94620000  =  lhu	v0,0(v1)                      
+00ec  00000000  00000000  =  nop                               
+00f0  10400010  10400010  =  beqz	v0,0x134                     
+00f4  00000000  00000000  =  nop                               
+00f8  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+00fc  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+0100  00000000  00000000  =  nop                               
+0104  10400008  10400008  =  beqz	v0,0x128                     
+0108  24020004  24020004  =  li	v0,4                           
+010c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+0110  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0114  00000000  00000000  =  nop                               
+0118  24420001  24420001  =  addiu	v0,v0,1                     
+011c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+0120  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0124  24020004  24020004  =  li	v0,4                           
+0128  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+012c  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+0130  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+0134  3c020000  3c028013  R  lui	v0,0x0                          <HI16 .data(base)>
+0138  8c420b10  8c426a98  R  lw	v0,2832(v0)                      <LO16 .data(base)>
+013c  00000000  00000000  =  nop                               
+0140  a0400000  a0400000  =  sb	zero,0(v0)                     
+0144  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0xC + .data(base))>
+0148  8c420b1c  8c426aa4  R  lw	v0,2844(v0)                      <LO16 (0xC + .data(base))>
+014c  00000000  00000000  =  nop                               
+0150  a0400000  a0400000  =  sb	zero,0(v0)                     
+0154  3c020000  3c028013  R  lui	v0,0x0                          <HI16 .data(base)>
+0158  8c420b10  8c426a98  R  lw	v0,2832(v0)                      <LO16 .data(base)>
+015c  3c040002  3c040002  =  lui	a0,0x2                        
+0160  a0400000  a0400000  =  sb	zero,0(v0)                     
+0164  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0xC + .data(base))>
+0168  8c630b1c  8c636aa4  R  lw	v1,2844(v1)                      <LO16 (0xC + .data(base))>
+016c  24020080  24020080  =  li	v0,128                         
+0170  a0620000  a0620000  =  sb	v0,0(v1)                       
+0174  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x10 + .data(base))>
+0178  8c420b20  8c426aa8  R  lw	v0,2848(v0)                      <LO16 (0x10 + .data(base))>
+017c  34840943  34840943  =  ori	a0,a0,0x943                   
+0180  ac440000  ac440000  =  sw	a0,0(v0)                       
+0184  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x14 + .data(base))>
+0188  8c630b24  8c636aac  R  lw	v1,2852(v1)                      <LO16 (0x14 + .data(base))>
+018c  24021323  24021323  =  li	v0,4899                        
+0190  ac620000  ac620000  =  sw	v0,0(v1)                       
+0194  3c020000  3c028015  R  lui	v0,0x0                          <HI16 StMode>
+0198  8c420000  8c4289cc  R  lw	v0,0(v0)                         <LO16 StMode>
+019c  00000000  00000000  =  nop                               
+01a0  14400014  14400014  =  bnez	v0,0x1f4                     
+01a4  00002021  00002021  =  move	a0,zero                      
+01a8  27a50028  27a50028  =  addiu	a1,sp,40                    
+01ac  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x8 + .data(base))>
+01b0  8c420b18  8c426aa0  R  lw	v0,2840(v0)                      <LO16 (0x8 + .data(base))>
+01b4  00a41821  00a41821  =  addu	v1,a1,a0                     
+01b8  90420000  90420000  =  lbu	v0,0(v0)                      
+01bc  24840001  24840001  =  addiu	a0,a0,1                     
+01c0  a0620000  a0620000  =  sb	v0,0(v1)                       
+01c4  2c820004  2c820004  =  sltiu	v0,a0,4                     
+01c8  1440fff8  1440fff8  =  bnez	v0,0x1ac                     
+01cc  00000000  00000000  =  nop                               
+01d0  00002021  00002021  =  move	a0,zero                      
+01d4  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x8 + .data(base))>
+01d8  8c630b18  8c636aa0  R  lw	v1,2840(v1)                      <LO16 (0x8 + .data(base))>
+01dc  00000000  00000000  =  nop                               
+01e0  90620000  90620000  =  lbu	v0,0(v1)                      
+01e4  24840001  24840001  =  addiu	a0,a0,1                     
+01e8  2c820008  2c820008  =  sltiu	v0,a0,8                     
+01ec  1440fffc  1440fffc  =  bnez	v0,0x1e0                     
+01f0  00000000  00000000  =  nop                               
+01f4  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+01f8  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+01fc  00000000  00000000  =  nop                               
+0200  1040000c  1040000c  =  beqz	v0,0x234                     
+0204  3c081100  3c081100  =  lui	t0,0x1100                     
+0208  24060008  24060008  =  li	a2,8                           
+020c  00003821  00003821  =  move	a3,zero                      
+0210  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StEmu_Idx>
+0214  8ca50000  8ca56c9c  R  lw	a1,0(a1)                         <LO16 StEmu_Idx>
+0218  3c040000  3c048014  R  lui	a0,0x0                          <HI16 .bss(base)>
+021c  8c840b60  8c844864  R  lw	a0,2912(a0)                      <LO16 .bss(base)>
+0220  00052ac0  00052ac0  =  sll	a1,a1,0xb                     
+0224  0c000247  0c03e1e5  R  jal	0x91c                           <REL26 (0x91C + .text(base))>
+0228  00452821  00452821  =  addu	a1,v0,a1                     
+022c  08000096  0803e034  R  j	0x258                             <REL26 (0x258 + .text(base))>
+0230  00000000  00000000  =  nop                               
+0234  24040003  24040003  =  li	a0,3                           
+0238  00003021  00003021  =  move	a2,zero                      
+023c  3c050000  3c058014  R  lui	a1,0x0                          <HI16 .bss(base)>
+0240  8ca50b60  8ca54864  R  lw	a1,2912(a1)                      <LO16 .bss(base)>
+0244  24070008  24070008  =  li	a3,8                           
+0248  afa80010  afa80010  =  sw	t0,16(sp)                      
+024c  afa00014  afa00014  =  sw	zero,20(sp)                    
+0250  0c000252  0c03e1f0  R  jal	0x948                           <REL26 (0x948 + .text(base))>
+0254  afa00018  afa00018  =  sw	zero,24(sp)                    
+0258  3c040000  3c048013  R  lui	a0,0x0                          <HI16 (0x30 + .data(base))>
+025c  8c840b40  8c846ac8  R  lw	a0,2880(a0)                      <LO16 (0x30 + .data(base))>
+0260  00000000  00000000  =  nop                               
+0264  8c820000  8c820000  =  lw	v0,0(a0)                       
+0268  3c030100  3c030100  =  lui	v1,0x100                      
+026c  00431024  00431024  =  and	v0,v0,v1                      
+0270  10400007  10400007  =  beqz	v0,0x290                     
+0274  00801821  00801821  =  move	v1,a0                        
+0278  3c040100  3c040100  =  lui	a0,0x100                      
+027c  8c620000  8c620000  =  lw	v0,0(v1)                       
+0280  00000000  00000000  =  nop                               
+0284  00441024  00441024  =  and	v0,v0,a0                      
+0288  1440fffc  1440fffc  =  bnez	v0,0x27c                     
+028c  00000000  00000000  =  nop                               
+0290  3c040002  3c040002  =  lui	a0,0x2                        
+0294  34840843  34840843  =  ori	a0,a0,0x843                   
+0298  3c020000  3c028014  R  lui	v0,0x0                          <HI16 .bss(base)>
+029c  8c420b60  8c424864  R  lw	v0,2912(v0)                      <LO16 .bss(base)>
+02a0  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x10 + .data(base))>
+02a4  8c630b20  8c636aa8  R  lw	v1,2848(v1)                      <LO16 (0x10 + .data(base))>
+02a8  8ba5002b  8ba5002b  =  lwl	a1,43(sp)                     
+02ac  9ba50028  9ba50028  =  lwr	a1,40(sp)                     
+02b0  00000000  00000000  =  nop                               
+02b4  a845001f  a845001f  =  swl	a1,31(v0)                     
+02b8  b845001c  b845001c  =  swr	a1,28(v0)                     
+02bc  ac640000  ac640000  =  sw	a0,0(v1)                       
+02c0  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x14 + .data(base))>
+02c4  8c630b24  8c636aac  R  lw	v1,2852(v1)                      <LO16 (0x14 + .data(base))>
+02c8  24021325  24021325  =  li	v0,4901                        
+02cc  ac620000  ac620000  =  sw	v0,0(v1)                       
+02d0  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StSTART_FLAG>
+02d4  8c630000  8c636c98  R  lw	v1,0(v1)                         <LO16 StSTART_FLAG>
+02d8  24020001  24020001  =  li	v0,1                           
+02dc  1462001c  1462001c  =  bne	v1,v0,0x350                   
+02e0  00000000  00000000  =  nop                               
+02e4  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StStartFrame>
+02e8  8c840000  8c846cc0  R  lw	a0,0(a0)                         <LO16 StStartFrame>
+02ec  00000000  00000000  =  nop                               
+02f0  10800017  10800017  =  beqz	a0,0x350                     
+02f4  00000000  00000000  =  nop                               
+02f8  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+02fc  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+0300  00000000  00000000  =  nop                               
+0304  94620008  94620008  =  lhu	v0,8(v1)                      
+0308  00000000  00000000  =  nop                               
+030c  1082000e  1082000e  =  beq	a0,v0,0x348                   
+0310  00000000  00000000  =  nop                               
+0314  a4600000  a4600000  =  sh	zero,0(v1)                     
+0318  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+031c  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+0320  00000000  00000000  =  nop                               
+0324  10400179  10400179  =  beqz	v0,0x90c                     
+0328  00000000  00000000  =  nop                               
+032c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+0330  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0334  00000000  00000000  =  nop                               
+0338  24420001  24420001  =  addiu	v0,v0,1                     
+033c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+0340  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+0344  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0348  3c010000  3c018014  R  lui	at,0x0                          <HI16 StSTART_FLAG>
+034c  ac200000  ac206c98  R  sw	zero,0(at)                       <LO16 StSTART_FLAG>
+0350  3c040000  3c048014  R  lui	a0,0x0                          <HI16 .bss(base)>
+0354  8c840b60  8c844864  R  lw	a0,2912(a0)                      <LO16 .bss(base)>
+0358  00000000  00000000  =  nop                               
+035c  94830000  94830000  =  lhu	v1,0(a0)                      
+0360  24020160  24020160  =  li	v0,352                         
+0364  14620008  14620008  =  bne	v1,v0,0x388                   
+0368  00000000  00000000  =  nop                               
+036c  94820002  94820002  =  lhu	v0,2(a0)                      
+0370  3c030000  3c038014  R  lui	v1,0x0                          <HI16 CChannel>
+0374  8c630000  8c636c84  R  lw	v1,0(v1)                         <LO16 CChannel>
+0378  00021282  00021282  =  srl	v0,v0,0xa                     
+037c  3042001f  3042001f  =  andi	v0,v0,0x1f                   
+0380  10430011  10430011  =  beq	v0,v1,0x3c8                   
+0384  00000000  00000000  =  nop                               
+0388  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+038c  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+0390  00000000  00000000  =  nop                               
+0394  10400004  10400004  =  beqz	v0,0x3a8                     
+0398  00000000  00000000  =  nop                               
+039c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+03a0  080000eb  0803e089  R  j	0x3ac                             <REL26 (0x3AC + .text(base))>
+03a4  ac200000  ac206c9c  R  sw	zero,0(at)                       <LO16 StEmu_Idx>
+03a8  94820000  94820000  =  lhu	v0,0(a0)                      
+03ac  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+03b0  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+03b4  24020005  24020005  =  li	v0,5                           
+03b8  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+03bc  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+03c0  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+03c4  a4600000  a4600000  =  sh	zero,0(v1)                     
+03c8  3c030000  3c038014  R  lui	v1,0x0                          <HI16 Stsector_offset>
+03cc  84630000  84636ca0  R  lh	v1,0(v1)                         <LO16 Stsector_offset>
+03d0  94820004  94820004  =  lhu	v0,4(a0)                      
+03d4  00000000  00000000  =  nop                               
+03d8  1462000a  1462000a  =  bne	v1,v0,0x404                   
+03dc  00000000  00000000  =  nop                               
+03e0  3c030000  3c038014  R  lui	v1,0x0                          <HI16 Stframe_no>
+03e4  8c630000  8c636c8c  R  lw	v1,0(v1)                         <LO16 Stframe_no>
+03e8  00000000  00000000  =  nop                               
+03ec  10600025  10600025  =  beqz	v1,0x484                     
+03f0  00000000  00000000  =  nop                               
+03f4  94820008  94820008  =  lhu	v0,8(a0)                      
+03f8  00000000  00000000  =  nop                               
+03fc  10620021  10620021  =  beq	v1,v0,0x484                   
+0400  00000000  00000000  =  nop                               
+0404  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StRingIdx2>
+0408  8c840000  8c846cb4  R  lw	a0,0(a0)                         <LO16 StRingIdx2>
+040c  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingIdx1>
+0410  8ca50000  8ca56cb0  R  lw	a1,0(a1)                         <LO16 StRingIdx1>
+0414  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stframe_no>
+0418  ac200000  ac206c8c  R  sw	zero,0(at)                       <LO16 Stframe_no>
+041c  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+0420  a4200000  a4206ca0  R  sh	zero,0(at)                       <LO16 Stsector_offset>
+0424  0c000000  0c0421d6  R  jal	0x0                             <REL26 init_ring_status>
+0428  00a42823  00a42823  =  subu	a1,a1,a0                     
+042c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingIdx2>
+0430  8c420000  8c426cb4  R  lw	v0,0(v0)                         <LO16 StRingIdx2>
+0434  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+0438  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+043c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx1>
+0440  ac220000  ac226cb0  R  sw	v0,0(at)                         <LO16 StRingIdx1>
+0444  a4600000  a4600000  =  sh	zero,0(v1)                     
+0448  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+044c  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+0450  00000000  00000000  =  nop                               
+0454  10400008  10400008  =  beqz	v0,0x478                     
+0458  24020006  24020006  =  li	v0,6                           
+045c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+0460  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0464  00000000  00000000  =  nop                               
+0468  24420001  24420001  =  addiu	v0,v0,1                     
+046c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+0470  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0474  24020006  24020006  =  li	v0,6                           
+0478  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+047c  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+0480  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+0484  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+0488  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+048c  00000000  00000000  =  nop                               
+0490  94620004  94620004  =  lhu	v0,4(v1)                      
+0494  00000000  00000000  =  nop                               
+0498  1440008d  1440008d  =  bnez	v0,0x6d0                     
+049c  2402000a  2402000a  =  li	v0,10                          
+04a0  94620008  94620008  =  lhu	v0,8(v1)                      
+04a4  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StEndFrame>
+04a8  8c630000  8c636c94  R  lw	v1,0(v1)                         <LO16 StEndFrame>
+04ac  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+04b0  a4200000  a4206ca0  R  sh	zero,0(at)                       <LO16 Stsector_offset>
+04b4  3042ffff  3042ffff  =  andi	v0,v0,0xffff                 
+04b8  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stframe_no>
+04bc  ac220000  ac226c8c  R  sw	v0,0(at)                         <LO16 Stframe_no>
+04c0  1060002b  1060002b  =  beqz	v1,0x570                     
+04c4  0043102b  0043102b  =  sltu	v0,v0,v1                     
+04c8  14400029  14400029  =  bnez	v0,0x570                     
+04cc  00000000  00000000  =  nop                               
+04d0  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StRingIdx2>
+04d4  8c840000  8c846cb4  R  lw	a0,0(a0)                         <LO16 StRingIdx2>
+04d8  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingIdx1>
+04dc  8ca50000  8ca56cb0  R  lw	a1,0(a1)                         <LO16 StRingIdx1>
+04e0  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stframe_no>
+04e4  ac200000  ac206c8c  R  sw	zero,0(at)                       <LO16 Stframe_no>
+04e8  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+04ec  a4200000  a4206ca0  R  sh	zero,0(at)                       <LO16 Stsector_offset>
+04f0  0c000000  0c0421d6  R  jal	0x0                             <REL26 init_ring_status>
+04f4  00a42823  00a42823  =  subu	a1,a1,a0                     
+04f8  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingIdx2>
+04fc  8c420000  8c426cb4  R  lw	v0,0(v0)                         <LO16 StRingIdx2>
+0500  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+0504  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+0508  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx1>
+050c  ac220000  ac226cb0  R  sw	v0,0(at)                         <LO16 StRingIdx1>
+0510  a4600000  a4600000  =  sh	zero,0(v1)                     
+0514  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StFunc2>
+0518  8c630000  8c634878  R  lw	v1,0(v1)                         <LO16 StFunc2>
+051c  24020001  24020001  =  li	v0,1                           
+0520  3c010000  3c018014  R  lui	at,0x0                          <HI16 StSTART_FLAG>
+0524  10600003  10600003  =  beqz	v1,0x534                     
+0528  ac220000  ac226c98  R  sw	v0,0(at)                         <LO16 StSTART_FLAG>
+052c  0060f809  0060f809  =  jalr	v1                           
+0530  00000000  00000000  =  nop                               
+0534  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+0538  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+053c  00000000  00000000  =  nop                               
+0540  10400008  10400008  =  beqz	v0,0x564                     
+0544  24020007  24020007  =  li	v0,7                           
+0548  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+054c  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0550  00000000  00000000  =  nop                               
+0554  24420001  24420001  =  addiu	v0,v0,1                     
+0558  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+055c  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0560  24020007  24020007  =  li	v0,7                           
+0564  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+0568  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+056c  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+0570  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingSize>
+0574  8c420000  8c426cbc  R  lw	v0,0(v0)                         <LO16 StRingSize>
+0578  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingIdx1>
+057c  8c630000  8c636cb0  R  lw	v1,0(v1)                         <LO16 StRingIdx1>
+0580  3c040000  3c048014  R  lui	a0,0x0                          <HI16 .bss(base)>
+0584  8c840b60  8c844864  R  lw	a0,2912(a0)                      <LO16 .bss(base)>
+0588  00431023  00431023  =  subu	v0,v0,v1                     
+058c  94830006  94830006  =  lhu	v1,6(a0)                      
+0590  2442ffff  2442ffff  =  addiu	v0,v0,-1                    
+0594  0043102b  0043102b  =  sltu	v0,v0,v1                     
+0598  10400048  10400048  =  beqz	v0,0x6bc                     
+059c  00000000  00000000  =  nop                               
+05a0  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEndFrame>
+05a4  8c420000  8c426c94  R  lw	v0,0(v0)                         <LO16 StEndFrame>
+05a8  00000000  00000000  =  nop                               
+05ac  14400019  14400019  =  bnez	v0,0x614                     
+05b0  24020001  24020001  =  li	v0,1                           
+05b4  a4820000  a4820000  =  sh	v0,0(a0)                       
+05b8  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StFunc2>
+05bc  8c630000  8c634878  R  lw	v1,0(v1)                         <LO16 StFunc2>
+05c0  24020001  24020001  =  li	v0,1                           
+05c4  3c010000  3c018014  R  lui	at,0x0                          <HI16 StSTART_FLAG>
+05c8  10600003  10600003  =  beqz	v1,0x5d8                     
+05cc  ac220000  ac226c98  R  sw	v0,0(at)                         <LO16 StSTART_FLAG>
+05d0  0060f809  0060f809  =  jalr	v1                           
+05d4  00000000  00000000  =  nop                               
+05d8  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+05dc  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+05e0  00000000  00000000  =  nop                               
+05e4  10400008  10400008  =  beqz	v0,0x608                     
+05e8  24020008  24020008  =  li	v0,8                           
+05ec  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+05f0  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+05f4  00000000  00000000  =  nop                               
+05f8  24420001  24420001  =  addiu	v0,v0,1                     
+05fc  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+0600  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0604  24020008  24020008  =  li	v0,8                           
+0608  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+060c  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+0610  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+0614  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingAddr>
+0618  8c420000  8c426cac  R  lw	v0,0(v0)                         <LO16 StRingAddr>
+061c  00000000  00000000  =  nop                               
+0620  84420000  84420000  =  lh	v0,0(v0)                       
+0624  00000000  00000000  =  nop                               
+0628  10400011  10400011  =  beqz	v0,0x670                     
+062c  24020001  24020001  =  li	v0,1                           
+0630  a4800000  a4800000  =  sh	zero,0(a0)                     
+0634  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+0638  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+063c  00000000  00000000  =  nop                               
+0640  10400008  10400008  =  beqz	v0,0x664                     
+0644  24020009  24020009  =  li	v0,9                           
+0648  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+064c  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0650  00000000  00000000  =  nop                               
+0654  24420001  24420001  =  addiu	v0,v0,1                     
+0658  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+065c  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+0660  24020009  24020009  =  li	v0,9                           
+0664  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+0668  08000243  0803e1e1  R  j	0x90c                             <REL26 (0x90C + .text(base))>
+066c  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+0670  a4820000  a4820000  =  sh	v0,0(a0)                       
+0674  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingAddr>
+0678  8ca50000  8ca56cac  R  lw	a1,0(a1)                         <LO16 StRingAddr>
+067c  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+0680  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+0684  00002021  00002021  =  move	a0,zero                      
+0688  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx1>
+068c  ac200000  ac206cb0  R  sw	zero,0(at)                       <LO16 StRingIdx1>
+0690  8c620000  8c620000  =  lw	v0,0(v1)                       
+0694  24630004  24630004  =  addiu	v1,v1,4                     
+0698  24840001  24840001  =  addiu	a0,a0,1                     
+069c  aca20000  aca20000  =  sw	v0,0(a1)                       
+06a0  2c820008  2c820008  =  sltiu	v0,a0,8                     
+06a4  1440fffa  1440fffa  =  bnez	v0,0x690                     
+06a8  24a50004  24a50004  =  addiu	a1,a1,4                     
+06ac  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingAddr>
+06b0  8c420000  8c426cac  R  lw	v0,0(v0)                         <LO16 StRingAddr>
+06b4  3c010000  3c018014  R  lui	at,0x0                          <HI16 .bss(base)>
+06b8  ac220b60  ac224864  R  sw	v0,2912(at)                      <LO16 .bss(base)>
+06bc  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingIdx1>
+06c0  8c420000  8c426cb0  R  lw	v0,0(v0)                         <LO16 StRingIdx1>
+06c4  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx2>
+06c8  ac220000  ac226cb4  R  sw	v0,0(at)                         <LO16 StRingIdx2>
+06cc  2402000a  2402000a  =  li	v0,10                          
+06d0  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x48 + .data(base))>
+06d4  ac220b58  ac226ae0  R  sw	v0,2904(at)                      <LO16 (0x48 + .data(base))>
+06d8  3c020000  3c028014  R  lui	v0,0x0                          <HI16 Stsector_offset>
+06dc  94420000  94426ca0  R  lhu	v0,0(v0)                        <LO16 Stsector_offset>
+06e0  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StRingSize>
+06e4  8c840000  8c846cbc  R  lw	a0,0(a0)                         <LO16 StRingSize>
+06e8  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingAddr>
+06ec  8c630000  8c636cac  R  lw	v1,0(v1)                         <LO16 StRingAddr>
+06f0  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingIdx1>
+06f4  8ca50000  8ca56cb0  R  lw	a1,0(a1)                         <LO16 StRingIdx1>
+06f8  24420001  24420001  =  addiu	v0,v0,1                     
+06fc  00042140  00042140  =  sll	a0,a0,0x5                     
+0700  00641821  00641821  =  addu	v1,v1,a0                     
+0704  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+0708  a4220000  a4226ca0  R  sh	v0,0(at)                         <LO16 Stsector_offset>
+070c  00051180  00051180  =  sll	v0,a1,0x6                     
+0710  00451023  00451023  =  subu	v0,v0,a1                     
+0714  00021140  00021140  =  sll	v0,v0,0x5                     
+0718  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StRgb24>
+071c  8c840000  8c846c90  R  lw	a0,0(a0)                         <LO16 StRgb24>
+0720  00621821  00621821  =  addu	v1,v1,v0                     
+0724  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingBase>
+0728  ac230000  ac236ca8  R  sw	v1,0(at)                         <LO16 StRingBase>
+072c  1080000b  1080000b  =  beqz	a0,0x75c                     
+0730  3c081100  3c081100  =  lui	t0,0x1100                     
+0734  3c030002  3c030002  =  lui	v1,0x2                        
+0738  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x10 + .data(base))>
+073c  8c420b20  8c426aa8  R  lw	v0,2848(v0)                      <LO16 (0x10 + .data(base))>
+0740  34630943  34630943  =  ori	v1,v1,0x943                   
+0744  ac430000  ac430000  =  sw	v1,0(v0)                       
+0748  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x14 + .data(base))>
+074c  8c630b24  8c636aac  R  lw	v1,2852(v1)                      <LO16 (0x14 + .data(base))>
+0750  24021323  24021323  =  li	v0,4899                        
+0754  080001de  0803e17c  R  j	0x778                             <REL26 (0x778 + .text(base))>
+0758  ac620000  ac620000  =  sw	v0,0(v1)                       
+075c  3c032102  3c032102  =  lui	v1,0x2102                     
+0760  34630843  34630843  =  ori	v1,v1,0x843                   
+0764  3c081140  3c081140  =  lui	t0,0x1140                     
+0768  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x10 + .data(base))>
+076c  8c420b20  8c426aa8  R  lw	v0,2848(v0)                      <LO16 (0x10 + .data(base))>
+0770  35080100  35080100  =  ori	t0,t0,0x100                   
+0774  ac430000  ac430000  =  sw	v1,0(v0)                       
+0778  3c020000  3c028014  R  lui	v0,0x0                          <HI16 .bss(base)>
+077c  8c420b60  8c424864  R  lw	v0,2912(v0)                      <LO16 .bss(base)>
+0780  00000000  00000000  =  nop                               
+0784  94430006  94430006  =  lhu	v1,6(v0)                      
+0788  94420004  94420004  =  lhu	v0,4(v0)                      
+078c  2463ffff  2463ffff  =  addiu	v1,v1,-1                    
+0790  14620029  14620029  =  bne	v1,v0,0x838                   
+0794  24030001  24030001  =  li	v1,1                           
+0798  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+079c  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+07a0  3c010000  3c018014  R  lui	at,0x0                          <HI16 StFinalSector>
+07a4  ac230000  ac236ca4  R  sw	v1,0(at)                         <LO16 StFinalSector>
+07a8  10400011  10400011  =  beqz	v0,0x7f0                     
+07ac  240601f8  240601f8  =  li	a2,504                         
+07b0  24070001  24070001  =  li	a3,1                           
+07b4  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StEmu_Idx>
+07b8  8ca50000  8ca56c9c  R  lw	a1,0(a1)                         <LO16 StEmu_Idx>
+07bc  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StRingBase>
+07c0  8c840000  8c846ca8  R  lw	a0,0(a0)                         <LO16 StRingBase>
+07c4  00052ac0  00052ac0  =  sll	a1,a1,0xb                     
+07c8  00452821  00452821  =  addu	a1,v0,a1                     
+07cc  0c000247  0c03e1e5  R  jal	0x91c                           <REL26 (0x91C + .text(base))>
+07d0  24a50020  24a50020  =  addiu	a1,a1,32                    
+07d4  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+07d8  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+07dc  00000000  00000000  =  nop                               
+07e0  24420001  24420001  =  addiu	v0,v0,1                     
+07e4  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+07e8  08000205  0803e1a3  R  j	0x814                             <REL26 (0x814 + .text(base))>
+07ec  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+07f0  24040003  24040003  =  li	a0,3                           
+07f4  00003021  00003021  =  move	a2,zero                      
+07f8  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingBase>
+07fc  8ca50000  8ca56ca8  R  lw	a1,0(a1)                         <LO16 StRingBase>
+0800  240701f8  240701f8  =  li	a3,504                         
+0804  afa80010  afa80010  =  sw	t0,16(sp)                      
+0808  afa30014  afa30014  =  sw	v1,20(sp)                      
+080c  0c000252  0c03e1f0  R  jal	0x948                           <REL26 (0x948 + .text(base))>
+0810  afa00018  afa00018  =  sw	zero,24(sp)                    
+0814  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StCHANNEL>
+0818  8c420000  8c426c88  R  lw	v0,0(v0)                         <LO16 StCHANNEL>
+081c  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+0820  a4200000  a4206ca0  R  sh	zero,0(at)                       <LO16 Stsector_offset>
+0824  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stframe_no>
+0828  ac200000  ac206c8c  R  sw	zero,0(at)                       <LO16 Stframe_no>
+082c  3c010000  3c018014  R  lui	at,0x0                          <HI16 CChannel>
+0830  0800022c  0803e1ca  R  j	0x8b0                             <REL26 (0x8B0 + .text(base))>
+0834  ac220000  ac226c84  R  sw	v0,0(at)                         <LO16 CChannel>
+0838  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Addr>
+083c  8c420000  8c426c7c  R  lw	v0,0(v0)                         <LO16 StEmu_Addr>
+0840  00000000  00000000  =  nop                               
+0844  10400011  10400011  =  beqz	v0,0x88c                     
+0848  240601f8  240601f8  =  li	a2,504                         
+084c  00003821  00003821  =  move	a3,zero                      
+0850  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StEmu_Idx>
+0854  8ca50000  8ca56c9c  R  lw	a1,0(a1)                         <LO16 StEmu_Idx>
+0858  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StRingBase>
+085c  8c840000  8c846ca8  R  lw	a0,0(a0)                         <LO16 StRingBase>
+0860  00052ac0  00052ac0  =  sll	a1,a1,0xb                     
+0864  00452821  00452821  =  addu	a1,v0,a1                     
+0868  0c000247  0c03e1e5  R  jal	0x91c                           <REL26 (0x91C + .text(base))>
+086c  24a50020  24a50020  =  addiu	a1,a1,32                    
+0870  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StEmu_Idx>
+0874  8c420000  8c426c9c  R  lw	v0,0(v0)                         <LO16 StEmu_Idx>
+0878  00000000  00000000  =  nop                               
+087c  24420001  24420001  =  addiu	v0,v0,1                     
+0880  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Idx>
+0884  0800022c  0803e1ca  R  j	0x8b0                             <REL26 (0x8B0 + .text(base))>
+0888  ac220000  ac226c9c  R  sw	v0,0(at)                         <LO16 StEmu_Idx>
+088c  24040003  24040003  =  li	a0,3                           
+0890  00003021  00003021  =  move	a2,zero                      
+0894  3c050000  3c058014  R  lui	a1,0x0                          <HI16 StRingBase>
+0898  8ca50000  8ca56ca8  R  lw	a1,0(a1)                         <LO16 StRingBase>
+089c  240701f8  240701f8  =  li	a3,504                         
+08a0  afa80010  afa80010  =  sw	t0,16(sp)                      
+08a4  afa00014  afa00014  =  sw	zero,20(sp)                    
+08a8  0c000252  0c03e1f0  R  jal	0x948                           <REL26 (0x948 + .text(base))>
+08ac  afa00018  afa00018  =  sw	zero,24(sp)                    
+08b0  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x14 + .data(base))>
+08b4  8c630b24  8c636aac  R  lw	v1,2852(v1)                      <LO16 (0x14 + .data(base))>
+08b8  24021325  24021325  =  li	v0,4901                        
+08bc  ac620000  ac620000  =  sw	v0,0(v1)                       
+08c0  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .bss(base)>
+08c4  8c630b60  8c634864  R  lw	v1,2912(v1)                      <LO16 .bss(base)>
+08c8  24020003  24020003  =  li	v0,3                           
+08cc  a4620000  a4620000  =  sh	v0,0(v1)                       
+08d0  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingIdx1>
+08d4  8c420000  8c426cb0  R  lw	v0,0(v0)                         <LO16 StRingIdx1>
+08d8  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StEmu_Addr>
+08dc  8c630000  8c636c7c  R  lw	v1,0(v1)                         <LO16 StEmu_Addr>
+08e0  24420001  24420001  =  addiu	v0,v0,1                     
+08e4  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx1>
+08e8  10600008  10600008  =  beqz	v1,0x90c                     
+08ec  ac220000  ac226cb0  R  sw	v0,0(at)                         <LO16 StRingIdx1>
+08f0  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StFinalSector>
+08f4  8c420000  8c426ca4  R  lw	v0,0(v0)                         <LO16 StFinalSector>
+08f8  00000000  00000000  =  nop                               
+08fc  10400003  10400003  =  beqz	v0,0x90c                     
+0900  00000000  00000000  =  nop                               
+0904  0c000000  0c0421e6  R  jal	0x0                             <REL26 data_ready_callback>
+0908  00000000  00000000  =  nop                               
+090c  8fbf0038  8fbf0038  =  lw	ra,56(sp)                      
+0910  27bd0040  27bd0040  =  addiu	sp,sp,64                    
+0914  03e00008  03e00008  =  jr	ra                             
+0918  00000000  00000000  =  nop                               
+        >> retail symbol here: _st_copy_words (0x800F8794)
+091c  10c00008  10c00008  =  beqz	a2,0x940                     
+0920  00001821  00001821  =  move	v1,zero                      
+0924  8ca20000  8ca20000  =  lw	v0,0(a1)                       
+0928  24a50004  24a50004  =  addiu	a1,a1,4                     
+092c  24630001  24630001  =  addiu	v1,v1,1                     
+0930  ac820000  ac820000  =  sw	v0,0(a0)                       
+0934  0066102b  0066102b  =  sltu	v0,v1,a2                     
+0938  1440fffa  1440fffa  =  bnez	v0,0x924                     
+093c  24840004  24840004  =  addiu	a0,a0,4                     
+0940  03e00008  03e00008  =  jr	ra                             
+0944  00000000  00000000  =  nop                               
+        >> retail symbol here: _st_dma (0x800F87C0)
+0948  27bdffd0  27bdffd0  =  addiu	sp,sp,-48                   
+094c  afb00018  afb00018  =  sw	s0,24(sp)                      
+0950  00808021  00808021  =  move	s0,a0                        
+0954  afb20020  afb20020  =  sw	s2,32(sp)                      
+0958  00a09021  00a09021  =  move	s2,a1                        
+095c  afb30024  afb30024  =  sw	s3,36(sp)                      
+0960  00c09821  00c09821  =  move	s3,a2                        
+0964  afb40028  afb40028  =  sw	s4,40(sp)                      
+0968  00e0a021  00e0a021  =  move	s4,a3                        
+096c  00002021  00002021  =  move	a0,zero                      
+0970  00102900  00102900  =  sll	a1,s0,0x4                     
+0974  3c030100  3c030100  =  lui	v1,0x100                      
+0978  afbf002c  afbf002c  =  sw	ra,44(sp)                      
+097c  afb1001c  afb1001c  =  sw	s1,28(sp)                      
+0980  3c021f80  3c021f80  =  lui	v0,0x1f80                     
+0984  00451021  00451021  =  addu	v0,v0,a1                     
+0988  8c421088  8c421088  =  lw	v0,4232(v0)                    
+098c  93b10044  93b10044  =  lbu	s1,68(sp)                     
+0990  00431024  00431024  =  and	v0,v0,v1                      
+0994  1040000a  1040000a  =  beqz	v0,0x9c0                     
+0998  3c060001  3c060001  =  lui	a2,0x1                        
+099c  10860012  10860012  =  beq	a0,a2,0x9e8                   
+09a0  00000000  00000000  =  nop                               
+09a4  3c021f80  3c021f80  =  lui	v0,0x1f80                     
+09a8  00451021  00451021  =  addu	v0,v0,a1                     
+09ac  8c421088  8c421088  =  lw	v0,4232(v0)                    
+09b0  00000000  00000000  =  nop                               
+09b4  00431024  00431024  =  and	v0,v0,v1                      
+09b8  1440fff8  1440fff8  =  bnez	v0,0x99c                     
+09bc  24840001  24840001  =  addiu	a0,a0,1                     
+09c0  24020001  24020001  =  li	v0,1                           
+09c4  16220010  16220010  =  bne	s1,v0,0xa08                   
+09c8  00000000  00000000  =  nop                               
+09cc  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x1C + .data(base))>
+09d0  8c630b2c  8c636ab4  R  lw	v1,2860(v1)                      <LO16 (0x1C + .data(base))>
+09d4  00000000  00000000  =  nop                               
+09d8  90640002  90640002  =  lbu	a0,2(v1)                      
+09dc  02021004  02021004  =  sllv	v0,v0,s0                     
+09e0  08000288  0803e226  R  j	0xa20                             <REL26 (0xA20 + .text(base))>
+09e4  00821025  00821025  =  or	v0,a0,v0                       
+09e8  3c011f80  3c011f80  =  lui	at,0x1f80                     
+09ec  00250821  00250821  =  addu	at,at,a1                     
+09f0  8c251088  8c251088  =  lw	a1,4232(at)                    
+09f4  3c040000  3c048005  R  lui	a0,0x0                          <HI16 .rdata(base)>
+09f8  0c000000  0c040a2b  R  jal	0x0                             <REL26 printf>
+09fc  24840af0  24847110  R  addiu	a0,a0,2800                    <LO16 .rdata(base)>
+0a00  08000271  0803e20f  R  j	0x9c4                             <REL26 (0x9C4 + .text(base))>
+0a04  24020001  24020001  =  li	v0,1                           
+0a08  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x1C + .data(base))>
+0a0c  8c630b2c  8c636ab4  R  lw	v1,2860(v1)                      <LO16 (0x1C + .data(base))>
+0a10  02021004  02021004  =  sllv	v0,v0,s0                     
+0a14  90640002  90640002  =  lbu	a0,2(v1)                      
+0a18  00021027  00021027  =  nor	v0,zero,v0                    
+0a1c  00821024  00821024  =  and	v0,a0,v0                      
+0a20  a0620002  a0620002  =  sb	v0,2(v1)                       
+0a24  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x1C + .data(base))>
+0a28  8c420b2c  8c426ab4  R  lw	v0,2860(v0)                      <LO16 (0x1C + .data(base))>
+0a2c  00000000  00000000  =  nop                               
+0a30  8c420000  8c420000  =  lw	v0,0(v0)                       
+0a34  00000000  00000000  =  nop                               
+0a38  afa20010  afa20010  =  sw	v0,16(sp)                      
+0a3c  00103080  00103080  =  sll	a2,s0,0x2                     
+0a40  24c60003  24c60003  =  addiu	a2,a2,3                     
+0a44  24030001  24030001  =  li	v1,1                           
+0a48  00c31804  00c31804  =  sllv	v1,v1,a2                     
+0a4c  3c051f80  3c051f80  =  lui	a1,0x1f80                     
+0a50  34a51080  34a51080  =  ori	a1,a1,0x1080                  
+0a54  00101100  00101100  =  sll	v0,s0,0x4                     
+0a58  00452821  00452821  =  addu	a1,v0,a1                     
+0a5c  3c040000  3c048013  R  lui	a0,0x0                          <HI16 (0x18 + .data(base))>
+0a60  8c840b28  8c846ab0  R  lw	a0,2856(a0)                      <LO16 (0x18 + .data(base))>
+0a64  00131400  00131400  =  sll	v0,s3,0x10                    
+0a68  8c860000  8c860000  =  lw	a2,0(a0)                       
+0a6c  00541025  00541025  =  or	v0,v0,s4                       
+0a70  00c33025  00c33025  =  or	a2,a2,v1                       
+0a74  ac860000  ac860000  =  sw	a2,0(a0)                       
+0a78  acb20000  acb20000  =  sw	s2,0(a1)                       
+0a7c  24a50004  24a50004  =  addiu	a1,a1,4                     
+0a80  aca20000  aca20000  =  sw	v0,0(a1)                       
+0a84  3c030000  3c038013  R  lui	v1,0x0                          <HI16 .data(base)>
+0a88  8c630b10  8c636a98  R  lw	v1,2832(v1)                      <LO16 .data(base)>
+0a8c  00000000  00000000  =  nop                               
+0a90  90620000  90620000  =  lbu	v0,0(v1)                      
+0a94  00000000  00000000  =  nop                               
+0a98  30420040  30420040  =  andi	v0,v0,0x40                   
+0a9c  14400006  14400006  =  bnez	v0,0xab8                     
+0aa0  24a50004  24a50004  =  addiu	a1,a1,4                     
+0aa4  90620000  90620000  =  lbu	v0,0(v1)                      
+0aa8  00000000  00000000  =  nop                               
+0aac  30420040  30420040  =  andi	v0,v0,0x40                   
+0ab0  1040fffc  1040fffc  =  beqz	v0,0xaa4                     
+0ab4  00000000  00000000  =  nop                               
+0ab8  8fa20040  8fa20040  =  lw	v0,64(sp)                      
+0abc  00000000  00000000  =  nop                               
+0ac0  aca20000  aca20000  =  sw	v0,0(a1)                       
+0ac4  8ca20000  8ca20000  =  lw	v0,0(a1)                       
+0ac8  00000000  00000000  =  nop                               
+0acc  afa20010  afa20010  =  sw	v0,16(sp)                      
+0ad0  8fbf002c  8fbf002c  =  lw	ra,44(sp)                      
+0ad4  8fb40028  8fb40028  =  lw	s4,40(sp)                      
+0ad8  8fb30024  8fb30024  =  lw	s3,36(sp)                      
+0adc  8fb20020  8fb20020  =  lw	s2,32(sp)                      
+0ae0  8fb1001c  8fb1001c  =  lw	s1,28(sp)                      
+0ae4  8fb00018  8fb00018  =  lw	s0,24(sp)                      
+0ae8  03e00008  03e00008  =  jr	ra                             
+0aec  27bd0030  27bd0030  =  addiu	sp,sp,48                    

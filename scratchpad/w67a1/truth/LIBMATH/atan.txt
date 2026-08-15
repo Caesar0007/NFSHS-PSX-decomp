@@ -1,0 +1,139 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / ARC / atan
+linkage=export  section-size=532 bytes (133 words)  vendor-relocs=39
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc8  --------     addiu	sp,sp,-56                   
+0004  afb50024  --------     sw	s5,36(sp)                      
+0008  afb40020  --------     sw	s4,32(sp)                      
+000c  0080a021  --------     move	s4,a0                        
+0010  00a0a821  --------     move	s5,a1                        
+0014  afb3001c  --------     sw	s3,28(sp)                      
+0018  afb20018  --------     sw	s2,24(sp)                      
+001c  3c010000  --------     lui	at,0x0                          <HI16 .rdata(base)>
+0020  8c3206e0  --------     lw	s2,1760(at)                      <LO16 .rdata(base)>
+0024  8c3306e4  --------     lw	s3,1764(at)                      <LO16 (0x4 + .rdata(base))>
+0028  afbf0034  --------     sw	ra,52(sp)                      
+002c  afbe0030  --------     sw	s8,48(sp)                      
+0030  afb7002c  --------     sw	s7,44(sp)                      
+0034  afb60028  --------     sw	s6,40(sp)                      
+0038  afb10014  --------     sw	s1,20(sp)                      
+003c  afb00010  --------     sw	s0,16(sp)                      
+0040  02403021  --------     move	a2,s2                        
+0044  0c000000  --------     jal	0x0                             <REL26 __gtdf2>
+0048  02603821  --------     move	a3,s3                        
+004c  1c40000a  --------     bgtz	v0,0x78                      
+0050  241e0001  --------     li	s8,1                           
+0054  3c010000  --------     lui	at,0x0                          <HI16 (0x8 + .rdata(base))>
+0058  8c2606e8  --------     lw	a2,1768(at)                      <LO16 (0x8 + .rdata(base))>
+005c  8c2706ec  --------     lw	a3,1772(at)                      <LO16 (0xC + .rdata(base))>
+0060  02802021  --------     move	a0,s4                        
+0064  0c000000  --------     jal	0x0                             <REL26 __ltdf2>
+0068  02a02821  --------     move	a1,s5                        
+006c  04410009  --------     bgez	v0,0x94                      
+0070  0000f021  --------     move	s8,zero                      
+0074  241effff  --------     li	s8,-1                          
+0078  02402021  --------     move	a0,s2                        
+007c  02602821  --------     move	a1,s3                        
+0080  02803021  --------     move	a2,s4                        
+0084  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+0088  02a03821  --------     move	a3,s5                        
+008c  0040a021  --------     move	s4,v0                        
+0090  0060a821  --------     move	s5,v1                        
+0094  00009021  --------     move	s2,zero                      
+0098  00009821  --------     move	s3,zero                      
+009c  24160013  --------     li	s6,19                          
+00a0  24170027  --------     li	s7,39                          
+00a4  02d60018  --------     mult	s6,s6                        
+00a8  00002012  --------     mflo	a0                           
+00ac  0c000000  --------     jal	0x0                             <REL26 __floatsidf>
+00b0  26d6ffff  --------     addiu	s6,s6,-1                    
+00b4  00402021  --------     move	a0,v0                        
+00b8  00602821  --------     move	a1,v1                        
+00bc  02803021  --------     move	a2,s4                        
+00c0  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+00c4  02a03821  --------     move	a3,s5                        
+00c8  00402021  --------     move	a0,v0                        
+00cc  00602821  --------     move	a1,v1                        
+00d0  02803021  --------     move	a2,s4                        
+00d4  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+00d8  02a03821  --------     move	a3,s5                        
+00dc  02e02021  --------     move	a0,s7                        
+00e0  00408021  --------     move	s0,v0                        
+00e4  0c000000  --------     jal	0x0                             <REL26 __floatsidf>
+00e8  00608821  --------     move	s1,v1                        
+00ec  00402021  --------     move	a0,v0                        
+00f0  00602821  --------     move	a1,v1                        
+00f4  02403021  --------     move	a2,s2                        
+00f8  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+00fc  02603821  --------     move	a3,s3                        
+0100  02002021  --------     move	a0,s0                        
+0104  02202821  --------     move	a1,s1                        
+0108  00403021  --------     move	a2,v0                        
+010c  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+0110  00603821  --------     move	a3,v1                        
+0114  00409021  --------     move	s2,v0                        
+0118  00609821  --------     move	s3,v1                        
+011c  1ec0ffe1  --------     bgtz	s6,0xa4                      
+0120  26f7fffe  --------     addiu	s7,s7,-2                    
+0124  1bc00010  --------     blez	s8,0x168                     
+0128  02402021  --------     move	a0,s2                        
+012c  3c010000  --------     lui	at,0x0                          <HI16 (0x10 + .rdata(base))>
+0130  8c2606f0  --------     lw	a2,1776(at)                      <LO16 (0x10 + .rdata(base))>
+0134  8c2706f4  --------     lw	a3,1780(at)                      <LO16 (0x14 + .rdata(base))>
+0138  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+013c  02602821  --------     move	a1,s3                        
+0140  02802021  --------     move	a0,s4                        
+0144  02a02821  --------     move	a1,s5                        
+0148  00403021  --------     move	a2,v0                        
+014c  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+0150  00603821  --------     move	a3,v1                        
+0154  3c010000  --------     lui	at,0x0                          <HI16 (0x18 + .rdata(base))>
+0158  8c2406f8  --------     lw	a0,1784(at)                      <LO16 (0x18 + .rdata(base))>
+015c  8c2506fc  --------     lw	a1,1788(at)                      <LO16 (0x1C + .rdata(base))>
+0160  08000077  --------     j	0x1dc                             <REL26 (0x1DC + .text(base))>
+0164  00403021  --------     move	a2,v0                        
+0168  07c0000d  --------     bltz	s8,0x1a0                     
+016c  00000000  --------     nop                               
+0170  3c010000  --------     lui	at,0x0                          <HI16 (0x20 + .rdata(base))>
+0174  8c260700  --------     lw	a2,1792(at)                      <LO16 (0x20 + .rdata(base))>
+0178  8c270704  --------     lw	a3,1796(at)                      <LO16 (0x24 + .rdata(base))>
+017c  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+0180  02602821  --------     move	a1,s3                        
+0184  02802021  --------     move	a0,s4                        
+0188  02a02821  --------     move	a1,s5                        
+018c  00403021  --------     move	a2,v0                        
+0190  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+0194  00603821  --------     move	a3,v1                        
+0198  08000079  --------     j	0x1e4                             <REL26 (0x1E4 + .text(base))>
+019c  00000000  --------     nop                               
+01a0  3c010000  --------     lui	at,0x0                          <HI16 (0x28 + .rdata(base))>
+01a4  8c260708  --------     lw	a2,1800(at)                      <LO16 (0x28 + .rdata(base))>
+01a8  8c27070c  --------     lw	a3,1804(at)                      <LO16 (0x2C + .rdata(base))>
+01ac  02402021  --------     move	a0,s2                        
+01b0  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+01b4  02602821  --------     move	a1,s3                        
+01b8  02802021  --------     move	a0,s4                        
+01bc  02a02821  --------     move	a1,s5                        
+01c0  00403021  --------     move	a2,v0                        
+01c4  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+01c8  00603821  --------     move	a3,v1                        
+01cc  3c010000  --------     lui	at,0x0                          <HI16 (0x30 + .rdata(base))>
+01d0  8c240710  --------     lw	a0,1808(at)                      <LO16 (0x30 + .rdata(base))>
+01d4  8c250714  --------     lw	a1,1812(at)                      <LO16 (0x34 + .rdata(base))>
+01d8  00403021  --------     move	a2,v0                        
+01dc  0c000000  --------     jal	0x0                             <REL26 __subdf3>
+01e0  00603821  --------     move	a3,v1                        
+01e4  8fbf0034  --------     lw	ra,52(sp)                      
+01e8  8fbe0030  --------     lw	s8,48(sp)                      
+01ec  8fb7002c  --------     lw	s7,44(sp)                      
+01f0  8fb60028  --------     lw	s6,40(sp)                      
+01f4  8fb50024  --------     lw	s5,36(sp)                      
+01f8  8fb40020  --------     lw	s4,32(sp)                      
+01fc  8fb3001c  --------     lw	s3,28(sp)                      
+0200  8fb20018  --------     lw	s2,24(sp)                      
+0204  8fb10014  --------     lw	s1,20(sp)                      
+0208  8fb00010  --------     lw	s0,16(sp)                      
+020c  03e00008  --------     jr	ra                             
+0210  27bd0038  --------     addiu	sp,sp,56                    

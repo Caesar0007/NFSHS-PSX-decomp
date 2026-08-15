@@ -1,0 +1,58 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_015 / StRingStatus
+linkage=export  section-size=208 bytes (52 words)  vendor-relocs=11
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c060000  --------     lui	a2,0x0                          <HI16 StRingSize>
+0004  8cc60000  --------     lw	a2,0(a2)                         <LO16 StRingSize>
+0008  a4800000  --------     sh	zero,0(a0)                     
+000c  3c020000  --------     lui	v0,0x0                          <HI16 StRingIdx1>
+0010  94420000  --------     lhu	v0,0(v0)                        <LO16 StRingIdx1>
+0014  3c030000  --------     lui	v1,0x0                          <HI16 StRingIdx3>
+0018  94630000  --------     lhu	v1,0(v1)                        <LO16 StRingIdx3>
+001c  00000000  --------     nop                               
+0020  00431023  --------     subu	v0,v0,v1                     
+0024  a4a20000  --------     sh	v0,0(a1)                       
+0028  00021400  --------     sll	v0,v0,0x10                    
+002c  04410020  --------     bgez	v0,0xb0                      
+0030  00000000  --------     nop                               
+0034  24c6ffff  --------     addiu	a2,a2,-1                    
+0038  04c0000c  --------     bltz	a2,0x6c                      
+003c  24070001  --------     li	a3,1                           
+0040  3c030000  --------     lui	v1,0x0                          <HI16 StRingAddr>
+0044  8c630000  --------     lw	v1,0(v1)                         <LO16 StRingAddr>
+0048  00061140  --------     sll	v0,a2,0x5                     
+004c  00621021  --------     addu	v0,v1,v0                     
+0050  94420000  --------     lhu	v0,0(v0)                      
+0054  00000000  --------     nop                               
+0058  10470004  --------     beq	v0,a3,0x6c                    
+005c  00000000  --------     nop                               
+0060  24c6ffff  --------     addiu	a2,a2,-1                    
+0064  04c1fff9  --------     bgez	a2,0x4c                      
+0068  00061140  --------     sll	v0,a2,0x5                     
+006c  94a20000  --------     lhu	v0,0(a1)                      
+0070  24c60001  --------     addiu	a2,a2,1                     
+0074  00461021  --------     addu	v0,v0,a2                     
+0078  0800002c  --------     j	0xb0                              <REL26 (0xB0 + .text(base))>
+007c  a4a20000  --------     sh	v0,0(a1)                       
+0080  3c020000  --------     lui	v0,0x0                          <HI16 StRingAddr>
+0084  8c420000  --------     lw	v0,0(v0)                         <LO16 StRingAddr>
+0088  00000000  --------     nop                               
+008c  00431021  --------     addu	v0,v0,v1                     
+0090  94420000  --------     lhu	v0,0(v0)                      
+0094  00000000  --------     nop                               
+0098  14400005  --------     bnez	v0,0xb0                      
+009c  00000000  --------     nop                               
+00a0  94820000  --------     lhu	v0,0(a0)                      
+00a4  00000000  --------     nop                               
+00a8  24420001  --------     addiu	v0,v0,1                     
+00ac  a4820000  --------     sh	v0,0(a0)                       
+00b0  24c6ffff  --------     addiu	a2,a2,-1                    
+00b4  04c1fff2  --------     bgez	a2,0x80                      
+00b8  00061940  --------     sll	v1,a2,0x5                     
+00bc  03e00008  --------     jr	ra                             
+00c0  00000000  --------     nop                               
+00c4  00000000  --------     nop                               
+00c8  00000000  --------     nop                               
+00cc  00000000  --------     nop                               

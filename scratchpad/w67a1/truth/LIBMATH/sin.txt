@@ -1,0 +1,61 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / SIN / sin
+linkage=export  section-size=220 bytes (55 words)  vendor-relocs=14
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 (0x40 + .rdata(base))>
+0004  8c2604d0  --------     lw	a2,1232(at)                      <LO16 (0x40 + .rdata(base))>
+0008  8c2704d4  --------     lw	a3,1236(at)                      <LO16 (0x44 + .rdata(base))>
+000c  27bdffd8  --------     addiu	sp,sp,-40                   
+0010  afbf0020  --------     sw	ra,32(sp)                      
+0014  afb1001c  --------     sw	s1,28(sp)                      
+0018  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+001c  afb00018  --------     sw	s0,24(sp)                      
+0020  00402021  --------     move	a0,v0                        
+0024  00602821  --------     move	a1,v1                        
+0028  0c000000  --------     jal	0x0                             <REL26 .text(base)>
+002c  27a60010  --------     addiu	a2,sp,16                    
+0030  00408021  --------     move	s0,v0                        
+0034  00608821  --------     move	s1,v1                        
+0038  02002021  --------     move	a0,s0                        
+003c  02202821  --------     move	a1,s1                        
+0040  02003021  --------     move	a2,s0                        
+0044  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+0048  02203821  --------     move	a3,s1                        
+004c  02002021  --------     move	a0,s0                        
+0050  02202821  --------     move	a1,s1                        
+0054  00803021  --------     move	a2,a0                        
+0058  00a03821  --------     move	a3,a1                        
+005c  00408021  --------     move	s0,v0                        
+0060  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+0064  00608821  --------     move	s1,v1                        
+0068  3c010000  --------     lui	at,0x0                          <HI16 (0x48 + .rdata(base))>
+006c  8c2604d8  --------     lw	a2,1240(at)                      <LO16 (0x48 + .rdata(base))>
+0070  8c2704dc  --------     lw	a3,1244(at)                      <LO16 (0x4C + .rdata(base))>
+0074  00402021  --------     move	a0,v0                        
+0078  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+007c  00602821  --------     move	a1,v1                        
+0080  02002021  --------     move	a0,s0                        
+0084  02202821  --------     move	a1,s1                        
+0088  00403021  --------     move	a2,v0                        
+008c  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+0090  00603821  --------     move	a3,v1                        
+0094  00402021  --------     move	a0,v0                        
+0098  00602821  --------     move	a1,v1                        
+009c  8fa20010  --------     lw	v0,16(sp)                      
+00a0  00808021  --------     move	s0,a0                        
+00a4  30420001  --------     andi	v0,v0,0x1                    
+00a8  10400005  --------     beqz	v0,0xc0                      
+00ac  00a08821  --------     move	s1,a1                        
+00b0  0c000000  --------     jal	0x0                             <REL26 __negdf2>
+00b4  00000000  --------     nop                               
+00b8  080000d2  --------     j	0x348                             <REL26 (0x348 + .text(base))>
+00bc  00000000  --------     nop                               
+00c0  02001021  --------     move	v0,s0                        
+00c4  02201821  --------     move	v1,s1                        
+00c8  8fbf0020  --------     lw	ra,32(sp)                      
+00cc  8fb1001c  --------     lw	s1,28(sp)                      
+00d0  8fb00018  --------     lw	s0,24(sp)                      
+00d4  03e00008  --------     jr	ra                             
+00d8  27bd0028  --------     addiu	sp,sp,40                    

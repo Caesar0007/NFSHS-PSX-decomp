@@ -1,0 +1,42 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_005 / StSetStream
+linkage=export  section-size=144 bytes (36 words)  vendor-relocs=17
+retail VA=0x800F8FF8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  afb10014  afb10014  =  sw	s1,20(sp)                      
+0010  00e08821  00e08821  =  move	s1,a3                        
+0014  afb20018  afb20018  =  sw	s2,24(sp)                      
+0018  8fb20030  8fb20030  =  lw	s2,48(sp)                      
+001c  afbf001c  afbf001c  =  sw	ra,28(sp)                      
+0020  0c000000  0c042217  R  jal	0x0                             <REL26 StSetMask>
+0024  24040001  24040001  =  li	a0,1                           
+0028  32100001  32100001  =  andi	s0,s0,0x1                    
+002c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEmu_Addr>
+0030  ac200000  ac206c7c  R  sw	zero,0(at)                       <LO16 StEmu_Addr>
+0034  3c010000  3c018014  R  lui	at,0x0                          <HI16 StFunc1>
+0038  ac310000  ac314874  R  sw	s1,0(at)                         <LO16 StFunc1>
+003c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRgb24>
+0040  ac300000  ac306c90  R  sw	s0,0(at)                         <LO16 StRgb24>
+0044  3c010000  3c018014  R  lui	at,0x0                          <HI16 CChannel>
+0048  ac200000  ac206c84  R  sw	zero,0(at)                       <LO16 CChannel>
+004c  3c010000  3c018014  R  lui	at,0x0                          <HI16 StCHANNEL>
+0050  ac200000  ac206c88  R  sw	zero,0(at)                       <LO16 StCHANNEL>
+0054  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stsector_offset>
+0058  a4200000  a4206ca0  R  sh	zero,0(at)                       <LO16 Stsector_offset>
+005c  3c010000  3c018014  R  lui	at,0x0                          <HI16 Stframe_no>
+0060  ac200000  ac206c8c  R  sw	zero,0(at)                       <LO16 Stframe_no>
+0064  3c010000  3c018014  R  lui	at,0x0                          <HI16 StFunc2>
+0068  ac320000  ac324878  R  sw	s2,0(at)                         <LO16 StFunc2>
+006c  8fbf001c  8fbf001c  =  lw	ra,28(sp)                      
+0070  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+0074  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+0078  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+007c  03e00008  03e00008  =  jr	ra                             
+0080  27bd0020  27bd0020  =  addiu	sp,sp,32                    
+0084  00000000  00000000  =  nop                               
+0088  00000000  00000000  =  nop                               
+008c  00000000  00000000  =  nop                               

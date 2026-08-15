@@ -1,0 +1,42 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / PAD / PAD_init
+linkage=export  section-size=144 bytes (36 words)  vendor-relocs=9
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  --------     addiu	sp,sp,-40                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afb10014  --------     sw	s1,20(sp)                      
+0010  00a08821  --------     move	s1,a1                        
+0014  afb20018  --------     sw	s2,24(sp)                      
+0018  00c09021  --------     move	s2,a2                        
+001c  afb3001c  --------     sw	s3,28(sp)                      
+0020  afbf0020  --------     sw	ra,32(sp)                      
+0024  0c000000  --------     jal	0x0                             <REL26 _remove_ChgclrPAD>
+0028  00e09821  --------     move	s3,a3                        
+002c  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+0030  00000000  --------     nop                               
+0034  0c000000  --------     jal	0x0                             <REL26 _patch_pad>
+0038  00000000  --------     nop                               
+003c  0c000000  --------     jal	0x0                             <REL26 ExitCriticalSection>
+0040  00000000  --------     nop                               
+0044  0c000000  --------     jal	0x0                             <REL26 ChangeClearPAD>
+0048  00002021  --------     move	a0,zero                      
+004c  0c000069  --------     jal	0x1a4                           <REL26 (0x1A4 + .text(base))>
+0050  00000000  --------     nop                               
+0054  02002021  --------     move	a0,s0                        
+0058  02202821  --------     move	a1,s1                        
+005c  02403021  --------     move	a2,s2                        
+0060  0c000000  --------     jal	0x0                             <REL26 PAD_init2>
+0064  02603821  --------     move	a3,s3                        
+0068  24020001  --------     li	v0,1                           
+006c  3c010000  --------     lui	at,0x0                          <HI16 .data(base)>
+0070  ac220300  --------     sw	v0,768(at)                       <LO16 .data(base)>
+0074  8fbf0020  --------     lw	ra,32(sp)                      
+0078  8fb3001c  --------     lw	s3,28(sp)                      
+007c  8fb20018  --------     lw	s2,24(sp)                      
+0080  8fb10014  --------     lw	s1,20(sp)                      
+0084  8fb00010  --------     lw	s0,16(sp)                      
+0088  03e00008  --------     jr	ra                             
+008c  27bd0028  --------     addiu	sp,sp,40                    

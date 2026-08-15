@@ -1,0 +1,62 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / LTDF2 / __ltdf2
+linkage=export  section-size=224 bytes (56 words)  vendor-relocs=2
+retail VA=0x800EB8E4  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00804021  00804021  =  move	t0,a0                        
+0004  00a04821  00a04821  =  move	t1,a1                        
+0008  15270003  15270003  =  bne	t1,a3,0x18                    
+000c  3c037fff  3c037fff  =  lui	v1,0x7fff                     
+0010  11060030  11060030  =  beq	t0,a2,0xd4                    
+0014  00001021  00001021  =  move	v0,zero                      
+0018  3463ffff  3463ffff  =  ori	v1,v1,0xffff                  
+001c  01231024  01231024  =  and	v0,t1,v1                      
+0020  14400008  14400008  =  bnez	v0,0x44                      
+0024  3c028000  3c028000  =  lui	v0,0x8000                     
+0028  15000006  15000006  =  bnez	t0,0x44                      
+002c  00000000  00000000  =  nop                               
+0030  00e31024  00e31024  =  and	v0,a3,v1                      
+0034  14400003  14400003  =  bnez	v0,0x44                      
+0038  3c028000  3c028000  =  lui	v0,0x8000                     
+003c  10c00024  10c00024  =  beqz	a2,0xd0                      
+0040  00000000  00000000  =  nop                               
+0044  01221824  01221824  =  and	v1,t1,v0                      
+0048  00e21024  00e21024  =  and	v0,a3,v0                      
+004c  10620005  10620005  =  beq	v1,v0,0x64                    
+0050  00091503  00091503  =  sra	v0,t1,0x14                    
+0054  1460001f  1460001f  =  bnez	v1,0xd4                      
+0058  2402ffff  2402ffff  =  li	v0,-1                          
+005c  08000035  0803ae6e  R  j	0xd4                              <REL26 (0xD4 + .text(base))>
+0060  00001021  00001021  =  move	v0,zero                      
+0064  304407ff  304407ff  =  andi	a0,v0,0x7ff                  
+0068  00071503  00071503  =  sra	v0,a3,0x14                    
+006c  304307ff  304307ff  =  andi	v1,v0,0x7ff                  
+0070  0083102a  0083102a  =  slt	v0,a0,v1                      
+0074  14400010  14400010  =  bnez	v0,0xb8                      
+0078  00000000  00000000  =  nop                               
+007c  14830012  14830012  =  bne	a0,v1,0xc8                    
+0080  3c02000f  3c02000f  =  lui	v0,0xf                        
+0084  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0088  01221824  01221824  =  and	v1,t1,v0                      
+008c  3c040010  3c040010  =  lui	a0,0x10                       
+0090  00641825  00641825  =  or	v1,v1,a0                       
+0094  00e21024  00e21024  =  and	v0,a3,v0                      
+0098  00442025  00442025  =  or	a0,v0,a0                       
+009c  0064102a  0064102a  =  slt	v0,v1,a0                      
+00a0  14400005  14400005  =  bnez	v0,0xb8                      
+00a4  00000000  00000000  =  nop                               
+00a8  14640007  14640007  =  bne	v1,a0,0xc8                    
+00ac  0106102b  0106102b  =  sltu	v0,t0,a2                     
+00b0  10400005  10400005  =  beqz	v0,0xc8                      
+00b4  00000000  00000000  =  nop                               
+00b8  05200006  05200006  =  bltz	t1,0xd4                      
+00bc  00001021  00001021  =  move	v0,zero                      
+00c0  08000035  0803ae6e  R  j	0xd4                              <REL26 (0xD4 + .text(base))>
+00c4  2402ffff  2402ffff  =  li	v0,-1                          
+00c8  05200002  05200002  =  bltz	t1,0xd4                      
+00cc  2402ffff  2402ffff  =  li	v0,-1                          
+00d0  00001021  00001021  =  move	v0,zero                      
+00d4  03e00008  03e00008  =  jr	ra                             
+00d8  00000000  00000000  =  nop                               
+00dc  00000000  00000000  =  nop                               

@@ -1,0 +1,33 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / SYS / CdReset
+linkage=export  section-size=108 bytes (27 words)  vendor-relocs=4
+retail VA=0x800F77AC  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  24020002  24020002  =  li	v0,2                           
+0010  16020005  16020005  =  bne	s0,v0,0x28                    
+0014  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0018  0c000000  0c04203d  R  jal	0x0                             <REL26 CD_initintr>
+001c  00000000  00000000  =  nop                               
+0020  08000026  0803de02  R  j	0x98                              <REL26 (0x98 + .text(base))>
+0024  24020001  24020001  =  li	v0,1                           
+0028  0c000000  0c042050  R  jal	0x0                             <REL26 CD_init>
+002c  00000000  00000000  =  nop                               
+0030  1440000a  1440000a  =  bnez	v0,0x5c                      
+0034  00001021  00001021  =  move	v0,zero                      
+0038  24020001  24020001  =  li	v0,1                           
+003c  16020007  16020007  =  bne	s0,v0,0x5c                    
+0040  00000000  00000000  =  nop                               
+0044  0c000000  0c042001  R  jal	0x0                             <REL26 CD_initvol>
+0048  00000000  00000000  =  nop                               
+004c  00401821  00401821  =  move	v1,v0                        
+0050  14600002  14600002  =  bnez	v1,0x5c                      
+0054  00001021  00001021  =  move	v0,zero                      
+0058  24020001  24020001  =  li	v0,1                           
+005c  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+0060  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0064  03e00008  03e00008  =  jr	ra                             
+0068  27bd0018  27bd0018  =  addiu	sp,sp,24                    

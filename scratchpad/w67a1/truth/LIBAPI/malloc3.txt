@@ -1,0 +1,50 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / MALLOC3 / malloc3
+linkage=export  section-size=176 bytes (44 words)  vendor-relocs=10
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  10800028  --------     beqz	a0,0xa4                      
+0004  30820007  --------     andi	v0,a0,0x7                    
+0008  08000005  --------     j	0x14                              <REL26 (0x14 + .text(base))>
+000c  00000000  --------     nop                               
+0010  30820007  --------     andi	v0,a0,0x7                    
+0014  1440fffe  --------     bnez	v0,0x10                      
+0018  24840001  --------     addiu	a0,a0,1                     
+001c  2484ffff  --------     addiu	a0,a0,-1                    
+0020  24820007  --------     addiu	v0,a0,7                     
+0024  000210c2  --------     srl	v0,v0,0x3                     
+0028  3c060000  --------     lui	a2,0x0                          <HI16 _freep>
+002c  8cc60000  --------     lw	a2,0(a2)                         <LO16 _freep>
+0030  24450001  --------     addiu	a1,v0,1                     
+0034  8cc40000  --------     lw	a0,0(a2)                       
+0038  00000000  --------     nop                               
+003c  8c830004  --------     lw	v1,4(a0)                       
+0040  00000000  --------     nop                               
+0044  0065102a  --------     slt	v0,v1,a1                      
+0048  1440000e  --------     bnez	v0,0x84                      
+004c  00000000  --------     nop                               
+0050  14650004  --------     bne	v1,a1,0x64                    
+0054  00651023  --------     subu	v0,v1,a1                     
+0058  8c820000  --------     lw	v0,0(a0)                       
+005c  0800001d  --------     j	0x74                              <REL26 (0x74 + .text(base))>
+0060  acc20000  --------     sw	v0,0(a2)                       
+0064  ac820004  --------     sw	v0,4(a0)                       
+0068  000210c0  --------     sll	v0,v0,0x3                     
+006c  00822021  --------     addu	a0,a0,v0                     
+0070  ac850004  --------     sw	a1,4(a0)                       
+0074  3c010000  --------     lui	at,0x0                          <HI16 _freep>
+0078  ac260000  --------     sw	a2,0(at)                         <LO16 _freep>
+007c  0800002a  --------     j	0xa8                              <REL26 (0xA8 + .text(base))>
+0080  24820008  --------     addiu	v0,a0,8                     
+0084  3c020000  --------     lui	v0,0x0                          <HI16 _freep>
+0088  8c420000  --------     lw	v0,0(v0)                         <LO16 _freep>
+008c  00000000  --------     nop                               
+0090  10820004  --------     beq	a0,v0,0xa4                    
+0094  00803021  --------     move	a2,a0                        
+0098  8c840000  --------     lw	a0,0(a0)                       
+009c  0800000f  --------     j	0x3c                              <REL26 (0x3C + .text(base))>
+00a0  00000000  --------     nop                               
+00a4  00001021  --------     move	v0,zero                      
+00a8  03e00008  --------     jr	ra                             
+00ac  00000000  --------     nop                               

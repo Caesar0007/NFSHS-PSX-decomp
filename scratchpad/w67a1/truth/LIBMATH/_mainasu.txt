@@ -1,0 +1,34 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / MAINASU / _mainasu
+linkage=export  section-size=112 bytes (28 words)  vendor-relocs=1
+retail VA=0x80106F00  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  27bdffd8  =  addiu	sp,sp,-40                   
+0004  afb00020  afb00020  =  sw	s0,32(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  24020001  24020001  =  li	v0,1                           
+0010  afa60030  afa60030  =  sw	a2,48(sp)                      
+0014  00063027  00063027  =  nor	a2,zero,a2                    
+0018  afa5002c  afa5002c  =  sw	a1,44(sp)                      
+001c  00052827  00052827  =  nor	a1,zero,a1                    
+0020  afa0001c  afa0001c  =  sw	zero,28(sp)                    
+0024  afa20018  afa20018  =  sw	v0,24(sp)                      
+0028  afa60030  afa60030  =  sw	a2,48(sp)                      
+002c  afa5002c  afa5002c  =  sw	a1,44(sp)                      
+0030  afa00010  afa00010  =  sw	zero,16(sp)                    
+0034  8fa70018  8fa70018  =  lw	a3,24(sp)                      
+0038  8fa5002c  8fa5002c  =  lw	a1,44(sp)                      
+003c  8fa60030  8fa60030  =  lw	a2,48(sp)                      
+0040  afbf0024  afbf0024  =  sw	ra,36(sp)                      
+0044  0c000000  0c041bdc  R  jal	0x0                             <REL26 _add_mant_d>
+0048  27a4002c  27a4002c  =  addiu	a0,sp,44                    
+004c  8fa2002c  8fa2002c  =  lw	v0,44(sp)                      
+0050  8fa30030  8fa30030  =  lw	v1,48(sp)                      
+0054  ae020000  ae020000  =  sw	v0,0(s0)                       
+0058  ae030004  ae030004  =  sw	v1,4(s0)                       
+005c  02001021  02001021  =  move	v0,s0                        
+0060  8fbf0024  8fbf0024  =  lw	ra,36(sp)                      
+0064  8fb00020  8fb00020  =  lw	s0,32(sp)                      
+0068  03e00008  03e00008  =  jr	ra                             
+006c  27bd0028  27bd0028  =  addiu	sp,sp,40                    

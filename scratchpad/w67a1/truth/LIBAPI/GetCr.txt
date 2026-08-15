@@ -1,0 +1,10 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / A96 / GetCr
+linkage=export  section-size=16 bytes (4 words)  vendor-relocs=0
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  40026800  --------     mfc0	v0,c0_cause                  
+0004  03e00008  --------     jr	ra                             
+0008  00000000  --------     nop                               
+000c  00000000  --------     nop                               

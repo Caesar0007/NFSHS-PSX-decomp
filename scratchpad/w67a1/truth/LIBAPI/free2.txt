@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / FREE2 / free2
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=4
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  8c82fffc  --------     lw	v0,-4(a0)                      
+0004  00000000  --------     nop                               
+0008  34420001  --------     ori	v0,v0,0x1                     
+000c  ac82fffc  --------     sw	v0,-4(a0)                      
+0010  3c020000  --------     lui	v0,0x0                          <HI16 _Candidate>
+0014  8c420000  --------     lw	v0,0(v0)                         <LO16 _Candidate>
+0018  2484fffc  --------     addiu	a0,a0,-4                    
+001c  0082102b  --------     sltu	v0,a0,v0                     
+0020  10400003  --------     beqz	v0,0x30                      
+0024  00000000  --------     nop                               
+0028  3c010000  --------     lui	at,0x0                          <HI16 _Candidate>
+002c  ac240000  --------     sw	a0,0(at)                         <LO16 _Candidate>
+0030  03e00008  --------     jr	ra                             
+0034  00000000  --------     nop                               
+0038  00000000  --------     nop                               
+003c  00000000  --------     nop                               

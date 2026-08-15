@@ -1,0 +1,41 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_004 / data_ready_callback
+linkage=export  section-size=140 bytes (35 words)  vendor-relocs=16
+retail VA=0x80108798  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingIdx2>
+0004  8c420000  8c426cb4  R  lw	v0,0(v0)                         <LO16 StRingIdx2>
+0008  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingAddr>
+000c  8c630000  8c636cac  R  lw	v1,0(v1)                         <LO16 StRingAddr>
+0010  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0014  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0018  00021140  00021140  =  sll	v0,v0,0x5                     
+001c  00621821  00621821  =  addu	v1,v1,v0                     
+0020  24020002  24020002  =  li	v0,2                           
+0024  a4620000  a4620000  =  sh	v0,0(v1)                       
+0028  3c060000  3c068015  R  lui	a2,0x0                          <HI16 .bss(base)>
+002c  24c60100  24c689d0  R  addiu	a2,a2,256                     <LO16 .bss(base)>
+0030  8862001f  8862001f  =  lwl	v0,31(v1)                     
+0034  9862001c  9862001c  =  lwr	v0,28(v1)                     
+0038  00000000  00000000  =  nop                               
+003c  a8c20003  a8c20003  =  swl	v0,3(a2)                      
+0040  b8c20000  b8c20000  =  swr	v0,0(a2)                      
+0044  8c620008  8c620008  =  lw	v0,8(v1)                       
+0048  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingIdx1>
+004c  8c630000  8c636cb0  R  lw	v1,0(v1)                         <LO16 StRingIdx1>
+0050  3c040000  3c048014  R  lui	a0,0x0                          <HI16 StFunc1>
+0054  8c840000  8c844874  R  lw	a0,0(a0)                         <LO16 StFunc1>
+0058  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x4 + .bss(base))>
+005c  ac220104  ac2289d4  R  sw	v0,260(at)                       <LO16 (0x4 + .bss(base))>
+0060  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx2>
+0064  10800003  10800003  =  beqz	a0,0x74                      
+0068  ac230000  ac236cb4  R  sw	v1,0(at)                         <LO16 StRingIdx2>
+006c  0080f809  0080f809  =  jalr	a0                           
+0070  00000000  00000000  =  nop                               
+0074  3c010000  3c018014  R  lui	at,0x0                          <HI16 StFinalSector>
+0078  ac200000  ac206ca4  R  sw	zero,0(at)                       <LO16 StFinalSector>
+007c  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0080  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0084  03e00008  03e00008  =  jr	ra                             
+0088  00000000  00000000  =  nop                               

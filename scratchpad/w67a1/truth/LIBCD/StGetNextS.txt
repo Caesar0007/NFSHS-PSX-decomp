@@ -1,0 +1,38 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_013 / StGetNextS
+linkage=export  section-size=128 bytes (32 words)  vendor-relocs=12
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00803821  --------     move	a3,a0                        
+0004  3c020000  --------     lui	v0,0x0                          <HI16 StRingIdx3>
+0008  8c420000  --------     lw	v0,0(v0)                         <LO16 StRingIdx3>
+000c  3c040000  --------     lui	a0,0x0                          <HI16 StRingAddr>
+0010  8c840000  --------     lw	a0,0(a0)                         <LO16 StRingAddr>
+0014  00021140  --------     sll	v0,v0,0x5                     
+0018  00823021  --------     addu	a2,a0,v0                     
+001c  94c30000  --------     lhu	v1,0(a2)                      
+0020  24020001  --------     li	v0,1                           
+0024  14620004  --------     bne	v1,v0,0x38                    
+0028  24020004  --------     li	v0,4                           
+002c  3c010000  --------     lui	at,0x0                          <HI16 StRingIdx3>
+0030  ac200000  --------     sw	zero,0(at)                       <LO16 StRingIdx3>
+0034  00803021  --------     move	a2,a0                        
+0038  a4c20000  --------     sh	v0,0(a2)                       
+003c  3c020000  --------     lui	v0,0x0                          <HI16 StRingSize>
+0040  8c420000  --------     lw	v0,0(v0)                         <LO16 StRingSize>
+0044  3c030000  --------     lui	v1,0x0                          <HI16 StRingAddr>
+0048  8c630000  --------     lw	v1,0(v1)                         <LO16 StRingAddr>
+004c  3c040000  --------     lui	a0,0x0                          <HI16 StRingIdx3>
+0050  8c840000  --------     lw	a0,0(a0)                         <LO16 StRingIdx3>
+0054  00021140  --------     sll	v0,v0,0x5                     
+0058  00621821  --------     addu	v1,v1,v0                     
+005c  00041180  --------     sll	v0,a0,0x6                     
+0060  00441023  --------     subu	v0,v0,a0                     
+0064  00021140  --------     sll	v0,v0,0x5                     
+0068  00621821  --------     addu	v1,v1,v0                     
+006c  00001021  --------     move	v0,zero                      
+0070  ace30000  --------     sw	v1,0(a3)                       
+0074  03e00008  --------     jr	ra                             
+0078  aca60000  --------     sw	a2,0(a1)                       
+007c  00000000  --------     nop                               

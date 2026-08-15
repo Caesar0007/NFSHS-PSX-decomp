@@ -1,0 +1,26 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / I_HEAP2 / InitHeap2
+linkage=export  section-size=80 bytes (20 words)  vendor-relocs=12
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  2402fffe  --------     li	v0,-2                          
+0004  00052882  --------     srl	a1,a1,0x2                     
+0008  00052880  --------     sll	a1,a1,0x2                     
+000c  3c010000  --------     lui	at,0x0                          <HI16 _AllocRestBlockTop>
+0010  ac240000  --------     sw	a0,0(at)                         <LO16 _AllocRestBlockTop>
+0014  3c010000  --------     lui	at,0x0                          <HI16 _TopAllocArea>
+0018  ac240000  --------     sw	a0,0(at)                         <LO16 _TopAllocArea>
+001c  ac820000  --------     sw	v0,0(a0)                       
+0020  00852021  --------     addu	a0,a0,a1                     
+0024  3c020000  --------     lui	v0,0x0                          <HI16 _AllocRestBlockTop>
+0028  8c420000  --------     lw	v0,0(v0)                         <LO16 _AllocRestBlockTop>
+002c  24840004  --------     addiu	a0,a0,4                     
+0030  3c010000  --------     lui	at,0x0                          <HI16 _max_heap>
+0034  ac240000  --------     sw	a0,0(at)                         <LO16 _max_heap>
+0038  3c010000  --------     lui	at,0x0                          <HI16 _Candidate>
+003c  ac200000  --------     sw	zero,0(at)                       <LO16 _Candidate>
+0040  24420004  --------     addiu	v0,v0,4                     
+0044  3c010000  --------     lui	at,0x0                          <HI16 _AllocRestBlockTop>
+0048  03e00008  --------     jr	ra                             
+004c  ac220000  --------     sw	v0,0(at)                         <LO16 _AllocRestBlockTop>

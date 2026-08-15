@@ -1,0 +1,70 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / FIXDFSI / __fixdfsi
+linkage=export  section-size=256 bytes (64 words)  vendor-relocs=6
+retail VA=0x800F6834  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc8  27bdffc8  =  addiu	sp,sp,-56                   
+0004  3c027fff  3c027fff  =  lui	v0,0x7fff                     
+0008  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+000c  afb10024  afb10024  =  sw	s1,36(sp)                      
+0010  afb00020  afb00020  =  sw	s0,32(sp)                      
+0014  00808021  00808021  =  move	s0,a0                        
+0018  00a08821  00a08821  =  move	s1,a1                        
+001c  02221024  02221024  =  and	v0,s1,v0                      
+0020  afbf0030  afbf0030  =  sw	ra,48(sp)                      
+0024  afb3002c  afb3002c  =  sw	s3,44(sp)                      
+0028  14400005  14400005  =  bnez	v0,0x40                      
+002c  afb20028  afb20028  =  sw	s2,40(sp)                      
+0030  16000003  16000003  =  bnez	s0,0x40                      
+0034  3c028000  3c028000  =  lui	v0,0x8000                     
+0038  08000038  0803da45  R  j	0xe0                              <REL26 (0xE0 + .text(base))>
+003c  02221024  02221024  =  and	v0,s1,v0                      
+0040  00111503  00111503  =  sra	v0,s1,0x14                    
+0044  305207ff  305207ff  =  andi	s2,v0,0x7ff                  
+0048  2653fbe3  2653fbe3  =  addiu	s3,s2,-1053                 
+004c  1a600008  1a600008  =  blez	s3,0x70                      
+0050  24040022  24040022  =  li	a0,34                          
+0054  0c000000  0c041a95  R  jal	0x0                             <REL26 _err_math>
+0058  24050011  24050011  =  li	a1,17                          
+005c  3c027fff  3c027fff  =  lui	v0,0x7fff                     
+0060  0621001f  0621001f  =  bgez	s1,0xe0                      
+0064  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0068  08000038  0803da45  R  j	0xe0                              <REL26 (0xE0 + .text(base))>
+006c  3c028000  3c028000  =  lui	v0,0x8000                     
+0070  3c02000f  3c02000f  =  lui	v0,0xf                        
+0074  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0078  27a40018  27a40018  =  addiu	a0,sp,24                    
+007c  02221024  02221024  =  and	v0,s1,v0                      
+0080  3c030010  3c030010  =  lui	v1,0x10                       
+0084  00431025  00431025  =  or	v0,v0,v1                       
+0088  afa2001c  afa2001c  =  sw	v0,28(sp)                      
+008c  2402000a  2402000a  =  li	v0,10                          
+0090  afb00018  afb00018  =  sw	s0,24(sp)                      
+0094  afa20010  afa20010  =  sw	v0,16(sp)                      
+0098  8fa60018  8fa60018  =  lw	a2,24(sp)                      
+009c  8fa7001c  8fa7001c  =  lw	a3,28(sp)                      
+00a0  0c000000  0c041b90  R  jal	0x0                             <REL26 _dbl_shift>
+00a4  00002821  00002821  =  move	a1,zero                      
+00a8  2642fc02  2642fc02  =  addiu	v0,s2,-1022                 
+00ac  2c420020  2c420020  =  sltiu	v0,v0,32                    
+00b0  8fa3001c  8fa3001c  =  lw	v1,28(sp)                      
+00b4  10400005  10400005  =  beqz	v0,0xcc                      
+00b8  00000000  00000000  =  nop                               
+00bc  10600003  10600003  =  beqz	v1,0xcc                      
+00c0  00131023  00131023  =  negu	v0,s3                        
+00c4  08000035  0803da42  R  j	0xd4                              <REL26 (0xD4 + .text(base))>
+00c8  00431807  00431807  =  srav	v1,v1,v0                     
+00cc  08000038  0803da45  R  j	0xe0                              <REL26 (0xE0 + .text(base))>
+00d0  00001021  00001021  =  move	v0,zero                      
+00d4  06210002  06210002  =  bgez	s1,0xe0                      
+00d8  00601021  00601021  =  move	v0,v1                        
+00dc  00021023  00021023  =  negu	v0,v0                        
+00e0  8fbf0030  8fbf0030  =  lw	ra,48(sp)                      
+00e4  8fb3002c  8fb3002c  =  lw	s3,44(sp)                      
+00e8  8fb20028  8fb20028  =  lw	s2,40(sp)                      
+00ec  8fb10024  8fb10024  =  lw	s1,36(sp)                      
+00f0  8fb00020  8fb00020  =  lw	s0,32(sp)                      
+00f4  03e00008  03e00008  =  jr	ra                             
+00f8  27bd0038  27bd0038  =  addiu	sp,sp,56                    
+00fc  00000000  00000000  =  nop                               

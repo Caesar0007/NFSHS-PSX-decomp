@@ -1,0 +1,26 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / DIVDF3 / _comp_mant
+linkage=export  section-size=80 bytes (20 words)  vendor-relocs=1
+retail VA=0x800F60B4  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00e5102b  00e5102b  =  sltu	v0,a3,a1                     
+0004  afa40000  afa40000  =  sw	a0,0(sp)                       
+0008  afa50004  afa50004  =  sw	a1,4(sp)                       
+000c  afa60008  afa60008  =  sw	a2,8(sp)                       
+0010  1440000c  1440000c  =  bnez	v0,0x44                      
+0014  afa7000c  afa7000c  =  sw	a3,12(sp)                      
+0018  00a7102b  00a7102b  =  sltu	v0,a1,a3                     
+001c  1440000a  1440000a  =  bnez	v0,0x48                      
+0020  2402ffff  2402ffff  =  li	v0,-1                          
+0024  00c4102b  00c4102b  =  sltu	v0,a2,a0                     
+0028  14400007  14400007  =  bnez	v0,0x48                      
+002c  24020001  24020001  =  li	v0,1                           
+0030  0086182b  0086182b  =  sltu	v1,a0,a2                     
+0034  14600004  14600004  =  bnez	v1,0x48                      
+0038  2402ffff  2402ffff  =  li	v0,-1                          
+003c  080000ca  0803d83f  R  j	0x328                             <REL26 (0x328 + .text(base))>
+0040  00001021  00001021  =  move	v0,zero                      
+0044  24020001  24020001  =  li	v0,1                           
+0048  03e00008  03e00008  =  jr	ra                             
+004c  00000000  00000000  =  nop                               

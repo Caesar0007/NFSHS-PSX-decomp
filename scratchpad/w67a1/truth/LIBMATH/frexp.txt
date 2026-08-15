@@ -1,0 +1,82 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / LDEXP / frexp
+linkage=export  section-size=304 bytes (76 words)  vendor-relocs=10
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc8  --------     addiu	sp,sp,-56                   
+0004  afb10014  --------     sw	s1,20(sp)                      
+0008  afb00010  --------     sw	s0,16(sp)                      
+000c  00808021  --------     move	s0,a0                        
+0010  00a08821  --------     move	s1,a1                        
+0014  afb7002c  --------     sw	s7,44(sp)                      
+0018  00c0b821  --------     move	s7,a2                        
+001c  afb3001c  --------     sw	s3,28(sp)                      
+0020  afb20018  --------     sw	s2,24(sp)                      
+0024  02009021  --------     move	s2,s0                        
+0028  02209821  --------     move	s3,s1                        
+002c  00003021  --------     move	a2,zero                      
+0030  00003821  --------     move	a3,zero                      
+0034  afbf0030  --------     sw	ra,48(sp)                      
+0038  afb60028  --------     sw	s6,40(sp)                      
+003c  afb50024  --------     sw	s5,36(sp)                      
+0040  0c000000  --------     jal	0x0                             <REL26 __eqdf2>
+0044  afb40020  --------     sw	s4,32(sp)                      
+0048  14400003  --------     bnez	v0,0x58                      
+004c  00131503  --------     sra	v0,s3,0x14                    
+0050  0800006a  --------     j	0x1a8                             <REL26 (0x1A8 + .text(base))>
+0054  0000b021  --------     move	s6,zero                      
+0058  304207ff  --------     andi	v0,v0,0x7ff                  
+005c  2456fc02  --------     addiu	s6,v0,-1022                 
+0060  0200a021  --------     move	s4,s0                        
+0064  0220a821  --------     move	s5,s1                        
+0068  00169023  --------     negu	s2,s6                        
+006c  3c010000  --------     lui	at,0x0                          <HI16 (0x10 + .rdata(base))>
+0070  8c300200  --------     lw	s0,512(at)                       <LO16 (0x10 + .rdata(base))>
+0074  8c310204  --------     lw	s1,516(at)                       <LO16 (0x14 + .rdata(base))>
+0078  06410005  --------     bgez	s2,0x90                      
+007c  00000000  --------     nop                               
+0080  3c010000  --------     lui	at,0x0                          <HI16 (0x18 + .rdata(base))>
+0084  8c300208  --------     lw	s0,520(at)                       <LO16 (0x18 + .rdata(base))>
+0088  8c31020c  --------     lw	s1,524(at)                       <LO16 (0x1C + .rdata(base))>
+008c  02c09021  --------     move	s2,s6                        
+0090  12400013  --------     beqz	s2,0xe0                      
+0094  00000000  --------     nop                               
+0098  32420001  --------     andi	v0,s2,0x1                    
+009c  10400007  --------     beqz	v0,0xbc                      
+00a0  02802021  --------     move	a0,s4                        
+00a4  02a02821  --------     move	a1,s5                        
+00a8  02003021  --------     move	a2,s0                        
+00ac  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+00b0  02203821  --------     move	a3,s1                        
+00b4  0040a021  --------     move	s4,v0                        
+00b8  0060a821  --------     move	s5,v1                        
+00bc  02002021  --------     move	a0,s0                        
+00c0  02202821  --------     move	a1,s1                        
+00c4  00803021  --------     move	a2,a0                        
+00c8  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+00cc  00a03821  --------     move	a3,a1                        
+00d0  00408021  --------     move	s0,v0                        
+00d4  00129043  --------     sra	s2,s2,0x1                     
+00d8  1640ffef  --------     bnez	s2,0x98                      
+00dc  00608821  --------     move	s1,v1                        
+00e0  02809021  --------     move	s2,s4                        
+00e4  02a09821  --------     move	s3,s5                        
+00e8  12e00002  --------     beqz	s7,0xf4                      
+00ec  00000000  --------     nop                               
+00f0  aef60000  --------     sw	s6,0(s7)                       
+00f4  02401021  --------     move	v0,s2                        
+00f8  02601821  --------     move	v1,s3                        
+00fc  8fbf0030  --------     lw	ra,48(sp)                      
+0100  8fb7002c  --------     lw	s7,44(sp)                      
+0104  8fb60028  --------     lw	s6,40(sp)                      
+0108  8fb50024  --------     lw	s5,36(sp)                      
+010c  8fb40020  --------     lw	s4,32(sp)                      
+0110  8fb3001c  --------     lw	s3,28(sp)                      
+0114  8fb20018  --------     lw	s2,24(sp)                      
+0118  8fb10014  --------     lw	s1,20(sp)                      
+011c  8fb00010  --------     lw	s0,16(sp)                      
+0120  03e00008  --------     jr	ra                             
+0124  27bd0038  --------     addiu	sp,sp,56                    
+0128  00000000  --------     nop                               
+012c  00000000  --------     nop                               

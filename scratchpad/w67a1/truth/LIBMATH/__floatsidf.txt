@@ -1,0 +1,70 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / FLTSIDF / __floatsidf
+linkage=export  section-size=256 bytes (64 words)  vendor-relocs=2
+retail VA=0x800EB7E4  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc8  27bdffc8  =  addiu	sp,sp,-56                   
+0004  afb3002c  afb3002c  =  sw	s3,44(sp)                      
+0008  00009821  00009821  =  move	s3,zero                      
+000c  afb20028  afb20028  =  sw	s2,40(sp)                      
+0010  2412041d  2412041d  =  li	s2,1053                        
+0014  afbf0030  afbf0030  =  sw	ra,48(sp)                      
+0018  afb10024  afb10024  =  sw	s1,36(sp)                      
+001c  14800004  14800004  =  bnez	a0,0x30                      
+0020  afb00020  afb00020  =  sw	s0,32(sp)                      
+0024  00008021  00008021  =  move	s0,zero                      
+0028  08000037  0803ae30  R  j	0xdc                              <REL26 (0xDC + .text(base))>
+002c  00008821  00008821  =  move	s1,zero                      
+0030  04810003  04810003  =  bgez	a0,0x40                      
+0034  3c0200ff  3c0200ff  =  lui	v0,0xff                       
+0038  3c138000  3c138000  =  lui	s3,0x8000                     
+003c  00042023  00042023  =  negu	a0,a0                        
+0040  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0044  0044102a  0044102a  =  slt	v0,v0,a0                      
+0048  14400008  14400008  =  bnez	v0,0x6c                      
+004c  3c023fff  3c023fff  =  lui	v0,0x3fff                     
+0050  3c0300ff  3c0300ff  =  lui	v1,0xff                       
+0054  3463ffff  3463ffff  =  ori	v1,v1,0xffff                  
+0058  00042100  00042100  =  sll	a0,a0,0x4                     
+005c  0064102a  0064102a  =  slt	v0,v1,a0                      
+0060  1040fffd  1040fffd  =  beqz	v0,0x58                      
+0064  2652fffc  2652fffc  =  addiu	s2,s2,-4                    
+0068  3c023fff  3c023fff  =  lui	v0,0x3fff                     
+006c  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0070  0044102a  0044102a  =  slt	v0,v0,a0                      
+0074  14400008  14400008  =  bnez	v0,0x98                      
+0078  2402000a  2402000a  =  li	v0,10                          
+007c  3c033fff  3c033fff  =  lui	v1,0x3fff                     
+0080  3463ffff  3463ffff  =  ori	v1,v1,0xffff                  
+0084  00042040  00042040  =  sll	a0,a0,0x1                     
+0088  0064102a  0064102a  =  slt	v0,v1,a0                      
+008c  1040fffd  1040fffd  =  beqz	v0,0x84                      
+0090  2652ffff  2652ffff  =  addiu	s2,s2,-1                    
+0094  2402000a  2402000a  =  li	v0,10                          
+0098  afa4001c  afa4001c  =  sw	a0,28(sp)                      
+009c  27a40018  27a40018  =  addiu	a0,sp,24                    
+00a0  afa00018  afa00018  =  sw	zero,24(sp)                    
+00a4  afa20010  afa20010  =  sw	v0,16(sp)                      
+00a8  8fa60018  8fa60018  =  lw	a2,24(sp)                      
+00ac  8fa7001c  8fa7001c  =  lw	a3,28(sp)                      
+00b0  0c000000  0c04123a  R  jal	0x0                             <REL26 _dbl_shift_us>
+00b4  24050001  24050001  =  li	a1,1                           
+00b8  3c02ffef  3c02ffef  =  lui	v0,0xffef                     
+00bc  8fa3001c  8fa3001c  =  lw	v1,28(sp)                      
+00c0  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+00c4  00621824  00621824  =  and	v1,v1,v0                      
+00c8  00738825  00738825  =  or	s1,v1,s3                       
+00cc  00121500  00121500  =  sll	v0,s2,0x14                    
+00d0  02228825  02228825  =  or	s1,s1,v0                       
+00d4  8fb00018  8fb00018  =  lw	s0,24(sp)                      
+00d8  afa3001c  afa3001c  =  sw	v1,28(sp)                      
+00dc  02001021  02001021  =  move	v0,s0                        
+00e0  02201821  02201821  =  move	v1,s1                        
+00e4  8fbf0030  8fbf0030  =  lw	ra,48(sp)                      
+00e8  8fb3002c  8fb3002c  =  lw	s3,44(sp)                      
+00ec  8fb20028  8fb20028  =  lw	s2,40(sp)                      
+00f0  8fb10024  8fb10024  =  lw	s1,36(sp)                      
+00f4  8fb00020  8fb00020  =  lw	s0,32(sp)                      
+00f8  03e00008  03e00008  =  jr	ra                             
+00fc  27bd0038  27bd0038  =  addiu	sp,sp,56                    

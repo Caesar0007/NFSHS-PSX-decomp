@@ -1,0 +1,18 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / EQSF2 / __eqsf2
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=0
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  10850008  --------     beq	a0,a1,0x24                    
+0004  3c037fff  --------     lui	v1,0x7fff                     
+0008  3463ffff  --------     ori	v1,v1,0xffff                  
+000c  00831024  --------     and	v0,a0,v1                      
+0010  14400005  --------     bnez	v0,0x28                      
+0014  24020001  --------     li	v0,1                           
+0018  00a31024  --------     and	v0,a1,v1                      
+001c  14400002  --------     bnez	v0,0x28                      
+0020  24020001  --------     li	v0,1                           
+0024  00001021  --------     move	v0,zero                      
+0028  03e00008  --------     jr	ra                             
+002c  00000000  --------     nop                               

@@ -1,0 +1,94 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / EXTSFDF2 / __extendsfdf2
+linkage=export  section-size=352 bytes (88 words)  vendor-relocs=4
+retail VA=0x800F57C4  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffb8  27bdffb8  =  addiu	sp,sp,-72                   
+0004  3c027fff  3c027fff  =  lui	v0,0x7fff                     
+0008  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+000c  afb30034  afb30034  =  sw	s3,52(sp)                      
+0010  00809821  00809821  =  move	s3,a0                        
+0014  02621024  02621024  =  and	v0,s3,v0                      
+0018  afbf0040  afbf0040  =  sw	ra,64(sp)                      
+001c  afb5003c  afb5003c  =  sw	s5,60(sp)                      
+0020  afb40038  afb40038  =  sw	s4,56(sp)                      
+0024  afb20030  afb20030  =  sw	s2,48(sp)                      
+0028  afb1002c  afb1002c  =  sw	s1,44(sp)                      
+002c  14400005  14400005  =  bnez	v0,0x44                      
+0030  afb00028  afb00028  =  sw	s0,40(sp)                      
+0034  3c028000  3c028000  =  lui	v0,0x8000                     
+0038  02628824  02628824  =  and	s1,s3,v0                      
+003c  0800004c  0803d63d  R  j	0x130                             <REL26 (0x130 + .text(base))>
+0040  00008021  00008021  =  move	s0,zero                      
+0044  3c02007f  3c02007f  =  lui	v0,0x7f                       
+0048  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+004c  02621824  02621824  =  and	v1,s3,v0                      
+0050  001315c3  001315c3  =  sra	v0,s3,0x17                    
+0054  304200ff  304200ff  =  andi	v0,v0,0xff                   
+0058  afa3001c  afa3001c  =  sw	v1,28(sp)                      
+005c  1040000b  1040000b  =  beqz	v0,0x8c                      
+0060  afa00018  afa00018  =  sw	zero,24(sp)                    
+0064  24520380  24520380  =  addiu	s2,v0,896                   
+0068  27a40018  27a40018  =  addiu	a0,sp,24                    
+006c  24020003  24020003  =  li	v0,3                           
+0070  afa20010  afa20010  =  sw	v0,16(sp)                      
+0074  8fa60018  8fa60018  =  lw	a2,24(sp)                      
+0078  8fa7001c  8fa7001c  =  lw	a3,28(sp)                      
+007c  0c000000  0c041b90  R  jal	0x0                             <REL26 _dbl_shift>
+0080  24050001  24050001  =  li	a1,1                           
+0084  08000045  0803d636  R  j	0x114                             <REL26 (0x114 + .text(base))>
+0088  3c028000  3c028000  =  lui	v0,0x8000                     
+008c  3c02ffe0  3c02ffe0  =  lui	v0,0xffe0                     
+0090  00621024  00621024  =  and	v0,v1,v0                      
+0094  1040000e  1040000e  =  beqz	v0,0xd0                      
+0098  2412037e  2412037e  =  li	s2,894                         
+009c  24150001  24150001  =  li	s5,1                           
+00a0  3c14ffe0  3c14ffe0  =  lui	s4,0xffe0                     
+00a4  27a40018  27a40018  =  addiu	a0,sp,24                    
+00a8  afb50010  afb50010  =  sw	s5,16(sp)                      
+00ac  8fa60018  8fa60018  =  lw	a2,24(sp)                      
+00b0  8fa7001c  8fa7001c  =  lw	a3,28(sp)                      
+00b4  0c000000  0c041b90  R  jal	0x0                             <REL26 _dbl_shift>
+00b8  24050001  24050001  =  li	a1,1                           
+00bc  8fa2001c  8fa2001c  =  lw	v0,28(sp)                      
+00c0  00000000  00000000  =  nop                               
+00c4  00541024  00541024  =  and	v0,v0,s4                      
+00c8  1440fff6  1440fff6  =  bnez	v0,0xa4                      
+00cc  26520001  26520001  =  addiu	s2,s2,1                     
+00d0  8fa3001c  8fa3001c  =  lw	v1,28(sp)                      
+00d4  3c020010  3c020010  =  lui	v0,0x10                       
+00d8  00621024  00621024  =  and	v0,v1,v0                      
+00dc  14400007  14400007  =  bnez	v0,0xfc                      
+00e0  3c040010  3c040010  =  lui	a0,0x10                       
+00e4  00031040  00031040  =  sll	v0,v1,0x1                     
+00e8  afa2001c  afa2001c  =  sw	v0,28(sp)                      
+00ec  00401821  00401821  =  move	v1,v0                        
+00f0  00641024  00641024  =  and	v0,v1,a0                      
+00f4  1040fffb  1040fffb  =  beqz	v0,0xe4                      
+00f8  2652ffff  2652ffff  =  addiu	s2,s2,-1                    
+00fc  3c03ffef  3c03ffef  =  lui	v1,0xffef                     
+0100  8fa2001c  8fa2001c  =  lw	v0,28(sp)                      
+0104  3463ffff  3463ffff  =  ori	v1,v1,0xffff                  
+0108  00431024  00431024  =  and	v0,v0,v1                      
+010c  afa2001c  afa2001c  =  sw	v0,28(sp)                      
+0110  3c028000  3c028000  =  lui	v0,0x8000                     
+0114  02621024  02621024  =  and	v0,s3,v0                      
+0118  00121d00  00121d00  =  sll	v1,s2,0x14                    
+011c  8fa4001c  8fa4001c  =  lw	a0,28(sp)                      
+0120  00431025  00431025  =  or	v0,v0,v1                       
+0124  00448825  00448825  =  or	s1,v0,a0                       
+0128  8fb00018  8fb00018  =  lw	s0,24(sp)                      
+012c  00000000  00000000  =  nop                               
+0130  02001021  02001021  =  move	v0,s0                        
+0134  02201821  02201821  =  move	v1,s1                        
+0138  8fbf0040  8fbf0040  =  lw	ra,64(sp)                      
+013c  8fb5003c  8fb5003c  =  lw	s5,60(sp)                      
+0140  8fb40038  8fb40038  =  lw	s4,56(sp)                      
+0144  8fb30034  8fb30034  =  lw	s3,52(sp)                      
+0148  8fb20030  8fb20030  =  lw	s2,48(sp)                      
+014c  8fb1002c  8fb1002c  =  lw	s1,44(sp)                      
+0150  8fb00028  8fb00028  =  lw	s0,40(sp)                      
+0154  03e00008  03e00008  =  jr	ra                             
+0158  27bd0048  27bd0048  =  addiu	sp,sp,72                    
+015c  00000000  00000000  =  nop                               

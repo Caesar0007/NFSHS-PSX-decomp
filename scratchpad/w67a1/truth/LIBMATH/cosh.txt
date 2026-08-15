@@ -1,0 +1,35 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / SINH / cosh
+linkage=export  section-size=116 bytes (29 words)  vendor-relocs=10
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  afbf0018  --------     sw	ra,24(sp)                      
+0008  afb10014  --------     sw	s1,20(sp)                      
+000c  0c000000  --------     jal	0x0                             <REL26 exp>
+0010  afb00010  --------     sw	s0,16(sp)                      
+0014  00408021  --------     move	s0,v0                        
+0018  00608821  --------     move	s1,v1                        
+001c  3c010000  --------     lui	at,0x0                          <HI16 (0x30 + .rdata(base))>
+0020  8c240340  --------     lw	a0,832(at)                       <LO16 (0x30 + .rdata(base))>
+0024  8c250344  --------     lw	a1,836(at)                       <LO16 (0x34 + .rdata(base))>
+0028  02003021  --------     move	a2,s0                        
+002c  0c000000  --------     jal	0x0                             <REL26 __divdf3>
+0030  02203821  --------     move	a3,s1                        
+0034  02002021  --------     move	a0,s0                        
+0038  02202821  --------     move	a1,s1                        
+003c  00403021  --------     move	a2,v0                        
+0040  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+0044  00603821  --------     move	a3,v1                        
+0048  3c010000  --------     lui	at,0x0                          <HI16 (0x38 + .rdata(base))>
+004c  8c260348  --------     lw	a2,840(at)                       <LO16 (0x38 + .rdata(base))>
+0050  8c27034c  --------     lw	a3,844(at)                       <LO16 (0x3C + .rdata(base))>
+0054  00402021  --------     move	a0,v0                        
+0058  0c000000  --------     jal	0x0                             <REL26 __muldf3>
+005c  00602821  --------     move	a1,v1                        
+0060  8fbf0018  --------     lw	ra,24(sp)                      
+0064  8fb10014  --------     lw	s1,20(sp)                      
+0068  8fb00010  --------     lw	s0,16(sp)                      
+006c  03e00008  --------     jr	ra                             
+0070  27bd0020  --------     addiu	sp,sp,32                    

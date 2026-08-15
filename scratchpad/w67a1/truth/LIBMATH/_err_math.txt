@@ -1,0 +1,34 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / FERR / _err_math
+linkage=export  section-size=112 bytes (28 words)  vendor-relocs=7
+retail VA=0x80106A54  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  24020021  24020021  =  li	v0,33                          
+0008  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+000c  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x8 + .data(base))>
+0010  ac240078  ac24bf18  R  sw	a0,120(at)                       <LO16 (0x8 + .data(base))>
+0014  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0xC + .data(base))>
+0018  10820006  10820006  =  beq	a0,v0,0x34                    
+001c  ac25007c  ac25bf1c  R  sw	a1,124(at)                       <LO16 (0xC + .data(base))>
+0020  24020022  24020022  =  li	v0,34                          
+0024  10820007  10820007  =  beq	a0,v0,0x44                    
+0028  3c04f400  3c04f400  =  lui	a0,0xf400                     
+002c  08000015  08041aaa  R  j	0x54                              <REL26 (0x54 + .text(base))>
+0030  00000000  00000000  =  nop                               
+0034  3c04f400  3c04f400  =  lui	a0,0xf400                     
+0038  34840002  34840002  =  ori	a0,a0,0x2                     
+003c  08000013  08041aa8  R  j	0x4c                              <REL26 (0x4C + .text(base))>
+0040  24050301  24050301  =  li	a1,769                         
+0044  34840002  34840002  =  ori	a0,a0,0x2                     
+0048  24050302  24050302  =  li	a1,770                         
+004c  0c000000  0c0431be  R  jal	0x0                             <REL26 DeliverEvent>
+0050  00000000  00000000  =  nop                               
+0054  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0058  00001021  00001021  =  move	v0,zero                      
+005c  03e00008  03e00008  =  jr	ra                             
+0060  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0064  00000000  00000000  =  nop                               
+0068  00000000  00000000  =  nop                               
+006c  00000000  00000000  =  nop                               

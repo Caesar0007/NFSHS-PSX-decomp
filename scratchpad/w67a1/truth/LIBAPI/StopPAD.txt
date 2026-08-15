@@ -1,0 +1,107 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / PAD / StopPAD
+linkage=export  section-size=404 bytes (101 words)  vendor-relocs=28
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afbf0010  --------     sw	ra,16(sp)                      
+0008  0c000000  --------     jal	0x0                             <REL26 DisablePAD>
+000c  00000000  --------     nop                               
+0010  0c000000  --------     jal	0x0                             <REL26 StopPAD2>
+0014  00000000  --------     nop                               
+0018  0c000087  --------     jal	0x21c                           <REL26 (0x21C + .text(base))>
+001c  00000000  --------     nop                               
+0020  3c010000  --------     lui	at,0x0                          <HI16 .data(base)>
+0024  ac200300  --------     sw	zero,768(at)                     <LO16 .data(base)>
+0028  8fbf0010  --------     lw	ra,16(sp)                      
+002c  27bd0018  --------     addiu	sp,sp,24                    
+0030  03e00008  --------     jr	ra                             
+0034  00000000  --------     nop                               
+0038  27bdffe8  --------     addiu	sp,sp,-24                   
+003c  afbf0014  --------     sw	ra,20(sp)                      
+0040  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+0044  afb00010  --------     sw	s0,16(sp)                      
+0048  24040001  --------     li	a0,1                           
+004c  3c030000  --------     lui	v1,0x0                          <HI16 (0x4 + .bss(base))>
+0050  24630314  --------     addiu	v1,v1,788                     <LO16 (0x4 + .bss(base))>
+0054  2470fffc  --------     addiu	s0,v1,-4                    
+0058  3c020000  --------     lui	v0,0x0                          <HI16 (0x254 + .text(base))>
+005c  24420254  --------     addiu	v0,v0,596                     <LO16 (0x254 + .text(base))>
+0060  ac620000  --------     sw	v0,0(v1)                       
+0064  3c020000  --------     lui	v0,0x0                          <HI16 (0x2BC + .text(base))>
+0068  244202bc  --------     addiu	v0,v0,700                     <LO16 (0x2BC + .text(base))>
+006c  ac620004  --------     sw	v0,4(v1)                       
+0070  3c010000  --------     lui	at,0x0                          <HI16 .bss(base)>
+0074  ac200310  --------     sw	zero,784(at)                     <LO16 .bss(base)>
+0078  3c010000  --------     lui	at,0x0                          <HI16 (0xC + .bss(base))>
+007c  ac20031c  --------     sw	zero,796(at)                     <LO16 (0xC + .bss(base))>
+0080  0c000000  --------     jal	0x0                             <REL26 SysDeqIntRP>
+0084  02002821  --------     move	a1,s0                        
+0088  24040001  --------     li	a0,1                           
+008c  0c000000  --------     jal	0x0                             <REL26 SysEnqIntRP>
+0090  02002821  --------     move	a1,s0                        
+0094  0c000000  --------     jal	0x0                             <REL26 ExitCriticalSection>
+0098  00000000  --------     nop                               
+009c  24020001  --------     li	v0,1                           
+00a0  8fbf0014  --------     lw	ra,20(sp)                      
+00a4  8fb00010  --------     lw	s0,16(sp)                      
+00a8  03e00008  --------     jr	ra                             
+00ac  27bd0018  --------     addiu	sp,sp,24                    
+00b0  27bdffe8  --------     addiu	sp,sp,-24                   
+00b4  afbf0010  --------     sw	ra,16(sp)                      
+00b8  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+00bc  00000000  --------     nop                               
+00c0  3c050000  --------     lui	a1,0x0                          <HI16 .bss(base)>
+00c4  24a50310  --------     addiu	a1,a1,784                     <LO16 .bss(base)>
+00c8  0c000000  --------     jal	0x0                             <REL26 SysDeqIntRP>
+00cc  24040001  --------     li	a0,1                           
+00d0  0c000000  --------     jal	0x0                             <REL26 ExitCriticalSection>
+00d4  00000000  --------     nop                               
+00d8  8fbf0010  --------     lw	ra,16(sp)                      
+00dc  24020001  --------     li	v0,1                           
+00e0  03e00008  --------     jr	ra                             
+00e4  27bd0018  --------     addiu	sp,sp,24                    
+00e8  3c020000  --------     lui	v0,0x0                          <HI16 (0x4 + .data(base))>
+00ec  8c420304  --------     lw	v0,772(v0)                       <LO16 (0x4 + .data(base))>
+00f0  27bdfff0  --------     addiu	sp,sp,-16                   
+00f4  a440000a  --------     sh	zero,10(v0)                    
+00f8  2402000a  --------     li	v0,10                          
+00fc  afa20000  --------     sw	v0,0(sp)                       
+0100  8fa20000  --------     lw	v0,0(sp)                       
+0104  00000000  --------     nop                               
+0108  2442ffff  --------     addiu	v0,v0,-1                    
+010c  afa20000  --------     sw	v0,0(sp)                       
+0110  8fa30000  --------     lw	v1,0(sp)                       
+0114  2402ffff  --------     li	v0,-1                          
+0118  1062000a  --------     beq	v1,v0,0x144                   
+011c  00001021  --------     move	v0,zero                      
+0120  2403ffff  --------     li	v1,-1                          
+0124  8fa20000  --------     lw	v0,0(sp)                       
+0128  00000000  --------     nop                               
+012c  2442ffff  --------     addiu	v0,v0,-1                    
+0130  afa20000  --------     sw	v0,0(sp)                       
+0134  8fa20000  --------     lw	v0,0(sp)                       
+0138  00000000  --------     nop                               
+013c  1443fff9  --------     bne	v0,v1,0x124                   
+0140  00001021  --------     move	v0,zero                      
+0144  27bd0010  --------     addiu	sp,sp,16                    
+0148  03e00008  --------     jr	ra                             
+014c  00000000  --------     nop                               
+0150  3c030000  --------     lui	v1,0x0                          <HI16 (0x8 + .data(base))>
+0154  8c630308  --------     lw	v1,776(v1)                       <LO16 (0x8 + .data(base))>
+0158  00000000  --------     nop                               
+015c  8c620004  --------     lw	v0,4(v1)                       
+0160  00000000  --------     nop                               
+0164  30420001  --------     andi	v0,v0,0x1                    
+0168  10400007  --------     beqz	v0,0x188                     
+016c  00001021  --------     move	v0,zero                      
+0170  8c620000  --------     lw	v0,0(v1)                       
+0174  00000000  --------     nop                               
+0178  30420001  --------     andi	v0,v0,0x1                    
+017c  14400002  --------     bnez	v0,0x188                     
+0180  24020001  --------     li	v0,1                           
+0184  00001021  --------     move	v0,zero                      
+0188  03e00008  --------     jr	ra                             
+018c  00000000  --------     nop                               
+0190  00000000  --------     nop                               

@@ -1,0 +1,54 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / FLTSISF / __floatsisf
+linkage=export  section-size=192 bytes (48 words)  vendor-relocs=2
+retail VA=0x800F6224  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00003021  00003021  =  move	a2,zero                      
+0004  14800003  14800003  =  bnez	a0,0x14                      
+0008  2403009d  2403009d  =  li	v1,157                         
+000c  0800002b  0803d8b4  R  j	0xac                              <REL26 (0xAC + .text(base))>
+0010  00001021  00001021  =  move	v0,zero                      
+0014  04810003  04810003  =  bgez	a0,0x24                      
+0018  3c0200ff  3c0200ff  =  lui	v0,0xff                       
+001c  3c068000  3c068000  =  lui	a2,0x8000                     
+0020  00042023  00042023  =  negu	a0,a0                        
+0024  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0028  0044102a  0044102a  =  slt	v0,v0,a0                      
+002c  14400008  14400008  =  bnez	v0,0x50                      
+0030  3c023fff  3c023fff  =  lui	v0,0x3fff                     
+0034  3c0500ff  3c0500ff  =  lui	a1,0xff                       
+0038  34a5ffff  34a5ffff  =  ori	a1,a1,0xffff                  
+003c  00042100  00042100  =  sll	a0,a0,0x4                     
+0040  00a4102a  00a4102a  =  slt	v0,a1,a0                      
+0044  1040fffd  1040fffd  =  beqz	v0,0x3c                      
+0048  2463fffc  2463fffc  =  addiu	v1,v1,-4                    
+004c  3c023fff  3c023fff  =  lui	v0,0x3fff                     
+0050  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0054  0044102a  0044102a  =  slt	v0,v0,a0                      
+0058  14400007  14400007  =  bnez	v0,0x78                      
+005c  00000000  00000000  =  nop                               
+0060  3c053fff  3c053fff  =  lui	a1,0x3fff                     
+0064  34a5ffff  34a5ffff  =  ori	a1,a1,0xffff                  
+0068  00042040  00042040  =  sll	a0,a0,0x1                     
+006c  00a4102a  00a4102a  =  slt	v0,a1,a0                      
+0070  1040fffd  1040fffd  =  beqz	v0,0x68                      
+0074  2463ffff  2463ffff  =  addiu	v1,v1,-1                    
+0078  24840040  24840040  =  addiu	a0,a0,64                    
+007c  04810004  04810004  =  bgez	a0,0x90                      
+0080  00000000  00000000  =  nop                               
+0084  24630001  24630001  =  addiu	v1,v1,1                     
+0088  08000025  0803d8ae  R  j	0x94                              <REL26 (0x94 + .text(base))>
+008c  00042202  00042202  =  srl	a0,a0,0x8                     
+0090  000421c2  000421c2  =  srl	a0,a0,0x7                     
+0094  000315c0  000315c0  =  sll	v0,v1,0x17                    
+0098  00c21825  00c21825  =  or	v1,a2,v0                       
+009c  3c02ff7f  3c02ff7f  =  lui	v0,0xff7f                     
+00a0  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+00a4  00821024  00821024  =  and	v0,a0,v0                      
+00a8  00621025  00621025  =  or	v0,v1,v0                       
+00ac  03e00008  03e00008  =  jr	ra                             
+00b0  00000000  00000000  =  nop                               
+00b4  00000000  00000000  =  nop                               
+00b8  00000000  00000000  =  nop                               
+00bc  00000000  00000000  =  nop                               

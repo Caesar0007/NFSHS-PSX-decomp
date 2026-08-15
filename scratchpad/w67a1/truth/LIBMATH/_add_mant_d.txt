@@ -1,0 +1,50 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / ADDMANT / _add_mant_d
+linkage=export  section-size=176 bytes (44 words)  vendor-relocs=0
+retail VA=0x80106F70  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdfff0  27bdfff0  =  addiu	sp,sp,-16                   
+0004  00804821  00804821  =  move	t1,a0                        
+0008  00054402  00054402  =  srl	t0,a1,0x10                    
+000c  afa50014  afa50014  =  sw	a1,20(sp)                      
+0010  30a5ffff  30a5ffff  =  andi	a1,a1,0xffff                 
+0014  00071c02  00071c02  =  srl	v1,a3,0x10                    
+0018  afa7001c  afa7001c  =  sw	a3,28(sp)                      
+001c  30e7ffff  30e7ffff  =  andi	a3,a3,0xffff                 
+0020  00a72021  00a72021  =  addu	a0,a1,a3                     
+0024  afa50000  afa50000  =  sw	a1,0(sp)                       
+0028  3c050001  3c050001  =  lui	a1,0x1                        
+002c  00851024  00851024  =  and	v0,a0,a1                      
+0030  afa60018  afa60018  =  sw	a2,24(sp)                      
+0034  afa80004  afa80004  =  sw	t0,4(sp)                       
+0038  afa3000c  afa3000c  =  sw	v1,12(sp)                      
+003c  afa70008  afa70008  =  sw	a3,8(sp)                       
+0040  10400003  10400003  =  beqz	v0,0x50                      
+0044  afa40000  afa40000  =  sw	a0,0(sp)                       
+0048  25020001  25020001  =  addiu	v0,t0,1                     
+004c  afa20004  afa20004  =  sw	v0,4(sp)                       
+0050  8fa20004  8fa20004  =  lw	v0,4(sp)                       
+0054  00000000  00000000  =  nop                               
+0058  00433821  00433821  =  addu	a3,v0,v1                     
+005c  00e51024  00e51024  =  and	v0,a3,a1                      
+0060  10400003  10400003  =  beqz	v0,0x70                      
+0064  afa70004  afa70004  =  sw	a3,4(sp)                       
+0068  24c60001  24c60001  =  addiu	a2,a2,1                     
+006c  afa60018  afa60018  =  sw	a2,24(sp)                      
+0070  00071400  00071400  =  sll	v0,a3,0x10                    
+0074  3084ffff  3084ffff  =  andi	a0,a0,0xffff                 
+0078  8fa30018  8fa30018  =  lw	v1,24(sp)                      
+007c  8fa50020  8fa50020  =  lw	a1,32(sp)                      
+0080  00441025  00441025  =  or	v0,v0,a0                       
+0084  afa20014  afa20014  =  sw	v0,20(sp)                      
+0088  00651821  00651821  =  addu	v1,v1,a1                     
+008c  afa30018  afa30018  =  sw	v1,24(sp)                      
+0090  8fa20014  8fa20014  =  lw	v0,20(sp)                      
+0094  8fa30018  8fa30018  =  lw	v1,24(sp)                      
+0098  ad220000  ad220000  =  sw	v0,0(t1)                       
+009c  ad230004  ad230004  =  sw	v1,4(t1)                       
+00a0  01201021  01201021  =  move	v0,t1                        
+00a4  03e00008  03e00008  =  jr	ra                             
+00a8  27bd0010  27bd0010  =  addiu	sp,sp,16                    
+00ac  00000000  00000000  =  nop                               

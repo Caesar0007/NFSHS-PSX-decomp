@@ -1,0 +1,190 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / DIVDF3 / __divdf3
+linkage=export  section-size=736 bytes (184 words)  vendor-relocs=15
+retail VA=0x800F5DD4  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdff98  27bdff98  =  addiu	sp,sp,-104                  
+0004  00804021  00804021  =  move	t0,a0                        
+0008  00a04821  00a04821  =  move	t1,a1                        
+000c  00c05021  00c05021  =  move	t2,a2                        
+0010  00e05821  00e05821  =  move	t3,a3                        
+0014  00091d03  00091d03  =  sra	v1,t1,0x14                    
+0018  306307ff  306307ff  =  andi	v1,v1,0x7ff                  
+001c  000b1503  000b1503  =  sra	v0,t3,0x14                    
+0020  304207ff  304207ff  =  andi	v0,v0,0x7ff                  
+0024  00621823  00621823  =  subu	v1,v1,v0                     
+0028  afb1004c  afb1004c  =  sw	s1,76(sp)                      
+002c  247103fe  247103fe  =  addiu	s1,v1,1022                  
+0030  3c037fff  3c037fff  =  lui	v1,0x7fff                     
+0034  3463ffff  3463ffff  =  ori	v1,v1,0xffff                  
+0038  3c028000  3c028000  =  lui	v0,0x8000                     
+003c  01222024  01222024  =  and	a0,t1,v0                      
+0040  01621024  01621024  =  and	v0,t3,v0                      
+0044  afb40058  afb40058  =  sw	s4,88(sp)                      
+0048  0082a026  0082a026  =  xor	s4,a0,v0                      
+004c  01631824  01631824  =  and	v1,t3,v1                      
+0050  afbf0060  afbf0060  =  sw	ra,96(sp)                      
+0054  afb5005c  afb5005c  =  sw	s5,92(sp)                      
+0058  afb30054  afb30054  =  sw	s3,84(sp)                      
+005c  afb20050  afb20050  =  sw	s2,80(sp)                      
+0060  14600009  14600009  =  bnez	v1,0x88                      
+0064  afb00048  afb00048  =  sw	s0,72(sp)                      
+0068  15400008  15400008  =  bnez	t2,0x8c                      
+006c  3c027fff  3c027fff  =  lui	v0,0x7fff                     
+0070  16800003  16800003  =  bnez	s4,0x80                      
+0074  2413ffff  2413ffff  =  li	s3,-1                          
+0078  3c137fff  3c137fff  =  lui	s3,0x7fff                     
+007c  3673ffff  3673ffff  =  ori	s3,s3,0xffff                  
+0080  080000ad  0803d822  R  j	0x2b4                             <REL26 (0x2B4 + .text(base))>
+0084  2412ffff  2412ffff  =  li	s2,-1                          
+0088  3c027fff  3c027fff  =  lui	v0,0x7fff                     
+008c  3442ffff  3442ffff  =  ori	v0,v0,0xffff                  
+0090  01221024  01221024  =  and	v0,t1,v0                      
+0094  14400006  14400006  =  bnez	v0,0xb0                      
+0098  3c07000f  3c07000f  =  lui	a3,0xf                        
+009c  15000005  15000005  =  bnez	t0,0xb4                      
+00a0  34e7ffff  34e7ffff  =  ori	a3,a3,0xffff                  
+00a4  02809821  02809821  =  move	s3,s4                        
+00a8  080000ad  0803d822  R  j	0x2b4                             <REL26 (0x2B4 + .text(base))>
+00ac  00009021  00009021  =  move	s2,zero                      
+00b0  34e7ffff  34e7ffff  =  ori	a3,a3,0xffff                  
+00b4  01002021  01002021  =  move	a0,t0                        
+00b8  01272824  01272824  =  and	a1,t1,a3                      
+00bc  3c020010  3c020010  =  lui	v0,0x10                       
+00c0  00a22825  00a22825  =  or	a1,a1,v0                       
+00c4  01403021  01403021  =  move	a2,t2                        
+00c8  01673824  01673824  =  and	a3,t3,a3                      
+00cc  00e23825  00e23825  =  or	a3,a3,v0                       
+00d0  afa50034  afa50034  =  sw	a1,52(sp)                      
+00d4  afa80030  afa80030  =  sw	t0,48(sp)                      
+00d8  afa7003c  afa7003c  =  sw	a3,60(sp)                      
+00dc  0c0000b8  0c03d82d  R  jal	0x2e0                           <REL26 (0x2E0 + .text(base))>
+00e0  afaa0038  afaa0038  =  sw	t2,56(sp)                      
+00e4  0441000a  0441000a  =  bgez	v0,0x110                     
+00e8  27b50030  27b50030  =  addiu	s5,sp,48                    
+00ec  27a40030  27a40030  =  addiu	a0,sp,48                    
+00f0  00002821  00002821  =  move	a1,zero                      
+00f4  24020001  24020001  =  li	v0,1                           
+00f8  afa20010  afa20010  =  sw	v0,16(sp)                      
+00fc  8fa60030  8fa60030  =  lw	a2,48(sp)                      
+0100  8fa70034  8fa70034  =  lw	a3,52(sp)                      
+0104  0c000000  0c041b90  R  jal	0x0                             <REL26 _dbl_shift>
+0108  2631ffff  2631ffff  =  addiu	s1,s1,-1                    
+010c  27b50030  27b50030  =  addiu	s5,sp,48                    
+0110  24100001  24100001  =  li	s0,1                           
+0114  3c020020  3c020020  =  lui	v0,0x20                       
+0118  afa20024  afa20024  =  sw	v0,36(sp)                      
+011c  afa00020  afa00020  =  sw	zero,32(sp)                    
+0120  afa00018  afa00018  =  sw	zero,24(sp)                    
+0124  afa0001c  afa0001c  =  sw	zero,28(sp)                    
+0128  8fa40030  8fa40030  =  lw	a0,48(sp)                      
+012c  8fa50034  8fa50034  =  lw	a1,52(sp)                      
+0130  8fa60038  8fa60038  =  lw	a2,56(sp)                      
+0134  8fa7003c  8fa7003c  =  lw	a3,60(sp)                      
+0138  0c0000b8  0c03d82d  R  jal	0x2e0                           <REL26 (0x2E0 + .text(base))>
+013c  00000000  00000000  =  nop                               
+0140  04400014  04400014  =  bltz	v0,0x194                     
+0144  27a40040  27a40040  =  addiu	a0,sp,64                    
+0148  8fa50038  8fa50038  =  lw	a1,56(sp)                      
+014c  8fa6003c  8fa6003c  =  lw	a2,60(sp)                      
+0150  8fa2001c  8fa2001c  =  lw	v0,28(sp)                      
+0154  8fa70024  8fa70024  =  lw	a3,36(sp)                      
+0158  8fa30018  8fa30018  =  lw	v1,24(sp)                      
+015c  8fa80020  8fa80020  =  lw	t0,32(sp)                      
+0160  00471025  00471025  =  or	v0,v0,a3                       
+0164  00681825  00681825  =  or	v1,v1,t0                       
+0168  afa2001c  afa2001c  =  sw	v0,28(sp)                      
+016c  0c000000  0c041bc0  R  jal	0x0                             <REL26 _mainasu>
+0170  afa30018  afa30018  =  sw	v1,24(sp)                      
+0174  8fa20044  8fa20044  =  lw	v0,68(sp)                      
+0178  00000000  00000000  =  nop                               
+017c  afa20010  afa20010  =  sw	v0,16(sp)                      
+0180  8fa70040  8fa70040  =  lw	a3,64(sp)                      
+0184  8fa50030  8fa50030  =  lw	a1,48(sp)                      
+0188  8fa60034  8fa60034  =  lw	a2,52(sp)                      
+018c  0c000000  0c041bdc  R  jal	0x0                             <REL26 _add_mant_d>
+0190  02a02021  02a02021  =  move	a0,s5                        
+0194  27a40030  27a40030  =  addiu	a0,sp,48                    
+0198  afb00010  afb00010  =  sw	s0,16(sp)                      
+019c  8fa60030  8fa60030  =  lw	a2,48(sp)                      
+01a0  8fa70034  8fa70034  =  lw	a3,52(sp)                      
+01a4  0c000000  0c041b90  R  jal	0x0                             <REL26 _dbl_shift>
+01a8  00002821  00002821  =  move	a1,zero                      
+01ac  27a40020  27a40020  =  addiu	a0,sp,32                    
+01b0  afb00010  afb00010  =  sw	s0,16(sp)                      
+01b4  8fa60020  8fa60020  =  lw	a2,32(sp)                      
+01b8  8fa70024  8fa70024  =  lw	a3,36(sp)                      
+01bc  0c000000  0c04123a  R  jal	0x0                             <REL26 _dbl_shift_us>
+01c0  24050001  24050001  =  li	a1,1                           
+01c4  8fa20024  8fa20024  =  lw	v0,36(sp)                      
+01c8  00000000  00000000  =  nop                               
+01cc  1440ffd6  1440ffd6  =  bnez	v0,0x128                     
+01d0  00000000  00000000  =  nop                               
+01d4  8fa20020  8fa20020  =  lw	v0,32(sp)                      
+01d8  00000000  00000000  =  nop                               
+01dc  1440ffd2  1440ffd2  =  bnez	v0,0x128                     
+01e0  00000000  00000000  =  nop                               
+01e4  0620000c  0620000c  =  bltz	s1,0x218                     
+01e8  27a40018  27a40018  =  addiu	a0,sp,24                    
+01ec  24100001  24100001  =  li	s0,1                           
+01f0  afa0002c  afa0002c  =  sw	zero,44(sp)                    
+01f4  afb00028  afb00028  =  sw	s0,40(sp)                      
+01f8  afa00010  afa00010  =  sw	zero,16(sp)                    
+01fc  8fa70028  8fa70028  =  lw	a3,40(sp)                      
+0200  8fa50018  8fa50018  =  lw	a1,24(sp)                      
+0204  8fa6001c  8fa6001c  =  lw	a2,28(sp)                      
+0208  0c000000  0c041bdc  R  jal	0x0                             <REL26 _add_mant_d>
+020c  26310001  26310001  =  addiu	s1,s1,1                     
+0210  08000093  0803d808  R  j	0x24c                             <REL26 (0x24C + .text(base))>
+0214  27a40018  27a40018  =  addiu	a0,sp,24                    
+0218  00118023  00118023  =  negu	s0,s1                        
+021c  24020001  24020001  =  li	v0,1                           
+0220  02021004  02021004  =  sllv	v0,v0,s0                     
+0224  afa0002c  afa0002c  =  sw	zero,44(sp)                    
+0228  afa20028  afa20028  =  sw	v0,40(sp)                      
+022c  afa00010  afa00010  =  sw	zero,16(sp)                    
+0230  8fa70028  8fa70028  =  lw	a3,40(sp)                      
+0234  8fa50018  8fa50018  =  lw	a1,24(sp)                      
+0238  8fa6001c  8fa6001c  =  lw	a2,28(sp)                      
+023c  0c000000  0c041bdc  R  jal	0x0                             <REL26 _add_mant_d>
+0240  00008821  00008821  =  move	s1,zero                      
+0244  27a40018  27a40018  =  addiu	a0,sp,24                    
+0248  26100001  26100001  =  addiu	s0,s0,1                     
+024c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0250  8fa60018  8fa60018  =  lw	a2,24(sp)                      
+0254  8fa7001c  8fa7001c  =  lw	a3,28(sp)                      
+0258  0c000000  0c04123a  R  jal	0x0                             <REL26 _dbl_shift_us>
+025c  24050001  24050001  =  li	a1,1                           
+0260  3c03ffef  3c03ffef  =  lui	v1,0xffef                     
+0264  8fa2001c  8fa2001c  =  lw	v0,28(sp)                      
+0268  3463ffff  3463ffff  =  ori	v1,v1,0xffff                  
+026c  00431824  00431824  =  and	v1,v0,v1                      
+0270  2a2207ff  2a2207ff  =  slti	v0,s1,2047                   
+0274  1440000a  1440000a  =  bnez	v0,0x2a0                     
+0278  afa3001c  afa3001c  =  sw	v1,28(sp)                      
+027c  24040022  24040022  =  li	a0,34                          
+0280  0c000000  0c041a95  R  jal	0x0                             <REL26 _err_math>
+0284  2405000f  2405000f  =  li	a1,15                          
+0288  12800002  12800002  =  beqz	s4,0x294                     
+028c  3c027ff0  3c027ff0  =  lui	v0,0x7ff0                     
+0290  3c02fff0  3c02fff0  =  lui	v0,0xfff0                     
+0294  00409821  00409821  =  move	s3,v0                        
+0298  080000ad  0803d822  R  j	0x2b4                             <REL26 (0x2B4 + .text(base))>
+029c  00009021  00009021  =  move	s2,zero                      
+02a0  00111500  00111500  =  sll	v0,s1,0x14                    
+02a4  02821025  02821025  =  or	v0,s4,v0                       
+02a8  00439825  00439825  =  or	s3,v0,v1                       
+02ac  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+02b0  00000000  00000000  =  nop                               
+02b4  02401021  02401021  =  move	v0,s2                        
+02b8  02601821  02601821  =  move	v1,s3                        
+02bc  8fbf0060  8fbf0060  =  lw	ra,96(sp)                      
+02c0  8fb5005c  8fb5005c  =  lw	s5,92(sp)                      
+02c4  8fb40058  8fb40058  =  lw	s4,88(sp)                      
+02c8  8fb30054  8fb30054  =  lw	s3,84(sp)                      
+02cc  8fb20050  8fb20050  =  lw	s2,80(sp)                      
+02d0  8fb1004c  8fb1004c  =  lw	s1,76(sp)                      
+02d4  8fb00048  8fb00048  =  lw	s0,72(sp)                      
+02d8  03e00008  03e00008  =  jr	ra                             
+02dc  27bd0068  27bd0068  =  addiu	sp,sp,104                   

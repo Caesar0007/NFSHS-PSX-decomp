@@ -1,0 +1,83 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / SYS / CdControlF
+linkage=export  section-size=308 bytes (77 words)  vendor-relocs=15
+retail VA=0x800F79F0  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc8  27bdffc8  =  addiu	sp,sp,-56                   
+0004  afb10014  afb10014  =  sw	s1,20(sp)                      
+0008  00a08821  00a08821  =  move	s1,a1                        
+000c  afb3001c  afb3001c  =  sw	s3,28(sp)                      
+0010  00809821  00809821  =  move	s3,a0                        
+0014  afb00010  afb00010  =  sw	s0,16(sp)                      
+0018  24100003  24100003  =  li	s0,3                           
+001c  afbe0030  afbe0030  =  sw	s8,48(sp)                      
+0020  241e0001  241e0001  =  li	s8,1                           
+0024  afb20018  afb20018  =  sw	s2,24(sp)                      
+0028  327200ff  327200ff  =  andi	s2,s3,0xff                   
+002c  3c030000  3c038013  R  lui	v1,0x0                          <HI16 .data(base)>
+0030  246307a0  24636a18  R  addiu	v1,v1,1952                    <LO16 .data(base)>
+0034  afb40020  afb40020  =  sw	s4,32(sp)                      
+0038  3c140000  3c148014  R  lui	s4,0x0                          <HI16 CD_cbsync>
+003c  8e940000  8e94bf48  R  lw	s4,0(s4)                         <LO16 CD_cbsync>
+0040  00121080  00121080  =  sll	v0,s2,0x2                     
+0044  afb50024  afb50024  =  sw	s5,36(sp)                      
+0048  0043a821  0043a821  =  addu	s5,v0,v1                     
+004c  afb60028  afb60028  =  sw	s6,40(sp)                      
+0050  0000b021  0000b021  =  move	s6,zero                      
+0054  afb7002c  afb7002c  =  sw	s7,44(sp)                      
+0058  2417ffff  2417ffff  =  li	s7,-1                          
+005c  afbf0034  afbf0034  =  sw	ra,52(sp)                      
+0060  3c010000  3c018014  R  lui	at,0x0                          <HI16 CD_cbsync>
+0064  125e000b  125e000b  =  beq	s2,s8,0x94                    
+0068  ac200000  ac20bf48  R  sw	zero,0(at)                       <LO16 CD_cbsync>
+006c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 CD_status>
+0070  90420000  9042bf54  R  lbu	v0,0(v0)                        <LO16 CD_status>
+0074  00000000  00000000  =  nop                               
+0078  30420010  30420010  =  andi	v0,v0,0x10                   
+007c  10400005  10400005  =  beqz	v0,0x94                      
+0080  24040001  24040001  =  li	a0,1                           
+0084  00002821  00002821  =  move	a1,zero                      
+0088  00003021  00003021  =  move	a2,zero                      
+008c  0c000000  0c041ec9  R  jal	0x0                             <REL26 CD_cw>
+0090  00003821  00003821  =  move	a3,zero                      
+0094  1220000b  1220000b  =  beqz	s1,0xc4                      
+0098  00000000  00000000  =  nop                               
+009c  8ea20000  8ea20000  =  lw	v0,0(s5)                       
+00a0  00000000  00000000  =  nop                               
+00a4  10400007  10400007  =  beqz	v0,0xc4                      
+00a8  24040002  24040002  =  li	a0,2                           
+00ac  02202821  02202821  =  move	a1,s1                        
+00b0  00003021  00003021  =  move	a2,zero                      
+00b4  0c000000  0c041ec9  R  jal	0x0                             <REL26 CD_cw>
+00b8  00003821  00003821  =  move	a3,zero                      
+00bc  1440000a  1440000a  =  bnez	v0,0xe8                      
+00c0  00000000  00000000  =  nop                               
+00c4  3c010000  3c018014  R  lui	at,0x0                          <HI16 CD_cbsync>
+00c8  ac340000  ac34bf48  R  sw	s4,0(at)                         <LO16 CD_cbsync>
+00cc  326400ff  326400ff  =  andi	a0,s3,0xff                   
+00d0  02202821  02202821  =  move	a1,s1                        
+00d4  00003021  00003021  =  move	a2,zero                      
+00d8  0c000000  0c041ec9  R  jal	0x0                             <REL26 CD_cw>
+00dc  24070001  24070001  =  li	a3,1                           
+00e0  10400008  10400008  =  beqz	v0,0x104                     
+00e4  26c20001  26c20001  =  addiu	v0,s6,1                     
+00e8  2610ffff  2610ffff  =  addiu	s0,s0,-1                    
+00ec  1617ffdc  1617ffdc  =  bne	s0,s7,0x60                    
+00f0  00000000  00000000  =  nop                               
+00f4  3c010000  3c018014  R  lui	at,0x0                          <HI16 CD_cbsync>
+00f8  ac340000  ac34bf48  R  sw	s4,0(at)                         <LO16 CD_cbsync>
+00fc  2416ffff  2416ffff  =  li	s6,-1                          
+0100  26c20001  26c20001  =  addiu	v0,s6,1                     
+0104  8fbf0034  8fbf0034  =  lw	ra,52(sp)                      
+0108  8fbe0030  8fbe0030  =  lw	s8,48(sp)                      
+010c  8fb7002c  8fb7002c  =  lw	s7,44(sp)                      
+0110  8fb60028  8fb60028  =  lw	s6,40(sp)                      
+0114  8fb50024  8fb50024  =  lw	s5,36(sp)                      
+0118  8fb40020  8fb40020  =  lw	s4,32(sp)                      
+011c  8fb3001c  8fb3001c  =  lw	s3,28(sp)                      
+0120  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+0124  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+0128  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+012c  03e00008  03e00008  =  jr	ra                             
+0130  27bd0038  27bd0038  =  addiu	sp,sp,56                    

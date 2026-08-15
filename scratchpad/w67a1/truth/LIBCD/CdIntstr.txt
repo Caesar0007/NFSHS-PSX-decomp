@@ -1,0 +1,19 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / SYS / CdIntstr
+linkage=export  section-size=52 bytes (13 words)  vendor-relocs=5
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  308400ff  --------     andi	a0,a0,0xff                   
+0004  2c820007  --------     sltiu	v0,a0,7                     
+0008  10400006  --------     beqz	v0,0x24                      
+000c  00041080  --------     sll	v0,a0,0x2                     
+0010  3c010000  --------     lui	at,0x0                          <HI16 CD_intstr>
+0014  00220821  --------     addu	at,at,v0                     
+0018  8c220000  --------     lw	v0,0(at)                         <LO16 CD_intstr>
+001c  0800004f  --------     j	0x13c                             <REL26 (0x13C + .text(base))>
+0020  00000000  --------     nop                               
+0024  3c020000  --------     lui	v0,0x0                          <HI16 .rdata(base)>
+0028  24420790  --------     addiu	v0,v0,1936                    <LO16 .rdata(base)>
+002c  03e00008  --------     jr	ra                             
+0030  00000000  --------     nop                               

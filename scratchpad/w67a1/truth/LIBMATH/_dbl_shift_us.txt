@@ -1,0 +1,54 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / DBSHIFTU / _dbl_shift_us
+linkage=export  section-size=192 bytes (48 words)  vendor-relocs=1
+retail VA=0x801048E8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  afa60008  afa60008  =  sw	a2,8(sp)                       
+0004  8fa60010  8fa60010  =  lw	a2,16(sp)                      
+0008  00804021  00804021  =  move	t0,a0                        
+000c  14a00014  14a00014  =  bnez	a1,0x60                      
+0010  afa7000c  afa7000c  =  sw	a3,12(sp)                      
+0014  18c00023  18c00023  =  blez	a2,0xa4                      
+0018  00002021  00002021  =  move	a0,zero                      
+001c  3c078000  3c078000  =  lui	a3,0x8000                     
+0020  8fa2000c  8fa2000c  =  lw	v0,12(sp)                      
+0024  8fa50008  8fa50008  =  lw	a1,8(sp)                       
+0028  00021840  00021840  =  sll	v1,v0,0x1                     
+002c  00a71024  00a71024  =  and	v0,a1,a3                      
+0030  10400003  10400003  =  beqz	v0,0x40                      
+0034  afa3000c  afa3000c  =  sw	v1,12(sp)                      
+0038  34620001  34620001  =  ori	v0,v1,0x1                     
+003c  afa2000c  afa2000c  =  sw	v0,12(sp)                      
+0040  00051040  00051040  =  sll	v0,a1,0x1                     
+0044  afa20008  afa20008  =  sw	v0,8(sp)                       
+0048  24840001  24840001  =  addiu	a0,a0,1                     
+004c  0086102a  0086102a  =  slt	v0,a0,a2                      
+0050  10400014  10400014  =  beqz	v0,0xa4                      
+0054  00000000  00000000  =  nop                               
+0058  08000008  08041242  R  j	0x20                              <REL26 (0x20 + .text(base))>
+005c  00000000  00000000  =  nop                               
+0060  18c00010  18c00010  =  blez	a2,0xa4                      
+0064  00002021  00002021  =  move	a0,zero                      
+0068  3c078000  3c078000  =  lui	a3,0x8000                     
+006c  8fa20008  8fa20008  =  lw	v0,8(sp)                       
+0070  8fa5000c  8fa5000c  =  lw	a1,12(sp)                      
+0074  00021842  00021842  =  srl	v1,v0,0x1                     
+0078  30a20001  30a20001  =  andi	v0,a1,0x1                    
+007c  10400003  10400003  =  beqz	v0,0x8c                      
+0080  afa30008  afa30008  =  sw	v1,8(sp)                       
+0084  00671025  00671025  =  or	v0,v1,a3                       
+0088  afa20008  afa20008  =  sw	v0,8(sp)                       
+008c  00051042  00051042  =  srl	v0,a1,0x1                     
+0090  afa2000c  afa2000c  =  sw	v0,12(sp)                      
+0094  24840001  24840001  =  addiu	a0,a0,1                     
+0098  0086102a  0086102a  =  slt	v0,a0,a2                      
+009c  1440fff3  1440fff3  =  bnez	v0,0x6c                      
+00a0  00000000  00000000  =  nop                               
+00a4  8fa20008  8fa20008  =  lw	v0,8(sp)                       
+00a8  8fa3000c  8fa3000c  =  lw	v1,12(sp)                      
+00ac  ad020000  ad020000  =  sw	v0,0(t0)                       
+00b0  ad030004  ad030004  =  sw	v1,4(t0)                       
+00b4  03e00008  03e00008  =  jr	ra                             
+00b8  01001021  01001021  =  move	v0,t0                        
+00bc  00000000  00000000  =  nop                               

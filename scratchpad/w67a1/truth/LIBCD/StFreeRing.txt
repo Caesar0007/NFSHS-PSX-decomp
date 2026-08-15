@@ -1,0 +1,50 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_007 / StFreeRing
+linkage=export  section-size=176 bytes (44 words)  vendor-relocs=8
+retail VA=0x800FA994  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c058208  3c058208  =  lui	a1,0x8208                     
+0004  34a52083  34a52083  =  ori	a1,a1,0x2083                  
+0008  3c020000  3c028014  R  lui	v0,0x0                          <HI16 StRingSize>
+000c  8c420000  8c426cbc  R  lw	v0,0(v0)                         <LO16 StRingSize>
+0010  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingAddr>
+0014  8c630000  8c636cac  R  lw	v1,0(v1)                         <LO16 StRingAddr>
+0018  00021140  00021140  =  sll	v0,v0,0x5                     
+001c  00621021  00621021  =  addu	v0,v1,v0                     
+0020  00822023  00822023  =  subu	a0,a0,v0                     
+0024  00041083  00041083  =  sra	v0,a0,0x2                     
+0028  00450018  00450018  =  mult	v0,a1                        
+002c  000427c3  000427c3  =  sra	a0,a0,0x1f                    
+0030  00003810  00003810  =  mfhi	a3                           
+0034  00e21021  00e21021  =  addu	v0,a3,v0                     
+0038  00021203  00021203  =  sra	v0,v0,0x8                     
+003c  00442823  00442823  =  subu	a1,v0,a0                     
+0040  00051140  00051140  =  sll	v0,a1,0x5                     
+0044  00621821  00621821  =  addu	v1,v1,v0                     
+0048  24040004  24040004  =  li	a0,4                           
+004c  84620000  84620000  =  lh	v0,0(v1)                       
+0050  94630006  94630006  =  lhu	v1,6(v1)                      
+0054  14440013  14440013  =  bne	v0,a0,0xa4                    
+0058  24020001  24020001  =  li	v0,1                           
+005c  00031400  00031400  =  sll	v0,v1,0x10                    
+0060  00021403  00021403  =  sra	v0,v0,0x10                    
+0064  1840000b  1840000b  =  blez	v0,0x94                      
+0068  00002021  00002021  =  move	a0,zero                      
+006c  00403021  00403021  =  move	a2,v0                        
+0070  00851021  00851021  =  addu	v0,a0,a1                     
+0074  24840001  24840001  =  addiu	a0,a0,1                     
+0078  3c030000  3c038014  R  lui	v1,0x0                          <HI16 StRingAddr>
+007c  8c630000  8c636cac  R  lw	v1,0(v1)                         <LO16 StRingAddr>
+0080  00021140  00021140  =  sll	v0,v0,0x5                     
+0084  00621821  00621821  =  addu	v1,v1,v0                     
+0088  0086102a  0086102a  =  slt	v0,a0,a2                      
+008c  1440fff8  1440fff8  =  bnez	v0,0x70                      
+0090  a4600000  a4600000  =  sh	zero,0(v1)                     
+0094  00851021  00851021  =  addu	v0,a0,a1                     
+0098  3c010000  3c018014  R  lui	at,0x0                          <HI16 StRingIdx3>
+009c  ac220000  ac226cb8  R  sw	v0,0(at)                         <LO16 StRingIdx3>
+00a0  00001021  00001021  =  move	v0,zero                      
+00a4  03e00008  03e00008  =  jr	ra                             
+00a8  00000000  00000000  =  nop                               
+00ac  00000000  00000000  =  nop                               

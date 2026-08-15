@@ -1,0 +1,14 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_010 / StSetMask
+linkage=export  section-size=32 bytes (8 words)  vendor-relocs=6
+retail VA=0x8010885C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  3c018014  R  lui	at,0x0                          <HI16 StSTART_FLAG>
+0004  ac240000  ac246c98  R  sw	a0,0(at)                         <LO16 StSTART_FLAG>
+0008  3c010000  3c018014  R  lui	at,0x0                          <HI16 StStartFrame>
+000c  ac250000  ac256cc0  R  sw	a1,0(at)                         <LO16 StStartFrame>
+0010  3c010000  3c018014  R  lui	at,0x0                          <HI16 StEndFrame>
+0014  03e00008  03e00008  =  jr	ra                             
+0018  ac260000  ac266c94  R  sw	a2,0(at)                         <LO16 StEndFrame>
+001c  00000000  00000000  =  nop                               

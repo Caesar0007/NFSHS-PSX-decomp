@@ -1,0 +1,65 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / BIOS / CD_set_test_parmnum
+linkage=export  section-size=228 bytes (57 words)  vendor-relocs=18
+retail VA=0x80108674  VERDICT=reloc-only
+member $Id: $Id: bios.c,v 1.86 1997/03/28 07:42:42 makoto Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x2B0 + .data(base))>
+0004  03e00008  03e00008  =  jr	ra                             
+0008  ac241c70  ac24c1f0  R  sw	a0,7280(at)                      <LO16 (0x2B0 + .data(base))>
+        >> retail symbol here: _cd_intr_dispatch (0x80108680)
+000c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 (0x2CC + .data(base))>
+0010  8c421c8c  8c42c20c  R  lw	v0,7308(v0)                      <LO16 (0x2CC + .data(base))>
+0014  27bdffd8  27bdffd8  =  addiu	sp,sp,-40                   
+0018  afb10014  afb10014  =  sw	s1,20(sp)                      
+001c  3c110000  3c118014  R  lui	s1,0x0                          <HI16 (0x2E5 + .data(base))>
+0020  26311ca5  2631c225  R  addiu	s1,s1,7333                    <LO16 (0x2E5 + .data(base))>
+0024  afbf0020  afbf0020  =  sw	ra,32(sp)                      
+0028  afb3001c  afb3001c  =  sw	s3,28(sp)                      
+002c  afb20018  afb20018  =  sw	s2,24(sp)                      
+0030  afb00010  afb00010  =  sw	s0,16(sp)                      
+0034  90420000  90420000  =  lbu	v0,0(v0)                      
+0038  2633ffff  2633ffff  =  addiu	s3,s1,-1                    
+003c  30520003  30520003  =  andi	s2,v0,0x3                    
+0040  0c000000  0c041c20  R  jal	0x0                             <REL26 .text(base)>
+0044  00000000  00000000  =  nop                               
+0048  00408021  00408021  =  move	s0,v0                        
+004c  1200001a  1200001a  =  beqz	s0,0xb8                      
+0050  32020004  32020004  =  andi	v0,s0,0x4                    
+0054  1040000b  1040000b  =  beqz	v0,0x84                      
+0058  32020002  32020002  =  andi	v0,s0,0x2                    
+005c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 (0xC + .data(base))>
+0060  8c4219cc  8c42bf4c  R  lw	v0,6604(v0)                      <LO16 (0xC + .data(base))>
+0064  00000000  00000000  =  nop                               
+0068  10400005  10400005  =  beqz	v0,0x80                      
+006c  00000000  00000000  =  nop                               
+0070  92240000  92240000  =  lbu	a0,0(s1)                      
+0074  3c050000  3c058015  R  lui	a1,0x0                          <HI16 (0x8 + .bss(base))>
+0078  0040f809  0040f809  =  jalr	v0                           
+007c  24a51ce8  24a589a4  R  addiu	a1,a1,7400                    <LO16 (0x8 + .bss(base))>
+0080  32020002  32020002  =  andi	v0,s0,0x2                    
+0084  1040ffee  1040ffee  =  beqz	v0,0x40                      
+0088  00000000  00000000  =  nop                               
+008c  3c020000  3c028014  R  lui	v0,0x0                          <HI16 (0x8 + .data(base))>
+0090  8c4219c8  8c42bf48  R  lw	v0,6600(v0)                      <LO16 (0x8 + .data(base))>
+0094  00000000  00000000  =  nop                               
+0098  1040ffe9  1040ffe9  =  beqz	v0,0x40                      
+009c  00000000  00000000  =  nop                               
+00a0  92640000  92640000  =  lbu	a0,0(s3)                      
+00a4  3c050000  3c058015  R  lui	a1,0x0                          <HI16 .bss(base)>
+00a8  0040f809  0040f809  =  jalr	v0                           
+00ac  24a51ce0  24a5899c  R  addiu	a1,a1,7392                    <LO16 .bss(base)>
+00b0  080005af  080421ad  R  j	0x16bc                            <REL26 (0x16BC + .text(base))>
+00b4  00000000  00000000  =  nop                               
+00b8  3c020000  3c028014  R  lui	v0,0x0                          <HI16 (0x2CC + .data(base))>
+00bc  8c421c8c  8c42c20c  R  lw	v0,7308(v0)                      <LO16 (0x2CC + .data(base))>
+00c0  00000000  00000000  =  nop                               
+00c4  a0520000  a0520000  =  sb	s2,0(v0)                       
+00c8  8fbf0020  8fbf0020  =  lw	ra,32(sp)                      
+00cc  8fb3001c  8fb3001c  =  lw	s3,28(sp)                      
+00d0  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+00d4  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+00d8  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00dc  03e00008  03e00008  =  jr	ra                             
+00e0  27bd0028  27bd0028  =  addiu	sp,sp,40                    

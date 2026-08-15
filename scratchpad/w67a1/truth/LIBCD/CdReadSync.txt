@@ -1,0 +1,56 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / CDREAD / CdReadSync
+linkage=export  section-size=200 bytes (50 words)  vendor-relocs=7
+retail VA=0x80108F78  VERDICT=drifted(45)
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  27bdffd8  =  addiu	sp,sp,-40                   
+0004  afb20018  afb3001c  !  sw	s2,24(sp)                      
+0008  00809021  00809821  !  move	s2,a0                        
+000c  afb3001c  afb40020  !  sw	s3,28(sp)                      
+0010  00a09821  00a0a021  !  move	s3,a1                        
+0014  afb10014  afb10014  =  sw	s1,20(sp)                      
+0018  3c110000  3c118014  R  lui	s1,0x0                          <HI16 (0x1C + .data(base))>
+001c  2631081c  2631c2ac  R  addiu	s1,s1,2076                    <LO16 (0x1C + .data(base))>
+0020  afbf0020  afb20018  !  sw	ra,32(sp)                      
+0024  afb00010  26320008  !  sw	s0,16(sp)                      
+0028  0c000000  afbf0024  !  jal	0x0                             <REL26 VSync>
+002c  2404ffff  afb00010  !  li	a0,-1                          
+0030  8e230000  0c03c8c7  !  lw	v1,0(s1)                       
+0034  00000000  2404ffff  !  nop                               
+0038  246304b0  8e230000  !  addiu	v1,v1,1200                  
+003c  0062182a  00000000  !  slt	v1,v1,v0                      
+0040  14600013  246304b0  !  bnez	v1,0x90                      
+0044  2410ffff  0062182a  !  li	s0,-1                          
+0048  8e22fff8  14600013  !  lw	v0,-8(s1)                      
+004c  00000000  2410ffff  !  nop                               
+0050  04400009  8e22fff8  !  bltz	v0,0x78                      
+0054  00000000  00000000  =  nop                               
+0058  0c000000  04400009  !  jal	0x0                             <REL26 VSync>
+005c  2404ffff  00000000  !  li	a0,-1                          
+0060  8e23fffc  0c03c8c7  !  lw	v1,-4(s1)                      
+0064  00000000  2404ffff  !  nop                               
+0068  2463003c  8e23fffc  !  addiu	v1,v1,60                    
+006c  0062182a  00000000  !  slt	v1,v1,v0                      
+0070  10600006  2463003c  !  beqz	v1,0x8c                      
+0074  00000000  0062182a  !  nop                               
+0078  0c0000d3  10600006  !  jal	0x34c                           <REL26 (0x34C + .text(base))>
+007c  24040001  00000000  !  li	a0,1                           
+0080  8e30ffe4  0c0422fd  !  lw	s0,-28(s1)                     
+0084  080001d4  24040001  !  j	0x750                             <REL26 (0x750 + .text(base))>
+0088  00000000  8e30ffe4  !  nop                               
+008c  8e30fff8  08042404  !  lw	s0,-8(s1)                      
+0090  16400003  00000000  !  bnez	s2,0xa0                      
+0094  24040001  8e30fff8  !  li	a0,1                           
+0098  1e00ffe3  16600009  !  bgtz	s0,0x28                      
+009c  00000000  24040001  !  nop                               
+00a0  0c000000  8e420000  !  jal	0x0                             <REL26 CdReady>
+00a4  02602821  00000000  !  move	a1,s3                        
+00a8  02001021  10400003  !  move	v0,s0                        
+00ac  8fbf0020  00000000  !  lw	ra,32(sp)                      
+00b0  8fb3001c  1200ffdf  !  lw	s3,28(sp)                      
+00b4  8fb20018  00000000  !  lw	s2,24(sp)                      
+00b8  8fb10014  1e00ffdd  !  lw	s1,20(sp)                      
+00bc  8fb00010  24040001  !  lw	s0,16(sp)                      
+00c0  03e00008  0c03de1b  !  jr	ra                             
+00c4  27bd0028  02802821  !  addiu	sp,sp,40                    

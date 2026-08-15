@@ -1,0 +1,31 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / C_004 / StGetBackloc
+linkage=export  section-size=100 bytes (25 words)  vendor-relocs=9
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  --------     lui	v0,0x0                          <HI16 StMode>
+0004  8c420000  --------     lw	v0,0(v0)                         <LO16 StMode>
+0008  27bdffe8  --------     addiu	sp,sp,-24                   
+000c  afb00010  --------     sw	s0,16(sp)                      
+0010  00808021  --------     move	s0,a0                        
+0014  1440000b  --------     bnez	v0,0x44                      
+0018  afbf0014  --------     sw	ra,20(sp)                      
+001c  3c040000  --------     lui	a0,0x0                          <HI16 .bss(base)>
+0020  0c000000  --------     jal	0x0                             <REL26 CdPosToInt>
+0024  24840100  --------     addiu	a0,a0,256                     <LO16 .bss(base)>
+0028  24440001  --------     addiu	a0,v0,1                     
+002c  0c000000  --------     jal	0x0                             <REL26 CdIntToPos>
+0030  02002821  --------     move	a1,s0                        
+0034  3c020000  --------     lui	v0,0x0                          <HI16 (0x4 + .bss(base))>
+0038  8c420104  --------     lw	v0,260(v0)                       <LO16 (0x4 + .bss(base))>
+003c  08000035  --------     j	0xd4                              <REL26 (0xD4 + .text(base))>
+0040  00000000  --------     nop                               
+0044  2402ffff  --------     li	v0,-1                          
+0048  8fbf0014  --------     lw	ra,20(sp)                      
+004c  8fb00010  --------     lw	s0,16(sp)                      
+0050  03e00008  --------     jr	ra                             
+0054  27bd0018  --------     addiu	sp,sp,24                    
+0058  00000000  --------     nop                               
+005c  00000000  --------     nop                               
+0060  00000000  --------     nop                               

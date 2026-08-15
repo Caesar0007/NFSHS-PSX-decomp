@@ -1,0 +1,30 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / SUBSF3 / __subsf3
+linkage=export  section-size=96 bytes (24 words)  vendor-relocs=4
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afbf0010  --------     sw	ra,16(sp)                      
+0008  00a01821  --------     move	v1,a1                        
+000c  3c067fff  --------     lui	a2,0x7fff                     
+0010  34c6ffff  --------     ori	a2,a2,0xffff                  
+0014  00661024  --------     and	v0,v1,a2                      
+0018  14400003  --------     bnez	v0,0x28                      
+001c  00803821  --------     move	a3,a0                        
+0020  08000014  --------     j	0x50                              <REL26 (0x50 + .text(base))>
+0024  00801021  --------     move	v0,a0                        
+0028  00e61024  --------     and	v0,a3,a2                      
+002c  10400006  --------     beqz	v0,0x48                      
+0030  00000000  --------     nop                               
+0034  3c058000  --------     lui	a1,0x8000                     
+0038  0c000000  --------     jal	0x0                             <REL26 __addsf3>
+003c  00652826  --------     xor	a1,v1,a1                      
+0040  08000014  --------     j	0x50                              <REL26 (0x50 + .text(base))>
+0044  00000000  --------     nop                               
+0048  0c000000  --------     jal	0x0                             <REL26 __negsf2>
+004c  00a02021  --------     move	a0,a1                        
+0050  8fbf0010  --------     lw	ra,16(sp)                      
+0054  27bd0018  --------     addiu	sp,sp,24                    
+0058  03e00008  --------     jr	ra                             
+005c  00000000  --------     nop                               

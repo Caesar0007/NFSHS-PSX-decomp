@@ -1,0 +1,18 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / COUNTER / StartRCnt
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=4
+retail VA=0x800E9F44  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3082ffff  3082ffff  =  andi	v0,a0,0xffff                 
+0004  00022080  00022080  =  sll	a0,v0,0x2                     
+0008  3c050000  3c058012  R  lui	a1,0x0                          <HI16 .data(base)>
+000c  8ca50170  8ca534b4  R  lw	a1,368(a1)                       <LO16 .data(base)>
+0010  3c010000  3c018012  R  lui	at,0x0                          <HI16 (0x8 + .data(base))>
+0014  00240821  00240821  =  addu	at,at,a0                     
+0018  8c240178  8c2434bc  R  lw	a0,376(at)                       <LO16 (0x8 + .data(base))>
+001c  8ca30004  8ca30004  =  lw	v1,4(a1)                       
+0020  28420003  28420003  =  slti	v0,v0,3                      
+0024  00641825  00641825  =  or	v1,v1,a0                       
+0028  03e00008  03e00008  =  jr	ra                             
+002c  aca30004  aca30004  =  sw	v1,4(a1)                       

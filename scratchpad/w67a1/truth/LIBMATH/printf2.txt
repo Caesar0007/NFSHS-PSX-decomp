@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / PRINTF2 / printf2
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=1
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  afa40000  --------     sw	a0,0(sp)                       
+0004  afa50004  --------     sw	a1,4(sp)                       
+0008  afa60008  --------     sw	a2,8(sp)                       
+000c  afa7000c  --------     sw	a3,12(sp)                      
+0010  27bdffe8  --------     addiu	sp,sp,-24                   
+0014  afa40018  --------     sw	a0,24(sp)                      
+0018  00002021  --------     move	a0,zero                      
+001c  27a6001c  --------     addiu	a2,sp,28                    
+0020  8fa50018  --------     lw	a1,24(sp)                      
+0024  afbf0010  --------     sw	ra,16(sp)                      
+0028  0c00001d  --------     jal	0x74                            <REL26 (0x74 + .text(base))>
+002c  00003821  --------     move	a3,zero                      
+0030  8fbf0010  --------     lw	ra,16(sp)                      
+0034  27bd0018  --------     addiu	sp,sp,24                    
+0038  03e00008  --------     jr	ra                             
+003c  00000000  --------     nop                               

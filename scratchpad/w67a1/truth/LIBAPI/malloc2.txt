@@ -1,0 +1,142 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / MALLOC2 / malloc2
+linkage=export  section-size=544 bytes (136 words)  vendor-relocs=34
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  --------     addiu	sp,sp,-40                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afb20018  --------     sw	s2,24(sp)                      
+0010  24120001  --------     li	s2,1                           
+0014  afbf0020  --------     sw	ra,32(sp)                      
+0018  afb3001c  --------     sw	s3,28(sp)                      
+001c  16000019  --------     bnez	s0,0x84                      
+0020  afb10014  --------     sw	s1,20(sp)                      
+0024  08000067  --------     j	0x19c                             <REL26 (0x19C + .text(base))>
+0028  00001021  --------     move	v0,zero                      
+002c  2402fffe  --------     li	v0,-2                          
+0030  00a21024  --------     and	v0,a1,v0                      
+0034  ac820000  --------     sw	v0,0(a0)                       
+0038  08000066  --------     j	0x198                             <REL26 (0x198 + .text(base))>
+003c  24860004  --------     addiu	a2,a0,4                     
+0040  24860004  --------     addiu	a2,a0,4                     
+0044  00101882  --------     srl	v1,s0,0x2                     
+0048  00031880  --------     sll	v1,v1,0x2                     
+004c  00831821  --------     addu	v1,a0,v1                     
+0050  00b01023  --------     subu	v0,a1,s0                     
+0054  2442fffc  --------     addiu	v0,v0,-4                    
+0058  ac620004  --------     sw	v0,4(v1)                       
+005c  08000066  --------     j	0x198                             <REL26 (0x198 + .text(base))>
+0060  ac900000  --------     sw	s0,0(a0)                       
+0064  3c020000  --------     lui	v0,0x0                          <HI16 _AllocRestBlockTop>
+0068  8c420000  --------     lw	v0,0(v0)                         <LO16 _AllocRestBlockTop>
+006c  00000000  --------     nop                               
+0070  2442fffc  --------     addiu	v0,v0,-4                    
+0074  3c010000  --------     lui	at,0x0                          <HI16 _Candidate>
+0078  ac220000  --------     sw	v0,0(at)                         <LO16 _Candidate>
+007c  08000066  --------     j	0x198                             <REL26 (0x198 + .text(base))>
+0080  24660004  --------     addiu	a2,v1,4                     
+0084  26100003  --------     addiu	s0,s0,3                     
+0088  2402fffc  --------     li	v0,-4                          
+008c  02028024  --------     and	s0,s0,v0                      
+0090  3c040000  --------     lui	a0,0x0                          <HI16 _Candidate>
+0094  8c840000  --------     lw	a0,0(a0)                         <LO16 _Candidate>
+0098  00000000  --------     nop                               
+009c  14800003  --------     bnez	a0,0xac                      
+00a0  36130001  --------     ori	s3,s0,0x1                     
+00a4  3c040000  --------     lui	a0,0x0                          <HI16 _TopAllocArea>
+00a8  8c840000  --------     lw	a0,0(a0)                         <LO16 _TopAllocArea>
+00ac  2411fffe  --------     li	s1,-2                          
+00b0  8c830000  --------     lw	v1,0(a0)                       
+00b4  00000000  --------     nop                               
+00b8  30620001  --------     andi	v0,v1,0x1                    
+00bc  10400024  --------     beqz	v0,0x150                     
+00c0  00000000  --------     nop                               
+00c4  3c020000  --------     lui	v0,0x0                          <HI16 _Candidate>
+00c8  8c420000  --------     lw	v0,0(v0)                         <LO16 _Candidate>
+00cc  00000000  --------     nop                               
+00d0  14400003  --------     bnez	v0,0xe0                      
+00d4  00000000  --------     nop                               
+00d8  3c010000  --------     lui	at,0x0                          <HI16 _Candidate>
+00dc  ac240000  --------     sw	a0,0(at)                         <LO16 _Candidate>
+00e0  8c850000  --------     lw	a1,0(a0)                       
+00e4  00000000  --------     nop                               
+00e8  10b3ffd0  --------     beq	a1,s3,0x2c                    
+00ec  0205102b  --------     sltu	v0,s0,a1                     
+00f0  1440ffd3  --------     bnez	v0,0x40                      
+00f4  00b0102b  --------     sltu	v0,a1,s0                     
+00f8  1040ffed  --------     beqz	v0,0xb0                      
+00fc  00051082  --------     srl	v0,a1,0x2                     
+0100  00021080  --------     sll	v0,v0,0x2                     
+0104  00821021  --------     addu	v0,a0,v0                     
+0108  8c430004  --------     lw	v1,4(v0)                       
+010c  00000000  --------     nop                               
+0110  14710006  --------     bne	v1,s1,0x12c                   
+0114  24460004  --------     addiu	a2,v0,4                     
+0118  24820004  --------     addiu	v0,a0,4                     
+011c  ac910000  --------     sw	s1,0(a0)                       
+0120  3c010000  --------     lui	at,0x0                          <HI16 _AllocRestBlockTop>
+0124  0800002c  --------     j	0xb0                              <REL26 (0xB0 + .text(base))>
+0128  ac220000  --------     sw	v0,0(at)                         <LO16 _AllocRestBlockTop>
+012c  30620001  --------     andi	v0,v1,0x1                    
+0130  10400005  --------     beqz	v0,0x148                     
+0134  24a20004  --------     addiu	v0,a1,4                     
+0138  00711824  --------     and	v1,v1,s1                      
+013c  00431021  --------     addu	v0,v0,v1                     
+0140  0800002c  --------     j	0xb0                              <REL26 (0xB0 + .text(base))>
+0144  ac820000  --------     sw	v0,0(a0)                       
+0148  0800002c  --------     j	0xb0                              <REL26 (0xB0 + .text(base))>
+014c  00c02021  --------     move	a0,a2                        
+0150  10710005  --------     beq	v1,s1,0x168                   
+0154  00031082  --------     srl	v0,v1,0x2                     
+0158  00021080  --------     sll	v0,v0,0x2                     
+015c  00821021  --------     addu	v0,a0,v0                     
+0160  0800002c  --------     j	0xb0                              <REL26 (0xB0 + .text(base))>
+0164  24440004  --------     addiu	a0,v0,4                     
+0168  0c00006e  --------     jal	0x1b8                           <REL26 (0x1B8 + .text(base))>
+016c  02002021  --------     move	a0,s0                        
+0170  00401821  --------     move	v1,v0                        
+0174  1460ffbb  --------     bnez	v1,0x64                      
+0178  2652ffff  --------     addiu	s2,s2,-1                    
+017c  06400006  --------     bltz	s2,0x198                     
+0180  00003021  --------     move	a2,zero                      
+0184  3c040000  --------     lui	a0,0x0                          <HI16 _TopAllocArea>
+0188  8c840000  --------     lw	a0,0(a0)                         <LO16 _TopAllocArea>
+018c  3c010000  --------     lui	at,0x0                          <HI16 _Candidate>
+0190  0800002c  --------     j	0xb0                              <REL26 (0xB0 + .text(base))>
+0194  ac200000  --------     sw	zero,0(at)                       <LO16 _Candidate>
+0198  00c01021  --------     move	v0,a2                        
+019c  8fbf0020  --------     lw	ra,32(sp)                      
+01a0  8fb3001c  --------     lw	s3,28(sp)                      
+01a4  8fb20018  --------     lw	s2,24(sp)                      
+01a8  8fb10014  --------     lw	s1,20(sp)                      
+01ac  8fb00010  --------     lw	s0,16(sp)                      
+01b0  03e00008  --------     jr	ra                             
+01b4  27bd0028  --------     addiu	sp,sp,40                    
+01b8  3c020000  --------     lui	v0,0x0                          <HI16 _max_heap>
+01bc  8c420000  --------     lw	v0,0(v0)                         <LO16 _max_heap>
+01c0  3c050000  --------     lui	a1,0x0                          <HI16 _AllocRestBlockTop>
+01c4  8ca50000  --------     lw	a1,0(a1)                         <LO16 _AllocRestBlockTop>
+01c8  00000000  --------     nop                               
+01cc  00451023  --------     subu	v0,v0,a1                     
+01d0  00021083  --------     sra	v0,v0,0x2                     
+01d4  00021080  --------     sll	v0,v0,0x2                     
+01d8  2442fff8  --------     addiu	v0,v0,-8                    
+01dc  0044102b  --------     sltu	v0,v0,a0                     
+01e0  1440000b  --------     bnez	v0,0x210                     
+01e4  00001021  --------     move	v0,zero                      
+01e8  24a2fffc  --------     addiu	v0,a1,-4                    
+01ec  00041882  --------     srl	v1,a0,0x2                     
+01f0  00031880  --------     sll	v1,v1,0x2                     
+01f4  24630004  --------     addiu	v1,v1,4                     
+01f8  00a31821  --------     addu	v1,a1,v1                     
+01fc  aca4fffc  --------     sw	a0,-4(a1)                      
+0200  2404fffe  --------     li	a0,-2                          
+0204  3c010000  --------     lui	at,0x0                          <HI16 _AllocRestBlockTop>
+0208  ac230000  --------     sw	v1,0(at)                         <LO16 _AllocRestBlockTop>
+020c  ac64fffc  --------     sw	a0,-4(v1)                      
+0210  03e00008  --------     jr	ra                             
+0214  00000000  --------     nop                               
+0218  00000000  --------     nop                               
+021c  00000000  --------     nop                               

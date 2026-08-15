@@ -1,0 +1,91 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / TYPE / CdGetDiskType
+linkage=export  section-size=340 bytes (85 words)  vendor-relocs=16
+retail VA=0x800E8584  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdf7d0  27bdf7d0  =  addiu	sp,sp,-2096                 
+0004  24040001  24040001  =  li	a0,1                           
+0008  00002821  00002821  =  move	a1,zero                      
+000c  27a60818  27a60818  =  addiu	a2,sp,2072                  
+0010  afbf0828  afbf0828  =  sw	ra,2088(sp)                    
+0014  afb10824  afb10824  =  sw	s1,2084(sp)                    
+0018  0c000000  0c03de2d  R  jal	0x0                             <REL26 CdControl>
+001c  afb00820  afb00820  =  sw	s0,2080(sp)                    
+0020  93a20818  93a20818  =  lbu	v0,2072(sp)                   
+0024  00000000  00000000  =  nop                               
+0028  30420010  30420010  =  andi	v0,v0,0x10                   
+002c  14400041  14400041  =  bnez	v0,0x134                     
+0030  24020010  24020010  =  li	v0,16                          
+0034  24040010  24040010  =  li	a0,16                          
+0038  0c000000  0c03df3d  R  jal	0x0                             <REL26 CdIntToPos>
+003c  27a50010  27a50010  =  addiu	a1,sp,16                    
+0040  2404001b  2404001b  =  li	a0,27                          
+0044  27a50010  27a50010  =  addiu	a1,sp,16                    
+0048  0c000000  0c03de2d  R  jal	0x0                             <REL26 CdControl>
+004c  00003021  00003021  =  move	a2,zero                      
+0050  00008021  00008021  =  move	s0,zero                      
+0054  24110001  24110001  =  li	s1,1                           
+0058  00002021  00002021  =  move	a0,zero                      
+005c  0c000000  0c03de1b  R  jal	0x0                             <REL26 CdReady>
+0060  27a50818  27a50818  =  addiu	a1,sp,2072                  
+0064  00401821  00401821  =  move	v1,v0                        
+0068  10710009  10710009  =  beq	v1,s1,0x90                    
+006c  26100001  26100001  =  addiu	s0,s0,1                     
+0070  2a02000a  2a02000a  =  slti	v0,s0,10                     
+0074  10400006  10400006  =  beqz	v0,0x90                      
+0078  2404001b  2404001b  =  li	a0,27                          
+007c  27a50010  27a50010  =  addiu	a1,sp,16                    
+0080  0c000000  0c03de2d  R  jal	0x0                             <REL26 CdControl>
+0084  00003021  00003021  =  move	a2,zero                      
+0088  08000066  0803a178  R  j	0x198                             <REL26 (0x198 + .text(base))>
+008c  00002021  00002021  =  move	a0,zero                      
+0090  24020001  24020001  =  li	v0,1                           
+0094  10620018  10620018  =  beq	v1,v0,0xf8                    
+0098  24040009  24040009  =  li	a0,9                           
+009c  93a30818  93a30818  =  lbu	v1,2072(sp)                   
+00a0  00000000  00000000  =  nop                               
+00a4  30620010  30620010  =  andi	v0,v1,0x10                   
+00a8  14400022  14400022  =  bnez	v0,0x134                     
+00ac  24020010  24020010  =  li	v0,16                          
+00b0  30620001  30620001  =  andi	v0,v1,0x1                    
+00b4  1040000b  1040000b  =  beqz	v0,0xe4                      
+00b8  00000000  00000000  =  nop                               
+00bc  93a20819  93a20819  =  lbu	v0,2073(sp)                   
+00c0  00000000  00000000  =  nop                               
+00c4  30420040  30420040  =  andi	v0,v0,0x40                   
+00c8  10400006  10400006  =  beqz	v0,0xe4                      
+00cc  00000000  00000000  =  nop                               
+00d0  3c040000  3c048005  R  lui	a0,0x0                          <HI16 .rdata(base)>
+00d4  0c000000  0c040a2b  R  jal	0x0                             <REL26 printf>
+00d8  24840290  24846c18  R  addiu	a0,a0,656                     <LO16 .rdata(base)>
+00dc  0800009c  0803a1ae  R  j	0x270                             <REL26 (0x270 + .text(base))>
+00e0  24020001  24020001  =  li	v0,1                           
+00e4  93a20818  93a20818  =  lbu	v0,2072(sp)                   
+00e8  00000000  00000000  =  nop                               
+00ec  30420002  30420002  =  andi	v0,v0,0x2                    
+00f0  0800009c  0803a1ae  R  j	0x270                             <REL26 (0x270 + .text(base))>
+00f4  0002102b  0002102b  =  sltu	v0,zero,v0                   
+00f8  00002821  00002821  =  move	a1,zero                      
+00fc  0c000000  0c03de2d  R  jal	0x0                             <REL26 CdControl>
+0100  00003021  00003021  =  move	a2,zero                      
+0104  27a40018  27a40018  =  addiu	a0,sp,24                    
+0108  0c000000  0c03df1c  R  jal	0x0                             <REL26 CdGetSector>
+010c  24050200  24050200  =  li	a1,512                         
+0110  27a40019  27a40019  =  addiu	a0,sp,25                    
+0114  3c050000  3c058005  R  lui	a1,0x0                          <HI16 (0x10 + .rdata(base))>
+0118  24a502a0  24a56c28  R  addiu	a1,a1,672                     <LO16 (0x10 + .rdata(base))>
+011c  0c000000  0c03ac74  R  jal	0x0                             <REL26 strncmp>
+0120  24060005  24060005  =  li	a2,5                           
+0124  00401821  00401821  =  move	v1,v0                        
+0128  14600002  14600002  =  bnez	v1,0x134                     
+012c  24020001  24020001  =  li	v0,1                           
+0130  24020002  24020002  =  li	v0,2                           
+0134  8fbf0828  8fbf0828  =  lw	ra,2088(sp)                    
+0138  8fb10824  8fb10824  =  lw	s1,2084(sp)                    
+013c  8fb00820  8fb00820  =  lw	s0,2080(sp)                    
+0140  03e00008  03e00008  =  jr	ra                             
+0144  27bd0830  27bd0830  =  addiu	sp,sp,2096                  
+0148  00000000  00000000  =  nop                               
+014c  00000000  00000000  =  nop                               
+0150  00000000  00000000  =  nop                               

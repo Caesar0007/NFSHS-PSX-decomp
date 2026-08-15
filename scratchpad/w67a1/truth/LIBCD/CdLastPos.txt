@@ -1,0 +1,9 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / SYS / CdLastPos
+linkage=export  section-size=12 bytes (3 words)  vendor-relocs=2
+retail VA=0x800F77A0  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028014  R  lui	v0,0x0                          <HI16 CD_pos>
+0004  03e00008  03e00008  =  jr	ra                             
+0008  24420000  2442bf60  R  addiu	v0,v0,0                       <LO16 CD_pos>

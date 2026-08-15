@@ -1,0 +1,15 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / TOC / CdGetToc
+linkage=export  section-size=36 bytes (9 words)  vendor-relocs=1
+retail VA=0x8010929C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0008  00802821  00802821  =  move	a1,a0                        
+000c  0c000009  0c0424b0  R  jal	0x24                            <REL26 (0x24 + .text(base))>
+0010  24040001  24040001  =  li	a0,1                           
+0014  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0018  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+001c  03e00008  03e00008  =  jr	ra                             
+0020  00000000  00000000  =  nop                               

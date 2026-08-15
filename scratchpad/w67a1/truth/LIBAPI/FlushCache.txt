@@ -1,0 +1,10 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / C68 / FlushCache
+linkage=export  section-size=16 bytes (4 words)  vendor-relocs=0
+retail VA=0x800F43D4  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  240a00a0  240a00a0  =  li	t2,160                         
+0004  01400008  01400008  =  jr	t2                             
+0008  24090044  24090044  =  li	t1,68                          
+000c  00000000  00000000  =  nop                               

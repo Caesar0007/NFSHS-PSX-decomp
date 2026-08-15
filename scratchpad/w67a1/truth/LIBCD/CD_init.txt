@@ -1,0 +1,127 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / BIOS / CD_init
+linkage=export  section-size=480 bytes (120 words)  vendor-relocs=52
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: bios.c,v 1.86 1997/03/28 07:42:42 makoto Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  3c040000  --------     lui	a0,0x0                          <HI16 (0x230 + .rdata(base))>
+0008  24841990  --------     addiu	a0,a0,6544                    <LO16 (0x230 + .rdata(base))>
+000c  afbf0010  --------     sw	ra,16(sp)                      
+0010  0c000000  --------     jal	0x0                             <REL26 puts>
+0014  00000000  --------     nop                               
+0018  3c040000  --------     lui	a0,0x0                          <HI16 (0x23C + .rdata(base))>
+001c  2484199c  --------     addiu	a0,a0,6556                    <LO16 (0x23C + .rdata(base))>
+0020  3c050000  --------     lui	a1,0x0                          <HI16 (0x2E8 + .data(base))>
+0024  0c000000  --------     jal	0x0                             <REL26 printf>
+0028  24a51ca8  --------     addiu	a1,a1,7336                    <LO16 (0x2E8 + .data(base))>
+002c  3c010000  --------     lui	at,0x0                          <HI16 (0x25 + .data(base))>
+0030  a02019e5  --------     sb	zero,6629(at)                    <LO16 (0x25 + .data(base))>
+0034  3c010000  --------     lui	at,0x0                          <HI16 (0x24 + .data(base))>
+0038  a02019e4  --------     sb	zero,6628(at)                    <LO16 (0x24 + .data(base))>
+003c  3c010000  --------     lui	at,0x0                          <HI16 (0xC + .data(base))>
+0040  ac2019cc  --------     sw	zero,6604(at)                    <LO16 (0xC + .data(base))>
+0044  3c010000  --------     lui	at,0x0                          <HI16 (0x8 + .data(base))>
+0048  ac2019c8  --------     sw	zero,6600(at)                    <LO16 (0x8 + .data(base))>
+004c  3c010000  --------     lui	at,0x0                          <HI16 (0x18 + .data(base))>
+0050  ac2019d8  --------     sw	zero,6616(at)                    <LO16 (0x18 + .data(base))>
+0054  3c010000  --------     lui	at,0x0                          <HI16 (0x14 + .data(base))>
+0058  0c000000  --------     jal	0x0                             <REL26 ResetCallback>
+005c  ac2019d4  --------     sw	zero,6612(at)                    <LO16 (0x14 + .data(base))>
+0060  3c050000  --------     lui	a1,0x0                          <HI16 (0x1688 + .text(base))>
+0064  24a51688  --------     addiu	a1,a1,5768                    <LO16 (0x1688 + .text(base))>
+0068  0c000000  --------     jal	0x0                             <REL26 InterruptCallback>
+006c  24040002  --------     li	a0,2                           
+0070  3c030000  --------     lui	v1,0x0                          <HI16 (0x2CC + .data(base))>
+0074  8c631c8c  --------     lw	v1,7308(v1)                      <LO16 (0x2CC + .data(base))>
+0078  24020001  --------     li	v0,1                           
+007c  a0620000  --------     sb	v0,0(v1)                       
+0080  3c020000  --------     lui	v0,0x0                          <HI16 (0x2D8 + .data(base))>
+0084  8c421c98  --------     lw	v0,7320(v0)                      <LO16 (0x2D8 + .data(base))>
+0088  00000000  --------     nop                               
+008c  90420000  --------     lbu	v0,0(v0)                      
+0090  00000000  --------     nop                               
+0094  30420007  --------     andi	v0,v0,0x7                    
+0098  10400016  --------     beqz	v0,0xf4                      
+009c  24040001  --------     li	a0,1                           
+00a0  24030007  --------     li	v1,7                           
+00a4  3c020000  --------     lui	v0,0x0                          <HI16 (0x2CC + .data(base))>
+00a8  8c421c8c  --------     lw	v0,7308(v0)                      <LO16 (0x2CC + .data(base))>
+00ac  00000000  --------     nop                               
+00b0  a0440000  --------     sb	a0,0(v0)                       
+00b4  3c020000  --------     lui	v0,0x0                          <HI16 (0x2D8 + .data(base))>
+00b8  8c421c98  --------     lw	v0,7320(v0)                      <LO16 (0x2D8 + .data(base))>
+00bc  00000000  --------     nop                               
+00c0  a0430000  --------     sb	v1,0(v0)                       
+00c4  3c020000  --------     lui	v0,0x0                          <HI16 (0x2D4 + .data(base))>
+00c8  8c421c94  --------     lw	v0,7316(v0)                      <LO16 (0x2D4 + .data(base))>
+00cc  00000000  --------     nop                               
+00d0  a0430000  --------     sb	v1,0(v0)                       
+00d4  3c020000  --------     lui	v0,0x0                          <HI16 (0x2D8 + .data(base))>
+00d8  8c421c98  --------     lw	v0,7320(v0)                      <LO16 (0x2D8 + .data(base))>
+00dc  00000000  --------     nop                               
+00e0  90420000  --------     lbu	v0,0(v0)                      
+00e4  00000000  --------     nop                               
+00e8  30420007  --------     andi	v0,v0,0x7                    
+00ec  1440ffed  --------     bnez	v0,0xa4                      
+00f0  00000000  --------     nop                               
+00f4  24040001  --------     li	a0,1                           
+00f8  00002821  --------     move	a1,zero                      
+00fc  3c030000  --------     lui	v1,0x0                          <HI16 (0x2E4 + .data(base))>
+0100  24631ca4  --------     addiu	v1,v1,7332                    <LO16 (0x2E4 + .data(base))>
+0104  a0600002  --------     sb	zero,2(v1)                     
+0108  90620002  --------     lbu	v0,2(v1)                      
+010c  00003021  --------     move	a2,zero                      
+0110  a0620001  --------     sb	v0,1(v1)                       
+0114  3c070000  --------     lui	a3,0x0                          <HI16 (0x2CC + .data(base))>
+0118  8ce71c8c  --------     lw	a3,7308(a3)                      <LO16 (0x2CC + .data(base))>
+011c  24020002  --------     li	v0,2                           
+0120  a0620000  --------     sb	v0,0(v1)                       
+0124  a0e00000  --------     sb	zero,0(a3)                     
+0128  3c020000  --------     lui	v0,0x0                          <HI16 (0x2D8 + .data(base))>
+012c  8c421c98  --------     lw	v0,7320(v0)                      <LO16 (0x2D8 + .data(base))>
+0130  00003821  --------     move	a3,zero                      
+0134  a0400000  --------     sb	zero,0(v0)                     
+0138  3c030000  --------     lui	v1,0x0                          <HI16 (0x2DC + .data(base))>
+013c  8c631c9c  --------     lw	v1,7324(v1)                      <LO16 (0x2DC + .data(base))>
+0140  24021325  --------     li	v0,4901                        
+0144  0c0002a9  --------     jal	0xaa4                           <REL26 (0xAA4 + .text(base))>
+0148  ac620000  --------     sw	v0,0(v1)                       
+014c  3c020000  --------     lui	v0,0x0                          <HI16 (0x14 + .data(base))>
+0150  8c4219d4  --------     lw	v0,6612(v0)                      <LO16 (0x14 + .data(base))>
+0154  00000000  --------     nop                               
+0158  30420010  --------     andi	v0,v0,0x10                   
+015c  10400005  --------     beqz	v0,0x174                     
+0160  24040001  --------     li	a0,1                           
+0164  00002821  --------     move	a1,zero                      
+0168  00003021  --------     move	a2,zero                      
+016c  0c0002a9  --------     jal	0xaa4                           <REL26 (0xAA4 + .text(base))>
+0170  00003821  --------     move	a3,zero                      
+0174  2404000a  --------     li	a0,10                          
+0178  00002821  --------     move	a1,zero                      
+017c  00003021  --------     move	a2,zero                      
+0180  0c0002a9  --------     jal	0xaa4                           <REL26 (0xAA4 + .text(base))>
+0184  00003821  --------     move	a3,zero                      
+0188  14400011  --------     bnez	v0,0x1d0                     
+018c  2402ffff  --------     li	v0,-1                          
+0190  2404000c  --------     li	a0,12                          
+0194  00002821  --------     move	a1,zero                      
+0198  00003021  --------     move	a2,zero                      
+019c  0c0002a9  --------     jal	0xaa4                           <REL26 (0xAA4 + .text(base))>
+01a0  00003821  --------     move	a3,zero                      
+01a4  14400009  --------     bnez	v0,0x1cc                     
+01a8  00002021  --------     move	a0,zero                      
+01ac  0c000157  --------     jal	0x55c                           <REL26 (0x55C + .text(base))>
+01b0  00002821  --------     move	a1,zero                      
+01b4  00402021  --------     move	a0,v0                        
+01b8  24030002  --------     li	v1,2                           
+01bc  14830004  --------     bne	a0,v1,0x1d0                   
+01c0  2402ffff  --------     li	v0,-1                          
+01c4  080004c6  --------     j	0x1318                            <REL26 (0x1318 + .text(base))>
+01c8  00001021  --------     move	v0,zero                      
+01cc  2402ffff  --------     li	v0,-1                          
+01d0  8fbf0010  --------     lw	ra,16(sp)                      
+01d4  27bd0018  --------     addiu	sp,sp,24                    
+01d8  03e00008  --------     jr	ra                             
+01dc  00000000  --------     nop                               

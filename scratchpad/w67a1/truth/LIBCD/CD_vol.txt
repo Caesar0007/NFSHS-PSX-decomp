@@ -1,0 +1,41 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / BIOS / CD_vol
+linkage=export  section-size=136 bytes (34 words)  vendor-relocs=14
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: bios.c,v 1.86 1997/03/28 07:42:42 makoto Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c030000  --------     lui	v1,0x0                          <HI16 (0x2CC + .data(base))>
+0004  8c631c8c  --------     lw	v1,7308(v1)                      <LO16 (0x2CC + .data(base))>
+0008  24020002  --------     li	v0,2                           
+000c  a0620000  --------     sb	v0,0(v1)                       
+0010  3c030000  --------     lui	v1,0x0                          <HI16 (0x2D4 + .data(base))>
+0014  8c631c94  --------     lw	v1,7316(v1)                      <LO16 (0x2D4 + .data(base))>
+0018  90820000  --------     lbu	v0,0(a0)                      
+001c  00000000  --------     nop                               
+0020  a0620000  --------     sb	v0,0(v1)                       
+0024  3c030000  --------     lui	v1,0x0                          <HI16 (0x2D8 + .data(base))>
+0028  8c631c98  --------     lw	v1,7320(v1)                      <LO16 (0x2D8 + .data(base))>
+002c  90820001  --------     lbu	v0,1(a0)                      
+0030  00000000  --------     nop                               
+0034  a0620000  --------     sb	v0,0(v1)                       
+0038  3c030000  --------     lui	v1,0x0                          <HI16 (0x2CC + .data(base))>
+003c  8c631c8c  --------     lw	v1,7308(v1)                      <LO16 (0x2CC + .data(base))>
+0040  24020003  --------     li	v0,3                           
+0044  a0620000  --------     sb	v0,0(v1)                       
+0048  3c030000  --------     lui	v1,0x0                          <HI16 (0x2D0 + .data(base))>
+004c  8c631c90  --------     lw	v1,7312(v1)                      <LO16 (0x2D0 + .data(base))>
+0050  90820002  --------     lbu	v0,2(a0)                      
+0054  00000000  --------     nop                               
+0058  a0620000  --------     sb	v0,0(v1)                       
+005c  3c030000  --------     lui	v1,0x0                          <HI16 (0x2D4 + .data(base))>
+0060  8c631c94  --------     lw	v1,7316(v1)                      <LO16 (0x2D4 + .data(base))>
+0064  90820003  --------     lbu	v0,3(a0)                      
+0068  00000000  --------     nop                               
+006c  a0620000  --------     sb	v0,0(v1)                       
+0070  3c030000  --------     lui	v1,0x0                          <HI16 (0x2D8 + .data(base))>
+0074  8c631c98  --------     lw	v1,7320(v1)                      <LO16 (0x2D8 + .data(base))>
+0078  24020020  --------     li	v0,32                          
+007c  a0620000  --------     sb	v0,0(v1)                       
+0080  03e00008  --------     jr	ra                             
+0084  00001021  --------     move	v0,zero                      

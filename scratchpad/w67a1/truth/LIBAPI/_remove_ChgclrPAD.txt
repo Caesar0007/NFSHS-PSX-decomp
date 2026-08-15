@@ -1,0 +1,34 @@
+W67-A1 VENDOR GROUND TRUTH  LIBAPI / CHCLRPAD / _remove_ChgclrPAD
+linkage=export  section-size=112 bytes (28 words)  vendor-relocs=7
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 .bss(base)>
+0004  ac3f0070  --------     sw	ra,112(at)                       <LO16 .bss(base)>
+0008  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+000c  00000000  --------     nop                               
+0010  24090057  --------     li	t1,87                          
+0014  240a00b0  --------     li	t2,176                         
+0018  0140f809  --------     jalr	t2                           
+001c  00000000  --------     nop                               
+0020  240a0009  --------     li	t2,9                           
+0024  8c42016c  --------     lw	v0,364(v0)                     
+0028  00000000  --------     nop                               
+002c  2043062c  --------     addi	v1,v0,1580                   
+0030  ac600000  --------     sw	zero,0(v1)                     
+0034  24630004  --------     addiu	v1,v1,4                     
+0038  254affff  --------     addiu	t2,t2,-1                    
+003c  1540fffc  --------     bnez	t2,0x30                      
+0040  00000000  --------     nop                               
+0044  0c000000  --------     jal	0x0                             <REL26 FlushCache>
+0048  00000000  --------     nop                               
+004c  0c000000  --------     jal	0x0                             <REL26 ExitCriticalSection>
+0050  00000000  --------     nop                               
+0054  3c1f0000  --------     lui	ra,0x0                          <HI16 .bss(base)>
+0058  8fff0070  --------     lw	ra,112(ra)                       <LO16 .bss(base)>
+005c  00000000  --------     nop                               
+0060  03e00008  --------     jr	ra                             
+0064  00000000  --------     nop                               
+0068  00000000  --------     nop                               
+006c  00000000  --------     nop                               

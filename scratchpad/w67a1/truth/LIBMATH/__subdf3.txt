@@ -1,0 +1,38 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / SUBDF3 / __subdf3
+linkage=export  section-size=128 bytes (32 words)  vendor-relocs=4
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  00804021  --------     move	t0,a0                        
+0008  00a04821  --------     move	t1,a1                        
+000c  3c027fff  --------     lui	v0,0x7fff                     
+0010  3442ffff  --------     ori	v0,v0,0xffff                  
+0014  00e21024  --------     and	v0,a3,v0                      
+0018  14400006  --------     bnez	v0,0x34                      
+001c  afbf0010  --------     sw	ra,16(sp)                      
+0020  14c00005  --------     bnez	a2,0x38                      
+0024  3c027fff  --------     lui	v0,0x7fff                     
+0028  00801021  --------     move	v0,a0                        
+002c  0800001b  --------     j	0x6c                              <REL26 (0x6C + .text(base))>
+0030  00a01821  --------     move	v1,a1                        
+0034  3c027fff  --------     lui	v0,0x7fff                     
+0038  3442ffff  --------     ori	v0,v0,0xffff                  
+003c  01221024  --------     and	v0,t1,v0                      
+0040  14400008  --------     bnez	v0,0x64                      
+0044  3c028000  --------     lui	v0,0x8000                     
+0048  15000006  --------     bnez	t0,0x64                      
+004c  00000000  --------     nop                               
+0050  00c02021  --------     move	a0,a2                        
+0054  0c000000  --------     jal	0x0                             <REL26 __negdf2>
+0058  00e02821  --------     move	a1,a3                        
+005c  0800001b  --------     j	0x6c                              <REL26 (0x6C + .text(base))>
+0060  00000000  --------     nop                               
+0064  0c000000  --------     jal	0x0                             <REL26 __adddf3>
+0068  00e23826  --------     xor	a3,a3,v0                      
+006c  8fbf0010  --------     lw	ra,16(sp)                      
+0070  27bd0018  --------     addiu	sp,sp,24                    
+0074  03e00008  --------     jr	ra                             
+0078  00000000  --------     nop                               
+007c  00000000  --------     nop                               

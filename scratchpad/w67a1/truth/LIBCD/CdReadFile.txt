@@ -1,0 +1,100 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / CDREADE / CdReadFile
+linkage=export  section-size=376 bytes (94 words)  vendor-relocs=18
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdff88  --------     addiu	sp,sp,-120                  
+0004  00801021  --------     move	v0,a0                        
+0008  afb3006c  --------     sw	s3,108(sp)                     
+000c  00a09821  --------     move	s3,a1                        
+0010  afb20068  --------     sw	s2,104(sp)                     
+0014  00c09021  --------     move	s2,a2                        
+0018  afbf0070  --------     sw	ra,112(sp)                     
+001c  afb10064  --------     sw	s1,100(sp)                     
+0020  10400027  --------     beqz	v0,0xc0                      
+0024  afb00060  --------     sw	s0,96(sp)                      
+0028  27a40010  --------     addiu	a0,sp,16                    
+002c  0c000000  --------     jal	0x0                             <REL26 strcpy>
+0030  00402821  --------     move	a1,v0                        
+0034  00008021  --------     move	s0,zero                      
+0038  83a20010  --------     lb	v0,16(sp)                      
+003c  00000000  --------     nop                               
+0040  10400010  --------     beqz	v0,0x84                      
+0044  27a60010  --------     addiu	a2,sp,16                    
+0048  00c02821  --------     move	a1,a2                        
+004c  00b02021  --------     addu	a0,a1,s0                     
+0050  90830000  --------     lbu	v1,0(a0)                      
+0054  00000000  --------     nop                               
+0058  2462ff9f  --------     addiu	v0,v1,-97                   
+005c  2c42001a  --------     sltiu	v0,v0,26                    
+0060  10400002  --------     beqz	v0,0x6c                      
+0064  2462ffe0  --------     addiu	v0,v1,-32                   
+0068  a0820000  --------     sb	v0,0(a0)                       
+006c  26100001  --------     addiu	s0,s0,1                     
+0070  00b01021  --------     addu	v0,a1,s0                     
+0074  80420000  --------     lb	v0,0(v0)                       
+0078  00000000  --------     nop                               
+007c  1440fff3  --------     bnez	v0,0x4c                      
+0080  00c02821  --------     move	a1,a2                        
+0084  03b01021  --------     addu	v0,sp,s0                     
+0088  8043000e  --------     lb	v1,14(v0)                      
+008c  2402003b  --------     li	v0,59                          
+0090  10620005  --------     beq	v1,v0,0xa8                    
+0094  00000000  --------     nop                               
+0098  3c050000  --------     lui	a1,0x0                          <HI16 .rdata(base)>
+009c  24a50250  --------     addiu	a1,a1,592                     <LO16 .rdata(base)>
+00a0  0c000000  --------     jal	0x0                             <REL26 strcat>
+00a4  27a40010  --------     addiu	a0,sp,16                    
+00a8  3c040000  --------     lui	a0,0x0                          <HI16 .bss(base)>
+00ac  24840260  --------     addiu	a0,a0,608                     <LO16 .bss(base)>
+00b0  0c000000  --------     jal	0x0                             <REL26 CdSearchFile>
+00b4  27a50010  --------     addiu	a1,sp,16                    
+00b8  10400028  --------     beqz	v0,0x15c                     
+00bc  00001021  --------     move	v0,zero                      
+00c0  12400007  --------     beqz	s2,0xe0                      
+00c4  00000000  --------     nop                               
+00c8  3c020000  --------     lui	v0,0x0                          <HI16 (0x4 + .bss(base))>
+00cc  8c420264  --------     lw	v0,612(v0)                       <LO16 (0x4 + .bss(base))>
+00d0  00000000  --------     nop                               
+00d4  0052102b  --------     sltu	v0,v0,s2                     
+00d8  10400004  --------     beqz	v0,0xec                      
+00dc  24040002  --------     li	a0,2                           
+00e0  3c120000  --------     lui	s2,0x0                          <HI16 (0x4 + .bss(base))>
+00e4  8e520264  --------     lw	s2,612(s2)                       <LO16 (0x4 + .bss(base))>
+00e8  24040002  --------     li	a0,2                           
+00ec  3c110000  --------     lui	s1,0x0                          <HI16 .bss(base)>
+00f0  26310260  --------     addiu	s1,s1,608                     <LO16 .bss(base)>
+00f4  02202821  --------     move	a1,s1                        
+00f8  0c000000  --------     jal	0x0                             <REL26 CdControl>
+00fc  00003021  --------     move	a2,zero                      
+0100  10400015  --------     beqz	v0,0x158                     
+0104  264407ff  --------     addiu	a0,s2,2047                  
+0108  04810003  --------     bgez	a0,0x118                     
+010c  000482c3  --------     sra	s0,a0,0xb                     
+0110  26440ffe  --------     addiu	a0,s2,4094                  
+0114  000482c3  --------     sra	s0,a0,0xb                     
+0118  02002021  --------     move	a0,s0                        
+011c  02602821  --------     move	a1,s3                        
+0120  0c000000  --------     jal	0x0                             <REL26 CdRead>
+0124  24060080  --------     li	a2,128                         
+0128  1040000c  --------     beqz	v0,0x15c                     
+012c  00001021  --------     move	v0,zero                      
+0130  0c000000  --------     jal	0x0                             <REL26 CdPosToInt>
+0134  02202021  --------     move	a0,s1                        
+0138  00502021  --------     addu	a0,v0,s0                     
+013c  0c000000  --------     jal	0x0                             <REL26 CdIntToPos>
+0140  02202821  --------     move	a1,s1                        
+0144  8e230004  --------     lw	v1,4(s1)                       
+0148  02401021  --------     move	v0,s2                        
+014c  00701823  --------     subu	v1,v1,s0                     
+0150  08000057  --------     j	0x15c                             <REL26 (0x15C + .text(base))>
+0154  ae230004  --------     sw	v1,4(s1)                       
+0158  00001021  --------     move	v0,zero                      
+015c  8fbf0070  --------     lw	ra,112(sp)                     
+0160  8fb3006c  --------     lw	s3,108(sp)                     
+0164  8fb20068  --------     lw	s2,104(sp)                     
+0168  8fb10064  --------     lw	s1,100(sp)                     
+016c  8fb00060  --------     lw	s0,96(sp)                      
+0170  03e00008  --------     jr	ra                             
+0174  27bd0078  --------     addiu	sp,sp,120                   

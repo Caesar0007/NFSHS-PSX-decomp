@@ -1,0 +1,46 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMATH / GTSF2 / __gtsf2
+linkage=export  section-size=160 bytes (40 words)  vendor-relocs=1
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00803021  --------     move	a2,a0                        
+0004  10c50008  --------     beq	a2,a1,0x28                    
+0008  3c037fff  --------     lui	v1,0x7fff                     
+000c  3463ffff  --------     ori	v1,v1,0xffff                  
+0010  00c31024  --------     and	v0,a2,v1                      
+0014  14400006  --------     bnez	v0,0x30                      
+0018  3c028000  --------     lui	v0,0x8000                     
+001c  00a31024  --------     and	v0,a1,v1                      
+0020  14400003  --------     bnez	v0,0x30                      
+0024  3c028000  --------     lui	v0,0x8000                     
+0028  08000024  --------     j	0x90                              <REL26 (0x90 + .text(base))>
+002c  00001021  --------     move	v0,zero                      
+0030  00c23824  --------     and	a3,a2,v0                      
+0034  00a21024  --------     and	v0,a1,v0                      
+0038  14e20015  --------     bne	a3,v0,0x90                    
+003c  2ce20001  --------     sltiu	v0,a3,1                     
+0040  000615c3  --------     sra	v0,a2,0x17                    
+0044  304400ff  --------     andi	a0,v0,0xff                   
+0048  000515c3  --------     sra	v0,a1,0x17                    
+004c  304300ff  --------     andi	v1,v0,0xff                   
+0050  0064102a  --------     slt	v0,v1,a0                      
+0054  1440000e  --------     bnez	v0,0x90                      
+0058  2ce20001  --------     sltiu	v0,a3,1                     
+005c  1483000c  --------     bne	a0,v1,0x90                    
+0060  28c20000  --------     slti	v0,a2,0                      
+0064  3c02007f  --------     lui	v0,0x7f                       
+0068  3442ffff  --------     ori	v0,v0,0xffff                  
+006c  00c21824  --------     and	v1,a2,v0                      
+0070  3c040080  --------     lui	a0,0x80                       
+0074  00641825  --------     or	v1,v1,a0                       
+0078  00a21024  --------     and	v0,a1,v0                      
+007c  00441025  --------     or	v0,v0,a0                       
+0080  0043102a  --------     slt	v0,v0,v1                      
+0084  14400002  --------     bnez	v0,0x90                      
+0088  2ce20001  --------     sltiu	v0,a3,1                     
+008c  28c20000  --------     slti	v0,a2,0                      
+0090  03e00008  --------     jr	ra                             
+0094  00000000  --------     nop                               
+0098  00000000  --------     nop                               
+009c  00000000  --------     nop                               

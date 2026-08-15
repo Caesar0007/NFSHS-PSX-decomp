@@ -1,0 +1,94 @@
+W67-A1 VENDOR GROUND TRUTH  LIBCD / EVENT / CdInit
+linkage=export  section-size=336 bytes (84 words)  vendor-relocs=25
+retail VA=0x8010908C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  24100004  24100004  =  li	s0,4                           
+000c  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0010  0c000024  0c042447  R  jal	0x90                            <REL26 (0x90 + .text(base))>
+0014  00000000  00000000  =  nop                               
+0018  24030001  24030001  =  li	v1,1                           
+001c  14430010  14430010  =  bne	v0,v1,0x60                    
+0020  24020001  24020001  =  li	v0,1                           
+0024  3c030000  3c038011  R  lui	v1,0x0                          <HI16 (0xCC + .text(base))>
+0028  246300cc  24639158  R  addiu	v1,v1,204                     <LO16 (0xCC + .text(base))>
+002c  3c010000  3c018014  R  lui	at,0x0                          <HI16 CD_cbsync>
+0030  ac230000  ac23bf48  R  sw	v1,0(at)                         <LO16 CD_cbsync>
+0034  3c030000  3c038011  R  lui	v1,0x0                          <HI16 (0xF4 + .text(base))>
+0038  246300f4  24639180  R  addiu	v1,v1,244                     <LO16 (0xF4 + .text(base))>
+003c  3c010000  3c018014  R  lui	at,0x0                          <HI16 CD_cbready>
+0040  ac230000  ac23bf4c  R  sw	v1,0(at)                         <LO16 CD_cbready>
+0044  3c030000  3c038011  R  lui	v1,0x0                          <HI16 (0x11C + .text(base))>
+0048  2463011c  246391a8  R  addiu	v1,v1,284                     <LO16 (0x11C + .text(base))>
+004c  3c010000  3c018014  R  lui	at,0x0                          <HI16 .data(base)>
+0050  ac230170  ac23c2d0  R  sw	v1,368(at)                       <LO16 .data(base)>
+0054  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x4 + .data(base))>
+0058  08000020  08042443  R  j	0x80                              <REL26 (0x80 + .text(base))>
+005c  ac200174  ac20c2d4  R  sw	zero,372(at)                     <LO16 (0x4 + .data(base))>
+0060  2610ffff  2610ffff  =  addiu	s0,s0,-1                    
+0064  2402ffff  2402ffff  =  li	v0,-1                          
+0068  1602ffe9  1602ffe9  =  bne	s0,v0,0x10                    
+006c  00000000  00000000  =  nop                               
+0070  3c040000  3c048005  R  lui	a0,0x0                          <HI16 .rdata(base)>
+0074  0c000000  0c040a2b  R  jal	0x0                             <REL26 printf>
+0078  24840150  248478e8  R  addiu	a0,a0,336                     <LO16 .rdata(base)>
+007c  00001021  00001021  =  move	v0,zero                      
+0080  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+0084  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0088  03e00008  03e00008  =  jr	ra                             
+008c  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+        >> retail symbol here: _cd_event_init (0x8010911C)
+0090  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0094  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0098  0c000000  0c042050  R  jal	0x0                             <REL26 CD_init>
+009c  00000000  00000000  =  nop                               
+00a0  14400005  14400005  =  bnez	v0,0xb8                      
+00a4  00000000  00000000  =  nop                               
+00a8  0c000000  0c042001  R  jal	0x0                             <REL26 CD_initvol>
+00ac  00000000  00000000  =  nop                               
+00b0  0800002f  08042452  R  j	0xbc                              <REL26 (0xBC + .text(base))>
+00b4  2c420001  2c420001  =  sltiu	v0,v0,1                     
+00b8  00001021  00001021  =  move	v0,zero                      
+00bc  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+00c0  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+00c4  03e00008  03e00008  =  jr	ra                             
+00c8  00000000  00000000  =  nop                               
+        >> retail symbol here: _cd_event_sync (0x80109158)
+00cc  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+00d0  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+00d4  3c04f000  3c04f000  =  lui	a0,0xf000                     
+00d8  34840003  34840003  =  ori	a0,a0,0x3                     
+00dc  0c000000  0c0431be  R  jal	0x0                             <REL26 DeliverEvent>
+00e0  24050020  24050020  =  li	a1,32                          
+00e4  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+00e8  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+00ec  03e00008  03e00008  =  jr	ra                             
+00f0  00000000  00000000  =  nop                               
+        >> retail symbol here: _cd_event_ready (0x80109180)
+00f4  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+00f8  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+00fc  3c04f000  3c04f000  =  lui	a0,0xf000                     
+0100  34840003  34840003  =  ori	a0,a0,0x3                     
+0104  0c000000  0c0431be  R  jal	0x0                             <REL26 DeliverEvent>
+0108  24050040  24050040  =  li	a1,64                          
+010c  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0110  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0114  03e00008  03e00008  =  jr	ra                             
+0118  00000000  00000000  =  nop                               
+        >> retail symbol here: _cd_event_read (0x801091A8)
+011c  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0120  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0124  3c04f000  3c04f000  =  lui	a0,0xf000                     
+0128  34840003  34840003  =  ori	a0,a0,0x3                     
+012c  0c000000  0c0431be  R  jal	0x0                             <REL26 DeliverEvent>
+0130  24050040  24050040  =  li	a1,64                          
+0134  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0138  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+013c  03e00008  03e00008  =  jr	ra                             
+0140  00000000  00000000  =  nop                               
+0144  00000000  00000000  =  nop                               
+0148  00000000  00000000  =  nop                               
+014c  00000000  00000000  =  nop                               

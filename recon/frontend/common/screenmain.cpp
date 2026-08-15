@@ -515,15 +515,25 @@ void tScreenMain::DrawBackground()
     FETextRender_SetABR(0,false);
     FeDraw_SetABRMode(iVar7);
   }
-  j = 0;
+  /* MATCH W64-A17 (7 -> 1): the video block's $s0 carrier is an INT, not the
+     SHORT `j`.  Retail passes it with a bare `addu a2,s0,zero` and tests it
+     with a bare `beqz s0`; a SHORT carrier makes cc1plus sign-extend at BOTH
+     sites (`sll;sra` / `sll;beqz`), which is the 4 diffs and the +2 count.
+     `j` must stay SHORT for the tv/dot-grid loops (it sign-extends there), so
+     retail used a DIFFERENT variable here -- a fresh block-scope int.  The
+     SYM's two INT $s0 locals are wrong carriers (re-gated from this basin:
+     shapeY arg-only 75 / flag-only 85 / both 82, TextCol arg-only 24 /
+     flag-only 34 / both 31, TextCol+shapeY mixed 102): both are LIVE across
+     this region, so naming them merges live ranges instead of splitting them. */
+  int vy = 0;
   if ((this->fFrame & 1U) == 0) {
-    j = 0x50;
+    vy = 0x50;
   }
   iVar5 = VIDEO_state(this->hVideo);
   if (iVar5 == 3) {
     this->bVideoAborted = 0;
     this->fMovieTicks = ticks;
-    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,j);
+    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,vy);
     if (iVar7 != 0) {
       this->fFrame = this->fFrame + 1;
     }
@@ -550,12 +560,20 @@ void tScreenMain::DrawBackground()
        an INT) 178, `shapeX` 178, `shapeY` without the zero-default 204 @824.
        RESIDUAL AT THIS SITE = the `sll/sra 16` pair gcc inserts because `j` is
        a SHORT being tested as a word; retail's `beqz s0` has none. */
-    j = 0;
+    vy = 0;
     iVar7 = VIDEO_state(this->hVideo);
     if (iVar7 != 1) {
-      j = (0x280 < ticks - this->fStartTicks);
+      /* MATCH W64-A17: the elapsed-tick subtraction is its OWN named value.
+         Folded into the compare, cc1plus computes it straight into the
+         carrier's register (`subu s0,v1,v0`) and loads `ticks` through the
+         shared %hi (`lw v1,0(v0)`); retail keeps it anonymous in $v0 with a
+         SELF-TEMP ticks load (`lui v0,0; lw v0,0(v0); lw v1,108(s6);
+         subu v0,v0,v1`).  Naming it splits the two and lands the whole
+         cluster.  Yoda-flipping the compare instead is neutral (11). */
+      u_long el = ticks - this->fStartTicks;
+      vy = (0x280 < el);
     }
-    if (j && (this->fState == kScreenMain_StaticImage)) {
+    if (vy && (this->fState == kScreenMain_StaticImage)) {
       r.x = 0x200;
       r.w = 0x50;
       r.y = 0;
@@ -662,9 +680,21 @@ void tScreenMain::DrawBackground()
     y = y + 8;
     i++;
   }
-  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;
+  /* MATCH W64-A17 (12 -> 7): 12D DEAD-PSEUDO STAGING.  Retail computes this
+     bound in a caller-saved reg, TESTS it there and only then copies it into
+     $s1 (`sra v1,v0,16; bltz v1,T; ... addu s1,v1,zero`); ours coloured the
+     sign-extend straight into $s1 and had no copy.  $s1 is the SYM home of
+     `x` (SHORT) / `deltaTicks` (ULONG), both dead here -- and the value is
+     provably 16-bit (`(e << 12) >> 16` keeps only bits 4..19 of the elapsed
+     tick count, sign-extended), so the SHORT carrier is exact, not a
+     truncation.  Assigning into `x` (name AND use, per 12D) reproduces the
+     three-insn shape.  Re-gated alternatives: `deltaTicks` (the other $s1
+     SYM local, ULONG, needs an `(int)` at both compares) is EXACTLY neutral
+     at 12; inlining the expression at both sites 35 @827; the fabricated
+     `iVar10` was a Ghidra invention with no SYM record. */
+  x = (short)((int)((ticks - this->fStartTicks) * 0x1000) >> 0x10);
   j = 0;
-  if (-1 < iVar10) {
+  if (-1 < x) {
     /* MATCH W63-A17 (84 -> 68, count still EXACT 822/822): the tvOrder loop is
        UN-ROTATED in retail too -- the `j < 16` guard is tested at the TOP
        (`sll;sra;slti 16;beqz`) and the `j <= iVar10` back-edge sits at the
@@ -683,7 +713,7 @@ void tScreenMain::DrawBackground()
         TurnOffTV(this->tvConfigs + tvOrder[j]);
       }
       j++;
-      if (iVar10 < j) break;
+      if (x < j) break;
     }
   }
   for (i = 0; i < 0x10; i++) {

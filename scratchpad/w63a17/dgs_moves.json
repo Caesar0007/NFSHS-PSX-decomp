@@ -1,0 +1,7 @@
+{
+  "recon/frontend/psx/psxfront.cpp": {
+    "DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii": [
+      {"take": "\\tsh\\t\\$23,10\\(\\$16\\)\\n", "after": "\\tsh\\t\\$2,8\\(\\$16\\)\\n"}
+    ]
+  }
+}

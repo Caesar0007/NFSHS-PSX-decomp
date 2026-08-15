@@ -1,0 +1,7 @@
+{
+  "base_with_move": [],
+  "C1_readback_adjacent": [["    prim[0xd] = v;\n    prim[0x18] = u + w1;\n", "    prim[0xd] = v;\n    prim[0x19] = prim[0xd];\n    prim[0x18] = u + w1;\n"], ["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n", "    prim[0x24] = u;\n"]],
+  "C4_readback_after_0x30": [["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n    prim[0x30] = u + w1;\n", "    prim[0x24] = u;\n    prim[0x30] = u + w1;\n    prim[0x19] = prim[0xd];\n"]],
+  "C5_readback_after_0x31": [["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n", "    prim[0x24] = u;\n"], ["    prim[0x31] = vh + vb;\n", "    prim[0x31] = vh + vb;\n    prim[0x19] = prim[0xd];\n"]],
+  "C6_0x30_readback_too": [["    prim[0x30] = u + w1;\n", "    prim[0x30] = prim[0x18];\n"]]
+}

@@ -1,0 +1,7 @@
+{
+  "base": [],
+  "W1_ident_plus_depth": [["  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));\n  RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10);\n", "  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz));\n  do { RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10); } while (0);\n"]],
+  "W2_ident_depth2": [["  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));\n  RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10);\n", "  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz));\n  do { do { RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10); } while (0); } while (0);\n"]],
+  "W3_keepfence_plus_depth": [["  RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10);\n", "  do { RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10); } while (0);\n"]],
+  "W4_nofence_depth": [["  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));\n  RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10);\n", "  do { RecordHolders = (tRecordBuffer *)reservememadr(\"toprcrds\",uRecSz * 18,0x10); } while (0);\n"]]
+}

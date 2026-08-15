@@ -1,0 +1,7 @@
+{
+  "base": [],
+  "Q1_divide_temp_first": [["    shapeX = animLocations[this->fAnimLocation].x;\n    shapeY = animLocations[this->fAnimLocation].y;\n    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);\n", "    int frameIdx = (deltaTicks / 0xf) % 10;\n    shapeX = animLocations[this->fAnimLocation].x;\n    shapeY = animLocations[this->fAnimLocation].y;\n    DrawShapeExtended(frameIdx,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);\n"]],
+  "Q2_inline_xy": [["    shapeX = animLocations[this->fAnimLocation].x;\n    shapeY = animLocations[this->fAnimLocation].y;\n    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);\n", "    DrawShapeExtended((deltaTicks / 0xf) % 10,0x611,\n                 animLocations[this->fAnimLocation].x,\n                 animLocations[this->fAnimLocation].y,drawAnimFade,1,&drawFlags);\n"]],
+  "Q3_ptr_local": [["    shapeX = animLocations[this->fAnimLocation].x;\n    shapeY = animLocations[this->fAnimLocation].y;\n", "    { const tAnimLoc *al = &animLocations[this->fAnimLocation];\n    shapeX = al->x;\n    shapeY = al->y; }\n"]],
+  "Q4_castint_index": [["    shapeX = animLocations[this->fAnimLocation].x;\n    shapeY = animLocations[this->fAnimLocation].y;\n", "    shapeX = ((short *)((this->fAnimLocation << 2) + (int)animLocations))[0];\n    shapeY = ((short *)((this->fAnimLocation << 2) + (int)animLocations))[1];\n"]]
+}

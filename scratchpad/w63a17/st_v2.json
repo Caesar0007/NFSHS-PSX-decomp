@@ -1,0 +1,6 @@
+{
+  "X1_sizearg_own_var": [["              __asm__(\"\" : \"=r\"(uCopySz) : \"0\"(uCopySz));\n              memcpy_call((tRecordBuffer *)copyDst,\n                          buffer + nTopTenIndex[k] * uCopySz,uCopySz);\n", "              uBulkSz = uCopySz;\n              memcpy_call((tRecordBuffer *)copyDst,\n                          buffer + nTopTenIndex[k] * uCopySz,uBulkSz);\n"]],
+  "X2_sizearg_own_var_keepfence": [["              memcpy_call((tRecordBuffer *)copyDst,\n                          buffer + nTopTenIndex[k] * uCopySz,uCopySz);\n", "              uBulkSz = uCopySz;\n              memcpy_call((tRecordBuffer *)copyDst,\n                          buffer + nTopTenIndex[k] * uCopySz,uBulkSz);\n"]],
+  "X3_fence2_single_operand": [["            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(uBulkSz));\n", "            __asm__(\"\" : : \"r\"(uBulkSz));\n"]],
+  "X4_fence2_unit_only": [["            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(uBulkSz));\n", "            __asm__(\"\" : : \"r\"(uBulkUnit));\n"]]
+}

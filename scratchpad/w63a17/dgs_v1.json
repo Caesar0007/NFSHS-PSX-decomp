@@ -1,0 +1,6 @@
+{
+  "base": [],
+  "fenceY0_arm4": [["      *(short *)(prim + 8) = ((width + x) - i) + addwm1;\n      *(short *)(prim + 10) = y;\n", "      *(short *)(prim + 8) = ((width + x) - i) + addwm1;\n      __asm__(\"\" : : \"i\"(0));\n      *(short *)(prim + 10) = y;\n"]],
+  "fenceY0_both": [["      *(short *)(prim + 8) = ((width + x) - i) + addwm1;\n      *(short *)(prim + 10) = y;\n", "      *(short *)(prim + 8) = ((width + x) - i) + addwm1;\n      __asm__(\"\" : : \"i\"(0));\n      *(short *)(prim + 10) = y;\n"], ["      *(short *)(prim + 8) = i + x;\n      *(short *)(prim + 10) = y;\n", "      *(short *)(prim + 8) = i + x;\n      __asm__(\"\" : : \"i\"(0));\n      *(short *)(prim + 10) = y;\n"]],
+  "widthLocalHoist": [["      *(short *)(prim + 8) = ((width + x) - i) + addwm1;\n", "      *(short *)(prim + 8) = (((int)width + x) - i) + addwm1;\n"]]
+}

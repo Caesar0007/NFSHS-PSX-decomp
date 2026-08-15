@@ -1,0 +1,7 @@
+{
+  "fence_only(base)": [],
+  "B1_direct_v": [["    prim[0x19] = prim[0xd];\n", "    prim[0x19] = v;\n"]],
+  "B2_direct_vb": [["    prim[0x19] = prim[0xd];\n", "    prim[0x19] = vb;\n"]],
+  "B3_readback_before_0x18": [["    prim[0x18] = u + w1;\n", "    prim[0x19] = prim[0xd];\n"], ["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n", "    prim[0x18] = u + w1;\n    prim[0x24] = u;\n"]],
+  "B4_uw1_temp": [["    prim[0x18] = u + w1;\n", "    { int uw1 = u + w1;\n    prim[0x18] = uw1;\n"], ["    prim[0x30] = u + w1;\n", "    prim[0x30] = uw1; }\n"]]
+}

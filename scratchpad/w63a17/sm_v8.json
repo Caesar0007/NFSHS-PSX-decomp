@@ -1,0 +1,4 @@
+{
+  "U1_copy_temp": [["  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < iVar10) {\n", "  uVar9 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < (int)uVar9) {\n    iVar10 = uVar9;\n"]],
+  "U2_copy_temp_block": [["  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < iVar10) {\n", "  uVar6 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < (int)uVar6) {\n    iVar10 = uVar6;\n"]]
+}

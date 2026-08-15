@@ -1,0 +1,6 @@
+{
+  "base": [],
+  "U1_inner_unrot": [["    for (j = 4; -1 < j; j--) {\n", "    j = 4;\n    while (1) {\n      if (j < 0) break;\n"], ["      x = x + 0xd;\n    }\n", "      x = x + 0xd;\n      j--;\n    }\n"]],
+  "U2_outer_unrot": [["  while ((i < 0x19) && (y < 0xd2)) {\n", "  while (1) {\n    if (0x19 <= i) break;\n    if (0xd2 <= y) break;\n"]],
+  "U3_both": [["  while ((i < 0x19) && (y < 0xd2)) {\n", "  while (1) {\n    if (0x19 <= i) break;\n    if (0xd2 <= y) break;\n"], ["    for (j = 4; -1 < j; j--) {\n", "    j = 4;\n    while (1) {\n      if (j < 0) break;\n"], ["      x = x + 0xd;\n    }\n", "      x = x + 0xd;\n      j--;\n    }\n"]]
+}

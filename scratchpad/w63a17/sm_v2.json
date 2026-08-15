@@ -1,0 +1,7 @@
+{
+  "base": [],
+  "P1_jdec_before_x": [["      x = x + 0xd;\n      j--;\n", "      j--;\n      x = x + 0xd;\n"]],
+  "P2_blockdecl_tvorder": [["    do {\n      if (0xf < j) break;\n      bVar1 = tvOrder[j];\n", "    do {\n      byte tvIdx;\n      if (0xf < j) break;\n      tvIdx = tvOrder[j];\n"], ["      if (((this->tvStates[bVar1] != this->tvTransitions[bVar1].state) ||\n          (this->tvConfigs[bVar1].clut != this->tvTransitions[bVar1].clut)) &&\n         (this->tvConfigs[bVar1].state == tv_StateOn)) {\n        TurnOffTV(this->tvConfigs + bVar1);\n      }\n", "      if (((this->tvStates[tvIdx] != this->tvTransitions[tvIdx].state) ||\n          (this->tvConfigs[tvIdx].clut != this->tvTransitions[tvIdx].clut)) &&\n         (this->tvConfigs[tvIdx].state == tv_StateOn)) {\n        TurnOffTV(this->tvConfigs + tvIdx);\n      }\n"]],
+  "P3_iVar10_copy": [["  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < iVar10) {\n", "  j = 0;\n  if (-1 < (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10) {\n    iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n"]],
+  "P4_while1_tvorder": [["    do {\n      if (0xf < j) break;\n", "    while (1) {\n      if (0xf < j) break;\n"], ["      j++;\n    } while (j <= iVar10);\n", "      j++;\n      if (iVar10 < j) break;\n    }\n"]]
+}

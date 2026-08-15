@@ -1329,35 +1329,6 @@ PER_FN_TEXT_MOVES = {
         ],
     },
     # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
-    # 11B rows: muldf3 12->4, _mul_mant_d 14->10
-    "recon/syslib/psx/libmath/MULDF3.c": {
-        "__muldf3": [
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-        ],
-        "_mul_mant_d": [
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-        ],
-    },
-    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
-    # 11B rows: divdf3 22->18
-    "recon/syslib/psx/libmath/DIVDF3.c": {
-        "__divdf3": [
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-        ],
-    },
-    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
-    # 11B row: adddf3 12->10
-    "recon/syslib/psx/libmath/ADDDF3.c": {
-        "__adddf3": [
-            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
-        ],
-    },
-    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
     # slot-fill on the printHex digit-table j: 56->44 @545/545 (kills the nosplit +1 nop)
     "recon/syslib/psx/libc/SPRINTF.c": {
         "sprintf": [
@@ -1372,6 +1343,44 @@ PER_FN_TEXT_MOVES = {
     "recon/syslib/psx/libpad/PADSEQD.c": {
         "_dirCheck": [
             {"take": "\\tli\\t\\$2,1[^\\n]*\\n", "after": "\\t\\.set\\tnomacro\\n(?=\\tj\\t\\$31\\n)", "drop_after": "\\tj\\t\\$31\\n"},
+        ],
+    },
+    # w63-a9 + w64-a9 (probe-verified 2x, objdump-verified per 15D):
+    # 11B rows + w64 relocations (muldf3 PASS/REAL=0; _mul_mant_d 8;
+    # divdf3 16 [11B fires at a _dbl_shift site too]; adddf3 8).
+    "recon/syslib/psx/libmath/MULDF3.c": {
+        "__muldf3": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$11,80\\(\\$sp\\)\\n)\\tli\\t\\$5,1[^\\n]*\\n", "after": "\\$L\\d+:\\n(?=\\tli\\t\\$2,10)"},
+            {"take": "\\tlw\\t\\$11,80\\(\\$sp\\)\\n", "after": "\\tlw\\t\\$6,24\\(\\$sp\\)\\n(?=\\tlw\\t\\$7,28\\(\\$sp\\)\\n\\taddu\\t\\$23,\\$11,-1023\\n)"},
+        ],
+        "_mul_mant_d": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tjal\\t_add_mant_d\\n)\\taddu\\t\\$4,\\$sp,24\\n", "after": "\\tmove\\t\\$19,\\$4\\n"},
+            {"take": "\\tsrl\\t\\$16,\\$16,16\\n", "after": "\\tjal\\t_add_mant_d\\n(?=\\t\\.set\\tmacro\\n)"},
+        ],
+    },
+    # w63-a9 + w64-a9 (probe-verified 2x, objdump-verified per 15D):
+    # 11B rows + w64 relocations (muldf3 PASS/REAL=0; _mul_mant_d 8;
+    # divdf3 16 [11B fires at a _dbl_shift site too]; adddf3 8).
+    "recon/syslib/psx/libmath/DIVDF3.c": {
+        "__divdf3": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "\\tlw\\t\\$7,40\\(\\$sp\\)\\n(?=\\t\\.set\\tnoreorder\\n)", "after": "\\tsw\\t\\$0,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n\\tlw\\t\\$6,28\\(\\$sp\\)\\n\\t\\.set\\tnoreorder\\n)"},
+        ],
+    },
+    # w63-a9 + w64-a9 (probe-verified 2x, objdump-verified per 15D):
+    # 11B rows + w64 relocations (muldf3 PASS/REAL=0; _mul_mant_d 8;
+    # divdf3 16 [11B fires at a _dbl_shift site too]; adddf3 8).
+    "recon/syslib/psx/libmath/ADDDF3.c": {
+        "__adddf3": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "\\tsw\\t\\$0,48\\(\\$sp\\)\\n", "after": "\\tsubu\\t\\$sp,\\$sp,96\\n"},
         ],
     },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):

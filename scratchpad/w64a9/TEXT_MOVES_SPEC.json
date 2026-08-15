@@ -1,0 +1,76 @@
+{
+ "recon/syslib/psx/libmath/MULDF3.c": {
+  "__muldf3": [
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tlw\\t\\$11,80\\(\\$sp\\)\\n)\\tli\\t\\$5,1[^\\n]*\\n",
+    "after": "\\$L\\d+:\\n(?=\\tli\\t\\$2,10)"
+   },
+   {
+    "take": "\\tlw\\t\\$11,80\\(\\$sp\\)\\n",
+    "after": "\\tlw\\t\\$6,24\\(\\$sp\\)\\n(?=\\tlw\\t\\$7,28\\(\\$sp\\)\\n\\taddu\\t\\$23,\\$11,-1023\\n)"
+   }
+  ],
+  "_mul_mant_d": [
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tjal\\t_add_mant_d\\n)\\taddu\\t\\$4,\\$sp,24\\n",
+    "after": "\\tmove\\t\\$19,\\$4\\n"
+   },
+   {
+    "take": "\\tsrl\\t\\$16,\\$16,16\\n",
+    "after": "\\tjal\\t_add_mant_d\\n(?=\\t\\.set\\tmacro\\n)"
+   }
+  ]
+ },
+ "recon/syslib/psx/libmath/DIVDF3.c": {
+  "__divdf3": [
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "\\tlw\\t\\$7,40\\(\\$sp\\)\\n(?=\\t\\.set\\tnoreorder\\n)",
+    "after": "\\tsw\\t\\$0,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n\\tlw\\t\\$6,28\\(\\$sp\\)\\n\\t\\.set\\tnoreorder\\n)"
+   }
+  ]
+ },
+ "recon/syslib/psx/libmath/ADDDF3.c": {
+  "__adddf3": [
+   {
+    "take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"
+   },
+   {
+    "take": "\\tsw\\t\\$0,48\\(\\$sp\\)\\n",
+    "after": "\\tsubu\\t\\$sp,\\$sp,96\\n"
+   }
+  ]
+ }
+}

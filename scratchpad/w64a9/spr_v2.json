@@ -1,0 +1,10 @@
+{
+  "file": "recon/syslib/psx/libc/SPRINTF.c",
+  "fns": ["sprintf"],
+  "variants": [
+    {"name": "S1 ptr-local 3-word copy", "subs": [["        info = D_8012348C;", "        {\n            const int *tp = (const int *)&D_8012348C;\n            ((int *)&info)[0] = tp[0];\n            ((int *)&info)[1] = tp[1];\n            ((int *)&info)[2] = tp[2];\n        }"]]},
+    {"name": "S1b ptr-local, named word temps", "subs": [["        info = D_8012348C;", "        {\n            const int *tp = (const int *)&D_8012348C;\n            int w0 = tp[0], w1 = tp[1], w2 = tp[2];\n            ((int *)&info)[0] = w0;\n            ((int *)&info)[1] = w1;\n            ((int *)&info)[2] = w2;\n        }"]]},
+    {"name": "S2 deref-cast struct assign", "subs": [["        info = D_8012348C;", "        info = *(printf_info *)&D_8012348C;"]]},
+    {"name": "S3 3-int struct pun assign", "subs": [["extern printf_info D_8012348C;", "extern printf_info D_8012348C;\ntypedef struct { int w0, w1, w2; } tmpl3_t;"], ["        info = D_8012348C;", "        *(tmpl3_t *)&info = *(tmpl3_t *)&D_8012348C;"]]}
+  ]
+}

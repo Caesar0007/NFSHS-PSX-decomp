@@ -1,0 +1,61 @@
+{
+ "file": "recon/syslib/psx/libmath/ADDDF3.c",
+ "fns": [
+  "__adddf3"
+ ],
+ "variants": [
+  {
+   "name": "a1 fenced one @site1",
+   "subs": [
+    [
+     "    if (A[1] & 0x40000000) {\n        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);\n        ae += 1;\n    }\n    k = 255;",
+     "    if (A[1] & 0x40000000) {\n        int one = 1;\n        __asm__(\"\" : \"=r\"(one) : \"0\"(one));\n        _dbl_shift((unsigned int *)A, one, A[0], A[1], 1);\n        ae += 1;\n    }\n    k = 255;"
+    ]
+   ]
+  },
+  {
+   "name": "a2 fenced one @site2",
+   "subs": [
+    [
+     "    _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);\n    if (A[1] & 0x40000000) {\n        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);\n        ae += 1;\n    }\n    _dbl_shift",
+     "    _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);\n    if (A[1] & 0x40000000) {\n        int one = 1;\n        __asm__(\"\" : \"=r\"(one) : \"0\"(one));\n        _dbl_shift((unsigned int *)A, one, A[0], A[1], 1);\n        ae += 1;\n    }\n    _dbl_shift"
+    ]
+   ]
+  },
+  {
+   "name": "a3 fenced one @BOTH",
+   "subs": [
+    [
+     "    if (A[1] & 0x40000000) {\n        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);\n        ae += 1;\n    }\n    k = 255;",
+     "    if (A[1] & 0x40000000) {\n        int one = 1;\n        __asm__(\"\" : \"=r\"(one) : \"0\"(one));\n        _dbl_shift((unsigned int *)A, one, A[0], A[1], 1);\n        ae += 1;\n    }\n    k = 255;"
+    ],
+    [
+     "    _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);\n    if (A[1] & 0x40000000) {\n        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);\n        ae += 1;\n    }\n    _dbl_shift",
+     "    _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);\n    if (A[1] & 0x40000000) {\n        int one = 1;\n        __asm__(\"\" : \"=r\"(one) : \"0\"(one));\n        _dbl_shift((unsigned int *)A, one, A[0], A[1], 1);\n        ae += 1;\n    }\n    _dbl_shift"
+    ]
+   ]
+  },
+  {
+   "name": "b void fence before _add_mant_d rounding call",
+   "subs": [
+    [
+     "    rnd[0] = k;\n    _add_mant_d(",
+     "    rnd[0] = k;\n    __asm__(\"\" : : \"i\"(0));\n    _add_mant_d("
+    ]
+   ]
+  },
+  {
+   "name": "c fenced normMask",
+   "subs": [
+    [
+     "    while ((A[1] & 0xE0000000) == 0) {",
+     "    {\n    unsigned int normMask = 0xE0000000;\n    __asm__(\"\" : \"=r\"(normMask) : \"0\"(normMask));\n    while ((A[1] & normMask) == 0) {"
+    ],
+    [
+     "        ae -= 1;\n    }\n    if (A[1] & 0x40000000) {",
+     "        ae -= 1;\n    }\n    }\n    if (A[1] & 0x40000000) {"
+    ]
+   ]
+  }
+ ]
+}

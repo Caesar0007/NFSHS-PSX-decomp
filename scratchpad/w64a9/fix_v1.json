@@ -1,0 +1,35 @@
+{
+ "file": "recon/syslib/psx/libmath/FIXDFSI.c",
+ "fns": [
+  "__fixdfsi"
+ ],
+ "variants": [
+  {
+   "name": "A void fence at head of shift block (early-return basin)",
+   "subs": [
+    [
+     "        if ((unsigned int)(v4 - 1022) >= 0x20) return 0;\n        if (v8 == 0) return 0;",
+     "        if ((unsigned int)(v4 - 1022) >= 0x20) return 0;\n        if (v8 == 0) return 0;\n        __asm__(\"\" : : \"i\"(0));"
+    ]
+   ]
+  },
+  {
+   "name": "B void fence AFTER the shift, before the join",
+   "subs": [
+    [
+     "            v8 = v8 >> (-v6);\n            __asm__(\"\" : \"=r\"(v8) : \"0\"(v8));",
+     "            v8 = v8 >> (-v6);\n            __asm__(\"\" : \"=r\"(v8) : \"0\"(v8));\n            __asm__(\"\" : : \"i\"(0));"
+    ]
+   ]
+  },
+  {
+   "name": "C void fence BETWEEN the two ret-0 guards",
+   "subs": [
+    [
+     "        if ((unsigned int)(v4 - 1022) >= 0x20) return 0;\n        if (v8 == 0) return 0;",
+     "        if ((unsigned int)(v4 - 1022) >= 0x20) return 0;\n        __asm__(\"\" : : \"i\"(0));\n        if (v8 == 0) return 0;"
+    ]
+   ]
+  }
+ ]
+}

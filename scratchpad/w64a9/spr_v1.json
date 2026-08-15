@@ -1,0 +1,10 @@
+{
+  "file": "recon/syslib/psx/libc/SPRINTF.c",
+  "fns": ["sprintf"],
+  "variants": [
+    {"name": "V1 sotn u32 ch", "subs": [["    int ch;", "    unsigned int ch;"]]},
+    {"name": "V2 template sized [1] view", "subs": [["extern printf_info D_8012348C;", "extern printf_info D_8012348C[1];"], ["info = D_8012348C;", "info = D_8012348C[0];"]]},
+    {"name": "V3 template unsized [] view", "subs": [["extern printf_info D_8012348C;", "extern printf_info D_8012348C[];"], ["info = D_8012348C;", "info = D_8012348C[0];"]]},
+    {"name": "V4 template via pointer local", "subs": [["extern printf_info D_8012348C;", "extern printf_info D_8012348C;\nstatic printf_info *const D_tmpl = &D_8012348C;"], ["info = D_8012348C;", "info = *D_tmpl;"]]}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "file": "recon/syslib/psx/libc/SPRINTF.c",
+  "fns": ["sprintf"],
+  "variants": [
+    {"name": "C1 clobber t0-t3 at fn top (EVIDENCE ONLY, pin-adjacent)", "subs": [["    va_start(args, f);", "    __asm__ (\"\" : : : \"t0\", \"t1\", \"t2\", \"t3\");\n    va_start(args, f);"]]},
+    {"name": "C2 clobber t0-t3 just before the copy", "subs": [["        info = D_8012348C;", "        __asm__ (\"\" : : : \"t0\", \"t1\", \"t2\", \"t3\");\n        info = D_8012348C;"]]},
+    {"name": "C3 clobber t0-t9 at fn top", "subs": [["    va_start(args, f);", "    __asm__ (\"\" : : : \"t0\", \"t1\", \"t2\", \"t3\", \"t4\", \"t5\", \"t6\", \"t7\", \"t8\", \"t9\");\n    va_start(args, f);"]]}
+  ]
+}

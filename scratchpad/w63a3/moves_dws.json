@@ -1,0 +1,10 @@
+{
+ "recon/syslib/psx/libgpu/SYS.c": {
+  "_dws": [
+   {
+    "take": "\\tli\\t\\$4,-1\\t[^\\n]*\\n",
+    "after": "\\tbeq\\t\\$16,\\$2,\\$L\\d+\\n"
+   }
+  ]
+ }
+}

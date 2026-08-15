@@ -1,0 +1,23 @@
+D2 sentinel neg1 before peel
+moves=scratchpad/w63a3/moves_dws.json
+run0: _dws: FAIL 9 diffs (ours 144 / oracle 143)
+      +sw s1,20(sp)
+      +addu s1,a0,zero
+      -sw s1,20(sp)
+      -addu s1,a0,zero
+      -addu s3,v1,zero
+      +lui s3,1024
+      -addiu s0,s0,-1
+      -nop
+      +addiu s0,s0,-1
+run1: _dws: FAIL 9 diffs (ours 144 / oracle 143)
+      +sw s1,20(sp)
+      +addu s1,a0,zero
+      -sw s1,20(sp)
+      -addu s1,a0,zero
+      -addu s3,v1,zero
+      +lui s3,1024
+      -addiu s0,s0,-1
+      -nop
+      +addiu s0,s0,-1
+restored

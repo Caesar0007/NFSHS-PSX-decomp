@@ -1,0 +1,157 @@
+=== F1 m-constraint fence before the call
+  FntFlush: FAIL 45 diffs (ours 200 / oracle 199)
+      -sw zero,16(sp)
+      +sw zero,20(sp)
+      +addiu a2,s3,16
+      +sw a2,16(sp)
+      +lw a0,16(sp)
+      -lw a2,28(s3)
+      -addiu s7,s3,16
+      -sw a2,24(sp)
+      +lw fp,28(s3)
+      -addu fp,s1,v0
+      +nop
+      -sw v1,20(sp)
+      +sw v1,24(sp)
+      -addu a0,s7,zero
+      +addu s7,s1,v0
+      -lw a2,24(sp)
+      -nop
+      -beqz a2,T
+      +beqz fp,T
+      +lbu a2,28(sp)
+      -lbu a2,28(sp)
+      -addu a0,s7,zero
+      +lw a0,16(sp)
+      -slt v0,s1,fp
+      +slt v0,s1,s7
+      -lw a2,16(sp)
+      +lw a2,20(sp)
+      -sw s1,16(sp)
+      +sw s1,20(sp)
+      -lw a2,20(sp)
+      +lw a2,24(sp)
+      -lw a2,24(sp)
+      -addiu a2,a2,-1
+      -sw a2,24(sp)
+      +addiu fp,fp,-1
+      -addu a0,s7,zero
+      +nop
+      +lw a0,16(sp)
+      -lw a2,16(sp)
+      +lw a2,20(sp)
+      +lw a0,16(sp)
+      -addu a0,s7,zero
+      +nop
+      -addu v0,s7,zero
+      +lw v0,16(sp)
+=== F2 volatile re-read of dr at the call
+  FntFlush: FAIL 38 diffs (ours 199 / oracle 199)
+      -sw zero,16(sp)
+      -sw a2,24(sp)
+      +sw zero,20(sp)
+      +sw a2,36(sp)
+      -addu a0,a2,zero
+      -sw a2,36(sp)
+      +sw a2,16(sp)
+      +lw a0,16(sp)
+      -sw v1,20(sp)
+      +sw v1,24(sp)
+      -sw v0,24(sp)
+      +sw v0,28(sp)
+      -sw v1,28(sp)
+      +sw v1,32(sp)
+      -sw v0,32(sp)
+      +sw v0,36(sp)
+      -lbu a2,24(sp)
+      +lbu a2,28(sp)
+      -lbu a2,28(sp)
+      +lbu a2,32(sp)
+      -lbu a2,32(sp)
+      +lbu a2,36(sp)
+      -lw a0,36(sp)
+      +lw a0,16(sp)
+      -lw a2,16(sp)
+      +lw a2,20(sp)
+      -sw s1,16(sp)
+      +sw s1,20(sp)
+      -lw a2,20(sp)
+      +lw a2,24(sp)
+      -lw a0,36(sp)
+      +lw a0,16(sp)
+      -lw a2,16(sp)
+      +lw a2,20(sp)
+      -lw a0,36(sp)
+      +lw a0,16(sp)
+      -lw v0,36(sp)
+      +lw v0,16(sp)
+=== F3 m-constraint fence on dr itself
+  FntFlush: FAIL 20 diffs (ours 201 / oracle 199)
+      +addiu a2,s3,16
+      +sw a2,16(sp)
+      +lw a0,16(sp)
+      -addiu a0,s3,16
+      -sw a0,16(sp)
+      -addu s7,s1,v0
+      +nop
+      -nop
+      +addu s7,s1,v0
+      +lbu a2,28(sp)
+      -lbu a2,28(sp)
+      -addiu s1,s1,8
+      -j T
+      -slt v0,s1,s7
+      -lw v0,36(s3)
+      +lw v1,36(s3)
+      +lw v0,16(sp)
+      -sb zero,0(v0)
+      -lw v0,16(sp)
+      +sb zero,0(v1)
+=== F4 opacity launder on dr before the call
+  FntFlush: FAIL 45 diffs (ours 200 / oracle 199)
+      -sw zero,16(sp)
+      +sw zero,20(sp)
+      +addiu a2,s3,16
+      +sw a2,16(sp)
+      +lw a0,16(sp)
+      -lw a2,28(s3)
+      -addiu s7,s3,16
+      -sw a2,24(sp)
+      +lw fp,28(s3)
+      -addu fp,s1,v0
+      +nop
+      -sw v1,20(sp)
+      +sw v1,24(sp)
+      -addu a0,s7,zero
+      +addu s7,s1,v0
+      -lw a2,24(sp)
+      -nop
+      -beqz a2,T
+      +beqz fp,T
+      +lbu a2,28(sp)
+      -lbu a2,28(sp)
+      -addu a0,s7,zero
+      +lw a0,16(sp)
+      -slt v0,s1,fp
+      +slt v0,s1,s7
+      -lw a2,16(sp)
+      +lw a2,20(sp)
+      -sw s1,16(sp)
+      +sw s1,20(sp)
+      -lw a2,20(sp)
+      +lw a2,24(sp)
+      -lw a2,24(sp)
+      -addiu a2,a2,-1
+      -sw a2,24(sp)
+      +addiu fp,fp,-1
+      -addu a0,s7,zero
+      +nop
+      +lw a0,16(sp)
+      -lw a2,16(sp)
+      +lw a2,20(sp)
+      +lw a0,16(sp)
+      -addu a0,s7,zero
+      +nop
+      -addu v0,s7,zero
+      +lw v0,16(sp)
+restored

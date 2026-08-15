@@ -1,0 +1,7 @@
+P1 read-only fence on rect first         _dws: FAIL 10 diffs (ours 143 / oracle 143)
+P2 read-only fence on data first         _dws: FAIL 10 diffs (ours 143 / oracle 143)
+P3 saved declared FIRST                  _dws: FAIL 8 diffs (ours 143 / oracle 143)
+P4 var_s4 before saved                   _dws: FAIL 8 diffs (ours 143 / oracle 143)
+P5 identity launder on rect first        _dws: FAIL 8 diffs (ours 143 / oracle 143)
+P6 identity launder on data first        _dws: FAIL 8 diffs (ours 143 / oracle 143)
+restored

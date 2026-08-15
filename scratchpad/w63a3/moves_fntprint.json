@@ -1,0 +1,10 @@
+{
+ "recon/syslib/psx/libgpu/FONT.c": {
+  "FntPrint": [
+   {
+    "take": "\\tli\\t\\$6,-1[^\\n]*\\n",
+    "after": "\\tbeq\\t\\$5,\\$2,\\$L\\d+\\n"
+   }
+  ]
+ }
+}

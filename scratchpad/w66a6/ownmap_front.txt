@@ -1,0 +1,116 @@
+# W64-A18 ownmap2 (reloc-aware E5 + record-interior E4)  blob=scratchpad/w64a18/ctl_blob/front_data.data.s
+# blob labels=227  TU-defined=79  windows=33
+
+      base        end   size  lbl  rel   ok  sec     object
+0x00000000 0x00000000      0    1    0    -  .bss    build/recon/frontend/common/screencarselect.cpp.o
+      E3 0 implied bases
+      E0 every blob label this section defines is MULTIPLY DEFINED across recon TUs: ['gSwapFileName']
+      E5 BYTES DIFFER (0 of 0)
+0x00000000 0x00000000      0    1    0    -  .bss    build/recon/frontend/common/screenpinkslips.cpp.o
+      E3 0 implied bases
+      E0 every blob label this section defines is MULTIPLY DEFINED across recon TUs: ['gSwapFileName']
+      E5 BYTES DIFFER (0 of 0)
+0x00000000 0x00000000      0    1    0    -  .bss    build/recon/frontend/common/screentournselect.cpp.o
+      E3 0 implied bases
+      E0 every blob label this section defines is MULTIPLY DEFINED across recon TUs: ['gSwapFileName']
+      E5 BYTES DIFFER (0 of 0)
+0x00000000 0x00000000      0    1    0    -  .bss    build/recon/frontend/common/screentrackinfo.cpp.o
+      E3 0 implied bases
+      E0 every blob label this section defines is MULTIPLY DEFINED across recon TUs: ['gSwapFileName']
+      E5 BYTES DIFFER (0 of 0)
+0x00000000 0x00000000      0    1    0    -  .bss    build/recon/frontend/common/screentracks.cpp.o
+      E3 0 implied bases
+      E0 every blob label this section defines is MULTIPLY DEFINED across recon TUs: ['gSwapFileName']
+      E5 BYTES DIFFER (0 of 0)
+0x800514b8 0x800514c4     12    2    0 OWN*  .data   build/recon/frontend/common/feapp.cpp.o
+      * cut splits record FEApp at 0x800514c4; residual 0x800514c4..0x800514c8 (4 B) stays in the blob
+0x800514c8 0x8005153c    116    7    6    -  .data   build/recon/frontend/common/feaudio.cpp.o
+      E5? UNDECIDABLE (24 raw diffs): ['unresolved reloc target .rodata@0x8', 'unresolved reloc target .rodata@0xc', 'unresolved reloc target .rodata@0x10']
+0x80051544 0x800515a9    101    2    0    -  .data   build/recon/frontend/common/fecars.cpp.o
+      E3 2 implied bases
+      E2 1 outside: ['cars_disableBonuses']
+0x800515b0 0x80051624    116    2    0    -  .data   build/recon/frontend/common/fetracks.cpp.o
+      E1 2 foreign: ['textDefinitions', 'gSemiTransText']
+      E1 1 un-migrated: ['fHelpText']
+      E5 BYTES DIFFER (66 of 116)
+0x800515b8 0x80051610     88    2    0  OWN  .data   build/recon/frontend/common/fetextrender.cpp.o
+0x800516c8 0x80051738    112    1    0  OWN  .data   build/recon/frontend/common/fecolor.cpp.o
+0x8005173c 0x800517bc    128    1    0 OWN*  .data   build/recon/frontend/common/feinput.cpp.o
+      * cut splits record getKeyMappings at 0x800517bc; residual 0x800517bc..0x800517c0 (4 B) stays in the blob
+0x800517c0 0x800517c4      4    1    0    -  .data   build/recon/frontend/common/femenu.cpp.o
+0x800517e0 0x800517e2      2    1    0    -  .data   build/recon/frontend/common/fetools.cpp.o
+      E4 edge not a boundary / not splittable
+0x800517f8 0x8005197b    387    9    0    -  .data   build/recon/frontend/common/front.cpp.o
+      E3 6 implied bases
+      E1 2 foreign: ['SelectListNull', 'SelectListOffOn']
+      E2 2 outside: ['ComingIntoTheFrontEndTheVeryFirstTime', 'overRide']
+      E4 edge not a boundary / not splittable
+      E5 BYTES DIFFER (41 of 387)
+0x80051974 0x80051a60    236   15    0    -  .data   build/recon/frontend/common/femenudefs.cpp.o
+      E3 2 implied bases
+      E2 1 outside: ['SelectListNull']
+0x80051a6c 0x80051a94     40    2    0    -  .data   build/recon/frontend/common/fememcard.cpp.o
+      E3 2 implied bases
+      E1 1 foreign: ['CURRENTLYUSINGMEMCARD']
+      E1 2 un-migrated: ['nomessage', 'MEMCARD_INITIALIZED']
+      E5 BYTES DIFFER (10 of 40)
+0x80051a7c 0x80051aa8     44    1    0    -  .bss    build/recon/frontend/common/fememcard.cpp.o
+      E1 1 foreign: ['textSysMemCardFail_Index']
+      E1 2 un-migrated: ['MEMCARD_INITIALIZED', 'CREDFADETICKS']
+      E5 BYTES DIFFER (14 of 44)
+0x80051e64 0x80051e70     12    1    0    -  .data   build/recon/frontend/common/screenpinkslips.cpp.o
+      E1 2 foreign: ['screenTournamentStandings', 'screenTournamentStandings3item']
+      E5 BYTES DIFFER (3 of 12)
+0x80051e68 0x80051e74     12    3    0    -  .data   build/recon/frontend/common/screenpost.cpp.o
+0x80051eb8 0x80052040    392    1    0    -  .data   build/recon/frontend/common/screencarselect.cpp.o
+      E1 1 un-migrated: ['PinkSlipsScreenState']
+      E4 edge not a boundary / not splittable
+      E5 BYTES DIFFER (188 of 392)
+0x80052058 0x80052060      8    1    0  OWN  .data   build/recon/frontend/common/screentournselect.cpp.o
+0x80052060 0x80052074     20    2    0 OWN*  .data   build/recon/frontend/common/screentrophyroom.cpp.o
+      * cut splits record gSwapFileName at 0x80052074; residual 0x80052074..0x80052078 (4 B) stays in the blob
+0x80052078 0x8005209c     36    3    0 OWN*  .data   build/recon/frontend/common/screentrophyinfo.cpp.o
+      * cut splits record gSwapFileNameTI at 0x8005209c; residual 0x8005209c..0x800520a0 (4 B) stays in the blob
+0x800520a0 0x800520b8     24    1    0  OWN  .data   build/recon/frontend/common/screentracks.cpp.o
+0x800520b8 0x800520d0     24    1    0  OWN  .data   build/recon/frontend/common/screentrackinfo.cpp.o
+0x800520fc 0x800528f4   2040    5    7    -  .data   build/recon/frontend/common/screencontroller.cpp.o
+      E3 2 implied bases
+      E1 2 foreign: ['screenDisplay', 'screenAudio']
+      E1 1 un-migrated: ['screenMemcard']
+      E4 edge not a boundary / not splittable
+      E5? UNDECIDABLE (29 raw diffs): ['unresolved reloc target .rodata@0x7d8', 'unresolved reloc target .rodata@0x7dc', 'unresolved reloc target .rodata@0x7e0']
+0x800528d8 0x800528dc      4    1    0 OWN*  .data   build/recon/frontend/common/screendisplay.cpp.o
+      * cut splits record screenDisplay at 0x800528dc; residual 0x800528dc..0x800528e0 (4 B) stays in the blob
+0x800528e8 0x800528ec      4    1    0 OWN*  .data   build/recon/frontend/common/screenaudio.cpp.o
+      * cut splits record screenAudio at 0x800528ec; residual 0x800528ec..0x800528f0 (4 B) stays in the blob
+0x80052924 0x80052954     48    6    0    -  .data   build/recon/frontend/common/screencongrats.cpp.o
+      E3 2 implied bases
+      E1 6 un-migrated: ['MEMCARDICONOFFY', 'kMemCardMessage1X', 'kMemCardMessage1Y', 'kMemCardMessageX', 'kMemCardMessageY', 'fMemIcon']
+      E2 2 outside: ['congratsSwapFileName', 'fPermFileNameBuf']
+0x800529a0 0x800529ae     14    2    0 OWN+  .data   build/recon/frontend/common/stattool.cpp.o
+      + window padded 0x800529ae..0x800529b0 (2 B of retail ZERO alignment pad, supplied by the .ld FILL(0))
+0x800529b0 0x800529d0     32    4    1    -  .data   build/recon/frontend/common/screenusername.cpp.o
+      E3 2 implied bases
+      E5? UNDECIDABLE (0 raw diffs): ['unresolved reloc target .rodata@0x8']
+0x800529d0 0x800529d4      4    1    0    -  .sdata  build/recon/frontend/psx/drawshp.cpp.o
+      E5 BYTES DIFFER (3 of 4)
+
+OWNABLE windows            : 12
+  ... after overlap pruning: 12  (dropped 0)
+  of which need a record split: 6
+  of which end in alignment pad: 1
+bytes owned                : 476 of 6360
+blob labels inside owned windows: 27
+  of which TU-defined      : 18
+  of which splat D_ interior: 9
+TU-defined labels NOT owned: 61
+
+## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
+  E3 intra-TU drift          12
+  E4 edge not a boundary     9
+  E5 bytes differ            12
+  E5? undecidable reloc      3
+  E1 foreign owner inside    6
+  E1 un-migrated inside      6
+  E2 own label outside       4
+  E0 ambiguous anchor only   5

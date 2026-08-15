@@ -1,0 +1,27 @@
+excluded from ownership (user-live): ['build/recon/frontend/common/femenu.cpp.o', 'build/recon/frontend/common/screenpost.cpp.o', 'build/recon/frontend/common/screenusername.cpp.o']
+ambiguous (multiply-defined) blob labels: 1 ['gSwapFileName']
+      E3 2 implied bases
+      E5? UNDECIDABLE (0 raw diffs): ['unresolved reloc target .rodata@0x8']
+0x800529d0 0x800529d4      4    1    0    -  .sdata  build/recon/frontend/psx/drawshp.cpp.o
+      E5 BYTES DIFFER (3 of 4)
+
+OWNABLE windows            : 12
+  ... after overlap pruning: 12  (dropped 0)
+  of which need a record split: 6
+  of which end in alignment pad: 1
+bytes owned                : 476 of 6360
+blob labels inside owned windows: 27
+  of which TU-defined      : 18
+  of which splat D_ interior: 9
+TU-defined labels NOT owned: 61
+
+## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
+  E3 intra-TU drift          12
+  E4 edge not a boundary     9
+  E5 bytes differ            12
+  E5? undecidable reloc      3
+  E1 foreign owner inside    6
+  E1 un-migrated inside      6
+  E2 own label outside       4
+  E0 ambiguous anchor only   5
+-> scratchpad/w66a6/ownmap_front.txt / scratchpad/w66a6/ownmap_front.json

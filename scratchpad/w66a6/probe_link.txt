@@ -1,0 +1,11 @@
+[scan] objects=508 scanned=508
+[spine] with .text=460  placed=443  dropped(interleaved)=17  no-base=1  (multi-VA names excluded: 5)
+[ld] rc=0  stderr lines=16
+    build/recon/game/psx/fe3dmenu.cpp.o: in function `Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii':
+    (.text+0x3c0): relocation truncated to fit: R_MIPS_26 against `fixedxformy'
+    (.text+0x434): relocation truncated to fit: R_MIPS_26 against `fixedxformy'
+    build/recon/frontend/common/feapp.cpp.o: in function `__14tFEApplication':
+    (.text+0x30): relocation truncated to fit: R_MIPS_26 against `__7tScreen'
+[img] linked .text image 1024996 bytes (0x800128f0..0x8010ccd4)
+[cmp] bytes compared=922016  identical=765016  (82.97%)
+[cmp] objects byte-IDENTICAL to retail: 161/443

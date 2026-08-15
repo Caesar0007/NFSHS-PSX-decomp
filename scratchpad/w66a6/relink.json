@@ -1,0 +1,30 @@
+[
+ {
+  "lane": "recon",
+  "objects": 747,
+  "ld_r_rc": 1,
+  "dup_total": 797,
+  "dup_blob": 797,
+  "dup_real": 0,
+  "unresolved_reloc": 5,
+  "unresolved_benign": 0,
+  "phantoms": 0,
+  "multi_va_names_excluded": 5,
+  "excluded_subtrees": {
+   "diffsrc": 111,
+   "scratch": 26,
+   "scratchpad": 4,
+   "pbuild": 0,
+   "relink": 2
+  },
+  "dup_real_rows": [],
+  "phantom_rows": [],
+  "unresolved_names": [
+   "D_1000001",
+   "D_80000004",
+   "__last_org",
+   "_gp",
+   "ticksA"
+  ]
+ }
+]

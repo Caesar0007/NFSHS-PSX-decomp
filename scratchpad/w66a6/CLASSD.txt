@@ -1,0 +1,20 @@
+0x8001373C    99.28%  frontend/common/feapp        Redraw__14tFEApplication                       Redraw__14tFEApplicati 
+0x80027194    99.86%  frontend/common/front        GetPSXPadValue__Fii                            GetPSXPadValue__Fii: F 
+0x8005E33C    99.82%  game/common/aih_btccop       HighExecute__18AIHigh_BTC_Wingman              HighExecute__18AIHigh_ 
+0x80063CC4    99.35%  game/common/aih_cop          HighExecute__10AIHigh_Cop                      HighExecute__10AIHigh_ 
+0x8006B400    99.47%  game/common/aiphysic         AIPhysic_OutOfControlPhysics__FP8Car_tObj      AIPhysic_OutOfControlP 
+0x800770BC    99.51%  game/common/audiocmn         AudioCmn_CheckState__FP8Car_tObj               AudioCmn_CheckState__F 
+0x8007DD74    99.09%  game/common/bworld           SetupChunkBuildList__FP13DRender_tView         SetupChunkBuildList__F 
+0x80090144    99.72%  game/common/collide          Collide_TestObjectVertices__FP13BO_tNewtonObjT Collide_TestObjectVert 
+0x8009619C    99.59%  game/common/speech           StatusReply__Q26Speech15DispatchSpeaker        StatusReply__Q26Speech 
+0x800AC164    99.99%  game/common/physics          Physics_Real__FP8Car_tObj                      Physics_Real__FP8Car_t 
+0x800B10FC    99.56%  game/common/r3dcar           R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRend R3DCar_InsertCarFacetM 
+0x800B74E4    99.79%  game/common/simqueue         SimQueue_SetCurrentInput__Fi                   SimQueue_SetCurrentInp 
+0x800BC704    99.69%  game/psx/cario               CarIO_ReadInCarTextureData__FPcP8Car_tObjii    CarIO_ReadInCarTexture 
+0x800D302C    99.31%  game/psx/hud                 Hud_Init__Fv                                   Hud_Init__Fv: FAIL 8 d 
+0x800DA728    99.03%  game/psx/overlays            Hud_BTCStats__Fsb                              Hud_BTCStats__Fsb: FAI 
+0x800EACD8    99.79%  eaclib/psx/eacpsxz/asinfunc  intarcsin                                      intarcsin: FAIL 2 diff 
+0x800F2968    99.63%  syslib/psx/libetc/INTR       _initIntr                                      _initIntr: FAIL 6 diff 
+0x80108DDC    99.95%  syslib/psx/libcd/cdread      CdRead                                         CdRead: FAIL 2 diffs ( 
+
+rows screened: 18   CLASS-D (gate PASS, board <100): 0

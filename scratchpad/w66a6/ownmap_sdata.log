@@ -1,0 +1,25 @@
+      E5 BYTES DIFFER (8 of 8)
+0x8013dd4c 0x8013dd58     12    1    0    -  .sbss   build/recon/eaclib/psx/eacpsxz/inittmr.c.o
+      E1 2 un-migrated: ['textntabstops', 'texttabstops']
+0x8013dd5c 0x8013dd60      4    1    0  OWN  .sbss   build/recon/eaclib/psx/eacpsxz/threads.c.o
+
+OWNABLE windows            : 40
+  ... after overlap pruning: 40  (dropped 0)
+  of which need a record split: 0
+  of which end in alignment pad: 1
+bytes owned                : 868 of 6192
+blob labels inside owned windows: 188
+  of which TU-defined      : 149
+  of which splat D_ interior: 39
+TU-defined labels NOT owned: 309
+
+## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
+  E3 intra-TU drift          21
+  E4 edge not a boundary     3
+  E5 bytes differ            28
+  E5? undecidable reloc      1
+  E1 foreign owner inside    11
+  E1 un-migrated inside      8
+  E2 own label outside       12
+  E0 ambiguous anchor only   0
+-> scratchpad/w66a6/ownmap_sdata.txt / scratchpad/w66a6/ownmap_sdata.json

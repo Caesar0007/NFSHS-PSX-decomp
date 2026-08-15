@@ -1,0 +1,6 @@
+== lane recon: 747 objects (excluded: {'diffsrc': 111, 'scratch': 26, 'scratchpad': 4, 'pbuild': 0, 'relink': 2})
+   ld -r rc=1
+   DUP total=797  blob-class=797  REAL=0          [REAL must be 0]
+   HIDDEN PHANTOMS=0                          [must be 0]
+   UNRESOLVED (reloc-referenced)=5  (symtab-only, benign=0)
+GATE: GREEN

@@ -1,0 +1,25 @@
+0x8013bf18 0x8013bf20      8    2    0  OWN  .data   build/recon/syslib/psx/libmath/FERR.c.o
+0x8013bf6c 0x8013c00c    160    2   40    -  .data   build/recon/syslib/psx/libcd/cddebug.c.o
+      E5? UNDECIDABLE (160 raw diffs): ['unresolved reloc target .rodata@0x0', 'unresolved reloc target .rodata@0x4', 'unresolved reloc target .rodata@0x8']
+0x8013c2f0 0x8013c308     24    1    0  OWN  .data   build/recon/eaclib/psx/sndpsxz/snddata.c.o
+
+OWNABLE windows            : 35
+  ... after overlap pruning: 35  (dropped 0)
+  of which need a record split: 2
+  of which end in alignment pad: 1
+bytes owned                : 35476 of 194680
+blob labels inside owned windows: 393
+  of which TU-defined      : 153
+  of which splat D_ interior: 240
+TU-defined labels NOT owned: 124
+
+## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
+  E3 intra-TU drift          8
+  E4 edge not a boundary     13
+  E5 bytes differ            14
+  E5? undecidable reloc      3
+  E1 foreign owner inside    11
+  E1 un-migrated inside      5
+  E2 own label outside       3
+  E0 ambiguous anchor only   0
+-> scratchpad/w66a6/ownmap_data.txt / scratchpad/w66a6/ownmap_data.json

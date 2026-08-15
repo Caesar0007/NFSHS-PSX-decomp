@@ -310,7 +310,24 @@ extern void _pad_reset_state(unsigned char *info)
  *   window and lands $a0".  Everything live in that window today is homed callee-saved (s0-s3),
  *   which is why the w62 `nextp` probe did not conflict; the pricing question for allocsim/
  *   reqdelta is whether any value in that window can be given both a caller-saved home and a
- *   priority above `flag`'s rank 4. */
+ *   priority above `flag`'s rank 4.
+ * w64-a7 2026-08-15: re-gated 17 @60/61, shape unchanged; the certificate stands.  The residual
+ *   is now fully attributed: of the 17 lines, 13 are the SINGLE decision `flag`=$a0(ours) vs
+ *   $a1(retail) -- 3 for the missing entry copy, 2+2 for the two tests, 4 for the two
+ *   `li 65535` -- and the remaining 4 are the (b) two-load LUID tie.  SIX NEW FALSIFICATIONS of
+ *   the w63 "higher-priority rival takes $a0 first" family, all 17 and byte-identical unless
+ *   noted: an IDENTITY FENCE on `flag` as the literal FIRST statement of the function (the 12A
+ *   preference-killer, placed where the parm copy IS the fenced insn -- 17, so killing the
+ *   preference is NOT enough: find_reg's plain ascending scan hands $a0 anyway once $v0/$v1 are
+ *   taken by block-0 local qtys); the same fence DOUBLED (17); a named `off` temp for the
+ *   `_padSioChan * 0xf0` product (17); a named `c0` channel temp (17); the same + an identity
+ *   launder on `c0` (22 @61 -- it manufactures a rival but a CALLEE-saved one); fence + `c0`
+ *   together (17).  ⇒ the un-covered route needs a rival that is BOTH caller-saved AND
+ *   higher-priority than rank 4, and every value live in insns 1..20 that could be given a
+ *   caller-saved home is block-local (local_alloc, which runs first, parks those in $v0/$v1 and
+ *   never reaches $a0).  Sharpened statement of the open angle: the rival must be a GLOBAL
+ *   allocno, born in the entry block, not call-crossing, ranked above 4, and conflicting with
+ *   `flag` -- allocsim/reqdelta272 pricing job. */
 extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;
@@ -404,6 +421,19 @@ extern unsigned _pad_shift(unsigned char *info)
  *   default fence kept = 5 @44 (byte-identical to the landed form); ALL THREE arms as inline
  *   returns = 5 @44; a read-only fence on `buf` after case 0's pointer load = 5 @44.  Four more
  *   spellings, one output.  do_cross_jump's direction input is confirmed source-invariant here.
+ *   w64-a7 added SIX MORE, all 5 @44/47 and byte-identical (the family is now 18 spellings deep
+ *   across five waves): case 0 exiting with `goto deref;` while 'M' keeps `break` (a distinct
+ *   label for one arm -- the very lever that sealed `_pad_filter`'s loop this wave, so it was
+ *   worth the probe; it does NOT reach cross-jump the way it reaches duplicate_loop_exit_test);
+ *   the mirror (case 0 `break`, 'M' `goto deref`); BOTH arms `goto deref`; a void-tail fence in
+ *   the 'M' arm's tail; a read-only fence on `buf` in the 'M' arm; a void-tail fence immediately
+ *   before the shared `return buf[idx]` (8 @45, the only non-neutral one, and worse).
+ *   NEW OBSERVATION that sharpens the angle: ours does not merge in the wrong DIRECTION only --
+ *   it merges one insn DEEPER.  Retail's surviving copy starts at the `lbu` (.L800FE058) and the
+ *   'M' arm keeps its OWN `addu $v0,$v0,$v1` (in the `j`'s delay slot); ours merges `addu` + `lbu`
+ *   together, which is why we are 3 short rather than 1.  Both arms' `addu`s are textually
+ *   identical post-reload, so retail's find_cross_jump STOPPED one insn early -- that, not the
+ *   direction, is the cheapest thing to explain, and it is a jump.c input question.
  * OLD (stale, 2.8 basin) note: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
  * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
  * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable
@@ -575,6 +605,29 @@ extern int _pad_getbyte(unsigned char *info, int align)
  *   guarded-do-while + break combination adds 4 insns and rotates the $a2/$a3 band, so the
  *   question is which pass (jump.c's loop-exit duplication, or the biv's exit-value) reacts to
  *   the break.  Instrumented-cc1 job, not a spelling one.
+ * MATCH (w64-a7, 3 -> PASS 159/159 -- CLASS (a) IS CLOSED; the w63 angle was RIGHT and the
+ *   answer was ONE token).  The `break` IS the discriminator, and the cure is not a loop shape
+ *   at all: keep the guarded do-while loop 2 already uses and spell the early exit as a
+ *   `goto` OUT of the loop instead of a `break`.
+ *     i = 0;
+ *     if (nmask != 0) {
+ *         do { if (hit) { matched = 1; goto found; } map++; dat++; i++; } while (i < nmask);
+ *     }
+ *     found:
+ *   MECHANISM: a `break` compiles to a jump to the LOOP'S OWN exit label, i.e. the same label
+ *   the do-while's failed bound test falls to -- two edges into one label is exactly the input
+ *   jump.c's `duplicate_loop_exit_test` looks for, and it copies the bound test ahead of the
+ *   loop (that is the +4 insns and the $a2/$a3 rotation every guarded-do-while probe measured
+ *   across w53/w61/w62/w63: 43-61 @162).  A `goto` to a label the loop machinery does not own
+ *   leaves the loop with a single exit edge, the duplication never fires, and retail's
+ *   `beqz $t1` entry guard + `addiu $v1,1; slt $v0,$v1,$t1; bnez` back-edge come out verbatim.
+ *   MEASURED this wave, same basin: control 3 @158 | guard+do-while+GOTO **PASS 159/159** |
+ *   guard+`while (1)` with `if (++i >= nmask) break;` as the bottom test **PASS 159/159** (the
+ *   same law from the other side -- there the bound test is an ordinary `if`, not the loop's
+ *   own exit) | guard+do-while+BREAK 43 @162 | guard+`for(;;)` with a separate bottom
+ *   `if (i >= nmask) break;` 43 @162 | the same with `!(i < nmask)` 43 @162 | a void-tail fence
+ *   after the old `!=` loop 3 @158 (inert).  Note the two PASSing forms differ only in WHICH
+ *   exit is the loop's own, which is the whole content of the law.
  * => the rung is the TU's home; see the wiring note in the report. */
 extern void _pad_filter(unsigned char *info)
 {

@@ -2204,7 +2204,22 @@ void Physics_Real(Car_tObj *carObj)
        loads, so there is no cse substitution left to block).  NEXT ANGLE: the
        fresh-destination is a local-alloc qty question -- run tools/qtyprio.py on the
        .lreg block that owns the four-addend chain and dial the ACCUMULATOR's birth,
-       not the sum's spelling. */
+       not the sum's spelling.
+       W61-A11: the SYM seats are now read off (VA 800ac5b8 block, line 111-123):
+       `damage` = REG $3 = v1, `damageMult` = REG $2 = v0 -- so retail's
+       `addu v1,v0,a0` puts the sum straight into damage's OWN seat and the
+       expand_sdiv_pow2 bias temp lives in v0 = damageMult's seat (12D dead-pseudo
+       staging).  The 12D staging spelling was tried and is FALSIFIED here: routing
+       the first three addends through `damageMult` (`damageMult = d0+d1+d2;
+       damage = damageMult + d9;`) 43@1273, +the identity fence 45@1273, +the split
+       division 43@1273, staging only the first two 45@1273; dropping the fence
+       alone 15@1271.  The blocker is NOT the sum's destination -- it is that ours
+       divides IN PLACE (damage dead at the division) so delete_noop_moves removes
+       expand_sdiv_pow2's `move t,x`, while retail's `damage` and the bias temp got
+       DIFFERENT hard regs.  NEXT ANGLE: keep `damage` live PAST the shift with a
+       zero-insn read-only fence -- but note the one position tried (after the
+       damageMult line) emits an insn (33@1273), and the W61-A11 HeliCam result
+       proves fence POSITION is its own dial, so sweep the position properly. */
     damage = (carObj->N).damage[0] + (carObj->N).damage[1] +
              (carObj->N).damage[2] + (carObj->N).damage[9];
     __asm__("" : "=r"(damage) : "0"(damage));

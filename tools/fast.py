@@ -10,8 +10,13 @@ import subprocess
 import sys
 
 import pathlib
+import tempfile
 ROOT = str(pathlib.Path(__file__).resolve().parents[1])   # tools/ -> repo root
-HERE = os.path.dirname(os.path.abspath(__file__))
+# w61-a13 hazard fix: scratch dumps used to land in the SHARED tools/ dir --
+# a concurrent agent read another belt's stale .greg ("globals: (none)" is the
+# tell).  Per-process private work dir instead.
+HERE = os.path.join(tempfile.gettempdir(), "fastpy_%d" % os.getpid())
+os.makedirs(HERE, exist_ok=True)
 CPP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-cpp.exe"
 CC1PL = r"C:/Temp/psq43/COMPILER/CC1PLPSX.EXE"
 RECON = os.path.join(ROOT, "recon")

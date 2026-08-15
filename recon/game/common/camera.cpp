@@ -506,16 +506,30 @@ lookahead_done:;
  *      Also falsified there: per-arm re-read of GameSetup_gData.reverseTrack
  *      (76 -- loses retail's single shared lw), per-arm distinct local (inert 62).
  *
- * REMAINING 57, dominated by ONE cluster (22 diffs): the epilogue
- * `Camera_gInfo[player].position.{x,y,z}` block is a pure $v0<->$v1 SWAP -- retail
- * keeps the struct ADDRESS in $v0 and the value chain in $v1, ours the reverse;
- * instruction order is already identical.  Downstream of it, reorg eager-steals a
- * copy of retail's `lui $v1` into the `bnez` slot @800826xx (oracle insn 394),
- * which ours cannot do while the tail base is $v0.  FALSIFIED: a `camera_info *info`
- * local hoisted before the intransition branch (208 -- becomes live across fixedmult
- * and is promoted to a saved reg, -6 insns).  The base pseudo has 1 ref vs the
- * address pseudo's 7, so this is a local-alloc QTY handout question = the 06E
- * instrument gap (qtytrace), not a spelling. */
+ * W61-A11 (57 -> 12): the epilogue $v0<->$v1 swap (22 diffs) was a local-alloc
+ * QTY ORDER tie, closed with the instrumented cc1plus (scratch/gccbuild-ecoff,
+ * byte-identical on this fn -> the trace is a receipt).  Block-83 qty table:
+ *   q1 = &Camera_gInfo[player]  (p510+p511+p512+p513 merged)  refs 15 life 34
+ *        QTY_CMP_PRI 1.3235                       <- loses, takes $v1
+ *   q6/q8 = the two `anchor->position.{y,z} + relpos` adds, refs 4 life 6
+ *        QTY_CMP_PRI 1.3333                       <- win, take $v0
+ * i.e. the address lost the seat by 0.01.  floor_log2 REF-STEP: refs 15 -> 16
+ * crosses a log2 step (4*16/34 = 1.882), so ONE extra reference to the ADDRESS
+ * flips the whole block.  The zero-insn dial is the read-only fence on
+ * `&Camera_gInfo[player]` at the end of the fn (below) -- it emits nothing and
+ * cse reuses the existing address pseudo, so it is purely +1 ref.
+ * POSITION IS THE DIAL (all gated): end-of-fn 12 | inside the y/z block, last 12 |
+ * after the position.x store 17 | inside the block, first 17 | BEFORE the block
+ * 58 (worse than baseline -- it lands before the address is materialised) |
+ * two operands before the block 58.  Still FALSIFIED (w59-a4): a `camera_info
+ * *info` local hoisted before the intransition branch (208).
+ * REMAINING 12 = four reorg/delay-slot relocations, ours +2 insns because reorg
+ * DUPLICATES two `lui`s into slots retail leaves as `nop`/fills differently:
+ * (a) the lookahead 3/-3 arm pair (ours `li s1,-3; j; lui v0,0` vs retail
+ * `j; li s1,-3`), (b) the rear-abs `bgez v1` slot (ours steals the `slt`, retail
+ * nops), (c) two `beqz s4`/`beq s4,v0` slots (ours `lui v1,0` twice, retail
+ * `nop` + `lui v0,3`), (d) `lw v0,20(sp)` one line late.  All four are
+ * PER_FN_TEXT_MOVES/drop_after territory, not source shape. */
 void Camera_UpdateHeliCam(int player,int behavior)
 {
   coorddef arm;      /* SYM: AUTO @0x10 */
@@ -715,6 +729,13 @@ void Camera_UpdateHeliCam(int player,int behavior)
     Camera_gInfo[player].position.y = positionAnchor->position.y + Camera_gInfo[player].relpos.y;
     Camera_gInfo[player].position.z = positionAnchor->position.z + Camera_gInfo[player].relpos.z;
   }
+  /* W61-A11 REF-STEP DIAL -- DO NOT DELETE.  Zero-insn read-only fence: it adds
+     exactly ONE reference to the &Camera_gInfo[player] address pseudo, taking its
+     local-alloc qty from refs 15 (QTY_CMP_PRI 1.3235) to refs 16 (1.882) so it
+     out-ranks the two position adds (1.3333) and wins $v0 -- retail's seat.
+     Removing it puts the whole epilogue block back on the $v0<->$v1 swap (57).
+     See the fn header for the qty table and the position sweep. */
+  __asm__("" : : "r"(&Camera_gInfo[player]));
   return;
 }
 
@@ -1031,7 +1052,40 @@ void Camera_SetSplineCam(int player)
   return;
 }
 
-/* ---- Camera_UpdateSplineCam__Fi  [@0x800826c0] ---- */
+/* ---- Camera_UpdateSplineCam__Fi  [@0x800826c0] ----
+ * NEAR-MISS 61, ours 350 / oracle 351 (ONE short).  W60-A9 triaged four clusters
+ * and confirmed (via rage-racer steer_car_to_track_line.c:187-193) that the source
+ * SHAPE is right, so the residual is allocation/scheduling only.
+ * W61-A11 adds the ground truth the next attempt needs:
+ *  - SYM seats (VA 800826c0): anchor=REG $20 s4 | change=$6 a2 | sliceDist=$5 a1 |
+ *    numSlice=$18 **s2** | direction=$16 s0 | relativeVel=$17 s1; cameraVel AUTO
+ *    -0x50, splineVel -0x40, nextVel -0x30.  Ours puts numSlice in $v1 -- that is
+ *    cluster 2 (insns 96-118) and it is a SEAT question, not a spelling one.
+ *  - allocsim MATCHES 30/30 (order-vs-dump IDENTICAL) on this fn, and the
+ *    instrumented cc1plus reproduces it BYTE-IDENTICALLY, so both the global
+ *    (tools/allocsim.py + reqdelta.py) and the local-alloc qty layer
+ *    (tools/qtytrace.py on scratchpad/w61a11/cam2b.trace.txt) are open here.
+ *    p394 = &Camera_gInfo[player] (refs 13 live 95 pri 0.4105) currently owns $s2.
+ *  - cluster 1 (insns 34-63) is a $v1<->$a0 role swap PLUS the position of
+ *    `lh ,140(a0)`: retail issues the camera slice load BETWEEN the /2 chain's
+ *    `addu` and `sra`, ours before the whole chain.
+ *  - cluster 3 (insns 123-137) is where retail's extra insn lives: it builds a NEW
+ *    base (`addu s1,v0,v1` + `addiu v1,v1,-72`) and loads 0/4/8($s1) where ours
+ *    uses 72/76/80($s3).  W60-A9 falsified an early base-pointer hoist for the
+ *    rotation dot (135@352) and a two-pointer form (256@351), so the +72/-72 object
+ *    is NOT the rotation matrix -- identify it before re-trying.
+ * The W61-A11 HeliCam seal in this same TU is the template: read the losing qty's
+ * QTY_CMP_PRI off the trace and buy the seat with a floor_log2 REF-STEP (a
+ * zero-insn read-only fence), sweeping the fence POSITION as a separate dial.
+ * W61-A11 FALSIFIED (all INERT at 61 @350/351, do not re-sweep blind): a read-only
+ * fence on `numSlice` after its camSpeedTable assignment | after the `change` if |
+ * two operands there | on `direction` after its clamp | on `numSlice` before the
+ * direction block.  The contested pseudos here are GLOBAL allocnos (allocsim rank
+ * 16 for the &Camera_gInfo[player] base), so the priced dial is
+ * `tools/reqdelta.py --want` on those allocnos, not a blind local-alloc ref-step.
+ * W61-A11 also checked the W61-A1 SPILL-SLOT/declaration-order law here: the sp
+ * offset SETS are identical ours-vs-oracle (0 ours-only, 0 oracle-only), so the
+ * frame map already matches and that law does not apply. */
 void Camera_UpdateSplineCam(int player)
 {
   Car_tObj *anchor;
@@ -1866,30 +1920,30 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   normal.z = temp.x;
   edge.y = edge.y - triPnt.y;
   edge.z = edge.z - triPnt.z;
-  /* NEAR-MISS 6 (ours 603 / oracle 605), W60-A9 characterised.  Retail gives the
-   * SECOND term of each dot product its own register and adds it
-   * (`addu s0,v0,zero; addu s1,s1,s0`) where ours accumulates straight out of $v0
-   * (`addu s1,s1,v0`); everything else is byte-identical.  MEASURED, all worse or
-   * neutral: both dots as ONE sum expression 24 diffs but COUNT-EXACT 605/605
-   * (a pure s0/s1/s2 rotation -- the closest structural basin found) | edge only
-   * as an expression 11@604 | cam only 25@604 | both as `= f1+f2; += f3;` 8@603 |
-   * edge `+=` + cam `= f1+f2; += f3;` 6@603 (ties the shipped form) | a plain
-   * block-local temp for the 2nd term 6 (copy-propagated away, no change) | the
-   * same temp with an opacity fence `"=r"(t):"0"(t)` 44@603 (the fence recolours
-   * without materialising the copy).  So the copy is NOT reachable by a source
-   * temp here -- per the w47 delete_noop_moves law it survives in retail only
-   * because its two ends got DIFFERENT hard regs, and combine_regs refuses to tie
-   * only when the destination is a GLOBAL allocno.  NEXT ANGLE: from the
-   * count-exact single-expression basin (24), dial the s0/s1/s2 rotation with
-   * allocsim/reqdelta -- that basin has the right instruction stream. */
-  edgeDotNorm = fixedmult(edge.x,normal.x);
-  edgeDotNorm += fixedmult(edge.y,normal.y);
-  edgeDotNorm += fixedmult(edge.z,normal.z);
-  camDotNorm = fixedmult(triVec.x,normal.x);
-  camDotNorm += fixedmult(triVec.y,normal.y);
-  camDotNorm += fixedmult(triVec.z,normal.z);
-  edgeDotNorm += camDotNorm;
-  edgeDotNorm += 0x10000;
+  /* MATCH (W61-A11, 6 -> PASS 605/605).  Three coupled facts, all instrument-
+   * proven; do NOT "simplify" any of them:
+   *  (1) each dot is ONE sum expression (not `= f1; += f2; += f3;`) -- that is
+   *      what materialises retail's per-2nd-term copies (`addu sN,v0,zero`);
+   *      the accumulate spelling is 2 insns SHORT (603) and can never match;
+   *  (2) the edge sum is carried in `i` -- the SYM's own local (REG $11 = s1,
+   *      alongside camAngle/edgeDotNorm), NOT in edgeDotNorm.  `i` is BLOCK-LOCAL
+   *      so local-alloc keeps s1 busy across the cam dot's window; without it the
+   *      cam dot's 2nd-term qty takes s1 and edgeDotNorm is pushed to s2;
+   *  (3) the `+ 0x10000` is FOLDED into the final statement.  Splitting it into
+   *      `edgeDotNorm = i + camDotNorm; edgeDotNorm += 0x10000;` regresses to 24.
+   * Instrumented cc1plus (scratch/gccbuild-ecoff, byte-identical on this fn)
+   * window trace for the old basin: q18 edge-chain [98,116)->s0, q19 edge-2nd
+   * [106,114)->s1, q20 cam-chain [124,140)->s0, q21 cam-2nd [132,136)->s1, so
+   * global p86 (edgeDotNorm) hard-conflicted s0+s1 and could only take s2 --
+   * unreachable by ANY priority dial, because no qty covered [132,136).
+   * FALSIFIED alongside: both dots as one sum with edgeDotNorm as the accumulator
+   * 24@605 | edge right-associated 20@605 | `count` instead of `i` 34@605 | the
+   * whole thing as one expression 41@608 | read-only/identity fences on
+   * edgeDotNorm 25@606 | on camDotNorm 24@605 | `i` + a 2-operand read-only fence
+   * 5@606 | staging the 2nd terms through camDotNorm/count 6@603. */
+  i = fixedmult(edge.x,normal.x) + fixedmult(edge.y,normal.y) + fixedmult(edge.z,normal.z);
+  camDotNorm = fixedmult(triVec.x,normal.x) + fixedmult(triVec.y,normal.y) + fixedmult(triVec.z,normal.z);
+  edgeDotNorm = i + camDotNorm + 0x10000;
   if (0 < edgeDotNorm) {
     temp.x = fixedmult(edgeDotNorm,normal.x);
     temp.y = fixedmult(edgeDotNorm,normal.y);

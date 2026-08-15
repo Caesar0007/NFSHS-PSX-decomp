@@ -1952,8 +1952,23 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
      ahead of the first mult.  Ours mutates the source register in place for two of
      the three.  Per the w44 rule gcc-2.8 cannot emit a source-level survivor copy of
      a divide's dividend (expand_divmod copies, cse copy-props the survivor away), so
-     the survivor must come from a DISTINCT 1-insn computation -- NEXT ANGLE: find the
-     1-insn expression retail's source used for normal.x at the barrierVec.z site. */
+     the survivor must come from a DISTINCT 1-insn computation.
+     W61-A11 -- a fence-POSITION sweep (the HeliCam lesson: position is a dial of
+     its own) found the COUNT-EXACT basin this receipt was missing.  All measured
+     against the shipped 76 @104/106:
+       "r"(normal.x) before barrierVec.x 75 @105 | between barrierVec.x and .z
+       75 @105 | after the dot 77 @105 | before the dot only 77 @105 |
+       "r"(normal.y) before all 75 @105 | "r"(normal.z) before all 75 @105 |
+       "r"(normal.x) with TWO operands before all 76 @ 106/106 |
+       "r"(normal.x) + "r"(normal.y) before all 76 @ 106/106.
+     => two extra refs on the parm pseudos buy retail's TWO missing insns exactly
+     (they are the survivor/temp copies named above), at the SAME diff count.
+     NOT LANDED (hard-floor-basin rule: equal, not better).  NEXT ANGLE = enter the
+     N7 basin (two read-only fences on normal.x/normal.y as the first statements)
+     and dial the residual THERE -- a count-exact register rotation is a far better
+     base than the shipped 2-insn-short form.  The instrumented cc1plus IS available
+     for this fn (byte-identical; scratchpad/w61a11/newb.trace.txt, produced by
+     scratchpad/w61a11/icefix.py which blanks the five bodies that ICE it). */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;
@@ -2062,7 +2077,13 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
    `lui v0,0; addiu a2,v0,0` self-vs-separate-temp and two `sw zero,20(sp)` sched
    positions.  Next angle = allocsim/reqdelta priced dial on the &testSimRoadInfo
    allocno (raise ITS priority rather than lowering collision_type's -- the fence can
-   only add refs, and n=0 already puts collision_type one rank too high at $s5). */
+   only add refs, and n=0 already puts collision_type one rank too high at $s5).
+   W61-A11 TOOL NOTE: the instrumented cc1plus (scratch/gccbuild-ecoff) ICEs on THIS
+   function's body, so the tools/qtytrace.py local-alloc route is CLOSED here (the
+   ICE also truncates the whole-TU trace -- scratchpad/w61a11/icefix.py blanks it and
+   the four other ICE-ing newton bodies so the rest of the TU still traces).  The
+   global layer (tools/allocsim.py / reqdelta.py off the real CC1PLPSX -dg dump) is
+   unaffected and remains the named instrument. */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {

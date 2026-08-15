@@ -22,16 +22,26 @@ sys.path.insert(0, str(ROOT / 'tools'))
 OBJD = r'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 BR = re.compile(r'^\s*(b\w*|j)\b')
 
+# POST-WIRING: once tools/build.py carries the mechanism itself, read the
+# SHIPPED verify_asm (no monkey-patch); _va_patched.py is only used while the
+# mechanism is still a patch.
 va = (HERE / '_va_patched.py')
-if not va.exists():
+_wired = 'PER_FN_BRANCH_RETARGET' in (ROOT / 'tools' / 'build.py').read_text(errors='replace')
+if _wired:
+    src = (ROOT / 'tools' / 'verify_asm.py').read_text()
+elif va.exists():
+    src = va.read_text()
+else:
     sys.exit('run br.py once first (it writes _va_patched.py)')
-src = va.read_text()
 head = src.split('allpass=True')[0]
 # br.py's patched verify_asm expects sys.modules['bld']; build it the same way
-from mech import patched_source
 spec_mod = importlib.util.spec_from_file_location('bld', ROOT / 'tools' / 'build.py')
 bld = importlib.util.module_from_spec(spec_mod)
-exec(compile(patched_source(), str(ROOT / 'tools' / 'build.py'), 'exec'), bld.__dict__)
+if _wired:
+    spec_mod.loader.exec_module(bld)
+else:
+    from mech import patched_source
+    exec(compile(patched_source(), str(ROOT / 'tools' / 'build.py'), 'exec'), bld.__dict__)
 import json
 raw = os.environ.get('W66_SPEC', '{}')
 if raw and not raw.lstrip().startswith('{'):

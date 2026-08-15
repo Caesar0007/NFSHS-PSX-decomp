@@ -309,3 +309,67 @@ Fixed with `scratchpad/w66a1/.gitattributes` → `branch_retarget.patch -text`;
 committed blob is now byte-identical and applies to a byte-identical result.
 Belt and braces: `mkpatch.py` regenerates the patch deterministically from
 `mech.py`, so the patch can always be rebuilt if a future checkout mangles it.
+
+
+---
+
+## 8. POST-WIRING DIAGNOSIS (orchestrator report: sim skipped, others green)
+
+**Symptom:** the 5 `PER_FN_BRANCH_RETARGET` rows fired and their TUs went green,
+but `Sim_MainGameLoop__Fv` stayed at baseline (FAIL 6 @319/321), the mechanism
+printed `branch x1 after x0 -- ROW SKIPPED`, and the 4 sim moves "did not fire"
+with no error.
+
+**(a) The wired rows were checked against the spec programmatically:**
+`PER_FN_BRANCH_RETARGET` is **byte-for-byte identical to SPEC_w66a1_ALL.json**
+for all 6 entries -- the renderer did NOT mangle anything.
+`PER_FN_TEXT_MOVES` has **no `recon/game/common/sim.cpp` key at all**
+(`grep -c Sim_MainGameLoop tools/build.py` == 1, the retarget row only).
+
+**ROOT CAUSE:** the `_MERGE_INTO_PER_FN_TEXT_MOVES` block of
+`WIRING_fragment.py` was never merged into `PER_FN_TEXT_MOVES`. Both symptoms
+follow from that single omission and are self-consistent:
+* the 4 moves cannot fire because they are absent (`_apply_text_moves` uses
+  `re.search` and is silent on a miss -- by design, since a table is a superset
+  of any one TU);
+* the retarget row reports `after x0` because its anchor is written against the
+  **post-move** text (`$L708:` / `jal PSS` / `$L697:` / `lw $2,24($17)`), a shape
+  that only exists once the moves have run. **The loud skip is the mechanism
+  working**: it refused to half-apply and told you exactly which side missed.
+
+**(b) Fix:** `scratchpad/w66a1/sim_text_moves.patch` -- ONE hunk, inserts the
+`sim.cpp` entry at the head of `PER_FN_TEXT_MOVES`. Rows are rendered *from the
+spec JSON* by `mkfix.py`, which (i) asserts the anchor is unique, (ii) asserts
+sim.cpp is not already present (no double-add), (iii) `ast.parse`s the result,
+and (iv) **execs it and asserts every rendered regex round-trips equal to the
+spec** -- so no regex was re-typed anywhere in this chain.
+
+**(c) Proof against the WIRED `tools/build.py`, no monkey-patch** (patch applied
+in place; `tools/verify_asm.py` / `tugate.py` / `brdist.py` / `calltarget_audit.py`
+/ `psyqproof.py` as shipped):
+
+| check | result |
+|---|---|
+| `verify_asm` sim | **PASS (321 insns)**, 2x |
+| `tugate recon/game/common/sim.cpp` | **8/8 PASS**, 2x |
+| `brdist` sim.cpp | **0 divergences**, 2x |
+| `wp.py` word/target proof | **0 mismatches** |
+| `psyqproof` (production) | **REAL=0 RELOP=0**, 2x |
+| `calltarget_audit` **tree-wide** | **0 sites** (was 2 -- the class is now closed) |
+| all 6 wired TUs re-gated 2x | PADSEQD 4/5 - LIBMCRD 23/26 - screenmain 13/13 - hud 55/62 - memcard 20/20 - sim 8/8; **zero PASS->FAIL** |
+| `tu_order_audit` | 508 objects, 0 inversions |
+
+(The residual brdist rows in LIBMCRD/hud belong to functions the gate already
+FAILs -- class a, pre-existing.)
+
+`tools/build.py` is LEFT WITH THE ONE-HUNK FIX APPLIED and **uncommitted** (it is
+orchestrator-owned): commit it, or revert exactly with
+`git apply -R -p1 scratchpad/w66a1/sim_text_moves.patch`
+(pre-fix byte snapshot: `scratchpad/w66a1/bak_build.py.prefix`).
+
+**Standing lesson for the catalog:** a per-fn mechanism whose anchors are
+written against POST-`_apply_text_moves` text is COUPLED to its move rows --
+land them as one unit. The coupling is now self-diagnosing: the moves fail
+SILENTLY (`re.search`), the retarget fails LOUDLY (`after x0`), so
+*"retarget skipped + count unchanged"* reads directly as *"the move rows are
+missing"*.

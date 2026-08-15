@@ -200,6 +200,11 @@ extern void _read_int(int intr, int code)
                 {   /* the `&_cdr` view is derived AFTER the call so it lands in a
                      * CALLER-saved temp (oracle `addiu $a0,$s0,-8`); computing it
                      * before the call forces a second callee-saved register. */
+                    /* W62-A6: the 3.25-3c non-volatile-store lever that landed on
+                     * CdRead and _read_issue is FALSIFIED here even though retail
+                     * carries `sw $v0,32($a0)` in a `j` slot: w20 25, w14 23, w08 34,
+                     * w14+w20 22, all three 22 -- every one worse than 15.  The lever
+                     * is strictly site-selective.  */
                     volatile CdrEnv *g = (volatile CdrEnv *)(cur - 2);
                     __asm__("" : "=r"(g) : "0"(g));
                     g->w08 = (u_char *)(cur[0] + cur[2] * 4);  /* cursor += sector bytes */
@@ -307,6 +312,27 @@ extern void _read_data_int(void)
  * materialized ~9 insns earlier than retail's. */
 extern int _read_issue(int retry)
 {
+    /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law
+     * (3.25 3c: gcc's reorg will not move a VOLATILE mem, and reorg.c stop_search_p
+     * stops the backward scan at ANY asm):
+     *   (1) SUPPLY a slot retail has -- `g->w20` and `g->w14` written through a
+     *       NON-VOLATILE lvalue cast let reorg put those two stores in the following
+     *       `jal` delay slots, exactly retail's shape (21 -> 15, -2 insns).  PRICED PER
+     *       SITE: w20 alone 18, w14 alone 18, w08 26, w18 24 (+2 insns), all four 23 --
+     *       only the w20+w14 pair is the win.
+     *   (2) BLOCK a slot retail leaves EMPTY -- a zero-insn void fence as the first
+     *       statement of the `retry` block stops reorg stealing the `puts` string's
+     *       `lui` into the `beqz $s2` slot, restoring retail's `nop` (22 -> 21).
+     *       Fence placements measured: inside the block 21 (kept); BEFORE the `if`
+     *       22; before `CdFlush()` 22; after the CdlSetloc guard 22; and all three are
+     *       still 15 (INERT) once the two casts land.
+     * RESIDUAL 15 (ours 119 / oracle 122, 3 SHORT): three more `lui`-half steals into
+     * slots retail leaves `nop`, the tail anchor's `lui $s0` materialized one call
+     * earlier than retail's, and `CdControl(9,0,0)`'s third argument (the cse-substituted
+     * live `$a1` zero, the same class as CdRead's).  NAMED ANGLE: the tail anchor's
+     * materialization POSITION -- retail mints `la $s0,_cdr` only after the CdPosToInt
+     * result is in `$a0`; splitting the sector value into its own local ahead of the
+     * anchor is the untested shape.  */
     volatile CdrEnv *g;
     CdSyncCallback(0);
     CdReadyCallback(0);
@@ -323,6 +349,7 @@ extern int _read_issue(int retry)
     }
 
     if (retry != 0) {
+        __asm__("" : : "i"(0));
         puts("CdRead: retry...\n");
         CdControl(9, 0, 0);                                  /* CdlPause */
         if (CdControl(2, (u_char *)CdLastPos(), 0) == 0)     /* CdlSetloc */
@@ -351,13 +378,13 @@ extern int _read_issue(int retry)
     /* delay-slot capture: w20 receives CdPosToInt()'s result (computed before CdReadyCallback). */
     g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */
     __asm__("" : "=r"(g) : "0"(g));
-    g->w20 = CdPosToInt((CdlLOC *)CdLastPos());             /* start sector */
+    *(int *)&g->w20 = CdPosToInt((CdlLOC *)CdLastPos());             /* start sector */
     CdReadyCallback((int)_read_int);
     if (CD_read_dma_mode & 1)
         CdDataCallback((int)_read_data_int);
     CdControlF(6, 0);                                        /* CdlReadN */
     g->w08 = g->w04;                                        /* cursor = buffer */
-    g->w14 = g->w00;                                        /* remaining = sectors */
+    *(int *)&g->w14 = g->w00;                                        /* remaining = sectors */
     g->w18 = VSync(-1);
     return g->w14;
 }

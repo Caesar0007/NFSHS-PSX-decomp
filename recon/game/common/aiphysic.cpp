@@ -307,45 +307,42 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
   int turnAroundSpeed = 0x8e38e;
   if (carObj->carFlags & 0x20) {
     *(volatile int *)&GameSetup_gData.raceType;
+    __asm__("" : : "m"(GameSetup_gData.raceType));   /* w64-a12 SEAL: the "m"-CONSTRAINT FENCE.
+                       Zero insns AND zero extra address materialization -- it is a second
+                       MEMORY reference off the SAME %hi pseudo, which is exactly what the
+                       w59 certificate said was the only thing that could keep that pseudo
+                       live past the lw ("only a 2nd memory ref off the same %hi keeps it
+                       alive for free, and retail has only one").  An "r" fence cannot do
+                       this job: an "r" operand needs a pointer VALUE, so gcc pulls the %lo
+                       out of the load and pays an addiu (19/18, the w59 pointer-local
+                       result).  With the base still live at the lw, the dead dest can no
+                       longer be coalesced onto it, the conflict retail had is restored,
+                       and turnAroundSpeed lands in the SYM's $a1. */
   }
   if (carObj->speed < turnAroundSpeed) {
     carObj->direction = carObj->desiredDirection;
   }
   return;
-  /* NEAR-MISS 8 diffs, count-exact 18/18 (w11-a8): oracle colors the dead raceType
-     load dest v1 (separate from its v0 addr scratch) pushing turnAroundSpeed (SYM
-     REG $5=a1) to a1; ours coalesces dead value into the addr reg (v0 self-temp),
-     freeing v1 for turnAroundSpeed. Tried: bare volatile stmt, named local, pointer
-     local, unsized-array read, volatile object, init-reorder, same-value folded
-     store, cross-jump dup-tail (gcc deleted the whole block) -- all self-temp.
-     W59-A3 ROOT CAUSE (RTL -dg/-dl, scratch/rtl/aiphysic.i.{greg,lreg}): the whole
-     chain is LOCAL-ALLOC, not global.  Block-1 locals are p85 (the %hi addr pseudo,
-     2 refs) and p86 (the load dest, 1 ref, NO USE); p85 dies AT the lw and p86 is
-     born AT the lw, so block_alloc/find_free_reg legally gives both $2.  That leaves
-     $3 free, so global_alloc hands p81 (turnAroundSpeed, conflicts p80/$4 + hard $2)
-     the lowest free = $3.  Retail: p86 CONFLICTED with p85 (=> $3), which pushed
-     turnAroundSpeed to $5 = the SYM REG $5.  So retail's dead load HAD a use at
-     local-alloc time that was deleted post-reload; a source-level dead read cannot
-     recreate the conflict.  W59-A3 MEASURED: read-only fence on the loaded value
-     ("" : : "r"(rt)) = INERT (8, the dest may reuse a dead base regardless of its own
-     liveness); a POINTER LOCAL kept live past the load
-     (volatile int *p = ...; (void)*p; __asm__("" : : "r"(p));) DOES split them and
-     drops it to 1 diff -- but costs a real addiu (19/18) because a pointer VALUE
-     forces the %lo out of the load, so it is structurally worse than the count-exact
-     baseline and was NOT landed.  Only a 2nd memory ref off the same %hi keeps that
-     pseudo live for free, and retail has only one.  Next lens = qtytrace (local-alloc
-     QTY birth/death), not the permuter.
-     W63-A12 re-gated the certificate (8 @ 18/18, unchanged) and FALSIFIED ONE NEW ANGLE:
-     the UNSIZED-ARRAY ASM-LABEL VIEW (methodology 3.12 #5 / catalog storage-shape #2),
-     `extern int GameSetup_gData_view[] __asm__("GameSetup_gData");` read as
-     `*(volatile int *)&GameSetup_gData_view[0]`.  That lever is the documented cure for
-     exactly this "%hi folds into the load's own dest" symptom elsewhere in the tree, but
-     here it is INERT at BOTH declaration scopes (block-scope AND file-scope: 8 diffs,
-     byte-identical output).  Reading: the volatile cast already pins the MEM so
-     mips_check_split never runs, leaving the array-vs-scalar shape nothing to decide --
-     the self-temp comes from local-alloc coalescing the dead dest onto the DYING BASE,
-     not from address materialization; and a view without the volatile cannot be used at
-     all (the read is then DCE'd).  The storage-shape axis is CLOSED for this fn. */
+  /* ==== W64-A12: SEALED, PASS 18/18 (was 8, after 5 waves of certificates).
+     The w59 certificate was RIGHT about the mechanism and only missed the DEVICE.
+     Mechanism (unchanged, RTL-proven w59): block-1 locals are p85 (the %hi addr
+     pseudo) and p86 (the dead load dest, no use); p85 DIES AT the lw and p86 is
+     BORN AT it, so block_alloc legally gives both $2 -- which leaves $3 free and
+     global_alloc hands turnAroundSpeed $3 instead of retail's SYM REG $5.  Retail
+     had p85 still live at the lw, so the two CONFLICTED.  The certificate said the
+     only free way to keep p85 live is "a 2nd memory ref off the same %hi" -- that
+     is precisely an "m"-CONSTRAINT FENCE, which nobody had tried: `__asm__("" : :
+     "m"(GameSetup_gData.raceType));` placed AFTER the dead read.  0 insns, 0 extra
+     address materialization.  POSITION IS LOAD-BEARING: after the read = PASS,
+     before it = 8 (inert); "m" on the volatile-cast lvalue = 1 @19; "m" alone
+     (dropping the dead read) = 7 @17.
+     FALSIFIED THIS SESSION (all re-gated, 18/18 byte-identical = inert): the whole
+     OUTPUT-BEARING fence family on the loaded VALUE -- identity/opacity fence
+     `("" : "=r"(rt) : "0"(rt))`, identity+read-only, identity x2, read-only alone.
+     They extend the DEST's range, and the conflict needed is on the BASE.  The
+     "r"-fence route to the base costs an addiu (pointer VALUE pulls the %lo out of
+     the load: w59's 1 @19, re-confirmed here as 3 @19 with an out-of-block copy).
+     Prior receipts (w11-a8 / w59-a3 / w63-a12 storage-shape) are superseded. ==== */
 }
 
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
@@ -1094,7 +1091,25 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * call in our RTL; the choice between them is made by sched1's ready list, and no
    * statement-position change alters which one it releases (consistent with the 3 prior
    * waves).  This closes the STATEMENT-ORDER axis alongside the already-closed
-   * cfg-placement, void-fence and SYM-purge axes; qtytrace remains the only open lens. */
+   * cfg-placement, void-fence and SYM-purge axes; qtytrace remains the only open lens.
+   * W64-A12 re-gated (5 @ 413/412) and added THREE more closed axes, all re-measured:
+   *   (i)  THE WHOLE FENCE FAMILY between the call and the cfg assignment is one basin:
+   *        void-tail `("" : : "i"(0))`, read-only on currentLatVel / carObj / cfg, and the
+   *        identity fence on cfg ALL give exactly 16 @414 -- byte-identical to each other.
+   *        The +1 insn is a BROKEN CSE (a second `lui` for the simGlobal high appears), and
+   *        the lo_sum still wins the jal slot, so an asm barrier does not even reach it.
+   *   (ii) MOVING THE cfg ASSIGNMENT into retail's own block (after the if-block, after the
+   *        wipeOutEndTick store, or spelled as &AIPhysicConfig.latvelcalc_lookahead) = 9 @413
+   *        in all three: the lo_sum STILL lands in the jal delay slot, only now with a
+   *        separate `lui v1` high (+1 insn).  So the lo_sum is NOT pinned by its statement
+   *        position at all -- something lifts it into the pre-call block regardless.
+   *   (iii) FIVE-WAY STATEMENT PERMUTATION of {drag=0, uTurn=0, the call, cfg=&...} : every
+   *        order that keeps cfg after the call measures exactly 5 (inert); cfg-first = 9,
+   *        drag-after-call = 13.  Nothing changes which of the two callee-saved-writing
+   *        insns ends up adjacent to the jal.
+   * Reading: both candidates write CALLEE-SAVED regs, so sched2 may move either across the
+   * CALL_INSN, and the pick is a ready-list tie at equal (zero) in-block priority.  qtytrace
+   * / a sched2 trace remains the only open lens; source shape is exhausted. */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

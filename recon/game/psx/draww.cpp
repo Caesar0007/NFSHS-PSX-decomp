@@ -4009,6 +4009,21 @@ DrawWChunkFacets_emitObj:
         switch (type) {
         case 1:
           objDef = Track_gObjDefs[objInstance->pad];
+          /* MATCH (w63-a2) -- THE FOREIGN-OPERAND FENCE, the pair-half that lets
+             case 2's objDef load sit at its SLD/oracle position (see below).
+             flow.c:1594's REG_LIVE_LENGTH++ lives inside the
+             `GET_RTX_CLASS(...) == 'i'` arm at flow.c:1399, so live length counts
+             REAL RTL INSNS only -- an empty __asm__ IS such an insn and assembles
+             to ZERO bytes, so it adds +1 live to EVERY pseudo live across it while
+             the +1 REG_N_REFS lands only on ITS OWN operand.  Operand =
+             objInstance (a NEIGHBOUR), so objDef gets the live it needs
+             (79 -> 85 measured on the real CC1PLPSX -dl dump) at refs UNCHANGED
+             (20) -- which is why the w62 read-only fence ON objDef was falsified
+             (it costs an insn AND raises refs, the wrong direction: same fence
+             with `"r"(objDef)` measures 220 diffs, with `"r"(Vi)` 23 @435).
+             DO NOT DELETE: without it the case-2 move alone loses objDef's $s6
+             (33 diffs, p89 live 79 -> $s5). */
+          __asm__("" : : "r"(objInstance));
           totalCount = totalCount + DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
                               objDef,(coorddef *)&objInstance->x,objectOffset);
           break;
@@ -4034,11 +4049,16 @@ DrawWChunkFacets_emitObj:
           matrix.m[7] = t3;
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
-          objDef = Track_gObjDefs[objInstance->pad];
           t3 = fixedmult(matrix.m[8],sz);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
           matrix.m[8] = t3;
+          /* MATCH (w63-a2) -- the w46/w62 cluster-(A) position: retail issues this
+             load AFTER the last `jal fixedmult` AND after the three m[2]/m[5]/m[8]
+             stores.  Landing it required buying objDef's live back in case 1 (see
+             the foreign-operand fence there) -- the two edits are a PAIR, neither
+             works alone (case-2 move alone 33, fence alone 24, both 8). */
+          objDef = Track_gObjDefs[objInstance->pad];
           /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
            * through the SYM `short light` ($s1) variable.  The oracle proves the split:
            * the flags&1/type==9 arm loads `lhu $s1,0x1A($s4)` and pays a `sll 16;sra 16`

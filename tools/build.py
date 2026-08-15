@@ -1558,6 +1558,11 @@ PER_FN_TEXT_MOVES = {
     },
     # w55-a5 (probe-verified): CdReadSync 4 -> PASS 65/65 (272 lane).
     "recon/syslib/psx/libcd/cdread.c": {
+        # w62-a6 (probe-verified through the real gate): CdRead 16 -> 14;
+        # only CdRead moves, all three PASSes hold.
+        "CdRead": [
+            {"take": r"\tsw\t\$18,24\(\$sp\)\n", "after": r"\tsw\t\$31,36\(\$sp\)\n"},
+        ],
         "CdReadSync": [
             {"take": "\\tsw\\t\\$18,24\\(\\$sp\\)\\n",
              "after": "\\taddiu\\t\\$17,\\$17,%lo\\(_cdr\\+28\\)[^\\n]*\\n"},

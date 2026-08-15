@@ -1,0 +1,158 @@
+LIBCD CDR_1.obj _read_int: RELOC-ONLY  (157 words, 44 reloc-covered diffs, 0 drift) [loc:scan best=113/157 off=0x34]
+     0  V:27BDFFD0 R:27BDFFD0  addiu      $sp, $sp, -0x30               
+     1  V:AFB10024 R:AFB10024  sw         $s1, 0x24($sp)                
+     2  V:00A08821 R:00A08821  addu       $s1, $a1, $zero               
+*    3  V:3C030000 R:3C038014  lui        $v1, %hi(D_8013C290)          RELOC t52 sect61443
+*    4  V:246309F0 R:2463C290  addiu      $v1, $v1, %lo(D_8013C290)     RELOC t54 sect61443
+     5  V:308400FF R:308400FF  andi       $a0, $a0, 0xFF                
+     6  V:24020001 R:24020001  addiu      $v0, $zero, 0x1               
+     7  V:AFBF0028 R:AFBF0028  sw         $ra, 0x28($sp)                
+     8  V:AFB00020 R:AFB00020  sw         $s0, 0x20($sp)                
+     9  V:AC710034 R:AC710034  sw         $s1, 0x34($v1)                
+    10  V:1482004E R:1482004E  bne        $a0, $v0, .L80108A14          
+    11  V:2402FFFF R:2402FFFF  addiu     $v0, $zero, -0x1               
+    12  V:8C620014 R:8C620014  lw         $v0, 0x14($v1)                
+    13  V:00000000 R:00000000  nop                                      
+    14  V:1840004B R:1840004B  blez       $v0, .L80108A18               
+    15  V:00000000 R:00000000  nop                                      
+    16  V:8C630010 R:8C630010  lw         $v1, 0x10($v1)                
+    17  V:24020200 R:24020200  addiu      $v0, $zero, 0x200             
+    18  V:14620023 R:14620023  bne        $v1, $v0, .L80108988          
+    19  V:00000000 R:00000000  nop                                      
+*   20  V:3C020000 R:3C028014  lui        $v0, %hi(CD_read_dma_mode)    RELOC t52 CD_read_dma_mode
+*   21  V:8C420000 R:8C42C2D4  lw         $v0, %lo(CD_read_dma_mode)($v RELOC t54 CD_read_dma_mode
+    22  V:00000000 R:00000000  nop                                      
+    23  V:30420001 R:30420001  andi       $v0, $v0, 0x1                 
+    24  V:1040000D R:1040000D  beqz       $v0, .L80108948               
+    25  V:27A40010 R:27A40010  addiu     $a0, $sp, 0x10                 
+*   26  V:0C000000 R:0C03DF2C  jal        CdDataCallback                RELOC t4a CdDataCallback
+    27  V:00002021 R:00002021  addu      $a0, $zero, $zero              
+    28  V:27A40010 R:27A40010  addiu      $a0, $sp, 0x10                
+*   29  V:0C000000 R:0C03DF24  jal        CdGetSector2                  RELOC t4a CdGetSector2
+    30  V:24050003 R:24050003  addiu     $a1, $zero, 0x3                
+*   31  V:0C000000 R:0C03DF35  jal        CdDataSync                    RELOC t4a CdDataSync
+    32  V:00002021 R:00002021  addu      $a0, $zero, $zero              
+*   33  V:3C040000 R:3C048011  lui        $a0, %hi(_read_data_int)      RELOC t52 (0x2A8+sect61442)
+*   34  V:0C000000 R:0C03DF2C  jal        CdDataCallback                RELOC t4a CdDataCallback
+*   35  V:248402A8 R:24848B24  addiu     $a0, $a0, %lo(_read_data_int)  RELOC t54 (0x2A8+sect61442)
+*   36  V:08000035 R:08042254  j          .L80108950                    RELOC t4a (0xD4+sect61442)
+    37  V:00000000 R:00000000  nop                                      
+*   38  V:0C000000 R:0C03DF1C  jal        CdGetSector                   RELOC t4a CdGetSector
+    39  V:24050003 R:24050003  addiu     $a1, $zero, 0x3                
+*   40  V:0C000000 R:0C03DF7E  jal        CdPosToInt                    RELOC t4a CdPosToInt
+    41  V:27A40010 R:27A40010  addiu     $a0, $sp, 0x10                 
+*   42  V:3C100000 R:3C108014  lui        $s0, %hi(D_8013C2B0)          RELOC t52 (0x20+sect61443)
+*   43  V:26100A10 R:2610C2B0  addiu      $s0, $s0, %lo(D_8013C2B0)     RELOC t54 (0x20+sect61443)
+    44  V:8E030000 R:8E030000  lw         $v1, 0x0($s0)                 
+    45  V:00000000 R:00000000  nop                                      
+    46  V:10430007 R:10430007  beq        $v0, $v1, .L80108988          
+    47  V:00000000 R:00000000  nop                                      
+*   48  V:3C040000 R:3C048005  lui        $a0, %hi(D_80057898)          RELOC t52 sect61441
+*   49  V:0C000000 R:0C03A033  jal        puts                          RELOC t4a puts
+*   50  V:248409A0 R:24847898  addiu     $a0, $a0, %lo(D_80057898)      RELOC t54 sect61441
+    51  V:2603FFE0 R:2603FFE0  addiu      $v1, $s0, -0x20               
+    52  V:2402FFFF R:2402FFFF  addiu      $v0, $zero, -0x1              
+    53  V:AC620014 R:AC620014  sw         $v0, 0x14($v1)                
+*   54  V:3C020000 R:3C028014  lui        $v0, %hi(CD_read_dma_mode)    RELOC t52 CD_read_dma_mode
+*   55  V:8C420000 R:8C42C2D4  lw         $v0, %lo(CD_read_dma_mode)($v RELOC t54 CD_read_dma_mode
+    56  V:00000000 R:00000000  nop                                      
+    57  V:30420001 R:30420001  andi       $v0, $v0, 0x1                 
+    58  V:10400009 R:10400009  beqz       $v0, .L801089C0               
+    59  V:00000000 R:00000000  nop                                      
+*   60  V:3C020000 R:3C028014  lui        $v0, %hi(D_8013C298)          RELOC t52 (0x8+sect61443)
+*   61  V:244209F8 R:2442C298  addiu      $v0, $v0, %lo(D_8013C298)     RELOC t54 (0x8+sect61443)
+    62  V:8C440000 R:8C440000  lw         $a0, 0x0($v0)                 
+    63  V:8C450008 R:8C450008  lw         $a1, 0x8($v0)                 
+*   64  V:0C000000 R:0C03DF24  jal        CdGetSector2                  RELOC t4a CdGetSector2
+    65  V:00000000 R:00000000  nop                                      
+*   66  V:08000067 R:08042286  j          .L80108A18                    RELOC t4a (0x19C+sect61442)
+    67  V:00000000 R:00000000  nop                                      
+*   68  V:3C100000 R:3C108014  lui        $s0, %hi(D_8013C298)          RELOC t52 (0x8+sect61443)
+*   69  V:261009F8 R:2610C298  addiu      $s0, $s0, %lo(D_8013C298)     RELOC t54 (0x8+sect61443)
+    70  V:8E040000 R:8E040000  lw         $a0, 0x0($s0)                 
+    71  V:8E050008 R:8E050008  lw         $a1, 0x8($s0)                 
+*   72  V:0C000000 R:0C03DF1C  jal        CdGetSector                   RELOC t4a CdGetSector
+    73  V:00000000 R:00000000  nop                                      
+    74  V:2604FFF8 R:2604FFF8  addiu      $a0, $s0, -0x8                
+    75  V:8E020008 R:8E020008  lw         $v0, 0x8($s0)                 
+    76  V:8E030000 R:8E030000  lw         $v1, 0x0($s0)                 
+    77  V:00021080 R:00021080  sll        $v0, $v0, 2                   
+    78  V:00621821 R:00621821  addu       $v1, $v1, $v0                 
+    79  V:AC830008 R:AC830008  sw         $v1, 0x8($a0)                 
+    80  V:8C820014 R:8C820014  lw         $v0, 0x14($a0)                
+    81  V:00000000 R:00000000  nop                                      
+    82  V:2442FFFF R:2442FFFF  addiu      $v0, $v0, -0x1                
+    83  V:AC820014 R:AC820014  sw         $v0, 0x14($a0)                
+    84  V:8C820020 R:8C820020  lw         $v0, 0x20($a0)                
+    85  V:00000000 R:00000000  nop                                      
+    86  V:24420001 R:24420001  addiu      $v0, $v0, 0x1                 
+*   87  V:08000067 R:08042286  j          .L80108A18                    RELOC t4a (0x19C+sect61442)
+    88  V:AC820020 R:AC820020  sw        $v0, 0x20($a0)                 
+    89  V:AC620014 R:AC620014  sw         $v0, 0x14($v1)                
+*   90  V:0C000000 R:0C03C8C7  jal        VSync                         RELOC t4a VSync
+    91  V:2404FFFF R:2404FFFF  addiu     $a0, $zero, -0x1               
+*   92  V:3C100000 R:3C108014  lui        $s0, %hi(D_8013C290)          RELOC t52 sect61443
+*   93  V:261009F0 R:2610C290  addiu      $s0, $s0, %lo(D_8013C290)     RELOC t54 sect61443
+    94  V:AE020018 R:AE020018  sw         $v0, 0x18($s0)                
+    95  V:8E020014 R:8E020014  lw         $v0, 0x14($s0)                
+    96  V:00000000 R:00000000  nop                                      
+    97  V:04410003 R:04410003  bgez       $v0, .L80108A44               
+    98  V:00000000 R:00000000  nop                                      
+*   99  V:0C0000DE R:0C0422FD  jal        _read_issue                   RELOC t4a (0x378+sect61442)
+   100  V:24040001 R:24040001  addiu     $a0, $zero, 0x1                
+*  101  V:0C000000 R:0C03C8C7  jal        VSync                         RELOC t4a VSync
+   102  V:2404FFFF R:2404FFFF  addiu     $a0, $zero, -0x1               
+   103  V:8E03001C R:8E03001C  lw         $v1, 0x1C($s0)                
+   104  V:00000000 R:00000000  nop                                      
+   105  V:246304B0 R:246304B0  addiu      $v1, $v1, 0x4B0               
+   106  V:0062182A R:0062182A  slt        $v1, $v1, $v0                 
+   107  V:10600002 R:10600002  beqz       $v1, .L80108A68               
+   108  V:2402FFFF R:2402FFFF  addiu     $v0, $zero, -0x1               
+   109  V:AE020014 R:AE020014  sw         $v0, 0x14($s0)                
+   110  V:8E020014 R:8E020014  lw         $v0, 0x14($s0)                
+   111  V:00000000 R:00000000  nop                                      
+   112  V:10400009 R:10400009  beqz       $v0, .L80108A98               
+   113  V:00000000 R:00000000  nop                                      
+*  114  V:0C000000 R:0C03C8C7  jal        VSync                         RELOC t4a VSync
+   115  V:2404FFFF R:2404FFFF  addiu     $a0, $zero, -0x1               
+   116  V:8E03001C R:8E03001C  lw         $v1, 0x1C($s0)                
+   117  V:00000000 R:00000000  nop                                      
+   118  V:246304B0 R:246304B0  addiu      $v1, $v1, 0x4B0               
+   119  V:0062182A R:0062182A  slt        $v1, $v1, $v0                 
+   120  V:1060001F R:1060001F  beqz       $v1, .L80108B10               
+   121  V:00000000 R:00000000  nop                                      
+   122  V:8E04002C R:8E04002C  lw         $a0, 0x2C($s0)                
+*  123  V:0C000000 R:0C03DE28  jal        CdReadyCallback               RELOC t4a CdReadyCallback
+   124  V:00000000 R:00000000  nop                                      
+*  125  V:3C020000 R:3C028014  lui        $v0, %hi(CD_read_dma_mode)    RELOC t52 CD_read_dma_mode
+*  126  V:8C420000 R:8C42C2D4  lw         $v0, %lo(CD_read_dma_mode)($v RELOC t54 CD_read_dma_mode
+   127  V:00000000 R:00000000  nop                                      
+   128  V:30420001 R:30420001  andi       $v0, $v0, 0x1                 
+   129  V:10400004 R:10400004  beqz       $v0, .L80108AC8               
+   130  V:00000000 R:00000000  nop                                      
+   131  V:8E040030 R:8E040030  lw         $a0, 0x30($s0)                
+*  132  V:0C000000 R:0C03DF2C  jal        CdDataCallback                RELOC t4a CdDataCallback
+   133  V:00000000 R:00000000  nop                                      
+*  134  V:3C040000 R:3C048011  lui        $a0, %hi(_read_sync)          RELOC t52 sect61442
+*  135  V:0C000000 R:0C03DE23  jal        CdSyncCallback                RELOC t4a CdSyncCallback
+*  136  V:24840000 R:2484887C  addiu     $a0, $a0, %lo(_read_sync)      RELOC t54 sect61442
+   137  V:24040009 R:24040009  addiu      $a0, $zero, 0x9               
+*  138  V:0C000000 R:0C03DE7C  jal        CdControlF                    RELOC t4a CdControlF
+   139  V:00002821 R:00002821  addu      $a1, $zero, $zero              
+*  140  V:3C030000 R:3C038014  lui        $v1, %hi(CD_cbread)           RELOC t52 CD_cbread
+*  141  V:8C630000 R:8C63C2D0  lw         $v1, %lo(CD_cbread)($v1)      RELOC t54 CD_cbread
+   142  V:24020001 R:24020001  addiu      $v0, $zero, 0x1               
+   143  V:10600008 R:10600008  beqz       $v1, .L80108B10               
+   144  V:AE020024 R:AE020024  sw        $v0, 0x24($s0)                 
+   145  V:8E020014 R:8E020014  lw         $v0, 0x14($s0)                
+   146  V:00000000 R:00000000  nop                                      
+   147  V:14400002 R:14400002  bnez       $v0, .L80108B08               
+   148  V:24040005 R:24040005  addiu     $a0, $zero, 0x5                
+   149  V:24040002 R:24040002  addiu      $a0, $zero, 0x2               
+   150  V:0060F809 R:0060F809  jalr       $v1                           
+   151  V:02202821 R:02202821  addu      $a1, $s1, $zero                
+   152  V:8FBF0028 R:8FBF0028  lw         $ra, 0x28($sp)                
+   153  V:8FB10024 R:8FB10024  lw         $s1, 0x24($sp)                
+   154  V:8FB00020 R:8FB00020  lw         $s0, 0x20($sp)                
+   155  V:03E00008 R:03E00008  jr         $ra                           
+   156  V:27BD0030 R:27BD0030  addiu     $sp, $sp, 0x30                 

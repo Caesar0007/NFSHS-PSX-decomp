@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3490 functions, 3391 at 100% (97.2%)
+TOTAL: 3490 functions, 3390 at 100% (97.1%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2281,7 +2281,7 @@ VA             %match  unit                     function
 0x800C7B9C     81.76%  game/psx/draww           DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi
 0x800C7EBC    100.00%  game/psx/draww           DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis
 0x800C8214    100.00%  game/psx/draww           DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
-0x800C8508    100.00%  game/psx/draww           DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
+0x800C8508     98.90%  game/psx/draww           DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
 0x800C8BD0    100.00%  game/psx/draww           ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache
 0x800C8CC4     92.79%  game/psx/draww           DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry
 0x800C903C    100.00%  game/psx/draww           Draw_CircleClip__FP8coorddefT0i
@@ -2389,7 +2389,7 @@ VA             %match  unit                     function
 0x800D2AF4    100.00%  game/psx/hud             Hud_Init0__Fv
 0x800D2B4C    100.00%  game/psx/hud             Hud_InitMapFrame__Fii
 0x800D2EF8     95.23%  game/psx/hud             Hud_BuildTimeSprites__FP4SPRTPcii
-0x800D302C     99.99%  game/psx/hud             Hud_Init__Fv
+0x800D302C     99.31%  game/psx/hud             Hud_Init__Fv
 0x800D39EC    100.00%  game/psx/hud             Hud_InitTables__Fv
 0x800D3A18    100.00%  game/psx/hud             Hud_BuildETimeString__FP4SPRTi
 0x800D3BA4    100.00%  game/psx/hud             Hud_BuildDistanceString__FP4SPRTi

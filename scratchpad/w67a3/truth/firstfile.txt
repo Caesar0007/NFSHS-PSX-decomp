@@ -1,0 +1,104 @@
+LIBAPI FIRST.obj firstfile: RELOC-ONLY  (103 words, 16 reloc-covered diffs, 0 drift) [loc:symbol off=0x0]
+     0  V:27BDFFD8 R:27BDFFD8  addiu      $sp, $sp, -0x28               
+     1  V:AFB20018 R:AFB20018  sw         $s2, 0x18($sp)                
+     2  V:00809021 R:00809021  addu       $s2, $a0, $zero               
+     3  V:AFB3001C R:AFB3001C  sw         $s3, 0x1C($sp)                
+     4  V:00A09821 R:00A09821  addu       $s3, $a1, $zero               
+     5  V:AFBF0020 R:AFBF0020  sw         $ra, 0x20($sp)                
+     6  V:AFB10014 R:AFB10014  sw         $s1, 0x14($sp)                
+     7  V:AFB00010 R:AFB00010  sw         $s0, 0x10($sp)                
+     8  V:82420000 R:82420000  lb         $v0, 0x0($s2)                 
+*    9  V:3C040000 R:3C048015  lui        $a0, %hi(D_80148A84)          RELOC t52 (0x8+sect61446)
+*   10  V:248402A8 R:24848A84  addiu      $a0, $a0, %lo(D_80148A84)     RELOC t54 (0x8+sect61446)
+    11  V:2842003B R:2842003B  slti       $v0, $v0, 0x3B                
+    12  V:14400009 R:14400009  bnez       $v0, .L80109E18               
+    13  V:02401821 R:02401821  addu      $v1, $s2, $zero                
+    14  V:90620000 R:90620000  lbu        $v0, 0x0($v1)                 
+    15  V:24630001 R:24630001  addiu      $v1, $v1, 0x1                 
+    16  V:A0820000 R:A0820000  sb         $v0, 0x0($a0)                 
+    17  V:80620000 R:80620000  lb         $v0, 0x0($v1)                 
+    18  V:00000000 R:00000000  nop                                      
+    19  V:2842003B R:2842003B  slti       $v0, $v0, 0x3B                
+    20  V:1040FFF9 R:1040FFF9  beqz       $v0, .L80109DF8               
+    21  V:24840001 R:24840001  addiu     $a0, $a0, 0x1                  
+    22  V:A0800000 R:A0800000  sb         $zero, 0x0($a0)               
+    23  V:8C030154 R:8C030154  lw         $v1, 0x154($zero)             
+    24  V:3C02CCCC R:3C02CCCC  lui        $v0, (0xCCCCCCCD >> 16)       
+    25  V:3442CCCD R:3442CCCD  ori        $v0, $v0, (0xCCCCCCCD & 0xFFF 
+    26  V:00620019 R:00620019  multu      $v1, $v0                      
+    27  V:8C100150 R:8C100150  lw         $s0, 0x150($zero)             
+    28  V:00003010 R:00003010  mfhi       $a2                           
+    29  V:00061982 R:00061982  srl        $v1, $a2, 6                   
+    30  V:00031080 R:00031080  sll        $v0, $v1, 2                   
+    31  V:00431021 R:00431021  addu       $v0, $v0, $v1                 
+    32  V:00021100 R:00021100  sll        $v0, $v0, 4                   
+    33  V:02021821 R:02021821  addu       $v1, $s0, $v0                 
+    34  V:0203102B R:0203102B  sltu       $v0, $s0, $v1                 
+    35  V:1040000F R:1040000F  beqz       $v0, .L80109E8C               
+    36  V:00000000 R:00000000  nop                                      
+    37  V:00608821 R:00608821  addu       $s1, $v1, $zero               
+    38  V:8E040000 R:8E040000  lw         $a0, 0x0($s0)                 
+    39  V:00000000 R:00000000  nop                                      
+    40  V:10800006 R:10800006  beqz       $a0, .L80109E7C               
+    41  V:00000000 R:00000000  nop                                      
+*   42  V:3C050000 R:3C058015  lui        $a1, %hi(D_80148A84)          RELOC t52 (0x8+sect61446)
+*   43  V:0C000000 R:0C03975F  jal        strcmp                        RELOC t4a strcmp
+*   44  V:24A502A8 R:24A58A84  addiu     $a1, $a1, %lo(D_80148A84)      RELOC t54 (0x8+sect61446)
+    45  V:1040000A R:1040000A  beqz       $v0, .L80109EA0               
+    46  V:00000000 R:00000000  nop                                      
+    47  V:26100050 R:26100050  addiu      $s0, $s0, 0x50                
+    48  V:0211102B R:0211102B  sltu       $v0, $s0, $s1                 
+    49  V:1440FFF4 R:1440FFF4  bnez       $v0, .L80109E58               
+    50  V:00000000 R:00000000  nop                                      
+    51  V:00001821 R:00001821  addu       $v1, $zero, $zero             
+    52  V:1460000C R:1460000C  bnez       $v1, .L80109EC4               
+    53  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+*   54  V:08000060 R:080427D0  j          .L80109F40                    RELOC t4a (0x180+sect61442)
+    55  V:00000000 R:00000000  nop                                      
+    56  V:8E020034 R:8E020034  lw         $v0, 0x34($s0)                
+*   57  V:3C010000 R:3C018015  lui        $at, %hi(D_80148A7C)          RELOC t52 sect61446
+*   58  V:AC2202A0 R:AC228A7C  sw         $v0, %lo(D_80148A7C)($at)     RELOC t54 sect61446
+*   59  V:08000034 R:080427A4  j          .L80109E90                    RELOC t4a (0xD0+sect61442)
+    60  V:24030001 R:24030001  addiu     $v1, $zero, 0x1                
+*   61  V:3C020000 R:3C028011  lui        $v0, %hi(_first_patch)        RELOC t52 (0x19C+sect61442)
+*   62  V:2442019C R:24429F5C  addiu      $v0, $v0, %lo(_first_patch)   RELOC t54 (0x19C+sect61442)
+*   63  V:0800005D R:080427CD  j          .L80109F34                    RELOC t4a (0x174+sect61442)
+    64  V:AE020034 R:AE020034  sw        $v0, 0x34($s0)                 
+    65  V:8C030154 R:8C030154  lw         $v1, 0x154($zero)             
+    66  V:3C02CCCC R:3C02CCCC  lui        $v0, (0xCCCCCCCD >> 16)       
+    67  V:3442CCCD R:3442CCCD  ori        $v0, $v0, (0xCCCCCCCD & 0xFFF 
+    68  V:00620019 R:00620019  multu      $v1, $v0                      
+    69  V:8C100150 R:8C100150  lw         $s0, 0x150($zero)             
+    70  V:00003010 R:00003010  mfhi       $a2                           
+    71  V:00061982 R:00061982  srl        $v1, $a2, 6                   
+    72  V:00031080 R:00031080  sll        $v0, $v1, 2                   
+    73  V:00431021 R:00431021  addu       $v0, $v0, $v1                 
+    74  V:00021100 R:00021100  sll        $v0, $v0, 4                   
+    75  V:02021821 R:02021821  addu       $v1, $s0, $v0                 
+    76  V:0203102B R:0203102B  sltu       $v0, $s0, $v1                 
+    77  V:10400010 R:10400010  beqz       $v0, .L80109F38               
+    78  V:02402021 R:02402021  addu      $a0, $s2, $zero                
+    79  V:00608821 R:00608821  addu       $s1, $v1, $zero               
+    80  V:8E040000 R:8E040000  lw         $a0, 0x0($s0)                 
+    81  V:00000000 R:00000000  nop                                      
+    82  V:10800006 R:10800006  beqz       $a0, .L80109F24               
+    83  V:00000000 R:00000000  nop                                      
+*   84  V:3C050000 R:3C058015  lui        $a1, %hi(D_80148A84)          RELOC t52 (0x8+sect61446)
+*   85  V:0C000000 R:0C03975F  jal        strcmp                        RELOC t4a strcmp
+*   86  V:24A502A8 R:24A58A84  addiu     $a1, $a1, %lo(D_80148A84)      RELOC t54 (0x8+sect61446)
+    87  V:1040FFE5 R:1040FFE5  beqz       $v0, .L80109EB4               
+    88  V:00000000 R:00000000  nop                                      
+    89  V:26100050 R:26100050  addiu      $s0, $s0, 0x50                
+    90  V:0211102B R:0211102B  sltu       $v0, $s0, $s1                 
+    91  V:1440FFF4 R:1440FFF4  bnez       $v0, .L80109F00               
+    92  V:00000000 R:00000000  nop                                      
+    93  V:02402021 R:02402021  addu       $a0, $s2, $zero               
+*   94  V:0C000000 R:0C043221  jal        firstfile2                    RELOC t4a firstfile2
+    95  V:02602821 R:02602821  addu      $a1, $s3, $zero                
+    96  V:8FBF0020 R:8FBF0020  lw         $ra, 0x20($sp)                
+    97  V:8FB3001C R:8FB3001C  lw         $s3, 0x1C($sp)                
+    98  V:8FB20018 R:8FB20018  lw         $s2, 0x18($sp)                
+    99  V:8FB10014 R:8FB10014  lw         $s1, 0x14($sp)                
+   100  V:8FB00010 R:8FB00010  lw         $s0, 0x10($sp)                
+   101  V:03E00008 R:03E00008  jr         $ra                           
+   102  V:27BD0028 R:27BD0028  addiu     $sp, $sp, 0x28                 

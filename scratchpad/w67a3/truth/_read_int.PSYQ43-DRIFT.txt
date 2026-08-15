@@ -1,0 +1,68 @@
+LIBCD CDREAD.obj _read_int: DRIFTED(25)  (157 words, 42 reloc-covered diffs, 25 drift) [loc:scan best=90/157 off=0x0]
+*    3  V:3C030000 R:3C038014  lui        $v1, %hi(D_8013C290)          RELOC t52 sect61443
+*    4  V:24630800 R:2463C290  addiu      $v1, $v1, %lo(D_8013C290)     RELOC t54 sect61443
+!    9  V:AC710030 R:AC710034  sw         $s1, 0x34($v1)                DRIFT
+*   20  V:3C020000 R:3C028014  lui        $v0, %hi(CD_read_dma_mode)    RELOC t52 CD_read_dma_mode
+*   21  V:8C420000 R:8C42C2D4  lw         $v0, %lo(CD_read_dma_mode)($v RELOC t54 CD_read_dma_mode
+*   26  V:0C000000 R:0C03DF2C  jal        CdDataCallback                RELOC t4a CdDataCallback
+*   29  V:0C000000 R:0C03DF24  jal        CdGetSector2                  RELOC t4a CdGetSector2
+*   31  V:0C000000 R:0C03DF35  jal        CdDataSync                    RELOC t4a CdDataSync
+*   33  V:3C040000 R:3C048011  lui        $a0, %hi(_read_data_int)      RELOC t52 (0x278+sect61442)
+*   34  V:0C000000 R:0C03DF2C  jal        CdDataCallback                RELOC t4a CdDataCallback
+*   35  V:24840278 R:24848B24  addiu     $a0, $a0, %lo(_read_data_int)  RELOC t54 (0x278+sect61442)
+*   36  V:08000028 R:08042254  j          .L80108950                    RELOC t4a (0xA0+sect61442)
+*   38  V:0C000000 R:0C03DF1C  jal        CdGetSector                   RELOC t4a CdGetSector
+*   40  V:0C000000 R:0C03DF7E  jal        CdPosToInt                    RELOC t4a CdPosToInt
+*   42  V:3C100000 R:3C108014  lui        $s0, %hi(D_8013C2B0)          RELOC t52 (0x20+sect61443)
+*   43  V:26100820 R:2610C2B0  addiu      $s0, $s0, %lo(D_8013C2B0)     RELOC t54 (0x20+sect61443)
+*   48  V:3C040000 R:3C048005  lui        $a0, %hi(D_80057898)          RELOC t52 sect61441
+*   49  V:0C000000 R:0C03A033  jal        puts                          RELOC t4a puts
+*   50  V:248407B0 R:24847898  addiu     $a0, $a0, %lo(D_80057898)      RELOC t54 sect61441
+*   54  V:3C020000 R:3C028014  lui        $v0, %hi(CD_read_dma_mode)    RELOC t52 CD_read_dma_mode
+*   55  V:8C420000 R:8C42C2D4  lw         $v0, %lo(CD_read_dma_mode)($v RELOC t54 CD_read_dma_mode
+*   60  V:3C020000 R:3C028014  lui        $v0, %hi(D_8013C298)          RELOC t52 (0x8+sect61443)
+*   61  V:24420808 R:2442C298  addiu      $v0, $v0, %lo(D_8013C298)     RELOC t54 (0x8+sect61443)
+*   64  V:0C000000 R:0C03DF24  jal        CdGetSector2                  RELOC t4a CdGetSector2
+*   66  V:0800005A R:08042286  j          .L80108A18                    RELOC t4a (0x168+sect61442)
+*   68  V:3C100000 R:3C108014  lui        $s0, %hi(D_8013C298)          RELOC t52 (0x8+sect61443)
+*   69  V:26100808 R:2610C298  addiu      $s0, $s0, %lo(D_8013C298)     RELOC t54 (0x8+sect61443)
+*   72  V:0C000000 R:0C03DF1C  jal        CdGetSector                   RELOC t4a CdGetSector
+*   87  V:0800005A R:08042286  j          .L80108A18                    RELOC t4a (0x168+sect61442)
+*   90  V:0C000000 R:0C03C8C7  jal        VSync                         RELOC t4a VSync
+*   92  V:3C100000 R:3C108014  lui        $s0, %hi(D_8013C290)          RELOC t52 sect61443
+*   93  V:26100800 R:2610C290  addiu      $s0, $s0, %lo(D_8013C290)     RELOC t54 sect61443
+*   99  V:0C0000D3 R:0C0422FD  jal        _read_issue                   RELOC t4a (0x34C+sect61442)
+*  101  V:0C000000 R:0C03C8C7  jal        VSync                         RELOC t4a VSync
+*  114  V:0C000000 R:0C03C8C7  jal        VSync                         RELOC t4a VSync
+!  120  V:10600020 R:1060001F  beqz       $v1, .L80108B10               DRIFT
+!  122  V:8E040028 R:8E04002C  lw         $a0, 0x2C($s0)                DRIFT
+*  123  V:0C000000 R:0C03DE28  jal        CdReadyCallback               RELOC t4a CdReadyCallback
+*  125  V:3C020000 R:3C028014  lui        $v0, %hi(CD_read_dma_mode)    RELOC t52 CD_read_dma_mode
+*  126  V:8C420000 R:8C42C2D4  lw         $v0, %lo(CD_read_dma_mode)($v RELOC t54 CD_read_dma_mode
+!  129  V:10400005 R:10400004  beqz       $v0, .L80108AC8               DRIFT
+!  130  V:24040009 R:00000000  nop                                      DRIFT
+!  131  V:8E04002C R:8E040030  lw         $a0, 0x30($s0)                DRIFT
+*  132  V:0C000000 R:0C03DF2C  jal        CdDataCallback                RELOC t4a CdDataCallback
+!  134  V:24040009 R:3C048011  lui        $a0, %hi(_read_sync)          DRIFT
+!  135  V:00002821 R:0C03DE23  jal        CdSyncCallback                DRIFT
+*  136  V:0C000000 R:2484887C  addiu     $a0, $a0, %lo(_read_sync)      RELOC t4a CdControlB
+!  137  V:00003021 R:24040009  addiu      $a0, $zero, 0x9               DRIFT
+!  138  V:8E040024 R:0C03DE7C  jal        CdControlF                    DRIFT
+*  139  V:0C000000 R:00002821  addu      $a1, $zero, $zero              RELOC t4a CdSyncCallback
+!  140  V:00000000 R:3C038014  lui        $v1, %hi(CD_cbread)           DRIFT
+*  141  V:3C030000 R:8C63C2D0  lw         $v1, %lo(CD_cbread)($v1)      RELOC t52 CD_cbread
+*  142  V:8C630000 R:24020001  addiu      $v0, $zero, 0x1               RELOC t54 CD_cbread
+!  143  V:00000000 R:10600008  beqz       $v1, .L80108B10               DRIFT
+!  144  V:10600008 R:AE020024  sw        $v0, 0x24($s0)                 DRIFT
+!  145  V:00000000 R:8E020014  lw         $v0, 0x14($s0)                DRIFT
+!  146  V:8E020014 R:00000000  nop                                      DRIFT
+!  147  V:00000000 R:14400002  bnez       $v0, .L80108B08               DRIFT
+!  148  V:14400002 R:24040005  addiu     $a0, $zero, 0x5                DRIFT
+!  149  V:24040005 R:24040002  addiu      $a0, $zero, 0x2               DRIFT
+!  150  V:24040002 R:0060F809  jalr       $v1                           DRIFT
+!  151  V:0060F809 R:02202821  addu      $a1, $s1, $zero                DRIFT
+!  152  V:02202821 R:8FBF0028  lw         $ra, 0x28($sp)                DRIFT
+!  153  V:8FBF0028 R:8FB10024  lw         $s1, 0x24($sp)                DRIFT
+!  154  V:8FB10024 R:8FB00020  lw         $s0, 0x20($sp)                DRIFT
+!  155  V:8FB00020 R:03E00008  jr         $ra                           DRIFT
+!  156  V:03E00008 R:27BD0030  addiu     $sp, $sp, 0x30                 DRIFT

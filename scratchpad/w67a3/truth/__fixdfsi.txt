@@ -1,0 +1,65 @@
+LIBMATH FIXDFSI.obj __fixdfsi: RELOC-ONLY  (64 words, 6 reloc-covered diffs, 0 drift) [loc:symbol off=0x0]
+     0  V:27BDFFC8 R:27BDFFC8  addiu      $sp, $sp, -0x38               
+     1  V:3C027FFF R:3C027FFF  lui        $v0, (0x7FFFFFFF >> 16)       
+     2  V:3442FFFF R:3442FFFF  ori        $v0, $v0, (0x7FFFFFFF & 0xFFF 
+     3  V:AFB10024 R:AFB10024  sw         $s1, 0x24($sp)                
+     4  V:AFB00020 R:AFB00020  sw         $s0, 0x20($sp)                
+     5  V:00808021 R:00808021  addu       $s0, $a0, $zero               
+     6  V:00A08821 R:00A08821  addu       $s1, $a1, $zero               
+     7  V:02221024 R:02221024  and        $v0, $s1, $v0                 
+     8  V:AFBF0030 R:AFBF0030  sw         $ra, 0x30($sp)                
+     9  V:AFB3002C R:AFB3002C  sw         $s3, 0x2C($sp)                
+    10  V:14400005 R:14400005  bnez       $v0, .L800F6874               
+    11  V:AFB20028 R:AFB20028  sw        $s2, 0x28($sp)                 
+    12  V:16000003 R:16000003  bnez       $s0, .L800F6874               
+    13  V:3C028000 R:3C028000  lui       $v0, (0x80000000 >> 16)        
+*   14  V:08000038 R:0803DA45  j          .L800F6914                    RELOC t4a (0xE0+sect61442)
+    15  V:02221024 R:02221024  and       $v0, $s1, $v0                  
+    16  V:00111503 R:00111503  sra        $v0, $s1, 20                  
+    17  V:305207FF R:305207FF  andi       $s2, $v0, 0x7FF               
+    18  V:2653FBE3 R:2653FBE3  addiu      $s3, $s2, -0x41D              
+    19  V:1A600008 R:1A600008  blez       $s3, .L800F68A4               
+    20  V:24040022 R:24040022  addiu     $a0, $zero, 0x22               
+*   21  V:0C000000 R:0C041A95  jal        _err_math                     RELOC t4a _err_math
+    22  V:24050011 R:24050011  addiu     $a1, $zero, 0x11               
+    23  V:3C027FFF R:3C027FFF  lui        $v0, (0x7FFFFFFF >> 16)       
+    24  V:0621001F R:0621001F  bgez       $s1, .L800F6914               
+    25  V:3442FFFF R:3442FFFF  ori       $v0, $v0, (0x7FFFFFFF & 0xFFFF 
+*   26  V:08000038 R:0803DA45  j          .L800F6914                    RELOC t4a (0xE0+sect61442)
+    27  V:3C028000 R:3C028000  lui       $v0, (0x80000000 >> 16)        
+    28  V:3C02000F R:3C02000F  lui        $v0, (0xFFFFF >> 16)          
+    29  V:3442FFFF R:3442FFFF  ori        $v0, $v0, (0xFFFFF & 0xFFFF)  
+    30  V:27A40018 R:27A40018  addiu      $a0, $sp, 0x18                
+    31  V:02221024 R:02221024  and        $v0, $s1, $v0                 
+    32  V:3C030010 R:3C030010  lui        $v1, (0x100000 >> 16)         
+    33  V:00431025 R:00431025  or         $v0, $v0, $v1                 
+    34  V:AFA2001C R:AFA2001C  sw         $v0, 0x1C($sp)                
+    35  V:2402000A R:2402000A  addiu      $v0, $zero, 0xA               
+    36  V:AFB00018 R:AFB00018  sw         $s0, 0x18($sp)                
+    37  V:AFA20010 R:AFA20010  sw         $v0, 0x10($sp)                
+    38  V:8FA60018 R:8FA60018  lw         $a2, 0x18($sp)                
+    39  V:8FA7001C R:8FA7001C  lw         $a3, 0x1C($sp)                
+*   40  V:0C000000 R:0C041B90  jal        _dbl_shift                    RELOC t4a _dbl_shift
+    41  V:00002821 R:00002821  addu      $a1, $zero, $zero              
+    42  V:2642FC02 R:2642FC02  addiu      $v0, $s2, -0x3FE              
+    43  V:2C420020 R:2C420020  sltiu      $v0, $v0, 0x20                
+    44  V:8FA3001C R:8FA3001C  lw         $v1, 0x1C($sp)                
+    45  V:10400005 R:10400005  beqz       $v0, .L800F6900               
+    46  V:00000000 R:00000000  nop                                      
+    47  V:10600003 R:10600003  beqz       $v1, .L800F6900               
+    48  V:00131023 R:00131023  negu      $v0, $s3                       
+*   49  V:08000035 R:0803DA42  j          .L800F6908                    RELOC t4a (0xD4+sect61442)
+    50  V:00431807 R:00431807  srav      $v1, $v1, $v0                  
+*   51  V:08000038 R:0803DA45  j          .L800F6914                    RELOC t4a (0xE0+sect61442)
+    52  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+    53  V:06210002 R:06210002  bgez       $s1, .L800F6914               
+    54  V:00601021 R:00601021  addu      $v0, $v1, $zero                
+    55  V:00021023 R:00021023  negu       $v0, $v0                      
+    56  V:8FBF0030 R:8FBF0030  lw         $ra, 0x30($sp)                
+    57  V:8FB3002C R:8FB3002C  lw         $s3, 0x2C($sp)                
+    58  V:8FB20028 R:8FB20028  lw         $s2, 0x28($sp)                
+    59  V:8FB10024 R:8FB10024  lw         $s1, 0x24($sp)                
+    60  V:8FB00020 R:8FB00020  lw         $s0, 0x20($sp)                
+    61  V:03E00008 R:03E00008  jr         $ra                           
+    62  V:27BD0038 R:27BD0038  addiu     $sp, $sp, 0x38                 
+    63  V:00000000 R:00000000  nop                                      

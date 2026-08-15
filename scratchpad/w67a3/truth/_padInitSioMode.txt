@@ -1,0 +1,206 @@
+LIBPAD PADMAIN.obj _padInitSioMode: RELOC-ONLY  (205 words, 62 reloc-covered diffs, 0 drift) [loc:symbol off=0x43c]
+     0  V:27BDFFE0 R:27BDFFE0  addiu      $sp, $sp, -0x20               
+     1  V:AFB00010 R:AFB00010  sw         $s0, 0x10($sp)                
+     2  V:00808021 R:00808021  addu       $s0, $a0, $zero               
+*    3  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*    4  V:8C630D6C R:8C637CDC  lw         $v1, %lo(D_80137CDC)($v1)     RELOC t54 (0x6C+sect61443)
+     5  V:24020040 R:24020040  addiu      $v0, $zero, 0x40              
+     6  V:AFBF0018 R:AFBF0018  sw         $ra, 0x18($sp)                
+     7  V:AFB10014 R:AFB10014  sw         $s1, 0x14($sp)                
+     8  V:A462000A R:A462000A  sh         $v0, 0xA($v1)                 
+     9  V:2402000D R:2402000D  addiu      $v0, $zero, 0xD               
+    10  V:A460000A R:A460000A  sh         $zero, 0xA($v1)               
+    11  V:A4620008 R:A4620008  sh         $v0, 0x8($v1)                 
+    12  V:24020088 R:24020088  addiu      $v0, $zero, 0x88              
+    13  V:A462000E R:A462000E  sh         $v0, 0xE($v1)                 
+    14  V:920300E8 R:920300E8  lbu        $v1, 0xE8($s0)                
+    15  V:24020008 R:24020008  addiu      $v0, $zero, 0x8               
+    16  V:14620002 R:14620002  bne        $v1, $v0, .L80104D78          
+    17  V:24040091 R:24040091  addiu     $a0, $zero, 0x91               
+    18  V:24040050 R:24040050  addiu      $a0, $zero, 0x50              
+*   19  V:0C000000 R:0C042FFA  jal        setRC2wait                    RELOC t4a setRC2wait
+    20  V:00000000 R:00000000  nop                                      
+*   21  V:3C020000 R:3C028013  lui        $v0, %hi(_padSioChan)         RELOC t52 (0x48+sect61443)
+*   22  V:8C420D48 R:8C427CB8  lw         $v0, %lo(_padSioChan)($v0)    RELOC t54 (0x48+sect61443)
+*   23  V:3C040000 R:3C048013  lui        $a0, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*   24  V:8C840D6C R:8C847CDC  lw         $a0, %lo(D_80137CDC)($a0)     RELOC t54 (0x6C+sect61443)
+    25  V:10400002 R:10400002  beqz       $v0, .L80104D9C               
+    26  V:24031003 R:24031003  addiu     $v1, $zero, 0x1003             
+    27  V:24033003 R:24033003  addiu      $v1, $zero, 0x3003            
+    28  V:00021080 R:00021080  sll        $v0, $v0, 2                   
+    29  V:A483000A R:A483000A  sh         $v1, 0xA($a0)                 
+*   30  V:3C010000 R:3C018013  lui        $at, %hi(_padFixResult)       RELOC t52 (0x60+sect61443)
+    31  V:00220821 R:00220821  addu       $at, $at, $v0                 
+*   32  V:8C220D60 R:8C227CD0  lw         $v0, %lo(_padFixResult)($at)  RELOC t54 (0x60+sect61443)
+*   33  V:3C030000 R:3C038013  lui        $v1, %hi(_padFixResult)       RELOC t52 (0x60+sect61443)
+    34  V:04400034 R:04400034  bltz       $v0, .L80104E88               
+*   35  V:24630D60 R:24637CD0  addiu     $v1, $v1, %lo(_padFixResult)   RELOC t54 (0x60+sect61443)
+    36  V:1840001D R:1840001D  blez       $v0, .L80104E34               
+    37  V:00000000 R:00000000  nop                                      
+    38  V:00608821 R:00608821  addu       $s1, $v1, $zero               
+*   39  V:3C030000 R:3C038013  lui        $v1, %hi(_padSioChan)         RELOC t52 (0x48+sect61443)
+*   40  V:8C630D48 R:8C637CB8  lw         $v1, %lo(_padSioChan)($v1)    RELOC t54 (0x48+sect61443)
+    41  V:00000000 R:00000000  nop                                      
+    42  V:00031880 R:00031880  sll        $v1, $v1, 2                   
+    43  V:00711821 R:00711821  addu       $v1, $v1, $s1                 
+    44  V:8C620000 R:8C620000  lw         $v0, 0x0($v1)                 
+    45  V:00000000 R:00000000  nop                                      
+    46  V:2442FFFF R:2442FFFF  addiu      $v0, $v0, -0x1                
+    47  V:00022100 R:00022100  sll        $a0, $v0, 4                   
+    48  V:00822023 R:00822023  subu       $a0, $a0, $v0                 
+    49  V:00042100 R:00042100  sll        $a0, $a0, 4                   
+    50  V:AC620000 R:AC620000  sw         $v0, 0x0($v1)                 
+    51  V:8E02000C R:8E02000C  lw         $v0, 0xC($s0)                 
+*   52  V:3C030000 R:3C038013  lui        $v1, %hi(_padFuncRecvAuto)    RELOC t52 (0x28+sect61443)
+*   53  V:8C630D28 R:8C637C98  lw         $v1, %lo(_padFuncRecvAuto)($v RELOC t54 (0x28+sect61443)
+    54  V:00000000 R:00000000  nop                                      
+    55  V:0060F809 R:0060F809  jalr       $v1                           
+    56  V:00442021 R:00442021  addu      $a0, $v0, $a0                  
+*   57  V:3C020000 R:3C028013  lui        $v0, %hi(_padSioChan)         RELOC t52 (0x48+sect61443)
+*   58  V:8C420D48 R:8C427CB8  lw         $v0, %lo(_padSioChan)($v0)    RELOC t54 (0x48+sect61443)
+    59  V:00000000 R:00000000  nop                                      
+    60  V:00021080 R:00021080  sll        $v0, $v0, 2                   
+    61  V:00511021 R:00511021  addu       $v0, $v0, $s1                 
+    62  V:8C420000 R:8C420000  lw         $v0, 0x0($v0)                 
+    63  V:00000000 R:00000000  nop                                      
+    64  V:1C40FFE6 R:1C40FFE6  bgtz       $v0, .L80104DC8               
+    65  V:00000000 R:00000000  nop                                      
+*   66  V:3C020000 R:3C028013  lui        $v0, %hi(_padSioChan)         RELOC t52 (0x48+sect61443)
+*   67  V:8C420D48 R:8C427CB8  lw         $v0, %lo(_padSioChan)($v0)    RELOC t54 (0x48+sect61443)
+*   68  V:3C030000 R:3C038013  lui        $v1, %hi(_padFixResult)       RELOC t52 (0x60+sect61443)
+*   69  V:24630D60 R:24637CD0  addiu      $v1, $v1, %lo(_padFixResult)  RELOC t54 (0x60+sect61443)
+    70  V:00021080 R:00021080  sll        $v0, $v0, 2                   
+    71  V:00432821 R:00432821  addu       $a1, $v0, $v1                 
+    72  V:8CA20000 R:8CA20000  lw         $v0, 0x0($a1)                 
+    73  V:00000000 R:00000000  nop                                      
+    74  V:1440000C R:1440000C  bnez       $v0, .L80104E88               
+    75  V:2403FFFF R:2403FFFF  addiu     $v1, $zero, -0x1               
+    76  V:02002021 R:02002021  addu       $a0, $s0, $zero               
+*   77  V:3C020000 R:3C028013  lui        $v0, %hi(_padFuncRecvAuto)    RELOC t52 (0x28+sect61443)
+*   78  V:8C420D28 R:8C427C98  lw         $v0, %lo(_padFuncRecvAuto)($v RELOC t54 (0x28+sect61443)
+    79  V:00000000 R:00000000  nop                                      
+    80  V:0040F809 R:0040F809  jalr       $v0                           
+    81  V:ACA30000 R:ACA30000  sw        $v1, 0x0($a1)                  
+*   82  V:3C020000 R:3C028013  lui        $v0, %hi(_padFuncClrCmdNo)    RELOC t52 (0x2C+sect61443)
+*   83  V:8C420D2C R:8C427C9C  lw         $v0, %lo(_padFuncClrCmdNo)($v RELOC t54 (0x2C+sect61443)
+    84  V:00000000 R:00000000  nop                                      
+    85  V:0040F809 R:0040F809  jalr       $v0                           
+    86  V:02002021 R:02002021  addu      $a0, $s0, $zero                
+*   87  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*   88  V:8C630D6C R:8C637CDC  lw         $v1, %lo(D_80137CDC)($v1)     RELOC t54 (0x6C+sect61443)
+    89  V:00000000 R:00000000  nop                                      
+    90  V:94620004 R:94620004  lhu        $v0, 0x4($v1)                 
+    91  V:00000000 R:00000000  nop                                      
+    92  V:30420200 R:30420200  andi       $v0, $v0, 0x200               
+    93  V:10400061 R:10400061  beqz       $v0, .L80105028               
+    94  V:00000000 R:00000000  nop                                      
+    95  V:9462000A R:9462000A  lhu        $v0, 0xA($v1)                 
+    96  V:00000000 R:00000000  nop                                      
+    97  V:34420010 R:34420010  ori        $v0, $v0, 0x10                
+    98  V:A462000A R:A462000A  sh         $v0, 0xA($v1)                 
+    99  V:94620004 R:94620004  lhu        $v0, 0x4($v1)                 
+   100  V:00000000 R:00000000  nop                                      
+   101  V:30420200 R:30420200  andi       $v0, $v0, 0x200               
+   102  V:10400054 R:10400054  beqz       $v0, .L80105018               
+   103  V:2402FF7F R:2402FF7F  addiu     $v0, $zero, -0x81              
+*  104  V:0C000000 R:0C043002  jal        chkRC2wait                    RELOC t4a chkRC2wait
+   105  V:00000000 R:00000000  nop                                      
+   106  V:1040FFFD R:1040FFFD  beqz       $v0, .L80104ECC               
+   107  V:24040064 R:24040064  addiu     $a0, $zero, 0x64               
+*  108  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*  109  V:8C630D6C R:8C637CDC  lw         $v1, %lo(D_80137CDC)($v1)     RELOC t54 (0x6C+sect61443)
+   110  V:24020001 R:24020001  addiu      $v0, $zero, 0x1               
+*  111  V:0C000000 R:0C042FFA  jal        setRC2wait                    RELOC t4a setRC2wait
+   112  V:A0620000 R:A0620000  sb        $v0, 0x0($v1)                  
+*  113  V:0C000312 R:0C04154E  jal        _padClrIntSio0                RELOC t4a (0xC48+sect61442)
+   114  V:00000000 R:00000000  nop                                      
+   115  V:10400054 R:10400054  beqz       $v0, .L8010504C               
+   116  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+*  117  V:0C000336 R:0C041572  jal        _padWaitRXready               RELOC t4a (0xCD8+sect61442)
+   118  V:00000000 R:00000000  nop                                      
+*  119  V:3C020000 R:3C028013  lui        $v0, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*  120  V:8C420D6C R:8C427CDC  lw         $v0, %lo(D_80137CDC)($v0)     RELOC t54 (0x6C+sect61443)
+   121  V:240401AE R:240401AE  addiu      $a0, $zero, 0x1AE             
+   122  V:90420000 R:90420000  lbu        $v0, 0x0($v0)                 
+*  123  V:0C000000 R:0C042FFA  jal        setRC2wait                    RELOC t4a setRC2wait
+   124  V:00000000 R:00000000  nop                                      
+*  125  V:08000192 R:080413CE  j          .L80104F38                    RELOC t4a (0x648+sect61442)
+   126  V:00000000 R:00000000  nop                                      
+*  127  V:0C000000 R:0C043002  jal        chkRC2wait                    RELOC t4a chkRC2wait
+   128  V:00000000 R:00000000  nop                                      
+   129  V:14400046 R:14400046  bnez       $v0, .L8010504C               
+   130  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+*  131  V:3C020000 R:3C028013  lui        $v0, %hi(D_80137CD8)          RELOC t52 (0x68+sect61443)
+*  132  V:8C420D68 R:8C427CD8  lw         $v0, %lo(D_80137CD8)($v0)     RELOC t54 (0x68+sect61443)
+   133  V:00000000 R:00000000  nop                                      
+   134  V:8C420000 R:8C420000  lw         $v0, 0x0($v0)                 
+   135  V:00000000 R:00000000  nop                                      
+   136  V:30420080 R:30420080  andi       $v0, $v0, 0x80                
+   137  V:1040FFF5 R:1040FFF5  beqz       $v0, .L80104F28               
+   138  V:2404003C R:2404003C  addiu     $a0, $zero, 0x3C               
+*  139  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*  140  V:8C630D6C R:8C637CDC  lw         $v1, %lo(D_80137CDC)($v1)     RELOC t54 (0x6C+sect61443)
+   141  V:24020042 R:24020042  addiu      $v0, $zero, 0x42              
+*  142  V:0C000000 R:0C042FFA  jal        setRC2wait                    RELOC t4a setRC2wait
+   143  V:A0620000 R:A0620000  sb        $v0, 0x0($v1)                  
+*  144  V:0C000312 R:0C04154E  jal        _padClrIntSio0                RELOC t4a (0xC48+sect61442)
+   145  V:00000000 R:00000000  nop                                      
+   146  V:10400035 R:10400035  beqz       $v0, .L8010504C               
+   147  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+*  148  V:0C000336 R:0C041572  jal        _padWaitRXready               RELOC t4a (0xCD8+sect61442)
+   149  V:00000000 R:00000000  nop                                      
+*  150  V:3C020000 R:3C028013  lui        $v0, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*  151  V:8C420D6C R:8C427CDC  lw         $v0, %lo(D_80137CDC)($v0)     RELOC t54 (0x6C+sect61443)
+   152  V:240401AE R:240401AE  addiu      $a0, $zero, 0x1AE             
+   153  V:90420000 R:90420000  lbu        $v0, 0x0($v0)                 
+*  154  V:0C000000 R:0C042FFA  jal        setRC2wait                    RELOC t4a setRC2wait
+   155  V:00000000 R:00000000  nop                                      
+*  156  V:080001B1 R:080413ED  j          .L80104FB4                    RELOC t4a (0x6C4+sect61442)
+   157  V:00000000 R:00000000  nop                                      
+*  158  V:0C000000 R:0C043002  jal        chkRC2wait                    RELOC t4a chkRC2wait
+   159  V:00000000 R:00000000  nop                                      
+   160  V:14400027 R:14400027  bnez       $v0, .L8010504C               
+   161  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+*  162  V:3C020000 R:3C028013  lui        $v0, %hi(D_80137CD8)          RELOC t52 (0x68+sect61443)
+*  163  V:8C420D68 R:8C427CD8  lw         $v0, %lo(D_80137CD8)($v0)     RELOC t54 (0x68+sect61443)
+   164  V:00000000 R:00000000  nop                                      
+   165  V:8C420000 R:8C420000  lw         $v0, 0x0($v0)                 
+   166  V:00000000 R:00000000  nop                                      
+   167  V:30420080 R:30420080  andi       $v0, $v0, 0x80                
+   168  V:1040FFF5 R:1040FFF5  beqz       $v0, .L80104FA4               
+   169  V:2404003C R:2404003C  addiu     $a0, $zero, 0x3C               
+*  170  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*  171  V:8C630D6C R:8C637CDC  lw         $v1, %lo(D_80137CDC)($v1)     RELOC t54 (0x6C+sect61443)
+   172  V:24020001 R:24020001  addiu      $v0, $zero, 0x1               
+*  173  V:0C000000 R:0C042FFA  jal        setRC2wait                    RELOC t4a setRC2wait
+   174  V:A0620000 R:A0620000  sb        $v0, 0x0($v1)                  
+*  175  V:0C000312 R:0C04154E  jal        _padClrIntSio0                RELOC t4a (0xC48+sect61442)
+   176  V:00000000 R:00000000  nop                                      
+   177  V:10400016 R:10400016  beqz       $v0, .L8010504C               
+   178  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+*  179  V:0C000336 R:0C041572  jal        _padWaitRXready               RELOC t4a (0xCD8+sect61442)
+   180  V:00000000 R:00000000  nop                                      
+*  181  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CDC)          RELOC t52 (0x6C+sect61443)
+*  182  V:8C630D6C R:8C637CDC  lw         $v1, %lo(D_80137CDC)($v1)     RELOC t54 (0x6C+sect61443)
+   183  V:00001021 R:00001021  addu       $v0, $zero, $zero             
+   184  V:90630000 R:90630000  lbu        $v1, 0x0($v1)                 
+*  185  V:080001D7 R:08041413  j          .L8010504C                    RELOC t4a (0x75C+sect61442)
+   186  V:00000000 R:00000000  nop                                      
+*  187  V:3C030000 R:3C038013  lui        $v1, %hi(D_80137CD8)          RELOC t52 (0x68+sect61443)
+*  188  V:8C630D68 R:8C637CD8  lw         $v1, %lo(D_80137CD8)($v1)     RELOC t54 (0x68+sect61443)
+   189  V:00000000 R:00000000  nop                                      
+   190  V:AC620000 R:AC620000  sw         $v0, 0x0($v1)                 
+   191  V:92020050 R:92020050  lbu        $v0, 0x50($s0)                
+   192  V:00000000 R:00000000  nop                                      
+   193  V:10400006 R:10400006  beqz       $v0, .L8010504C               
+   194  V:24020001 R:24020001  addiu     $v0, $zero, 0x1                
+   195  V:92030036 R:92030036  lbu        $v1, 0x36($s0)                
+   196  V:00000000 R:00000000  nop                                      
+   197  V:14600002 R:14600002  bnez       $v1, .L8010504C               
+   198  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+   199  V:24020001 R:24020001  addiu      $v0, $zero, 0x1               
+   200  V:8FBF0018 R:8FBF0018  lw         $ra, 0x18($sp)                
+   201  V:8FB10014 R:8FB10014  lw         $s1, 0x14($sp)                
+   202  V:8FB00010 R:8FB00010  lw         $s0, 0x10($sp)                
+   203  V:03E00008 R:03E00008  jr         $ra                           
+   204  V:27BD0020 R:27BD0020  addiu     $sp, $sp, 0x20                 

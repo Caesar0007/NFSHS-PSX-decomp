@@ -1,0 +1,153 @@
+LIBMCRD LIBMCRD.obj MemCardGetDirentry: RELOC-ONLY  (152 words, 34 reloc-covered diffs, 0 drift) [loc:symbol off=0xfa8]
+     0  V:27BDFF70 R:27BDFF70  addiu      $sp, $sp, -0x90               
+     1  V:AFB70084 R:AFB70084  sw         $s7, 0x84($sp)                
+     2  V:0080B821 R:0080B821  addu       $s7, $a0, $zero               
+     3  V:AFB00068 R:AFB00068  sw         $s0, 0x68($sp)                
+     4  V:00A08021 R:00A08021  addu       $s0, $a1, $zero               
+     5  V:AFB60080 R:AFB60080  sw         $s6, 0x80($sp)                
+     6  V:00C0B021 R:00C0B021  addu       $s6, $a2, $zero               
+     7  V:AFB30074 R:AFB30074  sw         $s3, 0x74($sp)                
+*    8  V:3C130000 R:3C138014  lui        $s3, %hi(D_80147518)          RELOC t52 (0x18+sect61446)
+*    9  V:26731B28 R:26737518  addiu      $s3, $s3, %lo(D_80147518)     RELOC t54 (0x18+sect61446)
+    10  V:AFBF008C R:AFBF008C  sw         $ra, 0x8C($sp)                
+    11  V:AFBE0088 R:AFBE0088  sw         $fp, 0x88($sp)                
+    12  V:AFB5007C R:AFB5007C  sw         $s5, 0x7C($sp)                
+    13  V:AFB40078 R:AFB40078  sw         $s4, 0x78($sp)                
+    14  V:AFB20070 R:AFB20070  sw         $s2, 0x70($sp)                
+    15  V:AFB1006C R:AFB1006C  sw         $s1, 0x6C($sp)                
+    16  V:AFA7005C R:AFA7005C  sw         $a3, 0x5C($sp)                
+    17  V:8E620000 R:8E620000  lw         $v0, 0x0($s3)                 
+    18  V:8FBE00A0 R:8FBE00A0  lw         $fp, 0xA0($sp)                
+    19  V:10400006 R:10400006  beqz       $v0, .L800FB8F0               
+    20  V:02E02021 R:02E02021  addu      $a0, $s7, $zero                
+*   21  V:3C040000 R:3C048005  lui        $a0, %hi(D_800574C0)          RELOC t52 (0x150+sect61441)
+*   22  V:0C000000 R:0C040A2B  jal        printf                        RELOC t4a printf
+*   23  V:24841AC0 R:248474C0  addiu     $a0, $a0, %lo(D_800574C0)      RELOC t54 (0x150+sect61441)
+*   24  V:08000476 R:0803EEAE  j          .L800FBAB8                    RELOC t4a (0x11D8+sect61442)
+    25  V:2402FFFF R:2402FFFF  addiu     $v0, $zero, -0x1               
+*   26  V:0C000645 R:0C03F07D  jal        MemCardMakeDevname            RELOC t4a (0x1914+sect61442)
+    27  V:27A50010 R:27A50010  addiu     $a1, $sp, 0x10                 
+    28  V:27A40010 R:27A40010  addiu      $a0, $sp, 0x10                
+*   29  V:0C000000 R:0C039E3A  jal        strcat                        RELOC t4a strcat
+    30  V:02002821 R:02002821  addu      $a1, $s0, $zero                
+    31  V:00009021 R:00009021  addu       $s2, $zero, $zero             
+    32  V:00008821 R:00008821  addu       $s1, $zero, $zero             
+    33  V:24030001 R:24030001  addiu      $v1, $zero, 0x1               
+    34  V:AFA00058 R:AFA00058  sw         $zero, 0x58($sp)              
+    35  V:8E64000C R:8E64000C  lw         $a0, 0xC($s3)                 
+*   36  V:3C020000 R:3C028014  lui        $v0, %hi(D_80147514)          RELOC t52 (0x14+sect61446)
+*   37  V:8C421B24 R:8C427514  lw         $v0, %lo(D_80147514)($v0)     RELOC t54 (0x14+sect61446)
+    38  V:8FA800A4 R:8FA800A4  lw         $t0, 0xA4($sp)                
+    39  V:00831804 R:00831804  sllv       $v1, $v1, $a0                 
+    40  V:00431025 R:00431025  or         $v0, $v0, $v1                 
+*   41  V:3C010000 R:3C018014  lui        $at, %hi(D_80147514)          RELOC t52 (0x14+sect61446)
+*   42  V:AC221B24 R:AC227514  sw         $v0, %lo(D_80147514)($at)     RELOC t54 (0x14+sect61446)
+    43  V:03C81021 R:03C81021  addu       $v0, $fp, $t0                 
+    44  V:1840005A R:1840005A  blez       $v0, .L800FBAA4               
+    45  V:0000A821 R:0000A821  addu      $s5, $zero, $zero              
+    46  V:27A80050 R:27A80050  addiu      $t0, $sp, 0x50                
+    47  V:AFA80060 R:AFA80060  sw         $t0, 0x60($sp)                
+    48  V:0000A021 R:0000A021  addu       $s4, $zero, $zero             
+    49  V:16200032 R:16200032  bnez       $s1, .L800FBA18               
+    50  V:00000000 R:00000000  nop                                      
+*   51  V:0C000000 R:0C042634  jal        _clr_card_event               RELOC t4a _clr_card_event
+    52  V:00000000 R:00000000  nop                                      
+    53  V:27A40010 R:27A40010  addiu      $a0, $sp, 0x10                
+*   54  V:0C000000 R:0C042770  jal        firstfile                     RELOC t4a firstfile
+    55  V:27A50030 R:27A50030  addiu     $a1, $sp, 0x30                 
+    56  V:00408021 R:00408021  addu       $s0, $v0, $zero               
+    57  V:1600002F R:1600002F  bnez       $s0, .L800FBA2C               
+    58  V:023E102A R:023E102A  slt       $v0, $s1, $fp                  
+*   59  V:0C000000 R:0C0426AC  jal        _get_card_event_x             RELOC t4a _get_card_event_x
+    60  V:00000000 R:00000000  nop                                      
+*   61  V:0C00060F R:0C03F047  jal        MemCardEventToRslt            RELOC t4a (0x183C+sect61442)
+    62  V:00402021 R:00402021  addu      $a0, $v0, $zero                
+    63  V:10400027 R:10400027  beqz       $v0, .L800FBA24               
+    64  V:AFA20058 R:AFA20058  sw        $v0, 0x58($sp)                 
+    65  V:26520001 R:26520001  addiu      $s2, $s2, 0x1                 
+    66  V:2A420004 R:2A420004  slti       $v0, $s2, 0x4                 
+    67  V:1440FFEF R:1440FFEF  bnez       $v0, .L800FB954               
+    68  V:00000000 R:00000000  nop                                      
+*   69  V:0C000482 R:0C03EEBA  jal        MemCardCallback               RELOC t4a (0x1208+sect61442)
+    70  V:00002021 R:00002021  addu      $a0, $zero, $zero              
+    71  V:8E630000 R:8E630000  lw         $v1, 0x0($s3)                 
+*   72  V:3C010000 R:3C018014  lui        $at, %hi(D_8014756C)          RELOC t52 (0x6C+sect61446)
+*   73  V:AC221B7C R:AC22756C  sw         $v0, %lo(D_8014756C)($at)     RELOC t54 (0x6C+sect61446)
+    74  V:18600006 R:18600006  blez       $v1, .L800FB9CC               
+    75  V:24080002 R:24080002  addiu     $t0, $zero, 0x2                
+*   76  V:3C040000 R:3C048005  lui        $a0, %hi(D_80057370)          RELOC t52 sect61441
+*   77  V:0C000000 R:0C040A2B  jal        printf                        RELOC t4a printf
+*   78  V:24841970 R:24847370  addiu     $a0, $a0, %lo(D_80057370)      RELOC t54 sect61441
+*   79  V:08000444 R:0803EE7C  j          .L800FB9F0                    RELOC t4a (0x1110+sect61442)
+    80  V:00002021 R:00002021  addu      $a0, $zero, $zero              
+*   81  V:3C040000 R:3C048010  lui        $a0, %hi(MemCardCmd_cb)       RELOC t52 (0x380+sect61442)
+*   82  V:24840380 R:2484AE2C  addiu      $a0, $a0, %lo(MemCardCmd_cb)  RELOC t54 (0x380+sect61442)
+    83  V:AE680000 R:AE680000  sw         $t0, 0x0($s3)                 
+    84  V:AE600004 R:AE600004  sw         $zero, 0x4($s3)               
+    85  V:AE600008 R:AE600008  sw         $zero, 0x8($s3)               
+*   86  V:3C010000 R:3C018014  lui        $at, %hi(D_80147524)          RELOC t52 (0x24+sect61446)
+*   87  V:0C000000 R:0C042704  jal        UserFuncOpen                  RELOC t4a UserFuncOpen
+*   88  V:AC371B34 R:AC377524  sw        $s7, %lo(D_80147524)($at)      RELOC t54 (0x24+sect61446)
+    89  V:00002021 R:00002021  addu       $a0, $zero, $zero             
+    90  V:00002821 R:00002821  addu       $a1, $zero, $zero             
+*   91  V:0C000487 R:0C03EEBF  jal        MemCardSync                   RELOC t4a (0x121C+sect61442)
+    92  V:27A60058 R:27A60058  addiu     $a2, $sp, 0x58                 
+*   93  V:3C040000 R:3C048014  lui        $a0, %hi(D_8014756C)          RELOC t52 (0x6C+sect61446)
+*   94  V:8C841B7C R:8C84756C  lw         $a0, %lo(D_8014756C)($a0)     RELOC t54 (0x6C+sect61446)
+*   95  V:0C000482 R:0C03EEBA  jal        MemCardCallback               RELOC t4a (0x1208+sect61442)
+    96  V:00000000 R:00000000  nop                                      
+    97  V:8FA20058 R:8FA20058  lw         $v0, 0x58($sp)                
+*   98  V:08000476 R:0803EEAE  j          .L800FBAB8                    RELOC t4a (0x11D8+sect61442)
+    99  V:00000000 R:00000000  nop                                      
+*  100  V:0C000000 R:0C042818  jal        nextfile                      RELOC t4a nextfile
+   101  V:27A40030 R:27A40030  addiu     $a0, $sp, 0x30                 
+   102  V:00408021 R:00408021  addu       $s0, $v0, $zero               
+   103  V:1200001F R:1200001F  beqz       $s0, .L800FBAA4               
+   104  V:023E102A R:023E102A  slt       $v0, $s1, $fp                  
+   105  V:14400017 R:14400017  bnez       $v0, .L800FBA8C               
+   106  V:00000000 R:00000000  nop                                      
+   107  V:12C00015 R:12C00015  beqz       $s6, .L800FBA8C               
+   108  V:02963821 R:02963821  addu      $a3, $s4, $s6                  
+   109  V:27A60030 R:27A60030  addiu      $a2, $sp, 0x30                
+   110  V:8CC20000 R:8CC20000  lw         $v0, 0x0($a2)                 
+   111  V:8CC30004 R:8CC30004  lw         $v1, 0x4($a2)                 
+   112  V:8CC40008 R:8CC40008  lw         $a0, 0x8($a2)                 
+   113  V:8CC5000C R:8CC5000C  lw         $a1, 0xC($a2)                 
+   114  V:ACE20000 R:ACE20000  sw         $v0, 0x0($a3)                 
+   115  V:ACE30004 R:ACE30004  sw         $v1, 0x4($a3)                 
+   116  V:ACE40008 R:ACE40008  sw         $a0, 0x8($a3)                 
+   117  V:ACE5000C R:ACE5000C  sw         $a1, 0xC($a3)                 
+   118  V:24C60010 R:24C60010  addiu      $a2, $a2, 0x10                
+   119  V:8FA80060 R:8FA80060  lw         $t0, 0x60($sp)                
+   120  V:00000000 R:00000000  nop                                      
+   121  V:14C8FFF4 R:14C8FFF4  bne        $a2, $t0, .L800FBA40          
+   122  V:24E70010 R:24E70010  addiu     $a3, $a3, 0x10                 
+   123  V:8CC20000 R:8CC20000  lw         $v0, 0x0($a2)                 
+   124  V:8CC30004 R:8CC30004  lw         $v1, 0x4($a2)                 
+   125  V:ACE20000 R:ACE20000  sw         $v0, 0x0($a3)                 
+   126  V:ACE30004 R:ACE30004  sw         $v1, 0x4($a3)                 
+   127  V:26940028 R:26940028  addiu      $s4, $s4, 0x28                
+   128  V:26B50001 R:26B50001  addiu      $s5, $s5, 0x1                 
+   129  V:8FA800A4 R:8FA800A4  lw         $t0, 0xA4($sp)                
+   130  V:26310001 R:26310001  addiu      $s1, $s1, 0x1                 
+   131  V:03C81021 R:03C81021  addu       $v0, $fp, $t0                 
+   132  V:0222102A R:0222102A  slt        $v0, $s1, $v0                 
+   133  V:1440FFAB R:1440FFAB  bnez       $v0, .L800FB94C               
+   134  V:00000000 R:00000000  nop                                      
+   135  V:8FA8005C R:8FA8005C  lw         $t0, 0x5C($sp)                
+   136  V:00000000 R:00000000  nop                                      
+   137  V:11000002 R:11000002  beqz       $t0, .L800FBAB8               
+   138  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+   139  V:AD150000 R:AD150000  sw         $s5, 0x0($t0)                 
+   140  V:8FBF008C R:8FBF008C  lw         $ra, 0x8C($sp)                
+   141  V:8FBE0088 R:8FBE0088  lw         $fp, 0x88($sp)                
+   142  V:8FB70084 R:8FB70084  lw         $s7, 0x84($sp)                
+   143  V:8FB60080 R:8FB60080  lw         $s6, 0x80($sp)                
+   144  V:8FB5007C R:8FB5007C  lw         $s5, 0x7C($sp)                
+   145  V:8FB40078 R:8FB40078  lw         $s4, 0x78($sp)                
+   146  V:8FB30074 R:8FB30074  lw         $s3, 0x74($sp)                
+   147  V:8FB20070 R:8FB20070  lw         $s2, 0x70($sp)                
+   148  V:8FB1006C R:8FB1006C  lw         $s1, 0x6C($sp)                
+   149  V:8FB00068 R:8FB00068  lw         $s0, 0x68($sp)                
+   150  V:03E00008 R:03E00008  jr         $ra                           
+   151  V:27BD0090 R:27BD0090  addiu     $sp, $sp, 0x90                 

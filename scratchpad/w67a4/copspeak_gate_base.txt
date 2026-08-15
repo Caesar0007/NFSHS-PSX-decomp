@@ -1,0 +1,2 @@
+  __none__: NO ORACLE
+recon/game/common/copspeak.cpp: 27/27 PASS

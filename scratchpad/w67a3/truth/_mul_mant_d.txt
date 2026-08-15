@@ -1,0 +1,60 @@
+LIBMATH MULDF3.obj _mul_mant_d: RELOC-ONLY  (59 words, 2 reloc-covered diffs, 0 drift) [loc:symbol off=0x314]
+     0  V:27BDFFC0 R:27BDFFC0  addiu      $sp, $sp, -0x40               
+     1  V:AFB1002C R:AFB1002C  sw         $s1, 0x2C($sp)                
+     2  V:00A08821 R:00A08821  addu       $s1, $a1, $zero               
+     3  V:AFB00028 R:AFB00028  sw         $s0, 0x28($sp)                
+     4  V:00C08021 R:00C08021  addu       $s0, $a2, $zero               
+     5  V:AFB20030 R:AFB20030  sw         $s2, 0x30($sp)                
+     6  V:3232FFFF R:3232FFFF  andi       $s2, $s1, 0xFFFF              
+     7  V:3202FFFF R:3202FFFF  andi       $v0, $s0, 0xFFFF              
+     8  V:02420018 R:02420018  mult       $s2, $v0                      
+     9  V:00001812 R:00001812  mflo       $v1                           
+    10  V:00118C02 R:00118C02  srl        $s1, $s1, 16                  
+    11  V:00000000 R:00000000  nop                                      
+    12  V:02220018 R:02220018  mult       $s1, $v0                      
+    13  V:AFB30034 R:AFB30034  sw         $s3, 0x34($sp)                
+    14  V:00809821 R:00809821  addu       $s3, $a0, $zero               
+    15  V:27A40018 R:27A40018  addiu      $a0, $sp, 0x18                
+    16  V:AFA0001C R:AFA0001C  sw         $zero, 0x1C($sp)              
+    17  V:AFA30018 R:AFA30018  sw         $v1, 0x18($sp)                
+    18  V:00001012 R:00001012  mflo       $v0                           
+    19  V:00021C02 R:00021C02  srl        $v1, $v0, 16                  
+    20  V:00021400 R:00021400  sll        $v0, $v0, 16                  
+    21  V:AFA30024 R:AFA30024  sw         $v1, 0x24($sp)                
+    22  V:AFA20020 R:AFA20020  sw         $v0, 0x20($sp)                
+    23  V:AFA30010 R:AFA30010  sw         $v1, 0x10($sp)                
+    24  V:8FA70020 R:8FA70020  lw         $a3, 0x20($sp)                
+    25  V:8FA50018 R:8FA50018  lw         $a1, 0x18($sp)                
+    26  V:8FA6001C R:8FA6001C  lw         $a2, 0x1C($sp)                
+    27  V:AFBF0038 R:AFBF0038  sw         $ra, 0x38($sp)                
+*   28  V:0C000000 R:0C041BDC  jal        _add_mant_d                   RELOC t4a _add_mant_d
+    29  V:00108402 R:00108402  srl       $s0, $s0, 16                   
+    30  V:02500018 R:02500018  mult       $s2, $s0                      
+    31  V:00001012 R:00001012  mflo       $v0                           
+    32  V:00021C02 R:00021C02  srl        $v1, $v0, 16                  
+    33  V:00021400 R:00021400  sll        $v0, $v0, 16                  
+    34  V:AFA30024 R:AFA30024  sw         $v1, 0x24($sp)                
+    35  V:AFA20020 R:AFA20020  sw         $v0, 0x20($sp)                
+    36  V:AFA30010 R:AFA30010  sw         $v1, 0x10($sp)                
+    37  V:8FA70020 R:8FA70020  lw         $a3, 0x20($sp)                
+    38  V:8FA50018 R:8FA50018  lw         $a1, 0x18($sp)                
+    39  V:8FA6001C R:8FA6001C  lw         $a2, 0x1C($sp)                
+*   40  V:0C000000 R:0C041BDC  jal        _add_mant_d                   RELOC t4a _add_mant_d
+    41  V:27A40018 R:27A40018  addiu     $a0, $sp, 0x18                 
+    42  V:02300018 R:02300018  mult       $s1, $s0                      
+    43  V:8FA2001C R:8FA2001C  lw         $v0, 0x1C($sp)                
+    44  V:00001812 R:00001812  mflo       $v1                           
+    45  V:00431021 R:00431021  addu       $v0, $v0, $v1                 
+    46  V:AFA2001C R:AFA2001C  sw         $v0, 0x1C($sp)                
+    47  V:8FA20018 R:8FA20018  lw         $v0, 0x18($sp)                
+    48  V:8FA3001C R:8FA3001C  lw         $v1, 0x1C($sp)                
+    49  V:AE620000 R:AE620000  sw         $v0, 0x0($s3)                 
+    50  V:AE630004 R:AE630004  sw         $v1, 0x4($s3)                 
+    51  V:02601021 R:02601021  addu       $v0, $s3, $zero               
+    52  V:8FBF0038 R:8FBF0038  lw         $ra, 0x38($sp)                
+    53  V:8FB30034 R:8FB30034  lw         $s3, 0x34($sp)                
+    54  V:8FB20030 R:8FB20030  lw         $s2, 0x30($sp)                
+    55  V:8FB1002C R:8FB1002C  lw         $s1, 0x2C($sp)                
+    56  V:8FB00028 R:8FB00028  lw         $s0, 0x28($sp)                
+    57  V:03E00008 R:03E00008  jr         $ra                           
+    58  V:27BD0040 R:27BD0040  addiu     $sp, $sp, 0x40                 

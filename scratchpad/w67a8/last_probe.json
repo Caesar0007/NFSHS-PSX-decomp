@@ -1,0 +1,18 @@
+[
+ [
+  "U1_literals_voidfence_blk2",
+  "FAIL 67 diffs (ours 253 / oracle 254)"
+ ],
+ [
+  "U1b_decls_voidfence_blk2",
+  "FAIL 67 diffs (ours 253 / oracle 254)"
+ ],
+ [
+  "U2_keepfences_voidfence_blk2",
+  "FAIL 8 diffs (ours 254 / oracle 254)"
+ ],
+ [
+  "U1c_literals_fence_both_heads",
+  "FAIL 67 diffs (ours 253 / oracle 254)"
+ ]
+]

@@ -255,6 +255,7 @@ PER_TU_FLAGS = {
     # pair = 2 of the W62 sec-3.2 wrong-section symbols). Gated 2x post-wire.
     "recon/game/common/aispeeds.cpp":       {"g_value": "8"},
     "recon/game/common/mpause.cpp":         {"g_value": "8"},
+    "recon/game/common/bworld.cpp":         {"g_value": "8"},  # w67-a4: probe-proven 20/21 x2, .sdata byte-exact retail
     "recon/game/common/audioeng.cpp":       {"g_value": "8"},
     "recon/game/common/copspeak.cpp":       {"g_value": "8"},
     "recon/game/common/input.cpp":          {"g_value": "8"},

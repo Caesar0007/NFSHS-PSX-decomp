@@ -1,0 +1,36 @@
+LIBCD C_004.obj data_ready_callback: RELOC-ONLY  (35 words, 16 reloc-covered diffs, 0 drift) [loc:symbol off=0x0]
+*    0  V:3C020000 R:3C028014  lui        $v0, %hi(StRingIdx2)          RELOC t52 StRingIdx2
+*    1  V:8C420000 R:8C426CB4  lw         $v0, %lo(StRingIdx2)($v0)     RELOC t54 StRingIdx2
+*    2  V:3C030000 R:3C038014  lui        $v1, %hi(StRingAddr)          RELOC t52 StRingAddr
+*    3  V:8C630000 R:8C636CAC  lw         $v1, %lo(StRingAddr)($v1)     RELOC t54 StRingAddr
+     4  V:27BDFFE8 R:27BDFFE8  addiu      $sp, $sp, -0x18               
+     5  V:AFBF0010 R:AFBF0010  sw         $ra, 0x10($sp)                
+     6  V:00021140 R:00021140  sll        $v0, $v0, 5                   
+     7  V:00621821 R:00621821  addu       $v1, $v1, $v0                 
+     8  V:24020002 R:24020002  addiu      $v0, $zero, 0x2               
+     9  V:A4620000 R:A4620000  sh         $v0, 0x0($v1)                 
+*   10  V:3C060000 R:3C068015  lui        $a2, %hi(D_801489D0)          RELOC t52 sect61446
+*   11  V:24C60100 R:24C689D0  addiu      $a2, $a2, %lo(D_801489D0)     RELOC t54 sect61446
+    12  V:8862001F R:8862001F  lwl        $v0, 0x1F($v1)                
+    13  V:9862001C R:9862001C  lwr        $v0, 0x1C($v1)                
+    14  V:00000000 R:00000000  nop                                      
+    15  V:A8C20003 R:A8C20003  swl        $v0, 0x3($a2)                 
+    16  V:B8C20000 R:B8C20000  swr        $v0, 0x0($a2)                 
+    17  V:8C620008 R:8C620008  lw         $v0, 0x8($v1)                 
+*   18  V:3C030000 R:3C038014  lui        $v1, %hi(StRingIdx1)          RELOC t52 StRingIdx1
+*   19  V:8C630000 R:8C636CB0  lw         $v1, %lo(StRingIdx1)($v1)     RELOC t54 StRingIdx1
+*   20  V:3C040000 R:3C048014  lui        $a0, %hi(StFunc1)             RELOC t52 StFunc1
+*   21  V:8C840000 R:8C844874  lw         $a0, %lo(StFunc1)($a0)        RELOC t54 StFunc1
+*   22  V:3C010000 R:3C018015  lui        $at, %hi(D_801489D4)          RELOC t52 (0x4+sect61446)
+*   23  V:AC220104 R:AC2289D4  sw         $v0, %lo(D_801489D4)($at)     RELOC t54 (0x4+sect61446)
+*   24  V:3C010000 R:3C018014  lui        $at, %hi(StRingIdx2)          RELOC t52 StRingIdx2
+    25  V:10800003 R:10800003  beqz       $a0, .L8010880C               
+*   26  V:AC230000 R:AC236CB4  sw        $v1, %lo(StRingIdx2)($at)      RELOC t54 StRingIdx2
+    27  V:0080F809 R:0080F809  jalr       $a0                           
+    28  V:00000000 R:00000000  nop                                      
+*   29  V:3C010000 R:3C018014  lui        $at, %hi(StFinalSector)       RELOC t52 StFinalSector
+*   30  V:AC200000 R:AC206CA4  sw         $zero, %lo(StFinalSector)($at RELOC t54 StFinalSector
+    31  V:8FBF0010 R:8FBF0010  lw         $ra, 0x10($sp)                
+    32  V:27BD0018 R:27BD0018  addiu      $sp, $sp, 0x18                
+    33  V:03E00008 R:03E00008  jr         $ra                           
+    34  V:00000000 R:00000000  nop                                      

@@ -1,0 +1,2 @@
+  __none__: NO ORACLE
+recon/game/psx/platform.cpp: 8/8 PASS

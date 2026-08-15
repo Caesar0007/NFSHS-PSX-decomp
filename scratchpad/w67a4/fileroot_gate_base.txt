@@ -1,0 +1,2 @@
+  __none__: NO ORACLE
+recon/eaclib/psx/eacpsxz/fileroot.c: 9/9 PASS

@@ -1,0 +1,48 @@
+LIBPAD PADPORTD.obj _pad_getbyte: RELOC-ONLY  (47 words, 3 reloc-covered diffs, 0 drift) [loc:anchor PadInitDirect (+0x2cc) off=0x2cc]
+     0  V:90820045 R:90820045  lbu        $v0, 0x45($a0)                
+     1  V:90850036 R:90850036  lbu        $a1, 0x36($a0)                
+     2  V:00000000 R:00000000  nop                                      
+     3  V:10A00006 R:10A00006  beqz       $a1, .L800FE01C               
+     4  V:2443FFFD R:2443FFFD  addiu     $v1, $v0, -0x3                 
+     5  V:2402004D R:2402004D  addiu      $v0, $zero, 0x4D              
+     6  V:10A20015 R:10A20015  beq        $a1, $v0, .L800FE064          
+     7  V:00000000 R:00000000  nop                                      
+*    8  V:080000D7 R:0803F821  j          .L800FE084                    RELOC t4a (0x35C+sect61442)
+     9  V:00000000 R:00000000  nop                                      
+    10  V:28620006 R:28620006  slti       $v0, $v1, 0x6                 
+    11  V:10400005 R:10400005  beqz       $v0, .L800FE038               
+    12  V:00831021 R:00831021  addu      $v0, $a0, $v1                  
+    13  V:90420057 R:90420057  lbu        $v0, 0x57($v0)                
+    14  V:00000000 R:00000000  nop                                      
+    15  V:1040001D R:1040001D  beqz       $v0, .L800FE0A8               
+    16  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+    17  V:90820034 R:90820034  lbu        $v0, 0x34($a0)                
+    18  V:00000000 R:00000000  nop                                      
+    19  V:0062102A R:0062102A  slt        $v0, $v1, $v0                 
+    20  V:10400018 R:10400018  beqz       $v0, .L800FE0A8               
+    21  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+    22  V:8C820028 R:8C820028  lw         $v0, 0x28($a0)                
+    23  V:00000000 R:00000000  nop                                      
+    24  V:00431021 R:00431021  addu       $v0, $v0, $v1                 
+    25  V:90420000 R:90420000  lbu        $v0, 0x0($v0)                 
+*   26  V:080000E0 R:0803F82A  j          .L800FE0A8                    RELOC t4a (0x380+sect61442)
+    27  V:00000000 R:00000000  nop                                      
+    28  V:90820035 R:90820035  lbu        $v0, 0x35($a0)                
+    29  V:00000000 R:00000000  nop                                      
+    30  V:0062102A R:0062102A  slt        $v0, $v1, $v0                 
+    31  V:1040000D R:1040000D  beqz       $v0, .L800FE0A8               
+    32  V:240200FF R:240200FF  addiu     $v0, $zero, 0xFF               
+    33  V:8C82002C R:8C82002C  lw         $v0, 0x2C($a0)                
+*   34  V:080000CC R:0803F816  j          .L800FE058                    RELOC t4a (0x330+sect61442)
+    35  V:00431021 R:00431021  addu      $v0, $v0, $v1                  
+    36  V:90820035 R:90820035  lbu        $v0, 0x35($a0)                
+    37  V:00000000 R:00000000  nop                                      
+    38  V:0062102A R:0062102A  slt        $v0, $v1, $v0                 
+    39  V:10400005 R:10400005  beqz       $v0, .L800FE0A8               
+    40  V:00001021 R:00001021  addu      $v0, $zero, $zero              
+    41  V:8C82002C R:8C82002C  lw         $v0, 0x2C($a0)                
+    42  V:00000000 R:00000000  nop                                      
+    43  V:00431021 R:00431021  addu       $v0, $v0, $v1                 
+    44  V:90420000 R:90420000  lbu        $v0, 0x0($v0)                 
+    45  V:03E00008 R:03E00008  jr         $ra                           
+    46  V:00000000 R:00000000  nop                                      

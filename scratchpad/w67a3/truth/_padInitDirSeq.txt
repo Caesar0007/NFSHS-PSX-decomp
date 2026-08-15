@@ -1,0 +1,14 @@
+LIBPAD PADSEQD.obj _padInitDirSeq: RELOC-ONLY  (13 words, 12 reloc-covered diffs, 0 drift) [loc:symbol off=0x0]
+*    0  V:3C020000 R:3C028011  lui        $v0, %hi(_dirSendAuto)        RELOC t52 (0x34+sect61442)
+*    1  V:24420034 R:2442A0E4  addiu      $v0, $v0, %lo(_dirSendAuto)   RELOC t54 (0x34+sect61442)
+*    2  V:3C010000 R:3C018013  lui        $at, %hi(_padFuncSendAuto)    RELOC t52 _padFuncSendAuto
+*    3  V:AC220000 R:AC227C90  sw         $v0, %lo(_padFuncSendAuto)($a RELOC t54 _padFuncSendAuto
+*    4  V:3C020000 R:3C028011  lui        $v0, %hi(_dirCheck)           RELOC t52 (0x460+sect61442)
+*    5  V:24420460 R:2442A510  addiu      $v0, $v0, %lo(_dirCheck)      RELOC t54 (0x460+sect61442)
+*    6  V:3C010000 R:3C018013  lui        $at, %hi(_padFuncChkEng)      RELOC t52 _padFuncChkEng
+*    7  V:AC220000 R:AC227C94  sw         $v0, %lo(_padFuncChkEng)($at) RELOC t54 _padFuncChkEng
+*    8  V:3C020000 R:3C028011  lui        $v0, %hi(_dirRecvAuto)        RELOC t52 (0x134+sect61442)
+*    9  V:24420134 R:2442A1E4  addiu      $v0, $v0, %lo(_dirRecvAuto)   RELOC t54 (0x134+sect61442)
+*   10  V:3C010000 R:3C018013  lui        $at, %hi(_padFuncRecvAuto)    RELOC t52 _padFuncRecvAuto
+    11  V:03E00008 R:03E00008  jr         $ra                           
+*   12  V:AC220000 R:AC227C98  sw        $v0, %lo(_padFuncRecvAuto)($at RELOC t54 _padFuncRecvAuto

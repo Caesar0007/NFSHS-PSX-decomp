@@ -1,0 +1,27 @@
+{
+ "lane": "src",
+ "objects": 700,
+ "call_relocs": 15779,
+ "undef": 2,
+ "provided": 0,
+ "rows": [
+  {
+   "class": "UNDEF",
+   "obj": "build/src/eaclib/psx/pad.c.o",
+   "sect": ".text",
+   "off": 240,
+   "fn": "PAD_state",
+   "callee": "PAD_convert",
+   "va": null
+  },
+  {
+   "class": "UNDEF",
+   "obj": "build/src/syslib/psx/libcard/INIT.c.o",
+   "sect": ".text",
+   "off": 32,
+   "fn": "gcc2_compiled.",
+   "callee": "ReadInitPadFlag",
+   "va": null
+  }
+ ]
+}

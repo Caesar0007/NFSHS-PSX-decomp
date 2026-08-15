@@ -1,0 +1,3 @@
+  __none__: NO ORACLE
+recon/game/common/r3dcar.cpp: 26/27 PASS
+     12  R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView

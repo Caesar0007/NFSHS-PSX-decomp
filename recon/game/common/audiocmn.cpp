@@ -6,6 +6,12 @@
 #include "../../nfs4_types.h"
 #include "audiocmn_externs.h"
 
+/* w64-a19 LINK FIX: called at :576/:722/:2429/:2472/:2500 but only DEFINED at :2518,
+ * with no prior prototype -> implicit declaration -> the five calls were emitted
+ * UNMANGLED (`AudioCmn_ReverbOff`) and could never resolve to `AudioCmn_ReverbOff__Fv`
+ * defined in this same object.  Prototype hoisted, signature unchanged. */
+void AudioCmn_ReverbOff(void);
+
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
 char *gAudioBasePath[1] __attribute__((section(".bss")));   /* .bss=absolute; oracle never %gp_rel's this symbol */
 
@@ -167,7 +173,7 @@ void CopSpeak_Stop(void);
 void CopSpeak_Cancel(void);
 void CopSpeak_SilenceCop(Car_tObj *car, int playerIndex);
 void AudioMus_StopSong(int fadeticks);
-void systemtask(int taskFlag);
+void systemtask(int taskFlag) asm("systemtask");
 extern "C" int  SNDstopall(void);             /* @0x800E81A8 */
 extern "C" void SPCH_ClearEventQueue(void);   /* @0x800E74E0 */
 /* additional helpers for AudioCmn_Reset (gettick/SNDSTRM_setpriority/SNDmemlargestunused

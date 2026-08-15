@@ -5,6 +5,12 @@
 #include "../../nfs4_types.h"
 #include "aispeeds_externs.h"
 
+/* w64-a19 LINK FIX: called at :1229 but only DEFINED at :1235 with no prior
+ * prototype -> cc1plus used an implicit declaration and emitted the call with the
+ * UNMANGLED name `AISpeeds_CalcHumanCurveSpeed`, unresolvable against our own
+ * `AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj`.  Prototype hoisted, signature unchanged. */
+int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj);
+
 extern int AI_elapsedTime;   /* @0x8013C554 (ai.cpp:15) -- AI frame elapsed-time global; used by GetCaravanFactor caravanTimer decrement (H35) */
 
 

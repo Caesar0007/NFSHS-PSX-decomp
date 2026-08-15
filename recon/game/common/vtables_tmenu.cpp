@@ -4,6 +4,19 @@
 #include "../../nfs4_types.h"
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
 
+/* w64-a19 LINK FIX: nfs4_types.h declares three of these overloads with the WRONG
+ * parameter types -- Draw(int) and Draw(int,int,char) -- so the member-pointer casts
+ * below resolved to manglings that NOTHING in the tree defines
+ * (Draw__32tBlankMenuItemGoToMenuNFS4Buttoni, ...iic, Draw__33...LeftRightChoiceiic),
+ * three hard link errors.  The real definitions, in femenudefs.cpp, are the `b` (bool)
+ * forms already named in each slot's @VA comment.  nfs4_types.h and femenudefs.cpp are
+ * user-owned files (AGENT_GUIDE 5), so the slots take the address through an
+ * asm-labelled extern instead: same function, same VA after link, and the data byte is
+ * a relocation either way -- zero byte change. */
+extern "C" void _vt_Draw_BlankGoTo_b()     asm("Draw__32tBlankMenuItemGoToMenuNFS4Buttonb");
+extern "C" void _vt_Draw_BlankGoTo_iib()   asm("Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib");
+extern "C" void _vt_Draw_BlankNFS4LR_iib() asm("Draw__33tBlankMenuItemNFS4LeftRightChoiceiib");
+
 static int _vtdtor_tBlankMenuItemGoToMenuNFS4Button(tBlankMenuItemGoToMenuNFS4Button *p){ p->~tBlankMenuItemGoToMenuNFS4Button(); return 0; }
 static int _vtdtor_tBlankMenuItemNFS4LeftRightChoice(tBlankMenuItemNFS4LeftRightChoice *p){ p->~tBlankMenuItemNFS4LeftRightChoice(); return 0; }
 static int _vtdtor_tMemoryCardMenuItem(tMemoryCardMenuItem *p){ p->~tMemoryCardMenuItem(); return 0; }
@@ -38,8 +51,8 @@ __vtbl_ptr_type tBlankMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x800114d8
   {0, 0, (int (*)(...))&_vtdtor_tBlankMenuItemGoToMenuNFS4Button},    /* @0x800114e0  ~tBlankMenuItemGoToMenuNFS4Button */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x800114e8  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x800114f0  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
-  {0, 0, (int (*)(...))(void (tBlankMenuItemGoToMenuNFS4Button::*)(int))&tBlankMenuItemGoToMenuNFS4Button::Draw},    /* @0x800114f8  Draw__32tBlankMenuItemGoToMenuNFS4Buttonb [overload by-arity; recon types differ from SYM] */
-  {0, 0, (int (*)(...))(void (tBlankMenuItemGoToMenuNFS4Button::*)(int, int, char))&tBlankMenuItemGoToMenuNFS4Button::Draw},    /* @0x80011500  Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib [overload by-arity; recon types differ from SYM] */
+  {0, 0, (int (*)(...))&_vt_Draw_BlankGoTo_b},    /* @0x800114f8  Draw__32tBlankMenuItemGoToMenuNFS4Buttonb [overload by-arity; recon types differ from SYM] */
+  {0, 0, (int (*)(...))&_vt_Draw_BlankGoTo_iib},    /* @0x80011500  Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib [overload by-arity; recon types differ from SYM] */
   {0, 0, (int (*)(...))(int (tMenuItem::*)(int, int, int, bool))&tMenuItem::Draw},    /* @0x80011508  Draw__9tMenuItemiiib [overload] */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuNFS4Button::TransitionOff},    /* @0x80011510  TransitionOff__27tMenuItemGoToMenuNFS4Button */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuNFS4Button::TransitionOn},    /* @0x80011518  TransitionOn__27tMenuItemGoToMenuNFS4Button */
@@ -52,7 +65,7 @@ __vtbl_ptr_type tBlankMenuItemNFS4LeftRightChoice_vtable[11] = {   /* @0x8001153
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80011540  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80011548  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80011550  Draw__24tMenuItemLeftRightChoiceb */
-  {0, 0, (int (*)(...))&tBlankMenuItemNFS4LeftRightChoice::Draw},    /* @0x80011558  Draw__33tBlankMenuItemNFS4LeftRightChoiceiib */
+  {0, 0, (int (*)(...))&_vt_Draw_BlankNFS4LR_iib},    /* @0x80011558  Draw__33tBlankMenuItemNFS4LeftRightChoiceiib */
   {0, 0, (int (*)(...))(int (tMenuItem::*)(int, int, int, bool))&tMenuItem::Draw},    /* @0x80011560  Draw__9tMenuItemiiib [overload] */
   {0, 0, (int (*)(...))&tMenuItemNFS4LeftRightChoice::TransitionOff},    /* @0x80011568  TransitionOff__28tMenuItemNFS4LeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItemNFS4LeftRightChoice::TransitionOn},    /* @0x80011570  TransitionOn__28tMenuItemNFS4LeftRightChoice */

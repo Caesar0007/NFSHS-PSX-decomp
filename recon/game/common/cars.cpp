@@ -5,6 +5,18 @@
 #include "../../nfs4_types.h"
 #include "cars_externs.h"
 
+/* w64-a19 LINK FIX: these four cross-module helpers + the file-local Cars_SortCars were
+ * used BEFORE any declaration was in scope (the prototypes sat below their call sites at
+ * old lines 2304-2308), so cc1plus fell back to an IMPLICIT declaration and emitted the
+ * calls with UNMANGLED C names -- 5 unresolvable symbols at link (`Cars_SortCars` was even
+ * undefined in the very object that defines `Cars_SortCars__Fv`).  Declaring them here,
+ * ahead of every use, is the fix; the prototypes are unchanged. */
+void AIWorld_CalculateLaneInfo(Car_tObj *carObj);
+int  AIPhysics_UseCoolPhysics(Car_tObj *carObj);
+void AISpeeds_MaintainLeaderBoard(void);
+void DrawW_DoObjectAnimations(void);
+void Cars_SortCars(void);
+
 #define WRAP_SLICE(a,b) (((a) >= 0) \
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
     : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
@@ -2301,11 +2313,6 @@ void Cars_CheckForAccidentScenes(void)
   return;
 }
 
-/* externs for cross-module helpers (not already in cars.cpp scope) */
-void AIWorld_CalculateLaneInfo(Car_tObj *carObj);
-int  AIPhysics_UseCoolPhysics(Car_tObj *carObj);
-void AISpeeds_MaintainLeaderBoard(void);
-void DrawW_DoObjectAnimations(void);
 
 /* ---- Cars_SortCars__Fv  [@0x8008b1f8] ---- RECONSTRUCTED 2026-06-13 (Ghidra @NFS4.EXE.c:65838).
  *  Skipped from the cars.obj pass. Two bubble-sorts: Cars_gSortedList ascending by

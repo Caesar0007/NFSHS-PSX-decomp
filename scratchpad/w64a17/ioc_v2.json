@@ -1,0 +1,20 @@
+{
+ "file": "recon/frontend/common/front.cpp",
+ "fn": "Front_InitOpponentCars__FR9tFEStream",
+ "variants": [
+  {"name": "K1 numOpponents via explicit if/else",
+   "edits": [["    numOpponents = 5;\n    if (frontEnd.raceType == '\\x02') {\n      /* MATCH: an `int` temp forces the WORD load of fNumRacers (retail `lw`); assigning\n         the expression straight into the `short` lets gcc narrow it to `lhu`. */\n      int numRacers = tournamentManager.fNumRacers;\n      numOpponents = numRacers + -1;\n    }\n",
+              "    if (frontEnd.raceType == '\\x02') {\n      /* MATCH: an `int` temp forces the WORD load of fNumRacers (retail `lw`); assigning\n         the expression straight into the `short` lets gcc narrow it to `lhu`. */\n      int numRacers = tournamentManager.fNumRacers;\n      numOpponents = numRacers + -1;\n    }\n    else {\n      numOpponents = 5;\n    }\n"]]},
+  {"name": "K2 guard read as (byte)",
+   "edits": [["    numOpponents = 5;\n    if (frontEnd.raceType == '\\x02') {\n      /* MATCH",
+              "    numOpponents = 5;\n    if ((byte)frontEnd.raceType == 2) {\n      /* MATCH"]]},
+  {"name": "K3 in-loop tier test first",
+   "edits": [["      if ((frontEnd.raceType == '\\x02') && (frontEnd.tier == '\\0')) {\n",
+              "      if ((frontEnd.tier == '\\0') && (frontEnd.raceType == '\\x02')) {\n"]]},
+  {"name": "K4 explicit &frontEnd pointer for the loop reads",
+   "edits": [["      if ((frontEnd.raceType == '\\x02') && (frontEnd.tier == '\\0')) {\n        void *pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);\n        if ((pvVar5 != (void *)0x0) && (frontEnd.opponentUpgrades != '\\0')) {\n",
+              "      if ((fe->raceType == '\\x02') && (fe->tier == '\\0')) {\n        void *pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);\n        if ((pvVar5 != (void *)0x0) && (fe->opponentUpgrades != '\\0')) {\n"],
+             ["    i = 0;\n    if (0 < numOpponents) {\n",
+              "    tfrontEnd *fe = &frontEnd;\n    i = 0;\n    if (0 < numOpponents) {\n"]]}
+ ]
+}

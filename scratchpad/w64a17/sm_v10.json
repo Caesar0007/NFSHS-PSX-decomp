@@ -1,0 +1,24 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {
+   "name": "AA flat && guard, plain else-if",
+   "edits": [
+    [
+     "  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else {\n    /* MATCH W64-A17 (1 -> PASS 822/822): the ON-DEMAND %hi UN-SHARER.  Both\n       arms materialise `%hi(FEApp)`; reorg slots the then-arm's copy into the\n       `bne` delay slot, which executes on BOTH paths, so cse2\n       (-fcse-follow-jumps) lets the else arm reuse it and we came out ONE\n       `lui v0,0` short.  Retail keeps two distinct pseudos.  A zero-insn void\n       fence at the head of the else arm is the only device that un-shares them\n       without disturbing the compare's operand/register roles.\n       FALSIFIED, all re-gated from the 1-diff basin: Yoda in the else arm\n       10 @822 (adds the lui but reverses `bne v1,v0` and the three loads),\n       Yoda in the then arm 11, Yoda in both 21, arms swapped (`!=` first) 19,\n       a block-local for the menuCredits address in the else arm 8 @822 / in\n       both arms 17, a block-local for `FEApp` in the else arm / the then arm /\n       both, a `tMenu **cm = FEApp->fCurrentMenu` local, and an explicit nested\n       `else { if ... }` -- all exactly 1 (neutral). */\n    __asm__(\"\" : : \"i\"(0));\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n",
+     "  if ((this->fState == kScreenMain_Credits) &&\n     (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits)) {\n    this->SetState(kScreenMain_StaticImage);\n  }\n  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n"
+    ]
+   ]
+  },
+  {
+   "name": "AB flat && guard + else-arm fence",
+   "edits": [
+    [
+     "  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else {\n    /* MATCH W64-A17 (1 -> PASS 822/822): the ON-DEMAND %hi UN-SHARER.  Both\n       arms materialise `%hi(FEApp)`; reorg slots the then-arm's copy into the\n       `bne` delay slot, which executes on BOTH paths, so cse2\n       (-fcse-follow-jumps) lets the else arm reuse it and we came out ONE\n       `lui v0,0` short.  Retail keeps two distinct pseudos.  A zero-insn void\n       fence at the head of the else arm is the only device that un-shares them\n       without disturbing the compare's operand/register roles.\n       FALSIFIED, all re-gated from the 1-diff basin: Yoda in the else arm\n       10 @822 (adds the lui but reverses `bne v1,v0` and the three loads),\n       Yoda in the then arm 11, Yoda in both 21, arms swapped (`!=` first) 19,\n       a block-local for the menuCredits address in the else arm 8 @822 / in\n       both arms 17, a block-local for `FEApp` in the else arm / the then arm /\n       both, a `tMenu **cm = FEApp->fCurrentMenu` local, and an explicit nested\n       `else { if ... }` -- all exactly 1 (neutral). */\n    __asm__(\"\" : : \"i\"(0));\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n",
+     "  if ((this->fState == kScreenMain_Credits) &&\n     (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits)) {\n    this->SetState(kScreenMain_StaticImage);\n  }\n  else {\n    __asm__(\"\" : : \"i\"(0));\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"
+    ]
+   ]
+  }
+ ]
+}

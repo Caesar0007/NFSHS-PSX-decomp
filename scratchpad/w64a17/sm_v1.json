@@ -1,0 +1,20 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {"name": "N1 tvOrder bound carried by deltaTicks (SYM ULONG $s1)",
+   "edits": [["  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < iVar10) {\n",
+              "  deltaTicks = (u_long)((int)((ticks - this->fStartTicks) * 0x1000) >> 0x10);\n  j = 0;\n  if (-1 < (int)deltaTicks) {\n"],
+             ["      if (iVar10 < j) break;\n", "      if ((int)deltaTicks < j) break;\n"]]},
+  {"name": "N2 tvOrder bound carried by x (SYM SHORT $s1)",
+   "edits": [["  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < iVar10) {\n",
+              "  x = (short)((int)((ticks - this->fStartTicks) * 0x1000) >> 0x10);\n  j = 0;\n  if (-1 < x) {\n"],
+             ["      if (iVar10 < j) break;\n", "      if (x < j) break;\n"]]},
+  {"name": "N3 j declared int",
+   "edits": [["  short i;\n  short j;\n", "  short i;\n  int j;\n"]]},
+  {"name": "N4 tvOrder bound inlined (no local at all)",
+   "edits": [["  iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;\n  j = 0;\n  if (-1 < iVar10) {\n",
+              "  j = 0;\n  if (-1 < (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10) {\n"],
+             ["      if (iVar10 < j) break;\n", "      if ((int)((ticks - this->fStartTicks) * 0x1000) >> 0x10 < j) break;\n"]]}
+ ]
+}

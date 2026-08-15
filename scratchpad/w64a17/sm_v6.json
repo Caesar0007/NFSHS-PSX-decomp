@@ -1,0 +1,23 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {"name": "U1 else-arm block-local for the credits address",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  else {\n    tMenu *cred = (tMenu *)&menuDefs->menuCredits;\n    if (FEApp->fCurrentMenu[0] == cred) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]},
+  {"name": "U2 both arms block-local for the credits address",
+   "edits": [["  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  if (this->fState == kScreenMain_Credits) {\n    tMenu *cred = (tMenu *)&menuDefs->menuCredits;\n    if (FEApp->fCurrentMenu[0] != cred) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else {\n    tMenu *cred = (tMenu *)&menuDefs->menuCredits;\n    if (FEApp->fCurrentMenu[0] == cred) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]},
+  {"name": "U3 Yoda in the THEN arm only",
+   "edits": [["    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n",
+              "    if ((tMenu *)&menuDefs->menuCredits != FEApp->fCurrentMenu[0]) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n"]]},
+  {"name": "U4 Yoda in BOTH arms",
+   "edits": [["    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n",
+              "    if ((tMenu *)&menuDefs->menuCredits != FEApp->fCurrentMenu[0]) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n"],
+             ["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n",
+              "  else if ((tMenu *)&menuDefs->menuCredits == FEApp->fCurrentMenu[0]) {\n"]]},
+  {"name": "U5 else-arm menuDefs pointer local",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  else {\n    tMenuDefs *md = menuDefs;\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&md->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]}
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "file": "recon/frontend/common/front.cpp",
+ "fn": "Front_InitOpponentCars__FR9tFEStream",
+ "variants": [
+  {"name": "H1 drop the carLineup alias in the oppNumber==1 arm",
+   "edits": [["    carLineup = streamData->carLineup;\n    carManager.GetStockCar(", "    carManager.GetStockCar("],
+             ["    carLineup[1].isPlayerCar = 0;\n    carLineup[1].personality = kPersonalityNemesis;\n    carLineup[1].carModel = carModel;\n    carLineup[1].carColor = carColor;\n    carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;\n    carLineup[1].position = '\\x01';\n    carLineup[0].position = (char)streamData->numOpponents + '\\x01';\n",
+              "    streamData->carLineup[1].isPlayerCar = 0;\n    streamData->carLineup[1].personality = kPersonalityNemesis;\n    streamData->carLineup[1].carModel = carModel;\n    streamData->carLineup[1].carColor = carColor;\n    streamData->carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;\n    streamData->carLineup[1].position = '\\x01';\n    streamData->carLineup[0].position = (char)streamData->numOpponents + '\\x01';\n"]]},
+  {"name": "H2 H1 + carLineup declared inside arm 1",
+   "edits": [["    carLineup = streamData->carLineup;\n    carManager.GetStockCar(", "    carManager.GetStockCar("],
+             ["    carLineup[1].isPlayerCar = 0;\n    carLineup[1].personality = kPersonalityNemesis;\n    carLineup[1].carModel = carModel;\n    carLineup[1].carColor = carColor;\n    carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;\n    carLineup[1].position = '\\x01';\n    carLineup[0].position = (char)streamData->numOpponents + '\\x01';\n",
+              "    streamData->carLineup[1].isPlayerCar = 0;\n    streamData->carLineup[1].personality = kPersonalityNemesis;\n    streamData->carLineup[1].carModel = carModel;\n    streamData->carLineup[1].carColor = carColor;\n    streamData->carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;\n    streamData->carLineup[1].position = '\\x01';\n    streamData->carLineup[0].position = (char)streamData->numOpponents + '\\x01';\n"],
+             ["  short i;\n  tCarLineup *carLineup;\n  short numOpponents;\n", "  short i;\n  short numOpponents;\n"],
+             ["    tTourneyInfo *tourn;\n", "    tTourneyInfo *tourn;\n    tCarLineup *carLineup;\n"]]}
+ ]
+}

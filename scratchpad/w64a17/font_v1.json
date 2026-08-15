@@ -1,0 +1,26 @@
+{
+ "file": "recon/frontend/psx/psxfront.cpp",
+ "fn": "FontUpsideDownBlit__FiiPviiP12charactertbli",
+ "variants": [
+  {"name": "F1 void fence BETWEEN link halves",
+   "edits": [["  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n",
+              "  ((PSXFront_PTag *)prim)->addr = pal->addr;\n  __asm__(\"\" : : \"i\"(0));\n  pal->addr = (uint)prim;\n"]]},
+  {"name": "F2 void fence AFTER link",
+   "edits": [["  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = 9,\n",
+              "  pal->addr = (uint)prim;\n  __asm__(\"\" : : \"i\"(0));\n  ((PSXFront_PTag *)prim)->len = 9,\n"]]},
+  {"name": "F3 void fence BEFORE tint stmt",
+   "edits": [["  *(u_long *)&prim->r0 = font_tint;\n",
+              "  __asm__(\"\" : : \"i\"(0));\n  *(u_long *)&prim->r0 = font_tint;\n"]]},
+  {"name": "F4 tint store as COMPONENT_REF (alias dial)",
+   "edits": [["  *(u_long *)&prim->r0 = font_tint;\n",
+              "  ((PSXFront_TintW *)&prim->r0)->w = font_tint;\n"],
+             ["typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;\n",
+              "typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;\ntypedef struct { u_long w; } PSXFront_TintW;\n"]]},
+  {"name": "F5 F1+F2 both fences",
+   "edits": [["  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = 9,\n",
+              "  ((PSXFront_PTag *)prim)->addr = pal->addr;\n  __asm__(\"\" : : \"i\"(0));\n  pal->addr = (uint)prim;\n  __asm__(\"\" : : \"i\"(0));\n  ((PSXFront_PTag *)prim)->len = 9,\n"]]},
+  {"name": "F6 tint store AFTER link (control, expect 112)",
+   "edits": [["  *(u_long *)&prim->r0 = font_tint;\n  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n",
+              "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  *(u_long *)&prim->r0 = font_tint;\n"]]}
+ ]
+}

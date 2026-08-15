@@ -1,0 +1,32 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {"name": "R1 Q5 with vy at FN scope",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  vy = 0;\n  if ((this->fFrame & 1U) == 0) {\n    vy = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,vy)"],
+             ["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    vy = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      vy = (0x280 < ticks - this->fStartTicks);\n    }\n    if (vy && (this->fState == kScreenMain_StaticImage)) {\n"],
+             ["  int iVar10;\n", "  int iVar10;\n  int vy;\n"]]},
+  {"name": "R2 Q5 + Yoda-flipped elapsed compare",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  int vy = 0;\n  if ((this->fFrame & 1U) == 0) {\n    vy = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,vy)"],
+             ["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    vy = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      vy = (ticks - this->fStartTicks > 0x280);\n    }\n    if (vy && (this->fState == kScreenMain_StaticImage)) {\n"]]},
+  {"name": "R3 Q5 + elapsed as its own named temp",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  int vy = 0;\n  if ((this->fFrame & 1U) == 0) {\n    vy = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,vy)"],
+             ["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    vy = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      u_long el = ticks - this->fStartTicks;\n      vy = (0x280 < el);\n    }\n    if (vy && (this->fState == kScreenMain_StaticImage)) {\n"]]},
+  {"name": "R4 fresh int at the FLAG site only",
+   "edits": [["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    int vy = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      vy = (0x280 < ticks - this->fStartTicks);\n    }\n    if (vy && (this->fState == kScreenMain_StaticImage)) {\n"]]},
+  {"name": "R5 fresh int at the ARG site only",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  int vy = 0;\n  if ((this->fFrame & 1U) == 0) {\n    vy = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,vy)"]]}
+ ]
+}

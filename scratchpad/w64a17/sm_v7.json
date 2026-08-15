@@ -1,0 +1,18 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {"name": "V1 void fence at the head of the else arm",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  else {\n    __asm__(\"\" : : \"i\"(0));\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]},
+  {"name": "V2 FEApp local in the else arm only",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  else {\n    tFEApplication *app = FEApp;\n    if (app->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]},
+  {"name": "V3 FEApp local in the then arm only",
+   "edits": [["  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n",
+              "  if (this->fState == kScreenMain_Credits) {\n    tFEApplication *app = FEApp;\n    if (app->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n"]]},
+  {"name": "V4 fCurrentMenu[0] via an explicit menu-list pointer in the else arm",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  else {\n    tMenu **cm = FEApp->fCurrentMenu;\n    if (cm[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]}
+ ]
+}

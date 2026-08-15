@@ -1,0 +1,21 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {"name": "T1 Yoda in the else arm",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n",
+              "  else if ((tMenu *)&menuDefs->menuCredits == FEApp->fCurrentMenu[0]) {\n"]]},
+  {"name": "T2 arms swapped (== first)",
+   "edits": [["  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  if (this->fState != kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n  else if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_StaticImage);\n  }\n"]]},
+  {"name": "T3 per-arm block-local for fCurrentMenu[0]",
+   "edits": [["  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  if (this->fState == kScreenMain_Credits) {\n    tMenu *m0 = FEApp->fCurrentMenu[0];\n    if (m0 != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else {\n    tMenu *m1 = FEApp->fCurrentMenu[0];\n    if (m1 == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]},
+  {"name": "T4 else written as a nested block",
+   "edits": [["  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  else {\n    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]},
+  {"name": "T5 per-arm block-local for the FEApp pointer",
+   "edits": [["  if (this->fState == kScreenMain_Credits) {\n    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n    this->SetState(kScreenMain_Credits);\n  }\n",
+              "  if (this->fState == kScreenMain_Credits) {\n    tFEApplication *app = FEApp;\n    if (app->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_StaticImage);\n    }\n  }\n  else {\n    tFEApplication *app = FEApp;\n    if (app->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {\n      this->SetState(kScreenMain_Credits);\n    }\n  }\n"]]}
+ ]
+}

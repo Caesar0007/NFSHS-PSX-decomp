@@ -1,0 +1,15 @@
+{
+ "file": "recon/frontend/common/statchk.cpp",
+ "fn": "StatChk_IsTopTime__FP10Car_tStatss",
+ "variants": [
+  {
+   "name": "BA flat 3-way else-if chain",
+   "edits": [
+    [
+     "  if (LASTPLACE[0] != 0) {\n    if (LASTPLACE[1] != 0) {\n      if (!(dummyCars->finalTotalTime > dummyCars[1].finalTotalTime)) {\n        TOPLIST[1] = 0;\n      }\n      else {\n        TOPLIST[0] = 0;\n      }\n    }\n    else if (TOPLIST[1] != 0) {\n      TOPLIST[0] = 0;\n    }\n  }\n  else if ((LASTPLACE[1] != 0) && (TOPLIST[0] != 0)) {\n    TOPLIST[1] = 0;\n  }\n",
+     "  if ((LASTPLACE[0] != 0) && (LASTPLACE[1] != 0)) {\n    if (!(dummyCars->finalTotalTime > dummyCars[1].finalTotalTime)) {\n      TOPLIST[1] = 0;\n    }\n    else {\n      TOPLIST[0] = 0;\n    }\n  }\n  else if ((LASTPLACE[0] != 0) && (TOPLIST[1] != 0)) {\n    TOPLIST[0] = 0;\n  }\n  else if ((LASTPLACE[1] != 0) && (TOPLIST[0] != 0)) {\n    TOPLIST[1] = 0;\n  }\n"
+    ]
+   ]
+  }
+ ]
+}

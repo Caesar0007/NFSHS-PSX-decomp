@@ -1,0 +1,24 @@
+{
+ "file": "recon/frontend/psx/psxfront.cpp",
+ "fn": "DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii",
+ "variants": [
+  {"name": "W1 void fence after the read-back",
+   "edits": [["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n",
+              "    prim[0x19] = prim[0xd];\n    __asm__(\"\" : : \"i\"(0));\n    prim[0x24] = u;\n"]]},
+  {"name": "W2 0x30 before 0x24",
+   "edits": [["    prim[0x24] = u;\n    prim[0x30] = u + w1;\n",
+              "    prim[0x30] = u + w1;\n    prim[0x24] = u;\n"]]},
+  {"name": "W3 0x24/0x30 after the 0x25/0x31 pair",
+   "edits": [["    prim[0x24] = u;\n    prim[0x30] = u + w1;\n    prim[0x25] = vh + vb;\n    prim[0x31] = vh + vb;\n",
+              "    prim[0x25] = vh + vb;\n    prim[0x31] = vh + vb;\n    prim[0x24] = u;\n    prim[0x30] = u + w1;\n"]]},
+  {"name": "W4 read-back moved after 0x24",
+   "edits": [["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n",
+              "    prim[0x24] = u;\n    prim[0x19] = prim[0xd];\n"]]},
+  {"name": "W5 fence between 0x18 and the read-back",
+   "edits": [["    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n",
+              "    __asm__(\"\" : : \"i\"(0));\n    prim[0x19] = prim[0xd];\n    prim[0x24] = u;\n"]]},
+  {"name": "W6 0x30 read-back from 0x18 too",
+   "edits": [["    prim[0x24] = u;\n    prim[0x30] = u + w1;\n",
+              "    prim[0x24] = prim[0xc];\n    prim[0x30] = prim[0x18];\n"]]}
+ ]
+}

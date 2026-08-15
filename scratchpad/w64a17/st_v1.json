@@ -1,0 +1,25 @@
+{
+ "file": "recon/frontend/common/statchk.cpp",
+ "fn": "StatChk_SaveTopTime__FP10Car_tStatss",
+ "variants": [
+  {"name": "S1 fence-2 drop the INERT uBulkSz operand",
+   "edits": [["            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(uBulkSz));\n",
+              "            __asm__(\"\" : : \"r\"(uBulkUnit));\n"]]},
+  {"name": "S2 drop fence-2 entirely",
+   "edits": [["            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(uBulkSz));\n", ""]]},
+  {"name": "S3 fence-1of-bulk identity -> read-only (kill the site-2 copy)",
+   "edits": [["            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n",
+              "            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(carInfo));\n"]]},
+  {"name": "S4 site2 read-only + fence2 reduced",
+   "edits": [["            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n",
+              "            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(carInfo));\n"],
+             ["            __asm__(\"\" : : \"r\"(uBulkUnit), \"r\"(uBulkSz));\n",
+              "            __asm__(\"\" : : \"r\"(uBulkUnit));\n"]]},
+  {"name": "S5 site3 fence-3 gains a uCopySz read operand",
+   "edits": [["            __asm__(\"\" : \"=r\"(uCopySz) : \"0\"(uCopySz));\n",
+              "            __asm__(\"\" : \"=r\"(uCopySz) : \"0\"(uCopySz), \"r\"(uCopySz));\n"]]},
+  {"name": "S6 site3 fence-3 gains a copyDst read operand",
+   "edits": [["            __asm__(\"\" : \"=r\"(uCopySz) : \"0\"(uCopySz));\n",
+              "            __asm__(\"\" : \"=r\"(uCopySz) : \"0\"(uCopySz), \"r\"(copyDst));\n"]]}
+ ]
+}

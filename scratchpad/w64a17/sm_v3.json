@@ -1,0 +1,31 @@
+{
+ "file": "recon/frontend/common/screenmain.cpp",
+ "fn": "DrawBackground__11tScreenMain",
+ "variants": [
+  {"name": "Q1 shapeY at the ARG site",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  shapeY = 0;\n  if ((this->fFrame & 1U) == 0) {\n    shapeY = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,shapeY)"]]},
+  {"name": "Q2 shapeY at the FLAG site",
+   "edits": [["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    shapeY = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      shapeY = (0x280 < ticks - this->fStartTicks);\n    }\n    if (shapeY && (this->fState == kScreenMain_StaticImage)) {\n"]]},
+  {"name": "Q3 shapeY at BOTH video sites",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  shapeY = 0;\n  if ((this->fFrame & 1U) == 0) {\n    shapeY = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,shapeY)"],
+             ["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    shapeY = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      shapeY = (0x280 < ticks - this->fStartTicks);\n    }\n    if (shapeY && (this->fState == kScreenMain_StaticImage)) {\n"]]},
+  {"name": "Q4 TextCol at ARG, shapeY at FLAG",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  TextCol = 0;\n  if ((this->fFrame & 1U) == 0) {\n    TextCol = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,TextCol)"],
+             ["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    shapeY = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      shapeY = (0x280 < ticks - this->fStartTicks);\n    }\n    if (shapeY && (this->fState == kScreenMain_StaticImage)) {\n"]]},
+  {"name": "Q5 fresh block-local int at BOTH video sites",
+   "edits": [["  j = 0;\n  if ((this->fFrame & 1U) == 0) {\n    j = 0x50;\n  }\n",
+              "  int vy = 0;\n  if ((this->fFrame & 1U) == 0) {\n    vy = 0x50;\n  }\n"],
+             ["VIDEO_updateframexy(this->hVideo,0x200,j)", "VIDEO_updateframexy(this->hVideo,0x200,vy)"],
+             ["    j = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      j = (0x280 < ticks - this->fStartTicks);\n    }\n    if (j && (this->fState == kScreenMain_StaticImage)) {\n",
+              "    vy = 0;\n    iVar7 = VIDEO_state(this->hVideo);\n    if (iVar7 != 1) {\n      vy = (0x280 < ticks - this->fStartTicks);\n    }\n    if (vy && (this->fState == kScreenMain_StaticImage)) {\n"]]}
+ ]
+}

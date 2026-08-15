@@ -1,0 +1,24 @@
+{
+ "file": "recon/frontend/psx/psxfront.cpp",
+ "fn": "FontUpsideDownBlit__FiiPviiP12charactertbli",
+ "variants": [
+  {"name": "G1 REMOVE the x0/y0 fence (control)",
+   "edits": [["  prim->x0 = x;\n  __asm__(\"\" : : \"i\"(0));\n", "  prim->x0 = x;\n"]]},
+  {"name": "G2 MOVE the only fence to between link halves",
+   "edits": [["  prim->x0 = x;\n  __asm__(\"\" : : \"i\"(0));\n", "  prim->x0 = x;\n"],
+             ["  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n",
+              "  ((PSXFront_PTag *)prim)->addr = pal->addr;\n  __asm__(\"\" : : \"i\"(0));\n  pal->addr = (uint)prim;\n"]]},
+  {"name": "G3 MOVE the only fence to after link",
+   "edits": [["  prim->x0 = x;\n  __asm__(\"\" : : \"i\"(0));\n", "  prim->x0 = x;\n"],
+             ["  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = 9,\n",
+              "  pal->addr = (uint)prim;\n  __asm__(\"\" : : \"i\"(0));\n  ((PSXFront_PTag *)prim)->len = 9,\n"]]},
+  {"name": "G4 tint-after-link + alias-dial store",
+   "edits": [["  *(u_long *)&prim->r0 = font_tint;\n  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n",
+              "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  ((PSXFront_TintW *)&prim->r0)->w = font_tint;\n"],
+             ["typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;\n",
+              "typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;\ntypedef struct { u_long w; } PSXFront_TintW;\n"]]},
+  {"name": "G5 tint-after-link + len/code before it",
+   "edits": [["  *(u_long *)&prim->r0 = font_tint;\n  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = 9,\n  prim->code = 0x2c;\n",
+              "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = 9,\n  *(u_long *)&prim->r0 = font_tint;\n  prim->code = 0x2c;\n"]]}
+ ]
+}

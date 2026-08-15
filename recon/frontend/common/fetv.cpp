@@ -114,9 +114,22 @@ void DrawTVLines(tTVConfig &tv)
        Writing that as `*packetPtrSlot = (u_char *)texture + 0x28;` etc. does
        close the count (822 -> 820 -> 818 -> 816) but re-basins the allocator
        every time: 0x28-only 121, 0x34-only 175, all-sites 195, all+named mask
-       205, mask+0x28 131.  ALL REVERTED (09K non-monotone).  => the count gap
-       and the s4/s7 tie are one event; the open angle is an allocno-priority
-       dial that buys the reuse WITHOUT re-coloring. */
+        205, mask+0x28 131.  Those isolated probes were reverted at that basin.
+
+   W63 (2026-08-15): the paired allocator route reaches 77 diffs (822/815).
+   Scope the scratchpad slot per rendering arm; reuse the loaded primitive for
+   three pointer bumps but deliberately retain the first reflection's reload.
+   Price the saved-register handout with empty read-only fences: first-arm
+   rgbMask +2 refs, second-arm rgb/tag masks +1 each, and videoX +2 refs at its
+   final use.  This yields retail's {rgbMask=s4, videoX=s6, slot=s7} rotation
+   without the direct-reflection route's fadeTop a0/a1 swap.  Staging the first
+   palette tag in each arm removes two reload/schedule mismatches.  Finally,
+   two statement-local u_char pairs preserve the byte-load types while making
+   the noise shapey load precede height, closing both repeated load-order
+   swaps.  Controls: direct first-reflection reuse = 120; staging that tag =
+   135; staging the second reflection tag = 144; all reverted.  Remaining 77
+   is concentrated in first-reflection packet scheduling and the second-arm
+   reflection color/packet schedule plus two tv.v/tv.vh load-order swaps. */
 
 void DrawTV(tTVConfig &tv)
 
@@ -189,17 +202,20 @@ void DrawTV(tTVConfig &tv)
     DrawTVLines(tv);
   }
   if ((tv.flags & 0x10) == 0) {
-    u_char **packetPtrSlot = (u_char **)0x1f800004;
-
     if (tv.state != tv_StateOn) {
+      u_char **packetPtrSlot = (u_char **)0x1f800004;
       u_int *palette;
+      u_int paletteTag;
+      u_int rgbMask = 0xffffff;
+      __asm__("" : : "r"(rgbMask), "r"(rgbMask));
 
       texture = (POLY_FT4 *)*packetPtrSlot;
       palette = (u_int *)Render_gPalettePtr;
       *(u_int *)texture =
-           *(u_int *)texture & 0xff000000 | *palette & 0xffffff;
-      *packetPtrSlot = *packetPtrSlot + 0x28;
-      *palette = *palette & 0xff000000 | (u_int)texture & 0xffffff;
+           *(u_int *)texture & 0xff000000 | *palette & rgbMask;
+      paletteTag = *palette;
+      *packetPtrSlot = (u_char *)texture + 0x28;
+      *palette = paletteTag & 0xff000000 | (u_int)texture & rgbMask;
       *(u_int *)&texture->r0 =
            (0x40 - (bright >> 1)) * 0x10000 |
            (0x40 - (bright >> 1)) * 0x100 |
@@ -224,11 +240,23 @@ void DrawTV(tTVConfig &tv)
       texture->v1 = noise->shapey;
       texture->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                     (int)noise->depth;
-      texture->v2 = noise->height + noise->shapey;
+      {
+        u_char noiseHeight;
+        u_char noiseShapeY;
+        noiseShapeY = noise->shapey;
+        noiseHeight = noise->height;
+        texture->v2 = noiseHeight + noiseShapeY;
+      }
       texture->u3 = noise->width +
                     ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                     (int)noise->depth;
-      texture->v3 = noise->height + noise->shapey;
+      {
+        u_char noiseHeight;
+        u_char noiseShapeY;
+        noiseShapeY = noise->shapey;
+        noiseHeight = noise->height;
+        texture->v3 = noiseHeight + noiseShapeY;
+      }
       texture->tpage =
            ((u_char)(*((u_char *)noise + 9)) & 3) << 7 |
            ((short)(noise->shapey & 0x100U) >> 4 | 0x60U) |
@@ -255,10 +283,10 @@ void DrawTV(tTVConfig &tv)
         }
         reflection = (POLY_GT4 *)*packetPtrSlot;
         *(u_int *)*packetPtrSlot =
-             *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
+             *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & rgbMask;
         *packetPtrSlot = *packetPtrSlot + 0x34;
         *(u_int *)Render_gPalettePtr =
-             *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)reflection & 0xffffff;
+             *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)reflection & rgbMask;
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
@@ -301,12 +329,19 @@ void DrawTV(tTVConfig &tv)
       }
     }
     if (tv.state != tv_StateOff) {
+      u_char **packetPtrSlot = (u_char **)0x1f800004;
+      u_int paletteTag;
+      u_int rgbMask = 0xffffff;
+      u_int tagMask = 0xff000000;
+      __asm__("" : : "r"(rgbMask), "r"(tagMask));
+
       texture = (POLY_FT4 *)*packetPtrSlot;
       *(u_int *)*packetPtrSlot =
-           *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-      *packetPtrSlot = *packetPtrSlot + 0x28;
+           *(u_int *)*packetPtrSlot & tagMask | *(u_int *)Render_gPalettePtr & rgbMask;
+      paletteTag = *(u_int *)Render_gPalettePtr;
+      *packetPtrSlot = (u_char *)texture + 0x28;
       *(u_int *)Render_gPalettePtr =
-           *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
+           paletteTag & tagMask | (u_int)texture & rgbMask;
       *(u_int *)&texture->r0 = tint;
       SetPolyFT4(texture);
       SetSemiTrans(texture,0);
@@ -348,10 +383,10 @@ void DrawTV(tTVConfig &tv)
         }
         texture = (POLY_FT4 *)*packetPtrSlot;
         *(u_int *)*packetPtrSlot =
-             *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & 0xffffff;
-        *packetPtrSlot = *packetPtrSlot + 0x34;
+             *(u_int *)*packetPtrSlot & tagMask | *(u_int *)Render_gPalettePtr & rgbMask;
+        *packetPtrSlot = (u_char *)texture + 0x34;
         *(u_int *)Render_gPalettePtr =
-             *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)texture & 0xffffff;
+             *(u_int *)Render_gPalettePtr & tagMask | (u_int)texture & rgbMask;
         ((u_char *)texture)[3] = 0xc;
         *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
@@ -369,6 +404,7 @@ void DrawTV(tTVConfig &tv)
         ((POLY_GT4 *)texture)->x2 = videoX;
         ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
         ((POLY_GT4 *)texture)->x3 = videoX + videoWidth;
+        __asm__("" : : "r"(videoX), "r"(videoX));
         ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
         ((POLY_GT4 *)texture)->u0 = tv.u;
         ((POLY_GT4 *)texture)->v0 = tv.v - 1;

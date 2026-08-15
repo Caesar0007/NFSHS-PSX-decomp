@@ -378,6 +378,22 @@ void tScreenMain::DrawVideoLines()
    unsigned-short VIDEO y cast removes one of its two sign-extension ops.
    Remaining large islands are the SLD-confirmed dot-grid/TV-order loop CFGs
    and warning-fade/animation local-allocation order. */
+/* W61-A17 (base 115, unchanged) -- census + falsifications.  FRAME CENSUS:
+   our sp-offset multiset is IDENTICAL to retail's, so this is NOT the W61-A1
+   declaration-order spill class.  SLD attribution (tools/sldall.py) puts the
+   residual in two places: (a) an a1<->a2 rotation through the tvConfigs[i]
+   flags/tint writes (SLD:524-527), and (b) SLD:530, where retail computes the
+   warning tint ONCE and stores the same word to BOTH 428(s6) and 380(s6)
+   while ours rebuilds it.  FALSIFIED, all EXACTLY neutral at 115 (so the
+   Ghidra-invented one-shot temps the SYM 8c list omits are codegen-free here):
+   inlining iVar5 (the `VIDEO_state(hVideo) == 3` test), iVar7 (the second
+   VIDEO_state test), str (`TextSys_Word(0x272)`), and dropping the dead
+   `iVar7 = 0;` before FeDraw_SetABRMode.  The SYM's real local set is
+   i, j, drawFlags, deltaTicks, animFade, x, y, buffer, shapeX, shapeY plus a
+   block-scope BOOL bAllTVsOn -- our bVar1/sVar3/fade/str/iVar5/uVar6/iVar7 are
+   inventions but are not what costs the rotation.
+   NEXT: an SLD:530-driven rewrite of the warning-fade tint as ONE value stored
+   to both fields.  */
 void tScreenMain::DrawBackground()
 
 {

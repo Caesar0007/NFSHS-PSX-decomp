@@ -103,6 +103,24 @@ DrawHorizontalLine_draw:
   return;
 }
 
+/* MATCH W61-A17 (93 -> 89 diffs, 391/394 insns): COMPLETE-THE-FUNNEL on all
+   three fade clamps.  Retail funnels each clamp's arms through ONE register
+   and stores ONCE (`sh a0,40(sp)`, `sh a3,48(sp)`, `sh a0,104(t0)`); ours
+   stored the destination inside every arm -- the frame census showed sp+40
+   touched 4 times vs retail's 2 and sp+48 5 vs 3.  A per-clamp funnel local
+   (fadeboxv / gridposv / textfadev) assigned in the arms with a single store
+   at the join reproduces retail's single-store shape.  Priced: clamp1 alone
+   94, clamp1+2 89, all three 89, clamp3 alone 93.
+   FALSIFIED: VALUE-FIRST staging (funnel local initialised to the normal
+   value, arms overwrite it, `if (v < 0x81) goto Done` keeping it) -- the shape
+   suggested by retail's `nop`-filled normal-arm delay slot -- 136 / 131 / 130.
+   RESIDUAL (named angles): (a) retail's `strcpy(output, " ")` expands
+   BYTE-wise (`addiu t2,v0,0; lb; lb; sb 32(sp); sb 33(sp)` -- the oracle's
+   only sp+33 access) while ours emits a halfword `lhu/sh` pair: retail's
+   source string has alignment 1, our string constant is 2-aligned;
+   (b) the funnel register is v0 for us and a0/a3 for retail, and retail's
+   normal arm needs no copy in clamp 1 because the funnel reg already holds
+   the computed value (dead-pseudo staging, 12D).  */
 /* ---- tScreenUserName::DrawBackground  (screenusername.cpp:80) ---- */
 void tScreenUserName::DrawBackground()
 
@@ -118,44 +136,50 @@ void tScreenUserName::DrawBackground()
   short gridpos;
   short row;
   short col;
+  short fadeboxv;
+  short gridposv;
+  short textfadev;
 
   fade = *(volatile int *)&this->callingMenu->fScreenFade;
   if ((short)((fade >> 1) - 0x80) < 0x80) {
     if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero;
   }
   if ((short)((fade >> 1) - 0x80) < 0x81) goto DrawBgUser_fadeboxNormal;
-  fadebox = 0x80;
+  fadeboxv = 0x80;
   goto DrawBgUser_fadeboxDone;
 DrawBgUser_fadeboxZero:
-  fadebox = 0;
+  fadeboxv = 0;
   goto DrawBgUser_fadeboxDone;
 DrawBgUser_fadeboxNormal:
-  fadebox = (fade >> 1) - 0x80;
+  fadeboxv = (fade >> 1) - 0x80;
 DrawBgUser_fadeboxDone:
+  fadebox = fadeboxv;
   if ((short)(fade >> 2) < 0x80) {
     if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposZero;
   }
   if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposNormal;
-  gridpos = 0x80;
+  gridposv = 0x80;
   goto DrawBgUser_gridposDone;
 DrawBgUser_gridposZero:
-  gridpos = 0;
+  gridposv = 0;
   goto DrawBgUser_gridposDone;
 DrawBgUser_gridposNormal:
-  gridpos = fade >> 2;
+  gridposv = fade >> 2;
 DrawBgUser_gridposDone:
+  gridpos = gridposv;
   if (fade < 0x80) {
     if (fade <= 0) goto DrawBgUser_textFadeZero;
   }
   if (fade < 0x81) goto DrawBgUser_textFadeNormal;
-  this->fTextFade = 0x80;
+  textfadev = 0x80;
   goto DrawBgUser_textFadeDone;
 DrawBgUser_textFadeZero:
-  this->fTextFade = 0;
+  textfadev = 0;
   goto DrawBgUser_textFadeDone;
 DrawBgUser_textFadeNormal:
-  this->fTextFade = fade;
+  textfadev = fade;
 DrawBgUser_textFadeDone:
+  this->fTextFade = textfadev;
   gray = 0x80808;
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);

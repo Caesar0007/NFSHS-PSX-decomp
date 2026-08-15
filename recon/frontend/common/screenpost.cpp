@@ -162,6 +162,37 @@ void tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_
 
 
 
+/* MATCH W61-A17 (127 -> 95 diffs, 556/561 insns):
+   (1) THE LOOP-ROTATION CURE IS A BLOCK-SCOPE DECLARATION.  Retail's racer
+   loop is UN-rotated: a top test that re-loads the spilled bound
+   (`lw t1,196(sp); nop; slt v0,s4,t1; beqz` at SLD:183) with an unconditional
+   `j` back at SLD:224.  Ours was rotated (specialised entry guard `blez v0`
+   plus a bottom test) because jump.c:620 duplicate_loop_exit_test fired.  The
+   SYM 8c block lists `p` as a BLOCK-scope AUTO (Block start line = 20), not a
+   function-scope local; moving `short p;` into the loop body plants the
+   NOTE_INSN_BLOCK_BEG/END that jump.c:2296 refuses to duplicate, and the loop
+   head became byte-identical (-19 diffs).
+   FALSIFIED (none of these change the rotation): a real
+   `for (i = 0, line = 0x2fe; i < numRacers; i++, line++)` 115; `while
+   (i < numRacers)` 114; `for (; i < numRacers; )` 114; `for (;; i++, line++)`
+   with the break 115.
+   (2) The tier/tournament iterator select is TWO TextValue calls that gcc
+   tail-merges -- retail duplicates `li a1,-1` per arm and adds the offset into
+   a0 IN PLACE -- not one call on a ternary-selected pointer (-13).
+   FALSIFIED on the 95 base (pre-rotation price in parentheses): `one` -> plain
+   literals 180 (212); the three DrawShapeExtended fade args re-reading
+   `self->fScreenFadeVal` 190 (214) even though retail does exactly that
+   (`lh v0,92(s7)` before each call); lbx as ((w>>1)-2)-centerx 99 (131);
+   E3+E4 194; E2+E3+E4 277; `line` replaced by the giv `0x2fe + i` 163 -- the
+   sealed TU-mate tScreenPinkSlipStandings' row-giv law does NOT transfer here.
+   FRAME CENSUS: our sp-offset multiset is ALREADY identical to retail's (20
+   slots incl. the 196/200 spill pair), so the W61-A1 declaration-order spill
+   law does not apply to this function.
+   RESIDUAL (named angles): (a) the 3 DrawShapeExtended arg stagings -- retail
+   loads the fade field into v0/v1 and stores 16(sp) AFTER the 24(sp) zero;
+   (b) the textType constant 11 lands in t1 for retail and v0/v1 for us at 5
+   call sites (a local-alloc numeric-scan window, qtytrace class);
+   (c) an s4/s5 rotation around the ticks[0] address.  */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -182,7 +213,6 @@ void tScreenTournamentStandings::DrawBackground()
   tDrawShapeExtended drawflags;
   int colf;
   int colb;
-  short p;
   int numRacers;
   int lastRacer;
   int line;
@@ -200,6 +230,8 @@ void tScreenTournamentStandings::DrawBackground()
   numRacers = (short)((short)tm->fNumRacers + (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {
+    short p;
+
     if (i >= numRacers) {
       break;
     }
@@ -239,8 +271,9 @@ void tScreenTournamentStandings::DrawBackground()
   trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
                            (short)TextSys_WordY(0x2fd),textType_TrackRecords,textState_Hilighted,2);
-  i = (short)TextValue(frontEnd.tier != '\0' ? &menuDefs->iteratorSpecialEvent :
-                                               &menuDefs->iteratorTournament,kPlayerBoth) + 0x13;
+  i = (short)(frontEnd.tier != '\0' ?
+                TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
+                TextValue(&menuDefs->iteratorTournament,kPlayerBoth)) + 0x13;
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
                                              2,textState_Hilighted,textType_TrackRecords);
   wwwww = textpixels(TextSys_Word(i));

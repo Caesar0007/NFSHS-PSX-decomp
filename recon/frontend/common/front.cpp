@@ -227,6 +227,30 @@ void Front_ResetPSXAnalogs(int player)
    `return 1 | newControl;` is exactly neutral (18).
    => qtytrace lane, not a spelling. */
 
+/* W61-A17 (base 18, unchanged) -- THE GLOBAL-PSEUDO DIAGNOSIS, read off a
+   real CC1PLPSX -dl dump of this TU: `newControl` is reg/v 82, a GLOBAL pseudo
+   (refs=30, live=27, hard reg a0) because it is assigned in all 13 case
+   blocks, so every case's LAST `or` writes a0 (`or a0,a2,a1`), whereas
+   retail's last `or` writes the per-case accumulator (`or a2,a2,a1`) -- its
+   last-or dest is a BLOCK-LOCAL pseudo.  The SYM's `REG newControl = $2 (v0)`
+   is the RETURN value (`ori v0,a2,1`), i.e. retail's newControl holds the
+   value INCLUDING the `| 1`.
+   FALSIFIED, all re-gated against base 18.  The three residual sites are the
+   MERGED TAILS of 2-3 cases each (G1 .L80027398 = 0x100000 / -0x80000000 /
+   0x10000000, G2 .L800273D0 = 0x400000 / 0x20000000 / 0x40000000,
+   G4 .L8002744C = 0x53:0x800000 + 0x23:0x800000), which is why a per-site
+   spelling breaks the post-reload cross_jump.  Applying the compound-assign to
+   EVERY MEMBER of a group at once -- the untried half of the W60-A10 receipt
+   -- still loses: G1 all-3 56, G2 all-3 20 (count-exact), G4 both 20,
+   G1+G2+G4 30, ALL-13 47.
+   Folding the `| 1` into the assignment (`newControl = ... | 1; return
+   newControl;`), the shape the SYM implies, lands a DIFFERENT far basin:
+   252 for the 11 plain sites, 308 for all 13 (count-exact 222/222).  The
+   no-variable spelling `return (expr) | 1;` scores identically, so gcc builds
+   the same RTL for both; in that basin the tag constant absorbs the 1
+   (0x3000001) and the whole block layout changes, so it is not a partial
+   landing.  => the remaining lever is the local-alloc numeric scan (qtytrace
+   class), not a spelling.  */
 int GetPSXPadValue(int value,int player)
 
 {
@@ -1074,6 +1098,27 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
        carLineup copy block (SYM: i $17=s1, carLineup $16=s0, numOpponents $23=s7).
    (3) ordering around the `sw a1,248(sp)` / `lhu a1,248(sp)` carModel spill: retail stores
        the byte straight from the load into the jal delay slot, we round-trip via memory. */
+/* W61-A17 (base 115, unchanged) -- PRICED ALLOCATOR CERTIFICATE.  The whole
+   residual is a uniform s0<->s1 swap plus its knock-ons: the SYM 8c block gives
+   retail's handout (streamData=$0x12 s2, i=$0x11 s1, carLineup=$0x10 s0,
+   numOpponents=$0x17 s7, and in the block carInfo=$0x10 s0, opponentClass=$3
+   v1, tourn=$0x13 s3; carModel/carColor/usePlayerUpgrades are AUTO at sp+248/
+   252/264).  Ours puts i in s0 and carInfo in s1.
+   allocsim MATCHES this function 26/26 (order-vs-dump IDENTICAL), so the model
+   is validated here: p81 (= i, refs=29 live=145, pri 0.8000) outranks p82
+   (= carInfo, refs=11 live=88 calls=4, pri 0.3750) and therefore takes the
+   first free callee-saved reg.  reqdelta --want p81=s1,p82=s0 finds NO single
+   dial and NO two-dial (refs+live, +-40) delta on either pseudo: carInfo must
+   out-prioritise i, i.e. floor_log2(r)*r/88 > 0.8 => r >= 18 (+7 refs).
+   FALSIFIED: a read-only ref fence on carInfo after its last in-loop use with
+   3 / 4 / 5 / 6 operands -- all four score 137 IDENTICALLY, i.e. the operand
+   count never moved the handout (the fence changes the loop's scheduling
+   instead of buying priced refs here), unlike the 12C fence-count dial.
+   NEXT: the frame census is already identical to retail (19 slots, no
+   permutation), so this is not the W61-A1 declaration-order class; the open
+   angle is a source shape that raises carInfo's REF COUNT naturally -- e.g.
+   retail reading carInfo->fColorOrder / fDefaultColor through the pointer more
+   often than our carColor temp does -- or that shortens i's live range.  */
 extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 
 {

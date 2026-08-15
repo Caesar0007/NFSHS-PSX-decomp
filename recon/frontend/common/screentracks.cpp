@@ -131,6 +131,19 @@ void tScreenTrackSelect::DrawBackground()
        origin on the first prim 181 (290 insns -- still folds); opaque mask on
        BOTH prims with textureX kept 40 (299); mixed literal/textureX 38 (297);
        read-only instead of identity fence on the mask 158 (291). */
+    /* W61-A17 (base 26, unchanged) -- five more falsified cures for the
+       andi-vs-and opaque-operand law, all measured: an identity-fenced
+       `int pageMask = ~0x3f;` used at BOTH prims 86 (299, count-exact); the
+       same with prim-1's tpage x written as the LITERAL 0x200 86 (297); that
+       pair with the textureX fence dropped 257 (292); the opaque mask at
+       prim 1 only 160 (295); the literal prim-1 x with the mask fenced only
+       there 160 (293).  The mechanism read stands: retail materialises 512
+       FRESH at every use (`li t2,512` before the u-coord `andi`, and
+       `li t2,512; addiu t1,t2,80` for prim 2) and lets combine fold the DYING
+       materialisation into the mask insn as its immediate (`andi a2,s1,512`),
+       while ours carries one fenced pseudo (t1) across the whole block.  Every
+       opacity strong enough to stop the `512 & ~0x3f` fold also pins the value
+       into a live carrier.  */
     u_int addrMask = 0xffffff;
     short textureX = 0x200;
 

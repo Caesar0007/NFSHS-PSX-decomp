@@ -1,0 +1,109 @@
+== recon/game/common/aihigh.cpp (2 wrappers, 2 slots)
+   AIHigh_BTC_Perp                    @0x80054ddc -> ___15AIHigh_BTC_Perp
+   AIHigh_None                        @0x80054dfc -> ___11AIHigh_None
+   -> rewired (2 distinct dtor symbols)
+== recon/game/common/vtables_aidatarecord.cpp (6 wrappers, 6 slots)
+   AIDataRecord_CarTracking_t         @0x80055434 -> ___26AIDataRecord_CarTracking_t
+   AIDataRecord_CurveSpeedTable_t     @0x80055454 -> ___30AIDataRecord_CurveSpeedTable_t
+   AIDataRecord_TrackCurve_t          @0x8005546c -> ___25AIDataRecord_TrackCurve_t
+   AIDataRecord_BestLine_t            @0x80055484 -> ___23AIDataRecord_BestLine_t
+   AIDataRecord_AccTable_t            @0x8005549c -> ___23AIDataRecord_AccTable_t
+   AIDataRecord_t                     @0x800554b4 -> ___14AIDataRecord_t
+   -> rewired (6 distinct dtor symbols)
+== recon/game/common/vtables_aihigh.cpp (14 wrappers, 14 slots)
+   AIHigh_Base                        @0x80054e14 -> ___11AIHigh_Base
+   AIHigh_BasicPerp                   @0x80054e7c -> ___16AIHigh_BasicPerp
+   AIHigh_BasicCop                    @0x80054eac -> ___15AIHigh_BasicCop
+   AIHigh_BTC_Wingman                 @0x80054ed4 -> ___18AIHigh_BTC_Wingman
+   AIHigh_BTC_HumanCop                @0x80054ef4 -> ___19AIHigh_BTC_HumanCop
+   AIHigh_BTC_Cop                     @0x80054f14 -> ___14AIHigh_BTC_Cop
+   AIHigh_BTC_AIPerp                  @0x80054fb0 -> ___17AIHigh_BTC_AIPerp
+   AIHigh_BTC_HumanPerp               @0x80054fd0 -> ___20AIHigh_BTC_HumanPerp
+   AIHigh_BTC_Perp                    @0x80054ff0 -> ___15AIHigh_BTC_Perp
+   AIHigh_Player                      @0x800550a8 -> ___13AIHigh_Player
+   AIHigh_Human                       @0x800550d8 -> ___12AIHigh_Human
+   AIHigh_Opponent                    @0x80055108 -> ___15AIHigh_Opponent
+   AIHigh_Cop                         @0x80055164 -> ___10AIHigh_Cop
+   AIHigh_Traffic                     @0x800551c0 -> ___14AIHigh_Traffic
+   -> rewired (14 distinct dtor symbols)
+== recon/game/common/vtables_aistate.cpp (1 wrappers, 1 slots)
+   AIState_Base                       @0x80055650 -> ___12AIState_Base_80072838   <== ANCESTOR (class has no declared dtor)
+   -> rewired (1 distinct dtor symbols)
+== recon/game/common/vtables_tmenu.cpp (28 wrappers, 28 slots)
+   tBlankMenuItemGoToMenuNFS4Button   @0x800114e0 -> ___32tBlankMenuItemGoToMenuNFS4Button
+   tBlankMenuItemNFS4LeftRightChoice  @0x80011538 -> ___33tBlankMenuItemNFS4LeftRightChoice
+   tMemoryCardMenuItem                @0x80010a70 -> ___19tMemoryCardMenuItem
+   tMenuBlank                         @0x80010688 -> ___10tMenuBlank
+   tMenuItemControllerLeftRightChoice @0x80010c28 -> ___34tMenuItemControllerLeftRightChoice
+   tMenuItemDisplayLeftRightChoice    @0x80010d98 -> ___31tMenuItemDisplayLeftRightChoice
+   tMenuItemGoToMenuButtonFade        @0x80010ac8 -> ___27tMenuItemGoToMenuButtonFade
+   tMenuItemGoToMenuButton            @0x80011128 -> ___23tMenuItemGoToMenuButton
+   tMenuItemGoToMenuNFS4Button        @0x80010910 -> ___27tMenuItemGoToMenuNFS4Button
+   tMenuItemInteractive               @0x80011230 -> ___20tMenuItemInteractive
+   tMenuItemLeftRightAudioSlider      @0x80010ce8 -> ___29tMenuItemLeftRightAudioSlider
+   tMenuItemLeftRightChoice           @0x800111d8 -> ___24tMenuItemLeftRightChoice
+   tMenuItemLeftRightFade             @0x80010f68 -> ___22tMenuItemLeftRightFade
+   tMenuItemLeftRightSlider           @0x80011180 -> ___24tMenuItemLeftRightSlider
+   tMenuItemNFS4LeftRightChoice       @0x800108b8 -> ___28tMenuItemNFS4LeftRightChoice
+   tMenuItemOnOffLeftRightChoice      @0x80010d40 -> ___29tMenuItemOnOffLeftRightChoice
+   tMenuItemOptionsLeftRightChoice    @0x80010860 -> ___31tMenuItemOptionsLeftRightChoice
+   tMenuItemOptionsTwoItemChoice      @0x80010808 -> ___29tMenuItemOptionsTwoItemChoice
+   tMenuItemSlidingActivated          @0x80010df0 -> ___25tMenuItemSlidingActivated
+   tMenuItemSlidingMenu               @0x80010e50 -> ___20tMenuItemSlidingMenu
+   tMenuItem                          @0x80011288 -> ___9tMenuItem
+   tMenuNFS4Bottom                    @0x800106e8 -> ___15tMenuNFS4Bottom
+   tMenuNFS4TwoPlayer                 @0x80010748 -> ___18tMenuNFS4TwoPlayer
+   tMenuNFS4                          @0x800107a8 -> ___9tMenuNFS4
+   tMenuOptions                       @0x80010628 -> ___12tMenuOptions
+   tMenu                              @0x800110d0 -> ___5tMenu
+   tOptionsMenu                       @0x80010f10 -> ___12tOptionsMenu
+   tUserNameMenuItem                  @0x80010b20 -> ___17tUserNameMenuItem
+   -> rewired (28 distinct dtor symbols)
+== recon/game/common/vtables_tpausemenu.cpp (16 wrappers, 16 slots)
+   tInsideBoxControllerLeftRightSlider @0x80010a18 -> ___35tInsideBoxControllerLeftRightSlider
+   tInsideBoxLeftRightSlider          @0x80010bd0 -> ___25tInsideBoxLeftRightSlider
+   tInsideBoxMenu                     @0x80010eb0 -> ___14tInsideBoxMenu
+   tInsideBoxSongMenu                 @0x80010c80 -> ___18tInsideBoxSongMenu
+   tInsideBoxTwoWaySlider             @0x80010b78 -> ___22tInsideBoxTwoWaySlider
+   tPListIteratorIndexed              @0x8005630c -> ___21tPListIteratorIndexed
+   tPListIterator                     @0x8005633c -> ___14tPListIterator
+   tPMenuItemCommandButton            @0x8005614c -> ___23tPMenuItemCommandButton
+   tPMenuItemGoToMenuButton           @0x80056184 -> ___24tPMenuItemGoToMenuButton
+   tPMenuItemInteractive              @0x80056264 -> ___21tPMenuItemInteractive
+   tPMenuItemLeftRightChoice          @0x8005622c -> ___25tPMenuItemLeftRightChoice
+   tPMenuItemLeftRightSliderIndexed   @0x800561bc -> ___32tPMenuItemLeftRightSliderIndexed
+   tPMenuItemLeftRightSlider          @0x800561f4 -> ___25tPMenuItemLeftRightSlider
+   tPMenuItemNonInteractiveText       @0x8005629c -> ___28tPMenuItemNonInteractiveText
+   tPMenuItem                         @0x800562d4 -> ___10tPMenuItem
+   tPMenu                             @0x80056124 -> ___6tPMenu
+   -> rewired (16 distinct dtor symbols)
+== recon/game/common/vtables_tscreen.cpp (18 wrappers, 18 slots)
+   tScreen                            @0x80011438 -> ___7tScreen
+   tScreenMain                        @0x800118d0 -> ___11tScreenMain
+   tScreenDisplay                     @0x800120f0 -> ___14tScreenDisplay
+   tScreenTrackInfo                   @0x80011f98 -> ___16tScreenTrackInfo
+   tScreenTrackRecords                @0x80012010 -> ___19tScreenTrackRecords
+   tScreenTrackSelect                 @0x80011f28 -> ___18tScreenTrackSelect
+   tScreenUserName                    @0x80012708 -> ___15tScreenUserName
+   tScreenTrophyInfo                  @0x80011eb0 -> ___17tScreenTrophyInfo
+   tScreenPinkSlips                   @0x80011950 -> ___16tScreenPinkSlips
+   tScreenPinkSlipsCarSelect          @0x80011b80 -> ___25tScreenPinkSlipsCarSelect
+   tScreenPinkSlipStandings           @0x800119c8 -> ___24tScreenPinkSlipStandings
+   tScreenPinkSlipCongrats            @0x80012398 -> ___23tScreenPinkSlipCongrats
+   tScreenBeTheCopCongrats            @0x80012330 -> ___23tScreenBeTheCopCongrats
+   tScreenCarSelectDuel               @0x80011ca0 -> ___20tScreenCarSelectDuel
+   tScreenCarSelectTwoPlayer          @0x80011c10 -> ___25tScreenCarSelectTwoPlayer
+   tScreenTournamentCongrats          @0x800122c8 -> ___25tScreenTournamentCongrats
+   tScreenTournamentStandings3item    @0x80011a18 -> ___31tScreenTournamentStandings3item
+   tScreenTournamentTrophy            @0x80012400 -> ___23tScreenTournamentTrophy
+   -> rewired (18 distinct dtor symbols)
+== recon/game/common/vtables_tscreen2.cpp (8 wrappers, 8 slots)
+   tScreenAudio                       @0x80012178 -> ___12tScreenAudio
+   tScreenCarSelect                   @0x80011d28 -> ___16tScreenCarSelect
+   tScreenCongrats                    @0x80012468 -> ___15tScreenCongrats
+   tScreenControllerConfig            @0x80012098 -> ___23tScreenControllerConfig
+   tScreenMemcard                     @0x80012248 -> ___14tScreenMemcard
+   tScreenTournSelect                 @0x80011dd0 -> ___18tScreenTournSelect
+   tScreenTournamentStandings         @0x80011a68 -> ___26tScreenTournamentStandings
+   tScreenTrophyRoom                  @0x80011e48 -> ___17tScreenTrophyRoom
+   -> rewired (8 distinct dtor symbols)

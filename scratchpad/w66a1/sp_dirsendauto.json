@@ -1,0 +1,11 @@
+{
+  "_SUPERSEDED": "KEPT AS EVIDENCE ONLY -- this row's `after` anchor keys on the `.def reenter_cfgmode` COFF debug line, which psq43 CC1PSX does NOT emit: the mechanism SKIPPED the row on the production lane (loudly) and psyqproof stayed REAL=1 while the gate lane read 0. The SHIPPING row is the .def-free one in SPEC_w66a1_ALL.json. Do not copy the anchor below.",
+  "branch_retarget": {
+    "recon/syslib/psx/libpad/PADSEQD.c": {
+      "_dirSendAuto": [
+        {"branch": "\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n(?=\\tli\\t\\$2,2\\b)",
+         "after": "\\t\\.def\\treenter_cfgmode;[^\\n]*\\n\\$L\\d+:\\n\\tmove\\t\\$4,\\$16\\n"}
+      ]
+    }
+  }
+}

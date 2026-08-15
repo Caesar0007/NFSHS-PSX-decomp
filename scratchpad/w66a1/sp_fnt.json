@@ -1,0 +1,10 @@
+{
+  "branch_retarget": {
+    "recon/syslib/psx/libgpu/FONT.c": {
+      "FntPrint": [
+        {"branch": "\\tj\\t\\$L\\d+\\n(?=\\tmove\\t\\$6,\\$2\\n)",
+         "after": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$4,-48\\n)"}
+      ]
+    }
+  }
+}

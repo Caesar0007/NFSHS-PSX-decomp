@@ -1,0 +1,7 @@
+2 PROVEN wrong-call-target sites (both names known, different VAs)
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Camera_Update__Fv @0x800833d8
+      ours   calls Sim_ProcessSimSchedules__Fv @0x800b6878
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Sim_ProcessSimSchedules__Fv @0x800b6878
+      ours   calls Camera_Update__Fv @0x800833d8

@@ -11,18 +11,24 @@
 
 /* ---- #75: aihigh.obj-owned anonymous vtables (real nfs4-f.exe bytes; pfn VAs symbolicated) ---- */
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
-static int _vtdtor_AIHigh_BTC_Perp(AIHigh_BTC_Perp *p){ p->~AIHigh_BTC_Perp(); return 0; }   /* @0x8005b438 */
-static int _vtdtor_AIHigh_None(AIHigh_None *p){ p->~AIHigh_None(); return 0; }   /* @0x8005b468 */
+/* w66-a2: retail's dtor slot holds a REAL destructor symbol (read per slot out
+ * of asm/data/*.s at the slot VA+4 -- for a class with no declared dtor that is
+ * an ANCESTOR's `___<len><Base>`, w65-a3's DTOR-DEPTH LAW).  The slots below name
+ * those symbols directly; the fabricated per-class wrappers
+ * `static int wrap(X *p){ p->~X(); return 0; }` (an artifact of C++ forbidding
+ * `&Class::~Class`) are gone. */
+extern "C" void ___11AIHigh_None(void *thisp);   /* ~AIHigh_None */
+extern "C" void ___15AIHigh_BTC_Perp(void *thisp);   /* ~AIHigh_BTC_Perp */
 __vtbl_ptr_type AIHigh_kVtbl_80054dcc[4] = {   /* @0x80054dcc  BTC_Perp-family abstract vtable: {null, __pure_virtual, ~AIHigh_BTC_Perp, AIHigh_BasicPerp::CheckForCrimes}. Distinct from size-3 AIHigh_BTC_Perp_vtable@0x80054fe0. Address-name = #148 cleanup carry-over. */
   {0, 0, (int (*)(...))0},                                  /* @0x80054dcc */
   {0, 0, (int (*)(...))&__pure_virtual},                    /* @0x80054dd4  fn=0x800e4354 __pure_virtual */
-  {0, 0, (int (*)(...))&_vtdtor_AIHigh_BTC_Perp},           /* @0x80054ddc  fn=0x8005b438 ~AIHigh_BTC_Perp */
+  {0, 0, (int (*)(...))&___15AIHigh_BTC_Perp},           /* @0x80054ddc  fn=0x8005b438 ~AIHigh_BTC_Perp */
   {0, 0, (int (*)(...))&AIHigh_BasicPerp::CheckForCrimes},  /* @0x80054de4  fn=0x8005b500 */
 };
 __vtbl_ptr_type AIHigh_None_vtable[3] = {   /* @0x80054dec (AIHigh_None vtable) */
   {0, 0, (int (*)(...))0},                                  /* @0x80054dec */
   {0, 0, (int (*)(...))&AIHigh_None::HighExecute},          /* @0x80054df4  fn=0x8005b460 */
-  {0, 0, (int (*)(...))&_vtdtor_AIHigh_None},               /* @0x80054dfc  fn=0x8005b468 ~AIHigh_None */
+  {0, 0, (int (*)(...))&___11AIHigh_None},               /* @0x80054dfc  fn=0x8005b468 ~AIHigh_None */
 };
 
 /* ---- aihigh.obj-owned globals (.bss zero) ---- */

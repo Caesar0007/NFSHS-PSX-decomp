@@ -1,0 +1,10 @@
+{
+  "branch_retarget": {
+    "recon/frontend/common/screenmain.cpp": {
+      "DrawBackground__11tScreenMain": [
+        {"branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n)",
+         "after": "\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n(?=\\tlui\\t\\$3,%hi\\(menuDefs\\) # high\\n\\tlw\\t\\$4,%lo\\(FEApp\\)\\(\\$2\\)\\n)"}
+      ]
+    }
+  }
+}

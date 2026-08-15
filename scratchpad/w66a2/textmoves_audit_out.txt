@@ -1,0 +1,7 @@
+49 TU(s) carry PER_FN_TEXT_MOVES entries (PC-relative branches only)
+
+  !! DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii       PC-REL BRANCH POSITIONS differ (ours-only=[760, 772] expected-only=[756, 768])  match_percent=97.1184
+  !! PutDispEnv                                           PC-REL BRANCH POSITIONS differ (ours-only=[828] expected-only=[832])  match_percent=98.5535
+  !! __divdf3                                             PC-REL BRANCH POSITIONS differ (ours-only=[620, 640] expected-only=[628, 648])  match_percent=94.7989
+
+84 TEXT_MOVES-sealed fns audited; 3 with a real PC-relative branch-word difference; 0 unresolved (no sized symbol); 0 scored 100 by objdiff

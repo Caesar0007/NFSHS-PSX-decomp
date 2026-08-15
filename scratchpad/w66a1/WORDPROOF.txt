@@ -1,0 +1,14 @@
+===== _dirSendAuto
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)
+===== MemCardWriteData_cb
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)
+===== DrawBackground__11tScreenMain
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)
+===== Hud_BuildString__FPciiiib
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)
+===== MCRD_handlecardevents
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)
+===== FntPrint
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)
+===== Sim_MainGameLoop__Fv
+MISMATCHES: 0 (j/jal compared by target index only -- R_MIPS_26)

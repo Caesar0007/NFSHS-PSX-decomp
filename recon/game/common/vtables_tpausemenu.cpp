@@ -4,26 +4,32 @@
 #include "../../nfs4_types.h"
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
 
-static int _vtdtor_tInsideBoxControllerLeftRightSlider(tInsideBoxControllerLeftRightSlider *p){ p->~tInsideBoxControllerLeftRightSlider(); return 0; }
-static int _vtdtor_tInsideBoxLeftRightSlider(tInsideBoxLeftRightSlider *p){ p->~tInsideBoxLeftRightSlider(); return 0; }
-static int _vtdtor_tInsideBoxMenu(tInsideBoxMenu *p){ p->~tInsideBoxMenu(); return 0; }
-static int _vtdtor_tInsideBoxSongMenu(tInsideBoxSongMenu *p){ p->~tInsideBoxSongMenu(); return 0; }
-static int _vtdtor_tInsideBoxTwoWaySlider(tInsideBoxTwoWaySlider *p){ p->~tInsideBoxTwoWaySlider(); return 0; }
-static int _vtdtor_tPListIterator(tPListIterator *p){ p->~tPListIterator(); return 0; }
-static int _vtdtor_tPListIteratorIndexed(tPListIteratorIndexed *p){ p->~tPListIteratorIndexed(); return 0; }
-static int _vtdtor_tPMenu(tPMenu *p){ p->~tPMenu(); return 0; }
-static int _vtdtor_tPMenuItem(tPMenuItem *p){ p->~tPMenuItem(); return 0; }
-static int _vtdtor_tPMenuItemCommandButton(tPMenuItemCommandButton *p){ p->~tPMenuItemCommandButton(); return 0; }
-static int _vtdtor_tPMenuItemGoToMenuButton(tPMenuItemGoToMenuButton *p){ p->~tPMenuItemGoToMenuButton(); return 0; }
-static int _vtdtor_tPMenuItemInteractive(tPMenuItemInteractive *p){ p->~tPMenuItemInteractive(); return 0; }
-static int _vtdtor_tPMenuItemLeftRightChoice(tPMenuItemLeftRightChoice *p){ p->~tPMenuItemLeftRightChoice(); return 0; }
-static int _vtdtor_tPMenuItemLeftRightSlider(tPMenuItemLeftRightSlider *p){ p->~tPMenuItemLeftRightSlider(); return 0; }
-static int _vtdtor_tPMenuItemLeftRightSliderIndexed(tPMenuItemLeftRightSliderIndexed *p){ p->~tPMenuItemLeftRightSliderIndexed(); return 0; }
-static int _vtdtor_tPMenuItemNonInteractiveText(tPMenuItemNonInteractiveText *p){ p->~tPMenuItemNonInteractiveText(); return 0; }
+/* w66-a2: retail's dtor slot holds a REAL destructor symbol (read per slot out
+ * of asm/data/*.s at the slot VA+4 -- for a class with no declared dtor that is
+ * an ANCESTOR's `___<len><Base>`, w65-a3's DTOR-DEPTH LAW).  The slots below name
+ * those symbols directly; the fabricated per-class wrappers
+ * `static int wrap(X *p){ p->~X(); return 0; }` (an artifact of C++ forbidding
+ * `&Class::~Class`) are gone. */
+extern "C" void ___10tPMenuItem(void *thisp);   /* ~tPMenuItem */
+extern "C" void ___14tInsideBoxMenu(void *thisp);   /* ~tInsideBoxMenu */
+extern "C" void ___14tPListIterator(void *thisp);   /* ~tPListIterator */
+extern "C" void ___18tInsideBoxSongMenu(void *thisp);   /* ~tInsideBoxSongMenu */
+extern "C" void ___21tPListIteratorIndexed(void *thisp);   /* ~tPListIteratorIndexed */
+extern "C" void ___21tPMenuItemInteractive(void *thisp);   /* ~tPMenuItemInteractive */
+extern "C" void ___22tInsideBoxTwoWaySlider(void *thisp);   /* ~tInsideBoxTwoWaySlider */
+extern "C" void ___23tPMenuItemCommandButton(void *thisp);   /* ~tPMenuItemCommandButton */
+extern "C" void ___24tPMenuItemGoToMenuButton(void *thisp);   /* ~tPMenuItemGoToMenuButton */
+extern "C" void ___25tInsideBoxLeftRightSlider(void *thisp);   /* ~tInsideBoxLeftRightSlider */
+extern "C" void ___25tPMenuItemLeftRightChoice(void *thisp);   /* ~tPMenuItemLeftRightChoice */
+extern "C" void ___25tPMenuItemLeftRightSlider(void *thisp);   /* ~tPMenuItemLeftRightSlider */
+extern "C" void ___28tPMenuItemNonInteractiveText(void *thisp);   /* ~tPMenuItemNonInteractiveText */
+extern "C" void ___32tPMenuItemLeftRightSliderIndexed(void *thisp);   /* ~tPMenuItemLeftRightSliderIndexed */
+extern "C" void ___35tInsideBoxControllerLeftRightSlider(void *thisp);   /* ~tInsideBoxControllerLeftRightSlider */
+extern "C" void ___6tPMenu(void *thisp);   /* ~tPMenu */
 
 __vtbl_ptr_type tInsideBoxControllerLeftRightSlider_vtable[11] = {   /* @0x80010a10 */
   {0, 0, (int (*)(...))0},    /* @0x80010a10  null */
-  {0, 0, (int (*)(...))&_vtdtor_tInsideBoxControllerLeftRightSlider},    /* @0x80010a18  ~tInsideBoxControllerLeftRightSlider */
+  {0, 0, (int (*)(...))&___35tInsideBoxControllerLeftRightSlider},    /* @0x80010a18  ~tInsideBoxControllerLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010a20  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tInsideBoxControllerLeftRightSlider::ProcessInput},    /* @0x80010a28  ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010a30  Draw__24tMenuItemLeftRightSliderb */
@@ -36,7 +42,7 @@ __vtbl_ptr_type tInsideBoxControllerLeftRightSlider_vtable[11] = {   /* @0x80010
 };
 __vtbl_ptr_type tInsideBoxLeftRightSlider_vtable[11] = {   /* @0x80010bc8 */
   {0, 0, (int (*)(...))0},    /* @0x80010bc8  null */
-  {0, 0, (int (*)(...))&_vtdtor_tInsideBoxLeftRightSlider},    /* @0x80010bd0  ~tInsideBoxLeftRightSlider */
+  {0, 0, (int (*)(...))&___25tInsideBoxLeftRightSlider},    /* @0x80010bd0  ~tInsideBoxLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010bd8  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::ProcessInput},    /* @0x80010be0  ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010be8  Draw__24tMenuItemLeftRightSliderb */
@@ -49,7 +55,7 @@ __vtbl_ptr_type tInsideBoxLeftRightSlider_vtable[11] = {   /* @0x80010bc8 */
 };
 __vtbl_ptr_type tInsideBoxMenu_vtable[12] = {   /* @0x80010ea8 */
   {0, 0, (int (*)(...))0},    /* @0x80010ea8  null */
-  {0, 0, (int (*)(...))&_vtdtor_tInsideBoxMenu},    /* @0x80010eb0  ~tInsideBoxMenu */
+  {0, 0, (int (*)(...))&___14tInsideBoxMenu},    /* @0x80010eb0  ~tInsideBoxMenu */
   {0, 0, (int (*)(...))&tMenu::Initialize},    /* @0x80010eb8  Initialize__5tMenu */
   {0, 0, (int (*)(...))&tInsideBoxMenu::ProcessInput},    /* @0x80010ec0  ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenu::DebounceKeys},    /* @0x80010ec8  DebounceKeys__5tMenu */
@@ -63,7 +69,7 @@ __vtbl_ptr_type tInsideBoxMenu_vtable[12] = {   /* @0x80010ea8 */
 };
 __vtbl_ptr_type tInsideBoxSongMenu_vtable[13] = {   /* @0x80010c78 */
   {0, 0, (int (*)(...))0},    /* @0x80010c78  null */
-  {0, 0, (int (*)(...))&_vtdtor_tInsideBoxSongMenu},    /* @0x80010c80  ~tInsideBoxSongMenu */
+  {0, 0, (int (*)(...))&___18tInsideBoxSongMenu},    /* @0x80010c80  ~tInsideBoxSongMenu */
   {0, 0, (int (*)(...))&tMenu::Initialize},    /* @0x80010c88  Initialize__5tMenu */
   {0, 0, (int (*)(...))&tInsideBoxSongMenu::ProcessInput},    /* @0x80010c90  ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tInsideBoxSongMenu::DebounceKeys},    /* @0x80010c98  DebounceKeys__18tInsideBoxSongMenu */
@@ -78,7 +84,7 @@ __vtbl_ptr_type tInsideBoxSongMenu_vtable[13] = {   /* @0x80010c78 */
 };
 __vtbl_ptr_type tInsideBoxTwoWaySlider_vtable[11] = {   /* @0x80010b70 */
   {0, 0, (int (*)(...))0},    /* @0x80010b70  null */
-  {0, 0, (int (*)(...))&_vtdtor_tInsideBoxTwoWaySlider},    /* @0x80010b78  ~tInsideBoxTwoWaySlider */
+  {0, 0, (int (*)(...))&___22tInsideBoxTwoWaySlider},    /* @0x80010b78  ~tInsideBoxTwoWaySlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010b80  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tInsideBoxTwoWaySlider::ProcessInput},    /* @0x80010b88  ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010b90  Draw__24tMenuItemLeftRightSliderb */
@@ -91,7 +97,7 @@ __vtbl_ptr_type tInsideBoxTwoWaySlider_vtable[11] = {   /* @0x80010b70 */
 };
 __vtbl_ptr_type tPListIteratorIndexed_vtable[6] = {   /* @0x80056304 */
   {0, 0, (int (*)(...))0},    /* @0x80056304  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPListIteratorIndexed},    /* @0x8005630c  ~tPListIteratorIndexed */
+  {0, 0, (int (*)(...))&___21tPListIteratorIndexed},    /* @0x8005630c  ~tPListIteratorIndexed */
   {0, 0, (int (*)(...))&tPListIteratorIndexed::Value},    /* @0x80056314  Value__21tPListIteratorIndexed7tPlayer */
   {0, 0, (int (*)(...))&tPListIteratorIndexed::TextValue},    /* @0x8005631c  TextValue__21tPListIteratorIndexed7tPlayer */
   {0, 0, (int (*)(...))&tPListIteratorIndexed::Increment},    /* @0x80056324  Increment__21tPListIteratorIndexed7tPlayer */
@@ -99,7 +105,7 @@ __vtbl_ptr_type tPListIteratorIndexed_vtable[6] = {   /* @0x80056304 */
 };
 __vtbl_ptr_type tPListIterator_vtable[6] = {   /* @0x80056334 */
   {0, 0, (int (*)(...))0},    /* @0x80056334  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPListIterator},    /* @0x8005633c  ~tPListIterator */
+  {0, 0, (int (*)(...))&___14tPListIterator},    /* @0x8005633c  ~tPListIterator */
   {0, 0, (int (*)(...))&tPListIterator::Value},    /* @0x80056344  Value__14tPListIterator7tPlayer */
   {0, 0, (int (*)(...))&tPListIterator::TextValue},    /* @0x8005634c  TextValue__14tPListIterator7tPlayer */
   {0, 0, (int (*)(...))&tPListIterator::Increment},    /* @0x80056354  Increment__14tPListIterator7tPlayer */
@@ -107,7 +113,7 @@ __vtbl_ptr_type tPListIterator_vtable[6] = {   /* @0x80056334 */
 };
 __vtbl_ptr_type tPMenuItemCommandButton_vtable[7] = {   /* @0x80056144 */
   {0, 0, (int (*)(...))0},    /* @0x80056144  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemCommandButton},    /* @0x8005614c  ~tPMenuItemCommandButton */
+  {0, 0, (int (*)(...))&___23tPMenuItemCommandButton},    /* @0x8005614c  ~tPMenuItemCommandButton */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x80056154  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::Debounce},    /* @0x8005615c  Debounce__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItemCommandButton::ProcessInput},    /* @0x80056164  ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand */
@@ -116,7 +122,7 @@ __vtbl_ptr_type tPMenuItemCommandButton_vtable[7] = {   /* @0x80056144 */
 };
 __vtbl_ptr_type tPMenuItemGoToMenuButton_vtable[7] = {   /* @0x8005617c */
   {0, 0, (int (*)(...))0},    /* @0x8005617c  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemGoToMenuButton},    /* @0x80056184  ~tPMenuItemGoToMenuButton */
+  {0, 0, (int (*)(...))&___24tPMenuItemGoToMenuButton},    /* @0x80056184  ~tPMenuItemGoToMenuButton */
   {0, 0, (int (*)(...))&tPMenuItemGoToMenuButton::NextMenu},    /* @0x8005618c  NextMenu__24tPMenuItemGoToMenuButton */
   {0, 0, (int (*)(...))&tPMenuItem::Debounce},    /* @0x80056194  Debounce__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItemGoToMenuButton::ProcessInput},    /* @0x8005619c  ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand */
@@ -125,7 +131,7 @@ __vtbl_ptr_type tPMenuItemGoToMenuButton_vtable[7] = {   /* @0x8005617c */
 };
 __vtbl_ptr_type tPMenuItemInteractive_vtable[7] = {   /* @0x8005625c */
   {0, 0, (int (*)(...))0},    /* @0x8005625c  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemInteractive},    /* @0x80056264  ~tPMenuItemInteractive */
+  {0, 0, (int (*)(...))&___21tPMenuItemInteractive},    /* @0x80056264  ~tPMenuItemInteractive */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x8005626c  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::Debounce},    /* @0x80056274  Debounce__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::ProcessInput},    /* @0x8005627c  ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand */
@@ -134,7 +140,7 @@ __vtbl_ptr_type tPMenuItemInteractive_vtable[7] = {   /* @0x8005625c */
 };
 __vtbl_ptr_type tPMenuItemLeftRightChoice_vtable[7] = {   /* @0x80056224 */
   {0, 0, (int (*)(...))0},    /* @0x80056224  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemLeftRightChoice},    /* @0x8005622c  ~tPMenuItemLeftRightChoice */
+  {0, 0, (int (*)(...))&___25tPMenuItemLeftRightChoice},    /* @0x8005622c  ~tPMenuItemLeftRightChoice */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x80056234  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::Debounce},    /* @0x8005623c  Debounce__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItemLeftRightChoice::ProcessInput},    /* @0x80056244  ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand */
@@ -143,7 +149,7 @@ __vtbl_ptr_type tPMenuItemLeftRightChoice_vtable[7] = {   /* @0x80056224 */
 };
 __vtbl_ptr_type tPMenuItemLeftRightSliderIndexed_vtable[7] = {   /* @0x800561b4 */
   {0, 0, (int (*)(...))0},    /* @0x800561b4  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemLeftRightSliderIndexed},    /* @0x800561bc  ~tPMenuItemLeftRightSliderIndexed */
+  {0, 0, (int (*)(...))&___32tPMenuItemLeftRightSliderIndexed},    /* @0x800561bc  ~tPMenuItemLeftRightSliderIndexed */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x800561c4  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItemLeftRightSlider::Debounce},    /* @0x800561cc  Debounce__25tPMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tPMenuItemLeftRightSliderIndexed::ProcessInput},    /* @0x800561d4  ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand */
@@ -152,7 +158,7 @@ __vtbl_ptr_type tPMenuItemLeftRightSliderIndexed_vtable[7] = {   /* @0x800561b4 
 };
 __vtbl_ptr_type tPMenuItemLeftRightSlider_vtable[7] = {   /* @0x800561ec */
   {0, 0, (int (*)(...))0},    /* @0x800561ec  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemLeftRightSlider},    /* @0x800561f4  ~tPMenuItemLeftRightSlider */
+  {0, 0, (int (*)(...))&___25tPMenuItemLeftRightSlider},    /* @0x800561f4  ~tPMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x800561fc  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItemLeftRightSlider::Debounce},    /* @0x80056204  Debounce__25tPMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tPMenuItemLeftRightSlider::ProcessInput},    /* @0x8005620c  ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand */
@@ -161,7 +167,7 @@ __vtbl_ptr_type tPMenuItemLeftRightSlider_vtable[7] = {   /* @0x800561ec */
 };
 __vtbl_ptr_type tPMenuItemNonInteractiveText_vtable[7] = {   /* @0x80056294 */
   {0, 0, (int (*)(...))0},    /* @0x80056294  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItemNonInteractiveText},    /* @0x8005629c  ~tPMenuItemNonInteractiveText */
+  {0, 0, (int (*)(...))&___28tPMenuItemNonInteractiveText},    /* @0x8005629c  ~tPMenuItemNonInteractiveText */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x800562a4  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::Debounce},    /* @0x800562ac  Debounce__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::ProcessInput},    /* @0x800562b4  ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand */
@@ -170,7 +176,7 @@ __vtbl_ptr_type tPMenuItemNonInteractiveText_vtable[7] = {   /* @0x80056294 */
 };
 __vtbl_ptr_type tPMenuItem_vtable[7] = {   /* @0x800562cc */
   {0, 0, (int (*)(...))0},    /* @0x800562cc  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenuItem},    /* @0x800562d4  ~tPMenuItem */
+  {0, 0, (int (*)(...))&___10tPMenuItem},    /* @0x800562d4  ~tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::NextMenu},    /* @0x800562dc  NextMenu__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::Debounce},    /* @0x800562e4  Debounce__10tPMenuItem */
   {0, 0, (int (*)(...))&tPMenuItem::ProcessInput},    /* @0x800562ec  ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand */
@@ -179,7 +185,7 @@ __vtbl_ptr_type tPMenuItem_vtable[7] = {   /* @0x800562cc */
 };
 __vtbl_ptr_type tPMenu_vtable[5] = {   /* @0x8005611c */
   {0, 0, (int (*)(...))0},    /* @0x8005611c  null */
-  {0, 0, (int (*)(...))&_vtdtor_tPMenu},    /* @0x80056124  ~tPMenu */
+  {0, 0, (int (*)(...))&___6tPMenu},    /* @0x80056124  ~tPMenu */
   {0, 0, (int (*)(...))&tPMenu::Initialize},    /* @0x8005612c  Initialize__6tPMenu */
   {0, 0, (int (*)(...))&tPMenu::ProcessInput},    /* @0x80056134  ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand */
   {0, 0, (int (*)(...))&tPMenu::Draw},    /* @0x8005613c  Draw__6tPMenu */

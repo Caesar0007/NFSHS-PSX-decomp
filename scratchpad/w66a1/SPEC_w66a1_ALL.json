@@ -1,0 +1,75 @@
+{
+  "_README": "w66-a1 FINAL row list. `branch_retarget` -> the NEW PER_FN_BRANCH_RETARGET table (branch_retarget.patch adds the empty table + the applier). `text_moves_replace` -> PER_FN_TEXT_MOVES; sim.cpp had NO prior rows, so that list IS the final list for that fn. Probe with scratchpad/w66a1/br.py (W66_SPEC=this file); production lane with scratchpad/w66a1/pq.py. Strip the _-prefixed keys when pasting into build.py (they are inert, exactly like the w65-a2 spec).",
+
+  "branch_retarget": {
+    "recon/syslib/psx/libpad/PADSEQD.c": {
+      "_dirSendAuto": [
+        {"_note": "brdist (1,32,33) -> 0. TWO-LABEL row: retail carries .L8010A194(44, `addu $a0,$s0,$zero`) AND .L8010A198(45, `jal _padCmdParaMode`); cc1 emitted ONE `$L5` at 44 shared by both users. The `beq $2,$0` whose delay slot is `li $2,2` needs 45 (its path already has $a0==$s0); the OTHER user (`beq $3,$2` in the $L14 block) needs 44 and ALREADY matches, so a label MOVE would fix one and break the other. Word proof: ours 1040001f -> 10400020 == retail, and the 44-user's word 1062000a is unchanged. TU 4/5 PASS 2x (_padInitDirSeq FAIL 3 pre-existing, class a). ANCHOR NOTE: the first anchor I wrote used the `.def reenter_cfgmode` COFF debug line, which psq43 CC1PSX does NOT emit on the production lane -- the mechanism SKIPPED the row there (loudly, on stderr) and psyqproof stayed REAL=1. Anchors must be written against text BOTH lanes produce; the shipped anchor is .def-free.",
+         "branch": "\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n(?=\\tli\\t\\$2,2\\b)",
+         "after": "\\tmove\\t\\$4,\\$16\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\t_padCmdParaMode\\n\\tmove\\t\\$5,\\$0\\n)"}
+      ]
+    },
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {
+      "MemCardWriteData_cb": [
+        {"_note": "brdist (6,53,52) -> 0. INVERSE two-label row: OUR cc1 threaded. The `case 0:` arm's `j` skips the shared `addu $v0,$0,$0` at 73 (its own `beq $3,$0` delay slot already zeroed $v0) and goes straight to the epilogue at 74; retail keeps `j .L800FB430` = 73. Semantically identical (both return 0). $L122 has 5 users, only this one wants 73 -- inexpressible as a move. w65-a2 falsified the flag route: -fno-thread-jumps via PER_FN_FLAG_SPLICE_272 REGRESSED it (gate FAIL 3 @80/79, brdist 1 -> 4 rows). TU 23/26 PASS 2x (3 pre-existing class-a FAILs). psyqproof: INAPPLICABLE-LANE (LIBMCRD.c is cc1_272).",
+         "branch": "(?<=\\tsw\\t\\$0,_mc_wr_retry\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n)\\tj\\t\\$L\\d+\\n",
+         "after": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$0,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$31,24\\(\\$sp\\)\\n)"}
+      ]
+    },
+    "recon/frontend/common/screenmain.cpp": {
+      "DrawBackground__11tScreenMain": [
+        {"_note": "brdist (9,11,12) -> 0, production REAL 1 -> 0. TWO-LABEL row: retail has .L80037B44(97, `lui %hi(FEApp)`) AND .L80037B48(98, `lui %hi(menuDefs)`). The `bne`'s OWN delay slot is that `lui %hi(FEApp)`, so retail's bne skips it (-> 98); the neighbouring `beq` (delay slot `move $4,$22`) needs 97 and already matches. This is reorg's steal-from-target + emit_label_before redirect that RETAIL did and we did not. TU 13/13 PASS 2x.",
+         "branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n)",
+         "after": "\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n(?=\\tlui\\t\\$3,%hi\\(menuDefs\\) # high\\n\\tlw\\t\\$4,%lo\\(FEApp\\)\\(\\$2\\)\\n)"}
+      ]
+    },
+    "recon/game/psx/hud.cpp": {
+      "Hud_BuildString__FPciiiib": [
+        {"_note": "brdist (2,154,155) -> 0. TWO-LABEL row: retail has .L800D45D0(194, `lw $t0,0x18($sp)`) AND .L800D45D4(195, `addiu $s2,$s2,1`). Our `$L764` at 194 has FOUR branch users; exactly ONE (the `j` whose delay slot is `addu $17,$17,3`) wants 195 -- a label move would break the other three, which match today. TU 55/62 PASS 2x (7 pre-existing class-a FAILs). psyqproof REAL=0 both before and after: the divergent branch is a `j` (absolute, R_MIPS_26) so the production prover masks it -- the gate lane is the only witness here.",
+         "branch": "\\tj\\t\\$L\\d+\\n(?=\\taddu\\t\\$17,\\$17,3\\n)",
+         "after": "\\tlw\\t\\$8,24\\(\\$sp\\)\\n(?=\\taddu\\t\\$18,\\$18,1\\n)"}
+      ]
+    },
+    "recon/frontend/psx/memcard.c": {
+      "MCRD_handlecardevents": [
+        {"_note": "brdist (13,148,94) -> 0, production REAL 1 -> 0. THE OPEN W65-A1 ROW (9 falsifications banked in scratchpad/w65a1/RECEIPTS.md section 2). CROSS-JUMP PARTNER CHOICE: two byte-identical `return status` tails exist in BOTH objects -- the FUNNEL (`move $2,$16` then fall into the epilogue) and the 2-insn TRAMPOLINE (`j <epilogue>; move $2,$16`, our `$L152` block at index 150). Retail's `bne pCI->status,-1` joins the TRAMPOLINE, ours the funnel. w65-a1 proved the class SOURCE-UNREACHABLE (9 fence/goto/early-out spellings: 5 regressed by 12-140 diffs, 4 inert) and a label MOVE cannot express it either ($L152 already has a matching user). This is exactly the 'rewrite a branch OPERAND rather than move a label' extension w65-a1 asked for. TU 20/20 PASS 2x.",
+         "branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tli\\t\\$16,22\\b)",
+         "after": "\\$L\\d+:\\n(?= #APP\\n #NO_APP\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tmove\\t\\$2,\\$16\\n)"}
+      ]
+    },
+    "recon/syslib/psx/libgpu/FONT.c": {
+      "FntPrint": [
+        {"_note": "brdist (10,8,9) -> 0. REFUTES w65-a2 section 4.1's 'maspsx LAW -- needs a 3-line maspsx option'. maspsx's _handle_nop_before_next_instruction hoists exactly ONE label line above the load-delay nop it inserts (`skip_instructions = 1`), so our $L115 lands ON the nop (88) while retail's .L800F7198 is on the `addiu` (89). Planting a SECOND label behind $L115 puts it AFTER the nop -- the single hoist has already been consumed -- and the retarget reaches retail's target with NO maspsx change and no --nop-before-label. Verified in the shipped object: the `j` at 0x45c now targets 0x480 = `addiu v0,a0,-48`. FntPrint PASS 240/240, psyqproof REAL=0 2x; TU 1/2 PASS 2x (FntFlush FAIL 2 pre-existing).",
+         "branch": "\\tj\\t\\$L\\d+\\n(?=\\tmove\\t\\$6,\\$2\\n)",
+         "after": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$4,-48\\n)"}
+      ]
+    },
+    "recon/game/common/sim.cpp": {
+      "Sim_MainGameLoop__Fv": [
+        {"_note": "THE FLAGSHIP -- gate FAIL 6 (ours 319 / oracle 321) -> PASS 321/321, production REAL 50 -> 0 (DUAL-LANE SEAL), calltarget_audit 2 sites -> 0 (the last two in the tree). MUST land TOGETHER with the four PER_FN_TEXT_MOVES rows below: they reorder the blocks, this row supplies the branch that makes the reordering CORRECT. CONTROL PROOF that the row is load-bearing and not cosmetic: with the four moves ALONE the gate still says PASS 321/321, but brdist shows (44,9,7) and the copied `j` lands at index 266 instead of retail's 264 -- i.e. the speed==3 arm would call Sim_ProcessSimSchedules ONCE instead of twice. That is the w63-a11/w65-a2 Camera_UpdateHeliCam hazard reproduced exactly: a gate-PASSing object carrying a live semantic defect. TU 8/8 PASS 2x.",
+         "branch": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\$L\\d+:\\n(?=\\tjal\\tSim_ProcessSimSchedules__Fv\\n\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"}
+      ]
+    }
+  },
+
+  "text_moves_replace": {
+    "recon/game/common/sim.cpp": {
+      "Sim_MainGameLoop__Fv": [
+        {"_note": "w66-a1 row 1/4 (sim.cpp had NO prior PER_FN_TEXT_MOVES entry, so this list is complete). The residual was pure BASIC-BLOCK PLACEMENT: call A the shared Sim_ProcessSimSchedules block, B the speed==3 arm, C the InBetween/Camera_Update arm. Retail lays them [B][C][A] (B pays a `j` to A); cc1 lays them [B][A][C] (B falls straight THROUGH into A, 2 insns shorter -- the `j`+`nop`). Six source forms were falsified across W61/W62 (see the in-source receipt); every goto form makes gcc fold B's own call away. Row 1 COPIES C's `j` to the end of B (the +1 line retail pays).",
+         "take": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n\\tjal\\tSim_ProcessSimSchedules__Fv\\n",
+         "copy": true},
+        {"_note": "row 2/4: move the ORIGINAL `j` (the one that follows A's jal) down past C so C ends with it, exactly like retail's `j .L800B7174`. The take regex still resolves uniquely after row 1 because the COPY is followed by `$L708:`+`jal`, not by `$L698:`+`sw $16,InBetween`.",
+         "take": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\tsw\\t\\$16,InBetween\\n\\tjal\\tCamera_Update__Fv\\n"},
+        {"_note": "row 3/4: move A's LABEL below C (a label is a movable line -- the 15D law), i.e. to just after C's `j`.",
+         "take": "\\$L\\d+:\\n(?=\\tjal\\tSim_ProcessSimSchedules__Fv\\n\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"},
+        {"_note": "row 4/4: move A's `jal Sim_ProcessSimSchedules` after its relocated label. Final text = retail's [B: bne; jal; j A][C: sw; jal Camera_Update; j join][A: jal][join:].",
+         "take": "\\tjal\\tSim_ProcessSimSchedules__Fv\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\$L\\d+:\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"}
+      ]
+    }
+  }
+}

@@ -1,0 +1,106 @@
+recon/frontend/common/feapp.cpp
+    Redraw__14tFEApplication                                     1 offset diffs [(20, 4, 5)]
+recon/frontend/common/femenu.cpp
+    DrawSlider__FsssssssssbT9ss                                  11 offset diffs [(5, 157, 156), (6, 308, 301), (7, 88, 90), (8, 72, 75), (9, 68, 69), (27, 161, 155)]
+recon/frontend/common/fetv.cpp
+    DrawTV__FR9tTVConfig                                         5 offset diffs [(20, 677, 670), (21, 426, 422), (42, 244, 240), (69, 245, 242), (70, 158, 156)]
+recon/frontend/common/screenmain.cpp
+    DrawBackground__11tScreenMain                                1 offset diffs [(9, 11, 12)]
+recon/frontend/common/screenpost.cpp
+    DrawBackground__26tScreenTournamentStandings                 2 offset diffs [(25, 110, 114), (26, 4, 5)]
+recon/frontend/common/screenusername.cpp
+    DrawBackground__15tScreenUserName                            BRANCH COUNT 30 vs 29
+recon/frontend/common/statchk.cpp
+    StatChk_SaveTopTime__FP10Car_tStatss                         1 offset diffs [(23, -20, -21)]
+recon/frontend/psx/memcard.c
+    MCRD_handlecardevents                                        1 offset diffs [(13, 148, 94)]
+recon/frontend/psx/psxfront.cpp
+    DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii               2 offset diffs [(2, 192, 191), (20, -194, -193)]
+recon/game/common/aih_basicperp.cpp
+    CheckChaserPosition__16AIHigh_BasicPerpii                    BRANCH COUNT 6 vs 7
+recon/game/common/aih_cop.cpp
+    HighExecute__10AIHigh_Cop                                    24 offset diffs [(0, 1427, 1430), (5, 1363, 1366), (9, 1304, 1307), (10, 1297, 1300), (11, 1295, 1298), (12, 1291, 1294)]
+recon/game/common/aih_opp.cpp
+    CheckForWipeOut__15AIHigh_Opponent                           5 offset diffs [(0, 110, 112), (1, 104, 106), (4, 91, 93), (5, 82, 84), (7, 45, 51)]
+recon/game/common/camera.cpp
+    Camera_UpdateSplineCam__Fi                                   4 offset diffs [(1, 314, 317), (2, 309, 312), (13, 98, 100), (14, 92, 94)]
+recon/game/common/collide.cpp
+    Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 28 offset diffs [(0, 741, 743), (1, 735, 737), (2, 729, 731), (3, 723, 725), (4, 717, 719), (5, 711, 713)]
+recon/game/common/newton.cpp
+    Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef 1 offset diffs [(0, 4, 3)]
+    Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj          BRANCH COUNT 47 vs 48
+recon/game/common/pausemenu.cpp
+    Draw__25tPMenuItemLeftRightSliderb                           3 offset diffs [(0, 108, 106), (6, 10, 8), (10, -107, -105)]
+recon/game/common/sim.cpp
+    Sim_MainGameLoop__Fv                                         BRANCH COUNT 53 vs 54
+recon/game/common/speech.cpp
+    Report__Q26Speech15DispatchSpeakerP8Car_tObj                 2 offset diffs [(1, 35, 36), (2, 69, 70)]
+    StatusReply__Q26Speech15DispatchSpeaker                      3 offset diffs [(2, 242, 243), (5, 220, 221), (10, 30, 31)]
+recon/game/common/stats.cpp
+    Stats_TrackEndGame__Fv                                       6 offset diffs [(5, 16, 15), (6, 20, 19), (8, 44, 45), (10, 28, 29), (11, 17, 18), (15, -30, -31)]
+recon/game/psx/drawc.cpp
+    DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache 26 offset diffs [(6, 28, 27), (7, -27, -26), (8, 473, 471), (11, 1656, 1649), (12, 831, 829), (13, 1145, 1140)]
+    DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache BRANCH COUNT 91 vs 92
+    DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache 24 offset diffs [(11, 1205, 1199), (13, 785, 782), (14, 1198, 1192), (16, 1190, 1183), (24, -116, -115), (25, -127, -126)]
+recon/game/psx/draww.cpp
+    DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo 9 offset diffs [(1, 379, 380), (2, 366, 365), (6, 349, 348), (9, 240, 239), (10, 29, 28), (13, 250, 249)]
+    DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi BRANCH COUNT 12 vs 13
+    DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry             8 offset diffs [(7, 52, 53), (9, 44, 45), (10, 41, 42), (11, 38, 39), (12, 10, 12), (13, 34, 33)]
+    DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry              8 offset diffs [(0, 303, 300), (1, 295, 292), (8, 60, 57), (9, 47, 44), (10, 38, 36), (11, 12, 11)]
+    DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache BRANCH COUNT 29 vs 30
+    Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark                   4 offset diffs [(0, 286, 285), (3, -71, -70), (9, 133, 132), (13, 109, 108)]
+recon/game/psx/hrzsku.cpp
+    Hrz_BuildHorizon__FP13DRender_tView                          5 offset diffs [(7, 227, 228), (18, 144, 143), (22, 128, 127), (26, 106, 104), (27, 86, 84)]
+    Hrz_BuildSky__Fv                                             5 offset diffs [(8, 8, 9), (31, 116, 115), (32, 69, 68), (33, 96, 95), (34, 42, 41)]
+recon/game/psx/hud.cpp
+    Hud_BuildCdPlayer__Fii                                       BRANCH COUNT 63 vs 62
+    Hud_BuildMapMarkers__Fi                                      11 offset diffs [(0, 121, 122), (1, 112, 113), (14, 12, 13), (15, 7, 8), (16, 5, 6), (17, -123, -124)]
+    Hud_BuildNumbers__Fi                                         1 offset diffs [(42, 46, 38)]
+    Hud_BuildString__FPciiiib                                    1 offset diffs [(2, 154, 155)]
+    Hud_BuildTach__Fi                                            1 offset diffs [(10, 4, 3)]
+    Hud_Init__Fv                                                 1 offset diffs [(11, 11, 12)]
+    Hud_RenderTacView__Fv                                        3 offset diffs [(0, 53, 52), (1, 35, 34), (3, -42, -41)]
+recon/game/psx/overlays.cpp
+    Hud_BTCStats__Fsb                                            3 offset diffs [(19, 6, 5), (22, -29, -28), (31, 49, 50)]
+    RaceStatistics__Fv                                           2 offset diffs [(4, 301, 302), (27, -304, -305)]
+recon/game/psx/psxcontroller.cpp
+    InGame_GetPSXPadValue__Fii                                   20 offset diffs [(4, 143, 133), (5, 211, 201), (6, 207, 197), (7, 76, 68), (9, 58, 51), (11, 75, 67)]
+recon/syslib/psx/libc/SPRINTF.c
+    sprintf                                                      1 offset diffs [(54, 5, 4)]
+recon/syslib/psx/libcd/cdread.c
+    _read_int                                                    4 offset diffs [(6, 9, 10), (7, 25, 24), (12, 33, 32), (14, 10, 9)]
+    _read_issue                                                  1 offset diffs [(10, 4, 6)]
+recon/syslib/psx/libcd/drv.c
+    CD_cw                                                        1 offset diffs [(12, 102, 104)]
+    CD_init_80108140                                             2 offset diffs [(4, 11, 10), (5, 4, 5)]
+recon/syslib/psx/libcd/iso9660.c
+    CdSearchFile                                                 7 offset diffs [(1, 153, 154), (3, 143, 144), (4, 35, 36), (5, 8, 13), (6, 26, 24), (7, -8, -6)]
+recon/syslib/psx/libcd/stcdint.c
+    StCdInterrupt                                                BRANCH COUNT 57 vs 58
+    _st_dma                                                      1 offset diffs [(0, 13, 11)]
+recon/syslib/psx/libetc/INTR.c
+    _set_intr_callback                                           2 offset diffs [(0, 60, 59), (1, 56, 54)]
+recon/syslib/psx/libetc/INTR_DMA.c
+    func_80106878                                                3 offset diffs [(0, 33, 34), (1, 16, 17), (2, 16, 17)]
+recon/syslib/psx/libgpu/FONT.c
+    FntPrint                                                     1 offset diffs [(10, 8, 9)]
+recon/syslib/psx/libgpu/SYS.c
+    PutDispEnv                                                   1 offset diffs [(31, 38, 37)]
+recon/syslib/psx/libmath/DIVDF3.c
+    __divdf3                                                     6 offset diffs [(1, 8, 9), (2, 3, 4), (3, 139, 141), (6, 129, 131), (11, 11, 13), (12, 13, 15)]
+recon/syslib/psx/libmath/FIXDFSI.c
+    __fixdfsi                                                    BRANCH COUNT 10 vs 11
+recon/syslib/psx/libmcrd/LIBMCRD.c
+    MemCardCreateFile                                            1 offset diffs [(9, 17, 19)]
+    MemCardDeleteFile                                            5 offset diffs [(1, 86, 87), (2, 64, 66), (6, 17, 19), (9, -52, -54), (11, -58, -60)]
+    MemCardGetDirentry                                           12 offset diffs [(1, 114, 116), (2, 87, 91), (3, 50, 51), (4, 47, 48), (5, 39, 40), (8, 10, 11)]
+    MemCardWriteData_cb                                          1 offset diffs [(6, 53, 52)]
+recon/syslib/psx/libpad/PADCMD.c
+    _padLoadActInfo_rcv                                          9 offset diffs [(3, 144, 146), (5, 139, 141), (6, 121, 123), (7, 118, 120), (8, 81, 83), (9, 77, 79)]
+recon/syslib/psx/libpad/PADMAIN.c
+    _padInitSioMode                                              2 offset diffs [(2, 54, 53), (3, 31, 30)]
+recon/syslib/psx/libpad/PADPORTD.c
+    _pad_failall                                                 1 offset diffs [(0, 13, 11)]
+    _pad_getbyte                                                 6 offset diffs [(1, 19, 22), (2, 25, 28), (4, 27, 30), (5, 22, 25), (6, 18, 19), (8, 10, -9)]
+recon/syslib/psx/libpad/PADSEQD.c
+    _dirSendAuto                                                 1 offset diffs [(1, 32, 33)]

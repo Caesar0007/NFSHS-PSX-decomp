@@ -1,0 +1,10 @@
+{
+  "branch_retarget": {
+    "recon/frontend/psx/memcard.c": {
+      "MCRD_handlecardevents": [
+        {"branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tli\\t\\$16,22\\b)",
+         "after": "\\$L\\d+:\\n(?= #APP\\n #NO_APP\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tmove\\t\\$2,\\$16\\n)"}
+      ]
+    }
+  }
+}

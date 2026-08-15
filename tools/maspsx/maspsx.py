@@ -22,6 +22,7 @@ def main() -> None:
     parser.add_argument("--use-comm-section", action="store_true")
     parser.add_argument("--use-comm-for-lcomm", action="store_true")
     parser.add_argument("--jtbl-at-fusion", action="store_true")
+    parser.add_argument("--nop-before-label", action="store_true")
     # decomp.me debugging
     parser.add_argument("--print-output", action="store_true")
     parser.add_argument("--print-input", action="store_true")
@@ -131,6 +132,7 @@ def main() -> None:
         use_comm_section=args.use_comm_section,
         use_comm_for_lcomm=args.use_comm_for_lcomm,
         jtbl_at_fusion=args.jtbl_at_fusion,
+        nop_before_label=args.nop_before_label,
     )
     try:
         out_lines = maspsx_processor.process_lines()

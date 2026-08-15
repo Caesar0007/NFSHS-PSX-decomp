@@ -17,38 +17,44 @@ extern "C" void _vt_Draw_BlankGoTo_b()     asm("Draw__32tBlankMenuItemGoToMenuNF
 extern "C" void _vt_Draw_BlankGoTo_iib()   asm("Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib");
 extern "C" void _vt_Draw_BlankNFS4LR_iib() asm("Draw__33tBlankMenuItemNFS4LeftRightChoiceiib");
 
-static int _vtdtor_tBlankMenuItemGoToMenuNFS4Button(tBlankMenuItemGoToMenuNFS4Button *p){ p->~tBlankMenuItemGoToMenuNFS4Button(); return 0; }
-static int _vtdtor_tBlankMenuItemNFS4LeftRightChoice(tBlankMenuItemNFS4LeftRightChoice *p){ p->~tBlankMenuItemNFS4LeftRightChoice(); return 0; }
-static int _vtdtor_tMemoryCardMenuItem(tMemoryCardMenuItem *p){ p->~tMemoryCardMenuItem(); return 0; }
-static int _vtdtor_tMenu(tMenu *p){ p->~tMenu(); return 0; }
-static int _vtdtor_tMenuBlank(tMenuBlank *p){ p->~tMenuBlank(); return 0; }
-static int _vtdtor_tMenuItem(tMenuItem *p){ p->~tMenuItem(); return 0; }
-static int _vtdtor_tMenuItemControllerLeftRightChoice(tMenuItemControllerLeftRightChoice *p){ p->~tMenuItemControllerLeftRightChoice(); return 0; }
-static int _vtdtor_tMenuItemDisplayLeftRightChoice(tMenuItemDisplayLeftRightChoice *p){ p->~tMenuItemDisplayLeftRightChoice(); return 0; }
-static int _vtdtor_tMenuItemGoToMenuButton(tMenuItemGoToMenuButton *p){ p->~tMenuItemGoToMenuButton(); return 0; }
-static int _vtdtor_tMenuItemGoToMenuButtonFade(tMenuItemGoToMenuButtonFade *p){ p->~tMenuItemGoToMenuButtonFade(); return 0; }
-static int _vtdtor_tMenuItemGoToMenuNFS4Button(tMenuItemGoToMenuNFS4Button *p){ p->~tMenuItemGoToMenuNFS4Button(); return 0; }
-static int _vtdtor_tMenuItemInteractive(tMenuItemInteractive *p){ p->~tMenuItemInteractive(); return 0; }
-static int _vtdtor_tMenuItemLeftRightAudioSlider(tMenuItemLeftRightAudioSlider *p){ p->~tMenuItemLeftRightAudioSlider(); return 0; }
-static int _vtdtor_tMenuItemLeftRightChoice(tMenuItemLeftRightChoice *p){ p->~tMenuItemLeftRightChoice(); return 0; }
-static int _vtdtor_tMenuItemLeftRightFade(tMenuItemLeftRightFade *p){ p->~tMenuItemLeftRightFade(); return 0; }
-static int _vtdtor_tMenuItemLeftRightSlider(tMenuItemLeftRightSlider *p){ p->~tMenuItemLeftRightSlider(); return 0; }
-static int _vtdtor_tMenuItemNFS4LeftRightChoice(tMenuItemNFS4LeftRightChoice *p){ p->~tMenuItemNFS4LeftRightChoice(); return 0; }
-static int _vtdtor_tMenuItemOnOffLeftRightChoice(tMenuItemOnOffLeftRightChoice *p){ p->~tMenuItemOnOffLeftRightChoice(); return 0; }
-static int _vtdtor_tMenuItemOptionsLeftRightChoice(tMenuItemOptionsLeftRightChoice *p){ p->~tMenuItemOptionsLeftRightChoice(); return 0; }
-static int _vtdtor_tMenuItemOptionsTwoItemChoice(tMenuItemOptionsTwoItemChoice *p){ p->~tMenuItemOptionsTwoItemChoice(); return 0; }
-static int _vtdtor_tMenuItemSlidingActivated(tMenuItemSlidingActivated *p){ p->~tMenuItemSlidingActivated(); return 0; }
-static int _vtdtor_tMenuItemSlidingMenu(tMenuItemSlidingMenu *p){ p->~tMenuItemSlidingMenu(); return 0; }
-static int _vtdtor_tMenuNFS4(tMenuNFS4 *p){ p->~tMenuNFS4(); return 0; }
-static int _vtdtor_tMenuNFS4Bottom(tMenuNFS4Bottom *p){ p->~tMenuNFS4Bottom(); return 0; }
-static int _vtdtor_tMenuNFS4TwoPlayer(tMenuNFS4TwoPlayer *p){ p->~tMenuNFS4TwoPlayer(); return 0; }
-static int _vtdtor_tMenuOptions(tMenuOptions *p){ p->~tMenuOptions(); return 0; }
-static int _vtdtor_tOptionsMenu(tOptionsMenu *p){ p->~tOptionsMenu(); return 0; }
-static int _vtdtor_tUserNameMenuItem(tUserNameMenuItem *p){ p->~tUserNameMenuItem(); return 0; }
+/* w66-a2: retail's dtor slot holds a REAL destructor symbol (read per slot out
+ * of asm/data/*.s at the slot VA+4 -- for a class with no declared dtor that is
+ * an ANCESTOR's `___<len><Base>`, w65-a3's DTOR-DEPTH LAW).  The slots below name
+ * those symbols directly; the fabricated per-class wrappers
+ * `static int wrap(X *p){ p->~X(); return 0; }` (an artifact of C++ forbidding
+ * `&Class::~Class`) are gone. */
+extern "C" void ___10tMenuBlank(void *thisp);   /* ~tMenuBlank */
+extern "C" void ___12tMenuOptions(void *thisp);   /* ~tMenuOptions */
+extern "C" void ___12tOptionsMenu(void *thisp);   /* ~tOptionsMenu */
+extern "C" void ___15tMenuNFS4Bottom(void *thisp);   /* ~tMenuNFS4Bottom */
+extern "C" void ___17tUserNameMenuItem(void *thisp);   /* ~tUserNameMenuItem */
+extern "C" void ___18tMenuNFS4TwoPlayer(void *thisp);   /* ~tMenuNFS4TwoPlayer */
+extern "C" void ___19tMemoryCardMenuItem(void *thisp);   /* ~tMemoryCardMenuItem */
+extern "C" void ___20tMenuItemInteractive(void *thisp);   /* ~tMenuItemInteractive */
+extern "C" void ___20tMenuItemSlidingMenu(void *thisp);   /* ~tMenuItemSlidingMenu */
+extern "C" void ___22tMenuItemLeftRightFade(void *thisp);   /* ~tMenuItemLeftRightFade */
+extern "C" void ___23tMenuItemGoToMenuButton(void *thisp);   /* ~tMenuItemGoToMenuButton */
+extern "C" void ___24tMenuItemLeftRightChoice(void *thisp);   /* ~tMenuItemLeftRightChoice */
+extern "C" void ___24tMenuItemLeftRightSlider(void *thisp);   /* ~tMenuItemLeftRightSlider */
+extern "C" void ___25tMenuItemSlidingActivated(void *thisp);   /* ~tMenuItemSlidingActivated */
+extern "C" void ___27tMenuItemGoToMenuButtonFade(void *thisp);   /* ~tMenuItemGoToMenuButtonFade */
+extern "C" void ___27tMenuItemGoToMenuNFS4Button(void *thisp);   /* ~tMenuItemGoToMenuNFS4Button */
+extern "C" void ___28tMenuItemNFS4LeftRightChoice(void *thisp);   /* ~tMenuItemNFS4LeftRightChoice */
+extern "C" void ___29tMenuItemLeftRightAudioSlider(void *thisp);   /* ~tMenuItemLeftRightAudioSlider */
+extern "C" void ___29tMenuItemOnOffLeftRightChoice(void *thisp);   /* ~tMenuItemOnOffLeftRightChoice */
+extern "C" void ___29tMenuItemOptionsTwoItemChoice(void *thisp);   /* ~tMenuItemOptionsTwoItemChoice */
+extern "C" void ___31tMenuItemDisplayLeftRightChoice(void *thisp);   /* ~tMenuItemDisplayLeftRightChoice */
+extern "C" void ___31tMenuItemOptionsLeftRightChoice(void *thisp);   /* ~tMenuItemOptionsLeftRightChoice */
+extern "C" void ___32tBlankMenuItemGoToMenuNFS4Button(void *thisp);   /* ~tBlankMenuItemGoToMenuNFS4Button */
+extern "C" void ___33tBlankMenuItemNFS4LeftRightChoice(void *thisp);   /* ~tBlankMenuItemNFS4LeftRightChoice */
+extern "C" void ___34tMenuItemControllerLeftRightChoice(void *thisp);   /* ~tMenuItemControllerLeftRightChoice */
+extern "C" void ___5tMenu(void *thisp);   /* ~tMenu */
+extern "C" void ___9tMenuItem(void *thisp);   /* ~tMenuItem */
+extern "C" void ___9tMenuNFS4(void *thisp);   /* ~tMenuNFS4 */
 
 __vtbl_ptr_type tBlankMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x800114d8 */
   {0, 0, (int (*)(...))0},    /* @0x800114d8  null */
-  {0, 0, (int (*)(...))&_vtdtor_tBlankMenuItemGoToMenuNFS4Button},    /* @0x800114e0  ~tBlankMenuItemGoToMenuNFS4Button */
+  {0, 0, (int (*)(...))&___32tBlankMenuItemGoToMenuNFS4Button},    /* @0x800114e0  ~tBlankMenuItemGoToMenuNFS4Button */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x800114e8  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x800114f0  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&_vt_Draw_BlankGoTo_b},    /* @0x800114f8  Draw__32tBlankMenuItemGoToMenuNFS4Buttonb [overload by-arity; recon types differ from SYM] */
@@ -61,7 +67,7 @@ __vtbl_ptr_type tBlankMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x800114d8
 };
 __vtbl_ptr_type tBlankMenuItemNFS4LeftRightChoice_vtable[11] = {   /* @0x80011530 */
   {0, 0, (int (*)(...))0},    /* @0x80011530  null */
-  {0, 0, (int (*)(...))&_vtdtor_tBlankMenuItemNFS4LeftRightChoice},    /* @0x80011538  ~tBlankMenuItemNFS4LeftRightChoice */
+  {0, 0, (int (*)(...))&___33tBlankMenuItemNFS4LeftRightChoice},    /* @0x80011538  ~tBlankMenuItemNFS4LeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80011540  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80011548  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80011550  Draw__24tMenuItemLeftRightChoiceb */
@@ -74,7 +80,7 @@ __vtbl_ptr_type tBlankMenuItemNFS4LeftRightChoice_vtable[11] = {   /* @0x8001153
 };
 __vtbl_ptr_type tMemoryCardMenuItem_vtable[11] = {   /* @0x80010a68 */
   {0, 0, (int (*)(...))0},    /* @0x80010a68  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMemoryCardMenuItem},    /* @0x80010a70  ~tMemoryCardMenuItem */
+  {0, 0, (int (*)(...))&___19tMemoryCardMenuItem},    /* @0x80010a70  ~tMemoryCardMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010a78  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x80010a80  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMemoryCardMenuItem::Draw},    /* @0x80010a88  Draw__19tMemoryCardMenuItemb */
@@ -87,7 +93,7 @@ __vtbl_ptr_type tMemoryCardMenuItem_vtable[11] = {   /* @0x80010a68 */
 };
 __vtbl_ptr_type tMenuBlank_vtable[12] = {   /* @0x80010680 */
   {0, 0, (int (*)(...))0},    /* @0x80010680  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuBlank},    /* @0x80010688  ~tMenuBlank */
+  {0, 0, (int (*)(...))&___10tMenuBlank},    /* @0x80010688  ~tMenuBlank */
   {0, 0, (int (*)(...))&tMenuBlank::Initialize},    /* @0x80010690  Initialize__10tMenuBlank */
   {0, 0, (int (*)(...))&tMenuBlank::ProcessInput},    /* @0x80010698  ProcessInput__10tMenuBlank7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuBlank::DebounceKeys},    /* @0x800106a0  DebounceKeys__10tMenuBlank */
@@ -101,7 +107,7 @@ __vtbl_ptr_type tMenuBlank_vtable[12] = {   /* @0x80010680 */
 };
 __vtbl_ptr_type tMenuItemControllerLeftRightChoice_vtable[11] = {   /* @0x80010c20 */
   {0, 0, (int (*)(...))0},    /* @0x80010c20  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemControllerLeftRightChoice},    /* @0x80010c28  ~tMenuItemControllerLeftRightChoice */
+  {0, 0, (int (*)(...))&___34tMenuItemControllerLeftRightChoice},    /* @0x80010c28  ~tMenuItemControllerLeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010c30  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80010c38  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80010c40  Draw__24tMenuItemLeftRightChoiceb */
@@ -114,7 +120,7 @@ __vtbl_ptr_type tMenuItemControllerLeftRightChoice_vtable[11] = {   /* @0x80010c
 };
 __vtbl_ptr_type tMenuItemDisplayLeftRightChoice_vtable[11] = {   /* @0x80010d90 */
   {0, 0, (int (*)(...))0},    /* @0x80010d90  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemDisplayLeftRightChoice},    /* @0x80010d98  ~tMenuItemDisplayLeftRightChoice */
+  {0, 0, (int (*)(...))&___31tMenuItemDisplayLeftRightChoice},    /* @0x80010d98  ~tMenuItemDisplayLeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010da0  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80010da8  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80010db0  Draw__24tMenuItemLeftRightChoiceb */
@@ -127,7 +133,7 @@ __vtbl_ptr_type tMenuItemDisplayLeftRightChoice_vtable[11] = {   /* @0x80010d90 
 };
 __vtbl_ptr_type tMenuItemGoToMenuButtonFade_vtable[11] = {   /* @0x80010ac0 */
   {0, 0, (int (*)(...))0},    /* @0x80010ac0  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemGoToMenuButtonFade},    /* @0x80010ac8  ~tMenuItemGoToMenuButtonFade */
+  {0, 0, (int (*)(...))&___27tMenuItemGoToMenuButtonFade},    /* @0x80010ac8  ~tMenuItemGoToMenuButtonFade */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010ad0  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x80010ad8  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&__pure_virtual},    /* @0x80010ae0  __pure_virtual */
@@ -140,7 +146,7 @@ __vtbl_ptr_type tMenuItemGoToMenuButtonFade_vtable[11] = {   /* @0x80010ac0 */
 };
 __vtbl_ptr_type tMenuItemGoToMenuButton_vtable[11] = {   /* @0x80011120 */
   {0, 0, (int (*)(...))0},    /* @0x80011120  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemGoToMenuButton},    /* @0x80011128  ~tMenuItemGoToMenuButton */
+  {0, 0, (int (*)(...))&___23tMenuItemGoToMenuButton},    /* @0x80011128  ~tMenuItemGoToMenuButton */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80011130  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x80011138  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&__pure_virtual},    /* @0x80011140  __pure_virtual */
@@ -153,7 +159,7 @@ __vtbl_ptr_type tMenuItemGoToMenuButton_vtable[11] = {   /* @0x80011120 */
 };
 __vtbl_ptr_type tMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x80010908 */
   {0, 0, (int (*)(...))0},    /* @0x80010908  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemGoToMenuNFS4Button},    /* @0x80010910  ~tMenuItemGoToMenuNFS4Button */
+  {0, 0, (int (*)(...))&___27tMenuItemGoToMenuNFS4Button},    /* @0x80010910  ~tMenuItemGoToMenuNFS4Button */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010918  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x80010920  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))(void (tMenuItemGoToMenuNFS4Button::*)(bool))&tMenuItemGoToMenuNFS4Button::Draw},    /* @0x80010928  Draw__27tMenuItemGoToMenuNFS4Buttonb [overload] */
@@ -166,7 +172,7 @@ __vtbl_ptr_type tMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x80010908 */
 };
 __vtbl_ptr_type tMenuItemInteractive_vtable[11] = {   /* @0x80011228 */
   {0, 0, (int (*)(...))0},    /* @0x80011228  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemInteractive},    /* @0x80011230  ~tMenuItemInteractive */
+  {0, 0, (int (*)(...))&___20tMenuItemInteractive},    /* @0x80011230  ~tMenuItemInteractive */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80011238  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::ProcessInput},    /* @0x80011240  ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&__pure_virtual},    /* @0x80011248  __pure_virtual */
@@ -179,7 +185,7 @@ __vtbl_ptr_type tMenuItemInteractive_vtable[11] = {   /* @0x80011228 */
 };
 __vtbl_ptr_type tMenuItemLeftRightAudioSlider_vtable[11] = {   /* @0x80010ce0 */
   {0, 0, (int (*)(...))0},    /* @0x80010ce0  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemLeftRightAudioSlider},    /* @0x80010ce8  ~tMenuItemLeftRightAudioSlider */
+  {0, 0, (int (*)(...))&___29tMenuItemLeftRightAudioSlider},    /* @0x80010ce8  ~tMenuItemLeftRightAudioSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010cf0  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::ProcessInput},    /* @0x80010cf8  ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010d00  Draw__24tMenuItemLeftRightSliderb */
@@ -192,7 +198,7 @@ __vtbl_ptr_type tMenuItemLeftRightAudioSlider_vtable[11] = {   /* @0x80010ce0 */
 };
 __vtbl_ptr_type tMenuItemLeftRightChoice_vtable[11] = {   /* @0x800111d0 */
   {0, 0, (int (*)(...))0},    /* @0x800111d0  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemLeftRightChoice},    /* @0x800111d8  ~tMenuItemLeftRightChoice */
+  {0, 0, (int (*)(...))&___24tMenuItemLeftRightChoice},    /* @0x800111d8  ~tMenuItemLeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x800111e0  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x800111e8  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x800111f0  Draw__24tMenuItemLeftRightChoiceb */
@@ -205,7 +211,7 @@ __vtbl_ptr_type tMenuItemLeftRightChoice_vtable[11] = {   /* @0x800111d0 */
 };
 __vtbl_ptr_type tMenuItemLeftRightFade_vtable[11] = {   /* @0x80010f60 */
   {0, 0, (int (*)(...))0},    /* @0x80010f60  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemLeftRightFade},    /* @0x80010f68  ~tMenuItemLeftRightFade */
+  {0, 0, (int (*)(...))&___22tMenuItemLeftRightFade},    /* @0x80010f68  ~tMenuItemLeftRightFade */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010f70  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80010f78  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80010f80  Draw__24tMenuItemLeftRightChoiceb */
@@ -218,7 +224,7 @@ __vtbl_ptr_type tMenuItemLeftRightFade_vtable[11] = {   /* @0x80010f60 */
 };
 __vtbl_ptr_type tMenuItemLeftRightSlider_vtable[11] = {   /* @0x80011178 */
   {0, 0, (int (*)(...))0},    /* @0x80011178  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemLeftRightSlider},    /* @0x80011180  ~tMenuItemLeftRightSlider */
+  {0, 0, (int (*)(...))&___24tMenuItemLeftRightSlider},    /* @0x80011180  ~tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80011188  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::ProcessInput},    /* @0x80011190  ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80011198  Draw__24tMenuItemLeftRightSliderb */
@@ -231,7 +237,7 @@ __vtbl_ptr_type tMenuItemLeftRightSlider_vtable[11] = {   /* @0x80011178 */
 };
 __vtbl_ptr_type tMenuItemNFS4LeftRightChoice_vtable[11] = {   /* @0x800108b0 */
   {0, 0, (int (*)(...))0},    /* @0x800108b0  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemNFS4LeftRightChoice},    /* @0x800108b8  ~tMenuItemNFS4LeftRightChoice */
+  {0, 0, (int (*)(...))&___28tMenuItemNFS4LeftRightChoice},    /* @0x800108b8  ~tMenuItemNFS4LeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x800108c0  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x800108c8  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x800108d0  Draw__24tMenuItemLeftRightChoiceb */
@@ -244,7 +250,7 @@ __vtbl_ptr_type tMenuItemNFS4LeftRightChoice_vtable[11] = {   /* @0x800108b0 */
 };
 __vtbl_ptr_type tMenuItemOnOffLeftRightChoice_vtable[11] = {   /* @0x80010d38 */
   {0, 0, (int (*)(...))0},    /* @0x80010d38  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemOnOffLeftRightChoice},    /* @0x80010d40  ~tMenuItemOnOffLeftRightChoice */
+  {0, 0, (int (*)(...))&___29tMenuItemOnOffLeftRightChoice},    /* @0x80010d40  ~tMenuItemOnOffLeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010d48  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80010d50  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80010d58  Draw__24tMenuItemLeftRightChoiceb */
@@ -257,7 +263,7 @@ __vtbl_ptr_type tMenuItemOnOffLeftRightChoice_vtable[11] = {   /* @0x80010d38 */
 };
 __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[11] = {   /* @0x80010858 */
   {0, 0, (int (*)(...))0},    /* @0x80010858  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemOptionsLeftRightChoice},    /* @0x80010860  ~tMenuItemOptionsLeftRightChoice */
+  {0, 0, (int (*)(...))&___31tMenuItemOptionsLeftRightChoice},    /* @0x80010860  ~tMenuItemOptionsLeftRightChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010868  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80010870  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80010878  Draw__24tMenuItemLeftRightChoiceb */
@@ -270,7 +276,7 @@ __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[11] = {   /* @0x80010858 
 };
 __vtbl_ptr_type tMenuItemOptionsTwoItemChoice_vtable[11] = {   /* @0x80010800 */
   {0, 0, (int (*)(...))0},    /* @0x80010800  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemOptionsTwoItemChoice},    /* @0x80010808  ~tMenuItemOptionsTwoItemChoice */
+  {0, 0, (int (*)(...))&___29tMenuItemOptionsTwoItemChoice},    /* @0x80010808  ~tMenuItemOptionsTwoItemChoice */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010810  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::ProcessInput},    /* @0x80010818  ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightChoice::Draw},    /* @0x80010820  Draw__24tMenuItemLeftRightChoiceb */
@@ -283,7 +289,7 @@ __vtbl_ptr_type tMenuItemOptionsTwoItemChoice_vtable[11] = {   /* @0x80010800 */
 };
 __vtbl_ptr_type tMenuItemSlidingActivated_vtable[12] = {   /* @0x80010de8 */
   {0, 0, (int (*)(...))0},    /* @0x80010de8  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemSlidingActivated},    /* @0x80010df0  ~tMenuItemSlidingActivated */
+  {0, 0, (int (*)(...))&___25tMenuItemSlidingActivated},    /* @0x80010df0  ~tMenuItemSlidingActivated */
   {0, 0, (int (*)(...))&tMenuItemSlidingMenu::DebounceKeys},    /* @0x80010df8  DebounceKeys__20tMenuItemSlidingMenu */
   {0, 0, (int (*)(...))&tMenuItemSlidingActivated::ProcessInput},    /* @0x80010e00  ProcessInput__25tMenuItemSlidingActivated7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))(void (tMenuItemSlidingMenu::*)(bool))&tMenuItemSlidingMenu::Draw},    /* @0x80010e08  Draw__20tMenuItemSlidingMenub [overload] */
@@ -297,7 +303,7 @@ __vtbl_ptr_type tMenuItemSlidingActivated_vtable[12] = {   /* @0x80010de8 */
 };
 __vtbl_ptr_type tMenuItemSlidingMenu_vtable[12] = {   /* @0x80010e48 */
   {0, 0, (int (*)(...))0},    /* @0x80010e48  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItemSlidingMenu},    /* @0x80010e50  ~tMenuItemSlidingMenu */
+  {0, 0, (int (*)(...))&___20tMenuItemSlidingMenu},    /* @0x80010e50  ~tMenuItemSlidingMenu */
   {0, 0, (int (*)(...))&tMenuItemSlidingMenu::DebounceKeys},    /* @0x80010e58  DebounceKeys__20tMenuItemSlidingMenu */
   {0, 0, (int (*)(...))&tMenuItemSlidingMenu::ProcessInput},    /* @0x80010e60  ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))(void (tMenuItemSlidingMenu::*)(bool))&tMenuItemSlidingMenu::Draw},    /* @0x80010e68  Draw__20tMenuItemSlidingMenub [overload] */
@@ -311,7 +317,7 @@ __vtbl_ptr_type tMenuItemSlidingMenu_vtable[12] = {   /* @0x80010e48 */
 };
 __vtbl_ptr_type tMenuItem_vtable[11] = {   /* @0x80011280 */
   {0, 0, (int (*)(...))0},    /* @0x80011280  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuItem},    /* @0x80011288  ~tMenuItem */
+  {0, 0, (int (*)(...))&___9tMenuItem},    /* @0x80011288  ~tMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80011290  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::ProcessInput},    /* @0x80011298  ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&__pure_virtual},    /* @0x800112a0  __pure_virtual */
@@ -324,7 +330,7 @@ __vtbl_ptr_type tMenuItem_vtable[11] = {   /* @0x80011280 */
 };
 __vtbl_ptr_type tMenuNFS4Bottom_vtable[12] = {   /* @0x800106e0 */
   {0, 0, (int (*)(...))0},    /* @0x800106e0  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuNFS4Bottom},    /* @0x800106e8  ~tMenuNFS4Bottom */
+  {0, 0, (int (*)(...))&___15tMenuNFS4Bottom},    /* @0x800106e8  ~tMenuNFS4Bottom */
   {0, 0, (int (*)(...))&tMenuNFS4::Initialize},    /* @0x800106f0  Initialize__9tMenuNFS4 */
   {0, 0, (int (*)(...))&tMenuNFS4::ProcessInput},    /* @0x800106f8  ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenu::DebounceKeys},    /* @0x80010700  DebounceKeys__5tMenu */
@@ -338,7 +344,7 @@ __vtbl_ptr_type tMenuNFS4Bottom_vtable[12] = {   /* @0x800106e0 */
 };
 __vtbl_ptr_type tMenuNFS4TwoPlayer_vtable[12] = {   /* @0x80010740 */
   {0, 0, (int (*)(...))0},    /* @0x80010740  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuNFS4TwoPlayer},    /* @0x80010748  ~tMenuNFS4TwoPlayer */
+  {0, 0, (int (*)(...))&___18tMenuNFS4TwoPlayer},    /* @0x80010748  ~tMenuNFS4TwoPlayer */
   {0, 0, (int (*)(...))&tMenuNFS4::Initialize},    /* @0x80010750  Initialize__9tMenuNFS4 */
   {0, 0, (int (*)(...))&tMenuNFS4::ProcessInput},    /* @0x80010758  ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenu::DebounceKeys},    /* @0x80010760  DebounceKeys__5tMenu */
@@ -352,7 +358,7 @@ __vtbl_ptr_type tMenuNFS4TwoPlayer_vtable[12] = {   /* @0x80010740 */
 };
 __vtbl_ptr_type tMenuNFS4_vtable[12] = {   /* @0x800107a0 */
   {0, 0, (int (*)(...))0},    /* @0x800107a0  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuNFS4},    /* @0x800107a8  ~tMenuNFS4 */
+  {0, 0, (int (*)(...))&___9tMenuNFS4},    /* @0x800107a8  ~tMenuNFS4 */
   {0, 0, (int (*)(...))&tMenuNFS4::Initialize},    /* @0x800107b0  Initialize__9tMenuNFS4 */
   {0, 0, (int (*)(...))&tMenuNFS4::ProcessInput},    /* @0x800107b8  ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenu::DebounceKeys},    /* @0x800107c0  DebounceKeys__5tMenu */
@@ -366,7 +372,7 @@ __vtbl_ptr_type tMenuNFS4_vtable[12] = {   /* @0x800107a0 */
 };
 __vtbl_ptr_type tMenuOptions_vtable[12] = {   /* @0x80010620 */
   {0, 0, (int (*)(...))0},    /* @0x80010620  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenuOptions},    /* @0x80010628  ~tMenuOptions */
+  {0, 0, (int (*)(...))&___12tMenuOptions},    /* @0x80010628  ~tMenuOptions */
   {0, 0, (int (*)(...))&tMenuNFS4::Initialize},    /* @0x80010630  Initialize__9tMenuNFS4 */
   {0, 0, (int (*)(...))&tMenuOptions::ProcessInput},    /* @0x80010638  ProcessInput__12tMenuOptions7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenu::DebounceKeys},    /* @0x80010640  DebounceKeys__5tMenu */
@@ -380,7 +386,7 @@ __vtbl_ptr_type tMenuOptions_vtable[12] = {   /* @0x80010620 */
 };
 __vtbl_ptr_type tMenu_vtable[11] = {   /* @0x800110c8 */
   {0, 0, (int (*)(...))0},    /* @0x800110c8  null */
-  {0, 0, (int (*)(...))&_vtdtor_tMenu},    /* @0x800110d0  ~tMenu */
+  {0, 0, (int (*)(...))&___5tMenu},    /* @0x800110d0  ~tMenu */
   {0, 0, (int (*)(...))&tMenu::Initialize},    /* @0x800110d8  Initialize__5tMenu */
   {0, 0, (int (*)(...))&tMenu::ProcessInput},    /* @0x800110e0  ProcessInput__5tMenu7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenu::DebounceKeys},    /* @0x800110e8  DebounceKeys__5tMenu */
@@ -393,7 +399,7 @@ __vtbl_ptr_type tMenu_vtable[11] = {   /* @0x800110c8 */
 };
 __vtbl_ptr_type tOptionsMenu_vtable[11] = {   /* @0x80010f08 */
   {0, 0, (int (*)(...))0},    /* @0x80010f08  null */
-  {0, 0, (int (*)(...))&_vtdtor_tOptionsMenu},    /* @0x80010f10  ~tOptionsMenu */
+  {0, 0, (int (*)(...))&___12tOptionsMenu},    /* @0x80010f10  ~tOptionsMenu */
   {0, 0, (int (*)(...))&tMenu::Initialize},    /* @0x80010f18  Initialize__5tMenu */
   {0, 0, (int (*)(...))&tOptionsMenu::ProcessInput},    /* @0x80010f20  ProcessInput__12tOptionsMenu7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tOptionsMenu::DebounceKeys},    /* @0x80010f28  DebounceKeys__12tOptionsMenu */
@@ -406,7 +412,7 @@ __vtbl_ptr_type tOptionsMenu_vtable[11] = {   /* @0x80010f08 */
 };
 __vtbl_ptr_type tUserNameMenuItem_vtable[11] = {   /* @0x80010b18 */
   {0, 0, (int (*)(...))0},    /* @0x80010b18  null */
-  {0, 0, (int (*)(...))&_vtdtor_tUserNameMenuItem},    /* @0x80010b20  ~tUserNameMenuItem */
+  {0, 0, (int (*)(...))&___17tUserNameMenuItem},    /* @0x80010b20  ~tUserNameMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x80010b28  DebounceKeys__9tMenuItem */
   {0, 0, (int (*)(...))&tUserNameMenuItem::ProcessInput},    /* @0x80010b30  ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tUserNameMenuItem::Draw},    /* @0x80010b38  Draw__17tUserNameMenuItemb */

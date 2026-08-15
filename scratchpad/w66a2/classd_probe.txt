@@ -1,0 +1,44 @@
+=== recon/frontend/common/fememcard.cpp CONTROL
+# 18 fns checked, 0 with branch-offset/count divergence
+=== recon/frontend/common/fememcard.cpp FLAG-ON
+LoadGame__FsbT1                                              1 offset diffs [(36, 6, 5)]
+# 18 fns checked, 1 with branch-offset/count divergence
+=== recon/frontend/common/fescreen.cpp CONTROL
+# 27 fns checked, 0 with branch-offset/count divergence
+=== recon/frontend/common/fescreen.cpp FLAG-ON
+Draw__7tScreenb                                              1 offset diffs [(1, 7, 6)]
+# 27 fns checked, 1 with branch-offset/count divergence
+=== recon/frontend/common/screencarselect.cpp CONTROL
+# 59 fns checked, 0 with branch-offset/count divergence
+=== recon/frontend/common/screencarselect.cpp FLAG-ON
+# 59 fns checked, 0 with branch-offset/count divergence
+=== recon/frontend/common/screenmain.cpp CONTROL
+DrawBackground__11tScreenMain                                1 offset diffs [(9, 11, 12)]
+# 13 fns checked, 1 with branch-offset/count divergence
+=== recon/frontend/common/screenmain.cpp FLAG-ON
+DrawBackground__11tScreenMain                                1 offset diffs [(9, 11, 12)]
+# 13 fns checked, 1 with branch-offset/count divergence
+=== recon/frontend/psx/memcard.c CONTROL
+MCRD_handlecardevents                                        1 offset diffs [(13, 148, 94)]
+# 20 fns checked, 1 with branch-offset/count divergence
+=== recon/frontend/psx/memcard.c FLAG-ON
+MCRD_handlecardevents                                        1 offset diffs [(13, 148, 94)]
+# 20 fns checked, 1 with branch-offset/count divergence
+=== recon/game/psx/hud.cpp CONTROL
+Hud_BuildCdPlayer__Fii                                       BRANCH COUNT 63 vs 62
+Hud_BuildMapMarkers__Fi                                      11 offset diffs [(0, 121, 122), (1, 112, 113), (14, 12, 13), (15, 7, 8), (16, 5, 6), (17, -123, -124)]
+Hud_BuildNumbers__Fi                                         1 offset diffs [(42, 46, 38)]
+Hud_BuildString__FPciiiib                                    1 offset diffs [(2, 154, 155)]
+Hud_BuildTach__Fi                                            1 offset diffs [(10, 4, 3)]
+Hud_Init__Fv                                                 1 offset diffs [(11, 11, 12)]
+Hud_RenderTacView__Fv                                        3 offset diffs [(0, 53, 52), (1, 35, 34), (3, -42, -41)]
+# 62 fns checked, 7 with branch-offset/count divergence
+=== recon/game/psx/hud.cpp FLAG-ON
+Hud_BuildCdPlayer__Fii                                       BRANCH COUNT 63 vs 62
+Hud_BuildMapMarkers__Fi                                      11 offset diffs [(0, 121, 122), (1, 112, 113), (14, 12, 13), (15, 7, 8), (16, 5, 6), (17, -123, -124)]
+Hud_BuildNumbers__Fi                                         1 offset diffs [(42, 46, 38)]
+Hud_BuildString__FPciiiib                                    1 offset diffs [(2, 154, 155)]
+Hud_BuildTach__Fi                                            1 offset diffs [(10, 4, 3)]
+Hud_Init__Fv                                                 1 offset diffs [(11, 11, 12)]
+Hud_RenderTacView__Fv                                        3 offset diffs [(0, 53, 52), (1, 35, 34), (3, -42, -41)]
+# 62 fns checked, 7 with branch-offset/count divergence

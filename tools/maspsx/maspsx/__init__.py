@@ -529,9 +529,11 @@ class MaspsxProcessor:
         use_comm_section=False,
         use_comm_for_lcomm=False,
         jtbl_at_fusion=False,
+        nop_before_label=False,
     ):
         self.lines = [x.strip() for x in lines]
         self.jtbl_at_fusion = jtbl_at_fusion
+        self.nop_before_label = nop_before_label
 
         self.sdata_limit = sdata_limit
 
@@ -832,10 +834,18 @@ class MaspsxProcessor:
                 label = self.get_next_instruction(
                     skip=0, ignore_nop=True, ignore_set=True
                 )
+                nop = f"nop # DEBUG: Reuse of '{r_dest}'. {reason}"
                 if is_label(label):
-                    res.append(label)
                     self.skip_instructions = 1
-                res.append(f"nop # DEBUG: Reuse of '{r_dest}'. {reason}")
+                    if self.nop_before_label:
+                        # OPT-IN (--nop-before-label): keep the inserted
+                        # load-delay nop BEFORE the following label, so the
+                        # label denotes the instruction after the nop.
+                        res.append(nop)
+                        res.append(label)
+                        return res
+                    res.append(label)
+                res.append(nop)
         else:
             res.append(
                 f"#nop # DEBUG: '{next_instruction}' does not load from {r_dest}"

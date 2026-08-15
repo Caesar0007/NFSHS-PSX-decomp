@@ -1,0 +1,32 @@
+{
+  "_what": "w66-a2 wiring spec for the maspsx OPT-IN flag --nop-before-label (default OFF, proven byte-inert tree-wide).",
+  "_build_py_edit_1": {
+    "where": "the PER_TU_FLAGS header comment block, beside the jtbl_at_fusion line",
+    "text": "#   \"nop_before_label\"   -> pass --nop-before-label to maspsx for this TU only\n#                           (maspsx then emits an inserted load-delay nop BEFORE a\n#                           following label instead of hoisting the label above it --\n#                           retail/aspsx placement; closes FntPrint's class-d branch\n#                           word.  PER-TU ONLY: measured to BREAK fememcard/fescreen.)"
+  },
+  "_build_py_edit_2": {
+    "where": "compile_c AND compile_cpp, immediately after the existing `if JTBL_AT_FUSION or tu_flags.get(\"jtbl_at_fusion\"): maspsx_cmd.append(\"--jtbl-at-fusion\")`",
+    "text": "    if tu_flags.get(\"nop_before_label\"):\n        maspsx_cmd.append(\"--nop-before-label\")"
+  },
+  "_build_py_edit_3": {
+    "where": "PER_TU_FLAGS -- MERGE INTO THE EXISTING FONT.c ENTRY (build.py:359). A second dict key with the same string SILENTLY DISCARDS the first (the w47/w60 dup-key hazard).",
+    "before": "\"recon/syslib/psx/libgpu/FONT.c\":       {\"jtbl_at_fusion\": True,   # FntPrint",
+    "after": "\"recon/syslib/psx/libgpu/FONT.c\":       {\"jtbl_at_fusion\": True,   # FntPrint\n                                            \"nop_before_label\": True,  # w66-a2: brdist (10,8,9)->0"
+  },
+  "_evidence": {
+    "byte_inert_default_off": "full-tree A/B build: 1207/1207 objects byte-identical (4 peer-churned TUs re-proved at fixed sources: 0/4 differ)",
+    "probe_gate": "tugate FONT.c 1/2 with and without the flag (FntPrint PASS both; FntFlush FAIL 2 pre-existing/peer-live)",
+    "probe_brdist": "brdist FONT.c 1 divergent row -> 0, measured twice each way",
+    "probe_object": "objdump word diff = exactly 1 word (45c: j 0800011f -> 08000120), 439/439 insns",
+    "per_tu_only": "flag ON breaks fememcard LoadGame__FsbT1 (0->1) and fescreen Draw__7tScreenb (0->1); no effect on screenmain/memcard/hud; screencarselect neutral"
+  },
+  "_after_wiring": [
+    "re-gate FONT.c WIRED (hookless) and gate the whole TU twice",
+    "re-run tools/brdist.py on FONT.c (expect 0 rows)",
+    "no other TU may take the key without its own control-vs-flag brdist A/B"
+  ],
+  "_maspsx_copies": [
+    "C:/Temp/maspsx-master/maspsx/__init__.py + maspsx.py  (NOT under git -- the copy build.py runs by default via NFS4_MASPSX)",
+    "tools/maspsx/maspsx/__init__.py + tools/maspsx/maspsx.py  (tracked; kept byte-identical to the above)"
+  ]
+}

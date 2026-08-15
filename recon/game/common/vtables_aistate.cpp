@@ -4,7 +4,13 @@
 #include "../../nfs4_types.h"
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
 
-static int _vtdtor_AIState_Base(AIState_Base *p){ p->~AIState_Base(); return 0; }
+/* w66-a2: retail's dtor slot holds a REAL destructor symbol (read per slot out
+ * of asm/data/*.s at the slot VA+4 -- for a class with no declared dtor that is
+ * an ANCESTOR's `___<len><Base>`, w65-a3's DTOR-DEPTH LAW).  The slots below name
+ * those symbols directly; the fabricated per-class wrappers
+ * `static int wrap(X *p){ p->~X(); return 0; }` (an artifact of C++ forbidding
+ * `&Class::~Class`) are gone. */
+extern "C" void ___12AIState_Base_80072838(void *thisp);   /* ~AIState_Base */
 /* SS3.23 real-deleting-dtor free fns (___<N><Class>(Class*,int __in_chrg), aistate.cpp) --
    these 10 are no longer C++ member dtors (a real member dtor for this non-polymorphic
    single-inheritance shape always compiles to gcc's simple base-forward, not the oracle's
@@ -93,6 +99,6 @@ __vtbl_ptr_type AIState_Normal_vtable[4] = {   /* @0x80055620 */
 __vtbl_ptr_type AIState_Base_vtable[4] = {   /* @0x80055640 */
   {0, 0, (int (*)(...))0},                           /* @0x80055640  null */
   {0, 0, (int (*)(...))&__pure_virtual},             /* @0x80055648  __pure_virtual */
-  {0, 0, (int (*)(...))&_vtdtor_AIState_Base},       /* @0x80055650  ~AIState_Base */
+  {0, 0, (int (*)(...))&___12AIState_Base_80072838},       /* @0x80055650  ~AIState_Base */
   {0, 0, (int (*)(...))&AIState_Base::TestForRelease}, /* @0x80055658  TestForRelease__12AIState_Base */
 };

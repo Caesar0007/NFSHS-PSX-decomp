@@ -1,0 +1,10 @@
+{
+  "branch_retarget": {
+    "recon/game/psx/hud.cpp": {
+      "Hud_BuildString__FPciiiib": [
+        {"branch": "\\tj\\t\\$L\\d+\\n(?=\\taddu\\t\\$17,\\$17,3\\n)",
+         "after": "\\tlw\\t\\$8,24\\(\\$sp\\)\\n(?=\\taddu\\t\\$18,\\$18,1\\n)"}
+      ]
+    }
+  }
+}

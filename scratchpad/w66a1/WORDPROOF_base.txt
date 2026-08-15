@@ -1,0 +1,37 @@
+===== _dirSendAuto (BASELINE, no spec)
+1    1040001f  10400020  44     45     DIFF beqz	v0,e8 <_dirSendAuto+0xb0>
+MISMATCHES: 1 (j/jal compared by target index only -- R_MIPS_26)
+===== MemCardWriteData_cb (BASELINE, no spec)
+6    08000262  0803ed0c  74     73     DIFF j	988 <MemCardWriteData_cb+0x128>
+MISMATCHES: 1 (j/jal compared by target index only -- R_MIPS_26)
+===== DrawBackground__11tScreenMain (BASELINE, no spec)
+9    1462000a  1462000b  97     98     DIFF bne	v1,v0,c24 <DrawBackground__11tScreenMain+0x184>
+MISMATCHES: 1 (j/jal compared by target index only -- R_MIPS_26)
+===== Hud_BuildString__FPciiiib (BASELINE, no spec)
+2    08000ad5  08035175  194    195    DIFF j	2b54 <Hud_BuildString__FPciiiib+0x308>
+MISMATCHES: 1 (j/jal compared by target index only -- R_MIPS_26)
+===== MCRD_handlecardevents (BASELINE, no spec)
+13   14620093  1462005d  204    150    DIFF bne	v1,v0,dd0 <MCRD_handlecardevents+0x330>
+MISMATCHES: 1 (j/jal compared by target index only -- R_MIPS_26)
+===== FntPrint (BASELINE, no spec)
+10   0800011f  0803dc66  88     89     DIFF j	47c <FntPrint+0x160>
+MISMATCHES: 1 (j/jal compared by target index only -- R_MIPS_26)
+===== Sim_MainGameLoop__Fv (BASELINE, no spec)
+0    1440010b  1440010d  297    299    DIFF bnez	v0,c7c <Sim_MainGameLoop__Fv+0x4a4>
+31   14400047  14400049  272    274    DIFF bnez	v0,c18 <Sim_MainGameLoop__Fv+0x440>
+32   14400043  14400045  272    274    DIFF bnez	v0,c18 <Sim_MainGameLoop__Fv+0x440>
+33   1440003f  14400041  272    274    DIFF bnez	v0,c18 <Sim_MainGameLoop__Fv+0x440>
+35   08000308  0802dc67  274    276    DIFF j	c20 <Sim_MainGameLoop__Fv+0x448>
+37   14620019  14620020  257    264    DIFF bne	v1,v0,bdc <Sim_MainGameLoop__Fv+0x404>
+38   10830015  1083001c  257    264    DIFF beq	a0,v1,bdc <Sim_MainGameLoop__Fv+0x404>
+40   1040000e  10400015  257    264    DIFF beqz	v0,bdc <Sim_MainGameLoop__Fv+0x404>
+42   10400007  1040000e  257    264    DIFF beqz	v0,bdc <Sim_MainGameLoop__Fv+0x404>
+43   14620007  14620005  261    259    DIFF bne	v1,v0,bec <Sim_MainGameLoop__Fv+0x414>
+45   1060ffcf  0802dc5d  220    266    DIFF beqz	v1,b48 <Sim_MainGameLoop__Fv+0x370>
+46   08000308  1060ffcd  274    220    DIFF j	c20 <Sim_MainGameLoop__Fv+0x448>
+47   14400004  0802dc67  281    276    DIFF bnez	v0,c3c <Sim_MainGameLoop__Fv+0x464>
+48   1440000b  14400004  295    283    DIFF bnez	v0,c74 <Sim_MainGameLoop__Fv+0x49c>
+49   1462fefa  1440000b  27     297    DIFF bne	v1,v0,844 <Sim_MainGameLoop__Fv+0x6c>
+50   1440fef5  1462fef8  27     27     DIFF bnez	v0,844 <Sim_MainGameLoop__Fv+0x6c>
+52   10400005  0802db6e  307    27     DIFF beqz	v0,ca4 <Sim_MainGameLoop__Fv+0x4cc>
+MISMATCHES: 17 (j/jal compared by target index only -- R_MIPS_26)

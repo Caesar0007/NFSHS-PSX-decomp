@@ -1,0 +1,10 @@
+{
+  "branch_retarget": {
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {
+      "MemCardWriteData_cb": [
+        {"branch": "(?<=\\tsw\\t\\$0,_mc_wr_retry\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n)\\tj\\t\\$L\\d+\\n",
+         "after": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$0,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$31,24\\(\\$sp\\)\\n)"}
+      ]
+    }
+  }
+}

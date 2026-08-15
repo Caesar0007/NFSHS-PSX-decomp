@@ -1,0 +1,25 @@
+{
+  "text_moves_replace": {
+    "recon/game/common/sim.cpp": {
+      "Sim_MainGameLoop__Fv": [
+        {"take": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n\\tjal\\tSim_ProcessSimSchedules__Fv\\n",
+         "copy": true},
+        {"take": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\tsw\\t\\$16,InBetween\\n\\tjal\\tCamera_Update__Fv\\n"},
+        {"take": "\\$L\\d+:\\n(?=\\tjal\\tSim_ProcessSimSchedules__Fv\\n\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"},
+        {"take": "\\tjal\\tSim_ProcessSimSchedules__Fv\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\$L\\d+:\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"}
+      ]
+    }
+  },
+  "branch_retarget": {
+    "recon/game/common/sim.cpp": {
+      "Sim_MainGameLoop__Fv": [
+        {"branch": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)",
+         "after": "\\$L\\d+:\\n(?=\\tjal\\tSim_ProcessSimSchedules__Fv\\n\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"}
+      ]
+    }
+  }
+}

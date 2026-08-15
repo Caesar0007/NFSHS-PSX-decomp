@@ -65,6 +65,33 @@ void AIHigh_Opponent::CheckForWipeOut()
 
                 (this->carObj_)->wipeOutEndTick)) {
 
+      /* ---- W62-A10 (51 diffs HELD, ours 121 / oracle 120) -- the residual is now ONE
+         NAMED gcc question, not a spelling search.  NEW MEASUREMENTS this session
+         (each re-gated through scratchpad/w62a10/p_wipe*.py, baseline 51):
+         (1) THE x29 CHAIN IS REPRODUCIBLE.  A plain (non-volatile) `AI_elapsedTime * 116`
+             at both sites makes cc1 emit retail's EXACT strength-reduction preheader
+             (`lui;lw` of AI_elapsedTime, `sll v0,v1,3 / subu v0,v0,v1 / sll v0,v0,2 /
+             addu t2,v0,v1` = 29*ae) -- byte-for-byte the oracle's insns 74-81.  The ONLY
+             remaining structural divergence is the HOIST BOUNDARY: our loop.c also lifts
+             the final `sll <<2` AND the `slt` into the preheader (one loop-invariant flag),
+             where retail keeps `sll a0,t2,2` inside the loop and lets reorg copy it into
+             BOTH branch delay slots (oracle 103 + 107) with a single shared `slt` (108).
+             So this is a loop.c move_movables STOP-POINT question, not a multiplier
+             spelling.  Scores: plain *116 -> 83 (123/120); `*29*4` -> 83 (123/120);
+             both with the perTickProb dead store removed -> 87 (121/120).
+         (2) COUNT-EXACT SHAPE FOUND: `new_var = AI_elapsedTime * 29;` pre-loop with
+             `new_var * 4` at the sites AND the perTickProb dead store dropped gives
+             120/120 EXACT at 76 diffs; the residual there is (a) the same LICM hoist and
+             (b) a whole-function saved/temp band rotation t0<->t1, t6<->t7, t2<->t4.
+             Per 13A that band is an allocno-NUMBER (= declaration-order) dial, so the
+             honest landing pair is (loop.c hoist stop) + (decl reorder), together.
+         (3) THE perTickProb DEAD STORE IS THE `xori`.  Ours emits `slti;xori;beqz` where
+             retail has `slti;bnez` -- the assignment materializes the boolean.  Dropping
+             it alone -> 57 diffs at 119/120 (loses 2, gains diffs), so it must NOT be
+             dropped on its own; it is only right in combination with (2).
+         Nothing landed: every combination measured is worse than 51 on the authoritative
+         gate.  Next lens = loop.c's move_movables threshold (why retail stops hoisting
+         after the `addu t2,v0,v1`), then the 13A declaration-order band fix.  ---------- */
       /* H24: reconstructed pre-loop roll + per-human-race-car wipe-out loop (oracle 0x800633AC-0x800634D8;
          recon had an EMPTY loop AND dropped the pre-loop conditional store -> wipe-out timer never re-armed).
          The oracle materializes `this` into a stable base reg ($t0 = $a0) at entry and RE-LOADS

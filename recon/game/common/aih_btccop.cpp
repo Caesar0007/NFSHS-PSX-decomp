@@ -2474,7 +2474,20 @@ stateExecuteAndReturn:
    Next lens: reach retail's remat WITHOUT minting an allocno -- i.e. the arg must
    be an address expression whose reload rematerializes, while the other three arms
    keep their current allocation.  That is a reload/REG_EQUIV question, not a
-   spelling one. */
+   spelling one.
+   W62-A10 REFUTED THE "OFFSET MUST STAY LIVE" READING (3 new falsifications, each
+   re-gated, baseline 4 diffs / 675 insns).  The hypothesis was that the 489/698 basin
+   came from `offset` going DEAD once the call stops using it, so `offset` was kept
+   alive by a zero-byte fence while the arg became `&trafficOffset`:
+     read-only fence on offset BEFORE the .y store   -> 489 diffs / 698 insns
+     read-only fence on offset AFTER  the .y store   -> 500 diffs / 699 insns
+     identity fence ("" : "=r"(offset) : "0"(offset)) -> 489 diffs / 698 insns
+   The first and third land on EXACTLY the same 489/698 as simply dropping the capture,
+   so `offset`'s liveness is IRRELEVANT: the basin flip is caused solely by the CALL ARG
+   being an address-valued expression.  That sharpens the standing verdict -- the device
+   needed is one that makes reload rematerialize `addiu a2,sp,N` from a REG_EQUIV
+   without the address ever becoming an allocno; no fence in the toolkit does that
+   (a fence can add refs or opacity, never remove an allocno). */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

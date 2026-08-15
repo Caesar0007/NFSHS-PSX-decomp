@@ -53,34 +53,44 @@ void AIHigh_StartUp(void)
       AIHigh_Base *newHigh;
       AIHigh_Base **slot;
       u_int carFlags;
+      u_int copCarFlag;
 
       carObj = Cars_gList[carLoop];
       carFlags = carObj->carFlags;
-      /* W54-A15: `slot` is the §3.12 #16 hold-a-global-address-across-a-call device; its
-         STATEMENT POSITION decides the local-alloc birth order of the la-base qty vs the
-         loop's scaled-index qty (retail: la->$v0, sll->$v1).
-         RESIDUAL 8 diffs (234/234): base(la) and sll swap v0<->v1 in the held
-         slot-addr computation.  W56-A16 FALSIFIED: moving this stmt to loop-top
-         (before carObj/carFlags) regresses to 28 diffs + count change; current
-         position is the best.  Local-alloc birth-order tie, §4.6 qtytrace gap.
-         W61-A12 PRICED IT (real CC1PLPSX -dl dump, this fn): both fighting qtys are
-         BLOCK-LOCAL with refs=4 (2 refs x loop depth 2), size=1, so
-         QTY_CMP_PRI = floor_log2(4)*4*1/life = 8/life (local-alloc.c:1727-1729);
-         the sll qty has the SHORTER life and therefore wins the numeric scan (v0).
-         To flip, the la qty needs priority > the sll's, i.e. refs 4 -> 8 (the next
-         floor_log2 step) without lengthening its life.
-         FALSIFIED (each re-gated, all 8-diff baseline): five address SPELLINGS are
-         byte-identical -- (int)base + i*4, (i<<2) + (int)base, base + i, &*(base+i),
-         (int)base + (i<<2) -- so the expression shape is inert on this site (the
-         12D-A6 index-term-first device does not reach a birth-order tie).  The only
-         way to attach a ref-dial to the la is to NAME the base, and that is fatal:
-         `AIHigh_Base **base = highLevelAIObjs;` alone -> 58 diffs / 238 insns
-         (LICM hoists the loop-invariant la into a callee-saved reg, frame 48->56),
-         same with 1 or 2 read-only fence operands; a 2-operand fence on carLoop
-         instead -> 77 diffs.  So the dial exists on paper but has no pin-free
-         carrier here -- next lens = local-alloc qty instrumentation, not source. */
       slot = &highLevelAIObjs[carLoop];
-      if ((carFlags & 0x200U) != 0) {
+      copCarFlag = carFlags & 0x200U;
+      /* ---- W62-A10 SEAL (was 8 diffs, 234/234, five waves) -------------------------
+         MATCH: the residual was `sll`/`la` swapping $v0<->$v1 in the slot-address
+         computation.  ROOT CAUSE (gcc-2.8 local-alloc.c, read not guessed): this basic
+         block has EXACTLY THREE block-local qtys -- q0 = the `sll carLoop,2`, q1 = the
+         `high`+`lo_sum` pair for &highLevelAIObjs (combine_regs ties them, refs 4+4=8),
+         q2 = the `carFlags & 0x200` test -- and for next_qty == 3 block_alloc does NOT
+         call qsort: it runs the hand-rolled `case 3:` ladder at local-alloc.c:1638-1652,
+         which compares the RAW QTY NUMBERS 0/1/2 instead of the current qty_order[]
+         contents.  With PRI(q1) > PRI(q0) the first EXCHANGE(0,1) is UNDONE by the
+         fall-through `case 2:` EXCHANGE(0,1), so the order collapses back to [q0,q1,q2]
+         unless PRI(q2) > PRI(q1) as well.  Measured: PRI = floor_log2(refs)*refs*size /
+         (qty_death-qty_birth) (local-alloc.c:1727) gave q0=8/8=1.0, q1=24/6=4.0,
+         q2=8/2=4.0 -- q2 TIED q1 exactly, so the sll was allocated first, took $v0 over
+         its whole window, and pushed the la to $v1.
+         FIX (pin-free, zero-byte): give the test qty ONE floor_log2 ref-step.  Naming
+         `copCarFlag` and adding a TWO-OPERAND read-only fence takes its refs 4 -> 8
+         (2 occurrences x loop depth 2, +2 per fence operand), so floor_log2 goes 2 -> 3
+         and PRI(q2) = 24/2 = 12.0 > PRI(q1) = 4.0 > PRI(q0) = 1.0.  Now BOTH exchanges
+         fire, qty_order becomes [q2,q1,q0], the la is allocated before the sll and takes
+         $v0.  234/234 byte-exact.
+         FALSIFIED HERE (all re-gated this session): ONE fence operand -> 8 (refs 6,
+         floor_log2 still 2, PRI 3.0 < 4.0 -- the step is what matters, not the ref);
+         naming copCarFlag with no fence -> 8; the fence pair moved ABOVE the slot
+         statement -> 26 (236 insns: the and is then scheduled before the address and
+         the block order changes); `slot` moved between the carObj and carFlags loads
+         -> 8.  Earlier waves' falsifications (five address spellings byte-identical;
+         naming the BASE costs 58 via LICM; a fence on carLoop -> 77) stand and are
+         explained by the same model: the dial had to land on q2, not on q0/q1.
+         DO NOT "simplify" the second `"r"(copCarFlag)` away -- the operand COUNT is the
+         instrument. ------------------------------------------------------------------ */
+      __asm__("" : : "r"(copCarFlag), "r"(copCarFlag));
+      if (copCarFlag != 0) {
         AIHigh_BTC_HumanCop *p = operator new(0x8c);
         newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_HumanCop(carObj,copCounter++);
       }

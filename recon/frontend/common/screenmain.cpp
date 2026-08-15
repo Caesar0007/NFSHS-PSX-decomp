@@ -411,7 +411,6 @@ void tScreenMain::DrawBackground()
   char buffer [32];
   int shapeX;
   int shapeY;
-  byte bVar1;
   short sVar3;
   int fade;
   char *str;
@@ -617,11 +616,26 @@ void tScreenMain::DrawBackground()
   }
   y = 0x32;
   i = 0;
-  while ((i < 0x19) && (y < 0xd2)) {
+  /* MATCH W63-A17 (110 -> 84, count still EXACT 822/822): BOTH dot-grid loops are
+     UN-ROTATED in retail (07C/13D).  The oracle tests i at the TOP
+     (`sll;sra;slti 25;beqz`) and reaches the back-edge with `j T ; addiu s2,s2,1`
+     (increment in the jump's delay slot), and the inner j-loop likewise tests at
+     the top (`sll;sra;bltz`) with an IN-PLACE `addiu s0,s0,-1`.  Our `while (A && B)`
+     + `for (j = 4; -1 < j; j--)` pair let jump.c's duplicate_loop_exit_test rotate
+     BOTH, which costs the fresh-dest+copy decrements (`addiu v0,s0,-1; addu s0,v0,zero`)
+     AND the body's own sign-extension of i (retail reuses the top test's `a0`
+     via `addu s4,a0,zero`).  Measured separately: inner-only 99 @823, outer-only
+     95 @821, BOTH 84 @822 = the only count-exact combination. */
+  while (1) {
+    if (0x19 <= i) break;
+    if (0xd2 <= y) break;
     x = 0x1a2;
-    for (j = 4; -1 < j; j--) {
+    j = 4;
+    while (1) {
+      if (j < 0) break;
       DrawShapeExtended((numberValues[(i + ticks / 0x14) % 0x19] >> j) & 1,1,x,y,0x40,3,
                  (tDrawShapeExtended *)0x0);
+      j--;
       x = x + 0xd;
     }
     y = y + 8;
@@ -630,16 +644,26 @@ void tScreenMain::DrawBackground()
   iVar10 = (int)((ticks - this->fStartTicks) * 0x1000) >> 0x10;
   j = 0;
   if (-1 < iVar10) {
-    do {
+    /* MATCH W63-A17 (84 -> 68, count still EXACT 822/822): the tvOrder loop is
+       UN-ROTATED in retail too -- the `j < 16` guard is tested at the TOP
+       (`sll;sra;slti 16;beqz`) and the `j <= iVar10` back-edge sits at the
+       BOTTOM (`slt v0,s1,v0; beqz`); our `do { if (0xf<j) break; ... } while
+       (j <= iVar10);` let jump.c rotate the guard DOWN into the back edge, so
+       both tests emitted at the bottom.  The SYM 8c block lists NO local for the
+       tvOrder index (bVar1 was a Ghidra invention, 06A) -- inlining it is exactly
+       neutral against a block-local `byte tvIdx` (both 68) and drops the fabricated
+       local.  Also landed here: `j--` BEFORE `x += 0xd` in the dot-grid inner loop
+       (retail emits `addiu s0,s0,-1` ahead of `addiu s1,s1,13`), -2. */
+    while (1) {
       if (0xf < j) break;
-      bVar1 = tvOrder[j];
-      if (((this->tvStates[bVar1] != this->tvTransitions[bVar1].state) ||
-          (this->tvConfigs[bVar1].clut != this->tvTransitions[bVar1].clut)) &&
-         (this->tvConfigs[bVar1].state == tv_StateOn)) {
-        TurnOffTV(this->tvConfigs + bVar1);
+      if (((this->tvStates[tvOrder[j]] != this->tvTransitions[tvOrder[j]].state) ||
+          (this->tvConfigs[tvOrder[j]].clut != this->tvTransitions[tvOrder[j]].clut)) &&
+         (this->tvConfigs[tvOrder[j]].state == tv_StateOn)) {
+        TurnOffTV(this->tvConfigs + tvOrder[j]);
       }
       j++;
-    } while (j <= iVar10);
+      if (iVar10 < j) break;
+    }
   }
   for (i = 0; i < 0x10; i++) {
     if (this->tvConfigs[i].state == tv_StateOff) {

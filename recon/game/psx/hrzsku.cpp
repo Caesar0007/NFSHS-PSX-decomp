@@ -1204,9 +1204,13 @@ void Hrz_BuildSky(void)
       scnt = scnt + 3;
       zcnt = zcnt + 3;
       gte_stsxy3(&scnt[0],&scnt[1],&scnt[2]);
-      gte_swc2(0x11,&zcnt[0]);   /* SZ1 */
-      gte_swc2(0x12,&zcnt[1]);   /* SZ2 */
-      gte_swc2(0x13,&zcnt[2]);   /* SZ3 */
+      /* MATCH (w62-a13, 374 -> 370 @458/458 EXACT): the SZ trio is the PsyQ
+         `gte_stsz3(a,b,c)` MACRO, not three lone gte_swc2 calls.  The macro takes
+         all three pointers as asm INPUTS, so both `addiu` address forms are emitted
+         BEFORE the three `swc2` (retail: addiu v0,a0,4; addiu v1,a0,8; swc2 17/18/19);
+         three separate one-pointer asms let gcc interleave each addiu with its own
+         store.  Same family as the gte_stsxy3 line above it. */
+      gte_stsz3(&zcnt[0],&zcnt[1],&zcnt[2]);
     } while (2 < n);
     scnt = &scnt[2];
     n = n + -1;

@@ -1421,15 +1421,44 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
   __asm__ volatile("" : : "r"(scalex), "r"(scaley));
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr + -0x1000) {
     int flare_type;
-    u_long c;
 
     pt = &pt2;
     otz = 0;
     flare_type = type & 0xffU;
-    c = Flare_gType[flare_type].chalo;
-    *(u_long *)&gfrgb = c;
-    c = Flare_gType[flare_type].cbeam;
-    *(u_long *)&gfrgb2 = c;
+    /* MATCH (w62-a13, 4 -> PASS 247/247): residual (B) was an ALIAS-DEPENDENCE
+       question, not an allocation one -- and the SYM proves the shape.  @404394
+       lists NO colour local at all (only flare_type/aprim/i), so retail wrote the
+       two copies with no temp; `gfrgb`@0x8013d86c and `gfrgb2`@0x8013d870 are the
+       ADJACENT chalo/cbeam word pair, i.e. the destination is the same
+       Flare_tInfo layout as the source.  Spelling the stores as STRUCT MEMBER
+       stores does two things at once:
+         (1) MEM_IN_STRUCT_P is set on the destination, so gcc-2.8 alias.c's
+             `fixed_scalar_and_varying_struct_p` no longer disambiguates the store
+             (fixed-address SCALAR) from the next `Flare_gType[..].cbeam` load
+             (varying-address STRUCT).  With the dependence restored, sched1 keeps
+             the pairs SERIAL -- load, `li a3,288`, store, `lw a0,0(t3)`, load,
+             `lui t2`, store -- exactly retail.  The old `*(u_long *)&gfrgb = c;`
+             cast made the store a fixed scalar, gcc proved independence and
+             bunched both loads (the 4 misplaced-filler diffs).
+         (2) dropping the shared `c` temp gives the second colour its OWN pseudo,
+             born where the gType base dies, so local-alloc hands it $v0 (retail's
+             dead-base reuse `lw $v0,4($v0)`) instead of $v1.
+       BOTH halves are required: two pseudos alone = 8 (registers right, schedule
+       wrong); the struct view with ONE shared `c` = 4 (schedule right, registers
+       wrong).  That is catalog 12E's "a dial buys the REGISTER or the COUNT, never
+       both" -- here the two dials are independent and compose.
+       FALSIFIED at this site (all count-exact 247/247 unless noted): two temps 8 .
+       direct second store 8 . block-local c2 8 . identity launder on c / c2 / both
+       18-20 . USE fence between the copies, before either store, at the top, at the
+       end 18-28 . `volatile` on either or both stores 8 (volatile does NOT create
+       the alias dependence -- it only blocks slot-filling).
+       EQUIVALENT PASSING FORMS (kept as receipts, not taken): a local
+       `typedef struct { u_long w; } Flare_Word;` view on both stores with two temps,
+       with one temp, or with none; and a `Flare_tInfo *dst = (Flare_tInfo *)&gfrgb;`
+       pointer local.  The in-place member view below is the SYM-faithful one (no
+       invented type, no local). */
+    ((Flare_tInfo *)&gfrgb)->chalo = Flare_gType[flare_type].chalo;
+    ((Flare_tInfo *)&gfrgb)->cbeam = Flare_gType[flare_type].cbeam;
     {
       DR_MODE *aprim;
       u_int *slot;

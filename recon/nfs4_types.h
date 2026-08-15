@@ -3764,7 +3764,13 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     void Hide();
     void Draw();
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
-    ~tDialogBase();
+    /* W65-A3 (calltarget): NO declared dtor.  Retail's whole tDialog family
+     * destructs straight to ~tScreen (every standalone dtor in the 0x80019EC4..
+     * 0x80019FE0 block is the identical 8-insn `jal ___7tScreen`), which gcc-2.8
+     * only produces when the intermediate dtors are IMPLICIT -- an explicit one
+     * makes every derived dtor jal IT instead (probe: scratchpad/w65a3/dtor4.s).
+     * The standalone ___11tDialogBase symbol is supplied as an extern "C" free
+     * function at the tail of fedialog.cpp (the ___18tDialogInteractive device). */
 
 };
 
@@ -3775,7 +3781,8 @@ struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
     /* FEDialog methods */
     void CalculateDimensions();
     void Draw();
-    ~tDialogMessageString();
+    /* W65-A3 (calltarget): NO declared dtor -- see the tDialogBase note above.
+     * Standalone ___20tDialogMessageString lives in fedialog.cpp. */
 
 };
 
@@ -3793,7 +3800,8 @@ struct tDialogYesNo : public tDialogInteractive {   /* 168 bytes */
     tDialogYesNo();
     void Draw();
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
-    ~tDialogYesNo();
+    /* W65-A3 (calltarget): NO declared dtor -- see the tDialogBase note above.
+     * Standalone ___12tDialogYesNo lives in fedialog.cpp. */
 
 };
 

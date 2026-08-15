@@ -605,7 +605,12 @@ void tDialogMessageString::Draw()
     }
     FETextRender_SetABR(0,false);
   }
-  this->Draw();
+  /* W65-A3 (calltarget): `this->Draw()` bound to tDialogMessageString::Draw
+   * itself -- INFINITE RECURSION.  Retail calls Draw__11tDialogBase; the
+   * unqualified name resolves to the derived override that shadows the base's
+   * (§3.23c SILENT-SHADOW, here in its same-name-override form).  Explicit
+   * base scope binds the call retail makes.  REAL RUNTIME BUG. */
+  this->tDialogBase::Draw();
   return;
 }
 
@@ -926,7 +931,10 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
     this->ReturnValue = -1;
   }
   else {
-    this->ProcessInput(fromPlayer,keyVal,command);
+    /* W65-A3 (calltarget): unqualified `this->ProcessInput(...)` bound to THIS
+     * override -- INFINITE RECURSION.  Retail calls
+     * ProcessInput__12tDialogYesNo...; explicit base scope binds it. REAL BUG. */
+    this->tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
   }
   return;
 }
@@ -944,7 +952,8 @@ void tDialogYesNoTri::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
     this->ReturnValue = -1;
   }
   else {
-    this->ProcessInput(fromPlayer,keyVal,command);
+    /* W65-A3 (calltarget): as tDialogYesNoMem -- was infinite recursion. */
+    this->tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
   }
   return;
 }
@@ -984,11 +993,8 @@ tDialogYesNoMem::~tDialogYesNoMem()
 
 /* ---- tDialogYesNo::dtor  [FEDIALOG.CPP:275 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogYesNo::~tDialogYesNo()
-
-{
-  return;
-}
+extern "C" { void ___7tScreen(void *); }
+extern "C" void ___12tDialogYesNo(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1019,11 +1025,7 @@ tDialogBackUpOnly::~tDialogBackUpOnly()
 
 /* ---- tDialogMessageString::dtor  [FEDIALOG.CPP:204 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogMessageString::~tDialogMessageString()
-
-{
-  return;
-}
+extern "C" void ___20tDialogMessageString(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1037,13 +1039,18 @@ tDialogHelp::~tDialogHelp()
 
 
 
-/* ---- tDialogBase::dtor  [FEDIALOG.CPP:132 decl] SLD-FLAG:NO_SLD ---- */
+/* ---- tDialogBase::dtor  [FEDIALOG.CPP:132 decl] SLD-FLAG:NO_SLD ----
+ * W65-A3 (calltarget): the class no longer DECLARES a dtor (see nfs4_types.h),
+ * so gcc synthesises + inlines it at every call site -- which is what makes
+ * ~tDialogHelp / ~tDialogMessageString etc. `jal ___7tScreen` like retail.
+ * gcc emits NO out-of-line copy for a synthesised dtor (probed: globals,
+ * delete, virtual, explicit ~C() call sites -- none emit one), so the
+ * standalone symbol is supplied here as a free function with C linkage, the
+ * device already in use two blocks up for ___18tDialogInteractive.  Body is
+ * byte-identical to the oracle's 8 insns: the arg passes through in $a0 and
+ * the ignored `__in_chrg` in $a1 costs nothing. */
 
-tDialogBase::~tDialogBase()
-
-{
-  return;
-}
+extern "C" void ___11tDialogBase(void *thisp) { ___7tScreen(thisp); }
 
 
 

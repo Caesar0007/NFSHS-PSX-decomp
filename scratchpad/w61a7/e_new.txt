@@ -1,0 +1,5 @@
+    ret = 0;
+    /* W61-A7: NON-VOLATILE ALIAS READ (catalog: CD_get_intr lever 3) -- a volatile
+     * QImode read cannot fold its zero-extend into the `lbu`, which is where our
+     * redundant `andi v0,v0,255` before the ==5 test came from. */
+    if (*(const unsigned char *)&Intr.sync == 5) {

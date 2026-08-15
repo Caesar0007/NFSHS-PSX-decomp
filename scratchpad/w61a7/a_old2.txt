@@ -1,0 +1,22 @@
+    /* W61-A7 PROBE A: alarm inlined HERE (not via the shared get_alarm()) so the
+     * command-name table gets its own loop-invariant local -- retail hoists it into
+     * the 8th callee-saved register (`lui s5; addiu s5` in the loop preheader). */
+    D_801489B4 = VSync(-1) + 0x3c0;
+    cmdNames = CD_comstr;
+    D_801489B8 = 0;
+    D_801489BC = "CD_cw";
+    while (Intr.sync == 0) {
+        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            int syncIdx;
+            char *readyName;
+            puts("CD timeout: ");
+            syncIdx   = Intr.sync;
+            readyName = CD_intstr[Intr.ready];
+            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+                   cmdNames[CD_com], CD_intstr[syncIdx], readyName);
+            CD_flush();
+            return -1;
+        }
+        if (CheckCallback())
+            callback();
+    }

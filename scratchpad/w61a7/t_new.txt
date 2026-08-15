@@ -1,0 +1,4 @@
+        __asm__("" : : "r"(magic));   /* MATCH (W60-A4): see the receipt above */
+        tens = (int)(((long long)track_first * magic) >> 32);
+        tens = (tens >> 2) - (track_first >> 31);
+        param[0] = (u_char)((tens << 4) + (track_first - tens * 10));   /* track # -> BCD */

@@ -1,0 +1,3 @@
+    volatile CD_intr *ip;
+    int i;
+    int ret;

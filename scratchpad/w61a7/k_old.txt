@@ -1,0 +1,4 @@
+    D_801489B4 = VSync(-1) + 0x3c0;
+    cmdNames = CD_comstr;
+    D_801489B8 = 0;
+    D_801489BC = "CD_cw";

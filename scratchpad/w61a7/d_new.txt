@@ -1,0 +1,10 @@
+            CD_flush();
+            alarm = -1;
+        } else {
+            alarm = 0;
+        }
+        if (alarm != 0)
+            return -1;
+        if (CheckCallback())
+            callback();
+    }

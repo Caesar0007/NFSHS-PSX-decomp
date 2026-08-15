@@ -1,0 +1,16 @@
+    i = 1;
+    if (track_first <= track_last) {
+        magic = 0x66666667;
+        do {
+            __asm__("" : : "r"(magic), "r"(track_first));   /* MATCH (W60-A4): see the receipt above */
+            param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */
+            if (CdControlB(0x14, param, result) == 0)
+                goto err;
+            loc[i].minute = result[1];
+            loc[i].second = result[2];
+            loc[i].sector = 0;
+            i++;
+            track_first++;
+        } while (track_first <= track_last);
+    }
+    nTrack = i - 1;

@@ -1,0 +1,14 @@
+    i = 1;
+    magic = 0x66666667;
+    while (track_first <= track_last) {
+        __asm__("" : : "r"(magic), "r"(track_first));   /* MATCH (W60-A4): see the receipt above */
+        param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */
+        if (CdControlB(0x14, param, result) == 0)
+            goto err;
+        loc[i].minute = result[1];
+        loc[i].second = result[2];
+        loc[i].sector = 0;
+        i++;
+        track_first++;
+    }
+    nTrack = i - 1;

@@ -1,0 +1,5 @@
+    while (Intr.sync == 0) {
+        int alarm;
+        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+            int syncIdx;
+            char *readyName;

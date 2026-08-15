@@ -1,0 +1,6 @@
+            CD_flush();
+            return -1;
+        }
+        if (CheckCallback())
+            callback();
+    }

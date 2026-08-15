@@ -1,0 +1,3 @@
+    /* W61-A7 PROBE A: alarm inlined HERE (not via the shared get_alarm()) so the
+     * command-name table gets its own loop-invariant local -- retail hoists it into
+     * the 8th callee-saved register (`lui s5; addiu s5` in the loop preheader). */

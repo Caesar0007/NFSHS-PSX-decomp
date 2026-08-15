@@ -1,0 +1,22 @@
+    /* MATCH (W61-A7): 84 -> 75.  The alarm is inlined HERE (it was routed through the
+     * shared get_alarm(), the only caller) with the SAME shape CD_sync/CD_ready carry --
+     * three cooperating pieces, each measured:
+     *   (1) a `cmdNames` local: retail hoists the command-name table into the loop
+     *       PREHEADER (`lui s5; addiu s5` right after the entry test) and therefore
+     *       carries EIGHT callee-saved registers where the shared-get_alarm form bought
+     *       only seven.  The shared copy's single `CD_comstr[CD_com]` use gives cse no
+     *       common subexpression, so no invariant pseudo exists to hoist and the base is
+     *       re-materialized inside the arg block (`lui a2; addu a2,a2,v1`, +1 insn).
+     *       An IDENTITY FENCE on the local is NOT needed and is a NET LOSS here (77 vs 75):
+     *       it materializes the `la` before the loop ENTRY TEST (s3) instead of in the
+     *       preheader (s5) and rotates the whole s3/s4/s5 band.
+     *   (2) the split locals `syncIdx` / `readyName` (the w53-a9 CD_datasync lever) --
+     *       falsified against the SHARED get_alarm() in w53-a9 (90 -> 93), it lands here
+     *       once the copy is private to CD_cw.
+     *   (3) the `alarm` VARIABLE + `if (alarm != 0) return -1;` funnel, not a direct
+     *       `return -1` inside the timeout block: that is retail's extra
+     *       `addu v0,zero,zero; bnez v0` pair and it makes the count exact.
+     * FALSIFIED in this basin (all re-measured after the landing): identity fence on
+     * cmdNames 77 · an explicit `statusNames` local 79 · `cmdNames = CD_comstr` moved to
+     * the last preamble statement 75 (INERT) · identity fence on `ip` 94 · a separate
+     * loop counter `j` for the parameter loop 93 · dropping the store-flag breaker 86. */

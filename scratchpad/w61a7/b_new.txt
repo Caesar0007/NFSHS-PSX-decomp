@@ -1,0 +1,4 @@
+    volatile CD_intr *ip;
+    char **cmdNames;
+    int i;
+    int ret;

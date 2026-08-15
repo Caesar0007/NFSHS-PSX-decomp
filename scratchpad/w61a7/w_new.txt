@@ -1,0 +1,25 @@
+     * W61-A7 (38 @103/103 -> 23 @108/103): class (a) SOLVED with a reqdelta272-PRICED dial.
+     * The mode-region anchor is global allocno 76 (refs 7 / live 12 / pri 1.1667) and its
+     * `andi` selector temp is allocno 90 (refs 3 / live 4 / pri 0.75); they CONFLICT, 76 is
+     * allocated first, and since both conflict with hard $v0 the anchor takes $v1 and the
+     * selector is pushed to $a0 -- the exact inverse of retail.  `reqdelta272 --flip 90 76`
+     * printed the requirement "refs 3->4 (+1, CROSSES a floor_log2 step)"; naming the
+     * selector (`sel`) and buying ONE reference with a zero-insn read-only fence flips the
+     * allocation order, and the anchor takes $a0 with the selector in $v1 exactly as retail.
+     * SIDE EFFECT, receipted (hard-floor-basin rule -- the authoritative count improves, so
+     * the branch is landed): with the anchor in $a0 the three switch arms stop cross-jump
+     * merging their `sw $v0,0x10(anchor)` tails, which is retail's shape (09J "each arm
+     * carries its own tail"), but reorg then leaves each arm's `j` delay slot EMPTY where
+     * retail has the store in it -- +5 insns.  The fence POSITION is NOT the cause: read-only
+     * fence after the andi, identity fence after the andi, and a read-only fence inside the
+     * `case 0` arm before its store ALL measure 23 @108, and putting the ref on the DEFAULT
+     * arm's existing identity fence instead is INERT (38) because the extra reference also
+     * lengthens the selector's live range and cancels the priority gain.
+     * RESIDUAL 23, named: (a') the three arm `j` delay slots (above); (b) which arm's constant
+     * reorg steals into the `beq` delay slot (retail pre-sets the DEFAULT's `li $v0,0x246`,
+     * ours steals case-0x20's `li $v0,0x249`); (c) `CdControlB(9,0,0)`'s third argument --
+     * retail rematerializes `addu $a2,$zero,$zero`, cse substitutes our live `$a1` zero (the
+     * catalog's cse-substituted-live-zero opacity-fence job), plus the `slt $v0,$zero,$v0`
+     * scheduled before vs after the frame restores; (d) the prologue `sw $s2,24($sp)` /
+     * `addu $s2,$a2,$zero` pair placement (a sched1 tie at the top of the first BB, the same
+     * shape as CdControl's -- a 2-line PER_FN_TEXT_MOVES candidate).

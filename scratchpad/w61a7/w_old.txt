@@ -1,0 +1,7 @@
+     * RESIDUAL 38 @103/103, three named classes: (a) an $a0<->$v1 swap on the mode-region
+     * anchor and its `andi` temp (retail parks the anchor in $a0); (b) which switch arm's
+     * constant reorg steals into the `beq` delay slot (retail pre-sets the DEFAULT's
+     * `li $v0,0x246`, ours steals case-0x20's `li $v0,0x249`); (c) `CdControlB(9,0,0)`'s
+     * third argument -- retail rematerializes `addu $a2,$zero,$zero`, cse substitutes our
+     * live `$a1` zero (the catalog's cse-substituted-live-zero opacity-fence job), plus the
+     * `slt $v0,$zero,$v0` scheduled before vs after the frame restores.

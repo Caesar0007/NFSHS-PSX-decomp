@@ -1,0 +1,7 @@
+    set_alarm("CD_cw");
+    while (Intr.sync == 0) {
+        if (get_alarm())
+            return -1;
+        if (CheckCallback())
+            callback();
+    }

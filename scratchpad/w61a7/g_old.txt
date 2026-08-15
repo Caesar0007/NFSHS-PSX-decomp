@@ -1,0 +1,2 @@
+        ret = -1;
+        __asm__("" : : "i"(0));   /* STORE-FLAG BREAKER: jump.c's `-(cond)` fold only matches

@@ -1,0 +1,2 @@
+        __asm__("" : : "r"(magic));   /* MATCH (W60-A4): see the receipt above */
+        param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */

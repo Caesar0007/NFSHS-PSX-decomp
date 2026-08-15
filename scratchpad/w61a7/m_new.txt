@@ -1,0 +1,5 @@
+    volatile CD_intr *ip;
+    char **cmdNames;
+    char **statusNames;
+    int i;
+    int ret;

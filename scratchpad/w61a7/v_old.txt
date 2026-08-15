@@ -1,0 +1,8 @@
+ * RESIDUAL 56, NAMED: the hoisted $s5 magic is NOT SHARED with the division's own
+ *   expansion -- gcc still emits `lui v0,26214; ori v0,v0,26215; mult s2,v0` inside
+ *   the loop where retail has the bare `mult s0,s5`.  That duplicate pair IS the +2
+ *   instruction excess.  NEXT ANGLE (named, unmeasured): force cse to substitute the
+ *   live $s5 into the `mult` operand -- either an identity fence on `magic` (making
+ *   it the only rtx for that value) combined with the in-loop read-only fence, or the
+ *   explicit multiply-high spelling driven off `magic` (the bare `(long long)` form
+ *   was measured +7 insns in the w53 basin and must be re-measured in THIS one). */

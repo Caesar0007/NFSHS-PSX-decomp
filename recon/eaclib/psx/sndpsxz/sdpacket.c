@@ -787,7 +787,21 @@ queue_dma:
         }
     }
     i = 0;                                   /* kick the SPU DMA for each channel */
-    if (voice[0x1F] != 0) {
+    /* MATCH (w64-a8, PRODUCTION-LANE FIX -- gate was already PASS): this guard's read is
+     * `volatile` for the same reason every loop-back read of the channel count in this fn is
+     * (cluster (1) in the banner -- the SPU IRQ/DMA server mutates the driver state block).
+     * WHAT IT BUYS: with the read PLAIN, jump.c's thread_jumps proves this test equals the
+     * three tests whose FALSE edges land here (the |4 loop-start guard @80103ED4, the
+     * `chunk == frames-1` test @80103F20 and the |1 loop-end guard @80103F30) and rewrites
+     * ONE of those false edges past this block's re-test, straight to .L80103FE4.  Retail
+     * does NOT thread (`beqz $v0,.L80103F70`).  verify_asm is branch-TARGET lenient and the
+     * gate-lane cc1 does not thread at all, so this divergence was invisible to both the gate
+     * and tools/brdist.py -- only tools/psyqproof.py (PsyQ 4.3 cc1 + ASPSX 2.77) sees it:
+     * word 247 ours 1040002c vs retail 1040000f.  A volatile MEM is never a provably-equal
+     * rtx, so thread_jumps declines and the edge stays.  ZERO instructions either way:
+     * gate PASS 308/308 both, psyqproof REAL 1 -> 0.  (First production landing of the
+     * jump-threading class; the named alternative PER_FN_NO_THREAD_JUMPS is not needed.) */
+    if (*(volatile unsigned char *)(voice + 0x1F) != 0) {
         ch = pp;
         do {
             /* MATCH: oracle evaluates pp->0x08*i (mult/mflo) BEFORE the shift/add chain, and the

@@ -1573,7 +1573,20 @@ extern int _dws(RECT *rect, u_long *data)
      *       scratchpad/w60a3/RECEIPTS.md.
      *   (b) the two parm (save, copy) pairs are emitted in the opposite ORDER to retail
      *       (retail does $s1<-$a0 then $s2<-$a1; ours the reverse) -- an assign_parms/sched2
-     *       emission-order question, i.e. the 06E instrument gap, not a spelling. */
+     *       emission-order question, i.e. the 06E instrument gap, not a spelling.
+     * W64-A3 -- THE PARM-ORDER HYPOTHESIS THAT LOOKED CERTAIN IS FALSIFIED.  Reading
+     * the prologue as MoveImage's RTL taught me to (each callee-save `sw` is emitted
+     * immediately before the parm copy that first uses that register, in PARAMETER
+     * order), ours must be emitting the `data` parm copy first because our
+     * `addu $s1,$a0,$zero` is the BODY statement `saved = rect;` (the rect parm copy
+     * having been propagated away) rather than assign_parms' own copy.  Cure tried:
+     * drop the `saved` alias and use `rect` directly -- _dws 38 / _drs 42, i.e. `saved`
+     * IS retail's shape and removing it re-colours the whole clamp band.  Keeping ONE
+     * late use of `rect` to hold the parm pseudo live is worse still and costs an insn
+     * (_dws: rect at the GP0 payload 41/144, at payload word 0 only 51/146, for the
+     * clamps only 41/144; _drs: payload 45/161, clamps 45/161).  Declaration position
+     * of `saved` is inert (first: _dws 8, _drs 10).  A read-only fence on `rect` at the
+     * top costs 4 (12).  The class stands as the 06E local-alloc/assign_parms gap. */
     saved = rect;
     var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
     _gpu_arm_timeout();
@@ -1822,7 +1835,29 @@ extern int _gpu_que_drain(void)
      * `extra` before the `func` read 14; one immediately after the `extra` read 14; declaring
      * `func` first 14.  Still the 06E gap: the decision is a local-alloc handout inside one
      * block, and unlike PutDispEnv's site 1 there is no address materialization to pin (all
-     * three chains already start from registers). */
+     * three chains already start from registers).
+     * W64-A3 -- TWO MORE AXES CLOSED, both from a fresh read-off of the two streams.
+     * (a) THE RELOAD->CHAIN MAP.  Retail's three `_qout` reloads feed .func / .arg /
+     *     .extra in that order; ours feed .extra / .arg / .func.  That looks exactly
+     *     like a READ-ORDER permutation (gcc numbers the reloads in read order), so
+     *     every permutation was measured: func,arg,extra 24 * func,extra,arg 16 *
+     *     extra,func,arg 16 * arg,func,extra 25 (151 insns) * arg,extra,func 22 *
+     *     the same six with the declaration list re-ordered func,arg,extra 14/24.
+     *     FALSIFIED: read order is not the dial, the map is a consequence of the
+     *     local-alloc handout, not of the RTL emission order.
+     * (b) THE SLOT-ACCESS SHAPE, element by element (the brief's ask): `func` local +
+     *     both args inlined 24 * `extra`/`arg` locals + `func` inlined 14 (inert) *
+     *     decl-with-init form 14 (inert) * `(*func)(arg, extra)` call spelling 14
+     *     (inert) * a void-tail fence before the `.func` read 34 * one after the
+     *     `.extra` read 27 (153 insns).  Hoisting the locals to function scope does
+     *     not compile (C89 use-before-declaration in this nesting).
+     * CORPUS: psyz's libgpu/sys.c leaves `_exeque` as INCLUDE_ASM (line 868) -- there is
+     * NO matched PsyQ-4.0 body for this function anywhere, and sotn's is a different SDK
+     * generation (1.83 vs our 1.140), so 15F says shape-oracle only where the CFG matches
+     * and it does not.  The 5 corpora added mid-W64 (mgs_reversing, KAIN2, TOMB5,
+     * VandalHearts-PcPort, vh) carry NO Sony libgpu source at all -- TOMB5/EMULATOR and
+     * VandalHearts platform/pc are PC re-implementations (SDL/OpenGL rasterisers), mgs's
+     * libdg is Konami glue over `#include <libgpu.h>`.  Recorded so nobody re-mines. */
     u_long dma_busy = 0x01000000;
 
     if ((*D2_CHCR & dma_busy) != 0)

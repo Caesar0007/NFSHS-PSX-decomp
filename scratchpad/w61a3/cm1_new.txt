@@ -1,0 +1,9 @@
+    fd = open(devname, 1);                       /* probe: does it already exist? */
+    if (fd >= 0) {
+        close(fd);
+        return 6;                                /* already present */
+    }
+    if (0) {
+nocard:
+        return 7;                                /* no card */
+    }

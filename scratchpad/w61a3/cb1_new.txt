@@ -1,0 +1,11 @@
+        {   /* w61-a3: a BLOCK-LOCAL anchor here (not the shared function-scope `pc`).
+             * `pc` is referenced from three arms, so it is a GLOBAL allocno and
+             * local_alloc hands this block's rslt qty $v0 first; a block-local pointer
+             * is a local QTY whose priority (refs/live) beats rslt`s, so it takes $v0
+             * and rslt falls to $v1 -- retail`s handout. */
+            int *pd = &mc.cmd;
+            __asm__("" : "=r"(pd) : "0"(pd));
+            pd[1] = rslt;
+            return 1;
+        }
+cretry:

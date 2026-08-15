@@ -1,0 +1,14 @@
+        if (base[0] > 0) {
+            printf("Access Denied. : event multiple open\n");
+        } else {
+            base[0] = 2;
+            base[1] = 0;
+            base[2] = 0;
+            mc.chan = chan;
+            __asm__("" : : "r"(chan), "r"(chan));
+            UserFuncOpen((int)MemCardCmd_cb);
+        }
+        MemCardSync(0, 0, &rslt);
+        MemCardCallback((int)_mc_save_cb);
+
+        if (rslt == 3)

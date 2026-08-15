@@ -1,0 +1,9 @@
+                        if (mc.cmd > 0) {
+                            printf("Access Denied. : event multiple open\n");
+                        } else {
+                            mc.cmd  = 2;
+                            mc.rslt = 0;
+                            mc.done = 0;
+                            mc.chan = chan;
+                            UserFuncOpen((int)MemCardCmd_cb);
+                        }

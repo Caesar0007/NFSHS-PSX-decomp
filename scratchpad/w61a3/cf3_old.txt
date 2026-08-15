@@ -1,0 +1,4 @@
+    strcat(devname, file);
+    _mc_present |= 1 << (base[3]);
+
+    fd = open(devname, 1);                       /* probe: does it already exist? */

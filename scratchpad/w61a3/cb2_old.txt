@@ -1,0 +1,6 @@
+        if (e == 4) {
+            pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = e;                  /* stores the LOADED 4, not a fresh `li` */
+            return 1;
+        }

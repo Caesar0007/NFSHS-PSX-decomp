@@ -1,0 +1,2 @@
+        retry = retry + 1;
+        __asm__("" : : "r"(retry), "r"(retry));

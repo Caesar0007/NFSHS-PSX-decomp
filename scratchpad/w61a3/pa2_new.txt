@@ -1,0 +1,8 @@
+            mc.chan = chan;
+            __asm__("" : : "r"(chan), "r"(chan));
+            UserFuncOpen((int)MemCardCmd_cb);
+        }
+        MemCardSync(0, 0, &rslt);
+        MemCardCallback((int)_mc_save_cb);
+
+        if (rslt == 3)

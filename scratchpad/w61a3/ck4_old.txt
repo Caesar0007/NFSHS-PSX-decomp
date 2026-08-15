@@ -1,0 +1,6 @@
+    if (rslt == 0)
+        rslt = 5;
+    return rslt;
+}
+
+/* @0x800FBE20 : MemCardDeleteFile -- synchronously erase a named file. */

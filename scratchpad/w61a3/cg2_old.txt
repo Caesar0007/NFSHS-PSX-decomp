@@ -1,0 +1,2 @@
+            mc.chan = chan;
+            UserFuncOpen((int)MemCardCmd_cb);

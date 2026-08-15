@@ -1,0 +1,5 @@
+        rslt = erase(devname);          /* retail stores the result in the `rslt` stack slot
+                                         * (`bnez $v0,...; sw $v0,0x30($sp)` -- the store is the
+                                         * branch's delay slot, so it is unconditional) */
+        if (rslt != 0)
+            goto erased;

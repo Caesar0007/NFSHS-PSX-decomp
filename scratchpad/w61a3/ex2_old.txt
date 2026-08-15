@@ -1,0 +1,5 @@
+            int r = MemCardEventToRslt(_mc_exrslt);
+            pc = pchan - 3;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
+            return 1;

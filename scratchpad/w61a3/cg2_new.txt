@@ -1,0 +1,3 @@
+            mc.chan = chan;
+            __asm__("" : : "r"(chan));
+            UserFuncOpen((int)MemCardCmd_cb);

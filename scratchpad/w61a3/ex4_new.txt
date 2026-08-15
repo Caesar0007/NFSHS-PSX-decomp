@@ -1,0 +1,9 @@
+            int *pi;
+            /* 12D DEAD-PSEUDO STAGING: retail copies the result out of $v0 into the
+             * register the (now dead) chan value `c` owned -- so assign into `c`
+             * itself rather than inventing a new local. */
+            c  = MemCardEventToRslt(_mc_exrslt);
+            pi = pchan - 3;             /* w61-a3: block-local anchor = a local QTY */
+            __asm__("" : "=r"(pi) : "0"(pi));
+            pi[1] = c;
+            return 1;

@@ -1,0 +1,5 @@
+            __asm__("" : "=r"(rslt) : "0"(rslt));
+        } else {
+            rslt = 0;
+        }
+        {   /* w61-a3: a BLOCK-LOCAL anchor here (not the shared function-scope `pc`).

@@ -1,0 +1,2 @@
+    int *base = &mc.cmd;
+    if (base[0] == 0 && base[2] == 0)

@@ -1,0 +1,5 @@
+            int r = MemCardEventToRslt(4);
+            int *pn = &mc.cmd;          /* w61-a3: block-local anchor = a local QTY */
+            __asm__("" : "=r"(pn) : "0"(pn));
+            pn[1] = r;
+            return 1;

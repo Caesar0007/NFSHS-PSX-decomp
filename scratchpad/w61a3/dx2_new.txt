@@ -1,0 +1,9 @@
+    if (rslt == 0)
+        rslt = 5;
+    return rslt;
+
+erased:
+    return 0;
+}
+
+/* @0x800FBFDC : MemCardFormat -- synchronously format the card on chan. */

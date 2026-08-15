@@ -1,0 +1,3 @@
+    blocks = blocks << 16;
+    p = base;
+    while (1) {

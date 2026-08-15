@@ -1,0 +1,13 @@
+/* w61-a3 SHARED ANCHOR: ONE physical source line for the opacity fence, so that every
+ * expansion of it is exp_equiv_p-EQUAL (cse.c compares ASM_OPERANDS_SOURCE_LINE as an
+ * 'i' field, jump.c does the same in rtx_renumbered_equal_p -- catalog 12C).  That is
+ * what lets the INLINED MemCardSync body share the caller`s &_mc_cmd register instead
+ * of materializing its own. */
+static __inline__ int *mc_anchor(void)
+{
+    int *b = &mc.cmd;
+    __asm__("" : "=r"(b) : "0"(b));
+    return b;
+}
+
+/* @0x800FBAFC : MemCardSync -- poll (mode!=0) or block (mode==0) for command completion.

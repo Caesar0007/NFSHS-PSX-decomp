@@ -1,0 +1,1 @@
+/* @0x800FBAFC : MemCardSync -- poll (mode!=0) or block (mode==0) for command completion.

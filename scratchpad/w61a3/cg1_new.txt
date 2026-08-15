@@ -1,0 +1,13 @@
+        if (rslt != 2)
+            break;
+        retry = retry + 1;
+        __asm__("" : : "r"(retry), "r"(retry));
+        if (retry >= 4)
+            break;
+    }
+    if (rslt == 0)
+        rslt = 5;
+    return rslt;
+}
+
+/* @0x800FBE20 : MemCardDeleteFile -- synchronously erase a named file. */

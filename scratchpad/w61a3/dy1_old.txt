@@ -1,0 +1,5 @@
+    retry = 0;
+    __asm__("" : : "r"(retry));
+    MemCardMakeDevname(chan, devname);
+    strcat(devname, file);
+    __asm__("" : : "r"(file), "r"(file));

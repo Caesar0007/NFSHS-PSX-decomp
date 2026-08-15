@@ -1,0 +1,7 @@
+    retry = 0;
+    MemCardMakeDevname(chan, devname);
+    strcat(devname, file);
+    _mc_present |= 1 << (base[3]);
+
+    while (1) {
+        rslt = erase(devname);          /* retail stores the result in the `rslt` stack slot

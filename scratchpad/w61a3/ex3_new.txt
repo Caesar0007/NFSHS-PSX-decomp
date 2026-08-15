@@ -1,0 +1,9 @@
+            int r = MemCardEventToRslt(_mc_exrslt);
+            long ret = 1;               /* w61-a3: the return constant is materialized
+                                         * BEFORE the store (retail: addu a0,v0,zero;
+                                         * li v0,1; ...; sw a0,4(v1)) */
+            int *pi = pchan - 3;        /* w61-a3: block-local anchor = a local QTY */
+            __asm__("" : "=r"(pi) : "0"(pi));
+            __asm__("" : "=r"(ret) : "0"(ret));
+            pi[1] = r;
+            return ret;

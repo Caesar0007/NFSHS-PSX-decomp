@@ -1,0 +1,2 @@
+    strcat(devname, file);
+    _mc_present |= 1 << (base[3]);

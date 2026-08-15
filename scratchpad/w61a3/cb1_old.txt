@@ -1,0 +1,5 @@
+        pc = &mc.cmd;
+        __asm__("" : "=r"(pc) : "0"(pc));
+        pc[1] = rslt;
+        return 1;
+cretry:

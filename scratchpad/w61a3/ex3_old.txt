@@ -1,0 +1,5 @@
+            int r = MemCardEventToRslt(_mc_exrslt);
+            int *pi = pchan - 3;        /* w61-a3: block-local anchor = a local QTY */
+            __asm__("" : "=r"(pi) : "0"(pi));
+            pi[1] = r;
+            return 1;

@@ -1,0 +1,2 @@
+    strcat(devname, file);
+    p = base;

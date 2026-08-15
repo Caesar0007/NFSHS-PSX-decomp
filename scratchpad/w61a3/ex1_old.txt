@@ -1,0 +1,5 @@
+            int r = MemCardEventToRslt(4);
+            pc = &mc.cmd;
+            __asm__("" : "=r"(pc) : "0"(pc));
+            pc[1] = r;
+            return 1;

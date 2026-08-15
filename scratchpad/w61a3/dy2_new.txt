@@ -1,0 +1,10 @@
+        retry = retry + 1;
+        __asm__("" : : "r"(retry));
+        if (retry >= 4)
+            break;
+    }
+    if (rslt == 0)
+        rslt = 5;
+    return rslt;
+
+erased:

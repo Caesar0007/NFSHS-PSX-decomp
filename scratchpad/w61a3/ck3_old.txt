@@ -1,0 +1,5 @@
+        fd = open(devname, (int)blocks | 0x200);   /* create */
+        if (fd >= 0) {
+            close(fd);
+            return 0;
+        }

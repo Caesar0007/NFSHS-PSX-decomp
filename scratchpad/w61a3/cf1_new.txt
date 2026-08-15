@@ -1,0 +1,5 @@
+    char devname[32];
+    int  fd;
+    int  retry;
+    int  rslt;
+    int *p;

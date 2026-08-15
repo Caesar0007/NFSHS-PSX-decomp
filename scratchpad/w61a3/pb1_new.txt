@@ -1,0 +1,4 @@
+    __asm__("" : : "r"(file), "r"(file));
+    p = base;
+    __asm__("" : "=r"(p) : "0"(p));
+    _mc_present |= 1 << (p[3]);

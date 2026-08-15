@@ -1,0 +1,6 @@
+        if (e == 4) {
+            int *pe = &mc.cmd;          /* w61-a3: block-local anchor (see cdone) */
+            __asm__("" : "=r"(pe) : "0"(pe));
+            pe[1] = e;                  /* stores the LOADED 4, not a fresh `li` */
+            return 1;
+        }

@@ -1,0 +1,5 @@
+    int *base = &mc.cmd;
+    __asm__("" : : "r"(file), "r"(file));
+
+    if (base[0] != 0) {
+        printf("Access Denied. : system busy

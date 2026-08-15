@@ -1,0 +1,5 @@
+    err     = 0;
+    idx     = 0;
+    stored  = 0;
+    fretry  = 0;
+    _mc_present |= 1 << (mc.chan);

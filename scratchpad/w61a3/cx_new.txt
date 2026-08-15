@@ -1,0 +1,2 @@
+     * the oracle reaches _mc_chan as `lw $a2,0xC($s2)`, not with its own %hi/%lo pair. */
+    int *base = &mc.cmd;

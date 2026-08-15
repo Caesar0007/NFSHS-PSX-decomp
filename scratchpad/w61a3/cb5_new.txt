@@ -1,0 +1,3 @@
+        if (_mc_cleared != 0) {
+            __asm__("" : : "i"(0));
+            rslt = 3;                   /* 3 = "new card, was cleared" */

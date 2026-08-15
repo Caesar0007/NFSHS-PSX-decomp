@@ -1,0 +1,4 @@
+     * the oracle reaches _mc_chan as `lw $a2,0xC($s2)`, not with its own %hi/%lo pair. */
+    int *base = &mc.cmd;
+    __asm__ __volatile__("" : "=r"(base) : "0"(base));
+    __asm__("" : : "r"(file), "r"(file));

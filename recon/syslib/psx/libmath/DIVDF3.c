@@ -105,6 +105,39 @@ int           _err_math(int errnum, int code);
  * if/else 70 -- the ternary IS retail's shape, the residual is cse's mask reuse
  * exactly as the note above says.
  *
+ * MATCH (W61-A9, 2026-08-15): 25 -> 22, two statement-position landings.
+ *   (1) arm 2 reordered to `n += 1; _add_mant_d(...); exp = 0;` (25 -> 23).
+ *       LAW CORRECTION to the w60-a5 paragraph above: reorg fills a CALL delay
+ *       slot from EITHER side, not only from before.  Written BEFORE the call,
+ *       `exp = 0` competes with the argument setup and loses; written AFTER it
+ *       is the nearest forward candidate and wins -- retail's
+ *       `addu $s1,$zero,$zero` now sits in the jal slot.  (Same law landed
+ *       ADDDF3 38 -> 12 the same day; see ADDDF3.c for the full statement.)
+ *       Pairing matters: `call; exp = 0; n += 1;` measures 24/25 -- `n += 1`
+ *       must move BEFORE the call for the slot pick to land.
+ *   (2) `qp = q;` hoisted ABOVE the `if (exp >= 0)` and both calls made through
+ *       `qp` (23 -> 22).  With the out-pointer common to both arms, reorg can
+ *       lift `addiu a0,sp,24` into the `bltz` delay slot exactly like retail
+ *       (previously ours left the bltz slot to the arm body).
+ * FALSIFIED at 22 (whole-TU gated, scratchpad/w61a9/div_v*.json): arm1
+ * `exp += 1` after its call 22 (inert) * arm1 `exp += 1` hoisted above the t
+ * stores 23 * arm2 `n += 1` after the call 24 * both-after 24 * arm2
+ * `exp = 0` before + `n += 1` after 24 * arm1 t-stores before `n = 1` 23 *
+ * arm1 `t[0] = 1` literal 86 * arm2 `t[1] = 0` after `t[0]` 25 * NaN head
+ * if/else with -1 first 71 * `sign == 0` ternary 24 * named temps for arg2/arg3
+ * at both t sites 76 * named temp for arg4 22 (inert) * named temp for arg4 in
+ * the loop site 24 * swapped signedness in the `_add_mant_d` prototype 22
+ * (inert).
+ *
+ * RESIDUAL (22, ours 182 / oracle 184): unchanged in KIND -- (a) the
+ * div-by-zero arm's cse mask reuse (4) and (b) the arg4-load order at the three
+ * `_add_mant_d` sites (6), plus their alignment fallout.  Both are the same
+ * class ADDDF3 ends on: our cse carries a live value where retail
+ * re-materializes / re-loads.  See ADDDF3.c's NAMED NEXT ANGLE (a cse
+ * cost-model question, reachable through the cc1 instrument lane, not through
+ * spellings -- the spelling axis is now exhausted at 20+ falsifications across
+ * two waves).  NOT a floor.
+ *
  * The W53-A12 handoff recipe applied in full:
  * `double` params + a register-resident `union double_long` (the 05B soft-float PAIR law,
  * mechanism in GTDF2.c) TOGETHER with the oracle re-derivation.
@@ -146,6 +179,7 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
     int sub[2];    /* 0x40 -- _mainasu result      */
     int *dp;
     int exp, n;
+    int *qp;
     int sign;
 
     ua.d = a;
@@ -183,6 +217,7 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 _dbl_shift((unsigned int *)buf, 0, buf[0], buf[1], 1);
                 _dbl_shift_us((unsigned int *)bit, 1, bit[0], bit[1], 1);
             } while (bit[1] || bit[0]);
+            qp = q;
             if (exp >= 0) {
                 n = 1;
                 t[1] = 0;
@@ -193,14 +228,14 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                  * it is unreachable to reorg and the a0 arg-setup gets stolen
                  * instead.  27 -> 25. */
                 exp += 1;
-                _add_mant_d(q, q[0], q[1], t[0], t[1]);
+                _add_mant_d(qp, q[0], q[1], t[0], t[1]);
             } else {
                 n = -exp;
                 t[1] = 0;
                 t[0] = 1 << n;
-                exp = 0;
-                _add_mant_d(q, q[0], q[1], t[0], t[1]);
                 n += 1;
+                _add_mant_d(qp, q[0], q[1], t[0], t[1]);
+                exp = 0;
             }
             __asm__("" : : "r"(n));   /* 05C ref-fence: see receipt */
             _dbl_shift_us((unsigned int *)q, 1, q[0], q[1], n);

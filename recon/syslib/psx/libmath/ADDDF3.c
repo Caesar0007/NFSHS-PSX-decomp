@@ -47,16 +47,59 @@ int           _err_math(int errnum, int code);
  * function from 126 to 67 and establishes the retail 0x60-byte frame and $s7
  * result-sign lifetime without asm or volatile.
  *
- * RESIDUAL (67): the remaining dominant coloring is one allocation-seat swap
- * (ours {be=$s5, mask=$s6}, retail {mask=$s5, be=$s6}), plus the two early-return block placements
- * (retail keeps `return b` as the FALL-THROUGH of both zero tests) and the
- * arg4-load order class shared with DIVDF3/MULDF3.  FALSIFIED: seven 05C fence
- * operand sets at the mantissa-build anchor (sign / be / ae and every pair and
- * the triple) -- ALL cost +1 insn and +5 diffs on every rung, i.e. this basin
- * has no slack there.  NAMED NEXT ANGLE: the rotation is one allocation seat,
- * so the dial is a ref-count change that does NOT add an insn -- a duplicated
- * `return` var or a loop-depth-weighted extra use (06B "no-asm alternatives"),
- * not a fence.  Not a floor.
+ * MATCH (W61-A9, 2026-08-15): 67 -> 12 diffs, and the stream is now COUNT-EXACT
+ * (221/221).  Four statement-position landings, no asm, no volatile, no wiring
+ * change (04Z re-ladder on the NEW basin, whole-TU: 2.6.0/2.6.3 = 52 *
+ * 2.7.2 = 49 * 2.7.2-970404 = 12 (WIRED, optimal by 20) * 2.8.0/2.8.1 = 32 *
+ * 2.91.66 = 163 * 2.95.2 = 212):
+ *   (1) `sign = 0x80000000;` as a LITERAL, not `sign = signMask;`.  The copy
+ *       from the named mask was worth 24 diffs: it made retail rematerialize
+ *       `lui $s7,0x8000` unreachable AND it held signMask live to the end, which
+ *       is what rotated the {be,mask} = {$s5,$s6} seats.  Writing the literal
+ *       shortens signMask's live range and the seats snap to retail by
+ *       themselves -- the standing "one allocation seat, needs a ref-count dial"
+ *       angle was solved by DELETING a ref, not adding one.  67 -> 43.
+ *   (2) `rnd[1] = 0;` moved between `k = 255;` and the k-select `if`.  reorg
+ *       fills the beqz slot from the nearest preceding movable insn: with the
+ *       store there it steals `sw zero,44(sp)` (retail) instead of `li v1,255`,
+ *       and the freed `li` then fills the `lw v0,24(sp)` load-delay slot.
+ *       43 -> 38.
+ *   (3+4) `ae += 1;` moved AFTER its `_dbl_shift(...,1,...,1)` call at BOTH
+ *       sites, and `sign = 0x80000000;` moved AFTER its `_mainasu` call.
+ *       38 -> 18 -> 12.  KEY: LAW REFINEMENT (sharpens the w60-a5 DIVDF3 row
+ *       "reorg can only steal what PRECEDES the jal"): reorg fills a CALL delay
+ *       slot from EITHER side.  A statement written BEFORE the call competes
+ *       with the argument setup and usually loses (the arg move is nearer);
+ *       written AFTER the call it is the nearest candidate in the forward scan
+ *       and wins, provided it touches no caller-saved register (`ae` and `sign`
+ *       both live in $s4/$s7).  Pick the side by which insn retail put in the
+ *       slot: retail's slot insn is the one that must sit on the side reorg
+ *       scans first.
+ *
+ * RESIDUAL (12) -- ALL FOUR are one class, "ours cse-shares a live value where
+ * retail re-materializes / re-loads" (the 3b old-gcc no-copy-prop identity):
+ *   (a) x2 `addu v0,a1,zero` vs retail `li v0,1` -- the two literal `1`s of
+ *       `_dbl_shift(A, 1, A[0], A[1], 1)` (register arg2 + stack arg5).
+ *   (b) `addu a3,v1,zero` vs retail `lw a3,40(sp)` -- store-to-load forwarding
+ *       of `rnd[0]` at the `_add_mant_d` rounding call.
+ *   (c) `addu s0,v1,zero` vs retail `lui s0,57344` -- the 0xE0000000 loop mask
+ *       re-materialized in the preheader instead of copied from the peeled test.
+ *   (d) `sw zero,48(sp)` scheduled at prologue index 1 by retail, index 19 by us
+ *       (sched2 luid order inside the prologue block), plus the paired
+ *       `lw a3,32(sp)` arg-order row at the first `_add_mant_d` (11B).
+ *   FALSIFIED at this basin (whole-TU gated, scratchpad/w61a9/add_v*.json):
+ *   rnd through a pointer local `rp` 17 * rnd[0] AND rnd[1] through `rp` 20 *
+ *   identity fence on `k` after the store 12 (inert) * named `int one = 1;` for
+ *   the count arg 12 (inert -- constant-propagated) * named `normMask` for the
+ *   loop constant 16 * `zp[1]` before `zp[0]` 14 * `sign = 0;` hoisted above the
+ *   zp stores 12 (inert) * zp stores after `ua.d`/`ub.d` 12 (inert) * `uz.w[1]`
+ *   spelled directly instead of `zp[1]` 12 (inert) * all 8 ladder rungs (above).
+ *   NAMED NEXT ANGLE: this is a cse COST-MODEL delta, not a spelling -- in
+ *   gcc-2.7 `cse_insn` only substitutes when `rtx_cost` strictly improves, so
+ *   retail's cc1 scored a 16-bit `li`/`lui` at the same cost as a reg copy and
+ *   kept the constant.  The reachable lever is therefore an instrument question
+ *   (dump cse's table on the 970404 rung and find which source shape stops the
+ *   value being RECORDED), or a rung not on our ladder.  Not a floor.
  * ---- shape notes ----
  * Same 05B soft-float PAIR shape + oracle re-derivation as DIVDF3.c/MULDF3.c.
  * Oracle tells (frame 0x60): a -> $s2:$s3, b -> $s0:$s1 (BOTH DFmode pairs land
@@ -122,8 +165,8 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     }
     _add_mant_d(A, A[0], A[1], B[0], B[1]);
     if (A[1] < 0) {
-        sign = signMask;
         _mainasu(A, A[0], A[1]);
+        sign = 0x80000000;
     } else if (A[1] == 0 && A[0] == 0) {
         return uz.d;
     }
@@ -132,17 +175,17 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
         ae -= 1;
     }
     if (A[1] & 0x40000000) {
-        ae += 1;
         _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
+        ae += 1;
     }
     k = 255;
-    if ((A[0] & 0x200) != 0) k = 256;
     rnd[1] = 0;
+    if ((A[0] & 0x200) != 0) k = 256;
     rnd[0] = k;
     _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);
     if (A[1] & 0x40000000) {
-        ae += 1;
         _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
+        ae += 1;
     }
     _dbl_shift((unsigned int *)A, 1, A[0], A[1], 9);
     A[1] &= 0xFFEFFFFF;

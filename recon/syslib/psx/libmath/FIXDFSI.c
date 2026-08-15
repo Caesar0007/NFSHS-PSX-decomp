@@ -76,7 +76,36 @@
  * NAMED NEXT ANGLE: jump.c's "conditional jumping around an unconditional
  * jump" inversion is what collapses retail's `j Ltail`; the reachable lever
  * would be one that keeps the shift arm from ENDING in that `j` (a real insn
- * in the arm tail that cross_jump cannot merge), or the permuter. */
+ * in the arm tail that cross_jump cannot merge), or the permuter.
+ *
+ * W61-A9 (2026-08-15) -- RE-GATED at 5 (62/63) and the axis pushed further; NO
+ * change landed, the four NEW falsifications below are recorded so nobody
+ * re-fights them:
+ *   SOURCE SHAPES (whole-TU gated, scratchpad/w61a9/fix_v1.json), all 5:
+ *     `goto lzero;` from BOTH guards with the label at the very END of the
+ *     function (the complete-funnel form 11D asks for) 5 | the 12C EXIT-BLOCK
+ *     PLACEMENT DEVICE `if (0) { lzero: return 0; }` after the shift block 5 |
+ *     `if (v8 != 0) { shift...; return result; } return 0;` 5 | an explicit
+ *     `goto lshift;` / `lzero: return 0;` / `lshift:;` three-label lay-out 5.
+ *     ==> jump.c canonicalizes EVERY C block order to the same RTL; the
+ *     placement is not source-reachable at this rung, confirmed 11 shapes over
+ *     two waves.
+ *   04Z LADDER re-run on this basin (whole-TU, NFS4_FORCE_CC1_ALT):
+ *     2.6.0 5 * 2.6.3 5 * 2.7.2 5 (= the wired cc1_272 lane, optimal) *
+ *     2.7.2-970404 17 * 2.8.0 17 * 2.8.1 17 * 2.91.66 36 * 2.95.2 51.
+ *   PER-FN cc1 FLAG SPLICES (272 lane, W60_FN_FLAGS probe): -fno-thread-jumps 5
+ *     (inert) * -fno-cse-follow-jumps 5 * -fno-rerun-cse-after-loop 5 *
+ *     -fomit-frame-pointer 5 * -fno-expensive-optimizations 10 at 63/63 --
+ *     count parity but the SAME jump.c residual plus a new one, so the parity
+ *     is coincidental, not the cure.
+ * SHARPENED NEXT ANGLE: the fold is gcc's `jump_optimize` "condjump around an
+ * unconditional jump" inversion, and it fires at EVERY rung <= 2.8.  Since no
+ * source order and no available flag reaches it, the only two live routes are
+ * (i) a cc1-instrument read of WHY retail's build left the `j` standing (a
+ * jump.c gate we do not have on the ladder), or (ii) PER_FN_TEXT_MOVES -- the
+ * residual is a pure 3-line relocation (`srav`/`j`/`addu v0,zero,zero`) plus a
+ * branch-polarity flip, which is exactly what a take/after/slot row expresses.
+ * NOT a floor. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 

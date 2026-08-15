@@ -94,6 +94,43 @@ int *_mul_mant_d(int *out, unsigned int x, unsigned int y);
  * argument into a temp is the obvious next probe (untried, would cost a move
  * unless coalesced).
  *
+ * W61-A9 (2026-08-15) -- THE 4th-ARG HOIST IS NOW TRIED, AND FALSIFIED, IN ALL
+ * THREE TUs.  Re-gated __muldf3 12 / _mul_mant_d 14, both count-exact.  The
+ * arg-emission-order class (11B) is measured at NINE call sites across
+ * MULDF3 (4 + 2), DIVDF3 (3) and ADDDF3 (2); retail's order at every one of
+ * them is `stack-arg store, arg4, arg2, arg3` while ours is
+ * `stack-arg store, arg2, arg3, arg4`, i.e. purely WHERE the arg4 chain is
+ * emitted.  FALSIFIED (each whole-TU gated; DIVDF3 numbers in DIVDF3.c):
+ *   named temp for arg4 (`t0 = t[0]` before the call) -- MULDF3 no change,
+ *   DIVDF3 30 then 22-inert, ADDDF3 not applicable * named temps for arg2+arg3
+ *   (DIVDF3 76) * a `volatile` 4th argument -- ALREADY IN THIS FILE at the two
+ *   `add[0]` sites and the order is STILL ours, so TREE_SIDE_EFFECTS on the arg
+ *   does NOT move it into the pre-store pass * swapping the signedness of the
+ *   `_add_mant_d` prototype's a2/a4 (DIVDF3 22, inert) * the 8-rung ladder
+ *   (this TU: no rung beats the default, w60-a5 table below).
+ * ==> the emission position is decided inside expand_call, not by the argument
+ * EXPRESSION, so no C spelling of the argument reaches it.  NAMED NEXT ANGLE
+ * (single lever, ~18 diffs across the three TUs, worth an instrument run):
+ * read calls.c's two arg-store loops on the 2.8 and 2.7.2 cc1s with -dr and
+ * find what puts arg4 in the FIRST loop -- most likely `must_preallocate` /
+ * `pass_on_stack` interaction with the 5th (stack) argument, which every one of
+ * these calls has and which is the one structural feature all nine sites share.
+ * Alternatively PER_FN_TEXT_MOVES: each site is a one-line `take`/`after`
+ * relocation of a single `lw $a3,N(sp)`, mechanically identical nine times.
+ * NOT a floor.
+ *
+ * W61-A9 tail probes for _mul_mant_d (all whole-TU gated,
+ * scratchpad/w61a9/mul_v1.json + mul_v2.json), baseline 14, none landed:
+ *   opacity fence on `out` after the stores 24 * before the stores 28 *
+ *   read-only fence on `out` after the stores 24 * an `shp` pointer local for
+ *   both `_add_mant_d` out-args 37 * `out[1]` stored before `out[0]` 14 *
+ *   `sh[1] +=` written as a volatile store 14 * volatile on both sides 14 *
+ *   `lo` read non-volatile 14 * BOTH reads non-volatile 21 * no named lo/hi
+ *   temps (direct volatile reads into `out[]`) 16 * `hi` read before `lo` 14.
+ * ==> the tail residual (retail stores through `$s3` and materializes the
+ * return copy LAST; ours coalesces `out` into `$v0` and stores through it) is
+ * NOT fence- or order-reachable in this basin.
+ *
  * Oracle tells specific to __muldf3 (frame 0x80):
  *  - entry copies ONLY `a` (`addu $t0,$a0; addu $t1,$a1`) -- `b` keeps its
  *    $a2:$a3 preference.  That is exactly the __gtdf2 asymmetry (GTDF2.c).

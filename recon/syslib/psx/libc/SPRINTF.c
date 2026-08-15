@@ -19,6 +19,34 @@
  *    self-temp class (~6 diffs) but ADDS an instruction, so it fails the w34 keep-rule as
  *    written; reported as an orchestrator judgement call, not wired.
  */
+/* W61-A9 RE-GATE + FALSIFICATIONS (2026-08-15, baseline re-measured at 56 @545/545 after the
+ * w60-a5 flag-constant landing).  NOTHING LANDED; the six probes below are recorded so the
+ * spelling axis is not re-fought (scratchpad/w61a9/spr_v1.json + spr_v2.json, whole-TU gated):
+ *   case 'c' with the `*bufPtr = argChar` store BEFORE `args += 4` 62 | with `len = 1` moved
+ *   between them 62 | `extern const printf_info D_8012348C` 56 (inert) |
+ *   `info = *(printf_info *)&D_8012348C` 56 (inert) | the '*' precision/width arg read as
+ *   `args += 4; ... *(int *)(args - 4)` 69 / 81 | `flagZero = '0'` at the TOP of the for body
+ *   56 (inert) | `flagZero = '0'` inside the '%' branch 186 | ALL FOUR flag characters spelled
+ *   as named `register int` constants in retail's emission order ('-','+',' ','0') 64.
+ *   ==> the `li $s3,48` emission-order row is NOT a declaration/assignment-position question:
+ *   the other three constants are LICM-hoisted literals and any explicit assignment of
+ *   flagZero lands in the same preheader group, ahead of them.
+ * 04Z FLAG RE-LADDER on the CURRENT basin (in-memory PER_TU hook, no build.py edit):
+ *   default 56 @545/545 | -mno-split-addresses 45 @546/545 | -fno-schedule-insns2 74 @547 |
+ *   -fno-schedule-insns 124 @545 | -fno-strength-reduce 56 (inert).
+ *   🔴 ORCHESTRATOR CALL, RE-PRICED: the w59-a13 note recorded -mno-split-addresses at 49;
+ *   on this basin it is 45, i.e. -11 diffs for +1 instruction.  It removes the ENTIRE second
+ *   self-temp cluster (`lui $v0,0; addiu $a3,$v0,0` x2 -> retail's `lui $a3; addiu $a3,$a3`)
+ *   and reduces the D_8012348C template copy to a pure register-choice row (ours
+ *   t3/t0/t1/t2, retail a1/v0/v1/a0); the +1 is a `nop` in a new `j` slot near the tail.
+ *   Still fails the count-parity keep-rule as written -- wire it only if the orchestrator
+ *   prefers the diff metric.  Not wired by me.
+ * REMAINING (56) unchanged in kind: the template-copy register handout (8), the
+ * format-pointer base-reuse cluster (6, post-RTL per w59-a13), the `li $s3,48` order (2),
+ * the case-'c' j-slot pick (4), the '*' li-position (2), one `sll` coloring row (2).
+ * The template-copy handout is a local-alloc QTY question (the 06E gap) -- de-prioritized
+ * per the agent guide until qtytrace exists.  NOT a floor.
+ */
 /* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
  * Reference: C:\Tempage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full

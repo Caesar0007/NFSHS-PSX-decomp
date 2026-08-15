@@ -1,0 +1,5 @@
+==== D1 drv= after anchor
+  MoveImage: FAIL 2 diffs (ours 46 / oracle 46)
+      +lw a1,0(s0)
+      -lw a1,0(s0)
+restored

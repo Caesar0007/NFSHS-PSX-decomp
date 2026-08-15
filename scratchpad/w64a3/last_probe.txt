@@ -1,0 +1,6 @@
+V1 void fence right after dr=                  FntFlush: FAIL 2 diffs (ours 199 / oracle 199) | FntPrint: PASS (240 insns)
+V2 dr assigned just before TermPrim            FntFlush: FAIL 2 diffs (ours 199 / oracle 199) | FntPrint: PASS (240 insns)
+V3 TermPrim first, before the field loads      FntFlush: FAIL 27 diffs (ours 200 / oracle 199) | FntPrint: PASS (240 insns)
+V4 identity launder on dr before TermPrim      FntFlush: FAIL 45 diffs (ours 200 / oracle 199) | FntPrint: PASS (240 insns)
+V5 void fence just before TermPrim             FntFlush: FAIL 9 diffs (ours 198 / oracle 199) | FntPrint: PASS (240 insns)
+restored

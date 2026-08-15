@@ -123,14 +123,22 @@ breaker **86**.
   LOCATED (new, precise):** the `-dg`/`-dl` dumps show TWO pseudos that are *used but
   never set* — bare `(insn N (use (reg:SI 115)))` and `(use (reg:SI 206))`, both
   reported by the dump as `ST_REGS or none` (i.e. no allocatable class) and both in
-  `SPILLED:` — reload gives each an 8-byte-aligned stack slot = the 16 bytes.  They are
-  NOT from any `__asm__` in the function (removing the store-flag breaker leaves
-  `vars= 16`), they sit immediately before `ip = &Intr` and before `CDREG0 = 0`, i.e.
-  right after the two `for` loops' join points, and a separate counter for the second
-  loop does not remove them.  **NEXT ANGLE:** identify which gcc-2.7.2 pass emits a
-  dangling `(use (reg))` there (loop.c's `move_movables` is the prime suspect — the
-  insn numbers are post-loop, and drv.c compiles `-fno-strength-reduce`) and remove its
-  cause; killing those two pseudos is worth 20 diffs at once.
+  `SPILLED:` — reload gives each an 8-byte-aligned stack slot = the 16 bytes.
+  **CORRELATION PROVED across the TU:** CD_sync, CD_ready, CD_flush and CD_get_intr each
+  report ZERO spilled pseudos and each has `vars= 0`; CD_cw has exactly TWO and `vars= 16`.
+  **WHERE THEY COME FROM (read off the `.loop` dump, which still has them as normal sets):**
+  `(set (reg 115) (plus (reg 114) (reg 112)))` = the address of `_cd_result_flag[com]`, and
+  `(set (reg 206) (lt (reg 79) (reg 205)))` = the `i < _cd_result_flag[0x40+com]` loop test.
+  A pass AFTER loop (combine) folds the first into its `mem` and the second into the
+  branch, and leaves the now-valueless pseudo behind as a bare `(use (reg))` instead of
+  deleting it; reload then has to give each a stack slot.  They are NOT from any `__asm__`
+  in the function (removing the store-flag breaker leaves `vars= 16`), a separate counter
+  for the second loop does not remove them (93 diffs), and `_cd_result_flag[com] != 0`
+  is inert (75, `vars= 16`).
+  **NEXT ANGLE:** reshape those two specific expressions (the flag-address subscript and
+  the loop-bound compare) so combine DELETES the set instead of leaving a dangling use --
+  a `-df`/combine-dump job on the lane binary to see which combination leaves the use.
+  Killing the two pseudos is worth 20 diffs at once (the whole prologue/epilogue block).
 * **~8 diffs = preamble scheduling**: retail issues the `lbu` of `Intr.sync` (the loop
   test) BEFORE materializing the `"CD_cw"` string and puts the `cmdNames` `la` after the
   entry branch; ours does the reverse.  Pure line order in ONE basic block ⇒ a

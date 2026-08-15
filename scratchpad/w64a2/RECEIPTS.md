@@ -25,8 +25,9 @@ No stale rows this time — every briefed number reproduced exactly.
 # 1. 🏆 LANDED — DrawW_SubdividFacet **35 @587 (one SHORT) → 8 @588 COUNT-EXACT**
 
 Two commits, `54a3eb83` (35→26) and `1dc25d1c` (26→8).  Zero PASS→FAIL on either;
-`tugate` 26/35 unchanged; `tu_order_audit` 0; `psyqproof` production-NEUTRAL
-(REAL=21 before and after, measured against an explicit `git show HEAD:` control).
+`tugate` 26/35 unchanged; `tu_order_audit` 0; `psyqproof` (psq43 cc1 + ASPSX 2.77) improved in step: **REAL=21 -> 13**,
+RELOP=0 both sides (HEAD control run via `scratchpad/w64a2/pq_ctl_sub.py`; the
+35->26 step was production-NEUTRAL at 21, the 26->8 step took it to 13).
 
 ## 1A. The 12D DEAD-PSEUDO STAGING LAW, executed as briefed (35 → 26)
 

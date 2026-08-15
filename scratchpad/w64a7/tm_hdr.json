@@ -1,0 +1,1 @@
+{"recon/syslib/psx/libpad/MCXMAIN.c": {"_padIntRecvHdr": [{"take": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$3,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$31,)", "after": "\\taddu\\t\\$2,\\$3,\\$0\\n(?=\\$L\\d+:\\n\\tlw\\t\\$31,)"}]}}

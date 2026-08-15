@@ -240,6 +240,37 @@ fixes the storage shape, so the declaration-shape family is CLOSED for this symb
 * `_padIntRecvData` / `_padIntRecvHdr` — both PASS (223 / 35). The briefed 99.98 / 99.71 rows are
   stale; they were already corrected in w63-a8 and are still PASS.
 
+## 6b. NEW FINDING — two MCXMAIN gate-PASS fns carry WRONG BRANCH WORDS (04Q), one now FIXED
+
+`tools/brdist.py` on MCXMAIN.c reports offset divergences on **both** fns the assignment asked me
+to verify, and both gate PASS:
+
+* `_padIntRecvHdr` PASS 35/35, rows `(1, 6, 7)` and `(2, 4, 5)`
+* `_padIntRecvData` PASS 223/223, row `(13, 34, 35)`
+
+**ROOT-CAUSED for `_padIntRecvHdr`: it is LABEL PLACEMENT, not code.** cc1 emits `$L19:` BEFORE
+the merge-point `addu $2,$3,$0`, so our `beq`/`beqz` land ON the copy; retail's label sits AFTER
+it (`.L8010C304` is the `lw $ra`), so retail's branches SKIP it — legal there because the first
+branch's delay slot already performed the copy. Semantically identical, two different branch
+words. This is the 04Q gate blind spot in pure form, on a function the board calls done.
+
+**FIX PROVEN (orchestrator action, spec at `scratchpad/w64a7/SPEC_text_moves_padIntRecvHdr_label.json`):**
+one extra `PER_FN_TEXT_MOVES` row appended after the already-wired w62 `copy`+`slot` row, moving
+the LABEL LINE past the copy (the 15-series "labels ARE movable lines" generalisation). Measured
+with `scratchpad/w64a7/tmprobe.py` / `tmbrdist.py` (in-memory table patch; `build.py` never
+edited), each run twice and identical: WITHOUT = PASS + 2 offset rows, WITH = **PASS + 0 offset
+rows**, whole TU **5/5 PASS, zero regressions**. Anchors are `$L`-number agnostic and
+lookahead-pinned on both sides, each occurring exactly once in the function.
+
+`_padIntRecvData`'s single row is the same family (its `beqz $v0` targets the merge-point
+`addu $4,$17,$0` at obj 0x4a4 where retail targets the following `lui` at 0x4a8) — a different
+label, not probed; named follow-up.
+
+**LAW CANDIDATE (§F / 04Q):** *a `copy`+`slot` TEXT_MOVES row reproduces the vendor assembler's
+duplicated insn but NOT its label placement — the merge label stays where cc1 put it, so every
+branch to that label keeps the wrong offset. Gate-PASS + a brdist offset row on a fn carrying a
+`copy` row means the LABEL needs its own move.*
+
 ## 7. CORPUS SWEEP (coordinator request, capped; verdict CONFIRMED INDEPENDENTLY)
 
 Ran a SEMANTIC (not name-grep) sweep over **all 21 repos** in `C:\Temp\ps1-decomp-refs` for the
@@ -256,7 +287,13 @@ check is moot. **The libpad corpus-miss verdict stands, now on semantic grounds.
 
 ## 8. ORCHESTRATOR ACTIONS
 
-**NONE REQUESTED.** No `build.py` wiring is recommended from this belt:
+**ONE, PROVEN:** append the `_padIntRecvHdr` LABEL-MOVE row from
+`scratchpad/w64a7/SPEC_text_moves_padIntRecvHdr_label.json` to the EXISTING
+`PER_FN_TEXT_MOVES["recon/syslib/psx/libpad/MCXMAIN.c"]["_padIntRecvHdr"]` list (append, do NOT
+add a second dict key — 12F). It costs nothing on the gate (PASS either way) and removes the
+function's two wrong branch words; whole-TU 5/5, zero regressions, measured twice.
+
+Nothing else is recommended:
 * `_padInitSioMode`'s frame cure is a SOURCE device, and `-fno-rerun-cse-after-loop` (which
   produces the identical object) is therefore redundant — do not add a flag key for it.
 * `_padLoadActInfo_rcv`'s `PER_FN_VERFLAG_SPLICE_272` mechanism (w63-a8's spec) remains

@@ -1,0 +1,200 @@
+# W64-A18 ownmap2 (reloc-aware E5 + record-interior E4)  blob=scratchpad/w63a19/ctl_blob/sdata_8013C54C.sdata.s
+# blob labels=1099  TU-defined=458  windows=73
+
+      base        end   size  lbl  rel   ok  sec     object
+0x8013bcd0 0x8013c6f0   2592    5   18    -  .data   build/recon/game/common/audiocmn.cpp.o
+      E3 2 implied bases
+      E1 71 foreign: ['AI_time', 'AI_elapsedTime', 'AI_iTime', 'AIHigh_CopGameType', '_19AIHigh_BTC_HumanCop_lastInputRequestTick_', 'gBlockadeTypes']
+      E1 1 un-migrated: ['__sdata_org']
+      E2 2 outside: ['nextWindVal', 'currentWindVal']
+      E4 edge not a boundary / not splittable
+      E5? UNDECIDABLE (1664 raw diffs): ['unresolved reloc target .sdata@0x24', 'unresolved reloc target .sdata@0x28', 'unresolved reloc target .sdata@0x2c']
+0x8013c550 0x8013c55c     12    3    0  OWN  .sdata  build/recon/game/common/ai.cpp.o
+0x8013c55c 0x8013c560      4    1    0  OWN  .sdata  build/recon/game/common/aihigh.cpp.o
+0x8013c55c 0x8013c56d     17    1    0    -  .data   build/recon/game/common/aih_play.cpp.o
+      E1 2 foreign: ['AIHigh_CopGameType', '_19AIHigh_BTC_HumanCop_lastInputRequestTick_']
+      E5 BYTES DIFFER (3 of 17)
+0x8013c560 0x8013c568      8    1    0  OWN  .sdata  build/recon/game/common/aih_btccop.cpp.o
+0x8013c570 0x8013c57c     12    3    0  OWN  .sdata  build/recon/game/common/aicop.cpp.o
+0x8013c57c 0x8013c588     12    3    0  OWN  .sdata  build/recon/game/common/aiinit.cpp.o
+0x8013c59c 0x8013c5a8     12    3    0    -  .sdata  build/recon/game/common/aiphysic.cpp.o
+      E3 3 implied bases
+      E1 2 foreign: ['AIDataRecord_BestLine', 'AIDataRecord_TrackCurve']
+      E2 2 outside: ['AIPhysic_iTime', 'AIPhysic_time']
+0x8013c5a0 0x8013c5b0     16    4    0  OWN  .sdata  build/recon/game/common/aidatarecord.cpp.o
+0x8013c5b8 0x8013c5e0     40    6    0    -  .sdata  build/recon/game/common/aispeeds.cpp.o
+      E5 BYTES DIFFER (4 of 40)
+0x8013c5e8 0x8013c5f0      8    2    0  OWN  .sdata  build/recon/game/common/aitriger.cpp.o
+0x8013c5f0 0x8013c5fc     12    3    0  OWN  .sdata  build/recon/game/common/aitune.cpp.o
+0x8013c608 0x8013c628     32    8    0  OWN  .sdata  build/recon/game/common/audioclc.cpp.o
+0x8013c624 0x8013c6e0    188   41    0    -  .sdata  build/recon/game/common/audiocmn.cpp.o
+      E3 10 implied bases
+      E1 4 foreign: ['AudioClc_gLastphrase3', 'bestLapTime', 'gtotallaptimes', 'AudioCmn_gPlayerArrested']
+      E2 12 outside: ['nextWindPan', 'AudioCmn_ThunderAzi', 'AudioCmn_gResume', 'AudioCmn_gStreamRestartTimer', 'AudioCmn_gLoadTables', 'AudioCmn_ThunderDel']
+      E5 BYTES DIFFER (63 of 188)
+0x8013c71c 0x8013c73c     32    1    0    -  .sdata  build/recon/game/common/audioeng.cpp.o
+      E1 3 foreign: ['AudioCmn_ThunderDel', 'AudioMus_g', 'gGameAudioList']
+      E5 BYTES DIFFER (14 of 32)
+0x8013c720 0x8013c724      4    1    0  OWN  .sdata  build/recon/game/common/audiomus.cpp.o
+0x8013c72c 0x8013c734      8    1    0  OWN  .sdata  build/recon/game/common/audedit.cpp.o
+0x8013c754 0x8013c758      4    1    0  OWN  .sdata  build/recon/game/common/audiotrk.cpp.o
+0x8013c784 0x8013c7bc     56   12    0    -  .sdata  build/recon/game/common/bworld.cpp.o
+      E3 2 implied bases
+      E2 1 outside: ['SceneLoaded']
+      E5 BYTES DIFFER (4 of 56)
+0x8013c7bc 0x8013c7dc     32    8    0  OWN  .sdata  build/recon/game/common/bworldSm.cpp.o
+0x8013c7dc 0x8013c7e0      4    1    0  OWN  .sdata  build/recon/game/common/camera.cpp.o
+0x8013c7e0 0x8013c818     56   11    0  OWN  .sdata  build/recon/game/common/cars.cpp.o
+0x8013c818 0x8013c820      8    2    0  OWN  .sdata  build/recon/game/common/chunk.cpp.o
+0x8013c820 0x8013c82c     12    2    0  OWN  .sdata  build/recon/game/common/clock.cpp.o
+0x8013c82c 0x8013c858     44    8    0    -  .sdata  build/recon/game/common/collide.cpp.o
+      E5 BYTES DIFFER (8 of 44)
+0x8013d07c 0x8013d0fa    126   16    0    -  .sdata  build/recon/game/common/copspeak.cpp.o
+      E3 2 implied bases
+      E5 BYTES DIFFER (37 of 126)
+0x8013d0fc 0x8013d10c     16    4    0  OWN  .sdata  build/recon/game/common/fastrand.cpp.o
+0x8013d10c 0x8013d220    276   13    0  OWN  .sdata  build/recon/game/common/genericpmx.cpp.o
+0x8013d220 0x8013d240     32    5    0  OWN  .sdata  build/recon/game/common/input.cpp.o
+0x8013d244 0x8013d260     28    5    0    -  .sdata  build/recon/game/common/mpause.cpp.o
+      E3 4 implied bases
+      E2 3 outside: ['gPauseMenuDefs', 'gMPauseUpdateNextTime', 'gMPauseUpdate']
+      E5 BYTES DIFFER (1 of 28)
+0x8013d270 0x8013d2c6     86   16    0    -  .sdata  build/recon/game/common/nfs3.cpp.o
+      E3 2 implied bases
+      E5 BYTES DIFFER (33 of 86)
+0x8013d2c8 0x8013d2e0     24    6    0    -  .sdata  build/recon/game/common/object.cpp.o
+      E3 3 implied bases
+0x8013d2e8 0x8013d2ec      4    1    0  OWN  .sdata  build/recon/game/common/paths.cpp.o
+0x8013d2f0 0x8013d324     52   12    0  OWN  .sdata  build/recon/game/common/physics.cpp.o
+0x8013d324 0x8013d3c0    156   15    0    -  .sdata  build/recon/game/common/r3dcar.cpp.o
+      E3 2 implied bases
+      E5 BYTES DIFFER (74 of 156)
+0x8013d3b8 0x8013d400     72   13    0    -  .sdata  build/recon/game/common/render.cpp.o
+      E1 7 foreign: ['R3DCar_subOt', 'R3DCar_rightHandDrive', 'Replay_Size', 'numValidCams', 'Replay_ReplayMode', 'Replay_ReplayStorePtr']
+0x8013d3f4 0x8013d408     20    5    0    -  .sdata  build/recon/game/common/replay.cpp.o
+      E3 2 implied bases
+      E1 1 un-migrated: ['Replay_ReplayCounter']
+      E2 2 outside: ['Replay_Size', 'numValidCams']
+0x8013d408 0x8013d40c      4    1    0  OWN  .sdata  build/recon/game/common/scene.cpp.o
+0x8013d424 0x8013d434     16    4    0    -  .sdata  build/recon/game/common/sim.cpp.o
+      E3 2 implied bases
+      E2 1 outside: ['InBetween']
+      E4 edge not a boundary / not splittable
+0x8013d43c 0x8013d44c     16    3    0    -  .sdata  build/recon/game/common/simqueue.cpp.o
+      E3 3 implied bases
+      E1 1 foreign: ['gISouffle']
+      E2 2 outside: ['gSimQueue_BlockSelf', 'gSimQueue_Ticker']
+      E5 BYTES DIFFER (8 of 16)
+0x8013d448 0x8013d458     16    4    0  OWN  .sdata  build/recon/game/common/souffle.cpp.o
+0x8013d454 0x8013d45c      8    1    0    -  .sdata  build/recon/game/common/textsys.cpp.o
+      E1 1 foreign: ['gWindDir']
+      E5 BYTES DIFFER (1 of 8)
+0x8013d4b8 0x8013d510     88   17    1    -  .sdata  build/recon/game/common/track.cpp.o
+      E3 10 implied bases
+      E1 5 foreign: ['gTAddCarWheelDelay', 'gTAddCSmoke', 'grabValue', 'Audio_direct3davail', 'Audio_gHeap']
+      E2 3 outside: ['Track_header', 'Track_gInViewCount', 'Track_gInViewList']
+      E5? UNDECIDABLE (11 raw diffs): ['unresolved reloc target .rodata@0x0']
+0x8013d4f0 0x8013d4f8      8    2    0  OWN  .sdata  build/recon/game/common/trgsfx.cpp.o
+0x8013d4f8 0x8013d4fc      4    1    0  OWN  .sdata  build/recon/game/common/aidebug.cpp.o
+0x8013d4fc 0x8013d504      8    2    0  OWN  .sdata  build/recon/game/psx/audio.cpp.o
+0x8013d70c 0x8013d748     60    6    0    -  .sdata  build/recon/game/psx/cario.cpp.o
+      E3 3 implied bases
+      E2 2 outside: ['CarIO_Plate2', 'CarIO_Plate1']
+      E5 BYTES DIFFER (36 of 60)
+0x8013d774 0x8013d794     32    6    0    -  .sdata  build/recon/game/psx/device.cpp.o
+      E3 3 implied bases
+      E2 1 outside: ['Device_gPausePortIndex']
+      E4 edge not a boundary / not splittable
+      E5 BYTES DIFFER (1 of 32)
+0x8013d798 0x8013d7cc     52    8    0    -  .sdata  build/recon/game/psx/draw.cpp.o
+      E3 6 implied bases
+      E1 1 un-migrated: ['DrawC_gEnvMapOffset']
+      E4 edge not a boundary / not splittable
+      E5 BYTES DIFFER (2 of 52)
+0x8013d7e4 0x8013d840     92    5    0    -  .sdata  build/recon/game/psx/draww.cpp.o
+      E3 2 implied bases
+      E1 8 foreign: ['DrawC_gEnvMap', 'DrawC_gShadow', 'DrawC_gEnvMapMax', 'DrawC_gShadowMax', 'DrawC_gMenuLightsDirection', 'DrawC_gWetRoad']
+      E1 2 un-migrated: ['DrawC_gMenuColor', 'DrawC_gMenuLights']
+      E5 BYTES DIFFER (17 of 92)
+0x8013d7e8 0x8013d80c     36    7    0    -  .sdata  build/recon/game/psx/drawc.cpp.o
+      E3 7 implied bases
+      E1 2 un-migrated: ['DrawC_gMenuColor', 'DrawC_gMenuLights']
+      E2 3 outside: ['DrawC_gMenuLightsDirection', 'DrawC_gWetRoad', 'DrawC_gReflectOffset']
+      E5 BYTES DIFFER (5 of 36)
+0x8013d818 0x8013d81c      4    1    0  OWN  .sdata  build/recon/game/psx/drawdbg.cpp.o
+0x8013d840 0x8013d854     20    4    0  OWN  .sdata  build/recon/game/psx/force.cpp.o
+0x8013d854 0x8013d870     28    7    0    -  .sdata  build/recon/game/psx/font.cpp.o
+      E1 1 foreign: ['gfrgb']
+      E5 BYTES DIFFER (15 of 28)
+0x8013d86c 0x8013d878     12    3    0  OWN  .sdata  build/recon/game/psx/flare.cpp.o
+0x8013d878 0x8013d8ac     52    3    0    -  .sdata  build/recon/game/psx/hrzsku.cpp.o
+      E1 2 foreign: ['HudminChar', 'HudsecChar']
+      E1 1 un-migrated: ['Hrz_gLightningPosInSky']
+      E5 BYTES DIFFER (17 of 52)
+0x8013d890 0x8013d9d0    320   28    0    -  .sdata  build/recon/game/psx/hud.cpp.o
+      E3 4 implied bases
+      E1 4 foreign: ['gRngCoordTop', 'Hud_NextPerp', 'StatsTimer', 'D_8013D99C']
+      E1 1 un-migrated: ['Hrz_gLightningPosInSky']
+      E5 BYTES DIFFER (131 of 320)
+0x8013d990 0x8013d9a4     20    3    0    -  .sdata  build/recon/game/psx/overlays.cpp.o
+      E3 2 implied bases
+      E5 BYTES DIFFER (7 of 20)
+0x8013d9d0 0x8013d9d8      8    2    0    -  .sdata  build/recon/game/psx/loading.cpp.o
+      E3 2 implied bases
+      E2 1 outside: ['totalAvailMem']
+      E5 BYTES DIFFER (4 of 8)
+0x8013d9dc 0x8013da9c    192   34    0    -  .sdata  build/recon/game/psx/night.cpp.o
+      E3 4 implied bases
+      E1 1 foreign: ['totalAvailMem']
+      E5 BYTES DIFFER (50 of 192)
+0x8013daac 0x8013dac4     24    5    0    -  .sdata  build/recon/game/psx/platform.cpp.o
+      E3 3 implied bases
+      E2 1 outside: ['gSysStartUp']
+      E5 BYTES DIFFER (1 of 24)
+0x8013dac8 0x8013db04     60    4    0    -  .sdata  build/recon/game/psx/skidmark.cpp.o
+      E5 BYTES DIFFER (24 of 60)
+0x8013db08 0x8013db3c     52   13    0  OWN  .sdata  build/recon/game/psx/texture.cpp.o
+0x8013db74 0x8013db90     28    7    0    -  .sdata  build/recon/game/psx/textureprocess.cpp.o
+      E3 5 implied bases
+0x8013db90 0x8013db9c     12    3    0  OWN  .sdata  build/recon/game/psx/trackspec.cpp.o
+0x8013db9c 0x8013dba0      4    1    0  OWN  .sdata  build/recon/game/psx/trsproj.cpp.o
+0x8013dbd8 0x8013dc40    104   19    0    -  .sdata  build/recon/game/psx/weather.cpp.o
+      E3 5 implied bases
+      E1 6 un-migrated: ['Weather_gLastTimeProcessed', 'memaborthook', 'galloccount', 'lowmemadr', 'highmemadr', 'defaultbigext']
+      E2 8 outside: ['Weather_gWasDrawn', 'Weather_gSplatInfo', 'Weather_gPrevPos', 'Weather_gTrackSpec', 'Weather_gSplatInfoServer', 'Weather_gPServer']
+      E5 BYTES DIFFER (17 of 104)
+0x8013dcfc 0x8013dd38     60    5    0    -  .sbss   build/recon/eaclib/psx/eacpsxz/primate.c.o
+      E3 5 implied bases
+      E1 3 foreign: ['shapeext', 'joy_inited', 'D_8013DD34']
+      E1 2 un-migrated: ['ybangle', 'aspectratio']
+      E5 BYTES DIFFER (22 of 60)
+0x8013dd20 0x8013dd24      4    1    0    -  .sbss   build/recon/eaclib/psx/eacpsxz/loadshp.c.o
+      E5 BYTES DIFFER (4 of 4)
+0x8013dd28 0x8013dd2c      4    1    0  OWN  .sbss   build/recon/eaclib/psx/eacpsxz/joystkn.c.o
+0x8013dd34 0x8013dd3c      8    2    0    -  .sbss   build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+      E3 2 implied bases
+      E2 1 outside: ['D_8013DD40']
+      E5 BYTES DIFFER (8 of 8)
+0x8013dd4c 0x8013dd58     12    1    0    -  .sbss   build/recon/eaclib/psx/eacpsxz/inittmr.c.o
+      E1 2 un-migrated: ['textntabstops', 'texttabstops']
+0x8013dd5c 0x8013dd60      4    1    0  OWN  .sbss   build/recon/eaclib/psx/eacpsxz/threads.c.o
+
+OWNABLE windows            : 35
+  ... after overlap pruning: 35  (dropped 0)
+  of which need a record split: 0
+  of which end in alignment pad: 0
+bytes owned                : 776 of 6192
+blob labels inside owned windows: 166
+  of which TU-defined      : 127
+  of which splat D_ interior: 39
+TU-defined labels NOT owned: 331
+
+## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
+  E3 intra-TU drift          27
+  E4 edge not a boundary     4
+  E5 bytes differ            29
+  E5? undecidable reloc      2
+  E1 foreign owner inside    15
+  E1 un-migrated inside      10
+  E2 own label outside       16
+  E0 ambiguous anchor only   0

@@ -13,77 +13,95 @@
  */
 
 #if defined(__mips__)
+/* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+ * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+ * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+ * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+ * Gate-lane object is byte-identical (proven by hash); see
+ * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
     "\t.globl rdiv\n"       /* rdiv = the oracle/scaffolding canonical label (objdump shows THIS one) */
     "rdiv:\n"
-    "\tbgez\t$a0,.L800E4410\n"
-    "\t slt\t$t0,$a0,$zero\n"       /* delay: t0 = (a<0) */
-    "\tnegu\t$a0,$a0\n"             /* |a| */
+    "fixeddiv:\n"
+    "\tbgez\t$4,.L800E4410\n"
+    "\t slt\t$8,$4,$0\n"       /* delay: t0 = (a<0) */
+    "\tnegu\t$4,$4\n"             /* |a| */
     ".L800E4410:\n"
-    "\tbgez\t$a1,.L800E441C\n"
-    "\t slt\t$t1,$a1,$zero\n"       /* delay: t1 = (b<0) */
-    "\tnegu\t$a1,$a1\n"             /* |b| */
+    "\tbgez\t$5,.L800E441C\n"
+    "\t slt\t$9,$5,$0\n"       /* delay: t1 = (b<0) */
+    "\tnegu\t$5,$5\n"             /* |b| */
     ".L800E441C:\n"
-    "\tdivu\t$zero,$a0,$a1\n"       /* {HI,LO} = |a|/|b| (raw, $zero dest -> maspsx passes through) */
-    "\txor\t$t0,$t0,$t1\n"          /* sign = sign(a) ^ sign(b) */
-    "\tnegu\t$t0,$t0\n"            /* -> 0 or -1 mask */
-    "\tbeqz\t$a1,.L800E44A4\n"      /* b==0 -> return 0 */
-    "\t lui\t$t2,1\n"              /* delay: t2 = 0x10000 (bit walker, (0x10000>>16) form) */
-    "\tori\t$t1,$zero,0x1\n"        /* loop terminator */
-    "\tmfhi\t$a0\n"                /* remainder */
-    "\tmflo\t$v0\n"                /* quotient  */
-    "\tbltz\t$a0,.L800E4474\n"
-    "\t sll\t$v0,$v0,16\n"         /* delay: int part << 16 */
-    "\tsll\t$a0,$a0,1\n"
+    "\t.word\t0x0085001b\n"         /* divu $a0,$a1 -- {HI,LO} = |a|/|b|, RAW (no div-by-0 guard).
+                                       w64-a20: emitted as the machine word because NEITHER assembler
+                                       takes a spelling the other accepts.  GNU-as spells a raw divide
+                                       `divu $zero,rs,rt`, which ASPSX 2.77 expands into the op PLUS a
+                                       4-word /0 guard (and refuses it outright under .set noat);
+                                       ASPSX's own raw spelling is the 2-operand `divu rs,rt`, which
+                                       maspsx position-parses and dies on ("expected 3, got 2").  The
+                                       .word satisfies both and is the established device for
+                                       maspsx-hostile ops (cf. fixdmult's mult).  0x0085001b =
+                                       SPECIAL | rs=4 | rt=5 | 0x1b -- the exact byte GNU-as emits. */
+    "\txor\t$8,$8,$9\n"          /* sign = sign(a) ^ sign(b) */
+    "\tnegu\t$8,$8\n"            /* -> 0 or -1 mask */
+    "\tbeqz\t$5,.L800E44A4\n"      /* b==0 -> return 0 */
+    "\t lui\t$10,1\n"              /* delay: t2 = 0x10000 (bit walker, (0x10000>>16) form) */
+    "\tori\t$9,$0,0x1\n"        /* loop terminator */
+    "\tmfhi\t$4\n"                /* remainder */
+    "\tmflo\t$2\n"                /* quotient  */
+    "\tbltz\t$4,.L800E4474\n"
+    "\t sll\t$2,$2,16\n"         /* delay: int part << 16 */
+    "\tsll\t$4,$4,1\n"
     ".L800E4448:\n"
-    "\tbgez\t$a0,.L800E4480\n"
-    "\t sltu\t$t3,$a0,$a1\n"        /* delay */
+    "\tbgez\t$4,.L800E4480\n"
+    "\t sltu\t$11,$4,$5\n"        /* delay */
     ".L800E4450:\n"
-    "\tbnez\t$t3,.L800E4460\n"
-    "\t srl\t$t2,$t2,1\n"           /* delay */
-    "\tor\t$v0,$v0,$t2\n"
-    "\tsubu\t$a0,$a0,$a1\n"
+    "\tbnez\t$11,.L800E4460\n"
+    "\t srl\t$10,$10,1\n"           /* delay */
+    "\tor\t$2,$2,$10\n"
+    "\tsubu\t$4,$4,$5\n"
     ".L800E4460:\n"
-    "\tbne\t$t2,$t1,.L800E4448\n"
-    "\t srl\t$a1,$a1,1\n"           /* delay */
-    "\txor\t$v0,$v0,$t0\n"
-    "\tjr\t$ra\n"
-    "\t sub\t$v0,$v0,$t0\n"         /* delay: HANDWRITTEN trapping sub (reapply sign) */
+    "\tbne\t$10,$9,.L800E4448\n"
+    "\t srl\t$5,$5,1\n"           /* delay */
+    "\txor\t$2,$2,$8\n"
+    "\tjr\t$31\n"
+    "\t sub\t$2,$2,$8\n"         /* delay: HANDWRITTEN trapping sub (reapply sign) */
     ".L800E4474:\n"
-    "\tsrl\t$a1,$a1,1\n"
+    "\tsrl\t$5,$5,1\n"
     ".L800E4478:\n"
-    "\tbltz\t$a0,.L800E4450\n"
-    "\t sltu\t$t3,$a0,$a1\n"        /* delay */
+    "\tbltz\t$4,.L800E4450\n"
+    "\t sltu\t$11,$4,$5\n"        /* delay */
     ".L800E4480:\n"
-    "\tbnez\t$t3,.L800E4490\n"
-    "\t srl\t$t2,$t2,1\n"           /* delay */
-    "\tor\t$v0,$v0,$t2\n"
-    "\tsubu\t$a0,$a0,$a1\n"
+    "\tbnez\t$11,.L800E4490\n"
+    "\t srl\t$10,$10,1\n"           /* delay */
+    "\tor\t$2,$2,$10\n"
+    "\tsubu\t$4,$4,$5\n"
     ".L800E4490:\n"
-    "\tbne\t$t2,$t1,.L800E4478\n"
-    "\t sll\t$a0,$a0,1\n"           /* delay */
-    "\txor\t$v0,$v0,$t0\n"
-    "\tjr\t$ra\n"
-    "\t sub\t$v0,$v0,$t0\n"         /* delay: HANDWRITTEN trapping sub */
+    "\tbne\t$10,$9,.L800E4478\n"
+    "\t sll\t$4,$4,1\n"           /* delay */
+    "\txor\t$2,$2,$8\n"
+    "\tjr\t$31\n"
+    "\t sub\t$2,$2,$8\n"         /* delay: HANDWRITTEN trapping sub */
     ".L800E44A4:\n"
-    "\tjr\t$ra\n"
-    "\t or\t$v0,$zero,$zero\n"      /* delay: b==0 -> 0 */
-    "\t.set pop\n"
+    "\tjr\t$31\n"
+    "\t or\t$2,$0,$0\n"      /* delay: b==0 -> 0 */
+    "\t.set at\n\t.set reorder\n"
 );
 /* co-equal XDEF `fixeddiv` at the same address (caller-facing name). gcc-2.8.0 SILENTLY IGNORES
-   __attribute__((alias)) (emits nothing -- nm-verified), so emit the alias as a GNU-as symbol
-   assignment in file-scope asm (a real global at rdiv's address). */
+   __attribute__((alias)) (emits nothing -- nm-verified), so the name is declared global here and
+   its LABEL sits next to `rdiv:` in the block above.
+   w64-a20: it used to be a GNU-as symbol assignment `fixeddiv = rdiv`; ASPSX 2.77 has no
+   symbol-assignment form (`=`, `.set a,b`, `equ`, `.equ` all rejected) but does accept two labels
+   at one address, so the label form is the portable spelling -- and it is what the dialect shim was
+   synthesising anyway.
+   The explicit `.type`/`.size` directives that used to live here are GONE: they are ELF-only (ASPSX
+   rejects them) and REDUNDANT -- tools/fix_symsizes.py gives every size-less global text symbol the
+   same computed st_size/STT_FUNC after assembly, so the gate object came out BIT-IDENTICAL without
+   them (measured, not assumed). */
 __asm__(
     "\t.globl fixeddiv\n"
-    "fixeddiv = rdiv\n"
-    /* explicit ELF fn type+size: hand-asm labels carry none, and objdiff sizes
-       symbols from these (without them the unit reports 0% despite PASS). */
-    "\t.type rdiv,@function\n"
-    "\t.size rdiv,0xa8\n"
 );
 #else
 extern int fixeddiv(int a, int b)   /* @0x800E4404 : host fallback (16.16 signed divide) */

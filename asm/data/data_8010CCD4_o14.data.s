@@ -1,17 +1,18 @@
 .include "macro.inc"
 /* ============================================================
- * W63-A19  BLOB-vs-TU OWNERSHIP SWEEP -- SPLAT-LANE FILLER ONLY
+ * W64-A18  BLOB-vs-TU OWNERSHIP SWEEP -- SPLAT-LANE FILLER ONLY
  *
  * This segment's data is OWNED by
  *     build/recon/game/common/hudpmx.cpp.o
  * (section .data, retail 0x80110c70..0x80111a44), whose own bytes were
- * proved byte-identical to retail before the cut (ownmap.py E5).
+ * proved byte-identical to retail before the cut (ownmap2 E1-E5, with
+ * R_MIPS_32 relocations RESOLVED against the retail VA map).
  *
  * The RECON-lane linker script must link that object's .data here and must
  * NOT link this file -- otherwise every label below is multiply defined.
  * It stays in the tree only so the legacy splat-lane script
  * (linkers/nfs4.ld, which links build/src/**, where no recon object exists)
- * keeps producing a byte-identical .sdata image.
+ * keeps producing a byte-identical image.
  * ============================================================ */
 
 .section .data, "wa"

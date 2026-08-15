@@ -1,0 +1,1837 @@
+# W64-A18 E5 diagnostic  blob=scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s
+
+0x801234d4..0x801234f4     32 .sdata  build/recon/eaclib/psx/sndpsxz/snddata.c.o
+      6 differing bytes
+        0x801234ec..0x801234ef     3 B  in D_801234E8 (+0x4)
+            retail e6 09 6a
+            ours   00 00 00
+        0x801234f0..0x801234f3     3 B  in D_801234E8 (+0x8)
+            retail 0d fb 4a
+            ours   00 00 00
+
+0x8010cfd4..0x8010d560   1420 .data   build/recon/game/common/aicop.cpp.o
+      301 differing bytes
+        0x8010cfe8..0x8010cfe9     1 B  in twoLapCopGame (+0x14)
+            retail 00
+            ours   10
+        0x8010cfec..0x8010cfee     2 B  in twoLapCopGame (+0x18)
+            retail 00 00
+            ours   cc 4c
+        0x8010cff1..0x8010cff2     1 B  in twoLapCopGame (+0x1d)
+            retail 00
+            ours   02
+        0x8010cff4..0x8010cff5     1 B  in twoLapCopGame (+0x20)
+            retail 10
+            ours   80
+        0x8010cff8..0x8010cffa     2 B  in twoLapCopGame (+0x24)
+            retail cc 4c
+            ours   02 00
+        0x8010cffd..0x8010cffe     1 B  in twoLapCopGame (+0x29)
+            retail 02
+            ours   00
+        0x8010d000..0x8010d001     1 B  in twoLapCopGame (+0x2c)
+            retail 80
+            ours   00
+        0x8010d004..0x8010d005     1 B  in twoLapCopGame (+0x30)
+            retail 02
+            ours   00
+        0x8010d00c..0x8010d00d     1 B  in twoLapCopGame (+0x38)
+            retail 01
+            ours   02
+        0x8010d014..0x8010d015     1 B  in twoLapCopGame (+0x40)
+            retail 02
+            ours   00
+        0x8010d01c..0x8010d01d     1 B  in twoLapCopGame (+0x48)
+            retail 00
+            ours   20
+        0x8010d020..0x8010d022     2 B  in twoLapCopGame (+0x4c)
+            retail 00 00
+            ours   66 66
+        0x8010d028..0x8010d029     1 B  in twoLapCopGame (+0x54)
+            retail 20
+            ours   c0
+        0x8010d02c..0x8010d02e     2 B  in twoLapCopGame (+0x58)
+            retail 66 66
+            ours   00 00
+        0x8010d034..0x8010d035     1 B  in twoLapCopGame (+0x60)
+            retail c0
+            ours   00
+        0x8010d040..0x8010d041     1 B  in twoLapCopGame (+0x6c)
+            retail 01
+            ours   00
+        0x8010d04c..0x8010d04d     1 B  in twoLapCopGame (+0x78)
+            retail 00
+            ours   01
+        0x8010d050..0x8010d051     1 B  in twoLapCopGame (+0x7c)
+            retail 00
+            ours   20
+        0x8010d054..0x8010d056     2 B  in twoLapCopGame (+0x80)
+            retail 01 00
+            ours   cc 4c
+        0x8010d058..0x8010d059     1 B  in twoLapCopGame (+0x84)
+            retail 01
+            ours   00
+        0x8010d05c..0x8010d05d     1 B  in twoLapCopGame (+0x88)
+            retail 20
+            ours   c0
+        0x8010d060..0x8010d062     2 B  in twoLapCopGame (+0x8c)
+            retail cc 4c
+            ours   00 00
+        0x8010d068..0x8010d069     1 B  in twoLapCopGame (+0x94)
+            retail c0
+            ours   00
+        0x8010d074..0x8010d075     1 B  in twoLapCopGame (+0xa0)
+            retail 00
+            ours   03
+        0x8010d078..0x8010d079     1 B  in twoLapCopGame (+0xa4)
+            retail 03
+            ours   02
+        0x8010d07c..0x8010d07d     1 B  in twoLapCopGame (+0xa8)
+            retail 02
+            ours   01
+        0x8010d084..0x8010d085     1 B  in twoLapCopGame (+0xb0)
+            retail 01
+            ours   20
+        0x8010d088..0x8010d08a     2 B  in twoLapCopGame (+0xb4)
+            retail 01 00
+            ours   66 66
+        0x8010d08c..0x8010d08d     1 B  in twoLapCopGame (+0xb8)
+            retail 01
+            ours   00
+        0x8010d090..0x8010d091     1 B  in twoLapCopGame (+0xbc)
+            retail 20
+            ours   c0
+        0x8010d094..0x8010d096     2 B  in twoLapCopGame (+0xc0)
+            retail 66 66
+            ours   00 00
+        0x8010d09c..0x8010d09d     1 B  in twoLapCopGame (+0xc8)
+            retail c0
+            ours   00
+        0x8010d0b8..0x8010d0b9     1 B  in fourLapCopGame (+0x14)
+            retail 00
+            ours   10
+        0x8010d0bc..0x8010d0be     2 B  in fourLapCopGame (+0x18)
+            retail 00 00
+            ours   33 b3
+        0x8010d0c1..0x8010d0c2     1 B  in fourLapCopGame (+0x1d)
+            retail 00
+            ours   02
+        0x8010d0c4..0x8010d0c5     1 B  in fourLapCopGame (+0x20)
+            retail 10
+            ours   80
+        0x8010d0c8..0x8010d0ca     2 B  in fourLapCopGame (+0x24)
+            retail 33 b3
+            ours   02 00
+        0x8010d0cd..0x8010d0ce     1 B  in fourLapCopGame (+0x29)
+            retail 02
+            ours   00
+        0x8010d0d0..0x8010d0d1     1 B  in fourLapCopGame (+0x2c)
+            retail 80
+            ours   00
+        0x8010d0d4..0x8010d0d5     1 B  in fourLapCopGame (+0x30)
+            retail 02
+            ours   00
+        0x8010d0dc..0x8010d0dd     1 B  in fourLapCopGame (+0x38)
+            retail 00
+            ours   02
+        0x8010d0e4..0x8010d0e5     1 B  in fourLapCopGame (+0x40)
+            retail 02
+            ours   00
+        0x8010d0ec..0x8010d0ed     1 B  in fourLapCopGame (+0x48)
+            retail 00
+            ours   10
+        0x8010d0f0..0x8010d0f2     2 B  in fourLapCopGame (+0x4c)
+            retail 00 00
+            ours   33 b3
+        0x8010d0f5..0x8010d0f6     1 B  in fourLapCopGame (+0x51)
+            retail 00
+            ours   02
+        0x8010d0f8..0x8010d0f9     1 B  in fourLapCopGame (+0x54)
+            retail 10
+            ours   c0
+        0x8010d0fc..0x8010d0fe     2 B  in fourLapCopGame (+0x58)
+            retail 33 b3
+            ours   00 00
+        0x8010d101..0x8010d102     1 B  in fourLapCopGame (+0x5d)
+            retail 02
+            ours   00
+        0x8010d104..0x8010d105     1 B  in fourLapCopGame (+0x60)
+            retail c0
+            ours   00
+        0x8010d110..0x8010d111     1 B  in fourLapCopGame (+0x6c)
+            retail 01
+            ours   00
+        0x8010d120..0x8010d121     1 B  in fourLapCopGame (+0x7c)
+            retail 00
+            ours   20
+        0x8010d124..0x8010d126     2 B  in fourLapCopGame (+0x80)
+            retail 00 00
+            ours   33 b3
+        0x8010d129..0x8010d12a     1 B  in fourLapCopGame (+0x85)
+            retail 00
+            ours   01
+        0x8010d12c..0x8010d12d     1 B  in fourLapCopGame (+0x88)
+            retail 20
+            ours   c0
+        0x8010d130..0x8010d132     2 B  in fourLapCopGame (+0x8c)
+            retail 33 b3
+            ours   00 00
+        0x8010d135..0x8010d136     1 B  in fourLapCopGame (+0x91)
+            retail 01
+            ours   00
+        0x8010d138..0x8010d139     1 B  in fourLapCopGame (+0x94)
+            retail c0
+            ours   00
+        0x8010d144..0x8010d145     1 B  in fourLapCopGame (+0xa0)
+            retail 01
+            ours   00
+        0x8010d150..0x8010d151     1 B  in fourLapCopGame (+0xac)
+            retail 00
+            ours   01
+        0x8010d154..0x8010d155     1 B  in fourLapCopGame (+0xb0)
+            retail 00
+            ours   20
+        ... 167 more runs
+
+0x8010ce98..0x8010cea9     17 .data   build/recon/game/common/aih_play.cpp.o
+      4 differing bytes
+        0x8010cea4..0x8010cea8     4 B  in AIHigh_Cop_AggressionData (+0x0)
+            retail 0a 00 00 00
+            ours   05 06 04 02
+
+0x8010cd00..0x8010cd5c     92 .data   build/recon/game/common/aihigh.cpp.o
+      1 differing bytes
+        0x8010cd34..0x8010cd35     1 B  in D_8010CD34 (+0x0)
+            retail 00
+            ours   20
+
+0x8010dd10..0x8010de44    308 .data   build/recon/game/common/aispeeds.cpp.o
+      62 differing bytes
+        0x8010dd78..0x8010dda4    44 B  in AISpeeds_TrackSpeeds (+0x0)
+            retail b8 c5 13 80 bc c5 13 80 10 dd 10 80 34 dd 10 80 c0 c5 13 80 40 dd 10 80 4c dd 10 80 60 dd 10 80 c4 c5 13 80 c8 c5 13 80 cc c5 13 80
+            ours   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        0x8010de15..0x8010de17     2 B  in AITune_BTC (+0x1)
+            retail 80 01
+            ours   00 00
+        0x8010de18..0x8010de1a     2 B  in AITune_BTC (+0x4)
+            retail 99 d9
+            ours   00 00
+        0x8010de1e..0x8010de1f     1 B  in AITune_BTC (+0xa)
+            retail 01
+            ours   00
+        0x8010de20..0x8010de22     2 B  in AITune_BTC (+0xc)
+            retail 80 16
+            ours   00 00
+        0x8010de24..0x8010de25     1 B  in AITune_BTC (+0x10)
+            retail 40
+            ours   00
+        0x8010de28..0x8010de2a     2 B  in AITune_BTC (+0x14)
+            retail 80 07
+            ours   00 00
+        0x8010de2c..0x8010de2e     2 B  in AITune_BTC (+0x18)
+            retail 80 16
+            ours   00 00
+        0x8010de32..0x8010de33     1 B  in AITune_BTC (+0x1e)
+            retail 01
+            ours   00
+        0x8010de36..0x8010de37     1 B  in AITune_BTC (+0x22)
+            retail 01
+            ours   00
+        0x8010de3a..0x8010de3b     1 B  in AITune_BTC (+0x26)
+            retail 01
+            ours   00
+        0x8010de3d..0x8010de3e     1 B  in AITune_BTC (+0x29)
+            retail 0f
+            ours   00
+        0x8010de40..0x8010de42     2 B  in AITune_BTC (+0x2c)
+            retail 40 0b
+            ours   00 00
+
+0x8010e450..0x8010ee70   2592 .data   build/recon/game/common/audiocmn.cpp.o
+      460 differing bytes
+        0x8010e450..0x8010e471    33 B  in AudioClc_gRenderView (+0x28)
+            retail 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+            ours   40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40
+        0x8010e478..0x8010e479     1 B  in AudioClc_gRenderView (+0x50)
+            retail 00
+            ours   04
+        0x8010e480..0x8010e481     1 B  in AudioClc_gRenderView (+0x58)
+            retail 00
+            ours   08
+        0x8010e488..0x8010e489     1 B  in AudioClc_gRenderView (+0x60)
+            retail 00
+            ours   04
+        0x8010e48c..0x8010e48d     1 B  in AudioClc_gRenderView (+0x64)
+            retail 00
+            ours   0c
+        0x8010e490..0x8010e491     1 B  in AudioClc_gRenderView (+0x68)
+            retail 00
+            ours   04
+        0x8010e4a8..0x8010e4a9     1 B  in AudioClc_gRenderView (+0x80)
+            retail 00
+            ours   02
+        0x8010e4b0..0x8010e4b1     1 B  in AudioClc_PursuitTime (+0x4)
+            retail 00
+            ours   02
+        0x8010e4b8..0x8010e4b9     1 B  in AudioClc_PursuitTime (+0xc)
+            retail 00
+            ours   02
+        0x8010e4bc..0x8010e4bd     1 B  in AudioClc_PursuitTime (+0x10)
+            retail 00
+            ours   03
+        0x8010e4c0..0x8010e4c1     1 B  in AudioClc_PursuitTime (+0x14)
+            retail 00
+            ours   03
+        0x8010e4c4..0x8010e4c5     1 B  in AudioClc_PursuitTime (+0x18)
+            retail 00
+            ours   03
+        0x8010e4c8..0x8010e4c9     1 B  in AudioClc_PursuitTime (+0x1c)
+            retail 00
+            ours   03
+        0x8010e4cc..0x8010e4cd     1 B  in AudioClc_PursuitTime (+0x20)
+            retail 00
+            ours   03
+        0x8010e4d0..0x8010e4d1     1 B  in gBankNumLookupTable (+0x0)
+            retail 00
+            ours   03
+        0x8010e4d4..0x8010e4d5     1 B  in gBankNumLookupTable (+0x4)
+            retail 02
+            ours   03
+        0x8010e4d8..0x8010e4d9     1 B  in gBankNumLookupTable (+0x8)
+            retail 00
+            ours   03
+        0x8010e4dc..0x8010e4dd     1 B  in gBankNumLookupTable (+0xc)
+            retail 02
+            ours   03
+        0x8010e4e0..0x8010e4e1     1 B  in gBankNumLookupTable (+0x10)
+            retail 00
+            ours   03
+        0x8010e4e4..0x8010e4e5     1 B  in gBankNumLookupTable (+0x14)
+            retail 02
+            ours   03
+        0x8010e514..0x8010e515     1 B  in gBankNumLookupTable (+0x44)
+            retail 03
+            ours   05
+        0x8010e518..0x8010e519     1 B  in gBankNumLookupTable (+0x48)
+            retail 03
+            ours   05
+        0x8010e51c..0x8010e51d     1 B  in gBankNumLookupTable (+0x4c)
+            retail 03
+            ours   05
+        0x8010e520..0x8010e521     1 B  in gBankNumLookupTable (+0x50)
+            retail 03
+            ours   05
+        0x8010e534..0x8010e535     1 B  in gBankNumLookupTable (+0x64)
+            retail 03
+            ours   05
+        0x8010e538..0x8010e539     1 B  in gBankNumLookupTable (+0x68)
+            retail 03
+            ours   02
+        0x8010e53c..0x8010e53d     1 B  in gBankNumLookupTable (+0x6c)
+            retail 03
+            ours   02
+        0x8010e540..0x8010e541     1 B  in gBankNumLookupTable (+0x70)
+            retail 05
+            ours   02
+        0x8010e544..0x8010e545     1 B  in gBankNumLookupTable (+0x74)
+            retail 05
+            ours   02
+        0x8010e548..0x8010e549     1 B  in gBankNumLookupTable (+0x78)
+            retail 05
+            ours   00
+        0x8010e54c..0x8010e54d     1 B  in gBankNumLookupTable (+0x7c)
+            retail 05
+            ours   01
+        0x8010e550..0x8010e551     1 B  in gBankNumLookupTable (+0x80)
+            retail 03
+            ours   02
+        0x8010e554..0x8010e555     1 B  in gBankNumLookupTable (+0x84)
+            retail 03
+            ours   02
+        0x8010e558..0x8010e559     1 B  in gBankNumLookupTable (+0x88)
+            retail 03
+            ours   02
+        0x8010e55c..0x8010e55d     1 B  in gBankNumLookupTable (+0x8c)
+            retail 03
+            ours   02
+        0x8010e560..0x8010e561     1 B  in gBankNumLookupTable (+0x90)
+            retail 05
+            ours   00
+        0x8010e564..0x8010e565     1 B  in gBankNumLookupTable (+0x94)
+            retail 02
+            ours   00
+        0x8010e568..0x8010e569     1 B  in gBankNumLookupTable (+0x98)
+            retail 02
+            ours   03
+        0x8010e56c..0x8010e56d     1 B  in gBankNumLookupTable (+0x9c)
+            retail 02
+            ours   05
+        0x8010e570..0x8010e571     1 B  in gBankNumLookupTable (+0xa0)
+            retail 02
+            ours   05
+        0x8010e574..0x8010e575     1 B  in gBankNumLookupTable (+0xa4)
+            retail 00
+            ours   05
+        0x8010e578..0x8010e579     1 B  in gBankNumLookupTable (+0xa8)
+            retail 01
+            ours   05
+        0x8010e57c..0x8010e57d     1 B  in gBankNumLookupTable (+0xac)
+            retail 02
+            ours   05
+        0x8010e580..0x8010e581     1 B  in gBankNumLookupTable (+0xb0)
+            retail 02
+            ours   05
+        0x8010e584..0x8010e585     1 B  in gBankNumLookupTable (+0xb4)
+            retail 02
+            ours   05
+        0x8010e588..0x8010e589     1 B  in gBankNumLookupTable (+0xb8)
+            retail 02
+            ours   05
+        0x8010e58c..0x8010e58d     1 B  in gBankNumLookupTable (+0xbc)
+            retail 00
+            ours   05
+        0x8010e590..0x8010e591     1 B  in gBankNumLookupTable (+0xc0)
+            retail 00
+            ours   05
+        0x8010e594..0x8010e595     1 B  in gBankNumLookupTable (+0xc4)
+            retail 03
+            ours   05
+        0x8010e5bc..0x8010e5bd     1 B  in gBankNumLookupTable (+0xec)
+            retail 05
+            ours   00
+        0x8010e5c0..0x8010e5c1     1 B  in gBankNumLookupTable (+0xf0)
+            retail 05
+            ours   04
+        0x8010e5c4..0x8010e5c5     1 B  in gBankNumLookupTable (+0xf4)
+            retail 05
+            ours   07
+        0x8010e5c8..0x8010e5c9     1 B  in gBankNumLookupTable (+0xf8)
+            retail 05
+            ours   04
+        0x8010e5cc..0x8010e5cd     1 B  in gBankNumLookupTable (+0xfc)
+            retail 05
+            ours   07
+        0x8010e5d0..0x8010e5d1     1 B  in gBankNumLookupTable (+0x100)
+            retail 05
+            ours   04
+        0x8010e5d4..0x8010e5d5     1 B  in gBankNumLookupTable (+0x104)
+            retail 05
+            ours   07
+        0x8010e5d8..0x8010e5e1     9 B  in gBankNumLookupTable (+0x108)
+            retail 05 00 00 00 05 00 00 00 05
+            ours   ff ff ff ff ff ff ff ff 04
+        0x8010e5e4..0x8010e5e5     1 B  in gBankNumLookupTable (+0x114)
+            retail 05
+            ours   07
+        0x8010e5e8..0x8010e5e9     1 B  in gBankNumLookupTable (+0x118)
+            retail 00
+            ours   04
+        0x8010e5ec..0x8010e5ed     1 B  in falseLapTrigNumsForward (+0x0)
+            retail 04
+            ours   09
+        ... 51 more runs
+
+0x8010f4cc..0x8010fa60   1428 .data   build/recon/game/common/camera.cpp.o
+      210 differing bytes
+        0x8010f554..0x8010f556     2 B  in Camera_gFlags (+0x4)
+            retail 66 66
+            ours   02 00
+        0x8010f558..0x8010f55a     2 B  in Camera_gFlags (+0x8)
+            retail 66 e6
+            ours   02 00
+        0x8010f55c..0x8010f55d     1 B  in Camera_gFlags (+0xc)
+            retail 02
+            ours   00
+        0x8010f564..0x8010f566     2 B  in Camera_gFlags (+0x14)
+            retail 66 66
+            ours   10 00
+        0x8010f568..0x8010f56a     2 B  in Camera_gFlags (+0x18)
+            retail 66 e6
+            ours   10 00
+        0x8010f56c..0x8010f56d     1 B  in Camera_gFlags (+0x1c)
+            retail 10
+            ours   00
+        0x8010f574..0x8010f577     3 B  in Camera_gFlags (+0x24)
+            retail 66 26 01
+            ours   2d 00 00
+        0x8010f578..0x8010f57d     5 B  in Camera_gFlags (+0x28)
+            retail 34 33 fb ff 2d
+            ours   2d 00 00 00 0f
+        0x8010f584..0x8010f587     3 B  in Camera_gFlags (+0x34)
+            retail 66 26 01
+            ours   2d 00 00
+        0x8010f588..0x8010f58d     5 B  in Camera_gFlags (+0x38)
+            retail 34 33 fb ff 2d
+            ours   2d 00 00 00 0f
+        0x8010f594..0x8010f597     3 B  in Camera_gFlags (+0x44)
+            retail 66 26 01
+            ours   2d 00 00
+        0x8010f598..0x8010f59d     5 B  in Camera_gFlags (+0x48)
+            retail 34 33 fb ff 2d
+            ours   2d 00 00 00 0f
+        0x8010f5a4..0x8010f5a5     1 B  in Camera_gFlags (+0x54)
+            retail 00
+            ours   2d
+        0x8010f5a6..0x8010f5a7     1 B  in Camera_gFlags (+0x56)
+            retail 02
+            ours   00
+        0x8010f5a8..0x8010f5a9     1 B  in Camera_gFlags (+0x58)
+            retail 00
+            ours   2d
+        0x8010f5aa..0x8010f5ad     3 B  in Camera_gFlags (+0x5a)
+            retail fa ff 2d
+            ours   00 00 0f
+        0x8010f5b4..0x8010f5b5     1 B  in Camera_gFlags (+0x64)
+            retail 00
+            ours   2d
+        0x8010f5b6..0x8010f5b7     1 B  in Camera_gFlags (+0x66)
+            retail 02
+            ours   00
+        0x8010f5b8..0x8010f5b9     1 B  in Camera_gFlags (+0x68)
+            retail 00
+            ours   2d
+        0x8010f5ba..0x8010f5bd     3 B  in Camera_gFlags (+0x6a)
+            retail fa ff 2d
+            ours   00 00 0f
+        0x8010f5c4..0x8010f5c7     3 B  in Camera_gFlags (+0x74)
+            retail 66 e6 04
+            ours   2d 00 00
+        0x8010f5c8..0x8010f5cd     5 B  in Camera_gFlags (+0x78)
+            retail cd 4c f9 ff 2d
+            ours   2d 00 00 00 0f
+        0x8010f5d4..0x8010f5d6     2 B  in Camera_gFlags (+0x84)
+            retail 00 40
+            ours   3c 00
+        0x8010f5d8..0x8010f5dd     5 B  in Camera_gFlags (+0x88)
+            retail 00 40 fc ff 3c
+            ours   3c 00 00 00 00
+        0x8010f5e4..0x8010f5e7     3 B  in Camera_gFlags (+0x94)
+            retail ae 87 01
+            ours   38 00 00
+        0x8010f5e8..0x8010f5eb     3 B  in Camera_gFlags (+0x98)
+            retail 99 19 04
+            ours   38 00 00
+        0x8010f5ec..0x8010f5ed     1 B  in Camera_gFlags (+0x9c)
+            retail 38
+            ours   00
+        0x8010f5f4..0x8010f5f5     1 B  in Camera_gFlags (+0xa4)
+            retail 00
+            ours   3c
+        0x8010f5f8..0x8010f5f9     1 B  in Camera_gFlags (+0xa8)
+            retail 00
+            ours   3c
+        0x8010f5fc..0x8010f5fd     1 B  in Camera_gFlags (+0xac)
+            retail 3c
+            ours   00
+        0x8010f604..0x8010f605     1 B  in Camera_gFlags (+0xb4)
+            retail 00
+            ours   14
+        0x8010f608..0x8010f609     1 B  in Camera_gFlags (+0xb8)
+            retail 00
+            ours   14
+        0x8010f60c..0x8010f60d     1 B  in Camera_gFlags (+0xbc)
+            retail 14
+            ours   00
+        0x8010f614..0x8010f615     1 B  in Camera_gFlags (+0xc4)
+            retail 00
+            ours   14
+        0x8010f618..0x8010f619     1 B  in Camera_gFlags (+0xc8)
+            retail 00
+            ours   14
+        0x8010f61c..0x8010f61d     1 B  in Camera_gFlags (+0xcc)
+            retail 14
+            ours   00
+        0x8010f624..0x8010f625     1 B  in Camera_gFlags (+0xd4)
+            retail 00
+            ours   14
+        0x8010f626..0x8010f627     1 B  in Camera_gFlags (+0xd6)
+            retail 0f
+            ours   00
+        0x8010f628..0x8010f629     1 B  in Camera_gFlags (+0xd8)
+            retail 00
+            ours   14
+        0x8010f62a..0x8010f62d     3 B  in Camera_gFlags (+0xda)
+            retail fe ff 14
+            ours   00 00 00
+        0x8010f634..0x8010f635     1 B  in Camera_gFlags (+0xe4)
+            retail 00
+            ours   10
+        0x8010f638..0x8010f639     1 B  in Camera_gFlags (+0xe8)
+            retail 00
+            ours   10
+        0x8010f63c..0x8010f63d     1 B  in Camera_gFlags (+0xec)
+            retail 10
+            ours   00
+        0x8010f644..0x8010f646     2 B  in Camera_gFlags (+0xf4)
+            retail a1 e5
+            ours   12 00
+        0x8010f648..0x8010f64d     5 B  in Camera_gFlags (+0xf8)
+            retail 42 80 ff ff 12
+            ours   12 00 00 00 00
+        0x8010f654..0x8010f655     1 B  in Camera_gFlags (+0x104)
+            retail 00
+            ours   18
+        0x8010f658..0x8010f659     1 B  in Camera_gFlags (+0x108)
+            retail 00
+            ours   18
+        0x8010f65c..0x8010f65d     1 B  in Camera_gFlags (+0x10c)
+            retail 18
+            ours   00
+        0x8010f664..0x8010f665     1 B  in Camera_gFlags (+0x114)
+            retail 00
+            ours   14
+        0x8010f668..0x8010f669     1 B  in Camera_gFlags (+0x118)
+            retail 00
+            ours   14
+        0x8010f66c..0x8010f66d     1 B  in Camera_gFlags (+0x11c)
+            retail 14
+            ours   00
+        0x8010f674..0x8010f675     1 B  in Camera_gFlags (+0x124)
+            retail 00
+            ours   14
+        0x8010f678..0x8010f679     1 B  in Camera_gFlags (+0x128)
+            retail 00
+            ours   14
+        0x8010f67c..0x8010f67d     1 B  in Camera_gFlags (+0x12c)
+            retail 14
+            ours   00
+        0x8010f828..0x8010f82b     3 B  in Cars_topSpeedCap (+0x0)
+            retail 85 ab 3e
+            ours   00 00 00
+        0x8010f82e..0x8010f82f     1 B  in Cars_topSpeedCap (+0x6)
+            retail 3c
+            ours   00
+        0x8010f832..0x8010f833     1 B  in Cars_topSpeedCap (+0xa)
+            retail 47
+            ours   00
+        0x8010f836..0x8010f837     1 B  in Cars_topSpeedCap (+0xe)
+            retail 46
+            ours   00
+        0x8010f838..0x8010f83b     3 B  in Cars_topSpeedCap (+0x10)
+            retail 28 1c 47
+            ours   00 00 00
+        0x8010f83c..0x8010f83f     3 B  in Cars_topSpeedCap (+0x14)
+            retail 85 ab 46
+            ours   00 00 00
+        ... 76 more runs
+
+0x8011279c..0x80112b2c    912 .data   build/recon/game/common/fei.cpp.o
+      432 differing bytes
+        0x801127c0..0x801127c4     4 B  in FEI_gList (+0x24)
+            retail 74 d2 13 80
+            ours   00 00 00 00
+        0x801127c8..0x801127cc     4 B  in FEI_gList (+0x2c)
+            retail ec 31 11 80
+            ours   00 00 00 00
+        0x801127d0..0x801127d4     4 B  in FEI_gList (+0x34)
+            retail f0 31 11 80
+            ours   04 00 00 00
+        0x801127d8..0x801127dc     4 B  in FEI_gList (+0x3c)
+            retail f4 31 11 80
+            ours   08 00 00 00
+        0x801127e0..0x801127e4     4 B  in FEI_gList (+0x44)
+            retail f8 31 11 80
+            ours   0c 00 00 00
+        0x801127e8..0x801127ec     4 B  in FEI_gList (+0x4c)
+            retail fc 31 11 80
+            ours   10 00 00 00
+        0x801127f0..0x801127f4     4 B  in FEI_gList (+0x54)
+            retail 00 32 11 80
+            ours   14 00 00 00
+        0x801127f8..0x801127fc     4 B  in FEI_gList (+0x5c)
+            retail 04 32 11 80
+            ours   18 00 00 00
+        0x80112800..0x80112804     4 B  in FEI_gList (+0x64)
+            retail 08 32 11 80
+            ours   1c 00 00 00
+        0x80112808..0x8011280c     4 B  in FEI_gList (+0x6c)
+            retail 0c 32 11 80
+            ours   20 00 00 00
+        0x80112810..0x80112814     4 B  in FEI_gList (+0x74)
+            retail 24 32 11 80
+            ours   38 00 00 00
+        0x80112818..0x8011281c     4 B  in FEI_gList (+0x7c)
+            retail 48 32 11 80
+            ours   5c 00 00 00
+        0x80112820..0x80112824     4 B  in FEI_gList (+0x84)
+            retail 28 32 11 80
+            ours   3c 00 00 00
+        0x80112828..0x8011282c     4 B  in FEI_gList (+0x8c)
+            retail 30 32 11 80
+            ours   44 00 00 00
+        0x80112830..0x80112834     4 B  in FEI_gList (+0x94)
+            retail 34 32 11 80
+            ours   48 00 00 00
+        0x80112838..0x8011283c     4 B  in FEI_gList (+0x9c)
+            retail 38 32 11 80
+            ours   4c 00 00 00
+        0x80112840..0x80112844     4 B  in FEI_gList (+0xa4)
+            retail 3c 32 11 80
+            ours   50 00 00 00
+        0x80112848..0x8011284c     4 B  in FEI_gList (+0xac)
+            retail 40 32 11 80
+            ours   54 00 00 00
+        0x80112850..0x80112854     4 B  in FEI_gList (+0xb4)
+            retail 18 32 11 80
+            ours   2c 00 00 00
+        0x80112858..0x8011285c     4 B  in FEI_gList (+0xbc)
+            retail 1c 32 11 80
+            ours   30 00 00 00
+        0x80112860..0x80112864     4 B  in FEI_gList (+0xc4)
+            retail 20 32 11 80
+            ours   34 00 00 00
+        0x80112868..0x8011286c     4 B  in FEI_gList (+0xcc)
+            retail 44 32 11 80
+            ours   58 00 00 00
+        0x80112870..0x80112874     4 B  in FEI_gList (+0xd4)
+            retail b0 35 11 80
+            ours   c4 03 00 00
+        0x80112878..0x8011287c     4 B  in FEI_gList (+0xdc)
+            retail b4 35 11 80
+            ours   c8 03 00 00
+        0x80112880..0x80112884     4 B  in FEI_gList (+0xe4)
+            retail b8 35 11 80
+            ours   cc 03 00 00
+        0x80112888..0x8011288c     4 B  in FEI_gList (+0xec)
+            retail bc 35 11 80
+            ours   d0 03 00 00
+        0x80112890..0x80112894     4 B  in FEI_gList (+0xf4)
+            retail a8 32 11 80
+            ours   bc 00 00 00
+        0x80112898..0x8011289c     4 B  in FEI_gList (+0xfc)
+            retail a4 32 11 80
+            ours   b8 00 00 00
+        0x801128a0..0x801128a4     4 B  in FEI_gList (+0x104)
+            retail b4 32 11 80
+            ours   c8 00 00 00
+        0x801128a8..0x801128ac     4 B  in FEI_gList (+0x10c)
+            retail b8 32 11 80
+            ours   cc 00 00 00
+        0x801128b0..0x801128b4     4 B  in FEI_gList (+0x114)
+            retail bc 32 11 80
+            ours   d0 00 00 00
+        0x801128b8..0x801128bc     4 B  in FEI_gList (+0x11c)
+            retail 98 33 11 80
+            ours   ac 01 00 00
+        0x801128c0..0x801128c4     4 B  in FEI_gList (+0x124)
+            retail 9c 33 11 80
+            ours   b0 01 00 00
+        0x801128c8..0x801128cc     4 B  in FEI_gList (+0x12c)
+            retail cc 32 11 80
+            ours   e0 00 00 00
+        0x801128d0..0x801128d4     4 B  in FEI_gList (+0x134)
+            retail d0 32 11 80
+            ours   e4 00 00 00
+        0x801128d8..0x801128dc     4 B  in FEI_gList (+0x13c)
+            retail d4 32 11 80
+            ours   e8 00 00 00
+        0x801128e0..0x801128e4     4 B  in FEI_gList (+0x144)
+            retail d8 32 11 80
+            ours   ec 00 00 00
+        0x801128e8..0x801128ec     4 B  in FEI_gList (+0x14c)
+            retail dc 32 11 80
+            ours   f0 00 00 00
+        0x801128f0..0x801128f4     4 B  in FEI_gList (+0x154)
+            retail e0 32 11 80
+            ours   f4 00 00 00
+        0x801128f8..0x801128fc     4 B  in FEI_gList (+0x15c)
+            retail e4 32 11 80
+            ours   f8 00 00 00
+        0x80112900..0x80112904     4 B  in FEI_gList (+0x164)
+            retail e8 32 11 80
+            ours   fc 00 00 00
+        0x80112908..0x8011290c     4 B  in FEI_gList (+0x16c)
+            retail ec 32 11 80
+            ours   00 01 00 00
+        0x80112910..0x80112914     4 B  in FEI_gList (+0x174)
+            retail f4 32 11 80
+            ours   08 01 00 00
+        0x80112918..0x8011291c     4 B  in FEI_gList (+0x17c)
+            retail f0 32 11 80
+            ours   04 01 00 00
+        0x80112920..0x80112924     4 B  in FEI_gList (+0x184)
+            retail ac 32 11 80
+            ours   c0 00 00 00
+        0x80112928..0x8011292c     4 B  in FEI_gList (+0x18c)
+            retail b0 32 11 80
+            ours   c4 00 00 00
+        0x80112930..0x80112934     4 B  in FEI_gList (+0x194)
+            retail 4c 32 11 80
+            ours   60 00 00 00
+        0x80112938..0x8011293c     4 B  in FEI_gList (+0x19c)
+            retail 54 32 11 80
+            ours   68 00 00 00
+        0x80112940..0x80112944     4 B  in FEI_gList (+0x1a4)
+            retail 5c 32 11 80
+            ours   70 00 00 00
+        0x80112948..0x8011294c     4 B  in FEI_gList (+0x1ac)
+            retail 64 32 11 80
+            ours   78 00 00 00
+        0x80112950..0x80112954     4 B  in FEI_gList (+0x1b4)
+            retail 6c 32 11 80
+            ours   80 00 00 00
+        0x80112958..0x8011295c     4 B  in FEI_gList (+0x1bc)
+            retail 7c 32 11 80
+            ours   90 00 00 00
+        0x80112960..0x80112964     4 B  in FEI_gList (+0x1c4)
+            retail 74 32 11 80
+            ours   88 00 00 00
+        0x80112968..0x8011296c     4 B  in FEI_gList (+0x1cc)
+            retail 8c 32 11 80
+            ours   a0 00 00 00
+        0x80112970..0x80112974     4 B  in FEI_gList (+0x1d4)
+            retail 84 32 11 80
+            ours   98 00 00 00
+        0x80112978..0x8011297c     4 B  in FEI_gList (+0x1dc)
+            retail 94 32 11 80
+            ours   a8 00 00 00
+        0x80112980..0x80112984     4 B  in FEI_gList (+0x1e4)
+            retail 9c 32 11 80
+            ours   b0 00 00 00
+        0x80112988..0x8011298c     4 B  in FEI_gList (+0x1ec)
+            retail 50 32 11 80
+            ours   64 00 00 00
+        0x80112990..0x80112994     4 B  in FEI_gList (+0x1f4)
+            retail 58 32 11 80
+            ours   6c 00 00 00
+        0x80112998..0x8011299c     4 B  in FEI_gList (+0x1fc)
+            retail 60 32 11 80
+            ours   74 00 00 00
+        ... 48 more runs
+
+0x80112ae0..0x80112ff8   1304 .data   build/recon/game/common/genericpmx.cpp.o
+      52 differing bytes
+        0x80112ae0..0x80112ae6     6 B  in FEI_gList (+0x344)
+            retail 50 36 11 80 22 01
+            ours   00 00 00 00 00 00
+        0x80112ae8..0x80112aee     6 B  in FEI_gList (+0x34c)
+            retail 54 36 11 80 23 01
+            ours   00 00 00 00 00 00
+        0x80112af0..0x80112af6     6 B  in FEI_gList (+0x354)
+            retail 58 36 11 80 24 01
+            ours   00 00 00 00 00 00
+        0x80112af8..0x80112afe     6 B  in FEI_gList (+0x35c)
+            retail 5c 36 11 80 25 01
+            ours   00 00 00 00 00 00
+        0x80112b00..0x80112b06     6 B  in FEI_gList (+0x364)
+            retail 60 36 11 80 26 01
+            ours   00 00 00 00 00 00
+        0x80112b08..0x80112b0e     6 B  in FEI_gList (+0x36c)
+            retail 64 36 11 80 27 01
+            ours   00 00 00 00 00 00
+        0x80112b10..0x80112b16     6 B  in FEI_gList (+0x374)
+            retail 68 36 11 80 28 01
+            ours   00 00 00 00 00 00
+        0x80112b18..0x80112b1e     6 B  in FEI_gList (+0x37c)
+            retail 6c 36 11 80 29 01
+            ours   00 00 00 00 00 00
+        0x80112b20..0x80112b24     4 B  in FEI_gList (+0x384)
+            retail 70 36 11 80
+            ours   00 00 00 00
+
+0x8011401c..0x80114254    568 .bss    build/recon/game/common/newton.cpp.o
+      205 differing bytes
+        0x8011401e..0x8011401f     1 B  in divTable (+0x2)
+            retail 01
+            ours   00
+        0x80114020..0x80114023     3 B  in divTable (+0x4)
+            retail 04 02 01
+            ours   00 00 00
+        0x80114024..0x80114027     3 B  in divTable (+0x8)
+            retail 10 04 01
+            ours   00 00 00
+        0x80114028..0x8011402b     3 B  in divTable (+0xc)
+            retail 24 06 01
+            ours   00 00 00
+        0x8011402c..0x8011402f     3 B  in divTable (+0x10)
+            retail 42 08 01
+            ours   00 00 00
+        0x80114030..0x80114033     3 B  in divTable (+0x14)
+            retail 68 0a 01
+            ours   00 00 00
+        0x80114034..0x80114037     3 B  in divTable (+0x18)
+            retail 97 0c 01
+            ours   00 00 00
+        0x80114038..0x8011403b     3 B  in divTable (+0x1c)
+            retail cf 0e 01
+            ours   00 00 00
+        0x8011403c..0x8011403f     3 B  in divTable (+0x20)
+            retail 11 11 01
+            ours   00 00 00
+        0x80114040..0x80114043     3 B  in divTable (+0x24)
+            retail 5c 13 01
+            ours   00 00 00
+        0x80114044..0x80114047     3 B  in divTable (+0x28)
+            retail b1 15 01
+            ours   00 00 00
+        0x80114048..0x8011404b     3 B  in divTable (+0x2c)
+            retail 11 18 01
+            ours   00 00 00
+        0x8011404c..0x8011404f     3 B  in divTable (+0x30)
+            retail 7b 1a 01
+            ours   00 00 00
+        0x80114050..0x80114053     3 B  in divTable (+0x34)
+            retail f0 1c 01
+            ours   00 00 00
+        0x80114054..0x80114057     3 B  in divTable (+0x38)
+            retail 70 1f 01
+            ours   00 00 00
+        0x80114058..0x8011405b     3 B  in divTable (+0x3c)
+            retail fb 21 01
+            ours   00 00 00
+        0x8011405c..0x8011405f     3 B  in divTable (+0x40)
+            retail 92 24 01
+            ours   00 00 00
+        0x80114060..0x80114063     3 B  in divTable (+0x44)
+            retail 35 27 01
+            ours   00 00 00
+        0x80114064..0x80114067     3 B  in divTable (+0x48)
+            retail e4 29 01
+            ours   00 00 00
+        0x80114068..0x8011406b     3 B  in divTable (+0x4c)
+            retail 9f 2c 01
+            ours   00 00 00
+        0x8011406c..0x8011406f     3 B  in divTable (+0x50)
+            retail 68 2f 01
+            ours   00 00 00
+        0x80114070..0x80114073     3 B  in divTable (+0x54)
+            retail 3e 32 01
+            ours   00 00 00
+        0x80114074..0x80114077     3 B  in divTable (+0x58)
+            retail 21 35 01
+            ours   00 00 00
+        0x80114078..0x8011407b     3 B  in divTable (+0x5c)
+            retail 13 38 01
+            ours   00 00 00
+        0x8011407c..0x8011407f     3 B  in divTable (+0x60)
+            retail 13 3b 01
+            ours   00 00 00
+        0x80114080..0x80114083     3 B  in divTable (+0x64)
+            retail 22 3e 01
+            ours   00 00 00
+        0x80114084..0x80114087     3 B  in divTable (+0x68)
+            retail 41 41 01
+            ours   00 00 00
+        0x80114088..0x8011408b     3 B  in divTable (+0x6c)
+            retail 6f 44 01
+            ours   00 00 00
+        0x8011408c..0x8011408f     3 B  in divTable (+0x70)
+            retail ae 47 01
+            ours   00 00 00
+        0x80114090..0x80114093     3 B  in divTable (+0x74)
+            retail fd 4a 01
+            ours   00 00 00
+        0x80114094..0x80114097     3 B  in divTable (+0x78)
+            retail 5e 4e 01
+            ours   00 00 00
+        0x80114098..0x8011409b     3 B  in divTable (+0x7c)
+            retail d0 51 01
+            ours   00 00 00
+        0x8011409c..0x8011409f     3 B  in divTable (+0x80)
+            retail 55 55 01
+            ours   00 00 00
+        0x801140a0..0x801140a3     3 B  in divTable (+0x84)
+            retail ed 58 01
+            ours   00 00 00
+        0x801140a4..0x801140a7     3 B  in divTable (+0x88)
+            retail 98 5c 01
+            ours   00 00 00
+        0x801140a8..0x801140ab     3 B  in divTable (+0x8c)
+            retail 58 60 01
+            ours   00 00 00
+        0x801140ac..0x801140af     3 B  in divTable (+0x90)
+            retail 2c 64 01
+            ours   00 00 00
+        0x801140b0..0x801140b3     3 B  in divTable (+0x94)
+            retail 16 68 01
+            ours   00 00 00
+        0x801140b4..0x801140b7     3 B  in divTable (+0x98)
+            retail 16 6c 01
+            ours   00 00 00
+        0x801140b8..0x801140bb     3 B  in divTable (+0x9c)
+            retail 2e 70 01
+            ours   00 00 00
+        0x801140bc..0x801140bf     3 B  in divTable (+0xa0)
+            retail 5d 74 01
+            ours   00 00 00
+        0x801140c0..0x801140c3     3 B  in divTable (+0xa4)
+            retail a4 78 01
+            ours   00 00 00
+        0x801140c4..0x801140c7     3 B  in divTable (+0xa8)
+            retail 05 7d 01
+            ours   00 00 00
+        0x801140c8..0x801140cb     3 B  in divTable (+0xac)
+            retail 81 81 01
+            ours   00 00 00
+        0x801140cc..0x801140cf     3 B  in divTable (+0xb0)
+            retail 18 86 01
+            ours   00 00 00
+        0x801140d0..0x801140d3     3 B  in divTable (+0xb4)
+            retail cb 8a 01
+            ours   00 00 00
+        0x801140d4..0x801140d7     3 B  in divTable (+0xb8)
+            retail 9c 8f 01
+            ours   00 00 00
+        0x801140d8..0x801140db     3 B  in divTable (+0xbc)
+            retail 8b 94 01
+            ours   00 00 00
+        0x801140dc..0x801140df     3 B  in divTable (+0xc0)
+            retail 99 99 01
+            ours   00 00 00
+        0x801140e0..0x801140e3     3 B  in divTable (+0xc4)
+            retail c8 9e 01
+            ours   00 00 00
+        0x801140e6..0x801140e7     1 B  in fudgeTable (+0x2)
+            retail 14
+            ours   00
+        0x801140e8..0x801140e9     1 B  in fudgeTable (+0x4)
+            retail 24
+            ours   00
+        0x801140ea..0x801140eb     1 B  in fudgeTable (+0x6)
+            retail 2c
+            ours   00
+        0x801140ec..0x801140ed     1 B  in fudgeTable (+0x8)
+            retail 1e
+            ours   00
+        0x801140ee..0x801140ef     1 B  in fudgeTable (+0xa)
+            retail 2c
+            ours   00
+        0x801140f0..0x801140f1     1 B  in fudgeTable (+0xc)
+            retail 34
+            ours   00
+        0x801140f2..0x801140f3     1 B  in fudgeTable (+0xe)
+            retail 2e
+            ours   00
+        0x801140f4..0x801140f5     1 B  in fudgeTable (+0x10)
+            retail 24
+            ours   00
+        0x801140f6..0x801140f7     1 B  in fudgeTable (+0x12)
+            retail 14
+            ours   00
+        0x801140f8..0x801140f9     1 B  in fudgeTable (+0x14)
+            retail 06
+            ours   00
+        ... 22 more runs
+
+0x80116f7c..0x8011706c    240 .data   build/recon/game/common/render.cpp.o
+      8 differing bytes
+        0x80117008..0x80117009     1 B  in ReplayCameraList (+0x0)
+            retail 13
+            ours   00
+        0x8011700c..0x8011700d     1 B  in ReplayCameraList (+0x4)
+            retail 0a
+            ours   00
+        0x80117010..0x80117011     1 B  in ReplayCameraList (+0x8)
+            retail 0b
+            ours   00
+        0x80117014..0x80117015     1 B  in ReplayCameraList (+0xc)
+            retail 08
+            ours   00
+        0x80117018..0x80117019     1 B  in ReplayCameraList (+0x10)
+            retail 09
+            ours   00
+        0x8011701c..0x8011701d     1 B  in ReplayCameraList (+0x14)
+            retail 06
+            ours   00
+        0x80117020..0x80117021     1 B  in ReplayCameraList (+0x18)
+            retail 04
+            ours   00
+        0x80117024..0x80117025     1 B  in ReplayCameraList (+0x1c)
+            retail 0f
+            ours   00
+
+0x80111a44..0x8011219c   1880 .data   build/recon/game/common/speech.cpp.o
+      688 differing bytes
+        0x80111a44..0x80111b24   224 B  in Speech_gCarDescription (+0x0)
+            retail 8c cd 13 80 94 cd 13 80 9c cd 13 80 a4 cd 13 80 a8 cd 13 80 b0 cd 13 80 b0 cd 13 80 b0 cd 13 80 b8 cd 13 80 b0 cd 13 80 b0 cd 13 80 b0 cd 13 80 c0 cd 13 80 c8 cd 13 80 d0 cd 13 80 d8 cd 13 80 ...
+            ours   00 00 00 00 08 00 00 00 10 00 00 00 00 00 00 00 18 00 00 00 20 00 00 00 20 00 00 00 20 00 00 00 28 00 00 00 20 00 00 00 20 00 00 00 20 00 00 00 30 00 00 00 38 00 00 00 40 00 00 00 48 00 00 00 ...
+        0x80111b28..0x80111b38    16 B  in Speech_gCarDescription (+0xe4)
+            retail 94 ce 13 80 94 ce 13 80 94 ce 13 80 9c ce 13 80
+            ours   00 01 00 00 00 01 00 00 00 01 00 00 08 01 00 00
+        0x80111b3c..0x80111b40     4 B  in Speech_gLocationDescription00 (+0x8)
+            retail 9c ce 13 80
+            ours   08 01 00 00
+        0x80111b44..0x80111b48     4 B  in Speech_gLocationDescription00 (+0x10)
+            retail a4 ce 13 80
+            ours   10 01 00 00
+        0x80111b4c..0x80111b50     4 B  in Speech_gLocationDescription00 (+0x18)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111b54..0x80111b58     4 B  in Speech_gLocationDescription00 (+0x20)
+            retail b4 ce 13 80
+            ours   20 01 00 00
+        0x80111b5c..0x80111b60     4 B  in Speech_gLocationDescription00 (+0x28)
+            retail bc ce 13 80
+            ours   28 01 00 00
+        0x80111b64..0x80111b68     4 B  in Speech_gLocationDescription00 (+0x30)
+            retail c4 ce 13 80
+            ours   30 01 00 00
+        0x80111b6c..0x80111b70     4 B  in Speech_gLocationDescription00 (+0x38)
+            retail cc ce 13 80
+            ours   38 01 00 00
+        0x80111b74..0x80111b78     4 B  in Speech_gLocationDescription00 (+0x40)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111b7c..0x80111b80     4 B  in Speech_gLocationDescription00 (+0x48)
+            retail d4 ce 13 80
+            ours   40 01 00 00
+        0x80111b84..0x80111b88     4 B  in Speech_gLocationDescription00 (+0x50)
+            retail dc ce 13 80
+            ours   48 01 00 00
+        0x80111b8c..0x80111b90     4 B  in Speech_gLocationDescription00 (+0x58)
+            retail e4 ce 13 80
+            ours   50 01 00 00
+        0x80111b9c..0x80111ba0     4 B  in Speech_gLocationDescription02 (+0x0)
+            retail ec ce 13 80
+            ours   58 01 00 00
+        0x80111ba4..0x80111ba8     4 B  in Speech_gLocationDescription02 (+0x8)
+            retail f4 ce 13 80
+            ours   60 01 00 00
+        0x80111bac..0x80111bb0     4 B  in Speech_gLocationDescription02 (+0x10)
+            retail fc ce 13 80
+            ours   68 01 00 00
+        0x80111bb4..0x80111bb8     4 B  in Speech_gLocationDescription02 (+0x18)
+            retail b4 ce 13 80
+            ours   20 01 00 00
+        0x80111bbc..0x80111bc0     4 B  in Speech_gLocationDescription02 (+0x20)
+            retail 04 cf 13 80
+            ours   70 01 00 00
+        0x80111bc4..0x80111bc8     4 B  in Speech_gLocationDescription02 (+0x28)
+            retail 0c cf 13 80
+            ours   78 01 00 00
+        0x80111bcc..0x80111bd0     4 B  in Speech_gLocationDescription02 (+0x30)
+            retail 14 cf 13 80
+            ours   80 01 00 00
+        0x80111bd4..0x80111bd8     4 B  in Speech_gLocationDescription02 (+0x38)
+            retail c4 ce 13 80
+            ours   30 01 00 00
+        0x80111bdc..0x80111be0     4 B  in Speech_gLocationDescription02 (+0x40)
+            retail 1c cf 13 80
+            ours   88 01 00 00
+        0x80111be4..0x80111be8     4 B  in Speech_gLocationDescription02 (+0x48)
+            retail c4 ce 13 80
+            ours   30 01 00 00
+        0x80111bec..0x80111bf0     4 B  in Speech_gLocationDescription02 (+0x50)
+            retail dc ce 13 80
+            ours   48 01 00 00
+        0x80111bf4..0x80111bf8     4 B  in Speech_gLocationDescription02 (+0x58)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111bfc..0x80111c00     4 B  in Speech_gLocationDescription02 (+0x60)
+            retail 24 cf 13 80
+            ours   90 01 00 00
+        0x80111c0c..0x80111c10     4 B  in Speech_gLocationDescription03 (+0x0)
+            retail 2c cf 13 80
+            ours   98 01 00 00
+        0x80111c14..0x80111c18     4 B  in Speech_gLocationDescription03 (+0x8)
+            retail 2c cf 13 80
+            ours   98 01 00 00
+        0x80111c1c..0x80111c20     4 B  in Speech_gLocationDescription03 (+0x10)
+            retail 2c cf 13 80
+            ours   98 01 00 00
+        0x80111c24..0x80111c28     4 B  in Speech_gLocationDescription03 (+0x18)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111c2c..0x80111c30     4 B  in Speech_gLocationDescription03 (+0x20)
+            retail 34 cf 13 80
+            ours   a0 01 00 00
+        0x80111c34..0x80111c38     4 B  in Speech_gLocationDescription03 (+0x28)
+            retail c4 ce 13 80
+            ours   30 01 00 00
+        0x80111c3c..0x80111c40     4 B  in Speech_gLocationDescription03 (+0x30)
+            retail 3c cf 13 80
+            ours   a8 01 00 00
+        0x80111c44..0x80111c48     4 B  in Speech_gLocationDescription03 (+0x38)
+            retail 44 cf 13 80
+            ours   b0 01 00 00
+        0x80111c4c..0x80111c50     4 B  in Speech_gLocationDescription03 (+0x40)
+            retail fc ce 13 80
+            ours   68 01 00 00
+        0x80111c54..0x80111c58     4 B  in Speech_gLocationDescription03 (+0x48)
+            retail 0c cf 13 80
+            ours   78 01 00 00
+        0x80111c5c..0x80111c60     4 B  in Speech_gLocationDescription03 (+0x50)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111c64..0x80111c68     4 B  in Speech_gLocationDescription03 (+0x58)
+            retail 4c cf 13 80
+            ours   b8 01 00 00
+        0x80111c74..0x80111c78     4 B  in Speech_gLocationDescription04 (+0x0)
+            retail 54 cf 13 80
+            ours   c0 01 00 00
+        0x80111c7c..0x80111c80     4 B  in Speech_gLocationDescription04 (+0x8)
+            retail 5c cf 13 80
+            ours   c8 01 00 00
+        0x80111c84..0x80111c88     4 B  in Speech_gLocationDescription04 (+0x10)
+            retail 9c ce 13 80
+            ours   08 01 00 00
+        0x80111c8c..0x80111c90     4 B  in Speech_gLocationDescription04 (+0x18)
+            retail 64 cf 13 80
+            ours   d0 01 00 00
+        0x80111c94..0x80111c98     4 B  in Speech_gLocationDescription04 (+0x20)
+            retail 6c cf 13 80
+            ours   d8 01 00 00
+        0x80111c9c..0x80111ca0     4 B  in Speech_gLocationDescription04 (+0x28)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111ca4..0x80111ca8     4 B  in Speech_gLocationDescription04 (+0x30)
+            retail c4 ce 13 80
+            ours   30 01 00 00
+        0x80111cac..0x80111cb0     4 B  in Speech_gLocationDescription04 (+0x38)
+            retail dc ce 13 80
+            ours   48 01 00 00
+        0x80111cbc..0x80111cc0     4 B  in Speech_gLocationDescription05 (+0x0)
+            retail 4c cf 13 80
+            ours   b8 01 00 00
+        0x80111cc4..0x80111cc8     4 B  in Speech_gLocationDescription05 (+0x8)
+            retail 74 cf 13 80
+            ours   e0 01 00 00
+        0x80111ccc..0x80111cd0     4 B  in Speech_gLocationDescription05 (+0x10)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111cd4..0x80111cd8     4 B  in Speech_gLocationDescription05 (+0x18)
+            retail 0c cf 13 80
+            ours   78 01 00 00
+        0x80111cdc..0x80111ce0     4 B  in Speech_gLocationDescription05 (+0x20)
+            retail ac ce 13 80
+            ours   18 01 00 00
+        0x80111ce4..0x80111ce8     4 B  in Speech_gLocationDescription05 (+0x28)
+            retail 34 cf 13 80
+            ours   a0 01 00 00
+        0x80111cec..0x80111cf0     4 B  in Speech_gLocationDescription05 (+0x30)
+            retail 7c cf 13 80
+            ours   e8 01 00 00
+        0x80111cf4..0x80111cf8     4 B  in Speech_gLocationDescription05 (+0x38)
+            retail 2c cf 13 80
+            ours   98 01 00 00
+        0x80111cfc..0x80111d00     4 B  in Speech_gLocationDescription05 (+0x40)
+            retail 84 cf 13 80
+            ours   f0 01 00 00
+        0x80111d04..0x80111d08     4 B  in Speech_gLocationDescription05 (+0x48)
+            retail 84 cf 13 80
+            ours   f0 01 00 00
+        0x80111d0c..0x80111d10     4 B  in Speech_gLocationDescription05 (+0x50)
+            retail 8c cf 13 80
+            ours   f8 01 00 00
+        0x80111d14..0x80111d18     4 B  in Speech_gLocationDescription05 (+0x58)
+            retail 94 cf 13 80
+            ours   00 02 00 00
+        0x80111d1c..0x80111d20     4 B  in Speech_gLocationDescription05 (+0x60)
+            retail 2c cf 13 80
+            ours   98 01 00 00
+        0x80111d2c..0x80111d30     4 B  in Speech_gLocationDescription06 (+0x0)
+            retail 34 cf 13 80
+            ours   a0 01 00 00
+        ... 24 more runs
+
+0x8011f554..0x8011fc60   1804 .data   build/recon/game/psx/draww.cpp.o
+      81 differing bytes
+        0x8011f554..0x8011f55a     6 B  in DrawC_gOverlay (+0x4c)
+            retail 00 00 00 00 00 00
+            ours   7d 7d 32 0f ff 7d
+        0x8011f55d..0x8011f55e     1 B  in DrawC_gOverlay (+0x55)
+            retail 00
+            ours   10
+        0x8011f571..0x8011f572     1 B  in gIdentTemplate (+0x1)
+            retail 10
+            ours   00
+        0x8011f579..0x8011f57a     1 B  in gIdentTemplate (+0x9)
+            retail 10
+            ours   00
+        0x8011f57c..0x8011f57e     2 B  in gIdentTemplate (+0xc)
+            retail 00 00
+            ours   9a 01
+        0x8011f580..0x8011f582     2 B  in gIdentTemplate (+0x10)
+            retail 00 10
+            ours   12 02
+        0x8011f584..0x8011f586     2 B  in gIdentTemplate (+0x14)
+            retail 00 00
+            ours   20 03
+        0x8011f588..0x8011f58a     2 B  in gIdentTemplate (+0x18)
+            retail 00 00
+            ours   52 03
+        0x8011f58c..0x8011f58e     2 B  in gIdentTemplate (+0x1c)
+            retail 00 00
+            ours   20 03
+        0x8011f590..0x8011f592     2 B  in trk0 (+0x0)
+            retail 9a 01
+            ours   52 03
+        0x8011f594..0x8011f596     2 B  in trk0 (+0x4)
+            retail 12 02
+            ours   20 03
+        0x8011f598..0x8011f599     1 B  in trk0 (+0x8)
+            retail 20
+            ours   52
+        0x8011f59c..0x8011f59d     1 B  in trk0 (+0xc)
+            retail 52
+            ours   20
+        0x8011f5a0..0x8011f5a1     1 B  in trk0 (+0x10)
+            retail 20
+            ours   52
+        0x8011f5a4..0x8011f5a5     1 B  in trk0 (+0x14)
+            retail 52
+            ours   20
+        0x8011f5a8..0x8011f5a9     1 B  in trk0 (+0x18)
+            retail 20
+            ours   52
+        0x8011f5ac..0x8011f5ad     1 B  in trk0 (+0x1c)
+            retail 52
+            ours   2f
+        0x8011f5b0..0x8011f5b1     1 B  in trk0 (+0x20)
+            retail 20
+            ours   75
+        0x8011f5b4..0x8011f5b5     1 B  in trk0 (+0x24)
+            retail 52
+            ours   2f
+        0x8011f5b8..0x8011f5b9     1 B  in trk0 (+0x28)
+            retail 20
+            ours   75
+        0x8011f5bc..0x8011f5bd     1 B  in trk0 (+0x2c)
+            retail 52
+            ours   2f
+        0x8011f5c0..0x8011f5c1     1 B  in trk0 (+0x30)
+            retail 2f
+            ours   75
+        0x8011f5c4..0x8011f5c6     2 B  in trk0 (+0x34)
+            retail 75 03
+            ours   2c 01
+        0x8011f5c8..0x8011f5ca     2 B  in trk0 (+0x38)
+            retail 2f 03
+            ours   b8 01
+        0x8011f5cc..0x8011f5ce     2 B  in trk0 (+0x3c)
+            retail 75 03
+            ours   2c 01
+        0x8011f5d0..0x8011f5d2     2 B  in trk0 (+0x40)
+            retail 2f 03
+            ours   b8 01
+        0x8011f5d4..0x8011f5d6     2 B  in trk0 (+0x44)
+            retail 75 03
+            ours   2c 01
+        0x8011f5d8..0x8011f5d9     1 B  in trk4 (+0x0)
+            retail 2c
+            ours   b8
+        0x8011f5dc..0x8011f5dd     1 B  in trk4 (+0x4)
+            retail b8
+            ours   2c
+        0x8011f5e0..0x8011f5e1     1 B  in trk4 (+0x8)
+            retail 2c
+            ours   b8
+        0x8011f5e4..0x8011f5e5     1 B  in trk4 (+0xc)
+            retail b8
+            ours   2c
+        0x8011f5e8..0x8011f5e9     1 B  in trk4 (+0x10)
+            retail 2c
+            ours   b8
+        0x8011f5ec..0x8011f5ee     2 B  in trk4 (+0x14)
+            retail b8 01
+            ours   c1 02
+        0x8011f5f0..0x8011f5f2     2 B  in trk4 (+0x18)
+            retail 2c 01
+            ours   8e 03
+        0x8011f5f4..0x8011f5f6     2 B  in trk4 (+0x1c)
+            retail b8 01
+            ours   c1 02
+        0x8011f5f8..0x8011f5fa     2 B  in trk4 (+0x20)
+            retail 2c 01
+            ours   8e 03
+        0x8011f5fc..0x8011f5fe     2 B  in trk4 (+0x24)
+            retail b8 01
+            ours   c1 02
+        0x8011f600..0x8011f602     2 B  in trk4 (+0x28)
+            retail c1 02
+            ours   8e 03
+        0x8011f604..0x8011f606     2 B  in trk4 (+0x2c)
+            retail 8e 03
+            ours   c1 02
+        0x8011f608..0x8011f60a     2 B  in trk4 (+0x30)
+            retail c1 02
+            ours   8e 03
+        0x8011f60c..0x8011f60e     2 B  in trk4 (+0x34)
+            retail 8e 03
+            ours   c1 02
+        0x8011f610..0x8011f612     2 B  in trk4 (+0x38)
+            retail c1 02
+            ours   8e 03
+        0x8011f614..0x8011f61a     6 B  in trk4 (+0x3c)
+            retail 8e 03 00 00 c1 02
+            ours   7d 7d 32 0f ff 7d
+        0x8011f61c..0x8011f61e     2 B  in trk4 (+0x44)
+            retail 8e 03
+            ours   00 00
+        0x8011f620..0x8011f622     2 B  in trk4 (+0x48)
+            retail c1 02
+            ours   00 00
+        0x8011f624..0x8011f626     2 B  in trk4 (+0x4c)
+            retail 8e 03
+            ours   00 00
+
+0x8011fde0..0x801202f8   1304 .data   build/recon/game/psx/flare.cpp.o
+      20 differing bytes
+        0x801201f1..0x801201f2     1 B  in Flare_SunFlarePieces (+0x9)
+            retail 0a
+            ours   01
+        0x801201f4..0x801201f5     1 B  in Flare_SunFlarePieces (+0xc)
+            retail 01
+            ours   00
+        0x80120201..0x80120202     1 B  in Flare_SunFlarePieces (+0x19)
+            retail 05
+            ours   00
+        0x80120211..0x80120213     2 B  in Flare_SunFlarePieces (+0x29)
+            retail 0f 03
+            ours   00 00
+        0x80120221..0x80120222     1 B  in Flare_SunFlarePieces (+0x39)
+            retail 0a
+            ours   02
+        0x80120224..0x80120225     1 B  in Flare_SunFlarePieces (+0x3c)
+            retail 02
+            ours   00
+        0x80120231..0x80120233     2 B  in Flare_SunFlarePieces (+0x49)
+            retail 06 14
+            ours   00 00
+        0x80120241..0x80120243     2 B  in Flare_SunFlarePieces (+0x59)
+            retail 0f 08
+            ours   04 00
+        0x80120244..0x80120245     1 B  in Flare_SunFlarePieces (+0x5c)
+            retail 04
+            ours   00
+        0x80120251..0x80120253     2 B  in Flare_SunFlarePieces (+0x69)
+            retail 14 1f
+            ours   02 00
+        0x80120254..0x80120255     1 B  in Flare_SunFlarePieces (+0x6c)
+            retail 02
+            ours   00
+        0x80120261..0x80120263     2 B  in Flare_SunFlarePieces (+0x79)
+            retail 14 0a
+            ours   00 00
+        0x80120271..0x80120273     2 B  in Flare_SunFlarePieces (+0x89)
+            retail 0f 10
+            ours   02 00
+        0x80120274..0x80120275     1 B  in Flare_SunFlarePieces (+0x8c)
+            retail 02
+            ours   00
+
+0x801202f8..0x80120934   1596 .data   build/recon/game/psx/hrzsku.cpp.o
+      8 differing bytes
+        0x80120924..0x80120925     1 B  in Hud_gElementPositions (+0x0)
+            retail 16
+            ours   00
+        0x80120926..0x80120927     1 B  in Hud_gElementPositions (+0x2)
+            retail 36
+            ours   00
+        0x80120928..0x80120929     1 B  in Hud_gElementPositions (+0x4)
+            retail 9f
+            ours   00
+        0x8012092a..0x8012092b     1 B  in Hud_gElementPositions (+0x6)
+            retail 13
+            ours   00
+        0x8012092c..0x8012092d     1 B  in Hud_gElementPositions (+0x8)
+            retail 08
+            ours   00
+        0x8012092e..0x8012092f     1 B  in Hud_gElementPositions (+0xa)
+            retail 13
+            ours   00
+        0x80120930..0x80120931     1 B  in Hud_gElementPositions (+0xc)
+            retail 12
+            ours   00
+        0x80120932..0x80120933     1 B  in Hud_gElementPositions (+0xe)
+            retail 23
+            ours   00
+
+0x80120924..0x8012108a   1894 .data   build/recon/game/psx/hud.cpp.o
+      167 differing bytes
+        0x80120d00..0x80120d18    24 B  in D_80120D00 (+0x0)
+            retail a0 d9 13 80 a8 d9 13 80 b0 d9 13 80 b8 d9 13 80 c0 d9 13 80 c8 d9 13 80
+            ours   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        0x80120d19..0x80120d1a     1 B  in Night_gCopCountryLightTbl (+0x1)
+            retail 01
+            ours   00
+        0x80120d1b..0x80120d1c     1 B  in Night_gCopCountryLightTbl (+0x3)
+            retail 01
+            ours   00
+        0x80120d1d..0x80120d1e     1 B  in Night_gCopCountryLightTbl (+0x5)
+            retail 01
+            ours   00
+        0x80120d1f..0x80120d20     1 B  in Night_gCopCountryLightTbl (+0x7)
+            retail 01
+            ours   00
+        0x80120d21..0x80120d24     3 B  in Night_gCopCountryLightTbl (+0x9)
+            retail 01 01 01
+            ours   00 00 00
+        0x80120d26..0x80120d28     2 B  in Night_gCopCountryLightTbl (+0xe)
+            retail 01 01
+            ours   00 00
+        0x80120d29..0x80120d2a     1 B  in Night_gCopCountryLightTbl (+0x11)
+            retail 01
+            ours   00
+        0x80120d2b..0x80120d2c     1 B  in Night_gCopCountryLightTbl (+0x13)
+            retail 01
+            ours   00
+        0x80120dad..0x80120dbc    15 B  in D_80120DAC (+0x1)
+            retail 0f 07 05 0b 0d 03 09 01 0e 0a 04 02 0c 06 08
+            ours   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        0x80120dfe..0x80120dff     1 B  in mappings (+0x2)
+            retail 80
+            ours   00
+        0x80120e03..0x80120e05     2 B  in mappings (+0x7)
+            retail 80 80
+            ours   00 00
+        0x80120e0a..0x80120e0b     1 B  in mappings (+0xe)
+            retail 20
+            ours   00
+        0x80120e0f..0x80120e11     2 B  in mappings (+0x13)
+            retail 20 20
+            ours   00 00
+        0x80120e15..0x80120e16     1 B  in mappings (+0x19)
+            retail 40
+            ours   00
+        0x80120e19..0x80120e1a     1 B  in mappings (+0x1d)
+            retail 40
+            ours   00
+        0x80120e1d..0x80120e1e     1 B  in mappings (+0x21)
+            retail 40
+            ours   00
+        0x80120e21..0x80120e22     1 B  in mappings (+0x25)
+            retail 80
+            ours   00
+        0x80120e25..0x80120e26     1 B  in mappings (+0x29)
+            retail 80
+            ours   00
+        0x80120e29..0x80120e2a     1 B  in mappings (+0x2d)
+            retail 80
+            ours   00
+        0x80120e2d..0x80120e2e     1 B  in mappings (+0x31)
+            retail 20
+            ours   00
+        0x80120e31..0x80120e32     1 B  in mappings (+0x35)
+            retail 20
+            ours   00
+        0x80120e35..0x80120e36     1 B  in mappings (+0x39)
+            retail 20
+            ours   00
+        0x80120e38..0x80120e39     1 B  in mappings (+0x3c)
+            retail 10
+            ours   00
+        0x80120e3d..0x80120e3e     1 B  in mappings (+0x41)
+            retail 08
+            ours   00
+        0x80120e41..0x80120e42     1 B  in mappings (+0x45)
+            retail 08
+            ours   00
+        0x80120e44..0x80120e45     1 B  in mappings (+0x48)
+            retail 40
+            ours   00
+        0x80120e49..0x80120e4a     1 B  in mappings (+0x4d)
+            retail 02
+            ours   00
+        0x80120e4d..0x80120e4e     1 B  in mappings (+0x51)
+            retail 02
+            ours   00
+        0x80120e51..0x80120e52     1 B  in mappings (+0x55)
+            retail 10
+            ours   00
+        0x80120e55..0x80120e56     1 B  in mappings (+0x59)
+            retail 10
+            ours   00
+        0x80120e59..0x80120e5a     1 B  in mappings (+0x5d)
+            retail 10
+            ours   00
+        0x80120e5d..0x80120e5e     1 B  in mappings (+0x61)
+            retail 08
+            ours   00
+        0x80120e61..0x80120e62     1 B  in mappings (+0x65)
+            retail 01
+            ours   00
+        0x80120e65..0x80120e66     1 B  in mappings (+0x69)
+            retail 01
+            ours   00
+        0x80120e68..0x80120e69     1 B  in mappings (+0x6c)
+            retail 80
+            ours   00
+        0x80120e6c..0x80120e6d     1 B  in mappings (+0x70)
+            retail 10
+            ours   00
+        0x80120e70..0x80120e71     1 B  in mappings (+0x74)
+            retail 10
+            ours   00
+        0x80120e74..0x80120e75     1 B  in mappings (+0x78)
+            retail 10
+            ours   00
+        0x80120e78..0x80120e79     1 B  in mappings (+0x7c)
+            retail 10
+            ours   00
+        0x80120e7c..0x80120e7d     1 B  in mappings (+0x80)
+            retail 10
+            ours   00
+        0x80120e81..0x80120e82     1 B  in mappings (+0x85)
+            retail 04
+            ours   00
+        0x80120e85..0x80120e86     1 B  in mappings (+0x89)
+            retail 04
+            ours   00
+        0x80120e89..0x80120e8a     1 B  in mappings (+0x8d)
+            retail 04
+            ours   00
+        0x80120e8c..0x80120e8d     1 B  in mappings (+0x90)
+            retail 20
+            ours   00
+        0x80120e90..0x80120e91     1 B  in mappings (+0x94)
+            retail 01
+            ours   00
+        0x80120e94..0x80120e95     1 B  in mappings (+0x98)
+            retail 01
+            ours   00
+        0x80120e9a..0x80120e9b     1 B  in mappings (+0x9e)
+            retail 80
+            ours   00
+        0x80120e9f..0x80120ea1     2 B  in mappings (+0xa3)
+            retail 80 80
+            ours   00 00
+        0x80120ea6..0x80120ea7     1 B  in mappings (+0xaa)
+            retail 20
+            ours   00
+        0x80120eab..0x80120ead     2 B  in mappings (+0xaf)
+            retail 20 20
+            ours   00 00
+        0x80120eb1..0x80120eb2     1 B  in mappings (+0xb5)
+            retail 40
+            ours   00
+        0x80120eb7..0x80120eb8     1 B  in mappings (+0xbb)
+            retail 10
+            ours   00
+        0x80120eb9..0x80120eba     1 B  in mappings (+0xbd)
+            retail 80
+            ours   00
+        0x80120ebd..0x80120ebe     1 B  in mappings (+0xc1)
+            retail 80
+            ours   00
+        0x80120ec3..0x80120ec4     1 B  in mappings (+0xc7)
+            retail 40
+            ours   00
+        0x80120ec5..0x80120ec6     1 B  in mappings (+0xc9)
+            retail 40
+            ours   00
+        0x80120ec9..0x80120eca     1 B  in mappings (+0xcd)
+            retail 20
+            ours   00
+        0x80120ecd..0x80120ece     1 B  in mappings (+0xd1)
+            retail 20
+            ours   00
+        0x80120ed1..0x80120ed2     1 B  in mappings (+0xd5)
+            retail 20
+            ours   00
+        ... 61 more runs
+
+0x80120d18..0x80120dfc    228 .data   build/recon/game/psx/night.cpp.o
+      30 differing bytes
+        0x80120d2d..0x80120d3c    15 B  in Night_gLightningPauseAreas (+0x1)
+            retail 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+            ours   0f 07 05 0b 0d 03 09 01 0e 0a 04 02 0c 06 08
+        0x80120dad..0x80120dbc    15 B  in D_80120DAC (+0x1)
+            retail 0f 07 05 0b 0d 03 09 01 0e 0a 04 02 0c 06 08
+            ours   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0x8013bf6c..0x8013c00c    160 .data   build/recon/syslib/psx/libcd/cddebug.c.o
+      160 differing bytes
+        0x8013bf6c..0x8013c00c   160 B  in CD_comstr (+0x0)
+            retail 2c 77 05 80 24 77 05 80 18 77 05 80 10 77 05 80 04 77 05 80 f8 76 05 80 ec 76 05 80 e0 76 05 80 d8 76 05 80 cc 76 05 80 c0 76 05 80 b8 76 05 80 ac 76 05 80 9c 76 05 80 90 76 05 80 8c 76 05 80 ...
+            ours   f0 00 00 00 e8 00 00 00 dc 00 00 00 d4 00 00 00 c8 00 00 00 bc 00 00 00 b0 00 00 00 a4 00 00 00 9c 00 00 00 90 00 00 00 84 00 00 00 7c 00 00 00 70 00 00 00 60 00 00 00 54 00 00 00 00 00 00 00 ...
+
+0x8012379c..0x801250b0   6420 .bss    build/recon/syslib/psx/libgpu/SYS.c.o
+      2756 differing bytes
+        0x8012379c..0x8012379d     1 B  in D_80123798 (+0x4)
+            retail 04
+            ours   00
+        0x801237a0..0x801237c4    36 B  in D_801237A0 (+0x0)
+            retail 10 18 80 1f 14 18 80 1f a0 10 80 1f a4 10 80 1f a8 10 80 1f e0 10 80 1f e4 10 80 1f e8 10 80 1f f0 10 80 1f
+            ours   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        0x801237ee..0x801237ef     1 B  in identitymatrix (+0x2)
+            retail 01
+            ours   00
+        0x801237fe..0x801237ff     1 B  in identitymatrix (+0x12)
+            retail 01
+            ours   00
+        0x8012380e..0x8012380f     1 B  in identitymatrix (+0x22)
+            retail 01
+            ours   00
+        0x80123811..0x80123812     1 B  in D_80123810 (+0x1)
+            retail 40
+            ours   00
+        0x80123815..0x80123818     3 B  in D_80123810 (+0x5)
+            retail e0 ff ff
+            ours   00 00 00
+        0x80123819..0x8012381a     1 B  in D_80123810 (+0x9)
+            retail 18
+            ours   00
+        0x8012381d..0x80123822     5 B  in D_80123810 (+0xd)
+            retail ec ff ff 80 11
+            ours   00 00 00 00 00
+        0x80123824..0x8012382a     6 B  in D_80123810 (+0x14)
+            retail 40 f0 ff ff 70 0e
+            ours   00 00 00 00 00 00
+        0x8012382c..0x80123832     6 B  in D_80123810 (+0x1c)
+            retail 98 f2 ff ff 92 0c
+            ours   00 00 00 00 00 00
+        0x80123834..0x80123839     5 B  in D_80123810 (+0x24)
+            retail 21 f4 ff ff 02
+            ours   00 00 00 00 00
+        0x8012383a..0x8012383b     1 B  in DCL_DVLC (+0x2)
+            retail 01
+            ours   00
+        0x8012383c..0x8012383d     1 B  in DCL_DVLC (+0x4)
+            retail 02
+            ours   00
+        0x8012383e..0x8012383f     1 B  in DCL_DVLC (+0x6)
+            retail 01
+            ours   00
+        0x80123840..0x80123841     1 B  in DCL_DVLC (+0x8)
+            retail 02
+            ours   00
+        0x80123842..0x80123843     1 B  in DCL_DVLC (+0xa)
+            retail 01
+            ours   00
+        0x80123844..0x80123845     1 B  in DCL_DVLC (+0xc)
+            retail 02
+            ours   00
+        0x80123846..0x80123847     1 B  in DCL_DVLC (+0xe)
+            retail 01
+            ours   00
+        0x80123848..0x80123849     1 B  in DCL_DVLC (+0x10)
+            retail 02
+            ours   00
+        0x8012384a..0x8012384b     1 B  in DCL_DVLC (+0x12)
+            retail 01
+            ours   00
+        0x8012384c..0x8012384d     1 B  in DCL_DVLC (+0x14)
+            retail 02
+            ours   00
+        0x8012384e..0x8012384f     1 B  in DCL_DVLC (+0x16)
+            retail 01
+            ours   00
+        0x80123850..0x80123851     1 B  in DCL_DVLC (+0x18)
+            retail 02
+            ours   00
+        0x80123852..0x80123853     1 B  in DCL_DVLC (+0x1a)
+            retail 01
+            ours   00
+        0x80123854..0x80123855     1 B  in DCL_DVLC (+0x1c)
+            retail 02
+            ours   00
+        0x80123856..0x80123857     1 B  in DCL_DVLC (+0x1e)
+            retail 01
+            ours   00
+        0x80123858..0x80123859     1 B  in DCL_DVLC (+0x20)
+            retail 02
+            ours   00
+        0x8012385a..0x8012385b     1 B  in DCL_DVLC (+0x22)
+            retail 01
+            ours   00
+        0x8012385c..0x8012385d     1 B  in DCL_DVLC (+0x24)
+            retail 02
+            ours   00
+        0x8012385e..0x8012385f     1 B  in DCL_DVLC (+0x26)
+            retail 01
+            ours   00
+        0x80123860..0x80123861     1 B  in DCL_DVLC (+0x28)
+            retail 02
+            ours   00
+        0x80123862..0x80123863     1 B  in DCL_DVLC (+0x2a)
+            retail 01
+            ours   00
+        0x80123864..0x80123865     1 B  in DCL_DVLC (+0x2c)
+            retail 02
+            ours   00
+        0x80123866..0x80123867     1 B  in DCL_DVLC (+0x2e)
+            retail 01
+            ours   00
+        0x80123868..0x80123869     1 B  in DCL_DVLC (+0x30)
+            retail 02
+            ours   00
+        0x8012386a..0x8012386b     1 B  in DCL_DVLC (+0x32)
+            retail 01
+            ours   00
+        0x8012386c..0x8012386d     1 B  in DCL_DVLC (+0x34)
+            retail 02
+            ours   00
+        0x8012386e..0x8012386f     1 B  in DCL_DVLC (+0x36)
+            retail 01
+            ours   00
+        0x80123870..0x80123871     1 B  in DCL_DVLC (+0x38)
+            retail 02
+            ours   00
+        0x80123872..0x80123873     1 B  in DCL_DVLC (+0x3a)
+            retail 01
+            ours   00
+        0x80123874..0x80123875     1 B  in DCL_DVLC (+0x3c)
+            retail 02
+            ours   00
+        0x80123876..0x80123877     1 B  in DCL_DVLC (+0x3e)
+            retail 01
+            ours   00
+        0x80123878..0x80123879     1 B  in DCL_DVLC (+0x40)
+            retail 02
+            ours   00
+        0x8012387a..0x8012387b     1 B  in DCL_DVLC (+0x42)
+            retail 01
+            ours   00
+        0x8012387c..0x8012387d     1 B  in DCL_DVLC (+0x44)
+            retail 02
+            ours   00
+        0x8012387e..0x8012387f     1 B  in DCL_DVLC (+0x46)
+            retail 01
+            ours   00
+        0x80123880..0x80123881     1 B  in DCL_DVLC (+0x48)
+            retail 02
+            ours   00
+        0x80123882..0x80123883     1 B  in DCL_DVLC (+0x4a)
+            retail 01
+            ours   00
+        0x80123884..0x80123885     1 B  in DCL_DVLC (+0x4c)
+            retail 02
+            ours   00
+        0x80123886..0x80123887     1 B  in DCL_DVLC (+0x4e)
+            retail 01
+            ours   00
+        0x80123888..0x80123889     1 B  in DCL_DVLC (+0x50)
+            retail 02
+            ours   00
+        0x8012388a..0x8012388b     1 B  in DCL_DVLC (+0x52)
+            retail 01
+            ours   00
+        0x8012388c..0x8012388d     1 B  in DCL_DVLC (+0x54)
+            retail 02
+            ours   00
+        0x8012388e..0x8012388f     1 B  in DCL_DVLC (+0x56)
+            retail 01
+            ours   00
+        0x80123890..0x80123891     1 B  in DCL_DVLC (+0x58)
+            retail 02
+            ours   00
+        0x80123892..0x80123893     1 B  in DCL_DVLC (+0x5a)
+            retail 01
+            ours   00
+        0x80123894..0x80123895     1 B  in DCL_DVLC (+0x5c)
+            retail 02
+            ours   00
+        0x80123896..0x80123897     1 B  in DCL_DVLC (+0x5e)
+            retail 01
+            ours   00
+        0x80123898..0x80123899     1 B  in DCL_DVLC (+0x60)
+            retail 02
+            ours   00
+        ... 1959 more runs
+
+0x80137cd0..0x80137cec     28 .data   build/recon/syslib/psx/libpad/PAD.c.o
+      8 differing bytes
+        0x80137cd8..0x80137ce0     8 B  in D_80137CD8 (+0x0)
+            retail 70 10 80 1f 40 10 80 1f
+            ours   00 00 00 00 00 00 00 00
+
+0x80137c78..0x80137ce4    108 .sdata  build/recon/syslib/psx/libpad/PAD.c.o
+      17 differing bytes
+        0x80137ccc..0x80137ccd     1 B  in _padChanStop (+0x0)
+            retail 01
+            ours   00
+        0x80137cd0..0x80137ce0    16 B  in _padFixResult (+0x0)
+            retail ff ff ff ff ff ff ff ff 70 10 80 1f 40 10 80 1f
+            ours   70 10 80 1f 40 10 80 1f 00 00 00 00 00 00 00 00
+

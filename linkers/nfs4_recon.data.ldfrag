@@ -1,9 +1,16 @@
-/* linkers/nfs4_recon.data.ldfrag -- W63-A19
- * RECON-lane ordering of the retail main .data run 0x8010CCD4..0x8013C54C.
+/* linkers/nfs4_recon.data.ldfrag -- W64-A18 (supersedes W63-A19)
+ * RECON-lane ordering of the retail run 0x8010cd5c..0x8013c54c.
  * _rNN = residual splat bytes; <obj> = a recon TU that OWNS its window
- * (ownmap E1-E5 all green).  The matching _oNN piece must NOT be linked
- * here -- it is the splat-lane filler for linkers/nfs4.ld only.
- * Regenerate: python scratchpad/w63a19/ownmap.py --blob scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s --end 0x8013C54C ... */
+ * (ownmap2 E1-E5 all green, R_MIPS_32 relocations RESOLVED).  The matching
+ * _oNN piece must NOT be linked here -- it is the splat-lane filler for
+ * linkers/nfs4.ld only.
+ * Regenerate:
+ *   python scratchpad/w64a18/ownmap2.py --blob scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s --end 0x8013c54c \
+ *       --out scratchpad/w64a18/ownmap2_data.txt --json scratchpad/w64a18/ownmap2_data.json
+ *   python scratchpad/w64a18/splitblob2.py --blob ... --json ... --apply
+ *   python scratchpad/w64a18/relink_ld.py --stem data_8010CCD4 --sec data ... --apply
+ */
+
 
     build/asm/data/data_8010CCD4_r00.data.s.o(.data);
     build/recon/game/common/aih_basicperp.cpp.o(.data);   /* 0x8010cd5c..0x8010cd98  was data_8010CCD4_o00.data.s */
@@ -32,20 +39,27 @@
     build/asm/data/data_8010CCD4_r09.data.s.o(.data);
     build/recon/game/common/copspeak.cpp.o(.data);   /* 0x80111ea4..0x80112730  was data_8010CCD4_o15.data.s */
     build/recon/game/common/dashhud.cpp.o(.data);   /* 0x80112730..0x8011279c  was data_8010CCD4_o16.data.s */
+    build/recon/game/common/fei.cpp.o(.data);   /* 0x8011279c..0x80112b2c  was data_8010CCD4_o17.data.s */
     build/asm/data/data_8010CCD4_r10.data.s.o(.data);
-    build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x801131ec..0x80113c14  was data_8010CCD4_o17.data.s */
-    build/recon/game/common/input.cpp.o(.data);   /* 0x80113c14..0x8011401c  was data_8010CCD4_o18.data.s */
+    build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x801131ec..0x80113c14  was data_8010CCD4_o18.data.s */
+    build/recon/game/common/input.cpp.o(.data);   /* 0x80113c14..0x8011401c  was data_8010CCD4_o19.data.s */
     build/asm/data/data_8010CCD4_r11.data.s.o(.data);
-    build/recon/game/common/object.cpp.o(.data);   /* 0x80115d60..0x80116468  was data_8010CCD4_o19.data.s */
-    build/recon/game/common/paths.cpp.o(.data);   /* 0x80116468..0x80116530  was data_8010CCD4_o20.data.s */
+    build/recon/game/common/nfs3.cpp.o(.data);   /* 0x8011423c..0x80115c48  was data_8010CCD4_o20.data.s  (+2 B FILL(0) align pad) */
     build/asm/data/data_8010CCD4_r12.data.s.o(.data);
-    build/recon/game/common/r3dcar.cpp.o(.data);   /* 0x801165e0..0x80116f7c  was data_8010CCD4_o21.data.s */
+    build/recon/game/common/object.cpp.o(.data);   /* 0x80115d60..0x80116468  was data_8010CCD4_o21.data.s */
+    build/recon/game/common/paths.cpp.o(.data);   /* 0x80116468..0x80116530  was data_8010CCD4_o22.data.s */
     build/asm/data/data_8010CCD4_r13.data.s.o(.data);
-    build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o22.data.s */
+    build/recon/game/common/r3dcar.cpp.o(.data);   /* 0x801165e0..0x80116f7c  was data_8010CCD4_o23.data.s */
     build/asm/data/data_8010CCD4_r14.data.s.o(.data);
-    build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o23.data.s */
+    build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o24.data.s */
     build/asm/data/data_8010CCD4_r15.data.s.o(.data);
-    build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o24.data.s */
+    build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o25.data.s */
     build/asm/data/data_8010CCD4_r16.data.s.o(.data);
-    build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o25.data.s */
+    build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o26.data.s */
     build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+    build/recon/eaclib/psx/eacpsxz/isqrt.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o27.data.s */
+    build/asm/data/data_8010CCD4_r18.data.s.o(.data);
+    build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o28.data.s */
+    build/asm/data/data_8010CCD4_r19.data.s.o(.data);
+    build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o29.data.s */
+    build/asm/data/data_8010CCD4_r20.data.s.o(.data);

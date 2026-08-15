@@ -1,0 +1,151 @@
+# W63-A19 blob-vs-TU ownership map   blob=scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s
+# blob labels=856  TU-defined=277  windows=56
+
+      base        end   size  lbl   ok  sec     object
+0x8010ccd4 0x8010cd38    100    2    -  .data   build/recon/game/common/ai.cpp.o
+      E1 1 UN-MIGRATED blob labels inside: ['__data_obj']
+0x8010cd00 0x8010cd5c     92    1    -  .data   build/recon/game/common/aihigh.cpp.o
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (1 of 92)
+0x8010cd5c 0x8010cd98     60    5  OWN  .data   build/recon/game/common/aih_basicperp.cpp.o
+0x8010cd98 0x8010ce7c    228    2  OWN  .data   build/recon/game/common/aih_btccop.cpp.o
+0x8010ce7c 0x8010ce98     28    2  OWN  .data   build/recon/game/common/aih_btcperp.cpp.o
+0x8010ce98 0x8010cea9     17    1    -  .data   build/recon/game/common/aih_play.cpp.o
+      E1 1 labels owned by another TU inside: ['AIHigh_Cop_AggressionData']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (4 of 17)
+0x8010cea4 0x8010cfd4    304    4  OWN  .data   build/recon/game/common/aih_cop.cpp.o
+0x8010cfd4 0x8010d560   1420    8    -  .data   build/recon/game/common/aicop.cpp.o
+      E5 BYTES DIFFER from retail (301 of 1420)
+0x8010d560 0x8010d5cc    108    1  OWN  .data   build/recon/game/common/aiinit.cpp.o
+0x8010d5cc 0x8010dc54   1672   20  OWN  .data   build/recon/game/common/func_va_data.cpp.o
+0x8010dc74 0x8010dce0    108    1  OWN  .data   build/recon/game/common/aiphysic.cpp.o
+0x8010dd10 0x8010de44    308   11    -  .data   build/recon/game/common/aispeeds.cpp.o
+      E3 3 implied bases (intra-TU data ORDER/SIZE drift)
+      E1 1 labels owned by another TU inside: ['AITune_BTC']
+      E2 3 own labels OUTSIDE: ['aeroUpgrade', 'engineUpgrade', 'suspensionUpgrade']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (62 of 308)
+0x8010de14 0x8010e00c    504    7  OWN  .data   build/recon/game/common/aitune.cpp.o
+0x8010e00c 0x8010e14c    320    1  OWN  .data   build/recon/game/common/AIWORLD.cpp.o
+0x8010e14c 0x8010e274    296    3  OWN  .data   build/recon/game/common/anim.cpp.o
+0x8010e274 0x8010e4d0    604    4    -  .data   build/recon/game/common/audioclc.cpp.o
+      E1 1 UN-MIGRATED blob labels inside: ['D_8010E274']
+0x8010e450 0x8010ee70   2592   19    -  .data   build/recon/game/common/audiocmn.cpp.o
+      E3 7 implied bases (intra-TU data ORDER/SIZE drift)
+      E1 3 labels owned by another TU inside: ['AudioClc_PursuitTime', 'gWorldMat', 'gNightMat']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (460 of 2592)
+0x8010ee40 0x8010f07c    572    5  OWN  .data   build/recon/game/common/bworld.cpp.o
+0x8010f0ac 0x8010f2ac    512    1  OWN  .data   build/recon/game/common/bworldSm.cpp.o
+0x8010f4cc 0x8010fa60   1428    5    -  .data   build/recon/game/common/camera.cpp.o
+      E3 3 implied bases (intra-TU data ORDER/SIZE drift)
+      E1 6 labels owned by another TU inside: ['Cars_topSpeedCap', 'Cars_kSkidMarkSurface', 'Cars_gList', 'Cars_gRaceCarList', 'Cars_gAICarList', 'Cars_gHumanRaceCarList']
+      E1 1 UN-MIGRATED blob labels inside: ['D_8010F4CC']
+      E2 1 own labels OUTSIDE: ['Camera_gInfo']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (210 of 1428)
+0x8010f828 0x80110c24   5116   14  OWN  .data   build/recon/game/common/cars.cpp.o
+0x80110c24 0x80110c30     12    1  OWN  .data   build/recon/game/common/clock.cpp.o
+0x80110c30 0x80110cf4    196    1    -  .data   build/recon/game/common/collide.cpp.o
+      E1 2 labels owned by another TU inside: ['HudPmx_gHudNumberUV', 'HudPmx_gShapes']
+      E4 window edge is not a blob label boundary
+0x80110c70 0x80111a44   3540    2  OWN  .data   build/recon/game/common/hudpmx.cpp.o
+0x80111a44 0x8011219c   1880   11    -  .data   build/recon/game/common/speech.cpp.o
+      E1 4 labels owned by another TU inside: ['Copspeak_gBank', 'CopSpeak_gRequest', 'CopSpeak_gCurrent', 'CopSpeak_gQueue']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (688 of 1880)
+0x80111ea4 0x80112730   2188    5  OWN  .data   build/recon/game/common/copspeak.cpp.o
+0x80112730 0x8011279c    108    1  OWN  .data   build/recon/game/common/dashhud.cpp.o
+0x8011279c 0x80112b2c    912    1    -  .data   build/recon/game/common/fei.cpp.o
+      E5 BYTES DIFFER from retail (432 of 912)
+0x80112ae0 0x80112ff8   1304    7    -  .data   build/recon/game/common/genericpmx.cpp.o
+      E3 3 implied bases (intra-TU data ORDER/SIZE drift)
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (52 of 1304)
+0x801131ec 0x80113c14   2600    1  OWN  .data   build/recon/game/common/gmesetup.cpp.o
+0x80113c14 0x8011401c   1032    4  OWN  .data   build/recon/game/common/input.cpp.o
+0x8011401c 0x80114254    568    5    -  .bss    build/recon/game/common/newton.cpp.o
+      E1 1 labels owned by another TU inside: ['befuddleExtensions']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (205 of 568)
+0x8011423c 0x80115c46   6666    9    -  .data   build/recon/game/common/nfs3.cpp.o
+      E4 window edge is not a blob label boundary
+0x80115d60 0x80116468   1800    1  OWN  .data   build/recon/game/common/object.cpp.o
+0x80116468 0x80116530    200    1  OWN  .data   build/recon/game/common/paths.cpp.o
+0x801165e0 0x80116f7c   2460   20  OWN  .data   build/recon/game/common/r3dcar.cpp.o
+0x80116f7c 0x8011706c    240    1    -  .data   build/recon/game/common/render.cpp.o
+      E1 3 UN-MIGRATED blob labels inside: ['ReplayCameraList', 'Replay_ReplayInterface', 'Replay_ReplayCamera']
+      E5 BYTES DIFFER from retail (8 of 240)
+0x8011f554 0x8011fc60   1804    7    -  .data   build/recon/game/psx/draww.cpp.o
+      E3 2 implied bases (intra-TU data ORDER/SIZE drift)
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (81 of 1804)
+0x8011fc60 0x8011fd70    272    2  OWN  .data   build/recon/game/psx/force.cpp.o
+0x8011fde0 0x801202f8   1304   18    -  .data   build/recon/game/psx/flare.cpp.o
+      E5 BYTES DIFFER from retail (20 of 1304)
+0x801202f8 0x80120934   1596    9    -  .data   build/recon/game/psx/hrzsku.cpp.o
+      E1 1 labels owned by another TU inside: ['Hud_gElementPositions']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (8 of 1596)
+0x80120924 0x8012108a   1894    9    -  .data   build/recon/game/psx/hud.cpp.o
+      E1 5 labels owned by another TU inside: ['Night_gCopCountryLightTbl', 'Night_gLightningPauseAreas', 'Night_gAdditiveHeadlightColor', 'gMenuPixmap', 'gMenuPixmapAlloc']
+      E1 4 UN-MIGRATED blob labels inside: ['BTCPerpInfo', 'mappings', 'TP_gBlendColor', 'gClutDepth']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (167 of 1894)
+0x80120d18 0x80120dfc    228    3    -  .data   build/recon/game/psx/night.cpp.o
+      E3 2 implied bases (intra-TU data ORDER/SIZE drift)
+      E5 BYTES DIFFER from retail (30 of 228)
+0x80120fd0 0x80121070    160    2  OWN  .data   build/recon/game/psx/texture.cpp.o
+0x801234d4 0x801234f4     32    1    -  .sdata  build/recon/eaclib/psx/sndpsxz/snddata.c.o
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (6 of 32)
+0x8012379c 0x801250b0   6420    4    -  .bss    build/recon/syslib/psx/libgpu/SYS.c.o
+      E3 3 implied bases (intra-TU data ORDER/SIZE drift)
+      E1 1 labels owned by another TU inside: ['identitymatrix']
+      E1 3 UN-MIGRATED blob labels inside: ['DCL_DVLC', 'DCC_DVLC', 'CF_DVLC']
+      E2 2 own labels OUTSIDE: ['GPU_printf', 'GEnv']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (2756 of 6420)
+0x801237ec 0x80123820     52    1    -  .rodata build/recon/eaclib/psx/eacpsxz/matrix.c.o
+      E4 window edge is not a blob label boundary
+0x80136df0 0x80136df1      1    1    -  .sbss   build/recon/eaclib/psx/sndpsxz/slib.c.o
+      E4 window edge is not a blob label boundary
+0x801370c4 0x801372c4    512    1    -  .data   build/recon/eaclib/psx/sndpsxz/sclcptch.c.o
+      E1 1 labels owned by another TU inside: ['_ctype_']
+      E1 2 UN-MIGRATED blob labels inside: ['snddefaultenvelope', 'asintbl']
+      E4 window edge is not a blob label boundary
+0x801371d0 0x801372d1    257    1    -  .rodata build/recon/syslib/psx/libc/CTYPE0.c.o
+      E1 1 UN-MIGRATED blob labels inside: ['asintbl']
+      E4 window edge is not a blob label boundary
+0x80137c78 0x80137ce4    108   22    -  .sdata  build/recon/syslib/psx/libpad/PAD.c.o
+      E1 1 labels owned by another TU inside: ['_padFixResult']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (17 of 108)
+0x80137cd0 0x80137cec     28    2    -  .data   build/recon/syslib/psx/libpad/PAD.c.o
+      E3 2 implied bases (intra-TU data ORDER/SIZE drift)
+      E2 1 own labels OUTSIDE: ['padIntFunc']
+      E4 window edge is not a blob label boundary
+      E5 BYTES DIFFER from retail (8 of 28)
+0x8013be10 0x8013bf10    256    1    -  .data   build/recon/eaclib/psx/eacpsxz/isqrt.c.o
+      E4 window edge is not a blob label boundary
+0x8013bf18 0x8013bf20      8    2  OWN  .data   build/recon/syslib/psx/libmath/FERR.c.o
+0x8013bf6c 0x8013c00c    160    2    -  .data   build/recon/syslib/psx/libcd/cddebug.c.o
+      E5 BYTES DIFFER from retail (160 of 160)
+0x8013c2f0 0x8013c308     24    1  OWN  .data   build/recon/eaclib/psx/sndpsxz/snddata.c.o
+
+OWNABLE windows            : 26
+  ... after overlap pruning: 26  (dropped 0)
+bytes owned                : 24232 of 194680
+blob labels inside owned windows: 287
+  of which TU-defined      : 109
+  of which splat D_ interior: 178
+TU-defined labels NOT owned: 168
+
+## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
+  E3 intra-TU drift          8
+  E4 edge not a boundary     22
+  E5 bytes differ            21
+  E1 foreign owner inside    12
+  E1 un-migrated inside      8
+  E2 own label outside       4

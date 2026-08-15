@@ -1,0 +1,47 @@
+# W64-A18 E5 diagnostic  blob=scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s
+
+0x8011fde0..0x801202f8   1304 .data   build/recon/game/psx/flare.cpp.o
+      20 differing bytes
+        0x801201f1..0x801201f2     1 B  in Flare_SunFlarePieces (+0x9)
+            retail 0a
+            ours   01
+        0x801201f4..0x801201f5     1 B  in Flare_SunFlarePieces (+0xc)
+            retail 01
+            ours   00
+        0x80120201..0x80120202     1 B  in Flare_SunFlarePieces (+0x19)
+            retail 05
+            ours   00
+        0x80120211..0x80120213     2 B  in Flare_SunFlarePieces (+0x29)
+            retail 0f 03
+            ours   00 00
+        0x80120221..0x80120222     1 B  in Flare_SunFlarePieces (+0x39)
+            retail 0a
+            ours   02
+        0x80120224..0x80120225     1 B  in Flare_SunFlarePieces (+0x3c)
+            retail 02
+            ours   00
+        0x80120231..0x80120233     2 B  in Flare_SunFlarePieces (+0x49)
+            retail 06 14
+            ours   00 00
+        0x80120241..0x80120243     2 B  in Flare_SunFlarePieces (+0x59)
+            retail 0f 08
+            ours   04 00
+        0x80120244..0x80120245     1 B  in Flare_SunFlarePieces (+0x5c)
+            retail 04
+            ours   00
+        0x80120251..0x80120253     2 B  in Flare_SunFlarePieces (+0x69)
+            retail 14 1f
+            ours   02 00
+        0x80120254..0x80120255     1 B  in Flare_SunFlarePieces (+0x6c)
+            retail 02
+            ours   00
+        0x80120261..0x80120263     2 B  in Flare_SunFlarePieces (+0x79)
+            retail 14 0a
+            ours   00 00
+        0x80120271..0x80120273     2 B  in Flare_SunFlarePieces (+0x89)
+            retail 0f 10
+            ours   02 00
+        0x80120274..0x80120275     1 B  in Flare_SunFlarePieces (+0x8c)
+            retail 02
+            ours   00
+

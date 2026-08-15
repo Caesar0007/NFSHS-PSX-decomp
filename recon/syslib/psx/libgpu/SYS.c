@@ -980,7 +980,20 @@ extern void *PutDispEnv(void *env)
          * h_end add is emitted before the `lbu $v0,0x12($s1)` instead of in its branch slot).
          * Re-falsified in THIS basin per 04Z: h_start statement first 109 (+1 insn), a named
          * `base` local 109 (+1 insn), `span` reused as the base carrier 141, `-(base - end)`
-         * 42 (inert), an identity launder on `span` 42 (inert). */
+         * 42 (inert), an identity launder on `span` 42 (inert).
+         * W67-A2 (2026-08-15) BYTE-TRUTH + the 05J RR display_environment.c mine:
+         *  - PutDispEnv in the PsyQ 4.3 vendor member (C:/Temp/nfs4-clean/psyq43/extracted/
+         *    LIBGPU/obj/SYS.obj, .text+0xBAC, XDEF 318w) is BYTE-IDENTICAL to our oracle
+         *    318/318 incl. every reloc word (scratchpad/w67a2/objtruth.py) -- likewise
+         *    _dws (+0x1C20 143/143), _drs (+0x1E5C 160/160), _gpu_que_drain (+0x24A0
+         *    152/152), _set_draw_mode (+0x170C 8/8, ZERO relocs).  Source structure is
+         *    certified; every residual on these five is coloring/scheduling identity.
+         *  - Rage Racer's byte-exact PutDispEnv (rage-racer-decomp src/main/PAL/lib/libgpu/
+         *    display_environment.c, gcc-2.6.3-era revision) spells sites 2/3 as block-scoped
+         *    decl-inits `long hi = ...; long lo = ...; u_long k = 0x6000000; submit(hi|(lo|k))`.
+         *    Gated on OUR 4.3 revision: named-k triple = 42, literal-k `hi|(lo|0x6000000u)`
+         *    = 176 -- BOTH FALSIFIED (the RR shape does not survive the revision/toolchain
+         *    gap; the shipped comma-expr form stays the best basin at 38). */
         { const GpuTbl *gpu = GEnv_drv;
         u_long hi;
         u_long lo;

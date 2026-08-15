@@ -284,7 +284,20 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      *      => The birth-order residual survives the ONLY fully-matched corpus body in existence
      *      for this function.  That is a strong (not terminal) result: it bounds the remaining
      *      search to the 2.7.2 scheduler dumps (-dS/-dR, 12A) plus the live-length permutation
-     *      named in (1), and it retires the corpus axis. */
+     *      named in (1), and it retires the corpus axis.
+     * W67-A2 (2026-08-15) BYTE-TRUTH CERTIFICATE + revision map CORRECTION:
+     *  - The PsyQ 4.3 vendor member (C:/Temp/nfs4-clean/psyq43/extracted/LIBETC/obj/INTR.obj,
+     *    .text+0x26C) is BYTE-IDENTICAL to our oracle 116/116 incl. every reloc word/addend
+     *    (scratchpad/w67a2/objtruth.py find/relocs).  Its .rdata $Id is **v1.75 1997/02/07**
+     *    == NFS4's retail rdata string EXACTLY; the PsyQ 4.0 member is v1.76 1997/02/12 and
+     *    its trapIntr (122w vs our 116w) DRIFTS 66/116 -- so 4.3 ships an OLDER-dated revision
+     *    than 4.0 (rollback/branch) and every earlier "ours = v1.76" receipt line is wrong.
+     *    The reloc truth confirms both access devices: entry-site `enabled` via 48($s1),
+     *    loop-tail via its OWN absolute lui/lhu (.data+0x88 = g_intr+0x30) with the base LIVE
+     *    in $s1 -- both already reproduced by this body; residual = pure handout, certified.
+     *  - xenogears WIP trapIntr shape (their commented-out body; v1.76-era, never matched
+     *    even there) gated AS-IS per 04T: 51 @117 -- FALSIFIED, count-over, worse than every
+     *    sotn cell above.  The corpus axis stays retired at BOTH neighboring revisions. */
     unsigned short *state;
     unsigned short s0;
     long pend;
@@ -377,129 +390,65 @@ extern void _intrhand(void)            /* @0x800F2A40 */
  * more elsewhere).  Needs qtytrace, not another spelling sweep. */
 extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 {
-    /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp
-     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libapi/interrupt_callbacks.c ::
-     * SetKernelInterruptCallback).  Load-bearing details taken from there:
-     *   - the slot address is built INDEX-FIRST (`offset + (long)base`) -> `addu rd,offset,base`;
-     *   - the `inited` test is spelled off the callback-array base (`*((u_short *)base - 2)`)
-     *     with an EMPTY then-arm, i.e. the whole body is the `else` (branch polarity);
-     *   - the enable arm updates the mask word through `base + 11` (== &g_intr.enabled) while
-     *     the disable arm goes through the GLOBAL -- an asymmetry that is in the original;
-     *   - `bit` is a u_long, and the running mask is `pendingValue & 0xFFFF`.
-     * RR's `register ... asm("$N")` pins are NOT copied (project hard rule); the zero-insn
-     * opacity fences it also carries are kept where re-pricing says so (see the `st` one,
-     * removed below), since they are the pin-free device.
-     * RESIDUAL 25 (w61-a8): ours 83 insns vs oracle 82.  Two clusters:
-     *  (a) ONE extra `andi v1,v1,0xFFFF` before the `andi s3,v1,0xFFFF` retail keeps --
-     *      the pendingValue identity fence makes cse forget the `lhu` already proved
-     *      the range, so the mask is materialised twice.  Dropping that fence removes
-     *      the insn but costs more elsewhere (26/28 in both basins).
-     *  (b) a 3-way ADDRESS-REGISTER rotation: ours {a0 = table base, a1 = slot},
-     *      retail {a1 = base, a0 = slot, a2 = base-4}.  FALSIFIED as zero-insn dials
-     *      (w61-a20 DEVICE 2a, preference = first operand of the defining expr):
-     *      `(long)base + offset` operand swap, `&base[index]` index form, and
-     *      read-only / identity fences on `slot` and on `base` -- all 25, inert.
-     * W63-A8 (2026-08-15) RE-READ OF CLUSTER (b) + the 04Z ladder.
-     *   THE SHAPE, precisely: retail keeps TWO live bases for the SAME address -- `a2 = base-4`
-     *   reached as `48($a2)` and `a1 = base` reached as `44($a1)`.  base-4+0x30 == base+0x2C, so
-     *   these are the SAME word written through two different registers.  That is not a register
-     *   rotation at all: it is a CSE NON-MERGE.  Our cc1 folds both source expressions onto one
-     *   base (`44($a0)`) because it proves them equal; retail's did not.  Filed to the
-     *   3.25-3b weaker-cse identity family, NOT to allocation -- which explains why every
-     *   allocation-side dial in the list above measured 25 inert.
-     *   The one device that DOES restore the second base is the `st` identity fence, and its cost
-     *   is structural, not incidental: reorg.c:685 stop_search_p aborts the backward delay-slot
-     *   scan at ANY asm, and retail's `addiu a2,a1,-4` is precisely what fills the `beqz` slot.
-     *   So the fence buys the base and loses the slot (net +2) -- a genuine mutual exclusion
-     *   (13B), not a placement problem (the w61-a8 4-position sweep already proved position is
-     *   not the dial).  A NON-ASM anti-fold device is what this needs.
-     *   04Z ladder (never run before this; TU wired cc1_272): 2.6.3 25 @83, 2.7.2 25 @83,
-     *   2.7.2-970404 22 @84, 2.8.0 38 @84, 2.8.1 68 @84.  The 970404 rung scores -3 but is
-     *   TWO insns over (84 vs 82) where the wired lane is one -- rejected under the count-exact
-     *   bar (14E), and recorded so it is not re-derived as a win. */
-    long index;
-    int callback;
-    int *base;
-    long offset;
-    int *slot;
+    /* MATCH (W67-A2, 2026-08-15): 25 -> 12 -- BODY REPLACED with the xenogears-decomp
+     * matched `setIntr` (src/slus_006.64/psyq/libetc/intr.c, v1.76; sotn's matched v1.73
+     * is statement-identical), gated AS-IS per the 04T law.  BYTE-TRUTH provenance: the
+     * PsyQ 4.3 vendor member (C:/Temp/nfs4-clean/psyq43/extracted/LIBETC/obj/INTR.obj,
+     * .text+0x43C) is BYTE-IDENTICAL to our oracle 82/82 (reloc-masked; scratchpad/w67a2/
+     * objtruth.py), so retail == the 4.3 lib build and the twins' source shape is the
+     * real one.  The PsyQ 4.0 member (nfs3-clean/psyq400/extracted, local syms visible:
+     * setIntr 85w) drifts 36/82 -- the fn was REBUILT between 4.0 and 4.3; xenogears
+     * matched the 4.0-era build with gcc-2.7.2 + their flags.
+     * What the transplant fixed: the (a0=base,a1=slot)<->(a1=base,a0=slot) register web
+     * (the OLD Rage-Racer-transplant shape with 5 identity fences colored it backwards;
+     * all fences now GONE), and the extra `andi v1,v1,0xFFFF` (old cluster (a)).
+     * RESIDUAL 12 @84 vs 82, all ONE cse asymmetry, named from the vendor relocs:
+     *   retail derives a SECOND base `addiu a2,a1,-4` (= &g_intr) in the `beqz` delay
+     *   slot, writes the enable arm's mask via `lhu/sh 0x30(a2)` and FOLDS the disable
+     *   arm onto the cb base (`lhu/sh 0x2C(a1)`); ours folds the ENABLE arm onto a1
+     *   (44(a1)) and goes ABSOLUTE (lui/lui-at) in the disable arm (branch-target block,
+     *   cse cold), plus keeps a 2nd `addu v0,s4,zero` return copy.  No reloc on any of
+     *   those words (vendor truth) => derived-pointer reading confirmed, w63a8's
+     *   "cse NON-MERGE, 3.25-3b weaker-cse family" verdict stands.
+     * FALSIFIED THIS WAVE (all on this body, each gated): the whole xenogears flag set
+     *   one-by-one and combined (-fpeephole/-ffunction-cse/-fpcc-struct-return/
+     *   -mips1 -mcpu=3000/-msoft-float/-G8: ALL 12, inert); -fcse-follow-jumps/
+     *   -fcse-skip-blocks +/- (12; both-off 36); fn-scope `IntrState *ctl` assigned in
+     *   the enable arm (31 @87 -- the la materializes its own address + head recolor);
+     *   `((u_short*)g_intr.cb)[22]` disable spelling (12, provably inert -- constant
+     *   addresses canonicalize identically).  04Z re-ladder ON THIS BODY: 2.6.0/2.6.3
+     *   = 12 @84; 970404/2.8.0/2.8.1/2.91.66 = 64 @82 COUNT-EXACT (the only count-exact
+     *   basin, param web s1->s2 shifted); 2.95.2 = 77; 2.8.x|-mno-split-addresses 75 @85;
+     *   2.8.0 nosplit+no-sched 83 @83.  NAMED NEXT ANGLE: re-derive the source inside
+     *   the 2.8.x count-exact basin (w63a8 PADCMD precedent), or a non-asm anti-fold
+     *   for `(plus (plus base -4) 48)` upstream of cse1 (unchanged from w64a8). */
     int oldCallback;
-    unsigned long pendingValue;
-    unsigned long pendingMask;
-    long disabled;
-    unsigned short *st;
-    volatile unsigned short *maskPtr;
+    unsigned short nMask;
+    int nNewMask;
 
-    index = (long)idx;
-    __asm__("" : "=r"(index) : "0"(index));
-    callback = handler;
-    __asm__("" : "=r"(callback) : "0"(callback));
-    base = g_intr.cb;
-    __asm__("" : "=r"(base) : "0"(base));
-    offset = index << 2;
-    slot = (int *)(offset + (long)base);
-    oldCallback = *slot;
-
-    if (callback == oldCallback)
-        return oldCallback;
-
-    if (*((unsigned short *)base - 2) == 0) {
-    } else {
-        /* MATCH (w61-a8): the transplanted identity fence on `st` is REMOVED, 27 -> 25.
-         * It is structurally right and measurably wrong: it forces retail's separate
-         * `addiu a2,a1,-4` pointer (without it gcc folds `st[0x18]` into `44(base)`),
-         * but an asm also stops reorg's backward delay-slot scan, and that very addiu
-         * is what retail puts in the `beqz` slot -- so the fence buys the pointer and
-         * loses the slot, net +2.  FALSIFIED (all gated): the fence moved after the
-         * maskPtr load / after `*maskPtr = 0` / after the `& 0xFFFF` (27 each -- the
-         * position is NOT the dial here), and read-only instead of identity (25, i.e.
-         * no better than removing it).  04Z: this fence came from the Rage Racer
-         * transplant and was never re-priced after the basin moved. */
-        st = (unsigned short *)base - 2;
-        maskPtr = (volatile unsigned short *)g_imask_ptr;
-        pendingValue = *maskPtr;
-        __asm__("" : "=r"(pendingValue) : "0"(pendingValue));
-        *maskPtr = 0;
-        pendingMask = pendingValue & 0xFFFF;
-
-        if (callback != 0) {
-            unsigned long bit;
-
-            bit = 1 << index;
-            __asm__("" : "=r"(bit) : "0"(bit));
-            pendingMask |= bit;
-            *slot = callback;
-            {
-                unsigned long value;
-
-                value = st[0x18];
-                value |= bit;
-                st[0x18] = (unsigned short)value;
-            }
+    oldCallback = g_intr.cb[idx];
+    if ((handler != oldCallback) && g_intr.inited) {
+        nMask = I_MASK;
+        I_MASK = 0;
+        nNewMask = nMask & 0xFFFF;
+        if (handler != 0) {
+            g_intr.cb[idx] = handler;
+            nNewMask = nNewMask | (1 << idx);
+            g_intr.enabled |= (1 << idx);
         } else {
-            unsigned long bit;
-
-            bit = 1 << index;
-            bit = ~bit;
-            *slot = callback;
-            pendingValue = *(unsigned short *)(base + 11);
-            pendingMask &= bit;
-            pendingValue &= bit;
-            *(unsigned short *)(base + 11) = (unsigned short)pendingValue;
+            g_intr.cb[idx] = 0;
+            nNewMask = nNewMask & ~(1 << idx);
+            g_intr.enabled &= ~(1 << idx);
         }
-
-        /* @0x800F2CC0-D20: ChangeClearRCnt(<per-IRQ root-counter index>, handler==0). $a0 = the timer
-         * id (idx0->RCnt3, idx4->0, idx5->1, idx6->2), $a1 = $s0 = (handler<1) = (handler==0) = the
-         * clear flag. */
-        if (index == 0) {
-            disabled = callback == 0;
-            ChangeClearPAD(disabled);
-            ChangeClearRCnt(3, disabled);
+        /* @0x800F2CC0-D20: ChangeClearRCnt(<per-IRQ root-counter index>, handler==0). */
+        if (idx == 0) {
+            ChangeClearPAD(handler == 0);
+            ChangeClearRCnt(3, handler == 0);
         }
-        if (index == 4) ChangeClearRCnt(0, callback == 0);
-        if (index == 5) ChangeClearRCnt(1, callback == 0);
-        if (index == 6) ChangeClearRCnt(2, callback == 0);
-
-        I_MASK = (unsigned short)pendingMask;
+        if (idx == 4) ChangeClearRCnt(0, handler == 0);
+        if (idx == 5) ChangeClearRCnt(1, handler == 0);
+        if (idx == 6) ChangeClearRCnt(2, handler == 0);
+        I_MASK = nNewMask;
     }
     return oldCallback;
 }

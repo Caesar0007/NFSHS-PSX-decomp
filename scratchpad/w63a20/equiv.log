@@ -1,0 +1,5 @@
+[1/4] recon/eaclib/psx/eacpsxz/fixddiv.c: 1 fns {'OK': 1}
+[2/4] recon/eaclib/psx/eacpsxz/nullfunc.c: 1 fns {'OK': 1}
+[3/4] recon/eaclib/psx/sndpsxz/sserver.c: 6 fns {'OK': 6}
+[4/4] recon/game/psx/night.cpp: 16 fns {'OK': 16}
+TOTAL fn rows written: 24

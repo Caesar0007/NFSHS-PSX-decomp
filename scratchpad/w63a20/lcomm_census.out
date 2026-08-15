@@ -1,0 +1,54 @@
+TUs whose file-statics maspsx globalizes: 26  (symbols: 54)
+  frontend/common/fememcard.cpp                      TITLE[40]
+  frontend/common/fetourn.cpp                        retbill[4], retbonus[4]
+  frontend/common/screenaudio.cpp                    lastpercentage.214[4], perfade.215[4]
+  frontend/common/screencarselect.cpp                textVals[10], text2PVals[10], tvOrder[20], tvSplitOrder[10], gRotateOffset[16], gSwapFileName[80], WaitingString[50]
+  frontend/common/screencongrats.cpp                 carRotate.216[4]
+  frontend/common/screencontroller.cpp               flare_intensity[4]
+  frontend/common/screenmain.cpp                     numberValues[25], gNameBuffer[32], gPermBuffer[32]
+  frontend/common/screenpinkslips.cpp                gSwapFileName[20]
+  frontend/common/screentournselect.cpp              gSwapFileName[16]
+  frontend/common/screentrackinfo.cpp                gSwapFileName[64]
+  frontend/common/screentracks.cpp                   gSwapFileName[20]
+  frontend/psx/movie.cpp                             dec[48]
+  frontend/psx/psxfront.cpp                          STR_FRMT[8], rendering3DEnvInit__[8]
+  game/common/ai.cpp                                 spos.256[132]
+  game/common/aiphysic.cpp                           copCollisionGripLoss.267[16], copCollisionSlowDown.268[16]
+  game/common/bworldSm.cpp                           sliceOffs.238[48], corrPt.241[12]
+  game/common/camera.cpp                             lastX.232[8], lastY.233[8], lastOppVector.272[24]
+  game/common/mpause.cpp                             gBackList[24]
+  game/common/newton.cpp                             divTable[200], fudgeTable[64], swap[16], testSimRoadInfo[132], newtestSimRoadInfo[132], dummy_124[12], dummy_133[12]
+  game/common/track.cpp                              strspc.214[64], strspc.217[64]
+  game/psx/textureprocess.cpp                        fogstrspc[256]
+  syslib/psx/libgpu/SYS.c                            _que[6144], _blit_buf[72]
+  syslib/psx/libmcrd/LIBMCRD.c                       mc[72], _mc_sync[8]
+  syslib/psx/libmcrd/USERFUNC.c                      _uf_arg[64], _uf_func[16]
+  syslib/psx/libpad/PADMAIN.c                        _padVbCb[16], _padFrames[8]
+  syslib/psx/libpad/PADPORTD.c                       _pad_rxbuf[70], _pad_buf2[70], _pad_info[480]
+
+recon/frontend/common/fememcard.cpp
+recon/frontend/common/fetourn.cpp
+recon/frontend/common/screenaudio.cpp
+recon/frontend/common/screencarselect.cpp
+recon/frontend/common/screencongrats.cpp
+recon/frontend/common/screencontroller.cpp
+recon/frontend/common/screenmain.cpp
+recon/frontend/common/screenpinkslips.cpp
+recon/frontend/common/screentournselect.cpp
+recon/frontend/common/screentrackinfo.cpp
+recon/frontend/common/screentracks.cpp
+recon/frontend/psx/movie.cpp
+recon/frontend/psx/psxfront.cpp
+recon/game/common/ai.cpp
+recon/game/common/aiphysic.cpp
+recon/game/common/bworldSm.cpp
+recon/game/common/camera.cpp
+recon/game/common/mpause.cpp
+recon/game/common/newton.cpp
+recon/game/common/track.cpp
+recon/game/psx/textureprocess.cpp
+recon/syslib/psx/libgpu/SYS.c
+recon/syslib/psx/libmcrd/LIBMCRD.c
+recon/syslib/psx/libmcrd/USERFUNC.c
+recon/syslib/psx/libpad/PADMAIN.c
+recon/syslib/psx/libpad/PADPORTD.c

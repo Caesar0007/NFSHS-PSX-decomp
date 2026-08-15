@@ -1,0 +1,92 @@
+brdist hits: 104
+
+=== A. HITS ON GATE-PASSING (100.00 pct) FNS -- the PulloverCam class: 1 ===
+TU                                             fn                                                   brdist             psyqproof
+syslib/psx/libcd/iso9660.c                     cd_read                                              BRANCH COUNT 0 vs 17 (syslib / not in EA sweep)
+
+=== B. HITS ON NON-100 pct FNS (known near-misses): 103 ===
+  eaclib/psx/eacpsxz/cdfs.c                    CdReadyHandler                                     1 offset diffs     board=99.98
+  eaclib/psx/eacpsxz/stream.c                  STREAM_cancelrequest                               1 offset diffs     board=99.97
+  eaclib/psx/sndpsxz/sdpacket.c                iSNDfillspuwithpackets                             1 offset diffs     board=99.98
+  frontend/common/feapp.cpp                    Redraw__14tFEApplication                           1 offset diffs     board=99.28
+  frontend/common/fememcard.cpp                LoadGame__FsbT1                                    3 offset diffs     board=99.96
+  frontend/common/fememcard.cpp                SavePinkSlipsCars__Fss                             1 offset diffs     board=99.98
+  frontend/common/femenu.cpp                   DrawSlider__FsssssssssbT9ss                        11 offset diffs    board=80.73
+  frontend/common/femenuextended.cpp           Draw__29tMenuItemOptionsTwoItemChoiceiib           1 offset diffs     board=99.97
+  frontend/common/femenuoptions.cpp            ProcessInput__17tUserNameMenuItem7tPlayerR13tInput 1 offset diffs     board=99.98
+  frontend/common/femenuoptions.cpp            UpdateTransition__12tOptionsMenu                   1 offset diffs     board=99.97
+  frontend/common/fescreen.cpp                 InitializeShapes__7tScreenR17tShapeInformationUi   1 offset diffs     board=99.88
+  frontend/common/fetv.cpp                     DrawTV__FR9tTVConfig                               5 offset diffs     board=96.59
+  frontend/common/front.cpp                    Front_InitOpponentCars__FR9tFEStream               7 offset diffs     board=93.13
+  frontend/common/screencarselect.cpp          DrawBackground__25tScreenCarSelectTwoPlayer        5 offset diffs     board=99.93
+  frontend/common/screencarselect.cpp          DrawOpponentVideoWall__20tScreenCarSelectDuels     1 offset diffs     board=99.93
+  frontend/common/screencarselect.cpp          DrawVideoWall__20tScreenCarSelectDuels             1 offset diffs     board=99.94
+  frontend/common/screencongrats.cpp           CalculatePrizes__23tScreenTournamentTrophy         1 offset diffs     board=99.97
+  frontend/common/screenmain.cpp               DrawBackground__11tScreenMain                      7 offset diffs     board=96.1
+  frontend/common/screenmemcard.cpp            DrawMemCardStuff__14tScreenMemcards                1 offset diffs     board=99.99
+  frontend/common/screenpost.cpp               DrawBackground__26tScreenTournamentStandings       2 offset diffs     board=97.5
+  frontend/common/screenusername.cpp           DrawBackground__15tScreenUserName                  BRANCH COUNT 30 vs 29 board=93.57
+  frontend/common/statchk.cpp                  StatChk_IsTopTime__FP10Car_tStatss                 1 offset diffs     board=99.98
+  frontend/common/statchk.cpp                  StatChk_SaveTopTime__FP10Car_tStatss               1 offset diffs     board=95.84
+  frontend/psx/memcard.c                       MCRD_handlecardevents                              1 offset diffs     board=99.98
+  frontend/psx/psxfront.cpp                    DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii     2 offset diffs     board=98.0
+  game/common/aih_basicperp.cpp                CheckChaserPosition__16AIHigh_BasicPerpii          BRANCH COUNT 6 vs 7 board=97.7
+  game/common/aih_cop.cpp                      HighExecute__10AIHigh_Cop                          11 offset diffs    board=99.04
+  game/common/aih_opp.cpp                      CheckForWipeOut__15AIHigh_Opponent                 5 offset diffs     board=84.38
+  game/common/aiphysic.cpp                     AIPhysic_CalcAcceleration__FP8Car_tObji            1 offset diffs     board=99.97
+  game/common/aistate.cpp                      CheckIfCarIsNearbyAndStop__21AIState_RovingTraffic 1 offset diffs     board=99.95
+  game/common/audioclc.cpp                     AudioClc_GetClosestCars__Fiii                      5 offset diffs     board=99.59
+  game/common/audiotrk.cpp                     AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefi 1 offset diffs     board=99.99
+  game/common/camera.cpp                       Camera_UpdateHeliCam__Fii                          8 offset diffs     board=98.63
+  game/common/camera.cpp                       Camera_UpdateSplineCam__Fi                         4 offset diffs     board=97.01
+  game/common/cars.cpp                         Cars_DoExtraCarCollisionProcessing__FP8Car_tObj    1 offset diffs     board=99.99
+  game/common/cars.cpp                         Cars_ResetCollidedCars__FP8Car_tObjii              1 offset diffs     board=99.98
+  game/common/collide.cpp                      Collide_DoActualObjectCollisionCheck__FP13BO_tNewt 28 offset diffs    board=98.54
+  game/common/newton.cpp                       Newton_DoPostBarrierCollisionHandling__FP13BO_tNew 2 offset diffs     board=74.54
+  game/common/newton.cpp                       Newton_TestForUndrivableSurfaces__FP13BO_tNewtonOb BRANCH COUNT 47 vs 48 board=97.19
+  game/common/pausemenu.cpp                    Draw__25tPMenuItemLeftRightSliderb                 3 offset diffs     board=98.05
+  game/common/physics.cpp                      Physics_CalculateCarAcceleration__FP8Car_tObj      1 offset diffs     board=99.98
+  game/common/physics.cpp                      Physics_CalculateTireForces__FP8Car_tObjP23Physics 9 offset diffs     board=95.66
+  game/common/r3dcar.cpp                       R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView 7 offset diffs     board=99.52
+  game/common/sim.cpp                          Sim_MainGameLoop__Fv                               BRANCH COUNT 53 vs 54 board=98.68
+  game/common/speech.cpp                       Report__Q26Speech15DispatchSpeakerP8Car_tObj       2 offset diffs     board=96.73
+  game/common/speech.cpp                       StatusReply__Q26Speech15DispatchSpeaker            3 offset diffs     board=99.59
+  game/common/stats.cpp                        Stats_TrackEndGame__Fv                             6 offset diffs     board=97.11
+  game/psx/drawc.cpp                           DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transfo 52 offset diffs    board=95.5
+  game/psx/drawc.cpp                           DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Dra BRANCH COUNT 91 vs 92 board=97.42
+  game/psx/drawc.cpp                           DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer 24 offset diffs    board=96.85
+  game/psx/draww.cpp                           DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15 9 offset diffs     board=96.46
+  game/psx/draww.cpp                           DrawW_BuildCustomObjectFacets__FP13DRender_tViewP1 BRANCH COUNT 12 vs 13 board=81.76
+  game/psx/draww.cpp                           DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry   8 offset diffs     board=92.79
+  game/psx/draww.cpp                           DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry    8 offset diffs     board=92.15
+  game/psx/draww.cpp                           DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_ BRANCH COUNT 29 vs 30 board=98.36
+  game/psx/draww.cpp                           DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCache 7 offset diffs     board=98.94
+  game/psx/draww.cpp                           Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark         4 offset diffs     board=91.07
+  game/psx/hrzsku.cpp                          Hrz_BuildHorizon__FP13DRender_tView                5 offset diffs     board=95.71
+  game/psx/hrzsku.cpp                          Hrz_BuildSky__Fv                                   5 offset diffs     board=93.53
+  game/psx/hud.cpp                             Hud_BuildCdPlayer__Fii                             BRANCH COUNT 63 vs 62 board=96.36
+  game/psx/hud.cpp                             Hud_BuildMapMarkers__Fi                            10 offset diffs    board=89.98
+  game/psx/hud.cpp                             Hud_BuildNumbers__Fi                               1 offset diffs     board=93.52
+  game/psx/hud.cpp                             Hud_BuildString__FPciiiib                          1 offset diffs     board=99.98
+  game/psx/hud.cpp                             Hud_BuildTach__Fi                                  1 offset diffs     board=89.19
+  game/psx/hud.cpp                             Hud_Init__Fv                                       1 offset diffs     board=98.67
+  game/psx/hud.cpp                             Hud_RenderTacView__Fv                              3 offset diffs     board=92.52
+  game/psx/overlays.cpp                        Hud_BTCStats__Fsb                                  3 offset diffs     board=99.03
+  game/psx/overlays.cpp                        RaceStatistics__Fv                                 2 offset diffs     board=93.65
+  game/psx/psxcontroller.cpp                   InGame_GetPSXPadValue__Fii                         20 offset diffs    board=67.94
+  game/psx/psxcontroller.cpp                   InGame_SetRamp__Fv                                 3 offset diffs     board=91.56
+  game/psx/weather.cpp                         Weather_ChangeDensityBasedOnTime__Fv               1 offset diffs     board=99.91
+  syslib/psx/libc/SPRINTF.c                    sprintf                                            1 offset diffs     board=98.78
+  syslib/psx/libcd/cdread.c                    CdRead                                             2 offset diffs     board=83.24
+  syslib/psx/libcd/cdread.c                    _read_int                                          4 offset diffs     board=97.2
+  syslib/psx/libcd/cdread.c                    _read_issue                                        1 offset diffs     board=91.52
+  syslib/psx/libcd/drv.c                       CD_cw                                              2 offset diffs     board=95.37
+  syslib/psx/libcd/drv.c                       CD_init_80108140                                   2 offset diffs     board=94.29
+  syslib/psx/libcd/iso9660.c                   CD_newmedia                                        7 offset diffs     board=98.18
+  syslib/psx/libcd/iso9660.c                   CdSearchFile                                       7 offset diffs     board=90.31
+  syslib/psx/libcd/stcdint.c                   StCdInterrupt                                      BRANCH COUNT 57 vs 58 board=97.1
+
+=== C. AGREEMENT CHECK (A: brdist-hit + gate-PASS) ===
+brdist hit AND psyqproof REAL/RELOP>0 : 0
+brdist hit BUT psyqproof REAL=0       : 0   <-- brdist-only signal
+not covered by the EA sweep (syslib)  : 1

@@ -1,0 +1,30 @@
+TU                                              globB ->globB  gSwapFileName
+frontend/common/fememcard.cpp                       2      1     *** CONTENT MOVED ***
+frontend/common/fetourn.cpp                         2      0  
+frontend/common/screenaudio.cpp                     2      0     *** CONTENT MOVED ***
+frontend/common/screencarselect.cpp                 7      0  B -> b   *** CONTENT MOVED ***
+frontend/common/screencongrats.cpp                  1      0  
+frontend/common/screencontroller.cpp                1      0  
+frontend/common/screenmain.cpp                      3      0     *** CONTENT MOVED ***
+frontend/common/screenpinkslips.cpp                 1      0  B -> b
+frontend/common/screentournselect.cpp               1      0  B -> b
+frontend/common/screentrackinfo.cpp                 1      0  B -> b
+frontend/common/screentracks.cpp                    1      0  B -> b
+frontend/psx/movie.cpp                              1      0     *** CONTENT MOVED ***
+frontend/psx/psxfront.cpp                           2      0     *** CONTENT MOVED ***
+game/common/ai.cpp                                  1      0  
+game/common/aiphysic.cpp                            2      0     *** CONTENT MOVED ***
+game/common/bworldSm.cpp                            2      0     *** CONTENT MOVED ***
+game/common/camera.cpp                              3      0     *** CONTENT MOVED ***
+game/common/mpause.cpp                              1      0  
+game/common/newton.cpp                              7      0     *** CONTENT MOVED ***
+game/common/track.cpp                               2      0     *** CONTENT MOVED ***
+game/psx/textureprocess.cpp                         1      0  
+syslib/psx/libgpu/SYS.c                             4      2     *** CONTENT MOVED ***
+syslib/psx/libmcrd/LIBMCRD.c                        2      0     *** CONTENT MOVED ***
+syslib/psx/libmcrd/USERFUNC.c                       2      0     *** CONTENT MOVED ***
+syslib/psx/libpad/PADMAIN.c                         2      0     *** CONTENT MOVED ***
+syslib/psx/libpad/PADPORTD.c                        3      0     *** CONTENT MOVED ***
+
+TOTAL global .bss symbols (nm 'B'): 57 -> 3  (delta -54)
+TUs whose SECTION CONTENT changed: 16 ['recon/frontend/common/fememcard.cpp', 'recon/frontend/common/screenaudio.cpp', 'recon/frontend/common/screencarselect.cpp', 'recon/frontend/common/screenmain.cpp', 'recon/frontend/psx/movie.cpp', 'recon/frontend/psx/psxfront.cpp', 'recon/game/common/aiphysic.cpp', 'recon/game/common/bworldSm.cpp', 'recon/game/common/camera.cpp', 'recon/game/common/newton.cpp', 'recon/game/common/track.cpp', 'recon/syslib/psx/libgpu/SYS.c', 'recon/syslib/psx/libmcrd/LIBMCRD.c', 'recon/syslib/psx/libmcrd/USERFUNC.c', 'recon/syslib/psx/libpad/PADMAIN.c', 'recon/syslib/psx/libpad/PADPORTD.c']

@@ -1,0 +1,28 @@
+frontend/common/fememcard.cpp                   16 fns  stock PASS=16  guard PASS=16  verdict moves=0 
+frontend/common/fetourn.cpp                     35 fns  stock PASS=35  guard PASS=35  verdict moves=0 
+frontend/common/screenaudio.cpp                  8 fns  stock PASS=8  guard PASS=8  verdict moves=0 
+frontend/common/screencarselect.cpp             56 fns  stock PASS=56  guard PASS=56  verdict moves=0 
+frontend/common/screencongrats.cpp              27 fns  stock PASS=27  guard PASS=27  verdict moves=0 
+frontend/common/screencontroller.cpp            22 fns  stock PASS=22  guard PASS=22  verdict moves=0 
+frontend/common/screenmain.cpp                  12 fns  stock PASS=12  guard PASS=12  verdict moves=0 
+frontend/common/screenpinkslips.cpp              8 fns  stock PASS=8  guard PASS=8  verdict moves=0 
+frontend/common/screentournselect.cpp            9 fns  stock PASS=9  guard PASS=9  verdict moves=0 
+frontend/common/screentrackinfo.cpp              5 fns  stock PASS=5  guard PASS=5  verdict moves=0 
+frontend/common/screentracks.cpp                10 fns  stock PASS=10  guard PASS=10  verdict moves=0 
+frontend/psx/movie.cpp                          17 fns  stock PASS=17  guard PASS=17  verdict moves=0 
+frontend/psx/psxfront.cpp                       23 fns  stock PASS=23  guard PASS=23  verdict moves=0 
+game/common/ai.cpp                              40 fns  stock PASS=40  guard PASS=40  verdict moves=0 
+game/common/aiphysic.cpp                        39 fns  stock PASS=39  guard PASS=39  verdict moves=0 
+game/common/bworldSm.cpp                        28 fns  stock PASS=28  guard PASS=28  verdict moves=0 
+game/common/camera.cpp                          36 fns  stock PASS=36  guard PASS=36  verdict moves=0 
+game/common/mpause.cpp                          10 fns  stock PASS=10  guard PASS=10  verdict moves=0 
+game/common/newton.cpp                          30 fns  stock PASS=30  guard PASS=30  verdict moves=0 
+game/common/track.cpp                           29 fns  stock PASS=29  guard PASS=29  verdict moves=0 
+game/psx/textureprocess.cpp                     16 fns  stock PASS=16  guard PASS=16  verdict moves=0 
+syslib/psx/libgpu/SYS.c                         38 fns  stock PASS=38  guard PASS=38  verdict moves=0 
+syslib/psx/libmcrd/LIBMCRD.c                    21 fns  stock PASS=21  guard PASS=21  verdict moves=0 
+syslib/psx/libmcrd/USERFUNC.c                    4 fns  stock PASS=4  guard PASS=4  verdict moves=0 
+syslib/psx/libpad/PADMAIN.c                     10 fns  stock PASS=10  guard PASS=10  verdict moves=0 
+syslib/psx/libpad/PADPORTD.c                     5 fns  stock PASS=5  guard PASS=5  verdict moves=0 
+
+TOTAL fns gated 554   verdict moves 0

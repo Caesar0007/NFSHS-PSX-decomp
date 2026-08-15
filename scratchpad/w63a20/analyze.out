@@ -1,0 +1,97 @@
+=== W63 CLASSES ===
+REAL0_CLEAN            442
+REAL0_RELOC_ONLY      2474
+SHIM_MASKED             46
+LANE_DIVERGENT           0
+INAPPLICABLE_LANE       10
+HARNESS_GAP              0
+REAL=0 total        2916  (98.12% of 2972 board rows, 98.45% of the 2962 provable)
+
+=== PER SCOPE ===
+eaclib/psx            480/ 501    95.8%
+frontend/common       797/ 813    98.0%
+frontend/psx           81/  81   100.0%
+game/common          1208/1219    99.1%
+game/psx              350/ 358    97.8%
+
+=== NON-ZERO ROWS (REAL desc) ===
+REAL RELOP   TOT words  shim                     unit                         fn
+ 303     7   310   592  PER_FN_TEXT_MOVES        game/psx/draww               DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad
+ 228    48   276   305  PER_FN_TEXT_MOVES        game/psx/psxcontroller       InGame_ResetPSXController__Fii
+ 218    23   241   530  PER_FN_TEXT_MOVES        game/common/audiocmn         AudioCmn_SoundCar__FP8Car_tObjiiiiiii
+ 160    24   184   189  PER_FN_TEXT_MOVES        game/psx/draww               DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
+ 147    21   168   402  PER_FN_TEXT_MOVES        game/common/camera           Camera_UpdateTailCam__Fii
+  36     9    45    82  PER_FN_FORCE_ADDR        eaclib/psx/spchpsxz/spchev   SPCH_AddEvent
+  17     7    24    69  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand
+  13     2    15   409  PER_FN_TEXT_MOVES        game/psx/flare               Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  14     0    14    29  PER_FN_TEXT_MOVES        frontend/common/screencongrats CalculatePrizes__15tScreenCongrats
+  11     0    11   158  PER_FN_TEXT_MOVES        eaclib/psx/eacpsxz/unr       unrefpack
+   4     7    11    52  PER_FN_TEXT_MOVES        frontend/common/fescreen     GoNonInterlaced__7tScreen
+  11     0    11   159  PER_FN_TEXT_MOVES        game/common/audioeng         AudioEng_Set__Fiiiiiiii
+   9     0     9   299  PER_FN_TEXT_MOVES        frontend/common/screentracks DrawBackground__18tScreenTrackSelect
+   9     0     9   358  PER_FN_TEXT_MOVES        game/common/speech           Status__Q26Speech13MobileSpeaker
+   6     2     8    47  PER_FN_PROLOGUE_UNSINK   eaclib/psx/eacpsxz/nfi       FILE_completeop
+   8     0     8    81  PER_FN_TEXT_MOVES        eaclib/psx/eacpsxz/trnsmu    transmult
+   8     0     8   165  PER_FN_TEXT_MOVES        eaclib/psx/eacpsxz/vramfx    vramfxya
+   6     2     8    42  PER_FN_TEXT_MOVES        frontend/common/femenuoptions __20tMenuItemSlidingMenuUissssb
+   0     8     8    94  PER_FN_G8                game/common/audiocmn         AudioCmn_Init__Fv
+   6     2     8   270  PER_FN_TEXT_MOVES        game/common/speech           LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell
+   4     3     7    88  PER_FN_TEXT_MOVES        frontend/common/fefades      CalcOnOffFade__F13tMenuTextTypesssRiT4
+   3     4     7    26  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_GoToDealer__FR12tMenuCommand
+   3     4     7    26  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_GoToSeller__FR12tMenuCommand
+   3     4     7   211  PER_FN_FORCE_ADDR        game/psx/weather             Weather_Init__Fv
+   3     3     6   107  PER_FN_TEXT_MOVES        game/psx/drawc               DrawC_NightHeadlight__FP8Car_tObj
+   5     0     5   358  PER_FN_TEXT_MOVES        game/common/physics          Physics_DoBarrierCheck__FP8Car_tObj
+   5     0     5   130  PER_FN_RA_SINK           game/psx/textureprocess      CV_ColorTracks__Fiii
+   4     0     4    83  PER_FN_TEXT_MOVES        eaclib/psx/spchpsxz/spchpi   iSPCH_ConstantRuleSet
+   1     3     4    90  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
+   4     0     4   138  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand
+   4     0     4   293  PER_FN_TEXT_MOVES        frontend/common/femenuextended MenuNFS4_DrawTextBox__FiR4RECTissbT5
+   4     0     4    32  PER_FN_TEXT_MOVES        frontend/common/screenusername DrawVerticalLine__15tScreenUserNamesss
+   4     0     4    33  PER_FN_TEXT_MOVES        frontend/common/screenusername DrawHorizontalLine__15tScreenUserNamesss
+   4     0     4    94  PER_FN_TEXT_MOVES        game/common/speech           Roger__Q26Speech13MobileSpeaker
+   4     0     4   247  PER_FN_TEXT_MOVES        game/psx/flare               Flare_2DHalo__Fiiiii
+   1     2     3   290  PER_FN_TEXT_MOVES        eaclib/psx/eacpsxz/nfi       iFILE_ExecCommand
+   3     0     3    28  PER_FN_EPILOGUE_UNFILL   eaclib/psx/p                 padinit
+   3     0     3    21  PER_FN_NO_DELAYED_BRANCH eaclib/psx/p                 PAD_restore
+   1     2     3    39  PER_FN_TEXT_MOVES        eaclib/psx/spchpsxz/spchin   SPCH_Init
+   2     1     3    42  PER_FN_TEXT_MOVES        frontend/common/femenu       ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand
+   3     0     3    86  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_SellCar__FR12tMenuCommand
+   1     2     3    72  PER_FN_TEXT_MOVES        game/common/aistate          ___17AIState_Purgatory
+   3     0     3   461  PER_FN_NO_THREAD_JUMPS   game/common/audioclc         AudioClc_SoundPlayersCar__Fi
+   3     0     3    65  PER_FN_TEXT_MOVES        game/common/speech           CheckLocationBank__6SpeechPQ26Speech12LocationBankPci
+   2     0     2    20  PER_FN_EPILOGUE_UNFILL   eaclib/psx/p                 PAD_state
+   2     0     2    80  PER_FN_TEXT_MOVES        frontend/common/femenudefs   MenuExtended_PurchaseUpgrade__Fi
+
+=== W62 -> W63 REGRESSION DIFF (rows present in both) ===
+rows compared: 2955   REAL+RELOP worse: 0   better: 5   status-changed: 7
+  STATUS eaclib/psx/eacpsxz/fixddiv.c                         rdiv                          TU_BUILD_FAIL -> OK
+  STATUS eaclib/psx/eacpsxz/fixdinv.c                         fixedinverse                  TU_BUILD_FAIL -> OK
+  STATUS eaclib/psx/eacpsxz/isqrttbl.c                        remapshiftjiscode             TU_BUILD_FAIL -> OK
+  STATUS eaclib/psx/eacpsxz/isqrttbl.c                        decodeshiftjis                TU_BUILD_FAIL -> OK
+  STATUS eaclib/psx/eacpsxz/nullfunc.c                        setclipwindow                 TU_BUILD_FAIL -> OK
+  STATUS eaclib/psx/eacpsxz/sinfunc.c                         intcos                        TU_BUILD_FAIL -> OK
+  STATUS eaclib/psx/eacpsxz/sinfunc.c                         intsin                        TU_BUILD_FAIL -> OK
+     -6 (reloc -2) game/psx/night.cpp                             Night_SetCopColor__FP18GameSetup_tCarDat   6->0
+     -4 (reloc -1) game/psx/night.cpp                             Night_InitWeatherTables__Fv   4->0
+    -15 (reloc -2) game/psx/night.cpp                             Night_KillNightDriving__Fv   15->0
+   -174 (reloc -1) game/psx/overlays.cpp                          RaceSummary__Fv   174->0
+    -51 (reloc -6) game/psx/overlays.cpp                          Hud_RenderStatsView__Fv   51->0
+rows NEW since W62 (fns sealed after the W62 sweep): 17
+  eaclib/psx/eacpsxz/nsync.c                           filesizeatomic                               INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           filesize                                     INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadfileadratomic                            INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadfileadrz                                 INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadfileadr                                  INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadfileatadratomic                          INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadfileatadrz                               INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadfileatadr                                INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadbigfileheaderatomic                      INAPPLICABLE_LANE
+  eaclib/psx/eacpsxz/nsync.c                           loadbigfileheader                            INAPPLICABLE_LANE
+  frontend/common/screentracks.cpp                     DrawBackground__18tScreenTrackSelect         SHIM_MASKED
+  game/common/aihigh.cpp                               AIHigh_StartUp__Fv                           REAL0_RELOC_ONLY
+  game/common/aistate.cpp                              __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii REAL0_RELOC_ONLY
+  game/common/aistate.cpp                              ___17AIState_Purgatory                       SHIM_MASKED
+  game/common/camera.cpp                               Camera_UpdatePulloverCam__Fi                 REAL0_RELOC_ONLY
+  game/common/object.cpp                               Object_AddCustomObject__FP9SceneElemi        REAL0_RELOC_ONLY
+  game/psx/flare.cpp                                   Flare_2DHalo__Fiiiii                         SHIM_MASKED

@@ -1,0 +1,6 @@
+### recon/game/common/camera.cpp  (38 fns, 2 divergent)
+Camera_UpdateHeliCam__Fii                                    8 offset diffs [(5, 385, 384), (6, 380, 379), (26, 4, 3), (41, 40, 38), (43, 36, 34), (44, 33, 32)]
+Camera_UpdateSplineCam__Fi                                   4 offset diffs [(1, 316, 317), (2, 311, 312), (13, 98, 100), (14, 92, 94)]
+# 38 fns checked, 2 with branch-offset/count divergence
+
+TOTAL: 1 TUs, 38 fns checked, 2 divergent, 0 TU failures

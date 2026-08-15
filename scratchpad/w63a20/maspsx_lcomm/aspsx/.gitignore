@@ -1,0 +1,4 @@
+psyq/
+*.o
+*.obj
+.dosemu2/

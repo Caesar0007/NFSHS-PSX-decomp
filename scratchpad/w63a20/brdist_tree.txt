@@ -1,0 +1,654 @@
+### recon/eaclib/psx/eacpsxz/addtimer.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/asinfunc.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/atanfunc.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/blkfill.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/blkmov.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/callback.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/cdfs.c  (14 fns, 1 divergent)
+CdReadyHandler                                               1 offset diffs [(12, 104, 99)]
+# 14 fns checked, 1 with branch-offset/count divergence
+### recon/eaclib/psx/eacpsxz/cluttype.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/crc.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/crossprd.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/devsys.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/exit.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fastmovf.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fileroot.c  (9 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fixdatan.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fixddiv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fixdinv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fixdmult.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fixdsin.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fixdsqrt.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/fsincos.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/getm.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/inittmr.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/isincos.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/isqrt.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/isqrttbl.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/joystkn.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/loadshp.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/locatbig.c  (7 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/locatshp.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/math64a.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/matrix.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/meminit.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/memstd.c  (13 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/movf.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/nasync.c  (23 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/nfile.c  (27 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/nloadpk.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/nsync.c  (10 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/nullfunc.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/primate.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/random.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/resize.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/savegp.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/setfont.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/shpclut.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/shpdepth.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/shpsubs.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/shptype.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/sinfunc.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/stream.c  (32 fns, 1 divergent)
+STREAM_cancelrequest                                         1 offset diffs [(13, 42, 66)]
+# 32 fns checked, 1 with branch-offset/count divergence
+### recon/eaclib/psx/eacpsxz/stricmp.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/syncfile.c  (8 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/systask.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/textcode.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/textcrnt.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/textfor.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/threads.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/timer.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/trnsfrm.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/trnsmult.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/trnspos.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/unbtree.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/unhuff.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/unref.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/vramfxya.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/wildcard.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/eacpsxz/xform.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/pad.c  (5 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/s3dlow.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/s3dpos.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/saelib.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/saetodv.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/saetolrv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/salloc.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sautovol.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbadd.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sballoc.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbdload.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbend.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbhdrcpy.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbhdrsze.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbirmpat.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbremove.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sbvalid.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/scdvol.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sclcptch.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdata.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdcdvol.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdfx.c  (6 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdma.c  (6 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdmemlu.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdmemman.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdpacket.c  (13 fns, 1 divergent)
+iSNDfillspuwithpackets                                       1 offset diffs [(29, 45, 16)]
+# 13 fns checked, 1 with branch-offset/count divergence
+### recon/eaclib/psx/sndpsxz/sdplapat.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdresolv.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdriver.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdspuirq.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sdtimrem.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/seffect.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sfxlevel.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sgetdata.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sgettag.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sgetvol.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/slib.c  (5 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/slimits.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/smasterv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/smath64.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/smemman.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sover.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/span.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/spat2hdr.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/spatkey.c  (10 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/spitch.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/spktplay.c  (13 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/splay.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/splysdef.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/spvoices.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/spvtolrv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/srandom.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/srrange.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sserver.c  (6 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/ssine.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sst.c  (16 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstautov.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstgetrp.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstgetv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstop.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstopall.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstovrhd.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstrstat.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstsetgl.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstsetgs.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstsetpr.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sststat.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/sstvol.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/ssysinit.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/ssysreal.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/ssysserv.c  (3 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/stagpat.c  (8 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/stimerem.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/sndpsxz/svol.c  (2 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchbank.c  (8 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchdata.c  (6 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchevnt.c  (16 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchinit.c  (7 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchpick.c  (27 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchrand.c  (4 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchrslv.c  (1 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchrule.c  (9 fns, 0 divergent)
+### recon/eaclib/psx/spchpsxz/spchsamp.c  (2 fns, 0 divergent)
+### recon/frontend/common/feapp.cpp  (15 fns, 1 divergent)
+Redraw__14tFEApplication                                     1 offset diffs [(20, 4, 5)]
+# 15 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/feaudio.cpp  (10 fns, 0 divergent)
+### recon/frontend/common/fecars.cpp  (46 fns, 0 divergent)
+### recon/frontend/common/fecheats.cpp  (10 fns, 0 divergent)
+### recon/frontend/common/fecredits.cpp  (7 fns, 0 divergent)
+### recon/frontend/common/fedialog.cpp  (33 fns, 0 divergent)
+### recon/frontend/common/fefades.cpp  (6 fns, 0 divergent)
+### recon/frontend/common/feinput.cpp  (4 fns, 0 divergent)
+### recon/frontend/common/felines.cpp  (2 fns, 0 divergent)
+### recon/frontend/common/fememcard.cpp  (18 fns, 2 divergent)
+LoadGame__FsbT1                                              3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]
+SavePinkSlipsCars__Fss                                       1 offset diffs [(5, 103, 88)]
+# 18 fns checked, 2 with branch-offset/count divergence
+### recon/frontend/common/femenu.cpp  (73 fns, 1 divergent)
+DrawSlider__FsssssssssbT9ss                                  11 offset diffs [(5, 157, 156), (6, 308, 301), (7, 88, 90), (8, 72, 75), (9, 68, 69), (27, 161, 155)]
+# 73 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/femenudefs.cpp  (66 fns, 0 divergent)
+### recon/frontend/common/femenuextended.cpp  (57 fns, 1 divergent)
+Draw__29tMenuItemOptionsTwoItemChoiceiib                     1 offset diffs [(2, 6, 4)]
+# 57 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/femenuoptions.cpp  (92 fns, 2 divergent)
+ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand 1 offset diffs [(17, 113, 140)]
+UpdateTransition__12tOptionsMenu                             1 offset diffs [(5, 23, 135)]
+# 92 fns checked, 2 with branch-offset/count divergence
+### recon/frontend/common/femission.cpp  (5 fns, 0 divergent)
+### recon/frontend/common/fescreen.cpp  (27 fns, 1 divergent)
+InitializeShapes__7tScreenR17tShapeInformationUi             1 offset diffs [(1, 8, 20)]
+# 27 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/fetextrender.cpp  (17 fns, 0 divergent)
+### recon/frontend/common/fetools.cpp  (6 fns, 0 divergent)
+### recon/frontend/common/fetourn.cpp  (35 fns, 0 divergent)
+### recon/frontend/common/fetracks.cpp  (15 fns, 0 divergent)
+### recon/frontend/common/fetv.cpp  (5 fns, 1 divergent)
+DrawTV__FR9tTVConfig                                         5 offset diffs [(20, 677, 670), (21, 426, 422), (42, 244, 240), (69, 245, 242), (70, 158, 156)]
+# 5 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/fevideowall.cpp  (12 fns, 0 divergent)
+### recon/frontend/common/front.cpp  (43 fns, 1 divergent)
+Front_InitOpponentCars__FR9tFEStream                         7 offset diffs [(8, 110, 111), (19, 35, 36), (20, 124, 122), (22, 104, 102), (24, 84, 83), (25, 73, 72)]
+# 43 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/mcrd.cpp  (1 fns, 0 divergent)
+### recon/frontend/common/screenaudio.cpp  (8 fns, 0 divergent)
+### recon/frontend/common/screencarselect.cpp  (59 fns, 3 divergent)
+DrawBackground__25tScreenCarSelectTwoPlayer                  5 offset diffs [(3, 21, 9), (5, 21, 22), (6, 19, 20), (7, 12, 13), (8, 3, 4)]
+DrawOpponentVideoWall__20tScreenCarSelectDuels               1 offset diffs [(3, 13, 14)]
+DrawVideoWall__20tScreenCarSelectDuels                       1 offset diffs [(3, 14, 15)]
+# 59 fns checked, 3 with branch-offset/count divergence
+### recon/frontend/common/screencongrats.cpp  (28 fns, 1 divergent)
+CalculatePrizes__23tScreenTournamentTrophy                   1 offset diffs [(9, 17, 18)]
+# 28 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screencontroller.cpp  (22 fns, 0 divergent)
+### recon/frontend/common/screendisplay.cpp  (3 fns, 0 divergent)
+### recon/frontend/common/screenmain.cpp  (13 fns, 1 divergent)
+DrawBackground__11tScreenMain                                7 offset diffs [(9, 11, 12), (10, 15, 4), (11, 11, 12), (25, 17, 16), (26, 75, 74), (27, 70, 69)]
+# 13 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screenmemcard.cpp  (15 fns, 1 divergent)
+DrawMemCardStuff__14tScreenMemcards                          1 offset diffs [(20, 19, 166)]
+# 15 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screenpinkslips.cpp  (8 fns, 0 divergent)
+### recon/frontend/common/screenpost.cpp  (13 fns, 1 divergent)
+DrawBackground__26tScreenTournamentStandings                 2 offset diffs [(25, 110, 114), (26, 4, 5)]
+# 13 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screentournselect.cpp  (9 fns, 0 divergent)
+### recon/frontend/common/screentrackinfo.cpp  (5 fns, 0 divergent)
+### recon/frontend/common/screentrackrecords.cpp  (7 fns, 0 divergent)
+### recon/frontend/common/screentracks.cpp  (10 fns, 0 divergent)
+### recon/frontend/common/screentrophyinfo.cpp  (3 fns, 0 divergent)
+### recon/frontend/common/screentrophyroom.cpp  (9 fns, 0 divergent)
+### recon/frontend/common/screenusername.cpp  (6 fns, 1 divergent)
+DrawBackground__15tScreenUserName                            BRANCH COUNT 30 vs 29
+# 6 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/statchk.cpp  (5 fns, 2 divergent)
+StatChk_IsTopTime__FP10Car_tStatss                           1 offset diffs [(25, 13, 4)]
+StatChk_SaveTopTime__FP10Car_tStatss                         1 offset diffs [(23, -20, -21)]
+# 5 fns checked, 2 with branch-offset/count divergence
+### recon/frontend/common/stattool.cpp  (11 fns, 0 divergent)
+### recon/frontend/psx/drawshp.cpp  (4 fns, 0 divergent)
+### recon/frontend/psx/fetexture.cpp  (2 fns, 0 divergent)
+### recon/frontend/psx/mdec.cpp  (6 fns, 0 divergent)
+### recon/frontend/psx/memcard.c  (20 fns, 1 divergent)
+MCRD_handlecardevents                                        1 offset diffs [(13, 148, 94)]
+# 20 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/psx/mmeffect.cpp  (1 fns, 0 divergent)
+### recon/frontend/psx/movie.cpp  (17 fns, 0 divergent)
+### recon/frontend/psx/psxfront.cpp  (25 fns, 1 divergent)
+DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii               1 offset diffs [(18, 28, 29)]
+# 25 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/psx/video.cpp  (9 fns, 0 divergent)
+### recon/game/common/AIWORLD.cpp  (22 fns, 0 divergent)
+### recon/game/common/ai.cpp  (40 fns, 0 divergent)
+### recon/game/common/aicop.cpp  (4 fns, 0 divergent)
+### recon/game/common/aidatarecord.cpp  (26 fns, 0 divergent)
+### recon/game/common/aidelaycar.cpp  (3 fns, 0 divergent)
+### recon/game/common/aih_basiccop.cpp  (9 fns, 0 divergent)
+### recon/game/common/aih_basicperp.cpp  (9 fns, 1 divergent)
+CheckChaserPosition__16AIHigh_BasicPerpii                    BRANCH COUNT 6 vs 7
+# 9 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/aih_btccop.cpp  (40 fns, 0 divergent)
+### recon/game/common/aih_btcperp.cpp  (26 fns, 0 divergent)
+### recon/game/common/aih_cop.cpp  (10 fns, 1 divergent)
+HighExecute__10AIHigh_Cop                                    11 offset diffs [(5, 1361, 1366), (18, 60, 61), (23, 4, 6), (34, 12, 8), (42, 967, 971), (72, 679, 683)]
+# 10 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/aih_hum.cpp  (3 fns, 0 divergent)
+### recon/game/common/aih_opp.cpp  (6 fns, 1 divergent)
+CheckForWipeOut__15AIHigh_Opponent                           5 offset diffs [(0, 110, 112), (1, 104, 106), (4, 91, 93), (5, 82, 84), (7, 45, 51)]
+# 6 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/aih_play.cpp  (10 fns, 0 divergent)
+### recon/game/common/aih_traf.cpp  (6 fns, 0 divergent)
+### recon/game/common/aihigh.cpp  (16 fns, 0 divergent)
+### recon/game/common/aiinit.cpp  (17 fns, 0 divergent)
+### recon/game/common/ailife.cpp  (20 fns, 0 divergent)
+### recon/game/common/aiperson.cpp  (8 fns, 0 divergent)
+### recon/game/common/aiphysic.cpp  (42 fns, 1 divergent)
+AIPhysic_CalcAcceleration__FP8Car_tObji                      1 offset diffs [(27, 5, 6)]
+# 42 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/aiscript.cpp  (8 fns, 0 divergent)
+### recon/game/common/aispeeds.cpp  (29 fns, 0 divergent)
+### recon/game/common/aistate.cpp  (52 fns, 2 divergent)
+CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi 1 offset diffs [(9, 15, 16)]
+CloseTargeting__13AIState_Chase                              3 offset diffs [(46, 58, 57), (48, 45, 44), (49, 8, 7)]
+# 52 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/aitriger.cpp  (10 fns, 0 divergent)
+### recon/game/common/aitune.cpp  (7 fns, 0 divergent)
+### recon/game/common/anim.cpp  (18 fns, 0 divergent)
+### recon/game/common/audedit.cpp  (2 fns, 0 divergent)
+### recon/game/common/audioclc.cpp  (18 fns, 1 divergent)
+AudioClc_GetClosestCars__Fiii                                5 offset diffs [(2, 129, 128), (5, 113, 112), (6, 102, 101), (7, 96, 95), (26, -131, -130)]
+# 18 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/audiocmn.cpp  (48 fns, 0 divergent)
+### recon/game/common/audioeng.cpp  (9 fns, 0 divergent)
+### recon/game/common/audiomus.cpp  (23 fns, 0 divergent)
+### recon/game/common/audiotrk.cpp  (6 fns, 1 divergent)
+AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji 1 offset diffs [(48, 14, 13)]
+# 6 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/bworld.cpp  (21 fns, 0 divergent)
+### recon/game/common/bworldSm.cpp  (28 fns, 0 divergent)
+### recon/game/common/camera.cpp  (38 fns, 2 divergent)
+Camera_UpdateHeliCam__Fii                                    8 offset diffs [(5, 385, 384), (6, 380, 379), (26, 4, 3), (41, 40, 38), (43, 36, 34), (44, 33, 32)]
+Camera_UpdateSplineCam__Fi                                   4 offset diffs [(1, 316, 317), (2, 311, 312), (13, 98, 100), (14, 92, 94)]
+# 38 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/cars.cpp  (33 fns, 2 divergent)
+Cars_DoExtraCarCollisionProcessing__FP8Car_tObj              1 offset diffs [(1, 28, 32)]
+Cars_ResetCollidedCars__FP8Car_tObjii                        1 offset diffs [(0, 257, 76)]
+# 33 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/chunk.cpp  (4 fns, 0 divergent)
+### recon/game/common/clock.cpp  (3 fns, 0 divergent)
+### recon/game/common/collide.cpp  (14 fns, 1 divergent)
+Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2 28 offset diffs [(0, 741, 743), (1, 735, 737), (2, 729, 731), (3, 723, 725), (4, 717, 719), (5, 711, 713)]
+# 14 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/color.cpp  (2 fns, 0 divergent)
+### recon/game/common/control.cpp  (2 fns, 0 divergent)
+### recon/game/common/copspeak.cpp  (27 fns, 0 divergent)
+### recon/game/common/dashhud.cpp  (6 fns, 0 divergent)
+### recon/game/common/fastrand.cpp  (2 fns, 0 divergent)
+### recon/game/common/genericpmx.cpp  (1 fns, 0 divergent)
+### recon/game/common/gmesetup.cpp  (2 fns, 0 divergent)
+### recon/game/common/group.cpp  (6 fns, 0 divergent)
+### recon/game/common/hudpmx.cpp  (3 fns, 0 divergent)
+### recon/game/common/input.cpp  (8 fns, 0 divergent)
+### recon/game/common/mathnfs.cpp  (10 fns, 0 divergent)
+### recon/game/common/minfront.cpp  (1 fns, 0 divergent)
+### recon/game/common/mpause.cpp  (10 fns, 0 divergent)
+### recon/game/common/new.cpp  (4 fns, 0 divergent)
+### recon/game/common/newton.cpp  (32 fns, 2 divergent)
+Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef 2 offset diffs [(0, 4, 3), (7, 4, 3)]
+Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj          BRANCH COUNT 47 vs 48
+# 32 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/nfs3.cpp  (11 fns, 0 divergent)
+### recon/game/common/object.cpp  (37 fns, 0 divergent)
+### recon/game/common/paths.cpp  (1 fns, 0 divergent)
+### recon/game/common/pausemenu.cpp  (60 fns, 1 divergent)
+Draw__25tPMenuItemLeftRightSliderb                           3 offset diffs [(0, 108, 106), (6, 10, 8), (10, -107, -105)]
+# 60 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/physics.cpp  (22 fns, 2 divergent)
+Physics_CalculateCarAcceleration__FP8Car_tObj                1 offset diffs [(25, 71, 72)]
+Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct 9 offset diffs [(35, 166, 165), (36, 161, 160), (49, 74, 73), (52, 64, 63), (53, 62, 61), (55, 55, 54)]
+# 22 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/quatern.cpp  (4 fns, 0 divergent)
+### recon/game/common/r3dcar.cpp  (27 fns, 1 divergent)
+R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView           7 offset diffs [(3, 1075, 1076), (134, 276, 277), (135, 253, 254), (136, 247, 248), (153, 131, 132), (154, 117, 118)]
+# 27 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/render.cpp  (23 fns, 0 divergent)
+### recon/game/common/replay.cpp  (16 fns, 0 divergent)
+### recon/game/common/scene.cpp  (6 fns, 0 divergent)
+### recon/game/common/schedule.cpp  (6 fns, 0 divergent)
+### recon/game/common/sim.cpp  (8 fns, 1 divergent)
+Sim_MainGameLoop__Fv                                         BRANCH COUNT 53 vs 54
+# 8 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/simplemem.cpp  (3 fns, 0 divergent)
+### recon/game/common/simqueue.cpp  (8 fns, 0 divergent)
+### recon/game/common/souffle.cpp  (10 fns, 0 divergent)
+### recon/game/common/spchevnt.c  (53 fns, 0 divergent)
+### recon/game/common/speech.cpp  (102 fns, 2 divergent)
+Report__Q26Speech15DispatchSpeakerP8Car_tObj                 2 offset diffs [(1, 35, 36), (2, 69, 70)]
+StatusReply__Q26Speech15DispatchSpeaker                      3 offset diffs [(2, 242, 243), (5, 220, 221), (10, 30, 31)]
+# 102 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/stats.cpp  (7 fns, 1 divergent)
+Stats_TrackEndGame__Fv                                       6 offset diffs [(5, 16, 15), (6, 20, 19), (8, 44, 45), (10, 28, 29), (11, 17, 18), (15, -30, -31)]
+# 7 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/textsys.cpp  (8 fns, 0 divergent)
+### recon/game/common/track.cpp  (29 fns, 0 divergent)
+### recon/game/common/trgsfx.cpp  (11 fns, 0 divergent)
+### recon/game/common/udff.cpp  (4 fns, 0 divergent)
+### recon/game/psx/audio.cpp  (6 fns, 0 divergent)
+### recon/game/psx/cario.cpp  (11 fns, 0 divergent)
+### recon/game/psx/device.cpp  (10 fns, 0 divergent)
+### recon/game/psx/draw.cpp  (25 fns, 0 divergent)
+### recon/game/psx/drawc.cpp  (20 fns, 11 divergent)
+DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache 7 offset diffs [(0, 145, 142), (2, 125, 124), (5, 106, 105), (8, 94, 93), (11, 79, 78), (14, 67, 66)]
+DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache 2 offset diffs [(0, 114, 111), (2, 19, 18)]
+DrawC_NightHeadlight__FP8Car_tObj                            1 offset diffs [(0, 49, 48)]
+DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache 65 offset diffs [(2, 58, 57), (3, 27, 26), (5, -27, -26), (6, 28, 26), (7, -27, -25), (8, 472, 468)]
+DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache 6 offset diffs [(0, 207, 204), (2, -80, -78), (3, -92, -89), (4, -96, -93), (12, -139, -136), (20, -207, -204)]
+DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache 9 offset diffs [(0, 57, 56), (1, 27, 26), (3, -26, -25), (6, 300, 297), (9, -38, -36), (10, -53, -50)]
+DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache BRANCH COUNT 91 vs 92
+DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache 47 offset diffs [(2, 56, 55), (3, 27, 26), (5, -26, -25), (8, 282, 276), (11, 1205, 1184), (12, 560, 551)]
+DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache           1 offset diffs [(1, 81, 78)]
+DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache 7 offset diffs [(0, 276, 274), (8, 125, 123), (10, 114, 112), (11, 75, 73), (13, 67, 65), (16, -74, -72)]
+DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache    3 offset diffs [(0, 71, 70), (2, 58, 57), (3, -70, -69)]
+# 20 fns checked, 11 with branch-offset/count divergence
+### recon/game/psx/draww.cpp  (35 fns, 10 divergent)
+DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo 9 offset diffs [(1, 379, 380), (2, 366, 365), (6, 349, 348), (9, 240, 239), (10, 29, 28), (13, 250, 249)]
+DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi BRANCH COUNT 12 vs 13
+DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry             8 offset diffs [(7, 52, 53), (9, 44, 45), (10, 41, 42), (11, 38, 39), (12, 10, 12), (13, 34, 33)]
+DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry              8 offset diffs [(0, 303, 300), (1, 295, 292), (8, 60, 57), (9, 47, 44), (10, 38, 36), (11, 12, 11)]
+DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad      12 offset diffs [(3, 448, 442), (7, 424, 418), (11, 408, 402), (12, 41, 39), (13, 40, 38), (15, 25, 24)]
+DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32 6 offset diffs [(0, 160, 152), (1, 67, 63), (2, 63, 59), (3, 77, 75), (4, 30, 29), (5, 29, 28)]
+DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache BRANCH COUNT 29 vs 30
+DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache     4 offset diffs [(0, 9, 8), (1, 9, 8), (2, 9, 8), (3, 9, 8)]
+DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss 10 offset diffs [(3, 536, 530), (7, 516, 510), (11, 491, 485), (15, 471, 465), (19, 451, 445), (20, 365, 360)]
+Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark                   7 offset diffs [(0, 286, 280), (3, -71, -70), (4, 207, 202), (5, 203, 198), (9, 133, 131), (13, 109, 107)]
+# 35 fns checked, 10 with branch-offset/count divergence
+### recon/game/psx/fe3dmenu.cpp  (3 fns, 0 divergent)
+### recon/game/psx/flare.cpp  (27 fns, 5 divergent)
+Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache      8 offset diffs [(0, 596, 584), (6, 471, 460), (7, 468, 457), (8, 466, 455), (10, 37, 36), (14, 41, 40)]
+Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache 10 offset diffs [(5, 524, 513), (7, 492, 482), (8, 489, 479), (9, 487, 477), (10, 476, 466), (11, 469, 459)]
+Flare_LensFlare__FP7DVECTORP15Draw_FlareCache                2 offset diffs [(0, 381, 375), (3, 318, 312)]
+Flare_PreCalcHexLightBeam__FPli                              2 offset diffs [(0, 37, 36), (1, -36, -35)]
+Flare_Sun__FP7SVECTORP15Draw_FlareCache                      1 offset diffs [(1, 167, 166)]
+# 27 fns checked, 5 with branch-offset/count divergence
+### recon/game/psx/font.cpp  (15 fns, 0 divergent)
+### recon/game/psx/force.cpp  (9 fns, 0 divergent)
+### recon/game/psx/hrzsku.cpp  (22 fns, 5 divergent)
+Hrz_BuildForkLightning__FP11Draw_DCache                      1 offset diffs [(0, 56, 55)]
+Hrz_BuildHorizon__FP13DRender_tView                          5 offset diffs [(7, 227, 228), (18, 144, 143), (22, 128, 127), (26, 106, 104), (27, 86, 84)]
+Hrz_BuildSky__Fv                                             11 offset diffs [(1, 62, 60), (2, -26, -25), (3, 53, 51), (4, 40, 39), (5, -13, -12), (6, -19, -18)]
+Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR                        2 offset diffs [(0, 15, 14), (1, -10, -9)]
+Sky_RenderStars__FP13Draw_SkyCachei                          2 offset diffs [(1, 79, 78), (7, -70, -69)]
+# 22 fns checked, 5 with branch-offset/count divergence
+### recon/game/psx/hud.cpp  (62 fns, 7 divergent)
+Hud_BuildCdPlayer__Fii                                       BRANCH COUNT 63 vs 62
+Hud_BuildMapMarkers__Fi                                      10 offset diffs [(0, 119, 122), (1, 110, 113), (17, -121, -124), (18, 143, 138), (19, 133, 128), (31, 33, 30)]
+Hud_BuildNumbers__Fi                                         1 offset diffs [(42, 46, 38)]
+Hud_BuildString__FPciiiib                                    1 offset diffs [(2, 154, 155)]
+Hud_BuildTach__Fi                                            1 offset diffs [(10, 4, 3)]
+Hud_Init__Fv                                                 1 offset diffs [(11, 11, 12)]
+Hud_RenderTacView__Fv                                        3 offset diffs [(0, 53, 52), (1, 35, 34), (3, -42, -41)]
+# 62 fns checked, 7 with branch-offset/count divergence
+### recon/game/psx/loading.cpp  (3 fns, 0 divergent)
+### recon/game/psx/night.cpp  (19 fns, 0 divergent)
+### recon/game/psx/overlays.cpp  (5 fns, 2 divergent)
+Hud_BTCStats__Fsb                                            3 offset diffs [(19, 6, 5), (22, -29, -28), (31, 49, 50)]
+RaceStatistics__Fv                                           2 offset diffs [(4, 301, 302), (27, -304, -305)]
+# 5 fns checked, 2 with branch-offset/count divergence
+### recon/game/psx/platform.cpp  (8 fns, 0 divergent)
+### recon/game/psx/psxcontroller.cpp  (4 fns, 2 divergent)
+InGame_GetPSXPadValue__Fii                                   20 offset diffs [(4, 143, 133), (5, 211, 201), (6, 207, 197), (7, 76, 68), (9, 58, 51), (11, 75, 67)]
+InGame_SetRamp__Fv                                           3 offset diffs [(0, 76, 77), (1, 71, 72), (5, -61, -64)]
+# 4 fns checked, 2 with branch-offset/count divergence
+### recon/game/psx/rpause.cpp  (3 fns, 0 divergent)
+### recon/game/psx/sfx.cpp  (7 fns, 2 divergent)
+Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache   1 offset diffs [(0, 112, 109)]
+Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle 5 offset diffs [(1, 582, 579), (4, 556, 553), (13, 429, 426), (18, 579, 573), (27, 148, 145)]
+# 7 fns checked, 2 with branch-offset/count divergence
+### recon/game/psx/skidmark.cpp  (11 fns, 0 divergent)
+### recon/game/psx/textpix.c  (2 fns, 0 divergent)
+### recon/game/psx/textpsx.c  (3 fns, 0 divergent)
+### recon/game/psx/texture.cpp  (24 fns, 0 divergent)
+### recon/game/psx/textureprocess.cpp  (16 fns, 0 divergent)
+### recon/game/psx/trackspec.cpp  (5 fns, 0 divergent)
+### recon/game/psx/trsproj.cpp  (11 fns, 1 divergent)
+TrsProj_TransPtN16__FP10RelCoord16P8coorddefi                2 offset diffs [(0, 30, 29), (1, -23, -22)]
+# 11 fns checked, 1 with branch-offset/count divergence
+### recon/game/psx/unpack.c  (4 fns, 0 divergent)
+### recon/game/psx/weather.cpp  (25 fns, 4 divergent)
+Weather_ChangeDensityBasedOnTime__Fv                         1 offset diffs [(5, 10, 11)]
+Weather_CreateRain__FP7SVECTORP7DVECTORPc                    2 offset diffs [(0, 56, 55), (2, 40, 39)]
+Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc      2 offset diffs [(3, 36, 35), (4, -35, -34)]
+Weather_TransformVertex__FP10matrixtdefiP7SVECTOR            2 offset diffs [(0, 18, 17), (1, -17, -16)]
+# 25 fns checked, 4 with branch-offset/count divergence
+### recon/syslib/psx/2mbyte/2mbyte.c  (6 fns, 0 divergent)
+### recon/syslib/psx/libapi/A07.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A08.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A09.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A11.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A12.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A13.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A23.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A24.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A25.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A36.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A37.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A39.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A50.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A51.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A52.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A53.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A54.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A65.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A66.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A67.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A69.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/A91.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/C112.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/C114.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/C57.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/C68.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/C73.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/COUNTER.c  (3 fns, 0 divergent)
+### recon/syslib/psx/libapi/FIRST.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libapi/L02.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/L03.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libapi/L10.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/A63.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/BSEARCH.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C16.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C19.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C21.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C23.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C24.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C25.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C26.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C27.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C30.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C31.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C36.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C37.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C38.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C40.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C42.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C43.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C46.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C47.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/C63.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/MEMCMP.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/MEMMOVE.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libc/QSORT.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libc/SPRINTF.c  (1 fns, 1 divergent)
+sprintf                                                      1 offset diffs [(54, 5, 4)]
+# 1 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libcard/A74.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libcard/A75.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/A76.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/A78.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/A80.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/C171.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/C172.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/CARD.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/CARDINIT.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libcard/END.c  (3 fns, 0 divergent)
+### recon/syslib/psx/libcard/INIT.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libcard/PATCH.c  (5 fns, 0 divergent)
+### recon/syslib/psx/libcd/TYPE.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libcd/cdcont.c  (19 fns, 0 divergent)
+### recon/syslib/psx/libcd/cdread.c  (6 fns, 3 divergent)
+CdRead                                                       2 offset diffs [(6, 15, 16), (9, 6, 5)]
+_read_int                                                    4 offset diffs [(6, 9, 10), (7, 25, 24), (12, 33, 32), (14, 10, 9)]
+_read_issue                                                  1 offset diffs [(10, 4, 6)]
+# 6 fns checked, 3 with branch-offset/count divergence
+### recon/syslib/psx/libcd/cdread2.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libcd/drv.c  (13 fns, 2 divergent)
+CD_cw                                                        2 offset diffs [(5, 13, 14), (12, 102, 104)]
+CD_init_80108140                                             2 offset diffs [(4, 11, 10), (5, 4, 5)]
+# 13 fns checked, 2 with branch-offset/count divergence
+### recon/syslib/psx/libcd/event.c  (5 fns, 0 divergent)
+### recon/syslib/psx/libcd/iso9660.c  (7 fns, 3 divergent)
+CD_newmedia                                                  7 offset diffs [(1, 146, 145), (2, 141, 140), (4, 130, 129), (5, 125, 124), (7, 107, 108), (8, 101, 102)]
+CdSearchFile                                                 7 offset diffs [(1, 153, 154), (3, 143, 144), (4, 35, 36), (5, 8, 13), (6, 26, 24), (7, -8, -6)]
+cd_read                                                      BRANCH COUNT 0 vs 17
+# 7 fns checked, 3 with branch-offset/count divergence
+### recon/syslib/psx/libcd/stcdint.c  (3 fns, 2 divergent)
+StCdInterrupt                                                BRANCH COUNT 57 vs 58
+_st_dma                                                      1 offset diffs [(0, 13, 11)]
+# 3 fns checked, 2 with branch-offset/count divergence
+### recon/syslib/psx/libcd/stream.c  (3 fns, 0 divergent)
+### recon/syslib/psx/libcd/streamhelp.c  (6 fns, 1 divergent)
+StGetNext                                                    1 offset diffs [(0, 15, 14)]
+# 6 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libcd/toc.c  (2 fns, 1 divergent)
+CdGetToc2                                                    4 offset diffs [(0, 98, 96), (2, 67, 65), (3, 35, 33), (5, -28, -26)]
+# 2 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libds/DSCB.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libetc/INTR.c  (13 fns, 1 divergent)
+_set_intr_callback                                           2 offset diffs [(0, 60, 59), (1, 56, 54)]
+# 13 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libetc/INTR_DMA.c  (4 fns, 1 divergent)
+func_80106878                                                3 offset diffs [(0, 33, 34), (1, 16, 17), (2, 16, 17)]
+# 4 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libetc/INTR_VB.c  (4 fns, 0 divergent)
+### recon/syslib/psx/libetc/VMODE.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libetc/VSYNC.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libgpu/EXT.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libgpu/FONT.c  (2 fns, 1 divergent)
+FntPrint                                                     1 offset diffs [(10, 8, 9)]
+# 2 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libgpu/P00.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P01.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P06.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P09.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P10.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P11.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P12.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P16.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P17.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P18.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P19.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/P34.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgpu/SYS.c  (44 fns, 2 divergent)
+MoveImage                                                    BRANCH COUNT 2 vs 3
+PutDispEnv                                                   1 offset diffs [(31, 38, 37)]
+# 44 fns checked, 2 with branch-offset/count divergence
+### recon/syslib/psx/libgte/COR_01.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/COR_02.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/COR_03.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/FGO_01.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/FGO_06.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/FOG_01.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/MSC00.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/MSC02.c  (4 fns, 0 divergent)
+### recon/syslib/psx/libgte/PATCHGTE.c  (4 fns, 0 divergent)
+### recon/syslib/psx/libgte/REG03.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libgte/REG11.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libgte/REG13.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/ADDDF3.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/ADDMANT.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/DBSHIFT.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/DBSHIFTU.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/DIVDF3.c  (2 fns, 1 divergent)
+__divdf3                                                     6 offset diffs [(1, 8, 9), (2, 3, 4), (3, 139, 141), (6, 129, 131), (11, 11, 13), (12, 13, 15)]
+# 2 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libmath/DIVSF3.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/EXTSFDF2.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/FERR.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/FIXDFSI.c  (1 fns, 1 divergent)
+__fixdfsi                                                    BRANCH COUNT 10 vs 11
+# 1 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libmath/FIXSFSI.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/FLTSIDF.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/FLTSISF.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/GTDF2.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/LTDF2.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/MAINASU.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/MULDF3.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libmath/MULSF3.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmath/TRUDFSF2.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libmcrd/BIOS.c  (17 fns, 0 divergent)
+### recon/syslib/psx/libmcrd/LIBMCRD.c  (26 fns, 4 divergent)
+MemCardCreateFile                                            8 offset diffs [(1, 107, 103), (3, 84, 80), (4, 82, 78), (5, 72, 68), (10, 6, 8), (12, -63, -59)]
+MemCardDeleteFile                                            5 offset diffs [(1, 90, 87), (2, 68, 66), (7, 6, 8), (9, -56, -54), (11, -62, -60)]
+MemCardGetDirentry                                           12 offset diffs [(1, 114, 116), (2, 87, 91), (3, 50, 51), (4, 47, 48), (5, 39, 40), (8, 10, 11)]
+MemCardWriteData_cb                                          1 offset diffs [(6, 53, 52)]
+# 26 fns checked, 4 with branch-offset/count divergence
+### recon/syslib/psx/libmcrd/USERFUNC.c  (4 fns, 0 divergent)
+### recon/syslib/psx/libpad/MCXMAIN.c  (5 fns, 2 divergent)
+_padIntRecvData                                              1 offset diffs [(13, 34, 35)]
+_padIntRecvHdr                                               2 offset diffs [(1, 6, 7), (2, 4, 5)]
+# 5 fns checked, 2 with branch-offset/count divergence
+### recon/syslib/psx/libpad/PADCMD.c  (19 fns, 1 divergent)
+_padLoadActInfo_rcv                                          9 offset diffs [(3, 144, 146), (5, 139, 141), (6, 121, 123), (7, 118, 120), (8, 81, 83), (9, 77, 79)]
+# 19 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libpad/PADENTRY.c  (8 fns, 0 divergent)
+### recon/syslib/psx/libpad/PADMAIN.c  (11 fns, 0 divergent)
+### recon/syslib/psx/libpad/PADPORTD.c  (8 fns, 3 divergent)
+_pad_failall                                                 1 offset diffs [(0, 13, 11)]
+_pad_filter                                                  7 offset diffs [(0, 84, 85), (1, 80, 81), (3, 131, 132), (5, 15, 16), (7, 22, 23), (8, -11, -12)]
+_pad_getbyte                                                 6 offset diffs [(1, 19, 22), (2, 25, 28), (4, 27, 30), (5, 22, 25), (6, 18, 19), (8, 10, -9)]
+# 8 fns checked, 3 with branch-offset/count divergence
+### recon/syslib/psx/libpad/PADSEQD.c  (5 fns, 2 divergent)
+_dirCheck                                                    1 offset diffs [(1, 4, 3)]
+_dirSendAuto                                                 1 offset diffs [(1, 32, 33)]
+# 5 fns checked, 2 with branch-offset/count divergence
+### recon/syslib/psx/libpad/WAITRC2.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libpress/LIBPRESS.c  (12 fns, 0 divergent)
+### recon/syslib/psx/libpress/VLC.c  (2 fns, 0 divergent)
+### recon/syslib/psx/libsn/CLOSE.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/CREAT.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/FSINIT.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/LSEEK.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/OPEN.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/PUREV.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/READ.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/SNREAD.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/SNWRITE.c  (1 fns, 0 divergent)
+### recon/syslib/psx/libsn/WRITE.c  (1 fns, 0 divergent)
+
+TOTAL: 458 TUs, 3500 fns checked, 129 divergent, 0 TU failures

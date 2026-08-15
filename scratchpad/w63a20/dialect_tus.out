@@ -1,0 +1,32 @@
+GNU-DIALECT TUs (the --dialect set): 29 TUs / 260 sealed rows
+TU                                              rows REAL=0   REAL  RELOP  non-zero fns
+eaclib/psx/eacpsxz/blkfill.c                       2      2      0      0  
+eaclib/psx/eacpsxz/blkmov.c                        1      1      0      0  
+eaclib/psx/eacpsxz/crc.c                           1      1      0      0  
+eaclib/psx/eacpsxz/fastmovf.c                      1      1      0      0  
+eaclib/psx/eacpsxz/fileroot.c                      9      9      0      0  
+eaclib/psx/eacpsxz/fixddiv.c                       1      1      0      0  
+eaclib/psx/eacpsxz/fixdinv.c                       1      1      0      0  
+eaclib/psx/eacpsxz/fixdmult.c                      1      1      0      0  
+eaclib/psx/eacpsxz/fixdsqrt.c                      1      1      0      0  
+eaclib/psx/eacpsxz/getm.c                          2      2      0      0  
+eaclib/psx/eacpsxz/isqrttbl.c                      2      2      0      0  
+eaclib/psx/eacpsxz/math64a.c                       2      2      0      0  
+eaclib/psx/eacpsxz/movf.c                          1      1      0      0  
+eaclib/psx/eacpsxz/nasync.c                       23     23      0      0  
+eaclib/psx/eacpsxz/nfile.c                        26     24      7      4  FILE_completeop(6+2,PER_FN_PROLOGUE_UNSINK); iFILE_ExecCommand(1+2,PER_FN_TEXT_MOVES)
+eaclib/psx/eacpsxz/nullfunc.c                      1      1      0      0  
+eaclib/psx/eacpsxz/random.c                        2      2      0      0  
+eaclib/psx/eacpsxz/savegp.c                        3      3      0      0  
+eaclib/psx/eacpsxz/shpdepth.c                      1      1      0      0  
+eaclib/psx/eacpsxz/shpsubs.c                       3      3      0      0  
+eaclib/psx/eacpsxz/sinfunc.c                       2      2      0      0  
+eaclib/psx/eacpsxz/stream.c                       30     30      0      0  
+eaclib/psx/sndpsxz/sdma.c                          6      6      0      0  
+eaclib/psx/sndpsxz/sdpacket.c                     12     12      0      0  
+eaclib/psx/sndpsxz/slib.c                          5      5      0      0  
+frontend/common/screencarselect.cpp               56     56      0      0  
+frontend/common/screencontroller.cpp              22     22      0      0  
+game/psx/drawc.cpp                                17     16      3      3  DrawC_NightHeadlight__FP8Car_tObj(3+3,PER_FN_TEXT_MOVES)
+game/psx/draww.cpp                                26     24    463     31  DrawW_DrawQuad__FP25Draw_tGiveShel(303+7,PER_FN_TEXT_MOVES); DrawObjectSimple__FP13DRender_tVie(160+24,PER_FN_TEXT_MOVES)
+TOTAL 260 rows, 255 REAL=0 (98.1%)

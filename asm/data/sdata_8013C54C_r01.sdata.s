@@ -1,5 +1,6 @@
 .include "macro.inc"
-/* W63-A19: residual segment of sdata_8013C54C -- labels no recon TU defines.
+/* W64-A18: residual segment of sdata_8013C54C -- labels no recon TU defines
+ * (or a record tail a recon TU's section stops short of).
  * Linked by BOTH lanes. */
 
 .section .sdata, "wa"

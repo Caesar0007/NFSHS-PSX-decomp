@@ -134,6 +134,49 @@
   "cut_end": 2148585428
  },
  {
+  "obj": "build/recon/game/common/aicop.cpp.o",
+  "sec": ".data",
+  "base": 2148585428,
+  "end": 2148586848,
+  "size": 1420,
+  "n": 8,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "undec": false,
+  "ndiff": 0,
+  "notes": [],
+  "ok": true,
+  "split_at": null,
+  "pad_to": null,
+  "nrel": 6,
+  "labels": [
+   "AICop_spikeBelt",
+   "copGame",
+   "fourLapCopGame",
+   "fourLapCopGame1H1AI",
+   "fourLapCopGameSplit",
+   "twoLapCopGame",
+   "twoLapCopGame1H1AI",
+   "twoLapCopGameSplit"
+  ],
+  "inwin": [
+   "twoLapCopGame",
+   "fourLapCopGame",
+   "twoLapCopGameSplit",
+   "fourLapCopGameSplit",
+   "twoLapCopGame1H1AI",
+   "fourLapCopGame1H1AI",
+   "copGame",
+   "AICop_spikeBelt"
+  ],
+  "cut_end": 2148586848
+ },
+ {
   "obj": "build/recon/game/common/aiinit.cpp.o",
   "sec": ".data",
   "base": 2148586848,
@@ -368,6 +411,43 @@
    "animScripts"
   ],
   "cut_end": 2148590196
+ },
+ {
+  "obj": "build/recon/game/common/audioclc.cpp.o",
+  "sec": ".data",
+  "base": 2148590196,
+  "end": 2148590800,
+  "size": 604,
+  "n": 4,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "undec": false,
+  "ndiff": 0,
+  "notes": [],
+  "ok": true,
+  "split_at": null,
+  "pad_to": null,
+  "nrel": 0,
+  "labels": [
+   "AudioClc_PursuitTime",
+   "AudioClc_gClosest",
+   "AudioClc_gPlayer",
+   "AudioClc_gRenderView"
+  ],
+  "inwin": [
+   "D_8010E274",
+   "AudioClc_gPlayer",
+   "D_8010E2C0",
+   "AudioClc_gClosest",
+   "AudioClc_gRenderView",
+   "AudioClc_PursuitTime"
+  ],
+  "cut_end": 2148590800
  },
  {
   "obj": "build/recon/game/common/bworld.cpp.o",

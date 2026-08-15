@@ -1,0 +1,22 @@
+== build/recon/game/common/nfs3.cpp.o [.sdata] size 88 (16 blob labels)
+   majority implied base 0x8013d280  (4 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+         0 0x8013d270 0x8013d270      4   no  gMusicInSimIsOn   <-- DRIFT
+         4 0x8013d270 0x8013d274      4   no  gUseFrontend   <-- DRIFT
+         8 0x8013d280 0x8013d288      1   no  gCheckTotalTime
+         9 0x8013d280 0x8013d289      1   no  gCheckLapTime
+        10 0x8013d280 0x8013d28a      1   no  gUpdateTournamentInfoFlag
+        11 0x8013d280 0x8013d28b      1   no  gUpdateKnockoutInfoFlag
+        12 0x8013d280 0x8013d28c      1   no  gKnockOutSpeechFlag
+        13 0x8013d280 0x8013d28d      3   no  gCalculateVictory
+        48 0x8013d248 0x8013d278      4  yes  gFECheats   <-- DRIFT
+        52 0x8013d248 0x8013d27c      4  yes  gFEBonus   <-- DRIFT
+        56 0x8013d248 0x8013d280      4  yes  gFEBigHandle   <-- DRIFT
+        60 0x8013d248 0x8013d284      4  yes  MEMCARDFRONTENDISINITTED   <-- DRIFT
+        64 0x8013d250 0x8013d290      4  yes  gPlayerEnteredNameAlready   <-- DRIFT
+        68 0x8013d270 0x8013d2b4      4  yes  nfs_sysInfo   <-- DRIFT
+        72 0x8013d270 0x8013d2b8      8  yes  missionManager   <-- DRIFT
+        80 0x8013d270 0x8013d2c0      8  yes  finishOrder   <-- DRIFT
+   retail VA order: gMusicInSimIsOn gUseFrontend gFECheats gFEBonus gFEBigHandle MEMCARDFRONTENDISINITTED gCheckTotalTime gCheckLapTime gUpdateTournamentInfoFlag gUpdateKnockoutInfoFlag gKnockOutSpeechFlag gCalculateVictory gPlayerEnteredNameAlready nfs_sysInfo missionManager finishOrder
+   our  offset order: gMusicInSimIsOn gUseFrontend gCheckTotalTime gCheckLapTime gUpdateTournamentInfoFlag gUpdateKnockoutInfoFlag gKnockOutSpeechFlag gCalculateVictory gFECheats gFEBonus gFEBigHandle MEMCARDFRONTENDISINITTED gPlayerEnteredNameAlready nfs_sysInfo missionManager finishOrder
+

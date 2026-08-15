@@ -16,22 +16,28 @@ tCreditManager CreditManager;   /* @0x80114d5c  (bss(zero)) */
 tRecordBuffer Stats_gTrackRecords[187];   /* @0x80114d94  (bss(zero)) */
 char         gTournamentFinishOrder[12];   /* @0x80115c30  (bss(zero)) */
 char         befuddleTemp[10];   /* @0x80115c3c  (bss(zero)) */
+/* W64-A18: the eight .sdata objects below carry an EXPLICIT `= 0` initialiser.
+ * They are genuinely zero in retail, but a TENTATIVE definition (no initialiser)
+ * is emitted AFTER every initialised object in the same section, which put this
+ * TU's 88-byte small-data run 0x8013D270..0x8013D2C8 in the wrong ORDER (ownmap
+ * E3: 4 distinct implied bases).  Retail INTERLEAVES initialised and zero objects,
+ * which only happens when all of them are initialised.  Do NOT drop the `= 0`. */
 char         gMusicInSimIsOn = 1;   /* @0x8013d270 */
 int          gUseFrontend = 1;   /* @0x8013d274 */
-u_long       gFECheats;   /* @0x8013d278  (bss(zero)) */
-u_long       gFEBonus;   /* @0x8013d27c  (bss(zero)) */
-int          gFEBigHandle;   /* @0x8013d280  (bss(zero)) */
-int          MEMCARDFRONTENDISINITTED;   /* @0x8013d284  (bss(zero)) */
+u_long       gFECheats = 0;   /* @0x8013d278 */
+u_long       gFEBonus = 0;   /* @0x8013d27c */
+int          gFEBigHandle = 0;   /* @0x8013d280 */
+int          MEMCARDFRONTENDISINITTED = 0;   /* @0x8013d284 */
 char         gCheckTotalTime = 1;   /* @0x8013d288 */
 char         gCheckLapTime = 1;   /* @0x8013d289 */
 char         gUpdateTournamentInfoFlag = 1;   /* @0x8013d28a */
 char         gUpdateKnockoutInfoFlag = 1;   /* @0x8013d28b */
 char         gKnockOutSpeechFlag = 1;   /* @0x8013d28c */
 char         gCalculateVictory = 1;   /* @0x8013d28d */
-char         gPlayerEnteredNameAlready[2];   /* @0x8013d290  (bss(zero)) */
-tNfsSystemInfo nfs_sysInfo;   /* @0x8013d2b4  (bss(zero)) */
-tMissionManager missionManager;   /* @0x8013d2b8  (bss(zero)) */
-char         finishOrder[8];   /* @0x8013d2c0  (bss(zero)) */
+char         gPlayerEnteredNameAlready[2] = {0, 0};   /* @0x8013d290 */
+tNfsSystemInfo nfs_sysInfo = {0};   /* @0x8013d2b4 */
+tMissionManager missionManager = {0};   /* @0x8013d2b8 */
+char         finishOrder[8] = {0};   /* @0x8013d2c0 */
 
 
 /* ---- Nfs2_SystemNLibStartUp  [NFS3.CPP:118-135] SLD-VERIFIED ---- */

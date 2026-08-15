@@ -152,7 +152,15 @@ def main():
                 continue
             if r["name"] in tu_defined:
                 foreign.append(r["name"])
-            elif DRX.match(r["name"]) and r["va"] > base:
+            elif DRX.match(r["name"]):
+                # (C) A splat `D_<VA>` label is a SYNTHETIC name for an offset
+                # inside the object -- absorbed wherever it sits, INCLUDING at
+                # the window base (v1 required va > base, which blocked every
+                # TU whose section starts with un-named data, e.g.
+                # genericpmx.cpp's 208 leading bytes = 26 8-byte D_ records).
+                # Safe because a D_ name is never TU-defined (the `foreign`
+                # test runs first) and because ownership still requires E5:
+                # the window's bytes must equal retail's over its WHOLE extent.
                 pass
             else:
                 unmig.append(r["name"])

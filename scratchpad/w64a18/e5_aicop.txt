@@ -1,0 +1,23 @@
+# W64-A18 E5 diagnostic  blob=scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s
+
+0x8010cfd4..0x8010d560   1420 .data   build/recon/game/common/aicop.cpp.o
+      24 differing bytes
+        0x8010d520..0x8010d524     4 B  in copGame (+0x4)
+            retail d4 cf 10 80
+            ours   00 00 00 00
+        0x8010d528..0x8010d52c     4 B  in copGame (+0xc)
+            retail a4 d0 10 80
+            ours   00 00 00 00
+        0x8010d530..0x8010d534     4 B  in copGame (+0x14)
+            retail a8 d1 10 80
+            ours   00 00 00 00
+        0x8010d538..0x8010d53c     4 B  in copGame (+0x1c)
+            retail 78 d2 10 80
+            ours   00 00 00 00
+        0x8010d540..0x8010d544     4 B  in copGame (+0x24)
+            retail 48 d3 10 80
+            ours   00 00 00 00
+        0x8010d548..0x8010d54c     4 B  in copGame (+0x2c)
+            retail 18 d4 10 80
+            ours   00 00 00 00
+

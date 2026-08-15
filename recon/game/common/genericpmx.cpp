@@ -4,27 +4,41 @@
 #include "../../nfs4_types.h"
 #include "genericpmx_externs.h"
 
-/* ---- genericpmx.obj OWNED globals (Draw_tPixMap pool; EXT; SYM Globals.jsonl) ---- */
-Draw_tPixMap  *gDLPixmap[10];
-Draw_tPixMap  *gDPixmap;
-Draw_tPixMap  *gDamagePixmap;
-Draw_tPixMap  *gDirtPalette;
-Draw_tPixMap  *gFlarePixmap[3];
-Draw_tPixMap  *gGrassPalette;
-Draw_tPixMap  *gGravelPalette;
-Draw_tPixMap  *gGravelPixmap[2];
-Draw_tPixMap  *gLeafPixmap;
-Draw_tPixMap  *gLightningPixmap[16];
-Draw_tPixMap  *gSMokePalette;
-Draw_tPixMap  *gSMokePixmap[2];
-Draw_tPixMap  *gShadowPixmap[2];
-Draw_tPixMap  *gSkidMarkPixmap[2];
-Draw_tPixMap  *gSnowPalette;
-Draw_tPixMap  *gSparkHPixmap[6];
-Draw_tPixMap  *gSpikeBeltPixmap;
-Draw_tPixMap  *gStartUpPixmap[4];
-Draw_tPixMap  *gWeatherPixmap[3];
-Draw_tPixMap  gPixmaps[71];
+/* ---- genericpmx.obj OWNED globals (Draw_tPixMap pool; EXT; SYM Globals.jsonl) ----
+ * DECLARATION ORDER IS RETAIL'S EMISSION ORDER (w64-a18).  The list was
+ * previously ALPHABETICAL -- a reconstruction artefact, not retail: gcc emits
+ * each section in declaration order, so the alphabetical list put this TU's
+ * 13 small-data pointers in the wrong .sdata order and the whole 276-byte
+ * retail run 0x8013D10C..0x8013D220 was un-placeable (ownmap E3: 10 distinct
+ * implied bases).  The two groups below are ordered by their RETAIL VAs:
+ *   .data  @0x80112AE0: gDLPixmap gFlarePixmap gLightningPixmap gSparkHPixmap
+ *                       gStartUpPixmap gWeatherPixmap gPixmaps
+ *   .sdata @0x8013D1DC: gDPixmap gSpikeBeltPixmap gShadowPixmap
+ *                       gSkidMarkPixmap gSMokePixmap gSMokePalette
+ *                       gDirtPalette gGravelPixmap gGravelPalette
+ *                       gGrassPalette gSnowPalette gLeafPixmap gDamagePixmap
+ * Do NOT re-sort these lists.
+ */
+Draw_tPixMap  *gDLPixmap[10];        /* .data  +0x00 */
+Draw_tPixMap  *gFlarePixmap[3];      /* .data  +0x28 */
+Draw_tPixMap  *gLightningPixmap[16]; /* .data  +0x34 */
+Draw_tPixMap  *gSparkHPixmap[6];     /* .data  +0x74 */
+Draw_tPixMap  *gStartUpPixmap[4];    /* .data  +0x8c */
+Draw_tPixMap  *gWeatherPixmap[3];    /* .data  +0x9c */
+Draw_tPixMap  gPixmaps[71];          /* .data  +0xa8 */
+Draw_tPixMap  *gDPixmap;             /* @0x8013d1dc */
+Draw_tPixMap  *gSpikeBeltPixmap;     /* @0x8013d1e0 */
+Draw_tPixMap  *gShadowPixmap[2];     /* @0x8013d1e4 */
+Draw_tPixMap  *gSkidMarkPixmap[2];   /* @0x8013d1ec */
+Draw_tPixMap  *gSMokePixmap[2];      /* @0x8013d1f4 */
+Draw_tPixMap  *gSMokePalette;        /* @0x8013d1fc */
+Draw_tPixMap  *gDirtPalette;         /* @0x8013d200 */
+Draw_tPixMap  *gGravelPixmap[2];     /* @0x8013d204 */
+Draw_tPixMap  *gGravelPalette;       /* @0x8013d20c */
+Draw_tPixMap  *gGrassPalette;        /* @0x8013d210 */
+Draw_tPixMap  *gSnowPalette;         /* @0x8013d214 */
+Draw_tPixMap  *gLeafPixmap;          /* @0x8013d218 */
+Draw_tPixMap  *gDamagePixmap;        /* @0x8013d21c */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void GenericPMX_LoadTexture(void);

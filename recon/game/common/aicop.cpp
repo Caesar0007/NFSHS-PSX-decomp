@@ -6,13 +6,23 @@
 #include "aicop_externs.h"
 
 
-/* ---- aicop.obj-owned globals (.bss zero) ---- */
-copLevel_t   twoLapCopGame[4] = { {2, 0, 0, 0, 0, 16, 19660, 512, 128, 2}, {0, 2, 2, 0, 0, 32, 26214, 0, 192, 0}, {2, 0, 0, 0, 1, 32, 19660, 0, 192, 0}, {0, 3, 2, 1, 1, 32, 26214, 0, 192, 0} };   /* @0x8010cfd4 */
-copLevel_t   fourLapCopGame[5] = { {2, 0, 0, 0, 0, 16, 45875, 512, 128, 2}, {0, 2, 2, 0, 0, 16, 45875, 512, 192, 0}, {0, 0, 0, 0, 0, 32, 45875, 256, 192, 0}, {2, 0, 0, 0, 1, 32, 45875, 0, 224, 0}, {0, 3, 2, 1, 1, 32, 45875, 0, 256, 0} };   /* @0x8010d0a4 */
-copLevel_t   twoLapCopGameSplit[4] = { {0, 0, 0, 0, 2, 16, 32768, 512, 128, 2}, {0, 1, 0, 0, 2, 32, 32768, 0, 192, 0}, {0, 0, 0, 0, 2, 32, 32768, 0, 192, 0}, {0, 1, 0, 1, 2, 32, 32768, 0, 192, 0} };   /* @0x8010d1a8 */
-copLevel_t   fourLapCopGameSplit[4] = { {0, 0, 0, 0, 2, 16, 45875, 512, 128, 2}, {0, 1, 0, 0, 2, 16, 45875, 512, 192, 0}, {0, 0, 0, 0, 2, 32, 45875, 256, 192, 0}, {0, 1, 0, 1, 2, 32, 45875, 0, 256, 0} };   /* @0x8010d278 */
-copLevel_t   twoLapCopGame1H1AI[4] = { {2, 0, 0, 0, 0, 16, 19660, 512, 128, 2}, {0, 2, 2, 0, 0, 32, 19660, 0, 192, 0}, {2, 0, 0, 0, 1, 32, 19660, 0, 192, 0}, {0, 2, 2, 1, 1, 32, 19660, 0, 192, 0} };   /* @0x8010d348 */
-copLevel_t   fourLapCopGame1H1AI[5] = { {1, 0, 0, 0, 0, 16, 45875, 512, 128, 2}, {0, 2, 2, 0, 0, 16, 45875, 512, 192, 0}, {2, 0, 0, 0, 0, 32, 45875, 256, 192, 0}, {2, 0, 0, 0, 1, 32, 45875, 0, 224, 0}, {0, 2, 2, 1, 1, 32, 45875, 0, 256, 0} };   /* @0x8010d418 */
+/* ---- aicop.obj-owned globals ----
+ * copLevel_t IS A NESTED STRUCT (copChasers[2], numBlockaders, copBlockaders[2],
+ * spikeBelt, copAggression[2], then copsPerLap/engagementLapFraction/warningTicks/
+ * beatingTicks/numWarningsAdded) = 13 words / 52 bytes.  These six tables were
+ * written as FLAT 10-value initialisers, so brace elision assigned the values to
+ * the WRONG fields from copBlockaders[1] onward and left 3 words zero -- a real
+ * RUNTIME BUG (every cop chase level had the wrong spikeBelt / copAggression /
+ * copsPerLap / lap-fraction / warning+beating ticks), and 301 of the window's
+ * 1420 bytes differed from retail (w64-a18 ownmap2 E5).
+ * REWRITTEN with explicit nested braces, values decoded WORD-FOR-WORD from
+ * rom/nfs4-f.exe at each table's VA.  Do NOT flatten these braces again. */
+copLevel_t   twoLapCopGame[4] = { { {2, 0}, 0, {0, 0}, 0, {0, 0}, 16, 19660, 512, 128, 2 }, { {0, 1}, 2, {2, 0}, 0, {0, 0}, 32, 26214, 0, 192, 0 }, { {2, 1}, 0, {0, 0}, 0, {1, 1}, 32, 19660, 0, 192, 0 }, { {0, 0}, 3, {2, 1}, 1, {1, 1}, 32, 26214, 0, 192, 0 } };   /* @0x8010cfd4 */
+copLevel_t   fourLapCopGame[5] = { { {2, 0}, 0, {0, 0}, 0, {0, 0}, 16, 45875, 512, 128, 2 }, { {0, 0}, 2, {2, 0}, 0, {0, 0}, 16, 45875, 512, 192, 0 }, { {0, 1}, 0, {0, 0}, 0, {0, 0}, 32, 45875, 256, 192, 0 }, { {2, 1}, 0, {0, 0}, 0, {1, 1}, 32, 45875, 0, 224, 0 }, { {0, 0}, 3, {2, 1}, 1, {1, 1}, 32, 45875, 0, 256, 0 } };   /* @0x8010d0a4 */
+copLevel_t   twoLapCopGameSplit[4] = { { {0, 1}, 0, {0, 0}, 0, {2, 2}, 16, 32768, 512, 128, 2 }, { {0, 0}, 1, {0, 1}, 0, {2, 2}, 32, 32768, 0, 192, 0 }, { {0, 1}, 0, {0, 0}, 0, {2, 2}, 32, 32768, 0, 192, 0 }, { {0, 0}, 1, {0, 1}, 1, {2, 2}, 32, 32768, 0, 192, 0 } };   /* @0x8010d1a8 */
+copLevel_t   fourLapCopGameSplit[4] = { { {0, 1}, 0, {0, 0}, 0, {2, 2}, 16, 45875, 512, 128, 2 }, { {0, 0}, 1, {0, 1}, 0, {2, 2}, 16, 45875, 512, 192, 0 }, { {0, 1}, 0, {0, 0}, 0, {2, 2}, 32, 45875, 256, 192, 0 }, { {0, 0}, 1, {0, 1}, 1, {2, 2}, 32, 45875, 0, 256, 0 } };   /* @0x8010d278 */
+copLevel_t   twoLapCopGame1H1AI[4] = { { {2, 0}, 0, {0, 0}, 0, {0, 0}, 16, 19660, 512, 128, 2 }, { {0, 0}, 2, {2, 0}, 0, {0, 0}, 32, 19660, 0, 192, 0 }, { {2, 0}, 0, {0, 0}, 0, {1, 1}, 32, 19660, 0, 192, 0 }, { {0, 0}, 2, {2, 0}, 1, {1, 1}, 32, 19660, 0, 192, 0 } };   /* @0x8010d348 */
+copLevel_t   fourLapCopGame1H1AI[5] = { { {1, 0}, 0, {0, 0}, 0, {0, 0}, 16, 45875, 512, 128, 2 }, { {0, 0}, 2, {2, 0}, 0, {0, 0}, 16, 45875, 512, 192, 0 }, { {2, 0}, 0, {0, 0}, 0, {0, 0}, 32, 45875, 256, 192, 0 }, { {2, 0}, 0, {0, 0}, 0, {1, 1}, 32, 45875, 0, 224, 0 }, { {0, 0}, 2, {2, 0}, 1, {1, 1}, 32, 45875, 0, 256, 0 } };   /* @0x8010d418 */
 /* DISGUISED BARE-VA FIX (w14-a2): the 6 `.levels` pointers were fabricated negative-int literals
  * (e.g. -2146381868 == 0x8010CFD4) instead of real symbol refs -- they decode EXACTLY to the 6
  * sibling arrays declared just above (offset 0 each), so this is a plain array-of-pointers table. */

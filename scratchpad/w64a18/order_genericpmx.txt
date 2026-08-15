@@ -1,0 +1,19 @@
+== build/recon/game/common/genericpmx.cpp.o [.sdata] size 276 (13 blob labels)
+   majority implied base 0x8013d10c  (10 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+       208 0x8013d10c 0x8013d1dc      4  yes  gDPixmap
+       212 0x8013d148 0x8013d21c      4  yes  gDamagePixmap   <-- DRIFT
+       216 0x8013d128 0x8013d200      4  yes  gDirtPalette   <-- DRIFT
+       220 0x8013d134 0x8013d210      4  yes  gGrassPalette   <-- DRIFT
+       224 0x8013d12c 0x8013d20c      4  yes  gGravelPalette   <-- DRIFT
+       228 0x8013d120 0x8013d204      4  yes  gGravelPixmap   <-- DRIFT
+       236 0x8013d12c 0x8013d218      4  yes  gLeafPixmap   <-- DRIFT
+       240 0x8013d10c 0x8013d1fc      4  yes  gSMokePalette
+       244 0x8013d100 0x8013d1f4      4  yes  gSMokePixmap   <-- DRIFT
+       252 0x8013d0e8 0x8013d1e4      8  yes  gShadowPixmap   <-- DRIFT
+       260 0x8013d0e8 0x8013d1ec      4  yes  gSkidMarkPixmap   <-- DRIFT
+       268 0x8013d108 0x8013d214      4  yes  gSnowPalette   <-- DRIFT
+       272 0x8013d0d0 0x8013d1e0      4  yes  gSpikeBeltPixmap   <-- DRIFT
+   retail VA order: gDPixmap gSpikeBeltPixmap gShadowPixmap gSkidMarkPixmap gSMokePixmap gSMokePalette gDirtPalette gGravelPixmap gGravelPalette gGrassPalette gSnowPalette gLeafPixmap gDamagePixmap
+   our  offset order: gDPixmap gDamagePixmap gDirtPalette gGrassPalette gGravelPalette gGravelPixmap gLeafPixmap gSMokePalette gSMokePixmap gShadowPixmap gSkidMarkPixmap gSnowPalette gSpikeBeltPixmap
+

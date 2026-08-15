@@ -2041,12 +2041,12 @@ C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.rodata+0x3424): undefined r
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.rodata+0x3428): undefined reference to `.L8010B38C'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.rodata+0x342c): undefined reference to `.L8010B358'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.rodata+0x3430): undefined reference to `.L8010B38C'
-C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r14.data.s.o: in function `Device_gDeviceList':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r13.data.s.o: in function `Device_gDeviceList':
 (.data+0x7ca0): undefined reference to `Device_Null__FUl'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x7cac): undefined reference to `Device_Analog__FUl'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x7cb8): undefined reference to `Device_PSXPad__FUl'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x7cc4): undefined reference to `Device_PSXPadMulti__FUl'
-C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r16.data.s.o: in function `D_80123654':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r15.data.s.o: in function `D_80123654':
 (.data+0x25e8): undefined reference to `_que_ref'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x25ec): undefined reference to `_gpu_que_push'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x25f0): undefined reference to `_BlitClear'
@@ -2062,14 +2062,14 @@ C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x2614): undefined ref
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x2618): undefined reference to `_reset'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x261c): undefined reference to `_get_status'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x2620): undefined reference to `_sync'
-C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r16.data.s.o: in function `GPU_printf':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r15.data.s.o: in function `GPU_printf':
 (.data+0x2628): undefined reference to `printf'
-C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r17.data.s.o: in function `D_80135B60':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r16.data.s.o: in function `D_80135B60':
 (.data+0x12348): undefined reference to `_set_intr_callback'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x1234c): undefined reference to `_initIntr'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x12350): undefined reference to `StopCallback'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x12358): undefined reference to `RestartCallback'
-C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r20.data.s.o: in function `padIntFunc':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4_r19.data.s.o: in function `padIntFunc':
 (.data+0xc): undefined reference to `_padIntInit'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x10): undefined reference to `_padIntQuery'
 C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x14): undefined reference to `_padIntRecvId'

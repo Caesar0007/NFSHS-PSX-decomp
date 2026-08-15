@@ -1,5 +1,6 @@
 .include "macro.inc"
-/* W63-A19: residual segment of sdata_8013C54C -- labels no recon TU defines.
+/* W64-A18: residual segment of sdata_8013C54C -- labels no recon TU defines
+ * (or a record tail a recon TU's section stops short of).
  * Linked by BOTH lanes. */
 
 .section .sdata, "wa"
@@ -13,49 +14,3 @@ dlabel D_8013C724
     /* 2A2D257300000000 */
 .align 2
 enddlabel D_8013C724
-
-nonmatching D_8013C72C
-
-dlabel D_8013C72C
-    /* 12CF2C 8013C72C 00000000 */ .word 0x00000000
-enddlabel D_8013C72C
-
-nonmatching gGameAudioList
-
-dlabel gGameAudioList
-    /* 12CF30 8013C730 00000000 */ .word 0x00000000
-enddlabel gGameAudioList
-
-nonmatching AudioEng_g
-
-dlabel AudioEng_g
-    /* 12CF34 8013C734 00000000 */ .word 0x00000000
-    /* 12CF38 8013C738 00000000 */ .word 0x00000000
-enddlabel AudioEng_g
-
-.align 2
-nonmatching D_8013C73C
-
-dlabel D_8013C73C
-    /* 12CF3C 8013C73C */ .asciz "*.bnk"
-    /* 2A2E626E6B000000 */
-.align 2
-enddlabel D_8013C73C
-
-.align 2
-nonmatching D_8013C744
-
-dlabel D_8013C744
-    /* 12CF44 8013C744 */ .asciz "*.ltb"
-    /* 2A2E6C7462000000 */
-.align 2
-enddlabel D_8013C744
-
-.align 2
-nonmatching D_8013C74C
-
-dlabel D_8013C74C
-    /* 12CF4C 8013C74C */ .asciz "*.ctb"
-    /* 2A2E637462000000 */
-.align 2
-enddlabel D_8013C74C

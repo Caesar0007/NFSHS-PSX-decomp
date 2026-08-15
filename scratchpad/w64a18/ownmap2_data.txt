@@ -15,22 +15,20 @@
       E4 edge not a boundary / not splittable
       E5 BYTES DIFFER (4 of 17)
 0x8010cea4 0x8010cfd4    304    4    0  OWN  .data   build/recon/game/common/aih_cop.cpp.o
-0x8010cfd4 0x8010d560   1420    8    6    -  .data   build/recon/game/common/aicop.cpp.o
-      E5 BYTES DIFFER (277 of 1420)
+0x8010cfd4 0x8010d560   1420    8    6  OWN  .data   build/recon/game/common/aicop.cpp.o
 0x8010d560 0x8010d5cc    108    1    0  OWN  .data   build/recon/game/common/aiinit.cpp.o
 0x8010d5cc 0x8010dc54   1672   20    0  OWN  .data   build/recon/game/common/func_va_data.cpp.o
 0x8010dc74 0x8010dce0    108    1    0  OWN  .data   build/recon/game/common/aiphysic.cpp.o
 0x8010dd10 0x8010de44    308   11   11    -  .data   build/recon/game/common/aispeeds.cpp.o
       E3 3 implied bases
       E1 1 foreign: ['AITune_BTC']
-      E2 3 outside: ['engineUpgrade', 'suspensionUpgrade', 'aeroUpgrade']
+      E2 3 outside: ['suspensionUpgrade', 'engineUpgrade', 'aeroUpgrade']
       E4 edge not a boundary / not splittable
       E5 BYTES DIFFER (18 of 308)
 0x8010de14 0x8010e00c    504    7    0  OWN  .data   build/recon/game/common/aitune.cpp.o
 0x8010e00c 0x8010e14c    320    1    0  OWN  .data   build/recon/game/common/AIWORLD.cpp.o
 0x8010e14c 0x8010e274    296    3    0  OWN  .data   build/recon/game/common/anim.cpp.o
-0x8010e274 0x8010e4d0    604    4    0    -  .data   build/recon/game/common/audioclc.cpp.o
-      E1 1 un-migrated: ['D_8010E274']
+0x8010e274 0x8010e4d0    604    4    0  OWN  .data   build/recon/game/common/audioclc.cpp.o
 0x8010e450 0x8010ee70   2592   19   18    -  .data   build/recon/game/common/audiocmn.cpp.o
       E3 7 implied bases
       E1 3 foreign: ['AudioClc_PursuitTime', 'gWorldMat', 'gNightMat']
@@ -41,7 +39,6 @@
 0x8010f4cc 0x8010fa60   1428    5    0    -  .data   build/recon/game/common/camera.cpp.o
       E3 3 implied bases
       E1 6 foreign: ['Cars_topSpeedCap', 'Cars_kSkidMarkSurface', 'Cars_gList', 'Cars_gRaceCarList', 'Cars_gAICarList', 'Cars_gHumanRaceCarList']
-      E1 1 un-migrated: ['D_8010F4CC']
       E2 1 outside: ['Camera_gInfo']
       E5 BYTES DIFFER (210 of 1428)
 0x8010f828 0x80110c24   5116   14    0  OWN  .data   build/recon/game/common/cars.cpp.o
@@ -101,7 +98,7 @@
       E3 3 implied bases
       E1 1 foreign: ['identitymatrix']
       E1 3 un-migrated: ['DCL_DVLC', 'DCC_DVLC', 'CF_DVLC']
-      E2 2 outside: ['GPU_printf', 'GEnv']
+      E2 2 outside: ['GEnv', 'GPU_printf']
       E4 edge not a boundary / not splittable
       E5 BYTES DIFFER (2756 of 6420)
 0x801237ec 0x80123820     52    1    0 OWN*  .rodata build/recon/eaclib/psx/eacpsxz/matrix.c.o
@@ -129,21 +126,21 @@
       E5? UNDECIDABLE (160 raw diffs): ['unresolved reloc target .rodata@0x0', 'unresolved reloc target .rodata@0x4', 'unresolved reloc target .rodata@0x8']
 0x8013c2f0 0x8013c308     24    1    0  OWN  .data   build/recon/eaclib/psx/sndpsxz/snddata.c.o
 
-OWNABLE windows            : 30
-  ... after overlap pruning: 30  (dropped 0)
+OWNABLE windows            : 32
+  ... after overlap pruning: 32  (dropped 0)
   of which need a record split: 2
   of which end in alignment pad: 1
-bytes owned                : 32120 of 194680
-blob labels inside owned windows: 336
-  of which TU-defined      : 121
-  of which splat D_ interior: 215
-TU-defined labels NOT owned: 156
+bytes owned                : 34144 of 194680
+blob labels inside owned windows: 350
+  of which TU-defined      : 133
+  of which splat D_ interior: 217
+TU-defined labels NOT owned: 144
 
 ## FAILURE-MODE HISTOGRAM (windows, non-exclusive)
   E3 intra-TU drift          8
   E4 edge not a boundary     15
-  E5 bytes differ            16
+  E5 bytes differ            15
   E5? undecidable reloc      4
   E1 foreign owner inside    12
-  E1 un-migrated inside      8
+  E1 un-migrated inside      6
   E2 own label outside       4

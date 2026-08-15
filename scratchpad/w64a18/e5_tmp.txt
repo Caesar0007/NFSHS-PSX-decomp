@@ -1,0 +1,8 @@
+# W64-A18 E5 diagnostic  blob=scratchpad/w63a19/ctl_blob/sdata_8013C54C.sdata.s
+
+0x8013c5b8..0x8013c5e0     40 .sdata  build/recon/game/common/aispeeds.cpp.o
+      4 differing bytes
+        0x8013c5d8..0x8013c5dc     4 B  in D_8013C5D8 (+0x0)
+            retail 53 42 55 53
+            ours   00 00 00 00
+

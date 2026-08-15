@@ -1,0 +1,74 @@
+w64a18: LINK CAMPAIGN -- regions 1+2 re-cut. Ownership 26->32 windows / 24232->34144 B (region 2) and 30->35 / 408->776 B (region 1). Three ownmap model corrections + four byte-evidenced data fixes (one a real RUNTIME BUG).
+
+INSTRUMENT (scratchpad/w64a18/ownmap2.py, supersedes ownmap.py's E1-E5):
+(A) E5 IS RELOC-AWARE.  An R_MIPS_32 word holds only its ADDEND until link, so
+    raw bytes can never equal retail's linked value.  v1 compared raw bytes and
+    mis-called every pointer-bearing section a DATA DEFECT.  v2 resolves each
+    R_MIPS_32 against a 6788-name VA map (symbol_addrs + every asm/**/*.s
+    dlabel) and compares the RESOLVED word; unresolvable -> UNDECIDABLE (E5?),
+    never silently owned.  STRENGTHENING: v1 could also PASS on a coincidence.
+    Hand-verified on fei.cpp: 108 .data relocs all resolve to retail's exact
+    words -> 912 B flips from "432 of 912 differ" to OWN.  cddebug's 160/160
+    "defect" is a .rodata-relative string table, now honestly E5? (its .rodata
+    base is unanchored, W62-A19 2.1).
+(B) E4 ACCEPTS A RECORD-INTERIOR CUT.  The blob's label granularity is coarser
+    than the object boundary.  B1 SPLIT (4-aligned cut inside a record we own /
+    a D_ interior label; the blob is .word-per-line so the cut is a clean LINE
+    split): isqrt.c 256 B -- its 8-byte tail at 0x8013BF10 is an inert SN-LNK
+    linker blob (50 73 0b 25 9b 53 43 00 = methodology 3.9b), not isqrttbl
+    data; matrix.c .rodata 52 B.  B2 ALIGNMENT SLACK (<4 B to the next
+    boundary, retail bytes ZERO): nfs3.cpp .data 6668 B -- befuddleTemp is
+    char[10] (SYM 2c73a6 ARY CHAR size 10, so our size is RIGHT) and the 2
+    bytes to 0x80115C48 are inter-object pad the .ld FILL(0) supplies.
+(C) A SPLAT D_<VA> LABEL IS ABSORBED AT THE WINDOW BASE TOO.  v1 required
+    va > base, which blocked every TU whose section starts with un-named data
+    (genericpmx.cpp: 208 leading bytes = 26 8-byte D_ records).  Safe because a
+    D_ name is never TU-defined and ownership still requires E5 over the WHOLE
+    window.  +604 B.
+
+SOURCE FIXES (all decoded from rom/nfs4-f.exe, all gated 2x, zero PASS->FAIL):
+1. aicop.cpp -- REAL RUNTIME BUG.  copLevel_t is a NESTED struct (copChasers[2],
+   numBlockaders, copBlockaders[2], spikeBelt, copAggression[2], + 5 scalars =
+   13 words / 52 B) but all six cop-game tables were written as FLAT 10-value
+   initialisers, so brace elision mis-assigned every field from
+   copBlockaders[1] on and left 3 words zero: every chase level had the wrong
+   spikeBelt / copAggression / copsPerLap / lap-fraction / warning+beating
+   ticks.  Rewritten with nested braces, word-for-word from the ROM.
+   E5 301/1420 -> 0 (the 24 residual bytes are copGame[]'s six R_MIPS_32
+   pointers, resolved by (A)).  Window 1420 B now OWN.  aicop 4/4 PASS.
+2. fastrand.cpp -- THE `= 0` LEVER.  A TENTATIVE definition (no initialiser) is
+   emitted AFTER every initialised object in the same section; retail
+   INTERLEAVES initialised and zero objects, which only happens when all of
+   them are initialised.  randtemp/numRandCalls `= 0` -> 3 implied bases -> 1,
+   window OWN (16 B).  2/2 PASS.
+3. genericpmx.cpp -- DECLARATION ORDER IS EMISSION ORDER.  The 20 globals were
+   listed ALPHABETICALLY (a reconstruction artefact); reordered to retail VA
+   order in two groups (.data @0x80112AE0, .sdata @0x8013D1DC).  10 implied
+   bases -> 1; with (C) the 276 B window is OWN.  1/1 PASS.
+4. nfs3.cpp -- same `= 0` lever on its eight zero .sdata objects; E3 4 bases
+   -> 2 and the 13 named symbols now sit at their exact retail offsets.  Window
+   still blocked: retail holds FOUR 8-byte STRING LITERALS ("%s%s", "ymus",
+   "win*", "lose*") at 0x8013D294..0x8013D2B4 in .sdata, which is only
+   reachable at -G8 -- a PER_TU_FLAGS wiring, see the orchestrator list in
+   scratchpad/w64a18/RECEIPTS.md.  10/11 PASS (unchanged).
+
+CUT: asm/data data_8010CCD4 -> 52 pieces (20 residual + 32 owned),
+sdata_8013C54C -> 58 pieces (23 residual + 35 owned); linkers/nfs4.ld piece
+lists regenerated; linkers/nfs4_recon.{data,sdata}.ldfrag rebuilt.
+
+PROOFS (scratchpad/w64a18/proofs.py, both regions):
+ .data : P1 round-trip byte-identical (856 records) - P2 49518 data lines
+   identical and in order - P3 concatenated 52 objects == control object
+   194680 == 194680 IDENTICAL - P4 454 relocations identical - P5 1808 bytes
+   differ from ROM, 0 of them OUTSIDE a relocation word.
+ .sdata: P1 (1099 records) - P2 1186 lines - P3 6192 == 6192 IDENTICAL -
+   P4 3 relocations identical - P5 12 differing bytes, 0 outside a reloc word.
+ P6 splat-lane control (ld with all 110 pieces vs ld with the two un-split
+   control blob objects): rc 1 both, 2077 stderr lines both, and after
+   normalising the object name + section-relative offset the diagnostics are
+   0 DIFF LINES.
+
+GATES: build.py --no-link 508 objects 0 failures; tu_order_audit 508 / 0
+inversions; probe_link CLIMBED 81.31% -> 83.02%, 201 -> 202 byte-exact objects.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

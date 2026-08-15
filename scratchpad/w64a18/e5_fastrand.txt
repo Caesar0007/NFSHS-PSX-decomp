@@ -1,0 +1,11 @@
+# W64-A18 E5 diagnostic  blob=scratchpad/w63a19/ctl_blob/sdata_8013C54C.sdata.s
+
+0x8013d0fc..0x8013d10c     16 .sdata  build/recon/game/common/fastrand.cpp.o
+      2 differing bytes
+        0x8013d100..0x8013d101     1 B  in randtemp (+0x0)
+            retail 00
+            ours   01
+        0x8013d104..0x8013d105     1 B  in randSeed (+0x0)
+            retail 01
+            ours   00
+

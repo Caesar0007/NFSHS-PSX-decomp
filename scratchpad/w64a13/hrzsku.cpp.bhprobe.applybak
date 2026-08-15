@@ -1703,38 +1703,6 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * The whole 2-insn shortfall is two missing address materialisations, i.e. the w61
  * open items (2) [the mask movable] and (3) [the clip shortfall] are the SAME two luis.
  * Harness: scratchpad/w63a13/bhprobe.py. */
-/* ---- 🏆 w64-a13 (2026-08-15): 132 -> 118 @471/473.  The w63 census + side_by_side named
- * the two missing `lui` exactly, and ONE of them is now recovered.
- * WHAT THE ORACLE DOES at the two clip reads inside the clause-2 / clause-4 OR chains:
- *     ORACLE   lui v0,8064 ; lhu v0,16(v0)     (a FRESH scratchpad base per clip read)
- *     OURS     lhu v0,16(s5)                   (off the hoisted `hsd` base)
- * i.e. retail did NOT reach clipW/clipH through the `hsd` pointer at these two sites.
- * LANDED: spell the clipW read as the LITERAL `*(short *)0x1f800010` (clipH left on the
- * hsd base).  Semantically identical (hsd IS 0x1f800000), zero source risk, -14 diffs.
- * ⚠️ THE HALVES ARE NOT SYMMETRIC AND ONLY W PAYS -- re-gated, all @471/473 unless noted:
- *     clipW literal only                              118   <- LANDED
- *     clipH literal only                              143 @470
- *     BOTH literal                                    159 @470  (the two `lui 8064` cse
- *                                                     into one and the fn goes 1 SHORT --
- *                                                     this is why w61's both-literal probe
- *                                                     read as "the literal CSEs against
- *                                                     hsd's own lui and comes out SHORTER")
- *     clipW literal + clipH via a laundered base      138
- *     clipW literal + `*(short *)(0x1f800000 + 0x12)` 159 @470   (folds to the same rtx)
- *     clipW literal + `((short *)0x1f800000)[9]`      159 @470
- *     clipW literal + `((Draw_HorizonCache*)0x1f800000)->head.clipH`  159 @470
- *     clipW literal + a `"r"(hsd)` fence at the head  148
- *     both clip reads via a per-site opacity-laundered `int hb = 0x1f800000;`  137 / 138
- *     `volatile short` on both                        251 @492 (catastrophic, as expected)
- * LOAD-WIDTH NOTE (measured, do not re-chase): the literal form flips `lhu`+`sll/sra` to a
- * fused `lh` (census after landing: `lh 27v26  lhu 12v13  lui 27v28  nop 79v78  sll 5v6
- * sra 1v2`), but reading it as `(short)*(u_short *)0x1f800010` to keep the extend separate
- * is EXACTLY NEUTRAL (118, bit-identical) -- combine narrows it back either way.
- * REMAINING: ONE `lui` (the clipH site) plus the mask-movable rank from w63.  NEXT TAKER:
- * the clipH base must materialise fresh WITHOUT being cse-equated with the clipW one; every
- * same-address spelling tried above is equated by cse at tree level, so the device has to
- * make the two addresses structurally different rtx (or come from the RTL layer).
- * Harness: scratchpad/w64a13/bhprobe{,2,3}.py. */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -1901,8 +1869,8 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                oracle defers the 0x1F800010/12 read until clause2 is actually reached (only
                after clause1's OR falls all the way through); a pre-if local hoists it early. */
             if ((mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0) &&
-                (*(short *)0x1f800010 >= mpts[0].vx || *(short *)0x1f800010 >= mpts[1].vx ||
-                 *(short *)0x1f800010 >= mpts[2].vx || *(short *)0x1f800010 >= mpts[3].vx) &&
+                (*(short *)((int)hsd + 0x10) >= mpts[0].vx || *(short *)((int)hsd + 0x10) >= mpts[1].vx ||
+                 *(short *)((int)hsd + 0x10) >= mpts[2].vx || *(short *)((int)hsd + 0x10) >= mpts[3].vx) &&
                 (mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0) &&
                 (*(short *)((int)hsd + 0x12) >= mpts[0].vy || *(short *)((int)hsd + 0x12) >= mpts[1].vy ||
                  *(short *)((int)hsd + 0x12) >= mpts[2].vy || *(short *)((int)hsd + 0x12) >= mpts[3].vy)) {

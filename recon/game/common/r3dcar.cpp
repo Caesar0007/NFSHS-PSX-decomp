@@ -1973,7 +1973,26 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   /* NEAR-MISS (W56-A14): subOtRow[iVar9]+iVar11 -- oracle sums both scaled indices
      (gFlip*8 + iVar9*4) THEN adds the R3DCar_subOtStart base LAST (%lo addend materialized
      late); ours adds base into subOtRow first. FALSIFIED: inlining subOtStart[gFlip][iVar9]
-     -> 14 (worse). Address-materialization-order residual, permuter-class. */
+     -> 14 (worse). Address-materialization-order residual, permuter-class.
+     w63-a14: THE INDEX-TERM-FIRST LEVER (12D-A6) WAS RUN HERE AND IS A NET LOSS -- it
+     FIXES this cluster's addu grouping but PAYS MORE elsewhere.  From the 12 basin,
+     `*(u_long **)(iVar9 * 4 + gFlip * 8 + (int)R3DCar_subOtStart)` gives EXACTLY retail's
+     `(iVar9<<2 + gFlip<<3) + base` sum -- but deleting the `subOtRow = subOtStart[gFlip]`
+     statement moves the gFlip GLOBAL LOAD after `lw a0,0(s1)` (retail batches it before)
+     and flips the two `sll`s' emission order, for a net 12 -> 20.  Every spelling of the
+     sum measured the same or worse: gFlip-term first 22, parenthesised index sum 20,
+     `<<` instead of `*` 22, via the `subOtStart` local 20/22, the natural 2-D subscript
+     `R3DCar_subOtStart[gFlip][iVar9]` 22 (re-confirming W56's 14-was-worse reading from
+     this basin), and all five again with a `flipIdx`/`flipOff` preheader temp added to
+     hold the load position (20/22/22/22, and the local-2-D form 14).  ⇒ the two halves
+     (sum grouping and load batching) are ANTI-CORRELATED through the statement split;
+     the named angle is now "keep the gFlip read as its own earlier statement WITHOUT
+     letting it absorb the base", which no C spelling of a pointer expression reaches.
+     Same wave, sibling cluster: the LoadedScenePointer slot address (`ppTVar21`) has the
+     identical retail shape (`(carType*4 + countryFlag*200) + base`, index terms first)
+     and the identical verdict -- `&R3DCar_LoadedScenePointer[countryFlag][carType]` 24,
+     the byte-math index-first cast 22, both worse than the split-statement 12.  Do not
+     re-sweep either spelling axis; it is exhausted. */
   u_long **subOtRow = subOtStart[gFlip];
   iVar11 = ((carObj->N).objID & 0xfU) * 0x200;
   (carObj->render).sub_ot =

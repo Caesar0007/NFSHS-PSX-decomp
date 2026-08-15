@@ -779,7 +779,24 @@ int InGame_GetDevice(int control)
  *     arithmetically-live source angle left, and it is expensive (each inflator w46
  *     measured survives to the output, +7 gate per 2 insns), so it is recorded as a
  *     PRICED angle, not a recommendation.  The cheap read: this residual is 3 insns
- *     and the whole remaining search space is a 19-insn RTL inflation. */
+ *     and the whole remaining search space is a 19-insn RTL inflation.
+ * ---- w63-a14 (13 STAYS, re-gated 99/98).  A NEW, ARITHMETICALLY-LIVE ANGLE that the
+ * w61-a15 write-up derived but did not name, because it attacks the OTHER side of the
+ * same inequality.  `threshold -= 3` after EVERY accepted move (loop.c:1728/1913), so
+ * the decision for the &hoff pair is `4 * (T0 - 3*k) >= insn_count`, where k is the
+ * number of movables ACCEPTED BEFORE it.  w45/w46 pushed insn_count (reached 67, never
+ * enough); w60 pushed the ORDER alone (k unchanged, inert).  Nobody has pushed k.  With
+ * T0 ~= 28 and insn_count 58, declining the pair needs `4*(28-3k) < 58`, i.e. k >= 5 --
+ * two MORE accepted savings-2 movables than the three retail keeps, both ordered before
+ * &hoff.  That is a bounded, priced search and it is the only free variable left that
+ * is not already falsified: candidate inflators are extra loop-invariant ADDRESS pairs
+ * (each is savings 2 / life 2 by force_movables, so each is accepted and each decays T
+ * by 3) whose hoisted result later dies -- e.g. a second global read whose value combine
+ * folds into an existing compare.  COST WARNING: an accepted movable that SURVIVES costs
+ * 2 preheader insns + a callee-saved register (the w46 inflators measured +7 gate per 2
+ * insns), so the angle only pays if the added movables are dead after combine/cse2.
+ * NOT ATTEMPTED here (out of budget); recorded so the next belt does not re-run the
+ * insn_count or ordering halves in isolation again. */
 void InGame_SetRamp(void)
 
 {

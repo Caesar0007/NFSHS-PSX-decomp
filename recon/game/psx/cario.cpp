@@ -869,7 +869,51 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    * (`""`, `"i"(0)`, volatile, or a "memory" clobber) in the same slot is exactly
    * 184.  COST: +1 insn (492 vs retail's 491 -- the fence's operand is a `lw` of the
    * spilled slot), the only known price for -149 diffs; a second operand costs +2
-   * more insns and undoes the flip (187 @494). */
+   * more insns and undoes the flip (187 @494).
+   * w63-a14 (still 19 @492 vs 491): THE 4th-DIAL r/m/g CONSTRAINT SWEEP, DONE.
+   * 14C names the spill-pool ref dial's constraint letter as a 4th axis, so all three
+   * were priced here from the 19 basin (the whole residual is now this fence's own
+   * `lw t1,68(sp)` plus the register picks in the `reload & 0x10` head block):
+   *     "r"(carPixMapCount)   19 @492   (kept)
+   *     "g"(carPixMapCount)  186 @491   = EXACTLY the no-fence baseline -> "g" let gcc
+   *                                       satisfy the operand from the register the
+   *                                       value already sits in, so no memory ref, no
+   *                                       hard_reg_n_uses bump, dial INERT
+   *     "m"(carPixMapCount)  622 @499   (a real MEM operand reshapes the frame)
+   *     "g"/"m" on carType   186 / 233
+   *     "m" x2 / "m"+"m"     622 / 633
+   * LAW CANDIDATE (catalog): on the spill-pool ref dial the constraint letter is NOT a
+   * free choice -- only "r" buys the dial, because the dial IS the forced reload; "g"
+   * is inert by construction and "m" changes the frame instead.  The +1 insn is
+   * therefore STRUCTURAL to this instrument, not an artifact to be tuned away.
+   * ALSO FALSIFIED (same basin): the fence moved INSIDE the two arms of the
+   * `reload & 0x10` if/else (then-arm, else-arm, or both) is exactly 186 = inert,
+   * because inside an arm the value is already live in a register -- only the JOIN
+   * position forces the reload.  Both arms PLUS the join = 20 @493.  Position sweep
+   * re-run from this basin (04Z): join 19, at the `textureOffsetV` block end 41, at
+   * `i = 0` 41.  The join stays the unique optimum.
+   * NEXT ANGLE (untried, named): make the fence's reload COINCIDE with a reload retail
+   * already has -- retail's first real 0x44(sp) load is at .L800BC974
+   * (`lw t1,0x44(sp)` feeding `sll s1,t1,4` in the Texture_ResetPaletteSharing jal
+   * delay slot).  A fence placed so its `lw` merges with that one would buy the dial
+   * at zero net insns; the position probe could not reach it because the anchor text
+   * around Texture_ResetPaletteSharing is shared with the sibling functions.
+   * w63-a14 / W63-A2 DEVICE CROSS-CHECK -- THE SPILL-POOL DIAL IS A **REF** DIAL, NOT A
+   * **LIVE** DIAL (a boundary result for the new FOREIGN-OPERAND FENCE).  A2's device
+   * `__asm__("" : : "r"(OTHER_LIVE_VALUE))` buys +1 REG_LIVE_LENGTH for every pseudo
+   * live across it at ZERO emitted bytes.  Both halves reproduce exactly here:
+   *   - ZERO-INSN CONFIRMED: adding 1 or 3 such fences beside the existing
+   *     carPixMapCount fence keeps the count at 492 (operands vx / vy / player, all
+   *     register-resident).  A non-register-resident operand does cost one
+   *     (`shpfile` 493 @188) -- the receipt's "operand must be register-resident" gate.
+   *   - AND DIFF-NEUTRAL: every zero-insn configuration measures EXACTLY 19, and
+   *     REPLACING the memory-operand fence with a foreign-operand one measures 186 =
+   *     the no-fence baseline.  So the live-length axis does not touch this residual
+   *     at all; what flips order_regs_for_reload is the forced MEMORY REFERENCE
+   *     (hard_reg_n_uses), which only the "r"-on-a-memory-homed-local form emits.
+   * ⇒ report to the lab: the 14C spill-pool ref dial and the A2 live extender are
+   * ORTHOGONAL instruments; do not substitute one for the other, and this fn is a
+   * clean negative witness for the live axis. */
   __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {

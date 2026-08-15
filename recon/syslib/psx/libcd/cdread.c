@@ -161,6 +161,14 @@ extern void _read_sync(void)
  * Remaining named clusters are unchanged: the two split-address `lui/addiu` pairs (head +
  * tail anchor), a `j` slot retail fills with `sw $v0,32($a0)` (the 3.25-3c non-volatile
  * cast is FALSIFIED at this site, see the in-body note), and the `beqz $v1` slot where
+ * W64-A6: re-gated 15 @158/157 and the FENCE-REMOVAL axis is now closed too (the
+ * w64 CdRead lesson -- an inherited fence can itself be the blocker -- does NOT apply
+ * here): dropping the `exp` fence 24 @157, the DMA-arm `cur` fence 17, the PIO-arm
+ * `cur` fence 37 @160, ALL FOUR 48 @159.  Only the trailing `g` fence in the PIO arm
+ * is INERT (15) -- kept as documentation of the derived-view shape.
+ * Per-fn `-mno-split-addresses` (the mechanism that seals CdRead) is decisively WRONG
+ * here: 47 @162 (and _read_issue 32 @126, _read_data_int PASS -> 3, CdReadSync
+ * PASS -> 2), so the two split `lui/addiu` pairs are not reachable that way.
  * retail carries `li $v0,1`. */
 extern void _read_int(int intr, int code)
 {
@@ -320,6 +328,17 @@ extern void _read_data_int(void)
  * RESIDUAL 23 = delay-slot fills where retail has `nop`, one `addu $a2,$a1,zero` copy where
  * retail rematerializes zero (the old-gcc no-copy-prop class), and the tail anchor being
  * materialized ~9 insns earlier than retail's. */
+/* W64-A6: re-gated 8 @122/122 (count-EXACT).  The FENCE-REMOVAL axis is closed: every
+ * one of w63's landed devices is load-bearing -- dropping the pre-anchor void barrier 9
+ * @121, the post-CdFlush barrier 9 @121, the `mp` identity fence 15 @121, the in-arm
+ * barrier 11 @121, the error-label barrier 11 @121, the tail `g` identity fence 14 @122.
+ * Residual 8 = (a) `CdControl(9,0,0)`'s 3rd arg, the same 11B cse-shared-live-zero class
+ * as CdRead's (2 diffs), and (b) the CdControlF(6,0) region where retail DUPLICATES its
+ * `li $a0,6` into the preceding `beqz` delay slot (a reorg eager-steal duplicate) and
+ * carries `lw $v0,4($s0)` in the call's own slot, where ours fills the beqz slot by the
+ * simple backward scan and nops the call slot (6 diffs).  Per 13B a fence can only BLOCK
+ * a steal, never supply one, so this half needs a filler hoisted into reorg's scan range
+ * or a TEXT_MOVES row, not another barrier. */
 extern int _read_issue(int retry)
 {
     /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law
@@ -543,6 +562,31 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      * cast is priced 25 above); (d) `CdControlB(9,0,0)`'s 3rd arg (cse-substituted live
      * zero -- `(u_char *)0` casts on both args INERT at 16) and the `slt` scheduled
      * before vs after the frame restores (`0 < _read_issue(0)` Yoda INERT at 16).
+     *
+     * W64-A6: 14 -> 5 (three levers, see the three in-body receipts).
+     * RESIDUAL 5, named + priced in THIS basin:
+     *  (c) the `jal CdSyncCallback` delay slot: retail carries the `sw $s4,0($s0)`
+     *      (w00 = sectors) store there; gcc's reorg REFUSES a volatile MEM (3.25-3c) so
+     *      the slot stays a nop, and every non-volatile-cast spelling that unblocks
+     *      reorg ALSO lets gcc re-order the w04/w00 store pair, which flips the s3/s4
+     *      parm homes and costs more than it saves.  MEASURED (all gated, all reverted):
+     *      w00 nonvol 16 @103 - w04 nonvol 10 @103 - both 10 @103 - w0c nonvol 10 @103 -
+     *      w00+w0c 10 @103 - source order swapped, both nonvol 14 @103 - w00 vol first,
+     *      w04 nonvol 8 @103 - `e` declared NON-volatile throughout 15 @102 - w00 via a
+     *      `(char *)e + 0` cast 16 @103.  A void barrier BETWEEN the two stores preserves
+     *      the order but IS the reorg barrier (stop_search_p), so the slot stays empty
+     *      (7 = inert) -- the two requirements are mutually exclusive with any asm.
+     *      ORCHESTRATOR CANDIDATE (15D TEXT_MOVES, one row): take the `sw $19,0($16)`
+     *      line into the following `jal`'s slot, drop_nop.  Semantically identical (the
+     *      slot executes before the call, exactly where the store already stands) --
+     *      objdump-verify per the _padInitDirSeq rule before wiring.
+     *  (d) `CdControlB(9,0,0)`'s 3rd argument: ours `addu $a2,$a1,$zero` (cse shares the
+     *      live zero), retail `addu $a2,$zero,$zero` -- the 11B cse-constant-sharing-
+     *      across-two-identical-literal-args class (identity fence is NOT the cure).
+     *      Re-measured INERT at 5 in this basin: `(u_char *)0` on both args, on the 3rd
+     *      only, two named null locals, and naming CdStatus's result; a void barrier
+     *      before the call costs an instruction (6 @105).
+     * The fence-POSITION axis stays closed (w63 sweep) and no rung beats the wired lane.
      *
      * MATCH (w59-a7): PER-REGION FIELD ANCHORS, the same Rage-Racer idiom that already seals
      * CdReadSync's block below.  Retail does NOT hold one `&_cdr` across this function: it

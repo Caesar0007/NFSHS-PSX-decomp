@@ -688,7 +688,26 @@ void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)
  * through it is INERT (3 -- the FE folds it back exactly as the cast-ptr note
  * says), and the same local laundered with an identity fence
  * `__asm__("" : "=r"(viewpos) : "0"(viewpos))` REGRESSES to 29 (the opaque base
- * un-CSEs the y/z pair and rotates the whole abs region).  Route unchanged. */
+ * un-CSEs the y/z pair and rotates the whole abs region).  Route unchanged.
+ * W63-A10 SEALED (DUAL-LANE: gate PASS 267/267 + psyqproof REAL=0; TU 18/18).
+ * The W59-A4 falsification was right about the SPELLING and wrong about the
+ * PLACEMENT -- the base pointer has to be declared OUTSIDE THE LOOP.  Inside the
+ * body the front end folds it straight back (measured again this wave: an
+ * in-body `const int *vp` 3, inert; `(&...translation.y)[-1]` for x 3; x spelled
+ * through a byte offset off &y or &z 3; all inert because a NON-LAST `.x` access
+ * always wins its own lo_sum fold).  Declared BEFORE the `while (i <
+ * Cars_gNumCars)` loop it is exactly ONE (high sym) pseudo -- the one loop.c
+ * hoists (REG_EQUIV) and reload rematerialises as retail's `la t1` -- so all
+ * three components load off it and the second `lui` disappears.
+ * MEASURED THIS WAVE (all real gate runs): pre-loop plain `const int *viewpos`
+ * used for x,y,z PASS 267/267 <= KEPT; the same pre-loop pointer with a 13B
+ * identity launder 31@270 (the opacity blocks loop.c's hoist -- the launder is
+ * the WRONG device here, exactly inverse to Lose's receiver carrier); pre-loop
+ * pointer used for y,z only (x left as `.x`) 3@268 plain / 32@271 laundered --
+ * so the x access MUST go through the same base;  and the position law behind
+ * the old order falsifications: base-reuse appears iff the `.x` access is the
+ * LAST of the three (x-last 118@267 COUNT-EXACT, x-middle 102@269, x-first
+ * 3@268) -- the FIRST-expanded component owns the lo_sum fold. */
 void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
 {
   int i;
@@ -707,6 +726,14 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
     cl[i].ptr = 0;
     cl[i].dst = 0x12c0000;
   }
+
+  /* MATCH: the listener position must be taken as a LOOP-INVARIANT base
+     BEFORE the loop -- see the header block.  Declared here (not inside the
+     body) it is the single (high sym) pseudo loop.c hoists and reload
+     rematerialises as retail's `la t1`, so all THREE components load off it
+     (`lw v0,0(t1) / lw v1,4(t1) / lw v0,8(t1)`).  The same pointer declared
+     inside the loop body is folded straight back by the front end. */
+  const int *viewpos = (const int *)&AudioClc_gRenderView.translation;
 
   i = 0;
   car = Cars_gList;
@@ -728,9 +755,9 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
           searchdist = 0x320000;
         }
 
-        x = (*car)->N.position.x - AudioClc_gRenderView.translation.x;
-        y = (*car)->N.position.y - AudioClc_gRenderView.translation.y;
-        z = (*car)->N.position.z - AudioClc_gRenderView.translation.z;
+        x = (*car)->N.position.x - viewpos[0];
+        y = (*car)->N.position.y - viewpos[1];
+        z = (*car)->N.position.z - viewpos[2];
         x = __builtin_abs(x);
         y = __builtin_abs(y);
         z = __builtin_abs(z);

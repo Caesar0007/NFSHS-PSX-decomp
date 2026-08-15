@@ -660,56 +660,62 @@ SECTIONS
         build/recon/game/common/aicop.cpp.o(.sdata);   /* 0x8013c570..0x8013c57c  was sdata_8013C54C_o03.sdata.s */
         build/recon/game/common/aiinit.cpp.o(.sdata);   /* 0x8013c57c..0x8013c588  was sdata_8013C54C_o04.sdata.s */
         build/asm/data/sdata_8013C54C_r02.sdata.s.o(.sdata);
-        build/recon/game/common/aidatarecord.cpp.o(.sdata);   /* 0x8013c5a0..0x8013c5b0  was sdata_8013C54C_o05.sdata.s */
+        build/recon/game/common/aiphysic.cpp.o(.sdata);   /* 0x8013c594..0x8013c5a0  was sdata_8013C54C_o05.sdata.s */
+        build/recon/game/common/aidatarecord.cpp.o(.sdata);   /* 0x8013c5a0..0x8013c5b0  was sdata_8013C54C_o06.sdata.s */
         build/asm/data/sdata_8013C54C_r03.sdata.s.o(.sdata);
-        build/recon/game/common/aitriger.cpp.o(.sdata);   /* 0x8013c5e8..0x8013c5f0  was sdata_8013C54C_o06.sdata.s */
-        build/recon/game/common/aitune.cpp.o(.sdata);   /* 0x8013c5f0..0x8013c5fc  was sdata_8013C54C_o07.sdata.s */
+        build/recon/game/common/aitriger.cpp.o(.sdata);   /* 0x8013c5e8..0x8013c5f0  was sdata_8013C54C_o07.sdata.s */
+        build/recon/game/common/aitune.cpp.o(.sdata);   /* 0x8013c5f0..0x8013c5fc  was sdata_8013C54C_o08.sdata.s */
         build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
-        build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o08.sdata.s */
+        build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o09.sdata.s */
         build/asm/data/sdata_8013C54C_r05.sdata.s.o(.sdata);
-        build/recon/game/common/audiomus.cpp.o(.sdata);   /* 0x8013c720..0x8013c724  was sdata_8013C54C_o09.sdata.s */
+        build/recon/game/common/audiomus.cpp.o(.sdata);   /* 0x8013c720..0x8013c724  was sdata_8013C54C_o10.sdata.s */
         build/asm/data/sdata_8013C54C_r06.sdata.s.o(.sdata);
-        build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o10.sdata.s */
+        build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o11.sdata.s */
         build/asm/data/sdata_8013C54C_r07.sdata.s.o(.sdata);
-        build/recon/game/common/audiotrk.cpp.o(.sdata);   /* 0x8013c754..0x8013c758  was sdata_8013C54C_o11.sdata.s */
+        build/recon/game/common/audiotrk.cpp.o(.sdata);   /* 0x8013c754..0x8013c758  was sdata_8013C54C_o12.sdata.s */
         build/asm/data/sdata_8013C54C_r08.sdata.s.o(.sdata);
-        build/recon/game/common/bworldSm.cpp.o(.sdata);   /* 0x8013c7bc..0x8013c7dc  was sdata_8013C54C_o12.sdata.s */
-        build/recon/game/common/camera.cpp.o(.sdata);   /* 0x8013c7dc..0x8013c7e0  was sdata_8013C54C_o13.sdata.s */
-        build/recon/game/common/cars.cpp.o(.sdata);   /* 0x8013c7e0..0x8013c818  was sdata_8013C54C_o14.sdata.s */
-        build/recon/game/common/chunk.cpp.o(.sdata);   /* 0x8013c818..0x8013c820  was sdata_8013C54C_o15.sdata.s */
-        build/recon/game/common/clock.cpp.o(.sdata);   /* 0x8013c820..0x8013c82c  was sdata_8013C54C_o16.sdata.s */
+        build/recon/game/common/bworldSm.cpp.o(.sdata);   /* 0x8013c7bc..0x8013c7dc  was sdata_8013C54C_o13.sdata.s */
+        build/recon/game/common/camera.cpp.o(.sdata);   /* 0x8013c7dc..0x8013c7e0  was sdata_8013C54C_o14.sdata.s */
+        build/recon/game/common/cars.cpp.o(.sdata);   /* 0x8013c7e0..0x8013c818  was sdata_8013C54C_o15.sdata.s */
+        build/recon/game/common/chunk.cpp.o(.sdata);   /* 0x8013c818..0x8013c820  was sdata_8013C54C_o16.sdata.s */
+        build/recon/game/common/clock.cpp.o(.sdata);   /* 0x8013c820..0x8013c82c  was sdata_8013C54C_o17.sdata.s */
         build/asm/data/sdata_8013C54C_r09.sdata.s.o(.sdata);
-        build/recon/game/common/fastrand.cpp.o(.sdata);   /* 0x8013d0fc..0x8013d10c  was sdata_8013C54C_o17.sdata.s */
-        build/recon/game/common/genericpmx.cpp.o(.sdata);   /* 0x8013d10c..0x8013d220  was sdata_8013C54C_o18.sdata.s */
-        build/recon/game/common/input.cpp.o(.sdata);   /* 0x8013d220..0x8013d240  was sdata_8013C54C_o19.sdata.s */
+        build/recon/game/common/fastrand.cpp.o(.sdata);   /* 0x8013d0fc..0x8013d10c  was sdata_8013C54C_o18.sdata.s */
+        build/recon/game/common/genericpmx.cpp.o(.sdata);   /* 0x8013d10c..0x8013d220  was sdata_8013C54C_o19.sdata.s */
+        build/recon/game/common/input.cpp.o(.sdata);   /* 0x8013d220..0x8013d240  was sdata_8013C54C_o20.sdata.s */
         build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata);
-        build/recon/game/common/paths.cpp.o(.sdata);   /* 0x8013d2e8..0x8013d2ec  was sdata_8013C54C_o20.sdata.s */
+        build/recon/game/common/object.cpp.o(.sdata);   /* 0x8013d2c8..0x8013d2e0  was sdata_8013C54C_o21.sdata.s */
         build/asm/data/sdata_8013C54C_r11.sdata.s.o(.sdata);
-        build/recon/game/common/physics.cpp.o(.sdata);   /* 0x8013d2f0..0x8013d324  was sdata_8013C54C_o21.sdata.s */
+        build/recon/game/common/paths.cpp.o(.sdata);   /* 0x8013d2e8..0x8013d2ec  was sdata_8013C54C_o22.sdata.s */
         build/asm/data/sdata_8013C54C_r12.sdata.s.o(.sdata);
-        build/recon/game/common/scene.cpp.o(.sdata);   /* 0x8013d408..0x8013d40c  was sdata_8013C54C_o22.sdata.s */
+        build/recon/game/common/physics.cpp.o(.sdata);   /* 0x8013d2f0..0x8013d324  was sdata_8013C54C_o23.sdata.s */
         build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
-        build/recon/game/common/souffle.cpp.o(.sdata);   /* 0x8013d448..0x8013d458  was sdata_8013C54C_o23.sdata.s */
+        build/recon/game/common/replay.cpp.o(.sdata);   /* 0x8013d3ec..0x8013d400  was sdata_8013C54C_o24.sdata.s */
         build/asm/data/sdata_8013C54C_r14.sdata.s.o(.sdata);
-        build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o24.sdata.s */
-        build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o25.sdata.s */
-        build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o26.sdata.s */
+        build/recon/game/common/scene.cpp.o(.sdata);   /* 0x8013d408..0x8013d40c  was sdata_8013C54C_o25.sdata.s */
         build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata);
-        build/recon/game/psx/drawdbg.cpp.o(.sdata);   /* 0x8013d818..0x8013d81c  was sdata_8013C54C_o27.sdata.s */
+        build/recon/game/common/souffle.cpp.o(.sdata);   /* 0x8013d448..0x8013d458  was sdata_8013C54C_o26.sdata.s */
         build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
-        build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o28.sdata.s */
+        build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
+        build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o28.sdata.s */
+        build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
         build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
-        build/recon/game/psx/flare.cpp.o(.sdata);   /* 0x8013d86c..0x8013d878  was sdata_8013C54C_o29.sdata.s */
+        build/recon/game/psx/drawdbg.cpp.o(.sdata);   /* 0x8013d818..0x8013d81c  was sdata_8013C54C_o30.sdata.s */
         build/asm/data/sdata_8013C54C_r18.sdata.s.o(.sdata);
-        build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o30.sdata.s */
+        build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o31.sdata.s */
         build/asm/data/sdata_8013C54C_r19.sdata.s.o(.sdata);
-        build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o31.sdata.s */
-        build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o32.sdata.s */
+        build/recon/game/psx/flare.cpp.o(.sdata);   /* 0x8013d86c..0x8013d878  was sdata_8013C54C_o32.sdata.s */
         build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
-        build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o33.sdata.s */
+        build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
         build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
-        build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o34.sdata.s */
+        build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db74..0x8013db90  was sdata_8013C54C_o34.sdata.s */
+        build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
+        build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
+        build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o37.sdata.s */
+        build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
+        build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */
+        build/asm/data/sdata_8013C54C_r24.sdata.s.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata);
@@ -724,7 +730,6 @@ SECTIONS
         build/recon/game/common/collide.cpp.o(.sdata);
         build/recon/game/common/mpause.cpp.o(.sdata);
         build/recon/game/common/render.cpp.o(.sdata);
-        build/recon/game/common/replay.cpp.o(.sdata);
         build/recon/game/common/sim.cpp.o(.sdata);
         build/recon/game/common/simqueue.cpp.o(.sdata);
         build/recon/game/common/speech.cpp.o(.sdata);
@@ -743,7 +748,6 @@ SECTIONS
         build/recon/game/psx/overlays.cpp.o(.sdata);
         build/recon/game/psx/platform.cpp.o(.sdata);
         build/recon/game/psx/skidmark.cpp.o(.sdata);
-        build/recon/game/psx/textureprocess.cpp.o(.sdata);
         build/recon/game/psx/weather.cpp.o(.sdata);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);
         build/recon/syslib/psx/libcd/cddebug.c.o(.sdata);
